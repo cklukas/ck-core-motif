@@ -1,3 +1,10 @@
+Guard drag-location completion cleanup (2026-10-26)
+====================================================
+
+- Validate completion callback and destination state before releasing
+  temporary drag-location data in Container, Text, and TextField paths.
+- Make repeated cleanup harmless and add focused coverage and documentation.
+
 Serialize transfer-id list reclamation (2026-10-26)
 ====================================================
 

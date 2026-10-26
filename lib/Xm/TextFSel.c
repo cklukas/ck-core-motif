@@ -1625,11 +1625,16 @@ FreeLocationData(Widget w,     /* unused */
 {
   XmDestinationCallbackStruct *ds;
 
+  if (ts == NULL)
+	return;
   ds = _XmTransferGetDestinationCBStruct(ts->transfer_id);
+  if (ds == NULL)
+	return;
 
-  XtFree((char*) ds->location_data);
-
-  ds->location_data = NULL;
+  if (ds->location_data != NULL) {
+	XtFree((char*) ds->location_data);
+	ds->location_data = NULL;
+  }
 }
 
 /*ARGSUSED*/
