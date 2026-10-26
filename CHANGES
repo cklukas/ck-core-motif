@@ -191,6 +191,14 @@ Bound Xmos file-name construction (2026-10-26)
 - Add `tests/automated/check-xmos-build-filename-bounds.py` and document the
   contract in `docs/xmos-build-filename-bounds.md`.
 
+Widen Xmos mask-name prefix lengths (2026-10-26)
+=================================================
+
+- Keep `_XmOSGenerateMaskName` prefix lengths in `size_t` and reject null
+  input/output buffers before path parsing.
+- Add `tests/automated/check-xmos-mask-name-length.py` and document the guard
+  in `docs/xmos-mask-name-length.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 

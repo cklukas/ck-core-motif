@@ -1595,19 +1595,22 @@ _XmOSGenerateMaskName(
     String	maskNameBuf)
 {
     String 	file, suffix;
-    int		len;
+    size_t	len;
+
+    if (imageName == NULL || maskNameBuf == NULL)
+	return;
 
     _XmOSFindPathParts(imageName, &file, &suffix);
 
     if (suffix) {
-	len = (int)(suffix - imageName) - 1;
+	len = (size_t)(suffix - imageName - 1);
 	/* point before the '.' */
 	suffix--;
     }
     else
       len = strlen(imageName);
 
-    memcpy(maskNameBuf, imageName, (size_t)len);
+    memcpy(maskNameBuf, imageName, len);
     maskNameBuf += len;
     strcpy(maskNameBuf, "_m");
     if (suffix) 
