@@ -148,6 +148,15 @@ Guard XmTextSetStringWcs storage (2026-10-27)
   calling `wcstombs`.
 - Add a focused source regression and documentation.
 
+Guard text initialization wide-string conversion (2026-10-27)
+==============================================================
+
+- Bound and check the existing-source `XmNwcValue` conversion buffer before
+  using it.
+- Leave the existing source value unchanged on conversion or allocation
+  failure.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

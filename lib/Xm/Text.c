@@ -2300,18 +2300,27 @@ InitializeHook(Widget wid,
     if (tw->text.wc_value != NULL) {
       char * tmp_value;
       int num_chars, n_bytes;
+      size_t allocation_bytes;
       
       for (num_chars=0; tw->text.wc_value[num_chars]!=0L; num_chars++)
 	/*EMPTY*/;
-      
-      tmp_value = XtMalloc((unsigned) 
-			   (num_chars + 1) * (int)tw->text.char_size);
-      n_bytes = wcstombs(tmp_value, tw->text.wc_value,
-			 (num_chars + 1) * (int)tw->text.char_size);
-      if (n_bytes == -1) n_bytes = 0;
-      tmp_value[n_bytes] = 0;  /* NULL terminate the string */
-      _XmStringSourceSetValue(tw, tmp_value);
-      XtFree(tmp_value);
+
+      if (num_chars != INT_MAX && tw->text.char_size > 0 &&
+	  (size_t)(num_chars + 1) <=
+	    (size_t)UINT_MAX / (size_t)tw->text.char_size) {
+	allocation_bytes = (size_t)(num_chars + 1) *
+	  (size_t)tw->text.char_size;
+	tmp_value = XtMalloc((Cardinal)allocation_bytes);
+	if (tmp_value != NULL) {
+	  n_bytes = wcstombs(tmp_value, tw->text.wc_value,
+			     allocation_bytes);
+	  if (n_bytes >= 0) {
+	    tmp_value[n_bytes] = 0;  /* NULL terminate the string */
+	    _XmStringSourceSetValue(tw, tmp_value);
+	  }
+	  XtFree(tmp_value);
+      }
+      }
       tw->text.wc_value = NULL;
     } else if (tw->text.value != NULL) {
       /* Default value or argument ? */
