@@ -173,7 +173,18 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmColorPickerWidget old = (XmColorPickerWidget)old_widget;
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
+    Boolean redraw = False;
+    Boolean colors_changed =
+        old->primitive.foreground != picker->primitive.foreground ||
+        old->core.background_pixel != picker->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed && picker->color_picker.gc) {
+        XSetForeground(XtDisplay(widget), picker->color_picker.gc,
+                       picker->primitive.foreground);
+        XSetBackground(XtDisplay(widget), picker->color_picker.gc,
+                       picker->core.background_pixel);
+        redraw = True;
+    }
     if (old->color_picker.render_table != picker->color_picker.render_table) {
         XmRenderTable new_table = picker->color_picker.render_table ?
             XmFontListCopy(picker->color_picker.render_table) :
@@ -181,13 +192,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         if (old->color_picker.render_table)
             XmRenderTableFree(old->color_picker.render_table);
         picker->color_picker.render_table = new_table;
-        return True;
+        redraw = True;
     }
     if (old->color_picker.value != picker->color_picker.value) {
         picker->color_picker.preview = picker->color_picker.value;
-        return True;
+        redraw = True;
     }
-    return False;
+    return redraw;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {

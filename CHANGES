@@ -16859,4 +16859,11 @@ Refresh DataGrid text-metrics regression (2026-10-27)
 - Align the automated check and documentation with the active XmFontList and
   XmStringExtent rendering path instead of the retired XQueryFont implementation.
 
+Apply ColorPicker SetValues changes transactionally (2026-10-27)
+=================================================================
+
+- Refresh picker colors and apply render-table/value changes without early
+  returns that can drop a simultaneous update.
+- Add a focused source regression and documentation.
+
 ====================================================
