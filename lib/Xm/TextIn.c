@@ -4873,11 +4873,23 @@ ClearSelection(Widget w,
       (tw->text.source, &left, &right)) {
     XBell(XtDisplay(tw), 0);
   } else if (left != right) {
-    char *select_string = _XmStringSourceGetString(tw, left, right, 
-						   False);
+    XmTextPosition span;
+    char *select_string;
     XmTextBlockRec block, newblock;
-    int num_spaces = right - left;
+    int num_spaces;
     int i;
+
+    if (left < 0 || right < left || right - left > INT_MAX) {
+      RingBell(w, event, params, num_params);
+      return;
+    }
+    span = right - left;
+    select_string = _XmStringSourceGetString(tw, left, right, False);
+    if (select_string == NULL) {
+      RingBell(w, event, params, num_params);
+      return;
+    }
+    num_spaces = (int)span;
     
     for(i = 0; i < num_spaces; i++) {
       if (select_string[i] != '\012') select_string[i] = ' ';

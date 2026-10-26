@@ -19782,3 +19782,9 @@ Guard absent secondary-selection extension (2026-10-26)
 - Stop secondary extension when no selection exists, avoiding use of
   uninitialized range positions and preserving redisplay state.
 - Add focused regression coverage and documentation.
+Bound Text clear-selection ranges (2026-10-26)
+===============================================
+
+- Reject invalid or too-wide selection ranges before narrowing them to an
+  `XmTextBlock` length, and handle temporary-string allocation failure.
+- Add focused regression coverage and documentation.
