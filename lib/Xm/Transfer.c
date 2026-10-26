@@ -1132,7 +1132,8 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
 
   if (in_arg_count > (Cardinal)(INT_MAX - 10) ||
       (in_arg_count != 0 && in_args == NULL) ||
-      (size_t)(in_arg_count + 10) > (size_t)-1 / sizeof(*args)) {
+      (size_t)(in_arg_count + 10) > (size_t)-1 / sizeof(*args) ||
+      (size_t)(in_arg_count + 10) > (size_t)UINT_MAX / sizeof(*args)) {
     _XmAppUnlock(app);
     return(NULL);
   }
@@ -1543,7 +1544,8 @@ XmeDropSink(Widget w, ArgList in_args, Cardinal in_arg_count)
   _XmAppLock(app);
   if (in_arg_count > (Cardinal)(INT_MAX - 2) ||
       (in_arg_count != 0 && in_args == NULL) ||
-      (size_t)(in_arg_count + 2) > (size_t)-1 / sizeof(*args)) {
+      (size_t)(in_arg_count + 2) > (size_t)-1 / sizeof(*args) ||
+      (size_t)(in_arg_count + 2) > (size_t)UINT_MAX / sizeof(*args)) {
     _XmAppUnlock(app);
     return;
   }

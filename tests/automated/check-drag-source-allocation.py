@@ -10,6 +10,7 @@ region = source[start:end]
 assert "targets = NULL;" in region
 assert "in_arg_count > (Cardinal)(INT_MAX - 10)" in region
 assert "(in_arg_count != 0 && in_args == NULL)" in region
+assert "(size_t)(in_arg_count + 10) > (size_t)UINT_MAX / sizeof(*args)" in region
 assert "args = (Arg *)XtMalloc(sizeof(*args) * (size_t)arg_count);" in region
 assert "if (args == NULL)" in region
 assert "XtFree((char*) targets);" in region

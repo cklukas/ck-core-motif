@@ -18663,3 +18663,13 @@ Bound UTF-8 UCS-2 allocation width (2026-10-27)
 ============================================================
 
 Bound Xmos directory-entry path lengths (2026-10-27)
+Bound drag/drop argument-array allocations (2026-10-27)
+========================================================
+
+- Reject merged `Arg` arrays whose byte size exceeds Xt's `Cardinal` width
+  in `XmeDragSource` or `XmeDropSink`.
+- Extend the focused transfer allocation checks and documentation.
+
+============================================================
+
+Bound UTF-8 UCS-2 allocation width (2026-10-27)
