@@ -1,3 +1,12 @@
+Guard cascade-gadget highlight input (2026-10-27)
+=================================================
+
+- Return before context lookup when `XmCascadeButtonGadgetHighlight` receives
+  a null widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard SimpleSpinBox list API widget inputs (2026-10-27)
 ========================================================
 

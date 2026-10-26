@@ -3098,6 +3098,9 @@ XmCascadeButtonGadgetHighlight(
         Boolean highlight )
 #endif /* NeedWidePrototypes */
 {
+   if (wid == (Widget) NULL)
+      return;
+
    XmCascadeButtonGadget cb  = (XmCascadeButtonGadget) wid;
    _XmWidgetToAppContext(wid);
 
