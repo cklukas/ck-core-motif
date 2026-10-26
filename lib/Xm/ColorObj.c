@@ -736,7 +736,7 @@ ColorCachePropertyExists(
 		    False, (Atom)AnyPropertyType, &target, &format, 
 		    &length, &bytesafter, (unsigned char **) &value);
 
-   if ((result != Success) || (format == 0) || (target == None))
+   if ((result != Success) || (format != 8) || (target == None))
    {
 	if (value != NULL)
 	    XFree(value);

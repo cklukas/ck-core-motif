@@ -21628,3 +21628,10 @@ Make MWM XSMP client ordering overflow-safe (2026-10-26)
   them into a signed comparator result.
 - Add focused regression coverage and documentation.
 
+Require byte-format ColorObj properties (2026-10-26)
+=====================================================
+
+- Reject pixel-set properties whose X11 format is not 8 bits per item before
+  treating the returned length as a byte count.
+- Add focused regression coverage and documentation.
+
