@@ -474,6 +474,7 @@ getNewRestartCmd(void)
     int nargs;
     char **restartCmd;
     char **newRestartCmd;
+    size_t restart_count;
 
     nargs = 0;
     XtSetArg(args[nargs], XtNrestartCommand, &restartCmd); nargs++;
@@ -499,10 +500,15 @@ getNewRestartCmd(void)
 	argc += 2;
     }
 
-    if (argc < 0 || (size_t)argc > (SIZE_MAX / sizeof(char *)) - 1)
+    if (argc < 0 || argc == INT_MAX)
 	return (char **)NULL;
-    if ((newRestartCmd = (char **)XtCalloc((size_t)argc + 1,
-					   sizeof(char *)))
+    restart_count = (size_t)argc + 1U;
+    if (restart_count > SIZE_MAX / sizeof(char *) ||
+	restart_count > (size_t)UINT_MAX / sizeof(char *))
+	return (char **)NULL;
+
+    if ((newRestartCmd = (char **)XtCalloc((Cardinal)restart_count,
+					   (Cardinal)sizeof(char *)))
 	== (char **)NULL)
 	return (char **)NULL;
 

@@ -135,6 +135,13 @@ Validate MWM system-modal screen dimensions (2026-10-26)
   to unsigned X window sizes for the system-modal input window.
 - Add a focused geometry regression and document the conversion boundary.
 
+Bound MWM XSMP restart-command allocation counts (2026-10-26)
+===============================================================
+
+- Check the restart-command element count against both `size_t` and Xt's
+  `Cardinal` width before allocating the pointer array.
+- Extend the existing restart-command regression and document the bound.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

@@ -7,7 +7,9 @@ start = source.rindex("getNewRestartCmd(void)")
 end = source.index("\n}\n", start) + 2
 region = source[start:end]
 assert "SIZE_MAX / sizeof(char *)" in region
-assert "XtCalloc((size_t)argc + 1" in region
+assert "size_t restart_count;" in region
+assert "restart_count > (size_t)UINT_MAX / sizeof(char *)" in region
+assert "XtCalloc((Cardinal)restart_count" in region
 assert region.count("if (newRestartCmd[i] == (char *)NULL)") >= 2
 assert "goto failure;" in region
 assert "freeNewRestartCmd(newRestartCmd);" in region
