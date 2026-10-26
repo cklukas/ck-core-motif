@@ -21256,3 +21256,9 @@ DrawIconTitle and RedisplayIconTitle now validate client, screen, active-screen,
 and frame state before calculating text geometry or issuing repaint requests.
 Late exposure events after icon destruction are ignored safely.
 
+Guard MWM icon-title geometry helper inputs (2026-10-26)
+----------------------------------------------------------
+GetIconTitleBox now validates its client, screen, and output rectangle before
+reading icon state. Late title callbacks cannot dereference a torn-down client
+or write through a missing rectangle.
+

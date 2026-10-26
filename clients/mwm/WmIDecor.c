@@ -743,6 +743,9 @@ void GetIconTitleBox (ClientData *pcd, XRectangle *pBox)
     int xOffset;
     int yOffset;
 
+    if (pcd == NULL || pBox == NULL || pcd->pSD == NULL)
+	return;
+
 
     /*
      * Adjust for icons in the iconBox
