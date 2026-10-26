@@ -14,6 +14,7 @@ for needle in (
     "max_size = (size_t)wcharentry->wchar_item.count",
     "max_size == SIZE_MAX",
     "SIZE_MAX / sizeof(wchar_t)",
+    "UINT_MAX / sizeof(wchar_t)",
 ):
     if needle not in region:
         raise SystemExit(f"Mrm wide-character count guard missing: {needle}")

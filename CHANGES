@@ -1,3 +1,12 @@
+Bound Mrm wide-character fixup allocation width (2026-10-27)
+==============================================================
+
+- Reject serialized wide-character buffers that fit `size_t` but exceed Xt's
+  `Cardinal` allocation width before the allocation-size cast.
+- Extend the focused regression and documentation for both size limits.
+
+============================================================
+
 Refresh XmString rendition resize check (2026-10-27)
 ===================================================
 

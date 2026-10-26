@@ -2072,7 +2072,8 @@ Urm__CW_FixupValue (long			val,
       /* Allocate memory */
       max_size = (size_t)wcharentry->wchar_item.count;
       if (max_size == SIZE_MAX ||
-          max_size > (SIZE_MAX / sizeof(wchar_t)) - 1)
+          max_size > (SIZE_MAX / sizeof(wchar_t)) - 1 ||
+          max_size > ((size_t)UINT_MAX / sizeof(wchar_t)) - 1)
 	return Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
 			     NULL, NULL, MrmFAILURE);
       wcstr_r = (wchar_t *)XtMalloc(sizeof(wchar_t) * (max_size + 1));
