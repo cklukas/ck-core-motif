@@ -3330,6 +3330,9 @@ void
 XmDragCancel(
         Widget dragContext )
 {
+	if (dragContext == NULL)
+	    return;
+
     _XmWidgetToAppContext(dragContext);
     _XmAppLock(app);
     DragCancel((XmDragContext)dragContext);
