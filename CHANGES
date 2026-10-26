@@ -1,3 +1,10 @@
+Bound Paned margin geometry (2026-10-27)
+=========================================
+
+- Compute horizontal margin deltas in signed wide arithmetic and clamp the
+  resulting container width to the X11 `Dimension` range.
+- Add focused regression coverage and documentation.
+
 Bound ArrowButton default geometry (2026-10-27)
 ================================================
 

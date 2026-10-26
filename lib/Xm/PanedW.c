@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: PanedW.c /main/24 1999/07/13 07:46:01 mgreess $"
 
 
 #include <ctype.h>
+#include <limits.h>
 #include <stdint.h>
 #include <X11/cursorfont.h>
 #include "XmI.h"
@@ -219,6 +220,7 @@ static void AdjustGC(
                         XmPanedWindowWidget pw) ;
 static void GetFlipGC( 
                         XmPanedWindowWidget pw) ;
+static Dimension AdjustDimensionDelta(Dimension value, int64_t delta);
 
 /********    End Static Function Declarations    ********/
 
@@ -2399,9 +2401,11 @@ SetValues(
 	CommitNewLocations(newpw,NULL);
    }
    if (oldpw->paned_window.margin_width != newpw->paned_window.margin_width) {
-      newpw->core.width = newpw->core.width + 
-                          ((2 * newpw->paned_window.margin_width) -
-                           (2 * oldpw->paned_window.margin_width));
+      int64_t margin_delta =
+          2 * (int64_t)newpw->paned_window.margin_width -
+          2 * (int64_t)oldpw->paned_window.margin_width;
+      newpw->core.width = AdjustDimensionDelta(newpw->core.width,
+                                                margin_delta);
       returnFlag = True;
    }
 
@@ -2420,6 +2424,18 @@ SetValues(
 
    return(returnFlag);
 } /* SetValues */
+
+static Dimension
+AdjustDimensionDelta(Dimension value, int64_t delta)
+{
+   int64_t adjusted = (int64_t)value + delta;
+
+   if (adjusted <= 0)
+      return 0;
+   if (adjusted >= USHRT_MAX)
+      return (Dimension)USHRT_MAX;
+   return (Dimension)adjusted;
+}
 
 
 
