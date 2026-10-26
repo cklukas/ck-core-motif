@@ -841,6 +841,10 @@ UnicodeParagraph(XmTextWidget tw, XmTextPosition start)
     }
   }
   entry = (struct _XmTextParagraphCache *)XtCalloc(1, sizeof(*entry));
+  if (!entry) {
+    XmTextParagraphFree(paragraph);
+    return NULL;
+  }
   entry->start = start; entry->end = end; entry->paragraph_start = paragraph_start;
   entry->paragraph_end = end; entry->paragraph = paragraph; entry->wrap_width = wrap_width;
   if (paragraph) {
@@ -5996,8 +6000,19 @@ _XmTextOutputCreate(Widget wid,
   
   tw->text.output = output = (Output)
     XtMalloc((unsigned) sizeof(OutputRec));
+  if (output == NULL) {
+    tw->text.output = NULL;
+    XtError("Unable to allocate Text output state");
+    return;
+  }
   output->data = data = (OutputData)
     XtMalloc((unsigned) sizeof(OutputDataRec));
+  if (data == NULL) {
+    XtFree((char *)output);
+    tw->text.output = NULL;
+    XtError("Unable to allocate Text output data");
+    return;
+  }
   data->unicode_font_context = NULL;
   data->unicode_cache = NULL;
   data->unicode_cache_count = 0;
@@ -6314,8 +6329,20 @@ _XmTextGetBaselines(Widget w,
   int i;
   
   *line_count = data->number_lines;
-  
-  base_array = (Dimension *)XtMalloc((sizeof(Dimension) * (*line_count)));
+  if (*line_count <= 0) {
+    *baselines = NULL;
+    return True;
+  }
+  if ((size_t)*line_count > SIZE_MAX / sizeof(Dimension) ||
+      (size_t)*line_count > UINT_MAX / sizeof(Dimension))
+    return False;
+
+  base_array = (Dimension *)XtMalloc(
+    (Cardinal)((size_t)sizeof(Dimension) * (size_t)*line_count));
+  if (base_array == NULL) {
+    *baselines = NULL;
+    return False;
+  }
   
   for (i = 0; i < *line_count; i++) {
     base_array[i] = data->topmargin + i * data->lineheight +

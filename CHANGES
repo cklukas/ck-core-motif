@@ -23014,3 +23014,10 @@ Terminate XmTextFindStringWcs conversions (2026-10-26)
   search text to the narrow search implementation.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfind-wcs-termination.py
+
+Guard TextOut allocations (2026-10-26)
+=======================================
+- Handle output-state, Unicode paragraph-cache, and baseline-array allocation
+  failures without null dereferences.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textout-allocation-guards.py
