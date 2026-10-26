@@ -2918,7 +2918,10 @@ ModifyVerify(XmTextFieldWidget tf,
       if (tf->text.max_char_size == 1) { /* caller expects char */
 	wcs_vcb.text->wcsptr[wcs_vcb.text->length] = 0L;
 	if (*insert_length > 0) {
-	  *insert = XtMalloc((unsigned) *insert_length + 1);
+	  char *allocated_insert = XtMalloc((unsigned) *insert_length + 1);
+	  if (allocated_insert == NULL)
+	    goto modify_verify_allocation_failed;
+	  *insert = allocated_insert;
 	  *free_insert = (int)True;
 	  count = wcstombs(*insert, wcs_vcb.text->wcsptr,
 			   *insert_length + 1);
@@ -2929,8 +2932,11 @@ ModifyVerify(XmTextFieldWidget tf,
 	}        
       } else {  /* callback struct has wchar*; caller expects wchar* */
 	if (*insert_length > 0) {
-	  *insert = 
-	    XtMalloc((unsigned)(*insert_length + 1) * sizeof(wchar_t));
+	  wchar_t *allocated_insert = (wchar_t *)XtMalloc(
+    (unsigned)(*insert_length + 1) * sizeof(wchar_t));
+	  if (allocated_insert == NULL)
+	    goto modify_verify_allocation_failed;
+	  *insert = (char *)allocated_insert;
 	  *free_insert = (int)True;
 	  (void)memcpy((void*)*insert, (void*)wcs_vcb.text->wcsptr,
 		       *insert_length * sizeof(wchar_t));
@@ -2947,7 +2953,10 @@ ModifyVerify(XmTextFieldWidget tf,
       if (tf->text.max_char_size == 1) {  /* caller expects char* */
 	*insert_length =  vcb.text->length;
 	if (*insert_length > 0) {
-	  *insert = XtMalloc((unsigned) *insert_length + 1);
+	  char *allocated_insert = XtMalloc((unsigned) *insert_length + 1);
+	  if (allocated_insert == NULL)
+	    goto modify_verify_allocation_failed;
+	  *insert = allocated_insert;
 	  *free_insert = (int)True;
 	  (void)memcpy((void*)*insert, (void*)vcb.text->ptr,
 		       *insert_length);
@@ -2957,8 +2966,11 @@ ModifyVerify(XmTextFieldWidget tf,
 	*insert_length =  _XmTextFieldCountCharacters(tf, vcb.text->ptr,
 						      vcb.text->length);
 	if (*insert_length > 0) {
-	  *insert = 
-	    XtMalloc((unsigned)(*insert_length + 1) * sizeof(wchar_t));
+	  wchar_t *allocated_insert = (wchar_t *)XtMalloc(
+    (unsigned)(*insert_length + 1) * sizeof(wchar_t));
+	  if (allocated_insert == NULL)
+	    goto modify_verify_allocation_failed;
+	  *insert = (char *)allocated_insert;
 	  *free_insert = (int)True;
 	  count = mbstowcs((wchar_t*)*insert, vcb.text->ptr,
 			   *insert_length);
@@ -2983,6 +2995,13 @@ ModifyVerify(XmTextFieldWidget tf,
     return wcs_vcb.doit;
   else
     return vcb.doit;
+
+modify_verify_allocation_failed:
+  *insert_length = 0;
+  *free_insert = (int)False;
+  if (do_free) XtFree(newblock.ptr);
+  if (wcs_do_free) XtFree((char*)wcs_newblock.wcsptr);
+  return False;
 }
 
 static void 
