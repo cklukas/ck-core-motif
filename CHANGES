@@ -16819,4 +16819,11 @@ Guard ToggleSwitch GC setup (2026-10-27)
   ToggleSwitch cannot create its complete drawing set.
 - Add a focused source regression and documentation.
 
+Use symmetric ToggleSwitch rounded primitives (2026-10-27)
+===========================================================
+
+- Draw tracks and knobs with filled X11 arcs and a center span instead of a
+  hand-rasterized edge loop.
+- Add a focused source regression and documentation.
+
 ====================================================

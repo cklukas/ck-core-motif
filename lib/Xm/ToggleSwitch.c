@@ -11,7 +11,6 @@
 
 #include <X11/IntrinsicP.h>
 #include <X11/StringDefs.h>
-#include <stdlib.h>
 #include <Xm/ToggleSwitchP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
@@ -102,26 +101,16 @@ static void update_gcs(XmToggleSwitchWidget sw) {
 static void fill_round_rect(Display *display, Window window, GC gc,
                             int x, int y, unsigned int width,
                             unsigned int height) {
-    int radius = (int)height / 2;
-    int radius2 = (int)height - 1;
-    unsigned int row;
+    unsigned int diameter;
+    unsigned int body_width;
     if (!gc || width == 0 || height == 0) return;
-    for (row = 0; row < height; ++row) {
-        int doubled_y = abs(2 * (int)row - (int)height + 1);
-        int dx2 = 0;
-        int span;
-        int left;
-        int right;
-        while ((dx2 + 1) * (dx2 + 1) + doubled_y * doubled_y <=
-               radius2 * radius2)
-            ++dx2;
-        span = (dx2 + 1) / 2;
-        left = x + radius - span;
-        right = x + (int)width - radius + span;
-        if (right <= left) right = left + 1;
-        XFillRectangle(display, window, gc, left, y + (int)row,
-                       (unsigned int)(right - left), 1);
-    }
+    diameter = width < height ? width : height;
+    body_width = width - diameter;
+    XFillRectangle(display, window, gc, x + (int)(diameter / 2), y,
+                   body_width, height);
+    XFillArc(display, window, gc, x, y, diameter, diameter, 0, 360 * 64);
+    XFillArc(display, window, gc, x + (int)body_width, y,
+             diameter, diameter, 0, 360 * 64);
 }
 
 static void Initialize(Widget request, Widget new_widget, ArgList args,
