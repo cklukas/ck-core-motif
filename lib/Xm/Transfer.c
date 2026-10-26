@@ -1246,7 +1246,9 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
   if (_XmConvertHandler(w, &atoms[XmA_MOTIF_DROP],
 			&atoms[XmA_MOTIF_EXPORT_TARGETS],
 			&type, &targets, &size, &format) == True) {
-	    if (size > (unsigned long)UINT_MAX) {
+	    if (type != XA_ATOM || format != 32 ||
+		(size != 0 && targets == NULL) ||
+		size > (unsigned long)UINT_MAX) {
 		XtFree((char *) args);
 		XtFree((char *) targets);
 		_XmAppUnlock(app);

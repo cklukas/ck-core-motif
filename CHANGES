@@ -22232,3 +22232,12 @@ Clear drag conversion context after start failure (2026-10-26)
   regression coverage and documentation.
 
 Validate clipboard-manager callback inputs (2026-10-26)
+Validate drag export-target conversion results (2026-10-26)
+============================================================
+
+- Require `XA_ATOM`/32-bit target-list results and a non-null payload for
+  non-empty lists before configuring `XmDragStart`.
+- Reject and release malformed conversion results; add focused regression
+  coverage and documentation.
+
+Clear drag conversion context after start failure (2026-10-26)
