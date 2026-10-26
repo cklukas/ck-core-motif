@@ -1088,6 +1088,12 @@ SlideWindowOut (ClientData *pCD)
 			    pSOR->currWidth, pSOR->currHeight, 0,
 			    CopyFromParent,InputOnly,CopyFromParent,
 			    mask, &window_attribs);
+	if (pSOR->coverWin == None)
+	{
+	    pCD->pSOR = NULL;
+	    XtFree ((char *)pSOR);
+	    return;
+	}
 
 	/* 
 	 * Put screen window above the slide-up client

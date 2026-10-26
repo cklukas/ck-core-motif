@@ -21391,3 +21391,9 @@ Handle MWM workspace helper-window creation failure (2026-10-26)
 SetupWmWorkspaceWindows now checks each hidden helper window before mapping or
 publishing it, avoiding invalid requests when XCreateWindow fails.
 
+Handle MWM slide cover-window creation failure (2026-10-26)
+-------------------------------------------------------------
+Slide-up setup now clears its pending slide record and returns when the
+temporary cover window cannot be created, avoiding invalid X requests while
+leaving the client mapped.
+
