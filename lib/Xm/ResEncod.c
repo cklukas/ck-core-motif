@@ -474,6 +474,15 @@ static Boolean ctextConcat(
       return False; \
   } while (0)
 
+#define CTEXT_APPEND_OR_FAIL_TOP(str, len, data, data_len) \
+  do { \
+    if (!ctextConcat(&(str), &(len), (data), (data_len))) { \
+      if (ct_encoding) XtFree((char *)ct_encoding); \
+      _XmStringContextFree(&stack_context); \
+      return False; \
+    } \
+  } while (0)
+
 #ifdef UTF8_SUPPORTED
 static Boolean  cvtXmStringToUTF8String(
         XrmValue *from,
@@ -2346,14 +2355,14 @@ cvtXmStringToUTF8String(
 	  /* Output the direction, if changed */
 	  if (*(XmStringDirection *)val == XmSTRING_DIRECTION_L_TO_R) {
 	    if (prev_direction != ct_Dir_LeftToRight) {
-	      CTEXT_APPEND_OR_RETURN(outc, outlen,
+	      CTEXT_APPEND_OR_FAIL_TOP(outc, outlen,
 				     (unsigned char *) UTF8_L_TO_R,
 				     (unsigned int)UTF8_L_TO_R_LEN);
 	      prev_direction = ct_Dir_LeftToRight;
 	    }
 	  } else {
 	    if (prev_direction != ct_Dir_RightToLeft) {
-	      CTEXT_APPEND_OR_RETURN(outc, outlen,
+	      CTEXT_APPEND_OR_FAIL_TOP(outc, outlen,
 				     (unsigned char *) UTF8_R_TO_L,
 				     (unsigned int)UTF8_R_TO_L_LEN);
 	      prev_direction = ct_Dir_RightToLeft;
@@ -2381,7 +2390,7 @@ cvtXmStringToUTF8String(
 	  break;
 	
 	case XmSTRING_COMPONENT_TAB:
-	  CTEXT_APPEND_OR_RETURN(outc, outlen,
+	  CTEXT_APPEND_OR_FAIL_TOP(outc, outlen,
 				 (unsigned char *)UTF8_TABSTRING,
 				 (unsigned int)UTF8_TABSTRING_LEN);
 	  break;
@@ -2507,14 +2516,14 @@ cvtXmStringToText(
 	  /* Output the direction, if changed */
 	  if (*(XmStringDirection *)val == XmSTRING_DIRECTION_L_TO_R) {
 	    if (prev_direction != ct_Dir_LeftToRight) {
-	      CTEXT_APPEND_OR_RETURN(outc, outlen,
+	      CTEXT_APPEND_OR_FAIL_TOP(outc, outlen,
 				     (unsigned char *) CTEXT_L_TO_R,
 				     (unsigned int)CTEXT_L_TO_R_LEN);
 	      prev_direction = ct_Dir_LeftToRight;
 	    }
 	  } else {
 	    if (prev_direction != ct_Dir_RightToLeft) {
-	      CTEXT_APPEND_OR_RETURN(outc, outlen,
+	      CTEXT_APPEND_OR_FAIL_TOP(outc, outlen,
 				     (unsigned char *) CTEXT_R_TO_L,
 				     (unsigned int)CTEXT_R_TO_L_LEN);
 	      prev_direction = ct_Dir_RightToLeft;
@@ -2542,7 +2551,7 @@ cvtXmStringToText(
 	  break;
 	
 	case XmSTRING_COMPONENT_TAB:
-	  CTEXT_APPEND_OR_RETURN(outc, outlen,
+	  CTEXT_APPEND_OR_FAIL_TOP(outc, outlen,
 				 (unsigned char *)TABSTRING,
 				 (unsigned int)TABSTRING_LEN);
 	  break;
