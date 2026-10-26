@@ -486,6 +486,8 @@ _XmOSQualifyFileSpec(String  dirSpec,
 {
   int filterLen;
   int dirLen;
+  size_t filterLenSize;
+  size_t dirLenSize;
   char *fSpec;
   char *remFSpec;
   char *maskPtr;
@@ -500,10 +502,17 @@ _XmOSQualifyFileSpec(String  dirSpec,
   if (!filterSpec) 
     filterSpec = "";
   
-  filterLen = strlen(filterSpec);
+  filterLenSize = strlen(filterSpec);
+  dirLenSize = strlen(dirSpec);
+  if (filterLenSize > (size_t)INT_MAX - 2 ||
+      dirLenSize > (size_t)INT_MAX ||
+      filterLenSize > SIZE_MAX - dirLenSize - 4 ||
+      filterLenSize + dirLenSize + 4 > (size_t)UINT_MAX)
+    return;
+  filterLen = (int)filterLenSize;
   
   /* Allocate extra for NULL character and for the appended '*' (as needed). */
-  fSpec = XtMalloc(filterLen + 2);
+  fSpec = XtMalloc((Cardinal)(filterLenSize + 2));
   if (fSpec == NULL)
     return;
   strcpy(fSpec, filterSpec);
@@ -520,8 +529,8 @@ _XmOSQualifyFileSpec(String  dirSpec,
   /* Some parts of fSpec may be copied to dSpec, so allocate "filterLen" 
    *   extra, plus some for added literals.
    */
-  dirLen = strlen(dirSpec);
-  dSpec = XtMalloc(filterLen + dirLen + 4);
+  dirLen = (int)dirLenSize;
+  dSpec = XtMalloc((Cardinal)(filterLenSize + dirLenSize + 4));
   if (dSpec == NULL) {
     XtFree(fSpec);
     return;
