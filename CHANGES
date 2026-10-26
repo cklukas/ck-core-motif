@@ -19911,6 +19911,13 @@ Bound Text autoscroll bottom metrics (2026-10-26)
   below-edge comparisons, preventing line-height/count wraparound.
 - Add focused regression coverage and documentation.
 
+Bound Text RTL autoscroll edge metrics (2026-10-26)
+====================================================
+
+- Compute the RTL left-edge line-width extent in `int64_t` before comparison
+  and Position conversion, preventing large-layout wraparound.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 

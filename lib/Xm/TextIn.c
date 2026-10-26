@@ -105,7 +105,7 @@ typedef struct {
 
 static TextDestData GetTextDestData(Widget tw);
 
-static Position ClampTextPointCoordinate(int coordinate);
+static Position ClampTextPointCoordinate(int64_t coordinate);
 
 
 /* static void CheckSync(Widget, XtPointer, XEvent *, Boolean *); */
@@ -879,7 +879,7 @@ static XmTextPosition YtoPosInLine(XmTextWidget tw,
 /********    End Static Function Declarations    ********/
 
 static Position
-ClampTextPointCoordinate(int coordinate)
+ClampTextPointCoordinate(int64_t coordinate)
 {
   if (coordinate < SHRT_MIN)
     return (Position)SHRT_MIN;
@@ -4291,6 +4291,7 @@ CheckTimerScrolling(Widget w,
   OutputData o_data = tw->text.output->data;
   int interval = 200;
   int64_t text_bottom;
+  int64_t rtl_left_edge;
 
   if (!event)
     return False;
@@ -4299,6 +4300,8 @@ CheckTimerScrolling(Widget w,
   data->select_pos_y = ClampTextPointCoordinate(event->xmotion.y);
   text_bottom = (int64_t)o_data->topmargin +
 	(int64_t)o_data->lineheight * (int64_t)o_data->number_lines;
+  rtl_left_edge = (int64_t)tw->core.width - (int64_t)o_data->rightmargin -
+	(int64_t)o_data->linewidth * ((int64_t)o_data->number_lines + 1);
   
   if ((event->xmotion.x > (int)o_data->leftmargin) &&
       (event->xmotion.x < (int)(tw->core.width - o_data->rightmargin))  &&
@@ -4333,11 +4336,8 @@ CheckTimerScrolling(Widget w,
 	
       /* left the text */
       } else if (event->xmotion.x <= 
-		 (int) ((tw->core.width - o_data->rightmargin) - 
-			(o_data->linewidth * (o_data->number_lines + 1))))
-	data->select_pos_x = ClampTextPointCoordinate((int)
-		((tw->core.width - o_data->rightmargin) -
-			      (o_data->linewidth * (o_data->number_lines + 1))));
+			 (int64_t)rtl_left_edge)
+	data->select_pos_x = ClampTextPointCoordinate(rtl_left_edge);
       
       /* ask the vertical scroller its delay */
       if (o_data->hbar)
