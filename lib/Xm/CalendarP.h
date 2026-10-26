@@ -22,6 +22,8 @@ typedef struct _XmCalendarPart {
     Boolean rtl;
     XtCallbackList date_changed_callback;
     XtCallbackList activate_callback;
+    XmFontList render_table;
+    Boolean check_set_render_table;
     GC gc;
 } XmCalendarPart;
 

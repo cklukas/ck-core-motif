@@ -1,3 +1,10 @@
+Calendar render-table typography (2026-10-27)
+==============================================
+
+- Render the month heading, weekday names, and day numbers through the
+  calendar render table with measured `XmString` geometry. Date selection
+  outlines and navigation behavior are unchanged.
+
 TimePicker render-table typography (2026-10-27)
 ================================================
 

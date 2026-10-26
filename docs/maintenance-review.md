@@ -19,6 +19,14 @@ both 24-hour and 12-hour formatted values with `XmStringExtent` and
 preserving the public value and format resources. The regression check is
 `tests/automated/check-timepicker-render-table.py`.
 
+## Calendar typography
+
+`XmCalendar` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws
+the month heading, weekday names, and day numbers with measured `XmString`
+geometry. This removes the fixed-core-font paths while preserving date
+selection and navigation. The regression check is
+`tests/automated/check-calendar-render-table.py`.
+
 The first widget review was a bounded starting point. The age of the inherited
 code is a reason to continue targeted maintenance; neither a short patch list
 nor a large test count establishes that the toolkit is finished.

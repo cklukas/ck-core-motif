@@ -3,7 +3,6 @@
 #endif
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
-#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <Xm/CalendarP.h>
@@ -20,6 +19,17 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 
 #define Offset(field) XtOffsetOf(XmCalendarRec, field)
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmCalendarWidget calendar = (XmCalendarWidget)widget;
+    (void)offset;
+    if (calendar->calendar.check_set_render_table)
+        value->addr = NULL;
+    else {
+        calendar->calendar.check_set_render_table = True;
+        value->addr = (char *)&calendar->calendar.render_table;
+    }
+}
 static XtResource resources[] = {
     {XmNcalendarYear, XmCCalendarYear, XmRInt, sizeof(int),
      Offset(calendar.date.year), XmRImmediate, (XtPointer)1970},
@@ -38,6 +48,10 @@ static XtResource resources[] = {
     {XmNcalendarActivateCallback, XmCCalendarActivateCallback,
      XmRCallback, sizeof(XtCallbackList),
      Offset(calendar.activate_callback), XmRPointer, (XtPointer)NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(calendar.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmFontList),
+     Offset(calendar.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
     {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
@@ -127,24 +141,6 @@ static void normalize_visible(XmCalendarWidget calendar) {
     calendar->calendar.visible_month = calendar->calendar.date.month;
 }
 
-static int text_baseline(XmCalendarWidget calendar, int top, int height) {
-    XGCValues values;
-    XFontStruct *font;
-    long long baseline;
-    if (!calendar->calendar.gc ||
-        !XGetGCValues(XtDisplay((Widget)calendar), calendar->calendar.gc,
-                      GCFont, &values))
-        return top + height / 2;
-    font = XQueryFont(XtDisplay((Widget)calendar), values.font);
-    if (!font)
-        return top + height / 2;
-    baseline = (long long)top +
-        ((long long)height - font->ascent - font->descent) / 2 + font->ascent;
-    XFreeFontInfo(NULL, font, 1);
-    return baseline < INT_MIN ? INT_MIN :
-           baseline > INT_MAX ? INT_MAX : (int)baseline;
-}
-
 static void notify_date(XmCalendarWidget calendar, XEvent *event,
                         String callback_name, int reason) {
     XmCalendarCallbackStruct callback;
@@ -195,6 +191,12 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     }
     calendar->calendar.minimum = (XmCalendarDate){1, 1, 1};
     calendar->calendar.maximum = (XmCalendarDate){9999, 12, 31};
+    if (!calendar->calendar.render_table)
+        calendar->calendar.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        calendar->calendar.render_table = XmFontListCopy(
+            calendar->calendar.render_table);
     normalize_visible(calendar);
     if (calendar->calendar.week_start > 6)
         calendar->calendar.week_start = 0;
@@ -217,6 +219,8 @@ static void Destroy(Widget widget) {
                          Events, NULL);
     if (calendar->calendar.gc)
         XFreeGC(XtDisplay(widget), calendar->calendar.gc);
+    if (calendar->calendar.render_table)
+        XmRenderTableFree(calendar->calendar.render_table);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
@@ -238,6 +242,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
         calendar->calendar.week_start = old_calendar->calendar.week_start;
         redraw = True;
     }
+    if (old_calendar->calendar.render_table != calendar->calendar.render_table) {
+        XmFontList replacement = calendar->calendar.render_table
+            ? XmFontListCopy(calendar->calendar.render_table)
+            : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
+        if (old_calendar->calendar.render_table)
+            XmRenderTableFree(old_calendar->calendar.render_table);
+        calendar->calendar.render_table = replacement;
+        redraw = True;
+    }
     redraw = redraw || calendar->calendar.rtl != old_calendar->calendar.rtl;
     return redraw;
 }
@@ -256,6 +269,26 @@ static const char *month_name(int month) {
     return names[month - 1];
 }
 
+static void draw_text(XmCalendarWidget calendar, const char *text, int x,
+                      int top, int width, int height,
+                      unsigned char alignment) {
+    XmString value;
+    Dimension text_width = 0, text_height = 0;
+    if (!calendar->calendar.render_table || width <= 0 || height <= 0)
+        return;
+    value = XmStringCreateLocalized((char *)text);
+    if (!value)
+        return;
+    XmStringExtent(calendar->calendar.render_table, value,
+                   &text_width, &text_height);
+    XmStringDraw(XtDisplay((Widget)calendar), XtWindow((Widget)calendar),
+                 calendar->calendar.render_table, value, calendar->calendar.gc,
+                 x, top + ((int)height - (int)text_height) / 2,
+                 (Dimension)width, alignment,
+                 XmPrim_layout_direction(calendar), NULL);
+    XmStringFree(value);
+}
+
 static void draw_day(XmCalendarWidget calendar, int col, int row, int day,
                      Boolean enabled, Boolean selected) {
     Display *display = XtDisplay((Widget)calendar);
@@ -271,8 +304,8 @@ static void draw_day(XmCalendarWidget calendar, int col, int row, int day,
         XDrawRectangle(display, window, calendar->calendar.gc, x - 2, top + 1,
                        (unsigned)(cell_width > 5 ? cell_width - 5 : 1), 20);
     if (enabled)
-        XDrawString(display, window, calendar->calendar.gc, x,
-                    text_baseline(calendar, top, 22), text, 2);
+        draw_text(calendar, text, x, top, cell_width - 5, 22,
+                  XmALIGNMENT_BEGINNING);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
@@ -295,15 +328,15 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XClearWindow(display, window);
     snprintf(heading, sizeof(heading), "%s %d", month_name(calendar->calendar.visible_month),
              calendar->calendar.visible_year);
-    XDrawString(display, window, calendar->calendar.gc, 6,
-                text_baseline(calendar, 0, 28), heading,
-                (int)strlen(heading));
+    draw_text(calendar, heading, 6, 0, (int)calendar->core.width - 12, 28,
+              XmALIGNMENT_BEGINNING);
     for (index = 0; index < 7; ++index) {
         int col = calendar->calendar.rtl ? 6 - index : index;
         int weekday = (calendar->calendar.week_start + index) % 7;
-        XDrawString(display, window, calendar->calendar.gc,
-                    col * ((int)calendar->core.width / 7) + 5,
-                    text_baseline(calendar, 28, 14), weekdays[weekday], 2);
+        draw_text(calendar, weekdays[weekday],
+                  col * ((int)calendar->core.width / 7) + 5, 28,
+                  (int)calendar->core.width / 7 - 5, 14,
+                  XmALIGNMENT_BEGINNING);
     }
     for (day = 1; day <= days; ++day) {
         XmCalendarDate candidate = {calendar->calendar.visible_year,
