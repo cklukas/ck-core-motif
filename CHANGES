@@ -15200,6 +15200,7 @@ Handle XPM RGB-name allocation failure (2026-10-27)
 - Return failure when RGB-name normalization cannot duplicate its input,
   avoiding a null-buffer dereference.
 - Reject null input and output pointers before lookup.
+- Use an overflow-safe midpoint when searching large RGB tables.
 - Add a focused source regression and documentation.
 
 Guard Color conversion duplication failure (2026-10-27)

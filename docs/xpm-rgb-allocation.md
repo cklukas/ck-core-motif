@@ -10,5 +10,8 @@ temporary buffer.
 Null input and output pointers are rejected before any string or result
 access.
 
+The RGB table binary search uses an overflow-safe midpoint calculation when
+the table grows large.
+
 The source contract is covered by
 `tests/automated/check-xpm-rgb-allocation.py`.

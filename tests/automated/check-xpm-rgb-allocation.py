@@ -11,4 +11,6 @@ assert "name = xpmstrdup(inname);" in body
 assert "inname == NULL || r == NULL || g == NULL || b == NULL" in body
 assert "if (name == NULL)" in body
 assert "return (0);" in body
+assert "middle = left + (right - left) / 2;" in body
+assert "middle = (left + right) / 2;" not in body
 print("PASS XPM RGB lookup checks duplicated-name allocation")

@@ -250,7 +250,7 @@ xpmGetRGBfromName(
     left = 0;
     right = numTheRGBRecords - 1;
     do {
-	middle = (left + right) / 2;
+	middle = left + (right - left) / 2;
 	cmp = xpmstrcasecmp(name, theRGBRecords[middle].name);
 	if (cmp == 0) {
 	    rgbVal = theRGBRecords[middle].rgb;
