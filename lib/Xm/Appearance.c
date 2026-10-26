@@ -6,6 +6,7 @@
 #endif
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <X11/IntrinsicP.h>
@@ -820,6 +821,13 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
     for (state = appearance_widgets; state != NULL; state = state->next)
         if (!state->retired && state->display == display)
             ++count;
+    if (count != 0 &&
+        ((size_t)count > SIZE_MAX / sizeof(*snapshot) ||
+         (size_t)count > UINT_MAX / sizeof(*snapshot) ||
+         (size_t)count > SIZE_MAX / sizeof(*plans))) {
+        _XmProcessUnlock();
+        return False;
+    }
     if (count != 0)
         snapshot = (XmAppearanceWidgetState **)XtMalloc(count * sizeof(*snapshot));
     if (count != 0 && snapshot == NULL) {

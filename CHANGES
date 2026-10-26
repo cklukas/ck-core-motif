@@ -1,3 +1,12 @@
+Bound Appearance transaction snapshots (2026-10-27)
+====================================================
+
+- Validate widget-state snapshot and change-plan counts before count-based
+  allocations, preventing width overflow in appearance transactions.
+- Add focused regression coverage and documentation.
+
+====================================================
+
 Bound List scrollbar arithmetic (2026-10-27)
 =============================================
 
