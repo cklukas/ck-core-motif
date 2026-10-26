@@ -351,7 +351,8 @@ void ProcessWmProtocols (ClientData *pCD)
     }
     else
     {
-	if (nitems > SIZE_MAX / sizeof(Atom) ||
+	if ((nitems != 0 && property == NULL) ||
+	    nitems > SIZE_MAX / sizeof(Atom) ||
 	    nitems > UINT_MAX / sizeof(Atom) ||
 	    !(pCD->clientProtocols = (Atom *)XtMalloc(
 		(Cardinal)(nitems * sizeof(Atom)))))
@@ -461,7 +462,7 @@ void ProcessMwmMessages (ClientData *pCD)
 
 
     if ((rValue != Success) || (actualType == None) || (actualFormat != 32)
-	|| (nitems == 0))
+	|| (nitems == 0) || (property == NULL))
     {
 	/*
 	 * _MWM_MESSAGES does not exist or it is an invalid type.
@@ -917,7 +918,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 
 
     if ((rValue == Success) && (actualType != None) && (actualFormat == 32) &&
-	(nitems > 0))
+	(nitems > 0) && (property != NULL))
     {
 	/*
 	 * WM_COLORMAP_WINDOWS exists and is a valid type.

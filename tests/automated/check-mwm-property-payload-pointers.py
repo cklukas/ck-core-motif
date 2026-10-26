@@ -13,4 +13,5 @@ property_source = Path("clients/mwm/WmProperty.c").read_text(encoding="utf-8")
 assert "(nitems == PROP_WM_STATE_ELEMENTS) &&" in property_source
 assert "(nitems >= PROP_MWM_HINTS_ELEMENTS) &&" in property_source
 assert "(property != NULL)" in property_source
+assert "(nitems != 0 && property == NULL)" in property_source
 print("PASS MWM X11 property readers validate payload pointers")

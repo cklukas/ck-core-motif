@@ -21649,3 +21649,10 @@ Require MWM hint getter payloads (2026-10-26)
   records to their callers.
 - Extend the property-pointer regression coverage and documentation.
 
+Complete MWM property-array validation (2026-10-26)
+===================================================
+
+- Require non-null arrays before consuming WM_PROTOCOLS, _MWM_MESSAGES, or
+  WM_COLORMAP_WINDOWS property items.
+- Extend the property-pointer regression coverage and documentation.
+
