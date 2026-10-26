@@ -66,7 +66,8 @@ Validate MWM workspace-hints outputs (2026-10-26)
 =================================================
 
 - Reject null workspace-hints output pointers before dereferencing them and
-  fail closed when the provider reports success without a record.
+  fail closed when the provider reports success without a record or atom
+  storage for a nonzero workspace count.
 - Add focused regression coverage and document the API contract.
 
 Validate MWM DT request outputs (2026-10-26)

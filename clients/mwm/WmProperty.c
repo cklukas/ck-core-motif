@@ -1217,6 +1217,11 @@ Status GetWorkspaceHints (Display *display, Window window,
     {
 	if (pWsHints->flags & DT_WORKSPACE_HINTS_WORKSPACES)
 	{
+	    if (pWsHints->numWorkspaces > 0 && pWsHints->pWorkspaces == NULL)
+	    {
+		_DtWsmFreeWorkspaceHints (pWsHints);
+		return (BadValue);
+	    }
 	    if (pWsHints->numWorkspaces > UINT_MAX / sizeof(Atom))
 	    {
 		_DtWsmFreeWorkspaceHints (pWsHints);

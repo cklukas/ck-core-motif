@@ -14,5 +14,7 @@ assert "ppWsAtoms == NULL || pCount == NULL || pbAll == NULL" in region
 assert "return (BadValue);" in region
 assert "rcode == Success && pWsHints == NULL" in region
 assert "return (BadAlloc);" in region
+assert "pWsHints->numWorkspaces > 0 && pWsHints->pWorkspaces == NULL" in region
+assert "return (BadValue);" in region
 assert region.index("ppWsAtoms == NULL") < region.index("*ppWsAtoms = NULL;")
 print("PASS MWM workspace-hints output parameters are validated")
