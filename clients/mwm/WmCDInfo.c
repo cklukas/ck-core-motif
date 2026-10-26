@@ -282,6 +282,9 @@ unsigned int FrameWidth (ClientData *pcd)
 {
     unsigned int frameWidth;
 
+    if (pcd == NULL)
+	return (0);
+
     frameWidth = ((pcd->maxConfig) ? pcd->maxWidth : pcd->clientWidth) +
 		  2*pcd->matteWidth + 2*LowerBorderWidth (pcd);
 
@@ -357,6 +360,9 @@ unsigned int CornerWidth (ClientData *pcd)
 unsigned int FrameHeight (ClientData *pcd)
 {
     unsigned int frameHeight;
+
+    if (pcd == NULL)
+	return (0);
 
     if (pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER))
     {

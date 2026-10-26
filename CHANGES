@@ -20866,3 +20866,8 @@ Bound MWM resize corner spans (2026-10-26)
 ------------------------------------------
 Resize corner widths and heights now cap at the frame dimensions, preventing
 off-frame rectangles when a tiny frame is smaller than its configured corner.
+
+Guard MWM frame metrics (2026-10-26)
+------------------------------------
+FrameWidth and FrameHeight now return zero for a null client record instead of
+dereferencing it.  Valid frame metric calculations are unchanged.
