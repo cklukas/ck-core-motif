@@ -11472,9 +11472,7 @@ XmDataFieldGetSubstring(
 	buffer[n_bytes] = '\0';
     } 
     else
-    {
-	ret_value = XmCOPY_FAILED;
-    }
+	buffer[0] = '\0';
 
     _XmAppUnlock(app);
     return (ret_value);

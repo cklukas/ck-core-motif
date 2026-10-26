@@ -1,3 +1,12 @@
+Return success for empty DataField substrings (2026-10-27)
+============================================================
+
+- Make an in-range zero-length `XmDataFieldGetSubstring` request write an
+  empty string and return success instead of reporting a failure.
+- Add focused regression coverage and documentation.
+
+====================================================
+
 Bound ColorSelector long-name diagnostics (2026-10-27)
 =======================================================
 
