@@ -20269,3 +20269,9 @@ Avoid nested application locking in XmCommandSetValue (2026-10-26)
 
 - Delegate command text updates to `XmTextFieldSetString` without holding an
   outer command application lock.
+
+Avoid nested application locking in XmCommandAppendValue (2026-10-26)
+=====================================================================
+
+- Let command append operations call the public text-field position,
+  replacement, and insertion APIs without a second outer lock.

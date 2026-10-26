@@ -1028,19 +1028,14 @@ XmCommandAppendValue(
     if (widget == NULL || value == NULL)
         return;
     _XmWidgetToAppContext(widget);
-/****************/
-
-    _XmAppLock(app);
     /* return if invalid string from "value" passed in */
     if(    !(strNew = _XmStringGetTextConcat( value))    )
     {   
         XmeWarning( (Widget) w, WARNING3);
-	_XmAppUnlock(app);
         return;
         }
     if(    !strNew  ||  !*strNew    ) {
         XmeWarning( (Widget) w, WARNING4);
-	_XmAppUnlock(app);
         return;
         }
     /* get string length of current command string */
@@ -1052,7 +1047,6 @@ XmCommandAppendValue(
     XmTextFieldSetInsertionPosition( w->selection_box.text,
 			  XmTextFieldGetLastPosition( w->selection_box.text)) ;
     XtFree (strNew);
-    _XmAppUnlock(app);
     return ;
     }
 /****************************************************************

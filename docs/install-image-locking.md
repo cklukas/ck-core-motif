@@ -26,6 +26,7 @@ delegating to the public replacement wrappers, which already own that lock.
 This is covered by `tests/automated/check-textfield-insert-locking.py`.
 
 Command-dialog text convenience wrappers follow the same ownership rule:
-`XmCommandSetValue` delegates to `XmTextFieldSetString` without taking an
-outer application lock. Its focused check is
+`XmCommandSetValue` delegates to `XmTextFieldSetString`, and
+`XmCommandAppendValue` delegates to the text-field getters/replacement APIs,
+without taking an outer application lock. Their focused check is
 `tests/automated/check-command-locking.py`.
