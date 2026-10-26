@@ -1,3 +1,11 @@
+Refresh MWM command-window allocation regression check (2026-10-27)
+====================================================================
+
+- Match the focused check to the current checked size_t multiplication and
+  Cardinal-sized allocation expression used by all command handlers.
+
+===========================================================
+
 Refresh MWM binding-path regression check (2026-10-27)
 ======================================================
 
