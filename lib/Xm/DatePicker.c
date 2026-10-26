@@ -21,25 +21,18 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 static void calendar_changed(Widget, XtPointer, XtPointer);
 
-static int text_baseline(XmDatePickerWidget picker) {
-    XGCValues values;
-    XFontStruct *font;
-    long long baseline;
-    if (!picker->date_picker.gc ||
-        !XGetGCValues(XtDisplay((Widget)picker), picker->date_picker.gc,
-                      GCFont, &values))
-        return (int)picker->core.height / 2;
-    font = XQueryFont(XtDisplay((Widget)picker), values.font);
-    if (!font)
-        return (int)picker->core.height / 2;
-    baseline = ((long long)picker->core.height - font->ascent - font->descent) /
-               2 + font->ascent;
-    XFreeFontInfo(NULL, font, 1);
-    return baseline < INT_MIN ? INT_MIN :
-           baseline > INT_MAX ? INT_MAX : (int)baseline;
-}
-
 #define Offset(field) XtOffsetOf(XmDatePickerRec, field)
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmDatePickerWidget picker = (XmDatePickerWidget)widget;
+    (void)offset;
+    if (picker->date_picker.check_set_render_table)
+        value->addr = NULL;
+    else {
+        picker->date_picker.check_set_render_table = True;
+        value->addr = (char *)&picker->date_picker.render_table;
+    }
+}
 static XtResource resources[] = {
     {XmNdatePickerYear, XmCDatePickerYear, XmRInt, sizeof(int),
      Offset(date_picker.date.year), XmRImmediate, (XtPointer)1970},
@@ -53,6 +46,10 @@ static XtResource resources[] = {
     {XmNdatePickerOpenChangedCallback, XmCDatePickerOpenChangedCallback,
      XmRCallback, sizeof(XtCallbackList),
      Offset(date_picker.open_changed_callback), XmRPointer, (XtPointer)NULL},
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(date_picker.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmFontList),
+     Offset(date_picker.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
      Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
     {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
@@ -189,6 +186,12 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         picker->date_picker.date = (XmDatePickerDate){1970, 1, 1};
     picker->date_picker.minimum = (XmDatePickerDate){1, 1, 1};
     picker->date_picker.maximum = (XmDatePickerDate){9999, 12, 31};
+    if (!picker->date_picker.render_table)
+        picker->date_picker.render_table = XmFontListCopy(
+            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
+    else
+        picker->date_picker.render_table = XmFontListCopy(
+            picker->date_picker.render_table);
     values.foreground = picker->primitive.foreground;
     values.background = picker->core.background_pixel;
     picker->date_picker.gc = XCreateGC(XtDisplay(widget),
@@ -208,6 +211,8 @@ static void Destroy(Widget widget) {
         XtDestroyWidget(picker->date_picker.popup_shell);
     if (picker->date_picker.gc)
         XFreeGC(XtDisplay(widget), picker->date_picker.gc);
+    if (picker->date_picker.render_table)
+        XmRenderTableFree(picker->date_picker.render_table);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
@@ -219,6 +224,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
         compare_dates(&picker->date_picker.date, &old->date_picker.minimum) < 0 ||
         compare_dates(&picker->date_picker.date, &old->date_picker.maximum) > 0)
         picker->date_picker.date = old->date_picker.date;
+    if (old->date_picker.render_table != picker->date_picker.render_table) {
+        XmFontList replacement = picker->date_picker.render_table
+            ? XmFontListCopy(picker->date_picker.render_table)
+            : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
+        if (old->date_picker.render_table)
+            XmRenderTableFree(old->date_picker.render_table);
+        picker->date_picker.render_table = replacement;
+    }
     return old->date_picker.date.year != picker->date_picker.date.year ||
            old->date_picker.date.month != picker->date_picker.date.month ||
            old->date_picker.date.day != picker->date_picker.date.day;
@@ -227,14 +240,25 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmDatePickerWidget picker = (XmDatePickerWidget)widget;
     char text[32];
+    XmString value;
+    Dimension width = 0, height = 0;
     (void)event; (void)region;
     if (!XtIsRealized(widget) || !picker->date_picker.gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     snprintf(text, sizeof(text), "%04d-%02d-%02d",
              picker->date_picker.date.year, picker->date_picker.date.month,
              picker->date_picker.date.day);
-    XDrawString(XtDisplay(widget), XtWindow(widget), picker->date_picker.gc,
-                6, text_baseline(picker), text, (int)strlen(text));
+    value = XmStringCreateLocalized(text);
+    if (value && picker->date_picker.render_table) {
+        XmStringExtent(picker->date_picker.render_table, value, &width, &height);
+        XmStringDraw(XtDisplay(widget), XtWindow(widget),
+                     picker->date_picker.render_table, value,
+                     picker->date_picker.gc, 6,
+                     ((int)picker->core.height - (int)height) / 2, width,
+                     XmALIGNMENT_BEGINNING,
+                     XmPrim_layout_direction(picker), NULL);
+    }
+    XmStringFree(value);
 }
 
 static void Events(Widget widget, XtPointer closure, XEvent *event,

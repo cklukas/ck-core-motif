@@ -17,6 +17,8 @@ typedef struct _XmDatePickerPart {
     Boolean open;
     Widget popup_shell, calendar;
     XtCallbackList date_changed_callback, open_changed_callback;
+    XmFontList render_table;
+    Boolean check_set_render_table;
     GC gc;
 } XmDatePickerPart;
 

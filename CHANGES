@@ -1,3 +1,10 @@
+DatePicker render-table typography (2026-10-27)
+================================================
+
+- Render the formatted date through the widget render table and measured
+  `XmString` geometry, honoring configured fonts and Unicode-capable renderers
+  without changing the public date API.
+
 Breadcrumb selected-label contrast (2026-10-27)
 ===============================================
 
