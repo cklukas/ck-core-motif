@@ -16626,3 +16626,12 @@ Guard DataField wide clear-selection buffer (2026-10-27)
 - Add a focused source regression and documentation.
 
 ====================================================
+
+Guard DataField primary conversion allocation (2026-10-27)
+==========================================================
+
+- Check the narrow primary-selection aggregate buffer before writing it,
+  restoring temporary state and releasing callback data on failure.
+- Add a focused source regression and documentation.
+
+====================================================

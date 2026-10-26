@@ -7378,6 +7378,15 @@ df_DoStuff(
 		   malloc_size += strlen(tmp_value[i]);
 		prim_select->num_chars = malloc_size - 1;
 		total_tmp_value = XtMalloc ((unsigned) malloc_size);
+		if (total_tmp_value == NULL) {
+		   XFreeStringList(tmp_value);
+		   if (XmTextF_selection_move(tf) && local)
+		      XmTextF_max_length(tf) = max_length;
+		   XtFree((char *)value);
+		   if (--prim_select->ref_count == 0)
+		      XtFree((char *)prim_select);
+		   return;
+		}
 		total_tmp_value[0] = '\0';
 		for (i = 0; i < num_vals ; i++)
 		   strcat(total_tmp_value, tmp_value[i]);
