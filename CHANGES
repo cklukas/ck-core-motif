@@ -22448,3 +22448,12 @@ Clean up failed Text DnD drops (2026-10-26)
 - Stop processing after completion and add focused coverage and documentation.
 
 Stop DnD callbacks after failure completion (2026-10-26)
+Report text DnD conversion failures (2026-10-26)
+=================================================
+
+- Complete Text and TextField drops with failure when locale conversion
+  cannot produce a payload, instead of silently returning with an unfinished
+  transfer.
+- Add focused coverage and documentation.
+
+Clean up failed Text DnD drops (2026-10-26)

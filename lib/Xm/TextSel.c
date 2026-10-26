@@ -1359,6 +1359,7 @@ DropTransferProc(Widget w,
 	XtFree((char*) ds->value);
 	ds->value = NULL;
       }
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
       return;
     }
   } else {

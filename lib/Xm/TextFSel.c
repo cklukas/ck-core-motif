@@ -929,17 +929,23 @@ DropTransferProc(Widget w, XtPointer closure,
     if ((total_value = _XmTextToLocaleText(w, ds->value, ds->type, 
 					   8, ds->length, NULL)) != NULL)
       total_length = strlen(total_value);
-    else
+    else {
       if (ds->value) {
 	XtFree((char*) ds->value);
 	ds->value = NULL;
       }
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+      return;
+    }
   } else {
     total_value = (char*) ds->value;
     total_length = ds->length;
   }
   
-  if (total_value == NULL) return;
+  if (total_value == NULL) {
+    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
   
   if (TextF_PendingDelete(tf) && tf->text.has_primary &&
       tf->text.prim_pos_left != tf->text.prim_pos_right) {
