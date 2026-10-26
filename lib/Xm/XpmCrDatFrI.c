@@ -115,6 +115,9 @@ XpmCreateDataFromXpmImage(
     unsigned int extensions = 0, ext_size = 0, ext_nlines = 0;
     unsigned int offset, l, n;
 
+    if (data_return == NULL || image == NULL)
+	return XpmFileInvalid;
+
     *data_return = NULL;
 
     extensions = info && (info->valuemask & XpmExtensions)
@@ -237,9 +240,10 @@ XpmCreateDataFromXpmImage(
 /* exit point, free only locally allocated variables */
 exit:
     if (header) {
-	for (l = 0; l < header_nlines; l++)
+	for (l = 0; l < header_nlines; l++) {
 	    if (header[l])
 		XpmFree(header[l]);
+	}
 		XpmFree(header);
     }
     return(ErrorStatus);
