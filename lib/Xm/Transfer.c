@@ -1097,15 +1097,19 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
   unsigned long size;
   int format;
   Display *display;
-  Atom CLIPBOARD = XInternAtom(XtDisplay(w), XmSCLIPBOARD, False);
+  Atom CLIPBOARD;
   SnapshotRequest req;
   ConvertContext cc;
 
+  if (w == NULL || data_id == NULL || reason == NULL ||
+      (*reason != XmCR_CLIPBOARD_DATA_DELETE && target == NULL))
+    return;
+
+  CLIPBOARD = XInternAtom(XtDisplay(w), XmSCLIPBOARD, False);
   cc = LookupContextBlock(XtDisplay(w), CLIPBOARD);
 
   _XmProcessLock();
-  if (data_id == NULL || reason == NULL || DataIdDictionary == NULL ||
-      (*reason != XmCR_CLIPBOARD_DATA_DELETE && target == NULL)) {
+  if (DataIdDictionary == NULL) {
     _XmProcessUnlock();
     return;
   }

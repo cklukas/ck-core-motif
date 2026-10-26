@@ -22214,3 +22214,12 @@ Release secondary lock when destination transfer is refused (2026-10-26)
   transfers; add focused regression coverage and documentation.
 
 Validate secondary conversion callback inputs (2026-10-26)
+Validate clipboard-manager callback inputs (2026-10-26)
+========================================================
+
+- Validate widget, data ID, reason, and target inputs before display/context
+  access in `ClipboardCallback`.
+- Handle an unavailable data-ID dictionary safely and add focused regression
+  coverage and documentation.
+
+Release secondary lock when destination transfer is refused (2026-10-26)
