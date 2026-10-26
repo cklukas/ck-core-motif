@@ -21924,3 +21924,10 @@ Widen standard target count explicitly (2026-10-26)
   selection callback length.
 - Add focused regression documentation for the conversion boundary.
 
+Widen clipboard Atom private IDs explicitly (2026-10-26)
+==========================================================
+
+- Convert deferred target Atoms explicitly to the CutPaste API's `long`
+  private-ID type.
+- Add focused regression documentation for the identifier boundary.
+

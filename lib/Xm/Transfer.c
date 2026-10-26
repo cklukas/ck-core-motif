@@ -1015,7 +1015,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	_XmProcessLock();
 	_XmClipboardPassType(type2);
 	XmClipboardCopy(display, XtWindow(w), itemid, name,
-			NULL, 0, targets[i], &data_id);
+			NULL, 0, (long)targets[i], &data_id);
 	_XmProcessUnlock();
 	/* End Critical section for MT */
 	/* Associate the data_id with this snapshot and increment
