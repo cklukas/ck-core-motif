@@ -1,3 +1,24 @@
+Gallery layout refresh and embedded SVG dialog artwork (2026-10-26)
+===================================================================
+
+- Embed original retro-styled SVG error, information, question, warning and
+  working symbols. SVG-enabled message boxes select the color artwork while
+  preserving explicit application symbols; non-SVG builds retain bitmap defaults.
+- Refresh the modern-light palette with visible Motif bevels, distinct editing
+  surfaces and nonfocusable ordinary labels. Replace the gallery's notebook
+  framing with searchable navigation and Example/Source tabs, readable native
+  render tables, consistent spacing and purposeful interactive samples.
+- Size preview canvases from actual children and track post-realization size
+  changes, preventing clipped fields, expanded disclosures and layout examples.
+  Populate previously empty controls and distinguish base/optional classes.
+- Refresh all 105 component screenshots and seven welcome/icon/dialog captures
+  from the verified SVG build. Capture readiness verifies the launched process;
+  publication records actual executable/library identities and exact PNG hashes.
+- Acceptance: native gallery interaction/geometry matrix and generated-source
+  provenance pass; SVG and bitmap-default icon fixtures pass; SVG file loading,
+  appearance regressions and gallery source/asset checks pass. See
+  docs/gallery-ui-validation.md and docs/svg-images.md.
+
 IconLabel render-table typography and natural geometry (2026-10-27)
 ====================================================================
 
@@ -6861,6 +6882,12 @@ Compound-string label ownership (2026-10-27)
   instead of flattening them through a locale byte string, preserving charset
   segments and multilingual text. StatusBar progress suffixes and Toolbar
   shortcuts are concatenated as `XmString` segments for the same reason.
+
+Toast SetValues redraw (2026-10-27)
+===================================
+
+- Toast now reports changed message, action, and timeout resources from
+  `SetValues`; action visibility uses `XmStringEmpty` without flattening text.
 	* Validate Mrm pointer-list state before freeing contents.
 
 2026-10-26

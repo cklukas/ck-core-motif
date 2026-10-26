@@ -51,6 +51,13 @@ are concatenated as `XmString` segments. The previous unparse/recreate round
 trip could discard compound-string charset segments before rendering. The
 regression check is `tests/automated/check-compound-label-copy.py`.
 
+## Toast SetValues redraw
+
+`XmToast` now returns its changed state from `SetValues` after updating child
+labels and negotiating geometry. It also uses `XmStringEmpty` to determine
+whether an action label is present, preserving compound-string content. The
+regression check is `tests/automated/check-toast-setvalues-redraw.py`.
+
 ## IconLabel typography and natural geometry
 
 `XmIconLabel` now measures its `XmString` through the render table for both
