@@ -2650,6 +2650,9 @@ _XmTextToLocaleText(Widget w,
   UTF8_STRING = XInternAtom(XtDisplay(w), XmSUTF8_STRING, False);
 #endif
 
+  if (format != 8)
+    return NULL;
+
   if (type == XA_STRING || type == COMPOUND_TEXT
 #ifdef UTF8_SUPPORTED
       || type == UTF8_STRING

@@ -22091,3 +22091,13 @@ Make locale-text conversion failure deterministic (2026-10-26)
 
 Initialize standard-conversion results (2026-10-26)
 ====================================================
+Reject non-byte locale-text properties (2026-10-26)
+====================================================
+
+- Reject 16- and 32-bit formats for STRING, COMPOUND_TEXT, and UTF8_STRING
+  conversion before invoking the Xlib text-property decoder.
+- Add focused regression coverage and documentation for malformed selection
+  formats.
+
+Make locale-text conversion failure deterministic (2026-10-26)
+===============================================================
