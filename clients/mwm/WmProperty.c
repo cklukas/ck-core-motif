@@ -110,6 +110,12 @@ GetNormalHints(
     unsigned long leftover;
     unsigned long nitems;
 
+    if (pCD == NULL)
+	{
+	sizeHints.icccVersion = ICCC_UNKNOWN;
+	sizeHints.flags = 0;
+	return (&sizeHints);
+	}
 
     /*
      * Retrieve the property data.
@@ -676,6 +682,9 @@ GetMwmHints(
     int actual_format;
     unsigned long nitems;
     unsigned long leftover;
+
+    if (pCD == NULL)
+	return (NULL);
 
 
 #ifdef WSM

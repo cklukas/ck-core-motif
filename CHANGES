@@ -76,6 +76,13 @@ Validate MWM DT request outputs (2026-10-26)
   property, and initialize valid-call outputs to an empty result.
 - Add focused regression coverage and document the contract.
 
+Guard MWM property-reader inputs (2026-10-26)
+==============================================
+
+- Make `GetNormalHints` and `GetMwmHints` fail safely when no client record is
+  supplied, without changing valid property parsing.
+- Add focused regression coverage and document the behavior.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
