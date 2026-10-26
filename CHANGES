@@ -22846,3 +22846,10 @@ Check TextField destination-context allocations (2026-10-26)
   TextField destination callback registration or X context storage.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-destination-context.py
+
+Preserve TextField highlights on realloc failure (2026-10-26)
+===============================================================
+- Bound highlight-list growth and roll back the count/capacity when the
+  replacement allocation fails.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-highlight-growth.py

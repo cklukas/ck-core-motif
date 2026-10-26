@@ -1594,6 +1594,9 @@ InsertHighlight(XmTextFieldWidget w,
 {
   _XmHighlightRec *l1;
   _XmHighlightRec *l = w->text.highlight.list;
+  _XmHighlightRec *new_list;
+  Cardinal old_maximum;
+  size_t allocation_size;
   int i, j;
   
   l1 = FindHighlight(w, position);
@@ -1603,10 +1606,22 @@ InsertHighlight(XmTextFieldWidget w,
     i = (l1 - l) + 1;
     w->text.highlight.number++;
     if (w->text.highlight.number > w->text.highlight.maximum) {
+      old_maximum = w->text.highlight.maximum;
+      allocation_size = (size_t)w->text.highlight.number *
+	(size_t)sizeof(_XmHighlightRec);
+      if (allocation_size > (size_t)UINT_MAX) {
+	w->text.highlight.number--;
+	return;
+      }
+      new_list = (_XmHighlightRec *)XtRealloc((char *)l,
+					 (Cardinal)allocation_size);
+      if (new_list == NULL) {
+	w->text.highlight.number--;
+	w->text.highlight.maximum = old_maximum;
+	return;
+      }
+      l = w->text.highlight.list = new_list;
       w->text.highlight.maximum = w->text.highlight.number;
-      l = w->text.highlight.list = (_XmHighlightRec *)
-	XtRealloc((char *) l, (unsigned)(w->text.highlight.maximum *
-					 sizeof(_XmHighlightRec)));
     }
     for (j=w->text.highlight.number-1; j>i; j--)
       l[j] = l[j-1];
