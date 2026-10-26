@@ -1451,6 +1451,8 @@ DrawPushButtonShadows(
   XRectangle box;
   XtEnum default_button_emphasis;
   int adjust;
+
+  if (_XmNotebookDrawTabBorder((Widget)pb)) return;
   XmDisplay xm_dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(pb));
 
   default_button_emphasis = xm_dpy->display.default_button_emphasis;
@@ -1976,6 +1978,7 @@ BorderUnhighlight(
 	  return;
 	}
     }
+  (void)_XmNotebookDrawTabBorder(wid);
 }
 
 /*

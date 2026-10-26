@@ -38,6 +38,7 @@
 #include <Xm/NavigatorT.h>
 #include <Xm/NotebookP.h>
 #include <Xm/PushBGP.h>
+#include <Xm/PushBP.h>
 #include <Xm/ScrollFrameT.h>
 #include <Xm/SpinB.h>
 #include <Xm/TextF.h>
@@ -1133,7 +1134,7 @@ Redisplay (
         {
         child = nb->composite.children[i];
         nc = NotebookConstraint(child);
-        if (NB_IS_CHILD_MAJOR(nc->child_type))
+        if (NB_IS_CHILD_MINOR(nc->child_type))
                 total_minor_tabs++;
         }
     if (total_minor_tabs > 0 )
@@ -1154,18 +1155,8 @@ Redisplay (
     /* display gadgets */
     XmeRedisplayGadgets(w,e,region);
 
-    /* Work-around due to PushBG not updating border highlight 
-       -- to be removed when PushBG is fixed, see CR9805 */
-    for (i=0; i < nb->composite.num_children; i++)
-	{
-	child = nb->composite.children[i];
-	if ( (NB_IS_CHILD_TAB(NotebookConstraint(child)->child_type))
-	  && (NotebookConstraint(child)->active)
-	  && (XmIsPushButtonGadget((child))))
-	    {
-	  (*(xmPushButtonGadgetClassRec.gadget_class.border_unhighlight))((child));
-	    }
-	}
+    /* PushButtonGadget redisplay restores its focus border itself. Never
+     * unhighlight tabs here: an expose must not change keyboard focus state. */
 }
 
 
@@ -4120,7 +4111,8 @@ GetFrameGCs (
     if (nb->notebook.binding_gc)
         XtReleaseGC((Widget)nb, nb->notebook.binding_gc);
 
-    dynamicMask = GCForeground;
+    dynamicMask = GCForeground | GCClipMask | GCClipXOrigin | GCClipYOrigin |
+        GCLineWidth | GCLineStyle | GCCapStyle | GCJoinStyle;
     mask = GCForeground | GCBackground | GCLineWidth;
     values.foreground = nb->manager.foreground;
     values.background = nb->notebook.frame_background;
@@ -4564,6 +4556,85 @@ DrawPixmapBinding (
 
 -----------------------------------------------------------------------------*/
 
+static Boolean
+ModernNotebook(XmNotebookWidget nb)
+{
+    XmAppearanceProfile profile;
+    return XmGetAppearanceProfile(XtDisplay((Widget)nb), &profile) &&
+        (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK);
+}
+
+/* Notebook tabs are page flaps, even when implemented by pushbuttons.
+ * The selected tab's outline belongs to the joined page region below. Other
+ * tabs have three exposed edges; their page-facing edge stays open. */
+Boolean
+_XmNotebookDrawTabBorder(Widget child)
+{
+    XmNotebookWidget nb;
+    XmNotebookConstraint constraint;
+    int x, y, width, height, thickness, inset;
+    unsigned char side;
+    GC top, bottom, background;
+    if (!child || !XtParent(child) || !XmIsNotebook(XtParent(child))) return False;
+    nb = (XmNotebookWidget)XtParent(child);
+    if (!child->core.constraints) return False;
+    constraint = NotebookConstraint(child);
+    if (!NB_IS_CHILD_TAB(constraint->child_type) || NB_IS_CHILD_JOINSIDE(child)) return False;
+
+    if (!XtIsRealized((Widget)nb) || (XtIsWidget(child) && !XtIsRealized(child))) return True;
+    side = NB_IS_CHILD_MAJOR(constraint->child_type) ?
+        nb->notebook.major_pos : nb->notebook.minor_pos;
+    x = XtIsWidget(child) ? 0 : XtX(child);
+    y = XtIsWidget(child) ? 0 : XtY(child);
+    width = XtWidth(child);
+    height = XtHeight(child);
+    if (XmIsGadget(child)) {
+        XmPushButtonGadget button = (XmPushButtonGadget)child;
+        thickness = button->gadget.shadow_thickness;
+        top = PBG_Armed(button) ? LabG_BottomShadowGC(button) : LabG_TopShadowGC(button);
+        bottom = PBG_Armed(button) ? LabG_TopShadowGC(button) : LabG_BottomShadowGC(button);
+        inset = thickness + button->gadget.highlight_thickness;
+        background = PBG_Armed(button) && PBG_FillOnArm(button) ?
+            PBG_FillGc(button) : LabG_BackgroundGC(button);
+    } else {
+        XmPushButtonWidget button = (XmPushButtonWidget)child;
+        thickness = button->primitive.shadow_thickness;
+        top = button->pushbutton.armed ? button->primitive.bottom_shadow_GC : button->primitive.top_shadow_GC;
+        bottom = button->pushbutton.armed ? button->primitive.top_shadow_GC : button->primitive.bottom_shadow_GC;
+        inset = thickness + button->primitive.highlight_thickness;
+        background = button->pushbutton.armed && button->pushbutton.fill_on_arm ?
+            button->pushbutton.fill_gc : button->pushbutton.background_gc;
+    }
+    /* A gadget can expose a back-page edge beneath its omitted bevel. Clear
+     * the full page-facing border band, not only the outer highlight pixel. */
+    if (background && inset > 0) {
+        int band = MIN(inset, (side == LEFT || side == RIGHT) ? width : height);
+        if (side == LEFT || side == RIGHT)
+            XFillRectangle(XtDisplay((Widget)nb), XtWindow(child), background,
+                side == RIGHT ? x : x + width - band, y, band, height);
+        else
+            XFillRectangle(XtDisplay((Widget)nb), XtWindow(child), background,
+                x, side == BOTTOM ? y : y + height - band, width, band);
+    }
+    if (child == nb->notebook.top_major || child == nb->notebook.top_minor)
+        return True;
+    if (!top || !bottom || thickness <= 0 || width < 2 * thickness || height < 2 * thickness)
+        return True;
+    if (side != RIGHT)
+        XFillRectangle(XtDisplay((Widget)nb), XtWindow(child), top,
+            x, y, thickness, height);
+    if (side != LEFT)
+        XFillRectangle(XtDisplay((Widget)nb), XtWindow(child), bottom,
+            x + width - thickness, y, thickness, height);
+    if (side != BOTTOM)
+        XFillRectangle(XtDisplay((Widget)nb), XtWindow(child), top,
+            x, y, width, thickness);
+    if (side != TOP)
+        XFillRectangle(XtDisplay((Widget)nb), XtWindow(child), bottom,
+            x, y + height - thickness, width, thickness);
+    return True;
+}
+
 /*ARGSUSED*/
 static void
 DrawFrameShadow (
@@ -4574,6 +4645,7 @@ DrawFrameShadow (
     Dimension x, y, width, height;
     Region shadow_region;
     XRectangle rect;
+    Dimension outline = MAX(nb->notebook.shadow_thickness, 1);
 
     /* get the page's x, y position */
     x = y = 1;
@@ -4600,7 +4672,6 @@ DrawFrameShadow (
 		   nb->notebook.frame_background);
 
     /* draw the frame shadow */
-    if (nb->notebook.shadow_thickness)
     {
 	/* draw the shadow */
 	/* creating the shadow region */
@@ -4621,13 +4692,13 @@ DrawFrameShadow (
 	    && !NB_IS_CHILD_JOINSIDE(nb->notebook.top_major))
 	{
 	    rect.x = nb->notebook.top_major->core.x -
-		     nb->notebook.shadow_thickness;
+		     outline;
 	    rect.y = nb->notebook.top_major->core.y -
-		     nb->notebook.shadow_thickness;
+		     outline;
 	    rect.width = nb->notebook.top_major->core.width +
-		     nb->notebook.shadow_thickness * 2 - 1;
+		     outline * 2;
 	    rect.height = nb->notebook.top_major->core.height +
-		     nb->notebook.shadow_thickness * 2 - 1;
+		     outline * 2;
 	    /* ensure x/y of rect does not go negative */
 	    /* this can be removed when _XmRegionDrawShadow is fixed
 		to allow negative y values */
@@ -4651,13 +4722,13 @@ DrawFrameShadow (
 	    && !NB_IS_CHILD_JOINSIDE(nb->notebook.top_minor))
 	{
 	    rect.x = nb->notebook.top_minor->core.x -
-		     nb->notebook.shadow_thickness;
+		     outline;
 	    rect.y = nb->notebook.top_minor->core.y -
-		     nb->notebook.shadow_thickness;
+		     outline;
 	    rect.width = nb->notebook.top_minor->core.width +
-		     nb->notebook.shadow_thickness * 2 - 1;
+		     outline * 2;
 	    rect.height = nb->notebook.top_minor->core.height +
-		     nb->notebook.shadow_thickness * 2 - 1;
+		     outline * 2;
 	    /* ensure x/y of rect does not go negative */
 	    /* this can be removed when _XmRegionDrawShadow is fixed
 		to allow negative y values */
@@ -4674,73 +4745,34 @@ DrawFrameShadow (
 	    XUnionRectWithRegion(&rect, shadow_region, shadow_region);
 	}
 
-	/* draw the shadow */
-	_XmRegionDrawShadow(XtDisplay(nb), XtWindow(nb),
-			    nb->manager.top_shadow_GC,
-			    nb->manager.bottom_shadow_GC,
-			    (XmRegion)shadow_region, nb->core.border_width,
-			    nb->notebook.shadow_thickness, XmSHADOW_OUT);
+        /* Paint one joined surface, including the neck outside the child
+         * window, so a back-page edge cannot show through its connection. */
+        XSetRegion(XtDisplay(nb), nb->notebook.frame_gc, shadow_region);
+        XFillRectangle(XtDisplay(nb), XtWindow(nb), nb->notebook.frame_gc,
+            0, 0, nb->core.width, nb->core.height);
+        XSetClipMask(XtDisplay(nb), nb->notebook.frame_gc, None);
+        if (ModernNotebook(nb) || !nb->notebook.shadow_thickness) {
+            Region inside = XCreateRegion();
+            Region border = XCreateRegion();
+            if (inside && border) {
+                XUnionRegion(shadow_region, shadow_region, inside);
+                XShrinkRegion(inside, outline, outline);
+                XSubtractRegion(shadow_region, inside, border);
+                XSetForeground(XtDisplay(nb), nb->notebook.frame_gc,
+                    ModernNotebook(nb) ? nb->notebook.back_page_foreground : nb->manager.foreground);
+                XSetRegion(XtDisplay(nb), nb->notebook.frame_gc, border);
+                XFillRectangle(XtDisplay(nb), XtWindow(nb), nb->notebook.frame_gc,
+                    0, 0, nb->core.width, nb->core.height);
+                XSetClipMask(XtDisplay(nb), nb->notebook.frame_gc, None);
+            }
+            if (inside) XDestroyRegion(inside);
+            if (border) XDestroyRegion(border);
+        } else {
+            _XmRegionDrawShadow(XtDisplay(nb), XtWindow(nb),
+                nb->manager.top_shadow_GC, nb->manager.bottom_shadow_GC,
+                (XmRegion)shadow_region, nb->core.border_width, outline, XmSHADOW_OUT);
+        }
 	XDestroyRegion(shadow_region);
-    }
-    else
-    {
-	XFillRectangle(XtDisplay(nb), XtWindow(nb), nb->notebook.frame_gc,
-			x, y, width, height);
-	XSetForeground(XtDisplay(nb), nb->notebook.frame_gc,
-		       nb->manager.foreground);
-	XDrawRectangle(XtDisplay(nb), XtWindow(nb), nb->notebook.frame_gc,
-			x, y, width, height);
-	if (nb->notebook.top_major
-	    && NB_IS_VISIBLE(nb->notebook.top_major)
-	    && !NB_IS_CHILD_JOINSIDE(nb->notebook.top_major))
-	{
-	    rect.x = nb->notebook.top_major->core.x - 1;
-	    rect.y = nb->notebook.top_major->core.y - 1;
-	    rect.width = nb->notebook.top_major->core.width + 1;
-	    rect.height = nb->notebook.top_major->core.height + 1;
-	    /* ensure x/y of rect does not go negative */
-	    /* this can be removed when _XmRegionDrawShadow is fixed
-		to allow negative y values */
-            if( rect.x < 0)
-                {
-                rect.width -= rect.x;
-                rect.x = 0;
-                }
-            if( rect.y < 0)
-                {
-                rect.height -= rect.y;
-                rect.y = 0;
-                }
-	
-	XDrawRectangle(XtDisplay(nb), XtWindow(nb), nb->notebook.frame_gc,
-			rect.x, rect.y, rect.width, rect.height);
-	}
-
-	/* adding the top minor tab area to the shadow region */
-	if (nb->notebook.top_minor
-	    && NB_IS_VISIBLE(nb->notebook.top_minor)
-	    && !NB_IS_CHILD_JOINSIDE(nb->notebook.top_minor))
-	{
-	    rect.x = nb->notebook.top_minor->core.x - 1;
-	    rect.y = nb->notebook.top_minor->core.y - 1;
-	    rect.width = nb->notebook.top_minor->core.width + 1;
-	    rect.height = nb->notebook.top_minor->core.height + 1;
-	    /* ensure x/y of rect does not go negative */
-	    /* this can be removed when _XmRegionDrawShadow is fixed
-		to allow negative y values */
-            if( rect.x < 0)
-                {
-                rect.width -= rect.x;
-                rect.x = 0;
-                }
-            if( rect.y < 0)
-                {
-                rect.height -= rect.y;
-                rect.y = 0;
-                }
-	XDrawRectangle(XtDisplay(nb), XtWindow(nb), nb->notebook.frame_gc,
-			rect.x, rect.y, rect.width, rect.height);
-	}
     }
 
 }

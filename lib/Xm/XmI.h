@@ -268,6 +268,7 @@ extern Boolean _XmApplyAppearanceChange(Display *display,
                                         XmAppearanceProfile new_profile,
                                         XmAppearanceDensity density);
 extern Boolean _XmAppearanceDefersLayout(Display *display);
+extern Boolean _XmNotebookDrawTabBorder(Widget child);
 extern void _XmAppearanceInsetArrow(Widget widget, Position *x, Position *y,
                                      Dimension *width, Dimension *height);
 extern void _XmAppearanceDefaultColors(Widget parent, Pixel *background,

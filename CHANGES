@@ -1,3 +1,20 @@
+Join Notebook page flaps across appearance profiles (2026-10-26)
+================================================================
+
+- Draw standard widget and gadget tabs with open page-facing edges in every
+  theme. Outline the selected tab and page as one region, including zero-depth
+  frames; clear underlying back-page lines at the join. Preserve custom
+  JoinSide rendering and application resource overrides.
+- Unify modern Notebook page/footer/tab surfaces, use subtle page-stack lines
+  and density-aware inner padding. Supply explicit high-contrast page colors.
+- Preserve gadget keyboard focus on expose and count minor scrollers correctly.
+- Native X-pixel regression passes 128 configurations each with Xft/SVG and
+  core-font/non-SVG ABI 9 development builds: four themes, both orientations,
+  four placements, widget/gadget major/minor tabs, two scales, selection and
+  live theme changes. Inspected verified Periodic classic, scaled modern and
+  dark windows. The isolated ABI 8 Xft/SVG patch passes the same 128 cases.
+  See docs/notebook-appearance.md for the validation contract.
+
 Bound modern arrow glyphs inside their controls (2026-10-26)
 ================================================================
 

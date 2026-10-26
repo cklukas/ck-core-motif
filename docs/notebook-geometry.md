@@ -14,3 +14,6 @@ The focused source check is
 `tests/automated/check-notebook-geometry-init.py`. A native build should also
 compile `lib/Xm/Notebook.c` with warnings enabled; the check is intended to keep
 the initialization explicit in future maintenance.
+
+See [Notebook page connections and appearance](notebook-appearance.md) for
+joined tab outlines, theme defaults and native pixel validation.
