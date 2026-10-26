@@ -12,6 +12,13 @@ Guard Container CELLS zero dimensions (2026-10-27)
   cell width/height, preserving a safe geometry negotiation result.
 - Add focused regression coverage and documentation.
 
+Bound Container spatial growth arithmetic (2026-10-27)
+=======================================================
+
+- Bound cell-count multiplication and final geometry-request additions so
+  large spatial cells cannot wrap the requested width or height.
+- Add focused regression coverage and documentation.
+
 Bound Container ideal geometry accumulation (2026-10-27)
 =========================================================
 

@@ -6,7 +6,7 @@ nav_exclude: true
 The spatial CELLS resize path divides child dimensions by the computed cell
 width and height.  A zero metric can occur before cell metrics are established
 or after an invalid resource update.  The path now initializes both values,
-rejects a CELLS request with either dimension equal to zero, and only then
+rejects each requested zero dimension before it is used, and only then
 performs the divisions.  GRID behavior and public resource compatibility are
 unchanged.
 

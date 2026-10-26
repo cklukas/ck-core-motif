@@ -2989,18 +2989,17 @@ RequestSpatialGrowth(
 	    cell_width = cw->container.real_large_cellw;
 	    cell_height = cw->container.real_large_cellh;
 	    }
-	if (CtrSpatialStyleIsCELLS(cw) &&
-	    (cell_width == 0 || cell_height == 0))
-	    return(False);
-
 	if (grow_width_allowed)
 	    {
+	    if (cell_width == 0)
+		return(False);
 	    if (CtrSpatialStyleIsCELLS(cw))
 		{
 		width_in_cells = cwid->core.width / cell_width;
 		if (cwid->core.width % cell_width)
 		     width_in_cells++;
-		width_increase = width_in_cells * cell_width;
+		width_increase = AddDimensionSaturated(
+		    0, (uint64_t)width_in_cells * (uint64_t)cell_width);
 		}
 	    else
 		width_increase = cell_width;
@@ -3013,17 +3012,21 @@ RequestSpatialGrowth(
                 if (c->user_x - (cw->core.width - cw->container.margin_w)
                                 % cell_width)
                      width_in_cells++;
-                width_increase += (width_in_cells - 1) * cell_width;
+		width_increase = AddDimensionSaturated(width_increase,
+		    (uint64_t)(width_in_cells - 1) * (uint64_t)cell_width);
                 }
 	    }
 	if (grow_height_allowed)
 	    {
+	    if (cell_height == 0)
+		return(False);
 	    if (CtrSpatialStyleIsCELLS(cw))
 		{
 		height_in_cells = cwid->core.height / cell_height;
 		if (cwid->core.height % cell_height)
 		    height_in_cells++;
-		height_increase = height_in_cells * cell_height;
+		height_increase = AddDimensionSaturated(
+		    0, (uint64_t)height_in_cells * (uint64_t)cell_height);
 		}
 	    else
 		height_increase = cell_height;
@@ -3036,7 +3039,8 @@ RequestSpatialGrowth(
                 if (c->user_y - (cw->core.height - cw->container.margin_h)
                                 % cell_height)
                      height_in_cells++;
-                height_increase += (height_in_cells - 1) * cell_height;
+		height_increase = AddDimensionSaturated(height_increase,
+		    (uint64_t)(height_in_cells - 1) * (uint64_t)cell_height);
                 }
 	    }
 	}
@@ -3045,12 +3049,14 @@ RequestSpatialGrowth(
     if (width_increase != 0)
 	{
 	geo_desired.request_mode |= CWWidth;
-	geo_desired.width = cw->core.width + width_increase;
+	geo_desired.width = AddDimensionSaturated(
+	    cw->core.width, (uint64_t)width_increase);
 	}
     if (height_increase != 0)
 	{
 	geo_desired.request_mode |= CWHeight;
-	geo_desired.height = cw->core.height + height_increase;
+	geo_desired.height = AddDimensionSaturated(
+	    cw->core.height, (uint64_t)height_increase);
 	}
     if (geo_desired.request_mode == 0)
 	return(False);
