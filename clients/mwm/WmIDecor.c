@@ -1910,6 +1910,11 @@ void ShowActiveIconText (ClientData *pcd)
     Window root;
     Dimension dWidth, dHeight;
 
+    if (pcd == NULL || pcd->pSD == NULL ||
+	pcd->pSD->activeIconTextWin == None ||
+	ICON_FRAME_WIN(pcd) == None)
+	return;
+
 
     /* 
      * put up a big icon text label

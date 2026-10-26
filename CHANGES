@@ -21175,3 +21175,9 @@ context or unmapping it, and MoveActiveIconText validates its client and
 screen state. Failed optional label creation therefore cannot cause a
 BadWindow request during cleanup or repositioning.
 
+Guard MWM active icon-label show inputs (2026-10-26)
+------------------------------------------------------
+ShowActiveIconText now validates the client, screen, active label window, and
+icon frame before querying attributes or changing the label. Failed or
+partially torn-down icons therefore return cleanly without invalid X requests.
+
