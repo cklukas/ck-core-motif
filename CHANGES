@@ -100,6 +100,13 @@ Check MWM numeric argument overflow (2026-10-26)
   reject null arguments, and check accumulation before each base multiply.
 - Add a focused numeric-parser regression and document the contract.
 
+Bound MWM bindings property lengths (2026-10-26)
+=================================================
+
+- Check loaded binding strings before converting their `size_t` length to
+  Xlib's signed property-count parameter, and reject null binding data.
+- Add a focused property-length regression and document the boundary.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

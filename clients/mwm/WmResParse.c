@@ -7610,6 +7610,7 @@ void ProcessMotifBindings (void)
     size_t          fileNameLength;
     size_t          homeLength;
     size_t          bindingLength;
+    size_t          bindingsLength;
 #else
     char           fileName[MAXWMPATH+1];
     FILE          *fileP;
@@ -7683,11 +7684,15 @@ void ProcessMotifBindings (void)
     XDeleteProperty (DISPLAY, RootWindow (DISPLAY, 0),
 		XInternAtom (DISPLAY, "_MOTIF_DEFAULT_BINDINGS", False));
 
-    if (_XmVirtKeysLoadFileBindings (fileName, &bindings) == True) {
+    if (_XmVirtKeysLoadFileBindings (fileName, &bindings) == True &&
+	bindings != NULL) {
+	bindingsLength = strlen(bindings);
+	if (bindingsLength <= (size_t)INT_MAX) {
 	XChangeProperty (DISPLAY, RootWindow(DISPLAY, 0),
 		XInternAtom (DISPLAY, "_MOTIF_BINDINGS", False),
 		XA_STRING, 8, PropModeReplace,
-		(unsigned char *)bindings, strlen(bindings));
+		(unsigned char *)bindings, (int)bindingsLength);
+	}
     }
     else {
 	_XmVirtKeysLoadFallbackBindings (DISPLAY, &bindings);
