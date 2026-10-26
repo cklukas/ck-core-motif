@@ -1,3 +1,11 @@
+Refresh Paned sash-indent regression check (2026-10-27)
+=======================================================
+
+- Match the focused check to the current declaration, which also tracks the
+  separator position while preserving signed negative-indent arithmetic.
+
+===========================================================
+
 Refresh NumberBox/Stepper text-metrics regression check (2026-10-27)
 =====================================================================
 
