@@ -1230,6 +1230,12 @@ _XmWriteDSToStream(
     xmICCRegBoxRec	box;
     XmRegion		region = dropSiteInfo->header.region;
 
+    if (region == NULL ||
+	region->numRects < 0 ||
+	(region->numRects != 0 && region->rects == NULL) ||
+	(unsigned long)region->numRects > UINT32_MAX)
+	    return;
+
     dsHeader.flags = 0;
     dsHeader.flags |= PUT_TRAVERSAL_TYPE(dropSiteInfo->header.traversalType);
     dsHeader.flags |= PUT_DS_ACTIVITY(dropSiteInfo->header.dropActivity);

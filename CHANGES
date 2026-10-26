@@ -15422,6 +15422,13 @@ Keep DnD write offsets representable (2026-10-27)
 - Add a focused source regression and documentation.
 
 Validate clipboard chunk consistency (2026-10-27)
+Validate ICC stream region inputs (2026-10-27)
+==============================================
+
+- Refuse null, inconsistent, negative, or unrepresentable drop-site regions
+  before writing ICC stream data.
+- Add a focused source regression and documentation.
+
 Bound drag target-table allocations (2026-10-27)
 ================================================
 
