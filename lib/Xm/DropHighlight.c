@@ -68,16 +68,9 @@ static Boolean valid_state(unsigned char state)
 
 static XmString copy_string(XmString value)
 {
-    char *text;
-    XmString result;
-
     if (!value)
         return NULL;
-    text = XmStringUnparse(value, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
-                           NULL, 0, XmOUTPUT_ALL);
-    result = XmStringCreateLocalized(text ? text : (char *)"");
-    XtFree(text);
-    return result;
+    return XmStringCopy(value);
 }
 
 static void Initialize(Widget request, Widget widget, ArgList args,

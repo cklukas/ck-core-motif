@@ -59,15 +59,7 @@ externaldef(xmavatarwidgetclass) WidgetClass xmAvatarWidgetClass =
     (WidgetClass)&xmAvatarClassRec;
 
 static XmString copy_initials(XmString source) {
-    char *text;
-    XmString result;
-    if (!source) return XmStringCreateLocalized("");
-    text = XmStringUnparse(source, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
-                           NULL, 0, XmOUTPUT_ALL);
-    if (!text) return XmStringCreateLocalized("");
-    result = XmStringCreateLocalized(text);
-    XtFree(text);
-    return result;
+    return source ? XmStringCopy(source) : XmStringCreateLocalized("");
 }
 
 static Boolean pixmap_size(XmAvatarWidget avatar, unsigned int *width,

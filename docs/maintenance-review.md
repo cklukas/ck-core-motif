@@ -69,6 +69,10 @@ Divider and Chip now retain caller-provided labels with `XmStringCopy` as
 well, so their compound-string charset segments survive widget ownership.
 Coverage is included in `tests/automated/check-compound-label-copy.py`.
 
+Avatar initials, Badge labels, and DropHighlight labels now follow the same
+direct-copy rule, preserving compound-string charset segments through widget
+ownership. The same regression check covers these paths.
+
 ## IconLabel typography and natural geometry
 
 `XmIconLabel` now measures its `XmString` through the render table for both

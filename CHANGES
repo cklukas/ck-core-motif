@@ -6900,6 +6900,12 @@ Divider and Chip compound-string ownership (2026-10-27)
 
 - Divider and Chip now retain caller labels with `XmStringCopy` instead of
   flattening charset segments through a locale byte string.
+
+Avatar, Badge, and DropHighlight compound-string ownership (2026-10-27)
+=========================================================================
+
+- Avatar initials, Badge labels, and DropHighlight labels now retain
+  compound-string charset segments with direct `XmString` copies.
 	* Validate Mrm pointer-list state before freeing contents.
 
 2026-10-26

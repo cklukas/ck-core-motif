@@ -11,6 +11,8 @@ required = {
     "Skeleton.c": "return value ? XmStringCopy(value) : XmStringCreateLocalized(\"\");",
     "Divider.c": "return source ? XmStringCopy(source) : XmStringCreateLocalized(\"\");",
     "Chip.c": "return source ? XmStringCopy(source) : XmStringCreateLocalized(\"\");",
+    "Avatar.c": "return source ? XmStringCopy(source) : XmStringCreateLocalized(\"\");",
+    "Badge.c": "return source ? XmStringCopy(source) : XmStringCreateLocalized(\"\");",
 }
 for filename, expression in required.items():
     source = (root / filename).read_text()
@@ -27,5 +29,8 @@ for filename, expressions in {
     for expression in expressions:
         if expression not in source:
             raise SystemExit(f"{filename} does not concatenate compound strings")
+
+if "return XmStringCopy(value);" not in (root / "DropHighlight.c").read_text():
+    raise SystemExit("DropHighlight does not preserve compound strings")
 
 print("PASS status, toolbar, toast, and skeleton labels preserve compound strings")
