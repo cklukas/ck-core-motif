@@ -357,6 +357,10 @@ _XmStringSourceGetString(XmTextWidget tw,
       (void)memcpy((void*)&buf[destpos], (void*)block.ptr, block.length);
       destpos += block.length;
     }
+    if (pos != to) {
+	XtFree(buf);
+	return NULL;
+    }
     buf[destpos] = 0;
     return buf;
   } else { /* want buffer of wchar_t * data */
@@ -384,6 +388,10 @@ _XmStringSourceGetString(XmTextWidget tw,
 	  }
 	  if (return_val > 0) destpos += return_val;
       pos = ret_pos;
+    }
+    if (pos != to) {
+	XtFree(buf);
+	return NULL;
     }
     wc_buf[destpos] = (wchar_t)0L;
     return ((char*)wc_buf);
@@ -800,6 +808,9 @@ ReadSource(XmTextSource source,
   if (last_position < position)
 	return 0;
   available = last_position - position;
+    /* Keep the position advance representable on legacy int-backed paths. */
+    if (available > (XmTextPosition)(INT_MAX - position))
+	available = (XmTextPosition)(INT_MAX - position);
   if (available > INT_MAX / char_size)
 	available = INT_MAX / char_size;
   last_position = position + available;

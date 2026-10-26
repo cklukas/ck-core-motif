@@ -20076,6 +20076,15 @@ Bound TextField size arithmetic (2026-10-26)
   to a small size.
 - Add focused regression coverage and documentation.
 
+Bound Text source read ranges (2026-10-26)
+===========================================
+
+- Cap legacy source advances before `position + available` can exceed the
+  representable integer range.
+- Reject incomplete source reads instead of returning silently truncated
+  narrow or wide strings.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
