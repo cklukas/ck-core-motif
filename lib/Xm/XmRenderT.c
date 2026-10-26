@@ -3544,10 +3544,28 @@ _XmXftDrawCreate(Display *display, Window window)
 			return draw;
 		}
 	i = _XmXftDrawCacheSize;	/* Next free index */
-	_XmXftDrawCacheSize = _XmXftDrawCacheSize * 2 + 8;
-	_XmXftDrawCache = (struct _XmXftDrawCacheStruct *)
-		XtRealloc((char *)_XmXftDrawCache,
-		sizeof(struct _XmXftDrawCacheStruct) * _XmXftDrawCacheSize);
+	{
+	    int new_size;
+	    struct _XmXftDrawCacheStruct *new_cache;
+	    if (_XmXftDrawCacheSize > (INT_MAX - 8) / 2 ||
+		(size_t)(_XmXftDrawCacheSize * 2 + 8) >
+		SIZE_MAX / sizeof(*new_cache) ||
+		(size_t)(_XmXftDrawCacheSize * 2 + 8) >
+		UINT_MAX / sizeof(*new_cache)) {
+		XftDrawDestroy(draw);
+		return NULL;
+	    }
+	    new_size = _XmXftDrawCacheSize * 2 + 8;
+	    new_cache = (struct _XmXftDrawCacheStruct *)XtRealloc(
+		(char *)_XmXftDrawCache,
+		(size_t)new_size * sizeof(*new_cache));
+	    if (new_cache == NULL) {
+		XftDrawDestroy(draw);
+		return NULL;
+	    }
+	    _XmXftDrawCache = new_cache;
+	    _XmXftDrawCacheSize = new_size;
+	}
 #ifdef FIX_1449
 	memset(_XmXftDrawCache + i, 0, (_XmXftDrawCacheSize - i) * sizeof(*_XmXftDrawCache));
 #endif
