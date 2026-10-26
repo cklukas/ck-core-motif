@@ -17,7 +17,9 @@ for filename, expression in required.items():
 
 for filename, expressions in {
     "StatusBar.c": ("XmStringConcat(label, suffix)",),
-    "Toolbar.c": ("XmStringConcat(result, separator)", "XmStringConcat(combined, shortcut)"),
+    "Toolbar.c": ("action->shortcut && !XmStringEmpty(action->shortcut)",
+                   "XmStringConcat(result, separator)",
+                   "XmStringConcat(combined, shortcut)"),
 }.items():
     source = (root / filename).read_text()
     for expression in expressions:

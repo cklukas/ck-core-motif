@@ -63,7 +63,7 @@ static XmString action_label(const XmToolbarAction *action)
     XmString result = action->label ? XmStringCopy(action->label)
                                     : XmStringCreateLocalized("");
     if (!result) return NULL;
-    if (action->shortcut) {
+    if (action->shortcut && !XmStringEmpty(action->shortcut)) {
         XmString separator = XmStringCreateLocalized("  ");
         XmString shortcut = XmStringCopy(action->shortcut);
         XmString combined;
