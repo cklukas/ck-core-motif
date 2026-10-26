@@ -2354,7 +2354,7 @@ XmeStandardConvert(Widget w,
     int tcount;
     cs -> value = (XtPointer) XmeStandardTargets(w, 0, &tcount);
     cs -> format = 32;
-    cs -> length = tcount;
+    cs -> length = (unsigned long)tcount;
     cs -> type = XA_ATOM;
   } else if (atoms[XmAFOREGROUND] == cs -> target) {
     Pixel *fg;

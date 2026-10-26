@@ -21917,3 +21917,10 @@ Widen encoding-registry target length explicitly (2026-10-26)
   unsigned selection callback field.
 - Add focused regression documentation for the target conversion.
 
+Widen standard target count explicitly (2026-10-26)
+====================================================
+
+- Preserve the validated standard-target count when assigning the unsigned
+  selection callback length.
+- Add focused regression documentation for the conversion boundary.
+
