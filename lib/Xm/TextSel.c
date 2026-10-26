@@ -135,6 +135,8 @@ SetPrimarySelection(Widget w,
 		    XtEnum op,	/* unused */
 		    XmTransferDoneCallbackStruct *ts) /* unused */
 {
+  if (w == NULL)
+    return;
   XmTextWidget tw = (XmTextWidget) w;
   InputData data = tw->text.input->data;
   XmTextPosition cursorPos = tw->text.cursor_position;

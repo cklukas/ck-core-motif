@@ -22514,3 +22514,9 @@ Guard Text location cleanup transfer IDs (2026-10-26)
   queries destination callback state.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-location-cleanup-transfer-id.py
+Guard Text primary-selection completion widgets (2026-10-26)
+=============================================================
+- Validate the callback widget before Text/TextField completion callbacks
+  derive selection state.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-primary-selection-done-widget.py
