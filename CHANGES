@@ -22440,3 +22440,11 @@ Stop DnD callbacks after failure completion (2026-10-26)
 - Add focused coverage and documentation.
 
 Validate DnD destination callback inputs (2026-10-26)
+Clean up failed Text DnD drops (2026-10-26)
+============================================
+
+- Release local Text and TextField drop-transfer records on unsupported
+  operations or missing targets before returning after transfer failure.
+- Stop processing after completion and add focused coverage and documentation.
+
+Stop DnD callbacks after failure completion (2026-10-26)

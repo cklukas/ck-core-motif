@@ -805,6 +805,7 @@ HandleDrop(Widget w,
       ((*tw->text.source->GetSelection)(tw->text.source, &left, &right) &&
        left != right && insert_pos >= left && insert_pos <= right)) {
     XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+    return;
   } else {
     enum { XmATEXT, XmACOMPOUND_TEXT,
 #ifdef UTF8_SUPPORTED
@@ -879,9 +880,13 @@ HandleDrop(Widget w,
 	doTransfer = True;
       } else {
 	XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+	XtFree((char *) transfer_rec);
+	return;
       }
     } else {
       XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+	XtFree((char *) transfer_rec);
+	return;
     }
   }
   SetDropContext(w);

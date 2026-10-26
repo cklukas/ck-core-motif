@@ -1501,10 +1501,14 @@ HandleDrop(Widget w,
 	doTransfer = True;
       } else {
 	XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+	XtFree((char *) transfer_rec);
+	return;
       }
       
     } else {
       XmTransferDone(tid, XmTRANSFER_DONE_FAIL);
+	XtFree((char *) transfer_rec);
+	return;
     }
   }
   SetDropContext(w);
