@@ -109,6 +109,9 @@ XpmWriteFileFromXpmImage(
     char *dot, *s, new_name[BUFSIZ] = {0};
     int ErrorStatus;
 
+    if (image == NULL)
+	return XpmFileInvalid;
+
     /* open file to write */
     if ((ErrorStatus = OpenWriteFile(filename, &mdata)) != XpmSuccess)
 	return (ErrorStatus);

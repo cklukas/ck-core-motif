@@ -15287,3 +15287,10 @@ Validate XPM image-to-data arguments (2026-10-27)
 - Preserve valid shape-only conversion and add a focused source regression.
 
 Validate XPM data-export arguments (2026-10-27)
+Validate XPM file-image writes (2026-10-27)
+============================================
+
+- Reject a null source image before opening or writing the destination.
+- Preserve null-filename stdout output and add a focused source regression.
+
+Validate XPM image-to-data arguments (2026-10-27)
