@@ -88,7 +88,7 @@ HashIndex(XmHashValue hash, Cardinal size)
 
 /* Available table sizes,  should be prime numbers */
 
-static XmConst int size_table[] = 
+static XmConst Cardinal size_table[] =
 	{ 17, 31, 67, 131, 257, 521, 1031, 2053, 4099, 8209, 0 };
 
 XmHashTable
@@ -96,7 +96,7 @@ _XmAllocHashTable(Cardinal size_hint, XmHashCompareProc cproc,
 		  XmHashFunction hproc)
 {
   XmHashTable   table;
-  int		i;
+  Cardinal	i;
 
   table = (XmHashTable) XtMalloc(sizeof(XmHashTableRec));
   if (table == NULL)
@@ -138,7 +138,7 @@ _XmAllocHashTable(Cardinal size_hint, XmHashCompareProc cproc,
 void
 _XmFreeHashTable(XmHashTable table)
 {
-  int i;
+  Cardinal i;
   XmHashBucket bucket, next;
 
   if (table == NULL)
@@ -160,8 +160,8 @@ _XmFreeHashTable(XmHashTable table)
 void
 _XmResizeHashTable(XmHashTable table, Cardinal new_size)
 {
-  int i, index;
-  int oldsize;
+  Cardinal i, index;
+  Cardinal oldsize;
   XmHashBucket current, last, next, new_h;
   XmHashBucket *new_buckets;
   XmHashBucket *old_buckets;
@@ -175,7 +175,7 @@ _XmResizeHashTable(XmHashTable table, Cardinal new_size)
   if (size_table[i] == 0) i--;
 
   if (table == NULL || table->buckets == NULL ||
-      (size_t)size_table[i] > SIZE_MAX / sizeof(*new_buckets))
+      (size_t)size_table[i] > (size_t)UINT_MAX / sizeof(*new_buckets))
     return;
 
   /* New size should be larger, otherwise return. */
@@ -232,7 +232,7 @@ _XmResizeHashTable(XmHashTable table, Cardinal new_size)
 XtPointer
 _XmGetHashEntryIterate(XmHashTable table, XmHashKey key, XtPointer *iterator)
 {
-  XmHashValue index;
+  Cardinal index;
   XmHashBucket entry;
 
   if (table == NULL || table->buckets == NULL || table->size == 0) {
@@ -265,8 +265,8 @@ _XmGetHashEntryIterate(XmHashTable table, XmHashKey key, XtPointer *iterator)
 Boolean
 _XmAddHashEntry(XmHashTable table, XmHashKey key, XtPointer value)
 {
-  int hash;
-  XmHashValue index;
+  XmHashValue hash;
+  Cardinal index;
   XmHashBucket entry;
 
   if (table == NULL || table->buckets == NULL || table->size == 0)
@@ -289,7 +289,7 @@ _XmAddHashEntry(XmHashTable table, XmHashKey key, XtPointer value)
 XtPointer
 _XmRemoveHashEntry(XmHashTable table, XmHashKey key)
 {
-  XmHashValue index;
+  Cardinal index;
   XmHashBucket entry, last = NULL;
   XtPointer key_return;
 
@@ -322,7 +322,7 @@ _XmRemoveHashEntry(XmHashTable table, XmHashKey key)
 XtPointer 
 _XmRemoveHashIterator(XmHashTable table, XtPointer *iterator)
 {
-  XmHashValue index;
+  Cardinal index;
   XmHashBucket entry, current, last = NULL;
   XtPointer key_return;
 
@@ -381,7 +381,7 @@ _XmHashTableSize(XmHashTable table)
 void 
 _XmMapHashTable(XmHashTable table, XmHashMapProc proc, XtPointer client_data)
 {
-  int i;
+  Cardinal i;
   XmHashBucket entry, next;
 
   if (table == NULL || table->buckets == NULL || table->size == 0 ||

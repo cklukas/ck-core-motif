@@ -15,4 +15,13 @@ if expected not in body:
 if "(unsigned int)hash" in body:
     raise SystemExit("hash index still truncates to unsigned int")
 
+source = text
+assert "static XmConst Cardinal size_table[]" in source
+assert "Cardinal i, index;" in source
+assert "Cardinal oldsize;" in source
+assert "XmHashValue hash;\n  Cardinal index;" in source
+assert "int i, index;" not in source
+assert "size_table[i] > (size_t)UINT_MAX / sizeof(*new_buckets)" in source
+assert "size_table[i] > SIZE_MAX / sizeof(*new_buckets)" not in source
+
 print("hash index preserves native width")

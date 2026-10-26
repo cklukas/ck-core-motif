@@ -11,3 +11,9 @@ table API or lookup semantics.
 
 The focused regression check is
 `tests/automated/check-hash-index-width.py`.
+
+The bucket-size table and all bucket indexes now use `Cardinal` consistently;
+they no longer pass through signed `int` temporaries during resize, lookup,
+or iteration.
+Hash-table growth also checks the allocation width relevant to Xt's
+`Cardinal` allocator, avoiding a redundant host-`SIZE_MAX` comparison.

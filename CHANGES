@@ -21761,6 +21761,20 @@ Fold ImageCache native-width hash keys (2026-10-26)
   `XmHashValue`, avoiding architecture-dependent `long` arithmetic.
 - Extend the image-cache hash regression and documentation.
 
+Use unsigned hash-table index locals (2026-10-26)
+=================================================
+
+- Keep hash-table sizes and bucket indexes in their declared `Cardinal` type
+  during allocation, resizing, lookup, and iteration.
+- Extend the hash-index regression and documentation.
+
+Bound hash-table growth for Xt allocations (2026-10-26)
+=========================================================
+
+- Check resize sizes against the `Cardinal` allocation width used by Xt,
+  rather than a redundant host-size bound.
+- Extend the hash-index regression and documentation.
+
 Clean up ImageCache failure-branch conversions (2026-10-26)
 ============================================================
 
