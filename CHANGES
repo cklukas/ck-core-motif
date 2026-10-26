@@ -16983,3 +16983,12 @@ Make CommandPalette item installation transactional (2026-10-27)
 ====================================================
 
 Refresh DatePicker render-table regression contracts (2026-10-27)
+Refresh DataGrid render-table regression contracts (2026-10-27)
+================================================================
+
+- Align the redisplay and text-bounds checks with the active guarded
+  `XmStringExtent`/`XmStringDraw` path instead of retired raw-font assertions.
+
+====================================================
+
+Make CommandPalette item installation transactional (2026-10-27)

@@ -8,7 +8,7 @@ start = source.rindex("static void Redisplay(")
 end = source.index("static void move_selection(", start)
 function = source[start:end]
 
-assert "if (!grid->data_grid.gc) return;" in draw
+assert "if (!grid->data_grid.gc || !grid->data_grid.render_table) return;" in draw
 assert 'if (!text) text = "";' in draw
 assert "!XtIsRealized(widget) || !grid->data_grid.gc" in function
 assert "cell_width > 5 ? cell_width - 5 : 1" in function

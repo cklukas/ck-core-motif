@@ -7,6 +7,7 @@ start = source.index("static void draw_text")
 end = source.index("static int column_width", start)
 region = source[start:end]
 
-assert "length > (size_t)INT_MAX" in region
-assert "XDrawString" in region
-print("PASS data-grid text lengths are bounded")
+assert "if (!grid->data_grid.gc || !grid->data_grid.render_table) return;" in region
+assert "XmStringExtent(grid->data_grid.render_table, value" in region
+assert "XmStringDraw(XtDisplay((Widget)grid)" in region
+print("PASS data-grid text uses guarded render-table metrics")
