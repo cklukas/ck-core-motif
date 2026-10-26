@@ -1,3 +1,11 @@
+Refresh Xpm pixel-dimension check (2026-10-27)
+===============================================
+
+- Match the regression assertion to the current combined pixel/dimension
+  validation while retaining the pre-subtraction zero-size guard.
+
+============================================================
+
 Refresh Xpm file-image display check (2026-10-27)
 =================================================
 
