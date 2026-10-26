@@ -113,6 +113,15 @@ text_field_selection_span_to_int(XmTextPosition left, XmTextPosition right,
   return True;
 }
 
+static char *
+text_field_selection_buffer(unsigned long length)
+{
+  if (length > (unsigned long)UINT_MAX - 1)
+    return NULL;
+
+  return (char *)XtMalloc((Cardinal)(length + 1));
+}
+
 /********    End Static Function Declarations    ********/
 
 
@@ -602,7 +611,9 @@ _XmTextFieldConvert(
 	return False;
       *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left, 
 				       selection_span);
-      tmp_value = XtMalloc((unsigned) *length + 1);
+      tmp_value = text_field_selection_buffer(*length);
+      if (tmp_value == NULL)
+	return False;
       stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 		      (unsigned)*length); /* NOTE: casting *length could
 					     result in a truncated long. */
@@ -611,7 +622,9 @@ _XmTextFieldConvert(
       else *length = (unsigned long) stat ;
     } else {
       *length = right - left;
-      tmp_value = XtMalloc((unsigned) *length + 1);
+      tmp_value = text_field_selection_buffer(*length);
+      if (tmp_value == NULL)
+	return False;
       /* get the selection value */
       (void)memcpy((void*)tmp_value, (void*)(TextF_Value(tf) + left), 
 		   (size_t)*length); /* NOTE: casting *length could result
@@ -643,7 +656,9 @@ _XmTextFieldConvert(
 	return False;
       *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
 				       selection_span);
-      *value = XtMalloc((unsigned) *length + 1);
+      *value = (XtPointer)text_field_selection_buffer(*length);
+      if (*value == NULL)
+	return False;
       stat = wcstombs((char *)*value, TextF_WcValue(tf) + left,
 		      (unsigned)*length); /* NOTE: casting *length could
 					     result in a truncated long */
@@ -652,7 +667,9 @@ _XmTextFieldConvert(
       else *length = (unsigned long) stat ;
     } else {
       *length = right - left;
-      *value = XtMalloc((unsigned) *length + 1);
+      *value = (XtPointer)text_field_selection_buffer(*length);
+      if (*value == NULL)
+	return False;
       /* get the selection value */
       (void)memcpy((void*)*value, (void*)(TextF_Value(tf) + left),
 		   (size_t)*length); /* NOTE: casting *length could result
@@ -671,7 +688,9 @@ _XmTextFieldConvert(
       /* Convert to char* before converting to compound text. */
       *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
 				       selection_span);
-      tmp_value = XtMalloc((unsigned) *length + 1);
+      tmp_value = text_field_selection_buffer(*length);
+      if (tmp_value == NULL)
+	return False;
       stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 		      (unsigned)*length); /* NOTE: casting *length could
 					     result in a truncated long. */
@@ -680,7 +699,9 @@ _XmTextFieldConvert(
       else *length = (unsigned long) stat ;
     } else { /* malloc the space and copy the data to be converted */
       *length = right - left;
-      tmp_value = XtMalloc((unsigned) *length + 1);
+      tmp_value = text_field_selection_buffer(*length);
+      if (tmp_value == NULL)
+	return False;
       /* get the selection value */
       (void)memcpy((void*)tmp_value, (void*)(TextF_Value(tf) + left), 
 		   (size_t)*length); /* NOTE: casting *length could result
@@ -715,7 +736,9 @@ _XmTextFieldConvert(
       /* Convert to char* before converting to UTF-8. */
       *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
 				       selection_span);
-      tmp_value = XtMalloc((unsigned) *length + 1);
+      tmp_value = text_field_selection_buffer(*length);
+      if (tmp_value == NULL)
+	return False;
       stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 		      (unsigned)*length); /* NOTE: casting *length could
 					     result in a truncated long. */
@@ -724,7 +747,9 @@ _XmTextFieldConvert(
       else *length = (unsigned long) stat ;
     } else { /* malloc the space and copy the data to be converted */
       *length = right - left;
-      tmp_value = XtMalloc((unsigned) *length + 1);
+      tmp_value = text_field_selection_buffer(*length);
+      if (tmp_value == NULL)
+	return False;
       /* get the selection value */
       (void)memcpy((void*)tmp_value, (void*)(TextF_Value(tf) + left), 
 		   (size_t)*length); /* NOTE: casting *length could result

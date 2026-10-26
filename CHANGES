@@ -22774,3 +22774,10 @@ Bound TextField selection conversion lengths (2026-10-26)
   `DoStuff` conversion handling before copying or converting data.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-dostuff-length.py
+
+Bound TextField selection export buffers (2026-10-26)
+=======================================================
+- Bound temporary selection-export allocations to the toolkit allocation type
+  and check each byte-buffer allocation before conversion or copying.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-selection-buffers.py
