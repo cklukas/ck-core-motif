@@ -290,6 +290,15 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
   if (cbstruct.status == XmCONVERT_DONE ||
       cbstruct.status == XmCONVERT_DEFAULT)
     {
+      if ((cbstruct.format != 8 && cbstruct.format != 16 &&
+	   cbstruct.format != 32) ||
+	  (cbstruct.length != 0 && cbstruct.value == NULL)) {
+	*value = NULL;
+	*size = 0;
+	*fmt = 8;
+	*type = None;
+	return False;
+      }
       /* Copy out the data */
       *value = cbstruct.value;
       *size = cbstruct.length;

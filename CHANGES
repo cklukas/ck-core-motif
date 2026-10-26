@@ -22292,3 +22292,12 @@ Clear drag context on export-conversion failure (2026-10-26)
   regression coverage and documentation.
 
 Reject Motif-drop conversion without a drag context (2026-10-26)
+Validate shared conversion results (2026-10-26)
+================================================
+
+- Reject callback results with unsupported formats or nonzero lengths and null
+  value buffers in `_XmConvertHandler`.
+- Normalize malformed results to deterministic conversion failure; add focused
+  regression coverage and documentation.
+
+Clear drag context on export-conversion failure (2026-10-26)
