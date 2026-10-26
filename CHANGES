@@ -22205,3 +22205,12 @@ Validate secondary conversion callback inputs (2026-10-26)
   requests.
 
 Release secondary callback data after context teardown (2026-10-26)
+Release secondary lock when destination transfer is refused (2026-10-26)
+=========================================================================
+
+- Clear the synchronous secondary-selection lock when `_XmDestinationHandler`
+  rejects a conversion request.
+- Prevent one failed request from permanently refusing later secondary
+  transfers; add focused regression coverage and documentation.
+
+Validate secondary conversion callback inputs (2026-10-26)

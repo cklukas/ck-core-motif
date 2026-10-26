@@ -414,6 +414,7 @@ SecondaryConvertHandler(Widget w,
 			    operation, ReleaseSecondaryLock, 
 			    (XtPointer) pair -> target,
 			    req_event -> time, req_event) != True) {
+    ReleaseSecondaryLock(w, XmOTHER, NULL);
     cs -> status = XmCONVERT_REFUSE;
     return;
   }
