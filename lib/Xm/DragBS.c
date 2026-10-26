@@ -935,7 +935,7 @@ WriteTargetsTable(
     } *propertyRecPtr;
 
     Atom                targetsTableAtom;
-    int			i, j;
+    Cardinal		i, j;
     Window		motifWindow;
     size_t		dataSize;
     CARD16Item		shortItem;
@@ -964,6 +964,12 @@ WriteTargetsTable(
 	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
 	    return;
 	}
+	for (j = 0; j < targetsTable->entries[i].numTargets; j++) {
+	    if ((uint64_t)targetsTable->entries[i].targets[j] > UINT32_MAX) {
+		XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
+		return;
+	    }
+	}
 	if (dataSize > SIZE_MAX - 2 ||
 	    targetsTable->entries[i].numTargets >
 	    (SIZE_MAX - dataSize - 2) / 4) {
@@ -981,7 +987,7 @@ WriteTargetsTable(
      * bigger buffer. 
      */
     if ( dataSize > MAXSTACK ){
-	propertyRecPtr = (struct _propertyRec *)XtMalloc( dataSize );
+	propertyRecPtr = (struct _propertyRec *)XtMalloc((Cardinal)dataSize);
 	if (propertyRecPtr == NULL) {
 	    XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE5);
 	    return;
@@ -992,15 +998,15 @@ WriteTargetsTable(
 
     propertyRecPtr->info.byte_order = (BYTE) _XmByteOrderChar;
     propertyRecPtr->info.protocol_version = (BYTE) _MOTIF_DRAG_PROTOCOL_VERSION;
-    propertyRecPtr->info.num_target_lists = targetsTable->numEntries;
-    propertyRecPtr->info.heap_offset = dataSize;
+    propertyRecPtr->info.num_target_lists = (CARD16)targetsTable->numEntries;
+    propertyRecPtr->info.heap_offset = (CARD32)dataSize;
 
     /* write each target list's count and atoms */
 
     fill = (BYTE *)propertyRecPtr + sizeof(xmMotifTargetsPropertyRec);
 
     for (i = 0; i < targetsTable->numEntries; i++) {
-        shortItem.value = targetsTable->entries[i].numTargets;
+        shortItem.value = (CARD16)targetsTable->entries[i].numTargets;
 	memcpy( fill, &shortItem, 2 );
 	fill += 2;
 
@@ -1008,7 +1014,7 @@ WriteTargetsTable(
 	 *  Write each Atom out one at a time as a CARD32.
 	 */
 	for (j = 0; j < targetsTable->entries[i].numTargets; j++) {
-	    longItem.value = targetsTable->entries[i].targets[j];
+	    longItem.value = (CARD32)targetsTable->entries[i].targets[j];
 	    memcpy( fill, &longItem, 4 );
 	    fill += 4;
 	}

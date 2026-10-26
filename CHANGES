@@ -21783,6 +21783,14 @@ Reject unrepresentable DragBS atom records (2026-10-26)
 - Make the bounded allocation and header conversions explicit and extend the
   DragBS regression documentation.
 
+Reject unrepresentable DragBS target records (2026-10-26)
+==========================================================
+
+- Reject target `Atom` values that cannot be serialized into the Motif drag
+  protocol's 32-bit target-list fields.
+- Make target-list count, offset, allocation, and atom conversions explicit
+  and extend the DragBS regression documentation.
+
 Clean up ImageCache failure-branch conversions (2026-10-26)
 ============================================================
 

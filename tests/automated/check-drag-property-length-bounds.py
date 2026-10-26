@@ -17,3 +17,9 @@ assert "(CARD16)atomsTable->numEntries" in atom_writer
 assert "(CARD32)dataSize" in atom_writer
 assert "(CARD32)atomsTable->entries[i].atom" in atom_writer
 assert "(CARD32)atomsTable->entries[i].time" in atom_writer
+
+target_writer = source[source.index("static void \nWriteTargetsTable"):source.index("static Boolean \nReadTargetsTable")]
+assert "(uint64_t)targetsTable->entries[i].targets[j] > UINT32_MAX" in target_writer
+assert "XtMalloc((Cardinal)dataSize)" in target_writer
+assert "(CARD16)targetsTable->numEntries" in target_writer
+assert "(CARD32)targetsTable->entries[i].targets[j]" in target_writer
