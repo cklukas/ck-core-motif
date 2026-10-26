@@ -1,3 +1,9 @@
+Bound drop-transfer widget names (2026-10-27)
+==============================================
+
+- Use an unsigned counter and bounded formatting for generated transfer names.
+- Add a focused source regression and documentation.
+
 Bound clipboard format atom names (2026-10-27)
 ===============================================
 

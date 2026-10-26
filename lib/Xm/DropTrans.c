@@ -668,13 +668,13 @@ StartDropTransfer(
         ArgList args,
         Cardinal argCount )
 {
-	static int which = 0;
+	static unsigned int which = 0;
 	XmDropTransferObject dt;
 	char buf[30];
 	XtIntervalId timer;
 
 	_XmProcessLock();
-	sprintf(buf, "Transfer%d", which++);
+	(void)snprintf(buf, sizeof(buf), "Transfer%u", which++);
 	_XmProcessUnlock();
 	dt = (XmDropTransferObject) XtCreateWidget(buf,
 		xmDropTransferObjectClass,
