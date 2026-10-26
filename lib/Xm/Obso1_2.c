@@ -1907,7 +1907,7 @@ _XmCharsetCanonicalize(
         String charset )
 {
   String	new_s;
-  int		len;
+        size_t		len;
 
   if (charset == NULL) return (NULL);
   
@@ -1916,7 +1916,8 @@ _XmCharsetCanonicalize(
     {
       len = strlen(XmSTRING_ISO8859_1);
       
-      new_s = XtMalloc(len + 1);
+      if (len > (size_t)UINT_MAX - 1) return (NULL);
+      new_s = XtMalloc((Cardinal)(len + 1));
       if (new_s == NULL) return (NULL);
       memcpy(new_s, XmSTRING_ISO8859_1, len);
       new_s[len] = '\0';
@@ -1936,7 +1937,8 @@ _XmCharsetCanonicalize(
     {
       len = strlen(charset);
       
-      new_s = XtMalloc(len + 1);
+      if (len > (size_t)UINT_MAX - 1) return (NULL);
+      new_s = XtMalloc((Cardinal)(len + 1));
       if (new_s == NULL) return (NULL);
       memcpy(new_s, charset, len);
       new_s[len] = '\0';

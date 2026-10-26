@@ -291,6 +291,14 @@ Bound legacy file-selection restore strings (2026-10-27)
 - Reject unrepresentable restored filter strings without truncation or wrap.
 - Add a focused source regression and documentation.
 
+Bound legacy charset canonicalization (2026-10-27)
+==================================================
+
+- Keep canonicalized charset lengths in `size_t` and validate the terminator
+  allocation before narrowing to Xt's type.
+- Reject unrepresentable arbitrary charset names without truncation.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
