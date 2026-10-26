@@ -2717,13 +2717,18 @@ df_DrawText(
       wchar_t tmp_wc;
       wchar_t *wc_string = (wchar_t*)string;
       int num_bytes = 0;
-      /* ptr = tmp = XtMalloc((int)(length + 1)*sizeof(wchar_t)); */
-      tmp = (char *)XmStackAlloc((Cardinal) ((length + 1)*sizeof(wchar_t)),
+
+      if (length < 0 || (size_t)length >
+          (SIZE_MAX / sizeof(wchar_t)) - 1)
+        return;
+      size_t byte_capacity = ((size_t)length + 1) * sizeof(wchar_t);
+      if (byte_capacity > UINT_MAX)
+        return;
+      tmp = (char *)XmStackAlloc((Cardinal) byte_capacity,
 				 stack_cache);
       tmp_wc = wc_string[length];
       wc_string[length] = 0L;
-      num_bytes = wcstombs(tmp, wc_string,
-			   (int)((length + 1) * sizeof(wchar_t)));
+      num_bytes = (int)wcstombs(tmp, wc_string, byte_capacity);
       wc_string[length] = tmp_wc;
       if (num_bytes >= 0)
         _XmXftDrawString2(XtDisplay(tf), XtWindow(tf), gc, XmTextF_xft_font(tf),
@@ -2739,13 +2744,18 @@ df_DrawText(
 	 wchar_t tmp_wc;
 	 wchar_t *wc_string = (wchar_t*)string;
 	 int num_bytes = 0;
-	 /* ptr = tmp = XtMalloc((int)(length + 1)*sizeof(wchar_t)); */
-	 tmp = (char *)XmStackAlloc((Cardinal) ((length + 1)*sizeof(wchar_t)),
+
+	 if (length < 0 || (size_t)length >
+	     (SIZE_MAX / sizeof(wchar_t)) - 1)
+	   return;
+	 size_t byte_capacity = ((size_t)length + 1) * sizeof(wchar_t);
+	 if (byte_capacity > UINT_MAX)
+	   return;
+	 tmp = (char *)XmStackAlloc((Cardinal) byte_capacity,
 				    stack_cache);
 	 tmp_wc = wc_string[length];
 	 wc_string[length] = 0L;
-	 num_bytes = wcstombs(tmp, wc_string,
-			      (int)((length + 1) * sizeof(wchar_t)));
+	 num_bytes = (int)wcstombs(tmp, wc_string, byte_capacity);
 	 wc_string[length] = tmp_wc;
 	 if (num_bytes >= 0) {
 	   if (_XmIsISO10646(XtDisplay(tf), XmTextF_font(tf))) {

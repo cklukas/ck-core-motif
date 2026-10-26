@@ -22623,3 +22623,9 @@ Bound DataField external selection lengths (2026-10-26)
   of truncating their length during replacement.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-selection-length.py
+Check DataField Unicode drawing sizes (2026-10-26)
+==================================================
+- Validate DataField Unicode drawing lengths and buffer capacities before
+  conversion, avoiding overflow in temporary `wcstombs` buffers.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-draw-length.py
