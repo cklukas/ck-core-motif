@@ -221,7 +221,8 @@ XmAppendTranslationText(char **buffer, size_t *used, size_t *capacity,
     char *new_buffer;
     if (new_capacity == 0)
       new_capacity = 1;
-    if (new_capacity > SIZE_MAX / 2)
+    if (new_capacity > SIZE_MAX / 2 ||
+        new_capacity > (size_t)UINT_MAX / 2)
       new_capacity = required;
     else
       new_capacity *= 2;
