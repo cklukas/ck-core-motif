@@ -236,7 +236,12 @@ XmUpdateDisplay(
         Widget w )
 {
    XEvent event;
-   Display * display = XtDisplay(w);
+   Display * display;
+
+   if (w == NULL)
+      return;
+
+   display = XtDisplay(w);
    _XmWidgetToAppContext(w);
 
    _XmAppLock(app);

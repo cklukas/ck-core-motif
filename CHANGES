@@ -1,3 +1,11 @@
+Guard XmUpdateDisplay widget input (2026-10-27)
+===============================================
+
+- Return before display lookup when `XmUpdateDisplay` receives a null widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard TabStack coordinate lookup inputs (2026-10-27)
 ====================================================
 
