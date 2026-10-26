@@ -5,9 +5,9 @@ from pathlib import Path
 
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "DragICC.c").read_text()
-start = source.index("_XmSetDragReceiverInfo(")
+start = source.rindex("_XmSetDragReceiverInfo(")
 body = source[start:source.index("/************************************************************************", start + 10)]
-guard = body.index("if (propBuf->data.size > UINT32_MAX")
+guard = body.index("if (numDropSites > UINT16_MAX")
 before_property = body[guard:body.index("/* write the buffer to the property */", guard)]
 assert "propBuf->data.size > (size_t)INT_MAX" in before_property
 assert "propBuf->heap.size > (size_t)INT_MAX" in before_property

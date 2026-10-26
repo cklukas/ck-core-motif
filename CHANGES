@@ -17079,3 +17079,12 @@ Guard Link underline geometry and render-table updates (2026-10-27)
 ====================================================
 
 Keep InfoBar close button inside small widgets (2026-10-27)
+Refresh Drag receiver property-size regression contract (2026-10-27)
+=====================================================================
+
+- Align the source check with the current drop-site count and byte-size guard
+  used before publishing receiver properties.
+
+====================================================
+
+Guard Link underline geometry and render-table updates (2026-10-27)
