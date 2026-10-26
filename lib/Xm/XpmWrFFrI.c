@@ -79,6 +79,9 @@ XpmWriteFileFromImage(
     XpmInfo info;
     int ErrorStatus;
 
+    if (display == NULL || (image == NULL && shapeimage == NULL))
+	return XpmFileInvalid;
+
     /* create an XpmImage from the image */
     ErrorStatus = XpmCreateXpmImageFromImage(display, image, shapeimage,
 					     &xpmimage, attributes);
