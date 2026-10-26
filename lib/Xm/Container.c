@@ -9363,12 +9363,28 @@ DragStart(
       dragIconInfo = (DragIconInfo) XtMalloc(sizeof(DragIconInfoRec));
       if (dragIconInfo == NULL)
 	  return;
-      XSaveContext(XtDisplay(cw), None, dragIconInfoContext, 
-		   (char*) dragIconInfo);
       dragIconInfo -> source = (Widget) NULL;
       cross = XCreatePixmap(XtDisplay(cw),XtWindow(cw),farpoint,farpoint,1);
+      if (cross == None)
+	  {
+	    XtFree((char *)dragIconInfo);
+	    return;
+	  }
       cross_m = XCreatePixmap(XtDisplay(cw),XtWindow(cw),farpoint,farpoint,1);
+      if (cross_m == None)
+	  {
+	    XFreePixmap(XtDisplay(cw), cross);
+	    XtFree((char *)dragIconInfo);
+	    return;
+	  }
       tempgc = XCreateGC(XtDisplay(cw), cross, 0L, NULL);
+      if (tempgc == NULL)
+	  {
+	    XFreePixmap(XtDisplay(cw), cross_m);
+	    XFreePixmap(XtDisplay(cw), cross);
+	    XtFree((char *)dragIconInfo);
+	    return;
+	  }
       /* Draw a plus sign */
       XSetForeground(XtDisplay(cw), tempgc, 0);
       XFillRectangle(XtDisplay(cw), cross, tempgc, 0, 0, farpoint, farpoint);
@@ -9389,6 +9405,15 @@ DragStart(
       XtSetArg(args[n], XmNheight, farpoint); n++;
       XtSetArg(args[n], XmNwidth, farpoint); n++;
       dragIconInfo -> state = XmCreateDragIcon(diParent, "stateIcon", args, n);
+      if (dragIconInfo -> state == NULL)
+	  {
+	    XFreePixmap(XtDisplay(cw), cross_m);
+	    XFreePixmap(XtDisplay(cw), cross);
+	    XtFree((char *)dragIconInfo);
+	    return;
+	  }
+      XSaveContext(XtDisplay(cw), None, dragIconInfoContext,
+		   (char*) dragIconInfo);
     }
 
     n = 0;
