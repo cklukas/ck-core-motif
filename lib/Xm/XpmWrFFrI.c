@@ -257,6 +257,8 @@ WritePixels(
     char *s, *p, *buf;
     unsigned int x, y, h;
 
+    if (width == 0 || height == 0)
+	return XpmFileInvalid;
     h = height - 1;
     if (cpp != 0 && width >= (UINT_MAX - 3)/cpp)
 	return XpmNoMemory;

@@ -15214,3 +15214,11 @@ Handle XPM default-color allocation failure (2026-10-27)
 - Add a focused source regression and documentation.
 
 Handle XPM RGB-name allocation failure (2026-10-27)
+Reject zero-size XPM pixel images (2026-10-27)
+===============================================
+
+- Reject zero dimensions before the XPM writer subtracts from image height,
+  preventing unsigned-loop expansion on malformed images.
+- Add a focused source regression and documentation.
+
+Handle XPM default-color allocation failure (2026-10-27)
