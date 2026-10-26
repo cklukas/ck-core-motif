@@ -20256,3 +20256,10 @@ Avoid nested application locking in XmeGetMask (2026-10-26)
 - Generate and load mask pixmaps through the synchronized helper while the
   existing application lock is held, instead of calling `XmGetPixmapByDepth`
   and acquiring that lock a second time.
+
+Avoid nested application locking in text-field insertion (2026-10-26)
+======================================================================
+
+- Route `XmTextFieldInsert` and `XmTextFieldInsertWcs` to the internal
+  replacement operation while their application lock is held, avoiding a
+  second acquisition through the public replacement wrappers.
