@@ -20263,3 +20263,9 @@ Avoid nested application locking in text-field insertion (2026-10-26)
 - Let `XmTextFieldInsert` and `XmTextFieldInsertWcs` delegate to the public
   replacement wrappers without taking an outer application lock, avoiding a
   second acquisition.
+
+Avoid nested application locking in XmCommandSetValue (2026-10-26)
+==================================================================
+
+- Delegate command text updates to `XmTextFieldSetString` without holding an
+  outer command application lock.

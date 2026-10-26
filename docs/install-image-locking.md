@@ -24,3 +24,8 @@ The same ownership rule applies to text-field insertion: the
 `XmTextFieldInsert` wrappers do not acquire the application lock before
 delegating to the public replacement wrappers, which already own that lock.
 This is covered by `tests/automated/check-textfield-insert-locking.py`.
+
+Command-dialog text convenience wrappers follow the same ownership rule:
+`XmCommandSetValue` delegates to `XmTextFieldSetString` without taking an
+outer application lock. Its focused check is
+`tests/automated/check-command-locking.py`.

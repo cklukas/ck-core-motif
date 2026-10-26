@@ -1005,18 +1005,13 @@ XmCommandSetValue(
     if (widget == NULL || value == NULL)
         return;
     _XmWidgetToAppContext(widget);
-/****************/
-
-    _XmAppLock(app);
     if(    !(str = _XmStringGetTextConcat( value))    )
     {   
         XmeWarning( (Widget) w, WARNING3);
-	_XmAppUnlock(app);
         return;
         }
     XmTextFieldSetString(w->selection_box.text, str);
     XtFree(str);
-    _XmAppUnlock(app);
     return ;
     }
 /****************************************************************
