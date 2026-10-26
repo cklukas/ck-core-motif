@@ -1573,6 +1573,11 @@ PictureVerifyCallback(
 	return;
     }
     newptr = XtMalloc(curr_length + insert_length + 2);
+    if (newptr == NULL) {
+	cbs->doit = False;
+	XtFree(curr);
+	return;
+    }
     
     dst = 0;
     

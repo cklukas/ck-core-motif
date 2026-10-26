@@ -16560,4 +16560,13 @@ Guard DataField paste conversion allocations (2026-10-27)
 
 ====================================================
 
+Guard DataField picture verification allocation (2026-10-27)
+=============================================================
+
+- Reject a picture-field edit when its splice buffer cannot be allocated,
+  before copying into the buffer.
+- Add a focused source regression and documentation.
+
+====================================================
+
 Guard DataField action event snapshots (2026-10-27)
