@@ -905,10 +905,14 @@ void XmAccessibilityRemove(XmAccessibility *a, XmAccessibleId id) {
      iteratively, avoiding both quadratic array shifts and recursive stacks. */
   if (parent) {
     index = root->child_index;
+    if (parent->children == NULL || index >= parent->child_count ||
+        parent->child_count > parent->child_capacity)
+      return;
     --parent->child_count;
     children_changed(parent);
-    memmove(parent->children + index, parent->children + index + 1,
-            (parent->child_count - index) * sizeof(*parent->children));
+    if (index < parent->child_count)
+      memmove(parent->children + index, parent->children + index + 1,
+              (parent->child_count - index) * sizeof(*parent->children));
     for (; index < parent->child_count; ++index) parent->children[index]->child_index = index;
     if (!parent->child_count) {
       free(parent->children); parent->children = NULL; parent->child_capacity = 0;

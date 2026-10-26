@@ -1,3 +1,13 @@
+Bound accessibility child-removal metadata (2026-10-27)
+=========================================================
+
+- Validate the parent child array and recorded index before decrementing the
+  accessibility tree count or shifting surviving children.
+- Skip the shift for final-child removal so malformed metadata cannot underflow
+  the `memmove` length; add a focused regression and documentation.
+
+============================================================
+
 Bound Mrm wide-character fixup allocation width (2026-10-27)
 ==============================================================
 
