@@ -4368,6 +4368,10 @@ XmDropSiteUpdate(
         Cardinal argCount )
 {
 	XmDropSiteManagerObject dsm;
+
+	if (enclosingWidget == NULL)
+	    return;
+
 	_XmWidgetToAppContext(enclosingWidget);
 
 	_XmAppLock(app);

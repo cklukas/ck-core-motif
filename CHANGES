@@ -1,3 +1,12 @@
+Guard drop-site update input (2026-10-27)
+=========================================
+
+- Return before display lookup when `XmDropSiteUpdate` receives a null
+  enclosing widget.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard drop-site update startup input (2026-10-27)
 ==================================================
 
