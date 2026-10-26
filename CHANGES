@@ -20888,3 +20888,9 @@ Guard MWM base-window metrics (2026-10-26)
 ------------------------------------------
 BaseWindowWidth and BaseWindowHeight now return zero for null client records
 instead of dereferencing them.  Valid size calculations are unchanged.
+
+Guard MWM frame-state helpers (2026-10-26)
+------------------------------------------
+SetFrameInfo and SetClientOffset now no-op for null clients, while
+XBorderIsShowing returns False.  Valid frame-state updates and border queries
+are unchanged.

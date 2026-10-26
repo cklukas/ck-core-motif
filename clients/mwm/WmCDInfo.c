@@ -1549,6 +1549,9 @@ Boolean GetDepressInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned in
 void SetFrameInfo (ClientData *pcd)
 {
 
+    if (pcd == NULL)
+	return;
+
     /*
      * The title bar height value stored in pcd->frameInfo is used by the
      * macro TitleBarHeight(pcd).
@@ -1621,6 +1624,9 @@ void SetFrameInfo (ClientData *pcd)
  *************************************<->***********************************/
 void SetClientOffset (ClientData *pcd)
 {
+    if (pcd == NULL)
+	return;
+
     /*
      * The title bar height value stored in pcd->frameInfo is used by the
      * macro TitleBarHeight(pcd).
@@ -1686,6 +1692,9 @@ void SetClientOffset (ClientData *pcd)
 Boolean XBorderIsShowing (ClientData *pcd)
 {
     Boolean rval;
+
+    if (pcd == NULL)
+	return (False);
 
     if ( (pcd->decor & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER)) ||
          (pcd->matteWidth > 0) )
