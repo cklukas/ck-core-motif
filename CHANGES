@@ -21381,3 +21381,8 @@ RefreshByClearing now releases an XQueryTree child list based on its returned
 pointer rather than the reported child count, covering successful empty-list
 responses without leaking the allocation.
 
+Handle MWM feedback-window creation failure (2026-10-26)
+----------------------------------------------------------
+UpdateFeedbackWindow now stops when XCreateWindow cannot allocate the optional
+feedback overlay, avoiding configure/map requests against the None window ID.
+

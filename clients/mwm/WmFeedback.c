@@ -409,6 +409,8 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
 					  0, CopyFromParent, 
 					  InputOutput, CopyFromParent, 
 					  mask, &win_attribs);
+	if (pSD->feedbackWin == None)
+	    return;
     }
     else
     {
