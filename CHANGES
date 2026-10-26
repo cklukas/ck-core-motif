@@ -1,3 +1,10 @@
+Bound Separator geometry (2026-10-27)
+======================================
+
+- Route default and recalculated separator spans through widened arithmetic
+  and clamp them before assigning to X11 `Dimension` fields.
+- Add focused regression coverage and documentation.
+
 Bound Divider thickness geometry (2026-10-27)
 ==============================================
 

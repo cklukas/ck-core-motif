@@ -33,6 +33,8 @@ static char rcsid[] = "$XConsortium: Separator.c /main/14 1996/03/25 17:53:11 ba
 
 #include <stdio.h>
 #include <ctype.h>
+#include <limits.h>
+#include <stdint.h>
 #include <X11/keysymdef.h>   
 #include <X11/IntrinsicP.h>
 #include "XmI.h"
@@ -69,6 +71,7 @@ static Boolean SetValues(
                         Widget nw,
                         ArgList args,
                         Cardinal *num_args) ;
+static Dimension separator_span(Dimension highlight, Dimension extra);
 
 /********    End Static Function Declarations    ********/
 
@@ -271,23 +274,24 @@ Initialize(
    if (new_w->separator.orientation == XmHORIZONTAL)
    {
       if (request -> core.width == 0)
-	 new_w -> core.width = 2 * new_w -> primitive.highlight_thickness +2;
+         new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness, 2);
 
       if (request -> core.height == 0)
       {
-	 new_w -> core.height = 2 * new_w -> primitive.highlight_thickness;
+	 new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness, 0);
 
 	 if (new_w -> separator.separator_type == XmSINGLE_LINE ||
 	     new_w -> separator.separator_type == XmSINGLE_DASHED_LINE)
-	    new_w -> core.height += 3;
+	    new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness, 3);
 	 else if (new_w -> separator.separator_type == XmSHADOW_ETCHED_IN ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_IN_DASH ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT_DASH)
-	    new_w -> core.height += new_w -> primitive.shadow_thickness;
+	    new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness,
+		new_w -> primitive.shadow_thickness);
 	 else if (new_w -> separator.separator_type == XmDOUBLE_LINE ||
 		  new_w -> separator.separator_type == XmDOUBLE_DASHED_LINE)
-	    new_w -> core.height += 5;
+	    new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness, 5);
 	 else
 	    if (new_w -> core.height == 0)
 	       new_w -> core.height = 1;
@@ -297,23 +301,24 @@ Initialize(
    if (new_w->separator.orientation == XmVERTICAL)
    {
       if (request -> core.height == 0)
-	 new_w -> core.height = 2 * new_w -> primitive.highlight_thickness +2;
+	 new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness, 2);
 
       if (request -> core.width == 0)
       {
-	 new_w -> core.width = 2 * new_w -> primitive.highlight_thickness;
+	 new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness, 0);
 
 	 if (new_w -> separator.separator_type == XmSINGLE_LINE ||
 	     new_w -> separator.separator_type == XmSINGLE_DASHED_LINE)
-	    new_w -> core.width += 3;
+	    new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness, 3);
 	 else if (new_w -> separator.separator_type == XmSHADOW_ETCHED_IN ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_IN_DASH ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT_DASH)
-	    new_w -> core.width += new_w -> primitive.shadow_thickness;
+	    new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness,
+		new_w -> primitive.shadow_thickness);
 	 else if (new_w -> separator.separator_type == XmDOUBLE_LINE ||
 		  new_w -> separator.separator_type == XmDOUBLE_DASHED_LINE)
-	    new_w -> core.width += 5;
+	    new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness, 5);
 	 else
 	    if (new_w -> core.width == 0)
 	       new_w -> core.width = 1;
@@ -326,7 +331,13 @@ Initialize(
 }
 
 
+static Dimension
+separator_span(Dimension highlight, Dimension extra)
+{
+   uint64_t total = 2 * (uint64_t)highlight + (uint64_t)extra;
 
+   return total > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)total;
+}
 
 /************************************************************************
  *
@@ -463,23 +474,24 @@ SetValues(
    if (new_w -> separator.orientation == XmHORIZONTAL)
    {
       if (request -> core.width == 0)
-	 new_w -> core.width = 2 * new_w->primitive.highlight_thickness + 2;
+	 new_w -> core.width = separator_span(new_w->primitive.highlight_thickness, 2);
 
       if (request -> core.height == 0)
       {
-	 new_w -> core.height = 2 * new_w -> primitive.highlight_thickness;
+	 new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness, 0);
 
 	 if (new_w -> separator.separator_type == XmSINGLE_LINE ||
 	     new_w -> separator.separator_type == XmSINGLE_DASHED_LINE)
-	    new_w -> core.height += 3;
+	    new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness, 3);
 	 else if (new_w -> separator.separator_type == XmSHADOW_ETCHED_IN ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_IN_DASH ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT_DASH)
-	    new_w -> core.height += new_w -> primitive.shadow_thickness;
+	    new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness,
+		new_w -> primitive.shadow_thickness);
 	 else if (new_w -> separator.separator_type == XmDOUBLE_LINE ||
 		  new_w -> separator.separator_type == XmDOUBLE_DASHED_LINE)
-	    new_w -> core.height += 5;
+	    new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness, 5);
 	 else
 	    if (new_w -> core.height == 0)
 	       new_w -> core.height = 1;
@@ -492,39 +504,40 @@ SetValues(
       {
 	 if (new_w -> separator.separator_type == XmSINGLE_LINE ||
 	     new_w -> separator.separator_type == XmSINGLE_DASHED_LINE) 
-	    new_w -> core.height = 2 * new_w -> primitive.highlight_thickness + 3;
+	    new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness, 3);
 	 else if (new_w -> separator.separator_type == XmSHADOW_ETCHED_IN ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_IN_DASH ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT_DASH)
-	    new_w -> core.height = 2 * new_w -> primitive.highlight_thickness +
-				       new_w -> primitive.shadow_thickness;
+	    new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness,
+		new_w -> primitive.shadow_thickness);
 	 else if (new_w -> separator.separator_type == XmDOUBLE_LINE ||
 		  new_w -> separator.separator_type == XmDOUBLE_DASHED_LINE) 
-	    new_w -> core.height = 2 * new_w -> primitive.highlight_thickness + 5;
+	    new_w -> core.height = separator_span(new_w -> primitive.highlight_thickness, 5);
       }
    } 
 
    if (new_w -> separator.orientation == XmVERTICAL)
    {
       if (request -> core.height == 0)
-	 new_w -> core.height = 2 * new_w->primitive.highlight_thickness + 2;
+	 new_w -> core.height = separator_span(new_w->primitive.highlight_thickness, 2);
 
       if (request -> core.width == 0)
       {
-	 new_w -> core.width = 2 * new_w -> primitive.highlight_thickness;
+	 new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness, 0);
 
 	 if (new_w -> separator.separator_type == XmSINGLE_LINE ||
 	     new_w -> separator.separator_type == XmSINGLE_DASHED_LINE)
-	    new_w -> core.width += 3;
+	    new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness, 3);
 	 else if (new_w -> separator.separator_type == XmSHADOW_ETCHED_IN ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_IN_DASH ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT_DASH)
-	    new_w -> core.width += new_w -> primitive.shadow_thickness;
+	    new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness,
+		new_w -> primitive.shadow_thickness);
 	 else if (new_w -> separator.separator_type == XmDOUBLE_LINE ||
 		  new_w -> separator.separator_type == XmDOUBLE_DASHED_LINE)
-	    new_w -> core.width += 5;
+	    new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness, 5);
 	 else
 	    if (new_w -> core.width == 0)
 	       new_w -> core.width = 1;
@@ -537,16 +550,16 @@ SetValues(
       {
 	 if (new_w -> separator.separator_type == XmSINGLE_LINE ||
 	     new_w -> separator.separator_type == XmSINGLE_DASHED_LINE) 
-	    new_w -> core.width = 2 * new_w -> primitive.highlight_thickness + 3;
+	    new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness, 3);
 	 else if (new_w -> separator.separator_type == XmSHADOW_ETCHED_IN ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_IN_DASH ||
 		  new_w -> separator.separator_type == XmSHADOW_ETCHED_OUT_DASH)
-	    new_w -> core.width = 2 * new_w -> primitive.highlight_thickness +
-				       new_w -> primitive.shadow_thickness;
+	    new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness,
+		new_w -> primitive.shadow_thickness);
 	 else if (new_w -> separator.separator_type == XmDOUBLE_LINE ||
 		  new_w -> separator.separator_type == XmDOUBLE_DASHED_LINE) 
-	    new_w -> core.width = 2 * new_w -> primitive.highlight_thickness + 5;
+	    new_w -> core.width = separator_span(new_w -> primitive.highlight_thickness, 5);
       }
    } 
 
