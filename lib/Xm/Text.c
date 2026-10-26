@@ -3839,11 +3839,24 @@ PreeditDraw(XIC xic,
 	total_mb_len += char_len;
       }
       if (recovery_valid) {
-	mb = XtRealloc(mb, strlen(mb) + (recover_len + 1) *
-			       tw->text.char_size);
-	i = strlen(mb);
-	strncat(mb, ptr, total_mb_len);
-	mb[i+total_mb_len] = '\0';
+	mb_length = strlen(mb);
+	if (total_mb_len < 0 ||
+	    (size_t)total_mb_len > SIZE_MAX - mb_length - 1 ||
+	    (combined_length = mb_length + (size_t)total_mb_len + 1) >
+	      (size_t)UINT_MAX) {
+	  XtFree(mb);
+	  ResetUnder(tw);
+	  return;
+	}
+	resized_mb = XtRealloc(mb, (Cardinal)combined_length);
+	if (resized_mb == NULL) {
+	  XtFree(mb);
+	  ResetUnder(tw);
+	  return;
+	}
+	mb = resized_mb;
+	memcpy(mb + mb_length, ptr, (size_t)total_mb_len);
+	mb[mb_length + (size_t)total_mb_len] = '\0';
       }
     }
   } 
