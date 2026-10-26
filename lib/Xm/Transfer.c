@@ -1045,6 +1045,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       SnapshotRequest req;
 
       if (value == NULL || size2 != 1 || format2 != 32) {
+	XtFree((char *)value);
 	XtFree((char *)targets);
 	XmClipboardEndCopy(display, XtWindow(w), itemid);
 	_XmAppUnlock(app);

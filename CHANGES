@@ -22319,3 +22319,11 @@ Validate clipboard snapshot atom formats (2026-10-26)
   conversions.
 
 Initialize conversion callback parameter defaults (2026-10-26)
+Release invalid clipboard snapshot buffers (2026-10-26)
+=========================================================
+
+- Free a non-null snapshot result before rejecting an invalid count or format
+  during deferred clipboard setup.
+- Add focused regression coverage and documentation for this failure path.
+
+Validate clipboard snapshot atom formats (2026-10-26)
