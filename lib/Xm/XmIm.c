@@ -966,6 +966,10 @@ XmImGetXIC(Widget 	 w,
   XmImXICInfo xic_info;
   XmImRegistration registration;
   Widget shell;
+
+	if (w == NULL)
+	    return NULL;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);
