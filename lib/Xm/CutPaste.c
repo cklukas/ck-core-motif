@@ -1176,6 +1176,9 @@ GetWindowProperty(
     size_t unit;
     size_t new_length;
     unsigned long offset_units;
+    Atom expected_type;
+    int expected_format;
+    Boolean have_format;
 
 
     loc_pointer = NULL;
@@ -1184,6 +1187,9 @@ GetWindowProperty(
     cur_length = 0;
     cur_pointer = NULL;
     allocation_limit = (size_t)(Cardinal)-1;
+    expected_type = None;
+    expected_format = 0;
+    have_format = False;
 
     *outpointer = 0;
     *outlength = 0;
@@ -1221,6 +1227,13 @@ GetWindowProperty(
 	    }
 	    goto failure;
 	  }
+	if (!have_format) {
+	    expected_type = loc_type;
+	    expected_format = loc_format;
+	    have_format = True;
+	} else if (loc_type != expected_type || loc_format != expected_format) {
+	    goto failure;
+	}
 
 	/* XGetWindowProperty reports format-32 values as native longs, while
 	 * bytes_left and the property offset remain in four-byte wire units.

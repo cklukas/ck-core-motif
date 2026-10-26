@@ -15375,3 +15375,11 @@ Clamp clipboard INCR chunk sizes (2026-10-27)
 - Add a focused source regression and documentation.
 
 Keep DnD read counts representable (2026-10-27)
+Validate clipboard chunk consistency (2026-10-27)
+===================================================
+
+- Reject selection-transfer chunks that change property type or format during
+  one read, preventing mixed external-owner data.
+- Add a focused source regression and documentation.
+
+Clamp clipboard INCR chunk sizes (2026-10-27)
