@@ -188,6 +188,10 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
   cbstruct.type = XA_INTEGER;
   cbstruct.format = 8;
   cbstruct.length = 0;
+  cbstruct.parm = NULL;
+  cbstruct.parm_length = 0;
+  cbstruct.parm_format = 8;
+  cbstruct.parm_type = None;
 
  
   _XmProcessLock();

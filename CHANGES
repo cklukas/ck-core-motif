@@ -22301,3 +22301,12 @@ Validate shared conversion results (2026-10-26)
   regression coverage and documentation.
 
 Clear drag context on export-conversion failure (2026-10-26)
+Initialize conversion callback parameter defaults (2026-10-26)
+===============================================================
+
+- Initialize `parm`, `parm_length`, `parm_format`, and `parm_type` in the
+  shared conversion callback structure before request-specific population.
+- Prevent local non-clipboard conversions from exposing uninitialized stack
+  data; add focused regression coverage and documentation.
+
+Validate shared conversion results (2026-10-26)
