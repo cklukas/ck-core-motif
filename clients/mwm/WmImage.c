@@ -657,7 +657,9 @@ Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmapIndex)
     GC            gc;
     XGCValues     gcv;
 
-    if (bitmapIndex < 0)
+    if (pSD == NULL || menuW == NULL || bitmapIndex < 0 ||
+	(unsigned int) bitmapIndex >= pSD->bitmapCacheCount ||
+	pSD->bitmapCache == NULL)
     {
 	return ((Pixmap)NULL);
     }

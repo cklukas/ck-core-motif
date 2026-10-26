@@ -20963,6 +20963,11 @@ MakeIconPixmap now returns `None` when neither the client nor the active MWM
 screen supplies a screen record, avoiding a null-screen dereference during
 startup or teardown.
 
+Bound MWM cached-label bitmap lookup (2026-10-26)
+--------------------------------------------------
+MakeCachedLabelPixmap now rejects missing screen/widget inputs and indices
+outside the populated bitmap cache before indexing the cache array.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
