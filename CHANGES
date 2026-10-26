@@ -18569,3 +18569,14 @@ Mrm vector-copy Cardinal bounds (2026-10-27)
 
 ============================================================
 
+Make Mrm compound-string vector copies transactional (2026-10-27)
+===================================================================
+
+- Roll back already-copied compound strings and release the vector when a
+  later `XmStringCopy` fails during `Urm__CW_SafeCopyValue`.
+- Extend the focused safe-copy allocation regression and documentation.
+
+============================================================
+
+Validate accessibility child identity during removal (2026-10-27)
+===================================================================

@@ -3022,8 +3022,16 @@ Urm__CW_SafeCopyValue (long				*val,
       if (cstr_table_dst == NULL)
 	return;
       for (cnt=0; cnt<vec_count; cnt++)
-	cstr_table_dst[cnt] =
-	  XmStringCopy(cstr_table_src[cnt]);
+	{
+	  cstr_table_dst[cnt] = XmStringCopy(cstr_table_src[cnt]);
+	  if (cstr_table_dst[cnt] == NULL)
+	    {
+	      while (cnt > 0)
+		XmStringFree(cstr_table_dst[--cnt]);
+	      XtFree((char *)cstr_table_dst);
+	      return;
+	    }
+	}
       *val = (long) cstr_table_dst ;
       if (cblist != NULL)
 	{
