@@ -15237,6 +15237,13 @@ Validate XPM file-to-data output (2026-10-27)
 - Add a focused source regression and documentation.
 
 Validate XPM file-buffer arguments (2026-10-27)
+Validate XPM file-to-image arguments (2026-10-27)
+===================================================
+
+- Reject null display, filename, and required image-output arguments before
+  file parsing or Xlib conversion.
+- Add a focused source regression and documentation.
+
 Complete inactive TabBox outlines (2026-10-27)
 ================================================
 
