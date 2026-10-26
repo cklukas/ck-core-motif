@@ -254,7 +254,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
 
 void XmTeachingTipShow(Widget widget) {
     XmTeachingTipWidget tip;
-    if (!XmIsTeachingTip(widget)) return;
+    if (widget == NULL || !XmIsTeachingTip(widget)) return;
     tip = (XmTeachingTipWidget)widget;
     if (!tip->teaching_tip.owner || !XtIsRealized(tip->teaching_tip.owner)) return;
     if (tip->teaching_tip.timeout_pending)
@@ -278,7 +278,7 @@ void XmTeachingTipShow(Widget widget) {
 void XmTeachingTipHide(Widget widget) {
     XmTeachingTipWidget tip;
     XmAnyCallbackStruct callback;
-    if (!XmIsTeachingTip(widget)) return;
+    if (widget == NULL || !XmIsTeachingTip(widget)) return;
     tip = (XmTeachingTipWidget)widget;
     if (tip->teaching_tip.timeout_pending) {
         XtRemoveTimeOut(tip->teaching_tip.timeout_id);
@@ -293,7 +293,7 @@ void XmTeachingTipHide(Widget widget) {
 }
 
 Boolean XmTeachingTipIsVisible(Widget widget) {
-    return XmIsTeachingTip(widget)
+    return widget != NULL && XmIsTeachingTip(widget)
                ? ((XmTeachingTipWidget)widget)->teaching_tip.visible : False;
 }
 
