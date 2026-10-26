@@ -20813,3 +20813,8 @@ Guard MWM frame/client conversion inputs (2026-10-26)
 FrameToClient and ClientToFrame now leave their arguments unchanged when the
 client record or any conversion pointer is null.  Valid coordinate conversion
 behavior is unchanged.
+
+Guard MWM depressed-gadget geometry inputs (2026-10-26)
+--------------------------------------------------------
+GetDepressInfo now rejects a null client record or missing geometry output
+pointer before reading decoration state or computing bevel dimensions.

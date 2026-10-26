@@ -1255,8 +1255,14 @@ Boolean GetDepressInfo (ClientData *pcd, int part, int *pX, int *pY, unsigned in
     unsigned int exBevel, eBevel;
     unsigned int wBevel, sBevel;
     unsigned int insideBevel, meBevel;
-    unsigned int decoration = pcd->decor;
+    unsigned int decoration;
     unsigned int tmp;
+
+    if (pcd == NULL || pX == NULL || pY == NULL ||
+	pWidth == NULL || pHeight == NULL || pInvertWidth == NULL)
+	return (FALSE);
+
+    decoration = pcd->decor;
 
     switch (part)
     {
