@@ -13,5 +13,8 @@ access.
 The RGB table binary search uses an overflow-safe midpoint calculation when
 the table grows large.
 
+RGB-file loading and table lookup also reject null pointers and non-positive
+table sizes before touching the supplied storage.
+
 The source contract is covered by
 `tests/automated/check-xpm-rgb-allocation.py`.

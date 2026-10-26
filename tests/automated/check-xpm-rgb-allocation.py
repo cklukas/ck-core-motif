@@ -13,4 +13,6 @@ assert "if (name == NULL)" in body
 assert "return (0);" in body
 assert "middle = left + (right - left) / 2;" in body
 assert "middle = (left + right) / 2;" not in body
+assert "rgbn == NULL || rgbn_max <= 0" in source
+assert "rgb_fname == NULL || rgbn == NULL" in source
 print("PASS XPM RGB lookup checks duplicated-name allocation")

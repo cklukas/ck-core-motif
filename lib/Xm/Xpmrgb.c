@@ -65,6 +65,9 @@ xpmReadRgbNames(
     char line[512], name[512], *rgbname, *s1, *s2;
     xpmRgbName *rgb;
 
+    if (rgb_fname == NULL || rgbn == NULL)
+	return 0;
+
     /* Open the rgb text file.  Abort if error. */
     if ((rgbf = fopen(rgb_fname, "r")) == NULL)
 	return 0;
@@ -126,6 +129,9 @@ xpmGetRgbName(
 {
     int i;
     xpmRgbName *rgb;
+
+    if (rgbn == NULL || rgbn_max <= 0)
+	return NULL;
 
     /*
      * Just perform a dumb linear search over the rgb values of the color
