@@ -118,6 +118,12 @@ void BevelRectangle (RList *prTop, RList *prBot, int x, int y, unsigned int widt
     int x1, y1, len;		/* used to compute bevel parameters */
     int *piTop, *piBot;
 
+    if (prTop == NULL || prBot == NULL || width == 0 || height == 0 ||
+	top_wid > UINT_MAX - left_wid || bot_wid > UINT_MAX - right_wid ||
+	top_wid > height || bot_wid > height - top_wid ||
+	left_wid > width || right_wid > width - left_wid)
+	return;
+
 
     /* build the rectangles to implement the beveling on each side */
 
@@ -271,6 +277,14 @@ void BevelDepressedRectangle (RList *prTop, RList *prBot, int x, int y, unsigned
     int join1, join2;		/* used to compute "good" bevel joints */
     int x1, y1, len;		/* used to compute bevel parameters */
     int *piTop, *piBot;
+
+    if (prTop == NULL || prBot == NULL || width == 0 || height == 0 ||
+	top_wid > UINT_MAX - left_wid || bot_wid > UINT_MAX - right_wid ||
+	top_wid > height || bot_wid > height - top_wid ||
+	left_wid > width || right_wid > width - left_wid ||
+	in_wid > top_wid || in_wid > right_wid ||
+	in_wid > bot_wid || in_wid > left_wid)
+	return;
 
 
     /* 

@@ -20936,6 +20936,12 @@ Guard narrow MWM system-button geometry (2026-10-26)
 BevelSystemButton now rejects widths below the minimum required by each glyph
 size branch before subtracting from the unsigned width.
 
+Validate MWM bevel primitive geometry (2026-10-26)
+--------------------------------------------------
+BevelRectangle and BevelDepressedRectangle now reject null lists, empty boxes,
+overflowing bevel-width sums, bevels wider than their boxes, and invalid
+inset widths before generating shadow rectangles.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
