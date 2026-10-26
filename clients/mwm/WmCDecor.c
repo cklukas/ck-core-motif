@@ -1342,51 +1342,56 @@ void CreateStretcherWindows (ClientData *pcd)
     int iWin;
     int x, y;
     unsigned int width, height;
+    Boolean framePartValid;
     XSetWindowAttributes win_attribs;
     unsigned long attr_mask;
 
     for (iWin = 0; iWin < STRETCH_COUNT; iWin++) {
+	framePartValid = FALSE;
 	switch (iWin) {
 	    case STRETCH_NORTH_WEST:
-		    GetFramePartInfo (pcd, FRAME_RESIZE_NW, 
+		    framePartValid = GetFramePartInfo (pcd, FRAME_RESIZE_NW,
 				      &x, &y, &width, &height);
 		    break;
 
 	    case STRETCH_NORTH:
-		    GetFramePartInfo (pcd, FRAME_RESIZE_N, 
+		    framePartValid = GetFramePartInfo (pcd, FRAME_RESIZE_N,
 				      &x, &y, &width, &height);
 		    break;
 
 	    case STRETCH_NORTH_EAST:
-		    GetFramePartInfo (pcd, FRAME_RESIZE_NE, 
+		    framePartValid = GetFramePartInfo (pcd, FRAME_RESIZE_NE,
 				      &x, &y, &width, &height);
 		    break;
 
 	    case STRETCH_EAST:
-		    GetFramePartInfo (pcd, FRAME_RESIZE_E, 
+		    framePartValid = GetFramePartInfo (pcd, FRAME_RESIZE_E,
 				      &x, &y, &width, &height);
 		    break;
 
 	    case STRETCH_SOUTH_EAST:
-		    GetFramePartInfo (pcd, FRAME_RESIZE_SE, 
+		    framePartValid = GetFramePartInfo (pcd, FRAME_RESIZE_SE,
 				      &x, &y, &width, &height);
 		    break;
 
 	    case STRETCH_SOUTH:
-		    GetFramePartInfo (pcd, FRAME_RESIZE_S, 
+		    framePartValid = GetFramePartInfo (pcd, FRAME_RESIZE_S,
 				      &x, &y, &width, &height);
 		    break;
 
 	    case STRETCH_SOUTH_WEST:
-		    GetFramePartInfo (pcd, FRAME_RESIZE_SW, 
+		    framePartValid = GetFramePartInfo (pcd, FRAME_RESIZE_SW,
 				      &x, &y, &width, &height);
 		    break;
 
 	    case STRETCH_WEST:
-		    GetFramePartInfo (pcd, FRAME_RESIZE_W, 
+		    framePartValid = GetFramePartInfo (pcd, FRAME_RESIZE_W,
 				      &x, &y, &width, &height);
 		    break;
 	}
+
+	if (!framePartValid)
+	    continue;
 
 	attr_mask = CWCursor;
 	win_attribs.cursor = wmGD.stretchCursors[iWin];

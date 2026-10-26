@@ -20892,6 +20892,12 @@ Guard MWM client adoption inputs (2026-10-26)
 AdoptClient now ignores a null client record before touching save-set,
 geometry, or reparenting state.
 
+Validate MWM stretcher geometry before window creation (2026-10-26)
+--------------------------------------------------------------------
+CreateStretcherWindows now honors GetFramePartInfo failure and skips a
+stretcher instead of passing uninitialized coordinates or dimensions to the X
+server.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
