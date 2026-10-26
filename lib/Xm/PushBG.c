@@ -1587,6 +1587,7 @@ BorderUnhighlight(
 	  return;
 	}
     } 
+  (void)_XmNotebookDrawTabBorder(wid);
 }
 
 /*************************************<->*************************************
@@ -3132,6 +3133,7 @@ static void
 DrawPushButtonGadgetShadows(
         XmPushButtonGadget pb )
 {
+  if (_XmNotebookDrawTabBorder((Widget)pb)) return;
   if (PBG_DefaultButtonShadowThickness(pb)
 #ifdef DEFAULT_GLYPH_PIXMAP
       || (_XmGetDefaultGlyphPixmap (XtScreen((Widget)(pb)), NULL, NULL) !=

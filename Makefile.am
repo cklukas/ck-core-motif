@@ -1183,3 +1183,6 @@ EXTRA_DIST += tests/automated/check-periodic-appearance.c \
 EXTRA_DIST += docs/periodic-modern-appearance.md
 
 EXTRA_DIST += tests/automated/check-arrow-bounds.c tests/automated/run-arrow-bounds.py
+
+EXTRA_DIST += tests/automated/check-notebook-appearance.c \
+              tests/automated/run-notebook-appearance.py docs/notebook-appearance.md

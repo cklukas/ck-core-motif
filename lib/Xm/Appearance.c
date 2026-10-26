@@ -23,6 +23,7 @@
 #include "XmI.h"
 #include "RowColumnP.h"
 #include "RCLayoutI.h"
+#include <Xm/NotebookP.h>
 
 #define APPEARANCE_RESOURCE "ckCoreMotif.appearanceProfile"
 #define APPEARANCE_CLASS "CkCoreMotif.AppearanceProfile"
@@ -65,11 +66,19 @@ static const char modern_light_resources[] =
     "*XmScrollBar.highlightThickness: 1\n"
     "*XmForm.shadowThickness: 0\n"
     "*XmBulletinBoard.shadowThickness: 0\n"
-    "*XmNotebook.frameShadowThickness: 0\n"
+    "*XmNotebook.frameBackground: #f1f2f4\n"
+    "*XmNotebook.backPageBackground: #f1f2f4\n"
+    "*XmNotebook.backPageForeground: #9aa3ae\n"
+    "*XmNotebook.bindingWidth: 0\n"
+    "*XmNotebook.backPageSize: 4\n"
+    "*XmNotebook.frameShadowThickness: 1\n"
     "*XmNotebook.borderWidth: 0\n";
 
 static const char high_contrast_resources[] =
     "*background: #000000\n"
+    "*XmNotebook.frameBackground: #000000\n"
+    "*XmNotebook.backPageBackground: #000000\n"
+    "*XmNotebook.backPageForeground: #ffffff\n"
     "*foreground: #ffffff\n"
     "*topShadowColor: #ffffff\n"
     "*bottomShadowColor: #ffffff\n"
@@ -108,7 +117,12 @@ static const char modern_dark_resources[] =
     "*XmScrollBar.highlightThickness: 1\n"
     "*XmForm.shadowThickness: 0\n"
     "*XmBulletinBoard.shadowThickness: 0\n"
-    "*XmNotebook.frameShadowThickness: 0\n"
+    "*XmNotebook.frameBackground: #202124\n"
+    "*XmNotebook.backPageBackground: #202124\n"
+    "*XmNotebook.backPageForeground: #5f6368\n"
+    "*XmNotebook.bindingWidth: 0\n"
+    "*XmNotebook.backPageSize: 4\n"
+    "*XmNotebook.frameShadowThickness: 1\n"
     "*XmNotebook.borderWidth: 0\n";
 
 /* Layout defaults are shared by all modern palettes. Keep density independent
@@ -137,7 +151,9 @@ static const AppearanceDensityResource density_resources[] = {
     {"*XmText.marginHeight", 4, 2},
     {"*XmList.listMarginWidth", 8, 4},
     {"*XmList.listMarginHeight", 8, 4},
-    {"*XmList.listSpacing", 4, 2}
+    {"*XmList.listSpacing", 4, 2},
+    {"*XmNotebook.innerMarginWidth", 8, 4},
+    {"*XmNotebook.innerMarginHeight", 8, 4}
 };
 
 typedef enum {
@@ -160,6 +176,13 @@ typedef enum {
     AP_FRAME_SHADOW_THICKNESS,
     AP_BORDER_WIDTH,
     AP_INDICATOR_SIZE,
+    AP_FRAME_BACKGROUND,
+    AP_BACK_PAGE_BACKGROUND,
+    AP_BACK_PAGE_FOREGROUND,
+    AP_BINDING_WIDTH,
+    AP_BACK_PAGE_SIZE,
+    AP_INNER_MARGIN_WIDTH,
+    AP_INNER_MARGIN_HEIGHT,
     AP_COUNT
 } AppearanceProperty;
 
@@ -252,7 +275,9 @@ appearance_property_name(AppearanceProperty property)
         "insensitiveForeground", XmNtraversalOn, XmNmarginWidth,
         XmNmarginHeight, XmNlistMarginWidth, XmNlistMarginHeight,
         XmNlistSpacing, XmNframeShadowThickness, XmNborderWidth,
-        XmNindicatorSize
+        XmNindicatorSize,
+        XmNframeBackground, XmNbackPageBackground, XmNbackPageForeground,
+        XmNbindingWidth, XmNbackPageSize, XmNinnerMarginWidth, XmNinnerMarginHeight
     };
     return names[property];
 }
@@ -266,7 +291,9 @@ appearance_property_is_dimension(AppearanceProperty property)
            property == AP_LIST_MARGIN_WIDTH ||
            property == AP_LIST_MARGIN_HEIGHT || property == AP_LIST_SPACING ||
            property == AP_FRAME_SHADOW_THICKNESS || property == AP_BORDER_WIDTH ||
-           property == AP_INDICATOR_SIZE;
+           property == AP_INDICATOR_SIZE || property == AP_BINDING_WIDTH ||
+           property == AP_BACK_PAGE_SIZE || property == AP_INNER_MARGIN_WIDTH ||
+           property == AP_INNER_MARGIN_HEIGHT;
 }
 
 static Boolean
@@ -353,6 +380,22 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
                         AppearanceProperty property)
 {
     XrmValue value;
+    if (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) {
+        Boolean dark = profile == XmAPPEARANCE_MODERN_DARK;
+        if (XtParent(widget) && XmIsNotebook(XtParent(widget)) &&
+            widget->core.constraints != NULL) {
+            XmNotebookConstraintPtr constraint =
+                (XmNotebookConstraintPtr)widget->core.constraints;
+            if (constraint->notebook.child_type == XmMAJOR_TAB ||
+                constraint->notebook.child_type == XmMINOR_TAB) {
+                if (property == AP_BACKGROUND)
+                    return dark ? "#202124" : "#f1f2f4";
+                if (property == AP_SHADOW_THICKNESS) return "1";
+                if (property == AP_TOP_SHADOW || property == AP_BOTTOM_SHADOW)
+                    return dark ? "#5f6368" : "#9aa3ae";
+            }
+        }
+    }
     /* RowColumn permits shadows only for menus. Preserve the class baseline
      * on work areas/options rather than asking SetValues to reject styling. */
     if (property == AP_SHADOW_THICKNESS && XmIsRowColumn(widget)) {
