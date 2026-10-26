@@ -22937,3 +22937,10 @@ Guard TextField input-method reset allocations (2026-10-26)
   while resetting a TextField input method.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-reset-ic-allocations.py
+
+Guard TextField preedit-start overstrike allocations (2026-10-26)
+===================================================================
+- Validate overstrike snapshot sizes and reject preedit startup safely when a
+  narrow or wide snapshot cannot be allocated.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-preedit-start-allocations.py

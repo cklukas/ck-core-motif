@@ -9610,8 +9610,22 @@ PreeditStart(XIC xic,
        lastPos = tf->text.string_length;
        tf->text.onthespot->over_len = lastPos - PreCursor(tf);
 
+       if (tf->text.onthespot->over_len < 0 ||
+           (size_t)tf->text.onthespot->over_len >= (size_t)UINT_MAX ||
+           (size_t)tf->text.onthespot->over_len + 1 >
+             SIZE_MAX / sizeof(wchar_t)) {
+           tf->text.onthespot->over_len = 0;
+           tf->text.onthespot->under_preedit = False;
+           return 0;
+       }
+
             if (tf->text.max_char_size == 1){
                 mb = XtMalloc(tf->text.onthespot->over_len + 1);
+                if (mb == NULL) {
+                    tf->text.onthespot->over_len = 0;
+                    tf->text.onthespot->under_preedit = False;
+                    return 0;
+                }
                 bcopy(&tf->text.value[PreStart(tf)], mb,
                                         tf->text.onthespot->over_len);
                 mb[tf->text.onthespot->over_len] = '\0';
@@ -9619,6 +9633,11 @@ PreeditStart(XIC xic,
             } else {
                 wc = (wchar_t *) XtMalloc(
                         (tf->text.onthespot->over_len+1)*sizeof(wchar_t));
+                if (wc == NULL) {
+                    tf->text.onthespot->over_len = 0;
+                    tf->text.onthespot->under_preedit = False;
+                    return 0;
+                }
                 bcopy((char *)&tf->text.wc_value[PreStart(tf)], (char *)wc,
                                 tf->text.onthespot->over_len*sizeof(wchar_t));
                 wc[tf->text.onthespot->over_len] = (wchar_t)'\0';
