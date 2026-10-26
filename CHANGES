@@ -217,6 +217,15 @@ Bound Text line-count ranges (2026-10-27)
   Unicode and legacy source behavior.
 - Add a focused source regression and documentation.
 
+Guard Text reflow scratch-table allocation (2026-10-27)
+=======================================================
+
+- Check temporary wrapped-line table sizes before multiplication and Xt
+  allocation.
+- Leave reflow pending when scratch storage is unavailable instead of passing
+  a null table into the realignment path.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

@@ -1642,8 +1642,14 @@ _XmTextUpdateLineTable(Widget widget,
 	  /* make sure the size is not zero */
 	  if (!temp_table_size) temp_table_size++;
 	  /* do initial allocation of the temp_table */
+	  if (temp_table_size < 0 ||
+	      (size_t)temp_table_size > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+	      (size_t)temp_table_size > UINT_MAX / sizeof(XmTextLineTableRec))
+	    return;
 	  temp_table = (XmTextLineTable) XtMalloc(temp_table_size *
 						  sizeof(XmTextLineTableRec)); 
+	  if (temp_table == NULL)
+	    return;
 	  /* Determine the lines that have changed. */
 	  _XmTextRealignLineTable(tw, &temp_table, &temp_table_size,
 				  0, cur_start, cur_end + delta);
