@@ -117,6 +117,11 @@ _XmTextReplace(Widget widget,
 	   num_chars++) tmp_wc++;
       tmp_block = XtMalloc((unsigned) 
 			   (num_chars + 1) * (int)tw->text.char_size);
+      if (tmp_block == NULL) {
+	(*tw->text.output->DrawInsertionPoint)(tw,
+					      tw->text.cursor_position, on);
+	return;
+      }
       block.ptr = tmp_block;
       need_free = True;
       tmp_wc = (wchar_t *) value;
