@@ -1,3 +1,11 @@
+Refresh Xpm file-image display check (2026-10-27)
+=================================================
+
+- Accept the current combined display, filename, and output validation while
+  retaining the guard-order assertion before Xpm image initialization.
+
+============================================================
+
 Refresh XmString tag allocation check (2026-10-27)
 ==================================================
 
