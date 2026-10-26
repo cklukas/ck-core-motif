@@ -10804,9 +10804,14 @@ df_SetValues(
            diff_values = True;
            if (XmTextF_wc_value(new_tf) == NULL) {
               XmTextF_wc_value(new_tf) = (wchar_t*) XtMalloc(sizeof(wchar_t));
-              *XmTextF_wc_value(new_tf) = (wchar_t)0;
+              if (XmTextF_wc_value(new_tf) == NULL) {
+                 diff_values = False;
+              } else {
+                 *XmTextF_wc_value(new_tf) = (wchar_t)0;
+              }
            }
-           df_ValidateString(new_tf, (char*)XmTextF_wc_value(new_tf), True);
+           if (XmTextF_wc_value(new_tf) != NULL)
+             df_ValidateString(new_tf, (char*)XmTextF_wc_value(new_tf), True);
         } else if (XmTextF_value(new_tf) != XmTextF_value(old_tf)) {
            /* Someone set XmNvalue */
            diff_values = True;
