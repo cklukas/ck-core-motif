@@ -21419,3 +21419,9 @@ MakeIconPixmap now rejects missing or zero-sized source bitmaps before icon
 allocation and XCopyPlane, preventing failed built-in icon resources from
 becoming BadPixmap requests.
 
+Guard MWM client-icon geometry queries (2026-10-26)
+----------------------------------------------------
+MakeClientIconPixmap now rejects a missing screen record or source pixmap
+before calling XGetGeometry, avoiding BadDrawable requests on invalid client
+icon resources.
+

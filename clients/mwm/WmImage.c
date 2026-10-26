@@ -126,6 +126,9 @@ Pixmap MakeClientIconPixmap (
     pSD = pCD->pSD;
   else
     pSD = wmGD.pActiveSD;
+
+  if (pSD == NULL || iconBitmap == None)
+	return ((Pixmap)NULL);
     
   /*
    * Get pixmap attributes and ensure that it is usable.
