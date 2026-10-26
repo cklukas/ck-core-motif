@@ -1772,6 +1772,11 @@ void GetDtSessionHints (WmScreenData *pSD, int sNum)
     unsigned long leftover;
     unsigned long nitems;
 
+    (void)sNum;
+
+    if (pSD == NULL)
+	return;
+
     
 
     /*

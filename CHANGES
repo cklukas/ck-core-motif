@@ -120,6 +120,12 @@ Guard MWM workspace metadata inputs (2026-10-26)
   before workspace-property construction or X operations.
 - Add focused regression coverage and document the null-input contract.
 
+Guard MWM DT session-hint input (2026-10-26)
+============================================
+
+- Return safely when session-hint processing is invoked without screen data.
+- Add focused regression coverage and document the no-op contract.
+
 Guard MWM binding token boundaries (2026-10-26)
 ===============================================
 
