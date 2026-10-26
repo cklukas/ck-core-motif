@@ -21699,3 +21699,9 @@ Initialize MWM menu conversion outputs (2026-10-26)
   unusual failure results follow deterministic cleanup paths.
 - Extend the menu-conversion regression coverage and documentation.
 
+Clean up failed MWM menu conversions (2026-10-26)
+=================================================
+
+- Release any partial Xmb text list returned alongside a conversion failure.
+- Extend the menu-conversion regression coverage and documentation.
+

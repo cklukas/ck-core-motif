@@ -9,5 +9,6 @@ assert "if (nItems > 0 && textList[0] != NULL)" in region
 assert "XFreeStringList(textList);" in region
 assert "char **textList = NULL;" in region
 assert "int nItems = 0;" in region
+assert "if (textList != NULL)\n\t\tXFreeStringList(textList);" in region
 assert "textProperty.nitems == 0" in region
 print("PASS MWM menu conversion validates returned text entries")

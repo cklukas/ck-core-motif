@@ -1187,6 +1187,8 @@ GetMwmMenuItems(
 	if (XmbTextPropertyToTextList(DISPLAY, &textProperty,
 				      &textList, &nItems) != Success)
 	{
+	    if (textList != NULL)
+		XFreeStringList(textList);
 	    menuItems = NULL;
 	}
 	else

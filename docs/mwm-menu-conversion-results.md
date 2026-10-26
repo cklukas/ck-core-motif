@@ -7,3 +7,4 @@ cleanup path for empty or failed conversions.  Any returned text list is freed
 even when validation rejects it.
 The conversion output variables are initialized before the call so unusual
 converter results remain safe to clean up.
+Conversion failures also release any partial text list returned by Xmb.
