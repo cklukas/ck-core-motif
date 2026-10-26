@@ -428,6 +428,13 @@ Boolean ConstructFrame (ClientData *pcd)
 			CopyFromParent,InputOutput,CopyFromParent,
 			attr_mask, &window_attribs);
 
+    if (pcd->clientFrameWin == None)
+	{
+	    return(FALSE);
+	}
+
+    pcd->clientTitleWin = None;
+
     /* create resizing windows with cursors*/
     if (SHOW_RESIZE_CURSORS(pcd) && (decoration & MWM_DECOR_RESIZEH)) {
 	CreateStretcherWindows (pcd);
@@ -486,11 +493,27 @@ Boolean ConstructFrame (ClientData *pcd)
 				0, 
 				CopyFromParent,wclass,CopyFromParent,
 				attr_mask, &window_attribs);
+
+	if (pcd->clientTitleWin == None)
+	{
+	    XDestroyWindow (DISPLAY, pcd->clientFrameWin);
+	    pcd->clientFrameWin = None;
+	    return(FALSE);
+	}
     }
 
     /* generate gadget position search structure */
     if (!AllocateGadgetRectangles (pcd))
-	return(FALSE);
+	{
+	    if (pcd->clientTitleWin != None)
+	    {
+		XDestroyWindow (DISPLAY, pcd->clientTitleWin);
+		pcd->clientTitleWin = None;
+	    }
+	    XDestroyWindow (DISPLAY, pcd->clientFrameWin);
+	    pcd->clientFrameWin = None;
+	    return(FALSE);
+    }
     ComputeGadgetRectangles (pcd);
 
 
@@ -523,6 +546,18 @@ Boolean ConstructFrame (ClientData *pcd)
 				0, 
 				CopyFromParent,InputOutput,CopyFromParent,
 				attr_mask, &window_attribs);
+
+    if (pcd->clientBaseWin == None)
+	{
+	    if (pcd->clientTitleWin != None)
+	    {
+		XDestroyWindow (DISPLAY, pcd->clientTitleWin);
+		pcd->clientTitleWin = None;
+	    }
+	    XDestroyWindow (DISPLAY, pcd->clientFrameWin);
+	    pcd->clientFrameWin = None;
+	    return(FALSE);
+    }
 
     /* map all subwindows of client frame */
 

@@ -21150,3 +21150,9 @@ Own TabBox font tables and mutable drawing contexts (2026-10-26)
 - Extend the native realized-widget regression with repeated font-alias updates,
   caller release, measured text extents and default restoration.
 
+Guard MWM frame-window construction failures (2026-10-26)
+----------------------------------------------------------
+ConstructFrame now checks each X window allocation before creating children or
+mapping the hierarchy, and tears down partial frame windows on failure. This
+prevents invalid-parent and invalid-window requests after X resource exhaustion.
+
