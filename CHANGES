@@ -1,3 +1,11 @@
+Refresh Xmos pattern-bounds check (2026-10-27)
+===============================================
+
+- Match the allocation assertion to the current checked `Cardinal` cast
+  while retaining overflow and allocation-failure coverage.
+
+============================================================
+
 Refresh Xmos directory-cache allocation check (2026-10-27)
 ============================================================
 
