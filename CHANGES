@@ -142,6 +142,13 @@ Bound MWM XSMP restart-command allocation counts (2026-10-26)
   `Cardinal` width before allocating the pointer array.
 - Extend the existing restart-command regression and document the bound.
 
+Guard MWM client-list sorting inputs (2026-10-26)
+=================================================
+
+- Reject null client arrays before sorting and explicitly convert positive
+  client counts to `size_t` for `qsort()`.
+- Add a focused sorting regression and document the input contract.
+
 Expose toolkit appearance in the Periodic Table demo (2026-10-26)
 ================================================================
 

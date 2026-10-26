@@ -1456,9 +1456,9 @@ GetSmClientIdClientList(ClientData ***clients, int *nClients)
 void
 SortClientListByWorkspace(ClientData **clients, int nClients)
 {
-    if (nClients > 0)
+    if (clients != NULL && nClients > 0)
     {
-	qsort((void *)clients, nClients,
+	qsort((void *)clients, (size_t)nClients,
 	      sizeof(ClientData *), clientWorkspaceCompare);
     }
 }
