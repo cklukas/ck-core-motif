@@ -1,3 +1,10 @@
+Bound ToggleButton default geometry (2026-10-27)
+==================================================
+
+- Compute label, indicator, margin, and shadow totals in widened arithmetic
+  and clamp default width and height before narrowing to `Dimension`.
+- Add focused regression coverage and documentation.
+
 Bound MultiList frame geometry (2026-10-27)
 ============================================
 

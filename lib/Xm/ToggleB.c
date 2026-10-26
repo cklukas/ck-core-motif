@@ -32,6 +32,8 @@ static char rcsid[] = "$TOG: ToggleB.c /main/43 1999/12/06 18:09:38 samborn $"
 #endif
 
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
 #include "XmI.h"
 #include <X11/ShellP.h>
 #include <Xm/BaseClassP.h>
@@ -167,6 +169,7 @@ static void Initialize(
                         Widget nw,
                         ArgList args,
                         Cardinal *num_args) ;
+static Dimension toggle_bounded_dimension(uint64_t value);
 static void Destroy( 
                         Widget wid) ;
 static void DrawToggle( 
@@ -1713,6 +1716,12 @@ GetGC(
  *
  *************************************<->***********************************/
 
+static Dimension
+toggle_bounded_dimension(uint64_t value)
+{
+  return value > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)value;
+}
+
 /*ARGSUSED*/
 static void 
 Initialize(
@@ -1724,6 +1733,7 @@ Initialize(
   XmToggleButtonWidget request = (XmToggleButtonWidget) rw ;
   XmToggleButtonWidget new_w = (XmToggleButtonWidget) nw ;
   XtWidgetProc resize;
+  uint64_t width_total, height_total, content_height;
 
 
   new_w->toggle.Armed = FALSE;
@@ -1964,11 +1974,12 @@ Initialize(
 
   if (request->core.width == 0)
     {
-      new_w->core.width = new_w->label.TextRect.width +
-	2 * new_w->label.margin_width + new_w->label.margin_right +
-	    new_w->label.margin_left +
-	      2 * (new_w->primitive.highlight_thickness +
-		   new_w->primitive.shadow_thickness); 
+      width_total = (uint64_t)new_w->label.TextRect.width +
+	2 * (uint64_t)new_w->label.margin_width +
+	new_w->label.margin_right + new_w->label.margin_left +
+	2 * ((uint64_t)new_w->primitive.highlight_thickness +
+	    new_w->primitive.shadow_thickness);
+      new_w->core.width = toggle_bounded_dimension(width_total);
       
       if (new_w->core.width == 0)
 	new_w->core.width = 1; 
@@ -1991,12 +2002,16 @@ Initialize(
     }
   
   if (request->core.height == 0)
-    new_w->core.height = 
-      MAX(new_w->toggle.indicator_dim,
-	  new_w->label.TextRect.height + 2 * new_w->label.margin_height + 
-	  new_w->label.margin_top + new_w->label.margin_bottom)  + 
-	    2 * (new_w->primitive.highlight_thickness +
-		 new_w->primitive.shadow_thickness);
+    {
+      content_height = MAX((uint64_t)new_w->toggle.indicator_dim,
+		(uint64_t)new_w->label.TextRect.height +
+		2 * (uint64_t)new_w->label.margin_height +
+		new_w->label.margin_top + new_w->label.margin_bottom);
+      height_total = content_height +
+		2 * ((uint64_t)new_w->primitive.highlight_thickness +
+		     new_w->primitive.shadow_thickness);
+      new_w->core.height = toggle_bounded_dimension(height_total);
+    }
   
   new_w->label.TextRect.y =  (short) new_w->primitive.highlight_thickness
     + new_w->primitive.shadow_thickness + new_w->label.margin_height +
