@@ -1004,9 +1004,9 @@ XmTextFindStringWcs(Widget w,
   char *string;
   size_t num_chars = 0;
   size_t allocation_size;
+  size_t converted;
   Boolean return_val = False;
   XmTextWidget tw = (XmTextWidget) w;
-  int wcs_ret_val = 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -1025,9 +1025,8 @@ XmTextFindStringWcs(Widget w,
       _XmAppUnlock(app);
       return False;
     }
-    wcs_ret_val = wcstombs(string, wc_string,
-                           allocation_size);
-    if (wcs_ret_val >= 0)
+    converted = wcstombs(string, wc_string, allocation_size);
+    if (converted != (size_t)-1 && converted <= (size_t)INT_MAX)
       return_val = XmTextFindString(w, start, string, direction, position);
     XtFree(string);
     _XmAppUnlock(app);

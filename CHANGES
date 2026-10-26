@@ -22707,3 +22707,9 @@ Guard Text search length conversion (2026-10-26)
   the legacy integer character-count parameter.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-find-length.py
+Check Text wide search conversion sizes (2026-10-26)
+=====================================================
+- Keep `wcstombs` results in `size_t` until conversion and legacy search-size
+  limits are validated.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-find-wcs-conversion.py
