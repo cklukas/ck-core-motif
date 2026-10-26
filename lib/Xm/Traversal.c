@@ -1416,12 +1416,13 @@ XmeFocusIsInShell(
 {
   Window focus ;
   Widget focus_wid ;
-  Widget shell_of_wid = _XmFindTopMostShell( wid) ;
+  Widget shell_of_wid ;
   XmFocusData focus_data ;
   int revert ;
 
   if (wid == NULL)
     return FALSE;
+  shell_of_wid = _XmFindTopMostShell( wid) ;
   _XmWidgetToAppContext(wid);
 
   _XmAppLock(app);
