@@ -3665,8 +3665,8 @@ SetSelectionHint(Widget w,
   XmTextWidget tw = (XmTextWidget) w;
   InputData data = tw->text.input->data;
   if (event) {
-    data->selectionHint.x = event->xbutton.x;
-    data->selectionHint.y = event->xbutton.y;
+    data->selectionHint.x = ClampTextPointCoordinate(event->xbutton.x);
+    data->selectionHint.y = ClampTextPointCoordinate(event->xbutton.y);
   }
 }
 
@@ -3845,8 +3845,8 @@ StartSecondary(Widget w,
   XAllowEvents(XtDisplay(w), AsyncBoth, event_time);
 
   if (event) {
-    data->Sel2Hint.x = event->xbutton.x;
-    data->Sel2Hint.y = event->xbutton.y;
+    data->Sel2Hint.x = ClampTextPointCoordinate(event->xbutton.x);
+    data->Sel2Hint.y = ClampTextPointCoordinate(event->xbutton.y);
   } else {
     (*tw->text.output->PosToXY)(tw, tw->text.cursor_position, 
 				&x, &y);

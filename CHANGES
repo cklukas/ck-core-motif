@@ -19883,6 +19883,13 @@ Bound Text event hit-tests (2026-10-26)
   cursor placement, selection, in-selection, and destination actions.
 - Add focused regression coverage and documentation.
 
+Bound Text selection hints (2026-10-26)
+========================================
+
+- Saturate primary and secondary selection-start coordinates before storing
+  them in the 16-bit hint fields used by drag and multi-click selection.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
