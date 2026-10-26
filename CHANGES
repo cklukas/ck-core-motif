@@ -1,3 +1,12 @@
+Bound Mrm fetched font-list allocation width (2026-10-27)
+============================================================
+
+- Reject legacy font-list records that fit host `size_t` but exceed Xt's
+  `Cardinal` allocation width in the fetch/set-values conversion path.
+- Extend the focused font-list regression to cover the Xt width contract.
+
+============================================================
+
 Bound Mrm name-registration allocation width (2026-10-27)
 ===========================================================
 

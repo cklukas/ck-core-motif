@@ -16,6 +16,8 @@ if not (count_pos < guard_pos < alloc_pos):
     raise SystemExit("legacy font-list allocation is not guarded")
 if "SIZE_MAX - sizeof(RGMFontList)" not in region[guard_pos:alloc_pos]:
     raise SystemExit("legacy font-list size-overflow guard is missing")
+if "sizeof(RGMFontList) +" not in region[guard_pos:alloc_pos] or " > UINT_MAX" not in region[guard_pos:alloc_pos]:
+    raise SystemExit("legacy font-list Xt allocation-width guard is missing")
 if "sizeof(RGMFontItem)" not in region[guard_pos:alloc_pos]:
     raise SystemExit("legacy font-list item-size check is missing")
 if "XtFree ((char *)val)" not in region[guard_pos:alloc_pos]:
