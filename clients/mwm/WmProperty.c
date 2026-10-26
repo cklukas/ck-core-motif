@@ -1190,7 +1190,7 @@ GetMwmMenuItems(
 	}
 	else
 	{
-	    if(textList)
+	    if(textList && nItems > 0 && textList[0] != NULL)
 	    {
 		menuItems = ParseMwmMenuStr (PSD_FOR_CLIENT(pCD),
 					 (unsigned char *)textList[0]);

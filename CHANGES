@@ -21672,3 +21672,10 @@ Bound MWM title-property emptiness checks (2026-10-26)
   and WM_ICON_NAME contain data.
 - Add focused regression coverage and documentation.
 
+Validate MWM menu conversion results (2026-10-26)
+=================================================
+
+- Require a non-empty converted text list before parsing the first `_MWM_MENU`
+  entry.
+- Add focused regression coverage and documentation.
+
