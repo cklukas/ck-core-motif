@@ -21,5 +21,8 @@ computed span exceeds the corresponding frame dimension.
 
 Southwest vertical placement uses the same clamp for an undersized frame.
 
+Corner widths and heights are also capped at the frame dimensions so a tiny
+frame cannot produce an off-frame resize rectangle.
+
 The source-contract regression is
 `tests/automated/check-mwm-title-width-bounds.py`.
