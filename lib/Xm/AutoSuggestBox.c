@@ -405,20 +405,31 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
         return False;
     free_items(box);
     XmListDeleteAllItems(box->auto_suggest.list);
-    if (count)
+    if (count) {
         box->auto_suggest.items = (XmAutoSuggestStoredItem *)XtCalloc(
             count, sizeof(*box->auto_suggest.items));
-    box->auto_suggest.item_count = count;
+        if (!box->auto_suggest.items) {
+            box->auto_suggest.no_results = True;
+            return False;
+        }
+    }
+    box->auto_suggest.item_count = 0;
     box->auto_suggest.no_results = count == 0;
     if (count) {
         for (i = 0; i < count; ++i) {
             XmString label = string_copy(items[i].label);
             box->auto_suggest.items[i].id = XtNewString(items[i].id ? items[i].id : "");
-            box->auto_suggest.items[i].label = string_copy(items[i].label);
+            box->auto_suggest.items[i].label = label;
+            if (!box->auto_suggest.items[i].id || !label) {
+                box->auto_suggest.item_count = i + 1;
+                free_items(box);
+                box->auto_suggest.no_results = True;
+                return False;
+            }
             box->auto_suggest.items[i].user_data = items[i].user_data;
             XmListAddItem(box->auto_suggest.list, label, 0);
-            XmStringFree(label);
         }
+        box->auto_suggest.item_count = count;
     } else {
         XmString label = XmStringCreateLocalized(box->auto_suggest.no_results_label);
         XmListAddItem(box->auto_suggest.list, label, 0);
