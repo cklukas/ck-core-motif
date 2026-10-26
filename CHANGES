@@ -22930,3 +22930,10 @@ Guard TextField modify-verify result allocations (2026-10-26)
   be allocated, avoiding null dereferences and releasing temporary buffers.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfield-modify-verify-allocations.py
+
+Guard TextField input-method reset allocations (2026-10-26)
+=============================================================
+- Handle preedit buffer allocation failures and invalid conversions safely
+  while resetting a TextField input method.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfield-reset-ic-allocations.py

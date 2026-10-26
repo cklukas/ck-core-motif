@@ -10136,6 +10136,10 @@ TextFieldResetIC(Widget w)
     if (FVerifyCommitNeeded(tf)) {
 	FVerifyCommitNeeded(tf) = False;
 	str = XtMalloc((PreEnd(tf) - PreStart(tf)+1)*sizeof(wchar_t));
+	if (str == NULL) {
+	  ResetUnder(tf);
+	  return;
+	}
 	if (tf->text.max_char_size == 1) {
 	  bcopy(&tf->text.value[PreStart(tf)], str, 
 				PreEnd(tf) - PreStart(tf));
@@ -10146,12 +10150,21 @@ TextFieldResetIC(Widget w)
 	  wchar_t *wc_string;
 	  wc_string = (wchar_t *)XtMalloc((PreEnd(tf) - PreStart(tf)+1)
                                                         *sizeof(wchar_t));
+	  if (wc_string == NULL) {
+	    XtFree(str);
+	    ResetUnder(tf);
+	    return;
+	  }
           bcopy((char *)&tf->text.wc_value[PreStart(tf)], (char *)wc_string,
                                 (PreEnd(tf) - PreStart(tf))*sizeof(wchar_t));
           wc_string[PreEnd(tf) - PreStart(tf)] = (wchar_t)'\0';
 	  num_bytes = wcstombs(str, wc_string, 
 				(PreEnd(tf) - PreStart(tf)+1)*sizeof(wchar_t)); 
-	  str[num_bytes] = '\0';
+	  if (num_bytes < 0) {
+	    str[0] = '\0';
+	  } else {
+	    str[num_bytes] = '\0';
+	  }
 	  XtFree((char *)wc_string);
 	}
 	XmImMbResetIC(w, &mb);
@@ -10192,7 +10205,17 @@ TextFieldResetIC(Widget w)
         mb[insert_length] = '\0';
         wc_insert_string = (wchar_t*)XtMalloc((unsigned)(insert_length+1) *
                                              sizeof(wchar_t));
+	if (wc_insert_string == NULL) {
+	  if (str) XtFree(str);
+	  _XmTextFieldDrawInsertionPoint(tf, True);
+	  ResetUnder(tf);
+	  return;
+	}
         num_chars = mbstowcs( wc_insert_string, mb, insert_length+1);
+	if (num_chars < 0) {
+	  wc_insert_string[0] = (wchar_t)0;
+	  num_chars = 0;
+	}
         replace_res = _XmTextFieldReplaceText(tf, NULL, cursorPos,
                 nextPos, (char*) wc_insert_string, num_chars, True);
         XtFree((char *)wc_insert_string);
