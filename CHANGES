@@ -15470,3 +15470,11 @@ Bound drop-transfer list additions (2026-10-27)
 - Add a focused source regression and documentation.
 
 Harden the shared drag copy helper (2026-10-27)
+Bound drop-transfer entry work arrays (2026-10-27)
+===================================================
+
+- Check target/client-data array products and handle zero-size and allocation
+  failure paths before filling transfer entries.
+- Add a focused source regression and documentation.
+
+Bound drop-transfer list additions (2026-10-27)

@@ -462,10 +462,32 @@ ProcessTransferEntry(
 	Widget requestor;
 
 	dtp->cur_drop_transfer_list = which;
-	dtp->cur_targets = (Atom *)
-		XtMalloc((tl->num_transfers * sizeof(Atom)));
-	dtp->cur_client_data = (XtPointer *)
-		XtMalloc((tl->num_transfers * sizeof(XtPointer)));
+	if ((size_t)tl->num_transfers >
+	    (size_t)UINT_MAX / sizeof(Atom) ||
+	    (size_t)tl->num_transfers >
+	    (size_t)UINT_MAX / sizeof(XtPointer)) {
+	    dtp->cur_targets = NULL;
+	    dtp->cur_client_data = NULL;
+	    return;
+	}
+	if (tl->num_transfers == 0) {
+	    dtp->cur_targets = NULL;
+	    dtp->cur_client_data = NULL;
+	    return;
+	}
+	dtp->cur_targets = (Atom *)XtMalloc(
+	    (size_t)tl->num_transfers * sizeof(Atom));
+	if (dtp->cur_targets == NULL) {
+	    dtp->cur_client_data = NULL;
+	    return;
+	}
+	dtp->cur_client_data = (XtPointer *)XtMalloc(
+	    (size_t)tl->num_transfers * sizeof(XtPointer));
+	if (dtp->cur_client_data == NULL) {
+	    XtFree((char *)dtp->cur_targets);
+	    dtp->cur_targets = NULL;
+	    return;
+	}
 
 	i = 0;
 	XtSetArg(args[i], XmNiccHandle, &real_selection_atom); i++;
