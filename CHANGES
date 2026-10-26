@@ -1,3 +1,12 @@
+Guard TextField XIM preedit scratch allocations (2026-10-27)
+==============================================================
+
+- Check temporary tab, multibyte, and empty-preedit buffers before writing,
+  releasing the first buffer if the second allocation fails.
+- Add a focused source regression and documentation.
+
+==============================================================
+
 Bound TextField XIM preedit positions (2026-10-27)
 ===================================================
 
