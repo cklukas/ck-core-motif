@@ -1,3 +1,12 @@
+Guard virtual-key display initialization inputs (2026-10-27)
+==============================================================
+
+- Validate the XmDisplay handle before casting and calling `XtDisplay` in
+  `_XmVirtKeysInitialize`.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Guard ComboBox item-setting API inputs (2026-10-27)
 ===================================================
 

@@ -500,16 +500,19 @@ GetBindingsProperty(Display *display,
 void 
 _XmVirtKeysInitialize(Widget widget)
 {
-  XmDisplay xmDisplay = (XmDisplay) widget;
-  Display *dpy = XtDisplay(xmDisplay);
+  XmDisplay xmDisplay;
+  Display *dpy;
   XrmDatabase keyDB;
   String bindingsString;
   String fallbackString = NULL;
   Boolean needXFree = False;
   int keycode_min, keycode_max;
   
-  if (!XmIsDisplay(widget))
+  if (widget == NULL || !XmIsDisplay(widget))
     return;
+
+  xmDisplay = (XmDisplay) widget;
+  dpy = XtDisplay(xmDisplay);
   
   bindingsString = xmDisplay->display.bindingsString;
   xmDisplay->display.lastKeyEvent = NULL;
