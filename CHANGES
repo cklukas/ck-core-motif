@@ -1,3 +1,11 @@
+Reject zero-progress scaled-image strips (2026-10-26)
+======================================================
+
+- Detect a row table that reaches its final coordinate without advancing the
+  current destination strip, preventing an infinite loop for extreme or
+  malformed scaling dimensions.
+- Add focused regression coverage and documentation for the termination guard.
+
 Bound scaled-image row table traversal (2026-10-26)
 ====================================================
 

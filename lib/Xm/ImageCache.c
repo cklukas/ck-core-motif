@@ -2780,6 +2780,8 @@ void _XmPutScaledImage (
 		}
 	    }
 	}
+	if (y >= image_height && table.y[y] <= min_y)
+	    goto cleanup;
 	if ((long long)dest_y + (long long)min_y > INT_MAX ||
 	    (long long)dest_y + (long long)min_y < INT_MIN)
 	    goto cleanup;
