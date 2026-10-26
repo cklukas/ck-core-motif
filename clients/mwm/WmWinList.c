@@ -3072,7 +3072,14 @@ void UpdateScreenClientList (
          */
         if (pEntry->type != MINIMIZED_STATE && pEntry->pCD != NULL)
         {
-            resized = realloc (windows, (count + 1) * sizeof (Window));
+            if (count < 0 || count == INT_MAX ||
+                (size_t)(count + 1) > (size_t)UINT_MAX / sizeof(Window))
+            {
+                free (windows);
+                return;
+            }
+            resized = realloc (windows,
+                               (size_t)(count + 1) * sizeof (Window));
             if (resized == NULL)
             {
                 free (windows);
@@ -3085,7 +3092,7 @@ void UpdateScreenClientList (
         pEntry = pEntry->nextSibling;
     }
 
-    SetMwmClientList (pSD->rootWindow, windows, count);
+    SetMwmClientList (pSD->rootWindow, windows, (unsigned int)count);
 
     free (windows);
 
