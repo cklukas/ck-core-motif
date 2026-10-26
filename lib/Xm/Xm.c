@@ -410,7 +410,8 @@ _XmUtf8ToUcs2(char *draw_text, size_t seg_len, size_t *ret_str_len)
      * Convert to UCS2 string on the fly.
      */
 
-     if (seg_len > SIZE_MAX / sizeof(XChar2b)) {
+     if (seg_len > SIZE_MAX / sizeof(XChar2b) ||
+	 seg_len > (size_t)UINT_MAX / sizeof(XChar2b)) {
 	*ret_str_len = 0;
 	return NULL;
      }

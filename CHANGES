@@ -18653,3 +18653,13 @@ Make Mrm compound-string vector copies transactional (2026-10-27)
 
 Validate accessibility child identity during removal (2026-10-27)
 ===================================================================
+Bound UTF-8 UCS-2 allocation width (2026-10-27)
+===============================================
+
+- Reject UTF-8 conversion buffers that exceed Xt's `Cardinal` allocation
+  width, in addition to host-size overflow checks.
+- Extend the focused UTF-8/UCS-2 regression and documentation.
+
+============================================================
+
+Bound Xmos directory-entry path lengths (2026-10-27)

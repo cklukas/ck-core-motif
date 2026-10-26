@@ -11,6 +11,8 @@ block = text[start:end]
 
 if "buf2b = (XChar2b *)XtMalloc" not in block:
     raise SystemExit("UTF-8 conversion allocation is missing")
+if "seg_len > (size_t)UINT_MAX / sizeof(XChar2b)" not in block:
+    raise SystemExit("UTF-8 conversion lacks Xt allocation-width guard")
 if "if (buf2b == NULL)" not in block:
     raise SystemExit("UTF-8 conversion allocation has no null guard")
 if "*ret_str_len = 0" not in block:
