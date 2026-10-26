@@ -1432,6 +1432,9 @@ void CountFrameRectangles (WmScreenData *pSD)
 {
     int i;
 
+    if (pSD == NULL)
+	return;
+
     pSD->Num_Title_Ts_Elements = pSD->Num_Title_Bs_Elements = 0;
 
     /* count up rectangles for title bar */
@@ -1498,6 +1501,9 @@ void CountFrameRectangles (WmScreenData *pSD)
 Boolean AllocateFrameDisplayLists (ClientData *pcd)
 {
     int frame_top_count, frame_bottom_count;
+
+    if (pcd == NULL)
+	return(FALSE);
 
     /*
      *	If the title bar has it's own appearance, then allocate
@@ -1600,6 +1606,9 @@ Boolean AllocateFrameDisplayLists (ClientData *pcd)
 
 void InitClientDecoration (WmScreenData *pSD)
 {
+    if (pSD == NULL)
+	return;
+
     CountFrameRectangles(pSD);
 } /* END OF FUNCTION   InitClientDecoration */
 

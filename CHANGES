@@ -20903,6 +20903,12 @@ Guard MWM frame shape inputs (2026-10-26)
 SetFrameShape now ignores a null client record before reading border, matte,
 or shaped-window state.
 
+Guard MWM decoration allocation inputs (2026-10-26)
+----------------------------------------------------
+CountFrameRectangles and InitClientDecoration now ignore null screen records,
+and AllocateFrameDisplayLists returns `FALSE` for a null client record before
+reading appearance or decoration state.
+
 Reject impossible MWM title widths (2026-10-26)
 -----------------------------------------------
 GetFramePartInfo now rejects title and title-bar geometry when borders and
