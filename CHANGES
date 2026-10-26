@@ -1,3 +1,12 @@
+Guard TextField recovery buffers (2026-10-27)
+=============================================
+
+- Check multibyte and wide-character recovery allocations before conversion
+  and release existing preedit storage on failure.
+- Add a focused source regression and documentation.
+
+=============================================
+
 Make TextField preedit growth transactional (2026-10-27)
 ==========================================================
 

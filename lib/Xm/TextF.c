@@ -9699,6 +9699,10 @@ PreeditDraw(XIC xic,
            }
            wc = resized_wc;
            recover_mb = XtMalloc((tf->text.onthespot->over_len+1)*sizeof(char));
+           if (recover_mb == NULL) {
+               XtFree((char *)wc);
+               return;
+           }
            if (wcstombs(recover_mb,
                         (wchar_t *)tf->text.onthespot->over_str,
                         tf->text.onthespot->over_len) < 0) {
@@ -9718,6 +9722,11 @@ PreeditDraw(XIC xic,
 
                recover_wc = (wchar_t*) XtMalloc((unsigned)(recover_len+1) *
                                                            sizeof(wchar_t));
+               if (recover_wc == NULL) {
+                   XtFree(recover_mb);
+                   XtFree((char *)wc);
+                   return;
+               }
                mbstowcs(recover_wc, ptr, recover_len);
                i = wcslen(wc);
                wcsncat(wc, recover_wc, recover_len);
