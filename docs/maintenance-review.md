@@ -65,6 +65,10 @@ regression check is `tests/automated/check-toast-setvalues-redraw.py`.
 item model. The regression check is
 `tests/automated/check-command-palette-string-copy.py`.
 
+Divider and Chip now retain caller-provided labels with `XmStringCopy` as
+well, so their compound-string charset segments survive widget ownership.
+Coverage is included in `tests/automated/check-compound-label-copy.py`.
+
 ## IconLabel typography and natural geometry
 
 `XmIconLabel` now measures its `XmString` through the render table for both

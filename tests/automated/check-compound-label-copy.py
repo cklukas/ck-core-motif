@@ -9,6 +9,8 @@ required = {
     "Toolbar.c": "return value ? XmStringCopy(value) : XmStringCreateLocalized(\"\");",
     "Toast.c": "return source ? XmStringCopy(source) : XmStringCreateLocalized(\"\");",
     "Skeleton.c": "return value ? XmStringCopy(value) : XmStringCreateLocalized(\"\");",
+    "Divider.c": "return source ? XmStringCopy(source) : XmStringCreateLocalized(\"\");",
+    "Chip.c": "return source ? XmStringCopy(source) : XmStringCreateLocalized(\"\");",
 }
 for filename, expression in required.items():
     source = (root / filename).read_text()

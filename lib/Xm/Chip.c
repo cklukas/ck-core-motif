@@ -88,19 +88,8 @@ static void create_gcs(XmChipWidget chip) {
                                          GCForeground | GCBackground, &values);
 }
 
-/* XmStringCopy in older Motif builds can retain a shared optimized payload.
-   Chips own their label, so materialize a private localized string instead of
-   allowing a caller's XmStringFree to invalidate a live widget. */
 static XmString copy_label(XmString source) {
-    char *text;
-    XmString result;
-    if (!source) return XmStringCreateLocalized("");
-    text = XmStringUnparse(source, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
-                           NULL, 0, XmOUTPUT_ALL);
-    if (!text) return XmStringCreateLocalized("");
-    result = XmStringCreateLocalized(text);
-    XtFree(text);
-    return result;
+    return source ? XmStringCopy(source) : XmStringCreateLocalized("");
 }
 
 static void Initialize(Widget request, Widget widget, ArgList args,
