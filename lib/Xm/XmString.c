@@ -1964,6 +1964,12 @@ XmStringConcatAndFree(XmString a,
               {
 		_XmUnoptSegRendEnds(a_last) = 
 		  (XmStringTag *)XtMalloc(sizeof(XmStringTag));
+		if (_XmUnoptSegRendEnds(a_last) == NULL) {
+		  _XmProcessUnlock();
+		  XmStringFree(a);
+		  XmStringFree(b);
+		  return NULL;
+		}
 		_XmUnoptSegRendEnds(a_last)[0] =
 		  _XmEntryRendEndGet((_XmStringEntry)b_seg, 0);
 	      } else if (modify_b) 

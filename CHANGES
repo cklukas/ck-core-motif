@@ -1,3 +1,12 @@
+Handle optimized XmString rendition allocation failure (2026-10-27)
+=====================================================================
+
+- Check the optimized single-tag rendition allocation in
+  `XmStringConcatAndFree` before writing the tag.
+- Add focused regression coverage and documentation.
+
+=====================================================================
+
 Handle XmString rendition-tag allocation failure (2026-10-27)
 ==============================================================
 
