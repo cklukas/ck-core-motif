@@ -134,7 +134,7 @@ static String GetFixedMatchPattern(String pattern);
 static void FreeDirCache(void);
 static Boolean ResetCache(char *qDirName);
 static unsigned char AddEntryToCache(char *entryName, size_t entryNameLen);
-static int Wcslen(wchar_t *wcs);
+static size_t Wcslen(wchar_t *wcs);
 
 /********    End Static Function Declarations    ********/
 
@@ -1629,17 +1629,29 @@ _XmOSGetInitialCharsDirection(XtPointer     characters,
 			      unsigned int *num_bytes,
 			      XmDirection  *direction)
 {
+  size_t length;
+
+  if (characters == NULL || num_bytes == NULL || direction == NULL)
+    return ~Success;
+
   /* ??? This is a temporary stub implementation. */
   switch (type)
     {
     case XmWIDECHAR_TEXT:
-      *num_bytes = Wcslen((wchar_t*) characters) * sizeof(wchar_t);
+      length = Wcslen((wchar_t*) characters);
+      if (length > SIZE_MAX / sizeof(wchar_t) ||
+          length * sizeof(wchar_t) > UINT_MAX)
+	return ~Success;
+      *num_bytes = (unsigned int)(length * sizeof(wchar_t));
       *direction = XmLEFT_TO_RIGHT;
       return Success;
       
     case XmCHARSET_TEXT:
     case XmMULTIBYTE_TEXT:
-      *num_bytes = strlen((char*) characters);
+      length = strlen((char*) characters);
+      if (length > UINT_MAX)
+	return ~Success;
+      *num_bytes = (unsigned int)length;
       *direction = XmLEFT_TO_RIGHT;
       return Success;
       
@@ -1669,16 +1681,17 @@ _XmOSGetCharDirection(XtPointer   character, /* unused */
     }
 }
 
-static int
+static size_t
 Wcslen(wchar_t *wcs)
 {
   /* Count characters, not bytes. */
   wchar_t *ptr = wcs;
-  if (ptr != NULL)
-    while (*ptr++)
-      /*EMPTY*/;
+  if (ptr == NULL)
+    return 0;
+  while (*ptr++)
+    /*EMPTY*/;
 
-  return (ptr - wcs);
+  return (size_t)(ptr - wcs);
 }
 
 typedef struct XmOSMethodEntryRec {

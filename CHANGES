@@ -199,6 +199,15 @@ Widen Xmos mask-name prefix lengths (2026-10-26)
 - Add `tests/automated/check-xmos-mask-name-length.py` and document the guard
   in `docs/xmos-mask-name-length.md`.
 
+Bound Xmos initial-character direction counts (2026-10-26)
+============================================================
+
+- Validate `_XmOSGetInitialCharsDirection` pointers and keep narrow/wide byte
+  counts in `size_t` until they fit the public `unsigned int` result.
+- Make its internal wide-length helper null-safe; add
+  `tests/automated/check-xmos-initial-direction-bounds.py` and document the
+  behavior in `docs/xmos-initial-direction-bounds.md`.
+
 Bound ToggleButton default geometry (2026-10-27)
 ==================================================
 
