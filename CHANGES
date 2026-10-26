@@ -243,6 +243,14 @@ Bound Text modify-verify callback buffers (2026-10-27)
   allocation expression.
 - Add a focused source regression and documentation.
 
+Bound Text wide callback buffer narrowing (2026-10-27)
+======================================================
+
+- Reject wide callback buffers that fit `size_t` but exceed Xt's allocation
+  type after multiplying by `sizeof(wchar_t)`.
+- Keep the existing callback cleanup and failure contract unchanged.
+- Extend the focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 

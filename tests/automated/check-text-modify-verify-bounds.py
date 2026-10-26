@@ -15,5 +15,9 @@ assert "(size_t)block->length >= (size_t)UINT_MAX" in block
 assert "XtMalloc((Cardinal)((size_t)block->length + 1))" in block
 assert "newblock->length < 0" in block
 assert "XtMalloc((Cardinal)((size_t)newblock->length + 1))" in block
+wide_start = text.index("if (initiator->text.wcs_modify_verify_callback)")
+wide_end = text.index("\n  /*", wide_start)
+wide_block = text[wide_start:wide_end]
+assert "UINT_MAX / sizeof(wchar_t)" in wide_block
 
 print("text modify-verify callback buffer bounds: ok")

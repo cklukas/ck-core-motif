@@ -1068,7 +1068,8 @@ _XmTextModifyVerify(XmTextWidget initiator,
     size_t wcs_capacity;
 
     if (newblock->length < 0 ||
-	(size_t)newblock->length > (SIZE_MAX / sizeof(wchar_t)) - 1) {
+	(size_t)newblock->length > (SIZE_MAX / sizeof(wchar_t)) - 1 ||
+	(size_t)newblock->length + 1 > UINT_MAX / sizeof(wchar_t)) {
 	  if (newblock->ptr && newblock->ptr != block->ptr)
 	    XtFree(newblock->ptr);
 	  *freeBlock = False;
