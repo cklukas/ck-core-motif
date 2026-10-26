@@ -15502,3 +15502,11 @@ Guard drag motion after receiver allocation failure (2026-10-27)
 - Add a focused source regression and documentation.
 
 Bound motion-buffer growth (2026-10-27)
+Handle drop-site manager allocation failure (2026-10-27)
+==========================================================
+
+- Check queued-update and visible-child allocations before use, including
+  `Widget` array size overflow.
+- Add a focused source regression and documentation.
+
+Guard drag motion after receiver allocation failure (2026-10-27)

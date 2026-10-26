@@ -3917,6 +3917,8 @@ EndUpdate(
     /* Queue real end update to a timeout */
     dsupdate = (_XmDropSiteUpdateInfo) 
       XtMalloc(sizeof(_XmDropSiteUpdateInfoRec));
+    if (dsupdate == NULL)
+	return;
     dsupdate -> dsm = dsm;
     dsupdate -> refWidget = shell;
     dsupdate -> next = oldupdate;
@@ -4436,8 +4438,20 @@ XmDropSiteQueryStackingOrder(
 
 		if (num_visible_children)
 		{
+		if ((size_t)num_visible_children >
+		    (size_t)UINT_MAX / sizeof(Widget)) {
+		    *children_rtn = NULL;
+		    *num_children_rtn = 0;
+		    _XmAppUnlock(app);
+		    return(0);
+		}
 			*children_rtn = (Widget *) XtMalloc(sizeof(Widget) *
 				num_visible_children);
+			if (*children_rtn == NULL) {
+			    *num_children_rtn = 0;
+			    _XmAppUnlock(app);
+			    return(0);
+			}
 
 			/* Remember to reverse the order */
 			for (j=0, i=(GetDSNumChildren(info) - 1); i >= 0; i--)
