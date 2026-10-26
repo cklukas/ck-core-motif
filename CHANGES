@@ -1,3 +1,13 @@
+Bound traversal node-list stack buffers (2026-10-27)
+====================================================
+
+- Check traversal node-count multiplication against the unsigned size used by
+  `XmStackAlloc` and handle allocation failure before populating the list.
+- Cover nearest-node, tab-graph, and control-graph sorting paths with focused
+  regression checks and documentation.
+
+====================================================
+
 Reject overflowing compound-text stack copies (2026-10-27)
 ============================================================
 

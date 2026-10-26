@@ -703,8 +703,12 @@ GetNextNearestNode(XmGraphNode graph,
 	++num_nodes;
       } while ((node != graph->sub_tail) && (node = node->any.next));
 
+      if (num_nodes > UINT_MAX / sizeof(XmTraversalNode))
+	return NULL;
       node_list = (XmTraversalNode*)
 	XmStackAlloc(num_nodes * sizeof(XmTraversalNode), storage);
+      if (node_list == NULL)
+	return NULL;
 
       /* Now copy nodes onto node list for sorting. */
       list_ptr = node_list;
@@ -2074,8 +2078,12 @@ SortTabGraph(XmGraphNode graph,
       while ((node = node->any.next) != NULL)
 	++num_nodes;
 
+      if (num_nodes > UINT_MAX / sizeof(XmTraversalNode))
+	return;
       node_list = (XmTraversalNode*) 
 	XmStackAlloc(num_nodes * sizeof(XmTraversalNode), storage);
+      if (node_list == NULL)
+	return;
 
       /* Now copy nodes onto node list for sorting. */
       node = head;
@@ -2186,8 +2194,12 @@ SortControlGraph(XmGraphNode graph,
       while ((node = node->any.next) != NULL)
 	++num_nodes;
 
+      if (num_nodes > UINT_MAX / sizeof(XmTraversalNode))
+	return;
       node_list = (XmTraversalNode*) 
 	XmStackAlloc(num_nodes * sizeof(XmTraversalNode), storage);
+      if (node_list == NULL)
+	return;
 
       /* Now copy nodes onto node list for sorting. */
       node = head;
