@@ -20111,6 +20111,13 @@ Bound depth-1 ImageCache copies (2026-10-26)
 - Convert the bounded count explicitly when allocating the temporary copy.
 - Extend the focused depth-1 image regression and documentation.
 
+Reject unrepresentable negative image depth (2026-10-26)
+========================================================
+
+- Reject `INT_MIN` before applying Motif's negative-depth compatibility
+  convention, avoiding signed overflow during depth normalization.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
