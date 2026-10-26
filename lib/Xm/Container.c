@@ -3960,10 +3960,15 @@ GetCoordFromCell(
     /*
      * Note: returned point must include Container Margins
      */
-    point->x = col * cell_width;
+    point->x = AddPositionSaturated(0,
+	(uint64_t)col * (uint64_t)cell_width);
     if (!LayoutIsRtoLM(cw))
-	point->x += cw->container.margin_w;
-    point->y = row * cell_height + cw->container.margin_h;
+	point->x = AddPositionSaturated(point->x,
+	    (uint64_t)cw->container.margin_w);
+    point->y = AddPositionSaturated(0,
+	(uint64_t)row * (uint64_t)cell_height);
+    point->y = AddPositionSaturated(point->y,
+	(uint64_t)cw->container.margin_h);
     return(point);
 }
 
