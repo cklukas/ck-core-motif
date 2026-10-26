@@ -16,7 +16,7 @@ for needle in (
     "size_t txt_len",
     "txt_len > SIZE_MAX - 2",
     "txt_len > (size_t)UINT_MAX - 2",
-    "XtMalloc((txt_len + 2) * sizeof(char))",
+    "XtMalloc((Cardinal)(sizeof(char) * (txt_len + 2)))",
 ):
     if needle not in text:
         raise SystemExit(f"text-property concatenation guard missing: {needle}")

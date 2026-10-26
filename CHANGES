@@ -18115,6 +18115,14 @@ Refresh text-control geometry regression check (2026-10-27)
 Refresh text preedit recovery regression check (2026-10-27)
 ============================================================
 
+Refresh text-property concatenation regression check (2026-10-27)
+=================================================================
+
+- Match the allocation assertion to the current checked `Cardinal` cast and
+  multiplication order used for the fallback text-property buffer.
+
+=================================================================
+
 - Match the focused check to the current size-safe `size_t` overflow guard
   used when appending recovered multibyte input.
 
