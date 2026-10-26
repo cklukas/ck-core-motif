@@ -2025,6 +2025,12 @@ allocation_failure:
 void 
 _XmStringSourceDestroy(XmTextSource source)
 {
+  if (source == NULL)
+    return;
+  if (source->data == NULL) {
+    XtFree((char *)source);
+    return;
+  }
   XmTextUnicodeMapFree(source->data->unicode_map);
   XtFree((char *) source->data->ptr);
   XtFree((char *) source->data->value);
@@ -2032,7 +2038,6 @@ _XmStringSourceDestroy(XmTextSource source)
   XtFree((char *) source->data->PSWC_NWLN);
   XtFree((char *) source->data);
   XtFree((char *) source);
-  source = NULL;
 }
 
 char *

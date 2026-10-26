@@ -19949,6 +19949,13 @@ Bound Text source value extraction (2026-10-26)
 - Return safely for unattached or incomplete sources.
 - Add focused regression coverage and documentation.
 
+Guard Text source teardown (2026-10-26)
+=========================================
+
+- Safely handle null and partially initialized text sources during destruction
+  without changing normal resource-release order.
+- Add focused regression coverage and documentation.
+
 Clamp Text next-page coordinates (2026-10-26)
 ==============================================
 
