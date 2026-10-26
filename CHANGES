@@ -1,3 +1,12 @@
+Match scaled-image depth to target drawable (2026-10-26)
+==========================================================
+
+- Use the target drawable's depth for temporary scaled `XImage` instances
+  whenever geometry is available, while retaining the source-depth fallback
+  when the query fails.
+- Add focused regression coverage and documentation for the visual/depth
+  pairing.
+
 Stabilize as-needed scroller fit boundaries (2026-10-26)
 ================================================================
 

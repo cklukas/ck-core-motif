@@ -2567,6 +2567,7 @@ void _XmPutScaledImage (
     int geometry_x, geometry_y;
     unsigned int geometry_width, geometry_height, geometry_border;
     unsigned int geometry_depth;
+    unsigned int destination_depth;
 
     if (display == NULL || d == None || gc == NULL ||
 	src_image == NULL || src_image->data == NULL ||
@@ -2660,24 +2661,28 @@ void _XmPutScaledImage (
 	h > UINT_MAX - strip_height)
 	return;
     h += strip_height;
+    destination_depth = (unsigned int)src_image->depth;
     screen_number = DefaultScreen(display);
-    if (ScreenCount(display) > 1 &&
-	XGetGeometry(display, d, &root, &geometry_x, &geometry_y,
+
+    if (XGetGeometry(display, d, &root, &geometry_x, &geometry_y,
 		     &geometry_width, &geometry_height, &geometry_border,
 		     &geometry_depth)) {
-	unsigned int candidate;
-	for (candidate = 0; candidate < (unsigned int)ScreenCount(display);
-	     candidate++) {
-	    if (RootWindow(display, (int)candidate) == root) {
-		screen_number = (int)candidate;
-		break;
+	destination_depth = geometry_depth;
+	if (ScreenCount(display) > 1) {
+	    unsigned int candidate;
+	    for (candidate = 0; candidate < (unsigned int)ScreenCount(display);
+		 candidate++) {
+		if (RootWindow(display, (int)candidate) == root) {
+		    screen_number = (int)candidate;
+		    break;
+		}
 	    }
-	}
+        }
     }
     dest_image = XCreateImage(display,
 			      DefaultVisualOfScreen(
 					     ScreenOfDisplay(display, screen_number)),
-					      (unsigned int)src_image->depth,
+					      destination_depth,
 					      src_image->format,
 			      0, NULL,
 			      dest_width, h,
