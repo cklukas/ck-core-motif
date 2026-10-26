@@ -792,6 +792,10 @@ XIM
 XmImGetXIM(Widget w)
 {
   XmImDisplayInfo xim_info;
+
+  if (w == NULL)
+    return NULL;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
