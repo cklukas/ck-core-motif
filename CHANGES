@@ -21562,3 +21562,10 @@ Fix MWM raise argument length traversal (2026-10-26)
   tokens, preventing short-argument underflow and long-argument truncation.
 - Add focused regression coverage and documentation.
 
+Fix MWM lower argument length traversal (2026-10-26)
+======================================================
+
+- Apply the same checked `size_t` traversal to `F_Lower`, preventing short
+  argument underflow and long-argument truncation.
+- Add focused regression coverage and documentation.
+

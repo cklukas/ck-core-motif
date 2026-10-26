@@ -426,14 +426,16 @@ Boolean F_Lower (String args, ClientData *pCD, XEvent *event)
 	/* process family stacking stuff */
 	else if (*string)
 	{
-	    unsigned int  slen, len, index;
+	    size_t slen, len, index;
 
-	    slen = strlen(args) - 2;		/* subtract '\n' and NULL */
+	    slen = strlen(args);
 	    for (index = 0; index < slen; string = &args[index+1])
 	    {
 		if ((string = (String) GetString ((unsigned char **) &string)) == NULL)
 		   break;
 		len = strlen(string);
+		if (len == 0)
+		    break;
 		if (!strcmp(string,"within"))
 		{
 		    flags |= STACK_WITHIN_FAMILY;
