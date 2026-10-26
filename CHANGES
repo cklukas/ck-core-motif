@@ -1,3 +1,11 @@
+Refresh MWM menu-widget regression check (2026-10-27)
+=====================================================
+
+- Match the focused check to the current multiline failure handling for
+  push-button, separator, and label gadget creation.
+
+===========================================================
+
 Refresh MWM menu-name allocation regression check (2026-10-27)
 ===============================================================
 
