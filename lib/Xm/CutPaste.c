@@ -35,6 +35,7 @@ static char rcsid[] = "$TOG: CutPaste.c /main/27 1999/05/26 17:42:48 samborn $"
 #include "MessagesI.h"
 #include "CutPasteI.h"
 #include <limits.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -3443,6 +3444,20 @@ XmClipboardStartCopy(
        
       if (! found) {
 	int oldLimit = maxCbProcs;
+	if (oldLimit > INT_MAX - 20 ||
+	    (size_t)(oldLimit + 20) > SIZE_MAX / sizeof(XmCutPasteProc) ||
+	    (size_t)(oldLimit + 20) > UINT_MAX / sizeof(XmCutPasteProc) ||
+	    (size_t)(oldLimit + 20) > SIZE_MAX / sizeof(long) ||
+	    (size_t)(oldLimit + 20) > UINT_MAX / sizeof(long)) {
+	  _XmProcessUnlock();
+	  XtFree( (char *)itemheader);
+	  header->selectionTimestamp = previousTimestamp;
+	  header->startCopyCalled = previousStartCopyCalled;
+	  ClipboardClose( display, header );
+	  ClipboardUnlock( display, window, 0 );
+	  _XmAppUnlock(app);
+	  return ClipboardFail;
+	}
 	int newLimit = oldLimit + 20;
 	XmCutPasteProc *newCbProcTable;
 	long *newCbIdTable;
