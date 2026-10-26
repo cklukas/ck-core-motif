@@ -170,6 +170,21 @@ static void Initialize(Widget request, Widget new_widget, ArgList args,
     values.foreground = sw->primitive.bottom_shadow_color;
     sw->toggle_switch.insensitive_gc = XCreateGC(
         display, DefaultRootWindow(display), mask, &values);
+    if (!sw->toggle_switch.track_gc || !sw->toggle_switch.knob_gc ||
+        !sw->toggle_switch.label_gc || !sw->toggle_switch.insensitive_gc) {
+        if (sw->toggle_switch.track_gc)
+            XFreeGC(display, sw->toggle_switch.track_gc);
+        if (sw->toggle_switch.knob_gc)
+            XFreeGC(display, sw->toggle_switch.knob_gc);
+        if (sw->toggle_switch.label_gc)
+            XFreeGC(display, sw->toggle_switch.label_gc);
+        if (sw->toggle_switch.insensitive_gc)
+            XFreeGC(display, sw->toggle_switch.insensitive_gc);
+        sw->toggle_switch.track_gc = NULL;
+        sw->toggle_switch.knob_gc = NULL;
+        sw->toggle_switch.label_gc = NULL;
+        sw->toggle_switch.insensitive_gc = NULL;
+    }
 }
 
 static void Destroy(Widget widget) {

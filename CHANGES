@@ -16812,4 +16812,11 @@ Center ToggleSwitch knob geometry (2026-10-27)
   control remains pixel-symmetric.
 - Add a focused source regression and documentation.
 
+Guard ToggleSwitch GC setup (2026-10-27)
+========================================
+
+- Release partial graphics-context allocations and reset all GC fields when a
+  ToggleSwitch cannot create its complete drawing set.
+- Add a focused source regression and documentation.
+
 ====================================================
