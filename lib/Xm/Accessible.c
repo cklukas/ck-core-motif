@@ -533,7 +533,9 @@ static Boolean sync_native_list(XmAccessibility *a, XmAccessibleNode *parent) {
   parent->list_sync_busy = True;
   count = (size_t)list->list.itemCount;
   for (k = 0; k < old_count; ++k) if (!parent->children[k]->list_owner) ++custom;
-  if (count > INT_MAX || count > SIZE_MAX / sizeof(*next) - custom) goto done;
+  if (count > INT_MAX || custom > SIZE_MAX / sizeof(*next) ||
+      count > SIZE_MAX / sizeof(*next) - custom) goto done;
+  if (old_count > SIZE_MAX / 2) goto done;
   while (capacity < old_count * 2) {
     if (capacity > SIZE_MAX / 2) goto done;
     capacity *= 2;

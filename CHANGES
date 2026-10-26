@@ -1,3 +1,10 @@
+Bound accessibility list count arithmetic (2026-10-27)
+=======================================================
+
+- Reject overflowing native/custom child byte counts and hash-table growth
+  before rebuilding the accessibility list model.
+- Add a focused source regression and documentation.
+
 Guard standard client-window conversion allocation (2026-10-27)
 ===============================================================
 
@@ -15902,7 +15909,6 @@ Guard transfer callback context lookups (2026-10-27)
 - Add a focused source regression and documentation.
 
 Guard transfer-context lookup failures (2026-10-27)
-Guard deferred clipboard snapshot callbacks (2026-10-27)
 ==========================================================
 
 - Check callback identifiers, the snapshot dictionary, and lookup results
