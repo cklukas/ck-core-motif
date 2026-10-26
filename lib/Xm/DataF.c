@@ -9156,7 +9156,10 @@ df_ValidateString(
 	       wcs_temp_str++;
 	       new_len++;
 	    } else {
-	       scratch[csize]= '\0';
+	       if (csize >= 0 && (size_t)csize < sizeof(scratch))
+	          scratch[csize] = '\0';
+	       else
+	          scratch[0] = '\0';
 	       df_WarnInvalidString((Widget)tf, scratch);
 	    }
 	 } else {
@@ -9166,8 +9169,8 @@ df_ValidateString(
 	       new_len++;
 	    } else {
                csize = wctomb(scratch, *wcs_curr_str);
-	       if (csize >= 0)
-                  scratch[csize]= '\0';
+	       if (csize >= 0 && (size_t)csize < sizeof(scratch))
+	                  scratch[csize] = '\0';
 	       else
 		  scratch[0] = '\0';
                df_WarnInvalidString((Widget)tf, scratch);

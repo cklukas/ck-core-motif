@@ -22653,3 +22653,9 @@ Reject oversized DataField validation lengths (2026-10-26)
   them in legacy integer fields or computes temporary allocation sizes.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-validate-length.py
+Bound DataField invalid-character warning buffers (2026-10-26)
+===============================================================
+- Guard `wctomb` lengths before terminating the DataField warning scratch
+  buffer, including negative and full-buffer results.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-invalid-wchar-warning.py
