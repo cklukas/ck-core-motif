@@ -535,6 +535,11 @@ _XmTextConvert(
     if (is_destination || !has_selection) return False;
     tmp_prop.value = NULL;
     tmp_value = _XmStringSourceGetString(tw, left, right, False);
+    if (tmp_value == NULL) {
+      *value = NULL;
+      *length = 0;
+      return False;
+    }
     status = XmbTextListToTextProperty(XtDisplay(tw), &tmp_value, 1,
 				       (XICCEncodingStyle)XStringStyle, 
 				       &tmp_prop);
@@ -580,6 +585,11 @@ _XmTextConvert(
     if (is_destination || !has_selection) return False;
     tmp_prop.value = NULL;
     tmp_value =_XmStringSourceGetString(tw, left, right, False);
+    if (tmp_value == NULL) {
+      *value = NULL;
+      *length = 0;
+      return False;
+    }
     status = XmbTextListToTextProperty(XtDisplay(tw), &tmp_value, 1,
 				       (XICCEncodingStyle)XCompoundTextStyle,
 				       &tmp_prop);
@@ -615,6 +625,11 @@ _XmTextConvert(
     if (is_destination || !has_selection) return False;
     tmp_prop.value = NULL;
     tmp_value =_XmStringSourceGetString(tw, left, right, False);
+    if (tmp_value == NULL) {
+      *value = NULL;
+      *length = 0;
+      return False;
+    }
     status = XmbTextListToTextProperty(XtDisplay(tw), &tmp_value, 1,
 				       (XICCEncodingStyle)XUTF8StringStyle,
 				       &tmp_prop);

@@ -85,6 +85,14 @@ Guard text selection target-list allocation (2026-10-27)
 - Report conversion failure cleanly when the list cannot be allocated.
 - Add a focused source regression and documentation.
 
+Guard text selection source-string conversion (2026-10-27)
+===========================================================
+
+- Check source-string retrieval before encoding XA_STRING, compound-text, and
+  UTF-8 selection results.
+- Return an empty conversion cleanly when source retrieval fails.
+- Add a focused source regression and documentation.
+
 Bound drag receiver site counts (2026-10-27)
 =============================================
 
