@@ -250,9 +250,14 @@ void SetupWmICCC (void)
 	    if (wmGD.Screens[scr].managed)
 	    {
 	      char wm_query_scr[32];
+	      int renderedLength;
 
-	      sprintf(wm_query_scr, "_MOTIF_WM_QUERY_%d",
-                                        wmGD.Screens[scr].screen);
+	      renderedLength = snprintf(wm_query_scr, sizeof(wm_query_scr),
+					 "_MOTIF_WM_QUERY_%d",
+					 wmGD.Screens[scr].screen);
+	      if (renderedLength < 0 ||
+		  (size_t)renderedLength >= sizeof(wm_query_scr))
+		  continue;
 	      xa_WM_QUERY[scr] = XInternAtom(DISPLAY, wm_query_scr, False);
 	    }
 	    else

@@ -1,3 +1,12 @@
+Bound MWM query-atom formatting (2026-10-27)
+=============================================
+
+- Format per-screen `_MOTIF_WM_QUERY_<screen>` names with checked `snprintf`
+  output before interning them with Xlib.
+- Add focused regression coverage and documentation.
+
+============================================================
+
 Bound MWM debug resource-dump paths (2026-10-27)
 =================================================
 
