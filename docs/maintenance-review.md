@@ -56,6 +56,13 @@ text field during narrow layouts, avoiding clipped labels and overflow-prone
 proportional arithmetic. The regression check is
 `tests/automated/check-dropdown-width-allocation.py`.
 
+## Link and Prompt natural geometry
+
+Link and Prompt now calculate their preferred dimensions from measured label
+text when the application omits a size, using the pre-superclass request
+instead of inheriting a six-pixel placeholder. The regression check is
+`tests/automated/check-natural-label-geometry.py`.
+
 The first widget review was a bounded starting point. The age of the inherited
 code is a reason to continue targeted maintenance; neither a short patch list
 nor a large test count establishes that the toolkit is finished.

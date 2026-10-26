@@ -62,7 +62,7 @@ static XmString copy_label(XmString source) {
 }
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmLinkWidget link = (XmLinkWidget)widget; XGCValues values;
-    (void)request; (void)args; (void)count;
+    (void)args; (void)count;
     link->link.label = copy_label(link->link.label);
     link->link.target = link->link.target ? XtNewString(link->link.target) : XtNewString("");
     values.foreground = link->primitive.foreground;
@@ -74,8 +74,18 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
         link->link.render_table = XmFontListCopy(link->link.render_table);
     link->link.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
                               GCForeground | GCBackground, &values);
-    if (!link->core.width) link->core.width = 80;
-    if (!link->core.height) link->core.height = 24;
+    if (!request->core.width || !request->core.height) {
+        Dimension width = 80, height = 24;
+        if (link->link.render_table && link->link.label) {
+            Dimension text_width = 0, text_height = 0;
+            XmStringExtent(link->link.render_table, link->link.label,
+                           &text_width, &text_height);
+            width = text_width > (Dimension)-1 - 8 ? (Dimension)-1 : text_width + 8;
+            height = text_height + 8;
+        }
+        if (!request->core.width) link->core.width = width;
+        if (!request->core.height) link->core.height = height;
+    }
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
 }
 static void Destroy(Widget widget) {

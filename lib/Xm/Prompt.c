@@ -43,7 +43,7 @@ static XmString copy_prompt(XmString source) {
 }
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmPromptWidget prompt = (XmPromptWidget)widget; XGCValues values;
-    (void)request; (void)args; (void)count;
+    (void)args; (void)count;
     prompt->prompt.text = copy_prompt(prompt->prompt.text);
     if (prompt->prompt.font == NULL)
         prompt->prompt.font = XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
@@ -53,8 +53,18 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     values.background = prompt->core.background_pixel;
     prompt->prompt.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
                                   GCForeground | GCBackground, &values);
-    if (!prompt->core.width) prompt->core.width = 120;
-    if (!prompt->core.height) prompt->core.height = 24;
+    if (!request->core.width || !request->core.height) {
+        Dimension width = 120, height = 24;
+        if (prompt->prompt.font && prompt->prompt.text) {
+            Dimension text_width = 0, text_height = 0;
+            XmStringExtent(prompt->prompt.font, prompt->prompt.text,
+                           &text_width, &text_height);
+            width = text_width > (Dimension)-1 - 8 ? (Dimension)-1 : text_width + 8;
+            height = text_height + 8;
+        }
+        if (!request->core.width) prompt->core.width = width;
+        if (!request->core.height) prompt->core.height = height;
+    }
 }
 static void Destroy(Widget widget) {
     XmPromptWidget prompt = (XmPromptWidget)widget;

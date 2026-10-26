@@ -14989,6 +14989,13 @@ TabBox standalone background fallback (2026-10-27)
   boxes no longer paint their unused area black.
 
 Stepper control glyphs (2026-10-27)
+Link and Prompt natural geometry (2026-10-27)
+===============================================
+
+- Derive omitted Link and Prompt dimensions from measured label text using the
+  original request geometry, avoiding the primitive superclass's six-pixel
+  minimum from suppressing their natural preferred sizes.
+
 DropDown label-width allocation (2026-10-27)
 =============================================
 
