@@ -740,6 +740,7 @@ ClassPartInitialize(WidgetClass wc)
   WidgetClass super;
   XmPrimitiveClassExt *wcePtr, *scePtr;
   char * event_bindings;
+  size_t event_bindings_len;
 
   _XmProcessLock();
   super = twc->core_class.superclass;
@@ -751,10 +752,34 @@ ClassPartInitialize(WidgetClass wc)
   
   if ((*wcePtr)->widget_display_rect == XmInheritDisplayRectProc)
     (*wcePtr)->widget_display_rect  = (*scePtr)->widget_display_rect;
+
+  _XmFastSubclassInit (wc, XmTEXT_BIT);
+
+  event_bindings_len = strlen(_XmTextEventBindings1);
+  if (event_bindings_len > SIZE_MAX - strlen(_XmTextEventBindings2))
+    {
+      _XmProcessUnlock();
+      return;
+    }
+  event_bindings_len += strlen(_XmTextEventBindings2);
+  if (event_bindings_len > SIZE_MAX - strlen(_XmTextEventBindings3) - 1)
+    {
+      _XmProcessUnlock();
+      return;
+    }
+  event_bindings_len += strlen(_XmTextEventBindings3) + 1;
+  if (event_bindings_len > UINT_MAX)
+    {
+      _XmProcessUnlock();
+      return;
+    }
   
-  event_bindings = (char *)XtMalloc(strlen(_XmTextEventBindings1) +
-				    strlen(_XmTextEventBindings2) +
-				    strlen(_XmTextEventBindings3) + 1);
+  event_bindings = (char *)XtMalloc((Cardinal)event_bindings_len);
+  if (event_bindings == NULL)
+    {
+      _XmProcessUnlock();
+      return;
+    }
   strcpy(event_bindings, _XmTextEventBindings1);
   strcat(event_bindings, _XmTextEventBindings2);
   strcat(event_bindings, _XmTextEventBindings3);
@@ -763,7 +788,6 @@ ClassPartInitialize(WidgetClass wc)
   
   XtFree(event_bindings);
   
-  _XmFastSubclassInit (wc, XmTEXT_BIT);
   _XmProcessUnlock();
 }
 
