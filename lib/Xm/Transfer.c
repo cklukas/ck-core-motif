@@ -473,6 +473,7 @@ ClipboardLoseProc(Widget w, Atom *selection)
   _XmConvertHandlerSetLocal();
   _XmConvertHandler(w, selection, &DELETE, 
 		    &type, &value, &size, &fmt);
+  XtFree((char *)value);
 
   LoseProc(w, selection);
 }
@@ -485,7 +486,7 @@ ClipboardLoseProc(Widget w, Atom *selection)
 static void
 LoseProc(Widget w, Atom *selection)
 {
-  XtPointer value;
+  XtPointer value = NULL;
   Atom type;
   unsigned long size;
   int fmt;

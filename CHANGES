@@ -16468,6 +16468,15 @@ Make TextField replacement growth transactional (2026-10-27)
 ===============================================================
 
 Size TextField wide-preedit conversion for multibyte output (2026-10-27)
+Fix selection-loss conversion cleanup (2026-10-27)
+===================================================
+
+- Release DELETE conversion results in the clipboard loss path and initialize
+  normal loss cleanup before freeing converter output.
+- Add a focused source regression and documentation.
+
+===================================================
+
 Harden deferred clipboard target cleanup (2026-10-27)
 ======================================================
 
