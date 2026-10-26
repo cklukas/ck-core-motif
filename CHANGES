@@ -21873,3 +21873,10 @@ Check clipboard payload multiplication (2026-10-26)
 - Skip an unrepresentable payload without wrapping its copy size.
 - Add focused regression documentation for the conversion boundary.
 
+Bound deferred clipboard callback payloads (2026-10-26)
+========================================================
+
+- Validate deferred callback formats, payload multiplication, and non-empty
+  value pointers before writing snapshot data.
+- Add focused regression coverage and documentation for the callback path.
+

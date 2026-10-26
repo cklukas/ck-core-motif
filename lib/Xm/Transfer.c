@@ -1092,7 +1092,15 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
 	(cc == NULL || !(cc -> flags & XmCONVERTING_PARTIAL))) {
       char *name;
       FreeType howFree;
-     
+      unsigned long unit = format == 8 ? 1UL :
+	(format == 16 ? (unsigned long)sizeof(short) :
+	 (format == 32 ? (unsigned long)sizeof(long) : 0UL));
+
+      if (unit == 0 || size > ULONG_MAX / unit ||
+	  (size != 0 && value == NULL)) {
+	XtFree((char *)value);
+	return;
+      }
       size = BYTELENGTH( size, format );
       if (format % 8 != 0) size++;
       
