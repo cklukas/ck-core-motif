@@ -1497,7 +1497,7 @@ Boolean AllocateFrameDisplayLists (ClientData *pcd)
 	frame_top_count = NUM_RESIZE_TS_ELEMENTS(pcd) + 
 	                  NUM_TITLE_TS_ELEMENTS(pcd);
 	frame_bottom_count = NUM_RESIZE_BS_ELEMENTS(pcd) + 
-			     NUM_RESIZE_BS_ELEMENTS(pcd);
+			     NUM_TITLE_BS_ELEMENTS(pcd);
     }
 
     /* 
