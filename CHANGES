@@ -22641,3 +22641,9 @@ Check DataField wide-string allocation sizes (2026-10-26)
   width before allocating wide-character storage.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-datafield-string-wcs-size.py
+Handle DataField wide-string conversion failures (2026-10-26)
+===============================================================
+- Return a valid empty wide string when `XmDataFieldGetStringWcs` encounters
+  invalid multibyte input instead of exposing an unterminated buffer.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-datafield-string-wcs-conversion.py

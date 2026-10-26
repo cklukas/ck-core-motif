@@ -11556,7 +11556,7 @@ XmDataFieldGetStringWcs(
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     wchar_t *temp_wcs;
-    int num_wcs = 0;
+    size_t converted;
     size_t string_length;
 
     _XmWidgetToAppContext(w);    
@@ -11583,8 +11583,10 @@ XmDataFieldGetStringWcs(
 	} 
 	else 
 	{
-	    num_wcs = mbstowcs(temp_wcs, XmTextF_value(tf),
+	    converted = mbstowcs(temp_wcs, XmTextF_value(tf),
 			       string_length + 1);
+	    if (converted == (size_t)-1)
+		temp_wcs[0] = (wchar_t)0L;
 	}
 
 	_XmAppUnlock(app);
