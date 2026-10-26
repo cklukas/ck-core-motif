@@ -4356,8 +4356,13 @@ MakeSpiralPixmap (
     &&  nb->notebook.spiral_pixmap != XmNONE)
             XFreePixmap(XtDisplay(nb), nb->notebook.spiral_pixmap);
 
-    pixmap = nb->notebook.spiral_pixmap =
-        XCreatePixmap(XtDisplay(nb), XtWindow(nb), pw, ph, nb->core.depth);
+    pixmap = XCreatePixmap(XtDisplay(nb), XtWindow(nb), pw, ph, nb->core.depth);
+    if (pixmap == None)
+    {
+        nb->notebook.spiral_pixmap = XmUNSPECIFIED_PIXMAP;
+        return;
+    }
+    nb->notebook.spiral_pixmap = pixmap;
 
     /*
      * Scribble in spiral pixmap
