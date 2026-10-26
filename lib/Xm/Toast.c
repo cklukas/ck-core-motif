@@ -45,7 +45,43 @@ static void negotiate(XmToastWidget toast) { Dimension width, height, rw, rh; Xt
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) { XmToastWidget toast = (XmToastWidget)widget; Dimension width, height; (void)request; (void)args; (void)count; toast->toast.initializing = True; toast->toast.timer = (XtIntervalId)0; toast->toast.message = copy_string(toast->toast.message); toast->toast.action_label = copy_string(toast->toast.action_label); toast->toast.message_widget = XtVaCreateManagedWidget("message", xmLabelWidgetClass, widget, XmNlabelString, toast->toast.message, XmNborderWidth, 0, NULL); toast->toast.action_widget = XtVaCreateManagedWidget("action", xmPushButtonWidgetClass, widget, XmNlabelString, toast->toast.action_label, XmNborderWidth, 0, XmNmappedWhenManaged, has_action(toast), NULL); XtAddCallback(toast->toast.action_widget, XmNactivateCallback, activate, toast); XtAddEventHandler(widget, KeyPressMask, False, events, NULL); toast->toast.initializing = False; natural(toast, &width, &height); if (!toast->core.width) toast->core.width = width; if (!toast->core.height) toast->core.height = height; layout(toast); }
 static void Destroy(Widget widget) { XmToastWidget toast = (XmToastWidget)widget; if (toast->toast.timer) XtRemoveTimeOut(toast->toast.timer); XtRemoveEventHandler(widget, KeyPressMask, False, events, NULL); XmStringFree(toast->toast.message); XmStringFree(toast->toast.action_label); }
 static void Resize(Widget widget) { layout((XmToastWidget)widget); } static void ChangeManaged(Widget widget) { negotiate((XmToastWidget)widget); }
-static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgList args, Cardinal *count) { XmToastWidget old = (XmToastWidget)old_widget, toast = (XmToastWidget)widget; Boolean changed = old->toast.message != toast->toast.message || old->toast.action_label != toast->toast.action_label || old->toast.timeout != toast->toast.timeout; (void)request; (void)args; (void)count; if (old->toast.message != toast->toast.message) { XmStringFree(old->toast.message); toast->toast.message = copy_string(toast->toast.message); } if (old->toast.action_label != toast->toast.action_label) { XmStringFree(old->toast.action_label); toast->toast.action_label = copy_string(toast->toast.action_label); } XtVaSetValues(toast->toast.message_widget, XmNlabelString, toast->toast.message, NULL); XtVaSetValues(toast->toast.action_widget, XmNlabelString, toast->toast.action_label, XmNmappedWhenManaged, has_action(toast), NULL); if (changed) negotiate(toast); return changed; }
+static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgList args, Cardinal *count) {
+    XmToastWidget old = (XmToastWidget)old_widget;
+    XmToastWidget toast = (XmToastWidget)widget;
+    Boolean message_changed = old->toast.message != toast->toast.message;
+    Boolean action_changed = old->toast.action_label != toast->toast.action_label;
+    Boolean changed;
+    (void)request; (void)args; (void)count;
+    if (message_changed) {
+        XmString replacement = copy_string(toast->toast.message);
+        if (replacement) {
+            XmStringFree(old->toast.message);
+            toast->toast.message = replacement;
+        } else {
+            toast->toast.message = old->toast.message;
+            message_changed = False;
+        }
+    }
+    if (action_changed) {
+        XmString replacement = copy_string(toast->toast.action_label);
+        if (replacement) {
+            XmStringFree(old->toast.action_label);
+            toast->toast.action_label = replacement;
+        } else {
+            toast->toast.action_label = old->toast.action_label;
+            action_changed = False;
+        }
+    }
+    changed = message_changed || action_changed ||
+              old->toast.timeout != toast->toast.timeout;
+    XtVaSetValues(toast->toast.message_widget, XmNlabelString,
+                  toast->toast.message, NULL);
+    XtVaSetValues(toast->toast.action_widget, XmNlabelString,
+                  toast->toast.action_label, XmNmappedWhenManaged,
+                  has_action(toast), NULL);
+    if (changed) negotiate(toast);
+    return changed;
+}
 static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request, XtWidgetGeometry *reply) { XmToastWidget toast = (XmToastWidget)XtParent(child); if (request->request_mode & (CWX | CWY | CWBorderWidth | CWSibling | CWStackMode)) return XtGeometryNo; if (!toast->toast.laying_out && !(request->request_mode & XtCWQueryOnly)) negotiate(toast); reply->request_mode = CWWidth | CWHeight; reply->width = child->core.width; reply->height = child->core.height; return XtGeometryAlmost; }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended, XtWidgetGeometry *reply) { XmToastWidget toast = (XmToastWidget)widget; natural(toast, &reply->width, &reply->height); reply->request_mode = CWWidth | CWHeight; if (intended && intended->width == reply->width && intended->height == reply->height) return XtGeometryYes; return toast->core.width == reply->width && toast->core.height == reply->height ? XtGeometryNo : XtGeometryAlmost; }
 static void activate(Widget widget, XtPointer client, XtPointer call) { XmToastWidget toast = (XmToastWidget)client; XmToastCallbackStruct callback; (void)widget; callback.reason = XmCR_ACTIVATE; callback.event = call ? ((XmPushButtonCallbackStruct *)call)->event : NULL; callback.severity = toast->toast.severity; XtCallCallbacks((Widget)toast, XmNtoastActionCallback, &callback); }

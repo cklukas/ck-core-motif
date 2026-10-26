@@ -17098,3 +17098,13 @@ Guard Badge render-table replacement and tiny frames (2026-10-27)
 ====================================================
 
 Refresh Drag receiver property-size regression contract (2026-10-27)
+Make Toast string updates transactional (2026-10-27)
+=====================================================
+
+- Preserve existing message and action labels when `SetValues` string copies
+  fail, and negotiate layout only after successful replacements.
+- Add focused regression coverage and documentation.
+
+====================================================
+
+Guard Badge render-table replacement and tiny frames (2026-10-27)
