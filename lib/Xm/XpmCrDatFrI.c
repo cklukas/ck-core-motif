@@ -69,9 +69,12 @@ XpmCreateDataFromImage(
     XpmInfo info;
     int ErrorStatus;
 
+    if (display == NULL || data_return == NULL ||
+	(image == NULL && shapeimage == NULL))
+	return XpmFileInvalid;
+
     /* initialize return value */
-    if (data_return)
-	*data_return = NULL;
+    *data_return = NULL;
 
     /* create an XpmImage from the image */
     ErrorStatus = XpmCreateXpmImageFromImage(display, image, shapeimage,

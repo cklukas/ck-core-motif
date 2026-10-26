@@ -15280,3 +15280,10 @@ Validate XPM data-export arguments (2026-10-27)
 
 Validate in-memory XPM image arguments (2026-10-27)
 =====================================================
+Validate XPM image-to-data arguments (2026-10-27)
+==================================================
+
+- Reject null display/output arguments and the no-image case before conversion.
+- Preserve valid shape-only conversion and add a focused source regression.
+
+Validate XPM data-export arguments (2026-10-27)
