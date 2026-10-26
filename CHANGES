@@ -21540,3 +21540,10 @@ Guard MWM title-bar width underflow (2026-10-26)
   invalid subtraction during later reconfiguration.
 - Add focused regression coverage and documentation.
 
+Guard MWM refresh after base-window teardown (2026-10-26)
+===========================================================
+
+- Skip temporary client refresh-window creation when the client base window has
+  already been cleared during teardown.
+- Add focused regression coverage and documentation.
+

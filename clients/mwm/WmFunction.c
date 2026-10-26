@@ -4358,7 +4358,8 @@ Boolean F_Refresh_Win (String args, ClientData *pCD, XEvent *event)
     Window win;
     unsigned int w, h;
 
-    if (pCD && ((pCD->clientState == NORMAL_STATE) ||
+    if (pCD && pCD->clientBaseWin != None &&
+	((pCD->clientState == NORMAL_STATE) ||
 		(pCD->clientState == MAXIMIZED_STATE)))
     {
         if (pCD->clientState == NORMAL_STATE)
