@@ -157,6 +157,9 @@ xpmFreeRgbNames(
     int i;
     xpmRgbName *rgb;
 
+    if (rgbn == NULL || rgbn_max <= 0)
+	return;
+
     for (i = 0, rgb = rgbn; i < rgbn_max; i++, rgb++)
 	XpmFree(rgb->name);
 }

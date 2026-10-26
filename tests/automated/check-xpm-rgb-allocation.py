@@ -15,4 +15,7 @@ assert "middle = left + (right - left) / 2;" in body
 assert "middle = (left + right) / 2;" not in body
 assert "rgbn == NULL || rgbn_max <= 0" in source
 assert "rgb_fname == NULL || rgbn == NULL" in source
+free_start = source.index("xpmFreeRgbNames(\n")
+free_end = source.index("\n}\n", free_start) + 2
+assert "rgbn == NULL || rgbn_max <= 0" in source[free_start:free_end]
 print("PASS XPM RGB lookup checks duplicated-name allocation")

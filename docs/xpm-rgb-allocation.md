@@ -16,5 +16,8 @@ the table grows large.
 RGB-file loading and table lookup also reject null pointers and non-positive
 table sizes before touching the supplied storage.
 
+The cleanup routine applies the same rule and becomes a no-op for an absent
+table or non-positive count.
+
 The source contract is covered by
 `tests/automated/check-xpm-rgb-allocation.py`.
