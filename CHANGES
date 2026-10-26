@@ -22259,3 +22259,11 @@ Validate selection-loss callback inputs (2026-10-26)
 - Add focused regression coverage and documentation for ownership teardown.
 
 Restrict transfer parameter formats to X protocol values (2026-10-26)
+Complete clipboard requests after malformed conversion data (2026-10-26)
+=========================================================================
+
+- Replace the malformed-data early return in `ClipboardCallback` with an empty
+  failed copy so the final `XmIDONE` conversion and request cleanup always run.
+- Add focused regression coverage and documentation for clipboard teardown.
+
+Validate selection-loss callback inputs (2026-10-26)

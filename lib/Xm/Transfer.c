@@ -1149,21 +1149,23 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
       if (unit == 0 || size > ULONG_MAX / unit ||
 	  (size != 0 && value == NULL)) {
 	XtFree((char *)value);
-	return;
+	XmClipboardCopyByName(display, XtWindow(w), *data_id,
+			      NULL, 0, 0L);
+      } else {
+	size = BYTELENGTH( size, format );
+	if (format % 8 != 0) size++;
+
+	name = GetSafeAtomName(display, * (Atom *) target, &howFree);
+	XmClipboardRegisterFormat(display, name, format);
+	FreeSafeAtomName(name,howFree);
+	/* Critical section for MT */
+	_XmProcessLock();
+	_XmClipboardPassType(type);
+	XmClipboardCopyByName(display, XtWindow(w), *data_id,
+			      value, size, 0L);
+	_XmProcessUnlock();
+	XtFree((char*) value);
       }
-      size = BYTELENGTH( size, format );
-      if (format % 8 != 0) size++;
-      
-      name = GetSafeAtomName(display, * (Atom *) target, &howFree);
-      XmClipboardRegisterFormat(display, name, format);
-      FreeSafeAtomName(name,howFree);
-      /* Critical section for MT */
-      _XmProcessLock();
-      _XmClipboardPassType(type);
-      XmClipboardCopyByName(display, XtWindow(w), *data_id, 
-			    value, size, 0L);
-      _XmProcessUnlock();
-      XtFree((char*) value);
     }
     else
       XmClipboardCopyByName(display, XtWindow(w), *data_id, 
