@@ -23086,6 +23086,14 @@ Snapshot transfer completion callbacks (2026-10-26)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-transfer-done-callback-snapshot.py
 
+Reject non-byte text drop formats (2026-10-26)
+==============================================
+
+- Reject external 16/32-bit selection formats before byte-oriented text
+  conversion in `DropTransferProc`.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textsel-drop-format.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

@@ -1402,6 +1402,15 @@ DropTransferProc(Widget w,
     }
     return;
   }
+
+  /* Text targets handled here are byte streams.  Do not reinterpret an
+   * external 16/32-bit selection by passing it to the byte converter. */
+  if (ds->format != 8 || ds->length > (unsigned long)INT_MAX) {
+    XtFree((char *)ds->value);
+    ds->value = NULL;
+    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
   
   insertPosLeft = insertPosRight = transfer_rec->insert_pos;
   
