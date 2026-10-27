@@ -1025,6 +1025,15 @@ DropTransferProc(Widget w, XtPointer closure,
     }
     return;
   }
+
+  /* File-selection text targets are byte streams.  Reject external
+   * 16/32-bit formats before locale conversion or direct insertion. */
+  if (ds->format != 8 || ds->length > (unsigned long)INT_MAX) {
+    XtFree((char *)ds->value);
+    ds->value = NULL;
+    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
   
   insertPosLeft = insertPosRight = transfer_rec->insert_pos;
   

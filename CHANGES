@@ -23094,6 +23094,14 @@ Reject non-byte text drop formats (2026-10-26)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textsel-drop-format.py
 
+Reject non-byte file-selection formats (2026-10-26)
+====================================================
+
+- Validate external selection formats before file-selection locale
+  conversion or direct insertion.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfsel-drop-format.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
