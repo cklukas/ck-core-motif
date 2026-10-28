@@ -23776,6 +23776,14 @@ Use literal clipboard format-atom formatting (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-format-literal.py
 
+Make clipboard start-copy allocation width explicit (2026-10-28)
+==================================================================
+
+- Pass the fixed item-record allocation explicitly as Xt’s `Cardinal` width.
+- Preserve the existing allocation and failure cleanup behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-start-copy-allocation-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

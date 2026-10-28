@@ -3439,7 +3439,7 @@ XmClipboardStartCopy(
     /* allocate storage for the data item  */ 
     itemlength = sizeof( ClipboardDataItemRec );
 
-    itemheader = (ClipboardDataItem)XtMalloc( (size_t) itemlength );
+    itemheader = (ClipboardDataItem)XtMalloc((Cardinal)itemlength);
 
     if (itemheader == NULL)
     {
