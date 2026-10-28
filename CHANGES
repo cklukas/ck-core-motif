@@ -27008,3 +27008,9 @@ Fix Mrm deferred callback-list sizing (2026-10-28)
   copying.
 - Reject deferred callback descriptors with invalid markers or unrepresentable
   item counts.
+Use translated Mrm callback destinations (2026-10-28)
+======================================================
+
+- Write converted callback records through the translated descriptor rather
+  than the original legacy-format resource pointer.
+- Preserve current-format callback handling and callback ordering.

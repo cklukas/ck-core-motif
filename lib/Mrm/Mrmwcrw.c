@@ -1438,7 +1438,7 @@ Urm__CW_CreateArglist (Widget			parent,
 	    case MrmSUCCESS:
 	      /* Move individual items so array functions as callback list */
 	      items = cbptr->item;
-	      callbacks = (XtCallbackRec *)((RGMCallbackDescPtr)val)->item;
+	      callbacks = (XtCallbackRec *)cbptr->item;
 		
 	      for (cbndx = 0; cbndx <= cbptr->count; cbndx++)
 		/* <= so that null item is copied. */
