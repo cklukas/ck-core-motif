@@ -9,7 +9,7 @@ for name in ("TextSel.c", "TextFSel.c"):
     source = (root / name).read_text()
     destroy = source.rindex("DropDestroyCB(Widget")
     destroy_body = source[destroy:source.index("\n}\n", destroy)]
-    assert "ts != NULL" in destroy_body, name
+    assert "callData != NULL" in destroy_body, name
     start = source.rindex("DropTransferProc(Widget")
     body = source[start:source.index("\nstatic ", start)]
     assert "closure == NULL" in body, name
