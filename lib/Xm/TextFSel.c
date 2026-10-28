@@ -424,7 +424,7 @@ HandleInsertTargets(
   Boolean supports_CT = False;
   Boolean supports_text = False;
   Boolean supports_utf8_string = False;
-  int i;
+  unsigned long i;
 
   if (w == NULL || closure == NULL || length == NULL ||
       value == NULL || tid == NULL) {

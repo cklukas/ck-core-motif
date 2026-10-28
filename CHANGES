@@ -25222,3 +25222,9 @@ Bound TextField locale-expanded transfer length (2026-10-29)
 - Make the wide drop-transfer allocation and `mbstowcs` length conversions
   explicit after their existing bounds checks.
 - Add focused source coverage and documentation for the safe failure path.
+Match TextField target-list scan index width (2026-10-29)
+==========================================================
+
+- Use the unsigned transfer-count type while scanning external target atoms,
+  removing a signed comparison at the selection boundary.
+- Extend the existing target-count source regression and documentation.
