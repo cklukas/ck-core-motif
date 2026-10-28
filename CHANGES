@@ -26307,3 +26307,9 @@ Guard UIL semantic coercion constructors (2026-10-29)
 - Check compound- and wide-string coercion constructors before writing
   expression metadata during argument and procedure validation.
 - Return from validation cleanly when a coercion node cannot be allocated.
+Guard UIL string-table compound conversion (2026-10-29)
+=========================================================
+
+- Check the temporary compound-string node before appending and copying a
+  string-table segment during semantic evaluation.
+- Return cleanly when that conversion node cannot be allocated.
