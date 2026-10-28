@@ -27093,6 +27093,14 @@ Guard Mrm compound-string conversion output (2026-10-28)
   null byte-stream pointer.
 - Keep the existing empty-string and bounded-copy behavior unchanged.
 
+Commit Mrm child references atomically (2026-10-28)
+=====================================================
+
+- Validate and append child keys before changing manage, access, type, or key
+  fields.
+- Leave child descriptors unchanged when an index is missing or cannot be
+  appended.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

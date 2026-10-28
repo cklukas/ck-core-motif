@@ -1816,13 +1816,8 @@ UrmCWRSetChild (URMResourceContextPtr	context_id,
 			  NULL, context_id, MrmOUT_OF_BOUNDS) ;
   childptr = &listdesc->child[child_ndx] ;
 
-  /*
-   * set child descriptor
-   */
-  childptr->manage = manage ;
-  childptr->access = access ;
-  childptr->type = key_type ;
-  switch ( childptr->type )
+  /* Validate and acquire the key before changing the child descriptor. */
+  switch ( key_type )
     {
     case URMrIndex:
       if ( index == NULL || strlen(index) <= 0 )
@@ -1834,10 +1829,16 @@ UrmCWRSetChild (URMResourceContextPtr	context_id,
       listdesc =
 	(RGMChildrenDescPtr) ((char *)widgetrec + widgetrec->children_offs) ;
       childptr = &listdesc->child[child_ndx] ;
+      childptr->manage = manage ;
+      childptr->access = access ;
+      childptr->type = URMrIndex ;
       childptr->key.index_offs = offset ;
       return MrmSUCCESS ;
 
     case URMrRID:
+      childptr->manage = manage ;
+      childptr->access = access ;
+      childptr->type = URMrRID ;
       childptr->key.id = resource_id ;
       return MrmSUCCESS ;
 
