@@ -26032,3 +26032,9 @@ Guard TextOut conversion counts (2026-10-29)
 
 - Preserve `mbstowcs` result widths in backward text scans and reject failed
   conversions before indexing the temporary wide buffer.
+
+Guard TextField transfer conversions (2026-10-29)
+==================================================
+
+- Reject failed or unrepresentable transfer conversions before replacing
+  TextField content, and terminate successful wide buffers explicitly.

@@ -987,6 +987,7 @@ DropTransferProc(Widget w, XtPointer closure,
   wchar_t * wc_total_value;
   unsigned long total_length = 0;
   int wc_total_length;
+  size_t converted;
   Boolean replace = False;
   XmAnyCallbackStruct cb;
 
@@ -1135,8 +1136,14 @@ DropTransferProc(Widget w, XtPointer closure,
       _XmTextFieldDrawInsertionPoint(tf, True);
       return;
     }
-    wc_total_length = (int)mbstowcs(wc_total_value, total_value,
-                                    (size_t)wc_total_length + 1);
+    converted = mbstowcs(wc_total_value, total_value,
+                         (size_t)wc_total_length + 1);
+    if (converted == (size_t)-1 || converted > (size_t)INT_MAX)
+      wc_total_length = 0;
+    else {
+      wc_total_length = (int)converted;
+      wc_total_value[converted] = (wchar_t)0L;
+    }
     if (wc_total_length > 0)
       replace = _XmTextFieldReplaceText(tf, ds->event, insertPosLeft, 
 					insertPosRight, (char *)wc_total_value,
@@ -1348,11 +1355,13 @@ DoStuff(Widget w,
 	    wc_value = (wchar_t*)XtMalloc((unsigned)tmp_len * sizeof(wchar_t));
 	  }
 	  if (wc_value != NULL) {
-	    prim_select->num_chars = (int)mbstowcs(wc_value, total_value,
-	                                           (size_t)tmp_len);
-	    if (prim_select->num_chars < 0)
+	    converted = mbstowcs(wc_value, total_value, (size_t)tmp_len);
+	    if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
 	      prim_select->num_chars = 0;
-	    else
+	      replace_res = False;
+	    } else {
+	      prim_select->num_chars = (int)converted;
+	      wc_value[converted] = (wchar_t)0L;
 	      replace_res =
 	        _XmTextFieldReplaceText(tf, ds->event,
 	                                replace_from,
@@ -1360,6 +1369,7 @@ DoStuff(Widget w,
 	                                (char*)wc_value,
 	                                prim_select->num_chars,
 	                                ds->selection == atoms[XmACLIPBOARD]);
+	    }
 	  }
 	  _XmProcessUnlock();
 	  XtFree((char*)wc_value);
@@ -1416,13 +1426,14 @@ DoStuff(Widget w,
 	}
 	_XmProcessLock();
 
-	prim_select->num_chars = (int)mbstowcs(wc_value, (char *) temp,
-					       (size_t) ds->length + 1);
-
-	if (prim_select->num_chars < 0) 
+	converted = mbstowcs(wc_value, (char *)temp,
+	                    (size_t)ds->length + 1);
+	if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
 	  prim_select->num_chars = 0;
-	else {
-	  wc_value[prim_select->num_chars] = 0;
+	  replace_res = False;
+	} else {
+	  prim_select->num_chars = (int)converted;
+	  wc_value[converted] = (wchar_t)0L;
 	  replace_res = 
 	    _XmTextFieldReplaceText(tf, ds->event, 
 				    replace_from,
