@@ -1,3 +1,10 @@
+Fix I18List pixmap centering underflow (2026-10-29)
+=====================================================
+
+- Compute selection-highlight pixmap centering in signed wide arithmetic and
+  clamp the resulting Y offset.
+- Add focused source-contract coverage.
+
 Bound I18List selection-inversion origins (2026-10-29)
 ========================================================
 

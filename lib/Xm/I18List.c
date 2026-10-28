@@ -2958,7 +2958,9 @@ InvertArea(Widget w, short row, short column)
        (XmI18List_row_data(ilist)[row].pix_depth != 1 ) &&
        IsValidPixmap(XmI18List_row_data(ilist)[row].pixmap) )
   {
-      pix_y_offset = (height - XmI18List_row_data(ilist)[row].pix_height)/2;
+      pix_y_offset = bounded_short(
+          ((long long)height -
+           (long long)XmI18List_row_data(ilist)[row].pix_height) / 2);
       XCopyArea(XtDisplay(w), XmI18List_row_data(ilist)[row].pixmap,
 		XtWindow(w), XmI18List_entry_background_gc(ilist), 0, 0,
 		XmI18List_row_data(ilist)[row].pix_width,
