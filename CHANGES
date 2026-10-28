@@ -28472,3 +28472,5 @@ List drag selection bounds (2026-10-28)
   source-path argument by defaulting to the checkout implementation (2026-10-28).
 * Refreshed the PrintShell child-allocation contract check for the shared
   failure helper that reports status and exits safely (2026-10-28).
+* Refreshed the ProgressRing label-centering contract check for its current
+  long-long offset arithmetic (2026-10-28).
