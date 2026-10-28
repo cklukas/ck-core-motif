@@ -28365,3 +28365,5 @@ List drag selection bounds (2026-10-28)
 - Validate and compact stale selected positions before copying List drag
   strings; fall back to the initiating item when the selection snapshot has
   no valid entries. See `docs/list-drag-selection-bounds.md`.
+* DataField wide callback bridge no longer dereferences a null buffer for an
+  empty callback result (2026-10-28).

@@ -3632,7 +3632,8 @@ df_ModifyVerify(
 	     }
 	     if (XmTextF_max_char_size(tf) == 1)
 	     { /* caller expects char */
-		 wcs_vcb.text->wcsptr[wcs_vcb.text->length] = 0L;
+		 if (wcs_vcb.text->wcsptr != NULL)
+		     wcs_vcb.text->wcsptr[wcs_vcb.text->length] = 0L;
 		 if (*insert_length > 0) 
 		 {
 		     *insert = XtMalloc((Cardinal)(((size_t)*insert_length + 1) \
