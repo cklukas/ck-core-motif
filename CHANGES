@@ -40,6 +40,12 @@ Clarify UIL listing source-width conversions (2026-10-29)
 - Keep source-line filtering and bounded file-summary indexing explicit at
   their API widths.
 
+Bound UIL machine-code partial-line copies (2026-10-29)
+=======================================================
+
+- Make the bounded partial-line byte count explicit before passing it to the
+  copy and unprintable-character filters.
+
 Validate UIL keyword length configuration (2026-10-28)
 =======================================================
 

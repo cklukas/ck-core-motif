@@ -795,8 +795,9 @@ src_source_record_type	*az_src_rec;
 	    if (text_len == 0) {
 		int	ascii_cnt;
 
-		ascii_cnt = (extra_long_cnt * sizeof (long)) + extra_byte_cnt;
-		_move  (& buffer [TEXT_COL - 1], code_ptr, ascii_cnt);
+		ascii_cnt = (int)((size_t)extra_long_cnt * sizeof (long) +
+				   (size_t)extra_byte_cnt);
+		_move  (& buffer [TEXT_COL - 1], code_ptr, (size_t)ascii_cnt);
 		lex_filter_unprintable_chars ((unsigned char*)
 			& buffer [TEXT_COL - 1], ascii_cnt,
 			lex_m_filter_tab );
