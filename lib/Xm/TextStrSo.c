@@ -186,7 +186,7 @@ _XmTextBytesToCharacters(char * characters,
   
   switch (max_char_size) {
   case 1: {
-    (void) memcpy((void*)characters, (void*)bytes, num_chars);
+    (void) memcpy((void*)characters, (void*)bytes, (size_t)num_chars);
     count = num_chars;
     break;
   } /* end case 1 */
@@ -195,7 +195,7 @@ _XmTextBytesToCharacters(char * characters,
     tmp_bytes = (unsigned char*) bytes;
     for (
 #ifndef NO_MULTIBYTE
-	 num_bytes = mblen((char*)tmp_bytes, max_char_size), 
+	 num_bytes = mblen((char*)tmp_bytes, (size_t)max_char_size),
 #else
 	 num_bytes = *tmp_bytes ? 1 : 0,
 #endif
@@ -203,7 +203,7 @@ _XmTextBytesToCharacters(char * characters,
 	 num_chars > 0 && num_bytes > 0;
 	 num_chars--,
 #ifndef NO_MULTIBYTE
-	 num_bytes = mblen((char*)tmp_bytes, max_char_size), 
+	 num_bytes = mblen((char*)tmp_bytes, (size_t)max_char_size),
 #else
 	 num_bytes = *tmp_bytes ? 1 : 0,
 #endif
@@ -224,8 +224,15 @@ _XmTextBytesToCharacters(char * characters,
     break;
   } /* end case 2 */
   default: {
+    size_t converted;
+
     wchar_t_ptr = (wchar_t *)characters;
-    count = mbstowcs(wchar_t_ptr, bytes, num_chars);
+    converted = mbstowcs(wchar_t_ptr, bytes, (size_t)num_chars);
+    if (converted == (size_t)-1)
+	return -1;
+    if (converted > (size_t)INT_MAX)
+	return 0;
+    count = (int)converted;
     if (add_null_terminator == True && count >= 0)
       wchar_t_ptr[count] = (wchar_t)0;
     break;

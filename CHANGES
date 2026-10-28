@@ -23928,3 +23928,14 @@ Regression: tests/automated/check-text-source-cardinal-allocation.py
 
 Bound Text source block length narrowing (2026-10-28)
 ======================================================
+Make Text byte-conversion widths explicit (2026-10-28)
+=======================================================
+
+- Pass validated byte and character lengths explicitly to size-typed APIs.
+- Check the `mbstowcs` result before narrowing it to the legacy `int` result.
+- Preserve the existing invalid-multibyte return behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-byte-conversion-width.py
+
+Bound Text source Xt allocation widths (2026-10-28)
+====================================================
