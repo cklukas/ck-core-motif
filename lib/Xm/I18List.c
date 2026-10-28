@@ -1364,7 +1364,8 @@ static short
 GetListWidth(Widget w)
 {
     XmI18ListWidget ilist = (XmI18ListWidget) w;
-    register int i, width;
+    register int i;
+    long long width;
 
     /*
      * Get maximum width of data to display
@@ -1372,8 +1373,14 @@ GetListWidth(Widget w)
     width = HORIZONTAL_SPACE;
     for (i=0; i < XmI18List_num_columns(ilist); i++)
         width += XmI18List_column_widths(ilist)[i] + HORIZONTAL_SPACE;
- 
-    return((short) width);
+
+    /* Keep the legacy short return type, but never let the accumulated
+     * column widths wrap through it. */
+    if (width > SHRT_MAX)
+        return SHRT_MAX;
+    if (width < 0)
+        return 0;
+    return (short) width;
 }
 
 /*	Function Name: AdjustFirstCol

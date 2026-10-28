@@ -1,3 +1,10 @@
+Saturate I18List total-width accumulation (2026-10-29)
+========================================================
+
+- Sum column widths in a wide type and clamp the legacy short return value
+  instead of allowing total content width to wrap.
+- Add focused source-contract coverage.
+
 Keep I18List hit-test height comparisons wide (2026-10-29)
 ============================================================
 
