@@ -64,6 +64,13 @@ Guard DnD top-window property rebuilds (2026-10-29)
 - Keep the previous receiver state intact when the replacement allocation
   fails, with focused malformed-property coverage.
 
+Guard DnD conversion callback inputs (2026-10-29)
+==================================================
+
+- Validate selection, target, and result pointers before incremental and
+  non-incremental drag converters dereference callback state.
+- Preserve valid conversion behavior and add focused callback-input coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

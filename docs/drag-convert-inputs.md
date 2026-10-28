@@ -10,4 +10,9 @@ conversion whose originating widget has not been installed in the context
 block.  This makes reentrant and cancellation paths fail safely instead of
 dereferencing incomplete callback state.
 
+The incremental and non-incremental drop conversion frontends also validate
+their selection, target, and result arguments before consulting the X selection
+request.  Teardown or malformed callback invocation therefore returns
+conversion failure safely; normal Xt conversion requests are unchanged.
+
 The focused regression is `tests/automated/check-drag-convert-inputs.py`.

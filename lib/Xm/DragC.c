@@ -1531,6 +1531,10 @@ DropConvertIncrCallback(
     Boolean 		success;
     Atom		atoms[XtNumber(atom_names)];
 
+    if (w == NULL || selection == NULL || target == NULL ||
+        typeRtn == NULL || valueRtn == NULL || lengthRtn == NULL ||
+        formatRtn == NULL || maxLengthRtn == NULL)
+      return False;
     request = XtGetSelectionRequest(w, *selection, requestID);
     if (request == NULL)
 	return False;
@@ -1641,6 +1645,10 @@ DropConvertCallback(
     Boolean		success;
     Atom		atoms[XtNumber(atom_names)];
 
+    if (w == NULL || selection == NULL || target == NULL ||
+        typeRtn == NULL || valueRtn == NULL || lengthRtn == NULL ||
+        formatRtn == NULL)
+      return False;
     request = XtGetSelectionRequest(w, *selection, NULL);
     if (request == NULL)
 	return False;
