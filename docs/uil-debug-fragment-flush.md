@@ -8,7 +8,9 @@ not always include a newline.  The listing writer keeps those fragments in a
 bounded 132-byte buffer so long messages can be emitted in chunks.  Listing
 cleanup now emits the remaining fragment and resets the buffer when a new
 listing starts; debug text is therefore not silently lost or carried into a
-later listing.
+later listing. The fragment writer also flushes immediately when a previous
+call filled the bounded buffer exactly, preventing a zero-capacity retry from
+looping forever on the next fragment.
 
 The focused source regression is
 `tests/automated/check-uil-debug-flush.py`.

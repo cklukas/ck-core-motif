@@ -12,4 +12,7 @@ assert "lst_debug_flush();" in cleanup[:cleanup.index("static void\nlst_debug_ap
 debug = source[source.index("lst_debug_append") :]
 assert "lst_debug_buffer[lst_debug_cur_pos] = '\\0';" in debug
 assert "lst_output_line(lst_debug_buffer, FALSE);" in debug
+assert "if (available == 0)" in debug
+assert "lst_debug_flush();" in debug
+assert debug.index("if (available == 0)") < debug.index("size_t copy_length")
 print("PASS UIL debug fragments flush at listing cleanup")

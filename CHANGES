@@ -26536,3 +26536,10 @@ Harden XIM reference-list removal (2026-10-29)
   truncated by an `int` comparison.
 - Express the shrink threshold without multiplying a potentially large count,
   avoiding unsigned wraparound while retaining the existing behavior.
+
+Prevent UIL debug-fragment flush stalls (2026-10-29)
+=====================================================
+
+- Flush a full bounded debug buffer before accepting the next fragment, so an
+  exact-buffer-sized message cannot leave the listing formatter in a zero-space
+  retry loop.

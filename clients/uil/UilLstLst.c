@@ -1011,6 +1011,11 @@ lst_debug_append(const char *text)
 	    size_t line_length = newline ? (size_t)(newline - text) : strlen(text);
 	    size_t available = sizeof(lst_debug_buffer) - 1 -
 		(size_t)lst_debug_cur_pos;
+	    if (available == 0)
+		{
+		lst_debug_flush();
+		continue;
+		}
 	    size_t copy_length = line_length < available ? line_length : available;
 
 	    if (copy_length != 0)
