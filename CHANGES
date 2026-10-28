@@ -27036,3 +27036,8 @@ Guard Mrm text-vector fixup inputs (2026-10-28)
 
 - Reject null fixup pointers and negative text-vector counts before conversion.
 - Preserve valid Char8 and XmString vector fixup behavior.
+Guard Mrm value-fixup swap state (2026-10-28)
+==============================================
+
+- Reject a null byte-swap state pointer before Mrm value conversion.
+- Preserve valid scalar and vector resource fixup behavior.

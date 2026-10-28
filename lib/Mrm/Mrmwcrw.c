@@ -1966,7 +1966,6 @@ Urm__CW_EvaluateValOrOffset (MrmType			reptype,
 			     long			ival,
 			     MrmOffset			offset)
 {
-
   switch ( reptype )
     {
     case MrmRtypeInteger:
@@ -2035,6 +2034,9 @@ Urm__CW_FixupValue (long			val,
   OldRGMFontItemPtr	olditem;	/* old style font item */
   RGMFontListPtr	fontlist ;	/* resource as font list */
   OldRGMFontListPtr	oldlist ;	/* resource as old style font list */
+
+  if (swap_needed == NULL)
+    return MrmFAILURE;
 
   switch ( reptype )
     {
