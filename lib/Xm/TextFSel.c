@@ -331,25 +331,23 @@ InsertSelection(
       return;
     }
     if (tf->text.max_char_size == 1) {
-      /* NOTE: casting *length could result in a truncated long. */
-      num_chars = *length;
+      num_chars = (int)*length;
       replace_res = _XmTextFieldReplaceText(tf, 
 					    (XEvent *)insert_select->event,
 					    left, right, (char *)value,
-					    (unsigned)*length, True);
+					    (int)*length, True);
     } else {
-      temp = XtMalloc((unsigned) *length + 1);
+      temp = XtMalloc((Cardinal)((size_t)*length + 1));
       if (temp == NULL) {
         XtFree((char *)value);
         insert_select->done_status = True;
         insert_select->success_status = False;
         return;
       }
-      /* NOTE: casting *length could result in a truncated long. */
       (void)memcpy((void*)temp, (void*)value, (size_t)*length);
       temp[*length] = '\0';
-      wc_value = (wchar_t*)XtMalloc((unsigned)
-				    (*length + 1) * sizeof(wchar_t));
+      wc_value = (wchar_t*)XtMalloc((Cardinal)
+					    (((size_t)*length + 1) * sizeof(wchar_t)));
       if (wc_value == NULL) {
         XtFree(temp);
         XtFree((char *)value);
@@ -358,8 +356,7 @@ InsertSelection(
         return;
       }
       
-      /* NOTE: casting *length could result in a truncated long. */
-      num_chars = mbstowcs(wc_value, temp, (unsigned)*length + 1);
+      num_chars = (int)mbstowcs(wc_value, temp, (size_t)*length + 1);
       if (num_chars < 0)
 	num_chars = 0;
       else

@@ -52,6 +52,14 @@ Match text drop finished-callback ABI (2026-10-29)
 - Preserve drop-context and client-data cleanup while removing undefined
   callback dispatch and its strict-build warning.
 
+Clarify TextField transfer length conversions (2026-10-29)
+===========================================================
+
+- Express the existing bounded TextField transfer payload conversions with
+  their actual `int`, `size_t`, and Xt `Cardinal` types.
+- Preserve rejection of oversized payloads while removing implicit narrowing
+  in the multibyte insertion path.
+
 Synchronize XPM serializer contract checks (2026-10-29)
 ========================================================
 
