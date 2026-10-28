@@ -27718,3 +27718,9 @@ Fix IconG column-width arithmetic (2026-10-29)
 - Use signed wide intermediates when removing RTL parent indentation, avoiding
   unsigned underflow and `Dimension`-to-`Position` narrowing.
 - Preserve the existing minimum-width fallback and add focused source coverage.
+Bound List base positions (2026-10-29)
+=======================================
+
+- Clamp BaseX/BaseY margin arithmetic before storing it in signed `Position`
+  fields across initialization, resize, redraw, and scrollbar paths.
+- Add focused source-contract coverage for oversized list margins.

@@ -43,6 +43,13 @@ static char rcsid[] = "$TOG: List.c /main/47 1999/10/12 16:58:17 mgreess $"
 #include "XmI.h"
 #include <Xm/AtomMgr.h>
 #include <Xm/CutPaste.h>
+
+static Position bounded_position(long long value)
+{
+  if (value < SHRT_MIN) return (Position)SHRT_MIN;
+  if (value > SHRT_MAX) return (Position)SHRT_MAX;
+  return (Position)value;
+}
 #include <Xm/DragC.h>
 #include <Xm/DragIcon.h>
 #include <Xm/DragIconP.h>
@@ -1052,13 +1059,13 @@ Initialize(Widget request,
   else
     lw->list.HighlightThickness = 0;
 
-  lw->list.BaseX = ((Position)lw->list.margin_width +
-		    lw->list.HighlightThickness +
-		    lw->primitive.shadow_thickness);
+  lw->list.BaseX = bounded_position((long long)lw->list.margin_width +
+			    lw->list.HighlightThickness +
+			    lw->primitive.shadow_thickness);
 
-  lw->list.BaseY = ((Position)lw->list.margin_height +
-		    lw->list.HighlightThickness +
-		    lw->primitive.shadow_thickness);
+  lw->list.BaseY = bounded_position((long long)lw->list.margin_height +
+			    lw->list.HighlightThickness +
+			    lw->primitive.shadow_thickness);
 
   lw->list.InternalList = NULL;
 
@@ -1923,13 +1930,13 @@ SetValues(Widget old,
     {
       redraw = TRUE;
       SetDefaultSize(newlw, &width, &height, reset_max, reset_max);
-      newlw->list.BaseX = (Position)newlw->list.margin_width +
+      newlw->list.BaseX = bounded_position((long long)newlw->list.margin_width +
 	newlw->list.HighlightThickness +
-	  newlw->primitive.shadow_thickness;
+	  newlw->primitive.shadow_thickness);
 
-      newlw->list.BaseY = (Position)newlw->list.margin_height +
+      newlw->list.BaseY = bounded_position((long long)newlw->list.margin_height +
 	newlw->list.HighlightThickness +
-	  newlw->primitive.shadow_thickness;
+	  newlw->primitive.shadow_thickness);
 
 #ifdef FIX_1474
       if (((newlw->list.SizePolicy != XmCONSTANT) ||
@@ -2363,7 +2370,7 @@ DrawList(XmListWidget lw,
     {
       SetClipRect(lw);
 
-      lw->list.BaseY = ((int)lw->list.margin_height +
+      lw->list.BaseY = bounded_position((long long)lw->list.margin_height +
 			lw->list.HighlightThickness +
 			lw->primitive.shadow_thickness);
 
@@ -3048,7 +3055,7 @@ SetHorizontalScrollbar(XmListWidget lw)
       if ((lw->list.MaxWidth <= (Dimension)listwidth) || 
 	  (lw->list.itemCount == 0))
 	{
-	  lw->list.BaseX = ((int) lw->list.margin_width +
+	  lw->list.BaseX = bounded_position((long long)lw->list.margin_width +
 			    lw->list.HighlightThickness +
 			    lw->primitive.shadow_thickness);
 
