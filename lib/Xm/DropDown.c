@@ -1285,6 +1285,8 @@ ListSelected(Widget w, XtPointer cbw_ptr, XtPointer list_data_ptr)
     XmDropDownWidget cbw = (XmDropDownWidget) cbw_ptr;
     XmListCallbackStruct *list_data;
 
+    if (cbw == NULL || list_data_ptr == NULL)
+	return;
     list_data = (XmListCallbackStruct *) list_data_ptr;
 
     if ((list_data->reason == XmCR_BROWSE_SELECT) &&

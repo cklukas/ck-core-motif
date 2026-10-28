@@ -8,3 +8,5 @@ nav_exclude: true
 surface an event for a foreign window or a window destroyed during dispatch.
 The handler now treats an unmapped widget and an incomplete parent chain as a
 no-op, preserving normal popup behavior without a null dereference.
+The list-selection callback applies the same rule to missing callback payloads
+or widget closures.

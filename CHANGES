@@ -27217,6 +27217,9 @@ Guard DropDown grabbed-event widget lookup (2026-10-28)
 - Stop safely if the widget's parent chain has no shell instead of
   dereferencing a null parent.
 
+- Ignore malformed list-selection callbacks with a missing widget closure or
+  callback payload.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
