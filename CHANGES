@@ -26591,3 +26591,9 @@ Refresh MWM bindings-property regression (2026-10-29)
 
 - Verify the current bounded, Xt-owned property copy rather than the removed
   direct Xlib-property assignment.
+
+Refresh remaining MWM input and allocation regressions (2026-10-29)
+====================================================================
+
+- Match frame exposure/regeneration checks to combined null-and-window guards.
+- Track the current checked virtual-key atom allocation expression.

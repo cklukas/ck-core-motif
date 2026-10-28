@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 source = Path("clients/mwm/WmCDecor.c").read_text(encoding="utf-8")
-start = source.index("void CreateStretcherWindows (ClientData *pcd)")
+start = source.index("Boolean CreateStretcherWindows (ClientData *pcd)")
 end = source.index("void CountFrameRectangles", start)
 body = source[start:end]
 

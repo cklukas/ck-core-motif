@@ -9,8 +9,8 @@ start = source.index("void RegenerateClientFrame (ClientData *pcd)")
 end = source.index("} /* END OF FUNCTION  RegenerateClientFrame  */", start)
 body = source[start:end]
 
-assert "if (pcd == NULL)" in body
+assert "pcd == NULL" in body
 assert "return;" in body
-assert body.index("if (pcd == NULL)") < body.index("pcd->decor")
+assert body.index("pcd == NULL") < body.index("pcd->decor")
 
 print("PASS MWM frame regeneration rejects null clients")

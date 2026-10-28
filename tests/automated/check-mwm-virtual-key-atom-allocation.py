@@ -9,7 +9,7 @@ start = source.index("Boolean\nVirtKeys4DIN")
 end = source.index("#endif /* NO_HP_KEY_REMAP */", start)
 region = source[start:end]
 
-allocation = "prop_atoms = (Atom *) XtMalloc( sizeof( Atom) * num_props) ;"
+allocation = "prop_atoms = (Atom *)XtMalloc((Cardinal)prop_bytes) ;"
 assert allocation in region
 check = "if (prop_atoms == NULL)"
 assert check in region

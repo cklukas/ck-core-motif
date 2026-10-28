@@ -21,8 +21,8 @@ assert "return (FALSE);" in frame
 assert frame.index("if (pcd == NULL)") < frame.index("ConstructFrame")
 
 for function in (exposure, base):
-    assert "if (pcd == NULL)" in function
+    assert "pcd == NULL" in function
     assert "return;" in function
-    assert function.index("if (pcd == NULL)") < function.index("pcd->")
+    assert function.index("pcd == NULL") < function.index("pcd->")
 
 print("PASS MWM frame exposure helpers reject null clients")
