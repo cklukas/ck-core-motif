@@ -3534,10 +3534,29 @@ _XmXftDrawCreate(Display *display, Window window)
 	}
 
 #ifdef FIX_1444
-	if (!(draw = XftDrawCreate(display, window,
-	    DefaultVisual(display, DefaultScreen(display)),
-	    DefaultColormap(display, DefaultScreen(display))))) 
-            	draw = XftDrawCreateBitmap(display, window);
+	{
+		Window root;
+		int x, y;
+		unsigned int width, height, border, depth;
+		int screen = DefaultScreen(display);
+		Visual *visual = DefaultVisual(display, screen);
+		Colormap colormap = DefaultColormap(display, screen);
+
+		/* XftDrawCreate() must use a visual compatible with the drawable.
+		 * In particular, depth-one pixmaps are bitmap drawables even when
+		 * XftDrawCreate(default visual, ...) appears to succeed lazily. */
+		if (XGetGeometry(display, window, &root, &x, &y, &width, &height,
+		                 &border, &depth) && depth == 1)
+			draw = XftDrawCreateBitmap(display, window);
+		else {
+			if (XGetWindowAttributes(display, window, &wa) && wa.visual != NULL) {
+				visual = wa.visual;
+				if (wa.colormap != None)
+					colormap = wa.colormap;
+			}
+			draw = XftDrawCreate(display, window, visual, colormap);
+		}
+	}
 #else
 	oldErrorHandler = XSetErrorHandler (_XmXftErrorHandler);	
 	xft_error = 0;

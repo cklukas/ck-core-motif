@@ -27122,6 +27122,14 @@ Guard Mrm value-conversion destination (2026-10-28)
   branch dereferences it.
 - Preserve all existing conversion behavior for valid destinations.
 
+Select compatible Xft drawable depth (2026-10-28)
+==================================================
+
+- Detect depth-one pixmaps before creating an Xft draw object and use the
+  bitmap path instead of a lazily incompatible default visual.
+- Use a realized window visual and colormap when available for other
+  drawables, preserving normal Xft rendering and cache behavior.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
