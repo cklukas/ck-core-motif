@@ -8678,14 +8678,25 @@ SetValues(Widget old,
    */
   if (TextF_SelectionArray(new_tf) != TextF_SelectionArray(old_tf)) {
     XtPointer temp_ptr;
-    
-    XtFree((char *)TextF_SelectionArray(old_tf));
+    XmTextScanType *new_selection;
+    int selection_count_value = TextF_SelectionArrayCount(new_tf);
+    size_t selection_count;
+
     temp_ptr = (XtPointer)TextF_SelectionArray(new_tf);
-    TextF_SelectionArray(new_tf) = 
-      (XmTextScanType *)XtMalloc(TextF_SelectionArrayCount(new_tf) * 
-				 sizeof(XmTextScanType));
-    memcpy((void *)TextF_SelectionArray(new_tf), (void *)temp_ptr,
-	   (TextF_SelectionArrayCount(new_tf) * sizeof(XmTextScanType)));
+    if (selection_count_value < 0)
+      return False;
+    selection_count = (size_t)selection_count_value;
+    if (selection_count > SIZE_MAX / sizeof(XmTextScanType) ||
+        selection_count > UINT_MAX / sizeof(XmTextScanType))
+      return False;
+    new_selection = (XmTextScanType *)XtMalloc(
+      (Cardinal)(selection_count * sizeof(XmTextScanType)));
+    if (new_selection == NULL)
+      return False;
+    memcpy((void *)new_selection, (void *)temp_ptr,
+       selection_count * sizeof(XmTextScanType));
+    XtFree((char *)TextF_SelectionArray(old_tf));
+    TextF_SelectionArray(new_tf) = new_selection;
   }
   /*
    * End fix for HaL DTS 9841
