@@ -388,6 +388,7 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     char buffer[8];
     int col, row, first, offset, position, day;
     (void)closure; (void)continue_dispatch;
+    if (widget == NULL || event == NULL || !XmIsCalendar(widget)) return;
     if (event->type == KeyPress) {
         XLookupString(&event->xkey, buffer, sizeof(buffer), &key, NULL);
         candidate = calendar->calendar.date;
