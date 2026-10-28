@@ -28145,6 +28145,8 @@ Source-contract refreshes (2026-10-29)
 
 - Align AutoSuggestBox callback and Calendar text-metric checks with their
   current guarded and wide-arithmetic implementations.
+- Align the ColorPicker redisplay check with its current wide baseline
+  arithmetic.
 - Document the maintenance-only test updates.
 
 Toast action-position bounds (2026-10-29)

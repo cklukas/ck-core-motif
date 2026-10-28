@@ -14,5 +14,5 @@ assert "XGetGCValues" not in function
 assert "XGContextFromGC(" not in function
 assert "XmStringExtent(picker->color_picker.render_table, value_string" in function
 assert "text_height" in function
-assert "((int)picker->core.height - (int)text_height) / 2" in function
+assert "((long long)picker->core.height - text_height) / 2" in function
 print("PASS ColorPicker redisplay has a bounded text baseline")
