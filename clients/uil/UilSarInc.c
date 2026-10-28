@@ -127,6 +127,7 @@ yystype	    * semi_frame;
     sym_section_entry_type	* section_entry;
     sym_section_entry_type	* section_tail_entry;
     char			* buffer;
+    unsigned int		file_name_length;
     unsigned char		  tmp1;
     int				  i,j;
 
@@ -215,8 +216,11 @@ yystype	    * semi_frame;
     **  Save the file name
     */
 
-    _move (include_entry->file_name, buffer, value_entry->w_length);
-    include_entry->file_name [value_entry->w_length] =  0;
+    file_name_length = value_entry->w_length;
+    if (file_name_length >= sizeof(include_entry->file_name))
+	file_name_length = sizeof(include_entry->file_name) - 1;
+    _move (include_entry->file_name, buffer, file_name_length);
+    include_entry->file_name [file_name_length] =  0;
 
     /*
     ** Since this is an INCLUDE we want included sections to hang off

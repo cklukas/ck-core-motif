@@ -1,3 +1,10 @@
+Bound UIL include filename metadata (2026-10-28)
+=================================================
+
+- Limit parsed include names to the fixed symbol-record field before copying,
+  preventing long include directives from overwriting adjacent metadata.
+- Add focused coverage and documentation.
+
 Bound UIL root filename metadata (2026-10-28)
 ==============================================
 
