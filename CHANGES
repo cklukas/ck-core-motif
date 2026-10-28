@@ -26446,3 +26446,9 @@ Guard TextField replacement growth arithmetic (2026-10-29)
 - Centralize byte and wide-character capacity calculations in a checked
   `size_t` helper.
 - Reject malformed lengths and unrepresentable growth before `XtRealloc`.
+
+Guard TextField warning allocation arithmetic (2026-10-29)
+============================================================
+
+- Check unsupported-character diagnostic sizes before multiplying and
+  narrowing them for `XtMalloc`.

@@ -7547,8 +7547,13 @@ ValidateString(XmTextFieldWidget tf,
 	  err_str = NULL;
 	  if (num_conv >= 0) {
 	    int i;
+	    size_t warning_bytes;
 
-	    err_str = XtMalloc((4 * num_conv) + 1);
+	    if ((size_t)num_conv <= (SIZE_MAX - 1) / 4 &&
+		(size_t)num_conv <= (size_t)UINT_MAX / 4) {
+	      warning_bytes = (size_t)num_conv * 4 + 1;
+	      err_str = XtMalloc((Cardinal)warning_bytes);
+	    }
 	    if (err_str != NULL)
 	      for (i = 0; i < num_conv; i++) {
 		sprintf(err_str + (i * 4), "\\%o", (unsigned char) curr_str[i]);
