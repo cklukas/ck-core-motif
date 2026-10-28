@@ -632,7 +632,7 @@ static Boolean
 ClipboardGetByNameItem(Display* dpy, Window win,
 		       ClipboardHeader header, char* format)
 {
-  short dataok;
+  int dataok;
   ClipboardFormatItem matchformat;
   unsigned long matchformatlength, maxname;
   int count;

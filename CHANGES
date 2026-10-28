@@ -23663,6 +23663,14 @@ Bound clipboard format counts before legacy narrowing (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-format-count-bounds.py
 
+Preserve clipboard named-conversion result width (2026-10-28)
+===============================================================
+
+- Store `ClipboardRequestDataAndWait` results in an `int`.
+- Avoid narrowing conversion status to `short` before testing success.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-by-name-result-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
