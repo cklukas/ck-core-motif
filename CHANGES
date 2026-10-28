@@ -23918,3 +23918,13 @@ Regression: tests/automated/check-text-source-block-length.py
 
 Remove impossible Text highlight-capacity check (2026-10-28)
 ==============================================================
+Bound Text source Xt allocation widths (2026-10-28)
+====================================================
+
+- Reject source blocks larger than Xt's `Cardinal` allocation range.
+- Pass the validated size explicitly to `XtMalloc` and `XtRealloc`.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-source-cardinal-allocation.py
+
+Bound Text source block length narrowing (2026-10-28)
+======================================================
