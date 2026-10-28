@@ -8563,16 +8563,18 @@ match_pattern(XtPointer      text,
     {
       /* Compare wchar_t text to a mbs pattern. */
       char mb_text[MB_LEN_MAX];
-      wctomb(mb_text, (wchar_t) '\0');
-      wctomb(mb_text, *((wchar_t*)text));
+      if (wctomb(mb_text, (wchar_t) '\0') < 0 ||
+          wctomb(mb_text, *((wchar_t*)text)) < 0)
+        return False;
       return !strncmp(mb_text, (char*) pattern->pattern, char_len);
     }
   else if (pattern->pattern_type == XmWIDECHAR_TEXT)
     {
       /* Compare mbs text to wchar_t pattern. */
       char mb_pattern[MB_LEN_MAX];
-      wctomb(mb_pattern, (wchar_t) '\0');
-      wctomb(mb_pattern, *((wchar_t*)pattern->pattern));
+      if (wctomb(mb_pattern, (wchar_t) '\0') < 0 ||
+          wctomb(mb_pattern, *((wchar_t*)pattern->pattern)) < 0)
+        return False;
       return !strncmp((char*) text, mb_pattern, char_len);
     }
   else if (strlen((char*) pattern->pattern) == char_len)

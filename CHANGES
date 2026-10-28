@@ -28381,3 +28381,5 @@ List drag selection bounds (2026-10-28)
   native `size_t` counts before returning an integer result (2026-10-28).
 * XmString rendition and tag component lengths now validate `strlen()` before
   narrowing to the public unsigned-integer length field (2026-10-28).
+* XmString wide-character pattern matching now rejects failed `wctomb`
+  conversions instead of comparing uninitialized multibyte buffers (2026-10-28).
