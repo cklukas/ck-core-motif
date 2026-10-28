@@ -23712,6 +23712,14 @@ Bound clipboard format-atom allocation size (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-format-atom-size.py
 
+Bound clipboard replacement request size (2026-10-28)
+=======================================================
+
+- Compute incremental request sizes in unsigned-wide arithmetic.
+- Cap each XChangeProperty element count at `INT_MAX` before conversion.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-replace-request-size.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

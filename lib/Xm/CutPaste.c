@@ -1467,7 +1467,7 @@ ClipboardReplaceItem(
     XtPointer loc_pointer;
     unsigned long loc_length;
     int loc_mode;
-    unsigned int max_req_size;
+    unsigned long max_req_size;
 
     if ((format != 8 && format != 16 && format != 32) ||
 	(pointer == NULL && length != 0) ||
@@ -1490,7 +1490,10 @@ ClipboardReplaceItem(
     /* for ChangeProperty */
     loc_length = length / BYTELENGTH(1,format);
 
-    max_req_size = ( MAX_SELECTION_INCR( display ) ) * 8 / format;
+    max_req_size = ((unsigned long)MAX_SELECTION_INCR( display ) * 8UL) /
+	format;
+    if (max_req_size > (unsigned long)INT_MAX)
+	max_req_size = (unsigned long)INT_MAX;
 
     do
     {
@@ -1513,7 +1516,7 @@ ClipboardReplaceItem(
 			 format,
 			 loc_mode,
 			 (unsigned char*)loc_pointer,
-			 (int) next_length ); /* Truncation of next_length.*/
+			 (int) next_length );
 
 	loc_mode = PropModeAppend;
 	loc_length = loc_length - next_length;
