@@ -1276,7 +1276,7 @@ XmeDragSource(Widget w, XtPointer location_data, XEvent *event,
   Widget dragContext;
   ConvertContext cc;
   Atom atoms[XtNumber(atom_names)];
-  if (w == NULL)
+  if (w == NULL || event == NULL)
     return NULL;
   _XmWidgetToAppContext(w);
   targets = NULL;

@@ -127,6 +127,13 @@ Handle clipboard-source end failures (2026-10-29)
 - Cancel unfinished clipboard transactions when finalization fails, with
   focused regression coverage.
 
+Reject missing drag-start events early (2026-10-29)
+===================================================
+
+- Fail `XmeDragSource` before context setup when the initiating `XEvent` is
+  null, matching the public `XmDragStart` precondition.
+- Add focused input-guard documentation and regression coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
