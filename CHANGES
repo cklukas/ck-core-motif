@@ -26439,3 +26439,10 @@ Guard TextField modify-verify buffers (2026-10-29)
 - Validate and check snapshot allocation before callback comparison.
 - Retain the live proposed value if an approved replacement cannot be
   allocated.
+
+Guard TextField replacement growth arithmetic (2026-10-29)
+============================================================
+
+- Centralize byte and wide-character capacity calculations in a checked
+  `size_t` helper.
+- Reject malformed lengths and unrepresentable growth before `XtRealloc`.

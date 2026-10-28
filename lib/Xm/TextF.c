@@ -907,6 +907,59 @@ static Boolean TrimHighlights(XmTextFieldWidget tf, int *low, int *high);
 
 static void ResetUnder(XmTextFieldWidget tf);
 
+/*
+ * Compute a safe byte capacity for a text replacement.  The editing paths
+ * receive signed lengths from callbacks and historically performed the
+ * additions and multiplications before checking their ranges.  Keep that
+ * arithmetic in size_t and reject malformed or unrepresentable requests
+ * before they reach XtRealloc.
+ */
+static Boolean
+TextFieldCheckedGrowth(int string_length,
+                       int insert_length,
+                       int replace_length,
+                       unsigned int allocated_bytes,
+                       size_t unit_size,
+                       unsigned int *capacity)
+{
+  size_t current, inserted, replaced, result_length;
+  size_t required, increment_bytes, doubled, target;
+
+  if (capacity == NULL || unit_size == 0 ||
+      string_length < 0 || insert_length < 0 || replace_length < 0)
+    return False;
+
+  current = (size_t)string_length;
+  inserted = (size_t)insert_length;
+  replaced = (size_t)replace_length;
+  if (current > SIZE_MAX - inserted || current + inserted < replaced)
+    return False;
+  result_length = current + inserted - replaced;
+  if (result_length == SIZE_MAX ||
+      result_length + 1 > SIZE_MAX / unit_size)
+    return False;
+  required = (result_length + 1) * unit_size;
+  if (required <= (size_t)allocated_bytes) {
+    *capacity = allocated_bytes;
+    return True;
+  }
+
+  if (inserted > SIZE_MAX - TEXT_INCREMENT)
+    return False;
+  if (inserted + TEXT_INCREMENT > SIZE_MAX / unit_size)
+    return False;
+  increment_bytes = (inserted + TEXT_INCREMENT) * unit_size;
+  doubled = (size_t)allocated_bytes > SIZE_MAX / 2 ?
+    SIZE_MAX : (size_t)allocated_bytes * 2;
+  target = required > increment_bytes ? required : increment_bytes;
+  if (doubled > target)
+    target = doubled;
+  if (target > UINT_MAX)
+    return False;
+  *capacity = (unsigned int)target;
+  return True;
+}
+
 /********    End Static Function Declarations    ********/
 
 static XmConst XmTextScanType sarray[] = {
@@ -3603,48 +3656,36 @@ _XmTextFieldReplaceText(XmTextFieldWidget tf,
   /* Allocate more space if we need it.
    */
   if (tf->text.max_char_size == 1) {
-    if (tf->text.string_length + insert_length - replace_length >=
-	tf->text.size_allocd) {
-      if (tf->text.size_allocd > UINT_MAX / 2)
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
-        return False;
-	}
-      new_size_allocd = tf->text.size_allocd +
-        MAX(insert_length + TEXT_INCREMENT, (tf->text.size_allocd * 2));
+    if (!TextFieldCheckedGrowth(tf->text.string_length, insert_length,
+                                replace_length, tf->text.size_allocd,
+                                sizeof(char), &new_size_allocd)) {
+      _XmTextFieldDrawInsertionPoint(tf, True);
+      return False;
+    }
+    if (new_size_allocd > tf->text.size_allocd) {
       new_value = (char *)XtRealloc((char *)TextF_Value(tf),
-                                    (unsigned)(new_size_allocd * sizeof(char)));
-      if (new_value == NULL)
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
+                                    (unsigned)new_size_allocd);
+      if (new_value == NULL) {
+        _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
-	}
+      }
       tf->text.size_allocd = new_size_allocd;
       tf->text.value = new_value;
     }
   } else {
-    if ((tf->text.string_length + insert_length - replace_length) *
-	sizeof(wchar_t) >= tf->text.size_allocd) {
-      if (tf->text.size_allocd > UINT_MAX / 2)
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
-        return False;
-	}
-      new_size_allocd = tf->text.size_allocd +
-        MAX((insert_length + TEXT_INCREMENT) * sizeof(wchar_t),
-            (tf->text.size_allocd * 2));
-      if (new_size_allocd > UINT_MAX / sizeof(wchar_t))
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
-        return False;
-	}
+    if (!TextFieldCheckedGrowth(tf->text.string_length, insert_length,
+                                replace_length, tf->text.size_allocd,
+                                sizeof(wchar_t), &new_size_allocd)) {
+      _XmTextFieldDrawInsertionPoint(tf, True);
+      return False;
+    }
+    if (new_size_allocd > tf->text.size_allocd) {
       new_wc_value = (wchar_t *)XtRealloc((char *)TextF_WcValue(tf),
                                           (unsigned)new_size_allocd);
-      if (new_wc_value == NULL)
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
+      if (new_wc_value == NULL) {
+        _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
-	}
+      }
       tf->text.size_allocd = new_size_allocd;
       tf->text.wc_value = new_wc_value;
     }
@@ -9351,50 +9392,36 @@ _XmTextFieldReplaceTextForPreedit(XmTextFieldWidget tf,
   /* Allocate more space if we need it.
    */
   if (tf->text.max_char_size == 1){
-  if (tf->text.string_length + insert_length - replace_length >=
-      tf->text.size_allocd)
-    {
-      if (tf->text.size_allocd > UINT_MAX / 2)
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
-        return False;
-	}
-      new_size_allocd = tf->text.size_allocd +
-        MAX(insert_length + TEXT_INCREMENT, (tf->text.size_allocd * 2));
+  if (!TextFieldCheckedGrowth(tf->text.string_length, insert_length,
+                              replace_length, tf->text.size_allocd,
+                              sizeof(char), &new_size_allocd)) {
+    _XmTextFieldDrawInsertionPoint(tf, True);
+    return False;
+  }
+  if (new_size_allocd > tf->text.size_allocd) {
       new_value = (char *)XtRealloc((char *)TextF_Value(tf),
-                                    (unsigned)(new_size_allocd * sizeof(char)));
-      if (new_value == NULL)
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
+                                    (unsigned)new_size_allocd);
+      if (new_value == NULL) {
+        _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
-	}
+      }
       tf->text.size_allocd = new_size_allocd;
       tf->text.value = new_value;
     }
   } else {
- if ((tf->text.string_length + insert_length - replace_length) *
-                                        sizeof(wchar_t) >= tf->text.size_allocd)
-    {
-      if (tf->text.size_allocd > UINT_MAX / 2)
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
-        return False;
-	}
-      new_size_allocd = tf->text.size_allocd +
-        MAX((insert_length + TEXT_INCREMENT) * sizeof(wchar_t),
-            (tf->text.size_allocd * 2));
-      if (new_size_allocd > UINT_MAX / sizeof(wchar_t))
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
-        return False;
-	}
+ if (!TextFieldCheckedGrowth(tf->text.string_length, insert_length,
+                             replace_length, tf->text.size_allocd,
+                             sizeof(wchar_t), &new_size_allocd)) {
+   _XmTextFieldDrawInsertionPoint(tf, True);
+   return False;
+ }
+ if (new_size_allocd > tf->text.size_allocd) {
       new_wc_value = (wchar_t *)XtRealloc((char *)TextF_WcValue(tf),
                                           (unsigned)new_size_allocd);
-      if (new_wc_value == NULL)
-	{
-	  _XmTextFieldDrawInsertionPoint(tf, True);
+      if (new_wc_value == NULL) {
+        _XmTextFieldDrawInsertionPoint(tf, True);
         return False;
-	}
+      }
       tf->text.size_allocd = new_size_allocd;
       tf->text.wc_value = new_wc_value;
     }
