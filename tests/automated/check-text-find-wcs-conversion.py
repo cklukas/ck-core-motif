@@ -9,7 +9,8 @@ start = source.index("XmTextFindStringWcs(")
 body = source[start:]
 assert "size_t converted;" in body
 assert "converted = wcstombs(string, wc_string, allocation_size);" in body
-assert "converted != (size_t)-1 && converted <= (size_t)INT_MAX" in body
+assert "converted != (size_t)-1 && converted < allocation_size" in body
+assert "converted <= (size_t)INT_MAX" in body
 assert "int wcs_ret_val" not in body
 
 print("Text wide search conversion keeps checked sizes")
