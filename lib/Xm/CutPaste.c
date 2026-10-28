@@ -5164,7 +5164,7 @@ XmClipboardInquirePendingItems(
     ClipboardFormatItem matchformat;
     XmClipboardPendingList itemlist, nextlistptr;
     itemId *id_ptr;
-    int loc_count, i;
+    unsigned long loc_count, i;
     unsigned long maxname, loc_matchlength;
     int status;
 

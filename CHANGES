@@ -23631,6 +23631,14 @@ Abort clipboard pending-item inquiries on lock failures (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-inquire-pending-lock-status.py
 
+Preserve clipboard pending-item counter width (2026-10-28)
+============================================================
+
+- Use unsigned-long counters when traversing `header->currItems`.
+- Prevent signed loop/count overflow for large valid pending-item collections.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-pending-count-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
