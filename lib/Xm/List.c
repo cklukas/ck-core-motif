@@ -3214,6 +3214,8 @@ ResetExtents(XmListWidget lw,
 	     Boolean recache_extents)
 {
   register int i;
+  int valid_count;
+  Boolean have_valid;
   Dimension maxheight = 0;
   Dimension maxwidth = 0;
 
@@ -7559,25 +7561,43 @@ ListProcessDrag(Widget wid,
   if (lw->list.InternalList[item]->selected)
     {
       /* CR 8878: selectedItems may contain extraneous items. */
-      if ((size_t)lw->list.selectedPositionCount >
+      valid_count = 0;
+      have_valid = False;
+      for (i = 0; i < lw->list.selectedPositionCount; i++)
+        if (lw->list.selectedPositions[i] > 0 &&
+            lw->list.selectedPositions[i] <= lw->list.itemCount)
+          { valid_count++; have_valid = True; }
+      if (valid_count == 0)
+        valid_count = 1;
+      if ((size_t)valid_count >
           SIZE_MAX / sizeof(XmString) ||
-          (size_t)lw->list.selectedPositionCount >
+          (size_t)valid_count >
           UINT_MAX / sizeof(XmString)) {
 	  XtFree((char *)ListDragConv);
 	  lw->list.drag_conv = NULL;
 	  return;
       }
       ListDragConv->strings = (XmString *)
-	XtMalloc(sizeof(XmString) * lw->list.selectedPositionCount);
+	XtMalloc(sizeof(XmString) * valid_count);
       if (ListDragConv->strings == NULL) {
 	  XtFree((char *)ListDragConv);
 	  lw->list.drag_conv = NULL;
 	  return;
       }
-      ListDragConv->num_strings = lw->list.selectedPositionCount;
-      for (i = 0; i < lw->list.selectedPositionCount; i++) {
-	ListDragConv->strings[i] =
-	  XmStringCopy(lw->list.items[lw->list.selectedPositions[i] - 1]);
+	ListDragConv->num_strings = valid_count;
+	if (!have_valid) {
+	  ListDragConv->strings[0] = XmStringCopy(lw->list.items[item]);
+	} else {
+	  int output = 0;
+	  for (i = 0; i < lw->list.selectedPositionCount; i++) {
+	    if (lw->list.selectedPositions[i] <= 0 ||
+	        lw->list.selectedPositions[i] > lw->list.itemCount)
+	      continue;
+	    ListDragConv->strings[output++] = XmStringCopy(
+	      lw->list.items[lw->list.selectedPositions[i] - 1]);
+	  }
+	}
+	for (i = 0; i < ListDragConv->num_strings; i++) {
 	if (ListDragConv->strings[i] == NULL) {
 	  while (i != 0)
 	    XmStringFree(ListDragConv->strings[--i]);

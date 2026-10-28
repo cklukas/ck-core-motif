@@ -28170,3 +28170,10 @@ CommandPalette selection position bounds (2026-10-28)
   it to a visible-command index; malformed or stale selections are ignored
   without changing valid invocation behavior. See
   `docs/command-palette-selection-bounds.md`.
+
+List drag selection bounds (2026-10-28)
+======================================
+
+- Validate and compact stale selected positions before copying List drag
+  strings; fall back to the initiating item when the selection snapshot has
+  no valid entries. See `docs/list-drag-selection-bounds.md`.
