@@ -16,6 +16,7 @@ assert "length == NULL" in body
 assert "format == NULL" in body
 assert "*length != 0 && value == NULL" in body
 assert "*format != 8" in body
+assert "*length != 0 && *type == NULL_ATOM" in body
 assert body.index("if (w == NULL") < body.index("XtDisplay(w)")
 assert "prim_select->ref_count <= 0" in body
 assert "--prim_select->ref_count" in body

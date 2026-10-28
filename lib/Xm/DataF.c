@@ -7386,6 +7386,13 @@ df_DoStuff(
 
     NULL_ATOM = XmInternAtom(XtDisplay(w), "NULL", False);
 
+    if (*length != 0 && *type == NULL_ATOM) {
+       XtFree((char *)value);
+       if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0)
+          XtFree((char *)prim_select);
+       return;
+    }
+
     if (!XmTextF_has_focus(tf) && _XmGetFocusPolicy(w) == XmEXPLICIT)
        (void) XmProcessTraversal(w, XmTRAVERSE_CURRENT);
 
