@@ -5142,6 +5142,11 @@ df_InsertChar(
        insert_string[insert_length] = '\0'; /* NULL terminate for mbstowcs */
        wc_insert_string = (wchar_t*)XmStackAlloc((Cardinal)(insert_length+1) *						     sizeof(wchar_t), stack_cache);
        num_chars = mbstowcs( wc_insert_string, insert_string, insert_length+1);
+       if (num_chars < 0) {
+          XmStackFree((char *)wc_insert_string, stack_cache);
+          _XmDataFieldDrawInsertionPoint(tf, True);
+          return;
+       }
        if (XmTextF_overstrike(tf)) nextPos += num_chars;
        if (nextPos > XmTextF_string_length(tf)) nextPos = XmTextF_string_length(tf);
        replace_res = _XmDataFieldReplaceText(tf, (XEvent *) event, cursorPos,
@@ -5255,6 +5260,11 @@ df_InsertString(
 		  return;
 	      }
 	      num_chars = mbstowcs( wc_insert_string, insert_string, insert_length+1);
+	      if (num_chars < 0) {
+		 XtFree((char *)wc_insert_string);
+		 _XmDataFieldDrawInsertionPoint(tf, True);
+		 return;
+	      }
 	      replace_res = _XmDataFieldReplaceText(tf, (XEvent *) event, cursorPos,
 						    nextPos, (char*) wc_insert_string,
 						    num_chars, True);

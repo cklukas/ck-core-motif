@@ -1,3 +1,10 @@
+Reject invalid DataField keyboard conversion (2026-10-29)
+===========================================================
+
+- Reject `mbstowcs` failure for key and action-string insertion before passing
+  character counts to replacement.
+- Restore the insertion point on both failure paths and add focused coverage.
+
 Guard DataField selection callback inputs (2026-10-29)
 =======================================================
 
