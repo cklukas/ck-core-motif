@@ -27384,6 +27384,14 @@ Add native List scrollbar-shrink regression (2026-10-29)
 - Add an installed-library Xvfb fixture covering far-right scrolling followed
   by content and margin shrink, with scrollbar range invariant checks.
 
+Bound anchored popup position arithmetic (2026-10-29)
+=====================================================
+
+- Calculate AutoSuggestBox and Flyout anchor, offset, and screen-edge
+  coordinates in a wide intermediate before converting to Xt `Position`.
+- Clamp oversized results to the signed coordinate range so large displays and
+  resource offsets cannot wrap popups to the opposite side of the screen.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 

@@ -110,33 +110,38 @@ static Widget shell_ancestor(Widget widget)
 
 static void position_popup(XmAutoSuggestBoxWidget box)
 {
-    Position x, y;
+    Position anchor_x, anchor_y;
     Dimension width, height;
     Dimension popup_width, popup_height;
     Widget shell = box->auto_suggest.popup_shell;
     Screen *screen;
-    int max_x, max_y;
+    long long x_pos, y_pos, max_x, max_y;
     if (!shell || !XtIsRealized(box->auto_suggest.search))
         return;
-    XtTranslateCoords(box->auto_suggest.search, 0, 0, &x, &y);
+    XtTranslateCoords(box->auto_suggest.search, 0, 0, &anchor_x, &anchor_y);
     XtVaGetValues(box->auto_suggest.search, XmNwidth, &width,
                   XmNheight, &height, NULL);
     XtVaGetValues(shell, XmNwidth, &popup_width, XmNheight, &popup_height,
                   NULL);
-    x += (Position)((int)width - (int)popup_width) / 2;
-    y += (Position)height;
+    x_pos = (long long)anchor_x +
+            ((long long)width - (long long)popup_width) / 2;
+    y_pos = (long long)anchor_y + (long long)height;
     screen = XtScreen(shell);
-    max_x = WidthOfScreen(screen) - (int)popup_width;
-    max_y = HeightOfScreen(screen) - (int)popup_height;
-    if (x < 0)
-        x = 0;
-    if (y < 0)
-        y = 0;
-    if (max_x >= 0 && x > max_x)
-        x = (Position)max_x;
-    if (max_y >= 0 && y > max_y)
-        y = (Position)max_y;
-    XtVaSetValues(shell, XtNx, x, XtNy, y, NULL);
+    max_x = (long long)WidthOfScreen(screen) - (long long)popup_width;
+    max_y = (long long)HeightOfScreen(screen) - (long long)popup_height;
+    if (max_x < 0 || x_pos < 0)
+        x_pos = 0;
+    else if (x_pos > max_x)
+        x_pos = max_x;
+    if (max_y < 0 || y_pos < 0)
+        y_pos = 0;
+    else if (y_pos > max_y)
+        y_pos = max_y;
+    if (x_pos > SHRT_MAX)
+        x_pos = SHRT_MAX;
+    if (y_pos > SHRT_MAX)
+        y_pos = SHRT_MAX;
+    XtVaSetValues(shell, XtNx, (Position)x_pos, XtNy, (Position)y_pos, NULL);
 }
 
 static void create_popup(XmAutoSuggestBoxWidget box)
