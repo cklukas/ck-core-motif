@@ -581,6 +581,9 @@ XmRegisterSegmentEncoding(
 {
   SegmentEncoding     *encodingPtr = NULL;
   String              ret_val = NULL;
+
+  if (fontlist_tag == NULL)
+    return NULL;
   
   _XmProcessLock();
   encodingPtr = FindEncoding(fontlist_tag);
@@ -710,6 +713,9 @@ XmMapSegmentEncoding(char        *fontlist_tag)
 {
   SegmentEncoding     *encodingPtr = NULL;
   String              ret_val = NULL;
+
+  if (fontlist_tag == NULL)
+    return NULL;
 
   _XmProcessLock();
   encodingPtr = FindEncoding(fontlist_tag);

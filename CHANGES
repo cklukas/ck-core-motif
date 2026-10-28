@@ -1,3 +1,10 @@
+Reject null segment-encoding tags (2026-10-29)
+===============================================
+
+- Return `NULL` from segment-encoding registration and lookup when the font
+  list tag is absent, before registry matching calls `strcmp`.
+- Preserve valid registration and null-encoding unregister behavior.
+
 Guard null encoding-registry length outputs (2026-10-29)
 ==========================================================
 
