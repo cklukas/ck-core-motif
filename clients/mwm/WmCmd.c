@@ -952,7 +952,7 @@ RemoveCommand (
   /*
    * check data to make sure somethings there.
    */
-  if ((data == NULL) || (len == 0))
+  if ((data == NULL) || (len < (unsigned long)(2 * sizeof(CARD32))))
     {
       PRINT("Bad data passed to RemoveCommand.\n");
       return;
@@ -964,6 +964,12 @@ RemoveCommand (
   if (count == 0)
     {
       PRINT("No windows supplied for RemoveCommand.\n");
+      return;
+    }
+  if ((unsigned long)count >
+      (len - (unsigned long)(2 * sizeof(CARD32))) / sizeof(CARD32))
+    {
+      PRINT("Truncated window list passed to RemoveCommand.\n");
       return;
     }
   if ((size_t) count > SIZE_MAX / sizeof(Window) ||
