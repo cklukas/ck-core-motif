@@ -1,7 +1,8 @@
 from pathlib import Path
 import os
 
-source = Path(os.environ["MOTIF_SOURCE"])
+source = Path(os.environ.get(
+    "MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "MrmIbuffer.c"))
 text = source.read_text()
 start = text.index("Idb__BM_Decommit (IDBRecordBufferPtr")
 end = text.index("Idb__BM_DecommitAll (IDBFile", start)

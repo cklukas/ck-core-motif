@@ -28423,3 +28423,5 @@ List drag selection bounds (2026-10-28)
   resource callback update path (2026-10-28).
 * Made the Mrm compression-input contract check runnable from a source
   checkout with the correct table implementation default (2026-10-28).
+* Made the Mrm decommit-record contract check runnable from a source
+  checkout while retaining its external-source override (2026-10-28).
