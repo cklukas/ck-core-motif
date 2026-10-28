@@ -259,9 +259,9 @@ _XmICCCallbackToICCEvent(
 	      (XmTopLevelEnterCallback)callback;
 	    
 	    xmessage->topLevelEnter.flags = 0;
-	    xmessage->topLevelEnter.time  = cb->timeStamp;
-	    xmessage->topLevelEnter.src_window = cb->window;
-	    xmessage->topLevelEnter.icc_handle = cb->iccHandle;
+	    xmessage->topLevelEnter.time  = (CARD32)cb->timeStamp;
+	    xmessage->topLevelEnter.src_window = (CARD32)cb->window;
+	    xmessage->topLevelEnter.icc_handle = (CARD32)cb->iccHandle;
 	    /* load has_drop_sites */
 	}
 	break;
@@ -274,8 +274,8 @@ _XmICCCallbackToICCEvent(
 	      (XmTopLevelLeaveCallback)callback;
 	    
 	    xmessage->topLevelLeave.flags = 0;
-	    xmessage->topLevelLeave.time  = cb->timeStamp;
-	    xmessage->topLevelLeave.src_window = cb->window;
+	    xmessage->topLevelLeave.time  = (CARD32)cb->timeStamp;
+	    xmessage->topLevelLeave.src_window = (CARD32)cb->window;
 	}
 	break;
       case XmCR_DRAG_MOTION:
@@ -290,7 +290,7 @@ _XmICCCallbackToICCEvent(
 	    xmessage->dragMotion.flags |= PUT_SITE_STATUS(cb->dropSiteStatus);
 	    xmessage->dragMotion.flags |= PUT_OPERATION(cb->operation);
 	    xmessage->dragMotion.flags |= PUT_MULTIOPS(cb->operations);
-	    xmessage->dragMotion.time   = cb->timeStamp;
+	    xmessage->dragMotion.time   = (CARD32)cb->timeStamp;
 	    xmessage->dragMotion.x	= cb->x;
 	    xmessage->dragMotion.y	= cb->y;
 	}
@@ -310,7 +310,7 @@ _XmICCCallbackToICCEvent(
 			PUT_SITE_STATUS(cb->dropSiteStatus);
 	    xmessage->operationChanged.flags |=
 			PUT_MULTIOPS(cb->operations);
-	    xmessage->operationChanged.time   = cb->timeStamp;
+	    xmessage->operationChanged.time   = (CARD32)cb->timeStamp;
 	}
 	break;
       case XmCR_DROP_SITE_ENTER:
@@ -327,7 +327,7 @@ _XmICCCallbackToICCEvent(
 	    xmessage->dropSiteEnter.flags |= PUT_MULTIOPS(cb->operations);
 	    xmessage->dropSiteEnter.flags |=
 		PUT_SITE_STATUS(cb->dropSiteStatus);
-	    xmessage->dropSiteEnter.time  = cb->timeStamp;
+	    xmessage->dropSiteEnter.time  = (CARD32)cb->timeStamp;
 	    xmessage->dropSiteEnter.x = cb->x;
 	    xmessage->dropSiteEnter.y = cb->y;
 	}
@@ -342,7 +342,7 @@ _XmICCCallbackToICCEvent(
 
 	    /* invalid flags stuff ||| */
 	    xmessage->dropSiteLeave.flags = 0;
-	    xmessage->dropSiteLeave.time  = cb->timeStamp;
+	    xmessage->dropSiteLeave.time  = (CARD32)cb->timeStamp;
 	}
 	break;
       case XmCR_DROP_START:
@@ -358,11 +358,11 @@ _XmICCCallbackToICCEvent(
 	    xmessage->drop.flags |= PUT_COMPLETION(cb->dropAction);
 	    xmessage->drop.flags |= PUT_OPERATION(cb->operation);
 	    xmessage->drop.flags |= PUT_MULTIOPS(cb->operations);
-	    xmessage->drop.time  = cb->timeStamp;
+	    xmessage->drop.time  = (CARD32)cb->timeStamp;
 	    xmessage->drop.x     = cb->x;
 	    xmessage->drop.y     = cb->y;
-	    xmessage->drop.icc_handle = cb->iccHandle;
-	    xmessage->drop.src_window = cb->window;
+	    xmessage->drop.icc_handle = (CARD32)cb->iccHandle;
+	    xmessage->drop.src_window = (CARD32)cb->window;
 	}
 	break;
       default:

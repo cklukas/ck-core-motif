@@ -23991,3 +23991,14 @@ Regression: tests/automated/check-dragicc-reason-table.py
 
 Remove Text SelectScan pointer shadow (2026-10-28)
 ===================================================
+Make Drag ICC wire widths explicit (2026-10-28)
+================================================
+
+- Convert callback timestamps, windows, and ICC handles explicitly to the
+  protocol's 32-bit client-message fields.
+- Preserve the established Motif ICC wire format.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-dragicc-wire-widths.py
+
+Make Drag ICC reason-table widths explicit (2026-10-28)
+========================================================
