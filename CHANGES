@@ -23284,6 +23284,15 @@ Own standard WM_CLASS conversion data (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-standard-convert-class-ownership.py
 
+Preserve clipboard buffers on growth failure (2026-10-28)
+============================================================
+
+- Keep the existing assembled selection buffer reachable when `XtRealloc`
+  fails during incremental clipboard retrieval.
+- Let the common failure path release both the Xlib chunk and Xt buffer.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-realloc-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

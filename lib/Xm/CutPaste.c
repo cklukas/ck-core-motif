@@ -1176,6 +1176,7 @@ GetWindowProperty(
     size_t allocation_limit;
     size_t unit;
     size_t new_length;
+    char *new_pointer;
     unsigned long offset_units;
     Atom expected_type;
     int expected_format;
@@ -1257,16 +1258,16 @@ GetWindowProperty(
 	new_length = cur_length + byte_length;
 	if (cur_pointer == NULL)
 	{
-	    cur_pointer = XtMalloc((Cardinal)new_length);
-	    *outpointer = cur_pointer;
+	    new_pointer = XtMalloc((Cardinal)new_length);
 	}
 	else
 	{
-	    cur_pointer = XtRealloc(cur_pointer, (Cardinal)new_length);
-	    *outpointer = cur_pointer;
+	    new_pointer = XtRealloc(cur_pointer, (Cardinal)new_length);
 	}
-	if (cur_pointer == NULL)
+	if (new_pointer == NULL)
 	    goto failure;
+	cur_pointer = new_pointer;
+	*outpointer = cur_pointer;
 	memcpy(cur_pointer + cur_length, loc_pointer, byte_length);
 	cur_length = new_length;
 	if ((unsigned long)this_length > ULONG_MAX / (unsigned long)loc_format)
