@@ -10,4 +10,6 @@ assert "az_msg_item->b_source_pos = (unsigned char)l_src_pos;" in source
 assert "l_offset < 0 || l_offset > USHRT_MAX" in source
 assert "l_code_len > USHRT_MAX" in source
 assert "az_code_item -> w_code_len = (unsigned short)l_code_len;" in source
+assert "unsigned int\t\t\t i;" in source or "unsigned int\t\t\ti;" in source
+assert "len = (unsigned short)strlen (c_file_name)" in source
 print("UIL source-record metadata is bounded before compact storage")

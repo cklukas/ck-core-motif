@@ -13,6 +13,12 @@ Bound UIL source-record metadata (2026-10-29)
   narrowing them into compact source-record fields or allocating their data.
 - Add focused coverage and documentation.
 
+Clarify UIL include-path widths (2026-10-29)
+============================================
+
+- Reuse the shared main-directory length and make include-loop and bounded
+  filename-length conversions explicit.
+
 Bound UIL string concatenation lengths (2026-10-28)
 ===================================================
 

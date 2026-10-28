@@ -609,9 +609,8 @@ open_source_file( XmConst char           *c_file_name,
                   src_source_buffer_type *az_source_buffer )
 {
 
-    static unsigned short	main_dir_len = 0;
     boolean			main_file;
-    int				i;  /* loop index through include files */
+    unsigned int			i;  /* loop index through include files */
     char			buffer[UIL_PATH_BUFFER_SIZE];
     size_t		file_name_len = strlen(c_file_name);
 
@@ -633,7 +632,7 @@ open_source_file( XmConst char           *c_file_name,
 
 /*    Save the directory info for the main file.    */
 
-	for (len = strlen (c_file_name),
+	for (len = (unsigned short)strlen (c_file_name),
 	     ptr = & c_file_name [len - 1];
 	     len > 0; len--, ptr--) {
 	    if ((* ptr) == '/') {
