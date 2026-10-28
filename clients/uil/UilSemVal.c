@@ -2837,6 +2837,7 @@ sym_value_entry_type	*next_segment;
 
 XmString		cstr_1;
 XmString		cstr_r;
+int			cstr_length;
 int			charset;		/* sym_k_..._charset */
 char			*csetptr;		/* charset name string */
 
@@ -2930,7 +2931,13 @@ for (next_segment = next_segment->az_next_table_value;
     }
 
 csval_entry->value.xms_value = cstr_r;
-csval_entry->w_length = XmStringLength (cstr_r);
+cstr_length = XmStringLength (cstr_r);
+if (cstr_length < 0 || cstr_length > USHRT_MAX)
+    {
+    XtError ("UIL compound string is too long");
+    return (csval_entry);
+    }
+csval_entry->w_length = (unsigned short)cstr_length;
 
 /*
 ** Now deallocate the nodes for the compound string segments and put a null

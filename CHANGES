@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Bound UIL compound-string length (2026-10-29)
+==============================================
+
+- Check the assembled compound-string length before narrowing it into the
+  symbol record's 16-bit field.
+- Add focused coverage and documentation.
+
 Bound UIL integer-to-keysym conversion (2026-10-29)
 ====================================================
 
