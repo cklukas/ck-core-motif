@@ -23575,6 +23575,14 @@ Abort clipboard cancellation on lock failures (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-cancel-lock-status.py
 
+Abort clipboard withdrawal on lock failures (2026-10-28)
+=========================================================
+
+- Stop `XmClipboardWithdrawFormat` on any non-success lock result.
+- Preserve the original lock status and clipboard state.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-withdraw-lock-status.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
