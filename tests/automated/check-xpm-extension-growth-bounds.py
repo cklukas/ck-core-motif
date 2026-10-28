@@ -8,6 +8,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Xpmparse.c").read_text(
 start = source.index("int\nxpmParseExtensions(")
 body = source[start:source.index("int\nxpmParseData(", start)]
 assert "exts == NULL" in body
+assert "num >= (unsigned int)INT_MAX" in body
 assert "(size_t)(num + 1) > (size_t)UINT_MAX / sizeof(XpmExtension)" in body
 assert "(size_t)(nlines + 1) > (size_t)UINT_MAX / sizeof(char *)" in body
 assert "can the loop be forced" not in body

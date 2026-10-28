@@ -601,7 +601,7 @@ xpmParseExtensions(
 	notend = strncmp("XPMENDEXT", string, 9);
     while (!notstart && notend) {
 	/* there starts an extension */
-	if (num == UINT_MAX ||
+	if (num >= (unsigned int)INT_MAX ||
 	    (size_t)(num + 1) > (size_t)UINT_MAX / sizeof(XpmExtension)) {
 	    XpmFree(string);
 	    XpmFreeExtensions(exts, num);

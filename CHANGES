@@ -2,6 +2,7 @@ Bound XPM extension-array growth (2026-10-29)
 ==============================================
 
 - Check extension and line count multiplication before `XpmRealloc`.
+- Keep parsed extension counts representable by the public cleanup API.
 - Report initial extension-array allocation failure explicitly.
 - Add focused coverage and documentation.
 
