@@ -960,6 +960,25 @@ IsSubclassOf(
  *  end FIX for 5178.
  */
 
+static Boolean
+AlignXiPartSize(Cardinal size, size_t alignment, size_t *aligned)
+{
+    size_t value = (size_t)size;
+    size_t mask;
+
+    if (aligned == NULL || alignment == 0 ||
+	(alignment & (alignment - 1)) != 0)
+	return False;
+    mask = alignment - 1;
+    if (value > SIZE_MAX - mask)
+	return False;
+    value = (value + mask) & ~mask;
+    if (value > UINT_MAX)
+	return False;
+    *aligned = value;
+    return True;
+}
+
 void 
 _XiResolveAllPartOffsets(
         WidgetClass w_class,
@@ -971,6 +990,9 @@ _XiResolveAllPartOffsets(
     ConstraintWidgetClass cc = NULL, scc = NULL;
     int i, classcount = 0;
     XmPartResource *pr;
+    size_t widget_size, super_size;
+    size_t constraint_size = 0, super_constraint_size = 0;
+    size_t alignment = (sizeof(int) != sizeof(void*)) ? sizeof(double) : 1;
     
     Boolean do_align = False;
 
@@ -1001,19 +1023,34 @@ _XiResolveAllPartOffsets(
      *  Update the part size value (initially, it is the size of this part)
      */
     
-    if (do_align)
+    if (!AlignXiPartSize(super->core_class.widget_size, alignment,
+			 &super_size) ||
+	!AlignXiPartSize(w_class->core_class.widget_size, 1, &widget_size) ||
+	widget_size > SIZE_MAX - super_size ||
+	widget_size + super_size > UINT_MAX)
     {
-	w_class->core_class.widget_size =
-	    w_class->core_class.widget_size
-	    + _ALIGN(super->core_class.widget_size);
-	w_class->core_class.widget_size =
-	    _ALIGN(w_class->core_class.widget_size);
+	_XmProcessUnlock();
+	return;
     }
-    else
+    widget_size += super_size;
+    if (!AlignXiPartSize((Cardinal)widget_size, alignment, &widget_size))
     {
-	w_class->core_class.widget_size =
-	    w_class->core_class.widget_size + super->core_class.widget_size;
+	_XmProcessUnlock();
+	return;
     }
+    if (widget_size > UINT_MAX - (widget_size & 3 ? 4 - (widget_size & 3) : 0))
+    {
+	_XmProcessUnlock();
+	return;
+    }
+    if (widget_size & 3)
+	widget_size += 4 - (widget_size & 3);
+    if (widget_size > UINT_MAX)
+    {
+	_XmProcessUnlock();
+	return;
+    }
+    w_class->core_class.widget_size = (Cardinal)widget_size;
 
     /*
      * Another nasty hack.  Just plain old DON'T allow the size to be
@@ -1024,25 +1061,30 @@ _XiResolveAllPartOffsets(
      * boundaries on 64 bit systems.  All of this code desperately
      * needs to be re-written.
      */
-    if(w_class->core_class.widget_size & 3) {
-	int size = w_class->core_class.widget_size;
-	w_class->core_class.widget_size = 4 * ((size / 4) + 1);
-    }
-
     if (cc && scc)
     {
-	if (do_align)
+	if (!AlignXiPartSize(scc->constraint_class.constraint_size, alignment,
+			     &super_constraint_size) ||
+	    !AlignXiPartSize(cc->constraint_class.constraint_size, 1,
+			     &constraint_size) ||
+	    constraint_size > SIZE_MAX - super_constraint_size ||
+	    constraint_size + super_constraint_size > UINT_MAX)
 	{
-	    cc->constraint_class.constraint_size =
-		cc->constraint_class.constraint_size
-		+ _ALIGN(scc->constraint_class.constraint_size);
-	    cc->constraint_class.constraint_size =
-		_ALIGN(cc->constraint_class.constraint_size);
+	    _XmProcessUnlock();
+	    return;
 	}
-	else
-	    cc->constraint_class.constraint_size =
-		cc->constraint_class.constraint_size +
-		scc->constraint_class.constraint_size;
+	constraint_size += super_constraint_size;
+	if (!AlignXiPartSize((Cardinal)constraint_size, alignment,
+			     &constraint_size) ||
+	    constraint_size > UINT_MAX -
+		    (constraint_size & 3 ? 4 - (constraint_size & 3) : 0))
+	{
+	    _XmProcessUnlock();
+	    return;
+	}
+	if (constraint_size & 3)
+	    constraint_size += 4 - (constraint_size & 3);
+	cc->constraint_class.constraint_size = (Cardinal)constraint_size;
     }
 
     /*

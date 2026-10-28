@@ -30,6 +30,13 @@ Bound part-offset size alignment arithmetic (2026-10-29)
 - Reject unrepresentable layouts transactionally and extend focused source
   coverage.
 
+Bound Xi part-offset size alignment arithmetic (2026-10-29)
+=============================================================
+
+- Apply the same checked alignment, addition, and legacy four-byte rounding
+  to the Xi compatibility resolver.
+- Leave class records unchanged when an oversized layout cannot be represented.
+
 Reject null converter displays (2026-10-29)
 ===========================================
 
