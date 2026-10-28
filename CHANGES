@@ -27276,6 +27276,12 @@ Guard InfoBar event callbacks (2026-10-28)
   processing close, action, or Escape handling.
 - Guard list-popup key events against missing client or event data as well.
 
+Guard TimePicker event callbacks (2026-10-28)
+=============================================
+
+- Ignore missing, foreign, or teardown-time widget/event inputs before
+  changing the selected time field or invoking callbacks.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

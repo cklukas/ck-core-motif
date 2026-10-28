@@ -228,6 +228,8 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     XmTimePickerValue value;
     int seconds, delta;
     (void)closure; (void)continue_dispatch;
+    if (picker == NULL || event == NULL || !XmIsTimePicker(widget))
+	return;
     if (event->type == ButtonPress) {
         picker->time_picker.field = (unsigned char)((event->xbutton.x < 34) ? 0 :
                                       (event->xbutton.x < 66 ? 1 : 2));
