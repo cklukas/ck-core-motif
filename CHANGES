@@ -1,3 +1,11 @@
+Guard typeless conversion results (2026-10-29)
+================================================
+
+- Reject conversion callbacks that return a non-empty payload with no X11
+  property type, preventing ambiguous data from reaching selection consumers.
+- Preserve empty conversion results and valid typed 8/16/32-bit payloads, with
+  focused regression coverage and documentation.
+
 Guard XmString-table parser state (2026-10-29)
 ===============================================
 
