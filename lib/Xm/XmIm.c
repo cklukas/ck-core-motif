@@ -1931,6 +1931,7 @@ ImPreeditDrawCallback(XIC xic, XPointer client_data, XPointer call_data)
   XIMText dispatch_text;
   wchar_t *dispatch_characters = NULL;
   unsigned int inserted, result, suffix;
+  size_t converted;
   wchar_t *replacement;
   XIMFeedback *feedback;
 
@@ -1969,10 +1970,13 @@ ImPreeditDrawCallback(XIC xic, XPointer client_data, XPointer call_data)
     if (text->encoding_is_wchar)
       memcpy(replacement + data->chg_first, text->string.wide_char,
              inserted * sizeof(wchar_t));
-    else if (mbstowcs(replacement + data->chg_first, text->string.multi_byte,
-                      inserted) != inserted) {
-      XtFree((char *)replacement); XtFree((char *)feedback);
-      return;
+    else {
+      converted = mbstowcs(replacement + data->chg_first,
+                           text->string.multi_byte, (size_t)inserted);
+      if (converted == (size_t)-1 || converted != (size_t)inserted) {
+        XtFree((char *)replacement); XtFree((char *)feedback);
+        return;
+      }
     }
     if (text->feedback)
       memcpy(feedback + data->chg_first, text->feedback,

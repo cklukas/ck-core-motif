@@ -26044,3 +26044,9 @@ Guard TextOut allocation arithmetic (2026-10-29)
 
 - Check character counts before calculating temporary wide-buffer sizes in
   backward scans, preventing signed overflow before allocation.
+
+Guard XIM preedit conversion (2026-10-29)
+==========================================
+
+- Handle `mbstowcs` failure explicitly and reject preedit text whose converted
+  length does not match the XIM-advertised insertion count.
