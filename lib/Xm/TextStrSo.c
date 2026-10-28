@@ -288,6 +288,7 @@ _XmTextCharactersToBytes(char * bytes,
   case 1: {
     (void) memcpy((void*)bytes, (void*)characters, (size_t)num_chars);
     count = num_chars;
+    bytes[count] = '\0';
     break;
   } /* end case 1 */
   case 2: {
@@ -319,7 +320,7 @@ _XmTextCharactersToBytes(char * bytes,
       }
     }
     XtFree ((char*)temp_char);
-    if (count < num_chars) *byte_ptr = '\0';
+    *byte_ptr = '\0';
     break;
   } /* end case 2 */
   default: {

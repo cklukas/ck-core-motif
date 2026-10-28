@@ -28393,3 +28393,5 @@ List drag selection bounds (2026-10-28)
   after both successful and failed `mbstowcs()` conversion (2026-10-28).
 * One-byte text-source conversion now honors `add_null_terminator`, matching
   the existing 16-bit and wide-character branches (2026-10-28).
+* Text-source character-to-byte conversion now terminates one-byte and fully
+  populated 16-bit output buffers as promised by its API contract (2026-10-28).
