@@ -242,6 +242,11 @@ XpmCreateXpmImageFromImage(
     if ((image != NULL && image->bytes_per_line <= 0) ||
 	(shapeimage != NULL && shapeimage->bytes_per_line <= 0))
 	RETURN(XpmFileInvalid);
+    if ((image != NULL &&
+	 (image->bitmap_unit <= 0 || image->bits_per_pixel <= 0)) ||
+	(shapeimage != NULL &&
+	 (shapeimage->bitmap_unit <= 0 || shapeimage->bits_per_pixel <= 0)))
+	RETURN(XpmFileInvalid);
 
     /*
      * retrieve information from the XpmAttributes

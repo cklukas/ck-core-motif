@@ -12,5 +12,7 @@ It also rejects source `XImage` objects without pixel data, preventing the
 reader callbacks from dereferencing a missing buffer.
 Nonpositive row strides are rejected as well, so row and plane offsets cannot
 underflow in the readers.
+Nonpositive bitmap-unit and bits-per-pixel fields are rejected too, preventing
+modulo or shift operations from using invalid image geometry.
 
 Regression: `tests/automated/check-xpm-scan-entry.py`

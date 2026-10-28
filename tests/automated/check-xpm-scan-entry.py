@@ -16,4 +16,8 @@ assert "image->data == NULL" in function
 assert "shapeimage->data == NULL" in function
 assert "image->bytes_per_line <= 0" in function
 assert "shapeimage->bytes_per_line <= 0" in function
+assert "image->bitmap_unit <= 0" in function
+assert "image->bits_per_pixel <= 0" in function
+assert "shapeimage->bitmap_unit <= 0" in function
+assert "shapeimage->bits_per_pixel <= 0" in function
 print("PASS XPM image-scan entry guard")
