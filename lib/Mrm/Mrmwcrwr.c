@@ -845,8 +845,6 @@ UrmCWRSetArgResourceRef(URMResourceContextPtr	context_id,
     (context_id, "UrmCWRSetArgResourceRef", arg_ndx, &argdesc, &argptr) ;
   if ( result != MrmSUCCESS ) return result ;
 
-  argptr->arg_val.rep_type = MrmRtypeResource ;
-
   /*
    * Acquire a resource descriptor, and bind the value to it.
    */
@@ -857,6 +855,7 @@ UrmCWRSetArgResourceRef(URMResourceContextPtr	context_id,
   result = UrmCWR__BindArgPtrs
     (context_id, "UrmCWRSetArgResourceRef", arg_ndx, &argdesc, &argptr) ;
   if ( result != MrmSUCCESS ) return result ;
+  argptr->arg_val.rep_type = MrmRtypeResource ;
   argptr->arg_val.datum.offset = offset ;
 
   /*

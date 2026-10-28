@@ -27057,6 +27057,13 @@ Guard Mrm resource-reference append inputs (2026-10-28)
 - Keep argument and callback resource-reference writers safe through their
   shared append helper.
 
+Commit Mrm argument resource references atomically (2026-10-28)
+=================================================================
+
+- Assign `MrmRtypeResource` only after the resource descriptor is appended
+  successfully.
+- Leave the argument descriptor unchanged when resource creation fails.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
