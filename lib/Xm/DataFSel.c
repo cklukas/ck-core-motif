@@ -348,6 +348,14 @@ InsertSelection(
              return;
           }
           num_chars = mbstowcs(wc_value, temp, (size_t)*length + 1);
+          if (num_chars < 0) {
+             XtFree(temp);
+             XtFree((char *)value);
+             XtFree((char *)wc_value);
+             insert_select->done_status = True;
+             insert_select->success_status = False;
+             return;
+          }
           replace_res = _XmDataFieldReplaceText(tf, 
                                                 (XEvent *) insert_select->event,
 					        left, right, (char*) wc_value,

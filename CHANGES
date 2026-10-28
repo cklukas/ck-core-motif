@@ -33,6 +33,7 @@ Guard DataField selection callback inputs (2026-10-29)
 - Handle zero-length insertion results before inspecting their first byte.
 - Defer display/atom lookup until after insertion-callback widget validation.
 - Reject invalid format widths and non-empty typeless insertion results.
+- Reject `mbstowcs` failure for locale text before wide replacement.
 
 Release skipped selection callback payloads (2026-10-29)
 ==========================================================
