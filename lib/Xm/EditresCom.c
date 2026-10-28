@@ -2070,8 +2070,8 @@ unsigned long * val;
     if ( !(_XEditResGet16(stream, &temp1) && _XEditResGet16(stream, &temp2)) )
 	return(FALSE);
     
-    *val = (((unsigned short) temp1 << (XER_NBBY * 2)) + 
-	    ((unsigned short) temp2));
+    *val = ((unsigned long)temp1 << (XER_NBBY * 2)) |
+	    (unsigned long)temp2;
     return(TRUE);
 }
 

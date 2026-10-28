@@ -11,6 +11,8 @@ size or failed allocation reports a protocol parse failure to the existing
 cleanup path; zero-length widget lists remain valid.
 SetValues value payloads are likewise checked before their terminator-inclusive
 allocation.
+The 32-bit protocol decoder also widens each 16-bit half before shifting, so
+high-bit window IDs and stream lengths do not invoke signed-shift overflow.
 
 The focused regression check is
 `tests/automated/check-editres-payload-allocation.py`.

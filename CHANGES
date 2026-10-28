@@ -17744,6 +17744,13 @@ Editres value and widget-array Cardinal bounds (2026-10-28)
   wrapped allocations.
 - Extend the focused Editres payload and widget-array contracts.
 
+Editres 32-bit decode arithmetic (2026-10-28)
+==============================================
+
+- Decode the two 16-bit protocol halves using unsigned-wide arithmetic,
+  preserving high-bit values without signed left-shift undefined behavior.
+- Add focused source-contract coverage and document the protocol fix.
+
 Legacy charset canonicalization allocation guards (2026-10-25)
 ===============================================================
 
