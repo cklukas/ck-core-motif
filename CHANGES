@@ -27186,6 +27186,14 @@ Match Xft visuals to pixmap depth (2026-10-28)
 - Handle failed geometry queries deterministically and release temporary
   `XGetVisualInfo` results.
 
+Evict cached Xft draws without creation (2026-10-28)
+=====================================================
+
+- Add `_XmXftDrawEvict(Display *, Window)` for callers that release a
+  drawable, without creating a replacement draw object.
+- Keep generic drawable creation free of invalid window-only attribute
+  requests; visual selection is based on the drawable depth.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

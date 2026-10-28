@@ -3525,7 +3525,9 @@ XftDraw *
 _XmXftDrawCreate(Display *display, Window window)
 {
 	XftDraw			*draw;
+#ifndef FIX_1444
 	XWindowAttributes	wa;
+#endif
 	int			i;
 
 	if (display == NULL || window == None)
@@ -3559,16 +3561,9 @@ _XmXftDrawCreate(Display *display, Window window)
 		if (geometry_ok && depth == 1)
 			draw = XftDrawCreateBitmap(display, window);
 		else {
-			/* XGetWindowAttributes is valid only for windows, not pixmaps.
-			 * XGetGeometry reports None as the root for pixmaps. */
-			if (geometry_ok && root != None &&
-			    XGetWindowAttributes(display, window, &wa) &&
-			    wa.visual != NULL) {
-				visual = wa.visual;
-				if (wa.colormap != None)
-					colormap = wa.colormap;
-			} else if (geometry_ok && root == None &&
-			           depth != DefaultDepth(display, screen)) {
+			/* This helper accepts both windows and pixmaps; root is not a
+			 * reliable discriminator, so never issue a window-only query here. */
+			if (geometry_ok && depth != DefaultDepth(display, screen)) {
 				vtemplate.depth = (int)depth;
 				visuals = XGetVisualInfo(display, VisualDepthMask, &vtemplate,
 				                         &nvisuals);
@@ -3655,6 +3650,12 @@ _XmXftDrawDestroy(Display *display, Window window, XftDraw *draw)
 	        return;
         }
     XmeWarning(NULL, "_XmXftDrawDestroy() this should not happen\n");
+}
+
+void
+_XmXftDrawEvict(Display *display, Window window)
+{
+    _XmXftDrawDestroy(display, window, NULL);
 }
 
 void

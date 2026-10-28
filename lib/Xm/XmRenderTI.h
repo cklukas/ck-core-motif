@@ -251,6 +251,7 @@ extern XmRenderTable _XmRenderTableRemoveRenditions(XmRenderTable oldtable,
 XftDraw * _XmXftDrawCreate(Display *display, Window window);
 
 void _XmXftDrawDestroy(Display *display, Window window, XftDraw *d);
+void _XmXftDrawEvict(Display *display, Window window);
 
 void _XmXftDrawString(Display *display, Window window, XmRendition rend, int bpc,
 #if NeedWidePrototypes
