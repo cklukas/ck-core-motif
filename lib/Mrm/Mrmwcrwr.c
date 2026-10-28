@@ -2358,6 +2358,13 @@ UrmCWR__AppendResource (URMResourceContextPtr	context_id,
   RGMResourceDescPtr	resdesc ;	/* resource descriptor */
 
 
+  /* This helper is shared by argument and callback resource writers.  Keep
+   * malformed internal calls from reaching GuaranteeSpace with an invalid
+   * destination or context. */
+  if (context_id == NULL || offset == NULL)
+    return MrmFAILURE;
+
+
   /*
    * Acquire and set a resource descriptor. If an RID reference, no extra is
    * needed. If an index, extra space for the string is required. Since

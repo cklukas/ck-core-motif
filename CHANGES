@@ -27049,6 +27049,14 @@ Guard Mrm argument float inputs (2026-10-28)
   representation type.
 - Preserve the existing serialized format for valid by-address values.
 
+Guard Mrm resource-reference append inputs (2026-10-28)
+=========================================================
+
+- Reject null resource contexts or output offsets before allocating a
+  resource descriptor.
+- Keep argument and callback resource-reference writers safe through their
+  shared append helper.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
