@@ -1,3 +1,11 @@
+Preserve transfer operation in callback fallback (2026-10-28)
+==============================================================
+
+- Capture the transfer operation before completion-callback snapshot
+  allocation, so the allocation-failure fallback never dispatches an
+  uninitialized operation value.
+- Add focused coverage and documentation.
+
 Range-check DragUnder region geometry (2026-10-28)
 ==================================================
 

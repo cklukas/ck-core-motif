@@ -2402,6 +2402,7 @@ CallDoneProcs(Widget wid, XtPointer id, XmTransferDoneCallbackStruct *ts)
     _XmProcessUnlock();
     return;
   }
+  op = tid->op;
   callbacks = (XmSelectionFinishedProc *)XtMalloc(
       (Cardinal)((size_t)count * sizeof(*callbacks)));
   if (callbacks == NULL) {
@@ -2426,7 +2427,6 @@ CallDoneProcs(Widget wid, XtPointer id, XmTransferDoneCallbackStruct *ts)
   }
   memcpy(callbacks, tid->doneProcs,
          (size_t)count * sizeof(*callbacks));
-  op = tid->op;
   _XmProcessUnlock();
 
   for (i = 0; i < count; i++) {
