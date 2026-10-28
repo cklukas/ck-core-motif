@@ -10,6 +10,8 @@ add_region = source[add:]
 assert "if (refWidget == NULL || !XtIsSubclass(refWidget, xmDragContextClass) ||" in start_region
 assert "(argCount != 0 && args == NULL)" in start_region
 assert start_region.index("if (refWidget == NULL ||") < start_region.index("XtDisplayOfObject(refWidget)")
-assert "if (widget == NULL || (num_transfers != 0 && transfers == NULL))" in add_region
-assert add_region.index("if (widget == NULL || (num_transfers != 0 && transfers == NULL))") < add_region.index("_XmWidgetToAppContext(widget)")
+assert "if (widget == NULL ||" in add_region
+assert "!XtIsSubclass(widget, xmDropTransferObjectClass)" in add_region
+assert "(num_transfers != 0 && transfers == NULL)" in add_region
+assert add_region.index("if (widget == NULL ||") < add_region.index("_XmWidgetToAppContext(widget)")
 print("PASS drop-transfer APIs validate widget and transfer inputs")

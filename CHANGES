@@ -213,6 +213,13 @@ Guard detached gadget standard conversions (2026-10-29)
   background, or colormap resources.
 - Add focused standard-conversion documentation and regression coverage.
 
+Validate drop-transfer append widgets (2026-10-29)
+===================================================
+
+- Reject non-drop-transfer widgets before `XmDropTransferAdd` casts or
+  accesses private transfer state.
+- Add focused widget-input documentation and regression coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
