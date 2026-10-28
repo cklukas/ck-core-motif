@@ -28450,3 +28450,5 @@ List drag selection bounds (2026-10-28)
   (2026-10-28).
 * Refreshed the Mrm text-vector reader contract check for its combined null
   and swap-state guard (2026-10-28).
+* Made the Mrm related-count type contract check runnable from a source
+  checkout with the correct widget-reader implementation default (2026-10-28).
