@@ -610,14 +610,30 @@ DropTransferSelectionCB(
         unsigned long *length,
         int *format )
 {
-	XmDropTransferObject dt = (XmDropTransferObject) client_data;
-	XmDropTransferPart *dtp =
-		(XmDropTransferPart *) &(dt->dropTransfer);
-	XmDropTransferList	tl =
-		&(dtp->drop_transfer_lists[dtp->cur_drop_transfer_list]);
+	XmDropTransferObject dt;
+	XmDropTransferPart *dtp;
+	XmDropTransferList tl;
 	Boolean transfer_complete =
-		!(dtp->incremental) ||
-		((value != NULL) && (length != NULL) && (*length == 0));
+		False;
+
+	if (client_data == NULL)
+	    return;
+	dt = (XmDropTransferObject) client_data;
+	dtp = (XmDropTransferPart *) &(dt->dropTransfer);
+	if (selection == NULL || type == NULL || length == NULL ||
+	    format == NULL || dtp->transfer_callback == NULL ||
+	    dtp->drop_transfer_lists == NULL ||
+	    dtp->cur_drop_transfer_list >= dtp->num_drop_transfer_lists) {
+	    FailTransferEntry(dt);
+	    return;
+	}
+	tl = &(dtp->drop_transfer_lists[dtp->cur_drop_transfer_list]);
+	if (tl->transfer_list == NULL || dtp->cur_xfer >= tl->num_transfers) {
+	    FailTransferEntry(dt);
+	    return;
+	}
+	transfer_complete = !(dtp->incremental) ||
+	    ((value != NULL) && (*length == 0));
 
 
 	(*(dtp->transfer_callback)) 

@@ -193,6 +193,13 @@ Guard missing drop-transfer callbacks (2026-10-29)
   `XmNtransferProc` is absent, avoiding a null callback invocation.
 - Add focused callback-input documentation and regression coverage.
 
+Guard drop-transfer selection callbacks (2026-10-29)
+====================================================
+
+- Validate callback pointers, transfer-list bounds, and result payload
+  pointers before processing a drop-transfer selection response.
+- Route malformed or late callback state through failure teardown.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
