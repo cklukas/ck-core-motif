@@ -12,5 +12,7 @@ body = source[start:end]
 assert "block->length < 0 || block->ptr == NULL" in body
 assert "if (tvcb.text == NULL)" in body
 assert "tvcb.text->ptr == NULL" in body
+assert "newblock->length > 0 && newblock->ptr == NULL" in body
+assert "if (wcs_tvcb.text == NULL)" in body
 
 print("PASS Text modify-verify callbacks guard null payloads")

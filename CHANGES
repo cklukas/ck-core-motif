@@ -34,6 +34,13 @@ Guard Text modify-verify payloads (2026-10-29)
   nonzero text blocks.
 - Preserve valid callback edits and add focused null-payload coverage.
 
+Guard wide Text modify-verify payloads (2026-10-29)
+====================================================
+
+- Require a payload before wide-character conversion and reject callbacks that
+  replace the wide text block with a null structure.
+- Preserve valid wide callback edits and extend the focused coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

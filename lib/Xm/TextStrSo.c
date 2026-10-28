@@ -1090,6 +1090,7 @@ _XmTextModifyVerify(XmTextWidget initiator,
     size_t wcs_capacity;
 
     if (newblock->length < 0 ||
+	(newblock->length > 0 && newblock->ptr == NULL) ||
 	(size_t)newblock->length > (SIZE_MAX / sizeof(wchar_t)) - 1 ||
 	(size_t)newblock->length + 1 > UINT_MAX / sizeof(wchar_t)) {
 	  if (newblock->ptr && newblock->ptr != block->ptr)
@@ -1125,6 +1126,13 @@ _XmTextModifyVerify(XmTextWidget initiator,
     XtCallCallbackList((Widget) initiator,
 		       initiator->text.wcs_modify_verify_callback,
 		       (XtPointer) &wcs_tvcb);
+    if (wcs_tvcb.text == NULL) {
+      if (newblock->ptr && newblock->ptr != block->ptr)
+	XtFree(newblock->ptr);
+      if (wcs_newblock.wcsptr) XtFree((char *)wcs_newblock.wcsptr);
+      *freeBlock = False;
+      return False;
+    }
     if (!wcs_tvcb.doit) {
       if (newblock->ptr && newblock->ptr != block->ptr)
 	XtFree(newblock->ptr);

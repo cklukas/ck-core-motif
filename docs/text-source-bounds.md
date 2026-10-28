@@ -24,3 +24,7 @@ The modify-verify bridge applies the same contract to callback-provided blocks:
 nonzero lengths require a non-null payload, and a callback cannot replace the
 text block with a null structure.  Invalid callback data is rejected before
 copying; valid edits are unchanged.
+
+The wide-character modify-verify path applies the same validation before
+`mbstowcs`/`wcstombs` conversion and rejects a null callback replacement.  This
+keeps malformed client callback data from becoming a conversion crash.
