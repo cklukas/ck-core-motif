@@ -167,6 +167,9 @@ static void calendar_changed(Widget calendar, XtPointer closure,
     XmDatePickerWidget picker = (XmDatePickerWidget)closure;
     XmDatePickerDate date;
     (void)call_data;
+    if (picker == NULL || calendar == NULL || !XmIsDatePicker((Widget)picker) ||
+        !XmIsCalendar(calendar))
+        return;
     if (!XmCalendarGetDate(calendar, &date))
         return;
     picker->date_picker.date = date;
