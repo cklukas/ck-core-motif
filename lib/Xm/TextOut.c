@@ -926,6 +926,7 @@ DrawUnicodeParagraph(XmTextWidget tw, LineNum line, XmTextPosition start)
   if (!ParagraphColor(tw, tw->primitive.foreground, &foreground) ||
       !ParagraphColor(tw, tw->core.background_pixel, &background)) return True;
   draw = _XmXftDrawCreate(XtDisplay(tw), XtWindow(tw->text.inner_widget));
+  if (draw == NULL) return True;
   baseline = viewport.y + data->font_ascent;
   XmTextLayoutDraw(paragraph->layout, draw, &foreground, origin, baseline, 0,
                     (size_t)(paragraph->end - paragraph->start), &viewport);

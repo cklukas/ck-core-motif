@@ -12,6 +12,8 @@ header = (Path(__file__).parents[2] / "lib" / "Xm" / "XmRenderTI.h").read_text(
 )
 start = source.index("_XmXftDrawEvict(Display *display, Window window)")
 body = source[start:source.index("\n}\n", start)]
-assert "_XmXftDrawDestroy(display, window, NULL)" in body
+assert "for (i = 0; i < _XmXftDrawCacheSize; ++i)" in body
+assert "XftDrawDestroy(cached_draw)" in body
+assert "XmeWarning" not in body
 assert "_XmXftDrawEvict(Display *display, Window window);" in header
 print("Xft draw eviction clears cache without creating a draw")

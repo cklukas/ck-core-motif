@@ -27182,7 +27182,7 @@ Match Xft visuals to pixmap depth (2026-10-28)
 ===============================================
 
 - Select a visual with the pixmap’s depth for non-default-depth color
-  pixmaps.
+  pixmaps, restricted to the screen owning the drawable.
 - Handle failed geometry queries deterministically and release temporary
   `XGetVisualInfo` results.
 
@@ -27192,7 +27192,15 @@ Evict cached Xft draws without creation (2026-10-28)
 - Add `_XmXftDrawEvict(Display *, Window)` for callers that release a
   drawable, without creating a replacement draw object.
 - Keep generic drawable creation free of invalid window-only attribute
-  requests; visual selection is based on the drawable depth.
+  requests; visual selection is based on the drawable depth and screen.
+- Make eviction a silent no-op when no cached draw exists.
+
+Guard Xft draw consumers (2026-10-28)
+======================================
+
+- Return safely when Xft draw creation fails instead of dereferencing a null
+  draw object in text, label, string, and clip helpers.
+- Preserve existing rendering when a compatible draw object is available.
 
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================

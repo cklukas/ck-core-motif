@@ -1514,7 +1514,8 @@ Redisplay(
 #ifdef FIX_1521
 #ifdef USE_XFT
       XftDraw* draw = _XmXftDrawCreate(XtDisplay(lw), XtWindow(lw));
-      XftDrawSetClip(draw, NULL);
+      if (draw != NULL)
+        XftDrawSetClip(draw, NULL);
 #endif
 #endif
     }

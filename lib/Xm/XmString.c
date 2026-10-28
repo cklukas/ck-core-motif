@@ -5544,7 +5544,8 @@ _render(Display *d,
 #ifdef USE_XFT
 	  if (_XmRendFontType((_XmStrOptimized(string)) ? rend2 : rend1) == XmFONT_IS_XFT) {
 		  XftDraw *draw = _XmXftDrawCreate(d, w);
-		  XftDrawSetClip(draw, NULL);
+		  if (draw != NULL)
+		    XftDrawSetClip(draw, NULL);
 	  } else
 #endif
 #endif

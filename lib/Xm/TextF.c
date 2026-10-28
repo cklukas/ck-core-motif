@@ -3322,6 +3322,10 @@ RedisplayUnicodeText(XmTextFieldWidget tf)
     XmTextUnicodeMapFree(map); return False;
   }
   draw = _XmXftDrawCreate(XtDisplay(tf), XtWindow(tf));
+  if (draw == NULL) {
+    XmTextUnicodeMapFree(map);
+    return False;
+  }
   baseline = tf->primitive.highlight_thickness + tf->primitive.shadow_thickness + tf->text.margin_top + TextF_FontAscent(tf);
   SetInvGC(tf, tf->text.gc);
   XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc, viewport.x, viewport.y, viewport.width, viewport.height);

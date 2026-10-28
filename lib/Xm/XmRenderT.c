@@ -3550,6 +3550,7 @@ _XmXftDrawCreate(Display *display, Window window)
 		XVisualInfo *visuals = NULL;
 		int nvisuals = 0;
 		int screen = DefaultScreen(display);
+		int drawable_screen = screen;
 		Visual *visual = DefaultVisual(display, screen);
 		Colormap colormap = DefaultColormap(display, screen);
 
@@ -3558,14 +3559,26 @@ _XmXftDrawCreate(Display *display, Window window)
 		 * XftDrawCreate(default visual, ...) appears to succeed lazily. */
 		geometry_ok = XGetGeometry(display, window, &root, &x, &y, &width,
 		                           &height, &border, &depth);
+		if (geometry_ok) {
+			for (drawable_screen = 0;
+			     drawable_screen < ScreenCount(display);
+			     ++drawable_screen)
+				if (root == RootWindow(display, drawable_screen))
+					break;
+			if (drawable_screen >= ScreenCount(display))
+				drawable_screen = screen;
+		}
 		if (geometry_ok && depth == 1)
 			draw = XftDrawCreateBitmap(display, window);
 		else {
 			/* This helper accepts both windows and pixmaps; root is not a
 			 * reliable discriminator, so never issue a window-only query here. */
-			if (geometry_ok && depth != DefaultDepth(display, screen)) {
+			if (geometry_ok && depth != DefaultDepth(display, drawable_screen)) {
 				vtemplate.depth = (int)depth;
-				visuals = XGetVisualInfo(display, VisualDepthMask, &vtemplate,
+				vtemplate.screen = drawable_screen;
+				visuals = XGetVisualInfo(display,
+				                         VisualScreenMask | VisualDepthMask,
+				                         &vtemplate,
 				                         &nvisuals);
 				if (visuals != NULL && nvisuals > 0)
 					visual = visuals[0].visual;
@@ -3655,7 +3668,19 @@ _XmXftDrawDestroy(Display *display, Window window, XftDraw *draw)
 void
 _XmXftDrawEvict(Display *display, Window window)
 {
-    _XmXftDrawDestroy(display, window, NULL);
+    int i;
+
+    for (i = 0; i < _XmXftDrawCacheSize; ++i)
+	if (_XmXftDrawCache[i].display == display &&
+	    _XmXftDrawCache[i].window == window) {
+	    XftDraw *cached_draw = _XmXftDrawCache[i].draw;
+	    _XmXftDrawCache[i].display = NULL;
+	    _XmXftDrawCache[i].draw = NULL;
+	    _XmXftDrawCache[i].window = None;
+	    if (cached_draw != NULL)
+		XftDrawDestroy(cached_draw);
+	    return;
+	}
 }
 
 void
@@ -3671,6 +3696,9 @@ _XmXftDrawString2(Display *display, Window window, GC gc, XftFont *font, int bpc
     XGCValues gc_val;
     XColor xcol;
     XftColor xftcol;
+
+    if (draw == NULL)
+	return;
     
     XGetGCValues(display, gc, GCForeground, &gc_val);
 
@@ -3718,6 +3746,9 @@ _XmXftDrawString(Display *display, Window window, XmRendition rend, int bpc,
 {
     XftDraw	*draw = _XmXftDrawCreate(display, window);
     XftColor    fg_color = _XmRendXftFG(rend);
+
+    if (draw == NULL)
+	return;
 
     if (image)
     {
@@ -3807,6 +3838,8 @@ void
 _XmXftSetClipRectangles(Display *display, Window window, Position x, Position y, XRectangle *rects, int n)
 {
 	XftDraw	*d = _XmXftDrawCreate(display, window);
+	if (d == NULL)
+		return;
 
 	XftDrawSetClipRectangles(d, x, y, rects, n);
 }
