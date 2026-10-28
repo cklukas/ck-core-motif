@@ -2396,6 +2396,9 @@ int	    value_type;
     value_entry = (sym_value_entry_type *)
 	sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
 
+    if (value_entry == NULL)
+	return (sym_value_entry_type *)sym_az_error_value_entry;
+
     if (length < 0 || (unsigned int)length > USHRT_MAX) {
 	XtError("UIL value is too large");
 	length = 0;
