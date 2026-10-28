@@ -12,6 +12,7 @@ body = source[start:end]
 assert "selection == NULL || *selection == None" in body
 assert "*length != 0" in body
 assert "value == NULL" in body
+assert "*type == None" in body
 assert "*format != 8 && *format != 16 && *format != 32" in body
 assert "FailTransferEntry(dt);" in body
 
