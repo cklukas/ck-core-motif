@@ -9887,7 +9887,7 @@ XmListGetKbdItemPos(Widget w)
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
-  if (lw->list.items == NULL) {
+  if (lw->list.items == NULL || lw->list.itemCount <= 0) {
     _XmAppUnlock(app);
     return 0;
   }
@@ -9917,6 +9917,7 @@ XmListSetKbdItemPos(Widget w,
   _XmAppLock(app);
 
   if ((lw->list.items == NULL)  ||
+      (lw->list.itemCount <= 0) ||
       (pos < 0)		  ||
       (pos > lw->list.itemCount)) {
     NotifyAccessibility((XmListWidget)w);
