@@ -2723,6 +2723,7 @@ CvtPositionToRowColumn(Widget w, short x, short y, short * row, short * column)
 {
     XmI18ListWidget ilist = (XmI18ListWidget) w;
     int title_extra;
+    long long pixel_y = y;
 
     if(XmI18List_new_visual_style(ilist))
 	title_extra = ilist->primitive.shadow_thickness;
@@ -2733,15 +2734,16 @@ CvtPositionToRowColumn(Widget w, short x, short y, short * row, short * column)
      * See if the y pixel value passed is located in the header
      * or a row visible within the clip window or not visible at all
      */
-    if (y < 0) {
-        *row = IN_COLUMN_HEADER + y/(XmI18List_row_height(ilist) + VERTICAL_SPACE);
-    } else if (y < (XmI18List_sep_y(ilist) + title_extra)) {
+    if (pixel_y < 0) {
+        *row = IN_COLUMN_HEADER +
+            (short)(pixel_y / (XmI18List_row_height(ilist) + VERTICAL_SPACE));
+    } else if (pixel_y < (long long)(XmI18List_sep_y(ilist) + title_extra)) {
         *row = IN_COLUMN_HEADER;
     } else {
-        y -= XmI18List_sep_y(ilist) + title_extra + VERTICAL_SPACE/2;
+        pixel_y -= XmI18List_sep_y(ilist) + title_extra + VERTICAL_SPACE/2;
 
-        *row = XmI18List_first_row(ilist) + y/(XmI18List_row_height(ilist) +
-                                           VERTICAL_SPACE);
+        *row = XmI18List_first_row(ilist) +
+            (short)(pixel_y / (XmI18List_row_height(ilist) + VERTICAL_SPACE));
     }
 
     *column = CvtPixelValToColNum((Widget) w, x);

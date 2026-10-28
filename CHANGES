@@ -1,3 +1,10 @@
+Use wide I18List position-to-row arithmetic (2026-10-29)
+==========================================================
+
+- Keep `CvtPositionToRowColumn` Y arithmetic in a wide local instead of
+  mutating its legacy short parameter during header/spacing subtraction.
+- Add focused source-contract coverage.
+
 Bound I18List left-arrow scrolling (2026-10-29)
 =================================================
 
