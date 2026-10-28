@@ -177,7 +177,8 @@ static size_t memo_bucket(XmAccessibleId id, size_t capacity) {
 static Boolean memo_resize(Transport *t, size_t capacity) {
   TransportState **table;
   size_t k;
-  if (capacity == 0 || capacity > (size_t)UINT_MAX / sizeof(*table))
+  if (capacity == 0 || (capacity & (capacity - 1)) != 0 ||
+      capacity > (size_t)UINT_MAX / sizeof(*table))
     return False;
   table = (TransportState **)XtCalloc((Cardinal)capacity, sizeof(*table));
   if (!table)

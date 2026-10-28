@@ -26418,4 +26418,5 @@ Guard accessibility memo-table capacity (2026-10-29)
 =====================================================
 
 - Validate memo bucket capacity at the `XtCalloc` boundary.
-- Reject zero or unrepresentable bucket sizes before resizing the table.
+- Reject zero, non-power-of-two, or unrepresentable bucket sizes before
+  resizing the table.

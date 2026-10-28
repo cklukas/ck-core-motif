@@ -8,6 +8,7 @@ end = source.index("static TransportState *memo_get", start)
 body = source[start:end]
 
 assert "capacity == 0" in body
+assert "(capacity & (capacity - 1)) != 0" in body
 assert "capacity > (size_t)UINT_MAX / sizeof(*table)" in body
 assert body.index("if (capacity == 0") < body.index("XtCalloc")
 print("accessibility memo-table capacity is checked at allocation")
