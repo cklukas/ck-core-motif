@@ -25119,3 +25119,12 @@ Validate XPM serialization structure (2026-10-29)
 
 Validate XPM explicit depth input (2026-10-29)
 ===============================================
+Validate XPM bitmap format input (2026-10-29)
+==============================================
+
+- Reject explicit bitmap formats other than `XYBitmap` and `ZPixmap` before
+  X11 image construction in both conversion paths.
+- Add focused coverage and documentation for invalid format attributes.
+
+Validate XPM serialization structure (2026-10-29)
+==================================================

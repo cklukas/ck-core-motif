@@ -812,6 +812,10 @@ XpmCreateImageFromXpmImage(
     if (attributes && (attributes->valuemask & XpmDepth) &&
 	attributes->depth == 0)
 	return XpmFileInvalid;
+    if (attributes && (attributes->valuemask & XpmBitmapFormat) &&
+	attributes->bitmap_format != XYBitmap &&
+	attributes->bitmap_format != ZPixmap)
+	return XpmFileInvalid;
 
     /* retrieve information from the XpmAttributes */
     if (attributes && (attributes->valuemask & XpmVisual))
@@ -2057,6 +2061,9 @@ xpmParseDataAndCreate(
 	  attributes->visual == NULL) ||
 	 ((attributes->valuemask & XpmDepth) &&
 	  attributes->depth == 0) ||
+	 ((attributes->valuemask & XpmBitmapFormat) &&
+	  attributes->bitmap_format != XYBitmap &&
+	  attributes->bitmap_format != ZPixmap) ||
 	 ((attributes->valuemask & XpmAllocColor) &&
 	  attributes->alloc_color == NULL) ||
 	 ((attributes->valuemask & XpmFreeColors) &&
