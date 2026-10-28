@@ -7,6 +7,9 @@ body = source[source.index("GetNodeList(top_wid"):source.index("LinkNodeList(tra
 assert "trav_list->num_alloc > XmTRAV_LIST_ALLOC_INCREMENT" in body
 assert "size_t new_alloc" in body
 assert "XmTraversalNode new_head" in body
+assert "new_alloc > SIZE_MAX / sizeof(XmTraversalNodeRec)" in body
+assert "new_alloc > UINT_MAX / sizeof(XmTraversalNodeRec)" in body
+assert "(Cardinal)(new_alloc * sizeof(XmTraversalNodeRec))" in body
 assert "if (new_head != NULL)" in body
 assert "trav_list->head = new_head" in body
 assert "trav_list->num_alloc = new_alloc" in body

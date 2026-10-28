@@ -1131,9 +1131,13 @@ _XmNewTravGraph(XmTravGraph trav_list,
        * routinely attempt to prune excessive memory allocation.
        */
       size_t new_alloc = trav_list->num_alloc - XmTRAV_LIST_ALLOC_INCREMENT;
-      XmTraversalNode new_head = (XmTraversalNode)XtRealloc(
+      XmTraversalNode new_head;
+      if (new_alloc > SIZE_MAX / sizeof(XmTraversalNodeRec) ||
+          new_alloc > UINT_MAX / sizeof(XmTraversalNodeRec))
+        return FALSE;
+      new_head = (XmTraversalNode)XtRealloc(
           (char *)trav_list->head,
-          new_alloc * sizeof(XmTraversalNodeRec));
+          (Cardinal)(new_alloc * sizeof(XmTraversalNodeRec)));
       if (new_head != NULL) {
         trav_list->head = new_head;
         trav_list->num_alloc = new_alloc;

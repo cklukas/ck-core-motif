@@ -26678,6 +26678,12 @@ Bound Mrm hierarchy file-list allocations (2026-10-29)
 - Reject file counts whose vector size exceeds either `size_t` or Xt's
   `Cardinal` allocation width before opening a hierarchy.
 
+Bound traversal graph shrink allocations (2026-10-29)
+======================================================
+
+- Check the reduced traversal-node count before the pruning `XtRealloc`,
+  matching the existing growth-path allocation bounds.
+
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================
 
