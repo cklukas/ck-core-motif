@@ -1807,6 +1807,10 @@ Widget w;
     for (temp = w, i = 0; temp != 0; temp = XtParent(temp), i++) {}
 
     num_widgets = i;
+    if (num_widgets <= 0 ||
+	(size_t)num_widgets > (size_t)UINT16_MAX ||
+	(size_t)num_widgets > (size_t)UINT_MAX / sizeof(unsigned long))
+	return;
     widget_list = (unsigned long *) 
 	                XtMalloc(sizeof(unsigned long) * num_widgets);
     if (widget_list == NULL)

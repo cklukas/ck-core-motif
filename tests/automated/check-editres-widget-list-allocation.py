@@ -8,6 +8,8 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "EditresCom.c").read_text(
 start = source.index("widget_list = (unsigned long *)")
 end = source.index("/*\n     * Put the widgets", start)
 region = source[start:end]
+assert "(size_t)num_widgets > (size_t)UINT16_MAX" in source
+assert "(size_t)num_widgets > (size_t)UINT_MAX / sizeof(unsigned long)" in source
 assert "if (widget_list == NULL)" in region
 assert "return;" in region
 print("edit-resources widget-list allocation is checked before hierarchy writes")

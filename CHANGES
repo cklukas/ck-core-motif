@@ -17751,6 +17751,13 @@ Editres 32-bit decode arithmetic (2026-10-28)
   preserving high-bit values without signed left-shift undefined behavior.
 - Add focused source-contract coverage and document the protocol fix.
 
+Editres widget-hierarchy count bounds (2026-10-28)
+==================================================
+
+- Reject parent hierarchies that cannot fit the 16-bit wire count or Xt's
+  `Cardinal` allocation width before temporary widget-list allocation.
+- Extend the focused Editres widget-list contract and documentation.
+
 Legacy charset canonicalization allocation guards (2026-10-25)
 ===============================================================
 
