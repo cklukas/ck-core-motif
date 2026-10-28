@@ -341,6 +341,8 @@ SourceNotifiedCB(
 {
     XmDropTransferObject	dt = (XmDropTransferObject)client_data;
 
+    if (dt == NULL)
+	return;
     ForgetSelectionRequest(dt);
     if (value != NULL)
       XtFree((char *) value);
@@ -406,6 +408,8 @@ SelectionRequestorDestroyCB(
 
 	(void)widget;
 	(void)call;
+	if (dt == NULL)
+	    return;
 	dt->dropTransfer.selection_requestor = (Widget) NULL;
 	dt->dropTransfer.selection = None;
 	dt->dropTransfer.selection_request_pending = False;
@@ -729,10 +733,13 @@ DragContextDestroyCB(
         XtPointer call)
 {
         XmDropTransferObject dt = (XmDropTransferObject) client;
-        XmDropTransferPart *dtp = &(dt->dropTransfer);
+        XmDropTransferPart *dtp;
 
         (void)widget;
         (void)call;
+        if (dt == NULL)
+                return;
+        dtp = &(dt->dropTransfer);
 #ifdef CR1146
         if (!isValidStartDropTimerId) return;
 #endif

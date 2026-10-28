@@ -13,5 +13,7 @@ assert "dc->drag.currReceiverInfo == NULL" in process
 assert "FailTransferEntry(dt);" in process
 assert "if (dtp->dragContext == NULL)" in timer
 assert timer.count("FailTransferEntry(dt);") >= 2
+assert "if (dt == NULL)" in source
+assert source.count("if (dt == NULL)") >= 3
 
 print("PASS drop-transfer processing fails closed after drag destruction")

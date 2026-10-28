@@ -25687,3 +25687,11 @@ Reject null transfer parameter buffers (2026-10-29)
   input coverage.
 
 Reject invalid transfer status values (2026-10-29)
+Guard drop-transfer teardown callback state (2026-10-29)
+==========================================================
+
+- Reject missing transfer objects in completion, requestor-destruction, and
+  drag-destruction callbacks before dereferencing their private state.
+- Preserve normal cancellation and teardown paths with focused coverage.
+
+Reject null transfer parameter buffers (2026-10-29)
