@@ -25101,3 +25101,12 @@ Validate XPM parse-and-create inputs (2026-10-29)
 
 Validate XPM explicit visual input (2026-10-29)
 ================================================
+Validate XPM explicit depth input (2026-10-29)
+===============================================
+
+- Reject `XpmDepth` with value zero before X11 image construction in both
+  image-conversion paths.
+- Add focused coverage and documentation while preserving default-depth use.
+
+Validate XPM parse-and-create inputs (2026-10-29)
+==================================================

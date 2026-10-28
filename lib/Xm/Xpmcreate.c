@@ -809,6 +809,9 @@ XpmCreateImageFromXpmImage(
     if (attributes && (attributes->valuemask & XpmVisual) &&
 	attributes->visual == NULL)
 	return XpmFileInvalid;
+    if (attributes && (attributes->valuemask & XpmDepth) &&
+	attributes->depth == 0)
+	return XpmFileInvalid;
 
     /* retrieve information from the XpmAttributes */
     if (attributes && (attributes->valuemask & XpmVisual))
@@ -2052,6 +2055,8 @@ xpmParseDataAndCreate(
     if (attributes &&
 	(((attributes->valuemask & XpmVisual) &&
 	  attributes->visual == NULL) ||
+	 ((attributes->valuemask & XpmDepth) &&
+	  attributes->depth == 0) ||
 	 ((attributes->valuemask & XpmAllocColor) &&
 	  attributes->alloc_color == NULL) ||
 	 ((attributes->valuemask & XpmFreeColors) &&
