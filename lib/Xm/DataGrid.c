@@ -5,6 +5,7 @@
 #include <X11/keysym.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include <Xm/DataGridP.h>
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
@@ -17,6 +18,12 @@ static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
+
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
 
 #define Offset(field) XtOffsetOf(XmDataGridRec, field)
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
@@ -365,7 +372,9 @@ static void draw_text(XmDataGridWidget grid, int x, int top, Dimension height,
     XmStringExtent(grid->data_grid.render_table, value, &width, &text_height);
     XmStringDraw(XtDisplay((Widget)grid), XtWindow((Widget)grid),
                  grid->data_grid.render_table, value, grid->data_grid.gc,
-                 x, top + ((int)height - (int)text_height) / 2, width,
+                 bounded_position((long long)x),
+                 bounded_position((long long)top +
+                                  ((long long)height - text_height) / 2), width,
                  XmALIGNMENT_BEGINNING, XmPrim_layout_direction(grid), NULL);
     XmStringFree(value);
 }
