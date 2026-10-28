@@ -2177,6 +2177,9 @@ Urm__CW_FixupValue (long			val,
 	      swapbytes( fontlist->validation );
 	      swapbytes( fontlist->count );
 	    }
+	  if (fontlist->validation != URMFontListValid ||
+	      fontlist->count < 0 || fontlist->count > RGMListSizeMax)
+	    return MrmFAILURE;
 	  for ( fixndx=0 ; fixndx<fontlist->count ; fixndx++ )
 	    {
 	      fontitem = &fontlist->item[fixndx];

@@ -27130,6 +27130,13 @@ Select compatible Xft drawable depth (2026-10-28)
 - Use a realized window visual and colormap when available for other
   drawables, preserving normal Xft rendering and cache behavior.
 
+Validate swapped Mrm font lists (2026-10-28)
+=============================================
+
+- Validate the font-list marker and signed count after cross-endian byte
+  swapping and before iterating entries.
+- Preserve valid current-format font-list fixup and conversion.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
