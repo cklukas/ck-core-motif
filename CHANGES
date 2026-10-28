@@ -23971,3 +23971,13 @@ Regression: tests/automated/check-text-gap-span.py
 
 Make Text callback conversion widths explicit (2026-10-28)
 ============================================================
+Remove Text SelectScan pointer shadow (2026-10-28)
+===================================================
+
+- Reuse the existing character pointer in byte-oriented word selection.
+- Remove the shadowing local and keep strict `-Wshadow` diagnostics clean.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-selectscan-shadow.py
+
+Validate Text gap spans before conversion (2026-10-28)
+=======================================================

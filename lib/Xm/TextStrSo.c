@@ -1600,7 +1600,6 @@ Scan(XmTextSource source,
   case XmSELECT_WHITESPACE: 
   case XmSELECT_WORD:
     if (tw->text.char_size == 1) {
-      char * c;
       for (i = 0; i < count; i++) {
 	whiteSpace = -1;
 	while (position >= 0 && position <= data->length) {
