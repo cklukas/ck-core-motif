@@ -3059,7 +3059,7 @@ sym_value_entry_type *sem_evaluate_value_expr (value_entry)
       return NULL;
     sem_evaluate_value_expr(value_entry->az_exp_op1);
     in_expr = TRUE;
-    op1_type = validate_arg (value_entry->az_exp_op1,
+	op1_type = (char)validate_arg (value_entry->az_exp_op1,
 			     value_entry->b_expr_opr);
     op1_entry = value_entry->az_exp_op1;
     res_type = op1_type;
@@ -3071,7 +3071,7 @@ sym_value_entry_type *sem_evaluate_value_expr (value_entry)
     {
 	sem_evaluate_value_expr(value_entry->az_exp_op2);
 	in_expr = TRUE;
-	op2_type = validate_arg (value_entry->az_exp_op2,
+	 op2_type = (char)validate_arg (value_entry->az_exp_op2,
 				 value_entry->b_expr_opr);
 	
 	/*
@@ -3088,7 +3088,7 @@ sym_value_entry_type *sem_evaluate_value_expr (value_entry)
 	{
 	    op1_ptr  = &op1_data;
 	    if (res_type <= error_arg_type)
-	      op1_type = (* numeric_convert_table[ (int)res_type ])
+	      op1_type = (char)(* numeric_convert_table[ (int)res_type ])
 		( op1_entry, op1_ptr );
 	    else if ((res_type != cstr_arg_type) &&
 		     (res_type != lstr_arg_type))
@@ -3112,7 +3112,7 @@ sym_value_entry_type *sem_evaluate_value_expr (value_entry)
 	{
 	    op2_ptr  = &op2_data;
 	    if (res_type <= error_arg_type)
-	      op2_type = (* numeric_convert_table[ (int)res_type ])
+	      op2_type = (char)(* numeric_convert_table[ (int)res_type ])
 		( op2_entry, op2_ptr );
 	    else if ((res_type != cstr_arg_type) &&
 		     (res_type != lstr_arg_type))
@@ -3498,12 +3498,12 @@ sym_value_entry_type *sem_evaluate_value_expr (value_entry)
 	      case sym_k_float_value:
 	      case sym_k_horizontal_float_value:
 	      case sym_k_vertical_float_value:
-	        res_type = sem_convert_to_integer( op1_entry, &res_data );
+			    res_type = (char)sem_convert_to_integer( op1_entry, &res_data );
 	        value_entry->value.l_integer = res_data.integer_value;
 		value_entry->b_arg_type = op1_entry->b_arg_type;
 	        break;
 	      case sym_k_single_float_value: /* single float data type RAP */
-		res_type = sem_convert_to_integer( op1_entry, &res_data );
+		res_type = (char)sem_convert_to_integer( op1_entry, &res_data );
 	        value_entry->value.l_integer = res_data.integer_value;
                 break;
 	      default:
@@ -3527,7 +3527,7 @@ sym_value_entry_type *sem_evaluate_value_expr (value_entry)
 	      case sym_k_single_float_value: /* single float data type RAP */
 	      case sym_k_horizontal_integer_value:
 	      case sym_k_vertical_integer_value:
-	        res_type = sem_convert_to_float( op1_entry, &res_data );
+				res_type = (char)sem_convert_to_float( op1_entry, &res_data );
 	        value_entry->value.d_real = res_data.real_value;
 		value_entry->b_arg_type = op1_entry->b_arg_type;
 	        break;
@@ -3558,7 +3558,7 @@ sym_value_entry_type *sem_evaluate_value_expr (value_entry)
 	      case sym_k_float_value:
 	      case sym_k_horizontal_float_value:
 	      case sym_k_vertical_float_value:
-		res_type = sem_convert_to_single_float( op1_entry, &res_data );
+		res_type = (char)sem_convert_to_single_float( op1_entry, &res_data );
 		value_entry->value.single_float = res_data.single_float_value;
 		value_entry->b_arg_type = op1_entry->b_arg_type;
 		break;
@@ -3608,7 +3608,7 @@ sym_value_entry_type *sem_evaluate_value_expr (value_entry)
 	   ** are left intact, except that the forward reference flag
 	   ** is turned off
 	   */
-	  value_entry->obj_header.b_flags &= ~sym_m_forward_ref;
+	  value_entry->obj_header.b_flags &= ~(unsigned int)sym_m_forward_ref;
 	  value_entry->b_type = op1_entry->b_type;
 	  value_entry->w_length = op1_entry->w_length;
 	  value_entry->b_table_count = op1_entry->b_table_count;

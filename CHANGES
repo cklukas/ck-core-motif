@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Clarify UIL expression type widths (2026-10-29)
+================================================
+
+- Make expression type-code and forward-reference flag conversions explicit
+  at their compact legacy fields, removing signedness-dependent behavior.
+- Add focused coverage and documentation.
+
 Reject UIL numeric integer overflow (2026-10-29)
 =================================================
 
