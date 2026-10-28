@@ -10,6 +10,12 @@
 #include <limits.h>
 #include <string.h>
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
@@ -164,7 +170,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         if (value && label->icon_label.render_table) {
             x -= (int)value_width;
             XmStringDraw(display, window, label->icon_label.render_table, value,
-                         label->icon_label.foreground_gc, x, y, value_width,
+                         label->icon_label.foreground_gc,
+                         bounded_position((long long)x),
+                         bounded_position((long long)y), value_width,
                          XmALIGNMENT_BEGINNING, XmPrim_layout_direction(label), NULL);
         }
         if (have_icon)
@@ -184,7 +192,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         }
         if (value && label->icon_label.render_table)
             XmStringDraw(display, window, label->icon_label.render_table, value,
-                         label->icon_label.foreground_gc, x, y, value_width,
+                         label->icon_label.foreground_gc,
+                         bounded_position((long long)x),
+                         bounded_position((long long)y), value_width,
                          XmALIGNMENT_BEGINNING, XmPrim_layout_direction(label), NULL);
     }
 }
