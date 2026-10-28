@@ -1815,8 +1815,10 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 		height -= LINE_HEIGHT;
 	    XFillRectangle(XtDisplay(w), XtWindow(w), XmI18List_entry_background_fill_gc(ilist),
 	                   LayoutIsRtoLP(w)
-			   ? -tot_width + XtWidth(w) - XmI18List_left_loc(ilist) + HORIZONTAL_SPACE/2
-			   : XmI18List_left_loc(ilist) - HORIZONTAL_SPACE/2,
+			   ? bounded_position(-(long long)tot_width + XtWidth(w) -
+			       XmI18List_left_loc(ilist) + HORIZONTAL_SPACE/2)
+			   : bounded_position((long long)XmI18List_left_loc(ilist) -
+			       HORIZONTAL_SPACE/2),
 			   cur_y,
 #define MaX(a,b) (a>b?a:b)
 			   (unsigned int) MaX(w->core.width,tot_width), 
@@ -1828,8 +1830,10 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 	if (XmI18List_row_data(ilist)[i].selected) {
 	    XFillRectangle(XtDisplay(w), XtWindow(w), XmI18List_gc(ilist),
 	                   LayoutIsRtoLP(w)
-			   ? -tot_width + XtWidth(w) - XmI18List_left_loc(ilist) + HORIZONTAL_SPACE/2
-			   : XmI18List_left_loc(ilist) - HORIZONTAL_SPACE/2,
+			   ? bounded_position(-(long long)tot_width + XtWidth(w) -
+			       XmI18List_left_loc(ilist) + HORIZONTAL_SPACE/2)
+			   : bounded_position((long long)XmI18List_left_loc(ilist) -
+			       HORIZONTAL_SPACE/2),
 			   cur_y,
 			   (unsigned int) tot_width, 
 			   (unsigned int) row_height);

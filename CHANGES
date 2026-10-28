@@ -1,3 +1,10 @@
+Bound I18List display fill origins (2026-10-29)
+================================================
+
+- Use bounded RTL/LTR X origins for `DisplayList` background and selected-row
+  fills, preventing wide geometry from wrapping before drawing.
+- Add focused source-contract coverage.
+
 Use pixmap width for I18List RTL placement (2026-10-29)
 =========================================================
 
