@@ -668,7 +668,7 @@ open_source_file( XmConst char           *c_file_name,
 	    }
 
 	if (!specific_directory) {
-	    if ((size_t)main_dir_len + file_name_len >= sizeof(buffer))
+	    if ((size_t)main_dir_len > sizeof(buffer) - file_name_len - 1)
 		return src_k_open_error;
 	    memcpy(buffer, main_fcb -> expanded_name, main_dir_len);
 	    memcpy(&buffer[main_dir_len], c_file_name, file_name_len + 1);
@@ -697,7 +697,8 @@ open_source_file( XmConst char           *c_file_name,
 		search_user_include = False;
 		continue;
 		}
-	    if (inc_dir_len + file_name_len + 2 > sizeof(buffer))
+	    if (file_name_len > sizeof(buffer) - 2 ||
+		inc_dir_len > sizeof(buffer) - file_name_len - 2)
 		continue;
 	    memcpy(buffer, Uil_cmd_z_command.ac_include_dir[i], inc_dir_len);
 

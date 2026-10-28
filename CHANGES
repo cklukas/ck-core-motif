@@ -26550,3 +26550,9 @@ Refresh UIL source-width regression (2026-10-29)
 - Track the current bounded filename-length contract in the automated source
   metadata check, keeping the full UIL contract suite aligned with the already
   validated implementation.
+
+Bound UIL source-path composition (2026-10-29)
+===============================================
+
+- Check directory and filename lengths with subtraction-based limits before
+  composing fixed-buffer source paths, preventing additive size wraparound.
