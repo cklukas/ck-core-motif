@@ -118,6 +118,7 @@ XpmCreateDataFromXpmImage(
     unsigned int data_size, data_nlines;
     unsigned int extensions = 0, ext_size = 0, ext_nlines = 0;
     unsigned int offset, l, n;
+    int written;
 
     if (data_return == NULL || image == NULL)
 	return XpmFileInvalid;
@@ -153,25 +154,23 @@ XpmCreateDataFromXpmImage(
 
     /* print the hints line */
     s = buf;
-#ifndef VOID_SPRINTF
-    s +=
-#endif
-    sprintf(s, "%d %d %d %d", image->width, image->height,
-	    image->ncolors, image->cpp);
-#ifdef VOID_SPRINTF
-    s += strlen(s);
-#endif
+    written = snprintf(s, sizeof(buf) - (size_t)(s - buf),
+	"%u %u %u %u", image->width, image->height,
+	image->ncolors, image->cpp);
+    if (written < 0 || (size_t)written >= sizeof(buf) - (size_t)(s - buf))
+	RETURN(XpmNoMemory);
+    s += written;
 
     if (info && (info->valuemask & XpmHotspot)) {
-#ifndef VOID_SPRINTF
-	s +=
-#endif
-	sprintf(s, " %d %d", info->x_hotspot, info->y_hotspot);
-#ifdef VOID_SPRINTF
-	s += strlen(s);
-#endif
+	written = snprintf(s, sizeof(buf) - (size_t)(s - buf), " %d %d",
+		info->x_hotspot, info->y_hotspot);
+	if (written < 0 || (size_t)written >= sizeof(buf) - (size_t)(s - buf))
+	    RETURN(XpmNoMemory);
+	s += written;
     }
     if (extensions) {
+	if ((size_t)(s - buf) > sizeof(buf) - 8)
+	    RETURN(XpmNoMemory);
 	strcpy(s, " XPMEXT");
 	s += 7;
     }

@@ -24652,3 +24652,10 @@ Bound XPM buffer header formatting (2026-10-29)
 - Use bounded, type-correct formatting for the fixed header and dimensions
   line, rejecting unexpected truncation.
 - Add focused coverage and documentation.
+
+Bound XPM data header formatting (2026-10-29)
+==============================================
+
+- Use checked, type-correct formatting for serialized dimensions and
+  hotspots, and bound the extension literal.
+- Add focused coverage and documentation.
