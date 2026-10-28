@@ -200,6 +200,8 @@ _XmTextBytesToCharacters(char * characters,
   case 1: {
     (void) memcpy((void*)characters, (void*)bytes, (size_t)num_chars);
     count = num_chars;
+    if (add_null_terminator == True)
+      characters[count] = '\0';
     break;
   } /* end case 1 */
   case 2: {
