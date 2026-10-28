@@ -1878,6 +1878,8 @@ yystype	    *keyword_frame;
     */
 
     wchar_str_entry = (sym_value_entry_type *) sem_create_wchar_str();
+    if (wchar_str_entry == NULL)
+	return;
     wchar_str_entry->b_expr_opr = sym_k_wchar_str_op;
     if ((value_frame->b_flags & sym_m_forward_ref) != 0)
 	sym_make_value_forward_ref (value_frame,

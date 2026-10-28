@@ -26291,3 +26291,8 @@ Guard UIL wide-string constructor allocation (2026-10-29)
 - Check wide-string semantic-node creation before initializing the node.
 - Preserve the existing `NULL` failure contract for allocation-constrained
   compound-string construction.
+Propagate UIL wide-string constructor failures (2026-10-29)
+==============================================================
+
+- Stop wide-string semantic-action construction when its constructor cannot
+  allocate a node, before writing operation or source fields.
