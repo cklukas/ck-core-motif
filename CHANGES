@@ -1,3 +1,10 @@
+Make XPM whitespace parsing byte-safe (2026-10-29)
+====================================================
+
+- Classify EOF and high-bit input safely before calling `isspace` in XPM token
+  and extension parsing.
+- Add focused coverage and documentation.
+
 Handle XPM extension-line initial allocation failure (2026-10-29)
 ===================================================================
 

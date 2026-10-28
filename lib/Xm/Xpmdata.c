@@ -55,6 +55,12 @@ static char *RCS_Id = "Id: xpm.shar,v 3.71 1998/03/19 19:47:14 lehors Exp $";
 #endif
 
 static int
+XpmIsSpace(int c)
+{
+    return c != EOF && isspace((unsigned char)c);
+}
+
+static int
 ParseComment(xpmData *data)
 {
     if (data->type == XPMBUFFER) {
@@ -244,7 +250,7 @@ xpmNextWord(
 
     if (!data->type || data->type == XPMBUFFER) {
 	while ((c = (unsigned char)*data->cptr) != '\0' &&
-	       c != data->Eos && isspace(c))
+	       c != data->Eos && XpmIsSpace(c))
 	    data->cptr++;
 	if (*data->cptr == '\0' || *data->cptr == data->Eos)
 	    return 0;
@@ -255,10 +261,10 @@ xpmNextWord(
 	    data->cptr++;
 	    *buf++ = (char)(unsigned char)c;
 	    n++;
-	} while (!isspace(c) && c != data->Eos && n < buflen);
-	if (n == buflen && c != '\0' && c != data->Eos && !isspace(c)) {
+	} while (!XpmIsSpace(c) && c != data->Eos && n < buflen);
+	if (n == buflen && c != '\0' && c != data->Eos && !XpmIsSpace(c)) {
 	    while ((c = (unsigned char)*data->cptr) != '\0' &&
-		   c != data->Eos && !isspace(c))
+		   c != data->Eos && !XpmIsSpace(c))
 		data->cptr++;
 	    return 0;
 	}
@@ -269,15 +275,15 @@ xpmNextWord(
     } else {
 	FILE *file = data->stream.file;
 
-	while ((c = Getc(data, file)) != EOF && isspace(c) && c != data->Eos);
-	while (!isspace(c) && c != data->Eos && c != EOF && n < buflen) {
+	while ((c = Getc(data, file)) != EOF && XpmIsSpace(c) && c != data->Eos);
+	while (!XpmIsSpace(c) && c != data->Eos && c != EOF && n < buflen) {
 	    *buf++ = (char)(unsigned char)c;
 	    n++;
 	    c = Getc(data, file);
 	}
-	if (n == buflen && !isspace(c) && c != data->Eos && c != EOF) {
+	if (n == buflen && !XpmIsSpace(c) && c != data->Eos && c != EOF) {
 	    while ((c = Getc(data, file)) != data->Eos &&
-		   c != EOF && !isspace(c));
+		   c != EOF && !XpmIsSpace(c));
 	    return 0;
 	}
 	Ungetc(data, c, file);

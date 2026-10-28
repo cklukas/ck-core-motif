@@ -618,7 +618,7 @@ xpmParseExtensions(
 	ext += num;
 	/* skip whitespace and store its name */
 	s2 = s = string + 6;
-	while (isspace(*s2))
+	while (isspace((unsigned char)*s2))
 	    s2++;
 	a = s2 - s;
 	if (a > l || l - a < 6 || l - a - 6 >= UINT_MAX) {
