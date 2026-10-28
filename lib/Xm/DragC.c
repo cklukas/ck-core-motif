@@ -3272,7 +3272,8 @@ XmDragStart(
     Arg			*mergedArgs;
     XmDragStartCallbackStruct	cb;
 
-    if (w == NULL || event == NULL || (numArgs != 0 && args == NULL))
+    if (w == NULL || event == NULL || numArgs == UINT_MAX ||
+        (numArgs != 0 && args == NULL))
 	return NULL;
 
     dd = (XmDisplay) XmGetXmDisplay(XtDisplay(w));

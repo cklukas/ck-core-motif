@@ -85,6 +85,13 @@ Guard XmDragStart inputs (2026-10-29)
   display or merging arguments.
 - Preserve valid drag starts and add focused entry-point coverage.
 
+Guard XmDragStart argument-count overflow (2026-10-29)
+=======================================================
+
+- Reject `UINT_MAX` arguments before the internal `numArgs + 1` merge/count
+  arithmetic can wrap.
+- Preserve valid argument lists and extend the focused entry-point coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
