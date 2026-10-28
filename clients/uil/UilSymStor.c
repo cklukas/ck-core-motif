@@ -1866,11 +1866,11 @@ sym_dump_object_variant ( sym_def_obj_entry_type * az_symbol_entry )
 void
 sym_dump_root_entry ( sym_root_entry_type *az_symbol_entry )
 {
-    _debug_output (  "%x  root  tag: %d  module: %x  sections: %x\n  module tail: ",
-	(unsigned)az_symbol_entry,
+    _debug_output (  "%p  root  tag: %d  module: %p  sections: %p\n  module tail: ",
+	(void *)az_symbol_entry,
 	az_symbol_entry->header.b_tag,
-	(unsigned)az_symbol_entry->module_hdr,
-	(unsigned)az_symbol_entry->sections);
+	(void *)az_symbol_entry->module_hdr,
+	(void *)az_symbol_entry->sections);
 }
 
 

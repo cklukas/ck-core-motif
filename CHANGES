@@ -24480,3 +24480,11 @@ Preserve UIL object-variant dump pointer widths (2026-10-29)
 - Add focused coverage and documentation.
 
 Preserve UIL include-dump pointer width (2026-10-29)
+Preserve UIL root-dump pointer widths (2026-10-29)
+===================================================
+
+- Print root-entry, module, and section pointers with `%p` instead of
+  truncating them through 32-bit hexadecimal conversions.
+- Add focused coverage and documentation.
+
+Preserve UIL object-variant dump pointer widths (2026-10-29)
