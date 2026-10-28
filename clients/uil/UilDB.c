@@ -192,15 +192,21 @@ void db_incorporate()
 
     for (;;) 
 	{
-	return_num_items = fread (&header, sizeof(_db_header), 1, dbfile);
+	return_num_items = (int)fread (&header, sizeof(_db_header), 1, dbfile);
 	if (feof(dbfile)) break;
 	_check_read (return_num_items);
+	if (header.num_items < 0 || header.table_size < 0)
+	    {
+	    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+				    diag_k_no_column );
+	    break;
+	    }
 	switch (header.table_id)
 	    {
 	    case Constraint_Tab:
-		constraint_tab = (unsigned char *) XtMalloc (header.table_size);
-		return_num_items = fread (constraint_tab, 
-					     sizeof(unsigned char) * header.num_items,
+		constraint_tab = (unsigned char *) XtMalloc ((Cardinal)header.table_size);
+		return_num_items = (int)fread (constraint_tab,
+						     sizeof(unsigned char) * (size_t)header.num_items,
 					     1, dbfile);
 		_check_read (return_num_items);
 		break;

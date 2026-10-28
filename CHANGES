@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Reject invalid UIL database table headers (2026-10-29)
+=======================================================
+
+- Reject negative table counts and byte sizes before database table allocation
+  or reads, preventing signed underflow from becoming a large request.
+- Add focused coverage and documentation.
+
 Preserve UIL widget-dump pointer widths (2026-10-29)
 =====================================================
 
