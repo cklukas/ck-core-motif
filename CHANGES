@@ -25700,6 +25700,7 @@ Reject malformed drop-transfer payloads (2026-10-29)
 
 - Fail closed when a selection callback reports nonzero data length with no
   payload pointer, before dispatching to application transfer code.
+- Reject nonempty payloads with an invalid X11 format width.
 - Preserve zero-length completion and valid payload behavior with focused
   coverage.
 

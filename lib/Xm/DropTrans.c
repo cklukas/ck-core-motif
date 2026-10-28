@@ -640,7 +640,8 @@ DropTransferSelectionCB(
 	    FailTransferEntry(dt);
 	    return;
 	}
-	if (*length != 0 && value == NULL) {
+	if (*length != 0 &&
+	    (value == NULL || (*format != 8 && *format != 16 && *format != 32))) {
 	    FailTransferEntry(dt);
 	    return;
 	}
