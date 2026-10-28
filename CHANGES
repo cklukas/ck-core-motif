@@ -28146,3 +28146,10 @@ Source-contract refreshes (2026-10-29)
 - Align AutoSuggestBox callback and Calendar text-metric checks with their
   current guarded and wide-arithmetic implementations.
 - Document the maintenance-only test updates.
+
+Toast action-position bounds (2026-10-29)
+=========================================
+
+- Clamp the optional Toast action-button origin to the signed `Position` range
+  instead of directly narrowing a wide-layout calculation.
+- Add focused source-contract coverage and documentation.
