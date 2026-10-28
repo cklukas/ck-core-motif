@@ -640,6 +640,14 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
     (context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
   if ( result != MrmSUCCESS ) return result ;
 
+  /* Floating-point values are supplied by address.  Validate that address
+   * before changing the argument descriptor so a rejected value cannot leave
+   * behind a new representation type. */
+  if ((type == MrmRtypeFloat ||
+       type == MrmRtypeHorizontalFloat ||
+       type == MrmRtypeVerticalFloat) && arg_val == 0)
+    return MrmFAILURE;
+
   argptr->arg_val.rep_type = type ;
 
   /*
@@ -696,8 +704,6 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
     case MrmRtypeFloat:
     case MrmRtypeHorizontalFloat:
     case MrmRtypeVerticalFloat:
-      if (arg_val == 0)
-	return MrmFAILURE;
       result = UrmCWR__GuaranteeSpace
 	(context_id, sizeof(double), &offset, (char **) &dblptr) ;
       if ( result != MrmSUCCESS ) return result ;

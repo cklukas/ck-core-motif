@@ -27042,6 +27042,13 @@ Guard Mrm callback float inputs (2026-10-28)
 - Reject null floating-point callback values before dereferencing them.
 - Leave the callback record unchanged when the by-address value is invalid.
 
+Guard Mrm argument float inputs (2026-10-28)
+=============================================
+
+- Reject null floating-point argument values before changing the argument
+  representation type.
+- Preserve the existing serialized format for valid by-address values.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
