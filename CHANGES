@@ -24605,3 +24605,10 @@ Propagate XPM file-to-buffer close failures (2026-10-29)
 - Treat a failed `fclose()` as a failed file read instead of returning a
   buffer that may not represent durable stream input.
 - Add focused coverage and documentation.
+
+Reject overlong XPM parser tokens (2026-10-29)
+===============================================
+
+- Reject and consume tokens that exceed `xpmNextWord`'s destination buffer
+  instead of parsing a truncated prefix and leaving the remainder as input.
+- Add focused coverage and documentation.

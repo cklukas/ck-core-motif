@@ -239,6 +239,9 @@ xpmNextWord(
     register unsigned int n = 0;
     int c;
 
+    if (buf == NULL || buflen == 0)
+	return 0;
+
     if (!data->type || data->type == XPMBUFFER) {
 	while ((c = (unsigned char)*data->cptr) != '\0' &&
 	       c != data->Eos && isspace(c))
@@ -253,6 +256,12 @@ xpmNextWord(
 	    *buf++ = c;
 	    n++;
 	} while (!isspace(c) && c != data->Eos && n < buflen);
+	if (n == buflen && c != '\0' && c != data->Eos && !isspace(c)) {
+	    while ((c = (unsigned char)*data->cptr) != '\0' &&
+		   c != data->Eos && !isspace(c))
+		data->cptr++;
+	    return 0;
+	}
 	if (c != '\0') {
 	    n--;
 	    data->cptr--;
@@ -265,6 +274,11 @@ xpmNextWord(
 	    *buf++ = c;
 	    n++;
 	    c = Getc(data, file);
+	}
+	if (n == buflen && !isspace(c) && c != data->Eos && c != EOF) {
+	    while ((c = Getc(data, file)) != data->Eos &&
+		   c != EOF && !isspace(c));
+	    return 0;
 	}
 	Ungetc(data, c, file);
     }
