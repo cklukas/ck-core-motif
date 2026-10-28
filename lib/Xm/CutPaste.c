@@ -4174,6 +4174,7 @@ XmClipboardCopyByName(
     int format;
     char *formatdataptr;
     unsigned long formatlength, formatdatalength;
+    unsigned long item_length_increment;
     char *to_ptr;
     int status, locked;
     unsigned long headerlength;
@@ -4272,10 +4273,27 @@ XmClipboardCopyByName(
 		return ClipboardFail;
 	    }
 
+	item_length_increment = length /
+	    ((format == 32) ? CONVERT_32_FACTOR : 1);
+	if (formatheader->itemLength < 0 ||
+	    item_length_increment >
+		(unsigned long)LONG_MAX -
+		((formatheader->cutByNameFlag) ? 0UL :
+		 (unsigned long)formatheader->itemLength))
+	{
+	    XtFree( (char *)formatdataptr);
+	    XtFree( (char *)formatheader);
+	    XtFree( (char *)root_clipboard_header);
+	    if (locked)
+		ClipboardUnlock( display, window, 0 );
+	    _XmAppUnlock(app);
+	    return ClipboardFail;
+	}
+
 	if (formatheader->cutByNameFlag)
-	    formatheader->itemLength = length/((format==32)?CONVERT_32_FACTOR:1);
+	    formatheader->itemLength = (long)item_length_increment;
 	else
-	    formatheader->itemLength += length/((format==32)?CONVERT_32_FACTOR:1);
+	    formatheader->itemLength += (long)item_length_increment;
 
 	/* if cut by name, discard any old data */
     	formatheader->cutByNameFlag = 0;

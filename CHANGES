@@ -23816,6 +23816,14 @@ Bound clipboard copy allocation widths (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-copy-allocation-width.py
 
+Bound clipboard copy-by-name length accumulation (2026-10-28)
+===============================================================
+
+- Reject corrupt negative serialized lengths in `XmClipboardCopyByName`.
+- Check converted increments before adding them to the signed length field.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-copy-by-name-length.py
+
 Reject invalid clipboard length records (2026-10-28)
 =====================================================
 
