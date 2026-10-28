@@ -977,6 +977,7 @@ String get_root_dir_name()
 	struct passwd *pwd_value;
 	static char *ptr = NULL;
 	char *outptr;
+	size_t length;
 
 	if (ptr == NULL)
 	{
@@ -1002,7 +1003,12 @@ String get_root_dir_name()
 	    }
 	}
 
-	outptr = XtMalloc (strlen(ptr) + 2);
+	length = strlen(ptr);
+	if (length > (size_t)UINT_MAX - 2)
+	    return NULL;
+	outptr = XtMalloc ((Cardinal)(length + 2));
+	if (outptr == NULL)
+	    return NULL;
 	strcpy (outptr, ptr);
 	strcat (outptr, "/");
 	return outptr; 

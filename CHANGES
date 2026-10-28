@@ -26212,3 +26212,9 @@ Bound UIL color-table counts (2026-10-29)
 
 - Reject unrepresentable color-item counts before signed counter increments or
   color-table allocation multiplication.
+
+Bound UIL root-directory allocations (2026-10-29)
+==================================================
+
+- Check environment-derived root-directory sizes and handle Xt allocation
+  failure before appending the trailing separator.
