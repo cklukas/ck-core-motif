@@ -13,7 +13,8 @@ def main() -> None:
     function = SOURCE[start:end]
 
     assert "if (header->currItems == 0)" in function
-    assert "(size_t)-1 / sizeof(XmClipboardPendingRec)" in function
+    assert "header->currItems > (unsigned long)UINT_MAX" in function
+    assert "sizeof(XmClipboardPendingRec)" in function
     assert "if (header->currItems != 0 && itemlist == NULL)" in function
     assert "ClipboardClose( display, header );" in function
     assert "ClipboardUnlock( display, window, 0 );" in function
