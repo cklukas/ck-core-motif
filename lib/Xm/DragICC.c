@@ -191,7 +191,7 @@ unsigned char
 _XmReasonToMessageType(
         int reason )
 {
-    int	i;
+    unsigned int i;
     
     for (i = 0; i < XtNumber(reasonTable); i++)
       if (reasonTable[i].reason == reason)
@@ -215,7 +215,7 @@ _XmMessageTypeToReason(
 {
     if (messageType >= XtNumber(messageTable))
 	return _XmNUMBER_DND_CB_REASONS;
-    return(messageTable[messageType]);
+    return((unsigned int)messageTable[messageType]);
 }
 
 /************************************************************************

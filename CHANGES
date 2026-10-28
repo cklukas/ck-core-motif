@@ -23981,3 +23981,13 @@ Regression: tests/automated/check-text-selectscan-shadow.py
 
 Validate Text gap spans before conversion (2026-10-28)
 =======================================================
+Make Drag ICC reason-table widths explicit (2026-10-28)
+========================================================
+
+- Match reason-table indexes to the unsigned `XtNumber` width.
+- Convert validated reason results explicitly through the public return type.
+- Preserve the invalid-message sentinel and add focused coverage/documentation.
+Regression: tests/automated/check-dragicc-reason-table.py
+
+Remove Text SelectScan pointer shadow (2026-10-28)
+===================================================
