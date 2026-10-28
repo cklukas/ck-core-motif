@@ -1,3 +1,10 @@
+Clamp I18List background fill height (2026-10-29)
+===================================================
+
+- Guard visual-style spacing subtraction in `DisplayList` so small widgets
+  use a zero fill height instead of unsigned underflow.
+- Add focused source-contract coverage.
+
 Fix I18List text-centering underflow (2026-10-29)
 ===================================================
 

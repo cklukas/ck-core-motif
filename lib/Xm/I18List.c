@@ -1813,9 +1813,15 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
     {
 	Dimension height = ilist->core.height;
     	if(XmI18List_new_visual_style(ilist))
-		height -= ilist->primitive.shadow_thickness;
+		if (height > ilist->primitive.shadow_thickness)
+		    height -= ilist->primitive.shadow_thickness;
+		else
+		    height = 0;
 	    else
-		height -= LINE_HEIGHT;
+		if (height > LINE_HEIGHT)
+		    height -= LINE_HEIGHT;
+		else
+		    height = 0;
 	    XFillRectangle(XtDisplay(w), XtWindow(w), XmI18List_entry_background_fill_gc(ilist),
 	                   LayoutIsRtoLP(w)
 			   ? bounded_position(-(long long)tot_width + XtWidth(w) -
