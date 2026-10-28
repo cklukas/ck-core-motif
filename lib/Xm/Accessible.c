@@ -2053,7 +2053,8 @@ int XmAccessibilitySelectionCount(XmAccessibility *a, XmAccessibleId id) {
   if (!n) goto done;
   children_serial = n->children_serial; change_serial = n->change_serial;
   if (!selection_stable(a, n, id, children_serial, change_serial)) goto done;
-  if (n->widget && XmIsList(n->widget)) count = (int)n->list_selected_count;
+  if (n->widget && XmIsList(n->widget))
+    count = bounded_child_index(n->list_selected_count);
   else if (n->provider.selection_count) count = n->provider.selection_count(n->data);
   if (!selection_stable(a, n, id, children_serial, change_serial) ||
       count < 0 || (size_t)count > n->child_count) count = -1;
