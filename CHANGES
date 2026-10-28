@@ -27026,3 +27026,8 @@ Fix Mrm callback-writer terminator sizing (2026-10-28)
 - Allocate the terminating callback item written by both Mrm callback-builder
   APIs.
 - Validate the complete descriptor size before writing callback entries.
+Fix Mrm text-vector terminator sizing (2026-10-28)
+==================================================
+
+- Allocate the terminating entry written by Char8 and XmString vector writers.
+- Validate the complete vector size before appending the null pointer.

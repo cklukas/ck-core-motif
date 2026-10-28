@@ -912,6 +912,7 @@ UrmCWRSetArgChar8Vec (URMResourceContextPtr	context_id,
   MrmOffset		vecoffs ;	/* text vector offset */
   MrmOffset		offset ;	/* current string offset */
   MrmSize		vecsiz ;	/* # bytes for text vector */
+  size_t		item_count ;
   int			ndx ;		/* loop index */
 
 
@@ -928,11 +929,14 @@ UrmCWRSetArgChar8Vec (URMResourceContextPtr	context_id,
   /*
    * Validate vector - make sure it doesn't contain too many elements
    */
-  if ( num_stg < 0 || num_stg > RGMListSizeMax ||
+  if ( num_stg < 0 || num_stg > RGMListSizeMax || num_stg == INT_MAX ||
        (num_stg > 0 && stg_vec == NULL) ||
-       sizeof(RGMTextVector) > USHRT_MAX ||
-       (size_t)num_stg >
-	 (USHRT_MAX - sizeof(RGMTextVector)) / sizeof(RGMTextEntry) )
+       sizeof(RGMTextVector) > USHRT_MAX)
+    return Urm__UT_Error ("DwUrmCWRSetArgChar8Vec", _MrmMMsg_0095,
+			  NULL, context_id, MrmVEC_TOO_BIG) ;
+  item_count = (size_t)num_stg + 1;
+  if (item_count >
+	 (USHRT_MAX - sizeof(RGMTextVector)) / sizeof(RGMTextEntry))
     return Urm__UT_Error ("DwUrmCWRSetArgChar8Vec", _MrmMMsg_0095,
 			  NULL, context_id, MrmVEC_TOO_BIG) ;
 
@@ -943,7 +947,7 @@ UrmCWRSetArgChar8Vec (URMResourceContextPtr	context_id,
    * overwritten as an in-memory list at runtime with a terminating NULL.
    * One item is already allocated, so num_stg additional entries are needed.
    */
-  vecsiz = sizeof(RGMTextVector) + (num_stg)*sizeof(RGMTextEntry) ;
+  vecsiz = sizeof(RGMTextVector) + item_count*sizeof(RGMTextEntry) ;
   result = UrmCWR__GuaranteeSpace (context_id, vecsiz, &vecoffs, 
 				   (char **)&vecptr) ;
   if ( result != MrmSUCCESS ) return result ;
@@ -1034,6 +1038,7 @@ UrmCWRSetArgCStringVec (URMResourceContextPtr	context_id,
   MrmOffset		vecoffs ;	/* text vector offset */
   MrmOffset		offset ;	/* current compound string offset */
   MrmSize		vecsiz ;	/* # bytes for text vector */
+  size_t		item_count ;
   int			ndx ;		/* loop index */
 
 
@@ -1050,11 +1055,14 @@ UrmCWRSetArgCStringVec (URMResourceContextPtr	context_id,
   /*
    * Validate vector - make sure it doesn't contain too many elements
    */
-  if ( num_cstg < 0 || num_cstg > RGMListSizeMax ||
+  if ( num_cstg < 0 || num_cstg > RGMListSizeMax || num_cstg == INT_MAX ||
        (num_cstg > 0 && cstg_vec == NULL) ||
-       sizeof(RGMTextVector) > USHRT_MAX ||
-       (size_t)num_cstg >
-	 (USHRT_MAX - sizeof(RGMTextVector)) / sizeof(RGMTextEntry) )
+       sizeof(RGMTextVector) > USHRT_MAX)
+    return Urm__UT_Error ("DwUrmCWRSetArgCStringVec", _MrmMMsg_0095,
+			  NULL, context_id, MrmVEC_TOO_BIG) ;
+  item_count = (size_t)num_cstg + 1;
+  if (item_count >
+	 (USHRT_MAX - sizeof(RGMTextVector)) / sizeof(RGMTextEntry))
     return Urm__UT_Error ("DwUrmCWRSetArgCStringVec", _MrmMMsg_0095,
 			  NULL, context_id, MrmVEC_TOO_BIG) ;
 
@@ -1065,7 +1073,7 @@ UrmCWRSetArgCStringVec (URMResourceContextPtr	context_id,
    * overwritten as an in-memory list at runtime with a terminating NULL.
    * One item is already allocated, so num_cstg additional entries are needed.
    */
-  vecsiz = sizeof(RGMTextVector) + (num_cstg)*sizeof(RGMTextEntry) ;
+  vecsiz = sizeof(RGMTextVector) + item_count*sizeof(RGMTextEntry) ;
   result = UrmCWR__GuaranteeSpace (context_id, vecsiz, &vecoffs, 
 				   (char **)&vecptr) ;
   if ( result != MrmSUCCESS ) return result ;
