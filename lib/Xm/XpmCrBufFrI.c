@@ -233,13 +233,13 @@ XpmCreateBufferFromXpmImage(
 
     /* print pixels */
     if (cmts && info->pixels_cmt) {
-#ifndef VOID_SPRINTF
-	used_size +=
-#endif
-	snprintf(ptr + used_size, ptr_size-used_size, "/*%s*/\n", info->pixels_cmt);
-#ifdef VOID_SPRINTF
-	used_size += strlen(info->pixels_cmt) + 5;
-#endif
+	if (used_size >= ptr_size)
+	    RETURN(XpmNoMemory);
+	written = snprintf(ptr + used_size, ptr_size - used_size,
+			   "/*%s*/\n", info->pixels_cmt);
+	if (written < 0 || (size_t)written >= ptr_size - used_size)
+	    RETURN(XpmNoMemory);
+	used_size += (unsigned int)written;
     }
     if (!WritePixels(ptr + used_size, ptr_size - used_size, &used_size,
 		     image->width, image->height, image->cpp, image->data,

@@ -1,3 +1,10 @@
+Check XPM buffer pixel-comment formatting (2026-10-29)
+========================================================
+
+- Check pixel-comment `snprintf` errors and truncation before advancing the
+  serialized buffer cursor.
+- Add focused coverage and documentation.
+
 Validate XPM buffer color-token width (2026-10-29)
 ===================================================
 
