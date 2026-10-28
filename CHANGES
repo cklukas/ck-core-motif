@@ -1,3 +1,10 @@
+Reject overflowing scaled-image destination X coordinates (2026-10-29)
+=======================================================================
+
+- Reject scaled-image requests whose destination X origin plus width exceeds
+  the signed X11 coordinate range, matching the existing Y-origin guard.
+- Add focused coordinate-boundary coverage without changing ordinary drawing.
+
 Normalize cropped-image scaling X coordinates (2026-10-29)
 ============================================================
 

@@ -2665,6 +2665,8 @@ void _XmPutScaledImage (
      * addition within the signed X11 coordinate type before doing any work. */
     if (dest_y > INT_MAX - (int)dest_height)
 	return;
+    if ((long long)dest_x + (long long)dest_width > INT_MAX)
+	return;
 
     if (dest_width == src_width && dest_height == src_height) {
 	/* same for x and y, just send it out */
