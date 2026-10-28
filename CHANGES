@@ -27659,3 +27659,9 @@ Bound Stepper label coordinates (2026-10-29)
 - Keep the split geometry in signed `int` arithmetic and clamp value and
   increment/decrement symbol positions before Motif drawing calls.
 - Add focused source-contract coverage for oversized stepper geometry.
+Bound TabBox canvas label coordinates (2026-10-29)
+====================================================
+
+- Clamp visible tab-label coordinates, including the insensitive shadow pass,
+  before Motif drawing calls.
+- Add focused source-contract coverage for oversized tab layouts.

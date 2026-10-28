@@ -51,6 +51,13 @@
 #include <Xm/DrawUtils.h>
 #include <Xm/XmP.h>
 
+static Position bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 #define FIX_1503
 
 #ifdef USE_XFT
@@ -5872,9 +5879,10 @@ DrawLeftToRightTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	  /*Draw shadow for insensitive text*/
 	  SetRightGC(tab, gc, shadow);
 	  XmStringDraw(XtDisplay(tab), XiCanvas(tab), font_list,
-	  	info->label_string, gc, draw.x+1, (Position)y+1, draw.width,
-	  	info->label_alignment, info->string_direction,
-	  	NULL);
+		info->label_string, gc, bounded_position((long long)draw.x + 1),
+		bounded_position((long long)y + 1), draw.width,
+		info->label_alignment, info->string_direction,
+		NULL);
 	  SetRightGC(tab, gc, insensitive);
 #endif
 	}
@@ -5887,7 +5895,8 @@ DrawLeftToRightTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 #endif
 	}
 	XmStringDraw(XtDisplay(tab), XiCanvas(tab), font_list,
-		     info->label_string, gc, draw.x, (Position)y, draw.width,
+		     info->label_string, gc, bounded_position((long long)draw.x),
+		     bounded_position((long long)y), draw.width,
 		     info->label_alignment, info->string_direction,
 		     NULL);
     }
