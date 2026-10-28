@@ -1159,11 +1159,11 @@ void
 sym_dump_parent_list_item ( XmConst sym_parent_list_type *az_parent_list_item )
 {
     _debug_output
-	( "%x parent_list  size: %d  parent: %x  next: %x \n",
-	  (unsigned)az_parent_list_item,
+	( "%p parent_list  size: %d  parent: %p  next: %p \n",
+	  (void *)az_parent_list_item,
       az_parent_list_item->header.w_node_size,
-      (unsigned)az_parent_list_item->parent,
-      (unsigned)az_parent_list_item->next);
+	      (void *)az_parent_list_item->parent,
+	      (void *)az_parent_list_item->next);
 }
 
 
