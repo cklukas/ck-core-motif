@@ -1576,7 +1576,7 @@ _XmGetScaledPixmap(
     /*  Error checking  */    
     if (image_name == NULL || acc_color == NULL)
 	return (XmUNSPECIFIED_PIXMAP);
-    if (depth == INT_MIN)
+    if (depth == 0 || depth == INT_MIN)
 	return (XmUNSPECIFIED_PIXMAP);
     if (!isfinite(scaling_ratio) || scaling_ratio < 0.0)
 	return (XmUNSPECIFIED_PIXMAP);

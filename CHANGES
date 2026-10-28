@@ -26470,3 +26470,9 @@ Bound TextField replacement length (2026-10-29)
 
 - Reject replacement results that cannot be represented by the widget's
   signed character-length field before updating it.
+
+Reject invalid scaled-pixmap depth (2026-10-29)
+===============================================
+
+- Return `XmUNSPECIFIED_PIXMAP` for depth zero before attempting image or
+  X11 resource creation.
