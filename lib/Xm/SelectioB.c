@@ -852,7 +852,7 @@ _XmSelectionBoxCreateList(
         if(    sel->selection_box.text_string
             && XmListGetMatchPos( SB_List( sel), 
                     sel->selection_box.text_string, &position, &pos_count)    )
-        {   if(    pos_count    )
+        {   if(    pos_count && position != NULL    )
             {   
                 sel->selection_box.list_selected_item_position = position[0] ;
                 XmListSelectPos( SB_List( sel), position[0], FALSE) ;

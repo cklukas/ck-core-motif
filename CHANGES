@@ -28323,6 +28323,13 @@ SelectionBox restore selected items (2026-10-28)
   into its text field, avoiding a null dereference on failed queries. See
   `docs/selectionbox-restore-items.md`.
 
+SelectionBox list match positions (2026-10-28)
+===============================================
+
+- Validate the match-position array before SelectionBox creation selects its
+  initial List item, avoiding a null dereference on failed queries. See
+  `docs/selectionbox-list-match.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
