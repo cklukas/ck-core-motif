@@ -26134,3 +26134,9 @@ Bound accessibility metadata conversions (2026-10-29)
 
 - Saturate DataGrid dimensions and text positions when converting wider Motif
   values to the signed `int` fields exposed by accessibility snapshots.
+
+Bound accessibility D-Bus action counts (2026-10-29)
+=====================================================
+
+- Saturate unsigned action counts before publishing the signed AT-SPI
+  `NActions` property, preventing large counts from wrapping negative.

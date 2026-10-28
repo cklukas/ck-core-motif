@@ -93,6 +93,9 @@ static void string_value(DBusMessageIter *i, const char *s) {
 static int child_count(XmAccessibility *a, XmAccessibleId id) {
   return (int)_XmAccessibilityChildCount(a, id);
 }
+static dbus_int32_t bounded_action_count(unsigned int count) {
+  return count > (unsigned int)INT32_MAX ? INT32_MAX : (dbus_int32_t)count;
+}
 static XmAccessibleId child_at(XmAccessibility *a, XmAccessibleId id, int index) {
   return index < 0 ? 0 : _XmAccessibilityChildAt(a, id, (size_t)index);
 }
@@ -401,7 +404,7 @@ static void property_value(DBusMessageIter *out, Transport *t,
   else if (!strcmp(name, "Id"))
     number = t->application_id;
   else if (!strcmp(name, "NActions"))
-    number = (dbus_int32_t)info->action_count;
+    number = bounded_action_count(info->action_count);
   else if (!strcmp(name, "CharacterCount"))
     number = info->text_length;
   else if (!strcmp(name, "CaretOffset"))
