@@ -12091,8 +12091,13 @@ XmDataFieldSetStringWcs(
    result = wcstombs(tmp, wc_value,
 			(size_t)(num_chars + 1) * XmTextF_max_char_size(tf));
 
-   if (result == (size_t) -1) /* if wcstombs fails, it returns (size_t) -1 */
+   if (result == (size_t)-1 ||
+       result >= (size_t)(num_chars + 1) *
+                    (size_t)XmTextF_max_char_size(tf)) {
        tmp[0] = '\0';          /* keep the owned empty string for XtFree */
+   } else {
+       tmp[result] = '\0';
+   }
 
    XmDataFieldSetString(w, tmp);
    
@@ -12752,9 +12757,11 @@ XmDataFieldGetSelection(
 	}
 	length = wcstombs(value, XmTextF_wc_value(tf) + XmTextF_prim_pos_left(tf),
 			  capacity);
-	if (length == (size_t) -1) 
+	if (length == (size_t)-1 || length >= capacity)
 	{
-	    length = 0;
+	    XtFree(value);
+	    _XmAppUnlock(app);
+	    return NULL;
 	} 
 	else 
 	{

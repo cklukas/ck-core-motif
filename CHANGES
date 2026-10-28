@@ -25948,3 +25948,9 @@ Validate DataField modify-verify snapshots (2026-10-29)
 
 - Reject failed or unterminated wide-to-narrow callback snapshots and make
   their cleanup safe when allocation or conversion fails.
+
+Bound DataField public conversion results (2026-10-29)
+=======================================================
+
+- Reject capacity-filling `wcstombs` output before string publication or
+  selection-buffer indexing.
