@@ -8,6 +8,8 @@ end = source.index("\n\n\nvoid \nXmResolveAllPartOffsets", start)
 region = source[start:end]
 
 assert "if (w_class == NULL || offset == NULL)" in region
+assert "if (super == NULL)" in region
+assert "_XmProcessUnlock();\n       return;" in region
 assert "classcount <= 0" in region
 assert "classcount > UINT_MAX / sizeof(XmOffset)" not in region
 assert "(size_t)classcount > (size_t)UINT_MAX / sizeof(XmOffset)" in region

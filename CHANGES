@@ -1,3 +1,11 @@
+Reject root classes in part-offset resolution (2026-10-29)
+============================================================
+
+- Return safely when a public part-offset resolution request has no
+  superclass, before reading superclass size or class-trait fields.
+- Preserve valid widget-class resolution and add focused malformed-input
+  coverage.
+
 Reject null converter displays (2026-10-29)
 ===========================================
 

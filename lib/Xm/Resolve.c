@@ -136,6 +136,11 @@ XmeResolvePartOffsets(
 
    _XmProcessLock();
    super = w_class->core_class.superclass;
+   if (super == NULL)
+   {
+       _XmProcessUnlock();
+       return;
+   }
    /*
     *  Set up constraint class pointers
     */
