@@ -141,6 +141,14 @@ Complete destination transfer allocation failures (2026-10-29)
   fails, releasing the transfer context through the normal teardown path.
 - Add focused allocation-failure regression documentation and coverage.
 
+Finish failed drop-transfer creation (2026-10-29)
+=================================================
+
+- Mark `XmDropTransferStart` allocation failure as a failed transfer after
+  removing its unpublished request block.
+- Finalize immediately only when the destination callback has already exited;
+  otherwise leave teardown to the active caller.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

@@ -1999,8 +1999,13 @@ XmTransferValue(XtPointer transfer_id,
 	  tc -> drop_context = 
 	    (Widget) XmDropTransferStart(tc -> drag_context, args, 3);
 	  if (tc -> drop_context == NULL) {
+	    Boolean finish_after_unlock = (tc -> flags & TC_EXITED_DH) != 0;
+
 	    RemoveTransferBlock(tc, tb);
+	    tc -> status = XmTRANSFER_DONE_FAIL;
 	    _XmAppUnlock(app);
+	    if (finish_after_unlock)
+	      FinishTransfer(tc -> widget, tc);
 	    return;
 	  }
 	}

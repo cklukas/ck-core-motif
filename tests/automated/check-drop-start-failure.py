@@ -10,5 +10,8 @@ body = source[start:end]
 assert "static void\nRemoveTransferBlock" in source
 failure = body.index("if (tc -> drop_context == NULL)")
 assert "RemoveTransferBlock(tc, tb);" in body[failure:]
+assert "tc -> status = XmTRANSFER_DONE_FAIL;" in body[failure:]
+assert "finish_after_unlock" in body[failure:]
+assert "FinishTransfer(tc -> widget, tc);" in body[failure:]
 assert body.index("tc -> outstanding++;", failure) > body.index("return;", failure)
 print("Failed drop-transfer creation is rolled back")
