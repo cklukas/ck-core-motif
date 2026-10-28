@@ -1,3 +1,10 @@
+Bound I18List row-to-position arithmetic (2026-10-29)
+======================================================
+
+- Compute row Y positions in wide arithmetic and clamp the legacy short
+  output of `CvtRowColumnToPosition`.
+- Add focused source-contract coverage.
+
 Use wide I18List position-to-row arithmetic (2026-10-29)
 ==========================================================
 

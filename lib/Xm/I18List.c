@@ -2723,6 +2723,7 @@ CvtPositionToRowColumn(Widget w, short x, short y, short * row, short * column)
 {
     XmI18ListWidget ilist = (XmI18ListWidget) w;
     int title_extra;
+    long long pixel_y;
     long long pixel_y = y;
 
     if(XmI18List_new_visual_style(ilist))
@@ -2774,9 +2775,11 @@ CvtRowColumnToPosition(Widget w, short row, short column, short * x, short * y)
     if (row == IN_COLUMN_HEADER) 
 	*y = VERTICAL_SPACE/2;
     else {
-	*y = (XmI18List_sep_y(ilist) + title_extra + 
-	      (row - XmI18List_first_row(ilist)) * 
-	      (XmI18List_row_height(ilist) + VERTICAL_SPACE) + VERTICAL_SPACE/2);
+	pixel_y = (long long)XmI18List_sep_y(ilist) + title_extra +
+	    ((long long)row - (long long)XmI18List_first_row(ilist)) *
+	    ((long long)XmI18List_row_height(ilist) + VERTICAL_SPACE) +
+	    VERTICAL_SPACE/2;
+	*y = bounded_short(pixel_y);
     }
 
     *x = CvtColNumToPixelVal((Widget) ilist, column);
