@@ -190,6 +190,8 @@ XpmCreateDataFromXpmImage(
 	RETURN(ErrorStatus);
 
     /* now we know the size needed, alloc the data and copy the header lines */
+    if (image->cpp == 0 || image->width > (UINT_MAX - 1) / image->cpp)
+	RETURN(XpmNoMemory);
     offset = image->width * image->cpp + 1;
 
     if(offset <= image->width || offset <= image->cpp)
