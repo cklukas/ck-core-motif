@@ -966,11 +966,16 @@ static void
 ClassPartInitialize(WidgetClass wc)
 {
   char *xlats;
+  size_t first_length = strlen(ListXlations1);
+  size_t second_length = strlen(ListXlations2);
+  size_t xlat_size;
 
   _XmFastSubclassInit (wc, XmLIST_BIT);
 
-  xlats = (char *)
-    ALLOCATE_LOCAL(strlen(ListXlations1) + strlen(ListXlations2) + 1);
+  if (first_length > SIZE_MAX - second_length - 1)
+    return;
+  xlat_size = first_length + second_length + 1;
+  xlats = (char *) ALLOCATE_LOCAL(xlat_size);
   if (xlats == NULL)
     return;
   strcpy(xlats, ListXlations1);

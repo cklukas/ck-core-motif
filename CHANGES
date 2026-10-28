@@ -27999,3 +27999,10 @@ List and ComboBox callback length bounds (2026-10-29)
 - Clamp unsigned compound-string lengths before storing them in the public
   signed `XmListCallbackStruct.item_length` ABI and List's internal cache.
 - Add focused source-contract coverage and documentation.
+
+List translation allocation size (2026-10-29)
+==============================================
+
+- Check the combined List translation-table size before local allocation,
+  preventing arithmetic wrap if either source grows substantially.
+- Add focused source-contract coverage and documentation.
