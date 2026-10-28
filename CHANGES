@@ -23301,6 +23301,15 @@ Reject incomplete virtual-key binding properties (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-virtkeys-property-complete.py
 
+Discard partial virtual-key file loads (2026-10-28)
+======================================================
+
+- Clear and release partially assembled binding strings when file loading or
+  final trimming fails.
+- Preserve alias and built-in fallback selection after allocation failures.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-virtkeys-file-failure-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

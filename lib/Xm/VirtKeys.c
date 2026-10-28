@@ -975,6 +975,8 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
 
       if (!complete) {
         fclose(fileP);
+        XtFree(*binding);
+        *binding = NULL;
         return False;
       }
      
@@ -983,6 +985,8 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
 	String trimmed = XtRealloc(*binding, count + 1);
 	if (trimmed == NULL) {
 	  fclose(fileP);
+	  XtFree(*binding);
+	  *binding = NULL;
 	  return False;
 	}
 	*binding = trimmed;
