@@ -78,14 +78,16 @@ static Boolean descendant(Widget child, Widget ancestor)
 static void natural(XmSidebarWidget sidebar, Dimension *width, Dimension *height)
 {
     Dimension toggle_width, toggle_height, content_width, content_height;
+    unsigned long total_height;
     preferred(sidebar->sidebar.toggle_button, &toggle_width, &toggle_height);
     preferred(sidebar->sidebar.content, &content_width, &content_height);
     (void)toggle_width;
     *width = sidebar->sidebar.expanded ? sidebar->sidebar.expanded_width
                                        : sidebar->sidebar.collapsed_width;
-    *height = toggle_height + (sidebar->sidebar.expanded ? content_height : 0);
-    if (*height == 0)
-        *height = 1;
+    total_height = (unsigned long)toggle_height +
+                   (sidebar->sidebar.expanded ? (unsigned long)content_height : 0UL);
+    *height = (Dimension)(total_height > USHRT_MAX ? USHRT_MAX :
+                          (total_height ? total_height : 1UL));
 }
 
 static void layout(XmSidebarWidget sidebar)
