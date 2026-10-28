@@ -61,6 +61,7 @@ static char rcsid[] = "$XConsortium: UilDiags.c /main/15 1996/10/21 11:06:46 cde
 #include <Xm/Xm.h>
 
 #include <stdarg.h>
+#include <limits.h>
 
 #include "UilDefI.h"
 #include "UilMessTab.h"
@@ -322,7 +323,7 @@ void	diag_issue_diagnostic
 	    */
 
 	    lex_filter_unprintable_chars
-		    ( (unsigned char *)src_buffer, strlen( src_buffer ), 0 );
+		    ( (unsigned char *)src_buffer, (int)strlen( src_buffer ), 0 );
 
 	    /*
 	    **	create the column pointer if a source position was given
@@ -1197,7 +1198,9 @@ void	diag_report_status ( )
     */
     if (Uil_diag_status_delay_count <= 0)
     {
-	Uil_diag_status_delay_count = Uil_cmd_z_command.status_update_delay;
+	Uil_diag_status_delay_count =
+	    (Uil_cmd_z_command.status_update_delay > (unsigned int)INT_MAX)
+		? INT_MAX : (int)Uil_cmd_z_command.status_update_delay;
 /*
  * Fix for CR 5534 - restore the application signal handlers before calling
  *                   status_cb and then return the Uil signal handlers 

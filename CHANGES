@@ -13,6 +13,13 @@ Bound UIL string concatenation lengths (2026-10-28)
   16-bit symbol-entry field before allocation and copying.
 - Add focused coverage and documentation.
 
+Make UIL diagnostic widths explicit (2026-10-28)
+================================================
+
+- Bound diagnostic source-length and status-delay conversions at their API
+  widths, and compare source-position EOF sentinels without signedness drift.
+- Add focused coverage and documentation.
+
   Compound-string component and direction enum values now narrow explicitly
   at the Motif API boundary after validation.
 - Check compound-string lengths before storing the 16-bit symbol-entry length,
