@@ -853,31 +853,52 @@ RenameCommand (
   /*
    * check data to make sure somethings there.
    */
-  if ((data == NULL) || (len == 0))
+  if ((data == NULL) || (len < (unsigned long)(sizeof(CARD32) +
+					  sizeof(CARD16) + sizeof(CARD32))))
     {
       PRINT("Bad data passed to RenameCommand.\n");
       return;
     }
 
   commandID = UnpackCARD32(&data);
-  newname   = UnpackString(&data);
-  count     = UnpackCARD32(&data);
+  {
+    unsigned long remaining = len - (unsigned long)sizeof(CARD32);
+    newname = UnpackCommandString(&data, &remaining);
+    if (newname == NULL || remaining < sizeof(CARD32))
+      {
+	if (newname != NULL)
+	    XtFree(newname);
+	PRINT("Truncated string data passed to RenameCommand.\n");
+	return;
+      }
+    count = UnpackCARD32(&data);
+    remaining -= sizeof(CARD32);
+    if ((unsigned long)count > remaining / sizeof(CARD32))
+      {
+	XtFree(newname);
+	PRINT("Truncated window list passed to RenameCommand.\n");
+	return;
+      }
+  }
 
   if (count == 0)
     {
       PRINT("No windows supplied for RenameCommand.\n");
+	  XtFree(newname);
       return;
     }
   if ((size_t) count > SIZE_MAX / sizeof(Window) ||
       (size_t) count > UINT_MAX / sizeof(Window))
     {
       PRINT("Window list is too large for RenameCommand.\n");
+	  XtFree(newname);
       return;
     }
   windowIDs = (Window *) XtMalloc((Cardinal)(sizeof(Window) * (size_t) count));
   if (windowIDs == NULL)
     {
       PRINT("Unable to allocate window list for RenameCommand.\n");
+	  XtFree(newname);
       return;
     }
   for (win=0; win<count; win++)
@@ -967,6 +988,7 @@ RenameCommand (
 
   if (count > 0)
     XtFree((char*)windowIDs);
+  XtFree(newname);
 }
 
 

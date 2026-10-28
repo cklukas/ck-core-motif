@@ -26940,6 +26940,13 @@ Bound MWM DefineCommand strings (2026-10-28)
 - Release temporary decoded strings after command-tree insertion and reject
   truncated requests before mutation.
 
+Bound MWM RenameCommand strings and lists (2026-10-28)
+=======================================================
+
+- Validate the variable-length RenameCommand name and remaining window-list
+  payload before processing the request.
+- Release the temporary decoded name on every success and failure path.
+
 Validate MWM RemoveCommand message lengths (2026-10-28)
 ========================================================
 
