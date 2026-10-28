@@ -28213,6 +28213,12 @@ XmString rendition-end tag bounds (2026-10-28)
   or reverse-loop underflow when removing rendition ends. See
   `docs/xmstring-rendition-end-bounds.md`.
 
+Calendar month bounds (2026-10-28)
+==================================
+
+- Validate month values before indexing Calendar’s fixed month-length and
+  month-name tables. See `docs/calendar-month-bounds.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

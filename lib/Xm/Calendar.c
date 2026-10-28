@@ -81,6 +81,8 @@ static Boolean is_leap(int year) {
 static int days_in_month(int year, int month) {
     static const int days[] = {31, 28, 31, 30, 31, 30,
                                31, 31, 30, 31, 30, 31};
+    if (month < 1 || month > 12)
+        return 0;
     if (month == 2 && is_leap(year))
         return 29;
     return days[month - 1];
@@ -272,7 +274,7 @@ static const char *month_name(int month) {
                                   "May", "June", "July", "August",
                                   "September", "October", "November",
                                   "December"};
-    return names[month - 1];
+    return month >= 1 && month <= 12 ? names[month - 1] : "";
 }
 
 static Position bounded_position(long long value) {
