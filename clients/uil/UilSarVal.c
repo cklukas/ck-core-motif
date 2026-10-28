@@ -3868,22 +3868,39 @@ yystype	    *keyword_frame;
     {
 	icon_entry = (sym_value_entry_type *)
 	    sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
-	icon_entry->value.z_icon = (sym_icon_element *)
-	    XtCalloc(1,sizeof(sym_icon_element));
-	icon_entry->b_type = sym_k_icon_value;
-	icon_entry->value.z_icon->w_height = (unsigned short)height;
-	icon_entry->value.z_icon->w_width = (unsigned short)width;
-	icon_entry->value.z_icon->az_color_table = table_entry;
-	icon_entry->value.z_icon->az_rows = head_row_entry;
-	icon_entry->obj_header.b_flags = sym_m_private;
+	if (icon_entry == NULL)
+	{
+	    target_type = sym_k_error_value;
+	    icon_entry = sym_az_error_value_entry;
+	}
+	else
+	{
+	    icon_entry->value.z_icon = (sym_icon_element *)
+		XtCalloc(1,sizeof(sym_icon_element));
+	    if (icon_entry->value.z_icon == NULL)
+	    {
+		sem_free_node ((sym_entry_type *)icon_entry);
+		target_type = sym_k_error_value;
+		icon_entry = sym_az_error_value_entry;
+	    }
+	    else
+	    {
+		icon_entry->b_type = sym_k_icon_value;
+		icon_entry->value.z_icon->w_height = (unsigned short)height;
+		icon_entry->value.z_icon->w_width = (unsigned short)width;
+		icon_entry->value.z_icon->az_color_table = table_entry;
+		icon_entry->value.z_icon->az_rows = head_row_entry;
+		icon_entry->obj_header.b_flags = sym_m_private;
 
-	_sar_save_source_pos (&icon_entry->header, list_frame );
+		_sar_save_source_pos (&icon_entry->header, list_frame );
 
-	if ((table_frame->b_flags & sym_m_forward_ref) != 0)
-	    sym_make_value_forward_ref
-		(table_frame,
-		 (char*)&icon_entry->value.z_icon->az_color_table,
-		 sym_k_patch_add);
+		if ((table_frame->b_flags & sym_m_forward_ref) != 0)
+		    sym_make_value_forward_ref
+			(table_frame,
+			 (char*)&icon_entry->value.z_icon->az_color_table,
+			 sym_k_patch_add);
+	    }
+	}
     }
 
     /*

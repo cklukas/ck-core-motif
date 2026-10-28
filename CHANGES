@@ -26331,3 +26331,10 @@ Guard UIL standard color-table singleton (2026-10-29)
 - Check lazy standard color-table node and element-array allocation.
 - Release a partially initialized singleton and return the semantic error
   entry when allocation is unavailable.
+
+Guard UIL icon construction allocations (2026-10-29)
+======================================================
+
+- Check icon semantic-node and payload allocations before initialization.
+- Release a partial icon and select the existing semantic error entry when
+  allocation fails.
