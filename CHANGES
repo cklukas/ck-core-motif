@@ -26250,3 +26250,9 @@ Guard UIL symbol-node allocation failure (2026-10-29)
 - Check the central semantic-node allocation before initializing its header
   or appending it to the allocated-node list.
 - Report allocation failure through Xt instead of dereferencing a null node.
+Guard UIL lexer buffer allocations (2026-10-29)
+================================================
+
+- Check the initial comment and lexical buffers before dereferencing them.
+- Reject later lexical-buffer allocation failure through Xt instead of
+  linking or initializing a null buffer.

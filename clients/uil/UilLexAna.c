@@ -1997,6 +1997,11 @@ String language;
 comment_text = (char *) _get_memory(INITIAL_COMMENT_SIZE);
 comment_size = INITIAL_COMMENT_SIZE;
 
+if (comment_text == NULL) {
+    XtError ("unable to allocate UIL comment buffer");
+    return;
+}
+
 comment_text[0] = '\0';
 
 /* BEGIN OSF Fix CR 4749 */
@@ -2008,6 +2013,12 @@ az_first_lex_buffer =
     (lex_buffer_type *) _get_memory (l_max_lex_buffer_pos + 2 +
 				     sizeof(lex_buffer_type *));
 /* END OSF Fix CR 4749 */
+if (az_first_lex_buffer == NULL) {
+    XtError ("unable to allocate initial UIL lexical buffer");
+    XtFree (comment_text);
+    comment_text = NULL;
+    return;
+}
 az_first_lex_buffer->az_next_buffer = NULL;
 
 /*   Initialize the stack frame entry for epsilon productions.   */
@@ -2280,6 +2291,10 @@ lex_buffer_type *az_current_lex_buffer;
 	    (lex_buffer_type *)_get_memory( l_max_lex_buffer_pos + 2 +
 					   sizeof(lex_buffer_type *));
 /* END OSF Fix CR 4749 */
+	if (az_lex_buffer == NULL) {
+	    XtError ("unable to allocate UIL lexical buffer");
+	    return NULL;
+	}
 	az_current_lex_buffer->az_next_buffer = az_lex_buffer;
 	az_lex_buffer->az_next_buffer = NULL;
     }
