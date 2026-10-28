@@ -673,8 +673,9 @@ src_source_record_type	*az_src_rec;
 	    _free_memory ((char*)mc_array);
 	}
 	mc_array = 
-	    (src_machine_code_type * *)_get_memory (sizeof (char *) * code_cnt);
-	mc_cnt = code_cnt;
+	    (src_machine_code_type * *)_get_memory(
+		(Cardinal)(sizeof (char *) * (size_t)code_cnt));
+	mc_cnt = (unsigned short)code_cnt;
     }
 
     for (az_code = az_src_rec->az_machine_code_list, mc_i = 0;
@@ -699,6 +700,7 @@ src_source_record_type	*az_src_rec;
 
 	unsigned short 	long_cnt, extra_byte_cnt, text_len, code_len,
 			line_cnt, extra_long_cnt, i, j, code_offset;
+	size_t		text_size;
 	unsigned char	buffer[ BUF_LEN + 1 ], * text_ptr,
 			hex_longword [HEX_PER_LONG + 1], line_written;
 	unsigned long	* code_ptr;
@@ -720,9 +722,10 @@ src_source_record_type	*az_src_rec;
 	code_len = az_code -> w_code_len;
 	code_offset = az_code -> w_offset;
 	text_ptr = (unsigned char *)(& az_code -> data.c_data [code_len]);
-	text_len = strlen ((char *)text_ptr);
-	if (text_len > (unsigned short) (BUF_LEN - TEXT_COL + 1))
-	    text_len = BUF_LEN - TEXT_COL + 1;
+	text_size = strlen ((char *)text_ptr);
+	if (text_size > (size_t)(BUF_LEN - TEXT_COL + 1))
+	    text_size = (size_t)(BUF_LEN - TEXT_COL + 1);
+	text_len = (unsigned short)text_size;
 
 	long_cnt = code_len / sizeof (char *);
 	line_cnt = long_cnt / LONG_PER_LINE;

@@ -27,6 +27,13 @@ Bound UIL debug allocation width (2026-10-29)
   allocation size before narrowing the formatter result.
 - Extend focused coverage and documentation.
 
+Bound UIL machine-code listing text (2026-10-29)
+================================================
+
+- Clamp machine-code listing text by its fixed output buffer before narrowing
+  the measured length to the 16-bit record field.
+- Make machine-code vector sizing explicit and add focused coverage/docs.
+
 Validate UIL keyword length configuration (2026-10-28)
 =======================================================
 
