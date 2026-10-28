@@ -230,7 +230,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                  Convex, CoordModeOrigin);
     XFillPolygon(display, window, number->number_box.arrow_gc, down, 3,
                  Convex, CoordModeOrigin);
-    if (number->primitive.highlighted && number->primitive.highlight_thickness)
+    if (number->primitive.highlighted && number->primitive.highlight_thickness &&
+        number->core.width > 2 * number->primitive.highlight_thickness &&
+        number->core.height > 2 * number->primitive.highlight_thickness)
         XDrawRectangle(display, window, number->number_box.arrow_gc,
                        number->primitive.highlight_thickness - 1,
                        number->primitive.highlight_thickness - 1,

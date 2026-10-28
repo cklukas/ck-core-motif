@@ -27424,6 +27424,12 @@ Guard Chip highlight geometry (2026-10-29)
 - Skip the highlight frame when a Chip is too small for twice its highlight
   thickness, preventing unsigned width/height underflow in Xlib drawing.
 
+Guard NumberBox highlight geometry (2026-10-29)
+===============================================
+
+- Skip NumberBox focus frames that cannot fit inside the widget, preventing
+  unsigned width/height underflow for tiny controls.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 
