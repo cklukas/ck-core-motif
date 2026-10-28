@@ -5,6 +5,14 @@ Bound DragBS atom-table reader allocation (2026-10-29)
   before growing the cached atom-entry table, with an explicit bounded cast.
 - Add focused reader-side allocation coverage while preserving valid tables.
 
+Preserve selection context on rejected ownership (2026-10-29)
+==============================================================
+
+- Keep the existing named-selection conversion context until `XtOwnSelection`
+  confirms a new ownership request, so rejected timestamps do not strand the
+  still-valid owner.
+- Add focused ordering coverage for the ownership failure path.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

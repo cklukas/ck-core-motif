@@ -7,3 +7,7 @@ dereferencing a null context during allocation pressure or teardown.
 
 The focused source regression is
 `tests/automated/check-transfer-context-failure-guards.py`.
+Named selection ownership retains its current conversion context until
+`XtOwnSelection` succeeds.  A rejected timestamp or other ownership failure
+therefore leaves the existing owner able to service requests; the context is
+replaced only after the server confirms the new owner.

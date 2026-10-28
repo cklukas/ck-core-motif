@@ -714,14 +714,15 @@ XmeNamedSource(Widget w, Atom sel, Time time)
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
-  ClearContextBlock(XtDisplay(w), sel);
-
   if (time == 0) time = XtLastTimestampProcessed(XtDisplay(w));
 
   status = XtOwnSelection(w, sel, time, _XmConvertHandler, 
 			  LoseProc, NULL);
 
   if (status) {
+	/* Keep the old conversion context until Xt confirms ownership.  A
+	 * rejected timestamp must leave the current owner fully usable. */
+	ClearContextBlock(XtDisplay(w), sel);
     XtRemoveCallback(w, XmNdestroyCallback, DisownCallback, (XtPointer) sel);
     XtAddCallback(w, XmNdestroyCallback, DisownCallback, (XtPointer) sel);
   }
