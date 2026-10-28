@@ -2549,15 +2549,11 @@ GetMnemonicCharSet(Widget wid,
 {
   XmLabelWidget lw = (XmLabelWidget) wid;
   char *cset;
-  int   size;
   
   cset = NULL;
-  if (lw->label.mnemonicCharset)
-    { 
-      size = strlen (lw->label.mnemonicCharset);
-      if (size > 0)
-	cset = (char *) (_XmStringCharSetCreate(lw->label.mnemonicCharset));
-    }
+  if (lw->label.mnemonicCharset != NULL &&
+      lw->label.mnemonicCharset[0] != '\0')
+    cset = (char *) _XmStringCharSetCreate(lw->label.mnemonicCharset);
   
   *value = (XtArgVal) cset;
 }

@@ -27978,3 +27978,10 @@ Scaled image print-resolution bounds (2026-10-29)
 - Reject non-finite or unrepresentable Xprint resolutions before converting
   the scale-derived value to the extension's signed integer parameter.
 - Add focused source-contract coverage and documentation for the fallback.
+
+Label mnemonic charset width (2026-10-29)
+=========================================
+
+- Avoid narrowing mnemonic charset lengths to `int` when exporting the
+  `XmNmnemonicCharSet` resource; test emptiness directly instead.
+- Add focused source-contract coverage and documentation.
