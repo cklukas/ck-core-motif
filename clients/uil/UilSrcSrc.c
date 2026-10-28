@@ -627,15 +627,13 @@ open_source_file( XmConst char           *c_file_name,
 
     if (main_file) {
 
-	char XmConst		* ptr;
 	unsigned short		len;
 
 /*    Save the directory info for the main file.    */
 
-	for (len = (unsigned short)strlen (c_file_name),
-	     ptr = & c_file_name [len - 1];
-	     len > 0; len--, ptr--) {
-	    if ((* ptr) == '/') {
+	for (len = (unsigned short)file_name_len;
+	     len > 0; len--) {
+	    if (c_file_name[len - 1] == '/') {
 		break;
 	    }
 	}

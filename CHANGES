@@ -26230,3 +26230,9 @@ Reject UIL output-size overflow allocations (2026-10-29)
   resource-context allocation or clearing routines.
 - Reject oversized literals and argument/class compression tables before
   writing them, with focused source-contract coverage and documentation.
+Avoid pre-start pointer for empty UIL filenames (2026-10-29)
+==============================================================
+
+- Scan source filenames by index so an empty filename never forms a pointer
+  before the start of the string.
+- Add focused source-contract coverage for the safe backward scan.
