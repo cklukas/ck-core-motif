@@ -9365,7 +9365,21 @@ df_ValidateString(
             XmStackFree((char *)wcs_start_temp, stack_cache);
             return;
          }
-         (void)wcstombs(XmTextF_value(tf), wcs_start_temp, XmTextF_size_allocd(tf));
+         {
+            size_t converted = wcstombs(XmTextF_value(tf), wcs_start_temp,
+                                        (size_t)XmTextF_size_allocd(tf));
+            if (converted == (size_t)-1 ||
+                converted >= (size_t)XmTextF_size_allocd(tf)) {
+               XtFree((char *)XmTextF_value(tf));
+               XmTextF_value(tf) = NULL;
+               XmTextF_wc_value(tf) = NULL;
+               XmTextF_string_length(tf) = 0;
+               XmTextF_size_allocd(tf) = 0;
+               XmStackFree((char *)wcs_start_temp, stack_cache);
+               return;
+            }
+            XmTextF_value(tf)[converted] = '\0';
+         }
          XmTextF_wc_value(tf) = NULL;
       } else { /* Need to store data as wchar_t* */
          wchar_t *validated_wc_value = (wchar_t *)XtMalloc(

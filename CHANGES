@@ -25936,3 +25936,9 @@ Guard DataField action insertion conversions (2026-10-29)
 - Preserve `mbstowcs` results and reject failed or unrepresentable action
   insertions before calling the replacement path.
 - Keep a NUL terminator out of the full-size keyboard lookup buffer.
+
+Validate DataField wide-value export (2026-10-29)
+=================================================
+
+- Check `wcstombs` failure and capacity before publishing rebuilt narrow
+  storage, and reset the widget safely when conversion cannot complete.
