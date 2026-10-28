@@ -247,9 +247,11 @@ XpmCreateXpmImageFromImage(
 	(shapeimage != NULL && shapeimage->bytes_per_line <= 0))
 	RETURN(XpmFileInvalid);
     if ((image != NULL &&
-	 (image->bitmap_unit <= 0 || image->bits_per_pixel <= 0)) ||
+	 (image->bitmap_unit <= 0 || image->bits_per_pixel <= 0 ||
+	  image->bits_per_pixel > (int)(sizeof(unsigned long) * CHAR_BIT))) ||
 	(shapeimage != NULL &&
-	 (shapeimage->bitmap_unit <= 0 || shapeimage->bits_per_pixel <= 0)))
+	 (shapeimage->bitmap_unit <= 0 || shapeimage->bits_per_pixel <= 0 ||
+	  shapeimage->bits_per_pixel > (int)(sizeof(unsigned long) * CHAR_BIT))))
 	RETURN(XpmFileInvalid);
     if ((image != NULL && (image->depth <= 0 || image->depth > 32)) ||
 	(shapeimage != NULL &&

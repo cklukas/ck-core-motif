@@ -20,6 +20,8 @@ assert "image->bitmap_unit <= 0" in function
 assert "image->bits_per_pixel <= 0" in function
 assert "shapeimage->bitmap_unit <= 0" in function
 assert "shapeimage->bits_per_pixel <= 0" in function
+assert "image->bits_per_pixel > (int)(sizeof(unsigned long) * CHAR_BIT)" in function
+assert "shapeimage->bits_per_pixel > (int)(sizeof(unsigned long) * CHAR_BIT)" in function
 assert "image->depth <= 0" in function
 assert "shapeimage->depth <= 0" in function
 assert "image->depth > 32" in function

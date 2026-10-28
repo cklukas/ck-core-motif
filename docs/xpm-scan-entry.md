@@ -13,7 +13,9 @@ reader callbacks from dereferencing a missing buffer.
 Nonpositive row strides are rejected as well, so row and plane offsets cannot
 underflow in the readers.
 Nonpositive bitmap-unit and bits-per-pixel fields are rejected too, preventing
-modulo or shift operations from using invalid image geometry.
+modulo or shift operations from using invalid image geometry. Bits-per-pixel
+values wider than the host `unsigned long` temporary are rejected before
+generic reader copies.
 Nonpositive depth values are rejected before plane traversal and mask
 calculation as well.
 Depths above 32 are rejected because the optimized reader’s low-bit mask table

@@ -1,3 +1,10 @@
+Bound XPM pixel temporary width (2026-10-29)
+=============================================
+
+- Reject source bit depths wider than the `unsigned long` temporary used by
+  the generic pixel reader, preventing oversized copies into that temporary.
+- Add focused coverage and documentation.
+
 Reject mismatched XPM source geometry (2026-10-29)
 ==================================================
 
