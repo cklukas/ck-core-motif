@@ -28316,6 +28316,13 @@ DropDown match-position results (2026-10-28)
   first entry, retaining safe default positioning on failed queries. See
   `docs/dropdown-match-positions.md`.
 
+SelectionBox restore selected items (2026-10-28)
+================================================
+
+- Require selected-item data before SelectionBox restore mirrors a List item
+  into its text field, avoiding a null dereference on failed queries. See
+  `docs/selectionbox-restore-items.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

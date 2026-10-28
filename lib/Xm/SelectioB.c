@@ -1994,7 +1994,7 @@ _XmSelectionBoxRestore(
         XtSetArg( al[ac], XmNselectedItems, &items) ; ++ac ;
         XtSetArg( al[ac], XmNselectedItemCount, &count) ; ++ac ;
         XtGetValues( list, al, ac) ;
-        if(    count    )
+        if(    count && items != NULL    )
         {   
             textItem = _XmStringGetTextConcat( *items) ;
             XmTextFieldSetString( SB_Text( sel), textItem) ;
