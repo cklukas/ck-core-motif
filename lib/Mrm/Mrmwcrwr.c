@@ -1491,7 +1491,8 @@ UrmCWRSetCallbackItemRes (URMResourceContextPtr		context_id,
   Cardinal		result ;	/* function results */
   RGMCallbackDescPtr	cbdesc ;	/* callback descriptor */
   RGMCallbackItemPtr	itmptr ;	/* callback item in list */
-  MrmOffset		offset ;	/* appended data offset */
+  MrmOffset		routine_offset ;	/* appended routine offset */
+  MrmOffset		resource_offset ;	/* appended resource offset */
 
 
   /*
@@ -1511,30 +1512,27 @@ UrmCWRSetCallbackItemRes (URMResourceContextPtr		context_id,
 			  NULL, context_id, MrmNULL_ROUTINE) ;
 
   /*
-   * Append the routine string and set the item
+   * Append the routine string.  Defer updating the callback item until the
+   * resource descriptor has also been appended successfully.
    */
-  result = UrmCWR__AppendString (context_id, routine, &offset) ;
+  result = UrmCWR__AppendString (context_id, routine, &routine_offset) ;
   if ( result != MrmSUCCESS ) return result ;
-
-  result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
-			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
-
-  if ( result != MrmSUCCESS ) return result ;
-  itmptr->cb_item.routine = offset ;
 
   /*
    * Acquire and set a resource descriptor
    */
   result = UrmCWR__AppendResource
-    (context_id, access, group, type, key_type, index, resource_id, &offset) ;
+    (context_id, access, group, type, key_type, index, resource_id,
+     &resource_offset) ;
   if ( result != MrmSUCCESS ) return result ;
 
   result = UrmCWR__BindCallbackPtrs (context_id, "UrmCWRSetCallbackItemRes",
 			    cb_offs, item_ndx, &cbdesc, &itmptr) ;
 
   if ( result != MrmSUCCESS ) return result ;
+  itmptr->cb_item.routine = routine_offset ;
   itmptr->cb_item.rep_type = MrmRtypeResource ;
-  itmptr->cb_item.datum.offset = offset ;
+  itmptr->cb_item.datum.offset = resource_offset ;
 
   /*
    * Successfully added
