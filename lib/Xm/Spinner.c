@@ -68,6 +68,11 @@ static Dimension bounded_dimension(size_t value) {
     return (Dimension)(value > maximum ? maximum : value);
 }
 
+static Position centered_offset(Dimension container, Dimension content) {
+    /* Keep oversized labels negative instead of wrapping Dimension arithmetic. */
+    return (Position)(((int)container - (int)content) / 2);
+}
+
 static Boolean eligible(XmSpinnerWidget spinner) {
     XWindowAttributes attributes;
     Widget widget = (Widget)spinner;
@@ -198,7 +203,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XmStringDraw(display, window, spinner->spinner.font,
                      spinner->spinner.label, gc,
                      (Position)(spinner->spinner.spacing + diameter + 8),
-                     (Position)((spinner->core.height - label_height) / 2),
+                     centered_offset(spinner->core.height, label_height),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(spinner), NULL);
     }

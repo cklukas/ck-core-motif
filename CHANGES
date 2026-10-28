@@ -27256,6 +27256,12 @@ Fix ProgressRing label centering underflow (2026-10-28)
 
 - Compute vertical label offsets in signed arithmetic so labels taller than
   the widget remain centered instead of wrapping to a large unsigned position.
+
+Fix Spinner label centering underflow (2026-10-28)
+==================================================
+
+- Use signed centering arithmetic for labels taller than the Spinner widget,
+  preventing unsigned `Dimension` wrap and visual displacement.
 - Guard list-popup key events against missing client or event data as well.
 
 Guard Mrm value-fixup swap state (2026-10-28)
