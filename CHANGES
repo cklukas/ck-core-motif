@@ -23422,6 +23422,14 @@ Guard clipboard record-type reads (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-record-type-length.py
 
+Clean up failed clipboard format deletion (2026-10-28)
+==========================================================
+
+- Free the owning data-item buffer when a format header is missing or short.
+- Preserve existing successful per-format deletion behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-delete-formats-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

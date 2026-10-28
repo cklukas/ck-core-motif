@@ -2177,6 +2177,7 @@ ClipboardDeleteFormats(
 		length < sizeof(ClipboardFormatItemRec))
     	{
 	    XtFree( (char *)formatdata);
+	    XtFree( (char *)datalist);
     	    return;
     	}
 
