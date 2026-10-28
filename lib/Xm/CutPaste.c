@@ -4850,7 +4850,7 @@ XmClipboardInquireCount(
 	    /* max the lengths of all the atom names */
 	    for( i = 0; i < loc_count; i++ )
 	    {
-		    int temp;
+		    size_t temp;
 
 		    if ((*atomptr) != (Atom)0)
 		    {

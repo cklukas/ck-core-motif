@@ -23647,6 +23647,14 @@ Separate clipboard deletion index widths (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-delete-index-width.py
 
+Preserve clipboard inquiry name-length width (2026-10-28)
+===========================================================
+
+- Keep `strlen` results in `size_t` while finding the maximum format-name length.
+- Avoid narrowing atom-name lengths to `int` before the unsigned comparison.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-inquire-count-length-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
