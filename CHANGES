@@ -23599,6 +23599,14 @@ Abort clipboard undo-copy on lock failures (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-undo-lock-status.py
 
+Abort clipboard count inquiries on lock failures (2026-10-28)
+==============================================================
+
+- Stop `XmClipboardInquireCount` on any non-success lock result.
+- Preserve the original lock status before opening clipboard state.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-inquire-count-lock-status.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
