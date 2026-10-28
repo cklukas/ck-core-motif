@@ -3267,12 +3267,16 @@ XmDragStart(
         Cardinal numArgs )
 {
     XmDragContext	dc;
-    XmDisplay		dd = (XmDisplay) XmGetXmDisplay(XtDisplay(w));
+    XmDisplay		dd;
     Arg			lclArgs[1];
     Arg			*mergedArgs;
     XmDragStartCallbackStruct	cb;
 
-    if (w == NULL || event == NULL)
+    if (w == NULL || event == NULL || (numArgs != 0 && args == NULL))
+	return NULL;
+
+    dd = (XmDisplay) XmGetXmDisplay(XtDisplay(w));
+    if (dd == NULL)
 	return NULL;
 
     _XmWidgetToAppContext(w);

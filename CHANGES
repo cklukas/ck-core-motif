@@ -78,6 +78,13 @@ Validate XmDragCancel widget type (2026-10-29)
   accesses drag-context state.
 - Preserve cancellation for drag-context subclasses and add focused coverage.
 
+Guard XmDragStart inputs (2026-10-29)
+=====================================
+
+- Validate the widget, event, and optional argument list before obtaining the
+  display or merging arguments.
+- Preserve valid drag starts and add focused entry-point coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
