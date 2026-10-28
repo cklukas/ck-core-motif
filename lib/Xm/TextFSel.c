@@ -135,8 +135,8 @@ static XmConst XmTransferTraitRec textFieldTT = {
 };
 
 static XContext _XmTextFDNDContext = 0;
-static _XmInsertSelect insert_select;
-static _XmTextPrimSelect *prim_select;
+static _XmInsertSelect insert_select_state;
+static _XmTextPrimSelect *primary_select_state;
  
 /*ARGSUSED*/
 static void
@@ -150,22 +150,22 @@ SetPrimarySelection(Widget w,
   XmTextPosition cursorPos = tf->text.cursor_position;
 
   _XmProcessLock();
-  if (!prim_select) {
+  if (!primary_select_state) {
     _XmProcessUnlock();
     return;
   }
 
-  if (prim_select->num_chars > 0) {
-    tf->text.prim_anchor = prim_select->position;
-    cursorPos = prim_select->position + prim_select->num_chars;
+  if (primary_select_state->num_chars > 0) {
+    tf->text.prim_anchor = primary_select_state->position;
+    cursorPos = primary_select_state->position + primary_select_state->num_chars;
     _XmTextFieldStartSelection(tf, tf->text.prim_anchor, cursorPos,
-			       prim_select->time);
+		       primary_select_state->time);
     tf->text.pending_off = False;
     _XmTextFieldSetCursorPosition(tf, NULL, cursorPos, True, True);
   }
-  if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0) {
-    XtFree((char *)prim_select);
-    prim_select = NULL;
+  if (primary_select_state->ref_count <= 0 || --primary_select_state->ref_count == 0) {
+    XtFree((char *)primary_select_state);
+    primary_select_state = NULL;
   }
   _XmProcessUnlock();
 }
@@ -178,15 +178,15 @@ CleanPrimarySelection(Widget w,
 		    XmTransferDoneCallbackStruct *ts) /* unused */
 {
   _XmProcessLock();
-  if (!prim_select)
+  if (!primary_select_state)
   {
     _XmProcessUnlock();
     return;
   }
 
-  if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0) {
-    XtFree((char *)prim_select);
-    prim_select = NULL;
+  if (primary_select_state->ref_count <= 0 || --primary_select_state->ref_count == 0) {
+    XtFree((char *)primary_select_state);
+    primary_select_state = NULL;
   }
   _XmProcessUnlock();
 }
@@ -1584,12 +1584,12 @@ HandleTargets(Widget w, XtPointer closure,
   }
 
   _XmProcessLock();
-  if (prim_select) {
-    prim_select->ref_count++;
+  if (primary_select_state) {
+    primary_select_state->ref_count++;
   } else {
-    prim_select = (_XmTextPrimSelect *)
+    primary_select_state = (_XmTextPrimSelect *)
       XtMalloc((unsigned) sizeof(_XmTextPrimSelect));
-    if (prim_select == NULL) {
+    if (primary_select_state == NULL) {
       _XmProcessUnlock();
       XtFree((char *)ds->value);
       ds->value = NULL;
@@ -1597,27 +1597,27 @@ HandleTargets(Widget w, XtPointer closure,
       return;
     }
   }
-  prim_select->position = select_pos;
-  prim_select->time = XtLastTimestampProcessed(XtDisplay(w));
-  prim_select->num_chars = 0;
+  primary_select_state->position = select_pos;
+  primary_select_state->time = XtLastTimestampProcessed(XtDisplay(w));
+  primary_select_state->num_chars = 0;
   
   if (supports_text && supports_encoding_data)
-    prim_select->target = targets[0] = atoms[XmATEXT];
+    primary_select_state->target = targets[0] = atoms[XmATEXT];
 #ifdef UTF8_SUPPORTED
   else if (supports_utf8_string)
-    prim_select->target = targets[0] = atoms[XmAUTF8_STRING];
+    primary_select_state->target = targets[0] = atoms[XmAUTF8_STRING];
 #endif
   else if (supports_CT)
-    prim_select->target = targets[0] = atoms[XmACOMPOUND_TEXT];
+    primary_select_state->target = targets[0] = atoms[XmACOMPOUND_TEXT];
   else if (supports_encoding_data)
-    prim_select->target = targets[0] = CS_OF_ENCODING;
+    primary_select_state->target = targets[0] = CS_OF_ENCODING;
   else
-    prim_select->target = targets[0] = XA_STRING;
+    primary_select_state->target = targets[0] = XA_STRING;
   
-  prim_select->ref_count = 1;
+  primary_select_state->ref_count = 1;
   /* Make request to call DoStuff() with the primary selection. */
   XmTransferValue(ds->transfer_id, targets[0], (XtCallbackProc) DoStuff, 
-		  (XtPointer) prim_select, prim_select->time);
+		  (XtPointer) primary_select_state, primary_select_state->time);
   _XmProcessUnlock();
   XtFree((char *)ds->value);
   ds->value = NULL;
@@ -1976,10 +1976,10 @@ TextFieldDestinationCallback(Widget w,
     CS_OF_ENCODING = XmeGetEncodingAtom(w);
 
     _XmProcessLock();
-    insert_select.done_status = False;
-    insert_select.success_status = False;
-    insert_select.event = (XSelectionRequestEvent *) ds->event;
-    insert_select.select_type = XmDEST_SELECT;
+    insert_select_state.done_status = False;
+    insert_select_state.success_status = False;
+    insert_select_state.event = (XSelectionRequestEvent *) ds->event;
+    insert_select_state.select_type = XmDEST_SELECT;
     
     if (((Atom) ds->location_data) != CS_OF_ENCODING) {
       /*
@@ -1988,7 +1988,7 @@ TextFieldDestinationCallback(Widget w,
        */
       XmTransferValue(ds->transfer_id, atoms[XmATARGETS], 
 		      (XtCallbackProc) TextFieldSecondaryWrapper,
-		      (XtPointer) &insert_select, ds->time);
+		      (XtPointer) &insert_select_state, ds->time);
     } else {
       /*
        * Make selection request to replace the selection
@@ -1996,7 +1996,7 @@ TextFieldDestinationCallback(Widget w,
        */
       XmTransferValue(ds->transfer_id, ((Atom) ds->location_data),
 		      (XtCallbackProc) TextFieldSecondaryWrapper,
-		      (XtPointer) &insert_select, ds->time);
+			  (XtPointer) &insert_select_state, ds->time);
     }
     _XmProcessUnlock();
   } else 

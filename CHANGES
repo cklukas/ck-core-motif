@@ -25241,3 +25241,10 @@ Name TextField delete-target ranges explicitly (2026-10-29)
 - Avoid shadowing the conversion callback's selection range in the
   delete-target branch by naming the primary-delete bounds explicitly.
 - Add focused source coverage and documentation for the preserved range.
+Name TextField global selection state explicitly (2026-10-29)
+===============================================================
+
+- Distinguish the legacy global destination-selection state from callback
+  closure locals, removing an otherwise ambiguous shadowed identifier.
+- Add focused source coverage and documentation without changing transfer
+  state layout or public behavior.
