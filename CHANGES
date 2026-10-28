@@ -6,6 +6,13 @@ Validate scaled-image row strides (2026-10-29)
   planes, before scaling reads past the source buffer.
 - Add focused coverage and document the preserved behavior for valid images.
 
+Use matching scaled-image teardown (2026-10-29)
+================================================
+
+- Release the Xt-allocated scaled-image buffer with `XtFree` before destroying
+  its XImage wrapper, including all allocation-failure paths.
+- Add focused ownership coverage and documentation.
+
 Synchronize XPM serializer contract checks (2026-10-29)
 ========================================================
 

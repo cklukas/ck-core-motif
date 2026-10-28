@@ -2554,6 +2554,18 @@ typedef struct {
   unsigned int *width, *height;
 } Table;
 
+static void
+XmDestroyScaledImage(XImage *image)
+{
+    if (image == NULL)
+	return;
+    if (image->data != NULL) {
+	XtFree(image->data);
+	image->data = NULL;
+    }
+    XDestroyImage(image);
+}
+
 void _XmPutScaledImage (    
     Display*		 display,
     Drawable		 d,
@@ -2726,17 +2738,17 @@ void _XmPutScaledImage (
     if (dest_image == NULL || dest_image->bytes_per_line <= 0 ||
 	    (size_t)h > SIZE_MAX / (size_t)dest_image->bytes_per_line) {
 	if (dest_image != NULL)
-	    XDestroyImage(dest_image);
+	    XmDestroyScaledImage(dest_image);
 	return;
     }
     image_bytes = (size_t)dest_image->bytes_per_line * h;
     if (image_bytes > UINT_MAX) {
-	XDestroyImage(dest_image);
+	XmDestroyScaledImage(dest_image);
 	return;
     }
     dest_image->data = XtMalloc((Cardinal)image_bytes);
     if (dest_image->data == NULL) {
-	XDestroyImage(dest_image);
+	XmDestroyScaledImage(dest_image);
 	return;
     }
     fast8 = (src_image->depth == 8 && src_image->bits_per_pixel == 8 &&
@@ -2834,7 +2846,7 @@ cleanup:
     XtFree((char *)table.width);
     XtFree((char *)table.height);
 
-    XDestroyImage(dest_image);
+    XmDestroyScaledImage(dest_image);
 }
 
 
