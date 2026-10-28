@@ -28041,3 +28041,10 @@ Accessibility position casts (2026-10-29)
 - Route selection and visual-line text positions through the shared signed
   bounds helper before returning them to accessibility consumers.
 - Add focused source-contract coverage and documentation.
+
+Accessibility child-index bounds (2026-10-29)
+==============================================
+
+- Clamp `size_t` child indices before returning or transporting them through
+  signed accessibility APIs.
+- Add focused source-contract coverage and documentation.

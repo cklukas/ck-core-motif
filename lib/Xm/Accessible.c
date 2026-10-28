@@ -125,6 +125,10 @@ static int bounded_text_position(XmTextPosition value) {
   return value > (XmTextPosition)INT_MAX ? INT_MAX : (int)value;
 }
 
+static int bounded_child_index(size_t value) {
+  return value > (size_t)INT_MAX ? INT_MAX : (int)value;
+}
+
 /* Live-object indexes never allocate in proportion to historical IDs. */
 static size_t id_hash(XmAccessibleId id, size_t capacity) {
   return ((size_t)id * UINT32_C(2654435761)) & (capacity - 1);
@@ -193,7 +197,7 @@ XmAccessibleId _XmAccessibilityChildAt(XmAccessibility *a, XmAccessibleId id, si
 }
 int _XmAccessibilityIndexInParent(XmAccessibility *a, XmAccessibleId id) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
-  return n && n->parent ? (int)n->child_index : -1;
+  return n && n->parent ? bounded_child_index(n->child_index) : -1;
 }
 static Boolean bind_widget(XmAccessibility *a, XmAccessibleNode *n, Widget widget) {
   size_t index;
@@ -950,7 +954,8 @@ void XmAccessibilityRemove(XmAccessibility *a, XmAccessibleId id) {
     n->removed = True;
     memset(&n->provider, 0, sizeof(n->provider)); n->data = NULL; n->widget = NULL;
     free(n->children); n->children = NULL; n->child_capacity = 0;
-    _XmAccessibilityTransportRemoved(a, n->id, n->parent, (int)n->child_index);
+    _XmAccessibilityTransportRemoved(a, n->id, n->parent,
+                                    bounded_child_index(n->child_index));
     if (a->dispatch_depth) { n->retired_next = a->retired_nodes; a->retired_nodes = n; }
     else { free(n->list_selected); free(n); }
     n = parent;
