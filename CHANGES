@@ -28027,3 +28027,10 @@ XmStringNConcat copy-limit bounds (2026-10-29)
 - Reject negative or overflowing signed copy limits before concatenating
   legacy compound strings.
 - Add focused source-contract coverage and documentation.
+
+Accessibility text-position bounds (2026-10-29)
+================================================
+
+- Clamp accessibility text positions on both sides of the signed `int` ABI,
+  including malformed values below `INT_MIN`.
+- Add focused source-contract coverage and documentation.

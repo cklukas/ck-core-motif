@@ -121,6 +121,7 @@ static int bounded_cardinal(Cardinal value) {
 }
 
 static int bounded_text_position(XmTextPosition value) {
+  if (value < (XmTextPosition)INT_MIN) return INT_MIN;
   return value > (XmTextPosition)INT_MAX ? INT_MAX : (int)value;
 }
 
