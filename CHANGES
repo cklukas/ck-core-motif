@@ -28261,6 +28261,13 @@ ComboBox selection-pointer guard (2026-10-28)
   navigation dereferences it, preserving safe behavior on failed list
   queries. See `docs/combobox-selection-pointer.md`.
 
+ComboBox selected-position export (2026-10-28)
+===============================================
+
+- Return the no-selection value when the child List reports a count without a
+  usable position array, avoiding a null dereference in the synthetic export.
+  See `docs/combobox-get-selected-pointer.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

@@ -2432,7 +2432,7 @@ CBGetSelectedPos(Widget    widget,
   XtGetValues(CB_List(cb), args, nargs);
 
   /* Implement bogus zero-based positions for DtComboBox compatibility. */
-  result = (count > 0) ? *pos : 0;
+  result = (count > 0 && pos != NULL) ? *pos : 0;
   if ((CB_PositionMode(cb) == XmZERO_BASED) && (result > 0))
     --result;
 
