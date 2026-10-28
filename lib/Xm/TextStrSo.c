@@ -1116,10 +1116,13 @@ _XmTextModifyVerify(XmTextWidget initiator,
 	    {
 	      size_t converted = mbstowcs(wcs_newblock.wcsptr, newblock->ptr,
 					   (size_t)block_num_chars);
-	      if (converted == (size_t)-1 || converted > (size_t)INT_MAX)
+	      if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+		wcs_newblock.wcsptr[0] = (wchar_t)0L;
 		wcs_newblock.length = 0;
-	      else
+	      } else {
 		wcs_newblock.length = (int)converted;
+		wcs_newblock.wcsptr[converted] = (wchar_t)0L;
+	      }
 	    }
     wcs_tvcb.reason = XmCR_MODIFYING_TEXT_VALUE;
     wcs_tvcb.event = event;

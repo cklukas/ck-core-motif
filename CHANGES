@@ -28389,3 +28389,5 @@ List drag selection bounds (2026-10-28)
 * Wide text-source initialization now clears its allocated buffer when
   `wcstombs()` rejects the input, avoiding an uninitialized zero-length value
   (2026-10-28).
+* Wide modify-verify callback buffers now have deterministic NUL termination
+  after both successful and failed `mbstowcs()` conversion (2026-10-28).
