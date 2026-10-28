@@ -12,7 +12,7 @@ def main() -> None:
     end = SOURCE.index("XmClipboardEndCopy(", start)
     copy = SOURCE[start:end]
 
-    assert "formatptr     = (ClipboardFormatItem)XtMalloc" in copy
+    assert "formatptr = (ClipboardFormatItem)XtMalloc((Cardinal)formatlength);" in copy
     assert "if (formatptr == NULL)" in copy
     assert "formatdataptr = XtMalloc" in copy
     assert "if (formatdataptr == NULL && formatdatalength != 0)" in copy
