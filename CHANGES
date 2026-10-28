@@ -23768,6 +23768,14 @@ Bound clipboard label IDs before deletion (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-label-id-bounds.py
 
+Use literal clipboard format-atom formatting (2026-10-28)
+==========================================================
+
+- Pass the fixed format string directly to `snprintf`.
+- Preserve checked prefix/name sizing while enabling compile-time format validation.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-format-literal.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

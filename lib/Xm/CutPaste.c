@@ -1571,7 +1571,6 @@ ClipboardGetAtomFromFormat(
         Display *display,
         char *format_name )
 {
-    char *atomname_format = "_MOTIF_CLIP_FORMAT_%s";
     char *item;
     size_t format_name_length;
     size_t prefix_length;
@@ -1582,7 +1581,7 @@ ClipboardGetAtomFromFormat(
 	return None;
 
     format_name_length = strlen( format_name );
-    prefix_length = strlen( atomname_format );
+    prefix_length = sizeof("_MOTIF_CLIP_FORMAT_%s") - 1;
     if (format_name_length > (size_t)-1 - prefix_length - 1)
 	return None;
     name_bytes = format_name_length + prefix_length + 1;
@@ -1594,7 +1593,7 @@ ClipboardGetAtomFromFormat(
 	return None;
 
     (void)snprintf(item, name_bytes,
-                   atomname_format, format_name);
+                   "_MOTIF_CLIP_FORMAT_%s", format_name);
 
     ret_value = XInternAtom( display, item, False );
 
