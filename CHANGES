@@ -23353,6 +23353,14 @@ Validate drag client-window property status (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-drag-client-property-status.py
 
+Guard insert-selection request lookup (2026-10-28)
+=====================================================
+
+- Return cleanly when `XtGetSelectionRequest` has no active request event.
+- Preserve normal insert-selection conversion for active requests.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-insert-selection-request-guard.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

@@ -486,6 +486,9 @@ ConvertInsertSelection(
 
    req_event = XtGetSelectionRequest(w, *selection, NULL);
 
+   if (req_event == NULL)
+      return FALSE;
+
    insert_select.event = req_event;
 
   /* Work around for intrinsics selection bug */
