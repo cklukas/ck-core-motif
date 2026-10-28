@@ -1,3 +1,12 @@
+Restore DragBS target-table overflow guards (2026-10-29)
+=========================================================
+
+- Reject oversized serialized target-list and atom counts before converting
+  them into Xt `Cardinal` allocation sizes, preserving rollback of partial
+  target-table updates.
+- Keep the valid drag-target sharing path unchanged and retain focused bounds
+  coverage in `tests/automated/check-drag-target-allocation-bounds.py`.
+
 Validate scaled-image row strides (2026-10-29)
 ===============================================
 

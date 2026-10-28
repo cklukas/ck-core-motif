@@ -1161,6 +1161,14 @@ ReadTargetsTable(
         }
 
 	if (ret && propertyRecPtr->info.num_target_lists > targetsTable->numEntries) {
+	    if ((size_t)propertyRecPtr->info.num_target_lists >
+		(size_t)UINT_MAX / sizeof(xmTargetsTableEntryRec)) {
+		XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
+		ret = False;
+	    }
+	}
+
+	if (ret && propertyRecPtr->info.num_target_lists > targetsTable->numEntries) {
 
 	    /*
 	     *  expand the target table
@@ -1205,10 +1213,17 @@ ReadTargetsTable(
 		}
 		num_targets = shortItem.value;
 
-                if(!num_targets)
+	                if(!num_targets)
 		  targets = NULL;
-	else
-	      targets = (Atom *) XtMalloc(sizeof(Atom) * num_targets);
+		else if ((size_t)num_targets >
+			 (size_t)UINT_MAX / sizeof(Atom)) {
+		    XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
+		    ret = False;
+		    targets = NULL;
+		}
+		else
+	          targets = (Atom *) XtMalloc((Cardinal)
+			  ((size_t)sizeof(Atom) * num_targets));
 		if (num_targets != 0 && targets == NULL)
 		{
 		    while (targetsTable->numEntries > old_num_entries)
