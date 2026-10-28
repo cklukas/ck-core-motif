@@ -66,6 +66,7 @@ static void ReleaseSecondaryLock(Widget, XtEnum, XmTransferDoneCallbackStruct*);
 static void DropDestinationHandler(Widget, XtPointer,
 				   XmDropProcCallbackStruct *);
 static TransferBlock AddTransferBlock(TransferContext tc);
+static void RemoveTransferBlock(TransferContext tc, TransferBlock tb);
 static void SecondaryDone(Widget, XtPointer, Atom*, Atom*,
 			  XtPointer, unsigned long*, int*);
 static void TransferWarning(Widget w, char* name, char* type, char* message);
@@ -1913,9 +1914,6 @@ XmTransferValue(XtPointer transfer_id,
   tb -> target = target;
   tb -> location_data = NULL;
 
-  tc -> outstanding++;
-  tc -> count++;
-
   if (tc -> selection == atoms[XmACLIPBOARD]) {
     /* Assure the clipboard is owned to prevent orphan data
        problems in the data transfer */
@@ -1927,6 +1925,8 @@ XmTransferValue(XtPointer transfer_id,
 
   if (tc -> selection != atoms[XmA_MOTIF_DROP]) 
     {
+      tc -> outstanding++;
+      tc -> count++;
       XtGetSelectionValue(tc -> widget, tc -> real_selection, target,
 			  SelectionCallbackWrapper, (XtPointer)tc, time);
     }
@@ -1945,9 +1945,17 @@ XmTransferValue(XtPointer transfer_id,
 	  XtSetArg(args[2], XmNtransferProc, SelectionCallbackWrapper);
 	  tc -> drop_context = 
 	    (Widget) XmDropTransferStart(tc -> drag_context, args, 3);
+	  if (tc -> drop_context == NULL) {
+	    RemoveTransferBlock(tc, tb);
+	    _XmAppUnlock(app);
+	    return;
+	  }
 	}
       else
 	XmDropTransferAdd(tc -> drop_context, transfers, 1);
+
+      tc -> outstanding++;
+      tc -> count++;
     }
   _XmAppUnlock(app);
 }
@@ -2456,6 +2464,31 @@ AddTransferBlock(TransferContext tc)
   _XmProcessUnlock();
 
   return(tb);
+}
+
+static void
+RemoveTransferBlock(TransferContext tc, TransferBlock tb)
+{
+  TransferBlock current;
+  TransferBlock previous = NULL;
+
+  if (tc == NULL || tb == NULL)
+    return;
+
+  for (current = tc -> requests;
+       current != NULL && current != tb;
+       current = (TransferBlock) current -> next)
+    previous = current;
+  if (current != tb)
+    return;
+
+  if (previous == NULL)
+    tc -> requests = (TransferBlock) tb -> next;
+  else
+    previous -> next = tb -> next;
+  if (tc -> last == tb)
+    tc -> last = previous;
+  XtFree((char *) tb);
 }
 
 /* Warning routine */

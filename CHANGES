@@ -23258,6 +23258,15 @@ Saturate List Y-to-position overflow markers (2026-10-28)
   regression coverage and documentation.
 Regression: tests/automated/check-list-y-to-pos-saturation.py
 
+Roll back failed drop-transfer setup (2026-10-28)
+===================================================
+
+- Remove a newly queued transfer block when `XmDropTransferStart` fails.
+- Publish transfer counts only after successful drop-transfer creation so a
+  request cannot remain outstanding without a callback path.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-drop-start-failure.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
