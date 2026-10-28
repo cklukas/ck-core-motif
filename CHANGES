@@ -27408,6 +27408,12 @@ Guard DatePicker calendar callbacks (2026-10-29)
 - Validate the picker closure and calendar widget before accepting date-change
   notifications, preventing foreign or stale callback inputs from being used.
 
+Clamp Calendar day arithmetic (2026-10-29)
+==========================================
+
+- Use wide ordinal arithmetic and clamp keyboard day navigation to the
+  supported 1–9999 date range before converting back to a calendar date.
+
 Guard RowActions activation callbacks (2026-10-29)
 ==================================================
 

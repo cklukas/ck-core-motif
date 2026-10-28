@@ -133,7 +133,12 @@ static XmCalendarDate date_from_days(int ordinal) {
 }
 
 static XmCalendarDate add_days(XmCalendarDate date, int delta) {
-    return date_from_days(days_from_civil(date) + delta);
+    const int minimum = days_from_civil((XmCalendarDate){1, 1, 1});
+    const int maximum = days_from_civil((XmCalendarDate){9999, 12, 31});
+    long long ordinal = (long long)days_from_civil(date) + (long long)delta;
+    if (ordinal < minimum) ordinal = minimum;
+    if (ordinal > maximum) ordinal = maximum;
+    return date_from_days((int)ordinal);
 }
 
 static void normalize_visible(XmCalendarWidget calendar) {
