@@ -27378,6 +27378,12 @@ Bound List horizontal maximum arithmetic (2026-10-29)
 - Compute content width plus list margins in a wide intermediate and clamp it
   to the navigator’s signed range before configuring the scrollbar.
 
+Add native List scrollbar-shrink regression (2026-10-29)
+=========================================================
+
+- Add an installed-library Xvfb fixture covering far-right scrolling followed
+  by content and margin shrink, with scrollbar range invariant checks.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 
