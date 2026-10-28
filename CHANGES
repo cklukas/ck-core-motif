@@ -17,6 +17,12 @@ Refresh SegmentedControl callback guard contract matching (2026-10-29)
 - Match the existing child and event NULL guards across source line breaks so
   the focused check remains tied to their semantics instead of formatting.
 
+Refresh Spinner centering contract check (2026-10-29)
+=======================================================
+
+- Match the focused check to Spinner's current clamped long-long centering
+  arithmetic instead of the older int-only expression.
+
 Bound I18List display column origins (2026-10-29)
 ==================================================
 
