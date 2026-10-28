@@ -23486,6 +23486,14 @@ Release clipboard lock after retrieve re-check failure (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-retrieve-recheck-cleanup.py
 
+Release clipboard conversion format records (2026-10-28)
+==========================================================
+
+- Free the format record held by the selection conversion callback helper.
+- Preserve cut-by-name callback results and conversion behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-convert-format-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

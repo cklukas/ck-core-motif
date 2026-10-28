@@ -653,6 +653,8 @@ ClipboardGetByNameItem(Display* dpy, Window win,
 					       win,
 					       matchformat);
 	}
+
+      XtFree( (char *)matchformat );
     } else {
       dataok = 0;
     }
