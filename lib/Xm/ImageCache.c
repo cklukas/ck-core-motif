@@ -2717,14 +2717,18 @@ void _XmPutScaledImage (
 	    int media_res = _XmParsePrintResolution(resolution);
 	    XFree(resolution);
 	    if (media_res) {
-		int image_res = (double)media_res / ratio_x + 0.5;
-		int prev_res;
-		if (XpSetImageResolution(display, pcontext,
-					 image_res, &prev_res)) {
-		    XPutImage(display, d, gc, src_image, src_x, src_y,
-			      dest_x, dest_y, src_width, src_height);
-		    XpSetImageResolution(display, pcontext, prev_res, NULL);
-		    return;
+		double image_res_value = (double)media_res / ratio_x + 0.5;
+		if (isfinite(image_res_value) && image_res_value >= 1.0 &&
+		    image_res_value <= (double)INT_MAX) {
+		    int image_res = (int)image_res_value;
+		    int prev_res;
+		    if (XpSetImageResolution(display, pcontext,
+					     image_res, &prev_res)) {
+			XPutImage(display, d, gc, src_image, src_x, src_y,
+				  dest_x, dest_y, src_width, src_height);
+			XpSetImageResolution(display, pcontext, prev_res, NULL);
+			return;
+		    }
 		}
 	    }
 	}

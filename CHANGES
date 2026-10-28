@@ -27971,3 +27971,10 @@ Scaled image strip endpoint safety (2026-10-29)
   unsigned image coordinate, preventing endpoint wrap during large-image
   rendering.
 - Add focused source-contract coverage and documentation for the guard.
+
+Scaled image print-resolution bounds (2026-10-29)
+==================================================
+
+- Reject non-finite or unrepresentable Xprint resolutions before converting
+  the scale-derived value to the extension's signed integer parameter.
+- Add focused source-contract coverage and documentation for the fallback.
