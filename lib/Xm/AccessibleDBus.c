@@ -8,6 +8,8 @@
 #include <X11/Shell.h>
 #include <X11/StringDefs.h>
 #include <dbus/dbus.h>
+#include <ctype.h>
+#include <errno.h>
 #include <locale.h>
 #include <limits.h>
 #ifdef HAVE_UNICODE_TEXT
@@ -734,9 +736,14 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     id = 1;
   else if (!strncmp(path, PREFIX "/", sizeof(PREFIX))) {
     char *tail = NULL;
-    unsigned long parsed = strtoul(path + sizeof(PREFIX), &tail, 10);
-    if (tail && !*tail && parsed <= UINT32_MAX)
-      id = (XmAccessibleId)parsed;
+    const char *id_text = path + sizeof(PREFIX);
+    unsigned long parsed = 0;
+    if (isdigit((unsigned char)*id_text)) {
+      errno = 0;
+      parsed = strtoul(id_text, &tail, 10);
+      if (errno != ERANGE && tail && !*tail && parsed <= UINT32_MAX)
+        id = (XmAccessibleId)parsed;
+    }
   }
   node = _XmAccessibilityNode(a, id);
   if (!node || !XmAccessibilityQuery(a, id, &info)) {

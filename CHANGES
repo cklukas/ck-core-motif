@@ -26753,3 +26753,10 @@ Validate FileSelectionBox navigation action arguments (2026-10-28)
   bounded, exact decimal parse for command values 0 through 3.
 - Ignore missing, malformed, overflowing, or out-of-range translation
   arguments without changing valid keyboard navigation behavior.
+Reject malformed AT-SPI object paths (2026-10-28)
+=================================================
+
+- Require an accessibility object-path identifier to start with a decimal
+  digit and check `strtoul` overflow before narrowing it to `XmAccessibleId`.
+- Preserve valid object paths while rejecting signed, empty, and overflowing
+  identifiers consistently on 32-bit and 64-bit hosts.
