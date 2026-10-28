@@ -10,6 +10,8 @@ body = source[start:end]
 assert body.count("if (*insert == NULL)") >= 3
 assert "if (vcb.text == NULL)" in body
 assert "(size_t)*insert_length >= (size_t)UINT_MAX" in body
+assert "XtMalloc((unsigned)(*insert_length + 1)" not in body
+assert "(Cardinal)(((size_t)*insert_length + 1) *" in body
 assert body.count("goto modify_verify_allocation_failed;") >= 2
 assert "modify_verify_allocation_failed:" in body
 assert "XtFree((char*)wcs_newblock.wcsptr);" in body

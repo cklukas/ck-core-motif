@@ -26501,3 +26501,9 @@ Guard DataField narrow verify-result allocation (2026-10-29)
 
 - Validate the callback record and narrow result length before allocation.
 - Check the returned buffer before copying the callback payload.
+
+Use checked DataField wide result sizing (2026-10-29)
+======================================================
+
+- Form the wide callback-result allocation in `size_t` before narrowing it to
+  Xt's allocation type.

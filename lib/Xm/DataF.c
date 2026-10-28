@@ -3718,8 +3718,8 @@ df_ModifyVerify(
 			 *free_insert = (int)False;
 		     } else {
 			 *insert =
-			     XtMalloc((unsigned)(*insert_length + 1) *
-				      sizeof(wchar_t));
+			     XtMalloc((Cardinal)(((size_t)*insert_length + 1) *
+				      sizeof(wchar_t)));
 			 if (*insert == NULL) {
 			     *insert_length = 0;
 			     *free_insert = (int)False;
