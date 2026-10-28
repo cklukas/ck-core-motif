@@ -25530,6 +25530,14 @@ Report Text wide-conversion count overflow (2026-10-29)
 - Return the existing conversion-failure value when a valid wide conversion
   exceeds the legacy `int` result range, instead of reporting an empty value.
 - Add focused source coverage and documentation for the overflow contract.
+Normalize cropped-image scaling Y coordinates (2026-10-29)
+============================================================
+
+- Offset scaled Y coordinates by the requested source rectangle's origin,
+  allowing nonzero `src_y` crops to render into the destination instead of
+  being compared against full-image coordinates.
+- Validate the normalized bottom edge and retain existing zero-origin output.
+
 Synchronize deferred clipboard request counts (2026-10-29)
 ===========================================================
 

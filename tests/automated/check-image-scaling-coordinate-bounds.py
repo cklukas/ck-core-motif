@@ -7,7 +7,8 @@ start = source.index("void _XmPutScaledImage")
 end = source.index("\n\n\n/*** COLOR CACHE NOW ***/", start)
 region = source[start:end]
 assert "dest_y > INT_MAX - (int)dest_height" in region
-assert "(long long)dest_y + (long long)min_y" in region
-assert "output_y = (int)((long long)dest_y + (long long)min_y);" in region
+assert "(long long)dest_y +" in region
+assert "(long long)(min_y - source_origin_y)" in region
+assert "output_y = (int)((long long)dest_y +" in region
 assert "dest_y + min_y," not in region
 print("PASS image scaling checks signed strip destination coordinates")

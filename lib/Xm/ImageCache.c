@@ -2604,7 +2604,7 @@ void _XmPutScaledImage (
 {
     XImage *dest_image;
     unsigned int x, y, min_y, max_y, src_max_x;
-    unsigned int source_origin_x;
+    unsigned int source_origin_x, source_origin_y, source_end_y;
     unsigned int w, h, strip_height;
     unsigned int image_width, image_height;
     Table table = { NULL, NULL, NULL, NULL };
@@ -2821,12 +2821,19 @@ void _XmPutScaledImage (
 	    goto cleanup;
 	table.height[y - 1] = table.y[y] - table.y[y - 1];
     }
+    source_origin_y = table.y[src_y];
+    if (table.y[src_y + src_height] < source_origin_y ||
+	table.y[src_y + src_height] - source_origin_y > dest_height ||
+	source_origin_y > UINT_MAX - dest_height)
+	goto cleanup;
+    source_end_y = source_origin_y + dest_height;
 
-    for (min_y = table.y[src_y]; min_y < dest_height; min_y = table.y[y]) {
+    for (min_y = source_origin_y; min_y < source_end_y;
+	 min_y = table.y[y]) {
 	max_y = min_y + strip_height;
-	if (max_y > dest_height) {
-	    strip_height = dest_height - min_y;
-	    max_y = dest_height;
+	if (max_y > source_end_y) {
+	    strip_height = source_end_y - min_y;
+	    max_y = source_end_y;
 	}
 	for (y = (unsigned int)src_y;
 	     y < image_height && table.y[y] < max_y; y++) {
@@ -2860,10 +2867,13 @@ void _XmPutScaledImage (
 	}
 	if (y >= image_height && table.y[y] <= min_y)
 	    goto cleanup;
-	if ((long long)dest_y + (long long)min_y > INT_MAX ||
-	    (long long)dest_y + (long long)min_y < INT_MIN)
+	if ((long long)dest_y +
+	    (long long)(min_y - source_origin_y) > INT_MAX ||
+	    (long long)dest_y +
+	    (long long)(min_y - source_origin_y) < INT_MIN)
 	    goto cleanup;
-	output_y = (int)((long long)dest_y + (long long)min_y);
+	output_y = (int)((long long)dest_y +
+			 (long long)(min_y - source_origin_y));
 	XPutImage(display, d, gc, dest_image, dest_x, 0,
 		  dest_x, output_y, dest_width, table.y[y] - min_y);
 	if (y >= image_height)
