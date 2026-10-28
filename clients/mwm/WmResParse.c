@@ -60,15 +60,14 @@ static char rcsid[] = "$XConsortium: WmResParse.c /main/9 1996/11/01 10:17:34 dr
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 #include <ctype.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdint.h>
 
 #include <X11/Xlocale.h>
 
-#ifndef NO_MULTIBYTE
 #include <stdlib.h>
-#endif
 
 #ifdef MOTIF_ONE_DOT_ONE
 #include <stdio.h>
@@ -1308,7 +1307,21 @@ ParseSessionItems (WmScreenData *pSD)
 
     if(GetNextLine () != NULL)
     {
-       	pSD->totalSessionItems = atoi((char *)line);
+	char *end;
+	long parsed;
+
+	errno = 0;
+	end = NULL;
+	parsed = strtol((char *)line, &end, 10);
+	while (end != (char *)line && isspace((unsigned char)*end))
+	    end++;
+	if (end == (char *)line || *end != '\0' || errno == ERANGE ||
+	    parsed < 1 || parsed > INT_MAX)
+	{
+	    Warning("Invalid session item count");
+	    return;
+	}
+	pSD->totalSessionItems = (int)parsed;
 	pSD->remainingSessionItems = pSD->totalSessionItems;
     }
     

@@ -26864,3 +26864,10 @@ Validate MWM session-resource integers (2026-10-28)
 - Replace unchecked `atoi` conversion of restored coordinates, dimensions,
   icon positions, and proxy screen numbers with complete range checks.
 - Ignore malformed session values without marking those restore fields present.
+
+Validate MWM session item counts (2026-10-28)
+==============================================
+
+- Parse the session record count with complete-number and positive-range
+  checks before allocating the session-item array.
+- Reject malformed or overflowing counts instead of allowing `atoi` wrapping.
