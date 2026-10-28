@@ -10,6 +10,12 @@
 #include <limits.h>
 #include "PrimitiveI.h"
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
@@ -106,8 +112,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (link->link.render_table && label) {
         XmStringExtent(link->link.render_table, label, &text_width, &text_height);
         XmStringDraw(XtDisplay(widget), XtWindow(widget), link->link.render_table,
-                     label, link->link.gc, 4,
-                     ((int)link->core.height - (int)text_height) / 2,
+                     label, link->link.gc, bounded_position(4),
+                     bounded_position(((long long)link->core.height - text_height) / 2),
                      text_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(link), NULL);
     }
