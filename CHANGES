@@ -23267,6 +23267,14 @@ Roll back failed drop-transfer setup (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-drop-start-failure.py
 
+Release standard WM_NAME conversion properties (2026-10-28)
+==============================================================
+
+- Free Xlib-owned `WM_NAME` property data after standard text conversion.
+- Keep the returned locale string toolkit-owned and add focused regression
+  coverage and documentation.
+Regression: tests/automated/check-standard-convert-name-free.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

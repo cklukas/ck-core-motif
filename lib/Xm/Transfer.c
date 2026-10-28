@@ -2723,6 +2723,8 @@ XmeStandardConvert(Widget w,
     total_value = value != NULL
       ? _XmTextToLocaleText(w, (XtPointer)value, type, format, length, NULL)
       : NULL;
+    if (value != NULL)
+      XFree((char *)value);
     
     cs -> value = (XtPointer) total_value;
     cs -> format = 8;
