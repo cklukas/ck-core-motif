@@ -28351,6 +28351,14 @@ DropDown multibyte-conversion cleanup (2026-10-28)
   invalid locale sequence, avoiding an error-path leak. See
   `docs/dropdown-multibyte-failure-cleanup.md`.
 
+DataField wide-string length validation (2026-10-28)
+=====================================================
+
+- Validate wide-string lengths before DataField measurement reads the
+  temporary sentinel slot, preventing malformed lengths from indexing outside
+  the caller’s buffer. See
+  `docs/datafield-wide-length-before-sentinel.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

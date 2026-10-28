@@ -2799,7 +2799,7 @@ df_FindPixelLength(
     XGlyphInfo	ext;
     if (XmTextF_max_char_size(tf) != 1) { /* was passed a wchar_t*  */
       wchar_t *wc_string = (wchar_t*)string;
-      wchar_t wc_tmp = wc_string[length];
+      wchar_t wc_tmp;
       char stack_cache[400], *tmp;
       size_t num_bytes;
 
@@ -2809,7 +2809,7 @@ df_FindPixelLength(
       size_t byte_capacity = ((size_t)length + 1) * sizeof(wchar_t);
       if (byte_capacity > UINT_MAX)
         return 0;
-      
+      wc_tmp = wc_string[length];
       wc_string[length] = 0L;
 
       tmp = (char*)XmStackAlloc((Cardinal)byte_capacity,
@@ -2832,7 +2832,7 @@ df_FindPixelLength(
    } else { /* have font struct, not a font set */
       if (XmTextF_max_char_size(tf) != 1) { /* was passed a wchar_t*  */
 	 wchar_t *wc_string = (wchar_t*)string;
-	 wchar_t wc_tmp = wc_string[length];
+	 wchar_t wc_tmp;
 	 char stack_cache[400], *tmp;
 	 size_t num_bytes;
 	 int ret_len = 0;
@@ -2844,6 +2844,7 @@ df_FindPixelLength(
 	 if (byte_capacity > UINT_MAX)
 	   return 0;
 
+	 wc_tmp = wc_string[length];
 	 wc_string[length] = 0L;
 
          tmp = (char*)XmStackAlloc((Cardinal)byte_capacity,
