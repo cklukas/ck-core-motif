@@ -25996,3 +25996,9 @@ Validate TextField preedit conversions (2026-10-29)
 
 - Validate and terminate every preedit recovery conversion before
   concatenating it into the active composition buffer.
+
+Guard TextField action insertion conversion (2026-10-29)
+=========================================================
+
+- Reject failed or unrepresentable keyboard conversions and keep a NUL slot
+  out of the full-size input lookup buffer.

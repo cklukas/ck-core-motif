@@ -4249,7 +4249,7 @@ InsertChar(Widget w,
   XmTextPosition cursorPos =0 , nextPos = 0;
   wchar_t * wc_insert_string;
   int insert_length, i;
-  int num_chars;
+  size_t num_chars;
   Boolean replace_res;
   Boolean pending_delete = False;
   Status status_return;
@@ -4267,7 +4267,7 @@ InsertChar(Widget w,
   }
   
   /* If there is more data than we can handle, bail out */
-  if (status_return == XBufferOverflow || insert_length > TEXT_MAX_INSERT_SIZE)
+  if (status_return == XBufferOverflow || insert_length >= TEXT_MAX_INSERT_SIZE)
     return;
   
   /* *LookupString in some cases can return the NULL as a character, such
@@ -4310,13 +4310,18 @@ InsertChar(Widget w,
       insert_string[insert_length] = '\0'; /* NULL terminate for mbstowcs */
       wc_insert_string = (wchar_t*)XmStackAlloc((Cardinal)(insert_length+1) *
 						sizeof(wchar_t), stack_cache);
-      num_chars = mbstowcs(wc_insert_string, insert_string, insert_length+1);
-      if (num_chars < 0) num_chars = 0;
-      if (tf->text.overstrike) nextPos += num_chars;
+      num_chars = mbstowcs(wc_insert_string, insert_string,
+                           (size_t)insert_length + 1);
+      if (num_chars == (size_t)-1 || num_chars > (size_t)INT_MAX) {
+        XmStackFree((char *)wc_insert_string, stack_cache);
+        _XmTextFieldDrawInsertionPoint(tf, True);
+        return;
+      }
+      if (tf->text.overstrike) nextPos += (XmTextPosition)num_chars;
       if (nextPos > tf->text.string_length) nextPos = tf->text.string_length;
       replace_res = _XmTextFieldReplaceText(tf, (XEvent *) event, cursorPos,
 					    nextPos, (char*) wc_insert_string,
-					    num_chars, True);
+					    (int)num_chars, True);
       XmStackFree((char *)wc_insert_string, stack_cache);
     }
     
