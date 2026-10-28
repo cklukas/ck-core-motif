@@ -26158,3 +26158,9 @@ Bound DataField splice allocations (2026-10-29)
 
 - Reject replacement-buffer sizes above Xt's `Cardinal` limit before passing
   them to `XtMalloc`, preventing 64-bit size truncation.
+
+Bound DataField wide callback lengths (2026-10-29)
+===================================================
+
+- Validate callback-provided wide insertion lengths before adding the
+  terminator or allocating the returned buffer.

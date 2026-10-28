@@ -3608,13 +3608,21 @@ df_ModifyVerify(
 	 *insert_length = wcs_vcb.text->length; /* length is char count*/
 	 if (wcs_vcb.doit) 
 	 {
+	     if (*insert_length < 0 ||
+	         (size_t)*insert_length + 1 >
+	             (size_t)UINT_MAX / sizeof(wchar_t)) {
+		 *insert_length = 0;
+		 *insert = NULL;
+		 *free_insert = (int)False;
+		 return False;
+	     }
 	     if (XmTextF_max_char_size(tf) == 1)
 	     { /* caller expects char */
 		 wcs_vcb.text->wcsptr[wcs_vcb.text->length] = 0L;
 		 if (*insert_length > 0) 
 		 {
-		     *insert = XtMalloc((unsigned) (*insert_length + 1) \
-					* sizeof(wchar_t));
+		     *insert = XtMalloc((Cardinal)(((size_t)*insert_length + 1) \
+					* sizeof(wchar_t)));
 		     *free_insert = (int)True;
 		     count = wcstombs(*insert, wcs_vcb.text->wcsptr,
 				      (size_t)*insert_length + 1);
@@ -3629,8 +3637,8 @@ df_ModifyVerify(
 	     {  /* callback struct has wchar*; caller expects wchar* */
 		 if (*insert_length > 0) 
 		 {
-		     *insert = XtMalloc((unsigned)(*insert_length + 1) \
-					* sizeof(wchar_t));
+		     *insert = XtMalloc((Cardinal)(((size_t)*insert_length + 1) \
+					* sizeof(wchar_t)));
 		     *free_insert = (int)True;
 		     (void)memcpy((void*)*insert, (void*)wcs_vcb.text->wcsptr,
 				  *insert_length * sizeof(wchar_t));
