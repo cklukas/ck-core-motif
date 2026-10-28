@@ -23204,6 +23204,15 @@ Make final transfer teardown own drop cleanup (2026-10-28)
   documentation.
 Regression: tests/automated/check-finish-transfer-drop-cleanup.py
 
+Reject overflowing List replacement positions (2026-10-28)
+============================================================
+
+- Reject one-based replacement positions beyond the current item count.
+- Bound replacement counts with subtraction instead of overflowing index
+  addition, preserving the existing truncation behavior for valid ranges.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-list-replace-position-bounds.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

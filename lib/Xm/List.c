@@ -9032,6 +9032,7 @@ APIReplaceItemsPos(Widget w,
   int nsel = lw->list.selectedPositionCount;
 
   if ((position < 1)          ||
+      (position > lw->list.itemCount) ||
       (new_items == NULL)     ||
       (lw->list.items == NULL)||
       (item_count <= 0))
@@ -9042,7 +9043,7 @@ APIReplaceItemsPos(Widget w,
 
   intern_pos = position - 1;
 
-  if ((intern_pos + item_count) > lw->list.itemCount)
+  if (item_count > lw->list.itemCount - intern_pos)
     item_count = lw->list.itemCount - intern_pos;
 
   for (i = 0; i < item_count; i++, position++)
