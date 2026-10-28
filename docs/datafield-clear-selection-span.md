@@ -6,6 +6,7 @@ nav_exclude: true
 The clear-selection action now validates the selected character span before
 narrowing it to the legacy `int` count used by replacement and temporary-space
 buffers. Oversized spans are rejected without wrapping the count or allocating
-an undersized buffer.
+an undersized buffer. The wide-character path also rejects spans whose byte
+capacity cannot fit Xt's allocation-size type.
 
 Regression coverage: `tests/automated/check-datafield-clear-selection-span.py`.

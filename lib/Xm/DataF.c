@@ -8317,6 +8317,11 @@ df_ClearSelection(
           wchar_t *wc_spaces;
           int i;
 
+          if ((size_t)num_spaces + 1 >
+              (size_t)UINT_MAX / sizeof(wchar_t)) {
+             _XmDataFieldDrawInsertionPoint(tf, True);
+             return;
+          }
           wc_spaces = (wchar_t *)XtMalloc((unsigned)
                                           (num_spaces + 1) * sizeof(wchar_t));
           if (wc_spaces == NULL) {

@@ -26513,3 +26513,5 @@ Bound DataField clear-selection spans (2026-10-29)
 
 - Reject selection spans that cannot fit the legacy `int` replacement count
   before creating the temporary spaces buffer.
+- Reject wide-character temporary buffers that cannot fit Xt's allocation-size
+  type.
