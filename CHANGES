@@ -1,3 +1,10 @@
+Reject XPM scans without image data (2026-10-29)
+================================================
+
+- Reject non-null `XImage` objects whose pixel data pointer is null before
+  dispatching to image readers.
+- Add focused coverage and documentation.
+
 Reject zero-dimension XPM scan sources (2026-10-29)
 ===================================================
 

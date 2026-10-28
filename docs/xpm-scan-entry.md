@@ -8,5 +8,7 @@ nav_exclude: true
 call with neither a source image nor a shape image.  This keeps direct callers
 on the documented `XpmFileInvalid` path before any Xlib geometry, zero-sized
 allocation, or scan arithmetic begins.
+It also rejects source `XImage` objects without pixel data, preventing the
+reader callbacks from dereferencing a missing buffer.
 
 Regression: `tests/automated/check-xpm-scan-entry.py`
