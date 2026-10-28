@@ -23195,6 +23195,15 @@ Finalize zero-request transfers after unlocking (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-transfer-done-unlocks-before-finish.py
 
+Make final transfer teardown own drop cleanup (2026-10-28)
+============================================================
+
+- Release owned drop destination data from `FinishTransfer` even when done
+  callback registration could not allocate a callback-list entry.
+- Keep the existing done-proc cleanup idempotent and add focused coverage and
+  documentation.
+Regression: tests/automated/check-finish-transfer-drop-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

@@ -1538,6 +1538,14 @@ FinishTransfer(Widget wid, TransferContext tc)
   ts.client_data = tc -> client_data;
 
   CallDoneProcs(wid, tc, &ts);
+  /* Drop destination data is owned by the transfer context.  The normal
+   * done-proc path releases it, but registration can fail under allocation
+   * pressure; make final transfer teardown authoritative and idempotent. */
+  if (tc -> callback_struct != NULL &&
+      tc -> callback_struct -> destination_data != NULL) {
+    XtFree((char *)tc -> callback_struct -> destination_data);
+    tc -> callback_struct -> destination_data = NULL;
+  }
   XtFree((char*) tc -> callback_struct);
   FreeTransferID(tc);
 }
