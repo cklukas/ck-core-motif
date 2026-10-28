@@ -27365,3 +27365,9 @@ Guard TreeView event dispatch (2026-10-29)
 
 - Validate the widget type and event pointer before reading navigation input,
   preventing malformed dispatch from reaching selection or expansion.
+
+Clamp List horizontal scrollbar ranges (2026-10-29)
+====================================================
+
+- Keep the horizontal maximum and slider extent at least one pixel and clamp
+  stale origins after content, padding, or font-metric shrink operations.

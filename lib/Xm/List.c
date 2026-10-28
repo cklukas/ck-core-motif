@@ -1314,10 +1314,19 @@ Initialize(Widget request,
        * does the same kind of thing. */
       lw->list.hmin = 0;
       lw->list.hmax = lw->list.MaxWidth + (lw->list.BaseX * 2);
-      lw->list.hExtent = lw->core.width;
+      if (lw->list.hmax < 1)
+	lw->list.hmax = 1;
+      lw->list.hExtent = (int)lw->core.width;
+      if (lw->list.hExtent < 1)
+	lw->list.hExtent = 1;
+      if (lw->list.hExtent > lw->list.hmax)
+	lw->list.hExtent = lw->list.hmax;
       lw->list.hOrigin = lw->list.XOrigin;
-      if ((lw->list.hExtent + lw->list.hOrigin) > lw->list.hmax)
-	lw->list.hExtent = lw->list.hmax - lw->list.hOrigin;
+      if (lw->list.hOrigin < 0)
+	lw->list.hOrigin = 0;
+      if (lw->list.hOrigin > lw->list.hmax - lw->list.hExtent)
+	lw->list.hOrigin = lw->list.hmax - lw->list.hExtent;
+      lw->list.XOrigin = lw->list.hOrigin;
 
       {
 	Arg hSBArgs[11];
@@ -3047,11 +3056,18 @@ SetHorizontalScrollbar(XmListWidget lw)
       XtSetValues((Widget) lw->list.hScrollBar, hSBArgs, j);
 
       lw->list.hmax = lw->list.MaxWidth + (lw->list.BaseX * 2);
-      lw->list.hExtent = lw->core.width;
+      if (lw->list.hmax < 1)
+	lw->list.hmax = 1;
+      lw->list.hExtent = (int)lw->core.width;
+      if (lw->list.hExtent < 1)
+	lw->list.hExtent = 1;
+      if (lw->list.hExtent > lw->list.hmax)
+	lw->list.hExtent = lw->list.hmax;
       ASSIGN_MAX(lw->list.XOrigin, 0);
       lw->list.hOrigin = lw->list.XOrigin;
-      if ((lw->list.hExtent + lw->list.hOrigin) > lw->list.hmax)
-	lw->list.hExtent = lw->list.hmax - lw->list.hOrigin;
+      if (lw->list.hOrigin > lw->list.hmax - lw->list.hExtent)
+	lw->list.hOrigin = lw->list.hmax - lw->list.hExtent;
+      lw->list.XOrigin = lw->list.hOrigin;
 
       pginc = ((listwidth <= CHAR_WIDTH_GUESS) ?
 	       1 : (listwidth - CHAR_WIDTH_GUESS));
