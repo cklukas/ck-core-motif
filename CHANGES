@@ -1,3 +1,10 @@
+Bound I18List visibility padding (2026-10-29)
+==============================================
+
+- Apply `MakePositionVisible` horizontal padding in wide arithmetic and clamp
+  the legacy short edge coordinate before visibility calculations.
+- Add focused source-contract coverage.
+
 Bound I18List cell right-edge arithmetic (2026-10-29)
 =======================================================
 

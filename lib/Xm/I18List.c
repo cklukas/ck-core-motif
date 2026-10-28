@@ -3117,7 +3117,7 @@ MakePositionVisible(Widget w, short row, short start, short last, int width)
      */
     if (start >= HORIZONTAL_SPACE)
         start -= HORIZONTAL_SPACE;
-    last += HORIZONTAL_SPACE;
+    last = bounded_short((long long)last + HORIZONTAL_SPACE);
 
     /*
      * Convert the start pixel we want to see to visible pixels.
