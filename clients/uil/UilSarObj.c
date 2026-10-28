@@ -1338,6 +1338,8 @@ sym_parent_list_type		*parent_ptr;
 			    parent_node = (sym_parent_list_type *) 
 				sem_allocate_node (sym_k_parent_list_entry, 
 						   sym_k_parent_list_size);
+			    if (parent_node == NULL)
+				continue;
 			    parent_node->next = control_widget->parent_list;
 			    control_widget->parent_list = parent_node;
 			    parent_node->parent = widget_entry;
@@ -1360,6 +1362,8 @@ sym_parent_list_type		*parent_ptr;
 			parent_node = (sym_parent_list_type *) 
 			    sem_allocate_node (sym_k_parent_list_entry,
 					       sym_k_parent_list_size);
+			if (parent_node == NULL)
+			    continue;
 			parent_node->next = control_widget->parent_list;
 			control_widget->parent_list = parent_node;
 			parent_node->parent = widget_entry;

@@ -26358,3 +26358,9 @@ Guard UIL object and section allocations (2026-10-29)
 - Check object and child-object nodes before initialization or parser-frame
   publication.
 - Check section-link bookkeeping before updating the section list.
+
+Guard UIL parent-list allocations (2026-10-29)
+===============================================
+
+- Check recursive control-list parent nodes before linking them into widgets.
+- Skip a member safely when parent-list bookkeeping cannot be allocated.
