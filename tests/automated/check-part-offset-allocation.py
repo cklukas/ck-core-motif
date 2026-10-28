@@ -12,6 +12,8 @@ assert "if (super == NULL)" in region
 assert "AlignXiPartSize" in region or "AlignXiPartSize" in source
 assert "widget_size > SIZE_MAX - super_size" in region
 assert "constraint_size + super_constraint_size > UINT_MAX" in region
+assert "XiOffsetValue" in region or "XiOffsetValue" in source
+assert "goto offset_failure" in region
 assert "classcount > UINT_MAX / sizeof(XmOffset)" in region
 assert "if (*offset == NULL)" in region
 assert "if (*constraint_offset == NULL)" in region

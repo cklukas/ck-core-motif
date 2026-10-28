@@ -12,4 +12,8 @@ Alignment rounding and widget/constraint-size addition are checked before
 class records are changed, so oversized layouts fail without partial size
 updates.
 
+The Xi resolver also validates every aligned superclass offset before writing
+the table, rejects values that do not fit its public `XmOffset` type, and rolls
+back both tables on failure.
+
 `tests/automated/check-part-offset-allocation.py` protects this contract.

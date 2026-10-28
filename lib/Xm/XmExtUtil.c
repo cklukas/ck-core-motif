@@ -35,6 +35,7 @@
 
 #include "XmI.h"
 #include <Xm/XmP.h>
+#include <limits.h>
 #include <Xm/PrimitiveP.h>
 #include <Xm/GadgetP.h>
 #include <Xm/ExtP.h>
@@ -979,6 +980,26 @@ AlignXiPartSize(Cardinal size, size_t alignment, size_t *aligned)
     return True;
 }
 
+static Boolean
+XiOffsetValue(Cardinal size, size_t alignment, Boolean align,
+              XmOffset *offset)
+{
+    size_t value;
+
+    if (offset == NULL)
+	return False;
+    if (align) {
+	if (!AlignXiPartSize(size, alignment, &value))
+	    return False;
+    } else {
+	value = (size_t)size;
+	}
+    if (value > (size_t)LONG_MAX)
+	return False;
+    *offset = (XmOffset)value;
+    return True;
+}
+
 void 
 _XiResolveAllPartOffsets(
         WidgetClass w_class,
@@ -1132,11 +1153,9 @@ _XiResolveAllPartOffsets(
 	 * align64 is true only if the _current_ widget part must be
 	 * 8-byte aligned (e.g. subparts containing doubles on HP/UX)
 	 */
-	if (do_align ||
-	    (c == super && align64))
-	    (*offset)[i] = (long)_ALIGN((c->core_class.widget_size));	
-	else
-	    (*offset)[i] = (long)(c->core_class.widget_size);
+	if (!XiOffsetValue(c->core_class.widget_size, alignment,
+			   do_align || (c == super && align64), &(*offset)[i]))
+	    goto offset_failure;
     }
     
     (*offset)[0] = 0;
@@ -1146,18 +1165,30 @@ _XiResolveAllPartOffsets(
 	     scc = (ConstraintWidgetClass)(scc->core_class.superclass), i--)
 	    if (XtIsConstraintClass((WidgetClass)scc))
 	    {
-		if (do_align)
-		    (*constraint_offset)[i] = 
-			(long)_ALIGN((scc->constraint_class.constraint_size));
-		else
-		    (*constraint_offset)[i] = 
-			(long)(scc->constraint_class.constraint_size);
+		if (!XiOffsetValue(scc->constraint_class.constraint_size,
+				   alignment, do_align,
+				   &(*constraint_offset)[i]))
+		    goto offset_failure;
 	    }
 	    else
 		(*constraint_offset)[i] = 0;
 	
 	(*constraint_offset)[0] = 0;
     }
+
+    goto offsets_ready;
+
+offset_failure:
+    XtFree((char *)*offset);
+    *offset = NULL;
+    if (constraint_offset != NULL && *constraint_offset != NULL) {
+	XtFree((char *)*constraint_offset);
+	*constraint_offset = NULL;
+    }
+    _XmProcessUnlock();
+    return;
+
+offsets_ready:
     
     /*
      *  Update the resource list(s) offsets in place
