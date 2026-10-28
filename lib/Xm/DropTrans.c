@@ -720,7 +720,9 @@ StartDropTimer(
     isValidStartDropTimerId = 0;
 #endif
 
-	
+	if (dt == NULL)
+	    return;
+
 	dtp = (XmDropTransferPart *) &(dt->dropTransfer);
 	dtp->start_timer_pending = False;
 	if (dtp->dragContext == NULL) {

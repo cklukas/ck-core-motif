@@ -1,3 +1,10 @@
+Guard delayed drop-transfer timer state (2026-10-29)
+=====================================================
+
+- Return safely when the delayed transfer timer has no client object before
+  reading transfer state.
+- Preserve normal timer processing and add focused callback coverage.
+
 Release rejected drop-transfer values (2026-10-29)
 ===================================================
 

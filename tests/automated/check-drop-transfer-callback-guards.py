@@ -5,6 +5,11 @@ from pathlib import Path
 
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "DropTrans.c").read_text()
+timer_start = source.index("static void \nStartDropTimer")
+timer_end = source.index("static Widget \nStartDropTransfer", timer_start)
+timer = source[timer_start:timer_end]
+assert "if (dt == NULL)" in timer
+assert timer.index("if (dt == NULL)") < timer.index("dtp =")
 start = source.index("static void \nDropTransferSelectionCB(")
 end = source.index("/*ARGSUSED*/\nstatic void \nStartDropTimer", start)
 body = source[start:end]
