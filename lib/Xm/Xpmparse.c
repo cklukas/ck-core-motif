@@ -732,6 +732,9 @@ xpmParseData(
     int ErrorStatus;
     xpmHashTable hashtable;
 
+    if (data == NULL || image == NULL)
+	return XpmFileInvalid;
+
     cmts = info && (info->valuemask & XpmReturnComments);
 
     /*
