@@ -1792,22 +1792,22 @@ sym_dump_obj_header (XmConst sym_obj_entry_type *az_obj_entry)
 {
 
     _debug_output
-	( "%x %s  size: %d  \n",
-	  (unsigned)az_obj_entry,
+	( "%p %s  size: %d  \n",
+		  (void *)az_obj_entry,
 	  diag_tag_text (az_obj_entry->header.b_tag),
 	  az_obj_entry->header.w_node_size);
 
     if (az_obj_entry->obj_header.az_name != NULL) {
-	_debug_output ("  name: %x", (unsigned)az_obj_entry->obj_header.az_name);
+	_debug_output ("  name: %p", (void *)az_obj_entry->obj_header.az_name);
     }
 
     if (az_obj_entry->obj_header.az_reference != NULL) {
-	_debug_output ("  reference: %x",
-			(unsigned)az_obj_entry->obj_header.az_reference);
+	_debug_output ("  reference: %p",
+			(void *)az_obj_entry->obj_header.az_reference);
     }
 
     if (az_obj_entry->obj_header.az_next != NULL) {
-	_debug_output ("  next: %x", (unsigned)az_obj_entry->obj_header.az_next);
+	_debug_output ("  next: %p", (void *)az_obj_entry->obj_header.az_next);
     }
 
     if (az_obj_entry->obj_header.b_flags & sym_m_private) {
