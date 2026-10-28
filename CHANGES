@@ -27406,6 +27406,12 @@ Bound TeachingTip popup position arithmetic (2026-10-29)
 - Apply the same wide intermediate and signed `Position` clamp used by other
   anchored popups to TeachingTip placement.
 
+Bound BreadcrumbBar draw coordinates (2026-10-29)
+=================================================
+
+- Clamp long-path separator and label positions before passing them to
+  `XmStringDraw`'s signed Xt coordinate parameters.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 

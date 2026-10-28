@@ -79,6 +79,12 @@ static void free_items(XmBreadcrumbBarWidget bar) {
     bar->breadcrumb.count = 0;
 }
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return SHRT_MIN;
+    if (value > SHRT_MAX) return SHRT_MAX;
+    return (Position)value;
+}
+
 static void notify_current(XmBreadcrumbBarWidget bar, XEvent *event) {
     XmBreadcrumbBarCallbackStruct cb;
     if (!bar->breadcrumb.current_changed_callback ||
@@ -254,7 +260,8 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
     text_y = ((int)bar->core.height - (int)label_height) / 2;
     if (bar->breadcrumb.font && !first && separator_string)
         XmStringDraw(display, window, bar->breadcrumb.font, separator_string,
-                     bar->breadcrumb.gc, *cursor, text_y, separator_width,
+                     bar->breadcrumb.gc, bounded_position(*cursor),
+                     bounded_position(text_y), separator_width,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(bar), NULL);
     if ((int)index == bar->breadcrumb.current)
         XFillRectangle(display, window, bar->breadcrumb.gc, text_x - 2, 5,
@@ -264,7 +271,8 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
         XSetForeground(display, bar->breadcrumb.gc, bar->core.background_pixel);
     if (bar->breadcrumb.font && label_string)
         XmStringDraw(display, window, bar->breadcrumb.font, label_string,
-                     bar->breadcrumb.gc, text_x, text_y, label_width,
+                     bar->breadcrumb.gc, bounded_position(text_x),
+                     bounded_position(text_y), label_width,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(bar), NULL);
     if ((int)index == bar->breadcrumb.current)
         XSetForeground(display, bar->breadcrumb.gc, bar->primitive.foreground);
