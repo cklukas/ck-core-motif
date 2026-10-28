@@ -9781,6 +9781,7 @@ PreeditDraw(XIC xic,
     XRectangle overall_ink;
     size_t i;
     size_t mb_capacity, converted;
+    size_t rest_bytes;
     XmTextPosition recover_len=0;
     char *ptr=NULL, *recover_mb=NULL;
     char *resized_mb;
@@ -9932,8 +9933,17 @@ PreeditDraw(XIC xic,
         rest_len = (XmTextPosition)(PreEnd(tf) - PreStart(tf) -
                         call_data->chg_first - call_data->chg_length);
         if (rest_len){
+            if (rest_len < 0 ||
+                (size_t)rest_len > SIZE_MAX / sizeof(wchar_t) - 1 ||
+                (size_t)rest_len + 1 > UINT_MAX / sizeof(wchar_t)) {
+                XtFree(mb);
+                XtFree((char *)wc);
+                _XmTextFieldDrawInsertionPoint(tf, True);
+                return;
+            }
+            rest_bytes = ((size_t)rest_len + 1) * sizeof(wchar_t);
             if (tf->text.max_char_size == 1){
-                over_mb = XtMalloc(rest_len+1);
+                over_mb = XtMalloc((Cardinal)((size_t)rest_len + 1));
                 if (over_mb == NULL) {
                     XtFree(mb);
                     return;
@@ -9942,15 +9952,15 @@ PreeditDraw(XIC xic,
                                 call_data->chg_length], over_mb, rest_len);
                 over_mb[rest_len] = '\0';
             } else {
-                over_wc = (wchar_t *)XtMalloc((rest_len+1)*sizeof(wchar_t));
+                over_wc = (wchar_t *)XtMalloc((Cardinal)rest_bytes);
                 if (over_wc == NULL) {
                     XtFree((char *)wc);
                     return;
                 }
                 bcopy((char *)&tf->text.wc_value[PreStart(tf)+
                         call_data->chg_first+call_data->chg_length],
-                        (char *)over_wc, rest_len*sizeof(wchar_t));
-                over_wc[rest_len] = (wchar_t)'\0';
+                        (char *)over_wc, (size_t)rest_len*sizeof(wchar_t));
+                over_wc[(size_t)rest_len] = (wchar_t)'\0';
             }
         }
     }

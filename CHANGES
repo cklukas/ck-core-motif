@@ -26062,3 +26062,9 @@ Guard TextField preedit reset allocation (2026-10-29)
 
 - Validate the preedit range and temporary wide-buffer size before resetting
   an input method, preventing invalid position arithmetic from wrapping.
+
+Guard TextField preedit suffix allocation (2026-10-29)
+=======================================================
+
+- Validate the overstrike suffix range and byte size before allocating its
+  preserved text buffer.
