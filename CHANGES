@@ -1,3 +1,10 @@
+Bound I18List column pixel offsets (2026-10-29)
+================================================
+
+- Accumulate column-to-pixel offsets in a wide type and clamp the legacy
+  short result before returning it.
+- Add focused source-contract coverage.
+
 Bound I18List scrollbar callback values (2026-10-29)
 =====================================================
 

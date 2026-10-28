@@ -2601,7 +2601,7 @@ CvtColNumToPixelVal(Widget w, short col)
 {
     XmI18ListWidget ilist = (XmI18ListWidget) w;
     register int i;
-    short value=0;
+    long long value = 0;
 
     /*
      * Sum up the widest pixel values in each column
@@ -2610,7 +2610,7 @@ CvtColNumToPixelVal(Widget w, short col)
     for (i = 0; i < col && i < XmI18List_num_columns(ilist); i++)
         value += XmI18List_column_widths(ilist)[i] + HORIZONTAL_SPACE;
 
-    return(value);
+    return bounded_short(value);
 }
 
 /*	Function Name: CvtPixelValToColNum
