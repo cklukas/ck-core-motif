@@ -3045,7 +3045,8 @@ static void
 AdjustFirstRowAndCol( XmI18ListWidget ilist )
 {
   Dimension total_width, height;
-  int rows_per_screen, new_left_loc;
+  int rows_per_screen;
+  long long new_left_loc;
   register int j;
   int title_extra;
   
@@ -3067,10 +3068,10 @@ AdjustFirstRowAndCol( XmI18ListWidget ilist )
   }
   else if (new_left_loc < (int)((int)ilist->core.width-
 				(int)total_width)){
-    XmI18List_left_loc(ilist) = (int)((int)ilist->core.width-
-				  (int)total_width);
+    XmI18List_left_loc(ilist) = bounded_short(
+        (long long)ilist->core.width - (long long)total_width);
   }
-  else XmI18List_left_loc(ilist) = new_left_loc;
+  else XmI18List_left_loc(ilist) = bounded_short(new_left_loc);
   
   
   height = ilist->core.height - 

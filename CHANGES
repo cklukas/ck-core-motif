@@ -1,3 +1,10 @@
+Bound I18List first-column restoration (2026-10-29)
+=====================================================
+
+- Accumulate the restored horizontal origin in a wide type and clamp both
+  `AdjustFirstRowAndCol` assignments to the legacy short location.
+- Add focused source-contract coverage.
+
 Bound I18List visibility movement updates (2026-10-29)
 ========================================================
 
