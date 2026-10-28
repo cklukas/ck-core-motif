@@ -308,7 +308,8 @@ yystype	    *id_frame;
 		     source_type );
 	    if ( id_frame->b_type == ENUMVAL_NAME )
 	    {
-		value_entry->b_enumeration_value_code = enum_code;
+		value_entry->b_enumeration_value_code =
+		    (unsigned short)enum_code;
 		_assert (( (enum_code > 0) && (enum_code <= uil_max_enumval) ),
 			"Enumeration code out of range");
 		value_entry->value.l_integer = 

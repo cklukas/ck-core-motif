@@ -24167,3 +24167,11 @@ Bound UIL compound-string component lengths (2026-10-28)
 - Add focused coverage and documentation.
 
 Bound UIL procedure widget metadata (2026-10-28)
+Make UIL enumeration-code width explicit (2026-10-28)
+=======================================================
+
+- Make the semantic enum-code assignment to its 16-bit symbol field explicit,
+  retaining the existing range assertion and lookup.
+- Add focused coverage and documentation.
+
+Bound UIL compound-string component lengths (2026-10-28)
