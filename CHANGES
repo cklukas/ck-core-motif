@@ -23535,6 +23535,14 @@ Validate clipboard inquiry target counts (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-inquire-count-bounds.py
 
+Bound clipboard pending-item counts (2026-10-28)
+=================================================
+
+- Reject header item counts that cannot fit legacy iteration or Xt allocation types.
+- Preserve normal pending-list enumeration and malformed-header handling.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-pending-count-bounds.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

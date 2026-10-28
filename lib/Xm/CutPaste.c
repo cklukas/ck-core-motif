@@ -1662,6 +1662,7 @@ ClipboardHeaderRecordValid(
 
     if (header == NULL || length < sizeof(ClipboardHeaderRec) ||
 	header->maxItems == 0 || header->currItems > header->maxItems ||
+	header->currItems > (unsigned long)INT_MAX ||
 	header->dataItemList > ULONG_MAX / CONVERT_32_FACTOR)
 	return False;
 
@@ -5201,8 +5202,8 @@ XmClipboardInquirePendingItems(
 
     if (header->currItems == 0)
 	itemlist = NULL;
-    else if ((size_t)header->currItems >
-		     (size_t)-1 / sizeof(XmClipboardPendingRec))
+	else if (header->currItems > (unsigned long)UINT_MAX /
+		 sizeof(XmClipboardPendingRec))
 	itemlist = NULL;
     else
 	itemlist = (XmClipboardPendingList)XtMalloc( (size_t)
