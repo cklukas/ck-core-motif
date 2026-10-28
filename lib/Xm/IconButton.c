@@ -1677,8 +1677,9 @@ CalcLocations(Widget w)
 	     */
 	    if( have_pixmap )
 	    {
-		XmIconButton_text_x(iw) = XmIconButton_pix_x(iw) + XmIconButton_pix_width(iw) +
-		    XmIconButton_icon_text_padding(iw);
+		XmIconButton_text_x(iw) = bounded_position(
+		    (long long)XmIconButton_pix_x(iw) + XmIconButton_pix_width(iw) +
+		    XmIconButton_icon_text_padding(iw));
 		if( (tmp = (int)width - (int)H_SPACE(iw) -
 		     (int)XmIconButton_text_x(iw)) < 0 )
 		{
@@ -1691,7 +1692,7 @@ CalcLocations(Widget w)
 	case XmIconRight: /* Aligned to left of Icon. */
 	    if( have_pixmap )
 	    {
-		XmIconButton_text_x(iw) = H_SPACE(iw);
+		XmIconButton_text_x(iw) = bounded_position((long long)H_SPACE(iw));
 		if( (tmp = XmIconButton_pix_x(iw) - XmIconButton_text_x(iw)) < 0 ) tmp = 0;
 		XmIconButton_max_text_width(iw) = tmp;
 	    }
@@ -1710,7 +1711,7 @@ CalcLocations(Widget w)
 		    XmIconButton_icon_text_padding(iw);
 		if( XmIconButton_text_y(iw) < tmp )
 		{
-		    XmIconButton_text_y(iw) = tmp;
+		    XmIconButton_text_y(iw) = bounded_position((long long)tmp);
 		    if( (tmp = height - V_SPACE(iw) - XmIconButton_text_y(iw)) < 0 )
 			tmp = 0;
 		    XmIconButton_max_text_height(iw) = tmp;
@@ -1718,7 +1719,7 @@ CalcLocations(Widget w)
 	    }
 	    break;
 	case XmIconBottom: /* Along Top. */
-	    XmIconButton_text_y(iw) = V_SPACE(iw);
+	    XmIconButton_text_y(iw) = bounded_position((long long)V_SPACE(iw));
 	    if( have_pixmap )
 	    {
 		tmp = XmIconButton_pix_y(iw) - XmIconButton_icon_text_padding(iw) -

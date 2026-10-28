@@ -15,4 +15,5 @@ assert "bounded_position((long long)XmIconButton_text_y(iw))," in source
 assert "XmIconButton_pix_x(iw) = (Position)" not in source
 assert "XmIconButton_pix_y(iw) = ((Position)" not in source
 assert "XmIconButton_text_y(iw) = height - (V_SPACE(iw) + (Position)" not in source
+assert "XmIconButton_text_x(iw) = XmIconButton_pix_x(iw) +" not in source
 print("PASS IconButton text coordinates stay bounded")
