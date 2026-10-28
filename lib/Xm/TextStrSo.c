@@ -2128,7 +2128,10 @@ _XmStringSourceGetValue(XmTextSource source,
       pos = ret_pos;
     }
 	if (pos != last_pos)
+	{
+	  XtFree(temp);
 	  return NULL;
+	}
     temp[length] = '\0';
     return (temp);
   } else {

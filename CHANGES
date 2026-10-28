@@ -23503,6 +23503,14 @@ Release clipboard target-list format records (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-convert-targets-cleanup.py
 
+Release partial text-source value buffers (2026-10-28)
+=======================================================
+
+- Free the byte buffer when `_XmStringSourceGetValue` cannot complete a range.
+- Preserve successful and wide-character retrieval behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-source-value-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
