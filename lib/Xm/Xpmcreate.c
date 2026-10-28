@@ -790,6 +790,10 @@ XpmCreateImageFromXpmImage(
     if (shapeimage_return)
 	*shapeimage_return = NULL;
 
+    if (display == NULL || image == NULL ||
+	(image_return == NULL && shapeimage_return == NULL))
+	return XpmFileInvalid;
+
     /* retrieve information from the XpmAttributes */
     if (attributes && (attributes->valuemask & XpmVisual))
 	visual = attributes->visual;

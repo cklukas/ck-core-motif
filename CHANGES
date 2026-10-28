@@ -1,3 +1,10 @@
+Validate XPM raw-image conversion inputs (2026-10-29)
+======================================================
+
+- Reject null displays, null source images, and calls with no output target
+  before dereferencing image fields or allocating conversion state.
+- Add focused coverage and documentation while preserving initialized outputs.
+
 Accept XPM transparent-only images (2026-10-29)
 ================================================
 
