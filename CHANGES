@@ -68,6 +68,13 @@ Preserve TextField wcstombs result width (2026-10-29)
 - Prevent large successful conversions from truncating through an intermediate
   `int`; add focused coverage and documentation.
 
+Bound TextField wide-transfer sizing (2026-10-29)
+==================================================
+
+- Reject an `INT_MAX` converted character count before the wide-buffer `+ 1`
+  terminator arithmetic can overflow.
+- Add focused boundary coverage and documentation.
+
 Synchronize XPM serializer contract checks (2026-10-29)
 ========================================================
 

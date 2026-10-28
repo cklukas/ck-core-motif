@@ -1097,7 +1097,7 @@ DropTransferProc(Widget w, XtPointer closure,
   } else {
     wc_total_length = _XmTextFieldCountCharacters(tf, total_value,
                                                   total_length);
-    if (wc_total_length < 0 ||
+    if (wc_total_length < 0 || wc_total_length == INT_MAX ||
         (unsigned long)wc_total_length >
         (unsigned long)UINT_MAX / sizeof(wchar_t) - 1) {
       if (transfer_rec->move && local)
