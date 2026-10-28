@@ -23728,6 +23728,14 @@ Validate clipboard selection format before narrowing (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-selection-format-bounds.py
 
+Match clipboard window-search index width (2026-10-28)
+=======================================================
+
+- Use an unsigned traversal index for `XQueryTree`’s child count.
+- Preserve recursive descendant search behavior without signed mismatch.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-window-search-index.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

@@ -3277,7 +3277,8 @@ ClipboardSearchForWindow(
 
     Window rootwindow, p_window, *children;
     unsigned int numchildren;
-    int found, i;
+    int found;
+    unsigned int i;
     Window *windowptr;
 
     if (XQueryTree( display, parentwindow, &rootwindow, &p_window,
