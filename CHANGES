@@ -26965,4 +26965,5 @@ Validate WSM packed-size arithmetic (2026-10-28)
 - Reject negative data lengths and invalid window-entry counts while sizing
   workspace-manager protocol messages.
 - Check every nested size addition before allocation so malformed counts cannot
-  overflow the `int` accumulator and produce a truncated message buffer.
+  overflow the `int` accumulator and produce a truncated request or reply
+  message buffer.

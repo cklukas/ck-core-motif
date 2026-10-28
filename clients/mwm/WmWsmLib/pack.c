@@ -205,7 +205,10 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	    request->connect.known_versions == NULL)
 	    return(NULL);
 	size = COUNT_SIZE;
-	size += sizeof(CARD8) * request->connect.num_versions;
+	if (!AddPackedSize(&size,
+			   (size_t)sizeof(CARD8) *
+			   (size_t)request->connect.num_versions))
+	    return(NULL);
 	break;
     case WSM_EXTENSIONS:
 	if (request->extensions.num_extensions < 0)
@@ -215,8 +218,10 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	    return(NULL);
 	size = COUNT_SIZE;
 	for (i = 0; i < request->extensions.num_extensions; i++) {
-	    size += (WSMStringLength(request->extensions.extension_suggestions[i]) +
-		     COUNT_SIZE);
+	    if (!AddPackedSize(&size,
+			       WSMStringLength(request->extensions.extension_suggestions[i]) +
+			       COUNT_SIZE))
+		return(NULL);
 	}
 	break;
     case WSM_CONFIG_FMT:
@@ -271,15 +276,20 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 		  request->wm_windows.match_attributes[i]->prohibited_attributes == NULL)))
 		return(NULL);
 	size = sizeof(CARD32); /* flag */
-	size += COUNT_SIZE;    /* prop count */
-	size += request->wm_windows.num_window_properties * sizeof(CARD32);
-	size += COUNT_SIZE;    /* num match attributes */
+	if (!AddPackedSize(&size, COUNT_SIZE) ||
+	    !AddPackedSize(&size,
+			   (size_t)request->wm_windows.num_window_properties *
+			   sizeof(CARD32)) ||
+	    !AddPackedSize(&size, COUNT_SIZE))
+	    return(NULL);
 	for (i=0; i<request->wm_windows.num_match_attributes; i++)
 	  {
-	    size += COUNT_SIZE; /* num attributes */
-	    size += 2 *
-	            request->wm_windows.match_attributes[i]->num_attributes *
-		    sizeof(CARD32);
+	    if (!AddPackedSize(&size, COUNT_SIZE) ||
+		!AddPackedSize(&size,
+			       (size_t)2 *
+			       (size_t)request->wm_windows.match_attributes[i]->num_attributes *
+			       sizeof(CARD32)))
+		return(NULL);
 	  }
 	break;
     case WSM_WM_FOCUS:

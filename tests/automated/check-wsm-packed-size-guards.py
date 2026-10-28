@@ -13,4 +13,6 @@ win_data = text[text.index("WinDataSizePacked(Display *dpy"):text.index("/******
 assert "win_data->data_len < 0" in win_data
 assert "!AddPackedSize(&size" in win_data
 assert "WinInfoSizePacked" in text and "!AddPackedSize(&size, (size_t)win_size)" in text
+assert "request->wm_windows.num_window_properties" in text
+assert "WSMStringLength(request->extensions.extension_suggestions[i])" in text
 print("WSM packed-size arithmetic is checked")
