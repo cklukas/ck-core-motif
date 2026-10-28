@@ -1704,7 +1704,8 @@ _XmRCPreferredSize(
 	   }
 
 	    if (AlignmentBaselineTop(m) || AlignmentBaselineBottom(m)) {
-	      if (XmWidgetGetBaselines(rc_kid, &baselines, &line_count)) {
+	      if (XmWidgetGetBaselines(rc_kid, &baselines, &line_count) &&
+		  line_count > 0 && baselines != NULL) {
 		if (AlignmentBaselineTop(m))
 		    RC_Boxes(m) [i].baseline = baselines[0] - displayRect.y + y;
 		else if (AlignmentBaselineBottom(m))
@@ -1829,12 +1830,16 @@ _XmRCAdaptToSize(
 	   Dimension *baselines;
 	   int line_count;
 	   
-	   XmWidgetGetBaselines(RC_Boxes(m) [i].kid, &baselines, &line_count);
-	   if (AlignmentBaselineTop(m))
-	     RC_Boxes(m) [i].baseline = baselines[0];
-	   else if (AlignmentBaselineBottom(m))
-	     RC_Boxes(m) [i].baseline = baselines[line_count - 1];
-	   XtFree((char *)baselines);
+	   if (XmWidgetGetBaselines(RC_Boxes(m) [i].kid, &baselines, &line_count) &&
+	       line_count > 0 && baselines != NULL) {
+	     if (AlignmentBaselineTop(m))
+	       RC_Boxes(m) [i].baseline = baselines[0];
+	     else if (AlignmentBaselineBottom(m))
+	       RC_Boxes(m) [i].baseline = baselines[line_count - 1];
+	     XtFree((char *)baselines);
+	   }
+	   else
+	     RC_Boxes(m) [i].baseline = 0;
 	 }
 	 else
 	   RC_Boxes(m) [i].baseline = 0;

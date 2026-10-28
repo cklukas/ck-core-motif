@@ -28233,6 +28233,13 @@ Frame title baseline bounds (2026-10-28)
   allowing empty results to use the existing fallback geometry. See
   `docs/frame-baseline-count.md`.
 
+RowColumn baseline bounds (2026-10-28)
+======================================
+
+- Require non-empty baseline results in both RowColumn baseline-layout paths,
+  preserving zero-baseline fallback geometry for empty queries. See
+  `docs/rclayout-baseline-count.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
