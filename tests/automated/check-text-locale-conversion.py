@@ -7,6 +7,6 @@ start = source.index("_XmTextToLocaleText(")
 end = source.index("void\n_XmConvertComplete", start)
 region = source[start:end]
 assert "*success = False;" in region
-assert "if (w == NULL || value == NULL)" in region
+assert "if (w == NULL || value == NULL || length > (unsigned long)INT_MAX)" in region
 assert "COMPOUND_TEXT = XInternAtom" in region
 print("locale-text conversion fails deterministically for invalid inputs")
