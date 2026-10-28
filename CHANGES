@@ -34,6 +34,7 @@ Reject invalid DataField value conversion (2026-10-29)
   setter.
 - Check `strlen`/`mbstowcs` measurements before narrowing setter callback
   lengths to `int`.
+- Preserve `wcstombs`/`mbstowcs` widths in public DataField string getters.
 
 Reject invalid DataField keyboard conversion (2026-10-29)
 ===========================================================

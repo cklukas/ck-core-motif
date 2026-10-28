@@ -23,5 +23,11 @@ assert "size_t measured_length;" in setter
 assert "measured_length == (size_t)-1" in setter
 assert "measured_length > (size_t)INT_MAX" in setter
 assert "length = (int)measured_length" in setter
+getter = source[source.index("XmDataFieldGetString(\n        Widget"):]
+assert "size_t ret_val = 0;" in getter
+assert "ret_val == (size_t)-1" in getter
+selection = source[source.index("XmDataFieldGetSelectionWcs(\n        Widget"):]
+assert "size_t return_val;" in selection
+assert "return_val == (size_t)-1" in selection
 
 print("PASS DataField value conversion rejects invalid multibyte input")

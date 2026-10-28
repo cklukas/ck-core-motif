@@ -12,6 +12,8 @@ The wide-string setter also keeps the `wcstombs` result in its native
 `size_t` width before checking failure.
 The narrow/wide string setter also checks measured lengths and rejects invalid
 multibyte input before narrowing to its legacy `int` callback length.
+The public string and selected-text getters likewise preserve conversion
+result widths and test the correct failure sentinel.
 
 Regression coverage:
 

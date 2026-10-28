@@ -11605,7 +11605,7 @@ XmDataFieldGetString(
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     char *temp_str;
     size_t capacity;
-    int ret_val = 0;
+    size_t ret_val = 0;
 
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
@@ -11641,7 +11641,7 @@ XmDataFieldGetString(
 	    }
 	    ret_val = wcstombs(temp_str, XmTextF_wc_value(tf), 
 			       capacity);
-	    if (ret_val < 0) 
+	    if (ret_val == (size_t)-1)
 	    {
 		temp_str[0] = '\0';
 	    }
@@ -12750,7 +12750,7 @@ XmDataFieldGetSelectionWcs(
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
    size_t length;
    wchar_t *wc_value;
-   int return_val;
+   size_t return_val;
 
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
@@ -12779,7 +12779,7 @@ XmDataFieldGetSelectionWcs(
    {
        return_val = mbstowcs(wc_value, XmTextF_value(tf) + 
 			     XmTextF_prim_pos_left(tf), length);
-       if (return_val < 0) length = 0;
+       if (return_val == (size_t)-1) length = 0;
    } 
    else 
    {
