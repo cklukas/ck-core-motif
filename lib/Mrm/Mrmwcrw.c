@@ -2972,6 +2972,7 @@ Urm__CW_SafeCopyValue (long				*val,
   int			*int_dst ;
   String		char8_src ;	/* to copy string values */
   String		char8_dst ;
+  size_t		char8_length;
   float			*single_float_src ; /* to copy FP values */
   float			*single_float_dst ;
   double		*float_src ;	/* to copy FP values */
@@ -3087,7 +3088,10 @@ Urm__CW_SafeCopyValue (long				*val,
       char8_src = (String) *val ;
       if (char8_src == NULL)
 	return;
-      char8_dst = (String) XtMalloc (strlen(char8_src)+1) ;
+      char8_length = strlen(char8_src);
+      if (char8_length >= (size_t)UINT_MAX)
+	return;
+      char8_dst = (String) XtMalloc ((Cardinal)(char8_length + 1)) ;
       if (char8_dst == NULL)
 	return;
       strcpy (char8_dst, char8_src) ;
