@@ -886,8 +886,8 @@ sym_dump_control( XmConst sym_control_entry_type *az_control_entry )
 	_debug_output ("  unmanaged");
     }
 
-    _debug_output ( "  obj: %x\n", 
-	(unsigned)az_control_entry->az_con_obj );
+    _debug_output ( "  obj: %p\n",
+	(void *)az_control_entry->az_con_obj );
 
 }
 
