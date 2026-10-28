@@ -26775,3 +26775,10 @@ Bound IconFile directory-cache offsets (2026-10-28)
   `unsigned short` offset representation used by the cache record.
 - Prevent truncated offsets from making valid-looking entries point at the
   wrong names while preserving the existing uncached-directory fallback.
+Release clipboard atom names with Xlib ownership (2026-10-28)
+==============================================================
+
+- Correct `XmClipboardInquireFormat` to release `XGetAtomName` results with
+  `XFree` instead of the incompatible Xt allocator.
+- Preserve the existing clipboard format query behavior while avoiding
+  allocator mismatches under strict heap debugging.
