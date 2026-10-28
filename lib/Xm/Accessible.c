@@ -2183,7 +2183,9 @@ Boolean _XmAccessibilityNativeTextSelection(XmAccessibility *a, XmAccessibleId i
   else if (XmIsTextField(n->widget)) value = XmTextFieldGetSelectionPosition(n->widget, &start, &end);
   else return False;
   if (value && (start < 0 || end < start || end > INT_MAX)) return False;
-  *selected = value; *first = value ? (int)start : 0; *last = value ? (int)end : 0;
+  *selected = value;
+  *first = value ? bounded_text_position(start) : 0;
+  *last = value ? bounded_text_position(end) : 0;
   return True;
 }
 Boolean XmAccessibilityVisualLine(XmAccessibility *a, XmAccessibleId id, int offset,
@@ -2220,8 +2222,9 @@ Boolean XmAccessibilityVisualLine(XmAccessibility *a, XmAccessibleId id, int off
       if (index < 0) *first = *last = 0;
       else if (index >= count) *first = *last = length;
       else {
-        *first = (int)lines[index].start_pos;
-        *last = index + 1 < count ? (int)lines[index + 1].start_pos : length;
+        *first = bounded_text_position(lines[index].start_pos);
+        *last = index + 1 < count ?
+          bounded_text_position(lines[index + 1].start_pos) : length;
       }
       result = *first >= 0 && *last >= *first && *last <= length;
     }
