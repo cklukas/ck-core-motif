@@ -28,6 +28,13 @@ Clarify image color-release callback state (2026-10-29)
   callback and make its best-effort return contract explicit.
 - Add focused source coverage for the warning-free callback implementation.
 
+Clarify image-cache callback warning state (2026-10-29)
+========================================================
+
+- Mark intentionally unused hash keys, closure pointers, and no-op-build lock
+  contexts explicitly so strict warning builds report real issues.
+- Preserve all callback signatures and threaded locking behavior.
+
 Synchronize XPM serializer contract checks (2026-10-29)
 ========================================================
 

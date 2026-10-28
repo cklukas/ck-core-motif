@@ -413,6 +413,7 @@ UninstallImageMapProc (XmHashKey key, /* unused */
 		XtPointer image)
 {
   ImageData *entry = (ImageData *) value;
+  (void)key;
 
   if (entry == NULL || image == NULL)
     return False;
@@ -1983,6 +1984,7 @@ XmGetScaledPixmap(
     if (widget == NULL || image_name == NULL)
 	return XmUNSPECIFIED_PIXMAP;
     XtAppContext app = XtWidgetToApplicationContext(widget);
+    (void)app;
 
     _XmAppLock(app);
     _XmProcessLock();
@@ -2026,6 +2028,7 @@ XmGetPixmapByDepth(
 	return XmUNSPECIFIED_PIXMAP;
     XtAppContext app = XtDisplayToApplicationContext(
 				DisplayOfScreen(screen));
+    (void)app;
 
     _XmAppLock(app);
     _XmProcessLock();
@@ -2066,6 +2069,7 @@ XmGetPixmap(
 
     XtAppContext app = XtDisplayToApplicationContext(
 				DisplayOfScreen(screen));
+    (void)app;
     _XmAppLock(app);
     _XmProcessLock();
     acc_color_rec.foreground = foreground;
@@ -2106,6 +2110,7 @@ XmeGetMask(
 	return XmUNSPECIFIED_PIXMAP;
 
     app = XtDisplayToApplicationContext(DisplayOfScreen(screen));
+    (void)app;
 
     mask_name = XtMalloc((Cardinal)mask_name_size);
     if (mask_name == NULL)
@@ -2153,6 +2158,7 @@ XmDestroyPixmap(
 
    app = XtDisplayToApplicationContext(
 				DisplayOfScreen(screen));
+   (void)app;
 
    _XmAppLock(app);
    _XmProcessLock();
@@ -2358,6 +2364,7 @@ CleanGCMapProc (XmHashKey key, /* unused */
 {
   GCData *entry = (GCData *) value;
   CleanKey * ck = (CleanKey*) data ;
+  (void)key;
 
   if (entry == NULL || ck == NULL || entry->screen == NULL)
     return False;
@@ -2384,6 +2391,7 @@ CleanPixmapMapProc (XmHashKey key, /* unused */
 {
   PixmapData *entry = (PixmapData *) value;
   CleanKey * ck = (CleanKey*) data ;
+  (void)key;
 
   if (entry == NULL || ck == NULL || entry->screen == NULL)
     return False;
@@ -3017,6 +3025,7 @@ GetCacheColor(Display *display, Colormap colormap,
 	      char *colorname, XColor *xcolor, void *closure)
 {
     int status;
+    (void)closure;
     if (display == NULL || xcolor == NULL)
 	return 0;
     if (colorname) {
