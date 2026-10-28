@@ -2139,7 +2139,8 @@ Urm__CW_FixupValue (long			val,
       *swap_needed = FALSE;
       break;
     case MrmRtypeFontList:
-      if ( bufptr == NULL || val == 0 )
+      if ( bufptr == NULL || val == 0 || file_id == NULL ||
+           file_id->db_version == NULL )
 	return MrmFAILURE ;
       if (strcmp(file_id->db_version, URM1_1version) <= 0)
 	/* Converting an old style fontlist */
@@ -2198,6 +2199,8 @@ Urm__CW_FixupValue (long			val,
       {
 	RGMUnitsIntegerPtr unitsvalue;
 	    
+	if (val == 0)
+	  return MrmFAILURE;
 	unitsvalue = (RGMUnitsIntegerPtr) val;
 	if ( *swap_needed )
 	  {
@@ -2213,6 +2216,8 @@ Urm__CW_FixupValue (long			val,
 	RGMUnitsFloatPtr unitsvalue;
 	double *floatval;
 	    
+	if (val == 0)
+	  return MrmFAILURE;
 	unitsvalue = (RGMUnitsFloatPtr) val;
 	floatval = (double *)(&unitsvalue->value[0]);
 	if ( *swap_needed )

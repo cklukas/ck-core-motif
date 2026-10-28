@@ -27108,6 +27108,13 @@ Reject negative Mrm reader vector counts (2026-10-28)
   conversion and legacy font-list fixup.
 - Preserve valid bounded vector conversion and callback behavior.
 
+Guard Mrm value-fixup pointer inputs (2026-10-28)
+==================================================
+
+- Reject missing font-list file metadata before version inspection.
+- Reject null unit-valued integer and floating-point fixup values before
+  dereferencing them.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
