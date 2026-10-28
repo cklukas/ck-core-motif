@@ -120,6 +120,13 @@ Clean up clipboard-source target failures (2026-10-29)
   setup failures, and zero-transfer exits after clipboard startup.
 - Centralize the abort path and add focused failure-exit coverage.
 
+Handle clipboard-source end failures (2026-10-29)
+==================================================
+
+- Check `XmClipboardEndCopy` before reporting a successful source transfer.
+- Cancel unfinished clipboard transactions when finalization fails, with
+  focused regression coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

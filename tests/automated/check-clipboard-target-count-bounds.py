@@ -11,6 +11,6 @@ body = source[start:end]
 
 assert body.count("value == NULL || size > (unsigned long)INT_MAX") == 2
 assert body.count("count = (int)size;") == 2
-assert body.count("XmClipboardEndCopy(display, XtWindow(w), itemid);") >= 4
+assert body.count("EndClipboardSource(display, XtWindow(w), itemid)") >= 6
 
 print("PASS clipboard target-list lengths are bounded before narrowing")

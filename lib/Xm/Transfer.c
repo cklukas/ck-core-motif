@@ -862,6 +862,17 @@ AbortClipboardSource(Widget w, Display *display, Atom selection, Time time,
   ClearContextBlock(display, selection);
 }
 
+static int
+EndClipboardSource(Display *display, Window window, long itemid)
+{
+  int status = XmClipboardEndCopy(display, window, itemid);
+
+  if (status != XmClipboardSuccess)
+    (void) XmClipboardCancelCopy(display, window, itemid);
+
+  return status;
+}
+
 Boolean
 XmeClipboardSource(Widget w, XtEnum op, Time time)
 {
@@ -970,7 +981,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       type == XA_ATOM && format == 32) {
     if (value == NULL || size > (unsigned long)INT_MAX) {
       XtFree((char *)value);
-      XmClipboardEndCopy(display, XtWindow(w), itemid);
+      (void) EndClipboardSource(display, XtWindow(w), itemid);
       AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
                            clipboard_owner != None);
       _XmAppUnlock(app);
@@ -1030,7 +1041,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       type == XA_ATOM && format == 32) {
     if (value == NULL || size > (unsigned long)INT_MAX) {
       XtFree((char *)value);
-      XmClipboardEndCopy(display, XtWindow(w), itemid);
+      (void) EndClipboardSource(display, XtWindow(w), itemid);
       AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
                            clipboard_owner != None);
       _XmAppUnlock(app);
@@ -1048,7 +1059,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	if (DataIdDictionary == NULL) {
 	    XtFree((char *)value);
 	    XtFree((char *)targets);
-	    XmClipboardEndCopy(display, XtWindow(w), itemid);
+	    (void) EndClipboardSource(display, XtWindow(w), itemid);
 	    AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
 	                         clipboard_owner != None);
 	    _XmAppUnlock(app);
@@ -1073,7 +1084,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       if (value == NULL || size2 != 1 || format2 != 32) {
 	XtFree((char *)value);
 	XtFree((char *)targets);
-	XmClipboardEndCopy(display, XtWindow(w), itemid);
+	(void) EndClipboardSource(display, XtWindow(w), itemid);
 	AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
 	                     clipboard_owner != None);
 	_XmAppUnlock(app);
@@ -1085,7 +1096,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	if (req == NULL) {
 	    XtFree((char *)value);
 	    XtFree((char *)targets);
-	    XmClipboardEndCopy(display, XtWindow(w), itemid);
+	    (void) EndClipboardSource(display, XtWindow(w), itemid);
 	    AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
                          clipboard_owner != None);
 	    _XmAppUnlock(app);
@@ -1128,7 +1139,12 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
     XtFree((char *)value);
     value = NULL;
   }
-  XmClipboardEndCopy(display, XtWindow(w), itemid);
+  if (EndClipboardSource(display, XtWindow(w), itemid) != XmClipboardSuccess) {
+    AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
+                         clipboard_owner != None);
+    _XmAppUnlock(app);
+    return(False);
+  }
   
   if (op == XmMOVE && transferred != 0) {
     value = NULL;

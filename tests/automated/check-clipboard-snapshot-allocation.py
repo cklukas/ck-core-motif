@@ -9,5 +9,5 @@ start = source.index("Boolean\nXmeClipboardSource(")
 body = source[start:source.index("static void \nClipboardCallback", start)]
 assert "if (DataIdDictionary == NULL)" in body
 assert "if (req == NULL)" in body
-assert "XmClipboardEndCopy" in body
+assert "EndClipboardSource" in body
 print("PASS deferred clipboard snapshot allocations are checked")

@@ -26,3 +26,7 @@ left behind.
 
 Target-list, snapshot, and zero-transfer failures after startup use the same
 abort path, so manager-backed ownership is not retained after partial setup.
+
+End-copy failures are checked explicitly.  An unsuccessful finalization now
+attempts `XmClipboardCancelCopy` before the source clears its context and
+reports failure, preventing a half-open clipboard transaction.
