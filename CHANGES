@@ -23752,6 +23752,14 @@ Validate clipboard client-message Atom payloads (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-client-message-atoms.py
 
+Harden clipboard event-message Atom comparisons (2026-10-28)
+===============================================================
+
+- Reject unrepresentable request/delete Atom IDs in the event receiver.
+- Compare representable IDs explicitly in the signed client-message domain.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-event-message-atoms.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

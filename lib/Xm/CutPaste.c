@@ -1006,6 +1006,9 @@ ClipboardEventHandler(
 
     assert(XtNumber(atom_names) == NUM_ATOMS);
     XInternAtoms( display, atom_names, XtNumber(atom_names), False, atoms );
+    if (atoms[XmA_MOTIF_CLIP_DATA_REQUEST] > (Atom)LONG_MAX ||
+	 atoms[XmA_MOTIF_CLIP_DATA_DELETE] > (Atom)LONG_MAX)
+	return ;
     if (event_rcvd->message_type != atoms[XmA_MOTIF_CLIP_MESSAGE])
       return ;
 
@@ -1048,10 +1051,10 @@ ClipboardEventHandler(
 
     reason = 0;
 
-    if ( event_rcvd->data.l[0] == atoms[XmA_MOTIF_CLIP_DATA_REQUEST] )
+    if ( event_rcvd->data.l[0] == (long)atoms[XmA_MOTIF_CLIP_DATA_REQUEST] )
     	reason = XmCR_CLIPBOARD_DATA_REQUEST;
 
-    if ( event_rcvd->data.l[0] == atoms[XmA_MOTIF_CLIP_DATA_DELETE] )
+    if ( event_rcvd->data.l[0] == (long)atoms[XmA_MOTIF_CLIP_DATA_DELETE] )
     	reason = XmCR_CLIPBOARD_DATA_DELETE;
 
     if ( reason == 0 )
