@@ -26828,3 +26828,10 @@ Use the screen background for image fallbacks (2026-10-28)
   appearance background, instead of silently compositing against pixel zero.
 - Preserve explicit application background resources while avoiding unexpected
   black image regions on ordinary screens.
+Guard Motif path resolution inputs (2026-10-28)
+================================================
+
+- Reject null path, output-pointer, or scratch-buffer arguments in
+  `_XmOSAbsolutePathName` before dereferencing them.
+- Preserve normal absolute and relative path resolution while making malformed
+  icon/resource lookup inputs fail safely.

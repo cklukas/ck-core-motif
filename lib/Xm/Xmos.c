@@ -1326,6 +1326,8 @@ _XmOSAbsolutePathName(String path, String *pathRtn, String buf)
 {
     Boolean 	doubleDot = False;
 
+    if (path == NULL || pathRtn == NULL || buf == NULL)
+	return False;
     *pathRtn = path;
 
     if (path[0] == '/')
