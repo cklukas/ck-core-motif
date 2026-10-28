@@ -786,14 +786,23 @@ void db_read_int_and_shorts(header)
 /*
  *  Local variables
  */
-	int			return_num_items, i, int_table_size=0;
+	int			return_num_items, i;
+	size_t		item_count, int_table_count = 0;
 	UilEnumSetDescDef	*table = NULL;
-	unsigned short int 	*int_table;
+	unsigned short int 	*int_table = NULL;
+
+	if (header == NULL || header->num_items < 0 ||
+	    header->table_size < 0 || header->num_items == INT_MAX)
+	    return;
+	item_count = (size_t)header->num_items + 1;
+	if (item_count > SIZE_MAX / sizeof(*table) ||
+	    item_count * sizeof(*table) > (size_t)header->table_size)
+	    return;
 	 
 	switch (header->table_id)
 	    {
 	    case Enum_Set_Table:
-		enum_set_table = (UilEnumSetDescDef *) XtCalloc (1, header->table_size);
+		enum_set_table = (UilEnumSetDescDef *) XtCalloc (1, (Cardinal)header->table_size);
 		table = enum_set_table;
 		break;
 	    default:
@@ -806,16 +815,25 @@ void db_read_int_and_shorts(header)
 	 * Get all the integer tables with one read.
 	 * Reassign the addresses of the tables.
 	 */
-	return_num_items = fread(table, header->table_size, 1, dbfile);
+	if (table == NULL)
+	    return;
+	return_num_items = (int)fread(table, (size_t)header->table_size, 1, dbfile);
 	_check_read (return_num_items);
 	for ( i=0 ; i<=header->num_items; i++)
 	    {
-	    int_table_size += table[i].values_cnt;
+	    if (table[i].values_cnt < 0 ||
+		int_table_count > (size_t)UINT_MAX / sizeof(unsigned short) -
+		    (size_t)table[i].values_cnt)
+		return;
+	    int_table_count += (size_t)table[i].values_cnt;
 	    }
 
-	int_table = (unsigned short int *) XtCalloc (1, sizeof (short) * int_table_size);
-	return_num_items = fread(int_table, 
-				    sizeof(short) * int_table_size,
+	int_table = (unsigned short int *) XtCalloc
+	    (1, (Cardinal)(sizeof(unsigned short) * int_table_count));
+	if (int_table == NULL && int_table_count != 0)
+	    return;
+	return_num_items = (int)fread(int_table,
+				    sizeof(unsigned short) * int_table_count,
 				    1, dbfile);
 	_check_read (return_num_items);
 	for ( i=0 ; i<=header->num_items; i++)

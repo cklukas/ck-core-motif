@@ -24435,3 +24435,11 @@ Bound UIL database character tables (2026-10-29)
 - Add focused coverage and documentation.
 
 Bound UIL database name-length tables (2026-10-29)
+Bound UIL database integer tables (2026-10-29)
+===============================================
+
+- Validate enumeration descriptor capacity and value-count accumulation
+  before allocating or rebasing unsigned-short tables.
+- Add focused coverage and documentation.
+
+Bound UIL database character tables (2026-10-29)
