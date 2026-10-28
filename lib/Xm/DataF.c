@@ -11240,8 +11240,9 @@ df_SetValues(
          /* If the function df_ModifyVerify() returns false then don't
           * continue with the action.
           */
-	  char *temp, *old;
+	  char *temp = NULL, *old = NULL;
 	  size_t temp_capacity;
+	  size_t converted;
 	  int free_insert = (int)False;
           XmTextPosition fromPos = 0, toPos;
           toPos = XmTextF_string_length(old_tf);
@@ -11268,13 +11269,19 @@ df_SetValues(
 		}
 	     }
 	     if (mod_ver_ret && temp != NULL) {
-		(void)wcstombs(temp, XmTextF_wc_value(new_tf),
-		    temp_capacity);
-		mod_ver_ret = df_ModifyVerify(new_tf, NULL, &fromPos, &toPos, &temp,
-					       &XmTextF_string_length(new_tf), &newInsert,
-					       &free_insert);
+		converted = wcstombs(temp, XmTextF_wc_value(new_tf),
+		                     temp_capacity);
+		if (converted == (size_t)-1 || converted >= temp_capacity) {
+		   mod_ver_ret = False;
+		   temp[0] = '\0';
+		} else {
+		   temp[converted] = '\0';
+		   mod_ver_ret = df_ModifyVerify(new_tf, NULL, &fromPos, &toPos,
+					       &temp, &XmTextF_string_length(new_tf),
+					       &newInsert, &free_insert);
+		}
 	     }
-     if (mod_ver_ret && old != temp) XtFree (old);
+	     if (old != temp) XtFree (old);
           }
 	  if (free_insert) XtFree(temp);
           if (!mod_ver_ret) {

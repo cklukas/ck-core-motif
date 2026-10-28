@@ -25942,3 +25942,9 @@ Validate DataField wide-value export (2026-10-29)
 
 - Check `wcstombs` failure and capacity before publishing rebuilt narrow
   storage, and reset the widget safely when conversion cannot complete.
+
+Validate DataField modify-verify snapshots (2026-10-29)
+========================================================
+
+- Reject failed or unterminated wide-to-narrow callback snapshots and make
+  their cleanup safe when allocation or conversion fails.
