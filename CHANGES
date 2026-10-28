@@ -27020,3 +27020,9 @@ Reject negative Mrm callback counts (2026-10-28)
 - Reject negative callback descriptor counts during callback fixup instead of
   silently treating them as empty lists.
 - Preserve valid callback resolution and ordering.
+Fix Mrm callback-writer terminator sizing (2026-10-28)
+=======================================================
+
+- Allocate the terminating callback item written by both Mrm callback-builder
+  APIs.
+- Validate the complete descriptor size before writing callback entries.

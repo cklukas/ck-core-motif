@@ -1157,6 +1157,7 @@ UrmCWRSetArgCallback (URMResourceContextPtr	context_id ,
   RGMArgListDescPtr	argdesc ;	/* arglist desc in record */
   RGMArgumentPtr	argptr ;	/* argument being set */
   size_t		descsiz ;	/* descriptor size */
+  size_t		item_count ;
   MrmOffset		offset ;	/* RGMCallbackDesc offset */
   RGMCallbackDescPtr	cbdesc ;	/* resource descriptor */
   int			ndx ;		/* loop index */
@@ -1184,12 +1185,16 @@ UrmCWRSetArgCallback (URMResourceContextPtr	context_id ,
    */
   if ( nitems > RGMListSizeMax ||
        sizeof(RGMCallbackDesc) > USHRT_MAX ||
-       (size_t)nitems >
+	   (size_t)nitems == SIZE_MAX)
+	return Urm__UT_Error ("UrmCWRSetArgCallback", _MrmMMsg_0109,
+			      NULL, context_id, MrmTOO_MANY) ;
+  item_count = (size_t)nitems + 1;
+  if (item_count >
 	 (USHRT_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem) )
     return Urm__UT_Error ("UrmCWRSetArgCallback", _MrmMMsg_0109,
 			  NULL, context_id, MrmTOO_MANY) ;
 
-  descsiz = sizeof(RGMCallbackDesc) + (nitems)*sizeof(RGMCallbackItem) ;
+  descsiz = sizeof(RGMCallbackDesc) + item_count*sizeof(RGMCallbackItem) ;
   result = UrmCWR__GuaranteeSpace (context_id, descsiz, &offset, 
 				   (char **)&cbdesc) ;
   if ( result != MrmSUCCESS ) return result ;
@@ -1906,6 +1911,7 @@ UrmCWRSetCreationCallback (URMResourceContextPtr	context_id ,
   Cardinal		result ;	/* function results */
   RGMWidgetRecordPtr	widgetrec ;	/* widget record in context */
   size_t		descsiz ;	/* descriptor size */
+  size_t		item_count ;
   MrmOffset		offset ;	/* RGMCallbackDesc offset */
   RGMCallbackDescPtr	cbdesc ;	/* resource descriptor */
   int			ndx ;		/* loop index */
@@ -1928,12 +1934,16 @@ UrmCWRSetCreationCallback (URMResourceContextPtr	context_id ,
    */
   if ( nitems > RGMListSizeMax ||
        sizeof(RGMCallbackDesc) > USHRT_MAX ||
-       (size_t)nitems >
+	   (size_t)nitems == SIZE_MAX)
+	return Urm__UT_Error ("UrmCWRSetCreationCallback", _MrmMMsg_0109,
+			      NULL, context_id, MrmTOO_MANY) ;
+  item_count = (size_t)nitems + 1;
+  if (item_count >
 	 (USHRT_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem) )
     return Urm__UT_Error ("UrmCWRSetCreationCallback", _MrmMMsg_0109,
 			  NULL, context_id, MrmTOO_MANY) ;
 
-  descsiz = sizeof(RGMCallbackDesc) + (nitems)*sizeof(RGMCallbackItem) ;
+  descsiz = sizeof(RGMCallbackDesc) + item_count*sizeof(RGMCallbackItem) ;
   result = UrmCWR__GuaranteeSpace (context_id, descsiz, &offset, 
 				   (char **)&cbdesc) ;
   if ( result != MrmSUCCESS ) return result ;
