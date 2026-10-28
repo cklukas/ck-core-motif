@@ -2053,7 +2053,7 @@ CBListAction(Widget    widget,
 	assert(n <= XtNumber(args));
 	XtGetValues(CB_List(cb), args, n);
 
-	if (count)
+	if (count && pos != NULL)
 	  {
 	    switch (direction)
 	      {

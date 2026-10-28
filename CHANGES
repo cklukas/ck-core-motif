@@ -28254,6 +28254,13 @@ ComboBox Up-navigation boundary (2026-10-28)
   zero to the one-based List selection API. See
   `docs/combobox-up-boundary.md`.
 
+ComboBox selection-pointer guard (2026-10-28)
+=============================================
+
+- Require a non-null selected-position array before ComboBox keyboard
+  navigation dereferences it, preserving safe behavior on failed list
+  queries. See `docs/combobox-selection-pointer.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
