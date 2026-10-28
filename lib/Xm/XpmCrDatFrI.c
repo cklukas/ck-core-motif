@@ -275,13 +275,19 @@ CreateColors(
     char *s, *s2;
     char **defaults;
 
+    if (cpp == 0)
+	return (XpmFileInvalid);
+
     /* can ncolors be trusted here? */
     for (a = 0; a < ncolors; a++, colors++, dataptr++) {
 
 	defaults = (char **) colors;
 	if(sizeof(buf) <= cpp)
 	    return(XpmNoMemory);
-	strncpy(buf, *defaults++, cpp);
+	if (colors->string == NULL || strlen(colors->string) < cpp)
+	    return (XpmFileInvalid);
+	memcpy(buf, colors->string, cpp);
+	defaults++;
 	s = buf + cpp;
 
 	if(sizeof(buf) <= (size_t)(s - buf))
@@ -335,7 +341,7 @@ CreatePixels(
     unsigned int x, y, h, offset;
 
     if (dataptr == NULL || *dataptr == NULL || pixels == NULL ||
-	colors == NULL || ncolors == 0)
+	colors == NULL || ncolors == 0 || cpp == 0)
 	return 0;
 
     if(height <= 1)
@@ -357,9 +363,10 @@ CreatePixels(
 	for (x = 0; x < width; x++, pixels++) {
 	    if ((size_t)(s - *dataptr) > data_size ||
 		cpp >= data_size - (size_t)(s - *dataptr) ||
-		*pixels >= ncolors || colors[*pixels].string == NULL)
+		*pixels >= ncolors || colors[*pixels].string == NULL ||
+		strlen(colors[*pixels].string) < cpp)
 		return 0;
-	    strncpy(s, colors[*pixels].string, cpp);
+	    memcpy(s, colors[*pixels].string, cpp);
 	    s += cpp;
 	}
 	*s = '\0';
@@ -373,9 +380,10 @@ CreatePixels(
     for (x = 0; x < width; x++, pixels++) {
 	if ((size_t)(s - *dataptr) > data_size ||
 	    cpp >= data_size - (size_t)(s - *dataptr) ||
-	    *pixels >= ncolors || colors[*pixels].string == NULL)
+	    *pixels >= ncolors || colors[*pixels].string == NULL ||
+	    strlen(colors[*pixels].string) < cpp)
 	    return 0;
-	strncpy(s, colors[*pixels].string, cpp);
+	memcpy(s, colors[*pixels].string, cpp);
 	s += cpp;
     }
     *s = '\0';

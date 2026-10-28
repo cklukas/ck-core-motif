@@ -1,3 +1,11 @@
+Validate XPM data color-token width (2026-10-29)
+=================================================
+
+- Reject zero `cpp` and missing or short primary color tokens in data-buffer
+  color and pixel serialization.
+- Copy valid tokens exactly instead of allowing `strncpy` padding.
+- Add focused coverage and documentation.
+
 Propagate XPM reader close failures (2026-10-29)
 =================================================
 
