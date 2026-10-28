@@ -36,7 +36,7 @@ extern "C" {
 typedef struct _DragPixmapData {
     Pixmap		pixmap;
     int			x, y;
-    unsigned int	width, height;
+    Dimension	width, height;
 } DragPixmapData;
 
 typedef struct _XmAnimationSaveData {

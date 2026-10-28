@@ -24055,3 +24055,13 @@ Regression: tests/automated/check-dragicc-receiver-count.py
 
 Bound Drag ICC receiver resource widths (2026-10-28)
 =====================================================
+Match DragUnder saved-pixmap dimensions to Motif types (2026-10-28)
+====================================================================
+
+- Store internal saved-pixmap width and height as `Dimension`.
+- Match `_XmAllocScratchPixmap` and SaveSegments parameter types.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-dragunder-pixmap-dimensions.py
+
+Bound Drag ICC receiver drop-site counts (2026-10-28)
+=====================================================
