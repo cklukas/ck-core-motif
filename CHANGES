@@ -1,3 +1,10 @@
+Propagate XPM data extension write failures (2026-10-29)
+==========================================================
+
+- Make extension serialization status-returning and check formatting/input
+  failures at the data-builder call site.
+- Add focused coverage and documentation.
+
 Validate XPM data extension inputs (2026-10-29)
 ================================================
 

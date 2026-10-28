@@ -53,7 +53,7 @@ LFUNC(CountExtensions, int, (XpmExtension *ext, unsigned int num,
 			      unsigned int *ext_size,
 			      unsigned int *ext_nlines));
 
-LFUNC(CreateExtensions, void, (char **dataptr, unsigned int data_size,
+LFUNC(CreateExtensions, int, (char **dataptr, unsigned int data_size,
 			       unsigned int offset,
 			       XpmExtension *ext, unsigned int num,
 			       unsigned int ext_nlines));
@@ -241,11 +241,12 @@ XpmCreateDataFromXpmImage(
 	RETURN(XpmFileInvalid);
 
     /* print extensions */
-    if (extensions)
-	CreateExtensions(data + header_nlines + image->height - 1,
+
+    if (extensions && !CreateExtensions(data + header_nlines + image->height - 1,
 			 data_size - header_nlines - image->height + 1, offset,
 			 info->extensions, info->nextensions,
-			 ext_nlines);
+			 ext_nlines))
+	RETURN(XpmFileInvalid);
 
     *data_return = data;
     ErrorStatus = XpmSuccess;
@@ -444,7 +445,7 @@ CountExtensions(
     return (0);
 }
 
-static void
+static int
 CreateExtensions(
     char		**dataptr,
     unsigned int	  data_size,
@@ -455,18 +456,31 @@ CreateExtensions(
 {
     unsigned int x, y, a, b;
     char **line;
+    int written;
+
+    if (dataptr == NULL || *dataptr == NULL || ext == NULL ||
+	data_size == 0 || ext_nlines == 0)
+	return (0);
 
     *(dataptr + 1) = *dataptr + offset;
     dataptr++;
     a = 0;
     for (x = 0; x < num; x++, ext++) {
-	snprintf(*dataptr, data_size, "XPMEXT %s", ext->name);
+	if (ext->name == NULL)
+	    return (0);
+	written = snprintf(*dataptr, data_size, "XPMEXT %s", ext->name);
+	if (written < 0 || (size_t)written >= data_size)
+	    return (0);
 	a++;
 	if (a < ext_nlines)
 	    *(dataptr + 1) = *dataptr + strlen(ext->name) + 8;
 	dataptr++;
 	b = ext->nlines; /* can we trust these values? */
+	if (b != 0 && ext->lines == NULL)
+	    return (0);
 	for (y = 0, line = ext->lines; y < b; y++, line++) {
+	    if (*line == NULL)
+		return (0);
 	    strcpy(*dataptr, *line);
 	    a++;
 	    if (a < ext_nlines)
@@ -475,4 +489,5 @@ CreateExtensions(
 	}
     }
     strcpy(*dataptr, "XPMENDEXT");
+    return (1);
 }

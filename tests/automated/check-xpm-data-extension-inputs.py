@@ -6,7 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "XpmCrDatFrI.c").read_text(
     encoding="utf-8"
 )
 start = source.index("static int\nCountExtensions(")
-body = source[start:source.index("static void\nCreateExtensions", start)]
+body = source[start:source.index("static int\nCreateExtensions", start)]
 assert "ext_size == NULL || ext_nlines == NULL" in body
 assert "if (num == 0)" in body
 assert "if (ext == NULL)" in body
