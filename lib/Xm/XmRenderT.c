@@ -3605,9 +3605,7 @@ _XmXftDrawCreate(Display *display, Window window)
 	    _XmXftDrawCache = new_cache;
 	    _XmXftDrawCacheSize = new_size;
 	}
-#ifdef FIX_1449
 	memset(_XmXftDrawCache + i, 0, (_XmXftDrawCacheSize - i) * sizeof(*_XmXftDrawCache));
-#endif
 
 	_XmXftDrawCache[i].display = display;
 	_XmXftDrawCache[i].draw = draw;

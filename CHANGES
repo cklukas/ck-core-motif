@@ -27157,6 +27157,13 @@ Avoid caching failed Xft draws (2026-10-28)
 - Return failed draw creation without inserting a null cache entry.
 - Allow later calls to retry creation after drawable or display state changes.
 
+Initialize all Xft cache slots (2026-10-28)
+============================================
+
+- Zero newly allocated draw-cache slots in every build, rather than only when
+  the optional `FIX_1449` macro is enabled.
+- Prevent uninitialized cache entries from being mistaken for live draws.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
