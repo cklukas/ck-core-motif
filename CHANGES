@@ -26182,3 +26182,9 @@ Bound scrolled Text allocations (2026-10-29)
 
 - Check derived-name and merged-argument sizes before narrowing them to Xt
   stack-allocation widths.
+
+Bound Text block lengths (2026-10-29)
+=====================================
+
+- Reject oversized source and preedit byte strings before converting their
+  `strlen()` results to signed Text block lengths.

@@ -2388,6 +2388,7 @@ InitializeHook(Widget wid,
   XmTextPosition top_character;
   XmTextBlockRec block;
   Position dummy;
+  size_t block_length;
   Boolean used_source = False;
   
   tw = (XmTextWidget) wid;
@@ -2551,7 +2552,12 @@ InitializeHook(Widget wid,
     if (tw->text.char_size == 1) {
       block.ptr = tw->text.source->data->ptr;
       if (block.ptr == NULL) block.length = 0;
-      else block.length = strlen(block.ptr);
+      else {
+        block_length = strlen(block.ptr);
+        if (block_length > (size_t)INT_MAX)
+          return;
+        block.length = (int)block_length;
+      }
     } else 
       (void)(*tw->text.source->ReadSource)(source, 0, source->data->length,
 					       &block);
@@ -3706,7 +3712,16 @@ PreeditDone(XIC xic,
 	(*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position,
                                                                 off);
     	block.ptr = mb;
-    	block.length = strlen(block.ptr);
+	    mb_length = strlen(block.ptr);
+	    if (mb_length > (size_t)INT_MAX) {
+	      if (PreOverMaxLen(tw) != PreOverLen(tw))
+	        XtFree(mb);
+	      (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position,
+                                              on);
+	      ResetUnder(tw);
+	      return;
+	    }
+	    block.length = (int)mb_length;
     	block.format = XmFMT_8_BIT;
 
     	(*tw->text.source->Replace)(tw, NULL, &PreStartTW(tw), &PreStartTW(tw), 
@@ -4057,7 +4072,14 @@ PreeditDraw(XIC xic,
   /* no need to verify, just insert text into buffer */
   else {
     block.ptr = mb;
-    block.length = strlen(mb);
+    mb_length = strlen(mb);
+    if (mb_length > (size_t)INT_MAX) {
+      (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
+      XtFree(mb);
+      ResetUnder(tw);
+      return;
+    }
+    block.length = (int)mb_length;
     block.format = XmFMT_8_BIT;
     if ((*tw->text.source->Replace)(tw, NULL, &startPos, &endPos, 
 				    &block, False) != EditDone) {
