@@ -28419,3 +28419,5 @@ List drag selection bounds (2026-10-28)
   while preserving its optional external-source override (2026-10-28).
 * Refreshed the Mrm callback-descriptor contract check for the current
   SIZE_MAX and item-count overflow guards (2026-10-28).
+* Refreshed the Mrm callback-item binding check for the current two-stage
+  resource callback update path (2026-10-28).

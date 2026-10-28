@@ -4,7 +4,7 @@ import os,re
 from pathlib import Path
 source=Path(os.environ.get("MOTIF_SOURCE",Path(__file__).parents[2]/"lib"/"Mrm"/"Mrmwcrwr.c"))
 text=source.read_text(encoding="utf-8")
-for routine, expected in (("UrmCWRSetCallbackItem",6),("UrmCWRSetCallbackItemRes",3)):
+for routine, expected in (("UrmCWRSetCallbackItem",6),("UrmCWRSetCallbackItemRes",2)):
     start=text.index(routine+" ("); end=text.find("\n\n\f",start)
     region=text[start:] if end<0 else text[start:end]
     binds=re.findall(r'(?m)^\s*(result = )?UrmCWR__BindCallbackPtrs',region)
