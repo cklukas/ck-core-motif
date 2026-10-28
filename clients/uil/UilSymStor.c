@@ -718,8 +718,8 @@ sym_dump_symbol (sym_entry_type *az_symbol_entry)
 		int	    *l_array;
 		int	    i;
 
-		_debug_output("%x  unknown type: %d  size: %d  byte: %x\n", 
-			      (unsigned)az_symbol_entry,
+		_debug_output("%p  unknown type: %d  size: %d  byte: %x\n",
+			      (void *)az_symbol_entry,
 			      az_symbol_entry->header.b_tag,
 			      az_symbol_entry->header.w_node_size,
 			      az_symbol_entry->header.b_type );
