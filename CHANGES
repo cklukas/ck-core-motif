@@ -28456,3 +28456,5 @@ List drag selection bounds (2026-10-28)
   checkout with the correct IDB top-level implementation default (2026-10-28).
 * Made the Mrm RID-resource context contract check runnable from a source
   checkout with the correct IDB top-level implementation default (2026-10-28).
+* Made the Mrm compression-table fixup contract check runnable from a source
+  checkout with the correct table implementation default (2026-10-28).
