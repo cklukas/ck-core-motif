@@ -24013,3 +24013,14 @@ Regression: tests/automated/check-dragicc-swap16.py
 
 Make Drag ICC wire widths explicit (2026-10-28)
 ================================================
+Bound Drag ICC initiator metadata (2026-10-28)
+==============================================
+
+- Reject target-table indexes that cannot fit the 16-bit initiator property.
+- Use `Cardinal` argument counters at Xt get/set calls.
+- Make the ICC handle's 32-bit property conversion explicit.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-dragicc-initiator-bounds.py
+
+Preserve Drag ICC 16-bit swap representations (2026-10-28)
+============================================================

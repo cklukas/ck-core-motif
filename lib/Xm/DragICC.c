@@ -756,12 +756,13 @@ _XmWriteInitiatorInfo(
 {
     xmDragInitiatorInfoStruct	infoRec;
     Atom		initiatorAtom;
-    int			i = 0;
+    Cardinal		i = 0;
     Window		srcWindow;
     Arg			args[8];
     XmDisplay		xmDisplay = (XmDisplay)XtParent(dc);
     Atom		*exportTargets;
     Cardinal		numExportTargets;
+    Cardinal		targetsIndex;
     Atom		iccHandle;
 
     XtSetArg(args[i], XmNexportTargets, &exportTargets);i++;
@@ -772,9 +773,12 @@ _XmWriteInitiatorInfo(
 
     infoRec.byte_order = _XmByteOrderChar;
     infoRec.protocol_version = _MOTIF_DRAG_PROTOCOL_VERSION;
-    infoRec.targets_index = 
-      _XmTargetsToIndex((Widget)xmDisplay, exportTargets, numExportTargets);
-    infoRec.icc_handle = iccHandle;
+    targetsIndex = _XmTargetsToIndex((Widget)xmDisplay, exportTargets,
+					     numExportTargets);
+    if (targetsIndex > UINT16_MAX)
+	return;
+    infoRec.targets_index = (CARD16)targetsIndex;
+    infoRec.icc_handle = (CARD32)iccHandle;
 
     initiatorAtom = XInternAtom(XtDisplayOfObject(dc),
 				 XmI_MOTIF_DRAG_INITIATOR_INFO,
@@ -809,7 +813,7 @@ _XmReadInitiatorInfo(
     long 			length; 
     Atom			type;
     Arg				args[4];
-    int				i;
+    Cardinal			i;
     Window			srcWindow;
     Atom			iccHandle;
     Atom			*exportTargets;
