@@ -8,6 +8,8 @@ state references; valid transactions are unchanged.
 
 The modern arrow inset helper also clamps its position updates to the X11
 `Position` range, so large allocated cells cannot wrap the arrow origin.
+The helper also treats a missing widget or geometry pointer as a no-op before
+consulting display/profile state.
 
 The focused source-contract check is:
 

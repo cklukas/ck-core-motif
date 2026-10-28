@@ -1101,6 +1101,9 @@ _XmAppearanceInsetArrow(Widget widget, Position *x, Position *y,
     XmAppearanceProfile profile;
     XmAppearanceDensity density;
     unsigned int padding, side, available;
+    if (widget == NULL || x == NULL || y == NULL ||
+        width == NULL || height == NULL)
+        return;
     if (!XmGetAppearanceProfile(XtDisplayOfObject(widget), &profile) ||
         (profile != XmAPPEARANCE_MODERN_LIGHT && profile != XmAPPEARANCE_MODERN_DARK))
         return;

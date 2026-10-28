@@ -14,6 +14,8 @@ print("PASS appearance transaction snapshot allocation bounds")
 inset_start = source.index("_XmAppearanceInsetArrow(")
 inset_end = source.index("\n/* Gadget constructors", inset_start)
 inset = source[inset_start:inset_end]
+assert "if (widget == NULL || x == NULL || y == NULL ||" in inset
+assert "width == NULL || height == NULL)" in inset
 assert "long long next_x" in inset and "long long next_y" in inset
 assert "next_x < SHRT_MIN" in inset and "next_x > SHRT_MAX" in inset
 assert "next_y < SHRT_MIN" in inset and "next_y > SHRT_MAX" in inset
