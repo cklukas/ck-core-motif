@@ -13,11 +13,15 @@ for function in ("UrmCWRSetArgCallback", "UrmCWRSetCreationCallback"):
     for needle in (
         "nitems > RGMListSizeMax",
         "sizeof(RGMCallbackDesc) > USHRT_MAX",
-        "(size_t)nitems >",
         "sizeof(RGMCallbackItem)",
-        "size_t\t\tdescsiz",
+        "item_count >\n\t (USHRT_MAX - sizeof(RGMCallbackDesc))",
     ):
         if needle not in region:
             raise SystemExit(f"{function} guard missing: {needle}")
+    if "(size_t)nitems == SIZE_MAX" not in region and \
+       "(size_t)nitems > SIZE_MAX" not in region:
+        raise SystemExit(f"{function} nitems conversion guard missing")
+    if "descsiz = sizeof(RGMCallbackDesc) + item_count*sizeof(RGMCallbackItem)" not in region:
+        raise SystemExit(f"{function} descriptor sizing missing")
 
 print("Mrm callback descriptor sizing is bounded")
