@@ -222,6 +222,26 @@
 #define NotebookConstraint(w) \
         (&((XmNotebookConstraintPtr) (w)->core.constraints)->notebook)
 
+static Position
+notebook_position(long long value)
+{
+    if (value < (long long)SHRT_MIN)
+        return (Position)SHRT_MIN;
+    if (value > (long long)SHRT_MAX)
+        return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
+static Dimension
+notebook_dimension(long long value)
+{
+    if (value <= 0)
+        return 0;
+    if ((unsigned long long)value > (unsigned long long)USHRT_MAX)
+        return (Dimension)USHRT_MAX;
+    return (Dimension)value;
+}
+
 
 /* If the original dimension is negative, then offset the original
    position by that negative amount and make it the new position. Also
@@ -234,13 +254,14 @@
 #define ADJUST_NEGATIVE_DIMENSION(orig_pos, orig_dim, new_pos, new_dim) \
         if (orig_dim < 0) \
         { \
-	    new_pos = orig_pos + orig_dim; \
-	    new_dim = (Dimension) (orig_dim * -1) ; \
+	    new_pos = notebook_position((long long)(orig_pos) + \
+		(long long)(orig_dim)); \
+	    new_dim = notebook_dimension(-(long long)(orig_dim)); \
 	} \
         else \
         { \
-	    new_pos = orig_pos; \
-	    new_dim = (Dimension) orig_dim; \
+	    new_pos = notebook_position((long long)(orig_pos)); \
+	    new_dim = notebook_dimension((long long)(orig_dim)); \
 	}
 
 

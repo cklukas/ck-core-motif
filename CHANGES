@@ -28097,3 +28097,10 @@ FormSection position bounds (2026-10-29)
 - Clamp header, content, and footer layout origins to the signed `Position`
   range instead of allowing large margins or child sizes to wrap.
 - Add focused source-contract coverage and documentation.
+
+Notebook negative-dimension bounds (2026-10-29)
+================================================
+
+- Normalize negative Notebook geometry dimensions in wide arithmetic and clamp
+  their resulting origins and sizes instead of negating `INT_MIN` or wrapping.
+- Add focused source-contract coverage and documentation.
