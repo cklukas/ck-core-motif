@@ -74,6 +74,8 @@ static char rcsid[] = "$XConsortium: UilDB.c /main/11 1996/11/21 20:03:11 drk $"
 #endif
 
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
 
 /*
  *
@@ -367,6 +369,8 @@ void db_read_ints_and_string(header)
  */
 
 {
+	if (header == NULL)
+	    return;
 
 /*
  *  External Functions
@@ -375,7 +379,8 @@ void db_read_ints_and_string(header)
 /*
  *  Local variables
  */
-	int			return_num_items, i, string_size=0;
+	int			return_num_items, i;
+	size_t		string_size = 0;
 	key_keytable_entry_type	*table = NULL;
 	char			*string_table;
 	 
@@ -386,11 +391,11 @@ void db_read_ints_and_string(header)
 	     *	     pointers.
 	     */
 	    case Key_Table:
-		key_table = (key_keytable_entry_type *) XtCalloc (1, header->table_size);
+		key_table = (key_keytable_entry_type *) XtCalloc (1, (Cardinal)header->table_size);
 		table = key_table;
 		break;
 	    case Key_Table_Case_Ins:
-		key_table_case_ins = (key_keytable_entry_type *) XtCalloc (1, header->table_size);
+		key_table_case_ins = (key_keytable_entry_type *) XtCalloc (1, (Cardinal)header->table_size);
 		table = key_table_case_ins;
 		break;
 	    default:
@@ -403,7 +408,11 @@ void db_read_ints_and_string(header)
 	 * Get all the strings with one read.
 	 * Reassign the addresses
 	 */
-	return_num_items = fread(table, header->table_size, 1, dbfile);
+	if (table == NULL || header->num_items < 0 || header->table_size < 0 ||
+	    (size_t)header->num_items >
+		(size_t)header->table_size / sizeof(*table))
+	    return;
+	return_num_items = (int)fread(table, (size_t)header->table_size, 1, dbfile);
 	_check_read (return_num_items);
 
 	for ( i=0 ; i<header->num_items; i++)
@@ -411,11 +420,20 @@ void db_read_ints_and_string(header)
 	    /*
 	     * Add one for the null character on the string
 	     */
-	    string_size += table[i].b_length + 1;
+	    if (string_size > (size_t)UINT_MAX -
+		(size_t)table[i].b_length - 1)
+		{
+		diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+					    diag_k_no_column );
+		return;
+		}
+	    string_size += (size_t)table[i].b_length + 1;
 	    };
 
-	string_table = XtMalloc (sizeof (char) * string_size);
-	return_num_items = fread(string_table, 
+	string_table = XtMalloc ((Cardinal)string_size);
+	if (string_table == NULL && string_size != 0)
+	    return;
+	return_num_items = (int)fread(string_table,
 				    sizeof(unsigned char) * string_size,
 				    1, dbfile);
 	_check_read (return_num_items);
@@ -463,7 +481,6 @@ void db_read_char_table(header)
  */
 
 {
-
 /*
  *  External Functions
  */

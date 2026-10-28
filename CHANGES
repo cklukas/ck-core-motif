@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Bound UIL database string tables (2026-10-29)
+==============================================
+
+- Validate key-table capacity and checked string-length accumulation before
+  allocating and reading serialized names.
+- Add focused coverage and documentation.
+
 Reject invalid UIL database table headers (2026-10-29)
 =======================================================
 
