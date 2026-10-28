@@ -26236,3 +26236,11 @@ Avoid pre-start pointer for empty UIL filenames (2026-10-29)
 - Scan source filenames by index so an empty filename never forms a pointer
   before the start of the string.
 - Add focused source-contract coverage for the safe backward scan.
+
+Handle UIL source-opening allocation failure (2026-10-29)
+============================================================
+
+- Check file-control-block and source-buffer allocations before opening a
+  source file or dereferencing either object.
+- Release a partially allocated file-control block and report the failure
+  through the existing Xt error path.

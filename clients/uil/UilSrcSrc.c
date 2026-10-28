@@ -352,6 +352,10 @@ src_open_file (XmConst char *c_file_name,
     /* allocate fcb and source buffer */
 
     az_fcb = (uil_fcb_type *) _get_memory (sizeof (uil_fcb_type));
+    if (az_fcb == NULL) {
+	XtError ("unable to allocate UIL file control block");
+	return;
+    }
 
     if (src_az_avail_source_buffer != NULL) {
 	az_source_buffer = src_az_avail_source_buffer;
@@ -361,6 +365,11 @@ src_open_file (XmConst char *c_file_name,
 	az_source_buffer =
 	    (src_source_buffer_type *)
 			_get_memory (sizeof (src_source_buffer_type));
+    }
+    if (az_source_buffer == NULL) {
+	XtFree ((char *)az_fcb);
+	XtError ("unable to allocate UIL source buffer");
+	return;
     }
 
     /* Call the OS-specific open file procedure */
