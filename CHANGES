@@ -23511,6 +23511,14 @@ Release partial text-source value buffers (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-text-source-value-cleanup.py
 
+Release clipboard retrieve format records (2026-10-28)
+========================================================
+
+- Free the matching format record after `XmClipboardRetrieve` persists it.
+- Preserve local and external-owner retrieve behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-retrieve-format-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

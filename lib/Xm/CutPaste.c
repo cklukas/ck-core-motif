@@ -4650,6 +4650,7 @@ ClipboardRetrieve(Display *display, Window window,
 				 32,
 				 True,
 				 XA_INTEGER );
+	    XtFree( (char *) matchformat );
 	}
 
 
