@@ -26110,3 +26110,9 @@ Bound TextField wide preedit copies (2026-10-29)
 
 - Copy XIM wide preedit payloads by their advertised character count and add
   an explicit terminator instead of scanning for an untrusted NUL.
+
+Refresh MWM bitmap-cache regression contract (2026-10-29)
+==========================================================
+
+- Distinguish valid first-use cache initialization from guarded cache-growth
+  arithmetic in the MWM bitmap allocation check.
