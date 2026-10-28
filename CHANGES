@@ -1,3 +1,10 @@
+Reject empty drop-transfer additions (2026-10-29)
+==================================================
+
+- Treat zero-count `XmDropTransferAdd` calls as no-ops instead of appending an
+  empty list that can only fail during transfer processing.
+- Preserve valid non-empty additions and add focused input coverage.
+
 Guard delayed drop-transfer timer state (2026-10-29)
 =====================================================
 

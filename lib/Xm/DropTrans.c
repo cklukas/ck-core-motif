@@ -913,7 +913,7 @@ _XmDropTransferAddChecked(
 
 	if (widget == NULL ||
 	    !XtIsSubclass(widget, xmDropTransferObjectClass) ||
-	    (num_transfers != 0 && transfers == NULL))
+	    num_transfers == 0 || transfers == NULL)
 	    return False;
 
 	_XmWidgetToAppContext(widget);
