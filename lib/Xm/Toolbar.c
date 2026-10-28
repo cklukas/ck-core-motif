@@ -130,9 +130,11 @@ static void natural(XmToolbarWidget toolbar, Dimension *width, Dimension *height
     *height = 1;
     for (i = 0; i < toolbar->toolbar.action_count; ++i) {
         preferred(toolbar->toolbar.actions[i].button, &child_width, &child_height);
-        total += child_width;
-        if (i)
-            total += toolbar->toolbar.spacing;
+        if (total < USHRT_MAX) {
+            unsigned long addition = (unsigned long)child_width;
+            if (i) addition += toolbar->toolbar.spacing;
+            total = addition > USHRT_MAX - total ? USHRT_MAX : total + addition;
+        }
         if (child_height > *height)
             *height = child_height;
     }

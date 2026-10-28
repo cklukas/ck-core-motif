@@ -27426,6 +27426,12 @@ Guard RowActions activation callbacks (2026-10-29)
 - Validate the callback closure’s widget class before walking action storage,
   preventing foreign or stale callback data from being used.
 
+Bound Toolbar natural width accumulation (2026-10-29)
+======================================================
+
+- Saturate action-width and spacing accumulation before narrowing to a
+  `Dimension`, preventing large toolbars from wrapping to a small width.
+
 Guard AutoSuggestBox callback closures (2026-10-29)
 ====================================================
 
