@@ -28155,3 +28155,10 @@ Toast action-position bounds (2026-10-29)
 - Clamp the optional Toast action-button origin to the signed `Position` range
   instead of directly narrowing a wide-layout calculation.
 - Add focused source-contract coverage and documentation.
+
+AutoSuggestBox committed-position bounds (2026-10-29)
+======================================================
+
+- Reject non-positive selected positions before converting a committed List
+  selection to a zero-based `Cardinal` index.
+- Add focused source-contract coverage and documentation.
