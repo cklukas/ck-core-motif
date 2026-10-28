@@ -1562,8 +1562,11 @@ DeleteDropCBStruct(Widget w,	/* unused */
   tc = (TransferContext) cs -> transfer_id;
 
   /* The malloc'd structure is in the destination_data member */
-  if (tc -> callback_struct != NULL)
+  if (tc -> callback_struct != NULL &&
+      tc -> callback_struct -> destination_data != NULL) {
     XtFree((char*) tc -> callback_struct -> destination_data);
+    tc -> callback_struct -> destination_data = NULL;
+  }
 }
 
 /*ARGSUSED*/

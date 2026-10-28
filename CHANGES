@@ -23158,6 +23158,14 @@ Make transfer completion reentrancy-safe (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-transfer-finish-reentrancy.py
 
+Make drop callback cleanup idempotent (2026-10-28)
+===================================================
+
+- Clear drop `destination_data` after freeing it, so repeated completion
+  cleanup cannot double-free the same allocation.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-drop-callback-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
