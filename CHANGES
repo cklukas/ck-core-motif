@@ -24443,6 +24443,13 @@ Bound UIL database integer tables (2026-10-29)
 - Add focused coverage and documentation.
 
 Bound UIL database character tables (2026-10-29)
+Preserve UIL include-dump pointer width (2026-10-29)
+======================================================
+
+- Print include-file symbol addresses with `%p` instead of truncating them
+  through a 32-bit hexadecimal conversion.
+- Add focused coverage and documentation.
+
 Preserve UIL section-dump pointer widths (2026-10-29)
 ======================================================
 

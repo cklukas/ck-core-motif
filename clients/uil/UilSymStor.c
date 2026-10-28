@@ -1831,8 +1831,8 @@ void
 sym_dump_include_file ( sym_include_file_entry_type *az_symbol_entry )
 {
 
-    _debug_output ("%x  include file  file name: %s  full file name: %s\n",
-	(unsigned)az_symbol_entry,
+    _debug_output ("%p  include file  file name: %s  full file name: %s\n",
+	(void *)az_symbol_entry,
 	az_symbol_entry->file_name, az_symbol_entry->full_file_name);
 
 }
