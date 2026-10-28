@@ -23327,6 +23327,14 @@ Require complete tear-off WM hints (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-tearoff-hints-property.py
 
+Validate vendor-shell WM property status (2026-10-28)
+========================================================
+
+- Check the `XGetWindowProperty` result before reading vendor-shell WM hints.
+- Preserve the configured fallback when the property request fails.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-vendor-mwm-property-status.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
