@@ -1375,7 +1375,6 @@ Serialize transfer context lookup and insertion (2026-10-26)
 - Handle hash-table allocation and insertion failures without dereferencing a
   null table or leaking the speculative context; add focused coverage and
   documentation.
-
 Avoid nested image-uninstall process lock (2026-10-26)
 =======================================================
 
@@ -26224,3 +26223,11 @@ Guard UIL resource-vector initialization (2026-10-29)
 
 - Stop semantic initialization when any resource-compression vector cannot be
   allocated, before writing through the vector arrays.
+Reject UIL output-size overflow allocations (2026-10-29)
+===========================================================
+
+- Treat the `INT_MAX` size marker as an error instead of passing it to
+  resource-context allocation or clearing routines.
+- Reject oversized literals and argument/class compression tables before
+  writing them, with focused source-contract coverage and documentation.
+

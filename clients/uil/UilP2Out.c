@@ -1633,6 +1633,13 @@ sym_value_entry_type	*value_entry;
 	    _assert( FALSE, "unexpected value type" );
 	}
 
+    /* A saturated size is an overflow marker, not an allocation request. */
+    if (value_size == INT_MAX)
+	{
+	issue_urm_error( "resource value is too large" );
+	return;
+	}
+
     /*
     **	Check that the context is large enough to hold the value
     */
@@ -3878,6 +3885,12 @@ status	urm_status;
     out_add_value_size(&arg_value_size,
 	sizeof(UidCTableEntry) * (size_t) next_code);
 
+    if (arg_value_size == INT_MAX)
+	{
+	issue_urm_error( "argument compression table is too large" );
+	return;
+	}
+
 
     /*
     ** Check that the resource context is large enough to hold the value
@@ -4016,6 +4029,12 @@ status	urm_status;
 
     out_add_value_size(&class_value_size,
 	sizeof(UidCTableEntry) * (size_t) next_code);
+
+    if (class_value_size == INT_MAX)
+	{
+	issue_urm_error( "class compression table is too large" );
+	return;
+	}
 
     /*
     ** Check that the resource context is large enough to hold the value
