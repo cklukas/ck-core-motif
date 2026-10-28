@@ -106,6 +106,13 @@ Preserve clipboard-source context on rejected ownership (2026-10-29)
   request succeeds, while retaining the existing no-manager setup path.
 - Add focused ordering coverage for manager-backed clipboard source startup.
 
+Clean up failed clipboard-source startup (2026-10-29)
+======================================================
+
+- Disown a clipboard-manager selection and clear its context when
+  `XmClipboardStartCopy` fails after ownership was acquired.
+- Add focused failure-path cleanup coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

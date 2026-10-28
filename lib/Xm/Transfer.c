@@ -940,6 +940,9 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 				time, w, ClipboardCallback, &itemid);
   
   if (status != XmClipboardSuccess) {
+	if (clipboard_owner != None)
+	  XtDisownSelection(w, atoms[XmACLIPBOARD], time);
+	ClearContextBlock(display, atoms[XmACLIPBOARD]);
 	_XmAppUnlock(app);
 	return(False);
   }

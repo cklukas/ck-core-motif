@@ -19,3 +19,7 @@ context.
 `XmeClipboardSource` likewise retains its existing clipboard context while a
 clipboard-manager ownership request is pending and replaces it only after Xt
 confirms ownership.
+
+If subsequent `XmClipboardStartCopy` setup fails, the source now disowns the
+manager-backed selection and clears the failed context so no stale owner is
+left behind.
