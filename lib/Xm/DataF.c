@@ -1567,7 +1567,8 @@ PictureVerifyCallback(
     }
     curr_length = strlen(curr);
     insert_length = (size_t)cbs->text->length;
-    if (insert_length > SIZE_MAX - curr_length - 2) {
+    if (insert_length > SIZE_MAX - curr_length - 2 ||
+        curr_length + insert_length + 2 > (size_t)UINT_MAX) {
 	cbs->doit = False;
 	XtFree(curr);
 	return;
