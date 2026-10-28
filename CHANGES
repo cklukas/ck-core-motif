@@ -27171,6 +27171,13 @@ Guard Xft draw inputs (2026-10-28)
   queries.
 - Preserve normal draw creation for valid display/drawable pairs.
 
+Avoid window queries on Xft pixmaps (2026-10-28)
+=================================================
+
+- Query `XGetWindowAttributes` only when geometry identifies a window.
+- Keep color and bitmap pixmaps on drawable-compatible Xft paths without
+  issuing invalid `BadWindow` requests.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

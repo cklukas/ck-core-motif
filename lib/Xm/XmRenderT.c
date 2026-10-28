@@ -3499,6 +3499,7 @@ static struct _XmXftDrawCacheStruct {
 } *_XmXftDrawCache = NULL;
 static int _XmXftDrawCacheSize = 0;
 
+#ifndef FIX_1444
 static XErrorHandler           oldErrorHandler;
 static int xft_error;
 
@@ -3517,6 +3518,7 @@ _XmXftErrorHandler(
 
     return 0 ;
 }
+#endif
 
 XftDraw *
 _XmXftDrawCreate(Display *display, Window window)
@@ -3524,7 +3526,6 @@ _XmXftDrawCreate(Display *display, Window window)
 	XftDraw			*draw;
 	XWindowAttributes	wa;
 	int			i;
-	Status status;
 
 	if (display == NULL || window == None)
 		return NULL;
@@ -3552,7 +3553,11 @@ _XmXftDrawCreate(Display *display, Window window)
 		                 &border, &depth) && depth == 1)
 			draw = XftDrawCreateBitmap(display, window);
 		else {
-			if (XGetWindowAttributes(display, window, &wa) && wa.visual != NULL) {
+			/* XGetWindowAttributes is valid only for windows, not pixmaps.
+			 * XGetGeometry reports None as the root for pixmaps. */
+			if (root != None &&
+			    XGetWindowAttributes(display, window, &wa) &&
+			    wa.visual != NULL) {
 				visual = wa.visual;
 				if (wa.colormap != None)
 					colormap = wa.colormap;
