@@ -172,7 +172,9 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended,
 }
 static void activate(Widget widget, XtPointer client, XtPointer call) {
     XmEmptyStateWidget state = (XmEmptyStateWidget)client; XmEmptyStateCallbackStruct callback;
-    (void)widget; callback.reason = XmCR_ACTIVATE; callback.event = call ? ((XmPushButtonCallbackStruct *)call)->event : NULL;
+    (void)widget;
+    if (state == NULL || !XmIsEmptyState((Widget)state)) return;
+    callback.reason = XmCR_ACTIVATE; callback.event = call ? ((XmPushButtonCallbackStruct *)call)->event : NULL;
     XtCallCallbacks((Widget)state, XmNemptyStateActionCallback, &callback);
 }
 Widget XmCreateEmptyState(Widget parent, char *name, ArgList args, Cardinal count) { return XtCreateWidget(name, xmEmptyStateWidgetClass, parent, args, count); }
