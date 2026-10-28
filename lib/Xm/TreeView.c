@@ -430,6 +430,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
     char buffer[2];
     int length, index, row, next;
     (void)data; (void)dispatch;
+    if (widget == NULL || event == NULL || !XmIsTreeView(widget)) return;
     if (event->type == ButtonPress) {
         if (event->xbutton.button == Button4) {
             if (view->tree_view.top_row)
