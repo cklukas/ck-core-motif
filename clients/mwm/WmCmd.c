@@ -29,6 +29,7 @@
 #include <Xm/Xm.h>
 #include <limits.h>
 #include <stdint.h>
+#include <string.h>
 #include <Xm/ScrollBarP.h>
 #include "./WmWsmLib/utm_send.h"
 #include "./WmWsmLib/wsm_proto.h"
@@ -56,6 +57,30 @@ static unsigned long cmdKillListIndex;
 #define ScrNum(w) (XScreenNumberOfScreen(XtScreen(w)))
 #define CCI_TREE(w) (wmGD.Screens[ScrNum(w)].cciTree)
 #define CCI_TREE_OF_SCR(scr) (wmGD.Screens[(scr)].cciTree)
+
+static String
+UnpackCommandString(MessageData *data, unsigned long *remaining)
+{
+    unsigned char *bytes;
+    size_t length;
+    String result;
+
+    if (data == NULL || *data == NULL || remaining == NULL ||
+	*remaining < 2)
+	return NULL;
+    bytes = (unsigned char *)*data;
+    length = ((size_t)bytes[0] << 8) | bytes[1];
+    if ((unsigned long)length > *remaining - 2)
+	return NULL;
+    result = (String)XtMalloc((Cardinal)length + 1);
+    if (result == NULL)
+	return NULL;
+    memcpy(result, bytes + 2, length);
+    result[length] = '\0';
+    *data = (MessageData)(bytes + 2 + length);
+    *remaining -= (unsigned long)length + 2;
+    return result;
+}
 
 
 
@@ -296,7 +321,7 @@ DefineCommand (
   /*
    * check data to make sure somethings there.
    */
-  if ((data == NULL) || (len == 0))
+  if ((data == NULL) || (len < (unsigned long)(3 * sizeof(CARD32))))
     {
       PRINT("Bad data passed to DefineCommand.\n");
       return;
@@ -305,8 +330,20 @@ DefineCommand (
   commandID    = UnpackCARD32(&data);
   selection    = UnpackCARD32(&data); /* selection to use for invoke cmd */
   commandSet   = UnpackCARD32(&data);
-  name         = UnpackString(&data);
-  defaultLabel = UnpackString(&data);
+  {
+    unsigned long remaining = len - (unsigned long)(3 * sizeof(CARD32));
+    name = UnpackCommandString(&data, &remaining);
+    defaultLabel = UnpackCommandString(&data, &remaining);
+  }
+  if (name == NULL || defaultLabel == NULL)
+    {
+      if (name != NULL)
+	XtFree(name);
+      if (defaultLabel != NULL)
+	XtFree(defaultLabel);
+      PRINT("Truncated string data passed to DefineCommand.\n");
+      return;
+    }
 
   PRINT("Define command: %d, %d, '%s', '%s'\n",
 	commandID, commandSet, name, defaultLabel);
@@ -350,6 +387,9 @@ DefineCommand (
       tmp->next = CCI_TREE(w)->next;
       CCI_TREE(w)->next = tmp;
     }
+
+  XtFree(name);
+  XtFree(defaultLabel);
 }
 
 

@@ -26932,6 +26932,14 @@ Validate MWM enable/disable message lengths (2026-10-28)
   unpacking their advertised window lists.
 - Preserve complete command handling while preventing out-of-bounds reads.
 
+Bound MWM DefineCommand strings (2026-10-28)
+=============================================
+
+- Validate length-prefixed DefineCommand strings against the received IPC
+  payload before decoding them.
+- Release temporary decoded strings after command-tree insertion and reject
+  truncated requests before mutation.
+
 Validate MWM RemoveCommand message lengths (2026-10-28)
 ========================================================
 
