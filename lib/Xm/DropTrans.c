@@ -637,17 +637,20 @@ DropTransferSelectionCB(
 	    format == NULL || dtp->transfer_callback == NULL ||
 	    dtp->drop_transfer_lists == NULL ||
 	    dtp->cur_drop_transfer_list >= dtp->num_drop_transfer_lists) {
+	    XtFree((char *)value);
 	    FailTransferEntry(dt);
 	    return;
 	}
 	if (*length != 0 &&
 	    (*type == None || value == NULL ||
 	     (*format != 8 && *format != 16 && *format != 32))) {
+	    XtFree((char *)value);
 	    FailTransferEntry(dt);
 	    return;
 	}
 	tl = &(dtp->drop_transfer_lists[dtp->cur_drop_transfer_list]);
 	if (tl->transfer_list == NULL || dtp->cur_xfer >= tl->num_transfers) {
+	    XtFree((char *)value);
 	    FailTransferEntry(dt);
 	    return;
 	}

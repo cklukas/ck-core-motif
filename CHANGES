@@ -1,3 +1,11 @@
+Release rejected drop-transfer values (2026-10-29)
+===================================================
+
+- Free non-null Xt-owned selection buffers on malformed drop-transfer state
+  before failing the transfer.
+- Preserve ownership for values delivered to application callbacks and add
+  focused coverage.
+
 Release skipped transfer-selection values (2026-10-29)
 =======================================================
 
