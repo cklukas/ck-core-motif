@@ -6,10 +6,12 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "EditresCom.c").read_text(e
 string_start = source.index("_XEditResGetString8(stream, str)")
 widget_start = source.index("_XEditResGetWidgetInfo(stream, info)")
 string_region = source[string_start:widget_start]
+event_region = source[source.index("case SetValues:"):widget_start]
 widget_region = source[widget_start:source.index("#endif", widget_start)]
 
 assert "*str = XtMalloc" in string_region
 assert "if ((size_t)len >= (size_t)UINT_MAX)" in string_region
+assert "if ((size_t)sv_event->value_len >= (size_t)UINT_MAX)" in event_region
 assert "if (*str == NULL)" in string_region
 assert "return(FALSE);" in string_region
 assert "if (info->ids == NULL && info->num_widgets != 0)" in widget_region

@@ -13,4 +13,6 @@ assert "if (get_event->widgets == NULL && get_event->num_entries != 0)" in regio
 assert "gv_event->num_entries == 0" in region
 assert "if (gv_event->widgets == NULL)" in region
 assert "if (!_XEditResGetWidgetInfo(stream, gv_event->widgets))" in region
+assert "UINT_MAX / sizeof(WidgetInfo)" in region
+assert "UINT_MAX / sizeof(unsigned long)" in source
 print("PASS Editres widget-array allocations are guarded")

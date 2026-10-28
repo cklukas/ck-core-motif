@@ -17736,6 +17736,14 @@ Editres wire-string Cardinal bound (2026-10-28)
   `Cardinal` allocator width before allocating the decoded payload.
 - Extend the focused Editres payload regression and documentation.
 
+Editres value and widget-array Cardinal bounds (2026-10-28)
+============================================================
+
+- Bound SetValues value buffers and widget-info/widget-ID arrays before their
+  protocol-count multiplications, preserving valid payloads while rejecting
+  wrapped allocations.
+- Extend the focused Editres payload and widget-array contracts.
+
 Legacy charset canonicalization allocation guards (2026-10-25)
 ===============================================================
 

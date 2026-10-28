@@ -336,6 +336,8 @@ unsigned long length;
 
 	    if (!_XEditResGet16(stream, &(sv_event->value_len)))
 		goto done;
+	    if ((size_t)sv_event->value_len >= (size_t)UINT_MAX)
+		goto done;
 
 	    sv_event->value = XtMalloc(sizeof(char) * 
 				       (sv_event->value_len + 1));
@@ -354,6 +356,9 @@ unsigned long length;
 	    if (!_XEditResGet16(stream, &(sv_event->num_entries)))
 		goto done;
 
+	    if ((size_t)sv_event->num_entries >
+		(size_t)UINT_MAX / sizeof(WidgetInfo))
+		goto done;
 	    sv_event->widgets = (WidgetInfo *)
 		XtCalloc(sizeof(WidgetInfo), sv_event->num_entries);
 	    if (sv_event->widgets == NULL && sv_event->num_entries != 0)
@@ -408,6 +413,9 @@ unsigned long length;
 	    if (!_XEditResGetString8(stream, &(gv_event->name)) ||
 		!_XEditResGet16(stream, &(gv_event->num_entries)) ||
 		gv_event->num_entries == 0)
+		goto done;
+	    if ((size_t)gv_event->num_entries >
+		(size_t)UINT_MAX / sizeof(WidgetInfo))
 		goto done;
 	    gv_event->widgets = (WidgetInfo *)
 		XtCalloc(sizeof(WidgetInfo), gv_event->num_entries);
@@ -2121,6 +2129,10 @@ WidgetInfo * info;
     unsigned int i;
 
     if (!_XEditResGet16(stream, &(info->num_widgets))) 
+	return(FALSE);
+
+    if ((size_t)info->num_widgets >
+	(size_t)UINT_MAX / sizeof(unsigned long))
 	return(FALSE);
 
     info->ids = (unsigned long *) XtMalloc(sizeof(long) * (info->num_widgets));
