@@ -348,6 +348,8 @@ static void list_events(Widget widget, XtPointer client, XEvent *event,
     KeySym key;
     char input[2];
     (void)widget;
+    if (box == NULL || event == NULL)
+	return;
     if (event->type != KeyPress)
         return;
     XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
