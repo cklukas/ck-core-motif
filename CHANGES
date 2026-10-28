@@ -1,3 +1,10 @@
+Release skipped transfer-selection values (2026-10-29)
+=======================================================
+
+- Free Xt-owned selection buffers when cancellation, ignored requests, missing
+  transfer blocks, or missing callbacks prevent application delivery.
+- Preserve callback ownership for delivered values and add focused coverage.
+
 Normalize malformed transfer callback results (2026-10-29)
 ===========================================================
 

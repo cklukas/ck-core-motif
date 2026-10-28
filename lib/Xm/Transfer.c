@@ -2158,6 +2158,7 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
   TransferBlock tb;
   Atom atoms[XtNumber(atom_names)];
   Boolean malformed_result;
+  Boolean value_delivered = False;
 
   if (wid == NULL || tc == NULL || selection == NULL || type == NULL ||
       length == NULL || format == NULL)
@@ -2215,9 +2216,15 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
       cbstruct.format = *format;
 
       if (tb -> selection_proc != NULL)
-	tb -> selection_proc(wid, tb -> client_data, &cbstruct);
+	{
+	  value_delivered = True;
+	  tb -> selection_proc(wid, tb -> client_data, &cbstruct);
+	}
     }
   }
+
+  if (!value_delivered)
+    XtFree((char *)value);
 
 
   /* Free this transfer block */
