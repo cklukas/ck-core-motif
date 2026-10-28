@@ -23907,3 +23907,14 @@ Regression: tests/automated/check-text-highlight-capacity.py
 
 Bound clipboard end-copy item-list offsets (2026-10-28)
 =========================================================
+Bound Text source block length narrowing (2026-10-28)
+======================================================
+
+- Check gap-prefix byte counts before converting them to legacy `int` block
+  lengths.
+- Return an empty block when the prefix is unrepresentable.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-source-block-length.py
+
+Remove impossible Text highlight-capacity check (2026-10-28)
+==============================================================

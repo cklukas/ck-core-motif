@@ -780,8 +780,16 @@ _XmStringSourceReadString(XmTextSource source,
   else if (data->ptr + byte_start + gap_size >= data->gap_end)
     block->ptr = data->ptr + byte_start + gap_size;
   else {
+    size_t prefix_bytes = (size_t)(data->gap_start -
+				       (data->ptr + byte_start));
+
     block->ptr = data->ptr + byte_start;
-    block->length = data->gap_start - (data->ptr + byte_start);
+    if (prefix_bytes > (size_t)INT_MAX) {
+	block->ptr = NULL;
+	block->length = 0;
+	return;
+    }
+    block->length = (int)prefix_bytes;
   }
 }
 
