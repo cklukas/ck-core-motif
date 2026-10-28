@@ -1,3 +1,10 @@
+Reject zero-dimension XPM buffers at entry (2026-10-29)
+=======================================================
+
+- Validate buffer serializer dimensions before constructing partial output,
+  matching the array serializer's early rejection path.
+- Add focused coverage and documentation.
+
 Reject zero-dimension XPM data before table setup (2026-10-29)
 ===============================================================
 

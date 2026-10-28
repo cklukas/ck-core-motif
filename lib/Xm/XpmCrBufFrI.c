@@ -120,7 +120,8 @@ XpmCreateBufferFromXpmImage(
     unsigned int ptr_size, used_size, tmp;
     int written;
 
-    if (buffer_return == NULL || image == NULL)
+    if (buffer_return == NULL || image == NULL ||
+	image->width == 0 || image->height == 0)
 	return XpmFileInvalid;
 
     *buffer_return = NULL;

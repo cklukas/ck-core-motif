@@ -13,3 +13,11 @@ for name, function_name in (("XpmCrDatFrI.c", "CreatePixels"),
     assert "if (width == 0 || height == 0)" in function
     assert "return 0;" in function
 print("PASS XPM zero-dimension rejection")
+
+buffer_source = (root / "XpmCrBufFrI.c").read_text()
+entry = buffer_source.index("XpmCreateBufferFromXpmImage(\n")
+entry = buffer_source.index("{", entry)
+entry_end = buffer_source.index("\n}", entry)
+entry_function = buffer_source[entry:entry_end]
+guard = "buffer_return == NULL || image == NULL ||\n\timage->width == 0 || image->height == 0"
+assert guard in entry_function
