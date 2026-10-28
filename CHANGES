@@ -8,6 +8,7 @@ Guard DataField selection callback inputs (2026-10-29)
 - Preserve the external target-count width while rejecting a nonzero count
   without a target array.
 - Release the consumed target array before queuing the selected text request.
+- Handle zero-length insertion results before inspecting their first byte.
 
 Release skipped selection callback payloads (2026-10-29)
 ==========================================================

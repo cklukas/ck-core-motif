@@ -176,7 +176,12 @@ InsertSelection(
     }
 
    /* Don't do replace if there is not text to add */
-    if (*(char *) value == (char)'\0' || *length == 0){
+    if (*length == 0) {
+       XtFree((char *)value);
+       insert_select->done_status = True;
+       return;
+    }
+    if (*(char *) value == (char)'\0'){
        XtFree((char *)value);
        insert_select->done_status = True;
        return;
