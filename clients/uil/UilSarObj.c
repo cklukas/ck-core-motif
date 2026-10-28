@@ -1673,6 +1673,8 @@ yystype 	* equals_frame;
 
     callback_entry = (sym_callback_entry_type *) sem_allocate_node (
 			sym_k_callback_entry, sym_k_callback_entry_size);
+    if (callback_entry == NULL)
+	return;
 
     /*
     ** If the reason is a forward reference, we'll patch in the

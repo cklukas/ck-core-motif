@@ -26386,3 +26386,10 @@ Guard UIL argument-entry allocation (2026-10-29)
 - Check argument-pair nodes before forward-reference patching or frame
   publication.
 - Return safely when argument bookkeeping cannot be allocated.
+
+Guard UIL callback-entry allocation (2026-10-29)
+=================================================
+
+- Check callback nodes before forward-reference patching or parse-frame
+  publication.
+- Return safely when callback bookkeeping cannot be allocated.
