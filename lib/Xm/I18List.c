@@ -1849,7 +1849,7 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 			   (unsigned int) row_height);
 	}
 	
-	cur_y += row_height;
+	cur_y = bounded_position((long long)cur_y + row_height);
     }
 
     start_y = bounded_position((long long)XmI18List_sep_y(ilist) +

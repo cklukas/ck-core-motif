@@ -1,3 +1,10 @@
+Bound I18List selected-fill Y advancement (2026-10-29)
+========================================================
+
+- Clamp selected-row fill baseline advancement in `DisplayList` before the
+  next rectangle is drawn.
+- Add focused source-contract coverage.
+
 Bound I18List display column origins (2026-10-29)
 ==================================================
 
