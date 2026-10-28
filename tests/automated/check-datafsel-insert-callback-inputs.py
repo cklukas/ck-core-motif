@@ -16,4 +16,13 @@ assert "format == NULL" in body
 guard = body[body.index("if (w == NULL"):body.index("if (!value)")]
 assert "XtFree((char *)value);" in guard
 
+targets_start = source.index("HandleInsertTargets(\n        Widget")
+targets = source[targets_start:source.index("/*\n * Converts requested target", targets_start)]
+assert "w == NULL" in targets
+assert "insert_select == NULL" in targets
+assert "seltype == NULL" in targets
+assert "length == NULL" in targets
+assert "insert_select->event == NULL" in targets
+assert "XtFree((char *)value);" in targets
+
 print("PASS DataField insertion callback validates selection inputs")

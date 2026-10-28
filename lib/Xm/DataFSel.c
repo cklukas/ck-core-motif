@@ -412,17 +412,22 @@ HandleInsertTargets(
 #endif /* _NO_PROTO */
 {
    _XmInsertSelect *insert_select = (_XmInsertSelect *) closure;
-   Atom TEXT = XmInternAtom(XtDisplay(w), "TEXT", False);
-   Atom COMPOUND_TEXT = XmInternAtom(XtDisplay(w),"COMPOUND_TEXT", False);
+   Atom TEXT;
+   Atom COMPOUND_TEXT;
    Atom target = TEXT;
    Atom *atom_ptr;
    int i;
 
-   if (!length) {
+   if (w == NULL || insert_select == NULL || seltype == NULL ||
+       length == NULL || insert_select->event == NULL) {
       XtFree((char *)value);
-      insert_select->done_status = True;
-      return; /* Supports no targets, so don't bother sending anything */
+      if (insert_select != NULL)
+         insert_select->done_status = True;
+      return;
    }
+
+   TEXT = XmInternAtom(XtDisplay(w), "TEXT", False);
+   COMPOUND_TEXT = XmInternAtom(XtDisplay(w),"COMPOUND_TEXT", False);
 
    atom_ptr = (Atom *)value;
 

@@ -4,10 +4,11 @@ nav_exclude: true
 
 # DataField insertion callback inputs
 
-The DataField selection-insertion callback now rejects an incomplete widget,
-closure, type, length, or format tuple before dereferencing it. Any Xt-owned
-selection result supplied with that malformed callback is released first.
-Normal insertion and empty-value handling are unchanged.
+The DataField selection-insertion and target-list callbacks now reject an
+incomplete widget, closure, selection atom, event, type, length, or format
+tuple before dereferencing it. Any Xt-owned selection result supplied with
+that malformed callback is released first. Normal insertion and empty-value
+handling are unchanged.
 
 Regression coverage:
 
