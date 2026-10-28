@@ -1455,6 +1455,8 @@ yystype	    *keyword_frame;
     */
 
     cstr_entry = (sym_value_entry_type *) sem_create_cstr();
+    if (cstr_entry == NULL)
+	return;
     cstr_entry->b_expr_opr = sym_k_comp_str_op;
     if ((value_frame->b_flags & sym_m_forward_ref) != 0)
 	sym_make_value_forward_ref (value_frame,
@@ -1592,6 +1594,9 @@ yystype	    *keyword_frame;
    */
 
   cstr_entry = (sym_value_entry_type *) sem_create_cstr();
+
+    if (cstr_entry == NULL)
+	return;
 
   /* Evaluate type. */
   type_entry = (key_keytable_entry_type *)type_frame->value.az_keyword_entry;

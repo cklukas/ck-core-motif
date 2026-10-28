@@ -26296,3 +26296,8 @@ Propagate UIL wide-string constructor failures (2026-10-29)
 
 - Stop wide-string semantic-action construction when its constructor cannot
   allocate a node, before writing operation or source fields.
+Guard UIL compound-string parser constructors (2026-10-29)
+=============================================================
+
+- Stop compound-string semantic actions when their constructor cannot
+  allocate a node, before writing expression or component metadata.
