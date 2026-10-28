@@ -8,7 +8,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "DropTrans.c").read_text()
 process = source[source.index("static void \nProcessTransferEntry("):source.index("/* \n * This routine is called")]
 timer = source[source.index("static void \nStartDropTimer("):source.index("static void\nDragContextDestroyCB")]
 
-assert "if (dtp->dragContext == NULL)" in process
+assert "if (dtp->dragContext == NULL || dtp->transfer_callback == NULL)" in process
 assert "dc->drag.currReceiverInfo == NULL" in process
 assert "FailTransferEntry(dt);" in process
 assert "if (dtp->dragContext == NULL)" in timer

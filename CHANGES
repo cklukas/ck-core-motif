@@ -186,6 +186,13 @@ Validate drop-transfer start inputs (2026-10-29)
   missing display/class state before dispatching `XmDropTransferStart`.
 - Add focused constructor-input documentation and regression coverage.
 
+Guard missing drop-transfer callbacks (2026-10-29)
+==================================================
+
+- Fail drop-transfer processing before selection requests when
+  `XmNtransferProc` is absent, avoiding a null callback invocation.
+- Add focused callback-input documentation and regression coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

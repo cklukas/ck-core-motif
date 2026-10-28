@@ -484,7 +484,7 @@ ProcessTransferEntry(
 	Atom real_selection_atom;
 	Widget requestor;
 
-	if (dtp->dragContext == NULL) {
+	if (dtp->dragContext == NULL || dtp->transfer_callback == NULL) {
 	    FailTransferEntry(dt);
 	    return;
 	}
