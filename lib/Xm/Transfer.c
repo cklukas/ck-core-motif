@@ -2157,6 +2157,7 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
   TransferContext tc = (TransferContext) client_data;
   TransferBlock tb;
   Atom atoms[XtNumber(atom_names)];
+  Boolean malformed_result;
 
   if (wid == NULL || tc == NULL || selection == NULL || type == NULL ||
       length == NULL || format == NULL)
@@ -2186,10 +2187,21 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
     if (tc -> last == tb) tc -> last = NULL;
   }
 
+  malformed_result = (*format != 8 && *format != 16 && *format != 32) ||
+    (*length != 0 && (*type == None || value == NULL)) ||
+    (*length == 0 && value != NULL);
+  if (malformed_result) {
+    XtFree((char *)value);
+    value = NULL;
+    *length = 0;
+    *format = 8;
+    *type = None;
+  }
+
   if (! (tc -> flags & TC_FLUSHED)) {
     if (tb != NULL && 
 	! (tb -> flags & TB_IGNORE)) {
-      cbstruct.reason = XmCR_OK;
+      cbstruct.reason = malformed_result ? XmCR_PROTOCOLS : XmCR_OK;
       cbstruct.event = (XEvent *) NULL;
       cbstruct.selection = *selection;
       cbstruct.target = tb -> target;

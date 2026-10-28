@@ -1,3 +1,11 @@
+Normalize malformed transfer callback results (2026-10-29)
+===========================================================
+
+- Reject invalid selection-owner formats and non-empty typeless or null-
+  payload replies before publishing them as successful application callbacks.
+- Release the malformed buffer and report `XmCR_PROTOCOLS` with a safe empty
+  result, preserving valid transfer callback behavior.
+
 Reject malformed secondary-selection results (2026-10-29)
 ===========================================================
 
