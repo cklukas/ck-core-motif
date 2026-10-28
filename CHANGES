@@ -26782,3 +26782,9 @@ Release clipboard atom names with Xlib ownership (2026-10-28)
   `XFree` instead of the incompatible Xt allocator.
 - Preserve the existing clipboard format query behavior while avoiding
   allocator mismatches under strict heap debugging.
+Validate UTF-8 scalar boundaries in UCS-2 conversion (2026-10-28)
+==================================================================
+
+- Reject overlong UTF-8 and UTF-16 surrogate encodings in `_XmUtf8ToUcs2`.
+- Consume valid four-byte UTF-8 sequences as one scalar and map supplementary
+  code points to one replacement character instead of truncating them.

@@ -396,7 +396,7 @@ XChar2b*
 _XmUtf8ToUcs2(char *draw_text, size_t seg_len, size_t *ret_str_len)
 {
     size_t remaining;
-    unsigned short codepoint;
+    unsigned int codepoint;
     XChar2b *ptr;
     XChar2b *buf2b;
 
@@ -423,29 +423,47 @@ _XmUtf8ToUcs2(char *draw_text, size_t seg_len, size_t *ret_str_len)
 
      remaining = seg_len;
      for (ptr = buf2b; remaining > 0; ptr++) {
-	if ((draw_text[0] & 0x80) == 0) {
-	    codepoint=draw_text[0];
+	unsigned char first = (unsigned char)draw_text[0];
+	if (first < 0x80) {
+	    codepoint=first;
 	    draw_text++;
 	    remaining--;
-	} else if ((draw_text[0] & 0xE0) == 0xC0 && remaining >= 2 &&
-		   (draw_text[1] & 0xC0) == 0x80) {
-	    codepoint = (draw_text[0]&0x1F)<<6 | (draw_text[1]&0x3F);
+	} else if (first >= 0xC2 && first <= 0xDF && remaining >= 2 &&
+		   ((unsigned char)draw_text[1] & 0xC0) == 0x80) {
+	    codepoint = (first&0x1F)<<6 |
+		((unsigned char)draw_text[1]&0x3F);
 	    draw_text+=2;
 	    remaining -= 2;
-	} else if ((draw_text[0] & 0xF0) == 0xE0 && remaining >= 3 &&
-		   (draw_text[1] & 0xC0) == 0x80 &&
-		   (draw_text[2] & 0xC0) == 0x80) {
-	    codepoint = (draw_text[0]&0x0F)<<12
-			    | (draw_text[1]&0x3F)<<6
-			    | (draw_text[2]&0x3F);
+	} else if (first >= 0xE0 && first <= 0xEF && remaining >= 3 &&
+		   ((unsigned char)draw_text[1] & 0xC0) == 0x80 &&
+		   ((unsigned char)draw_text[2] & 0xC0) == 0x80 &&
+		   (first != 0xE0 || (unsigned char)draw_text[1] >= 0xA0) &&
+		   (first != 0xED || (unsigned char)draw_text[1] < 0xA0)) {
+	    codepoint = (first&0x0F)<<12
+			    | ((unsigned char)draw_text[1]&0x3F)<<6
+			    | ((unsigned char)draw_text[2]&0x3F);
 	    draw_text+=3;
 	    remaining -= 3;
+	} else if (first >= 0xF0 && first <= 0xF4 && remaining >= 4 &&
+		   ((unsigned char)draw_text[1] & 0xC0) == 0x80 &&
+		   ((unsigned char)draw_text[2] & 0xC0) == 0x80 &&
+		   ((unsigned char)draw_text[3] & 0xC0) == 0x80 &&
+		   (first != 0xF0 || (unsigned char)draw_text[1] >= 0x90) &&
+		   (first != 0xF4 || (unsigned char)draw_text[1] <= 0x8F)) {
+	    codepoint = (first&0x07)<<18
+			    | ((unsigned char)draw_text[1]&0x3F)<<12
+			    | ((unsigned char)draw_text[2]&0x3F)<<6
+			    | ((unsigned char)draw_text[3]&0x3F);
+	    draw_text+=4;
+	    remaining -= 4;
+	    if (codepoint > 0xFFFF)
+		codepoint = (unsigned int)'?';
 	} else {                    /* wrong UTF-8 */
 	    codepoint=(unsigned)'?';
 	    draw_text++;
 	    remaining--;
 	}
-	ptr->byte1 = (codepoint >> 8) & 0xff;;
+	ptr->byte1 = (codepoint >> 8) & 0xff;
 	ptr->byte2 = codepoint & 0xff;
      }
      *ret_str_len = ptr - buf2b;
