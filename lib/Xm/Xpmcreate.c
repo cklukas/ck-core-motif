@@ -2046,6 +2046,20 @@ xpmParseDataAndCreate(
     if (shapeimage_return)
 	*shapeimage_return = NULL;
 
+    if (display == NULL || data == NULL || image == NULL ||
+	(image_return == NULL && shapeimage_return == NULL))
+	return XpmFileInvalid;
+    if (attributes &&
+	(((attributes->valuemask & XpmVisual) &&
+	  attributes->visual == NULL) ||
+	 ((attributes->valuemask & XpmAllocColor) &&
+	  attributes->alloc_color == NULL) ||
+	 ((attributes->valuemask & XpmFreeColors) &&
+	  attributes->free_colors == NULL) ||
+	 ((attributes->valuemask & XpmColorSymbols) &&
+	  attributes->numsymbols != 0 && attributes->colorsymbols == NULL)))
+	return XpmFileInvalid;
+
 
     /* retrieve information from the XpmAttributes */
     if (attributes && (attributes->valuemask & XpmVisual))

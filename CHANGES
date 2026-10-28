@@ -25092,3 +25092,12 @@ Validate XPM explicit visual input (2026-10-29)
 
 Validate XPM color-symbol attributes (2026-10-29)
 ==================================================
+Validate XPM parse-and-create inputs (2026-10-29)
+==================================================
+
+- Reject null parser state or output targets and incomplete explicit visual,
+  color-callback, or color-symbol attributes before direct XPM conversion.
+- Add focused coverage and documentation for the parallel parser path.
+
+Validate XPM explicit visual input (2026-10-29)
+================================================
