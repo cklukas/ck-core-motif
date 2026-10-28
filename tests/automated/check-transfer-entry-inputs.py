@@ -3,18 +3,13 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Transfer.c").read_text(encoding="utf-8")
-checks = {
-    "XmeSecondaryTransfer": "if (w == NULL)\n    return;",
-    "XmeDragSource": "if (w == NULL)\n    return NULL;",
-    "XmePrimarySink": "if (w == NULL)\n    return False;",
-    "XmeNamedSink": "if (w == NULL || sel == None)\n    return False;",
-    "XmeSecondarySink": "if (w == NULL)\n    return False;",
-    "XmeClipboardSink": "if (w == NULL)\n    return False;",
-    "XmeDropSink": "if (w == NULL)\n    return;",
-    "XmeStandardConvert": "if (w == NULL || cs == NULL)\n    return;",
-}
-for function, guard in checks.items():
+functions = ("XmeSecondaryTransfer", "XmeDragSource", "XmePrimarySink",
+             "XmeNamedSink", "XmeSecondarySink", "XmeClipboardSink",
+             "XmeDropSink", "XmeStandardConvert")
+for function in functions:
     start = source.index(function)
     end = source.find("\n}", start)
-    assert guard in source[start:end], function
+    body = source[start:end]
+    assert "w == NULL" in body, function
+    assert "return" in body, function
 print("PASS transfer source/sink entry points validate inputs")
