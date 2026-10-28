@@ -214,6 +214,8 @@ static void key_handler(Widget widget, XtPointer client, XEvent *event,
     KeySym key;
     char input[2];
     (void)client;
+    if (widget == NULL || event == NULL || !XmIsSidebar(widget))
+        return;
     if (event->type != KeyPress)
         return;
     XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
