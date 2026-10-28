@@ -1,3 +1,9 @@
+Bound I18List display column origins (2026-10-29)
+==================================================
+
+- Clamp initial RTL/LTR `DisplayList` column origins before column traversal.
+- Add focused source-contract coverage.
+
 Bound I18List display column steps (2026-10-29)
 ================================================
 

@@ -1775,9 +1775,10 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
     if (XmI18List_left_loc(ilist) >= 0)
         XmI18List_left_loc(ilist) = HORIZONTAL_SPACE;
     if (LayoutIsRtoLP(w))
-	cur_x = width - XmI18List_left_loc(ilist);
+	cur_x = bounded_position((long long)width -
+	                         XmI18List_left_loc(ilist));
     else
-	cur_x = XmI18List_left_loc(ilist);
+	cur_x = bounded_position(XmI18List_left_loc(ilist));
 
     col_widths = XmI18List_column_widths(ilist);
 
