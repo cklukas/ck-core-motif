@@ -101,17 +101,20 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 static void query_changed(Widget widget, XtPointer closure, XtPointer data) {
     XmSearchBoxWidget box = (XmSearchBoxWidget)widget;
     (void)closure; (void)data;
+    if (box == NULL || !XmIsSearchBox(widget)) return;
     if (!box->search.clearing) emit(widget, box->search.query_changed_callback,
                                     XmSEARCH_REASON_QUERY_CHANGED, NULL);
 }
 static void committed(Widget widget, XtPointer closure, XtPointer data) {
     XmSearchBoxWidget box = (XmSearchBoxWidget)widget;
     (void)closure; (void)data;
+    if (box == NULL || !XmIsSearchBox(widget)) return;
     emit(widget, box->search.committed_callback, XmSEARCH_REASON_COMMITTED, NULL);
 }
 static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch) {
     XmSearchBoxWidget box = (XmSearchBoxWidget)widget; KeySym key; char input[8];
     (void)data;
+    if (box == NULL || event == NULL || !XmIsSearchBox(widget)) return;
     if (!XtIsSensitive(widget)) return;
     if (event->type == ButtonPress && box->search.clear_button &&
         event->xbutton.x >= (int)box->core.width - 28) {

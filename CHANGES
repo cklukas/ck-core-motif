@@ -27306,6 +27306,12 @@ Guard CommandPalette event callbacks (2026-10-28)
 - Ignore missing, foreign, or teardown-time widget/event inputs before
   processing Escape dismissal.
 
+Guard SearchBox callbacks and events (2026-10-28)
+==================================================
+
+- Ignore query/commit callbacks and input events delivered without a live
+  SearchBox or event payload.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
