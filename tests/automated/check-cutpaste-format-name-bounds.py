@@ -7,6 +7,8 @@ start = source.index("ClipboardGetAtomFromFormat(\n")
 end = source.index("\n}\n", start) + 2
 body = source[start:end]
 
-assert "snprintf(item, format_name_length + prefix_length + 1" in body
+assert "name_bytes = format_name_length + prefix_length + 1;" in body
+assert "if (name_bytes > UINT_MAX)" in body
+assert "snprintf(item, name_bytes," in body
 assert "sprintf( item, atomname_format" not in body
 print("PASS clipboard format atom names use bounded formatting")
