@@ -23816,6 +23816,14 @@ Bound clipboard copy allocation widths (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-copy-allocation-width.py
 
+Make validated clipboard format-index comparison explicit (2026-10-28)
+=======================================================================
+
+- Compare the returned unsigned target count with the already validated
+  positive format index in the same unsigned domain.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-format-index.py
+
 Narrow validated clipboard target counts after division (2026-10-28)
 =====================================================================
 

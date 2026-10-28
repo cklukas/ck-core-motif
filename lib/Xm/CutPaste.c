@@ -5072,7 +5072,7 @@ XmClipboardInquireFormat(
 	       of length sizeof(long) */
             loc_matchlength = loc_matchlength / sizeof(Atom);
 
-            if ( loc_matchlength >= n )
+            if ( loc_matchlength >= (unsigned long)n )
             {
                 nth_atom = nth_atom + n - 1;
 
