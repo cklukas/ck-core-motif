@@ -1,3 +1,10 @@
+Guard XPM hash interning inputs (2026-10-29)
+=============================================
+
+- Reject null tags and uninitialized hash tables before hashing or slot
+  dereferences.
+- Add focused coverage and documentation.
+
 Preserve XPM hash metadata on growth failure (2026-10-29)
 ==========================================================
 

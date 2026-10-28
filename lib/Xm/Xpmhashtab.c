@@ -180,6 +180,10 @@ xpmHashIntern(
 {
     xpmHashAtom *slot;
 
+    if (table == NULL || tag == NULL || table->atomTable == NULL ||
+	 table->size == 0)
+	return XpmFileInvalid;
+
     if (!*(slot = xpmHashSlot(table, tag))) {
 	/* undefined, make a new atom with the given data */
 	if (!(*slot = AtomMake(tag, data)))
