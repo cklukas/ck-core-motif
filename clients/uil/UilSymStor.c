@@ -1266,10 +1266,10 @@ sym_dump_proc_def( XmConst sym_proc_def_entry_type *az_proc_def_entry )
 	imported_flag = " imported";	
 
     _debug_output
-	( "%x proc def  size: %d  name: %x %s%s%s%s  count: %d  %s\n",
-	  (unsigned)az_proc_def_entry,
+	( "%p proc def  size: %d  name: %p %s%s%s%s  count: %d  %s\n",
+	  (void *)az_proc_def_entry,
 	  az_proc_def_entry->header.w_node_size,
-	  (unsigned)az_proc_def_entry->obj_header.az_name,
+	  (void *)az_proc_def_entry->obj_header.az_name,
 	  checking_flag,
 	  private_flag,
 	  exported_flag,
