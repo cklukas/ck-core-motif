@@ -23413,6 +23413,15 @@ Validate clipboard format-list offsets (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-format-list-offset.py
 
+Guard clipboard record-type reads (2026-10-28)
+================================================
+
+- Check returned property length before reading `recordType` in
+  `ClipboardFindItem`.
+- Preserve existing corruption cleanup and error reporting for short records.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-record-type-length.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
