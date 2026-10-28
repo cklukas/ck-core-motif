@@ -1582,8 +1582,10 @@ found_token:
 
       current_length = strlen(comment_text);
       incoming_length = strlen((char *)az_current_lex_buffer->c_text);
-      if (incoming_length > SIZE_MAX - current_length - 2)
+      if (incoming_length > SIZE_MAX - current_length - 2) {
 	XtError("UIL comment is too large");
+	return UILEOF;
+      }
       required = current_length + incoming_length + 2; /* text, newline, NUL */
       if (required > (size_t)comment_size)
 	{
@@ -1597,8 +1599,10 @@ found_token:
 		}
 	      new_size += INCR_COMMENT_SIZE;
 	    }
-	  if (new_size > (size_t)UINT_MAX || new_size > (size_t)INT_MAX)
-	    XtError("UIL comment is too large");
+      if (new_size > (size_t)UINT_MAX || new_size > (size_t)INT_MAX) {
+	  XtError("UIL comment is too large");
+	  return UILEOF;
+      }
 	  {
 	    char *new_text = XtRealloc(comment_text, (Cardinal)new_size);
 	    if (new_text == NULL) {

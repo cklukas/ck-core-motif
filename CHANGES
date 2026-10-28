@@ -26194,3 +26194,9 @@ Saturate TextOut width measurements (2026-10-29)
 
 - Widen and saturate line-width accumulation so large documents cannot wrap
   their preferred width during resize measurement.
+
+Terminate UIL comment overflow paths (2026-10-29)
+==================================================
+
+- Stop lexing after oversized comment-buffer arithmetic is diagnosed, even
+  when an Xt error handler returns instead of terminating the process.
