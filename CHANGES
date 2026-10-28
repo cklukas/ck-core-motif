@@ -23527,6 +23527,14 @@ Reject invalid clipboard format indexes (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-inquire-format-index.py
 
+Validate clipboard inquiry target counts (2026-10-28)
+======================================================
+
+- Reject non-atom-aligned or oversized external `TARGETS` responses.
+- Preserve the legacy integer count API without truncation.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-inquire-count-bounds.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

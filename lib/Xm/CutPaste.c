@@ -4825,6 +4825,16 @@ XmClipboardInquireCount(
 		return ClipboardNoData;
 	    }
 
+	    if (loc_count_len % sizeof(Atom) != 0 ||
+		loc_count_len / sizeof(Atom) > (unsigned long)INT_MAX)
+	    {
+		XtFree( (char *)alloc_to_free );
+		ClipboardClose (display, header);
+		ClipboardUnlock (display, window, 0);
+		_XmAppUnlock(app);
+		return ClipboardFail;
+	    }
+
             atomptr   = (Atom*)alloc_to_free;
 
             /* returned count is in bytes, targets are atoms of
