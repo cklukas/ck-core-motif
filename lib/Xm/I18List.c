@@ -3134,7 +3134,9 @@ MakePositionVisible(Widget w, short row, short start, short last, int width)
          * The start pixel is to the left of the visible window
          * pass a negative value - it will be converted to positive later
          */
-        AdjustVisiblePosition((Widget) ilist, (0 - (before - start)), False, 0);
+        AdjustVisiblePosition((Widget) ilist,
+                              bounded_short(-((long long)before - start)),
+                              False, 0);
         return(TRUE);
 
     } else if (start >= before && start <= width) {

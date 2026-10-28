@@ -1,3 +1,10 @@
+Bound I18List left-visibility movement (2026-10-29)
+====================================================
+
+- Calculate left-of-window movement in wide arithmetic and clamp it before
+  passing the legacy short position to `AdjustVisiblePosition`.
+- Add focused source-contract coverage.
+
 Bound I18List visible-origin adjustment (2026-10-29)
 ======================================================
 
