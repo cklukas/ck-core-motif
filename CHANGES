@@ -1,3 +1,11 @@
+Bound XPM compressed-file fallback names (2026-10-29)
+=======================================================
+
+- Reject an unrepresentable fallback filename length before allocating space
+  for compressed suffixes.
+- Include the POSIX declarations required by the z-pipe implementation.
+- Add focused coverage and documentation.
+
 Refresh XPM pixel-token regression (2026-10-29)
 ===============================================
 

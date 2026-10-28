@@ -43,6 +43,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #else
 #ifdef FOR_MSW
 #include <fcntl.h>
@@ -220,6 +221,8 @@ OpenReadFile(
 	else
 	{
 	    size_t len = strlen(filename);
+	    if (len > SIZE_MAX - 4)
+		return (XpmNoMemory);
 	    char *compressfile = (char *) XpmMalloc(len + 4);
 	    if ( !compressfile )
 		return (XpmNoMemory);
