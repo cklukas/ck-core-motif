@@ -26999,3 +26999,5 @@ Fix Mrm legacy callback translation sizing (2026-10-28)
   translator.
 - Reject invalid descriptor markers and counts that cannot represent the
   complete translated descriptor.
+- Validate callback-record markers and null records before inspecting either
+  descriptor format.

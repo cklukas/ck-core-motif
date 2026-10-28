@@ -143,13 +143,26 @@ UrmCallbackRecordValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset,
   MrmCount count;
   size_t available;
 
-  if (offset < RGMWidgetRecordHdrSize || offset >= widgetrec->size ||
+  if (widgetrec == NULL ||
+      offset < RGMWidgetRecordHdrSize || offset >= widgetrec->size ||
       widgetrec->size - offset < header_size)
     return False;
   if (old_format)
-    count = ((OldRGMCallbackDescPtr)((char *)widgetrec + offset))->count;
+    {
+      OldRGMCallbackDescPtr desc =
+        (OldRGMCallbackDescPtr)((char *)widgetrec + offset);
+      if (desc->validation != URMCallbackDescriptorValid)
+        return False;
+      count = desc->count;
+    }
   else
-    count = ((RGMCallbackDescPtr)((char *)widgetrec + offset))->count;
+    {
+      RGMCallbackDescPtr desc =
+        (RGMCallbackDescPtr)((char *)widgetrec + offset);
+      if (desc->validation != URMCallbackDescriptorValid)
+        return False;
+      count = desc->count;
+    }
   if (count < 0 || count > RGMListSizeMax)
     return False;
   available = widgetrec->size - offset - header_size;
