@@ -23,3 +23,6 @@ confirms ownership.
 If subsequent `XmClipboardStartCopy` setup fails, the source now disowns the
 manager-backed selection and clears the failed context so no stale owner is
 left behind.
+
+Target-list, snapshot, and zero-transfer failures after startup use the same
+abort path, so manager-backed ownership is not retained after partial setup.

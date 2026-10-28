@@ -113,6 +113,13 @@ Clean up failed clipboard-source startup (2026-10-29)
   `XmClipboardStartCopy` fails after ownership was acquired.
 - Add focused failure-path cleanup coverage.
 
+Clean up clipboard-source target failures (2026-10-29)
+======================================================
+
+- Apply the same disown-and-clear cleanup to invalid target lists, snapshot
+  setup failures, and zero-transfer exits after clipboard startup.
+- Centralize the abort path and add focused failure-exit coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

@@ -10,9 +10,8 @@ end = source.index("/********************************************************", 
 body = source[start:end]
 
 failure = body.index("if (status != XmClipboardSuccess)")
-cleanup = body.index("XtDisownSelection", failure)
-clear = body.index("ClearContextBlock", failure)
+cleanup = body.index("AbortClipboardSource", failure)
+assert "clipboard_owner != None" in body[cleanup:body.index("_XmAppUnlock(app);", failure)]
 assert cleanup < body.index("_XmAppUnlock(app);", failure)
-assert clear < body.index("_XmAppUnlock(app);", failure)
 
 print("PASS clipboard-source startup failure cleans ownership and context")

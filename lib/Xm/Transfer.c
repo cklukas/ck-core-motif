@@ -853,6 +853,15 @@ SecondaryDone(Widget wid,
 /* Puts data onto the clipboard.  				*/
 /****************************************************************/
 
+static void
+AbortClipboardSource(Widget w, Display *display, Atom selection, Time time,
+                     Boolean manager_owned)
+{
+  if (manager_owned)
+    XtDisownSelection(w, selection, time);
+  ClearContextBlock(display, selection);
+}
+
 Boolean
 XmeClipboardSource(Widget w, XtEnum op, Time time)
 {
@@ -940,9 +949,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 				time, w, ClipboardCallback, &itemid);
   
   if (status != XmClipboardSuccess) {
-	if (clipboard_owner != None)
-	  XtDisownSelection(w, atoms[XmACLIPBOARD], time);
-	ClearContextBlock(display, atoms[XmACLIPBOARD]);
+	AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
+	                     clipboard_owner != None);
 	_XmAppUnlock(app);
 	return(False);
   }
@@ -963,6 +971,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
     if (value == NULL || size > (unsigned long)INT_MAX) {
       XtFree((char *)value);
       XmClipboardEndCopy(display, XtWindow(w), itemid);
+      AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
+                           clipboard_owner != None);
       _XmAppUnlock(app);
       return False;
     }
@@ -1021,6 +1031,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
     if (value == NULL || size > (unsigned long)INT_MAX) {
       XtFree((char *)value);
       XmClipboardEndCopy(display, XtWindow(w), itemid);
+      AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
+                           clipboard_owner != None);
       _XmAppUnlock(app);
       return False;
     }
@@ -1037,6 +1049,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	    XtFree((char *)value);
 	    XtFree((char *)targets);
 	    XmClipboardEndCopy(display, XtWindow(w), itemid);
+	    AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
+	                         clipboard_owner != None);
 	    _XmAppUnlock(app);
 	    return False;
 	}
@@ -1060,6 +1074,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	XtFree((char *)value);
 	XtFree((char *)targets);
 	XmClipboardEndCopy(display, XtWindow(w), itemid);
+	AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
+	                     clipboard_owner != None);
 	_XmAppUnlock(app);
 	return False;
       }
@@ -1070,6 +1086,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	    XtFree((char *)value);
 	    XtFree((char *)targets);
 	    XmClipboardEndCopy(display, XtWindow(w), itemid);
+	    AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
+                         clipboard_owner != None);
 	    _XmAppUnlock(app);
 	    return False;
 	}
@@ -1125,6 +1143,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
     return(True);
   }
   else {
+    AbortClipboardSource(w, display, atoms[XmACLIPBOARD], time,
+                         clipboard_owner != None);
     _XmAppUnlock(app);
     return(False);
   }
