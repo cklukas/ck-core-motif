@@ -576,6 +576,9 @@ xpmParseExtensions(
     int status;
     char *string, *s, *s2, **sp;
 
+    if (data == NULL || extensions == NULL || nextensions == NULL)
+	return XpmFileInvalid;
+
     xpmNextString(data);
     exts = (XpmExtension *) XpmMalloc(sizeof(XpmExtension));
     if (exts == NULL)

@@ -1,3 +1,10 @@
+Guard XPM extension-parser arguments (2026-10-29)
+==================================================
+
+- Reject null parser state or extension output pointers before extension
+  scanning and allocation.
+- Add focused coverage and documentation.
+
 Reject incomplete parsed XPM geometry (2026-10-29)
 ====================================================
 
