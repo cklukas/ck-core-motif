@@ -27183,6 +27183,7 @@ Match Xft visuals to pixmap depth (2026-10-28)
 
 - Select a visual with the pixmap’s depth for non-default-depth color
   pixmaps, restricted to the screen owning the drawable.
+- Use that same screen for default visual and colormap selection.
 - Handle failed geometry queries deterministically and release temporary
   `XGetVisualInfo` results.
 

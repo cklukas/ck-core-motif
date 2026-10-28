@@ -3551,8 +3551,8 @@ _XmXftDrawCreate(Display *display, Window window)
 		int nvisuals = 0;
 		int screen = DefaultScreen(display);
 		int drawable_screen = screen;
-		Visual *visual = DefaultVisual(display, screen);
-		Colormap colormap = DefaultColormap(display, screen);
+		Visual *visual;
+		Colormap colormap;
 
 		/* XftDrawCreate() must use a visual compatible with the drawable.
 		 * In particular, depth-one pixmaps are bitmap drawables even when
@@ -3568,6 +3568,8 @@ _XmXftDrawCreate(Display *display, Window window)
 			if (drawable_screen >= ScreenCount(display))
 				drawable_screen = screen;
 		}
+		visual = DefaultVisual(display, drawable_screen);
+		colormap = DefaultColormap(display, drawable_screen);
 		if (geometry_ok && depth == 1)
 			draw = XftDrawCreateBitmap(display, window);
 		else {

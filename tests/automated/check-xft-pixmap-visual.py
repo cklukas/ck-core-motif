@@ -14,5 +14,7 @@ assert "XGetVisualInfo(display," in body
 assert "VisualScreenMask | VisualDepthMask" in body
 assert "vtemplate.depth = (int)depth" in body
 assert "vtemplate.screen = drawable_screen" in body
+assert "visual = DefaultVisual(display, drawable_screen)" in body
+assert "colormap = DefaultColormap(display, drawable_screen)" in body
 assert "XFree((char *)visuals)" in body
 print("Xft pixmap visuals match drawable depth")
