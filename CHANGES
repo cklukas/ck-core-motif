@@ -28337,6 +28337,13 @@ AutoSuggestBox selected-position result (2026-10-28)
   result, avoiding a null dereference on failed queries. See
   `docs/autosuggest-selection-pointer.md`.
 
+CommandPalette selected-position result (2026-10-28)
+=====================================================
+
+- Reject a missing selected-position array before CommandPalette invocation
+  maps a List position into its visible-item table. See
+  `docs/command-palette-selection-pointer.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
