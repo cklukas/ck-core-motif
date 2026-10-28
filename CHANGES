@@ -28178,6 +28178,13 @@ List selection consumer bounds (2026-10-28)
   deselection consumers, preventing stale cache entries from indexing outside
   the internal item array. See `docs/list-selection-bounds.md`.
 
+DataGrid top-row navigation bounds (2026-10-28)
+===============================================
+
+- Saturate Page Down and wheel-down top-row arithmetic and use subtraction
+  for selection visibility checks, preventing large `Cardinal` row indices
+  from wrapping. See `docs/datagrid-top-row-bounds.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

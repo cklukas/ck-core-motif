@@ -214,6 +214,11 @@ static void clamp_top(XmDataGridWidget grid) {
     Cardinal limit = max_top_row(grid);
     if (grid->data_grid.top_row > limit) grid->data_grid.top_row = limit;
 }
+static Cardinal add_top_row(XmDataGridWidget grid, Cardinal delta) {
+    Cardinal maximum = (Cardinal)~0;
+    return delta > maximum - grid->data_grid.top_row ? maximum :
+        grid->data_grid.top_row + delta;
+}
 
 static void recompute_visible(XmDataGridWidget grid) {
     if (grid->data_grid.row_height == 0) grid->data_grid.row_height = 22;
@@ -445,7 +450,8 @@ static void move_selection(XmDataGridWidget grid, int row_delta,
     if ((Cardinal)row < grid->data_grid.top_row)
         grid->data_grid.top_row = (Cardinal)row;
     if (grid->data_grid.visible_rows &&
-        (Cardinal)row >= grid->data_grid.top_row + grid->data_grid.visible_rows)
+        (Cardinal)row >= grid->data_grid.top_row &&
+        (Cardinal)row - grid->data_grid.top_row >= grid->data_grid.visible_rows)
         grid->data_grid.top_row = (Cardinal)row - grid->data_grid.visible_rows + 1;
     clamp_top(grid);
     redraw(grid);
@@ -478,12 +484,12 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
             XmDataGridCancelEdit(widget); return;
         }
         if (key == XK_Page_Up) { XmDataGridSetTopRow(widget, grid->data_grid.top_row > grid->data_grid.visible_rows ? grid->data_grid.top_row - grid->data_grid.visible_rows : 0); return; }
-        if (key == XK_Page_Down) { XmDataGridSetTopRow(widget, grid->data_grid.top_row + grid->data_grid.visible_rows); return; }
+        if (key == XK_Page_Down) { XmDataGridSetTopRow(widget, add_top_row(grid, grid->data_grid.visible_rows)); return; }
         return;
     }
     if (event->type != ButtonPress) return;
     if (event->xbutton.button == Button4) { XmDataGridSetTopRow(widget, grid->data_grid.top_row ? grid->data_grid.top_row - 1 : 0); return; }
-    if (event->xbutton.button == Button5) { XmDataGridSetTopRow(widget, grid->data_grid.top_row + 1); return; }
+    if (event->xbutton.button == Button5) { XmDataGridSetTopRow(widget, add_top_row(grid, 1)); return; }
     x = event->xbutton.x; y = event->xbutton.y;
     if (!grid->data_grid.column_count || y < (int)grid->data_grid.header_height) {
         if (grid->data_grid.column_count) {
