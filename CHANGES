@@ -27414,6 +27414,12 @@ Clamp Calendar day arithmetic (2026-10-29)
 - Use wide ordinal arithmetic and clamp keyboard day navigation to the
   supported 1–9999 date range before converting back to a calendar date.
 
+Bound DatePicker popup positioning (2026-10-29)
+===============================================
+
+- Use wide coordinate arithmetic and clamp popup positions before converting
+  to X11 `Position` values, preventing coordinate wraparound.
+
 Guard RowActions activation callbacks (2026-10-29)
 ==================================================
 

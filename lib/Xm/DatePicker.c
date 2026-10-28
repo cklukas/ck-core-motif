@@ -136,29 +136,33 @@ static void create_popup(XmDatePickerWidget picker) {
 }
 
 static void position_popup(XmDatePickerWidget picker) {
-    Position x, y;
+    Position owner_x, owner_y, x, y;
+    long long x_pos, y_pos;
     Dimension width, height, popup_width, popup_height;
     Screen *screen;
     Widget owner = (Widget)picker;
     if (!picker->date_picker.popup_shell || !XtIsRealized(owner))
         return;
-    XtTranslateCoords(owner, 0, 0, &x, &y);
+    XtTranslateCoords(owner, 0, 0, &owner_x, &owner_y);
     XtVaGetValues(owner, XmNwidth, &width, XmNheight, &height, NULL);
     XtVaGetValues(picker->date_picker.popup_shell, XmNwidth, &popup_width,
                   XmNheight, &popup_height, NULL);
-    x += (Position)((int)width - (int)popup_width) / 2;
-    y += (Position)height;
+    x_pos = (long long)owner_x +
+            ((long long)width - (long long)popup_width) / 2;
+    y_pos = (long long)owner_y + (long long)height;
     screen = XtScreen(picker->date_picker.popup_shell);
-    if (x < 0) x = 0;
-    if (y < 0) y = 0;
     if (popup_width >= (Dimension)WidthOfScreen(screen))
-        x = 0;
-    else if ((int)x + (int)popup_width > WidthOfScreen(screen))
-        x = (Position)(WidthOfScreen(screen) - popup_width);
+        x_pos = 0;
+    else if (x_pos > (long long)WidthOfScreen(screen) - popup_width)
+        x_pos = (long long)WidthOfScreen(screen) - popup_width;
+    if (x_pos < 0) x_pos = 0;
     if (popup_height >= (Dimension)HeightOfScreen(screen))
-        y = 0;
-    else if ((int)y + (int)popup_height > HeightOfScreen(screen))
-        y = (Position)(HeightOfScreen(screen) - popup_height);
+        y_pos = 0;
+    else if (y_pos > (long long)HeightOfScreen(screen) - popup_height)
+        y_pos = (long long)HeightOfScreen(screen) - popup_height;
+    if (y_pos < 0) y_pos = 0;
+    x = (Position)x_pos;
+    y = (Position)y_pos;
     XtVaSetValues(picker->date_picker.popup_shell, XtNx, x, XtNy, y, NULL);
 }
 
