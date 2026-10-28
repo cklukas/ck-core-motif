@@ -28441,3 +28441,5 @@ List drag selection bounds (2026-10-28)
   while retaining separate IDB and hierarchy source overrides (2026-10-28).
 * Made the Mrm file-open-name contract check runnable from a source checkout
   with the correct IDB top-level implementation default (2026-10-28).
+* Made the Mrm open-output initialization contract check runnable from a
+  source checkout with the correct IDB implementation default (2026-10-28).
