@@ -118,6 +118,7 @@ XpmCreateBufferFromXpmImage(
     unsigned int l, cmt_size = 0;
     char *ptr = NULL, *p;
     unsigned int ptr_size, used_size, tmp;
+    int written;
 
     if (buffer_return == NULL || image == NULL)
 	return XpmFileInvalid;
@@ -141,13 +142,11 @@ XpmCreateBufferFromXpmImage(
     }
 
     /* write the header line */
-#ifndef VOID_SPRINTF
-    used_size =
-#endif
-    sprintf(buf, "/* XPM */\nstatic char * image_name[] = {\n");
-#ifdef VOID_SPRINTF
-    used_size = strlen(buf);
-#endif
+    written = snprintf(buf, sizeof(buf),
+	"/* XPM */\nstatic char * image_name[] = {\n");
+    if (written < 0 || (size_t)written >= sizeof(buf))
+	return XpmNoMemory;
+    used_size = (unsigned int)written;
     if (used_size > UINT_MAX - ext_size ||
         cmt_size > UINT_MAX - used_size - ext_size ||
         UINT_MAX - used_size - ext_size - cmt_size == 0)
@@ -162,48 +161,35 @@ XpmCreateBufferFromXpmImage(
 
     /* write the values line */
     if (cmts && info->hints_cmt) {
-#ifndef VOID_SPRINTF
-	used_size +=
-#endif
-	snprintf(ptr + used_size, ptr_size-used_size, "/*%s*/\n", info->hints_cmt);
-#ifdef VOID_SPRINTF
-	used_size += strlen(info->hints_cmt) + 5;
-#endif
+	written = snprintf(ptr + used_size, ptr_size - used_size,
+		"/*%s*/\n", info->hints_cmt);
+	if (written < 0 || (size_t)written >= ptr_size - used_size)
+	    RETURN(XpmNoMemory);
+	used_size = (unsigned int)((size_t)used_size + (size_t)written);
     }
-#ifndef VOID_SPRINTF
-    l =
-#endif
-    sprintf(buf, "\"%d %d %d %d", image->width, image->height,
-	    image->ncolors, image->cpp);
-#ifdef VOID_SPRINTF
-    l = strlen(buf);
-#endif
+    written = snprintf(buf, sizeof(buf), "\"%u %u %u %u",
+	image->width, image->height, image->ncolors, image->cpp);
+    if (written < 0 || (size_t)written >= sizeof(buf))
+	RETURN(XpmNoMemory);
+    l = (unsigned int)written;
 
     if (info && (info->valuemask & XpmHotspot)) {
-#ifndef VOID_SPRINTF
-	l +=
-#endif
-	snprintf(buf + l, sizeof(buf)-l, " %d %d", info->x_hotspot, info->y_hotspot);
-#ifdef VOID_SPRINTF
-	l = strlen(buf);
-#endif
+	written = snprintf(buf + l, sizeof(buf) - l, " %d %d",
+		info->x_hotspot, info->y_hotspot);
+	if (written < 0 || (size_t)written >= sizeof(buf) - l)
+	    RETURN(XpmNoMemory);
+	l = (unsigned int)((size_t)l + (size_t)written);
     }
     if (extensions) {
-#ifndef VOID_SPRINTF
-	l +=
-#endif
-	sprintf(buf + l, " XPMEXT");
-#ifdef VOID_SPRINTF
-	l = strlen(buf);
-#endif
+	written = snprintf(buf + l, sizeof(buf) - l, " XPMEXT");
+	if (written < 0 || (size_t)written >= sizeof(buf) - l)
+	    RETURN(XpmNoMemory);
+	l = (unsigned int)((size_t)l + (size_t)written);
     }
-#ifndef VOID_SPRINTF
-    l +=
-#endif
-    sprintf(buf + l, "\",\n");
-#ifdef VOID_SPRINTF
-    l = strlen(buf);
-#endif
+    written = snprintf(buf + l, sizeof(buf) - l, "\",\n");
+    if (written < 0 || (size_t)written >= sizeof(buf) - l)
+	RETURN(XpmNoMemory);
+    l = (unsigned int)((size_t)l + (size_t)written);
     ptr_size += l;
     if(ptr_size <= l)
         RETURN(XpmNoMemory);
@@ -216,13 +202,11 @@ XpmCreateBufferFromXpmImage(
 
     /* write colors */
     if (cmts && info->colors_cmt) {
-#ifndef VOID_SPRINTF
-	used_size +=
-#endif
-	snprintf(ptr + used_size, ptr_size-used_size, "/*%s*/\n", info->colors_cmt);
-#ifdef VOID_SPRINTF
-	used_size += strlen(info->colors_cmt) + 5;
-#endif
+	written = snprintf(ptr + used_size, ptr_size - used_size,
+		"/*%s*/\n", info->colors_cmt);
+	if (written < 0 || (size_t)written >= ptr_size - used_size)
+	    RETURN(XpmNoMemory);
+	used_size = (unsigned int)((size_t)used_size + (size_t)written);
     }
     ErrorStatus = WriteColors(&ptr, &ptr_size, &used_size,
 			      image->colorTable, image->ncolors, image->cpp);

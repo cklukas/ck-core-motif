@@ -24645,3 +24645,10 @@ Guard XPM buffer total arithmetic (2026-10-29)
 
 - Bound header, extension, and comment totals before unsigned addition.
 - Add focused coverage and documentation.
+
+Bound XPM buffer header formatting (2026-10-29)
+================================================
+
+- Use bounded, type-correct formatting for the fixed header and dimensions
+  line, rejecting unexpected truncation.
+- Add focused coverage and documentation.
