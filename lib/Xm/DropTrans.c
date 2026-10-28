@@ -809,25 +809,39 @@ AddDropTransfer(
 }
 
 
-void 
-XmDropTransferAdd(
+Boolean
+_XmDropTransferAddChecked(
         Widget widget,
         XmDropTransferEntry transfers,
         Cardinal num_transfers )
 {
 	XmDropTransferObject dt = (XmDropTransferObject) widget;
 	XmDropTransferObjectClass wc;
+	Cardinal old_count;
+	Boolean added;
 
 	if (widget == NULL || (num_transfers != 0 && transfers == NULL))
-	    return;
+	    return False;
 
 	_XmWidgetToAppContext(widget);
 
 	_XmAppLock(app);
+	old_count = dt->dropTransfer.num_drop_transfer_lists;
 	wc = (XmDropTransferObjectClass) XtClass(dt);
 	((*(wc->dropTransfer_class.add_drop_transfer))
 		(widget, transfers, num_transfers));
+	added = dt->dropTransfer.num_drop_transfer_lists == old_count + 1;
 	_XmAppUnlock(app);
+	return added;
+}
+
+void
+XmDropTransferAdd(
+	Widget widget,
+	XmDropTransferEntry transfers,
+	Cardinal num_transfers)
+{
+	(void) _XmDropTransferAddChecked(widget, transfers, num_transfers);
 }
 
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "DropTrans.c").read_text()
 start = source.index("static void \nAddDropTransfer(")
-body = source[start:source.index("void \nXmDropTransferAdd(", start)]
+body = source[start:source.index("Boolean\n_XmDropTransferAddChecked(", start)]
 assert "UINT_MAX" in body
 assert "new_transfers" in body
 assert "if (new_lists == NULL)" in body

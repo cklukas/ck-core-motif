@@ -56,6 +56,11 @@ typedef struct _XmDropTransferClassRec
 
 externalref XmDropTransferClassRec xmDropTransferClassRec;
 
+/* Internal checked form used by transfer code that must roll back a failed
+ * request instead of silently publishing an incomplete transfer. */
+extern Boolean _XmDropTransferAddChecked(Widget, XmDropTransferEntry,
+                                          Cardinal);
+
 
 typedef struct _XmDropTransferListRec {
 	XmDropTransferEntry	transfer_list;

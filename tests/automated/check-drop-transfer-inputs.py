@@ -4,7 +4,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "DropTrans.c").read_text(encoding="utf-8")
 start = source.index("XmDropTransferStart(")
-add = source.index("XmDropTransferAdd(", start)
+add = source.index("Boolean\n_XmDropTransferAddChecked(", start)
 start_region = source[start:add]
 add_region = source[add:]
 assert "if (refWidget == NULL)" in start_region

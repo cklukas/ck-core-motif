@@ -149,6 +149,14 @@ Finish failed drop-transfer creation (2026-10-29)
 - Finalize immediately only when the destination callback has already exited;
   otherwise leave teardown to the active caller.
 
+Roll back failed drop-transfer appends (2026-10-29)
+===================================================
+
+- Add an internal checked form of `XmDropTransferAdd` without changing its
+  public `void` ABI.
+- Roll back the request block and report failure when an append allocation
+  does not grow the transfer list.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

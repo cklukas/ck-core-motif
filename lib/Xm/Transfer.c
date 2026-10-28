@@ -33,6 +33,7 @@
 #include <X11/Xatom.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/DragDrop.h>
+#include <Xm/DropTransP.h>
 #include <Xm/SpecRenderT.h>
 #include <Xm/TraitP.h>
 #include <Xm/VendorSP.h>
@@ -2009,8 +2010,16 @@ XmTransferValue(XtPointer transfer_id,
 	    return;
 	  }
 	}
-      else
-	XmDropTransferAdd(tc -> drop_context, transfers, 1);
+	else if (!_XmDropTransferAddChecked(tc -> drop_context, transfers, 1)) {
+	  Boolean finish_after_unlock = (tc -> flags & TC_EXITED_DH) != 0;
+
+	  RemoveTransferBlock(tc, tb);
+	  tc -> status = XmTRANSFER_DONE_FAIL;
+	  _XmAppUnlock(app);
+	  if (finish_after_unlock)
+	    FinishTransfer(tc -> widget, tc);
+	  return;
+	}
 
       tc -> outstanding++;
       tc -> count++;
