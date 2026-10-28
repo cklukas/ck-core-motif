@@ -26768,3 +26768,10 @@ Reject non-finite render-table numbers (2026-10-28)
   from entering render-table state.
 - Keep malformed numeric text recoverable by emitting its first character as
   an ordinary token and continuing lexing.
+Bound IconFile directory-cache offsets (2026-10-28)
+====================================================
+
+- Reject cached directories whose combined icon-name heap exceeds the
+  `unsigned short` offset representation used by the cache record.
+- Prevent truncated offsets from making valid-looking entries point at the
+  wrong names while preserving the existing uncached-directory fallback.

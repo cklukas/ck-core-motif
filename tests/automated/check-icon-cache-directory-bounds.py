@@ -14,5 +14,6 @@ assert "bufLen = strlen(currDirect->d_name);" in function
 assert "bufLen >= (size_t)MAX_CACHE_DIR_SIZE" in function
 assert "oldBufLen > (size_t)MAX_CACHE_DIR_SIZE - bufLen - 1" in function
 assert "memcpy(&(stackBuf[oldBufLen])" in function
+assert "nameHeapSize > (size_t)USHRT_MAX" in function
 
 print("PASS icon-directory cache accumulation bounds")

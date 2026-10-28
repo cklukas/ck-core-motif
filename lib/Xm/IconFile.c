@@ -246,7 +246,8 @@ MakeCachedDirEntry(String dirName)
 	     * we allocate an extra nameOffset to track the length of
 	     * the last name
 	     */
-	    if (nameHeapSize > SIZE_MAX - sizeof(DtValidCachedDirStruct) ||
+	    if (nameHeapSize > (size_t)USHRT_MAX ||
+		nameHeapSize > SIZE_MAX - sizeof(DtValidCachedDirStruct) ||
 		(size_t)numFiles >
 		(SIZE_MAX - sizeof(DtValidCachedDirStruct) - nameHeapSize) /
 		 sizeof(validDir->nameOffsets[0])) {
