@@ -7,7 +7,8 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Transfer.c").read_text()
 start = source.index("static void \nClipboardCallback(")
 body = source[start:source.index("/* Warning routine */", start)]
-assert "data_id == NULL || DataIdDictionary == NULL" in body
-assert "if (req == NULL)" in body
+assert "data_id == NULL" in body
+assert "DataIdDictionary == NULL" in body
+assert "req == NULL || req -> outstanding <= 0" in body
 assert "req -> outstanding--" in body
 print("PASS clipboard callbacks guard missing snapshot records")
