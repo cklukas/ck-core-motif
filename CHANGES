@@ -27617,3 +27617,9 @@ Bound Prompt text coordinates (2026-10-29)
 - Clamp the prompt text origin before passing it to Motif's signed `Position`
   drawing arguments.
 - Add focused source-contract coverage for oversized prompt geometry.
+Bound TimePicker text coordinates (2026-10-29)
+================================================
+
+- Clamp the formatted time label origin before passing it to Motif's signed
+  `Position` drawing arguments.
+- Add focused source-contract coverage for oversized picker geometry.

@@ -5,10 +5,17 @@
 #include <X11/keysym.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include <Xm/TimePickerP.h>
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
+
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
@@ -212,8 +219,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XmStringExtent(picker->time_picker.render_table, value, &width, &height);
         XmStringDraw(XtDisplay(widget), XtWindow(widget),
                      picker->time_picker.render_table, value,
-                     picker->time_picker.gc, 6,
-                     ((int)picker->core.height - (int)height) / 2, width,
+                     picker->time_picker.gc, bounded_position(6),
+                     bounded_position(((long long)picker->core.height - height) / 2), width,
                      XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(picker), NULL);
     }
