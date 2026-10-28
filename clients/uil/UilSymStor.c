@@ -1436,10 +1436,10 @@ sym_dump_value( XmConst sym_value_entry_type *az_value_entry )
 	imported_flag = " imported";	
 
     _debug_output
-	( "%x value  size: %d  name: %x  %s%s%s%s",
-	  (unsigned)az_value_entry,
+	( "%p value  size: %d  name: %p  %s%s%s%s",
+	  (void *)az_value_entry,
 	  az_value_entry->header.w_node_size,
-	  (unsigned)az_value_entry->obj_header.az_name,
+	  (void *)az_value_entry->obj_header.az_name,
 	  builtin_flag, private_flag, exported_flag, imported_flag );
 
     if (az_value_entry->obj_header.b_flags & sym_m_imported)

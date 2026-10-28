@@ -24536,3 +24536,10 @@ Preserve UIL forward-reference dump pointer widths (2026-10-29)
 - Print forward-reference pointers with `%p` instead of truncating them
   through 32-bit hexadecimal conversions.
 - Add focused coverage and documentation.
+
+Preserve UIL value-entry dump pointer widths (2026-10-29)
+===========================================================
+
+- Print value-entry pointers with `%p` instead of truncating them through
+  32-bit hexadecimal conversions.
+- Add focused coverage and documentation.
