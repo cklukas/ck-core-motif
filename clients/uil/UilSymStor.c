@@ -1842,11 +1842,11 @@ sym_dump_include_file ( sym_include_file_entry_type *az_symbol_entry )
 void
 sym_dump_section ( sym_section_entry_type *az_symbol_entry )
 {
-    _debug_output ("%x  %s section  prev section : %x  next section: %x  entries: %x\n",
-	(unsigned)az_symbol_entry,
+    _debug_output ("%p  %s section  prev section : %p  next section: %p  entries: %p\n",
+	(void *)az_symbol_entry,
 	sym_section_text(az_symbol_entry->header.b_type),
-	(unsigned)az_symbol_entry->prev_section, (unsigned)az_symbol_entry->next, 
-	(unsigned)az_symbol_entry->entries);
+	(void *)az_symbol_entry->prev_section, (void *)az_symbol_entry->next,
+	(void *)az_symbol_entry->entries);
 
 }
 
