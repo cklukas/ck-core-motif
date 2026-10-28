@@ -28411,3 +28411,5 @@ List drag selection bounds (2026-10-28)
   (2026-10-28).
 * Refreshed the IconG RTL-position contract check for the current signed
   rectangle arithmetic and bounded placement outputs (2026-10-28).
+* Refreshed the IconG RTL-label contract check for its bounded placement
+  helper and current wide arithmetic (2026-10-28).
