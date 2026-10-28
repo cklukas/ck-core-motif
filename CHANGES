@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Clarify UIL expression-frame widths (2026-10-29)
+=================================================
+
+- Make parser operator and expression-flag assignments explicit at their
+  compact frame fields.
+- Add focused coverage and documentation.
+
 Bound UIL name-table lengths (2026-10-29)
 ==========================================
 
