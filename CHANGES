@@ -27442,6 +27442,12 @@ Bound Spinner drawing coordinates (2026-10-29)
 - Keep Spinner ring centers in signed arithmetic and clamp label origins
   before converting them to Xt `Position` coordinates.
 
+Bound RatingControl star coordinates (2026-10-29)
+==================================================
+
+- Clamp calculated star vertices to X11's signed `XPoint` range before
+  conversion, preventing per-vertex wrap on wide controls.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 

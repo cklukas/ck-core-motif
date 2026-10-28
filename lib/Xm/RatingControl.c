@@ -3,6 +3,7 @@
 #endif
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <limits.h>
 #include <Xm/RatingControlP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
@@ -30,8 +31,12 @@ static void draw_star(Display *display, Window window, GC gc, int center_x,
     XPoint points[RATING_STAR_POINTS];
     int i;
     for (i = 0; i < RATING_STAR_POINTS; ++i) {
-        points[i].x = (short)(center_x + x_shape[i] * radius / 10);
-        points[i].y = (short)(center_y + y_shape[i] * radius / 10);
+        int x = center_x + x_shape[i] * radius / 10;
+        int y = center_y + y_shape[i] * radius / 10;
+        points[i].x = (short)(x < SHRT_MIN ? SHRT_MIN :
+                              x > SHRT_MAX ? SHRT_MAX : x);
+        points[i].y = (short)(y < SHRT_MIN ? SHRT_MIN :
+                              y > SHRT_MAX ? SHRT_MAX : y);
     }
     if (filled)
         XFillPolygon(display, window, gc, points, RATING_STAR_POINTS,
