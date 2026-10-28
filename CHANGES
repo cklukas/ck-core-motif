@@ -28069,3 +28069,10 @@ XmPaned preferred-size bounds (2026-10-29)
 - Saturate each preferred-size pane, border, sash, and margin addition at the
   X11 Dimension limit instead of allowing intermediate wraparound.
 - Add focused source-contract coverage and documentation.
+
+Shared shadow coordinate bounds (2026-10-29)
+============================================
+
+- Clamp computed `XSegment` endpoints in `DrawSimpleShadow` to the X11 signed
+  coordinate range instead of allowing oversized widget geometry to wrap.
+- Add focused source-contract coverage and documentation.

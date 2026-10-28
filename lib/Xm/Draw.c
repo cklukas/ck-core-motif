@@ -32,6 +32,7 @@ static char rcsid[] = "$XConsortium: Draw.c /main/12 1995/10/25 20:02:15 cde-sun
 #endif
 
 #include <stdint.h>
+#include <limits.h>
 
 #include "XmI.h"
 #include <Xm/DrawP.h>
@@ -54,11 +55,23 @@ static void DrawSimpleShadow(Display *display,
 			     Dimension height,
 			     Dimension shadow_thick,
 			     Dimension cor);
+static short ClampDrawCoordinate(long long value);
 /********    End Static Function Declarations    ********/
 
 
 /*-------------------- Private functions ----------------------*/
 /*-------------------------------------------------------------*/
+
+static short
+ClampDrawCoordinate(long long value)
+{
+  if (value < (long long)SHRT_MIN)
+    return SHRT_MIN;
+  if (value > (long long)SHRT_MAX)
+    return SHRT_MAX;
+  return (short)value;
+}
+
 
 static void
 DrawSimpleShadow (Display *display, 
@@ -114,25 +127,25 @@ DrawSimpleShadow (Display *display,
   
   for (i = 0; i < shadow_thick; i++) {
     /*  Top segments  */
-    segms[i].x1 = (short) ix;
-    segms[i].y2 = segms[i].y1 = (short) (iy + i);
-    segms[i].x2 = (short) (ix + iw - i - 1);
+    segms[i].x1 = ClampDrawCoordinate(ix);
+    segms[i].y2 = segms[i].y1 = ClampDrawCoordinate((long long)iy + i);
+    segms[i].x2 = ClampDrawCoordinate((long long)ix + iw - i - 1);
     /*  Left segments  */
     segms[i + shadow_thick].x2 = segms[i + shadow_thick].x1 =
-      (short) (ix + i);
-    segms[i + shadow_thick].y1 = (short) (iy + shadow_thick);
-    segms[i + shadow_thick].y2 = (short) (iy + ih - i - 1);
+      ClampDrawCoordinate((long long)ix + i);
+    segms[i + shadow_thick].y1 = ClampDrawCoordinate((long long)iy + shadow_thick);
+    segms[i + shadow_thick].y2 = ClampDrawCoordinate((long long)iy + ih - i - 1);
     
     /*  Bottom segments  */
-    segms[i + size2].x1 = (short) (ix + i + ((cor)?0:1));
+    segms[i + size2].x1 = ClampDrawCoordinate((long long)ix + i + ((cor)?0:1));
     segms[i + size2].y2 = segms[i + size2].y1 =
-      (short) (iy + ih - i - 1);
-    segms[i + size2].x2 = (short) (ix + iw - 1);
+      ClampDrawCoordinate((long long)iy + ih - i - 1);
+    segms[i + size2].x2 = ClampDrawCoordinate((long long)ix + iw - 1);
     /*  Right segments  */
     segms[i + size3].x2 = segms[i + size3].x1 =
-      (short) (ix + iw - i - 1);
-    segms[i + size3].y1 = (short) (iy + i + 1 - (int) cor);
-    segms[i + size3].y2 = (short) (iy + ih - 1);
+      ClampDrawCoordinate((long long)ix + iw - i - 1);
+    segms[i + size3].y1 = ClampDrawCoordinate((long long)iy + i + 1 - (int) cor);
+    segms[i + size3].y2 = ClampDrawCoordinate((long long)iy + ih - 1);
   }
   
   XDrawSegments (display, d, top_gc, &segms[0], size2);
