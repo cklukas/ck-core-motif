@@ -831,9 +831,9 @@ sym_dump_argument( XmConst sym_argument_entry_type *az_argument_entry )
 
     sym_dump_obj_header ((sym_obj_entry_type *)az_argument_entry);
 
-    _debug_output ( "  arg name: %x  arg value: %x\n", 
-	(unsigned)az_argument_entry->az_arg_name,
-	(unsigned)az_argument_entry->az_arg_value );
+    _debug_output ( "  arg name: %p  arg value: %p\n",
+	(void *)az_argument_entry->az_arg_name,
+	(void *)az_argument_entry->az_arg_value );
 
 }
 
