@@ -148,13 +148,13 @@ XpmCreateBufferFromXpmImage(
 #ifdef VOID_SPRINTF
     used_size = strlen(buf);
 #endif
-    ptr_size = used_size + ext_size + cmt_size + 1; /* ptr_size can't be 0 */
-    if(ptr_size <= used_size ||
-       ptr_size <= ext_size  ||
-       ptr_size <= cmt_size)
+    if (used_size > UINT_MAX - ext_size ||
+        cmt_size > UINT_MAX - used_size - ext_size ||
+        UINT_MAX - used_size - ext_size - cmt_size == 0)
     {
         return XpmNoMemory;
     }
+    ptr_size = used_size + ext_size + cmt_size + 1;
     ptr = (char *) XpmMalloc(ptr_size);
     if (!ptr)
 	return XpmNoMemory;

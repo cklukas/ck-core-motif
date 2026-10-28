@@ -24639,3 +24639,9 @@ Bound XPM serializer width conversions (2026-10-29)
 - Bound extension lengths before adding them to legacy unsigned size fields
   and make fixed-buffer pointer-difference conversions explicit.
 - Add focused coverage and documentation.
+
+Guard XPM buffer total arithmetic (2026-10-29)
+===============================================
+
+- Bound header, extension, and comment totals before unsigned addition.
+- Add focused coverage and documentation.
