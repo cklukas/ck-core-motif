@@ -2144,6 +2144,8 @@ yystype		* entry_frame;
 	nested_entry = (sym_nested_list_entry_type *)
 	    sem_allocate_node (sym_k_nested_list_entry,
 			       sym_k_nested_list_entry_size);
+	if (nested_entry == NULL)
+	    return;
 	nested_entry->header.b_type = entry_entry->header.b_type;
 	nested_entry->az_list = (sym_list_entry_type *) entry_entry;
 	entry_entry = (sym_obj_entry_type *) nested_entry;
@@ -2158,6 +2160,8 @@ yystype		* entry_frame;
 	    nested_entry = (sym_nested_list_entry_type *)
 	        sem_allocate_node (sym_k_nested_list_entry,
 				   sym_k_nested_list_entry_size);
+	    if (nested_entry == NULL)
+		return;
 
 	    sym_make_value_forward_ref (entry_frame,
 		(char*)&(nested_entry->az_list),
