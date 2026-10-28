@@ -1,3 +1,10 @@
+Reject null selection atoms in drop callbacks (2026-10-29)
+===========================================================
+
+- Reject malformed Xt selection callbacks whose selection atom is `None`
+  before invoking application transfer code.
+- Preserve valid callback delivery and add focused malformed-callback coverage.
+
 Reject drop transfers without an ICC selection atom (2026-10-29)
 ================================================================
 

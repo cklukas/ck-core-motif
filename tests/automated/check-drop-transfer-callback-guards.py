@@ -10,7 +10,7 @@ end = source.index("/*ARGSUSED*/\nstatic void \nStartDropTimer", start)
 body = source[start:end]
 
 assert "if (client_data == NULL)" in body
-assert "selection == NULL || type == NULL || length == NULL" in body
+assert "selection == NULL || *selection == None || type == NULL || length == NULL" in body
 assert "dtp->drop_transfer_lists == NULL" in body
 assert "dtp->cur_drop_transfer_list >= dtp->num_drop_transfer_lists" in body
 assert "tl->transfer_list == NULL || dtp->cur_xfer >= tl->num_transfers" in body

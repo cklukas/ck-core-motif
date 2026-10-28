@@ -629,7 +629,7 @@ DropTransferSelectionCB(
 	    return;
 	dt = (XmDropTransferObject) client_data;
 	dtp = (XmDropTransferPart *) &(dt->dropTransfer);
-	if (selection == NULL || type == NULL || length == NULL ||
+	if (selection == NULL || *selection == None || type == NULL || length == NULL ||
 	    format == NULL || dtp->transfer_callback == NULL ||
 	    dtp->drop_transfer_lists == NULL ||
 	    dtp->cur_drop_transfer_list >= dtp->num_drop_transfer_lists) {
