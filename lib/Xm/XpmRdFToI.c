@@ -51,7 +51,7 @@
 #endif
 
 LFUNC(OpenReadFile, int, (const char *filename, xpmData *mdata));
-LFUNC(xpmDataClose, void, (xpmData *mdata));
+LFUNC(xpmDataClose, int, (xpmData *mdata));
 
 FUNC(xpmPipeThrough, FILE*, (int fd,
 			     const char *cmd,
@@ -100,7 +100,8 @@ XpmReadFileToImage(
 	XpmFreeXpmInfo(&info);
     }
 
-    xpmDataClose(&mdata);
+    if (xpmDataClose(&mdata) != 0 && ErrorStatus == XpmSuccess)
+	ErrorStatus = XpmOpenFailed;
     /* free the XpmImage */
     XpmFreeXpmImage(&image);
 
@@ -130,7 +131,8 @@ XpmReadFileToXpmImage(
     /* create the XpmImage from the XpmData */
     ErrorStatus = xpmParseData(&mdata, image, info);
 
-    xpmDataClose(&mdata);
+    if (xpmDataClose(&mdata) != 0 && ErrorStatus == XpmSuccess)
+	ErrorStatus = XpmOpenFailed;
 
     return (ErrorStatus);
 }
@@ -279,9 +281,11 @@ OpenReadFile(
 /*
  * close the file related to the xpmData if any
  */
-static void
+static int
 xpmDataClose(xpmData *mdata)
 {
     if (mdata->stream.file != (stdin))
-	fclose(mdata->stream.file);
+	return fclose(mdata->stream.file);
+
+    return 0;
 }

@@ -1,3 +1,10 @@
+Propagate XPM reader close failures (2026-10-29)
+=================================================
+
+- Return the close status from XPM reader streams and report `XpmOpenFailed`
+  when a successful parse cannot be closed cleanly.
+- Add focused coverage and documentation.
+
 Validate XPM z-pipe wait failures (2026-10-29)
 ===============================================
 
