@@ -25248,3 +25248,10 @@ Name TextField global selection state explicitly (2026-10-29)
   closure locals, removing an otherwise ambiguous shadowed identifier.
 - Add focused source coverage and documentation without changing transfer
   state layout or public behavior.
+Name Text selection state explicitly (2026-10-29)
+=================================================
+
+- Distinguish shared Text selection-transfer records from callback-local
+  closure variables, removing shadowed identifiers without changing the
+  transfer record layout or public behavior.
+- Add focused source coverage and documentation.
