@@ -24550,3 +24550,10 @@ Preserve UIL procedure-definition dump pointer widths (2026-10-29)
 - Print procedure-definition pointers with `%p` instead of truncating them
   through 32-bit hexadecimal conversions.
 - Add focused coverage and documentation.
+
+Preserve UIL callback dump pointer widths (2026-10-29)
+========================================================
+
+- Print callback pointers with `%p` instead of truncating them through
+  32-bit hexadecimal conversions.
+- Add focused coverage and documentation.

@@ -928,10 +928,10 @@ sym_dump_callback( XmConst sym_callback_entry_type *az_callback_entry )
 
     sym_dump_obj_header ((sym_obj_entry_type *)az_callback_entry);
 
-    _debug_output ( "  reason name: %x  proc ref: %x  proc ref list: %x\n", 
-	(unsigned)az_callback_entry->az_call_reason_name,
-	(unsigned)az_callback_entry->az_call_proc_ref,
-    (unsigned)az_callback_entry->az_call_proc_ref_list );
+    _debug_output ( "  reason name: %p  proc ref: %p  proc ref list: %p\n",
+	(void *)az_callback_entry->az_call_reason_name,
+	(void *)az_callback_entry->az_call_proc_ref,
+    (void *)az_callback_entry->az_call_proc_ref_list );
 
 }
 
