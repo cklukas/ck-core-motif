@@ -4,8 +4,9 @@ Release rejected drop-transfer values
 Malformed drop-transfer selection callbacks now release any non-null Xt-owned
 selection buffer before failing the transfer.  This covers missing callback
 state, typeless/null-payload/invalid-format results, and exhausted transfer
-lists.  Values delivered to the application callback retain the existing
-ownership contract.
+lists, including zero-length results that still carry an allocated pointer.
+Values delivered to the application callback retain the existing ownership
+contract.
 
 The focused regression is:
 
