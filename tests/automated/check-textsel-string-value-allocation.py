@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "TextSel.c").read_text()
-allocation = "*value = (XtPointer) XtMalloc(tmp_prop.nitems ?"
+allocation = "*value = (XtPointer) XtMalloc((Cardinal)(tmp_prop.nitems ?"
 start = source.index(allocation)
 guard = source.index("if (*value == NULL)", start)
 cleanup = source.index("if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);", guard)

@@ -5,7 +5,7 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "TextSel.c").read_text()
 marker = "} else if (*target == atoms[XmACOMPOUND_TEXT])"
 start_block = source.index(marker)
-allocation = source.index("*value = (XtPointer) XtMalloc(tmp_prop.nitems ?", start_block)
+allocation = source.index("*value = (XtPointer) XtMalloc((Cardinal)(tmp_prop.nitems ?", start_block)
 guard = source.index("if (*value == NULL)", allocation)
 cleanup = source.index("if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);", guard)
 assert allocation < guard < cleanup
