@@ -28421,3 +28421,5 @@ List drag selection bounds (2026-10-28)
   SIZE_MAX and item-count overflow guards (2026-10-28).
 * Refreshed the Mrm callback-item binding check for the current two-stage
   resource callback update path (2026-10-28).
+* Made the Mrm compression-input contract check runnable from a source
+  checkout with the correct table implementation default (2026-10-28).

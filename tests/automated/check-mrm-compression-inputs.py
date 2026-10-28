@@ -1,7 +1,8 @@
 from pathlib import Path
 import os
 
-source = Path(os.environ["MOTIF_SOURCE"])
+source = Path(os.environ.get(
+    "MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmtable.c"))
 text = source.read_text()
 find = text[text.index("Urm__FindClassDescriptor (IDBFile"):text.index("Urm__UncompressCode (IDBFile")]
 uncompress = text[text.index("Urm__UncompressCode (IDBFile"):text.index("Urm__IsSubtreeResource (IDBFile")]
