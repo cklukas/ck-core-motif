@@ -706,7 +706,6 @@ src_source_record_type	*az_src_rec;
 			hex_longword [HEX_PER_LONG + 1], line_written;
 	unsigned long	* code_ptr;
 
-	unsigned long temp_long;
         static unsigned short start_hex_long [4];
 	/*if 64-bit environment, it should have vals { 55, 38, 21, 4 };
 	  if 32 bit environment, { 31, 22, 13, 4 };
@@ -814,9 +813,7 @@ src_source_record_type	*az_src_rec;
 /*	Format the code longwords.	*/
 
 		for (i = 0; i < extra_long_cnt; i++, code_ptr++) {
-                    unsigned long temp_long;
 		    if (BIT_64_LONG){
-/*		      _move( (char*) &temp_long, (char*) code_ptr, sizeof(temp_long));*/
 		      sprintf ((char *)hex_longword, "%lX", (* code_ptr));
 		    }
 		    else{

@@ -46,6 +46,13 @@ Bound UIL machine-code partial-line copies (2026-10-29)
 - Make the bounded partial-line byte count explicit before passing it to the
   copy and unprintable-character filters.
 
+Make UIL fill helper width-safe (2026-10-29)
+============================================
+
+- Give the private listing fill macro a unique `size_t` counter, removing
+  caller-variable shadowing while preserving its output.
+- Add focused coverage and documentation.
+
 Validate UIL keyword length configuration (2026-10-28)
 =======================================================
 
