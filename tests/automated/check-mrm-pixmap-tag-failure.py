@@ -1,7 +1,8 @@
 from pathlib import Path
 import os
 
-source = Path(os.environ["MOTIF_SOURCE"])
+source = Path(os.environ.get(
+    "MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmwcrw.c"))
 text = source.read_text()
 start = text.index("  if ( argptr->tag_code == UilMrmUnknownCode )", text.index("Place resultant Pixmap"))
 end = text.index("  *num_used += 1 ;", start)
