@@ -306,7 +306,7 @@ static void search_committed(Widget widget, XtPointer client, XtPointer call)
     if (box == NULL || !XmIsAutoSuggestBox((Widget)box))
 	return;
     if (XmListGetSelectedPos(box->auto_suggest.list, &positions, &count) &&
-        count == 1 && positions[0] > 0)
+        count == 1 && positions != NULL && positions[0] > 0)
         XmAutoSuggestBoxCommit((Widget)box, (Cardinal)(positions[0] - 1),
                                search_callback ? search_callback->event : NULL);
     XtFree((char *)positions);

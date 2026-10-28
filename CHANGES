@@ -28330,6 +28330,13 @@ SelectionBox list match positions (2026-10-28)
   initial List item, avoiding a null dereference on failed queries. See
   `docs/selectionbox-list-match.md`.
 
+AutoSuggestBox selected-position result (2026-10-28)
+=====================================================
+
+- Require a selected-position array before AutoSuggestBox commits a List
+  result, avoiding a null dereference on failed queries. See
+  `docs/autosuggest-selection-pointer.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
