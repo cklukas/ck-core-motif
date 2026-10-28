@@ -27164,6 +27164,13 @@ Initialize all Xft cache slots (2026-10-28)
   the optional `FIX_1449` macro is enabled.
 - Prevent uninitialized cache entries from being mistaken for live draws.
 
+Guard Xft draw inputs (2026-10-28)
+===================================
+
+- Reject null displays and `None` drawables before cache lookup or Xlib
+  queries.
+- Preserve normal draw creation for valid display/drawable pairs.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

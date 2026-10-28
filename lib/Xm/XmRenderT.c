@@ -3526,6 +3526,9 @@ _XmXftDrawCreate(Display *display, Window window)
 	int			i;
 	Status status;
 
+	if (display == NULL || window == None)
+		return NULL;
+
 	for (i=0; i<_XmXftDrawCacheSize; i++) {
 		if (_XmXftDrawCache[i].display == display &&
 		    _XmXftDrawCache[i].window == window) {
