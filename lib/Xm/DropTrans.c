@@ -755,9 +755,6 @@ DragContextDestroyCB(
         if (dt == NULL)
                 return;
         dtp = &(dt->dropTransfer);
-#ifdef CR1146
-        if (!isValidStartDropTimerId) return;
-#endif
         if (dtp->start_timer_pending) {
           XtRemoveTimeOut(dtp->start_timer);
           dtp->start_timer_pending = False;

@@ -1,3 +1,11 @@
+Clean up drop transfers after drag destruction (2026-10-29)
+============================================================
+
+- Always cancel pending timers and selection requests when the drag context is
+  destroyed, even after the delayed-start timer has fired.
+- Remove the process-wide timer-flag early return and add focused teardown
+  coverage.
+
 Reject empty drop-transfer additions (2026-10-29)
 ==================================================
 

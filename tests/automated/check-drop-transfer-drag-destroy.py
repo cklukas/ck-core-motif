@@ -15,5 +15,8 @@ assert "if (dtp->dragContext == NULL)" in timer
 assert timer.count("FailTransferEntry(dt);") >= 2
 assert "if (dt == NULL)" in source
 assert source.count("if (dt == NULL)") >= 3
+destroy = source[source.index("static void\nDragContextDestroyCB") : source.index("static Widget \nStartDropTransfer")]
+assert "if (!isValidStartDropTimerId) return;" not in destroy
+assert "ClearSelectionRequest(dt);" in destroy
 
 print("PASS drop-transfer processing fails closed after drag destruction")
