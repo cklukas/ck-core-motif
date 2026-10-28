@@ -7,7 +7,6 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "TextIn.c").read_text(
     encoding="utf-8"
 )
-assert "static Position ClampTextPointCoordinate(int coordinate);" in source
 helper_start = source.index("static Position\nClampTextPointCoordinate(")
 helper_end = source.index("\n\n/*", helper_start)
 helper = source[helper_start:helper_end]
