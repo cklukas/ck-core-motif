@@ -11676,7 +11676,7 @@ XmDataFieldGetSubstring(
     XmDataFieldWidget tf = (XmDataFieldWidget) widget;
     int ret_value = XmCOPY_SUCCEEDED;
     int n_bytes = 0;
-    int wcs_ret = 0;
+    size_t wcs_ret = 0;
 
     _XmWidgetToAppContext(widget);    
     _XmAppLock(app);
@@ -11718,7 +11718,7 @@ XmDataFieldGetSubstring(
 	{
 	    wcs_ret = wcstombs(buffer, &XmTextF_wc_value(tf)[start], 
 			       n_bytes);
-	    if (wcs_ret < 0) n_bytes = 0;
+	    if (wcs_ret == (size_t)-1) n_bytes = 0;
 	}
 	buffer[n_bytes] = '\0';
     } 
@@ -11810,7 +11810,7 @@ XmDataFieldGetSubstringWcs(
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) widget;
     int ret_value = XmCOPY_SUCCEEDED;
-    int num_wcs = 0;
+    size_t num_wcs = 0;
 
     _XmWidgetToAppContext(widget);    
     _XmAppLock(app);
@@ -11839,7 +11839,7 @@ XmDataFieldGetSubstringWcs(
 	if (XmTextF_max_char_size(tf) == 1) 
 	{
 	    num_wcs = mbstowcs(buffer, &XmTextF_value(tf)[start], num_chars);
-	    if (num_wcs < 0) num_chars = 0;
+	    if (num_wcs == (size_t)-1) num_chars = 0;
 	} 
 	else 
 	{

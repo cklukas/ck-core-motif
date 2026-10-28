@@ -1,3 +1,10 @@
+Detect DataField substring conversion failures (2026-10-29)
+=============================================================
+
+- Preserve native `size_t` conversion results in narrow and wide substring
+  exports.
+- Check the correct `(size_t)-1` failure sentinel and add focused coverage.
+
 Reject invalid DataField replacement conversion (2026-10-29)
 ==============================================================
 
