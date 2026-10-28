@@ -8,7 +8,7 @@ end = source.index("\nXmePrimarySource(", start)
 region = source[start:end]
 
 assert "XmSelectionFinishedProc *new_done_procs;" in region
-assert "if (tid == NULL)" in region
+assert "if (tid == NULL || done_proc == NULL)" in region
 assert "if (tid -> numDoneProcs == INT_MAX)" in region
 assert "(size_t)new_count > SIZE_MAX / sizeof(*new_done_procs)" in region
 assert "(size_t)new_count > UINT_MAX / sizeof(*new_done_procs)" in region
