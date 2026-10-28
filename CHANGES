@@ -42,6 +42,12 @@ Refresh WSM wire-width contract matching (2026-10-29)
 - Match the protocol-width check across harmless casts and line wrapping
   while continuing to reject host-width property sizing.
 
+Make XContext null check checkout-runnable (2026-10-29)
+=========================================================
+
+- Default the focused check to the checkout's Xm sources while retaining
+  explicit source arguments for narrower validation.
+
 Bound I18List display column origins (2026-10-29)
 ==================================================
 

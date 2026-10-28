@@ -11,3 +11,5 @@ preserving the existing zero sentinel and context lifecycle.
 The focused source check is
 `tests/automated/check-xcontext-zero.py`. The held DragBS and DragIcon transfer
 paths are intentionally outside this change.
+With no arguments the check scans the checkout's `lib/Xm/*.c` sources; explicit
+paths remain available for targeted validation.
