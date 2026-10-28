@@ -10411,7 +10411,10 @@ XmTextFieldGetSubstring(Widget widget,
     (void)memcpy((void*)buffer, (void*)&TextF_Value(tf)[start], num_chars);
   } else {
     wcs_ret = wcstombs(buffer, &TextF_WcValue(tf)[start], n_bytes);
-    if (wcs_ret == (size_t)-1) n_bytes = 0;
+    if (wcs_ret == (size_t)-1 || wcs_ret > (size_t)INT_MAX)
+      n_bytes = 0;
+    else
+      n_bytes = (int)wcs_ret;
   }
   buffer[n_bytes] = '\0';
   
@@ -10509,8 +10512,11 @@ XmTextFieldGetSubstringWcs(Widget widget,
   }
 
   if (tf->text.max_char_size == 1) {
-    num_wcs = mbstowcs(buffer, &TextF_Value(tf)[start], num_chars);
-    if (num_wcs == (size_t)-1) num_chars = 0;
+    num_wcs = mbstowcs(buffer, &TextF_Value(tf)[start], (size_t)num_chars);
+    if (num_wcs == (size_t)-1 || num_wcs > (size_t)INT_MAX)
+      num_chars = 0;
+    else
+      num_chars = (int)num_wcs;
   } else {
     (void)memcpy((void*)buffer, (void*)&TextF_WcValue(tf)[start],
 		 (size_t) num_chars * sizeof(wchar_t));
@@ -10752,10 +10758,16 @@ XmTextFieldSetStringWcs(Widget w,
     _XmAppUnlock(app);
     return;
   }
-  result = wcstombs(tmp, wc_value, (num_chars + 1) * tf->text.max_char_size);
-  
-  if (result == (size_t) -1) /* if wcstombs fails, it returns (size_t) -1 */
+  result = wcstombs(tmp, wc_value,
+                    (size_t)(num_chars + 1) *
+                    (size_t)tf->text.max_char_size);
+
+  if (result == (size_t)-1 ||
+      result >= (size_t)(num_chars + 1) *
+                (size_t)tf->text.max_char_size)
     tmp[0] = '\0';          /* if invalid data, pass in the empty string */
+  else
+    tmp[result] = '\0';
 
   _XmAppUnlock(app);
   XmTextFieldSetString(w, tmp);
