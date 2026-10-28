@@ -1569,6 +1569,7 @@ ClipboardGetAtomFromFormat(
     char *item;
     size_t format_name_length;
     size_t prefix_length;
+    size_t name_bytes;
     Atom ret_value;
 
     if (format_name == NULL)
@@ -1578,12 +1579,15 @@ ClipboardGetAtomFromFormat(
     prefix_length = strlen( atomname_format );
     if (format_name_length > (size_t)-1 - prefix_length - 1)
 	return None;
+    name_bytes = format_name_length + prefix_length + 1;
+    if (name_bytes > UINT_MAX)
+	return None;
 
-    item = XtMalloc( format_name_length + prefix_length + 1 );
+    item = XtMalloc((Cardinal)name_bytes);
     if (item == NULL)
 	return None;
 
-    (void)snprintf(item, format_name_length + prefix_length + 1,
+    (void)snprintf(item, name_bytes,
                    atomname_format, format_name);
 
     ret_value = XInternAtom( display, item, False );

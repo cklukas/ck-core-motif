@@ -23704,6 +23704,14 @@ Bound clipboard property offsets before Xlib conversion (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-property-offset-bounds.py
 
+Bound clipboard format-atom allocation size (2026-10-28)
+==========================================================
+
+- Reject combined format-atom names that exceed Xt’s `Cardinal` size.
+- Keep the existing `size_t` overflow guard and make the allocation conversion explicit.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-format-atom-size.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
