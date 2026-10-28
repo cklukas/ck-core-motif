@@ -1220,8 +1220,11 @@ DoStuff(Widget w,
   _XmTextPrimSelect *prim_select;
 #endif
 
-  if (w == NULL || ds == NULL || closure == NULL)
+  if (w == NULL || ds == NULL || closure == NULL) {
+    if (ds != NULL && ds->transfer_id != NULL)
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return;
+  }
   tf = (XmTextFieldWidget) w;
 #ifdef CR1228
   prim_select = (_XmTextPrimSelect *) closure;
