@@ -27329,3 +27329,9 @@ Guard Link event dispatch (2026-10-29)
 
 - Validate the widget type and event pointer before reading event fields,
   preventing malformed dispatch from reaching activation.
+
+Guard RowActions event dispatch (2026-10-29)
+============================================
+
+- Validate the widget type and event pointer before reading key-event fields,
+  preventing malformed dispatch from reaching reveal handling.

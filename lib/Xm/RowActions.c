@@ -188,8 +188,11 @@ static void activate(Widget button, XtPointer client, XtPointer call) {
         }
 }
 static void events(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch) {
-    KeySym key; char input[2]; XmRowActionsWidget actions = (XmRowActionsWidget)widget;
-    (void)data; if (event->type != KeyPress) return;
+    KeySym key; char input[2]; XmRowActionsWidget actions;
+    (void)data;
+    if (widget == NULL || event == NULL || !XmIsRowActions(widget)) return;
+    actions = (XmRowActionsWidget)widget;
+    if (event->type != KeyPress) return;
     XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
     if (key == XK_space || key == XK_Return) {
         XmRowActionsReveal(widget, !actions->actions.revealed); if (dispatch) *dispatch = False;
