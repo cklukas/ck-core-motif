@@ -1,3 +1,11 @@
+Guard DataField target callback inputs (2026-10-29)
+======================================================
+
+- Validate widget, selection atom, closure, event, and target payload before
+  display access or target-list iteration.
+- Preserve full X11 length width and release malformed target data, with
+  focused regression coverage.
+
 Guard DataField selection callback inputs (2026-10-29)
 ======================================================
 

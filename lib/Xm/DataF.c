@@ -7837,9 +7837,9 @@ df_HandleTargets(
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     Atom CS_OF_LOCALE; /* to be initialized by XmbTextListToTextProperty */
-    Atom COMPOUND_TEXT = XmInternAtom(XtDisplay(w),"COMPOUND_TEXT", False);
+    Atom COMPOUND_TEXT;
 #ifdef UTF8_SUPPORTED
-    Atom UTF8_STRING = XmInternAtom(XtDisplay(w), XmSUTF8_STRING, False);
+    Atom UTF8_STRING;
 #endif
     XmTextPosition left, right;
     Boolean supports_locale_data = False;
@@ -7853,15 +7853,23 @@ df_HandleTargets(
     int status = 0;
     Atom targets[2];
     XmTextPosition select_pos;
-    int i;
+    unsigned long i;
 
-    if (!length) {
+    if (w == NULL || tmp_action == NULL || tmp_action->event == NULL ||
+        seltype == NULL || length == NULL ||
+        (*length != 0 && value == NULL)) {
        XtFree((char *)value);
-       value = NULL;
-       XtFree((char *)tmp_action->event);
-       XtFree((char *)tmp_action);
-       return; /* Supports no targets, so don't bother sending anything */
+       if (tmp_action != NULL) {
+          XtFree((char *)tmp_action->event);
+          XtFree((char *)tmp_action);
+       }
+       return;
     }
+
+    COMPOUND_TEXT = XmInternAtom(XtDisplay(w),"COMPOUND_TEXT", False);
+#ifdef UTF8_SUPPORTED
+    UTF8_STRING = XmInternAtom(XtDisplay(w), XmSUTF8_STRING, False);
+#endif
 
     atom_ptr = (Atom *)value;
 
