@@ -51,6 +51,9 @@ static char rcsid[] = "$XConsortium: UilSarObj.c /main/14 1995/07/14 09:37:30 dr
 **
 **/
 
+#include <limits.h>
+#include <string.h>
+
 #include "UilDefI.h"
 
 
@@ -152,8 +155,16 @@ void		sar_assoc_comment( object )
 sym_obj_entry_type    *object;
 {
   char *comment;
+  size_t comment_length = strlen(comment_text);
 
-  comment = (char *)_get_memory(strlen(comment_text)+1);
+  if (comment_length >= (size_t)UINT_MAX) {
+    XtError("UIL object comment is too large");
+    object->obj_header.az_comment = NULL;
+    comment_text[0] = '\0';
+    return;
+  }
+
+  comment = (char *)_get_memory((Cardinal)(comment_length + 1));
   if (comment == NULL) {
     object->obj_header.az_comment = NULL;
     comment_text[0] = '\0';

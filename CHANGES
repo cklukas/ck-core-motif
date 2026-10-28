@@ -24135,3 +24135,11 @@ Make UIL enum-width boundaries explicit (2026-10-28)
 - Add focused coverage and documentation.
 
 Make UIL case-sensitivity tag width explicit (2026-10-28)
+Bound UIL object-comment allocation (2026-10-28)
+=================================================
+
+- Check accumulated comment lengths before converting their allocation size
+  to Xt's `Cardinal` width.
+- Add focused coverage and documentation.
+
+Make UIL enum-width boundaries explicit (2026-10-28)
