@@ -23816,6 +23816,15 @@ Bound clipboard copy allocation widths (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-copy-allocation-width.py
 
+Narrow validated clipboard target counts after division (2026-10-28)
+=====================================================================
+
+- Convert the validated target-byte count to an atom count before narrowing
+  to the public `int` result.
+- Keep strict signed-conversion diagnostics aligned with the checked range.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-count-narrowing.py
+
 Bound clipboard item-length accumulation (2026-10-28)
 ======================================================
 

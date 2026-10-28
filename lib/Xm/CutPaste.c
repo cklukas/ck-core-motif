@@ -4919,7 +4919,7 @@ XmClipboardInquireCount(
 
             /* returned count is in bytes, targets are atoms of
 	       length sizeof(long) */
-            loc_count = (int) loc_count_len / sizeof(Atom);
+            loc_count = (int)(loc_count_len / sizeof(Atom));
 
 	    /* max the lengths of all the atom names */
 	    for( i = 0; i < loc_count; i++ )
