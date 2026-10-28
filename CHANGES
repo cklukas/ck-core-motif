@@ -28383,3 +28383,6 @@ List drag selection bounds (2026-10-28)
   narrowing to the public unsigned-integer length field (2026-10-28).
 * XmString wide-character pattern matching now rejects failed `wctomb`
   conversions instead of comparing uninitialized multibyte buffers (2026-10-28).
+* XmString unparsing now rejects invalid multibyte pattern lengths instead of
+  passing `mblen()` failure values through as unsigned component sizes
+  (2026-10-28).

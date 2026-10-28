@@ -9244,14 +9244,20 @@ unparse_components(char          **result,
 			     XmSTRING_COMPONENT_WIDECHAR_TEXT, 
 			     sizeof(wchar_t), pat->pattern);
 	      else
-		unparse_text(result, length, output_type, 
-			     XmSTRING_COMPONENT_TEXT, 
 #ifndef NO_MULTIBYTE
-			     mblen((char*) pat->pattern, MB_CUR_MAX),
+		{
+		  int pattern_length = mblen((char*) pat->pattern, MB_CUR_MAX);
+		  if (pattern_length > 0)
+		    unparse_text(result, length, output_type,
+				 XmSTRING_COMPONENT_TEXT, pattern_length,
+				 pat->pattern);
+		}
 #else
+		unparse_text(result, length, output_type,
+			     XmSTRING_COMPONENT_TEXT,
 			     *((char *) pat->pattern) ? 1: 0,
-#endif
 			     pat->pattern);
+#endif
 	      
 	      /* Skip all but the last matched component. */
 	      while (--n_comp > 0)
