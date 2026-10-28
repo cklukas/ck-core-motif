@@ -980,13 +980,17 @@ HandleTargets(Widget w,
   XmTextPosition left, right;
   unsigned long i;
 
-  if (w == NULL || ds == NULL)
+  if (w == NULL || ds == NULL) {
+    if (ds != NULL && ds->transfer_id != NULL)
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return;
+  }
   tw = (XmTextWidget) w;
 
   if (!ds->length || ds->value == NULL || ds->length > (unsigned long)INT_MAX) {
     XtFree((char *)ds->value);
     ds->value = NULL;
+    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return;
   }
   
@@ -1030,6 +1034,7 @@ HandleTargets(Widget w,
 	select_pos < right) {
       XtFree((char *)ds->value);
       ds->value = NULL;
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
       return;
     }
   }
@@ -1044,6 +1049,7 @@ HandleTargets(Widget w,
       _XmProcessUnlock();
       XtFree((char *)ds->value);
       ds->value = NULL;
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
       return;
     }
   }

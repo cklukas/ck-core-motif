@@ -23126,6 +23126,14 @@ Complete malformed Text transfer callbacks (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textsel-dostuff-failure.py
 
+Complete failed Text target discovery (2026-10-28)
+===================================================
+
+- Fail target-discovery transfers when callback data overlaps the selection,
+  is malformed, or cannot allocate its follow-up state.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textsel-handle-targets-failure.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
