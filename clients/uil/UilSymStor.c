@@ -1018,11 +1018,11 @@ sym_dump_name( XmConst sym_name_entry_type *az_name_entry )
 {
 
     _debug_output
-	( "%x name size: %d  next name: %x  object: %x",
-	  (unsigned)az_name_entry,
+	( "%p name size: %d  next name: %p  object: %p",
+	  (void *)az_name_entry,
 	  az_name_entry->header.w_node_size,
-	  (unsigned)az_name_entry->az_next_name_entry,
-	  (unsigned)az_name_entry->az_object );
+	  (void *)az_name_entry->az_next_name_entry,
+	  (void *)az_name_entry->az_object );
 
     if (az_name_entry->b_flags & sym_m_referenced) {
 	_debug_output (" referenced");
