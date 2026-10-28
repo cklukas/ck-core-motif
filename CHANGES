@@ -26364,3 +26364,11 @@ Guard UIL parent-list allocations (2026-10-29)
 
 - Check recursive control-list parent nodes before linking them into widgets.
 - Skip a member safely when parent-list bookkeeping cannot be allocated.
+
+Guard UIL control-entry allocations (2026-10-29)
+==================================================
+
+- Check control-item and control-widget nodes before initialization or list
+  publication.
+- Restore the temporary parse-frame ordering when control-widget allocation
+  fails.

@@ -1786,6 +1786,8 @@ yystype		* item_frame;
 
     control_entry = (sym_control_entry_type *) sem_allocate_node (
 			sym_k_control_entry, sym_k_control_entry_size);
+    if (control_entry == NULL)
+	return;
 
     control_entry->az_con_obj =
 	(sym_widget_entry_type *) item_frame->value.az_symbol_entry;
@@ -1888,6 +1890,14 @@ yystype		* item_frame;
 
     control_entry = (sym_control_entry_type *) sem_allocate_node
 	(sym_k_control_entry, sym_k_control_entry_size);
+    if (control_entry == NULL)
+	{
+	/* Restore the frame order changed above before abandoning the item. */
+	temp_frame = *item_frame;
+	*item_frame = *control_frame;
+	*control_frame = temp_frame;
+	return;
+	}
 
     control_entry->az_con_obj =
 	(sym_widget_entry_type *) item_frame->value.az_symbol_entry;
