@@ -776,12 +776,13 @@ XmDropTransferStart(
         Cardinal argCount )
 {
 	Widget ddo;
-	XmDropTransferObjectClass wc;
+	XmDropTransferObjectClass wc = NULL;
 	Arg lclArgs[1];
 	int n;
 	Widget ret_val;
 
-	if (refWidget == NULL || (argCount != 0 && args == NULL))
+	if (refWidget == NULL || !XtIsSubclass(refWidget, xmDragContextClass) ||
+	    (argCount != 0 && args == NULL))
 	    return NULL;
 
 	ddo = (Widget) XmGetXmDisplay(XtDisplayOfObject(refWidget));

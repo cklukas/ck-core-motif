@@ -9,7 +9,8 @@ start = source.index("Widget \nXmDropTransferStart(")
 end = source.index("static void \nAddDropTransfer(", start)
 body = source[start:end]
 
-assert "if (refWidget == NULL || (argCount != 0 && args == NULL))" in body
+assert "if (refWidget == NULL || !XtIsSubclass(refWidget, xmDragContextClass) ||" in body
+assert "(argCount != 0 && args == NULL)" in body
 assert "if (ddo == NULL)" in body
 assert "wc == NULL || wc->dropTransfer_class.start_drop_transfer == NULL" in body
 

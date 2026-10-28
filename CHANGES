@@ -182,8 +182,8 @@ Guard drop-transfer construction allocation (2026-10-29)
 Validate drop-transfer start inputs (2026-10-29)
 ================================================
 
-- Reject inconsistent argument lists and missing display/class state before
-  dispatching `XmDropTransferStart`.
+- Require an `XmDragContext`, and reject inconsistent argument lists and
+  missing display/class state before dispatching `XmDropTransferStart`.
 - Add focused constructor-input documentation and regression coverage.
 
 Restore DragBS target-table overflow guards (2026-10-29)
