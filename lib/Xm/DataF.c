@@ -5098,7 +5098,7 @@ df_InsertChar(
   XmTextPosition cursorPos, nextPos;
   wchar_t * wc_insert_string;
   int insert_length, i;
-  int num_chars;
+  size_t num_chars;
   Boolean replace_res;
   Boolean pending_delete = False;
   Status status_return;
@@ -5116,7 +5116,7 @@ df_InsertChar(
   }
 
  /* If there is more data than we can handle, bail out */
-  if (status_return == XBufferOverflow || insert_length > TEXT_MAX_INSERT_SIZE)
+  if (status_return == XBufferOverflow || insert_length >= TEXT_MAX_INSERT_SIZE)
   {
      return;
   }
@@ -5159,17 +5159,18 @@ df_InsertChar(
        char stack_cache[100];
        insert_string[insert_length] = '\0'; /* NULL terminate for mbstowcs */
        wc_insert_string = (wchar_t*)XmStackAlloc((Cardinal)(insert_length+1) *						     sizeof(wchar_t), stack_cache);
-       num_chars = mbstowcs( wc_insert_string, insert_string, insert_length+1);
-       if (num_chars < 0) {
+       num_chars = mbstowcs(wc_insert_string, insert_string,
+                            (size_t)insert_length + 1);
+       if (num_chars == (size_t)-1 || num_chars > (size_t)INT_MAX) {
           XmStackFree((char *)wc_insert_string, stack_cache);
           _XmDataFieldDrawInsertionPoint(tf, True);
           return;
        }
-       if (XmTextF_overstrike(tf)) nextPos += num_chars;
+       if (XmTextF_overstrike(tf)) nextPos += (XmTextPosition)num_chars;
        if (nextPos > XmTextF_string_length(tf)) nextPos = XmTextF_string_length(tf);
        replace_res = _XmDataFieldReplaceText(tf, (XEvent *) event, cursorPos,
-					     nextPos, (char*) wc_insert_string,
-					     num_chars, True);
+					      nextPos, (char*) wc_insert_string,
+					      (int)num_chars, True);
        XmStackFree((char *)wc_insert_string, stack_cache);
     }
 
@@ -5212,7 +5213,7 @@ df_InsertString(
   XmTextPosition cursorPos, nextPos;
   wchar_t * wc_insert_string;
   int insert_length;
-  int num_chars;
+  size_t num_chars;
   Boolean replace_res;
   Boolean pending_delete = False;
   register int i;
@@ -5277,15 +5278,16 @@ df_InsertString(
 		  _XmDataFieldDrawInsertionPoint(tf, True);
 		  return;
 	      }
-	      num_chars = mbstowcs( wc_insert_string, insert_string, insert_length+1);
-	      if (num_chars < 0) {
+      num_chars = mbstowcs(wc_insert_string, insert_string,
+                           (size_t)insert_length + 1);
+      if (num_chars == (size_t)-1 || num_chars > (size_t)INT_MAX) {
 		 XtFree((char *)wc_insert_string);
 		 _XmDataFieldDrawInsertionPoint(tf, True);
 		 return;
 	      }
 	      replace_res = _XmDataFieldReplaceText(tf, (XEvent *) event, cursorPos,
 						    nextPos, (char*) wc_insert_string,
-						    num_chars, True);
+						    (int)num_chars, True);
 	      XtFree((char *)wc_insert_string);
 	  }
 

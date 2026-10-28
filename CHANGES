@@ -25929,3 +25929,10 @@ Guard DataField modify-verify conversion lengths (2026-10-29)
 - Treat `wcstombs` and `mbstowcs` results as `size_t` and reject conversion
   failure or lengths that cannot fit Motif's signed callback fields.
 - Validate insertion lengths before allocation and character-width arithmetic.
+
+Guard DataField action insertion conversions (2026-10-29)
+===========================================================
+
+- Preserve `mbstowcs` results and reject failed or unrepresentable action
+  insertions before calling the replacement path.
+- Keep a NUL terminator out of the full-size keyboard lookup buffer.
