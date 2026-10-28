@@ -61,6 +61,26 @@ typedef struct _ProxyClientInfo
 
 #define MAX_RESOURCE_LEN 1024
 
+static Boolean
+parse_session_int(const char *text, int *value)
+{
+    char *end;
+    long parsed;
+
+    if (text == NULL || value == NULL)
+	return False;
+    errno = 0;
+    end = NULL;
+    parsed = strtol(text, &end, 10);
+    while (end != text && isspace((unsigned char)*end))
+	end++;
+    if (end == text || *end != '\0' || errno == ERANGE ||
+	parsed < INT_MIN || parsed > INT_MAX)
+	return False;
+    *value = (int)parsed;
+    return True;
+}
+
 #ifdef WSM
 static char *dtwmFileName = "dtwm.db";
 #else
@@ -752,15 +772,15 @@ findXSMPClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 	    if ((resourcePtr = getXSMPResource(pCD, WMSAVE_X, xPositionStr))
 		!= (char *)NULL)
 	    {
-		pCD->clientX = atoi(resourcePtr);
-		pCD->clientFlags |= SM_X;
+		if (parse_session_int(resourcePtr, &pCD->clientX))
+		    pCD->clientFlags |= SM_X;
 	    }
 
 	    if ((resourcePtr = getXSMPResource(pCD, WMSAVE_Y, yPositionStr))
 		!= (char *)NULL)
 	    {
-		pCD->clientY = atoi(resourcePtr);
-		pCD->clientFlags |= SM_Y;
+		if (parse_session_int(resourcePtr, &pCD->clientY))
+		    pCD->clientFlags |= SM_Y;
 	    }
 
 #ifndef WSM
@@ -768,16 +788,16 @@ findXSMPClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 		 getXSMPResource(pCD, WMSAVE_ICON_X, iconXPosStr))
 		!= (char *)NULL)
 	    {
-		ICON_X(pCD) = atoi(resourcePtr);
-		pCD->clientFlags |= SM_ICON_X;
+		if (parse_session_int(resourcePtr, &ICON_X(pCD)))
+		    pCD->clientFlags |= SM_ICON_X;
 	    }
 
 	    if ((resourcePtr =
 		 getXSMPResource(pCD, WMSAVE_ICON_Y, iconYPosStr))
 		!= (char *)NULL)
 	    {
-		ICON_Y(pCD) = atoi(resourcePtr);
-		pCD->clientFlags |= SM_ICON_Y;
+		if (parse_session_int(resourcePtr, &ICON_Y(pCD)))
+		    pCD->clientFlags |= SM_ICON_Y;
 	    }
 #endif
 
@@ -785,16 +805,16 @@ findXSMPClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 					       widthSizeStr))
 		!= (char *)NULL)
 	    {
-		pCD->clientWidth = atoi(resourcePtr);
-		pCD->clientFlags |= SM_WIDTH;
+		if (parse_session_int(resourcePtr, &pCD->clientWidth))
+		    pCD->clientFlags |= SM_WIDTH;
 	    }
 
 	    if ((resourcePtr = getXSMPResource(pCD, WMSAVE_HEIGHT,
 					       heightSizeStr))
 		!= (char *)NULL)
 	    {
-		pCD->clientHeight = atoi(resourcePtr);
-		pCD->clientFlags |= SM_HEIGHT;
+		if (parse_session_int(resourcePtr, &pCD->clientHeight))
+		    pCD->clientFlags |= SM_HEIGHT;
 	    }
 
 	    if ((resourcePtr = getXSMPResource(pCD, WMSAVE_STATE,
@@ -885,6 +905,7 @@ cmpProxyClientProc(XrmDatabase *clientDB, XrmBindingList bindingList,
     char *wmCommand;
     char *wmClientMachine;
     char *clientID = (char *)value->addr;
+    int clientScreenNumber;
     ProxyClientInfo *proxyClientInfo = (ProxyClientInfo *)uData;
 
     if (((wmCommand =
@@ -892,7 +913,8 @@ cmpProxyClientProc(XrmDatabase *clientDB, XrmBindingList bindingList,
 	(strcmp(wmCommand, proxyClientInfo->wmCommand) != 0) ||
 	((clientScreen =
 	  getClientResource(clientID, screenStr)) == (char *)NULL) ||
-	(atoi(clientScreen) != proxyClientInfo->screen))
+	(!parse_session_int(clientScreen, &clientScreenNumber)) ||
+	(clientScreenNumber != proxyClientInfo->screen))
 	return FALSE;
 
     /* So far so good.  If WM_CLIENT_MACHINE missing from either, */
@@ -964,16 +986,16 @@ findProxyClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 		 getClientResource(proxyClientID, xPositionStr))
 		!= (char *)NULL)
 	    {
-		pCD->clientX = atoi(resourcePtr);
-		pCD->clientFlags |= SM_X;
+		if (parse_session_int(resourcePtr, &pCD->clientX))
+		    pCD->clientFlags |= SM_X;
 	    }
 
 	    if ((resourcePtr =
 		 getClientResource(proxyClientID, yPositionStr))
 		!= (char *)NULL)
 	    {
-		pCD->clientY = atoi(resourcePtr);
-		pCD->clientFlags |= SM_Y;
+		if (parse_session_int(resourcePtr, &pCD->clientY))
+		    pCD->clientFlags |= SM_Y;
 	    }
 
 #ifndef WSM
@@ -981,16 +1003,16 @@ findProxyClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 		 getClientResource(proxyClientID, iconXPosStr))
 		!= (char *)NULL)
 	    {
-		ICON_X(pCD) = atoi(resourcePtr);
-		pCD->clientFlags |= SM_ICON_X;
+		if (parse_session_int(resourcePtr, &ICON_X(pCD)))
+		    pCD->clientFlags |= SM_ICON_X;
 	    }
 
 	    if ((resourcePtr =
 		 getClientResource(proxyClientID, iconYPosStr))
 		!= (char *)NULL)
 	    {
-		ICON_Y(pCD) = atoi(resourcePtr);
-		pCD->clientFlags |= SM_ICON_Y;
+		if (parse_session_int(resourcePtr, &ICON_Y(pCD)))
+		    pCD->clientFlags |= SM_ICON_Y;
 	    }
 #endif
 
@@ -998,16 +1020,16 @@ findProxyClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 		 getClientResource(proxyClientID, widthSizeStr))
 		!= (char *)NULL)
 	    {
-		pCD->clientWidth = atoi(resourcePtr);
-		pCD->clientFlags |= SM_WIDTH;
+		if (parse_session_int(resourcePtr, &pCD->clientWidth))
+		    pCD->clientFlags |= SM_WIDTH;
 	    }
 
 	    if ((resourcePtr =
 		 getClientResource(proxyClientID, heightSizeStr))
 		!= (char *)NULL)
 	    {
-		pCD->clientHeight = atoi(resourcePtr);
-		pCD->clientFlags |= SM_HEIGHT;
+		if (parse_session_int(resourcePtr, &pCD->clientHeight))
+		    pCD->clientFlags |= SM_HEIGHT;
 	    }
 
 	    if ((resourcePtr =
@@ -1507,8 +1529,8 @@ LoadClientIconPositions(ClientData *pCD)
 		     getXSMPResource(pCD, WMSAVE_ICON_X, resourceBuf))
 		    != (char *)NULL)
 		{
-		    pCD->pWsList[i].iconX = atoi(resourcePtr);
-		    pCD->clientFlags |= SM_ICON_X;
+		    if (parse_session_int(resourcePtr, &pCD->pWsList[i].iconX))
+			pCD->clientFlags |= SM_ICON_X;
 		}
 
 		if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
@@ -1518,8 +1540,8 @@ LoadClientIconPositions(ClientData *pCD)
 		     getXSMPResource(pCD, WMSAVE_ICON_Y, resourceBuf))
 		    != (char *)NULL)
 		{
-		    pCD->pWsList[i].iconY = atoi(resourcePtr);
-		    pCD->clientFlags |= SM_ICON_Y;
+		    if (parse_session_int(resourcePtr, &pCD->pWsList[i].iconY))
+			pCD->clientFlags |= SM_ICON_Y;
 		}
 	    }
 	}
@@ -1545,8 +1567,8 @@ LoadClientIconPositions(ClientData *pCD)
 			 getClientResource(proxyClientID, resourceBuf))
 			!= (char *)NULL)
 		    {
-			pCD->pWsList[i].iconX = atoi(resourcePtr);
-			pCD->clientFlags |= SM_ICON_X;
+			if (parse_session_int(resourcePtr, &pCD->pWsList[i].iconX))
+			    pCD->clientFlags |= SM_ICON_X;
 		    }
 
 		    if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
@@ -1556,8 +1578,8 @@ LoadClientIconPositions(ClientData *pCD)
 			 getClientResource(proxyClientID, resourceBuf))
 			!= (char *)NULL)
 		    {
-			pCD->pWsList[i].iconY = atoi(resourcePtr);
-			pCD->clientFlags |= SM_ICON_Y;
+			if (parse_session_int(resourcePtr, &pCD->pWsList[i].iconY))
+			    pCD->clientFlags |= SM_ICON_Y;
 		    }
 		}
 	    }

@@ -26857,3 +26857,10 @@ Validate MWM screen-function arguments (2026-10-28)
 - Reject malformed, overflowing, or trailing-text numeric arguments to
   `f.screen` instead of letting `atoi` silently select screen zero.
 - Preserve named navigation forms and valid integer screen numbers.
+
+Validate MWM session-resource integers (2026-10-28)
+====================================================
+
+- Replace unchecked `atoi` conversion of restored coordinates, dimensions,
+  icon positions, and proxy screen numbers with complete range checks.
+- Ignore malformed session values without marking those restore fields present.
