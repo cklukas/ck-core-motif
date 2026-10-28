@@ -28185,6 +28185,13 @@ DataGrid top-row navigation bounds (2026-10-28)
   for selection visibility checks, preventing large `Cardinal` row indices
   from wrapping. See `docs/datagrid-top-row-bounds.md`.
 
+CommandPalette visible-index allocation bounds (2026-10-28)
+=============================================================
+
+- Check the filtered visible-index table against both `size_t` and Xt's
+  `Cardinal` limits before allocation. See
+  `docs/command-palette-visible-allocation.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
