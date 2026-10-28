@@ -26911,3 +26911,9 @@ Harden unit-string byte classification (2026-10-28)
 
 - Use unsigned input bytes for `isascii` and `isspace` while parsing resource
   unit strings, avoiding signed-char undefined behavior for high-bit input.
+
+Harden MWM command character classification (2026-10-28)
+===========================================================
+
+- Cast client-command bytes to `unsigned char` before `isalnum`, avoiding
+  signed-char undefined behavior in localized menu/resource input.

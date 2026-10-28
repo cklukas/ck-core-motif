@@ -3509,7 +3509,7 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 #ifndef NO_MULTIBYTE
 			   mblen ((char *)stream, MB_CUR_MAX) == 1 &&
 #endif
-			   (isalnum(*stream) || *stream == ' ' ||
+			   (isalnum((unsigned char)*stream) || *stream == ' ' ||
 			    *stream == '\t'  || *stream == '_' ))
 		      ++stream;
 		}
