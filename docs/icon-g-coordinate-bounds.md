@@ -10,6 +10,8 @@ signed `Position` drawing arguments.  Large gadget layouts therefore cannot
 wrap text to an unrelated screen coordinate.  Its XRectangle clip origins use
 the same bounded conversion instead of an explicit wrapping `short` cast.
 The large-icon mask clip origin follows the same rule.
+RTL icon and label placement also uses bounded `Position` conversion for
+computed origins.
 
 `tests/automated/check-icon-g-coordinate-bounds.py` protects this drawing
 contract.

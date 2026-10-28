@@ -27694,3 +27694,9 @@ Bound IconG mask clip origin (2026-10-29)
 - Clamp the large-icon mask clip origin instead of narrowing its Y coordinate
   through a wrapping `short` cast.
 - Extend the IconG coordinate regression contract.
+Bound IconG computed origins (2026-10-29)
+==========================================
+
+- Clamp RTL icon and label origins, and icon placement assignments, instead of
+  narrowing computed geometry directly to `Position`.
+- Extend the IconG coordinate regression contract.

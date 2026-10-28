@@ -1615,8 +1615,8 @@ GetLabelXY(
     label_x += IG_MarginWidth(wid);
     /* test LayoutIsRtoLG(wid) here */
     if (LayoutIsRtoLG(wid)) {
-	label_x = (Position) ((int) XtWidth(wid) - (int) label_x -
-	    (int) IG_LabelRectWidth(wid) - (int) IG_HLThickness(wid));
+	label_x = bounded_position((long long)XtWidth(wid) - label_x -
+	    IG_LabelRectWidth(wid) - IG_HLThickness(wid));
     } else {
 	label_x += IG_HLThickness(wid) ;
     }
@@ -2166,13 +2166,13 @@ Redisplay(
 		icon_x = (int) ig->rectangle.width -
 		    (int) MIN(ig->rectangle.width - 2*ht,
 			       container_data.first_column_width - ht);
-		large_icon_x = (Position) icon_x;
+		large_icon_x = bounded_position((long long)icon_x);
 	    }
 	} else {
 	    if (LayoutIsRtoLG(wid)) {
 		icon_x = (int) ig->rectangle.width - (int) large_icon_x -
 		    (int) pm_width;
-		large_icon_x = (Position) icon_x;
+		large_icon_x = bounded_position((long long)icon_x);
 	    }
 	}
 
@@ -2240,13 +2240,13 @@ Redisplay(
 		icon_x = (int) ig->rectangle.width + 2 * (int) ht -
 		    (int) MIN(ig->rectangle.width,
 			       container_data.first_column_width);
-		small_icon_x = (Position) icon_x;
+		small_icon_x = bounded_position((long long)icon_x);
 	    }
 	} else {
 	    if (LayoutIsRtoLG(wid)) {
 		icon_x = (int) ig->rectangle.width - (int) small_icon_x -
 		    (int) pm_width;
-		small_icon_x = (Position) icon_x;
+		small_icon_x = bounded_position((long long)icon_x);
 	    }
 	}
 
@@ -3828,15 +3828,15 @@ _XmIconGadgetIconPos(Widget wid, int *x, int *y)
   if (ig -> icong.viewtype == XmSMALL_ICON) {
     icon_x = GetSmallIconX(wid);
     if (LayoutIsRtoLG(wid))
-	icon_x = (Position) ((int) XtWidth(wid) - (int) icon_x -
-	    (int) IG_SmallIconRectWidth(wid));
+	icon_x = bounded_position((long long)XtWidth(wid) - icon_x -
+	    IG_SmallIconRectWidth(wid));
     *x = icon_x;
     *y = GetSmallIconY(wid);
   } else {
     icon_x = GetLargeIconX(wid);
     if (LayoutIsRtoLG(wid))
-	icon_x = (Position) ((int) XtWidth(wid) - (int) icon_x -
-	    (int) IG_LargeIconRectWidth(wid));
+	icon_x = bounded_position((long long)XtWidth(wid) - icon_x -
+	    IG_LargeIconRectWidth(wid));
     *x = icon_x;
     *y = GetLargeIconY(wid);
   }
