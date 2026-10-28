@@ -10199,7 +10199,8 @@ PreeditCaret(XIC xic,
 static void
 TextFieldResetIC(Widget w)
 {
-    int insert_length, num_chars;
+    int insert_length;
+    size_t num_chars;
     char *mb, *str=NULL;
     Boolean replace_res;
     wchar_t *wc_insert_string;
@@ -10222,7 +10223,8 @@ TextFieldResetIC(Widget w)
 	  str[PreEnd(tf) - PreStart(tf)] = '\0';
 	}
 	else { 
-	  int num_bytes;
+	  size_t num_bytes;
+	  size_t byte_capacity;
 	  wchar_t *wc_string;
 	  wc_string = (wchar_t *)XtMalloc((PreEnd(tf) - PreStart(tf)+1)
                                                         *sizeof(wchar_t));
@@ -10234,12 +10236,13 @@ TextFieldResetIC(Widget w)
           bcopy((char *)&tf->text.wc_value[PreStart(tf)], (char *)wc_string,
                                 (PreEnd(tf) - PreStart(tf))*sizeof(wchar_t));
           wc_string[PreEnd(tf) - PreStart(tf)] = (wchar_t)'\0';
-	  num_bytes = wcstombs(str, wc_string, 
-				(PreEnd(tf) - PreStart(tf)+1)*sizeof(wchar_t)); 
-	  if (num_bytes < 0) {
+	  byte_capacity = ((size_t)(PreEnd(tf) - PreStart(tf)) + 1) *
+	                  sizeof(wchar_t);
+	  num_bytes = wcstombs(str, wc_string, byte_capacity);
+	  if (num_bytes == (size_t)-1 || num_bytes >= byte_capacity) {
 	    str[0] = '\0';
 	  } else {
-	    str[num_bytes] = '\0';
+	    str[(size_t)num_bytes] = '\0';
 	  }
 	  XtFree((char *)wc_string);
 	}
@@ -10287,13 +10290,14 @@ TextFieldResetIC(Widget w)
 	  ResetUnder(tf);
 	  return;
 	}
-        num_chars = mbstowcs( wc_insert_string, mb, insert_length+1);
-	if (num_chars < 0) {
+	  num_chars = mbstowcs(wc_insert_string, mb,
+                        (size_t)insert_length + 1);
+	if (num_chars == (size_t)-1 || num_chars > (size_t)INT_MAX) {
 	  wc_insert_string[0] = (wchar_t)0;
 	  num_chars = 0;
 	}
         replace_res = _XmTextFieldReplaceText(tf, NULL, cursorPos,
-                nextPos, (char*) wc_insert_string, num_chars, True);
+                nextPos, (char*) wc_insert_string, (int)num_chars, True);
         XtFree((char *)wc_insert_string);
     }
 

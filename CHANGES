@@ -25984,3 +25984,9 @@ Bound TextField copy conversions (2026-10-29)
 
 - Return actual converted substring lengths and reject capacity-filling
   `wcstombs` output before publishing wide-string setter input.
+
+Harden TextField input-method conversion (2026-10-29)
+======================================================
+
+- Reject failed or capacity-filling preedit conversions and prevent signed
+  length wraparound when committing input-method text.
