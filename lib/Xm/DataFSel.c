@@ -155,6 +155,7 @@ InsertSelection(
     wchar_t * wc_value;
     char * temp;
     int num_chars = 0;
+    size_t converted;
     Atom COMPOUND_TEXT;
     char * total_tmp_value = NULL;
     XTextProperty tmp_prop;
@@ -292,8 +293,8 @@ InsertSelection(
              insert_select->success_status = False;
              return;
           }
-          num_chars = mbstowcs(wc_value, total_tmp_value, 1 + malloc_size);
-          if (num_chars < 0) {
+          converted = mbstowcs(wc_value, total_tmp_value, 1 + malloc_size);
+          if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
              XtFree((char *)wc_value);
              XtFree(total_tmp_value);
              XtFree((char *)value);
@@ -301,6 +302,7 @@ InsertSelection(
              insert_select->success_status = False;
              return;
           }
+          num_chars = (int)converted;
           replace_res = _XmDataFieldReplaceText(tf,
                                                 (XEvent *) insert_select->event,
                                                 left, right, (char*) wc_value,
@@ -347,8 +349,8 @@ InsertSelection(
              insert_select->success_status = False;
              return;
           }
-          num_chars = mbstowcs(wc_value, temp, (size_t)*length + 1);
-          if (num_chars < 0) {
+          converted = mbstowcs(wc_value, temp, (size_t)*length + 1);
+          if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
              XtFree(temp);
              XtFree((char *)value);
              XtFree((char *)wc_value);
@@ -356,6 +358,7 @@ InsertSelection(
              insert_select->success_status = False;
              return;
           }
+          num_chars = (int)converted;
           replace_res = _XmDataFieldReplaceText(tf, 
                                                 (XEvent *) insert_select->event,
 					        left, right, (char*) wc_value,

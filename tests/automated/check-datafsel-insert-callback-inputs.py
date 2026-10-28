@@ -21,8 +21,10 @@ assert body.index("if (w == NULL") < body.index("XtDisplay(w)")
 empty = body[body.index("if (!value)"):body.index("if (insert_select->select_type")]
 assert "if (*length == 0)" in empty
 assert empty.index("if (*length == 0)") < empty.index("*(char *) value")
-assert "num_chars = mbstowcs(wc_value, temp" in body
-assert body.count("if (num_chars < 0)") >= 2
+assert "converted = mbstowcs(wc_value, temp" in body
+assert "size_t converted;" in body
+assert body.count("converted == (size_t)-1") >= 2
+assert body.count("num_chars = (int)converted") >= 2
 
 targets_start = source.index("HandleInsertTargets(\n        Widget")
 targets = source[targets_start:source.index("/*\n * Converts requested target", targets_start)]

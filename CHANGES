@@ -81,6 +81,8 @@ Guard DataField selection callback inputs (2026-10-29)
 - Defer display/atom lookup until after insertion-callback widget validation.
 - Reject invalid format widths and non-empty typeless insertion results.
 - Reject `mbstowcs` failure for locale text before wide replacement.
+- Preserve `size_t` conversion results in both DataField insertion paths before
+  narrowing character counts.
 
 Release skipped selection callback payloads (2026-10-29)
 ==========================================================

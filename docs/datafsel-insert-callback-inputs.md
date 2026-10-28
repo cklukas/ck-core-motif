@@ -15,7 +15,8 @@ results are discarded before inspecting their first byte, and display access
 is deferred until after widget validation. Invalid X11 format widths and
 non-empty typeless results are rejected before conversion.
 Invalid multibyte input is also rejected when converting locale text to wide
-characters, before replacement receives the character count.
+characters, before replacement receives the character count. Both conversion
+paths preserve the native `size_t` result before narrowing.
 
 Regression coverage:
 
