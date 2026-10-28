@@ -1316,6 +1316,15 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
     return Urm__UT_Error ("UrmCWRSetCallbackItem", _MrmMMsg_0096,
 			  NULL, context_id, MrmNULL_ROUTINE) ;
 
+  /* Floating-point callback values are passed by address.  Reject a
+   * missing address before appending the routine name or changing the
+   * callback record; otherwise the conversion below would dereference
+   * NULL after partially mutating the resource context. */
+  if ((type == MrmRtypeFloat ||
+       type == MrmRtypeHorizontalFloat ||
+       type == MrmRtypeVerticalFloat) && itm_val == 0)
+    return MrmFAILURE;
+
   /*
    * Append the routine string and set the item
    */
