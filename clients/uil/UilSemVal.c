@@ -879,8 +879,6 @@ if ( (argname_value_entry->obj_header.b_flags&sym_m_builtin) &&
 if ( (argname_value_entry->obj_header.b_flags & sym_m_builtin) &&
      (argname_value_entry->obj_header.az_name == NULL) ) 
     {
-    key_keytable_entry_type		* keytable_entry;
-
     keytable_entry =
 	(key_keytable_entry_type *) argname_value_entry->value.az_data;
     _assert (keytable_entry->b_class==tkn_k_class_argument,

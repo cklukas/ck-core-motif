@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Clarify UIL key-table scope (2026-10-29)
+========================================
+
+- Remove a shadowed argument key-table pointer so all validation checks use
+  the same binding.
+- Add focused coverage and documentation.
+
 Bound UIL gadget-count narrowing (2026-10-29)
 ==============================================
 
