@@ -2042,9 +2042,10 @@ _XmStringSourceCreate(char *value,
       wcstombs(tmp_value, wc_value, allocation_bytes);
     data->value = NULL;  /* Scratch area for block->ptr conversions */
     /* Doesnt include NULL */
-    if (converted_bytes == (size_t)-1 || converted_bytes >= allocation_bytes)
+    if (converted_bytes == (size_t)-1 || converted_bytes >= allocation_bytes) {
       data->length = 0;
-    else {
+      data->ptr[0] = '\0';
+    } else {
       tmp_value[converted_bytes] = '\0';
       data->length = _XmTextBytesToCharacters(data->ptr, tmp_value, num_chars,
 					      False, max_char_size);

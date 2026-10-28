@@ -28386,3 +28386,6 @@ List drag selection bounds (2026-10-28)
 * XmString unparsing now rejects invalid multibyte pattern lengths instead of
   passing `mblen()` failure values through as unsigned component sizes
   (2026-10-28).
+* Wide text-source initialization now clears its allocated buffer when
+  `wcstombs()` rejects the input, avoiding an uninitialized zero-length value
+  (2026-10-28).
