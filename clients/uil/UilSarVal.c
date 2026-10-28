@@ -2909,7 +2909,8 @@ yystype	    *keyword_frame;
 
 	default:
 /* BEGIN OSF Fix CR 5443 */
-	    font_value_entry->b_charset = Uil_lex_l_user_default_charset;
+    font_value_entry->b_charset =
+	(unsigned char)Uil_lex_l_user_default_charset;
 /* END OSF Fix CR 5443 */
 	    break;
 	}
@@ -3022,7 +3023,8 @@ yystype	    *keyword_frame;
 
 	default:
 /* BEGIN OSF Fix CR 5443 */
-	    font_value_entry->b_charset = Uil_lex_l_user_default_charset;
+    font_value_entry->b_charset =
+	(unsigned char)Uil_lex_l_user_default_charset;
 /* END OSF Fix CR 5443 */
 	    break;
 	}
@@ -3425,8 +3427,8 @@ yystype	    *keyword_frame;
 
 	color_table_entry = (sym_value_entry_type *)
 	    sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
-	color_table_entry->value.z_color = (sym_color_element *)
-	    XtCalloc(1,sizeof(sym_color_element)*count);
+    color_table_entry->value.z_color = (sym_color_element *)
+	    XtCalloc(1, (Cardinal)(sizeof(sym_color_element) * (size_t)count));
 	color_table_entry->b_type = sym_k_color_table_value;
 	color_table_entry->b_table_count = (unsigned char) count;
 	color_table_entry->b_max_index = (unsigned char) index;
@@ -3470,7 +3472,7 @@ yystype	    *keyword_frame;
 
     _sar_move_source_info( target_frame, keyword_frame );
     target_frame->b_tag = sar_k_value_frame;
-    target_frame->b_type = target_type;
+    target_frame->b_type = (unsigned char)target_type;
     target_frame->b_flags = sym_m_private;
     target_frame->value.az_symbol_entry =
 		(sym_entry_type *) color_table_entry;
@@ -3570,7 +3572,7 @@ yystype	    *keyword_frame;
 		  sym_k_color_value );
 	color_entry->b_type = sym_k_color_value;
 	color_entry->obj_header.b_flags = sym_m_private;
-	color_entry->b_arg_type = state;
+    color_entry->b_arg_type = (unsigned char)state;
 	color_entry->b_expr_opr = sym_k_coerce_op;
 
         if ((color_frame->b_flags & sym_m_forward_ref) != 0)

@@ -16,6 +16,8 @@ Make UIL value-frame narrowing explicit (2026-10-28)
   operations.
 - Bound font-table growth by the 8-bit table-count field before narrowing the
   count, and make font compact-field assignments explicit.
+- Make color-table allocation sizing and color/font compact fields explicit at
+  their ABI boundaries.
 
 Bound UIL include filename metadata (2026-10-28)
 =================================================
