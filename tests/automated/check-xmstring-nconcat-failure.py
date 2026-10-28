@@ -12,6 +12,8 @@ function = source[start:end]
 assert "tmp = XmStringConcat(first, second);" in function
 assert "if (tmp == NULL)" in function
 assert "return (NULL);" in function
-assert "XmStringLength(first) + n" in function
+assert "first_length = XmStringLength(first);" in function
+assert "n > INT_MAX - first_length" in function
+assert "first_length + n" in function
 
 print("XmStringNConcat propagates concat allocation failure")
