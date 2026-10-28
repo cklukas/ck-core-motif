@@ -27288,6 +27288,12 @@ Guard DatePicker event callbacks (2026-10-28)
 - Ignore missing, foreign, or teardown-time widget/event inputs before
   opening or closing the calendar popup.
 
+Guard ColorPicker event callbacks (2026-10-28)
+==============================================
+
+- Ignore missing, foreign, or teardown-time widget/event inputs before
+  processing color preview, commit, and keyboard adjustments.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

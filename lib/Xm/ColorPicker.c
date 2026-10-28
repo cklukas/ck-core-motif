@@ -146,6 +146,8 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
     KeySym key; char input[8]; int length; unsigned long value;
     (void)data; (void)dispatch;
+    if (picker == NULL || event == NULL || !XmIsColorPicker(widget))
+	return;
     if (event->type == ButtonPress) {
         XmColorPickerPreviewValue(widget, picker->color_picker.preview ^ 0x000000ffUL);
         return;
