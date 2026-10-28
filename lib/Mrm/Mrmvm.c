@@ -106,7 +106,7 @@ Urm__UT_AllocString (String		stg)
 
   if ( stg == NULL ) return NULL ;
   stg_len = strlen(stg);
-  if ( stg_len == SIZE_MAX ) return NULL ;
+  if ( stg_len == SIZE_MAX || stg_len >= (size_t)UINT_MAX ) return NULL ;
   new_stg = (String) XtMalloc (stg_len + 1) ;
   if ( new_stg != NULL )
     memcpy (new_stg, stg, stg_len + 1) ;
