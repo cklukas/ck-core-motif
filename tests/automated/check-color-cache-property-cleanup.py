@@ -8,7 +8,7 @@ body = text[start:text.index("/*************************************************
 
 validation = body.index("if ((result != Success)")
 cleanup = body[validation:body.index("return False", validation)]
-assert "format == 0" in cleanup
+assert "format != 8" in cleanup
 assert "target == None" in cleanup
 assert "if (value != NULL)" in cleanup
 assert "XFree(value)" in cleanup
