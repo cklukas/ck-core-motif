@@ -171,6 +171,7 @@ static void owner_events(Widget owner, XtPointer closure, XEvent *event,
                          Boolean *dispatch) {
     XmFlyoutWidget flyout = (XmFlyoutWidget)closure;
     (void)owner; (void)dispatch;
+    if (flyout == NULL || event == NULL || !XmIsFlyout((Widget)flyout)) return;
     if (event->type == UnmapNotify || event->type == ButtonPress)
         XmFlyoutHide((Widget)flyout);
 }
@@ -181,6 +182,7 @@ static void popup_events(Widget popup, XtPointer closure, XEvent *event,
     KeySym symbol;
     char input[2];
     (void)popup; (void)dispatch;
+    if (flyout == NULL || event == NULL || !XmIsFlyout((Widget)flyout)) return;
     if (event->type == ButtonPress) {
         XmFlyoutHide((Widget)flyout);
         return;
