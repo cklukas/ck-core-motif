@@ -26482,3 +26482,9 @@ Bound DataField replacement length (2026-10-29)
 
 - Reject replacement results above the signed `string_length` range before
   publishing the updated DataField length.
+
+Guard DataField modify-verify result allocation (2026-10-29)
+==============================================================
+
+- Check wide callback-result allocation before copying or converting it, and
+  route failure through cleanup.

@@ -3633,6 +3633,12 @@ df_ModifyVerify(
 		 {
 		     *insert = XtMalloc((Cardinal)(((size_t)*insert_length + 1) \
 					* sizeof(wchar_t)));
+		     if (*insert == NULL)
+			 {
+			     *insert_length = 0;
+			     *free_insert = (int)False;
+			     goto modify_verify_allocation_failed;
+			 }
 		     *free_insert = (int)True;
 		     count = wcstombs(*insert, wcs_vcb.text->wcsptr,
 				      (size_t)*insert_length + 1);
@@ -3649,6 +3655,12 @@ df_ModifyVerify(
 		 {
 		     *insert = XtMalloc((Cardinal)(((size_t)*insert_length + 1) \
 					* sizeof(wchar_t)));
+		     if (*insert == NULL)
+			 {
+			     *insert_length = 0;
+			     *free_insert = (int)False;
+			     goto modify_verify_allocation_failed;
+			 }
 		     *free_insert = (int)True;
 		     (void)memcpy((void*)*insert, (void*)wcs_vcb.text->wcsptr,
 				  *insert_length * sizeof(wchar_t));
@@ -3730,6 +3742,15 @@ df_ModifyVerify(
         return wcs_vcb.doit;
      else
         return vcb.doit;
+
+modify_verify_allocation_failed:
+     if (do_free) {
+	 XtFree(newblock.ptr);
+     }
+     if (wcs_do_free) {
+	 XtFree((char*)wcs_newblock.wcsptr);
+     }
+     return False;
 }
 
 static void 
