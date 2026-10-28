@@ -10042,8 +10042,14 @@ PreeditDraw(XIC xic,
                 XtFree((char *)over_wc);
                 return;
             }
-            mbstowcs( wc, call_data->text->string.multi_byte,
-                                                        insert_length);
+            converted = mbstowcs(wc, call_data->text->string.multi_byte,
+                                 (size_t)insert_length);
+            if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+                XtFree((char *)wc);
+                XtFree((char *)over_wc);
+                return;
+            }
+            wc[converted] = (wchar_t) '\0';
         } else
         {
             wc = (wchar_t*)XtMalloc((unsigned)(insert_length+1) *
@@ -10083,14 +10089,16 @@ PreeditDraw(XIC xic,
                XtFree((char *)wc);
                return;
            }
-           if (wcstombs(recover_mb,
-                        (wchar_t *)tf->text.onthespot->over_str,
-                        tf->text.onthespot->over_len) < 0) {
+           converted = wcstombs(recover_mb,
+                                (wchar_t *)tf->text.onthespot->over_str,
+                                (size_t)tf->text.onthespot->over_len);
+           if (converted == (size_t)-1 ||
+               converted >= (size_t)tf->text.onthespot->over_len + 1) {
                XtFree(recover_mb);
                recover_mb = NULL;
                recover_len = 0;
            } else {
-               recover_mb[tf->text.onthespot->over_len] = '\0';
+               recover_mb[converted] = '\0';
                ptr = recover_mb;
 
                for (i=0; i < tf->text.onthespot->over_maxlen; i++) {
@@ -10107,7 +10115,11 @@ PreeditDraw(XIC xic,
                    XtFree((char *)wc);
                    return;
                }
-               mbstowcs(recover_wc, ptr, recover_len);
+               converted = mbstowcs(recover_wc, ptr, (size_t)recover_len);
+               if (converted == (size_t)-1 || converted > (size_t)INT_MAX)
+                   recover_wc[0] = (wchar_t) '\0';
+               else
+                   recover_wc[converted] = (wchar_t) '\0';
                i = wcslen(wc);
                wcsncat(wc, recover_wc, recover_len);
                wc[i+recover_len] = (wchar_t) '\0';

@@ -25990,3 +25990,9 @@ Harden TextField input-method conversion (2026-10-29)
 
 - Reject failed or capacity-filling preedit conversions and prevent signed
   length wraparound when committing input-method text.
+
+Validate TextField preedit conversions (2026-10-29)
+====================================================
+
+- Validate and terminate every preedit recovery conversion before
+  concatenating it into the active composition buffer.
