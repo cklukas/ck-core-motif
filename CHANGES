@@ -28470,3 +28470,5 @@ List drag selection bounds (2026-10-28)
   unsigned parser and trailing-input rejection (2026-10-28).
 * Made the Notebook geometry contract check runnable without an external
   source-path argument by defaulting to the checkout implementation (2026-10-28).
+* Refreshed the PrintShell child-allocation contract check for the shared
+  failure helper that reports status and exits safely (2026-10-28).

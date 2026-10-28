@@ -10,5 +10,5 @@ assert "if (file_desc == NULL)" in region
 assert "file_desc->file_name = XtNewString(file_name);" in region
 assert "if (file_desc->file_name == NULL)" in region
 assert "XtFree((char *)file_desc);" in region
-assert "_exit(1);" in region
+assert "ChildPrintFailure(file, file_name, pipe);" in region
 print("PrintS child descriptor allocation guards present")
