@@ -23240,6 +23240,15 @@ Reject empty-List keyboard positions (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-list-empty-keyboard-position.py
 
+Validate List bounds positions before conversion (2026-10-28)
+===============================================================
+
+- Reject negative and out-of-range `XmListPosToBounds` inputs before the
+  one-based-to-zero-based subtraction.
+- Preserve zero-for-last-item compatibility and add focused regression
+  coverage and documentation.
+Regression: tests/automated/check-list-pos-to-bounds-range.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

@@ -10257,6 +10257,11 @@ XmListPosToBounds(Widget      w,
 
   lw = (XmListWidget) w;
 
+  if (position < 0 || position > lw->list.itemCount) {
+    _XmAppUnlock(app);
+    return False;
+  }
+
   /* BEGIN OSF Fix CR 5764 */
   /* Remember we're 0-based */
   if (position == 0)
