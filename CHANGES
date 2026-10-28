@@ -27412,6 +27412,12 @@ Bound BreadcrumbBar draw coordinates (2026-10-29)
 - Clamp long-path separator and label positions before passing them to
   `XmStringDraw`'s signed Xt coordinate parameters.
 
+Bound Calendar draw coordinates (2026-10-29)
+============================================
+
+- Clamp Calendar heading and cell text positions before passing them to
+  `XmStringDraw`, preventing signed-coordinate wrap on wide controls.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 

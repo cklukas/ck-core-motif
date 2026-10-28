@@ -3,6 +3,7 @@
 #endif
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <Xm/CalendarP.h>
@@ -274,6 +275,12 @@ static const char *month_name(int month) {
     return names[month - 1];
 }
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return SHRT_MIN;
+    if (value > SHRT_MAX) return SHRT_MAX;
+    return (Position)value;
+}
+
 static void draw_text(XmCalendarWidget calendar, const char *text, int x,
                       int top, int width, int height,
                       unsigned char alignment) {
@@ -288,7 +295,9 @@ static void draw_text(XmCalendarWidget calendar, const char *text, int x,
                    &text_width, &text_height);
     XmStringDraw(XtDisplay((Widget)calendar), XtWindow((Widget)calendar),
                  calendar->calendar.render_table, value, calendar->calendar.gc,
-                 x, top + ((int)height - (int)text_height) / 2,
+                 bounded_position(x),
+                 bounded_position((long long)top +
+                                  ((long long)height - (long long)text_height) / 2),
                  (Dimension)width, alignment,
                  XmPrim_layout_direction(calendar), NULL);
     XmStringFree(value);
