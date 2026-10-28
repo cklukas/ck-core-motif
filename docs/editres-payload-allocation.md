@@ -22,3 +22,8 @@ The focused regression check is
 
 The string-output width check is
 `tests/automated/check-editres-string-output.py`.
+
+Toolkit warning messages also keep their `strlen()` totals in `size_t` and
+fall back to the bounded stack buffer when the result cannot fit Xt's
+`Cardinal` allocation width. The regression check is
+`tests/automated/check-editres-error-message-bounds.py`.

@@ -925,14 +925,14 @@ Cardinal * num_params;
     SVErrorInfo * info = &globals.error_info;	
     char buf[BUFSIZ];
     char *pbuf;
-    int len;
+    size_t len;
 
     if ( streq(name, "unknownType") ) {
 	char *msg1 = "The `";
 	char *msg2 = "' resource is not used by this widget.";
 	len = strlen(msg1) + strlen(msg2) + strlen(info->event->name) + 1;
-	if (len > sizeof(buf))
-	    pbuf = XtMalloc(len);
+	if (len > sizeof(buf) && len <= (size_t)UINT_MAX)
+	    pbuf = XtMalloc((Cardinal)len);
 	else
 	    pbuf = buf;
 	if (pbuf == NULL) {
@@ -944,13 +944,15 @@ Cardinal * num_params;
 			"%s%s%s", msg1, info->event->name, msg2);
 	}
     } else if ( streq(name, "noColormap") ) {
-	len = snprintf(NULL, 0, msg, params[0]);
-	if (len < 0)
+	{
+	    int formatted_len = snprintf(NULL, 0, msg, params[0]);
+	    if (formatted_len < 0)
 	    len = 0;
-	else
-	    ++len;
-	if (len > sizeof(buf))
-	    pbuf = XtMalloc(len);
+	    else
+	    len = (size_t)formatted_len + 1;
+	}
+	if (len > sizeof(buf) && len <= (size_t)UINT_MAX)
+	    pbuf = XtMalloc((Cardinal)len);
 	else
 	    pbuf = buf;
 	if (pbuf == NULL) {
@@ -975,8 +977,8 @@ Cardinal * num_params;
 	    msg3 = "";
 	    len = strlen(msg1) + strlen(msg2) + strlen(info->event->name) + 1;
 	}
-	if (len > sizeof(buf))
-	    pbuf = XtMalloc(len);
+	if (len > sizeof(buf) && len <= (size_t)UINT_MAX)
+	    pbuf = XtMalloc((Cardinal)len);
 	else
 	    pbuf = buf;
 	if (streq(info->event->value, XtRString)) {
@@ -1002,8 +1004,8 @@ Cardinal * num_params;
 	char *msg4 = ", Msg: ";
 	len = strlen(msg1) + strlen(msg2) + strlen(msg3) + strlen(msg4) +
 		strlen(name) + strlen(type) + strlen(class) + strlen(msg) + 1;
-	if (len > sizeof(buf))
-	    pbuf = XtMalloc(len);
+	if (len > sizeof(buf) && len <= (size_t)UINT_MAX)
+	    pbuf = XtMalloc((Cardinal)len);
 	else
 	    pbuf = buf;
 	if (pbuf == NULL) {

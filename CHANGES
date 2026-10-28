@@ -26659,6 +26659,12 @@ Bound Editres outgoing strings (2026-10-29)
   oversized resource names cannot desynchronise the response stream.
 - Use the correct `unsigned long` element width for decoded widget IDs.
 
+Bound Editres error-message sizing (2026-10-29)
+================================================
+
+- Keep toolkit warning-message length calculations in `size_t` and use the
+  bounded fallback when a message cannot fit Xt's `Cardinal` allocation size.
+
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================
 
