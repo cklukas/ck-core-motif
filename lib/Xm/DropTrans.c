@@ -528,6 +528,10 @@ ProcessTransferEntry(
 	i = 0;
 	XtSetArg(args[i], XmNiccHandle, &real_selection_atom); i++;
 	XtGetValues(dtp->dragContext, args, i);
+	if (real_selection_atom == None) {
+	    FailTransferEntry(dt);
+	    return;
+	}
 	requestor = dc->drag.currReceiverInfo->shell;
 	SetSelectionRequest(dt, requestor, real_selection_atom);
 

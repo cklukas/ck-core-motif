@@ -1,3 +1,11 @@
+Reject drop transfers without an ICC selection atom (2026-10-29)
+================================================================
+
+- Fail a transfer before issuing `XtGetSelectionValue*` when the drag context
+  does not provide a real ICC selection atom.
+- Preserve valid external-owner requests and add focused selection-atom
+  coverage for the processing path.
+
 Guard drop-transfer callbacks that destroy their transfer object (2026-10-29)
 ==============================================================================
 
