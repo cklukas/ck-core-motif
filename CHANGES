@@ -92,6 +92,13 @@ Guard XmDragStart argument-count overflow (2026-10-29)
   arithmetic can wrap.
 - Preserve valid argument lists and extend the focused entry-point coverage.
 
+Preserve secondary-sink context on rejected ownership (2026-10-29)
+===================================================================
+
+- Keep the destination conversion context until `XtOwnSelection` confirms a
+  secondary-sink ownership request, preserving stale-timestamp behavior.
+- Add focused ordering coverage for the secondary sink path.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

@@ -1655,8 +1655,6 @@ XmeSecondarySink(Widget w, Time time)
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
-  ClearContextBlock(XtDisplay(w), MOTIF_DESTINATION);
-
   if (time == 0) time = XtLastTimestampProcessed(XtDisplay(w));
 
   /* Setup our end of the secondary selection */
@@ -1665,6 +1663,9 @@ XmeSecondarySink(Widget w, Time time)
 			  _XmConvertHandler, LoseProc, NULL);
 
   if (status) {
+    /* Preserve the existing destination context if Xt rejects this
+     * ownership request (for example because its timestamp is stale). */
+    ClearContextBlock(XtDisplay(w), MOTIF_DESTINATION);
     XtRemoveCallback(w, XmNdestroyCallback, DisownCallback,
                     (XtPointer) MOTIF_DESTINATION);
     XtAddCallback(w, XmNdestroyCallback, DisownCallback,

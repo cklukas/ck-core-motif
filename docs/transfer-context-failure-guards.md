@@ -11,3 +11,7 @@ Named selection ownership retains its current conversion context until
 `XtOwnSelection` succeeds.  A rejected timestamp or other ownership failure
 therefore leaves the existing owner able to service requests; the context is
 replaced only after the server confirms the new owner.
+
+`XmeSecondarySink` follows the same ordering for the destination selection, so
+an unsuccessful ownership request cannot discard the active secondary-transfer
+context.
