@@ -9,6 +9,8 @@ text = source.read_text(encoding="utf-8")
 start = text.index("static char *locale_utf8(")
 end = text.index("\nstatic", start + 1)
 region = text[start:end]
+assert "if (s == NULL)" in region
+assert "return NULL;" in region
 
 for needle in (
     "count > SIZE_MAX / sizeof(*wide) - 1",

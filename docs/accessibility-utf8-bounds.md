@@ -11,6 +11,8 @@ boundary, so a representable host size cannot be truncated. Malformed or
 unrepresentable input sizes therefore fail cleanly without
 wrapping `(count + 1) * sizeof(wchar_t)`. Allocation failures for either
 scratch buffer also return cleanly without dereferencing a null pointer.
+The converter rejects a NULL source before entering the multibyte state
+machine.
 
 The source-level regression is
 `tests/automated/check-accessible-utf8-bounds.py`.

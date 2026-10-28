@@ -12,6 +12,13 @@ Clamp appearance arrow inset positions (2026-10-29)
   `Position` range before storing the result.
 - Extend appearance allocation contract coverage for the geometry guard.
 
+Guard accessibility locale conversion input (2026-10-29)
+==========================================================
+
+- Reject a NULL source string before `mbsrtowcs` is called by the accessibility
+  locale-to-UTF-8 converter.
+- Extend the focused UTF-8 bounds contract check.
+
 Guard appearance arrow inset inputs (2026-10-29)
 =================================================
 

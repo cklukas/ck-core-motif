@@ -1015,6 +1015,8 @@ static char *locale_utf8(const char *s) {
   wchar_t *wide;
   char *result, *out;
   size_t i;
+  if (s == NULL)
+    return NULL;
   memset(&state, 0, sizeof(state));
   count = mbsrtowcs(NULL, &p, 0, &state);
   if (count == (size_t)-1 ||
