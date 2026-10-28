@@ -28462,3 +28462,7 @@ List drag selection bounds (2026-10-28)
   checkout with the correct table implementation default (2026-10-28).
 * Refreshed the Mrm text-vector contract check for the current item-count
   capacity calculation used by both vector writers (2026-10-28).
+* Mrm scalar color-table writers now reject a NULL color-table pointer before
+  sizing or copying it (2026-10-28).
+* Refreshed the Mrm scalar-writer contract check for the combined float guard
+  and the new color-table NULL guard (2026-10-28).

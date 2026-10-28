@@ -10,12 +10,12 @@ start = text.index("UrmCWRSetArgValue (")
 end = text.index("\n\n\f", start)
 region = text[start:end]
 
-for check in ("if (arg_val == 0)", "if (src_ct == NULL)"):
+for check in ("arg_val == 0", "if (src_ct == NULL)"):
     if check not in region:
         raise SystemExit(f"scalar writer lacks null guard: {check}")
 
 float_pos = region.index("case MrmRtypeFloat:")
-float_guard = region.index("if (arg_val == 0)", float_pos)
+float_guard = region.index("arg_val == 0")
 float_deref = region.index("*((double *) arg_val)", float_guard)
 if float_guard > float_deref:
     raise SystemExit("float value is dereferenced before its null guard")

@@ -763,6 +763,8 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
 
     case MrmRtypeColorTable:
       src_ct = (RGMColorTablePtr) arg_val ;
+	  if (src_ct == NULL)
+	    return MrmFAILURE;
 	  color_table_size = UrmColorTableSize(src_ct);
       if (color_table_size == 0 || color_table_size > USHRT_MAX)
 	return MrmFAILURE;
