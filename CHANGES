@@ -1,3 +1,10 @@
+Validate XPM color callbacks (2026-10-29)
+==========================================
+
+- Reject `XpmAllocColor` and `XpmFreeColors` flags with null callbacks before
+  color allocation or cleanup can call through them.
+- Add focused coverage and documentation for incomplete callback attributes.
+
 Validate XPM raw-image structure (2026-10-29)
 ==============================================
 

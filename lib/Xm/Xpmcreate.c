@@ -797,6 +797,12 @@ XpmCreateImageFromXpmImage(
 	image->ncolors == 0 || image->colorTable == NULL ||
 	image->data == NULL)
 	return XpmFileInvalid;
+    if (attributes &&
+	(((attributes->valuemask & XpmAllocColor) &&
+	  attributes->alloc_color == NULL) ||
+	 ((attributes->valuemask & XpmFreeColors) &&
+	  attributes->free_colors == NULL)))
+	return XpmFileInvalid;
 
     /* retrieve information from the XpmAttributes */
     if (attributes && (attributes->valuemask & XpmVisual))
