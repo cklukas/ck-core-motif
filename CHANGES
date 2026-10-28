@@ -24619,3 +24619,9 @@ Preserve high-bit XPM token bytes (2026-10-29)
 - Cast memory- and file-backed token bytes through `unsigned char` before
   storing them in `char` buffers.
 - Add focused coverage and documentation.
+
+Guard XPM decimal parser null inputs (2026-10-29)
+==================================================
+
+- Reject null input and output pointers before decimal scanning.
+- Add focused coverage and documentation.

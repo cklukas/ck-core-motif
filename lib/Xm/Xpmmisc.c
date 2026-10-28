@@ -74,6 +74,9 @@ xpmatoui(
 {
     register unsigned int n, i;
 
+    if (p == NULL || ui_return == NULL)
+	return 0;
+
     n = 0;
     for (i = 0; i < l; i++)
 	if (*p >= '0' && *p <= '9') {
