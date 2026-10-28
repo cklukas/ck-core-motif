@@ -2387,6 +2387,22 @@ CallDoneProcs(Widget wid, XtPointer id, XmTransferDoneCallbackStruct *ts)
       (Cardinal)((size_t)count * sizeof(*callbacks)));
   if (callbacks == NULL) {
     _XmProcessUnlock();
+    /* Preserve completion delivery when the snapshot allocation fails.
+     * Fetch one function pointer at a time under the process lock, then
+     * invoke it unlocked so callbacks may safely re-enter Motif. */
+    for (i = 0; i < count; i++) {
+      XmSelectionFinishedProc callback;
+
+      _XmProcessLock();
+      if (i >= tid->numDoneProcs || tid->doneProcs == NULL) {
+        _XmProcessUnlock();
+        break;
+      }
+      callback = tid->doneProcs[i];
+      _XmProcessUnlock();
+      if (callback != NULL)
+        callback(wid, op, ts);
+    }
     return;
   }
   memcpy(callbacks, tid->doneProcs,

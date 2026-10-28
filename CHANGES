@@ -23176,6 +23176,16 @@ Make invalid-atom fallback allocation-safe (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-safe-atom-name-fallback.py
 
+Preserve completion callbacks under snapshot allocation failure (2026-10-28)
+===============================================================================
+
+- Deliver transfer completion callbacks through a lock-safe direct fallback
+  when the temporary callback snapshot cannot be allocated.
+- Keep drop cleanup and user completion notifications from being silently
+  skipped under allocation pressure.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-done-proc-allocation-fallback.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
