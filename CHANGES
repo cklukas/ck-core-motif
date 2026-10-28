@@ -23293,6 +23293,14 @@ Preserve clipboard buffers on growth failure (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-realloc-cleanup.py
 
+Reject incomplete virtual-key binding properties (2026-10-28)
+=================================================================
+
+- Check the `XGetWindowProperty` status before inspecting returned metadata.
+- Reject truncated binding properties and retain the normal fallback behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-virtkeys-property-complete.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

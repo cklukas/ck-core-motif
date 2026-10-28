@@ -476,10 +476,12 @@ GetBindingsProperty(Display *display,
   unsigned long	bytes_after;
 
 
+  int result;
+
   if ( binding == NULL ) 
     return False;
 
-  XGetWindowProperty (display, 
+  result = XGetWindowProperty (display,
 		      RootWindow(display, 0),
 		      XInternAtom(display, property, FALSE),
 		      0, (long)1000000,
@@ -488,9 +490,11 @@ GetBindingsProperty(Display *display,
 		      &num_items, &bytes_after,
 		      (unsigned char **) &prop);
 
-  if ((actual_type != XA_STRING) ||
+  if (result != Success ||
+      (actual_type != XA_STRING) ||
       (actual_format != 8) || 
-      (num_items == 0))
+      (num_items == 0) ||
+      (bytes_after != 0))
     {
       if (prop != NULL) 
 	XFree(prop);
