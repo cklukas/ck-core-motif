@@ -3990,9 +3990,10 @@ XmClipboardCancelCopy(
     _XmDisplayToAppContext(display);
 
     _XmAppLock(app);
-    if ( ClipboardLock( display, window) == ClipboardLocked ) {
+	status = ClipboardLock( display, window);
+	if ( status != ClipboardSuccess ) {
 	_XmAppUnlock(app);
-        return(ClipboardLocked);
+	return(status);
     }
 
     deleteitemid = (itemId)itemid;
