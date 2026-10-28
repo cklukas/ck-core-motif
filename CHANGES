@@ -26164,3 +26164,9 @@ Bound DataField wide callback lengths (2026-10-29)
 
 - Validate callback-provided wide insertion lengths before adding the
   terminator or allocating the returned buffer.
+
+Bound DataField callback bridge allocations (2026-10-29)
+==========================================================
+
+- Validate both callback-modified and original insertion lengths while
+  bridging character callbacks to wide callbacks.

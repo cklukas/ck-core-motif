@@ -3544,8 +3544,14 @@ df_ModifyVerify(
      if (XmTextF_wcs_modify_verify_callback(tf) && vcb.doit){
 	if (do_free){ /* there is a char* modify verify callback; the data we
 		       * want is in vcb struct */
+	   if (vcb.text->length < 0 ||
+	       (size_t)vcb.text->length + 1 >
+	           (size_t)UINT_MAX / sizeof(wchar_t)) {
+		XtFree(newblock.ptr);
+		return False;
+	   }
 	   wcs_newblock.wcsptr = (wchar_t *) XtMalloc((unsigned) 
-				      (vcb.text->length + 1) * sizeof(wchar_t));
+				      ((size_t)vcb.text->length + 1) * sizeof(wchar_t));
 	   if (wcs_newblock.wcsptr == NULL) {
 		XtFree(newblock.ptr);
 		return False;
@@ -3562,8 +3568,12 @@ df_ModifyVerify(
 	   }
 	} else { /* there was no char* modify verify callback; use data
 		  * passed in from caller instead of that in vcb struct. */
+	  if (*insert_length < 0 ||
+	      (size_t)*insert_length + 1 >
+	          (size_t)UINT_MAX / sizeof(wchar_t))
+	    return False;
 	  wcs_newblock.wcsptr = (wchar_t *) XtMalloc((unsigned) 
-				       (*insert_length + 1) * sizeof(wchar_t));
+				       ((size_t)*insert_length + 1) * sizeof(wchar_t));
 	  if (wcs_newblock.wcsptr == NULL)
 		return False;
 	  if (XmTextF_max_char_size(tf) == 1) {
