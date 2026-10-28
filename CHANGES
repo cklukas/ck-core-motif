@@ -26128,3 +26128,9 @@ Bound accessibility UTF-8 iterator ranges (2026-10-29)
 
 - Reject UTF-8 byte strings that cannot fit ICU's `int32_t` iterator cursor
   before scanning Unicode accessibility boundaries.
+
+Bound accessibility metadata conversions (2026-10-29)
+======================================================
+
+- Saturate DataGrid dimensions and text positions when converting wider Motif
+  values to the signed `int` fields exposed by accessibility snapshots.

@@ -116,6 +116,14 @@ static int bounded_text_length(const char *text) {
   return (int)count;
 }
 
+static int bounded_cardinal(Cardinal value) {
+  return value > (Cardinal)INT_MAX ? INT_MAX : (int)value;
+}
+
+static int bounded_text_position(XmTextPosition value) {
+  return value > (XmTextPosition)INT_MAX ? INT_MAX : (int)value;
+}
+
 /* Live-object indexes never allocate in proportion to historical IDs. */
 static size_t id_hash(XmAccessibleId id, size_t capacity) {
   return ((size_t)id * UINT32_C(2654435761)) & (capacity - 1);
@@ -1345,8 +1353,8 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsDataGrid(w)) {
     i->role = XmACCESSIBLE_TABLE;
-    i->rows = (int)XmDataGridGetRowCount(w);
-    i->columns = (int)XmDataGridGetColumnCount(w);
+    i->rows = bounded_cardinal(XmDataGridGetRowCount(w));
+    i->columns = bounded_cardinal(XmDataGridGetColumnCount(w));
     i->has_value = True;
     i->minimum_value = 0;
     i->maximum_value = i->rows;
@@ -1568,10 +1576,10 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     if (editable)
       i->states |= XmACCESSIBLE_STATE(7);
     i->has_text = True;
-    i->text_length = (int)(XmIsText(w) ? XmTextGetLastPosition(w)
-                                       : XmTextFieldGetLastPosition(w));
-    i->caret = (int)(XmIsText(w) ? XmTextGetInsertionPosition(w)
-                                 : XmTextFieldGetInsertionPosition(w));
+    i->text_length = bounded_text_position(XmIsText(w) ? XmTextGetLastPosition(w)
+                                                       : XmTextFieldGetLastPosition(w));
+    i->caret = bounded_text_position(XmIsText(w) ? XmTextGetInsertionPosition(w)
+                                                 : XmTextFieldGetInsertionPosition(w));
   }
   if (XmIsScrollBar(w)) {
     int minimum, maximum, value, size, increment, page;
