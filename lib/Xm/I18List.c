@@ -37,6 +37,13 @@ static Position bounded_position(long long value)
     if (value > SHRT_MAX) return (Position)SHRT_MAX;
     return (Position)value;
 }
+
+static short bounded_short(long long value)
+{
+    if (value < SHRT_MIN) return SHRT_MIN;
+    if (value > SHRT_MAX) return SHRT_MAX;
+    return (short)value;
+}
 #include "XmI.h"
 #include <Xm/XmP.h>
 #include <Xm/DrawP.h>
@@ -1539,8 +1546,8 @@ VScrollCallback(Widget w, XtPointer client_data, XtPointer call_data)
 
     scroll_info = (XmScrollBarCallbackStruct *) call_data;
 
-    VScroll((Widget) ilist, (short) (scroll_info->value -
-				     XmI18List_first_row(ilist)));
+    VScroll((Widget) ilist, bounded_short((long long)scroll_info->value -
+                                          (long long)XmI18List_first_row(ilist)));
 }
 
 /*	Function Name: HScrollCallback
@@ -1564,7 +1571,7 @@ HScrollCallback(Widget w, XtPointer client_data, XtPointer call_data)
 
     scroll_info = (XmScrollBarCallbackStruct *) call_data;
 
-    HScroll((Widget)ilist,(short) scroll_info->value);
+    HScroll((Widget)ilist, bounded_short((long long)scroll_info->value));
 
 }
     

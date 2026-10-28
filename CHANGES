@@ -1,3 +1,10 @@
+Bound I18List scrollbar callback values (2026-10-29)
+=====================================================
+
+- Clamp integer scrollbar callback values before passing them to the legacy
+  short scroll helpers, preventing direction reversals from narrowing wrap.
+- Add focused source-contract coverage.
+
 Saturate I18List total-width accumulation (2026-10-29)
 ========================================================
 
