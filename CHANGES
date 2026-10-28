@@ -27414,6 +27414,12 @@ Guard AutoSuggestBox callback closures (2026-10-29)
 - Validate the widget class for query, commit, selection, and event callback
   closures before reading private suggestion state.
 
+Guard Toast action and timeout callbacks (2026-10-29)
+======================================================
+
+- Validate Toast widget data before reading action or timer state, preventing
+  foreign or stale callback data from being dereferenced.
+
 Guard EmptyState action callbacks (2026-10-29)
 ==============================================
 
