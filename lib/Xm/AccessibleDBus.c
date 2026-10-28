@@ -546,6 +546,10 @@ static int text_range(XmAccessibility *a, XmAccessibleId id, int length,
       return 0;
     }
     byte_length = strlen(source);
+    if (byte_length > (size_t)INT32_MAX) {
+      XtFree(source);
+      return 0;
+    }
     map = XmTextUnicodeMapCreate(source, byte_length);
     if (!map || XmTextUnicodeScalarCount(map) != (size_t)length) {
       XmTextUnicodeMapFree(map); XtFree(source); return 0;

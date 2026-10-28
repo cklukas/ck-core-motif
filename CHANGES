@@ -26122,3 +26122,9 @@ Encode Unicode mnemonic keysyms (2026-10-29)
 
 - Preserve Unicode-encoded X11 keysyms when constructing label mnemonics,
   while retaining the legacy fallback for non-Unicode keysyms.
+
+Bound accessibility UTF-8 iterator ranges (2026-10-29)
+=======================================================
+
+- Reject UTF-8 byte strings that cannot fit ICU's `int32_t` iterator cursor
+  before scanning Unicode accessibility boundaries.
