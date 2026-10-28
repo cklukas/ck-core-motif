@@ -884,7 +884,8 @@ _XmGetDragReceiverInfo(
     xmDragReceiverInfoStruct	*iccInfo = NULL ;
     Atom			drag_hints_atom;
     int				format;
-    unsigned long 		bytesafter, lengthRtn, length; 
+    unsigned long 		bytesafter, lengthRtn;
+    long			length;
     Atom			type;
     XmReceiverDSTreeStruct	*dsmInfo;
     Window			root;

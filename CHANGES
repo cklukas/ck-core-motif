@@ -24024,3 +24024,13 @@ Regression: tests/automated/check-dragicc-initiator-bounds.py
 
 Preserve Drag ICC 16-bit swap representations (2026-10-28)
 ============================================================
+Match Drag ICC property length to Xlib (2026-10-28)
+====================================================
+
+- Use `long` for the XGetWindowProperty request length.
+- Keep returned property byte counts unsigned for existing validation.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-dragicc-property-length.py
+
+Bound Drag ICC initiator metadata (2026-10-28)
+==============================================
