@@ -515,6 +515,9 @@ ScanOtherColors(
 	pixels++;
     }
 
+    if (ncolors == 0)
+	return (XpmSuccess);
+
     /* first get character strings and rgb values */
     if (ncolors >= UINT_MAX / sizeof(XColor) || cpp >= UINT_MAX - 1)
 	return (XpmNoMemory);

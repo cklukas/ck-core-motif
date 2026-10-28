@@ -1,3 +1,10 @@
+Accept XPM transparent-only images (2026-10-29)
+================================================
+
+- Skip zero-size non-mask color allocation when every pixel is transparent.
+- Preserve successful export of valid transparent-only images and add focused
+  coverage and documentation.
+
 Validate XPM color metadata bounds (2026-10-29)
 ================================================
 
