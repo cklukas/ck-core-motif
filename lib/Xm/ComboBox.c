@@ -2375,6 +2375,9 @@ CBSetSelectedPos(Widget    widget,
   Arg args[3];
   int new_pos;
 
+  if (widget == NULL || value == NULL)
+    return XmSYNTHETIC_NONE;
+
   /* 
    * This procedure can get called at create time BEFORE ComboBox's
    * Initialize() has been called and children have been created.

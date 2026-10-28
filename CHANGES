@@ -28282,6 +28282,13 @@ ComboBox selection synchronization (2026-10-28)
   ComboBox selection into its edit field. See
   `docs/combobox-selection-sync.md`.
 
+ComboBox selected-position import input (2026-10-28)
+=====================================================
+
+- Reject null synthetic-resource widget or value inputs before ComboBox
+  selected-position import dereferences them. See
+  `docs/combobox-selected-import-input.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
