@@ -6,7 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "XpmWrFFrI.c").read_text(
     encoding="utf-8"
 )
 start = source.index("static int\nWritePixels")
-body = source[start:source.index("static void\nWriteExtensions", start)]
+body = source[start:source.index("static int\nWriteExtensions", start)]
 assert "unsigned int\tncolors" in body
 assert "*pixels >= ncolors" in body
 assert "colors[*pixels].string == NULL" in body

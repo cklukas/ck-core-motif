@@ -9,7 +9,7 @@ colors_start = source.index("static int\nCreateColors(")
 pixels_start = source.index("static int\nCreatePixels(", colors_start)
 colors = source[colors_start:pixels_start]
 pixels = source[pixels_start:source.index("static int\nCountExtensions", pixels_start)]
-assert "if (cpp == 0)" in colors
+assert "if (cpp == 0 ||" in colors
 assert "colors->string == NULL || strlen(colors->string) < cpp" in colors
 assert "memcpy(buf, colors->string, cpp);" in colors
 assert "colors[*pixels].string == NULL" in pixels

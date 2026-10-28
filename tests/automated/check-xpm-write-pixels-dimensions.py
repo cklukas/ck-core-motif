@@ -8,7 +8,9 @@ start = source.index("WritePixels(\n", start)
 end = source.index("\n}\n", start) + 2
 body = source[start:end]
 
-assert "if (width == 0 || height == 0 || pixels == NULL || colors == NULL ||" in body
+guard = "if (width == 0 || height == 0 || cpp == 0 || pixels == NULL ||"
+assert guard in body
+assert "colors == NULL || ncolors == 0)" in body
 assert "return XpmFileInvalid;" in body
-assert body.index("if (width == 0 || height == 0 || pixels == NULL || colors == NULL ||") < body.index("h = height - 1;")
+assert body.index(guard) < body.index("h = height - 1;")
 print("PASS XPM pixel writing rejects zero dimensions")

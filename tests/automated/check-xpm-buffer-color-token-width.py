@@ -11,7 +11,7 @@ colors = source[source.index("static int\nWriteColors(") : source.index(
 pixels = source[source.index("static int\nWritePixels(") : source.index(
     "static unsigned int\nExtensionsSize", source.index("static int\nWritePixels(")
 )]
-assert "if (cpp == 0)" in colors
+assert "if (cpp == 0 ||" in colors
 assert "colors->string == NULL || strlen(colors->string) < cpp" in colors
 assert "memcpy(s, colors->string, cpp);" in colors
 assert "colors[*pixels].string == NULL" in pixels

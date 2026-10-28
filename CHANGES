@@ -1,3 +1,11 @@
+Synchronize XPM serializer contract checks (2026-10-29)
+========================================================
+
+- Keep the focused XPM checks aligned with the current serializer signatures,
+  explicit `cpp` guards, typed header arithmetic, and file-writer helpers.
+- Preserve coverage of zero dimensions, short color tokens, pixel bounds, and
+  unsigned-size overflow without weakening the validated contracts.
+
 Validate XPM color-symbol attributes (2026-10-29)
 ==================================================
 
