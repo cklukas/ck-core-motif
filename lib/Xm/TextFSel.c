@@ -235,6 +235,7 @@ InsertSelection(
   wchar_t * wc_value;
   char * temp;
   int num_chars = 0;
+  size_t converted;
   Atom COMPOUND_TEXT = XInternAtom(XtDisplay(w), XmSCOMPOUND_TEXT, False);
   Atom UTF8_STRING = XInternAtom(XtDisplay(w), XmSUTF8_STRING, False);
   char * total_value = NULL;
@@ -309,14 +310,17 @@ InsertSelection(
 	  insert_select->success_status = False;
 	  return;
 	}
-	num_chars = (int)mbstowcs(wc_value, total_value, len);
-	if (num_chars < 0)
+	converted = mbstowcs(wc_value, total_value, len);
+	if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
 	  num_chars = 0;
-	else
+	  replace_res = False;
+	} else {
+	  num_chars = (int)converted;
 	  replace_res = _XmTextFieldReplaceText(tf,
                                                 (XEvent *)insert_select->event,
                                                 left, right, (char*) wc_value,
                                                 num_chars, True);
+	}
 	XtFree((char *)wc_value);
       }
       XtFree(total_value);
@@ -356,14 +360,17 @@ InsertSelection(
         return;
       }
       
-      num_chars = (int)mbstowcs(wc_value, temp, (size_t)*length + 1);
-      if (num_chars < 0)
-	num_chars = 0;
-      else
+	  converted = mbstowcs(wc_value, temp, (size_t)*length + 1);
+	  if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+	    num_chars = 0;
+	    replace_res = False;
+	  } else {
+	    num_chars = (int)converted;
 	replace_res = _XmTextFieldReplaceText(tf, 
 					      (XEvent *)insert_select->event,
 					      left, right, (char*) wc_value,
 					      num_chars, True);
+	  }
       XtFree(temp);
       XtFree((char *)wc_value);
     }

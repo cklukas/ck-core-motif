@@ -26008,3 +26008,9 @@ Guard Text substring conversion (2026-10-29)
 
 - Preserve `mbstowcs` results in the shared substring helper and fail closed
   when conversion cannot produce a representable destination length.
+
+Guard TextField selection insertion conversion (2026-10-29)
+============================================================
+
+- Reject failed or unrepresentable selection-to-wide-text conversions before
+  invoking the replacement path.
