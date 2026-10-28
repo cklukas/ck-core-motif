@@ -19,6 +19,7 @@ assert "FinishTransfer(tc -> widget, tc);" in branch
 drop_source = (Path(__file__).parents[2] / "lib" / "Xm" / "DropTrans.c").read_text()
 private = drop_source[drop_source.index("Boolean\n_XmDropTransferAddChecked"):]
 assert "old_count" in private
+assert "old_count != UINT_MAX" in private
 assert "num_drop_transfer_lists == old_count + 1" in private
 
 print("PASS failed drop-transfer additions roll back requests")

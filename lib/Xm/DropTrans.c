@@ -830,7 +830,8 @@ _XmDropTransferAddChecked(
 	wc = (XmDropTransferObjectClass) XtClass(dt);
 	((*(wc->dropTransfer_class.add_drop_transfer))
 		(widget, transfers, num_transfers));
-	added = dt->dropTransfer.num_drop_transfer_lists == old_count + 1;
+	added = old_count != UINT_MAX &&
+	    dt->dropTransfer.num_drop_transfer_lists == old_count + 1;
 	_XmAppUnlock(app);
 	return added;
 }
