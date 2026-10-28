@@ -66,6 +66,15 @@ static int WinEntrySizePacked(Display *, int, WSMWinEntry *);
 static int WinDataSizePacked(Display *, int,
 			     WSMWinData *, int, WSMConfigFormatType);
 
+static Boolean
+AddPackedSize(int *size, size_t amount)
+{
+    if (size == NULL || *size < 0 || amount > (size_t)INT_MAX - (size_t)*size)
+	return False;
+    *size += (int)amount;
+    return True;
+}
+
 static String
 WSMQuarkString(XrmQuark quark)
 {
@@ -232,9 +241,8 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	win_info = request->set_state.win_info_list;
 	for (i = 0; i < request->set_state.num_win_info_list; i++,win_info++) {
 	    int win_size = WinInfoSizePacked(dpy, screen_num, win_info);
-	    if (win_size < 0)
+	    if (win_size < 0 || !AddPackedSize(&size, (size_t)win_size))
 		return(NULL);
-	    size += win_size;
 	}
 	break;
     case WSM_REG_WINDOW:
@@ -467,9 +475,8 @@ _WSMPackReply(Display *dpy, int screen_num,
 	win_info = reply->get_state.win_info_list;
 	for (i = 0; i < reply->get_state.num_win_info_list; i++,win_info++) {
 	    int win_size = WinInfoSizePacked(dpy, screen_num, win_info);
-	    if (win_size < 0)
+	    if (win_size < 0 || !AddPackedSize(&size, (size_t)win_size))
 		return(NULL);
-	    size += win_size;
 	}
 	break;
     case WSM_SET_STATE:
@@ -513,7 +520,11 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = COUNT_SIZE;	/* The count of window entries. */
 	win_entry = reply->wm_windows.win_entry_list;
 	for (i = 0; i < reply->wm_windows.num_win_entry_list; i++,win_entry++)
-	    size += WinEntrySizePacked(dpy, screen_num, win_entry);
+	    {
+		int entry_size = WinEntrySizePacked(dpy, screen_num, win_entry);
+		if (entry_size < 0 || !AddPackedSize(&size, (size_t)entry_size))
+		    return(NULL);
+	    }
 	break;
     case WSM_WM_FOCUS:
 	size = sizeof(CARD32);
@@ -1030,7 +1041,8 @@ WinInfoSizePacked(Display *dpy, int screen_num, WSMWinInfo *win_info)
 				       _WSMGetConfigFormatType(win_info->window));
     if (data_size < 0)
 	return(-1);
-    size += data_size;
+    if (!AddPackedSize(&size, (size_t)data_size))
+	return(-1);
     return(size);
 }
 
@@ -1048,10 +1060,20 @@ WinEntrySizePacked(Display *dpy, int screen_num, WSMWinEntry *win_entry)
 {
     int size;
 
+    (void)dpy;
+    (void)screen_num;
+    if (win_entry == NULL || win_entry->num_windows < 0 ||
+	win_entry->num_match_properties < 0)
+	return(-1);
+
     size  = sizeof(CARD32);
-    size += sizeof(CARD32) * win_entry->num_windows;
-    size += sizeof(CARD32);
-    size += sizeof(CARD32) * win_entry->num_match_properties;
+    if (!AddPackedSize(&size,
+			   (size_t)sizeof(CARD32) * (size_t)win_entry->num_windows) ||
+	!AddPackedSize(&size, sizeof(CARD32)) ||
+	!AddPackedSize(&size,
+			   (size_t)sizeof(CARD32) *
+			   (size_t)win_entry->num_match_properties))
+	return(-1);
 
     return(size);
 }
@@ -1078,6 +1100,8 @@ WinDataSizePacked(Display *dpy, int screen_num,
 	(fmt_data->num_attrs != 0 && fmt_data->attr_list == NULL))
 	return(-1);
 
+    if (num < 0 || (fmt_data->num_attrs / 8) > INT_MAX - 1)
+	return(-1);
     size = fmt_data->num_attrs / 8 + 1;	/* Size of header bits. */
     for ( i = 0; i < num; i++, win_data++) {
 	WSMAttribute *attr = _WSMGetMatchingAttr(win_data->nameq, fmt_data);
@@ -1087,14 +1111,20 @@ WinDataSizePacked(Display *dpy, int screen_num,
 	     */
 	    continue;
 	}
+	if (win_data->data_len < 0)
+	    return(-1);
 
 	switch(win_data->type) {
 	case WSM_VALUE_DATA:
-	    size += attr->size/8;
+	    if (!AddPackedSize(&size, (size_t)(attr->size / 8)))
+		return(-1);
 	    break;
 	default:		/* All others are lists. */
-	    size += COUNT_SIZE;
-	    size += ((attr->size/8) * win_data->data_len);
+	    if (!AddPackedSize(&size, COUNT_SIZE) ||
+		!AddPackedSize(&size,
+			       (size_t)(attr->size / 8) *
+			       (size_t)win_data->data_len))
+		return(-1);
 	    break;
 	}
     }

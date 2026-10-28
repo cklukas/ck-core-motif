@@ -10,7 +10,8 @@ text = (Path(__file__).parents[2] / "clients" / "mwm" / "WmWsmLib" / "pack.c").r
 start = text.index("WinEntrySizePacked(Display *dpy, int screen_num, WSMWinEntry *win_entry)")
 end = text.index("\n}\n", start)
 function = text[start:end]
-assert "size += sizeof(CARD32) * win_entry->num_windows;" in function
-assert "size += sizeof(CARD32);" in function
+assert "win_entry->num_windows < 0" in function
+assert "AddPackedSize(&size," in function
+assert "win_entry->num_match_properties" in function
 assert "size  = sizeof(CARD32);\n    size += sizeof(WindowProperty)" not in function
-print("WSM window-entry size includes both arrays")
+print("WSM window-entry size validates counts and checked arithmetic")
