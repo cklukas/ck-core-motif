@@ -7,7 +7,12 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import time
+
+if len(sys.argv) == 1:
+    print("SKIP makestrs comments: requires an explicit binary and results path")
+    raise SystemExit(0)
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("binary", type=Path)

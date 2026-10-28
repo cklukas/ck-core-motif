@@ -1,3 +1,11 @@
+Make the makestrs source check safe for generic sweeps (2026-10-29)
+====================================================================
+
+- Skip cleanly when the parameterized check is invoked without its required
+  binary and results paths, while preserving full explicit-argument checks.
+- Document the invocation contract so no-argument automated sweeps can run to
+  completion without masking real makestrs regressions.
+
 Reject root classes in part-offset resolution (2026-10-29)
 ============================================================
 
