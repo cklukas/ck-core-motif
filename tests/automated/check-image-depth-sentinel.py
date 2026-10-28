@@ -11,7 +11,7 @@ start = source.index("_XmGetScaledPixmap(\n    Screen")
 end = source.index("\n\n\n\n/************************************************************************", start)
 region = source[start:end]
 
-guard = "if (depth == INT_MIN)"
+guard = "if (depth == 0 || depth == INT_MIN)"
 assert guard in region
 assert region.index(guard) < region.index("if (depth < 0)")
 assert "depth = -depth" in region
