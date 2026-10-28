@@ -23,6 +23,8 @@ assert "insert_select == NULL" in targets
 assert "seltype == NULL" in targets
 assert "length == NULL" in targets
 assert "insert_select->event == NULL" in targets
+assert "*length != 0 && value == NULL" in targets
+assert "unsigned long i;" in targets
 assert "XtFree((char *)value);" in targets
 
 print("PASS DataField insertion callback validates selection inputs")

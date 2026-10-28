@@ -416,10 +416,11 @@ HandleInsertTargets(
    Atom COMPOUND_TEXT;
    Atom target = TEXT;
    Atom *atom_ptr;
-   int i;
+   unsigned long i;
 
    if (w == NULL || insert_select == NULL || seltype == NULL ||
-       length == NULL || insert_select->event == NULL) {
+       length == NULL || insert_select->event == NULL ||
+       (*length != 0 && value == NULL)) {
       XtFree((char *)value);
       if (insert_select != NULL)
          insert_select->done_status = True;
