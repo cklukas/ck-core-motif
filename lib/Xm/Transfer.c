@@ -1127,8 +1127,8 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	     the number of requests outstanding. */
 	  _XmProcessLock();
 	  _XmAddHashEntry(DataIdDictionary, (XmHashKey)data_id, (XtPointer)req);
-	  _XmProcessUnlock();
 	  req -> outstanding++;
+	  _XmProcessUnlock();
 	}
         FreeSafeAtomName(name,howFree);
       }
