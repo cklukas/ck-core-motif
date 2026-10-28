@@ -23222,6 +23222,15 @@ Bound zero-based ComboBox selected positions (2026-10-28)
   regression coverage and documentation.
 Regression: tests/automated/check-combobox-selected-position-bounds.py
 
+Bound List add/delete position arithmetic (2026-10-28)
+=========================================================
+
+- Validate positions before one-based-to-zero-based subtraction in List add
+  and delete APIs, preserving append behavior for negative add positions.
+- Replace delete index-plus-count arithmetic with a subtraction-based bound.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-list-position-arithmetic.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

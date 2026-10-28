@@ -8156,7 +8156,7 @@ APIAddItems(XmListWidget lw,
 	    int pos,
 	    Boolean select)
 {
-  int intern_pos = pos - 1;
+  int intern_pos;
   Boolean bot = FALSE;
   Boolean change_managed;
   Boolean selectable;
@@ -8170,12 +8170,15 @@ APIAddItems(XmListWidget lw,
     if (items[i] == NULL)
       return;
 
-  if ((intern_pos < 0) || (intern_pos >= lw->list.itemCount))
+  if (pos <= 0 || pos > lw->list.itemCount)
     {
       intern_pos = lw->list.itemCount;
-      pos = lw->list.itemCount + 1;
+      pos = (lw->list.itemCount < INT_MAX)
+        ? lw->list.itemCount + 1 : INT_MAX;
       bot = TRUE;
     }
+  else
+    intern_pos = pos - 1;
 
   if ((lw->list.Traversing) &&
       (intern_pos <= lw->list.CurrentKbdItem) &&
@@ -8742,6 +8745,12 @@ XmListDeleteItemsPos(Widget w,
       return;
     }
 
+  if (pos <= 0)
+    {
+      XmeWarning((Widget) lw, ListMessage8);
+      _XmAppUnlock(app);
+      return;
+    }
   item_pos = pos - 1;
 
   if ((item_pos < 0)  ||
@@ -8752,7 +8761,7 @@ XmListDeleteItemsPos(Widget w,
       return;
     }
 
-  if ((item_pos + item_count) >= lw->list.itemCount)
+  if (item_count >= lw->list.itemCount - item_pos)
     item_count = lw->list.itemCount - item_pos;
 
   if (lw->list.Traversing)
