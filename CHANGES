@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Bound UIL gadget-count narrowing (2026-10-29)
+==============================================
+
+- Reject control lists whose accumulated gadget count cannot fit the
+  symbol-record field before storing it as an unsigned 16-bit value.
+- Add focused coverage and documentation.
+
 Bound UIL validation-table allocation (2026-10-29)
 ===================================================
 

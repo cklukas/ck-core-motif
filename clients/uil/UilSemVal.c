@@ -593,7 +593,12 @@ if ( widget_node->az_controls != NULL )
     list_entry = (sym_list_entry_type *) widget_node->az_controls;
     sem_validate_control_list (widget_node, widget_type,
 			       list_entry, &gadget_count);
-    list_entry->w_gadget_count = gadget_count;
+    if (gadget_count < 0 || gadget_count > USHRT_MAX)
+	{
+	XtError ("UIL control list contains too many gadgets");
+	return;
+	}
+    list_entry->w_gadget_count = (unsigned short)gadget_count;
     sem_validate_widget_cycle (list_entry, widget_node->obj_header.az_name);
     }
 
