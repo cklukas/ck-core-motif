@@ -23744,6 +23744,14 @@ Preserve clipboard request format width (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-request-format-width.py
 
+Validate clipboard client-message Atom payloads (2026-10-28)
+==============================================================
+
+- Reject Atom IDs that cannot fit XClientMessageEvent’s signed payload slots.
+- Reject unknown clipboard message types before sending an uninitialized event.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-client-message-atoms.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

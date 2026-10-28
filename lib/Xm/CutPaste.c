@@ -2564,6 +2564,9 @@ ClipboardSendMessage(
 
     assert(XtNumber(atom_names) == NUM_ATOMS);
     XInternAtoms( display, atom_names, XtNumber(atom_names), False, atoms );
+    if (atoms[XmA_MOTIF_CLIP_DATA_REQUEST] > (Atom)LONG_MAX ||
+	 atoms[XmA_MOTIF_CLIP_DATA_DELETE] > (Atom)LONG_MAX)
+	return 0;
     event_sent.type         = ClientMessage;
     event_sent.window       = widgetwindow;
     event_sent.message_type = atoms[XmA_MOTIF_CLIP_MESSAGE];
@@ -2602,12 +2605,15 @@ ClipboardSendMessage(
 
 	    XtFree((char *)root_clipboard_header);
 
-            event_sent.data.l[0] = atoms[XmA_MOTIF_CLIP_DATA_REQUEST];
+            event_sent.data.l[0] = (long)atoms[XmA_MOTIF_CLIP_DATA_REQUEST];
 	    break;
 
 	case XM_DATA_DELETE_MESSAGE:	
-            event_sent.data.l[0] = atoms[XmA_MOTIF_CLIP_DATA_DELETE];
+            event_sent.data.l[0] = (long)atoms[XmA_MOTIF_CLIP_DATA_DELETE];
 	    break;
+
+	default:
+	    return 0;
     }
 
     event_sent.data.l[1] = formatptr->thisFormatId;
