@@ -1443,6 +1443,7 @@ _XmSetDragReceiverInfo(
     XmReceiverDSTreeStruct	dsmInfoRec;
     Atom			receiverAtom;
     XmDropSiteManagerObject 	dsm;
+    int			treeDropSites;
 
     dsm = _XmGetDropSiteManagerObject( dd) ;
 
@@ -1481,7 +1482,17 @@ _XmSetDragReceiverInfo(
     if ((dd->display.dragReceiverProtocolStyle != XmDRAG_DYNAMIC) &&
         (dd->display.dragReceiverProtocolStyle != XmDRAG_DROP_ONLY))
       {
-	  numDropSites = _XmDSMGetTreeFromDSM(dsm, shell, (XtPointer)&dsmInfoRec);
+		treeDropSites = _XmDSMGetTreeFromDSM(dsm, shell,
+						      (XtPointer)&dsmInfoRec);
+		if (treeDropSites < 0)
+		    {
+			if (propBuf->data.bytes != propBuf->data.stack)
+			    XtFree((char *)propBuf->data.bytes);
+			if (propBuf->heap.bytes != propBuf->heap.stack)
+			    XtFree((char *)propBuf->heap.bytes);
+			return;
+		    }
+		numDropSites = (Cardinal)treeDropSites;
       }
     else
       {
@@ -1510,7 +1521,7 @@ _XmSetDragReceiverInfo(
 	return;
     }
 
-    infoRecPtr->num_drop_sites = numDropSites;
+    infoRecPtr->num_drop_sites = (CARD16)numDropSites;
 
     infoRecPtr->heap_offset = (CARD32)propBuf->data.size;
     

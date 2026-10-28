@@ -24044,3 +24044,14 @@ Regression: tests/automated/check-dragicc-resource-widths.py
 
 Match Drag ICC property length to Xlib (2026-10-28)
 ====================================================
+Bound Drag ICC receiver drop-site counts (2026-10-28)
+=====================================================
+
+- Preserve and validate the signed drop-site-manager result.
+- Reject negative counts before converting to `Cardinal`.
+- Narrow to the 16-bit ICC property only after the range check.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-dragicc-receiver-count.py
+
+Bound Drag ICC receiver resource widths (2026-10-28)
+=====================================================
