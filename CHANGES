@@ -1,3 +1,11 @@
+Reject invalid DataField replacement conversion (2026-10-29)
+==============================================================
+
+- Reject unrepresentable or failed UTF-8-to-wide conversion in
+  `XmDataFieldReplace` before calling replacement.
+- Release temporary buffers and preserve an unsuccessful replacement result,
+  with focused regression coverage.
+
 Reject invalid DataField value conversion (2026-10-29)
 =======================================================
 

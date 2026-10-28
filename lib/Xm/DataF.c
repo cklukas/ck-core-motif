@@ -12106,7 +12106,8 @@ XmDataFieldReplace(
 				            to_pos, value, length, False);
     } else { /* need to convert to wchar_t* before calling Replace */
        size_t value_length = strlen(value);
-       if (value_length == SIZE_MAX ||
+       if (value_length > (size_t)INT_MAX ||
+           value_length == SIZE_MAX ||
 		   value_length + 1 > SIZE_MAX / sizeof(wchar_t) ||
 		   (value_length + 1) * sizeof(wchar_t) > UINT_MAX) {
 	   wc_value = NULL;
@@ -12119,14 +12120,19 @@ XmDataFieldReplace(
 	       rep_result = False;
 	       length = 0;
 	   } else {
-	       length = mbstowcs(wc_value, value, value_length + 1);
-	       if (length < 0) {
+	       {
+	       size_t converted = mbstowcs(wc_value, value, value_length + 1);
+	       if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+		  XtFree((char *)wc_value);
+		  rep_result = False;
 		  length = 0;
-		  wc_value[0] = (wchar_t)0;
+	       } else {
+		  length = (int)converted;
+		  rep_result = _XmDataFieldReplaceText(tf, NULL, from_pos, to_pos,
+						(char*)wc_value, length, False);
+		  XtFree((char *)wc_value);
 	       }
-	       rep_result = _XmDataFieldReplaceText(tf, NULL, from_pos, to_pos,
-					      (char*)wc_value, length, False);
-	       XtFree((char *)wc_value);
+	       }
 	   }
        }
     }

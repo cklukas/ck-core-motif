@@ -1,12 +1,16 @@
-# DataField replace conversion safety
+---
+nav_exclude: true
+---
 
-The public DataField replace APIs now check their temporary wide/multibyte
-conversion buffers before use. Invalid wide input is represented by an owned
-empty buffer, and conversion failure clears that buffer in place; cleanup no
-longer attempts to free a string literal.
+# DataField replacement conversion
 
-The regression check is:
+`XmDataFieldReplace` now rejects input that cannot be represented by its
+legacy signed character-count API or that fails `mbstowcs`. It releases the
+temporary wide buffer and leaves replacement unsuccessful instead of silently
+publishing an empty replacement.
 
-```sh
+Regression coverage:
+
+```text
 python3 tests/automated/check-datafield-replace-conversion.py
 ```
