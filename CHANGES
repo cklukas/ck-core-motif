@@ -25670,3 +25670,11 @@ Synchronize deferred clipboard request counts (2026-10-29)
   count, while preserving normal deferred-target delivery.
 
 Reject overflowing scaled-image destination X coordinates (2026-10-29)
+Reject invalid transfer status values (2026-10-29)
+==================================================
+
+- Validate `XmTransferDone` status values before mutating transfer state or
+  unblocking a MULTIPLE request.
+- Preserve all four public statuses and add focused input coverage.
+
+Guard XmString-table parser state (2026-10-29)

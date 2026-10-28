@@ -15,4 +15,6 @@ for function, marker in (
     body = source[start:end]
     assert "tc == NULL || tc->widget == NULL" in body, function
     assert "return;" in body, function
+assert "status < XmTRANSFER_DONE_SUCCEED" in source
+assert "status > XmTRANSFER_DONE_DEFAULT" in source
 print("PASS transfer-context APIs validate null handles")

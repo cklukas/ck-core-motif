@@ -1814,6 +1814,9 @@ XmTransferDone(XtPointer transfer_id, XmTransferStatus status)
   Boolean finish_after_unlock = False;
   if (tc == NULL || tc->widget == NULL)
     return;
+  if (status < XmTRANSFER_DONE_SUCCEED ||
+      status > XmTRANSFER_DONE_DEFAULT)
+    return;
   Atom MOTIF_DROP = XInternAtom(XtDisplay(tc -> widget), XmS_MOTIF_DROP, False);
   _XmWidgetToAppContext(tc->widget);
 
