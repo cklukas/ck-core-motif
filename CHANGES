@@ -27408,6 +27408,12 @@ Guard RowActions activation callbacks (2026-10-29)
 - Validate the callback closure’s widget class before walking action storage,
   preventing foreign or stale callback data from being used.
 
+Guard AutoSuggestBox callback closures (2026-10-29)
+====================================================
+
+- Validate the widget class for query, commit, selection, and event callback
+  closures before reading private suggestion state.
+
 Guard EmptyState action callbacks (2026-10-29)
 ==============================================
 
