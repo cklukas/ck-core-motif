@@ -195,6 +195,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
 static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch) {
     KeySym key; char input[8];
     (void)data; (void)dispatch;
+    if (widget == NULL || event == NULL || !XmIsLink(widget)) return;
     if (!XtIsSensitive(widget)) return;
     if (event->type == ButtonPress) { XmLinkActivate(widget, event); return; }
     if (event->type != KeyPress) return;

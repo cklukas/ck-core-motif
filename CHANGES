@@ -27323,3 +27323,9 @@ Guard Mrm value-fixup swap state (2026-10-28)
 
 - Reject a null byte-swap state pointer before Mrm value conversion.
 - Preserve valid scalar and vector resource fixup behavior.
+
+Guard Link event dispatch (2026-10-29)
+======================================
+
+- Validate the widget type and event pointer before reading event fields,
+  preventing malformed dispatch from reaching activation.
