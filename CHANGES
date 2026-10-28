@@ -1,3 +1,10 @@
+Validate XPM color-symbol attributes (2026-10-29)
+==================================================
+
+- Reject a nonzero `XpmColorSymbols` count with a null symbol array before
+  color processing can dereference it.
+- Add focused coverage and documentation for incomplete symbol attributes.
+
 Validate XPM color callbacks (2026-10-29)
 ==========================================
 

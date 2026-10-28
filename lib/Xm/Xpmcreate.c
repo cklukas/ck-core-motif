@@ -803,6 +803,9 @@ XpmCreateImageFromXpmImage(
 	 ((attributes->valuemask & XpmFreeColors) &&
 	  attributes->free_colors == NULL)))
 	return XpmFileInvalid;
+    if (attributes && (attributes->valuemask & XpmColorSymbols) &&
+	attributes->numsymbols != 0 && attributes->colorsymbols == NULL)
+	return XpmFileInvalid;
 
     /* retrieve information from the XpmAttributes */
     if (attributes && (attributes->valuemask & XpmVisual))
