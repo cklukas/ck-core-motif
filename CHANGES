@@ -28369,3 +28369,5 @@ List drag selection bounds (2026-10-28)
   empty callback result (2026-10-28).
 * DataField selection byte counting now rejects failed or overflowing wide
   character conversions (2026-10-28).
+* XmDataFieldGetSubstring now reports failed wide-to-multibyte conversion
+  instead of silently succeeding with an empty result (2026-10-28).

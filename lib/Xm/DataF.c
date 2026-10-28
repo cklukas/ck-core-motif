@@ -11840,7 +11840,10 @@ XmDataFieldGetSubstring(
 	{
 	    wcs_ret = wcstombs(buffer, &XmTextF_wc_value(tf)[start], 
 			       n_bytes);
-	    if (wcs_ret == (size_t)-1) n_bytes = 0;
+	    if (wcs_ret == (size_t)-1) {
+		n_bytes = 0;
+		ret_value = XmCOPY_FAILED;
+	    }
 	}
 	buffer[n_bytes] = '\0';
     } 
