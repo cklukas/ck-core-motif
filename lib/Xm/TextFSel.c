@@ -615,23 +615,23 @@ _XmTextFieldConvert(
     
     /* put a char* value into tmp_value, then convert to 8859.1 */
     if (tf->text.max_char_size != 1) {
-      int stat, selection_span;
+      size_t converted;
+      int selection_span;
       
       if (!text_field_selection_span_to_int(left, right, &selection_span))
 	return False;
-      *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left, 
+	  *length = (unsigned long)_XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
 				       selection_span);
       tmp_value = text_field_selection_buffer(*length);
       if (tmp_value == NULL)
 	return False;
-      stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
-		      (unsigned)*length); /* NOTE: casting *length could
-					     result in a truncated long. */
-      if (stat < 0) /* wcstombs will return neg value on conv failure */
+	      converted = wcstombs(tmp_value, TextF_WcValue(tf) + left,
+		      (size_t)*length);
+	      if (converted == (size_t)-1)
 	*length = 0;
-      else *length = (unsigned long) stat ;
+	      else *length = (unsigned long)converted;
     } else {
-      *length = right - left;
+	  *length = (unsigned long)(right - left);
       tmp_value = text_field_selection_buffer(*length);
       if (tmp_value == NULL)
 	return False;
@@ -660,23 +660,23 @@ _XmTextFieldConvert(
     *format = 8;
     if (is_destination || !has_selection) return False;
     if (tf->text.max_char_size != 1) {
-      int stat, selection_span;
+      size_t converted;
+      int selection_span;
       
       if (!text_field_selection_span_to_int(left, right, &selection_span))
 	return False;
-      *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
+	  *length = (unsigned long)_XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
 				       selection_span);
       *value = (XtPointer)text_field_selection_buffer(*length);
       if (*value == NULL)
 	return False;
-      stat = wcstombs((char *)*value, TextF_WcValue(tf) + left,
-		      (unsigned)*length); /* NOTE: casting *length could
-					     result in a truncated long */
-      if (stat < 0) /* wcstombs return neg value on conv failure */
+	      converted = wcstombs((char *)*value, TextF_WcValue(tf) + left,
+		      (size_t)*length);
+	      if (converted == (size_t)-1)
 	*length = 0;
-      else *length = (unsigned long) stat ;
+	      else *length = (unsigned long)converted;
     } else {
-      *length = right - left;
+	  *length = (unsigned long)(right - left);
       *value = (XtPointer)text_field_selection_buffer(*length);
       if (*value == NULL)
 	return False;
@@ -691,24 +691,24 @@ _XmTextFieldConvert(
     *format = 8;
     if (is_destination || !has_selection) return False;
     if (tf->text.max_char_size != 1) { 
-      int stat, selection_span;
+      size_t converted;
+      int selection_span;
       
       if (!text_field_selection_span_to_int(left, right, &selection_span))
 	return False;
       /* Convert to char* before converting to compound text. */
-      *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
+	  *length = (unsigned long)_XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
 				       selection_span);
       tmp_value = text_field_selection_buffer(*length);
       if (tmp_value == NULL)
 	return False;
-      stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
-		      (unsigned)*length); /* NOTE: casting *length could
-					     result in a truncated long. */
-      if (stat < 0) /* wcstombs will return neg value on conv failure */
+	      converted = wcstombs(tmp_value, TextF_WcValue(tf) + left,
+		      (size_t)*length);
+	      if (converted == (size_t)-1)
 	*length = 0;
-      else *length = (unsigned long) stat ;
+	      else *length = (unsigned long)converted;
     } else { /* malloc the space and copy the data to be converted */
-      *length = right - left;
+	  *length = (unsigned long)(right - left);
       tmp_value = text_field_selection_buffer(*length);
       if (tmp_value == NULL)
 	return False;
@@ -739,24 +739,24 @@ _XmTextFieldConvert(
     *format = 8;
     if (is_destination || !has_selection) return False;
     if (tf->text.max_char_size != 1) { 
-      int stat, selection_span;
+      size_t converted;
+      int selection_span;
       
       if (!text_field_selection_span_to_int(left, right, &selection_span))
 	return False;
       /* Convert to char* before converting to UTF-8. */
-      *length = _XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
+	  *length = (unsigned long)_XmTextFieldCountBytes(tf, TextF_WcValue(tf) + left,
 				       selection_span);
       tmp_value = text_field_selection_buffer(*length);
       if (tmp_value == NULL)
 	return False;
-      stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
-		      (unsigned)*length); /* NOTE: casting *length could
-					     result in a truncated long. */
-      if (stat < 0) /* wcstombs will return neg value on conv failure */
+	      converted = wcstombs(tmp_value, TextF_WcValue(tf) + left,
+		      (size_t)*length);
+	      if (converted == (size_t)-1)
 	*length = 0;
-      else *length = (unsigned long) stat ;
+	      else *length = (unsigned long)converted;
     } else { /* malloc the space and copy the data to be converted */
-      *length = right - left;
+	  *length = (unsigned long)(right - left);
       tmp_value = text_field_selection_buffer(*length);
       if (tmp_value == NULL)
 	return False;
