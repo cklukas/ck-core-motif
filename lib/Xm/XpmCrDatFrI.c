@@ -113,7 +113,7 @@ XpmCreateDataFromXpmImage(
     /* calculation variables */
     int ErrorStatus;
     char buf[BUFSIZ];
-    char **header = NULL, **data, **sptr, **sptr2, *s;
+    char **header = NULL, **data = NULL, **sptr, **sptr2, *s;
     unsigned int header_size, header_nlines;
     unsigned int data_size, data_nlines;
     unsigned int extensions = 0, ext_size = 0, ext_nlines = 0;
@@ -249,10 +249,13 @@ XpmCreateDataFromXpmImage(
 	RETURN(XpmFileInvalid);
 
     *data_return = data;
+    data = NULL;
     ErrorStatus = XpmSuccess;
 
 /* exit point, free only locally allocated variables */
 exit:
+    if (data)
+	XpmFree(data);
     if (header) {
 	for (l = 0; l < header_nlines; l++) {
 	    if (header[l])

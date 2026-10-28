@@ -1,3 +1,10 @@
+Free failed XPM data serialization blocks (2026-10-29)
+=======================================================
+
+- Release the final data allocation when pixel or extension serialization
+  fails, while transferring ownership only after a successful result.
+- Add focused coverage and documentation.
+
 Reject missing XPM color tables (2026-10-29)
 ============================================
 
