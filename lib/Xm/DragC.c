@@ -3349,7 +3349,8 @@ void
 XmDragCancel(
         Widget dragContext )
 {
-	if (dragContext == NULL)
+	if (dragContext == NULL ||
+	    !XtIsSubclass(dragContext, xmDragContextClass))
 	    return;
 
     _XmWidgetToAppContext(dragContext);

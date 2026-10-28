@@ -71,6 +71,13 @@ Guard DnD conversion callback inputs (2026-10-29)
   non-incremental drag converters dereference callback state.
 - Preserve valid conversion behavior and add focused callback-input coverage.
 
+Validate XmDragCancel widget type (2026-10-29)
+===============================================
+
+- Reject non-drag widgets before the public cancellation entry point casts and
+  accesses drag-context state.
+- Preserve cancellation for drag-context subclasses and add focused coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
