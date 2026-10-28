@@ -27203,6 +27203,13 @@ Guard Xft draw consumers (2026-10-28)
   draw object in text, label, string, and clip helpers.
 - Preserve existing rendering when a compatible draw object is available.
 
+Avoid Container tab-value integer wrap (2026-10-28)
+===================================================
+
+- Convert tab dimensions before multiplying by the detail-column index, so
+  large Cardinal counts cannot wrap in unsigned integer arithmetic before
+  reaching the floating-point tab API.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

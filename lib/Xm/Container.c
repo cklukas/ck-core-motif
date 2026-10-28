@@ -6077,7 +6077,9 @@ GetDumbTabList(
 
     /* update the values */
     for (i = 0; i < asked_num_tab; i++)
-        XmTabSetValue(tab_pool[i], (float)tab_size * (i + 1));
+        /* Convert before multiplying: Cardinal promotion would wrap a
+         * large detail count before XmTabSetValue receives the float. */
+        XmTabSetValue(tab_pool[i], (float)tab_size * (float)(i + 1));
 
     /*
      * Return a new tablist.
