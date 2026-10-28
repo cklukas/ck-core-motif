@@ -26104,3 +26104,9 @@ Guard TextField wide preedit append reallocations (2026-10-29)
 
 - Check combined wide-character append counts and byte sizes before
   `XtRealloc`, preventing wrapped wide-buffer arithmetic.
+
+Bound TextField wide preedit copies (2026-10-29)
+================================================
+
+- Copy XIM wide preedit payloads by their advertised character count and add
+  an explicit terminator instead of scanning for an untrusted NUL.

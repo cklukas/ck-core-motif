@@ -10111,7 +10111,8 @@ PreeditDraw(XIC xic,
                 XtFree((char *)over_wc);
                 return;
             }
-            wcscpy(wc, call_data->text->string.wide_char);
+            memcpy(wc, call_data->text->string.wide_char,
+                   (size_t)insert_length * sizeof(wchar_t));
         }
         wc[insert_length] = (wchar_t) '\0';
         }
