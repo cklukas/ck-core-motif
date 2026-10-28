@@ -1310,7 +1310,7 @@ GetWindowProperty(
     {
       char *temp;
       char *match = XmS_MOTIF_CLIP_ITEM;
-      int i, len;
+      size_t i, len;
       Boolean equal = True;
 
       len = strlen(match);

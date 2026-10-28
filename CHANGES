@@ -23679,6 +23679,14 @@ Harden clipboard TARGETS size arithmetic (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-targets-size-arithmetic.py
 
+Preserve clipboard property-name comparison width (2026-10-28)
+================================================================
+
+- Keep `strlen` results and comparison indexes in `size_t`.
+- Avoid narrowing clipboard property-name lengths before type comparison.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-property-name-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
