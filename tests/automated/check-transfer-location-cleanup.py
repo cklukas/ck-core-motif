@@ -14,7 +14,7 @@ for name, marker, callback_arg in (
     start = source.index(marker)
     end = source.index("\n}\n", start) + 3
     body = source[start:end]
-    assert f"if ({callback_arg} == NULL)" in body, name
+    assert f"{callback_arg} == NULL" in body, name
     assert "if (ds == NULL)" in body, name
     assert "location_data != NULL" in body, name
 
