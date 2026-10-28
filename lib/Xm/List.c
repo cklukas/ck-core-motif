@@ -2464,9 +2464,9 @@ DrawItems(XmListWidget lw,
   GC       gc;
 
   if (LayoutIsRtoLP(lw))
-    x = lw->list.BaseX + lw->list.XOrigin;
+    x = bounded_position((long long)lw->list.BaseX + lw->list.XOrigin);
   else
-    x = lw->list.BaseX - lw->list.XOrigin;
+    x = bounded_position((long long)lw->list.BaseX - lw->list.XOrigin);
 
   for (pos = top; pos < bot; pos++)
     {

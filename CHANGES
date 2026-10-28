@@ -27742,3 +27742,9 @@ Bound List row positions (2026-10-29)
 - Use signed wide arithmetic for LINEHEIGHTS and clamp redraw row positions
   before storing them in `Position` variables.
 - Add focused source-contract coverage for large row geometry.
+Bound List combined draw origins (2026-10-29)
+==============================================
+
+- Clamp BaseX/XOrigin combinations before drawing rows in both layout
+  directions.
+- Add focused source-contract coverage for large horizontal offsets.
