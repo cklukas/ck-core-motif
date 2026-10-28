@@ -837,7 +837,7 @@ if ( (argname_value_entry->obj_header.b_flags&sym_m_builtin) &&
 		 _sar_source_pos2(argument_entry),
 		 keytable_entry->at_name,
 		 diag_tag_text(argument_entry->header.b_tag),
-		 diag_object_text(widget_type));
+		 diag_object_text((int)widget_type));
 	}
 
     /*
@@ -1333,8 +1333,8 @@ for (parent_entry=widget_node->parent_list;
 	  diag_issue_diagnostic(d_unsupp_const,
 				_sar_source_pos2(argument_entry),
 				keytable_entry->at_name,
-				diag_object_text(parent_type),
-				diag_tag_text(parent_tag));
+				 diag_object_text((int)parent_type),
+				 diag_tag_text((int)parent_tag));
       }
   }
 
@@ -1531,7 +1531,7 @@ if ( (reason_value_entry->obj_header.b_flags&sym_m_builtin) &&
 	     _sar_source_pos2(callback_entry),
 	     keytable_entry->at_name,
 	     diag_tag_text(callback_entry->header.b_tag),
-	     diag_object_text(widget_type));
+		     diag_object_text((int)widget_type));
 
     /*
      * Check for duplicate callbacks. A warning is issued, but the
@@ -1739,7 +1739,7 @@ if (control_obj_entry->header.b_tag == sym_k_child_entry)
 	 _sar_source_pos2(control_entry),
 	 uil_child_names[(int)control_obj_entry->header.b_type],
 	 "automatic child",
-	 diag_object_text(widget_type));
+	 diag_object_text((int)widget_type));
   }
 else 
   {
@@ -1749,9 +1749,9 @@ else
       diag_issue_diagnostic
 	(d_unsupported,
 	 _sar_source_pos2(control_entry),
-	 diag_object_text(control_obj_entry->header.b_type),
+		 diag_object_text((int)control_obj_entry->header.b_type),
 	 diag_tag_text(control_entry->header.b_tag),
-	 diag_object_text(widget_type));
+		 diag_object_text((int)widget_type));
   }
 
 }
@@ -4284,7 +4284,7 @@ data_value_type	    	*data_value;
     case sym_k_horizontal_integer_value:
     case sym_k_vertical_integer_value:
     case sym_k_bool_value:
-	data_value->real_value = operand_entry->value.l_integer;
+	data_value->real_value = (double)operand_entry->value.l_integer;
 	return float_arg_type;
 
       case sym_k_single_float_value: /* single float data type RAP */

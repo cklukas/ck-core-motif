@@ -2,12 +2,12 @@
 nav_exclude: true
 ---
 
-# UIL diagnostic width boundaries
+# UIL diagnostic and numeric widths
 
-Diagnostic source filtering receives an `int` length and status callbacks use
-an `int` countdown, while the public command structure stores the delay as an
-unsigned value. The implementation now makes the source-length conversion
-explicit and clamps an oversized delay to `INT_MAX`. The source-position EOF
-sentinel is also compared at its unsigned storage width.
+The diagnostic text helpers accept the historical signed `int` type while
+symbol-table type codes are unsigned. Their call sites now make the API
+boundary explicit. Long integer values converted to floating-point expression
+results likewise use an explicit conversion, documenting the intentional
+precision boundary.
 
 Regression: `tests/automated/check-uil-diagnostic-widths.py`
