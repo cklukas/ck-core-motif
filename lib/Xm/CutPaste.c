@@ -558,6 +558,8 @@ ClipboardSetNextItemId(
 
     ClipboardReplaceItem( display, XM_NEXT_ID, int_ptr, length,
 			PropModeReplace, 32, True, XA_INTEGER);
+
+    XtFree( (char *)int_ptr );
 }
 
 

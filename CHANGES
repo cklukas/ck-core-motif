@@ -23470,6 +23470,14 @@ Release clipboard next-item ID buffers (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-next-id-cleanup.py
 
+Release clipboard next-ID setter buffers (2026-10-28)
+=======================================================
+
+- Free the retrieved next-ID buffer after `ClipboardSetNextItemId` persists it.
+- Preserve ID selection and invalid-property handling.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-set-next-id-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
