@@ -1545,7 +1545,7 @@ PictureVerifyCallback(
     XmTextVerifyCallbackStruct *cbs = 
 	(XmTextVerifyCallbackStruct*) call_d;
     char *curr, *newptr, *changed = NULL;
-    size_t curr_length, insert_length;
+    size_t curr_length, insert_length, changed_length;
     int src, dst, i;
     XmPictureState ps;
     Boolean done = False;
@@ -1635,10 +1635,19 @@ PictureVerifyCallback(
      * massage the callback struct to reflect what's happened
      */
 
+    changed_length = strlen(changed);
+    if (changed_length > (size_t)INT_MAX) {
+	cbs->doit = False;
+	XtFree(newptr);
+	XtFree(curr);
+	XmPictureDeleteState(ps);
+	return;
+    }
+
     cbs->startPos = 0;
     /* CR03686 cbs->endPos = strlen(newptr); */
     cbs->text->ptr = XtNewString(changed);
-    cbs->text->length = strlen(changed);
+    cbs->text->length = (int)changed_length;
 
     XtFree(newptr);
     XtFree(curr);
