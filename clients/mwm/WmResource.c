@@ -2857,6 +2857,8 @@ _WmBackdropBgDefault (Widget widget, int offset, XrmValue *value)
 	{
 	    colorSetId = (unsigned int) DefaultWsColorSetId (pResWS);
 	}
+	if ((colorSetId == 0) || (colorSetId > XmCO_MAX_NUM_COLORS))
+	    colorSetId = 1;
 
 	switch (pResWS->pSD->colorUse)
 	{
@@ -2903,6 +2905,8 @@ _WmBackdropFgDefault (Widget widget, int offset, XrmValue *value)
 	{
 	    colorSetId = (unsigned int) DefaultWsColorSetId (pResWS);
 	}
+	if ((colorSetId == 0) || (colorSetId > XmCO_MAX_NUM_COLORS))
+	    colorSetId = 1;
 
 	switch (pResWS->pSD->colorUse)
 	{

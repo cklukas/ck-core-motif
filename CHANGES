@@ -28192,6 +28192,13 @@ CommandPalette visible-index allocation bounds (2026-10-28)
   `Cardinal` limits before allocation. See
   `docs/command-palette-visible-allocation.md`.
 
+MWM backdrop color-set bounds (2026-10-28)
+==========================================
+
+- Validate the workspace-default color-set ID before indexing backdrop pixel
+  data, preventing invalid fallback IDs from underflowing the array. See
+  `docs/mwm-backdrop-colorset-bounds.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
