@@ -26,6 +26,14 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Bound UIL validation-table allocation (2026-10-29)
+===================================================
+
+- Validate argument and callback table counts before multiplication and
+  narrowing them to Xt's `Cardinal` allocation size; report invalid or failed
+  allocations before semantic validation begins.
+- Add focused coverage and documentation.
+
 Fix UIL cycle-mask validation (2026-10-29)
 ==========================================
 

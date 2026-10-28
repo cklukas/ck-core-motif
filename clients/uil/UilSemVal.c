@@ -53,6 +53,8 @@ static char rcsid[] = "$TOG: UilSemVal.c /main/18 1997/09/15 14:15:21 cshi $"
 **/
 
 #include <stdlib.h>
+#include <limits.h>
+#include <stdint.h>
 #include <setjmp.h>
 #include <Mrm/MrmAppl.h>
 #include <Xm/XmStrDefs.h>
@@ -281,16 +283,40 @@ static sym_callback_entry_type		**reason_seen;
 
 void	sem_validation ()
 {
+	size_t arg_count;
+	size_t reason_count;
 
 /*
  * Allocate storage if required
  */
+if (uil_max_arg < 0 || uil_max_reason < 0 ||
+    (size_t)uil_max_arg >= SIZE_MAX / sizeof(*arg_seen) ||
+    (size_t)uil_max_reason >= SIZE_MAX / sizeof(*reason_seen))
+    {
+    XtError ("UIL validation table size is invalid");
+    return;
+    }
+
+arg_count = (size_t)uil_max_arg + 1;
+reason_count = (size_t)uil_max_reason + 1;
+if (arg_count > UINT_MAX / sizeof(*arg_seen) ||
+    reason_count > UINT_MAX / sizeof(*reason_seen))
+    {
+    XtError ("UIL validation table size is too large");
+    return;
+    }
+
 if ( arg_seen == NULL )
     arg_seen = (sym_argument_entry_type **)
-	XtMalloc (sizeof(sym_argument_entry_type *)*(uil_max_arg+1));
+	XtMalloc ((Cardinal)(arg_count * sizeof(*arg_seen)));
 if ( reason_seen == NULL )
     reason_seen = (sym_callback_entry_type **)
-	XtMalloc (sizeof(sym_argument_entry_type *)*(uil_max_reason+1));
+	XtMalloc ((Cardinal)(reason_count * sizeof(*reason_seen)));
+if (arg_seen == NULL || reason_seen == NULL)
+    {
+    XtError ("UIL validation table allocation failed");
+    return;
+    }
 
 /*
  * Walk the parse tree, performing validation on each node which
