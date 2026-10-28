@@ -27430,6 +27430,12 @@ Guard NumberBox highlight geometry (2026-10-29)
 - Skip NumberBox focus frames that cannot fit inside the widget, preventing
   unsigned width/height underflow for tiny controls.
 
+Guard Chip action API inputs (2026-10-29)
+=========================================
+
+- Reject null widget handles before Chip subclass checks in the public invoke
+  and remove APIs.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 

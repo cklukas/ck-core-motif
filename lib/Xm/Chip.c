@@ -218,14 +218,14 @@ static void emit(XmChipWidget chip, String resource, int reason, XEvent *event) 
 }
 
 void XmChipInvoke(Widget widget, XEvent *event) {
-    if (XmIsChip(widget) && XtIsSensitive(widget) &&
+    if (widget && XmIsChip(widget) && XtIsSensitive(widget) &&
         !widget->core.being_destroyed)
         emit((XmChipWidget)widget, XmNchipActivateCallback, XmCR_ACTIVATE,
              event);
 }
 
 void XmChipRemove(Widget widget, XEvent *event) {
-    if (XmIsChip(widget) && XtIsSensitive(widget) &&
+    if (widget && XmIsChip(widget) && XtIsSensitive(widget) &&
         !widget->core.being_destroyed && ((XmChipWidget)widget)->chip.removable)
         emit((XmChipWidget)widget, XmNchipRemoveCallback,
              XmCHIP_REASON_REMOVE, event);
