@@ -2955,8 +2955,11 @@ ModifyVerify(XmTextFieldWidget tf,
 	}        
       } else {  /* callback struct has wchar*; caller expects wchar* */
 	if (*insert_length > 0) {
+	  if ((size_t)*insert_length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+	      (size_t)*insert_length + 1 > UINT_MAX / sizeof(wchar_t))
+	    goto modify_verify_allocation_failed;
 	  wchar_t *allocated_insert = (wchar_t *)XtMalloc(
-    (unsigned)(*insert_length + 1) * sizeof(wchar_t));
+    (Cardinal)(((size_t)*insert_length + 1) * sizeof(wchar_t)));
 	  if (allocated_insert == NULL)
 	    goto modify_verify_allocation_failed;
 	  *insert = (char *)allocated_insert;
@@ -2989,8 +2992,11 @@ ModifyVerify(XmTextFieldWidget tf,
 	*insert_length =  _XmTextFieldCountCharacters(tf, vcb.text->ptr,
 						      vcb.text->length);
 	if (*insert_length > 0) {
+	  if ((size_t)*insert_length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+	      (size_t)*insert_length + 1 > UINT_MAX / sizeof(wchar_t))
+	    goto modify_verify_allocation_failed;
 	  wchar_t *allocated_insert = (wchar_t *)XtMalloc(
-    (unsigned)(*insert_length + 1) * sizeof(wchar_t));
+    (Cardinal)(((size_t)*insert_length + 1) * sizeof(wchar_t)));
 	  if (allocated_insert == NULL)
 	    goto modify_verify_allocation_failed;
 	  *insert = (char *)allocated_insert;

@@ -26068,3 +26068,9 @@ Guard TextField preedit suffix allocation (2026-10-29)
 
 - Validate the overstrike suffix range and byte size before allocating its
   preserved text buffer.
+
+Guard TextField modify-verify wide allocation (2026-10-29)
+===========================================================
+
+- Validate callback-provided wide insertion lengths before calculating their
+  temporary buffer sizes.
