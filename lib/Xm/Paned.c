@@ -118,6 +118,7 @@ static XmImportOperator ToPanedOppositePixels(Widget, int, XtArgVal *);
 static XmImportOperator ToPanedChildPixels(Widget, int, XtArgVal *);
 
 static Dimension PaneSize(Widget, Boolean);
+static Dimension AddPanedDimension(Dimension value, uint64_t addition);
 static Dimension AddMarginDimension(Dimension value, Dimension margin);
 static Dimension GetRequestInfo(XtWidgetGeometry *, Boolean);
 
@@ -998,13 +999,17 @@ GetPrefSizes(XmPanedWidget pw, Dimension *on_size, Dimension *off_size)
 	    register Pane pane = PaneInfo(*childP);
 	    ASSIGN_MAX(pane->size, (int) pane->min);
 	    ASSIGN_MIN(pane->size, (int) pane->max);
-	    sizeused += (int) pane->size + 2 * (*childP)->core.border_width;
+	    sizeused = AddPanedDimension(sizeused,
+		(uint64_t)pane->size +
+		2 * (uint64_t)(*childP)->core.border_width);
 	    
 	    if (!IsLastPane(pw, childP)) {
 		if (HasSash(*childP))
-		    sizeused += MAX(XmPaned_internal_bw(pw), sash_size);
+		    sizeused = AddPanedDimension(sizeused,
+			(uint64_t)MAX(XmPaned_internal_bw(pw), sash_size));
 		else
-		    sizeused += XmPaned_internal_bw(pw);
+		    sizeused = AddPanedDimension(sizeused,
+			(uint64_t)XmPaned_internal_bw(pw));
 	    }
 	}
 	
@@ -1014,9 +1019,11 @@ GetPrefSizes(XmPanedWidget pw, Dimension *on_size, Dimension *off_size)
 	 */
 	
 	if( vert) 
-	    sizeused += 2*XmPaned_margin_height(pw);
+	    sizeused = AddPanedDimension(sizeused,
+		2 * (uint64_t)XmPaned_margin_height(pw));
 	else 
-	    sizeused += 2*XmPaned_margin_width(pw);
+	    sizeused = AddPanedDimension(sizeused,
+		2 * (uint64_t)XmPaned_margin_width(pw));
 
 	*on_size = sizeused;
     }
@@ -2327,6 +2334,15 @@ GeometryManager(Widget w, XtWidgetGeometry *request, XtWidgetGeometry *reply)
 	CommitNewLocations(pw, w);	/* layout already refigured. */
     }
     return XtGeometryYes;
+}
+
+static Dimension
+AddPanedDimension(Dimension value, uint64_t addition)
+{
+    uint64_t total = (uint64_t)value + addition;
+
+    return total > (uint64_t)USHRT_MAX ? (Dimension)USHRT_MAX :
+	(Dimension)total;
 }
 
 static Dimension

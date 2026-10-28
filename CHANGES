@@ -28062,3 +28062,10 @@ List visibility-sum bounds (2026-10-29)
 - Compare List top-row and visible-count sums in wide arithmetic to prevent
   signed geometry wraparound.
 - Add focused source-contract coverage and documentation.
+
+XmPaned preferred-size bounds (2026-10-29)
+===========================================
+
+- Saturate each preferred-size pane, border, sash, and margin addition at the
+  X11 Dimension limit instead of allowing intermediate wraparound.
+- Add focused source-contract coverage and documentation.
