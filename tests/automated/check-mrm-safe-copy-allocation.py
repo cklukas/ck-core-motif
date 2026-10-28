@@ -16,7 +16,7 @@ for allocation, guard in (
     ("char8_table_dst = (String *) XtMalloc (vec_size)",
      "if (char8_table_dst == NULL && vec_size != 0)"),
     ("int_dst = (int *) XtMalloc (sizeof(int))", "if (int_dst == NULL)"),
-    ("char8_dst = (String) XtMalloc (strlen(char8_src)+1)", "if (char8_dst == NULL)"),
+    ("char8_dst = (String) XtMalloc ((Cardinal)(char8_length + 1))", "if (char8_dst == NULL)"),
     ("single_float_dst = (float *) XtMalloc (sizeof(float))", "if (single_float_dst == NULL)"),
     ("float_dst = (double *) XtMalloc (sizeof(double))", "if (float_dst == NULL)"),
     ("cstr_src = XmStringCopy", "if (cstr_src == NULL)"),
@@ -32,6 +32,8 @@ for allocation, guard in (
 
 if "(size_t)cnt > (SIZE_MAX / sizeof(wchar_t)) - 1" not in region:
     raise SystemExit("wide-character copy size is not overflow checked")
+if "size > (size_t)UINT_MAX" not in region:
+    raise SystemExit("wide-character copy size is not Cardinal-bounded")
 if "while (cnt > 0)" not in region or "XmStringFree(cstr_table_dst[--cnt])" not in region:
     raise SystemExit("compound-string vector copies do not roll back partial failure")
 

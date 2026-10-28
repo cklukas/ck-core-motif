@@ -26603,3 +26603,9 @@ Bound Mrm Char8 resource copies (2026-10-29)
 
 - Check Char8 string length before narrowing `strlen()+1` to Xt's
   `Cardinal` allocation size.
+
+Bound Mrm wide-character safe copies (2026-10-29)
+==================================================
+
+- Reject wide-character copy sizes that fit `size_t` but cannot fit Xt's
+  `Cardinal` allocation argument.

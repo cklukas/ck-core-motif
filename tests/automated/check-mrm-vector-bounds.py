@@ -12,6 +12,7 @@ for needle in (
     "vec_count < 0 || vec_size < 0",
     "(size_t)vec_count > SIZE_MAX / sizeof(XmString)",
     "(size_t)vec_count > UINT_MAX / sizeof(XmString)",
+    "size > (size_t)UINT_MAX",
     "return;",
 ):
     if needle not in region:

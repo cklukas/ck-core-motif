@@ -3163,9 +3163,11 @@ Urm__CW_SafeCopyValue (long				*val,
 	return;
 
       for (cnt = 0; ; cnt++) if (wchar_src[cnt] == 0) break;
-      if ((size_t)cnt > (SIZE_MAX / sizeof(wchar_t)) - 1)
+	  if ((size_t)cnt > (SIZE_MAX / sizeof(wchar_t)) - 1)
 	return;
       size = (cnt+1) * sizeof(wchar_t);
+	  if (size > (size_t)UINT_MAX)
+	return;
 	
       wchar_dst = (wchar_t *) XtMalloc (size) ;
       if (wchar_dst == NULL)

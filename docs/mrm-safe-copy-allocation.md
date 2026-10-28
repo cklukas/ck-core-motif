@@ -8,7 +8,8 @@ Each primitive, string, vector, compound-string, and wide-character allocation
 now has a failure guard. Failed copies leave the original value untouched and
 return to the caller instead of dereferencing a null pointer; compound-string
 vector copies also release earlier entries when a later copy fails.
-Wide-character size multiplication is checked before allocation as well.
+Wide-character size multiplication and the final Xt `Cardinal` byte width are
+checked before allocation as well.
 
 The source-level regression is
 `tests/automated/check-mrm-safe-copy-allocation.py`.
