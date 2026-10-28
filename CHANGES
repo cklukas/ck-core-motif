@@ -26566,3 +26566,9 @@ Harden XmString debug allocation (2026-10-29)
   prefix.
 - Validate the compound-string rendition-copy output pointer before writing
   the result slot.
+
+Bound MWM session-path fallback copies (2026-10-29)
+====================================================
+
+- Replace fixed-buffer `strcpy` fallbacks with bounded formatting when MWM
+  selects its default session database filename.

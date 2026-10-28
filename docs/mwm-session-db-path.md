@@ -11,8 +11,8 @@ buffer before the session database was opened.
 The non-WSM path now checks the complete source length before copying.  Paths
 that fit retain their exact spelling; an overlong path falls back to the
 standard `dtwmFileName`, matching the existing fallback used when the WSM
-session path cannot fit.  This preserves normal resource and callback behavior
-while making malformed or extreme configuration safe.
+session path cannot fit. The fallback itself is bounded, so a future or
+platform-specific default cannot overflow the fixed buffer.
 
 `tests/automated/check-mwm-session-db-path.py` protects the source-level
 contract.

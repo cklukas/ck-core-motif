@@ -9,6 +9,7 @@ region = source[start:end]
 assert "strlen(dbPath)" in region
 assert "dbPathLength < MAXPATHLEN" in region
 assert "memcpy(fileNameBuf, dbPath, dbPathLength + 1)" in region
-assert "strcpy(fileNameBuf, dtwmFileName)" in region
+assert 'snprintf(fileNameBuf, MAXPATHLEN, "%s", dtwmFileName)' in region
+assert "strcpy(fileNameBuf, dtwmFileName)" not in region
 assert "strcpy(fileNameBuf, (wmGD.dbFileName" not in region
 print("mwm session DB path handling is bounded")

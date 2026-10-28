@@ -302,7 +302,7 @@ buildDBFileName(char fileNameBuf[MAXPATHLEN], Boolean doingSave)
     }
 
     if (fileNameBuf[0] == '\0')
-	strcpy(fileNameBuf, dtwmFileName);
+	(void)snprintf(fileNameBuf, MAXPATHLEN, "%s", dtwmFileName);
 
 #else
 
@@ -315,7 +315,7 @@ buildDBFileName(char fileNameBuf[MAXPATHLEN], Boolean doingSave)
 	if (dbPathLength < MAXPATHLEN)
 	    memcpy(fileNameBuf, dbPath, dbPathLength + 1);
 	else
-	    strcpy(fileNameBuf, dtwmFileName);
+	    (void)snprintf(fileNameBuf, MAXPATHLEN, "%s", dtwmFileName);
     }
 
 #endif
