@@ -752,6 +752,8 @@ xpmParseData(
 				 &extensions);
     if (ErrorStatus != XpmSuccess)
 	return (ErrorStatus);
+    if (width == 0 || height == 0)
+	return XpmFileInvalid;
 
     /*
      * store the hints comment line

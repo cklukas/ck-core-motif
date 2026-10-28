@@ -1,3 +1,10 @@
+Reject zero-dimension parsed XPM images (2026-10-29)
+=====================================================
+
+- Reject zero width or height from parsed XPM value headers before comment,
+  color-table, and pixel allocations.
+- Add focused coverage and documentation.
+
 Guard XPM parser entry arguments (2026-10-29)
 ==============================================
 

@@ -9,4 +9,6 @@ end = source.index("\n}", start)
 function = source[start:end]
 assert "if (data == NULL || image == NULL)" in function
 assert function.index("if (data == NULL || image == NULL)") < function.index("cmts =")
+assert "if (width == 0 || height == 0)" in function
+assert function.index("if (width == 0 || height == 0)") < function.index("store the hints")
 print("PASS XPM parser entry guard")
