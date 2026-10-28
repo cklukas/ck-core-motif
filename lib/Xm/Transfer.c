@@ -889,7 +889,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
   XtPointer value = NULL;
   unsigned long size, size2;
   int format, format2;
-  int i, count, status, transferred = 0;
+  int i, count, status, transferred = 0, registered = 0;
   Display *display;
   long itemid;
   char *name;
@@ -1113,6 +1113,7 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
       
       for(i = 0; i < count; i++) {
 	int clipboard_status;
+	Boolean registered_target = False;
 	name = GetSafeAtomName(display, targets[i], &howFree);
 	/* Critical section for MT */
 	_XmProcessLock();
@@ -1122,17 +1123,22 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 	_XmProcessUnlock();
 	/* End Critical section for MT */
 	if (clipboard_status == ClipboardSuccess) {
-	  transferred++;
 	  /* Associate the data_id with this snapshot and increment
 	     the number of requests outstanding. */
 	  _XmProcessLock();
-	  _XmAddHashEntry(DataIdDictionary, (XmHashKey)data_id, (XtPointer)req);
-	  req -> outstanding++;
+	  if (_XmAddHashEntry(DataIdDictionary, (XmHashKey)data_id,
+			      (XtPointer)req)) {
+	    req -> outstanding++;
+	    registered++;
+	    registered_target = True;
+	  }
 	  _XmProcessUnlock();
+	  if (registered_target)
+	    transferred++;
 	}
         FreeSafeAtomName(name,howFree);
       }
-	if (req != NULL && req -> outstanding == 0)
+	if (req != NULL && registered == 0)
 	  XtFree((char *)req);
     }
     XtFree((char*) targets);
@@ -1177,6 +1183,8 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
   Display *display;
   Atom CLIPBOARD;
   SnapshotRequest req;
+  Atom distinguisher;
+  Boolean last_request;
   ConvertContext cc;
 
   if (w == NULL || data_id == NULL || reason == NULL ||
@@ -1199,6 +1207,8 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
   }
   /* Decrement count and remove this association */
   req -> outstanding--;
+  distinguisher = req -> distinguisher;
+  last_request = req -> outstanding == 0;
   _XmRemoveHashEntry(DataIdDictionary, (XmHashKey) *data_id);
   _XmProcessUnlock();
 
@@ -1207,7 +1217,7 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
   if (*reason != XmCR_CLIPBOARD_DATA_DELETE) {
     value = NULL;
     _XmConvertHandlerSetLocal();
-    if (_XmConvertHandler(w, &req -> distinguisher, (Atom *) target, 
+	if (_XmConvertHandler(w, &distinguisher, (Atom *) target,
 			  &type, &value, &size, &format) == True &&
 	(cc == NULL || !(cc -> flags & XmCONVERTING_PARTIAL))) {
       char *name;
@@ -1242,14 +1252,14 @@ ClipboardCallback(Widget w, long *data_id, long *target, int *reason)
 			    NULL, 0, 0L);
   }
 
-  if (req -> outstanding == 0) {
+  if (last_request) {
     Atom done = XInternAtom(display, XmIDONE, False);
 
     /* If this was the last item,  call _XmConvertHandler with
        DELETE on the distinguisher and then free the req */
     value = NULL;
     _XmConvertHandlerSetLocal();
-    _XmConvertHandler(w, &req -> distinguisher, 
+	  _XmConvertHandler(w, &distinguisher,
 		      (Atom *) &done, &type, &value, &size, &format);
     XtFree((char*) value);
     XtFree((char*) req);

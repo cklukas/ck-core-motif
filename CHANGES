@@ -25530,6 +25530,14 @@ Report Text wide-conversion count overflow (2026-10-29)
 - Return the existing conversion-failure value when a valid wide conversion
   exceeds the legacy `int` result range, instead of reporting an empty value.
 - Add focused source coverage and documentation for the overflow contract.
+Make deferred clipboard request lifetime reentrant-safe (2026-10-29)
+=====================================================================
+
+- Snapshot the deferred request distinguisher while holding the process lock,
+  so callbacks no longer dereference shared request storage after unlocking.
+- Track the final callback locally and only free setup state when no data-id was
+  registered, preventing concurrent callback use-after-free and double-free.
+
 Normalize cropped-image scaling Y coordinates (2026-10-29)
 ============================================================
 
