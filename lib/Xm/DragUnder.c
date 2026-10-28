@@ -30,6 +30,7 @@ static char rcsid[] = "$XConsortium: DragUnder.c /main/12 1995/07/14 10:26:51 dr
 #include <config.h>
 #endif
 
+#include <limits.h>
 
 #include <Xm/DrawP.h>
 #include "XmI.h"
@@ -87,7 +88,28 @@ static void AnimateLeave(
                         XmAnimationData aData,
                         XmDragProcCallbackStruct *dpcb) ;
 
+static Boolean AddDragUnderOffset(
+                        Position base,
+                        Dimension offset,
+                        Position *result) ;
+
 /********    End Static Function Declarations    ********/
+
+static Boolean
+AddDragUnderOffset(
+        Position base,
+        Dimension offset,
+        Position *result)
+{
+    const long value = (long) base + (long) offset;
+
+    if (value < SHRT_MIN || value > SHRT_MAX) {
+        return (False);
+    }
+
+    *result = (Position) value;
+    return (True);
+}
 
 
 /*****************************************************************************
@@ -109,7 +131,7 @@ CreateAnimationSaveData(
     XGCValues			v;
     unsigned long		vmask;
     XmDropSiteVisuals		dsv;
-    int				ac;
+    Cardinal			ac;
     Arg				al[5];
     Window			junkWin;
     int				junkInt;
@@ -398,7 +420,7 @@ SaveSegments(
     pData->x = x;
     pData->y = y + *thickness;
     pData->width = *thickness;
-    pData->height = height - (*thickness << 1);
+    pData->height = (Dimension)(height - (*thickness << 1));
     pData->pixmap =
 	_XmAllocScratchPixmap (aSaveData->xmScreen,
 			       (Cardinal) aSaveData->windowDepth,
@@ -436,7 +458,7 @@ SaveSegments(
     pData->x = x + width - *thickness;
     pData->y = y + *thickness;
     pData->width = *thickness;
-    pData->height = height - (*thickness << 1);
+    pData->height = (Dimension)(height - (*thickness << 1));
     pData->pixmap =
 	_XmAllocScratchPixmap (aSaveData->xmScreen,
 			       (Cardinal) aSaveData->windowDepth,
@@ -525,8 +547,9 @@ DrawHighlight(
 	    (int)extents.height <= (int)(offset << 1))
 	    return;
 
-        x = extents.x + offset;
-        y = extents.y + offset;
+        if (!AddDragUnderOffset(extents.x, offset, &x) ||
+            !AddDragUnderOffset(extents.y, offset, &y))
+            return;
         width = (Dimension)((int)extents.width - (int)(offset << 1));
         height = (Dimension)((int)extents.height - (int)(offset << 1));
 
@@ -667,8 +690,9 @@ DrawShadow(
 	    (int)extents.height <= (int)(offset << 1))
 	    return;
 
-        x = extents.x + offset;
-        y = extents.y + offset;
+        if (!AddDragUnderOffset(extents.x, offset, &x) ||
+            !AddDragUnderOffset(extents.y, offset, &y))
+            return;
         width = (Dimension)((int)extents.width - (int)(offset << 1));
         height = (Dimension)((int)extents.height - (int)(offset << 1));
 

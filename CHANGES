@@ -1,3 +1,18 @@
+Range-check DragUnder region geometry (2026-10-28)
+==================================================
+
+- Reject highlight and shadow origins that cannot be represented by X11's
+  signed `Position` type instead of allowing coordinate wraparound.
+- Make validated pixmap strip-height narrowing explicit and add focused
+  coverage and documentation.
+
+Match DragUnder argument count to Xt (2026-10-28)
+==================================================
+
+- Track the drop-site argument count as `Cardinal`, matching
+  `XmDropSiteRetrieve` and avoiding a signed-to-unsigned conversion.
+- Add focused coverage and documentation.
+
 Reject missing DnD destination callback data (2026-10-26)
 ==========================================================
 
@@ -24065,3 +24080,13 @@ Regression: tests/automated/check-dragunder-pixmap-dimensions.py
 
 Bound Drag ICC receiver drop-site counts (2026-10-28)
 =====================================================
+Match DragUnder argument count to Xt (2026-10-28)
+==================================================
+
+- Track drop-site argument counts as Xt `Cardinal`.
+- Preserve the existing argument list and retrieval behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-dragunder-arg-count.py
+
+Match DragUnder saved-pixmap dimensions to Motif types (2026-10-28)
+====================================================================
