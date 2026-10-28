@@ -27385,6 +27385,12 @@ Guard TeachingTip event dispatch (2026-10-29)
   popup events, preventing malformed teardown dispatch from hiding invalid
   widget state.
 
+Guard accessibility event hooks (2026-10-29)
+============================================
+
+- Validate widget, provider state, and event inputs before accessibility event
+  processing, and handle an absent continuation pointer safely.
+
 Guard Flyout event dispatch (2026-10-29)
 ========================================
 

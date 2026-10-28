@@ -369,6 +369,7 @@ static void widget_event(Widget w, XtPointer data, XEvent *event,
   XmAccessibility *a = (XmAccessibility *)data;
   (void)event;
   (void)cont;
+  if (a == NULL || w == NULL || event == NULL) return;
   ++a->dispatch_depth;
   notify_focus(a);
   if (event->type == MapNotify || event->type == UnmapNotify) menu_changed(a, w);
@@ -395,6 +396,7 @@ static void native_key_event(Widget w, XtPointer data, XEvent *event,
   const char *label;
   uint32_t scalar = 0;
   Boolean is_text = False, consumed;
+  if (a == NULL || w == NULL || event == NULL) return;
   if (event->type != KeyPress && event->type != KeyRelease) return;
   if (a->destroy_requested || a->status != XmACCESSIBILITY_CONNECTED) return;
   ++a->dispatch_depth;
@@ -428,7 +430,7 @@ static void native_key_event(Widget w, XtPointer data, XEvent *event,
     if (!label) label = "";
   }
   consumed = _XmAccessibilityTransportKey(a, &key, symbol, label, is_text);
-  if (consumed || w->core.being_destroyed) *cont = False;
+  if ((consumed || w->core.being_destroyed) && cont != NULL) *cont = False;
   --a->dispatch_depth;
   _XmAccessibilityDispatchDone(a);
 }
