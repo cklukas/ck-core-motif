@@ -2993,6 +2993,8 @@ ClipboardGetNewItemId(
     ClipboardReplaceItem(display, XM_NEXT_ID, propertynumber, length,
 			 PropModeReplace, 32, True, XA_INTEGER);
 
+    XtFree( (char *)propertynumber );
+
     return loc_id;
 }
 

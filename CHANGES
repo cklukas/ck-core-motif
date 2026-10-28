@@ -23462,6 +23462,14 @@ Abort copy-by-name on lock failures (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-copy-lock-status.py
 
+Release clipboard next-item ID buffers (2026-10-28)
+=====================================================
+
+- Free the retrieved next-ID property after persisting the increment.
+- Preserve ID allocation and invalid-property behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-next-id-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
