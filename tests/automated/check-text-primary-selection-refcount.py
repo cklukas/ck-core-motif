@@ -13,7 +13,7 @@ for name in ("TextSel.c", "TextFSel.c"):
     end = source.index("static void", start + 20)
     clean_body = source[start:end]
     for body in (set_body, clean_body):
-        assert "prim_select->ref_count <= 0" in body, name
-        assert "--prim_select->ref_count == 0" in body, name
+        assert "primary_select_state->ref_count <= 0" in body, name
+        assert "--primary_select_state->ref_count == 0" in body, name
 
 print("Text primary-selection release paths prevent refcount underflow")
