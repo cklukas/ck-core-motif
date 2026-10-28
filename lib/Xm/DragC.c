@@ -2110,9 +2110,13 @@ TopWindowsReceived(
 	XmDisplay dd = (XmDisplay) w;
     Cardinal	i;
     XmDragReceiverInfo	currInfo, startInfo;
+    XmDragReceiverInfo	newInfos;
     Window	*clientWindows;
     unsigned char	oldStyle;
 
+    if (dc == NULL || w == NULL || length == NULL || type == NULL ||
+        format == NULL)
+      return;
     if (dd->display.activeDC != dc) {
       /* Too late... */
       return;
@@ -2129,7 +2133,10 @@ TopWindowsReceived(
 
 
 #ifdef MULTI_SCREEN_DONE
-    if ((*length != 0) && (*format == 32) && (*type == XA_WINDOW)) { 
+    if ((*length != 0) && (*format == 32) && (*type == XA_WINDOW) &&
+        value != NULL && *length < (unsigned long)UINT_MAX &&
+        (size_t)(*length + 1) <=
+          (size_t)UINT_MAX / sizeof(XmDragReceiverInfoStruct)) {
 	/* 
 	 * we make a receiverInfo array one larger than the number of
 	 * client windows since we keep the root info in array[0].
@@ -2139,10 +2146,13 @@ TopWindowsReceived(
 	else
 	  startInfo = NULL;
 
-	dc->drag.numReceiverInfos = 
-	  dc->drag.maxReceiverInfos = *length + 1;
-	dc->drag.receiverInfos = (XmDragReceiverInfo)
-	  XtCalloc(dc->drag.maxReceiverInfos, sizeof(XmDragReceiverInfoStruct));
+	newInfos = (XmDragReceiverInfo)XtCalloc(
+	  (Cardinal)(*length + 1), sizeof(XmDragReceiverInfoStruct));
+	if (newInfos == NULL)
+	  return;
+	dc->drag.numReceiverInfos =
+	  dc->drag.maxReceiverInfos = (Cardinal)(*length + 1);
+	dc->drag.receiverInfos = newInfos;
 	clientWindows = (Window *)value;
 
 	if (startInfo) {

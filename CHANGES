@@ -56,6 +56,14 @@ Fix DnD motion-buffer boundary growth (2026-10-29)
   allocation.
 - Add focused coverage for the stack-to-heap capacity transition.
 
+Guard DnD top-window property rebuilds (2026-10-29)
+====================================================
+
+- Validate external top-window property pointers and `Cardinal` sizing before
+  replacing the receiver-info array.
+- Keep the previous receiver state intact when the replacement allocation
+  fails, with focused malformed-property coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
