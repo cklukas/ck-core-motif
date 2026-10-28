@@ -1203,11 +1203,11 @@ sym_dump_external_def(
 {
 
     _debug_output
-	( "%x external def  size: %d  next external: %x  object: %x \n",
-	  (unsigned)az_external_def_entry,
+	( "%p external def  size: %d  next external: %p  object: %p \n",
+	  (void *)az_external_def_entry,
 	  az_external_def_entry->header.w_node_size,
-	  (unsigned)az_external_def_entry->az_next_object,
-	  (unsigned)az_external_def_entry->az_name );
+	  (void *)az_external_def_entry->az_next_object,
+	  (void *)az_external_def_entry->az_name );
 
 }
 
