@@ -1,3 +1,10 @@
+Release drop results with missing callback data (2026-10-29)
+==============================================================
+
+- Release an Xt-owned selection buffer before ignoring a callback with null
+  client data.
+- Add focused ownership coverage while preserving normal callback delivery.
+
 Ignore queued drop results during teardown (2026-10-29)
 =========================================================
 

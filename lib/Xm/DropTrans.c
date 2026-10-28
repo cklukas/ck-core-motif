@@ -635,8 +635,10 @@ DropTransferSelectionCB(
 	Boolean transfer_complete =
 		False;
 
-	if (client_data == NULL)
+	if (client_data == NULL) {
+	    XtFree((char *)value);
 	    return;
+	}
 	dt = (XmDropTransferObject) client_data;
 	/* Xt may deliver a queued selection result after destruction started. */
 	if (dt->object.being_destroyed) {

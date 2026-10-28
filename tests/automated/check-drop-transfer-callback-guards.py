@@ -20,6 +20,8 @@ end = source.index("/*ARGSUSED*/\nstatic void \nStartDropTimer", start)
 body = source[start:end]
 
 assert "if (client_data == NULL)" in body
+null_client = body[body.index("if (client_data == NULL)"):body.index("dt =", body.index("if (client_data == NULL)"))]
+assert "XtFree((char *)value);" in null_client
 assert "if (dt->object.being_destroyed)" in body
 assert body.index("dt->object.being_destroyed") < body.index("dtp =")
 assert "selection == NULL || *selection == None || type == NULL || length == NULL" in body
