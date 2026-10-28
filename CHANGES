@@ -23275,6 +23275,15 @@ Release standard WM_NAME conversion properties (2026-10-28)
   coverage and documentation.
 Regression: tests/automated/check-standard-convert-name-free.py
 
+Own standard WM_CLASS conversion data (2026-10-28)
+====================================================
+
+- Copy valid `WM_CLASS` property bytes into Xt-owned storage before returning
+  them from standard conversion.
+- Release the Xlib property buffer and reject malformed/oversized data safely.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-standard-convert-class-ownership.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

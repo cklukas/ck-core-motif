@@ -2692,6 +2692,23 @@ XmeStandardConvert(Widget w,
 	if (cs -> value != NULL) break;
       }
     }
+    if (cs -> value != NULL) {
+      XtPointer xlib_value = cs -> value;
+      char *owned_value = NULL;
+
+      cs -> value = NULL;
+      if (cs -> format == 8 && cs -> length < (unsigned long)UINT_MAX) {
+	owned_value = XtMalloc((Cardinal)(cs -> length + 1));
+	if (owned_value != NULL) {
+	  memcpy(owned_value, xlib_value, (size_t)cs -> length);
+	  owned_value[cs -> length] = '\0';
+	  cs -> value = (XtPointer)owned_value;
+	}
+      }
+      XFree((char *)xlib_value);
+      if (cs -> value == NULL)
+	cs -> length = 0;
+    }
   } else if (atoms[XmANAME] == cs -> target) {
     Widget current;
     unsigned long bytesAfter;
