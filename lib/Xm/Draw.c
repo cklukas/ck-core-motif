@@ -277,9 +277,9 @@ void XmeDrawHighlight(Display *display, Drawable d,
     _XmAppLock(app);
 
     rect[0].x = rect[1].x = rect[2].x = x ;
-    rect[3].x = (short) ((int) x + draw_width - thickness) ;
+    rect[3].x = ClampDrawCoordinate((long long)x + draw_width - thickness) ;
     rect[0].y = rect[2].y = rect[3].y = y ;
-    rect[1].y = (short) ((int) y + draw_height - thickness) ;
+    rect[1].y = ClampDrawCoordinate((long long)y + draw_height - thickness) ;
     rect[0].width = rect[1].width = (unsigned short) draw_width ;
     rect[2].width = rect[3].width = (unsigned short) thickness ;
     rect[0].height = rect[1].height = (unsigned short) thickness ;
