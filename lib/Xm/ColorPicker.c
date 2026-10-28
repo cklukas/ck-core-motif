@@ -13,6 +13,12 @@
 #include "PrimitiveI.h"
 #include "XmI.h"
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
@@ -126,8 +132,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             XmStringExtent(picker->color_picker.render_table, value_string,
                            &text_width, &text_height);
             XmStringDraw(display, window, picker->color_picker.render_table,
-                         value_string, picker->color_picker.gc, 38,
-                         ((int)picker->core.height - (int)text_height) / 2,
+                         value_string, picker->color_picker.gc,
+                         bounded_position(38),
+                         bounded_position(((long long)picker->core.height - text_height) / 2),
                          text_width, XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(picker), NULL);
             XmStringFree(value_string);
