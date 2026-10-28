@@ -9,6 +9,7 @@ function = source[start:end]
 
 assert "if (data->stream.data == NULL)" in function
 assert "if (data->cptr == NULL)" in function
+assert "if (data == NULL)" in function
 word_start = source.index("xpmNextWord(")
 word_end = source.index("\n}\n", word_start) + 2
 word_function = source[word_start:word_end]

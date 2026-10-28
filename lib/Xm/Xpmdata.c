@@ -175,6 +175,9 @@ ParseComment(xpmData *data)
 int
 xpmNextString(xpmData *data)
 {
+    if (data == NULL)
+	return 0;
+
     if (!data->type) {
 	if (data->stream.data == NULL) {
 	    data->cptr = NULL;
@@ -184,8 +187,10 @@ xpmNextString(xpmData *data)
 	if (data->cptr == NULL)
 	    return 0;
     }
-    else if (data->type == XPMBUFFER) {
+	else if (data->type == XPMBUFFER) {
 	register char c = '\0';
+	if (data->cptr == NULL)
+	    return 0;
 
 	/* get to the end of the current string */
 	if (data->Eos)
