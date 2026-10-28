@@ -26432,3 +26432,10 @@ Make TextField selection-array replacement transactional (2026-10-29)
 
 - Allocate and copy the replacement array before releasing the previous one.
 - Preserve the existing selection state on invalid size or allocation failure.
+
+Guard TextField modify-verify buffers (2026-10-29)
+===================================================
+
+- Validate and check snapshot allocation before callback comparison.
+- Retain the live proposed value if an approved replacement cannot be
+  allocated.

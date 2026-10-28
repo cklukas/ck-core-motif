@@ -8806,7 +8806,13 @@ SetValues(Widget old,
        * callbacks, then adopt an owned copy of the final approved value. */
       proposed = new_tf->text.max_char_size == 1 ?
         TextF_Value(new_tf) : (char *)TextF_WcValue(new_tf);
+      if (proposed_length < 0 ||
+          (size_t)proposed_length > (SIZE_MAX - 1) / unit ||
+          (size_t)proposed_length + 1 > UINT_MAX / unit)
+        return False;
       snapshot = XtMalloc(((size_t)proposed_length + 1) * unit);
+      if (snapshot == NULL)
+        return False;
       memcpy(snapshot, proposed, ((size_t)proposed_length + 1) * unit);
       temp = snapshot;
       mod_ver_ret = ModifyVerify(new_tf, NULL, &fromPos, &toPos,
@@ -8820,16 +8826,22 @@ SetValues(Widget old,
          * neither free the retired proposal nor restore the outer old value. */
         mod_ver_ret = True;
       } else if (mod_ver_ret) {
-        char *approved = XtMalloc(((size_t)insert_length + 1) * unit);
-        if (insert_length) memcpy(approved, temp, (size_t)insert_length * unit);
-        memset(approved + (size_t)insert_length * unit, 0, unit);
-        XtFree(proposed);
-        if (new_tf->text.max_char_size == 1)
-          TextF_Value(new_tf) = approved;
-        else
-          TextF_WcValue(new_tf) = (wchar_t *)approved;
-        new_tf->text.string_length = insert_length;
-        new_tf->text.size_allocd = ((size_t)insert_length + 1) * unit;
+        char *approved = NULL;
+        if (insert_length >= 0 &&
+            (size_t)insert_length <= (SIZE_MAX - 1) / unit &&
+            (size_t)insert_length + 1 <= UINT_MAX / unit)
+          approved = XtMalloc(((size_t)insert_length + 1) * unit);
+        if (approved != NULL) {
+          if (insert_length) memcpy(approved, temp, (size_t)insert_length * unit);
+          memset(approved + (size_t)insert_length * unit, 0, unit);
+          XtFree(proposed);
+          if (new_tf->text.max_char_size == 1)
+            TextF_Value(new_tf) = approved;
+          else
+            TextF_WcValue(new_tf) = (wchar_t *)approved;
+          new_tf->text.string_length = insert_length;
+          new_tf->text.size_allocd = ((size_t)insert_length + 1) * unit;
+        }
       }
       if (free_insert) XtFree(temp);
       XtFree(snapshot);

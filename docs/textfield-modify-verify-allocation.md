@@ -1,9 +1,10 @@
-# TextField modify-verify input buffers
+# TextField modify-verify allocation handling
 
-TextField modify-verify setup now validates insertion length and character
-width before constructing its byte callback block.  The size is bounded to
-both the signed block-length field and Xt's allocation type, and allocation
-failure returns before conversion or callback delivery.
+TextField SetValues now validates and checks the temporary snapshot used by
+modify-verify callbacks before copying it.  If an approved replacement cannot
+be allocated, the current proposed value is retained instead of dereferencing
+a null buffer or freeing the live value.  Oversized and negative lengths are
+rejected before multiplication.
 
-The focused source contract is checked by
+The source-contract regression is
 `tests/automated/check-textfield-modify-verify-allocation.py`.
