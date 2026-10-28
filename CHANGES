@@ -27712,3 +27712,9 @@ Bound IconButton text layout origins (2026-10-29)
 - Clamp text origins derived from pixmap size, padding, and fallback spacing
   before storing them in `Position` fields.
 - Extend the IconButton coordinate regression contract.
+Fix IconG column-width arithmetic (2026-10-29)
+================================================
+
+- Use signed wide intermediates when removing RTL parent indentation, avoiding
+  unsigned underflow and `Dimension`-to-`Position` narrowing.
+- Preserve the existing minimum-width fallback and add focused source coverage.

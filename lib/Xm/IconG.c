@@ -2020,20 +2020,20 @@ GetContainerData(
 	/* remove the current hor indentation */
 	if (LayoutIsRtoLG(wid)) {
 	    if (XtWidth(XtParent(wid))) {
-		if ((Position)container_data->first_column_width >
-		    (XtWidth(XtParent(wid)) - ig->rectangle.width - 
-		     ig->rectangle.x)) {
-		    container_data->first_column_width -= 
-			(XtWidth(XtParent(wid)) - ig->rectangle.width -
-			 ig->rectangle.x) ;
+		long long available = (long long)XtWidth(XtParent(wid)) -
+		    (long long)ig->rectangle.width - (long long)ig->rectangle.x;
+		if (available > 0 &&
+		    (long long)container_data->first_column_width > available) {
+		    container_data->first_column_width -= (Dimension)available;
 		} else {
 		    container_data->first_column_width =
 			IG_HLThickness(wid) + IG_MarginWidth(wid);
 		}
 	    } else { /* parent not sized yet */
-		if ((Position)container_data->first_column_width > 
-		    ig->rectangle.x)
-		    container_data->first_column_width -= ig->rectangle.x ;
+		if (ig->rectangle.x >= 0 &&
+		    (long long)container_data->first_column_width >
+		    (long long)ig->rectangle.x)
+		    container_data->first_column_width -= (Dimension)ig->rectangle.x;
 		else
 		    container_data->first_column_width =
 			IG_HLThickness(wid) + IG_MarginWidth(wid); 
@@ -2042,10 +2042,10 @@ GetContainerData(
 	    /* here we have to worry of special cases where
 	       the first_column_width and the position of the kid
 	       are extreme */
-	    if (((Position)container_data->first_column_width >
-		 ig->rectangle.x)
-		&& ig->rectangle.x >= 0) {
-		container_data->first_column_width -= ig->rectangle.x ;
+	    if (ig->rectangle.x >= 0 &&
+		(long long)container_data->first_column_width >
+		(long long)ig->rectangle.x) {
+		container_data->first_column_width -= (Dimension)ig->rectangle.x;
 		if (container_data->first_column_width < 
 		          IG_HLThickness(wid) + IG_MarginWidth(wid))
 		    container_data->first_column_width
