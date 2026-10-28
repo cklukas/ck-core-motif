@@ -26345,3 +26345,9 @@ Guard UIL color-item allocation and cleanup (2026-10-29)
 - Check the temporary color-item node before saving metadata or initializing
   fields.
 - Release the temporary item when later validation selects the error path.
+
+Guard UIL section-link allocations (2026-10-29)
+================================================
+
+- Check value-binding and identifier section-list nodes before linking them.
+- Return safely when compiler bookkeeping allocation is unavailable.

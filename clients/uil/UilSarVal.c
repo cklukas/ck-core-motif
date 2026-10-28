@@ -2233,6 +2233,8 @@ yystype	    *semi_frame;
     */
     section_entry = (sym_section_entry_type *) sem_allocate_node
 	(sym_k_section_entry, sym_k_section_entry_size);
+    if (section_entry == NULL)
+	return;
 
     /*
     ** Link this entry off of the current section list
@@ -2545,6 +2547,8 @@ XmConst yystype	    *semi_frame;
     */
     section_entry = (sym_section_entry_type *) sem_allocate_node
 			(sym_k_section_entry, sym_k_section_entry_size);
+    if (section_entry == NULL)
+	return;
 
     /*
     ** Link this entry off of the current section list
