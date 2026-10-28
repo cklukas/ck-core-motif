@@ -1,3 +1,10 @@
+Use signed I18List slider-height arithmetic (2026-10-29)
+==========================================================
+
+- Compute `ResizeSliders` content height in wide signed arithmetic before
+  deriving rows per screen, avoiding unsigned underflow on small widgets.
+- Add focused source-contract coverage.
+
 Use signed I18List available-height arithmetic (2026-10-29)
 =============================================================
 

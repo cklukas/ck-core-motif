@@ -2439,7 +2439,8 @@ ResizeSliders(Widget w)
     XmI18ListWidget ilist = (XmI18ListWidget) w;    
     Arg args[5];
     Cardinal num_args=0;
-    register int i, height, max_width, rows_per_screen;
+    register int i, max_width, rows_per_screen;
+    long long height;
     int64_t total_width;
     register int slide_pos, slide_size, col_width=0, min=0;
 
@@ -2501,18 +2502,19 @@ ResizeSliders(Widget w)
 	XtSetValues(XmI18List_h_bar(ilist), args, num_args);
     }
 
-    height = ilist->core.height - 
-	     (2 * VERTICAL_SPACE + XmI18List_title_row_height(ilist));
+    height = (long long)ilist->core.height -
+	     (2LL * VERTICAL_SPACE + (long long)XmI18List_title_row_height(ilist));
 
     if(XmI18List_new_visual_style(ilist))
-	height -= ilist->primitive.shadow_thickness;
+	height -= (long long)ilist->primitive.shadow_thickness;
     else
-	height -= LINE_HEIGHT;
+	height -= (long long)LINE_HEIGHT;
 
     if ((height > 0) && (XmI18List_v_bar(ilist) != NULL)) {
 	int max_first;
 
-	rows_per_screen = height / (XmI18List_row_height(ilist) + VERTICAL_SPACE);
+	rows_per_screen = (int)(height /
+	    ((long long)XmI18List_row_height(ilist) + VERTICAL_SPACE));
 	max_first = XmI18List_num_rows(ilist) - rows_per_screen;
 
 	if (max_first < XmI18List_first_row(ilist)) {
