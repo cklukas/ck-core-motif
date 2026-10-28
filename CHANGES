@@ -1,3 +1,10 @@
+Validate XPM raw-image structure (2026-10-29)
+==============================================
+
+- Reject zero geometry, zero color/character counts, and missing color-table
+  or pixel data before raw-image conversion dereferences the structure.
+- Add focused coverage and documentation while preserving valid image paths.
+
 Validate XPM raw-image conversion inputs (2026-10-29)
 ======================================================
 

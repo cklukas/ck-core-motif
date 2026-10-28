@@ -793,6 +793,10 @@ XpmCreateImageFromXpmImage(
     if (display == NULL || image == NULL ||
 	(image_return == NULL && shapeimage_return == NULL))
 	return XpmFileInvalid;
+    if (image->width == 0 || image->height == 0 || image->cpp == 0 ||
+	image->ncolors == 0 || image->colorTable == NULL ||
+	image->data == NULL)
+	return XpmFileInvalid;
 
     /* retrieve information from the XpmAttributes */
     if (attributes && (attributes->valuemask & XpmVisual))
