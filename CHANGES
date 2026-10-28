@@ -23639,6 +23639,14 @@ Abort clipboard end-copy on lock failures (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-end-copy-lock-status.py
 
+Abort clipboard retrieval on lock failures (2026-10-28)
+========================================================
+
+- Stop the transaction behind `XmClipboardRetrieve` on any non-success lock result.
+- Preserve the original lock status before opening clipboard state.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-retrieve-lock-status.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

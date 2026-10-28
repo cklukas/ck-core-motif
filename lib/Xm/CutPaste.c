@@ -4523,7 +4523,7 @@ ClipboardRetrieve(Display *display, Window window,
     Time timestamp;
     
     status = ClipboardLock( display, window );
-    if ( status == ClipboardLocked ) return ClipboardLocked;
+    if ( status != ClipboardSuccess ) return status;
 
     /* get the clipboard header */
     header = ClipboardOpen( display, 0 );
