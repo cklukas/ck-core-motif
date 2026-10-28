@@ -26458,3 +26458,9 @@ Guard TextField modify-verify result sizes (2026-10-29)
 
 - Validate narrow callback-result lengths before adding the terminator and
   narrowing the allocation size.
+
+Guard TextField byte initial-storage bounds (2026-10-29)
+==========================================================
+
+- Validate the initial byte-string length before assigning the signed length
+  field or narrowing the reserved allocation size.

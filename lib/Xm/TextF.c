@@ -7597,10 +7597,20 @@ ValidateString(XmTextFieldWidget tf,
      * instance pointer. */
     if (tf->text.max_char_size == 1) {
       char *validated_value;
-      tf->text.string_length = strlen(start_temp);
+      size_t allocation_bytes;
+
+      input_length = strlen(start_temp);
+      if (input_length > (size_t)INT_MAX - 30 ||
+          input_length > SIZE_MAX - 30 ||
+          input_length > (size_t)UINT_MAX - 30) {
+        XmStackFree(start_temp, stack_cache);
+        return;
+      }
+      tf->text.string_length = (int)input_length;
+      allocation_bytes = input_length + 30;
       /* malloc the space for the text value */
       validated_value = (char *)XtMalloc(
-		(unsigned)(tf->text.string_length + 30));
+		(Cardinal)allocation_bytes);
       if (validated_value == NULL) {
 	TextF_Value(tf) = NULL;
 	TextF_WcValue(tf) = NULL;
@@ -7610,9 +7620,9 @@ ValidateString(XmTextFieldWidget tf,
 	return;
       }
       memcpy(validated_value, (void *)start_temp,
-	     tf->text.string_length + 1);
+             input_length + 1);
       TextF_Value(tf) = validated_value;
-      tf->text.size_allocd = tf->text.string_length + 30;
+      tf->text.size_allocd = (unsigned int)allocation_bytes;
       TextF_WcValue(tf) = NULL;
     } else { /* Need wchar_t* data to set as the widget's value */
       /* count number of wchar's */
