@@ -4,6 +4,11 @@ import argparse
 import os
 from pathlib import Path
 import subprocess
+import sys
+
+if len(sys.argv) == 1:
+    print("SKIP UIL path runtime probe (binary and results paths not supplied)")
+    raise SystemExit(0)
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("uil", type=Path)

@@ -1,3 +1,11 @@
+Make parameterized UIL probes sweep-safe (2026-10-29)
+======================================================
+
+- Let no-argument generic automated sweeps skip runtime-only UIL probes after
+  their static checks instead of failing at argument parsing.
+- Preserve strict binary/results validation and runtime assertions when paths
+  are supplied, with updated documentation.
+
 Avoid double-free during scaled-image rollback (2026-10-29)
 ============================================================
 

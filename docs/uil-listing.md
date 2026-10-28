@@ -12,6 +12,10 @@ Run the regression against a debug-enabled binary with:
 python3 tests/automated/check-uil-listing.py /absolute/path/to/uil /absolute/path/to/results
 ```
 
+When invoked without arguments as part of a generic source-check sweep, the
+probe performs its static assertions and exits successfully with a `SKIP`
+notice; the runtime probe remains strict whenever both paths are supplied.
+
 The normal release build keeps the historical listing format and command-line
 options; this change only makes the debug output path bounded.
 

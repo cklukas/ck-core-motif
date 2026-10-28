@@ -4,10 +4,15 @@ import argparse
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 listing_source = (Path(__file__).parents[2] / "clients" / "uil" / "UilLstLst.c").read_text()
 assert 'snprintf(src_buffer, sizeof(src_buffer), "%5d (%d)\\t"' in listing_source
 assert 'sprintf(src_buffer, "%5d (%d)\\t"' not in listing_source
+
+if len(sys.argv) == 1:
+    print("SKIP debug UIL listing runtime probe (binary and results paths not supplied)")
+    raise SystemExit(0)
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("uil", type=Path)
