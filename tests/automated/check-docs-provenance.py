@@ -27,6 +27,9 @@ def rejected(operation):
 
 
 def main():
+    if len(sys.argv) == 1:
+        print("SKIP docs provenance: requires an explicit archive and scratch path")
+        return
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tool-archive", required=True, type=Path)
     parser.add_argument("--work", required=True, type=Path)

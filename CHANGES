@@ -1,3 +1,11 @@
+Make standalone provenance checks safe to invoke (2026-10-29)
+==============================================================
+
+- Let generic automated-test runners skip the two provenance checks when their
+  required generated artifacts or explicit scratch arguments are absent.
+- Preserve full validation whenever the build system supplies the required
+  arguments.
+
 Reject overflowing scaled-image destination X coordinates (2026-10-29)
 =======================================================================
 

@@ -62,6 +62,7 @@ nav:
       - docs/disclosure.md
   - title: Reference
     pages:
+      - docs/provenance-check-invocation.md
       - docs/color-object-property-format.md
       - docs/container-cells-allocation.md
       - docs/container-child-count-bounds.md
