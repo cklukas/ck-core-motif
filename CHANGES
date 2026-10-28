@@ -20,6 +20,13 @@ Guard null drag-property payloads (2026-10-29)
   before drag-buffer helpers reach `memcpy`.
 - Preserve all valid 8/16/32-bit buffer transfers and add focused coverage.
 
+Guard Text source read inputs (2026-10-29)
+==========================================
+
+- Reject missing source/widget state and a positive-length read with no
+  payload before multibyte conversion dereferences the block.
+- Preserve valid source reads and add focused boundary coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

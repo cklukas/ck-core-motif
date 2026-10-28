@@ -15,3 +15,7 @@ Run the native installed-prefix regression with:
 ```sh
 python3 tests/automated/run-text-source-regressions.py /absolute/path/to/prefix /absolute/path/to/results
 ```
+`ReadSource` validates its source, widget list, and returned block payload
+before converting text.  A failed provider read that reports a positive length
+without a payload now returns safely instead of dereferencing null, while valid
+large-range reads retain their existing checked sizing behavior.

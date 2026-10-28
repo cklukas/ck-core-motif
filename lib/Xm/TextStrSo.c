@@ -827,9 +827,18 @@ ReadSource(XmTextSource source,
   XmTextPosition return_pos;
   XmTextPosition available;
   int num_bytes;
-  XmSourceData data = source->data;
-  XmTextWidget tw = (XmTextWidget) data->widgets[0];
-  int char_size = (tw->text.char_size < 3 ?
+  XmSourceData data;
+  XmTextWidget tw;
+  int char_size;
+
+  if (source == NULL || block == NULL || source->data == NULL)
+	return 0;
+  data = source->data;
+  if (data->widgets == NULL || data->numwidgets <= 0 ||
+      data->widgets[0] == NULL)
+	return 0;
+  tw = (XmTextWidget)data->widgets[0];
+  char_size = (tw->text.char_size < 3 ?
 		   (int)tw->text.char_size :
 		   sizeof(wchar_t));
   
@@ -850,7 +859,7 @@ ReadSource(XmTextSource source,
   block->format = XmFMT_8_BIT;
   _XmStringSourceReadString(source, (int)position, block);
   
-  if (block->length > 0) {
+  if (block->length > 0 && block->ptr != NULL) {
     size_t block_bytes;
     char *new_value;
 
