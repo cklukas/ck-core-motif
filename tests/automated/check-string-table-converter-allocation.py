@@ -18,6 +18,9 @@ for needle in (
     "table[i] = XtMalloc((Cardinal)(span + 1));",
     "XtFree((char *)table[cleanup]);",
     "XtFree((char *)table[i]);",
+    "Boolean invalid_multibyte = False;",
+    "invalid_multibyte = True;",
+    "if (invalid_multibyte)",
 ):
     if needle not in block:
         raise SystemExit(f"string-table converter is missing {needle}")

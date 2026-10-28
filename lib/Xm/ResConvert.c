@@ -1540,6 +1540,7 @@ CvtStringToStringTable(
             size_t span;
             int csize;
             Boolean after_comma = False;
+            Boolean invalid_multibyte = False;
 
     if (from_val == NULL || to_val == NULL ||
         (p = from_val->addr) == NULL)
@@ -1601,11 +1602,22 @@ CvtStringToStringTable(
                 } 
 #ifndef NO_MULTIBYTE
 	    if((csize = mblen(p, MB_CUR_MAX)) < 0)
- 	      break;
+	      {
+	      invalid_multibyte = True;
+	      break;
+	      }
 #else
 	    csize = *p ? 1 : 0;
 #endif
             } 
+        if (invalid_multibyte)
+        {
+            int cleanup;
+            for (cleanup = 0; cleanup < i; ++cleanup)
+		XtFree((char *)table[cleanup]);
+            XtFree((char *)table);
+            return(False);
+        }
         if(    i == size    )
         {   
             int cleanup;

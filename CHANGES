@@ -1,3 +1,11 @@
+Reject invalid multibyte string-table input (2026-10-29)
+=========================================================
+
+- Fail `CvtStringToStringTable` when locale decoding reports an invalid
+  multibyte sequence instead of publishing a silently truncated token list.
+- Release entries already duplicated before the failure and add focused
+  Unicode conversion coverage.
+
 Make the makestrs source check safe for generic sweeps (2026-10-29)
 ====================================================================
 
