@@ -23961,3 +23961,13 @@ Regression: tests/automated/check-text-callback-conversion-width.py
 
 Make Text string allocation widths explicit (2026-10-28)
 ==========================================================
+Validate Text gap spans before conversion (2026-10-28)
+=======================================================
+
+- Validate gapped-buffer pointers and ordering before computing the byte span.
+- Reject malformed gap state before replacement pointer arithmetic.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-gap-span.py
+
+Make Text callback conversion widths explicit (2026-10-28)
+============================================================

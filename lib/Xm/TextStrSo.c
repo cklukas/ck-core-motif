@@ -105,6 +105,7 @@ static Boolean TextSourceByteOffset(XmSourceData data,
 					XmTextPosition position,
 					size_t unit,
 					size_t *offset);
+static Boolean TextSourceGapBytes(XmSourceData data, size_t *bytes);
 
 /********    End Static Function Declarations    ********/
 
@@ -143,6 +144,17 @@ TextSourceByteOffset(XmSourceData data,
 	(size_t)position > SIZE_MAX / unit)
 	return False;
     *offset = (size_t)position * unit;
+    return True;
+}
+
+static Boolean
+TextSourceGapBytes(XmSourceData data, size_t *bytes)
+{
+    if (data == NULL || data->ptr == NULL || bytes == NULL ||
+	data->gap_start == NULL || data->gap_end == NULL ||
+	data->gap_end < data->gap_start)
+	return False;
+    *bytes = (size_t)(data->gap_end - data->gap_start);
     return True;
 }
 
@@ -1239,6 +1251,8 @@ Replace(XmTextWidget initiator,
 	if (!TextSourceByteOffset(data, *end, (size_t)char_size,
 				   &end_byte_offset))
 	return EditError;
+	if (!TextSourceGapBytes(data, &gap_size))
+	return EditError;
 	removed_bytes = (size_t)(*end - *start) * (size_t)char_size;
   
   block_num_chars = _XmTextCountCharacters(block->ptr, block->length);
@@ -1373,7 +1387,6 @@ Replace(XmTextWidget initiator,
   }
   
   /* delete data */
-  gap_size = data->gap_end - data->gap_start;
   /* expand the end of the gap to the right */
   if ((data->ptr + gap_size + end_byte_offset) > data->gap_end)
     data->gap_end += removed_bytes;
