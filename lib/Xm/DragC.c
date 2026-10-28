@@ -808,13 +808,14 @@ GetClientWindow(
     unsigned long 	nitems, after;
     unsigned char 	*data = NULL;
     Window 		inf = 0;
+    int             result;
 
-    XGetWindowProperty(dpy, win, atom, 0, 0, False, AnyPropertyType,
+    result = XGetWindowProperty(dpy, win, atom, 0, 0, False, AnyPropertyType,
 		       &type, &format, &nitems, &after, &data);
     if (data)
 	XFree(data);
 
-    if (type)
+    if (result == Success && type != None)
       return win;
     else {
 	if (!XQueryTree(dpy, win, &root, &parent, &children, &nchildren) ||
