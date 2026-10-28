@@ -28125,3 +28125,10 @@ I18List pixel-row declaration (2026-10-29)
 - Remove the duplicate `pixel_y` declaration in row/column conversion so the
   I18List source compiles with conforming C compilers.
 - Add focused source-contract coverage and documentation.
+
+I18List row conversion bounds (2026-10-29)
+==========================================
+
+- Clamp calculated pixel-to-row indices through the bounded-short helper
+  instead of directly narrowing hit-test results.
+- Add focused source-contract coverage and documentation.

@@ -2759,15 +2759,15 @@ CvtPositionToRowColumn(Widget w, short x, short y, short * row, short * column)
      * or a row visible within the clip window or not visible at all
      */
     if (pixel_y < 0) {
-        *row = IN_COLUMN_HEADER +
-            (short)(pixel_y / (XmI18List_row_height(ilist) + VERTICAL_SPACE));
+        *row = bounded_short((long long)IN_COLUMN_HEADER +
+            pixel_y / (XmI18List_row_height(ilist) + VERTICAL_SPACE));
     } else if (pixel_y < (long long)(XmI18List_sep_y(ilist) + title_extra)) {
         *row = IN_COLUMN_HEADER;
     } else {
         pixel_y -= XmI18List_sep_y(ilist) + title_extra + VERTICAL_SPACE/2;
 
-        *row = XmI18List_first_row(ilist) +
-            (short)(pixel_y / (XmI18List_row_height(ilist) + VERTICAL_SPACE));
+        *row = bounded_short((long long)XmI18List_first_row(ilist) +
+            pixel_y / (XmI18List_row_height(ilist) + VERTICAL_SPACE));
     }
 
     *column = CvtPixelValToColNum((Widget) w, x);
