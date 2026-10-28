@@ -60,6 +60,32 @@ static char rcsid[] = "$XConsortium: Mrmwcrwr.c /main/14 1996/11/13 14:06:42 drk
 #include "MrmosI.h"
 #include "MrmMsgI.h"
 
+static int
+UrmCWRCallbackItemTypeSupported (MrmCode type)
+{
+  switch (type)
+    {
+    case MrmRtypeInteger:
+    case MrmRtypeHorizontalInteger:
+    case MrmRtypeVerticalInteger:
+    case MrmRtypeBoolean:
+    case MrmRtypeSingleFloat:
+    case MrmRtypeChar8:
+    case MrmRtypeAddrName:
+    case MrmRtypeTransTable:
+    case MrmRtypeKeysym:
+    case MrmRtypeCString:
+    case MrmRtypeWideCharacter:
+    case MrmRtypeFloat:
+    case MrmRtypeHorizontalFloat:
+    case MrmRtypeVerticalFloat:
+    case MrmRtypeNull:
+      return 1;
+    default:
+      return 0;
+    }
+}
+
 /*
  *
  *  TABLE OF CONTENTS
@@ -1320,6 +1346,12 @@ UrmCWRSetCallbackItem (URMResourceContextPtr	context_id,
   if ( routine == NULL || strlen(routine) <= 0 )
     return Urm__UT_Error ("UrmCWRSetCallbackItem", _MrmMMsg_0096,
 			  NULL, context_id, MrmNULL_ROUTINE) ;
+
+  /* Reject vector and unknown representations before appending the routine
+   * or changing the callback item. */
+  if (!UrmCWRCallbackItemTypeSupported (type))
+    return Urm__UT_Error ("UrmCWRSetCallbackItem", _MrmMMsg_0094,
+			  NULL, context_id, MrmBAD_ARG_TYPE) ;
 
   /* Floating-point callback values are passed by address.  Reject a
    * missing address before appending the routine name or changing the

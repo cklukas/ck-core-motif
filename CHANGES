@@ -27071,6 +27071,13 @@ Commit Mrm callback resource references atomically (2026-10-28)
   the routine and resource descriptor appends succeed.
 - Preserve the existing callback serialization for successful references.
 
+Preflight Mrm callback item types (2026-10-28)
+===============================================
+
+- Reject unsupported vector and unknown callback representations before
+  appending routine data or changing the callback item.
+- Preserve all previously supported scalar and string callback values.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
