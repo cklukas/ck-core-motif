@@ -155,7 +155,7 @@ void db_incorporate()
 
     db_open_file();
 
-    return_num_items = fread (&globals, sizeof(_db_globals), 1, dbfile);
+    return_num_items = (int)fread (&globals, sizeof(_db_globals), 1, dbfile);
     _check_read (return_num_items);
 
     /*
@@ -179,7 +179,7 @@ void db_incorporate()
 
     uil_max_arg = globals.uil_max_arg ;
     uil_max_charset = globals.uil_max_charset ;
-    charset_lang_table_max = globals.charset_lang_table_max ;
+    charset_lang_table_max = (unsigned short)globals.charset_lang_table_max ;
     uil_max_object = globals.uil_max_object ;
     uil_max_reason = globals.uil_max_reason ;
     uil_max_enumval = globals.uil_max_enumval ;
@@ -735,7 +735,7 @@ void db_read_length_and_string(header)
 /* BEGIN HaL Fix CR 5618 */
 		  if ((header->table_id == Uil_Widget_Names) &&
 		      (strcmp(table[i], "user_defined") == 0))
-		    uil_sym_user_defined_object = i;
+		    uil_sym_user_defined_object = (unsigned short)i;
 /* END HaL Fix CR 5618 */
 		string_table +=  lengths[i] + 1;
 		}

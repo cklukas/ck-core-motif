@@ -24443,3 +24443,11 @@ Bound UIL database integer tables (2026-10-29)
 - Add focused coverage and documentation.
 
 Bound UIL database character tables (2026-10-29)
+Clarify UIL database scalar widths (2026-10-29)
+================================================
+
+- Make database read counts and bounded charset/object identifiers explicit
+  at their legacy-width fields.
+- Add focused coverage and documentation.
+
+Bound UIL database integer tables (2026-10-29)
