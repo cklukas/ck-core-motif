@@ -1,3 +1,11 @@
+Make UIL value-frame narrowing explicit (2026-10-28)
+====================================================
+
+- Make compact value-frame type, flags, and charset assignments explicit at
+  their ABI-sized field boundaries, preserving valid parser values while
+  removing ambiguous implicit conversions.
+- Add focused coverage and documentation.
+
 Bound UIL include filename metadata (2026-10-28)
 =================================================
 

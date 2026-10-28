@@ -814,7 +814,7 @@ yystype	    *comma_frame;
 
 		value_save = value_entry;
 		value_entry = sem_create_value_entry (0, 0, value_type);
-		value_entry->b_type = value_type;
+		value_entry->b_type = (unsigned char)value_type;
 		value_entry->obj_header.b_flags = sym_m_private;
 		value_entry->b_expr_opr = sym_k_valref_op;
 		value_entry->az_exp_op1 = value_save;
@@ -842,7 +842,7 @@ yystype	    *comma_frame;
 		    {
 		    value_save = value_entry;
 		    value_entry = sem_create_value_entry (0, 0, value_type);
-		    value_entry->b_type = value_type;
+		    value_entry->b_type = (unsigned char)value_type;
 		    value_entry->obj_header.b_flags = sym_m_private;
 		    value_entry->b_expr_opr = sym_k_valref_op;
 		    value_entry->az_exp_op1 = value_save;
@@ -908,8 +908,8 @@ yystype	    *comma_frame;
     ** make the target frame a value frame
     */
     value_frame->b_tag = sar_k_value_frame;
-    value_frame->b_type = value_type;
-    value_frame->b_flags = value_entry->obj_header.b_flags;
+	    value_frame->b_type = (unsigned char)value_type;
+	    value_frame->b_flags = (unsigned short)value_entry->obj_header.b_flags;
     value_frame->value.az_symbol_entry = (sym_entry_type *) value_entry;
 
 }
@@ -1208,7 +1208,7 @@ yystype	    *op2_frame;
 /*    target_entry->az_source_rec = op2_frame->az_source_record; */
 
     operator_frame->b_tag = sar_k_value_frame;
-    operator_frame->b_type = target_type;
+	operator_frame->b_type = (unsigned char)target_type;
     operator_frame->b_flags = sym_m_private;
     operator_frame->value.az_symbol_entry = (sym_entry_type *) target_entry;
 
@@ -1336,7 +1336,8 @@ sym_value_entry_type	*value_entry;
 	  { if (value_entry->value.l_integer == TRUE)
 		target_frame->b_type |= sym_m_separate; 
 	    else
-		target_frame->b_type &= ~sym_m_separate; 
+		    target_frame->b_type =
+			(unsigned char)(target_frame->b_type & (unsigned char)~sym_m_separate);
 	  }
 	break;
     }
@@ -1362,8 +1363,8 @@ sym_value_entry_type	*value_entry;
 		keyword_entry = (key_keytable_entry_type *)
 		    value_frame->value.az_keyword_entry;
 		target_frame->b_tag = sar_k_token_frame;
-		target_frame->b_charset =
-		    sem_map_subclass_to_charset( keyword_entry->b_subclass );
+		    target_frame->b_charset = (unsigned char)
+			sem_map_subclass_to_charset( keyword_entry->b_subclass );
 		break;
 		}
 	    /*
@@ -1489,8 +1490,8 @@ yystype	    *keyword_frame;
 
     case sar_k_token_frame:
 	if ((attr_frame->b_charset) != 0)
-	    cstr_entry->b_charset = 
-	        sem_map_subclass_to_charset (attr_frame->b_charset);
+		cstr_entry->b_charset = (unsigned char)
+		        sem_map_subclass_to_charset (attr_frame->b_charset);
 	cstr_entry->b_direction = attr_frame->b_direction;
 	cstr_entry->b_aux_flags |= (attr_frame->b_type & sym_m_separate);
 	break;
