@@ -121,7 +121,8 @@ XpmCreateDataFromXpmImage(
     int written;
 
     if (data_return == NULL || image == NULL ||
-	image->width == 0 || image->height == 0)
+	image->width == 0 || image->height == 0 || image->cpp == 0 ||
+	image->ncolors == 0 || image->colorTable == NULL || image->data == NULL)
 	return XpmFileInvalid;
 
     *data_return = NULL;

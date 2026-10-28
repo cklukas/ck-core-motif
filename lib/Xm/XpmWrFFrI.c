@@ -113,7 +113,10 @@ XpmWriteFileFromXpmImage(
     char *dot, *s, new_name[BUFSIZ] = {0};
     int ErrorStatus;
 
-    if (image == NULL)
+
+    if (image == NULL || image->width == 0 || image->height == 0 ||
+	image->cpp == 0 || image->ncolors == 0 || image->colorTable == NULL ||
+	image->data == NULL)
 	return XpmFileInvalid;
 
     /* open file to write */

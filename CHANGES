@@ -25110,3 +25110,12 @@ Validate XPM explicit depth input (2026-10-29)
 
 Validate XPM parse-and-create inputs (2026-10-29)
 ==================================================
+Validate XPM serialization structure (2026-10-29)
+==================================================
+
+- Require complete dimensions, color counts, chars-per-pixel, color tables,
+  and pixel data in data, buffer, and file serialization paths.
+- Add focused coverage and documentation for malformed `XpmImage` inputs.
+
+Validate XPM explicit depth input (2026-10-29)
+===============================================
