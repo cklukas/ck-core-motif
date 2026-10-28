@@ -1,3 +1,10 @@
+Serialize one-row XPM images (2026-10-29)
+=========================================
+
+- Keep the empty-image fast path limited to zero height so one-row images
+  emit their pixel data instead of silently producing an incomplete XPM.
+- Add focused coverage and documentation.
+
 Free failed XPM data serialization blocks (2026-10-29)
 =======================================================
 

@@ -348,7 +348,8 @@ CreatePixels(
 	colors == NULL || ncolors == 0 || cpp == 0)
 	return 0;
 
-    if(height <= 1)
+
+    if (height == 0)
 	return 1;
 
     h = height - 1;

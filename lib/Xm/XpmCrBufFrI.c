@@ -348,7 +348,8 @@ WritePixels(
     char *s = dataptr;
     unsigned int x, y, h;
 
-    if (height <= 1)
+
+    if (height == 0)
 	return 1;
     if (dataptr == NULL || used_size == NULL || pixels == NULL ||
 	    colors == NULL || ncolors == 0 || cpp == 0)
