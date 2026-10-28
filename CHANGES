@@ -23186,6 +23186,15 @@ Preserve completion callbacks under snapshot allocation failure (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-done-proc-allocation-fallback.py
 
+Finalize zero-request transfers after unlocking (2026-10-28)
+==============================================================
+
+- Release the application lock before finalizing a failed zero-request drop.
+- Keep completion callbacks reentrant without changing transfer status or
+  drop-transfer bookkeeping.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-transfer-done-unlocks-before-finish.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

@@ -1743,6 +1743,7 @@ void
 XmTransferDone(XtPointer transfer_id, XmTransferStatus status)
 {
   TransferContext tc = (TransferContext) transfer_id;
+  Boolean finish_after_unlock = False;
   if (tc == NULL || tc->widget == NULL)
     return;
   Atom MOTIF_DROP = XInternAtom(XtDisplay(tc -> widget), XmS_MOTIF_DROP, False);
@@ -1780,7 +1781,7 @@ XmTransferDone(XtPointer transfer_id, XmTransferStatus status)
 	   data is normally freed, won't be called */
 	if (tc -> count == 0 &&
 	    tc -> flags & TC_EXITED_DH ) {
-	  FinishTransfer(tc -> widget, tc);
+	  finish_after_unlock = True;
 	}
       }
     }
@@ -1798,6 +1799,8 @@ XmTransferDone(XtPointer transfer_id, XmTransferStatus status)
       }
     }
   _XmAppUnlock(app);
+  if (finish_after_unlock)
+    FinishTransfer(tc -> widget, tc);
 }
 
 /************************************************************************/
