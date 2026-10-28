@@ -8,8 +8,8 @@ end = source.index("\nvoid\n_XmTextValidate", start)
 region = source[start:end]
 
 assert "char *new_value;" in region
-assert "new_value = (char *)XtMalloc(block_bytes);" in region
-assert "new_value = (char *)XtRealloc(data->value, block_bytes);" in region
+assert "new_value = (char *)XtMalloc((Cardinal)block_bytes);" in region
+assert "new_value = (char *)XtRealloc(data->value, (Cardinal)block_bytes);" in region
 assert region.count("if (new_value == NULL)") == 2
 assert region.count("return 0;") >= 4
 assert "data->value = new_value;" in region
