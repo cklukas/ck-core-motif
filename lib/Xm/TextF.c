@@ -10195,6 +10195,14 @@ PreeditDraw(XIC xic,
                    (size_t)insert_length * sizeof(wchar_t));
         }
         wc[insert_length] = (wchar_t) '\0';
+        } else {
+            wc = (wchar_t *)XtMalloc((Cardinal)sizeof(wchar_t));
+            if (wc == NULL) {
+                XtFree((char *)over_wc);
+                _XmTextFieldDrawInsertionPoint(tf, True);
+                return;
+            }
+            wc[0] = (wchar_t)'\0';
         }
 
         if (tf->text.overstrike && rest_len){

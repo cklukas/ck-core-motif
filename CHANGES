@@ -26521,3 +26521,9 @@ Guard TextField preedit length narrowing (2026-10-29)
 
 - Keep the reset preedit byte length in `size_t` until it passes the input
   limit, then narrow it to the legacy `int` insertion count.
+
+Guard empty TextField preedit overstrike (2026-10-29)
+=======================================================
+
+- Provide an owned empty wide buffer when an XIM draw callback has no text
+  payload but recovery data still needs to be appended.
