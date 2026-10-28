@@ -1,7 +1,8 @@
 from pathlib import Path
 import os
 
-source = Path(os.environ["MOTIF_SOURCE"])
+source = Path(os.environ.get(
+    "MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "Mrmhier.c"))
 text = source.read_text()
 reg_start = text.index("Urm__RegisterNamesInHierarchy (MrmHierarchy")
 reg_end = text.index("Urm__LookupNameInHierarchy (MrmHierarchy", reg_start)
