@@ -57,6 +57,11 @@ static XmString copy_string(XmString source) {
 static Dimension dimension(unsigned long value) {
     return (Dimension)(value > USHRT_MAX ? USHRT_MAX : value ? value : 1);
 }
+static Position position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
 static void preferred(Widget child, Dimension *width, Dimension *height) {
     XtWidgetGeometry wanted; wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted);
     *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width;
@@ -86,11 +91,13 @@ static void layout(XmFormSectionWidget section) {
     section->section.laying_out = True;
     preferred(section->section.header, &hw, &hh); preferred(section->section.content, &cw, &ch);
     if (footer) preferred(section->section.footer, &fw, &fh);
-    x = (Position)section->section.margin_width;
+    x = position(section->section.margin_width);
     width = dimension(section->core.width > 2UL * section->section.margin_width
                          ? section->core.width - 2UL * section->section.margin_width : 1);
-    XmeConfigureObject(section->section.header, x, (Position)section->section.margin_height, width, hh, 0);
-    y = (Position)(section->section.margin_height + hh + section->section.spacing);
+    XmeConfigureObject(section->section.header, x,
+                       position(section->section.margin_height), width, hh, 0);
+    y = position((long long)section->section.margin_height + hh +
+                 section->section.spacing);
     content_height = dimension(section->core.height > (unsigned long)y + section->section.margin_height +
                                            (footer ? fh + section->section.spacing : 0)
                                        ? section->core.height - y - section->section.margin_height -
@@ -98,7 +105,7 @@ static void layout(XmFormSectionWidget section) {
                                        : ch);
     XmeConfigureObject(section->section.content, x, y, width, content_height, 0);
     if (footer) {
-        y = (Position)(y + content_height + section->section.spacing);
+        y = position((long long)y + content_height + section->section.spacing);
         XtSetMappedWhenManaged(section->section.footer, True);
         XmeConfigureObject(section->section.footer, x, y, width, fh, 0);
     } else XtSetMappedWhenManaged(section->section.footer, False);

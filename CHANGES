@@ -28090,3 +28090,10 @@ Separator coordinate bounds (2026-10-29)
 - Clamp `XmeDrawSeparator` centers and line endpoints to the X11 signed
   coordinate range instead of allowing oversized geometry to wrap.
 - Add focused source-contract coverage and documentation.
+
+FormSection position bounds (2026-10-29)
+========================================
+
+- Clamp header, content, and footer layout origins to the signed `Position`
+  range instead of allowing large margins or child sizes to wrap.
+- Add focused source-contract coverage and documentation.
