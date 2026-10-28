@@ -644,6 +644,13 @@ DropTransferSelectionCB(
 	(*(dtp->transfer_callback)) 
 		((Widget)dt, tl->transfer_list[dtp->cur_xfer].client_data,
 			selection, type, value, length, format);
+	/*
+	 * The application callback is allowed to destroy the transfer object.
+	 * Xt marks a destroyed widget before deferring its final teardown; do
+	 * not inspect or advance its transfer state after that callback.
+	 */
+	if (dt->object.being_destroyed)
+	    return;
 
        /* The transfer list needs to be reassigned at this point in case
 	* an XmDropTransferAdd() was called in the callback.

@@ -1,3 +1,11 @@
+Guard drop-transfer callbacks that destroy their transfer object (2026-10-29)
+==============================================================================
+
+- Stop the selection dispatcher after an application callback marks its
+  transfer object for destruction, avoiding post-callback state access.
+- Add focused callback-destruction regression coverage while preserving normal
+  transfer progression.
+
 Bound DragBS atom-table reader allocation (2026-10-29)
 =======================================================
 
