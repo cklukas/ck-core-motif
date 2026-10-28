@@ -375,7 +375,7 @@ IncludeCommand (
   /*
    * check data to make sure somethings there.
    */
-  if ((data == NULL) || (len == 0))
+  if ((data == NULL) || (len < (unsigned long)(4 * sizeof(CARD32))))
     {
       PRINT("Bad data passed to IncludeCommand.\n");
       return;
@@ -389,6 +389,12 @@ IncludeCommand (
   if (count == 0)
     {
       PRINT("No windows supplied for IncludeCommand.\n");
+      return;
+    }
+  if ((unsigned long)count >
+      (len - (unsigned long)(4 * sizeof(CARD32))) / sizeof(CARD32))
+    {
+      PRINT("Truncated window list passed to IncludeCommand.\n");
       return;
     }
   if ((size_t) count > SIZE_MAX / sizeof(Window) ||

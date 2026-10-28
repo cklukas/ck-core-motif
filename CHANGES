@@ -26917,3 +26917,10 @@ Harden MWM command character classification (2026-10-28)
 
 - Cast client-command bytes to `unsigned char` before `isalnum`, avoiding
   signed-char undefined behavior in localized menu/resource input.
+
+Validate MWM IncludeCommand message lengths (2026-10-28)
+==========================================================
+
+- Reject truncated IncludeCommand IPC messages before unpacking their
+  count-driven window list.
+- Preserve complete message handling while preventing out-of-bounds reads.
