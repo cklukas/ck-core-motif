@@ -24674,3 +24674,10 @@ Validate XPM pixel token widths (2026-10-29)
 - Copy valid tokens exactly instead of allowing uninitialized `strncpy`
   padding.
 - Add focused coverage and documentation.
+
+Validate XPM color-table writes (2026-10-29)
+=============================================
+
+- Validate the color table and primary tokens before serialization and
+  propagate color-write status to the top-level file writer.
+- Add focused coverage and documentation.
