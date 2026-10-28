@@ -23396,6 +23396,14 @@ Reject truncated color-cache properties (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-color-cache-property-complete.py
 
+Validate clipboard header invariants (2026-10-28)
+====================================================
+
+- Reject zero/inconsistent item capacities and counts.
+- Require the clipboard item-list offset to follow the fixed header record.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-header-invariants.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

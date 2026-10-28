@@ -1652,11 +1652,13 @@ ClipboardHeaderRecordValid(
     unsigned long list_offset;
 
     if (header == NULL || length < sizeof(ClipboardHeaderRec) ||
+	header->maxItems == 0 || header->currItems > header->maxItems ||
 	header->dataItemList > ULONG_MAX / CONVERT_32_FACTOR)
 	return False;
 
     list_offset = header->dataItemList * CONVERT_32_FACTOR;
-    if (list_offset > length ||
+
+    if (list_offset < sizeof(ClipboardHeaderRec) || list_offset > length ||
 	header->currItems > (length - list_offset) / sizeof(itemId))
 	return False;
 
