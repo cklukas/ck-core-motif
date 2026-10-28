@@ -389,7 +389,7 @@ UrmPlistAppendString (URMPointerListPtr		list_id ,
 				  NULL, NULL, MrmFAILURE) ;
 
   stg_len = strlen(stg);
-  if (stg_len == SIZE_MAX)
+  if (stg_len == SIZE_MAX || stg_len >= (size_t)UINT_MAX)
     return Urm__UT_Error ("UrmPlistAppendString", _MrmMMsg_0049,
 			      NULL, NULL, MrmFAILURE) ;
 

@@ -11,7 +11,7 @@ end = text.index("\n}\n", start)
 region = text[start:end]
 for needle in (
     "stg_len = strlen(stg);",
-    "stg_len == SIZE_MAX",
+    "stg_len == SIZE_MAX || stg_len >= (size_t)UINT_MAX",
     "XtMalloc (stg_len + 1)",
     "memcpy (newstg, stg, stg_len + 1)",
 ):
