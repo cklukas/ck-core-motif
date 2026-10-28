@@ -1,3 +1,10 @@
+Ignore queued drop results during teardown (2026-10-29)
+=========================================================
+
+- Release a queued selection buffer and return when Xt has already begun
+  destroying the drop-transfer object.
+- Preserve normal callback delivery and add focused late-callback coverage.
+
 Make native feature probe sweep-safe (2026-10-29)
 =================================================
 

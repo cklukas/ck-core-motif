@@ -638,6 +638,11 @@ DropTransferSelectionCB(
 	if (client_data == NULL)
 	    return;
 	dt = (XmDropTransferObject) client_data;
+	/* Xt may deliver a queued selection result after destruction started. */
+	if (dt->object.being_destroyed) {
+	    XtFree((char *)value);
+	    return;
+	}
 	dtp = (XmDropTransferPart *) &(dt->dropTransfer);
 	if (selection == NULL || *selection == None || type == NULL || length == NULL ||
 	    format == NULL || dtp->transfer_callback == NULL ||
