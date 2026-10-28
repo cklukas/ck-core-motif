@@ -752,7 +752,7 @@ xpmParseData(
 				 &extensions);
     if (ErrorStatus != XpmSuccess)
 	return (ErrorStatus);
-    if (width == 0 || height == 0)
+    if (width == 0 || height == 0 || ncolors == 0 || cpp == 0)
 	return XpmFileInvalid;
 
     /*

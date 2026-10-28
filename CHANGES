@@ -1,3 +1,10 @@
+Reject incomplete parsed XPM geometry (2026-10-29)
+====================================================
+
+- Require positive width, height, color count, and chars-per-pixel values
+  before parsed XPM allocation and pixel processing.
+- Add focused coverage and documentation.
+
 Reject zero-dimension parsed XPM images (2026-10-29)
 =====================================================
 
