@@ -8,9 +8,9 @@ end = source.index("int \nXmClipboardInquireLength(", start)
 body = source[start:end]
 external = body[body.index("if ( !ClipboardGetSelection"):body.index("if ( ptr != 0 )")]
 
-assert "if ( loc_matchlength >= n )" in external
+assert "if ( loc_matchlength >= (unsigned long)n )" in external
 release = external.index("XtFree( (char *) alloc_to_free );")
-assert release > external.index("if ( loc_matchlength >= n )")
+assert release > external.index("if ( loc_matchlength >= (unsigned long)n )")
 assert release > external.rindex("}") - 80
 
 print("Clipboard format inquiry releases external TARGETS buffers")
