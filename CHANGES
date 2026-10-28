@@ -28468,3 +28468,5 @@ List drag selection bounds (2026-10-28)
   and the new color-table NULL guard (2026-10-28).
 * Refreshed the MWM invoke-command contract check for its current bounded
   unsigned parser and trailing-input rejection (2026-10-28).
+* Made the Notebook geometry contract check runnable without an external
+  source-path argument by defaulting to the checkout implementation (2026-10-28).
