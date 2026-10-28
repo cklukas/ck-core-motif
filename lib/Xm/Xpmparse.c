@@ -578,6 +578,8 @@ xpmParseExtensions(
 
     xpmNextString(data);
     exts = (XpmExtension *) XpmMalloc(sizeof(XpmExtension));
+    if (exts == NULL)
+	return (XpmNoMemory);
     /* get the whole string */
     status = xpmGetString(data, &string, &l);
     if (status != XpmSuccess) {
@@ -599,8 +601,14 @@ xpmParseExtensions(
 	notend = strncmp("XPMENDEXT", string, 9);
     while (!notstart && notend) {
 	/* there starts an extension */
+	if (num == UINT_MAX ||
+	    (size_t)(num + 1) > (size_t)UINT_MAX / sizeof(XpmExtension)) {
+	    XpmFree(string);
+	    XpmFreeExtensions(exts, num);
+	    return (XpmNoMemory);
+	}
 	ext = (XpmExtension *)
-	    XpmRealloc(exts, (num + 1) * sizeof(XpmExtension)); /* can the loop be forced to iterate often enough to make "(num + 1) * sizeof(XpmExtension)" wrapping? */
+	    XpmRealloc(exts, (num + 1) * sizeof(XpmExtension));
 	if (!ext) {
 	    XpmFree(string);
 	    XpmFreeExtensions(exts, num);
@@ -645,8 +653,15 @@ xpmParseExtensions(
 	nlines = 0;
 	while ((notstart = strncmp("XPMEXT", string, 6))
 	       && (notend = strncmp("XPMENDEXT", string, 9))) {
+	    if (nlines == UINT_MAX ||
+		(size_t)(nlines + 1) > (size_t)UINT_MAX / sizeof(char *)) {
+		XpmFree(string);
+		ext->nlines = nlines;
+		XpmFreeExtensions(exts, num + 1);
+		return (XpmNoMemory);
+	    }
 	    sp = (char **)
-		XpmRealloc(ext->lines, (nlines + 1) * sizeof(char *)); /* can we iterate enough for a wrapping? */
+		XpmRealloc(ext->lines, (nlines + 1) * sizeof(char *));
 	    if (!sp) {
 		XpmFree(string);
 		ext->nlines = nlines;

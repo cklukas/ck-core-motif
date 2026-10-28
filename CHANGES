@@ -1,3 +1,10 @@
+Bound XPM extension-array growth (2026-10-29)
+==============================================
+
+- Check extension and line count multiplication before `XpmRealloc`.
+- Report initial extension-array allocation failure explicitly.
+- Add focused coverage and documentation.
+
 Terminate parsed XPM extension names (2026-10-29)
 =================================================
 
