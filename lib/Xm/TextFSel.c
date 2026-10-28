@@ -589,7 +589,7 @@ _XmTextFieldConvert(
       targs[target_count] = atoms[XmADELETE]; target_count++;
     }
     *type = XA_ATOM;
-    *length = target_count;
+    *length = (unsigned long)target_count;
     *format = 32;
   } else if (*target == atoms[XmATIMESTAMP]) {
     Time *timestamp;
@@ -1080,8 +1080,8 @@ DropTransferProc(Widget w, XtPointer closure,
         insertPosRight = tf->text.prim_pos_right;
   }
   
-  transfer_rec->num_chars = _XmTextFieldCountCharacters(tf, total_value, 
-							total_length);
+  transfer_rec->num_chars = _XmTextFieldCountCharacters(tf, total_value,
+                                                        (int)total_length);
   
   _XmTextFieldDrawInsertionPoint(tf, False);
   
@@ -1096,7 +1096,7 @@ DropTransferProc(Widget w, XtPointer closure,
 				      (int)total_length, False);
   } else {
     wc_total_length = _XmTextFieldCountCharacters(tf, total_value,
-                                                  total_length);
+                                                  (int)total_length);
     if (wc_total_length < 0 || wc_total_length == INT_MAX ||
         (unsigned long)wc_total_length >
         (unsigned long)UINT_MAX / sizeof(wchar_t) - 1) {
@@ -1112,8 +1112,9 @@ DropTransferProc(Widget w, XtPointer closure,
       _XmTextFieldDrawInsertionPoint(tf, True);
       return;
     }
-    wc_total_value = (wchar_t*)XtMalloc((unsigned)
-					(wc_total_length+1) * sizeof(wchar_t));
+    wc_total_value = (wchar_t*)XtMalloc((Cardinal)
+                                        ((size_t)(wc_total_length + 1) *
+                                         sizeof(wchar_t)));
     if (wc_total_value == NULL) {
       if (transfer_rec->move && local)
         TextF_MaxLength(tf) = max_length;
@@ -1127,7 +1128,8 @@ DropTransferProc(Widget w, XtPointer closure,
       _XmTextFieldDrawInsertionPoint(tf, True);
       return;
     }
-    wc_total_length = mbstowcs(wc_total_value, total_value, wc_total_length+1);
+    wc_total_length = (int)mbstowcs(wc_total_value, total_value,
+                                    (size_t)wc_total_length + 1);
     if (wc_total_length > 0)
       replace = _XmTextFieldReplaceText(tf, ds->event, insertPosLeft, 
 					insertPosRight, (char *)wc_total_value,
@@ -1302,8 +1304,19 @@ DoStuff(Widget w,
 			       NULL))
 	  != NULL) {
 	if (tf->text.max_char_size == 1) {
+	  size_t total_len = strlen(total_value);
+	  if (total_len > (size_t)INT_MAX) {
+	    XtFree(total_value);
+	    if (ds->value) {
+	      XtFree((char *)ds->value);
+	      ds->value = NULL;
+	    }
+	    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+	    _XmTextFieldDrawInsertionPoint(tf, True);
+	    return;
+	  }
 	  _XmProcessLock();
-	  prim_select->num_chars = strlen(total_value);
+	  prim_select->num_chars = (int)total_len;
 	  replace_res = 
 	    _XmTextFieldReplaceText (tf, ds->event, 
 				     replace_from,
@@ -1328,7 +1341,8 @@ DoStuff(Widget w,
 	    wc_value = (wchar_t*)XtMalloc((unsigned)tmp_len * sizeof(wchar_t));
 	  }
 	  if (wc_value != NULL) {
-	    prim_select->num_chars = mbstowcs(wc_value, total_value, tmp_len);
+	    prim_select->num_chars = (int)mbstowcs(wc_value, total_value,
+	                                           (size_t)tmp_len);
 	    if (prim_select->num_chars < 0)
 	      prim_select->num_chars = 0;
 	    else
@@ -1395,8 +1409,8 @@ DoStuff(Widget w,
 	}
 	_XmProcessLock();
 
-	prim_select->num_chars = mbstowcs(wc_value, (char *) temp,
-					  (size_t) ds->length+1);
+	prim_select->num_chars = (int)mbstowcs(wc_value, (char *) temp,
+					       (size_t) ds->length + 1);
 
 	if (prim_select->num_chars < 0) 
 	  prim_select->num_chars = 0;
@@ -1848,7 +1862,7 @@ TextFieldConvertCallback(Widget w,
       targs[n] = XA_CS_OF_ENCODING; n++;
     }
     format = 32;
-    size = n;
+    size = (unsigned long)n;
     type = XA_ATOM;
   }
 

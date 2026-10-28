@@ -25213,3 +25213,12 @@ Validate XPM bitmap format input (2026-10-29)
 
 Validate XPM serialization structure (2026-10-29)
 ==================================================
+
+Bound TextField locale-expanded transfer length (2026-10-29)
+==============================================================
+
+- Reject locale-expanded drop text whose byte length cannot be represented by
+  the TextField selection record's `int` count before insertion.
+- Make the wide drop-transfer allocation and `mbstowcs` length conversions
+  explicit after their existing bounds checks.
+- Add focused source coverage and documentation for the safe failure path.
