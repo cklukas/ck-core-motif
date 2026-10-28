@@ -28373,3 +28373,5 @@ List drag selection bounds (2026-10-28)
   instead of silently succeeding with an empty result (2026-10-28).
 * DataField picture verification now bounds the generated callback text length
   before converting it to the callback's integer field (2026-10-28).
+* DataField picture verification now handles a failed generated-string
+  allocation without dereferencing a null result (2026-10-28).

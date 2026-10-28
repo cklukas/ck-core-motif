@@ -1629,6 +1629,13 @@ PictureVerifyCallback(
     } else {
 	changed = XmPictureGetCurrentString(ps);
     }
+	if (changed == NULL) {
+	    cbs->doit = False;
+	    XtFree(newptr);
+	    XtFree(curr);
+	    XmPictureDeleteState(ps);
+	    return;
+	}
 
     /*
      * Now the hard part:  we may have been auto-filled, so we have to
