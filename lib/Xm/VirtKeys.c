@@ -915,14 +915,15 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
       firsttime = 1;
 
       while (fgets(line, sizeof(line), fileP) != NULL) {
+	size_t line_length = strlen(line);
 
 	/* handle '!' comments; they can extend across mutliple reads */
 	if (skip) {
-	  if (line[strlen(line) - 1] == '\n') skip = False;
+	  if (line_length != 0 && line[line_length - 1] == '\n') skip = False;
 	  continue;
 	}
 	if (line[0] == '!') {
-	  if (line[strlen(line) - 1] == '\n') continue;
+	  if (line_length != 0 && line[line_length - 1] == '\n') continue;
 	  else {
 	    skip = True;
 	    continue;
@@ -931,7 +932,6 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
 
 	/* Keep one byte for the terminating NUL and grow until the whole line fits. */
 	{
-	  size_t line_length = strlen(line);
 	  size_t required;
 
 	  if (line_length > SIZE_MAX - count - 1) {

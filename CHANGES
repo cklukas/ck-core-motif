@@ -28219,6 +28219,13 @@ Calendar month bounds (2026-10-28)
 - Validate month values before indexing Calendar’s fixed month-length and
   month-name tables. See `docs/calendar-month-bounds.md`.
 
+Virtual-key empty-line bounds (2026-10-28)
+==========================================
+
+- Guard comment-line terminator checks against empty input chunks so virtual
+  key resource parsing cannot index before the line buffer. See
+  `docs/virtkeys-empty-line-bounds.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
