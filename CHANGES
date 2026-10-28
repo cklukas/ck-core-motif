@@ -1,3 +1,11 @@
+Propagate XPM pixmap-import failures (2026-10-29)
+==================================================
+
+- Report geometry and image-fetch failures from the internal pixmap importer.
+- Make data, buffer, file, and direct-image conversions clean up partial image
+  pairs and return the existing `XpmFileInvalid` status.
+- Add focused coverage and documentation.
+
 Propagate XPM create comment allocation failures (2026-10-29)
 ===============================================================
 

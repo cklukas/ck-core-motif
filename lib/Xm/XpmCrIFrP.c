@@ -37,7 +37,7 @@
 #endif
 #include "XpmI.h"
 
-void
+int
 xpmCreateImageFromPixmap(
     Display		 *display,
     Pixmap		  pixmap,
@@ -49,10 +49,21 @@ xpmCreateImageFromPixmap(
     int dummy;
     Window win;
 
-    if (*width == 0 && *height == 0)
-	XGetGeometry(display, pixmap, &win, &dummy, &dummy,
-		     width, height, &dum, &dum);
+    if (display == NULL || pixmap == 0 || ximage_return == NULL ||
+	width == NULL || height == NULL)
+	return XpmFileInvalid;
+
+    *ximage_return = NULL;
+
+    if (*width == 0 && *height == 0 &&
+	!XGetGeometry(display, pixmap, &win, &dummy, &dummy,
+		      width, height, &dum, &dum))
+	return XpmFileInvalid;
+
+    if (*width == 0 || *height == 0)
+	return XpmFileInvalid;
 
     *ximage_return = XGetImage(display, pixmap, 0, 0, *width, *height,
 			       AllPlanes, ZPixmap);
+    return *ximage_return == NULL ? XpmFileInvalid : XpmSuccess;
 }

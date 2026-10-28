@@ -61,11 +61,12 @@ XpmCreateBufferFromPixmap(
 	height = attributes->height;
     }
     /* get the ximages */
-    if (pixmap)
-	xpmCreateImageFromPixmap(display, pixmap, &ximage, &width, &height);
-    if (shapemask)
-	xpmCreateImageFromPixmap(display, shapemask, &shapeimage,
-				 &width, &height);
+    if (pixmap && (ErrorStatus = xpmCreateImageFromPixmap(
+		display, pixmap, &ximage, &width, &height)) != XpmSuccess)
+	goto cleanup;
+    if (shapemask && (ErrorStatus = xpmCreateImageFromPixmap(
+		display, shapemask, &shapeimage, &width, &height)) != XpmSuccess)
+	goto cleanup;
 
     /* create the buffer */
     ErrorStatus = XpmCreateBufferFromImage(display, buffer_return, ximage,
@@ -77,5 +78,12 @@ XpmCreateBufferFromPixmap(
     if (shapeimage)
 	XDestroyImage(shapeimage);
 
+    return (ErrorStatus);
+
+cleanup:
+    if (ximage)
+	XDestroyImage(ximage);
+    if (shapeimage)
+	XDestroyImage(shapeimage);
     return (ErrorStatus);
 }

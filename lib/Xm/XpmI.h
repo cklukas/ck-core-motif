@@ -268,7 +268,7 @@ FUNC(xpmSetAttributes, void, (XpmAttributes *attributes, XpmImage *image,
 FUNC(xpmCreatePixmapFromImage, void, (Display *display, Drawable d,
 				      XImage *ximage, Pixmap *pixmap_return));
 
-FUNC(xpmCreateImageFromPixmap, void, (Display *display, Pixmap pixmap,
+FUNC(xpmCreateImageFromPixmap, int, (Display *display, Pixmap pixmap,
 				      XImage **ximage_return,
 				      unsigned int *width,
 				      unsigned int *height));
