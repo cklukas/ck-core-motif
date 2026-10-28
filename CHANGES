@@ -1,3 +1,10 @@
+Reject zero-dimension XPM data before table setup (2026-10-29)
+===============================================================
+
+- Validate image dimensions at `XpmCreateDataFromXpmImage` entry so a zero-
+  height image cannot reach the header-pointer copy and overrun its table.
+- Add focused coverage and documentation.
+
 Reject zero-dimension XPM pixel output (2026-10-29)
 ===================================================
 

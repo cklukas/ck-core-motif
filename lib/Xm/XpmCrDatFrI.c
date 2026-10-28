@@ -120,7 +120,8 @@ XpmCreateDataFromXpmImage(
     unsigned int offset, l, n;
     int written;
 
-    if (data_return == NULL || image == NULL)
+    if (data_return == NULL || image == NULL ||
+	image->width == 0 || image->height == 0)
 	return XpmFileInvalid;
 
     *data_return = NULL;
