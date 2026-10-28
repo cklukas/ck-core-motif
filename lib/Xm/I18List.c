@@ -2628,7 +2628,7 @@ CvtPixelValToColNum(Widget w, short x)
 {
     XmI18ListWidget ilist = (XmI18ListWidget) w;
     register int i=0;
-    short cur_col;
+    long long cur_col;
 
     /*
      * Sum up the widest pixel values in each column
@@ -2642,13 +2642,13 @@ CvtPixelValToColNum(Widget w, short x)
 	if (LayoutIsRtoLP(w))
 	{
             cur_col -= XmI18List_column_widths(ilist)[i] + HORIZONTAL_SPACE;
-            if (cur_col < x)
+            if (cur_col < (long long)x)
                 break;
 	}
 	else
 	{
             cur_col += XmI18List_column_widths(ilist)[i] + HORIZONTAL_SPACE;
-            if (cur_col > x)
+            if (cur_col > (long long)x)
                 break;
 	}
     }

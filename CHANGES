@@ -1,3 +1,10 @@
+Use wide I18List pixel hit-test accumulation (2026-10-29)
+===========================================================
+
+- Accumulate pixel-to-column hit-test positions in `long long` so wide lists
+  cannot wrap the traversal coordinate.
+- Add focused source-contract coverage.
+
 Bound I18List column pixel offsets (2026-10-29)
 ================================================
 
