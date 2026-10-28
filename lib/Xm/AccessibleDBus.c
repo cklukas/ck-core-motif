@@ -1224,7 +1224,7 @@ Boolean _XmAccessibilityTransportKey(XmAccessibility *a, const XKeyEvent *event,
   DBusMessage *call = NULL, *reply = NULL;
   DBusPendingCall *pending = NULL;
   DBusMessageIter out, item;
-  dbus_uint32_t type, stamp_bits;
+  dbus_uint32_t type, symbol_bits, stamp_bits;
   dbus_int32_t identity, hardware, modifiers, stamp;
   dbus_bool_t printable = is_text, consumed = FALSE;
   uint64_t deadline, now;
@@ -1236,7 +1236,8 @@ Boolean _XmAccessibilityTransportKey(XmAccessibility *a, const XKeyEvent *event,
   deadline = now + 500;
   t->key_pending = True;
   type = event->type == KeyPress ? 0 : 1;
-  identity = (dbus_int32_t)symbol;
+  symbol_bits = (dbus_uint32_t)symbol;
+  memcpy(&identity, &symbol_bits, sizeof(identity));
   /* Registry input and listener output are asymmetric: registryd's actual
    * device-event parser accepts signed 32-bit hardware/modifier fields, even
    * though its introspection and listener marshaller advertise unsigned ones.
