@@ -26272,3 +26272,10 @@ Reject oversized UIL lexer strings before assembly (2026-10-29)
   segment to the signed string length.
 - Stop token construction when string-node allocation fails instead of
   dereferencing a null semantic value.
+Propagate UIL compound-string allocation failures (2026-10-29)
+================================================================
+
+- Check compound-string and component-string construction in mixed lexer
+  paths before copying or appending their payloads.
+- Check localized-string length accumulation before signed arithmetic and
+  reject failed compound-string node creation centrally.

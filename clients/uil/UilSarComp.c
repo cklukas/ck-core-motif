@@ -144,6 +144,9 @@ sym_value_entry_type 	*sem_create_cstr()
 			( sym_k_value_entry,
                           sym_k_value_entry_size + sizeof( char * ) );
 
+    if (az_cstr_entry == NULL)
+	return NULL;
+
     az_cstr_entry->obj_header.b_flags = sym_m_builtin | sym_m_private;
     az_cstr_entry->b_type = sym_k_compound_string_value;
     az_cstr_entry->w_length = sizeof (char *);

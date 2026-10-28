@@ -1816,6 +1816,8 @@ found_primitive_string:
 	    */
 
 	    cstr_entry = sem_create_cstr();
+	if (cstr_entry == NULL)
+	    return 0;
 
 	    for ( a_off = 0,
 		  off = 0;
@@ -1838,6 +1840,8 @@ found_primitive_string:
 			( off - a_off,
 			 uil_sym_isolatin1_charset,
 			 az_charset_entry );
+		    if (str_entry == NULL)
+			return 0;
 
 		    _move( str_entry->value.c_value,
 			   &az_current_lex_buffer->c_text[ a_off ],
@@ -1858,6 +1862,8 @@ found_primitive_string:
 		{
 		    str_entry = 
 			create_str_entry( a_off - off, l_charset, az_charset_entry );
+		    if (str_entry == NULL)
+			return 0;
 
 		    _move( str_entry->value.c_value,
 			   &az_current_lex_buffer->c_text[ off ],
@@ -1886,10 +1892,16 @@ found_primitive_string:
       for (az_lex_buffer = az_first_lex_buffer;  
 	   az_lex_buffer != az_current_lex_buffer;  
 	   az_lex_buffer = az_lex_buffer->az_next_buffer)
+	{
+	if (l_length > INT_MAX - (l_max_lex_buffer_pos + 1))
+	    return 0;
 	l_length = l_length + l_max_lex_buffer_pos + 1;
+	}
 
       str_entry = create_str_entry(l_length, lex_k_fontlist_default_tag, 
 				  az_charset_entry );
+	  if (str_entry == NULL)
+	      return 0;
 
       c_char = (unsigned char *)str_entry->value.c_value;
 
