@@ -2086,6 +2086,9 @@ char ** str;
 	return(FALSE);
     }
 
+    if ((size_t)len >= (size_t)UINT_MAX)
+	return(FALSE);
+
     *str = XtMalloc(sizeof(char) * (len + 1));
 
     if (*str == NULL)

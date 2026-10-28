@@ -17729,6 +17729,13 @@ Editres payload allocation guards (2026-10-25)
   data, preserving the existing parse-failure cleanup path; see
   `docs/editres-payload-allocation.md`.
 
+Editres wire-string Cardinal bound (2026-10-28)
+===============================================
+
+- Reject a terminator-inclusive wire-string size that cannot fit Xt's
+  `Cardinal` allocator width before allocating the decoded payload.
+- Extend the focused Editres payload regression and documentation.
+
 Legacy charset canonicalization allocation guards (2026-10-25)
 ===============================================================
 

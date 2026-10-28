@@ -9,6 +9,7 @@ string_region = source[string_start:widget_start]
 widget_region = source[widget_start:source.index("#endif", widget_start)]
 
 assert "*str = XtMalloc" in string_region
+assert "if ((size_t)len >= (size_t)UINT_MAX)" in string_region
 assert "if (*str == NULL)" in string_region
 assert "return(FALSE);" in string_region
 assert "if (info->ids == NULL && info->num_widgets != 0)" in widget_region
