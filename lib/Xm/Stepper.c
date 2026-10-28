@@ -156,6 +156,7 @@ static void step(XmStepperWidget s, int direction, Boolean notify_change, XEvent
 static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch) {
     XmStepperWidget s = (XmStepperWidget)widget; KeySym key; char buf[4]; int len;
     (void)data; (void)dispatch;
+    if (s == NULL || event == NULL || !XmIsStepper(widget)) return;
     if (event->type == ButtonPress) { step(s, event->xbutton.x < (int)s->core.width - 28 ? 1 : (event->xbutton.y < (int)s->core.height / 2 ? 1 : -1), True, event); return; }
     if (event->type != KeyPress) return;
     len = XLookupString(&event->xkey, buf, sizeof(buf), &key, NULL);
