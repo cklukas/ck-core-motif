@@ -1033,13 +1033,21 @@ if (( expected_type == sym_k_keysym_value ) &&
     if ( (argvalue_value_entry->obj_header.b_flags & sym_m_private) != 0)
 	{
 	unsigned char tmp;
+	char *keysym_value;
 
 	if (argument_entry->az_arg_value->value.l_integer >= 0 &&
 	    argument_entry->az_arg_value->value.l_integer <= UCHAR_MAX)
 	    {
-	valid_value = TRUE;
 	tmp = (unsigned char)argument_entry->az_arg_value->value.l_integer;
-	argument_entry->az_arg_value->value.c_value = (char *) XtCalloc(1,2);
+	keysym_value = (char *) XtCalloc(1,2);
+	if (keysym_value == NULL)
+	    {
+	    XtError ("unable to allocate UIL keysym value");
+	    }
+	else
+	    {
+	valid_value = TRUE;
+	argument_entry->az_arg_value->value.c_value = keysym_value;
 	/* 
 	 * This is a very strange move. While we Calloc 2 bytes we only need to move
 	 * one of those bytes. We calloc 2 bytes for a null termination so HP type 
@@ -1048,6 +1056,7 @@ if (( expected_type == sym_k_keysym_value ) &&
 	_move (argument_entry->az_arg_value->value.c_value, &tmp, 1);
 	argument_entry->az_arg_value->b_type = sym_k_keysym_value;
 	argument_entry->az_arg_value->w_length = 1;
+	    }
 	    }
 	}
     }

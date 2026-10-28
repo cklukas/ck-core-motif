@@ -26399,3 +26399,11 @@ Guard UIL forward-list allocation (2026-10-29)
 
 - Check forward-referenced nested-list wrappers before patching or linking.
 - Leave the list and forward-reference chain untouched on allocation failure.
+
+Guard UIL keysym coercion allocation (2026-10-29)
+===================================================
+
+- Check the temporary keysym string before copying or changing its semantic
+  type.
+- Preserve the integer value and use normal validation diagnostics when the
+  coercion allocation fails.
