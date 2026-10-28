@@ -18,3 +18,8 @@ avoiding pointer-to-integer diagnostics on 64-bit builds.
 
 The drag-icon context uses the same integer-zero convention, so related
 per-display state also compiles without pointer-to-integer diagnostics.
+The atom-table reader also checks the serialized entry count against Xt's
+`Cardinal` allocation limit before growing its cached entry array.  This keeps
+malformed or cross-platform-sized properties from narrowing the multiplication
+at the `XtRealloc` boundary.  Valid atom tables retain the existing wire and
+cache behavior.

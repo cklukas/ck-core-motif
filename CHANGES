@@ -1,3 +1,10 @@
+Bound DragBS atom-table reader allocation (2026-10-29)
+=======================================================
+
+- Reject serialized atom counts that cannot fit Xt's `Cardinal` allocator
+  before growing the cached atom-entry table, with an explicit bounded cast.
+- Add focused reader-side allocation coverage while preserving valid tables.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

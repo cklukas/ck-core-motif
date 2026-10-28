@@ -870,13 +870,22 @@ ReadAtomsTable(
         }
 
 	if (ret && propertyRecPtr->info.num_atoms > atomsTable->numEntries) {
+	    if ((size_t)propertyRecPtr->info.num_atoms >
+		(size_t)UINT_MAX / sizeof(xmAtomsTableEntryRec)) {
+		XmeWarning ((Widget) XmGetXmDisplay (display), MESSAGE2);
+		ret = False;
+	    }
+	}
+
+	if (ret && propertyRecPtr->info.num_atoms > atomsTable->numEntries) {
             /*
 	     *  expand the atoms table
 	     */
 
 	    new_entries = (xmAtomsTableEntry) XtRealloc(
 	        (char *)atomsTable->entries,	/* NULL ok */
-		sizeof(xmAtomsTableEntryRec) * propertyRecPtr->info.num_atoms);
+		(Cardinal)((size_t)sizeof(xmAtomsTableEntryRec) *
+		    propertyRecPtr->info.num_atoms));
 	    if (new_entries == NULL)
 	    {
 		ret = False;
