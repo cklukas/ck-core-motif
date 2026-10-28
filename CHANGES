@@ -28379,3 +28379,5 @@ List drag selection bounds (2026-10-28)
   wrapping a large native child count during export (2026-10-28).
 * Accessibility selection counts now use the same bounded conversion for
   native `size_t` counts before returning an integer result (2026-10-28).
+* XmString rendition and tag component lengths now validate `strlen()` before
+  narrowing to the public unsigned-integer length field (2026-10-28).

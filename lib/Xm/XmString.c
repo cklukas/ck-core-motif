@@ -9699,6 +9699,22 @@ XmStringGetNextTriple(XmStringContext context,
   return XmeStringGetComponent((_XmStringContext) context, True, True, length, value);
 }
 
+static Boolean
+set_component_string_length(unsigned int *length, XtPointer *value,
+                            Boolean copy_data)
+{
+  size_t component_length = strlen((char *)*value);
+  if (component_length > (size_t)UINT_MAX) {
+    if (copy_data) {
+      XtFree((char *)*value);
+      *value = NULL;
+    }
+    return False;
+  }
+  *length = (unsigned int)component_length;
+  return True;
+}
+
 /*
  * XmeStringGetComponent: A generalized implementation of XmStringGetNextTriple.
  */
@@ -9938,7 +9954,11 @@ XmeStringGetComponent(_XmStringContext context,
 	    }
 	  else
 	    *value = (XtPointer) begin_rends[tmp_index];
-	  *length = strlen((char*) *value);
+	  if (!set_component_string_length(length, value, copy_data)) {
+	    _XmStrContError(context) = True;
+	    _XmProcessUnlock();
+	    return XmSTRING_COMPONENT_END;
+	  }
 
 	  if (update_context)
 	    {
@@ -9995,7 +10015,11 @@ XmeStringGetComponent(_XmStringContext context,
 		    }
 	      else
 		*value = (XtPointer) tag;
-	      *length = strlen(tag);
+	      if (!set_component_string_length(length, value, copy_data)) {
+		_XmStrContError(context) = True;
+		_XmProcessUnlock();
+		return XmSTRING_COMPONENT_END;
+	      }
 
 	      if (update_context)
 		{
@@ -10178,7 +10202,11 @@ XmeStringGetComponent(_XmStringContext context,
 	    }
 	  else
 	    *value = (XtPointer) end_rends[tmp_index];
-	  *length = strlen((char*) *value);
+	  if (!set_component_string_length(length, value, copy_data)) {
+	    _XmStrContError(context) = True;
+	    _XmProcessUnlock();
+	    return XmSTRING_COMPONENT_END;
+	  }
 
 	  if (update_context)
 	    {
