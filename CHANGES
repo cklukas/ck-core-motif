@@ -26986,3 +26986,9 @@ Guard Mrm callback-value copying (2026-10-28)
 
 - Reject a null value pointer before `Urm__CW_SafeCopyValue` dereferences it.
 - Preserve existing scalar and vector callback-value ownership for valid input.
+Validate Mrm Char8 vector spans (2026-10-28)
+============================================
+
+- Reject byte-string vectors whose advertised storage span cannot contain the
+  complete pointer table before copying or rebasing entries.
+- Preserve valid vector representation and callback ownership behavior.

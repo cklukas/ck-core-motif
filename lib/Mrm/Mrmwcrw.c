@@ -2994,6 +2994,9 @@ Urm__CW_SafeCopyValue (long				*val,
       (size_t)vec_count > SIZE_MAX / sizeof(XmString) ||
       (size_t)vec_count > UINT_MAX / sizeof(XmString))
     return;
+  if (reptype == MrmRtypeChar8Vector &&
+      (size_t)vec_size < (size_t)vec_count * sizeof(String))
+    return;
 
   /*
    * Make copies of all primitive data structures. Note this has the side
