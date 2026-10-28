@@ -1876,7 +1876,7 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 	    if (cur_x < 0)
 		return;
 	    else
-	      cur_x -= col_widths[i];
+	      cur_x = bounded_position((long long)cur_x - col_widths[i]);
 	}
 	else
 	{
@@ -2039,9 +2039,10 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 	}
 	
 	if (LayoutIsRtoLP(w))    
-	    cur_x -= HORIZONTAL_SPACE;
+	    cur_x = bounded_position((long long)cur_x - HORIZONTAL_SPACE);
 	else
-	    cur_x += HORIZONTAL_SPACE + col_widths[i];
+	    cur_x = bounded_position((long long)cur_x + HORIZONTAL_SPACE +
+	                             col_widths[i]);
     }
 }
 

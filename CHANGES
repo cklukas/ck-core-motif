@@ -1,3 +1,10 @@
+Bound I18List display column steps (2026-10-29)
+================================================
+
+- Clamp every `DisplayList` RTL/LTR column advancement and spacing update
+  before drawing the next column.
+- Add focused source-contract coverage.
+
 Bound I18List header and icon baselines (2026-10-29)
 ======================================================
 
