@@ -26020,3 +26020,9 @@ Guard Text value initialization conversion (2026-10-29)
 
 - Preserve the `wcstombs` result width and reject conversion failure before
   publishing the Text widget's narrow initial value.
+
+Guard text-source wide conversion (2026-10-29)
+===============================================
+
+- Reject failed or capacity-filling wide-to-narrow initialization output
+  before deriving the source's character length.
