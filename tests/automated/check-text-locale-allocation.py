@@ -10,8 +10,8 @@ region = source[start:end]
 assert "size_t malloc_size = 0;" in region
 assert "if (values[i] == NULL)" in region
 assert "value_size > (size_t)-1 - malloc_size" in region
-assert "if (malloc_size == (size_t)-1)" in region
-assert "total_value = XtMalloc (malloc_size + 1);" in region
+assert "malloc_size == (size_t)-1 || malloc_size >= (size_t)UINT_MAX" in region
+assert "total_value = XtMalloc ((Cardinal)(malloc_size + 1));" in region
 assert "if (total_value == NULL)" in region
 assert region.count("XFreeStringList(values);") >= 4
 
