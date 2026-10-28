@@ -165,6 +165,13 @@ Terminate failed drop-transfer processing (2026-10-29)
 - Release temporary arrays and notify the source instead of leaving a drop
   object pending indefinitely.
 
+Guard drop-transfer drag destruction (2026-10-29)
+=================================================
+
+- Fail safely when a drop-transfer timer or processing callback observes a
+  destroyed drag context or missing receiver information.
+- Avoid dereferencing cleared drag handles during ICC property setup.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

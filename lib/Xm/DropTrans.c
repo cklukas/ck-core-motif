@@ -478,11 +478,22 @@ ProcessTransferEntry(
 	XmDropTransferPart *dtp =
 		(XmDropTransferPart *) &(dt->dropTransfer);
 	XmDropTransferList	tl = &(dtp->drop_transfer_lists[which]);
-	XmDragContext dc = (XmDragContext)dtp->dragContext;
+	XmDragContext dc;
 	Cardinal i;
 	Arg args[1];
 	Atom real_selection_atom;
 	Widget requestor;
+
+	if (dtp->dragContext == NULL) {
+	    FailTransferEntry(dt);
+	    return;
+	}
+	dc = (XmDragContext)dtp->dragContext;
+	if (dc->drag.currReceiverInfo == NULL ||
+	    dc->drag.currReceiverInfo->shell == NULL) {
+	    FailTransferEntry(dt);
+	    return;
+	}
 
 	dtp->cur_drop_transfer_list = which;
 	if ((size_t)tl->num_transfers >
@@ -655,9 +666,6 @@ StartDropTimer(
 {
 	XmDropTransferObject dt = (XmDropTransferObject)clientData;
 	XmDropTransferPart *dtp;
-	Arg my_args[1];
-	int i;
-	Atom selection;
 
 #ifdef CR1146
     isValidStartDropTimerId = 0;
@@ -666,6 +674,10 @@ StartDropTimer(
 	
 	dtp = (XmDropTransferPart *) &(dt->dropTransfer);
 	dtp->start_timer_pending = False;
+	if (dtp->dragContext == NULL) {
+	    FailTransferEntry(dt);
+	    return;
+	}
 
 	if (dtp->num_drop_transfer_lists)
 	{
@@ -674,11 +686,7 @@ StartDropTimer(
 	}
 	else /* notify the source that we've changed our mind */
 	{
-		i = 0;
-		XtSetArg(my_args[i], XmNiccHandle, &selection); i++;
-		XtGetValues(dtp->dragContext, my_args, i);
-
-		TerminateTransfer(dt, &selection);
+		FailTransferEntry(dt);
 	}
 }
 
