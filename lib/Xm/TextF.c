@@ -10218,6 +10218,8 @@ TextFieldResetIC(Widget w)
 {
     int insert_length;
     size_t num_chars;
+    size_t preedit_length;
+    size_t preedit_bytes;
     char *mb, *str=NULL;
     Boolean replace_res;
     wchar_t *wc_insert_string;
@@ -10229,32 +10231,41 @@ TextFieldResetIC(Widget w)
 
     if (FVerifyCommitNeeded(tf)) {
 	FVerifyCommitNeeded(tf) = False;
-	str = XtMalloc((PreEnd(tf) - PreStart(tf)+1)*sizeof(wchar_t));
+	if (PreEnd(tf) < PreStart(tf)) {
+	  ResetUnder(tf);
+	  return;
+	}
+	preedit_length = (size_t)(PreEnd(tf) - PreStart(tf));
+	if (preedit_length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+	    preedit_length + 1 > UINT_MAX / sizeof(wchar_t)) {
+	  ResetUnder(tf);
+	  return;
+	}
+	preedit_bytes = (preedit_length + 1) * sizeof(wchar_t);
+	str = XtMalloc((Cardinal)preedit_bytes);
 	if (str == NULL) {
 	  ResetUnder(tf);
 	  return;
 	}
 	if (tf->text.max_char_size == 1) {
 	  bcopy(&tf->text.value[PreStart(tf)], str, 
-				PreEnd(tf) - PreStart(tf));
-	  str[PreEnd(tf) - PreStart(tf)] = '\0';
+						preedit_length);
+	  str[preedit_length] = '\0';
 	}
 	else { 
 	  size_t num_bytes;
 	  size_t byte_capacity;
 	  wchar_t *wc_string;
-	  wc_string = (wchar_t *)XtMalloc((PreEnd(tf) - PreStart(tf)+1)
-                                                        *sizeof(wchar_t));
+	  wc_string = (wchar_t *)XtMalloc((Cardinal)preedit_bytes);
 	  if (wc_string == NULL) {
 	    XtFree(str);
 	    ResetUnder(tf);
 	    return;
 	  }
-          bcopy((char *)&tf->text.wc_value[PreStart(tf)], (char *)wc_string,
-                                (PreEnd(tf) - PreStart(tf))*sizeof(wchar_t));
-          wc_string[PreEnd(tf) - PreStart(tf)] = (wchar_t)'\0';
-	  byte_capacity = ((size_t)(PreEnd(tf) - PreStart(tf)) + 1) *
-	                  sizeof(wchar_t);
+	  bcopy((char *)&tf->text.wc_value[PreStart(tf)], (char *)wc_string,
+                                preedit_length * sizeof(wchar_t));
+          wc_string[preedit_length] = (wchar_t)'\0';
+	  byte_capacity = preedit_bytes;
 	  num_bytes = wcstombs(str, wc_string, byte_capacity);
 	  if (num_bytes == (size_t)-1 || num_bytes >= byte_capacity) {
 	    str[0] = '\0';
