@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Transfer.c").read_text()
-start = source.index("XmClipboardCopy(display, XtWindow(w), itemid, name,\n\t\t\tNULL, 0,")
+start = source.index("XmClipboardCopy(display, XtWindow(w), itemid, name,")
 end = source.index("\n\t_XmProcessUnlock();", start)
 body = source[start:end]
 
