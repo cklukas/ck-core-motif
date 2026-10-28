@@ -56,6 +56,7 @@ static char rcsid[] = "$TOG: UilLstLst.c /main/20 1999/07/21 09:03:16 vipin $"
 
 #include <stdarg.h>
 #include <string.h>
+#include <limits.h>
 
 #include "UilDefI.h"
 
@@ -1075,8 +1076,11 @@ void	lst_debug_output
 	va_end(measure_ap);
 	if (formatted_length < 0)
 	    goto done;
+	if ((size_t)formatted_length + 1 > (size_t)UINT_MAX)
+	    goto done;
 
-	formatted = (char *)_get_memory((size_t)formatted_length + 1);
+	formatted = (char *)_get_memory(
+	    (Cardinal)((size_t)formatted_length + 1));
 	if (formatted == NULL)
 	    goto done;
 	(void)vsnprintf(formatted, (size_t)formatted_length + 1, format, ap);

@@ -20,6 +20,13 @@ Make UIL diagnostic widths explicit (2026-10-28)
   widths, and compare source-position EOF sentinels without signedness drift.
 - Add focused coverage and documentation.
 
+Bound UIL debug allocation width (2026-10-29)
+==============================================
+
+- Reject a measured debug-listing message that cannot fit Xt's `Cardinal`
+  allocation size before narrowing the formatter result.
+- Extend focused coverage and documentation.
+
 Validate UIL keyword length configuration (2026-10-28)
 =======================================================
 
