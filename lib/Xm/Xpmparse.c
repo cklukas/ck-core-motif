@@ -572,6 +572,7 @@ xpmParseExtensions(
     XpmExtension *exts = NULL, *ext;
     unsigned int num = 0;
     unsigned int nlines, a, l, notstart, notend = 0;
+    size_t name_length;
     int status;
     char *string, *s, *s2, **sp;
 
@@ -612,7 +613,15 @@ xpmParseExtensions(
 	while (isspace(*s2))
 	    s2++;
 	a = s2 - s;
-	ext->name = (char *) XpmMalloc(l - a - 6);
+	if (a > l || l - a < 6 || l - a - 6 >= UINT_MAX) {
+	    XpmFree(string);
+	    ext->lines = NULL;
+	    ext->nlines = 0;
+	    XpmFreeExtensions(exts, num + 1);
+	    return (XpmFileInvalid);
+	}
+	name_length = (size_t)(l - a - 6);
+	ext->name = (char *) XpmMalloc(name_length + 1);
 	if (!ext->name) {
 	    XpmFree(string);
 	    ext->lines = NULL;
@@ -620,7 +629,8 @@ xpmParseExtensions(
 	    XpmFreeExtensions(exts, num + 1);
 	    return (XpmNoMemory);
 	}
-	strncpy(ext->name, s + a, l - a - 6);
+	memcpy(ext->name, s + a, name_length);
+	ext->name[name_length] = '\0';
 	XpmFree(string);
 	/* now store the related lines */
 	xpmNextString(data);

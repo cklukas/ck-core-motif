@@ -1,3 +1,10 @@
+Terminate parsed XPM extension names (2026-10-29)
+=================================================
+
+- Validate extension-name spans and allocate/write the terminating NUL rather
+  than exposing an unterminated allocation to consumers.
+- Add focused coverage and documentation.
+
 Propagate XPM data extension write failures (2026-10-29)
 ==========================================================
 
