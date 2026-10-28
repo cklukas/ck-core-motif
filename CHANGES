@@ -23696,6 +23696,14 @@ Preserve clipboard retrieval length width (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-retrieve-length-width.py
 
+Bound clipboard property offsets before Xlib conversion (2026-10-28)
+======================================================================
+
+- Reject offsets above `LONG_MAX` before calling `XGetWindowProperty`.
+- Make the signed Xlib conversion explicit after the guard.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-property-offset-bounds.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

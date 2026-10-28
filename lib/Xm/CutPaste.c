@@ -1212,11 +1212,14 @@ GetWindowProperty(
 
     while ( bytes_left > 0 )
     {
+	if (offset > (unsigned long)LONG_MAX)
+	    goto failure;
+
 	/* retrieve the item from the root */
 	ret_value = XGetWindowProperty( display,
 					window, 
 					property_atom,
-					offset, /*offset*/
+				    (long)offset, /*offset*/
 					request_size, /*length*/
 					FALSE,
 					AnyPropertyType,
