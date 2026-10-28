@@ -497,7 +497,16 @@ typedef struct __XmStringArraySegRec *_XmStringLine;
 
 #ifdef _XmDEBUG_XMSTRING_MEM
 #define STR_OFFSET		sizeof(double)
-#define _XmStrMalloc(size)	(XtMalloc((size) + STR_OFFSET) + STR_OFFSET)
+static char *_XmStrMallocDebug(size_t size)
+{
+  char *base;
+
+  if (size > (size_t)(Cardinal)~0 - STR_OFFSET)
+    return NULL;
+  base = XtMalloc((Cardinal)(size + STR_OFFSET));
+  return base ? base + STR_OFFSET : NULL;
+}
+#define _XmStrMalloc(size)	_XmStrMallocDebug(size)
 #define _XmStrFree(ptr)		(XtFree(((char*)(ptr)) - STR_OFFSET))
 #else
 #define _XmStrMalloc(size)	(XtMalloc(size))
