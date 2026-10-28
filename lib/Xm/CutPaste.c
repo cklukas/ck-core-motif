@@ -4124,6 +4124,7 @@ XmClipboardCopyByName(
     {        
 	status = ClipboardLock( display, window );
 	if ( status == ClipboardLocked ){
+	    XtFree( (char *)root_clipboard_header );
 	    _XmAppUnlock(app);
 	    return ClipboardLocked;
 	}

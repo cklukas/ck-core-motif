@@ -23446,6 +23446,14 @@ Release clipboard request header buffers (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-send-header-cleanup.py
 
+Release clipboard paste headers on lock contention (2026-10-28)
+==================================================================
+
+- Free the temporary header when `XmClipboardPasteData` cannot acquire the lock.
+- Preserve the `ClipboardLocked` result and existing clipboard protocol.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-paste-lock-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
