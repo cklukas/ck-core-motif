@@ -7362,7 +7362,7 @@ df_DoStuff(
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     _XmTextPrimSelect *prim_select = (_XmTextPrimSelect *) closure;
-    Atom NULL_ATOM = XmInternAtom(XtDisplay(w), "NULL", False);
+    Atom NULL_ATOM;
     XmTextPosition right, left;
     int prim_char_length = 0;
     Boolean replace_res = False;
@@ -7372,6 +7372,19 @@ df_DoStuff(
     int num_vals;
     char **tmp_value;
     XmAnyCallbackStruct cb;
+
+    if (w == NULL || prim_select == NULL || type == NULL ||
+        length == NULL || format == NULL ||
+        (*format != 8 && *format != 16 && *format != 32) ||
+        (*length != 0 && value == NULL)) {
+       XtFree((char *)value);
+       if (prim_select != NULL &&
+           (prim_select->ref_count <= 0 || --prim_select->ref_count == 0))
+          XtFree((char *)prim_select);
+       return;
+    }
+
+    NULL_ATOM = XmInternAtom(XtDisplay(w), "NULL", False);
 
     if (!XmTextF_has_focus(tf) && _XmGetFocusPolicy(w) == XmEXPLICIT)
        (void) XmProcessTraversal(w, XmTRAVERSE_CURRENT);

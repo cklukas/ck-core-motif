@@ -1,3 +1,10 @@
+Guard DataField selection callback inputs (2026-10-29)
+=======================================================
+
+- Validate selection callback state before display and atom access.
+- Release malformed payloads and balance the pending selection reference on
+  rejected callbacks, with focused regression coverage.
+
 Guard DataField target callback inputs (2026-10-29)
 ======================================================
 
