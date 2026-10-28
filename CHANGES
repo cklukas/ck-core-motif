@@ -28415,3 +28415,5 @@ List drag selection bounds (2026-10-28)
   helper and current wide arithmetic (2026-10-28).
 * Refreshed the IconG RTL-render contract check for bounded icon-origin
   assignments in every placement branch (2026-10-28).
+* Made the Mrm null-source contract check runnable from a source checkout
+  while preserving its optional external-source override (2026-10-28).
