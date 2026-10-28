@@ -11,6 +11,12 @@
 #include <string.h>
 #include "XmI.h"
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
@@ -144,7 +150,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             y = ((int)avatar->core.height - (int)text_height) / 2;
             XmStringDraw(display, window, avatar->avatar.font,
                          avatar->avatar.initials, avatar->avatar.foreground_gc,
-                         x, y, text_width, XmALIGNMENT_BEGINNING,
+                         bounded_position((long long)x),
+                         bounded_position((long long)y), text_width,
+                         XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(avatar), NULL);
         }
     }
