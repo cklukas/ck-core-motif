@@ -28405,3 +28405,5 @@ List drag selection bounds (2026-10-28)
   (2026-10-28).
 * Refreshed the text-source wide-conversion contract slice to include the
   successful conversion terminator (2026-10-28).
+* Refreshed the I18List row-position contract check for inline pixel-Y
+  initialization (2026-10-28).
