@@ -1,3 +1,11 @@
+Guard XPM chars-per-pixel growth (2026-10-29)
+==============================================
+
+- Check automatic printable-color capacity multiplication before it can wrap
+  while deriving the minimum characters-per-pixel value.
+- Return the existing allocation/error status and add focused coverage and
+  documentation for unrepresentable color counts.
+
 Propagate XPM pixmap-import failures (2026-10-29)
 ==================================================
 

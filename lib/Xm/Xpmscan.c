@@ -356,8 +356,11 @@ XpmCreateXpmImageFromImage(
 	RETURN(XpmNoMemory);
 
     /* compute the minimal cpp */
-    for (cppm = 1, c = MAXPRINTABLE; pmap.ncolors > c; cppm++)
+    for (cppm = 1, c = MAXPRINTABLE; pmap.ncolors > c; cppm++) {
+	if (c > UINT_MAX / MAXPRINTABLE)
+	    RETURN(XpmNoMemory);
 	c *= MAXPRINTABLE;
+    }
     if (cpp < cppm)
 	cpp = cppm;
 
