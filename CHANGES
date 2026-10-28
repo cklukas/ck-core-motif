@@ -27144,6 +27144,13 @@ Validate legacy Mrm font-list markers (2026-10-28)
   their entries into the current representation.
 - Preserve valid 1.1 font-list compatibility conversion.
 
+Destroy cached Xft draw objects (2026-10-28)
+=============================================
+
+- Destroy the draw object owned by the matching cache entry rather than an
+  unrelated caller pointer.
+- Make repeated or null teardown calls safe after drawable destruction.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

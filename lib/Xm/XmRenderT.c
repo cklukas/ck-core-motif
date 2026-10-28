@@ -3616,14 +3616,17 @@ void
 _XmXftDrawDestroy(Display *display, Window window, XftDraw *draw)
 {
     int i;
+    (void)draw;
 
     for (i=0; i<_XmXftDrawCacheSize; i++)
 	if (_XmXftDrawCache[i].display == display &&
 	    _XmXftDrawCache[i].window == window) {
+	        XftDraw *cached_draw = _XmXftDrawCache[i].draw;
 	        _XmXftDrawCache[i].display = NULL;
 	        _XmXftDrawCache[i].draw = NULL;
 	        _XmXftDrawCache[i].window = None;
-	        XftDrawDestroy(draw);
+	        if (cached_draw != NULL)
+	            XftDrawDestroy(cached_draw);
 	        return;
         }
     XmeWarning(NULL, "_XmXftDrawDestroy() this should not happen\n");
