@@ -2675,7 +2675,13 @@ XmeStandardConvert(Widget w,
   } else if (atoms[XmAFOREGROUND] == cs -> target) {
     Pixel *fg;
 
-    if (XmIsGadget(w)) w = XtParent(w);
+    if (XmIsGadget(w)) {
+	 w = XtParent(w);
+	 if (w == NULL) {
+	   _XmAppUnlock(app);
+	   return;
+	 }
+    }
 
     fg = (Pixel *) XtMalloc(sizeof(Pixel));
     if (fg == NULL) {
@@ -2696,7 +2702,13 @@ XmeStandardConvert(Widget w,
   } else if (atoms[XmABACKGROUND] == cs -> target) {
     Pixel *bg;
 
-    if (XmIsGadget(w)) w = XtParent(w);
+    if (XmIsGadget(w)) {
+	 w = XtParent(w);
+	 if (w == NULL) {
+	   _XmAppUnlock(app);
+	   return;
+	 }
+    }
 
     bg = (Pixel *) XtMalloc(sizeof(Pixel));
     if (bg == NULL) {
@@ -2717,7 +2729,13 @@ XmeStandardConvert(Widget w,
   } else if (XA_COLORMAP == cs -> target) {
     Colormap *cmap;
 
-    if (XmIsGadget(w)) w = XtParent(w);
+    if (XmIsGadget(w)) {
+	 w = XtParent(w);
+	 if (w == NULL) {
+	   _XmAppUnlock(app);
+	   return;
+	 }
+    }
 
     cmap = (Colormap *) XtMalloc(sizeof(Colormap));
     if (cmap == NULL) {

@@ -206,6 +206,13 @@ Guard invalid drop-transfer selection atoms (2026-10-29)
 - Reject null or `None` ICC selection atoms before issuing termination
   requests, destroying malformed transfer objects safely.
 
+Guard detached gadget standard conversions (2026-10-29)
+========================================================
+
+- Reject missing gadget parents before querying scalar foreground,
+  background, or colormap resources.
+- Add focused standard-conversion documentation and regression coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
