@@ -23166,6 +23166,16 @@ Make drop callback cleanup idempotent (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-drop-callback-cleanup.py
 
+Make invalid-atom fallback allocation-safe (2026-10-28)
+=========================================================
+
+- Avoid dereferencing a failed one-byte fallback allocation in transfer atom
+  diagnostics.
+- Return a non-owned empty-string sentinel when allocation fails and keep the
+  cleanup helper from freeing that sentinel.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-safe-atom-name-fallback.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

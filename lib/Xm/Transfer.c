@@ -46,8 +46,8 @@
 #include "XmI.h"
 
 
-typedef enum { DoXFree, DoFree } FreeType;
-#define FreeSafeAtomName(val,how) if (1) { if (DoXFree==how) XFree(val); else free(val); } 
+typedef enum { DoXFree, DoFree, DoNotFree } FreeType;
+#define FreeSafeAtomName(val,how) if (1) { if (DoXFree==how) XFree(val); else if (DoFree==how) free(val); }
 
 static ConvertContext LookupContextBlock(Display*, Atom);
 static void ClearContextBlock(Display*, Atom);
@@ -2940,6 +2940,7 @@ GetSafeAtomName(Display *display, Atom a, FreeType *howFree)
 {
   XErrorHandler old_Handler;
   char *returnvalue;
+  static char empty_atom_name[] = "";
 
   /* Setup error proc and reset error flag */
   old_Handler = XSetErrorHandler((XErrorHandler) SIF_ErrorHandler);
@@ -2955,8 +2956,14 @@ GetSafeAtomName(Display *display, Atom a, FreeType *howFree)
   _XmProcessLock();
   if (SIF_ErrorFlag != 0) {
     returnvalue = (char*) malloc(1);
-    returnvalue[0] = 0; /* Create empty string to return */
-    *howFree = DoFree;
+    if (returnvalue != NULL) {
+      returnvalue[0] = 0; /* Create empty string to return */
+      *howFree = DoFree;
+    } else {
+      /* Keep callers safe even when the error fallback cannot allocate. */
+      returnvalue = empty_atom_name;
+      *howFree = DoNotFree;
+    }
     TransferWarning(NULL, ATOM, ARG, BAD_ATOM_MESSAGE);
   }
   _XmProcessUnlock();
