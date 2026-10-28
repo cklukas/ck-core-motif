@@ -1351,7 +1351,7 @@ DoStuff(Widget w,
 	_XmProcessUnlock();
       }
     } else {
-      if (ds->length > (unsigned long)INT_MAX ||
+      if (ds->format != 8 || ds->length > (unsigned long)INT_MAX ||
           (tf->text.max_char_size != 1 &&
            ds->length > (unsigned long)UINT_MAX / sizeof(wchar_t) - 1)) {
         XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
