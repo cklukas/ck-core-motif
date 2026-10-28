@@ -1803,6 +1803,12 @@ _XmOSKeySymToCharacter(KeySym keysym,
 		       char  *locale,
 		       char  *buffer)
 {
+  unsigned long codepoint;
+
+  (void)locale;
+  if (buffer == NULL)
+    return 0;
+
   /* 
    * This implementation is exceptionally stupid, but works in the
    * common case of ISO8859-1 locales and keysyms.
@@ -1811,11 +1817,37 @@ _XmOSKeySymToCharacter(KeySym keysym,
    * replace this code with something appropriate.
    */
 
-  /* Maybe we should generate a warning for non-Latin 1 encodings */
-  /* outside the range 0..127? */
-  *buffer = (keysym & 0xFF);
+  /* Unicode keysyms use the X11 0x01000000 | UCS encoding.  Preserve the
+   * historical low-byte fallback for legacy keysyms, but encode Unicode
+   * scalar values as UTF-8 so UTF-8 mnemonic charsets retain the actual key. */
+  if ((keysym & 0xFF000000UL) == 0x01000000UL)
+    codepoint = keysym & 0x00FFFFFFUL;
+  else
+    codepoint = keysym & 0xFFUL;
 
-  return 1;
+  if (codepoint > 0x10FFFFUL ||
+      (codepoint >= 0xD800UL && codepoint <= 0xDFFFUL))
+    return 0;
+  if (codepoint <= 0x7FUL) {
+    buffer[0] = (char)codepoint;
+    return 1;
+  }
+  if (codepoint <= 0x7FFUL) {
+    buffer[0] = (char)(0xC0U | (codepoint >> 6));
+    buffer[1] = (char)(0x80U | (codepoint & 0x3FU));
+    return 2;
+  }
+  if (codepoint <= 0xFFFFUL) {
+    buffer[0] = (char)(0xE0U | (codepoint >> 12));
+    buffer[1] = (char)(0x80U | ((codepoint >> 6) & 0x3FU));
+    buffer[2] = (char)(0x80U | (codepoint & 0x3FU));
+    return 3;
+  }
+  buffer[0] = (char)(0xF0U | (codepoint >> 18));
+  buffer[1] = (char)(0x80U | ((codepoint >> 12) & 0x3FU));
+  buffer[2] = (char)(0x80U | ((codepoint >> 6) & 0x3FU));
+  buffer[3] = (char)(0x80U | (codepoint & 0x3FU));
+  return 4;
 }
 
 /* ****************************************************** **

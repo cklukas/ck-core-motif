@@ -26116,3 +26116,9 @@ Refresh MWM bitmap-cache regression contract (2026-10-29)
 
 - Distinguish valid first-use cache initialization from guarded cache-growth
   arithmetic in the MWM bitmap allocation check.
+
+Encode Unicode mnemonic keysyms (2026-10-29)
+============================================
+
+- Preserve Unicode-encoded X11 keysyms when constructing label mnemonics,
+  while retaining the legacy fallback for non-Unicode keysyms.
