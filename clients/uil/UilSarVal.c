@@ -3397,6 +3397,12 @@ yystype	    *keyword_frame;
 	     next_item_entry != NULL;  
 	     next_item_entry = next_item_entry->az_next)
 	{
+	    if (count == INT_MAX ||
+		(size_t)(count + 1) >
+		    (size_t)UINT_MAX / sizeof(sym_color_element)) {
+		count = -1;
+		break;
+	    }
 	    count++;
 	    switch ((long)next_item_entry->az_color)
 	    {
@@ -3410,6 +3416,17 @@ yystype	    *keyword_frame;
 		next_item_entry->b_index = (unsigned char) ++index;
 		break;
 	    }
+	}
+	if (count < 0) {
+	    diag_issue_diagnostic
+		(d_too_many,
+		 _sar_source_position( keyword_frame ),
+		 diag_value_text( sym_k_color_value ),
+		 diag_value_text( sym_k_color_table_value ),
+		 sym_k_max_color_count );
+	    target_type = sym_k_error_value;
+	    color_table_entry = sym_az_error_value_entry;
+	    break;
 	}
 	
 	if (index >= sym_k_max_color_count)

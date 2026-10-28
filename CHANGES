@@ -26206,3 +26206,9 @@ Bound UIL string-entry allocation lengths (2026-10-29)
 
 - Reject invalid and `INT_MAX` string lengths before adding the terminator for
   the lexer’s Xt allocation.
+
+Bound UIL color-table counts (2026-10-29)
+=========================================
+
+- Reject unrepresentable color-item counts before signed counter increments or
+  color-table allocation multiplication.
