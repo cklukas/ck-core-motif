@@ -3126,7 +3126,8 @@ MakePositionVisible(Widget w, short row, short start, short last, int width)
      * the visible window to contain the pixels we wish to see.
      */
     if (XmI18List_left_loc(ilist) < 0)
-        before -= XmI18List_left_loc(ilist);
+        before = bounded_short((long long)before -
+                               (long long)XmI18List_left_loc(ilist));
 
     if (XmI18List_left_loc(ilist) < 0 && before >= start) {
         /*

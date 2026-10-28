@@ -1,3 +1,10 @@
+Bound I18List visible-origin adjustment (2026-10-29)
+======================================================
+
+- Compute the `MakePositionVisible` origin adjustment in wide arithmetic and
+  clamp it before storing the legacy short coordinate.
+- Add focused source-contract coverage.
+
 Bound I18List visibility padding (2026-10-29)
 ==============================================
 
