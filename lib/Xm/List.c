@@ -4381,7 +4381,8 @@ WhichItem(XmListWidget w,
 	return (lw->list.itemCount - 1);
     }
   if (y >= (Position)((int)lw->core.height - (int)lw->list.BaseY))
-    return (lw->list.itemCount + 1);
+	return (lw->list.itemCount == INT_MAX)
+	  ? INT_MAX : lw->list.itemCount + 1;
 
   if ((int) (lw->list.MaxItemHeight + lw->list.spacing) == 0)
     return(-1);
@@ -10217,7 +10218,9 @@ XmListYToPos(Widget w,
     return (0);
   }
   else {
-    pos = WhichItem(lw, y) + 1;
+    pos = WhichItem(lw, y);
+    if (pos < INT_MAX)
+	pos++;
     _XmAppUnlock(app);
     return pos;
   }

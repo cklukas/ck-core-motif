@@ -23249,6 +23249,15 @@ Validate List bounds positions before conversion (2026-10-28)
   coverage and documentation.
 Regression: tests/automated/check-list-pos-to-bounds-range.py
 
+Saturate List Y-to-position overflow markers (2026-10-28)
+============================================================
+
+- Saturate the out-of-range `XmListYToPos` marker at `INT_MAX` for a maximum-
+  sized list.
+- Avoid incrementing that marker in the public conversion and add focused
+  regression coverage and documentation.
+Regression: tests/automated/check-list-y-to-pos-saturation.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
