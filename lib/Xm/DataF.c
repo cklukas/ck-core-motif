@@ -3475,11 +3475,18 @@ df_ModifyVerify(
      XmTextBlockRecWcs wcs_newblock;
      Boolean do_free = False;
      Boolean wcs_do_free = False;
-     int count;
+     size_t count;
      wchar_t *wptr;
      
      *newInsert = XmTextF_cursor_position(tf);
      *free_insert = (int)False;
+
+     if (*insert_length < 0 || XmTextF_max_char_size(tf) <= 0 ||
+         (size_t)*insert_length > SIZE_MAX /
+             (size_t)XmTextF_max_char_size(tf) ||
+         (size_t)*insert_length * (size_t)XmTextF_max_char_size(tf) >
+             (size_t)INT_MAX)
+        return False;
 
     /* if there are no callbacks, don't waste any time... just return  True */
      if (!XmTextF_modify_verify_callback(tf) && !XmTextF_wcs_modify_verify_callback(tf))
@@ -3499,16 +3506,17 @@ df_ModifyVerify(
 			   newblock.length);
 	      newblock.ptr[newblock.length]='\0';
 	    } else {
-	       count = (int) wcstombs(newblock.ptr, (wchar_t*)*insert,
-				                newblock.length);
-	       if (count < 0) { /* bad wchar; don't pass anything */
+	       count = wcstombs(newblock.ptr, (wchar_t*)*insert,
+                         (size_t)newblock.length);
+	       if (count == (size_t)-1 || count > (size_t)INT_MAX) {
+	          /* bad wchar or an unrepresentable callback length */
 		  newblock.ptr[0] = '\0';
 		  newblock.length = 0;
-	       } else if (count == newblock.length) {
+	       } else if (count >= (size_t)newblock.length) {
 		  newblock.ptr[newblock.length] = '\0';
 	       } else {
-		  newblock.ptr[count] = '\0';
-		  newblock.length = count;
+		  newblock.ptr[(size_t)count] = '\0';
+		  newblock.length = (int)count;
 	       }
 	    }
             do_free = True;
@@ -3541,32 +3549,37 @@ df_ModifyVerify(
 		XtFree(newblock.ptr);
 		return False;
 	   }
-	   wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, vcb.text->ptr,
-				          vcb.text->length);
-	   if (wcs_newblock.length < 0) { /* bad value; don't pass anything */
+	   count = mbstowcs(wcs_newblock.wcsptr, vcb.text->ptr,
+	                    (size_t)vcb.text->length);
+	   if (count == (size_t)-1 || count > (size_t)INT_MAX) {
+	      /* bad value or an unrepresentable callback length */
 	      wcs_newblock.wcsptr[0] = 0L;
 	      wcs_newblock.length = 0;
-           } else 
+	   } else {
+	      wcs_newblock.length = (int)count;
 	      wcs_newblock.wcsptr[wcs_newblock.length] = 0L;
+	   }
 	} else { /* there was no char* modify verify callback; use data
 		  * passed in from caller instead of that in vcb struct. */
 	  wcs_newblock.wcsptr = (wchar_t *) XtMalloc((unsigned) 
 				       (*insert_length + 1) * sizeof(wchar_t));
 	  if (wcs_newblock.wcsptr == NULL)
 		return False;
-	  if (XmTextF_max_char_size(tf) == 1) 
-	    wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, *insert,
-				          *insert_length);
-	  else {
+	  if (XmTextF_max_char_size(tf) == 1) {
+	    count = mbstowcs(wcs_newblock.wcsptr, *insert,
+	                     (size_t)*insert_length);
+	    if (count == (size_t)-1 || count > (size_t)INT_MAX) {
+	       wcs_newblock.wcsptr[0] = 0L;
+	       wcs_newblock.length = 0;
+	    } else {
+	       wcs_newblock.length = (int)count;
+	       wcs_newblock.wcsptr[wcs_newblock.length] = 0L;
+	    }
+	  } else {
 	    wcs_newblock.length = *insert_length;
 	    (void)memcpy((void*)wcs_newblock.wcsptr, (void*)*insert,
 			 *insert_length * sizeof(wchar_t));
 	  }	    
-	  if (wcs_newblock.length < 0) { /* bad value; don't pass anything */
-	    wcs_newblock.wcsptr[0] = 0L;
-	    wcs_newblock.length = 0;
-	  } else 
-	    wcs_newblock.wcsptr[wcs_newblock.length] = 0L;
 
 	}
 	wcs_do_free = True;
@@ -3603,8 +3616,8 @@ df_ModifyVerify(
 					* sizeof(wchar_t));
 		     *free_insert = (int)True;
 		     count = wcstombs(*insert, wcs_vcb.text->wcsptr,
-				      *insert_length + 1);
-		     if (count < 0) 
+				      (size_t)*insert_length + 1);
+		     if (count == (size_t)-1 || count > (size_t)INT_MAX)
 		     {
 			 (*insert)[0] = 0;
 			 *insert_length = 0;
@@ -3658,15 +3671,15 @@ df_ModifyVerify(
 				  sizeof(wchar_t));
 		     *free_insert = (int)True;
 		     count = mbstowcs((wchar_t*)*insert, vcb.text->ptr,
-				      *insert_length);
+				      (size_t)*insert_length);
 		     wptr = (wchar_t*) *insert;
-		     if (count < 0) {
+		     if (count == (size_t)-1 || count > (size_t)INT_MAX) {
 			 wptr[0] = 0L;
 			 *insert_length = 0;
 		     } 
 		     else
 		     {
-			 wptr[count] = 0L;
+			     wptr[(size_t)count] = 0L;
 		     }
 		 }	
 	     }

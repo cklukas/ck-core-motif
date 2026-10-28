@@ -25922,3 +25922,10 @@ Reject malformed drop-transfer payloads (2026-10-29)
   coverage.
 
 Guard drop-transfer teardown callback state (2026-10-29)
+
+Guard DataField modify-verify conversion lengths (2026-10-29)
+================================================================
+
+- Treat `wcstombs` and `mbstowcs` results as `size_t` and reject conversion
+  failure or lengths that cannot fit Motif's signed callback fields.
+- Validate insertion lengths before allocation and character-width arithmetic.
