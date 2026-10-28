@@ -8,3 +8,6 @@ position or reports bytes without a source pointer. This avoids an infinite
 loop and prevents invalid blocks from reaching width measurement.
 
 Regression coverage: `tests/automated/check-textout-postoxy-source-progress.py`.
+
+The same check also protects `MakePositionVisible()` from narrowing
+line-table `XmTextPosition` values to `int` while clamping the target line.

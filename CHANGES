@@ -12,6 +12,13 @@ Guard Text source deletion-byte multiplication (2026-10-29)
   character-width multiplication used to expand the gap.
 - Extend the focused Text source range contract check.
 
+Preserve TextOut line-table position width (2026-10-29)
+=========================================================
+
+- Clamp MakePositionVisible targets using `XmTextPosition` arithmetic instead
+  of narrowing line-table positions to `int` on large documents.
+- Extend the focused TextOut source-progress check.
+
 Make the RowColumn menu-post contract check checkout-runnable (2026-10-29)
 =============================================================================
 

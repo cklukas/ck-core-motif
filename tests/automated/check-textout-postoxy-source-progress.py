@@ -15,3 +15,10 @@ assert "block.length > 0 && block.ptr == NULL" in body
 assert "return False;" in body
 
 print("TextOut position-to-coordinate reads guard source progress")
+
+visible_start = source.index("\nMakePositionVisible(")
+visible_end = source.index("\n}\n\n", visible_start)
+visible = source[visible_start:visible_end]
+assert "line_start = line_num ? tw->text.line_table[line_num].start_pos : 0;" in visible
+assert "target_position = position > (XmTextPosition)(data->rows / 2)" in visible
+assert "(int) (tw->text.line_table[line_num].start_pos)" not in visible

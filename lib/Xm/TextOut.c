@@ -4031,6 +4031,7 @@ MakePositionVisible(XmTextWidget tw,
   OutputData data = tw->text.output->data;
   Position x, y;
   LineNum line_num;
+  XmTextPosition line_start, target_position;
 #if USE_XFT
   if (UsesUnicodeParagraphs(tw)) {
     XmTextPosition start = UnicodeLineStart(tw, position);
@@ -4057,10 +4058,10 @@ MakePositionVisible(XmTextWidget tw,
 	  if (position == tw->text.bottom_position ||
 	      (line_num < tw->text.total_lines && 
 	       position == tw->text.line_table[line_num+1].start_pos - 1))
-	    position = 
-	      MAX(position - (int) data->rows/2,
-		  line_num ? (int) (tw->text.line_table[line_num].start_pos) :
-				    0);
+	    line_start = line_num ? tw->text.line_table[line_num].start_pos : 0;
+	    target_position = position > (XmTextPosition)(data->rows / 2) ?
+	      position - (XmTextPosition)(data->rows / 2) : 0;
+	    position = target_position > line_start ? target_position : line_start;
 	}
 	(void)PosToXY(tw, position, &x, &y);
       }
@@ -4085,9 +4086,10 @@ MakePositionVisible(XmTextWidget tw,
 	if (position == tw->text.bottom_position ||
 	    (line_num < tw->text.total_lines && 
 	     position == tw->text.line_table[line_num+1].start_pos - 1))
-	  position = 
-	    MAX(position - data->columns/2,
-                line_num ? (int) (tw->text.line_table[line_num].start_pos) : 0);
+	  line_start = line_num ? tw->text.line_table[line_num].start_pos : 0;
+	  target_position = position > (XmTextPosition)(data->columns / 2) ?
+	    position - (XmTextPosition)(data->columns / 2) : 0;
+	  position = target_position > line_start ? target_position : line_start;
       }
       (void)PosToXY(tw, position, &x, &y);
     }
