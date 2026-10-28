@@ -23816,6 +23816,14 @@ Bound clipboard copy allocation widths (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-copy-allocation-width.py
 
+Reject invalid clipboard length records (2026-10-28)
+=====================================================
+
+- Reject negative serialized format lengths during length inquiries.
+- Check 32-bit format-unit multiplication before producing the public length.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-length-bounds.py
+
 Make clipboard pending-item allocation narrowing explicit (2026-10-28)
 =======================================================================
 

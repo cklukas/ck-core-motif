@@ -5171,17 +5171,26 @@ XmClipboardInquireLength(
 	/* return the length */
 	if ( matchformat != 0 )
 	{
-	    if ( CONVERT_32_FACTOR != 1 )
+	    if (matchformat->itemLength < 0)
+	      {
+		status = ClipboardFail;
+	      }
+	    else if ( CONVERT_32_FACTOR != 1 )
 	      {
 		  ClipboardGetLenFromFormat( display,
 					    format,
 					    &format_len );
-		  loc_length = matchformat->itemLength * 
-		    ((format_len==32)?CONVERT_32_FACTOR:1);
+		  if (format_len == 32 &&
+		      (unsigned long)matchformat->itemLength >
+		      ULONG_MAX / CONVERT_32_FACTOR)
+		    status = ClipboardFail;
+		  else
+		    loc_length = (unsigned long)matchformat->itemLength *
+		      ((format_len==32)?CONVERT_32_FACTOR:1);
 	      }
 	    else
 	      {
-		  loc_length = matchformat->itemLength;
+		  loc_length = (unsigned long)matchformat->itemLength;
 	      }
 
 	    XtFree( (char *) matchformat );
