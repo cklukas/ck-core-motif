@@ -26564,3 +26564,5 @@ Harden XmString debug allocation (2026-10-29)
   null result instead of offsetting a failed allocation pointer.
 - Make the matching debug free path null-safe before removing the diagnostic
   prefix.
+- Validate the compound-string rendition-copy output pointer before writing
+  the result slot.

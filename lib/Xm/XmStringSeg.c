@@ -52,6 +52,8 @@ CopyRenditionTags(XmStringTag *source,
   XmStringTag *tags;
   unsigned int i;
 
+  if (result == NULL)
+    return False;
   *result = NULL;
   if (count == 0)
     return True;

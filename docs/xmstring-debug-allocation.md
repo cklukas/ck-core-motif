@@ -12,3 +12,7 @@ interfaces remain private and unchanged for callers.
 
 The focused contract is covered by
 `tests/automated/check-xmstring-debug-allocation.py`.
+
+Compound-string rendition copying also validates its output pointer before
+initializing it, so malformed internal calls fail cleanly instead of
+dereferencing `NULL`.
