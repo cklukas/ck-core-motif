@@ -25255,3 +25255,9 @@ Name Text selection state explicitly (2026-10-29)
   closure variables, removing shadowed identifiers without changing the
   transfer record layout or public behavior.
 - Add focused source coverage and documentation.
+Report Text wide-conversion count overflow (2026-10-29)
+=========================================================
+
+- Return the existing conversion-failure value when a valid wide conversion
+  exceeds the legacy `int` result range, instead of reporting an empty value.
+- Add focused source coverage and documentation for the overflow contract.

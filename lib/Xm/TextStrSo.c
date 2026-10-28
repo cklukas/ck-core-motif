@@ -243,7 +243,7 @@ _XmTextBytesToCharacters(char * characters,
     if (converted == (size_t)-1)
 	return -1;
     if (converted > (size_t)INT_MAX)
-	return 0;
+	return -1;
     count = (int)converted;
     if (add_null_terminator == True && count >= 0)
       wchar_t_ptr[count] = (wchar_t)0;
