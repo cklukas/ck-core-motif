@@ -524,12 +524,18 @@ boolean			op2_temporary;
     l1 = az_str1_entry->w_length;
     l2 = az_str2_entry->w_length;
 
+    if (l1 > USHRT_MAX - l2) {
+	XtError("UIL concatenated string is too large");
+	return (sym_value_entry_type *)sym_az_error_value_entry;
+    }
+
     /* extra 1 is for terminating null */
 
     new_str_entry = (sym_value_entry_type *) 
 	sem_allocate_node( sym_k_value_entry,
 			   sym_k_value_entry_size );
-    new_str_entry->value.c_value = XtCalloc(1, l1 + l2 + 1);
+	new_str_entry->value.c_value = XtCalloc(
+	    1, (Cardinal)((size_t)l1 + (size_t)l2 + 1));
 
 
     new_str_entry->obj_header.b_flags = sym_m_builtin | sym_m_private;
@@ -540,14 +546,14 @@ boolean			op2_temporary;
     new_str_entry->b_aux_flags =
 	(az_str1_entry->b_aux_flags & sym_m_separate);
     new_str_entry->b_type = sym_k_char_8_value;
-    new_str_entry->w_length = l1 + l2;
+	new_str_entry->w_length = (unsigned short)(l1 + l2);
 
     _move( new_str_entry->value.c_value, 
-	   az_str1_entry->value.c_value, l1 );
+	       az_str1_entry->value.c_value, (size_t)l1 );
 
     _move( &new_str_entry->value.c_value[ l1 ],
 	   az_str2_entry->value.c_value,
-	   l2+1 );
+	   (size_t)l2 + 1 );
 
     /* 
     **	if either of the operands is unnamed - free the node 
@@ -730,7 +736,8 @@ void sar_make_fallback_charset(name_frame)
   
   /* Get the default charset keyword entry. */
   if (az_keyword_entry == NULL)
-    az_keyword_entry = key_find_keyword(strlen(DEFAULT_TAG), DEFAULT_TAG);
+	    az_keyword_entry = key_find_keyword((unsigned int)strlen(DEFAULT_TAG),
+						DEFAULT_TAG);
   
   _assert((az_keyword_entry !=NULL), "default charset keyword missing");
 
@@ -798,7 +805,7 @@ yystype	    *prior_value_frame;
 
 	target_frame->b_tag = sar_k_token_frame;
 	target_frame->b_direction = NOSTRING_DIRECTION;
-	target_frame->b_charset = uil_sym_default_charset;
+		target_frame->b_charset = (unsigned char)uil_sym_default_charset;
 	target_frame->b_type = 0;
 	break;
 
@@ -860,7 +867,9 @@ yystype	    *prior_value_frame;
 	    if (value_entry->value.l_integer == TRUE)
 		target_frame->b_type |= sym_m_sixteen_bit; 
 	    else
-		target_frame->b_type &= ~sym_m_sixteen_bit; 
+		target_frame->b_type =
+		    (unsigned char)(target_frame->b_type &
+			(unsigned char)~sym_m_sixteen_bit);
         }
 	break;
     }

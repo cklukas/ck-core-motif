@@ -6,6 +6,13 @@ Make UIL value-frame narrowing explicit (2026-10-28)
   removing ambiguous implicit conversions.
 - Add focused coverage and documentation.
 
+Bound UIL string concatenation lengths (2026-10-28)
+===================================================
+
+- Reject concatenated simple strings whose combined length cannot fit the
+  16-bit symbol-entry field before allocation and copying.
+- Add focused coverage and documentation.
+
   Compound-string component and direction enum values now narrow explicitly
   at the Motif API boundary after validation.
 - Check compound-string lengths before storing the 16-bit symbol-entry length,
