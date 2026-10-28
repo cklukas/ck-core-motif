@@ -23671,6 +23671,14 @@ Preserve clipboard named-conversion result width (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-by-name-result-width.py
 
+Harden clipboard TARGETS size arithmetic (2026-10-28)
+=======================================================
+
+- Compute TARGETS atom-array bytes in `size_t` after the existing count bounds.
+- Pass the checked allocation size explicitly and widen the returned element count.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-targets-size-arithmetic.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

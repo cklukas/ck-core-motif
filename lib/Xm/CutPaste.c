@@ -716,6 +716,7 @@ ClipboardConvertProc(Widget wid,
       Atom *ptr, *save_ptr;
       ClipboardFormatItem nextitem;
       int n, count;
+      size_t atom_bytes;
       unsigned long dummy;
       
       *size = 0;
@@ -735,9 +736,11 @@ ClipboardConvertProc(Widget wid,
 	  goto done;
 	}
 
+      atom_bytes = (size_t)(count + 2) * sizeof(*ptr);
+
       /* allocate storage for list of target atoms, 
 	 plus the necessary */
-      ptr = (Atom *)XtMalloc( sizeof(Atom) * (count + 2));
+      ptr = (Atom *)XtMalloc((Cardinal)atom_bytes);
       if (ptr == NULL)
 	{
 	  XtFree( (char *)nextitem );
@@ -770,7 +773,7 @@ ClipboardConvertProc(Widget wid,
       *value = (char *) save_ptr;
       /* n is number of targets from the clipboard,
 	 plus 2 builtin targets */
-      *size = n + 2;
+      *size = (unsigned long)n + 2UL;
     } else if ( *target == atoms[XmA_TIMESTAMP] ) {
       timeStamp *timestamp;
 
