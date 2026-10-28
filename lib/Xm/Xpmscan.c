@@ -236,6 +236,10 @@ XpmCreateXpmImageFromImage(
     }
     if (width == 0 || height == 0)
 	RETURN(XpmFileInvalid);
+    if (image != NULL && shapeimage != NULL &&
+	(image->width != shapeimage->width ||
+	 image->height != shapeimage->height))
+	RETURN(XpmFileInvalid);
     if ((image != NULL && image->data == NULL) ||
 	(shapeimage != NULL && shapeimage->data == NULL))
 	RETURN(XpmFileInvalid);

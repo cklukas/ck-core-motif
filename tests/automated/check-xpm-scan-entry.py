@@ -26,4 +26,6 @@ assert "image->depth > 32" in function
 assert "shapeimage->depth > 32" in function
 assert "image->xoffset < 0" in function
 assert "shapeimage->xoffset < 0" in function
+assert "image->width != shapeimage->width" in function
+assert "image->height != shapeimage->height" in function
 print("PASS XPM image-scan entry guard")

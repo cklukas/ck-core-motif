@@ -19,5 +19,7 @@ calculation as well.
 Depths above 32 are rejected because the optimized reader’s low-bit mask table
 is defined only for the 32-bit range.
 Negative x-offsets are rejected before bit and byte indexing can underflow.
+When a shape image is provided, its dimensions must match the source image so
+the shared scan geometry cannot overrun either image.
 
 Regression: `tests/automated/check-xpm-scan-entry.py`

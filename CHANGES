@@ -1,3 +1,10 @@
+Reject mismatched XPM source geometry (2026-10-29)
+==================================================
+
+- Require source and shape images to have identical dimensions before using
+  the source geometry for both pixel readers.
+- Add focused coverage and documentation.
+
 Dispatch uncommon XPM ZPixmap widths (2026-10-29)
 ==================================================
 
