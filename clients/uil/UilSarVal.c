@@ -57,9 +57,23 @@ static char rcsid[] = "$TOG: UilSarVal.c /main/13 1997/12/06 16:14:16 cshi $"
 **/
 
 #include <Xm/Xm.h>
+#include <limits.h>
 
 #include "UilDefI.h"
 #include "UilSymGen.h"	/* For sym_k_[TRUE|FALSE]_enumval */
+
+static unsigned int
+sar_component_length(const char *text)
+{
+    size_t length = strlen(text);
+
+    if (length > UINT_MAX) {
+	XtError("UIL compound-string component is too large");
+	return 0;
+    }
+
+    return (unsigned int)length;
+}
 /*
 **
 **  TABLE OF CONTENTS
@@ -1621,7 +1635,9 @@ yystype	    *keyword_frame;
 				  "_MOTIF_DEFAULT_LOCALE");
 	}
 
-      cstr_r = XmStringComponentCreate(type, strlen(_MOTIF_DEFAULT_LOCALE),
+
+      cstr_r = XmStringComponentCreate(type,
+				       sar_component_length(_MOTIF_DEFAULT_LOCALE),
 				       _MOTIF_DEFAULT_LOCALE);
       break;
 
@@ -1667,7 +1683,8 @@ yystype	    *keyword_frame;
 		   (value_frame->value.az_symbol_entry))->value.c_value;
 	}
       
-      cstr_r = XmStringComponentCreate(type, strlen(str), (XtPointer)str);
+      cstr_r = XmStringComponentCreate(type, sar_component_length(str),
+				       (XtPointer)str);
       break;
 
     case XmSTRING_COMPONENT_DIRECTION:

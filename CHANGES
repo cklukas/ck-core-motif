@@ -24159,3 +24159,11 @@ Bound UIL procedure widget metadata (2026-10-28)
 - Add focused coverage and documentation.
 
 Bound UIL object-comment allocation (2026-10-28)
+Bound UIL compound-string component lengths (2026-10-28)
+==========================================================
+
+- Check `strlen` results before converting them to the unsigned-int length
+  accepted by `XmStringComponentCreate`.
+- Add focused coverage and documentation.
+
+Bound UIL procedure widget metadata (2026-10-28)
