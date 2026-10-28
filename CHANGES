@@ -26351,3 +26351,10 @@ Guard UIL section-link allocations (2026-10-29)
 
 - Check value-binding and identifier section-list nodes before linking them.
 - Return safely when compiler bookkeeping allocation is unavailable.
+
+Guard UIL object and section allocations (2026-10-29)
+=======================================================
+
+- Check object and child-object nodes before initialization or parser-frame
+  publication.
+- Check section-link bookkeeping before updating the section list.

@@ -259,6 +259,11 @@ void		sar_create_object
  */
     obj_entry = (sym_obj_entry_type *)
 	sem_allocate_node (object_type, (unsigned short)node_size);
+    if (obj_entry == NULL)
+	{
+	object_frame->b_tag = sar_k_null_frame;
+	return;
+	}
     if (name_entry != NULL)
 	{
 	name_entry->az_object = (sym_entry_type *)obj_entry;
@@ -326,6 +331,11 @@ void		sar_create_child
  */
     obj_entry = (sym_obj_entry_type *)
 	sem_allocate_node (sym_k_child_entry, sym_k_widget_entry_size);
+    if (obj_entry == NULL)
+	{
+	object_frame->b_tag = sar_k_null_frame;
+	return;
+	}
     obj_entry->header.b_type =
 	  (unsigned char)object_frame->value.az_keyword_entry->b_subclass;
 
@@ -390,6 +400,8 @@ sym_section_entry_type	* section_entry;
  */
 section_entry = (sym_section_entry_type *) sem_allocate_node
     (sym_k_section_entry, sym_k_section_entry_size);
+if (section_entry == NULL)
+    return;
 section_entry->next = (sym_entry_type *)
     sym_az_current_section_entry->entries;
 sym_az_current_section_entry->entries = (sym_entry_type *) section_entry;
