@@ -2492,7 +2492,7 @@ SetListFromText(Widget w, Boolean no_action)
 
 	XmListGetMatchPos(XmDropDown_list(cbw), sel_table[0], &pos_list, &num);
 
-	if (num > 0) {
+	if (num > 0 && pos_list != NULL) {
 	    pos = pos_list[0] - vcount/2;
 	    if (pos < 1)
 		pos = 1;

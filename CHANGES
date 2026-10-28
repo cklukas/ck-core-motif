@@ -28309,6 +28309,13 @@ DropDown selected-item conversion inputs (2026-10-28)
   DropDown list-to-text conversion dereferences or converts them. See
   `docs/dropdown-selection-inputs.md`.
 
+DropDown match-position results (2026-10-28)
+=============================================
+
+- Require a match-position array before DropDown list positioning reads its
+  first entry, retaining safe default positioning on failed queries. See
+  `docs/dropdown-match-positions.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
