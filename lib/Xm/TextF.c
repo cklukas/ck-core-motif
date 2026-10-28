@@ -2780,7 +2780,7 @@ ModifyVerify(XmTextFieldWidget tf,
   XmTextBlockRecWcs wcs_newblock;
   Boolean do_free = False;
   Boolean wcs_do_free = False;
-  int count;
+  size_t count;
   wchar_t *wptr;
   
   *newInsert = TextF_CursorPosition(tf);
@@ -2815,16 +2815,17 @@ ModifyVerify(XmTextFieldWidget tf,
 		     newblock.length);
 	newblock.ptr[newblock.length]='\0';
       } else {
-	count = (int) wcstombs(newblock.ptr, (wchar_t*)*insert,
-			       newblock.length);
-	if (count < 0) { /* bad wchar; don't pass anything */
+	count = wcstombs(newblock.ptr, (wchar_t*)*insert,
+			       (size_t)newblock.length);
+	if (count == (size_t)-1 || count > (size_t)INT_MAX) {
+	  /* bad wchar or an unrepresentable callback length */
 	  newblock.ptr[0] = '\0';
 	  newblock.length = 0;
-	} else if (count == newblock.length) {
+	} else if (count >= (size_t)newblock.length) {
 	  newblock.ptr[newblock.length] = '\0';
 	} else {
-	  newblock.ptr[count] = '\0';
-	  newblock.length = count;
+	  newblock.ptr[(size_t)count] = '\0';
+	  newblock.length = (int)count;
 	}
       }
       do_free = True;
@@ -2849,53 +2850,53 @@ ModifyVerify(XmTextFieldWidget tf,
 		       (XtPointer) &vcb);
   
   if (TextF_ModifyVerifyCallbackWcs(tf) && vcb.doit) {
-    if (do_free) { /* there is a char* modify verify callback; the data we
-		    * want is in vcb struct */
+    if (do_free) {
       if (vcb.text->length < 0 ||
-	  (size_t)vcb.text->length > SIZE_MAX / sizeof(wchar_t) - 1 ||
-	  (size_t)vcb.text->length + 1 > UINT_MAX / sizeof(wchar_t)) {
-	  XtFree(newblock.ptr);
-	  return(False);
+          (size_t)vcb.text->length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+          (size_t)vcb.text->length + 1 > UINT_MAX / sizeof(wchar_t)) {
+        XtFree(newblock.ptr);
+        return(False);
       }
-      wcs_newblock.wcsptr = (wchar_t *) XtMalloc((unsigned) 
-						 (vcb.text->length + 1) * 
-						 sizeof(wchar_t));
+      wcs_newblock.wcsptr = (wchar_t *)XtMalloc(
+          (unsigned)(vcb.text->length + 1) * sizeof(wchar_t));
       if (wcs_newblock.wcsptr == NULL) {
-	  XtFree(newblock.ptr);
-	  return(False);
+        XtFree(newblock.ptr);
+        return(False);
       }
-      wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, vcb.text->ptr,
-				     vcb.text->length);
-      if (wcs_newblock.length < 0) { /* bad value; don't pass anything */
-	wcs_newblock.wcsptr[0] = 0L;
-	wcs_newblock.length = 0;
-      } else 
-	wcs_newblock.wcsptr[wcs_newblock.length] = 0L;
-    } else { /* there was no char* modify verify callback; use data
-	      * passed in from caller instead of that in vcb struct. */
+      count = mbstowcs(wcs_newblock.wcsptr, vcb.text->ptr,
+                       (size_t)vcb.text->length);
+      if (count == (size_t)-1 || count > (size_t)INT_MAX) {
+        wcs_newblock.wcsptr[0] = 0L;
+        wcs_newblock.length = 0;
+      } else {
+        wcs_newblock.length = (int)count;
+        wcs_newblock.wcsptr[wcs_newblock.length] = 0L;
+      }
+    } else {
       if (*insert_length < 0 ||
-	  (size_t)*insert_length > SIZE_MAX / sizeof(wchar_t) - 1 ||
-	  (size_t)*insert_length + 1 > UINT_MAX / sizeof(wchar_t))
-	return(False);
-      wcs_newblock.wcsptr = (wchar_t *) XtMalloc((unsigned) 
-						 (*insert_length + 1) * 
-						 sizeof(wchar_t));
+          (size_t)*insert_length > SIZE_MAX / sizeof(wchar_t) - 1 ||
+          (size_t)*insert_length + 1 > UINT_MAX / sizeof(wchar_t))
+        return(False);
+      wcs_newblock.wcsptr = (wchar_t *)XtMalloc(
+          (unsigned)(*insert_length + 1) * sizeof(wchar_t));
       if (wcs_newblock.wcsptr == NULL)
-	return(False);
-      if (tf->text.max_char_size == 1) 
-	wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, *insert,
-				       *insert_length);
-      else {
-	wcs_newblock.length = *insert_length;
-	(void)memcpy((void*)wcs_newblock.wcsptr, (void*)*insert,
-		     *insert_length * sizeof(wchar_t));
-      }	    
-      if (wcs_newblock.length < 0) { /* bad value; don't pass anything */
-	wcs_newblock.wcsptr[0] = 0L;
-	wcs_newblock.length = 0;
-      } else 
-	wcs_newblock.wcsptr[wcs_newblock.length] = 0L;
-      
+        return(False);
+      if (tf->text.max_char_size == 1) {
+        count = mbstowcs(wcs_newblock.wcsptr, *insert,
+                         (size_t)*insert_length);
+        if (count == (size_t)-1 || count > (size_t)INT_MAX) {
+          wcs_newblock.wcsptr[0] = 0L;
+          wcs_newblock.length = 0;
+        } else {
+          wcs_newblock.length = (int)count;
+          wcs_newblock.wcsptr[wcs_newblock.length] = 0L;
+        }
+      } else {
+        wcs_newblock.length = *insert_length;
+        (void)memcpy((void *)wcs_newblock.wcsptr, (void *)*insert,
+                     (size_t)*insert_length * sizeof(wchar_t));
+        wcs_newblock.wcsptr[wcs_newblock.length] = 0L;
+      }
     }
     wcs_do_free = True;
     wcs_vcb.reason = XmCR_MODIFYING_TEXT_VALUE;
@@ -2924,8 +2925,8 @@ ModifyVerify(XmTextFieldWidget tf,
 	  *insert = allocated_insert;
 	  *free_insert = (int)True;
 	  count = wcstombs(*insert, wcs_vcb.text->wcsptr,
-			   *insert_length + 1);
-	  if (count < 0) {
+			   (size_t)*insert_length + 1);
+	  if (count == (size_t)-1 || count > (size_t)INT_MAX) {
 	    (*insert)[0] = 0;
 	    *insert_length = 0;
 	  }
@@ -2973,13 +2974,13 @@ ModifyVerify(XmTextFieldWidget tf,
 	  *insert = (char *)allocated_insert;
 	  *free_insert = (int)True;
 	  count = mbstowcs((wchar_t*)*insert, vcb.text->ptr,
-			   *insert_length);
+			   (size_t)*insert_length);
 	  wptr = (wchar_t*) *insert;
-	  if (count < 0) {
+	  if (count == (size_t)-1 || count > (size_t)INT_MAX) {
 	    wptr[0] = 0L;
 	    *insert_length = 0;
 	  } else 
-	    wptr[count] = 0L;
+	    wptr[(size_t)count] = 0L;
 	}
       }
       *replace_prev = vcb.startPos;

@@ -25954,3 +25954,9 @@ Bound DataField public conversion results (2026-10-29)
 
 - Reject capacity-filling `wcstombs` output before string publication or
   selection-buffer indexing.
+
+Harden TextField modify-verify conversions (2026-10-29)
+========================================================
+
+- Preserve native conversion widths and reject failed or unrepresentable
+  `wcstombs`/`mbstowcs` results in callback payloads.
