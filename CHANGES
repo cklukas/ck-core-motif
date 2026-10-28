@@ -27724,3 +27724,9 @@ Bound List base positions (2026-10-29)
 - Clamp BaseX/BaseY margin arithmetic before storing it in signed `Position`
   fields across initialization, resize, redraw, and scrollbar paths.
 - Add focused source-contract coverage for oversized list margins.
+Bound List horizontal origin (2026-10-29)
+==========================================
+
+- Clamp the wide-content horizontal scroll origin before storing it in the
+  signed `Position` XOrigin field.
+- Add focused source-contract coverage for large list widths.

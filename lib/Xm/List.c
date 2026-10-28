@@ -1429,7 +1429,8 @@ Resize(Widget wid)
   if (lw->list.SizePolicy != XmVARIABLE)
     {
       if ((int)(lw->list.MaxWidth - lw->list.XOrigin) < listwidth)
-	lw->list.XOrigin = lw->list.MaxWidth - listwidth;
+	lw->list.XOrigin = bounded_position((long long)lw->list.MaxWidth -
+						listwidth);
 
       ASSIGN_MAX(lw->list.XOrigin, 0);
       SetHorizontalScrollbar(lw);
