@@ -641,9 +641,8 @@ DropTransferSelectionCB(
 	    FailTransferEntry(dt);
 	    return;
 	}
-	if (*length != 0 &&
-	    (*type == None || value == NULL ||
-	     (*format != 8 && *format != 16 && *format != 32))) {
+	if ((*format != 8 && *format != 16 && *format != 32) ||
+	    (*length != 0 && (*type == None || value == NULL))) {
 	    XtFree((char *)value);
 	    FailTransferEntry(dt);
 	    return;
