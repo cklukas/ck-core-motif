@@ -10117,8 +10117,22 @@ PreeditDraw(XIC xic,
         }
 
         if (tf->text.overstrike && rest_len){
+            current_length = wcslen(wc);
+            extra_length = (size_t)rest_len;
+            if (extra_length > SIZE_MAX - current_length - 1 ||
+                current_length + extra_length + 1 >
+                  SIZE_MAX / sizeof(wchar_t) ||
+                (current_length + extra_length + 1) * sizeof(wchar_t) >
+                  UINT_MAX) {
+                XtFree((char *)wc);
+                XtFree((char *)over_wc);
+                _XmTextFieldDrawInsertionPoint(tf, True);
+                return;
+            }
+            required_size = (current_length + extra_length + 1) *
+                            sizeof(wchar_t);
             resized_wc = (wchar_t *)XtRealloc((char *)wc,
-                        (insert_length+rest_len+1)*sizeof(wchar_t));
+                                              (Cardinal)required_size);
             if (resized_wc == NULL) {
                 XtFree((char *)wc);
                 XtFree((char *)over_wc);
@@ -10130,8 +10144,21 @@ PreeditDraw(XIC xic,
         }
 
         if (tf->text.overstrike && recover_len > 0) {
+           current_length = wcslen(wc);
+           extra_length = (size_t)recover_len;
+           if (extra_length > SIZE_MAX - current_length - 1 ||
+               current_length + extra_length + 1 >
+                 SIZE_MAX / sizeof(wchar_t) ||
+               (current_length + extra_length + 1) * sizeof(wchar_t) >
+                 UINT_MAX) {
+               XtFree((char *)wc);
+               _XmTextFieldDrawInsertionPoint(tf, True);
+               return;
+           }
+           required_size = (current_length + extra_length + 1) *
+                           sizeof(wchar_t);
            resized_wc = (wchar_t *)XtRealloc((char *)wc,
-                       wcslen(wc)+(recover_len+1)*sizeof(wchar_t));
+                                             (Cardinal)required_size);
            if (resized_wc == NULL) {
                XtFree((char *)wc);
                return;

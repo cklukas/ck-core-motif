@@ -26098,3 +26098,9 @@ Guard TextField preedit append reallocations (2026-10-29)
 
 - Check narrow overstrike and recovery append sizes before `XtRealloc`,
   preventing wrapped sums and unsafe Xt `Cardinal` narrowing.
+
+Guard TextField wide preedit append reallocations (2026-10-29)
+===============================================================
+
+- Check combined wide-character append counts and byte sizes before
+  `XtRealloc`, preventing wrapped wide-buffer arithmetic.
