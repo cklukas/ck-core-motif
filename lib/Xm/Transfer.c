@@ -2187,7 +2187,8 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
     if (tc -> last == tb) tc -> last = NULL;
   }
 
-  malformed_result = (*format != 8 && *format != 16 && *format != 32) ||
+  malformed_result = (*selection == None) ||
+    (*format != 8 && *format != 16 && *format != 32) ||
     (*length != 0 && (*type == None || value == NULL)) ||
     (*length == 0 && value != NULL);
   if (malformed_result) {

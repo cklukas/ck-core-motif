@@ -10,6 +10,7 @@ end = source.index("/**********************************************************/
 body = source[start:end]
 
 assert "Boolean malformed_result;" in body
+assert "malformed_result = (*selection == None)" in body
 assert "*length != 0 && (*type == None || value == NULL)" in body
 assert "*length == 0 && value != NULL" in body
 assert "XtFree((char *)value);" in body
