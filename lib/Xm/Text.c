@@ -4570,14 +4570,19 @@ XmCreateScrolledText(Widget parent,
   char *s;
   Cardinal s_size;
   Cardinal arg_size;
+  size_t name_size;
 
   if (argcount > (Cardinal)(~(Cardinal)0 - 5))
 	return NULL;
   arg_size = argcount + 5;
+  name_size = name ? strlen(name) : 0;
+  if (name_size > (size_t)UINT_MAX - 3 ||
+      (size_t)arg_size > (size_t)UINT_MAX / sizeof(Arg))
+    return NULL;
   _XmWidgetToAppContext(parent);
 
   _XmAppLock(app);
-  s_size = ((name) ? strlen(name) : 0) + 3;
+  s_size = (Cardinal)(name_size + 3);
   
   s = (char *) XmStackAlloc(s_size, s_cache);  /* Name + NULL + "SW" */
   if (name) {

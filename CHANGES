@@ -26176,3 +26176,9 @@ Bound Text wide-value initialization lengths (2026-10-29)
 
 - Stop the legacy signed counter at `INT_MAX` while counting an initial wide
   value, before conversion and allocation sizing.
+
+Bound scrolled Text allocations (2026-10-29)
+============================================
+
+- Check derived-name and merged-argument sizes before narrowing them to Xt
+  stack-allocation widths.
