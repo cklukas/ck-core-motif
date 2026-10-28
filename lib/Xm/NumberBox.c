@@ -122,6 +122,12 @@ static void redraw(XmNumberBoxWidget number) {
                    0, 0, 0, 0, True);
 }
 
+static short bounded_point(int value) {
+    if (value < SHRT_MIN) return SHRT_MIN;
+    if (value > SHRT_MAX) return SHRT_MAX;
+    return (short)value;
+}
+
 static void notify_value(XmNumberBoxWidget number, XEvent *event) {
     XmNumberBoxCallbackStruct callback;
     callback.reason = XmCR_VALUE_CHANGED;
@@ -220,12 +226,15 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         arrow_x = SHRT_MAX - 19;
     XDrawLine(display, window, number->number_box.arrow_gc, arrow_x, 0,
               arrow_x, number->core.height);
-    up[0].x = (short)(arrow_x + 12); up[0].y = 5;
-    up[1].x = (short)(arrow_x + 5); up[1].y = (short)(number->core.height / 2 - 2);
-    up[2].x = (short)(arrow_x + 19); up[2].y = up[1].y;
-    down[0].x = up[1].x; down[0].y = (short)(number->core.height / 2 + 2);
+    up[0].x = bounded_point(arrow_x + 12); up[0].y = 5;
+    up[1].x = bounded_point(arrow_x + 5);
+    up[1].y = bounded_point((int)number->core.height / 2 - 2);
+    up[2].x = bounded_point(arrow_x + 19); up[2].y = up[1].y;
+    down[0].x = up[1].x;
+    down[0].y = bounded_point((int)number->core.height / 2 + 2);
     down[1].x = up[2].x; down[1].y = down[0].y;
-    down[2].x = up[0].x; down[2].y = (short)(number->core.height - 5);
+    down[2].x = up[0].x;
+    down[2].y = bounded_point((int)number->core.height - 5);
     XFillPolygon(display, window, number->number_box.arrow_gc, up, 3,
                  Convex, CoordModeOrigin);
     XFillPolygon(display, window, number->number_box.arrow_gc, down, 3,
