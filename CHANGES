@@ -27456,6 +27456,12 @@ Guard EmptyState action callbacks (2026-10-29)
 - Validate the callback closure’s widget class before reading action state,
   preventing foreign or stale callback data from being used.
 
+Bound EmptyState layout positions (2026-10-29)
+===============================================
+
+- Accumulate vertical positions in a wide type and bound the conversion to
+  X11 `Position`, preventing large layouts from wrapping child coordinates.
+
 Guard Toolbar action callbacks (2026-10-29)
 ===========================================
 

@@ -60,6 +60,9 @@ static XmString copy_string(XmString source) {
 static Dimension dimension(unsigned long value) {
     return (Dimension)(value > USHRT_MAX ? USHRT_MAX : value ? value : 1);
 }
+static Position bounded_position(unsigned long value) {
+    return (Position)(value > SHRT_MAX ? SHRT_MAX : value);
+}
 static Boolean has_icon(XmEmptyStateWidget state) {
     return state->empty_state.icon != XmUNSPECIFIED_PIXMAP;
 }
@@ -92,7 +95,7 @@ static void natural(XmEmptyStateWidget state, Dimension *width, Dimension *heigh
 }
 static void layout(XmEmptyStateWidget state) {
     Dimension iw = 0, ih = 0, mw, mh, aw = 0, ah = 0, width;
-    Position y; Boolean icon = has_icon(state), action = has_action(state);
+    unsigned long y; Boolean icon = has_icon(state), action = has_action(state);
     if (state->empty_state.initializing || state->empty_state.laying_out) return;
     state->empty_state.laying_out = True;
     if (icon) preferred(state->empty_state.icon_widget, &iw, &ih);
@@ -100,13 +103,13 @@ static void layout(XmEmptyStateWidget state) {
     if (action) preferred(state->empty_state.action_widget, &aw, &ah);
     width = dimension(state->core.width > 2UL * state->empty_state.margin_width
                           ? state->core.width - 2UL * state->empty_state.margin_width : 1);
-    y = (Position)state->empty_state.margin_height;
+    y = state->empty_state.margin_height;
     XtSetMappedWhenManaged(state->empty_state.icon_widget, icon);
     XtSetMappedWhenManaged(state->empty_state.action_widget, action);
-    if (icon) { XmeConfigureObject(state->empty_state.icon_widget, state->empty_state.margin_width, y, width, ih, 0); y += ih + state->empty_state.spacing; }
-    XmeConfigureObject(state->empty_state.message_widget, state->empty_state.margin_width, y, width, mh, 0);
+    if (icon) { XmeConfigureObject(state->empty_state.icon_widget, state->empty_state.margin_width, bounded_position(y), width, ih, 0); y += ih + state->empty_state.spacing; }
+    XmeConfigureObject(state->empty_state.message_widget, state->empty_state.margin_width, bounded_position(y), width, mh, 0);
     y += mh;
-    if (action) { y += state->empty_state.spacing; XmeConfigureObject(state->empty_state.action_widget, state->empty_state.margin_width, y, width, ah, 0); }
+    if (action) { y += state->empty_state.spacing; XmeConfigureObject(state->empty_state.action_widget, state->empty_state.margin_width, bounded_position(y), width, ah, 0); }
     state->empty_state.laying_out = False;
 }
 static void negotiate(XmEmptyStateWidget state) {
