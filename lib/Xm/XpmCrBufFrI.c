@@ -349,8 +349,8 @@ WritePixels(
     unsigned int x, y, h;
 
 
-    if (height == 0)
-	return 1;
+    if (width == 0 || height == 0)
+	return 0;
     if (dataptr == NULL || used_size == NULL || pixels == NULL ||
 	    colors == NULL || ncolors == 0 || cpp == 0)
 	return 0;

@@ -1,3 +1,11 @@
+Reject zero-dimension XPM pixel output (2026-10-29)
+===================================================
+
+- Reject zero-width or zero-height images in array and buffer serialization
+  instead of returning success with malformed pixel sections.
+- Keep one-row, nonzero-width images on the normal serialization path.
+- Add focused coverage and documentation.
+
 Correct XPM header-table allocation count (2026-10-29)
 =======================================================
 
