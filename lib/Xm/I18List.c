@@ -1691,16 +1691,19 @@ HSlideRightArrowCallback(Widget w, XtPointer client_data, XtPointer junk)
                  * make as much of it visible as possible
                  */
                 if ((i + 1) == XmI18List_num_columns(ilist))
-                    XmI18List_left_loc(ilist) = 0 - (width - ilist->core.width);
+                    XmI18List_left_loc(ilist) = bounded_short(
+                        -((long long)width - (long long)ilist->core.width));
                 else
-                    XmI18List_left_loc(ilist) -= end;
+                    XmI18List_left_loc(ilist) = bounded_short(
+                        (long long)XmI18List_left_loc(ilist) - (long long)end);
                 break;
             }
             before = end;
         }
 
     } else {
-        XmI18List_left_loc(ilist) = 0 - (width - ilist->core.width);
+        XmI18List_left_loc(ilist) = bounded_short(
+            -((long long)width - (long long)ilist->core.width));
     }
 
     XClearWindow(XtDisplay(ilist), XtWindow(ilist));

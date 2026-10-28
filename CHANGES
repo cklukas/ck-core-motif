@@ -1,3 +1,10 @@
+Bound I18List right-arrow scrolling (2026-10-29)
+==================================================
+
+- Compute horizontal right-arrow movement in wide arithmetic and clamp the
+  resulting legacy short origin updates.
+- Add focused source-contract coverage.
+
 Use signed I18List slider-height arithmetic (2026-10-29)
 ==========================================================
 
