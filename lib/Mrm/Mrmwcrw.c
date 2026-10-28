@@ -2146,7 +2146,8 @@ Urm__CW_FixupValue (long			val,
 	/* Converting an old style fontlist */
 	{
 	  oldlist = (OldRGMFontListPtr)bufptr;
-	  if ( oldlist->count < 0 || oldlist->count > RGMListSizeMax )
+	  if ( oldlist->validation != URMFontListValid ||
+	       oldlist->count < 0 || oldlist->count > RGMListSizeMax )
 	    return MrmFAILURE ;
 
 	  fontlist = (RGMFontListPtr)val;
