@@ -26413,3 +26413,9 @@ Rollback image-cache capacity on growth failure (2026-10-29)
 
 - Publish the new color-cache capacity only after `XtRealloc` succeeds.
 - Keep failed growth from making later insertions address unallocated storage.
+
+Guard accessibility memo-table capacity (2026-10-29)
+=====================================================
+
+- Validate memo bucket capacity at the `XtCalloc` boundary.
+- Reject zero or unrepresentable bucket sizes before resizing the table.
