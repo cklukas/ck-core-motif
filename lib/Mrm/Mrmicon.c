@@ -1591,11 +1591,22 @@ UrmIconImageSize (RGMIconImagePtr	icon)
  *--
  */
 
-/*ARGSUSED*/
 Cardinal 
-UrmColorTableSize (RGMColorTablePtr	ctable)	/* unused */
+UrmColorTableSize (RGMColorTablePtr	ctable)
 {
+  size_t size;
 
-  return sizeof(RGMColorTable);
+  if (ctable == NULL || ctable->validation != URMColorTableValid ||
+      ctable->count < URMColorTableUserMin ||
+      ctable->count > RGMListSizeMax)
+    return 0;
+  if ((size_t)(ctable->count - 1) >
+      (SIZE_MAX - sizeof(RGMColorTable)) / sizeof(RGMColorTableEntry))
+    return 0;
+  size = sizeof(RGMColorTable) +
+    (size_t)(ctable->count - 1) * sizeof(RGMColorTableEntry);
+  if (size > UINT_MAX)
+    return 0;
+  return (Cardinal)size;
 
 }

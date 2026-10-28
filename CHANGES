@@ -27078,6 +27078,14 @@ Preflight Mrm callback item types (2026-10-28)
   appending routine data or changing the callback item.
 - Preserve all previously supported scalar and string callback values.
 
+Copy Mrm color-table arguments (2026-10-28)
+============================================
+
+- Compute color-table storage from the validated entry count instead of a
+  fixed one-entry size.
+- Copy the complete bounded table into the resource record before storing its
+  offset.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

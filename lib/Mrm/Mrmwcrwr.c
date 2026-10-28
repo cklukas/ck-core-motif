@@ -651,6 +651,7 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
   Cardinal		diff;		/* alignment diff for dblptr */
   RGMColorTablePtr	src_ct ;	/* arg_val as color table pointer */
   RGMColorTablePtr	dst_ct ;	/* color table allocated in record */
+  Cardinal		color_table_size ;	/* serialized color table size */
   RGMIconImagePtr	src_icon ;	/* arg_val as icon pointer */
   RGMIconImagePtr	dst_icon ;	/* icon allocated in record */
   Cardinal		icon_size ;	/* serialized icon size */
@@ -762,12 +763,14 @@ UrmCWRSetArgValue (URMResourceContextPtr	context_id,
 
     case MrmRtypeColorTable:
       src_ct = (RGMColorTablePtr) arg_val ;
-      if (src_ct == NULL)
+	  color_table_size = UrmColorTableSize(src_ct);
+      if (color_table_size == 0 || color_table_size > USHRT_MAX)
 	return MrmFAILURE;
       result = UrmCWR__GuaranteeSpace
-	(context_id, UrmColorTableSize(src_ct), &offset, (char **)&dst_ct) ;
+	(context_id, color_table_size, &offset, (char **)&dst_ct) ;
       if ( result != MrmSUCCESS )
 	return result ;
+	  memcpy (dst_ct, src_ct, color_table_size) ;
       result = UrmCWR__BindArgPtrs
 	(context_id, "UrmCWRSetArgValue", arg_ndx, &argdesc, &argptr) ;
       if ( result != MrmSUCCESS ) return result ;
