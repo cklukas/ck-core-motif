@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Reject UIL numeric integer overflow (2026-10-29)
+=================================================
+
+- Reject out-of-range `long`, floating-point, and NaN values before storing
+  expression results in UIL's `int` data field.
+- Add focused coverage and documentation.
+
 Bound UIL compound-string length (2026-10-29)
 ==============================================
 

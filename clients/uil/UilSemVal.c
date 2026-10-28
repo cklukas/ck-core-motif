@@ -4354,18 +4354,39 @@ data_value_type	    	*data_value;
 	  case sym_k_horizontal_integer_value:
 	  case sym_k_vertical_integer_value:
 	  case sym_k_bool_value:
-	    data_value->integer_value = operand_entry->value.l_integer;
+	    if (operand_entry->value.l_integer < INT_MIN ||
+		operand_entry->value.l_integer > INT_MAX)
+	      {
+		res_type = error_arg_type;
+		break;
+	      }
+	    data_value->integer_value = (int)operand_entry->value.l_integer;
 	    res_type = integer_arg_type;
 	    break;
 
 	  case sym_k_float_value:
 	  case sym_k_horizontal_float_value:
 	  case sym_k_vertical_float_value:
-	    data_value->integer_value = operand_entry->value.d_real;
+	    if (operand_entry->value.d_real != operand_entry->value.d_real ||
+		operand_entry->value.d_real < (double)INT_MIN ||
+		operand_entry->value.d_real > (double)INT_MAX)
+	      {
+		res_type = error_arg_type;
+		break;
+	      }
+	    data_value->integer_value = (int)operand_entry->value.d_real;
 	    res_type = integer_arg_type;
 	    break;
 
 	  case sym_k_single_float_value: /* single float data type RAP */
+	    if (operand_entry->value.single_float !=
+		operand_entry->value.single_float ||
+		operand_entry->value.single_float < (float)INT_MIN ||
+		operand_entry->value.single_float > (float)INT_MAX)
+	      {
+		res_type = error_arg_type;
+		break;
+	      }
 	    data_value->integer_value = 
 	      (int) operand_entry->value.single_float;
 	    res_type = integer_arg_type;
