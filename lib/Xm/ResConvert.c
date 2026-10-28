@@ -1274,6 +1274,7 @@ GetNextXmString(
    char *tmp;
    size_t input_length;
    int csize;
+   Boolean invalid_multibyte = False;
 
    *cs = NULL;
 
@@ -1340,7 +1341,10 @@ GetNextXmString(
 	    if (MB_CUR_MAX > 1) {
 #ifndef NO_MULTIBYTE
 	      if ((csize = mblen(*s, MB_CUR_MAX)) < 0)
+	        {
+	        invalid_multibyte = True;
 	        break;
+	        }
 #else
 	      csize = **s ? 1 : 0;
 #endif
@@ -1354,6 +1358,13 @@ GetNextXmString(
 	    }
          }
        }
+    }
+
+    if (invalid_multibyte)
+    {
+	XtFree(*cs);
+	*cs = NULL;
+	return(TRUE);
     }
 
     *tmp = '\0';

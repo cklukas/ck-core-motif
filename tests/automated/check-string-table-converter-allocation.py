@@ -21,6 +21,8 @@ for needle in (
     "Boolean invalid_multibyte = False;",
     "invalid_multibyte = True;",
     "if (invalid_multibyte)",
+    "XtFree(*cs);",
+    "*cs = NULL;",
 ):
     if needle not in block:
         raise SystemExit(f"string-table converter is missing {needle}")

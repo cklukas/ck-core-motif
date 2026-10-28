@@ -1,3 +1,11 @@
+Reject invalid multibyte XmString-table input (2026-10-29)
+===========================================================
+
+- Make the shared XmString-table parser fail on invalid `mblen` sequences
+  instead of returning a silently truncated component.
+- Release and clear the temporary component so table conversion rollback stays
+  authoritative.
+
 Reject invalid multibyte string-table input (2026-10-29)
 =========================================================
 
