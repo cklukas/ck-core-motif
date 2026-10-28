@@ -6,6 +6,13 @@ Make UIL value-frame narrowing explicit (2026-10-28)
   removing ambiguous implicit conversions.
 - Add focused coverage and documentation.
 
+Bound UIL source-record metadata (2026-10-29)
+=============================================
+
+- Validate diagnostic positions and machine-code offsets/lengths before
+  narrowing them into compact source-record fields or allocating their data.
+- Add focused coverage and documentation.
+
 Bound UIL string concatenation lengths (2026-10-28)
 ===================================================
 

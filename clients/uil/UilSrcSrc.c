@@ -53,6 +53,7 @@ static char rcsid[] = "$TOG: UilSrcSrc.c /main/13 1997/03/12 15:21:40 dbl $"
 **/
 
 #include "UilDefI.h"
+#include <limits.h>
 #include <stdint.h>
 
 /* %COMPLETE */
@@ -412,7 +413,7 @@ src_open_file (XmConst char *c_file_name,
     az_fcb->v_position_before_get = FALSE;
 
     az_source_buffer->w_current_line_number = 0;
-    az_source_buffer->b_file_number = src_l_last_source_file_number;
+	az_source_buffer->b_file_number = (char)src_l_last_source_file_number;
     az_source_buffer->w_current_position = 0;
     az_source_buffer->c_text[ 0 ] = 0;
 
@@ -1163,17 +1164,20 @@ src_append_diag_info( XmConst src_source_record_type *az_src_rec,
     */
 
     l_msg_length = strlen( c_msg_text ) + 1;	/* includes null */
-    if (l_msg_length > SIZE_MAX - sizeof(src_message_item_type))
+	if (l_src_pos < 0 || l_src_pos > UCHAR_MAX ||
+	    l_msg_length > SIZE_MAX - sizeof(src_message_item_type))
 	return;
     allocation_size = sizeof(src_message_item_type) + l_msg_length;
+	if (allocation_size > UINT_MAX)
+	return;
 
     az_msg_item = (src_message_item_type *)
-	_get_memory( allocation_size );
+	_get_memory( (Cardinal)allocation_size );
     if (az_msg_item == NULL)
 	return;
 
     az_msg_item->l_message_number = l_msg_number;
-    az_msg_item->b_source_pos = l_src_pos;
+	az_msg_item->b_source_pos = (unsigned char)l_src_pos;
 
     _move( (az_msg_item->c_text), c_msg_text, l_msg_length );
 
@@ -1263,21 +1267,24 @@ src_append_machine_code ( src_source_record_type *az_src_rec,
     */
 
     l_text_len = strlen( c_text ) + 1;	/* includes null */
-    if (l_text_len > SIZE_MAX - sizeof(src_machine_code_type) ||
-	    l_code_len < 0 ||
+	if (l_offset < 0 || l_offset > USHRT_MAX ||
+	    l_code_len < 0 || l_code_len > USHRT_MAX ||
+	    l_text_len > SIZE_MAX - sizeof(src_machine_code_type) ||
 	    (size_t)l_code_len > SIZE_MAX - sizeof(src_machine_code_type) - l_text_len)
-	return;
+	    return;
     allocation_size = sizeof(src_machine_code_type) + l_text_len +
 	(size_t)l_code_len;
+	if (allocation_size > UINT_MAX)
+	    return;
 
     az_code_item = (src_machine_code_type *) _get_memory(
-		 allocation_size );
-    if (az_code_item == NULL)
-	return;
+			 (Cardinal)allocation_size );
+	if (az_code_item == NULL)
+	    return;
 
-    az_code_item -> w_offset = l_offset;
-    az_code_item -> w_code_len = l_code_len;
-    _move( (az_code_item->data.c_data), c_code, l_code_len );
+	az_code_item -> w_offset = (unsigned short)l_offset;
+	az_code_item -> w_code_len = (unsigned short)l_code_len;
+	_move( (az_code_item->data.c_data), c_code, (size_t)l_code_len );
     _move( &(az_code_item->data.c_data [l_code_len]), c_text, l_text_len );
 
     /*
