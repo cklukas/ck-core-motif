@@ -28466,3 +28466,5 @@ List drag selection bounds (2026-10-28)
   sizing or copying it (2026-10-28).
 * Refreshed the Mrm scalar-writer contract check for the combined float guard
   and the new color-table NULL guard (2026-10-28).
+* Refreshed the MWM invoke-command contract check for its current bounded
+  unsigned parser and trailing-input rejection (2026-10-28).
