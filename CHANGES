@@ -23784,6 +23784,14 @@ Make clipboard start-copy allocation width explicit (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-start-copy-allocation-width.py
 
+Make clipboard callback-table sizes explicit (2026-10-28)
+===========================================================
+
+- Compute callback-table growth bytes in `size_t`.
+- Pass bounded sizes explicitly to Xt allocation and table-copy operations.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-callback-table-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

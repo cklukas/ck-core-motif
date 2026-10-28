@@ -3527,10 +3527,12 @@ XmClipboardStartCopy(
 	int newLimit = oldLimit + 20;
 	XmCutPasteProc *newCbProcTable;
 	long *newCbIdTable;
+	size_t proc_bytes = (size_t)newLimit * sizeof(XmCutPasteProc);
+	size_t id_bytes = (size_t)newLimit * sizeof(long);
 
 	/* Allocate replacement tables before changing the live pair. */
 	newCbProcTable = (XmCutPasteProc *) XtMalloc(
-					   sizeof(XmCutPasteProc) * newLimit);
+					   (Cardinal)proc_bytes);
 	if (newCbProcTable == NULL)
 	{
 	  _XmProcessUnlock();
@@ -3543,7 +3545,7 @@ XmClipboardStartCopy(
 	  return ClipboardFail;
 	}
 
-	newCbIdTable = (long *) XtMalloc(sizeof(long) * newLimit);
+	newCbIdTable = (long *) XtMalloc((Cardinal)id_bytes);
 	if (newCbIdTable == NULL)
 	{
 	  XtFree( (char *)newCbProcTable);
@@ -3560,8 +3562,8 @@ XmClipboardStartCopy(
 	if (oldLimit != 0)
 	{
 	  memcpy(newCbProcTable, cbProcTable,
-		 sizeof(XmCutPasteProc) * oldLimit);
-	  memcpy(newCbIdTable, cbIdTable, sizeof(long) * oldLimit);
+		 (size_t)oldLimit * sizeof(XmCutPasteProc));
+	  memcpy(newCbIdTable, cbIdTable, (size_t)oldLimit * sizeof(long));
 	}
 	for(i = oldLimit; i < newLimit; i++) {
 	  newCbProcTable[i] = NULL;
