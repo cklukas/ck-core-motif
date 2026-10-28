@@ -1110,8 +1110,11 @@ DoStuff(Widget w,
   char * total_value = NULL;
   Boolean freeBlock;
 
-  if (w == NULL || ds == NULL || closure == NULL)
+  if (w == NULL || ds == NULL || closure == NULL) {
+    if (ds != NULL && ds->transfer_id != NULL)
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return;
+  }
   tw = (XmTextWidget) w;
   data = tw->text.input->data;
   o_data = tw->text.output->data;
