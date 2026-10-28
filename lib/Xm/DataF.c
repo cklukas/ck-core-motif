@@ -7372,6 +7372,7 @@ df_DoStuff(
     int num_vals;
     char **tmp_value;
     XmAnyCallbackStruct cb;
+    size_t converted;
 
     if (w == NULL || prim_select == NULL || type == NULL ||
         length == NULL || format == NULL ||
@@ -7522,18 +7523,31 @@ df_DoStuff(
 		      XtFree((char *)prim_select);
 		   return;
 		}
-		for (i = 0; i < num_vals ; i++)
-		   prim_select->num_chars +=
-		                    mbstowcs(wc_value + prim_select->num_chars,
-				             tmp_value[i],
-				             (size_t)malloc_size -
+		for (i = 0; i < num_vals ; i++) {
+		   converted = mbstowcs(wc_value + prim_select->num_chars,
+			             tmp_value[i],
+			             (size_t)malloc_size -
 					     prim_select->num_chars);
+		   if (converted == (size_t)-1 ||
+		       converted > (size_t)INT_MAX - prim_select->num_chars) {
+		      XFreeStringList(tmp_value);
+		      XtFree((char *)wc_value);
+		      if (XmTextF_selection_move(tf) && local)
+			 XmTextF_max_length(tf) = max_length;
+		      XtFree((char *)value);
+		      if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0)
+			 XtFree((char *)prim_select);
+		      return;
+		   }
+		   prim_select->num_chars += (int)converted;
+		}
 		replace_res = _XmDataFieldReplaceText(tf, NULL, 
 						      prim_select->position,
 						      prim_select->position,
 						      (char*)wc_value, 
 						      prim_select->num_chars,
 						      False);
+		XFreeStringList(tmp_value);
 		XtFree((char*)wc_value);
 	     }
 	  } else { /* initialize prim_select values for possible delete oper */
@@ -7575,8 +7589,17 @@ df_DoStuff(
 		      XtFree((char *)prim_select);
 		   return;
 		}
-		prim_select->num_chars = mbstowcs(wc_value, (char *) value,
-					 (size_t) *length);
+		converted = mbstowcs(wc_value, (char *) value, (size_t) *length);
+		if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+		   XtFree((char *)wc_value);
+		   if (XmTextF_selection_move(tf) && local)
+		      XmTextF_max_length(tf) = max_length;
+		   XtFree((char *)value);
+		   if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0)
+		      XtFree((char *)prim_select);
+		   return;
+		}
+		prim_select->num_chars = (int)converted;
 		replace_res = _XmDataFieldReplaceText(tf, NULL, 
 						      prim_select->position,
 						      prim_select->position,

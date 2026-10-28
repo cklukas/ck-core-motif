@@ -21,6 +21,10 @@ assert "size_t malloc_size;" in body
 assert "piece_len > SIZE_MAX - malloc_size" in body
 assert "piece_len > (SIZE_MAX - malloc_size) / sizeof(wchar_t)" in body
 assert "malloc_size > UINT_MAX" in body
+assert "converted == (size_t)-1" in body
+assert "prim_select->num_chars += (int)converted" in body
+assert "prim_select->num_chars = (int)converted" in body
+assert "XFreeStringList(tmp_value);" in body
 assert body.index("if (w == NULL") < body.index("XtDisplay(w)")
 assert "prim_select->ref_count <= 0" in body
 assert "--prim_select->ref_count" in body

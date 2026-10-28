@@ -12,6 +12,10 @@ Non-empty data tagged with the delete/NULL target atom is rejected as an
 inconsistent reply rather than being interpreted as a delete operation.
 Multivalued converted text uses checked `size_t` accumulation and rejects
 unrepresentable narrow or wide allocations instead of overflowing an `int`.
+Wide-character conversion now rejects `mbstowcs` failure and unrepresentable
+character counts before updating selection state.
+The temporary converted string list is released on both successful and failed
+wide-character conversion paths.
 
 Regression coverage:
 

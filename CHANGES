@@ -7,6 +7,9 @@ Guard DataField selection callback inputs (2026-10-29)
 - Reject non-empty replies tagged with the delete/NULL target atom.
 - Use checked `size_t` accumulation for multivalued narrow and wide text
   conversion before allocation and length assignment.
+- Reject `mbstowcs` failure and unrepresentable wide-character counts before
+  updating selection state.
+- Release the temporary converted string list after wide-character conversion.
 
 Guard DataField target callback inputs (2026-10-29)
 ======================================================
