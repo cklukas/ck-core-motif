@@ -1,3 +1,10 @@
+Reject zero-dimension XPM scan sources (2026-10-29)
+===================================================
+
+- Reject source images with zero width or height before pixel-index allocation
+  and scan arithmetic.
+- Add focused coverage and documentation.
+
 Guard direct XPM image-scan entry points (2026-10-29)
 ======================================================
 

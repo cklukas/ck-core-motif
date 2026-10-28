@@ -10,4 +10,6 @@ function = source[start:end]
 guard = "display == NULL || xpmimage == NULL ||\n\t(image == NULL && shapeimage == NULL)"
 assert guard in function
 assert function.index(guard) < function.index("/* initialize pmap */")
+assert "if (width == 0 || height == 0)" in function
+assert function.index("if (width == 0 || height == 0)") < function.rindex("pmap.pixelindex =")
 print("PASS XPM image-scan entry guard")

@@ -234,6 +234,8 @@ XpmCreateXpmImageFromImage(
 	width = shapeimage->width;
 	height = shapeimage->height;
     }
+    if (width == 0 || height == 0)
+	RETURN(XpmFileInvalid);
 
     /*
      * retrieve information from the XpmAttributes
