@@ -26050,3 +26050,9 @@ Guard XIM preedit conversion (2026-10-29)
 
 - Handle `mbstowcs` failure explicitly and reject preedit text whose converted
   length does not match the XIM-advertised insertion count.
+
+Guard DataField wide insertion allocation (2026-10-29)
+=======================================================
+
+- Validate the wide-character count before calculating the callback insertion
+  buffer size, preventing `(insert_length + 1)` from wrapping before allocation.

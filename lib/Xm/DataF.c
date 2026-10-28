@@ -3666,20 +3666,30 @@ df_ModifyVerify(
 						 vcb.text->length);
 		 if (*insert_length > 0) 
 		 {
-		     *insert = 
-			 XtMalloc((unsigned)(*insert_length + 1) * 
-				  sizeof(wchar_t));
-		     *free_insert = (int)True;
-		     count = mbstowcs((wchar_t*)*insert, vcb.text->ptr,
-				      (size_t)*insert_length);
-		     wptr = (wchar_t*) *insert;
-		     if (count == (size_t)-1 || count > (size_t)INT_MAX) {
-			 wptr[0] = 0L;
+		     if ((size_t)*insert_length + 1 >
+			 (size_t)UINT_MAX / sizeof(wchar_t)) {
 			 *insert_length = 0;
-		     } 
-		     else
-		     {
-			     wptr[(size_t)count] = 0L;
+			 *insert = NULL;
+			 *free_insert = (int)False;
+		     } else {
+			 *insert =
+			     XtMalloc((unsigned)(*insert_length + 1) *
+				      sizeof(wchar_t));
+			 if (*insert == NULL) {
+			     *insert_length = 0;
+			     *free_insert = (int)False;
+			 } else {
+			     *free_insert = (int)True;
+			     count = mbstowcs((wchar_t*)*insert, vcb.text->ptr,
+					      (size_t)*insert_length);
+			     wptr = (wchar_t*) *insert;
+			     if (count == (size_t)-1 || count > (size_t)INT_MAX) {
+				 wptr[0] = 0L;
+				 *insert_length = 0;
+			     } else {
+				 wptr[(size_t)count] = 0L;
+			     }
+			 }
 		     }
 		 }	
 	     }
