@@ -820,6 +820,7 @@ _XmTearOffInitiate(
    Atom actual_type;
    int actual_format;
    unsigned long num_items, bytes_after;
+   int property_result;
    XEvent newEvent;
    XmMenuState mst = _XmGetMenuState((Widget)wid);
    XtWidgetProc proc;
@@ -1073,16 +1074,17 @@ _XmTearOffInitiate(
    /* Wait until after to_shell realize to set the focus */
    XmProcessTraversal((Widget)submenu, XmTRAVERSE_CURRENT);
 
-   XGetWindowProperty(XtDisplay(to_shell), XtWindow(to_shell),
+   property_result = XGetWindowProperty(XtDisplay(to_shell), XtWindow(to_shell),
 		      atoms[XmA_MOTIF_WM_HINTS], 0,
 		      PROP_MWM_HINTS_ELEMENTS, False,
 		      atoms[XmA_MOTIF_WM_HINTS], 
 		      &actual_type, &actual_format, &num_items, &bytes_after,
 		      (unsigned char **)&rprop);
 
-   if ((actual_type != atoms[XmA_MOTIF_WM_HINTS]) ||
+   if ((property_result != Success) ||
+       (actual_type != atoms[XmA_MOTIF_WM_HINTS]) ||
        (actual_format != 32) ||
-       (num_items < PROP_MOTIF_WM_INFO_ELEMENTS))
+       (num_items < PROP_MWM_HINTS_ELEMENTS))
    {
        if (rprop != NULL) XFree((char *)rprop);
    }

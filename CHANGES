@@ -23318,6 +23318,15 @@ Validate Motif WM property status (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-mwm-property-status.py
 
+Require complete tear-off WM hints (2026-10-28)
+==================================================
+
+- Validate the `_MWM_HINTS` property request status during tear-off creation.
+- Require all five hints items instead of the unrelated two-item WM-info
+  minimum, preserving valid function and decoration fields.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-tearoff-hints-property.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
