@@ -9788,7 +9788,7 @@ PreeditDraw(XIC xic,
     Boolean replace_res;
     XRectangle overall_ink;
     size_t i;
-    size_t mb_capacity, converted;
+    size_t mb_capacity, converted, input_bytes;
     size_t rest_bytes;
     XmTextPosition recover_len=0;
     char *ptr=NULL, *recover_mb=NULL;
@@ -9879,7 +9879,12 @@ PreeditDraw(XIC xic,
                 }
 	        XtFree((char *) tab_wc);
             } else {
-                mb = XtMalloc((insert_length+1)*(tf->text.max_char_size));
+                input_bytes = strlen(call_data->text->string.multi_byte);
+                if (input_bytes == SIZE_MAX || input_bytes + 1 > UINT_MAX) {
+                    _XmTextFieldDrawInsertionPoint(tf, True);
+                    return;
+                }
+                mb = XtMalloc((Cardinal)(input_bytes + 1));
                 if (mb == NULL) {
                     _XmTextFieldDrawInsertionPoint(tf, True);
                     return;
@@ -10007,7 +10012,13 @@ PreeditDraw(XIC xic,
             mb[converted] = '\0';
         } else
         {
-            mb = XtMalloc((insert_length+1)*sizeof(char));
+            input_bytes = strlen(call_data->text->string.multi_byte);
+            if (input_bytes == SIZE_MAX || input_bytes + 1 > UINT_MAX) {
+                XtFree(over_wc);
+                _XmTextFieldDrawInsertionPoint(tf, True);
+                return;
+            }
+            mb = XtMalloc((Cardinal)(input_bytes + 1));
             if (mb == NULL) {
                 XtFree(over_mb);
                 return;

@@ -26086,3 +26086,9 @@ Refresh text conversion regression contracts (2026-10-29)
 
 - Update source-level checks to track the current size-aware conversion and
   allocation APIs, keeping the focused TextField/DataField suite meaningful.
+
+Size multibyte XIM preedit buffers by bytes (2026-10-29)
+=========================================================
+
+- Allocate narrow preedit strings from their actual byte length instead of
+  the XIM character count before copying multibyte text.

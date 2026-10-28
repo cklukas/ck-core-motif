@@ -12,7 +12,7 @@ region = text[start:end]
 
 for allocation, guard in (
     ("tab_wc = (wchar_t*) XtMalloc", "if (tab_wc == NULL)"),
-    ("mb = XtMalloc((insert_length+1)", "if (mb == NULL)"),
+    ("mb = XtMalloc((Cardinal)(input_bytes + 1))", "if (mb == NULL)"),
     ("mb = XtMalloc(4);", "if (mb == NULL)"),
     ("wc = (wchar_t *) XtMalloc", "if (wc == NULL)"),
 ):

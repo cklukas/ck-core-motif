@@ -11,7 +11,7 @@ end = text.index("\n}\n", start)
 region = text[start:end]
 
 for required in (
-    "size_t mb_capacity, converted;",
+    "size_t mb_capacity, converted, input_bytes;",
     "(mb_capacity = (size_t)insert_length * MB_CUR_MAX + 1)",
     "converted = wcstombs(mb,",
     "if (converted == (size_t)-1)",
