@@ -27985,3 +27985,10 @@ Label mnemonic charset width (2026-10-29)
 - Avoid narrowing mnemonic charset lengths to `int` when exporting the
   `XmNmnemonicCharSet` resource; test emptiness directly instead.
 - Add focused source-contract coverage and documentation.
+
+Label wide-string length width (2026-10-29)
+============================================
+
+- Scan Label wide-character values with `size_t` before multibyte conversion,
+  preventing counter wrap on very large Unicode inputs.
+- Add focused source-contract coverage and documentation.

@@ -3291,7 +3291,7 @@ LabelSetValue(Widget w, XtPointer value, int type)
     {
       if (type == XmFORMAT_WCS) 
 	{
-	  int length;
+	  size_t length;
 	  size_t byte_length;
 	  char *str;
 	  wchar_t *str2;
