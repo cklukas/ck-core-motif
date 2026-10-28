@@ -26393,3 +26393,9 @@ Guard UIL callback-entry allocation (2026-10-29)
 - Check callback nodes before forward-reference patching or parse-frame
   publication.
 - Return safely when callback bookkeeping cannot be allocated.
+
+Guard UIL forward-list allocation (2026-10-29)
+===============================================
+
+- Check forward-referenced nested-list wrappers before patching or linking.
+- Leave the list and forward-reference chain untouched on allocation failure.

@@ -2247,6 +2247,8 @@ yystype		* entry_frame;
     nested_entry = (sym_nested_list_entry_type *)
 	sem_allocate_node (sym_k_nested_list_entry,
 			   sym_k_nested_list_entry_size);
+    if (nested_entry == NULL)
+	return;
 
     sym_make_value_forward_ref (entry_frame,
 	(char*)&(nested_entry->az_list),
