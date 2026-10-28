@@ -1917,10 +1917,11 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 	    {
 		ptr = XmI18List_column_titles(ilist)[i];
 
-		cur_y = VERTICAL_SPACE;
+		cur_y = bounded_position(VERTICAL_SPACE);
 
 		if(XmI18List_new_visual_style(ilist))
-		    cur_y += ilist->primitive.shadow_thickness;
+		    cur_y = bounded_position((long long)cur_y +
+					      ilist->primitive.shadow_thickness);
 
 		XmStringDraw(XtDisplay(w), XtWindow(w),
 			     XmI18List_font_list(ilist), ptr, gc,
@@ -1939,12 +1940,14 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 	if ( (XmI18List_first_col_pixmaps(ilist)) && (i == 0)) {
 	    int pix_y_offset;
 
-	    cur_y = XmI18List_sep_y(ilist) + VERTICAL_SPACE;
+	    cur_y = bounded_position((long long)XmI18List_sep_y(ilist) +
+				      VERTICAL_SPACE);
 	    
 	    if(XmI18List_new_visual_style(ilist))
-		cur_y += ilist->primitive.shadow_thickness;
+		cur_y = bounded_position((long long)cur_y +
+					  ilist->primitive.shadow_thickness);
 	    else
-		cur_y += LINE_HEIGHT;
+		cur_y = bounded_position((long long)cur_y + LINE_HEIGHT);
 
 	    for (j = start_row; j <= end_row; j++) {
 		if (IsValidPixmap(XmI18List_row_data(ilist)[j].pixmap)) {

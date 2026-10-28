@@ -1,3 +1,10 @@
+Bound I18List header and icon baselines (2026-10-29)
+======================================================
+
+- Clamp `DisplayList` title and first-column-icon baseline setup after
+  applying visual-style spacing.
+- Add focused source-contract coverage.
+
 Clamp I18List background fill height (2026-10-29)
 ===================================================
 
