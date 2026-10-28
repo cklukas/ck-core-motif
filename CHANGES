@@ -26967,3 +26967,10 @@ Validate WSM packed-size arithmetic (2026-10-28)
 - Check every nested size addition before allocation so malformed counts cannot
   overflow the `int` accumulator and produce a truncated request or reply
   message buffer.
+Bound UIL byte-table database reads (2026-10-28)
+================================================
+
+- Reject byte-table records whose advertised item count exceeds their
+  allocated table size before calling `fread`.
+- Keep valid UID table layouts unchanged while preventing malformed records
+  from overflowing the destination allocation.

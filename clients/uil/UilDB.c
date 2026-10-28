@@ -206,6 +206,12 @@ void db_incorporate()
 	switch (header.table_id)
 	    {
 	    case Constraint_Tab:
+		if ((size_t)header.num_items > (size_t)header.table_size)
+		    {
+		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+					    diag_k_no_column );
+		    break;
+		    }
 		constraint_tab = (unsigned char *) XtMalloc ((Cardinal)header.table_size);
 		return_num_items = (int)fread (constraint_tab,
 						     sizeof(unsigned char) * (size_t)header.num_items,
@@ -213,6 +219,12 @@ void db_incorporate()
 		_check_read (return_num_items);
 		break;
 	    case Argument_Type_Table_Value:
+		if ((size_t)header.num_items > (size_t)header.table_size)
+		    {
+		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+					    diag_k_no_column );
+		    break;
+		    }
 		/*
 		 * NOTE: The first entry is not used but we copy it anyway
 		 */
@@ -223,6 +235,12 @@ void db_incorporate()
 		_check_read (return_num_items);
 		break;
 	    case Child_Class_Table:
+		if ((size_t)header.num_items > (size_t)header.table_size)
+		    {
+		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+					    diag_k_no_column );
+		    break;
+		    }
 		/*
 		 * NOTE: The first entry is not used but we copy it anyway
 		 */
@@ -234,6 +252,12 @@ void db_incorporate()
 		_check_read (return_num_items);
 		break;
 	    case Charset_Wrdirection_Table:
+		if ((size_t)header.num_items > (size_t)header.table_size)
+		    {
+		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+					    diag_k_no_column );
+		    break;
+		    }
 		charset_writing_direction_table = (unsigned char *) XtMalloc (header.table_size);
 		return_num_items = fread (charset_writing_direction_table, 
 					     sizeof(unsigned char) * header.num_items,
@@ -241,6 +265,12 @@ void db_incorporate()
 		_check_read (return_num_items);
 		break;
 	    case Charset_Parsdirection_Table:
+		if ((size_t)header.num_items > (size_t)header.table_size)
+		    {
+		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+					    diag_k_no_column );
+		    break;
+		    }
 		charset_parsing_direction_table = (unsigned char *) XtMalloc (header.table_size);
 		return_num_items = fread (charset_parsing_direction_table, 
 					     sizeof(unsigned char) * header.num_items,
@@ -248,6 +278,12 @@ void db_incorporate()
 		_check_read (return_num_items);
 		break;
 	    case Charset_Charsize_Table:
+		if ((size_t)header.num_items > (size_t)header.table_size)
+		    {
+		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+					    diag_k_no_column );
+		    break;
+		    }
 		charset_character_size_table = (unsigned char *) XtMalloc (header.table_size);
 		return_num_items = fread (charset_character_size_table, 
 					     sizeof(unsigned char) * header.num_items,
