@@ -26488,3 +26488,10 @@ Guard DataField modify-verify result allocation (2026-10-29)
 
 - Check wide callback-result allocation before copying or converting it, and
   route failure through cleanup.
+
+Clean up invalid DataField modify-verify callbacks (2026-10-29)
+=================================================================
+
+- Validate the callback text record and payload before dereferencing it.
+- Route invalid lengths through temporary-buffer cleanup instead of leaking
+  conversion state on an early return.

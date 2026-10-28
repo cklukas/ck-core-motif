@@ -3615,16 +3615,19 @@ df_ModifyVerify(
 
      if (XmTextF_wcs_modify_verify_callback(tf)) 
      { /* use wcs_vcb data */
+	 if (wcs_vcb.text == NULL)
+	     goto modify_verify_allocation_failed;
 	 *insert_length = wcs_vcb.text->length; /* length is char count*/
 	 if (wcs_vcb.doit) 
 	 {
 	     if (*insert_length < 0 ||
+	         (*insert_length > 0 && wcs_vcb.text->wcsptr == NULL) ||
 	         (size_t)*insert_length + 1 >
 	             (size_t)UINT_MAX / sizeof(wchar_t)) {
 		 *insert_length = 0;
 		 *insert = NULL;
 		 *free_insert = (int)False;
-		 return False;
+		 goto modify_verify_allocation_failed;
 	     }
 	     if (XmTextF_max_char_size(tf) == 1)
 	     { /* caller expects char */
