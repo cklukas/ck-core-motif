@@ -1,8 +1,9 @@
 from pathlib import Path
 import os
 
-itop = Path(os.environ["MOTIF_ITOP_SOURCE"]).read_text()
-hier = Path(os.environ["MOTIF_HIER_SOURCE"]).read_text()
+root = Path(__file__).parents[2] / "lib" / "Mrm"
+itop = Path(os.environ.get("MOTIF_ITOP_SOURCE", root / "MrmItop.c")).read_text()
+hier = Path(os.environ.get("MOTIF_HIER_SOURCE", root / "Mrmhier.c")).read_text()
 start = itop.index("UrmIdbCloseFile (IDBFile")
 end = itop.index("UrmIdbGetIndexedResource (IDBFile", start)
 close = itop[start:end]
