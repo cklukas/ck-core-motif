@@ -2569,7 +2569,15 @@ sym_value_entry_type *create_str_entry (l_size, l_charset, az_charset_entry)
 		( sym_k_value_entry,
 		  sym_k_value_entry_size );
 
+    if (node == NULL)
+	return NULL;
+
     node->value.c_value = XtCalloc(1, l_size + 1);
+    if (node->value.c_value == NULL) {
+	XtError ("unable to allocate UIL string value");
+	sem_free_node ((sym_entry_type *)node);
+	return NULL;
+    }
 
     node->header.az_src_rec = yylval.az_source_record;
     node->header.b_src_pos = yylval.b_source_pos;

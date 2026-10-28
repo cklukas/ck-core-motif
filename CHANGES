@@ -26256,3 +26256,10 @@ Guard UIL lexer buffer allocations (2026-10-29)
 - Check the initial comment and lexical buffers before dereferencing them.
 - Reject later lexical-buffer allocation failure through Xt instead of
   linking or initializing a null buffer.
+
+Guard UIL string-value allocations (2026-10-29)
+=================================================
+
+- Check semantic-node allocation before initializing a string value.
+- Check the string payload allocation and release the node through the
+  existing semantic free-list when it fails.
