@@ -3749,7 +3749,14 @@ XmClipboardCopy(
 	formatlength = sizeof( ClipboardFormatItemRec );
 
 	/* allocate local storage for the data format record */ 
-	formatptr     = (ClipboardFormatItem)XtMalloc( (size_t) formatlength );
+	if (formatlength > UINT_MAX)
+	{
+	    XtFree( (char *)itemheader);
+	    ClipboardUnlock( display, window, 0 );
+	    _XmAppUnlock(app);
+	    return ClipboardFail;
+	}
+	formatptr = (ClipboardFormatItem)XtMalloc((Cardinal)formatlength);
 	if (formatptr == NULL)
 	{
 	    XtFree( (char *)itemheader);
@@ -3813,7 +3820,15 @@ XmClipboardCopy(
 	  ClipboardGetLenFromFormat( display, format, &format_len );
 	}
 
-	formatdataptr = XtMalloc( (size_t) formatdatalength );
+	if (formatdatalength > UINT_MAX)
+	{
+	    XtFree( (char *)formatptr);
+	    XtFree( (char *)itemheader);
+	    ClipboardUnlock( display, window, 0 );
+	    _XmAppUnlock(app);
+	    return ClipboardFail;
+	}
+	formatdataptr = XtMalloc((Cardinal)formatdatalength);
 	if (formatdataptr == NULL && formatdatalength != 0)
 	{
 	    XtFree( (char *)formatptr);

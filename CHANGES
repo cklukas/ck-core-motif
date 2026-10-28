@@ -23808,6 +23808,14 @@ Preserve clipboard label length width (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-label-length-width.py
 
+Bound clipboard copy allocation widths (2026-10-28)
+====================================================
+
+- Reject format-record and format-data lengths above Xt’s `Cardinal` range.
+- Pass bounded lengths explicitly to Xt allocation.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-copy-allocation-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
