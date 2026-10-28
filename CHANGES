@@ -23687,6 +23687,15 @@ Preserve clipboard property-name comparison width (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-property-name-width.py
 
+Preserve clipboard retrieval length width (2026-10-28)
+=======================================================
+
+- Accept unsigned-long additional lengths in `ClipboardRetrieveItem`.
+- Remove lossy `int` casts from large format-data retrieval callers.
+- Reject combined lengths that cannot fit Xt’s `Cardinal` allocation size.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-retrieve-length-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

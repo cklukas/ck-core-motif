@@ -335,8 +335,8 @@ static int GetWindowProperty(
 static int ClipboardRetrieveItem( 
                         Display *display,
                         itemId itemid,
-                        int add_length,
-                        int def_length,
+                        unsigned long add_length,
+                        unsigned long def_length,
                         XtPointer *outpointer,
                         unsigned long *outlength,
   			Atom *type,
@@ -371,7 +371,7 @@ static Boolean ClipboardHeaderRecordValid(
                         unsigned long length) ;
 static ClipboardHeader ClipboardOpen( 
                         Display *display,
-                        int add_length) ;
+                        unsigned long add_length) ;
 static void ClipboardClose( 
                         Display *display,
                         ClipboardHeader root_clipboard_header) ;
@@ -1357,8 +1357,8 @@ static int
 ClipboardRetrieveItem(
         Display *display,
         itemId itemid,
-        int add_length,             /* allocate this add'l */
-        int def_length,             /* if item non-exist */
+        unsigned long add_length,   /* allocate this add'l */
+        unsigned long def_length,   /* if item non-exist */
         XtPointer *outpointer,
         unsigned long *outlength,
         Atom *outtype,
@@ -1386,7 +1386,7 @@ ClipboardRetrieveItem(
     }else{    
 	if ( discard == 1 ) loclength = 0;
 
-	if (add_length < 0 || loclength > ULONG_MAX - (unsigned long)add_length)
+	if (loclength > ULONG_MAX - add_length)
 	{
 	    XtFree((char *)pointer);
 	    *outpointer = NULL;
@@ -1398,10 +1398,18 @@ ClipboardRetrieveItem(
     }
 
     /* get local memory for the item */
+	if (*outlength > UINT_MAX)
+	{
+	    XtFree((char *) pointer);
+	    *outpointer = NULL;
+	    *outlength = 0;
+	    return ClipboardFail;
+	}
+
     if (*outlength == 0)
 	clipboard_pointer = NULL;
     else
-	clipboard_pointer = (ClipboardPointer)XtMalloc( (size_t) *outlength );
+	clipboard_pointer = (ClipboardPointer)XtMalloc((Cardinal)*outlength);
 
     if (*outlength != 0 && clipboard_pointer == NULL)
     {
@@ -1682,7 +1690,7 @@ ClipboardHeaderRecordValid(
 static ClipboardHeader 
 ClipboardOpen(
         Display *display,
-        int add_length )
+        unsigned long add_length )
 {
     int ret_value;
     unsigned long headerlength;
@@ -2416,19 +2424,19 @@ ClipboardDeleteItem(
     	
     /* Cleanup any callback information for ByName */
     {
-      int i;
+      int cb_index;
       Boolean found = False;
 
       _XmProcessLock();
-      for(i = 0; i < maxCbProcs; i++)
+      for(cb_index = 0; cb_index < maxCbProcs; cb_index++)
       {
-        found = (cbIdTable[i] == deleteid);
+        found = (cbIdTable[cb_index] == deleteid);
 	if (found) 
             break;
       }
       if (found) {
-	cbProcTable[i] = NULL;
-	cbIdTable[i] = 0;
+	cbProcTable[cb_index] = NULL;
+	cbIdTable[cb_index] = 0;
       }
       _XmProcessUnlock();
     }
@@ -3799,7 +3807,7 @@ XmClipboardCopy(
 	    formatdataptr = NULL;
 	    status = ClipboardRetrieveItem(display,
 			      formatdataid,
-			      (int) length, /* BAD NEWS: truncation here.*/
+			      length,
 			      0,
 			      (XtPointer *) &formatdataptr,
 			      &formatdatalength,
@@ -4183,7 +4191,7 @@ XmClipboardCopyByName(
 	    formatdataptr = NULL;
 	    status = ClipboardRetrieveItem(display,
 			      formatheader->formatDataId,
-			      (int) length,/* BAD NEWS: truncation here.*/
+			      length,
 			      0,
 			      (XtPointer *) &formatdataptr,
 			      &formatdatalength,
