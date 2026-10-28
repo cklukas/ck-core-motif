@@ -27031,3 +27031,8 @@ Fix Mrm text-vector terminator sizing (2026-10-28)
 
 - Allocate the terminating entry written by Char8 and XmString vector writers.
 - Validate the complete vector size before appending the null pointer.
+Guard Mrm text-vector fixup inputs (2026-10-28)
+===============================================
+
+- Reject null fixup pointers and negative text-vector counts before conversion.
+- Preserve valid Char8 and XmString vector fixup behavior.

@@ -2041,7 +2041,7 @@ Urm__CW_FixupValue (long			val,
     case MrmRtypeChar8Vector:
     case MrmRtypeCStringVector:
       vecptr = (RGMTextVectorPtr) val ;
-      if ( vecptr == NULL )
+      if ( vecptr == NULL || bufptr == NULL || swap_needed == NULL )
 	return MrmFAILURE ;
       if ( *swap_needed ) 
 	{
@@ -2049,7 +2049,7 @@ Urm__CW_FixupValue (long			val,
 	  swapbytes(vecptr->validation);
 	}
       if ( vecptr->validation != URMTextVectorValid ||
-	   vecptr->count > RGMListSizeMax )
+	   vecptr->count < 0 || vecptr->count > RGMListSizeMax )
 	return MrmFAILURE ;
       for ( fixndx=0 ; fixndx<vecptr->count ; fixndx++ ) 
 	{
