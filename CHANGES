@@ -25083,3 +25083,12 @@ Validate XPM color-token width (2026-10-29)
 
 - Enforce the declared `cpp` width while writing the color table.
 - Add focused coverage and documentation.
+Validate XPM explicit visual input (2026-10-29)
+================================================
+
+- Reject `XpmVisual` with a null visual pointer before color setup can
+  dereference it.
+- Add focused coverage and documentation while preserving default-visual use.
+
+Validate XPM color-symbol attributes (2026-10-29)
+==================================================
