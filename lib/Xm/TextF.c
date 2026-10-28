@@ -2124,18 +2124,22 @@ DrawText(XmTextFieldWidget tf,
       char stack_cache[400], *tmp;
       wchar_t tmp_wc;
       wchar_t *wc_string = (wchar_t*)string;
-      int num_bytes = 0;
+      size_t num_bytes = 0;
+      size_t byte_capacity;
+      if (length < 0 || (size_t)length + 1 > SIZE_MAX / sizeof(wchar_t) ||
+          (size_t)length + 1 > UINT_MAX / sizeof(wchar_t))
+        return;
+      byte_capacity = ((size_t)length + 1) * sizeof(wchar_t);
       /* ptr = tmp = XtMalloc((int)(length + 1)*sizeof(wchar_t)); */
-      tmp = (char *)XmStackAlloc((Cardinal) ((length + 1)*sizeof(wchar_t)),
+	  tmp = (char *)XmStackAlloc((Cardinal)byte_capacity,
 				 stack_cache);
       tmp_wc = wc_string[length];
       wc_string[length] = 0L;
-      num_bytes = wcstombs(tmp, wc_string,
-			   (int)((length + 1) * sizeof(wchar_t)));
+      num_bytes = wcstombs(tmp, wc_string, byte_capacity);
       wc_string[length] = tmp_wc;
-      if (num_bytes >= 0)
+      if (num_bytes != (size_t)-1 && num_bytes <= (size_t)INT_MAX)
         _XmXftDrawString2(XtDisplay(tf), XtWindow(tf), gc, TextF_XftFont(tf),
-			1, x, y, tmp, num_bytes);
+			1, x, y, tmp, (int)num_bytes);
       XmStackFree(tmp, stack_cache);
     } else /* one byte chars */
         _XmXftDrawString2(XtDisplay(tf), XtWindow(tf), gc, TextF_XftFont(tf),
@@ -2146,24 +2150,29 @@ DrawText(XmTextFieldWidget tf,
       char stack_cache[400], *tmp;
       wchar_t tmp_wc;
       wchar_t *wc_string = (wchar_t*)string;
-      int num_bytes = 0;
+      size_t num_bytes = 0;
+      size_t byte_capacity;
+      if (length < 0 || (size_t)length + 1 > SIZE_MAX / sizeof(wchar_t) ||
+          (size_t)length + 1 > UINT_MAX / sizeof(wchar_t))
+        return;
+      byte_capacity = ((size_t)length + 1) * sizeof(wchar_t);
       /* ptr = tmp = XtMalloc((int)(length + 1)*sizeof(wchar_t)); */
-      tmp = (char *)XmStackAlloc((Cardinal) ((length + 1)*sizeof(wchar_t)),
+	  tmp = (char *)XmStackAlloc((Cardinal)byte_capacity,
 				 stack_cache);
       tmp_wc = wc_string[length];
       wc_string[length] = 0L;
-      num_bytes = wcstombs(tmp, wc_string,
-			   (int)((length + 1) * sizeof(wchar_t)));
+      num_bytes = wcstombs(tmp, wc_string, byte_capacity);
       wc_string[length] = tmp_wc;
-      if (num_bytes >= 0)
+      if (num_bytes != (size_t)-1 && num_bytes <= (size_t)INT_MAX)
         { if (_XmIsISO10646(XtDisplay(tf), TextF_Font(tf))) {
             size_t str_len = 0;
-            XChar2b *str = _XmUtf8ToUcs2(tmp, num_bytes, &str_len);
+            XChar2b *str = _XmUtf8ToUcs2(tmp, (int)num_bytes, &str_len);
             XDrawString16(XtDisplay(tf), XtWindow(tf), gc, x, y, str, str_len);
             XFree(str);
             } 
           else
-            XDrawString (XtDisplay(tf), XtWindow(tf), gc, x, y, tmp, num_bytes);
+            XDrawString (XtDisplay(tf), XtWindow(tf), gc, x, y, tmp,
+                         (int)num_bytes);
         }
       XmStackFree(tmp, stack_cache);
     } else /* one byte chars */
@@ -2215,16 +2224,24 @@ FindPixelLength(XmTextFieldWidget tf,
       wchar_t *wc_string = (wchar_t*)string;
       wchar_t wc_tmp = wc_string[length];
       char stack_cache[400], *tmp;
-      int num_bytes;
+      size_t num_bytes;
+      size_t byte_capacity;
+      if (length < 0 || (size_t)length + 1 > SIZE_MAX / sizeof(wchar_t) ||
+          (size_t)length + 1 > UINT_MAX / sizeof(wchar_t))
+        return 0;
+      byte_capacity = ((size_t)length + 1) * sizeof(wchar_t);
       
       wc_string[length] = 0L;
-      tmp = (char*)XmStackAlloc((Cardinal)((length + 1) * sizeof(wchar_t)),
+	  tmp = (char*)XmStackAlloc((Cardinal)byte_capacity,
 				stack_cache);
-      num_bytes = wcstombs(tmp, wc_string, 
-			   (int)((length + 1)*sizeof(wchar_t)));
+      num_bytes = wcstombs(tmp, wc_string, byte_capacity);
       wc_string[length] = wc_tmp;
+      if (num_bytes == (size_t)-1 || num_bytes > (size_t)INT_MAX) {
+        XmStackFree(tmp, stack_cache);
+        return 0;
+      }
       XftTextExtentsUtf8(XtDisplay(tf), TextF_XftFont(tf),
-              (FcChar8*)tmp, num_bytes, &ext);
+		      (FcChar8*)tmp, (int)num_bytes, &ext);
       XmStackFree(tmp, stack_cache);
     } else /* one byte chars */
       XftTextExtentsUtf8(XtDisplay(tf), TextF_XftFont(tf),
@@ -2237,23 +2254,28 @@ FindPixelLength(XmTextFieldWidget tf,
       wchar_t *wc_string = (wchar_t*)string;
       wchar_t wc_tmp = wc_string[length];
       char stack_cache[400], *tmp;
-      int num_bytes, ret_len = 0;
+      size_t num_bytes;
+      int ret_len = 0;
+      size_t byte_capacity;
+      if (length < 0 || (size_t)length + 1 > SIZE_MAX / sizeof(wchar_t) ||
+          (size_t)length + 1 > UINT_MAX / sizeof(wchar_t))
+        return 0;
+      byte_capacity = ((size_t)length + 1) * sizeof(wchar_t);
       
       wc_string[length] = 0L;
-      tmp = (char*)XmStackAlloc((Cardinal)((length + 1) * sizeof(wchar_t)),
+	  tmp = (char*)XmStackAlloc((Cardinal)byte_capacity,
 				stack_cache);
-      num_bytes = wcstombs(tmp, wc_string, 
-			   (int)((length + 1)*sizeof(wchar_t)));
+      num_bytes = wcstombs(tmp, wc_string, byte_capacity);
       wc_string[length] = wc_tmp;
-      if (num_bytes >= 0)
+      if (num_bytes != (size_t)-1 && num_bytes <= (size_t)INT_MAX)
         { if (_XmIsISO10646(XtDisplay(tf), TextF_Font(tf))) {
             size_t str_len = 0;
-            XChar2b *str = _XmUtf8ToUcs2(tmp, num_bytes, &str_len);
+            XChar2b *str = _XmUtf8ToUcs2(tmp, (int)num_bytes, &str_len);
             ret_len = XTextWidth16(TextF_Font(tf), str, str_len);
             XFree(str);
             }
           else
-            ret_len = XTextWidth(TextF_Font(tf), tmp, num_bytes);
+            ret_len = XTextWidth(TextF_Font(tf), tmp, (int)num_bytes);
         }
       XmStackFree(tmp, stack_cache);
       return (ret_len);

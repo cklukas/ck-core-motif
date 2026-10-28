@@ -25960,3 +25960,9 @@ Harden TextField modify-verify conversions (2026-10-29)
 
 - Preserve native conversion widths and reject failed or unrepresentable
   `wcstombs`/`mbstowcs` results in callback payloads.
+
+Guard TextField drawing conversions (2026-10-29)
+================================================
+
+- Check wide-character conversion capacity and failure before passing byte
+  lengths to Xlib/Xft drawing and measurement APIs.
