@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Bound UIL machine-listing unload spans (2026-10-29)
+===================================================
+
+- Reject oversized embedded strings and invalid/overwide record spans before
+  narrowing machine-listing offsets and lengths.
+- Add focused coverage and documentation.
+
 Bound UIL string concatenation lengths (2026-10-28)
 ===================================================
 

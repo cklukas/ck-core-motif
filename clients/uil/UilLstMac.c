@@ -411,6 +411,7 @@ src_source_record_type	*az_src_rec;
 {
 
 	char			buffer [UIL_MACHINE_LINE_SIZE], * ptr;
+	size_t			text_len;
     int				child_index = 0;
 
     while ( ! off_stack_empty ) {
@@ -426,9 +427,12 @@ src_source_record_type	*az_src_rec;
 	    case k_comment_off : {
 
 		ptr = (char *) _Pointer(rec, off_offset);
+		text_len = strlen(ptr);
+		if (text_len >= USHRT_MAX)
+		    break;
 		src_append_machine_code (
 			az_src_rec, off_offset,
-			strlen (ptr) + 1, ptr, NULL );
+			(int)(text_len + 1), ptr, NULL );
 		break;
 	    }
 	    
@@ -444,9 +448,13 @@ src_source_record_type	*az_src_rec;
 
 		    off_get (& next_type, & next_offset);
 		    off_put (next_type, next_offset);
-		    len = next_offset - off_offset;
+		    if (next_offset < off_offset)
+			break;
+		    len = (unsigned short)(next_offset - off_offset);
 		} else {
-		    len = rec_size - off_offset;
+		    if (rec_size < off_offset || rec_size - off_offset > USHRT_MAX)
+			break;
+		    len = (unsigned short)(rec_size - off_offset);
 		}
 
 		ptr = (char *) _Pointer(rec, off_offset);
