@@ -218,6 +218,12 @@ if ( uil_widget_compr == NULL )
 if ( uil_child_compr == NULL )
     uil_child_compr = (unsigned short int *)
 	XtMalloc(sar_vector_bytes(uil_max_child));
+if (uil_urm_variant == NULL || uil_arg_compr == NULL ||
+    uil_reas_compr == NULL || uil_widget_compr == NULL ||
+    uil_child_compr == NULL) {
+    XtError("UIL resource table allocation failed");
+    return;
+}
 /*
  **	Loop throught the array of object variants and set them all to NULL.
  */
