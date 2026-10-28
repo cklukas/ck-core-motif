@@ -15,6 +15,7 @@ assert "length == NULL" in body
 assert "format == NULL" in body
 guard = body[body.index("if (w == NULL"):body.index("if (!value)")]
 assert "XtFree((char *)value);" in guard
+assert body.index("if (w == NULL") < body.index("XtDisplay(w)")
 empty = body[body.index("if (!value)"):body.index("if (insert_select->select_type")]
 assert "if (*length == 0)" in empty
 assert empty.index("if (*length == 0)") < empty.index("*(char *) value")

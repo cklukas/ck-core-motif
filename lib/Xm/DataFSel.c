@@ -155,7 +155,7 @@ InsertSelection(
     wchar_t * wc_value;
     char * temp;
     int num_chars = 0;
-    Atom COMPOUND_TEXT = XmInternAtom(XtDisplay(w), "COMPOUND_TEXT", False);
+    Atom COMPOUND_TEXT;
     char * total_tmp_value = NULL;
     XTextProperty tmp_prop;
     char **tmp_value;
@@ -169,6 +169,8 @@ InsertSelection(
        XtFree((char *)value);
        return;
     }
+
+    COMPOUND_TEXT = XmInternAtom(XtDisplay(w), "COMPOUND_TEXT", False);
 
     if (!value) {
        insert_select->done_status = True;

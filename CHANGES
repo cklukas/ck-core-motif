@@ -9,6 +9,7 @@ Guard DataField selection callback inputs (2026-10-29)
   without a target array.
 - Release the consumed target array before queuing the selected text request.
 - Handle zero-length insertion results before inspecting their first byte.
+- Defer display/atom lookup until after insertion-callback widget validation.
 
 Release skipped selection callback payloads (2026-10-29)
 ==========================================================
