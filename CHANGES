@@ -1,3 +1,10 @@
+Keep I18List hit-test height comparisons wide (2026-10-29)
+============================================================
+
+- Compare motion Y coordinates with the widget height without narrowing the
+  height to `short`, preserving off-bottom tracking for tall list widgets.
+- Add focused source-contract coverage.
+
 Guard DataField drawing conversion lengths (2026-10-29)
 =========================================================
 

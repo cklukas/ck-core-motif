@@ -1105,7 +1105,9 @@ MotionAction(Widget w, XEvent *event, String *params, Cardinal *num_params)
     else
 	XmI18List_state(ilist) &= ~OFF_TOP;	/* remove this flag. */
     
-    if (y > ((short) w->core.height)) {
+    /* Compare in a wide signed type: a tall widget can exceed Position's
+     * positive range, and narrowing core.height would make the hit test wrap. */
+    if ((long long)y > (long long)w->core.height) {
 	if (XmI18List_state(ilist) & OFF_BOTTOM)
 	    return;		/* We are already off the bottom. */
 	else
