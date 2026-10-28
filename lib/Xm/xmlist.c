@@ -188,8 +188,22 @@ _XmQueueFree(XmQueue queue)
 	elem = queue->free_elems;
     }
 
-    while ((elem = (_XmQElem *) _XmStackPop(stack)) != NULL)
-	XtFree((XtPointer) elem);
+    if (stack != NULL) {
+	while ((elem = (_XmQElem *) _XmStackPop(stack)) != NULL)
+	    XtFree((XtPointer) elem);
+	}
+	else {
+	/* The cleanup stack itself can be unavailable under memory pressure. */
+	for (count = 0; count < 2; count++) {
+	    elem = count == 0 ? queue->first : queue->free_elems;
+	    while (elem != NULL) {
+		_XmQElem *next = elem->next;
+		if (elem->alloced)
+		    XtFree((XtPointer) elem);
+		elem = next;
+	    }
+	}
+	}
 
     _XmStackFree(stack);
 

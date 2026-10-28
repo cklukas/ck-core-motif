@@ -26420,3 +26420,10 @@ Guard accessibility memo-table capacity (2026-10-29)
 - Validate memo bucket capacity at the `XtCalloc` boundary.
 - Reject zero, non-power-of-two, or unrepresentable bucket sizes before
   resizing the table.
+
+Add allocation-free XmQueue cleanup fallback (2026-10-29)
+===========================================================
+
+- Release queue blocks directly when the temporary cleanup stack cannot be
+  allocated.
+- Avoid leaking queue storage during memory-pressure teardown.
