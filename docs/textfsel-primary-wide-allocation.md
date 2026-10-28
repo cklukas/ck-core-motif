@@ -9,3 +9,5 @@ Allocation or size failure safely rejects the replacement instead of
 dereferencing a null buffer.
 
 Regression coverage: `tests/automated/check-textfsel-primary-wide-allocation.py`.
+The check follows the explicit bounded conversion result used by the current
+implementation.

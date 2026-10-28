@@ -13,6 +13,7 @@ assert "wc_total_length == INT_MAX" in body
 assert "UINT_MAX / sizeof(wchar_t) - 1" in body
 assert "wc_total_value = (wchar_t*)XtMalloc((Cardinal)" in body
 assert "wc_total_value == NULL" in body
-assert "wc_total_length = (int)mbstowcs" in body
+assert "wc_total_length = (int)converted" in body
+assert "converted = mbstowcs(wc_total_value, total_value" in body
 
 print("TextField primary-selection wide conversion is allocation-safe")
