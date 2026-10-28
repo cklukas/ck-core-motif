@@ -1,3 +1,10 @@
+Validate XPM color metadata bounds (2026-10-29)
+================================================
+
+- Reject incomplete or out-of-range caller-supplied color-table metadata
+  before image scanning can dereference it.
+- Add focused coverage and documentation while preserving valid export paths.
+
 Guard XPM chars-per-pixel growth (2026-10-29)
 ==============================================
 

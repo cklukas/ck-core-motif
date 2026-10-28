@@ -217,6 +217,17 @@ XpmCreateXpmImageFromImage(
 	(image == NULL && shapeimage == NULL))
 	return XpmFileInvalid;
 
+    if (attributes &&
+	(attributes->valuemask & (XpmColorTable | XpmInfos)) &&
+	(attributes->ncolors != 0 &&
+	 (attributes->colorTable == NULL || attributes->pixels == NULL)))
+	return XpmFileInvalid;
+    if (attributes &&
+	(attributes->valuemask & (XpmColorTable | XpmInfos)) &&
+	attributes->mask_pixel != XpmUndefPixel &&
+	attributes->mask_pixel >= attributes->ncolors)
+	return XpmFileInvalid;
+
     /* initialize pmap */
     pmap.pixels = NULL;
     pmap.pixelindex = NULL;
