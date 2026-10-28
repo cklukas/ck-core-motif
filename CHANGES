@@ -1,3 +1,10 @@
+Fix I18List text-centering underflow (2026-10-29)
+===================================================
+
+- Compute text-centering offsets in signed wide arithmetic and clamp baseline
+  updates in the `DisplayList` text branch.
+- Add focused source-contract coverage.
+
 Bound I18List display text baseline (2026-10-29)
 =================================================
 

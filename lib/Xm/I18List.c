@@ -2011,18 +2011,21 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 			       &width_unused, &text_height);
 
 		/* to center each string within its row */
-		cur_y += (int)(XmI18List_row_height(ilist) - VERTICAL_SPACE - 
-			       text_height)/2;
+		{
+		    long long text_offset =
+			((long long)XmI18List_row_height(ilist) - VERTICAL_SPACE -
+			 (long long)text_height) / 2;
+		    cur_y = bounded_position((long long)cur_y + text_offset);
 		XmStringDraw(XtDisplay(w), XtWindow(w), 
 			     XmI18List_font_list(ilist), ptr, entry_gc,
 			     bounded_position((long long)cur_x),
 			     bounded_position((long long)cur_y),
 			     col_widths[i], XmI18List_alignment(ilist),
 			     XmPrim_layout_direction(ilist), NULL);
-		
-		cur_y -= (int)(XmI18List_row_height(ilist) - VERTICAL_SPACE -
-			       text_height)/2;
-		cur_y += XmI18List_row_height(ilist) + VERTICAL_SPACE;
+		    cur_y = bounded_position((long long)cur_y - text_offset);
+		}
+		cur_y = bounded_position((long long)cur_y +
+		                         XmI18List_row_height(ilist) + VERTICAL_SPACE);
 	    }
 	}
 	
