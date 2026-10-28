@@ -1,7 +1,8 @@
 from pathlib import Path
 import os
 
-source = Path(os.environ["MOTIF_SOURCE"])
+source = Path(os.environ.get(
+    "MOTIF_SOURCE", Path(__file__).parents[2] / "lib" / "Mrm" / "MrmItop.c"))
 text = source.read_text()
 start = text.index("UrmIdbOpenFileRead (String")
 end = text.index("UrmIdbOpenBuffer (unsigned char", start)

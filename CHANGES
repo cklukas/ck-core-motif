@@ -28439,3 +28439,5 @@ List drag selection bounds (2026-10-28)
   checkout with the correct top-level implementation default (2026-10-28).
 * Made the Mrm memory-close contract check runnable from a source checkout
   while retaining separate IDB and hierarchy source overrides (2026-10-28).
+* Made the Mrm file-open-name contract check runnable from a source checkout
+  with the correct IDB top-level implementation default (2026-10-28).
