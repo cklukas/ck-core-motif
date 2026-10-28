@@ -349,7 +349,7 @@ char	*c_value;
                   0x00FFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, };
 #elif defined (LONG64)
     #define _shift 3
-    static long XmConst    mask[ 8 ] =
+    static unsigned long XmConst    mask[ 8 ] =
                 { 0x00000000000000FF, 0x000000000000FFFF,
                   0x0000000000FFFFFF, 0x00000000FFFFFFFF,
                   0x00000000FFFFFFFF, 0x0000FFFFFFFFFFFF,
@@ -361,8 +361,8 @@ char	*c_value;
 #endif
 
 #ifdef LONG64
-    long                l_hash_code;
-    long                al_value[20];
+    unsigned long       l_hash_code;
+    unsigned long       al_value[20];
 #else
     int                 l_hash_code;
     int                 al_value[20];
@@ -375,7 +375,7 @@ char	*c_value;
     l_extra = (l_length-1) & _slm;	/* remainder from divide by wordsize */
 
 #ifdef LONG64
-    bzero((char *)al_value, sizeof(long) * 20);
+    bzero((char *)al_value, sizeof(unsigned long) * 20);
 #else
     bzero((char *)al_value, sizeof(int) * 20);
 #endif

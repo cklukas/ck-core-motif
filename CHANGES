@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Fix UIL 64-bit name-hash mask type (2026-10-29)
+================================================
+
+- Keep 64-bit name-hash masks and words unsigned, avoiding implementation-
+  defined conversion of the all-ones mask on LP64 builds.
+- Add focused coverage and documentation.
+
 Clarify UIL diagnostic and numeric widths (2026-10-29)
 =======================================================
 
