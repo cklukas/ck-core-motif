@@ -26835,3 +26835,11 @@ Guard Motif path resolution inputs (2026-10-28)
   `_XmOSAbsolutePathName` before dereferencing them.
 - Preserve normal absolute and relative path resolution while making malformed
   icon/resource lookup inputs fail safely.
+
+Validate PNG display gamma input (2026-10-28)
+==============================================
+
+- Parse `SCREEN_GAMMA` with complete-number, range, finiteness, and positivity
+  checks before passing it to libpng.
+- Ignore malformed or unsafe environment values and retain the calculated
+  display default.

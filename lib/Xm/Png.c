@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <errno.h>
+#include <math.h>
 
 #include <png.h>
 #include "PngI.h"
@@ -131,10 +133,19 @@ get_display_exponent(void)
      * use the default value we just calculated.  Either way, the user may
      * override this via a command-line option. */
 
+    display_exponent = default_display_exponent;
     if ((p = getenv("SCREEN_GAMMA")) != NULL)
-        display_exponent = atof(p);
-    else
-        display_exponent = default_display_exponent;
+    {
+        char *end;
+        double parsed;
+
+        errno = 0;
+        end = NULL;
+        parsed = strtod(p, &end);
+        if (end != p && *end == '\0' && errno != ERANGE &&
+            isfinite(parsed) && parsed > 0.0)
+            display_exponent = parsed;
+    }
 
     return display_exponent;
 }
