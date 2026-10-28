@@ -276,7 +276,7 @@ CreateColors(
     char *s, *s2;
     char **defaults;
 
-    if (cpp == 0)
+    if (cpp == 0 || (ncolors != 0 && colors == NULL))
 	return (XpmFileInvalid);
 
     /* can ncolors be trusted here? */

@@ -1,3 +1,10 @@
+Reject missing XPM color tables (2026-10-29)
+============================================
+
+- Return `XpmFileInvalid` when serialization receives a nonzero color count
+  without a color table instead of dereferencing a null pointer.
+- Add focused coverage and documentation.
+
 Guard XPM array end-of-input cursors (2026-10-29)
 ==================================================
 
