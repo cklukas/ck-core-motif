@@ -1689,7 +1689,11 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	     */
 	    mini_block.ptr = tmp_char;
 	    num_chars = _XmTextCountCharacters(block.ptr, block.length);
-	    tmp_wc_size = (num_chars + 1) * sizeof(wchar_t);
+	    if (num_chars < 0 ||
+	        (size_t)num_chars > SIZE_MAX / sizeof(wchar_t) - 1 ||
+	        (size_t)num_chars + 1 > UINT_MAX / sizeof(wchar_t))
+	      return position;
+	    tmp_wc_size = (Cardinal)(((size_t)num_chars + 1) * sizeof(wchar_t));
 	    tmp_wc = (wchar_t *) XmStackAlloc(tmp_wc_size, tmp_cache);
 	    converted = mbstowcs(tmp_wc, block.ptr, (size_t)num_chars);
 	    if (converted == (size_t)-1 || converted > (size_t)INT_MAX)
@@ -1825,7 +1829,11 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	   */
 	  mini_block.ptr = tmp_char;
 	  num_chars = _XmTextCountCharacters(block.ptr, block.length);
-	  tmp_wc_size = (num_chars + 1) * sizeof(wchar_t);
+	  if (num_chars < 0 ||
+	      (size_t)num_chars > SIZE_MAX / sizeof(wchar_t) - 1 ||
+	      (size_t)num_chars + 1 > UINT_MAX / sizeof(wchar_t))
+	    return position;
+	  tmp_wc_size = (Cardinal)(((size_t)num_chars + 1) * sizeof(wchar_t));
 	  tmp_wc = (wchar_t *) XmStackAlloc(tmp_wc_size, tmp_cache);
 	  converted = mbstowcs(tmp_wc, block.ptr, (size_t)num_chars);
 	  if (converted == (size_t)-1 || converted > (size_t)INT_MAX)

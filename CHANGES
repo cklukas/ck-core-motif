@@ -26038,3 +26038,9 @@ Guard TextField transfer conversions (2026-10-29)
 
 - Reject failed or unrepresentable transfer conversions before replacing
   TextField content, and terminate successful wide buffers explicitly.
+
+Guard TextOut allocation arithmetic (2026-10-29)
+================================================
+
+- Check character counts before calculating temporary wide-buffer sizes in
+  backward scans, preventing signed overflow before allocation.
