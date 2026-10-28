@@ -1,3 +1,10 @@
+Bound XPM depth table indexing (2026-10-29)
+============================================
+
+- Reject source depths above the 32-bit `low_bits_table` range before pixel
+  readers index that table.
+- Add focused coverage and documentation.
+
 Reject negative XPM image offsets (2026-10-29)
 ===============================================
 

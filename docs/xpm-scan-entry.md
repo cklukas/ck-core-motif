@@ -16,6 +16,8 @@ Nonpositive bitmap-unit and bits-per-pixel fields are rejected too, preventing
 modulo or shift operations from using invalid image geometry.
 Nonpositive depth values are rejected before plane traversal and mask
 calculation as well.
+Depths above 32 are rejected because the optimized reader’s low-bit mask table
+is defined only for the 32-bit range.
 Negative x-offsets are rejected before bit and byte indexing can underflow.
 
 Regression: `tests/automated/check-xpm-scan-entry.py`

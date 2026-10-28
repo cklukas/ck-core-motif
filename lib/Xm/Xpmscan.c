@@ -247,8 +247,9 @@ XpmCreateXpmImageFromImage(
 	(shapeimage != NULL &&
 	 (shapeimage->bitmap_unit <= 0 || shapeimage->bits_per_pixel <= 0)))
 	RETURN(XpmFileInvalid);
-    if ((image != NULL && image->depth <= 0) ||
-	(shapeimage != NULL && shapeimage->depth <= 0))
+    if ((image != NULL && (image->depth <= 0 || image->depth > 32)) ||
+	(shapeimage != NULL &&
+	 (shapeimage->depth <= 0 || shapeimage->depth > 32)))
 	RETURN(XpmFileInvalid);
     if ((image != NULL && image->xoffset < 0) ||
 	(shapeimage != NULL && shapeimage->xoffset < 0))
