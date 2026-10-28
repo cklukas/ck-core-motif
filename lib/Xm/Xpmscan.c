@@ -247,6 +247,9 @@ XpmCreateXpmImageFromImage(
 	(shapeimage != NULL &&
 	 (shapeimage->bitmap_unit <= 0 || shapeimage->bits_per_pixel <= 0)))
 	RETURN(XpmFileInvalid);
+    if ((image != NULL && image->depth <= 0) ||
+	(shapeimage != NULL && shapeimage->depth <= 0))
+	RETURN(XpmFileInvalid);
 
     /*
      * retrieve information from the XpmAttributes

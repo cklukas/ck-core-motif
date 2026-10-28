@@ -14,5 +14,7 @@ Nonpositive row strides are rejected as well, so row and plane offsets cannot
 underflow in the readers.
 Nonpositive bitmap-unit and bits-per-pixel fields are rejected too, preventing
 modulo or shift operations from using invalid image geometry.
+Nonpositive depth values are rejected before plane traversal and mask
+calculation as well.
 
 Regression: `tests/automated/check-xpm-scan-entry.py`
