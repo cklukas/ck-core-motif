@@ -38,6 +38,7 @@ static char rcsid[] = "$TOG: XmRenderT.c /main/14 1998/10/26 20:14:42 samborn $"
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <errno.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -3442,8 +3443,23 @@ ReadToken(char *string, int *position, Token reusetoken)
 	double result;
 	int intresult;
 	char *newpos;
+	errno = 0;
 	result=strtod(&(string[pos]), &newpos);
 	if (newpos == &string[pos]) {
+	  new_token -> type = T_STR;
+	  new_token -> string = (char *)XtMalloc(2);
+	  if (new_token -> string == NULL) {
+	    new_token -> type = T_EOF;
+	    *position = pos;
+	    return new_token;
+	  }
+	  new_token -> string[0] = string[pos++];
+	  new_token -> string[1] = '\0';
+	  break;
+	}
+	if (errno == ERANGE || !isfinite(result)) {
+	  /* Do not publish underflowed, overflowed, NaN, or infinite values as
+	     render-table floats.  Consume one character and lex the remainder. */
 	  new_token -> type = T_STR;
 	  new_token -> string = (char *)XtMalloc(2);
 	  if (new_token -> string == NULL) {

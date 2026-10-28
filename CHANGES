@@ -26760,3 +26760,11 @@ Reject malformed AT-SPI object paths (2026-10-28)
   digit and check `strtoul` overflow before narrowing it to `XmAccessibleId`.
 - Preserve valid object paths while rejecting signed, empty, and overflowing
   identifiers consistently on 32-bit and 64-bit hosts.
+Reject non-finite render-table numbers (2026-10-28)
+===================================================
+
+- Check `strtod` range errors and finiteness before emitting a render-table
+  floating token, preventing overflowed, underflowed, NaN, or infinite values
+  from entering render-table state.
+- Keep malformed numeric text recoverable by emitting its first character as
+  an ordinary token and continuing lexing.

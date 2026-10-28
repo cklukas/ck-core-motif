@@ -13,5 +13,9 @@ if "floor(result) == result" not in text:
     raise SystemExit("render lexer integer range check is missing")
 if "result >= (double)INT_MIN" not in text:
     raise SystemExit("render lexer integer lower bound is missing")
+if "errno = 0;" not in text or "errno == ERANGE" not in text:
+    raise SystemExit("render lexer range-error guard is missing")
+if "!isfinite(result)" not in text:
+    raise SystemExit("render lexer finite-value guard is missing")
 
 print("render lexer handles invalid and out-of-range numeric tokens")
