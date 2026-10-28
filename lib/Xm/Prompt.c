@@ -8,6 +8,12 @@
 #include <limits.h>
 #include <string.h>
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
@@ -81,8 +87,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (prompt->prompt.font && prompt->prompt.text) {
         XmStringExtent(prompt->prompt.font, prompt->prompt.text, &width, &height);
         XmStringDraw(XtDisplay(widget), XtWindow(widget), prompt->prompt.font,
-                     prompt->prompt.text, prompt->prompt.gc, 4,
-                     ((int)prompt->core.height - (int)height) / 2, width,
+                     prompt->prompt.text, prompt->prompt.gc, bounded_position(4),
+                     bounded_position(((long long)prompt->core.height - height) / 2), width,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(prompt), NULL);
     }
 }
