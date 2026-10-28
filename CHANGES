@@ -23760,6 +23760,14 @@ Harden clipboard event-message Atom comparisons (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-event-message-atoms.py
 
+Bound clipboard label IDs before deletion (2026-10-28)
+=======================================================
+
+- Reject serialized label IDs above `LONG_MAX` before signed `itemId` conversion.
+- Prevent malformed records from deleting a wrapped clipboard ID.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-label-id-bounds.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

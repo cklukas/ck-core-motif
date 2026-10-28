@@ -2270,8 +2270,13 @@ ClipboardDeleteItemLabel(
 	XtFree( (char *)datalist);
 	return;
      }
+    if (datalist->dataItemLabelId > (unsigned long)LONG_MAX)
+    {
+	XtFree( (char *)datalist);
+	return;
+    }
      /* delete item label */
-     ClipboardDeleteId (display, datalist->dataItemLabelId);
+     ClipboardDeleteId (display, (itemId)datalist->dataItemLabelId);
 
      XtFree( (char *) datalist );
  }
