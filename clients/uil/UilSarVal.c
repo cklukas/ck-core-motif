@@ -3466,8 +3466,19 @@ yystype	    *keyword_frame;
 
 	color_table_entry = (sym_value_entry_type *)
 	    sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
+    if (color_table_entry == NULL) {
+	target_type = sym_k_error_value;
+	color_table_entry = sym_az_error_value_entry;
+	break;
+	}
     color_table_entry->value.z_color = (sym_color_element *)
 	    XtCalloc(1, (Cardinal)(sizeof(sym_color_element) * (size_t)count));
+	if (color_table_entry->value.z_color == NULL) {
+	sem_free_node ((sym_entry_type *)color_table_entry);
+	target_type = sym_k_error_value;
+	color_table_entry = sym_az_error_value_entry;
+	break;
+	}
 	color_table_entry->b_type = sym_k_color_table_value;
 	color_table_entry->b_table_count = (unsigned char) count;
 	color_table_entry->b_max_index = (unsigned char) index;

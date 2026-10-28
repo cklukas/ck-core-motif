@@ -26319,3 +26319,9 @@ Guard UIL token value allocations (2026-10-29)
 - Check the semantic value node before initialization.
 - Check narrow and compound payload allocations and release the node on
   failure instead of copying through a null payload.
+Guard UIL color-table construction allocations (2026-10-29)
+==============================================================
+
+- Check color-table node and element-array allocation before initialization.
+- Release a partially allocated table and select the existing semantic error
+  entry when allocation fails.
