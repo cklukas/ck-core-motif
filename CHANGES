@@ -21,6 +21,13 @@ Match converted-image teardown ownership (2026-10-29)
   for Xlib teardown.
 - Add focused coverage and documentation for success and failure paths.
 
+Clarify image color-release callback state (2026-10-29)
+========================================================
+
+- Remove the unused per-pixel status accumulator from the XPM color-release
+  callback and make its best-effort return contract explicit.
+- Add focused source coverage for the warning-free callback implementation.
+
 Synchronize XPM serializer contract checks (2026-10-29)
 ========================================================
 

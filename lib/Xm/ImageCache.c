@@ -3055,11 +3055,12 @@ static int
 FreeCacheColors(Display *display, Colormap colormap,
 		Pixel *pixels, int n, void *closure)
 {
-    int i, status;
+    int i;
+    (void)closure;
     if (display == NULL || pixels == NULL || n <= 0)
 	return 0;
     for (i = 0; i < n; i++, pixels++)
-	status = FreeCacheColor(display, colormap, *pixels);
+	(void)FreeCacheColor(display, colormap, *pixels);
     return 0;
 }
 
