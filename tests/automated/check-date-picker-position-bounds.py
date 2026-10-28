@@ -10,5 +10,6 @@ start = source.index("static void position_popup")
 body = source[start : source.index("\nstatic void calendar_changed", start)]
 assert "long long x_pos, y_pos" in body
 assert "x_pos < 0" in body and "y_pos < 0" in body
+assert "x_pos > SHRT_MAX" in body and "y_pos > SHRT_MAX" in body
 assert "x = (Position)x_pos" in body and "y = (Position)y_pos" in body
 print("PASS DatePicker popup positioning clamps wide coordinates")

@@ -161,6 +161,8 @@ static void position_popup(XmDatePickerWidget picker) {
     else if (y_pos > (long long)HeightOfScreen(screen) - popup_height)
         y_pos = (long long)HeightOfScreen(screen) - popup_height;
     if (y_pos < 0) y_pos = 0;
+    if (x_pos > SHRT_MAX) x_pos = SHRT_MAX;
+    if (y_pos > SHRT_MAX) y_pos = SHRT_MAX;
     x = (Position)x_pos;
     y = (Position)y_pos;
     XtVaSetValues(picker->date_picker.popup_shell, XtNx, x, XtNy, y, NULL);

@@ -27418,7 +27418,7 @@ Bound DatePicker popup positioning (2026-10-29)
 ===============================================
 
 - Use wide coordinate arithmetic and clamp popup positions before converting
-  to X11 `Position` values, preventing coordinate wraparound.
+  to the signed X11 `Position` range, preventing coordinate wraparound.
 
 Guard RowActions activation callbacks (2026-10-29)
 ==================================================
