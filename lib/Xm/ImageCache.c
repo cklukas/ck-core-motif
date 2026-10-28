@@ -1487,6 +1487,8 @@ _XmGetPixmapData(
 /*******************************************************************/
 /* Release temporary state when scaled-pixmap construction cannot
  * allocate its cache record. */
+static void XmDestroyConvertedImage(XImage *image, Boolean xt_data_owned);
+
 static void
 DiscardScaledPixmapBuild(
     XtEnum ret,
@@ -1513,7 +1515,7 @@ DiscardScaledPixmapBuild(
 
     if (ret == NOT_CACHED)
       {
-        XDestroyImage(image);
+        XmDestroyConvertedImage(image, old_image_data != NULL);
         if (old_image_data != NULL)
           XtFree(old_image_data);
       }
@@ -1913,7 +1915,7 @@ _XmGetScaledPixmap(
     /* Destroy non-cached XImage now that we've cached the pixmap. */
     if (ret == NOT_CACHED)
       {
-	XDestroyImage(image) ;
+	XmDestroyConvertedImage(image, old_image_data != NULL);
 	if (old_image_data)
 	  XtFree(old_image_data);
       }
@@ -2560,6 +2562,18 @@ XmDestroyScaledImage(XImage *image)
     if (image == NULL)
 	return;
     if (image->data != NULL) {
+	XtFree(image->data);
+	image->data = NULL;
+    }
+    XDestroyImage(image);
+}
+
+static void
+XmDestroyConvertedImage(XImage *image, Boolean xt_data_owned)
+{
+    if (image == NULL)
+	return;
+    if (xt_data_owned && image->data != NULL) {
 	XtFree(image->data);
 	image->data = NULL;
     }

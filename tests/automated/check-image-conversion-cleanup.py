@@ -6,7 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "ImageCache.c").read_text()
 start = source.index("/* Destroy non-cached XImage now that we've cached the pixmap. */")
 end = source.index("    else if (image->format != old_image_format)", start)
 region = source[start:end]
-assert "XDestroyImage(image) ;" in region
+assert "XmDestroyConvertedImage(image, old_image_data != NULL);" in region
 assert "XtFree(old_image_data);" in region
 assert "XtFree(image->data);" not in region
 assert "size_t byte;" in source

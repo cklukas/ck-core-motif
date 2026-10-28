@@ -13,6 +13,14 @@ Use matching scaled-image teardown (2026-10-29)
   its XImage wrapper, including all allocation-failure paths.
 - Add focused ownership coverage and documentation.
 
+Match converted-image teardown ownership (2026-10-29)
+======================================================
+
+- Release temporary Xt-owned depth-one conversion buffers with `XtFree`
+  before destroying their XImage wrapper, while preserving loader-owned data
+  for Xlib teardown.
+- Add focused coverage and documentation for success and failure paths.
+
 Synchronize XPM serializer contract checks (2026-10-29)
 ========================================================
 
