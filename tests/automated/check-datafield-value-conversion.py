@@ -14,5 +14,9 @@ assert "converted > (size_t)INT_MAX" in body
 assert "XmTextF_wc_value(tf) = NULL" in body
 assert "XmTextF_string_length(tf) = 0" in body
 assert "XmTextF_size_allocd(tf) = 0" in body
+wide_start = source.index("XmDataFieldSetStringWcs(\n        Widget")
+wide_body = source[wide_start:wide_start + 2200]
+assert "size_t result;" in wide_body
+assert "result = wcstombs" in wide_body
 
 print("PASS DataField value conversion rejects invalid multibyte input")
