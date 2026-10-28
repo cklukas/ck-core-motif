@@ -28296,6 +28296,12 @@ SegmentedControl item-count range (2026-10-28)
   selection and keyboard-navigation APIs. See
   `docs/segmented-count-range.md`.
 
+BreadcrumbBar segment-count range (2026-10-28)
+===============================================
+
+- Reject segment counts above the signed current-index range before replacing
+  BreadcrumbBar storage. See `docs/breadcrumb-count-range.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
