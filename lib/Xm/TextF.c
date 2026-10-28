@@ -7462,8 +7462,10 @@ ValidateString(XmTextFieldWidget tf,
 #endif
   if (!is_wchar) {
     char *temp_str, *curr_str, *start_temp;
-    
-    str_len = strlen(value);
+    input_length = strlen(value);
+    if (input_length > (size_t)INT_MAX - 1)
+      return;
+    str_len = (int)input_length;
     temp_str = (char*)XmStackAlloc((Cardinal)str_len + 1, stack_cache);
     start_temp = temp_str;
     curr_str = value;
@@ -7598,8 +7600,11 @@ ValidateString(XmTextFieldWidget tf,
     int csize = 1;
     
     wc_value = (wchar_t *) value;
-    for (str_len = 0, i = 0; *wc_value != (wchar_t)0L; str_len++)
+    for (str_len = 0, i = 0; *wc_value != (wchar_t)0L; str_len++) {
+      if (str_len == INT_MAX)
+        return;
       wc_value++; /* count number of wchars */
+    }
     wcs_temp_str=(wchar_t *)XmStackAlloc((Cardinal)
 					 ((str_len+1) * sizeof(wchar_t)),
 					 stack_cache);

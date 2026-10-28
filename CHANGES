@@ -26146,3 +26146,9 @@ Preserve accessibility key-symbol wire bits (2026-10-29)
 
 - Copy unsigned X11 keysyms into the signed AT-SPI device-event field by
   representation, avoiding implementation-defined narrowing for high values.
+
+Bound TextField validation lengths (2026-10-29)
+===============================================
+
+- Reject byte and wide-character values before their validation length counter
+  can overflow its legacy signed representation.
