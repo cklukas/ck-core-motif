@@ -1,3 +1,10 @@
+Reject invalid XPM image row strides (2026-10-29)
+=================================================
+
+- Reject source images with nonpositive `bytes_per_line` before row and plane
+  arithmetic in the pixel readers.
+- Add focused coverage and documentation.
+
 Reject XPM scans without image data (2026-10-29)
 ================================================
 

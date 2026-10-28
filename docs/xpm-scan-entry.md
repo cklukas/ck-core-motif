@@ -10,5 +10,7 @@ on the documented `XpmFileInvalid` path before any Xlib geometry, zero-sized
 allocation, or scan arithmetic begins.
 It also rejects source `XImage` objects without pixel data, preventing the
 reader callbacks from dereferencing a missing buffer.
+Nonpositive row strides are rejected as well, so row and plane offsets cannot
+underflow in the readers.
 
 Regression: `tests/automated/check-xpm-scan-entry.py`
