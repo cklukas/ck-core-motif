@@ -2930,9 +2930,10 @@ InvertArea(Widget w, short row, short column)
     
     width = GetListWidth((Widget) ilist);
     if (LayoutIsRtoLP(w))
-	x = -width + XtWidth(w) - XmI18List_left_loc(ilist) + HORIZONTAL_SPACE/2;
+	x = bounded_short(-(long long)width + (long long)XtWidth(w) -
+	                  (long long)XmI18List_left_loc(ilist) + HORIZONTAL_SPACE/2);
     else
-	x = XmI18List_left_loc(ilist) - HORIZONTAL_SPACE/2;
+	x = bounded_short((long long)XmI18List_left_loc(ilist) - HORIZONTAL_SPACE/2);
   }
   else {
     CvtRowColumnToPosition(w, row, column, &x, &y);

@@ -1,3 +1,10 @@
+Bound I18List selection-inversion origins (2026-10-29)
+========================================================
+
+- Compute full-row inversion origins in wide arithmetic and clamp their
+  legacy short coordinates before painting selection highlights.
+- Add focused source-contract coverage.
+
 Bound I18List row-to-position arithmetic (2026-10-29)
 ======================================================
 
