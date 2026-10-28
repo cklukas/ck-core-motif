@@ -14,9 +14,16 @@
 #include <Xm/ToggleSwitchP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
 #include "PrimitiveI.h"
 #include "TravActI.h"
 #include "XmI.h"
+
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
@@ -232,7 +239,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     label_y = ((int)sw->core.height - (int)label_height) / 2;
     if (sw->toggle_switch.font && sw->toggle_switch.label)
         XmStringDraw(display, window, sw->toggle_switch.font,
-                     sw->toggle_switch.label, label_gc, label_x, label_y,
+                     sw->toggle_switch.label, label_gc,
+                     bounded_position((long long)label_x),
+                     bounded_position((long long)label_y),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(sw), NULL);
     if (sw->primitive.highlighted && sw->primitive.highlight_thickness &&
