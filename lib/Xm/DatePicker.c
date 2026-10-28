@@ -268,6 +268,8 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     KeySym key;
     char input[2];
     (void)closure; (void)continue_dispatch;
+    if (picker == NULL || event == NULL || !XmIsDatePicker(widget))
+	return;
     if (event->type == ButtonPress ||
         (event->type == KeyPress &&
          (XLookupString(&event->xkey, input, sizeof(input), &key, NULL) >= 0) &&

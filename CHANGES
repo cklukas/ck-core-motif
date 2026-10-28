@@ -27282,6 +27282,12 @@ Guard TimePicker event callbacks (2026-10-28)
 - Ignore missing, foreign, or teardown-time widget/event inputs before
   changing the selected time field or invoking callbacks.
 
+Guard DatePicker event callbacks (2026-10-28)
+=============================================
+
+- Ignore missing, foreign, or teardown-time widget/event inputs before
+  opening or closing the calendar popup.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
