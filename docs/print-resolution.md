@@ -3,11 +3,12 @@ nav_exclude: true
 ---
 # PrintShell resolution parsing
 
-The PrintShell resource update path accepts the printer server's
-`default-printer-resolution` string. It now handles a missing, non-positive,
-malformed, or overflowing value by returning zero, which preserves the
-existing fallback to the X screen resolution. Valid decimal prefixes such as
-`300dpi` remain accepted for compatibility.
+The PrintShell resource update path and ImageCache's print-scaling path accept
+the printer server's `default-printer-resolution` string. Both use the same
+checked parser: a missing, non-positive, malformed, or overflowing value
+returns zero, preserving the existing fallback behavior. Valid decimal
+prefixes such as `300dpi` remain accepted for compatibility, and the X Print
+attribute returned to ImageCache is released after parsing.
 
 Run the installed-library regression with:
 

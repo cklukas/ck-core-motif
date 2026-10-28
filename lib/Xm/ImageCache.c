@@ -2712,9 +2712,10 @@ void _XmPutScaledImage (
 	 */
 	XPContext pcontext = XpGetContext(display);
 	if (pcontext) {
-	    int media_res;
-	    media_res = atoi(XpGetOneAttribute(display, pcontext, XPDocAttr,
-					       "default-printer-resolution"));
+	    String resolution = XpGetOneAttribute(display, pcontext, XPDocAttr,
+						   "default-printer-resolution");
+	    int media_res = _XmParsePrintResolution(resolution);
+	    XFree(resolution);
 	    if (media_res) {
 		int image_res = (double)media_res / ratio_x + 0.5;
 		int prev_res;

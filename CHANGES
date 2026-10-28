@@ -26739,3 +26739,10 @@ Bound Mrm wide-character safe copies (2026-10-29)
 
 - Reject wide-character copy sizes that fit `size_t` but cannot fit Xt's
   `Cardinal` allocation argument.
+Share checked printer-resolution parsing with ImageCache (2026-10-28)
+======================================================================
+
+- Replace the ImageCache print-resolution `atoi` path with the checked
+  `_XmParsePrintResolution` helper, so missing, malformed, overflowing, and
+  non-positive X Print attributes cannot wrap or dereference a null string.
+- Release the X Print attribute after parsing and add source-contract coverage.
