@@ -2966,7 +2966,7 @@ InvertArea(Widget w, short row, short column)
 		XmI18List_row_data(ilist)[row].pix_width,
 		XmI18List_row_data(ilist)[row].pix_height,
 		LayoutIsRtoLP(w)
-		  ? XtWidth(ilist) - XmI18List_left_loc(ilist) - XmI18List_row_data(ilist)[row].pix_height
+		  ? XtWidth(ilist) - XmI18List_left_loc(ilist) - XmI18List_row_data(ilist)[row].pix_width
 		  : XmI18List_left_loc(ilist),
 		y+pix_y_offset );
   }

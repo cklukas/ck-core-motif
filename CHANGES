@@ -1,3 +1,10 @@
+Use pixmap width for I18List RTL placement (2026-10-29)
+=========================================================
+
+- Correct the RTL pixmap X destination to subtract `pix_width` rather than
+  `pix_height`, preserving correct placement for non-square images.
+- Add focused source-contract coverage.
+
 Fix I18List pixmap centering underflow (2026-10-29)
 =====================================================
 
