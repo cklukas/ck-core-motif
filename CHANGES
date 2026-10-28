@@ -28055,3 +28055,10 @@ Accessibility text-navigation bounds (2026-10-29)
 - Compute D-Bus character-navigation offsets in wide arithmetic before
   clamping them to the valid text range.
 - Add focused source-contract coverage and documentation.
+
+List visibility-sum bounds (2026-10-29)
+=======================================
+
+- Compare List top-row and visible-count sums in wide arithmetic to prevent
+  signed geometry wraparound.
+- Add focused source-contract coverage and documentation.

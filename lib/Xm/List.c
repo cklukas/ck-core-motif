@@ -1794,7 +1794,8 @@ SetValues(Widget old,
 	  newlw->list.LastItem = 0;
 	  newlw->list.LastHLItem = 0;
 	  newlw->list.InternalList = NULL;
-	  if ((newlw->list.top_position + newlw->list.visibleItemCount) >
+	  if ((long long)newlw->list.top_position +
+	      (long long)newlw->list.visibleItemCount >
 	      newlw->list.itemCount)
 	    newlw->list.top_position =
 	      MAX(newlw->list.itemCount - newlw->list.visibleItemCount, 0);
@@ -1820,7 +1821,8 @@ SetValues(Widget old,
 	      newlw->list.items = NULL;
 	      reset_select = TRUE;
 	      reset_max = new_size = TRUE;
-	      if ((newlw->list.top_position + newlw->list.visibleItemCount) >
+	      if ((long long)newlw->list.top_position +
+	          (long long)newlw->list.visibleItemCount >
 		  newlw->list.itemCount)
                 newlw->list.top_position =
 		  MAX(newlw->list.itemCount - newlw->list.visibleItemCount, 0);
@@ -2438,7 +2440,9 @@ DrawItem(Widget w,
 
   if ((position >= lw->list.itemCount)  ||
       (position < lw->list.top_position)||
-      (position >= (lw->list.top_position + lw->list.visibleItemCount)))
+      ((long long)position >=
+       (long long)lw->list.top_position +
+       (long long)lw->list.visibleItemCount))
     return;
 
   if (lw->list.InternalList[position]->selected ==
@@ -2631,7 +2635,9 @@ DrawHighlight(XmListWidget lw,
   if ((position < lw->list.top_position) ||
       (lw->list.items == NULL)           ||
       (lw->list.itemCount == 0)          ||
-      (position >= (lw->list.top_position + lw->list.visibleItemCount)))
+	  ((long long)position >=
+	   (long long)lw->list.top_position +
+	   (long long)lw->list.visibleItemCount))
     {
       y = lw->list.BaseY - ht;
       height = (int)lw->core.height -
