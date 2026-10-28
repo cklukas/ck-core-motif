@@ -28199,6 +28199,13 @@ MWM backdrop color-set bounds (2026-10-28)
   data, preventing invalid fallback IDs from underflowing the array. See
   `docs/mwm-backdrop-colorset-bounds.md`.
 
+XmRenderTable rendition-merge tag bounds (2026-10-28)
+======================================================
+
+- Traverse unsigned rendition-tag counts without signed narrowing or
+  underflow, and reject nonzero counts with a null tag array. See
+  `docs/xmrender-merge-tag-bounds.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

@@ -976,8 +976,11 @@ _XmRenditionMerge(Display *d,	/* unused */
 		  )
 {
   XmRendition 	rend, tmp;
-  int 		i;
+  unsigned int	i;
   
+  if (tag_count != 0 && tags == NULL)
+    return NULL;
+
   if (scr == NULL)
     {
       rend = XmRenditionCreate(NULL, XmS, NULL, 0); /* Create new */
@@ -995,9 +998,9 @@ _XmRenditionMerge(Display *d,	/* unused */
       SetDefault(rend);			  /* Reset state */
     }
 
-  for (i = (tag_count - 1); i >= 0; i--)
+  for (i = tag_count; i != 0; --i)
     {
-      tmp = _XmRenderTableFindRendition(rt, tags[i], TRUE, FALSE, TRUE, NULL);
+      tmp = _XmRenderTableFindRendition(rt, tags[i - 1], TRUE, FALSE, TRUE, NULL);
       if (tmp == NULL) continue;
       
       SetRend(rend, tmp);
