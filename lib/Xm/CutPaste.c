@@ -1921,7 +1921,9 @@ ClipboardFindFormat(
 	return 0;
     }
 
-    if ((unsigned long)queryitem->formatIdList * CONVERT_32_FACTOR > reclength ||
+	if ((unsigned long)queryitem->formatIdList * CONVERT_32_FACTOR <
+	    sizeof(ClipboardDataItemRec) ||
+	    (unsigned long)queryitem->formatIdList * CONVERT_32_FACTOR > reclength ||
 	(unsigned long)queryitem->formatCount >
 	(reclength - (unsigned long)queryitem->formatIdList * CONVERT_32_FACTOR) /
 	 sizeof(itemId))
@@ -2146,7 +2148,8 @@ ClipboardDeleteFormats(
     }
 
     format_offset = datalist->formatIdList * CONVERT_32_FACTOR;
-    if (format_offset > length ||
+	if (format_offset < sizeof(ClipboardDataItemRec) ||
+	    format_offset > length ||
 	(unsigned long)datalist->formatCount >
 	(length - format_offset) / sizeof(itemId))
     {

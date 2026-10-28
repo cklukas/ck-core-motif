@@ -23404,6 +23404,15 @@ Validate clipboard header invariants (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-header-invariants.py
 
+Validate clipboard format-list offsets (2026-10-28)
+=======================================================
+
+- Require data-item format-ID lists to begin after their fixed record header.
+- Preserve existing upper-bound and count checks for both lookup and delete
+  paths.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-format-list-offset.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
