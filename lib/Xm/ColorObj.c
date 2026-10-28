@@ -28,7 +28,9 @@
 #endif
 
 #include <limits.h>
+#include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -49,6 +51,24 @@
 
 #define WARNING1	_XmMMsgColObj_0001
 #define WARNING2	_XmMMsgColObj_0002
+
+static Boolean
+ParseColorHexField(const char **cursor, unsigned long *value)
+{
+    char *end;
+    unsigned long parsed;
+
+    if (cursor == NULL || *cursor == NULL || value == NULL ||
+	**cursor == '+' || **cursor == '-')
+	return False;
+    errno = 0;
+    parsed = strtoul(*cursor, &end, 16);
+    if (errno == ERANGE || end == *cursor || *end != '_')
+	return False;
+    *cursor = end + 1;
+    *value = parsed;
+    return True;
+}
 
 /* First object in a creation-ordered registry of live ColorObjs. */
 externaldef (colorobj) XmColorObj _XmDefaultColorObj = NULL;
@@ -656,11 +676,12 @@ Initialize(
 static Boolean
 FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
 {    
-    int      i, count, colorUse;
+    int      i, colorUse;
+    unsigned long parsed_color_use;
     char    *bounded_value;
-    int      consumed;
     XmColorObj tmpColorObj = (XmColorObj)w;
     Colors   colors;
+    const char *cursor;
 
     if (w == NULL || value == NULL || value_length == 0 ||
 	value_length > UINT_MAX - 1 ||
@@ -682,25 +703,27 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
     XFree(value);
 
     /* read color use */
-    count = 0;
-    if (sscanf (bounded_value, "%x_%n", &colorUse, &consumed) != 1)
+    cursor = bounded_value;
+    if (!ParseColorHexField(&cursor, &parsed_color_use) ||
+	parsed_color_use > (unsigned long)INT_MAX)
     {
         XtFree(bounded_value);
         return False;
     }
-    count = consumed;
+    colorUse = (int)parsed_color_use;
     tmpColorObj->color_obj.colorUse[screen] = colorUse;
  
     for (i = 0; i < XmCO_NUM_COLORS; i++) {
 	/* read data into PixelSet */
-	if (sscanf (&(bounded_value[count]), "%lx_%lx_%lx_%lx_%lx_%n",
-		    &(colors[i].bg), &(colors[i].fg), &(colors[i].ts),
-		    &(colors[i].bs), &(colors[i].sc), &consumed) != 5)
+	if (!ParseColorHexField(&cursor, &(colors[i].bg)) ||
+	    !ParseColorHexField(&cursor, &(colors[i].fg)) ||
+	    !ParseColorHexField(&cursor, &(colors[i].ts)) ||
+	    !ParseColorHexField(&cursor, &(colors[i].bs)) ||
+	    !ParseColorHexField(&cursor, &(colors[i].sc)))
 	{
 	    XtFree(bounded_value);
 	    return False;
 	}
-	count += consumed;
     }
     UpdateXrm (colors, screen, tmpColorObj);
     tmpColorObj->color_obj.colorIsRunning = True;

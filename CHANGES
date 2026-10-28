@@ -26698,6 +26698,12 @@ Harden ListItemVisible percentage parsing (2026-10-29)
 - Replace unchecked translation-parameter integer parsing with range-checked
   conversion and overflow-safe percentage arithmetic.
 
+Harden ColorObj property parsing (2026-10-29)
+==============================================
+
+- Replace unchecked hexadecimal `sscanf` conversions for X-server color
+  properties with delimiter- and overflow-checked `strtoul` parsing.
+
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================
 
