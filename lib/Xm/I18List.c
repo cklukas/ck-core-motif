@@ -1617,14 +1617,17 @@ HSlideLeftArrowCallback(Widget w, XtPointer client_data, XtPointer junk)
                  * Leftmost column column is partially visible
                  * left adjust it including horizontal spacing
                  */
-                XmI18List_left_loc(ilist) += 0 - before;
+                XmI18List_left_loc(ilist) = bounded_short(
+                    (long long)XmI18List_left_loc(ilist) - before);
                 break;
             } else if (begin >= 0 && i > 0) {
                 /*
                  * Shift Leftmost column to the right once
                  */
-                XmI18List_left_loc(ilist) += 0 - before + HORIZONTAL_SPACE;
-                XmI18List_left_loc(ilist) += XmI18List_column_widths(ilist)[i-1];
+                XmI18List_left_loc(ilist) = bounded_short(
+                    (long long)XmI18List_left_loc(ilist) - before +
+                    HORIZONTAL_SPACE +
+                    XmI18List_column_widths(ilist)[i-1]);
                 break;
             }
             before = end;

@@ -1,3 +1,10 @@
+Bound I18List left-arrow scrolling (2026-10-29)
+=================================================
+
+- Compute partial-column left-arrow movement in wide arithmetic and clamp the
+  resulting legacy short horizontal origin.
+- Add focused source-contract coverage.
+
 Bound I18List right-arrow scrolling (2026-10-29)
 ==================================================
 
