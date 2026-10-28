@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Bound UIL name-table lengths (2026-10-29)
+==========================================
+
+- Reject invalid or over-wide name lengths before hashing, allocating, or
+  storing them in compact symbol entries; make validated copy widths explicit.
+- Add focused coverage and documentation.
+
 Fix UIL 64-bit name-hash mask type (2026-10-29)
 ================================================
 

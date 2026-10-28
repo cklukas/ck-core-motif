@@ -30,6 +30,8 @@ static char rcsid[] = "$TOG: UilSymNam.c /main/13 1997/09/08 11:12:50 cshi $"
 #include <config.h>
 #endif
 
+#include <limits.h>
+
 
 /*
 **++
@@ -130,6 +132,10 @@ char	*c_text;	/* text of the name */
     int			l_hash_code;
     int			l_compare_result;
 
+    if (c_text == NULL || l_length < 0 ||
+	(size_t)l_length > (size_t)USHRT_MAX - sym_k_name_entry_size - 1)
+	return NULL;
+
     /* obtain the hash code of for the name */
 
     l_hash_code = hash_function( l_length, c_text );
@@ -225,6 +231,10 @@ char	*c_text;	/* text of the name */
     int			l_hash_code;
     int			l_compare_result;
 
+    if (c_text == NULL || l_length < 0 ||
+	(size_t)l_length > (size_t)USHRT_MAX - sym_k_name_entry_size - 1)
+	return NULL;
+
     /*
     **  algorithm keeps 2 pointers, one for the previous name and one
     **  for the current name.  This permits easy insertion of a new name 
@@ -279,13 +289,14 @@ insert_name:
 
     az_new_name = (sym_name_entry_type *)
 	sem_allocate_node (sym_k_name_entry, 
-			   sym_k_name_entry_size + l_length + 1);
+				   (unsigned short)(sym_k_name_entry_size +
+						     (size_t)l_length + 1));
 
-    az_new_name->header.b_type = l_length;	/* b_type holds length */
+	az_new_name->header.b_type = (char)l_length;	/* b_type holds length */
     az_new_name->az_object = NULL;
     az_new_name->az_cycle_id = 0;
 
-    _move( az_new_name->c_text, c_text, l_length+1 );
+	_move( az_new_name->c_text, c_text, (size_t)l_length + 1 );
 
     /*
     **  link the name entry into the hash table
@@ -371,6 +382,9 @@ char	*c_value;
     int	  	  	l_extra;
     int	   	 	i;
 
+    if (c_value == NULL || l_length <= 0)
+	return 0;
+
     l_limit = (l_length-1) >> _shift;	/* divide by wordsize */
     l_extra = (l_length-1) & _slm;	/* remainder from divide by wordsize */
 
@@ -379,7 +393,7 @@ char	*c_value;
 #else
     bzero((char *)al_value, sizeof(int) * 20);
 #endif
-    strncpy((char *)al_value, c_value, l_length);
+	strncpy((char *)al_value, c_value, (size_t)l_length);
     l_hash_code = 0;
 
     for (i = 0; i < l_limit; i++)
