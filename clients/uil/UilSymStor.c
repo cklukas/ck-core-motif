@@ -1321,11 +1321,11 @@ sym_dump_proc_ref( XmConst sym_proc_ref_entry_type *az_proc_ref_entry )
     sym_dump_obj_header ((sym_obj_entry_type *)az_proc_ref_entry);
 
     _debug_output
-	( "%x proc ref  size: %d  proc def: %x  value: %x\n",
-	  (unsigned)az_proc_ref_entry,
+	( "%p proc ref  size: %d  proc def: %p  value: %p\n",
+	  (void *)az_proc_ref_entry,
 	  az_proc_ref_entry->header.w_node_size,
-	  (unsigned)az_proc_ref_entry->az_proc_def,
-	  (unsigned)az_proc_ref_entry->az_arg_value );
+	  (void *)az_proc_ref_entry->az_proc_def,
+	  (void *)az_proc_ref_entry->az_arg_value );
 
 }
 
