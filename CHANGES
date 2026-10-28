@@ -26893,3 +26893,9 @@ Validate MWM invoke-command requests (2026-10-28)
 - Replace unchecked `sscanf` parsing of command, client-window, and selection
   fields with field-by-field range validation.
 - Reject trailing or overflowing request text before sending the invocation.
+
+Harden MWM session-name classification (2026-10-28)
+====================================================
+
+- Pass filename bytes through `unsigned char` before `isdigit` in session
+  database suffix detection, avoiding undefined behavior for high-bit bytes.

@@ -447,7 +447,7 @@ setClientDBName(void)
 
 	for (p1 = ++ptr; *p1 != '\0'; p1++)
 	{
-	    if (!isdigit(*p1))
+	    if (!isdigit((unsigned char)*p1))
 		break;
 	}
 
