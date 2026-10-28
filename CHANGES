@@ -27151,6 +27151,12 @@ Destroy cached Xft draw objects (2026-10-28)
   unrelated caller pointer.
 - Make repeated or null teardown calls safe after drawable destruction.
 
+Avoid caching failed Xft draws (2026-10-28)
+============================================
+
+- Return failed draw creation without inserting a null cache entry.
+- Allow later calls to retry creation after drawable or display state changes.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

@@ -3570,6 +3570,10 @@ _XmXftDrawCreate(Display *display, Window window)
             draw = XftDrawCreateBitmap(display, window);
         }
 #endif
+	/* Failed Xft creation must not poison the cache with a null entry; a
+	 * later call may succeed after the drawable or display state changes. */
+	if (draw == NULL)
+		return NULL;
 	/* Store it in the cache. Look for an empty slot first */
 	for (i=0; i<_XmXftDrawCacheSize; i++)
 		if (_XmXftDrawCache[i].display == NULL) {
