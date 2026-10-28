@@ -24598,3 +24598,10 @@ Guard XPM image row-offset arithmetic (2026-10-29)
 - Check zero `cpp` and the maximum safe `width * cpp + 1` value before
   computing the image row offset.
 - Add focused coverage and documentation.
+
+Propagate XPM file-to-buffer close failures (2026-10-29)
+==========================================================
+
+- Treat a failed `fclose()` as a failed file read instead of returning a
+  buffer that may not represent durable stream input.
+- Add focused coverage and documentation.

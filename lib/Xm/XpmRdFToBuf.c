@@ -65,7 +65,9 @@ XpmReadFileToBuffer(
     char	**buffer_return)
 {
     int fd;
+    int close_status;
     size_t fcheck;
+    size_t file_size;
     off_t len;
     char *ptr;
     struct stat stats;
@@ -97,13 +99,14 @@ XpmReadFileToBuffer(
 	fclose(fp);
 	return XpmOpenFailed;
     }
-    ptr = (char *) XpmMalloc(len + 1);
+    file_size = (size_t)len;
+    ptr = (char *) XpmMalloc(file_size + 1);
     if (!ptr) {
 	fclose(fp);
 	return XpmNoMemory;
     }
-    fcheck = fread(ptr, 1, len, fp);
-    fclose(fp);
+    fcheck = fread(ptr, 1, file_size, fp);
+    close_status = fclose(fp);
 #ifdef VMS
     /* VMS often stores text files in a variable-length record format,
        where there are two bytes of size followed by the record.  fread
@@ -119,9 +122,9 @@ XpmReadFileToBuffer(
        We'll check for 0 for gross error that's all.
     */
     len = fcheck;
-    if (fcheck == 0) {
+    if (close_status != 0 || fcheck == 0) {
 #else
-    if (fcheck != len) {
+    if (close_status != 0 || fcheck != file_size) {
 #endif
 	XpmFree(ptr);
 	return XpmOpenFailed;
