@@ -26014,3 +26014,9 @@ Guard TextField selection insertion conversion (2026-10-29)
 
 - Reject failed or unrepresentable selection-to-wide-text conversions before
   invoking the replacement path.
+
+Guard Text value initialization conversion (2026-10-29)
+========================================================
+
+- Preserve the `wcstombs` result width and reject conversion failure before
+  publishing the Text widget's narrow initial value.

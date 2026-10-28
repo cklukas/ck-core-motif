@@ -2406,7 +2406,8 @@ InitializeHook(Widget wid,
     source = tw->text.source;
     if (tw->text.wc_value != NULL) {
       char * tmp_value;
-      int num_chars, n_bytes;
+      int num_chars;
+      size_t n_bytes;
       size_t allocation_bytes;
       
       for (num_chars=0; tw->text.wc_value[num_chars]!=0L; num_chars++)
@@ -2421,7 +2422,7 @@ InitializeHook(Widget wid,
 	if (tmp_value != NULL) {
 	  n_bytes = wcstombs(tmp_value, tw->text.wc_value,
 			     allocation_bytes);
-	  if (n_bytes >= 0 && (size_t)n_bytes < allocation_bytes) {
+	  if (n_bytes != (size_t)-1 && n_bytes < allocation_bytes) {
 	    tmp_value[n_bytes] = 0;  /* NULL terminate the string */
 	    _XmStringSourceSetValue(tw, tmp_value);
 	  }
