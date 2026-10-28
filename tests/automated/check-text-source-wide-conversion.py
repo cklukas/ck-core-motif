@@ -6,7 +6,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "TextStrSo.c").read_text()
 start = source.index("converted_bytes = value == NULL ? 0 :")
-end = source.index("  } else {", start)
+end = source.index("    XtFree(tmp_value);", start)
 body = source[start:end]
 
 assert "converted_bytes == (size_t)-1 || converted_bytes >= allocation_bytes" in body

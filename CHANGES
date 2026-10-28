@@ -28403,3 +28403,5 @@ List drag selection bounds (2026-10-28)
   clamping implementation (2026-10-28).
 * Refreshed the I18List row-Y contract check for its bounded assignment form
   (2026-10-28).
+* Refreshed the text-source wide-conversion contract slice to include the
+  successful conversion terminator (2026-10-28).
