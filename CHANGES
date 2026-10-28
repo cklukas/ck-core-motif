@@ -1,3 +1,10 @@
+Bound I18List cell right-edge arithmetic (2026-10-29)
+=======================================================
+
+- Compute `MakeCellVisible` right edges in a wide type and clamp the legacy
+  short coordinate before visibility calculations.
+- Add focused source-contract coverage.
+
 Bound I18List visible-height probing (2026-10-29)
 ==================================================
 

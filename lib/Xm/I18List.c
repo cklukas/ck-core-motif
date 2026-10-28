@@ -3401,7 +3401,8 @@ MakeCellVisible(Widget w, int row, int col)
     if (col >= XmI18List_num_columns(ilist))
     	end = width;
     else 
-    	end = XmI18List_column_widths(ilist)[col] + start;
+	    end = bounded_short((long long)XmI18List_column_widths(ilist)[col] +
+	                        (long long)start);
 
     (void) MakePositionVisible(w, row, start, end, width);
 
