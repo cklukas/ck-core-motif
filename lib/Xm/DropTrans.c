@@ -341,8 +341,14 @@ SourceNotifiedCB(
 {
     XmDropTransferObject	dt = (XmDropTransferObject)client_data;
 
-    if (dt == NULL)
+    if (dt == NULL) {
+      XtFree((char *)value);
 	return;
+    }
+    if (dt->object.being_destroyed) {
+      XtFree((char *)value);
+      return;
+    }
     ForgetSelectionRequest(dt);
     if (value != NULL)
       XtFree((char *) value);

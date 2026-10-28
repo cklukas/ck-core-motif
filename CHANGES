@@ -1,3 +1,11 @@
+Guard source-notification teardown reentrancy (2026-10-29)
+===========================================================
+
+- Release source-notification result buffers and return when the transfer
+  object is already being destroyed.
+- Avoid duplicate teardown while preserving normal completion cleanup, with
+  focused coverage.
+
 Clean up drop transfers after drag destruction (2026-10-29)
 ============================================================
 

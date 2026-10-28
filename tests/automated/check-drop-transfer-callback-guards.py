@@ -5,6 +5,11 @@ from pathlib import Path
 
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "DropTrans.c").read_text()
+source_start = source.index("static void \nSourceNotifiedCB(")
+source_end = source.index("static void\nSetSelectionRequest", source_start)
+source_callback = source[source_start:source_end]
+assert "dt->object.being_destroyed" in source_callback
+assert source_callback.count("XtFree((char *)value);") >= 2
 timer_start = source.index("static void \nStartDropTimer")
 timer_end = source.index("static Widget \nStartDropTransfer", timer_start)
 timer = source[timer_start:timer_end]
