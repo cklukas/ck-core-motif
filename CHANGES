@@ -27377,3 +27377,10 @@ Guard Chip event dispatch (2026-10-29)
 
 - Validate the widget type and event pointer before reading activation input,
   preventing malformed dispatch from reaching chip callbacks.
+
+Guard TeachingTip event dispatch (2026-10-29)
+=============================================
+
+- Validate the callback closure and event pointer before processing owner or
+  popup events, preventing malformed teardown dispatch from hiding invalid
+  widget state.

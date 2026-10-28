@@ -189,6 +189,7 @@ static void owner_events(Widget owner, XtPointer closure, XEvent *event,
                          Boolean *dispatch) {
     XmTeachingTipWidget tip = (XmTeachingTipWidget)closure;
     (void)owner; (void)dispatch;
+    if (tip == NULL || event == NULL || !XmIsTeachingTip((Widget)tip)) return;
     if (event->type == UnmapNotify || event->type == ButtonPress)
         XmTeachingTipHide((Widget)tip);
 }
@@ -199,6 +200,7 @@ static void popup_events(Widget popup, XtPointer closure, XEvent *event,
     KeySym symbol;
     char input[2];
     (void)popup; (void)dispatch;
+    if (tip == NULL || event == NULL || !XmIsTeachingTip((Widget)tip)) return;
     if (event->type == ButtonPress) {
         XmTeachingTipHide((Widget)tip);
         return;
