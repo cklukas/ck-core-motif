@@ -270,6 +270,8 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
 static void Events(Widget widget, XtPointer data, XEvent *event,
                    Boolean *dispatch) {
     (void)data; (void)dispatch;
+    if (widget == NULL || event == NULL || !XmIsSpinner(widget))
+	return;
     if (event->type == MapNotify || event->type == UnmapNotify ||
         event->type == VisibilityNotify)
         SyncTimer((XmSpinnerWidget)widget);
@@ -278,6 +280,8 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
 static void Tick(XtPointer data, XtIntervalId *id) {
     XmSpinnerWidget spinner = (XmSpinnerWidget)data;
     (void)id;
+    if (spinner == NULL)
+	return;
     spinner->spinner.timer_pending = False;
     if (!eligible(spinner)) return;
     spinner->spinner.phase = (spinner->spinner.phase + 1) % 12;

@@ -27242,6 +27242,14 @@ Guard SegmentedControl child callbacks (2026-10-28)
   torn down.
 - Ignore keyboard callbacks without a live event, preserving navigation for
   realized controls.
+
+Guard Spinner event and timer callbacks (2026-10-28)
+=====================================================
+
+- Ignore events for missing or non-Spinner widgets and timer callbacks with
+  missing data during teardown.
+- Preserve normal map, visibility, and animation synchronization for live
+  Spinner widgets.
 - Guard list-popup key events against missing client or event data as well.
 
 Guard Mrm value-fixup swap state (2026-10-28)
