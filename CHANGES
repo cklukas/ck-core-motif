@@ -24681,3 +24681,10 @@ Validate XPM color-table writes (2026-10-29)
 - Validate the color table and primary tokens before serialization and
   propagate color-write status to the top-level file writer.
 - Add focused coverage and documentation.
+
+Validate XPM extension writes (2026-10-29)
+===========================================
+
+- Validate extension metadata before serialization and propagate extension
+  input/stream failures to the top-level file writer.
+- Add focused coverage and documentation.

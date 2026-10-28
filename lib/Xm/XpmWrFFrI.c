@@ -61,7 +61,7 @@ LFUNC(WritePixels, int, (FILE *file, unsigned int width, unsigned int height,
 			 unsigned int cpp, unsigned int *pixels,
 			 XpmColor *colors, unsigned int ncolors));
 
-LFUNC(WriteExtensions, void, (FILE *file, XpmExtension *ext,
+LFUNC(WriteExtensions, int, (FILE *file, XpmExtension *ext,
 			      unsigned int num));
 
 LFUNC(OpenWriteFile, int, (const char *filename, xpmData *mdata));
@@ -223,8 +223,11 @@ xpmWriteFile(
 	return (ErrorStatus);
 
     /* print extensions */
-    if (extensions)
-	WriteExtensions(file, info->extensions, info->nextensions);
+    if (extensions) {
+	ErrorStatus = WriteExtensions(file, info->extensions, info->nextensions);
+	if (ErrorStatus != XpmSuccess)
+	    return (ErrorStatus);
+    }
 
     /* close the array */
     fprintf(file, "};\n");
@@ -336,7 +339,7 @@ WritePixels(
     return (XpmSuccess);
 }
 
-static void
+static int
 WriteExtensions(
     FILE		*file,
     XpmExtension	*ext,
@@ -345,13 +348,23 @@ WriteExtensions(
     unsigned int x, y, n;
     char **line;
 
+    if (file == NULL || (num != 0 && ext == NULL))
+	return XpmFileInvalid;
     for (x = 0; x < num; x++, ext++) {
+	if (ext->name == NULL || (ext->nlines != 0 && ext->lines == NULL))
+	    return XpmFileInvalid;
 	fprintf(file, ",\n\"XPMEXT %s\"", ext->name);
 	n = ext->nlines;
-	for (y = 0, line = ext->lines; y < n; y++, line++)
+	for (y = 0, line = ext->lines; y < n; y++, line++) {
+	    if (*line == NULL)
+		return XpmFileInvalid;
 	    fprintf(file, ",\n\"%s\"", *line);
+	}
     }
     fprintf(file, ",\n\"XPMENDEXT\"");
+    if (ferror(file))
+	return XpmOpenFailed;
+    return XpmSuccess;
 }
 
 
