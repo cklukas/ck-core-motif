@@ -23897,3 +23897,13 @@ Regression: tests/automated/check-clipboard-end-copy-offset.py
 
 Bound clipboard copy-by-name length accumulation (2026-10-28)
 ===============================================================
+Remove impossible Text highlight-capacity check (2026-10-28)
+==============================================================
+
+- Remove dead negative and host-size comparisons for the unsigned Xt field.
+- Preserve the meaningful Xt allocation bound before resizing.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-highlight-capacity.py
+
+Bound clipboard end-copy item-list offsets (2026-10-28)
+=========================================================

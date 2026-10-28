@@ -434,10 +434,7 @@ AddWidget(XmTextSource source,
     _XmTextSetHighlight((Widget) tw, 0, tw->text.last_position, 
 		       XmHIGHLIGHT_NORMAL);
   else {
-    if (data->widgets[0]->text.highlight.maximum < 0 ||
-	(size_t)data->widgets[0]->text.highlight.maximum >
-	  SIZE_MAX / sizeof(_XmHighlightRec) ||
-	(size_t)data->widgets[0]->text.highlight.maximum >
+	if ((size_t)data->widgets[0]->text.highlight.maximum >
 	  (size_t)UINT_MAX / sizeof(_XmHighlightRec)) {
       data->numwidgets--;
       return;
