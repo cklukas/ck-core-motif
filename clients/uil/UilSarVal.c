@@ -3137,6 +3137,11 @@ yystype	    *letter_frame;
     item_entry = (sym_color_item_entry_type *)
 	sem_allocate_node(sym_k_color_item_entry,
 			  sym_k_color_item_entry_size );
+    if (item_entry == NULL)
+	{
+	target_frame->b_tag = sar_k_null_frame;
+	return;
+    }
     _sar_save_source_pos (&item_entry->header, color_frame);
 
     item_entry->b_index = 0;
@@ -3211,6 +3216,7 @@ yystype	    *letter_frame;
 	      _sar_source_position( letter_frame ) );
 
         target_frame->b_tag = sar_k_null_frame;
+	sem_free_node ((sym_entry_type *)item_entry);
 	return;
     }
 
@@ -3221,7 +3227,10 @@ yystype	    *letter_frame;
     */
 
     if (target_frame->b_tag == sar_k_null_frame)
+	{
+	sem_free_node ((sym_entry_type *)item_entry);
 	return;
+	}
 
     /*
     ** Save source information

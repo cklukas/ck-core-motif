@@ -26338,3 +26338,10 @@ Guard UIL icon construction allocations (2026-10-29)
 - Check icon semantic-node and payload allocations before initialization.
 - Release a partial icon and select the existing semantic error entry when
   allocation fails.
+
+Guard UIL color-item allocation and cleanup (2026-10-29)
+==========================================================
+
+- Check the temporary color-item node before saving metadata or initializing
+  fields.
+- Release the temporary item when later validation selects the error path.
