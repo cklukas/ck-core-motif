@@ -65,7 +65,7 @@ LFUNC(WriteExtensions, void, (FILE *file, XpmExtension *ext,
 			      unsigned int num));
 
 LFUNC(OpenWriteFile, int, (const char *filename, xpmData *mdata));
-LFUNC(xpmDataClose, void, (xpmData *mdata));
+LFUNC(xpmDataClose, int, (xpmData *mdata));
 
 int
 XpmWriteFileFromImage(
@@ -164,7 +164,10 @@ XpmWriteFileFromXpmImage(
     if (ErrorStatus == XpmSuccess)
 	ErrorStatus = xpmWriteFile(mdata.stream.file, image, name, info);
 
-    xpmDataClose(&mdata);
+    if (ErrorStatus == XpmSuccess && xpmDataClose(&mdata) != 0)
+	ErrorStatus = XpmOpenFailed;
+    else if (ErrorStatus != XpmSuccess)
+	xpmDataClose(&mdata);
 
     return (ErrorStatus);
 }
@@ -223,6 +226,9 @@ xpmWriteFile(
 
     /* close the array */
     fprintf(file, "};\n");
+
+    if (ferror(file))
+	return XpmOpenFailed;
 
     return (XpmSuccess);
 }
@@ -377,10 +383,11 @@ OpenWriteFile(
 /*
  * close the file related to the xpmData if any
  */
-static void
+static int
 xpmDataClose(xpmData *mdata)
 {
     if (mdata->stream.file != (stdout))
-	fclose(mdata->stream.file);
+	return fclose(mdata->stream.file);
+    return fflush(stdout);
 }
 
