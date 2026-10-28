@@ -27587,3 +27587,9 @@ Bound DataGrid label coordinates (2026-10-29)
 - Clamp calculated cell-label positions before passing them to Motif's signed
   `Position` drawing arguments.
 - Add focused source-contract coverage for large grid geometry.
+Bound InfoBar text coordinates (2026-10-29)
+=============================================
+
+- Clamp prefix, message, and action-label positions before passing them to
+  Motif's signed `Position` drawing arguments.
+- Add focused source-contract coverage for oversized bars and font metrics.

@@ -12,6 +12,7 @@
 #include "XmI.h"
 static void Initialize(Widget,Widget,ArgList,Cardinal*); static void Redisplay(Widget,XEvent*,Region); static Boolean SetValues(Widget,Widget,Widget,ArgList,Cardinal*); static void Destroy(Widget); static XtGeometryResult QueryGeometry(Widget,XtWidgetGeometry*,XtWidgetGeometry*); static void Events(Widget,XtPointer,XEvent*,Boolean*);
 static void CheckSetRenderTable(Widget widget,int offset,XrmValue*value){XmInfoBarWidget bar=(XmInfoBarWidget)widget;(void)offset;if(bar->info.check_set_render_table)value->addr=NULL;else{bar->info.check_set_render_table=True;value->addr=(char*)&bar->info.font;}}
+static Position bounded_position(long long value){if(value<SHRT_MIN)return(Position)SHRT_MIN;if(value>SHRT_MAX)return(Position)SHRT_MAX;return(Position)value;}
 #define Offset(field) XtOffsetOf(XmInfoBarRec,field)
 static XtResource resources[]={{XmNinfoMessage,XmCInfoMessage,XmRString,sizeof(String),Offset(info.message),XmRImmediate,(XtPointer)""},{XmNinfoSeverity,XmCInfoSeverity,XmRUnsignedChar,sizeof(unsigned char),Offset(info.severity),XmRImmediate,(XtPointer)XmINFO_SEVERITY_INFO},{XmNinfoClosable,XmCInfoClosable,XmRBoolean,sizeof(Boolean),Offset(info.closable),XmRImmediate,(XtPointer)True},{XmNinfoActionLabel,XmCInfoActionLabel,XmRString,sizeof(String),Offset(info.action_label),XmRImmediate,(XtPointer)NULL},{XmNinfoDismissCallback,XmCInfoDismissCallback,XmRCallback,sizeof(XtCallbackList),Offset(info.dismiss_callback),XmRPointer,(XtPointer)NULL},{XmNinfoActionCallback,XmCInfoActionCallback,XmRCallback,sizeof(XtCallbackList),Offset(info.action_callback),XmRPointer,(XtPointer)NULL},{XmNfontList,XmCFontList,XmRFontList,sizeof(XmRenderTable),Offset(info.font),XmRCallProc,(XtPointer)CheckSetRenderTable},{XmNrenderTable,XmCRenderTable,XmRRenderTable,sizeof(XmRenderTable),Offset(info.font),XmRCallProc,(XtPointer)CheckSetRenderTable},{XmNtraversalOn,XmCTraversalOn,XmRBoolean,sizeof(Boolean),Offset(primitive.traversal_on),XmRImmediate,(XtPointer)True},{XmNhighlightThickness,XmCHighlightThickness,XmRHorizontalDimension,sizeof(Dimension),Offset(primitive.highlight_thickness),XmRCallProc,(XtPointer)_XmSetThickness}};
 externaldef(xminfobarclassrec) XmInfoBarClassRec xmInfoBarClassRec={{(WidgetClass)&xmPrimitiveClassRec,"XmInfoBar",sizeof(XmInfoBarRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,Redisplay,SetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,XtInheritTranslations,QueryGeometry,NULL,NULL},{XmInheritBorderHighlight,XmInheritBorderUnhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
@@ -48,17 +49,20 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     if (action_string) XmStringExtent(bar->info.font, action_string, &action_width, &action_height);
     if (prefix_string)
         XmStringDraw(display, window, bar->info.font, prefix_string, bar->info.gc,
-                     8, ((int)bar->core.height - (int)prefix_height) / 2,
+                     bounded_position(8),
+                     bounded_position(((long long)bar->core.height - prefix_height) / 2),
                      prefix_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(bar), NULL);
     if (message_string)
         XmStringDraw(display, window, bar->info.font, message_string, bar->info.gc,
-                     8 + (int)prefix_width, ((int)bar->core.height - (int)message_height) / 2,
+                     bounded_position(8 + (long long)prefix_width),
+                     bounded_position(((long long)bar->core.height - message_height) / 2),
                      message_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(bar), NULL);
     if (action_string)
         XmStringDraw(display, window, bar->info.font, action_string, bar->info.gc,
-                     (int)bar->core.width - 100, ((int)bar->core.height - (int)action_height) / 2,
+                     bounded_position((long long)bar->core.width - 100),
+                     bounded_position(((long long)bar->core.height - action_height) / 2),
                      action_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(bar), NULL);
     if (bar->info.closable && bar->core.width >= 24 &&
