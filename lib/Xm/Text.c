@@ -2410,8 +2410,10 @@ InitializeHook(Widget wid,
       size_t n_bytes;
       size_t allocation_bytes;
       
-      for (num_chars=0; tw->text.wc_value[num_chars]!=0L; num_chars++)
-	/*EMPTY*/;
+      for (num_chars=0; tw->text.wc_value[num_chars]!=0L; num_chars++) {
+	if (num_chars == INT_MAX)
+	  break;
+      }
 
       if (num_chars != INT_MAX && tw->text.char_size > 0 &&
 	  (size_t)(num_chars + 1) <=

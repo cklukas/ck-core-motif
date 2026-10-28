@@ -26170,3 +26170,9 @@ Bound DataField callback bridge allocations (2026-10-29)
 
 - Validate both callback-modified and original insertion lengths while
   bridging character callbacks to wide callbacks.
+
+Bound Text wide-value initialization lengths (2026-10-29)
+==========================================================
+
+- Stop the legacy signed counter at `INT_MAX` while counting an initial wide
+  value, before conversion and allocation sizing.

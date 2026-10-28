@@ -14,6 +14,6 @@ assert "num_chars != INT_MAX" in block
 assert "UINT_MAX / (size_t)tw->text.char_size" in block
 assert "tmp_value = XtMalloc((Cardinal)allocation_bytes);" in block
 assert "if (tmp_value != NULL)" in block
-assert "if (n_bytes >= 0 && (size_t)n_bytes < allocation_bytes)" in block
+assert "if (n_bytes != (size_t)-1 && n_bytes < allocation_bytes)" in block
 
 print("text initialization wide-string guard: ok")
