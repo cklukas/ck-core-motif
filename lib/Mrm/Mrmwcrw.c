@@ -4114,7 +4114,9 @@ Urm__CW_TranslateOldCallback (OldRGMCallbackDescPtr	oldptr)
   int			ndx;	/* loop index */
   size_t		item_count;
 
-  if (oldptr == NULL || oldptr->count < 0 || oldptr->count == INT_MAX)
+  if (oldptr == NULL ||
+      oldptr->validation != URMCallbackDescriptorValid ||
+      oldptr->count < 0 || oldptr->count == INT_MAX)
 	return NULL;
   item_count = (size_t)oldptr->count + 1;
   if (item_count >

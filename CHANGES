@@ -26997,4 +26997,5 @@ Fix Mrm legacy callback translation sizing (2026-10-28)
 
 - Account for the terminating callback item copied by the legacy descriptor
   translator.
-- Reject counts that cannot represent the complete translated descriptor.
+- Reject invalid descriptor markers and counts that cannot represent the
+  complete translated descriptor.
