@@ -27115,6 +27115,13 @@ Guard Mrm value-fixup pointer inputs (2026-10-28)
 - Reject null unit-valued integer and floating-point fixup values before
   dereferencing them.
 
+Guard Mrm value-conversion destination (2026-10-28)
+====================================================
+
+- Reject a null conversion value pointer before any representation-specific
+  branch dereferences it.
+- Preserve all existing conversion behavior for valid destinations.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

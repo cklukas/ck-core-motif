@@ -2404,6 +2404,9 @@ Urm__CW_ConvertValue (Widget			parent,
   Pixel			bgint = (Pixel) -1;
   Pixmap		pixmap;
 
+  if (val == NULL)
+    return MrmFAILURE;
+
   /* BEGIN HAL Fix CR 5439 */
   /* If the cvttype is not zero, we should do some
      type checking here to avoid the confusing error 
