@@ -1197,7 +1197,8 @@ XmCvtTextToXmString(
 {
     Boolean		ok;
 
-    if (from_val == NULL || to_val == NULL || from_val->addr == NULL)
+    if (display == NULL || from_val == NULL || to_val == NULL ||
+	from_val->addr == NULL)
 	return( FALSE);
 
     ok = cvtTextToXmString(from_val, to_val);
@@ -2260,7 +2261,8 @@ XmCvtXmStringToText(
 {
     Boolean		ok;
 
-	if (from_val == NULL || to_val == NULL || from_val->addr == NULL)
+	if (display == NULL || from_val == NULL || to_val == NULL ||
+	    from_val->addr == NULL)
 	return( FALSE) ;
 
     ok = cvtXmStringToText(from_val, to_val);

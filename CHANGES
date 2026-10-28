@@ -1,3 +1,10 @@
+Reject null converter displays (2026-10-29)
+===========================================
+
+- Reject a missing display before compound-text converter failure handling can
+  call `XtDisplayToApplicationContext`.
+- Preserve valid converter diagnostics and add focused display-input coverage.
+
 Guard null charset conversion state (2026-10-29)
 ================================================
 

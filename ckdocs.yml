@@ -62,6 +62,7 @@ nav:
       - docs/disclosure.md
   - title: Reference
     pages:
+      - docs/compound-text-converter-display.md
       - docs/charset-conversion-state-inputs.md
       - docs/inverse-compound-text-converter-inputs.md
       - docs/compound-text-converter-inputs.md
