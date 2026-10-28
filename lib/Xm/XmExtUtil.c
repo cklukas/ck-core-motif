@@ -981,6 +981,8 @@ _XiResolveAllPartOffsets(
 	*constraint_offset = NULL;
 
     super = w_class->core_class.superclass;
+    if (super == NULL)
+	return;
     
     _XmProcessLock();
     if (sizeof(int) != sizeof(void*))

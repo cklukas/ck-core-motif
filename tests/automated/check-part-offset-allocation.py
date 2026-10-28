@@ -8,6 +8,7 @@ end = source.index("void \nXiResolveAllPartOffsets", start)
 region = source[start:end]
 assert "if (w_class == NULL || offset == NULL)" in region
 assert "*offset = NULL;" in region
+assert "if (super == NULL)" in region
 assert "classcount > UINT_MAX / sizeof(XmOffset)" in region
 assert "if (*offset == NULL)" in region
 assert "if (*constraint_offset == NULL)" in region

@@ -6,6 +6,14 @@ Reject root classes in part-offset resolution (2026-10-29)
 - Preserve valid widget-class resolution and add focused malformed-input
   coverage.
 
+Guard Xi part-offset resolution without a superclass (2026-10-29)
+===================================================================
+
+- Return safely from the compatibility Xi resolver when a class has no
+  superclass, before reading inherited widget or constraint sizes.
+- Preserve valid offset-table construction and extend the focused allocation
+  contract check.
+
 Reject null converter displays (2026-10-29)
 ===========================================
 
