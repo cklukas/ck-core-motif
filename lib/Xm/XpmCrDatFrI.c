@@ -179,6 +179,8 @@ XpmCreateDataFromXpmImage(
     *header = (char *) XpmMalloc(l);
     if (!*header)
 	RETURN(XpmNoMemory);
+    if (l > UINT_MAX - header_size)
+	RETURN(XpmNoMemory);
     header_size += l;
     strcpy(*header, buf);
 
@@ -309,6 +311,10 @@ CreateColors(
 	s = (char *) XpmMalloc(l);
 	if (!s)
 	    return (XpmNoMemory);
+	if (l > UINT_MAX - *data_size) {
+	    XpmFree(s);
+	    return (XpmNoMemory);
+	}
 	*data_size += l;
 	*dataptr = strcpy(s, buf);
     }

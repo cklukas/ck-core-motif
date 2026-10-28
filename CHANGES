@@ -24625,3 +24625,10 @@ Guard XPM decimal parser null inputs (2026-10-29)
 
 - Reject null input and output pointers before decimal scanning.
 - Add focused coverage and documentation.
+
+Guard XPM header and color size accumulation (2026-10-29)
+===========================================================
+
+- Reject unsigned wraparound while accumulating serialized header and
+  color-line sizes.
+- Add focused coverage and documentation.
