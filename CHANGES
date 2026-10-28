@@ -10,6 +10,7 @@ Guard DataField selection callback inputs (2026-10-29)
 - Reject `mbstowcs` failure and unrepresentable wide-character counts before
   updating selection state.
 - Release the temporary converted string list after wide-character conversion.
+- Pass wchar-slot capacity, rather than raw byte capacity, to `mbstowcs`.
 
 Guard DataField target callback inputs (2026-10-29)
 ======================================================

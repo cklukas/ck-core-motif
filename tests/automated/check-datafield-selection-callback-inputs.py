@@ -25,6 +25,7 @@ assert "converted == (size_t)-1" in body
 assert "prim_select->num_chars += (int)converted" in body
 assert "prim_select->num_chars = (int)converted" in body
 assert "XFreeStringList(tmp_value);" in body
+assert "malloc_size / sizeof(wchar_t)" in body
 assert body.index("if (w == NULL") < body.index("XtDisplay(w)")
 assert "prim_select->ref_count <= 0" in body
 assert "--prim_select->ref_count" in body

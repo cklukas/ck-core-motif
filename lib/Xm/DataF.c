@@ -7526,7 +7526,7 @@ df_DoStuff(
 		for (i = 0; i < num_vals ; i++) {
 		   converted = mbstowcs(wc_value + prim_select->num_chars,
 			             tmp_value[i],
-			             (size_t)malloc_size -
+			             (malloc_size / sizeof(wchar_t)) -
 					     prim_select->num_chars);
 		   if (converted == (size_t)-1 ||
 		       converted > (size_t)INT_MAX - prim_select->num_chars) {

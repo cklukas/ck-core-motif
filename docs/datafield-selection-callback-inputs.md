@@ -15,7 +15,8 @@ unrepresentable narrow or wide allocations instead of overflowing an `int`.
 Wide-character conversion now rejects `mbstowcs` failure and unrepresentable
 character counts before updating selection state.
 The temporary converted string list is released on both successful and failed
-wide-character conversion paths.
+wide-character conversion paths. Conversion capacity is expressed in wchar
+slots rather than raw allocation bytes.
 
 Regression coverage:
 
