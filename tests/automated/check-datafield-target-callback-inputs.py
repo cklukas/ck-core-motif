@@ -18,5 +18,7 @@ assert "*length != 0 && value == NULL" in body
 assert "unsigned long i;" in body
 assert body.index("if (w == NULL") < body.index("XtDisplay(w)")
 assert "XtFree((char *)value);" in body
+request = source[source.index("XtGetSelectionValue(w, XA_PRIMARY, targets[0], df_DoStuff"):]
+assert "prim_select->time);" in request
 
 print("PASS DataField target callback validates selection inputs")

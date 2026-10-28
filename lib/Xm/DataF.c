@@ -7953,7 +7953,7 @@ df_HandleTargets(
    /* Make request to call df_DoStuff() with the primary selection. */
    XtGetSelectionValue(w, XA_PRIMARY, targets[0], df_DoStuff,
                           (XtPointer)prim_select, 
-			  tmp_action->event->xbutton.time);
+			  prim_select->time);
 
    XtFree((char *)value);
    value = NULL;
