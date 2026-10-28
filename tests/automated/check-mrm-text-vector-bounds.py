@@ -17,8 +17,7 @@ for function, count in (
         f"{count} < 0",
         f"{count} > RGMListSizeMax",
         "sizeof(RGMTextVector) > USHRT_MAX",
-        f"(size_t){count} >",
-        "sizeof(RGMTextEntry)",
+        "item_count >\n\t (USHRT_MAX - sizeof(RGMTextVector)) / sizeof(RGMTextEntry)",
     ):
         if needle not in region:
             raise SystemExit(f"{function} guard missing: {needle}")
