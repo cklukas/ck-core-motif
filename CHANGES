@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Fix UIL cycle-mask validation (2026-10-29)
+==========================================
+
+- Treat the already-checked cycle flag as a bit mask, preventing valid cycle
+  state from being mistaken for false when its bit value is not `1`.
+- Add focused coverage and documentation.
+
 Bound UIL machine-listing unload spans (2026-10-29)
 ===================================================
 
