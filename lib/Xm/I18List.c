@@ -3029,11 +3029,12 @@ AdjustVisiblePosition(Widget w, short position, Boolean check, short value)
      * Check to make sure that we can move the amount requested
      */
     if (check && position > value)
-        position = 0 - value;
+        position = bounded_short(-(long long)value);
     else
-        position = 0 - position;
+        position = bounded_short(-(long long)position);
 
-    XmI18List_left_loc(ilist) += position;
+    XmI18List_left_loc(ilist) = bounded_short(
+        (long long)XmI18List_left_loc(ilist) + (long long)position);
     HScroll(w, XmI18List_left_loc(ilist));
     AdjustFirstCol(w);
     ResizeSliders(w);

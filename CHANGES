@@ -1,3 +1,10 @@
+Bound I18List visibility movement updates (2026-10-29)
+========================================================
+
+- Negate `AdjustVisiblePosition` values in wide arithmetic and clamp the
+  updated horizontal location before passing it to scrolling.
+- Add focused source-contract coverage.
+
 Use wide I18List visible-window arithmetic (2026-10-29)
 =========================================================
 
