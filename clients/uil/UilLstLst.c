@@ -472,7 +472,8 @@ void	lst_output_listing()
 	*/
 
 	if ( az_src_rec->b_flags & src_m_unprintable_chars)
-	    lex_filter_unprintable_chars( (unsigned char*)src_ptr, strlen( src_ptr ), 0 );
+	    lex_filter_unprintable_chars( (unsigned char*)src_ptr,
+		(int)strlen( src_ptr ), 0 );
 
 	/*
 	**  replace leading formfeed with a blank
@@ -539,7 +540,7 @@ void	lst_output_listing()
 	if (path_length > path_capacity)
 	    path_length = path_capacity;
 	memcpy(buffer + prefix_length, az_fcb->expanded_name, path_length);
-	buffer[prefix_length + path_length] = '\0';
+	buffer[(size_t)prefix_length + path_length] = '\0';
 	lst_output_line( buffer, FALSE );
     }    
 

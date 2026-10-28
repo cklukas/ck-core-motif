@@ -9,5 +9,6 @@ region = source[start:end]
 assert "path_capacity = sizeof(buffer) - 1" in region
 assert "if (path_length > path_capacity)" in region
 assert "memcpy(buffer + prefix_length" in region
+assert "(size_t)prefix_length + path_length" in region
 assert "snprintf (buffer, sizeof(buffer)," not in region
 print("UIL file-summary paths are bounded without format truncation")
