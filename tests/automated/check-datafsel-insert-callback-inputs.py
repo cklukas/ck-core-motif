@@ -13,6 +13,8 @@ assert "insert_select == NULL" in body
 assert "type == NULL" in body
 assert "length == NULL" in body
 assert "format == NULL" in body
+assert "*format != 8" in body
+assert "*length != 0 && *type == None" in body
 guard = body[body.index("if (w == NULL"):body.index("if (!value)")]
 assert "XtFree((char *)value);" in guard
 assert body.index("if (w == NULL") < body.index("XtDisplay(w)")

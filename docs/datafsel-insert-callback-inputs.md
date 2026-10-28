@@ -12,7 +12,8 @@ handling are unchanged. Target-list iteration keeps the X11 length width and
 rejects a nonzero length without a target array. The consumed target array is
 released before the follow-up selection request is queued. Empty insertion
 results are discarded before inspecting their first byte, and display access
-is deferred until after widget validation.
+is deferred until after widget validation. Invalid X11 format widths and
+non-empty typeless results are rejected before conversion.
 
 Regression coverage:
 

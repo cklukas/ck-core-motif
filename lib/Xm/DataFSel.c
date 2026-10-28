@@ -172,6 +172,14 @@ InsertSelection(
 
     COMPOUND_TEXT = XmInternAtom(XtDisplay(w), "COMPOUND_TEXT", False);
 
+    if ((*format != 8 && *format != 16 && *format != 32) ||
+        (*length != 0 && *type == None)) {
+       XtFree((char *)value);
+       insert_select->done_status = True;
+       insert_select->success_status = False;
+       return;
+    }
+
     if (!value) {
        insert_select->done_status = True;
        return;
