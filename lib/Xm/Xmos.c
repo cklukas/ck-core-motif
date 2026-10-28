@@ -355,7 +355,7 @@ GetQualifiedDir(String dirSpec)
   else
     { 
       userDirLen = strlen(outputBuf);
-      if (outputBuf[userDirLen - 1]  !=  '/')
+      if (userDirLen == 0 || outputBuf[userDirLen - 1]  !=  '/')
         { 
 	  outputBuf[userDirLen] = '/';
 	  outputBuf[++userDirLen] = '\0';

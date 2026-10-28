@@ -28240,6 +28240,13 @@ RowColumn baseline bounds (2026-10-28)
   preserving zero-baseline fallback geometry for empty queries. See
   `docs/rclayout-baseline-count.md`.
 
+Path normalization empty-path bounds (2026-10-28)
+=================================================
+
+- Guard the final-character check when Motif constructs an empty path, then
+  normalize it through the existing slash-appending path. See
+  `docs/xmos-empty-path.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
