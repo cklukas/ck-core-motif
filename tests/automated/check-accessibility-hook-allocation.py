@@ -7,6 +7,7 @@ text = source.read_text(encoding="utf-8")
 start = text.index("static void watch_display(")
 end = text.index("\nstatic void disclosure_changed", start)
 region = text[start:end]
+assert "if (a == NULL || widget == NULL || !XtIsObject(widget))" in region
 assert "hook = (XmAccessibleDisplayHook *)XtMalloc" in region
 assert "if (!hook)" in region
 assert "return;" in region

@@ -460,6 +460,8 @@ static void resource_changed(Widget hooks, XtPointer data, XtPointer call) {
 }
 static void watch_display(XmAccessibility *a, Widget widget) {
   XmAccessibleDisplayHook *hook;
+  if (a == NULL || widget == NULL || !XtIsObject(widget))
+    return;
   Widget hooks = XtHooksOfDisplay(XtDisplayOfObject(widget));
   for (hook = a->display_hooks; hook; hook = hook->next)
     if (hook->hooks == hooks)

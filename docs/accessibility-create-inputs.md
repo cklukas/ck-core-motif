@@ -10,3 +10,6 @@ state fails.
 
 Valid roots and the public ABI are unchanged.  The static regression check is
 `tests/automated/check-accessibility-create-inputs.py`.
+
+Display-hook registration also rejects a missing accessibility context or
+non-object widget before querying Xt display state.

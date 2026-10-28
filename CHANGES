@@ -19,6 +19,13 @@ Guard accessibility locale conversion input (2026-10-29)
   locale-to-UTF-8 converter.
 - Extend the focused UTF-8 bounds contract check.
 
+Guard accessibility display-hook inputs (2026-10-29)
+======================================================
+
+- Reject a missing accessibility context or non-object widget before display
+  hook registration accesses Xt state.
+- Extend the focused hook-allocation contract check.
+
 Guard appearance arrow inset inputs (2026-10-29)
 =================================================
 
