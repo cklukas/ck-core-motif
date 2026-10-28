@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Ensure AutoSuggestBox callbacks tolerate teardown and null events."""
+
+from pathlib import Path
+
+
+source = (Path(__file__).parents[2] / "lib" / "Xm" / "AutoSuggestBox.c").read_text(
+    encoding="utf-8"
+)
+query_start = source.index("static void query_changed(Widget widget")
+commit_start = source.index("static void search_committed(Widget widget")
+selected_start = source.index("static void list_selected(Widget widget")
+events_start = source.index("static void search_events(Widget widget")
+query = source[query_start:source.index("\n}\n", query_start)]
+commit = source[commit_start:source.index("\n}\n", commit_start)]
+selected = source[selected_start:source.index("\n}\n", selected_start)]
+events = source[events_start:source.index("\n}\n", events_start)]
+assert "if (box == NULL)" in query
+assert "if (box == NULL)" in commit
+assert "box != NULL && selection" in selected
+assert "if (box == NULL || event == NULL || dispatch == NULL)" in events
+print("AutoSuggestBox callbacks guard teardown and null events")

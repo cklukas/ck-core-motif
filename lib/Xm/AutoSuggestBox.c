@@ -280,6 +280,8 @@ static void query_changed(Widget widget, XtPointer client, XtPointer call)
     XmSearchBoxCallbackStruct *search_callback =
         (XmSearchBoxCallbackStruct *)call;
     (void)widget;
+    if (box == NULL)
+	return;
     ++box->auto_suggest.generation;
     if (!box->auto_suggest.committing)
         XmAutoSuggestBoxDismiss((Widget)box,
@@ -296,6 +298,8 @@ static void search_committed(Widget widget, XtPointer client, XtPointer call)
     int count = 0;
     (void)widget;
     (void)call;
+    if (box == NULL)
+	return;
     if (XmListGetSelectedPos(box->auto_suggest.list, &positions, &count) &&
         count == 1)
         XmAutoSuggestBoxCommit((Widget)box, (Cardinal)(positions[0] - 1),
@@ -308,7 +312,7 @@ static void list_selected(Widget widget, XtPointer client, XtPointer call)
     XmListCallbackStruct *selection = (XmListCallbackStruct *)call;
     XmAutoSuggestBoxWidget box = (XmAutoSuggestBoxWidget)client;
     (void)widget;
-    if (selection && selection->item_position > 0)
+    if (box != NULL && selection && selection->item_position > 0)
         XmAutoSuggestBoxCommit((Widget)box,
                                (Cardinal)(selection->item_position - 1),
                                selection->event);
@@ -321,6 +325,8 @@ static void search_events(Widget widget, XtPointer client, XEvent *event,
     KeySym key;
     char input[2];
     (void)widget;
+    if (box == NULL || event == NULL || dispatch == NULL)
+	return;
     if (event->type != KeyPress)
         return;
     XLookupString(&event->xkey, input, sizeof(input), &key, NULL);

@@ -27220,6 +27220,14 @@ Guard DropDown grabbed-event widget lookup (2026-10-28)
 - Ignore malformed list-selection callbacks with a missing widget closure or
   callback payload.
 
+Guard AutoSuggestBox callback teardown (2026-10-28)
+====================================================
+
+- Ignore callback delivery after the client widget or event payload has gone
+  away during teardown or synthetic dispatch.
+- Preserve normal query, commit, selection, and key-event behavior for live
+  widgets.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 
