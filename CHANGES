@@ -1,3 +1,10 @@
+Handle XPM string initial allocation failure (2026-10-29)
+===========================================================
+
+- Check the initial temporary record allocation before entering file-string
+  growth.
+- Add focused coverage and documentation.
+
 Bound XPM in-memory string lengths (2026-10-29)
 ================================================
 

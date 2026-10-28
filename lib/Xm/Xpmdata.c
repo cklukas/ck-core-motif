@@ -342,6 +342,8 @@ xpmGetString(
 	i = 0;
 	q = buf;
 	p = (char *) XpmMalloc(1);
+	if (!p)
+	    return (XpmNoMemory);
 	while (c != data->Eos && c != EOF) {
 	    if (i == BUFSIZ) {
 		/* get to the end of the buffer */
