@@ -1250,7 +1250,11 @@ SelectionBoxCallback(
 	temp.event = callback->event;
 	temp.value = XmStringGenerate(text_value, XmFONTLIST_DEFAULT_TAG,
 				      XmCHARSET_TEXT, NULL);
-	temp.length = XmStringLength (temp.value);
+	{
+	  unsigned int value_length = XmStringLength(temp.value);
+	  temp.length = value_length > (unsigned int)INT_MAX ? INT_MAX :
+	    (int)value_length;
+	}
 	XtFree (text_value);
 	
 	switch (which_button)

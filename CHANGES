@@ -28006,3 +28006,10 @@ List translation allocation size (2026-10-29)
 - Check the combined List translation-table size before local allocation,
   preventing arithmetic wrap if either source grows substantially.
 - Add focused source-contract coverage and documentation.
+
+SelectionBox callback length bounds (2026-10-29)
+================================================
+
+- Clamp generated compound-string lengths before storing them in the signed
+  `XmSelectionBoxCallbackStruct.length` ABI.
+- Add focused source-contract coverage and documentation.
