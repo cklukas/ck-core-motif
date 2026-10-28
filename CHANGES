@@ -26495,3 +26495,9 @@ Clean up invalid DataField modify-verify callbacks (2026-10-29)
 - Validate the callback text record and payload before dereferencing it.
 - Route invalid lengths through temporary-buffer cleanup instead of leaking
   conversion state on an early return.
+
+Guard DataField narrow verify-result allocation (2026-10-29)
+==============================================================
+
+- Validate the callback record and narrow result length before allocation.
+- Check the returned buffer before copying the callback payload.

@@ -3681,12 +3681,23 @@ df_ModifyVerify(
      { /* use vcb data */
 	 if (vcb.doit) 
 	 {
+	     if (vcb.text == NULL)
+		 goto modify_verify_allocation_failed;
 	     if (XmTextF_max_char_size(tf) == 1)
 	     {  /* caller expects char* */
 		 *insert_length =  vcb.text->length;
+		 if (*insert_length < 0 ||
+		     (size_t)*insert_length >= (size_t)UINT_MAX)
+		     goto modify_verify_allocation_failed;
 		 if (*insert_length > 0) 
 		 {
-		     *insert = XtMalloc((unsigned) *insert_length + 1);
+		     *insert = XtMalloc(
+			 (Cardinal)((size_t)*insert_length + 1));
+		     if (*insert == NULL) {
+			 *insert_length = 0;
+			 *free_insert = (int)False;
+			 goto modify_verify_allocation_failed;
+		     }
 		     *free_insert = (int)True;
 		     (void)memcpy((void*)*insert, (void*)vcb.text->ptr,
 				  *insert_length);
