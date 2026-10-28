@@ -23800,6 +23800,14 @@ Validate clipboard start-copy IDs before serialization (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-start-copy-id-bounds.py
 
+Preserve clipboard label length width (2026-10-28)
+===================================================
+
+- Keep compound-string conversion lengths in an unsigned type.
+- Pass validated label IDs explicitly through the signed item-ID API.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-label-length-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

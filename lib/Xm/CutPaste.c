@@ -3414,7 +3414,7 @@ XmClipboardStartCopy(
     itemId label_itemid;
     int status;
     char *asn1string;
-    int asn1strlen;
+    unsigned int asn1strlen;
     Time previousTimestamp;
     unsigned long previousStartCopyCalled;
     _XmDisplayToAppContext(display);
@@ -3596,7 +3596,7 @@ XmClipboardStartCopy(
     
       /* store the label */
       ClipboardReplaceItem(display, 
-			   itemheader->dataItemLabelId,
+				   (itemId)itemheader->dataItemLabelId,
 			   (XtPointer) asn1string,
 			   asn1strlen,
 			   PropModeReplace,
