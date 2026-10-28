@@ -6,7 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "TextStrSo.c").read_text()
 start = source.index("case 2: {", source.index("_XmTextCharactersToBytes"))
 end = source.index("\n  } /* end case 2 */", start)
 region = source[start:end]
-assert "temp_char = (unsigned char*) XtMalloc (max_char_size);" in region
+assert "temp_char = (unsigned char*) XtMalloc ((Cardinal)max_char_size);" in region
 assert "if (temp_char == NULL)" in region
 assert "*bytes = '\\0';" in region
 assert "return 0;" in region
