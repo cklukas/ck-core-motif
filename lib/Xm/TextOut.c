@@ -1678,6 +1678,7 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	    Cardinal tmp_wc_size;
 	    char tmp_char[MB_LEN_MAX];
 	    int num_chars = 0;
+	    size_t converted;
 	    XmTextBlockRec mini_block;
 	  
 	    /* If 16-bit data, convert the char* to wchar_t*... this
@@ -1690,7 +1691,11 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	    num_chars = _XmTextCountCharacters(block.ptr, block.length);
 	    tmp_wc_size = (num_chars + 1) * sizeof(wchar_t);
 	    tmp_wc = (wchar_t *) XmStackAlloc(tmp_wc_size, tmp_cache);
-	    num_chars = mbstowcs(tmp_wc, block.ptr, num_chars);
+	    converted = mbstowcs(tmp_wc, block.ptr, (size_t)num_chars);
+	    if (converted == (size_t)-1 || converted > (size_t)INT_MAX)
+	      num_chars = 0;
+	    else
+	      num_chars = (int)converted;
 	    if (num_chars > 0) {
 	      for (i = num_chars - 1; i >= 0 && y > goalheight; i--) {
 		mini_block.length = wctomb(mini_block.ptr, tmp_wc[i]);
@@ -1809,6 +1814,7 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	  Cardinal tmp_wc_size;
 	  char tmp_char[MB_LEN_MAX];
 	  int num_chars = 0;
+	  size_t converted;
 	  XmTextBlockRec mini_block;
 	  
 	  /* If 16-bit data, convert the char* to wchar_t*... this
@@ -1821,7 +1827,11 @@ _XmTextFindLineEnd(XmTextWidget tw,
 	  num_chars = _XmTextCountCharacters(block.ptr, block.length);
 	  tmp_wc_size = (num_chars + 1) * sizeof(wchar_t);
 	  tmp_wc = (wchar_t *) XmStackAlloc(tmp_wc_size, tmp_cache);
-	  num_chars = mbstowcs(tmp_wc, block.ptr, num_chars);
+	  converted = mbstowcs(tmp_wc, block.ptr, (size_t)num_chars);
+	  if (converted == (size_t)-1 || converted > (size_t)INT_MAX)
+	    num_chars = 0;
+	  else
+	    num_chars = (int)converted;
 	  if (num_chars > 0) {
 	    for (i = num_chars - 1; i >= 0 && x > goalwidth; i--) {
 	      mini_block.length = wctomb(mini_block.ptr, tmp_wc[i]);

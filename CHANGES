@@ -26026,3 +26026,9 @@ Guard text-source wide conversion (2026-10-29)
 
 - Reject failed or capacity-filling wide-to-narrow initialization output
   before deriving the source's character length.
+
+Guard TextOut conversion counts (2026-10-29)
+============================================
+
+- Preserve `mbstowcs` result widths in backward text scans and reject failed
+  conversions before indexing the temporary wide buffer.
