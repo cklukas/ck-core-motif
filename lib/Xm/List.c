@@ -4423,7 +4423,7 @@ WhichItem(XmListWidget w,
 	  lw->list.itemCount)
 	return (lw->list.itemCount - 1);
     }
-  if (y >= (Position)((int)lw->core.height - (int)lw->list.BaseY))
+  if ((long long)y >= (long long)lw->core.height - lw->list.BaseY)
 	return (lw->list.itemCount == INT_MAX)
 	  ? INT_MAX : lw->list.itemCount + 1;
 
@@ -10270,7 +10270,7 @@ XmListYToPos(Widget w,
   _XmAppLock(app);
   /* BEGIN OSF Fix CR 5662 */
   if ((y < (Position)0) ||
-      (y >= (Position)((int)lw->core.height - (int)lw->list.BaseY))) {
+      (long long)y >= (long long)lw->core.height - lw->list.BaseY) {
     /* END OSF Fix CR 5662 */
     _XmAppUnlock(app);
     return (0);

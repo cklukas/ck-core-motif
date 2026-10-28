@@ -27730,3 +27730,9 @@ Bound List horizontal origin (2026-10-29)
 - Clamp the wide-content horizontal scroll origin before storing it in the
   signed `Position` XOrigin field.
 - Add focused source-contract coverage for large list widths.
+Fix List hit-test height arithmetic (2026-10-29)
+==================================================
+
+- Compare lower content boundaries in signed wide arithmetic instead of
+  narrowing `core.height - BaseY` to `Position`.
+- Add focused source-contract coverage for tall list windows.
