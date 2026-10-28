@@ -401,10 +401,21 @@ CountExtensions(
     unsigned int x, y, a, size, nlines;
     char **line;
 
+    if (ext_size == NULL || ext_nlines == NULL)
+	return (1);
     size = 0;
     nlines = 0;
+    if (num == 0) {
+	*ext_size = 0;
+	*ext_nlines = 0;
+	return (0);
+    }
+    if (ext == NULL)
+	return (1);
     for (x = 0; x < num; x++, ext++) {
 	/* 1 for the name */
+	if (ext->name == NULL)
+	    return (1);
 	if (ext->nlines == UINT_MAX || nlines > UINT_MAX - ext->nlines - 1)
 	    return (1);
 	nlines += ext->nlines + 1;
@@ -414,7 +425,11 @@ CountExtensions(
 	    return (1);
 	size += (unsigned int)len;
 	a = ext->nlines;
+	if (a != 0 && ext->lines == NULL)
+	    return (1);
 	for (y = 0, line = ext->lines; y < a; y++, line++) {
+	    if (*line == NULL)
+		return (1);
 	    len = strlen(*line) + 1;
 	    if (len > UINT_MAX || len > UINT_MAX - size)
 		return (1);

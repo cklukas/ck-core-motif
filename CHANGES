@@ -1,3 +1,11 @@
+Validate XPM data extension inputs (2026-10-29)
+================================================
+
+- Reject missing extension metadata pointers, names, line arrays, or lines
+  before sizing serialized data.
+- Preserve valid empty extension sets.
+- Add focused coverage and documentation.
+
 Validate XPM data color-token width (2026-10-29)
 =================================================
 
