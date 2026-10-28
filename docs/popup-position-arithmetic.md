@@ -4,8 +4,8 @@ nav_exclude: true
 
 # Anchored popup position arithmetic
 
-`XmAutoSuggestBox` and `XmFlyout` now calculate anchor, offset, and screen-edge
-coordinates in `long long` values.  They clamp the result before converting to
+`XmAutoSuggestBox`, `XmFlyout`, and `XmTeachingTip` now calculate anchor,
+offset, and screen-edge coordinates in `long long` values.  They clamp the result before converting to
 Xt's signed `Position` type, so large virtual screens and resource offsets no
 longer wrap a popup around the display.
 

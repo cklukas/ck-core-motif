@@ -12,6 +12,7 @@
 #include <Xm/RowColumn.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
@@ -77,29 +78,33 @@ static Widget shell_ancestor(Widget widget) {
 }
 
 static void position_popup(XmTeachingTipWidget tip) {
-    Position x, y;
+    Position anchor_x, anchor_y;
     Dimension owner_width, owner_height, popup_width, popup_height;
     Screen *screen;
-    int max_x, max_y;
+    long long x_pos, y_pos, max_x, max_y;
     if (!tip->teaching_tip.owner || !tip->teaching_tip.popup_shell ||
         !XtIsRealized(tip->teaching_tip.owner)) return;
-    XtTranslateCoords(tip->teaching_tip.owner, 0, 0, &x, &y);
+    XtTranslateCoords(tip->teaching_tip.owner, 0, 0, &anchor_x, &anchor_y);
     XtVaGetValues(tip->teaching_tip.owner, XmNwidth, &owner_width,
                   XmNheight, &owner_height, NULL);
     XtVaGetValues(tip->teaching_tip.popup_shell, XmNwidth, &popup_width,
                   XmNheight, &popup_height, NULL);
-    x += (Position)((int)owner_width - (int)popup_width) / 2;
-    y += (Position)owner_height;
-    x += tip->teaching_tip.offset_x;
-    y += tip->teaching_tip.offset_y;
+    x_pos = (long long)anchor_x +
+            ((long long)owner_width - (long long)popup_width) / 2 +
+            (long long)tip->teaching_tip.offset_x;
+    y_pos = (long long)anchor_y + (long long)owner_height +
+            (long long)tip->teaching_tip.offset_y;
     screen = XtScreen(tip->teaching_tip.popup_shell);
-    max_x = WidthOfScreen(screen) - (int)popup_width;
-    max_y = HeightOfScreen(screen) - (int)popup_height;
-    if (x < 0) x = 0;
-    if (y < 0) y = 0;
-    if (max_x >= 0 && x > max_x) x = (Position)max_x;
-    if (max_y >= 0 && y > max_y) y = (Position)max_y;
-    XtVaSetValues(tip->teaching_tip.popup_shell, XtNx, x, XtNy, y, NULL);
+    max_x = (long long)WidthOfScreen(screen) - (long long)popup_width;
+    max_y = (long long)HeightOfScreen(screen) - (long long)popup_height;
+    if (max_x < 0 || x_pos < 0) x_pos = 0;
+    else if (x_pos > max_x) x_pos = max_x;
+    if (max_y < 0 || y_pos < 0) y_pos = 0;
+    else if (y_pos > max_y) y_pos = max_y;
+    if (x_pos > SHRT_MAX) x_pos = SHRT_MAX;
+    if (y_pos > SHRT_MAX) y_pos = SHRT_MAX;
+    XtVaSetValues(tip->teaching_tip.popup_shell, XtNx, (Position)x_pos,
+                  XtNy, (Position)y_pos, NULL);
 }
 
 static void create_popup(XmTeachingTipWidget tip) {

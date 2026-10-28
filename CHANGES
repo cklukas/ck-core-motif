@@ -27400,6 +27400,12 @@ Bound ProgressRing drawing coordinates (2026-10-29)
 - Prevent large spacing or DPI-derived dimensions from wrapping the ring or
   its labels to unrelated coordinates.
 
+Bound TeachingTip popup position arithmetic (2026-10-29)
+========================================================
+
+- Apply the same wide intermediate and signed `Position` clamp used by other
+  anchored popups to TeachingTip placement.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 

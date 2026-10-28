@@ -5,7 +5,8 @@ from pathlib import Path
 
 root = Path(__file__).parents[2]
 for name, end_marker in (("AutoSuggestBox.c", "static void create_popup"),
-                         ("Flyout.c", "static void create_popup")):
+                         ("Flyout.c", "static void create_popup"),
+                         ("TeachingTip.c", "static void create_popup")):
     source = (root / "lib/Xm" / name).read_text(encoding="utf-8")
     start = source.index("static void position_popup")
     body = source[start:source.index(end_marker, start)]
