@@ -28118,3 +28118,10 @@ MultiList search-row geometry bounds (2026-10-29)
 - Compute search child sizes, origins, and remaining text width in wide
   arithmetic with bounded Motif geometry conversions.
 - Add focused source-contract coverage and documentation.
+
+I18List pixel-row declaration (2026-10-29)
+===========================================
+
+- Remove the duplicate `pixel_y` declaration in row/column conversion so the
+  I18List source compiles with conforming C compilers.
+- Add focused source-contract coverage and documentation.

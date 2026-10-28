@@ -2747,7 +2747,6 @@ CvtPositionToRowColumn(Widget w, short x, short y, short * row, short * column)
 {
     XmI18ListWidget ilist = (XmI18ListWidget) w;
     int title_extra;
-    long long pixel_y;
     long long pixel_y = y;
 
     if(XmI18List_new_visual_style(ilist))
