@@ -134,6 +134,13 @@ Reject missing drag-start events early (2026-10-29)
   null, matching the public `XmDragStart` precondition.
 - Add focused input-guard documentation and regression coverage.
 
+Complete destination transfer allocation failures (2026-10-29)
+===============================================================
+
+- Finish and report failure when a destination `TransferBlock` allocation
+  fails, releasing the transfer context through the normal teardown path.
+- Add focused allocation-failure regression documentation and coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

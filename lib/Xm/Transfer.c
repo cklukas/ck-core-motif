@@ -1953,7 +1953,12 @@ XmTransferValue(XtPointer transfer_id,
 
   tb = AddTransferBlock(tc);
   if (tb == NULL) {
+    Boolean finish_after_unlock = (tc -> flags & TC_EXITED_DH) != 0;
+
+    tc -> status = XmTRANSFER_DONE_FAIL;
     _XmAppUnlock(app);
+    if (finish_after_unlock)
+      FinishTransfer(tc -> widget, tc);
     return;
   }
 
