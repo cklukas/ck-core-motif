@@ -31,6 +31,7 @@
 #include <Xm/TraitP.h>
 #include <Xm/ActivatableT.h>
 #include <stdio.h>
+#include <limits.h>
 #include <Xm/IconButtonP.h>
 #include <X11/bitmaps/gray>
 #include <Xm/ExtP.h>
@@ -38,6 +39,13 @@
 #include "XmStrDefsI.h"
 #include "xmlist.h"
 #include "RepTypeI.h"
+
+static Position bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
 
 /************************************************************
 *	TYPEDEFS AND DEFINES
@@ -1817,14 +1825,16 @@ static void
 		if (!XtIsSensitive(w)) {
 			XmStringDraw(XtDisplay(w), XtWindow(w), XmIconButton_font_list(iw),
 				XmIconButton_label_string(iw), XmIconButton_shadow_gc(iw),
-				XmIconButton_text_x(iw)+1, XmIconButton_text_y(iw)+1,
+				bounded_position((long long)XmIconButton_text_x(iw) + 1),
+				bounded_position((long long)XmIconButton_text_y(iw) + 1),
 				XmIconButton_max_text_width(iw), XmIconButton_alignment(iw),
 				XmPrim_layout_direction(iw), NULL);
 		}
 #endif
 	    XmStringDraw(XtDisplay(w), XtWindow(w), XmIconButton_font_list(iw),
 			 XmIconButton_label_string(iw), text_gc, 
-			 XmIconButton_text_x(iw), XmIconButton_text_y(iw),
+			 bounded_position((long long)XmIconButton_text_x(iw)),
+			 bounded_position((long long)XmIconButton_text_y(iw)),
 			 XmIconButton_max_text_width(iw), XmIconButton_alignment(iw),
 			 XmPrim_layout_direction(iw), NULL);
 	    XSetClipMask(XtDisplay(w), text_gc, None);

@@ -27670,3 +27670,9 @@ Bound I18List text coordinates (2026-10-29)
 
 - Clamp column-header and row text positions before Motif drawing calls.
 - Add focused source-contract coverage for large list geometry and offsets.
+Bound IconButton text coordinates (2026-10-29)
+================================================
+
+- Clamp normal and insensitive-shadow label positions before Motif drawing
+  calls.
+- Add focused source-contract coverage for oversized icon-button layouts.
