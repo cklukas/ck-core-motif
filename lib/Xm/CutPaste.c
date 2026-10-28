@@ -4579,6 +4579,8 @@ ClipboardRetrieve(Display *display, Window window,
  		     CleanupHeader (display);
 		     ClipboardError( CLIPBOARD_CORRUPT,
 				     CORRUPT_DATA_STRUCTURE );
+			     ClipboardClose( display, header );
+			     ClipboardUnlock( display, window, 0 );
 		     return ClipboardFail;
 		   }
 		}

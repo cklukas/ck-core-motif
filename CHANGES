@@ -23478,6 +23478,14 @@ Release clipboard next-ID setter buffers (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-set-next-id-cleanup.py
 
+Release clipboard lock after retrieve re-check failure (2026-10-28)
+=====================================================================
+
+- Close the open header and unlock the clipboard when a cut-by-name re-check fails.
+- Preserve corruption reporting and external-owner callback behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-retrieve-recheck-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
