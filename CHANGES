@@ -1,3 +1,10 @@
+Propagate XPM comment allocation failures (2026-10-29)
+========================================================
+
+- Check all returned-comment allocations and route `XpmNoMemory` through the
+  parser cleanup path instead of silently dropping a comment.
+- Add focused coverage and documentation.
+
 Guard XPM extension-parser arguments (2026-10-29)
 ==================================================
 
