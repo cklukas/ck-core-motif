@@ -831,7 +831,13 @@ SecondaryDone(Widget wid,
 
   if (*type == None && *length == 0 && value == NULL)
     success = False;
-  else
+  else if ((*format != 8 && *format != 16 && *format != 32) ||
+	   (*length != 0 && (*type == None || value == NULL))) {
+    XtFree((char *)value);
+    XtDisownSelection(wid, XA_SECONDARY,
+			      XtLastTimestampProcessed(XtDisplay(wid)));
+    return;
+  } else
     success = True;
 
   convert_selection = XA_SECONDARY;

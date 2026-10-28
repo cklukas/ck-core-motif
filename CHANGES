@@ -1,3 +1,11 @@
+Reject malformed secondary-selection results (2026-10-29)
+===========================================================
+
+- Reject invalid formats and non-empty typeless or null-payload replies before
+  secondary transfer callbacks can treat them as successful.
+- Release rejected payloads before disowning the selection, with focused
+  regression coverage and documentation.
+
 Guard typeless conversion results (2026-10-29)
 ================================================
 
