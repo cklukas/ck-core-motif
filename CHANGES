@@ -23565,7 +23565,7 @@ Abort clipboard copy on lock failures (2026-10-28)
 - Stop `XmClipboardCopy` on any non-success lock result.
 - Preserve the original lock status and clipboard state.
 - Add focused regression coverage and documentation.
-Regression: tests/automated/check-clipboard-copy-lock-status.py
+Regression: tests/automated/check-clipboard-copy-api-lock-status.py
 
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
