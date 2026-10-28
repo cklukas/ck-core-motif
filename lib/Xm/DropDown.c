@@ -2570,6 +2570,7 @@ SetTextFromList(Widget w)
 	len = mbstowcs(NULL, ptr, 0);
 	if (len == (size_t)(-1)) {
 	    XmeWarning((Widget) cbw, XmNstringGetFailedMsg);
+	    XtFree((char *) ptr);
 	    i++;
 	    continue;
 	}

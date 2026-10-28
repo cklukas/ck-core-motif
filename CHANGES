@@ -28344,6 +28344,13 @@ CommandPalette selected-position result (2026-10-28)
   maps a List position into its visible-item table. See
   `docs/command-palette-selection-pointer.md`.
 
+DropDown multibyte-conversion cleanup (2026-10-28)
+==================================================
+
+- Free unparsed item text when DropDown’s multibyte conversion rejects an
+  invalid locale sequence, avoiding an error-path leak. See
+  `docs/dropdown-multibyte-failure-cleanup.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
