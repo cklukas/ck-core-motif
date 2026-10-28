@@ -27001,3 +27001,10 @@ Fix Mrm legacy callback translation sizing (2026-10-28)
   complete translated descriptor.
 - Validate callback-record markers and null records before inspecting either
   descriptor format.
+Fix Mrm deferred callback-list sizing (2026-10-28)
+===================================================
+
+- Include the callback-list terminator in deferred descriptor allocation and
+  copying.
+- Reject deferred callback descriptors with invalid markers or unrepresentable
+  item counts.

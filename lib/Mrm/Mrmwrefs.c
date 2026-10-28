@@ -469,6 +469,7 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
   URMSetValuesDescPtr	svdesc ;	/* new descriptor */
   RGMCallbackDescPtr	cbdesc;		/* Copy of descriptor */
   size_t		descsize;	/* Size of descriptor to be copied */
+  size_t		item_count;
   size_t		argname_len;
   Cardinal		uncmp_res;	/* function result */
   char			errmsg[300];
@@ -480,10 +481,18 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
       return;
     }
 
-  if (cbptr == NULL || cbptr->count < 0 ||
-      (size_t)cbptr->count >
+  if (cbptr == NULL ||
+      cbptr->validation != URMCallbackDescriptorValid ||
+      cbptr->count < 0 || cbptr->count == INT_MAX)
+	{
+	  Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0048,
+			 NULL, NULL, MrmFAILURE);
+	  return;
+	}
+  item_count = (size_t)cbptr->count + 1;
+  if (item_count >
 	  (SIZE_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem) ||
-      (size_t)cbptr->count >
+	  item_count >
 	  ((size_t)UINT_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem))
     {
       Urm__UT_Error ("Urm__CW_AppendCBSVWidgetRef", _MrmMMsg_0048,
@@ -553,7 +562,7 @@ Urm__CW_AppendCBSVWidgetRef (IDBFile			file_id,
   svdesc->done = FALSE ;
   svdesc->sv.wname = NULL;
   /* Copy callback descriptor */
-  descsize = sizeof(RGMCallbackDesc) + (cbptr->count)*sizeof(RGMCallbackItem);
+  descsize = sizeof(RGMCallbackDesc) + item_count * sizeof(RGMCallbackItem);
   cbdesc = (RGMCallbackDescPtr)XtMalloc(descsize);
   if (cbdesc == NULL)
     {
