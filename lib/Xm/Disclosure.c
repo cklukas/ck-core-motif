@@ -75,6 +75,11 @@ WidgetClass xmDisclosureWidgetClass = (WidgetClass)&xmDisclosureClassRec;
 static Dimension dimension(unsigned long value) {
   return (Dimension)(value > USHRT_MAX ? USHRT_MAX : value ? value : 1);
 }
+static Position position(long long value) {
+  if (value < SHRT_MIN) return (Position)SHRT_MIN;
+  if (value > SHRT_MAX) return (Position)SHRT_MAX;
+  return (Position)value;
+}
 static void preferred(Widget child, Dimension *width, Dimension *height) {
   XtWidgetGeometry wanted;
   wanted.request_mode = 0;
@@ -112,20 +117,21 @@ static void layout(XmDisclosureWidget w) {
   preferred(w->disclosure.arrow, &aw, &ah);
   preferred(w->disclosure.header, &hw, &hh);
   head = ah > hh ? ah : hh;
-  x = (Position)w->disclosure.margin_width;
-  y = (Position)w->disclosure.margin_height;
+  x = position(w->disclosure.margin_width);
+  y = position(w->disclosure.margin_height);
   width = dimension(w->core.width > 2UL * w->disclosure.margin_width
                         ? w->core.width - 2UL * w->disclosure.margin_width
                         : 1);
   if (aw >= width)
     aw = width > 1 ? width - 1 : 1;
   XmeConfigureObject(w->disclosure.arrow,
-                     right_to_left(w) ? (Position)(x + width - aw) : x, y, aw,
+                     right_to_left(w) ? position((long long)x + width - aw) : x,
+                     y, aw,
                      head, 0);
   XmeConfigureObject(w->disclosure.header,
-                     right_to_left(w) ? x : (Position)(x + aw), y,
+                     right_to_left(w) ? x : position((long long)x + aw), y,
                      dimension(width > aw ? width - aw : 1), head, 0);
-  y = (Position)(y + head + w->disclosure.spacing);
+  y = position((long long)y + head + w->disclosure.spacing);
   height =
       dimension(w->core.height > (unsigned long)y + w->disclosure.margin_height
                     ? w->core.height - y - w->disclosure.margin_height
