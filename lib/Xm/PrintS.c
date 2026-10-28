@@ -86,6 +86,8 @@ static void FinishProc(Display *display,
 		       XPGetDocStatus status,
 		       XPointer client_data);
 
+static void ChildPrintFailure(FILE *file, const char *file_name, int pipe);
+
 static void PDMPhase2Handler(Widget w,
 			     XtPointer data,
 			     XEvent *event,
@@ -763,9 +765,14 @@ static void FilePipeCB(XtPointer client_data, int *source, XtInputId *id)
 {
   FileCallbackRec *cb = (FileCallbackRec *) client_data;
   XPGetDocStatus status;
+  ssize_t received;
 
   /* read the status from the child */ 
-  (void) read(cb->pipe, &status, sizeof(XPGetDocStatus));
+  do {
+    received = read(cb->pipe, &status, sizeof(XPGetDocStatus));
+  } while (received < 0 && errno == EINTR);
+  if (received != (ssize_t)sizeof(XPGetDocStatus))
+    status = XPGetDocError;
 
   XtRemoveInput(cb->input_id);
 
@@ -777,6 +784,17 @@ static void FilePipeCB(XtPointer client_data, int *source, XtInputId *id)
   }
 
   XtFree((char*)cb);
+}
+
+static void ChildPrintFailure(FILE *file, const char *file_name, int pipe)
+{
+  XPGetDocStatus status = XPGetDocError;
+  if (file != NULL)
+    (void)fclose(file);
+  if (file_name != NULL)
+    (void)remove(file_name);
+  (void)write(pipe, &status, sizeof(status));
+  _exit(1);
 }
 
 
@@ -796,11 +814,11 @@ static void ChildPrintToFile(String display_name,
 
   file_desc = (FileDescRec *) XtMalloc(sizeof(FileDescRec));
   if (file_desc == NULL)
-    _exit(1);
+    ChildPrintFailure(file, file_name, pipe);
   file_desc->file_name = XtNewString(file_name);
   if (file_desc->file_name == NULL) {
     XtFree((char *)file_desc);
-    _exit(1);
+    ChildPrintFailure(file, file_name, pipe);
   }
   file_desc->file = file;
   file_desc->pipe = pipe;
@@ -810,7 +828,7 @@ static void ChildPrintToFile(String display_name,
   if ((display = XtOpenDisplay(app_context, display_name, 
 			       application_name, application_class,
 			       NULL, 0, &argc, argv)) == NULL) {
-    _exit(1);
+    ChildPrintFailure(file_desc->file, file_desc->file_name, pipe);
   }
 
   XpGetDocumentData(display, pcontext,

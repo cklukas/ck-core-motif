@@ -26795,3 +26795,10 @@ Report PrintShell output write failures (2026-10-28)
   failures into `FinishProc`.
 - Treat write or final `fclose` failures as `XPGetDocError` and remove partial
   output instead of reporting a successful document with incomplete data.
+Report PrintShell child setup failures (2026-10-28)
+====================================================
+
+- Notify the parent when the PrintShell child cannot allocate its state or
+  open the display, instead of exiting with no document status.
+- Remove partial output and report `XPGetDocError` when the status pipe is
+  truncated or unavailable.
