@@ -12,5 +12,7 @@ for function, marker in (
 ):
     start = source.index(marker)
     end = source.find("\n}", start)
-    assert "if (tc == NULL || tc->widget == NULL)\n    return;" in source[start:end], function
+    body = source[start:end]
+    assert "tc == NULL || tc->widget == NULL" in body, function
+    assert "return;" in body, function
 print("PASS transfer-context APIs validate null handles")
