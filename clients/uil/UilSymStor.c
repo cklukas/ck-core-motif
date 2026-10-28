@@ -1116,13 +1116,13 @@ sym_dump_color_item( XmConst sym_color_item_entry_type *az_color_item_entry )
 {
 
     _debug_output
-	( "%x color_item  size: %d  letter: %c  index: %d  color: %x  next: %x\n",
-	  (unsigned)az_color_item_entry,
+	( "%p color_item  size: %d  letter: %c  index: %d  color: %p  next: %p\n",
+	  (void *)az_color_item_entry,
 	  az_color_item_entry->header.w_node_size,
 	  az_color_item_entry->b_letter,
 	  az_color_item_entry->b_index,
-	  (unsigned)az_color_item_entry->az_color,
-	  (unsigned)az_color_item_entry->az_next );
+	  (void *)az_color_item_entry->az_color,
+	  (void *)az_color_item_entry->az_next );
 }
 
 
