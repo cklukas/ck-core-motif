@@ -27178,6 +27178,14 @@ Avoid window queries on Xft pixmaps (2026-10-28)
 - Keep color and bitmap pixmaps on drawable-compatible Xft paths without
   issuing invalid `BadWindow` requests.
 
+Match Xft visuals to pixmap depth (2026-10-28)
+===============================================
+
+- Select a visual with the pixmap’s depth for non-default-depth color
+  pixmaps.
+- Handle failed geometry queries deterministically and release temporary
+  `XGetVisualInfo` results.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

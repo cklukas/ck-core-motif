@@ -58,6 +58,7 @@ extern "C" { /* some 'locale.h' do not have prototypes (sun) */
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
 #include <X11/Xresource.h>
+#include <X11/Xutil.h>
 #include <Xm/Display.h>		/* For XmGetXmDisplay */
 #include <Xm/DisplayP.h>	/* For direct access to callback fields */
 #include "MessagesI.h"
@@ -3539,9 +3540,13 @@ _XmXftDrawCreate(Display *display, Window window)
 
 #ifdef FIX_1444
 	{
-		Window root;
+		Window root = None;
 		int x, y;
 		unsigned int width, height, border, depth;
+		Bool geometry_ok;
+		XVisualInfo vtemplate;
+		XVisualInfo *visuals = NULL;
+		int nvisuals = 0;
 		int screen = DefaultScreen(display);
 		Visual *visual = DefaultVisual(display, screen);
 		Colormap colormap = DefaultColormap(display, screen);
@@ -3549,21 +3554,31 @@ _XmXftDrawCreate(Display *display, Window window)
 		/* XftDrawCreate() must use a visual compatible with the drawable.
 		 * In particular, depth-one pixmaps are bitmap drawables even when
 		 * XftDrawCreate(default visual, ...) appears to succeed lazily. */
-		if (XGetGeometry(display, window, &root, &x, &y, &width, &height,
-		                 &border, &depth) && depth == 1)
+		geometry_ok = XGetGeometry(display, window, &root, &x, &y, &width,
+		                           &height, &border, &depth);
+		if (geometry_ok && depth == 1)
 			draw = XftDrawCreateBitmap(display, window);
 		else {
 			/* XGetWindowAttributes is valid only for windows, not pixmaps.
 			 * XGetGeometry reports None as the root for pixmaps. */
-			if (root != None &&
+			if (geometry_ok && root != None &&
 			    XGetWindowAttributes(display, window, &wa) &&
 			    wa.visual != NULL) {
 				visual = wa.visual;
 				if (wa.colormap != None)
 					colormap = wa.colormap;
+			} else if (geometry_ok && root == None &&
+			           depth != DefaultDepth(display, screen)) {
+				vtemplate.depth = (int)depth;
+				visuals = XGetVisualInfo(display, VisualDepthMask, &vtemplate,
+				                         &nvisuals);
+				if (visuals != NULL && nvisuals > 0)
+					visual = visuals[0].visual;
 			}
 			draw = XftDrawCreate(display, window, visual, colormap);
 		}
+		if (visuals != NULL)
+			XFree((char *)visuals);
 	}
 #else
 	oldErrorHandler = XSetErrorHandler (_XmXftErrorHandler);	
