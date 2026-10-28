@@ -1796,14 +1796,17 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
      * NOTE: this must draw exactly the same rectangle as InvertArea.
      */
     
-    cur_y = (XmI18List_sep_y(ilist) + VERTICAL_SPACE/2 +
-	     (start_row - XmI18List_first_row(ilist)) * row_height);
+    cur_y = bounded_position((long long)XmI18List_sep_y(ilist) +
+	     VERTICAL_SPACE/2 +
+	     ((long long)start_row - (long long)XmI18List_first_row(ilist)) *
+	     row_height);
     
     if(XmI18List_new_visual_style(ilist)) {
-        cur_y += ilist->primitive.shadow_thickness;
+        cur_y = bounded_position((long long)cur_y +
+                                  ilist->primitive.shadow_thickness);
     }
     else {
-	cur_y += LINE_HEIGHT;
+	cur_y = bounded_position((long long)cur_y + LINE_HEIGHT);
     }
 
     if (XmI18List_entry_background_use(ilist))
@@ -1970,7 +1973,7 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 		    }
 		}
 		
-		cur_y += row_height;
+		cur_y = bounded_position((long long)cur_y + row_height);
 		if (cur_y > (int) height)
 		    break;
 	    }

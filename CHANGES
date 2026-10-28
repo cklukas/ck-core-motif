@@ -1,3 +1,10 @@
+Bound I18List display row Y positions (2026-10-29)
+====================================================
+
+- Compute and clamp the `DisplayList` row baseline and per-row advancement,
+  preventing vertical coordinate wrap in fills and pixmap copies.
+- Add focused source-contract coverage.
+
 Bound I18List display fill origins (2026-10-29)
 ================================================
 
