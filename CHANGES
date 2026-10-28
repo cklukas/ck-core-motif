@@ -1,3 +1,11 @@
+Reject full-capacity XPM file tokens (2026-10-29)
+=================================================
+
+- Reject file-backed tokens that exactly fill the caller buffer, preventing
+  subsequent terminator writes from running one byte out of bounds.
+- Keep the in-memory and file token paths consistent.
+- Add focused coverage and documentation.
+
 Make XPM whitespace parsing byte-safe (2026-10-29)
 ====================================================
 

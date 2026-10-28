@@ -9,6 +9,6 @@ region = source[start : source.index("/*\n * skip whitespace and compute", start
 assert "if (buf == NULL || buflen == 0)" in region
 assert "if (n == buflen && c != '\\0'" in region
 assert "while ((c = (unsigned char)*data->cptr) != '\\0'" in region
-assert "if (n == buflen && !isspace(c)" in region
+assert "if (n == buflen)" in region
 assert "while ((c = Getc(data, file)) != data->Eos" in region
 print("XPM token scans reject and consume overlong tokens")

@@ -281,9 +281,10 @@ xpmNextWord(
 	    n++;
 	    c = Getc(data, file);
 	}
-	if (n == buflen && !XpmIsSpace(c) && c != data->Eos && c != EOF) {
-	    while ((c = Getc(data, file)) != data->Eos &&
-		   c != EOF && !XpmIsSpace(c));
+	if (n == buflen) {
+	    if (!XpmIsSpace(c) && c != data->Eos && c != EOF)
+		while ((c = Getc(data, file)) != data->Eos &&
+		       c != EOF && !XpmIsSpace(c));
 	    return 0;
 	}
 	Ungetc(data, c, file);
