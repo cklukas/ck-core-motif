@@ -27262,6 +27262,12 @@ Fix Spinner label centering underflow (2026-10-28)
 
 - Use signed centering arithmetic for labels taller than the Spinner widget,
   preventing unsigned `Dimension` wrap and visual displacement.
+
+Guard RatingControl event callbacks (2026-10-28)
+================================================
+
+- Ignore events delivered without a live RatingControl widget or XEvent,
+  preserving normal pointer and keyboard rating changes.
 - Guard list-popup key events against missing client or event data as well.
 
 Guard Mrm value-fixup swap state (2026-10-28)
