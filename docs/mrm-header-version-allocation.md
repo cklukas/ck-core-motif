@@ -1,12 +1,13 @@
 ---
 nav_exclude: true
 ---
-# Mrm header version allocation
+# Mrm header version parsing
 
-`Idb__HDR_GetHeader` copies the compiled-in database version into writable
-storage before parsing it because `sscanf` may update its input through
-`ungetc`.  The copy now checks the `XtMalloc` result and reports `MrmFAILURE`
-before dereferencing a null pointer.
+`Idb__HDR_GetHeader` now parses both the on-disk and compiled-in database
+version strings with a range-checked `strtol` helper. Malformed, negative, or
+out-of-range major/minor values are rejected without invoking undefined
+`sscanf` integer conversion behavior, and the compiled-in string no longer
+needs a temporary allocation.
 
 The source-level regression is
 `tests/automated/check-mrm-header-version-allocation.py`.

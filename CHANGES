@@ -26685,6 +26685,13 @@ Bound traversal graph shrink allocations (2026-10-29)
   matching the existing growth-path allocation bounds.
 - Apply the same bounds to traversal row-item and exclusion-tab list resizing.
 
+Harden Mrm header version parsing (2026-10-29)
+==============================================
+
+- Replace unchecked `sscanf` integer conversion of UID version fields with
+  strict, range-checked parsing and remove the unnecessary temporary copy of
+  the compiled-in version string.
+
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================
 

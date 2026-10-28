@@ -61,11 +61,45 @@ static char rcsid[] = "$XConsortium: MrmIheader.c /main/16 1996/11/13 13:56:56 d
  */
 
 #include <stdio.h>
+#include <errno.h>
+#include <limits.h>
+#include <stdlib.h>
 #include <string.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include <Mrm/IDB.h>
 #include "MrmMsgI.h"
+
+static Boolean
+ParseDatabaseVersion(const char *version, int *major_return, int *minor_return)
+{
+  const char *number;
+  char *end;
+  long major;
+  long minor;
+
+  if (version == NULL || major_return == NULL || minor_return == NULL ||
+      strncmp(version, "URM ", 4) != 0)
+    return False;
+
+  number = version + 4;
+  errno = 0;
+  major = strtol(number, &end, 10);
+  if (errno == ERANGE || end == number || *end != '.' ||
+      major < 0 || major > INT_MAX)
+    return False;
+
+  number = end + 1;
+  errno = 0;
+  minor = strtol(number, &end, 10);
+  if (errno == ERANGE || end == number || *end != '\0' ||
+      minor < 0 || minor > INT_MAX)
+    return False;
+
+  *major_return = (int)major;
+  *minor_return = (int)minor;
+  return True;
+}
 
 
 /*
@@ -234,7 +268,7 @@ Idb__HDR_GetHeader (IDBFile		file_id)
    * Compare version in header against compiled-in version, flagging
    * mismatch if found.
    */
-  if (sscanf(hdrptr->db_version, "URM %d.%d", &file_major, &file_minor) != 2)
+  if (!ParseDatabaseVersion(hdrptr->db_version, &file_major, &file_minor))
     {
       (void)snprintf(errmsg, sizeof(errmsg), _MrmMMsg_0117,
 		      hdrptr->db_version);
@@ -242,16 +276,9 @@ Idb__HDR_GetHeader (IDBFile		file_id)
 			    file_id, NULL, MrmNOT_VALID);
     }
 
-  {
-    /* sscanf() may call ungetc(), which would write the XmConst string. */
-    char *buf = XtMalloc(strlen(idb__database_version) + 1);
-    if (buf == NULL)
-      return Urm__UT_Error ("Idb__HDR_GetHeader", _MrmMMsg_0001,
-                            file_id, NULL, MrmFAILURE);
-    strcpy(buf, idb__database_version);
-    sscanf(buf, "URM %d.%d", &db_major, &db_minor);
-    XtFree(buf);
-  }
+  if (!ParseDatabaseVersion(idb__database_version, &db_major, &db_minor))
+    return Urm__UT_Error ("Idb__HDR_GetHeader", _MrmMMsg_0010,
+                          file_id, NULL, MrmNOT_VALID);
     
   if ((file_major > db_major) ||
       ((file_major == db_major) && (file_minor > db_minor)))
