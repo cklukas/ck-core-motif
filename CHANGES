@@ -26692,6 +26692,12 @@ Harden Mrm header version parsing (2026-10-29)
   strict, range-checked parsing and remove the unnecessary temporary copy of
   the compiled-in version string.
 
+Harden ListItemVisible percentage parsing (2026-10-29)
+=======================================================
+
+- Replace unchecked translation-parameter integer parsing with range-checked
+  conversion and overflow-safe percentage arithmetic.
+
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================
 

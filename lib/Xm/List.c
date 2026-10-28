@@ -33,8 +33,10 @@ static char rcsid[] = "$TOG: List.c /main/47 1999/10/12 16:58:17 mgreess $"
 
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <wchar.h>
 #include <X11/Xatom.h>
 #include <Xm/XmosP.h>
@@ -7368,9 +7370,24 @@ ListItemVisible(Widget wid,
     }
   else
     {
-      sscanf(*params, "%d", &percentage);
+      char *end;
+      long parsed;
+
+      if (*params == NULL)
+	return;
+      errno = 0;
+      parsed = strtol(*params, &end, 10);
+      if (errno == ERANGE || end == *params || *end != '\0')
+	return;
+      if (parsed < 0)
+	percentage = 0;
+      else if (parsed > 100)
+	percentage = 100;
+      else
+	percentage = (int)parsed;
       if (percentage == 100) percentage--;
-      item = (lw->list.visibleItemCount * percentage) /100;
+      item = (lw->list.visibleItemCount / 100) * percentage +
+	     ((lw->list.visibleItemCount % 100) * percentage) / 100;
     }
 
   DrawHighlight(lw, lw->list.CurrentKbdItem, FALSE);
