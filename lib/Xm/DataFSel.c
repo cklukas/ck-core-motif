@@ -440,6 +440,8 @@ HandleInsertTargets(
          target = *atom_ptr;
     }
 
+   XtFree((char *)value);
+   value = NULL;
    XtGetSelectionValue(w, *seltype, target,
                        InsertSelection,
                        (XtPointer) insert_select,

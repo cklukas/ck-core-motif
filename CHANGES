@@ -7,6 +7,7 @@ Guard DataField selection callback inputs (2026-10-29)
   regression coverage.
 - Preserve the external target-count width while rejecting a nonzero count
   without a target array.
+- Release the consumed target array before queuing the selected text request.
 
 Release skipped selection callback payloads (2026-10-29)
 ==========================================================

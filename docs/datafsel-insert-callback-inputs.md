@@ -9,7 +9,8 @@ incomplete widget, closure, selection atom, event, type, length, or format
 tuple before dereferencing it. Any Xt-owned selection result supplied with
 that malformed callback is released first. Normal insertion and empty-value
 handling are unchanged. Target-list iteration keeps the X11 length width and
-rejects a nonzero length without a target array.
+rejects a nonzero length without a target array. The consumed target array is
+released before the follow-up selection request is queued.
 
 Regression coverage:
 

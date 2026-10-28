@@ -25,6 +25,7 @@ assert "length == NULL" in targets
 assert "insert_select->event == NULL" in targets
 assert "*length != 0 && value == NULL" in targets
 assert "unsigned long i;" in targets
-assert "XtFree((char *)value);" in targets
+assert targets.count("XtFree((char *)value);") >= 2
+assert targets.index("XtFree((char *)value);", targets.index("for (i")) < targets.index("XtGetSelectionValue")
 
 print("PASS DataField insertion callback validates selection inputs")
