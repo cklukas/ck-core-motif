@@ -11896,6 +11896,7 @@ XmDataFieldSetString(
     XmAnyCallbackStruct cb;
     XmTextPosition fromPos, toPos, newInsert;
     int length;
+    size_t measured_length;
     int free_insert = False;
     int ret_val = 0;
     char * mod_value = NULL;
@@ -11910,12 +11911,18 @@ XmDataFieldSetString(
 
     if (XmTextF_max_char_size(tf) == 1)
     {
-	length = strlen(value);
+	measured_length = strlen(value);
     }
     else
     {
-	length = mbstowcs(NULL, value, 0);
+	measured_length = mbstowcs(NULL, value, 0);
     }
+
+    if (measured_length == (size_t)-1 || measured_length > (size_t)INT_MAX) {
+	_XmAppUnlock(app);
+	return;
+    }
+    length = (int)measured_length;
 
     if (tf->core.sensitive && XmTextF_has_focus(tf)) 
     {

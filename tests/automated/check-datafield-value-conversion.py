@@ -18,5 +18,10 @@ wide_start = source.index("XmDataFieldSetStringWcs(\n        Widget")
 wide_body = source[wide_start:wide_start + 2200]
 assert "size_t result;" in wide_body
 assert "result = wcstombs" in wide_body
+setter = source[source.index("XmDataFieldSetString(\n        Widget"):]
+assert "size_t measured_length;" in setter
+assert "measured_length == (size_t)-1" in setter
+assert "measured_length > (size_t)INT_MAX" in setter
+assert "length = (int)measured_length" in setter
 
 print("PASS DataField value conversion rejects invalid multibyte input")

@@ -10,6 +10,8 @@ state before returning. The widget no longer publishes a negative string
 length after invalid multibyte input.
 The wide-string setter also keeps the `wcstombs` result in its native
 `size_t` width before checking failure.
+The narrow/wide string setter also checks measured lengths and rejects invalid
+multibyte input before narrowing to its legacy `int` callback length.
 
 Regression coverage:
 
