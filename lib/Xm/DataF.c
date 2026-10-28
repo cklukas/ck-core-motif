@@ -1717,7 +1717,10 @@ _XmDataFieldCountBytes(
 
    wc_ptr = wc_value;
    while ((num_chars > 0) && (*wc_ptr != (wchar_t)0L)){
-      n_bytes += wctomb(tmp, *wc_ptr);
+      int char_bytes = wctomb(tmp, *wc_ptr);
+      if (char_bytes < 0 || char_bytes > INT_MAX - n_bytes)
+	 return 0;
+      n_bytes += char_bytes;
       num_chars--;
       wc_ptr++;
    }

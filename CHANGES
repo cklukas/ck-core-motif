@@ -28367,3 +28367,5 @@ List drag selection bounds (2026-10-28)
   no valid entries. See `docs/list-drag-selection-bounds.md`.
 * DataField wide callback bridge no longer dereferences a null buffer for an
   empty callback result (2026-10-28).
+* DataField selection byte counting now rejects failed or overflowing wide
+  character conversions (2026-10-28).
