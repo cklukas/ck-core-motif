@@ -3,9 +3,13 @@
 from pathlib import Path
 import sys
 
-if len(sys.argv) != 2:
-    raise SystemExit(f"usage: {sys.argv[0]} BASE_CLASS_HEADER")
-text = Path(sys.argv[1]).read_text(encoding="utf-8")
+if len(sys.argv) == 1:
+    header = Path(__file__).parents[2] / "lib" / "Xm" / "BaseClassP.h"
+elif len(sys.argv) == 2:
+    header = Path(sys.argv[1])
+else:
+    raise SystemExit(f"usage: {sys.argv[0]} [BASE_CLASS_HEADER]")
+text = header.read_text(encoding="utf-8")
 assert "_XmFastSubclassInitLocal" in text
 assert "_XmIsFastSubclassLocal" in text
 assert "XmBaseClassExt *fastPtr = _XmGetBaseClassExtPtr" in text
