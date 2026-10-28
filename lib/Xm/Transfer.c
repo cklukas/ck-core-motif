@@ -2671,6 +2671,7 @@ XmeStandardConvert(Widget w,
   } else if (atoms[XmACLASS] == cs -> target) {
     Widget current;
     unsigned long bytesAfter;
+    int result;
 
     cs -> value = NULL;
     cs -> format = 32;
@@ -2681,7 +2682,7 @@ XmeStandardConvert(Widget w,
 	current != (Widget) NULL; 
 	current = XtParent(current)) {
       if (XtIsShell(current)) {
-	XGetWindowProperty(XtDisplay(current), XtWindow(current), 
+	result = XGetWindowProperty(XtDisplay(current), XtWindow(current),
 			   XA_WM_CLASS, 0L, 100000L, False,
 			   (Atom) AnyPropertyType, 
 			   &cs -> type,
@@ -2689,7 +2690,12 @@ XmeStandardConvert(Widget w,
 			   &cs -> length,
 			   &bytesAfter,
 			   (unsigned char**) &cs -> value);
-	if (cs -> value != NULL) break;
+	if (result == Success && bytesAfter == 0 && cs -> value != NULL)
+	  break;
+	if (cs -> value != NULL) {
+	  XFree((char *)cs -> value);
+	  cs -> value = NULL;
+	}
       }
     }
     if (cs -> value != NULL) {
@@ -2712,6 +2718,7 @@ XmeStandardConvert(Widget w,
   } else if (atoms[XmANAME] == cs -> target) {
     Widget current;
     unsigned long bytesAfter;
+    int result;
     Atom type = None;
     int format = 0;
     unsigned char *value = NULL;
@@ -2722,7 +2729,7 @@ XmeStandardConvert(Widget w,
 	current != (Widget) NULL; 
 	current = XtParent(current)) {
       if (XtIsShell(current)) {
-	XGetWindowProperty(XtDisplay(current), XtWindow(current), 
+	result = XGetWindowProperty(XtDisplay(current), XtWindow(current),
 			   XA_WM_NAME, 0L, 100000L, False,
 			   (Atom) AnyPropertyType, 
 			   &type,
@@ -2730,7 +2737,12 @@ XmeStandardConvert(Widget w,
 			   &length,
 			   &bytesAfter,
 			   &value);
-	if (value != NULL) break;
+	if (result == Success && bytesAfter == 0 && value != NULL)
+	  break;
+	if (value != NULL) {
+	  XFree((char *)value);
+	  value = NULL;
+	}
       }
     }
     

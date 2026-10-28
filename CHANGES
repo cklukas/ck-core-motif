@@ -23335,6 +23335,15 @@ Validate vendor-shell WM property status (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-vendor-mwm-property-status.py
 
+Validate standard WM property status (2026-10-28)
+====================================================
+
+- Require complete `WM_CLASS` and `WM_NAME` property reads during standard
+  conversion.
+- Release failed or truncated Xlib buffers before continuing ancestor lookup.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-standard-convert-property-status.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
