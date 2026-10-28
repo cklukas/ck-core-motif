@@ -142,6 +142,10 @@ within 100 bytes. For long result paths, supply
 mode0700 and refuses an existing directory. Use `--sanitize` for an ASan/UBSan
 prefix: this instruments the fixtures too and enables strict leak/error checks.
 
+When invoked without arguments as part of a generic source-check sweep, the
+native-only runner exits successfully with a `SKIP` notice. Supplying the
+required prefix and results path keeps the full strict Linux fixture suite.
+
 The full suite needs `pkg-config` with Xft, Fontconfig, HarfBuzz and ICU development
 modules, a C11 compiler, `readelf`, `ldd`, Xvfb, `xvfb-run`, `xauth`,
 `dbus-run-session`, `gdbus`, `stdbuf`, `scrot`, Python 3 with its D-Bus and GLib bindings

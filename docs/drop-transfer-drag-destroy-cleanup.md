@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 Always clean up after drag-context destruction
 ===============================================
 

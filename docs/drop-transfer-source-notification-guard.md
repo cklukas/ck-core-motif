@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 Guard source-notification teardown reentrancy
 ==============================================
 

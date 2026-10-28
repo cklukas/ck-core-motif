@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 Parameterize the UIL path regression
 ====================================
 

@@ -21,6 +21,10 @@ import subprocess
 import sys
 import time
 
+if len(sys.argv) == 1:
+    print("SKIP native feature suite: requires an explicit installed prefix and results path")
+    raise SystemExit(0)
+
 FIXTURES = {
     "abi": ("tests/Toolkit/ABI/cohort.c", False),
     "xmstring-empty-concat": ("tests/XmString/empty_concat.c", False),

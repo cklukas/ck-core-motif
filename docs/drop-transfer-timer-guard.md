@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 Guard delayed drop-transfer timer state
 =======================================
 

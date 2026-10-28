@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 Avoid double-free during scaled-image rollback
 ===============================================
 

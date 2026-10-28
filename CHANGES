@@ -1,3 +1,11 @@
+Make native feature probe sweep-safe (2026-10-29)
+=================================================
+
+- Skip the Linux installed-prefix feature runner cleanly when a generic sweep
+  supplies no runtime paths.
+- Preserve strict prefix, architecture, dependency, and fixture validation
+  whenever the required arguments are supplied.
+
 Make parameterized UIL probes sweep-safe (2026-10-29)
 ======================================================
 

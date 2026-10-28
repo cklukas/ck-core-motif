@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 Release rejected drop-transfer values
 =====================================
 
