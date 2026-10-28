@@ -1453,12 +1453,13 @@ DoStuff(Widget w,
       right = tf->text.prim_pos_right;
       if (tf->text.has_primary) {
 	if (ds->selection == atoms[XmACLIPBOARD]) {
-	  if (left != right && (!dest_disjoint || !tf->text.add_mode))
+	  if (left != right && (!dest_disjoint || !tf->text.add_mode)) {
 	    _XmProcessLock();
 	    _XmTextFieldStartSelection(tf, TextF_CursorPosition(tf),
 				       TextF_CursorPosition(tf),
 				       prim_select->time);
 	    _XmProcessUnlock();
+	  }
 	} else {
 	  _XmProcessLock();
 	  if (tf->text.selection_move && left < prim_select->position)

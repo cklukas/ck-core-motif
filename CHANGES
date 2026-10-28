@@ -25228,3 +25228,10 @@ Match TextField target-list scan index width (2026-10-29)
 - Use the unsigned transfer-count type while scanning external target atoms,
   removing a signed comparison at the selection boundary.
 - Extend the existing target-count source regression and documentation.
+Guard TextField clipboard selection restart (2026-10-29)
+===========================================================
+
+- Keep primary-selection restart and its process lock inside the existing
+  nonempty-range condition after clipboard replacement.
+- Add focused source coverage and documentation for the corrected control
+  flow.
