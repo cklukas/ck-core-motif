@@ -26092,3 +26092,9 @@ Size multibyte XIM preedit buffers by bytes (2026-10-29)
 
 - Allocate narrow preedit strings from their actual byte length instead of
   the XIM character count before copying multibyte text.
+
+Guard TextField preedit append reallocations (2026-10-29)
+==========================================================
+
+- Check narrow overstrike and recovery append sizes before `XtRealloc`,
+  preventing wrapped sums and unsafe Xt `Cardinal` narrowing.

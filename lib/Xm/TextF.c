@@ -9789,7 +9789,7 @@ PreeditDraw(XIC xic,
     XRectangle overall_ink;
     size_t i;
     size_t mb_capacity, converted, input_bytes;
-    size_t rest_bytes;
+    size_t rest_bytes, current_length, extra_length, required_size;
     XmTextPosition recover_len=0;
     char *ptr=NULL, *recover_mb=NULL;
     char *resized_mb;
@@ -10028,7 +10028,17 @@ PreeditDraw(XIC xic,
 	}
 
         if (tf->text.overstrike && rest_len){
-            resized_mb = XtRealloc(mb, strlen(mb)+strlen(over_mb)+1);
+            current_length = strlen(mb);
+            extra_length = strlen(over_mb);
+            if (extra_length > SIZE_MAX - current_length - 1 ||
+                current_length + extra_length + 1 > UINT_MAX) {
+                XtFree(mb);
+                XtFree(over_mb);
+                _XmTextFieldDrawInsertionPoint(tf, True);
+                return;
+            }
+            required_size = current_length + extra_length + 1;
+            resized_mb = XtRealloc(mb, (Cardinal)required_size);
             if (resized_mb == NULL) {
                 XtFree(mb);
                 XtFree(over_mb);
@@ -10040,7 +10050,16 @@ PreeditDraw(XIC xic,
         }
 
         if (tf->text.overstrike && recover_len > 0) {
-           resized_mb = XtRealloc(mb, strlen(mb)+(recover_len+1));
+           current_length = strlen(mb);
+           extra_length = (size_t)recover_len;
+           if (extra_length > SIZE_MAX - current_length - 1 ||
+               current_length + extra_length + 1 > UINT_MAX) {
+               XtFree(mb);
+               _XmTextFieldDrawInsertionPoint(tf, True);
+               return;
+           }
+           required_size = current_length + extra_length + 1;
+           resized_mb = XtRealloc(mb, (Cardinal)required_size);
            if (resized_mb == NULL) {
                XtFree(mb);
                return;
