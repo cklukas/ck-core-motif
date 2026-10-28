@@ -81,8 +81,8 @@ static void DoStuff(Widget w,
 		    XmSelectionCallbackStruct *ds);
 
 static void DropDestroyCB(Widget w,
-			  XtPointer clientData,
-			  XtPointer callData);
+			  XtEnum unused,
+			  XmTransferDoneCallbackStruct *callData);
 
 static void DropTransferProc(Widget w, XtPointer ignore, 
 			     XmSelectionCallbackStruct *ds);
@@ -491,7 +491,8 @@ _XmTextConvert(
   Time _time;
   
   if (w == NULL || selection == NULL || *selection == None ||
-      type == NULL || value == NULL || length == NULL || format == NULL)
+      target == NULL || type == NULL || value == NULL || length == NULL ||
+      format == NULL)
     return False;
   
   assert(XtNumber(atom_names) == NUM_ATOMS);
@@ -554,7 +555,7 @@ _XmTextConvert(
       targs[target_count] = atoms[XmADELETE]; target_count++;
     }
     *type = XA_ATOM;
-    *length = target_count;
+    *length = (unsigned long)target_count;
     *format = 32;
   } else if (*target == atoms[XmATIMESTAMP]) {
     Time *timestamp;
@@ -599,8 +600,8 @@ _XmTextConvert(
         *length = 0;
         return False;
       }
-      *value = (XtPointer) XtMalloc(tmp_prop.nitems ?
-                                    (size_t)tmp_prop.nitems : 1);
+      *value = (XtPointer) XtMalloc((Cardinal)(tmp_prop.nitems ?
+                                    (size_t)tmp_prop.nitems : 1));
       if (*value == NULL) {
         if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
         *length = 0;
@@ -650,8 +651,8 @@ _XmTextConvert(
         *length = 0;
         return False;
       }
-      *value = (XtPointer) XtMalloc(tmp_prop.nitems ?
-                                    (size_t)tmp_prop.nitems : 1);
+      *value = (XtPointer) XtMalloc((Cardinal)(tmp_prop.nitems ?
+                                    (size_t)tmp_prop.nitems : 1));
       if (*value == NULL) {
         if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
         *length = 0;
@@ -691,8 +692,8 @@ _XmTextConvert(
         *length = 0;
         return False;
       }
-      *value = (XtPointer) XtMalloc(tmp_prop.nitems ?
-                                    (size_t)tmp_prop.nitems : 1);
+      *value = (XtPointer) XtMalloc((Cardinal)(tmp_prop.nitems ?
+                                    (size_t)tmp_prop.nitems : 1));
       if (*value == NULL) {
         if (tmp_prop.value != NULL) XFree((char*)tmp_prop.value);
         *length = 0;
@@ -934,7 +935,7 @@ HandleDrop(Widget w,
   SetDropContext(w);
   
   if (doTransfer) {
-    XmeTransferAddDoneProc(tid, (XmSelectionFinishedProc) DropDestroyCB);
+    XmeTransferAddDoneProc(tid, DropDestroyCB);
     XmTransferValue(tid, desiredTarget,
 		    (XtCallbackProc) DropTransferProc,
 		    (XtPointer) transfer_rec, 0);
@@ -1321,15 +1322,15 @@ DoStuff(Widget w,
 /* ARGSUSED */
 static void
 DropDestroyCB(Widget      w,
-	      XtPointer   clientData,
-	      XtPointer   callData)
+	      XtEnum      unused,
+	      XmTransferDoneCallbackStruct *callData)
 {
-  XmTransferDoneCallbackStruct *ts = (XmTransferDoneCallbackStruct *)callData;
+  (void)unused;
   
   if (w != NULL)
     DeleteDropContext(w);
-  if (ts != NULL && ts->client_data != NULL)
-    XtFree((char*) ts->client_data);
+  if (callData != NULL && callData->client_data != NULL)
+    XtFree((char*) callData->client_data);
 }
 
 /* ARGSUSED */
@@ -1685,7 +1686,7 @@ TextConvertCallback(Widget w,
       targs[n] = XA_CS_OF_ENCODING; n++;
     }
     format = 32;
-    size = n;
+    size = (unsigned long)n;
     type = XA_ATOM;
   }
   

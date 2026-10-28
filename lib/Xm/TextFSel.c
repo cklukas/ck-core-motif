@@ -88,8 +88,8 @@ static void HandleDrop(Widget w,
 		       XmDestinationCallbackStruct *ds);
      
 static void DropDestroyCB(Widget w,
-			  XtPointer clientData,
-			  XtPointer callData);
+			  XtEnum unused,
+			  XmTransferDoneCallbackStruct *callData);
 
 static void DropTransferProc(Widget w, 
 			     XtPointer ignore, 
@@ -935,16 +935,15 @@ _XmTextFieldGetDropReciever(Widget w)
 /* ARGSUSED */
 static void
 DropDestroyCB(Widget      w,
-	      XtPointer   clientData,
-	      XtPointer   callData)
+	      XtEnum      unused,
+	      XmTransferDoneCallbackStruct *callData)
 {
-  XmTransferDoneCallbackStruct *ts = 
-    (XmTransferDoneCallbackStruct *) callData;
+  (void)unused;
   
   if (w != NULL)
     DeleteDropContext(w);
-  if (ts != NULL && ts->client_data != NULL)
-    XtFree((char*) ts->client_data);
+  if (callData != NULL && callData->client_data != NULL)
+    XtFree((char*) callData->client_data);
 }
 
 static void 
@@ -1748,7 +1747,7 @@ HandleDrop(Widget w,
   SetDropContext(w);
   
   if (doTransfer) {
-    XmeTransferAddDoneProc(tid, (XmSelectionFinishedProc) DropDestroyCB);
+    XmeTransferAddDoneProc(tid, DropDestroyCB);
     XmTransferValue(tid, desiredTarget,
 		    (XtCallbackProc) DropTransferProc,
 		    (XtPointer) transfer_rec, 0);

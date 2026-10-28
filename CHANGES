@@ -35,6 +35,23 @@ Clarify image-cache callback warning state (2026-10-29)
   contexts explicitly so strict warning builds report real issues.
 - Preserve all callback signatures and threaded locking behavior.
 
+Guard text selection targets (2026-10-29)
+=========================================
+
+- Reject a null target pointer before the selection responder dereferences its
+  requested atom.
+- Make checked target and allocation lengths explicit across the 64-bit
+  selection conversion paths.
+- Add focused regression coverage and document the unchanged valid path.
+
+Match text drop finished-callback ABI (2026-10-29)
+===================================================
+
+- Use the exact `XmSelectionFinishedProc` signature for Text and TextField
+  drop cleanup callbacks instead of casting incompatible Xt callback types.
+- Preserve drop-context and client-data cleanup while removing undefined
+  callback dispatch and its strict-build warning.
+
 Synchronize XPM serializer contract checks (2026-10-29)
 ========================================================
 
