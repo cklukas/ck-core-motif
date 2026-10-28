@@ -28268,6 +28268,13 @@ ComboBox selected-position export (2026-10-28)
   usable position array, avoiding a null dereference in the synthetic export.
   See `docs/combobox-get-selected-pointer.md`.
 
+ComboBox deletion selection pointer (2026-10-28)
+=================================================
+
+- Treat a missing selected-position array as no selection while repairing
+  ComboBox state after deletion, avoiding another null dereference. See
+  `docs/combobox-delete-selection-pointer.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

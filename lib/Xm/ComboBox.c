@@ -3623,7 +3623,7 @@ XmComboBoxDeletePos(Widget widget,
     XtGetValues(CB_List(widget), args, nargs);
 
     /* Ensure that we're using a one-based position. */
-    selpos = (count > 0) ? *positions : 0;
+    selpos = (count > 0 && positions != NULL) ? *positions : 0;
   }
 
   /* DtComboBoxDeletePos rejects pos == 0, but we allow it. */
