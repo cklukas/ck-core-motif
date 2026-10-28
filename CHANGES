@@ -27418,6 +27418,12 @@ Bound Calendar draw coordinates (2026-10-29)
 - Clamp Calendar heading and cell text positions before passing them to
   `XmStringDraw`, preventing signed-coordinate wrap on wide controls.
 
+Guard Chip highlight geometry (2026-10-29)
+==========================================
+
+- Skip the highlight frame when a Chip is too small for twice its highlight
+  thickness, preventing unsigned width/height underflow in Xlib drawing.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 

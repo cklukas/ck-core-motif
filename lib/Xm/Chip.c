@@ -200,7 +200,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XDrawLine(display, window, chip->chip.foreground_gc, cx + 4, cy - 4,
                   cx - 4, cy + 4);
     }
-    if (chip->primitive.highlighted && chip->primitive.highlight_thickness)
+    if (chip->primitive.highlighted && chip->primitive.highlight_thickness &&
+        chip->core.width > 2 * chip->primitive.highlight_thickness &&
+        chip->core.height > 2 * chip->primitive.highlight_thickness)
         XDrawRectangle(display, window, chip->chip.foreground_gc,
                        chip->primitive.highlight_thickness - 1,
                        chip->primitive.highlight_thickness - 1,
