@@ -1,3 +1,11 @@
+Validate XPM buffer color-token width (2026-10-29)
+===================================================
+
+- Reject zero `cpp` and missing or short primary color tokens in buffer and
+  pixel-row serialization.
+- Copy valid tokens exactly instead of allowing `strncpy` padding.
+- Add focused coverage and documentation.
+
 Make UIL value-frame narrowing explicit (2026-10-28)
 ====================================================
 

@@ -281,6 +281,9 @@ WriteColors(
     char *s, *s2;
     char **defaults;
 
+    if (cpp == 0)
+	return (XpmFileInvalid);
+
     *buf = '"';
     for (a = 0; a < ncolors; a++, colors++) {
 
@@ -288,7 +291,10 @@ WriteColors(
 	s = buf + 1;
 	if(cpp > (sizeof(buf) - (s-buf)))
 		return(XpmNoMemory);
-	strncpy(s, *defaults++, cpp);
+	if (colors->string == NULL || strlen(colors->string) < cpp)
+		return (XpmFileInvalid);
+	memcpy(s, colors->string, cpp);
+	defaults++;
 	s += cpp;
 
 	for (key = 1; key <= NKEYS; key++, defaults++) {
@@ -345,7 +351,7 @@ WritePixels(
     if (height <= 1)
 	return 1;
     if (dataptr == NULL || used_size == NULL || pixels == NULL ||
-	    colors == NULL || ncolors == 0)
+	    colors == NULL || ncolors == 0 || cpp == 0)
 	return 0;
 
     h = height - 1;
@@ -355,7 +361,10 @@ WritePixels(
 	    if ((size_t)(s - dataptr) > data_size ||
 		cpp >= data_size - (size_t)(s - dataptr) || *pixels >= ncolors)
 		return 0;
-	    strncpy(s, colors[*pixels].string, cpp);
+	    if (colors[*pixels].string == NULL ||
+		strlen(colors[*pixels].string) < cpp)
+		return 0;
+	    memcpy(s, colors[*pixels].string, cpp);
 	    s += cpp;
 	}
 	if ((size_t)(s - dataptr) > data_size ||
@@ -370,7 +379,10 @@ WritePixels(
 	if ((size_t)(s - dataptr) > data_size ||
 	    cpp >= data_size - (size_t)(s - dataptr) || *pixels >= ncolors)
 	    return 0;
-	strncpy(s, colors[*pixels].string, cpp);
+	if (colors[*pixels].string == NULL ||
+	    strlen(colors[*pixels].string) < cpp)
+	    return 0;
+	memcpy(s, colors[*pixels].string, cpp);
 	s += cpp;
     }
     *s++ = '"';
