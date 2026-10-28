@@ -27371,3 +27371,9 @@ Clamp List horizontal scrollbar ranges (2026-10-29)
 
 - Keep the horizontal maximum and slider extent at least one pixel and clamp
   stale origins after content, padding, or font-metric shrink operations.
+
+Guard Chip event dispatch (2026-10-29)
+======================================
+
+- Validate the widget type and event pointer before reading activation input,
+  preventing malformed dispatch from reaching chip callbacks.

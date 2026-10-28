@@ -235,6 +235,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
     KeySym key;
     char input[8];
     (void)data; (void)dispatch;
+    if (widget == NULL || event == NULL || !XmIsChip(widget)) return;
     if (event->type == ButtonPress) {
         if (chip->chip.removable && event->xbutton.x >= (int)chip->core.width - 28)
             XmChipRemove(widget, event);
