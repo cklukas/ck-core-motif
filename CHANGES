@@ -23379,6 +23379,15 @@ Validate ICC drag property pointers (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-drag-icc-property-pointer.py
 
+Validate drag bootstrap properties (2026-10-28)
+===================================================
+
+- Reject truncated drag bootstrap properties reported by `bytesafter`.
+- Require non-null Xlib buffers before reading window, atom-table, target-table,
+  or proxy-window records.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-drag-bootstrap-property-validation.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

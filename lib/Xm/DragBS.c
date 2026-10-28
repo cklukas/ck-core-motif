@@ -563,7 +563,9 @@ ReadMotifWindow(
 			     (unsigned char **) &property) == Success) &&
          (type == XA_WINDOW) &&
 	 (format == 32) &&
-	 (lengthRtn == 1)) {
+	 (lengthRtn == 1) &&
+	 (bytesafter == 0) &&
+	 (property != NULL)) {
 	motifWindow = *property;
     }
     if (property) {
@@ -803,7 +805,9 @@ ReadAtomsTable(
 	    == Success) &&
 	           (type == atomsTableAtom) &&
 	           (format == 8) &&
-	           (lengthRtn >= sizeof(xmMotifAtomsPropertyRec)));
+	           (lengthRtn >= sizeof(xmMotifAtomsPropertyRec)) &&
+	           (bytesafter == 0) &&
+	           (propertyRecPtr != NULL));
     EndProtectedSection (display);
 
     if (bad_window) {
@@ -1089,7 +1093,9 @@ ReadTargetsTable(
 			        (unsigned char **) &propertyRecPtr) == Success) &&
 	           (type == targetsTableAtom) &&
 	           (format == 8) &&
-	           (lengthRtn >= sizeof(xmMotifTargetsPropertyRec)));
+	           (lengthRtn >= sizeof(xmMotifTargetsPropertyRec)) &&
+	           (bytesafter == 0) &&
+	           (propertyRecPtr != NULL));
     EndProtectedSection (display);
     if (bad_window) {
 	XmeWarning( (Widget) XmGetXmDisplay (display), MESSAGE1);
@@ -1894,7 +1900,9 @@ _XmGetDragProxyWindow(
 			         (unsigned char **) &property) == Success) &&
              (type == XA_WINDOW) &&
 	     (format == 32) &&
-	     (lengthRtn == 1)) {
+	     (lengthRtn == 1) &&
+	     (bytesafter == 0) &&
+	     (property != NULL)) {
 	    motifProxyWindow = *property;
 	}
 	
