@@ -6,7 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "CutPaste.c").read_text()
 start = source.index("int \nXmClipboardInquireCount(")
 end = source.index("int \nXmClipboardInquireFormat(", start)
 body = source[start:end]
-cast = body.index("loc_count = (int) loc_count_len")
+cast = body.index("loc_count = (int)(loc_count_len / sizeof(Atom))")
 guard = body.index("loc_count_len % sizeof(Atom)", 0, cast)
 assert guard < cast
 assert "loc_count_len / sizeof(Atom) > (unsigned long)INT_MAX" in body
