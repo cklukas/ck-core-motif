@@ -23519,6 +23519,14 @@ Release clipboard retrieve format records (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-retrieve-format-cleanup.py
 
+Reject invalid clipboard format indexes (2026-10-28)
+=====================================================
+
+- Reject zero and negative indexes in `XmClipboardInquireFormat`.
+- Preserve the existing 1-based public API and external-owner behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-inquire-format-index.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
