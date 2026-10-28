@@ -93,7 +93,8 @@ static void string_value(DBusMessageIter *i, const char *s) {
   dbus_message_iter_append_basic(i, DBUS_TYPE_STRING, &value);
 }
 static int child_count(XmAccessibility *a, XmAccessibleId id) {
-  return (int)_XmAccessibilityChildCount(a, id);
+  size_t count = _XmAccessibilityChildCount(a, id);
+  return count > (size_t)INT_MAX ? INT_MAX : (int)count;
 }
 static dbus_int32_t bounded_action_count(unsigned int count) {
   return count > (unsigned int)INT32_MAX ? INT32_MAX : (dbus_int32_t)count;

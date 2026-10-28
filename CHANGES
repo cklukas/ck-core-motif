@@ -28375,3 +28375,5 @@ List drag selection bounds (2026-10-28)
   before converting it to the callback's integer field (2026-10-28).
 * DataField picture verification now handles a failed generated-string
   allocation without dereferencing a null result (2026-10-28).
+* Accessibility D-Bus child counts now saturate at `INT_MAX` instead of
+  wrapping a large native child count during export (2026-10-28).
