@@ -1,3 +1,10 @@
+Bound XPM in-memory string lengths (2026-10-29)
+================================================
+
+- Check buffer-backed record spans before narrowing pointer differences to the
+  XPM `unsigned int` length type.
+- Add focused coverage and documentation.
+
 Bound XPM file-string growth (2026-10-29)
 ==========================================
 

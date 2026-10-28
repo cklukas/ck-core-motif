@@ -317,11 +317,15 @@ xpmGetString(
     if (!data->type || data->type == XPMBUFFER) {
 	if (data->cptr) {
 	    char *start = data->cptr;
+	    size_t span;
 	    if (*start == '\0')
 		return (XpmFileInvalid);
 	    while ((c = *data->cptr) && c != data->Eos)
 		data->cptr++;
-	    n = data->cptr - start + 1;
+	    span = (size_t)(data->cptr - start);
+	    if (span >= (size_t)UINT_MAX)
+		return (XpmNoMemory);
+	    n = (unsigned int)(span + 1);
 	    p = (char *) XpmMalloc(n);
 	    if (!p)
 		return (XpmNoMemory);
