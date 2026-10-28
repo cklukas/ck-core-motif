@@ -26879,3 +26879,10 @@ Validate UIL real literals (2026-10-28)
   value checks before storing a real semantic value.
 - Diagnose malformed or non-finite literals and normalize their stored value
   to `0.0`.
+
+Validate MWM backdrop pixmap requests (2026-10-28)
+===================================================
+
+- Replace unchecked `sscanf` conversion of backdrop pixmap IDs with complete
+  hexadecimal and range-error validation.
+- Reject malformed request IDs before invoking backdrop replacement.

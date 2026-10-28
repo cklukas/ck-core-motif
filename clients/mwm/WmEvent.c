@@ -39,7 +39,9 @@ static char rcsid[] = "$XConsortium: WmEvent.c /main/7 1996/11/20 15:27:47 rswis
  */
 
 #include "WmGlobal.h"
+#include <errno.h>
 #include <limits.h>
+#include <stdlib.h>
 /*
  * include extern functions
  */
@@ -2124,8 +2126,20 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 		    pch = strtok (NULL, " ");
 		    if (pch) 
 		    {
-			sscanf (pch, "%lx", &pixmap);  
-			SetNewBackdrop (ACTIVE_WS, pixmap, (String)pchFile);
+			char *end;
+			unsigned long parsed;
+
+			errno = 0;
+			end = NULL;
+			parsed = strtoul(pch, &end, 16);
+			if (pch[0] != '-' && pch[0] != '+' && end != pch &&
+			    *end == '\0' && errno != ERANGE)
+			{
+			    pixmap = (Pixmap)parsed;
+			    SetNewBackdrop (ACTIVE_WS, pixmap, (String)pchFile);
+			}
+			else
+			    Warning ("Invalid pixmap id for backdrop change request.");
 		    }
 		    else 
 		    {
