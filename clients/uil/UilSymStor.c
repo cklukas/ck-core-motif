@@ -1516,12 +1516,12 @@ common_special_type:
 	break;
 
     case sym_k_compound_string_value:
-	_debug_output("  compound string\n  first component: %x\n", 
-		      (unsigned)az_value_entry->az_first_table_value );
+	_debug_output("  compound string\n  first component: %p\n",
+		      (void *)az_value_entry->az_first_table_value );
 
 	if ( (az_value_entry->b_aux_flags & sym_m_table_entry) != 0 ) {
-	    _debug_output("  next table entry: %x",
-			  (unsigned)az_value_entry->az_next_table_value);
+	    _debug_output("  next table entry: %p",
+			  (void *)az_value_entry->az_next_table_value);
 	}
 
 	break;
@@ -1533,8 +1533,8 @@ common_special_type:
 	    _debug_output("  font  charset: %s", 
 			  diag_charset_text( az_value_entry->b_charset ) );
 	else
-	    _debug_output("  font  charset: userdefined(%x)", 
-			  (unsigned)diag_charset_text( (long)az_value_entry->az_charset_value ) );
+	    _debug_output("  font  charset: userdefined(%p)",
+			  (void *)az_value_entry->az_charset_value );
 
 	goto check_for_table_value;
 
@@ -1564,15 +1564,15 @@ common_special_type:
 		{
 		case XmSTRING_DIRECTION_L_TO_R:
 		    _debug_output
-			("  string length: %d\n  charset: userdefined(%x)  L_TO_R", 
+			("  string length: %d\n  charset: userdefined(%p)  L_TO_R",
 			  az_value_entry->w_length,
-			  (unsigned)az_value_entry->az_charset_value);
+			  (void *)az_value_entry->az_charset_value);
 		    break;
 		case XmSTRING_DIRECTION_R_TO_L:
 		    _debug_output
-			("  string length: %d\n  charset: userdefined(%x)  R_TO_L", 
+			("  string length: %d\n  charset: userdefined(%p)  R_TO_L",
 			  az_value_entry->w_length,
-			  (unsigned)az_value_entry->az_charset_value);
+			  (void *)az_value_entry->az_charset_value);
 		    break;
 		}
 
@@ -1580,8 +1580,8 @@ common_special_type:
 check_for_table_value:
 
 	if ( (az_value_entry->b_aux_flags & sym_m_table_entry) != 0 ) {
-	    _debug_output("  next table entry: %x",
-			  (unsigned)az_value_entry->az_next_table_value);
+	    _debug_output("  next table entry: %p",
+			  (void *)az_value_entry->az_next_table_value);
 	}
 
 	output_text
@@ -1595,11 +1595,11 @@ check_for_table_value:
 	break;
 
     case sym_k_icon_value:
-	_debug_output("  icon  width: %d  height: %d  colors: %x  rows: %x \n", 
+	_debug_output("  icon  width: %d  height: %d  colors: %p  rows: %p \n",
 		      az_value_entry->value.z_icon->w_width,
 		      az_value_entry->value.z_icon->w_height,
-		      (unsigned)az_value_entry->value.z_icon->az_color_table,
-		      (unsigned)az_value_entry->value.z_icon->az_rows );
+		      (void *)az_value_entry->value.z_icon->az_color_table,
+		      (void *)az_value_entry->value.z_icon->az_rows );
 
 	break;
 
@@ -1616,8 +1616,8 @@ check_for_table_value:
 
 common_table:
 
-	_debug_output("  %s  first table entry: %x\n",
-		table_type, (unsigned)az_value_entry->az_first_table_value);
+	_debug_output("  %s  first table entry: %p\n",
+		table_type, (void *)az_value_entry->az_first_table_value);
 
 	break;
 
@@ -1632,10 +1632,10 @@ common_table:
         for (index = 0;  index < (int)az_value_entry->b_table_count;  index++)
 	{
 
-	    _debug_output( "    letter: %c  index: %d  color: %x\n",
+	    _debug_output( "    letter: %c  index: %d  color: %p\n",
 			   az_value_entry->value.z_color[index].b_letter,
 			   az_value_entry->value.z_color[index].b_index,
-			   (unsigned)az_value_entry->value.z_color[index].az_color );
+			   (void *)az_value_entry->value.z_color[index].az_color );
 	}
 
 	break;
