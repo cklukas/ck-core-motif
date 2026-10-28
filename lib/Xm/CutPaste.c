@@ -2296,9 +2296,10 @@ ClipboardDeleteItem(
         ClipboardHeader header,
         itemId deleteid )
 {
-    int i;
+    unsigned long i;
     itemId *listptr,*thisid, *nextid, nextpasteid;
-    int nextpasteindex;
+    long nextpasteindex;
+    long saved_nextpasteindex;
     int lastflag = 0;
 
     /* find the delete id in the header item list */
@@ -2325,7 +2326,7 @@ ClipboardDeleteItem(
     	{
     	    nextid++;
 
-    	    nextpasteindex = i - 2;
+	    nextpasteindex = (long)i - 2L;
 
     	    /* if this flag doesn't get reset, then delete item 
 	       was last item */
@@ -2357,7 +2358,7 @@ ClipboardDeleteItem(
 	}
 
 	/* store this value temporarily */
-	i = nextpasteindex;
+	saved_nextpasteindex = nextpasteindex;
 
 	/* now find the next paste candidate
 	   first try to find next older item to make next paste */
@@ -2378,9 +2379,9 @@ ClipboardDeleteItem(
 	if ( nextpasteid == 0 )
 	{
 	    /* restore this value */
-	    nextpasteindex = i;
+	    nextpasteindex = saved_nextpasteindex;
 
-	    while ( nextpasteindex < header->currItems )
+	    while ( (unsigned long)nextpasteindex < header->currItems )
 	    {
 		thisid = listptr + nextpasteindex;
 

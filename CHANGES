@@ -23639,6 +23639,14 @@ Preserve clipboard pending-item counter width (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-pending-count-width.py
 
+Separate clipboard deletion index widths (2026-10-28)
+======================================================
+
+- Use an unsigned-long traversal counter for `header->currItems`.
+- Keep the signed candidate-search index separate for its intentional `-1` state.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-delete-index-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
