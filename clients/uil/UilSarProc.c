@@ -50,6 +50,8 @@ static char rcsid[] = "$XConsortium: UilSarProc.c /main/12 1995/07/14 09:37:43 d
 **
 **/
 
+#include <limits.h>
+
 #include "UilDefI.h"
 
 
@@ -143,7 +145,12 @@ sar_create_procedure(XmConst yystype *id_frame,
     proc_def_entry = (sym_proc_def_entry_type *)
 	sem_allocate_node (sym_k_proc_def_entry, sym_k_proc_def_entry_size);
 
-    proc_def_entry->b_widget_type = uil_max_object + 1;
+    if (uil_max_object >= UCHAR_MAX) {
+	XtError("UIL object limit cannot fit procedure metadata");
+	return;
+    }
+    proc_def_entry->b_widget_type =
+	(unsigned char)(uil_max_object + 1);
     proc_def_entry->obj_header.az_name = (sym_name_entry_type *) name_entry;
     name_entry->az_object = (sym_entry_type *) proc_def_entry;
 

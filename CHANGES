@@ -24151,3 +24151,11 @@ Make UIL object enum widths explicit (2026-10-28)
 - Add focused coverage and documentation.
 
 Bound UIL object-comment allocation (2026-10-28)
+Bound UIL procedure widget metadata (2026-10-28)
+=================================================
+
+- Reject object-table limits that cannot fit the procedure record's 8-bit
+  widget-type sentinel before narrowing the value.
+- Add focused coverage and documentation.
+
+Bound UIL object-comment allocation (2026-10-28)
