@@ -1491,7 +1491,7 @@ ClipboardReplaceItem(
     loc_length = length / BYTELENGTH(1,format);
 
     max_req_size = ((unsigned long)MAX_SELECTION_INCR( display ) * 8UL) /
-	format;
+	(unsigned long)format;
     if (max_req_size > (unsigned long)INT_MAX)
 	max_req_size = (unsigned long)INT_MAX;
 

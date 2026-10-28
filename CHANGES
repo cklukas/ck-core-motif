@@ -23736,6 +23736,14 @@ Match clipboard window-search index width (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-window-search-index.py
 
+Preserve clipboard request format width (2026-10-28)
+=====================================================
+
+- Make the validated format divisor explicitly unsigned in request sizing.
+- Preserve the existing `INT_MAX` cap for XChangeProperty element counts.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-request-format-width.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
