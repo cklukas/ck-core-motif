@@ -730,6 +730,7 @@ ClipboardConvertProc(Widget wid,
       if (count < 0 || count > INT_MAX - 2 ||
 	  (size_t)(count + 2) > UINT_MAX / sizeof(Atom))
 	{
+	  XtFree( (char *)nextitem );
 	  rval = False;
 	  goto done;
 	}
@@ -739,6 +740,7 @@ ClipboardConvertProc(Widget wid,
       ptr = (Atom *)XtMalloc( sizeof(Atom) * (count + 2));
       if (ptr == NULL)
 	{
+	  XtFree( (char *)nextitem );
 	  rval = False;
 	  goto done;
 	}

@@ -23494,6 +23494,14 @@ Release clipboard conversion format records (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-convert-format-cleanup.py
 
+Release clipboard target-list format records (2026-10-28)
+===========================================================
+
+- Free the first format record when `TARGETS` conversion setup fails.
+- Preserve target-list validation and allocation behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-convert-targets-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
