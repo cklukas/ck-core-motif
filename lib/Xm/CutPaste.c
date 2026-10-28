@@ -2493,6 +2493,8 @@ ClipboardMarkItem(
 			 itemlength, PropModeReplace, 32, True,
 			 XA_INTEGER );
 
+    XtFree((char *)itemheader);
+
 }
 
 /*---------------------------------------------*/

@@ -23430,6 +23430,14 @@ Clean up failed clipboard format deletion (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-delete-formats-cleanup.py
 
+Release clipboard mark-item buffers (2026-10-28)
+====================================================
+
+- Free the retrieved data-item record after persisting its mark state.
+- Preserve existing error handling and property update behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-mark-item-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
