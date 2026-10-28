@@ -1,3 +1,10 @@
+Bound UIL root filename metadata (2026-10-28)
+==============================================
+
+- Replace fixed symbol-table root `strcpy` calls with bounded, terminating
+  copies while preserving the existing 256-byte ABI fields.
+- Add focused coverage and documentation.
+
 Preserve transfer operation in callback fallback (2026-10-28)
 ==============================================================
 

@@ -51,6 +51,8 @@ static char rcsid[] = "$TOG: UilSarMod.c /main/13 1997/03/12 15:21:36 dbl $"
 **
 **/
 
+#include <string.h>
+
 #include "UilDefI.h"
 
 /*
@@ -109,6 +111,27 @@ unsigned int	module_clauses;
 #define m_objects_clause	(1<<3)
 
 #define m_after_names		(m_charset_clause)
+
+static void
+sar_copy_fixed_string(char *destination, size_t destination_size,
+                      const char *source)
+{
+    size_t length;
+
+    if (destination == NULL || destination_size == 0)
+	return;
+
+    if (source == NULL) {
+	destination[0] = '\0';
+	return;
+    }
+
+    length = strlen(source);
+    if (length >= destination_size)
+	length = destination_size - 1;
+    memcpy(destination, source, length);
+    destination[length] = '\0';
+}
 
 
 /*
@@ -257,8 +280,12 @@ yystype	    *root_frame;
     ** Save the file name and the expanded version of it.
     */
 
-    strcpy (sym_az_root_entry->file_name, Uil_cmd_z_command.ac_source_file);
-    strcpy (sym_az_root_entry->full_file_name, src_az_source_file_table[0]->expanded_name);
+    sar_copy_fixed_string(sym_az_root_entry->file_name,
+			  sizeof(sym_az_root_entry->file_name),
+			  Uil_cmd_z_command.ac_source_file);
+    sar_copy_fixed_string(sym_az_root_entry->full_file_name,
+			  sizeof(sym_az_root_entry->full_file_name),
+			  src_az_source_file_table[0]->expanded_name);
 
     /*
     ** Save the symbol node in the root frame.
