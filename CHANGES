@@ -27436,6 +27436,12 @@ Guard Chip action API inputs (2026-10-29)
 - Reject null widget handles before Chip subclass checks in the public invoke
   and remove APIs.
 
+Bound Spinner drawing coordinates (2026-10-29)
+==============================================
+
+- Keep Spinner ring centers in signed arithmetic and clamp label origins
+  before converting them to Xt `Position` coordinates.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 

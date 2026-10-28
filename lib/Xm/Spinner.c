@@ -4,6 +4,7 @@
 #endif
 
 #include <stdio.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <X11/Xutil.h>
 #include <Xm/SpinnerP.h>
@@ -70,7 +71,16 @@ static Dimension bounded_dimension(size_t value) {
 
 static Position centered_offset(Dimension container, Dimension content) {
     /* Keep oversized labels negative instead of wrapping Dimension arithmetic. */
-    return (Position)(((int)container - (int)content) / 2);
+    long long offset = ((long long)container - (long long)content) / 2;
+    if (offset < SHRT_MIN) return SHRT_MIN;
+    if (offset > SHRT_MAX) return SHRT_MAX;
+    return (Position)offset;
+}
+
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return SHRT_MIN;
+    if (value > SHRT_MAX) return SHRT_MAX;
+    return (Position)value;
 }
 
 static Boolean eligible(XmSpinnerWidget spinner) {
@@ -173,7 +183,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Window window = XtWindow(widget);
     Dimension label_width = 0, label_height = 0;
     Dimension diameter;
-    Position center_x, center_y;
+    int center_x, center_y;
     GC gc;
     int start;
     (void)event; (void)region;
@@ -193,16 +203,17 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     }
     if (diameter > spinner->core.width) diameter = spinner->core.width;
     if (diameter > 32) diameter = 32;
-    center_x = (Position)(spinner->spinner.spacing + diameter / 2);
-    center_y = (Position)(spinner->core.height / 2);
+    center_x = (int)spinner->spinner.spacing + (int)diameter / 2;
+    center_y = (int)spinner->core.height / 2;
     start = (int)((spinner->spinner.phase % 12) * 30) * 64;
-    XDrawArc(display, window, gc, center_x - (Position)diameter / 2,
-             center_y - (Position)diameter / 2, diameter, diameter,
+    XDrawArc(display, window, gc, center_x - (int)diameter / 2,
+             center_y - (int)diameter / 2, diameter, diameter,
              start, 250 * 64);
     if (spinner->spinner.font && spinner->spinner.label) {
         XmStringDraw(display, window, spinner->spinner.font,
                      spinner->spinner.label, gc,
-                     (Position)(spinner->spinner.spacing + diameter + 8),
+                     bounded_position((long long)spinner->spinner.spacing +
+                                      (long long)diameter + 8),
                      centered_offset(spinner->core.height, label_height),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(spinner), NULL);
