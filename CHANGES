@@ -26871,3 +26871,11 @@ Validate MWM session item counts (2026-10-28)
 - Parse the session record count with complete-number and positive-range
   checks before allocating the session-item array.
 - Reject malformed or overflowing counts instead of allowing `atoi` wrapping.
+
+Validate UIL real literals (2026-10-28)
+=========================================
+
+- Replace unchecked `atof` conversion with complete-token, range, and finite
+  value checks before storing a real semantic value.
+- Diagnose malformed or non-finite literals and normalize their stored value
+  to `0.0`.

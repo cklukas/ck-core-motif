@@ -66,10 +66,11 @@ extern char *_XmStringGetCurrentCharset ();
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #else
-double atof();
+extern double strtod(const char *, char **);
 #endif
 
 #include <errno.h>	/* needed to support conversion functions */
+#include <math.h>
 #include <limits.h>
 #include <stdint.h>
 #ifdef X_NOT_STDC_ENV
@@ -1679,19 +1680,27 @@ found_primitive_string:
     case token_real:
     {
 	double	d_real;
+	char *end;
+	const char *literal;
 
 	yylval.b_type = UNS_FLOAT_LITERAL;
 
+	literal = (const char *)az_current_lex_buffer->c_text;
         errno = 0;
-	d_real = atof((char *)az_current_lex_buffer->c_text);
+	end = NULL;
+	d_real = strtod(literal, &end);
 
-	if (errno != 0)
+	if (end == literal || *end != '\0' || errno == ERANGE ||
+	    !isfinite(d_real))
+	{
 	    diag_issue_diagnostic
 		( d_out_range, 
 		  az_start_src_record,
 		  l_start_src_pos,
 		  "real",
 		  " " );
+	    d_real = 0.0;
+	}
 
 	yylval.value.az_symbol_entry = 
 		(sym_entry_type *)sem_create_value_entry
