@@ -22,6 +22,14 @@ Guard Xi part-offset resolution without a superclass (2026-10-29)
 - Preserve valid offset-table construction and extend the focused allocation
   contract check.
 
+Bound part-offset size alignment arithmetic (2026-10-29)
+=========================================================
+
+- Check alignment rounding and inherited widget/constraint-size addition
+  before mutating class records.
+- Reject unrepresentable layouts transactionally and extend focused source
+  coverage.
+
 Reject null converter displays (2026-10-29)
 ===========================================
 

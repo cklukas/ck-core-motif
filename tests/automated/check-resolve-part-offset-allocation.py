@@ -10,6 +10,9 @@ region = source[start:end]
 assert "if (w_class == NULL || offset == NULL)" in region
 assert "if (super == NULL)" in region
 assert "_XmProcessUnlock();\n       return;" in region
+assert "AlignPartSize" in region or "AlignPartSize" in source
+assert "widget_size > SIZE_MAX - super_size" in region
+assert "constraint_size + super_constraint_size > UINT_MAX" in region
 assert "classcount <= 0" in region
 assert "classcount > UINT_MAX / sizeof(XmOffset)" not in region
 assert "(size_t)classcount > (size_t)UINT_MAX / sizeof(XmOffset)" in region

@@ -45,6 +45,8 @@ static void ResolveSyntheticOffsets(
 			XmOffsetPtr * ipot, 
 			XmOffsetPtr * cpot) ;
 
+static Boolean AlignPartSize(Cardinal size, size_t *aligned);
+
 /********    End Static Function Declarations    ********/
 
 
@@ -57,6 +59,21 @@ static void ResolveSyntheticOffsets(
 
  
 #define IsConstraintClass(wc) _XmIsSubclassOf(wc, constraintWidgetClass)
+
+static Boolean
+AlignPartSize(Cardinal size, size_t *aligned)
+{
+    size_t value = (size_t)size;
+    const size_t mask = sizeof(long) - 1;
+
+    if (aligned == NULL || value > SIZE_MAX - mask)
+	return False;
+    value = (value + mask) & ~mask;
+    if (value > UINT_MAX)
+	return False;
+    *aligned = value;
+    return True;
+}
 /*
  *  end FIX for 5178.
  */
@@ -121,6 +138,8 @@ XmeResolvePartOffsets(
    ConstraintWidgetClass cc = NULL, scc = NULL;
    int i, classcount = 0;
    XmPartResource *pr;
+   size_t widget_size, super_size;
+   size_t constraint_size = 0, super_constraint_size = 0;
 
    if (w_class == NULL || offset == NULL)
    {
@@ -153,12 +172,32 @@ XmeResolvePartOffsets(
    /*
     *  Update the part size value (initially, it is the size of this part)
     */
+   if (!AlignPartSize(w_class->core_class.widget_size, &widget_size) ||
+       !AlignPartSize(super->core_class.widget_size, &super_size) ||
+       widget_size > SIZE_MAX - super_size ||
+       widget_size + super_size > UINT_MAX)
+   {
+       _XmProcessUnlock();
+       return;
+   }
+   if (cc && scc)
+   {
+       if (!AlignPartSize(cc->constraint_class.constraint_size,
+			  &constraint_size) ||
+	   !AlignPartSize(scc->constraint_class.constraint_size,
+			  &super_constraint_size) ||
+	   constraint_size > SIZE_MAX - super_constraint_size ||
+	   constraint_size + super_constraint_size > UINT_MAX)
+       {
+	   _XmProcessUnlock();
+	   return;
+       }
+   }
    w_class->core_class.widget_size =
-       _ALIGN(w_class->core_class.widget_size) + _ALIGN(super->core_class.widget_size);
+       (Cardinal)(widget_size + super_size);
    if (cc && scc)
        cc->constraint_class.constraint_size =
-	   _ALIGN(cc->constraint_class.constraint_size) +
-	       _ALIGN(scc->constraint_class.constraint_size);
+	   (Cardinal)(constraint_size + super_constraint_size);
 
    /*
     *  Count the number of superclasses and allocate the offset record(s)
