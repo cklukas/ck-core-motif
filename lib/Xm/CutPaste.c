@@ -4417,9 +4417,9 @@ XmClipboardStartRetrieve(
 
     _XmAppLock(app);
     status = ClipboardLock( display, window );
-    if ( status == ClipboardLocked ) {
+    if ( status != ClipboardSuccess ) {
 	_XmAppUnlock(app);
-	return ClipboardLocked;
+	return status;
     }
 
     header = ClipboardOpen( display, 0 );
