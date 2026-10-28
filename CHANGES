@@ -26850,3 +26850,10 @@ Guard virtual-key database setup (2026-10-28)
 - Treat an unavailable virtual-key binding string or resource database as an
   empty binding set instead of passing null into the database walker.
 - Preserve the existing property, file, and built-in fallback binding paths.
+
+Validate MWM screen-function arguments (2026-10-28)
+====================================================
+
+- Reject malformed, overflowing, or trailing-text numeric arguments to
+  `f.screen` instead of letting `atoi` silently select screen zero.
+- Preserve named navigation forms and valid integer screen numbers.

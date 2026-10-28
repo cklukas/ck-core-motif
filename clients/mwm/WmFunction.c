@@ -60,6 +60,8 @@ extern pid_t vfork();
 #include <signal.h>
 #endif
 #include <stdio.h>
+#include <errno.h>
+#include <ctype.h>
 #include <limits.h>
 #include <X11/Xos.h>
 #include "WmICCC.h"
@@ -4586,7 +4588,26 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
     }
     else
     {
-	scr = atoi (args);
+	char *end;
+	long parsed;
+
+	if (args == NULL)
+	{
+	    Warning("Invalid screen number");
+	    return (False);
+	}
+	errno = 0;
+	end = NULL;
+	parsed = strtol(args, &end, 10);
+	while (end != args && isspace((unsigned char)*end))
+	    end++;
+	if (end == args || *end != '\0' || errno == ERANGE ||
+	    parsed < INT_MIN || parsed > INT_MAX)
+	{
+	    Warning("Invalid screen number");
+	    return (False);
+	}
+	scr = (int)parsed;
 	inc = 0;
     }
 
