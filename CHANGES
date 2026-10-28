@@ -28048,3 +28048,10 @@ Accessibility child-index bounds (2026-10-29)
 - Clamp `size_t` child indices before returning or transporting them through
   signed accessibility APIs.
 - Add focused source-contract coverage and documentation.
+
+Accessibility text-navigation bounds (2026-10-29)
+==================================================
+
+- Compute D-Bus character-navigation offsets in wide arithmetic before
+  clamping them to the valid text range.
+- Add focused source-contract coverage and documentation.

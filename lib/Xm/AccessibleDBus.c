@@ -530,9 +530,11 @@ static int text_range(XmAccessibility *a, XmAccessibleId id, int length,
     return XmAccessibilityVisualLine(a, id, offset, direction, first, last);
   }
   if (boundary == 0) {
-    int position = offset + direction;
-    if (position < 0) position = 0;
-    if (position > length) position = length;
+    long long position_wide = (long long)offset + (long long)direction;
+    int position;
+    if (position_wide < 0) position = 0;
+    else if (position_wide > (long long)length) position = length;
+    else position = (int)position_wide;
     *first = position;
     *last = position < length ? position + 1 : position;
     if (offset == 0 && direction < 0) *last = 0;
