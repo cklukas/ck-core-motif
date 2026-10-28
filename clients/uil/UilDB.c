@@ -578,7 +578,6 @@ void db_read_length_and_string(header)
  */
 
 {
-
 /*
  *  External Functions
  */
@@ -586,10 +585,22 @@ void db_read_length_and_string(header)
 /*
  *  Local variables
  */
-	int		return_num_items, i, string_size=0;
+	int		return_num_items, i;
+	size_t		item_count, lengths_bytes, string_size = 0;
 	int		*lengths;
 	char		*string_table;
 	char		**table = NULL;
+
+	if (header == NULL || header->num_items < 0 ||
+	    header->table_size < 0 || header->num_items == INT_MAX)
+	    return;
+	item_count = (size_t)header->num_items + 1;
+	if (item_count > SIZE_MAX / sizeof(*table) ||
+	    item_count * sizeof(*table) > (size_t)header->table_size ||
+	    item_count > SIZE_MAX / sizeof(*lengths) ||
+	    item_count * sizeof(*lengths) > UINT_MAX)
+	    return;
+	lengths_bytes = item_count * sizeof(*lengths);
 	 
 	switch (header->table_id)
 	    {
@@ -658,9 +669,11 @@ void db_read_length_and_string(header)
 	 *	 have to be carefull.
 	 */
 
-	lengths = (int *) XtMalloc (sizeof (int) * (header->num_items + 1));
-	return_num_items = fread(lengths, 
-				    sizeof(int) * (header->num_items + 1),
+	lengths = (int *) XtMalloc ((Cardinal)lengths_bytes);
+	if (lengths == NULL)
+	    return;
+	return_num_items = (int)fread(lengths,
+				    lengths_bytes,
 				    1, dbfile);
 	_check_read (return_num_items);
 	for ( i=0 ; i<=header->num_items; i++)
@@ -668,14 +681,33 @@ void db_read_length_and_string(header)
 	    /*
 	     * Add one for the null terminator
 	     */
+	    if (lengths[i] < 0)
+		{
+		XtFree ((char *)lengths);
+		diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+					    diag_k_no_column );
+		return;
+		}
 	    if (lengths[i])
 		{
-		string_size += lengths[i] + 1;
+		if (string_size > (size_t)UINT_MAX - (size_t)lengths[i] - 1)
+		    {
+		    XtFree ((char *)lengths);
+		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
+						 diag_k_no_column );
+		    return;
+		    }
+		string_size += (size_t)lengths[i] + 1;
 		}
 	    }
 
-	string_table = XtMalloc (sizeof (unsigned char) * string_size);
-	return_num_items = fread(string_table, 
+	string_table = XtMalloc ((Cardinal)string_size);
+	if (string_table == NULL && string_size != 0)
+	    {
+	    XtFree ((char *)lengths);
+	    return;
+	    }
+	return_num_items = (int)fread(string_table,
 				    sizeof(unsigned char) * string_size,
 				    1, dbfile);
 	_check_read (return_num_items);
