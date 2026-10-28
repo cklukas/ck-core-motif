@@ -9674,7 +9674,9 @@ PreeditStart(XIC xic,
        if (tf->text.onthespot->over_len < 0 ||
            (size_t)tf->text.onthespot->over_len >= (size_t)UINT_MAX ||
            (size_t)tf->text.onthespot->over_len + 1 >
-             SIZE_MAX / sizeof(wchar_t)) {
+             SIZE_MAX / sizeof(wchar_t) ||
+           (size_t)tf->text.onthespot->over_len + 1 >
+             (size_t)UINT_MAX / sizeof(wchar_t)) {
            tf->text.onthespot->over_len = 0;
            tf->text.onthespot->under_preedit = False;
            return 0;
