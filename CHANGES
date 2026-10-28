@@ -23134,6 +23134,14 @@ Complete failed Text target discovery (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textsel-handle-targets-failure.py
 
+Complete failed TextField target discovery (2026-10-28)
+=========================================================
+
+- Fail TextField target-discovery transfers when target data is malformed,
+  the insertion overlaps the selection, or follow-up state cannot allocate.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-textfsel-handle-targets-failure.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

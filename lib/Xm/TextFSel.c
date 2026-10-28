@@ -1524,6 +1524,7 @@ HandleTargets(Widget w, XtPointer closure,
       ds->length > (unsigned long)INT_MAX) {
     XtFree((char *)ds->value);
     ds->value = NULL;
+    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return; /* Supports no targets, so don't bother sending anything */
   }
   
@@ -1566,6 +1567,7 @@ HandleTargets(Widget w, XtPointer closure,
 	left != right && select_pos > left && select_pos < right) {
       XtFree((char *)ds->value);
       ds->value = NULL;
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
       return;
     }
   }
@@ -1580,6 +1582,7 @@ HandleTargets(Widget w, XtPointer closure,
       _XmProcessUnlock();
       XtFree((char *)ds->value);
       ds->value = NULL;
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
       return;
     }
   }
