@@ -26002,3 +26002,9 @@ Guard TextField action insertion conversion (2026-10-29)
 
 - Reject failed or unrepresentable keyboard conversions and keep a NUL slot
   out of the full-size input lookup buffer.
+
+Guard Text substring conversion (2026-10-29)
+============================================
+
+- Preserve `mbstowcs` results in the shared substring helper and fail closed
+  when conversion cannot produce a representable destination length.

@@ -881,6 +881,7 @@ _XmTextGetSubstring(Widget widget,
   XmTextPosition pos, end;
   wchar_t * wc_buffer = (wchar_t*)buffer;
   int destpos = 0;
+  size_t converted;
 
   if (buffer == NULL || start < 0 || num_chars < 0 || buf_size <= 0)
     return XmCOPY_FAILED;
@@ -921,9 +922,11 @@ _XmTextGetSubstring(Widget widget,
 		   block.length);
       destpos += block.length;
     } else { /* want wchar_t* data */
-      num_chars = mbstowcs(&wc_buffer[destpos], block.ptr, num_chars);
-      if (num_chars < 0) num_chars = 0;
-      destpos += num_chars;
+      converted = mbstowcs(&wc_buffer[destpos], block.ptr,
+                           (size_t)num_chars);
+      if (converted == (size_t)-1 || converted > (size_t)INT_MAX)
+        return XmCOPY_FAILED;
+      destpos += (int)converted;
     }
   }
   
