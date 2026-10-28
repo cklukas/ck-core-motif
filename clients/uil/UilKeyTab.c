@@ -143,7 +143,8 @@ char		* symbol_ptr;
     
 /*    Check the arguments.    */
 
-    if (symbol_length > key_k_keyword_max_length)
+	if (key_k_keyword_max_length < 0 ||
+	    symbol_length > (unsigned int)key_k_keyword_max_length)
 	return NULL;
 
 /*    Initialize region to search.    */

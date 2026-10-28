@@ -20,6 +20,13 @@ Make UIL diagnostic widths explicit (2026-10-28)
   widths, and compare source-position EOF sentinels without signedness drift.
 - Add focused coverage and documentation.
 
+Validate UIL keyword length configuration (2026-10-28)
+=======================================================
+
+- Reject an invalid negative generated keyword-length limit and compare it to
+  the unsigned lookup length explicitly.
+- Add focused coverage and documentation.
+
   Compound-string component and direction enum values now narrow explicitly
   at the Motif API boundary after validation.
 - Check compound-string lengths before storing the 16-bit symbol-entry length,
