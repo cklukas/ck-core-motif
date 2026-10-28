@@ -789,13 +789,13 @@ _XmTextFieldConvert(
       return True;
     /* Delete the selection */
   } else if (*target == atoms[XmADELETE]) {
-    XmTextPosition left, right;
+    XmTextPosition delete_left, delete_right;
     Boolean move_cursor = True;
     
     if (!(is_primary || is_drop)) return False;
     
-    left = tf->text.prim_pos_left;
-    right = tf->text.prim_pos_right;
+    delete_left = tf->text.prim_pos_left;
+    delete_right = tf->text.prim_pos_right;
     
       if (is_drop) {
 	if (_XmTextFieldGetDropReciever((Widget)tf) == (Widget) tf)
@@ -807,7 +807,7 @@ _XmTextFieldConvert(
       }
     
     if (!_XmTextFieldReplaceText(tf, (XEvent *) req_event,
-				 left, right, NULL, 0, move_cursor)) {
+					 delete_left, delete_right, NULL, 0, move_cursor)) {
       tf->text.has_primary = True;
       return False;
     }

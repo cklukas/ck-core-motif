@@ -25235,3 +25235,9 @@ Guard TextField clipboard selection restart (2026-10-29)
   nonempty-range condition after clipboard replacement.
 - Add focused source coverage and documentation for the corrected control
   flow.
+Name TextField delete-target ranges explicitly (2026-10-29)
+=============================================================
+
+- Avoid shadowing the conversion callback's selection range in the
+  delete-target branch by naming the primary-delete bounds explicitly.
+- Add focused source coverage and documentation for the preserved range.
