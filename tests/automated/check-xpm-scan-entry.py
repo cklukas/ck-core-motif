@@ -22,4 +22,6 @@ assert "shapeimage->bitmap_unit <= 0" in function
 assert "shapeimage->bits_per_pixel <= 0" in function
 assert "image->depth <= 0" in function
 assert "shapeimage->depth <= 0" in function
+assert "image->xoffset < 0" in function
+assert "shapeimage->xoffset < 0" in function
 print("PASS XPM image-scan entry guard")

@@ -1,3 +1,10 @@
+Reject negative XPM image offsets (2026-10-29)
+===============================================
+
+- Reject negative source-image `xoffset` values before bit and byte indexing
+  in the pixel readers.
+- Add focused coverage and documentation.
+
 Reject invalid XPM image depths (2026-10-29)
 =============================================
 
