@@ -258,6 +258,9 @@ boolean			op2_temporary;
     sym_value_entry_type	*new_str_entry;
     boolean			merge;
 
+    if (az_cstr_entry == NULL || az_str_entry == NULL)
+	return;
+
     /*
     **	A couple of points:
     **	1) if op2_temporary = FALSE - we must make a copy
@@ -313,6 +316,8 @@ boolean			op2_temporary;
 	    new_str_entry = (sym_value_entry_type *) 
 		sem_allocate_node( sym_k_value_entry,
 				   az_str_entry->header.w_node_size<<2 );
+	    if (new_str_entry == NULL)
+		return;
 
 	    old_size = new_str_entry->header.w_node_size;
 
@@ -378,6 +383,9 @@ boolean			op2_temporary;
     sym_value_entry_type	*last_str_entry;
     sym_value_entry_type	**ptr;
     sym_value_entry_type	*next_str_entry;
+
+    if (az_cstr1_entry == NULL || az_cstr2_entry == NULL)
+	return;
 
     /*
     **	A couple of points:
@@ -446,6 +454,8 @@ boolean			op2_temporary;
 	new_str_entry = (sym_value_entry_type *) 
 	    sem_allocate_node( sym_k_value_entry,
 			       next_str_entry->header.w_node_size<<2 );
+	if (new_str_entry == NULL)
+	    return;
 
 	old_size = new_str_entry->header.w_node_size;
 
@@ -537,8 +547,15 @@ boolean			op2_temporary;
     new_str_entry = (sym_value_entry_type *) 
 	sem_allocate_node( sym_k_value_entry,
 			   sym_k_value_entry_size );
+	if (new_str_entry == NULL)
+	return (sym_value_entry_type *)sym_az_error_value_entry;
 	new_str_entry->value.c_value = XtCalloc(
 	    1, (Cardinal)((size_t)l1 + (size_t)l2 + 1));
+	if (new_str_entry->value.c_value == NULL) {
+	sem_free_node ((sym_entry_type *)new_str_entry);
+	XtError ("unable to allocate UIL concatenated string");
+	return (sym_value_entry_type *)sym_az_error_value_entry;
+	}
 
 
     new_str_entry->obj_header.b_flags = sym_m_builtin | sym_m_private;
