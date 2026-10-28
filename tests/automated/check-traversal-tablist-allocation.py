@@ -9,6 +9,9 @@ assert "Widget *new_list" in add
 assert "if (new_list == NULL)" in add
 assert "graph->excl_tab_list = new_list" in add
 assert "graph->tab_list_alloc = new_alloc" in add
+assert "list_count > UINT_MAX / sizeof(*new_list)" in add
+assert "(Cardinal)(list_count * sizeof(*new_list))" in add
 assert "if (new_list != NULL)" in delete
 assert "graph->num_tab_list <" in delete
+assert "list_count > UINT_MAX / sizeof(*new_list)" in delete
 print("PASS traversal tab-list growth handles allocation failure")

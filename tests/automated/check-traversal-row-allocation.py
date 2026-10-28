@@ -9,6 +9,8 @@ sort_start = source.index("Sort(XmTraversalNode *list")
 sort = source[sort_start:source.index("\nstatic int \nCompareExclusive", sort_start)]
 assert "static Boolean\nAppendToRow" in source
 assert "XmTraversalNode *new_items" in append
+assert "item_count > UINT_MAX / sizeof(*new_items)" in append
+assert "(Cardinal)item_bytes" in append
 assert "if (new_items == NULL)" in append
 assert "return False;" in append
 assert "return True;" in append

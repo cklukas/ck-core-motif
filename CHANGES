@@ -26683,6 +26683,7 @@ Bound traversal graph shrink allocations (2026-10-29)
 
 - Check the reduced traversal-node count before the pruning `XtRealloc`,
   matching the existing growth-path allocation bounds.
+- Apply the same bounds to traversal row-item and exclusion-tab list resizing.
 
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================

@@ -1545,11 +1545,13 @@ AppendToRow(XmTraversalNode item,
       if (new_max_items < row->max_items)
         return False;
       item_count = (size_t)new_max_items;
-      if (item_count != 0 && SIZE_MAX / item_count < sizeof(*new_items))
+      if (item_count != 0 &&
+          (item_count > SIZE_MAX / sizeof(*new_items) ||
+           item_count > UINT_MAX / sizeof(*new_items)))
         return False;
       item_bytes = item_count * sizeof(*new_items);
       new_items = (XmTraversalNode *)XtRealloc(
-          (char *)row->items, item_bytes);
+          (char *)row->items, (Cardinal)item_bytes);
       if (new_items == NULL)
         return False;
       row->items = new_items;
@@ -2452,11 +2454,13 @@ _XmTabListAdd(XmTravGraph graph,
           if (new_alloc < graph->tab_list_alloc)
             return;
           list_count = (size_t)new_alloc;
-          if (list_count != 0 && SIZE_MAX / list_count < sizeof(*new_list))
+          if (list_count != 0 &&
+              (list_count > SIZE_MAX / sizeof(*new_list) ||
+               list_count > UINT_MAX / sizeof(*new_list)))
             return;
           new_list = (Widget *)XtRealloc(
               (char *)graph->excl_tab_list,
-              list_count * sizeof(*new_list));
+              (Cardinal)(list_count * sizeof(*new_list)));
           if (new_list == NULL)
             return;
           graph->excl_tab_list = new_list;
@@ -2479,9 +2483,14 @@ _XmTabListDelete(XmTravGraph graph,
     {
       Cardinal new_alloc = graph->tab_list_alloc -
                            XmTAB_LIST_ALLOC_INCREMENT;
-      Widget *new_list = (Widget *)XtRealloc(
+      size_t list_count = (size_t)new_alloc;
+      Widget *new_list;
+      if (list_count > SIZE_MAX / sizeof(*new_list) ||
+          list_count > UINT_MAX / sizeof(*new_list))
+        return;
+      new_list = (Widget *)XtRealloc(
           (char *)graph->excl_tab_list,
-          (size_t)new_alloc * sizeof(*new_list));
+          (Cardinal)(list_count * sizeof(*new_list)));
       if (new_list != NULL) {
         graph->excl_tab_list = new_list;
         graph->tab_list_alloc = new_alloc;
