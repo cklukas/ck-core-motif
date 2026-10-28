@@ -766,6 +766,7 @@ ClipboardConvertProc(Widget wid,
 					 &ret_count, &dummy );
 	  if (nextitem != NULL) ptr++;
 	}
+	XtFree( (char *) nextitem );
       *value = (char *) save_ptr;
       /* n is number of targets from the clipboard,
 	 plus 2 builtin targets */

@@ -23498,6 +23498,7 @@ Release clipboard target-list format records (2026-10-28)
 ===========================================================
 
 - Free the first format record when `TARGETS` conversion setup fails.
+- Release any final iterator record left by inconsistent count metadata.
 - Preserve target-list validation and allocation behavior.
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-convert-targets-cleanup.py

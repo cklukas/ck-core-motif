@@ -11,6 +11,7 @@ targets = body[start_targets:body.index("} else if ( *target == atoms[XmA_TIMEST
 
 assert targets.count("XtFree( (char *)nextitem );") == 2
 assert "XtFree( (char *) nextitem );" in targets
+assert targets.rfind("XtFree( (char *) nextitem );") > targets.rfind("while ( nextitem != NULL")
 assert "if (ptr == NULL)" in targets
 
 print("Clipboard target-list setup releases format records on failure")
