@@ -10,6 +10,10 @@ Make UIL value-frame narrowing explicit (2026-10-28)
   at the Motif API boundary after validation.
 - Check compound-string lengths before storing the 16-bit symbol-entry length,
   preventing oversized values from wrapping.
+- Reject negative or oversized generic value lengths before allocation, and
+  make the unsigned name-binding mask explicit.
+- Keep validated value lengths explicit when passing them to size-based copy
+  operations.
 
 Bound UIL include filename metadata (2026-10-28)
 =================================================

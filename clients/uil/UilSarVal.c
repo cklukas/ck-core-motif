@@ -2208,8 +2208,9 @@ yystype	    *semi_frame;
     */
 
     value_entry->obj_header.az_name = name_entry;
-    value_entry->obj_header.b_flags = 
-      (value_entry->obj_header.b_flags & clear_class_mask) | flags;
+    value_entry->obj_header.b_flags =
+      (value_entry->obj_header.b_flags & (unsigned int)clear_class_mask) |
+      (unsigned int)flags;
 
     name_entry->az_object = (sym_entry_type *) value_entry;
 
@@ -2385,12 +2386,18 @@ int	    value_type;
     */
     value_entry = (sym_value_entry_type *)
 	sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
+
+    if (length < 0 || (unsigned int)length > USHRT_MAX) {
+	XtError("UIL value is too large");
+	length = 0;
+    }
+
     _sar_save_source_pos ( &value_entry->header, &yylval );
     sar_assoc_comment ((sym_obj_entry_type *)value_entry);  /* preserve comments */
 
-    value_entry->b_type = value_type;
+    value_entry->b_type = (unsigned char)value_type;
     value_entry->obj_header.b_flags = (sym_m_private | sym_m_builtin);
-    value_entry->w_length = length;
+    value_entry->w_length = (unsigned short)length;
     value_entry->output_state = 0;
     value_entry->b_table_count = 0;
     value_entry->b_aux_flags = 0;
@@ -2416,17 +2423,17 @@ int	    value_type;
 	value_type == sym_k_identifier_value) &&
 	(length > 0))
 	{
-	value_entry->value.c_value = (char *) XtCalloc(1,length);
-	_move( value_entry->value.c_value, value, length );
+		value_entry->value.c_value = (char *) XtCalloc(1, (Cardinal)length);
+	_move( value_entry->value.c_value, value, (size_t)length );
 	}
     else if (value_type == sym_k_compound_string_value  && (length > 0))
       {
-	value_entry->value.xms_value = (XmString) XtCalloc(1,length);
-	_move( value_entry->value.xms_value, value, length );
+		value_entry->value.xms_value = (XmString) XtCalloc(1, (Cardinal)length);
+	_move( value_entry->value.xms_value, value, (size_t)length );
       }
     else
 	if ( length > 0 )
-	    _move( &(value_entry->value.c_value), value, length );
+	    _move( &(value_entry->value.c_value), value, (size_t)length );
 
     /* For enumerations which accept boolean values */
     if (value_type == sym_k_bool_value)
@@ -2499,7 +2506,7 @@ XmConst yystype	    *semi_frame;
 
     value_entry = sem_create_value_entry ( ptr, len, sym_k_identifier_value );
 
-    _move (value_entry->value.c_value, ptr, len);
+	_move (value_entry->value.c_value, ptr, (size_t)len);
 
     value_entry->obj_header.b_flags |= sym_m_private;
 

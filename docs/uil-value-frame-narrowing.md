@@ -12,6 +12,7 @@ input. Compound-string component and direction values likewise narrow only at
 the Motif API boundary, after UIL enum validation. This keeps strict compiler
 diagnostics useful for new conversions. Compound-string lengths are checked
 before entering the ABI-sized `w_length` field so oversized values cannot
-silently wrap.
+silently wrap. Name-binding masks are widened explicitly before combining with
+the unsigned object flags field.
 
 Regression: `tests/automated/check-uil-value-frame-narrowing.py`
