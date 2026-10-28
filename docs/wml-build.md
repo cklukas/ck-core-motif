@@ -90,3 +90,8 @@ that case, so the `demos/programs/animate/dog.uil` full-tree target succeeds;
 Generated lexer and parser outputs are not listed in `EXTRA_DIST`, so source
 archives and fresh checkouts do not claim to contain files that are created
 only by the build.
+
+`tests/automated/check-wmd.py` performs a source-only WMD contract check when
+run without arguments, which keeps the broad contract sweep independent of a
+generated build tree. Pass an absolute build root and fresh results directory
+to run the executable generation and UIL round-trip checks.

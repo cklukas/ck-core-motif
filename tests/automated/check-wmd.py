@@ -8,10 +8,19 @@ from pathlib import Path
 import subprocess
 
 p = argparse.ArgumentParser(description=__doc__)
-p.add_argument('build_root', type=Path)
-p.add_argument('results', type=Path)
+p.add_argument('build_root', type=Path, nargs='?')
+p.add_argument('results', type=Path, nargs='?')
 p.add_argument('--legacy-uil', type=Path)
 a = p.parse_args()
+if a.build_root is None or a.results is None:
+    if a.build_root is not None or a.results is not None:
+        p.error('build_root and results must be supplied together')
+    source = (Path(__file__).parents[2] / 'tools' / 'wml' / 'wmldbcreate.c').read_text()
+    assert 'const char *outfilename = "motif.wmd";' in source
+    assert 'const char *debugfilename = "motif.dbg";' in source
+    assert 'wmldbcreate: -o requires an output filename' in source
+    print('PASS WMD source contract; pass BUILD_ROOT RESULTS for executable round trip')
+    raise SystemExit(0)
 assert a.build_root.is_absolute() and a.results.is_absolute()
 assert json.loads((a.build_root / 'build-receipt.json').read_text())['success']
 a.results.mkdir(parents=True, exist_ok=False)

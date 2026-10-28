@@ -29,6 +29,13 @@ Refresh TextFSel wide-allocation contract check (2026-10-29)
 - Match the primary-selection check to the current bounded `mbstowcs`
   conversion and explicit `converted` result assignment.
 
+Make WMD check safe for source-only contract runs (2026-10-29)
+===============================================================
+
+- Allow the full automated contract sweep to run `check-wmd.py` without
+  generated binaries while retaining the executable round-trip when both
+  build and results paths are supplied.
+
 Bound I18List display column origins (2026-10-29)
 ==================================================
 
