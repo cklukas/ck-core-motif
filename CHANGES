@@ -24632,3 +24632,10 @@ Guard XPM header and color size accumulation (2026-10-29)
 - Reject unsigned wraparound while accumulating serialized header and
   color-line sizes.
 - Add focused coverage and documentation.
+
+Bound XPM serializer width conversions (2026-10-29)
+====================================================
+
+- Bound extension lengths before adding them to legacy unsigned size fields
+  and make fixed-buffer pointer-difference conversions explicit.
+- Add focused coverage and documentation.

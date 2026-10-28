@@ -175,7 +175,7 @@ XpmCreateDataFromXpmImage(
 	strcpy(s, " XPMEXT");
 	s += 7;
     }
-    l = s - buf + 1;
+    l = (unsigned int)(s - buf + 1);
     *header = (char *) XpmMalloc(l);
     if (!*header)
 	RETURN(XpmNoMemory);
@@ -285,7 +285,7 @@ CreateColors(
 	strncpy(buf, *defaults++, cpp);
 	s = buf + cpp;
 
-	if(sizeof(buf) <= (s-buf))
+	if(sizeof(buf) <= (size_t)(s - buf))
 		return XpmNoMemory;
 
 	for (key = 1; key <= NKEYS; key++, defaults++) {
@@ -307,7 +307,7 @@ CreateColors(
 	    }
 	}
 	/* what about using strdup()? */
-	l = s - buf + 1;
+	l = (unsigned int)(s - buf + 1);
 	s = (char *) XpmMalloc(l);
 	if (!s)
 	    return (XpmNoMemory);
@@ -403,15 +403,15 @@ CountExtensions(
 	nlines += ext->nlines + 1;
 	/* 8 = 7 (for "XPMEXT ") + 1 (for 0) */
 	len = strlen(ext->name) + 8;
-	if (len > UINT_MAX - size)
+	if (len > UINT_MAX || len > UINT_MAX - size)
 	    return (1);
-	size += len;
+	size += (unsigned int)len;
 	a = ext->nlines;
 	for (y = 0, line = ext->lines; y < a; y++, line++) {
 	    len = strlen(*line) + 1;
-	    if (len > UINT_MAX - size)
+	    if (len > UINT_MAX || len > UINT_MAX - size)
 		return (1);
-	    size += len;
+	    size += (unsigned int)len;
 	}
     }
     if (size > UINT_MAX - 10 || nlines > UINT_MAX - 1)
