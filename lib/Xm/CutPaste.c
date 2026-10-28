@@ -4283,9 +4283,9 @@ XmClipboardUndoCopy(
 
     _XmAppLock(app);
     status = ClipboardLock( display, window );
-    if ( status == ClipboardLocked ) {
+    if ( status != ClipboardSuccess ) {
 	_XmAppUnlock(app);
-	return ClipboardLocked;
+	return status;
     }
 
     /* note: second call to undo, undoes the first call */
