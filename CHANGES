@@ -27210,6 +27210,13 @@ Avoid Container tab-value integer wrap (2026-10-28)
   large Cardinal counts cannot wrap in unsigned integer arithmetic before
   reaching the floating-point tab API.
 
+Guard DropDown grabbed-event widget lookup (2026-10-28)
+=======================================================
+
+- Ignore null or foreign-window events that cannot be mapped to an Xt widget.
+- Stop safely if the widget's parent chain has no shell instead of
+  dereferencing a null parent.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

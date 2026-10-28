@@ -1332,6 +1332,9 @@ ShellButtonEvent(Widget w, XtPointer cbw_ptr, XEvent *event, Boolean *dispatch)
     XmDropDownWidget cbw = (XmDropDownWidget) cbw_ptr;
     Widget event_widget;
 
+    if (cbw == NULL || event == NULL || dispatch == NULL)
+	return;
+
   switch (event->type)
     {
     case ButtonRelease:
@@ -1368,6 +1371,11 @@ ShellButtonEvent(Widget w, XtPointer cbw_ptr, XEvent *event, Boolean *dispatch)
 
     event_widget = XtWindowToWidget(event->xany.display, event->xany.window);
 
+    /* A grab can deliver an event for a foreign or already-destroyed
+     * window.  Do not walk a null widget chain in that case. */
+    if (event_widget == NULL)
+	return;
+
     if (event_widget == XmDropDown_arrow(cbw)) 
 	return;
     else if ((event_widget == XmDropDown_text(cbw)) && !XmDropDown_editable(cbw))
@@ -1378,8 +1386,10 @@ ShellButtonEvent(Widget w, XtPointer cbw_ptr, XEvent *event, Boolean *dispatch)
     else {
 	Widget event_shell = event_widget; 
 
-	while (!XtIsShell(event_shell))
+	while (event_shell != NULL && !XtIsShell(event_shell))
 	    event_shell = XtParent(event_shell);
+	if (event_shell == NULL)
+	    return;
 
 	if ( (event_shell == (Widget) XmDropDown_popup_shell(cbw)) &&
 	    (event_widget != (Widget) XmDropDown_popup_shell(cbw))) 
