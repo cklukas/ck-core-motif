@@ -6,5 +6,6 @@ body = source[start:source.index("static void", start)]
 
 assert "status = XGetWindowProperty" in body
 assert "(status != Success)" in body
-assert body.index("status != Success") < body.index("*binding = (String) prop")
+assert "*binding = bounded_prop" in body
+assert body.index("status != Success") < body.index("*binding = bounded_prop")
 print("PASS MWM bindings property validates XGetWindowProperty status")

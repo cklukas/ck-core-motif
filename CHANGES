@@ -26585,3 +26585,9 @@ Refresh MWM automation-reply regression (2026-10-29)
 - Track the current centralized `UINT_MAX` allocation guard used by
   `GetAutomationData` instead of the superseded byte-size assertion.
 - Track its current `Cardinal`-sized allocation expression as well.
+
+Refresh MWM bindings-property regression (2026-10-29)
+=======================================================
+
+- Verify the current bounded, Xt-owned property copy rather than the removed
+  direct Xlib-property assignment.
