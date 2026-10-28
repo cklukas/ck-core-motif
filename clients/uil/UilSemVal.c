@@ -957,6 +957,8 @@ if (( expected_type == sym_k_compound_string_value ) &&
 	sym_value_entry_type   *cstr_value;
 	
 	cstr_value = (sym_value_entry_type *) sem_create_cstr();
+	if (cstr_value == NULL)
+	    return;
 	cstr_value->b_expr_opr = sym_k_coerce_op;
 	cstr_value->az_exp_op1 = argvalue_value_entry;
 	sem_evaluate_value_expr (cstr_value);
@@ -972,6 +974,8 @@ if (( expected_type == sym_k_compound_string_value ) &&
 	sym_value_entry_type   *cstr_value;
 	
 	cstr_value = (sym_value_entry_type *) sem_create_cstr();
+	if (cstr_value == NULL)
+	    return;
 	cstr_value->b_expr_opr = sym_k_coerce_op;
 	cstr_value->az_exp_op1 = argvalue_value_entry;
 	sem_evaluate_value_expr (cstr_value);
@@ -987,6 +991,8 @@ if (( expected_type == sym_k_wchar_string_value ) &&
 	sym_value_entry_type   *wcstr_value;
 	
 	wcstr_value = (sym_value_entry_type *) sem_create_wchar_str();
+	if (wcstr_value == NULL)
+	    return;
 	wcstr_value->b_expr_opr = sym_k_coerce_op;
 	wcstr_value->az_exp_op1 = argvalue_value_entry;
 	sem_evaluate_value_expr (wcstr_value);
@@ -2213,6 +2219,8 @@ _assert (procref_entry->header.b_tag==sym_k_proc_ref_entry,
 		sym_value_entry_type   *cstr_value;
 
 		cstr_value = (sym_value_entry_type *) sem_create_cstr();
+		if (cstr_value == NULL)
+		    return;
 		cstr_value->b_expr_opr = sym_k_coerce_op;
 		cstr_value->az_exp_op1 = value_entry;
 		sem_evaluate_value_expr (cstr_value);
@@ -2228,6 +2236,8 @@ _assert (procref_entry->header.b_tag==sym_k_proc_ref_entry,
 		sym_value_entry_type   *cstr_value;
 
 		cstr_value = (sym_value_entry_type *) sem_create_cstr();
+		if (cstr_value == NULL)
+		    return;
 		cstr_value->b_expr_opr = sym_k_coerce_op;
 		cstr_value->az_exp_op1 = value_entry;
 		sem_evaluate_value_expr (cstr_value);
@@ -2243,6 +2253,8 @@ _assert (procref_entry->header.b_tag==sym_k_proc_ref_entry,
 		sym_value_entry_type   *wcstr_value;
 
 		wcstr_value = (sym_value_entry_type *) sem_create_wchar_str();
+		if (wcstr_value == NULL)
+		    return;
 		wcstr_value->b_expr_opr = sym_k_coerce_op;
 		wcstr_value->az_exp_op1 = value_entry;
 		sem_evaluate_value_expr (wcstr_value);

@@ -26301,3 +26301,9 @@ Guard UIL compound-string parser constructors (2026-10-29)
 
 - Stop compound-string semantic actions when their constructor cannot
   allocate a node, before writing expression or component metadata.
+Guard UIL semantic coercion constructors (2026-10-29)
+=======================================================
+
+- Check compound- and wide-string coercion constructors before writing
+  expression metadata during argument and procedure validation.
+- Return from validation cleanly when a coercion node cannot be allocated.
