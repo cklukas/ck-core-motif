@@ -268,11 +268,12 @@ WritePixels(
 	    unsigned int	ncolors)
 {
     char *s, *p, *buf;
+    size_t token_length;
     unsigned int x, y, h;
 
 
-    if (width == 0 || height == 0 || pixels == NULL || colors == NULL ||
-	 ncolors == 0)
+    if (width == 0 || height == 0 || cpp == 0 || pixels == NULL ||
+	colors == NULL || ncolors == 0)
 	return XpmFileInvalid;
     h = height - 1;
     if (cpp != 0 && width >= (UINT_MAX - 3)/cpp)
@@ -289,7 +290,12 @@ WritePixels(
 		XpmFree(buf);
 		return XpmFileInvalid;
 	    }
-	    strncpy(s, colors[*pixels].string, cpp);
+	    token_length = strlen(colors[*pixels].string);
+	    if (token_length < cpp) {
+		XpmFree(buf);
+		return XpmFileInvalid;
+	    }
+	    memcpy(s, colors[*pixels].string, cpp);
 	    s += cpp;
 	}
 	*s++ = '"';
@@ -303,7 +309,12 @@ WritePixels(
 	    XpmFree(buf);
 	    return XpmFileInvalid;
 	}
-	strncpy(s, colors[*pixels].string, cpp);
+	token_length = strlen(colors[*pixels].string);
+	if (token_length < cpp) {
+	    XpmFree(buf);
+	    return XpmFileInvalid;
+	}
+	memcpy(s, colors[*pixels].string, cpp);
 	s += cpp;
     }
     *s++ = '"';

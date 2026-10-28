@@ -24666,3 +24666,11 @@ Propagate XPM file-write failures (2026-10-29)
 - Check final stream errors and propagate file-close or stdout-flush failures
   from XPM file writers.
 - Add focused coverage and documentation.
+
+Validate XPM pixel token widths (2026-10-29)
+=============================================
+
+- Reject zero `cpp` and short color tokens before pixel-row serialization.
+- Copy valid tokens exactly instead of allowing uninitialized `strncpy`
+  padding.
+- Add focused coverage and documentation.
