@@ -3702,7 +3702,7 @@ Urm__CW_FixupCallback (Widget			parent ,
 
   if (cbdesc == NULL || bufptr == NULL ||
       cbdesc->validation != URMCallbackDescriptorValid ||
-      cbdesc->count > RGMListSizeMax)
+      cbdesc->count < 0 || cbdesc->count > RGMListSizeMax)
     return MrmFAILURE;
 
   /*

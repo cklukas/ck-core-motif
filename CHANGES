@@ -27014,3 +27014,9 @@ Use translated Mrm callback destinations (2026-10-28)
 - Write converted callback records through the translated descriptor rather
   than the original legacy-format resource pointer.
 - Preserve current-format callback handling and callback ordering.
+Reject negative Mrm callback counts (2026-10-28)
+================================================
+
+- Reject negative callback descriptor counts during callback fixup instead of
+  silently treating them as empty lists.
+- Preserve valid callback resolution and ordering.
