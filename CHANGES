@@ -27676,3 +27676,9 @@ Bound IconButton text coordinates (2026-10-29)
 - Clamp normal and insensitive-shadow label positions before Motif drawing
   calls.
 - Add focused source-contract coverage for oversized icon-button layouts.
+Bound IconG text coordinates (2026-10-29)
+===========================================
+
+- Clamp label and detail text positions, including right-to-left and shadow
+  paths, before Motif drawing calls.
+- Add focused source-contract coverage for oversized gadget layouts.

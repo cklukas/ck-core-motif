@@ -32,6 +32,13 @@
 
 #include <limits.h>
 #include <stdint.h>
+
+static Position bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
 #include <Xm/AccColorT.h>
 #include <Xm/CareVisualT.h>
 #include <Xm/ContItemT.h>
@@ -2324,8 +2331,10 @@ Redisplay(
 	if (!XtIsSensitive(wid)) {
 		XmStringDraw(XtDisplay(wid),XtWindow(wid),
 		      IG_RenderTable(wid),IG_LabelString(wid), IG_ShadowGC(wid),
-		      ig->rectangle.x + label_x+1 + DEFAULT_LABEL_MARGIN_WIDTH,
-		      ig->rectangle.y + label_y+1 + DEFAULT_LABEL_MARGIN_HEIGHT,
+		      bounded_position((long long)ig->rectangle.x + label_x + 1 +
+					DEFAULT_LABEL_MARGIN_WIDTH),
+		      bounded_position((long long)ig->rectangle.y + label_y + 1 +
+					DEFAULT_LABEL_MARGIN_HEIGHT),
 		      IG_LabelRectWidth(wid) - 2*DEFAULT_LABEL_MARGIN_WIDTH,
 		      XmALIGNMENT_BEGINNING,
 		      LayoutG(wid), NULL);
@@ -2333,8 +2342,10 @@ Redisplay(
 #endif
 	XmStringDraw(XtDisplay(wid),XtWindow(wid),
 		      IG_RenderTable(wid),IG_LabelString(wid), gc,
-		      ig->rectangle.x + label_x + DEFAULT_LABEL_MARGIN_WIDTH,
-		      ig->rectangle.y + label_y + DEFAULT_LABEL_MARGIN_HEIGHT,
+		      bounded_position((long long)ig->rectangle.x + label_x +
+				      DEFAULT_LABEL_MARGIN_WIDTH),
+		      bounded_position((long long)ig->rectangle.y + label_y +
+				      DEFAULT_LABEL_MARGIN_HEIGHT),
 		      IG_LabelRectWidth(wid) - 2*DEFAULT_LABEL_MARGIN_WIDTH,
 		      XmALIGNMENT_BEGINNING,
 		      LayoutG(wid), NULL);
@@ -2468,11 +2479,11 @@ Redisplay(
 
 		XmStringDraw(XtDisplay(wid),XtWindow(wid),
 			     IG_RenderTable(wid), new_detail[i], gc,
-			     (LayoutIsRtoLG(wid)) ?
-			     (ig->rectangle.x + ig->rectangle.width - detail_x
-			      - ((i < tab_count) ? clip_rect.width : w))
-			     : (ig->rectangle.x + detail_x),
-			     ig->rectangle.y + detail_y,
+			     bounded_position((LayoutIsRtoLG(wid)) ?
+			     (long long)ig->rectangle.x + ig->rectangle.width - detail_x
+			      - ((i < tab_count) ? clip_rect.width : w)
+			     : (long long)ig->rectangle.x + detail_x),
+			     bounded_position((long long)ig->rectangle.y + detail_y),
 			     ((i < tab_count) ? clip_rect.width : w),
 			     XmALIGNMENT_BEGINNING,
 			     LayoutG(wid), 
