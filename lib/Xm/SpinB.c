@@ -1756,7 +1756,7 @@ LayoutSpinBox(Widget w,
       marginY = 0;
       if (requiredHeight > spinG->height)
 	{
-	  int deltaY = requiredHeight - spinG->width;
+	  int deltaY = requiredHeight - spinG->height;
 
 	  spacingY =
 	    ((numArrowsY * spinW->spinBox.spacing) - deltaY) / numArrowsY;

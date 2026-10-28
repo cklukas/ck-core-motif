@@ -26974,3 +26974,10 @@ Bound UIL byte-table database reads (2026-10-28)
   allocated table size before calling `fread`.
 - Keep valid UID table layouts unchanged while preventing malformed records
   from overflowing the destination allocation.
+Fix SpinBox constrained-height spacing (2026-10-28)
+===================================================
+
+- Compute vertical arrow spacing from the available height rather than the
+  unrelated widget width.
+- Add a native constrained-height regression across appearance profiles,
+  display scales, arrow layouts, and text directions.
