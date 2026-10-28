@@ -2,7 +2,8 @@ Validate scaled-image row strides (2026-10-29)
 ===============================================
 
 - Reject malformed `XImage` inputs whose scanline stride is smaller than the
-  advertised width and pixel depth before scaling reads past a row.
+  advertised width and pixel depth, or whose `XYPixmap` storage omits depth
+  planes, before scaling reads past the source buffer.
 - Add focused coverage and document the preserved behavior for valid images.
 
 Synchronize XPM serializer contract checks (2026-10-29)

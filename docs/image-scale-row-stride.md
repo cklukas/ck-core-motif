@@ -8,7 +8,9 @@ pixels.
 
 The scaler now rejects non-positive `bits_per_pixel` values and verifies that
 every row is at least `ceil(width * bits_per_pixel / 8)` bytes before it reads
-the image.  Valid XImages retain the existing scaling and XPutImage paths.
+the image.  For `XYPixmap`, it also accounts for every depth plane when
+validating the total source storage.  Valid XImages retain the existing
+scaling and XPutImage paths.
 
 The source contract is covered by
 `tests/automated/check-image-scale-row-stride.py`.

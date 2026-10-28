@@ -11,5 +11,7 @@ assert "src_image->bits_per_pixel <= 0" in body
 assert "src_image->width >" in body
 assert "minimum_row_bytes" in body
 assert "minimum_row_bytes > (size_t)src_image->bytes_per_line" in body
+assert "src_image->format == XYPixmap" in body
+assert "SIZE_MAX / image_planes" in body
 assert body.index("minimum_row_bytes >") < body.index("image_width =")
 print("PASS scaled-image input validates row stride")

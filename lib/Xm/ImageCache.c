@@ -2588,14 +2588,13 @@ void _XmPutScaledImage (
     unsigned int geometry_depth;
     unsigned int destination_depth;
     size_t minimum_row_bytes;
+    size_t image_planes;
 
     if (display == NULL || d == None || gc == NULL ||
 	src_image == NULL || src_image->data == NULL ||
 	src_image->width <= 0 || src_image->height <= 0 ||
 	src_image->bytes_per_line <= 0 ||
 	src_image->bits_per_pixel <= 0 ||
-	(size_t)src_image->height >
-	 SIZE_MAX / (size_t)src_image->bytes_per_line ||
 	(size_t)src_image->width >
 	 (SIZE_MAX - 7) / (size_t)src_image->bits_per_pixel ||
 	src_width == 0 || src_height == 0 ||
@@ -2613,6 +2612,15 @@ void _XmPutScaledImage (
     minimum_row_bytes = ((size_t)src_image->width *
 	(size_t)src_image->bits_per_pixel + 7) / 8;
     if (minimum_row_bytes > (size_t)src_image->bytes_per_line)
+	return;
+
+    image_planes = (src_image->format == XYPixmap) ?
+	(size_t)src_image->depth : 1;
+    if (image_planes == 0 ||
+	(size_t)src_image->height >
+	 SIZE_MAX / (size_t)src_image->bytes_per_line ||
+	(size_t)src_image->height * (size_t)src_image->bytes_per_line >
+	 SIZE_MAX / image_planes)
 	return;
 
     image_width = (unsigned int)src_image->width;
