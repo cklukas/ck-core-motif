@@ -1,3 +1,10 @@
+Guard DataField drawing conversion lengths (2026-10-29)
+=========================================================
+
+- Preserve `wcstombs` results in wide rendering and reject conversion failure
+  or lengths that cannot be represented by Xft/Xlib drawing calls.
+- Add focused drawing-conversion coverage.
+
 Detect DataField selection export failures (2026-10-29)
 =========================================================
 
