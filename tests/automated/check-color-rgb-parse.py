@@ -7,10 +7,11 @@ from pathlib import Path
 source = Path(__file__).parents[2] / "lib" / "Xm" / "ColorS.c"
 text = source.read_text(encoding="utf-8")
 
-needle = "if (sscanf(buf, \"%hu %hu %hu\", &(color_info[count].red),"
-if needle not in text:
-    raise SystemExit("RGB scan validation is missing")
-if ") != 3)" not in text:
-    raise SystemExit("RGB scan does not reject malformed lines")
+if "ParseColorChannels" not in text:
+    raise SystemExit("RGB channel parser is missing")
+if "strtoul(cursor, &end, 10)" not in text:
+    raise SystemExit("RGB channels are not range-checked")
+if "value > USHRT_MAX" not in text:
+    raise SystemExit("RGB channel width is not validated")
 
 print("color database rejects malformed RGB channel lines")

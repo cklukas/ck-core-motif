@@ -30,6 +30,7 @@
 #endif
 
 #include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <limits.h>
@@ -57,6 +58,38 @@
  ************************************************************/
 
 #define SUPERCLASS ((WidgetClass) &xmManagerClassRec)
+
+static Boolean
+ParseColorChannels(const char *line,
+		   unsigned short *red,
+		   unsigned short *green,
+		   unsigned short *blue)
+{
+    const char *cursor = line;
+    unsigned short *channels[3] = { red, green, blue };
+    int i;
+
+    if (line == NULL || red == NULL || green == NULL || blue == NULL)
+	return False;
+    for (i = 0; i < 3; ++i) {
+	char *end;
+	unsigned long value;
+
+	errno = 0;
+	value = strtoul(cursor, &end, 10);
+	if (errno == ERANGE || end == cursor || value > USHRT_MAX)
+	    return False;
+	*channels[i] = (unsigned short)value;
+	cursor = end;
+	if (i != 2) {
+	    if (!isspace((unsigned char)*cursor))
+		return False;
+	    while (isspace((unsigned char)*cursor))
+		++cursor;
+	}
+    }
+    return *cursor == '\0' || isspace((unsigned char)*cursor);
+}
 
 /************************************************************
  *       MACROS
@@ -1396,8 +1429,8 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 		}
 	    }
 
-	    if (sscanf(buf, "%hu %hu %hu", &(color_info[count].red),
-			&(color_info[count].green), &(color_info[count].blue)) != 3)
+	    if (!ParseColorChannels(buf, &(color_info[count].red),
+			&(color_info[count].green), &(color_info[count].blue)))
 		continue;
 
 	    if ((color_name = find_name(buf)) == NULL)

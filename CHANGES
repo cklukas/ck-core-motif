@@ -26704,6 +26704,12 @@ Harden ColorObj property parsing (2026-10-29)
 - Replace unchecked hexadecimal `sscanf` conversions for X-server color
   properties with delimiter- and overflow-checked `strtoul` parsing.
 
+Harden ColorSelector RGB parsing (2026-10-29)
+==============================================
+
+- Replace unchecked `%hu` conversions in color database lines with
+  whitespace-aware, range-checked decimal parsing.
+
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================
 
