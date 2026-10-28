@@ -5285,7 +5285,7 @@ XmClipboardInquirePendingItems(
 		 sizeof(XmClipboardPendingRec))
 	itemlist = NULL;
     else
-	itemlist = (XmClipboardPendingList)XtMalloc( (size_t)
+	itemlist = (XmClipboardPendingList)XtMalloc( (Cardinal)
 			(header->currItems * sizeof( XmClipboardPendingRec)));
 
     if (header->currItems != 0 && itemlist == NULL)

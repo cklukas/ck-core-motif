@@ -23816,6 +23816,14 @@ Bound clipboard copy allocation widths (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-copy-allocation-width.py
 
+Make clipboard pending-item allocation narrowing explicit (2026-10-28)
+=======================================================================
+
+- Preserve the existing `Cardinal`-range guard for pending-record buffers.
+- Convert the validated byte count explicitly at the Xt allocation boundary.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-pending-allocation.py
+
 Make validated clipboard format-index comparison explicit (2026-10-28)
 =======================================================================
 
