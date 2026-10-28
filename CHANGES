@@ -24175,3 +24175,11 @@ Make UIL enumeration-code width explicit (2026-10-28)
 - Add focused coverage and documentation.
 
 Bound UIL compound-string component lengths (2026-10-28)
+Make UIL parser frame-flag width explicit (2026-10-28)
+========================================================
+
+- Explicitly narrow semantic object flags when transferring them into the
+  parser frame's 16-bit field.
+- Add focused coverage and documentation.
+
+Make UIL enumeration-code width explicit (2026-10-28)

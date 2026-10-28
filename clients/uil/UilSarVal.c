@@ -316,7 +316,8 @@ yystype	    *id_frame;
 		    enumval_values_table[enum_code];
 	    }
 
-	    target_frame->b_flags = value_entry->obj_header.b_flags;
+	    target_frame->b_flags =
+		(unsigned short)value_entry->obj_header.b_flags;
 	    target_frame->b_type = value_entry->b_type;
 	    target_frame->value.az_symbol_entry =
 				(sym_entry_type *) value_entry;
@@ -340,7 +341,8 @@ yystype	    *id_frame;
 	value_entry = sem_create_value_entry ("0", 0, sym_k_any_value);
 	value_entry->obj_header.b_flags = sym_m_forward_ref;
 	value_entry->obj_header.az_name = name_entry;
-	target_frame->b_flags = value_entry->obj_header.b_flags;
+	target_frame->b_flags =
+	    (unsigned short)value_entry->obj_header.b_flags;
 	target_frame->b_type = value_entry->b_type;
 	target_frame->value.az_symbol_entry = (sym_entry_type *) value_entry;
 	return;
@@ -361,7 +363,7 @@ yystype	    *id_frame;
     ** set up the target frame
     */
 
-    target_frame->b_flags = value_entry->obj_header.b_flags;
+    target_frame->b_flags = (unsigned short)value_entry->obj_header.b_flags;
     target_frame->b_type = value_entry->b_type;
     target_frame->value.az_symbol_entry = (sym_entry_type *) value_entry;
 
