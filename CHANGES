@@ -26230,4 +26230,3 @@ Reject UIL output-size overflow allocations (2026-10-29)
   resource-context allocation or clearing routines.
 - Reject oversized literals and argument/class compression tables before
   writing them, with focused source-contract coverage and documentation.
-
