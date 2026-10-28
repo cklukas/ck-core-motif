@@ -28275,6 +28275,13 @@ ComboBox deletion selection pointer (2026-10-28)
   ComboBox state after deletion, avoiding another null dereference. See
   `docs/combobox-delete-selection-pointer.md`.
 
+ComboBox selection synchronization (2026-10-28)
+================================================
+
+- Validate List arrays and the one-based selected position before mirroring a
+  ComboBox selection into its edit field. See
+  `docs/combobox-selection-sync.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

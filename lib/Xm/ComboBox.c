@@ -3813,7 +3813,8 @@ XmComboBoxUpdate(Widget widget)
       assert(nargs <= XtNumber(args));
       XtGetValues(CB_List(cb), args, nargs);
 
-      if ((pcount > 0) && (icount > 0))
+      if (pcount > 0 && pos != NULL && icount > 0 && items != NULL &&
+	  pos[0] > 0 && pos[0] <= icount)
 	SetEditBoxValue((Widget) cb, items[pos[0] - 1]);
     }
     _XmAppUnlock(app);
