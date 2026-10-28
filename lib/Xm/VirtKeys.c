@@ -564,12 +564,14 @@ _XmVirtKeysInitialize(Widget widget)
   
   XtSetTypeConverter(XmRString, XmRVirtualBinding, CvtStringToVirtualBinding, 
 		     NULL, 0, XtCacheNone, (XtDestructor)NULL);
-  keyDB = XrmGetStringDatabase( bindingsString );
-  FillBindingsFromDB (XtDisplay(xmDisplay), keyDB,
-		      &xmDisplay->display.bindings,
-		      &xmDisplay->display.num_bindings);
-
-  XrmDestroyDatabase(keyDB);
+  keyDB = bindingsString != NULL ? XrmGetStringDatabase(bindingsString) : NULL;
+  if (keyDB != NULL)
+    {
+      FillBindingsFromDB (XtDisplay(xmDisplay), keyDB,
+			  &xmDisplay->display.bindings,
+			  &xmDisplay->display.num_bindings);
+      XrmDestroyDatabase(keyDB);
+    }
   if (needXFree) 
     XFree (bindingsString);
   if (fallbackString) 

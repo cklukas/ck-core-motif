@@ -26843,3 +26843,10 @@ Validate PNG display gamma input (2026-10-28)
   checks before passing it to libpng.
 - Ignore malformed or unsafe environment values and retain the calculated
   display default.
+
+Guard virtual-key database setup (2026-10-28)
+==============================================
+
+- Treat an unavailable virtual-key binding string or resource database as an
+  empty binding set instead of passing null into the database walker.
+- Preserve the existing property, file, and built-in fallback binding paths.
