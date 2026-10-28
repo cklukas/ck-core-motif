@@ -28139,3 +28139,10 @@ DatePicker popup regression contract (2026-10-29)
 - Update the popup-position regression to assert the current wide-coordinate
   implementation rather than removed narrow arithmetic.
 - Add a focused contract check and documentation.
+
+Source-contract refreshes (2026-10-29)
+======================================
+
+- Align AutoSuggestBox callback and Calendar text-metric checks with their
+  current guarded and wide-arithmetic implementations.
+- Document the maintenance-only test updates.
