@@ -10,4 +10,9 @@ region = source[start:end]
 assert "SIZE_MAX / sizeof(XmRendition)" in region
 assert "UINT_MAX / sizeof(XmRendition)" in region
 assert "XtRealloc" in region
+cache_start = source.index("static XftColor\nGetCachedXftColor")
+cache_end = source.index("#endif", cache_start)
+cache_region = source[cache_start:cache_end]
+assert "SIZE_MAX / sizeof(XftColor)" in cache_region
+assert "UINT_MAX / sizeof(XftColor)" in cache_region
 print("PASS XmRenderTable growth respects Xt allocation width")

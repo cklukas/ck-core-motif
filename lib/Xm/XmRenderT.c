@@ -3783,6 +3783,12 @@ GetCachedXftColor(Display *display, Pixel color)
     xftcol.color.green = xcol.green;
     xftcol.color.alpha = 0xFFFF;
 
+    if (colors_count == INT_MAX ||
+        (size_t)(colors_count + 1) > SIZE_MAX / sizeof(XftColor) ||
+        (size_t)(colors_count + 1) >
+            (size_t)UINT_MAX / sizeof(XftColor))
+      return xftcol;
+
     color_cache = (XftColor *) XtRealloc((char *) color_cache,
       (Cardinal) (sizeof(XftColor) * (colors_count + 1)));
     if (color_cache != NULL)
