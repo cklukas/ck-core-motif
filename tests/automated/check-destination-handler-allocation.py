@@ -9,7 +9,7 @@ region = source[start:end]
 
 assert "if (cbstruct == NULL)" in region
 assert "if (cbstruct -> transfer_id == NULL)" in region
-assert "if (ds == NULL)" in region
+assert "if (ds == NULL || ds -> dragContext == NULL)" in region
 assert "if (malloc_ds == NULL)" in region
 assert "FreeTransferID((XtPointer)tc);" in region
 
