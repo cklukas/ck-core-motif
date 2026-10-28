@@ -9,7 +9,7 @@ assert "int icon_x;" in source
 assert "icon_x = (int) ig->rectangle.width -" in source
 assert "(int) large_icon_x -" in source
 assert "(int) small_icon_x -" in source
-assert "small_icon_x = (Position) icon_x;" in source
-assert "large_icon_x = (Position) icon_x;" in source
+assert source.count("large_icon_x = bounded_position((long long)icon_x);") == 2
+assert source.count("small_icon_x = bounded_position((long long)icon_x);") == 2
 
 print("IconG RTL render placement is signed")
