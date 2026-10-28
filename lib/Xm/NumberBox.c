@@ -282,6 +282,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
     XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
     char input[8]; KeySym symbol; int length;
     (void)data; (void)dispatch;
+    if (widget == NULL || event == NULL || !XmIsNumberBox(widget)) return;
     if (event->type == ButtonPress) {
         XButtonEvent *button = &event->xbutton;
         if (button->x >= (int)number->core.width - 24)
