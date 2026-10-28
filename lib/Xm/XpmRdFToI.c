@@ -147,6 +147,7 @@ xpmPipeThrough(
 {
     FILE* fp;
     int status, fds[2], in = 0, out = 1;
+    pid_t waited;
     pid_t pid;
     if ( 'w' == *mode )
 	out = 0, in = 1;
@@ -179,8 +180,11 @@ xpmPipeThrough(
     }
     close(fds[out]);
     /* calling process: wait for first child */
-    while ( waitpid(pid, &status, 0) < 0 && EINTR == errno )
-	;
+    do {
+	waited = waitpid(pid, &status, 0);
+    } while ( waited < 0 && EINTR == errno );
+    if ( waited < 0 )
+	goto fail2;
     if ( WIFSIGNALED(status) ||
 	 (WIFEXITED(status) && WEXITSTATUS(status) != 0) )
 	goto fail2;

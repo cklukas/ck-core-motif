@@ -1,3 +1,10 @@
+Validate XPM z-pipe wait failures (2026-10-29)
+===============================================
+
+- Check `waitpid` results before inspecting child status in compressed-file
+  reader setup.
+- Add focused coverage and documentation.
+
 Bound XPM compressed-file fallback names (2026-10-29)
 =======================================================
 
