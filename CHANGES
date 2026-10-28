@@ -41,6 +41,13 @@ Guard wide Text modify-verify payloads (2026-10-29)
   replace the wide text block with a null structure.
 - Preserve valid wide callback edits and extend the focused coverage.
 
+Guard Text modify-verify inputs (2026-10-29)
+============================================
+
+- Validate the bridge's widget, range, block, source, and output pointers
+  before dereferencing them.
+- Preserve valid verification callbacks and extend the focused input checks.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

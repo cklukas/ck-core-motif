@@ -933,14 +933,21 @@ _XmTextModifyVerify(XmTextWidget initiator,
 		    XmTextBlock newblock,	/* RETURN */
 		    Boolean *freeBlock)
 {
-  register XmSourceData data = initiator->text.source->data;
+  register XmSourceData data;
   register long delta;
   register int block_num_chars;  /* number of characters in the block */
-  XmTextPosition newInsert = initiator->text.cursor_position;
+  XmTextPosition newInsert;
   XmTextVerifyCallbackStruct tvcb;
   XmTextVerifyCallbackStructWcs wcs_tvcb;
   XmTextBlockRecWcs wcs_newblock;
   
+  if (freeBlock == NULL || initiator == NULL || start == NULL || end == NULL ||
+      block == NULL || newblock == NULL || initiator->text.source == NULL ||
+      initiator->text.source->data == NULL)
+    return False;
+
+  data = initiator->text.source->data;
+  newInsert = initiator->text.cursor_position;
   *freeBlock = False;
   
   if (*start == *end && block->length == 0) return False;

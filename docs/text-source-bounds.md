@@ -28,3 +28,7 @@ copying; valid edits are unchanged.
 The wide-character modify-verify path applies the same validation before
 `mbstowcs`/`wcstombs` conversion and rejects a null callback replacement.  This
 keeps malformed client callback data from becoming a conversion crash.
+
+The bridge also rejects incomplete caller state (widget, source, range, block,
+or output pointers) before accessing it.  Existing valid verification calls are
+unchanged.
