@@ -26816,3 +26816,8 @@ Prepare PrintShell callback state before forking (2026-10-28)
   PrintShell child, so callback allocation failure cannot leave a live child
   behind after `XmPrintToFile` returns failure.
 - Release the callback and remove the output file on fork failure.
+Release clipboard window trees with Xlib ownership (2026-10-28)
+===============================================================
+
+- Correct the recursive clipboard window search to release `XQueryTree`
+  child lists with `XFree` instead of the incompatible Xt allocator.

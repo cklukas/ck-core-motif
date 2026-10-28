@@ -3316,7 +3316,7 @@ ClipboardSearchForWindow(
 	windowptr = windowptr + 1;
     }
 
-    XtFree( (char*)children );
+    XFree( (char*)children );
 
     return found;
 }
