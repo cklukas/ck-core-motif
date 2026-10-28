@@ -2996,15 +2996,15 @@ static Cardinal
 remove_ref(XmImRefInfo refs,
 	   Widget      widget)
 {
-	int index;
+	Cardinal index;
 
 	if (refs == NULL || refs->num_refs == 0)
 	  return 0;
 
-	for (index = 0; index < (int)refs->num_refs; index++)
+	for (index = 0; index < refs->num_refs; index++)
 	  if (refs->refs[index] == widget)
 	    break;
-	if (index == (int)refs->num_refs)
+	if (index == refs->num_refs)
 	  return refs->num_refs;
 
   /* Is this the last reference? */
@@ -3021,7 +3021,9 @@ remove_ref(XmImRefInfo refs,
       }
       
       /* Free some storage from the array? */
-      if ((refs->num_refs * 3 < refs->max_refs) &&
+	  /* Avoid multiplying a potentially large Cardinal: 3*n < max is
+	   * equivalent to n <= (max - 1) / 3. */
+	  if (refs->num_refs <= (refs->max_refs - 1) / 3 &&
 	  (refs->max_refs >= 20))
 	{
 	  Cardinal new_max = refs->max_refs / 2;
