@@ -24002,3 +24002,14 @@ Regression: tests/automated/check-dragicc-wire-widths.py
 
 Make Drag ICC reason-table widths explicit (2026-10-28)
 ========================================================
+Preserve Drag ICC 16-bit swap representations (2026-10-28)
+============================================================
+
+- Swap 16-bit protocol bytes through object representation for signed and
+  unsigned ICC fields alike.
+- Remove type-dependent unsigned bit-field assignments from the macro.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-dragicc-swap16.py
+
+Make Drag ICC wire widths explicit (2026-10-28)
+================================================

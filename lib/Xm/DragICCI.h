@@ -26,6 +26,7 @@
 #include <Xm/XmP.h>
 #include <Xm/Display.h>
 #include <X11/Xmd.h>
+#include <string.h>
 #include "DragCI.h"
 #include "DropSMgrI.h"
 
@@ -59,13 +60,13 @@ extern "C" {
 }
 
 #define swap2bytes(s) {\
-	struct {\
-	  unsigned t :16;\
-	} bit16;\
-        char n, *tp = (char *) &bit16;\
-	bit16.t = s;\
-	n = tp[0]; tp[0] = tp[1]; tp[1] = n;\
-        s = bit16.t;\
+	unsigned char swap_bytes[2];\
+	unsigned char swap_byte;\
+	memcpy(swap_bytes, &(s), sizeof(swap_bytes));\
+	swap_byte = swap_bytes[0];\
+	swap_bytes[0] = swap_bytes[1];\
+	swap_bytes[1] = swap_byte;\
+	memcpy(&(s), swap_bytes, sizeof(swap_bytes));\
 }
 
 
