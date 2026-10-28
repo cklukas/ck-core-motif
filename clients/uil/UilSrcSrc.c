@@ -841,9 +841,11 @@ get_line( uil_fcb_type *az_fcb )
 
     if (az_fcb->v_position_before_get)
     {
-	fseek( az_fcb->az_file_ptr,
-	       az_fcb->last_key.l_key,
-	       0 );
+	    if (az_fcb->last_key.l_key > (unsigned long)LONG_MAX ||
+		fseek( az_fcb->az_file_ptr,
+		       (long)az_fcb->last_key.l_key,
+		       0 ) != 0)
+		return src_k_read_error;
 	l_read_status = (status) (fgets(az_fcb->c_buffer, 
 					src_k_max_source_line_length, 
 					az_fcb->az_file_ptr) != NULL);
@@ -852,7 +854,12 @@ get_line( uil_fcb_type *az_fcb )
 
     /* get the current offset */
 
-    az_fcb->last_key.l_key = ftell(az_fcb->az_file_ptr);
+	{
+	    long file_position = ftell(az_fcb->az_file_ptr);
+	    if (file_position < 0)
+		return src_k_read_error;
+	    az_fcb->last_key.l_key = (unsigned long)file_position;
+	}
     
     /* read the next line */
 
@@ -945,9 +952,11 @@ reget_line( uil_fcb_type  *az_fcb,
     status	l_read_status;
     char	*c_new_line;
 
-    fseek( az_fcb->az_file_ptr,
-	   z_access_key->l_key,
-	   0 );
+    if (z_access_key->l_key > (unsigned long)LONG_MAX ||
+	fseek( az_fcb->az_file_ptr,
+	       (long)z_access_key->l_key,
+	       0 ) != 0)
+	return FALSE;
 
     l_read_status = (status) (fgets(c_buffer, 
 				    src_k_max_source_line_length, 

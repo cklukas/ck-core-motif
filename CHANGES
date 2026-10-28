@@ -19,6 +19,13 @@ Clarify UIL include-path widths (2026-10-29)
 - Reuse the shared main-directory length and make include-loop and bounded
   filename-length conversions explicit.
 
+Validate UIL source file offsets (2026-10-29)
+=============================================
+
+- Reject file positions that cannot be represented by the `fseek` signed
+  offset and propagate `ftell`/`fseek` failures instead of storing wrapped
+  unsigned keys.
+
 Bound UIL string concatenation lengths (2026-10-28)
 ===================================================
 
