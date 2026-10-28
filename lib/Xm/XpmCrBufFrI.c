@@ -235,7 +235,7 @@ XpmCreateBufferFromXpmImage(
      * 4 = 1 (for '"') + 3 (for '",\n')
      * 1 = - 2 (because the last line does not end with ',\n') + 3 (for '};\n')
      */
-     if(image->width  > UINT_MAX / image->cpp ||
+     if(image->cpp == 0 || image->width > UINT_MAX / image->cpp ||
        (tmp = image->width * image->cpp + 4) <= 4 ||
         image->height > UINT_MAX / tmp ||
        (tmp = image->height * tmp + 1) <= 1 ||

@@ -24585,3 +24585,9 @@ Preserve UIL unknown-entry dump pointer width (2026-10-29)
 - Print fallback symbol-entry pointers with `%p` instead of truncating them
   through a 32-bit hexadecimal conversion.
 - Add focused coverage and documentation.
+
+Guard XPM buffer serialization against zero `cpp` (2026-10-29)
+===============================================================
+
+- Reject zero chars-per-pixel before the existing width-overflow division.
+- Add focused coverage and documentation.
