@@ -856,6 +856,9 @@ _XmDataFieldConvert(
          req_event = XtGetSelectionRequest((Widget) tf, *selection, NULL);
       }
 
+      if (req_event == NULL)
+         return False;
+
       left = XmTextF_prim_pos_left(tf);
       right = XmTextF_prim_pos_right(tf);
 

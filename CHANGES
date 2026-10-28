@@ -23361,6 +23361,15 @@ Guard insert-selection request lookup (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-insert-selection-request-guard.py
 
+Guard data-field delete request lookup (2026-10-28)
+======================================================
+
+- Return cleanly when the data-field `DELETE` conversion has no active
+  selection request event.
+- Preserve primary-selection and drop replacement behavior for valid events.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-delete-selection-request-guard.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
