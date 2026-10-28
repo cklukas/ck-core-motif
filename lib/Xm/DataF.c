@@ -7368,7 +7368,7 @@ df_DoStuff(
     Boolean replace_res = False;
     XTextProperty tmp_prop;
     int i, status;
-    int malloc_size;
+    size_t malloc_size;
     int num_vals;
     char **tmp_value;
     XmAnyCallbackStruct cb;
@@ -7448,9 +7448,22 @@ df_DoStuff(
 	     if (XmTextF_max_char_size(tf) == 1){
 		char * total_tmp_value;
 
-		for (i = 0, malloc_size = 1; i < num_vals ; i++)
-		   malloc_size += strlen(tmp_value[i]);
-		prim_select->num_chars = malloc_size - 1;
+		malloc_size = 1;
+		for (i = 0; i < num_vals ; i++) {
+		   size_t piece_len = strlen(tmp_value[i]);
+		   if (piece_len > SIZE_MAX - malloc_size ||
+		       malloc_size + piece_len > (size_t)INT_MAX + 1U) {
+		      XFreeStringList(tmp_value);
+		      if (XmTextF_selection_move(tf) && local)
+			 XmTextF_max_length(tf) = max_length;
+		      XtFree((char *)value);
+		      if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0)
+			 XtFree((char *)prim_select);
+		      return;
+		   }
+		   malloc_size += piece_len;
+		}
+		prim_select->num_chars = (int)(malloc_size - 1);
 		total_tmp_value = XtMalloc ((unsigned) malloc_size);
 		if (total_tmp_value == NULL) {
 		   XFreeStringList(tmp_value);
@@ -7476,8 +7489,29 @@ df_DoStuff(
 		wchar_t * wc_value;
 
 		prim_select->num_chars = 0;
-		for (i = 0, malloc_size = sizeof(wchar_t); i < num_vals ; i++)
-		   malloc_size += strlen(tmp_value[i]) * sizeof(wchar_t);
+		malloc_size = sizeof(wchar_t);
+		for (i = 0; i < num_vals ; i++) {
+		   size_t piece_len = strlen(tmp_value[i]);
+		   if (piece_len > (SIZE_MAX - malloc_size) / sizeof(wchar_t)) {
+		      XFreeStringList(tmp_value);
+		      if (XmTextF_selection_move(tf) && local)
+			 XmTextF_max_length(tf) = max_length;
+		      XtFree((char *)value);
+		      if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0)
+			 XtFree((char *)prim_select);
+		      return;
+		   }
+		   malloc_size += piece_len * sizeof(wchar_t);
+		}
+		if (malloc_size > UINT_MAX) {
+		   XFreeStringList(tmp_value);
+		   if (XmTextF_selection_move(tf) && local)
+		      XmTextF_max_length(tf) = max_length;
+		   XtFree((char *)value);
+		   if (prim_select->ref_count <= 0 || --prim_select->ref_count == 0)
+		      XtFree((char *)prim_select);
+		   return;
+		}
 		wc_value = (wchar_t*)XtMalloc ((unsigned) malloc_size);
 		if (wc_value == NULL) {
 		   XFreeStringList(tmp_value);

@@ -17,6 +17,10 @@ assert "format == NULL" in body
 assert "*length != 0 && value == NULL" in body
 assert "*format != 8" in body
 assert "*length != 0 && *type == NULL_ATOM" in body
+assert "size_t malloc_size;" in body
+assert "piece_len > SIZE_MAX - malloc_size" in body
+assert "piece_len > (SIZE_MAX - malloc_size) / sizeof(wchar_t)" in body
+assert "malloc_size > UINT_MAX" in body
 assert body.index("if (w == NULL") < body.index("XtDisplay(w)")
 assert "prim_select->ref_count <= 0" in body
 assert "--prim_select->ref_count" in body

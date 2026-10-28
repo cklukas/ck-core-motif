@@ -5,6 +5,8 @@ Guard DataField selection callback inputs (2026-10-29)
 - Release malformed payloads and balance the pending selection reference on
   rejected callbacks, with focused regression coverage.
 - Reject non-empty replies tagged with the delete/NULL target atom.
+- Use checked `size_t` accumulation for multivalued narrow and wide text
+  conversion before allocation and length assignment.
 
 Guard DataField target callback inputs (2026-10-29)
 ======================================================
