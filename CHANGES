@@ -24183,3 +24183,11 @@ Make UIL parser frame-flag width explicit (2026-10-28)
 - Add focused coverage and documentation.
 
 Make UIL enumeration-code width explicit (2026-10-28)
+Bound UIL table counts (2026-10-28)
+===================================
+
+- Reject semantic tables that cannot fit their value-entry 8-bit count before
+  narrowing, and make related value/frame widths explicit.
+- Add focused coverage and documentation.
+
+Make UIL parser frame-flag width explicit (2026-10-28)

@@ -595,8 +595,8 @@ int	    arg_type;
 	/* Save the arg_type. This value should be zero for all cases above,
 	   except when the integer or float has units specified. In that case,
 	   the arg_type is used to store the type of units specified. */
-	value_entry->b_arg_type = arg_type;
-	value_entry->b_type = value_type;
+	value_entry->b_arg_type = (unsigned char)arg_type;
+	value_entry->b_type = (unsigned char)value_type;
 	break;
 
     case sym_k_font_value:
@@ -635,12 +635,12 @@ int	    arg_type;
 	            value_entry->az_exp_op1 = value_save;
 		}
 
-	    value_entry->b_type = value_type;
+	    value_entry->b_type = (unsigned char)value_type;
 	    value_entry->obj_header.b_flags = sym_m_private;
 
 	    /* save the arg type for arguments */
 	    if (value_type == sym_k_argument_value) 
-		value_entry->b_arg_type = arg_type;
+		value_entry->b_arg_type = (unsigned char)arg_type;
 	    }
 	
 	break;
@@ -685,7 +685,11 @@ int	    arg_type;
 	     count++) {
 	}
 
-	value_entry->b_table_count = count;
+	if (count > UCHAR_MAX) {
+	    XtError("UIL table has too many entries");
+	    return;
+	}
+	value_entry->b_table_count = (unsigned char)count;
 
 	break;
 
@@ -701,8 +705,9 @@ int	    arg_type;
 
     _sar_move_source_info( value_frame, keyword_frame );
     value_frame->b_tag = sar_k_value_frame;
-    value_frame->b_type = value_type;
-    value_frame->b_flags = value_entry->obj_header.b_flags;
+    value_frame->b_type = (unsigned char)value_type;
+    value_frame->b_flags =
+	(unsigned short)value_entry->obj_header.b_flags;
     value_frame->value.az_symbol_entry = (sym_entry_type *) value_entry;
 
 }
