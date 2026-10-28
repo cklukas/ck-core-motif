@@ -2165,8 +2165,10 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
   Boolean value_delivered = False;
 
   if (wid == NULL || tc == NULL || selection == NULL || type == NULL ||
-      length == NULL || format == NULL)
+      length == NULL || format == NULL) {
+    XtFree((char *)value);
     return;
+  }
   tb = tc -> requests;
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
@@ -2175,12 +2177,15 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
   /* Get the real widget if this is a drop transfer */
   if (tc -> selection == atoms[XmA_MOTIF_DROP])
     {
-      if (tc -> widget == NULL)
+	if (tc -> widget == NULL) {
+	  XtFree((char *)value);
 	return;
+	}
       wid = tc -> widget;
     }
 
   if (tc -> outstanding == 0) {
+    XtFree((char *)value);
     XmeWarning(wid, BAD_SCB_MESSAGE);
     return;
   }

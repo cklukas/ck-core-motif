@@ -10,5 +10,9 @@ assert "wid == NULL" in region
 assert "tc == NULL" in region
 assert "selection == NULL" in region
 assert "length == NULL" in region
+guard = region[region.index("if (wid == NULL"):region.index("tb =", region.index("if (wid == NULL"))]
+assert "XtFree((char *)value);" in guard
+assert "tc -> widget == NULL" in region
+assert region.count("XtFree((char *)value);") >= 3
 assert "tb = tc -> requests" in region
 print("selection callbacks reject incomplete transfer state")

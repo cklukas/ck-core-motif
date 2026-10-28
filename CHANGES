@@ -1,3 +1,10 @@
+Release skipped selection callback payloads (2026-10-29)
+==========================================================
+
+- Release Xt-owned selection results on incomplete callback state, cleared
+  drop widgets, and already-finished transfer contexts.
+- Preserve normal callback delivery and add focused early-exit coverage.
+
 Release rejected converter payloads (2026-10-29)
 =================================================
 
