@@ -1,3 +1,10 @@
+Preserve XPM hash metadata on growth failure (2026-10-29)
+==========================================================
+
+- Publish the expanded hash-table size and limit only after replacement
+  allocation succeeds, keeping the old table coherent on `XpmNoMemory`.
+- Add focused coverage and documentation.
+
 Bound XPM pixel temporary width (2026-10-29)
 =============================================
 

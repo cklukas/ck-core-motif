@@ -147,13 +147,13 @@ HashTableGrows(xpmHashTable *table)
 
     t = atomTable;
     HASH_TABLE_GROWS
-	table->size = size;
-    table->limit = size / 3;
     if (size >= UINT_MAX / sizeof(*atomTable))
 	return (XpmNoMemory);
     atomTable = (xpmHashAtom *) XpmMalloc(size * sizeof(*atomTable));
     if (!atomTable)
 	return (XpmNoMemory);
+    table->size = size;
+    table->limit = size / 3;
     table->atomTable = atomTable;
     for (p = atomTable + size; p > atomTable;)
 	*--p = NULL;
