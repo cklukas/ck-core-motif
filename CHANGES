@@ -1,3 +1,11 @@
+Propagate XPM create comment allocation failures (2026-10-29)
+===============================================================
+
+- Check all returned-comment allocations in the image-create parser and route
+  `XpmNoMemory` through its cleanup path instead of silently dropping a
+  comment.
+- Extend focused coverage and documentation to both XPM parsing paths.
+
 Propagate XPM comment allocation failures (2026-10-29)
 ========================================================
 

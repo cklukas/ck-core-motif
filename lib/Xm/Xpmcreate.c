@@ -2074,8 +2074,11 @@ xpmParseDataAndCreate(
     /*
      * store the hints comment line
      */
-    if (cmts)
-	xpmGetCmt(data, &hints_cmt);
+    if (cmts) {
+	ErrorStatus = xpmGetCmt(data, &hints_cmt);
+	if (ErrorStatus != XpmSuccess)
+	    RETURN(ErrorStatus);
+    }
 
     /*
      * init the hashtable
@@ -2096,8 +2099,11 @@ xpmParseDataAndCreate(
     /*
      * store the colors comment line
      */
-    if (cmts)
-	xpmGetCmt(data, &colors_cmt);
+    if (cmts) {
+	ErrorStatus = xpmGetCmt(data, &colors_cmt);
+	if (ErrorStatus != XpmSuccess)
+	    RETURN(ErrorStatus);
+    }
 
     /* malloc pixels index tables */
     if (ncolors >= UINT_MAX / sizeof(Pixel))
@@ -2220,8 +2226,11 @@ xpmParseDataAndCreate(
     /*
      * store the pixels comment line
      */
-    if (cmts)
-	xpmGetCmt(data, &pixels_cmt);
+    if (cmts) {
+	ErrorStatus = xpmGetCmt(data, &pixels_cmt);
+	if (ErrorStatus != XpmSuccess)
+	    RETURN(ErrorStatus);
+    }
 
     /*
      * parse extensions
