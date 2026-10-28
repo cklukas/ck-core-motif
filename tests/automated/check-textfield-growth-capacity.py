@@ -7,6 +7,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "TextF.c").read_text()
 helper = source[source.index("TextFieldCheckedGrowth") : source.index("/********    End Static Function Declarations", source.index("TextFieldCheckedGrowth"))]
 assert "string_length < 0" in helper
 assert "current + inserted < replaced" in helper
+assert "result_length > (size_t)INT_MAX" in helper
 assert "SIZE_MAX / unit_size" in helper
 assert "target > UINT_MAX" in helper
 

@@ -26464,3 +26464,9 @@ Guard TextField byte initial-storage bounds (2026-10-29)
 
 - Validate the initial byte-string length before assigning the signed length
   field or narrowing the reserved allocation size.
+
+Bound TextField replacement length (2026-10-29)
+===============================================
+
+- Reject replacement results that cannot be represented by the widget's
+  signed character-length field before updating it.

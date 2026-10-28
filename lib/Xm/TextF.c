@@ -935,7 +935,7 @@ TextFieldCheckedGrowth(int string_length,
   if (current > SIZE_MAX - inserted || current + inserted < replaced)
     return False;
   result_length = current + inserted - replaced;
-  if (result_length == SIZE_MAX ||
+  if (result_length > (size_t)INT_MAX || result_length == SIZE_MAX ||
       result_length + 1 > SIZE_MAX / unit_size)
     return False;
   required = (result_length + 1) * unit_size;
