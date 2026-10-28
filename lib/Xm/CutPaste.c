@@ -1923,6 +1923,8 @@ ClipboardFindFormat(
     }
 
     if (queryitem->formatCount < 0 ||
+	queryitem->cancelledFormatCount < 0 ||
+	queryitem->cancelledFormatCount > queryitem->formatCount ||
 	queryitem->formatIdList > ULONG_MAX / CONVERT_32_FACTOR)
     {
 	XtFree((char *)queryitem);
@@ -1944,9 +1946,11 @@ ClipboardFindFormat(
 	return 0;
 	}
 
-    *count = queryitem->formatCount - queryitem->cancelledFormatCount;
-
-    if ( *count < 0 ) *count = 0;
+    {
+	long available_count = queryitem->formatCount -
+	    queryitem->cancelledFormatCount;
+	*count = available_count > INT_MAX ? INT_MAX : (int)available_count;
+    }
 
     /* point to the first format id in the list */
     idptr = (itemId*)((char*)queryitem + 

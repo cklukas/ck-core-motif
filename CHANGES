@@ -23655,6 +23655,14 @@ Preserve clipboard inquiry name-length width (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-inquire-count-length-width.py
 
+Bound clipboard format counts before legacy narrowing (2026-10-28)
+===================================================================
+
+- Reject negative or over-cancelled format counts in clipboard records.
+- Saturate wide counts at `INT_MAX` before returning through the legacy `int` API.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-format-count-bounds.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
