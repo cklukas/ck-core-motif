@@ -1513,6 +1513,14 @@ FinishTransfer(Widget wid, TransferContext tc)
 {
   XmTransferDoneCallbackStruct ts;
 
+  _XmProcessLock();
+  if (tc->flags & TC_FINISHED) {
+    _XmProcessUnlock();
+    return;
+  }
+  tc->flags |= TC_FINISHED;
+  _XmProcessUnlock();
+
   tc -> flags |= TC_FLUSHED;  /* Ignore any future requests */
   ts.reason = XmCR_OK;
   ts.event = (XEvent *) NULL;

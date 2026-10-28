@@ -82,7 +82,7 @@ typedef struct {
 
 enum{ TC_NONE = 0, TC_FLUSHED = 1, TC_CALLED_WIDGET = 2,
       TC_CALLED_CALLBACKS = 4, TC_EXITED_DH = 8, 
-      TC_DID_DELETE = 16, TC_IN_MULTIPLE = 32 };
+      TC_DID_DELETE = 16, TC_IN_MULTIPLE = 32, TC_FINISHED = 64 };
 
 /****************************************************************/
 /* The convertProc has a small context block which is           */
