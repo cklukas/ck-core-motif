@@ -14,6 +14,12 @@
 #include "PrimitiveI.h"
 #include "XmI.h"
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
@@ -94,7 +100,7 @@ static void Destroy(Widget widget) {
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmStepperWidget s = (XmStepperWidget)widget; Display *d = XtDisplay(widget); Window w = XtWindow(widget);
-    char text[32]; Position split;
+    char text[32]; int split;
     (void)event; (void)region;
     if (!w || !s->stepper.gc) return;
     XClearWindow(d, w);
@@ -106,7 +112,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             XmStringExtent(s->stepper.render_table, value,
                            &text_width, &text_height);
             XmStringDraw(d, w, s->stepper.render_table, value, s->stepper.gc,
-                         8, ((int)s->core.height - (int)text_height) / 2,
+                         bounded_position(8),
+                         bounded_position(((long long)s->core.height - text_height) / 2),
                          text_width, XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(s), NULL);
             XmStringFree(value);
@@ -128,9 +135,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                                &symbol_width, &symbol_height);
                 XmStringDraw(d, w, s->stepper.render_table, symbol,
                              s->stepper.gc,
-                             centers[i] - (int)symbol_width / 2,
-                             i * cell_height +
-                               (cell_height - (int)symbol_height) / 2,
+                             bounded_position((long long)centers[i] - symbol_width / 2),
+                             bounded_position((long long)i * cell_height +
+                                              (cell_height - (int)symbol_height) / 2),
                              symbol_width, XmALIGNMENT_BEGINNING,
                              XmPrim_layout_direction(s), NULL);
                 XmStringFree(symbol);
