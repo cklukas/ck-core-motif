@@ -1,3 +1,11 @@
+Guard DataField insertion callback inputs (2026-10-29)
+=======================================================
+
+- Reject incomplete DataField selection-insertion callback state before
+  dereferencing the closure or metadata pointers.
+- Release any Xt-owned result supplied with malformed state and add focused
+  regression coverage.
+
 Release skipped selection callback payloads (2026-10-29)
 ==========================================================
 

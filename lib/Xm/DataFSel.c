@@ -164,6 +164,12 @@ InsertSelection(
     int i, status = 0;
     XmAnyCallbackStruct cb;
 
+    if (w == NULL || insert_select == NULL || type == NULL ||
+        length == NULL || format == NULL) {
+       XtFree((char *)value);
+       return;
+    }
+
     if (!value) {
        insert_select->done_status = True;
        return;
