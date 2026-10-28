@@ -1026,10 +1026,13 @@ if (( expected_type == sym_k_keysym_value ) &&
  */
     if ( (argvalue_value_entry->obj_header.b_flags & sym_m_private) != 0)
 	{
-	char	   tmp;
+	unsigned char tmp;
 
+	if (argument_entry->az_arg_value->value.l_integer >= 0 &&
+	    argument_entry->az_arg_value->value.l_integer <= UCHAR_MAX)
+	    {
 	valid_value = TRUE;
-	tmp = argument_entry->az_arg_value->value.l_integer;
+	tmp = (unsigned char)argument_entry->az_arg_value->value.l_integer;
 	argument_entry->az_arg_value->value.c_value = (char *) XtCalloc(1,2);
 	/* 
 	 * This is a very strange move. While we Calloc 2 bytes we only need to move
@@ -1039,6 +1042,7 @@ if (( expected_type == sym_k_keysym_value ) &&
 	_move (argument_entry->az_arg_value->value.c_value, &tmp, 1);
 	argument_entry->az_arg_value->b_type = sym_k_keysym_value;
 	argument_entry->az_arg_value->w_length = 1;
+	    }
 	}
     }
 

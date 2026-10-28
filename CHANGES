@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Bound UIL integer-to-keysym conversion (2026-10-29)
+====================================================
+
+- Reject private integer values outside the one-byte keysym representation
+  instead of silently truncating them through a signed `char`.
+- Add focused coverage and documentation.
+
 Clarify UIL key-table scope (2026-10-29)
 ========================================
 
