@@ -1253,7 +1253,7 @@ _XmWriteDSToStream(
     dsHeader.flags |= PUT_MULTIOPS(dropSiteInfo->header.operations);
     dsHeader.flags |= PUT_ANIMATION_STYLE(dropSiteInfo->header.animationStyle);
     dsHeader.import_targets_id = dropSiteInfo->header.importTargetsID;
-    dsHeader.dsRegionNumBoxes =  region->numRects;
+    dsHeader.dsRegionNumBoxes = (CARD32)region->numRects;
     
     _XmWriteDragBuffer(propBuf, BUFFER_DATA, (BYTE*)&dsHeader,
 		       sizeof(xmDSHeaderStruct));
@@ -1271,12 +1271,12 @@ _XmWriteDSToStream(
                 dsHighlight.highlightThickness =
 		     info->animation_data.highlightThickness;
 
-                dsHighlight.background =
-		     info->animation_data.background;
-                dsHighlight.highlightColor =
-		     info->animation_data.highlightColor;
-                dsHighlight.highlightPixmap = 
-		     info->animation_data.highlightPixmap;
+		        dsHighlight.background =
+			     (CARD32)info->animation_data.background;
+		        dsHighlight.highlightColor =
+			     (CARD32)info->animation_data.highlightColor;
+		        dsHighlight.highlightPixmap =
+			     (CARD32)info->animation_data.highlightPixmap;
     
 		_XmWriteDragBuffer (propBuf, BUFFER_DATA,
 				    (BYTE*)&dsHighlight,
@@ -1298,16 +1298,16 @@ _XmWriteDSToStream(
                 dsShadow.shadowThickness =
 		     info->animation_data.shadowThickness;
 
-                dsShadow.foreground =
-		     info->animation_data.foreground;
-                dsShadow.topShadowColor =
-		     info->animation_data.topShadowColor;
-                dsShadow.bottomShadowColor =
-		     info->animation_data.bottomShadowColor;
-                dsShadow.topShadowPixmap = 
-		     info->animation_data.topShadowPixmap;
-                dsShadow.bottomShadowPixmap = 
-		     info->animation_data.bottomShadowPixmap;
+		        dsShadow.foreground =
+			     (CARD32)info->animation_data.foreground;
+		        dsShadow.topShadowColor =
+			     (CARD32)info->animation_data.topShadowColor;
+		        dsShadow.bottomShadowColor =
+			     (CARD32)info->animation_data.bottomShadowColor;
+		        dsShadow.topShadowPixmap =
+			     (CARD32)info->animation_data.topShadowPixmap;
+		        dsShadow.bottomShadowPixmap =
+			     (CARD32)info->animation_data.bottomShadowPixmap;
     
 		_XmWriteDragBuffer (propBuf, BUFFER_DATA,
 				    (BYTE*)&dsShadow,
@@ -1321,23 +1321,27 @@ _XmWriteDSToStream(
 		    (XmICCDropSitePixmap) dropSiteInfo;
 		xmDSPixmapDataStruct	dsPixmap;
 
+		if ((unsigned long)info->animation_data.animationPixmapDepth >
+		    UINT16_MAX)
+		    return;
+
                 dsPixmap.borderWidth =
 		     info->animation_data.borderWidth;
                 dsPixmap.highlightThickness =
 		     info->animation_data.highlightThickness;
                 dsPixmap.shadowThickness =
 		     info->animation_data.shadowThickness;
-                dsPixmap.animationPixmapDepth = 
-		     info->animation_data.animationPixmapDepth;
+		        dsPixmap.animationPixmapDepth =
+			     (CARD16)info->animation_data.animationPixmapDepth;
 
-                dsPixmap.foreground =
-		     info->animation_data.foreground;
-                dsPixmap.background =
-		     info->animation_data.background;
-                dsPixmap.animationPixmap = 
-		     info->animation_data.animationPixmap;
-                dsPixmap.animationMask = 
-		     info->animation_data.animationMask;
+		        dsPixmap.foreground =
+			     (CARD32)info->animation_data.foreground;
+		        dsPixmap.background =
+			     (CARD32)info->animation_data.background;
+		        dsPixmap.animationPixmap =
+			     (CARD32)info->animation_data.animationPixmap;
+		        dsPixmap.animationMask =
+			     (CARD32)info->animation_data.animationMask;
     
 		_XmWriteDragBuffer (propBuf, BUFFER_DATA,
 				    (BYTE*)&dsPixmap,

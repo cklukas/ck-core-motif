@@ -24034,3 +24034,13 @@ Regression: tests/automated/check-dragicc-property-length.py
 
 Bound Drag ICC initiator metadata (2026-10-28)
 ==============================================
+Bound Drag ICC receiver resource widths (2026-10-28)
+=====================================================
+
+- Serialize receiver resource IDs explicitly into 32-bit ICC fields.
+- Reject animation pixmap depths above the 16-bit wire range.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-dragicc-resource-widths.py
+
+Match Drag ICC property length to Xlib (2026-10-28)
+====================================================
