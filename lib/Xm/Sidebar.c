@@ -203,6 +203,8 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
 static void activate(Widget widget, XtPointer client, XtPointer call)
 {
     XmSidebarWidget sidebar = (XmSidebarWidget)client;
+    if (sidebar == NULL || !XmIsSidebar((Widget)sidebar))
+        return;
     XmSidebarToggle((Widget)sidebar,
                     call ? ((XmPushButtonCallbackStruct *)call)->event : NULL);
     (void)widget;
