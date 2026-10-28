@@ -23792,6 +23792,14 @@ Make clipboard callback-table sizes explicit (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-callback-table-width.py
 
+Validate clipboard start-copy IDs before serialization (2026-10-28)
+====================================================================
+
+- Reject nonpositive IDs from the internal allocator.
+- Convert validated label IDs explicitly into their serialized unsigned field.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-start-copy-id-bounds.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

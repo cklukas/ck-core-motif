@@ -3411,6 +3411,7 @@ XmClipboardStartCopy(
     ClipboardDataItem itemheader;
     unsigned long itemlength;
     itemId loc_itemid;
+    itemId label_itemid;
     int status;
     char *asn1string;
     int asn1strlen;
@@ -3456,7 +3457,7 @@ XmClipboardStartCopy(
 
     loc_itemid = ClipboardGetNewItemId( display ); 
 
-    if (loc_itemid == 0)
+    if (loc_itemid <= 0)
     {
 	XtFree( (char *)itemheader);
 	header->selectionTimestamp = previousTimestamp;
@@ -3473,9 +3474,9 @@ XmClipboardStartCopy(
     itemheader->recordType = XM_DATA_ITEM_RECORD_TYPE;
     itemheader->displayId = display;
     itemheader->windowId  = window;
-    itemheader->dataItemLabelId = ClipboardGetNewItemId( display ); 
+    label_itemid = ClipboardGetNewItemId( display );
 
-    if (itemheader->dataItemLabelId == 0)
+    if (label_itemid <= 0)
     {
 	XtFree( (char *)itemheader);
 	header->selectionTimestamp = previousTimestamp;
@@ -3485,6 +3486,7 @@ XmClipboardStartCopy(
 	_XmAppUnlock(app);
 	return ClipboardFail;
     }
+    itemheader->dataItemLabelId = (unsigned long)label_itemid;
     itemheader->formatIdList = itemlength / CONVERT_32_FACTOR; /* offset */
     itemheader->formatCount = 0;
     itemheader->cancelledFormatCount = 0;
