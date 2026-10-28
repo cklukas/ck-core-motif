@@ -15,4 +15,7 @@ before entering the ABI-sized `w_length` field so oversized values cannot
 silently wrap. Name-binding masks are widened explicitly before combining with
 the unsigned object flags field.
 
+Font-table growth is likewise bounded by the 8-bit table-count field before a
+new entry is linked.
+
 Regression: `tests/automated/check-uil-value-frame-narrowing.py`

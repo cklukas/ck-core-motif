@@ -14,6 +14,8 @@ Make UIL value-frame narrowing explicit (2026-10-28)
   make the unsigned name-binding mask explicit.
 - Keep validated value lengths explicit when passing them to size-based copy
   operations.
+- Bound font-table growth by the 8-bit table-count field before narrowing the
+  count, and make font compact-field assignments explicit.
 
 Bound UIL include filename metadata (2026-10-28)
 =================================================

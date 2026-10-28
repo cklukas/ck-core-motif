@@ -2633,13 +2633,13 @@ yystype	    *keyword_frame;
 	         last_font_item->az_next_table_value)
 	    count++;
 
-	if (count >= sym_k_max_list_count)
+	if (count >= UCHAR_MAX || count >= sym_k_max_list_count)
 	   diag_issue_diagnostic
 		(d_too_many,
 		 _sar_source_position( font_frame ),
 		 diag_value_text( sym_k_font_value ),
 		 diag_value_text( sym_k_font_table_value ),
-		 sym_k_max_list_count );
+		 (count >= UCHAR_MAX) ? UCHAR_MAX : sym_k_max_list_count );
 	else
 	  {
 	    /*
@@ -2659,7 +2659,7 @@ yystype	    *keyword_frame;
 	      }
 
 	    last_font_item->az_next_table_value = font_item;
-	    font_table_entry->b_table_count = count + 1;
+	    font_table_entry->b_table_count = (unsigned char)(count + 1);
 	}
 	break;
     }
@@ -2777,8 +2777,8 @@ yystype	    *font_frame;
 
 	    keyword_entry = (key_keytable_entry_type *)
 				charset_frame->value.az_keyword_entry;
-	    font_value_entry->b_charset = 
-		sem_map_subclass_to_charset( keyword_entry->b_subclass );
+		font_value_entry->b_charset = (unsigned char)
+		    sem_map_subclass_to_charset( keyword_entry->b_subclass );
 	    break;
 	    }
 	}
@@ -2806,7 +2806,7 @@ yystype	    *font_frame;
 
     _sar_move_source_info( target_frame, font_frame );
     target_frame->b_tag = sar_k_value_frame;
-    target_frame->b_type = item_type;
+	    target_frame->b_type = (unsigned char)item_type;
     target_frame->b_flags = sym_m_private;
     target_frame->value.az_symbol_entry =
 		(sym_entry_type *) font_value_entry;
@@ -2902,8 +2902,8 @@ yystype	    *keyword_frame;
 
 	    keyword_entry = (key_keytable_entry_type *)
 		charset_frame->value.az_keyword_entry;
-	    font_value_entry->b_charset = 
-		sem_map_subclass_to_charset( keyword_entry->b_subclass );
+		font_value_entry->b_charset = (unsigned char)
+		    sem_map_subclass_to_charset( keyword_entry->b_subclass );
 	    break;
 	    }
 
@@ -3015,8 +3015,8 @@ yystype	    *keyword_frame;
 
 	    keyword_entry = (key_keytable_entry_type *)
 		charset_frame->value.az_keyword_entry;
-	    font_value_entry->b_charset = 
-		sem_map_subclass_to_charset( keyword_entry->b_subclass );
+		font_value_entry->b_charset = (unsigned char)
+		    sem_map_subclass_to_charset( keyword_entry->b_subclass );
 	    break;
 	    }
 
