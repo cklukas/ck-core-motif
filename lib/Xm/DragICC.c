@@ -839,7 +839,7 @@ _XmReadInitiatorInfo(
 			     &bytesafter,
 			     (unsigned char **) &info) == Success)
       {
-	if ((type == initiatorAtom) && (format == 8) &&
+	if (info != NULL && (type == initiatorAtom) && (format == 8) &&
 	    (bytesafter == 0) &&
 	    (lengthRtn >= sizeof(xmDragInitiatorInfoStruct)))
 	  {
@@ -904,7 +904,7 @@ _XmGetDragReceiverInfo(
 			    &bytesafter,
 			    (unsigned char **) &iccInfo) == Success)
 	  {
-	if ((type == drag_hints_atom) && (format == 8) &&
+	if (iccInfo != NULL && (type == drag_hints_atom) && (format == 8) &&
 	    (bytesafter == 0) &&
 	    (lengthRtn >= sizeof(xmDragReceiverInfoStruct))) {
 	  if (iccInfo->protocol_version != _MOTIF_DRAG_PROTOCOL_VERSION)

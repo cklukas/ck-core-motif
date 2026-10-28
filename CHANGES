@@ -23370,6 +23370,15 @@ Guard data-field delete request lookup (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-delete-selection-request-guard.py
 
+Validate ICC drag property pointers (2026-10-28)
+===================================================
+
+- Require non-null Xlib buffers before reading drag initiator or receiver
+  property structures.
+- Preserve existing serialized-property validation and cleanup behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-drag-icc-property-pointer.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
