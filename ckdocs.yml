@@ -62,6 +62,7 @@ nav:
       - docs/disclosure.md
   - title: Reference
     pages:
+      - docs/encoding-registry-length-output.md
       - docs/provenance-check-invocation.md
       - docs/color-object-property-format.md
       - docs/container-cells-allocation.md

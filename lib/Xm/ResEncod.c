@@ -641,6 +641,9 @@ _XmGetEncodingRegistryTarget(int *length)
   size_t i, count, total_size, tag_size, encoding_size;
   SegmentEncoding *current;
   char *rval;
+
+  if (length == NULL)
+    return NULL;
   
   total_size = 0;
   *length = 0;

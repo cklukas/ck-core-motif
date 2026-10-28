@@ -1,3 +1,10 @@
+Guard null encoding-registry length outputs (2026-10-29)
+==========================================================
+
+- Reject a missing output-length pointer before encoding-registry assembly
+  dereferences it.
+- Preserve valid registry conversion and add focused input coverage.
+
 Make standalone provenance checks safe to invoke (2026-10-29)
 ==============================================================
 
