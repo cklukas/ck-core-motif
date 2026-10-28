@@ -26379,3 +26379,10 @@ Guard UIL nested-list allocations (2026-10-29)
 - Check both nested-list wrapper allocations before initialization or
   forward-reference patching.
 - Leave the list unchanged when a wrapper cannot be allocated.
+
+Guard UIL argument-entry allocation (2026-10-29)
+=================================================
+
+- Check argument-pair nodes before forward-reference patching or frame
+  publication.
+- Return safely when argument bookkeeping cannot be allocated.

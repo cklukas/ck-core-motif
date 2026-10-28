@@ -1571,6 +1571,8 @@ yystype		* equals_frame;
 
     arg_entry = (sym_argument_entry_type *) sem_allocate_node (
 			sym_k_argument_entry, sym_k_argument_entry_size);
+    if (arg_entry == NULL)
+	return;
 
     /*
     ** If the argument is a forward reference, we'll patch in the
