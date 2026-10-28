@@ -27402,6 +27402,12 @@ Guard DatePicker calendar callbacks (2026-10-29)
 - Validate the picker closure and calendar widget before accepting date-change
   notifications, preventing foreign or stale callback inputs from being used.
 
+Guard RowActions activation callbacks (2026-10-29)
+==================================================
+
+- Validate the callback closure’s widget class before walking action storage,
+  preventing foreign or stale callback data from being used.
+
 Guard EmptyState action callbacks (2026-10-29)
 ==============================================
 

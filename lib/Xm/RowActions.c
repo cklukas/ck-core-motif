@@ -177,6 +177,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended,
 static void activate(Widget button, XtPointer client, XtPointer call) {
     XmRowActionsWidget actions = (XmRowActionsWidget)client; Cardinal i;
     XmRowActionsCallbackStruct callback;
+    if (actions == NULL || !XmIsRowActions((Widget)actions)) return;
     for (i = 0; i < actions->actions.item_count; ++i)
         if (actions->actions.items[i].button == button) {
             callback.reason = XmROW_ACTIONS_REASON_INVOKED;
