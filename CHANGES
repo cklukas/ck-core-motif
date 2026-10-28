@@ -26476,3 +26476,9 @@ Reject invalid scaled-pixmap depth (2026-10-29)
 
 - Return `XmUNSPECIFIED_PIXMAP` for depth zero before attempting image or
   X11 resource creation.
+
+Bound DataField replacement length (2026-10-29)
+================================================
+
+- Reject replacement results above the signed `string_length` range before
+  publishing the updated DataField length.

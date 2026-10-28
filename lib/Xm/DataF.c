@@ -4135,6 +4135,8 @@ _XmDataFieldReplaceText(
     return False;
   required_chars = (size_t)XmTextF_string_length(tf) +
       (size_t)insert_length - (size_t)replace_length;
+  if (required_chars > (size_t)INT_MAX)
+    return False;
   if (XmTextF_max_char_size(tf) == 1){
   if (XmTextF_size_allocd(tf) < 0 ||
       required_chars >= (size_t)XmTextF_size_allocd(tf))
