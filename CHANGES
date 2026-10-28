@@ -28020,3 +28020,10 @@ XmString length bounds (2026-10-29)
 - Clamp the unsigned compound-string byte length before returning it through
   the public signed-`int` `XmStringLength()` API.
 - Add focused source-contract coverage and documentation.
+
+XmStringNConcat copy-limit bounds (2026-10-29)
+===============================================
+
+- Reject negative or overflowing signed copy limits before concatenating
+  legacy compound strings.
+- Add focused source-contract coverage and documentation.

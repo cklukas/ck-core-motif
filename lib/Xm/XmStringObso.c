@@ -149,12 +149,19 @@ XmStringNConcat(XmString first,
 		int n )
 {
   XmString	tmp, ret_val;
-  
+  int first_length;
+
+  if (n < 0)
+    return (NULL);
+  first_length = XmStringLength(first);
+  if (n > INT_MAX - first_length)
+    return (NULL);
+
   tmp = XmStringConcat(first, second);
   if (tmp == NULL)
     return (NULL);
 
-  ret_val = XmStringNCopy(tmp, XmStringLength(first) + n);
+  ret_val = XmStringNCopy(tmp, first_length + n);
   
   XmStringFree(tmp);
   
