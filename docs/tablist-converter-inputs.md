@@ -4,7 +4,9 @@ nav_exclude: true
 
 # Tab-list converter validation and rollback
 
-The tab-list parser now validates its pointer inputs, and the converter treats
+The tab-list parser now validates its pointer inputs and uses checked finite
+`strtof` conversion for offsets, rejecting overflow and malformed units. The
+converter treats
 `XmTabListInsertTabs` allocation failure transactionally: the temporary tab and
 partial list are released and conversion returns `False`. Valid tab parsing
 and output negotiation remain unchanged.

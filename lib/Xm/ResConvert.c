@@ -43,6 +43,7 @@ static char rcsid[] = "$TOG: ResConvert.c /main/29 1999/05/18 19:19:39 mgreess $
 #include <stdio.h>
 #include <errno.h>
 #include <limits.h>
+#include <math.h>
 #include <stdint.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
@@ -3148,48 +3149,52 @@ GetNextTab(char **s,
 	   char *unitType,
 	   XmOffsetModel *offsetModel)
 {
-  int	ret_val;
-  char 	sign[2];
-  char	*tmp;
+	char *cursor;
+	char *end;
+	char *tmp;
+	size_t unit_length;
+	float parsed;
 
   if (s == NULL || *s == NULL || value == NULL || unitType == NULL ||
       offsetModel == NULL)
     return FALSE;
 
-  bzero(sign, sizeof(sign));
-  unitType[0] = '\0';
-  
-  if (sscanf(*s, " %2[+]", sign) == 1)
-    ret_val = sscanf(*s, " %2[+] %f %12[^ \t\r\n\v\f,] ",
-		     sign, value, unitType);
-  else ret_val = sscanf(*s, " %f %12[^ \t\r\n\v\f,] ",
-			value, unitType);
+	cursor = *s;
+	while (isspace((unsigned char)*cursor))
+	    ++cursor;
+	if (*cursor == '+') {
+	    *offsetModel = XmRELATIVE;
+	    ++cursor;
+	    while (isspace((unsigned char)*cursor))
+		++cursor;
+	} else {
+	    *offsetModel = XmABSOLUTE;
+	}
+	errno = 0;
+	parsed = strtof(cursor, &end);
+	if (errno == ERANGE || end == cursor || !isfinite(parsed))
+	    return FALSE;
+	*value = parsed;
+	while (isspace((unsigned char)*end))
+	    ++end;
+	unit_length = 0;
+	while (end[unit_length] != '\0' && end[unit_length] != ',' &&
+	       !isspace((unsigned char)end[unit_length]))
+	    ++unit_length;
+	if (unit_length == 0 || unit_length > 12)
+	    return FALSE;
+	memcpy(unitType, end, unit_length);
+	unitType[unit_length] = '\0';
+	end += unit_length;
+	while (isspace((unsigned char)*end))
+	    ++end;
+	if (*end != '\0' && *end != ',')
+	    return FALSE;
 
-  if (ret_val == EOF) return(FALSE);
-  
-  if (sign[1] != '\0')
-    {
-      /* Error message */
-      return(FALSE);
-    }
-  
-  switch (sign[0])
-    {
-    case '\0':
-      *offsetModel = XmABSOLUTE;
-      break;
-      
-    case '+':
-      *offsetModel = XmRELATIVE;
-      break;
-    }
-  
-  tmp = strpbrk(*s, ",");
-  
-  if (tmp == NULL) *s += strlen(*s);
-  else *s = (tmp + 1);
-
-  return(TRUE);
+	tmp = strpbrk(end, ",");
+	if (tmp == NULL) *s += strlen(*s);
+	else *s = (tmp + 1);
+	return TRUE;
 }
 
 
