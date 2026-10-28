@@ -27392,6 +27392,14 @@ Bound anchored popup position arithmetic (2026-10-29)
 - Clamp oversized results to the signed coordinate range so large displays and
   resource offsets cannot wrap popups to the opposite side of the screen.
 
+Bound ProgressRing drawing coordinates (2026-10-29)
+===================================================
+
+- Keep ring centers in signed arithmetic for X arc drawing and clamp text and
+  label positions before converting them to Motif `Position` coordinates.
+- Prevent large spacing or DPI-derived dimensions from wrapping the ring or
+  its labels to unrelated coordinates.
+
 Guard Sidebar keyboard dispatch (2026-10-29)
 ============================================
 

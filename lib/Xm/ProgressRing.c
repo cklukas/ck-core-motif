@@ -84,7 +84,16 @@ static Dimension bounded_dimension(unsigned long value) {
 static Position centered_offset(Dimension container, Dimension content) {
     /* Subtract in a signed type so an oversized label is not wrapped as an
      * unsigned Dimension before it is converted to an X coordinate. */
-    return (Position)(((int)container - (int)content) / 2);
+    long long offset = ((long long)container - (long long)content) / 2;
+    if (offset < SHRT_MIN) return SHRT_MIN;
+    if (offset > SHRT_MAX) return SHRT_MAX;
+    return (Position)offset;
+}
+
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return SHRT_MIN;
+    if (value > SHRT_MAX) return SHRT_MAX;
+    return (Position)value;
 }
 
 static void UpdateGCs(XmProgressRingWidget ring) {
@@ -181,7 +190,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
     Dimension label_width = 0, label_height = 0, diameter;
-    Position center_x, center_y;
+    int center_x, center_y;
     XmString text_string;
     char text[64];
     GC text_gc;
@@ -198,11 +207,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         ? ring->core.height - 2 * ring->progress_ring.spacing : 16;
     if (diameter > ring->core.width) diameter = ring->core.width;
     if (diameter < 16 && ring->core.width >= 16) diameter = 16;
-    center_x = (Position)(ring->progress_ring.spacing + diameter / 2);
-    center_y = (Position)(ring->core.height / 2);
+    center_x = (int)ring->progress_ring.spacing + (int)diameter / 2;
+    center_y = (int)ring->core.height / 2;
     XDrawArc(display, window, ring->progress_ring.track_gc,
-             center_x - (Position)diameter / 2,
-             center_y - (Position)diameter / 2, diameter, diameter, 0, 360 * 64);
+             center_x - (int)diameter / 2,
+             center_y - (int)diameter / 2, diameter, diameter, 0, 360 * 64);
     if (ring->progress_ring.indeterminate) {
         fill_angle = 120 * 64;
     } else if (ring->progress_ring.maximum == ring->progress_ring.minimum) {
@@ -217,8 +226,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     }
     if (fill_angle)
         XDrawArc(display, window, ring->progress_ring.fill_gc,
-                 center_x - (Position)diameter / 2,
-                 center_y - (Position)diameter / 2, diameter, diameter,
+                 center_x - (int)diameter / 2,
+                 center_y - (int)diameter / 2, diameter, diameter,
                  90 * 64, -fill_angle);
     text_gc = XtIsSensitive(widget) && ring->progress_ring.text_gc
         ? ring->progress_ring.text_gc : ring->progress_ring.track_gc;
@@ -240,8 +249,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             XmStringExtent(ring->progress_ring.font, text_string, &text_width,
                            &text_height);
             XmStringDraw(display, window, ring->progress_ring.font, text_string,
-                         text_gc, center_x - (Position)text_width / 2,
-                         center_y - (Position)text_height / 2, text_width,
+                         text_gc,
+                         bounded_position((long long)center_x -
+                                          (long long)text_width / 2),
+                         bounded_position((long long)center_y -
+                                          (long long)text_height / 2), text_width,
                          XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(ring), NULL);
             XmStringFree(text_string);
@@ -250,7 +262,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (ring->progress_ring.label && ring->progress_ring.font && label_width) {
         XmStringDraw(display, window, ring->progress_ring.font,
                      ring->progress_ring.label, text_gc,
-                     (Position)(ring->progress_ring.spacing + diameter + 8),
+                     bounded_position((long long)ring->progress_ring.spacing +
+                                      (long long)diameter + 8),
                      centered_offset(ring->core.height, label_height),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(ring), NULL);
