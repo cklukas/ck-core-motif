@@ -26802,3 +26802,10 @@ Report PrintShell child setup failures (2026-10-28)
   open the display, instead of exiting with no document status.
 - Remove partial output and report `XPGetDocError` when the status pipe is
   truncated or unavailable.
+Validate PrintShell output-file inputs (2026-10-28)
+===================================================
+
+- Reject null or empty output paths before calling `fopen` in
+  `XmPrintToFile`.
+- Remove the empty output file when `fork` fails, preserving the existing
+  failure return while avoiding stale artifacts.

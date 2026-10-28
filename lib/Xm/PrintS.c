@@ -852,6 +852,9 @@ XtEnum XmPrintToFile(Display *pdpy,
     String application_name, application_class, display_name;
     FILE *file;
     int filedes[2];
+
+    if (pdpy == NULL || file_name == NULL || *file_name == '\0')
+	return False;
     
     /* make sure we can open the file for writing */
     if ((file = fopen(file_name, "w")) == NULL) {
@@ -880,6 +883,7 @@ XtEnum XmPrintToFile(Display *pdpy,
     }
     else if (pid < 0) {
       fclose(file);
+      (void)remove(file_name);
       close(filedes[0]);
       close(filedes[1]);
       return False;
