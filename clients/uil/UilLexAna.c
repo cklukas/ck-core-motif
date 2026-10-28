@@ -1088,6 +1088,8 @@ continue_in_next_state:
 	    if (l_lex_pos > l_max_lex_buffer_pos )
 	    {
 		az_current_lex_buffer = get_lex_buffer( az_current_lex_buffer );
+		if (az_current_lex_buffer == NULL)
+		    return 0;
 	        l_lex_pos = 0;
 	    }
 	    az_current_lex_buffer->c_text[ l_lex_pos ] = c_char;
@@ -1174,6 +1176,8 @@ special_processing:
 	if (l_lex_pos > l_max_lex_buffer_pos )
 	{
 	    az_current_lex_buffer = get_lex_buffer( az_current_lex_buffer );
+	    if (az_current_lex_buffer == NULL)
+		return 0;
 	    l_lex_pos = 0;
 	}
 	az_current_lex_buffer->c_text[ l_lex_pos++ ] = l_bslash_value;
@@ -1190,6 +1194,8 @@ special_processing:
 	if (l_lex_pos > l_max_lex_buffer_pos )
 	{
 	    az_current_lex_buffer = get_lex_buffer( az_current_lex_buffer );
+	    if (az_current_lex_buffer == NULL)
+		return 0;
 	    l_lex_pos = 0;
 	}
 	az_current_lex_buffer->c_text[ l_lex_pos++ ] = 
@@ -1286,7 +1292,9 @@ found_16bit_char:
 
 	    if (l_lex_pos > l_max_lex_buffer_pos )
 	    {
-		az_current_lex_buffer = get_lex_buffer( az_current_lex_buffer );
+	    az_current_lex_buffer = get_lex_buffer( az_current_lex_buffer );
+	    if (az_current_lex_buffer == NULL)
+		return 0;
 		l_lex_pos = 0;
 	    }
 
@@ -1381,6 +1389,8 @@ found_localized_string:
 		  {
 		    az_current_lex_buffer = 
 		      get_lex_buffer( az_current_lex_buffer );
+		    if (az_current_lex_buffer == NULL)
+			return 0;
 		    l_lex_pos = 0;
 		  }
 		az_current_lex_buffer->c_text[ l_lex_pos++ ] = mb_byte;
@@ -1401,6 +1411,8 @@ found_localized_string:
 	  if (l_lex_pos > l_max_lex_buffer_pos )
 	    {
 	      az_current_lex_buffer = get_lex_buffer( az_current_lex_buffer );
+	      if (az_current_lex_buffer == NULL)
+		  return 0;
 	      l_lex_pos = 0;
 	    }
 
@@ -1409,6 +1421,8 @@ found_localized_string:
 	      if (l_lex_pos > l_max_lex_buffer_pos )
 		{
 		  az_current_lex_buffer = get_lex_buffer(az_current_lex_buffer);
+		  if (az_current_lex_buffer == NULL)
+		      return 0;
 		  l_lex_pos = 0;
 		}
 	      az_current_lex_buffer->c_text[l_lex_pos++] = 

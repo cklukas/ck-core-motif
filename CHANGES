@@ -26256,6 +26256,8 @@ Guard UIL lexer buffer allocations (2026-10-29)
 - Check the initial comment and lexical buffers before dereferencing them.
 - Reject later lexical-buffer allocation failure through Xt instead of
   linking or initializing a null buffer.
+- Check every lexer growth result and return the EOF token if an Xt error
+  handler returns after allocation failure.
 
 Guard UIL string-value allocations (2026-10-29)
 =================================================
