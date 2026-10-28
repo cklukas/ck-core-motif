@@ -49,6 +49,7 @@ XmIsMotifWMRunning(
     Atom	actual_type;
     int		actual_format;
     unsigned long num_items, bytes_after;
+    int             result;
     PropMotifWmInfo	*prop = 0;
     Window	root;
 
@@ -65,7 +66,7 @@ XmIsMotifWMRunning(
 				       FALSE);
     _XmProcessLock();
 
-    XGetWindowProperty (XtDisplay(shell), 
+    result = XGetWindowProperty (XtDisplay(shell),
 			 root,
 			 motif_wm_info_atom,
 			 0, (long)PROP_MOTIF_WM_INFO_ELEMENTS,
@@ -75,7 +76,8 @@ XmIsMotifWMRunning(
 			 (unsigned char **) &prop);
     _XmProcessUnlock();
 
-    if ((actual_type != motif_wm_info_atom) ||
+    if ((result != Success) ||
+	(actual_type != motif_wm_info_atom) ||
 	 (actual_format != 32) ||
 	 (num_items < PROP_MOTIF_WM_INFO_ELEMENTS))
       {

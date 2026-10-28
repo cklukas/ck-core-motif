@@ -23310,6 +23310,14 @@ Discard partial virtual-key file loads (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-virtkeys-file-failure-cleanup.py
 
+Validate Motif WM property status (2026-10-28)
+=================================================
+
+- Check the `XGetWindowProperty` result before inspecting WM metadata.
+- Preserve the existing property-shape checks and false result on failure.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-mwm-property-status.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
