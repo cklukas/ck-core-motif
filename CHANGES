@@ -23720,6 +23720,14 @@ Bound clipboard replacement request size (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-replace-request-size.py
 
+Validate clipboard selection format before narrowing (2026-10-28)
+===================================================================
+
+- Reject unsupported selection format values before writing the legacy `int` output.
+- Keep the accepted X11 format set explicit at 8, 16, and 32.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-selection-format-bounds.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 

@@ -2814,7 +2814,9 @@ ClipboardGetSelection(Display *display,
     *value = info.data;
     *size = info.count;
     *type = info.type;
-    *format = info.format;
+    if (info.format != 8 && info.format != 16 && info.format != 32)
+	return FALSE;
+    *format = (int)info.format;
 
     if (*value == NULL || *size == 0)
 	return FALSE;
