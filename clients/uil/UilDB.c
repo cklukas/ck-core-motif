@@ -490,7 +490,21 @@ void db_read_char_table(header)
  */
 	unsigned char	**ptr = NULL;
 	int		return_num_items, i;
-	unsigned char	*table;
+	unsigned char	*table = NULL;
+	size_t		item_count, pointer_bytes, table_bytes;
+
+	if (header == NULL || header->num_items < 0 ||
+	    header->table_size < 0 || header->num_items == INT_MAX || num_bits <= 0)
+	    return;
+	item_count = (size_t)header->num_items + 1;
+	if (item_count > SIZE_MAX / sizeof(*ptr) ||
+	    item_count * sizeof(*ptr) > (size_t)header->table_size ||
+	    (size_t)header->num_items > SIZE_MAX / (size_t)num_bits)
+	    return;
+	pointer_bytes = item_count * sizeof(*ptr);
+	table_bytes = (size_t)header->num_items * (size_t)num_bits;
+	if (table_bytes > UINT_MAX)
+	    return;
 	 
 	switch (header->table_id)
 	    {
@@ -499,20 +513,20 @@ void db_read_char_table(header)
 	     *	     pointers.
 	     */
 	    case Allowed_Argument_Table:
-		allowed_argument_table = (unsigned char **) XtCalloc (1, header->table_size);
+		allowed_argument_table = (unsigned char **) XtCalloc (1, (Cardinal)header->table_size);
 		ptr = allowed_argument_table;
 		break;
 	    case Allowed_Child_Table:
 		allowed_child_table = 
-		  (unsigned char **) XtCalloc (1, header->table_size);
+		  (unsigned char **) XtCalloc (1, (Cardinal)header->table_size);
 		ptr = allowed_child_table;
 		break;
 	    case Allowed_Control_Table:
-		allowed_control_table = (unsigned char **) XtCalloc (1, header->table_size);
+		allowed_control_table = (unsigned char **) XtCalloc (1, (Cardinal)header->table_size);
 		ptr = allowed_control_table;
 		break;
 	    case Allowed_Reason_Table:
-		allowed_reason_table = (unsigned char **) XtCalloc (1, header->table_size);
+		allowed_reason_table = (unsigned char **) XtCalloc (1, (Cardinal)header->table_size);
 		ptr = allowed_reason_table;
 		break;
 	    default:
@@ -523,9 +537,11 @@ void db_read_char_table(header)
 	 * Read in the entire table contents in one whack.
 	 * Then go through the table and set the addresses
 	 */
-	table = (unsigned char *) XtMalloc (sizeof (unsigned char) * header->num_items * num_bits);
-	return_num_items = fread(table, 
-				    sizeof(char) * num_bits * header->num_items,
+	table = (unsigned char *) XtMalloc ((Cardinal)table_bytes);
+	if (table == NULL && table_bytes != 0)
+	    return;
+	return_num_items = (int)fread(table,
+				    table_bytes,
 				    1, dbfile);
 	_check_read (return_num_items);
 	for ( i=1 ; i<=header->num_items; i++ )

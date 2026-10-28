@@ -24427,3 +24427,11 @@ Bound UIL table counts (2026-10-28)
 - Add focused coverage and documentation.
 
 Make UIL parser frame-flag width explicit (2026-10-28)
+Bound UIL database character tables (2026-10-29)
+=================================================
+
+- Check pointer-table capacity and `num_items * num_bits` arithmetic before
+  allocating or rebasing allowed-character table entries.
+- Add focused coverage and documentation.
+
+Bound UIL database name-length tables (2026-10-29)
