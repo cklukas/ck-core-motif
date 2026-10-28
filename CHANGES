@@ -28433,3 +28433,5 @@ List drag selection bounds (2026-10-28)
   checkout with the correct hierarchy implementation default (2026-10-28).
 * Made the Mrm hierarchy-name contract check runnable from a source checkout
   with the correct hierarchy implementation default (2026-10-28).
+* Made the Mrm icon-pixmap bounds contract check runnable from a source
+  checkout with the correct widget-reader implementation default (2026-10-28).
