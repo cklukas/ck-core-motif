@@ -55,7 +55,8 @@
 LFUNC(xpmWriteFile, int, (FILE *file, XpmImage *image, const char *name,
 			  XpmInfo *info));
 
-LFUNC(WriteColors, int, (FILE *file, XpmColor *colors, unsigned int ncolors));
+LFUNC(WriteColors, int, (FILE *file, XpmColor *colors, unsigned int ncolors,
+			      unsigned int cpp));
 
 LFUNC(WritePixels, int, (FILE *file, unsigned int width, unsigned int height,
 			 unsigned int cpp, unsigned int *pixels,
@@ -209,7 +210,8 @@ xpmWriteFile(
     if (cmts && info->colors_cmt)
 	fprintf(file, "/*%s*/\n", info->colors_cmt);
 
-    ErrorStatus = WriteColors(file, image->colorTable, image->ncolors);
+    ErrorStatus = WriteColors(file, image->colorTable, image->ncolors,
+			      image->cpp);
     if (ErrorStatus != XpmSuccess)
 	return (ErrorStatus);
 
@@ -242,7 +244,8 @@ static int
 WriteColors(
     FILE		*file,
     XpmColor		*colors,
-    unsigned int	 ncolors)
+    unsigned int	 ncolors,
+    unsigned int	 cpp)
 {
     unsigned int a, key;
     char *s;
@@ -253,7 +256,7 @@ WriteColors(
 
     for (a = 0; a < ncolors; a++, colors++) {
 
-	if (colors->string == NULL)
+	if (colors->string == NULL || strlen(colors->string) < cpp)
 	    return XpmFileInvalid;
 	defaults = (char **) colors;
 	fprintf(file, "\"%s", *defaults++);
