@@ -1516,9 +1516,20 @@ DiscardScaledPixmapBuild(
 
     if (ret == NOT_CACHED)
       {
-        XmDestroyConvertedImage(image, old_image_data != NULL);
-        if (old_image_data != NULL)
-          XtFree(old_image_data);
+        if (old_image_data != NULL && image->data == old_image_data)
+          {
+            /* The rollback above restored the caller-owned buffer.  Detach it
+             * before XDestroyImage so the Xt-owned buffer is freed once below. */
+            image->data = NULL;
+            XmDestroyConvertedImage(image, False);
+            XtFree(old_image_data);
+          }
+        else
+          {
+            XmDestroyConvertedImage(image, old_image_data != NULL);
+            if (old_image_data != NULL)
+              XtFree(old_image_data);
+          }
       }
 
     if (pix_entry != NULL)

@@ -1,3 +1,11 @@
+Avoid double-free during scaled-image rollback (2026-10-29)
+============================================================
+
+- Detach restored caller-owned image data before destroying a failed uncached
+  scaled-image build.
+- Release the original buffer exactly once while preserving converted-buffer
+  allocator matching, with focused cleanup coverage.
+
 Guard source-notification teardown reentrancy (2026-10-29)
 ===========================================================
 

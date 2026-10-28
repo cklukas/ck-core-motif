@@ -14,5 +14,7 @@ assert "XtFree(image->data);" in helper
 assert "image->data = NULL;" in helper
 assert "XDestroyImage(image);" in helper
 assert "XmDestroyConvertedImage(image, old_image_data != NULL);" in region
+assert "image->data == old_image_data" in region
+assert "image->data = NULL;" in region
 assert "XDestroyImage(image) ;" not in region
 print("PASS converted XImage teardown preserves allocator ownership")
