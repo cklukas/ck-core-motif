@@ -12,3 +12,6 @@ return `NULL` when their allocation fails before writing through the result.
 The existing position bound remains in force because the legacy source reader
 uses an `int` position.  `tests/automated/check-text-source-range-allocation.py`
 protects the checked size calculation and both allocation guards.
+The replacement path also rejects a range whose character span cannot be
+multiplied by the source character width before expanding the gap, preventing
+overflow in deletion geometry.

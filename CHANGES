@@ -5,6 +5,13 @@ Bound I18List selected-fill Y advancement (2026-10-29)
   next rectangle is drawn.
 - Add focused source-contract coverage.
 
+Guard Text source deletion-byte multiplication (2026-10-29)
+==============================================================
+
+- Reject replacement ranges whose character span would overflow the source
+  character-width multiplication used to expand the gap.
+- Extend the focused Text source range contract check.
+
 Make the RowColumn menu-post contract check checkout-runnable (2026-10-29)
 =============================================================================
 

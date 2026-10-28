@@ -1289,6 +1289,9 @@ Replace(XmTextWidget initiator,
 	return EditError;
 	if (!TextSourceGapBytes(data, &gap_size))
 	return EditError;
+	if (*start < 0 || *end < *start ||
+	    (size_t)(*end - *start) > SIZE_MAX / (size_t)char_size)
+	return EditError;
 	removed_bytes = (size_t)(*end - *start) * (size_t)char_size;
   
   block_num_chars = _XmTextCountCharacters(block->ptr, block->length);
