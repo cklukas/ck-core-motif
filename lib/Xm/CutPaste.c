@@ -3667,6 +3667,7 @@ XmClipboardCopy(
     char *to_ptr;
     int status, count, format_len ;
     unsigned long maxname, formatlength, itemlength, formatdatalength;
+    unsigned long item_length_increment;
     Atom type;
 
     if (format == NULL || (buffer == NULL && length != 0) ||
@@ -3883,7 +3884,20 @@ XmClipboardCopy(
 	    memcpy( to_ptr, buffer, (size_t) length );
     }
 
-    formatptr->itemLength += length/((format_len==32)?CONVERT_32_FACTOR:1);
+    item_length_increment = length / ((format_len == 32) ?
+	CONVERT_32_FACTOR : 1);
+    if (formatptr->itemLength < 0 ||
+	(unsigned long)formatptr->itemLength >
+	(unsigned long)LONG_MAX - item_length_increment)
+    {
+	XtFree((char *)formatdataptr);
+	XtFree((char *)formatptr);
+	ClipboardClose(display, header);
+	ClipboardUnlock(display, window, 0);
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+    formatptr->itemLength += (long)item_length_increment;
 
     /* replace the property on the root window for the format data */
     ClipboardReplaceItem(display, 

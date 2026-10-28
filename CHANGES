@@ -23816,6 +23816,14 @@ Bound clipboard copy allocation widths (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-copy-allocation-width.py
 
+Bound clipboard item-length accumulation (2026-10-28)
+======================================================
+
+- Check format-unit increments before adding them to signed `itemLength`.
+- Clean up the active copy transaction when the serialized length would overflow.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-item-length-bounds.py
+
 Abort clipboard end-copy on lock failures (2026-10-28)
 =======================================================
 
