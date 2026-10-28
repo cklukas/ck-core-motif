@@ -2566,6 +2566,8 @@ ClipboardSendMessage(
 				 headerlength, PropModeReplace,
 				 32, True, XA_INTEGER );
 
+	    XtFree((char *)root_clipboard_header);
+
             event_sent.data.l[0] = atoms[XmA_MOTIF_CLIP_DATA_REQUEST];
 	    break;
 

@@ -23438,6 +23438,14 @@ Release clipboard mark-item buffers (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-mark-item-cleanup.py
 
+Release clipboard request header buffers (2026-10-28)
+=========================================================
+
+- Free the retrieved header after persisting its recopy ID for a data request.
+- Preserve invalid-header handling and client-message behavior.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-send-header-cleanup.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
