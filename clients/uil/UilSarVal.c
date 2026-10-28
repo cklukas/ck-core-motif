@@ -1593,7 +1593,7 @@ yystype	    *keyword_frame;
 	break;
       }
   
-  if (found) type = enumval_values_table[enumval_code];
+  if (found) type = (unsigned short)enumval_values_table[enumval_code];
   else 
     {
       diag_issue_diagnostic(d_arg_type,
@@ -1619,7 +1619,7 @@ yystype	    *keyword_frame;
 			      "compound_string_component",
 			      "NULL");
 
-      cstr_r = XmStringComponentCreate(type, 0, NULL);
+      cstr_r = XmStringComponentCreate((XmStringComponentType)type, 0, NULL);
       break;
 
     case XmSTRING_COMPONENT_LOCALE:
@@ -1645,7 +1645,7 @@ yystype	    *keyword_frame;
 	}
 
 
-      cstr_r = XmStringComponentCreate(type,
+      cstr_r = XmStringComponentCreate((XmStringComponentType)type,
 				       sar_component_length(_MOTIF_DEFAULT_LOCALE),
 				       _MOTIF_DEFAULT_LOCALE);
       break;
@@ -1692,7 +1692,8 @@ yystype	    *keyword_frame;
 		   (value_frame->value.az_symbol_entry))->value.c_value;
 	}
       
-      cstr_r = XmStringComponentCreate(type, sar_component_length(str),
+      cstr_r = XmStringComponentCreate((XmStringComponentType)type,
+				       sar_component_length(str),
 				       (XtPointer)str);
       break;
 
@@ -1725,7 +1726,7 @@ yystype	    *keyword_frame;
 		break;
 	      }
   
-	  if (found) dir = enumval_values_table[enumval_code];
+	  if (found) dir = (XmStringDirection)enumval_values_table[enumval_code];
 	  else
 	    {
 	      diag_issue_diagnostic(d_arg_type,
@@ -1738,7 +1739,8 @@ yystype	    *keyword_frame;
 	    }
 	}
 
-      cstr_r = XmStringComponentCreate(type, sizeof(XmStringDirection), &dir);
+      cstr_r = XmStringComponentCreate((XmStringComponentType)type,
+					       sizeof(XmStringDirection), &dir);
       break;
 
     case XmSTRING_COMPONENT_LAYOUT_PUSH:
@@ -1770,7 +1772,7 @@ yystype	    *keyword_frame;
 		break;
 	      }
   
-	  if (found) lay_dir = enumval_values_table[enumval_code];
+	  if (found) lay_dir = (XmDirection)enumval_values_table[enumval_code];
 	  else
 	    {
 	      diag_issue_diagnostic(d_arg_type,
@@ -1783,7 +1785,8 @@ yystype	    *keyword_frame;
 	    }
 	}
 
-      cstr_r = XmStringComponentCreate(type, sizeof(XmDirection), &lay_dir);
+      cstr_r = XmStringComponentCreate((XmStringComponentType)type,
+					       sizeof(XmDirection), &lay_dir);
       break;
     }
 

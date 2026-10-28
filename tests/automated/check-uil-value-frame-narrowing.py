@@ -10,4 +10,7 @@ assert "value_frame->b_flags = (unsigned short)value_entry->obj_header.b_flags;"
 assert "operator_frame->b_type = (unsigned char)target_type;" in source
 assert "target_frame->b_charset = (unsigned char)" in source
 assert "cstr_entry->b_charset = (unsigned char)" in source
+assert "(XmStringComponentType)type" in source
+assert "dir = (XmStringDirection)enumval_values_table[enumval_code];" in source
+assert "lay_dir = (XmDirection)enumval_values_table[enumval_code];" in source
 print("UIL compact value-frame fields use explicit, value-preserving narrowing")

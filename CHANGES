@@ -6,6 +6,9 @@ Make UIL value-frame narrowing explicit (2026-10-28)
   removing ambiguous implicit conversions.
 - Add focused coverage and documentation.
 
+  Compound-string component and direction enum values now narrow explicitly
+  at the Motif API boundary after validation.
+
 Bound UIL include filename metadata (2026-10-28)
 =================================================
 
