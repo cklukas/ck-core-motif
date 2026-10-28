@@ -26746,3 +26746,10 @@ Share checked printer-resolution parsing with ImageCache (2026-10-28)
   `_XmParsePrintResolution` helper, so missing, malformed, overflowing, and
   non-positive X Print attributes cannot wrap or dereference a null string.
 - Release the X Print attribute after parsing and add source-contract coverage.
+Validate FileSelectionBox navigation action arguments (2026-10-28)
+====================================================================
+
+- Replace the legacy up/down action's unchecked `atoi` conversion with a
+  bounded, exact decimal parse for command values 0 through 3.
+- Ignore missing, malformed, overflowing, or out-of-range translation
+  arguments without changing valid keyboard navigation behavior.

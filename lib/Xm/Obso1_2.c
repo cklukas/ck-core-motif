@@ -1515,6 +1515,8 @@ _XmFileSelectionBoxUpOrDown(
             Widget          activeChild ;
             Arg             av[5] ;
             Cardinal        ac ;
+            char            *end ;
+            long            parsed_key ;
 /****************/
 
     if(    !(activeChild = GetActiveText( fsb, event))    )
@@ -1544,7 +1546,16 @@ _XmFileSelectionBoxUpOrDown(
     if(    !count    )
     {   return ;
         } 
-    key_pressed = atoi( *argv) ;
+    if (!argv || !*argv)
+    {   return ;
+        }
+    errno = 0;
+    parsed_key = strtol(*argv, &end, 10);
+    if (errno == ERANGE || end == *argv || *end != '\0'
+        || parsed_key < 0 || parsed_key > 3)
+    {   return ;
+        }
+    key_pressed = (int) parsed_key ;
 
     if(    *position == 0    )
     {   /*  No selection, so select first item.
