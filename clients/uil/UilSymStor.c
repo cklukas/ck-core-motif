@@ -1069,11 +1069,11 @@ sym_dump_module( XmConst sym_module_entry_type *az_module_entry )
 {
 
     _debug_output
-	( "%x module size: %d  name: %x  version: %x \n",
-	  (unsigned)az_module_entry,
+	( "%p module size: %d  name: %p  version: %p \n",
+	  (void *)az_module_entry,
 	  az_module_entry->header.w_node_size,
-	  (unsigned)az_module_entry->obj_header.az_name,
-	  (unsigned)az_module_entry->az_version );
+	  (void *)az_module_entry->obj_header.az_name,
+	  (void *)az_module_entry->az_version );
 
     /* preserve comments */
     _debug_output ("\n Comment: %s\n", az_module_entry->obj_header.az_comment);
