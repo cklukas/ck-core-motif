@@ -25678,3 +25678,12 @@ Reject invalid transfer status values (2026-10-29)
 - Preserve all four public statuses and add focused input coverage.
 
 Guard XmString-table parser state (2026-10-29)
+Reject null transfer parameter buffers (2026-10-29)
+===================================================
+
+- Reject nonzero parameter lengths paired with a null buffer before calling
+  Xt's selection-parameter API.
+- Preserve valid zero-length and populated parameter requests with focused
+  input coverage.
+
+Reject invalid transfer status values (2026-10-29)

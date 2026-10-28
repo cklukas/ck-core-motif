@@ -17,4 +17,5 @@ for function, marker in (
     assert "return;" in body, function
 assert "status < XmTRANSFER_DONE_SUCCEED" in source
 assert "status > XmTRANSFER_DONE_DEFAULT" in source
+assert "parm == NULL && parm_length != 0" in source
 print("PASS transfer-context APIs validate null handles")
