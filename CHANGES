@@ -25695,3 +25695,12 @@ Guard drop-transfer teardown callback state (2026-10-29)
 - Preserve normal cancellation and teardown paths with focused coverage.
 
 Reject null transfer parameter buffers (2026-10-29)
+Reject malformed drop-transfer payloads (2026-10-29)
+======================================================
+
+- Fail closed when a selection callback reports nonzero data length with no
+  payload pointer, before dispatching to application transfer code.
+- Preserve zero-length completion and valid payload behavior with focused
+  coverage.
+
+Guard drop-transfer teardown callback state (2026-10-29)

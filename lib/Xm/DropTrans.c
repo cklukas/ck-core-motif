@@ -640,6 +640,10 @@ DropTransferSelectionCB(
 	    FailTransferEntry(dt);
 	    return;
 	}
+	if (*length != 0 && value == NULL) {
+	    FailTransferEntry(dt);
+	    return;
+	}
 	tl = &(dtp->drop_transfer_lists[dtp->cur_drop_transfer_list]);
 	if (tl->transfer_list == NULL || dtp->cur_xfer >= tl->num_transfers) {
 	    FailTransferEntry(dt);
