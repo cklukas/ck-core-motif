@@ -10373,7 +10373,7 @@ static void
 TextFieldResetIC(Widget w)
 {
     int insert_length;
-    size_t num_chars;
+    size_t num_chars, mb_length;
     size_t preedit_length;
     size_t preedit_bytes;
     char *mb, *str=NULL;
@@ -10445,10 +10445,12 @@ TextFieldResetIC(Widget w)
         if (tf->text.verify_bell) XBell(XtDisplay((Widget)tf), 0);
     }
 
-    if ((insert_length = strlen(mb)) > TEXT_MAX_INSERT_SIZE) {
+    mb_length = strlen(mb);
+    if (mb_length > TEXT_MAX_INSERT_SIZE || mb_length > (size_t)INT_MAX) {
         ResetUnder(tf);
         return;
     }
+    insert_length = (int)mb_length;
 
     if (insert_length > 0 && !PrintableString(tf, mb, insert_length, False)) {
         ResetUnder(tf);

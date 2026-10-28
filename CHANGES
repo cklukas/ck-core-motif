@@ -26515,3 +26515,9 @@ Bound DataField clear-selection spans (2026-10-29)
   before creating the temporary spaces buffer.
 - Reject wide-character temporary buffers that cannot fit Xt's allocation-size
   type.
+
+Guard TextField preedit length narrowing (2026-10-29)
+======================================================
+
+- Keep the reset preedit byte length in `size_t` until it passes the input
+  limit, then narrow it to the legacy `int` insertion count.
