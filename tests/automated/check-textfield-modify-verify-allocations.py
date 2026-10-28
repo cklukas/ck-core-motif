@@ -14,5 +14,8 @@ assert "modify_verify_allocation_failed:" in body
 assert "*insert_length = 0;" in body
 assert "*free_insert = (int)False;" in body
 assert body.count("if (allocated_insert == NULL)") == 4
+assert body.count("(size_t)*insert_length >= (size_t)UINT_MAX") == 2
+assert body.count("(Cardinal)((size_t)*insert_length + 1)") == 2
+assert "XtMalloc((unsigned) *insert_length + 1)" not in body
 
 print("TextField modify-verify allocations are checked")

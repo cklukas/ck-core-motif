@@ -26452,3 +26452,9 @@ Guard TextField warning allocation arithmetic (2026-10-29)
 
 - Check unsupported-character diagnostic sizes before multiplying and
   narrowing them for `XtMalloc`.
+
+Guard TextField modify-verify result sizes (2026-10-29)
+========================================================
+
+- Validate narrow callback-result lengths before adding the terminator and
+  narrowing the allocation size.

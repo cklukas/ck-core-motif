@@ -2994,7 +2994,12 @@ ModifyVerify(XmTextFieldWidget tf,
       if (tf->text.max_char_size == 1) { /* caller expects char */
 	wcs_vcb.text->wcsptr[wcs_vcb.text->length] = 0L;
 	if (*insert_length > 0) {
-	  char *allocated_insert = XtMalloc((unsigned) *insert_length + 1);
+	  char *allocated_insert;
+	  if ((size_t)*insert_length > SIZE_MAX - 1 ||
+	      (size_t)*insert_length >= (size_t)UINT_MAX)
+	    goto modify_verify_allocation_failed;
+	  allocated_insert = XtMalloc(
+	      (Cardinal)((size_t)*insert_length + 1));
 	  if (allocated_insert == NULL)
 	    goto modify_verify_allocation_failed;
 	  *insert = allocated_insert;
@@ -3032,7 +3037,12 @@ ModifyVerify(XmTextFieldWidget tf,
       if (tf->text.max_char_size == 1) {  /* caller expects char* */
 	*insert_length =  vcb.text->length;
 	if (*insert_length > 0) {
-	  char *allocated_insert = XtMalloc((unsigned) *insert_length + 1);
+	  char *allocated_insert;
+	  if ((size_t)*insert_length > SIZE_MAX - 1 ||
+	      (size_t)*insert_length >= (size_t)UINT_MAX)
+	    goto modify_verify_allocation_failed;
+	  allocated_insert = XtMalloc(
+	      (Cardinal)((size_t)*insert_length + 1));
 	  if (allocated_insert == NULL)
 	    goto modify_verify_allocation_failed;
 	  *insert = allocated_insert;
