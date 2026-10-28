@@ -26285,3 +26285,9 @@ Guard UIL compound-string append allocations (2026-10-29)
 - Check compound-string append inputs and copied segment-node allocations.
 - Check concatenated payload allocation and release its node on failure,
   returning the existing semantic error value.
+Guard UIL wide-string constructor allocation (2026-10-29)
+============================================================
+
+- Check wide-string semantic-node creation before initializing the node.
+- Preserve the existing `NULL` failure contract for allocation-constrained
+  compound-string construction.
