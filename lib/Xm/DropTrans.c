@@ -781,16 +781,22 @@ XmDropTransferStart(
 	int n;
 	Widget ret_val;
 
-	if (refWidget == NULL)
+	if (refWidget == NULL || (argCount != 0 && args == NULL))
 	    return NULL;
 
 	ddo = (Widget) XmGetXmDisplay(XtDisplayOfObject(refWidget));
+	if (ddo == NULL)
+	    return NULL;
 	_XmWidgetToAppContext(refWidget);
 
 	_XmAppLock(app);
 	n = 0;
 	XtSetArg(lclArgs[n], XmNdropTransferClass, &wc); n++;
 	XtGetValues(ddo, lclArgs, n);
+	if (wc == NULL || wc->dropTransfer_class.start_drop_transfer == NULL) {
+	    _XmAppUnlock(app);
+	    return NULL;
+	}
 
 	ret_val = (*(wc->dropTransfer_class.start_drop_transfer))
 		(refWidget, args, argCount);
