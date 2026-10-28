@@ -1457,10 +1457,14 @@ ComboBoxParentProcess(Widget		  wid,
 	      bzero((char*) &call_data, sizeof(XmListCallbackStruct));
 	      if (pos)
 		{
+		  unsigned int item_length;
 		  call_data.item		    = XmStringCopy(item);
 		  if (call_data.item != NULL)
 		    {
-		      call_data.item_length         = XmStringLength(item);
+		      item_length = XmStringLength(item);
+		      call_data.item_length =
+			item_length > (unsigned int)INT_MAX ? INT_MAX :
+			(int)item_length;
 		      call_data.item_position	    = pos;
 		      call_data.selected_item_count = 1;
 		      call_data.selected_item_positions = &pos;

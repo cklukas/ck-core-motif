@@ -5943,7 +5943,11 @@ DefaultAction(XmListWidget lw,
     }
 
   if (lw->list.InternalList[item]->length == UNKNOWN_LENGTH)
-    lw->list.InternalList[item]->length = XmStringLength(lw->list.items[item]);
+	{
+	  unsigned int item_length = XmStringLength(lw->list.items[item]);
+	  lw->list.InternalList[item]->length =
+	    item_length > (unsigned int)INT_MAX ? INT_MAX : (int)item_length;
+	}
 
   cb.reason = XmCR_DEFAULT_ACTION;
   cb.event = event;
@@ -6041,7 +6045,11 @@ ClickElement(XmListWidget lw,
   if (lw->list.itemCount == 0 || lw->list.InternalList == NULL)
     return;
   if (lw->list.InternalList[item]->length == UNKNOWN_LENGTH)
-    lw->list.InternalList[item]->length = XmStringLength(lw->list.items[item]);
+	{
+	  unsigned int item_length = XmStringLength(lw->list.items[item]);
+	  lw->list.InternalList[item]->length =
+	    item_length > (unsigned int)INT_MAX ? INT_MAX : (int)item_length;
+	}
 
   cb.event = event;
   cb.item_length = lw->list.InternalList[item]->length;

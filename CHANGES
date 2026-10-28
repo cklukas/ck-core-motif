@@ -27992,3 +27992,10 @@ Label wide-string length width (2026-10-29)
 - Scan Label wide-character values with `size_t` before multibyte conversion,
   preventing counter wrap on very large Unicode inputs.
 - Add focused source-contract coverage and documentation.
+
+List and ComboBox callback length bounds (2026-10-29)
+======================================================
+
+- Clamp unsigned compound-string lengths before storing them in the public
+  signed `XmListCallbackStruct.item_length` ABI and List's internal cache.
+- Add focused source-contract coverage and documentation.
