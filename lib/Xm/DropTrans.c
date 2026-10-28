@@ -80,6 +80,7 @@ static void TerminateTransfer(
 static void ProcessTransferEntry( 
                         XmDropTransferObject dt,
                         Cardinal which) ;
+static void FailTransferEntry(XmDropTransferObject dt);
 static void DropTransferSelectionCB( 
                         Widget w,
                         XtPointer client_data,
@@ -447,6 +448,28 @@ TerminateTransfer(
 				dtp->timestamp);
 }
 
+static void
+FailTransferEntry(XmDropTransferObject dt)
+{
+	XmDropTransferPart *dtp = &(dt->dropTransfer);
+	Atom selection = None;
+	Arg args[1];
+
+	dtp->transfer_status = XmTRANSFER_FAILURE;
+	XtFree((char *)dtp->cur_targets);
+	XtFree((char *)dtp->cur_client_data);
+	dtp->cur_targets = (Atom *) NULL;
+	dtp->cur_client_data = (XtPointer *) NULL;
+
+	if (dtp->dragContext == NULL) {
+	    XtDestroyWidget((Widget)dt);
+	    return;
+	}
+	XtSetArg(args[0], XmNiccHandle, &selection);
+	XtGetValues(dtp->dragContext, args, 1);
+	TerminateTransfer(dt, &selection);
+}
+
 static void 
 ProcessTransferEntry(
         XmDropTransferObject dt,
@@ -466,26 +489,23 @@ ProcessTransferEntry(
 	    (size_t)UINT_MAX / sizeof(Atom) ||
 	    (size_t)tl->num_transfers >
 	    (size_t)UINT_MAX / sizeof(XtPointer)) {
-	    dtp->cur_targets = NULL;
-	    dtp->cur_client_data = NULL;
+	    FailTransferEntry(dt);
 	    return;
 	}
 	if (tl->num_transfers == 0) {
-	    dtp->cur_targets = NULL;
-	    dtp->cur_client_data = NULL;
+	    FailTransferEntry(dt);
 	    return;
 	}
 	dtp->cur_targets = (Atom *)XtMalloc(
 	    (size_t)tl->num_transfers * sizeof(Atom));
 	if (dtp->cur_targets == NULL) {
-	    dtp->cur_client_data = NULL;
+	    FailTransferEntry(dt);
 	    return;
 	}
 	dtp->cur_client_data = (XtPointer *)XtMalloc(
 	    (size_t)tl->num_transfers * sizeof(XtPointer));
 	if (dtp->cur_client_data == NULL) {
-	    XtFree((char *)dtp->cur_targets);
-	    dtp->cur_targets = NULL;
+	    FailTransferEntry(dt);
 	    return;
 	}
 

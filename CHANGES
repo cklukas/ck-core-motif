@@ -157,6 +157,14 @@ Roll back failed drop-transfer appends (2026-10-29)
 - Roll back the request block and report failure when an append allocation
   does not grow the transfer list.
 
+Terminate failed drop-transfer processing (2026-10-29)
+=======================================================
+
+- Fail empty transfer lists and temporary target/client-data allocation
+  failures through the normal drop termination path.
+- Release temporary arrays and notify the source instead of leaving a drop
+  object pending indefinitely.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
