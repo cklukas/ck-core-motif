@@ -28206,6 +28206,13 @@ XmRenderTable rendition-merge tag bounds (2026-10-28)
   underflow, and reject nonzero counts with a null tag array. See
   `docs/xmrender-merge-tag-bounds.md`.
 
+XmString rendition-end tag bounds (2026-10-28)
+==============================================
+
+- Traverse unsigned compound-string rendition tags without signed narrowing
+  or reverse-loop underflow when removing rendition ends. See
+  `docs/xmstring-rendition-end-bounds.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

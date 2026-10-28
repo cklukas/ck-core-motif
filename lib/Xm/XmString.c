@@ -7038,7 +7038,8 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
   XmStringTag		def_tag;
   XmStringTag		entry_tag;
   XmRendition		rend, cached_rend = NULL, def_rend;
-  int			i, j, depth, hits, ref_cnt, rt_ref_cnt;
+  unsigned int		i, j, depth, hits;
+  int			ref_cnt, rt_ref_cnt;
   size_t		new_tag_count;
   XmStringTag		*new_tags;
   Dimension		h, w, asc, dsc;
@@ -7308,11 +7309,11 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
 	  hits = 0;
       
 	  for (i = 0; i < count; i++)
-	    for (j = (tag_count - 1); j >= 0; j--)
-	      if (_XmEntryRendEndGet(entry, i) == (tags)[j])
+	    for (j = tag_count; j != 0; --j)
+	      if (_XmEntryRendEndGet(entry, i) == (tags)[j - 1])
 		{
-		  tags[j] = NULL;
-		  depth = j;
+		  tags[j - 1] = NULL;
+		  depth = j - 1;
 		  hits++;
 		  break;
 		}
