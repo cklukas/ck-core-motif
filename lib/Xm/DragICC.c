@@ -667,6 +667,9 @@ _XmReadDragBuffer(
     size_t	numCurr;
     size_t	copy_size;
 
+    if (propBuf == NULL || (ptr == NULL && size != 0))
+      return 0;
+
     if (which == BUFFER_DATA) /* data */
       buf = &propBuf->data;
     else
@@ -702,6 +705,9 @@ _XmWriteDragBuffer(
 {
     CARD16	returnVal;
     xmByteBufRec  *buf;
+
+    if (propBuf == NULL || (ptr == NULL && size != 0))
+      return 0;
 
     if (which == BUFFER_DATA) /* data */
       buf = &propBuf->data;

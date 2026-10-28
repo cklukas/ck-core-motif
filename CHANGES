@@ -13,6 +13,13 @@ Preserve selection context on rejected ownership (2026-10-29)
   still-valid owner.
 - Add focused ordering coverage for the ownership failure path.
 
+Guard null drag-property payloads (2026-10-29)
+===============================================
+
+- Reject null property-buffer handles or nonzero transfers with null payloads
+  before drag-buffer helpers reach `memcpy`.
+- Preserve all valid 8/16/32-bit buffer transfers and add focused coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
