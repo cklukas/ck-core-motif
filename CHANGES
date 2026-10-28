@@ -28247,6 +28247,13 @@ Path normalization empty-path bounds (2026-10-28)
   normalize it through the existing slash-appending path. See
   `docs/xmos-empty-path.md`.
 
+ComboBox Up-navigation boundary (2026-10-28)
+============================================
+
+- Keep the first ComboBox item selected when navigating Up instead of passing
+  zero to the one-based List selection API. See
+  `docs/combobox-up-boundary.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 

@@ -2058,7 +2058,7 @@ CBListAction(Widget    widget,
 	    switch (direction)
 	      {
 	      case UP:
-		if (*pos >= 1)
+		if (*pos > 1)
 		  XmListSelectPos(CB_List(cb), *pos - 1, TRUE);
 		break;
 	
