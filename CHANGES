@@ -8,6 +8,8 @@ Make UIL value-frame narrowing explicit (2026-10-28)
 
   Compound-string component and direction enum values now narrow explicitly
   at the Motif API boundary after validation.
+- Check compound-string lengths before storing the 16-bit symbol-entry length,
+  preventing oversized values from wrapping.
 
 Bound UIL include filename metadata (2026-10-28)
 =================================================

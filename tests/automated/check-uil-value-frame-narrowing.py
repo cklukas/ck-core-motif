@@ -13,4 +13,6 @@ assert "cstr_entry->b_charset = (unsigned char)" in source
 assert "(XmStringComponentType)type" in source
 assert "dir = (XmStringDirection)enumval_values_table[enumval_code];" in source
 assert "lay_dir = (XmDirection)enumval_values_table[enumval_code];" in source
+assert "sar_compound_string_length(cstr_r)" in source
+assert "length < 0 || (unsigned int)length > USHRT_MAX" in source
 print("UIL compact value-frame fields use explicit, value-preserving narrowing")

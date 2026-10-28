@@ -10,6 +10,8 @@ narrowing conversion explicit at the field boundary. This documents the
 existing ABI-sized storage without changing the values produced for valid UIL
 input. Compound-string component and direction values likewise narrow only at
 the Motif API boundary, after UIL enum validation. This keeps strict compiler
-diagnostics useful for new conversions.
+diagnostics useful for new conversions. Compound-string lengths are checked
+before entering the ABI-sized `w_length` field so oversized values cannot
+silently wrap.
 
 Regression: `tests/automated/check-uil-value-frame-narrowing.py`

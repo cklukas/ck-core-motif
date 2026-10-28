@@ -74,6 +74,19 @@ sar_component_length(const char *text)
 
     return (unsigned int)length;
 }
+
+static unsigned short
+sar_compound_string_length(XmString string)
+{
+    int length = XmStringLength(string);
+
+    if (length < 0 || (unsigned int)length > USHRT_MAX) {
+	XtError("UIL compound string is too large");
+	return USHRT_MAX;
+    }
+
+    return (unsigned short)length;
+}
 /*
 **
 **  TABLE OF CONTENTS
@@ -1791,7 +1804,7 @@ yystype	    *keyword_frame;
     }
 
   cstr_entry->value.xms_value = cstr_r;
-  cstr_entry->w_length = XmStringLength(cstr_r);
+  cstr_entry->w_length = sar_compound_string_length(cstr_r);
 
   cstr_entry->az_first_table_value = NULL;
 
