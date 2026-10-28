@@ -28407,3 +28407,5 @@ List drag selection bounds (2026-10-28)
   successful conversion terminator (2026-10-28).
 * Refreshed the I18List row-position contract check for inline pixel-Y
   initialization (2026-10-28).
+* Refreshed the IconG clip-origin contract check for bounded position output
+  (2026-10-28).
