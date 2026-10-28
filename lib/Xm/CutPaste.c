@@ -3378,9 +3378,10 @@ XmClipboardStartCopy(
 
     _XmAppLock(app);
     status = ClipboardLock( display, window );
-    if ( status == ClipboardLocked ) {
+
+    if ( status != ClipboardSuccess ) {
 	_XmAppUnlock(app);
-	return ClipboardLocked;
+	return status;
     }
 
     /* get the clipboard header, make sure clipboard is initialized */
