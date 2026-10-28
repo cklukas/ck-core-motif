@@ -23623,6 +23623,14 @@ Abort clipboard length inquiries on lock failures (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-inquire-length-lock-status.py
 
+Abort clipboard pending-item inquiries on lock failures (2026-10-28)
+=====================================================================
+
+- Stop `XmClipboardInquirePendingItems` on any non-success lock result.
+- Preserve the original lock status before reading pending-item state.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-inquire-pending-lock-status.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
