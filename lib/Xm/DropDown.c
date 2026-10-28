@@ -2544,6 +2544,9 @@ SetTextFromList(Widget w)
     XtSetArg(args[num_args], XmNselectionPolicy, &policy); num_args++;
     XtGetValues(XmDropDown_list(cbw), args, num_args);
 
+    if (count > 0 && items == NULL)
+	return False;
+
     if ((policy == XmMULTIPLE_SELECT) || (policy == XmEXTENDED_SELECT) ||
 	(count > 0))
     {
@@ -2558,6 +2561,11 @@ SetTextFromList(Widget w)
 
         ptr = XmStringUnparse(items[i], NULL, XmCHARSET_TEXT, XmMULTIBYTE_TEXT,
                 NULL, 0, XmOUTPUT_ALL);
+	if (ptr == NULL) {
+	    XmeWarning((Widget) cbw, XmNstringGetFailedMsg);
+	    i++;
+	    continue;
+	}
 
 	len = mbstowcs(NULL, ptr, 0);
 	if (len == (size_t)(-1)) {

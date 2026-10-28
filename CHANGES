@@ -28302,6 +28302,13 @@ BreadcrumbBar segment-count range (2026-10-28)
 - Reject segment counts above the signed current-index range before replacing
   BreadcrumbBar storage. See `docs/breadcrumb-count-range.md`.
 
+DropDown selected-item conversion inputs (2026-10-28)
+======================================================
+
+- Guard missing selected-item arrays and failed string unparse results before
+  DropDown list-to-text conversion dereferences or converts them. See
+  `docs/dropdown-selection-inputs.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
