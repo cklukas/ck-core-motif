@@ -27736,3 +27736,9 @@ Fix List hit-test height arithmetic (2026-10-29)
 - Compare lower content boundaries in signed wide arithmetic instead of
   narrowing `core.height - BaseY` to `Position`.
 - Add focused source-contract coverage for tall list windows.
+Bound List row positions (2026-10-29)
+======================================
+
+- Use signed wide arithmetic for LINEHEIGHTS and clamp redraw row positions
+  before storing them in `Position` variables.
+- Add focused source-contract coverage for large row geometry.

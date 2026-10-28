@@ -104,7 +104,8 @@ static Position bounded_position(long long value)
 #define	UNKNOWN_LENGTH		-1
 
 #define LINEHEIGHTS(lw,lines)	\
-	((lines) * ((lw)->list.MaxItemHeight + (lw)->list.spacing))
+	((long long)(lines) * ((long long)(lw)->list.MaxItemHeight +\
+					(long long)(lw)->list.spacing))
 
 #define RECOUNT_SELECTION	-1
 
@@ -2382,7 +2383,7 @@ DrawList(XmListWidget lw,
       DrawItems(lw, top, num, all);
 
       if (top <  num)
-	y = LINEHEIGHTS(lw, num - top - 1) + lw->list.BaseY;
+	y = bounded_position(LINEHEIGHTS(lw, num - top - 1) + lw->list.BaseY);
       y += lw->list.MaxItemHeight;
 
       {
@@ -2469,7 +2470,8 @@ DrawItems(XmListWidget lw,
 
   for (pos = top; pos < bot; pos++)
     {
-      y = LINEHEIGHTS(lw, pos - lw->list.top_position) + lw->list.BaseY;
+      y = bounded_position(LINEHEIGHTS(lw, pos - lw->list.top_position) +
+						 lw->list.BaseY);
 
       if (!all &&
 	  (lw->list.InternalList[pos]->selected ==
