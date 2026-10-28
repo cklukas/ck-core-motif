@@ -2390,6 +2390,11 @@ sym_entry_type	* sem_allocate_node
     sym_entry_type		* node_ptr;
 
     node_ptr = (sym_entry_type *) XtCalloc (1, node_size);
+    if (node_ptr == NULL)
+	{
+	XtError ("unable to allocate UIL symbol node");
+	return NULL;
+	}
     node_ptr->header.w_node_size = node_size;
     node_ptr->header.b_tag = node_tag;
     UrmPlistAppendPointer (sym_az_allocated_nodes, (XtPointer)node_ptr);

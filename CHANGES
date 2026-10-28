@@ -26244,3 +26244,9 @@ Handle UIL source-opening allocation failure (2026-10-29)
   source file or dereferencing either object.
 - Release a partially allocated file-control block and report the failure
   through the existing Xt error path.
+Guard UIL symbol-node allocation failure (2026-10-29)
+=======================================================
+
+- Check the central semantic-node allocation before initializing its header
+  or appending it to the allocated-node list.
+- Report allocation failure through Xt instead of dereferencing a null node.
