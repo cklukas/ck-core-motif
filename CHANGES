@@ -36,6 +36,12 @@ Make WMD check safe for source-only contract runs (2026-10-29)
   generated binaries while retaining the executable round-trip when both
   build and results paths are supplied.
 
+Refresh WSM wire-width contract matching (2026-10-29)
+=======================================================
+
+- Match the protocol-width check across harmless casts and line wrapping
+  while continuing to reject host-width property sizing.
+
 Bound I18List display column origins (2026-10-29)
 ==================================================
 
