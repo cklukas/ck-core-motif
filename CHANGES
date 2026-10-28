@@ -1,3 +1,10 @@
+Dispatch uncommon XPM ZPixmap widths (2026-10-29)
+==================================================
+
+- Route ZPixmap images outside the optimized 8/16/32-bit cases through the
+  general pixel reader instead of leaving the scan status unchanged.
+- Add focused coverage and documentation.
+
 Bound XPM depth table indexing (2026-10-29)
 ============================================
 

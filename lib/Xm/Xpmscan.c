@@ -323,6 +323,8 @@ XpmCreateXpmImageFromImage(
 		ErrorStatus = GetImagePixels16(image, width, height, &pmap);
 	    else if (image->bits_per_pixel == 32)
 		ErrorStatus = GetImagePixels32(image, width, height, &pmap);
+	    else
+		ErrorStatus = GetImagePixels(image, width, height, &pmap);
 	} else
 	    ErrorStatus = GetImagePixels(image, width, height, &pmap);
 # else
