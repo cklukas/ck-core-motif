@@ -10,6 +10,8 @@ start = text.index("static void\nPreeditDraw(")
 end = text.index("\n}\n", start)
 region = text[start:end]
 
+assert "if (client_data == NULL || call_data == NULL)" in region
+
 for allocation, guard in (
     ("tab_wc = (wchar_t*) XtMalloc", "if (tab_wc == NULL)"),
     ("mb = XtMalloc((Cardinal)(input_bytes + 1))", "if (mb == NULL)"),

@@ -9877,6 +9877,9 @@ PreeditDraw(XIC xic,
     Widget p =w;
     Boolean need_verify, end_preedit = False;
 
+    if (client_data == NULL || call_data == NULL)
+        return;
+
     if (!TextF_Editable(tf))
         return;
 

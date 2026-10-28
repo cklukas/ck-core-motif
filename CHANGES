@@ -26527,3 +26527,4 @@ Guard empty TextField preedit overstrike (2026-10-29)
 
 - Provide an owned empty wide buffer when an XIM draw callback has no text
   payload but recovery data still needs to be appended.
+- Reject null XIM client and draw records before reading callback fields.
