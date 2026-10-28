@@ -1,3 +1,9 @@
+Refresh XPM pixel-token regression (2026-10-29)
+===============================================
+
+- Update the pixel-token check for the current status-returning extension
+  writer, restoring coverage after the serializer refactor.
+
 Check XPM buffer pixel-comment formatting (2026-10-29)
 ========================================================
 

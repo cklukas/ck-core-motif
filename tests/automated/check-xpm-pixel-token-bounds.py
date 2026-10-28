@@ -4,7 +4,7 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "XpmWrFFrI.c").read_text()
 start = source.index("WritePixels(")
-region = source[start : source.index("static void\nWriteExtensions", start)]
+region = source[start : source.index("WriteExtensions(\n", start)]
 
 assert "cpp == 0" in region
 assert region.count("token_length = strlen(colors[*pixels].string);") == 2
