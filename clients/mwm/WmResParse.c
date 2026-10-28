@@ -1730,17 +1730,25 @@ void ParseSessionHost (WmScreenData *pSD,  int count,
 Boolean GetSessionHintsInfo (WmScreenData *pSD, long numItems)
 
 {
-   
+    size_t allocation_bytes;
+
+    if (pSD == NULL || numItems <= 0 ||
+        (unsigned long)numItems > UINT_MAX / sizeof (DtSessionItem) ||
+        (size_t)numItems > SIZE_MAX / sizeof (DtSessionItem))
+    {
+        return (False);
+    }
+
+    allocation_bytes = (size_t)numItems * sizeof (DtSessionItem);
     if ((pSD->pDtSessionItems =
-	 (DtSessionItem *)XtMalloc (numItems * sizeof (DtSessionItem)))
+         (DtSessionItem *)XtMalloc ((Cardinal)allocation_bytes))
         == NULL)
     {
         Warning (((char *)GETMESSAGE(60, 5, "Insufficient memory for Dt Session Hints")));
         return(False);
     }
     
-    memset ((char *)pSD->pDtSessionItems, NULL,
-	    numItems * sizeof (DtSessionItem));
+    memset ((char *)pSD->pDtSessionItems, 0, allocation_bytes);
 
     return(True);
     
