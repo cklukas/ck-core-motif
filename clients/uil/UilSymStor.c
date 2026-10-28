@@ -1365,17 +1365,17 @@ sym_dump_forward_ref(XmConst sym_forward_ref_entry_type *az_forward_ref_entry)
 {
 
     _debug_output
-	( "%x forward ref  size: %d  next ref: %x  location: %x  %s  parent: %x\n",
-	  (unsigned)az_forward_ref_entry,
+	( "%p forward ref  size: %d  next ref: %p  location: %p  %s  parent: %p\n",
+	  (void *)az_forward_ref_entry,
 	  az_forward_ref_entry->header.w_node_size,
-	  (unsigned)az_forward_ref_entry->az_next_ref,
-	  (unsigned)az_forward_ref_entry->a_update_location,
+	  (void *)az_forward_ref_entry->az_next_ref,
+	  (void *)az_forward_ref_entry->a_update_location,
 	  diag_object_text( az_forward_ref_entry->header.b_type ),
-      (unsigned)az_forward_ref_entry->parent );
+      (void *)az_forward_ref_entry->parent );
 
     _debug_output
-	( "  name: %x %s\n",
-	  (unsigned)az_forward_ref_entry->az_name,
+	( "  name: %p %s\n",
+	  (void *)az_forward_ref_entry->az_name,
 	  az_forward_ref_entry->az_name->c_text );
 
 }
