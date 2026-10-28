@@ -13,10 +13,15 @@ start = text.index("_XmTextFieldReplaceTextForPreedit(")
 end = text.index("\n}\n", start)
 second = text[start:end]
 region = first + second
+helper_start = text.index("TextFieldCheckedGrowth")
+helper_end = text.index("/********    End Static Function Declarations", helper_start)
+helper = text[helper_start:helper_end]
 
-if region.count("tf->text.size_allocd > UINT_MAX / 2") != 4:
-    raise SystemExit("replacement growth lacks capacity overflow guards")
-if region.count("new_size_allocd > UINT_MAX / sizeof(wchar_t)") != 2:
-    raise SystemExit("wide replacement growth lacks byte-width guards")
+if "result_length > (size_t)INT_MAX" not in helper:
+    raise SystemExit("growth helper lacks signed length bound")
+if "target > UINT_MAX" not in helper:
+    raise SystemExit("growth helper lacks capacity bound")
+if region.count("TextFieldCheckedGrowth(") != 4:
+    raise SystemExit("replacement paths do not use the checked growth helper")
 
 print("TextField replacement growth rejects unrepresentable capacities")
