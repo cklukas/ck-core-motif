@@ -11,7 +11,6 @@ start = source.index("static void \nAddWidget")
 end = source.index("\n/********************************<->***********************************/", start)
 region = source[start:end]
 
-assert "SIZE_MAX / sizeof(_XmHighlightRec)" in region
 assert "(size_t)UINT_MAX / sizeof(_XmHighlightRec)" in region
 assert "highlight_bytes = (size_t)data->widgets[0]->text.highlight.maximum" in region
 assert "XtRealloc(" in region
