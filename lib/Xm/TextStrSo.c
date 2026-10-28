@@ -1004,7 +1004,7 @@ _XmTextModifyVerify(XmTextWidget initiator,
   if (initiator->text.modify_verify_callback) {
     /* Fill in the block to pass to the callback. */
     if (block->length) {
-      if (block->length < 0 ||
+      if (block->length < 0 || block->ptr == NULL ||
           (size_t)block->length >= (size_t)UINT_MAX)
 	{
 	  *freeBlock = False;
@@ -1033,6 +1033,12 @@ _XmTextModifyVerify(XmTextWidget initiator,
     XtCallCallbackList ((Widget) initiator,
 			initiator->text.modify_verify_callback,
 			(XtPointer) &tvcb);
+    if (tvcb.text == NULL) {
+      if (newblock->ptr && newblock->ptr != block->ptr)
+	XtFree(newblock->ptr);
+      *freeBlock = False;
+      return False;
+    }
     /* If doit flag is false, application wants to negate the action,
      * so free allocate space and return False.
      */
@@ -1052,7 +1058,7 @@ _XmTextModifyVerify(XmTextWidget initiator,
 	  XtFree(newblock->ptr);
 	*freeBlock = False;
 	if (newblock->length) {
-	  if (newblock->length < 0 ||
+          if (newblock->length < 0 || tvcb.text->ptr == NULL ||
 	      (size_t)newblock->length >= (size_t)UINT_MAX)
 	    return False;
 	  newblock->ptr = XtMalloc((Cardinal)((size_t)newblock->length + 1));

@@ -19,3 +19,8 @@ python3 tests/automated/run-text-source-regressions.py /absolute/path/to/prefix 
 before converting text.  A failed provider read that reports a positive length
 without a payload now returns safely instead of dereferencing null, while valid
 large-range reads retain their existing checked sizing behavior.
+
+The modify-verify bridge applies the same contract to callback-provided blocks:
+nonzero lengths require a non-null payload, and a callback cannot replace the
+text block with a null structure.  Invalid callback data is rejected before
+copying; valid edits are unchanged.

@@ -27,6 +27,13 @@ Guard Text source read inputs (2026-10-29)
   payload before multibyte conversion dereferences the block.
 - Preserve valid source reads and add focused boundary coverage.
 
+Guard Text modify-verify payloads (2026-10-29)
+===============================================
+
+- Reject null source or callback payloads before the modify-verify bridge copies
+  nonzero text blocks.
+- Preserve valid callback edits and add focused null-payload coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
