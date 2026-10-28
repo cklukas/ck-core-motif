@@ -2545,6 +2545,10 @@ sym_value_entry_type *create_str_entry (l_size, l_charset, az_charset_entry)
      *	1 for the null on string
      */
 
+    if (l_size < 0 || l_size == INT_MAX) {
+	XtError("UIL string value is too large");
+	return NULL;
+    }
     node = (sym_value_entry_type *)
 	    sem_allocate_node
 		( sym_k_value_entry,

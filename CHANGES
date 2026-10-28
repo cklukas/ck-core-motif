@@ -26200,3 +26200,9 @@ Terminate UIL comment overflow paths (2026-10-29)
 
 - Stop lexing after oversized comment-buffer arithmetic is diagnosed, even
   when an Xt error handler returns instead of terminating the process.
+
+Bound UIL string-entry allocation lengths (2026-10-29)
+=======================================================
+
+- Reject invalid and `INT_MAX` string lengths before adding the terminator for
+  the lexer’s Xt allocation.
