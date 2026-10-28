@@ -1,3 +1,10 @@
+Guard XPM array end-of-input cursors (2026-10-29)
+==================================================
+
+- Stop array-backed XPM scanning cleanly when a null line terminator or input
+  array is encountered instead of dereferencing it on the next scan.
+- Add focused coverage and documentation.
+
 Reject full-capacity XPM file tokens (2026-10-29)
 =================================================
 

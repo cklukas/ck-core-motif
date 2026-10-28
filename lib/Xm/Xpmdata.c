@@ -175,8 +175,15 @@ ParseComment(xpmData *data)
 int
 xpmNextString(xpmData *data)
 {
-    if (!data->type)
+    if (!data->type) {
+	if (data->stream.data == NULL) {
+	    data->cptr = NULL;
+	    return 0;
+	}
 	data->cptr = (data->stream.data)[++data->line];
+	if (data->cptr == NULL)
+	    return 0;
+    }
     else if (data->type == XPMBUFFER) {
 	register char c = '\0';
 
@@ -246,6 +253,9 @@ xpmNextWord(
     int c;
 
     if (buf == NULL || buflen == 0)
+	return 0;
+
+    if ((!data->type || data->type == XPMBUFFER) && data->cptr == NULL)
 	return 0;
 
     if (!data->type || data->type == XPMBUFFER) {
