@@ -866,6 +866,21 @@ XtEnum XmPrintToFile(Display *pdpy,
       return False;
     }
 
+    /* Prepare the parent callback before forking so an allocation failure
+       cannot leave a child running after this function reports failure. */
+    callback = (FileCallbackRec *) XtMalloc(sizeof(FileCallbackRec));
+    if (callback == NULL) {
+      fclose(file);
+      (void)remove(file_name);
+      close(filedes[0]);
+      close(filedes[1]);
+      return False;
+    }
+    callback->display = pdpy;
+    callback->pipe = filedes[0];
+    callback->finish_proc = finish_proc;
+    callback->client_data = client_data;
+
     /* its important to flush before we fork, to make sure that the
        XpStartJob gets through first in the parent */
     XFlush(pdpy);
@@ -886,6 +901,7 @@ XtEnum XmPrintToFile(Display *pdpy,
       (void)remove(file_name);
       close(filedes[0]);
       close(filedes[1]);
+      XtFree((char *)callback);
       return False;
     }
 
@@ -893,17 +909,6 @@ XtEnum XmPrintToFile(Display *pdpy,
 
     fclose(file);
     close(filedes[1]);
-
-    /* allocate the space for a callback */
-    callback = (FileCallbackRec *) XtMalloc(sizeof(FileCallbackRec));
-    if (callback == NULL) {
-      close(filedes[0]);
-      return False;
-    }
-    callback->display = pdpy;
-    callback->pipe = filedes[0];
-    callback->finish_proc = finish_proc;
-    callback->client_data = client_data;
 
     /* notification that the child has completed */
     callback->input_id = 

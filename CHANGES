@@ -26809,3 +26809,10 @@ Validate PrintShell output-file inputs (2026-10-28)
   `XmPrintToFile`.
 - Remove the empty output file when `fork` fails, preserving the existing
   failure return while avoiding stale artifacts.
+Prepare PrintShell callback state before forking (2026-10-28)
+===============================================================
+
+- Allocate and initialize the parent status callback before creating the
+  PrintShell child, so callback allocation failure cannot leave a live child
+  behind after `XmPrintToFile` returns failure.
+- Release the callback and remove the output file on fork failure.
