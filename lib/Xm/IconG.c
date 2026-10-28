@@ -2283,7 +2283,7 @@ Redisplay(
 			   ig->rectangle.y + small_icon_y, 1);
     }
 
-    clip_rect.y = (short) ((int) ig->rectangle.y + (int) ht + (int) mh);
+    clip_rect.y = bounded_position((long long)ig->rectangle.y + ht + mh);
     available_width = (int) ig->rectangle.width - 2 * (int) ht -
 	2 * (int) mw;
     if ((int) container_data.first_column_width - (int) ht - (int) mw <
@@ -2300,9 +2300,9 @@ Redisplay(
     if (LayoutIsRtoLG(wid)) {
 	clip_x = (int) ig->rectangle.x + (int) ig->rectangle.width -
 	    (int) ht - available_width - (int) mw;
-	clip_rect.x = (short) clip_x;
+	clip_rect.x = bounded_position((long long)clip_x);
     } else {
-	clip_rect.x = (short) ((int) ig->rectangle.x + (int) ht + (int) mw);
+	clip_rect.x = bounded_position((long long)ig->rectangle.x + ht + mw);
     }
 
     XSetClipRectangles(XtDisplay(wid),gc,0,0,&clip_rect,1,Unsorted);
@@ -2440,14 +2440,14 @@ Redisplay(
 		    if (available_width < 0)
 			available_width = 0;
 		    clip_rect.width = (Dimension) available_width;
-		    clip_rect.x = (short) ((int) ig->rectangle.x + (int) detail_x);
+		    clip_rect.x = bounded_position((long long)ig->rectangle.x + detail_x);
 		    if (LayoutIsRtoLG(wid)) {
 			clip_x = (int) ig->rectangle.x + (int) ig->rectangle.width -
 			    (int) detail_x - available_width;
-			clip_rect.x = (short) clip_x;
+			clip_rect.x = bounded_position((long long)clip_x);
 		    }
 			
-		    clip_rect.y = (short) ((int) ig->rectangle.y + (int) ht + (int) mh);
+		    clip_rect.y = bounded_position((long long)ig->rectangle.y + ht + mh);
 		    available_height = (int) ig->rectangle.height - 2 * (int) ht -
 			2 * (int) mh;
 		    clip_rect.height = (Dimension) (available_height > 0 ? available_height : 0);
@@ -2456,8 +2456,8 @@ Redisplay(
 		} else {
 		    XmStringExtent(IG_RenderTable(wid), new_detail[i], &w, &h);
 		    if (!clip_set) {
-			clip_rect.x = (short) ((int) ig->rectangle.x + (int) ht + (int) mw);
-			clip_rect.y = (short) ((int) ig->rectangle.y + (int) ht + (int) mh);
+			clip_rect.x = bounded_position((long long)ig->rectangle.x + ht + mw);
+			clip_rect.y = bounded_position((long long)ig->rectangle.y + ht + mh);
 			available_width = (int) ig->rectangle.width - 2 * (int) ht -
 			    2 * (int) mw;
 			clip_rect.width = (Dimension) (available_width > 0 ?

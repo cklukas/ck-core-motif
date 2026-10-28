@@ -27682,3 +27682,9 @@ Bound IconG text coordinates (2026-10-29)
 - Clamp label and detail text positions, including right-to-left and shadow
   paths, before Motif drawing calls.
 - Add focused source-contract coverage for oversized gadget layouts.
+Bound IconG clip origins (2026-10-29)
+=======================================
+
+- Clamp XRectangle clip origins instead of allowing explicit `short` casts to
+  wrap large gadget offsets.
+- Extend the IconG coordinate regression contract.
