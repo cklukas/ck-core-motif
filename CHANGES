@@ -26507,3 +26507,9 @@ Use checked DataField wide result sizing (2026-10-29)
 
 - Form the wide callback-result allocation in `size_t` before narrowing it to
   Xt's allocation type.
+
+Bound DataField clear-selection spans (2026-10-29)
+===================================================
+
+- Reject selection spans that cannot fit the legacy `int` replacement count
+  before creating the temporary spaces buffer.

@@ -8280,13 +8280,18 @@ df_ClearSelection(
     XmTextPosition left = XmTextF_prim_pos_left(tf);
     XmTextPosition right = XmTextF_prim_pos_right(tf);
     int num_spaces = 0;
+    XmTextPosition space_span;
     XmAnyCallbackStruct cb;
     Boolean rep_result = False;
 
-    if (left < right)
-       num_spaces = (int)(right - left);
-    else
-       num_spaces = (int)(left - right);
+    if (left < right) {
+       space_span = right - left;
+    } else {
+       space_span = left - right;
+    }
+    if (space_span > (XmTextPosition)(INT_MAX - 1))
+       return;
+    num_spaces = (int)space_span;
 
     if (num_spaces) {
        _XmDataFieldDrawInsertionPoint(tf, False);
