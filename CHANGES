@@ -28162,3 +28162,11 @@ AutoSuggestBox committed-position bounds (2026-10-29)
 - Reject non-positive selected positions before converting a committed List
   selection to a zero-based `Cardinal` index.
 - Add focused source-contract coverage and documentation.
+
+CommandPalette selection position bounds (2026-10-28)
+======================================================
+
+- Validate the one-based list position returned by `XmList` before converting
+  it to a visible-command index; malformed or stale selections are ignored
+  without changing valid invocation behavior. See
+  `docs/command-palette-selection-bounds.md`.
