@@ -28395,3 +28395,11 @@ List drag selection bounds (2026-10-28)
   the existing 16-bit and wide-character branches (2026-10-28).
 * Text-source character-to-byte conversion now terminates one-byte and fully
   populated 16-bit output buffers as promised by its API contract (2026-10-28).
+* Refreshed the AutoSuggestBox source-contract check to recognize its explicit
+  NULL selection-array guard (2026-10-28).
+* Refreshed source-contract checks for the current bounded BreadcrumbBar and
+  DataGrid implementations (2026-10-28).
+* Refreshed the Flyout popup contract check for its long-long coordinate
+  clamping implementation (2026-10-28).
+* Refreshed the I18List row-Y contract check for its bounded assignment form
+  (2026-10-28).

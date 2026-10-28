@@ -9,5 +9,5 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "I18List.c").read_text(
 assert "cur_y = bounded_position((long long)XmI18List_sep_y(ilist)" in source
 assert "cur_y = bounded_position((long long)cur_y + row_height);" in source
 assert "cur_y = (XmI18List_sep_y(ilist) + VERTICAL_SPACE/2 +" not in source
-assert source.count("cur_y += row_height;") == 1
+assert "cur_y += row_height;" not in source
 print("PASS I18List display row Y arithmetic stays bounded")

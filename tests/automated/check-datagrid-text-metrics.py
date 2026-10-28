@@ -9,5 +9,5 @@ draw_text = source[start:end]
 assert "XmStringExtent(grid->data_grid.render_table" in draw_text
 assert "text_height" in draw_text
 assert "XmStringDraw" in draw_text
-assert "top + ((int)height - (int)text_height) / 2" in draw_text
+assert "((long long)height - text_height) / 2" in draw_text
 print("PASS DataGrid text uses render-table metrics")

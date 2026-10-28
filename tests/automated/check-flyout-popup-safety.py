@@ -8,8 +8,8 @@ text = source.read_text(encoding="utf-8")
 
 start = text.index("static void position_popup")
 position = text[start:text.index("static void create_popup", start)]
-assert "if (max_x < 0) x = 0;" in position
-assert "if (max_y < 0) y = 0;" in position
+assert "if (max_x < 0 || x_pos < 0) x_pos = 0;" in position
+assert "if (max_y < 0 || y_pos < 0) y_pos = 0;" in position
 start = text.index("static void create_popup")
 body = text[start:text.index("static void Initialize", start)]
 assert "if (!flyout->flyout.popup_shell) return;" in body

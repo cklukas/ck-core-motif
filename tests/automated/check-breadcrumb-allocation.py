@@ -6,7 +6,8 @@ start = source.index("void XmBreadcrumbBarSetSegments")
 end = source.index("Cardinal XmBreadcrumbBarGetSegmentCount", start)
 region = source[start:end]
 assert "SIZE_MAX / sizeof(*bar->breadcrumb.items)" in region
-assert "if (widget == NULL || !XmIsBreadcrumbBar(widget))" in region
+assert "widget == NULL || !XmIsBreadcrumbBar(widget)" in region
+assert "count > (Cardinal)INT_MAX" in region
 assert "if (!bar->breadcrumb.items)" in region
 assert "if (!bar->breadcrumb.items[i].label)" in region
 assert "XtFree((char *)bar->breadcrumb.items);" in region
