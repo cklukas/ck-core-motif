@@ -1,3 +1,10 @@
+Guard direct XPM image-scan entry points (2026-10-29)
+======================================================
+
+- Reject a null display, output image, or pair of missing source images before
+  the scanner reaches Xlib geometry and allocation code.
+- Add focused coverage and documentation.
+
 Bound XPM header successor pointers (2026-10-29)
 =================================================
 

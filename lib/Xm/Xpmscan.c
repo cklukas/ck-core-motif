@@ -213,6 +213,10 @@ XpmCreateXpmImageFromImage(
     unsigned int cppm;			/* minimum chars per pixel */
     unsigned int c;
 
+    if (display == NULL || xpmimage == NULL ||
+	(image == NULL && shapeimage == NULL))
+	return XpmFileInvalid;
+
     /* initialize pmap */
     pmap.pixels = NULL;
     pmap.pixelindex = NULL;
