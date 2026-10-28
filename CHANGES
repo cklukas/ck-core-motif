@@ -27227,6 +27227,13 @@ Guard AutoSuggestBox callback teardown (2026-10-28)
   away during teardown or synthetic dispatch.
 - Preserve normal query, commit, selection, and key-event behavior for live
   widgets.
+
+Guard TabBox partial repaint and bitmap lifetime (2026-10-28)
+===============================================================
+
+- Expand partial damage to intersected tabs before complete-label rendering,
+  restoring the TabBox clip between tab draws.
+- Evict cached Xft pictures before releasing reusable label bitmaps.
 - Guard list-popup key events against missing client or event data as well.
 
 Guard Mrm value-fixup swap state (2026-10-28)

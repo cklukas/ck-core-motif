@@ -55,6 +55,7 @@
 
 #ifdef USE_XFT
 #include <X11/Xft/Xft.h>
+#include "XmRenderTI.h"
 #endif
 
 #define _XiBoolean Boolean
@@ -872,6 +873,19 @@ Realize(Widget widget, XtValueMask *value_mask,
         XCreateGC(XtDisplay(widget), XtWindow(widget), gcMask, &gcValues);
 }
 
+/* Cached Xft pictures must be released before their drawable is freed. */
+static void
+ReleaseLabelBitmap(XmTabBoxWidget tab)
+{
+    if (!ValidPixmap(XmTabBox__bitmap(tab))) return;
+#ifdef USE_XFT
+    _XmXftDrawEvict(XtDisplay(tab), XmTabBox__bitmap(tab));
+#endif
+    XFreePixmap(XtDisplay(tab), XmTabBox__bitmap(tab));
+    XmTabBox__bitmap(tab) = XmUNSPECIFIED_PIXMAP;
+    XmTabBox__bitmap_width(tab) = XmTabBox__bitmap_height(tab) = 0;
+}
+
 static void
 #ifndef _NO_PROTO
 Destroy(Widget widget)
@@ -886,7 +900,7 @@ Destroy(widget)
     XmFontListFree(XmTabBox_font_list(tab));
     if( ValidPixmap(XmTabBox__bitmap(tab)) )
     {
-	XFreePixmap(XtDisplay(tab), XmTabBox__bitmap(tab));
+	ReleaseLabelBitmap(tab);
     }
     if( XmTabBox__zero_GC(tab) != NULL )
     {
@@ -954,6 +968,34 @@ Redisplay(widget, event, region)
     XGCValues gcValues;
     XFontStruct *font = NULL;
     XtGCMask gcMask = GCBackground;
+    Region damage = NULL;
+    int damage_index;
+
+    /* Label rendering may repaint a complete tab. Expand partial damage to
+     * every intersected tab without modifying Xt's caller-owned region. */
+    if (region && XmTabBox__inited(tab)) {
+        XiTabRect *geometry = XmTabBox__actual(tab);
+        damage = XCreateRegion();
+        if (damage != NULL) {
+            XUnionRegion(region, region, damage);
+            for (damage_index = 0; damage_index < count; ++damage_index) {
+                if (geometry[damage_index].width > 0 &&
+                    geometry[damage_index].height > 0 &&
+                    XRectInRegion(region, geometry[damage_index].x,
+                                  geometry[damage_index].y,
+                                  geometry[damage_index].width,
+                                  geometry[damage_index].height) != RectangleOut) {
+                    XRectangle bounds = {
+                        geometry[damage_index].x, geometry[damage_index].y,
+                        geometry[damage_index].width,
+                        geometry[damage_index].height
+                    };
+                    XUnionRectWithRegion(&bounds, damage, damage);
+                }
+            }
+            region = damage;
+        }
+    }
 
     /* Tab drawing mutates colors, clipping and fill styles. This GC belongs
      * to the TabBox; sharing an Xt cached GC would alter other consumers.
@@ -969,7 +1011,10 @@ Redisplay(widget, event, region)
     else
         gc = XCreateGC(XtDisplay(tab), XtWindow(tab), gcMask, &gcValues);
     XmTabBox__tab_GC(tab) = XmTabBox__text_GC(tab) = gc;
-    if( XmTabBox__inited(tab) == False ) return;
+    if( XmTabBox__inited(tab) == False ) {
+        if (damage) XDestroyRegion(damage);
+        return;
+    }
 
     /*
      * The first thing we want to do is fill in our background with the
@@ -1055,7 +1100,7 @@ Redisplay(widget, event, region)
     if( XmTabBox_tab_mode(tab) != XmTABS_STACKED &&
         XmTabBox_tab_mode(tab) != XmTABS_STACKED_STATIC )
     {
-	if( event == NULL || event->xany.type != Expose )
+	if( region || event == NULL || event->xany.type != Expose )
 	{
 	    XFillRectangle(XtDisplay(tab), XiCanvas(tab), gc, 0, 0,
 			   XtWidth(widget), XtHeight(widget));
@@ -1169,6 +1214,7 @@ Redisplay(widget, event, region)
 	    XSetClipMask(XtDisplay(tab), tab->manager.top_shadow_GC, None);
 	    XSetClipMask(XtDisplay(tab), tab->manager.background_GC, None);
 	}
+	if (damage) XDestroyRegion(damage);
 	return;
     }
 
@@ -1239,6 +1285,7 @@ Redisplay(widget, event, region)
 	XSetClipMask(XtDisplay(tab), tab->manager.top_shadow_GC, None);
 	XSetClipMask(XtDisplay(tab), tab->manager.background_GC, None);
     }
+    if (damage) XDestroyRegion(damage);
 }
 
 #define cfield(f) XmTabBox_##f(c_tab)
@@ -6127,8 +6174,7 @@ DrawRightToLeftTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	     * current pixmap so that we will allocate a pixmap
 	     * of the correct size below.
 	     */
-	    XFreePixmap(XtDisplay(tab), XmTabBox__bitmap(tab));
-	    XmTabBox__bitmap(tab) = XmUNSPECIFIED_PIXMAP;
+	    ReleaseLabelBitmap(tab);
 	}
 
 	/*
@@ -6732,8 +6778,7 @@ DrawVerticalTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	     * current pixmap so that we will allocate a pixmap
 	     * of the correct size below.
 	     */
-	    XFreePixmap(XtDisplay(tab), XmTabBox__bitmap(tab));
-	    XmTabBox__bitmap(tab) = XmUNSPECIFIED_PIXMAP;
+	    ReleaseLabelBitmap(tab);
 	}
 
 	/*
@@ -7642,6 +7687,8 @@ RedisplayTabs(XmTabBoxWidget tab, Region region)
 	    DrawTab(tab, info, &(geom[i]),
 		    (Boolean)(XmTabBox__selected(tab) == i),
 		    (Boolean)(XmTabBox__keyboard(tab) == i));
+	    if (region)
+		XSetRegion(XtDisplay(tab), XmTabBox__tab_GC(tab), region);
 	}
     }
 }
