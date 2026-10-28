@@ -24112,3 +24112,11 @@ Regression: tests/automated/check-dragunder-arg-count.py
 
 Match DragUnder saved-pixmap dimensions to Motif types (2026-10-28)
 ====================================================================
+Bound UIL resource-vector allocations (2026-10-28)
+===================================================
+
+- Validate database limits and checked multiplication before narrowing UIL
+  resource-vector allocation sizes to Xt's `Cardinal` width.
+- Add focused coverage and documentation.
+
+Bound UIL include filename metadata (2026-10-28)

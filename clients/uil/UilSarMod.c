@@ -51,6 +51,7 @@ static char rcsid[] = "$TOG: UilSarMod.c /main/13 1997/03/12 15:21:36 dbl $"
 **
 **/
 
+#include <limits.h>
 #include <string.h>
 
 #include "UilDefI.h"
@@ -133,6 +134,25 @@ sar_copy_fixed_string(char *destination, size_t destination_size,
     destination[length] = '\0';
 }
 
+static Cardinal
+sar_vector_bytes(int maximum)
+{
+    size_t count;
+
+    if (maximum < 0) {
+	XtError("UIL resource table limit is negative");
+	return 0;
+    }
+
+    count = (size_t)maximum + 1;
+    if (count > (size_t)UINT_MAX / sizeof(unsigned short int)) {
+	XtError("UIL resource table limit is too large");
+	return 0;
+    }
+
+    return (Cardinal)(count * sizeof(unsigned short int));
+}
+
 
 /*
 **++
@@ -185,19 +205,19 @@ if (strcmp(XmFALLBACK_CHARSET, "ISO8859-1") != 0) /* Most common case. */
  */
 if ( uil_urm_variant == NULL )
     uil_urm_variant = (unsigned short int *)
-	XtMalloc(sizeof(unsigned short int)*(uil_max_object+1));
+	XtMalloc(sar_vector_bytes(uil_max_object));
 if ( uil_arg_compr == NULL )
     uil_arg_compr = (unsigned short int *)
-	XtMalloc(sizeof(unsigned short int)*(uil_max_arg+1));
+	XtMalloc(sar_vector_bytes(uil_max_arg));
 if ( uil_reas_compr == NULL )
     uil_reas_compr = (unsigned short int *)
-	XtMalloc(sizeof(unsigned short int)*(uil_max_reason+1));
+	XtMalloc(sar_vector_bytes(uil_max_reason));
 if ( uil_widget_compr == NULL )
     uil_widget_compr = (unsigned short int *)
-	XtMalloc(sizeof(unsigned short int)*(uil_max_object+1));
+	XtMalloc(sar_vector_bytes(uil_max_object));
 if ( uil_child_compr == NULL )
     uil_child_compr = (unsigned short int *)
-	XtMalloc(sizeof(unsigned short int)*(uil_max_child+1));
+	XtMalloc(sar_vector_bytes(uil_max_child));
 /*
  **	Loop throught the array of object variants and set them all to NULL.
  */
