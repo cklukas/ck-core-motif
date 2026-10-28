@@ -293,13 +293,13 @@ ParseUnitString(
   char * string = spec;
   double power;
   int sign;
-  char c;
+  unsigned char c;
 
   if (spec == NULL || float_value == NULL || unit_type == NULL)
     return XmPARSE_ERROR;
   
   /* Skip leading whitespace */
-  while ((isascii(c=*string)) && (isspace(c))) string++;
+  while ((isascii(c=(unsigned char)*string)) && (isspace(c))) string++;
   
   /* Check for sign */
   sign = (*string == '-')? -1 : 1;
@@ -333,7 +333,7 @@ ParseUnitString(
   *float_value = sign * *float_value / power;
   
   /* Skip whitespace between float and unit */
-  while ((isascii(c=*string)) && (isspace(c))) string++;
+  while ((isascii(c=(unsigned char)*string)) && (isspace(c))) string++;
   
   return(XmeParseUnits(string, unit_type));
 }

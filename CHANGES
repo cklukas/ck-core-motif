@@ -26905,3 +26905,9 @@ Harden MWM menu whitespace matching (2026-10-28)
 
 - Cast menu-label and client-command bytes to `unsigned char` before `isspace`
   classification, avoiding signed-char undefined behavior in localized input.
+
+Harden unit-string byte classification (2026-10-28)
+=====================================================
+
+- Use unsigned input bytes for `isascii` and `isspace` while parsing resource
+  unit strings, avoiding signed-char undefined behavior for high-bit input.
