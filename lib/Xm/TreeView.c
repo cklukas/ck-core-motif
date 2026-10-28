@@ -17,6 +17,12 @@ static int clamp_coordinate(long long value) {
            value > INT_MAX ? INT_MAX : (int)value;
 }
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
@@ -394,7 +400,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             int label_y = y + ((int)view->tree_view.row_height -
                                (int)label_height) / 2;
             XmStringDraw(display, window, view->tree_view.render_table,
-                         label_string, view->tree_view.gc, x, label_y,
+                         label_string, view->tree_view.gc,
+                         bounded_position((long long)x),
+                         bounded_position((long long)label_y),
                          label_width, XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(view), NULL);
         }
