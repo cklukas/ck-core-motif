@@ -3821,8 +3821,8 @@ yystype	    *keyword_frame;
 	icon_entry->value.z_icon = (sym_icon_element *)
 	    XtCalloc(1,sizeof(sym_icon_element));
 	icon_entry->b_type = sym_k_icon_value;
-	icon_entry->value.z_icon->w_height = height;
-	icon_entry->value.z_icon->w_width = width;
+	icon_entry->value.z_icon->w_height = (unsigned short)height;
+	icon_entry->value.z_icon->w_width = (unsigned short)width;
 	icon_entry->value.z_icon->az_color_table = table_entry;
 	icon_entry->value.z_icon->az_rows = head_row_entry;
 	icon_entry->obj_header.b_flags = sym_m_private;
@@ -3842,7 +3842,7 @@ yystype	    *keyword_frame;
 
     _sar_move_source_info( target_frame, keyword_frame );
     target_frame->b_tag = sar_k_value_frame;
-    target_frame->b_type = target_type;
+    target_frame->b_type = (unsigned char)target_type;
     target_frame->b_flags = sym_m_private;
     target_frame->value.az_symbol_entry =
 		(sym_entry_type *) icon_entry;

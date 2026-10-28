@@ -21,4 +21,6 @@ assert "_move( value_entry->value.c_value, value, (size_t)length )" in source
 assert "count >= UCHAR_MAX || count >= sym_k_max_list_count" in source
 assert "font_table_entry->b_table_count = (unsigned char)(count + 1);" in source
 assert "XtCalloc(1, (Cardinal)(sizeof(sym_color_element) * (size_t)count))" in source
+assert "w_height = (unsigned short)height;" in source
+assert "w_width = (unsigned short)width;" in source
 print("UIL compact value-frame fields use explicit, value-preserving narrowing")
