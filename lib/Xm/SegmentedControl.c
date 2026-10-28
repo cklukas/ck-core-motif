@@ -284,7 +284,7 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     XmSegmentedControlItemRec *copy;
     Cardinal i;
     if (widget == NULL || !XmIsSegmentedControl(widget) ||
-        (count && !items)) return False;
+        (count && !items) || count > (Cardinal)INT_MAX) return False;
     control = (XmSegmentedControlWidget)widget;
     if (count) {
         if ((size_t)count > SIZE_MAX / sizeof(*copy) ||

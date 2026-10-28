@@ -28289,6 +28289,13 @@ ComboBox selected-position import input (2026-10-28)
   selected-position import dereferences them. See
   `docs/combobox-selected-import-input.md`.
 
+SegmentedControl item-count range (2026-10-28)
+==============================================
+
+- Reject item counts above the signed index range used by SegmentedControl’s
+  selection and keyboard-navigation APIs. See
+  `docs/segmented-count-range.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
