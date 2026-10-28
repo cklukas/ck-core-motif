@@ -253,7 +253,7 @@ xpmNextWord(
 	    if (c == '\0')
 		break;
 	    data->cptr++;
-	    *buf++ = c;
+	    *buf++ = (char)(unsigned char)c;
 	    n++;
 	} while (!isspace(c) && c != data->Eos && n < buflen);
 	if (n == buflen && c != '\0' && c != data->Eos && !isspace(c)) {
@@ -271,7 +271,7 @@ xpmNextWord(
 
 	while ((c = Getc(data, file)) != EOF && isspace(c) && c != data->Eos);
 	while (!isspace(c) && c != data->Eos && c != EOF && n < buflen) {
-	    *buf++ = c;
+	    *buf++ = (char)(unsigned char)c;
 	    n++;
 	    c = Getc(data, file);
 	}

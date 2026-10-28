@@ -24612,3 +24612,10 @@ Reject overlong XPM parser tokens (2026-10-29)
 - Reject and consume tokens that exceed `xpmNextWord`'s destination buffer
   instead of parsing a truncated prefix and leaving the remainder as input.
 - Add focused coverage and documentation.
+
+Preserve high-bit XPM token bytes (2026-10-29)
+===============================================
+
+- Cast memory- and file-backed token bytes through `unsigned char` before
+  storing them in `char` buffers.
+- Add focused coverage and documentation.
