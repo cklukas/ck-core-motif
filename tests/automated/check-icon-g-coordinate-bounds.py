@@ -14,4 +14,5 @@ assert source.count("clip_rect.x = bounded_position") >= 5
 assert source.count("clip_rect.y = bounded_position") >= 3
 assert "clip_rect.x = (short)" not in source
 assert "clip_rect.y = (short)" not in source
+assert "(short) ((int) ig->rectangle.y + (int) ht + (int) mh)" not in source
 print("PASS IconG label and detail coordinates stay bounded")

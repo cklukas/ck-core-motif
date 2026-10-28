@@ -27688,3 +27688,9 @@ Bound IconG clip origins (2026-10-29)
 - Clamp XRectangle clip origins instead of allowing explicit `short` casts to
   wrap large gadget offsets.
 - Extend the IconG coordinate regression contract.
+Bound IconG mask clip origin (2026-10-29)
+==========================================
+
+- Clamp the large-icon mask clip origin instead of narrowing its Y coordinate
+  through a wrapping `short` cast.
+- Extend the IconG coordinate regression contract.

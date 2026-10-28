@@ -2192,7 +2192,7 @@ Redisplay(
 
 	    XSetClipOrigin(XtDisplay(wid), IG_NormalGC(wid),
 			   ig->rectangle.x + large_icon_x,
-			   (short) ((int) ig->rectangle.y + (int) ht + (int) mh));
+			   bounded_position((long long)ig->rectangle.y + ht + mh));
 	} else {
 	    XSetClipMask(XtDisplay(wid), IG_NormalGC(wid),None);
 	}
