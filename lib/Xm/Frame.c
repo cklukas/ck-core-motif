@@ -1172,7 +1172,8 @@ CalcTitleExtent(
     switch (fc->child_v_alignment) {
 	case(XmALIGNMENT_BASELINE_TOP):
 	case(XmALIGNMENT_BASELINE_BOTTOM):
-	    if (XmWidgetGetBaselines (fw->frame.title_area, &lines, &nlines)) {
+	    if (XmWidgetGetBaselines (fw->frame.title_area, &lines, &nlines) &&
+		nlines > 0 && lines != NULL) {
 		if (fc->child_v_alignment == XmALIGNMENT_BASELINE_TOP)
 		    base = lines[0];
 		else

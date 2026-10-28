@@ -28226,6 +28226,13 @@ Virtual-key empty-line bounds (2026-10-28)
   key resource parsing cannot index before the line buffer. See
   `docs/virtkeys-empty-line-bounds.md`.
 
+Frame title baseline bounds (2026-10-28)
+=======================================
+
+- Require a non-empty baseline result before indexing frame title baselines,
+  allowing empty results to use the existing fallback geometry. See
+  `docs/frame-baseline-count.md`.
+
 List drag selection bounds (2026-10-28)
 ======================================
 
