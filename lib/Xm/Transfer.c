@@ -300,6 +300,8 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
 	   cbstruct.format != 32) ||
 	  (cbstruct.length != 0 && cbstruct.type == None) ||
 	  (cbstruct.length != 0 && cbstruct.value == NULL)) {
+	XtFree((char *)cbstruct.value);
+	cbstruct.value = NULL;
 	*value = NULL;
 	*size = 0;
 	*fmt = 8;
@@ -315,6 +317,8 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
     }
   else
     {
+	  XtFree((char *)cbstruct.value);
+	  cbstruct.value = NULL;
       *value = NULL;
       *size = 0;
       *fmt = 8;

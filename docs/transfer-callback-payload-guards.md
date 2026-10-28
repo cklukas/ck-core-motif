@@ -5,6 +5,11 @@ nav_exclude: true
 Normalize malformed transfer callback results
 ==============================================
 
+The internal converter path also releases a converter-owned payload when its
+format, type, length, or pointer combination is malformed, or when conversion
+does not complete.  Rejected output is cleared before callers observe the
+failure, preventing a leak while preserving the existing failure contract.
+
 `SelectionCallbackWrapper` now validates selection-owner results before
 publishing them through `XmSelectionCallbackStruct`.  A missing selection atom
 and invalid 8/16/32-bit

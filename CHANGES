@@ -1,3 +1,10 @@
+Release rejected converter payloads (2026-10-29)
+=================================================
+
+- Release converter-owned data when `_XmConvertHandler` rejects malformed or
+  incomplete output.
+- Clear the rejected pointer before returning failure and add focused coverage.
+
 Release drop results with missing callback data (2026-10-29)
 ==============================================================
 
