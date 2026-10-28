@@ -1,3 +1,10 @@
+Guard null compound-text converter values (2026-10-29)
+=======================================================
+
+- Reject missing Xt converter input or output records before dereferencing
+  them in `XmCvtTextToXmString`.
+- Preserve valid compound-text conversion and add focused input coverage.
+
 Reject null segment-encoding tags (2026-10-29)
 ===============================================
 
