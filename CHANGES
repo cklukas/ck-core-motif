@@ -25972,3 +25972,9 @@ Guard TextField validated value conversions (2026-10-29)
 
 - Reject failed or unterminated `mbstowcs`/`wcstombs` results before
   publishing validated TextField storage.
+
+Fix TextField wide selection length (2026-10-29)
+===============================================
+
+- Preserve the `mbstowcs` result and return the actual converted selection
+  length instead of exposing uninitialized trailing wide characters.

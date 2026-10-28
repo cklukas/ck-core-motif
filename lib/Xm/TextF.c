@@ -11245,7 +11245,7 @@ XmTextFieldGetSelectionWcs(Widget w)
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   size_t length;
   wchar_t *wc_value;
-  int return_val = 0;
+  size_t return_val = 0;
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -11272,9 +11272,12 @@ XmTextFieldGetSelectionWcs(Widget w)
   }
   
   if (tf->text.max_char_size == 1) {
-    return_val = mbstowcs(wc_value, TextF_Value(tf) + tf->text.prim_pos_left, 
-			  length);
-    if (return_val < 0) length = 0;
+    return_val = mbstowcs(wc_value, TextF_Value(tf) + tf->text.prim_pos_left,
+                          length);
+    if (return_val == (size_t)-1)
+      length = 0;
+    else
+      length = return_val;
   } else {
     (void)memcpy((void*)wc_value, 
 		 (void*)(TextF_WcValue(tf) + tf->text.prim_pos_left), 
