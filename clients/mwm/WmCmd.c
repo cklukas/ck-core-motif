@@ -1157,7 +1157,10 @@ RemoveMatchingCommands (
 
   if (tree->notifyWindow == clientWindow)
     {
-      cmdKillList[ cmdKillListIndex++ ] = tree->commandID;
+      if (cmdKillListIndex < XtNumber(cmdKillList))
+	cmdKillList[cmdKillListIndex++] = tree->commandID;
+      else
+	PRINT("Command removal list is full; skipping an entry.\n");
     }
 
   if (tree->next != NULL)

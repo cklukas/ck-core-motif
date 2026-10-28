@@ -26947,6 +26947,12 @@ Bound MWM RenameCommand strings and lists (2026-10-28)
   payload before processing the request.
 - Release the temporary decoded name on every success and failure path.
 
+Bound MWM command-removal collection (2026-10-28)
+==================================================
+
+- Guard the fixed command-kill list before appending matching IDs.
+- Report excess matches instead of writing beyond the internal array.
+
 Validate MWM RemoveCommand message lengths (2026-10-28)
 ========================================================
 
