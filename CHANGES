@@ -11393,6 +11393,13 @@ Mrm file-open filename validation (2026-10-25)
 - Reject a null filename before opening a UID file; see
   `docs/mrm-open-name-input.md`.
 
+Mrm file-open Cardinal filename bound (2026-10-28)
+===================================================
+
+- Reject filename lengths that cannot fit Xt's `Cardinal` allocation width
+  before copying optional output or opening the file.
+- Extend the focused file-opener contract and documentation.
+
 Mrm resource-id output validation (2026-10-25)
 ===============================================
 

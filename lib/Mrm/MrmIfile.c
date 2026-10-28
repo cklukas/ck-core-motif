@@ -140,6 +140,8 @@ Idb__FU_OpenFile (char 			*name,
 
   /* Fill in the result name with the name specified so far */
   length = strlen (name);
+  if (length >= (size_t)UINT_MAX)
+    return MrmFAILURE;
   if (returned_fname != NULL)
     {
       strcpy (returned_fname, name);

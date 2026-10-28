@@ -17,5 +17,7 @@ if check > strlen_pos:
     raise SystemExit("Mrm file opener dereferences inputs before validation")
 if "return MrmFAILURE;" not in region[check:strlen_pos]:
     raise SystemExit("Mrm file opener input failure is missing")
+if "if (length >= (size_t)UINT_MAX)" not in region:
+    raise SystemExit("Mrm file opener does not bound Xt filename allocation")
 
 print("Mrm file opener validates inputs before measuring names")
