@@ -23213,6 +23213,15 @@ Reject overflowing List replacement positions (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-list-replace-position-bounds.py
 
+Bound zero-based ComboBox selected positions (2026-10-28)
+============================================================
+
+- Leave a ComboBox child List unselected when zero-based `INT_MAX` cannot be
+  converted to a one-based position.
+- Preserve normal conversion for all representable values and add focused
+  regression coverage and documentation.
+Regression: tests/automated/check-combobox-selected-position-bounds.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,

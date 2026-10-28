@@ -3286,13 +3286,24 @@ CreateScrolledList(Widget    parent,
     {
       if (CBS_SelectedPosition(cb) == XmINVALID_POSITION)
 	pos = 1;  /* Issue 138 */
+      else if (CB_PositionMode(cb) == XmZERO_BASED &&
+	       CBS_SelectedPosition(cb) == INT_MAX)
+	{
+	  /* There is no representable one-based List position for this
+	   * zero-based public value; leave the child unselected. */
+	  setpos = FALSE;
+	}
       else if (CB_PositionMode(cb) == XmZERO_BASED)
 	pos = CBS_SelectedPosition(cb) + 1;
       else
 	pos = CBS_SelectedPosition(cb);
-      XtSetArg(loc_args[n], XmNselectedPositions, &pos), n++;
-      XtSetArg(loc_args[n], XmNselectedPositionCount, 1), n++;
-      setpos = TRUE;
+      if (!setpos &&
+	  !(CB_PositionMode(cb) == XmZERO_BASED &&
+	    CBS_SelectedPosition(cb) == INT_MAX)) {
+	XtSetArg(loc_args[n], XmNselectedPositions, &pos), n++;
+	XtSetArg(loc_args[n], XmNselectedPositionCount, 1), n++;
+	setpos = TRUE;
+      }
     }
 
   XtSetArg(loc_args[n], XmNrenderTable, CB_RenderTable(cb)), n++;
