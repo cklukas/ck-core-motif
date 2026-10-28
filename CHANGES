@@ -26821,3 +26821,10 @@ Release clipboard window trees with Xlib ownership (2026-10-28)
 
 - Correct the recursive clipboard window search to release `XQueryTree`
   child lists with `XFree` instead of the incompatible Xt allocator.
+Use the screen background for image fallbacks (2026-10-28)
+===========================================================
+
+- Use `WhitePixelOfScreen` when SVG or PNG decoding has no explicit
+  appearance background, instead of silently compositing against pixel zero.
+- Preserve explicit application background resources while avoiding unexpected
+  black image regions on ordinary screens.

@@ -1044,7 +1044,7 @@ GetImage(
 
 #ifdef SVG_SUPPORTED
     if (IsSvgFile(file_name)) {
-        Pixel background = 0;
+        Pixel background = WhitePixelOfScreen(screen);
 
         if (acc_color && acc_color->background != XmUNSPECIFIED_PIXEL)
             background = acc_color->background;
@@ -1073,10 +1073,10 @@ GetImage(
         if (acc_color)
             background = acc_color->background;
         else
-            background = 0;
+            background = WhitePixelOfScreen(screen);
 
         if (background == XmUNSPECIFIED_PIXEL)
-            background = 0; /* XXX is if OK? */
+            background = WhitePixelOfScreen(screen);
 #endif
 #if defined (JPEG_SUPPORTED) && defined (PNG_SUPPORTED)
         rewind(infile);
