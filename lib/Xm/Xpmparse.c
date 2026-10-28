@@ -650,6 +650,10 @@ xpmParseExtensions(
 	    return (status);
 	}
 	ext->lines = (char **) XpmMalloc(sizeof(char *));
+	if (ext->lines == NULL) {
+	    XpmFreeExtensions(exts, num + 1);
+	    return (XpmNoMemory);
+	}
 	nlines = 0;
 	while ((notstart = strncmp("XPMEXT", string, 6))
 	       && (notend = strncmp("XPMENDEXT", string, 9))) {

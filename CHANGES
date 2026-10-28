@@ -1,3 +1,9 @@
+Handle XPM extension-line initial allocation failure (2026-10-29)
+===================================================================
+
+- Check the first extension-line pointer-array allocation explicitly.
+- Add focused coverage and documentation.
+
 Handle XPM string initial allocation failure (2026-10-29)
 ===========================================================
 
