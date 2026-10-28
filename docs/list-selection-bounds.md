@@ -1,16 +1,18 @@
 ---
 nav_exclude: true
 ---
-# List selection result buffers
+# List selection bounds
 
-`XmListGetMatchPos` and `XmListGetSelectedPos` now check the number of result
-integers against both `size_t` and Xt's `Cardinal` width before allocating and
-copying the caller-visible arrays. Ordinary empty and selected-list behavior is
-unchanged.
+`XmListGetMatchPos` and `XmListGetSelectedPos` check result sizes before
+allocating caller-visible arrays. The internal selection builders also reject
+invalid counts before constructing cached selection arrays.
 
-The internal selection builders apply the same checks before constructing
-cached selected-item and selected-position arrays, including rejecting a
-negative non-sentinel count.
+List keeps a one-based selected-position cache while selection updates are in
+flight. Keyboard, API, and deselection consumers now share a bounds check before
+converting a position to an internal zero-based item index, so a stale zero or
+out-of-range entry is ignored rather than dereferencing outside `InternalList`.
+Valid selection behavior and the public List API remain unchanged.
 
-The source-level regression is
-`tests/automated/check-list-selection-internals.py`.
+The source contract is checked by
+`tests/automated/check-list-selection-internals.py` and
+`tests/automated/check-list-selection-consumer-bounds.py`.

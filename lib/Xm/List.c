@@ -50,6 +50,13 @@ static Position bounded_position(long long value)
   if (value > SHRT_MAX) return (Position)SHRT_MAX;
   return (Position)value;
 }
+
+static Boolean selected_position_valid(XmListWidget lw, int index)
+{
+  return index >= 0 && index < lw->list.selectedPositionCount &&
+    lw->list.selectedPositions[index] > 0 &&
+    lw->list.selectedPositions[index] <= lw->list.itemCount;
+}
 #include <Xm/DragC.h>
 #include <Xm/DragIcon.h>
 #include <Xm/DragIconP.h>
@@ -4720,6 +4727,8 @@ HandleExtendedItem(XmListWidget lw,
 	  lw->list.LastHLItem = item;
 	  for (i = 0; i < lw->list.selectedPositionCount; i++)
 	    {
+      if (!selected_position_valid(lw, i))
+	continue;
 	      int pos = lw->list.selectedPositions[i] - 1;
 	      if (pos != item)
 		{
@@ -5652,6 +5661,8 @@ KbdActivate(Widget wid,
     {
       for (i = 0; i < lw->list.selectedPositionCount; i++)
         {
+	  if (!selected_position_valid(lw, i))
+	    continue;
 	  int pos = lw->list.selectedPositions[i] - 1;
 
 	  lw->list.InternalList[pos]->selected = FALSE;
@@ -5806,6 +5817,8 @@ KbdSelectAll(Widget wid,
     {
       for (i = 0; i < lw->list.selectedPositionCount; i++)
 	{
+	  if (!selected_position_valid(lw, i))
+	    continue;
 	  int pos = lw->list.selectedPositions[i] - 1;
 
 	  lw->list.InternalList[pos]->last_selected =
@@ -5895,6 +5908,8 @@ KbdDeSelectAll(Widget wid,
   lw->list.AppendInProgress = FALSE;
   for (i = 0; i < lw->list.selectedPositionCount; i++)
     {
+      if (!selected_position_valid(lw, i))
+	continue;
       int pos = lw->list.selectedPositions[i] - 1;
 
       if (pos != j)
@@ -9364,6 +9379,8 @@ APISelect(XmListWidget lw,
     {
       for (i = 0; i < lw->list.selectedPositionCount; i++)
 	{
+	  if (!selected_position_valid(lw, i))
+	    continue;
 	  int pos = lw->list.selectedPositions[i] - 1;
 	  lw->list.InternalList[pos]->selected = FALSE;
 	  DrawItem((Widget) lw, pos);
@@ -9642,6 +9659,8 @@ XmListDeselectAllItems(Widget w)
     {
       for (i = 0; i < lw->list.selectedPositionCount; i++)
 	{
+	  if (!selected_position_valid(lw, i))
+	    continue;
 	  int pos = lw->list.selectedPositions[i] - 1;
 
 	  lw->list.InternalList[pos]->selected = FALSE;
