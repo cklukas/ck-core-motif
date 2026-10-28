@@ -53,6 +53,12 @@ Make UIL fill helper width-safe (2026-10-29)
   caller-variable shadowing while preserving its output.
 - Add focused coverage and documentation.
 
+Make UIL message marker width explicit (2026-10-29)
+===================================================
+
+- Make the bounded single-digit diagnostic marker conversion explicit before
+  storing it in the listing character buffer.
+
 Validate UIL keyword length configuration (2026-10-28)
 =======================================================
 

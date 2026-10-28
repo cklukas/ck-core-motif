@@ -8,4 +8,5 @@ end = source.index("\n}\n", start) + 2
 region = source[start:end]
 assert "snprintf(buffer, sizeof(buffer), \"%s (%d) %s\"" in region
 assert "sprintf(buffer, \"%s (%d) %s\"" not in region
+assert "ptr_buffer[ pos++ ] = (char)(msg_no + '0');" in source
 print("UIL diagnostic message listing is bounded")

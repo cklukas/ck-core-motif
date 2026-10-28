@@ -947,7 +947,7 @@ char			*src_buffer;
 	}
     
 	msg_no = (msg_no % 9) + 1;
-	ptr_buffer[ pos++ ] = msg_no + '0';
+	ptr_buffer[ pos++ ] = (char)(msg_no + '0');
 	v_output_line = TRUE;
 
 next_message:
