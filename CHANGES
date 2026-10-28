@@ -26265,3 +26265,10 @@ Guard UIL string-value allocations (2026-10-29)
 - Check semantic-node allocation before initializing a string value.
 - Check the string payload allocation and release the node through the
   existing semantic free-list when it fails.
+Reject oversized UIL lexer strings before assembly (2026-10-29)
+==================================================================
+
+- Check cumulative lexical-buffer length before adding another fixed-size
+  segment to the signed string length.
+- Stop token construction when string-node allocation fails instead of
+  dereferencing a null semantic value.

@@ -1648,9 +1648,15 @@ found_primitive_string:
 	for (az_lex_buffer = az_first_lex_buffer;  
 	     az_lex_buffer != az_current_lex_buffer;  
 	     az_lex_buffer = az_lex_buffer->az_next_buffer)
+	    {
+	    if (l_length > INT_MAX - (l_max_lex_buffer_pos + 1))
+		return 0;
 	    l_length = l_length + l_max_lex_buffer_pos + 1;
+	    }
 
 	az_value = create_str_entry( l_length, l_charset, az_charset_entry );
+	if (az_value == NULL)
+	    return 0;
 
 	c_char = (unsigned char *)az_value->value.c_value;
 
