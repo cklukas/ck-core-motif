@@ -322,6 +322,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
     char buffer[2];
     int length, index;
     (void)data; (void)dispatch;
+    if (widget == NULL || event == NULL || !XmIsBreadcrumbBar(widget)) return;
     if (event->type == ButtonPress) {
         index = hit_test(bar, event->xbutton.x);
         if (index >= 0)

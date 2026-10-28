@@ -27347,3 +27347,9 @@ Guard NumberBox event dispatch (2026-10-29)
 
 - Validate the widget type and event pointer before reading input fields,
   preventing malformed dispatch from reaching value editing or stepping.
+
+Guard BreadcrumbBar event dispatch (2026-10-29)
+================================================
+
+- Validate the widget type and event pointer before reading navigation input,
+  preventing malformed dispatch from reaching selection or activation.
