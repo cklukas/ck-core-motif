@@ -15,3 +15,7 @@ replaced only after the server confirms the new owner.
 `XmeSecondarySink` follows the same ordering for the destination selection, so
 an unsuccessful ownership request cannot discard the active secondary-transfer
 context.
+
+`XmeClipboardSource` likewise retains its existing clipboard context while a
+clipboard-manager ownership request is pending and replaces it only after Xt
+confirms ownership.

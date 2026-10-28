@@ -99,6 +99,13 @@ Preserve secondary-sink context on rejected ownership (2026-10-29)
   secondary-sink ownership request, preserving stale-timestamp behavior.
 - Add focused ordering coverage for the secondary sink path.
 
+Preserve clipboard-source context on rejected ownership (2026-10-29)
+====================================================================
+
+- Defer clipboard context replacement until a clipboard-manager ownership
+  request succeeds, while retaining the existing no-manager setup path.
+- Add focused ordering coverage for manager-backed clipboard source startup.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 

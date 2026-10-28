@@ -889,7 +889,9 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 
   if (time == 0) time = XtLastTimestampProcessed(display);
 
-  ClearContextBlock(display, atoms[XmACLIPBOARD]);
+  clipboard_owner = XGetSelectionOwner(display, atoms[XmACLIPBOARD_MANAGER]);
+  if (clipboard_owner == None)
+    ClearContextBlock(display, atoms[XmACLIPBOARD]);
 
   cc = LookupContextBlock(display, atoms[XmACLIPBOARD]);
   if (cc == NULL) {
@@ -902,7 +904,6 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
      ownership of the clipboard selection and the manager
      will do the rest.  Otherwise we use the motif clipboard
      code. */
-  clipboard_owner = XGetSelectionOwner(display, atoms[XmACLIPBOARD_MANAGER]);
   if (clipboard_owner != None) {
     int selection_status;
 
@@ -918,6 +919,12 @@ XmeClipboardSource(Widget w, XtEnum op, Time time)
 
     if (selection_status)
     {
+      ClearContextBlock(display, atoms[XmACLIPBOARD]);
+      cc = LookupContextBlock(display, atoms[XmACLIPBOARD]);
+      if (cc == NULL) {
+        _XmAppUnlock(app);
+        return False;
+      }
       XtRemoveCallback(w, XmNdestroyCallback, DisownCallback,
                               (XtPointer) atoms[XmACLIPBOARD]);
       XtAddCallback(w, XmNdestroyCallback, DisownCallback,
