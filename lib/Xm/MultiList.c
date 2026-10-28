@@ -33,6 +33,23 @@
 extern XmMultiListRowInfo \
            *XmI18ListFindRow(Widget, String, int *, Boolean, Boolean);
 extern int *XmI18ListGetSelectedRowArray(XmI18ListWidget, int *);
+
+static Position
+multilist_position(long long value)
+{
+    if (value < (long long)SHRT_MIN)
+	return (Position)SHRT_MIN;
+    if (value > (long long)SHRT_MAX)
+	return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
+static Dimension
+multilist_dimension(unsigned long value)
+{
+    return value > (unsigned long)USHRT_MAX ? (Dimension)USHRT_MAX :
+	(Dimension)value;
+}
 extern void XmI18ListMakeRowVisible(XmI18ListWidget, int);
 extern void XmI18ListDeselectRow(XmI18ListWidget, int);
 extern void XmI18ListSelectRow(XmI18ListWidget, int, Boolean);
@@ -978,9 +995,13 @@ static void PositionFindAndFindText(Widget w)
     if (!XmMultiList_show_find(elist))
         return;
 
-    find_height = find->core.height + 2 * find->core.border_width;
-    find_width = find->core.width + 2 * find->core.border_width;
-    max_child_height = find_text->core.height + 2*find_text->core.border_width;
+    find_height = multilist_dimension((unsigned long)find->core.height +
+	2UL * find->core.border_width);
+    find_width = multilist_dimension((unsigned long)find->core.width +
+	2UL * find->core.border_width);
+    max_child_height = multilist_dimension(
+	(unsigned long)find_text->core.height +
+	2UL * find_text->core.border_width);
 
     if (find_height > max_child_height)
     max_child_height = find_height;
@@ -989,12 +1010,12 @@ static void PositionFindAndFindText(Widget w)
      * Put the Find widget in the lower left corner.
      */
     if (LayoutIsRtoLM(w))
-        find_x = width - H_MARGIN - find_width;
+        find_x = multilist_position((long long)width - H_MARGIN - find_width);
     else
-        find_x = H_MARGIN;
+        find_x = multilist_position(H_MARGIN);
 
-    find_y = (Position) height -
-         (Position) ((int)(max_child_height + find_height)/2 + V_MARGIN);
+    find_y = multilist_position((long long)height -
+	((long long)max_child_height + find_height) / 2 - V_MARGIN);
 
     _XmMoveWidget(find, find_x, find_y);
 
@@ -1004,25 +1025,34 @@ static void PositionFindAndFindText(Widget w)
      */
 
     {
-    Dimension text_width, temp_val;
+    Dimension text_width;
     Position x, y;
 
 
     if (LayoutIsRtoLM(w))
 	x = H_MARGIN;
     else
-	x = (Dimension) find_x + find_width + H_MARGIN;
+	x = multilist_position((long long)find_x + find_width + H_MARGIN);
     
-    y = find_y - (int)(max_child_height - find_height)/2;
+    y = multilist_position((long long)find_y -
+	((long long)max_child_height - find_height) / 2);
 
-    temp_val = x + H_MARGIN;
-    if (temp_val >= width)
+    {
+	long long text_origin = (long long)x + H_MARGIN;
+	if (text_origin >= (long long)width)
         text_width = 1;
     else
 	if (LayoutIsRtoLM(w))
-            text_width = width - find_width - temp_val;
+	    {
+		long long available = (long long)width - find_width - text_origin;
+		text_width = available > 0 ? multilist_dimension((unsigned long)available) : 1;
+	    }
 	else
-            text_width = width - temp_val;
+	    {
+		long long available = (long long)width - text_origin;
+		text_width = available > 0 ? multilist_dimension((unsigned long)available) : 1;
+	    }
+	}
 
     _XmConfigureWidget(find_text, x, y, text_width, find_text->core.height,
                find_text->core.border_width);

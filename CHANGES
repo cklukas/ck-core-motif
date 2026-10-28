@@ -28111,3 +28111,10 @@ Disclosure position bounds (2026-10-29)
 - Clamp Disclosure arrow, header, and content layout origins to the signed
   `Position` range instead of allowing large margins or child sizes to wrap.
 - Add focused source-contract coverage and documentation.
+
+MultiList search-row geometry bounds (2026-10-29)
+=================================================
+
+- Compute search child sizes, origins, and remaining text width in wide
+  arithmetic with bounded Motif geometry conversions.
+- Add focused source-contract coverage and documentation.
