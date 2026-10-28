@@ -28013,3 +28013,10 @@ SelectionBox callback length bounds (2026-10-29)
 - Clamp generated compound-string lengths before storing them in the signed
   `XmSelectionBoxCallbackStruct.length` ABI.
 - Add focused source-contract coverage and documentation.
+
+XmString length bounds (2026-10-29)
+===================================
+
+- Clamp the unsigned compound-string byte length before returning it through
+  the public signed-`int` `XmStringLength()` API.
+- Add focused source-contract coverage and documentation.

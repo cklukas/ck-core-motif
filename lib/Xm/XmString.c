@@ -2473,7 +2473,7 @@ XmStringLength(
 
   len = XmCvtXmStringToByteStream(string, NULL);
 
-  return((int)len);
+	return len > (unsigned int)INT_MAX ? INT_MAX : (int)len;
 }
 
 /************************************************************************
