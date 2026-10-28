@@ -11,6 +11,12 @@ Make the RowColumn menu-post contract check checkout-runnable (2026-10-29)
 - Default the focused menu-post cleanup check to the checkout's RowColumn
   implementation while retaining an explicit source-path override.
 
+Refresh SegmentedControl callback guard contract matching (2026-10-29)
+=======================================================================
+
+- Match the existing child and event NULL guards across source line breaks so
+  the focused check remains tied to their semantics instead of formatting.
+
 Bound I18List display column origins (2026-10-29)
 ==================================================
 
