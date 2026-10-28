@@ -422,7 +422,8 @@ TerminateTransfer(
 	XmDragContext	dc = (XmDragContext) dtp->dragContext;
 	Widget requestor;
 
-	if (dc == NULL || dc->drag.currReceiverInfo == NULL ||
+	if (selection == NULL || *selection == None ||
+	    dc == NULL || dc->drag.currReceiverInfo == NULL ||
 	    dc->drag.currReceiverInfo->shell == NULL) {
 	    XtDestroyWidget((Widget)dt);
 	    return;
@@ -467,6 +468,10 @@ FailTransferEntry(XmDropTransferObject dt)
 	}
 	XtSetArg(args[0], XmNiccHandle, &selection);
 	XtGetValues(dtp->dragContext, args, 1);
+	if (selection == None) {
+	    XtDestroyWidget((Widget)dt);
+	    return;
+	}
 	TerminateTransfer(dt, &selection);
 }
 

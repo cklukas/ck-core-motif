@@ -200,6 +200,12 @@ Guard drop-transfer selection callbacks (2026-10-29)
   pointers before processing a drop-transfer selection response.
 - Route malformed or late callback state through failure teardown.
 
+Guard invalid drop-transfer selection atoms (2026-10-29)
+=========================================================
+
+- Reject null or `None` ICC selection atoms before issuing termination
+  requests, destroying malformed transfer objects safely.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
