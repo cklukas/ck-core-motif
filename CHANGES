@@ -23887,3 +23887,13 @@ Guard TextOut line-wrap metadata allocations (2026-10-26)
   avoiding null dereferences while preserving layout results.
 - Extend the focused regression coverage and documentation.
 Regression: tests/automated/check-textout-allocation-guards.py
+Bound clipboard end-copy item-list offsets (2026-10-28)
+=========================================================
+
+- Reject non-positive item IDs before mutating clipboard state.
+- Check item-list multiplication, addition, and serialized-offset conversion.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-end-copy-offset.py
+
+Bound clipboard copy-by-name length accumulation (2026-10-28)
+===============================================================

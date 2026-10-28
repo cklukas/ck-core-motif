@@ -3943,7 +3943,8 @@ XmClipboardEndCopy(
     ClipboardHeader header;
     itemId *itemlist;
     unsigned long itemlength ;
-    long newitemoffset;
+    unsigned long newitemoffset;
+    unsigned long item_bytes;
     itemId *newitemaddr;
     int status;
     Atom itemtype;
@@ -3973,6 +3974,14 @@ XmClipboardEndCopy(
         return ClipboardFail;
     } 
 
+    if (itemid <= 0)
+    {
+	ClipboardClose( display, header );
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
     ClipboardDeleteMarked( display, window, header );
 
     if (header->currItems >= header->maxItems) 
@@ -3988,8 +3997,33 @@ XmClipboardEndCopy(
 	header->deletedByCopyId = 0;
     }
 
-    newitemoffset = header->dataItemList + 
-    		    (header->currItems * sizeof( itemId ) / CONVERT_32_FACTOR);
+    if (header->currItems > ULONG_MAX / sizeof(itemId))
+    {
+	ClipboardClose( display, header );
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
+    item_bytes = header->currItems * sizeof(itemId);
+    if (item_bytes / CONVERT_32_FACTOR >
+	    ULONG_MAX - header->dataItemList)
+    {
+	ClipboardClose( display, header );
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
+
+    newitemoffset = header->dataItemList +
+	    (item_bytes / CONVERT_32_FACTOR);
+    if (newitemoffset > ULONG_MAX / CONVERT_32_FACTOR)
+    {
+	ClipboardClose( display, header );
+	ClipboardUnlock( display, window, 0 );
+	_XmAppUnlock(app);
+	return ClipboardFail;
+    }
 
     /* stick new item at the bottom of the list */
     newitemaddr = (itemId*)((char *) header + newitemoffset * CONVERT_32_FACTOR);
