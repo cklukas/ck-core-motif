@@ -757,7 +757,8 @@ _XmDataFieldConvert(
 
       /* put a char* value into tmp_value, then convert to 8859.1 */
       if (XmTextF_max_char_size(tf) != 1) {
-	  int stat, selection_span;
+	  size_t stat;
+	  int selection_span;
 
 	 if (!text_selection_span_to_int(left, right, &selection_span))
 	     return False;
@@ -768,7 +769,7 @@ _XmDataFieldConvert(
 	     return False;
          stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 	           (unsigned)*length); /* length was bounded to Cardinal. */
-	  if (stat < 0) /* wcstombs will return neg value on conv failure */
+	  if (stat == (size_t)-1) /* wcstombs failure */
 	      *length = 0;
 	  else *length = (unsigned long) stat ;
       } else {
@@ -799,7 +800,8 @@ _XmDataFieldConvert(
       *format = 8;
       if (is_destination || !has_selection) return False;
       if (XmTextF_max_char_size(tf) != 1) {
-	  int stat, selection_span;
+	  size_t stat;
+	  int selection_span;
 
 	  if (!text_selection_span_to_int(left, right, &selection_span))
 	      return False;
@@ -810,7 +812,7 @@ _XmDataFieldConvert(
 	      return False;
 	  stat = wcstombs((char *)*value, TextF_WcValue(tf) + left,
 				  (unsigned)*length); /* length was bounded to Cardinal. */
-	  if (stat < 0) /* wcstombs return neg value on conv failure */
+	  if (stat == (size_t)-1) /* wcstombs failure */
 	      *length = 0;
 	  else *length = (unsigned long) stat ;
       } else {
@@ -828,7 +830,8 @@ _XmDataFieldConvert(
       *format = 8;
       if (is_destination || !has_selection) return False;
       if (XmTextF_max_char_size(tf) != 1) { 
-	int stat, selection_span;
+	size_t stat;
+	int selection_span;
 
 	if (!text_selection_span_to_int(left, right, &selection_span))
 	    return False;
@@ -840,7 +843,7 @@ _XmDataFieldConvert(
 	     return False;
          stat = wcstombs(tmp_value, TextF_WcValue(tf) + left,
 	           (unsigned)*length); /* length was bounded to Cardinal. */
-	if (stat < 0) /* wcstombs will return neg value on conv failure */
+	if (stat == (size_t)-1) /* wcstombs failure */
 	    *length = 0;
 	else *length = (unsigned long) stat ;
       } else { /* malloc the space and copy the data to be converted */

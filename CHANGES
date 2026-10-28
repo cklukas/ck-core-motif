@@ -1,3 +1,11 @@
+Detect DataField selection export failures (2026-10-29)
+=========================================================
+
+- Preserve `size_t` `wcstombs` results and detect conversion failure for
+  `XA_STRING`, locale text, and `COMPOUND_TEXT` exports.
+- Keep invalid wide selections from being published with wrapped lengths, with
+  focused regression coverage.
+
 Detect DataField substring conversion failures (2026-10-29)
 =============================================================
 
