@@ -241,7 +241,8 @@ static void child_key(Widget child, XtPointer closure, XEvent *event,
     XmSegmentedControlWidget control = (XmSegmentedControlWidget)closure;
     KeySym key; char buffer[8]; int index, next;
     (void)dispatch;
-    if (control == NULL || child == NULL || event == NULL)
+    if (control == NULL || child == NULL || event == NULL ||
+        !XmIsSegmentedControl((Widget)control))
 	return;
     if (event->type != KeyPress) return;
     XLookupString(&event->xkey, buffer, sizeof(buffer), &key, NULL);

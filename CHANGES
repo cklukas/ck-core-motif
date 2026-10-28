@@ -27384,6 +27384,12 @@ Guard Sidebar keyboard dispatch (2026-10-29)
 - Validate the widget type and event pointer before reading the keyboard
   shortcut event, preventing malformed dispatch from toggling invalid state.
 
+Guard SegmentedControl child-key dispatch (2026-10-29)
+=======================================================
+
+- Validate the callback closure’s widget class before reading keyboard
+  navigation state, preventing foreign or stale closures from being used.
+
 Guard Chip event dispatch (2026-10-29)
 ======================================
 
