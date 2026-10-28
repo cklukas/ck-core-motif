@@ -730,6 +730,8 @@ StartDropTransfer(
 		xmDropTransferObjectClass,
 		(Widget) XmGetXmDisplay(XtDisplayOfObject(refWidget)),
 		args, argCount);
+	if (dt == NULL)
+	    return NULL;
 
 	dt->dropTransfer.dragContext = refWidget;
 	dt->dropTransfer.timestamp =

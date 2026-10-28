@@ -172,6 +172,13 @@ Guard drop-transfer drag destruction (2026-10-29)
   destroyed drag context or missing receiver information.
 - Avoid dereferencing cleared drag handles during ICC property setup.
 
+Guard drop-transfer construction allocation (2026-10-29)
+=========================================================
+
+- Return `NULL` when `XtCreateWidget` cannot create a drop-transfer object,
+  before storing state or scheduling its timer.
+- Add focused construction-failure documentation and regression coverage.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
