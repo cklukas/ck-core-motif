@@ -27569,3 +27569,9 @@ Guard Flyout event dispatch (2026-10-29)
 - Validate the callback closure and event pointer before processing owner or
   popup events, preventing malformed teardown dispatch from hiding invalid
   widget state.
+Bound ProgressBar drawing coordinates (2026-10-29)
+====================================================
+
+- Keep bar geometry in signed `int` arithmetic and clamp label and percentage
+  text positions before converting to Motif's signed `Position` type.
+- Add focused source-contract coverage for large spacing and font metrics.

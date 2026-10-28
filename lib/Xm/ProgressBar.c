@@ -4,6 +4,7 @@
 #endif
 
 #include <stdio.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <Xm/ProgressBarP.h>
 #include <Xm/VaSimpleP.h>
@@ -81,6 +82,12 @@ static Dimension bounded_dimension(size_t value) {
     return (Dimension)(value > maximum ? maximum : value);
 }
 
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static void UpdateGCs(XmProgressBarWidget progress) {
     Display *display = XtDisplay((Widget)progress);
     if (progress->progress.track_gc)
@@ -151,7 +158,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Window window = XtWindow(widget);
     Dimension label_width = 0, label_height = 0;
     Dimension bar_width, fill_width;
-    Position bar_x, bar_y;
+    int bar_x, bar_y;
     char text[64];
     XmString text_string;
     unsigned long long numerator, denominator;
@@ -171,11 +178,12 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (progress->progress.label && progress->progress.font)
         XmStringDraw(display, window, progress->progress.font,
                      progress->progress.label, text_gc,
-                     progress->progress.spacing, progress->progress.spacing,
+                     bounded_position((long long)progress->progress.spacing),
+                     bounded_position((long long)progress->progress.spacing),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(progress), NULL);
-    bar_x = (Position)progress->progress.spacing;
-    bar_y = (Position)(progress->progress.spacing + label_height + 4);
+    bar_x = (int)progress->progress.spacing;
+    bar_y = (int)progress->progress.spacing + (int)label_height + 4;
     bar_width = progress->core.width > 2 * progress->progress.spacing
         ? progress->core.width - 2 * progress->progress.spacing : 1;
     XFillRectangle(display, window, progress->progress.track_gc, bar_x, bar_y,
@@ -214,8 +222,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             XmStringExtent(progress->progress.font, text_string, &text_width,
                            &text_height);
             XmStringDraw(display, window, progress->progress.font, text_string,
-                         text_gc, (Position)(bar_x + (bar_width - text_width) / 2),
-                         (Position)(bar_y + (16 - text_height) / 2), text_width,
+                         text_gc,
+                         bounded_position((long long)bar_x +
+                                          ((long long)bar_width - text_width) / 2),
+                         bounded_position((long long)bar_y +
+                                          (16LL - text_height) / 2), text_width,
                          XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(progress), NULL);
         }
