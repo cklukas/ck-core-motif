@@ -27647,3 +27647,9 @@ Bound ColorPicker label coordinates (2026-10-29)
 - Clamp the hexadecimal value label origin before passing it to Motif's signed
   `Position` drawing arguments.
 - Add focused source-contract coverage for oversized picker geometry.
+Bound Divider label coordinates (2026-10-29)
+=============================================
+
+- Clamp the centered label origin before passing it to Motif's signed
+  `Position` drawing arguments.
+- Add focused source-contract coverage for oversized divider geometry.

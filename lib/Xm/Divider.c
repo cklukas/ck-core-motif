@@ -10,6 +10,13 @@
 #include <Xm/XmP.h>
 #include "XmI.h"
 
+static Position bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
@@ -128,7 +135,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                       (int)divider->core.width, y);
             XmStringDraw(display, window, divider->divider.font,
                          divider->divider.label, divider->divider.foreground_gc,
-                         x, ((int)divider->core.height - (int)label_height) / 2,
+                         bounded_position((long long)x),
+                         bounded_position(((long long)divider->core.height - label_height) / 2),
                          label, XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(divider), NULL);
         } else {
