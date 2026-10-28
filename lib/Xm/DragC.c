@@ -2502,12 +2502,12 @@ UpdateMotionBuffer(
 		size_t size;
 		MotionBuffer newMb;
 		
-		if ((size_t)STACKMOTIONBUFFERSIZE >
+		if ((size_t)STACKMOTIONBUFFERSIZE + 1 >
 		    ((size_t)-1 - sizeof(MotionBufferRec)) /
 		    sizeof(MotionEntryRec))
 		    return;
 		size = sizeof(MotionBufferRec) +
-		  (size_t)STACKMOTIONBUFFERSIZE * sizeof(MotionEntryRec);
+		  ((size_t)STACKMOTIONBUFFERSIZE + 1) * sizeof(MotionEntryRec);
 		if (size > (size_t)UINT_MAX)
 		    return;
 		newMb = (MotionBuffer)XtMalloc((Cardinal)size);

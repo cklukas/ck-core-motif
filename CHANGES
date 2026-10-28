@@ -48,6 +48,14 @@ Guard Text modify-verify inputs (2026-10-29)
   before dereferencing them.
 - Preserve valid verification callbacks and extend the focused input checks.
 
+Fix DnD motion-buffer boundary growth (2026-10-29)
+===================================================
+
+- Reserve one additional motion entry when moving from the stack buffer to
+  heap storage, preventing the first boundary event from writing past the
+  allocation.
+- Add focused coverage for the stack-to-heap capacity transition.
+
 Restore DragBS target-table overflow guards (2026-10-29)
 =========================================================
 
