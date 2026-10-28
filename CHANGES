@@ -26981,3 +26981,8 @@ Fix SpinBox constrained-height spacing (2026-10-28)
   unrelated widget width.
 - Add a native constrained-height regression across appearance profiles,
   display scales, arrow layouts, and text directions.
+Guard Mrm callback-value copying (2026-10-28)
+============================================
+
+- Reject a null value pointer before `Urm__CW_SafeCopyValue` dereferences it.
+- Preserve existing scalar and vector callback-value ownership for valid input.
