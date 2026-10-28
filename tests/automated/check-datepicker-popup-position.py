@@ -10,6 +10,8 @@ start = text.index("static void position_popup")
 body = text[start:text.index("static void calendar_changed", start)]
 assert "popup_width >= (Dimension)WidthOfScreen(screen)" in body
 assert "popup_height >= (Dimension)HeightOfScreen(screen)" in body
-assert "x = 0;" in body and "y = 0;" in body
-assert "else if ((int)x + (int)popup_width" in body
+assert "x_pos = 0;" in body and "y_pos = 0;" in body
+assert "x_pos > (long long)WidthOfScreen(screen) - popup_width" in body
+assert "y_pos > (long long)HeightOfScreen(screen) - popup_height" in body
+assert "x = (Position)x_pos;" in body and "y = (Position)y_pos;" in body
 print("DatePicker oversized popup positioning is clamped")
