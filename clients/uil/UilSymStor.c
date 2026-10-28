@@ -777,17 +777,17 @@ sym_dump_widget( XmConst sym_widget_entry_type *az_widget_entry )
     sym_dump_obj_header ((sym_obj_entry_type *)az_widget_entry);
 
     _debug_output (
-	"  %s %s  controls: %x  callbacks: %x  arguments: %x  parent_list: %x\n", 
+	"  %s %s  controls: %p  callbacks: %p  arguments: %p  parent_list: %p\n",
 	    diag_object_text( az_widget_entry->header.b_type),
 	    diag_tag_text( az_widget_entry->header.b_tag ),
-	    (unsigned)az_widget_entry->az_controls,
-	    (unsigned)az_widget_entry->az_callbacks,
-	    (unsigned)az_widget_entry->az_arguments,
-	    (unsigned)az_widget_entry->parent_list);
+	    (void *)az_widget_entry->az_controls,
+	    (void *)az_widget_entry->az_callbacks,
+	    (void *)az_widget_entry->az_arguments,
+	    (void *)az_widget_entry->parent_list);
 
     if (az_widget_entry->az_create_proc != NULL) {
-	_debug_output ("  create proc: %x\n",
-			(unsigned)az_widget_entry->az_create_proc);
+	_debug_output ("  create proc: %p\n",
+				(void *)az_widget_entry->az_create_proc);
     }
     /* preserve comments */
     _debug_output ("\n Comment: %s\n", az_widget_entry->obj_header.az_comment);

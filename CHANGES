@@ -26,6 +26,13 @@ Validate UIL source file offsets (2026-10-29)
   offset and propagate `ftell`/`fseek` failures instead of storing wrapped
   unsigned keys.
 
+Preserve UIL widget-dump pointer widths (2026-10-29)
+=====================================================
+
+- Print widget symbol-table pointers with `%p` instead of truncating them
+  through 32-bit hexadecimal conversions on 64-bit hosts.
+- Add focused coverage and documentation.
+
 Clarify UIL expression-frame widths (2026-10-29)
 =================================================
 
