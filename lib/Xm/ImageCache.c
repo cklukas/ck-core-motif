@@ -2842,11 +2842,13 @@ void _XmPutScaledImage (
 
     for (min_y = source_origin_y; min_y < source_end_y;
 	 min_y = table.y[y]) {
-	max_y = min_y + strip_height;
-	if (max_y > source_end_y) {
+	/* Do not add the nominal strip height before checking the remaining
+	 * range: a final strip can begin near UINT_MAX and wrap here even
+	 * though source_end_y itself is representable. */
+	if (strip_height > source_end_y - min_y) {
 	    strip_height = source_end_y - min_y;
-	    max_y = source_end_y;
 	}
+	max_y = min_y + strip_height;
 	for (y = (unsigned int)src_y;
 	     y < image_height && table.y[y] < max_y; y++) {
 	    if (table.y[y] < min_y)

@@ -27964,3 +27964,10 @@ Bound List combined draw origins (2026-10-29)
 - Clamp BaseX/XOrigin combinations before drawing rows in both layout
   directions.
 - Add focused source-contract coverage for large horizontal offsets.
+Scaled image strip endpoint safety (2026-10-29)
+================================================
+
+- Clamp the final vertical strip height before adding it to a near-limit
+  unsigned image coordinate, preventing endpoint wrap during large-image
+  rendering.
+- Add focused source-contract coverage and documentation for the guard.
