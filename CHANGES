@@ -1,3 +1,11 @@
+Reject invalid DataField value conversion (2026-10-29)
+=======================================================
+
+- Reject failed or unrepresentable wide-value conversion before publishing
+  DataField string state.
+- Release the temporary value and reset lengths/allocation metadata, with
+  focused regression coverage.
+
 Reject invalid DataField keyboard conversion (2026-10-29)
 ===========================================================
 

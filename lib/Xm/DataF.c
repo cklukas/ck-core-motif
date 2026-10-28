@@ -9254,8 +9254,20 @@ df_ValidateString(
             XmStackFree((char *)start_temp, stack_cache);
             return;
          }
-         XmTextF_string_length(tf) = mbstowcs(XmTextF_wc_value(tf), start_temp,
-                                           XmTextF_string_length(tf) + 30);
+         {
+         size_t converted = mbstowcs(XmTextF_wc_value(tf), start_temp,
+                                      XmTextF_string_length(tf) + 30);
+         if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+            XtFree((char *)XmTextF_wc_value(tf));
+            XmTextF_wc_value(tf) = NULL;
+            XmTextF_value(tf) = NULL;
+            XmTextF_string_length(tf) = 0;
+            XmTextF_size_allocd(tf) = 0;
+            XmStackFree((char *)start_temp, stack_cache);
+            return;
+         }
+         XmTextF_string_length(tf) = (int)converted;
+         }
          XmTextF_value(tf) = NULL;
       }
       XmStackFree((char *)start_temp, stack_cache);
