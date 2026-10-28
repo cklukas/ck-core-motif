@@ -524,7 +524,7 @@ EnableCommand (
   /*
    * check data to make sure somethings there.
    */
-  if ((data == NULL) || (len == 0))
+  if ((data == NULL) || (len < (unsigned long)(2 * sizeof(CARD32))))
     {
       PRINT("Bad data passed to EnableCommand.\n");
       return;
@@ -536,6 +536,12 @@ EnableCommand (
   if (count == 0)
     {
       PRINT("No windows supplied for EnableCommand.\n");
+      return;
+    }
+  if ((unsigned long)count >
+      (len - (unsigned long)(2 * sizeof(CARD32))) / sizeof(CARD32))
+    {
+      PRINT("Truncated window list passed to EnableCommand.\n");
       return;
     }
   if ((size_t) count > SIZE_MAX / sizeof(Window) ||
@@ -662,7 +668,7 @@ DisableCommand (
   /*
    * check data to make sure somethings there.
    */
-  if ((data == NULL) || (len == 0))
+  if ((data == NULL) || (len < (unsigned long)(2 * sizeof(CARD32))))
     {
       PRINT("Bad data passed to DisableCommand.\n");
       return;
@@ -674,6 +680,12 @@ DisableCommand (
   if (count == 0)
     {
       PRINT("No windows supplied for DisableCommand.\n");
+      return;
+    }
+  if ((unsigned long)count >
+      (len - (unsigned long)(2 * sizeof(CARD32))) / sizeof(CARD32))
+    {
+      PRINT("Truncated window list passed to DisableCommand.\n");
       return;
     }
   if ((size_t) count > SIZE_MAX / sizeof(Window) ||
