@@ -1,3 +1,12 @@
+Correct XPM header-table allocation count (2026-10-29)
+=======================================================
+
+- Allocate the temporary header pointer table by element count rather than
+  passing its byte count as the `calloc` element count.
+- Preserve the same table shape while avoiding an unnecessary pointer-size
+  multiplication.
+- Add focused coverage and documentation.
+
 Serialize one-row XPM images (2026-10-29)
 =========================================
 

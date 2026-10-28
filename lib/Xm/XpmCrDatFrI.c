@@ -148,7 +148,7 @@ XpmCreateDataFromXpmImage(
     header_size = sizeof(char *) * header_nlines;
     if (header_size >= UINT_MAX / sizeof(char *))
 	return (XpmNoMemory);
-    header = (char **) XpmCalloc(header_size, sizeof(char *)); /* can we trust image->ncolors */
+    header = (char **) XpmCalloc(header_nlines, sizeof(char *));
     if (!header)
 	return (XpmNoMemory);
 
