@@ -272,14 +272,14 @@ _XmTextCharactersToBytes(char * bytes,
   
   switch (max_char_size) {
   case 1: {
-    (void) memcpy((void*)bytes, (void*)characters, num_chars);
+    (void) memcpy((void*)bytes, (void*)characters, (size_t)num_chars);
     count = num_chars;
     break;
   } /* end case 1 */
   case 2: {
     bits16_ptr = (BITS16 *) characters;
     byte_ptr = (unsigned char*) bytes;
-    temp_char = (unsigned char*) XtMalloc (max_char_size);
+    temp_char = (unsigned char*) XtMalloc ((Cardinal)max_char_size);
     if (temp_char == NULL) {
 	*bytes = '\0';
 	return 0;
@@ -354,7 +354,7 @@ _XmStringSourceGetString(XmTextWidget tw,
 	return NULL;
   destpos = 0;
   if (!want_wchar) {
-    buf = XtMalloc(allocation);
+    buf = XtMalloc((Cardinal)allocation);
     if (buf == NULL)
 	return NULL;
     for (pos = from; pos < to; ) {
@@ -367,8 +367,9 @@ _XmStringSourceGetString(XmTextWidget tw,
 	    XtFree(buf);
 	    return NULL;
 	  }
-      (void)memcpy((void*)&buf[destpos], (void*)block.ptr, block.length);
-      destpos += block.length;
+      (void)memcpy((void*)&buf[destpos], (void*)block.ptr,
+		   (size_t)block.length);
+      destpos += (size_t)block.length;
     }
     if (pos != to) {
 	XtFree(buf);
@@ -377,7 +378,7 @@ _XmStringSourceGetString(XmTextWidget tw,
     buf[destpos] = 0;
     return buf;
   } else { /* want buffer of wchar_t * data */
-    buf = XtMalloc(allocation);
+    buf = XtMalloc((Cardinal)allocation);
     if (buf == NULL)
 	return NULL;
     wc_buf = (wchar_t *)buf;

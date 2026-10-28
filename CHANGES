@@ -23939,3 +23939,14 @@ Regression: tests/automated/check-text-byte-conversion-width.py
 
 Bound Text source Xt allocation widths (2026-10-28)
 ====================================================
+Make Text string allocation widths explicit (2026-10-28)
+==========================================================
+
+- Pass range-checked string allocations explicitly through Xt `Cardinal`.
+- Keep block copies and destination offsets in `size_t`.
+- Make byte-conversion helper copy and temporary-buffer widths explicit.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-string-allocation-width.py
+
+Make Text byte-conversion widths explicit (2026-10-28)
+=======================================================
