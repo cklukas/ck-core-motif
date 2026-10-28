@@ -507,7 +507,12 @@ static char *_XmStrMallocDebug(size_t size)
   return base ? base + STR_OFFSET : NULL;
 }
 #define _XmStrMalloc(size)	_XmStrMallocDebug(size)
-#define _XmStrFree(ptr)		(XtFree(((char*)(ptr)) - STR_OFFSET))
+static void _XmStrFreeDebug(char *ptr)
+{
+  if (ptr)
+    XtFree(ptr - STR_OFFSET);
+}
+#define _XmStrFree(ptr)		_XmStrFreeDebug((char *)(ptr))
 #else
 #define _XmStrMalloc(size)	(XtMalloc(size))
 #define _XmStrFree(ptr)		(XtFree((char*)(ptr)))
