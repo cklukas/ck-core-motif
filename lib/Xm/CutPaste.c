@@ -4998,9 +4998,9 @@ XmClipboardInquireFormat(
                 nth_atom = nth_atom + n - 1;
 
                 ptr = XGetAtomName( display, *nth_atom );
-
-                XtFree( (char *) alloc_to_free );
             }
+
+            XtFree( (char *) alloc_to_free );
 	}
     }
 

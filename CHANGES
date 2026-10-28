@@ -23543,6 +23543,14 @@ Bound clipboard pending-item counts (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-pending-count-bounds.py
 
+Release clipboard inquiry target buffers (2026-10-28)
+======================================================
+
+- Free external `TARGETS` buffers even when a requested format index is absent.
+- Preserve no-data results for out-of-range inquiries.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-inquire-format-buffer.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
