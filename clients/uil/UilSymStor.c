@@ -1855,9 +1855,9 @@ sym_dump_section ( sym_section_entry_type *az_symbol_entry )
 void
 sym_dump_object_variant ( sym_def_obj_entry_type * az_symbol_entry )
 {
-    _debug_output ("%x  default obj var  next: %x  object info: %d, variant_info: %d\n",
-	(unsigned)az_symbol_entry,
-	(unsigned)az_symbol_entry->next, az_symbol_entry->b_object_info, 
+	_debug_output ("%p  default obj var  next: %p  object info: %d, variant_info: %d\n",
+	(void *)az_symbol_entry,
+	(void *)az_symbol_entry->next, az_symbol_entry->b_object_info,
 	az_symbol_entry->b_variant_info);
 }
 
