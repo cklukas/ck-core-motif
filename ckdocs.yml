@@ -62,6 +62,7 @@ nav:
       - docs/disclosure.md
   - title: Reference
     pages:
+      - docs/inverse-compound-text-converter-inputs.md
       - docs/compound-text-converter-inputs.md
       - docs/segment-encoding-tag-input.md
       - docs/encoding-registry-length-output.md

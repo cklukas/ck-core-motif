@@ -1,3 +1,11 @@
+Guard inverse compound-text converter records (2026-10-29)
+===========================================================
+
+- Validate input and output `XrmValue` records in the public inverse text
+  converter and shared text/UTF-8 conversion helpers.
+- Preserve valid XmString conversion and make internal wrappers inherit the
+  same null-safe contract.
+
 Guard null compound-text converter values (2026-10-29)
 =======================================================
 

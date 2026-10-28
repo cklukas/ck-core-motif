@@ -2260,7 +2260,7 @@ XmCvtXmStringToText(
 {
     Boolean		ok;
 
-    if (from_val->addr == NULL)
+	if (from_val == NULL || to_val == NULL || from_val->addr == NULL)
 	return( FALSE) ;
 
     ok = cvtXmStringToText(from_val, to_val);
@@ -2301,6 +2301,9 @@ cvtXmStringToUTF8String(
   Octet			tmp_buf[256];
   OctetPtr		tmp;
   
+  if (from == NULL || to == NULL)
+    return(False);
+
   /* Initialize the return parameters. */
   to->addr = (XPointer) NULL;
   to->size = 0;
@@ -2464,6 +2467,9 @@ cvtXmStringToText(
   Octet			tmp_buf[256];
   OctetPtr		tmp;
   
+  if (from == NULL || to == NULL)
+    return(False);
+
   /* Initialize the return parameters. */
   to->addr = (XPointer) NULL;
   to->size = 0;
