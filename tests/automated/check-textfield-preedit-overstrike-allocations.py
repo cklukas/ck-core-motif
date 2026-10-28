@@ -11,8 +11,8 @@ end = text.index("\n}\n", start)
 region = text[start:end]
 
 for allocation, guard in (
-    ("over_mb = XtMalloc(rest_len+1);", "if (over_mb == NULL)"),
-    ("over_wc = (wchar_t *)XtMalloc((rest_len+1)*sizeof(wchar_t));",
+    ("over_mb = XtMalloc((Cardinal)((size_t)rest_len + 1));", "if (over_mb == NULL)"),
+    ("over_wc = (wchar_t *)XtMalloc((Cardinal)rest_bytes);",
      "if (over_wc == NULL)"),
 ):
     pos = region.find(allocation)

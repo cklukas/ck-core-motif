@@ -12,8 +12,8 @@ body = source[start:end]
 assert body.count("if (str == NULL)") == 1
 assert body.count("if (wc_string == NULL)") == 1
 assert body.count("if (wc_insert_string == NULL)") == 1
-assert "if (num_bytes < 0)" in body
-assert "if (num_chars < 0)" in body
+assert "num_bytes == (size_t)-1" in body
+assert "num_chars == (size_t)-1" in body
 assert "ResetUnder(tf);" in body
 
 print("TextField input-method reset allocations are checked")

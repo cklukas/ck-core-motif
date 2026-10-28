@@ -7,7 +7,7 @@ source = (Path(__file__).parents[2] / "lib/Xm/DataF.c").read_text(
     encoding="utf-8"
 )
 start = source.index("(*length * sizeof(wchar_t))")
-end = source.index("prim_select->num_chars = mbstowcs", start)
+end = source.index("if (XmTextF_max_char_size(tf) == 1)", start)
 context = source[start:end]
 required = (
     "if (wc_value == NULL)",

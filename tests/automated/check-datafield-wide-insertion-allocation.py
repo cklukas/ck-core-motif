@@ -7,7 +7,7 @@ from pathlib import Path
 source = Path(__file__).parents[2] / "lib" / "Xm" / "DataF.c"
 text = source.read_text(encoding="utf-8")
 start = text.index("if (insert_length < 0", text.index("df_InsertString(") + 1)
-end = text.index("\n\t      num_chars = mbstowcs", start)
+end = text.index("\n      num_chars = mbstowcs", start)
 block = text[start:end]
 
 assert "insert_length < 0" in block

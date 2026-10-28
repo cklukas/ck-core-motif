@@ -10,7 +10,7 @@ for name in ("df_InsertChar", "df_InsertString"):
     end = source.index("/* ARGSUSED */\nstatic void", start)
     body = source[start:end]
     assert "num_chars = mbstowcs" in body
-    assert "if (num_chars < 0)" in body
+    assert "num_chars == (size_t)-1" in body
     assert "_XmDataFieldDrawInsertionPoint(tf, True);" in body
 
 print("PASS DataField keyboard conversion rejects invalid multibyte input")

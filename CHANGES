@@ -26080,3 +26080,9 @@ Guard TextField overstrike wide-buffer limit (2026-10-29)
 
 - Check the saved overstrike preedit buffer against Xt's `Cardinal` limit
   before allocating wide-character storage.
+
+Refresh text conversion regression contracts (2026-10-29)
+===========================================================
+
+- Update source-level checks to track the current size-aware conversion and
+  allocation APIs, keeping the focused TextField/DataField suite meaningful.

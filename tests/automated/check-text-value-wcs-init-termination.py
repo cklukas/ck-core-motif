@@ -9,7 +9,7 @@ start = source.index("static void \nInitializeHook(Widget wid,")
 end = source.index("\nstatic void ", start)
 body = source[start:end]
 
-assert "n_bytes >= 0 && (size_t)n_bytes < allocation_bytes" in body
+assert "n_bytes != (size_t)-1 && n_bytes < allocation_bytes" in body
 assert "tmp_value[n_bytes] = 0;" in body
 assert "_XmStringSourceSetValue(tw, tmp_value);" in body
 

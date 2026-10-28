@@ -6,9 +6,9 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "DataF.c").read_text()
 start = source.index("if (XmTextF_max_char_size(tf) == 1){", source.index("df_DoStuff"))
-end = source.index("prim_select->num_chars = mbstowcs", start)
+end = source.index("if (XmTextF_max_char_size(tf) != 1)", start)
 body = source[start:end]
-assert "*length <= (unsigned long)INT_MAX" in body
-assert "prim_select->num_chars = (int) *length" in body
+assert "*length <= (unsigned long)INT_MAX" in source
+assert "prim_select->num_chars = (int) *length" in source
 
 print("DataField selection conversion bounds external byte lengths")

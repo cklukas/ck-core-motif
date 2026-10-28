@@ -9,6 +9,6 @@ source = Path("lib/Xm/DataF.c").read_text(encoding="utf-8")
 assert "int free_insert = (int)False;" in source
 assert "if (temp == NULL)" in source
 assert "mod_ver_ret = False;" in source
-assert "(void)wcstombs(temp, XmTextF_wc_value(new_tf)," in source
+assert "converted = wcstombs(temp, XmTextF_wc_value(new_tf)," in source
 
 print("DataField verify-buffer checks passed")
