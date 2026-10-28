@@ -7,7 +7,15 @@
 #include <Xm/DropHighlightP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include <limits.h>
 #include "XmI.h"
+
+static Position bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
@@ -150,7 +158,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
                        ? highlight->core.height - thickness : 0);
     if (label_width && label_height)
         XmStringDraw(display, window, highlight->drop_highlight.font,
-                     highlight->drop_highlight.label, gc, label_x, label_y,
+                     highlight->drop_highlight.label, gc,
+                     bounded_position((long long)label_x),
+                     bounded_position((long long)label_y),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(highlight), NULL);
     XFreeGC(display, gc);
