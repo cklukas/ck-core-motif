@@ -7674,7 +7674,7 @@ df_Stuff(
 {
   _XmTextActionRec *tmp = (_XmTextActionRec*)XtMalloc(sizeof(_XmTextActionRec));
 
-  if (tmp == NULL || event == NULL) {
+  if (w == NULL || tmp == NULL || event == NULL) {
     XtFree((char *)tmp);
     return;
   }

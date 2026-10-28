@@ -19,6 +19,7 @@ Guard DataField target callback inputs (2026-10-29)
 - Preserve full X11 length width and release malformed target data, with
   focused regression coverage.
 - Use the normalized button-or-key event timestamp for the follow-up request.
+- Guard the DataField action helper before widget display access.
 
 Guard DataField selection callback inputs (2026-10-29)
 ======================================================

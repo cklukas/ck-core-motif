@@ -10,6 +10,8 @@ Xt-owned target data and uses the full X11 selection-length width when walking
 the target list. Display and atom lookup occur only after widget validation.
 The follow-up primary-selection request uses the normalized event timestamp,
 including keyboard-originated requests.
+The action helper also returns before atom/display access when its widget is
+missing.
 
 Regression coverage:
 
