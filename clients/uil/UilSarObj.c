@@ -258,7 +258,7 @@ void		sar_create_object
  * Allocate the symbol node, connect it to its name, and save source info
  */
     obj_entry = (sym_obj_entry_type *)
-	sem_allocate_node (object_type, node_size);
+	sem_allocate_node (object_type, (unsigned short)node_size);
     if (name_entry != NULL)
 	{
 	name_entry->az_object = (sym_entry_type *)obj_entry;
@@ -326,8 +326,8 @@ void		sar_create_child
  */
     obj_entry = (sym_obj_entry_type *)
 	sem_allocate_node (sym_k_child_entry, sym_k_widget_entry_size);
-    obj_entry->header.b_type = 
-      object_frame->value.az_keyword_entry->b_subclass;
+    obj_entry->header.b_type =
+	  (unsigned char)object_frame->value.az_keyword_entry->b_subclass;
 
     _sar_save_source_pos (&obj_entry->header, source_frame );
     sar_assoc_comment(obj_entry);  /* preserve comments */
@@ -761,7 +761,7 @@ yystype		* current_frame;
 
 /*    Set the type for the object entry.	*/
     obj_entry->header.b_type =
-	current_frame->value.az_keyword_entry->b_subclass;
+	(unsigned char)current_frame->value.az_keyword_entry->b_subclass;
 
 /*    
 **  Indicate in compression table that this object type is used.
@@ -836,7 +836,8 @@ yystype		* current_frame;
 	    if (uil_urm_variant[obj_type] == sym_k_gadget_entry)
 		{
 		obj_entry->obj_header.b_flags |= sym_m_obj_is_gadget;
-		obj_entry->header.b_type = uil_gadget_variants [obj_type];
+		obj_entry->header.b_type =
+		    (unsigned char)uil_gadget_variants [obj_type];
 		}
 
 	    break;
@@ -863,13 +864,14 @@ yystype		* current_frame;
 		diag_issue_diagnostic
 		    (d_gadget_not_sup,
 		     _sar_source_position (source_frame ),
-		     diag_object_text(obj_type),
-		     diag_object_text(obj_type) );
+		     diag_object_text((int)obj_type),
+		     diag_object_text((int)obj_type) );
 		}
 	    else
 		{
 		obj_entry->obj_header.b_flags |= sym_m_obj_is_gadget;
-		obj_entry->header.b_type = uil_gadget_variants [obj_type];
+		obj_entry->header.b_type =
+		    (unsigned char)uil_gadget_variants [obj_type];
 		}
 
 	    break;
@@ -2292,7 +2294,8 @@ switch (obj_entry->header.b_tag)
 	 */
         _assert (obj_entry->obj_header.b_flags & sym_m_def_in_progress,
 		 "widget definition not in progress");
-	obj_entry->obj_header.b_flags &= (~ sym_m_def_in_progress);
+	obj_entry->obj_header.b_flags &=
+	    (unsigned char)(~sym_m_def_in_progress);
 	break;
     case sym_k_list_entry:
 	/*
@@ -2300,7 +2303,8 @@ switch (obj_entry->header.b_tag)
 	 */
 	_assert (obj_entry->obj_header.b_flags & sym_m_def_in_progress,
 		 "list definition not in progress");
-	obj_entry->obj_header.b_flags &= (~ sym_m_def_in_progress);
+	obj_entry->obj_header.b_flags &=
+	    (unsigned char)(~sym_m_def_in_progress);
 	return;
 
     case sym_k_error_entry:
@@ -2328,7 +2332,7 @@ if (widget_type == uil_sym_user_defined_object)
 	    diag_issue_diagnostic
 		(d_create_proc_inv,
 		 _sar_source_pos2(widget_entry),
-		 diag_object_text (widget_type) );
+			 diag_object_text ((int)widget_type) );
 	    widget_entry->header.b_type = sym_k_error_object;
 	    }
 	}
@@ -2339,7 +2343,7 @@ if (widget_type == uil_sym_user_defined_object)
 	    diag_issue_diagnostic
 		(d_create_proc_req,
 		 _sar_source_pos2(widget_entry),
-		 diag_object_text (widget_type) );
+			 diag_object_text ((int)widget_type) );
 	    widget_entry->header.b_type = sym_k_error_object;
 	    }
 	}

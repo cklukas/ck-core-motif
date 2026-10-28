@@ -24143,3 +24143,11 @@ Bound UIL object-comment allocation (2026-10-28)
 - Add focused coverage and documentation.
 
 Make UIL enum-width boundaries explicit (2026-10-28)
+Make UIL object enum widths explicit (2026-10-28)
+==================================================
+
+- Make object semantic enum, diagnostic, compact flag, and node-size
+  conversions explicit at their legacy representation boundaries.
+- Add focused coverage and documentation.
+
+Bound UIL object-comment allocation (2026-10-28)
