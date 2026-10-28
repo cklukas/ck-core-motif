@@ -4123,10 +4123,10 @@ XmClipboardCopyByName(
     if ( root_clipboard_header->recopyId != data )
     {        
 	status = ClipboardLock( display, window );
-	if ( status == ClipboardLocked ){
+	if ( status != ClipboardSuccess ){
 	    XtFree( (char *)root_clipboard_header );
 	    _XmAppUnlock(app);
-	    return ClipboardLocked;
+	    return status;
 	}
     	locked = 1;
 

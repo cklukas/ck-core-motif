@@ -23454,6 +23454,14 @@ Release clipboard paste headers on lock contention (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-clipboard-paste-lock-cleanup.py
 
+Abort copy-by-name on lock failures (2026-10-28)
+================================================
+
+- Stop `XmClipboardCopyByName` when lock acquisition returns any failure.
+- Release the temporary header and preserve the original status code.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-clipboard-copy-lock-status.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
