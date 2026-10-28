@@ -27250,6 +27250,12 @@ Guard Spinner event and timer callbacks (2026-10-28)
   missing data during teardown.
 - Preserve normal map, visibility, and animation synchronization for live
   Spinner widgets.
+
+Fix ProgressRing label centering underflow (2026-10-28)
+========================================================
+
+- Compute vertical label offsets in signed arithmetic so labels taller than
+  the widget remain centered instead of wrapping to a large unsigned position.
 - Guard list-popup key events against missing client or event data as well.
 
 Guard Mrm value-fixup swap state (2026-10-28)

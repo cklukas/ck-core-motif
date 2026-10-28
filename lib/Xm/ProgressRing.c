@@ -81,6 +81,12 @@ static Dimension bounded_dimension(unsigned long value) {
     return (Dimension)(value > USHRT_MAX ? USHRT_MAX : value);
 }
 
+static Position centered_offset(Dimension container, Dimension content) {
+    /* Subtract in a signed type so an oversized label is not wrapped as an
+     * unsigned Dimension before it is converted to an X coordinate. */
+    return (Position)(((int)container - (int)content) / 2);
+}
+
 static void UpdateGCs(XmProgressRingWidget ring) {
     Display *display = XtDisplay((Widget)ring);
     Dimension thickness = _XmDpiDefaultDimension((Widget)ring, 4);
@@ -245,7 +251,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XmStringDraw(display, window, ring->progress_ring.font,
                      ring->progress_ring.label, text_gc,
                      (Position)(ring->progress_ring.spacing + diameter + 8),
-                     (Position)((ring->core.height - label_height) / 2),
+                     centered_offset(ring->core.height, label_height),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(ring), NULL);
     }
