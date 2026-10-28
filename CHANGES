@@ -27372,6 +27372,12 @@ Clamp List horizontal scrollbar ranges (2026-10-29)
 - Keep the horizontal maximum and slider extent at least one pixel and clamp
   stale origins after content, padding, or font-metric shrink operations.
 
+Bound List horizontal maximum arithmetic (2026-10-29)
+======================================================
+
+- Compute content width plus list margins in a wide intermediate and clamp it
+  to the navigator’s signed range before configuring the scrollbar.
+
 Guard Chip event dispatch (2026-10-29)
 ======================================
 

@@ -166,6 +166,7 @@ static void MakeHighlightGC(XmListWidget lw, Boolean AddMode);
 static void ChangeHighlightGC(XmListWidget lw, Boolean AddMode);
 static Boolean SetVerticalScrollbar(XmListWidget lw);
 static Boolean SetHorizontalScrollbar(XmListWidget lw);
+static int HorizontalMax(XmListWidget lw);
 static void SetNewSize(XmListWidget lw,
 		       Boolean reset_max_width,
 		       Boolean reset_max_height,
@@ -1313,7 +1314,7 @@ Initialize(Widget request,
       /* This code probably not needed, since SetHorizontalScrollbar
        * does the same kind of thing. */
       lw->list.hmin = 0;
-      lw->list.hmax = lw->list.MaxWidth + (lw->list.BaseX * 2);
+      lw->list.hmax = HorizontalMax(lw);
       if (lw->list.hmax < 1)
 	lw->list.hmax = 1;
       lw->list.hExtent = (int)lw->core.width;
@@ -3004,6 +3005,22 @@ SetVerticalScrollbar(XmListWidget lw)
  *									*
  ************************************************************************/
 
+static int
+HorizontalMax(XmListWidget lw)
+{
+  long long value;
+
+  if (lw == NULL)
+    return 1;
+  value = (long long)lw->list.MaxWidth +
+          2LL * (long long)lw->list.BaseX;
+  if (value < 1)
+    return 1;
+  if (value > INT_MAX)
+    return INT_MAX;
+  return (int)value;
+}
+
 static Boolean
 SetHorizontalScrollbar(XmListWidget lw)
 {
@@ -3055,7 +3072,7 @@ SetHorizontalScrollbar(XmListWidget lw)
       assert(j <= XtNumber(hSBArgs));
       XtSetValues((Widget) lw->list.hScrollBar, hSBArgs, j);
 
-      lw->list.hmax = lw->list.MaxWidth + (lw->list.BaseX * 2);
+      lw->list.hmax = HorizontalMax(lw);
       if (lw->list.hmax < 1)
 	lw->list.hmax = 1;
       lw->list.hExtent = (int)lw->core.width;
