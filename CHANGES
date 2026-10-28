@@ -26672,6 +26672,12 @@ Bound XmRenderTable growth (2026-10-29)
   before calling `XtRealloc`.
 - Apply the same width checks to the optional Xft color-cache growth path.
 
+Bound Mrm hierarchy file-list allocations (2026-10-29)
+========================================================
+
+- Reject file counts whose vector size exceeds either `size_t` or Xt's
+  `Cardinal` allocation width before opening a hierarchy.
+
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================
 

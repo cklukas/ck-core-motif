@@ -13,6 +13,7 @@ for needle in (
     "size_t\t\tlist_size",
     "num_files < 0",
     "(size_t)num_files > SIZE_MAX / sizeof(IDBFile)",
+    "(size_t)num_files > (size_t)UINT_MAX / sizeof(IDBFile)",
 ):
     if needle not in region:
         raise SystemExit(f"Mrm hierarchy count guard missing: {needle}")
