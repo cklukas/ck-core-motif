@@ -26992,3 +26992,9 @@ Validate Mrm Char8 vector spans (2026-10-28)
 - Reject byte-string vectors whose advertised storage span cannot contain the
   complete pointer table before copying or rebasing entries.
 - Preserve valid vector representation and callback ownership behavior.
+Fix Mrm legacy callback translation sizing (2026-10-28)
+========================================================
+
+- Account for the terminating callback item copied by the legacy descriptor
+  translator.
+- Reject counts that cannot represent the complete translated descriptor.

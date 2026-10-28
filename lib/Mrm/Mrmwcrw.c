@@ -4112,16 +4112,19 @@ Urm__CW_TranslateOldCallback (OldRGMCallbackDescPtr	oldptr)
   RGMCallbackItemPtr	itmptr;	/* current callback item */
   OldRGMCallbackItemPtr	olditmptr;	/* callback item being converted */
   int			ndx;	/* loop index */
+  size_t		item_count;
 
-  if (oldptr == NULL || oldptr->count < 0 ||
-      (size_t)oldptr->count >
+  if (oldptr == NULL || oldptr->count < 0 || oldptr->count == INT_MAX)
+	return NULL;
+  item_count = (size_t)oldptr->count + 1;
+  if (item_count >
 	  (SIZE_MAX - sizeof(RGMCallbackDesc)) / sizeof(RGMCallbackItem) ||
       sizeof(RGMCallbackDesc) +
-	  (size_t)oldptr->count * sizeof(RGMCallbackItem) > UINT_MAX)
+	  item_count * sizeof(RGMCallbackItem) > UINT_MAX)
     return NULL;
 
   cbptr = (RGMCallbackDescPtr) XtMalloc(sizeof(RGMCallbackDesc) +
-					oldptr->count*sizeof(RGMCallbackItem));
+					item_count * sizeof(RGMCallbackItem));
   if (cbptr == NULL)
     return NULL;
   
