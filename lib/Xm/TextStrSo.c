@@ -996,7 +996,7 @@ _XmTextModifyVerify(XmTextWidget initiator,
       }
       *freeBlock = True;
       (void) memcpy((void*) newblock->ptr, (void*) block->ptr,
-		    block->length);
+		    (size_t)block->length);
       newblock->ptr[block->length] = '\0';
     }
     
@@ -1040,7 +1040,7 @@ _XmTextModifyVerify(XmTextWidget initiator,
 	  }
 	  *freeBlock = True;
 	  (void)memcpy((void*)newblock->ptr, (void*)tvcb.text->ptr, 
-		       tvcb.text->length);
+		       (size_t)tvcb.text->length);
 	} else newblock->ptr = NULL;
       }
       newblock->format = tvcb.text->format;
@@ -1071,16 +1071,21 @@ _XmTextModifyVerify(XmTextWidget initiator,
 	  return False;
     }
     wcs_capacity = ((size_t)newblock->length + 1) * sizeof(wchar_t);
-    wcs_newblock.wcsptr = (wchar_t *)XtMalloc(wcs_capacity);
+    wcs_newblock.wcsptr = (wchar_t *)XtMalloc((Cardinal)wcs_capacity);
     if (wcs_newblock.wcsptr == NULL) {
       if (newblock->ptr && newblock->ptr != block->ptr)
 	XtFree(newblock->ptr);
       *freeBlock = False;
       return False;
     }
-    wcs_newblock.length = mbstowcs(wcs_newblock.wcsptr, newblock->ptr,
-				   block_num_chars);
-    if (wcs_newblock.length < 0) wcs_newblock.length = 0;
+	    {
+	      size_t converted = mbstowcs(wcs_newblock.wcsptr, newblock->ptr,
+					   (size_t)block_num_chars);
+	      if (converted == (size_t)-1 || converted > (size_t)INT_MAX)
+		wcs_newblock.length = 0;
+	      else
+		wcs_newblock.length = (int)converted;
+	    }
     wcs_tvcb.reason = XmCR_MODIFYING_TEXT_VALUE;
     wcs_tvcb.event = event;
     wcs_tvcb.currInsert = initiator->text.cursor_position;

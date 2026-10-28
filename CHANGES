@@ -23950,3 +23950,14 @@ Regression: tests/automated/check-text-string-allocation-width.py
 
 Make Text byte-conversion widths explicit (2026-10-28)
 =======================================================
+Make Text callback conversion widths explicit (2026-10-28)
+============================================================
+
+- Use explicit `size_t` lengths for modify-verify callback copies.
+- Pass checked wide-character buffer sizes explicitly to Xt allocation.
+- Validate `mbstowcs` results before narrowing callback lengths.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-callback-conversion-width.py
+
+Make Text string allocation widths explicit (2026-10-28)
+==========================================================
