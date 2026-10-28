@@ -1,3 +1,10 @@
+Use wide I18List visible-window arithmetic (2026-10-29)
+=========================================================
+
+- Compute the `MakePositionVisible` window end in `long long` and clamp all
+  derived legacy short movement values before scrolling.
+- Add focused source-contract coverage.
+
 Bound I18List left-visibility movement (2026-10-29)
 ====================================================
 

@@ -3141,28 +3141,29 @@ MakePositionVisible(Widget w, short row, short start, short last, int width)
 
     } else if (start >= before && start <= width) {
         short move, begin, end;
+        long long visible_end = (long long)before + (long long)ilist->core.width;
 
-        if ((int)start <= (int)(before + ilist->core.width)) {
+        if ((long long)start <= visible_end) {
             /*
              * The start pixel is inside the visible window
              */
 
-            begin = (before + ilist->core.width) - start;
-            end = last - start;
+            begin = bounded_short(visible_end - (long long)start);
+            end = bounded_short((long long)last - (long long)start);
             if (begin < end)
-                move = end - begin;
+                move = bounded_short((long long)end - (long long)begin);
             else
                 move = 0;
         } else {
             /*
              * The start pixel is to the right of the visible window
              */
-            move = last - (before + ilist->core.width);
+            move = bounded_short((long long)last - visible_end);
         }
 
         if (move != 0)
             AdjustVisiblePosition((Widget) ilist, move, True, 
-                                  (width - (before + ilist->core.width)));
+                                  bounded_short((long long)width - visible_end));
         return(TRUE);
     }
 
