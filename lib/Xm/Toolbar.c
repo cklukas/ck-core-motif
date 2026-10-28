@@ -369,6 +369,7 @@ static void activate(Widget child, XtPointer client, XtPointer call)
     XmToolbarWidget toolbar = (XmToolbarWidget)client;
     Cardinal i;
     XmToolbarCallbackStruct callback;
+    if (toolbar == NULL || !XmIsToolbar((Widget)toolbar)) return;
     for (i = 0; i < toolbar->toolbar.action_count; ++i) {
         XmToolbarStoredAction *action = &toolbar->toolbar.actions[i];
         if (action->button == child || action->menu_button == child) {

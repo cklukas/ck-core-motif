@@ -27396,6 +27396,12 @@ Guard EmptyState action callbacks (2026-10-29)
 - Validate the callback closure’s widget class before reading action state,
   preventing foreign or stale callback data from being used.
 
+Guard Toolbar action callbacks (2026-10-29)
+===========================================
+
+- Validate the callback closure’s widget class before walking action storage,
+  preventing foreign or stale callback data from being used.
+
 Guard Chip event dispatch (2026-10-29)
 ======================================
 
