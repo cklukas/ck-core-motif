@@ -11,7 +11,9 @@ assert "l_offset < 0 || l_offset > USHRT_MAX" in source
 assert "l_code_len > USHRT_MAX" in source
 assert "az_code_item -> w_code_len = (unsigned short)l_code_len;" in source
 assert "unsigned int\t\t\t i;" in source or "unsigned int\t\t\ti;" in source
-assert "len = (unsigned short)strlen (c_file_name)" in source
+assert "size_t\t\tfile_name_len = strlen(c_file_name);" in source
+assert "if (file_name_len >= sizeof(buffer))" in source
+assert "for (len = (unsigned short)file_name_len;" in source
 assert "last_key.l_key > (unsigned long)LONG_MAX" in source
 assert "file_position = ftell(az_fcb->az_file_ptr)" in source
 assert "z_access_key->l_key > (unsigned long)LONG_MAX" in source
