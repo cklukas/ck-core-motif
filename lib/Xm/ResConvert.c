@@ -1276,6 +1276,8 @@ GetNextXmString(
    int csize;
    Boolean invalid_multibyte = False;
 
+   if (s == NULL || *s == NULL || cs == NULL || after_delimiter == NULL)
+      return(False);
    *cs = NULL;
 
    if (**s == '\0')

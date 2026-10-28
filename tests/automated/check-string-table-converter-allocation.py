@@ -23,6 +23,7 @@ for needle in (
     "if (invalid_multibyte)",
     "XtFree(*cs);",
     "*cs = NULL;",
+    "if (s == NULL || *s == NULL || cs == NULL || after_delimiter == NULL)",
 ):
     if needle not in block:
         raise SystemExit(f"string-table converter is missing {needle}")

@@ -1,3 +1,10 @@
+Guard XmString-table parser state (2026-10-29)
+===============================================
+
+- Reject missing parser state pointers before dereferencing the input cursor,
+  output component, or delimiter state.
+- Preserve valid XmString-table conversion and add focused input coverage.
+
 Reject invalid multibyte XmString-table input (2026-10-29)
 ===========================================================
 
