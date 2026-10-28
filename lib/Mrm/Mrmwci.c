@@ -194,7 +194,8 @@ MrmRegisterClassWithCleanup (
     }
   create_name_len = strlen(create_name);
   if (create_name_len == SIZE_MAX ||
-      sizeof(WCIClassDesc) > SIZE_MAX - (create_name_len + 1))
+      sizeof(WCIClassDesc) > SIZE_MAX - (create_name_len + 1) ||
+      sizeof(WCIClassDesc) + create_name_len + 1 > (size_t)UINT_MAX)
     {
       _MrmProcessUnlock();
       return MrmFAILURE;

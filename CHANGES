@@ -12162,6 +12162,14 @@ Mrm class-registration allocation bounds (2026-10-25)
   preserving valid registration while rejecting unrepresentable sizes safely;
   see `docs/mrm-wci-registration-bounds.md`.
 
+Mrm class-registration Cardinal bound (2026-10-28)
+===================================================
+
+- Reject creator-name allocations that fit in `size_t` but cannot be passed to
+  Xt's `Cardinal` allocator width, preserving valid class registration.
+- Extend the focused source contract and documentation for the platform-width
+  boundary.
+
 Mrm display-string conversion bounds (2026-10-25)
 ================================================
 

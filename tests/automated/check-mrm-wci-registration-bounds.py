@@ -13,6 +13,7 @@ for needle in (
     "create_name_len = strlen(create_name);",
     "create_name_len == SIZE_MAX",
     "sizeof(WCIClassDesc) > SIZE_MAX - (create_name_len + 1)",
+    "sizeof(WCIClassDesc) + create_name_len + 1 > (size_t)UINT_MAX",
     "create_name_len + 1);",
 ):
     if needle not in region:
