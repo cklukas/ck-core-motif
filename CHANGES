@@ -24127,3 +24127,11 @@ Bound UIL resource-vector allocations (2026-10-28)
 - Add focused coverage and documentation.
 
 Bound UIL include filename metadata (2026-10-28)
+Make UIL enum-width boundaries explicit (2026-10-28)
+=====================================================
+
+- Make parser enum conversions explicit when passing diagnostics or storing
+  legacy 8/16-bit symbol fields.
+- Add focused coverage and documentation.
+
+Make UIL case-sensitivity tag width explicit (2026-10-28)

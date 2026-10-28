@@ -832,8 +832,8 @@ yystype	    *variant_frame;
 	diag_issue_diagnostic
 	    (d_supersede,
 	     _sar_source_position ( source_frame ),
-	     diag_object_text (obj_type),
-	     diag_tag_text (obj_variant),
+	     diag_object_text ((int)obj_type),
+	     diag_tag_text ((int)obj_variant),
 	     diag_tag_text (sym_k_module_entry),
 	     "" );
 	}
@@ -847,21 +847,21 @@ yystype	    *variant_frame;
 	    diag_issue_diagnostic
 		(d_gadget_not_sup,
 		 _sar_source_position ( source_frame ),
-		 diag_object_text (obj_type),
-		 diag_object_text (obj_type) );
+		 diag_object_text ((int)obj_type),
+		 diag_object_text ((int)obj_type) );
 	    obj_variant = sym_k_widget_entry;
 	    }
 	}
 
 /*  Save the default variant information  */
-    uil_urm_variant[obj_type] = obj_variant;
+    uil_urm_variant[obj_type] = (unsigned short)obj_variant;
 
 /*
 ** get the latest def_obj entry and fill in
 */
     def_obj_entry = sym_az_module_entry->az_def_obj->next;
-    def_obj_entry->b_object_info = obj_type;
-    def_obj_entry->b_variant_info = obj_variant;
+    def_obj_entry->b_object_info = (char)obj_type;
+    def_obj_entry->b_variant_info = (char)obj_variant;
 
 }
 
@@ -908,7 +908,7 @@ int	    section_type;
     section_entry = (sym_section_entry_type *) sem_allocate_node
 			( sym_k_section_entry, sym_k_section_entry_size );
 
-    section_entry->header.b_type = section_type;
+    section_entry->header.b_type = (unsigned char)section_type;
 
     /*
     ** Save source info
