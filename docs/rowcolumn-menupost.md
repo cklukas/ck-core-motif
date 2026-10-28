@@ -9,5 +9,7 @@ value still emits the existing warning without performing success-only cleanup
 through a failed mapping.
 
 The focused source regression is
-`tests/automated/check-rowcolumn-menupost.py`; compile `RowColumn.c` with
-`-Wmisleading-indentation` enabled to keep the control flow explicit.
+`tests/automated/check-rowcolumn-menupost.py`. It runs directly from a source
+checkout with no arguments (or accepts an explicit `RowColumn.c` path); compile
+`RowColumn.c` with `-Wmisleading-indentation` enabled to keep the control flow
+explicit.

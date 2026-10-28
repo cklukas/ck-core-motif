@@ -5,6 +5,12 @@ Bound I18List selected-fill Y advancement (2026-10-29)
   next rectangle is drawn.
 - Add focused source-contract coverage.
 
+Make the RowColumn menu-post contract check checkout-runnable (2026-10-29)
+=============================================================================
+
+- Default the focused menu-post cleanup check to the checkout's RowColumn
+  implementation while retaining an explicit source-path override.
+
 Bound I18List display column origins (2026-10-29)
 ==================================================
 

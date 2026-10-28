@@ -4,8 +4,12 @@ from pathlib import Path
 import sys
 
 if len(sys.argv) != 2:
-    raise SystemExit(f"usage: {sys.argv[0]} ROWCOLUMN_SOURCE")
-text = Path(sys.argv[1]).read_text(encoding="utf-8")
+    if len(sys.argv) > 2:
+        raise SystemExit(f"usage: {sys.argv[0]} [ROWCOLUMN_SOURCE]")
+    source = Path(__file__).parents[2] / "lib" / "Xm" / "RowColumn.c"
+else:
+    source = Path(sys.argv[1])
+text = source.read_text(encoding="utf-8")
 start = text.index("if (_XmMapBtnEvent(RC_MenuPost(new_w)")
 end = text.index("      }\n   }\n   else", start)
 block = text[start:end]
