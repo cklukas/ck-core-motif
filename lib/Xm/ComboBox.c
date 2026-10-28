@@ -3284,26 +3284,34 @@ CreateScrolledList(Widget    parent,
     }
   else
     {
-      if (CBS_SelectedPosition(cb) == XmINVALID_POSITION)
-	pos = 1;  /* Issue 138 */
-      else if (CB_PositionMode(cb) == XmZERO_BASED &&
-	       CBS_SelectedPosition(cb) == INT_MAX)
+      int selected_position = CBS_SelectedPosition(cb);
+
+      if (selected_position == XmINVALID_POSITION)
 	{
-	  /* There is no representable one-based List position for this
-	   * zero-based public value; leave the child unselected. */
-	  setpos = FALSE;
+	  pos = 1;  /* Issue 138 */
+	  setpos = TRUE;
 	}
       else if (CB_PositionMode(cb) == XmZERO_BASED)
-	pos = CBS_SelectedPosition(cb) + 1;
-      else
-	pos = CBS_SelectedPosition(cb);
-      if (!setpos &&
-	  !(CB_PositionMode(cb) == XmZERO_BASED &&
-	    CBS_SelectedPosition(cb) == INT_MAX)) {
-	XtSetArg(loc_args[n], XmNselectedPositions, &pos), n++;
-	XtSetArg(loc_args[n], XmNselectedPositionCount, 1), n++;
-	setpos = TRUE;
-      }
+	{
+	  /* Reject negative values and INT_MAX: neither has a representable
+	   * one-based List successor. */
+	  if (selected_position >= 0 && selected_position < INT_MAX)
+	    {
+	      pos = selected_position + 1;
+	      setpos = TRUE;
+	    }
+}
+      else if (selected_position >= 1)
+	{
+	  pos = selected_position;
+	  setpos = TRUE;
+}
+
+      if (setpos)
+	{
+	  XtSetArg(loc_args[n], XmNselectedPositions, &pos), n++;
+	  XtSetArg(loc_args[n], XmNselectedPositionCount, 1), n++;
+	}
     }
 
   XtSetArg(loc_args[n], XmNrenderTable, CB_RenderTable(cb)), n++;

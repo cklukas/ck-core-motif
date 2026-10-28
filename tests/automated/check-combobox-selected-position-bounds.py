@@ -7,7 +7,7 @@ start = source.index("static Widget\nCreateScrolledList")
 end = source.index("static Boolean\nHit", start)
 body = source[start:end]
 
-assert "CBS_SelectedPosition(cb) == INT_MAX" in body
-assert "leave the child unselected" in body
-assert "CBS_SelectedPosition(cb) + 1" in body
+assert "selected_position >= 0 && selected_position < INT_MAX" in body
+assert "selected_position >= 1" in body
+assert "pos = selected_position + 1" in body
 print("ComboBox zero-based selected-position conversion is bounded")
