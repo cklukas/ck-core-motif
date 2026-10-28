@@ -26407,3 +26407,9 @@ Guard UIL keysym coercion allocation (2026-10-29)
   type.
 - Preserve the integer value and use normal validation diagnostics when the
   coercion allocation fails.
+
+Rollback image-cache capacity on growth failure (2026-10-29)
+==============================================================
+
+- Publish the new color-cache capacity only after `XtRealloc` succeeds.
+- Keep failed growth from making later insertions address unallocated storage.

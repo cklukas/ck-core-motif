@@ -3014,16 +3014,17 @@ CacheColorPixel( Display *display, Colormap colormap,
     if (numEntries == colorCacheList.maxEntries)
     {
         CachedColor *new_cache;
+        int new_max_entries;
         size_t cache_bytes;
         if (colorCacheList.maxEntries > INT_MAX - 25)
 	    return False;
-        colorCacheList.maxEntries += 25;
-	if ((size_t)colorCacheList.maxEntries >
+	new_max_entries = colorCacheList.maxEntries + 25;
+	if ((size_t)new_max_entries >
 	    SIZE_MAX / sizeof(*colorCacheList.cache) ||
-	    (size_t)colorCacheList.maxEntries >
+	    (size_t)new_max_entries >
 	    UINT_MAX / sizeof(*colorCacheList.cache))
 	    return False;
-	cache_bytes = (size_t)colorCacheList.maxEntries *
+	cache_bytes = (size_t)new_max_entries *
 	              sizeof(*colorCacheList.cache);
 	new_cache = (CachedColor *)
 		    XtRealloc((char *)colorCacheList.cache,
@@ -3031,6 +3032,7 @@ CacheColorPixel( Display *display, Colormap colormap,
 	if (new_cache == NULL)
 	    return False;
 	colorCacheList.cache = new_cache;
+	colorCacheList.maxEntries = new_max_entries;
     }
 
     colorCacheList.cache[numEntries].display = display;
