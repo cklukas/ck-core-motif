@@ -26652,6 +26652,13 @@ Refresh MWM automation-reply regression (2026-10-29)
   `GetAutomationData` instead of the superseded byte-size assertion.
 - Track its current `Cardinal`-sized allocation expression as well.
 
+Bound Editres outgoing strings (2026-10-29)
+===========================================
+
+- Keep Editres string payloads within the protocol's 16-bit length field so
+  oversized resource names cannot desynchronise the response stream.
+- Use the correct `unsigned long` element width for decoded widget IDs.
+
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================
 

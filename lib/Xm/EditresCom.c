@@ -1850,7 +1850,13 @@ _XEditResPutString8(stream, str)
 ProtocolStream * stream;
 char * str;
 {
-    int i, len = strlen(str);
+    size_t i, len = strlen(str);
+
+    /* The Editres string length is a 16-bit wire field.  Keep the
+     * advertised length and the number of bytes written in sync when a
+     * malformed or unusually large resource name is supplied. */
+    if (len > UINT16_MAX)
+	len = UINT16_MAX;
 
     _XEditResPut16(stream, len);
     for (i = 0 ; i < len ; i++, str++)
@@ -2139,7 +2145,8 @@ WidgetInfo * info;
 	(size_t)UINT_MAX / sizeof(unsigned long))
 	return(FALSE);
 
-    info->ids = (unsigned long *) XtMalloc(sizeof(long) * (info->num_widgets));
+    info->ids = (unsigned long *) XtMalloc(sizeof(unsigned long) *
+					   (info->num_widgets));
 
     if (info->ids == NULL && info->num_widgets != 0)
 	return(FALSE);
