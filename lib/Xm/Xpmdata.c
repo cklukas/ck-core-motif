@@ -342,6 +342,10 @@ xpmGetString(
 	    if (i == BUFSIZ) {
 		/* get to the end of the buffer */
 		/* malloc needed memory */
+		if (n > UINT_MAX - i) {
+		    XpmFree(p);
+		    return (XpmNoMemory);
+		}
 		q = (char *) XpmRealloc(p, n + i);
 		if (!q) {
 		    XpmFree(p);
@@ -364,6 +368,10 @@ xpmGetString(
 	    return (XpmFileInvalid);
 	}
 	if (n + i != 0) {
+	    if (n > UINT_MAX - i - 1) {
+		XpmFree(p);
+		return (XpmNoMemory);
+	    }
 	    /* malloc needed memory */
 	    q = (char *) XpmRealloc(p, n + i + 1);
 	    if (!q) {
