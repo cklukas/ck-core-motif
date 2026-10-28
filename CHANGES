@@ -26886,3 +26886,10 @@ Validate MWM backdrop pixmap requests (2026-10-28)
 - Replace unchecked `sscanf` conversion of backdrop pixmap IDs with complete
   hexadecimal and range-error validation.
 - Reject malformed request IDs before invoking backdrop replacement.
+
+Validate MWM invoke-command requests (2026-10-28)
+==================================================
+
+- Replace unchecked `sscanf` parsing of command, client-window, and selection
+  fields with field-by-field range validation.
+- Reject trailing or overflowing request text before sending the invocation.

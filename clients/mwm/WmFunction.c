@@ -50,6 +50,7 @@ static char rcsid[] = "$TOG: WmFunction.c /main/19 1998/04/20 13:00:48 mgreess $
 extern int putenv();
 extern char *getenv();
 extern int atoi();
+extern unsigned long strtoul(const char *, char **);
 extern pid_t wait();
 
 #ifndef PORT_NOVFORK
@@ -4675,6 +4676,30 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
 }
 
 
+static Boolean
+parse_invoke_unsigned(const char **cursor, unsigned long maximum,
+			      unsigned long *value)
+{
+    const char *start;
+    char *end;
+    unsigned long parsed;
+
+    if (cursor == NULL || *cursor == NULL || value == NULL)
+	return False;
+    while (isspace((unsigned char)**cursor))
+	(*cursor)++;
+    start = *cursor;
+    errno = 0;
+    end = NULL;
+    parsed = strtoul(start, &end, 10);
+    if (end == start || errno == ERANGE || parsed > maximum)
+	return False;
+    *cursor = end;
+    *value = parsed;
+    return True;
+}
+
+
 
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 /*************************************<->*************************************
@@ -4694,13 +4719,20 @@ Boolean F_InvokeCommand (String args, ClientData *pCD, XEvent *event)
     CARD32 commandID, clientWindow;
     CARD32 invokingWindow = 0;
     Atom notifySelection;
-    unsigned int parsedCommandID, parsedClientWindow;
-    unsigned long parsedSelection;
+    const char *cursor;
+    unsigned long parsedCommandID, parsedClientWindow, parsedSelection;
 
     if (args == (String) NULL) return(FALSE);
 
-    if (sscanf(args, "%u %u %lu", &parsedCommandID, &parsedClientWindow,
-	       &parsedSelection) != 3)
+
+    cursor = args;
+    if (!parse_invoke_unsigned(&cursor, UINT_MAX, &parsedCommandID) ||
+	!parse_invoke_unsigned(&cursor, UINT_MAX, &parsedClientWindow) ||
+	!parse_invoke_unsigned(&cursor, ULONG_MAX, &parsedSelection))
+	return(FALSE);
+    while (isspace((unsigned char)*cursor))
+	cursor++;
+    if (*cursor != '\0')
       return(FALSE);
 
     commandID = (CARD32)parsedCommandID;
