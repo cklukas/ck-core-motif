@@ -1,3 +1,10 @@
+Bound I18List visible-height probing (2026-10-29)
+==================================================
+
+- Clamp the widget-height-plus-one probe used by `IsRowVisible` before the
+  legacy short coordinate conversion.
+- Add focused source-contract coverage.
+
 Use wide I18List pixel hit-test accumulation (2026-10-29)
 ===========================================================
 

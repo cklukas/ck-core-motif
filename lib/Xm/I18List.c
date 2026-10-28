@@ -2998,7 +2998,8 @@ IsRowVisible(Widget w, short row)
     if (row < XmI18List_first_row(ilist))
 	return(row - XmI18List_first_row(ilist));
    
-    CvtPositionToRowColumn((Widget) w, 0, (short) (ilist->core.height + 1),
+    CvtPositionToRowColumn((Widget) w, 0,
+                           bounded_short((long long)ilist->core.height + 1),
 			   &r_row, &r_col);
  
     if (row >= r_row)
