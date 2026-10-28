@@ -2610,6 +2610,9 @@ processCharsetAndTextUtf8(XmStringCharSet tag,
 {
   unsigned int		ctlen = 0, len;
 
+  if (tag == NULL || outc == NULL || outlen == NULL || prev == NULL)
+    return(False);
+
   if (strcmp(tag, XmFONTLIST_DEFAULT_TAG) == 0) {
       if (_XmStringIsCurrentCharset("UTF-8")) {
     	  if (ctext)
@@ -2719,6 +2722,9 @@ processCharsetAndText(XmStringCharSet tag,
 {
   unsigned int		ctlen = 0, len;
   
+  if (tag == NULL || outc == NULL || outlen == NULL || prev == NULL)
+    return(False);
+
   if (strcmp(tag, CS_UTF_8) == 0)
     tag = XmFONTLIST_DEFAULT_TAG;
 

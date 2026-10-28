@@ -1,3 +1,10 @@
+Guard null charset conversion state (2026-10-29)
+================================================
+
+- Reject malformed charset conversion calls before `strcmp` or output-buffer
+  state access in both narrow and UTF-8 paths.
+- Preserve valid XmString charset conversion and add focused state coverage.
+
 Guard inverse compound-text converter records (2026-10-29)
 ===========================================================
 
