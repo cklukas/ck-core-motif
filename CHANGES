@@ -5,6 +5,13 @@ Bound I18List selected-fill Y advancement (2026-10-29)
   next rectangle is drawn.
 - Add focused source-contract coverage.
 
+Clamp appearance arrow inset positions (2026-10-29)
+=====================================================
+
+- Compute modern arrow offsets in wide arithmetic and clamp them to the X11
+  `Position` range before storing the result.
+- Extend appearance allocation contract coverage for the geometry guard.
+
 Guard Text source deletion-byte multiplication (2026-10-29)
 ==============================================================
 

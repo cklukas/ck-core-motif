@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <limits.h>
 #include <string.h>
 
 #include <X11/IntrinsicP.h>
@@ -1110,8 +1111,14 @@ _XmAppearanceInsetArrow(Widget widget, Position *x, Position *y,
     available = *width < *height ? *width : *height;
     available = available > 2 * padding ? available - 2 * padding : 0;
     if (side > available) side = available;
-    *x += (*width - side) / 2;
-    *y += (*height - side) / 2;
+    {
+        long long next_x = (long long)*x + (long long)(*width - side) / 2;
+        long long next_y = (long long)*y + (long long)(*height - side) / 2;
+        *x = (Position)(next_x < SHRT_MIN ? SHRT_MIN :
+                        next_x > SHRT_MAX ? SHRT_MAX : next_x);
+        *y = (Position)(next_y < SHRT_MIN ? SHRT_MIN :
+                        next_y > SHRT_MAX ? SHRT_MAX : next_y);
+    }
     *width = *height = (Dimension)side;
 }
 

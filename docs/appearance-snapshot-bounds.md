@@ -6,6 +6,9 @@ that cannot fit both the `XtMalloc` `Cardinal` argument and the native `size_t`
 allocation arithmetic.  The transaction returns failure before taking any
 state references; valid transactions are unchanged.
 
+The modern arrow inset helper also clamps its position updates to the X11
+`Position` range, so large allocated cells cannot wrap the arrow origin.
+
 The focused source-contract check is:
 
 ```sh
