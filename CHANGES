@@ -27101,6 +27101,13 @@ Commit Mrm child references atomically (2026-10-28)
 - Leave child descriptors unchanged when an index is missing or cannot be
   appended.
 
+Reject negative Mrm reader vector counts (2026-10-28)
+======================================================
+
+- Reject negative text, integer, and font-list counts during value
+  conversion and legacy font-list fixup.
+- Preserve valid bounded vector conversion and callback behavior.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

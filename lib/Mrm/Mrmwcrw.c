@@ -2145,7 +2145,7 @@ Urm__CW_FixupValue (long			val,
 	/* Converting an old style fontlist */
 	{
 	  oldlist = (OldRGMFontListPtr)bufptr;
-	  if ( oldlist->count > RGMListSizeMax )
+	  if ( oldlist->count < 0 || oldlist->count > RGMListSizeMax )
 	    return MrmFAILURE ;
 
 	  fontlist = (RGMFontListPtr)val;
@@ -2169,7 +2169,7 @@ Urm__CW_FixupValue (long			val,
       else
 	{
 	  fontlist = (RGMFontListPtr) val ;
-	  if ( fontlist->count > RGMListSizeMax )
+	  if ( fontlist->count < 0 || fontlist->count > RGMListSizeMax )
 	    return MrmFAILURE ;
 	  if ( *swap_needed )
 	    {
@@ -2472,7 +2472,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	  
 	vecptr = (RGMTextVectorPtr) (*val) ;
 	if ( vecptr == NULL || vecptr->validation != URMTextVectorValid ||
-	    vecptr->count > RGMListSizeMax )
+	    vecptr->count < 0 || vecptr->count > RGMListSizeMax )
 	  return MrmFAILURE ;
 	/* Have to pack vecptr */
 	vec_count = vecptr->count;
@@ -2488,7 +2488,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	
 	vecptr = (RGMTextVectorPtr) (*val) ;
 	if ( vecptr == NULL || vecptr->validation != URMTextVectorValid ||
-	    vecptr->count > RGMListSizeMax )
+	    vecptr->count < 0 || vecptr->count > RGMListSizeMax )
 	  return MrmFAILURE ;
 	/* Have to pack vecptr */
 	vec_count = vecptr->count;
@@ -2518,7 +2518,7 @@ Urm__CW_ConvertValue (Widget			parent,
 
         vecptr = (RGMIntegerVectorPtr) (*val) ;
         if ( vecptr == NULL || vecptr->validation != URMIntegerVectorValid ||
-             vecptr->count > RGMListSizeMax )
+             vecptr->count < 0 || vecptr->count > RGMListSizeMax )
           return MrmFAILURE ;
         *val = (long) vecptr->item ;
         break ;
@@ -2646,8 +2646,8 @@ Urm__CW_ConvertValue (Widget			parent,
       break ;
     case MrmRtypeFontList:
       fontlist = (RGMFontListPtr) (*val) ;
-      if ( fontlist == NULL || fontlist->validation != URMFontListValid ||
-	   fontlist->count > RGMListSizeMax )
+	  if ( fontlist == NULL || fontlist->validation != URMFontListValid ||
+	       fontlist->count < 0 || fontlist->count > RGMListSizeMax )
 	return MrmFAILURE ;
       dfontlist = NULL ;
       for ( ndx=0 ; ndx<fontlist->count ; ndx++ )
