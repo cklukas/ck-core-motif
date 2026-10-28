@@ -30,6 +30,13 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
+
+static Position bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
 #include "XmI.h"
 #include <Xm/XmP.h>
 #include <Xm/DrawP.h>
@@ -1878,7 +1885,9 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 		    cur_y += ilist->primitive.shadow_thickness;
 
 		XmStringDraw(XtDisplay(w), XtWindow(w),
-			     XmI18List_font_list(ilist), ptr, gc, cur_x, cur_y,
+			     XmI18List_font_list(ilist), ptr, gc,
+			     bounded_position((long long)cur_x),
+			     bounded_position((long long)cur_y),
 			     col_widths[i], XmI18List_alignment(ilist),
 			     XmPrim_layout_direction(ilist), NULL);
 	    }
@@ -1973,7 +1982,9 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 		cur_y += (int)(XmI18List_row_height(ilist) - VERTICAL_SPACE - 
 			       text_height)/2;
 		XmStringDraw(XtDisplay(w), XtWindow(w), 
-			     XmI18List_font_list(ilist), ptr, entry_gc, cur_x, cur_y,
+			     XmI18List_font_list(ilist), ptr, entry_gc,
+			     bounded_position((long long)cur_x),
+			     bounded_position((long long)cur_y),
 			     col_widths[i], XmI18List_alignment(ilist),
 			     XmPrim_layout_direction(ilist), NULL);
 		
