@@ -212,7 +212,8 @@ static void child_changed(Widget child, XtPointer closure, XtPointer call_data) 
     XEvent *event = NULL;
     XmToggleButtonCallbackStruct *callback =
         (XmToggleButtonCallbackStruct *)call_data;
-    if (control == NULL || child == NULL)
+    if (control == NULL || child == NULL ||
+        !XmIsSegmentedControl((Widget)control))
 	return;
     if (control->segmented.rebuilding) return;
     if (callback) { set = callback->set; event = callback->event; }
