@@ -1,3 +1,10 @@
+Use signed I18List available-height arithmetic (2026-10-29)
+=============================================================
+
+- Compute the row area in wide signed arithmetic and clamp it at zero before
+  deriving rows per screen, avoiding unsigned underflow for small widgets.
+- Add focused source-contract coverage.
+
 Bound I18List first-column restoration (2026-10-29)
 =====================================================
 

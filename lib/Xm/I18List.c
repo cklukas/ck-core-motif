@@ -3044,7 +3044,8 @@ AdjustVisiblePosition(Widget w, short position, Boolean check, short value)
 static void
 AdjustFirstRowAndCol( XmI18ListWidget ilist )
 {
-  Dimension total_width, height;
+  Dimension total_width;
+  long long height;
   int rows_per_screen;
   long long new_left_loc;
   register int j;
@@ -3074,10 +3075,14 @@ AdjustFirstRowAndCol( XmI18ListWidget ilist )
   else XmI18List_left_loc(ilist) = bounded_short(new_left_loc);
   
   
-  height = ilist->core.height - 
-    (2 * VERTICAL_SPACE + XmI18List_title_row_height(ilist) +  title_extra);
+  height = (long long)ilist->core.height -
+    (2LL * VERTICAL_SPACE + (long long)XmI18List_title_row_height(ilist) +
+     (long long)title_extra);
+  if (height < 0)
+      height = 0;
   
-  rows_per_screen = (int)height/(int)(XmI18List_row_height(ilist)+ VERTICAL_SPACE);
+  rows_per_screen = (int)(height /
+      ((long long)XmI18List_row_height(ilist) + VERTICAL_SPACE));
   
   if (XmI18List_num_rows(ilist) < rows_per_screen)
   {
