@@ -252,7 +252,7 @@ URMResourceContext	* az_context;
     w_rec_size = w_rec->size;
 
     UilListFormat(buffer, "access: %s",
-			access_from_code (w_rec->access) );
+			access_from_code ((MrmFlag)w_rec->access) );
 
     src_append_machine_code (
 		az_src_rec,
@@ -849,7 +849,7 @@ src_source_record_type	*az_src_rec;
 				(char*)& c_ptr->type,
 				buffer );
 
-			off_put (k_name_off, c_ptr->key.index_offs);
+			off_put (k_name_off, (unsigned short)c_ptr->key.index_offs);
 
 			break;
 
@@ -964,7 +964,7 @@ URMResourceContext	* az_context;
 
     UilListFormat(buffer, "type: %s, access: %s, locked: ",
 	     type_from_code (UrmRCType (az_context)),
-	     access_from_code (UrmRCAccess (az_context)) );
+	     access_from_code ((MrmFlag)UrmRCAccess (az_context)) );
 
     if (UrmRCLock (az_context)) {
 	UilListAppend(buffer, UIL_MACHINE_LINE_SIZE, "true");
@@ -1009,7 +1009,8 @@ URMResourceContext	* az_context;
 	    int index = 0;
 	    int offset = 0;
 
-	    for (offset = 0; offset < (int)rc_size; offset += sizeof(int), index++)
+	    for (offset = 0; offset < (int)rc_size;
+		 offset += (int)sizeof(int), index++)
 		{
 		UilListFormat(buffer, "value[%d]: %ld",
 			 index, ((unsigned long *) rc_buffer)[index] );
@@ -1239,16 +1240,18 @@ URMResourceContext	* az_context;
 
     off_offset = _OffsetArray (RGMModuleDesc, off_offset, topmost);
 
-    for (i = 0, t_rec = m_rec->topmost;
+	for (i = 0, t_rec = m_rec->topmost;
 	 i < m_rec->count;
 	 i++, t_rec++, off_offset += sizeof (RGMTopmostDesc)) {
 
 	UilListFormat(buffer, "(%d) %s", i, t_rec->index);
 
+	if (strlen(t_rec->index) >= USHRT_MAX)
+	    continue;
 	src_append_machine_code (
 		az_src_rec,
 		_OffsetArray (RGMTopmostDesc, off_offset, index),
-		strlen(t_rec->index), t_rec->index,
+		(int)strlen(t_rec->index), t_rec->index,
 		buffer );
 
     }	/* for */
@@ -1316,8 +1319,8 @@ void	off_put
 	}
     }
 
-    _move ( & off_info_ptr [1], off_info_ptr,
-	    (off_info_cnt - i) * sizeof (off_info_type) );
+	    _move ( & off_info_ptr [1], off_info_ptr,
+		    (size_t)(off_info_cnt - i) * sizeof (off_info_type) );
 
     (* off_info_ptr) = off_info;
     off_info_cnt++;

@@ -33,6 +33,19 @@ Bound UIL machine-listing unload spans (2026-10-29)
   narrowing machine-listing offsets and lengths.
 - Add focused coverage and documentation.
 
+Clarify UIL machine-listing string widths (2026-10-29)
+=======================================================
+
+- Bound module index strings and make machine-listing stride and offset-stack
+  copy widths explicit.
+- Add focused coverage and documentation.
+
+Clarify UIL machine access-code widths (2026-10-29)
+===================================================
+
+- Narrow legacy machine access codes explicitly at the `MrmFlag` API boundary
+  after retrieving them from resource records.
+
 Bound UIL string concatenation lengths (2026-10-28)
 ===================================================
 
