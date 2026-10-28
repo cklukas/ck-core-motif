@@ -26421,9 +26421,8 @@ Guard accessibility memo-table capacity (2026-10-29)
 - Reject zero, non-power-of-two, or unrepresentable bucket sizes before
   resizing the table.
 
-Add allocation-free XmQueue cleanup fallback (2026-10-29)
-===========================================================
+Make XmQueue cleanup allocation-free (2026-10-29)
+===================================================
 
-- Release queue blocks directly when the temporary cleanup stack cannot be
-  allocated.
-- Avoid leaking queue storage during memory-pressure teardown.
+- Walk active and free block lists directly during teardown.
+- Avoid relying on temporary-stack allocation or growth during cleanup.

@@ -171,41 +171,21 @@ _XmQueueFree(XmQueue queue)
 {
     int count;
     _XmQElem *elem;
-    XmStack stack;
 
     if (queue == NULL)
 	return;
-    elem = queue->first;
-    stack = _XmStackInit();
 
+    /* Walk both lists directly: teardown must not depend on another
+     * allocation, including growth of a temporary cleanup stack. */
     for (count = 0; count < 2; count++) {
+	elem = count == 0 ? queue->first : queue->free_elems;
 	while (elem != NULL) {
-	    if (elem->alloced) 
-		_XmStackPush(stack, (XtPointer) elem);
-	    elem = elem->next;
+	    _XmQElem *next = elem->next;
+	    if (elem->alloced)
+		XtFree((XtPointer) elem);
+	    elem = next;
 	}
-	
-	elem = queue->free_elems;
     }
-
-    if (stack != NULL) {
-	while ((elem = (_XmQElem *) _XmStackPop(stack)) != NULL)
-	    XtFree((XtPointer) elem);
-	}
-	else {
-	/* The cleanup stack itself can be unavailable under memory pressure. */
-	for (count = 0; count < 2; count++) {
-	    elem = count == 0 ? queue->first : queue->free_elems;
-	    while (elem != NULL) {
-		_XmQElem *next = elem->next;
-		if (elem->alloced)
-		    XtFree((XtPointer) elem);
-		elem = next;
-	    }
-	}
-	}
-
-    _XmStackFree(stack);
 
     XtFree((XtPointer) queue);
 }

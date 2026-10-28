@@ -7,9 +7,8 @@ start = source.index("void\n_XmQueueFree")
 end = source.index("/*\tFunction Name: QueuePush", start)
 body = source[start:end]
 
-assert "if (stack != NULL)" in body
-assert "else {" in body
-assert "The cleanup stack itself can be unavailable" in body
-assert body.count("if (elem->alloced)") >= 2
+assert "teardown must not depend on another" in body
+assert "_XmStackInit" not in body
+assert body.count("if (elem->alloced)") == 1
 assert "XtFree((XtPointer) elem);" in body
 print("queue cleanup has an allocation-free fallback")
