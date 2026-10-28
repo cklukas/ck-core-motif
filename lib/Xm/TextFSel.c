@@ -1921,7 +1921,10 @@ TextFieldDestinationCallback(Widget w,
     }
 
   /* We don't handle LINKs internally */
-  if (ds->operation == XmLINK) return;
+  if (ds->operation == XmLINK) {
+    XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+    return;
+  }
 
   if (ds->selection == XA_PRIMARY && ds->operation == XmMOVE)
     XmeTransferAddDoneProc(ds->transfer_id, SetPrimarySelection);

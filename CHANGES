@@ -23142,6 +23142,14 @@ Complete failed TextField target discovery (2026-10-28)
 - Add focused regression coverage and documentation.
 Regression: tests/automated/check-textfsel-handle-targets-failure.py
 
+Complete unsupported Text LINK transfers (2026-10-28)
+======================================================
+
+- Explicitly fail unsupported `XmLINK` destination operations in Text and
+  TextField callbacks instead of returning with the transfer pending.
+- Add focused regression coverage and documentation.
+Regression: tests/automated/check-text-link-operation.py
+
 Guard TextOut line-wrap metadata allocations (2026-10-26)
 ===========================================================
 - Treat optional line-wrap metadata as absent when its allocation fails,
