@@ -703,6 +703,7 @@ typedef struct {
     String file_name;
     FILE * file;
     int pipe;
+    Boolean write_failed;
 } FileDescRec ;
 
 
@@ -723,8 +724,10 @@ static void PrintToFileProc(Display  * dpy,
 {
     FileDescRec * file_desc = (FileDescRec *) client_data ;
     
-    /* write to the file */
-    fwrite(data, data_len, 1, file_desc->file);
+    /* write to the file and retain failures for the finish callback */
+    if (data_len != 0 &&
+	fwrite(data, 1, (size_t)data_len, file_desc->file) != (size_t)data_len)
+	file_desc->write_failed = True;
 }   
 
 
@@ -735,10 +738,15 @@ static void FinishProc(Display *display,
 {
     FileDescRec * file_desc = (FileDescRec *) client_data ;
 
-    /* remove the file if not successfull */
-    if (status != XPGetDocFinished)
-	 remove(file_desc->file_name);
-    else fclose(file_desc->file);
+    if (file_desc->write_failed)
+	status = XPGetDocError;
+    if (status != XPGetDocFinished) {
+	(void)fclose(file_desc->file);
+	(void)remove(file_desc->file_name);
+    } else if (fclose(file_desc->file) != 0) {
+	status = XPGetDocError;
+	(void)remove(file_desc->file_name);
+	}
 
     /* write the status to the parent */
     (void) write(file_desc->pipe, &status, sizeof(XPGetDocStatus));
@@ -796,6 +804,7 @@ static void ChildPrintToFile(String display_name,
   }
   file_desc->file = file;
   file_desc->pipe = pipe;
+  file_desc->write_failed = False;
 
   app_context = XtCreateApplicationContext();
   if ((display = XtOpenDisplay(app_context, display_name, 

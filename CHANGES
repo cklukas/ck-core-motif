@@ -26788,3 +26788,10 @@ Validate UTF-8 scalar boundaries in UCS-2 conversion (2026-10-28)
 - Reject overlong UTF-8 and UTF-16 surrogate encodings in `_XmUtf8ToUcs2`.
 - Consume valid four-byte UTF-8 sequences as one scalar and map supplementary
   code points to one replacement character instead of truncating them.
+Report PrintShell output write failures (2026-10-28)
+=====================================================
+
+- Check short `fwrite` results in the `XmPrintToFile` child callback and carry
+  failures into `FinishProc`.
+- Treat write or final `fclose` failures as `XPGetDocError` and remove partial
+  output instead of reporting a successful document with incomplete data.
