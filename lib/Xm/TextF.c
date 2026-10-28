@@ -7442,6 +7442,8 @@ ValidateString(XmTextFieldWidget tf,
   
   int str_len = 0;
   int i, j;
+  size_t input_length;
+  size_t converted;
   char stack_cache[400];
   InvalidateTextFieldUnicodeMap(tf);
 #if USE_XFT
@@ -7545,9 +7547,16 @@ ValidateString(XmTextFieldWidget tf,
       TextF_WcValue(tf) = NULL;
     } else { /* Need wchar_t* data to set as the widget's value */
       /* count number of wchar's */
-      str_len = strlen(start_temp);
+      input_length = strlen(start_temp);
+      if (input_length > (size_t)INT_MAX - 30 ||
+          input_length > SIZE_MAX / sizeof(wchar_t) - 30 ||
+          input_length > (size_t)UINT_MAX / sizeof(wchar_t) - 30) {
+        XmStackFree(start_temp, stack_cache);
+        return;
+      }
+      str_len = (int)input_length;
       tf->text.string_length = str_len;
-      
+
       tf->text.size_allocd = (tf->text.string_length + 30)*sizeof(wchar_t);
       TextF_WcValue(tf) = (wchar_t*)XtMalloc((unsigned)tf->text.size_allocd);
       if (TextF_WcValue(tf) == NULL) {
@@ -7557,9 +7566,17 @@ ValidateString(XmTextFieldWidget tf,
         XmStackFree(start_temp, stack_cache);
         return;
       }
-      tf->text.string_length = mbstowcs(TextF_WcValue(tf), start_temp,
-					tf->text.string_length + 30);
-      if (tf->text.string_length < 0) tf->text.string_length = 0;
+      converted = mbstowcs(TextF_WcValue(tf), start_temp,
+                           (size_t)tf->text.string_length + 30);
+      if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+        XtFree((char *)TextF_WcValue(tf));
+        TextF_WcValue(tf) = NULL;
+        tf->text.string_length = 0;
+        tf->text.size_allocd = 0;
+        XmStackFree(start_temp, stack_cache);
+        return;
+      }
+      tf->text.string_length = (int)converted;
       TextF_Value(tf) = NULL;
     }
     XmStackFree(start_temp, stack_cache);
@@ -7651,7 +7668,7 @@ ValidateString(XmTextFieldWidget tf,
     
     tf->text.size_allocd = (str_len + 30) * sizeof(wchar_t);
     if (tf->text.max_char_size == 1) { /* Need to store data as char* */
-      int ret_val = 0;
+      size_t ret_val = 0;
       TextF_Value(tf) = XtMalloc((unsigned)tf->text.size_allocd);
       if (TextF_Value(tf) == NULL) {
         TextF_WcValue(tf) = NULL;
@@ -7660,9 +7677,19 @@ ValidateString(XmTextFieldWidget tf,
         XmStackFree((char *)wcs_start_temp, stack_cache);
         return;
       }
-      ret_val = wcstombs(TextF_Value(tf), wcs_start_temp, 
-			 tf->text.size_allocd);
-      if (ret_val < 0) tf->text.value[0] = '\0';
+      ret_val = wcstombs(TextF_Value(tf), wcs_start_temp,
+                         (size_t)tf->text.size_allocd);
+      if (ret_val == (size_t)-1 ||
+          ret_val >= (size_t)tf->text.size_allocd) {
+        XtFree(TextF_Value(tf));
+        TextF_Value(tf) = NULL;
+        TextF_WcValue(tf) = NULL;
+        tf->text.string_length = 0;
+        tf->text.size_allocd = 0;
+        XmStackFree((char *)wcs_start_temp, stack_cache);
+        return;
+      }
+      TextF_Value(tf)[ret_val] = '\0';
       TextF_WcValue(tf) = NULL;
     } else { /* Need to store data as wchar_t* */
       wchar_t *validated_wc_value = (wchar_t *)XtMalloc(

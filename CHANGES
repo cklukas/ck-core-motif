@@ -25966,3 +25966,9 @@ Guard TextField drawing conversions (2026-10-29)
 
 - Check wide-character conversion capacity and failure before passing byte
   lengths to Xlib/Xft drawing and measurement APIs.
+
+Guard TextField validated value conversions (2026-10-29)
+=========================================================
+
+- Reject failed or unterminated `mbstowcs`/`wcstombs` results before
+  publishing validated TextField storage.
