@@ -1612,15 +1612,15 @@ CalcLocations(Widget w)
 	 */
 	switch (XmIconButton_icon_placement(iw)) {
 	case XmIconLeft: /* Flush Left */
-	    XmIconButton_pix_x(iw) = (Position) H_SPACE(iw);
+	    XmIconButton_pix_x(iw) = bounded_position((long long)H_SPACE(iw));
 	    break;
 	case XmIconRight: /* Flush Right */
-	    XmIconButton_pix_x(iw) = (Position) (width - H_SPACE(iw) -
+	    XmIconButton_pix_x(iw) = bounded_position((long long)width - H_SPACE(iw) -
 					 XmIconButton_pix_width(iw));
 	    break;
 	default: /* Centered */
-	    XmIconButton_pix_x(iw) = ((Position) width -
-			      (Position) XmIconButton_pix_width(iw))/2;
+	    XmIconButton_pix_x(iw) = bounded_position(((long long)width -
+			      XmIconButton_pix_width(iw))/2);
 	    break;
 	}
 	
@@ -1629,17 +1629,17 @@ CalcLocations(Widget w)
 	 */
 	switch (XmIconButton_icon_placement(iw)) {
 	case XmIconTop: /* Centered At the top */
-	    XmIconButton_pix_y(iw) = V_SPACE(iw) + extra_y_space;
+	    XmIconButton_pix_y(iw) = bounded_position((long long)V_SPACE(iw) +
+						 extra_y_space);
 	    break;
 	case XmIconBottom: /* Centered at the bottom */
-	    XmIconButton_pix_y(iw) = ((Position) height - 
-			      ((Position) V_SPACE(iw) + 
-			       (Position) extra_y_space +
-			       (Position) XmIconButton_pix_height(iw)));
+	    XmIconButton_pix_y(iw) = bounded_position((long long)height -
+			      (V_SPACE(iw) + extra_y_space +
+			       XmIconButton_pix_height(iw)));
 	    break;
 	default: /* Centered */
-	    XmIconButton_pix_y(iw) = ((Position) height - 
-			      (Position) XmIconButton_pix_height(iw))/2;
+	    XmIconButton_pix_y(iw) = bounded_position(((long long)height -
+			      XmIconButton_pix_height(iw))/2);
 	    break;
 	}
     }
@@ -1702,7 +1702,8 @@ CalcLocations(Widget w)
 
 	switch (XmIconButton_icon_placement(iw)) {
 	case XmIconTop: /* Along Bottom. */
-	    XmIconButton_text_y(iw) = height - (V_SPACE(iw) + (Position)text_height);
+	    XmIconButton_text_y(iw) = bounded_position((long long)height -
+					       (V_SPACE(iw) + text_height));
 	    if( have_pixmap )
 	    {
 		tmp = XmIconButton_pix_y(iw) + XmIconButton_pix_height(iw) +
@@ -1728,7 +1729,8 @@ CalcLocations(Widget w)
 	    break;
 	default:
 	    /* Centered. */
-	    XmIconButton_text_y(iw) = ((Position) height - (Position) text_height)/2;
+	    XmIconButton_text_y(iw) = bounded_position(((long long)height -
+					       text_height)/2);
 	    break;
 	}
     }

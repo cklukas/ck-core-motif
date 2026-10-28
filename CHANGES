@@ -27700,3 +27700,9 @@ Bound IconG computed origins (2026-10-29)
 - Clamp RTL icon and label origins, and icon placement assignments, instead of
   narrowing computed geometry directly to `Position`.
 - Extend the IconG coordinate regression contract.
+Bound IconButton layout origins (2026-10-29)
+=============================================
+
+- Clamp pixmap and cached text origins while laying out IconButton content,
+  before later clipping and drawing use them.
+- Extend the IconButton coordinate regression contract.
