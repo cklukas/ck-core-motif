@@ -27086,6 +27086,13 @@ Copy Mrm color-table arguments (2026-10-28)
 - Copy the complete bounded table into the resource record before storing its
   offset.
 
+Guard Mrm compound-string conversion output (2026-10-28)
+==========================================================
+
+- Reject a positive XmString byte-stream length when the converter returned a
+  null byte-stream pointer.
+- Keep the existing empty-string and bounded-copy behavior unchanged.
+
 Guard Mrm value-fixup swap state (2026-10-28)
 ==============================================
 

@@ -2168,6 +2168,10 @@ UrmCWR__AppendCString (URMResourceContextPtr	context_id ,
       return MrmSUCCESS ;
     }
 
+  /* A positive conversion length must be accompanied by a byte stream. */
+  if (asn1 == NULL)
+    return MrmFAILURE;
+
   if ((size_t)encoded_len > MrmMaxResourceSize)
     {
       XtFree ((char *)asn1);
