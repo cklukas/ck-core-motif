@@ -2087,6 +2087,8 @@ yystype	    *token_frame;
 
     value_entry = (sym_value_entry_type *)
 	sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
+    if (value_entry == NULL)
+	return (sym_value_entry_type *)sym_az_error_value_entry;
     _sar_save_source_pos ( &value_entry->header, &yylval );
 
 /*    value_entry->az_source_rec = yylval.az_source_record; */
@@ -2431,11 +2433,21 @@ int	    value_type;
 	(length > 0))
 	{
 		value_entry->value.c_value = (char *) XtCalloc(1, (Cardinal)length);
+		if (value_entry->value.c_value == NULL) {
+		    sem_free_node ((sym_entry_type *)value_entry);
+		    XtError ("unable to allocate UIL value string");
+		    return (sym_value_entry_type *)sym_az_error_value_entry;
+		}
 	_move( value_entry->value.c_value, value, (size_t)length );
 	}
     else if (value_type == sym_k_compound_string_value  && (length > 0))
       {
 		value_entry->value.xms_value = (XmString) XtCalloc(1, (Cardinal)length);
+		if (value_entry->value.xms_value == NULL) {
+		    sem_free_node ((sym_entry_type *)value_entry);
+		    XtError ("unable to allocate UIL compound value");
+		    return (sym_value_entry_type *)sym_az_error_value_entry;
+		}
 	_move( value_entry->value.xms_value, value, (size_t)length );
       }
     else

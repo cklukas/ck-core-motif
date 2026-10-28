@@ -26313,3 +26313,9 @@ Guard UIL string-table compound conversion (2026-10-29)
 - Check the temporary compound-string node before appending and copying a
   string-table segment during semantic evaluation.
 - Return cleanly when that conversion node cannot be allocated.
+Guard UIL token value allocations (2026-10-29)
+================================================
+
+- Check the semantic value node before initialization.
+- Check narrow and compound payload allocations and release the node on
+  failure instead of copying through a null payload.
