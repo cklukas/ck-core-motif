@@ -2604,6 +2604,7 @@ void _XmPutScaledImage (
 {
     XImage *dest_image;
     unsigned int x, y, min_y, max_y, src_max_x;
+    unsigned int source_origin_x;
     unsigned int w, h, strip_height;
     unsigned int image_width, image_height;
     Table table = { NULL, NULL, NULL, NULL };
@@ -2807,6 +2808,10 @@ void _XmPutScaledImage (
 	    goto cleanup;
 	table.width[x - 1] = table.x[x] - table.x[x - 1];
     }
+    source_origin_x = table.x[src_x];
+    if (table.x[src_max_x] < source_origin_x ||
+	table.x[src_max_x] - source_origin_x > dest_width)
+	goto cleanup;
 
     table.y[0] = 0;
     for (y = 1; y <= image_height; y++) {
@@ -2833,7 +2838,8 @@ void _XmPutScaledImage (
 		    for (h = 0; h < table.height[y]; h++) {
 			memset(dest_image->data +
 		       (size_t)(table.y[y] - min_y + h) *
-		       (size_t)dest_image->bytes_per_line + (size_t)table.x[x],
+		       (size_t)dest_image->bytes_per_line +
+		       (size_t)(table.x[x] - source_origin_x),
 			       (int)(unsigned char)pixel, table.width[x]);
 		    }
 		}
@@ -2843,7 +2849,7 @@ void _XmPutScaledImage (
 		    for (h = 0; h < table.height[y]; h++) {
 			for (w = 0; w < table.width[x]; w++)
 			    XPutPixel(dest_image,
-				      (int)(table.x[x] + w),
+				      (int)(table.x[x] - source_origin_x + w),
 				      (int)(table.y[y] + h - min_y),
 				      pixel);
 		    }

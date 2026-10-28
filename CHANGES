@@ -1,3 +1,11 @@
+Normalize cropped-image scaling X coordinates (2026-10-29)
+============================================================
+
+- Offset scaled X coordinates by the requested source rectangle's origin,
+  matching the existing Y normalization and keeping cropped output inside its
+  destination image.
+- Validate the normalized right edge and add focused source-level coverage.
+
 Reject null selection atoms in drop callbacks (2026-10-29)
 ===========================================================
 

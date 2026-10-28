@@ -15,7 +15,7 @@ assert "unsigned int image_width, image_height;" in region
 assert "for (x = (unsigned int)src_x" in region
 assert "for (y = (unsigned int)src_y" in region
 assert "XGetPixel(src_image, (int)x, (int)y)" in region
-assert "(int)(table.x[x] + w)" in region
+assert "(int)(table.x[x] - source_origin_x + w)" in region
 assert "(int)(unsigned char)pixel" in region
 assert "XtMalloc((Cardinal)image_bytes)" in region
 assert "table_x_bytes" in region
