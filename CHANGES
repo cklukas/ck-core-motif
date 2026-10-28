@@ -1,3 +1,11 @@
+Report invalid XPM extension metadata accurately (2026-10-29)
+==============================================================
+
+- Return `XpmFileInvalid` for malformed extension names or line arrays in
+  array and buffer serialization instead of misreporting caller input as an
+  allocation failure.
+- Add focused coverage and documentation.
+
 Reject zero-dimension XPM buffers at entry (2026-10-29)
 =======================================================
 

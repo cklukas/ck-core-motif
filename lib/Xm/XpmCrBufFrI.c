@@ -134,7 +134,7 @@ XpmCreateBufferFromXpmImage(
     if (extensions)
 	ext_size = ExtensionsSize(info->extensions, info->nextensions);
     if (extensions && ext_size == 0)
-	RETURN(XpmNoMemory);
+	RETURN(XpmFileInvalid);
     if (cmts) {
 	int comment_size = CommentsSize(info);
 	if (comment_size < 0)

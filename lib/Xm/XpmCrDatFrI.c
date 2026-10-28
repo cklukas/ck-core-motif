@@ -133,7 +133,7 @@ XpmCreateDataFromXpmImage(
     if (extensions)
 	if (CountExtensions(info->extensions, info->nextensions,
 			&ext_size, &ext_nlines))
-	    return(XpmNoMemory);
+	    return(XpmFileInvalid);
 
     /*
      * alloc a temporary array of char pointer for the header section which
