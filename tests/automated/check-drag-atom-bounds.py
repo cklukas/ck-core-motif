@@ -5,9 +5,9 @@ from pathlib import Path
 source = Path(__file__).parents[2] / "lib" / "Xm" / "DragBS.c"
 text = source.read_text()
 for needle in (
-    "SIZE_MAX - sizeof(xmMotifAtomsPropertyRec)",
-    "SIZE_MAX / sizeof(xmAtomsTableEntryRec)",
-    "atomsTable->numEntries == (Cardinal)-1",
+    "atomsTable->numEntries > UINT16_MAX",
+    "(size_t)UINT_MAX / sizeof(xmMotifAtomsTableRec)",
+    "dataSize > UINT32_MAX || dataSize > (size_t)INT_MAX",
     "for (i = 0; ret && i < (int)propertyRecPtr->info.num_atoms; i++)",
 ):
     assert needle in text, needle
