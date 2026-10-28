@@ -24112,6 +24112,13 @@ Regression: tests/automated/check-dragunder-arg-count.py
 
 Match DragUnder saved-pixmap dimensions to Motif types (2026-10-28)
 ====================================================================
+Make UIL case-sensitivity tag width explicit (2026-10-28)
+===========================================================
+
+- Explicitly narrow the boolean case-sensitivity flag to the symbol header's
+  8-bit tag representation.
+- Add focused coverage and documentation.
+
 Bound UIL resource-vector allocations (2026-10-28)
 ===================================================
 

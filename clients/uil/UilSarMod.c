@@ -570,7 +570,8 @@ yystype	    *start_frame;
     sym_az_module_entry->az_case_sense = (sym_value_entry_type *)
 					 sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
 
-    sym_az_module_entry->az_case_sense->header.b_type = uil_v_case_sensitive;
+    sym_az_module_entry->az_case_sense->header.b_type =
+	(unsigned char)uil_v_case_sensitive;
 
     /*
     ** Save source info
