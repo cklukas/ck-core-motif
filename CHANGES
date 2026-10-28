@@ -26665,6 +26665,12 @@ Bound Editres error-message sizing (2026-10-29)
 - Keep toolkit warning-message length calculations in `size_t` and use the
   bounded fallback when a message cannot fit Xt's `Cardinal` allocation size.
 
+Bound XmRenderTable growth (2026-10-29)
+=======================================
+
+- Reject rendition-array growth that exceeds Xt's `Cardinal` allocation width
+  before calling `XtRealloc`.
+
 Refresh MWM bindings-property regression (2026-10-29)
 =======================================================
 

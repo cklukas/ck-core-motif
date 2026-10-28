@@ -3915,7 +3915,8 @@ XmRenderTableCvtFromProp(Widget w,
 	int new_max;
 	XmRendition *new_array;
 	if (rarray_max > INT_MAX - 10 ||
-	    (size_t)(rarray_max + 10) > SIZE_MAX / sizeof(XmRendition))
+	    (size_t)(rarray_max + 10) > SIZE_MAX / sizeof(XmRendition) ||
+	    (size_t)(rarray_max + 10) > (size_t)UINT_MAX / sizeof(XmRendition))
 	  goto error;
 	new_max = rarray_max + 10;
 	new_array = (XmRendition *)XtRealloc(
