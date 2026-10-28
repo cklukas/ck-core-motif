@@ -20,8 +20,8 @@ def main() -> None:
     end = SOURCE.index("XmClipboardCopy(", start)
     function = SOURCE[start:end]
     assert "if (header == NULL)" in function
-    assert "if (loc_itemid == 0)" in function
-    assert "dataItemLabelId == 0" in function
+    assert "if (loc_itemid <= 0)" in function
+    assert "if (label_itemid <= 0)" in function
     assert "previousStartCopyCalled" in function
 
 
