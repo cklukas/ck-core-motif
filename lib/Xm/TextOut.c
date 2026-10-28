@@ -2197,6 +2197,25 @@ _XmChangeHSB(XmTextWidget tw)
 }
 
 
+/* Widths are Dimensions, but line metrics and margins are accumulated as
+ * signed ints.  Saturate instead of allowing a long document to wrap. */
+static Dimension
+bounded_width_add(Dimension base, int delta)
+{
+  uint64_t value;
+  if (delta < 0) {
+    unsigned int amount = (unsigned int)(-(int64_t)delta);
+    return amount > (unsigned int)base ? 0 : (Dimension)(base - amount);
+  }
+  value = (uint64_t)base + (uint64_t)(unsigned int)delta;
+  return value > (uint64_t)(Dimension)~0 ? (Dimension)~0 : (Dimension)value;
+}
+static Dimension
+bounded_width_value(uint64_t value)
+{
+  return value > (uint64_t)(Dimension)~0 ? (Dimension)~0 : (Dimension)value;
+}
+
 static void 
 TextFindNewWidth(XmTextWidget tw,
 		 Dimension *widthRtn)
@@ -2212,8 +2231,10 @@ TextFindNewWidth(XmTextWidget tw,
     XmTextPosition first_position = 0;
     LineTableExtra extra;
 
-    newwidth = (int)(tw->text.total_lines * data->linewidth) +
-		data->leftmargin + data->rightmargin;
+    newwidth = bounded_width_value((uint64_t)tw->text.total_lines *
+                                   (uint64_t)data->linewidth);
+    newwidth = bounded_width_add(newwidth, (int)data->leftmargin);
+    newwidth = bounded_width_add(newwidth, (int)data->rightmargin);
   
     _XmTextLineInfo(tw, (LineNum) 0, &start, &extra);
   
@@ -2248,9 +2269,11 @@ TextFindNewWidth(XmTextWidget tw,
 	  return;
 	}
 	linestart = next_position;
-	text_width += FindWidth(tw, text_width, &block, 0, block.length);
+	text_width = bounded_width_add(text_width,
+	                              FindWidth(tw, text_width, &block, 0,
+                                         block.length));
       }
-      text_width += data->rightmargin;
+      text_width = bounded_width_add(text_width, (int)data->rightmargin);
       if (text_width > newwidth) newwidth = text_width;
     }
     text_width = data->leftmargin;
@@ -2264,9 +2287,11 @@ TextFindNewWidth(XmTextWidget tw,
 	  return;
 	}
 	linestart = next_position;
-      text_width += FindWidth(tw, text_width, &block, 0, block.length);
+      text_width = bounded_width_add(text_width,
+                                    FindWidth(tw, text_width, &block, 0,
+                                              block.length));
     }
-    text_width += data->rightmargin;
+    text_width = bounded_width_add(text_width, (int)data->rightmargin);
     if (text_width > newwidth) newwidth = text_width;
   } else {
     LineNum l;

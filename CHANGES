@@ -26188,3 +26188,9 @@ Bound Text block lengths (2026-10-29)
 
 - Reject oversized source and preedit byte strings before converting their
   `strlen()` results to signed Text block lengths.
+
+Saturate TextOut width measurements (2026-10-29)
+================================================
+
+- Widen and saturate line-width accumulation so large documents cannot wrap
+  their preferred width during resize measurement.
