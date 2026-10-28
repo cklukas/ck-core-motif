@@ -117,7 +117,7 @@ XpmCreateDataFromXpmImage(
     unsigned int header_size, header_nlines;
     unsigned int data_size, data_nlines;
     unsigned int extensions = 0, ext_size = 0, ext_nlines = 0;
-    unsigned int offset, l, n;
+    unsigned int offset, l;
     int written;
 
     if (data_return == NULL || image == NULL ||
@@ -226,10 +226,11 @@ XpmCreateDataFromXpmImage(
     *data = (char *) (data + data_nlines);
 
     /* can header have less elements then n suggests? */
-    n = image->ncolors;
-    for (l = 0, sptr = data, sptr2 = header; l <= n && sptr && sptr2; l++, sptr++, sptr2++) {
+    for (l = 0, sptr = data, sptr2 = header;
+	 l < header_nlines; l++, sptr++, sptr2++) {
 	strcpy(*sptr, *sptr2);
-	*(sptr + 1) = *sptr + strlen(*sptr2) + 1;
+	if (l + 1 < header_nlines)
+	    *(sptr + 1) = *sptr + strlen(*sptr2) + 1;
     }
 
     /* print pixels */

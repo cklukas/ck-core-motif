@@ -1,3 +1,10 @@
+Bound XPM header successor pointers (2026-10-29)
+=================================================
+
+- Limit header copying to the allocated line table and avoid writing a
+  successor pointer after the final header entry.
+- Add focused coverage and documentation.
+
 Report invalid XPM extension metadata accurately (2026-10-29)
 ==============================================================
 
