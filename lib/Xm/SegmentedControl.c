@@ -212,6 +212,8 @@ static void child_changed(Widget child, XtPointer closure, XtPointer call_data) 
     XEvent *event = NULL;
     XmToggleButtonCallbackStruct *callback =
         (XmToggleButtonCallbackStruct *)call_data;
+    if (control == NULL || child == NULL)
+	return;
     if (control->segmented.rebuilding) return;
     if (callback) { set = callback->set; event = callback->event; }
     for (i = 0; i < control->segmented.item_count; ++i)
@@ -239,6 +241,8 @@ static void child_key(Widget child, XtPointer closure, XEvent *event,
     XmSegmentedControlWidget control = (XmSegmentedControlWidget)closure;
     KeySym key; char buffer[8]; int index, next;
     (void)dispatch;
+    if (control == NULL || child == NULL || event == NULL)
+	return;
     if (event->type != KeyPress) return;
     XLookupString(&event->xkey, buffer, sizeof(buffer), &key, NULL);
     index = child_index(control, child); next = index;

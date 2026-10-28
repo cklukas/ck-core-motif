@@ -27234,6 +27234,14 @@ Guard TabBox partial repaint and bitmap lifetime (2026-10-28)
 - Expand partial damage to intersected tabs before complete-label rendering,
   restoring the TabBox clip between tab draws.
 - Evict cached Xft pictures before releasing reusable label bitmaps.
+
+Guard SegmentedControl child callbacks (2026-10-28)
+===================================================
+
+- Ignore child notifications delivered after the control or child has been
+  torn down.
+- Ignore keyboard callbacks without a live event, preserving navigation for
+  realized controls.
 - Guard list-popup key events against missing client or event data as well.
 
 Guard Mrm value-fixup swap state (2026-10-28)
