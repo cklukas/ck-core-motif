@@ -105,6 +105,8 @@ nav:
       - docs/clipboard-pending-header-guard.md
       - docs/clipboard-pending-list-allocation.md
       - docs/clipboard-receive-callback-validation.md
+      - docs/clipboard-request-count-lock.md
+      - docs/clipboard-request-lifetime.md
       - docs/clipboard-retrieve-allocation.md
       - docs/clipboard-retrieve-buffer-validation.md
       - docs/clipboard-retrieve-data-bounds.md
@@ -163,7 +165,10 @@ nav:
       - docs/draw-utils-size-limit-header.md
       - docs/drop-highlight.md
       - docs/drop-transfer-add-bounds.md
+      - docs/drop-transfer-callback-destruction.md
+      - docs/drop-transfer-callback-selection.md
       - docs/drop-transfer-entry-allocation.md
+      - docs/drop-transfer-processing-selection.md
       - docs/dropsite-allocation-failure.md
       - docs/dropsite-lifecycle.md
       - docs/editres-child-bounds.md
@@ -187,6 +192,9 @@ nav:
       - docs/icong-mask-name-bounds.md
       - docs/image-cache-buffer-bounds.md
       - docs/image-cache-table-bounds.md
+      - docs/image-scaling-destination-bounds.md
+      - docs/image-scaling-source-origin.md
+      - docs/image-scaling-source-origin-y.md
       - docs/legacy-charset-canonicalization.md
       - docs/legacy-filesel-restore-bounds.md
       - docs/legacy-menu-accelerator-bounds.md
