@@ -26325,3 +26325,9 @@ Guard UIL color-table construction allocations (2026-10-29)
 - Check color-table node and element-array allocation before initialization.
 - Release a partially allocated table and select the existing semantic error
   entry when allocation fails.
+Guard UIL standard color-table singleton (2026-10-29)
+=======================================================
+
+- Check lazy standard color-table node and element-array allocation.
+- Release a partially initialized singleton and return the semantic error
+  entry when allocation is unavailable.

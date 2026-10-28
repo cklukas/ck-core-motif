@@ -3937,8 +3937,15 @@ static sym_value_entry_type	*standard_color_table()
 	color_table = (sym_value_entry_type *)
 	    sem_allocate_node (sym_k_value_entry,
 			       sym_k_value_entry_size);
+	if (color_table == NULL)
+	    return sym_az_error_value_entry;
 	color_table->value.z_color = (sym_color_element *)
 	    XtCalloc(1,sizeof(sym_color_element)*2);
+	if (color_table->value.z_color == NULL) {
+	    sem_free_node ((sym_entry_type *)color_table);
+	    color_table = NULL;
+	    return sym_az_error_value_entry;
+	}
 
 	color_table->b_type = sym_k_color_table_value;
 	color_table->b_table_count = 2;
