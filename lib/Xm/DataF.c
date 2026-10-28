@@ -12198,6 +12198,7 @@ XmDataFieldReplaceWcs(
     wchar_t *tmp_wc;
     char *tmp;
     int wc_length = 0;
+    size_t converted;
     XmAnyCallbackStruct cb;
 
    _XmWidgetToAppContext(w);    
@@ -12254,17 +12255,18 @@ XmDataFieldReplaceWcs(
 	    rep_result = False;
 	    wc_length = 0;
 	} else {
-	wc_length = wcstombs(tmp, wc_value,
+	converted = wcstombs(tmp, wc_value,
 			     (size_t)(wc_length + 1) * XmTextF_max_char_size(tf));
-
-       if (wc_length == (size_t) -1){ /* if wcstombs fails, it returns -1 */
-          tmp[0] = '\0';               /* if invalid data, pass in the empty
-                                       * string */
-          wc_length = 0;
-       }
-       rep_result = _XmDataFieldReplaceText(tf, NULL, from_pos, to_pos,
-                                            (char*)tmp, wc_length, False);
-       XtFree(tmp);
+	if (converted == (size_t)-1 || converted > (size_t)INT_MAX) {
+	   XtFree(tmp);
+	   rep_result = False;
+	   wc_length = 0;
+	} else {
+	   wc_length = (int)converted;
+	   rep_result = _XmDataFieldReplaceText(tf, NULL, from_pos, to_pos,
+	                                        (char*)tmp, wc_length, False);
+	   XtFree(tmp);
+	}
 	}
 	}
     }

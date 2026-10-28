@@ -5,6 +5,8 @@ Reject invalid DataField replacement conversion (2026-10-29)
   `XmDataFieldReplace` before calling replacement.
 - Release temporary buffers and preserve an unsuccessful replacement result,
   with focused regression coverage.
+- Check `wcstombs` output before assigning the signed length in the wide-value
+  replacement API.
 
 Reject invalid DataField value conversion (2026-10-29)
 =======================================================
