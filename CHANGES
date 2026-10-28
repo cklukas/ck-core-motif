@@ -28409,3 +28409,5 @@ List drag selection bounds (2026-10-28)
   initialization (2026-10-28).
 * Refreshed the IconG clip-origin contract check for bounded position output
   (2026-10-28).
+* Refreshed the IconG RTL-position contract check for the current signed
+  rectangle arithmetic and bounded placement outputs (2026-10-28).
