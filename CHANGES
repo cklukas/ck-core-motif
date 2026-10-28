@@ -28435,3 +28435,5 @@ List drag selection bounds (2026-10-28)
   with the correct hierarchy implementation default (2026-10-28).
 * Made the Mrm icon-pixmap bounds contract check runnable from a source
   checkout with the correct widget-reader implementation default (2026-10-28).
+* Made the Mrm IDB indexed-resource contract check runnable from a source
+  checkout with the correct top-level implementation default (2026-10-28).
