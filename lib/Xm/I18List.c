@@ -1845,14 +1845,17 @@ DisplayList(Widget w, short start_row, short num_rows, Boolean redraw_headers)
 	cur_y += row_height;
     }
 
-    start_y = ((XmI18List_sep_y(ilist) + VERTICAL_SPACE) +
-	       (start_row - XmI18List_first_row(ilist)) * row_height);
+    start_y = bounded_position((long long)XmI18List_sep_y(ilist) +
+	       VERTICAL_SPACE +
+	       ((long long)start_row - (long long)XmI18List_first_row(ilist)) *
+	       row_height);
 
     if(XmI18List_new_visual_style(ilist)) {
-	start_y += ilist->primitive.shadow_thickness;
+	start_y = bounded_position((long long)start_y +
+	                            ilist->primitive.shadow_thickness);
     }
     else {
-	start_y += LINE_HEIGHT;
+	start_y = bounded_position((long long)start_y + LINE_HEIGHT);
     }
 
     /*
