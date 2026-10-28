@@ -26899,3 +26899,9 @@ Harden MWM session-name classification (2026-10-28)
 
 - Pass filename bytes through `unsigned char` before `isdigit` in session
   database suffix detection, avoiding undefined behavior for high-bit bytes.
+
+Harden MWM menu whitespace matching (2026-10-28)
+==================================================
+
+- Cast menu-label and client-command bytes to `unsigned char` before `isspace`
+  classification, avoiding signed-char undefined behavior in localized input.

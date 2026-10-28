@@ -1047,8 +1047,8 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	/* Skip past the '<' at the beginning of the next segment and
 	   any whitespace. */
 	++menuItemCommand; ++clientCommand;
-	while (isspace(*menuItemCommand)) ++menuItemCommand;
-	while (isspace(*clientCommand)) ++clientCommand;
+	while (isspace((unsigned char)*menuItemCommand)) ++menuItemCommand;
+	while (isspace((unsigned char)*clientCommand)) ++clientCommand;
 	
 	/* First check whether the current menuItemCommand segment is
 	   a wildcard. */
@@ -1060,7 +1060,7 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	       the client command. */
 	    wildcardPositions[wildcards++] = segments;
 	    ++menuItemCommand;
-	    while (isspace(*menuItemCommand)) ++menuItemCommand;
+	    while (isspace((unsigned char)*menuItemCommand)) ++menuItemCommand;
 	    while (*clientCommand != '>' && *clientCommand != '\0')
 	      ++clientCommand;
 	    foundWildcard = TRUE;
@@ -1081,7 +1081,7 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	    /* Get rid of trailing white space on the segment. */
 	    for (; seglength > 0; --seglength)
 	    {
-		if (!isspace(menuItemCommand[seglength - 1]))
+		if (!isspace((unsigned char)menuItemCommand[seglength - 1]))
 		  break;
 	    }
 	    
@@ -1094,14 +1094,14 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 		   have anything but whitespace after its seglength
 		   character. */
 		clientCommand += seglength;
-		while (isspace(*clientCommand)) ++clientCommand;
+		while (isspace((unsigned char)*clientCommand)) ++clientCommand;
 		if (*clientCommand != '>') return(bestMatchSoFar);
 		
 		/* We have a match. Clear the foundWildcard since we
 		   have sync'ed up and keep trying to match. */
 		foundWildcard = FALSE;
 		menuItemCommand += seglength;
-		while (isspace(*menuItemCommand)) ++menuItemCommand;
+		while (isspace((unsigned char)*menuItemCommand)) ++menuItemCommand;
 	    }
 	    else if (foundWildcard == FALSE)
 	    {
@@ -1170,7 +1170,7 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	/* Skip past the '<' at the beginning of the next segment and
 	   any whitespace. */
 	++bestMatchStr;
-	while (isspace(*bestMatchStr)) ++bestMatchStr;
+	while (isspace((unsigned char)*bestMatchStr)) ++bestMatchStr;
 	
 	/* First check whether the current bestMatchStr segment is
 	   a wildcard. @RGC: We are assuming that there is nothing
