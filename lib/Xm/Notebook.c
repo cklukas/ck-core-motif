@@ -1142,13 +1142,17 @@ Redisplay (
         }
     if (total_major_tabs > 0 )
     {
-	XtManageChild(nb->notebook.prev_major);
-	XtManageChild(nb->notebook.next_major);
+	if (nb->notebook.prev_major != NULL)
+	    XtManageChild(nb->notebook.prev_major);
+	if (nb->notebook.next_major != NULL)
+	    XtManageChild(nb->notebook.next_major);
     }
     else
     {
-	XtUnmanageChild(nb->notebook.prev_major);
-	XtUnmanageChild(nb->notebook.next_major);
+	if (nb->notebook.prev_major != NULL)
+	    XtUnmanageChild(nb->notebook.prev_major);
+	if (nb->notebook.next_major != NULL)
+	    XtUnmanageChild(nb->notebook.next_major);
     }
     total_minor_tabs = 0;
     for (i = 0; i < nb->composite.num_children; i++)
@@ -1160,13 +1164,17 @@ Redisplay (
         }
     if (total_minor_tabs > 0 )
     {
-	XtManageChild(nb->notebook.prev_minor);
-	XtManageChild(nb->notebook.next_minor);
+	if (nb->notebook.prev_minor != NULL)
+	    XtManageChild(nb->notebook.prev_minor);
+	if (nb->notebook.next_minor != NULL)
+	    XtManageChild(nb->notebook.next_minor);
     }
     else
     {
-	XtUnmanageChild(nb->notebook.prev_minor);
-	XtUnmanageChild(nb->notebook.next_minor);
+	if (nb->notebook.prev_minor != NULL)
+	    XtUnmanageChild(nb->notebook.prev_minor);
+	if (nb->notebook.next_minor != NULL)
+	    XtUnmanageChild(nb->notebook.next_minor);
     }
     /* draw the background */
     DrawBackPages(nb, event, region);
@@ -2124,9 +2132,12 @@ CreateTabScrollers (
                 XmNnotebookChildType, XmMAJOR_TAB_SCROLLER,
 		XmNtraversalOn, False,
                 NULL);
-    ((XmActivatableTrait)XmeTraitGet((XtPointer)
-		XtClass((Widget)nb->notebook.next_major),XmQTactivatable))->
-		changeCB(nb->notebook.next_major,FlipTabs,NULL,True);
+    if (nb->notebook.next_major != NULL &&
+	XmeTraitGet((XtPointer)XtClass((Widget)nb->notebook.next_major),
+		    XmQTactivatable) != NULL)
+	((XmActivatableTrait)XmeTraitGet((XtPointer)
+	 XtClass((Widget)nb->notebook.next_major),XmQTactivatable))->
+	 changeCB(nb->notebook.next_major,FlipTabs,NULL,True);
 
     nb->notebook.prev_major = XtVaCreateManagedWidget(MAJOR_TAB_PREV_NAME,
                 xmArrowButtonGadgetClass, (Widget)nb,
@@ -2135,7 +2146,10 @@ CreateTabScrollers (
                 XmNnotebookChildType, XmMAJOR_TAB_SCROLLER,
 		XmNtraversalOn, False,
                 NULL);
-    ((XmActivatableTrait)XmeTraitGet((XtPointer)
+    if (nb->notebook.prev_major != NULL &&
+	XmeTraitGet((XtPointer)XtClass((Widget)nb->notebook.prev_major),
+		    XmQTactivatable) != NULL)
+	((XmActivatableTrait)XmeTraitGet((XtPointer)
                 XtClass((Widget)nb->notebook.prev_major),XmQTactivatable))->
                 changeCB(nb->notebook.prev_major,FlipTabs,NULL,True);
 
@@ -2147,7 +2161,10 @@ CreateTabScrollers (
                 XmNnotebookChildType, XmMINOR_TAB_SCROLLER,
 		XmNtraversalOn, False,
                 NULL);
-    ((XmActivatableTrait)XmeTraitGet((XtPointer)
+    if (nb->notebook.next_minor != NULL &&
+	XmeTraitGet((XtPointer)XtClass((Widget)nb->notebook.next_minor),
+		    XmQTactivatable) != NULL)
+	((XmActivatableTrait)XmeTraitGet((XtPointer)
                 XtClass((Widget)nb->notebook.next_minor),XmQTactivatable))->
                 changeCB(nb->notebook.next_minor,FlipTabs,NULL,True);
 
@@ -2158,7 +2175,10 @@ CreateTabScrollers (
                 XmNnotebookChildType, XmMINOR_TAB_SCROLLER,
 		XmNtraversalOn, False,
                 NULL);
-    ((XmActivatableTrait)XmeTraitGet((XtPointer)
+    if (nb->notebook.prev_minor != NULL &&
+	XmeTraitGet((XtPointer)XtClass((Widget)nb->notebook.prev_minor),
+		    XmQTactivatable) != NULL)
+	((XmActivatableTrait)XmeTraitGet((XtPointer)
                 XtClass((Widget)nb->notebook.prev_minor),XmQTactivatable))->
                 changeCB(nb->notebook.prev_minor,FlipTabs,NULL,True);
 }
@@ -2344,6 +2364,13 @@ SetPageScroller (
 		  XmNnotebookChildType, XmPAGE_SCROLLER,
 		  NULL);
 
+    if (nb->notebook.scroller == NULL)
+    {
+	nb->notebook.scroller_child = NULL;
+	nb->notebook.scroller_status = DEFAULT_GONE;
+	return;
+    }
+
     nb->notebook.scroller_child = XtVaCreateManagedWidget(NB_TEXT_FIELD_NAME,
 		  xmTextFieldWidgetClass, nb->notebook.scroller,
 		  XmNspinBoxChildType, XmNUMERIC,
@@ -2353,6 +2380,17 @@ SetPageScroller (
 		  XmNeditable, False,
 		  XmNtraversalOn, True,
 		  NULL);
+
+    if (nb->notebook.scroller == NULL ||
+	    nb->notebook.scroller_child == NULL)
+    {
+	if (nb->notebook.scroller != NULL)
+	    XtDestroyWidget(nb->notebook.scroller);
+	nb->notebook.scroller = NULL;
+	nb->notebook.scroller_child = NULL;
+	nb->notebook.scroller_status = DEFAULT_GONE;
+	return;
+    }
 
     /* Mark that the default page scroller has been established */
     nb->notebook.scroller_status = DEFAULT_USED;
@@ -3017,7 +3055,8 @@ LayoutMajorTabs (
     /*
      * Display the tab scrolling tab, if neccessary
      */
-    if (NB_IS_CHILD_MAJOR_SCROLLER(nb->notebook.need_scroller) && tab_count)
+    if (NB_IS_CHILD_MAJOR_SCROLLER(nb->notebook.need_scroller) && tab_count &&
+	 nb->notebook.prev_major != NULL && nb->notebook.next_major != NULL)
 	{
 
 	/* set scroller's arrow directions */
@@ -3053,8 +3092,10 @@ LayoutMajorTabs (
 	}
     else
 	{
-        HideChild(nb->notebook.prev_major, instigator);
-        HideChild(nb->notebook.next_major, instigator);
+	if (nb->notebook.prev_major != NULL)
+            HideChild(nb->notebook.prev_major, instigator);
+	if (nb->notebook.next_major != NULL)
+            HideChild(nb->notebook.next_major, instigator);
 	}
 }
 
@@ -3585,7 +3626,8 @@ LayoutMinorTabs (
 
 
     /* display the tab scrolling tab if neccessary */
-    if (NB_IS_CHILD_MINOR_SCROLLER(nb->notebook.need_scroller) && tab_count)
+    if (NB_IS_CHILD_MINOR_SCROLLER(nb->notebook.need_scroller) && tab_count &&
+	 nb->notebook.prev_minor != NULL && nb->notebook.next_minor != NULL)
 	{
 
         /* set scroller's arrow directions */
@@ -3620,8 +3662,10 @@ LayoutMinorTabs (
 	}
     else
 	{
-        HideChild(nb->notebook.prev_minor, instigator);
-        HideChild(nb->notebook.next_minor, instigator);
+	if (nb->notebook.prev_minor != NULL)
+            HideChild(nb->notebook.prev_minor, instigator);
+	if (nb->notebook.next_minor != NULL)
+            HideChild(nb->notebook.next_minor, instigator);
 	}
 }
 
@@ -6975,7 +7019,8 @@ UpdateNavigators (
     _XmSFUpdateNavigatorsValue((Widget)nb, &nav_data, True);
 
     /* Control arrow sensitivity if using default page scroller */
-    if (nb->notebook.scroller_status == DEFAULT_USED)
+	if (nb->notebook.scroller_status == DEFAULT_USED &&
+	    nb->notebook.scroller_child != NULL)
 	{
 	if ((nb->notebook.current_page_number ==nb->notebook.last_page_number)
 	&& (nb->notebook.current_page_number ==nb->notebook.first_page_number))

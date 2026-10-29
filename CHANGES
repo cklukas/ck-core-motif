@@ -1,3 +1,11 @@
+Guard Notebook scroller allocation failures (2026-10-30)
+=========================================================
+
+- Check tab-arrow and default page-scroller creation before trait callbacks,
+  geometry, and navigator updates.
+- Tear down partial page-scroller construction safely and add focused coverage
+  and documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 
