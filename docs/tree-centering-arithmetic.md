@@ -11,5 +11,9 @@ available space.  The centering differences now use signed `int` arithmetic
 in both horizontal and vertical tree orientations; oversized children remain
 near the box instead of receiving a wrapped coordinate.
 
+Compressed-child width accumulation uses the same signed conversion when
+subtracting the horizontal compression delta, keeping parent layout widths
+valid when the delta exceeds a child’s width.
+
 The source contract is checked by
 `tests/automated/check-tree-centering-arithmetic.py`.

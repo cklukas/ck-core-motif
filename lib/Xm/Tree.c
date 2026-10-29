@@ -2154,7 +2154,8 @@ GetNodeHeightAndWidth(Widget w, TreeConstraints node,
 	    if ((int)l_height < (int)XmTreeC_bb_height(*child) 
                                 + (int)XmTree_vertical_delta(tw))
 	      l_height = XmTreeC_bb_height(*child) + XmTree_vertical_delta(tw);
-	    l_width += XmTreeC_bb_width(*child) - XmTree_horizontal_delta(tw);
+	    l_width += (int)XmTreeC_bb_width(*child) -
+		(int)XmTree_horizontal_delta(tw);
           }
           else
           {
@@ -2162,7 +2163,8 @@ GetNodeHeightAndWidth(Widget w, TreeConstraints node,
 	      l_height = XmTreeC_bb_height(*child);
 
             if (prev_child && XmTreeC_is_compressed(prev_child))
-	        l_width += XmTreeC_bb_width(*child) - XmTree_horizontal_delta(tw);
+	        l_width += (int)XmTreeC_bb_width(*child) -
+		    (int)XmTree_horizontal_delta(tw);
             else
 	        l_width += XmTreeC_bb_width(*child);
           }

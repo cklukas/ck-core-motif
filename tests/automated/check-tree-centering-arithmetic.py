@@ -16,6 +16,8 @@ assert "(int)XmTreeC_bb_height(t_node) + (int)extra_space" in body
 assert "(int)XmTreeC_bb_width(t_node) + (int)extra_space" in body
 assert "((int)c_height - (int)oc_height) / 2" in body
 assert "((int)c_width - (int)oc_width) / 2" in body
+assert "(int)XmTreeC_bb_width(*child) -" in source
 assert "XmTreeC_bb_height(t_node) + extra_space - c_height" not in body
 assert "XmTreeC_bb_width(t_node) + extra_space - c_width" not in body
+assert "XmTreeC_bb_width(*child) - XmTree_horizontal_delta(tw)" not in source
 print("PASS Tree centering geometry uses signed differences")
