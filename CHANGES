@@ -19,6 +19,13 @@ Guard EmptyState child allocation failures (2026-10-29)
   initialization, layout, and resource updates.
 - Add focused source coverage and document the recovery behavior.
 
+Guard CommandPalette child allocation failures (2026-10-30)
+==============================================================
+
+- Make CommandPalette filtering, layout, activation, callbacks, and show
+  operations null-safe when the search or list child cannot be created.
+- Add focused source coverage and document the recovery behavior.
+
 Guard FormSection child allocation failures (2026-10-30)
 ==========================================================
 
