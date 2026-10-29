@@ -116,7 +116,8 @@ static void position_popup(XmAutoSuggestBoxWidget box)
     Widget shell = box->auto_suggest.popup_shell;
     Screen *screen;
     long long x_pos, y_pos, max_x, max_y;
-    if (!shell || !XtIsRealized(box->auto_suggest.search))
+    if (!shell || box->auto_suggest.search == NULL ||
+        !XtIsRealized(box->auto_suggest.search))
         return;
     XtTranslateCoords(box->auto_suggest.search, 0, 0, &anchor_x, &anchor_y);
     XtVaGetValues(box->auto_suggest.search, XmNwidth, &width,
@@ -160,6 +161,11 @@ static void create_popup(XmAutoSuggestBoxWidget box)
         count);
     box->auto_suggest.list = XmCreateList(box->auto_suggest.popup_shell,
                                          (char *)"suggestions", NULL, 0);
+    if (box->auto_suggest.list == NULL) {
+        XtDestroyWidget(box->auto_suggest.popup_shell);
+        box->auto_suggest.popup_shell = NULL;
+        return;
+    }
     XtVaSetValues(box->auto_suggest.list, XmNselectionPolicy, XmSINGLE_SELECT,
                   XmNvisibleItemCount, 5, NULL);
     XtAddCallback(box->auto_suggest.list, XmNdefaultActionCallback,
@@ -173,7 +179,8 @@ static void create_popup(XmAutoSuggestBoxWidget box)
 static void emit_query(XmAutoSuggestBoxWidget box, XEvent *event)
 {
     XmAutoSuggestCallbackStruct callback;
-    char *query = XmSearchBoxGetString(box->auto_suggest.search);
+    char *query = box->auto_suggest.search != NULL
+                      ? XmSearchBoxGetString(box->auto_suggest.search) : NULL;
     callback.reason = XmAUTO_SUGGEST_REASON_QUERY_CHANGED;
     callback.event = event;
     callback.query = query ? query : "";
@@ -198,12 +205,14 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     box->auto_suggest.no_results = False;
     box->auto_suggest.search = XmVaCreateManagedSearchBox(
         widget, (char *)"search", XmNtraversalOn, True, NULL);
-    XtAddCallback(box->auto_suggest.search, XmNsearchQueryChangedCallback,
-                  query_changed, box);
-    XtAddCallback(box->auto_suggest.search, XmNsearchCommittedCallback,
-                  search_committed, box);
-    XtAddEventHandler(box->auto_suggest.search, KeyPressMask, True,
-                      search_events, box);
+    if (box->auto_suggest.search != NULL) {
+        XtAddCallback(box->auto_suggest.search, XmNsearchQueryChangedCallback,
+                      query_changed, box);
+        XtAddCallback(box->auto_suggest.search, XmNsearchCommittedCallback,
+                      search_committed, box);
+        XtAddEventHandler(box->auto_suggest.search, KeyPressMask, True,
+                          search_events, box);
+    }
     box->auto_suggest.initializing = False;
 }
 
@@ -221,9 +230,12 @@ static void Destroy(Widget widget)
     }
     free_items(box);
     if (box->auto_suggest.popup_shell &&
-        !((CoreWidget)box->auto_suggest.popup_shell)->core.being_destroyed &&
-        !((CoreWidget)shell_ancestor(widget))->core.being_destroyed)
-        XtDestroyWidget(box->auto_suggest.popup_shell);
+        !((CoreWidget)box->auto_suggest.popup_shell)->core.being_destroyed) {
+        Widget parent_shell = shell_ancestor(widget);
+        if (parent_shell == NULL ||
+            !((CoreWidget)parent_shell)->core.being_destroyed)
+            XtDestroyWidget(box->auto_suggest.popup_shell);
+    }
 }
 
 static void layout(XmAutoSuggestBoxWidget box)
@@ -231,8 +243,9 @@ static void layout(XmAutoSuggestBoxWidget box)
     if (box->auto_suggest.initializing || box->auto_suggest.laying_out)
         return;
     box->auto_suggest.laying_out = True;
-    XmeConfigureObject(box->auto_suggest.search, 0, 0, box->core.width,
-                       box->core.height ? box->core.height : 1, 0);
+    if (box->auto_suggest.search != NULL)
+        XmeConfigureObject(box->auto_suggest.search, 0, 0, box->core.width,
+                           box->core.height ? box->core.height : 1, 0);
     box->auto_suggest.laying_out = False;
 }
 
@@ -270,9 +283,14 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     XmAutoSuggestBoxWidget box = (XmAutoSuggestBoxWidget)widget;
     XtWidgetGeometry wanted;
     wanted.request_mode = 0;
-    XtQueryGeometry(box->auto_suggest.search, NULL, &wanted);
-    reply->width = wanted.request_mode & CWWidth ? wanted.width : 1;
-    reply->height = wanted.request_mode & CWHeight ? wanted.height : 1;
+    if (box->auto_suggest.search != NULL) {
+        XtQueryGeometry(box->auto_suggest.search, NULL, &wanted);
+        reply->width = wanted.request_mode & CWWidth ? wanted.width : 1;
+        reply->height = wanted.request_mode & CWHeight ? wanted.height : 1;
+    } else {
+        reply->width = 1;
+        reply->height = 1;
+    }
     reply->request_mode = CWWidth | CWHeight;
     if (request && request->width == reply->width && request->height == reply->height)
         return XtGeometryYes;
@@ -305,7 +323,8 @@ static void search_committed(Widget widget, XtPointer client, XtPointer call)
     (void)call;
     if (box == NULL || !XmIsAutoSuggestBox((Widget)box))
 	return;
-    if (XmListGetSelectedPos(box->auto_suggest.list, &positions, &count) &&
+    if (box->auto_suggest.list != NULL &&
+        XmListGetSelectedPos(box->auto_suggest.list, &positions, &count) &&
         count == 1 && positions != NULL && positions[0] > 0)
         XmAutoSuggestBoxCommit((Widget)box, (Cardinal)(positions[0] - 1),
                                search_callback ? search_callback->event : NULL);
@@ -342,7 +361,8 @@ static void search_events(Widget widget, XtPointer client, XEvent *event,
         if (dispatch)
             *dispatch = False;
     } else if (key == XK_Down && box->auto_suggest.visible) {
-        XmProcessTraversal(box->auto_suggest.list, XmTRAVERSE_CURRENT);
+        if (box->auto_suggest.list != NULL)
+            XmProcessTraversal(box->auto_suggest.list, XmTRAVERSE_CURRENT);
         if (dispatch)
             *dispatch = False;
     }
@@ -362,7 +382,8 @@ static void list_events(Widget widget, XtPointer client, XEvent *event,
     XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
     if (key == XK_Escape) {
         XmAutoSuggestBoxDismiss((Widget)box, event);
-        XmProcessTraversal(box->auto_suggest.search, XmTRAVERSE_CURRENT);
+        if (box->auto_suggest.search != NULL)
+            XmProcessTraversal(box->auto_suggest.search, XmTRAVERSE_CURRENT);
         if (dispatch)
             *dispatch = False;
     }
@@ -479,7 +500,8 @@ void XmAutoSuggestBoxShow(Widget widget)
     if (!widget || !XmIsAutoSuggestBox(widget))
         return;
     box = (XmAutoSuggestBoxWidget)widget;
-    if (!XtIsRealized(box->auto_suggest.search))
+    if (box->auto_suggest.search == NULL ||
+        !XtIsRealized(box->auto_suggest.search))
         return;
     create_popup(box);
     if (!box->auto_suggest.popup_shell)
@@ -502,7 +524,8 @@ void XmAutoSuggestBoxDismiss(Widget widget, XEvent *event)
     box->auto_suggest.visible = False;
     if (box->auto_suggest.popup_shell)
         XtPopdown(box->auto_suggest.popup_shell);
-    query = XmSearchBoxGetString(box->auto_suggest.search);
+    query = box->auto_suggest.search != NULL
+                ? XmSearchBoxGetString(box->auto_suggest.search) : NULL;
     callback.reason = XmAUTO_SUGGEST_REASON_DISMISSED;
     callback.event = event;
     callback.query = query ? query : "";
@@ -526,14 +549,17 @@ void XmAutoSuggestBoxCommit(Widget widget, Cardinal index, XEvent *event)
     box = (XmAutoSuggestBoxWidget)widget;
     if (index >= box->auto_suggest.item_count)
         return;
-    id = XtNewString(box->auto_suggest.items[index].id);
+    id = box->auto_suggest.items[index].id
+             ? XtNewString(box->auto_suggest.items[index].id) : NULL;
     user_data = box->auto_suggest.items[index].user_data;
     label = text_copy(box->auto_suggest.items[index].label);
     box->auto_suggest.committing = True;
-    XmSearchBoxSetString(box->auto_suggest.search, label);
+    if (box->auto_suggest.search != NULL)
+        XmSearchBoxSetString(box->auto_suggest.search, label);
     box->auto_suggest.committing = False;
     XtFree(label);
-    query = XmSearchBoxGetString(box->auto_suggest.search);
+    query = box->auto_suggest.search != NULL
+                ? XmSearchBoxGetString(box->auto_suggest.search) : NULL;
     callback.reason = XmAUTO_SUGGEST_REASON_COMMITTED;
     callback.event = event;
     callback.query = query ? query : "";
@@ -544,7 +570,8 @@ void XmAutoSuggestBoxCommit(Widget widget, Cardinal index, XEvent *event)
     XtFree(id);
     XtFree(query);
     XmAutoSuggestBoxDismiss(widget, event);
-    XmProcessTraversal(box->auto_suggest.search, XmTRAVERSE_CURRENT);
+    if (box->auto_suggest.search != NULL)
+        XmProcessTraversal(box->auto_suggest.search, XmTRAVERSE_CURRENT);
 }
 
 Widget XmAutoSuggestBoxGetSearchField(Widget widget)
