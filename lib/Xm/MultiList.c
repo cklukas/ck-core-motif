@@ -421,11 +421,15 @@ static void Initialize(Widget req, Widget set,
     {
 	int	title_height = 0;
 
-	if (XmMultiList_title(elist) || XmMultiList_title_string(elist))
+	if ((XmMultiList_title(elist) || XmMultiList_title_string(elist)) &&
+	    XmMultiList_title_wid(elist) != NULL)
 	    title_height = XmMultiList_title_wid(elist)->core.height + 2 *
 		(XmMultiList_title_wid(elist)->core.border_width + V_MARGIN);
 
-	if (XmMultiList_show_find(elist))
+	if (XmMultiList_show_find(elist) &&
+	    XmMultiList_h_bar(elist) != NULL &&
+	    XmMultiList_frame(elist) != NULL &&
+	    XmMultiList_find(elist) != NULL)
 	    XtHeight(set) = XmMultiList_h_bar(elist)->core.height +
 		XmMultiList_frame(elist)->core.height + title_height +
 		XmMultiList_find(elist)->core.height + 2 * 
@@ -433,8 +437,10 @@ static void Initialize(Widget req, Widget set,
 		 XmMultiList_h_bar(elist)->core.border_width +
 		 XmMultiList_frame(elist)->core.border_width +
 		 XmMultiList_find(elist)->core.border_width);
-	else
-	    XtHeight(set) = XmMultiList_title_wid(elist)->core.height +
+	else if (XmMultiList_h_bar(elist) != NULL &&
+	         XmMultiList_frame(elist) != NULL)
+	    XtHeight(set) = (XmMultiList_title_wid(elist) != NULL
+		? XmMultiList_title_wid(elist)->core.height : 0) +
 		XmMultiList_h_bar(elist)->core.height + title_height +
 		XmMultiList_frame(elist)->core.height + 2 *
 		(V_MARGIN + elist->core.border_width +
@@ -444,7 +450,8 @@ static void Initialize(Widget req, Widget set,
 
     if (XtWidth(req) == 0)
     {
-	XtWidth(set) = XmMultiList_ilist(elist)->core.width +
+	if (XmMultiList_ilist(elist) != NULL && XmMultiList_v_bar(elist) != NULL)
+	    XtWidth(set) = XmMultiList_ilist(elist)->core.width +
 	    XmMultiList_v_bar(elist)->core.width + (5 * H_MARGIN) +
 	    (2 * elist->core.border_width);
     }
@@ -562,7 +569,7 @@ GetValuesHook(Widget w, ArgList args, Cardinal *num_args)
     /*
      * Pass argument list through to the IList widget.
      */
-    if (num > 0)
+    if (num > 0 && XmMultiList_ilist(elist) != NULL)
         XtGetValues(XmMultiList_ilist(elist), i_args, num);
 }
 
@@ -822,6 +829,9 @@ ActivateTextSearch(Widget w, XtPointer elist_ptr, XtPointer client)
     if (!XmMultiList_show_find(elist))
         return;
 
+    if (find == NULL || find_text == NULL)
+	return;
+
     ptr = XmTextFieldGetString(XmMultiList_find_text(elist));
     wc_string = XmTextFieldGetStringWcs(XmMultiList_find_text(elist));
 
@@ -892,6 +902,10 @@ static void LayoutChildren(Widget w)
     Dimension height = elist->core.height;
     Dimension width = elist->core.width;
 
+    if (frame == NULL || XmMultiList_ilist(elist) == NULL ||
+	    vbar == NULL || hbar == NULL)
+	return;
+
     /*
      * Put Find and Find Text along the bottom
      */
@@ -903,13 +917,16 @@ static void LayoutChildren(Widget w)
 	scroll_top = V_MARGIN;
 
 	XtSetArg(args[0], XmNmappedWhenManaged, False);
-	XtSetValues(t_wid, args, (Cardinal) 1);
+	if (t_wid != NULL)
+	    XtSetValues(t_wid, args, (Cardinal) 1);
     }
     else
     {
 	/* 
 	 * Put the title widget in the top left corner 
 	 */
+	if (t_wid == NULL)
+	    return;
 	if (LayoutIsRtoLM(w))
 	    _XmMoveWidget(t_wid, (Position)(width - H_MARGIN - XtWidth(t_wid)),
 	                  (Position) V_MARGIN);
@@ -994,6 +1011,9 @@ static void PositionFindAndFindText(Widget w)
 
     if (!XmMultiList_show_find(elist))
         return;
+
+    if (find == NULL || find_text == NULL)
+	return;
 
     find_height = multilist_dimension((unsigned long)find->core.height +
 	2UL * find->core.border_width);
@@ -1089,6 +1109,9 @@ CreateTitle(Widget parent, XmString label, ArgList args, Cardinal num_args)
 			      new_args, num_largs + num_args);
 
     XtFree((XtPointer) new_args);
+
+    if (w == NULL)
+	return(NULL);
     return(w);
 }
 
@@ -1143,9 +1166,10 @@ CreateFindButton(Widget parent, ArgList args, Cardinal num_args)
 
     w = XtCreateWidget("find", xmPushButtonWidgetClass, parent,
                   new_args, num_largs + num_args);
-    XtAddCallback(w, XmNactivateCallback, ActivateTextSearch, parent);
+    if (w != NULL)
+	XtAddCallback(w, XmNactivateCallback, ActivateTextSearch, parent);
 
-    if (XmMultiList_show_find(elist))
+    if (w != NULL && XmMultiList_show_find(elist))
         XtManageChild(w);
 
     XtFree((XtPointer) new_args);
@@ -1168,9 +1192,10 @@ CreateFindText(Widget parent, ArgList args, Cardinal num_args)
 
     w = XtCreateWidget("findText", xmTextFieldWidgetClass,
                   parent, args, num_args);
-    XtAddCallback(w, XmNactivateCallback, ActivateTextSearch, parent);
+    if (w != NULL)
+	XtAddCallback(w, XmNactivateCallback, ActivateTextSearch, parent);
 
-    if (XmMultiList_show_find(elist))
+    if (w != NULL && XmMultiList_show_find(elist))
         XtManageChild(w);
 
     return(w);
@@ -1201,6 +1226,9 @@ CreateFrame(Widget parent, ArgList args, Cardinal num_args)
     
     XtFree((XtPointer) new_args);
 
+    if (w == NULL)
+	return(NULL);
+
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNverticalScrollBar, XmMultiList_v_bar(elist));
     num_largs++;    
@@ -1214,6 +1242,9 @@ CreateFrame(Widget parent, ArgList args, Cardinal num_args)
 						  num_args + num_largs);
 
     XtFree((XtPointer) new_args);
+
+    if (XmMultiList_ilist(elist) == NULL)
+	return(w);
 
     /* PWC - Note...
      *

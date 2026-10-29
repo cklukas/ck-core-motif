@@ -1,3 +1,11 @@
+Guard MultiList child allocation failures (2026-10-30)
+=======================================================
+
+- Make title, scrollbar, frame/list, and optional search-child construction
+  safe when Xt cannot allocate an internal widget.
+- Skip callbacks and geometry for missing children and add focused coverage
+  and documentation.
+
 Guard Hierarchy disclosure-button allocation failures (2026-10-30)
 ===================================================================
 
