@@ -112,6 +112,13 @@ Guard SpinBox validation value input (2026-10-29)
   NULL string, instead of passing it to numeric parsing.
 - Add focused validation coverage for the missing-value path.
 
+Guard I18List row helpers (2026-10-29)
+======================================
+
+- Validate I18List row-helper widgets before row storage access or Xt context
+  lookup in selected-row retrieval and selection wrappers.
+- Add focused shared-helper input coverage.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

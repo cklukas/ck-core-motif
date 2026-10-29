@@ -3643,12 +3643,14 @@ FreeColumnTitles(XmI18ListWidget ilist)
 static int *
 GetSelectedRows(XmI18ListWidget i18list, int *num_rows)
 {
-    XmMultiListRowInfo	*row_info = XmI18List_row_data(i18list);
+    XmMultiListRowInfo	*row_info;
     int		*rows, i;
 
     rows = NULL;
     if (i18list == NULL || num_rows == NULL)
 	return NULL;
+
+    row_info = XmI18List_row_data(i18list);
 
     for (*num_rows = 0, i = 0; i < XmI18List_num_rows(i18list); i++)
 	if (row_info[i].selected)
@@ -3686,6 +3688,9 @@ static void
 SelectRow(XmI18ListWidget i18list, int row,
 	  Boolean select, Boolean notify)
 {
+    if (i18list == NULL)
+	return;
+
     XmMultiListRowInfo	*rows = XmI18List_row_data(i18list);
 
     if ((row >= 0) && (rows[row].selected != select))
@@ -3712,9 +3717,14 @@ static void
 SelectItems(XmI18ListWidget i18list, XmString item,
 	    int column, Boolean select, Boolean notify)
 {
-    XmMultiListRowInfo	*rows = XmI18List_row_data(i18list);
+    XmMultiListRowInfo	*rows;
     int	i, j;
     int	rowcount, colcount, colstart;
+
+    if (i18list == NULL)
+	return;
+
+    rows = XmI18List_row_data(i18list);
 
     _XmWidgetToAppContext((Widget)i18list);
     _XmAppLock(app);
