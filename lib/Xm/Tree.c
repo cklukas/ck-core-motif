@@ -1676,6 +1676,7 @@ LayoutChildren(Widget w, Widget assign_child)
 	Widget open_close = XmHierarchyC_open_close_button(t_node);
 	register Dimension c_height, c_width;
 	register Position y_loc, x_loc, oc_y_loc = 0, oc_x_loc = 0;
+	int box_space;
 
 	c_width = child->core.width + 2 * child->core.border_width;
 	c_height = child->core.height + 2 * child->core.border_width;
@@ -1688,14 +1689,15 @@ LayoutChildren(Widget w, Widget assign_child)
 		 */
 		
     		extra_space = GetExtraVertSpace(w);
-		y_loc = (XmTreeC_box_y(t_node) + 
-			 (int)(XmTreeC_bb_height(t_node) + extra_space - c_height) / 2);
+		box_space = (int)XmTreeC_bb_height(t_node) + (int)extra_space -
+		    (int)c_height;
+		y_loc = XmTreeC_box_y(t_node) + box_space / 2;
 	
 		if (open_close != NULL) {
 		    Dimension oc_height = (open_close->core.height +
 					   2 * open_close->core.border_width);
 	
-		    oc_y_loc = y_loc + (int)(c_height - oc_height)/2;
+		    oc_y_loc = y_loc + ((int)c_height - (int)oc_height) / 2;
 		}
 	
 		oc_x_loc = XmTreeC_box_x(t_node) + XmHierarchy_h_margin(tw);
@@ -1711,14 +1713,15 @@ LayoutChildren(Widget w, Widget assign_child)
 		
     		extra_space = GetExtraHorizSpace(w);
 	
-		x_loc = (XmTreeC_box_x(t_node) + 
-			(int)(XmTreeC_bb_width(t_node) + extra_space - c_width) / 2);
+		box_space = (int)XmTreeC_bb_width(t_node) + (int)extra_space -
+		    (int)c_width;
+		x_loc = XmTreeC_box_x(t_node) + box_space / 2;
 	
 		if (open_close != NULL) {
 		    Dimension oc_width = (open_close->core.width +
 					   2 * open_close->core.border_width);
 	
-		    oc_x_loc = x_loc + (int)(c_width - oc_width)/2;
+		    oc_x_loc = x_loc + ((int)c_width - (int)oc_width) / 2;
 		}
 
 	        oc_y_loc = XmTreeC_box_y(t_node) + XmHierarchy_v_margin(tw);

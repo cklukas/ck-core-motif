@@ -1,0 +1,15 @@
+---
+nav_exclude: true
+---
+
+# Tree centering arithmetic
+
+`XmTree` centers each node and its disclosure button inside the computed
+bounding box.  The box, child, and disclosure dimensions are Xt `Dimension`
+values, so subtracting them directly can wrap when a child is larger than its
+available space.  The centering differences now use signed `int` arithmetic
+in both horizontal and vertical tree orientations; oversized children remain
+near the box instead of receiving a wrapped coordinate.
+
+The source contract is checked by
+`tests/automated/check-tree-centering-arithmetic.py`.

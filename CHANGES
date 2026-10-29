@@ -28883,3 +28883,11 @@ Keep Scale label-spacing compensation signed (2026-10-29)
   allowance, preventing unsigned underflow from producing oversized fallback
   geometry in either orientation.
 - Add a source regression and document the sizing contract.
+
+Keep Tree centering arithmetic signed (2026-10-29)
+==================================================
+
+- Evaluate node and disclosure-button centering differences as signed values,
+  preventing unsigned `Dimension` underflow from producing off-screen
+  coordinates when content is larger than its bounding box.
+- Add a source regression and document the geometry contract.
