@@ -5,6 +5,13 @@ Bound I18List selected-fill Y advancement (2026-10-29)
   next rectangle is drawn.
 - Add focused source-contract coverage.
 
+Reject invalid zero-based ComboBox imports (2026-10-29)
+=========================================================
+
+- Keep `XmINVALID_POSITION` and negative selected-position imports from
+  converting to List position zero, which would select the last item.
+- Extend the focused ComboBox import contract check.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 
