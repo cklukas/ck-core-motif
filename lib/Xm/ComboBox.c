@@ -3772,7 +3772,7 @@ XmComboBoxSetItem(Widget   widget,
 XmString
 XmCombinationBoxGetValue(Widget widget)
 {
-    if (widget == NULL)
+    if (widget == NULL || !XmIsComboBox(widget))
         return NULL;
     return (GetEditBoxValue(widget));
 }

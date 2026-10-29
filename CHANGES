@@ -1,3 +1,10 @@
+Guard ComboBox compatibility getter widget class (2026-10-29)
+===============================================================
+
+- Make `XmCombinationBoxGetValue` reject non-ComboBox handles before reading
+  the private edit-box child.
+- Extend the existing ComboBox input contract and documentation.
+
 Guard ScrollBar value API widget classes (2026-10-29)
 ======================================================
 

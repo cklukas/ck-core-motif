@@ -7,4 +7,6 @@ start = source.index("XmComboBoxSetItem")
 region = source[start:source.index("XmCombinationBoxGetValue", start)]
 assert "if (widget == NULL)" in region
 assert region.index("if (widget == NULL)") < region.index("_XmWidgetToAppContext(widget)")
+getter = source[source.index("XmCombinationBoxGetValue") :]
+assert "if (widget == NULL || !XmIsComboBox(widget))" in getter
 print("PASS ComboBox item-setting API validates null widgets")
