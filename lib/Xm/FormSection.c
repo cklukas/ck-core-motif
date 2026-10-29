@@ -63,7 +63,15 @@ static Position position(long long value) {
     return (Position)value;
 }
 static void preferred(Widget child, Dimension *width, Dimension *height) {
-    XtWidgetGeometry wanted; wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted);
+    XtWidgetGeometry wanted;
+    if (width == NULL || height == NULL)
+        return;
+    if (child == NULL) {
+        *width = 0;
+        *height = 0;
+        return;
+    }
+    wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted);
     *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width;
     *height = wanted.request_mode & CWHeight ? wanted.height : child->core.height;
 }
@@ -94,8 +102,9 @@ static void layout(XmFormSectionWidget section) {
     x = position(section->section.margin_width);
     width = dimension(section->core.width > 2UL * section->section.margin_width
                          ? section->core.width - 2UL * section->section.margin_width : 1);
-    XmeConfigureObject(section->section.header, x,
-                       position(section->section.margin_height), width, hh, 0);
+    if (section->section.header != NULL)
+        XmeConfigureObject(section->section.header, x,
+                           position(section->section.margin_height), width, hh, 0);
     y = position((long long)section->section.margin_height + hh +
                  section->section.spacing);
     content_height = dimension(section->core.height > (unsigned long)y + section->section.margin_height +
@@ -103,12 +112,14 @@ static void layout(XmFormSectionWidget section) {
                                        ? section->core.height - y - section->section.margin_height -
                                              (footer ? fh + section->section.spacing : 0)
                                        : ch);
-    XmeConfigureObject(section->section.content, x, y, width, content_height, 0);
-    if (footer) {
+    if (section->section.content != NULL)
+        XmeConfigureObject(section->section.content, x, y, width, content_height, 0);
+    if (footer && section->section.footer != NULL) {
         y = position((long long)y + content_height + section->section.spacing);
         XtSetMappedWhenManaged(section->section.footer, True);
         XmeConfigureObject(section->section.footer, x, y, width, fh, 0);
-    } else XtSetMappedWhenManaged(section->section.footer, False);
+    } else if (section->section.footer != NULL)
+        XtSetMappedWhenManaged(section->section.footer, False);
     section->section.laying_out = False;
 }
 static void negotiate(XmFormSectionWidget section) {
@@ -156,8 +167,10 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgLi
         XmStringFree(old->section.footer_text);
         section->section.footer_text = copy_string(section->section.footer_text);
     }
-    XtVaSetValues(section->section.header, XmNlabelString, section->section.header_text, NULL);
-    XtVaSetValues(section->section.footer, XmNlabelString, section->section.footer_text, XmNmappedWhenManaged, footer_visible(section), NULL);
+    if (section->section.header != NULL)
+        XtVaSetValues(section->section.header, XmNlabelString, section->section.header_text, NULL);
+    if (section->section.footer != NULL)
+        XtVaSetValues(section->section.footer, XmNlabelString, section->section.footer_text, XmNmappedWhenManaged, footer_visible(section), NULL);
     if (changed || old->section.margin_width != section->section.margin_width || old->section.margin_height != section->section.margin_height || old->section.spacing != section->section.spacing) negotiate(section);
     return False;
 }
