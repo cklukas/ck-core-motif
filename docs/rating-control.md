@@ -9,4 +9,5 @@ star artwork or color alone. Arrow keys and pointer selection choose a value;
 `XmNratingAllowClear` permits selecting the current value again to clear it,
 and `XmNratingReadonly` disables interaction while retaining visible focus and
 value semantics. `XmNratingValueChangedCallback` reports the count and
-committed value. Existing toggle-button groups are not involved.
+committed value only when the normalized value changes. Existing toggle-button
+groups are not involved.
