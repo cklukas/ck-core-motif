@@ -56,7 +56,7 @@ void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, 
     Cardinal i;
     if (!widget || !XmIsCommandPalette(widget)) return;
     palette = (XmCommandPaletteWidget)widget;
-    if (!count) { rebuild(palette); return; }
+    if (!count) { free_items(palette); rebuild(palette); return; }
     if (!items) { XtWarning("XmCommandPaletteSetItems: NULL item array"); return; }
     if ((size_t)count > SIZE_MAX / sizeof(*palette->palette.items) ||
         (size_t)count > UINT_MAX / sizeof(*palette->palette.items)) {
