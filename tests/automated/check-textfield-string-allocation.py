@@ -14,6 +14,10 @@ assert "if (temp_str == NULL)" in string_getter
 assert "UINT_MAX / (size_t)tf->text.max_char_size" in string_getter
 assert "temp_str[ret_val] = '\\0';" in string_getter
 assert "size_t ret_val = 0;" in string_getter
+assert "if (w == NULL)" in string_getter
+assert string_getter.index("if (w == NULL)") < string_getter.index(
+    "_XmWidgetToAppContext(w)"
+)
 
 start = source.index("XmTextFieldGetStringWcs(Widget w)")
 end = source.index("int \nXmTextFieldGetSubstringWcs", start)
@@ -24,5 +28,18 @@ assert "temp_wcs = (wchar_t*) XtMalloc((unsigned) sizeof(wchar_t));" in wide_get
 assert "UINT_MAX / sizeof(wchar_t)" in wide_getter
 assert "temp_wcs[num_wcs] = (wchar_t)0L;" in wide_getter
 assert "size_t num_wcs = 0;" in wide_getter
+assert "if (w == NULL)" in wide_getter
+assert wide_getter.index("if (w == NULL)") < wide_getter.index(
+    "_XmWidgetToAppContext(w)"
+)
+
+last_start = source.index("XmTextFieldGetLastPosition(Widget w)")
+last_end = source.index("\n}\n", last_start)
+last_getter = source[last_start:last_end]
+assert "if (w == NULL)" in last_getter
+assert "return 0;" in last_getter
+assert last_getter.index("if (w == NULL)") < last_getter.index(
+    "_XmWidgetToAppContext(w)"
+)
 
 print("PASS text-field string getters validate allocation and termination")

@@ -26,6 +26,13 @@ Guard TextField substring context lookup (2026-10-29)
   an Xt application context.
 - Extend the focused TextField range contract check for the early guard.
 
+Guard TextField string getters (2026-10-29)
+===========================================
+
+- Return the existing empty results for NULL widgets before context lookup in
+  the byte-string, wide-string, and last-position getters.
+- Extend the focused TextField allocation contract check to cover all three.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

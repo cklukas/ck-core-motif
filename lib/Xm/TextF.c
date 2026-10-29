@@ -10532,6 +10532,10 @@ XmTextFieldGetString(Widget w)
   size_t allocation_bytes;
   size_t string_length;
   size_t ret_val = 0;
+
+  if (w == NULL)
+    return NULL;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -10640,6 +10644,10 @@ XmTextFieldGetStringWcs(Widget w)
   size_t string_length;
   size_t allocation_bytes;
   size_t num_wcs = 0;
+
+  if (w == NULL)
+    return NULL;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -10746,6 +10754,10 @@ XmTextFieldGetLastPosition(Widget w)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   XmTextPosition ret_val;
+
+  if (w == NULL)
+    return 0;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app); 
