@@ -1,3 +1,10 @@
+Guard ScrolledWindow clip allocation failures (2026-10-30)
+===========================================================
+
+- Validate the internal clip child and scroll-frame trait before registration,
+  and make resize, constant layout, and slider callbacks tolerate its absence.
+- Add focused source coverage and documentation.
+
 Guard TabBox canvas allocation failures (2026-10-30)
 =====================================================
 

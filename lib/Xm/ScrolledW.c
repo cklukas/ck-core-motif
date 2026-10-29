@@ -679,6 +679,10 @@ XtPointer cd )
     /* w is a navigator widget */
 
     XmClipWindowWidget clip = (XmClipWindowWidget) closure;
+
+    if (clip == NULL)
+	return;
+
     XmScrolledWindowWidget sw = (XmScrolledWindowWidget) clip->core.parent;
     Cardinal i ;
     XmScrolledWindowConstraint swc;
@@ -1345,9 +1349,14 @@ Cardinal *num_args )
     /***********************
       Initialize the scrollFrame with move callback for Automatic */
 
-    ((XmScrollFrameTrait)
-        XmeTraitGet((XtPointer) XtClass(nw), XmQTscrollFrame))->
-        init(nw, SliderMove, (Widget) new_w->swindow.ClipWindow);
+    if (new_w->swindow.ClipWindow != NULL)
+    {
+        XmScrollFrameTrait scroll_frame = (XmScrollFrameTrait)
+            XmeTraitGet((XtPointer) XtClass(nw), XmQTscrollFrame);
+        if (scroll_frame != NULL && scroll_frame->init != NULL)
+            scroll_frame->init(nw, SliderMove,
+                               (Widget) new_w->swindow.ClipWindow);
+    }
 
     /****************
      *
@@ -2043,6 +2052,9 @@ XmScrolledWindowWidget sw )
     Dimension  HSBht, VSBht,
         shad = sw->manager.shadow_thickness,
         pad = sw->swindow.pad;
+
+    if (clip == NULL)
+	return;
     Boolean HasHSB, HasVSB, HSBExists, VSBExists, no_scroll_present = False;
     XmScrolledWindowConstraint swc;
     Widget child ;
@@ -3039,6 +3051,9 @@ Resize(
 Widget wid )
 {
     XmScrolledWindowWidget sw = (XmScrolledWindowWidget) wid ;
+
+    if (sw->swindow.ClipWindow == NULL)
+	return;
 
     if (sw->swindow.VisualPolicy == XmVARIABLE)
         VariableLayout(sw);
