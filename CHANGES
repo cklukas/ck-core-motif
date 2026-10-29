@@ -1,3 +1,10 @@
+Saturate Prompt padded extents (2026-10-30)
+============================================
+
+- Share bounded text-plus-padding arithmetic between Prompt initialization and
+  geometry queries so large rendered heights cannot wrap.
+- Add focused source coverage and document the invariant.
+
 Guard TabStack menu construction (2026-10-29)
 ==============================================
 

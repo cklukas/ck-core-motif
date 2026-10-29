@@ -13,6 +13,10 @@ static Position bounded_position(long long value) {
     if (value > SHRT_MAX) return (Position)SHRT_MAX;
     return (Position)value;
 }
+static Dimension padded_extent(Dimension value, Dimension padding) {
+    return value > (Dimension)USHRT_MAX - padding
+               ? (Dimension)USHRT_MAX : (Dimension)(value + padding);
+}
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
@@ -65,8 +69,8 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
             Dimension text_width = 0, text_height = 0;
             XmStringExtent(prompt->prompt.font, prompt->prompt.text,
                            &text_width, &text_height);
-            width = text_width > (Dimension)-1 - 8 ? (Dimension)-1 : text_width + 8;
-            height = text_height + 8;
+            width = padded_extent(text_width, 8);
+            height = padded_extent(text_height, 8);
         }
         if (!request->core.width) prompt->core.width = width;
         if (!request->core.height) prompt->core.height = height;
@@ -139,8 +143,8 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     if (prompt->prompt.font && prompt->prompt.text) {
         Dimension width = 0, height = 0;
         XmStringExtent(prompt->prompt.font, prompt->prompt.text, &width, &height);
-        reply->width = width > (Dimension)-1 - 8 ? (Dimension)-1 : width + 8;
-        reply->height = height > (Dimension)-1 - 8 ? (Dimension)-1 : height + 8;
+        reply->width = padded_extent(width, 8);
+        reply->height = padded_extent(height, 8);
     } else {
         reply->width = 8;
         reply->height = 24;
