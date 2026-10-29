@@ -10782,6 +10782,10 @@ XmTextFieldSetString(Widget w,
   size_t converted_length;
   char * tmp_ptr;
   char * mod_value = NULL;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app); 
@@ -10954,6 +10958,10 @@ XmTextFieldSetStringWcs(Widget w,
   wchar_t *tmp_wc;
   int num_chars = 0;
   size_t result;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   if (wc_value == NULL) {
@@ -11161,6 +11169,9 @@ XmTextFieldReplace(Widget w,
 		   XmTextPosition to_pos,
 		   char *value)
 {
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -11175,6 +11186,9 @@ XmTextFieldReplaceWcs(Widget w,
 		      XmTextPosition to_pos,
 		      wchar_t *wc_value)
 {
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -11188,6 +11202,9 @@ XmTextFieldInsert(Widget w,
 		  XmTextPosition position,
 		  char *value)
 {
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   /* XmTextFieldReplace takes care of converting to wchar_t* if needed */
@@ -11199,6 +11216,9 @@ XmTextFieldInsertWcs(Widget w,
 		     XmTextPosition position,
 		     wchar_t *wcstring)
 {
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   /* XmTextFieldReplaceWcs takes care of converting to wchar_t* if needed */
@@ -11214,6 +11234,10 @@ XmTextFieldSetAddMode(Widget w,
 #endif /* NeedWidePrototypes */
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
  
   _XmAppLock(app);
