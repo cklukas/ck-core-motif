@@ -9,7 +9,7 @@ region = source[start:source.index("/*******************************************
 
 for needle in (
     "AdjustPositionSaturated(0,",
-    "AdjustPositionSaturated((Position)cw->container.margin_w,",
+    "(int64_t)cw->container.margin_w +",
     "AdjustPositionSaturated(x,",
     "(int64_t)cw->core.width - (int64_t)cw->container.margin_w",
 ):
@@ -17,4 +17,5 @@ for needle in (
 
 assert "x = cw->core.width - cw->container.margin_w" not in region
 assert "x = x - (Position)cwid->core.width" not in region
+assert "AdjustPositionSaturated((Position)cw->container.margin_w" not in region
 print("PASS Container outline-detail positions use saturated signed arithmetic")

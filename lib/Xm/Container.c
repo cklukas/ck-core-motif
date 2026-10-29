@@ -6475,7 +6475,8 @@ LayoutOutlineDetail(
 		(int64_t)cw->core.width - (int64_t)cw->container.margin_w -
 		(int64_t)c->depth * (int64_t)cw->container.outline_indent);
 	else
-	    x = AdjustPositionSaturated((Position)cw->container.margin_w,
+	    x = AdjustPositionSaturated(0,
+		(int64_t)cw->container.margin_w +
 		(int64_t)c->depth * (int64_t)cw->container.outline_indent);
 	ob_y = y + (cwid->core.height - cw->container.ob_height) / 2;
 	if (CtrOB_PRESENT(cw) && LayoutIsRtoLM(cw))
@@ -6523,7 +6524,8 @@ LayoutOutlineDetail(
 		(int64_t)cw->core.width - (int64_t)cw->container.margin_w -
 		(int64_t)cw->container.real_first_col_width + 1));
 	else
-	    x = MIN(x, AdjustPositionSaturated((Position)cw->container.margin_w,
+	    x = MIN(x, AdjustPositionSaturated(0,
+		(int64_t)cw->container.margin_w +
 		(int64_t)cw->container.real_first_col_width - 1));
 
 	/*

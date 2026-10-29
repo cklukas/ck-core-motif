@@ -1,3 +1,10 @@
+Avoid pre-widening margin casts in Container positions (2026-10-29)
+=====================================================================
+
+- Remove the remaining `Dimension`-to-`Position` casts in outline-detail
+  placement before saturation, so oversized margins are widened safely.
+- Extend the focused outline-position regression.
+
 Bound Container placement positions (2026-10-29)
 ==================================================
 
