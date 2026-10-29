@@ -339,6 +339,7 @@ nav:
       - docs/datafield-mutator-inputs.md
       - docs/datafield-string-inputs.md
       - docs/datafield-selection-actions.md
+      - docs/datafield-selection-geometry.md
       - docs/toggle-gadget-inputs.md
       - docs/textfield-timer-scroll-bounds.md
       - docs/textfield-transfer-lengths.md

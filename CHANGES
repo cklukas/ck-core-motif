@@ -83,6 +83,13 @@ Guard DataField selection actions (2026-10-29)
   DataField remove, copy, cut, and paste actions.
 - Add focused coverage for the clipboard and selection entry points.
 
+Guard DataField selection geometry (2026-10-29)
+================================================
+
+- Validate widgets before context lookup in DataField selection, coordinate,
+  scrolling, and highlight APIs.
+- Reject NULL `PosToXY` output coordinates and add focused geometry coverage.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

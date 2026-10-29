@@ -13457,7 +13457,10 @@ XmDataFielddf_ClearSelection(
         Widget w,
         Time sel_time )
 #endif /* _NO_PROTO */
-{  
+{
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);    
   _XmAppLock(app);
 
@@ -13482,6 +13485,9 @@ XmDataFieldSetSelection(
 #endif /* _NO_PROTO */
 {
   XmDataFieldWidget tf = (XmDataFieldWidget) w;
+
+  if (w == NULL)
+    return;
 
   _XmWidgetToAppContext(w);    
   _XmAppLock(app);
@@ -13510,6 +13516,9 @@ XmDataFieldXYToPos(
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     XmTextPosition ret_val;
 
+  if (w == NULL)
+    return 0;
+
   _XmWidgetToAppContext(w);    
   _XmAppLock(app);
 
@@ -13537,6 +13546,9 @@ XmDataFieldPosToXY(
   XmDataFieldWidget tf = (XmDataFieldWidget) w;
   Boolean ret_val;
 
+  if (w == NULL || x == NULL || y == NULL)
+    return False;
+
   _XmWidgetToAppContext(w);    
   _XmAppLock(app);
 
@@ -13562,6 +13574,9 @@ XmDataFieldShowPosition(
 #endif /* _NO_PROTO */
 {
   XmDataFieldWidget tf = (XmDataFieldWidget) w;
+
+  if (w == NULL)
+    return;
 
   _XmWidgetToAppContext(w);    
   _XmAppLock(app);
@@ -13593,6 +13608,9 @@ XmDataFieldSetHighlight(
 #endif /* _NO_PROTO */
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
+
+    if (w == NULL)
+      return;
 
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
