@@ -341,6 +341,7 @@ nav:
       - docs/datafield-selection-actions.md
       - docs/datafield-selection-geometry.md
       - docs/datafield-baseline-input.md
+      - docs/i18list-search-inputs.md
       - docs/toggle-gadget-inputs.md
       - docs/textfield-timer-scroll-bounds.md
       - docs/textfield-transfer-lengths.md

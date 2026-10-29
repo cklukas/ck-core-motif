@@ -97,6 +97,13 @@ Guard DataField baseline input (2026-10-29)
   context lookup.
 - Add focused baseline-input coverage.
 
+Guard I18List search inputs (2026-10-29)
+========================================
+
+- Reject NULL widgets before row access in `XmI18ListGetSelectedRows` and
+  reject NULL widgets or search strings before `XmI18ListDoSearch` conversion.
+- Add focused selection/search input coverage.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

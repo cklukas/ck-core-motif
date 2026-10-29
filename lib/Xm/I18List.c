@@ -3239,6 +3239,9 @@ XmI18ListGetSelectedRows(Widget w)
     XmMultiListRowInfo **ret_rows = NULL;
     XmI18ListWidget ilist = (XmI18ListWidget) w;
 
+    if (w == NULL)
+        return NULL;
+
     row_data = XmI18List_row_data(ilist);
     for (i = j = 0; j < XmI18List_num_rows(ilist); j++, row_data++) { 
 	if (row_data->selected) 
@@ -3282,8 +3285,13 @@ XmI18ListDoSearch(Widget w, String str, Boolean reset)
 {
     XmI18ListWidget ilist = (XmI18ListWidget) w;
     Boolean foundit;
-    XmString xms = XmStringCreateLocalized(str);
+    XmString xms;
     int found_row, found_column, search_column;
+
+    if (w == NULL || str == NULL)
+        return False;
+
+    xms = XmStringCreateLocalized(str);
 
     int first_selected_row = FirstSelectedRow(w);
 
