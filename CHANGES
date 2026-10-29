@@ -1,3 +1,11 @@
+BreadcrumbBar rejects missing segment arrays (2026-10-29)
+============================================================
+
+- Reject `XmBreadcrumbBarSetSegments` calls that provide a NULL segment array
+  with a non-zero count, instead of creating empty entries from invalid input.
+- Preserve the existing zero-count clear operation and valid segment behavior;
+  add a source contract regression and document the input requirement.
+
 Guard Scale API widget classes (2026-10-29)
 ===========================================
 

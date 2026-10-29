@@ -407,7 +407,7 @@ void XmBreadcrumbBarSetSegments(Widget widget,
     XmBreadcrumbBarWidget bar;
     Cardinal i;
     if (widget == NULL || !XmIsBreadcrumbBar(widget) ||
-        count > (Cardinal)INT_MAX)
+        count > (Cardinal)INT_MAX || (count != 0 && segments == NULL))
         return;
     bar = (XmBreadcrumbBarWidget)widget;
     free_items(bar);
