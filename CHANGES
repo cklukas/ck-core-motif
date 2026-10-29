@@ -29090,3 +29090,12 @@ Clamp ScrolledWindow positions before X11 conversion (2026-10-29)
 - Add focused source coverage and document the geometry contract.
 
 Bound List position-to-bounds origins (2026-10-29)
+Bound ScrolledWindow page arithmetic (2026-10-29)
+===================================================
+
+- Widen and saturate page-left/right/up/down target calculations before
+  `MoveWindow`, preventing extreme origins or work-area dimensions from
+  overflowing `int`.
+- Add focused source coverage and document the scrolling contract.
+
+Bound Frame child positions before X11 conversion (2026-10-29)

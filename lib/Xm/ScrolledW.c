@@ -68,6 +68,16 @@ scw_bounded_position(long long value)
     return (Position)value;
 }
 
+static int
+scw_bounded_int(long long value)
+{
+    if (value < INT_MIN)
+	return INT_MIN;
+    if (value > INT_MAX)
+	return INT_MAX;
+    return (int)value;
+}
+
 /* Auto drag private ********/
 
 #define FORWARD 0
@@ -913,12 +923,12 @@ Cardinal *num_params )
     int value ;
 
     if (sw->swindow.hScrollBar)
-        value = sw->swindow.hOrigin -
-            (sw->swindow.hScrollBar)->scrollBar.page_increment;
+        value = scw_bounded_int((long long)sw->swindow.hOrigin -
+            (long long)(sw->swindow.hScrollBar)->scrollBar.page_increment);
     else {
         if (sw->swindow.WorkWindow)
-            value = sw->swindow.hOrigin -
-            sw->swindow.WorkWindow->core.width;
+            value = scw_bounded_int((long long)sw->swindow.hOrigin -
+            (long long)sw->swindow.WorkWindow->core.width);
         else
             return;
     }
@@ -944,11 +954,12 @@ Cardinal *num_params )
     int value ;
 
     if (sw->swindow.hScrollBar)
-        value = sw->swindow.hOrigin +
-            (sw->swindow.hScrollBar)->scrollBar.page_increment;
+        value = scw_bounded_int((long long)sw->swindow.hOrigin +
+            (long long)(sw->swindow.hScrollBar)->scrollBar.page_increment);
     else {
         if (sw->swindow.WorkWindow)
-            value = sw->swindow.hOrigin + sw->swindow.WorkWindow->core.width;
+            value = scw_bounded_int((long long)sw->swindow.hOrigin +
+            (long long)sw->swindow.WorkWindow->core.width);
         else
             return;
     }
@@ -975,11 +986,12 @@ Cardinal *num_params )
     int value ;
 
     if (sw->swindow.vScrollBar)
-        value = sw->swindow.vOrigin -
-            (sw->swindow.vScrollBar)->scrollBar.page_increment;
+        value = scw_bounded_int((long long)sw->swindow.vOrigin -
+            (long long)(sw->swindow.vScrollBar)->scrollBar.page_increment);
     else {
         if (sw->swindow.WorkWindow)
-            value = sw->swindow.vOrigin - sw->swindow.WorkWindow->core.height;
+            value = scw_bounded_int((long long)sw->swindow.vOrigin -
+            (long long)sw->swindow.WorkWindow->core.height);
         else
             return;
     }
@@ -1005,11 +1017,12 @@ Cardinal *num_params )
     int value ;
 
     if (sw->swindow.vScrollBar)
-        value = sw->swindow.vOrigin +
-            (sw->swindow.vScrollBar)->scrollBar.page_increment;
+        value = scw_bounded_int((long long)sw->swindow.vOrigin +
+            (long long)(sw->swindow.vScrollBar)->scrollBar.page_increment);
     else {
         if (sw->swindow.WorkWindow)
-            value = sw->swindow.vOrigin + sw->swindow.WorkWindow->core.height;
+            value = scw_bounded_int((long long)sw->swindow.vOrigin +
+            (long long)sw->swindow.WorkWindow->core.height);
         else
             return;
     }
