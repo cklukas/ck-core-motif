@@ -19,6 +19,13 @@ Guard ComboBox selected-position exports (2026-10-29)
   pointer before consulting the child List.
 - Extend the focused selected-position pointer check.
 
+Guard TextField substring context lookup (2026-10-29)
+======================================================
+
+- Return `XmCOPY_FAILED` for NULL widgets before either substring API looks up
+  an Xt application context.
+- Extend the focused TextField range contract check for the early guard.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

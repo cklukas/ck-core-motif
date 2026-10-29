@@ -12,6 +12,10 @@ for name in ("XmTextFieldGetSubstring(", "XmTextFieldGetSubstringWcs("):
     start = source.index(name)
     end = source.index("\n\n\n", start)
     region = source[start:end]
+    assert "if (widget == NULL)" in region
+    assert region.index("if (widget == NULL)") < region.index(
+        "_XmWidgetToAppContext(widget)"
+    )
     assert "buffer == NULL" in region
     assert "start < 0 || start > tf->text.string_length" in region
     assert "buf_size <= 0" in region

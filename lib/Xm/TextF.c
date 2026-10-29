@@ -10586,6 +10586,10 @@ XmTextFieldGetSubstring(Widget widget,
   int n_bytes = 0;
   size_t wcs_ret = 0;
   XmTextPosition available;
+
+  if (widget == NULL)
+    return XmCOPY_FAILED;
+
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
@@ -10690,6 +10694,10 @@ XmTextFieldGetSubstringWcs(Widget widget,
   int ret_value = XmCOPY_SUCCEEDED;
   size_t num_wcs = 0;
   XmTextPosition available;
+
+  if (widget == NULL)
+    return XmCOPY_FAILED;
+
   _XmWidgetToAppContext(widget);
 
   _XmAppLock(app);
