@@ -12,6 +12,13 @@ Guard Sidebar child allocation failures (2026-10-29)
   children without null widget calls.
 - Add focused source coverage and document the recovery behavior.
 
+Guard EmptyState child allocation failures (2026-10-29)
+========================================================
+
+- Make EmptyState icon, message, and action child handling null-safe across
+  initialization, layout, and resource updates.
+- Add focused source coverage and document the recovery behavior.
+
 Bound TextOut visibility edges (2026-10-29)
 =============================================
 

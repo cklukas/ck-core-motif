@@ -77,7 +77,10 @@ static Boolean has_action(XmEmptyStateWidget state) {
     return result;
 }
 static void preferred(Widget child, Dimension *width, Dimension *height) {
-    XtWidgetGeometry wanted; wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted);
+    XtWidgetGeometry wanted;
+    if (width == NULL || height == NULL) return;
+    if (child == NULL) { *width = 0; *height = 0; return; }
+    wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted);
     *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width;
     *height = wanted.request_mode & CWHeight ? wanted.height : child->core.height;
 }
@@ -104,12 +107,15 @@ static void layout(XmEmptyStateWidget state) {
     width = dimension(state->core.width > 2UL * state->empty_state.margin_width
                           ? state->core.width - 2UL * state->empty_state.margin_width : 1);
     y = state->empty_state.margin_height;
-    XtSetMappedWhenManaged(state->empty_state.icon_widget, icon);
-    XtSetMappedWhenManaged(state->empty_state.action_widget, action);
-    if (icon) { XmeConfigureObject(state->empty_state.icon_widget, state->empty_state.margin_width, bounded_position(y), width, ih, 0); y += ih + state->empty_state.spacing; }
-    XmeConfigureObject(state->empty_state.message_widget, state->empty_state.margin_width, bounded_position(y), width, mh, 0);
+    if (state->empty_state.icon_widget != NULL)
+        XtSetMappedWhenManaged(state->empty_state.icon_widget, icon);
+    if (state->empty_state.action_widget != NULL)
+        XtSetMappedWhenManaged(state->empty_state.action_widget, action);
+    if (icon && state->empty_state.icon_widget != NULL) { XmeConfigureObject(state->empty_state.icon_widget, state->empty_state.margin_width, bounded_position(y), width, ih, 0); y += ih + state->empty_state.spacing; }
+    if (state->empty_state.message_widget != NULL)
+        XmeConfigureObject(state->empty_state.message_widget, state->empty_state.margin_width, bounded_position(y), width, mh, 0);
     y += mh;
-    if (action) { y += state->empty_state.spacing; XmeConfigureObject(state->empty_state.action_widget, state->empty_state.margin_width, bounded_position(y), width, ah, 0); }
+    if (action && state->empty_state.action_widget != NULL) { y += state->empty_state.spacing; XmeConfigureObject(state->empty_state.action_widget, state->empty_state.margin_width, bounded_position(y), width, ah, 0); }
     state->empty_state.laying_out = False;
 }
 static void negotiate(XmEmptyStateWidget state) {
@@ -133,7 +139,9 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     state->empty_state.action_widget = XtVaCreateManagedWidget("action", xmPushButtonWidgetClass, widget,
         XmNlabelString, state->empty_state.action_label, XmNborderWidth, 0,
         XmNmappedWhenManaged, has_action(state), NULL);
-    XtAddCallback(state->empty_state.action_widget, XmNactivateCallback, activate, state);
+    if (state->empty_state.action_widget != NULL)
+        XtAddCallback(state->empty_state.action_widget, XmNactivateCallback,
+                      activate, state);
     state->empty_state.initializing = False; natural(state, &width, &height);
     if (!state->core.width) state->core.width = width;
     if (!state->core.height) state->core.height = height;
@@ -153,9 +161,11 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgLi
     (void)request; (void)args; (void)count;
     if (old->empty_state.message != state->empty_state.message) { XmStringFree(old->empty_state.message); state->empty_state.message = copy_string(state->empty_state.message); }
     if (old->empty_state.action_label != state->empty_state.action_label) { XmStringFree(old->empty_state.action_label); state->empty_state.action_label = copy_string(state->empty_state.action_label); }
-    if (old->empty_state.icon != state->empty_state.icon) XtVaSetValues(state->empty_state.icon_widget, XmNlabelPixmap, state->empty_state.icon, NULL);
-    XtVaSetValues(state->empty_state.message_widget, XmNlabelString, state->empty_state.message, NULL);
-    XtVaSetValues(state->empty_state.action_widget, XmNlabelString, state->empty_state.action_label, XmNmappedWhenManaged, has_action(state), NULL);
+    if (old->empty_state.icon != state->empty_state.icon && state->empty_state.icon_widget != NULL) XtVaSetValues(state->empty_state.icon_widget, XmNlabelPixmap, state->empty_state.icon, NULL);
+    if (state->empty_state.message_widget != NULL)
+        XtVaSetValues(state->empty_state.message_widget, XmNlabelString, state->empty_state.message, NULL);
+    if (state->empty_state.action_widget != NULL)
+        XtVaSetValues(state->empty_state.action_widget, XmNlabelString, state->empty_state.action_label, XmNmappedWhenManaged, has_action(state), NULL);
     if (changed || old->empty_state.margin_width != state->empty_state.margin_width || old->empty_state.margin_height != state->empty_state.margin_height || old->empty_state.spacing != state->empty_state.spacing) negotiate(state);
     return False;
 }
