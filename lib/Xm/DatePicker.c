@@ -179,7 +179,8 @@ static void calendar_changed(Widget calendar, XtPointer closure,
     if (!XmCalendarGetDate(calendar, &date))
         return;
     picker->date_picker.date = date;
-    if (picker->date_picker.open) {
+    if (picker->date_picker.open && picker->date_picker.popup_shell != NULL &&
+        !((CoreWidget)picker->date_picker.popup_shell)->core.being_destroyed) {
         XtPopdown(picker->date_picker.popup_shell);
         picker->date_picker.open = False;
     }
@@ -216,7 +217,8 @@ static void Destroy(Widget widget) {
     XmDatePickerWidget picker = (XmDatePickerWidget)widget;
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False,
                          Events, NULL);
-    if (picker->date_picker.popup_shell)
+    if (picker->date_picker.popup_shell &&
+        !((CoreWidget)picker->date_picker.popup_shell)->core.being_destroyed)
         XtDestroyWidget(picker->date_picker.popup_shell);
     if (picker->date_picker.gc)
         XFreeGC(XtDisplay(widget), picker->date_picker.gc);
@@ -368,7 +370,8 @@ void XmDatePickerOpen(Widget widget) {
     picker = (XmDatePickerWidget)widget;
     if (picker->date_picker.open || !XtIsRealized(widget)) return;
     create_popup(picker);
-    if (!picker->date_picker.popup_shell) return;
+    if (!picker->date_picker.popup_shell ||
+        picker->date_picker.calendar == NULL) return;
     XmCalendarSetRange(picker->date_picker.calendar,
                        &picker->date_picker.minimum,
                        &picker->date_picker.maximum);
@@ -385,7 +388,9 @@ void XmDatePickerClose(Widget widget) {
     if (!widget || !XmIsDatePicker(widget)) return;
     picker = (XmDatePickerWidget)widget;
     if (!picker->date_picker.open) return;
-    XtPopdown(picker->date_picker.popup_shell);
+    if (picker->date_picker.popup_shell != NULL &&
+        !((CoreWidget)picker->date_picker.popup_shell)->core.being_destroyed)
+        XtPopdown(picker->date_picker.popup_shell);
     picker->date_picker.open = False;
     notify(picker, NULL, 4, XmNdatePickerOpenChangedCallback);
 }

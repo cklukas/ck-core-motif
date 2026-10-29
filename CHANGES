@@ -1,3 +1,10 @@
+Guard DatePicker popup teardown (2026-10-30)
+=============================================
+
+- Make calendar callbacks and DatePicker open/close/destroy operations safe
+  while the popup shell or calendar child is being destroyed.
+- Add focused lifecycle coverage and document the teardown contract.
+
 Guard Flyout owner teardown (2026-10-30)
 =========================================
 
