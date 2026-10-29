@@ -1,3 +1,11 @@
+Reject missing XImage data before scaling (2026-10-29)
+=======================================================
+
+- Reject positive-dimension `XImage` values with a `NULL` pixel-data pointer
+  before the depth-one conversion can dereference it.
+- Add focused malformed-image input coverage and document the existing failure
+  contract.
+
 Container disclosure refresh follows row state (2026-10-29)
 ==============================================================
 

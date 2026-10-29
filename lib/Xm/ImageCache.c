@@ -1677,7 +1677,7 @@ _XmGetScaledPixmap(
     } 
 
 
-    if (image->width <= 0 || image->height <= 0 ||
+    if (image->data == NULL || image->width <= 0 || image->height <= 0 ||
 	isfinite(pix_data.scaling_ratio) == 0 || pix_data.scaling_ratio <= 0.0 ||
 	!XmScaledDimension((unsigned int)image->width,
 			   pix_data.scaling_ratio, &scaled_width) ||

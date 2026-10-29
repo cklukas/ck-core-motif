@@ -78,6 +78,7 @@ nav:
       - docs/container-reorder-inputs.md
       - docs/container-tab-pool-bounds.md
       - docs/container-disclosure-state.md
+      - docs/image-data-input.md
       - docs/drag-cancel-inputs.md
       - docs/drag-source-inputs.md
       - docs/drag-start-inputs.md
