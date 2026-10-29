@@ -1,3 +1,10 @@
+Guard Scale API widget classes (2026-10-29)
+===========================================
+
+- Make `XmScaleSetValue` and `XmScaleGetValue` reject non-Scale handles before
+  context lookup and private-state access.
+- Extend the existing Scale input contract and documentation.
+
 Guard Command convenience API widget classes (2026-10-29)
 ===========================================================
 

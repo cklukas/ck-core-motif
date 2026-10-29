@@ -3439,7 +3439,7 @@ XmScaleSetValue(
     XmScaleWidget sw = (XmScaleWidget) w;
     XtAppContext app;
 
-    if (w == NULL)
+    if (w == NULL || !XmIsScale(w))
         return;
     app = XtWidgetToApplicationContext(w);
     _XmAppLock(app);
@@ -3479,7 +3479,7 @@ XmScaleGetValue(
    XmScaleWidget sw = (XmScaleWidget) w;
    XtAppContext app;
 
-   if (w == NULL || value == NULL)
+   if (w == NULL || !XmIsScale(w) || value == NULL)
       return;
    app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
