@@ -1,3 +1,10 @@
+Guard TabBox canvas allocation failures (2026-10-30)
+=====================================================
+
+- Keep TabBox initialization, resize, and tab drawing safe when its internal
+  canvas child cannot be created.
+- Add focused source coverage and document the no-canvas fallback.
+
 Guard TabStack TabBox allocation failures (2026-10-30)
 ======================================================
 

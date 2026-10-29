@@ -795,6 +795,12 @@ Initialize(request, set, arg_list, arg_cnt)
 	XtCreateManagedWidget("canvas", xmTabCanvasWidgetClass, set,
 			      filtered_args, num_filtered_args);
 
+    if (XmTabBox__canvas(st) == NULL)
+    {
+	XtFree((XtPointer)filtered_args);
+	return;
+    }
+
 #ifdef SCROLLED_LAYOUT
     XmTabBox__left_arrow(st) =
 	XtCreateWidget("leftArrow", xmArrowButtonWidgetClass, set,
@@ -941,6 +947,9 @@ Resize(widget)
 #endif
 {
     XmTabBoxWidget tab = (XmTabBoxWidget) widget;
+
+    if (XmTabBox__canvas(tab) == NULL)
+	return;
 
     Layout(tab);
 
@@ -3755,7 +3764,7 @@ DrawTab(tab, info, geometry, selected, keyboard)
      * Lets do the quick check here.  If we are not realized then there is
      * really nothing to draw so lets just leave.
      */
-    if( !XtIsRealized(canvas) || info == NULL ) return;
+    if( canvas == NULL || !XtIsRealized(canvas) || info == NULL ) return;
 
     if( (XmTabBox_tab_mode(tab) == XmTABS_STACKED ||
 	 XmTabBox_tab_mode(tab) == XmTABS_STACKED_STATIC) &&
