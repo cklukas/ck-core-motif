@@ -8,7 +8,8 @@ unsigned 32-bit color written as `0xRRGGBBAA`; each channel is exactly eight
 bits and no color-space or gamut conversion is implied.  `XmColorPickerPreviewValue`
 updates the swatch and emits `XmNcolorPickerPreviewCallback` without committing;
 `XmColorPickerSetValue` commits and optionally emits
-`XmNcolorPickerValueChangedCallback`.  Escape restores the committed value and
+`XmNcolorPickerValueChangedCallback` only when the committed value changes.
+Escape restores the committed value and
 Return commits the preview.  The visible value is always shown as `#RRGGBBAA`.
 
 The control uses the screen colormap for its swatch and falls back to the

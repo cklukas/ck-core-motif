@@ -224,11 +224,15 @@ unsigned long XmColorPickerGetValue(Widget widget) {
 }
 void XmColorPickerSetValue(Widget widget, unsigned long value, Boolean notify_change) {
     XmColorPickerWidget picker;
+    Boolean changed;
     if (widget == NULL || !XmIsColorPicker(widget)) return;
-    picker = (XmColorPickerWidget)widget; picker->color_picker.value = value;
+    picker = (XmColorPickerWidget)widget;
+    changed = picker->color_picker.value != value;
+    picker->color_picker.value = value;
     picker->color_picker.preview = value;
     if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
-    if (notify_change) notify(picker, XmNcolorPickerValueChangedCallback, NULL, value);
+    if (notify_change && changed)
+        notify(picker, XmNcolorPickerValueChangedCallback, NULL, value);
 }
 void XmColorPickerPreviewValue(Widget widget, unsigned long value) {
     XmColorPickerWidget picker;

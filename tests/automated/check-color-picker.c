@@ -35,6 +35,8 @@ int main(int argc, char **argv) {
     CHECK(previews == 1 && XmColorPickerGetValue(picker) == 0x11223344UL);
     XmColorPickerSetValue(picker, 0xaabbccddUL, True);
     CHECK(changes == 1 && XmColorPickerGetValue(picker) == 0xaabbccddUL);
+    XmColorPickerSetValue(picker, 0xaabbccddUL, True);
+    CHECK(changes == 1);
     a = XmAccessibilityCreate(shell, "ColorPickerTest"); CHECK(a != NULL);
     id = XmAccessibilityWidget(a, picker); CHECK(id != XmACCESSIBLE_NONE);
     CHECK(XmAccessibilityQuery(a, id, &info));

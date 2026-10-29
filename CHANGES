@@ -28823,3 +28823,12 @@ Preserve CommandPalette items on invalid replacement input (2026-10-29)
   document the replacement contract.
 
 Preserve AutoSuggest suggestions on oversized replacement input (2026-10-29)
+Make ColorPicker value callbacks change-sensitive (2026-10-29)
+===============================================================
+
+- Emit `XmNcolorPickerValueChangedCallback` only when
+  `XmColorPickerSetValue` changes the committed color, matching other value
+  widgets and avoiding duplicate application updates.
+- Add source and native regression coverage and document the callback contract.
+
+Preserve CommandPalette items on invalid replacement input (2026-10-29)
