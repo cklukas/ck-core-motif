@@ -1,3 +1,10 @@
+Bound DataField timer edge geometry (2026-10-29)
+=================================================
+
+- Widen DataField autoscroll edge arithmetic before subtracting margins,
+  clamp the resulting X11 positions, and reject a missing timer event.
+- Add a focused source regression and document the transient-resize contract.
+
 Text input edge bounds are widened before margin subtraction (2026-10-29)
 ==========================================================================
 

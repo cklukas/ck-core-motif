@@ -7090,6 +7090,16 @@ df_BrowseScroll(
 
 
 /* ARGSUSED */
+static Position
+df_ClampPointCoordinate(int64_t coordinate)
+{
+    if (coordinate < SHRT_MIN)
+	return (Position)SHRT_MIN;
+    if (coordinate > SHRT_MAX)
+	return (Position)SHRT_MAX;
+    return (Position)coordinate;
+}
+
 static Boolean
 #ifdef _NO_PROTO
 df_CheckTimerScrolling( w, event )
@@ -7102,20 +7112,25 @@ df_CheckTimerScrolling(
 #endif /* _NO_PROTO */
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
-    Dimension margin_size = XmTextF_margin_width(tf) +
-                               tf->primitive.shadow_thickness +
-                               tf->primitive.highlight_thickness;
-    Dimension top_margin = XmTextF_margin_height(tf) +
-                            tf->primitive.shadow_thickness +
-                            tf->primitive.highlight_thickness;
+    int64_t margin_size = (int64_t)XmTextF_margin_width(tf) +
+                          tf->primitive.shadow_thickness +
+                          tf->primitive.highlight_thickness;
+    int64_t top_margin = (int64_t)XmTextF_margin_height(tf) +
+                         tf->primitive.shadow_thickness +
+                         tf->primitive.highlight_thickness;
+    int64_t text_right = (int64_t)tf->core.width - margin_size;
+    int64_t text_bottom = top_margin + XmTextF_font_ascent(tf) +
+                          XmTextF_font_descent(tf);
+
+    if (event == NULL)
+	return False;
 
     XmTextF_select_pos_x(tf) = event->xmotion.x;
 
-    if ((event->xmotion.x > (int) margin_size) &&
-      (event->xmotion.x < (int) (tf->core.width - margin_size))  &&
-      (event->xmotion.y > (int) top_margin) &&
-        (event->xmotion.y < (int) (top_margin + XmTextF_font_ascent(tf) +
-                                 XmTextF_font_descent(tf)))) {
+    if ((int64_t)event->xmotion.x > margin_size &&
+        (int64_t)event->xmotion.x < text_right &&
+        (int64_t)event->xmotion.y > top_margin &&
+        (int64_t)event->xmotion.y < text_bottom) {
 
        if (XmTextF_select_id(tf)) {
           XtRemoveTimeOut(XmTextF_select_id(tf));
@@ -7123,13 +7138,13 @@ df_CheckTimerScrolling(
        }
     } else {
        /* to the left of the text */
-        if (event->xmotion.x <= (int) margin_size)
-           XmTextF_select_pos_x(tf) = (Position) (margin_size -
-                                          (XmTextF_average_char_width(tf) + 1));
+        if ((int64_t)event->xmotion.x <= margin_size)
+           XmTextF_select_pos_x(tf) = df_ClampPointCoordinate(
+               margin_size - XmTextF_average_char_width(tf) - 1);
        /* to the right of the text */
-      else if (event->xmotion.x >= (int) (tf->core.width - margin_size))
-           XmTextF_select_pos_x(tf) = (Position) ((tf->core.width - margin_size) +
-                                           XmTextF_average_char_width(tf) + 1);
+      else if ((int64_t)event->xmotion.x >= text_right)
+           XmTextF_select_pos_x(tf) = df_ClampPointCoordinate(
+               text_right + XmTextF_average_char_width(tf) + 1);
        if (!XmTextF_select_id(tf))
           XmTextF_select_id(tf) = XtAppAddTimeOut(XtWidgetToApplicationContext(w),
                                        (unsigned long) SEC_SCROLL_INTERVAL,

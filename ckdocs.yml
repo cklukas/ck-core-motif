@@ -44,6 +44,7 @@ nav:
       - docs/paned-keyboard.md
       - docs/combo-deletion.md
       - docs/datafield-wide-text.md
+      - docs/datafield-timer-edge-bounds.md
       - docs/container-tabs.md
       - docs/nontext-unicode.md
       - docs/notebook-order.md
