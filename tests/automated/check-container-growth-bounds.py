@@ -19,6 +19,10 @@ for needle in (
     "height_excess = (int64_t)c->user_y - content_bottom",
     "if ((width_excess % cell_width) != 0)",
     "if ((height_excess % cell_height) != 0)",
+    "new_width = (int64_t)cwid->core.x",
+    "new_height = (int64_t)cwid->core.y",
+    "width_increase = AddDimensionSaturated(0,",
+    "height_increase = AddDimensionSaturated(0,",
 ):
     if needle not in region:
         raise SystemExit(f"Container spatial growth is missing: {needle}")
@@ -33,5 +37,9 @@ if "c->user_x - (cw->core.width - cw->container.margin_w)" in region:
     raise SystemExit("Container closest width growth still subtracts in Dimension arithmetic")
 if "c->user_y - (cw->core.height - cw->container.margin_h)" in region:
     raise SystemExit("Container closest height growth still subtracts in Dimension arithmetic")
+if "new_width =  cwid->core.x + cwid->core.width" in region:
+    raise SystemExit("Container none-style width growth still sums in mixed-width arithmetic")
+if "new_height = cwid->core.y + cwid->core.height" in region:
+    raise SystemExit("Container none-style height growth still sums in mixed-width arithmetic")
 
 print("Container spatial growth uses bounded products and request extents")

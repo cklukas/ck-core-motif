@@ -2924,7 +2924,7 @@ RequestSpatialGrowth(
     Boolean	grow_height_allowed = True;
     Dimension	width_increase = 0;
     Dimension	height_increase = 0;
-    int		new_width,new_height;
+    int64_t	new_width,new_height;
     int		cell_width = 0,cell_height = 0;
     int		width_in_cells, height_in_cells;
     int64_t	content_right, content_bottom;
@@ -2971,17 +2971,21 @@ RequestSpatialGrowth(
 	{
 	if (grow_width_allowed)
 	    {
-	    new_width =  cwid->core.x + cwid->core.width 
-					+ cw->container.margin_w;
-	    if (new_width > cw->core.width)
-		width_increase = new_width - cw->core.width;
+	    new_width = (int64_t)cwid->core.x +
+		(int64_t)cwid->core.width +
+		(int64_t)cw->container.margin_w;
+	    if (new_width > (int64_t)cw->core.width)
+		width_increase = AddDimensionSaturated(0,
+		    (uint64_t)(new_width - (int64_t)cw->core.width));
 	    }
 	if (grow_height_allowed)
 	    {
-	    new_height = cwid->core.y + cwid->core.height
-					+ cw->container.margin_h;
-	    if (new_height > cw->core.height)
-		height_increase = new_height - cw->core.height;
+	    new_height = (int64_t)cwid->core.y +
+		(int64_t)cwid->core.height +
+		(int64_t)cw->container.margin_h;
+	    if (new_height > (int64_t)cw->core.height)
+		height_increase = AddDimensionSaturated(0,
+		    (uint64_t)(new_height - (int64_t)cw->core.height));
 	    }
 	}
     else
