@@ -28906,3 +28906,10 @@ Keep Tree compressed-width arithmetic signed (2026-10-29)
 - Convert compressed-child widths and horizontal deltas to signed values
   before subtraction, preventing wrapped parent widths during layout.
 - Extend the Tree geometry regression and documentation.
+
+Bound Column flush-fill height at tiny allocations (2026-10-29)
+================================================================
+
+- Clamp the signed inner height before converting it to `Dimension`, preventing
+  negative space after margins and shadows from wrapping to an oversized child.
+- Add a source regression and document the geometry contract.

@@ -1792,14 +1792,16 @@ HorizontalLayout(XmColumnWidget cw, Widget child,
     Position	x, y;
     int		cWidth, cBorder, cbWidth, lWidth, valid, space;
     Dimension	fillHeight;
+    int		fill_height;
     int		ispace = (int)XmColumn_item_spacing(cw);
     int 	kidSpace;
     
     if( col_width < 0 ) col_width = XtWidth(cw);
     if( col_height < 0 ) col_height = XtHeight(cw);
 
-    fillHeight = col_height - 2 * (cw->manager.shadow_thickness +
-				   BBPart(cw)->margin_height);
+    fill_height = col_height - 2 * (cw->manager.shadow_thickness +
+				      BBPart(cw)->margin_height);
+    fillHeight = fill_height > 0 ? (Dimension)fill_height : 1;
 
     
     for( i = 0, kid = kids, lWidth = 0, cbWidth = 0, valid = 0,
