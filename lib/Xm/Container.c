@@ -6185,17 +6185,21 @@ ResizeIconWidths(
     Widget		cwid;
     XmContainerConstraint c;
     XtWidgetGeometry	desired;
-    Position max_x = 0 ;
+    int64_t max_x = 0;
+    int64_t edge_x;
+    Dimension available_width;
     
     /*** get the maximum right edge first */
     if (cw->core.width == cw->container.ideal_width)
-	max_x = cw->container.ideal_width - cw->container.margin_w;
+	max_x = (int64_t)cw->container.ideal_width -
+	    (int64_t)cw->container.margin_w;
     else
 	{
 	if (CtrIsDynamic(cw,TABLIST))
-	    max_x = MAX(cw->container.margin_w 
-				+ cw->container.real_first_col_width,
-			cw->core.width - cw->container.margin_w);
+	    max_x = MAX((int64_t)cw->container.margin_w +
+			(int64_t)cw->container.real_first_col_width,
+			(int64_t)cw->core.width -
+			(int64_t)cw->container.margin_w);
 	else
 	    {
 	    /* header first. */
@@ -6203,7 +6207,8 @@ ResizeIconWidths(
 		((XtParent(cwid) == wid) || (XtIsManaged(XtParent(cwid)))))
 		{
 		XtQueryGeometry(cwid, NULL, &desired);
-		max_x = MAX(max_x, cwid->core.x + desired.width);
+		edge_x = (int64_t)cwid->core.x + (int64_t)desired.width;
+		max_x = MAX(max_x, edge_x);
 		}
 	    /* then the icons */
 	    node = GetFirstNode(cw);
@@ -6221,7 +6226,8 @@ ResizeIconWidths(
 		    cwid->core.x = (Position)cw->core.width
                         	- (Position)cwid->core.width - cwid->core.x;
 		XtQueryGeometry(cwid, NULL, &desired);
-		max_x = MAX(max_x, cwid->core.x + desired.width);
+		edge_x = (int64_t)cwid->core.x + (int64_t)desired.width;
+		max_x = MAX(max_x, edge_x);
 		node = GetNextNode(node);
 		}
 	    }
@@ -6232,8 +6238,10 @@ ResizeIconWidths(
 	((XtParent(cwid) == wid) || (XtIsManaged(XtParent(cwid)))))
 	{
 	XtQueryGeometry(cwid, NULL, &desired);
-    	XmeConfigureObject(cwid, cwid->core.x, cwid->core.y,
-			   max_x - cwid->core.x,
+	available_width = max_x > (int64_t)cwid->core.x ?
+	    AddDimensionSaturated(0, (uint64_t)(max_x - (int64_t)cwid->core.x)) : 0;
+	XmeConfigureObject(cwid, cwid->core.x, cwid->core.y,
+			   available_width,
 			   cwid->core.height, cwid->core.border_width);
 	/* also recongifure the DA parent if any */
 	if (XtParent(cwid) != wid) {
@@ -6253,7 +6261,8 @@ ResizeIconWidths(
         cwid->core.x = cw->container.margin_w +
                 c->depth*cw->container.outline_indent
                 + ((CtrOB_PRESENT(cw))?cw->container.ob_width:0) ;
-	cwid->core.width = max_x - cwid->core.x;
+	cwid->core.width = max_x > (int64_t)cwid->core.x ?
+	    AddDimensionSaturated(0, (uint64_t)(max_x - (int64_t)cwid->core.x)) : 0;
 	if (LayoutIsRtoLM(cw))
 	    cwid->core.x = (Position)cw->core.width
 			- (Position)cwid->core.width - cwid->core.x;
