@@ -1,3 +1,10 @@
+Guard legacy ToolTip child allocation failures (2026-10-30)
+=============================================================
+
+- Make lazy tooltip shell/label creation, slider posting, timer unposting, and
+  teardown safe when internal objects cannot be created or are being destroyed.
+- Add focused source coverage and document the recovery behavior.
+
 Guard DatePicker popup teardown (2026-10-30)
 =============================================
 

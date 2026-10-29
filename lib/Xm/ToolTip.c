@@ -59,6 +59,9 @@ ToolTipGetData (Widget w)
    Widget top = w;
    XmToolTipConfigTrait ttp;
 
+   if (w == NULL)
+      return NULL;
+
    while (XtParent (top))
    {
       top = XtParent (top);
@@ -73,8 +76,14 @@ ToolTipGetData (Widget w)
       shell = XtVaCreateWidget ("TipShell",
                                 transientShellWidgetClass, top,
                                 XmNoverrideRedirect, True, NULL);
+      if (shell == NULL)
+         return ttp;
 
       ttp->label = XmCreateLabel (shell, "TipLabel", NULL, 0);
+      if (ttp->label == NULL) {
+         XtDestroyWidget (shell);
+         return ttp;
+      }
       XtManageChild (ttp->label);
 #ifdef FIX_1388
       XtAddCallback(top, XmNdestroyCallback, (XtCallbackProc) ToolTipLabelDestroyCallback, (XtPointer) NULL);
@@ -91,6 +100,9 @@ ToolTipUnpost (XtPointer client_data,
 
    ttp = (XmToolTipConfigTrait) client_data;
 
+   if (ttp == NULL)
+      return;
+
    if (ttp->duration_timer)
    {
       if (!id || (id && (*id != ttp->duration_timer)))
@@ -105,9 +117,10 @@ ToolTipUnpost (XtPointer client_data,
       ttp->slider = NULL;
    }
 
-   if (ttp->label != NULL && !XtParent (ttp->label)->core.being_destroyed)
-   {
-      XtPopdown (XtParent (ttp->label));
+   if (ttp->label != NULL) {
+      Widget shell = XtParent (ttp->label);
+      if (shell != NULL && !((CoreWidget)shell)->core.being_destroyed)
+         XtPopdown (shell);
    }
 
 }
@@ -126,6 +139,9 @@ ToolTipPostFinish (Widget slide,
       XtWarning ("ToolTipPostFinish() - ttp==NULL");
       return;
    }
+
+   if (ttp->label == NULL)
+      return;
 
    ttp->slider = NULL;
    if (ttp->post_duration > 0)
@@ -165,6 +181,9 @@ ToolTipPost (XtPointer client_data,
    }
 
    ttp->timer = (XtIntervalId) NULL;
+   if (ttp->label == NULL || w == NULL ||
+       ((CoreWidget)w)->core.being_destroyed)
+      return;
 
    XQueryPointer (XtDisplay (w),
                   XtWindow (w), &root, &child, &rx, &ry, &x, &y, &key);
@@ -219,6 +238,8 @@ ToolTipPost (XtPointer client_data,
                         XmNslideDestWidth, geo.width,
                         XmNslideDestHeight, geo.height, NULL);
 
+   if (ttp->slider == NULL)
+      return;
    XtAddCallback (ttp->slider, XmNslideFinishCallback,
                   (XtCallbackProc) ToolTipPostFinish, ttp);
 
