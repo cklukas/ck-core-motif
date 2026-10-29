@@ -40,6 +40,14 @@ Guard TextField mutator context lookup (2026-10-29)
   before Xt context lookup when the widget is NULL.
 - Add a focused contract check covering every public mutator entry point.
 
+Guard TextField state accessors (2026-10-29)
+============================================
+
+- Validate widgets before context lookup in TextField state getters and
+  setters, preserving their established empty or no-op results.
+- Reject NULL output pointers in `XmTextFieldGetSelectionPosition` before
+  writing the selected range, with focused accessor coverage.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

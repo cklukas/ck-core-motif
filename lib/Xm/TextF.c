@@ -11257,6 +11257,10 @@ XmTextFieldGetAddMode(Widget w)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   Boolean ret_val;
+
+  if (w == NULL)
+    return False;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app); 
@@ -11270,6 +11274,10 @@ XmTextFieldGetEditable(Widget w)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   Boolean ret_val;
+
+  if (w == NULL)
+    return False;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app); 
@@ -11292,6 +11300,10 @@ XmTextFieldSetEditable(Widget w,
   Arg args[11];                 /* To set initial values to input method */
   XIMCallback xim_cb[5];        /* on the spot im callbacks */
   Cardinal n = 0;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app); 
@@ -11358,6 +11370,10 @@ XmTextFieldGetMaxLength(Widget w)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   int ret_val;
+
+  if (w == NULL)
+    return 0;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);
@@ -11371,6 +11387,10 @@ XmTextFieldSetMaxLength(Widget w,
 			int max_length)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);
@@ -11383,6 +11403,10 @@ XmTextFieldGetInsertionPosition(Widget w)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   XmTextPosition ret_val;
+
+  if (w == NULL)
+    return 0;
+
   _XmWidgetToAppContext(w);
   
   _XmAppLock(app);
@@ -11396,6 +11420,10 @@ XmTextFieldSetInsertionPosition(Widget w,
 				XmTextPosition position)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
+
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -11410,6 +11438,10 @@ XmTextFieldGetSelectionPosition(Widget w,
 				XmTextPosition *right)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
+
+  if (w == NULL || left == NULL || right == NULL)
+    return False;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -11429,6 +11461,10 @@ XmTextFieldGetSelection(Widget w)
   size_t allocation_bytes;
   size_t length, num_chars;
   char *value;
+
+  if (w == NULL)
+    return NULL;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);
@@ -11507,6 +11543,10 @@ XmTextFieldGetSelectionWcs(Widget w)
   size_t length;
   wchar_t *wc_value;
   size_t return_val = 0;
+
+  if (w == NULL)
+    return NULL;
+
   _XmWidgetToAppContext(w);
 
   _XmAppLock(app);

@@ -334,6 +334,7 @@ nav:
       - docs/textfield-substring-ranges.md
       - docs/textfield-string-getters.md
       - docs/textfield-mutator-inputs.md
+      - docs/textfield-state-accessors.md
       - docs/textfield-timer-scroll-bounds.md
       - docs/textfield-transfer-lengths.md
       - docs/textfield-wcstombs-width.md
