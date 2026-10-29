@@ -119,6 +119,13 @@ static void preferred(Widget child, Dimension *width, Dimension *height)
 {
     XtWidgetGeometry wanted;
 
+    if (width == NULL || height == NULL)
+        return;
+    if (child == NULL) {
+        *width = 0;
+        *height = 0;
+        return;
+    }
     wanted.request_mode = 0;
     XtQueryGeometry(child, NULL, &wanted);
     *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width;
@@ -166,7 +173,8 @@ static void layout(XmStatusBarWidget bar)
          * report all items as overflow for the caller's recovery policy. */
         for (i = 0; i < bar->status_bar.item_count; ++i) {
             bar->status_bar.items[i].visible = False;
-            XtSetMappedWhenManaged(bar->status_bar.items[i].child, False);
+            if (bar->status_bar.items[i].child != NULL)
+                XtSetMappedWhenManaged(bar->status_bar.items[i].child, False);
         }
         bar->status_bar.visible_count = 0;
         bar->status_bar.overflow_count = bar->status_bar.item_count;
@@ -204,10 +212,12 @@ static void layout(XmStatusBarWidget bar)
         XmStatusBarStoredItem *item = &bar->status_bar.items[i];
         preferred(item->child, &width, &height);
         item->visible = chosen && chosen[i];
-        XtSetMappedWhenManaged(item->child, item->visible);
+        if (item->child != NULL)
+            XtSetMappedWhenManaged(item->child, item->visible);
         if (item->visible) {
             Position placement = x > SHRT_MAX ? SHRT_MAX : (Position)x;
-            XmeConfigureObject(item->child, placement, 0, width, height, 0);
+            if (item->child != NULL)
+                XmeConfigureObject(item->child, placement, 0, width, height, 0);
             if (x <= SHRT_MAX)
                 x += width + bar->status_bar.spacing;
         }

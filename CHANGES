@@ -29114,6 +29114,8 @@ Saturate composite layout totals (2026-10-29)
   32-bit platforms, which could select items that do not fit.
 - Reject scratch-array counts that cannot be represented by Xt's `Cardinal`
   allocation size before calling `XtCalloc`.
+- Make preferred-size and internal-child mapping paths tolerate failed child
+  creation during a later relayout.
 - Add focused source coverage and document the layout contract.
 
 Bound Toolbar layout allocation failure (2026-10-29)

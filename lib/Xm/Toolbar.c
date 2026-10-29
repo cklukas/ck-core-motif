@@ -129,6 +129,13 @@ static void preferred(Widget child, Dimension *width, Dimension *height)
 {
     XtWidgetGeometry wanted;
 
+    if (width == NULL || height == NULL)
+        return;
+    if (child == NULL) {
+        *width = 0;
+        *height = 0;
+        return;
+    }
     wanted.request_mode = 0;
     XtQueryGeometry(child, NULL, &wanted);
     *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width;
@@ -233,12 +240,14 @@ static void layout(XmToolbarWidget toolbar)
         (chosen == NULL || action_width == NULL || action_height == NULL)) {
         for (i = 0; i < toolbar->toolbar.action_count; ++i) {
             toolbar->toolbar.actions[i].visible = False;
-            XtSetMappedWhenManaged(toolbar->toolbar.actions[i].button, False);
+            if (toolbar->toolbar.actions[i].button != NULL)
+                XtSetMappedWhenManaged(toolbar->toolbar.actions[i].button, False);
             if (toolbar->toolbar.actions[i].menu_button != NULL)
                 XtSetMappedWhenManaged(toolbar->toolbar.actions[i].menu_button,
                                        False);
         }
-        XtUnmanageChild(toolbar->toolbar.overflow_button);
+        if (toolbar->toolbar.overflow_button != NULL)
+            XtUnmanageChild(toolbar->toolbar.overflow_button);
         toolbar->toolbar.visible_count = 0;
         toolbar->toolbar.overflow_count = toolbar->toolbar.action_count;
         XtFree((char *)action_height);
@@ -283,28 +292,36 @@ static void layout(XmToolbarWidget toolbar)
                                              toolbar->toolbar.spacing,
                                              total != 0);
         }
-        XtManageChild(toolbar->toolbar.overflow_button);
+        if (toolbar->toolbar.overflow_button != NULL)
+            XtManageChild(toolbar->toolbar.overflow_button);
         overflow = 0;
         for (i = 0; i < toolbar->toolbar.action_count; ++i)
             if (toolbar->toolbar.actions[i].overflowable && !chosen[i])
                 ++overflow;
     } else {
-        XtUnmanageChild(toolbar->toolbar.overflow_button);
+        if (toolbar->toolbar.overflow_button != NULL)
+            XtUnmanageChild(toolbar->toolbar.overflow_button);
         for (i = 0; i < toolbar->toolbar.action_count; ++i)
-            XtUnmanageChild(toolbar->toolbar.actions[i].menu_button);
+            if (toolbar->toolbar.actions[i].menu_button != NULL)
+                XtUnmanageChild(toolbar->toolbar.actions[i].menu_button);
     }
     for (i = 0; i < toolbar->toolbar.action_count; ++i) {
         XmToolbarStoredAction *action = &toolbar->toolbar.actions[i];
         action->visible = chosen && chosen[i];
-        XtSetMappedWhenManaged(action->button, action->visible);
+        if (action->button != NULL)
+            XtSetMappedWhenManaged(action->button, action->visible);
         if (has_overflow && action->overflowable && !action->visible)
-            XtManageChild(action->menu_button);
-        else
+        {
+            if (action->menu_button != NULL)
+                XtManageChild(action->menu_button);
+        }
+        else if (action->menu_button != NULL)
             XtUnmanageChild(action->menu_button);
         if (action->visible) {
             Position placement = x > SHRT_MAX ? SHRT_MAX : (Position)x;
-            XmeConfigureObject(action->button, placement, 0, action_width[i],
-                               action_height[i], 0);
+            if (action->button != NULL)
+                XmeConfigureObject(action->button, placement, 0,
+                                   action_width[i], action_height[i], 0);
             if (x <= SHRT_MAX)
                 x += action_width[i] + toolbar->toolbar.spacing;
         }
@@ -313,8 +330,9 @@ static void layout(XmToolbarWidget toolbar)
         preferred(toolbar->toolbar.overflow_button, &width, &height);
         {
             Position placement = x > SHRT_MAX ? SHRT_MAX : (Position)x;
-            XmeConfigureObject(toolbar->toolbar.overflow_button, placement, 0,
-                               width, height, 0);
+            if (toolbar->toolbar.overflow_button != NULL)
+                XmeConfigureObject(toolbar->toolbar.overflow_button, placement,
+                                   0, width, height, 0);
         }
     }
     toolbar->toolbar.visible_count = visible;
