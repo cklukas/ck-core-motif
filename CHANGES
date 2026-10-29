@@ -1,3 +1,11 @@
+Bound Container fit edge arithmetic (2026-10-29)
+==================================================
+
+- Widen the right-to-left `TestFitItem` content-edge comparison before
+  subtracting the margin, preventing tiny allocations from wrapping through a
+  `Position` cast.
+- Add a focused source regression and document the placement contract.
+
 Bound Container growth edge arithmetic (2026-10-29)
 ====================================================
 

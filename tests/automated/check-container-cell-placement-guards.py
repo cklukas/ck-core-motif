@@ -17,4 +17,6 @@ fit_start = source.index("TestFitItem(\n    Widget")
 fit = source[fit_start:source.index("SetValues(", fit_start)]
 assert "trial_cell < 0 || trial_cell >= cw->container.cell_count" in fit
 assert "cw->container.cells == NULL" in fit
+assert "(int64_t)x > (int64_t)cw->core.width -" in fit
+assert "(Position)(cw->core.width - cw->container.margin_w)" not in fit
 print("PASS Container occupancy accesses validate grid and cell indices")

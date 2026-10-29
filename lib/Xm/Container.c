@@ -3421,7 +3421,8 @@ TestFitItem(
 	return(False);
     if (LayoutIsRtoLM(cw))
 	{
-	if (x > (Position)(cw->core.width - cw->container.margin_w))
+	if ((int64_t)x > (int64_t)cw->core.width -
+	    (int64_t)cw->container.margin_w)
 	    return(False);
 	}
     else
