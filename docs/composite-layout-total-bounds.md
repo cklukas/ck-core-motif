@@ -13,5 +13,9 @@ width before `XtCalloc` is called.
 Preferred-size queries and internal-child mapping are also null-safe, so a
 failed child creation cannot crash a later relayout.
 
+Runtime spacing changes now request a fresh preferred-size negotiation for both
+widgets, so the parent can resize them instead of leaving the new spacing
+clipped inside the old allocation.
+
 The contract is protected by
 `tests/automated/check-composite-layout-total-bounds.py`.

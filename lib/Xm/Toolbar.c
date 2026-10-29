@@ -394,10 +394,12 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 {
     XmToolbarWidget old = (XmToolbarWidget)old_widget;
     XmToolbarWidget toolbar = (XmToolbarWidget)widget;
+    Boolean spacing_changed = old->toolbar.spacing != toolbar->toolbar.spacing;
+    Boolean label_changed = old->toolbar.overflow_label != toolbar->toolbar.overflow_label;
     (void)request;
     (void)args;
     (void)count;
-    if (old->toolbar.overflow_label != toolbar->toolbar.overflow_label &&
+    if (label_changed &&
         toolbar->toolbar.overflow_button != NULL) {
         XmString label = XmStringCreateLocalized(
             toolbar->toolbar.overflow_label ? toolbar->toolbar.overflow_label : "");
@@ -407,8 +409,11 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             XmStringFree(label);
         }
     }
-    if (old->toolbar.spacing != toolbar->toolbar.spacing ||
-        old->toolbar.overflow_label != toolbar->toolbar.overflow_label) {
+    if (spacing_changed) {
+        negotiate(toolbar);
+        return True;
+    }
+    if (label_changed) {
         layout(toolbar);
         return True;
     }

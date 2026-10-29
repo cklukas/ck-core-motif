@@ -29116,6 +29116,8 @@ Saturate composite layout totals (2026-10-29)
   allocation size before calling `XtCalloc`.
 - Make preferred-size and internal-child mapping paths tolerate failed child
   creation during a later relayout.
+- Renegotiate parent geometry when Toolbar or StatusBar spacing changes at
+  runtime instead of only repainting within the old allocation.
 - Add focused source coverage and document the layout contract.
 
 Bound Toolbar layout allocation failure (2026-10-29)

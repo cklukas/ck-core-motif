@@ -278,7 +278,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     (void)args;
     (void)count;
     if (old->status_bar.spacing != bar->status_bar.spacing) {
-        layout(bar);
+        negotiate(bar);
         return True;
     }
     return False;
