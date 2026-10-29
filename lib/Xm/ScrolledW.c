@@ -78,6 +78,16 @@ scw_bounded_int(long long value)
     return (int)value;
 }
 
+static unsigned short
+scw_bounded_extent(long long value)
+{
+    if (value <= 0)
+	return 0;
+    if (value > USHRT_MAX)
+	return USHRT_MAX;
+    return (unsigned short)value;
+}
+
 /* Auto drag private ********/
 
 #define FORWARD 0
@@ -2779,26 +2789,28 @@ Cardinal * num_hrect)
     w = (Widget) scw->swindow.ClipWindow;
 
     /* The first rectangle is the one that makes the scrollbar goes left */
-    (*hrect)[0].x = 0 - scw->swindow.hScrollBar->core.x ;
-    (*hrect)[0].y = w->core.y - scw->swindow.hScrollBar->core.y ;
-    (*hrect)[0].width = MAX(2, w->core.x) ;
-    (*hrect)[0].height = w->core.height ;
+    (*hrect)[0].x = scw_bounded_position(
+	-(long long)scw->swindow.hScrollBar->core.x);
+    (*hrect)[0].y = scw_bounded_position((long long)w->core.y -
+	 scw->swindow.hScrollBar->core.y);
+    (*hrect)[0].width = scw_bounded_extent(MAX(2, w->core.x));
+    (*hrect)[0].height = scw_bounded_extent(w->core.height);
 
     /* The second rectangle is the one that makes the scrollbar goes right */
-    (*hrect)[1].x = w->core.x + w->core.width
-        - scw->swindow.hScrollBar->core.x ;
+    (*hrect)[1].x = scw_bounded_position((long long)w->core.x +
+	 w->core.width - scw->swindow.hScrollBar->core.x);
     (*hrect)[1].y = (*hrect)[0].y ;
     {
         int hwidth = (int)sw->core.width - (int)(*hrect)[1].x;
-        (*hrect)[1].width = hwidth > 2 ? (unsigned short)hwidth : 2;
+        (*hrect)[1].width = scw_bounded_extent(hwidth > 2 ? hwidth : 2);
     }
     /* if width too small, set it to 2 *inside* the SW frame */
     if ((*hrect)[1].width <= 2)
     {
         (*hrect)[1].width = 2 ;
-        (*hrect)[1].x -= 2 ;
+        (*hrect)[1].x = scw_bounded_position((long long)(*hrect)[1].x - 2);
     }
-    (*hrect)[1].height = (*hrect)[0].height ;
+    (*hrect)[1].height = (*hrect)[0].height;
 
 }
 
@@ -2837,26 +2849,28 @@ Cardinal * num_vrect)
     w = (Widget) scw->swindow.ClipWindow;
 
     /* The first rectangle is the one that makes the scrollbar goes up */
-    (*vrect)[0].x = w->core.x - scw->swindow.vScrollBar->core.x ;
-    (*vrect)[0].y = 0 - scw->swindow.vScrollBar->core.y ;
-    (*vrect)[0].width = w->core.width ;
-    (*vrect)[0].height = MAX(2, w->core.y) ;
+    (*vrect)[0].x = scw_bounded_position((long long)w->core.x -
+	 scw->swindow.vScrollBar->core.x);
+    (*vrect)[0].y = scw_bounded_position(
+	-(long long)scw->swindow.vScrollBar->core.y);
+    (*vrect)[0].width = scw_bounded_extent(w->core.width);
+    (*vrect)[0].height = scw_bounded_extent(MAX(2, w->core.y));
 
     /* The second rectangle is the one that makes the scrollbar goes down */
     (*vrect)[1].x = (*vrect)[0].x ;
-    (*vrect)[1].y = w->core.y + w->core.height
-        - scw->swindow.vScrollBar->core.y ;
+    (*vrect)[1].y = scw_bounded_position((long long)w->core.y +
+	 w->core.height - scw->swindow.vScrollBar->core.y);
     (*vrect)[1].width = (*vrect)[0].width ;
     {
         int vheight = (int)sw->core.height - (int)(*vrect)[1].y;
-        (*vrect)[1].height = vheight > 2 ? (unsigned short)vheight : 2;
+        (*vrect)[1].height = scw_bounded_extent(vheight > 2 ? vheight : 2);
     }
 
     /* if height too small, set it to 2 *inside* the SW frame */
     if ((*vrect)[1].height <= 2)
     {
         (*vrect)[1].height = 2 ;
-        (*vrect)[1].y -= 2 ;
+        (*vrect)[1].y = scw_bounded_position((long long)(*vrect)[1].y - 2);
     }
 }
 

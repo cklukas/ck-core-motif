@@ -29099,3 +29099,11 @@ Bound ScrolledWindow page arithmetic (2026-10-29)
 - Add focused source coverage and document the scrolling contract.
 
 Bound Frame child positions before X11 conversion (2026-10-29)
+Bound ScrolledWindow auto-scroll rectangles (2026-10-29)
+==========================================================
+
+- Clamp auto-scroll hotspot origins and extents before storing them in
+  `XRectangle` fields, preventing large work-area offsets from wrapping.
+- Add focused source coverage and document the autoscroll geometry contract.
+
+Bound ScrolledWindow page arithmetic (2026-10-29)
