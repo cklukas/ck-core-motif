@@ -62,6 +62,13 @@ Guard DataField state accessors (2026-10-29)
   context lookup while preserving established empty or no-op results.
 - Reject NULL selection output pointers and add focused accessor coverage.
 
+Guard DataField mutator context lookup (2026-10-29)
+===================================================
+
+- Return safely from DataField string, replacement, and insertion helpers when
+  the widget is NULL, before Xt context lookup.
+- Guard the last-position getter and add focused mutator coverage.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

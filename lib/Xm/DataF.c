@@ -12013,6 +12013,9 @@ XmDataFieldGetLastPosition(
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     XmTextPosition ret_val;
 
+    if (w == NULL)
+      return 0;
+
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
 
@@ -12041,6 +12044,9 @@ XmDataFieldSetString(
     int free_insert = False;
     int ret_val = 0;
     char * mod_value = NULL;
+
+    if (w == NULL)
+      return;
 
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
@@ -12162,6 +12168,9 @@ XmDataFieldSetStringWcs(
    int num_chars = 0;
    size_t result;
 
+   if (w == NULL)
+     return;
+
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
 
@@ -12230,6 +12239,9 @@ XmDataFieldReplace(
     wchar_t *wc_value;
     int length = 0;
     XmAnyCallbackStruct cb;
+
+    if (w == NULL)
+      return;
 
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);   
@@ -12354,6 +12366,9 @@ XmDataFieldReplaceWcs(
     size_t converted;
     XmAnyCallbackStruct cb;
 
+   if (w == NULL)
+     return;
+
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
 
@@ -12475,6 +12490,9 @@ XmDataFieldInsert(
         char *value )
 #endif /* _NO_PROTO */
 {
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);    
   _XmAppLock(app);  
 
@@ -12497,6 +12515,9 @@ XmDataFieldInsertWcs(
         wchar_t *wcstring )
 #endif /* _NO_PROTO */
 {
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);    
   _XmAppLock(app);    
 
