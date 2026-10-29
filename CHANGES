@@ -1,3 +1,10 @@
+Clamp Frame child positions before X11 conversion (2026-10-29)
+===============================================================
+
+- Saturate Frame child X coordinates before storing them in the signed X11
+  `Position` type, preventing wide-frame layouts from wrapping.
+- Add focused source coverage and document the geometry contract.
+
 Clamp TextOut margin-only viewports (2026-10-29)
 =================================================
 

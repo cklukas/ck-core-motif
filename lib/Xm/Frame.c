@@ -39,6 +39,16 @@ static char rcsid[] = "$XConsortium: Frame.c /main/18 1996/10/15 15:01:45 cde-os
 #include "RepTypeI.h"
 #include "XmI.h"
 
+static Position
+FrameClampPosition(long long value)
+{
+    if (value > SHRT_MAX)
+	return (Position)SHRT_MAX;
+    if (value < SHRT_MIN)
+	return (Position)SHRT_MIN;
+    return (Position)value;
+}
+
 #define GetFrameConstraint(w) \
         (&((XmFrameConstraintPtr) (w)->core.constraints)->frame)
 
@@ -470,7 +480,7 @@ ConfigureChildren(
 				 (int) childWidth - 2 * (int) childBW;
 		break;
 	}
-	childX = (Position) child_x;
+	childX = FrameClampPosition(child_x);
 	CalcTitleExtent (fw, childHeight, childBW,
 				&titleExtent, &childY, &shadowHeight, &shadowY);
 
