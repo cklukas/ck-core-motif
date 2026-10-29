@@ -95,16 +95,11 @@ layout_total_add(unsigned long total, Dimension width, Dimension spacing,
     return addition > ULONG_MAX - total ? ULONG_MAX : total + addition;
 }
 
-static void free_items(XmStatusBarWidget bar, Boolean destroy_children)
+static void release_items(XmStatusBarStoredItem *items, Cardinal count,
+                          Boolean destroy_children)
 {
-    XmStatusBarStoredItem *items = bar->status_bar.items;
-    Cardinal count = bar->status_bar.item_count;
     Cardinal i;
 
-    bar->status_bar.items = NULL;
-    bar->status_bar.item_count = 0;
-    bar->status_bar.visible_count = 0;
-    bar->status_bar.overflow_count = 0;
     for (i = 0; i < count; ++i) {
         if (destroy_children && items[i].child)
             XtDestroyWidget(items[i].child);
@@ -113,6 +108,18 @@ static void free_items(XmStatusBarWidget bar, Boolean destroy_children)
         XmStringFree(items[i].display);
     }
     XtFree((char *)items);
+}
+
+static void free_items(XmStatusBarWidget bar, Boolean destroy_children)
+{
+    XmStatusBarStoredItem *items = bar->status_bar.items;
+    Cardinal count = bar->status_bar.item_count;
+
+    bar->status_bar.items = NULL;
+    bar->status_bar.item_count = 0;
+    bar->status_bar.visible_count = 0;
+    bar->status_bar.overflow_count = 0;
+    release_items(items, count, destroy_children);
 }
 
 static void preferred(Widget child, Dimension *width, Dimension *height)
@@ -350,7 +357,9 @@ void XmStatusBarSetItems(Widget widget, const XmStatusBarItem *items,
                          Cardinal count)
 {
     XmStatusBarWidget bar;
-    Cardinal i;
+    XmStatusBarStoredItem *replacement = NULL;
+    XmStatusBarStoredItem *old_items;
+    Cardinal old_count, i;
 
     if (!widget || !XmIsStatusBar(widget) || (count && !items))
         return;
@@ -358,35 +367,56 @@ void XmStatusBarSetItems(Widget widget, const XmStatusBarItem *items,
     if (count && ((size_t)count > SIZE_MAX / sizeof(*bar->status_bar.items) ||
                   (size_t)count > UINT_MAX / sizeof(*bar->status_bar.items)))
         return;
-    bar->status_bar.laying_out = True;
-    free_items(bar, True);
     if (count) {
-        bar->status_bar.items = (XmStatusBarStoredItem *)XtCalloc(
-            count, sizeof(*bar->status_bar.items));
-        if (bar->status_bar.items == NULL) {
+        replacement = (XmStatusBarStoredItem *)XtCalloc(
+            count, sizeof(*replacement));
+        if (replacement == NULL) {
             XtWarning("XmStatusBarSetItems: unable to allocate item array");
-            bar->status_bar.laying_out = False;
             return;
         }
     }
+    bar->status_bar.laying_out = True;
     for (i = 0; i < count; ++i) {
         XmString display;
-        XmStatusBarStoredItem *stored = &bar->status_bar.items[i];
+        XmStatusBarStoredItem *stored = &replacement[i];
         stored->id = XtNewString(items[i].id ? items[i].id : "");
         stored->label = string_copy(items[i].label);
-        stored->display = NULL;
         stored->kind = items[i].kind;
         stored->priority = items[i].priority;
         stored->value = items[i].value;
         stored->maximum = items[i].maximum;
         stored->user_data = items[i].user_data;
+        if (stored->id == NULL || stored->label == NULL) {
+            release_items(replacement, i + 1, True);
+            bar->status_bar.laying_out = False;
+            XtWarning("XmStatusBarSetItems: unable to copy item text");
+            return;
+        }
         display = display_string(&items[i]);
+        if (display == NULL) {
+            release_items(replacement, i + 1, True);
+            bar->status_bar.laying_out = False;
+            XtWarning("XmStatusBarSetItems: unable to build item label");
+            return;
+        }
+        stored->display = display;
         stored->child = XtVaCreateManagedWidget(
             "item", xmLabelWidgetClass, widget, XmNlabelString, display,
             XmNborderWidth, 0, XmNrecomputeSize, True, NULL);
-        XmStringFree(display);
+        if (stored->child == NULL) {
+            release_items(replacement, i + 1, True);
+            bar->status_bar.laying_out = False;
+            XtWarning("XmStatusBarSetItems: unable to create item widget");
+            return;
+        }
     }
+    old_items = bar->status_bar.items;
+    old_count = bar->status_bar.item_count;
+    bar->status_bar.items = replacement;
     bar->status_bar.item_count = count;
+    bar->status_bar.visible_count = 0;
+    bar->status_bar.overflow_count = count;
+    release_items(old_items, old_count, True);
     bar->status_bar.laying_out = False;
     layout(bar);
     negotiate(bar);

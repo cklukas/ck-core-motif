@@ -19,6 +19,15 @@ Guard EmptyState child allocation failures (2026-10-29)
   initialization, layout, and resource updates.
 - Add focused source coverage and document the recovery behavior.
 
+Make StatusBar item replacement transactional (2026-10-30)
+=============================================================
+
+- Build and validate replacement items before releasing the current status
+  bar, preserving the existing presentation on allocation or child-creation
+  failure.
+- Retain generated display strings for owned cleanup and add focused coverage
+  and documentation.
+
 Guard AutoSuggestBox child allocation failures (2026-10-30)
 =============================================================
 
