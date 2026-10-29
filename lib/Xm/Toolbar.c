@@ -397,6 +397,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     (void)request;
     (void)args;
     (void)count;
+    if (old->toolbar.overflow_label != toolbar->toolbar.overflow_label &&
+        toolbar->toolbar.overflow_button != NULL) {
+        XmString label = XmStringCreateLocalized(
+            toolbar->toolbar.overflow_label ? toolbar->toolbar.overflow_label : "");
+        if (label != NULL) {
+            XtVaSetValues(toolbar->toolbar.overflow_button,
+                          XmNlabelString, label, NULL);
+            XmStringFree(label);
+        }
+    }
     if (old->toolbar.spacing != toolbar->toolbar.spacing ||
         old->toolbar.overflow_label != toolbar->toolbar.overflow_label) {
         layout(toolbar);

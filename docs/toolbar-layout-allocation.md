@@ -12,3 +12,7 @@ memory pressure is relieved.
 
 The contract is protected by
 `tests/automated/check-toolbar-layout-allocation.py`.
+
+Changing `XmNtoolbarOverflowLabel` also updates the already-created overflow
+button immediately; the resource no longer requires destroying and recreating
+the toolbar to become visible.

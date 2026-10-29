@@ -29123,6 +29123,7 @@ Bound Toolbar layout allocation failure (2026-10-29)
 
 - Contain scratch-array allocation failures before action selection can
   dereference null arrays; hide stale actions and report them as overflow.
+- Refresh the realized overflow button when `XmNtoolbarOverflowLabel` changes.
 - Add focused source coverage and document the recovery behavior.
 
 Bound ScrolledWindow scrollbar extents (2026-10-29)
