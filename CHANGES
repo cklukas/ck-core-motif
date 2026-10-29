@@ -1,3 +1,10 @@
+Guard SimpleSpinBox text-child allocation failures (2026-10-30)
+===============================================================
+
+- Stop initialization before querying an unavailable text child and make the
+  public item APIs no-op safely when that child is missing.
+- Add focused source coverage and documentation.
+
 Guard ScrolledWindow clip allocation failures (2026-10-30)
 ===========================================================
 

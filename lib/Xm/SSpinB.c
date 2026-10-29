@@ -415,6 +415,11 @@ Initialize(Widget	request,	/* unused */
 						xmTextFieldWidgetClass,
 						(Widget) new,
 						args, nargs);
+	if (ssb_p->text_field == NULL)
+	{
+	    XtFree(widget_name);
+	    return;
+	}
     XtSetValues(ssb_p->text_field, args, nargs);
 
     textf_c = SB_GetConstraintRec(ssb_p->text_field);
@@ -871,6 +876,9 @@ XmSimpleSpinBoxAddItem(	Widget		ssb_w,
     int			new_nvalues;
     int			new_position;
     int			i;
+
+    if (ssb_p->text_field == NULL)
+	return;
     _XmWidgetToAppContext(ssb_w);
 
     _XmAppLock(app);
@@ -1010,6 +1018,9 @@ XmSimpleSpinBoxDeletePos(
     int			new_nvalues;
     int			new_position;
     XmStringTable	values;
+
+    if (ssb_p->text_field == NULL)
+	return;
     _XmWidgetToAppContext(ssb_w);
 
     _XmAppLock(app);
@@ -1136,6 +1147,9 @@ XmSimpleSpinBoxSetItem(	Widget		ssb_w,
     XmSpinBoxConstraint	textf_c;
     int			pos;
     Arg			args[1];
+
+    if (ssb_p->text_field == NULL)
+	return;
     _XmWidgetToAppContext(ssb_w);
 
     _XmAppLock(app);
