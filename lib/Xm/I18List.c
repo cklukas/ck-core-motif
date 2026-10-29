@@ -3335,7 +3335,7 @@ XmI18ListDoSearch(Widget w, String str, Boolean reset)
 XmMultiListRowInfo *XmI18ListFindRow(Widget w, String str, int *found_column,
 			      Boolean reset, Boolean do_visual)
 {
-    if (w == (Widget) NULL)
+    if (w == (Widget) NULL || str == NULL || found_column == NULL)
 	return NULL;
 
     XmI18ListWidget ilist = (XmI18ListWidget) w;

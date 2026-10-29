@@ -32,3 +32,16 @@ assert search.index("if (w == NULL || str == NULL)") < search.index(
 )
 
 print("PASS I18List selection and search APIs validate inputs")
+
+find_matches = list(re.finditer(
+    r"(?m)^XmMultiListRowInfo \*XmI18ListFindRow\(Widget w, String str, int \*found_column,",
+    source,
+))
+assert find_matches
+find_start = find_matches[-1].start()
+find_end = source.index("\n/*  Function Name:", find_start)
+find = source[find_start:find_end]
+assert "if (w == (Widget) NULL || str == NULL || found_column == NULL)" in find
+assert find.index("if (w == (Widget) NULL") < find.index(
+    "XmStringCreateLocalized(str)"
+)

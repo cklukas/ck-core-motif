@@ -101,7 +101,8 @@ Guard I18List search inputs (2026-10-29)
 ========================================
 
 - Reject NULL widgets before row access in `XmI18ListGetSelectedRows` and
-  reject NULL widgets or search strings before `XmI18ListDoSearch` conversion.
+  reject NULL widgets or search strings before I18List search conversion.
+- Reject a NULL `XmI18ListFindRow` search string or output-column pointer.
 - Add focused selection/search input coverage.
 
 Guard SpinBox validation value input (2026-10-29)
