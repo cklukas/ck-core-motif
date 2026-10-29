@@ -28796,3 +28796,12 @@ Negotiate ScrolledWindow live-scale geometry (2026-10-29)
   application sizes; add source coverage and document the live-scale contract.
 
 Preserve StatusBar items on oversized replacement input (2026-10-29)
+Preserve RowActions items on oversized replacement input (2026-10-29)
+======================================================================
+
+- Validate the item-array size before tearing down the current action strip,
+  so malformed oversized input cannot erase working actions.
+- Preserve valid replacement and allocation-failure behavior; add a source
+  regression and document the state-preservation contract.
+
+Negotiate ScrolledWindow live-scale geometry (2026-10-29)

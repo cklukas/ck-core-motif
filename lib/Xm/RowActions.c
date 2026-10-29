@@ -216,6 +216,11 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
     XmRowActionsWidget actions; Cardinal i;
     if (!widget || !XmIsRowActions(widget) || (count && !items)) return;
     actions = (XmRowActionsWidget)widget;
+    if (count && ((size_t)count > SIZE_MAX / sizeof(*actions->actions.items) ||
+                  (size_t)count > UINT_MAX / sizeof(*actions->actions.items))) {
+        XtWarning("XmRowActionsSetItems: item array is too large");
+        return;
+    }
     /* Child creation can synchronously invoke ChangeManaged.  Keep the
      * aggregate in its initialization phase until every item slot is filled;
      * otherwise geometry negotiation observes a partially initialized array
@@ -223,12 +228,6 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
     actions->actions.initializing = True;
     free_items(actions, True);
     if (count) {
-        if ((size_t)count > SIZE_MAX / sizeof(*actions->actions.items) ||
-            (size_t)count > UINT_MAX / sizeof(*actions->actions.items)) {
-            XtWarning("XmRowActionsSetItems: item array is too large");
-            actions->actions.initializing = False;
-            return;
-        }
         actions->actions.items = (XmRowActionsStoredItem *)XtCalloc(count, sizeof(*actions->actions.items));
         if (!actions->actions.items) {
             XtWarning("XmRowActionsSetItems: unable to allocate item array");
