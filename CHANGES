@@ -29065,3 +29065,11 @@ Bound List hit-test top edge (2026-10-29)
 - Add focused source coverage and document the hit-test contract.
 
 Bound TextOut visibility edges (2026-10-29)
+Bound List position-to-bounds origins (2026-10-29)
+====================================================
+
+- Widen and clamp `XmListPosToBounds` X/Y origins before returning them as X11
+  `Position` values, preventing row-offset and margin arithmetic from wrapping.
+- Add focused source coverage and document the public geometry contract.
+
+Bound List hit-test top edge (2026-10-29)

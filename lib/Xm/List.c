@@ -10409,7 +10409,7 @@ XmListPosToBounds(Widget      w,
 
   ht = MAX((int)lw->list.HighlightThickness, 0);
 
-  ix = lw->list.BaseX - ht;
+  ix = bounded_position((long long)lw->list.BaseX - ht);
   {
     int available_width = (int)lw->core.width -
       2 * ((int)lw->list.margin_width +
@@ -10417,7 +10417,9 @@ XmListPosToBounds(Widget      w,
     iwidth = available_width > 0 ? (Dimension)available_width : 0;
   }
 
-  iy = LINEHEIGHTS(lw, position - lw->list.top_position) + lw->list.BaseY - ht;
+  iy = bounded_position((long long)LINEHEIGHTS(lw,
+		position - lw->list.top_position) +
+	    (long long)lw->list.BaseY - ht);
   iheight = lw->list.MaxItemHeight + (2 * ht);
 
   if (x      != NULL)   *x      = ix;
