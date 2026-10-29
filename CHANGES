@@ -29107,6 +29107,13 @@ Bound ScrolledWindow auto-scroll rectangles (2026-10-29)
 - Add focused source coverage and document the autoscroll geometry contract.
 
 Bound ScrolledWindow page arithmetic (2026-10-29)
+Saturate composite layout totals (2026-10-29)
+==============================================
+
+- Prevent Toolbar and StatusBar accumulated width totals from wrapping on
+  32-bit platforms, which could select items that do not fit.
+- Add focused source coverage and document the layout contract.
+
 Bound Toolbar layout allocation failure (2026-10-29)
 =====================================================
 

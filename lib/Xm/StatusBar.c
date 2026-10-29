@@ -81,6 +81,20 @@ static XmString display_string(const XmStatusBarItem *item)
     }
 }
 
+static unsigned long
+layout_total_add(unsigned long total, Dimension width, Dimension spacing,
+                 Boolean separated)
+{
+    unsigned long addition = (unsigned long)width;
+
+    if (separated) {
+        if (addition > ULONG_MAX - (unsigned long)spacing)
+            return ULONG_MAX;
+        addition += (unsigned long)spacing;
+    }
+    return addition > ULONG_MAX - total ? ULONG_MAX : total + addition;
+}
+
 static void free_items(XmStatusBarWidget bar, Boolean destroy_children)
 {
     XmStatusBarStoredItem *items = bar->status_bar.items;
@@ -120,9 +134,8 @@ static void natural(XmStatusBarWidget bar, Dimension *width, Dimension *height)
     *height = 1;
     for (i = 0; i < bar->status_bar.item_count; ++i) {
         preferred(bar->status_bar.items[i].child, &child_width, &child_height);
-        total += child_width;
-        if (i)
-            total += bar->status_bar.spacing;
+        total = layout_total_add(total, child_width, bar->status_bar.spacing,
+                                 i != 0);
         if (child_height > *height)
             *height = child_height;
     }
@@ -171,10 +184,12 @@ static void layout(XmStatusBarWidget bar)
         if (candidate == bar->status_bar.item_count)
             break;
         preferred(bar->status_bar.items[candidate].child, &width, &height);
-        if (visible && total + bar->status_bar.spacing + width > bar->core.width)
+        if (visible && layout_total_add(total, width, bar->status_bar.spacing,
+                                        True) > bar->core.width)
             continue;
         chosen[candidate] = True;
-        total += width + (visible ? bar->status_bar.spacing : 0);
+        total = layout_total_add(total, width, bar->status_bar.spacing,
+                                 visible != 0);
         ++visible;
     }
     if (!visible && bar->status_bar.item_count) {

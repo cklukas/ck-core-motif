@@ -87,6 +87,20 @@ static XmString action_label(const XmToolbarAction *action)
     return result;
 }
 
+static unsigned long
+layout_total_add(unsigned long total, Dimension width, Dimension spacing,
+                 Boolean separated)
+{
+    unsigned long addition = (unsigned long)width;
+
+    if (separated) {
+        if (addition > ULONG_MAX - (unsigned long)spacing)
+            return ULONG_MAX;
+        addition += (unsigned long)spacing;
+    }
+    return addition > ULONG_MAX - total ? ULONG_MAX : total + addition;
+}
+
 static void free_actions(XmToolbarWidget toolbar, Boolean destroy_children)
 {
     XmToolbarStoredAction *actions = toolbar->toolbar.actions;
@@ -155,7 +169,8 @@ static Cardinal choose_actions(XmToolbarWidget toolbar, Boolean *chosen,
         action_height[i] = height;
         if (!toolbar->toolbar.actions[i].overflowable) {
             chosen[i] = True;
-            total += width + (selected ? toolbar->toolbar.spacing : 0);
+            total = layout_total_add(total, width, toolbar->toolbar.spacing,
+                                     selected != 0);
             ++selected;
         }
     }
@@ -172,15 +187,16 @@ static Cardinal choose_actions(XmToolbarWidget toolbar, Boolean *chosen,
         }
         if (candidate == toolbar->toolbar.action_count)
             break;
-        if (total && total + toolbar->toolbar.spacing + action_width[candidate] >
+        if (total && layout_total_add(total, action_width[candidate],
+                                      toolbar->toolbar.spacing, True) >
                          toolbar->core.width)
             break;
         if (!total && action_width[candidate] > toolbar->core.width &&
             toolbar->core.width)
             break;
         chosen[candidate] = True;
-        total += action_width[candidate] +
-                 (selected ? toolbar->toolbar.spacing : 0);
+        total = layout_total_add(total, action_width[candidate],
+                                 toolbar->toolbar.spacing, selected != 0);
         ++selected;
     }
     return selected;
@@ -236,8 +252,10 @@ static void layout(XmToolbarWidget toolbar)
         total = 0;
         for (i = 0; i < toolbar->toolbar.action_count; ++i)
             if (chosen[i])
-                total += action_width[i] + (total ? toolbar->toolbar.spacing : 0);
-        while (visible && total + toolbar->toolbar.spacing + width >
+                total = layout_total_add(total, action_width[i],
+                                         toolbar->toolbar.spacing, total != 0);
+        while (visible && layout_total_add(total, width,
+                                           toolbar->toolbar.spacing, True) >
                               toolbar->core.width) {
             Cardinal candidate = toolbar->toolbar.action_count;
             unsigned char priority = UCHAR_MAX;
@@ -254,7 +272,9 @@ static void layout(XmToolbarWidget toolbar)
             total = 0;
             for (i = 0; i < toolbar->toolbar.action_count; ++i)
                 if (chosen[i])
-                    total += action_width[i] + (total ? toolbar->toolbar.spacing : 0);
+                    total = layout_total_add(total, action_width[i],
+                                             toolbar->toolbar.spacing,
+                                             total != 0);
         }
         XtManageChild(toolbar->toolbar.overflow_button);
         overflow = 0;
