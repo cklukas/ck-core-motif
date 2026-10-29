@@ -9058,6 +9058,11 @@ ChangeOutlineButtons(
 	if (CtrOUTLINE_BUTTON(cwid))
 	    {
 	    c = GetContainerConstraint(cwid);
+	    if (c == NULL || c->related_cwid == NULL)
+		continue;
+	    c = GetContainerConstraint(c->related_cwid);
+	    if (c == NULL)
+		continue;
 	    if (c->outline_state == XmEXPANDED)
 		pm = cw->container.expanded_state_pixmap;
 	    else

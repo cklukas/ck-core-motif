@@ -1,3 +1,11 @@
+Container disclosure refresh follows row state (2026-10-29)
+==============================================================
+
+- Make `XmContainer` refresh synthetic disclosure buttons from their
+  associated row's `outline_state`, preserving expanded/collapsed pixmaps.
+- Skip detached or incomplete synthetic gadgets safely and add focused source
+  contract coverage.
+
 Bound I18List selected-fill Y advancement (2026-10-29)
 ========================================================
 
