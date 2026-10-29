@@ -4351,6 +4351,9 @@ XmI18ListGetSelectedRowArray(XmI18ListWidget i18list,
 void
 XmI18ListMakeRowVisible(XmI18ListWidget i18list, int row)
 {
+    if (i18list == NULL)
+	return;
+
     /* Use column zero as a rule when making a row visible... */
     MakeCellVisible((Widget) i18list, row, 0);
 }

@@ -117,6 +117,7 @@ Guard I18List row helpers (2026-10-29)
 
 - Validate I18List row-helper widgets before row storage access or Xt context
   lookup in selected-row retrieval and selection wrappers.
+- Return safely from the row-visibility wrapper when its list is NULL.
 - Add focused shared-helper input coverage.
 
 Clamp appearance arrow inset positions (2026-10-29)

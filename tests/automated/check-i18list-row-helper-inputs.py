@@ -28,4 +28,12 @@ for name in ("SelectRow(", "SelectItems("):
         "XmI18List_row_data(i18list)"
     )
 
+visible_start = source.index("XmI18ListMakeRowVisible(XmI18ListWidget i18list, int row)")
+visible_end = source.index("\n}\n", visible_start)
+visible = source[visible_start:visible_end]
+assert "if (i18list == NULL)" in visible
+assert visible.index("if (i18list == NULL)") < visible.index(
+    "MakeCellVisible"
+)
+
 print("PASS I18List row helpers validate widgets before row access")
