@@ -28805,3 +28805,12 @@ Preserve RowActions items on oversized replacement input (2026-10-29)
   regression and document the state-preservation contract.
 
 Negotiate ScrolledWindow live-scale geometry (2026-10-29)
+Preserve AutoSuggest suggestions on oversized replacement input (2026-10-29)
+=============================================================================
+
+- Validate suggestion-array size before opening or clearing the popup model, so
+  malformed oversized input cannot erase current suggestions.
+- Preserve valid replacement and allocation-failure behavior; add a source
+  regression and document the state-preservation contract.
+
+Preserve RowActions items on oversized replacement input (2026-10-29)

@@ -415,6 +415,9 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
     if (!widget || !XmIsAutoSuggestBox(widget) || (count && !items))
         return False;
     box = (XmAutoSuggestBoxWidget)widget;
+    if (count && ((size_t)count > SIZE_MAX / sizeof(*box->auto_suggest.items) ||
+                  (size_t)count > (size_t)UINT_MAX / sizeof(*box->auto_suggest.items)))
+        return False;
     if (generation != box->auto_suggest.generation)
         return False;
     create_popup(box);
@@ -423,11 +426,6 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
     free_items(box);
     XmListDeleteAllItems(box->auto_suggest.list);
     if (count) {
-        if ((size_t)count > SIZE_MAX / sizeof(*box->auto_suggest.items) ||
-            (size_t)count > (size_t)UINT_MAX / sizeof(*box->auto_suggest.items)) {
-            box->auto_suggest.no_results = True;
-            return False;
-        }
         box->auto_suggest.items = (XmAutoSuggestStoredItem *)XtCalloc(
             count, sizeof(*box->auto_suggest.items));
         if (!box->auto_suggest.items) {
