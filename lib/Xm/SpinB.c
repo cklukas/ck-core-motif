@@ -3074,6 +3074,18 @@ XmSpinBoxValidatePosition(Widget text_field, int *position)
     }
 
   string = textT->getValue(text_field, XmFORMAT_MBYTE);
+  if (string == NULL)
+    {
+      if (position)
+	{
+	  XtArgVal external_position = wc->position;
+          GetPositionValue(text_field, positionOffset, &external_position);
+	  *position = (int)external_position;
+	}
+
+      _XmAppUnlock(app);
+      return(XmCURRENT_VALUE);
+    }
   parsed = ParseNumericPosition(string, wc->decimal_points, &iPosition);
   XtFree(string);
   if (parsed == SpinInvalid)

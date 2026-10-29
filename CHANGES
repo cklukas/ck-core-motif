@@ -104,6 +104,13 @@ Guard I18List search inputs (2026-10-29)
   reject NULL widgets or search strings before `XmI18ListDoSearch` conversion.
 - Add focused selection/search input coverage.
 
+Guard SpinBox validation value input (2026-10-29)
+=================================================
+
+- Preserve the current position when the SpinBox access-text trait returns a
+  NULL string, instead of passing it to numeric parsing.
+- Add focused validation coverage for the missing-value path.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

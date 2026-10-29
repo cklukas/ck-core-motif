@@ -342,6 +342,7 @@ nav:
       - docs/datafield-selection-geometry.md
       - docs/datafield-baseline-input.md
       - docs/i18list-search-inputs.md
+      - docs/spinbox-value-input.md
       - docs/toggle-gadget-inputs.md
       - docs/textfield-timer-scroll-bounds.md
       - docs/textfield-transfer-lengths.md
