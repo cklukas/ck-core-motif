@@ -538,8 +538,11 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
             "overflowAction", xmPushButtonWidgetClass,
             toolbar->toolbar.overflow_menu, XmNlabelString, label,
             XmNborderWidth, 0, NULL);
-        XtAddCallback(stored->button, XmNactivateCallback, activate, toolbar);
-        XtAddCallback(stored->menu_button, XmNactivateCallback, activate, toolbar);
+        if (stored->button != NULL)
+            XtAddCallback(stored->button, XmNactivateCallback, activate, toolbar);
+        if (stored->menu_button != NULL)
+            XtAddCallback(stored->menu_button, XmNactivateCallback, activate,
+                          toolbar);
         XmStringFree(label);
     }
     toolbar->toolbar.action_count = count;
@@ -561,6 +564,8 @@ void XmToolbarSetActionIcons(Widget widget, const Pixmap *icons,
     for (i = 0; i < count; ++i) {
         Arg args[2];
         toolbar->toolbar.actions[i].icon = icons[i];
+        if (toolbar->toolbar.actions[i].button == NULL)
+            continue;
         if (icons[i] != None && icons[i] != XmUNSPECIFIED_PIXMAP) {
             XtSetArg(args[0], XmNlabelType, XmPIXMAP);
             XtSetArg(args[1], XmNlabelPixmap, icons[i]);

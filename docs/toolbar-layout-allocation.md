@@ -16,3 +16,7 @@ The contract is protected by
 Changing `XmNtoolbarOverflowLabel` also updates the already-created overflow
 button immediately; the resource no longer requires destroying and recreating
 the toolbar to become visible.
+
+Action callback registration and icon updates also tolerate an internal button
+creation failure, allowing the remaining model and layout state to survive
+allocation pressure.
