@@ -7,5 +7,9 @@ now returns safely for a missing array and skips an item whose unparse failed,
 without passing a null pointer to `mbstowcs` or changing successful item
 serialization.
 
+The public `XmDropDownGetValue` helper also rejects non-DropDown widget
+handles before accessing the private text child.  Valid DropDown and
+CombinationBox2 alias behavior is unchanged.
+
 The regression contract is checked by
 `tests/automated/check-dropdown-selection-inputs.py`.

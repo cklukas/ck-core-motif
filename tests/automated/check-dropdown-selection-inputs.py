@@ -11,4 +11,7 @@ assert "if (count > 0 && items == NULL)" in body
 assert "if (ptr == NULL)" in body
 assert body.index("if (ptr == NULL)") < body.index("len = mbstowcs")
 
+getter = source[source.index("XmDropDownGetValue(Widget w)") :]
+assert "if (w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))" in getter
+
 print("DropDown list-to-text conversion guards missing selected item data")

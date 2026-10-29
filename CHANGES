@@ -1,3 +1,10 @@
+Guard DropDown value getter widget class (2026-10-29)
+=======================================================
+
+- Make `XmDropDownGetValue` reject non-DropDown handles before reading the
+  private text child; the deprecated CombinationBox2 alias inherits the guard.
+- Extend the DropDown input contract and documentation.
+
 Ignore disabled Container disclosure actions (2026-10-29)
 ===========================================================
 

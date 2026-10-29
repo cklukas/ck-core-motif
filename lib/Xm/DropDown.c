@@ -2608,7 +2608,7 @@ XmDropDownGetValue(Widget w)
     XmDropDownWidget cbw = (XmDropDownWidget) w;
     String ptr;
 
-    if (w == NULL)
+    if (w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
         return NULL;
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
