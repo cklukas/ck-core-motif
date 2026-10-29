@@ -28863,4 +28863,14 @@ Bound ScrolledWindow viewports in tiny allocations (2026-10-29)
   tiny sizes while retaining normal layout behavior.
 - Add source regression coverage and document the containment contract.
 
+Keep List horizontal-scrollbar decisions valid at tiny allocations (2026-10-29)
+================================================================================
+
+- Keep the available List viewport width signed before comparing it with
+  content width, preventing a negative width from wrapping to a huge
+  `Dimension` and hiding a required scrollbar.
+- Track the horizontal scrollbar when taking the before/after managed-state
+  snapshot so ScrolledWindow navigator updates report the actual change.
+- Add a source regression and document the sizing contract.
+
 Make DataGrid selection callbacks change-sensitive (2026-10-29)

@@ -3053,7 +3053,7 @@ static Boolean
 SetHorizontalScrollbar(XmListWidget lw)
 {
   Arg hSBArgs[1];
-  int j = 0, listwidth;
+  int j = 0, listwidth, available_width;
   Dimension pginc;
   XmNavigatorDataRec nav_data;
   Boolean was_managed, is_managed;
@@ -3069,11 +3069,19 @@ SetHorizontalScrollbar(XmListWidget lw)
 					 lw->list.HighlightThickness +
 					 lw->primitive.shadow_thickness);
 
-  was_managed = XtIsManaged((Widget) lw->list.vScrollBar);
+  /* Snapshot the horizontal navigator: this function only changes hScrollBar. */
+  was_managed = XtIsManaged((Widget) lw->list.hScrollBar);
   if (lw->list.ScrollBarDisplayPolicy == XmAS_NEEDED)
     {
       /* CR 9663: Hide scrollbars in empty lists. */
-      if ((lw->list.MaxWidth <= (Dimension)listwidth) || 
+
+      /* Keep the available width signed before comparing it with MaxWidth.
+       * A tiny allocation can make listwidth negative; converting that value
+       * to Dimension would wrap it to a huge unsigned width and hide the
+       * scrollbar even when long content still requires it.
+       */
+      available_width = (listwidth > 0) ? listwidth : 0;
+      if ((int)lw->list.MaxWidth <= available_width ||
 	  (lw->list.itemCount == 0))
 	{
 	  lw->list.BaseX = bounded_position((long long)lw->list.margin_width +
@@ -3088,7 +3096,7 @@ SetHorizontalScrollbar(XmListWidget lw)
     }
   else
     XtManageChild((Widget) lw->list.hScrollBar);
-  is_managed = XtIsManaged((Widget) lw->list.vScrollBar);
+  is_managed = XtIsManaged((Widget) lw->list.hScrollBar);
 
 
   if (lw->list.items && lw->list.itemCount)
