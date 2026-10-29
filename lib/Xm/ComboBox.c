@@ -2430,6 +2430,9 @@ CBGetSelectedPos(Widget    widget,
   int *pos, count;
   int result;
 
+  if (widget == NULL || value == NULL)
+    return;
+
   /* Using XmListGetSelectedPos would copy the positions array. */
   nargs = 0;
   XtSetArg(args[nargs], XmNselectedPositions, &pos),		nargs++;

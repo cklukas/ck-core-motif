@@ -12,6 +12,13 @@ Reject invalid zero-based ComboBox imports (2026-10-29)
   converting to List position zero, which would select the last item.
 - Extend the focused ComboBox import contract check.
 
+Guard ComboBox selected-position exports (2026-10-29)
+======================================================
+
+- Return safely when the synthetic export receives a NULL widget or output
+  pointer before consulting the child List.
+- Extend the focused selected-position pointer check.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 
