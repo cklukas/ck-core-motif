@@ -9671,6 +9671,9 @@ OutlineButtonAction(
 	unsigned char	new_state,
         XEvent		*event)
 {
+    if (cwid == NULL || !XtIsSensitive(cwid))
+	return;
+
     XmContainerWidget cw = (XmContainerWidget)XtParent(cwid);
     XmContainerConstraint c = GetContainerConstraint(cwid);
     XmGadget g = (XmGadget)cwid;

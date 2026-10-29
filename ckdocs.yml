@@ -81,6 +81,7 @@ nav:
       - docs/image-data-input.md
       - docs/clip-window-translation-inputs.md
       - docs/scrollbar-api-inputs.md
+      - docs/container-disclosure-sensitivity.md
       - docs/drag-cancel-inputs.md
       - docs/drag-source-inputs.md
       - docs/drag-start-inputs.md

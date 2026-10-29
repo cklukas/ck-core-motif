@@ -1,3 +1,11 @@
+Ignore disabled Container disclosure actions (2026-10-29)
+===========================================================
+
+- Make `OutlineButtonAction` return before state changes or callbacks when its
+  row is missing or insensitive.
+- Add focused disabled-row disclosure coverage and document the preserved
+  enabled-row behavior.
+
 Guard ComboBox compatibility getter widget class (2026-10-29)
 ===============================================================
 
