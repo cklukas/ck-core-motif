@@ -1683,7 +1683,7 @@ static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   XmAccessibleInfo info;
   char *local, *result;
-  size_t capacity;
+  size_t capacity, span;
   int status;
   if (!n || start < 0 || end < start || !XmAccessibilityQuery(a, id, &info))
     return NULL;
@@ -1705,18 +1705,22 @@ static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
   }
   if (!n->widget || (!XmIsText(n->widget) && !XmIsTextField(n->widget)))
     return NULL;
-  if ((size_t)(end - start) > (INT_MAX - 1) / MB_CUR_MAX)
+  /* Compute the non-negative range before narrowing it to an int.  The
+   * signed subtraction can overflow for a large accessibility request even
+   * though both endpoints have already passed their ordering checks. */
+  span = (size_t)end - (size_t)start;
+  if (span > (size_t)(INT_MAX - 1) / MB_CUR_MAX)
     return NULL;
-  capacity = (size_t)(end - start) * MB_CUR_MAX + 1;
+  capacity = span * MB_CUR_MAX + 1;
   if (capacity > (size_t)((Cardinal)~0))
     return NULL;
   local = XtMalloc((Cardinal)capacity);
   if (local == NULL)
     return NULL;
   status = XmIsText(n->widget)
-               ? XmTextGetSubstring(n->widget, start, end - start,
+               ? XmTextGetSubstring(n->widget, start, (int)span,
                                     (int)capacity, local)
-               : XmTextFieldGetSubstring(n->widget, start, end - start,
+               : XmTextFieldGetSubstring(n->widget, start, (int)span,
                                          (int)capacity, local);
   if (status != XmCOPY_SUCCEEDED) {
     XtFree(local);
