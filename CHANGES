@@ -1,3 +1,11 @@
+Guard Command convenience API widget classes (2026-10-29)
+===========================================================
+
+- Make Command child, value, append, and error helpers reject non-Command
+  handles before context lookup and private-state access.
+- Add focused public-input coverage and document the unchanged valid-widget
+  behavior.
+
 Guard DropDown value getter widget class (2026-10-29)
 =======================================================
 

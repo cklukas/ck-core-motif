@@ -963,7 +963,7 @@ XmCommandGetChild(
 {
     XmCommandWidget   w = (XmCommandWidget)widget;
     Widget ret_widget = NULL;
-    if (widget == NULL)
+    if (widget == NULL || !XmIsCommand(widget))
         return NULL;
     _XmWidgetToAppContext(widget);
 /****************/
@@ -1002,7 +1002,7 @@ XmCommandSetValue(
 {
     XmCommandWidget   w = (XmCommandWidget)widget;
     char *str;
-    if (widget == NULL || value == NULL)
+    if (widget == NULL || !XmIsCommand(widget) || value == NULL)
         return;
     _XmWidgetToAppContext(widget);
     if(    !(str = _XmStringGetTextConcat( value))    )
@@ -1025,7 +1025,7 @@ XmCommandAppendValue(
     XmCommandWidget   w = (XmCommandWidget)widget;
     char            *strNew;
     XmTextPosition   endPosition;
-    if (widget == NULL || value == NULL)
+    if (widget == NULL || !XmIsCommand(widget) || value == NULL)
         return;
     _XmWidgetToAppContext(widget);
     /* return if invalid string from "value" passed in */
@@ -1061,7 +1061,7 @@ XmCommandError(
     XmCommandWidget   w = (XmCommandWidget)widget;
     XmString  blankXmString;
 
-    if (widget == NULL || error == NULL)
+    if (widget == NULL || !XmIsCommand(widget) || error == NULL)
         return;
     _XmWidgetToAppContext(widget);
 
