@@ -48,6 +48,13 @@ Guard TextField state accessors (2026-10-29)
 - Reject NULL output pointers in `XmTextFieldGetSelectionPosition` before
   writing the selected range, with focused accessor coverage.
 
+Guard ToggleButton gadget inputs (2026-10-29)
+=============================================
+
+- Return safely from direct ToggleButton gadget state/value APIs when passed a
+  NULL widget before Xt context lookup.
+- Add focused coverage for the getter and both setters.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

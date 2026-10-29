@@ -335,6 +335,7 @@ nav:
       - docs/textfield-string-getters.md
       - docs/textfield-mutator-inputs.md
       - docs/textfield-state-accessors.md
+      - docs/toggle-gadget-inputs.md
       - docs/textfield-timer-scroll-bounds.md
       - docs/textfield-transfer-lengths.md
       - docs/textfield-wcstombs-width.md
