@@ -13025,6 +13025,9 @@ XmDataFieldRemove(
 {
     Boolean ret_val;
 
+   if (w == NULL)
+     return False;
+
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
     
@@ -13048,16 +13051,22 @@ XmDataFieldCopy(
     /* XmDataFieldGetSelection gets char* rep of data, so no special handling
      * needed
      */
-    char * selected_string = XmDataFieldGetSelection(w); /* text selection */
+    char * selected_string;                    /* text selection */
     long item_id = 0L;                      /* clipboard item id */
     long data_id = 0;                        /* clipboard data id */
     int status = 0;                         /* clipboard status  */
     XmString clip_label;
     XTextProperty tmp_prop;
-    Display *display = XtDisplay(w);
-    Window window = XtWindow(w);
+    Display *display;
+    Window window;
     char *atom_name;
 
+   if (w == NULL)
+     return False;
+
+   selected_string = XmDataFieldGetSelection(w);
+   display = XtDisplay(w);
+   window = XtWindow(w);
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
     
@@ -13162,6 +13171,9 @@ XmDataFieldCut(
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     Boolean success = False;
 
+   if (w == NULL)
+     return False;
+
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
     
@@ -13218,6 +13230,9 @@ XmDataFieldPaste(
     char **tmp_value;
     int i;
     XmAnyCallbackStruct cb;
+
+   if (w == NULL)
+     return False;
 
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);

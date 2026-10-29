@@ -76,6 +76,13 @@ Guard DataField string inputs (2026-10-29)
   getters, preserving their existing failure results.
 - Add focused coverage for byte and wide-character APIs.
 
+Guard DataField selection actions (2026-10-29)
+==============================================
+
+- Reject NULL widgets before display, window, or Xt context lookup in
+  DataField remove, copy, cut, and paste actions.
+- Add focused coverage for the clipboard and selection entry points.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 
