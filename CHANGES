@@ -29107,3 +29107,11 @@ Bound ScrolledWindow auto-scroll rectangles (2026-10-29)
 - Add focused source coverage and document the autoscroll geometry contract.
 
 Bound ScrolledWindow page arithmetic (2026-10-29)
+Bound ScrolledWindow scrollbar extents (2026-10-29)
+=====================================================
+
+- Saturate scrollbar width/height plus padding and highlight thickness before
+  storing the results as `Dimension` values during variable-size negotiation.
+- Add focused source coverage and document the sizing contract.
+
+Bound ScrolledWindow auto-scroll rectangles (2026-10-29)

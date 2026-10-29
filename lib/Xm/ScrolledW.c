@@ -3085,13 +3085,15 @@ Dimension *pheight)
         if (ExistManaged((Widget) vsb))
         {
             vsbht = 2 * vsb->primitive.highlight_thickness;
-            vswidth = vsb->core.width + sw->swindow.pad + vsbht;
+            vswidth = scw_bounded_extent((long long)vsb->core.width +
+                sw->swindow.pad + vsbht);
         } else vswidth = 0;
 
         if (ExistManaged((Widget) hsb))
         {
             hsbht = 2 * hsb->primitive.highlight_thickness;
-            hsheight = hsb->core.height + sw->swindow.pad + hsbht;
+            hsheight = scw_bounded_extent((long long)hsb->core.height +
+                sw->swindow.pad + hsbht);
         } else hsheight = 0;
 
         if (!*pwidth)
@@ -3188,7 +3190,8 @@ XtWidgetGeometry *reply )
             XmIsPrimitive(sw->swindow.WorkWindow)           &&
             !(XmIsTraversable((Widget)sw->swindow.vScrollBar)))
             vsbht = 0;
-        vswidth = vsb->core.width + sw->swindow.pad + vsbht;
+        vswidth = scw_bounded_extent((long long)vsb->core.width +
+	    sw->swindow.pad + vsbht);
     }
     else
         vswidth = 0;
@@ -3200,7 +3203,8 @@ XtWidgetGeometry *reply )
             XmIsPrimitive(sw->swindow.WorkWindow)           &&
             !(XmIsTraversable((Widget)sw->swindow.hScrollBar)))
             hsbht = 0;
-        hsheight = hsb->core.height + sw->swindow.pad + hsbht;
+        hsheight = scw_bounded_extent((long long)hsb->core.height +
+	    sw->swindow.pad + hsbht);
     }
     else
         hsheight = 0;
