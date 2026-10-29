@@ -45,6 +45,7 @@ nav:
       - docs/combo-deletion.md
       - docs/datafield-wide-text.md
       - docs/datafield-full-gc-bounds.md
+      - docs/datafield-display-rect-bounds.md
       - docs/datafield-position-geometry.md
       - docs/datafield-timer-edge-bounds.md
       - docs/container-tabs.md

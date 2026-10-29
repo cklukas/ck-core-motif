@@ -1,3 +1,11 @@
+Bound DataField display rectangles (2026-10-29)
+================================================
+
+- Harden the DataField display-rectangle callback against null outputs and
+  margin arithmetic that could wrap on tiny widgets.
+- Match the TextField bounded origin and empty-content contract; add a focused
+  regression and documentation.
+
 Bound DataField position geometry (2026-10-29)
 ===============================================
 
