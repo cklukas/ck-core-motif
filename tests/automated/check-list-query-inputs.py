@@ -7,8 +7,8 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "List.c").read_text(
 )
 start = source.rindex("XmListSetHorizPos(")
 body = source[start:source.index("\n}\n", start)]
-assert "if (w == NULL)" in body
-assert body.index("_XmWidgetToAppContext(w)") > body.index("if (w == NULL)")
+assert "if (w == NULL || !XmIsList(w))" in body
+assert body.index("_XmWidgetToAppContext(w)") > body.index("if (w == NULL || !XmIsList(w))")
 start = source.rindex("XmListPosSelected(")
 body = source[start:source.index("\n}\n", start)]
 assert "lw->list.itemCount <= 0" in body
