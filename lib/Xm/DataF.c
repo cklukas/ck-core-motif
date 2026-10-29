@@ -13683,6 +13683,9 @@ XmDataFieldGetBaseline(
     Dimension margin_top;
     int ret_val;
 
+    if (w == NULL)
+      return 0;
+
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
  

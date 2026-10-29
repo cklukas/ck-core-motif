@@ -90,6 +90,13 @@ Guard DataField selection geometry (2026-10-29)
   scrolling, and highlight APIs.
 - Reject NULL `PosToXY` output coordinates and add focused geometry coverage.
 
+Guard DataField baseline input (2026-10-29)
+===========================================
+
+- Return zero from `XmDataFieldGetBaseline` for a NULL widget before Xt
+  context lookup.
+- Add focused baseline-input coverage.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 
