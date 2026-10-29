@@ -511,8 +511,10 @@ ConfigureChildren(
 	    
 	CalcWorkAreaSize (fw, &childWidth, &childHeight, childBW,
 			      fw->core.width, fw->core.height);
-	childX = shadowThickness + fw->frame.margin_width;
-	childY = titleExtent + fw->frame.margin_height;
+	childX = FrameClampPosition((long long)shadowThickness +
+	    (long long)fw->frame.margin_width);
+	childY = FrameClampPosition((long long)titleExtent +
+	    (long long)fw->frame.margin_height);
 	if (child != instigator) {
 	    XmeConfigureObject (child, childX, childY, childWidth, childHeight,
 				childBW);

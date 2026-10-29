@@ -8,5 +8,7 @@ assert "static Position\nFrameClampPosition(long long value)" in source
 assert "if (value > SHRT_MAX)" in source
 assert "if (value < SHRT_MIN)" in source
 assert "childX = FrameClampPosition(child_x);" in source
+assert "childX = FrameClampPosition((long long)shadowThickness +" in source
+assert "childY = FrameClampPosition((long long)titleExtent +" in source
 assert "childX = (Position) child_x;" not in source
 print("PASS Frame child positions clamp before X11 conversion")
