@@ -4020,6 +4020,9 @@ Widget wregion )
     Arg args[5] ;
     Cardinal n;
 
+    if (w == NULL)
+        return;
+
     n = 0;
     if (hscroll)
     {

@@ -120,6 +120,13 @@ Guard I18List row helpers (2026-10-29)
 - Return safely from the row-visibility wrapper when its list is NULL.
 - Add focused shared-helper input coverage.
 
+Guard ScrolledWindow area input (2026-10-29)
+============================================
+
+- Return safely from `XmScrolledWindowSetAreas` when its parent widget is NULL
+  before calling `XtSetValues`.
+- Add focused area-setter input coverage.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 

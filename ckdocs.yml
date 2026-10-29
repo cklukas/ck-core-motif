@@ -344,6 +344,7 @@ nav:
       - docs/i18list-search-inputs.md
       - docs/i18list-row-helper-inputs.md
       - docs/spinbox-value-input.md
+      - docs/scrolled-window-areas-input.md
       - docs/toggle-gadget-inputs.md
       - docs/textfield-timer-scroll-bounds.md
       - docs/textfield-transfer-lengths.md
