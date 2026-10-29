@@ -1,3 +1,11 @@
+Clamp TextOut margin-only viewports (2026-10-29)
+=================================================
+
+- Clamp horizontal and vertical TextOut viewport dimensions to zero when
+  transient margins consume the widget allocation, preventing offset
+  recalculation from treating a tiny widget as a negative viewport.
+- Add focused source coverage and document the resize contract.
+
 Avoid pre-widening margin casts in Container positions (2026-10-29)
 =====================================================================
 

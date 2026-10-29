@@ -6575,7 +6575,9 @@ _XmTextChangeHOffset(XmTextWidget tw,
     if (new_text_width > text_width) text_width = new_text_width;
   }
   
-  inner_width = tw->core.width - (2 * margin_width);
+  inner_width = (uint64_t)tw->core.width >
+		(2U * (uint64_t)margin_width) ?
+	(int)((uint64_t)tw->core.width - 2U * (uint64_t)margin_width) : 0;
   if (new_offset >= text_width - inner_width)
     new_offset = text_width - inner_width;
   
@@ -6629,7 +6631,9 @@ _XmTextChangeVOffset(XmTextWidget tw,
     if (new_text_height > text_height) text_height = new_text_height;
   }
   
-  inner_height = tw->core.height - (2 * margin_height);
+  inner_height = (uint64_t)tw->core.height >
+		(2U * (uint64_t)margin_height) ?
+	(int)((uint64_t)tw->core.height - 2U * (uint64_t)margin_height) : 0;
   if (new_offset >= text_height - inner_height)
     new_offset = text_height - inner_height;
   
