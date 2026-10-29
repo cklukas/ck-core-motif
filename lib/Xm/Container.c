@@ -4085,6 +4085,7 @@ PlaceCwid(
     Position	y)
 {
     XmContainerWidget		cw;
+    int64_t right_limit;
 
     if (cwid == NULL) return;
     cw = (XmContainerWidget)XtParent(cwid);
@@ -4093,15 +4094,19 @@ PlaceCwid(
      */
     if (LayoutIsRtoLM(cw))
 	{
-	if ((cwid->core.width + (Position)cw->container.margin_w) 
-						>= cw->core.width)
-	    cwid->core.x = MIN(cwid->core.x,cw->core.width
-					- cwid->core.width
-					- (Position)cw->container.margin_w);
+	right_limit = (int64_t)cw->core.width -
+	    (int64_t)cwid->core.width -
+	    (int64_t)cw->container.margin_w;
+	if ((int64_t)cwid->core.width +
+	    (int64_t)cw->container.margin_w >= (int64_t)cw->core.width)
+	    cwid->core.x = MIN(cwid->core.x,
+		AdjustPositionSaturated(0, right_limit));
 	}
     else
-	x = MAX(x,(Position)cw->container.margin_w);
-    y = MAX(y,(Position)cw->container.margin_h);
+	x = MAX(x,AdjustPositionSaturated(0,
+	    (int64_t)cw->container.margin_w));
+	y = MAX(y,AdjustPositionSaturated(0,
+	    (int64_t)cw->container.margin_h));
 
     if ((x != cwid->core.x) || (y != cwid->core.y))
 	XmeConfigureObject(cwid,x,y,cwid->core.width,cwid->core.height,0);
@@ -4250,8 +4255,10 @@ HideCwid(
     c = GetContainerConstraint(cwid);
 
     XmeConfigureObject(
-	cwid,(Position)(0 - ((Widget)cwid)->core.width),
-	     (Position)(0 - ((Widget)cwid)->core.height),
+	cwid,AdjustPositionSaturated(0,
+	     -(int64_t)((Widget)cwid)->core.width),
+	     AdjustPositionSaturated(0,
+	     -(int64_t)((Widget)cwid)->core.height),
 	     ((Widget)cwid)->core.width,((Widget)cwid)->core.height,0);
 
     if (!CtrICON(cwid)) return;

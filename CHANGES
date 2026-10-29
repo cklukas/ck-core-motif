@@ -1,3 +1,10 @@
+Bound Container placement positions (2026-10-29)
+==================================================
+
+- Widen right-to-left margin and child-width calculations in `PlaceCwid` and
+  clamp margin and hide coordinates before converting to `Position`.
+- Add a focused source regression and document the placement contract.
+
 Bound Container outline-detail positions (2026-10-29)
 =======================================================
 
