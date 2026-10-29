@@ -206,6 +206,25 @@ static void layout(XmToolbarWidget toolbar)
     action_height = toolbar->toolbar.action_count
                         ? (Dimension *)XtCalloc(toolbar->toolbar.action_count,
                                                 sizeof(Dimension)) : NULL;
+    if (toolbar->toolbar.action_count &&
+        (chosen == NULL || action_width == NULL || action_height == NULL)) {
+        for (i = 0; i < toolbar->toolbar.action_count; ++i) {
+            toolbar->toolbar.actions[i].visible = False;
+            XtSetMappedWhenManaged(toolbar->toolbar.actions[i].button, False);
+            if (toolbar->toolbar.actions[i].menu_button != NULL)
+                XtSetMappedWhenManaged(toolbar->toolbar.actions[i].menu_button,
+                                       False);
+        }
+        XtUnmanageChild(toolbar->toolbar.overflow_button);
+        toolbar->toolbar.visible_count = 0;
+        toolbar->toolbar.overflow_count = toolbar->toolbar.action_count;
+        XtFree((char *)action_height);
+        XtFree((char *)action_width);
+        XtFree((char *)chosen);
+        toolbar->toolbar.laying_out = False;
+        XtWarning("XmToolbar: unable to allocate layout scratch storage");
+        return;
+    }
     visible = choose_actions(toolbar, chosen, action_width, action_height);
     for (i = 0; i < toolbar->toolbar.action_count; ++i)
         if (toolbar->toolbar.actions[i].overflowable && !chosen[i]) {
