@@ -28786,3 +28786,13 @@ Guard List selection and geometry API classes (2026-10-29)
 
 Guard Command convenience API widget classes (2026-10-29)
 ===========================================================
+Negotiate ScrolledWindow live-scale geometry (2026-10-29)
+===========================================================
+
+- Route toolkit-owned ScrolledWindow default-size changes through
+  `XtMakeResizeRequest` instead of bypassing parent allocations with
+  `XtResizeWidget`.
+- Record the accepted core dimensions after negotiation, preserving explicit
+  application sizes; add source coverage and document the live-scale contract.
+
+Preserve StatusBar items on oversized replacement input (2026-10-29)

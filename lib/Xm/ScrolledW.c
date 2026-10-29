@@ -1356,7 +1356,6 @@ ScaleChanged(Widget widget, double old_scale, double new_scale,
     XmScrolledWindowWidget sw = (XmScrolledWindowWidget)widget;
     Dimension width = sw->core.width;
     Dimension height = sw->core.height;
-    Dimension shadow = sw->manager.shadow_thickness;
     Boolean changed = False;
     (void)closure;
 
@@ -1381,11 +1380,21 @@ ScaleChanged(Widget widget, double old_scale, double new_scale,
     (void)old_scale;
     if (!changed || !XtIsRealized(widget))
         return;
-    if (width > shadow * 2)
-        sw->swindow.AreaWidth = width - shadow * 2;
-    if (height > shadow * 2)
-        sw->swindow.AreaHeight = height - shadow * 2;
-    XtResizeWidget(widget, width, height, sw->core.border_width);
+    /* A DPI default is a preferred size, not permission to bypass the
+     * parent's attachments or fixed allocation. Negotiate the new geometry;
+     * Resize recomputes the viewport only for an accepted allocation. */
+    {
+        Dimension reply_width, reply_height;
+        XtGeometryResult result = XtMakeResizeRequest(widget, width, height,
+                                                      &reply_width, &reply_height);
+        if (result == XtGeometryAlmost)
+            (void)XtMakeResizeRequest(widget, reply_width, reply_height,
+                                      NULL, NULL);
+    }
+    if (sw->swindow.scale_default_width)
+        sw->swindow.scale_last_width = sw->core.width;
+    if (sw->swindow.scale_default_height)
+        sw->swindow.scale_last_height = sw->core.height;
 }
 
 
