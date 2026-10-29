@@ -1694,10 +1694,10 @@ Position * vsbX, Position * vsbY)
      * bottom-right placement of the scrollbars.
      *
      ****************/
-    *newx = sw->swindow.XOffset + shad + HSBht;
-    *newy = sw->swindow.YOffset + shad + VSBht;
-    *hsbX = sw->swindow.XOffset;
-    *vsbY = sw->swindow.YOffset;
+    *newx = scw_bounded_position((long long)sw->swindow.XOffset + shad + HSBht);
+    *newy = scw_bounded_position((long long)sw->swindow.YOffset + shad + VSBht);
+    *hsbX = scw_bounded_position(sw->swindow.XOffset);
+    *vsbY = scw_bounded_position(sw->swindow.YOffset);
     vsb_pos = (int) sw->core.width - (int) sw->swindow.WidthPad -
         (int) vsb_width;
     hsb_pos = (int) sw->core.height - (int) sw->swindow.HeightPad -
@@ -1715,37 +1715,33 @@ Position * vsbX, Position * vsbY)
     switch (sw->swindow.Placement)
     {
         case XmTOP_LEFT:
-            *newx = (HasVSB) ? (vsb_width +
-                sw->swindow.XOffset + pad + shad +
-                HSBht)
-                : (sw->swindow.XOffset + shad + HSBht);
+            *newx = (HasVSB) ? scw_bounded_position((long long)vsb_width +
+                sw->swindow.XOffset + pad + shad + HSBht)
+                : scw_bounded_position((long long)sw->swindow.XOffset + shad + HSBht);
 
-            *newy = (HasHSB) ? (hsb_height +
-                sw->swindow.YOffset + pad + shad +
-                VSBht)
-                : (sw->swindow.YOffset + shad + VSBht);
+            *newy = (HasHSB) ? scw_bounded_position((long long)hsb_height +
+                sw->swindow.YOffset + pad + shad + VSBht)
+                : scw_bounded_position((long long)sw->swindow.YOffset + shad + VSBht);
 
-            *hsbX = *newx - HSBht - shad;
-            *hsbY = sw->swindow.YOffset;
-            *vsbX = sw->swindow.XOffset;
-            *vsbY = *newy - VSBht - shad;
+            *hsbX = scw_bounded_position((long long)*newx - HSBht - shad);
+            *hsbY = scw_bounded_position(sw->swindow.YOffset);
+            *vsbX = scw_bounded_position(sw->swindow.XOffset);
+            *vsbY = scw_bounded_position((long long)*newy - VSBht - shad);
             break;
         case XmTOP_RIGHT:
-            *newy = (HasHSB) ? (hsb_height +
-                sw->swindow.YOffset + pad + shad +
-                VSBht)
-                : (sw->swindow.YOffset + shad + VSBht);
+            *newy = (HasHSB) ? scw_bounded_position((long long)hsb_height +
+                sw->swindow.YOffset + pad + shad + VSBht)
+                : scw_bounded_position((long long)sw->swindow.YOffset + shad + VSBht);
 
-            *vsbY = *newy - shad - VSBht;
-            *hsbY = sw->swindow.YOffset;
+            *vsbY = scw_bounded_position((long long)*newy - shad - VSBht);
+            *hsbY = scw_bounded_position(sw->swindow.YOffset);
             break;
         case XmBOTTOM_LEFT:
-            *newx = (HasVSB) ? (vsb_width +
-                sw->swindow.XOffset + pad + shad +
-                HSBht)
-                : (sw->swindow.XOffset + shad + HSBht);
-            *hsbX = *newx - HSBht - shad;
-            *vsbX = sw->swindow.XOffset;
+            *newx = (HasVSB) ? scw_bounded_position((long long)vsb_width +
+                sw->swindow.XOffset + pad + shad + HSBht)
+                : scw_bounded_position((long long)sw->swindow.XOffset + shad + HSBht);
+            *hsbX = scw_bounded_position((long long)*newx - HSBht - shad);
+            *vsbX = scw_bounded_position(sw->swindow.XOffset);
             break;
         default:
             break;

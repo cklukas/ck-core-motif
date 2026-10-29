@@ -29065,6 +29065,14 @@ Bound List hit-test top edge (2026-10-29)
 - Add focused source coverage and document the hit-test contract.
 
 Bound TextOut visibility edges (2026-10-29)
+Bound ScrolledWindow placement positions (2026-10-29)
+=======================================================
+
+- Bound scrollbar, viewport, and all placement-policy X/Y positions before
+  storing them as X11 `Position` values, preventing very wide allocations from
+  wrapping.
+- Extend focused source coverage and documentation for every placement mode.
+
 Bound List position-to-bounds origins (2026-10-29)
 ====================================================
 
