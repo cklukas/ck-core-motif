@@ -29056,3 +29056,12 @@ Bound Notebook binding and frame drawing at tiny sizes (2026-10-29)
 - Keep binding/frame extents signed and skip empty geometry, preventing
   unsigned wraparound from issuing oversized X11 drawing requests.
 - Add a source regression and document the rendering contract.
+Bound List hit-test top edge (2026-10-29)
+==========================================
+
+- Widen `WhichItem`'s `BaseY - HighlightThickness` comparison before testing
+  pointer coordinates, preventing tiny-list hit testing from wrapping through
+  `Position`.
+- Add focused source coverage and document the hit-test contract.
+
+Bound TextOut visibility edges (2026-10-29)

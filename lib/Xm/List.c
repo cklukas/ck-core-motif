@@ -4440,7 +4440,8 @@ WhichItem(XmListWidget w,
   if (!lw->list.items)
     return -1;
 
-  if (y <= (Position)(lw->list.BaseY - lw->list.HighlightThickness))
+  if ((long long)y <= (long long)lw->list.BaseY -
+	(long long)lw->list.HighlightThickness)
     { /* END OSF Fix CR 5081 */
       if (lw->list.top_position)
 	return(-1);
