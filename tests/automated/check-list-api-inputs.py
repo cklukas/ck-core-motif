@@ -13,6 +13,12 @@ guards = {
     "XmListYToPos": "if (w == NULL || !XmIsList(w))",
     "XmListUpdateSelectedList": "if (w == NULL || !XmIsList(w))",
     "XmListPosSelected": "if (w == NULL || !XmIsList(w))",
+    "XmListSetAddMode": "if (w == NULL || !XmIsList(w))",
+    "XmListItemExists": "if (w == NULL || !XmIsList(w) || item == NULL)",
+    "XmListItemPos": "if (w == NULL || !XmIsList(w) || item == NULL)",
+    "XmListGetKbdItemPos": "if (w == NULL || !XmIsList(w))",
+    "XmListSetKbdItemPos": "if (w == NULL || !XmIsList(w))",
+    "XmListGetMatchPos": "if (w == NULL || !XmIsList(w) || item == NULL)",
 }
 for name, guard in guards.items():
     start = source.index("\n" + name + "(") + 1

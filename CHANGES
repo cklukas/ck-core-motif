@@ -28750,6 +28750,8 @@ Guard List selection and geometry API classes (2026-10-29)
   and selection-query helpers reject non-List handles before private access.
 - Add focused public-input coverage and document the unchanged valid-List
   behavior.
+- Extend the guard to List add-mode, item, keyboard-position, and match-query
+  helpers.
 
 Guard Command convenience API widget classes (2026-10-29)
 ===========================================================

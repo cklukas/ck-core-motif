@@ -9857,7 +9857,7 @@ XmListSetAddMode(Widget w,
 #endif /* NeedWidePrototypes */
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -9942,7 +9942,7 @@ XmListItemExists(Widget w,
   XmListWidget  lw = (XmListWidget) w;
   Boolean exists;
 
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return FALSE;
   _XmWidgetToAppContext(w);
 
@@ -9972,7 +9972,7 @@ XmListItemPos(Widget w,
   XmListWidget  lw = (XmListWidget) w;
   int pos;
 
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return 0;
   _XmWidgetToAppContext(w);
 
@@ -10001,7 +10001,7 @@ XmListGetKbdItemPos(Widget w)
   XmListWidget  lw = (XmListWidget) w;
   int pos;
 
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return 0;
   _XmWidgetToAppContext(w);
 
@@ -10029,7 +10029,7 @@ XmListSetKbdItemPos(Widget w,
 		    int    pos)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return False;
   _XmWidgetToAppContext(w);
 
@@ -10088,7 +10088,7 @@ XmListGetMatchPos(Widget w,
     return FALSE;
   *pos_list = NULL;
   *pos_count = 0;
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return FALSE;
   _XmWidgetToAppContext(w);
 
