@@ -294,6 +294,7 @@ nav:
       - docs/text-highlight-snapshot-growth.md
       - docs/text-horizontal-page-y-bounds.md
       - docs/text-initialize-storage.md
+      - docs/text-input-edge-bounds.md
       - docs/text-input-initialize.md
       - docs/text-insert-string-bounds.md
       - docs/text-kill-buffer-bounds.md
