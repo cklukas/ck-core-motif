@@ -332,6 +332,7 @@ nav:
       - docs/textfield-selection-state-naming.md
       - docs/textfield-size-bounds.md
       - docs/textfield-substring-ranges.md
+      - docs/textfield-string-getters.md
       - docs/textfield-timer-scroll-bounds.md
       - docs/textfield-transfer-lengths.md
       - docs/textfield-wcstombs-width.md
