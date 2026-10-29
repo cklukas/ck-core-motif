@@ -80,6 +80,7 @@ nav:
       - docs/container-disclosure-state.md
       - docs/image-data-input.md
       - docs/clip-window-translation-inputs.md
+      - docs/scrollbar-api-inputs.md
       - docs/drag-cancel-inputs.md
       - docs/drag-source-inputs.md
       - docs/drag-start-inputs.md

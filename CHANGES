@@ -1,3 +1,11 @@
+Guard ScrollBar value API widget classes (2026-10-29)
+======================================================
+
+- Make `XmScrollBarGetValues` and `XmScrollBarSetValues` reject non-ScrollBar
+  handles before context lookup and private-state access.
+- Add focused public-input coverage and document the unchanged valid-widget
+  contract.
+
 Guard ClipWindow translation inputs (2026-10-29)
 ================================================
 

@@ -4590,7 +4590,7 @@ XmScrollBarGetValues(
    XmScrollBarWidget sbw = (XmScrollBarWidget) w;
    XtAppContext app;
 
-   if (w == NULL)
+   if (w == NULL || !XmIsScrollBar(w))
       return;
    app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
@@ -4634,7 +4634,7 @@ XmScrollBarSetValues(
    Cardinal n;
    XtAppContext app;
 
-   if (w == NULL)
+   if (w == NULL || !XmIsScrollBar(w))
       return;
    app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
