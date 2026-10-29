@@ -551,16 +551,19 @@ Boolean XmDataGridSetSelectedCell(Widget widget, XtPointer row_id,
                                   XtPointer column_id, Boolean notify) {
     XmDataGridWidget grid;
     int row, column;
+    Boolean changed;
     if (!widget || !XmIsDataGrid(widget)) return False;
     grid = (XmDataGridWidget)widget;
     row = find_row(grid, row_id); column = find_column(grid, column_id);
     if (row < 0 || column < 0 || (Cardinal)row >= XmDATA_GRID_MAX_ROWS)
         return False;
+    changed = grid->data_grid.selected_row != row ||
+              grid->data_grid.selected_column != column;
     grid->data_grid.selected_row = row;
     grid->data_grid.selected_column = column;
     clamp_top(grid);
     redraw(grid);
-    if (notify) notify_selection(grid, NULL);
+    if (notify && changed) notify_selection(grid, NULL);
     return True;
 }
 

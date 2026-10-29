@@ -28839,3 +28839,11 @@ Make ColorPicker value callbacks change-sensitive (2026-10-29)
 - Add source and native regression coverage and document the callback contract.
 
 Preserve CommandPalette items on invalid replacement input (2026-10-29)
+Make DataGrid selection callbacks change-sensitive (2026-10-29)
+===============================================================
+
+- Emit the selection callback only when `XmDataGridSetSelectedCell` changes
+  the selected row or column, avoiding duplicate application updates.
+- Add native and source regression coverage and document the callback contract.
+
+Make RatingControl value callbacks change-sensitive (2026-10-29)

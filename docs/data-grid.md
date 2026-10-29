@@ -16,7 +16,9 @@ keyboard traversal, and `XmDataGridSetTopRow` all clamp to the bounded model.
 Sorting is request-only: `XmDataGridRequestSort` and header activation emit a
 sort callback, but never reorder application data.
 
-Selection identifies a row and column by their stable IDs.  Editing is an
+Selection identifies a row and column by their stable IDs; repeated requests
+for the already-selected cell do not emit duplicate selection callbacks.
+Editing is an
 explicit begin/set/commit/cancel sequence.  Applications can report a
 validation error with `XmDataGridSetEditError`; commit then fails and emits the
 edit-failed callback without changing the copied model value.  A successful

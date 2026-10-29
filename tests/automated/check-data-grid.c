@@ -64,6 +64,8 @@ int main(int argc, char **argv) {
     assert(XmDataGridGetRowCount(grid) == 3);
     assert(XmDataGridSetSelectedCell(grid, (XtPointer)20, (XtPointer)1, True));
     assert(selections == 1);
+    assert(XmDataGridSetSelectedCell(grid, (XtPointer)20, (XtPointer)1, True));
+    assert(selections == 1);
     assert(XmDataGridGetSelectedCell(grid, &row_id, &column_id));
     assert(row_id == (XtPointer)20 && column_id == (XtPointer)1);
     assert(XmDataGridRequestSort(grid, (XtPointer)2, False, True));
