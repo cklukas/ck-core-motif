@@ -1,3 +1,10 @@
+Guard Hierarchy disclosure-button allocation failures (2026-10-30)
+===================================================================
+
+- Keep hierarchy nodes usable when an internal open/close icon button cannot
+  be created, and skip optional mapping, callback, and pixmap updates safely.
+- Add focused source coverage and document the recovery behavior.
+
 Guard legacy ToolTip child allocation failures (2026-10-30)
 =============================================================
 

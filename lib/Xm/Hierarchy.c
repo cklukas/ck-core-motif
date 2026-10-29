@@ -651,6 +651,10 @@ SetChildValues( HierarchyConstraints node, Pixmap open_folder,
   Arg args[1];
   Pixmap which = None;	
 
+  /* The disclosure button is optional when its internal allocation fails. */
+  if (XmHierarchyC_open_close_button(node) == NULL)
+	return;
+
   if (XmHierarchyC_state(node) == XmOpen) 
   {
 	if ( (XmUNSPECIFIED_PIXMAP != XmHierarchyC_open_folder(node)) && XmHierarchyC_open_folder(node))
@@ -1096,6 +1100,8 @@ ResetOpenCloseButton(Widget w, HierarchyConstraints node)
 	XmHierarchyC_open_close_button(node) = 
 	    XtCreateManagedWidget("openAndClose", xmIconButtonWidgetClass,
 				  w, args, num_args);
+	if (XmHierarchyC_open_close_button(node) == NULL)
+	    return;
 
 	/*
 	 * Make sure the mapped state of open/close button matches the
