@@ -28920,3 +28920,10 @@ Widen accessibility text-span arithmetic before subtraction (2026-10-29)
 - Compute accessibility text ranges in `size_t` before the capacity check,
   preventing signed endpoint subtraction from overflowing on large requests.
 - Add a source regression and document the narrowing contract.
+
+Keep Notebook page coordinates signed (2026-10-29)
+===================================================
+
+- Store page and scroller positions in signed coordinates so a narrow page
+  cannot wrap a negative scroller offset through Xt’s unsigned `Dimension`.
+- Add a source regression and document the layout contract.

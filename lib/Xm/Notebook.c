@@ -2410,7 +2410,7 @@ LayoutPages (
     XmNotebookConstraint nc;
     Widget child;
     int i;
-    Dimension x, y, x1, y1, x2;
+    int x, y, x1, y1, x2;
 
     /* get the page's x, y position */
     x = nb->notebook.margin_width + nb->notebook.shadow_thickness + 1;
