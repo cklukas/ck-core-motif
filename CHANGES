@@ -28927,3 +28927,10 @@ Keep Notebook page coordinates signed (2026-10-29)
 - Store page and scroller positions in signed coordinates so a narrow page
   cannot wrap a negative scroller offset through Xt’s unsigned `Dimension`.
 - Add a source regression and document the layout contract.
+
+Bound Notebook binding and frame drawing at tiny sizes (2026-10-29)
+====================================================================
+
+- Keep binding/frame extents signed and skip empty geometry, preventing
+  unsigned wraparound from issuing oversized X11 drawing requests.
+- Add a source regression and document the rendering contract.

@@ -4439,7 +4439,7 @@ DrawBinding (
     XExposeEvent *event,	/* unused */
     Region region)
 {
-    Dimension x, y, width, height;
+    int x, y, width, height;
 
     /* check binding type resource and binding width */
     if (nb->notebook.binding_type == XmNONE
@@ -4477,6 +4477,9 @@ DrawBinding (
 	x += 1;
 	}
 
+    if (width <= 0 || height <= 0)
+	return;
+
     /* draw the binding if applicable */
     if (XRectInRegion(region, x, y, width, height))
 	{
@@ -4494,11 +4497,11 @@ DrawBinding (
 				    nb->notebook.spiral_pixmap);
 	        break;
 	    case XmPIXMAP:
-	        DrawPixmapBinding(nb, x, y, width, height,
+		DrawPixmapBinding(nb, x, y, (Dimension)width, (Dimension)height,
 				    nb->notebook.binding_pixmap);
 	        break;
 	    case XmPIXMAP_OVERLAP_ONLY:
-	        DrawPixmapBinding(nb, x, y, width, height,
+		DrawPixmapBinding(nb, x, y, (Dimension)width, (Dimension)height,
 				    nb->notebook.binding_pixmap);
 	        break;
 	    } /* switch */
@@ -4663,7 +4666,7 @@ DrawFrameShadow (
     XExposeEvent *event,	/* unused */
     Region region)		/* unused */
 {
-    Dimension x, y, width, height;
+    int x, y, width, height;
     Region shadow_region;
     XRectangle rect;
     Dimension outline = MAX(nb->notebook.shadow_thickness, 1);
@@ -4688,6 +4691,9 @@ DrawFrameShadow (
             nb->notebook.minor_scroller_height) + nb->notebook.back_page_size;
     width = nb->notebook.frame_width - 2;
     height = nb->notebook.frame_height - 2;
+
+    if (width <= 0 || height <= 0)
+	return;
 
     XSetForeground(XtDisplay(nb), nb->notebook.frame_gc,
 		   nb->notebook.frame_background);
