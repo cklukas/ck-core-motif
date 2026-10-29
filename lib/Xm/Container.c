@@ -3750,16 +3750,18 @@ PlaceItemNone(
 {
     XmContainerWidget		cw = (XmContainerWidget)wid;
     XmContainerConstraint	c = GetContainerConstraint(cwid);
+    int64_t content_right = (int64_t)cw->core.width -
+	(int64_t)cw->container.margin_w;
+    int64_t content_bottom = (int64_t)cw->core.height -
+	(int64_t)cw->container.margin_h;
 
     PlaceCwid(cwid,cwid->core.x,cwid->core.y);
     /*
      * Mark the cwid as placed (any value except NO_CELL) if it's within
      * the Container boundaries.
      */
-    if (((cwid->core.x + cwid->core.width) <= 
-				(cw->core.width - cw->container.margin_w)) &&
-	((cwid->core.y + cwid->core.height) <= 
-				(cw->core.height - cw->container.margin_h)))
+    if ((int64_t)cwid->core.x + (int64_t)cwid->core.width <= content_right &&
+	(int64_t)cwid->core.y + (int64_t)cwid->core.height <= content_bottom)
     	c->cell_idx = 1;
 }
 

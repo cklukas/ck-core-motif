@@ -1,3 +1,10 @@
+Bound Container none-style placement (2026-10-29)
+==================================================
+
+- Widen Container content-edge arithmetic before subtracting margins, so
+  undersized containers cannot misclassify child placement after a wrap.
+- Add a focused source regression and document the geometry contract.
+
 Bound DataField display rectangles (2026-10-29)
 ================================================
 
