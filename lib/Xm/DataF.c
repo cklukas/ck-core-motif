@@ -2144,6 +2144,16 @@ DataFieldSetHighlight(
     _XmDataFieldDrawInsertionPoint(tf, True);
 }
 
+static Position
+df_ClampPointCoordinate(int64_t coordinate)
+{
+    if (coordinate < SHRT_MIN)
+	return (Position)SHRT_MIN;
+    if (coordinate > SHRT_MAX)
+	return (Position)SHRT_MAX;
+    return (Position)coordinate;
+}
+
 /*
  * Get x and y based on position.
  */
@@ -2163,6 +2173,7 @@ df_GetXYFromPos(
 #endif /* _NO_PROTO */
 {
     int	x1, x2;
+    int64_t x_coordinate, y_coordinate;
 
     /* initialize the x and y positions to zero */
     if (XmDataField_alignment(tf) == XmALIGNMENT_BEGINNING)
@@ -2182,9 +2193,10 @@ df_GetXYFromPos(
     {
 	int	length;
 
-	*x = tf->core.width - (XmTextF_margin_width(tf) +
-			       tf->primitive.highlight_thickness +
-			       tf->primitive.shadow_thickness);
+	x_coordinate = (int64_t)tf->core.width -
+		(int64_t)(XmTextF_margin_width(tf) +
+			  tf->primitive.highlight_thickness +
+			  tf->primitive.shadow_thickness);
 	*y = 0;
 
 	length = XmTextF_string_length(tf) - position;
@@ -2199,18 +2211,22 @@ df_GetXYFromPos(
 	}
     }
 
-    *y += tf->primitive.highlight_thickness + tf->primitive.shadow_thickness
-	  + XmTextF_margin_top(tf) + XmTextF_font_ascent(tf);
+    y_coordinate = (int64_t)tf->primitive.highlight_thickness +
+	(int64_t)tf->primitive.shadow_thickness + XmTextF_margin_top(tf) +
+	XmTextF_font_ascent(tf);
     x2 = (Position) XmTextF_h_offset(tf);
 
     if (XmDataField_alignment(tf) == XmALIGNMENT_BEGINNING)
     {
-	*x += x1 + x2;
+	x_coordinate = (int64_t)x1 + x2;
     }
     else
     {
-	*x -= (x1 - x2);
+	x_coordinate -= (int64_t)x1 - x2;
     }
+
+    *x = df_ClampPointCoordinate(x_coordinate);
+    *y = df_ClampPointCoordinate(y_coordinate);
 
     return True;
 }
@@ -7092,16 +7108,6 @@ df_BrowseScroll(
 
 
 /* ARGSUSED */
-static Position
-df_ClampPointCoordinate(int64_t coordinate)
-{
-    if (coordinate < SHRT_MIN)
-	return (Position)SHRT_MIN;
-    if (coordinate > SHRT_MAX)
-	return (Position)SHRT_MAX;
-    return (Position)coordinate;
-}
-
 static Boolean
 #ifdef _NO_PROTO
 df_CheckTimerScrolling( w, event )

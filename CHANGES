@@ -1,3 +1,10 @@
+Bound DataField position geometry (2026-10-29)
+===============================================
+
+- Widen right-aligned caret origin and baseline arithmetic before converting
+  to X11 positions, preventing tiny DataField allocations from wrapping.
+- Clamp both axes and add a focused source regression and documentation.
+
 Bound DataField full-GC clipping (2026-10-29)
 ==============================================
 
