@@ -323,6 +323,8 @@ GetRealTranslations(
     }
   }
   buf[0] = '\0';
+  if (dpy == NULL || keys == NULL || num_keys <= 0)
+    return buf;
   for (i = 0; i < num_keys; i++) {
     keysym = XStringToKeysym(keys[i].key);
     if (keysym == NoSymbol) break;

@@ -79,6 +79,7 @@ nav:
       - docs/container-tab-pool-bounds.md
       - docs/container-disclosure-state.md
       - docs/image-data-input.md
+      - docs/clip-window-translation-inputs.md
       - docs/drag-cancel-inputs.md
       - docs/drag-source-inputs.md
       - docs/drag-start-inputs.md

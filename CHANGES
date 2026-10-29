@@ -1,3 +1,11 @@
+Guard ClipWindow translation inputs (2026-10-29)
+================================================
+
+- Reject missing display/key data and non-positive key counts before building
+  the reusable virtual-key translation buffer.
+- Prevent signed-to-unsigned count wraparound from traversing outside the key
+  binding array, with focused source coverage.
+
 Reject missing XImage data before scaling (2026-10-29)
 =======================================================
 
