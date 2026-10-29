@@ -9,7 +9,7 @@ start = source.index("static XtGeometryResult QueryGeometry")
 end = source.index("void XmPromptSetVisible", start)
 context = source[start:end]
 required = (
-    "reply->height = height > (Dimension)-1 - 8 ? (Dimension)-1 : height + 8;",
+    "reply->height = padded_extent(height, 8);",
     "reply->height = 24;",
 )
 missing = [fragment for fragment in required if fragment not in context]
