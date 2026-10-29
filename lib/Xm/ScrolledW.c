@@ -189,6 +189,11 @@ static void ComputeLocations(
     Position * hsbX, Position * hsbY,
     Position * vsbX, Position * vsbY);
 
+static void BoundViewport(
+    XmScrolledWindowWidget sw,
+    Position *x, Position *y,
+    int *width, int *height);
+
 static void VariableLayout(
     XmScrolledWindowWidget sw) ;
 
@@ -1761,6 +1766,19 @@ XmScrolledWindowWidget sw )
     }
 }
 
+/* Decorative insets cannot place a viewport outside a tiny allocation. */
+static void
+BoundViewport(XmScrolledWindowWidget sw, Position *x, Position *y,
+              int *width, int *height)
+{
+    int max_x = (int)sw->core.width - 1;
+    int max_y = (int)sw->core.height - 1;
+    *x = (Position)MAX(0, MIN((int)*x, MAX(0, max_x)));
+    *y = (Position)MAX(0, MIN((int)*y, MAX(0, max_y)));
+    *width = MAX(1, MIN(*width, (int)sw->core.width - (int)*x));
+    *height = MAX(1, MIN(*height, (int)sw->core.height - (int)*y));
+}
+
 
 /************************************************************************
  *									*
@@ -1926,6 +1944,7 @@ XmScrolledWindowWidget sw )
 
     if (childWidth > MyWidth) childWidth = 2;
     if (childHeight > MyHeight) childHeight = 2;
+    BoundViewport(sw, &newx, &newy, &childWidth, &childHeight);
 
     XmeConfigureObject(sw->swindow.WorkWindow, newx, newy,
         childWidth, childHeight, bw);
@@ -2317,6 +2336,7 @@ XmScrolledWindowWidget sw )
     ComputeLocations(sw,
         HSBht, VSBht, HasHSB, HasVSB,
         &clipX, &clipY, &hsbX, &hsbY, &vsbX, &vsbY);
+    BoundViewport(sw, &clipX, &clipY, &clipWidth, &clipHeight);
 
     /****************
      *
