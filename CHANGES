@@ -1,3 +1,10 @@
+Bound TextOut visibility edges (2026-10-29)
+=============================================
+
+- Widen right and bottom visibility-edge comparisons before subtracting TextOut
+  margins, preventing tiny inner widgets from wrapping through `Position`.
+- Add focused source coverage and document the scrolling contract.
+
 Clamp Frame child positions before X11 conversion (2026-10-29)
 ===============================================================
 

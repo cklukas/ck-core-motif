@@ -4069,9 +4069,9 @@ MakePositionVisible(XmTextWidget tw,
       y += data->voffset;
       if (y - data->voffset < data->topmargin) {
 	ChangeVOffset(tw, y - data->topmargin, True);
-      } else if (y - data->voffset >
-	         ((Position) (tw->text.inner_widget->core.height -
-			      data->bottommargin))) {
+	      } else if ((int64_t)(y - data->voffset) >
+	         ((int64_t)tw->text.inner_widget->core.height -
+		      (int64_t)data->bottommargin)) {
         ChangeVOffset(tw, (int) (y) -
 		      (int) (tw->text.inner_widget->core.height) +
 		      (int) (data->bottommargin), True);
@@ -4097,9 +4097,9 @@ MakePositionVisible(XmTextWidget tw,
     x += data->hoffset;
     if (x - data->hoffset < data->leftmargin) {
       ChangeHOffset(tw, x - data->leftmargin, True);
-    } else if (x - data->hoffset >
-	       ((Position) (tw->text.inner_widget->core.width -
-			    data->rightmargin))) {
+    } else if ((int64_t)(x - data->hoffset) >
+	       ((int64_t)tw->text.inner_widget->core.width -
+		    (int64_t)data->rightmargin)) {
       ChangeHOffset(tw, (int) (x) -
 		    (int) (tw->text.inner_widget->core.width) +
 		    (int) (data->rightmargin), True);
