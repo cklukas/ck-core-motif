@@ -2313,7 +2313,7 @@ LayoutHorizontalLabels(
 		       XRectangle *labelBox,
 		       Widget instigator )
 {
-	Dimension first_tic_dim, last_tic_dim;
+	int first_tic_dim, last_tic_dim;
 	float tic_interval, tmp ;
 	XmScrollBarWidget sb = (XmScrollBarWidget)
 		(sw->composite.children[1]);
@@ -2328,8 +2328,9 @@ LayoutHorizontalLabels(
 
 	if (num_managed > 3)
 	{
-	  first_tic_dim = scrollBox->x + LeadXTic(sb, sw);
-	  last_tic_dim = (scrollBox->x + sb->core.width) - TrailXTic(sb, sw);
+	  first_tic_dim = (int)scrollBox->x + (int)LeadXTic(sb, sw);
+	  last_tic_dim = (int)scrollBox->x + (int)sb->core.width -
+	      (int)TrailXTic(sb, sw);
 	  tic_interval = (float)(last_tic_dim - first_tic_dim)
 	    / (num_managed - 3);
 	  
@@ -2367,8 +2368,8 @@ LayoutHorizontalLabels(
 		if (XtIsManaged(w) &&
 		    !((Object)w)->object.being_destroyed) {
 
-		    tmp = (sb->scrollBar.slider_area_width - 
-			   TotalWidth(w)) / 2;
+		    tmp = ((int)sb->scrollBar.slider_area_width -
+			   (int)TotalWidth(w)) / 2.0f;
 		    x = scrollBox->x + sb->scrollBar.slider_area_x 
 			+ (int) tmp ;
 		    if (instigator != w)
@@ -2551,7 +2552,7 @@ LayoutVerticalLabels(
 		     XRectangle *labelBox,
 		     Widget instigator )
 {
-	Dimension first_tic_dim, last_tic_dim;
+	int first_tic_dim, last_tic_dim;
 	XmScrollBarWidget sb = (XmScrollBarWidget)
 		(sw->composite.children[1]);
 	Widget w, first_tic;
@@ -2566,9 +2567,9 @@ LayoutVerticalLabels(
 
 	if (num_managed > 3)
 	{
-		first_tic_dim = scrollBox->y + LeadYTic(sb, sw);
-		last_tic_dim = (scrollBox->y + sb->core.height) - 
-		    TrailYTic(sb, sw);
+		first_tic_dim = (int)scrollBox->y + (int)LeadYTic(sb, sw);
+		last_tic_dim = (int)scrollBox->y + (int)sb->core.height -
+		    (int)TrailYTic(sb, sw);
 		tic_interval = (float)(last_tic_dim - first_tic_dim)
 			/ (num_managed - 3);
 
@@ -2604,8 +2605,8 @@ LayoutVerticalLabels(
 		    !((Object)w)->object.being_destroyed) {
 
 		    x = x1 - TotalWidth(w);
-		    tmp = (sb->scrollBar.slider_area_height - 
-			   TotalHeight(w)) / 2;
+		    tmp = ((int)sb->scrollBar.slider_area_height -
+			   (int)TotalHeight(w)) / 2.0f;
 		    y = scrollBox->y + sb->scrollBar.slider_area_y 
 			+ (int) tmp;
 		    if (instigator != w)

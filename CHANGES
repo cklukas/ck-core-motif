@@ -28891,3 +28891,11 @@ Keep Tree centering arithmetic signed (2026-10-29)
   preventing unsigned `Dimension` underflow from producing off-screen
   coordinates when content is larger than its bounding box.
 - Add a source regression and document the geometry contract.
+
+Keep Scale label placement signed (2026-10-29)
+===============================================
+
+- Use signed interval and centering arithmetic for tick labels so narrow
+  slider areas cannot wrap unsigned `Dimension` differences into extreme
+  coordinates.
+- Add a source regression and document the placement contract.
