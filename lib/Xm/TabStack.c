@@ -4385,6 +4385,10 @@ BuildMenu(tab)
     {
 	tmp = 
 	    XtVaCreateWidget("menuItem", xmPushButtonWidgetClass, menu, NULL);
+	if (tmp == NULL) {
+	    XtWarning("XmTabStack: unable to create tab menu item");
+	    break;
+	}
 	XtAddCallback(tmp, XmNactivateCallback, MenuSelectCallback, NULL);
     }
 
@@ -4401,6 +4405,14 @@ BuildMenu(tab)
     for( i = 0, done = False; i < kidCnt;  ++i)
     {
 	if( !IsValidChild(tab, kids[i]) ) continue;
+	while (j < buttonCnt &&
+	       (XmIsSeparator(buttons[j]) ||
+		buttons[j] == XmTabStack__tear_off_button(tab)))
+	    ++j;
+	if (j >= buttonCnt) {
+	    XtWarning("XmTabStack: tab menu is missing an item");
+	    break;
+	}
 
 	XtVaSetValues(buttons[j],
 		      XmNlabelString, XmTabStackC_tab_label_string(kids[i]),

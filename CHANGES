@@ -1,3 +1,10 @@
+Guard TabStack menu construction (2026-10-29)
+==============================================
+
+- Stop cleanly when overflow-menu item creation fails and bound refreshed
+  child indexing before assigning tab labels.
+- Add focused source coverage and document the recovery behavior.
+
 Bound TextOut visibility edges (2026-10-29)
 =============================================
 
