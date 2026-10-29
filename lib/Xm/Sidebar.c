@@ -59,6 +59,13 @@ externaldef(xmsidebarwidgetclass) WidgetClass xmSidebarWidgetClass =
 static void preferred(Widget child, Dimension *width, Dimension *height)
 {
     XtWidgetGeometry wanted;
+    if (width == NULL || height == NULL)
+        return;
+    if (child == NULL) {
+        *width = 0;
+        *height = 0;
+        return;
+    }
     wanted.request_mode = 0;
     XtQueryGeometry(child, NULL, &wanted);
     *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width;
@@ -97,18 +104,24 @@ static void layout(XmSidebarWidget sidebar)
         return;
     sidebar->sidebar.laying_out = True;
     preferred(sidebar->sidebar.toggle_button, &toggle_width, &toggle_height);
-    XtSetMappedWhenManaged(sidebar->sidebar.content, sidebar->sidebar.expanded);
-    XmeConfigureObject(sidebar->sidebar.toggle_button, 0, 0,
-                       sidebar->core.width, toggle_height, 0);
+    if (sidebar->sidebar.content != NULL)
+        XtSetMappedWhenManaged(sidebar->sidebar.content,
+                               sidebar->sidebar.expanded);
+    if (sidebar->sidebar.toggle_button != NULL)
+        XmeConfigureObject(sidebar->sidebar.toggle_button, 0, 0,
+                           sidebar->core.width, toggle_height, 0);
     if (sidebar->sidebar.expanded) {
-        XtManageChild(sidebar->sidebar.content);
-        XmeConfigureObject(sidebar->sidebar.content, 0, toggle_height,
-                           sidebar->core.width,
-                           sidebar->core.height > toggle_height
-                               ? sidebar->core.height - toggle_height : 1,
-                           0);
+        if (sidebar->sidebar.content != NULL) {
+            XtManageChild(sidebar->sidebar.content);
+            XmeConfigureObject(sidebar->sidebar.content, 0, toggle_height,
+                               sidebar->core.width,
+                               sidebar->core.height > toggle_height
+                                   ? sidebar->core.height - toggle_height : 1,
+                               0);
+        }
     } else {
-        XtUnmanageChild(sidebar->sidebar.content);
+        if (sidebar->sidebar.content != NULL)
+            XtUnmanageChild(sidebar->sidebar.content);
     }
     sidebar->sidebar.laying_out = False;
 }
@@ -141,12 +154,14 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     sidebar->sidebar.saved_focus = NULL;
     sidebar->sidebar.content = XmCreateRowColumn(widget, (char *)"content",
                                                  NULL, 0);
-    XtManageChild(sidebar->sidebar.content);
+    if (sidebar->sidebar.content != NULL)
+        XtManageChild(sidebar->sidebar.content);
     sidebar->sidebar.toggle_button = XtVaCreateManagedWidget(
         "toggle", xmPushButtonWidgetClass, widget, XmNlabelString, label,
         XmNborderWidth, 0, NULL);
-    XtAddCallback(sidebar->sidebar.toggle_button, XmNactivateCallback, activate,
-                  sidebar);
+    if (sidebar->sidebar.toggle_button != NULL)
+        XtAddCallback(sidebar->sidebar.toggle_button, XmNactivateCallback,
+                      activate, sidebar);
     XtAddEventHandler(widget, KeyPressMask, True, key_handler, NULL);
     XmStringFree(label);
     sidebar->sidebar.initializing = False;

@@ -5,6 +5,13 @@ Guard TabStack menu construction (2026-10-29)
   child indexing before assigning tab labels.
 - Add focused source coverage and document the recovery behavior.
 
+Guard Sidebar child allocation failures (2026-10-29)
+=====================================================
+
+- Make Sidebar initialization and relayout tolerate missing content or toggle
+  children without null widget calls.
+- Add focused source coverage and document the recovery behavior.
+
 Bound TextOut visibility edges (2026-10-29)
 =============================================
 
