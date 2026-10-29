@@ -1,3 +1,11 @@
+Bound Container closest-placement growth edges (2026-10-29)
+==============================================================
+
+- Widen closest-placement content edges and excess distances before margin
+  subtraction and cell division, preventing tiny allocations from wrapping and
+  fixing the remainder calculation used for extra cells.
+- Add a focused source regression and document the resize contract.
+
 Bound Container grid placement (2026-10-29)
 ============================================
 

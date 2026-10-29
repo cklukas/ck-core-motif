@@ -13,6 +13,12 @@ for needle in (
     "AddDimensionSaturated(\n\t\t    0, (uint64_t)height_in_cells",
     "geo_desired.width = AddDimensionSaturated",
     "geo_desired.height = AddDimensionSaturated",
+    "content_right = (int64_t)cw->core.width",
+    "content_bottom = (int64_t)cw->core.height",
+    "width_excess = (int64_t)c->user_x - content_right",
+    "height_excess = (int64_t)c->user_y - content_bottom",
+    "if ((width_excess % cell_width) != 0)",
+    "if ((height_excess % cell_height) != 0)",
 ):
     if needle not in region:
         raise SystemExit(f"Container spatial growth is missing: {needle}")
@@ -23,5 +29,9 @@ if "height_increase = height_in_cells * cell_height" in region:
     raise SystemExit("Container height growth still multiplies in Dimension arithmetic")
 if "geo_desired.width = cw->core.width + width_increase" in region:
     raise SystemExit("Container width request still wraps on addition")
+if "c->user_x - (cw->core.width - cw->container.margin_w)" in region:
+    raise SystemExit("Container closest width growth still subtracts in Dimension arithmetic")
+if "c->user_y - (cw->core.height - cw->container.margin_h)" in region:
+    raise SystemExit("Container closest height growth still subtracts in Dimension arithmetic")
 
 print("Container spatial growth uses bounded products and request extents")

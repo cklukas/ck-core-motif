@@ -2927,6 +2927,8 @@ RequestSpatialGrowth(
     int		new_width,new_height;
     int		cell_width = 0,cell_height = 0;
     int		width_in_cells, height_in_cells;
+    int64_t	content_right, content_bottom;
+    int64_t	width_excess, height_excess;
     XtWidgetGeometry	geo_desired;
 
     /*
@@ -3008,14 +3010,14 @@ RequestSpatialGrowth(
 		}
 	    else
 		width_increase = cell_width;
+	    content_right = (int64_t)cw->core.width -
+		(int64_t)cw->container.margin_w;
 	    if (CtrIncludeIsCLOSEST(cw) &&
-                (c->user_x > (cw->core.width - cw->container.margin_w)))
+                ((int64_t)c->user_x > content_right))
                 {
-                width_in_cells = (c->user_x 
-                                - (cw->core.width - cw->container.margin_w))
-                                / cell_width;
-                if (c->user_x - (cw->core.width - cw->container.margin_w)
-                                % cell_width)
+                width_excess = (int64_t)c->user_x - content_right;
+                width_in_cells = (int)(width_excess / cell_width);
+                if ((width_excess % cell_width) != 0)
                      width_in_cells++;
 		width_increase = AddDimensionSaturated(width_increase,
 		    (uint64_t)(width_in_cells - 1) * (uint64_t)cell_width);
@@ -3035,14 +3037,14 @@ RequestSpatialGrowth(
 		}
 	    else
 		height_increase = cell_height;
+	    content_bottom = (int64_t)cw->core.height -
+		(int64_t)cw->container.margin_h;
 	    if (CtrIncludeIsCLOSEST(cw) &&
-                (c->user_y > (cw->core.height - cw->container.margin_h)))
+                ((int64_t)c->user_y > content_bottom))
                 {
-                height_in_cells = (c->user_y 
-                                - (cw->core.height - cw->container.margin_h))
-                                / cell_height;
-                if (c->user_y - (cw->core.height - cw->container.margin_h)
-                                % cell_height)
+                height_excess = (int64_t)c->user_y - content_bottom;
+                height_in_cells = (int)(height_excess / cell_height);
+                if ((height_excess % cell_height) != 0)
                      height_in_cells++;
 		height_increase = AddDimensionSaturated(height_increase,
 		    (uint64_t)(height_in_cells - 1) * (uint64_t)cell_height);
