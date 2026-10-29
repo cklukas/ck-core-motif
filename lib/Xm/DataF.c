@@ -12519,6 +12519,9 @@ XmDataFieldSetAddMode(
 {
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
 
+  if (w == NULL)
+    return;
+
   _XmWidgetToAppContext(w);    
   _XmAppLock(app);    
 
@@ -12548,6 +12551,9 @@ XmDataFieldGetAddMode(
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
    Boolean ret_val;
 
+   if (w == NULL)
+     return False;
+
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);   
    
@@ -12568,6 +12574,9 @@ XmDataFieldGetEditable(
 {
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
    Boolean ret_val;
+
+   if (w == NULL)
+     return False;
 
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);   
@@ -12593,6 +12602,9 @@ XmDataFieldSetEditable(
     XPoint xmim_point;
     Arg args[6];  /* To set initial values to input method */
     Cardinal n = 0;
+
+   if (w == NULL)
+     return;
 
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);   
@@ -12649,6 +12661,9 @@ XmDataFieldGetMaxLength(
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
     int ret_val;
 
+    if (w == NULL)
+      return 0;
+
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);   
    
@@ -12671,6 +12686,9 @@ XmDataFieldSetMaxLength(
 {
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
 
+   if (w == NULL)
+     return;
+
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);   
 
@@ -12691,6 +12709,9 @@ XmDataFieldGetCursorPosition(
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
    XmTextPosition ret_val;
    
+   if (w == NULL)
+     return 0;
+
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
 
@@ -12710,6 +12731,9 @@ XmDataFieldGetInsertionPosition(
 #endif /* _NO_PROTO */
 {
     XmTextPosition ret_val;
+
+   if (w == NULL)
+     return 0;
 
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
@@ -12734,6 +12758,9 @@ XmDataFielddf_SetCursorPosition(
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
 
+   if (w == NULL)
+     return;
+
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
 
@@ -12753,6 +12780,9 @@ XmDataFieldSetInsertionPosition(
 #endif /* _NO_PROTO */
 {
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
+
+   if (w == NULL)
+     return;
 
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
@@ -12776,6 +12806,9 @@ XmDataFieldGetSelectionPosition(
 #endif /* _NO_PROTO */
 {
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
+
+   if (w == NULL || left == NULL || right == NULL)
+     return False;
 
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
@@ -12805,6 +12838,9 @@ XmDataFieldGetSelection(
    size_t length, num_chars;
    size_t capacity;
    char *value;
+
+   if (w == NULL)
+     return NULL;
 
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);
@@ -12899,6 +12935,9 @@ XmDataFieldGetSelectionWcs(
    size_t length;
    wchar_t *wc_value;
    size_t return_val;
+
+   if (w == NULL)
+     return NULL;
 
    _XmWidgetToAppContext(w);    
    _XmAppLock(app);

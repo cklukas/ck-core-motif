@@ -55,6 +55,13 @@ Guard ToggleButton gadget inputs (2026-10-29)
   NULL widget before Xt context lookup.
 - Add focused coverage for the getter and both setters.
 
+Guard DataField state accessors (2026-10-29)
+============================================
+
+- Validate DataField state, cursor, insertion, and selection inputs before Xt
+  context lookup while preserving established empty or no-op results.
+- Reject NULL selection output pointers and add focused accessor coverage.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 
