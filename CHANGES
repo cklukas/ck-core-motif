@@ -1,3 +1,11 @@
+Bound DataField full-GC clipping (2026-10-29)
+==============================================
+
+- Prevent tiny DataField allocations from wrapping the full-widget clip
+  rectangle when shadow and highlight insets exceed the available size.
+- Saturate the clip origin and emit an empty content rectangle safely; add a
+  focused source regression and documentation.
+
 Bound DataField timer edge geometry (2026-10-29)
 =================================================
 

@@ -2485,16 +2485,18 @@ df_XmSetFullGC(
 #endif /* _NO_PROTO */
 {
   XRectangle ClipRect;
+  uint64_t inset = (uint64_t)tf->primitive.shadow_thickness +
+                   (uint64_t)tf->primitive.highlight_thickness;
 
  /* adjust clip rectangle to allow the cursor to paint into the margins */
-  ClipRect.x = tf->primitive.shadow_thickness +
-               tf->primitive.highlight_thickness;
-  ClipRect.y = tf->primitive.shadow_thickness +
-               tf->primitive.highlight_thickness;
-  ClipRect.width = tf->core.width - (2 * (tf->primitive.shadow_thickness +
-                                          tf->primitive.highlight_thickness));
-  ClipRect.height = tf->core.height - (2 * (tf->primitive.shadow_thickness +
-                                           tf->primitive.highlight_thickness));
+  ClipRect.x = (short)(inset > (uint64_t)SHRT_MAX ? SHRT_MAX : inset);
+  ClipRect.y = ClipRect.x;
+  ClipRect.width = (unsigned short)(
+      inset <= (uint64_t)tf->core.width / 2 ?
+      (uint64_t)tf->core.width - 2 * inset : 0);
+  ClipRect.height = (unsigned short)(
+      inset <= (uint64_t)tf->core.height / 2 ?
+      (uint64_t)tf->core.height - 2 * inset : 0);
 
   XSetClipRectangles(XtDisplay(tf), gc, 0, 0, &ClipRect, 1,
                      Unsorted);
