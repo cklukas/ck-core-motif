@@ -1,3 +1,11 @@
+Preserve StatusBar items on oversized replacement input (2026-10-29)
+=====================================================================
+
+- Validate the item-array size before tearing down the current status bar, so
+  malformed oversized input cannot erase working status items.
+- Preserve valid replacement and allocation-failure behavior; add a source
+  regression and document the state-preservation contract.
+
 Preserve Toolbar actions on oversized replacement input (2026-10-29)
 ======================================================================
 
