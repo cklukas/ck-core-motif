@@ -19,6 +19,13 @@ Guard EmptyState child allocation failures (2026-10-29)
   initialization, layout, and resource updates.
 - Add focused source coverage and document the recovery behavior.
 
+Guard Toast child allocation failures (2026-10-29)
+===================================================
+
+- Make Toast message and action child handling null-safe across initialization,
+  layout, callbacks, and resource updates.
+- Add focused source coverage and document the recovery behavior.
+
 Bound TextOut visibility edges (2026-10-29)
 =============================================
 
