@@ -19,6 +19,13 @@ Guard EmptyState child allocation failures (2026-10-29)
   initialization, layout, and resource updates.
 - Add focused source coverage and document the recovery behavior.
 
+Guard Sidebar toggle updates after child allocation failure (2026-10-30)
+==========================================================================
+
+- Make Sidebar expansion and collapse safe when the internal toggle button is
+  unavailable, including focus traversal and label updates.
+- Add focused source coverage and document the recovery behavior.
+
 Make StatusBar item replacement transactional (2026-10-30)
 =============================================================
 

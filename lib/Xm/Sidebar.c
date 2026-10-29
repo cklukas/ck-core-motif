@@ -306,11 +306,15 @@ static void set_expanded(Widget widget, Boolean expanded, XEvent *event)
         focus = XmGetFocusWidget(widget);
         if (focus && descendant(focus, sidebar->sidebar.content))
             sidebar->sidebar.saved_focus = focus;
-        XmProcessTraversal(sidebar->sidebar.toggle_button, XmTRAVERSE_CURRENT);
+        if (sidebar->sidebar.toggle_button != NULL)
+            XmProcessTraversal(sidebar->sidebar.toggle_button,
+                               XmTRAVERSE_CURRENT);
     }
     sidebar->sidebar.expanded = expanded;
     label = XmStringCreateLocalized((char *)(expanded ? "Collapse" : "Expand"));
-    XtVaSetValues(sidebar->sidebar.toggle_button, XmNlabelString, label, NULL);
+    if (sidebar->sidebar.toggle_button != NULL)
+        XtVaSetValues(sidebar->sidebar.toggle_button, XmNlabelString, label,
+                      NULL);
     XmStringFree(label);
     layout(sidebar);
     if (expanded && sidebar->sidebar.saved_focus) {
