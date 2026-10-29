@@ -1,3 +1,11 @@
+Bound Container outline-detail positions (2026-10-29)
+=======================================================
+
+- Widen outline-detail right-to-left edge calculations and use saturating
+  `Position` adjustments for indentation, outline buttons, first-column limits,
+  and final child placement.
+- Add a focused source regression and document the geometry contract.
+
 Bound Container icon-width edge arithmetic (2026-10-29)
 ==========================================================
 

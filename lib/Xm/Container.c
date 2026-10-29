@@ -6464,14 +6464,16 @@ LayoutOutlineDetail(
 	c = GetContainerConstraint(cwid);
 
 	if (LayoutIsRtoLM(cw))
-	    x = cw->core.width - cw->container.margin_w
-			- c->depth * cw->container.outline_indent;
+	    x = AdjustPositionSaturated(0,
+		(int64_t)cw->core.width - (int64_t)cw->container.margin_w -
+		(int64_t)c->depth * (int64_t)cw->container.outline_indent);
 	else
-	    x = cw->container.margin_w
-			+ c->depth * cw->container.outline_indent;
+	    x = AdjustPositionSaturated((Position)cw->container.margin_w,
+		(int64_t)c->depth * (int64_t)cw->container.outline_indent);
 	ob_y = y + (cwid->core.height - cw->container.ob_height) / 2;
 	if (CtrOB_PRESENT(cw) && LayoutIsRtoLM(cw))
-            x -= cw->container.ob_width;
+            x = AdjustPositionSaturated(x,
+		-(int64_t)cw->container.ob_width);
 	if ((node->child_ptr) && CtrOB_PRESENT(cw))
 	    {	
 	    if (!c->related_cwid)
@@ -6484,9 +6486,10 @@ LayoutOutlineDetail(
 					(cw->container.margin_w
 					 + cw->container.real_first_col_width)))
 				 ||
-		(LayoutIsRtoLM(cw) && (x < (Position)(cw->core.width 
-					- cw->container.margin_w 
-					- cw->container.real_first_col_width))))
+		(LayoutIsRtoLM(cw) && ((int64_t)x <
+			(int64_t)cw->core.width -
+			(int64_t)cw->container.margin_w -
+			(int64_t)cw->container.real_first_col_width)))
 		HideCwid(c->related_cwid) ;
 	    else
 	     	XmeConfigureObject(c->related_cwid,x,ob_y,
@@ -6500,7 +6503,8 @@ LayoutOutlineDetail(
 	        c->related_cwid = NULL;
 		}
 	if (CtrOB_PRESENT(cw) && !LayoutIsRtoLM(cw))
-	    x += cw->container.ob_width;
+	    x = AdjustPositionSaturated(x,
+		(int64_t)cw->container.ob_width);
 
         /*
 	 * we don't want the x position to be bigger than 
@@ -6508,11 +6512,12 @@ LayoutOutlineDetail(
 	 * Icong get confused. Hackk
 	 */
 	if (LayoutIsRtoLM(cw))
-	    x = MAX(x,(Position)(cw->core.width - cw->container.margin_w
-			- cw->container.real_first_col_width + 1));
+	    x = MAX(x, AdjustPositionSaturated(0,
+		(int64_t)cw->core.width - (int64_t)cw->container.margin_w -
+		(int64_t)cw->container.real_first_col_width + 1));
 	else
-	    x = MIN(x,(Position)(cw->container.margin_w
-			+ cw->container.real_first_col_width - 1));
+	    x = MIN(x, AdjustPositionSaturated((Position)cw->container.margin_w,
+		(int64_t)cw->container.real_first_col_width - 1));
 
 	/*
 	 * Calculate Outline lines when all temporary geometry is available.
@@ -6574,7 +6579,7 @@ LayoutOutlineDetail(
         }
 
         if (LayoutIsRtoLM(cw))
-	    x = x - (Position)cwid->core.width;
+	    x = AdjustPositionSaturated(x, -(int64_t)cwid->core.width);
 	XmeConfigureObject(cwid,x,y,cwid->core.width,cwid->core.height,0);
 
 	y += cwid->core.height;
