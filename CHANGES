@@ -19,6 +19,13 @@ Guard EmptyState child allocation failures (2026-10-29)
   initialization, layout, and resource updates.
 - Add focused source coverage and document the recovery behavior.
 
+Guard Disclosure child allocation failures (2026-10-30)
+=========================================================
+
+- Make Disclosure geometry, transitions, callbacks, and resource updates
+  null-safe when an internal child cannot be created.
+- Add focused source coverage and document the recovery behavior.
+
 Guard Toast child allocation failures (2026-10-29)
 ===================================================
 

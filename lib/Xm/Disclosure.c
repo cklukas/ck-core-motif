@@ -82,6 +82,13 @@ static Position position(long long value) {
 }
 static void preferred(Widget child, Dimension *width, Dimension *height) {
   XtWidgetGeometry wanted;
+  if (width == NULL || height == NULL)
+    return;
+  if (child == NULL) {
+    *width = 0;
+    *height = 0;
+    return;
+  }
   wanted.request_mode = 0;
   XtQueryGeometry(child, NULL, &wanted);
   *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width;
@@ -124,19 +131,20 @@ static void layout(XmDisclosureWidget w) {
                         : 1);
   if (aw >= width)
     aw = width > 1 ? width - 1 : 1;
-  XmeConfigureObject(w->disclosure.arrow,
-                     right_to_left(w) ? position((long long)x + width - aw) : x,
-                     y, aw,
-                     head, 0);
-  XmeConfigureObject(w->disclosure.header,
-                     right_to_left(w) ? x : position((long long)x + aw), y,
-                     dimension(width > aw ? width - aw : 1), head, 0);
+  if (w->disclosure.arrow != NULL)
+    XmeConfigureObject(w->disclosure.arrow,
+                       right_to_left(w) ? position((long long)x + width - aw) : x,
+                       y, aw, head, 0);
+  if (w->disclosure.header != NULL)
+    XmeConfigureObject(w->disclosure.header,
+                       right_to_left(w) ? x : position((long long)x + aw), y,
+                       dimension(width > aw ? width - aw : 1), head, 0);
   y = position((long long)y + head + w->disclosure.spacing);
   height =
       dimension(w->core.height > (unsigned long)y + w->disclosure.margin_height
                     ? w->core.height - y - w->disclosure.margin_height
                     : 1);
-  if (w->disclosure.expanded)
+  if (w->disclosure.expanded && w->disclosure.content != NULL)
     XmeConfigureObject(w->disclosure.content, x, y, width, height, 0);
   w->disclosure.laying_out = False;
 }
@@ -162,13 +170,15 @@ static void transition(XmDisclosureWidget w, XEvent *event, Boolean notify) {
     Widget ancestor = focus;
     while (ancestor && ancestor != w->disclosure.content)
       ancestor = XtParent(ancestor);
-    if (ancestor &&
+    if (ancestor && w->disclosure.header != NULL &&
         !XmProcessTraversal(w->disclosure.header, XmTRAVERSE_CURRENT))
       XmProcessTraversal((Widget)w, XmTRAVERSE_NEXT_TAB_GROUP);
   }
-  XtVaSetValues(w->disclosure.arrow, XmNarrowDirection, arrow_direction(w),
-                NULL);
-  XtSetMappedWhenManaged(w->disclosure.content, w->disclosure.expanded);
+  if (w->disclosure.arrow != NULL)
+    XtVaSetValues(w->disclosure.arrow, XmNarrowDirection, arrow_direction(w),
+                  NULL);
+  if (w->disclosure.content != NULL)
+    XtSetMappedWhenManaged(w->disclosure.content, w->disclosure.expanded);
   negotiate(w);
   cb.reason = XmCR_VALUE_CHANGED;
   cb.event = event;
@@ -233,9 +243,12 @@ static void Initialize(Widget request, Widget widget, ArgList args,
       "content", xmRowColumnWidgetClass, widget, XmNorientation, XmVERTICAL,
       XmNpacking, XmPACK_TIGHT, XmNborderWidth, 0, XmNmappedWhenManaged,
       w->disclosure.expanded, NULL);
-  XtAddCallback(w->disclosure.header, XmNactivateCallback, activate, w);
-  XtAddCallback(w->disclosure.arrow, XmNactivateCallback, activate, w);
-  XtAddEventHandler(w->disclosure.header, KeyPressMask, False, key, w);
+  if (w->disclosure.header != NULL) {
+    XtAddCallback(w->disclosure.header, XmNactivateCallback, activate, w);
+    XtAddEventHandler(w->disclosure.header, KeyPressMask, False, key, w);
+  }
+  if (w->disclosure.arrow != NULL)
+    XtAddCallback(w->disclosure.arrow, XmNactivateCallback, activate, w);
   w->disclosure.initializing = False;
   natural(w, &width, &height);
   if (!w->core.width)
@@ -264,11 +277,13 @@ static Boolean SetValues(Widget old, Widget request, Widget widget,
                               ? XmStringCopy(w->disclosure.label)
                               : XmStringCreateLocalized(XtName(widget));
     XmStringFree(before->disclosure.label);
-    XtVaSetValues(w->disclosure.header, XmNlabelString, w->disclosure.label,
-                  NULL);
+    if (w->disclosure.header != NULL)
+      XtVaSetValues(w->disclosure.header, XmNlabelString, w->disclosure.label,
+                    NULL);
   }
-  XtVaSetValues(w->disclosure.arrow, XmNarrowDirection, arrow_direction(w),
-                NULL);
+  if (w->disclosure.arrow != NULL)
+    XtVaSetValues(w->disclosure.arrow, XmNarrowDirection, arrow_direction(w),
+                  NULL);
   if (changed)
     transition(w, NULL, True);
   else
