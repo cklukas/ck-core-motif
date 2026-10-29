@@ -93,7 +93,15 @@ static void free_items(XmRowActionsWidget actions, Boolean destroy_buttons) {
     actions->actions.item_count = 0;
 }
 static void preferred(Widget child, Dimension *width, Dimension *height) {
-    XtWidgetGeometry wanted; wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted);
+    XtWidgetGeometry wanted;
+    if (width == NULL || height == NULL)
+        return;
+    if (child == NULL) {
+        *width = 0;
+        *height = 0;
+        return;
+    }
+    wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted);
     *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width;
     *height = wanted.request_mode & CWHeight ? wanted.height : child->core.height;
 }
@@ -103,9 +111,10 @@ static void layout(XmRowActionsWidget actions) {
     actions->actions.laying_out = True;
     for (i = 0; i < actions->actions.item_count; ++i) {
         preferred(actions->actions.items[i].button, &width, &height);
-        XtSetMappedWhenManaged(actions->actions.items[i].button,
-                               actions->actions.revealed);
-        if (actions->actions.revealed) {
+        if (actions->actions.items[i].button != NULL)
+            XtSetMappedWhenManaged(actions->actions.items[i].button,
+                                   actions->actions.revealed);
+        if (actions->actions.revealed && actions->actions.items[i].button != NULL) {
             Position placement = x > SHRT_MAX ? SHRT_MAX : (Position)x;
             XmeConfigureObject(actions->actions.items[i].button, placement, 0, width,
                                height, 0); x += width;
