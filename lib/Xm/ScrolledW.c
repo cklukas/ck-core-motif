@@ -58,6 +58,16 @@ static char rcsid[] = "$TOG: ScrolledW.c /main/16 1997/07/25 16:49:57 samborn $"
 #define ExistManaged( wid)      (wid && XtIsManaged( wid))
 #define defaultTranslations _XmScrolledW_ScrolledWindowXlations
 
+static Position
+scw_bounded_position(long long value)
+{
+    if (value < SHRT_MIN)
+	return (Position)SHRT_MIN;
+    if (value > SHRT_MAX)
+	return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 /* Auto drag private ********/
 
 #define FORWARD 0
@@ -1692,10 +1702,10 @@ Position * vsbX, Position * vsbY)
         (int) vsb_width;
     hsb_pos = (int) sw->core.height - (int) sw->swindow.HeightPad -
         (int) hsb_height;
-    *vsbX = (HasVSB) ? (Position) ((vsb_pos > 0) ? vsb_pos : 0) :
-        (Position) sw->core.width;
-    *hsbY = (HasHSB) ? (Position) ((hsb_pos > 0) ? hsb_pos : 0) :
-        (Position) sw->core.height;
+    *vsbX = (HasVSB) ? scw_bounded_position((vsb_pos > 0) ? vsb_pos : 0) :
+        scw_bounded_position(sw->core.width);
+    *hsbY = (HasHSB) ? scw_bounded_position((hsb_pos > 0) ? hsb_pos : 0) :
+        scw_bounded_position(sw->core.height);
     /****************
      *
      * Check out the scrollbar placement policy and hack the locations
@@ -1773,8 +1783,8 @@ BoundViewport(XmScrolledWindowWidget sw, Position *x, Position *y,
 {
     int max_x = (int)sw->core.width - 1;
     int max_y = (int)sw->core.height - 1;
-    *x = (Position)MAX(0, MIN((int)*x, MAX(0, max_x)));
-    *y = (Position)MAX(0, MIN((int)*y, MAX(0, max_y)));
+    *x = scw_bounded_position(MAX(0, MIN((int)*x, MAX(0, max_x))));
+    *y = scw_bounded_position(MAX(0, MIN((int)*y, MAX(0, max_y))));
     *width = MAX(1, MIN(*width, (int)sw->core.width - (int)*x));
     *height = MAX(1, MIN(*height, (int)sw->core.height - (int)*y));
 }
