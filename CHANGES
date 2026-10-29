@@ -1,3 +1,10 @@
+Guard TabStack TabBox allocation failures (2026-10-30)
+======================================================
+
+- Skip selection callbacks, geometry, layout, and tab-list updates when the
+  internal TabBox cannot be created.
+- Add focused source coverage and document the no-TabBox fallback.
+
 Guard Notebook scroller allocation failures (2026-10-30)
 =========================================================
 

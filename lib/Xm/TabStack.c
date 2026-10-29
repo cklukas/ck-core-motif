@@ -962,8 +962,9 @@ Initialize(request, set, arg_list, arg_cnt)
      * Add a callback to the XmTabBox so that we know when to display
      * the correct child.
      */
-    XtAddCallback(XmTabStack_tab_box(ts), XmNselectCallback,
-		  TabSelectedCallback, NULL);
+    if (XmTabStack_tab_box(ts) != NULL)
+	XtAddCallback(XmTabStack_tab_box(ts), XmNselectCallback,
+		      TabSelectedCallback, NULL);
 
     /*
      * Now that we are done with these argument list lets deallocate
@@ -1524,7 +1525,7 @@ SetValues(current, request, set, arg_list, arg_cnt)
 	Resize(set);
     }
 
-    if( need_redraw )
+    if( need_redraw && XmTabStack_tab_box(s_tab) != NULL )
     {
 	Widget canvas = _XmTabBoxCanvas(XmTabStack_tab_box(s_tab));
 
@@ -1611,6 +1612,9 @@ QueryGeometry(widget, request, allowed)
 
     *allowed = *request;
     allowed->request_mode = CWWidth | CWHeight;
+
+    if (XmTabStack_tab_box(tab) == NULL)
+	return( XtGeometryYes );
 
     /*
      * If we get this far we know that they care about our Dimensions
@@ -2089,9 +2093,10 @@ GeometryManager(widget, request, allowed)
         (request->request_mode & CWBorderWidth) )
     {
 	XmTabStack__set_tab_list(tab) = False;
-	XtVaSetValues(XmTabStack_tab_box(tab),
-		      XmNtabList, XmTabStack__tab_list(tab),
-		      NULL);
+	if (XmTabStack_tab_box(tab) != NULL)
+	    XtVaSetValues(XmTabStack_tab_box(tab),
+			  XmNtabList, XmTabStack__tab_list(tab),
+			  NULL);
 #ifdef TEAR_OFF_TABS
 	BuildMenu(tab);
 #endif
@@ -2421,7 +2426,8 @@ ChangeManaged(widget)
 	}
     }
 
-    if( (active = XmTabStack__active_child(tab)) != NULL )
+    if( XmTabStack_tab_box(tab) != NULL &&
+	(active = XmTabStack__active_child(tab)) != NULL )
     {
 	XtVaSetValues(XmTabStack_tab_box(tab),
 		      XmNtabList, tl,
@@ -2429,7 +2435,7 @@ ChangeManaged(widget)
 		      XmNtraversalIndex, XmTabStackC_index(active),
 		      NULL);
     }
-    else
+    else if (XmTabStack_tab_box(tab) != NULL)
     {
 	XtVaSetValues(XmTabStack_tab_box(tab),
 		      XmNtabList, tl,
@@ -3190,6 +3196,9 @@ Layout(tab)
     XRectangle box, child;
     WidgetList kid;
     int        i, neg_x;
+
+    if (XmTabStack_tab_box(tab) == NULL)
+	return;
 
     /*
      * Lets start by finding out what size everything should be.
