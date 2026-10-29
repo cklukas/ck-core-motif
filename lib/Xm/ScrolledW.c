@@ -1923,6 +1923,28 @@ XmScrolledWindowWidget sw )
         if (VSBht && !VSBTrav) VSBht = 0;
     }
 
+    /* At tiny automatic allocations, a full navigator thickness can consume
+     * the entire cross-axis. Suppress only the optional bar that cannot fit;
+     * policy is reevaluated on every layout so normal growth restores it. */
+    if (HasHSB && sw->swindow.hScrollBar->core.height &&
+        MyHeight <= (int)sw->swindow.hScrollBar->core.height +
+            2 * (int)HSBht + SB_BORDER_WIDTH +
+            2 * ((int)VSBht + (int)shad +
+                 (sw->swindow.WorkWindow ? (int)sw->swindow.WorkWindow->core.border_width : 0)) +
+            (int)pad) {
+        HasHSB = False;
+        HSBht = 0;
+    }
+    if (HasVSB && sw->swindow.vScrollBar->core.width &&
+        MyWidth <= (int)sw->swindow.vScrollBar->core.width +
+            2 * (int)VSBht + SB_BORDER_WIDTH +
+            2 * ((int)HSBht + (int)shad +
+                 (sw->swindow.WorkWindow ? (int)sw->swindow.WorkWindow->core.border_width : 0)) +
+            (int)pad) {
+        HasVSB = False;
+        VSBht = 0;
+    }
+
     /****************
      *
      * Get the position for scrollbars and workarea
@@ -2059,6 +2081,28 @@ XmScrolledWindowWidget sw )
         sw->swindow.hScrollBar->primitive.highlight_thickness : 0;
     VSBht = (VSBExists) ?
         sw->swindow.vScrollBar->primitive.highlight_thickness : 0;
+
+    /* At tiny automatic allocations, a full navigator thickness can consume
+     * the entire cross-axis. Suppress only the optional bar that cannot fit;
+     * policy is reevaluated on every layout so normal growth restores it. */
+    if (HSBExists && sw->swindow.hScrollBar->core.height &&
+        MyHeight <= (int)sw->swindow.hScrollBar->core.height +
+            2 * (int)HSBht + SB_BORDER_WIDTH +
+            2 * ((int)VSBht + (int)shad +
+                 (sw->swindow.WorkWindow ? (int)sw->swindow.WorkWindow->core.border_width : 0)) +
+            (int)pad) {
+        HSBExists = False;
+        HSBht = 0;
+    }
+    if (VSBExists && sw->swindow.vScrollBar->core.width &&
+        MyWidth <= (int)sw->swindow.vScrollBar->core.width +
+            2 * (int)VSBht + SB_BORDER_WIDTH +
+            2 * ((int)HSBht + (int)shad +
+                 (sw->swindow.WorkWindow ? (int)sw->swindow.WorkWindow->core.border_width : 0)) +
+            (int)pad) {
+        VSBExists = False;
+        VSBht = 0;
+    }
 
     /* find the new min x and y children orig position and the
        new max width and height (position+dimension) stuff as well */

@@ -28847,6 +28847,14 @@ Make DataGrid selection callbacks change-sensitive (2026-10-29)
 - Add native and source regression coverage and document the callback contract.
 
 Make RatingControl value callbacks change-sensitive (2026-10-29)
+Suppress overflowing ScrolledWindow navigators at tiny sizes (2026-10-29)
+==========================================================================
+
+- Temporarily suppress optional automatic scrollbars whose full thickness
+  cannot coexist with a positive viewport, restoring them as the allocation
+  grows while preserving normal policy behavior.
+- Add source coverage and document the containment/restore contract.
+
 Bound ScrolledWindow viewports in tiny allocations (2026-10-29)
 ===============================================================
 
