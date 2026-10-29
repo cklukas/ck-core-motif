@@ -10219,7 +10219,7 @@ XmListGetSelectedPos(Widget w,
     return FALSE;
   *pos_list = NULL;
   *pos_count = 0;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return FALSE;
   _XmWidgetToAppContext(w);
 
@@ -10271,7 +10271,7 @@ XmListSetHorizPos(Widget w,
 		  int position)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -10323,7 +10323,7 @@ XmListYToPos(Widget w,
   XmListWidget lw = (XmListWidget)w;
   int pos;
 
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return 0;
   _XmWidgetToAppContext(w);
 
@@ -10431,7 +10431,7 @@ void
 XmListUpdateSelectedList(Widget w)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -10455,7 +10455,7 @@ XmListPosSelected(Widget w,
   int		int_pos;
   XmListWidget	lw = (XmListWidget) w;
   Boolean	selected;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return False;
   _XmWidgetToAppContext(w);
 

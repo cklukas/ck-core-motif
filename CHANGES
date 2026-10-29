@@ -28743,3 +28743,13 @@ List drag selection bounds (2026-10-28)
   failure helper that reports status and exits safely (2026-10-28).
 * Refreshed the ProgressRing label-centering contract check for its current
   long-long offset arithmetic (2026-10-28).
+Guard List selection and geometry API classes (2026-10-29)
+============================================================
+
+- Make selected-position, horizontal-position, coordinate, selection-refresh,
+  and selection-query helpers reject non-List handles before private access.
+- Add focused public-input coverage and document the unchanged valid-List
+  behavior.
+
+Guard Command convenience API widget classes (2026-10-29)
+===========================================================

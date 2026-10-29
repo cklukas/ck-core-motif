@@ -757,6 +757,7 @@ nav:
       - docs/dropdown-multibyte-failure-cleanup.md
       - docs/dropdown-selection-inputs.md
       - docs/command-api-inputs.md
+      - docs/list-api-inputs.md
       - docs/frame-baseline-count.md
       - docs/i18-list-adjust-position-bounds.md
       - docs/i18-list-available-height.md
