@@ -1,3 +1,11 @@
+Preserve Toolbar actions on oversized replacement input (2026-10-29)
+======================================================================
+
+- Validate the action-array size before tearing down the current toolbar, so
+  malformed oversized input cannot erase working actions.
+- Preserve valid replacement and allocation-failure behavior; add a source
+  regression and document the state-preservation contract.
+
 BreadcrumbBar rejects missing segment arrays (2026-10-29)
 ============================================================
 

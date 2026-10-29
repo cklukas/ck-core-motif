@@ -428,14 +428,11 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
     if (!widget || !XmIsToolbar(widget) || (count && !actions))
         return;
     toolbar = (XmToolbarWidget)widget;
+    if (count && ((size_t)count > SIZE_MAX / sizeof(*toolbar->toolbar.actions) ||
+                  (size_t)count > UINT_MAX / sizeof(*toolbar->toolbar.actions)))
+        return;
     toolbar->toolbar.laying_out = True;
     free_actions(toolbar, True);
-    if (count && ((size_t)count > SIZE_MAX / sizeof(*toolbar->toolbar.actions) ||
-                  (size_t)count > UINT_MAX / sizeof(*toolbar->toolbar.actions))) {
-        XtWarning("XmToolbarSetActions: action array is too large");
-        toolbar->toolbar.laying_out = False;
-        return;
-    }
     if (count) {
         toolbar->toolbar.actions = (XmToolbarStoredAction *)XtCalloc(
             count, sizeof(*toolbar->toolbar.actions));
