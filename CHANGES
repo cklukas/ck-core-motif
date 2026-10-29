@@ -1,3 +1,10 @@
+Guard Flyout owner teardown (2026-10-30)
+=========================================
+
+- Make owner-destroy callbacks, popup destruction, and label updates safe when
+  Flyout children are already being destroyed.
+- Add focused source coverage and document the lifecycle contract.
+
 Saturate Prompt padded extents (2026-10-30)
 ============================================
 

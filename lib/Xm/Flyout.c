@@ -147,8 +147,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
 static void owner_destroyed(Widget owner, XtPointer closure, XtPointer data) {
     XmFlyoutWidget flyout = (XmFlyoutWidget)closure;
     (void)owner; (void)data;
+    if (flyout == NULL || !XmIsFlyout((Widget)flyout))
+        return;
     flyout->flyout.owner = NULL;
-    if (flyout->flyout.popup_shell) {
+    if (flyout->flyout.popup_shell &&
+        !((CoreWidget)flyout->flyout.popup_shell)->core.being_destroyed) {
         XtDestroyWidget(flyout->flyout.popup_shell);
         flyout->flyout.popup_shell = NULL;
         flyout->flyout.label = NULL;
@@ -165,7 +168,8 @@ static void Destroy(Widget widget) {
                              StructureNotifyMask | ButtonPressMask, False,
                              owner_events, (XtPointer)flyout);
     }
-    if (flyout->flyout.popup_shell)
+    if (flyout->flyout.popup_shell &&
+        !((CoreWidget)flyout->flyout.popup_shell)->core.being_destroyed)
         XtDestroyWidget(flyout->flyout.popup_shell);
 }
 
@@ -201,7 +205,9 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmFlyoutWidget flyout = (XmFlyoutWidget)widget;
     XmString label_string;
     (void)request; (void)args; (void)count;
-    if (flyout->flyout.label && old->flyout.text != flyout->flyout.text) {
+    if (flyout->flyout.label &&
+        !((CoreWidget)flyout->flyout.label)->core.being_destroyed &&
+        old->flyout.text != flyout->flyout.text) {
         label_string = XmStringCreateLocalized(flyout->flyout.text ?
                                                flyout->flyout.text : "");
         if (!label_string) return False;
