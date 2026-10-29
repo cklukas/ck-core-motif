@@ -8,4 +8,9 @@ for name in ("Toolbar.c", "StatusBar.c"):
     assert "layout_total_add(unsigned long total" in source, name
     assert "ULONG_MAX - total" in source, name
     assert "layout_total_add(total," in source, name
+    assert "scratch_overflow" in source, name
+    assert "UINT_MAX / sizeof(*chosen)" in source, name
+    if name == "Toolbar.c":
+        assert "UINT_MAX / sizeof(*action_width)" in source
+        assert "UINT_MAX / sizeof(*action_height)" in source
 print("PASS composite layout totals are overflow-safe")

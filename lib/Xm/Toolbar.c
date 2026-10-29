@@ -210,16 +210,23 @@ static void layout(XmToolbarWidget toolbar)
     Boolean *chosen;
     unsigned long total = 0;
     Boolean has_overflow = False;
+    Boolean scratch_overflow;
 
     if (toolbar->toolbar.initializing || toolbar->toolbar.laying_out)
         return;
     toolbar->toolbar.laying_out = True;
-    chosen = toolbar->toolbar.action_count
+    scratch_overflow = toolbar->toolbar.action_count >
+                       UINT_MAX / sizeof(*chosen) ||
+                       toolbar->toolbar.action_count >
+                       UINT_MAX / sizeof(*action_width) ||
+                       toolbar->toolbar.action_count >
+                       UINT_MAX / sizeof(*action_height);
+    chosen = toolbar->toolbar.action_count && !scratch_overflow
                  ? XtCalloc(toolbar->toolbar.action_count, sizeof(Boolean)) : NULL;
-    action_width = toolbar->toolbar.action_count
+    action_width = toolbar->toolbar.action_count && !scratch_overflow
                        ? (Dimension *)XtCalloc(toolbar->toolbar.action_count,
                                                sizeof(Dimension)) : NULL;
-    action_height = toolbar->toolbar.action_count
+    action_height = toolbar->toolbar.action_count && !scratch_overflow
                         ? (Dimension *)XtCalloc(toolbar->toolbar.action_count,
                                                 sizeof(Dimension)) : NULL;
     if (toolbar->toolbar.action_count &&
