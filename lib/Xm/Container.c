@@ -3776,6 +3776,10 @@ PlaceItemGridCells(
 {
   XmContainerWidget	cw = (XmContainerWidget)wid;
   XmContainerConstraint c = GetContainerConstraint(cwid);
+  int64_t content_right = (int64_t)cw->core.width -
+	(int64_t)cw->container.margin_w;
+  int64_t content_bottom = (int64_t)cw->core.height -
+	(int64_t)cw->container.margin_h;
   int		start_cell;
   int	trial_cell = 0;
   int closest_cell = -1;
@@ -3843,10 +3847,10 @@ PlaceItemGridCells(
 			  	     place_point.x,place_point.y,
 				     cwid->core.width,cwid->core.height)
 		       == RectangleOut) &&
-		      (place_point.x + cwid->core.width <= 
-		       cw->core.width - cw->container.margin_w) &&
-		      (place_point.y + cwid->core.height <=
-		       cw->core.height - cw->container.margin_h))
+		      ((int64_t)place_point.x + (int64_t)cwid->core.width <=
+		       content_right) &&
+		      ((int64_t)place_point.y + (int64_t)cwid->core.height <=
+		       content_bottom))
 		    fits = True;
 	        }
 	    }

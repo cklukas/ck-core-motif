@@ -1,3 +1,10 @@
+Bound Container grid placement (2026-10-29)
+============================================
+
+- Widen grid candidate and content-edge arithmetic so undersized Containers
+  cannot accept out-of-bounds children after unsigned margin subtraction.
+- Add a focused source regression and document the geometry contract.
+
 Bound Container none-style placement (2026-10-29)
 ==================================================
 

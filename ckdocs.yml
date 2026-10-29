@@ -50,6 +50,7 @@ nav:
       - docs/datafield-timer-edge-bounds.md
       - docs/container-tabs.md
       - docs/container-place-none-bounds.md
+      - docs/container-place-grid-bounds.md
       - docs/nontext-unicode.md
       - docs/notebook-order.md
       - docs/theme-configuration.md
