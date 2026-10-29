@@ -11745,6 +11745,9 @@ XmDataFieldGetString(
     size_t capacity;
     size_t ret_val = 0;
 
+    if (w == NULL)
+      return NULL;
+
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
 
@@ -11816,6 +11819,9 @@ XmDataFieldGetSubstring(
     int n_bytes = 0;
     size_t wcs_ret = 0;
 
+    if (widget == NULL)
+      return XmCOPY_FAILED;
+
     _XmWidgetToAppContext(widget);    
     _XmAppLock(app);
 
@@ -11885,6 +11891,9 @@ XmDataFieldGetStringWcs(
     size_t converted;
     size_t string_length;
 
+    if (w == NULL)
+      return NULL;
+
     _XmWidgetToAppContext(w);    
     _XmAppLock(app);
 
@@ -11952,6 +11961,9 @@ XmDataFieldGetSubstringWcs(
     XmDataFieldWidget tf = (XmDataFieldWidget) widget;
     int ret_value = XmCOPY_SUCCEEDED;
     size_t num_wcs = 0;
+
+    if (widget == NULL)
+      return XmCOPY_FAILED;
 
     _XmWidgetToAppContext(widget);    
     _XmAppLock(app);

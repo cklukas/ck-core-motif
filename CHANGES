@@ -69,6 +69,13 @@ Guard DataField mutator context lookup (2026-10-29)
   the widget is NULL, before Xt context lookup.
 - Guard the last-position getter and add focused mutator coverage.
 
+Guard DataField string inputs (2026-10-29)
+==========================================
+
+- Reject NULL widgets before context lookup in DataField string and substring
+  getters, preserving their existing failure results.
+- Add focused coverage for byte and wide-character APIs.
+
 Clamp appearance arrow inset positions (2026-10-29)
 =====================================================
 
