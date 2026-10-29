@@ -4291,6 +4291,8 @@ CheckTimerScrolling(Widget w,
   OutputData o_data = tw->text.output->data;
   int interval = 200;
   int64_t text_bottom;
+  int64_t text_right;
+  int64_t text_bottom_edge;
   int64_t rtl_left_edge;
 
   if (!event)
@@ -4300,11 +4302,14 @@ CheckTimerScrolling(Widget w,
   data->select_pos_y = ClampTextPointCoordinate(event->xmotion.y);
   text_bottom = (int64_t)o_data->topmargin +
 	(int64_t)o_data->lineheight * (int64_t)o_data->number_lines;
+  text_right = (int64_t)tw->core.width - (int64_t)o_data->rightmargin;
+  text_bottom_edge = (int64_t)tw->core.height -
+	(int64_t)o_data->bottommargin;
   rtl_left_edge = (int64_t)tw->core.width - (int64_t)o_data->rightmargin -
 	(int64_t)o_data->linewidth * ((int64_t)o_data->number_lines + 1);
   
   if ((event->xmotion.x > (int)o_data->leftmargin) &&
-      (event->xmotion.x < (int)(tw->core.width - o_data->rightmargin))  &&
+      ((int64_t)event->xmotion.x < text_right)  &&
       (event->xmotion.y > (int)o_data->topmargin) &&
       ((int64_t)event->xmotion.y < text_bottom)) {
     
@@ -4321,16 +4326,15 @@ CheckTimerScrolling(Widget w,
 		(o_data->topmargin - (o_data->font_ascent +
 					  o_data->font_descent + 1)));
       /* to the below of the text */
-      else if (event->xmotion.y >= (int) (tw->core.height - 
-					  o_data->bottommargin))
-	data->select_pos_y = ClampTextPointCoordinate((int)
-		((tw->core.height - o_data->bottommargin) +
-					  (o_data->font_ascent +
-					   o_data->font_descent + 1)));
+	  else if ((int64_t)event->xmotion.y >= text_bottom_edge)
+	data->select_pos_y = ClampTextPointCoordinate(
+		text_bottom_edge +
+					  o_data->font_ascent +
+					  o_data->font_descent + 1);
       /* right the text */
-      if (event->xmotion.x >= (int) (tw->core.width - o_data->rightmargin)) {
-	data->select_pos_x = ClampTextPointCoordinate((int)
-		((tw->core.width - o_data->rightmargin) + o_data->linewidth));
+	  if ((int64_t)event->xmotion.x >= text_right) {
+	data->select_pos_x = ClampTextPointCoordinate(
+		text_right + o_data->linewidth);
 	if (tw->text.top_line == 0)
 	  data->select_pos_x = ClampTextPointCoordinate((int)tw->core.width);
 	
@@ -4349,11 +4353,9 @@ CheckTimerScrolling(Widget w,
 	data->select_pos_x = ClampTextPointCoordinate((int)
 		(o_data->leftmargin - (o_data->averagecharwidth + 1)));
       /* to the right of the text */
-      else if (event->xmotion.x >= (int) (tw->core.width - 
-					  o_data->rightmargin))
-	data->select_pos_x = ClampTextPointCoordinate((int)
-		((tw->core.width - o_data->rightmargin) +
-					  o_data->averagecharwidth + 1));
+	  else if ((int64_t)event->xmotion.x >= text_right)
+	data->select_pos_x = ClampTextPointCoordinate(
+		text_right + o_data->averagecharwidth + 1);
       /* above the text */
       if (event->xmotion.y <= (int) o_data->topmargin) {
 	data->select_pos_y = ClampTextPointCoordinate((int)
@@ -4362,11 +4364,9 @@ CheckTimerScrolling(Widget w,
 	  data->select_pos_x = 0;
 	
       /* below the text */
-      } else if (event->xmotion.y >= 
-			 (int64_t)text_bottom)
-	data->select_pos_y = ClampTextPointCoordinate((int)
-		(o_data->topmargin + (o_data->lineheight *
-						   (o_data->number_lines + 1))));
+      } else if ((int64_t)event->xmotion.y >= text_bottom)
+	data->select_pos_y = ClampTextPointCoordinate(
+		(int64_t)text_bottom + o_data->lineheight);
     
       /* ask the vertical scroller its delay */
       if (o_data->vbar)
@@ -4532,6 +4532,14 @@ DoGrabFocus(Widget w,
   XmTextWidget tw = (XmTextWidget) w;
   InputData data = tw->text.input->data;
   OutputData o_data = tw->text.output->data;
+  int64_t text_right = (int64_t)tw->core.width -
+	(int64_t)o_data->rightmargin;
+  int64_t text_bottom = (int64_t)tw->core.height -
+	(int64_t)o_data->bottommargin;
+  int64_t rtl_text_left = text_right -
+	(int64_t)o_data->linewidth * (int64_t)o_data->number_lines;
+  int64_t ltr_text_bottom = (int64_t)o_data->topmargin +
+	(int64_t)o_data->lineheight * (int64_t)o_data->number_lines;
 
   _XmTextResetIC(w);
   data->cancel = False;
@@ -4540,41 +4548,36 @@ DoGrabFocus(Widget w,
 			XmTOP_TO_BOTTOM_RIGHT_TO_LEFT)) {
     /* to the top of the text */
       if (event->xbutton.y <= (int) o_data->topmargin)
-        event->xbutton.y = (Position) (o_data->topmargin + 1);
+        event->xbutton.y = ClampTextPointCoordinate(
+		(int64_t)o_data->topmargin + 1);
       
       /* to the bottom of the text */
-      else if (event->xbutton.y >=
-	       (int) (tw->core.height - o_data->bottommargin))
-        event->xbutton.y =
-	    (Position)((tw->core.height - o_data->bottommargin)- 1);
+	  else if ((int64_t)event->xbutton.y >= text_bottom)
+	event->xbutton.y = ClampTextPointCoordinate(text_bottom - 1);
       /* above the text */
-      if (event->xbutton.x >= (int) (tw->core.width - o_data->rightmargin))
-        event->xbutton.x = (int) (tw->core.width - o_data->rightmargin) - 1;
+	  if ((int64_t)event->xbutton.x >= text_right)
+	event->xbutton.x = ClampTextPointCoordinate(text_right - 1);
       
       /* below the text */
-      else if (event->xbutton.x <= 
-	       (int)(tw->core.width - o_data->rightmargin -
-	       (o_data->linewidth * o_data->number_lines)))
-        event->xbutton.x = ((int)(tw->core.width - o_data->rightmargin) -
-			    (o_data->linewidth * o_data->number_lines)) + 1;
+	  else if ((int64_t)event->xbutton.x <= rtl_text_left)
+	event->xbutton.x = ClampTextPointCoordinate(rtl_text_left + 1);
     } else {
       /* to the left of the text */
       if (event->xbutton.x <= (int) o_data->leftmargin)
-        event->xbutton.x = (Position) (o_data->leftmargin + 1);
+        event->xbutton.x = ClampTextPointCoordinate(
+		(int64_t)o_data->leftmargin + 1);
       
       /* to the right of the text */
-      else if (event->xbutton.x >= (int) (tw->core.width - o_data->rightmargin))
-        event->xbutton.x = (Position)((tw->core.width - o_data->rightmargin)- 1);
+	  else if ((int64_t)event->xbutton.x >= text_right)
+	event->xbutton.x = ClampTextPointCoordinate(text_right - 1);
       /* above the text */
       if (event->xbutton.y <= (int) o_data->topmargin)
-        event->xbutton.y = (int) (o_data->topmargin + 1);
+        event->xbutton.y = ClampTextPointCoordinate(
+		(int64_t)o_data->topmargin + 1);
     
       /* below the text */
-      else if (event->xbutton.y >= 
-	       (int)(o_data->topmargin + (o_data->lineheight *
-					  o_data->number_lines)))
-        event->xbutton.y = (o_data->topmargin +
-			    (o_data->lineheight * o_data->number_lines)) - 1;
+	  else if ((int64_t)event->xbutton.y >= ltr_text_bottom)
+	event->xbutton.y = ClampTextPointCoordinate(ltr_text_bottom - 1);
     }
   }
 

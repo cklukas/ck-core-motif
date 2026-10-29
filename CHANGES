@@ -1,3 +1,11 @@
+Text input edge bounds are widened before margin subtraction (2026-10-29)
+==========================================================================
+
+- Prevent tiny transient Text widgets from wrapping pointer-focus and
+  autoscroll edge coordinates when margins exceed the current allocation.
+- Keep the widened coordinates signed and clamp them before writing X11
+  `Position` values; add a source regression and document the contract.
+
 Preserve StatusBar items on oversized replacement input (2026-10-29)
 =====================================================================
 
