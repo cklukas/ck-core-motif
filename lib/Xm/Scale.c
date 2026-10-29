@@ -2186,7 +2186,7 @@ ScrollWidth(
 	    if (num_managed > 2) {
 		/* Have to catch an indirect recursion here */
 		if (num_managed > 3) {
-		    Dimension tic, diff;
+		    int tic, diff;
 		    XmScrollBarWidget sb = (XmScrollBarWidget)
 			sw->composite.children[1];
 		    
@@ -2196,10 +2196,9 @@ ScrollWidth(
 		    tmp = (num_managed - 2)* MaxLabelWidth(sw);
 #endif
 		    
-		    tic = sb->primitive.highlight_thickness
-			+ sb->primitive.shadow_thickness
-			    + (Dimension) (((float) SLIDER_SIZE( sw) / 2.0) 
-					   + 0.5);
+		    tic = (int)sb->primitive.highlight_thickness
+			+ (int)sb->primitive.shadow_thickness
+			    + (int)(((float)SLIDER_SIZE(sw) / 2.0) + 0.5);
 		    
 		    diff = tic - ((int)MaxLabelWidth(sw) / 2);
 		    
@@ -2272,7 +2271,7 @@ ScrollHeight(
 	    if (num_managed > 2){
 		/* Have to catch an indirect recursion here */
 		    if (num_managed > 3) {
-			Dimension tic, diff;
+			int tic, diff;
 			XmScrollBarWidget sb = (XmScrollBarWidget)
 			    sw->composite.children[1];
 			
@@ -2282,10 +2281,9 @@ ScrollHeight(
 			tmp = (num_managed - 2)* MaxLabelHeight(sw);
 #endif
 			
-			tic = sb->primitive.highlight_thickness
-			    + sb->primitive.shadow_thickness
-				+ (Dimension) (((float) SLIDER_SIZE(sw) / 2.0) 
-					       + 0.5);
+			tic = (int)sb->primitive.highlight_thickness
+			    + (int)sb->primitive.shadow_thickness
+				+ (int)(((float)SLIDER_SIZE(sw) / 2.0) + 0.5);
 			
 			diff = tic - (MaxLabelHeight(sw) / 2);
 			

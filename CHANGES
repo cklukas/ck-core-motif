@@ -28840,6 +28840,7 @@ Make ColorPicker value callbacks change-sensitive (2026-10-29)
 
 Preserve CommandPalette items on invalid replacement input (2026-10-29)
 Make DataGrid selection callbacks change-sensitive (2026-10-29)
+
 ===============================================================
 
 - Emit the selection callback only when `XmDataGridSetSelectedCell` changes
@@ -28874,3 +28875,11 @@ Keep List horizontal-scrollbar decisions valid at tiny allocations (2026-10-29)
 - Add a source regression and document the sizing contract.
 
 Make DataGrid selection callbacks change-sensitive (2026-10-29)
+
+Keep Scale label-spacing compensation signed (2026-10-29)
+===========================================================
+
+- Use signed intermediates when subtracting label extents from the tick/slider
+  allowance, preventing unsigned underflow from producing oversized fallback
+  geometry in either orientation.
+- Add a source regression and document the sizing contract.
