@@ -28814,3 +28814,12 @@ Preserve AutoSuggest suggestions on oversized replacement input (2026-10-29)
   regression and document the state-preservation contract.
 
 Preserve RowActions items on oversized replacement input (2026-10-29)
+Preserve CommandPalette items on invalid replacement input (2026-10-29)
+========================================================================
+
+- Validate NULL and oversized non-empty item replacements before freeing the
+  current palette model, so malformed input cannot erase visible actions.
+- Preserve the explicit zero-count clear operation; add a source regression and
+  document the replacement contract.
+
+Preserve AutoSuggest suggestions on oversized replacement input (2026-10-29)
