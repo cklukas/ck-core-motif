@@ -757,6 +757,9 @@ GeometryManager(Widget w, XtWidgetGeometry * request,
     Boolean w_req = request->request_mode & CWWidth;
     Boolean h_req = request->request_mode & CWHeight;
 
+    *result = (XtWidgetGeometry){0};
+    if (request->request_mode & ~(CWWidth | CWHeight | XtCWQueryOnly))
+        return XtGeometryNo;
     if (!(w_req || h_req)) return(XtGeometryNo);
     
     old_width = w->core.width;
@@ -774,7 +777,15 @@ GeometryManager(Widget w, XtWidgetGeometry * request,
     _XmRequestNewSize((Widget) cbw, True, 
        c_width, c_height, &r_width, &r_height);
 
-    if (c_height == r_height) {
+    /* A rejected height is refusal, not an uninitialized compromise.  Restore
+     * the speculative child geometry before returning to the parent. */
+    if (c_height != r_height) {
+        w->core.width = old_width;
+        w->core.height = old_height;
+        return XtGeometryNo;
+    }
+
+    {
 	Dimension arrow_width, text_width, label_width, tbw, lbw;
 
 	result->height = w->core.height;
@@ -1794,6 +1805,26 @@ GetTextAndLabelWidth(Widget w, Dimension combo_width, Dimension arrow_width,
  */
  
 static void
+QueryChildSize(Widget child, XtWidgetGeometry *geometry)
+{
+    XtWidgetGeometry preferred = {0};
+
+    /* XtQueryGeometry only defines fields named in request_mode. */
+    *geometry = (XtWidgetGeometry){0};
+    geometry->request_mode = CWWidth | CWHeight | CWBorderWidth;
+    geometry->width = child->core.width;
+    geometry->height = child->core.height;
+    geometry->border_width = child->core.border_width;
+    (void)XtQueryGeometry(child, NULL, &preferred);
+    if (preferred.request_mode & CWWidth)
+	geometry->width = preferred.width;
+    if (preferred.request_mode & CWHeight)
+	geometry->height = preferred.height;
+    if (preferred.request_mode & CWBorderWidth)
+	geometry->border_width = preferred.border_width;
+}
+
+static void
 FindDesiredSize(Widget w, Widget child, 
 		Dimension * width_ret, Dimension * height_ret,
 		XtWidgetGeometry * label, XtWidgetGeometry * text,
@@ -1810,7 +1841,7 @@ FindDesiredSize(Widget w, Widget child,
 	label->border_width = 0;
     }	
     else if ( child != XmDropDown_label(cbw) ) {
-	(void) XtQueryGeometry(XmDropDown_label(cbw), NULL, label);
+	QueryChildSize(XmDropDown_label(cbw), label);
     } 
     else
     {
@@ -1821,7 +1852,7 @@ FindDesiredSize(Widget w, Widget child,
     
     if ( child != XmDropDown_text(cbw) ) 
     {	
-	(void) XtQueryGeometry(XmDropDown_text(cbw), NULL, text);
+	QueryChildSize(XmDropDown_text(cbw), text);
     } 
     else 
     {
@@ -1832,7 +1863,7 @@ FindDesiredSize(Widget w, Widget child,
 
     if ( child != XmDropDown_arrow(cbw) ) 
     {
-	(void) XtQueryGeometry(XmDropDown_arrow(cbw), NULL, arrow);
+	QueryChildSize(XmDropDown_arrow(cbw), arrow);
     }
     else 
     {
