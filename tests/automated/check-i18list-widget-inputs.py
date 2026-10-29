@@ -17,7 +17,7 @@ for signature, result in functions:
     body_start = source.index("{", start)
     body_end = source.index("\n}", body_start)
     body = source[body_start:body_end]
-    guard = "if (w == (Widget) NULL)\n"
+    guard = "if (w == (Widget) NULL"
     assert guard in body
     assert result in body
     access = "XmI18ListWidget ilist = (XmI18ListWidget) w;"
