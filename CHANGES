@@ -31204,3 +31204,11 @@ Parse render-table AS_IS sentinels correctly (2026-10-30)
 - Add focused source-contract coverage and document the corrected import.
 
 Handle initial render-table property allocation failure (2026-10-30)
+Terminate render-table item scans at EOF (2026-10-30)
+=====================================================
+
+- Stop the initial property-item scan on EOF as well as newline, preventing a
+  malformed property without a trailing newline from looping indefinitely.
+- Add focused source-contract coverage and document the parser behavior.
+
+Parse render-table AS_IS sentinels correctly (2026-10-30)

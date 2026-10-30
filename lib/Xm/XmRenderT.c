@@ -3984,7 +3984,7 @@ XmRenderTableCvtFromProp(Widget w,
   /* Read the list of items */
   for(j = 0; j < 20; ) {
     token = ReadToken(prop, &scanpointer, &reusetoken);
-    if (token -> type == T_NL) break;
+    if (token -> type == T_NL || token -> type == T_EOF) break;
     if (token -> type == T_STR) {
       items[j] = token -> string;
       j++;
