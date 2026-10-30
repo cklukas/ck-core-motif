@@ -2774,6 +2774,8 @@ XmColumnLabelDestroyedCallback(Widget widget, XtPointer client,
 {
     Widget field = (Widget) client;
 
+    if (field == NULL || !XtIsSubclass(field, xmColumnWidgetClass))
+	return;
     XiC(field)->label_widget = NULL;
 }
 

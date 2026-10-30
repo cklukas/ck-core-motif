@@ -1,3 +1,10 @@
+Guard Column label teardown callback (2026-10-30)
+=================================================
+
+- Validate the client field widget before clearing label state.
+- Ignore malformed destruction callback payloads safely.
+- Add focused source coverage and documentation.
+
 Guard navigability trait callbacks (2026-10-30)
 ===============================================
 
