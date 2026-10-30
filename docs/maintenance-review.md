@@ -774,3 +774,8 @@ List selection, deselection, add-mode, and viewport-position operations now fail
 closed during Xt teardown, avoiding redraw, accessibility, and keyboard
 navigation work on partial state. The focused source check is
 `tests/automated/check-list-selection-destroy-guards.py`.
+
+List keyboard-position and horizontal-scroll changes now fail closed during Xt
+teardown, avoiding redraw, IME, scrollbar, and accessibility work on partial
+state. The focused source check is
+`tests/automated/check-list-keyboard-scroll-destroy-guards.py`.

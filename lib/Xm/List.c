@@ -8547,7 +8547,7 @@ XmListAddItems(Widget w,
 	       int pos)
 {
   XmListWidget lw = (XmListWidget) w;
-  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
+  if (w == NULL || !XmIsList(w) || ((XmListWidget)w)->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9386,7 +9386,7 @@ XmListReplaceItemsPosUnselected(Widget w,
 				int item_count,
 				int position)
 {
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || ((XmListWidget)w)->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
@@ -9870,7 +9870,7 @@ XmListSetBottomPos(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int top;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -10172,7 +10172,7 @@ XmListSetKbdItemPos(Widget w,
 		    int    pos)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return False;
   _XmWidgetToAppContext(w);
 
@@ -10414,7 +10414,7 @@ XmListSetHorizPos(Widget w,
 		  int position)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
