@@ -6474,7 +6474,7 @@ static	void
 LayoutOutlineDetail(
 	Widget	wid)
 {
-    XmContainerWidget		cw = (XmContainerWidget)wid;
+    XmContainerWidget		cw;
     XmContainerConstraint	c;
     XmContainerConstraint	pc;
 
@@ -6486,6 +6486,10 @@ LayoutOutlineDetail(
     XSegment *          new_outline_segs = NULL;
     int                 i;
     Boolean             outline_ready = True;
+
+    if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
 
     if (CtrLayoutIsDETAIL(cw))
 	{
@@ -6510,7 +6514,15 @@ LayoutOutlineDetail(
 	 * So, how many XSegments do we need?
 	 */
 	{
+	if (node->widget_ptr == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	c = GetContainerConstraint(node->widget_ptr);
+	if (c == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	if (c->depth != 0)
 	{
 	    if (n_outline_segs > INT_MAX - 2)
@@ -6598,7 +6610,15 @@ LayoutOutlineDetail(
 	{
 	cw->container.last_node = node;
 	cwid = node->widget_ptr;
+	if (cwid == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	c = GetContainerConstraint(cwid);
+	if (c == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 
 	if (LayoutIsRtoLM(cw))
 	    x = AdjustPositionSaturated(0,
@@ -6673,9 +6693,9 @@ LayoutOutlineDetail(
         else
             point_at_depth[c->depth].y = y + cwid->core.height;
 
-        if (c->entry_parent)
+	if (c->entry_parent &&
+	    (pc = GetContainerConstraint(c->entry_parent)) != NULL)
             {
-            pc = GetContainerConstraint(c->entry_parent);
             if (CtrOB_PRESENT(cw))
             {
               /* Optimally, the line would be drawn from the center of the Outline Button (OB)

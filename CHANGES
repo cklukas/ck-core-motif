@@ -31885,3 +31885,10 @@ Guard Container outline request inputs (2026-10-30)
 - Return safely when outline-detail geometry negotiation receives no Container
   widget or geometry record.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container outline layout inputs (2026-10-30)
+===================================================
+
+- Validate outline layout child and parent constraint state before calculating
+  geometry or connector lines.
+- Add focused source-contract coverage and document the invalid-input path.
