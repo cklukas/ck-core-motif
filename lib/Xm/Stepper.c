@@ -174,6 +174,12 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmStepperWidget old = (XmStepperWidget)old_widget, s = (XmStepperWidget)widget; Boolean redraw_needed = False;
     (void)request; (void)args; (void)count; normalize(s);
+    if ((old->primitive.foreground != s->primitive.foreground ||
+         old->core.background_pixel != s->core.background_pixel) && s->stepper.gc) {
+        XSetForeground(XtDisplay(widget), s->stepper.gc, s->primitive.foreground);
+        XSetBackground(XtDisplay(widget), s->stepper.gc, s->core.background_pixel);
+        redraw_needed = True;
+    }
     if (old->stepper.render_table != s->stepper.render_table) {
         XmRenderTable new_table = s->stepper.render_table ?
             XmFontListCopy(s->stepper.render_table) :

@@ -123,6 +123,11 @@ RatingControl now treats foreground, highlight, and background changes as live
 visual updates, refreshing its GC and requesting redisplay through `SetValues`.
 The focused check is `tests/automated/check-rating-control-color-update.py`.
 
+Stepper now applies foreground/background changes to its drawing GC and
+requests redisplay through `SetValues`, so live color updates are reflected
+without recreating the control. The focused check is
+`tests/automated/check-stepper-color-update.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as

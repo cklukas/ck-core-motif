@@ -30716,3 +30716,9 @@ Update RatingControl colors through SetValues (2026-10-30)
   highlight, or background resources change.
 - Add `tests/automated/check-rating-control-color-update.py` and document the
   behavior.
+
+Update Stepper colors through SetValues (2026-10-30)
+====================================================
+- Apply foreground/background changes to the live Stepper drawing GC and
+  request redisplay when those resources change.
+- Add `tests/automated/check-stepper-color-update.py` and document the change.
