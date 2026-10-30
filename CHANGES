@@ -32397,3 +32397,12 @@ Use ImageCache name tails in hashing (2026-10-30)
 
 Bound ImageCache hash conversions (2026-10-30)
 ================================================
+Rollback failed Xpm hash growth (2026-10-30)
+=============================================
+
+- Remove a newly inserted atom when hash-table growth fails, keeping table
+  accounting consistent and avoiding a leak on `XpmNoMemory`.
+- Add focused source-contract coverage and document the failure behavior.
+
+Use ImageCache name tails in hashing (2026-10-30)
+===================================================

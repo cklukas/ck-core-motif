@@ -192,7 +192,11 @@ xpmHashIntern(
 	    int ErrorStatus;
 
 	    if ((ErrorStatus = HashTableGrows(table)) != XpmSuccess)
-		return (ErrorStatus);
+		{
+		    XpmFree(*slot);
+		    *slot = NULL;
+		    return (ErrorStatus);
+		}
 	    table->used++;
 	    return (XpmSuccess);
 	}
