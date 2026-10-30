@@ -1,3 +1,10 @@
+Guard Notebook orientation pixel hooks (2026-10-30)
+====================================================
+
+- Validate widget classes and value storage before orientation-dependent conversion.
+- Return deterministic zero output or XmSYNTHETIC_NONE for invalid callbacks.
+- Add focused source coverage and documentation.
+
 Guard PushButton synthetic pixel hooks (2026-10-30)
 ====================================================
 

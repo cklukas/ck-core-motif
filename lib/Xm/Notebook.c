@@ -2042,7 +2042,15 @@ FromOrientationPixels (
     int offset,
     XtArgVal *value)
 {
-    XmNotebookWidget nb = (XmNotebookWidget)w;
+    XmNotebookWidget nb;
+
+    if (w == NULL || value == NULL ||
+	!XtIsSubclass(w, xmNotebookWidgetClass))
+	{
+	    if (value != NULL) *value = (XtArgVal) 0;
+	    return;
+	}
+    nb = (XmNotebookWidget)w;
 
     if ((int)(*value) < 0)
 	*value = 0;
@@ -2064,7 +2072,12 @@ ToOrientationPixels (
     int offset,
     XtArgVal *value)
 {
-    XmNotebookWidget nb = (XmNotebookWidget)w;
+    XmNotebookWidget nb;
+
+    if (w == NULL || value == NULL ||
+	!XtIsSubclass(w, xmNotebookWidgetClass))
+	    return XmSYNTHETIC_NONE;
+    nb = (XmNotebookWidget)w;
 
     if (nb->notebook.orientation == XmHORIZONTAL)
         return(XmeToHorizontalPixels(w, offset, value));
@@ -2084,7 +2097,15 @@ FromOrientationOppositePixels (
     int offset,
     XtArgVal *value)
 {
-    XmNotebookWidget nb = (XmNotebookWidget)w;
+    XmNotebookWidget nb;
+
+    if (w == NULL || value == NULL ||
+	!XtIsSubclass(w, xmNotebookWidgetClass))
+	{
+	    if (value != NULL) *value = (XtArgVal) 0;
+	    return;
+	}
+    nb = (XmNotebookWidget)w;
 
     if ((int)(*value) < 0)
         *value = 0;
@@ -2106,7 +2127,12 @@ ToOrientationOppositePixels (
     int offset,
     XtArgVal *value)
 {
-    XmNotebookWidget nb = (XmNotebookWidget)w;
+    XmNotebookWidget nb;
+
+    if (w == NULL || value == NULL ||
+	!XtIsSubclass(w, xmNotebookWidgetClass))
+	    return XmSYNTHETIC_NONE;
+    nb = (XmNotebookWidget)w;
 
     if (nb->notebook.orientation == XmHORIZONTAL)
 	return(XmeToVerticalPixels(w, offset, value));
