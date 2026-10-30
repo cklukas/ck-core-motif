@@ -120,8 +120,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmBadgeWidget old = (XmBadgeWidget)old_widget, badge = (XmBadgeWidget)widget;
     XmString replacement;
-    Boolean font_changed = old->badge.font != badge->badge.font;
+    Boolean font_changed;
     (void)request; (void)args; (void)count;
+    if (old_widget == NULL || widget == NULL ||
+        !XtIsSubclass(old_widget, xmBadgeWidgetClass) ||
+        !XtIsSubclass(widget, xmBadgeWidgetClass))
+        return False;
+    font_changed = old->badge.font != badge->badge.font;
     if (font_changed) {
         XmRenderTable new_font = badge->badge.font ? XmFontListCopy(badge->badge.font) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));

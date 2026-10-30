@@ -1,3 +1,10 @@
+Guard Badge SetValues input (2026-10-30)
+========================================
+
+- Reject null or wrong-class old/new widgets before comparing private state.
+- Return `False` for malformed lifecycle calls.
+- Add focused source coverage and documentation.
+
 Guard Badge geometry-query input (2026-10-30)
 =============================================
 
