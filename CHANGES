@@ -1,3 +1,10 @@
+Release XmString segment copies on failure (2026-10-30)
+========================================================
+
+- Free owned tag/text copies before clearing outputs when segment normalization
+  or wide-character copy allocation fails.
+- Add focused source-contract coverage and document the cleanup behavior.
+
 Invalidate XmString contexts after copy failure (2026-10-30)
 =============================================================
 

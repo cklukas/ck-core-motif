@@ -331,6 +331,7 @@ _XmStringGetSegment(_XmStringContext   context,
 	{
 	  XmStringTag copied_tag = XtNewString(*tag);
 	  if (copied_tag == NULL) {
+	    XtFree((char *)*tag);
 	    *tag = NULL;
 	    result = FALSE;
 	  } else {
@@ -343,6 +344,7 @@ _XmStringGetSegment(_XmStringContext   context,
 	{
 	  if (*char_count < 0)
 	    {
+	    XtFree((char *)*text);
 	    *text = NULL;
 	    XtFree((char *)*tag);
 	    *tag = NULL;
@@ -357,6 +359,7 @@ _XmStringGetSegment(_XmStringContext   context,
 	      text_bytes > SIZE_MAX - sizeof(wchar_t) ||
 	      text_bytes + sizeof(wchar_t) > UINT_MAX)
 	    {
+	    XtFree((char *)*text);
 	    *text = NULL;
 	    XtFree((char *)*tag);
 	    *tag = NULL;
@@ -366,6 +369,7 @@ _XmStringGetSegment(_XmStringContext   context,
 	  {
 	  char *tmp = XtMalloc((Cardinal)(text_bytes + sizeof(wchar_t)));
 	  if (tmp == NULL) {
+	    XtFree((char *)*text);
 	    *text = NULL;
 	    XtFree((char *)*tag);
 	    *tag = NULL;
