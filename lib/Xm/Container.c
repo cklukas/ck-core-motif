@@ -4392,6 +4392,7 @@ ContainerStartTransfer(
 {
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 	Widget                  cwid;
+
 	int			transfer_action;
 
 	if (cw->container.selecting) 
@@ -5023,6 +5024,9 @@ ContainerBeginToggle(
 {
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 	Widget                  cwid;
+
+	if (event == NULL || num_params == NULL)
+	    return;
 
 	if (CtrLayoutIsOUTLINE_DETAIL(wid))
 	    {
