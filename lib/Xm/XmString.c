@@ -3654,6 +3654,9 @@ EntryCvtToOpt(_XmStringEntry entry)
   if (_XmEntryMultiple(entry))
     return NULL;
 
+  if (_XmEntryByteCountGet(entry) > 0 && _XmEntryTextGet(entry) == NULL)
+    return NULL;
+
   /* Unoptimized, convert if possible */
   if (_XmEntryUnoptimized(entry)) {
     if (_XmEntryPushGet(entry) || 
@@ -3747,6 +3750,9 @@ EntryCvtToUnopt(_XmStringEntry entry)
 
   /* Array segment */
   if (_XmEntryMultiple(entry))
+    return NULL;
+
+  if (_XmEntryByteCountGet(entry) > 0 && _XmEntryTextGet(entry) == NULL)
     return NULL;
 
   /* Unoptimized, return copy */
