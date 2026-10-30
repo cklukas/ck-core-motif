@@ -7319,8 +7319,8 @@ Toolbar action-label allocation guards (2026-10-26)
 Row-actions string-copy allocation guards (2026-10-26)
 =======================================================
 
-- Return cleanly when `XmRowActions` cannot copy an item string instead of
-  passing a null conversion buffer to `XmStringCreateLocalized`; see
+- Copy retained RowActions item strings directly as `XmString` values,
+  preserving compound segments without a conversion buffer; see
   `docs/row-actions-string-copy-guards.md`.
 
 Status-bar label allocation guards (2026-10-26)
