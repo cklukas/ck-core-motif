@@ -5881,6 +5881,9 @@ GetVisualEmphasis(
     XmContainerItemDataRec      cItemData;
     XmContainerItemTrait        cItemTrait;
 
+    if (cwid == NULL)
+	return(XmNOT_SELECTED);
+
     if ((cItemTrait = (XmContainerItemTrait)
         XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
         cItemTrait->getValues == NULL)
@@ -5898,9 +5901,15 @@ SetVisualEmphasis(
     Widget  		cwid,
     unsigned char	emphasis)
 {
-    XmContainerWidget		cw = (XmContainerWidget)XtParent(cwid);
+	XmContainerWidget		cw;
     XmContainerItemDataRec	cItemData;
     XmContainerItemTrait	cItemTrait;
+
+    if (cwid == NULL)
+	return;
+	cw = (XmContainerWidget)XtParent(cwid);
+	if (cw == NULL)
+	return;
 
     if ((cItemTrait = (XmContainerItemTrait)
 	XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
@@ -5922,6 +5931,9 @@ GetViewType(
 {
     XmContainerItemDataRec      cItemData;
     XmContainerItemTrait        cItemTrait;
+
+    if (cwid == NULL)
+	return(XmLARGE_ICON);
 
     if ((cItemTrait = (XmContainerItemTrait)
 	XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||

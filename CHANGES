@@ -31746,6 +31746,13 @@ Guard Container selection-range inputs (2026-10-30)
   Container widget is supplied.
 - Add focused source-contract coverage and document the invalid-input path.
 
+Guard Container item-trait inputs (2026-10-30)
+===============================================
+
+- Validate child and parent state in visual-emphasis and view-type trait
+  helpers, returning safe defaults for missing child widgets.
+- Add focused source-contract coverage and document the invalid-input path.
+
 Guard Container selection inputs (2026-10-30)
 ==============================================
 
