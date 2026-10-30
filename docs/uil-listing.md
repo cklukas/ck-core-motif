@@ -35,3 +35,10 @@ they no longer index before the beginning of the directory string.
 The source-line prefix is also formatted with its destination size before the
 source text is appended, keeping unusual line/file values within the existing
 listing buffer.
+
+Diagnostic pointer lines use the same fixed-buffer limit when marking source
+columns. An unusually long source line is truncated at the listing boundary
+instead of writing past the pointer buffer.
+
+The focused source check is
+`tests/automated/check-uil-message-pointer-bounds.py`.

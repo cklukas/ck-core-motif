@@ -913,6 +913,7 @@ char			*src_buffer;
     int				msg_no;
     int				pos;
     int				msg_pos;
+    int				max_pos;
     char			c_char;
     boolean			v_output_line;
 
@@ -920,6 +921,7 @@ char			*src_buffer;
 	return;
 
     msg_no = 9;
+    max_pos = (int)(sizeof(buffer) - 3);
 
     buffer[ 0 ] = '\t';
     buffer[ 1 ] = '\t';
@@ -934,7 +936,8 @@ char			*src_buffer;
 
     v_output_line = FALSE;
     
-    for (pos = 0;  c_char = src_buffer[ pos ], c_char != 0; )
+    for (pos = 0;
+	 pos < max_pos && (c_char = src_buffer[ pos ]) != 0; )
     {
 	if (pos < msg_pos)
 	{

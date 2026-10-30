@@ -1,3 +1,10 @@
+Bound UIL diagnostic pointer lines (2026-10-30)
+================================================
+
+- Stop source-column marker generation at the fixed listing buffer capacity,
+  preventing long source lines from overwriting adjacent UIL state.
+- Add focused source coverage and extend the UIL listing maintenance note.
+
 Cancel List gestures when sensitivity changes (2026-10-30)
 ============================================================
 
