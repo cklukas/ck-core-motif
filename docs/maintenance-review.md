@@ -65,6 +65,13 @@ copies succeed. Allocation failure therefore preserves the previous live
 resources instead of leaving the widget with a null font or label. The
 regression check is `tests/automated/check-chip-setvalues-rollback.py`.
 
+## TeachingTip SetValues resource rollback
+
+`XmTeachingTip` now commits title and body replacements only after their
+copies succeed, reports successful changes to Xt, and releases retained
+strings during teardown. The regression check is
+`tests/automated/check-teaching-tip-setvalues-rollback.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as

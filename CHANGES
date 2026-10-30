@@ -30645,3 +30645,10 @@ Chip SetValues resource rollback (2026-10-30)
   allocation failure.
 - Add `tests/automated/check-chip-setvalues-rollback.py` and document the
   ownership guarantee in `docs/maintenance-review.md`.
+
+TeachingTip SetValues resource rollback (2026-10-30)
+=====================================================
+- Commit title and body replacements only after `XmString` copies succeed,
+  report successful changes to Xt, and release retained strings on teardown.
+- Add `tests/automated/check-teaching-tip-setvalues-rollback.py` and document
+  the ownership guarantee in `docs/maintenance-review.md`.

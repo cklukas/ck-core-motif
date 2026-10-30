@@ -213,6 +213,8 @@ static void Destroy(Widget widget) {
     }
     if (tip->teaching_tip.popup_shell)
         XtDestroyWidget(tip->teaching_tip.popup_shell);
+    if (tip->teaching_tip.title) XmStringFree(tip->teaching_tip.title);
+    if (tip->teaching_tip.text) XmStringFree(tip->teaching_tip.text);
 }
 
 static void owner_events(Widget owner, XtPointer closure, XEvent *event,
@@ -256,14 +258,30 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmTeachingTipWidget old = (XmTeachingTipWidget)old_widget;
     XmTeachingTipWidget tip = (XmTeachingTipWidget)widget;
+    Boolean changed = False;
     (void)request; (void)args; (void)count;
-    if (old->teaching_tip.title != tip->teaching_tip.title)
-        tip->teaching_tip.title = copy_string(tip->teaching_tip.title);
-    if (old->teaching_tip.text != tip->teaching_tip.text)
-        tip->teaching_tip.text = copy_string(tip->teaching_tip.text);
+    if (old->teaching_tip.title != tip->teaching_tip.title) {
+        XmString replacement = copy_string(tip->teaching_tip.title);
+        if (replacement) {
+            if (old->teaching_tip.title) XmStringFree(old->teaching_tip.title);
+            tip->teaching_tip.title = replacement;
+            changed = True;
+        } else {
+            tip->teaching_tip.title = old->teaching_tip.title;
+        }
+    }
+    if (old->teaching_tip.text != tip->teaching_tip.text) {
+        XmString replacement = copy_string(tip->teaching_tip.text);
+        if (replacement) {
+            if (old->teaching_tip.text) XmStringFree(old->teaching_tip.text);
+            tip->teaching_tip.text = replacement;
+            changed = True;
+        } else {
+            tip->teaching_tip.text = old->teaching_tip.text;
+        }
+    }
     if (tip->teaching_tip.popup_shell &&
-        (old->teaching_tip.title != tip->teaching_tip.title ||
-         old->teaching_tip.text != tip->teaching_tip.text)) {
+        changed) {
         XtVaSetValues(tip->teaching_tip.title_label,
                       XmNlabelString, tip->teaching_tip.title, NULL);
         XtVaSetValues(tip->teaching_tip.text_label,
@@ -273,7 +291,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         (old->teaching_tip.offset_x != tip->teaching_tip.offset_x ||
          old->teaching_tip.offset_y != tip->teaching_tip.offset_y))
         position_popup(tip);
-    return False;
+    return changed;
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
