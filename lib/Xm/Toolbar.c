@@ -584,7 +584,8 @@ void XmToolbarSetActionIcons(Widget widget, const Pixmap *icons,
 {
     XmToolbarWidget toolbar;
     Cardinal i;
-    if (!widget || !XmIsToolbar(widget) || (count && !icons))
+    if (!widget || !XmIsToolbar(widget) || widget->core.being_destroyed ||
+        (count && !icons))
         return;
     toolbar = (XmToolbarWidget)widget;
     if (count > toolbar->toolbar.action_count)

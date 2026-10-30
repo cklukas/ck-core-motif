@@ -1,3 +1,10 @@
+Guard Toolbar icon replacement during destruction (2026-10-30)
+=================================================================
+
+- Reject `XmToolbarSetActionIcons` once Xt marks the toolbar for destruction,
+  avoiding updates to visible or overflow child buttons during teardown.
+- Add focused source-contract coverage for the icon replacement path.
+
 Guard TreeView mutators during destruction (2026-10-30)
 =========================================================
 

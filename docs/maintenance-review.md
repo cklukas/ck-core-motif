@@ -690,3 +690,7 @@ fail closed during Xt teardown. The focused source check is
 TreeView selection, expansion, and top-row setters likewise fail closed during
 Xt teardown. The focused source check is
 `tests/automated/check-treeview-mutator-destroy-guards.py`.
+
+Toolbar icon replacement now also fails closed during teardown, so visible and
+overflow buttons are not updated after destruction begins. The focused source
+check is `tests/automated/check-toolbar-icon-destroy-guard.py`.
