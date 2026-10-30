@@ -159,8 +159,26 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgLi
                       old->empty_state.action_label != state->empty_state.action_label ||
                       old->empty_state.icon != state->empty_state.icon;
     (void)request; (void)args; (void)count;
-    if (old->empty_state.message != state->empty_state.message) { XmStringFree(old->empty_state.message); state->empty_state.message = copy_string(state->empty_state.message); }
-    if (old->empty_state.action_label != state->empty_state.action_label) { XmStringFree(old->empty_state.action_label); state->empty_state.action_label = copy_string(state->empty_state.action_label); }
+    if (old->empty_state.message != state->empty_state.message) {
+        XmString replacement = copy_string(state->empty_state.message);
+        if (replacement) {
+            XmStringFree(old->empty_state.message);
+            state->empty_state.message = replacement;
+        } else {
+            state->empty_state.message = old->empty_state.message;
+            changed = False;
+        }
+    }
+    if (old->empty_state.action_label != state->empty_state.action_label) {
+        XmString replacement = copy_string(state->empty_state.action_label);
+        if (replacement) {
+            XmStringFree(old->empty_state.action_label);
+            state->empty_state.action_label = replacement;
+        } else {
+            state->empty_state.action_label = old->empty_state.action_label;
+            changed = False;
+        }
+    }
     if (old->empty_state.icon != state->empty_state.icon && state->empty_state.icon_widget != NULL) XtVaSetValues(state->empty_state.icon_widget, XmNlabelPixmap, state->empty_state.icon, NULL);
     if (state->empty_state.message_widget != NULL)
         XtVaSetValues(state->empty_state.message_widget, XmNlabelString, state->empty_state.message, NULL);

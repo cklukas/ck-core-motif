@@ -1,3 +1,10 @@
+Make EmptyState text updates transactional (2026-10-30)
+=========================================================
+
+- Preserve existing message and action strings when replacement allocation
+  fails during SetValues.
+- Add focused source coverage and documentation.
+
 Make remaining label/font SetValues transactional (2026-10-30)
 =================================================================
 
