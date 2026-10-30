@@ -40,6 +40,9 @@
 static void ToolTipLabelDestroyCallback(Widget w, XtPointer client_data, XtPointer call_data)
 {
     XmToolTipConfigTrait ttcp;
+
+    if (w == NULL)
+	return;
     
     ttcp = (XmToolTipConfigTrait) XmeTraitGet(w, XmQTtoolTipConfig);
     
@@ -48,7 +51,8 @@ static void ToolTipLabelDestroyCallback(Widget w, XtPointer client_data, XtPoint
 	    Widget shell = XtParent(ttcp->label);
 	    XtDestroyWidget(ttcp->label);
 	    ttcp->label = NULL;
-	    XtDestroyWidget(shell);
+	    if (shell != NULL)
+		XtDestroyWidget(shell);
 	}
 }
 #endif /* FIX_1388 */

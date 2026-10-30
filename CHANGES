@@ -1,3 +1,10 @@
+Guard tooltip label teardown (2026-10-30)
+=========================================
+
+- Validate callback widget before trait lookup.
+- Avoid destroying a missing tooltip parent shell.
+- Add focused source coverage and documentation.
+
 Guard SimpleSpinBox callback-widget lookup (2026-10-30)
 =======================================================
 
