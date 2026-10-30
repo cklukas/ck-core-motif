@@ -101,6 +101,11 @@ multilingual and compound charset segments therefore survive resource
 ownership instead of being flattened through locale-dependent text
 conversion. The regression check is `tests/automated/check-compound-copy-helpers.py`.
 
+RowActions also concatenates retained labels and shortcuts as `XmString`
+segments when creating visible buttons, so compound text is preserved in the
+rendered control rather than only in the stored model. The regression check is
+`tests/automated/check-row-actions-compound-label.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as

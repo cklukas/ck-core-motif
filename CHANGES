@@ -30683,3 +30683,10 @@ Preserve compound strings across small widgets (2026-10-30)
   transfers.
 - Add `tests/automated/check-compound-copy-helpers.py` and document the
   preservation contract in `docs/maintenance-review.md`.
+
+Preserve RowActions compound button labels (2026-10-30)
+=======================================================
+- Build RowActions labels and shortcuts with `XmStringConcat` instead of
+  flattening them to locale-dependent text before button creation.
+- Add `tests/automated/check-row-actions-compound-label.py` and document the
+  rendered-control preservation in `docs/maintenance-review.md`.

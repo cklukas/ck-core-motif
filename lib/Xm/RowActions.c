@@ -40,42 +40,28 @@ externaldef(xmrowactionsclassrec) XmRowActionsClassRec xmRowActionsClassRec = {
 externaldef(xmrowactionswidgetclass) WidgetClass xmRowActionsWidgetClass =
     (WidgetClass)&xmRowActionsClassRec;
 
-static char *text_copy(XmString value) {
-    char *text = value ? XmStringUnparse(value, NULL, XmCHARSET_TEXT,
-                                          XmCHARSET_TEXT, NULL, 0,
-                                          XmOUTPUT_ALL) : NULL;
-    return text ? text : XtNewString("");
-}
 static XmString string_copy(XmString value) {
     return value ? XmStringCopy(value) : XmStringCreateLocalized("");
 }
-static char *button_text(XmString label, XmString shortcut) {
-    char *left = text_copy(label), *right = text_copy(shortcut), *combined;
-    size_t left_length, right_length, length;
-    if (!left || !right) { XtFree(left); XtFree(right); return NULL; }
-    left_length = strlen(left); right_length = strlen(right);
-    if (right[0]) {
-        if (left_length > SIZE_MAX - 3 || right_length > SIZE_MAX - 3 - left_length) {
-            XtFree(left); XtFree(right); return NULL;
+static XmString button_label(XmString label, XmString shortcut) {
+    XmString result = string_copy(label);
+    if (!result) return NULL;
+    if (shortcut && !XmStringEmpty(shortcut)) {
+        XmString separator = XmStringCreateLocalized("  ");
+        XmString suffix = XmStringCopy(shortcut);
+        XmString combined;
+        if (!separator || !suffix) {
+            XmStringFree(separator); XmStringFree(suffix); XmStringFree(result);
+            return NULL;
         }
-        length = left_length + right_length + 3;
-    } else {
-        if (left_length == SIZE_MAX) { XtFree(left); XtFree(right); return NULL; }
-        length = left_length + 1;
+        combined = XmStringConcat(result, separator);
+        XmStringFree(result); XmStringFree(separator);
+        if (!combined) { XmStringFree(suffix); return NULL; }
+        result = XmStringConcat(combined, suffix);
+        XmStringFree(combined); XmStringFree(suffix);
+        if (!result) return NULL;
     }
-    /* XtMalloc takes a Cardinal-sized request, not an arbitrary size_t. */
-    if (length > UINT_MAX) {
-        XtFree(left); XtFree(right); return NULL;
-    }
-    combined = XtMalloc((Cardinal)length);
-    if (!combined) { XtFree(left); XtFree(right); return NULL; }
-    memcpy(combined, left, left_length);
-    if (right[0]) {
-        memcpy(combined + left_length, "  ", 2);
-        memcpy(combined + left_length + 2, right, right_length);
-    }
-    combined[length - 1] = '\0';
-    XtFree(left); XtFree(right); return combined;
+    return result;
 }
 static void free_items(XmRowActionsWidget actions, Boolean destroy_buttons) {
     Cardinal i;
@@ -242,7 +228,7 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
         }
     }
     for (i = 0; i < count; ++i) {
-        char *text; XmString label;
+        XmString label;
         actions->actions.item_count = i + 1;
         actions->actions.items[i].id = XtNewString(items[i].id ? items[i].id : "");
         actions->actions.items[i].label = string_copy(items[i].label);
@@ -253,13 +239,11 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
             XtWarning("XmRowActionsSetItems: unable to copy item");
             free_items(actions, True); actions->actions.initializing = False; return;
         }
-        text = button_text(items[i].label, items[i].shortcut);
-        if (!text) { XtWarning("XmRowActionsSetItems: unable to build button label"); free_items(actions, True); actions->actions.initializing = False; return; }
-        label = XmStringCreateLocalized(text);
-        if (!label) { XtFree(text); XtWarning("XmRowActionsSetItems: unable to create button label"); free_items(actions, True); actions->actions.initializing = False; return; }
+        label = button_label(items[i].label, items[i].shortcut);
+        if (!label) { XtWarning("XmRowActionsSetItems: unable to create button label"); free_items(actions, True); actions->actions.initializing = False; return; }
         actions->actions.items[i].button = XtVaCreateWidget("action",
             xmPushButtonWidgetClass, widget, XmNlabelString, label,
-            XmNborderWidth, 0, NULL); XmStringFree(label); XtFree(text);
+            XmNborderWidth, 0, NULL); XmStringFree(label);
         if (!actions->actions.items[i].button) {
             XtWarning("XmRowActionsSetItems: unable to create action button");
             free_items(actions, True); actions->actions.initializing = False; return;
