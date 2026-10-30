@@ -3480,12 +3480,19 @@ static void
 ToggleItalic(Widget w, XtPointer fsw_ptr, XtPointer data)
 {
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) fsw_ptr;
-    FontData * cf = XmFontS_font_info(fsw)->current_font;
+    FontData * cf;
     FamilyInfo *family;
     XmToggleButtonCallbackStruct *info;
+    const char *slant;
     char buf[BUFSIZ];
 
     info = (XmToggleButtonCallbackStruct *) data;
+    if (fsw == NULL || info == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	(XmFontS_font_info(fsw)->num_families != 0 &&
+	 XmFontS_font_info(fsw)->family_info == NULL))
+	return;
+    cf = XmFontS_font_info(fsw)->current_font;
     if ((family = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			     XmFontS_font_info(fsw)->num_families)) == NULL) 
     {
@@ -3498,10 +3505,12 @@ ToggleItalic(Widget w, XtPointer fsw_ptr, XtPointer data)
 	return;
     }
 
-    if (info->set) 
-	strcpy(cf->slant, XrmQuarkToString(family->italic_nameq));
-    else
-	strcpy(cf->slant, XrmQuarkToString(family->upright_nameq));
+    slant = info->set ? XrmQuarkToString(family->italic_nameq) :
+	XrmQuarkToString(family->upright_nameq);
+    if (slant == NULL)
+	return;
+    strncpy(cf->slant, slant, SLANT_LEN);
+    cf->slant[SLANT_LEN] = '\0';
 
     SetFlag(&(cf->state), ITALIC, info->set);
     SetFlag(&(XmFontS_user_state(fsw)), ITALIC, info->set);
