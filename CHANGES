@@ -31892,3 +31892,10 @@ Guard Container outline layout inputs (2026-10-30)
 - Validate outline layout child and parent constraint state before calculating
   geometry or connector lines.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container spatial layout inputs (2026-10-30)
+===================================================
+
+- Validate spatial layout widget input and skip malformed nodes before child
+  placement or growth requests.
+- Add focused source-contract coverage and document the invalid-input path.

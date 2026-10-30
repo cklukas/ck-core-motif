@@ -6789,7 +6789,7 @@ LayoutSpatial(
      Boolean growth_req_allowed,
      CwidNode stop_node)
 {
-  XmContainerWidget	cw = (XmContainerWidget)wid;
+  XmContainerWidget	cw;
   int		cell_width,cell_height;
   int		width_in_cells,height_in_cells;
   CwidNode	node;
@@ -6797,6 +6797,10 @@ LayoutSpatial(
   int		old_cell_count;
   int		*new_cells;
   int		i;
+
+    if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
   
     if (!((XmContainerWidgetClass)XtClass(wid))->container_class.place_item)
 	return;
@@ -6870,6 +6874,10 @@ LayoutSpatial(
     while (node)
     	{
       	Widget cwid = node -> widget_ptr;
+	      if (cwid == NULL) {
+	        node = GetNextNode(node);
+	        continue;
+	      }
 
       	cw->container.last_node = node;
       	if (CtrItemIsPlaced(cwid))
