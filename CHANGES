@@ -31249,3 +31249,11 @@ Initialize compound-text resource-converter output (2026-10-30)
 - Add focused source-contract coverage and document the output contract.
 
 Initialize empty text-property conversion results (2026-10-30)
+Guard XmString ASN.1 truncation boundaries (2026-10-30)
+=========================================================
+
+- Stop reading component headers after the encoded string end, preventing an
+  out-of-bounds read when the final component reaches the boundary exactly.
+- Add focused source-contract coverage and document the parser guard.
+
+Initialize compound-text resource-converter output (2026-10-30)

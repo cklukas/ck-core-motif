@@ -10970,8 +10970,13 @@ _XmStringTruncateASN1(unsigned char *str, int n)
 
   a_end = ((unsigned char *) a) + len + head_size;
 
-  length = _read_asn1_length(ap);
-  header = _asn1_size(length);
+  if (ap < a_end) {
+    length = _read_asn1_length(ap);
+    header = _asn1_size(length);
+  } else {
+    length = 0;
+    header = 0;
+  }
     
   /* Read the components adding up their lengths. */
   while (((length + header) < (n - used)) && (ap < a_end))
@@ -10985,6 +10990,8 @@ _XmStringTruncateASN1(unsigned char *str, int n)
       }
       used += delta;
       ap = new_c;
+      if (ap >= a_end)
+	break;
       length = _read_asn1_length(ap);
       header = _asn1_size(length);
     }
