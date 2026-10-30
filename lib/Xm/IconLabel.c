@@ -156,7 +156,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Dimension value_width = 0, value_height = 0;
     int x, y;
     (void)event; (void)region;
-    if (!window) return;
+    if (!window || !label->icon_label.foreground_gc) return;
     XtVaGetValues(widget, XmNlayoutDirection, &direction, NULL);
     XClearWindow(display, window);
     value = label->icon_label.label;

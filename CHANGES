@@ -1,3 +1,10 @@
+Guard Chip and IconLabel rendering graphics contexts (2026-10-30)
+===================================================================
+
+- Skip expose drawing when either widget's foreground graphics context is
+  unavailable after X resource allocation.
+- Add focused source coverage and documentation.
+
 Guard Avatar rendering graphics context (2026-10-30)
 =====================================================
 

@@ -155,7 +155,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Dimension label_width = 0, label_height = 0;
     int x, y, radius;
     (void)event; (void)region;
-    if (!window) return;
+    if (!window || !chip->chip.foreground_gc) return;
     label_metrics(chip, &width, &height, &icon_width);
     XClearWindow(display, window);
     radius = (int)chip->core.height / 2;
