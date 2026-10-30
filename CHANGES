@@ -32108,3 +32108,10 @@ Guard Container button-down constraints (2026-10-30)
 - Require a child Container constraint before reading selection state during
   button-down transfer handling.
 - Add focused source-contract coverage and document the invalid-child path.
+
+Guard Container button-up parameters (2026-10-30)
+===================================================
+
+- Reject a missing action-parameter count before button-up handling reads the
+  follow-up action name.
+- Add focused source-contract coverage and document the invalid-input path.

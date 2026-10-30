@@ -4723,7 +4723,7 @@ ContainerHandleBtn1Up(
   XmDisplay		dpy = 
     (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
 
-  if (*num_params < 1) {
+  if (num_params == NULL || *num_params < 1) {
     XmeWarning(wid, WRONGPARAMS);
     return;
   }
