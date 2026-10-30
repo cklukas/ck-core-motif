@@ -653,6 +653,11 @@ XmeTransferAddDoneProc(XtPointer id,
     return;
 
   _XmProcessLock();
+  if (tid -> flags & TC_FLUSHED)
+    {
+      _XmProcessUnlock();
+      return;
+    }
   if (tid -> numDoneProcs == INT_MAX)
     {
       _XmProcessUnlock();

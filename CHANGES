@@ -1,3 +1,10 @@
+Reject done callbacks after transfer flush (2026-10-30)
+==========================================================
+
+- Make `XmeTransferAddDoneProc` fail closed after a transfer is flushed,
+  avoiding callback-list growth for callbacks that cannot be delivered.
+- Add focused source coverage and document the completion-state contract.
+
 Bound UIL diagnostic pointer lines (2026-10-30)
 ================================================
 
