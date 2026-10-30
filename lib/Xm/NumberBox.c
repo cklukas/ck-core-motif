@@ -173,6 +173,19 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     values.foreground = number->primitive.bottom_shadow_color;
     number->number_box.invalid_gc = XCreateGC(display, DefaultRootWindow(display),
                                               mask, &values);
+    if (number->number_box.text_gc == NULL ||
+        number->number_box.arrow_gc == NULL ||
+        number->number_box.invalid_gc == NULL) {
+        if (number->number_box.text_gc)
+            XFreeGC(display, number->number_box.text_gc);
+        if (number->number_box.arrow_gc)
+            XFreeGC(display, number->number_box.arrow_gc);
+        if (number->number_box.invalid_gc)
+            XFreeGC(display, number->number_box.invalid_gc);
+        number->number_box.text_gc = NULL;
+        number->number_box.arrow_gc = NULL;
+        number->number_box.invalid_gc = NULL;
+    }
     if (!number->core.width) number->core.width = 140;
     if (!number->core.height) number->core.height = 32;
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,

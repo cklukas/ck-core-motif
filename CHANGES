@@ -1,3 +1,9 @@
+Make NumberBox GC setup transactional (2026-10-30)
+===================================================
+
+- Roll back partial text, arrow, and invalid-state GC allocation failures.
+- Add focused source coverage and documentation.
+
 Make ProgressBar GC setup transactional (2026-10-30)
 ======================================================
 
