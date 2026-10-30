@@ -11,6 +11,8 @@ end = text.index("\nvoid\n_XmStringSourceSetPending", start)
 block = text[start:end]
 
 assert "data->numwidgets <= 0" in block
+assert "data->widgets == NULL" in block
+assert "tw == NULL || tw->text.source == NULL" in block
 assert "UINT_MAX / sizeof(Boolean)" in block
 assert "pending = (Boolean *)XtMalloc" in block
 assert "if (pending == NULL)" in block

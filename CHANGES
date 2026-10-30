@@ -28,6 +28,14 @@ Reject zero-width Text source edits (2026-10-30)
   invalid zero character size.
 - Extend the Text source range regression and document the edit-path guard.
 
+Guard Text pending snapshots during teardown (2026-10-30)
+===========================================================
+
+- Reject missing source and widget-array state before reading pending flags,
+  preventing a partially destroyed text source from being dereferenced.
+- Extend the focused pending-snapshot regression and document the lifecycle
+  guard.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

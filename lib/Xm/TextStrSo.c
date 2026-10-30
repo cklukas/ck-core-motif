@@ -732,10 +732,13 @@ Boolean *
 _XmStringSourceGetPending(XmTextWidget tw)
 {
   Boolean *pending;
+  if (tw == NULL || tw->text.source == NULL ||
+      tw->text.source->data == NULL)
+    return NULL;
   XmSourceData data = tw->text.source->data;
   int i;
 
-  if (data->numwidgets <= 0 ||
+  if (data->widgets == NULL || data->numwidgets <= 0 ||
       (size_t)data->numwidgets > (size_t)UINT_MAX / sizeof(Boolean))
     return NULL;
   pending = (Boolean *)XtMalloc((Cardinal)((size_t)data->numwidgets *
