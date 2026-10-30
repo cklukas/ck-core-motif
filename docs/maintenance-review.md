@@ -611,3 +611,7 @@ the new storage is allocated before existing buttons and overflow entries are
 destroyed. An allocation failure therefore leaves the current toolbar usable.
 String-copy or child-widget creation failures also destroy only the temporary
 replacement children and preserve the current action set.
+
+`XmCommandPaletteSetItems` prepares all command IDs, labels, and shortcuts
+before retiring the current command set. Failed replacement copies therefore
+leave the existing palette contents and filtering state available.

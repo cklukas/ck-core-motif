@@ -32,6 +32,7 @@ static char *copy_text(XmString value) { char *text = value ? XmStringUnparse(va
 static XmString copy_string(XmString value) { return value ? XmStringCopy(value) : XmStringCreateLocalized(""); }
 static Boolean contains_folded(const char *text, const char *needle) { size_t i, n = strlen(needle), length = strlen(text); if (!n) return True; if (n > length) return False; for (i = 0; i + n <= length; ++i) { size_t j; for (j = 0; j < n; ++j) if (tolower((unsigned char)text[i + j]) != tolower((unsigned char)needle[j])) break; if (j == n) return True; } return False; }
 static void free_items(XmCommandPaletteWidget palette) { Cardinal i; for (i = 0; i < palette->palette.item_count; ++i) { XtFree(palette->palette.items[i].id); XmStringFree(palette->palette.items[i].label); XmStringFree(palette->palette.items[i].shortcut); } XtFree((char *)palette->palette.items); XtFree((char *)palette->palette.visible); palette->palette.items = NULL; palette->palette.visible = NULL; palette->palette.item_count = palette->palette.visible_count = 0; }
+static void free_item_array(XmCommandPaletteStoredItem *items, Cardinal count) { Cardinal i; if (!items) return; for (i = 0; i < count; ++i) { XtFree(items[i].id); XmStringFree(items[i].label); XmStringFree(items[i].shortcut); } XtFree((char *)items); }
 static void preferred(Widget child, Dimension *width, Dimension *height) { XtWidgetGeometry wanted; if (width == NULL || height == NULL) return; if (child == NULL) { *width = 0; *height = 0; return; } wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted); *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width; *height = wanted.request_mode & CWHeight ? wanted.height : child->core.height; }
 +static XmString make_display_string(XmString label, XmString shortcut) {
     XmString result = label ? XmStringCopy(label) : XmStringCreateLocalized("");
@@ -80,6 +81,7 @@ Widget XmVaCreateCommandPalette(Widget parent, char *name, ...) { Widget w; va_l
 Widget XmVaCreateManagedCommandPalette(Widget parent, char *name, ...) { Widget w; va_list v; int n; Va_start(v,name); n=XmeCountVaListSimple(v); va_end(v); Va_start(v,name); w=XmeVLCreateWidget(name,xmCommandPaletteWidgetClass,parent,True,v,n); va_end(v); return w; }
 void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, Cardinal count) {
     XmCommandPaletteWidget palette;
+    XmCommandPaletteStoredItem *replacement;
     Cardinal i;
     if (!widget || !XmIsCommandPalette(widget)) return;
     palette = (XmCommandPaletteWidget)widget;
@@ -90,27 +92,26 @@ void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, 
         XtWarning("XmCommandPaletteSetItems: item array is too large");
         return;
     }
-    free_items(palette);
-    palette->palette.items = (XmCommandPaletteStoredItem *)XtCalloc(
-        count, sizeof(*palette->palette.items));
-    if (!palette->palette.items) {
+    replacement = (XmCommandPaletteStoredItem *)XtCalloc(
+        count, sizeof(*replacement));
+    if (!replacement) {
         XtWarning("XmCommandPaletteSetItems: unable to allocate item array");
         return;
     }
     for (i = 0; i < count; ++i) {
-        palette->palette.items[i].id = XtNewString(items[i].id ? items[i].id : "");
-        palette->palette.items[i].label = copy_string(items[i].label);
-        palette->palette.items[i].shortcut = copy_string(items[i].shortcut);
-        if (!palette->palette.items[i].id ||
-            !palette->palette.items[i].label ||
-            !palette->palette.items[i].shortcut) {
-            palette->palette.item_count = i + 1;
-            free_items(palette);
+        replacement[i].id = XtNewString(items[i].id ? items[i].id : "");
+        replacement[i].label = copy_string(items[i].label);
+        replacement[i].shortcut = copy_string(items[i].shortcut);
+        if (!replacement[i].id || !replacement[i].label ||
+            !replacement[i].shortcut) {
+            free_item_array(replacement, i + 1);
             XtWarning("XmCommandPaletteSetItems: unable to copy item text");
             return;
         }
-        palette->palette.items[i].user_data = items[i].user_data;
+        replacement[i].user_data = items[i].user_data;
     }
+    free_items(palette);
+    palette->palette.items = replacement;
     palette->palette.item_count = count;
     rebuild(palette);
 }

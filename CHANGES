@@ -23,6 +23,14 @@ Preserve Toolbar actions on replacement allocation failure (2026-10-30)
 - Roll back temporary labels and action/overflow children when later
   replacement construction fails, preserving the complete old action set.
 
+Preserve CommandPalette items on replacement failure (2026-10-30)
+===================================================================
+
+- Build and validate the replacement command IDs, labels, and shortcuts before
+  freeing the current palette items.
+- Keep the existing command set usable when replacement allocation or copying
+  fails, with focused source-contract coverage and maintenance documentation.
+
 Align native accessibility action contracts (2026-10-30)
 ========================================================
 
