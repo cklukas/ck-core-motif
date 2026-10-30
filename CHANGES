@@ -1,9 +1,9 @@
 Guard label metrics for cleared controls (2026-10-30)
 =======================================================
 
-- Skip `XmStringExtent` when ProgressBar or ToggleSwitch has a `NULL` label,
-  keeping redisplay and geometry queries safe after an application clears the
-  label resource.
+- Skip `XmStringExtent` when ProgressBar, Spinner, or ToggleSwitch has a
+  `NULL` label, keeping redisplay and geometry queries safe after an
+  application clears the label resource.
 - Add focused source-contract coverage and document the null-label behavior.
 
 Guard Container destination prehook transfers (2026-10-30)

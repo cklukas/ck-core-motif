@@ -199,7 +199,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                                   : spinner->spinner.text_gc;
     if (!gc) return;
     XClearWindow(display, window);
-    if (spinner->spinner.font)
+    if (spinner->spinner.font && spinner->spinner.label)
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &label_width, &label_height);
     {
@@ -277,7 +277,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     XmSpinnerWidget spinner = (XmSpinnerWidget)widget;
     Dimension width = 0, height = 0;
     (void)request;
-    if (spinner->spinner.font)
+    if (spinner->spinner.font && spinner->spinner.label)
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &width, &height);
     reply->request_mode = CWWidth | CWHeight;

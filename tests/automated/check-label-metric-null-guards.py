@@ -20,4 +20,12 @@ query = toggle[toggle_query_start:toggle.index("static void Toggle(", toggle_que
 assert "sw->toggle_switch.font && sw->toggle_switch.label" in redisplay
 assert "sw->toggle_switch.font && sw->toggle_switch.label" in query
 
-print("PASS ProgressBar and ToggleSwitch skip metrics for NULL labels")
+spinner = (root / "lib" / "Xm" / "Spinner.c").read_text(encoding="utf-8")
+spinner_redisplay_start = spinner.index("static void Redisplay(Widget widget")
+redisplay = spinner[spinner_redisplay_start:spinner.index("static Boolean SetValues(", spinner_redisplay_start)]
+spinner_query_start = spinner.index("static XtGeometryResult QueryGeometry(Widget widget")
+query = spinner[spinner_query_start:spinner.index("static void Notify(", spinner_query_start)]
+assert "spinner->spinner.font && spinner->spinner.label" in redisplay
+assert "spinner->spinner.font && spinner->spinner.label" in query
+
+print("PASS ProgressBar, Spinner, and ToggleSwitch skip metrics for NULL labels")
