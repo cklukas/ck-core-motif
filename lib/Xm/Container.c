@@ -8231,11 +8231,15 @@ ProcessButtonMotion(
         String          *params,	/* unused */
         Cardinal        *num_params)	/* unused */
 {
-        XmContainerWidget       cw = (XmContainerWidget)wid;
+        XmContainerWidget       cw;
         Widget                  current_cwid;
 	Boolean			selection_changes = False;
 	Boolean			find_anchor = False;
 	XmContainerConstraint	c;
+
+	if (wid == NULL || event == NULL)
+	    return(False);
+	cw = (XmContainerWidget)wid;
 
         current_cwid = ObjectAtPoint(wid,event->xbutton.x,event->xbutton.y);
 	/* Handle ObjectAtPoint returning an outline button */
@@ -8271,6 +8275,8 @@ ProcessButtonMotion(
 			{
 			/* Gotta have a reference point for toggling */
 			c = GetContainerConstraint(current_cwid);
+			if (c == NULL)
+			    return(False);
 			if (c->selection_visual == XmSELECTED)
 				cw->container.selection_state = XmNOT_SELECTED;
 			else

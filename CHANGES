@@ -31732,6 +31732,13 @@ Guard Container hit-test inputs (2026-10-30)
   hit-testing reads geometry or outline state.
 - Add focused source-contract coverage and document the invalid-input path.
 
+Guard Container button-motion inputs (2026-10-30)
+==================================================
+
+- Validate button-motion widget, event, and current-item constraint state
+  before drag-selection updates.
+- Add focused source-contract coverage and document the invalid-input path.
+
 Guard Container selection inputs (2026-10-30)
 ==============================================
 
