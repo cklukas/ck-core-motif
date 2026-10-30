@@ -6346,6 +6346,10 @@ _XmStringEntryCopy(_XmStringEntry entry)
       if (_XmEntryPermGet(entry)) {
 	_XmEntryTextSet(new_entry, _XmEntryTextGet(entry));
       } else if (entry_len > 0) {
+	if (_XmEntryTextGet(entry) == NULL) {
+	  XtFree((char *)new_entry);
+	  return NULL;
+	}
 	text = (XtPointer)XtMalloc(entry_len);
 	if (text == NULL) {
 	  XtFree((char *)new_entry);
@@ -6406,6 +6410,10 @@ _XmStringEntryCopy(_XmStringEntry entry)
       if (_XmEntryPermGet(entry)) {
 	_XmEntryTextSet(new_entry, _XmEntryTextGet(entry));
       } else if (entry_len > 0) {
+	if (_XmEntryTextGet(entry) == NULL) {
+	  XtFree((char *)new_entry);
+	  return NULL;
+	}
 	text = (XtPointer)XtMalloc(entry_len);
 	if (text == NULL) {
 	  XtFree((char *)new_entry);

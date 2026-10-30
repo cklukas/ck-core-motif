@@ -1,3 +1,10 @@
+Reject malformed XmString entry text storage (2026-10-30)
+============================================================
+
+- Refuse optimized and unoptimized entry copies whose positive text length is
+  paired with a `NULL` text pointer, avoiding invalid `memcpy` reads.
+- Add focused source-contract coverage and document the input guard.
+
 Handle XmString optimized-entry conversion failures (2026-10-30)
 ===================================================================
 
