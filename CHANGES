@@ -29454,3 +29454,12 @@ Clear DatePicker popup pointers during external destruction (2026-10-30)
 
 Synchronize DatePicker resource dates with popup calendars (2026-10-30)
 =======================================================================
+Clear Flyout popup pointers during external destruction (2026-10-30)
+====================================================================
+
+- Reset the popup shell, label child, and visible state when a Flyout shell is
+  destroyed outside the Flyout API.
+- Add focused source coverage and documentation.
+
+Clear DatePicker popup pointers during external destruction (2026-10-30)
+========================================================================

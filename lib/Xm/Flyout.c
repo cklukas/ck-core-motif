@@ -22,6 +22,7 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
 static void owner_events(Widget, XtPointer, XEvent *, Boolean *);
 static void popup_events(Widget, XtPointer, XEvent *, Boolean *);
 static void owner_destroyed(Widget, XtPointer, XtPointer);
+static void popup_destroyed(Widget, XtPointer, XtPointer);
 
 #define Offset(field) XtOffsetOf(XmFlyoutRec, field)
 static XtResource resources[] = {
@@ -104,6 +105,8 @@ static void create_popup(XmFlyoutWidget flyout) {
     flyout->flyout.popup_shell = XtCreatePopupShell(
         "flyoutShell", overrideShellWidgetClass, parent_shell, args, count);
     if (!flyout->flyout.popup_shell) return;
+    XtAddCallback(flyout->flyout.popup_shell, XtNdestroyCallback,
+                  popup_destroyed, (XtPointer)flyout);
     label_string = XmStringCreateLocalized(flyout->flyout.text ?
                                            flyout->flyout.text : "");
     if (!label_string) {
@@ -156,6 +159,16 @@ static void owner_destroyed(Widget owner, XtPointer closure, XtPointer data) {
         flyout->flyout.popup_shell = NULL;
         flyout->flyout.label = NULL;
     }
+    flyout->flyout.visible = False;
+}
+
+static void popup_destroyed(Widget shell, XtPointer closure, XtPointer data) {
+    XmFlyoutWidget flyout = (XmFlyoutWidget)closure;
+    (void)shell; (void)data;
+    if (flyout == NULL)
+        return;
+    flyout->flyout.popup_shell = NULL;
+    flyout->flyout.label = NULL;
     flyout->flyout.visible = False;
 }
 
