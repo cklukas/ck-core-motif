@@ -9097,11 +9097,15 @@ GetNextTraversalWidget(
 {
     CwidNode	child_node;
     CwidNode	next_node;
+    XmContainerConstraint c;
 
     if (cw == NULL || child == NULL)
 	return(NULL);
 
-    child_node = GetContainerConstraint(child)->node_ptr;
+	c = GetContainerConstraint(child);
+	if (c == NULL || c->node_ptr == NULL)
+	return(NULL);
+	child_node = c->node_ptr;
 
     next_node = GetNextTraversable(child_node);
 
@@ -9127,11 +9131,15 @@ GetPrevTraversalWidget(
     CwidNode	child_node;
     CwidNode	prev_node;
     CwidNode	last_node;
+    XmContainerConstraint c;
 
     if (cw == NULL || child == NULL)
 	return(NULL);
 
-    child_node = GetContainerConstraint(child)->node_ptr;
+	c = GetContainerConstraint(child);
+	if (c == NULL || c->node_ptr == NULL)
+	return(NULL);
+	child_node = c->node_ptr;
 
     prev_node = GetPrevTraversableSibling(child_node);
 
