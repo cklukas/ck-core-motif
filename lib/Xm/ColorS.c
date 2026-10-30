@@ -835,7 +835,8 @@ CalcPreferredSize(XmColorSelectorWidget csw,
 	ASSIGN_MAX(*width, (geo.width + (2 * geo.border_width)));
 	
 	geo.height += 2 * geo.border_width;
-	if ( *childP == XtParent(XmColorS_color_window(csw)) )
+	if (XmColorS_color_window(csw) != NULL &&
+	    *childP == XtParent(XmColorS_color_window(csw)) )
 	    continue;
 	else if ( *childP == XmColorS_scrolled_list(csw) )	
 	    *height += (int)(4 * geo.height)/3;
@@ -1332,8 +1333,9 @@ compute_size(XmColorSelectorWidget csw)
      * Lastly, place the color window
      */
 
-    _XmConfigureWidget(XtParent(XmColorS_color_window(csw)), XmColorS_margin_width(csw), y,
-		       width, color_geom.height, color_geom.border_width);
+    if (XmColorS_color_window(csw) != NULL)
+	    _XmConfigureWidget(XtParent(XmColorS_color_window(csw)), XmColorS_margin_width(csw), y,
+			       width, color_geom.height, color_geom.border_width);
 }
 
 /*      Function Name: 	read_rgb_file
@@ -1905,11 +1907,14 @@ NoPrivateColormaps(XmColorSelectorWidget csw, Pixel foreground,
 	XtSetArg(args[num_args], XmNforeground, foreground); num_args++;
 	XtSetArg(args[num_args], XmNbackground, XmColorS_color_pixel(csw)); 
 	num_args++;
-	XtSetValues(XmColorS_color_window(csw), args, num_args);
+	if (XmColorS_color_window(csw) != NULL)
+	    XtSetValues(XmColorS_color_window(csw), args, num_args);
     }
 
-    XtSetArg(args[num_args], XmNlabelString, xm_str); num_args++;
-    XtSetValues(XmColorS_color_window(csw), args, num_args);
+    if (XmColorS_color_window(csw) != NULL) {
+	XtSetArg(args[num_args], XmNlabelString, xm_str); num_args++;
+	XtSetValues(XmColorS_color_window(csw), args, num_args);
+    }
     XmStringFree(xm_str);
 }
 
@@ -1956,8 +1961,10 @@ PrivateColormaps(XmColorSelectorWidget csw, Pixel foreground, XColor color, char
         num_args++;
     }
 
-    XtSetArg(args[num_args], XmNlabelString, xm_str); num_args++;
-    XtSetValues(XmColorS_color_window(csw), args, num_args);
+    if (XmColorS_color_window(csw) != NULL) {
+	XtSetArg(args[num_args], XmNlabelString, xm_str); num_args++;
+	XtSetValues(XmColorS_color_window(csw), args, num_args);
+    }
     XmStringFree(xm_str);
 }
 

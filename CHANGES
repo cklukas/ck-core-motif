@@ -101,10 +101,18 @@ Saturate Prompt padded extents (2026-10-30)
 
 Guard TabStack menu construction (2026-10-29)
 ==============================================
-
 - Stop cleanly when overflow-menu item creation fails and bound refreshed
   child indexing before assigning tab labels.
 - Add focused source coverage and document the recovery behavior.
+
+Bound ColorSelector preview updates (2026-10-30)
+=================================================
+
+- Guard preferred-size, layout, and colormap update paths when the optional
+  color preview child cannot be created.
+- Keep color-name parsing and resource bookkeeping usable without passing a
+  null preview widget to Xt.
+- Add focused source coverage and document the partial-construction contract.
 
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
