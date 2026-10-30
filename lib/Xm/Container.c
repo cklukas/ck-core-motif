@@ -7943,7 +7943,16 @@ static void ContainerResetDepths
 	while (node)
 	{
 		Widget child = node->widget_ptr;
-		XmContainerConstraint cc = GetContainerConstraint(child);
+		XmContainerConstraint cc;
+		if (child == NULL) {
+		    node = node->next_ptr;
+		    continue;
+		}
+		cc = GetContainerConstraint(child);
+		if (cc == NULL) {
+		    node = node->next_ptr;
+		    continue;
+		}
 		cc->depth = c->depth + 1;
 		ContainerResetDepths(cc);
 		node = node->next_ptr;
@@ -7975,8 +7984,15 @@ static void FindMaxDepths(XmContainerConstraint	c, Widget w)
 static Boolean ContainerIsDescendant 
 	(Widget containerChild, Widget newEntryParent)
 {
-	XmContainerConstraint nepc = GetContainerConstraint(newEntryParent);
-	CwidNode node = nepc->node_ptr;
+	XmContainerConstraint nepc;
+	CwidNode node;
+
+	if (containerChild == NULL || newEntryParent == NULL)
+	    return False;
+	nepc = GetContainerConstraint(newEntryParent);
+	if (nepc == NULL || nepc->node_ptr == NULL)
+	    return False;
+	node = nepc->node_ptr;
 	while (node)
 	{
 		if (node->widget_ptr == containerChild)
