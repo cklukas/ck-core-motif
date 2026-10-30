@@ -3444,7 +3444,7 @@ XmScaleSetValue(
     XmScaleWidget sw = (XmScaleWidget) w;
     XtAppContext app;
 
-    if (w == NULL || !XmIsScale(w))
+    if (w == NULL || !XmIsScale(w) || sw->core.being_destroyed)
         return;
     app = XtWidgetToApplicationContext(w);
     _XmAppLock(app);

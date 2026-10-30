@@ -1,3 +1,11 @@
+Guard Scale and ScrollBar setters during destruction (2026-10-30)
+==================================================================
+
+- Reject classic Scale value and ScrollBar value/range updates once Xt marks
+  the widget for destruction, avoiding redraw and value-change callbacks on
+  partial state.
+- Add focused source-contract coverage for both setters.
+
 Guard I18List selection internals during destruction (2026-10-30)
 ==================================================================
 

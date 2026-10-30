@@ -4606,7 +4606,7 @@ XmScrollBarGetValues(
    XmScrollBarWidget sbw = (XmScrollBarWidget) w;
    XtAppContext app;
 
-   if (w == NULL || !XmIsScrollBar(w))
+   if (w == NULL || !XmIsScrollBar(w) || sbw->core.being_destroyed)
       return;
    app = XtWidgetToApplicationContext(w);
    _XmAppLock(app);
