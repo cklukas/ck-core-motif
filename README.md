@@ -45,6 +45,12 @@ manual inspection. Remaining platform and service-specific qualification gates
 are called out explicitly in the validation status rather than being implied by
 the presence of a successful build.
 
+Recent hardening also covers Container outline and selection traversal: malformed
+child, parent, constraint, or node state is rejected or skipped without
+disturbing valid trees. This keeps ordinary expand/collapse and selection
+callbacks compatible while making partially initialized widget hierarchies
+safer for both applications and embedders.
+
 The development 2.4.0 cohort uses native ABI epoch 8, including the current
 Unicode text maps and optional native accessibility records. Rebuild every
 native consumer against one consistent header/library cohort; this is not a
