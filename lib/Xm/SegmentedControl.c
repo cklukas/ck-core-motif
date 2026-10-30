@@ -404,7 +404,7 @@ Boolean XmSegmentedControlSetSelectedIndex(Widget widget, int index,
                                            Boolean notify) {
     if (widget == NULL || !XmIsSegmentedControl(widget)) return False;
     select_index((XmSegmentedControlWidget)widget, index, notify, NULL);
-    return index == -1 || index == ((XmSegmentedControlWidget)widget)->segmented.selected;
+    return index == ((XmSegmentedControlWidget)widget)->segmented.selected;
 }
 void XmSegmentedControlClearSelection(Widget widget, Boolean notify) {
     (void)XmSegmentedControlSetSelectedIndex(widget, -1, notify);

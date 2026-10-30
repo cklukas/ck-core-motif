@@ -31480,5 +31480,12 @@ Preserve SegmentedControl selection by item ID (2026-10-30)
   avoiding dangling-pointer reads and preserving the selected segment.
 - Add focused source-contract coverage and document the replacement behavior.
 
+Report SegmentedControl selection requests accurately (2026-10-30)
+===================================================================
+
+- Return failure when a requested selection change is rejected, including a
+  clear request while `allow_clear` is disabled.
+- Add focused source-contract coverage and document the result contract.
+
 Clear stale destinations for empty region operations (2026-10-30)
 ===================================================================
