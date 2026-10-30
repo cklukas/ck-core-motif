@@ -5351,7 +5351,9 @@ ContainerExtendCursor(
         String          *params,
         Cardinal        *num_params)
 {
-	if (*num_params == 0) return;
+	if (event == NULL || num_params == NULL || *num_params == 0 ||
+	    params == NULL)
+	    return;
 	if (_XmGetFocusPolicy(wid) == XmPOINTER)
 	    return;
 	if (CtrLayoutIsSPATIAL(wid))
