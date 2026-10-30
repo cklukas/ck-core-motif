@@ -1,3 +1,11 @@
+Cancel List gestures when sensitivity changes (2026-10-30)
+============================================================
+
+- Cancel delayed drag and edge auto-scroll callbacks when `XmList` becomes
+  insensitive, and guard the callbacks themselves against insensitive lists.
+- Clear transient button/append state so a later re-enable cannot resume a
+  stale gesture; add focused source coverage and maintenance documentation.
+
 Preserve Badge compound labels during drawing (2026-10-30)
 ==============================================================
 

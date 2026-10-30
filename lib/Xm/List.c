@@ -156,6 +156,7 @@ static Dimension CalcVizWidth(XmListWidget lw);
 static int ComputeVizCount(XmListWidget lw);
 static Boolean SetValues(Widget old, Widget request, Widget new_w,
 			 ArgList args, Cardinal *num_args);
+static void CancelPendingInteraction(XmListWidget lw);
 static void Destroy(Widget wid);
 static XtGeometryResult QueryProc(Widget wid,
 				  XtWidgetGeometry *request,
@@ -1676,6 +1677,7 @@ SetValues(Widget old,
 
       if (! XtIsSensitive(new_w))
 	{
+	  CancelPendingInteraction(newlw);
 	  DrawHighlight(newlw, newlw->list.CurrentKbdItem, FALSE);
 	  newlw->list.Traversing = FALSE;
 	}
@@ -1987,6 +1989,35 @@ SetValues(Widget old,
 
   if (newlw->list.accessibility_revision != UINT64_MAX) ++newlw->list.accessibility_revision;
   return redraw;
+}
+
+/*
+ * A list can retain delayed drag/autoscroll timeouts while its sensitivity
+ * changes.  Those callbacks run independently of X event delivery and would
+ * otherwise select items or start a drag after the list became insensitive.
+ * Clear the transient gesture state together with both timeout handles.
+ */
+static void
+CancelPendingInteraction(XmListWidget lw)
+{
+  if (lw->list.drag_start_timer)
+    {
+      XtRemoveTimeOut(lw->list.drag_start_timer);
+      lw->list.drag_start_timer = 0;
+    }
+  if (lw->list.DragID)
+    {
+      XtRemoveTimeOut(lw->list.DragID);
+      lw->list.DragID = 0;
+    }
+
+  lw->list.drag_abort_action = NULL;
+  lw->list.Event = 0;
+  lw->list.LeaveDir = 0;
+  lw->list.AppendInProgress = FALSE;
+  lw->list.AutoSelectionType = XmAUTO_UNSET;
+  lw->list.DownCount = 0;
+  lw->list.previous_top_position = -1;
 }
 
 /************************************************************************
@@ -6329,6 +6360,12 @@ BrowseScroll(XtPointer closure,
   int interval = 100;
   int inc = 1;
 
+  if (!XtIsSensitive((Widget) lw))
+    {
+      lw->list.DragID = 0;
+      return;
+    }
+
   if (lw->list.DragID == 0)
     return;
 
@@ -7695,6 +7732,9 @@ DragStart(XtPointer closure,
 
   lw->list.drag_start_timer = 0;
   lw->list.drag_abort_action = NULL;
+
+  if (!XtIsSensitive((Widget) lw))
+    return;
 
   ListProcessDrag((Widget) lw, &lw->list.drag_event, NULL, NULL);
 }
