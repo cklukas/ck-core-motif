@@ -31753,6 +31753,12 @@ Guard Container item-trait inputs (2026-10-30)
   helpers, returning safe defaults for missing child widgets.
 - Add focused source-contract coverage and document the invalid-input path.
 
+Guard Container view/detail inputs (2026-10-30)
+================================================
+
+- Validate view-type, icon-width, and default-detail helper widget/node state.
+- Add focused source-contract coverage and document the invalid-input path.
+
 Guard Container selection inputs (2026-10-30)
 ==============================================
 

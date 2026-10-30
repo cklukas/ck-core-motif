@@ -5952,9 +5952,15 @@ SetViewType(
     Widget              cwid,
     unsigned char       viewtype)
 {
-    XmContainerWidget           cw = (XmContainerWidget)XtParent(cwid);
+    XmContainerWidget           cw;
     XmContainerItemDataRec      cItemData;
     XmContainerItemTrait        cItemTrait;
+
+    if (cwid == NULL)
+	return;
+	cw = (XmContainerWidget)XtParent(cwid);
+	if (cw == NULL)
+	return;
 
     if ((cItemTrait = (XmContainerItemTrait)
 	XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
@@ -5977,6 +5983,9 @@ GetIconWidth(
     XmContainerItemDataRec      cItemData;
     XmContainerItemTrait        cItemTrait;
 
+    if (cwid == NULL)
+	return(0);
+
     if ((cItemTrait = (XmContainerItemTrait)
 	XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) == NULL ||
 	cItemTrait->getValues == NULL)
@@ -5993,12 +6002,16 @@ static  Cardinal
 GetDefaultDetailCount(
     Widget      wid)
 {
-    XmContainerWidget	cw = (XmContainerWidget)wid;
+    XmContainerWidget	cw;
     XmContainerItemDataRec	cItemData;
     XmContainerItemTrait	cItemTrait;
     Widget	cwid;
     CwidNode	node;
     Cardinal	detail_count = 0;
+
+    if (wid == NULL)
+	return(0);
+	cw = (XmContainerWidget)wid;
 
     /*
      * Get the IconHeader's detail_count first
@@ -6021,6 +6034,10 @@ GetDefaultDetailCount(
     while (node)
 	{ 
 	cwid = node->widget_ptr;
+	if (cwid == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	if ((cItemTrait = (XmContainerItemTrait)
 	            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL &&
 	    cItemTrait->getValues != NULL)
