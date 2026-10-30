@@ -112,8 +112,7 @@ static void Destroy(Widget widget) {
     if (chip->chip.foreground_gc) XFreeGC(display, chip->chip.foreground_gc);
     if (chip->chip.background_gc) XFreeGC(display, chip->chip.background_gc);
     if (chip->chip.font) XmRenderTableFree(chip->chip.font);
-    /* Xt owns XmNchipLabel resource storage and releases it after Destroy. */
-    /* chip->font is borrowed from the parent/display default render table. */
+    if (chip->chip.label) XmStringFree(chip->chip.label);
 }
 
 static void label_metrics(XmChipWidget chip, Dimension *width,

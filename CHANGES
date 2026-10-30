@@ -1,3 +1,10 @@
+Release Chip label on destruction (2026-10-30)
+================================================
+
+- Free the widget-owned Chip label `XmString` during destruction, matching the
+  existing replacement ownership rules.
+- Add focused source-contract coverage and document the lifecycle fix.
+
 Guard Flyout destroy-state callbacks (2026-10-30)
 ==================================================
 
