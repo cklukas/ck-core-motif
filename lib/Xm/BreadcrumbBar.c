@@ -419,10 +419,15 @@ void XmBreadcrumbBarSetSegments(Widget widget,
     XmBreadcrumbBarWidget bar;
     XmBreadcrumbBarItem *replacement = NULL;
     Cardinal i;
+    int old_current, new_current = -1;
+    XtPointer selected_id = NULL;
     if (widget == NULL || !XmIsBreadcrumbBar(widget) ||
         count > (Cardinal)INT_MAX || (count != 0 && segments == NULL))
         return;
     bar = (XmBreadcrumbBarWidget)widget;
+    old_current = bar->breadcrumb.current;
+    if (old_current >= 0 && (Cardinal)old_current < bar->breadcrumb.count)
+        selected_id = bar->breadcrumb.items[old_current].id;
     if (count) {
         if ((size_t)count > SIZE_MAX / sizeof(*bar->breadcrumb.items) ||
             (size_t)count > UINT_MAX / sizeof(*bar->breadcrumb.items))
@@ -443,14 +448,18 @@ void XmBreadcrumbBarSetSegments(Widget widget,
     free_items(bar);
     bar->breadcrumb.items = replacement;
     bar->breadcrumb.count = count;
-    if (!count) {
-        bar->breadcrumb.current = -1;
-    } else {
-        bar->breadcrumb.count = count;
-        if (bar->breadcrumb.current < 0 ||
-            (Cardinal)bar->breadcrumb.current >= count)
-            bar->breadcrumb.current = (int)count - 1;
-    }
+    if (count && selected_id != NULL)
+        for (i = 0; i < count; ++i)
+            if (replacement[i].id == selected_id) {
+                new_current = (int)i;
+                break;
+            }
+    if (new_current < 0 && count && old_current >= 0 &&
+        (Cardinal)old_current < count)
+        new_current = old_current;
+    if (new_current < 0 && count)
+        new_current = (int)count - 1;
+    bar->breadcrumb.current = new_current;
     if (XtIsRealized(widget))
         XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
 }

@@ -10,6 +10,8 @@ end = source.index("\nCardinal XmBreadcrumbBarGetSegmentCount", start)
 body = source[start:end]
 
 assert "XmBreadcrumbBarItem *replacement = NULL;" in body
+assert "XtPointer selected_id = NULL;" in body
+assert "replacement[i].id == selected_id" in body
 assert "free_item_array(replacement, i + 1);" in body
 assert body.index("if (!replacement)") < body.index("free_items(bar);")
 assert "bar->breadcrumb.items = replacement;" in body

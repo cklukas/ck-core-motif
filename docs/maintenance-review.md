@@ -627,6 +627,8 @@ after the swap instead of being cleared unnecessarily.
 
 `XmBreadcrumbBarSetSegments` also prepares every replacement label before
 retiring the current trail, preserving navigation when allocation fails.
+When the selected segment ID remains present, its new index is restored so
+reordering or inserting segments does not silently move the selection.
 
 `XmToolbarSetActionIcons` applies each borrowed icon to both the visible action
 button and its overflow-menu twin, so the same action remains recognizable when

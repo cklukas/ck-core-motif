@@ -54,6 +54,8 @@ Make BreadcrumbBar segment replacement transactional (2026-10-30)
 - Build replacement breadcrumb labels before freeing the current trail.
 - Preserve the existing segments and current index when replacement allocation
   or copying fails, with focused source-contract coverage and documentation.
+- Preserve the selected breadcrumb by stable ID across successful reordering or
+  insertion of segments.
 
 Apply Toolbar icons to overflow actions (2026-10-30)
 =====================================================
