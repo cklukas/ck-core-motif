@@ -31465,11 +31465,12 @@ Redraw TimePicker after range changes (2026-10-30)
   so range-dependent UI is refreshed immediately.
 - Add focused source-contract coverage and document the redraw behavior.
 
-Clear stale NumberBox validation on resource updates (2026-10-30)
-==================================================================
+Clear stale NumberBox validation on updates (2026-10-30)
+========================================================
 
-- Clear the invalid-entry state when a resource value change is accepted and
-  reformatted, so programmatic corrections no longer retain error styling.
+- Clear the invalid-entry state when a resource value or range change is
+  accepted and reformatted, so programmatic corrections no longer retain error
+  styling.
 - Add focused source-contract coverage and document the state transition.
 
 Clear stale destinations for empty region operations (2026-10-30)

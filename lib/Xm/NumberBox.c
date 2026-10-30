@@ -424,7 +424,8 @@ void XmNumberBoxSetRange(Widget widget, int minimum, int maximum, Boolean notify
     if (widget == NULL || !XmIsNumberBox(widget)) return;
     number = (XmNumberBoxWidget)widget; old = number->number_box.value;
     number->number_box.minimum = minimum; number->number_box.maximum = maximum;
-    normalize(number); format_value(number); redraw(number);
+    normalize(number); number->number_box.invalid = False;
+    format_value(number); redraw(number);
     if (notify && old != number->number_box.value) notify_value(number, NULL);
 }
 void XmNumberBoxSetValue(Widget widget, int value, Boolean notify) {
