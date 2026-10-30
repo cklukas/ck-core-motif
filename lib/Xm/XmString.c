@@ -1535,7 +1535,19 @@ XmString
 XmStringConcat(XmString a,
 	       XmString b )
 {
-  return XmStringConcatAndFree (XmStringCopy(a), XmStringCopy(b));
+  XmString a_copy = XmStringCopy(a);
+  XmString b_copy;
+
+  if (a != NULL && a_copy == NULL)
+    return NULL;
+
+  b_copy = XmStringCopy(b);
+  if (b != NULL && b_copy == NULL) {
+    XmStringFree(a_copy);
+    return NULL;
+  }
+
+  return XmStringConcatAndFree (a_copy, b_copy);
 }
 
 XmString 

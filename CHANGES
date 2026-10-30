@@ -1,3 +1,10 @@
+Propagate XmStringConcat operand-copy failures (2026-10-30)
+=============================================================
+
+- Return `NULL` when either non-NULL operand cannot be copied, instead of
+  silently dropping the second operand and returning a partial string.
+- Add focused source-contract coverage and document the failure behavior.
+
 Restore regions after operation allocation failure (2026-10-30)
 =================================================================
 
