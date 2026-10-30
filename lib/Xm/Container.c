@@ -6008,6 +6008,20 @@ AdjustPositionSaturated(
     return (Position)value;
 }
 
+static int
+AdjustIntSaturated(
+    int      base,
+    int64_t  delta)
+{
+    int64_t value = (int64_t)base + delta;
+
+    if (value > INT_MAX)
+	return INT_MAX;
+    if (value < INT_MIN)
+	return INT_MIN;
+    return (int)value;
+}
+
 
 /************************************************************************
 * SetDynamicTabList (Private Function)
@@ -10072,13 +10086,17 @@ ScrollProc(
 
 	/* compute the new position */
 	if (cw->container.LeaveDir & BOTTOMLEAVE)
-	    nav_data.value.y += nav_data.increment.y;
+	    nav_data.value.y = AdjustIntSaturated(nav_data.value.y,
+		(int64_t)nav_data.increment.y);
 	else if (cw->container.LeaveDir & TOPLEAVE)
-	    nav_data.value.y -= nav_data.increment.y;
+	    nav_data.value.y = AdjustIntSaturated(nav_data.value.y,
+		-(int64_t)nav_data.increment.y);
 	if (cw->container.LeaveDir & LEFTLEAVE)
-	    nav_data.value.x -= nav_data.increment.x;
+	    nav_data.value.x = AdjustIntSaturated(nav_data.value.x,
+		-(int64_t)nav_data.increment.x);
 	else if (cw->container.LeaveDir & RIGHTLEAVE)
-	    nav_data.value.x += nav_data.increment.x;
+	    nav_data.value.x = AdjustIntSaturated(nav_data.value.x,
+		(int64_t)nav_data.increment.x);
 
 	if (nav_data.maximum.y <= nav_data.minimum.y ||
 	    nav_data.slider_size.y >= nav_data.maximum.y - nav_data.minimum.y)

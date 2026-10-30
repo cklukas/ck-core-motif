@@ -31717,3 +31717,10 @@ Bound Container scroll navigator ranges (2026-10-30)
 - Clamp invalid or fully-covered navigator ranges to their minimum instead of
   subtracting a larger slider from the maximum.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Bound Container scroll arithmetic (2026-10-30)
+==============================================
+
+- Apply navigator increments through saturating wide arithmetic before the
+  normal range clamp, preventing signed overflow from malformed values.
+- Add focused source-contract coverage and document the invalid-input path.
