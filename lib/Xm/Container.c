@@ -5510,6 +5510,9 @@ ContainerExpandOrCollapse(
 
     c = GetContainerConstraint(focus_cwid);
 
+    if (c == NULL)
+	return;
+
     /* check LtoR and reduce to _COLLAPSE and _EXPAND values */
     if ((state_to == _COLLAPSE)
      || (state_to == _LEFT && (! LayoutIsRtoLM(cw)))

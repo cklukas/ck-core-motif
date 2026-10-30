@@ -32199,3 +32199,10 @@ Guard Container activation inputs (2026-10-30)
 - Return safely when activation receives no event or parameter-count pointer
   before forwarding gadget or item activation.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container expand/collapse constraints (2026-10-30)
+==========================================================
+
+- Return safely when the focused child has no Container constraint before
+  reading its outline state.
+- Add focused source-contract coverage and document the invalid-child path.
