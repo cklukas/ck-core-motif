@@ -1,3 +1,10 @@
+Make FormSection and Skeleton text updates transactional (2026-10-30)
+=======================================================================
+
+- Preserve current header, footer, and skeleton label strings when replacement
+  allocation fails.
+- Add focused source coverage and documentation.
+
 Make EmptyState text updates transactional (2026-10-30)
 =========================================================
 

@@ -160,12 +160,24 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgLi
     Boolean changed = old->section.header_text != section->section.header_text || old->section.footer_text != section->section.footer_text;
     (void)request; (void)args; (void)count;
     if (old->section.header_text != section->section.header_text) {
-        XmStringFree(old->section.header_text);
-        section->section.header_text = copy_string(section->section.header_text);
+        XmString replacement = copy_string(section->section.header_text);
+        if (replacement) {
+            XmStringFree(old->section.header_text);
+            section->section.header_text = replacement;
+        } else {
+            section->section.header_text = old->section.header_text;
+            changed = False;
+        }
     }
     if (old->section.footer_text != section->section.footer_text) {
-        XmStringFree(old->section.footer_text);
-        section->section.footer_text = copy_string(section->section.footer_text);
+        XmString replacement = copy_string(section->section.footer_text);
+        if (replacement) {
+            XmStringFree(old->section.footer_text);
+            section->section.footer_text = replacement;
+        } else {
+            section->section.footer_text = old->section.footer_text;
+            changed = False;
+        }
     }
     if (section->section.header != NULL)
         XtVaSetValues(section->section.header, XmNlabelString, section->section.header_text, NULL);
