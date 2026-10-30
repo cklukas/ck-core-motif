@@ -332,7 +332,8 @@ Boolean XmSpinnerGetActive(Widget widget) {
 void XmSpinnerSetActive(Widget widget, Boolean active, Boolean notify) {
     XmSpinnerWidget spinner;
     Boolean old;
-    if (widget == NULL || !XmIsSpinner(widget)) return;
+    if (widget == NULL || !XmIsSpinner(widget) || widget->core.being_destroyed)
+        return;
     spinner = (XmSpinnerWidget)widget;
     old = spinner->spinner.active;
     spinner->spinner.active = active ? True : False;

@@ -721,3 +721,7 @@ ProgressBar range, value, and indeterminate setters now fail closed during
 Xt teardown, avoiding redraw and callback work on partial state. The focused
 source check is
 `tests/automated/check-progressbar-mutator-destroy-guards.py`.
+
+Spinner activation changes now fail closed during Xt teardown, avoiding timer,
+redraw, and callback work on partial state. The focused source check is
+`tests/automated/check-spinner-mutator-destroy-guard.py`.
