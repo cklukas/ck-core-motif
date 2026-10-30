@@ -1284,7 +1284,9 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   if (XmIsColorPicker(w)) {
     char value_text[16];
     i->role = XmACCESSIBLE_BUTTON;
-    i->action_count = 1;
+    /* No native activation operation is exposed; value updates use the
+     * accessibility value interface instead of a phantom action. */
+    i->action_count = 0;
     i->has_value = True;
     i->minimum_value = 0;
     i->maximum_value = 4294967295.0;
@@ -1303,7 +1305,8 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->maximum_value = count;
     i->current_value = XmRatingControlGetValue(w);
     i->minimum_increment = 1;
-    i->action_count = XtIsSensitive(w) ? 1 : 0;
+    /* RatingControl has no action dispatcher; expose its value only. */
+    i->action_count = 0;
   }
   if (XmIsInfoBar(w)) {
     String message = NULL;

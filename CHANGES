@@ -1,3 +1,10 @@
+Correct value-only accessibility action counts (2026-10-30)
+==============================================================
+
+- Stop advertising undispatchable actions for ColorPicker and RatingControl;
+  assistive clients can continue to use their exposed value interfaces.
+- Add focused source and native fixture assertions documenting the contract.
+
 Expose SearchBox accessibility actions accurately (2026-10-30)
 ================================================================
 

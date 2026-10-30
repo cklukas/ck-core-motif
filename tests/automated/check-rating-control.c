@@ -17,6 +17,6 @@ int main(int argc, char **argv) {
     XmRatingControlSetValue(rating, 5, True); CHECK(XmRatingControlGetValue(rating) == 5 && changes == 1);
     XmRatingControlSetValue(rating, 99, True); CHECK(XmRatingControlGetValue(rating) == 5 && changes == 2);
     XmRatingControlSetValue(rating, 99, True); CHECK(changes == 2);
-    a = XmAccessibilityCreate(shell, "RatingTest"); CHECK(a != NULL); id = XmAccessibilityWidget(a, rating); CHECK(id != XmACCESSIBLE_NONE); CHECK(XmAccessibilityQuery(a, id, &info)); CHECK(info.has_value && info.minimum_value == 0 && info.maximum_value == 5 && info.current_value == 5); XmAccessibleInfoClear(&info); XmAccessibilityDestroy(a); XtDestroyWidget(rating);
+    a = XmAccessibilityCreate(shell, "RatingTest"); CHECK(a != NULL); id = XmAccessibilityWidget(a, rating); CHECK(id != XmACCESSIBLE_NONE); CHECK(XmAccessibilityQuery(a, id, &info)); CHECK(info.has_value && info.action_count == 0 && info.minimum_value == 0 && info.maximum_value == 5 && info.current_value == 5); XmAccessibleInfoClear(&info); XmAccessibilityDestroy(a); XtDestroyWidget(rating);
     printf("PASS rating control: %u checks\n", checks); return EXIT_SUCCESS;
 }

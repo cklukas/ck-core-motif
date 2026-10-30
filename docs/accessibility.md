@@ -68,6 +68,11 @@ coordinates outside the signed 32-bit protocol range return NotSupported;
 the transport does not guess a window or wrap coordinates. `GetSize` is
 independent of the requested origin.
 
+Value-only ColorPicker and RatingControl nodes advertise no action slots unless
+the toolkit also provides a matching dispatcher. Their values remain available
+through the accessibility value interface; clients are not offered an action
+that would deterministically fail.
+
 Owned strings returned in `XmAccessibleInfo` use `XtMalloc`/`XtNewString`; the
 query caller releases them with `XmAccessibleInfoClear`. Text callbacks return
 owned UTF-8 for an end-exclusive scalar range, rather than copying an entire
