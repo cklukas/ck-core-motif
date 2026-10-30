@@ -100,6 +100,8 @@ static void text_value(XmBadgeWidget badge, char *buffer, size_t size) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmBadgeWidget badge = (XmBadgeWidget)widget; char text[64];
     XmString label; Dimension text_width = 0, text_height = 0;
+    if (widget == NULL || !XtIsSubclass(widget, xmBadgeWidgetClass))
+        return;
     (void)event; (void)region; text_value(badge, text, sizeof(text));
     if (!XtWindow(widget) || !badge->badge.foreground_gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));

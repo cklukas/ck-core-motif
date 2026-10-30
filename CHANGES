@@ -1,3 +1,10 @@
+Guard Badge rendering input (2026-10-30)
+========================================
+
+- Reject null or wrong-class widgets before Badge expose rendering accesses
+  private state.
+- Add focused source coverage and documentation.
+
 Guard Badge initialization input (2026-10-30)
 ==============================================
 
