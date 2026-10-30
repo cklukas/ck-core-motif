@@ -4699,6 +4699,17 @@ ProcessCancel(Widget w,
 }
 
 /* ARGSUSED */
+/* Activation callbacks may destroy this field or its containing manager even
+ * when an application calls the action outside Xt's event-dispatch deferral. */
+static void
+ActivationDestroyed(Widget widget, XtPointer closure, XtPointer call_data)
+{
+  (void)widget;
+  (void)call_data;
+  *(Boolean *)closure = True;
+}
+
+/* ARGSUSED */
 static void 
 Activate(Widget w,
 	 XEvent *event,
@@ -4708,6 +4719,7 @@ Activate(Widget w,
   XmAnyCallbackStruct cb;
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
   XmParentInputActionRec  p_event;
+  Boolean destroyed = False;
   
   p_event.process_type = XmINPUT_ACTION;
   p_event.action = XmPARENT_ACTIVATE;
@@ -4717,7 +4729,12 @@ Activate(Widget w,
   
   cb.reason = XmCR_ACTIVATE;
   cb.event  = event;
+  XtAddCallback(w, XmNdestroyCallback, ActivationDestroyed, &destroyed);
   XtCallCallbackList(w, TextF_ActivateCallback(tf), (XtPointer) &cb);
+  if (destroyed) return;
+  /* Remove the stack closure before any deferred destruction can run. */
+  XtRemoveCallback(w, XmNdestroyCallback, ActivationDestroyed, &destroyed);
+  if (w->core.being_destroyed) return;
   
   (void) _XmParentProcess(XtParent(w), (XmParentProcessData) &p_event);
 }

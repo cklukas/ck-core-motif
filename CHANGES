@@ -1,3 +1,11 @@
+Prevent TextField activation use-after-destroy (2026-10-30)
+==============================================================
+
+- Observe destruction while activation callbacks run and avoid dereferencing
+  a destroyed field during parent propagation.
+- Add focused source coverage and documentation; the native peer fixture
+  covers direct/keyboard activation and field, manager, and shell destruction.
+
 Guard FontSelector size-list refresh (2026-10-30)
 ==================================================
 
