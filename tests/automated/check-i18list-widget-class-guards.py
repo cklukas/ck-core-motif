@@ -14,4 +14,8 @@ for name in ("Xm18IListUnselectAllItems", "Xm18IListUnselectItem", "XmI18ListTog
         if index >= 0
     )
     assert guard < dereference, name
+toggle = source[source.index("XmI18ListToggleRow"):source.index("\n}", source.index("XmI18ListToggleRow"))]
+assert "row < 0" in toggle
+assert "row >= XmI18List_num_rows" in toggle
+assert toggle.index("row < 0") < toggle.index("ToggleRow(w")
 print("PASS I18List convenience APIs validate widget class before row access")

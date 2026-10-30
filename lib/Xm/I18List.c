@@ -3544,6 +3544,8 @@ XmI18ListToggleRow(Widget w, short row)
 {
   if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass))
     return;
+  if (row < 0 || row >= XmI18List_num_rows((XmI18ListWidget)w))
+    return;
 
   ToggleRow(w, row);
 }

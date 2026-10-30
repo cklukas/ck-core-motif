@@ -31644,4 +31644,6 @@ Guard I18List convenience APIs by widget class (2026-10-30)
 
 - Validate the I18List widget before exported unselect and row-toggle helpers
   access row storage.
+- Reject invalid row numbers before the public row-toggle helper indexes row
+  storage.
 - Add focused source-contract coverage and document the invalid-input path.
