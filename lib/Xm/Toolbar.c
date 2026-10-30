@@ -101,16 +101,12 @@ layout_total_add(unsigned long total, Dimension width, Dimension spacing,
     return addition > ULONG_MAX - total ? ULONG_MAX : total + addition;
 }
 
-static void free_actions(XmToolbarWidget toolbar, Boolean destroy_children)
+static void free_action_array(XmToolbarStoredAction *actions, Cardinal count,
+                              Boolean destroy_children)
 {
-    XmToolbarStoredAction *actions = toolbar->toolbar.actions;
-    Cardinal count = toolbar->toolbar.action_count;
     Cardinal i;
-
-    toolbar->toolbar.actions = NULL;
-    toolbar->toolbar.action_count = 0;
-    toolbar->toolbar.visible_count = 0;
-    toolbar->toolbar.overflow_count = 0;
+    if (actions == NULL)
+        return;
     for (i = 0; i < count; ++i) {
         if (destroy_children) {
             if (actions[i].button)
@@ -123,6 +119,17 @@ static void free_actions(XmToolbarWidget toolbar, Boolean destroy_children)
         XmStringFree(actions[i].shortcut);
     }
     XtFree((char *)actions);
+}
+
+static void free_actions(XmToolbarWidget toolbar, Boolean destroy_children)
+{
+    XmToolbarStoredAction *actions = toolbar->toolbar.actions;
+    Cardinal count = toolbar->toolbar.action_count;
+    toolbar->toolbar.actions = NULL;
+    toolbar->toolbar.action_count = 0;
+    toolbar->toolbar.visible_count = 0;
+    toolbar->toolbar.overflow_count = 0;
+    free_action_array(actions, count, destroy_children);
 }
 
 static void preferred(Widget child, Dimension *width, Dimension *height)
@@ -520,14 +527,24 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
         }
     }
     toolbar->toolbar.laying_out = True;
-    free_actions(toolbar, True);
-    toolbar->toolbar.actions = replacement;
     for (i = 0; i < count; ++i) {
         XmString label = action_label(&actions[i]);
-        XmToolbarStoredAction *stored = &toolbar->toolbar.actions[i];
+        XmToolbarStoredAction *stored = &replacement[i];
+        if (label == NULL) {
+            free_action_array(replacement, count, True);
+            toolbar->toolbar.laying_out = False;
+            return;
+        }
         stored->id = XtNewString(actions[i].id ? actions[i].id : "");
         stored->label = string_copy(actions[i].label);
         stored->shortcut = string_copy(actions[i].shortcut);
+        if (stored->id == NULL || stored->label == NULL ||
+            (actions[i].shortcut != NULL && stored->shortcut == NULL)) {
+            XmStringFree(label);
+            free_action_array(replacement, count, True);
+            toolbar->toolbar.laying_out = False;
+            return;
+        }
         stored->overflowable = actions[i].overflowable;
         stored->priority = actions[i].priority;
         stored->user_data = actions[i].user_data;
@@ -539,6 +556,12 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
             "overflowAction", xmPushButtonWidgetClass,
             toolbar->toolbar.overflow_menu, XmNlabelString, label,
             XmNborderWidth, 0, NULL);
+        if (stored->button == NULL || stored->menu_button == NULL) {
+            XmStringFree(label);
+            free_action_array(replacement, count, True);
+            toolbar->toolbar.laying_out = False;
+            return;
+        }
         if (stored->button != NULL)
             XtAddCallback(stored->button, XmNactivateCallback, activate, toolbar);
         if (stored->menu_button != NULL)
@@ -546,6 +569,8 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
                           toolbar);
         XmStringFree(label);
     }
+    free_actions(toolbar, True);
+    toolbar->toolbar.actions = replacement;
     toolbar->toolbar.action_count = count;
     toolbar->toolbar.laying_out = False;
     layout(toolbar);

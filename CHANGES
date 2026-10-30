@@ -20,6 +20,8 @@ Preserve Toolbar actions on replacement allocation failure (2026-10-30)
   buttons and overflow entries.
 - Keep a working toolbar intact when the replacement allocation is rejected,
   with focused source-contract coverage and maintenance documentation.
+- Roll back temporary labels and action/overflow children when later
+  replacement construction fails, preserving the complete old action set.
 
 Align native accessibility action contracts (2026-10-30)
 ========================================================

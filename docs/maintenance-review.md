@@ -609,3 +609,5 @@ usable instead of silently replacing them with an empty popup.
 `XmToolbarSetActions` follows the same replacement rule for its action array:
 the new storage is allocated before existing buttons and overflow entries are
 destroyed. An allocation failure therefore leaves the current toolbar usable.
+String-copy or child-widget creation failures also destroy only the temporary
+replacement children and preserve the current action set.
