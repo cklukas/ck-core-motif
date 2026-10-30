@@ -1,3 +1,9 @@
+Guard FontSelector SetValues resource names (2026-10-30)
+==========================================================
+
+- Reject nameless `Arg` records before child-resource argument filtering.
+- Preserve valid SetValues behavior and add focused source coverage/documentation.
+
 Guard FontSelector value-hook resource names (2026-10-30)
 ==========================================================
 

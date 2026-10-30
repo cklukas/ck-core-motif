@@ -4245,6 +4245,10 @@ SetValues(Widget old, Widget request, Widget set,
 	 !XtIsSubclass(set, xmFontSelectorWidgetClass))
 	return False;
 
+    for (i = 0; i < *num_args; i++)
+	if (args[i].name == NULL)
+	    return False;
+
     /*
      * Pass argument list through to all children.
      */
