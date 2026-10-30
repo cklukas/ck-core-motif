@@ -32171,3 +32171,10 @@ Guard Container keyboard-extend events (2026-10-30)
 - Return safely when keyboard extend receives no event before reading its
   selection timestamp.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container cursor-movement inputs (2026-10-30)
+===================================================
+
+- Validate event, parameter-count, and direction-token inputs before cursor
+  movement reads or forwards keyboard selection.
+- Add focused source-contract coverage and document the invalid-input path.

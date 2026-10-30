@@ -5326,7 +5326,9 @@ ContainerMoveCursor(
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 	Widget			focus_cwid;
 
-	if (*num_params == 0) return;
+	if (event == NULL || num_params == NULL || *num_params == 0 ||
+	    params == NULL)
+	    return;
 	if (_XmGetFocusPolicy(wid) == XmPOINTER)
 	    return;
 	CalcNextLocationCursor(wid,params[0]);
