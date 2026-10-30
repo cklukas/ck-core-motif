@@ -711,7 +711,6 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
         return False;
     }
     colorUse = (int)parsed_color_use;
-    tmpColorObj->color_obj.colorUse[screen] = colorUse;
  
     for (i = 0; i < XmCO_NUM_COLORS; i++) {
 	/* read data into PixelSet */
@@ -726,6 +725,8 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
 	}
     }
     UpdateXrm (colors, screen, tmpColorObj);
+    /* Publish the selector only after every pixel field was validated. */
+    tmpColorObj->color_obj.colorUse[screen] = colorUse;
     tmpColorObj->color_obj.colorIsRunning = True;
     XtFree(bounded_value);
     return True;

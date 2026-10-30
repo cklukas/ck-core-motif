@@ -1,3 +1,10 @@
+Publish ColorObj pixel selectors transactionally (2026-10-30)
+===============================================================
+
+- Keep malformed server pixel data from changing `colorUse` before all color
+  fields validate and the corresponding pixel update completes.
+- Add focused source-contract coverage and document the rollback behavior.
+
 Clean up failed XmString segment extraction (2026-10-30)
 =========================================================
 
