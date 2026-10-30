@@ -32241,3 +32241,10 @@ Guard Container marked-state constraints (2026-10-30)
 - Skip nodes without Container constraints while synchronizing marked
   selection state during cleanup.
 - Add focused source-contract coverage and document the invalid-node path.
+
+Guard Container DnD placement callback inputs (2026-10-30)
+===========================================================
+
+- Validate callback data, transfer value data, and child Container
+  constraints before adjusting a drop point during item moves.
+- Add focused source-contract coverage and document the invalid-callback path.

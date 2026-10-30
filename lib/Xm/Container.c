@@ -1126,7 +1126,7 @@ GetDetailHeader(
  	cw->container.cache_detail_heading[0] = label_string ;
 
  	detail_header = cw->container.cache_detail_heading;
-  
+
   	/* app need not to free the returned array */
       }
      else
@@ -10422,14 +10422,21 @@ MoveItemCallback(
     (XmSelectionCallbackStruct *)call_data;
   XmContainerConstraint		c;
   unsigned char			save_include_model = XmCLOSEST;
-  Widget cwid = cw->container.druggee;
-  XmDestinationCallbackStruct *   ds = 
-    _XmTransferGetDestinationCBStruct(cs->transfer_id);
-  XPoint			*offset = (XPoint *) cs -> value;
-  
-  if (cwid == NULL)
+  Widget cwid;
+  XmDestinationCallbackStruct *   ds;
+  XPoint			*offset;
+
+  if (wid == NULL || client_data == NULL || call_data == NULL)
     return;
+  cwid = cw->container.druggee;
+  if (cwid == NULL || cs == NULL || cs->value == NULL)
+    return;
+  ds = _XmTransferGetDestinationCBStruct(cs->transfer_id);
+  offset = (XPoint *) cs->value;
+
   c = GetContainerConstraint(cwid);
+  if (c == NULL)
+    return;
 
   /* Offset the dropspot by the returned data */
   dropspot->x -= offset->x;
