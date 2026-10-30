@@ -749,3 +749,8 @@ SearchBox text changes, clear/commit actions, event dispatch, and callback
 emission now fail closed during Xt teardown, avoiding reads or redraw work on
 partial text-field state. The focused source check is
 `tests/automated/check-searchbox-destroy-guards.py`.
+
+DatePicker date/range changes and popup open/close requests now fail closed
+during Xt teardown, avoiding calendar updates, popup work, and notifications on
+partial state. The focused source check is
+`tests/automated/check-datepicker-mutator-destroy-guards.py`.

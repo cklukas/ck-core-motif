@@ -355,6 +355,8 @@ Boolean XmDatePickerSetDate(Widget widget, const XmDatePickerDate *date,
     if (!widget || !date || !XmIsDatePicker(widget) ||
         !XmCalendarIsValidDate(date)) return False;
     picker = (XmDatePickerWidget)widget;
+    if (picker->core.being_destroyed)
+        return False;
     if (compare_dates(date, &picker->date_picker.minimum) < 0 ||
         compare_dates(date, &picker->date_picker.maximum) > 0) return False;
     if (picker->date_picker.calendar &&
@@ -376,6 +378,8 @@ Boolean XmDatePickerSetRange(Widget widget, const XmDatePickerDate *minimum,
         !XmCalendarIsValidDate(maximum) ||
         compare_dates(minimum, maximum) > 0) return False;
     picker = (XmDatePickerWidget)widget;
+    if (picker->core.being_destroyed)
+        return False;
     if (compare_dates(&picker->date_picker.date, minimum) < 0 ||
         compare_dates(&picker->date_picker.date, maximum) > 0) return False;
     if (picker->date_picker.calendar &&
@@ -408,6 +412,8 @@ void XmDatePickerOpen(Widget widget) {
     XmDatePickerWidget picker;
     if (!widget || !XmIsDatePicker(widget)) return;
     picker = (XmDatePickerWidget)widget;
+    if (picker->core.being_destroyed)
+        return;
     if (picker->date_picker.open || !XtIsRealized(widget)) return;
     create_popup(picker);
     if (!picker->date_picker.popup_shell ||
@@ -427,6 +433,8 @@ void XmDatePickerClose(Widget widget) {
     XmDatePickerWidget picker;
     if (!widget || !XmIsDatePicker(widget)) return;
     picker = (XmDatePickerWidget)widget;
+    if (picker->core.being_destroyed)
+        return;
     if (!picker->date_picker.open) return;
     if (picker->date_picker.popup_shell != NULL &&
         !((CoreWidget)picker->date_picker.popup_shell)->core.being_destroyed)
