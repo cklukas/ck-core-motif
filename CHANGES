@@ -146,6 +146,14 @@ Guard MultiList optional-child updates (2026-10-30)
 - Guard deferred find-label and title-label updates before calling Xt.
 - Add focused source coverage and document the recovery behavior.
 
+Guard MultiList selection after partial construction (2026-10-30)
+===================================================================
+
+- Reject public selection and visibility requests when the internal I18List
+  child is unavailable.
+- Return an empty row-array result and reset its count in that state.
+- Add focused source coverage and document the failure contract.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 
