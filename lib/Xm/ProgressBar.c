@@ -330,7 +330,8 @@ void XmProgressBarGetRange(Widget widget, int *minimum, int *maximum) {
     XmProgressBarWidget progress;
     if (minimum) *minimum = 0;
     if (maximum) *maximum = 0;
-    if (widget == NULL || !XmIsProgressBar(widget)) return;
+    if (widget == NULL || !XmIsProgressBar(widget) || widget->core.being_destroyed)
+        return;
     progress = (XmProgressBarWidget)widget;
     if (minimum) *minimum = progress->progress.minimum;
     if (maximum) *maximum = progress->progress.maximum;
@@ -343,7 +344,8 @@ void XmProgressBarSetRange(Widget widget, int minimum, int maximum,
                            Boolean notify) {
     XmProgressBarWidget progress;
     int old_min, old_max, old_value;
-    if (widget == NULL || !XmIsProgressBar(widget)) return;
+    if (widget == NULL || !XmIsProgressBar(widget) || widget->core.being_destroyed)
+        return;
     progress = (XmProgressBarWidget)widget;
     old_min = progress->progress.minimum; old_max = progress->progress.maximum;
     old_value = progress->progress.value;
@@ -359,7 +361,8 @@ void XmProgressBarSetRange(Widget widget, int minimum, int maximum,
 void XmProgressBarSetValue(Widget widget, int value, Boolean notify) {
     XmProgressBarWidget progress;
     int old_value;
-    if (widget == NULL || !XmIsProgressBar(widget)) return;
+    if (widget == NULL || !XmIsProgressBar(widget) || widget->core.being_destroyed)
+        return;
     progress = (XmProgressBarWidget)widget; old_value = progress->progress.value;
     progress->progress.value = value; Normalize(progress);
     if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),

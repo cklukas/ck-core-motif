@@ -1,3 +1,11 @@
+Guard ProgressBar mutators during destruction (2026-10-30)
+============================================================
+
+- Reject ProgressBar range, value, and indeterminate setters once Xt marks
+  the widget for destruction, avoiding redraw and notification work on partial
+  state.
+- Add focused source-contract coverage for the mutator guard set.
+
 Guard NumberBox mutators during destruction (2026-10-30)
 ==========================================================
 

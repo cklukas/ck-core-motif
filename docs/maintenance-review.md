@@ -716,3 +716,8 @@ well. The focused source check is
 NumberBox range, value, and step setters now fail closed during Xt teardown,
 avoiding formatting, redraw, and callback work on partial state. The focused
 source check is `tests/automated/check-numberbox-mutator-destroy-guards.py`.
+
+ProgressBar range, value, and indeterminate setters now fail closed during
+Xt teardown, avoiding redraw and callback work on partial state. The focused
+source check is
+`tests/automated/check-progressbar-mutator-destroy-guards.py`.
