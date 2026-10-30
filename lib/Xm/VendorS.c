@@ -3271,9 +3271,11 @@ GetDirection(Widget w)
   XmWidgetExtData extData;
   XmVendorShellExtObject vendorExt;
 
+  if (w == NULL)
+    return XmRIGHT_TO_LEFT;
   extData = _XmGetWidgetExtData(w, XmSHELL_EXTENSION);
 
-  if(extData == NULL)
+  if(extData == NULL || extData->widget == NULL)
   {
 #ifdef DEBUG
     XmeWarning(NULL, "_XmGetWidgetExtData() returned NULL pointer.");
@@ -3291,6 +3293,8 @@ GetUnitType(Widget w)
     XmWidgetExtData extData;
     XmVendorShellExtObject vendorExt;
 
+    if (w == NULL)
+	return XmPIXELS;
     if ((extData = _XmGetWidgetExtData(w, XmSHELL_EXTENSION)) &&
 	(vendorExt = (XmVendorShellExtObject) extData->widget))
 	return vendorExt->vendor.unit_type ;

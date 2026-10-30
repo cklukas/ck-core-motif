@@ -1,3 +1,10 @@
+Guard VendorShell direction/unit traits (2026-10-30)
+=====================================================
+
+- Validate null widgets and incomplete shell-extension records.
+- Preserve established direction and pixel-unit fallbacks.
+- Add focused source coverage and documentation.
+
 Guard MenuShell direction trait (2026-10-30)
 ============================================
 
