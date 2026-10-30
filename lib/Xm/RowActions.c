@@ -75,6 +75,19 @@ static void free_items(XmRowActionsWidget actions, Boolean destroy_buttons) {
     XtFree((char *)actions->actions.items); actions->actions.items = NULL;
     actions->actions.item_count = 0;
 }
+static void free_item_array(XmRowActionsStoredItem *items, Cardinal count,
+                            Boolean destroy_buttons) {
+    Cardinal i;
+    if (!items) return;
+    for (i = 0; i < count; ++i) {
+        if (destroy_buttons && items[i].button)
+            XtDestroyWidget(items[i].button);
+        XtFree(items[i].id);
+        XmStringFree(items[i].label);
+        XmStringFree(items[i].shortcut);
+    }
+    XtFree((char *)items);
+}
 static void preferred(Widget child, Dimension *width, Dimension *height) {
     XtWidgetGeometry wanted;
     if (width == NULL || height == NULL)
@@ -205,7 +218,7 @@ Widget XmVaCreateManagedRowActions(Widget parent, char *name, ...) {
     va_end(v); return w;
 }
 void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal count) {
-    XmRowActionsWidget actions; Cardinal i;
+    XmRowActionsWidget actions; XmRowActionsStoredItem *replacement = NULL; Cardinal i;
     if (!widget || !XmIsRowActions(widget) || (count && !items)) return;
     actions = (XmRowActionsWidget)widget;
     if (count && ((size_t)count > SIZE_MAX / sizeof(*actions->actions.items) ||
@@ -217,39 +230,44 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
      * aggregate in its initialization phase until every item slot is filled;
      * otherwise geometry negotiation observes a partially initialized array
      * and may query a NULL button. */
-    actions->actions.initializing = True;
-    free_items(actions, True);
     if (count) {
-        actions->actions.items = (XmRowActionsStoredItem *)XtCalloc(count, sizeof(*actions->actions.items));
-        if (!actions->actions.items) {
+        replacement = (XmRowActionsStoredItem *)XtCalloc(
+            count, sizeof(*replacement));
+        if (!replacement) {
             XtWarning("XmRowActionsSetItems: unable to allocate item array");
-            actions->actions.initializing = False;
             return;
         }
     }
+    actions->actions.initializing = True;
     for (i = 0; i < count; ++i) {
         XmString label;
-        actions->actions.item_count = i + 1;
-        actions->actions.items[i].id = XtNewString(items[i].id ? items[i].id : "");
-        actions->actions.items[i].label = string_copy(items[i].label);
-        actions->actions.items[i].shortcut = string_copy(items[i].shortcut);
-        actions->actions.items[i].user_data = items[i].user_data;
-        if (!actions->actions.items[i].id || !actions->actions.items[i].label ||
-            !actions->actions.items[i].shortcut) {
+        replacement[i].id = XtNewString(items[i].id ? items[i].id : "");
+        replacement[i].label = string_copy(items[i].label);
+        replacement[i].shortcut = string_copy(items[i].shortcut);
+        replacement[i].user_data = items[i].user_data;
+        if (!replacement[i].id || !replacement[i].label ||
+            !replacement[i].shortcut) {
             XtWarning("XmRowActionsSetItems: unable to copy item");
-            free_items(actions, True); actions->actions.initializing = False; return;
+            free_item_array(replacement, i + 1, True);
+            actions->actions.initializing = False;
+            return;
         }
         label = button_label(items[i].label, items[i].shortcut);
-        if (!label) { XtWarning("XmRowActionsSetItems: unable to create button label"); free_items(actions, True); actions->actions.initializing = False; return; }
-        actions->actions.items[i].button = XtVaCreateWidget("action",
+        if (!label) { XtWarning("XmRowActionsSetItems: unable to create button label"); free_item_array(replacement, i + 1, True); actions->actions.initializing = False; return; }
+        replacement[i].button = XtVaCreateWidget("action",
             xmPushButtonWidgetClass, widget, XmNlabelString, label,
             XmNborderWidth, 0, NULL); XmStringFree(label);
-        if (!actions->actions.items[i].button) {
+        if (!replacement[i].button) {
             XtWarning("XmRowActionsSetItems: unable to create action button");
-            free_items(actions, True); actions->actions.initializing = False; return;
+            free_item_array(replacement, i + 1, True);
+            actions->actions.initializing = False;
+            return;
         }
-        XtAddCallback(actions->actions.items[i].button, XmNactivateCallback, activate, actions);
+        XtAddCallback(replacement[i].button, XmNactivateCallback, activate, actions);
     }
+    free_items(actions, True);
+    actions->actions.items = replacement;
+    actions->actions.item_count = count;
     for (i = 0; i < count; ++i)
         XtManageChild(actions->actions.items[i].button);
     actions->actions.initializing = False;

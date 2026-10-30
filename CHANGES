@@ -31,6 +31,14 @@ Preserve CommandPalette items on replacement failure (2026-10-30)
 - Keep the existing command set usable when replacement allocation or copying
   fails, with focused source-contract coverage and maintenance documentation.
 
+Make RowActions replacement transactional (2026-10-30)
+=======================================================
+
+- Build replacement action strings and buttons before freeing the current row
+  actions.
+- Roll back temporary children on allocation or construction failure, with
+  focused source-contract coverage and maintenance documentation.
+
 Align native accessibility action contracts (2026-10-30)
 ========================================================
 

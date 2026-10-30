@@ -615,3 +615,7 @@ replacement children and preserve the current action set.
 `XmCommandPaletteSetItems` prepares all command IDs, labels, and shortcuts
 before retiring the current command set. Failed replacement copies therefore
 leave the existing palette contents and filtering state available.
+
+`XmRowActionsSetItems` likewise builds replacement labels and action buttons
+while the current row actions remain live, rolling back only temporary children
+when allocation or construction fails.
