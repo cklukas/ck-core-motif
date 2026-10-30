@@ -1,3 +1,10 @@
+Propagate compound-text output construction failures (2026-10-30)
+==================================================================
+
+- Record failed incremental `XmString` construction during compound-text
+  decoding and return conversion failure instead of publishing partial output.
+- Add focused source-contract coverage and document the error propagation.
+
 Release partial XmStrings after compound-text input failure (2026-10-30)
 ==========================================================================
 

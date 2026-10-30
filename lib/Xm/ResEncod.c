@@ -120,6 +120,7 @@ typedef struct _ct_context {
     XmString	    xmstring;		/* compound string to be returned */
     XmString	    xmsep;		/* compound string separator segment */
     XmString	    xmtab;		/* compound string tab segment */
+    Boolean         output_error;	/* output XmString construction failed */
 } ct_context;
 
 /*
@@ -798,6 +799,7 @@ XmCvtCTToXmString(
     ctx->xmstring = NULL;
     ctx->xmsep = NULL;
     ctx->xmtab = NULL;
+    ctx->output_error = False;
 
 /*
 ** check for version/ignore extensions sequence (must be first if present)
@@ -987,6 +989,8 @@ XmCvtCTToXmString(
     if (ctx->flags.text) {
 	outputXmString(ctx, False);		/* with no separator */
     }
+
+    ok = ok && !ctx->output_error;
 
     XtFree((char *) ctx->dirstack);
     if (ctx->xmsep != NULL) XmStringFree(ctx->xmsep);
@@ -1286,6 +1290,7 @@ cvtTextToXmString(
     ctx->xmstring = NULL;
     ctx->xmsep = NULL;
     ctx->xmtab = NULL;
+    ctx->output_error = False;
 
 /*
 ** check for version/ignore extensions sequence (must be first if present)
@@ -1479,6 +1484,8 @@ cvtTextToXmString(
 	outputXmString(ctx, False);		/* with no separator */
     }
 
+    ok = ok && !ctx->output_error;
+
     XtFree((char *) ctx->dirstack);
     if (ok && ctx->xmstring != NULL) {
 	to->addr = (char *) ctx->xmstring;
@@ -1582,6 +1589,8 @@ outputXmString(
      separator );
     
     XFreeStringList(strings);
+    if (ctx->xmstring == NULL)
+      ctx->output_error = True;
     return;
   }
 
@@ -1660,6 +1669,8 @@ outputXmString(
 				   XmSTRING_DIRECTION_R_TO_L :
 				   XmSTRING_DIRECTION_UNSET)),
 	     separator);
+	  if (ctx->xmstring == NULL)
+	    ctx->output_error = True;
 	  return;
 	}
       
@@ -1742,6 +1753,9 @@ outputXmString(
 						XmStringCopy(ctx->xmsep));
 	};
     }; /* end if paired */
+
+  if (ctx->xmstring == NULL)
+    ctx->output_error = True;
 }
 
 static XmString 
