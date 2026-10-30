@@ -3361,15 +3361,15 @@ ComputePBLabelArea(
   Boolean result = True;
   int dx, adjust;
   short fill = 0; 
-  
+
+  if (pb == NULL || box == NULL)
+    return False;
+
   if ((PBG_ArmColor(pb) == LabG_TopShadowColor(pb)) ||
       (PBG_ArmColor(pb) == LabG_BottomShadowColor(pb)))
     fill = 1;
-  
-  if (pb == NULL) 
-    result = False;
-  else
-    { 
+
+  {
       if (PBG_DefaultButtonShadowThickness(pb) > 0)
 	{ 
 	  adjust = PBG_DefaultButtonShadowThickness(pb);
@@ -3393,7 +3393,7 @@ ComputePBLabelArea(
           (int)(pb->rectangle.width - (Dimension)adjust) : 0;
       box->height = (pb->rectangle.height > (Dimension)adjust) ?
           (int)(pb->rectangle.height - (Dimension)adjust) : 0;
-    }
+  }
 
   return (result);
 }

@@ -1,3 +1,10 @@
+Guard PushButtonGadget label-area calculation (2026-10-30)
+============================================================
+
+- Validate gadget and output rectangle before field access.
+- Preserve valid label-area geometry and sizing behavior.
+- Add focused source coverage and documentation.
+
 Guard Scale title getter (2026-10-30)
 =====================================
 
