@@ -3603,11 +3603,15 @@ static void
 Toggle75DPI(Widget w, XtPointer fsw_ptr, XtPointer data)
 {
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) fsw_ptr;
-    FontData * cf = XmFontS_font_info(fsw)->current_font;
+    FontData * cf;
     XmToggleButtonCallbackStruct *info;
     char buf[BUFSIZ];
 
     info = (XmToggleButtonCallbackStruct *) data;
+    if (fsw == NULL || info == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL)
+	return;
+    cf = XmFontS_font_info(fsw)->current_font;
     
     UnsetSiblings(w);
 
