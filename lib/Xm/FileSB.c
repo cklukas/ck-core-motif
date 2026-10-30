@@ -3739,7 +3739,8 @@ XmFileSelectionDoSearch(
     if(    dirmask    )
     {   
         searchData.mask = XmStringCopy( dirmask) ;
-        searchData.mask_length = XmStringLength( searchData.mask) ;
+        if (searchData.mask != NULL)
+            searchData.mask_length = XmStringLength(searchData.mask);
         }
     else
     {   if(    FS_FilterText( fs)    )
@@ -3753,7 +3754,8 @@ XmFileSelectionDoSearch(
         {   searchData.mask =
 	      XmStringGenerate(textString, XmFONTLIST_DEFAULT_TAG,
 			       XmCHARSET_TEXT, NULL) ;
-            searchData.mask_length = XmStringLength( searchData.mask) ;
+            if (searchData.mask != NULL)
+                searchData.mask_length = XmStringLength(searchData.mask);
             XtFree( textString) ;
             } 
         else
@@ -3766,7 +3768,8 @@ XmFileSelectionDoSearch(
             searchData.dir =
 	      XmStringGenerate(textString, XmFONTLIST_DEFAULT_TAG,
 			       XmCHARSET_TEXT, NULL);
-            searchData.dir_length = XmStringLength( searchData.dir) ;
+            if (searchData.dir != NULL)
+                searchData.dir_length = XmStringLength(searchData.dir);
             XtFree( textString) ;
             } 
         } 

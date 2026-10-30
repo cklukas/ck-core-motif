@@ -1,3 +1,10 @@
+Guard FileSelectionBox programmatic search allocation (2026-10-30)
+===================================================================
+
+- Check copied and generated search strings before measuring their lengths.
+- Preserve cleanup and search behavior when allocation fails.
+- Add focused source coverage and documentation.
+
 Guard FileSelectionBox update input (2026-10-30)
 =================================================
 
