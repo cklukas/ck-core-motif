@@ -247,7 +247,9 @@ static void notify_selection(XmDataGridWidget grid, XEvent *event) {
     XmDataGridSelectionCallbackStruct callback;
     if (grid == NULL || grid->core.being_destroyed ||
         !grid->data_grid.selection_callback ||
-        grid->data_grid.selected_row < 0 || grid->data_grid.selected_column < 0)
+        grid->data_grid.selected_row < 0 || grid->data_grid.selected_column < 0 ||
+        (Cardinal)grid->data_grid.selected_row >= grid->data_grid.row_count ||
+        (Cardinal)grid->data_grid.selected_column >= grid->data_grid.column_count)
         return;
     callback.reason = 1;
     callback.event = event;
@@ -273,7 +275,11 @@ static void notify_sort(XmDataGridWidget grid, XEvent *event,
 static void notify_edit(XmDataGridWidget grid, XEvent *event) {
     XmDataGridEditCallbackStruct callback;
     if (grid == NULL || grid->core.being_destroyed ||
-        !grid->data_grid.edit_committed_callback) return;
+        !grid->data_grid.edit_committed_callback ||
+        grid->data_grid.edit_row < 0 || grid->data_grid.edit_column < 0 ||
+        (Cardinal)grid->data_grid.edit_row >= grid->data_grid.row_count ||
+        (Cardinal)grid->data_grid.edit_column >= grid->data_grid.column_count)
+        return;
     callback.reason = 3;
     callback.event = event;
     callback.row_id = grid->data_grid.rows[grid->data_grid.edit_row].id;
@@ -286,7 +292,11 @@ static void notify_edit(XmDataGridWidget grid, XEvent *event) {
 static void notify_edit_failed(XmDataGridWidget grid, XEvent *event) {
     XmDataGridEditFailedCallbackStruct callback;
     if (grid == NULL || grid->core.being_destroyed ||
-        !grid->data_grid.edit_failed_callback) return;
+        !grid->data_grid.edit_failed_callback ||
+        grid->data_grid.edit_row < 0 || grid->data_grid.edit_column < 0 ||
+        (Cardinal)grid->data_grid.edit_row >= grid->data_grid.row_count ||
+        (Cardinal)grid->data_grid.edit_column >= grid->data_grid.column_count)
+        return;
     callback.reason = 4;
     callback.event = event;
     callback.row_id = grid->data_grid.rows[grid->data_grid.edit_row].id;

@@ -207,7 +207,8 @@ static void notify_selection(XmTreeViewWidget view, XEvent *event) {
     XmTreeViewCallbackStruct cb;
     int index = find_id(view, view->tree_view.selected_id);
     if (view == NULL || view->core.being_destroyed ||
-        !view->tree_view.selection_callback || index < 0)
+        !view->tree_view.selection_callback || index < 0 ||
+        (Cardinal)index >= view->tree_view.item_count)
         return;
     cb.reason = 1;
     cb.event = event;
@@ -221,7 +222,8 @@ static void notify_selection(XmTreeViewWidget view, XEvent *event) {
 static void notify_expansion(XmTreeViewWidget view, int index, XEvent *event) {
     XmTreeViewCallbackStruct cb;
     if (view == NULL || view->core.being_destroyed ||
-        !view->tree_view.expansion_callback || index < 0)
+        !view->tree_view.expansion_callback || index < 0 ||
+        (Cardinal)index >= view->tree_view.item_count)
         return;
     cb.reason = 2;
     cb.event = event;

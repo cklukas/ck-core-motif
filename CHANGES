@@ -1,3 +1,11 @@
+Bound model callback indices before access (2026-10-30)
+=========================================================
+
+- Reject stale DataGrid selection/edit and TreeView item indices before
+  building callback records, preventing out-of-range reads after model
+  replacement or item removal.
+- Extend focused model-widget callback coverage to the upper-bound checks.
+
 Guard model callbacks during destruction (2026-10-30)
 =======================================================
 

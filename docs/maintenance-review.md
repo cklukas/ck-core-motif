@@ -661,3 +661,7 @@ The focused source check is
 DataGrid, TreeView, and Toolbar now apply the same teardown guard to selection,
 sort, edit, expansion, and action callbacks. The focused source check is
 `tests/automated/check-model-callback-destroy-guards.py`.
+
+The same paths now reject stale upper-bound indices before reading model
+records, so replacement or removal cannot make a callback read past the
+current DataGrid or TreeView arrays.
