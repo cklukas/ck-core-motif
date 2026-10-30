@@ -2643,6 +2643,7 @@ void _XmPutScaledImage (
 	(uintmax_t)src_image->height > UINT_MAX ||
 	src_image->bytes_per_line <= 0 ||
 	src_image->bits_per_pixel <= 0 ||
+	src_image->depth <= 0 ||
 	(size_t)src_image->width >
 	 (SIZE_MAX - 7) / (size_t)src_image->bits_per_pixel ||
 	src_width == 0 || src_height == 0 ||

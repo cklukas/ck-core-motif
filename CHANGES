@@ -31430,5 +31430,12 @@ Reject invalid images during region construction (2026-10-30)
   data, or non-positive dimensions in `_XmRegionFromImage`.
 - Add focused source-contract coverage and document the input guard.
 
+Reject non-positive image depth during scaling (2026-10-30)
+===========================================================
+
+- Reject malformed `XImage` depth values before scaled-image plane arithmetic
+  or destination construction can reinterpret them as unsigned values.
+- Add focused source-contract coverage and document the validation boundary.
+
 Clear stale destinations for empty region operations (2026-10-30)
 ===================================================================
