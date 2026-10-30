@@ -1682,12 +1682,21 @@ UpdateFamilies(XmFontSelectorWidget fsw)
     register int i, num;
     XmString *strs;
     LongFlag size_flag;
-    FamilyInfo *fam = XmFontS_font_info(fsw)->family_info;
-    FontData *cf = XmFontS_font_info(fsw)->current_font;
+    FamilyInfo *fam;
+    FontData *cf;
     Boolean str_match = False;
     String temp;
 
+    if (fsw == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	XmFontS_family_box(fsw) == NULL)
+	return;
+    fam = XmFontS_font_info(fsw)->family_info;
+    cf = XmFontS_font_info(fsw)->current_font;
+
     num = XmFontS_font_info(fsw)->num_families;
+    if (num < 0 || (num != 0 && fam == NULL))
+	return;
 
     if ((size_t)num > SIZE_MAX / sizeof(*strs) ||
 	(size_t)num > UINT_MAX / sizeof(*strs))
@@ -1775,6 +1784,10 @@ UpdateFamilies(XmFontSelectorWidget fsw)
 
     if (!str_match) {
 	temp = _XmGetMBStringFromXmString(ANY_STRING(fsw));
+	if (temp == NULL) {
+	    XtFree((XtPointer) strs);
+	    return;
+	}
 	
 	XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;
     }

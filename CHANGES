@@ -1,3 +1,10 @@
+Guard FontSelector family-list refresh (2026-10-30)
+=====================================================
+
+- Validate selector/font/family state and the family child before refresh.
+- Reject malformed family counts and failed temporary display strings safely.
+- Add focused source coverage and documentation.
+
 Bound FontSelector encoding matching (2026-10-30)
 ===================================================
 
