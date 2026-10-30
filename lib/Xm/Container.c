@@ -8271,6 +8271,8 @@ StartSelect(
 	if (cw->container.extending_mode)
 		{
 		c = GetContainerConstraint(cw->container.anchor_cwid);
+		if (c == NULL)
+		    return;
 		if (c->selection_state == XmSELECTED)
 			cw->container.selection_state = XmNOT_SELECTED;
 		else
