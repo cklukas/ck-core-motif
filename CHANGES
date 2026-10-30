@@ -1,3 +1,11 @@
+Guard TabStack drag action initialization (2026-10-30)
+======================================================
+
+- Validate drag action widget, event, parent chain, and TabStack state.
+- Resolve the dragged child on all builds, avoiding an uninitialized pointer
+  when `TEAR_OFF_TABS` is disabled.
+- Add focused source coverage and documentation.
+
 Guard TabStack menu action (2026-10-30)
 =======================================
 

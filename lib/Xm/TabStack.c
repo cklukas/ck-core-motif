@@ -4897,21 +4897,32 @@ XmTabBoxDragTab(widget, event, params, num_params)
     Cardinal *num_params;
 #endif
 {
-    Widget           parent = XtParent(widget), drag, child, source_icon,
-                     invalid_icon;
-    XmTabStackWidget tab = (XmTabStackWidget)XtParent(parent);
+    Widget           parent, drag, child, source_icon, invalid_icon;
+    XmTabStackWidget tab;
     Arg              args[10];
     Cardinal         n = 0;
     Atom             target;
     int              idx;
     Pixmap           source_pixmap, source_mask, invalid_pixmap, invalid_mask;
 
+    if (widget == NULL || event == NULL)
+	return;
+    parent = XtParent(widget);
+    if (parent == NULL)
+	return;
+    tab = (XmTabStackWidget)XtParent(parent);
+    if (tab == NULL || !XtIsSubclass((Widget) tab, xmTabStackWidgetClass))
+	return;
+    if (event->xany.type != ButtonPress)
+	return;
+    child = IndexToTab(tab,
+			       XmTabBoxGetIndex(parent, event->xbutton.x,
+						 event->xbutton.y));
+    if (child == NULL)
+	return;
+
 #ifdef TEAR_OFF_TABS
     if( !XmTabStack_allow_tear_offs(tab) ||
-        event == NULL || event->xany.type != ButtonPress ||
-        (child = IndexToTab(tab,
-			    XmTabBoxGetIndex(parent, event->xbutton.x,
-					     event->xbutton.y))) == NULL ||
         !XmTabStackC_tear_off_enabled(child) )
     {
 	return;
