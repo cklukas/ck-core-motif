@@ -3314,19 +3314,38 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
     FontData *cf;
     char buf[BUFSIZ];
     String replacement;
+    String *encodings;
+    int encoding_index;
 
-    for ( ; !XtIsSubclass(w, xmFontSelectorWidgetClass); w = XtParent(w)) {}
+    for ( ; w != NULL && !XtIsSubclass(w, xmFontSelectorWidgetClass);
+	  w = XtParent(w)) {}
+    if (w == NULL)
+	return;
     fsw = (XmFontSelectorWidget) w;
+    if (XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	ENCODING_LIST(fsw) == NULL)
+	return;
     cf = XmFontS_font_info(fsw)->current_font;
+    encoding_index = (int)(uintptr_t)data;
 
-	if ((int)(uintptr_t)data == 0)
+	if (encoding_index == 0)
 	{
 	replacement = XtNewString(ANY_ENCODING);
 	}
     else
 	{
+	encodings = ENCODING_LIST(fsw);
+	while (encoding_index > 0 && *encodings != NULL) {
+	    if (encoding_index == 1)
+		break;
+	    encoding_index--;
+	    encodings++;
+	}
+	if (encoding_index != 1 || *encodings == NULL)
+	    return;
 	replacement = XtNewString(
-		    ENCODING_LIST(fsw)[(int)(uintptr_t)data - 1]);
+		    *encodings);
 	}
 	if (replacement != NULL)
 	{

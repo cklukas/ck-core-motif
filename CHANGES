@@ -1,3 +1,10 @@
+Guard FontSelector encoding callback inputs (2026-10-30)
+==========================================================
+
+- Reject callbacks with missing widget ancestry or partial font state.
+- Validate the encoding list and menu index before dereferencing an entry.
+- Add focused source coverage and documentation.
+
 Guard FontSelector current-font retrieval (2026-10-30)
 ========================================================
 
