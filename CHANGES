@@ -1,3 +1,10 @@
+Guard PushButton synthetic pixel hooks (2026-10-30)
+====================================================
+
+- Validate callback widgets and value storage before unit conversion and shadow reads.
+- Reject invalid imports and leave invalid exports untouched.
+- Add focused source coverage and documentation.
+
 Guard SimpleSpinBox synthetic getter (2026-10-30)
 ==================================================
 

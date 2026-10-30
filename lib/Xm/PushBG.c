@@ -3339,6 +3339,10 @@ ShowAsDef_ToHorizPix(
 {
   XtArgVal         oldValue;
   XmImportOperator returnVal;
+
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmPushButtonGadgetClass))
+    return XmSYNTHETIC_NONE;
   
   oldValue = *value;
   returnVal = XmeToHorizontalPixels(widget, offset, value);
@@ -3400,6 +3404,9 @@ ExportHighlightThickness(
         int offset,
         XtArgVal *value )
 {
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmPushButtonGadgetClass))
+    return;
   if (PBG_DefaultButtonShadowThickness(widget) ||
       PBG_ShowAsDefault(widget))
     {
