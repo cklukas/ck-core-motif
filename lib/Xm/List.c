@@ -8117,11 +8117,37 @@ ListConvert(Widget w, XtPointer client_data,
 	  XmString *items = lw->list.items;
 	  int *pos = lw->list.selectedPositions;
 
-	  concat = (itemcount ? XmStringCopy(items[pos[0] - 1]) : NULL);
-	  for (i = 1; i < itemcount; i++) {
-	    concat = XmStringConcatAndFree(concat, XmStringCopy(sep));
-	    concat = XmStringConcatAndFree(concat,
-					   XmStringCopy(items[pos[i] - 1]));
+	  concat = NULL;
+	  if (items != NULL && pos != NULL) {
+	    for (i = 0; i < itemcount; i++) {
+	      XmString item_copy;
+	      XmString separator_copy;
+
+	      if (pos[i] <= 0 || pos[i] > lw->list.itemCount ||
+		  items[pos[i] - 1] == NULL)
+		continue;
+	      item_copy = XmStringCopy(items[pos[i] - 1]);
+	      if (item_copy == NULL) {
+		XmStringFree(concat);
+		concat = NULL;
+		break;
+	      }
+	      if (concat == NULL) {
+		concat = item_copy;
+		continue;
+	      }
+	      separator_copy = XmStringCopy(sep);
+	      if (separator_copy == NULL) {
+		XmStringFree(item_copy);
+		XmStringFree(concat);
+		concat = NULL;
+		break;
+	      }
+	      concat = XmStringConcatAndFree(concat, separator_copy);
+	      concat = XmStringConcatAndFree(concat, item_copy);
+	      if (concat == NULL)
+		break;
+	    }
 	  }
 	}
 

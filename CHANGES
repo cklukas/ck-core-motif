@@ -1,3 +1,10 @@
+Validate XmList drag selected positions (2026-10-30)
+=====================================================
+
+- Filter stale or invalid selected-position entries before indexing list items.
+- Handle compound-string copy failures without leaking partial drag data.
+- Add focused source coverage and documentation.
+
 Bound FontSelector spacing-field copies (2026-10-30)
 =====================================================
 
