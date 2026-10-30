@@ -1,3 +1,9 @@
+Guard Badge initialization input (2026-10-30)
+==============================================
+
+- Reject null or wrong-class widgets before accessing Badge state.
+- Add focused source coverage and documentation.
+
 Guard Badge SetValues input (2026-10-30)
 ========================================
 

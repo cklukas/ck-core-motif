@@ -61,6 +61,8 @@ static XmString copy_label(XmString source) {
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmBadgeWidget badge = (XmBadgeWidget)widget; XGCValues values;
     (void)request; (void)args; (void)count;
+    if (widget == NULL || !XtIsSubclass(widget, xmBadgeWidgetClass))
+        return;
     badge->badge.label = copy_label(badge->badge.label);
     if (badge->badge.font == NULL)
         badge->badge.font = XmFontListCopy(
