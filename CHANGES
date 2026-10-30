@@ -1,3 +1,10 @@
+Guard TabStack tear-off callback (2026-10-30)
+=============================================
+
+- Validate the callback widget before querying tear-off user data.
+- Preserve valid tear-off callback behavior.
+- Add focused source coverage and documentation.
+
 Guard TabStack drag-start failure (2026-10-30)
 ==============================================
 
