@@ -422,6 +422,10 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal *num_args)
     Cardinal 			f_num_args;
     Widget			button;
 
+    if (request == NULL || set == NULL || args == NULL || num_args == NULL ||
+	!XtIsSubclass(set, xmColorSelectorWidgetClass))
+	return;
+
     _XmFilterArgs(args, *num_args, xm_std_filter, &f_args, &f_num_args);
 
     /*
