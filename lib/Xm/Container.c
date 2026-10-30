@@ -8673,9 +8673,13 @@ CalcNextLocationCursor(
     Widget  wid,
     String  direction)
 {
-    XmContainerWidget cw = (XmContainerWidget)wid;
+    XmContainerWidget cw;
     int move_to;
     Widget w;
+
+    if (wid == NULL || direction == NULL)
+	return;
+    cw = (XmContainerWidget)wid;
 
     if (_XmConvertActionParamToRepTypeId((Widget) cw,
                          XmRID_CONTAINER_CURSOR_ACTION_PARAMS,
@@ -8698,8 +8702,12 @@ CalcNextLocationCursor(
         else if (move_to == _FIRST)
             XmProcessTraversal(wid, XmTRAVERSE_HOME);
         else if (move_to == _LAST)
-            XmProcessTraversal(cw->container.last_node->widget_ptr,
-                                XmTRAVERSE_CURRENT);
+	    {
+		if (cw->container.last_node &&
+		    cw->container.last_node->widget_ptr)
+                    XmProcessTraversal(cw->container.last_node->widget_ptr,
+                                       XmTRAVERSE_CURRENT);
+	    }
         }
     else /* CtrLayoutIsOUTLINE_DETAIL(cw) */
         {
@@ -8715,6 +8723,9 @@ CalcNextLocationCursor(
             XmProcessTraversal(wid, XmTRAVERSE_HOME);
         else if (move_to == _LAST)
 	    {
+	    if (cw->container.first_node == NULL ||
+		cw->container.first_node->widget_ptr == NULL)
+		return;
             w = GetLastTraversalWidget(cw, 
 				cw->container.first_node->widget_ptr, False);
 	    if (w)

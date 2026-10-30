@@ -31773,3 +31773,10 @@ Guard Container location-cursor parent (2026-10-30)
 - Return safely when location-cursor restoration receives a child without a
   parent before querying focus or requesting traversal.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container cursor navigation inputs (2026-10-30)
+======================================================
+
+- Validate cursor-navigation direction and child-node state before conversion
+  and `_LAST` traversal.
+- Add focused source-contract coverage and document the invalid-input path.
