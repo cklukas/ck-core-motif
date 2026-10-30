@@ -31556,6 +31556,13 @@ Guard Notebook redisplay tab counts (2026-10-30)
 - Add focused source-contract coverage and document the malformed-state path.
 
 Guard Notebook child widget lookup (2026-10-30)
+Guard Notebook page-number allocation (2026-10-30)
+====================================================
+
+- Skip null children and missing constraints while finding the next available
+  page number.
+- Add focused source-contract coverage and document the malformed-state path.
+
 Guard Notebook layout child scans (2026-10-30)
 ===============================================
 

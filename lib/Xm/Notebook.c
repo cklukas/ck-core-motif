@@ -6032,6 +6032,8 @@ GetNextAvailPageNum(
     for (i = 0; i < last; i++)
     {
 	child = nb->composite.children[i];
+	if (child == NULL || child->core.constraints == NULL)
+	    continue;
 	nc = NotebookConstraint(child);
 	if (XtIsManaged(child) && nc->page_number == avail)
 	    avail++;
