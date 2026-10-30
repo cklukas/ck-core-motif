@@ -4324,6 +4324,8 @@ GetMenuPost(
    XmRowColumnWidget rc = (XmRowColumnWidget) wid ;
 /****************/
 
+   if (wid == NULL || value == NULL)
+      return ;
    if (rc->row_column.menuPost != NULL) 
    {
       String copy = XtNewString(RC_MenuPost(rc));
@@ -4348,6 +4350,8 @@ GetLabelString(
   XmString        data ;
 /****************/
 
+  if (wid == NULL || value == NULL)
+    return ;
   data = XmStringCopy(RC_OptionLabel(rc));
   *value = (XtArgVal) data ;
 
@@ -4368,6 +4372,8 @@ GetTearOffTitle(
   XmString        data ;
 /****************/
 
+  if (wid == NULL || value == NULL)
+    return ;
   data = XmStringCopy(RC_TearOffTitle(rc));
   *value = (XtArgVal) data ;
 

@@ -29903,3 +29903,10 @@ Guard ComboBox selected-item import (2026-10-30)
 - Add focused source coverage and documentation.
 
 Define ComboBox synthetic accessor defaults (2026-10-30)
+Guard RowColumn synthetic string exports (2026-10-30)
+======================================================
+
+- Validate widget and output pointers before menu-post and `XmString` copies.
+- Add focused source coverage and documentation.
+
+Guard ComboBox selected-item import (2026-10-30)
