@@ -5286,6 +5286,9 @@ ContainerExtend(
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 	Widget			focus_cwid = XmGetFocusWidget(wid);
 
+	if (event == NULL)
+	    return;
+
 	if ((focus_cwid == wid) || (focus_cwid == NULL))
 	    return;
 	if (CtrOUTLINE_BUTTON(focus_cwid))
