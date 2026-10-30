@@ -512,7 +512,15 @@ ExportScrollBarValue(
         int offset,		/* unused */
         XtArgVal *value )
 {
-        XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
+        XmScrollBarWidget sbw;
+
+        if (wid == NULL || value == NULL ||
+            !XtIsSubclass(wid, xmScrollBarWidgetClass))
+        {
+                if (value != NULL) *value = (XtArgVal) 0;
+                return;
+        }
+        sbw = (XmScrollBarWidget) wid ;
 	if (PROCESS_DIR_INVERSED(sbw))
 		*value = (XtArgVal) INVERSED_VALUE(sbw);
 	else
@@ -532,7 +540,12 @@ ImportScrollBarValue(
         int offset,		/* unused */
         XtArgVal *value )
 {
-        XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
+        XmScrollBarWidget sbw;
+
+        if (wid == NULL || value == NULL ||
+            !XtIsSubclass(wid, xmScrollBarWidgetClass))
+                return XmSYNTHETIC_NONE;
+        sbw = (XmScrollBarWidget) wid ;
 
 	sbw->scrollBar.flags |= VALUE_SET_FLAG;
 	*value = (XtArgVal)sbw->scrollBar.value;
@@ -555,6 +568,9 @@ ProcessingDirectionDefault(
         XrmValue *value )
 {
 	static unsigned char direction;
+
+	if (widget == NULL || value == NULL)
+	    return;
 
 	value->addr = (XPointer) &direction;
 

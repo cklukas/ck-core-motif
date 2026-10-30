@@ -1,3 +1,10 @@
+Guard ScrollBar value hooks (2026-10-30)
+=========================================
+
+- Validate widget classes and value storage before scrollbar state access.
+- Return deterministic zero/none results for invalid callback inputs.
+- Add focused source coverage and documentation.
+
 Guard Paned pixel hooks (2026-10-30)
 ====================================
 
