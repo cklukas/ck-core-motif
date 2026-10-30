@@ -29579,3 +29579,12 @@ Guard FontSelector size DropDown allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard FontSelector family DropDown allocation (2026-10-30)
+Guard FontSelector bold/italic allocation (2026-10-30)
+=======================================================
+
+- Validate merged arguments, the button box, and both toggle buttons before
+  callback registration and child storage.
+- Release merged arguments on partial construction failure.
+- Add focused source coverage and documentation.
+
+Guard FontSelector size DropDown allocation (2026-10-30)

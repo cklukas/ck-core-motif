@@ -2669,10 +2669,14 @@ CreateBoldItalicBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     box = XtCreateManagedWidget("boldItalicBox", xmButtonBoxWidgetClass, 
 				parent, margs, num_args + num_largs);
-    AddToXlfdOnlyList(fsw, box);
     XtFree((XtPointer) margs);
+    if (box == NULL)
+	return;
+    AddToXlfdOnlyList(fsw, box);
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNlabelString, BOLD_STRING(fsw));
@@ -2681,14 +2685,24 @@ CreateBoldItalicBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     button = XtCreateManagedWidget("boldButton", xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XmFontS_bold_toggle(fsw) = button;
     XtAddCallback(button, XmNvalueChangedCallback, ToggleBold, (XtPointer)fsw);
 
     margs[num_str].value = (XtArgVal) ITALIC_STRING(fsw);
     button = XtCreateManagedWidget("italicButton", xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XmFontS_italic_toggle(fsw) = button;
     XtAddCallback(button, 
 		  XmNvalueChangedCallback, ToggleItalic, (XtPointer) fsw);
