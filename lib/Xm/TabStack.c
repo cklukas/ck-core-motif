@@ -3268,13 +3268,20 @@ TabSelectedCallback(widget, client, cbdata)
     XtPointer client, cbdata;
 #endif
 {
-    XmTabBoxCallbackStruct   *info = (XmTabBoxCallbackStruct*) cbdata;
-    XmTabStackWidget         tab = (XmTabStackWidget) XtParent(widget);
+    XmTabBoxCallbackStruct   *info;
+    XmTabStackWidget         tab;
     XmTabStackCallbackStruct data;
     WidgetList               kid = tab->composite.children;
     Widget                   old, active = NULL;
     Cardinal                 i, idx = 0;
     int                      neg_x, x, y, width, height;
+
+    if (widget == NULL || cbdata == NULL)
+	return;
+    tab = (XmTabStackWidget) XtParent(widget);
+    if (tab == NULL || !XtIsSubclass((Widget) tab, xmTabStackWidgetClass))
+	return;
+    info = (XmTabBoxCallbackStruct*) cbdata;
 
     /*
      * It seems that a tab has been selected so we need to swap our
@@ -3303,6 +3310,8 @@ TabSelectedCallback(widget, client, cbdata)
 	return;
     }
     old = XmTabStack__active_child(tab);
+    if (old == NULL)
+	return;
 
     /*
      * We know that our new active widget is going to be placed at the

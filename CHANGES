@@ -1,3 +1,10 @@
+Guard TabStack selection callback (2026-10-30)
+==============================================
+
+- Validate callback data and parent TabStack state before selection work.
+- Stop safely when no active child exists to replace.
+- Add focused source coverage and documentation.
+
 Guard Column label teardown callback (2026-10-30)
 =================================================
 
