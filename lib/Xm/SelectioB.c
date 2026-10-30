@@ -1605,10 +1605,17 @@ _XmSelectionBoxGetSelectionLabelString(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {   
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             XmString        data ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) NULL ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_SelectionLabel (sel)    )
     {   
@@ -1629,10 +1636,17 @@ _XmSelectionBoxGetListLabelString(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             XmString        data ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) NULL ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_ListLabel( sel)    )
     {   
@@ -1653,10 +1667,17 @@ _XmSelectionBoxGetTextColumns(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             short           data ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) 0 ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_Text( sel)    )
     {   
@@ -1677,11 +1698,18 @@ _XmSelectionBoxGetTextString(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {   
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             String          data = NULL ;
             XmString        text_string ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) NULL ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_Text( sel)    )
     {   
@@ -1705,10 +1733,17 @@ _XmSelectionBoxGetListItems(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {   
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             Arg             al[1] ;
             XmString        data ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) NULL ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_List( sel)    )
     {   
@@ -1729,10 +1764,17 @@ _XmSelectionBoxGetListItemCount(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {   
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             int             data ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) 0 ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_List( sel)    )
     {   
@@ -1753,10 +1795,17 @@ _XmSelectionBoxGetListVisibleItemCount(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             int             data ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) 0 ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_List( sel)    )
     {   
@@ -1777,10 +1826,17 @@ _XmSelectionBoxGetOkLabelString(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             XmString        data ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) NULL ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_OkButton( sel)    )
     {   
@@ -1801,10 +1857,17 @@ _XmSelectionBoxGetApplyLabelString(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             XmString        data ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) NULL ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_ApplyButton( sel)    )
     {   
@@ -1825,10 +1888,17 @@ _XmSelectionBoxGetCancelLabelString(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             XmString        data ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) NULL ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_CancelButton( sel)    )
     {   
@@ -1849,10 +1919,17 @@ _XmSelectionBoxGetHelpLabelString(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {
-            XmSelectionBoxWidget sel = (XmSelectionBoxWidget) wid ;
+            XmSelectionBoxWidget sel ;
             XmString        data ;
             Arg             al[1] ;
 /****************/
+
+    if(    value == NULL || wid == NULL
+        || !XtIsSubclass( wid, xmSelectionBoxWidgetClass))
+        {   if( value != NULL) *value = (XtArgVal) NULL ;
+            return ;
+        }
+    sel = (XmSelectionBoxWidget) wid ;
 
     if(    SB_HelpButton( sel)    )
     {   
