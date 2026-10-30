@@ -2385,9 +2385,13 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNfillOption, XmFillAll); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 2); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     box = XtCreateManagedWidget("box", xmButtonBoxWidgetClass, 
 				(Widget) fsw, margs, num_args + num_largs);
     XtFree((XtPointer) margs);
+    if (box == NULL)
+	return;
 
     num_largs = 0;
     temp_txt = _XmGetMBStringFromXmString(SAMPLE_TEXT(fsw));
@@ -2397,10 +2401,17 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNscrollHorizontal, False); num_largs++;
     XtSetArg(largs[num_largs], XmNrows, XmFontS_text_rows(fsw)); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL) {
+	XtFree((XtPointer) temp_txt);
+	return;
+    }
     temp = XmCreateScrolledText(box, "text", margs, num_args + num_largs);
-    XtManageChild(XmFontS_text(fsw) = temp);
     XtFree((XtPointer) margs);
     XtFree((XtPointer) temp_txt);
+    if (temp == NULL)
+	return;
+    XmFontS_text(fsw) = temp;
+    XtManageChild(temp);
 
     XtAddCallback(temp, XmNlosingFocusCallback,
 		  RemoveUserError, (XtPointer) fsw);
@@ -2411,6 +2422,8 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     temp = XtCreateWidget("nameLabel", xmLabelWidgetClass, 
 			  (Widget) fsw, margs, num_args + num_largs);
 

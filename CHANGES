@@ -29529,6 +29529,14 @@ Guard RowColumn popup-menu shell allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard ComboBox edit-field allocation (2026-10-30)
+Guard FontSelector primary child allocation (2026-10-30)
+=========================================================
+
+- Validate merged arguments, button-box creation, and scrolled-text creation
+  before managing children or registering callbacks.
+- Clean up temporary sample text when argument merging fails.
+- Add focused source coverage and documentation.
+
 Guard tear-off shell allocation (2026-10-30)
 ============================================
 
