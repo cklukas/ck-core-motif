@@ -29445,3 +29445,12 @@ Bound ScrolledWindow scrollbar extents (2026-10-29)
 - Add focused source coverage and document the sizing contract.
 
 Bound ScrolledWindow auto-scroll rectangles (2026-10-29)
+Clear DatePicker popup pointers during external destruction (2026-10-30)
+========================================================================
+
+- Reset the popup shell, calendar child, and open state when the transient
+  shell is destroyed outside the DatePicker API.
+- Add focused source coverage and documentation.
+
+Synchronize DatePicker resource dates with popup calendars (2026-10-30)
+=======================================================================

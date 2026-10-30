@@ -20,6 +20,7 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 static void calendar_changed(Widget, XtPointer, XtPointer);
+static void popup_destroyed(Widget, XtPointer, XtPointer);
 
 #define Offset(field) XtOffsetOf(XmDatePickerRec, field)
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
@@ -100,6 +101,17 @@ static Widget shell_ancestor(Widget widget) {
     return widget;
 }
 
+static void popup_destroyed(Widget shell, XtPointer closure, XtPointer call_data) {
+    XmDatePickerWidget picker = (XmDatePickerWidget)closure;
+    (void)shell;
+    (void)call_data;
+    if (picker == NULL)
+        return;
+    picker->date_picker.popup_shell = NULL;
+    picker->date_picker.calendar = NULL;
+    picker->date_picker.open = False;
+}
+
 static void create_popup(XmDatePickerWidget picker) {
     Widget parent_shell = shell_ancestor(XtParent((Widget)picker));
     Arg args[4];
@@ -114,6 +126,8 @@ static void create_popup(XmDatePickerWidget picker) {
         "datePickerShell", overrideShellWidgetClass, parent_shell, args, count);
     if (!picker->date_picker.popup_shell)
         return;
+    XtAddCallback(picker->date_picker.popup_shell, XtNdestroyCallback,
+                  popup_destroyed, (XtPointer)picker);
     picker->date_picker.calendar = XmCreateCalendar(
         picker->date_picker.popup_shell, (char *)"calendar", NULL, 0);
     if (!picker->date_picker.calendar) {
