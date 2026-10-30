@@ -5829,7 +5829,7 @@ ContainerDestPrehookProc(
   XmDropProcCallbackStruct *	dropproc_cs;
   XPoint			*loc_data;
 
-  if (wid == NULL || cs == NULL)
+  if (wid == NULL || cs == NULL || cs->transfer_id == NULL)
     return;
 
   /* For a PRIMARY selection, don't null out the location_data.

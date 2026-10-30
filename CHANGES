@@ -1,3 +1,10 @@
+Guard Container destination prehook transfers (2026-10-30)
+=============================================================
+
+- Reject destination prehook callbacks without a transfer identifier before
+  allocating location data or calling transfer APIs.
+- Add focused source-contract coverage and document the malformed callback path.
+
 Guard Container paste widget classes (2026-10-30)
 ===================================================
 
