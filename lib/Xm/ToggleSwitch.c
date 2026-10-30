@@ -91,26 +91,30 @@ static void update_gcs(XmToggleSwitchWidget sw) {
     sw->toggle_switch.track_color = sw->primitive.foreground;
     sw->toggle_switch.knob_color = sw->toggle_switch.set
         ? sw->primitive.highlight_color : sw->primitive.foreground;
-    if (sw->toggle_switch.track_gc)
+    if (sw->toggle_switch.track_gc) {
         XSetBackground(display, sw->toggle_switch.track_gc,
-                       sw->core.background_pixel),
+                       sw->core.background_pixel);
         XSetForeground(display, sw->toggle_switch.track_gc,
                        sw->toggle_switch.track_color);
-    if (sw->toggle_switch.knob_gc)
+    }
+    if (sw->toggle_switch.knob_gc) {
         XSetBackground(display, sw->toggle_switch.knob_gc,
-                       sw->core.background_pixel),
+                       sw->core.background_pixel);
         XSetForeground(display, sw->toggle_switch.knob_gc,
                        sw->toggle_switch.knob_color);
-    if (sw->toggle_switch.label_gc)
+    }
+    if (sw->toggle_switch.label_gc) {
         XSetBackground(display, sw->toggle_switch.label_gc,
-                       sw->core.background_pixel),
+                       sw->core.background_pixel);
         XSetForeground(display, sw->toggle_switch.label_gc,
                        sw->primitive.foreground);
-    if (sw->toggle_switch.insensitive_gc)
+    }
+    if (sw->toggle_switch.insensitive_gc) {
         XSetBackground(display, sw->toggle_switch.insensitive_gc,
-                       sw->core.background_pixel),
+                       sw->core.background_pixel);
         XSetForeground(display, sw->toggle_switch.insensitive_gc,
                        sw->primitive.bottom_shadow_color);
+    }
 }
 
 static void fill_round_rect(Display *display, Window window, GC gc,
