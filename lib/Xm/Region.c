@@ -2567,7 +2567,8 @@ _XmRegionFromImage(
     XmRegionBox		*FirstRect, *rects, *prectLineStart;
     Bool		fInBox, fSame;
 
-    if (image == NULL || image->data == NULL)
+    if (image == NULL || image->data == NULL ||
+	image->width <= 0 || image->height <= 0)
 	return NULL;
 
     pReg = (XmRegion) XCreateRegion();
