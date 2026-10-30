@@ -5402,6 +5402,9 @@ ContainerSelectAll(
 {
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 
+	if (event == NULL)
+	    return;
+
 	if (CtrPolicyIsSINGLE(cw) || CtrPolicyIsBROWSE(cw))
 		{
 		ContainerSelect(wid,event,params,num_params);
@@ -5432,6 +5435,9 @@ ContainerDeselectAll(
         Cardinal        *num_params)	/* unused */
 {
 	XmContainerWidget	cw = (XmContainerWidget)wid;
+
+	if (event == NULL)
+	    return;
 
 	cw->container.no_auto_sel_changes |= DeselectAllCwids(wid);
 	GainPrimary(wid,event->xbutton.time);

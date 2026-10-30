@@ -32185,3 +32185,10 @@ Guard Container cursor-extension inputs (2026-10-30)
 - Validate event, parameter-count, and direction-token inputs before cursor
   extension reads or forwards range selection.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container select-all events (2026-10-30)
+===============================================
+
+- Return safely when select-all or deselect-all receives no event before
+  reading selection timestamps or issuing callbacks.
+- Add focused source-contract coverage and document the invalid-input path.
