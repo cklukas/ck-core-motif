@@ -29865,3 +29865,11 @@ Guard XmList conversion callback inputs (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard XmList Motif-drop concatenation (2026-10-30)
+Handle XmListDeleteItems copy failure (2026-10-30)
+====================================================
+
+- Abort safely when a temporary `XmString` snapshot cannot be completed.
+- Release partial snapshots and restore the application lock before returning.
+- Add focused source coverage and documentation.
+
+Guard XmList conversion callback inputs (2026-10-30)

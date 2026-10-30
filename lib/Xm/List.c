@@ -8671,7 +8671,17 @@ XmListDeleteItems(Widget w,
       return;
     }
   for (i = 0; i < item_count; i++)
-    copy[i] = XmStringCopy(items[i]);
+    {
+      copy[i] = XmStringCopy(items[i]);
+      if (copy[i] == NULL)
+	{
+	  while (i != 0)
+	    XmStringFree(copy[--i]);
+	  DEALLOCATE_LOCAL((char *)copy);
+	  _XmAppUnlock(app);
+	  return;
+	}
+    }
 
   DrawHighlight(lw, lw->list.CurrentKbdItem, FALSE);
 
