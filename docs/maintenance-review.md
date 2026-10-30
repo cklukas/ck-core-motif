@@ -15,6 +15,14 @@ focused contract check is:
 python3 tests/automated/check-picker-color-update.py
 ```
 
+Skeleton now requests redisplay when its background or shimmer colors change,
+so runtime theme updates are visible even when animation is stopped.  The
+focused contract check is:
+
+```sh
+python3 tests/automated/check-skeleton-color-update.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws

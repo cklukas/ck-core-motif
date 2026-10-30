@@ -1,3 +1,10 @@
+Redraw Skeleton after color resource updates (2026-10-30)
+============================================================
+
+- Request redisplay when Skeleton foreground/background or shimmer colors
+  change through `XtSetValues`.
+- Add focused source coverage and maintenance documentation.
+
 Refresh DatePicker and TimePicker drawing colors (2026-10-30)
 ===============================================================
 
