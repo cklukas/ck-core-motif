@@ -2837,6 +2837,8 @@ ChangeManaged(
         {
         cwid = cw->composite.children[i];
         c = GetContainerConstraint(cwid);
+	if (c == NULL)
+	    continue;
 	if (CtrICON(cwid))
 	    if (!NodeIsActive(c->node_ptr))
 		HideCwid(cwid);

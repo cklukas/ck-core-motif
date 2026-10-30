@@ -32066,3 +32066,10 @@ Guard Container hit-test inputs (2026-10-30)
 - Return no item before hit-test traversal when no Container widget is
   supplied.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container managed-child constraints (2026-10-30)
+========================================================
+
+- Skip managed children whose Container constraint record is unavailable
+  before consulting node activity or outline state.
+- Add focused source-contract coverage and document the invalid-child path.
