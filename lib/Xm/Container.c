@@ -6430,8 +6430,12 @@ RequestOutlineDetail(
         Widget  wid,
         XtWidgetGeometry * geo_desired)
 {
-    XmContainerWidget   cw = (XmContainerWidget)wid;
+    XmContainerWidget   cw;
     Dimension saved_width = 0 ;
+
+    if (wid == NULL || geo_desired == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
 
     /* deal with special requirements for width */
     if (geo_desired->width) {
