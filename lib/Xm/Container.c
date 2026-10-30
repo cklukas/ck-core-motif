@@ -10080,14 +10080,24 @@ ScrollProc(
 	else if (cw->container.LeaveDir & RIGHTLEAVE)
 	    nav_data.value.x += nav_data.increment.x;
 
-	if (nav_data.value.y < nav_data.minimum.y)
+	if (nav_data.maximum.y <= nav_data.minimum.y ||
+	    nav_data.slider_size.y >= nav_data.maximum.y - nav_data.minimum.y)
 	    nav_data.value.y = nav_data.minimum.y;
-	if (nav_data.value.y > (nav_data.maximum.y - nav_data.slider_size.y))
-	    nav_data.value.y = nav_data.maximum.y - nav_data.slider_size.y;
-	if (nav_data.value.x < nav_data.minimum.x)
+	else {
+	    if (nav_data.value.y < nav_data.minimum.y)
+		nav_data.value.y = nav_data.minimum.y;
+	    if (nav_data.value.y > (nav_data.maximum.y - nav_data.slider_size.y))
+		nav_data.value.y = nav_data.maximum.y - nav_data.slider_size.y;
+	}
+	if (nav_data.maximum.x <= nav_data.minimum.x ||
+	    nav_data.slider_size.x >= nav_data.maximum.x - nav_data.minimum.x)
 	    nav_data.value.x = nav_data.minimum.x;
-	if (nav_data.value.x > (nav_data.maximum.x - nav_data.slider_size.x))
-	    nav_data.value.x = nav_data.maximum.x - nav_data.slider_size.x;
+	else {
+	    if (nav_data.value.x < nav_data.minimum.x)
+		nav_data.value.x = nav_data.minimum.x;
+	    if (nav_data.value.x > (nav_data.maximum.x - nav_data.slider_size.x))
+		nav_data.value.x = nav_data.maximum.x - nav_data.slider_size.x;
+	}
 
 	/* and set it  */
 	nav_data.valueMask = NavValue;
