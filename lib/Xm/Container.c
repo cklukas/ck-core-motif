@@ -5257,6 +5257,9 @@ ContainerSelect(
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 	Widget			focus_cwid = XmGetFocusWidget(wid);
 
+	if (event == NULL || num_params == NULL)
+	    return;
+
 	if (CtrLayoutIsOUTLINE_DETAIL(wid) && focus_cwid &&
 		(focus_cwid != wid) && CtrOUTLINE_BUTTON(focus_cwid))
                     {

@@ -32157,3 +32157,10 @@ Guard Container cancel inputs (2026-10-30)
 - Return safely when cancel receives no event or parameter-count pointer
   before forwarding cancellation or reading the selection timestamp.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container select inputs (2026-10-30)
+===========================================
+
+- Return safely when select receives no event or parameter-count pointer
+  before forwarding outline-button or keyboard selection actions.
+- Add focused source-contract coverage and document the invalid-input path.
