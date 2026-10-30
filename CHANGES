@@ -1,3 +1,10 @@
+Guard FontSelector font-string construction (2026-10-30)
+===========================================================
+
+- Validate selector, font, and output-buffer inputs before formatting.
+- Use wildcard fallbacks for missing XLFD family, weight, and encoding strings.
+- Add focused source coverage and documentation.
+
 Bound FontSelector slant refresh (2026-10-30)
 ==============================================
 

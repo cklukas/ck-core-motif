@@ -1504,8 +1504,11 @@ static String
 BuildFontString(XmFontSelectorWidget fsw, FontData *cf, String buf, int size)
 {
     static XrmQuark anyquark2, anyquark = NULLQUARK;
-    String family, encoding;
+    String family, weight, encoding;
     char res_x[BUFSIZ], res_y[BUFSIZ], point_size[BUFSIZ];
+
+    if (fsw == NULL || cf == NULL || (size > 0 && buf == NULL))
+	return buf;
 
     if (anyquark == NULLQUARK) {
 	String temp1 = _XmGetMBStringFromXmString(ANY_STRING(fsw));
@@ -1522,6 +1525,8 @@ BuildFontString(XmFontSelectorWidget fsw, FontData *cf, String buf, int size)
 	family = STAR_STRING;
     else
 	family = XrmQuarkToString(cf->familyq);
+    if (family == NULL)
+	family = STAR_STRING;
 
     if (cf->point_size == 0)
 	strcpy(point_size, STAR_STRING);
@@ -1539,6 +1544,11 @@ BuildFontString(XmFontSelectorWidget fsw, FontData *cf, String buf, int size)
 	(void)snprintf(res_y, sizeof(res_y), "%d", (int) cf->resolution_y);
 
     encoding = ENCODING_STRING(fsw);
+    if (encoding == NULL)
+	encoding = STAR_STRING;
+    weight = XrmQuarkToString(cf->weightq);
+    if (weight == NULL)
+	weight = STAR_STRING;
 
     /*
      * I should really check to see that the string fits, but
@@ -1547,7 +1557,7 @@ BuildFontString(XmFontSelectorWidget fsw, FontData *cf, String buf, int size)
 
     if (size > 0)
 	snprintf(buf, (size_t)size, "-*-%s-%s-%s-*-*-*-%s-%s-%s-%s-*-%s",
-		 family, XrmQuarkToString(cf->weightq), cf->slant, point_size,
+		 family, weight, cf->slant, point_size,
 		 res_x, res_y, cf->spacing, encoding);
     else if (buf != NULL)
 	buf[0] = '\0';
