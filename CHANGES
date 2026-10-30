@@ -1,3 +1,10 @@
+Guard Gadget synthetic color getters (2026-10-30)
+=================================================
+
+- Validate gadget/output and manager-parent state before color access.
+- Preserve inherited manager colors for valid gadgets.
+- Add focused source coverage and documentation.
+
 Guard PushButtonGadget label-area calculation (2026-10-30)
 ============================================================
 

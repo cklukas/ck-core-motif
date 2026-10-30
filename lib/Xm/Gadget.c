@@ -397,7 +397,19 @@ GetHighlightColor(
 	int offset,		/* unused */
 	XtArgVal *value )
 {
-    XmManagerWidget mw = (XmManagerWidget) XtParent(w);
+    Widget parent;
+    XmManagerWidget mw;
+
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmGadgetClass)) {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    parent = XtParent(w);
+    if (parent == NULL || !XmIsManager(parent)) {
+        *value = (XtArgVal) 0;
+        return;
+    }
+    mw = (XmManagerWidget) parent;
 
     *value = (XtArgVal) mw->manager.highlight_color;
 }
@@ -409,7 +421,19 @@ GetTopShadowColor(
 	int offset,		/* unused */
 	XtArgVal *value )
 {
-    XmManagerWidget mw = (XmManagerWidget) XtParent(w);
+    Widget parent;
+    XmManagerWidget mw;
+
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmGadgetClass)) {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    parent = XtParent(w);
+    if (parent == NULL || !XmIsManager(parent)) {
+        *value = (XtArgVal) 0;
+        return;
+    }
+    mw = (XmManagerWidget) parent;
 
     *value = (XtArgVal) mw->manager.top_shadow_color;
 }
@@ -421,7 +445,19 @@ GetBottomShadowColor(
 	int offset,		/* unused */
 	XtArgVal *value )
 {
-    XmManagerWidget mw = (XmManagerWidget) XtParent(w);
+    Widget parent;
+    XmManagerWidget mw;
+
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmGadgetClass)) {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    parent = XtParent(w);
+    if (parent == NULL || !XmIsManager(parent)) {
+        *value = (XtArgVal) 0;
+        return;
+    }
+    mw = (XmManagerWidget) parent;
 
     *value = (XtArgVal) mw->manager.bottom_shadow_color;
 }
