@@ -1,3 +1,10 @@
+Avoid overflowing tab-only compound-text segments (2026-10-30)
+================================================================
+
+- Append a newline only when the compound-text separator flag is set; tab-only
+  prefixes now stay within their allocated buffer and retain their semantics.
+- Add focused source-contract coverage and document the corrected behavior.
+
 Reject empty masked XPM color tables (2026-10-30)
 ================================================
 

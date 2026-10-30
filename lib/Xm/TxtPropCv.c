@@ -306,7 +306,8 @@ GetTextSegment(Display *display, /* unused */
 	      strcpy(&newstring[i], *buffer);
 	    else
 	      newstring[i] = '\0';
-	    strcat(newstring, "\n");
+	    if (separator)
+	      strcat(newstring, "\n");
 	    XtFree(*buffer);
 	    *buffer = newstring;
 	}
