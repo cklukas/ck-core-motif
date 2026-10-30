@@ -730,3 +730,7 @@ ProgressRing range, value, and indeterminate setters now fail closed during
 Xt teardown, avoiding redraw and callback work on partial state. The focused
 source check is
 `tests/automated/check-progressring-mutator-destroy-guards.py`.
+
+Stepper range, value, and step setters now fail closed during Xt teardown,
+avoiding redraw and callback work on partial state. The focused source check is
+`tests/automated/check-stepper-mutator-destroy-guards.py`.
