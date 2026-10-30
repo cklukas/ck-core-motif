@@ -30660,3 +30660,10 @@ Disclosure SetValues label rollback (2026-10-30)
   changes to Xt.
 - Add `tests/automated/check-disclosure-setvalues-rollback.py` and document
   the behavior in `docs/maintenance-review.md`.
+
+Correct label-copy redraw reporting (2026-10-30)
+================================================
+- Report ProgressBar and Spinner redisplay only after a label replacement
+  succeeds or an explicit label clear is applied.
+- Add `tests/automated/check-label-copy-redraw-contract.py` and document the
+  behavior in `docs/maintenance-review.md`.

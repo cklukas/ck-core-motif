@@ -269,10 +269,10 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         if (progress->progress.label == NULL || replacement != NULL) {
             if (old->progress.label) XmStringFree(old->progress.label);
             progress->progress.label = replacement;
+            redraw = True;
         } else {
             progress->progress.label = old->progress.label;
         }
-        redraw = True;
     }
     if (old->progress.minimum != progress->progress.minimum ||
         old->progress.maximum != progress->progress.maximum ||

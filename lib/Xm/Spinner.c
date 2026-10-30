@@ -247,10 +247,10 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         if (spinner->spinner.label == NULL || replacement != NULL) {
             if (old->spinner.label) XmStringFree(old->spinner.label);
             spinner->spinner.label = replacement;
+            redraw = True;
         } else {
             spinner->spinner.label = old->spinner.label;
         }
-        redraw = True;
     }
     if (old->spinner.active != spinner->spinner.active) {
         redraw = True;

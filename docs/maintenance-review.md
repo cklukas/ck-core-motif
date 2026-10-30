@@ -79,6 +79,13 @@ succeeds and reports the successful label change to Xt. Failed allocation
 preserves the previous label. The regression check is
 `tests/automated/check-disclosure-setvalues-rollback.py`.
 
+## Label-copy redraw reporting
+
+ProgressBar and Spinner now request redisplay only when a label replacement
+actually succeeds (or a label is intentionally cleared). Failed copies keep
+the previous label without claiming a visual change. The regression check is
+`tests/automated/check-label-copy-redraw-contract.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as
