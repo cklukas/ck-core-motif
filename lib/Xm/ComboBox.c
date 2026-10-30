@@ -2360,6 +2360,10 @@ CBGetSelectedItem(Widget    widget,
 {
   if (widget == NULL || value == NULL)
 	return;
+  if (CB_EditBox((XmComboBoxWidget)widget) == NULL) {
+	*value = (XtArgVal)NULL;
+	return;
+  }
   *value = (XtArgVal) GetEditBoxValue(widget);
 }
 
@@ -2388,7 +2392,7 @@ CBSetSelectedPos(Widget    widget,
    * Initialize() has been called and children have been created.
    * Make sure children have been created before doing anything. 
    */
-  if (!cb->composite.num_children)
+  if (!cb->composite.num_children || CB_List(cb) == NULL)
     return XmSYNTHETIC_NONE;
 
   /* Get current (1-based) list selectedPos */
@@ -2437,6 +2441,7 @@ CBGetSelectedPos(Widget    widget,
 
   if (widget == NULL || value == NULL)
     return;
+  *value = (XtArgVal)XmINVALID_POSITION;
   if (!cb->composite.num_children || CB_List(cb) == NULL)
     return;
 

@@ -29887,3 +29887,11 @@ Guard ComboBox selected-position export (2026-10-30)
 - Add focused source coverage and documentation.
 
 Handle XmListDeleteItems copy failure (2026-10-30)
+Define ComboBox synthetic accessor defaults (2026-10-30)
+==========================================================
+
+- Return deterministic selected-item and selected-position values before child creation.
+- Require the list child for selected-position import.
+- Add focused source coverage and documentation.
+
+Guard ComboBox synthetic accessors (2026-10-30)
