@@ -31426,7 +31426,7 @@ Bound ASN.1 headers during XmString truncation (2026-10-30)
 Reject NULL images during region construction (2026-10-30)
 ============================================================
 
-- Return `NULL` before dereferencing a missing `XImage` in
+- Return `NULL` before dereferencing a missing `XImage` or its pixel data in
   `_XmRegionFromImage`.
 - Add focused source-contract coverage and document the input guard.
 
