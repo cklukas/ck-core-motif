@@ -114,6 +114,14 @@ Bound ColorSelector preview updates (2026-10-30)
   null preview widget to Xt.
 - Add focused source coverage and document the partial-construction contract.
 
+Bound ColorSelector optional-child updates (2026-10-30)
+========================================================
+
+- Guard slider and mode-toggle label updates when optional children are
+  unavailable after a partial construction failure.
+- Make list-mode selection a no-op when the color list could not be created.
+- Add focused source coverage and document deferred-update behavior.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 

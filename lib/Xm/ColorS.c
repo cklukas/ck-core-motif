@@ -660,8 +660,9 @@ SetValues(Widget current, Widget request, Widget set,
 		if (replacement != NULL) {
 		    XmStringFree(XmColorS_strings(curr).slider_labels[i]);
 		    XmColorS_strings(csw).slider_labels[i] = replacement;
-		    XtVaSetValues(XmColorS_sliders(csw)[i], XmNtitleString,
-			XmColorS_strings(csw).slider_labels[i], NULL);
+		    if (XmColorS_sliders(csw)[i] != NULL)
+			XtVaSetValues(XmColorS_sliders(csw)[i], XmNtitleString,
+				      XmColorS_strings(csw).slider_labels[i], NULL);
 		} else {
 		    XmColorS_strings(csw).slider_labels[i] =
 			XmColorS_strings(curr).slider_labels[i];
@@ -676,8 +677,9 @@ SetValues(Widget current, Widget request, Widget set,
 		if (replacement != NULL) {
 		    XmStringFree(XmColorS_strings(curr).tog_labels[i]);
 		    XmColorS_strings(csw).tog_labels[i] = replacement;
-		    XtVaSetValues(XmColorS_chose_mode(csw)[i], XmNlabelString,
-			XmColorS_strings(csw).tog_labels[i], NULL);
+		    if (XmColorS_chose_mode(csw)[i] != NULL)
+			XtVaSetValues(XmColorS_chose_mode(csw)[i], XmNlabelString,
+				      XmColorS_strings(csw).tog_labels[i], NULL);
 		} else {
 		    XmColorS_strings(csw).tog_labels[i] =
 			XmColorS_strings(curr).tog_labels[i];
@@ -928,6 +930,9 @@ static void
 SelectColor(XmColorSelectorWidget csw)
 {
     int color_num;
+
+    if (XmColorS_list(csw) == NULL)
+	return;
 
     if (FindColor(csw, &color_num)) {
 	XmListSelectPos(XmColorS_list(csw), color_num + 1, False);
