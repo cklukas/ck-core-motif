@@ -69,14 +69,16 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
         bar->core.height >= 18) {
         int button_x = (int)bar->core.width - 22;
         int button_y = ((int)bar->core.height - 18) / 2;
+        int button_cx = button_x + 9;
+        int button_cy = button_y + 9;
         XDrawRectangle(display, window, bar->info.gc,
                        button_x, button_y, 18, 18);
         XDrawLine(display, window, bar->info.gc,
-                  button_x + 5, button_y + 6,
-                  button_x + 13, button_y + 16);
+                  button_cx - 4, button_cy - 4,
+                  button_cx + 4, button_cy + 4);
         XDrawLine(display, window, bar->info.gc,
-                  button_x + 13, button_y + 6,
-                  button_x + 5, button_y + 16);
+                  button_cx + 4, button_cy - 4,
+                  button_cx - 4, button_cy + 4);
     }
     if (prefix_string) XmStringFree(prefix_string);
     if (message_string) XmStringFree(message_string);

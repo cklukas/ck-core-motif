@@ -1,3 +1,10 @@
+Center InfoBar close icon geometry (2026-10-30)
+================================================
+
+- Draw the framed close X around the button center with matching diagonal
+  insets, removing the previous asymmetric endpoints.
+- Add focused source coverage and documentation.
+
 Guard TabBox label bitmap graphics contexts (2026-10-30)
 ==========================================================
 
