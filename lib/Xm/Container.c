@@ -9173,11 +9173,19 @@ static	void
 MakeOutlineButton(
 	Widget	cwid)
 {
-    XmContainerWidget	cw = (XmContainerWidget)XtParent(cwid);
-    XmContainerConstraint	c = GetContainerConstraint(cwid);
+    XmContainerWidget	cw;
+    XmContainerConstraint	c;
     XmContainerConstraint	obc;
     Pixmap			pm;
 
+    if (cwid == NULL)
+	return;
+    cw = (XmContainerWidget)XtParent(cwid);
+    if (cw == NULL)
+	return;
+    c = GetContainerConstraint(cwid);
+    if (c == NULL)
+	return;
     cw->container.self = True;
     if (c->outline_state == XmEXPANDED)
 	pm = cw->container.expanded_state_pixmap;
@@ -9192,10 +9200,22 @@ MakeOutlineButton(
 					XmNmarginWidth,0,
 					XmNmarginHeight,0,
 				       	NULL);
+    if (c->related_cwid == NULL) {
+	cw->container.create_cwid_type = CONTAINER_ICON;
+	cw->container.self = False;
+	return;
+    }
     XtAddCallback(c->related_cwid,XmNactivateCallback,
 		  (XtCallbackProc)OutlineButtonCallback,
 		  (XtPointer)cwid);
     obc = GetContainerConstraint(c->related_cwid);
+    if (obc == NULL) {
+	XtDestroyWidget(c->related_cwid);
+	c->related_cwid = NULL;
+	cw->container.create_cwid_type = CONTAINER_ICON;
+	cw->container.self = False;
+	return;
+    }
     obc->related_cwid = cwid;
     XtManageChild(c->related_cwid);
     cw->container.create_cwid_type = CONTAINER_ICON;
