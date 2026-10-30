@@ -7551,14 +7551,22 @@ ChangeView(
     Widget		wid,
     unsigned char	view)
 {
-    XmContainerWidget	cw = (XmContainerWidget)wid;
+	XmContainerWidget	cw;
     CwidNode		node;
     Widget              cwid;
+
+	if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
 
     node = cw->container.first_node;
     while (node)
 	{
 	cwid = node->widget_ptr;
+	if (cwid == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	SetViewType(cwid,view);
 	/* setting a new view type will have the child request
 	   and get its preferred size */
@@ -7583,8 +7591,14 @@ static  CwidNode
 NewNode(
 	Widget	cwid)
 {
-	XmContainerConstraint	c = GetContainerConstraint(cwid);
+	XmContainerConstraint	c;
 	CwidNode		new_node;
+
+	if (cwid == NULL)
+	    return(NULL);
+	c = GetContainerConstraint(cwid);
+	if (c == NULL)
+	    return(NULL);
 
 	/*
          * Create the new CwidNode structure.
@@ -7624,8 +7638,12 @@ InsertNode(
 	    return;
 
 	cwid = node->widget_ptr;
+	if (cwid == NULL)
+	    return;
 	cw = (XmContainerWidget)XtParent(cwid);
 	c = GetContainerConstraint(cwid);
+	if (cw == NULL || c == NULL)
+	    return;
 
 	/* 
 	 * Find the first cwid within XmNentryParent, NULL if none.
@@ -7638,6 +7656,11 @@ InsertNode(
 	else
 	    {
 	    pc = GetContainerConstraint(c->entry_parent);
+	    if (pc == NULL) {
+		c->entry_parent = NULL;
+		parent_node = NULL;
+		prev_node = cw->container.first_node;
+	    } else {
 	    parent_node = pc->node_ptr;
 	    if (parent_node == NULL) {
 		/* A parent whose node could not be allocated is not in the
@@ -7647,6 +7670,7 @@ InsertNode(
 		prev_node = cw->container.first_node;
 	    } else {
 		prev_node = parent_node->child_ptr;
+	    }
 	    }
 	    }
 

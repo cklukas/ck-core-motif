@@ -31963,3 +31963,10 @@ Guard Container icon-header updates (2026-10-30)
 - Validate icon-header and heading data before updates, and restore internal
   state after both skipped and successful updates.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container node lifecycle inputs (2026-10-30)
+===================================================
+
+- Validate node creation, insertion, and view traversal child/constraint
+  state, treating an unavailable parent constraint as a root entry.
+- Add focused source-contract coverage and document the invalid-input path.
