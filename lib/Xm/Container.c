@@ -6083,11 +6083,15 @@ static  XmTabList
 SetDynamicTabList(
     Widget      wid)
 {
-    XmContainerWidget   cw = (XmContainerWidget)wid;
+    XmContainerWidget   cw;
     int tab_size;
     Cardinal		detail_order_count;
     XmTabList old_tablist;
     XmTabList new_tablist;
+
+    if (wid == NULL)
+	return(NULL);
+	cw = (XmContainerWidget)wid;
 
     if (!CtrIsDynamic(cw,TABLIST)) return(NULL);	/* Just in case */
 

@@ -31857,3 +31857,10 @@ Guard Container constraint lifecycle inputs (2026-10-30)
 - Handle missing parent constraints during child initialization and missing
   child or parent state during constraint destruction.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container dynamic tab inputs (2026-10-30)
+================================================
+
+- Return safely when dynamic detail-tab generation receives no Container
+  widget.
+- Add focused source-contract coverage and document the invalid-input path.
