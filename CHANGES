@@ -1,3 +1,10 @@
+Guard TabStack drag-start failure (2026-10-30)
+==============================================
+
+- Stop drag setup when `XmDragStart` returns null.
+- Avoid registering callbacks on a failed drag widget.
+- Add focused source coverage and documentation.
+
 Guard TabStack drag action initialization (2026-10-30)
 ======================================================
 

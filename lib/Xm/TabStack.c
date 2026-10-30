@@ -4989,6 +4989,8 @@ XmTabBoxDragTab(widget, event, params, num_params)
     XtSetArg(args[n], XmNconvertProc, TabConvertProc); ++n;
     XtSetArg(args[n], XmNclientData, child); ++n;
     drag = XmDragStart(parent, event, args, n); n = 0;
+    if (drag == NULL)
+	return;
 
     XtAddCallback(drag, XmNdragDropFinishCallback,
 		  DragCallback, (XtPointer) tab);
