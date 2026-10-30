@@ -28,6 +28,8 @@
 #ifndef _XmStringI_h
 #define _XmStringI_h
 
+#include <stddef.h>
+
 #include <Xm/XmP.h>
 
 #ifdef __cplusplus
@@ -459,6 +461,14 @@ typedef struct __XmStringArraySegRec *_XmStringLine;
 #define _XmStrFlipped(str)    ((str)->opt_str.flipped)
 #define _XmStrTabs(str)	      ((str)->opt_str.tabs)
 #define _XmStrText(str)       (((_XmStringOpt)(str))->text)
+
+/* Compact optimized strings place text immediately after their header,
+ * while optimized entry records may put the data union at a padded offset.
+ * Do not inspect an entry union through a compact string unless the layouts
+ * match: the compact allocation may not contain a complete XtPointer there.
+ */
+#define _XmStrOptTextNeedsPadding \
+  (offsetof(_XmStringOptSegRec, data) != sizeof(_XmStringOptHeader))
 
 /* Multi-segment XmStrings */
 #define _XmStrImplicitLine(str) (str)->multi_str.implicit_line 

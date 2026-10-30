@@ -1836,7 +1836,7 @@ XmStringConcatAndFree(XmString a,
       _XmStrRefCountSet(b, 0);
       _XmEntryTabsSet(b, _XmStrTabs(b));
       _XmEntryImm(b) = 1;
-      if (_XmStrText(b) != (char *)_XmEntryTextGet((_XmStringEntry)b)) {
+      if (_XmStrOptTextNeedsPadding) {
 	/* If the XtPointer in the union in the
 	 * optimized segment leads to padding in the structure
 	 * between the header and the text data
@@ -4429,8 +4429,7 @@ _XmStringDrawSegment(Display *d,
 	      Boolean			imm;
 	      _XmStringOptSegRec	under_seg;
 	      
-	      if (_XmStrText(*underline) !=
-		  (char *)_XmEntryTextGet((_XmStringEntry)*underline))
+	      if (_XmStrOptTextNeedsPadding)
 		/* If XtPointer in union in optimized segment leads to 
 		 * padding in struct between header and text data
 		 * (on some 64-bit architectures) we have to move 

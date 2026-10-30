@@ -1,3 +1,13 @@
+Avoid compact XmString entry probes (2026-10-30)
+================================================
+
+- Use the compile-time optimized-string/entry layout relationship before
+  reading an optimized entry's data union during concatenation or underline
+  matching.  This prevents out-of-bounds pointer reads when ABI padding puts
+  the entry union beyond the compact string allocation while preserving the
+  existing copy and zero-copy paths.
+- Add focused source-contract coverage and document the layout safety rule.
+
 Reject negative XmString rendition indices (2026-10-30)
 ========================================================
 
