@@ -1886,7 +1886,16 @@ GetSelection(XmTextSource source,
 	     XmTextPosition *left,
 	     XmTextPosition *right)
 {
-  XmSourceData data = source->data;
+  XmSourceData data;
+
+  if (left == NULL || right == NULL)
+    return False;
+  if (source == NULL || source->data == NULL)
+    {
+    *left = *right = 0;
+    return False;
+    }
+  data = source->data;
   
   if (data->hasselection && data->left < data->right && data->left >= 0) {
     *left = data->left;
@@ -1908,12 +1917,15 @@ SetSelection(XmTextSource source,
 				      XtDisownSelection.*/
 	     Time set_time)
 {
-  XmSourceData data = source->data;
+  XmSourceData data;
   XmTextWidget tw;
   int i;
   XmTextPosition oldleft, oldright;
   
-  if (data == NULL || data->widgets == NULL || data->numwidgets <= 0 ||
+  if (source == NULL || source->data == NULL)
+    return;
+  data = source->data;
+  if (data->widgets == NULL || data->numwidgets <= 0 ||
       data->widgets[0] == NULL ||
       !XtIsRealized((Widget)data->widgets[0]) ||
       (left > right && !data->hasselection)) return;

@@ -117,6 +117,14 @@ Guard Text grapheme stepping during teardown (2026-10-30)
 - Add focused grapheme-input coverage and document the position-preserving
   fallback.
 
+Guard Text selection callbacks during teardown (2026-10-30)
+============================================================
+
+- Validate source data before `GetSelection` and `SetSelection` dereference
+  private state; reject missing output pointers in the getter.
+- Extend focused selection-source coverage and document the empty/no-op
+  failure behavior.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 
