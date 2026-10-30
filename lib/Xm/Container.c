@@ -8748,6 +8748,7 @@ RedirectTraversal(
 {
     XmContainerWidget cw;
     Widget to_widget = new_focus;
+    Widget clip;
     Boolean wrap;
 
 	if ((old_focus == NULL)
@@ -8770,8 +8771,11 @@ RedirectTraversal(
 	{
 	    return new_focus;
 	}
+	clip = XtParent(cw);
+	if (clip == NULL)
+	    return new_focus;
 
-    wrap = !XmIsClipWindow((XmClipWindowWidget)XtParent(cw));
+    wrap = !XmIsClipWindow((XmClipWindowWidget)clip);
 
     switch (direction)
 	{

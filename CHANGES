@@ -31780,3 +31780,10 @@ Guard Container cursor navigation inputs (2026-10-30)
 - Validate cursor-navigation direction and child-node state before conversion
   and `_LAST` traversal.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container traversal redirection parent (2026-10-30)
+===========================================================
+
+- Return the requested focus unchanged when traversal redirection has no clip
+  parent before testing clip-widget class state.
+- Add focused source-contract coverage and document the invalid-input path.
