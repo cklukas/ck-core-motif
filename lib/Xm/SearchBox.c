@@ -112,7 +112,10 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
     if (box == NULL || event == NULL || !XmIsSearchBox(widget)) return;
     if (!XtIsSensitive(widget)) return;
     if (event->type == ButtonPress && box->search.clear_button &&
-        event->xbutton.x >= (int)box->core.width - 28) {
+        box->core.height >= 20 &&
+        event->xbutton.x >= (int)box->core.width - 28 &&
+        event->xbutton.y >= ((int)box->core.height - 20) / 2 &&
+        event->xbutton.y < ((int)box->core.height - 20) / 2 + 20) {
         XmSearchBoxClear(widget); if (dispatch) *dispatch = False; return;
     }
     if (event->type != KeyPress) return;

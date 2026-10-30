@@ -1,3 +1,10 @@
+Constrain SearchBox clear hit testing (2026-10-30)
+====================================================
+
+- Limit pointer clearing to a centered 20×20 hit rectangle around the clear
+  glyph, preventing unrelated clicks above or below it from clearing text.
+- Add focused source-contract coverage and document the input geometry.
+
 Constrain InfoBar close hit testing (2026-10-30)
 =================================================
 
