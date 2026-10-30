@@ -8304,11 +8304,15 @@ ProcessButtonMotion(
 static	Widget
 ObjectAtPoint(Widget wid, Position x, Position y)
 {
-	XmContainerWidget	cw = (XmContainerWidget)wid;
+	XmContainerWidget	cw;
 	CwidNode		node;
 	Widget			prev_cwid;
 	XmGadget		g;
 	XmPointInTrait          pointInTrait ;
+
+	if (wid == NULL)
+	return(NULL);
+	cw = (XmContainerWidget)wid;
 
 	node = cw->container.first_node;
 	prev_cwid = NULL;

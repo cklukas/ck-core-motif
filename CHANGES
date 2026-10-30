@@ -32025,3 +32025,10 @@ Guard Container select-all inputs (2026-10-30)
 - Return safely before reading selection state when select-all receives no
   Container widget.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container hit-test inputs (2026-10-30)
+=============================================
+
+- Return no item before hit-test traversal when no Container widget is
+  supplied.
+- Add focused source-contract coverage and document the invalid-input path.
