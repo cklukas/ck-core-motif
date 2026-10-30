@@ -1003,7 +1003,14 @@ GetToolTipString(Widget wid,
                  int resource, /* unused */
                  XtArgVal * value)
 {
-    XmString string = XmGetToolTipString (wid);
+    XmString string;
+
+    if (wid == NULL || value == NULL)
+    {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
+    string = XmGetToolTipString (wid);
     *value = (XtArgVal) string;
 }
 
@@ -1012,6 +1019,8 @@ SetToolTipString(Widget wid,
                  int resource, /* unused */
                  XtArgVal * value)
 {
+    if (wid == NULL || value == NULL)
+        return XmSYNTHETIC_NONE;
     XmSetToolTipString (wid, (XmString)*value);
     return XmSYNTHETIC_NONE;
 }
