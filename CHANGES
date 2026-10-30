@@ -1,3 +1,11 @@
+Make ProgressBar GC setup transactional (2026-10-30)
+======================================================
+
+- Roll back partially created track, fill, and text GCs when a required track
+  or fill allocation fails.
+- Preserve the optional text-GC fallback and add focused coverage and
+  documentation.
+
 Center InfoBar close icon geometry (2026-10-30)
 ================================================
 

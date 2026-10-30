@@ -140,6 +140,18 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                                            mask, &values);
     progress->progress.text_gc = XCreateGC(display, DefaultRootWindow(display),
                                            mask, &values);
+    if (progress->progress.track_gc == NULL ||
+        progress->progress.fill_gc == NULL) {
+        if (progress->progress.track_gc)
+            XFreeGC(display, progress->progress.track_gc);
+        if (progress->progress.fill_gc)
+            XFreeGC(display, progress->progress.fill_gc);
+        if (progress->progress.text_gc)
+            XFreeGC(display, progress->progress.text_gc);
+        progress->progress.track_gc = NULL;
+        progress->progress.fill_gc = NULL;
+        progress->progress.text_gc = NULL;
+    }
 }
 
 static void Destroy(Widget widget) {
