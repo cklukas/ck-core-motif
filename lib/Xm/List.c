@@ -8697,7 +8697,8 @@ XmListDeleteItems(Widget w,
   XmString *copy;
 
   register int i;
-  if (w == NULL || !XmIsList(w) || items == NULL || item_count <= 0)
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed ||
+      items == NULL || item_count <= 0)
     return;
 
   old_max_height = lw->list.MaxItemHeight;
@@ -8924,7 +8925,8 @@ XmListDeletePositions(Widget    w,
 		      int       position_count)
 {
   XmListWidget lw = (XmListWidget) w;
-  if (w == NULL || !XmIsList(w) || position_list == NULL || position_count <= 0)
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed ||
+      position_list == NULL || position_count <= 0)
     return;
   _XmWidgetToAppContext(w);
 
@@ -8979,7 +8981,7 @@ XmListDeleteItemsPos(Widget w,
   Boolean rebuild_selection = FALSE;
   Dimension old_max_height;
   register int i;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9124,7 +9126,7 @@ XmListDeleteAllItems(Widget w)
 {
   XmListWidget lw = (XmListWidget) w;
   int j;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || ((XmListWidget)w)->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9243,7 +9245,7 @@ XmListReplaceItems(Widget w,
 		   int item_count,
 		   XmString *new_items)
 {
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || ((XmListWidget)w)->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
@@ -9264,7 +9266,7 @@ XmListReplaceItemsUnselected(Widget w,
 			     int item_count,
 			     XmString *new_items)
 {
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || ((XmListWidget)w)->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
@@ -9362,7 +9364,7 @@ XmListReplaceItemsPos(Widget w,
 		      int item_count,
 		      int position)
 {
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
@@ -9416,7 +9418,8 @@ XmListReplacePositions(Widget    w,
   Boolean reset_height = FALSE;
   Boolean replaced_first = FALSE;
   int nsel;
-  if (w == NULL || !XmIsList(w) || position_list == NULL || item_list == NULL ||
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed ||
+      position_list == NULL || item_list == NULL ||
       item_count <= 0)
     return;
   for (i = 0; i < item_count; ++i)
