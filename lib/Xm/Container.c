@@ -11016,6 +11016,10 @@ XmContainerReorder(
 		return;
 	}
 	c = GetContainerConstraint(cwid_list[0]);
+	if (c == NULL || c->node_ptr == NULL) {
+		_XmAppUnlock(app);
+		return;
+	}
 	pcwid = c->entry_parent;
 	pi_list = (int *)XtMalloc((Cardinal)(sizeof(int) *
 					(size_t)cwid_count));
@@ -11030,7 +11034,7 @@ XmContainerReorder(
 		    cwid_list[i]->core.constraints == NULL)
 			continue;
 		c = GetContainerConstraint(cwid_list[i]);
-		if (c->entry_parent == pcwid)
+		if (c != NULL && c->entry_parent == pcwid)
 			{
 			pi_list[pi_count] = c->position_index;
 			pi_count++;
@@ -11044,7 +11048,7 @@ XmContainerReorder(
 		    cwid_list[i]->core.constraints == NULL)
 			continue;
 		c = GetContainerConstraint(cwid_list[i]);
-		if (c->entry_parent == pcwid)
+		if (c != NULL && c->node_ptr != NULL && c->entry_parent == pcwid)
 			{ 
 			c->position_index = pi_list[pi_count];
 			pi_count++;

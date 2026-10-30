@@ -32276,3 +32276,10 @@ Guard Container child-list constraints (2026-10-30)
 - Return an empty result when public child lookup cannot retrieve the item’s
   Container constraint, while releasing the application lock safely.
 - Add focused source-contract coverage and document the invalid-item path.
+
+Guard Container reorder constraints (2026-10-30)
+=================================================
+
+- Validate first-item and list-entry Container constraints and node records
+  before public reorder updates sibling positions.
+- Add focused source-contract coverage and document the invalid-item path.
