@@ -254,6 +254,9 @@ XpmCreateBufferFromXpmImage(
 			 info->extensions, info->nextensions))
 	RETURN(XpmNoMemory);
 
+    if (ptr_size < used_size || ptr_size - used_size < sizeof("};\n"))
+	RETURN(XpmNoMemory);
+
     /* close the array */
     strcpy(ptr + used_size, "};\n");
 

@@ -1,3 +1,10 @@
+Guard XPM buffer final terminator writes (2026-10-30)
+======================================================
+
+- Check remaining serialized-buffer capacity before copying the closing
+  `};` terminator, returning `XpmNoMemory` on inconsistent or exhausted sizes.
+- Add focused source-contract coverage and document the failure behavior.
+
 Clarify bounded x86_64 qualification status (2026-10-30)
 ===========================================================
 
