@@ -1657,12 +1657,16 @@ WidgetNavigable(
 static XmDirection 
 GetDirection(Widget w)
 {
+  if (w == NULL || !XtIsSubclass(w, xmManagerWidgetClass))
+    return XmDEFAULT_DIRECTION;
   return (XmDirection)((XmManagerWidget)(w))->manager.string_direction;
 }
 
 static unsigned char
 GetUnitType(Widget w)
 {
+    if (w == NULL || !XtIsSubclass(w, xmManagerWidgetClass))
+	return XmPIXELS;
     return ((XmManagerWidget) w)->manager.unit_type ;
 }
 
@@ -1671,7 +1675,12 @@ static void
 GetColors(Widget w, 
 	  XmAccessColorData color_data)
 {
-    XmManagerWidget mw = (XmManagerWidget) w ;
+    XmManagerWidget mw;
+
+    if (w == NULL || color_data == NULL ||
+	!XtIsSubclass(w, xmManagerWidgetClass))
+	return;
+    mw = (XmManagerWidget) w;
 
     color_data->valueMask = AccessForeground | AccessBackgroundPixel |
 	AccessHighlightColor | AccessTopShadowColor | AccessBottomShadowColor;
