@@ -30964,3 +30964,13 @@ Remove stray CommandPalette patch marker (2026-10-30)
   actually validates.
 
 Reject failed UIL debug formatting passes (2026-10-30)
+Bound XPM data extension output cursors (2026-10-30)
+=====================================================
+
+- Track remaining capacity for each XPM data extension name, line and the
+  final `XPMENDEXT` terminator before copying output.
+- Replace unchecked extension-line copies with bounded `memcpy` operations,
+  align the existing formatter-status check, add focused coverage and document
+  the failure behavior.
+
+Resolve stale OptionMenu4 conflict markers (2026-10-30)

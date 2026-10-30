@@ -13,8 +13,8 @@ assert "RETURN(XpmFileInvalid);" in call
 start = source.index("static int\nCreateExtensions(")
 body = source[start:]
 assert "if (dataptr == NULL || *dataptr == NULL" in body
-assert "written = snprintf(*dataptr, data_size" in body
-assert "written < 0 || (size_t)written >= data_size" in body
+assert "written = snprintf(*dataptr, (size_t)data_size - used" in body
+assert "written < 0 || (size_t)written >= (size_t)data_size - used" in body
 assert "return (0);" in body
 assert "return (1);" in body
 print("PASS XPM data extension writes propagate status")

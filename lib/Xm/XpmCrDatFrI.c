@@ -463,37 +463,56 @@ CreateExtensions(
     unsigned int x, y, a, b;
     char **line;
     int written;
+    char *base;
+    size_t used;
 
     if (dataptr == NULL || *dataptr == NULL || ext == NULL ||
 	data_size == 0 || ext_nlines == 0)
 	return (0);
 
-    *(dataptr + 1) = *dataptr + offset;
+	base = *dataptr;
+	used = (size_t)offset;
+	if (used >= (size_t)data_size)
+	    return (0);
+	*(dataptr + 1) = base + used;
     dataptr++;
     a = 0;
     for (x = 0; x < num; x++, ext++) {
 	if (ext->name == NULL)
 	    return (0);
-	written = snprintf(*dataptr, data_size, "XPMEXT %s", ext->name);
-	if (written < 0 || (size_t)written >= data_size)
+	if (used >= (size_t)data_size)
 	    return (0);
+	written = snprintf(*dataptr, (size_t)data_size - used,
+	                   "XPMEXT %s", ext->name);
+	if (written < 0 || (size_t)written >= (size_t)data_size - used)
+	    return (0);
+	used += (size_t)written + 1;
 	a++;
 	if (a < ext_nlines)
-	    *(dataptr + 1) = *dataptr + strlen(ext->name) + 8;
+	    *(dataptr + 1) = base + used;
 	dataptr++;
 	b = ext->nlines; /* can we trust these values? */
 	if (b != 0 && ext->lines == NULL)
 	    return (0);
 	for (y = 0, line = ext->lines; y < b; y++, line++) {
+	    size_t line_length;
 	    if (*line == NULL)
 		return (0);
-	    strcpy(*dataptr, *line);
+	    line_length = strlen(*line) + 1;
+	    if (used > (size_t)data_size ||
+		line_length > (size_t)data_size - used)
+		return (0);
+	    memcpy(*dataptr, *line, line_length);
+	    used += line_length;
 	    a++;
 	    if (a < ext_nlines)
-		*(dataptr + 1) = *dataptr + strlen(*line) + 1;
+		*(dataptr + 1) = base + used;
 	    dataptr++;
 	}
     }
-    strcpy(*dataptr, "XPMENDEXT");
+	if (used > (size_t)data_size ||
+	    sizeof("XPMENDEXT") > (size_t)data_size - used)
+	return (0);
+	memcpy(*dataptr, "XPMENDEXT", sizeof("XPMENDEXT"));
     return (1);
 }
