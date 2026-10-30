@@ -1,3 +1,11 @@
+Avoid dead CommandPalette rebuild allocation (2026-10-30)
+============================================================
+
+- Remove an unused combined-text allocation that could silently omit valid
+  commands when filtering under memory pressure.
+- Preserve shortcut rendering through the existing compound `XmString` path,
+  with focused source-contract coverage and documentation.
+
 Release DataGrid edit buffers on model replacement (2026-10-30)
 =================================================================
 
