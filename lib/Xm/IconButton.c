@@ -1414,6 +1414,12 @@ DecPixCache(Display *disp, Pixmap pix)
 /* ARGSUSED */
 static void GetValues_labelString ( Widget w, int n, XtArgVal *value)
 {
+	if (w == NULL || value == NULL ||
+	    !XtIsSubclass(w, xmIconButtonWidgetClass))
+	{
+	    if (value != NULL) *value = (XtArgVal) NULL;
+	    return;
+	}
 	(*value) = (XtArgVal) XmStringCopy(XmIconButton_label_string(w));
 }
 

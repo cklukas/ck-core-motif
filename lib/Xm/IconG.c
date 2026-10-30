@@ -878,6 +878,12 @@ GetLabelString(
 {
     XmString	string = NULL;
 
+    if (wid == NULL || value == NULL ||
+	!XtIsSubclass(wid, xmIconGadgetClass))
+	{
+	    if (value != NULL) *value = (XtArgVal) NULL;
+	    return;
+	}
     if (IG_LabelString(wid)) 
 	string = XmStringCopy(IG_LabelString(wid));
     *value = (XtArgVal)string;
