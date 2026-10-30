@@ -503,6 +503,7 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
                          Cardinal count)
 {
     XmToolbarWidget toolbar;
+    XmToolbarStoredAction *replacement = NULL;
     Cardinal i;
     if (!widget || !XmIsToolbar(widget) || (count && !actions))
         return;
@@ -510,17 +511,17 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
     if (count && ((size_t)count > SIZE_MAX / sizeof(*toolbar->toolbar.actions) ||
                   (size_t)count > UINT_MAX / sizeof(*toolbar->toolbar.actions)))
         return;
-    toolbar->toolbar.laying_out = True;
-    free_actions(toolbar, True);
     if (count) {
-        toolbar->toolbar.actions = (XmToolbarStoredAction *)XtCalloc(
-            count, sizeof(*toolbar->toolbar.actions));
-        if (toolbar->toolbar.actions == NULL) {
+        replacement = (XmToolbarStoredAction *)XtCalloc(
+            count, sizeof(*replacement));
+        if (replacement == NULL) {
             XtWarning("XmToolbarSetActions: unable to allocate action array");
-            toolbar->toolbar.laying_out = False;
             return;
         }
     }
+    toolbar->toolbar.laying_out = True;
+    free_actions(toolbar, True);
+    toolbar->toolbar.actions = replacement;
     for (i = 0; i < count; ++i) {
         XmString label = action_label(&actions[i]);
         XmToolbarStoredAction *stored = &toolbar->toolbar.actions[i];

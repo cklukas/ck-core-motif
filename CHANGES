@@ -13,6 +13,14 @@ Make AutoSuggestBox suggestion replacement transactional (2026-10-30)
 - Preserve the existing popup contents when replacement allocation or copying
   fails, with focused source-contract coverage and maintenance documentation.
 
+Preserve Toolbar actions on replacement allocation failure (2026-10-30)
+=========================================================================
+
+- Allocate the replacement action array before destroying the current toolbar
+  buttons and overflow entries.
+- Keep a working toolbar intact when the replacement allocation is rejected,
+  with focused source-contract coverage and maintenance documentation.
+
 Align native accessibility action contracts (2026-10-30)
 ========================================================
 
