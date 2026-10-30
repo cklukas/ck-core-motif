@@ -1,3 +1,10 @@
+Guard Scale title getter (2026-10-30)
+=====================================
+
+- Validate Scale class and output storage before title access.
+- Preserve existing title and child-label behavior for valid widgets.
+- Add focused source coverage and documentation.
+
 Guard FileSelectionBox synthetic getters (2026-10-30)
 ======================================================
 

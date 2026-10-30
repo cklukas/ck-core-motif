@@ -615,6 +615,12 @@ ScaleGetTitleString(
 	XmScaleWidget scale = (XmScaleWidget) wid ;
 	Arg           al[1] ;
 
+	if (wid == NULL || value == NULL ||
+	    !XtIsSubclass(wid, xmScaleWidgetClass)) {
+	    if (value != NULL) *value = (XtArgVal) NULL;
+	    return;
+	}
+
 	if (scale->scale.title == NULL) {
 	    /* mean that the title has never been set, so 
 	       we should return NULL, not the label value which
