@@ -2810,9 +2810,13 @@ CreateFontChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     box = XtCreateManagedWidget("choiceBox", xmButtonBoxWidgetClass, 
 				parent, margs, num_args + num_largs);
     XtFree((XtPointer) margs);
+    if (box == NULL)
+	return;
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNlabelString, XLFD_STRING(fsw));
@@ -2822,9 +2826,15 @@ CreateFontChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     button = XtCreateManagedWidget("xlfdButton",
 				   xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XmFontS_xlfd_toggle(fsw) = button;
 
     XtAddCallback(button, XmNvalueChangedCallback, XlfdMode, (XtPointer) fsw);
@@ -2833,6 +2843,10 @@ CreateFontChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     margs[num_set].value = (XtArgVal) False;
     button = XtCreateManagedWidget("otherButton", xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XtAddCallback(button, XmNvalueChangedCallback, OtherMode, (XtPointer) fsw);
     XmFontS_other_toggle(fsw) = button;
 
