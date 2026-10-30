@@ -7228,14 +7228,22 @@ GetSpatialSizeCellAdjustment(
     ContainerCwidCellInfo cwid_info,
     int		cwid_info_count)
 {
-    int				width_in_cells = *parm_width_in_cells;
-    int				height_in_cells = *parm_height_in_cells;
+    int				width_in_cells;
+    int				height_in_cells;
     size_t			cell_count;
     Boolean			all_cwids_fit;
     Boolean			cwid_placed;
     Boolean			this_spot_fits;
     Boolean 			*cell_occupied;
     int				i,start_row,start_col,row,col;
+
+    if (wid == NULL || parm_width_in_cells == NULL ||
+	parm_height_in_cells == NULL || cwid_info_count < 0 ||
+	(cwid_info == NULL && cwid_info_count > 0))
+	return;
+
+    width_in_cells = *parm_width_in_cells;
+    height_in_cells = *parm_height_in_cells;
  
     if (width_in_cells <= 0 || height_in_cells <= 0 ||
 	(size_t)width_in_cells > SIZE_MAX / (size_t)height_in_cells)

@@ -31935,3 +31935,10 @@ Guard Container icon-header inputs (2026-10-30)
 - Validate icon-header widget and parent state before optional scrolled-parent
   trait probing.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container spatial-adjustment inputs (2026-10-30)
+=======================================================
+
+- Validate spatial-size adjustment pointers, item count, and item-array state
+  before dereferencing or trial placement.
+- Add focused source-contract coverage and document the invalid-input path.
