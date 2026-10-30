@@ -29545,3 +29545,11 @@ Guard tear-off shell allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard RowColumn popup-menu shell allocation (2026-10-30)
+Guard FontSelector top-pane allocation (2026-10-30)
+====================================================
+
+- Validate merged arguments, the top paned container, and the option button
+  before constructing dependent controls or registering callbacks.
+- Add focused source coverage and documentation.
+
+Guard FontSelector primary child allocation (2026-10-30)

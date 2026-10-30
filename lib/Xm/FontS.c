@@ -2457,9 +2457,13 @@ CreateTopWidgets(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNmarginWidth, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     pane = XtCreateManagedWidget("topPane", xmPanedWidgetClass, 
 				 parent, margs, num_args + num_largs);
     XtFree((XtPointer) margs);
+    if (pane == NULL)
+	return;
     
     CreateFamilyBox(fsw, pane, args, num_args);
     CreateSizesBox(fsw, pane, args, num_args);
@@ -2471,9 +2475,13 @@ CreateTopWidgets(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorOn, False); num_largs++;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     button = XtCreateManagedWidget("optionButton", xmToggleButtonWidgetClass, 
 				   pane, margs, num_args + num_largs);
     XtFree((XtPointer) margs);
+    if (button == NULL)
+	return;
 
     XtAddCallback(button, XmNvalueChangedCallback,
 		  ToggleMiddlePane, (XtPointer) fsw);
