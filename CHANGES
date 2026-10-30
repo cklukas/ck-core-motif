@@ -29895,3 +29895,11 @@ Define ComboBox synthetic accessor defaults (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard ComboBox synthetic accessors (2026-10-30)
+Guard ComboBox selected-item import (2026-10-30)
+=================================================
+
+- Reject null values and missing list/edit-box children before lookup.
+- Handle failed edit-box snapshots without comparing null strings.
+- Add focused source coverage and documentation.
+
+Define ComboBox synthetic accessor defaults (2026-10-30)

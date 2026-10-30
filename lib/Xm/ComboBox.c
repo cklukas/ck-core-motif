@@ -2325,7 +2325,8 @@ CBSetSelectedItem(Widget    widget,
   if (widget == NULL || value == NULL)
 	return XmSYNTHETIC_NONE;
   new_value = (XmString) *value;
-  if (!cb->composite.num_children || CB_List(cb) == NULL)
+  if (new_value == NULL || !cb->composite.num_children ||
+      CB_List(cb) == NULL || CB_EditBox(cb) == NULL)
     return XmSYNTHETIC_NONE;
 
   pos = XmListItemPos(CB_List(cb), new_value);
@@ -2336,6 +2337,8 @@ CBSetSelectedItem(Widget    widget,
   else
     {
       XmString item = GetEditBoxValue((Widget) cb);
+	  if (item == NULL)
+	    return XmSYNTHETIC_NONE;
       if (! XmStringCompare(item, new_value))
 	{
 	  XmListDeselectAllItems(CB_List(cb));
