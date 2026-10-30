@@ -794,3 +794,9 @@ Classic Scale value and ScrollBar value/range updates now fail closed during Xt
 teardown, avoiding redraw and value-change callbacks on partial state. The
 focused source check is
 `tests/automated/check-scale-scrollbar-mutator-destroy-guards.py`.
+
+ToggleButtonGadget geometry now uses horizontal `marginWidth` consistently for
+natural width, indicator placement, text placement, and live resource updates;
+RTL text placement remains relative to the gadget origin. Source and native
+Xvfb regression checks cover profiles, scales, directions, asymmetric margins,
+and live changes.

@@ -2393,7 +2393,7 @@ Initialize(
   if (request->rectangle.width == 0)
     {
       new_w->rectangle.width = LabG_TextRect(new_w).width +
-	2 * LabG_MarginHeight(new_w) +   
+	2 * LabG_MarginWidth(new_w) +
 	  LabG_MarginRight(new_w) + LabG_MarginLeft(new_w) +
 	      2 * (new_w->gadget.highlight_thickness +
 		   new_w->gadget.shadow_thickness);
@@ -2594,11 +2594,11 @@ DrawToggle(
   if (LayoutIsRtoLG(w))
     x = w->rectangle.x + w->rectangle.width -
       w->gadget.highlight_thickness - w->gadget.shadow_thickness -
-	LabG_MarginHeight(w) - TBG_IndicatorDim(w);
+      LabG_MarginWidth(w) - TBG_IndicatorDim(w);
   else
     x = w->rectangle.x +
       w->gadget.highlight_thickness + w->gadget.shadow_thickness +
-	LabG_MarginHeight(w);
+	LabG_MarginWidth(w);
   
   if (LabG_IsPixmap(w) || XmStringEmpty(LabG__label(w)))
     y = w->rectangle.y + 
@@ -3068,10 +3068,10 @@ ComputeSpace(
 	  (needed_width == tb->rectangle.width))
 	{
 	  if (TBG_IndOn(tb))
-	    LabG_TextRect(tb).x = tb->rectangle.x + tb->rectangle.width -
+	    LabG_TextRect(tb).x = tb->rectangle.width -
 	      (tb->gadget.shadow_thickness +
 	       tb->gadget.highlight_thickness +
-	       LabG_MarginHeight(tb) +
+	       LabG_MarginWidth(tb) +
 	       LabG_MarginRight(tb) +
 	       LabG_TextRect(tb).width);
 	}
@@ -3089,7 +3089,7 @@ ComputeSpace(
 	  if (TBG_IndOn(tb))
 	    LabG_TextRect(tb).x =  tb->gadget.shadow_thickness +
 	      tb->gadget.highlight_thickness +
-		LabG_MarginHeight(tb) +
+		LabG_MarginWidth(tb) +
 		  LabG_MarginLeft(tb);
 	} 
     }
@@ -3803,7 +3803,7 @@ SetValues(
 	      LabG_MarginLeft(newcbox) + LabG_MarginRight(newcbox) +
 		2 * (newcbox->gadget.highlight_thickness +
 		     newcbox->gadget.shadow_thickness +
-		     LabG_MarginHeight(newcbox));
+		     LabG_MarginWidth(newcbox));
 	  
 	  if (newcbox->rectangle.width == 0)
             newcbox->rectangle.width = 1;

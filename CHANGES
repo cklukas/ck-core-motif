@@ -1,3 +1,14 @@
+Fix ToggleButtonGadget horizontal margin geometry (2026-10-30)
+===============================================================
+
+- Use `marginWidth` consistently for gadget natural width, indicator
+  placement, text placement, and live resource updates; `marginHeight` was
+  incorrectly widening and offsetting controls.
+- Keep RTL text coordinates relative to the gadget, avoiding a duplicate
+  rectangle-origin offset.
+- Add source-contract and native Xvfb regression checks covering profiles,
+  display scales, directions, asymmetric margins, and live changes.
+
 Guard Scale and ScrollBar setters during destruction (2026-10-30)
 ==================================================================
 
