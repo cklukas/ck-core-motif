@@ -1,3 +1,9 @@
+Guard FontSelector fixed/proportional refresh (2026-10-30)
+============================================================
+
+- Validate selector/font/family state before resolving spacing data.
+- Preserve optional spacing toggles and add focused source coverage and documentation.
+
 Guard FontSelector bold/italic refresh (2026-10-30)
 ====================================================
 

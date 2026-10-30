@@ -1631,9 +1631,17 @@ UpdateBoldItalic(XmFontSelectorWidget fsw)
 static void
 UpdateFixedProportional(XmFontSelectorWidget fsw)
 {
-    FontData 	*cf = XmFontS_font_info(fsw)->current_font;
+    FontData 	*cf;
     FamilyInfo 	*fam;
     Boolean	setMono, setProp, setAny;
+
+    if (fsw == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	(XmFontS_font_info(fsw)->num_families != 0 &&
+	 XmFontS_font_info(fsw)->family_info == NULL))
+	return;
+
+    cf = XmFontS_font_info(fsw)->current_font;
     
     if ((fam = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			  XmFontS_font_info(fsw)->num_families)) == NULL)
