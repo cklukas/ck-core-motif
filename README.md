@@ -9,6 +9,28 @@ recorded in the validation documentation.
 A maintained fork of the Motif native Xt widget toolkit, with corrections for
 modern builds, selection handling, display scaling and input behavior.
 
+## What the maintenance work improves
+
+For people using Motif applications, the practical result is fewer crashes,
+less corrupted UI state, and more reliable behavior when dialogs, lists,
+selections, drag-and-drop transfers, Unicode text, images, or widgets are
+partially initialized or receive malformed input. Valid legacy behavior and
+public resource names remain unchanged.
+
+For application programmers, resource and callback boundaries now validate
+widget classes, output pointers, child initialization, sizes, positions, and
+allocation results before touching toolkit state. Invalid requests fail
+deterministically instead of producing undefined memory access, and each fix
+has focused source-contract coverage plus a short maintenance note. The
+result is easier debugging and safer integration across mixed widget cohorts.
+
+For end users, these changes accumulate into a toolkit that remains familiar
+while handling multilingual labels and text, high-resolution images, dynamic
+selection workflows, accessibility paths, and modern display metrics more
+predictably. The complete automated regression suite is run before every
+published maintenance commit; changes are published to both configured
+development remotes with matching history.
+
 The development 2.4.0 cohort uses native ABI epoch 8, including the current
 Unicode text maps and optional native accessibility records. Rebuild every
 native consumer against one consistent header/library cohort; this is not a
