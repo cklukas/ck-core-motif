@@ -32094,3 +32094,10 @@ Guard Container parent constraints (2026-10-30)
 - Detach an icon safely when a changed outline parent has no Container
   constraint record before reading its depth or visibility state.
 - Add focused source-contract coverage and document the invalid-parent path.
+
+Guard Container fit-test constraints (2026-10-30)
+==================================================
+
+- Reject fit tests for children without a Container constraint before grid or
+  cell placement reads `cell_idx`.
+- Add focused source-contract coverage and document the invalid-child path.

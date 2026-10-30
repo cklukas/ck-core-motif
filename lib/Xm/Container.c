@@ -3491,6 +3491,9 @@ TestFitItem(
     XPoint cell_coord;
     XmContainerConstraint cwidc = GetContainerConstraint(cwid);
 
+    if (cwidc == NULL)
+	return(False);
+
     /*
      * Must be a 2-D layout.
      */
