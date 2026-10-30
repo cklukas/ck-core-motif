@@ -1,3 +1,10 @@
+Guard SpinBox position hooks (2026-10-30)
+=========================================
+
+- Validate child constraint and value storage before position conversion.
+- Reject zero increments to prevent division by zero in numeric index mode.
+- Add focused source coverage and documentation.
+
 Guard ScrollBar value hooks (2026-10-30)
 =========================================
 

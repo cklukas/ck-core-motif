@@ -2737,9 +2737,14 @@ SpinNGetValue(Widget nav, XmNavigatorData nav_data)
 static void
 GetPositionValue(Widget w, int offset, XtArgVal *value)
 {
-  XmSpinBoxConstraint	wc = SB_GetConstraintRec(w);
+  XmSpinBoxConstraint wc;
+
+  if (w == NULL || value == NULL || w->core.constraints == NULL)
+    return;
+  wc = SB_GetConstraintRec(w);
   
-  if (SB_ChildIsNumeric(wc) && (!SB_ChildPositionTypeIsValue(wc)))
+  if (SB_ChildIsNumeric(wc) && (!SB_ChildPositionTypeIsValue(wc)) &&
+      wc->increment_value != 0)
       *value = (XtArgVal)(((int64_t)(int)*value - wc->minimum_value) /
                          wc->increment_value);
 }
@@ -2755,9 +2760,14 @@ GetPositionValue(Widget w, int offset, XtArgVal *value)
 static XmImportOperator
 SetPositionValue(Widget w, int offset, XtArgVal *value)
 {
-  XmSpinBoxConstraint	wc = SB_GetConstraintRec(w);
+  XmSpinBoxConstraint wc;
+
+  if (w == NULL || value == NULL || w->core.constraints == NULL)
+    return XmSYNTHETIC_NONE;
+  wc = SB_GetConstraintRec(w);
   
-  if (SB_ChildIsNumeric(wc) && (!SB_ChildPositionTypeIsValue(wc)))
+  if (SB_ChildIsNumeric(wc) && (!SB_ChildPositionTypeIsValue(wc)) &&
+      wc->increment_value != 0)
     {
       int64_t position = (int64_t)wc->minimum_value +
                          (int64_t)(int)*value * wc->increment_value;
