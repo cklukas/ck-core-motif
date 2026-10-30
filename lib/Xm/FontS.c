@@ -3848,6 +3848,8 @@ OtherMode(Widget w, XtPointer fsw_ptr, XtPointer data)
     XmToggleButtonCallbackStruct *info;
 
     info = (XmToggleButtonCallbackStruct *) data;
+    if (fsw == NULL || info == NULL)
+	return;
     
     UnsetSiblings(w);
 
