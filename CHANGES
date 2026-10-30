@@ -1,3 +1,11 @@
+Guard FileSelectionBox search qualification input (2026-10-30)
+===============================================================
+
+- Reject missing search callback records before dereferencing them.
+- Keep generated-string lengths at zero when compound-string allocation
+  fails.
+- Add focused source coverage and documentation.
+
 Guard Command compound-string allocation (2026-10-30)
 ======================================================
 

@@ -1990,6 +1990,9 @@ QualifySearchDataProc(
             unsigned int    qDirLen ;
 /****************/
 
+    if (searchData == NULL || qualifiedSearchData == NULL)
+        return;
+
     qualifiedSearchData->value = NULL ;
     qualifiedSearchData->mask = NULL ;
     qualifiedSearchData->dir = NULL ;
@@ -2171,25 +2174,26 @@ QualifySearchDataProc(
 	  XmStringGenerate(valueString, XmFONTLIST_DEFAULT_TAG,
 			   XmCHARSET_TEXT, NULL);
         } 
-    qualifiedSearchData->length = XmStringLength( qualifiedSearchData->value) ;
+    if (qualifiedSearchData->value != NULL)
+        qualifiedSearchData->length = XmStringLength(qualifiedSearchData->value);
 
     qualifiedSearchData->mask =
       XmStringGenerate(qualifiedMask, XmFONTLIST_DEFAULT_TAG,
 		       XmCHARSET_TEXT, NULL) ;
-    qualifiedSearchData->mask_length = XmStringLength(
-                                                   qualifiedSearchData->mask) ;
+    if (qualifiedSearchData->mask != NULL)
+        qualifiedSearchData->mask_length = XmStringLength(qualifiedSearchData->mask);
 
     qualifiedSearchData->dir =
       XmStringGenerate(qualifiedDir, XmFONTLIST_DEFAULT_TAG,
 		       XmCHARSET_TEXT, NULL) ;
-    qualifiedSearchData->dir_length = XmStringLength(
-                                                    qualifiedSearchData->dir) ;
+    if (qualifiedSearchData->dir != NULL)
+        qualifiedSearchData->dir_length = XmStringLength(qualifiedSearchData->dir);
 
     qualifiedSearchData->pattern =
       XmStringGenerate(qualifiedPattern, XmFONTLIST_DEFAULT_TAG,
 		       XmCHARSET_TEXT, NULL) ;
-    qualifiedSearchData->pattern_length = XmStringLength(
-                                                qualifiedSearchData->pattern) ;
+    if (qualifiedSearchData->pattern != NULL)
+        qualifiedSearchData->pattern_length = XmStringLength(qualifiedSearchData->pattern);
     XtFree( valueString) ;
     XtFree( qualifiedMask) ;
     XtFree( qualifiedPattern) ;
