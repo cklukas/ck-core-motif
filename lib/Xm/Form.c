@@ -693,7 +693,15 @@ MarginWidthOut(
         int offset,
         XtArgVal *value )
 {
-        XmFormWidget fw = (XmFormWidget) wid ;
+        XmFormWidget fw ;
+
+        if (wid == NULL || value == NULL ||
+            !XtIsSubclass(wid, xmFormWidgetClass))
+        {
+                if (value != NULL) *value = (XtArgVal) 0;
+                return;
+        }
+        fw = (XmFormWidget) wid ;
 
 	if (fw->bulletin_board.margin_width == XmINVALID_DIMENSION)
 		*value = 0;
@@ -707,7 +715,15 @@ MarginHeightOut(
         int offset,
         XtArgVal *value )
 {
-        XmFormWidget fw = (XmFormWidget) wid ;
+        XmFormWidget fw ;
+
+        if (wid == NULL || value == NULL ||
+            !XtIsSubclass(wid, xmFormWidgetClass))
+        {
+                if (value != NULL) *value = (XtArgVal) 0;
+                return;
+        }
+        fw = (XmFormWidget) wid ;
 
 	if (fw->bulletin_board.margin_height == XmINVALID_DIMENSION)
 		*value = 0;

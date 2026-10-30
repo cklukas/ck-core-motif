@@ -1,3 +1,10 @@
+Guard Form margin getters (2026-10-30)
+======================================
+
+- Validate Form widget and output storage before margin conversion.
+- Return deterministic zero values for invalid synthetic-resource calls.
+- Extend focused source coverage and documentation.
+
 Guard Form offset getters (2026-10-30)
 ======================================
 

@@ -5,12 +5,23 @@ from pathlib import Path
 
 
 source = Path("lib/Xm/Form.c").read_text()
-for function in ("FromTopOffset", "FromBottomOffset", "FromLeftOffset", "FromRightOffset"):
+for function in (
+    "FromTopOffset",
+    "FromBottomOffset",
+    "FromLeftOffset",
+    "FromRightOffset",
+    "MarginWidthOut",
+    "MarginHeightOut",
+):
     start = source.rindex(function)
     end = source.index("\n}", start)
     body = source[start:end]
-    assert "w == NULL || value == NULL" in body, function
-    assert "w->core.constraints == NULL" in body, function
-    assert "XtIsSubclass(w->core.parent, xmFormWidgetClass)" in body, function
+    if function.startswith("From"):
+        assert "w == NULL || value == NULL" in body, function
+        assert "w->core.constraints == NULL" in body, function
+        assert "XtIsSubclass(w->core.parent, xmFormWidgetClass)" in body, function
+    else:
+        assert "wid == NULL || value == NULL" in body, function
+        assert "XtIsSubclass(wid, xmFormWidgetClass)" in body, function
 
 print("Form offset getters validate widget, parent, constraint, and output")

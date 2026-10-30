@@ -4,10 +4,10 @@ nav_exclude: true
 
 # Form offset getter guards
 
-Form's synthetic top, bottom, left, and right offset exports now validate the
-child widget, Form parent, constraint storage, and output pointer before
-reading attachment state. Invalid calls return deterministic zero values;
-normal attachment offset conversion is unchanged.
+Form's synthetic top, bottom, left, right, and margin exports now validate the
+child/widget class and output storage before reading attachment or margin
+state. Invalid calls return deterministic zero values; normal offset and
+margin conversion is unchanged.
 
 The focused source-contract check is:
 
