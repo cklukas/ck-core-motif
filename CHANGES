@@ -39,6 +39,13 @@ Make RowActions replacement transactional (2026-10-30)
 - Roll back temporary children on allocation or construction failure, with
   focused source-contract coverage and maintenance documentation.
 
+Make SegmentedControl item replacement transactional (2026-10-30)
+==================================================================
+
+- Build every replacement segment button before destroying the current set.
+- Preserve the existing control when child creation fails, with focused
+  source-contract coverage and maintenance documentation.
+
 Align native accessibility action contracts (2026-10-30)
 ========================================================
 

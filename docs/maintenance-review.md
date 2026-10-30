@@ -619,3 +619,6 @@ leave the existing palette contents and filtering state available.
 `XmRowActionsSetItems` likewise builds replacement labels and action buttons
 while the current row actions remain live, rolling back only temporary children
 when allocation or construction fails.
+
+`XmSegmentedControlSetItems` now follows the same swap-after-build rule: the
+existing segments remain available until every replacement button is created.

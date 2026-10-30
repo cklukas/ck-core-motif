@@ -282,6 +282,8 @@ Boolean XmSegmentedControlSetItems(Widget widget,
                                    Cardinal count) {
     XmSegmentedControlWidget control;
     XmSegmentedControlItemRec *copy;
+    XmSegmentedControlItemRec *old_items;
+    Cardinal old_count;
     Cardinal i;
     if (widget == NULL || !XmIsSegmentedControl(widget) ||
         (count && !items) || count > (Cardinal)INT_MAX) return False;
@@ -310,17 +312,9 @@ Boolean XmSegmentedControlSetItems(Widget widget,
             copy[i].enabled = items[i].enabled;
         }
     } else copy = NULL;
+    old_items = control->segmented.items;
+    old_count = control->segmented.item_count;
     control->segmented.rebuilding = True;
-    for (i = 0; i < control->segmented.item_count; ++i)
-        XtDestroyWidget(control->segmented.items[i].button);
-    for (i = 0; i < control->segmented.item_count; ++i) {
-        XtFree(control->segmented.items[i].id);
-        XmStringFree(control->segmented.items[i].label);
-    }
-    XtFree((char *)control->segmented.items);
-    control->segmented.items = copy;
-    control->segmented.item_count = count;
-    control->segmented.selected = -1;
     for (i = 0; i < count; ++i) {
         char name[32];
         Arg args[8]; Cardinal n = 0;
@@ -345,9 +339,6 @@ Boolean XmSegmentedControlSetItems(Widget widget,
                 XmStringFree(copy[j].label);
             }
             XtFree((char *)copy);
-            control->segmented.items = NULL;
-            control->segmented.item_count = 0;
-            control->segmented.selected = -1;
             control->segmented.rebuilding = False;
             return False;
         }
@@ -356,6 +347,16 @@ Boolean XmSegmentedControlSetItems(Widget widget,
         XtAddEventHandler(copy[i].button, KeyPressMask, False, child_key,
                           (XtPointer)control);
     }
+    for (i = 0; i < old_count; ++i)
+        XtDestroyWidget(old_items[i].button);
+    for (i = 0; i < old_count; ++i) {
+        XtFree(old_items[i].id);
+        XmStringFree(old_items[i].label);
+    }
+    XtFree((char *)old_items);
+    control->segmented.items = copy;
+    control->segmented.item_count = count;
+    control->segmented.selected = -1;
     /* Manage only after every item has a valid button.  Managing inside the
      * creation loop invokes the composite change-managed hook early; layout
      * then walks later, still-uninitialized item slots and dereferences a
