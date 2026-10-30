@@ -27,9 +27,10 @@ result is easier debugging and safer integration across mixed widget cohorts.
 For end users, these changes accumulate into a toolkit that remains familiar
 while handling multilingual labels and text, high-resolution images, dynamic
 selection workflows, accessibility paths, and modern display metrics more
-predictably. The complete automated regression suite is run before every
-published maintenance commit; changes are published to both configured
-development remotes with matching history.
+predictably. Small fixes run their focused regression checks before commit;
+the complete automated suite is reserved for critical changes and periodic
+checkpoint validation. Published maintenance commits are mirrored to both
+configured development remotes with matching history.
 
 The development 2.4.0 cohort uses native ABI epoch 8, including the current
 Unicode text maps and optional native accessibility records. Rebuild every
