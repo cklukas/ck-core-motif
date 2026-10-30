@@ -1,3 +1,10 @@
+Guard TextField string/context helpers (2026-10-30)
+====================================================
+
+- Validate widget/output storage before narrow/wide string exports.
+- Validate context data/screen before X11 cleanup.
+- Add focused source coverage and documentation.
+
 Guard DataField context cleanup (2026-10-30)
 =============================================
 
