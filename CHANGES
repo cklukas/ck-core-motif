@@ -30964,6 +30964,14 @@ Remove stray CommandPalette patch marker (2026-10-30)
   actually validates.
 
 Reject failed UIL debug formatting passes (2026-10-30)
+Measure Label locale-conversion input safely (2026-10-30)
+==========================================================
+
+- Remove the latent fallback branch that measured `strlen(rval)` before the
+  conversion result was initialized; locale conversion now always measures
+  the caller-provided source string.
+- Add focused source-contract coverage and document the Unicode-path fix.
+
 Bound XPM data extension output cursors (2026-10-30)
 =====================================================
 

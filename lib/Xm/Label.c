@@ -3186,15 +3186,9 @@ ConvertToEncoding(Widget w, char* str, Atom encoding,
     *flag = (ret_status >= Success);
 #endif
   } else {
-    /* Locale encoding */
-    /* Fix for Bug 1117 - if str is null then a SEGVIOLATION occures
-     * in strlen.
-     */
-#ifdef FIX_1442
+    /* Locale encoding.  Measure the source string before conversion; the
+     * result pointer is populated only by _XmTextToLocaleText below. */
     *length = str ? strlen(str) : 0;
-#else
-    *length = str ? strlen(rval) : 0;
-#endif
 
     rval = _XmTextToLocaleText(w, (XtPointer) str,
 			       COMPOUND_TEXT, 8, 
