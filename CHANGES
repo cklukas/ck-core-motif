@@ -1,3 +1,10 @@
+Guard FontSelector name-label allocation failure (2026-10-30)
+===============================================================
+
+- Check the optional font-name label before managing it or storing its child
+  pointer, releasing merged arguments on failure.
+- Add focused source coverage and documentation.
+
 Guard FontSelector secondary-choice allocation failures (2026-10-30)
 ======================================================================
 

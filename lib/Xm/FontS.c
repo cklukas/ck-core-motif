@@ -2426,6 +2426,10 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
 	return;
     temp = XtCreateWidget("nameLabel", xmLabelWidgetClass, 
 			  (Widget) fsw, margs, num_args + num_largs);
+    if (temp == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
 
     if (XmFontS_show_font_name(fsw))
 	XtManageChild(temp);
