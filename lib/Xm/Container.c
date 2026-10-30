@@ -5447,6 +5447,9 @@ ContainerConvertProc(
   Atom			type = 0;
   Atom			atoms[XtNumber(atom_names)];
 
+  if (wid == NULL || cs == NULL)
+    return;
+
   /* Get Atom values from cache. */
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(wid), atom_names, XtNumber(atom_names), False, atoms);

@@ -31654,3 +31654,10 @@ Guard Container destination prehook inputs (2026-10-30)
 - Reject null widget and destination callback inputs before reading transfer
   fields in the Container destination prehook.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container conversion callback inputs (2026-10-30)
+=========================================================
+
+- Reject null widget and conversion callback inputs before atom lookup and
+  target inspection in the Container selection conversion callback.
+- Add focused source-contract coverage and document the invalid-input path.
