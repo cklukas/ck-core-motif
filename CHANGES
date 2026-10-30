@@ -31256,4 +31256,9 @@ Guard XmString ASN.1 truncation boundaries (2026-10-30)
   out-of-bounds read when the final component reaches the boundary exactly.
 - Add focused source-contract coverage and document the parser guard.
 
-Initialize compound-text resource-converter output (2026-10-30)
+Validate XmString ASN.1 component bounds (2026-10-30)
+=====================================================
+
+- Reject component lengths that extend beyond the encoded buffer before the
+  truncation helper calls its component reader.
+- Extend the focused boundary regression and documentation.

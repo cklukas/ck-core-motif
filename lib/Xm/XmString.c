@@ -10981,6 +10981,12 @@ _XmStringTruncateASN1(unsigned char *str, int n)
   /* Read the components adding up their lengths. */
   while (((length + header) < (n - used)) && (ap < a_end))
     {	
+      size_t remaining = (size_t)(a_end - ap);
+      if ((size_t)header > remaining ||
+          (size_t)length > remaining - (size_t)header) {
+	XtFree((char *)str);
+	return (NULL);
+      }
       new_c = _read_component(ap, &d2, &d1, NULL);
 
       delta = length + header;
