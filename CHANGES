@@ -29553,3 +29553,11 @@ Guard FontSelector top-pane allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard FontSelector primary child allocation (2026-10-30)
+Guard FontSelector middle-pane allocation (2026-10-30)
+=======================================================
+
+- Validate merged arguments and middle/left paned-container creation before
+  constructing dependent controls.
+- Add focused source coverage and documentation.
+
+Guard FontSelector top-pane allocation (2026-10-30)

@@ -2509,9 +2509,13 @@ CreateMiddleArea(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNmarginWidth, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     pane = XtCreateWidget("middlePane", xmPanedWidgetClass, 
 			  (Widget) fsw, margs, num_args + num_largs);
     XtFree((XtPointer) margs);
+    if (pane == NULL)
+	return;
     XmFontS_middle_pane(fsw) = pane;
 
     num_largs = 0;
@@ -2521,9 +2525,13 @@ CreateMiddleArea(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     top_pane = XtCreateManagedWidget("leftPane", xmPanedWidgetClass, 
 				      pane, margs, num_args + num_largs);
     XtFree((XtPointer) margs);
+    if (top_pane == NULL)
+	return;
 
     CreateFontChoiceBox(fsw, top_pane, args, num_args);
     CreateResolutionBox(fsw, top_pane, args, num_args);
