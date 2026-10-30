@@ -8354,12 +8354,20 @@ MarkCwidsInMarquee(
 	node = cw->container.first_node;
 	while (node)
 		{
+		if (node->widget_ptr == NULL) {
+		    node = GetNextNode(node);
+		    continue;
+		}
 		if (InMarquee(node->widget_ptr))
 			{
 			if (find_anchor)
 				{
 				cw->container.anchor_cwid = node->widget_ptr;
 				c = GetContainerConstraint(node->widget_ptr);
+				if (c == NULL) {
+				    node = GetNextNode(node);
+				    continue;
+				}
 				if (c->selection_state == XmSELECTED)
 					cw->container.selection_state
 							= XmNOT_SELECTED;
@@ -8385,9 +8393,15 @@ static	Boolean
 InMarquee(
 	Widget	cwid)
 {
-	XmContainerWidget	cw = (XmContainerWidget)XtParent(cwid);
+	XmContainerWidget	cw;
 	Position		cwid_x,cwid_y,cwid_xw,cwid_yh;
 	Dimension		width,height;
+
+	if (cwid == NULL)
+	    return(False);
+	cw = (XmContainerWidget)XtParent(cwid);
+	if (cw == NULL)
+	    return(False);
 	
 	XtVaGetValues(cwid,XmNx,&cwid_x,XmNy,&cwid_y,
 		XmNwidth,&width,XmNheight,&height,NULL);

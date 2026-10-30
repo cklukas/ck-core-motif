@@ -31738,3 +31738,10 @@ Guard Container selection inputs (2026-10-30)
 - Reject null children and missing constraints in shared selection-marking
   helpers before reading selection state or sensitivity.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container marquee inputs (2026-10-30)
+============================================
+
+- Skip malformed child nodes and missing constraints during marquee selection,
+  and guard `InMarquee` against children without a Container parent.
+- Add focused source-contract coverage and document the invalid-input path.
