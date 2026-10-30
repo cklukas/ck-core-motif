@@ -269,17 +269,24 @@ static Boolean SetValues(Widget old, Widget request, Widget widget,
   XmDisclosureWidget before = (XmDisclosureWidget)old,
                      w = (XmDisclosureWidget)widget;
   Boolean changed = before->disclosure.expanded != w->disclosure.expanded;
+  Boolean label_changed = False;
   (void)request;
   (void)args;
   (void)count;
   if (before->disclosure.label != w->disclosure.label) {
-    w->disclosure.label = w->disclosure.label
-                              ? XmStringCopy(w->disclosure.label)
-                              : XmStringCreateLocalized(XtName(widget));
-    XmStringFree(before->disclosure.label);
-    if (w->disclosure.header != NULL)
-      XtVaSetValues(w->disclosure.header, XmNlabelString, w->disclosure.label,
-                    NULL);
+    XmString replacement = w->disclosure.label
+                               ? XmStringCopy(w->disclosure.label)
+                               : XmStringCreateLocalized(XtName(widget));
+    if (replacement) {
+      XmStringFree(before->disclosure.label);
+      w->disclosure.label = replacement;
+      label_changed = True;
+      if (w->disclosure.header != NULL)
+        XtVaSetValues(w->disclosure.header, XmNlabelString, w->disclosure.label,
+                      NULL);
+    } else {
+      w->disclosure.label = before->disclosure.label;
+    }
   }
   if (w->disclosure.arrow != NULL)
     XtVaSetValues(w->disclosure.arrow, XmNarrowDirection, arrow_direction(w),
@@ -288,7 +295,7 @@ static Boolean SetValues(Widget old, Widget request, Widget widget,
     transition(w, NULL, True);
   else
     negotiate(w);
-  return False;
+  return changed || label_changed;
 }
 static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request,
                                         XtWidgetGeometry *reply) {

@@ -30652,3 +30652,11 @@ TeachingTip SetValues resource rollback (2026-10-30)
   report successful changes to Xt, and release retained strings on teardown.
 - Add `tests/automated/check-teaching-tip-setvalues-rollback.py` and document
   the ownership guarantee in `docs/maintenance-review.md`.
+
+Disclosure SetValues label rollback (2026-10-30)
+================================================
+- Commit replacement header labels only after `XmString` copying succeeds,
+  preserve the prior label on allocation failure, and report successful label
+  changes to Xt.
+- Add `tests/automated/check-disclosure-setvalues-rollback.py` and document
+  the behavior in `docs/maintenance-review.md`.

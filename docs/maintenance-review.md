@@ -72,6 +72,13 @@ copies succeed, reports successful changes to Xt, and releases retained
 strings during teardown. The regression check is
 `tests/automated/check-teaching-tip-setvalues-rollback.py`.
 
+## Disclosure SetValues label rollback
+
+`XmDisclosure` now commits a replacement header label only after its copy
+succeeds and reports the successful label change to Xt. Failed allocation
+preserves the previous label. The regression check is
+`tests/automated/check-disclosure-setvalues-rollback.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as
