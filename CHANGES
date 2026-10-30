@@ -122,6 +122,14 @@ Bound ColorSelector optional-child updates (2026-10-30)
 - Make list-mode selection a no-op when the color list could not be created.
 - Add focused source coverage and document deferred-update behavior.
 
+Bound ColorSelector mode lifecycle (2026-10-30)
+================================================
+
+- Skip selected-toggle updates when radio children are unavailable during
+  initialization or later mode changes.
+- Reject incomplete mode callback data before reading callback fields.
+- Add focused source coverage and document partial mode construction.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 

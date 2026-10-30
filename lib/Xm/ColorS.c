@@ -461,7 +461,8 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal *num_args)
 
     new_mode(csw, XmColorS_color_mode(csw));
     button = XmColorS_chose_mode(csw)[XmColorS_color_mode(csw)];
-    XmToggleButtonSetState(button, True, False);
+    if (button != NULL)
+	XmToggleButtonSetState(button, True, False);
 
     XtFree((XtPointer) f_args);
 
@@ -581,8 +582,9 @@ SetValues(Widget current, Widget request, Widget set,
     if (XmColorS_color_mode(curr) != XmColorS_color_mode(csw))
     {
 	new_mode(csw, XmColorS_color_mode(csw));
-	XmToggleButtonSetState(XmColorS_chose_mode(csw)[XmColorS_color_mode(csw)],
-			       True, True);
+	if (XmColorS_chose_mode(csw)[XmColorS_color_mode(csw)] != NULL)
+	    XmToggleButtonSetState(
+		XmColorS_chose_mode(csw)[XmColorS_color_mode(csw)], True, True);
     }
 
     /* 
@@ -1204,6 +1206,8 @@ list_selected(Widget w, XtPointer csw_ptr, XtPointer list_ptr)
 static void
 change_mode(Widget w, XtPointer csw_ptr, XtPointer tp)
 {
+  if (w == NULL || csw_ptr == NULL || tp == NULL)
+	return;
   XmColorSelectorWidget csw = (XmColorSelectorWidget) csw_ptr;
   XmToggleButtonCallbackStruct *toggle = (XmToggleButtonCallbackStruct *) tp;
   
