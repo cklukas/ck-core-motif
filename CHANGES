@@ -1,3 +1,11 @@
+Guard FontSelector value-hook output pointers (2026-10-30)
+===========================================================
+
+- Skip resource requests with null output pointers before branch dispatch.
+- Cover all FontSelector value-hook resource branches with one loop-level
+  guard.
+- Add focused source coverage and documentation.
+
 Guard FontSelector SetValues input (2026-10-30)
 ===============================================
 

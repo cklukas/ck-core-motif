@@ -4428,6 +4428,8 @@ GetValuesHook(Widget w, ArgList args, Cardinal * num_args)
 	return;
 
     for (i = 0; i < *num_args; i++) {
+	if (args[i].value == NULL)
+	    continue;
 	if (streq(args[i].name, XmNcurrentFont))
 	{
 		str_ptr = (String *) args[i].value;
