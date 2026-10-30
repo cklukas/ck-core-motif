@@ -647,3 +647,8 @@ their public value/action notifications. This prevents setters or action
 helpers called from teardown callbacks from dispatching into partially
 destroyed widget state; the source contract is checked by
 `tests/automated/check-value-callback-destroy-guards.py`.
+
+Toast and CommandPalette public action/dismiss helpers now also fail closed
+while their widget is being destroyed. This keeps direct application calls and
+child callbacks from dispatching against partial state; the source contract is
+checked by `tests/automated/check-action-helper-destroy-guards.py`.

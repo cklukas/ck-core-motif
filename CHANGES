@@ -1,3 +1,11 @@
+Guard action helpers during destruction (2026-10-30)
+=====================================================
+
+- Suppress Toast and CommandPalette action/dismiss callbacks once Xt marks
+  the widget for destruction, preventing late public helper calls from
+  traversing partially torn-down state.
+- Add focused source-contract coverage for both action-helper families.
+
 Guard value callbacks during destruction (2026-10-30)
 =======================================================
 
