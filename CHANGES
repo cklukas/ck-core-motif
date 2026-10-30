@@ -31451,5 +31451,12 @@ Reject appearance-profile numeric overflow (2026-10-30)
   to `Dimension`.
 - Add focused source-contract coverage and document the parser behavior.
 
+Redraw DatePicker after range changes (2026-10-30)
+==================================================
+
+- Invalidate a realized date picker after successfully updating its date
+  range so range-dependent UI is refreshed immediately.
+- Add focused source-contract coverage and document the redraw behavior.
+
 Clear stale destinations for empty region operations (2026-10-30)
 ===================================================================

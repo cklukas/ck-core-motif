@@ -381,6 +381,8 @@ Boolean XmDatePickerSetRange(Widget widget, const XmDatePickerDate *minimum,
         return False;
     picker->date_picker.minimum = *minimum;
     picker->date_picker.maximum = *maximum;
+    if (XtIsRealized(widget))
+        XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
     return True;
 }
 
