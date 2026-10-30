@@ -4266,6 +4266,12 @@ GetMnemonicCharSet(
   Widget	label;
 /****************/
 
+  if (wid == NULL || value == NULL || !XmIsRowColumn(wid))
+    {
+      if (value != NULL) *value = (XtArgVal) NULL;
+      return;
+    }
+
   label = XmOptionLabelGadget(wid);
 
   if (label)
@@ -4294,8 +4300,15 @@ GetMenuAccelerator(
 {
   String        data ;
   size_t        length;
-  XmRowColumnWidget rc  = (XmRowColumnWidget) wid;
+  XmRowColumnWidget rc;
 /****************/
+
+  if (wid == NULL || value == NULL || !XmIsRowColumn(wid))
+    {
+      if (value != NULL) *value = (XtArgVal) NULL;
+      return;
+    }
+  rc = (XmRowColumnWidget) wid;
 
   if (rc->row_column.menu_accelerator != NULL) {
      length = strlen(RC_MenuAccelerator(rc));
@@ -4324,8 +4337,9 @@ GetMenuPost(
    XmRowColumnWidget rc = (XmRowColumnWidget) wid ;
 /****************/
 
-   if (wid == NULL || value == NULL)
-      return ;
+   if (wid == NULL || value == NULL || !XmIsRowColumn(wid))
+      { if (value != NULL) *value = (XtArgVal) NULL ;
+        return ; }
    if (rc->row_column.menuPost != NULL) 
    {
       String copy = XtNewString(RC_MenuPost(rc));
@@ -4350,8 +4364,9 @@ GetLabelString(
   XmString        data ;
 /****************/
 
-  if (wid == NULL || value == NULL)
-    return ;
+  if (wid == NULL || value == NULL || !XmIsRowColumn(wid))
+    { if (value != NULL) *value = (XtArgVal) NULL ;
+      return ; }
   data = XmStringCopy(RC_OptionLabel(rc));
   *value = (XtArgVal) data ;
 
@@ -4372,8 +4387,9 @@ GetTearOffTitle(
   XmString        data ;
 /****************/
 
-  if (wid == NULL || value == NULL)
-    return ;
+  if (wid == NULL || value == NULL || !XmIsRowColumn(wid))
+    { if (value != NULL) *value = (XtArgVal) NULL ;
+      return ; }
   data = XmStringCopy(RC_TearOffTitle(rc));
   *value = (XtArgVal) data ;
 

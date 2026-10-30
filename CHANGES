@@ -1,3 +1,10 @@
+Guard RowColumn synthetic string getters (2026-10-30)
+======================================================
+
+- Validate output pointers and RowColumn widget types before private-state reads.
+- Return deterministic null values for invalid callback inputs.
+- Add focused source coverage and documentation.
+
 Guard XmList top-position conversions (2026-10-30)
 ===================================================
 
