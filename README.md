@@ -21,7 +21,9 @@ For application programmers, resource and callback boundaries now validate
 widget classes, output pointers, child initialization, sizes, positions, and
 allocation results before touching toolkit state. Invalid requests fail
 deterministically instead of producing undefined memory access, and each fix
-has focused source-contract coverage plus a short maintenance note. The
+has focused source-contract coverage plus a short maintenance note. Resource
+updates also commit replacement strings, fonts, and render tables
+transactionally, so allocation failure preserves the last usable state. The
 result is easier debugging and safer integration across mixed widget cohorts.
 
 For end users, these changes accumulate into a toolkit that remains familiar
