@@ -29504,3 +29504,12 @@ Guard ComboBox popup and list allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard DropDown popup and list lifecycle (2026-10-30)
+Guard FontSelector encoding-menu allocation (2026-10-30)
+=========================================================
+
+- Validate merged argument lists and popup/pulldown/button creation before
+  callback registration and resource updates.
+- Destroy partial new menus while preserving the existing option menu.
+- Add focused source coverage and documentation.
+
+Guard XmPrintSetup inputs and shell allocation (2026-10-30)

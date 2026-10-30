@@ -2920,9 +2920,13 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 	XtSetArg(largs[num_largs], 
 		 XmNoptionLabel, ENCODING_ONLY_STRING(fsw)); num_largs++;
 	margs = XtMergeArgLists(largs, num_largs, args, num_args);
+	if (margs == NULL)
+	    return NULL;
 	omenu = XtCreateWidget("encodingOptionMenu", xmRowColumnWidgetClass,
 			       box, margs, num_args + num_largs);
 	XtFree((XtPointer) margs);
+	if (omenu == NULL)
+	    return NULL;
     }
     else
     {
@@ -2934,29 +2938,54 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
     XtSetArg(largs[num_largs], XmNheight, 1); num_largs++;
     XtSetArg(largs[num_largs], XmNancestorSensitive, True); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return omenu;
 
     menuShell = XtCreatePopupShell("menuShell", xmMenuShellWidgetClass,
 				   box, margs, num_args + num_largs);
     XtFree((XtPointer) margs);
+    if (menuShell == NULL)
+	return omenu;
 
     XmFontS_encoding_menu_shell(fsw) = menuShell;
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNrowColumnType, XmMENU_PULLDOWN); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL) {
+	XtDestroyWidget(menuShell);
+	XmFontS_encoding_menu_shell(fsw) = NULL;
+	return omenu;
+    }
     pulldownMenu = XtCreateWidget("pulldownMenu",
 				  xmRowColumnWidgetClass,
 				  menuShell, margs, num_args + num_largs);
     XtFree((XtPointer) margs);
+    if (pulldownMenu == NULL) {
+	XtDestroyWidget(menuShell);
+	XmFontS_encoding_menu_shell(fsw) = NULL;
+	return omenu;
+    }
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNlabelString, ANY_STRING(fsw)); 
     button_label = num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL) {
+	XtDestroyWidget(menuShell);
+	XmFontS_encoding_menu_shell(fsw) = NULL;
+	return omenu;
+    }
 
     button = XtCreateManagedWidget("button_0", xmPushButtonWidgetClass,
 				   pulldownMenu, margs,
 				   num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	XtDestroyWidget(menuShell);
+	XmFontS_encoding_menu_shell(fsw) = NULL;
+	return omenu;
+    }
     
     XtAddCallback(button,
 		  XmNactivateCallback, ChangeEncoding, (XtPointer) 0);
@@ -2974,6 +3003,8 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 				       pulldownMenu, margs,
 				       num_args + num_largs);
 	XmStringFree(label);
+	if (button == NULL)
+	    break;
 
 	XtAddCallback(button,
 			      XmNactivateCallback, ChangeEncoding,
