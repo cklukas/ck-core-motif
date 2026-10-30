@@ -32320,3 +32320,12 @@ Avoid Container reorder comparator overflow (2026-10-30)
 
 Guard Container destination prehook transfers (2026-10-30)
 =============================================================
+Fix Xpm color closeness comparator (2026-10-30)
+================================================
+
+- Compare long color-distance values without narrowing subtraction, preserving
+  correct candidate ordering for extreme distances.
+- Add focused source-contract coverage and document the sorting fix.
+
+Fix GeoUtils box-width sorting contract (2026-10-30)
+=====================================================

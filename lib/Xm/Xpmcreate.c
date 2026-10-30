@@ -224,8 +224,11 @@ closeness_cmp(const void *a, const void *b)
 {
     const CloseColor *x = (const CloseColor *) a, *y = (const CloseColor *) b;
 
-    /* cast to int as qsort requires */
-    return (int) (x->closeness - y->closeness);
+    if (x->closeness < y->closeness)
+	return -1;
+    if (x->closeness > y->closeness)
+	return 1;
+    return 0;
 }
 
 
