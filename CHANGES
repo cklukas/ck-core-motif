@@ -1,3 +1,11 @@
+Reject negative XmString rendition indices (2026-10-30)
+========================================================
+
+- Guard rendition begin/end getters and setters before they index internal
+  tag arrays, preventing malformed negative indices from reading or writing
+  out of bounds.
+- Add focused source-contract coverage and document the defensive behavior.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

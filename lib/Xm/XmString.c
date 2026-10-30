@@ -6590,6 +6590,9 @@ XmStringTag
 _XmEntryRendEndGet(_XmStringEntry entry,
 		   int n)
 {
+  if (n < 0)
+    return NULL;
+
   return((_XmEntryRendEndCountGet(entry) > n) ?
 	 (_XmEntryOptimized(entry) ?
 	  (_XmEntryRendIndex(entry) != REND_INDEX_UNSET ?
@@ -6602,6 +6605,9 @@ XmStringTag
 _XmEntryRendBeginGet(_XmStringEntry entry,
 		     int n)
 {
+  if (n < 0)
+    return NULL;
+
   return((_XmEntryRendBeginCountGet(entry) > n) ?
 	 (_XmEntryOptimized(entry) ?
 	  (_XmEntryRendIndex(entry) != REND_INDEX_UNSET ?
@@ -6616,6 +6622,9 @@ _XmEntryRendEndSet(_XmStringEntry entry,
 		   int n)
 {
   int i;
+
+  if (n < 0)
+    return;
   
   if (_XmEntryOptimized(entry))
     {
@@ -6676,6 +6685,9 @@ _XmEntryRendBeginSet(_XmStringEntry entry,
  		     int n)
 {
   int i;
+
+  if (n < 0)
+    return;
   
   if (_XmEntryOptimized(entry))
     {

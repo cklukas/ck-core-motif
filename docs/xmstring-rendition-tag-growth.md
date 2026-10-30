@@ -11,3 +11,9 @@ XmString behavior are unchanged for representable inputs.
 
 The focused regression is
 `tests/automated/check-xmstring-rendition-tag-growth.py`.
+
+Rendition accessors also reject negative indices before touching the internal
+tag arrays. This keeps malformed internal requests from indexing before an
+array (or from starting a removal loop at `-1`) while leaving all valid
+indices and public XmString behavior unchanged. The focused bounds regression
+is `tests/automated/check-xmstring-rendition-tag-bounds.py`.
