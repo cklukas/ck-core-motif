@@ -4238,6 +4238,13 @@ SetValues(Widget old, Widget request, Widget set,
     XmFontSelectorWidget set_fsw = (XmFontSelectorWidget) set;
     Boolean new_encoding_list = False;
 
+    if (old == NULL || request == NULL || set == NULL || args == NULL ||
+	 num_args == NULL ||
+	 !XtIsSubclass(old, xmFontSelectorWidgetClass) ||
+	 !XtIsSubclass(request, xmFontSelectorWidgetClass) ||
+	 !XtIsSubclass(set, xmFontSelectorWidgetClass))
+	return False;
+
     /*
      * Pass argument list through to all children.
      */
