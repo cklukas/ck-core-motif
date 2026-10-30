@@ -7,7 +7,8 @@ start = source.index("static void\n#ifndef _NO_PROTO\nRedisplay(")
 end = source.index("RedisplayTabs(XmTabBoxWidget", start)
 redisplay = source[start:end]
 assert "XtGetGC" not in redisplay and "XtReleaseGC" not in redisplay
-assert "XFreeGC" not in redisplay
+assert redisplay.count("XFreeGC") >= 2
+assert "XmTabBox__zero_GC(tab) = XmTabBox__one_GC(tab) = NULL" in redisplay
 assert "XChangeGC" in redisplay and "XCreateGC" in redisplay
 assert "sfield(font_list) == XmFontListCopy" not in source
 print("PASS XmTabBox mutable-GC and font ownership guard")
