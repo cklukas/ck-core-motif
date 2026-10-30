@@ -64,6 +64,15 @@ is:
 python3 tests/automated/check-badge-compound-label.py
 ```
 
+CommandPalette now preserves compound label and shortcut segments when it
+populates the visible list.  Filtering still uses its existing text view, but
+the displayed result retains multilingual and segmented `XmString` content.
+The focused contract check is:
+
+```sh
+python3 tests/automated/check-command-palette-compound-display.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws

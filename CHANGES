@@ -30779,3 +30779,12 @@ Refresh interactive-control GC backgrounds (2026-10-30)
   ProgressRing, Spinner, and ToggleSwitch live visual updates.
 - Add `tests/automated/check-control-gc-background-update.py` and document the
   consistency guarantee.
+Preserve CommandPalette compound display strings (2026-10-30)
+================================================================
+
+- Keep original label and shortcut `XmString` segments when populating the
+  visible list, while retaining the existing text path for filtering.
+- Prevent multilingual display labels from being flattened into locale bytes;
+  add focused source coverage and maintenance documentation.
+
+Preserve Badge compound labels during drawing (2026-10-30)
