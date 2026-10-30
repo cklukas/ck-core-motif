@@ -119,6 +119,10 @@ GC before requesting redisplay, keeping color updates visible without
 recreating the widget. The focused check is
 `tests/automated/check-infobar-color-update.py`.
 
+RatingControl now treats foreground, highlight, and background changes as live
+visual updates, refreshing its GC and requesting redisplay through `SetValues`.
+The focused check is `tests/automated/check-rating-control-color-update.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as

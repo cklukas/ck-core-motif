@@ -30709,3 +30709,10 @@ Update InfoBar colors through SetValues (2026-10-30)
 - Apply foreground and background changes to the live InfoBar drawing GC so
   resource updates are reflected immediately.
 - Add `tests/automated/check-infobar-color-update.py` and document the update.
+
+Update RatingControl colors through SetValues (2026-10-30)
+===========================================================
+- Refresh the live RatingControl GC and request redisplay when foreground,
+  highlight, or background resources change.
+- Add `tests/automated/check-rating-control-color-update.py` and document the
+  behavior.
