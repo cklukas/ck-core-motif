@@ -32150,3 +32150,10 @@ Guard Container end-extend inputs (2026-10-30)
 - Return safely when end-extend receives no event or parameter-count pointer
   before activating gadgets or reading the selection timestamp.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container cancel inputs (2026-10-30)
+===========================================
+
+- Return safely when cancel receives no event or parameter-count pointer
+  before forwarding cancellation or reading the selection timestamp.
+- Add focused source-contract coverage and document the invalid-input path.

@@ -5194,6 +5194,9 @@ ContainerCancel(
 {
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 	Boolean			selection_changes = False;
+
+	if (event == NULL || num_params == NULL)
+	    return;
 	
 	if (cw->container.ob_pressed)
 		{
