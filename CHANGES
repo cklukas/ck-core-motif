@@ -1,3 +1,10 @@
+Guard Container paste widget classes (2026-10-30)
+===================================================
+
+- Reject `NULL` and non-Container widgets in paste and paste-link helpers
+  before entering the clipboard transfer path.
+- Extend focused source-contract coverage and document the invalid-input result.
+
 Guard Container drag destination lookup (2026-10-30)
 ======================================================
 

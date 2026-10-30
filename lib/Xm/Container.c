@@ -10812,6 +10812,8 @@ Boolean
 XmContainerPaste(
 	Widget	wid)
 {
+	if (wid == NULL || !XmIsContainer(wid))
+	    return False;
 	return(XmeClipboardSink(wid,XmCOPY,NULL));
 }
 
@@ -10852,6 +10854,8 @@ Boolean
 XmContainerPasteLink(
 	Widget  wid)
 {
+	if (wid == NULL || !XmIsContainer(wid))
+	    return False;
 	return(XmeClipboardSink(wid,XmLINK,NULL));
 }
 

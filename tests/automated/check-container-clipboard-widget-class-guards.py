@@ -6,10 +6,16 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Container.c").read_text(en
 for name, end in (
     ("XmContainerCut(", "XmContainerCopy("),
     ("XmContainerCopy(", "XmContainerPaste("),
+    ("XmContainerPaste(", "XmContainerCopyLink("),
     ("XmContainerCopyLink(", "XmContainerPasteLink("),
+    ("XmContainerPasteLink(", "XmContainerGetItemChildren("),
 ):
     start = source.index(name)
     region = source[start:source.index(end, start)]
     assert "if (wid == NULL || !XmIsContainer(wid))" in region
-    assert region.index("if (wid == NULL || !XmIsContainer(wid))") < region.index("_XmWidgetToAppContext(wid)")
+    guard = region.index("if (wid == NULL || !XmIsContainer(wid))")
+    if "_XmWidgetToAppContext(wid)" in region:
+        assert guard < region.index("_XmWidgetToAppContext(wid)")
+    else:
+        assert guard < region.index("XmeClipboardSink(")
 print("PASS Container clipboard helpers validate widget class before toolkit access")
