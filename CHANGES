@@ -31437,5 +31437,12 @@ Reject non-positive image depth during scaling (2026-10-30)
   or destination construction can reinterpret them as unsigned values.
 - Add focused source-contract coverage and document the validation boundary.
 
+Reject unknown image formats during scaling (2026-10-30)
+========================================================
+
+- Restrict scaled-image copying to the three X11-defined `XImage` formats
+  before format-dependent pixel access.
+- Add focused source-contract coverage and document the validation boundary.
+
 Clear stale destinations for empty region operations (2026-10-30)
 ===================================================================

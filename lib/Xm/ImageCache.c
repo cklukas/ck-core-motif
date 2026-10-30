@@ -2644,6 +2644,8 @@ void _XmPutScaledImage (
 	src_image->bytes_per_line <= 0 ||
 	src_image->bits_per_pixel <= 0 ||
 	src_image->depth <= 0 ||
+	(src_image->format != XYBitmap && src_image->format != XYPixmap &&
+	 src_image->format != ZPixmap) ||
 	(size_t)src_image->width >
 	 (SIZE_MAX - 7) / (size_t)src_image->bits_per_pixel ||
 	src_width == 0 || src_height == 0 ||
