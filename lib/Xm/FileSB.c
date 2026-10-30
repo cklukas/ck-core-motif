@@ -2908,7 +2908,8 @@ FSBGetDirSpec(
             int resource,
             XtArgVal *value)
 {
-    if (fs == NULL || value == NULL)
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass))
 	return;
     if (FS_PathMode(fs) == XmPATH_MODE_RELATIVE)
     {
@@ -2941,7 +2942,8 @@ FSBGetDirectory(
 {
     XmString        data ;
 /****************/
-    if (fs == NULL || value == NULL)
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass))
         return;
     data = XmStringCopy(FS_Directory(fs));
     *value = (XtArgVal) data ;
@@ -2962,7 +2964,8 @@ FSBGetNoMatchString(
 {
     XmString        data ;
 /****************/
-    if (fs == NULL || value == NULL)
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass))
         return;
     data = XmStringCopy(FS_NoMatchString(fs));
     *value = (XtArgVal) data ;
@@ -2983,7 +2986,8 @@ FSBGetPattern(
 {
     XmString        data ;
 /****************/
-    if (fs == NULL || value == NULL)
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass))
         return;
     data = XmStringCopy(FS_Pattern(fs));
     *value = (XtArgVal) data ;
@@ -3004,7 +3008,9 @@ FSBGetFilterLabelString(
             Arg             al[1] ;
 /****************/
 
-    if (fs == NULL || value == NULL || FS_FilterLabel(fs) == NULL) {
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass) ||
+	FS_FilterLabel(fs) == NULL) {
         if (value != NULL)
             *value = (XtArgVal) NULL;
         return;
@@ -3029,7 +3035,9 @@ FSBGetDirListLabelString(
             Arg             al[1] ;
 /****************/
 
-    if (fs == NULL || value == NULL || FS_DirListLabel(fs) == NULL) {
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass) ||
+	FS_DirListLabel(fs) == NULL) {
         if (value != NULL)
             *value = (XtArgVal) NULL;
         return;
@@ -3054,7 +3062,9 @@ FSBGetDirListItems(
             Arg             al[1] ;
 /****************/
 
-    if (fs == NULL || value == NULL || FS_DirList(fs) == NULL) {
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass) ||
+	FS_DirList(fs) == NULL) {
         if (value != NULL)
             *value = (XtArgVal) NULL;
         return;
@@ -3079,7 +3089,9 @@ FSBGetDirListItemCount(
             Arg             al[1] ;
 /****************/
 
-    if (fs == NULL || value == NULL || FS_DirList(fs) == NULL) {
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass) ||
+	FS_DirList(fs) == NULL) {
         if (value != NULL)
             *value = (XtArgVal) 0;
         return;
@@ -3104,7 +3116,8 @@ FSBGetListItems(
             Arg             al[1] ;
 /****************/
 
-    if (fs == NULL || value == NULL) {
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass)) {
         if (value != NULL)
             *value = (XtArgVal) NULL;
         return;
@@ -3136,7 +3149,8 @@ FSBGetListItemCount(
             Arg             al[1] ;
 /****************/
 
-    if (fs == NULL || value == NULL) {
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass)) {
         if (value != NULL)
             *value = (XtArgVal) 0;
         return;
@@ -3170,7 +3184,9 @@ FSBGetDirMask(
             XmString        data ;
 /****************/
 
-    if (fs == NULL || value == NULL || FS_FilterText(fs) == NULL) {
+    if (fs == NULL || value == NULL ||
+	!XtIsSubclass(fs, xmFileSelectionBoxWidgetClass) ||
+	FS_FilterText(fs) == NULL) {
         if (value != NULL)
             *value = (XtArgVal) NULL;
         return;
