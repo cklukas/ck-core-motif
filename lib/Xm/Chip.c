@@ -262,14 +262,23 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     if (old->chip.font != chip->chip.font) {
         XmFontList new_font = chip->chip.font ? XmFontListCopy(chip->chip.font) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->chip.font) XmRenderTableFree(old->chip.font);
-        chip->chip.font = new_font;
-        redraw = True;
+        if (new_font) {
+            if (old->chip.font) XmRenderTableFree(old->chip.font);
+            chip->chip.font = new_font;
+            redraw = True;
+        } else {
+            chip->chip.font = old->chip.font;
+        }
     }
     if (old->chip.label != chip->chip.label) {
         XmString replacement = copy_label(chip->chip.label);
-        chip->chip.label = replacement;
-        redraw = True;
+        if (replacement) {
+            if (old->chip.label) XmStringFree(old->chip.label);
+            chip->chip.label = replacement;
+            redraw = True;
+        } else {
+            chip->chip.label = old->chip.label;
+        }
     }
     if (old->chip.pixmap != chip->chip.pixmap ||
         old->chip.removable != chip->chip.removable ||

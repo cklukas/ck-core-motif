@@ -58,6 +58,13 @@ labels and negotiating geometry. It also uses `XmStringEmpty` to determine
 whether an action label is present, preserving compound-string content. The
 regression check is `tests/automated/check-toast-setvalues-redraw.py`.
 
+## Chip SetValues resource rollback
+
+`XmChip` now commits replacement font and label resources only after their
+copies succeed. Allocation failure therefore preserves the previous live
+resources instead of leaving the widget with a null font or label. The
+regression check is `tests/automated/check-chip-setvalues-rollback.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as

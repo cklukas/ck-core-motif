@@ -30637,3 +30637,11 @@ Guard FileSelectionBox conversion callbacks (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard FileSelectionBox synthetic getters (2026-10-30)
+
+Chip SetValues resource rollback (2026-10-30)
+===============================================
+- Commit replacement fonts and labels only after `XmFontListCopy` or
+  `XmStringCopy` succeeds, preserving the previous live resources on
+  allocation failure.
+- Add `tests/automated/check-chip-setvalues-rollback.py` and document the
+  ownership guarantee in `docs/maintenance-review.md`.
