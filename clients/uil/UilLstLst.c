@@ -1079,6 +1079,7 @@ void	lst_debug_output
     {
 	va_list measure_ap;
 	int formatted_length;
+	int written;
 	char *formatted;
 
 	va_copy(measure_ap, ap);
@@ -1093,7 +1094,12 @@ void	lst_debug_output
 	    (Cardinal)((size_t)formatted_length + 1));
 	if (formatted == NULL)
 	    goto done;
-	(void)vsnprintf(formatted, (size_t)formatted_length + 1, format, ap);
+	written = vsnprintf(formatted, (size_t)formatted_length + 1, format, ap);
+	if (written < 0 || written > formatted_length)
+	    {
+	    _free_memory(formatted);
+	    goto done;
+	    }
 	lst_debug_append(formatted);
 	_free_memory(formatted);
 

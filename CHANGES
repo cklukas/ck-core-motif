@@ -1,3 +1,10 @@
+Reject failed UIL debug formatting passes (2026-10-30)
+======================================================
+
+- Check the second `vsnprintf` result before sending formatted text to the
+  listing buffer, freeing partial output on conversion or length failure.
+- Add focused source-contract coverage and document the failure behavior.
+
 Guard XPM buffer final terminator writes (2026-10-30)
 ======================================================
 
