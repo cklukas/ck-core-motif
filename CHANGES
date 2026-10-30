@@ -31623,3 +31623,11 @@ Guard List navigation setters by widget class (2026-10-30)
 - Add focused source-contract coverage and document the invalid-input path.
 
 Guard List selection APIs by widget class (2026-10-30)
+Guard dialog child lookup by widget class (2026-10-30)
+========================================================
+
+- Reject non-SelectionBox and non-MessageBox widgets before the public child
+  lookup APIs access private dialog children.
+- Add focused source-contract coverage and document the invalid-input path.
+
+Guard List navigation setters by widget class (2026-10-30)

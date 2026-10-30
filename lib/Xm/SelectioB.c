@@ -2101,7 +2101,7 @@ XmSelectionBoxGetChild(
 {
 /****************/
 	Widget	child = NULL;
-        if (sb == NULL)
+	if (sb == NULL || !XmIsSelectionBox(sb))
                 return NULL;
 	_XmWidgetToAppContext(sb);
 	_XmAppLock(app);
