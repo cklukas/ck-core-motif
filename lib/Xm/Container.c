@@ -6946,8 +6946,12 @@ static  void
 SetSmallCellSizes(
     Widget      wid)
 {
-    XmContainerWidget   cw = (XmContainerWidget)wid;
+    XmContainerWidget   cw;
     CwidNode		node;
+
+    if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
 
     if (!CtrDynamicSmallCellHeight(cw))
 	cw->container.real_small_cellh = cw->container.small_cell_height;
@@ -6962,13 +6966,24 @@ SetSmallCellSizes(
 
     if (cw->container.first_node)
     {
-        node = cw->container.first_node;
+	node = cw->container.first_node;
+	while (node && node->widget_ptr == NULL)
+	    node = GetNextNode(node);
+	if (node == NULL) {
+	    if (CtrDynamicSmallCellHeight(cw))
+		cw->container.real_small_cellh =
+		    MAX(10,(int) (.02 * HeightOfScreen(XtScreen((Widget)cw))));
+	    if (CtrDynamicSmallCellWidth(cw))
+		cw->container.real_small_cellw =
+		    MAX(10,(int) (.02 * WidthOfScreen(XtScreen((Widget)cw))));
+	    return;
+	}
 	if (CtrDynamicSmallCellHeight(cw))
 	    cw->container.real_small_cellh = 
-			cw->container.first_node->widget_ptr->core.height;
+			node->widget_ptr->core.height;
 	if (CtrDynamicSmallCellWidth(cw))
             cw->container.real_small_cellw = 
-			cw->container.first_node->widget_ptr->core.width;
+                        node->widget_ptr->core.width;
         while (node)
             {
             if (CtrSpatialStyleIsGRID(cw))

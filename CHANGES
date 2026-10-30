@@ -31899,3 +31899,10 @@ Guard Container spatial layout inputs (2026-10-30)
 - Validate spatial layout widget input and skip malformed nodes before child
   placement or growth requests.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container small-cell inputs (2026-10-30)
+===============================================
+
+- Validate small-cell sizing widget and first-node state, using screen-based
+  defaults when no usable child widget is available.
+- Add focused source-contract coverage and document the invalid-input path.
