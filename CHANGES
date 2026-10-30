@@ -32115,3 +32115,10 @@ Guard Container button-up parameters (2026-10-30)
 - Reject a missing action-parameter count before button-up handling reads the
   follow-up action name.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container button-two parameters (2026-10-30)
+===================================================
+
+- Reject missing action-parameter counts in button-two down and motion
+  handlers before they inspect the parameter list.
+- Add focused source-contract coverage and document the invalid-input path.

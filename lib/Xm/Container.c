@@ -4752,7 +4752,7 @@ ContainerHandleBtn2Down(
   XmDisplay		dpy = 
     (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
   
-  if (*num_params < 2) {
+  if (num_params == NULL || *num_params < 2) {
     XmeWarning(wid, WRONGPARAMS);
     return;
   }
@@ -4774,7 +4774,7 @@ ContainerHandleBtn2Motion(
   XmDisplay		dpy = 
     (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
 
-  if (*num_params < 1) {
+  if (num_params == NULL || *num_params < 1) {
     XmeWarning(wid, WRONGPARAMS);
     return;
   }
