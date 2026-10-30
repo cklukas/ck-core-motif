@@ -31631,3 +31631,11 @@ Guard dialog child lookup by widget class (2026-10-30)
 - Add focused source-contract coverage and document the invalid-input path.
 
 Guard List navigation setters by widget class (2026-10-30)
+Guard MultiList APIs before internal-child access (2026-10-30)
+===============================================================
+
+- Validate the MultiList widget class before every public selection, row-query,
+  and visibility helper evaluates its embedded internal List child.
+- Add focused source-contract coverage and document the invalid-input path.
+
+Guard dialog child lookup by widget class (2026-10-30)
