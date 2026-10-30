@@ -45,6 +45,8 @@ Make SegmentedControl item replacement transactional (2026-10-30)
 - Build every replacement segment button before destroying the current set.
 - Preserve the existing control when child creation fails, with focused
   source-contract coverage and maintenance documentation.
+- Preserve a selected segment by stable item ID when a successful replacement
+  still contains that enabled item.
 
 Make BreadcrumbBar segment replacement transactional (2026-10-30)
 ===================================================================

@@ -622,6 +622,8 @@ when allocation or construction fails.
 
 `XmSegmentedControlSetItems` now follows the same swap-after-build rule: the
 existing segments remain available until every replacement button is created.
+When a replacement retains the selected item ID, its selection is restored
+after the swap instead of being cleared unnecessarily.
 
 `XmBreadcrumbBarSetSegments` also prepares every replacement label before
 retiring the current trail, preserving navigation when allocation fails.

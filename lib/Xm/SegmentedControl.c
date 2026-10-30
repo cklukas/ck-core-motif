@@ -283,7 +283,8 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     XmSegmentedControlWidget control;
     XmSegmentedControlItemRec *copy;
     XmSegmentedControlItemRec *old_items;
-    Cardinal old_count;
+    Cardinal old_count, selected_index = 0;
+    XtPointer selected_id = NULL;
     Cardinal i;
     if (widget == NULL || !XmIsSegmentedControl(widget) ||
         (count && !items) || count > (Cardinal)INT_MAX) return False;
@@ -314,6 +315,9 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     } else copy = NULL;
     old_items = control->segmented.items;
     old_count = control->segmented.item_count;
+    if (control->segmented.selected >= 0 &&
+        (Cardinal)control->segmented.selected < old_count)
+        selected_id = old_items[control->segmented.selected].id;
     control->segmented.rebuilding = True;
     for (i = 0; i < count; ++i) {
         char name[32];
@@ -357,12 +361,23 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     control->segmented.items = copy;
     control->segmented.item_count = count;
     control->segmented.selected = -1;
+    if (selected_id != NULL) {
+        for (selected_index = 0; selected_index < count; ++selected_index)
+            if (copy[selected_index].id == selected_id &&
+                copy[selected_index].enabled) {
+                control->segmented.selected = (int)selected_index;
+                break;
+            }
+    }
     /* Manage only after every item has a valid button.  Managing inside the
      * creation loop invokes the composite change-managed hook early; layout
      * then walks later, still-uninitialized item slots and dereferences a
      * null child. */
     for (i = 0; i < count; ++i)
         XtManageChild(copy[i].button);
+    for (i = 0; i < count; ++i)
+        XmToggleButtonSetState(copy[i].button,
+                               (int)i == control->segmented.selected, False);
     control->segmented.rebuilding = False;
     layout(control);
     return True;
