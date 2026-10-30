@@ -31487,12 +31487,12 @@ Report SegmentedControl selection requests accurately (2026-10-30)
   clear request while `allow_clear` is disabled.
 - Add focused source-contract coverage and document the result contract.
 
-Initialize TabStack child-index scans (2026-10-30)
-==================================================
+Bound TabStack child-index scans (2026-10-30)
+=============================================
 
-- Initialize the local child index used by `TabToIndex`, making tab selection
-  deterministic and preventing an indeterminate index from reaching the tab
-  box.
+- Initialize the local child index and bound `TabToIndex` by the composite
+  child count, making tab selection deterministic without reading beyond Xt's
+  child array.
 - Add focused source-contract coverage and document the fix.
 
 Clear stale destinations for empty region operations (2026-10-30)

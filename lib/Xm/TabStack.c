@@ -3460,16 +3460,19 @@ TabToIndex(tab, child)
 #endif
 {
     WidgetList kid;
+    Cardinal child_index;
     int i = 0;
 
     if( tab == NULL || child == NULL ) return( -1 );
     
     kid = tab->composite.children;
 
-    for( i = 0; kid != NULL; kid++ )
+    for (child_index = 0; child_index < tab->composite.num_children;
+         ++child_index)
     {
-	if( !IsValidChild(tab, *kid) ) continue;
-	if( *kid == child ) return( i );
+	kid = &tab->composite.children[child_index];
+	if (!IsValidChild(tab, *kid)) continue;
+	if (*kid == child) return i;
 	++i;
     }
     return( -1 );

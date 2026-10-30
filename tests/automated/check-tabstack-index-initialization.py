@@ -10,5 +10,6 @@ end = source.index("\n}", start) + 2
 body = source[start:end]
 
 assert "int i = 0;" in body
-assert "if( *kid == child ) return( i );" in body
+assert "child_index < tab->composite.num_children" in body
+assert "if (*kid == child) return i;" in body
 print("PASS TabStack child-index scans initialize their index")
