@@ -1,3 +1,10 @@
+Report XmStringGenerate rendition failures (2026-10-30)
+========================================================
+
+- Return `NULL` when compact-segment conversion or rendition-array growth
+  fails, instead of returning an unwrapped string as successful output.
+- Add focused source-contract coverage and document the failure contract.
+
 Reject failed XmStringNCopy serialization (2026-10-30)
 =======================================================
 

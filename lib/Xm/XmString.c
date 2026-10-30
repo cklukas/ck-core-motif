@@ -10580,7 +10580,8 @@ XmStringGenerate(XtPointer   text,
 		if (_XmEntryOptimized(seg)) {
 		  _XmStringEntry new_seg = EntryCvtToUnopt(seg);
 		  if (new_seg == NULL) {
-		    return result;
+		    XmStringFree(result);
+		    return NULL;
 		  }
 		  _XmStringEntryFree(seg);
 		  seg = new_seg;
@@ -10594,13 +10595,15 @@ XmStringGenerate(XtPointer   text,
 		  XmStringTag *new_tags;
 		  if (count > SIZE_MAX / sizeof(XmStringTag) ||
 		      count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
-		    return result;
+		    XmStringFree(result);
+		    return NULL;
 		  }
 		  new_tags = (XmStringTag *)XtRealloc(
 		      (char *)_XmUnoptSegRendBegins(seg),
 		      (Cardinal)(count * sizeof(XmStringTag)));
 		  if (!new_tags) {
-		    return result;
+		    XmStringFree(result);
+		    return NULL;
 		  }
 		  _XmUnoptSegRendBegins(seg) = new_tags;
 		}
@@ -10657,7 +10660,8 @@ XmStringGenerate(XtPointer   text,
 		if (_XmEntryOptimized(seg)) {
 		  _XmStringEntry new_seg = EntryCvtToUnopt(seg);
 		  if (new_seg == NULL) {
-		    return result;
+		    XmStringFree(result);
+		    return NULL;
 		  }
 		  if (_XmEntryMultiple(line))
 		    _XmEntrySegment(line)[0] = (_XmStringNREntry)new_seg;
@@ -10671,13 +10675,15 @@ XmStringGenerate(XtPointer   text,
 		  XmStringTag *new_tags;
 		  if (count > SIZE_MAX / sizeof(XmStringTag) ||
 		      count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
-		    return result;
+		    XmStringFree(result);
+		    return NULL;
 		  }
 		  new_tags = (XmStringTag *)XtRealloc(
 		      (char *)_XmUnoptSegRendEnds(seg),
 		      (Cardinal)(count * sizeof(XmStringTag)));
 		  if (!new_tags) {
-		    return result;
+		    XmStringFree(result);
+		    return NULL;
 		  }
 		  _XmUnoptSegRendEnds(seg) = new_tags;
 		}
