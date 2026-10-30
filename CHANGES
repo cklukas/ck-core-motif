@@ -31836,3 +31836,10 @@ Guard Container selection inputs (2026-10-30)
 - Validate selection callback inputs and skip malformed nodes or missing
   constraint records during selected-item collection.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container size inputs (2026-10-30)
+========================================
+
+- Validate natural-size outputs and skip malformed child or constraint state
+  during geometry calculation.
+- Add focused source-contract coverage and document the invalid-input path.

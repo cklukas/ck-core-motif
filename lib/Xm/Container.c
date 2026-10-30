@@ -2511,7 +2511,7 @@ GetSize (
         Dimension * pwidth,
         Dimension * pheight)
 {
-    XmContainerWidget  cw = (XmContainerWidget)wid;
+    XmContainerWidget  cw;
     CwidNode		node;
     Widget		cwid;
     XmContainerConstraint c;
@@ -2520,6 +2520,11 @@ GetSize (
     Position		save_x;
     Dimension       extent;
     uint64_t        detail_offset;
+
+    if (wid == NULL || pwidth == NULL || pheight == NULL)
+	return;
+
+    cw = (XmContainerWidget)wid;
 
 
     if (CtrLayoutIsSPATIAL(cw)) 
@@ -2581,7 +2586,15 @@ GetSize (
     while(node)
 	{
 	cwid = node->widget_ptr;
+	if (cwid == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	c = GetContainerConstraint(cwid);
+	if (c == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	/*
 	 This query depends on the current first column width
 	 and the current x position.  It assumes L to R, since the
