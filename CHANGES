@@ -1,3 +1,10 @@
+Guard FontSelector current-font retrieval (2026-10-30)
+========================================================
+
+- Return a null current-font result when partial initialization left font
+  information, the current record, or the output buffer unavailable.
+- Add focused source coverage and documentation.
+
 Guard FontSelector SetValues after partial construction (2026-10-30)
 =====================================================================
 

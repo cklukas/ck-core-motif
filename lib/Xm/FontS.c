@@ -4223,9 +4223,15 @@ GetValuesHook(Widget w, ArgList args, Cardinal * num_args)
     for (i = 0; i < *num_args; i++) {
 	if (streq(args[i].name, XmNcurrentFont))
 	{
-		cf = XmFontS_font_info(fsw)->current_font;
-
 		str_ptr = (String *) args[i].value;
+		if (str_ptr == NULL)
+		    continue;
+		if (XmFontS_font_info(fsw) == NULL ||
+		    (cf = XmFontS_font_info(fsw)->current_font) == NULL ||
+		    XmFontS_get_font(fsw) == NULL) {
+		    *str_ptr = NULL;
+		    continue;
+		}
 		if (XmFontS_xlfd_mode(fsw)) {
 		    BuildFontString(fsw, cf, XmFontS_get_font(fsw), GET_FONT_SIZE);
 		    *str_ptr = XmFontS_get_font(fsw); 
