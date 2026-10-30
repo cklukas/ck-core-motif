@@ -529,7 +529,14 @@ GetXFromShell(
     /* return the x in the child's unit type; for children of shell, return
      * the parent's x relative to the origin, in pixels */
 
-    Widget parent = XtParent(wid);
+    Widget parent;
+
+    if (wid == NULL || value == NULL)
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    parent = XtParent(wid);
     
     if (XtIsShell(parent)) {   
 	/* at the moment menuShell doesn't reset x,y values to 0, so 
@@ -551,7 +558,14 @@ GetYFromShell(
     /* return the y in the child's unit type; for children of shell, return
      * the parent's y relative to the origin, in pixels */
 
-    Widget parent = XtParent(wid);
+    Widget parent;
+
+    if (wid == NULL || value == NULL)
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    parent = XtParent(wid);
 
     if (XtIsShell(parent)) {   
 	/* at the moment menuShell doesn't reset x,y values to 0, so 
