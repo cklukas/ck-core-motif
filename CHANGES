@@ -29858,3 +29858,10 @@ Guard FontSelector spacing allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard FontSelector bold/italic allocation (2026-10-30)
+Guard XmList conversion callback inputs (2026-10-30)
+======================================================
+
+- Validate widget and conversion callback pointers before widget-dependent lookups.
+- Add focused source coverage and documentation.
+
+Guard XmList Motif-drop concatenation (2026-10-30)

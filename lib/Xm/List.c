@@ -8069,15 +8069,21 @@ ListConvert(Widget w, XtPointer client_data,
     XmSUTF8_STRING };
 
   Atom atoms[XtNumber(atom_names)];
-  Atom C_ENCODING = XmeGetEncodingAtom(w);
+  Atom C_ENCODING;
   int target_count = 0;
   int i;
   Atom type = None;
   XtPointer value = NULL;
   unsigned long size = 0;
   int format = 8;
-  XmListWidget lw = (XmListWidget) w;
-  XmListDragConvertStruct *ListDragConv = lw->list.drag_conv;
+  XmListWidget lw;
+  XmListDragConvertStruct *ListDragConv;
+
+  if (w == NULL || cs == NULL)
+    return;
+  lw = (XmListWidget) w;
+  C_ENCODING = XmeGetEncodingAtom(w);
+  ListDragConv = lw->list.drag_conv;
 
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
