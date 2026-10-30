@@ -239,8 +239,11 @@ void
 xpmHashTableFree(xpmHashTable *table)
 {
     xpmHashAtom *p;
-    xpmHashAtom *atomTable = table->atomTable;
+    xpmHashAtom *atomTable;
 
+    if (table == NULL)
+	return;
+    atomTable = table->atomTable;
     if (!atomTable)
 	return;
     for (p = atomTable + table->size; p > atomTable;)

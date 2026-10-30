@@ -32415,3 +32415,12 @@ Avoid Xpm hash probe before-begin pointer (2026-10-30)
 
 Rollback failed Xpm hash growth (2026-10-30)
 =============================================
+Handle null Xpm hash cleanup (2026-10-30)
+==========================================
+
+- Return before dereferencing a null table in `xpmHashTableFree`, making error
+  cleanup safe when initialization fails early.
+- Add focused source-contract coverage and document the cleanup behavior.
+
+Avoid Xpm hash probe before-begin pointer (2026-10-30)
+========================================================
