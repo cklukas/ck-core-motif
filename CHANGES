@@ -31949,3 +31949,10 @@ Guard Container graphics-context inputs (2026-10-30)
 - Return safely before graphics-context release or allocation when no
   Container widget is supplied.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container real-header inputs (2026-10-30)
+================================================
+
+- Validate stored icon-header widget type and child count before resolving the
+  real header widget.
+- Add focused source-contract coverage and document the invalid-input path.

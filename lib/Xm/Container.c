@@ -7473,7 +7473,11 @@ static  Widget
 GetRealIconHeader(
     Widget      wid)
 {
-    XmContainerWidget   cw = (XmContainerWidget)wid;
+    XmContainerWidget   cw;
+
+    if (wid == NULL)
+	return NULL;
+	cw = (XmContainerWidget)wid;
 
     if (!cw->container.icon_header) return NULL;
 
@@ -7482,9 +7486,11 @@ GetRealIconHeader(
 	/* we are in the SW auto case where a DA was created as
 	   the parent of the icon_header and store in container
 	   icon_header. */
-	return 
-	    ((CompositeWidget)(cw->container.icon_header))
-		->composite.children[0] ;
+	if (!XtIsComposite(cw->container.icon_header) ||
+	    ((CompositeWidget)(cw->container.icon_header))->composite.num_children == 0)
+	    return NULL;
+	return ((CompositeWidget)(cw->container.icon_header))
+	    ->composite.children[0] ;
     else 
 	return cw->container.icon_header ;
 }
