@@ -6251,7 +6251,14 @@ DrawRightToLeftTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	                                      &gcValues);
 	}
 	if( XmTabBox__zero_GC(tab) == NULL || XmTabBox__one_GC(tab) == NULL )
+	{
+	    if (XmTabBox__zero_GC(tab) != NULL)
+	        XFreeGC(XtDisplay(tab), XmTabBox__zero_GC(tab));
+	    if (XmTabBox__one_GC(tab) != NULL)
+	        XFreeGC(XtDisplay(tab), XmTabBox__one_GC(tab));
+	    XmTabBox__zero_GC(tab) = XmTabBox__one_GC(tab) = NULL;
 	    return;
+	}
 
 	/*
 	 * Now we have all that we need to render the label string, so now
@@ -6856,7 +6863,14 @@ DrawVerticalTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	                                      &gcValues);
 	}
 	if( XmTabBox__zero_GC(tab) == NULL || XmTabBox__one_GC(tab) == NULL )
+	{
+	    if (XmTabBox__zero_GC(tab) != NULL)
+	        XFreeGC(XtDisplay(tab), XmTabBox__zero_GC(tab));
+	    if (XmTabBox__one_GC(tab) != NULL)
+	        XFreeGC(XtDisplay(tab), XmTabBox__one_GC(tab));
+	    XmTabBox__zero_GC(tab) = XmTabBox__one_GC(tab) = NULL;
 	    return;
+	}
 
 	/*
 	 * Now we have all that we need to render the label string, so now

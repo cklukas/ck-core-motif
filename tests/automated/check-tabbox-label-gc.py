@@ -18,5 +18,8 @@ for guard in positions[:2]:
     draw = source.find("XFillRectangle", guard)
     if draw < 0:
         raise SystemExit("TabBox GC guard is not followed by label drawing")
+    recovery = source.find("XmTabBox__zero_GC(tab) = XmTabBox__one_GC(tab) = NULL;", guard)
+    if recovery < guard or recovery > draw:
+        raise SystemExit("TabBox GC failure path must clear a partial GC pair")
 
 print("PASS TabBox label rendering handles missing bitmap graphics contexts")
