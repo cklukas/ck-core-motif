@@ -110,6 +110,7 @@ static void ComboCancel(Widget, XEvent *, String *, Cardinal *);
 
 static void SBBtnDownEH (Widget, XtPointer, XEvent *, Boolean *);
 static void SBBtnUpEH (Widget, XtPointer, XEvent *, Boolean *);
+static void PopupDestroyed(Widget, XtPointer, XtPointer);
 
 /*********************
  * Internal Routines.
@@ -2170,6 +2171,10 @@ CreatePopup(Widget w, ArgList args, Cardinal num_args)
 						new_list,
 						num_largs + num_args);
     XtFree((char *) new_list);
+    if (XmDropDown_popup_shell(cbw) == NULL)
+	return;
+    XtAddCallback(XmDropDown_popup_shell(cbw), XmNdestroyCallback,
+		  PopupDestroyed, (XtPointer) cbw);
 
 #ifdef FIX_1446
    	XtAddCallback(XmDropDown_popup_shell(cbw), XmNpopdownCallback, PopdownDone , (XtPointer) w);
@@ -2185,6 +2190,10 @@ CreatePopup(Widget w, ArgList args, Cardinal num_args)
 					   new_list, num_args + num_largs);
 
     XtFree((char *) new_list);
+    if (XmDropDown_list(cbw) == NULL) {
+	XtDestroyWidget(XmDropDown_popup_shell(cbw));
+	return;
+    }
 
     XtAddCallback(XmDropDown_list(cbw), XmNdefaultActionCallback,
 		  ListSelected, (XtPointer) cbw);
@@ -2217,6 +2226,20 @@ CreatePopup(Widget w, ArgList args, Cardinal num_args)
 	  XtInsertEventHandler(sb, ButtonReleaseMask, False, SBBtnUpEH,
 			       (XtPointer) XmDropDown_popup_shell(cbw), XtListHead);
     }
+}
+
+static void
+PopupDestroyed(Widget shell, XtPointer closure, XtPointer call_data)
+{
+    XmDropDownWidget cbw = (XmDropDownWidget) closure;
+    (void) call_data;
+    if (cbw == NULL)
+	return;
+    if (XmDropDown_popup_shell(cbw) == shell)
+	XmDropDown_popup_shell(cbw) = NULL;
+    XmDropDown_list(cbw) = NULL;
+    cbw->combo.hsb = NULL;
+    cbw->combo.vsb = NULL;
 }
 
 /*	Function Name: PopdownList

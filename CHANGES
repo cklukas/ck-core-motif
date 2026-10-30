@@ -29478,3 +29478,12 @@ Guard TeachingTip popup allocation and teardown (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard AutoSuggestBox popup creation and teardown (2026-10-30)
+Guard DropDown popup and list lifecycle (2026-10-30)
+=====================================================
+
+- Validate popup-shell and scrolled-list creation before using either widget.
+- Clear popup, list, and scrollbar pointers when the shell is destroyed
+  externally.
+- Add focused source coverage and documentation.
+
+Guard TeachingTip popup allocation and teardown (2026-10-30)
