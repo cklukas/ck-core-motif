@@ -8617,7 +8617,7 @@ XmListDeleteItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int item_pos;
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return;
   _XmWidgetToAppContext(w);
 
@@ -8697,7 +8697,7 @@ XmListDeleteItems(Widget w,
   XmString *copy;
 
   register int i;
-  if (w == NULL || items == NULL || item_count <= 0)
+  if (w == NULL || !XmIsList(w) || items == NULL || item_count <= 0)
     return;
 
   old_max_height = lw->list.MaxItemHeight;
@@ -8924,7 +8924,7 @@ XmListDeletePositions(Widget    w,
 		      int       position_count)
 {
   XmListWidget lw = (XmListWidget) w;
-  if (w == NULL || position_list == NULL || position_count <= 0)
+  if (w == NULL || !XmIsList(w) || position_list == NULL || position_count <= 0)
     return;
   _XmWidgetToAppContext(w);
 
@@ -8948,7 +8948,7 @@ XmListDeletePos(Widget w,
   XmListWidget lw = (XmListWidget) w;
   int position;
 
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
@@ -8979,7 +8979,7 @@ XmListDeleteItemsPos(Widget w,
   Boolean rebuild_selection = FALSE;
   Dimension old_max_height;
   register int i;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -9124,7 +9124,7 @@ XmListDeleteAllItems(Widget w)
 {
   XmListWidget lw = (XmListWidget) w;
   int j;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 

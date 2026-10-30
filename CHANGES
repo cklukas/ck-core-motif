@@ -31592,3 +31592,11 @@ Guard Notebook unhighlight child constraints (2026-10-30)
 - Add focused source-contract coverage and document the malformed-state path.
 
 Guard Notebook page-number allocation (2026-10-30)
+Guard List deletion APIs by widget class (2026-10-30)
+=======================================================
+
+- Reject non-List widgets before the six public deletion APIs access private
+  item, selection, and geometry state.
+- Add focused source-contract coverage and document the invalid-input path.
+
+Guard List insertion APIs by widget class (2026-10-30)
