@@ -1,3 +1,10 @@
+Guard TabBox redisplay graphics-context allocation (2026-10-30)
+=================================================================
+
+- Stop tab drawing safely when lazy GC creation fails.
+- Release the temporary damage region on that path and add focused coverage
+  and documentation.
+
 Guard DropHighlight rendering graphics-context allocation (2026-10-30)
 =======================================================================
 

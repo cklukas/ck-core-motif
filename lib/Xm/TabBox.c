@@ -1027,6 +1027,10 @@ Redisplay(widget, event, region)
     else
         gc = XCreateGC(XtDisplay(tab), XtWindow(tab), gcMask, &gcValues);
     XmTabBox__tab_GC(tab) = XmTabBox__text_GC(tab) = gc;
+    if (gc == NULL) {
+        if (damage) XDestroyRegion(damage);
+        return;
+    }
     if( XmTabBox__inited(tab) == False ) {
         if (damage) XDestroyRegion(damage);
         return;
