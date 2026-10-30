@@ -1,3 +1,10 @@
+Guard TabStack label getter (2026-10-30)
+========================================
+
+- Validate widget and output storage before copying tab labels.
+- Preserve the existing copied `XmString` result for valid children.
+- Add focused source coverage and documentation.
+
 Guard TextField string/context helpers (2026-10-30)
 ====================================================
 

@@ -583,6 +583,11 @@ static XmSyntheticResource cont_get_resources[] =
 /* ARGSUSED */
 static void Get_tabLabelString (Widget widget, int offset, XtArgVal *value)
 {
+    if (widget == NULL || value == NULL) {
+        if (value != NULL)
+            (*value) = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmStringCopy(XmTabStackC_tab_label_string(widget));
 }
 
