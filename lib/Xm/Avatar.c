@@ -195,6 +195,9 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply) {
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
     (void)request;
+    if (widget == NULL || reply == NULL ||
+        !XtIsSubclass(widget, xmAvatarWidgetClass))
+        return XtGeometryNo;
     reply->request_mode = CWWidth | CWHeight;
     reply->width = avatar->avatar.size;
     reply->height = avatar->avatar.size;
