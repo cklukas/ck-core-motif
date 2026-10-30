@@ -1,3 +1,10 @@
+Guard FontSelector Other-list construction (2026-10-30)
+=========================================================
+
+- Validate selector/font/list state and the family child before use.
+- Handle missing current-font strings and failed item `XmString` allocations.
+- Add focused source coverage and documentation.
+
 Guard FontSelector size-change callback state (2026-10-30)
 ============================================================
 

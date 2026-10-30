@@ -2318,10 +2318,22 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
     Cardinal num_largs = 0;
     register int count;
     XmString *strs;
-    String *others = XmFontS_font_info(fsw)->others;
-    FontData * cf = XmFontS_font_info(fsw)->current_font;
-    register int i, num = XmFontS_font_info(fsw)->num_others;
-    String	curFont = XmFontS_current_font(fsw);
+    XmString item;
+    String *others;
+    FontData * cf;
+    register int i, num;
+    String	curFont;
+
+    if (fsw == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	XmFontS_family_box(fsw) == NULL)
+	return;
+    others = XmFontS_font_info(fsw)->others;
+    cf = XmFontS_font_info(fsw)->current_font;
+    num = XmFontS_font_info(fsw)->num_others;
+    curFont = XmFontS_current_font(fsw);
+    if (num > 0 && others == NULL)
+	return;
 
     /*
      * Set the current font to the first one on the list.
@@ -2341,6 +2353,8 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
     }
 	else
 	{
+	    if (curFont == NULL)
+		return;
 	    XtSetArg(largs[num_largs], XmNvalue, curFont); num_largs++;
 	    cf->familyq = XrmStringToQuark(curFont);
 	    DisplayCurrentFont(fsw, curFont);
@@ -2358,8 +2372,11 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
 					     (size_t)num));
     if (strs == NULL && num != 0)
 	return;
-    for (i = count = 0; i < num; i++, others++) 
-	strs[count++] = XmStringCreateLocalized(*others);
+    for (i = count = 0; i < num; i++, others++) {
+	item = XmStringCreateLocalized(*others);
+	if (item != NULL)
+	    strs[count++] = item;
+    }
 
     XtSetArg(largs[num_largs], XmNitems, strs); num_largs++;
     XtSetArg(largs[num_largs], XmNitemCount, count); num_largs++;
