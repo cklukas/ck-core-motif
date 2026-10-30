@@ -32379,3 +32379,12 @@ Bound ImageCache hash conversions (2026-10-30)
 
 Make default hash conversion portable (2026-10-30)
 ====================================================
+Make DropSite widget hashing portable (2026-10-30)
+====================================================
+
+- Bound widget pointer keys before conversion to signed `XmHashValue` in the
+  DropSite Manager hash table.
+- Add focused source-contract coverage and document the portability fix.
+
+Bound ImageCache hash conversions (2026-10-30)
+================================================

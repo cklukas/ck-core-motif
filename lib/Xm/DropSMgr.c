@@ -30,6 +30,9 @@ static char rcsid[] = "$TOG: DropSMgr.c /main/21 1999/08/11 14:44:57 vipin $"
 #include <config.h>
 #endif
 
+#include <stdint.h>
+#include <limits.h>
+
 
 /*****************************************************************************
  * THE DROPSITE DATABASE
@@ -552,7 +555,7 @@ CompareWidgets(XtPointer w1, XtPointer w2)
 static XmHashValue
 HashWidget(XtPointer w1)
 {
-  return((XmHashValue)(long)w1);
+	return (XmHashValue)((uintptr_t)w1 % (uintptr_t)INT_MAX);
 }
 
 static void 
