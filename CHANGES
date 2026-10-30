@@ -1,3 +1,10 @@
+Guard Gadget unit and direction traits (2026-10-30)
+===================================================
+
+- Validate Gadget class identity before trait state access.
+- Return safe pixel/default-direction values for invalid inputs.
+- Add focused source coverage and documentation.
+
 Guard Gadget access-colors trait (2026-10-30)
 =============================================
 
