@@ -880,6 +880,14 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	    segment[segment_length] = '\0';
 	    tempstr = XmCvtCTToXmString(segment);
 	    XtFree(segment);
+	    if (tempstr == NULL) {
+		int cleanup;
+		for (cleanup = 0; cleanup < i; ++cleanup)
+		    XmStringFree(string_table[cleanup]);
+		XtFree((char *)string_table);
+		_XmAppUnlock(app);
+		return XConverterNotFound;
+	    }
 	    string_table[i] = tempstr;
 	    if (nul != NULL)
 		offset += segment_length + 1;

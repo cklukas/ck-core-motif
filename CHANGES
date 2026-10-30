@@ -1,3 +1,10 @@
+Reject failed COMPOUND_TEXT segment conversions (2026-10-30)
+=============================================================
+
+- Release already converted entries and return a conversion error when a
+  bounded COMPOUND_TEXT segment cannot become an `XmString`.
+- Add focused source-contract coverage and document the failure behavior.
+
 Avoid overflowing tab-only compound-text segments (2026-10-30)
 ================================================================
 
