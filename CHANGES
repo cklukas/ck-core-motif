@@ -29570,3 +29570,12 @@ Guard FontSelector family DropDown allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard FontSelector middle-pane allocation (2026-10-30)
+Guard FontSelector size DropDown allocation (2026-10-30)
+=========================================================
+
+- Validate merged arguments and size DropDown creation before list ownership
+  and callback registration.
+- Release temporary text and argument storage on failure.
+- Add focused source coverage and documentation.
+
+Guard FontSelector family DropDown allocation (2026-10-30)

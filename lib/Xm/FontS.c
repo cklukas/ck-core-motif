@@ -2630,15 +2630,21 @@ CreateSizesBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;
 
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL) {
+	XtFree((XtPointer) temp);
+	return;
+    }
     c_box = XtCreateManagedWidget("sizes", xmDropDownWidgetClass, 
 				  parent, margs, num_args + num_largs);
-    XtFree(temp);
+    XtFree((XtPointer) temp);
+    XtFree((XtPointer) margs);
+    if (c_box == NULL)
+	return;
     AddToXlfdOnlyList(fsw, c_box);
 
     XtAddCallback(c_box, XmNverifyTextCallback, SizeChanged, (XtPointer)fsw);
     XtAddCallback(c_box, XmNupdateTextCallback, SizeChanged, (XtPointer)fsw);
 
-    XtFree((XtPointer) margs);
     XmFontS_size_box(fsw) = c_box;
 }
 
