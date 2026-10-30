@@ -7,6 +7,7 @@ from pathlib import Path
 source = Path("lib/Xm/FileSB.c").read_text()
 for function in (
     "FSBGetDirectory",
+    "FSBGetDirSpec",
     "FSBGetNoMatchString",
     "FSBGetPattern",
     "FSBGetFilterLabelString",

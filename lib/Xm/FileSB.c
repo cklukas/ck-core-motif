@@ -2908,6 +2908,8 @@ FSBGetDirSpec(
             int resource,
             XtArgVal *value)
 {
+    if (fs == NULL || value == NULL)
+	return;
     if (FS_PathMode(fs) == XmPATH_MODE_RELATIVE)
     {
 	XtArgVal	filename;
