@@ -1,3 +1,12 @@
+Clarify bounded x86_64 qualification status (2026-10-30)
+===========================================================
+
+- Replace contradictory legacy wording in the validation status with an
+  explicit distinction between the recorded bounded x86_64 cohort and the
+  still-open matrix-wide qualification gates.
+- Add a source-contract check for the status language and document the
+  cumulative programmer and end-user benefits in the README.
+
 Correct value-only accessibility action counts (2026-10-30)
 ==============================================================
 

@@ -189,7 +189,8 @@ all-font correctness, input-method interoperability or screen-reader usability.
 The native ARM64 cohort also passes the legacy/basic GUI fixture. These results
 cover the tested fonts, strings and interactions; they do not establish exhaustive
 supplementary-plane coverage, long-line performance or intended-consumer usability.
-All x86_64 compilation and runtime validation remain pending.
+A bounded installed x86_64 cohort is recorded above; complete architecture-wide
+validation remains a separate gate.
 
 ## Development 2.4 / ABI 6 candidate
 
@@ -255,7 +256,8 @@ architectures remain separate admission gates. See
 `docs/dnd-transfer-lifecycle.md`.
 
 The newer ABI 6 candidate, its consumers and documentation deployment remain
-distinct gates. Final x86_64 validation of this candidate remains pending.
+distinct gates. Final matrix-wide x86_64 qualification of this candidate remains
+pending; the bounded x86_64 evidence above is not a substitute for that gate.
 
 ## Primary-window modality native checkpoint
 
@@ -276,8 +278,9 @@ ASan/UBSan. Xt and other system dependencies remain uninstrumented in that
 profile; leak detection is disabled and no leak-clean claim is made.
 
 These results cover the recorded native client input contract. Other window
-managers, complete assistive/application usability and final x86_64 validation
-remain separate gates. No new hosted documentation deployment is claimed.
+managers, complete assistive/application usability and final matrix-wide x86_64
+qualification remain separate gates. No new hosted documentation deployment is
+claimed.
 
 ## Evidence to retain
 
@@ -311,7 +314,8 @@ reject action/focus/value/Selection mutations; independent primary-dialog
 branches remain usable. Reentrant query/snapshot callbacks and native focus
 target/bridge destruction are covered. This checkpoint qualifies the generic
 installed-library contract; actual application/assistive-technology journeys,
-other display/input environments and final x86_64 validation remain separate.
+other display/input environments and final matrix-wide x86_64 qualification
+remain separate.
 
 Ten focused native ARM64 fixtures also pass with the toolkit and consumers
 instrumented by ASan/UBSan, including the new modal-admission regression.

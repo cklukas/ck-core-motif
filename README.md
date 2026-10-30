@@ -11,6 +11,10 @@ modern builds, selection handling, display scaling and input behavior.
 
 ## What the maintenance work improves
 
+The maintenance work has one consistent aim: make the existing Motif API safer
+to use without changing the public programming model. Fixes are small and
+reviewable, but their combined effect is visible at three levels:
+
 For people using Motif applications, the practical result is fewer crashes,
 less corrupted UI state, and more reliable behavior when dialogs, lists,
 selections, drag-and-drop transfers, Unicode text, images, or widgets are
@@ -33,6 +37,13 @@ predictably. Small fixes run their focused regression checks before commit;
 the complete automated suite is reserved for critical changes and periodic
 checkpoint validation. Published maintenance commits are mirrored to both
 configured development remotes with matching history.
+
+In short, programmers get deterministic failure handling and transactional
+state updates; application users get fewer hangs, corrupt redraws and lost
+input; and maintainers get focused regression evidence instead of relying on
+manual inspection. Remaining platform and service-specific qualification gates
+are called out explicitly in the validation status rather than being implied by
+the presence of a successful build.
 
 The development 2.4.0 cohort uses native ABI epoch 8, including the current
 Unicode text maps and optional native accessibility records. Rebuild every
