@@ -177,7 +177,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     XmTimePickerWidget old = (XmTimePickerWidget)old_widget;
     XmTimePickerWidget picker = (XmTimePickerWidget)new_widget;
     Boolean render_changed = old->time_picker.render_table != picker->time_picker.render_table;
+    Boolean colors_changed = old->primitive.foreground != picker->primitive.foreground ||
+                             old->core.background_pixel != picker->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed && picker->time_picker.gc) {
+        XSetForeground(XtDisplay(new_widget), picker->time_picker.gc,
+                       picker->primitive.foreground);
+        XSetBackground(XtDisplay(new_widget), picker->time_picker.gc,
+                       picker->core.background_pixel);
+    }
     if (!XmTimePickerIsValid(&picker->time_picker.value) ||
         compare_values(&picker->time_picker.value, &old->time_picker.minimum) < 0 ||
         compare_values(&picker->time_picker.value, &old->time_picker.maximum) > 0)
@@ -195,7 +203,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
             render_changed = False;
         }
     }
-    return compare_values(&old->time_picker.value, &picker->time_picker.value) != 0 ||
+    return colors_changed || compare_values(&old->time_picker.value, &picker->time_picker.value) != 0 ||
            old->time_picker.format_24_hour != picker->time_picker.format_24_hour || render_changed;
 }
 

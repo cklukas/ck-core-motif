@@ -246,7 +246,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     XmDatePickerWidget picker = (XmDatePickerWidget)new_widget;
     XmDatePickerDate calendar_date;
     Boolean render_changed = old->date_picker.render_table != picker->date_picker.render_table;
+    Boolean colors_changed = old->primitive.foreground != picker->primitive.foreground ||
+                             old->core.background_pixel != picker->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed && picker->date_picker.gc) {
+        XSetForeground(XtDisplay(new_widget), picker->date_picker.gc,
+                       picker->primitive.foreground);
+        XSetBackground(XtDisplay(new_widget), picker->date_picker.gc,
+                       picker->core.background_pixel);
+    }
     if (!XmCalendarIsValidDate(&picker->date_picker.date) ||
         compare_dates(&picker->date_picker.date, &old->date_picker.minimum) < 0 ||
         compare_dates(&picker->date_picker.date, &old->date_picker.maximum) > 0)
@@ -272,7 +280,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
             render_changed = False;
         }
     }
-    return old->date_picker.date.year != picker->date_picker.date.year ||
+    return colors_changed || old->date_picker.date.year != picker->date_picker.date.year ||
            old->date_picker.date.month != picker->date_picker.date.month ||
            old->date_picker.date.day != picker->date_picker.date.day || render_changed;
 }

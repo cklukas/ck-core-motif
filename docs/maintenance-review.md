@@ -3,6 +3,18 @@ nav_exclude: true
 ---
 # Maintenance review and suggested work
 
+## Picker color updates
+
+DatePicker and TimePicker now refresh their cached drawing graphics contexts
+when an application changes foreground or background resources through
+`XtSetValues`.  The controls also request a redraw, so runtime theme changes
+are visible immediately instead of leaving stale text colors on screen.  The
+focused contract check is:
+
+```sh
+python3 tests/automated/check-picker-color-update.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws
