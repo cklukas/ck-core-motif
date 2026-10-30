@@ -97,6 +97,18 @@ static void free_items(XmAutoSuggestBoxWidget box)
     XtFree((char *)items);
 }
 
+static void free_item_array(XmAutoSuggestStoredItem *items, Cardinal count)
+{
+    Cardinal i;
+    if (items == NULL)
+        return;
+    for (i = 0; i < count; ++i) {
+        XtFree(items[i].id);
+        XmStringFree(items[i].label);
+    }
+    XtFree((char *)items);
+}
+
 static Widget shell_ancestor(Widget widget)
 {
     while (widget && !XtIsShell(widget))
@@ -454,6 +466,8 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
                                        unsigned long generation)
 {
     XmAutoSuggestBoxWidget box;
+    XmAutoSuggestStoredItem *replacement = NULL;
+    XmString no_results = NULL;
     Cardinal i;
     if (!widget || !XmIsAutoSuggestBox(widget) || (count && !items))
         return False;
@@ -466,37 +480,41 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
     create_popup(box);
     if (!box->auto_suggest.list)
         return False;
-    free_items(box);
-    XmListDeleteAllItems(box->auto_suggest.list);
     if (count) {
-        box->auto_suggest.items = (XmAutoSuggestStoredItem *)XtCalloc(
+        replacement = (XmAutoSuggestStoredItem *)XtCalloc(
             count, sizeof(*box->auto_suggest.items));
-        if (!box->auto_suggest.items) {
-            box->auto_suggest.no_results = True;
+        if (!replacement)
             return False;
-        }
     }
-    box->auto_suggest.item_count = 0;
-    box->auto_suggest.no_results = count == 0;
     if (count) {
         for (i = 0; i < count; ++i) {
             XmString label = string_copy(items[i].label);
-            box->auto_suggest.items[i].id = XtNewString(items[i].id ? items[i].id : "");
-            box->auto_suggest.items[i].label = label;
-            if (!box->auto_suggest.items[i].id || !label) {
-                box->auto_suggest.item_count = i + 1;
-                free_items(box);
-                box->auto_suggest.no_results = True;
+            replacement[i].id = XtNewString(items[i].id ? items[i].id : "");
+            replacement[i].label = label;
+            if (!replacement[i].id || !label) {
+                free_item_array(replacement, i + 1);
                 return False;
             }
-            box->auto_suggest.items[i].user_data = items[i].user_data;
-            XmListAddItem(box->auto_suggest.list, label, 0);
+            replacement[i].user_data = items[i].user_data;
         }
-        box->auto_suggest.item_count = count;
     } else {
-        XmString label = XmStringCreateLocalized(box->auto_suggest.no_results_label);
-        XmListAddItem(box->auto_suggest.list, label, 0);
-        XmStringFree(label);
+        no_results = XmStringCreateLocalized(box->auto_suggest.no_results_label);
+        if (!no_results)
+            return False;
+    }
+
+    /* Build all replacement state before retiring the visible suggestions. */
+    free_items(box);
+    box->auto_suggest.items = replacement;
+    box->auto_suggest.item_count = count;
+    box->auto_suggest.no_results = count == 0;
+    XmListDeleteAllItems(box->auto_suggest.list);
+    if (count) {
+        for (i = 0; i < count; ++i)
+            XmListAddItem(box->auto_suggest.list, replacement[i].label, 0);
+    } else {
+        XmListAddItem(box->auto_suggest.list, no_results, 0);
+        XmStringFree(no_results);
     }
     XmListDeselectAllItems(box->auto_suggest.list);
     if (count || box->auto_suggest.no_results)

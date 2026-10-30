@@ -5,6 +5,14 @@ Correct value-only accessibility action counts (2026-10-30)
   assistive clients can continue to use their exposed value interfaces.
 - Add focused source and native fixture assertions documenting the contract.
 
+Make AutoSuggestBox suggestion replacement transactional (2026-10-30)
+======================================================================
+
+- Build and validate replacement IDs, compound labels, and the no-results
+  label before clearing the currently displayed suggestions.
+- Preserve the existing popup contents when replacement allocation or copying
+  fails, with focused source-contract coverage and maintenance documentation.
+
 Align native accessibility action contracts (2026-10-30)
 ========================================================
 

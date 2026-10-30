@@ -11,7 +11,7 @@ assert "return value ? XmStringCopy(value) : XmStringCreateLocalized(\"\");" in 
 assert "XmStringUnparse" not in region
 assert "XmStringCreateLocalized(text)" not in region
 assert "(size_t)count > (size_t)UINT_MAX / sizeof(*box->auto_suggest.items)" in source
-assert "if (!box->auto_suggest.items)" in source
-assert "if (!box->auto_suggest.items[i].id || !label)" in source
-assert "box->auto_suggest.item_count = i + 1" in source
+assert "if (!replacement)" in source
+assert "if (!replacement[i].id || !label)" in source
+assert "free_item_array(replacement, i + 1)" in source
 print("PASS AutoSuggestBox string copies validate conversion allocation")

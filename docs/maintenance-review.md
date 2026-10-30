@@ -599,3 +599,9 @@ an absent `XFontStruct`. The focused check is:
 ```sh
 python3 tests/automated/check-i18list-xft-gc.py
 ```
+## AutoSuggestBox suggestion replacement
+
+`XmAutoSuggestBoxSetSuggestions` prepares every copied ID, compound label, and
+the no-results label before retiring the currently displayed list. Allocation
+or compound-string conversion failure therefore leaves the previous suggestions
+usable instead of silently replacing them with an empty popup.
