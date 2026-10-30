@@ -423,7 +423,7 @@ void XmBreadcrumbBarSetSegments(Widget widget,
     Cardinal i;
     int old_current, new_current = -1;
     XtPointer selected_id = NULL;
-    if (widget == NULL || !XmIsBreadcrumbBar(widget) ||
+    if (widget == NULL || !XmIsBreadcrumbBar(widget) || widget->core.being_destroyed ||
         count > (Cardinal)INT_MAX || (count != 0 && segments == NULL))
         return;
     bar = (XmBreadcrumbBarWidget)widget;

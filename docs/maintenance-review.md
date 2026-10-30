@@ -694,3 +694,8 @@ Xt teardown. The focused source check is
 Toolbar icon replacement now also fails closed during teardown, so visible and
 overflow buttons are not updated after destruction begins. The focused source
 check is `tests/automated/check-toolbar-icon-destroy-guard.py`.
+
+BreadcrumbBar segment replacement now also fails closed during teardown, so
+replacement allocation and current-item restoration cannot run on partial
+state. The focused source check is
+`tests/automated/check-breadcrumb-replacement-destroy-guard.py`.

@@ -1,3 +1,11 @@
+Guard BreadcrumbBar replacement during destruction (2026-10-30)
+==================================================================
+
+- Reject `XmBreadcrumbBarSetSegments` after Xt marks the bar for destruction,
+  avoiding replacement allocation and selection restoration against partial
+  state.
+- Add focused source-contract coverage for segment replacement.
+
 Guard Toolbar icon replacement during destruction (2026-10-30)
 =================================================================
 
