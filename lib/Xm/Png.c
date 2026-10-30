@@ -104,6 +104,11 @@ _XmPngGetImage(Screen *screen, FILE *infile, Pixel background,
         image_data = NULL;
     }
 
+    if (rc != 0) {
+        XDestroyImage(*ximage);
+        *ximage = NULL;
+    }
+
     return rc;
 }
 
@@ -455,7 +460,9 @@ png_process_image(Screen *screen,
             }
         }
     } else { /* depth == 8 */
-        /* XXX:  add 8-bit support */
+        /* Indexed visuals need colormap allocation, which this converter
+         * does not provide.  Never report success with unwritten pixels. */
+        return 2;
     }
 
     return 0;

@@ -31179,3 +31179,12 @@ Guard Text preedit multibyte capacity multiplication (2026-10-30)
 - Extend focused source-contract coverage and document the failure behavior.
 
 Initialize DataField drop-transfer state in order (2026-10-30)
+Clean up failed PNG image conversion (2026-10-30)
+=================================================
+
+- Reject unsupported 8-bit indexed visuals instead of reporting success with
+  unwritten pixels, and destroy/clear newly allocated `XImage` objects when
+  conversion fails.
+- Add focused source-contract coverage and document the failure contract.
+
+Reject empty masked XPM color tables (2026-10-30)
