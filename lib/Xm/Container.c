@@ -8384,9 +8384,13 @@ static 	Boolean
 SelectAllCwids(
 	Widget	wid)
 {
-        XmContainerWidget       cw = (XmContainerWidget)wid;
+        XmContainerWidget       cw;
         CwidNode  	        node;
 	Boolean			selection_changes = False;
+
+	if (wid == NULL)
+	    return(False);
+	cw = (XmContainerWidget)wid;
 
 	/*
 	 * Mark all visible cwids as XmSELECTED
