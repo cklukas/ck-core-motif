@@ -11,6 +11,7 @@ end = text.index("\nstatic void", start)
 block = text[start:end]
 
 assert "if (start < 0)" in block
+assert "source == NULL || source->data == NULL" in block
 assert "unsigned long skipped" in block
 assert "if (start >= data->length) return 0;" in block
 assert "length > (unsigned long)(data->length - start)" in block

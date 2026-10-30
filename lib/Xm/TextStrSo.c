@@ -672,10 +672,14 @@ CountLines(XmTextSource source,
 	   XmTextPosition start,
 	   unsigned long length)
 {
-  XmSourceData data = source->data;
+  XmSourceData data;
   int num_lines = 0;
   unsigned long newline;
   XmTextPosition position, end;
+
+  if (source == NULL || source->data == NULL)
+    return 0;
+  data = source->data;
 
   if (start < 0) {
     unsigned long skipped = (unsigned long)(-(start + 1)) + 1;

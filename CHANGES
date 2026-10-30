@@ -88,6 +88,13 @@ Guard Text widget removal state (2026-10-30)
   scans or mutates shared text-source storage.
 - Extend focused attachment/removal coverage and document the teardown guard.
 
+Guard Text line counting during teardown (2026-10-30)
+======================================================
+
+- Return an empty line count when the source or private data is missing,
+  before `CountLines` reads range state.
+- Extend focused line-count coverage and document the safe callback behavior.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

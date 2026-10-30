@@ -8,3 +8,6 @@ preserving the existing newline contract.
 
 The focused source contract is checked by
 `tests/automated/check-text-line-count-bounds.py`.
+
+The counter also returns zero when its source or private data has already been
+cleared, avoiding a teardown-time dereference before range normalization.
