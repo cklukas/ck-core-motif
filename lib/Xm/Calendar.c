@@ -254,10 +254,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
         XmFontList replacement = calendar->calendar.render_table
             ? XmFontListCopy(calendar->calendar.render_table)
             : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
-        if (old_calendar->calendar.render_table)
-            XmRenderTableFree(old_calendar->calendar.render_table);
-        calendar->calendar.render_table = replacement;
-        redraw = True;
+        if (replacement) {
+            if (old_calendar->calendar.render_table)
+                XmRenderTableFree(old_calendar->calendar.render_table);
+            calendar->calendar.render_table = replacement;
+            redraw = True;
+        } else {
+            calendar->calendar.render_table = old_calendar->calendar.render_table;
+        }
     }
     redraw = redraw || calendar->calendar.rtl != old_calendar->calendar.rtl;
     return redraw;

@@ -1,3 +1,10 @@
+Preserve Calendar render table on replacement failure (2026-10-30)
+====================================================================
+
+- Make Calendar render-table replacement transactional and retain the prior
+  table when copying a new one fails.
+- Add focused source coverage and documentation.
+
 Preserve picker render tables on replacement failure (2026-10-30)
 ===================================================================
 
