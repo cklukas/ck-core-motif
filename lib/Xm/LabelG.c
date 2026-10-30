@@ -3407,8 +3407,15 @@ GetLabelString(Widget wid,
 int offset,
 XtArgVal *value)
 {
-    XmLabelGadget lw = (XmLabelGadget) wid;
+    XmLabelGadget lw;
     XmString string;
+
+    if (wid == NULL || value == NULL || !XmIsLabelGadget(wid))
+    {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
+    lw = (XmLabelGadget) wid;
 
     string = XmStringCopy(LabG__label(lw));
 
@@ -3430,8 +3437,15 @@ GetAccelerator(Widget wid,
 int offset,
 XtArgVal *value)
 {
-    XmLabelGadget lw = (XmLabelGadget) wid;
+    XmLabelGadget lw;
     String string;
+
+    if (wid == NULL || value == NULL || !XmIsLabelGadget(wid))
+    {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
+    lw = (XmLabelGadget) wid;
 
     if (LabG_Accelerator(lw) == NULL)
     {
@@ -3459,8 +3473,15 @@ GetAcceleratorText(Widget wid,
 int offset,
 XtArgVal *value)
 {
-    XmLabelGadget lw = (XmLabelGadget) wid;
+    XmLabelGadget lw;
     XmString string;
+
+    if (wid == NULL || value == NULL || !XmIsLabelGadget(wid))
+    {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
+    lw = (XmLabelGadget) wid;
 
     string = XmStringCopy(LabG__acceleratorText(lw));
 
@@ -3497,9 +3518,16 @@ GetMnemonicCharset(Widget wid,
 int resource,                                     /* unused */
 XtArgVal *value)
 {
-    XmLabelGadget lw = (XmLabelGadget) wid;
+    XmLabelGadget lw;
     char *cset;
     int   size;
+
+    if (wid == NULL || value == NULL || !XmIsLabelGadget(wid))
+    {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
+    lw = (XmLabelGadget) wid;
 
     cset = NULL;
     if (LabG_MnemonicCharset (lw))
