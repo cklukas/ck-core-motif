@@ -953,7 +953,7 @@ static void LayoutChildren(Widget w)
     v_thick = vbar->core.width + 2 * vbar->core.border_width;
     h_thick = hbar->core.height + 2 * vbar->core.border_width;
 
-    if (XmMultiList_show_find(elist))
+    if (XmMultiList_show_find(elist) && find_text != NULL)
         scroll_bottom = find_text->core.y - find_text->core.border_width - V_MARGIN;
     else
     	scroll_bottom = height - V_MARGIN;
