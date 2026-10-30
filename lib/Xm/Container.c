@@ -9954,6 +9954,9 @@ EnterHandler(
 {
     XmContainerWidget       cw = (XmContainerWidget)wid;
 
+    if (wid == NULL)
+	return;
+
     cw->container.LeaveDir = 0;
     if (cw->container.scroll_proc_id) {
 	XtRemoveTimeOut(cw->container.scroll_proc_id);
@@ -9981,6 +9984,9 @@ LeaveHandler(
     Widget                  clip = XtParent(wid);
     int rx, ry;			/* event coords relative to the clip */
     int interval = 200;
+
+    if (wid == NULL || event == NULL || clip == NULL)
+	return;
 
     if (!cw->container.selecting || CtrPolicyIsSINGLE(cw))
 	return;

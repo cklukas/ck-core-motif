@@ -31689,3 +31689,10 @@ Guard Container drop-finish input (2026-10-30)
 - Return safely when the private drop-finish callback receives no Container
   client payload.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container event-handler inputs (2026-10-30)
+==================================================
+
+- Return safely from enter and leave handlers when widget, crossing-event, or
+  clipping-parent inputs are absent.
+- Add focused source-contract coverage and document the invalid-input path.
