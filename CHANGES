@@ -1,3 +1,11 @@
+Guard FontSelector resolution allocation failures (2026-10-30)
+================================================================
+
+- Validate the resolution button box, merged arguments, and each resolution
+  toggle before callback registration and child-pointer publication.
+- Release temporary merged arguments on every failed construction path.
+- Add focused source coverage and documentation.
+
 Synchronize DatePicker resource dates with popup calendars (2026-10-30)
 =======================================================================
 

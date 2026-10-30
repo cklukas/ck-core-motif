@@ -2875,8 +2875,14 @@ CreateResolutionBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     box = XtCreateManagedWidget("resolutionBox", xmButtonBoxWidgetClass, 
 				parent, margs, num_args + num_largs);
+    if (box == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     AddToXlfdSensitiveList(fsw, box);
     XtFree((XtPointer) margs);
 
@@ -2888,10 +2894,16 @@ CreateResolutionBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
 
     margs[num_set].value = (XtArgVal) (XmFontS_font_info(fsw)->resolution == 75);
     button = XtCreateManagedWidget("dpi75Button", xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XtAddCallback(button, XmNvalueChangedCallback, Toggle75DPI, fsw);
     XmFontS_dpi75(fsw) = button;
     
@@ -2899,6 +2911,10 @@ CreateResolutionBox(XmFontSelectorWidget fsw, Widget parent,
     margs[num_set].value = (XtArgVal) (XmFontS_font_info(fsw)->resolution == 100);
     button = XtCreateManagedWidget("dpi100Button", xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XtAddCallback(button, XmNvalueChangedCallback, Toggle100DPI, fsw);
     XmFontS_dpi100(fsw) = button;
     
@@ -2906,6 +2922,10 @@ CreateResolutionBox(XmFontSelectorWidget fsw, Widget parent,
     margs[num_set].value = (XtArgVal) False;
     button = XtCreateManagedWidget("anyButton", xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XtAddCallback(button, XmNvalueChangedCallback, ToggleBothDPI, fsw);
     XmFontS_dpiAny(fsw) = button;
 
