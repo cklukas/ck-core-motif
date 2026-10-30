@@ -1,3 +1,10 @@
+Reject foreign children during Container reorder (2026-10-30)
+===============================================================
+
+- Ignore child-list entries whose parent is not the target Container or whose
+  constraint storage is unavailable before reading reorder state.
+- Add focused source-contract coverage for the parent and constraint guards.
+
 Guard Container clipboard helpers by widget class (2026-10-30)
 ===============================================================
 

@@ -10336,6 +10336,11 @@ XmContainerReorder(
 	    (size_t)cwid_count > UINT_MAX / sizeof(int))
 		return;
 	_XmAppLock(app);
+	if (XtParent(cwid_list[0]) != wid ||
+	    cwid_list[0]->core.constraints == NULL) {
+		_XmAppUnlock(app);
+		return;
+	}
 	c = GetContainerConstraint(cwid_list[0]);
 	pcwid = c->entry_parent;
 	pi_list = (int *)XtMalloc((Cardinal)(sizeof(int) *
@@ -10347,6 +10352,9 @@ XmContainerReorder(
 	pi_count = 0;
 	for (i=0; i < cwid_count; i++)
 		{
+		if (XtParent(cwid_list[i]) != wid ||
+		    cwid_list[i]->core.constraints == NULL)
+			continue;
 		c = GetContainerConstraint(cwid_list[i]);
 		if (c->entry_parent == pcwid)
 			{
@@ -10358,6 +10366,9 @@ XmContainerReorder(
 	pi_count = 0;
 	for (i=0; i < cwid_count; i++)
 		{
+		if (XtParent(cwid_list[i]) != wid ||
+		    cwid_list[i]->core.constraints == NULL)
+			continue;
 		c = GetContainerConstraint(cwid_list[i]);
 		if (c->entry_parent == pcwid)
 			{ 
