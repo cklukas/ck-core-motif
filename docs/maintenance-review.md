@@ -734,3 +734,7 @@ source check is
 Stepper range, value, and step setters now fail closed during Xt teardown,
 avoiding redraw and callback work on partial state. The focused source check is
 `tests/automated/check-stepper-mutator-destroy-guards.py`.
+
+RatingControl value updates now fail closed during Xt teardown, avoiding
+redraw and callback work on partial state. The focused source check is
+`tests/automated/check-ratingcontrol-mutator-destroy-guard.py`.

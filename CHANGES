@@ -1,3 +1,10 @@
+Guard RatingControl mutator during destruction (2026-10-30)
+==============================================================
+
+- Reject `XmRatingControlSetValue` once Xt marks the widget for destruction,
+  avoiding redraw and notification work on partial state.
+- Add focused source-contract coverage for the setter.
+
 Guard Stepper mutators during destruction (2026-10-30)
 ========================================================
 
