@@ -81,6 +81,8 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
 }
 static void Destroy(Widget widget) {
     XmBadgeWidget badge = (XmBadgeWidget)widget;
+    if (widget == NULL || !XtIsSubclass(widget, xmBadgeWidgetClass))
+        return;
     if (badge->badge.foreground_gc) XFreeGC(XtDisplay(widget), badge->badge.foreground_gc);
     if (badge->badge.font) XmRenderTableFree(badge->badge.font);
     /* Xt releases XmNbadgeLabel resource storage after Destroy. */
