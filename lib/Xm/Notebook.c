@@ -7097,7 +7097,7 @@ GetUnhighlightGC (
     XmNotebookConstraint nc;
     GC background_GC = NULL;
 
-    if (child)
+    if (child != NULL && child->core.constraints != NULL)
 	{
 	nc = NotebookConstraint(child);
 	switch (nc->child_type)
