@@ -2327,10 +2327,13 @@ static XmHashValue
 CCHash(XtPointer x)
 {
   _XmCCKey a;
+  uintptr_t mixed;
 
   a = (_XmCCKey) x;
 
-  return((XmHashValue) ((long) a -> display + (long) a -> selection));
+  mixed = (uintptr_t)a->display ^
+          ((uintptr_t)a->selection * UINTPTR_C(0x9e3779b1));
+  return (XmHashValue)(mixed % (uintptr_t)INT_MAX);
 }
 
 static XmHashTable ConvertHashTable = (XmHashTable) NULL;

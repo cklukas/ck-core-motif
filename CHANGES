@@ -32329,3 +32329,12 @@ Fix Xpm color closeness comparator (2026-10-30)
 
 Fix GeoUtils box-width sorting contract (2026-10-30)
 =====================================================
+Make transfer context hashing portable (2026-10-30)
+=====================================================
+
+- Replace signed pointer/Atom addition with bounded `uintptr_t` mixing before
+  returning the `XmHashValue` result.
+- Add focused source-contract coverage and document the portability fix.
+
+Fix Xpm color closeness comparator (2026-10-30)
+================================================
