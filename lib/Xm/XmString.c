@@ -3710,8 +3710,14 @@ EntryCvtToOpt(_XmStringEntry entry)
 	XtFree((char *)new_entry);
 	return NULL;
       }
-      if (len > 0)
+      if (len > 0) {
+	if (_XmEntryTextGet(entry) == NULL) {
+	  XtFree(text);
+	  XtFree((char *)new_entry);
+	  return NULL;
+	}
         memcpy(text, _XmEntryTextGet(entry), len);
+      }
       _XmEntryTextSet(new_entry, text);
     }
     return new_entry;
@@ -3788,6 +3794,11 @@ EntryCvtToUnopt(_XmStringEntry entry)
   else if (len>0) {
     text = (char *)XtMalloc(len);
     if (!text) {
+      _XmStringEntryFree(new_entry);
+      return NULL;
+    }
+    if (_XmEntryTextGet(entry) == NULL) {
+      XtFree(text);
       _XmStringEntryFree(new_entry);
       return NULL;
     }
