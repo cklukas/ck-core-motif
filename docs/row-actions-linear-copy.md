@@ -3,9 +3,9 @@ nav_exclude: true
 ---
 # RowActions label assembly
 
-`XmRowActions` now fills its pre-sized label-and-shortcut buffer with tracked
-offsets instead of repeated string scans. The displayed action text is
-unchanged, while long action rows avoid unnecessary copying.
+`XmRowActions` now combines labels and shortcuts with `XmStringConcat`,
+preserving compound-string segments in the displayed action text instead of
+flattening the values into a temporary character buffer.
 
 The source contract is checked by:
 
