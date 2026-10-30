@@ -16,5 +16,5 @@ for function in ("XmListReplaceItems(", "XmListReplaceItemsUnselected(",
                  "XmListReplaceItemsPos(", "XmListReplaceItemsPosUnselected("):
     start = source.rindex(function)
     body = source[start:source.index("\n}\n", start)]
-    assert "if (w == NULL)" in body
+    assert "!XmIsList(w)" in body
 print("PASS list replacement APIs validate widget and item inputs")

@@ -9243,7 +9243,7 @@ XmListReplaceItems(Widget w,
 		   int item_count,
 		   XmString *new_items)
 {
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
@@ -9264,7 +9264,7 @@ XmListReplaceItemsUnselected(Widget w,
 			     int item_count,
 			     XmString *new_items)
 {
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
@@ -9362,7 +9362,7 @@ XmListReplaceItemsPos(Widget w,
 		      int item_count,
 		      int position)
 {
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
@@ -9384,7 +9384,7 @@ XmListReplaceItemsPosUnselected(Widget w,
 				int item_count,
 				int position)
 {
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
@@ -9416,7 +9416,7 @@ XmListReplacePositions(Widget    w,
   Boolean reset_height = FALSE;
   Boolean replaced_first = FALSE;
   int nsel;
-  if (w == NULL || position_list == NULL || item_list == NULL ||
+  if (w == NULL || !XmIsList(w) || position_list == NULL || item_list == NULL ||
       item_count <= 0)
     return;
   for (i = 0; i < item_count; ++i)

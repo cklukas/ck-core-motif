@@ -31600,3 +31600,11 @@ Guard List deletion APIs by widget class (2026-10-30)
 - Add focused source-contract coverage and document the invalid-input path.
 
 Guard List insertion APIs by widget class (2026-10-30)
+Guard List replacement APIs by widget class (2026-10-30)
+==========================================================
+
+- Reject non-List widgets before the five public replacement APIs access
+  private item, selection, and geometry state.
+- Add focused source-contract coverage and document the invalid-input path.
+
+Guard List deletion APIs by widget class (2026-10-30)
