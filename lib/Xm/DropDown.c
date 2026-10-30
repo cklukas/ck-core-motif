@@ -942,7 +942,10 @@ CheckUnpost(Widget w, XtPointer combo_ptr, XtPointer info_ptr)
 {
     XmDropDownWidget cbw = (XmDropDownWidget) combo_ptr;
     XmArrowButtonCallbackStruct *arrow = (XmArrowButtonCallbackStruct *) info_ptr;
-	XmGrabShellWidget gs = (XmGrabShellWidget) XmDropDown_popup_shell(cbw) ;
+	XmGrabShellWidget gs;
+	if (cbw == NULL || arrow == NULL || arrow->event == NULL)
+	    return;
+	gs = (XmGrabShellWidget) XmDropDown_popup_shell(cbw) ;
 	if (gs && arrow && arrow->event->xbutton.time == gs->grab_shell.unpost_time)
 		XmDropDown_list_state(cbw) = XmDropDown_AFTER_UNPOST;
 }
@@ -966,6 +969,9 @@ ArrowClicked(Widget w, XtPointer combo_ptr, XtPointer info_ptr)
     XmAnyCallbackStruct         cbdata;
     XmArrowButtonCallbackStruct *arrow = (XmArrowButtonCallbackStruct*)
 	info_ptr;
+	if (cbw == NULL || w == NULL || XmDropDown_popup_shell(cbw) == NULL ||
+	    XmDropDown_text(cbw) == NULL)
+	return;
     /*
      * Do Nothing... 
      */
@@ -1119,6 +1125,10 @@ IsTextOK(XmDropDownWidget cbw)
 {
 	Boolean isOK = True;
 	XmDropDownClassPartExtension *addition;
+	if (cbw == NULL || XmDropDown_text(cbw) == NULL)
+	return False;
+	if (!XmDropDown_customized_combo_box(cbw) && XmDropDown_list(cbw) == NULL)
+	return False;
 
 	addition = CheckExtensions( (XmDropDownWidgetClass)XtClass(cbw) );
 	if (addition && addition->verify) {
@@ -1148,6 +1158,10 @@ VerifyTextField(Widget w, XtPointer combo_ptr, XtPointer info_ptr)
   XmTextVerifyCallbackStruct *field = (XmTextVerifyCallbackStruct*) info_ptr;
   XmAnyCallbackStruct        cbdata;
   Boolean		     allowTraverse = True;
+
+  if (cbw == NULL || XmDropDown_text(cbw) == NULL ||
+	  (!XmDropDown_customized_combo_box(cbw) && XmDropDown_list(cbw) == NULL))
+	  return;
 
   if (!XmDropDown_customized_combo_box(cbw))
   {

@@ -178,6 +178,14 @@ Guard DropDown child lifecycle updates (2026-10-30)
 - Initialize visual-metric temporaries before optional arrow updates.
 - Add focused source coverage and document partial construction behavior.
 
+Guard DropDown interaction callbacks (2026-10-30)
+==================================================
+
+- Validate arrow, popup, text, list, and verification callback state before
+  interaction callbacks read or update internal children.
+- Make malformed callback payloads and partial construction safe no-ops.
+- Add focused source coverage and document the callback contract.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 
