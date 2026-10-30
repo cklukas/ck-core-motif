@@ -991,7 +991,12 @@ XmCvtCTToXmString(
     XtFree((char *) ctx->dirstack);
     if (ctx->xmsep != NULL) XmStringFree(ctx->xmsep);
     if (ctx->xmtab != NULL) XmStringFree(ctx->xmtab);
-    xmsReturned = (XmString)ctx->xmstring;
+    if (ok)
+      xmsReturned = (XmString)ctx->xmstring;
+    else {
+      XmStringFree(ctx->xmstring);
+      xmsReturned = NULL;
+    }
     XtFree((char *) ctx);
 
     if (ok)
@@ -1475,10 +1480,12 @@ cvtTextToXmString(
     }
 
     XtFree((char *) ctx->dirstack);
-    if (ctx->xmstring != NULL) {
+    if (ok && ctx->xmstring != NULL) {
 	to->addr = (char *) ctx->xmstring;
 	to->size = sizeof(XmString);
     }
+    else
+      XmStringFree(ctx->xmstring);
     if (ctx->xmsep != NULL) XmStringFree(ctx->xmsep);
     if (ctx->xmtab != NULL) XmStringFree(ctx->xmtab);
     XtFree((char *) ctx);

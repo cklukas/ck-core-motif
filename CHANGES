@@ -1,3 +1,10 @@
+Release partial XmStrings after compound-text input failure (2026-10-30)
+==========================================================================
+
+- Free partially built strings when malformed compound text aborts conversion,
+  and publish conversion output only after successful parsing.
+- Add focused source-contract coverage and document the cleanup behavior.
+
 Reject unavailable XmString generation tables (2026-10-30)
 ============================================================
 
