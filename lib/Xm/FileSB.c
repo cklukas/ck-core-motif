@@ -3689,7 +3689,7 @@ XmFileSelectionBoxGetChild(
             Widget          child = NULL;
 /****************/
 
-    if (fs == NULL)
+    if (fs == NULL || !XtIsSubclass(fs, xmFileSelectionBoxWidgetClass))
         return NULL;
     _XmWidgetToAppContext(fs);
     _XmAppLock(app);

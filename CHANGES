@@ -1,3 +1,9 @@
+Validate FileSelectionBox child lookup widget (2026-10-30)
+===========================================================
+
+- Reject null and wrong-class widgets before reading private child fields.
+- Add focused source coverage and documentation.
+
 Validate FileSelectionBox programmatic search widget (2026-10-30)
 ==================================================================
 
