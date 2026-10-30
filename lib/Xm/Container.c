@@ -5695,9 +5695,11 @@ ContainerDestPrehookProc(
 	XtPointer	closure, /* unused */
         XmDestinationCallbackStruct *cs)
 {
-  XmContainerWidget		cw = (XmContainerWidget)wid;
   XmDropProcCallbackStruct *	dropproc_cs;
   XPoint			*loc_data;
+
+  if (wid == NULL || cs == NULL)
+    return;
 
   /* For a PRIMARY selection, don't null out the location_data.
    * It can point to allocated memory, that will be free when 

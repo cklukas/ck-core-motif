@@ -31647,3 +31647,10 @@ Guard I18List convenience APIs by widget class (2026-10-30)
 - Reject invalid row numbers before the public row-toggle helper indexes row
   storage.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container destination prehook inputs (2026-10-30)
+========================================================
+
+- Reject null widget and destination callback inputs before reading transfer
+  fields in the Container destination prehook.
+- Add focused source-contract coverage and document the invalid-input path.
