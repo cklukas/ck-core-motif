@@ -699,3 +699,8 @@ BreadcrumbBar segment replacement now also fails closed during teardown, so
 replacement allocation and current-item restoration cannot run on partial
 state. The focused source check is
 `tests/automated/check-breadcrumb-replacement-destroy-guard.py`.
+
+Calendar date, range, and visible-month setters now fail closed during Xt
+teardown, preventing redraw and notification work on partial state. The
+focused source check is
+`tests/automated/check-calendar-mutator-destroy-guards.py`.

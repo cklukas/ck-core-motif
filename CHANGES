@@ -1,3 +1,10 @@
+Guard Calendar mutators during destruction (2026-10-30)
+=========================================================
+
+- Reject Calendar date, range, and visible-month setters once Xt marks the
+  widget for destruction, avoiding redraw and callback work on partial state.
+- Add focused source-contract coverage for the mutator guard set.
+
 Guard BreadcrumbBar replacement during destruction (2026-10-30)
 ==================================================================
 

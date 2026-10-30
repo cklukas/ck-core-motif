@@ -504,7 +504,7 @@ Boolean XmCalendarGetDate(Widget widget, XmCalendarDate *date_return) {
 
 Boolean XmCalendarSetDate(Widget widget, const XmCalendarDate *date,
                           Boolean notify) {
-    if (!widget || !XmIsCalendar(widget))
+    if (!widget || !XmIsCalendar(widget) || widget->core.being_destroyed)
         return False;
     return set_date_internal((XmCalendarWidget)widget, date, notify, NULL);
 }
@@ -523,7 +523,8 @@ Boolean XmCalendarGetRange(Widget widget, XmCalendarDate *minimum_return,
 Boolean XmCalendarSetRange(Widget widget, const XmCalendarDate *minimum,
                            const XmCalendarDate *maximum) {
     XmCalendarWidget calendar;
-    if (!widget || !XmIsCalendar(widget) || !XmCalendarIsValidDate(minimum) ||
+    if (!widget || !XmIsCalendar(widget) || widget->core.being_destroyed ||
+        !XmCalendarIsValidDate(minimum) ||
         !XmCalendarIsValidDate(maximum) || compare_dates(minimum, maximum) > 0)
         return False;
     calendar = (XmCalendarWidget)widget;
@@ -552,7 +553,7 @@ Boolean XmCalendarGetVisibleMonth(Widget widget, int *year_return,
 }
 
 Boolean XmCalendarSetVisibleMonth(Widget widget, int year, int month) {
-    if (!widget || !XmIsCalendar(widget))
+    if (!widget || !XmIsCalendar(widget) || widget->core.being_destroyed)
         return False;
     return set_visible_month_internal((XmCalendarWidget)widget, year, month,
                                       NULL);
