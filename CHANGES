@@ -1,3 +1,10 @@
+Guard Paned pixel hooks (2026-10-30)
+====================================
+
+- Validate parent/child widgets, Paned classes, and value storage before conversion.
+- Reject invalid imports without changing widget state.
+- Add focused source coverage and documentation.
+
 Guard Label padding converters (2026-10-30)
 ============================================
 

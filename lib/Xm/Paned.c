@@ -593,7 +593,15 @@ AdjustPanedSize(XmPanedWidget pw, Dimension off_size,
 void
 _XmFromPanedPixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmPanedWidget pw = (XmPanedWidget) widget;    
+    XmPanedWidget pw;
+
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmPanedWidgetClass))
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    pw = (XmPanedWidget) widget;
 
     if (IsVert(pw)) 
 	XmeFromVerticalPixels(widget, offset, value);
@@ -614,7 +622,15 @@ _XmFromPanedPixels(Widget widget, int offset, XtArgVal *value)
 static void
 FromPanedChildPixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmPanedWidget pw = (XmPanedWidget) XtParent(widget);    
+    XmPanedWidget pw;
+
+    if (widget == NULL || value == NULL || XtParent(widget) == NULL ||
+        !XtIsSubclass(XtParent(widget), xmPanedWidgetClass))
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    pw = (XmPanedWidget) XtParent(widget);
 
     if (IsVert(pw)) 
 	XmeFromVerticalPixels(widget, offset, value);
@@ -634,7 +650,12 @@ FromPanedChildPixels(Widget widget, int offset, XtArgVal *value)
 XmImportOperator
 _XmToPanedPixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmPanedWidget pw = (XmPanedWidget) widget;    
+    XmPanedWidget pw;
+
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmPanedWidgetClass))
+        return XmSYNTHETIC_NONE;
+    pw = (XmPanedWidget) widget;
 
     if (IsVert(pw)) 
 	return(XmeToVerticalPixels(widget, offset, value));
@@ -655,7 +676,12 @@ _XmToPanedPixels(Widget widget, int offset, XtArgVal *value)
 static XmImportOperator
 ToPanedChildPixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmPanedWidget pw = (XmPanedWidget) XtParent(widget);    
+    XmPanedWidget pw;
+
+    if (widget == NULL || value == NULL || XtParent(widget) == NULL ||
+        !XtIsSubclass(XtParent(widget), xmPanedWidgetClass))
+        return XmSYNTHETIC_NONE;
+    pw = (XmPanedWidget) XtParent(widget);
 
     if (IsVert(pw)) 
 	return(XmeToVerticalPixels(widget, offset, value));
@@ -675,7 +701,12 @@ ToPanedChildPixels(Widget widget, int offset, XtArgVal *value)
 static void
 FromPanedOppositePixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmPanedWidget pw = (XmPanedWidget) widget;    
+    XmPanedWidget pw;
+
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmPanedWidgetClass))
+        return;
+    pw = (XmPanedWidget) widget;
 
     if (IsVert(pw)) 
 	XmeFromHorizontalPixels(widget, offset, value);
@@ -695,7 +726,12 @@ FromPanedOppositePixels(Widget widget, int offset, XtArgVal *value)
 static XmImportOperator
 ToPanedOppositePixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmPanedWidget pw = (XmPanedWidget) widget;    
+    XmPanedWidget pw;
+
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmPanedWidgetClass))
+        return XmSYNTHETIC_NONE;
+    pw = (XmPanedWidget) widget;
 
     if (IsVert(pw)) 
 	return(XmeToHorizontalPixels(widget, offset, value));
