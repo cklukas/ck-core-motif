@@ -29925,3 +29925,11 @@ Guard FileSelectionBox synthetic getters (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard MessageBox synthetic getters (2026-10-30)
+Guard FileSelectionBox conversion callbacks (2026-10-30)
+==========================================================
+
+- Validate callback data, client widgets, and widget class before conversion.
+- Refuse unsupported dispatch without dereferencing partial state.
+- Add focused source coverage and documentation.
+
+Guard FileSelectionBox synthetic getters (2026-10-30)

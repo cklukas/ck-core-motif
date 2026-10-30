@@ -3831,6 +3831,13 @@ FSBConvert(Widget wid, XtPointer client_data, XtPointer cb_struct)
   Widget fsb = (Widget) client_data;
   Atom atoms[XtNumber(atom_names)];
 
+  if (wid == NULL || fsb == NULL || cs == NULL)
+    return;
+  if (!XtIsSubclass(fsb, xmFileSelectionBoxWidgetClass)) {
+    cs->status = XmCONVERT_REFUSE;
+    return;
+  }
+
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(wid), atom_names, XtNumber(atom_names), False, atoms);
 
