@@ -1816,7 +1816,7 @@ UpdateFamilies(XmFontSelectorWidget fsw)
 static void
 UpdateSizes(XmFontSelectorWidget fsw)
 {
-    FontData * cf = XmFontS_font_info(fsw)->current_font;
+    FontData * cf;
     Arg largs[10];
     Cardinal num_largs = 0;
     register int count = 0;
@@ -1826,6 +1826,14 @@ UpdateSizes(XmFontSelectorWidget fsw)
     FamilyInfo *family;
     Boolean editable, match = False;
     String temp = NULL;
+
+    if (fsw == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	XmFontS_size_box(fsw) == NULL ||
+	(XmFontS_font_info(fsw)->num_families != 0 &&
+	 XmFontS_font_info(fsw)->family_info == NULL))
+	return;
+    cf = XmFontS_font_info(fsw)->current_font;
 
     if ((family = FindFamily(XmFontS_font_info(fsw)->current_font->familyq,
 			     XmFontS_font_info(fsw)->family_info,
@@ -1894,6 +1902,12 @@ UpdateSizes(XmFontSelectorWidget fsw)
 
     if (!match) {
 	temp = _XmGetMBStringFromXmString(ANY_STRING(fsw));
+	if (temp == NULL) {
+	    while (count != 0)
+		XmStringFree(strs[--count]);
+	    XtFree((XtPointer)strs);
+	    return;
+	}
 
 	XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;  
     }

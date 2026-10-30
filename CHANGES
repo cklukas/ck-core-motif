@@ -1,3 +1,10 @@
+Guard FontSelector size-list refresh (2026-10-30)
+==================================================
+
+- Validate selector/font/family state and the size child before refresh.
+- Clean up all generated items when temporary display conversion fails.
+- Add focused source coverage and documentation.
+
 Guard FontSelector family-list refresh (2026-10-30)
 =====================================================
 
