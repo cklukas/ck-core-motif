@@ -50,12 +50,7 @@ externaldef(xmemptystatewidgetclass) WidgetClass xmEmptyStateWidgetClass =
     (WidgetClass)&xmEmptyStateClassRec;
 
 static XmString copy_string(XmString source) {
-    char *text; XmString result;
-    if (!source) return XmStringCreateLocalized("");
-    text = XmStringUnparse(source, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
-                           NULL, 0, XmOUTPUT_ALL);
-    if (!text) return XmStringCreateLocalized("");
-    result = XmStringCreateLocalized(text); XtFree(text); return result;
+    return source ? XmStringCopy(source) : XmStringCreateLocalized("");
 }
 static Dimension dimension(unsigned long value) {
     return (Dimension)(value > USHRT_MAX ? USHRT_MAX : value ? value : 1);

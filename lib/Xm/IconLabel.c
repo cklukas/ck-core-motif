@@ -64,15 +64,7 @@ externaldef(xmiconlabelwidgetclass) WidgetClass xmIconLabelWidgetClass =
     (WidgetClass)&xmIconLabelClassRec;
 
 static XmString copy_label(XmString source) {
-    char *text;
-    XmString result;
-    if (!source) return XmStringCreateLocalized("");
-    text = XmStringUnparse(source, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
-                           NULL, 0, XmOUTPUT_ALL);
-    if (!text) return XmStringCreateLocalized("");
-    result = XmStringCreateLocalized(text);
-    XtFree(text);
-    return result;
+    return source ? XmStringCopy(source) : XmStringCreateLocalized("");
 }
 
 static Dimension text_width(XmIconLabelWidget label) {
