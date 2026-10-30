@@ -628,9 +628,10 @@ HashIconName (XmHashKey key)
   len = strlen(data->key_name);
   tail_index = len == 0 ? 0 : len - 1;
   folded_len = (unsigned int)((uintmax_t)len ^ ((uintmax_t)len >> 32));
-  return (XmHashValue)((((folded_len << 8) |
-			      (unsigned int)(unsigned char)data->key_name[0]) << 8) |
-			    (unsigned int)(unsigned char)data->key_name[tail_index]);
+  return (XmHashValue)(((((folded_len << 8) |
+			       (unsigned int)(unsigned char)data->key_name[0]) << 8) |
+			     (unsigned int)(unsigned char)data->key_name[tail_index]) %
+			    (unsigned int)INT_MAX);
 }
 
 
