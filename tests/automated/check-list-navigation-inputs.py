@@ -9,6 +9,7 @@ for function in ("XmListDeselectAllItems(", "XmListSetPos(",
                  "XmListSetBottomPos("):
     start = source.rindex(function)
     body = source[start:source.index("\n}\n", start)]
-    assert "if (w == NULL)" in body
-    assert body.index("_XmWidgetToAppContext(w)") > body.index("if (w == NULL)")
+    guard = "!XmIsList(w)" if function == "XmListDeselectAllItems(" else "if (w == NULL)"
+    assert guard in body
+    assert body.index("_XmWidgetToAppContext(w)") > body.index(guard)
 print("PASS list selection/navigation APIs validate widget inputs")

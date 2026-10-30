@@ -10,8 +10,8 @@ for function, item_guard in (("XmListSelectItem(", True),
                              ("XmListDeselectPos(", False)):
     start = source.rindex(function)
     body = source[start:source.index("\n}\n", start)]
-    assert "if (w == NULL" in body
+    assert "!XmIsList(w)" in body
     if item_guard:
         assert "item == NULL" in body
-    assert body.index("_XmWidgetToAppContext(w)") > body.index("if (w == NULL")
+    assert body.index("_XmWidgetToAppContext(w)") > body.index("!XmIsList(w)")
 print("PASS list item-selection APIs validate inputs")

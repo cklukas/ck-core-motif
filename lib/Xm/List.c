@@ -9637,7 +9637,7 @@ XmListSelectItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int		   item_pos;
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9672,7 +9672,7 @@ XmListSelectPos(Widget w,
 #endif /* NeedWidePrototypes */
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -9705,7 +9705,7 @@ XmListDeselectItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int	i;
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9743,7 +9743,7 @@ XmListDeselectPos(Widget w,
 		  int pos)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -9784,7 +9784,7 @@ XmListDeselectAllItems(Widget w)
 {
   XmListWidget  lw = (XmListWidget) w;
   int  i;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
