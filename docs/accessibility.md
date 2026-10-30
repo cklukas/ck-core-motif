@@ -73,6 +73,13 @@ the toolkit also provides a matching dispatcher. Their values remain available
 through the accessibility value interface; clients are not offered an action
 that would deterministically fail.
 
+Native action counts are dispatch contracts, not hints. Sidebar exposes one
+`toggle` action and AutoSuggestBox exposes one `commit-first-suggestion` action
+only while a suggestion is present. Toolbar overflow remains represented by
+its native child cascade rather than a phantom action on the toolbar panel;
+assistive clients therefore discover and activate the same overflow menu as
+other descendants.
+
 Owned strings returned in `XmAccessibleInfo` use `XtMalloc`/`XtNewString`; the
 query caller releases them with `XmAccessibleInfoClear`. Text callbacks return
 owned UTF-8 for an end-exclusive scalar range, rather than copying an entire

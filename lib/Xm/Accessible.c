@@ -1550,7 +1550,9 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsToolbar(w)) {
     i->role = XmACCESSIBLE_PANEL;
-    i->action_count = XmToolbarGetOverflowCount(w) ? 1 : 0;
+    /* The overflow menu is a child cascade, not an action on the toolbar
+     * itself. Do not advertise a slot that the bridge cannot dispatch. */
+    i->action_count = 0;
     local = XtNewString("Toolbar");
   }
   if (XmIsSidebar(w)) {
@@ -1560,6 +1562,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsAutoSuggestBox(w)) {
     i->role = XmACCESSIBLE_PANEL;
+    /* Action zero commits the first current suggestion. */
     i->action_count = XmAutoSuggestBoxGetSuggestionCount(w) ? 1 : 0;
     local = XtNewString("Suggestions");
   }
@@ -1809,6 +1812,18 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
     }
     return False;
   }
+  if (n->widget && XmIsSidebar(n->widget) && action == 0 &&
+      XtIsSensitive(n->widget)) {
+    XmSidebarToggle(n->widget, NULL);
+    return True;
+  }
+  if (n->widget && XmIsAutoSuggestBox(n->widget) && action == 0 &&
+      XtIsSensitive(n->widget)) {
+    if (XmAutoSuggestBoxGetSuggestionCount(n->widget) == 0)
+      return False;
+    XmAutoSuggestBoxCommit(n->widget, 0, NULL);
+    return True;
+  }
   if (!n->widget || action || !XtIsSensitive(n->widget))
     return False;
   if (menu_pane(XtParent(n->widget))) {
@@ -1914,6 +1929,10 @@ static char *action_name_impl(XmAccessibility *a, XmAccessibleId id,
   if (n->list_owner) return XtNewString("select");
   if (n->widget && XmIsSearchBox(n->widget))
     return XtNewString(action == 0 ? "commit" : "clear");
+  if (n->widget && XmIsSidebar(n->widget))
+    return XtNewString("toggle");
+  if (n->widget && XmIsAutoSuggestBox(n->widget))
+    return XtNewString("commit-first-suggestion");
   if (n->provider.action_name)
     return n->provider.action_name(n->data, action);
   {

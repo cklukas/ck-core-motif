@@ -94,7 +94,8 @@ int main(int argc, char **argv)
     CHECK(accessibility != NULL);
     id = XmAccessibilityWidget(accessibility, toolbar);
     CHECK(XmAccessibilityQuery(accessibility, id, &info));
-    CHECK(info.role == XmACCESSIBLE_PANEL && info.name != NULL &&
+    CHECK(info.role == XmACCESSIBLE_PANEL && info.action_count == 0 &&
+          info.name != NULL &&
           strcmp(info.name, "Toolbar") == 0);
     XmAccessibleInfoClear(&info);
     XmAccessibilityDestroy(accessibility);

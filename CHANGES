@@ -5,6 +5,17 @@ Correct value-only accessibility action counts (2026-10-30)
   assistive clients can continue to use their exposed value interfaces.
 - Add focused source and native fixture assertions documenting the contract.
 
+Align native accessibility action contracts (2026-10-30)
+========================================================
+
+- Remove the unsupported Toolbar overflow action slot instead of advertising
+  an activation that could never be dispatched.
+- Dispatch Sidebar's advertised toggle through `XmSidebarToggle` and expose
+  its semantic action name.
+- Dispatch AutoSuggestBox's action by committing the first live suggestion;
+  add focused native fixture and source-contract coverage.
+- Document the action-count/dispatcher contract in `docs/accessibility.md`.
+
 Expose SearchBox accessibility actions accurately (2026-10-30)
 ================================================================
 

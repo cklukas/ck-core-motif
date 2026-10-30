@@ -77,6 +77,13 @@ int main(int argc, char **argv)
     CHECK(info.role == XmACCESSIBLE_PANEL && info.action_count == 1 &&
           info.name != NULL && strcmp(info.name, "Sidebar") == 0);
     XmAccessibleInfoClear(&info);
+    {
+        char *name = XmAccessibilityActionName(accessibility, id, 0);
+        CHECK(name != NULL && strcmp(name, "toggle") == 0);
+        XtFree(name);
+    }
+    CHECK(XmAccessibilityAction(accessibility, id, 0));
+    CHECK(!XmSidebarGetExpanded(sidebar) && toggles == 3 && !last_expanded);
     XmAccessibilityDestroy(accessibility);
 
     XtDestroyWidget(shell);

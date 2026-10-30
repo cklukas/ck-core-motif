@@ -101,6 +101,21 @@ int main(int argc, char **argv)
     XtFree(value);
     CHECK(dismissals == 1);
 
+    XmSearchBoxSetString(search, "ap");
+    CHECK(XmAutoSuggestBoxGetSuggestionCount(box) == 2);
+    accessibility = XmAccessibilityCreate(shell, "AutoSuggestBoxTest");
+    CHECK(accessibility != NULL);
+    id = XmAccessibilityWidget(accessibility, box);
+    CHECK(XmAccessibilityQuery(accessibility, id, &info));
+    CHECK(info.role == XmACCESSIBLE_PANEL && info.action_count == 1 &&
+          info.name != NULL && strcmp(info.name, "Suggestions") == 0);
+    XmAccessibleInfoClear(&info);
+    CHECK(XmAccessibilityAction(accessibility, id, 0));
+    value = XmSearchBoxGetString(search);
+    CHECK(commits == 2 && value != NULL && strcmp(value, "Apple") == 0);
+    XtFree(value);
+    XmAccessibilityDestroy(accessibility);
+
     XmSearchBoxSetString(search, "zz");
     generation = XmAutoSuggestBoxGetGeneration(box);
     XtVaSetValues(box, XmNautoSuggestNoResultsLabel, (char *)"No match", NULL);
