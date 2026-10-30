@@ -625,3 +625,7 @@ existing segments remain available until every replacement button is created.
 
 `XmBreadcrumbBarSetSegments` also prepares every replacement label before
 retiring the current trail, preserving navigation when allocation fails.
+
+`XmToolbarSetActionIcons` applies each borrowed icon to both the visible action
+button and its overflow-menu twin, so the same action remains recognizable when
+the toolbar moves it into the overflow menu.

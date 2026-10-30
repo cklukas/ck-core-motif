@@ -588,17 +588,24 @@ void XmToolbarSetActionIcons(Widget widget, const Pixmap *icons,
     if (count > toolbar->toolbar.action_count)
         count = toolbar->toolbar.action_count;
     for (i = 0; i < count; ++i) {
-        Arg args[2];
         toolbar->toolbar.actions[i].icon = icons[i];
-        if (toolbar->toolbar.actions[i].button == NULL)
-            continue;
-        if (icons[i] != None && icons[i] != XmUNSPECIFIED_PIXMAP) {
-            XtSetArg(args[0], XmNlabelType, XmPIXMAP);
-            XtSetArg(args[1], XmNlabelPixmap, icons[i]);
-            XtSetValues(toolbar->toolbar.actions[i].button, args, 2);
-        } else {
-            XtSetArg(args[0], XmNlabelType, XmSTRING);
-            XtSetValues(toolbar->toolbar.actions[i].button, args, 1);
+        {
+            Widget targets[2] = {toolbar->toolbar.actions[i].button,
+                                 toolbar->toolbar.actions[i].menu_button};
+            Cardinal target;
+            for (target = 0; target < XtNumber(targets); ++target) {
+                Arg args[2];
+                if (targets[target] == NULL)
+                    continue;
+                if (icons[i] != None && icons[i] != XmUNSPECIFIED_PIXMAP) {
+                    XtSetArg(args[0], XmNlabelType, XmPIXMAP);
+                    XtSetArg(args[1], XmNlabelPixmap, icons[i]);
+                    XtSetValues(targets[target], args, 2);
+                } else {
+                    XtSetArg(args[0], XmNlabelType, XmSTRING);
+                    XtSetValues(targets[target], args, 1);
+                }
+            }
         }
     }
     layout(toolbar);

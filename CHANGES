@@ -53,6 +53,13 @@ Make BreadcrumbBar segment replacement transactional (2026-10-30)
 - Preserve the existing segments and current index when replacement allocation
   or copying fails, with focused source-contract coverage and documentation.
 
+Apply Toolbar icons to overflow actions (2026-10-30)
+=====================================================
+
+- Update both the visible toolbar button and its overflow-menu counterpart
+  when `XmToolbarSetActionIcons` changes an action icon.
+- Add focused source-contract coverage and maintenance documentation.
+
 Align native accessibility action contracts (2026-10-30)
 ========================================================
 
