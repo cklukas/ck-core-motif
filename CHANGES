@@ -1,3 +1,12 @@
+Guard AutoSuggestBox mutators during destruction (2026-10-30)
+================================================================
+
+- Reject suggestion replacement, popup visibility changes, and commits once
+  Xt marks the AutoSuggestBox for destruction, including the post-callback
+  path that previously could touch the widget after a committed callback
+  destroyed it.
+- Add focused source-contract coverage for the teardown guards.
+
 Guard RatingControl mutator during destruction (2026-10-30)
 ==============================================================
 

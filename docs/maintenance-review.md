@@ -738,3 +738,9 @@ avoiding redraw and callback work on partial state. The focused source check is
 RatingControl value updates now fail closed during Xt teardown, avoiding
 redraw and callback work on partial state. The focused source check is
 `tests/automated/check-ratingcontrol-mutator-destroy-guard.py`.
+
+AutoSuggestBox suggestion replacement, popup visibility, and commit operations
+now fail closed during Xt teardown. Commit callbacks are also followed by a
+destruction check before dismissing the popup or restoring traversal, avoiding
+post-callback access to a widget that the callback destroyed. The focused
+source check is `tests/automated/check-autosuggest-mutator-destroy-guards.py`.

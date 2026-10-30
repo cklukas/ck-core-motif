@@ -472,6 +472,8 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
     if (!widget || !XmIsAutoSuggestBox(widget) || (count && !items))
         return False;
     box = (XmAutoSuggestBoxWidget)widget;
+    if (box->core.being_destroyed)
+        return False;
     if (count && ((size_t)count > SIZE_MAX / sizeof(*box->auto_suggest.items) ||
                   (size_t)count > (size_t)UINT_MAX / sizeof(*box->auto_suggest.items)))
         return False;
@@ -540,6 +542,8 @@ void XmAutoSuggestBoxShow(Widget widget)
     if (!widget || !XmIsAutoSuggestBox(widget))
         return;
     box = (XmAutoSuggestBoxWidget)widget;
+    if (box->core.being_destroyed)
+        return;
     if (box->auto_suggest.search == NULL ||
         !XtIsRealized(box->auto_suggest.search))
         return;
@@ -559,6 +563,8 @@ void XmAutoSuggestBoxDismiss(Widget widget, XEvent *event)
     if (!widget || !XmIsAutoSuggestBox(widget))
         return;
     box = (XmAutoSuggestBoxWidget)widget;
+    if (box->core.being_destroyed)
+        return;
     if (!box->auto_suggest.visible)
         return;
     box->auto_suggest.visible = False;
@@ -609,6 +615,8 @@ void XmAutoSuggestBoxCommit(Widget widget, Cardinal index, XEvent *event)
     XtCallCallbackList(widget, box->auto_suggest.committed_callback, &callback);
     XtFree(id);
     XtFree(query);
+    if (box->core.being_destroyed)
+        return;
     XmAutoSuggestBoxDismiss(widget, event);
     if (box->auto_suggest.search != NULL)
         XmProcessTraversal(box->auto_suggest.search, XmTRAVERSE_CURRENT);
