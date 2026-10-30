@@ -184,19 +184,27 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         old->drop_highlight.thickness != highlight->drop_highlight.thickness)
         redraw = True;
     if (old->drop_highlight.label != highlight->drop_highlight.label) {
-        XmStringFree(old->drop_highlight.label);
-        highlight->drop_highlight.label = copy_string(
-            highlight->drop_highlight.label);
-        redraw = True;
+        XmString replacement = copy_string(highlight->drop_highlight.label);
+        if (replacement) {
+            XmStringFree(old->drop_highlight.label);
+            highlight->drop_highlight.label = replacement;
+            redraw = True;
+        } else {
+            highlight->drop_highlight.label = old->drop_highlight.label;
+        }
     }
     if (old->drop_highlight.font != highlight->drop_highlight.font) {
         XmFontList replacement = highlight->drop_highlight.font
             ? XmFontListCopy(highlight->drop_highlight.font)
             : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->drop_highlight.font)
-            XmRenderTableFree(old->drop_highlight.font);
-        highlight->drop_highlight.font = replacement;
-        redraw = True;
+        if (replacement) {
+            if (old->drop_highlight.font)
+                XmRenderTableFree(old->drop_highlight.font);
+            highlight->drop_highlight.font = replacement;
+            redraw = True;
+        } else {
+            highlight->drop_highlight.font = old->drop_highlight.font;
+        }
     }
     return redraw;
 }

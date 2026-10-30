@@ -1,3 +1,10 @@
+Make remaining label/font SetValues transactional (2026-10-30)
+=================================================================
+
+- Preserve current BreadcrumbBar, Divider, and DropHighlight resources when
+  replacement font or label allocation fails.
+- Add focused source coverage and documentation.
+
 Preserve Calendar render table on replacement failure (2026-10-30)
 ====================================================================
 

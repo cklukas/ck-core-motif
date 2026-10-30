@@ -171,8 +171,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         XmFontList replacement = divider->divider.font
             ? XmFontListCopy(divider->divider.font)
             : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->divider.font) XmRenderTableFree(old->divider.font);
-        divider->divider.font = replacement;
+        if (replacement) {
+            if (old->divider.font) XmRenderTableFree(old->divider.font);
+            divider->divider.font = replacement;
+            font_changed = True;
+        } else {
+            divider->divider.font = old->divider.font;
+            font_changed = False;
+        }
     }
     if (!divider->divider.thickness) divider->divider.thickness = 1;
     return old->divider.label != divider->divider.label ||

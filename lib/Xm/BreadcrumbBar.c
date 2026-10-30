@@ -367,9 +367,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         XmFontList replacement = bar->breadcrumb.font
             ? XmFontListCopy(bar->breadcrumb.font)
             : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (old->breadcrumb.font) XmRenderTableFree(old->breadcrumb.font);
-        bar->breadcrumb.font = replacement;
-        redraw = True;
+        if (replacement) {
+            if (old->breadcrumb.font) XmRenderTableFree(old->breadcrumb.font);
+            bar->breadcrumb.font = replacement;
+            redraw = True;
+        } else {
+            bar->breadcrumb.font = old->breadcrumb.font;
+        }
     }
     return redraw || old->breadcrumb.max_visible != bar->breadcrumb.max_visible ||
            old->breadcrumb.rtl != bar->breadcrumb.rtl ||
