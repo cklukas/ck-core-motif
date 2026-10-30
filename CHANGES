@@ -31548,3 +31548,11 @@ Bound TabStack child-index scans (2026-10-30)
 
 Clear stale destinations for empty region operations (2026-10-30)
 ===================================================================
+Guard Notebook redisplay tab counts (2026-10-30)
+================================================
+
+- Skip null children and missing constraints while Redisplay counts major and
+  minor tabs for scroller visibility.
+- Add focused source-contract coverage and document the malformed-state path.
+
+Guard Notebook child widget lookup (2026-10-30)

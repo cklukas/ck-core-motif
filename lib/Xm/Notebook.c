@@ -1136,6 +1136,8 @@ Redisplay (
     for (i = 0; i < nb->composite.num_children; i++)
         {
         child = nb->composite.children[i];
+        if (child == NULL || child->core.constraints == NULL)
+                continue;
         nc = NotebookConstraint(child);
         if (NB_IS_CHILD_MAJOR(nc->child_type))
                 total_major_tabs++;
@@ -1158,6 +1160,8 @@ Redisplay (
     for (i = 0; i < nb->composite.num_children; i++)
         {
         child = nb->composite.children[i];
+        if (child == NULL || child->core.constraints == NULL)
+                continue;
         nc = NotebookConstraint(child);
         if (NB_IS_CHILD_MINOR(nc->child_type))
                 total_minor_tabs++;
