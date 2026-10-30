@@ -10373,12 +10373,14 @@ _XmStringContextCopy(_XmStringContext target,
      count = (size_t) _XmStrContRendCount(target);
      if (_XmStrContRendTags(target) == NULL) {
 	_XmStrContRendCount(target) = 0;
+	_XmStrContError(target) = True;
 	return;
      }
      if (count > SIZE_MAX / sizeof(XmStringTag) ||
 	 count * sizeof(XmStringTag) > (size_t)((Cardinal)~0)) {
 	_XmStrContRendCount(target) = 0;
 	_XmStrContRendTags(target) = NULL;
+	_XmStrContError(target) = True;
 	return;
      }
      size = count * sizeof(XmStringTag);
@@ -10386,6 +10388,7 @@ _XmStringContextCopy(_XmStringContext target,
 	 (XmStringTag*) XtMalloc((Cardinal)size);
      if (_XmStrContRendTags(target) == NULL) {
         _XmStrContRendCount(target) = 0;
+	_XmStrContError(target) = True;
         return;
      }
      memcpy(_XmStrContRendTags(target), _XmStrContRendTags(source), size);

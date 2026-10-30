@@ -1,3 +1,10 @@
+Invalidate XmString contexts after copy failure (2026-10-30)
+=============================================================
+
+- Mark copied contexts as errored when rendition state is malformed or cannot
+  be allocated, preventing look-ahead code from using incomplete state.
+- Add focused source-contract coverage and document the failure behavior.
+
 Propagate XmStringUnparse conversion failures (2026-10-30)
 ============================================================
 

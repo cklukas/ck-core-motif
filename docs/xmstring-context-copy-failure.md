@@ -1,6 +1,11 @@
-# XmString context copied-component failures
+# XmString context-copy failure state
 
-Context enumeration now checks copied rendition and tag strings before taking
-their length. If `XtNewString` cannot allocate, enumeration reports end of
-context instead of dereferencing `NULL`; the context error flag is updated when
-the caller is advancing it.
+`_XmStringContextCopy` duplicates active rendition state for look-ahead and
+unparse operations.  If the source state is malformed or the duplicate cannot
+be allocated, the target context now records an error instead of looking like
+a valid context with silently missing renditions.  Subsequent component
+iteration stops through the existing context-error path.
+
+The focused source-contract check is:
+
+    python3 tests/automated/check-xmstring-context-copy-failure.py

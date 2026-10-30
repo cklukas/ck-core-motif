@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-"""Check XmString context enumeration handles copied-string allocation failure."""
-
+"""Check context-copy allocation failures invalidate the target context."""
 from pathlib import Path
 
-
-source = Path("lib/Xm/XmString.c").read_text()
-
-assert source.count("*value = (XtPointer) XtNewString(begin_rends[tmp_index]);") == 1
-assert source.count("*value = (XtPointer) XtNewString(tag);") == 1
-assert source.count("*value = (XtPointer) XtNewString(end_rends[tmp_index]);") == 1
-assert source.count("if (*value == NULL) {") >= 3
-assert source.count("return XmSTRING_COMPONENT_END;") >= 3
-
-print("XmString context copied components propagate allocation failure")
+source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmString.c").read_text()
+start = source.index("void\n_XmStringContextCopy(")
+end = source.index("void\n_XmStringContextFree(", start)
+body = source[start:end]
+assert body.count("_XmStrContError(target) = True;") >= 3
+assert "_XmStrContRendCount(target) = 0;" in body
+assert "_XmStrContRendTags(target) = NULL;" in body
+print("PASS XmString context-copy failure state")
