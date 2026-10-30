@@ -31928,3 +31928,10 @@ Guard Container outline sizing inputs (2026-10-30)
   restore internal state when sizing cannot create its gadget; also initialize
   the outline-column synthetic resource only after validating its widget.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container icon-header inputs (2026-10-30)
+================================================
+
+- Validate icon-header widget and parent state before optional scrolled-parent
+  trait probing.
+- Add focused source-contract coverage and document the invalid-input path.

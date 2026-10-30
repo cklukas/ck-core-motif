@@ -7329,7 +7329,7 @@ static  void
 CreateIconHeader(
     Widget      wid)
 {
-    XmContainerWidget   cw = (XmContainerWidget)wid;
+    XmContainerWidget   cw;
     Widget header_parent = wid ;
     Arg                 sargs[10];
     Cardinal              n = 0;
@@ -7339,6 +7339,10 @@ CreateIconHeader(
 #define SWINDOW_PARENT	1
 #define CWINDOW_PARENT	2
     int inScrolledWindow = NO_PARENT;
+
+    if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
     
     cw->container.self = True;
     cw->container.create_cwid_type = CONTAINER_HEADER;
@@ -7348,6 +7352,7 @@ CreateIconHeader(
      * Set up args for DrawingArea and Create.
      */
 
+    if (XtParent(wid) != NULL)
     {
     XmScrollFrameTrait	scrollFrameTrait = (XmScrollFrameTrait)
         XmeTraitGet((XtPointer)XtClass(XtParent(wid)),XmQTscrollFrame);
