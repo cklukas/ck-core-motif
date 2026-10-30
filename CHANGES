@@ -32424,3 +32424,12 @@ Handle null Xpm hash cleanup (2026-10-30)
 
 Avoid Xpm hash probe before-begin pointer (2026-10-30)
 ========================================================
+Avoid ToggleSwitch post-callback access (2026-10-30)
+======================================================
+
+- Remove the action's redundant redraw after `XmToggleSwitchSetState`, which
+  could access a widget destroyed by a value-changed callback.
+- Add focused source-contract coverage and document the callback lifetime.
+
+Handle null Xpm hash cleanup (2026-10-30)
+==========================================

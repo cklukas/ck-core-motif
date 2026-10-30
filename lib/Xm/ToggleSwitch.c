@@ -316,8 +316,6 @@ static void Toggle(Widget widget, XEvent *event, String *params,
     (void)params; (void)num_params;
     XmToggleSwitchSetState(widget,
                            !XmToggleSwitchGetState(widget), True);
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
-                                        0, 0, 0, 0, True);
     (void)event;
 }
 
