@@ -1,3 +1,10 @@
+Guard DataField picture callback input (2026-10-30)
+===================================================
+
+- Reject missing widgets, callback records, and text payloads before picture
+  verification dereferences them.
+- Add focused source coverage and documentation.
+
 Guard tooltip label teardown (2026-10-30)
 =========================================
 

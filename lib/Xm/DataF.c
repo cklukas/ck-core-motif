@@ -1542,13 +1542,21 @@ PictureVerifyCallback(
     XtPointer call_d )
 #endif /* _NO_PROTO */
 {
-    XmTextVerifyCallbackStruct *cbs = 
-	(XmTextVerifyCallbackStruct*) call_d;
+    XmTextVerifyCallbackStruct *cbs;
     char *curr, *newptr, *changed = NULL;
     size_t curr_length, insert_length, changed_length;
     int src, dst, i;
     XmPictureState ps;
     Boolean done = False;
+
+    /* Callback clients can be invoked with malformed data by embedders. */
+    if (w == NULL || call_d == NULL)
+	return;
+    cbs = (XmTextVerifyCallbackStruct *)call_d;
+    if (cbs->text == NULL) {
+	cbs->doit = False;
+	return;
+    }
 
     /*
      * If we're just backspacing, allow the change irregarless
