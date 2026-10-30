@@ -3460,7 +3460,7 @@ TabToIndex(tab, child)
 #endif
 {
     WidgetList kid;
-    int i;
+    int i = 0;
 
     if( tab == NULL || child == NULL ) return( -1 );
     
