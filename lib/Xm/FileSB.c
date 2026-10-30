@@ -2939,7 +2939,8 @@ FSBGetDirectory(
 {
     XmString        data ;
 /****************/
-  
+    if (fs == NULL || value == NULL)
+        return;
     data = XmStringCopy(FS_Directory(fs));
     *value = (XtArgVal) data ;
 
@@ -2959,7 +2960,8 @@ FSBGetNoMatchString(
 {
     XmString        data ;
 /****************/
-  
+    if (fs == NULL || value == NULL)
+        return;
     data = XmStringCopy(FS_NoMatchString(fs));
     *value = (XtArgVal) data ;
 
@@ -2979,7 +2981,8 @@ FSBGetPattern(
 {
     XmString        data ;
 /****************/
-  
+    if (fs == NULL || value == NULL)
+        return;
     data = XmStringCopy(FS_Pattern(fs));
     *value = (XtArgVal) data ;
 
@@ -2999,6 +3002,11 @@ FSBGetFilterLabelString(
             Arg             al[1] ;
 /****************/
 
+    if (fs == NULL || value == NULL || FS_FilterLabel(fs) == NULL) {
+        if (value != NULL)
+            *value = (XtArgVal) NULL;
+        return;
+    }
     XtSetArg( al[0], XmNlabelString, &data) ;
     XtGetValues( FS_FilterLabel( fs), al, 1) ;
     *value = (XtArgVal) data ;
@@ -3019,6 +3027,11 @@ FSBGetDirListLabelString(
             Arg             al[1] ;
 /****************/
 
+    if (fs == NULL || value == NULL || FS_DirListLabel(fs) == NULL) {
+        if (value != NULL)
+            *value = (XtArgVal) NULL;
+        return;
+    }
     XtSetArg( al[0], XmNlabelString, &data) ;
     XtGetValues( FS_DirListLabel( fs), al, 1) ;
     *value = (XtArgVal) data ;
@@ -3039,6 +3052,11 @@ FSBGetDirListItems(
             Arg             al[1] ;
 /****************/
 
+    if (fs == NULL || value == NULL || FS_DirList(fs) == NULL) {
+        if (value != NULL)
+            *value = (XtArgVal) NULL;
+        return;
+    }
     XtSetArg( al[0], XmNitems, &data) ;
     XtGetValues( FS_DirList( fs), al, 1) ;
     *value = (XtArgVal) data ;
@@ -3059,6 +3077,11 @@ FSBGetDirListItemCount(
             Arg             al[1] ;
 /****************/
 
+    if (fs == NULL || value == NULL || FS_DirList(fs) == NULL) {
+        if (value != NULL)
+            *value = (XtArgVal) 0;
+        return;
+    }
     XtSetArg( al[0], XmNitemCount, &data) ;
     XtGetValues( FS_DirList( fs), al, 1) ;
     *value = (XtArgVal) data ;
@@ -3079,15 +3102,22 @@ FSBGetListItems(
             Arg             al[1] ;
 /****************/
 
+    if (fs == NULL || value == NULL) {
+        if (value != NULL)
+            *value = (XtArgVal) NULL;
+        return;
+    }
     if(    FS_StateFlags( fs) & XmFS_NO_MATCH    )
     {   
         *value = (XtArgVal) NULL ;
         } 
-    else
+    else if (SB_List(fs) != NULL)
     {   XtSetArg( al[0], XmNitems, &data) ;
         XtGetValues( SB_List( fs), al, 1) ;
         *value = (XtArgVal) data ;
-        } 
+        }
+    else
+        *value = (XtArgVal) NULL;
     return ;
     }
 /****************************************************************
@@ -3104,15 +3134,22 @@ FSBGetListItemCount(
             Arg             al[1] ;
 /****************/
 
+    if (fs == NULL || value == NULL) {
+        if (value != NULL)
+            *value = (XtArgVal) 0;
+        return;
+    }
     if(    FS_StateFlags( fs) & XmFS_NO_MATCH    )
     {   
         *value = (XtArgVal) 0 ;
         } 
-    else
+    else if (SB_List(fs) != NULL)
     {   XtSetArg( al[0], XmNitemCount, &data) ;
         XtGetValues( SB_List( fs), al, 1) ;
         *value = (XtArgVal) data ;
-        } 
+        }
+    else
+        *value = (XtArgVal) 0;
 
     return ;
     }
@@ -3131,6 +3168,11 @@ FSBGetDirMask(
             XmString        data ;
 /****************/
 
+    if (fs == NULL || value == NULL || FS_FilterText(fs) == NULL) {
+        if (value != NULL)
+            *value = (XtArgVal) NULL;
+        return;
+    }
     filterText = XmTextFieldGetString( FS_FilterText(fs)) ;
     data = XmStringGenerate(filterText, XmFONTLIST_DEFAULT_TAG,
 			    XmCHARSET_TEXT, NULL);
