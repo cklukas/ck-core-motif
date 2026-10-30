@@ -32388,3 +32388,12 @@ Make DropSite widget hashing portable (2026-10-30)
 
 Bound ImageCache hash conversions (2026-10-30)
 ================================================
+Use ImageCache name tails in hashing (2026-10-30)
+===================================================
+
+- Hash the final character of non-empty image names instead of the terminating
+  NUL byte, improving cache distribution without changing cache semantics.
+- Add focused source-contract coverage and document the correction.
+
+Bound ImageCache hash conversions (2026-10-30)
+================================================
