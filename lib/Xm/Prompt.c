@@ -75,7 +75,7 @@ static void Destroy(Widget widget) {
     XmPromptWidget prompt = (XmPromptWidget)widget;
     if (prompt->prompt.gc) XFreeGC(XtDisplay(widget), prompt->prompt.gc);
     if (prompt->prompt.font) XmRenderTableFree(prompt->prompt.font);
-    /* Xt releases XmNpromptText resource storage after Destroy. */
+    if (prompt->prompt.text) XmStringFree(prompt->prompt.text);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmPromptWidget prompt = (XmPromptWidget)widget; Dimension width=0,height=0;

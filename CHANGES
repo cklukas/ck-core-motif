@@ -1,3 +1,10 @@
+Release copied labels in Badge, Link, and Prompt (2026-10-30)
+===============================================================
+
+- Free the widget-owned `XmString` copies held by Badge, Link, and Prompt
+  during destruction.
+- Add focused ownership coverage and document the lifecycle behavior.
+
 Release Chip label on destruction (2026-10-30)
 ================================================
 

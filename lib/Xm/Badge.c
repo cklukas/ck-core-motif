@@ -85,7 +85,7 @@ static void Destroy(Widget widget) {
         return;
     if (badge->badge.foreground_gc) XFreeGC(XtDisplay(widget), badge->badge.foreground_gc);
     if (badge->badge.font) XmRenderTableFree(badge->badge.font);
-    /* Xt releases XmNbadgeLabel resource storage after Destroy. */
+    if (badge->badge.label) XmStringFree(badge->badge.label);
 }
 static void text_value(XmBadgeWidget badge, char *buffer, size_t size) {
     if (badge->badge.count < 0) return;

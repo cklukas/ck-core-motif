@@ -95,7 +95,7 @@ static void Destroy(Widget widget) {
     if (link->link.render_table)
         XmRenderTableFree(link->link.render_table);
     if (link->link.target) XtFree(link->link.target);
-    /* Xt releases XmNlinkLabel resource storage after Destroy. */
+    if (link->link.label) XmStringFree(link->link.label);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmLinkWidget link = (XmLinkWidget)widget; Dimension text_width = 0, text_height = 0;
