@@ -172,6 +172,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
     Boolean font_changed;
     Boolean initials_changed;
+    Boolean colors_changed = old->primitive.foreground != avatar->primitive.foreground ||
+                             old->core.background_pixel != avatar->core.background_pixel;
     (void)request; (void)args; (void)count;
     if (old_widget == NULL || widget == NULL ||
         !XtIsSubclass(old_widget, xmAvatarWidgetClass) ||
@@ -199,10 +201,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             font_changed = False;
         }
     }
+    if (colors_changed && avatar->avatar.foreground_gc) {
+        XSetForeground(XtDisplay(widget), avatar->avatar.foreground_gc,
+                       avatar->primitive.foreground);
+        XSetBackground(XtDisplay(widget), avatar->avatar.foreground_gc,
+                       avatar->core.background_pixel);
+    }
     return (initials_changed &&
             avatar->avatar.initials != old->avatar.initials) ||
            old->avatar.pixmap != avatar->avatar.pixmap ||
-           old->avatar.size != avatar->avatar.size || font_changed;
+           old->avatar.size != avatar->avatar.size || font_changed || colors_changed;
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,

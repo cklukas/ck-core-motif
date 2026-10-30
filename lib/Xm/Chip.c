@@ -258,7 +258,24 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmChipWidget old = (XmChipWidget)old_widget;
     XmChipWidget chip = (XmChipWidget)widget;
     Boolean redraw = False;
+    Boolean colors_changed = old->primitive.foreground != chip->primitive.foreground ||
+                             old->core.background_pixel != chip->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed) {
+        if (chip->chip.foreground_gc) {
+            XSetForeground(XtDisplay(widget), chip->chip.foreground_gc,
+                           chip->primitive.foreground);
+            XSetBackground(XtDisplay(widget), chip->chip.foreground_gc,
+                           chip->core.background_pixel);
+        }
+        if (chip->chip.background_gc) {
+            XSetForeground(XtDisplay(widget), chip->chip.background_gc,
+                           chip->core.background_pixel);
+            XSetBackground(XtDisplay(widget), chip->chip.background_gc,
+                           chip->core.background_pixel);
+        }
+        redraw = True;
+    }
     if (old->chip.font != chip->chip.font) {
         XmFontList new_font = chip->chip.font ? XmFontListCopy(chip->chip.font) :
             XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));

@@ -127,6 +127,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmBadgeWidget old = (XmBadgeWidget)old_widget, badge = (XmBadgeWidget)widget;
     XmString replacement;
     Boolean font_changed;
+    Boolean colors_changed = old->primitive.foreground != badge->primitive.foreground ||
+                             old->core.background_pixel != badge->core.background_pixel;
     (void)request; (void)args; (void)count;
     if (old_widget == NULL || widget == NULL ||
         !XtIsSubclass(old_widget, xmBadgeWidgetClass) ||
@@ -153,11 +155,17 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             badge->badge.label = old->badge.label;
         }
     }
+    if (colors_changed && badge->badge.foreground_gc) {
+        XSetForeground(XtDisplay(widget), badge->badge.foreground_gc,
+                       badge->primitive.foreground);
+        XSetBackground(XtDisplay(widget), badge->badge.foreground_gc,
+                       badge->core.background_pixel);
+    }
     if (badge->badge.maximum < 0) badge->badge.maximum = 0;
     if (badge->badge.count < -1) badge->badge.count = -1;
     return old->badge.label != badge->badge.label || old->badge.count != badge->badge.count ||
            old->badge.maximum != badge->badge.maximum || old->badge.severity != badge->badge.severity ||
-           font_changed;
+           font_changed || colors_changed;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply) {

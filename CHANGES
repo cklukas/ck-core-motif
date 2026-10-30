@@ -1,3 +1,10 @@
+Refresh Badge, Avatar, and Chip drawing colors (2026-10-30)
+==============================================================
+
+- Update cached drawing graphics contexts when foreground or background
+  resources change through `XtSetValues`.
+- Add focused source coverage and maintenance documentation.
+
 Redraw Skeleton after color resource updates (2026-10-30)
 ============================================================
 

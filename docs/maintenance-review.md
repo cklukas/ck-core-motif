@@ -23,6 +23,14 @@ focused contract check is:
 python3 tests/automated/check-skeleton-color-update.py
 ```
 
+Badge, Avatar, and Chip now refresh their cached drawing GCs when foreground
+or background resources change, keeping borders, initials, labels, and chip
+fills in sync with runtime theme updates.  The focused contract check is:
+
+```sh
+python3 tests/automated/check-badge-avatar-chip-color-update.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws
