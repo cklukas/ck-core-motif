@@ -2296,7 +2296,7 @@ static Boolean
 PopupList(Widget w)
 {	
     XmDropDownWidget cbw = (XmDropDownWidget) w;
-    Widget shell = XmDropDown_popup_shell(cbw);
+    Widget shell;
     Position x, y, temp;
     Dimension width;
     int available_width;
@@ -2304,6 +2304,10 @@ PopupList(Widget w)
     Arg args[10];
     Cardinal num_args;
 
+    if (cbw == NULL || w == NULL ||
+	XmDropDown_text(cbw) == NULL || XmDropDown_arrow(cbw) == NULL)
+	return(False);
+    shell = XmDropDown_popup_shell(cbw);
     if (shell == NULL) {
 	XmeWarning(w, XmNnoComboShellMsg);
 	return(False);
@@ -2471,6 +2475,10 @@ SetListFromText(Widget w, Boolean no_action)
     unsigned char policy;
     XmDropDownClassPartExtension *addition;
 
+    if (cbw == NULL || w == NULL || XmDropDown_text(cbw) == NULL ||
+	XmDropDown_list(cbw) == NULL)
+	return False;
+
     if (ptr != NULL) {
 	int num_items;
 
@@ -2620,6 +2628,10 @@ SetTextFromList(Widget w)
     XmTextPosition text_loc;
     XmDropDownClassPartExtension *addition;
 
+    if (cbw == NULL || w == NULL || XmDropDown_text(cbw) == NULL ||
+	XmDropDown_list(cbw) == NULL)
+	return False;
+
     addition = CheckExtensions( (XmDropDownWidgetClass)XtClass(cbw) );
     if (addition && addition->setTextFromList)
     {
@@ -2702,6 +2714,10 @@ XmDropDownGetValue(Widget w)
     _XmWidgetToAppContext(w);
     _XmAppLock(app);
 
+    if (XmDropDown_text(cbw) == NULL) {
+	_XmAppUnlock(app);
+	return NULL;
+    }
     ptr = XmTextFieldGetString(XmDropDown_text(cbw));
 
     _XmAppUnlock(app);    

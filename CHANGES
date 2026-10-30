@@ -203,6 +203,14 @@ Guard DropDown geometry and actions (2026-10-30)
   widgets.
 - Add focused source coverage and document partial-geometry behavior.
 
+Guard DropDown conversion helpers (2026-10-30)
+===============================================
+
+- Validate text, list, arrow, and popup children before placement and
+  text/list conversion operations.
+- Return safe conversion failure or an empty value after partial construction.
+- Add focused source coverage and document the conversion contract.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 
