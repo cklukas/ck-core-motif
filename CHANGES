@@ -29910,3 +29910,10 @@ Guard RowColumn synthetic string exports (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard ComboBox selected-item import (2026-10-30)
+Guard MessageBox synthetic getters (2026-10-30)
+================================================
+
+- Validate widget and output pointers across compound-string and pixmap exports.
+- Add focused source coverage and documentation.
+
+Guard RowColumn synthetic string exports (2026-10-30)

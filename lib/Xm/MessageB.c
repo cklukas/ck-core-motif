@@ -1492,6 +1492,8 @@ GetMessageString(
     Arg       al[1];
 /****************/
 
+    if (wid == NULL || value == NULL)
+        return;
     if (w->message_box.message_wid) {
         XtSetArg (al[0], XmNlabelString, &data);
         XtGetValues (w->message_box.message_wid, al, 1);
@@ -1513,6 +1515,8 @@ GetSymbolPixmap(
     Arg     al[1];
 /****************/
 
+    if (wid == NULL || value == NULL)
+        return;
     if (w->message_box.symbol_wid) {
         XtSetArg (al[0], XmNlabelPixmap, &data);
         XtGetValues (w->message_box.symbol_wid, al, 1);
@@ -1534,6 +1538,8 @@ GetOkLabelString(
     Arg       al[1];
 /****************/
 
+    if (wid == NULL || value == NULL)
+        return;
     if (w->message_box.ok_button) {
         XtSetArg (al[0], XmNlabelString, &data);
         XtGetValues (w->message_box.ok_button, al, 1);
@@ -1555,6 +1561,8 @@ GetCancelLabelString(
     Arg       al[1];
 /****************/
 
+    if (wid == NULL || value == NULL)
+        return;
     if (w->bulletin_board.cancel_button) {
         XtSetArg (al[0], XmNlabelString, &data);
         XtGetValues (w->bulletin_board.cancel_button, al, 1);
@@ -1576,6 +1584,8 @@ GetHelpLabelString(
     Arg       al[1];
 /****************/
 
+    if (wid == NULL || value == NULL)
+        return;
     if (w->message_box.help_button) {
         XtSetArg (al[0], XmNlabelString, &data);
         XtGetValues (w->message_box.help_button, al, 1);
