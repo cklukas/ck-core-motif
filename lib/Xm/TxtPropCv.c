@@ -1033,6 +1033,11 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	    return BadAlloc;
 	}
 	string_table[0] = XmStringGenerate((XtPointer)"", tag, type, NULL);
+	if (string_table[0] == NULL) {
+	    XtFree((char *)string_table);
+	    _XmAppUnlock(app);
+	    return BadAlloc;
+	}
 	*string_table_return = string_table;
 	*count_return = 1;
 	_XmAppUnlock(app);

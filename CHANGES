@@ -31268,3 +31268,9 @@ Bound render-table property parsing (2026-10-30)
 - Parse a length-bounded NUL-terminated copy of render-table properties,
   preventing `ReadToken` from scanning past non-NUL-terminated input.
 - Add focused source-contract coverage and document the input contract.
+Reject failed empty plain-text XmString generation (2026-10-30)
+===============================================================
+
+- Check the generated empty `XmString` before returning an empty plain-text
+  table, releasing the table and reporting `BadAlloc` on failure.
+- Add focused source-contract coverage and document the failure behavior.
