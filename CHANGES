@@ -1,3 +1,10 @@
+Guard IconButton padding converters (2026-10-30)
+=================================================
+
+- Validate widget and value inputs before icon-placement-dependent conversion.
+- Reject invalid imports without touching widget state.
+- Extend focused source coverage and documentation.
+
 Guard Primitive tooltip hooks (2026-10-30)
 ==========================================
 

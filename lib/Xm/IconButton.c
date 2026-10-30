@@ -1435,7 +1435,12 @@ static void GetValues_labelString ( Widget w, int n, XtArgVal *value)
 static void
 FromPaddingPixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmIconButtonWidget iw = (XmIconButtonWidget) widget;
+    XmIconButtonWidget iw;
+
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmIconButtonWidgetClass))
+        return;
+    iw = (XmIconButtonWidget) widget;
 
     switch(XmIconButton_icon_placement(iw)) {
     case XmIconTop:
@@ -1460,7 +1465,12 @@ FromPaddingPixels(Widget widget, int offset, XtArgVal *value)
 static XmImportOperator
 ToPaddingPixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmIconButtonWidget iw = (XmIconButtonWidget) widget;
+    XmIconButtonWidget iw;
+
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmIconButtonWidgetClass))
+        return XmSYNTHETIC_NONE;
+    iw = (XmIconButtonWidget) widget;
 
     switch(XmIconButton_icon_placement(iw)) {
     case XmIconTop:
