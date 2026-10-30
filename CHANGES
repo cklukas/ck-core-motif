@@ -1,3 +1,10 @@
+Guard Primitive tooltip hooks (2026-10-30)
+==========================================
+
+- Validate widget and value storage before tooltip API calls.
+- Return deterministic null exports and reject invalid imports.
+- Add focused source coverage and documentation.
+
 Guard Form margin getters (2026-10-30)
 ======================================
 
