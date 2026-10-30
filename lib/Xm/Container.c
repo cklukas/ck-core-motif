@@ -5463,6 +5463,9 @@ ContainerActivate(
 {
 	Widget			focus_cwid = XmGetFocusWidget(wid);
 
+	if (event == NULL || num_params == NULL)
+	    return;
+
         if ((focus_cwid == wid) || (focus_cwid == NULL))
             return;
         if (CtrLayoutIsOUTLINE_DETAIL(wid) && CtrOUTLINE_BUTTON(focus_cwid))
