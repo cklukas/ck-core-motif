@@ -32080,3 +32080,10 @@ Guard Container spatial-growth constraints (2026-10-30)
 - Reject spatial growth requests when the child has no Container constraint
   record before reading logical coordinates.
 - Add focused source-contract coverage and document the invalid-child path.
+
+Guard Container SetValues child constraints (2026-10-30)
+=========================================================
+
+- Skip children without a Container constraint during spatial-layout
+  transition updates before reading `entry_parent`.
+- Add focused source-contract coverage and document the invalid-child path.

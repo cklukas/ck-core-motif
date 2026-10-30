@@ -1935,6 +1935,8 @@ SetValues(
 	    {
 	    cwid = ncw->composite.children[i];
 	    c = GetContainerConstraint(cwid);
+	    if (c == NULL)
+		continue;
 	    if (!CtrICON(cwid) || (c->entry_parent))
 		HideCwid(cwid);
 	    }
