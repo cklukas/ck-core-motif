@@ -32345,3 +32345,12 @@ Make transfer context hashing portable (2026-10-30)
 
 Fix Xpm color closeness comparator (2026-10-30)
 ================================================
+Bound Trait hash conversion (2026-10-30)
+=========================================
+
+- Bound folded pointer values before converting to the signed `XmHashValue`
+  type, avoiding implementation-defined 64-bit narrowing.
+- Add focused source-contract coverage and document the portability fix.
+
+Harden Xpm fallback case folding (2026-10-30)
+==============================================

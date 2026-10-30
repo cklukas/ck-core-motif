@@ -31,6 +31,7 @@
 #endif
 
 #include <stdint.h>
+#include <limits.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -240,6 +241,7 @@ TraitHash(XmHashKey key)
   XmTraitEntry entry = (XmTraitEntry) key;
   uintptr_t object = (uintptr_t) entry -> obj;
   uintptr_t name = (uintptr_t) entry -> name;
+  uintptr_t mixed = object ^ (object >> 16) ^ name ^ (name >> 16);
 
-  return (XmHashValue)(object ^ (object >> 16) ^ name ^ (name >> 16));
+  return (XmHashValue)(mixed % (uintptr_t)INT_MAX);
 }
