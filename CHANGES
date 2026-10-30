@@ -1,3 +1,10 @@
+Guard failed scrolled-list construction (2026-10-30)
+=====================================================
+
+- Treat failed scrolled-window or child-list creation as a clean constructor
+  failure, avoiding callbacks through a null child widget.
+- Add focused source-contract coverage for both failure paths.
+
 Fix ToggleButtonGadget horizontal margin geometry (2026-10-30)
 ===============================================================
 
