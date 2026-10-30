@@ -2225,6 +2225,9 @@ FileSelectionBoxUpdate(
 
     if (fs == NULL || searchData == NULL)
         return;
+    if (FS_QualifySearchDataProc(fs) == NULL ||
+        FS_DirSearchProc(fs) == NULL)
+        return;
 
     /* Unmap file list, so if it takes a long time to generate the
     *   list items, the user doesn't wonder what is going on.
@@ -2246,8 +2249,9 @@ FileSelectionBoxUpdate(
 
     if(    FS_DirectoryValid( fs)    )
     {   
-        (*FS_FileSearchProc( fs))( (Widget) fs,
-                                            (XtPointer) &qualifiedSearchData) ;
+        if (FS_FileSearchProc(fs) != NULL)
+            (*FS_FileSearchProc( fs))( (Widget) fs,
+                                        (XtPointer) &qualifiedSearchData) ;
         /* Now update the Directory and Pattern resources.
         */
         if(    !XmStringCompare( qualifiedSearchData.dir, FS_Directory( fs))  )
