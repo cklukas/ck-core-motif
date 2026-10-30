@@ -614,13 +614,18 @@ SetValues(Widget current, Widget request, Widget set,
     if (XmMultiList_show_find(e_old) != XmMultiList_show_find(e_set))
     {
 		Widget find_widgets[NUM_FIND_WIDGETS];
+	int find_index;
 		find_widgets[0] = XmMultiList_find(e_set);
 		find_widgets[1] = XmMultiList_find_text(e_set);
 
-        if (XmMultiList_show_find(e_set))
-            XtManageChildren(find_widgets, NUM_FIND_WIDGETS);
-        else
-            XtUnmanageChildren(find_widgets, NUM_FIND_WIDGETS);
+	for (find_index = 0; find_index < NUM_FIND_WIDGETS; find_index++) {
+	    if (find_widgets[find_index] == NULL)
+		continue;
+            if (XmMultiList_show_find(e_set))
+		XtManageChild(find_widgets[find_index]);
+            else
+		XtUnmanageChild(find_widgets[find_index]);
+	}
     }
 
     /*
@@ -645,7 +650,8 @@ SetValues(Widget current, Widget request, Widget set,
 	    XmMultiList_find_label(e_set) = XmMultiList_find_label(e_old);
 
 	XtSetArg(args[0], XmNlabelString, XmMultiList_find_label(e_set));
-	XtSetValues(XmMultiList_find(e_set), args, 1);
+	if (XmMultiList_find(e_set) != NULL)
+	    XtSetValues(XmMultiList_find(e_set), args, 1);
     }
 
     /* 
@@ -685,7 +691,8 @@ SetValues(Widget current, Widget request, Widget set,
 	    {
 		*title = replacement;
 		XtSetArg(zargs[znum_args], XmNlabelString, *title); znum_args++;
-		XtSetValues(XmMultiList_title_wid(e_set), zargs, znum_args);
+		if (XmMultiList_title_wid(e_set) != NULL)
+		    XtSetValues(XmMultiList_title_wid(e_set), zargs, znum_args);
 	    }
 	    else
 		*title = old_title;

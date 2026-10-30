@@ -138,6 +138,14 @@ Normalize ColorSelector mode values (2026-10-30)
 - Preserve the existing list/scale resource contract and string conversion.
 - Add focused source coverage and document the fallback behavior.
 
+Guard MultiList optional-child updates (2026-10-30)
+====================================================
+
+- Manage and unmanage find controls individually when partial construction
+  leaves one of the optional children unavailable.
+- Guard deferred find-label and title-label updates before calling Xt.
+- Add focused source coverage and document the recovery behavior.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 
