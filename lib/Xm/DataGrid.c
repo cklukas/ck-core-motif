@@ -186,6 +186,10 @@ static Boolean copy_model(XmDataGridWidget grid,
     grid->data_grid.row_count = row_count;
     grid->data_grid.selected_row = grid->data_grid.selected_column = -1;
     grid->data_grid.top_row = 0;
+    XtFree(grid->data_grid.edit_text);
+    XtFree(grid->data_grid.edit_error);
+    grid->data_grid.edit_text = NULL;
+    grid->data_grid.edit_error = NULL;
     grid->data_grid.editing = False;
     return True;
 fail:

@@ -1,3 +1,10 @@
+Release DataGrid edit buffers on model replacement (2026-10-30)
+=================================================================
+
+- Free pending edit text and error storage after a new DataGrid model is
+  copied successfully, without disturbing the old model on failed copies.
+- Add focused source-contract coverage and document the lifecycle behavior.
+
 Guard label metrics for cleared controls (2026-10-30)
 =======================================================
 
