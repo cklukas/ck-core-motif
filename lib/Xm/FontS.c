@@ -3534,7 +3534,11 @@ ToggleMiddlePane(Widget w, XtPointer fsw_ptr, XtPointer data)
 
     info = (XmToggleButtonCallbackStruct *) data;
 
-    if (info->set) 
+
+    if (fsw == NULL || info == NULL || XmFontS_middle_pane(fsw) == NULL)
+	return;
+
+    if (info->set)
 	XtManageChild(XmFontS_middle_pane(fsw));
     else
 	XtUnmanageChild(XmFontS_middle_pane(fsw));

@@ -1,3 +1,9 @@
+Guard FontSelector middle-pane callback state (2026-10-30)
+============================================================
+
+- Reject missing toggle data, selector state, or pane children safely.
+- Add focused source coverage and documentation.
+
 Guard FontSelector italic callback state (2026-10-30)
 ======================================================
 
