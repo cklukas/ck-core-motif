@@ -32329,6 +32329,13 @@ Fix Xpm color closeness comparator (2026-10-30)
 
 Fix GeoUtils box-width sorting contract (2026-10-30)
 =====================================================
+Harden Xpm fallback case folding (2026-10-30)
+==============================================
+
+- Pass unsigned bytes to `tolower` and use defined terminal-byte comparison in
+  the optional fallback case-insensitive string helper.
+- Add focused source-contract coverage and document the non-ASCII input fix.
+
 Make transfer context hashing portable (2026-10-30)
 =====================================================
 

@@ -166,17 +166,22 @@ xpmstrcasecmp(
     register char	*s1,
     register char	*s2)
 {
+    register unsigned char u1, u2;
     register int c1, c2;
 
     while (*s1 && *s2) {
-	c1 = tolower(*s1);
-	c2 = tolower(*s2);
+	u1 = (unsigned char)*s1;
+	u2 = (unsigned char)*s2;
+	c1 = tolower(u1);
+	c2 = tolower(u2);
 	if (c1 != c2)
 	    return (c1 - c2);
 	s1++;
 	s2++;
     }
-    return (int) (*s1 - *s2);
+    u1 = (unsigned char)*s1;
+    u2 = (unsigned char)*s2;
+    return (u1 > u2) - (u1 < u2);
 }
 
 #endif
