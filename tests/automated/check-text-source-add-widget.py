@@ -11,6 +11,8 @@ end = text.index("\n/********************************<->************************
 block = text[start:end]
 
 assert "new_widgets = (XmTextWidget *)XtRealloc" in block
+assert "source == NULL || tw == NULL || source->data == NULL" in block
+assert "data->widgets == NULL || data->widgets[0] == NULL" in block
 assert "if (new_widgets == NULL)" in block
 assert "data->numwidgets--;" in block
 assert "new_highlights = (_XmHighlightRec *)XtRealloc" in block

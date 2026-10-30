@@ -435,11 +435,18 @@ static void
 AddWidget(XmTextSource source,
 	  XmTextWidget tw)
 {
-  XmSourceData data = source->data;
+  XmSourceData data;
   XmTextWidget *new_widgets;
   _XmHighlightRec *new_highlights;
   size_t widget_bytes;
   size_t highlight_bytes;
+
+  if (source == NULL || tw == NULL || source->data == NULL)
+    return;
+  data = source->data;
+  if (data->numwidgets > 0 &&
+      (data->widgets == NULL || data->widgets[0] == NULL))
+    return;
 
   if (data->numwidgets < 0 || data->numwidgets == INT_MAX ||
       (size_t)(data->numwidgets + 1) >
