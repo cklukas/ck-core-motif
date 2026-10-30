@@ -2648,7 +2648,10 @@ SetTextFromList(Widget w)
     int count;
     unsigned char policy;
     register int i;
-    XmTextPosition text_loc;
+    String *parts = NULL;
+    String combined = NULL;
+    size_t total = 1;
+    Boolean set_text = False;
     XmDropDownClassPartExtension *addition;
 
     if (cbw == NULL || w == NULL || XmDropDown_text(cbw) == NULL ||
@@ -2671,47 +2674,65 @@ SetTextFromList(Widget w)
     if (count > 0 && items == NULL)
 	return False;
 
-    if ((policy == XmMULTIPLE_SELECT) || (policy == XmEXTENDED_SELECT) ||
-	(count > 0))
-    {
-	XmTextFieldSetString(XmDropDown_text(cbw), "");
+    set_text = (policy == XmMULTIPLE_SELECT) ||
+               (policy == XmEXTENDED_SELECT) || (count > 0);
+    if (!set_text)
+        return False;
+    if (count > 0) {
+        if ((size_t)count > SIZE_MAX / sizeof(*parts))
+            return False;
+        parts = (String *)XtCalloc((Cardinal)count, sizeof(*parts));
+        if (parts == NULL)
+            return False;
     }
-
-    text_loc = 0;
     i = 0;
     while (i < count) {
 	size_t len;
-	String ptr;
 
-        ptr = XmStringUnparse(items[i], NULL, XmCHARSET_TEXT, XmMULTIBYTE_TEXT,
-                NULL, 0, XmOUTPUT_ALL);
-	if (ptr == NULL) {
+        parts[i] = XmStringUnparse(items[i], NULL, XmCHARSET_TEXT,
+                                   XmMULTIBYTE_TEXT, NULL, 0, XmOUTPUT_ALL);
+        if (parts[i] == NULL) {
 	    XmeWarning((Widget) cbw, XmNstringGetFailedMsg);
-	    i++;
-	    continue;
+            goto conversion_failed;
 	}
 
-	len = mbstowcs(NULL, ptr, 0);
+        len = mbstowcs(NULL, parts[i], 0);
 	if (len == (size_t)(-1)) {
 	    XmeWarning((Widget) cbw, XmNstringGetFailedMsg);
-	    XtFree((char *) ptr);
-	    i++;
-	    continue;
+            goto conversion_failed;
 	}
 
-	XmTextFieldInsert(XmDropDown_text(cbw), text_loc, ptr);
-	XtFree((char *) ptr);
-	text_loc += len;
-	
-	if (++i >= count)
-	    break;
-	
-	XmTextFieldInsert(XmDropDown_text(cbw), text_loc, ",");
-	text_loc++;
-    }	
-
+        (void)len;
+        len = strlen(parts[i]);
+        if (total > SIZE_MAX - len - (i ? 2U : 0U))
+            goto conversion_failed;
+        total += len + (i ? 2U : 0U);
+        i++;
+    }
+    combined = (String)XtMalloc(total);
+    if (combined == NULL)
+        goto conversion_failed;
+    combined[0] = '\0';
+    for (i = 0; i < count; ++i) {
+        if (i) strcat(combined, ",");
+        strcat(combined, parts[i]);
+    }
+    XmTextFieldSetString(XmDropDown_text(cbw), combined);
     XmTextFieldSetInsertionPosition(XmDropDown_text(cbw), 0);
-    return(FALSE);
+    XtFree((char *)combined);
+    for (i = 0; i < count; ++i)
+        XtFree((char *)parts[i]);
+    XtFree((char *)parts);
+    return False;
+
+conversion_failed:
+    if (parts != NULL) {
+        for (i = 0; i < count; ++i)
+            XtFree((char *)parts[i]);
+        XtFree((char *)parts);
+    }
+    XtFree((char *)combined);
+    return False;
 }
 
 /************************************************************

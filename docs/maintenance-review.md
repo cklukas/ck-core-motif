@@ -89,6 +89,15 @@ them into locale bytes.  The focused contract check is:
 python3 tests/automated/check-emptystate-compound-action.py
 ```
 
+DropDown now converts all selected list items before replacing the text field.
+If a multibyte conversion or allocation fails, the previous text remains
+intact instead of exposing a partial selection.  The focused contract check
+is:
+
+```sh
+python3 tests/automated/check-dropdown-selection-transaction.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws
