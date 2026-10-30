@@ -31766,3 +31766,10 @@ Guard Container keyboard-selection inputs (2026-10-30)
 - Reject missing widgets/events before focus lookup and missing constraints
   before Container keyboard selection reads child state.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container location-cursor parent (2026-10-30)
+====================================================
+
+- Return safely when location-cursor restoration receives a child without a
+  parent before querying focus or requesting traversal.
+- Add focused source-contract coverage and document the invalid-input path.

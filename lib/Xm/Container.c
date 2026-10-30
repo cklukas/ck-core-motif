@@ -8652,9 +8652,14 @@ static	void
 SetLocationCursor(
     Widget	cwid)
 {
+    Widget parent;
+
     if (cwid == NULL)
 	return;
-    if (cwid == XmGetFocusWidget(XtParent(cwid)))
+    parent = XtParent(cwid);
+    if (parent == NULL)
+	return;
+    if (cwid == XmGetFocusWidget(parent))
 	return;
     XmProcessTraversal(cwid,XmTRAVERSE_CURRENT);
 }
