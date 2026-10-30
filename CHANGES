@@ -1,3 +1,9 @@
+Bound FontSelector slant refresh (2026-10-30)
+==============================================
+
+- Replace the fixed-field `strcpy` with bounded, null-safe XLFD storage.
+- Add focused source coverage and documentation.
+
 Guard Unicode text-source line access (2026-10-30)
 ====================================================
 

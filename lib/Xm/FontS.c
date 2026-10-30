@@ -1565,6 +1565,7 @@ static void
 UpdateBoldItalic(XmFontSelectorWidget fsw)
 {
     Boolean set;
+    String slant;
     FontData *cf;
     FamilyInfo *fam;
 
@@ -1615,10 +1616,9 @@ UpdateBoldItalic(XmFontSelectorWidget fsw)
 	XtSetSensitive(XmFontS_italic_toggle(fsw), True);
     }
 
-    if (CheckFlag(XmFontS_user_state(fsw), ITALIC))
-	strcpy(cf->slant, XrmQuarkToString(fam->italic_nameq));
-    else
-	strcpy(cf->slant, XrmQuarkToString(fam->upright_nameq));
+    slant = XrmQuarkToString(CheckFlag(XmFontS_user_state(fsw), ITALIC) ?
+			     fam->italic_nameq : fam->upright_nameq);
+    StoreString(slant == NULL ? "" : slant, cf->slant, SLANT_LEN);
 }
 
 /*	Function Name:  UpdateFixedProportional
