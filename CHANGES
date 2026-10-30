@@ -1,7 +1,7 @@
 Guard layout-direction converters (2026-10-30)
 ===============================================
 
-- Validate widget and value inputs before layout-direction conversion.
+- Validate widget and value inputs before layout-direction defaults and conversion.
 - Reject invalid imports without changing widget state.
 - Add focused source coverage and documentation.
 

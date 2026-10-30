@@ -53,6 +53,9 @@ _XmDirectionDefault(Widget widget,
 		    XrmValue *value )
 {
   static XmDirection direction;
+
+  if (widget == NULL || value == NULL)
+    return;
   
   value->addr = (XPointer) &direction;
 
