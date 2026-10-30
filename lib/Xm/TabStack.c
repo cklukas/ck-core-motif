@@ -4854,8 +4854,17 @@ XmTabStackMenu(widget, event, params, num_params)
     Cardinal *num_params;
 #endif
 {
-    Widget           parent = XtParent(widget), child;
-    XmTabStackWidget tab = (XmTabStackWidget)XtParent(parent);
+    Widget           parent, child;
+    XmTabStackWidget tab;
+
+    if (widget == NULL || event == NULL)
+	return;
+    parent = XtParent(widget);
+    if (parent == NULL)
+	return;
+    tab = (XmTabStackWidget)XtParent(parent);
+    if (tab == NULL || !XtIsSubclass((Widget) tab, xmTabStackWidgetClass))
+	return;
 
     /*
      * Lets start by finding out if we are popping this menu up from

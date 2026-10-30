@@ -1,3 +1,10 @@
+Guard TabStack menu action (2026-10-30)
+=======================================
+
+- Validate action widget, event, parents, and TabStack ancestor before access.
+- Preserve valid menu positioning and tear-off state updates.
+- Add focused source coverage and documentation.
+
 Guard TabStack drag callback (2026-10-30)
 =========================================
 
