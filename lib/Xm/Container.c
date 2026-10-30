@@ -7504,17 +7504,27 @@ UpdateIconHeader(
     Widget      wid,
     Boolean count_only)
 {
-    XmContainerWidget   cw = (XmContainerWidget)wid;
+    XmContainerWidget   cw;
     Arg                 wargs[10];
     int                 n;
-    Widget icon_header = GetRealIconHeader(wid);
+    Widget icon_header;
+
+    if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
+	icon_header = GetRealIconHeader(wid);
 
     cw->container.self = True ;
 
     /*
      * Set up args for IconHeader.
      */
-    assert (cw->container.detail_heading_count > 0);
+    if (icon_header == NULL || cw->container.detail_heading == NULL ||
+	cw->container.detail_heading_count == 0 ||
+	cw->container.detail_heading_count == INVALID_COUNT) {
+	cw->container.self = False;
+	return;
+    }
 
     n = 0;
     if (!count_only) {
@@ -7530,7 +7540,7 @@ UpdateIconHeader(
 			cw->container.detail_heading_count - 1); n++;
     XtSetValues(icon_header,wargs,n);
 
-    cw->container.self = True ;
+    cw->container.self = False ;
 }
 
 /************************************************************************
