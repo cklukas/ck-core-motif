@@ -448,7 +448,7 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
         }
         return False;
     }
-    if (*text == '\0' || end == text || *end != '\0' ||
+    if (errno == ERANGE || *text == '\0' || end == text || *end != '\0' ||
         number > (unsigned long)~(Dimension)0)
         return False;
     *value_return = (XtArgVal)(Dimension)number;

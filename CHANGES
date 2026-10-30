@@ -31444,5 +31444,12 @@ Reject unknown image formats during scaling (2026-10-30)
   before format-dependent pixel access.
 - Add focused source-contract coverage and document the validation boundary.
 
+Reject appearance-profile numeric overflow (2026-10-30)
+========================================================
+
+- Reject `strtoul()` range errors before appearance-profile values are narrowed
+  to `Dimension`.
+- Add focused source-contract coverage and document the parser behavior.
+
 Clear stale destinations for empty region operations (2026-10-30)
 ===================================================================
