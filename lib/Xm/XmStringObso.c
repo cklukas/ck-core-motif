@@ -186,6 +186,11 @@ XmStringNCopy(
     return (NULL);
 
   len = XmCvtXmStringToByteStream(str, &tmp);
+
+  /* A zero length with no buffer means serialization failed, not that the
+     string has an empty ASN.1 representation. */
+  if (len == 0 && tmp == NULL)
+    return (NULL);
   
   if (n >= len) /* No need to truncate */
     {

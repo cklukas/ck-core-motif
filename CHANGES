@@ -1,3 +1,10 @@
+Reject failed XmStringNCopy serialization (2026-10-30)
+=======================================================
+
+- Distinguish a failed ASN.1 conversion from an empty result before the
+  no-truncation copy path, preserving the documented `NULL` failure result.
+- Add focused source-contract coverage and document the failure behavior.
+
 Release compound-text conversion buffers on failure (2026-10-30)
 ================================================================
 
