@@ -56,10 +56,12 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
 }
 static void Destroy(Widget widget) {
+    XmSearchBoxWidget box = (XmSearchBoxWidget)widget;
     XtRemoveCallback(widget, XmNvalueChangedCallback, query_changed, NULL);
     XtRemoveCallback(widget, XmNactivateCallback, committed, NULL);
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
-    /* Xt releases XmNsearchPlaceholder resource storage after Destroy. */
+    if (box->search.placeholder)
+        XmStringFree(box->search.placeholder);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmSearchBoxWidget box = (XmSearchBoxWidget)widget;

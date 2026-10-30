@@ -1,3 +1,10 @@
+Release SearchBox placeholder on destruction (2026-10-30)
+============================================================
+
+- Free the widget-owned placeholder `XmString` during destruction, completing
+  the ownership contract already used by replacement updates.
+- Add focused source-contract coverage and document the lifecycle fix.
+
 Constrain SearchBox clear hit testing (2026-10-30)
 ====================================================
 
