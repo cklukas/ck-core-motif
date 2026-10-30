@@ -4751,8 +4751,14 @@ DragCallback(widget, client, cbdata)
     XtPointer client, cbdata;
 #endif
 {
-    XmAnyCallbackStruct            *info = (XmAnyCallbackStruct*)cbdata;
-    XmTabStackWidget               tab = (XmTabStackWidget) client;
+    XmAnyCallbackStruct            *info;
+    XmTabStackWidget               tab;
+
+    if (widget == NULL || client == NULL || cbdata == NULL ||
+	!XtIsSubclass((Widget) client, xmTabStackWidgetClass))
+	return;
+    info = (XmAnyCallbackStruct*)cbdata;
+    tab = (XmTabStackWidget) client;
     
     switch( info->reason )
     {
