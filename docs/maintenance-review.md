@@ -106,6 +106,10 @@ segments when creating visible buttons, so compound text is preserved in the
 rendered control rather than only in the stored model. The regression check is
 `tests/automated/check-row-actions-compound-label.py`.
 
+ToggleSwitch now reports redisplay only after a label replacement succeeds or
+an explicit label clear is applied; failed copies retain the old label without
+claiming a visual update. The existing focused check covers this rollback.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as

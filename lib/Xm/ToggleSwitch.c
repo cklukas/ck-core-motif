@@ -269,10 +269,10 @@ static Boolean SetValues(Widget current, Widget request, Widget new_widget,
             if (old_sw->toggle_switch.label)
                 XmStringFree(old_sw->toggle_switch.label);
             new_sw->toggle_switch.label = replacement;
+            redraw = True;
         } else {
             new_sw->toggle_switch.label = old_sw->toggle_switch.label;
         }
-        redraw = True;
     }
     if (old_sw->primitive.foreground != new_sw->primitive.foreground ||
         old_sw->core.background_pixel != new_sw->core.background_pixel ||

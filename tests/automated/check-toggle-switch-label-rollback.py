@@ -12,4 +12,8 @@ assert "replacement = new_sw->toggle_switch.label != NULL" in region
 assert "if (new_sw->toggle_switch.label == NULL || replacement != NULL)" in region
 assert "new_sw->toggle_switch.label = old_sw->toggle_switch.label;" in region
 assert region.index("XmStringCopy(new_sw->toggle_switch.label)") < region.index("XmStringFree(old_sw->toggle_switch.label)")
+success = region.index("if (new_sw->toggle_switch.label == NULL || replacement != NULL)")
+failure = region.index("} else", success)
+assert "redraw = True;" in region[success:failure]
+assert "redraw = True;" not in region[failure:region.index("}", failure) + 1]
 print("ToggleSwitch preserves labels on copy failure")
