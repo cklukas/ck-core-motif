@@ -708,3 +708,7 @@ focused source check is
 TimePicker value and range setters now fail closed during Xt teardown as well,
 preventing redraw and notification work on partial state. The focused source
 check is `tests/automated/check-timepicker-mutator-destroy-guards.py`.
+
+ColorPicker value and preview setters now fail closed during Xt teardown as
+well. The focused source check is
+`tests/automated/check-colorpicker-mutator-destroy-guards.py`.

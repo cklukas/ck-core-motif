@@ -1,3 +1,10 @@
+Guard ColorPicker mutators during destruction (2026-10-30)
+============================================================
+
+- Reject ColorPicker value and preview setters once Xt marks the widget for
+  destruction, avoiding redraw and notification work on partial state.
+- Add focused source-contract coverage for both setter paths.
+
 Guard TimePicker mutators during destruction (2026-10-30)
 ===========================================================
 

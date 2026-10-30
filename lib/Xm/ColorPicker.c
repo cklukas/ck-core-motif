@@ -227,7 +227,8 @@ unsigned long XmColorPickerGetValue(Widget widget) {
 void XmColorPickerSetValue(Widget widget, unsigned long value, Boolean notify_change) {
     XmColorPickerWidget picker;
     Boolean changed;
-    if (widget == NULL || !XmIsColorPicker(widget)) return;
+    if (widget == NULL || !XmIsColorPicker(widget) || widget->core.being_destroyed)
+        return;
     picker = (XmColorPickerWidget)widget;
     changed = picker->color_picker.value != value;
     picker->color_picker.value = value;
@@ -238,7 +239,8 @@ void XmColorPickerSetValue(Widget widget, unsigned long value, Boolean notify_ch
 }
 void XmColorPickerPreviewValue(Widget widget, unsigned long value) {
     XmColorPickerWidget picker;
-    if (widget == NULL || !XmIsColorPicker(widget)) return;
+    if (widget == NULL || !XmIsColorPicker(widget) || widget->core.being_destroyed)
+        return;
     picker = (XmColorPickerWidget)widget; picker->color_picker.preview = value;
     if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
     notify(picker, XmNcolorPickerPreviewCallback, NULL, value);
