@@ -544,6 +544,8 @@ CommandCallback(
 
     /* get char* string from text and convert to XmString type */
     str = XmTextFieldGetString (client_data->selection_box.text);
+    if (str == NULL)
+        return;
     cb.value = XmStringGenerate(str, XmFONTLIST_DEFAULT_TAG,
 				XmCHARSET_TEXT, NULL);
     XtFree (str);

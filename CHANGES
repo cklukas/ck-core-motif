@@ -1,3 +1,10 @@
+Guard Command text-string allocation (2026-10-30)
+=================================================
+
+- Stop Command value-change processing when text retrieval returns no string.
+- Avoid passing a null value into compound-string generation.
+- Add focused source coverage and documentation.
+
 Guard Command callback input (2026-10-30)
 =========================================
 
