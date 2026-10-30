@@ -150,7 +150,8 @@ static void Initialize(Widget request, Widget widget, ArgList args,
 static void owner_destroyed(Widget owner, XtPointer closure, XtPointer data) {
     XmFlyoutWidget flyout = (XmFlyoutWidget)closure;
     (void)owner; (void)data;
-    if (flyout == NULL || !XmIsFlyout((Widget)flyout))
+    if (flyout == NULL || !XmIsFlyout((Widget)flyout) ||
+        flyout->core.being_destroyed)
         return;
     flyout->flyout.owner = NULL;
     if (flyout->flyout.popup_shell &&
@@ -165,7 +166,8 @@ static void owner_destroyed(Widget owner, XtPointer closure, XtPointer data) {
 static void popup_destroyed(Widget shell, XtPointer closure, XtPointer data) {
     XmFlyoutWidget flyout = (XmFlyoutWidget)closure;
     (void)shell; (void)data;
-    if (flyout == NULL)
+    if (flyout == NULL || !XmIsFlyout((Widget)flyout) ||
+        flyout->core.being_destroyed)
         return;
     flyout->flyout.popup_shell = NULL;
     flyout->flyout.label = NULL;

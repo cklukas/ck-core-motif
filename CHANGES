@@ -1,3 +1,10 @@
+Guard Flyout destroy-state callbacks (2026-10-30)
+==================================================
+
+- Ignore owner and popup destroy notifications once the Flyout is marked for
+  destruction, avoiding writes to partially torn-down widget state.
+- Add focused source-contract coverage and document the teardown guard.
+
 Release SearchBox placeholder on destruction (2026-10-30)
 ============================================================
 
