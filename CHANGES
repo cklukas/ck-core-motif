@@ -31280,3 +31280,9 @@ Reject failed COMPOUND_TEXT export conversions (2026-10-30)
 - Report `BadAlloc` and release prior entries when an XmString-to-
   COMPOUND_TEXT conversion fails, instead of silently emitting an empty item.
 - Add focused source-contract coverage and document the failure behavior.
+Reject NULL XmString table entries on export (2026-10-30)
+==========================================================
+
+- Validate every entry in non-empty XmString tables before text-property
+  conversion, returning `BadValue` instead of silently emitting empty data.
+- Add focused source-contract coverage and document the input contract.

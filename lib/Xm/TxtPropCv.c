@@ -516,6 +516,12 @@ XmCvtXmStringTableToTextProperty(Display *display,
     _XmAppUnlock(app);
     return BadValue;
   }
+  for (i = 0; i < count; ++i) {
+    if (string_table[i] == NULL) {
+      _XmAppUnlock(app);
+      return BadValue;
+    }
+  }
   switch (style)
     {
     case XmSTYLE_COMPOUND_TEXT:
