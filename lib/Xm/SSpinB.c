@@ -545,7 +545,9 @@ static Widget
 GetCallbackWidget(Widget widget)
 {
     XmSimpleSpinBoxWidget	ssb_w;
-  
+
+    if (widget == NULL || !XtIsSubclass(widget, xmSimpleSpinBoxWidgetClass))
+	return NULL;
     ssb_w = (XmSimpleSpinBoxWidget) widget;
     return((Widget) ssb_w->simpleSpinBox.text_field);
 }
