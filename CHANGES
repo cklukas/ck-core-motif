@@ -32087,3 +32087,10 @@ Guard Container SetValues child constraints (2026-10-30)
 - Skip children without a Container constraint during spatial-layout
   transition updates before reading `entry_parent`.
 - Add focused source-contract coverage and document the invalid-child path.
+
+Guard Container parent constraints (2026-10-30)
+================================================
+
+- Detach an icon safely when a changed outline parent has no Container
+  constraint record before reading its depth or visibility state.
+- Add focused source-contract coverage and document the invalid-parent path.

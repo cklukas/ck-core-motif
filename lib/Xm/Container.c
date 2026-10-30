@@ -3390,6 +3390,15 @@ ConstraintSetValues(
 	else
             {
             pc = GetContainerConstraint(nc->entry_parent);
+	    if (pc == NULL)
+		{
+		nc->entry_parent = NULL;
+		nc->depth = 0;
+		nc->visible_in_outline = True;
+		ContainerResetDepths(nc);
+		}
+	    else
+		{
             nc->depth = pc->depth +1;
 	    ContainerResetDepths(nc);
 
@@ -3406,6 +3415,7 @@ ConstraintSetValues(
 		    {
 			nc->visible_in_outline = False;
 		    }
+		}
    		if ((!nc->visible_in_outline) || 
 	   	 (!CtrLayoutIsOUTLINE_DETAIL(cw)))
 	    	    HideCwid(ncwid);
