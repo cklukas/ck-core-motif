@@ -2518,6 +2518,8 @@ LayoutPages (
     for (i = 0; i < nb->composite.num_children; i++)
 	{
 	child = nb->composite.children[i];
+	if (child == NULL || child->core.constraints == NULL)
+	    continue;
 	nc = NotebookConstraint(child);
         if (   NB_IS_CHILD_PAGE(nc->child_type)
 	    || NB_IS_CHILD_STATUS(nc->child_type) )
@@ -2955,6 +2957,8 @@ LayoutMajorTabs (
     for (i = 0; i < nb->composite.num_children; i++)
         {
         child = nb->composite.children[i];
+	if (child == NULL || child->core.constraints == NULL)
+	    continue;
         nc = NotebookConstraint(child);
         if (NB_IS_CHILD_MAJOR(nc->child_type))
                 total_major_tabs++;
@@ -2968,6 +2972,8 @@ LayoutMajorTabs (
     for (i = 0; i < nb->composite.num_children; i++)
 	{
 	child = nb->composite.children[i];
+	if (child == NULL || child->core.constraints == NULL)
+	    continue;
 	nc = NotebookConstraint(child);
 
         if (NB_IS_CHILD_MAJOR(nc->child_type))
@@ -3578,6 +3584,8 @@ LayoutMinorTabs (
     for (i = 0; i < nb->composite.num_children; i++)
 	{
 	child = nb->composite.children[i];
+	if (child == NULL || child->core.constraints == NULL)
+	    continue;
 	nc = NotebookConstraint(child);
 
 	if (first_minor < nb->notebook.first_page_number
