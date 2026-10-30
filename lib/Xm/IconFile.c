@@ -225,6 +225,8 @@ MakeCachedDirEntry(String dirName)
 	    DtValidCachedDir	validDir;
 	    String		nameHeap;
 	    Cardinal		i;
+	    size_t		offset_count;
+	    size_t		offset_bytes;
 
             /*
              * Go through stackBuf and count the length of all
@@ -247,17 +249,29 @@ MakeCachedDirEntry(String dirName)
 	     * the last name
 	     */
 	    if (nameHeapSize > (size_t)USHRT_MAX ||
-		nameHeapSize > SIZE_MAX - sizeof(DtValidCachedDirStruct) ||
-		(size_t)numFiles >
-		(SIZE_MAX - sizeof(DtValidCachedDirStruct) - nameHeapSize) /
-		 sizeof(validDir->nameOffsets[0])) {
+		(size_t)numFiles == SIZE_MAX) {
+		XtFree(dirName);
+		closedir(fileDesc);
+		return NULL;
+	    }
+	    offset_count = (size_t)numFiles + 1;
+	    if (offset_count > SIZE_MAX / sizeof(validDir->nameOffsets[0])) {
+		XtFree(dirName);
+		closedir(fileDesc);
+		return NULL;
+	    }
+	    offset_bytes = offset_count * sizeof(validDir->nameOffsets[0]);
+	    if (nameHeapSize > SIZE_MAX - sizeof(DtValidCachedDirStruct) -
+			offset_bytes ||
+		nameHeapSize + sizeof(DtValidCachedDirStruct) + offset_bytes >
+			(size_t)(Cardinal)~0) {
 		XtFree(dirName);
 		closedir(fileDesc);
 		return NULL;
 	    }
             validDir = (DtValidCachedDir)
               XtMalloc(sizeof(DtValidCachedDirStruct) +
-		       (sizeof(validDir->nameOffsets[0]) * (size_t)numFiles) +
+		       offset_bytes +
 		       nameHeapSize);
             if (validDir == NULL) {
                 XtFree(dirName);

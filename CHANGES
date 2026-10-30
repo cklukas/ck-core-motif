@@ -1,3 +1,10 @@
+Allocate the complete icon-cache offset table (2026-10-30)
+===========================================================
+
+- Include the terminal filename offset in the `DtValidCachedDir` allocation
+  and validate the offset-table and total byte arithmetic before allocating.
+- Add focused source-contract coverage and document the cache layout.
+
 Bound immediate XmString payload copies (2026-10-30)
 ====================================================
 
