@@ -855,6 +855,8 @@ miRegionOp(
     register short  	ybot;	    	    	/* Bottom of intersection */
     register short  	ytop;	    	    	/* Top of intersection */
     XmRegionBox  	  	*oldRects;    	/* Old rects for newReg */
+    long                    oldNumRects;
+    long                    oldSize;
     long    	  		prevBand;    	/* Index of start of
 						 * previous band in newReg */
     long    	  		curBand;    	/* Index of start of current
@@ -878,6 +880,8 @@ miRegionOp(
     r2End = r2 + reg2->numRects;
     
     oldRects = newReg->rects;
+    oldNumRects = newReg->numRects;
+    oldSize = newReg->size;
 
     /*
      * Mark the "new" region empty and
@@ -901,7 +905,9 @@ miRegionOp(
 
     if (! (newReg->rects = (XmRegionBox *)
 	   XtMalloc ((Cardinal) (sizeof(XmRegionBox) * newReg->size)))) {
-	newReg->size = 0;
+	newReg->rects = oldRects;
+	newReg->numRects = oldNumRects;
+	newReg->size = oldSize;
 	return;
     }
     

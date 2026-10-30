@@ -1,3 +1,10 @@
+Restore regions after operation allocation failure (2026-10-30)
+=================================================================
+
+- Preserve a destination region's rectangle storage, count, and capacity when
+  `miRegionOp` cannot allocate its replacement array.
+- Add focused source-contract coverage and document the rollback behavior.
+
 Publish ColorObj pixel selectors transactionally (2026-10-30)
 ===============================================================
 
