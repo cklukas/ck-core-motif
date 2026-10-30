@@ -34,7 +34,7 @@ static Boolean contains_folded(const char *text, const char *needle) { size_t i,
 static void free_items(XmCommandPaletteWidget palette) { Cardinal i; for (i = 0; i < palette->palette.item_count; ++i) { XtFree(palette->palette.items[i].id); XmStringFree(palette->palette.items[i].label); XmStringFree(palette->palette.items[i].shortcut); } XtFree((char *)palette->palette.items); XtFree((char *)palette->palette.visible); palette->palette.items = NULL; palette->palette.visible = NULL; palette->palette.item_count = palette->palette.visible_count = 0; }
 static void free_item_array(XmCommandPaletteStoredItem *items, Cardinal count) { Cardinal i; if (!items) return; for (i = 0; i < count; ++i) { XtFree(items[i].id); XmStringFree(items[i].label); XmStringFree(items[i].shortcut); } XtFree((char *)items); }
 static void preferred(Widget child, Dimension *width, Dimension *height) { XtWidgetGeometry wanted; if (width == NULL || height == NULL) return; if (child == NULL) { *width = 0; *height = 0; return; } wanted.request_mode = 0; XtQueryGeometry(child, NULL, &wanted); *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width; *height = wanted.request_mode & CWHeight ? wanted.height : child->core.height; }
-+static XmString make_display_string(XmString label, XmString shortcut) {
+static XmString make_display_string(XmString label, XmString shortcut) {
     XmString result = label ? XmStringCopy(label) : XmStringCreateLocalized("");
     XmString separator;
     XmString suffix;

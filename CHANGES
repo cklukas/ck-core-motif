@@ -30946,3 +30946,13 @@ Make DropDown selection text conversion transactional (2026-10-30)
   coverage and maintenance documentation.
 
 Preserve EmptyState compound action labels (2026-10-30)
+Remove stray CommandPalette patch marker (2026-10-30)
+=======================================================
+
+- Remove an accidental leading `+` before the CommandPalette display-string
+  helper that made the C source invalid to compile.
+- Add a focused source-integrity regression for patch-marker artifacts.
+- Align the existing allocation-bounds check with the replacement storage it
+  actually validates.
+
+Reject failed UIL debug formatting passes (2026-10-30)

@@ -19,3 +19,7 @@ instance as a named panel with one explicit invoke action; its child search
 field and list retain their native text and selection semantics.  The
 installed fixture covers copied model ownership, filtering, dispatch,
 accessibility, no-match behavior, dismissal and teardown.
+
+The source-contract checks also reject accidental patch markers in this
+translation unit, so malformed hand-edited source cannot silently bypass the
+CommandPalette checks.

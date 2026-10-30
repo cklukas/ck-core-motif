@@ -8,5 +8,5 @@ body = source[start:source.index("Cardinal XmCommandPaletteGetItemCount", start)
 assert "SIZE_MAX / sizeof(*palette->palette.items)" in body
 assert "UINT_MAX / sizeof(*palette->palette.items)" in body
 assert "item array is too large" in body
-assert "XtCalloc(\n        count, sizeof(*palette->palette.items))" in body
+assert "XtCalloc(\n        count, sizeof(*replacement))" in body
 print("PASS CommandPalette item-array allocation bounds")
