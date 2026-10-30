@@ -6,6 +6,6 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Container.c").read_text(en
 for signature in ("XmContainerCut(", "XmContainerCopy(", "XmContainerCopyLink("):
     start = source.index(signature)
     region = source[start:]
-    assert "if (wid == NULL)" in region
-    assert region.index("if (wid == NULL)") < region.index("_XmWidgetToAppContext(wid)")
-print("PASS Container clipboard commands validate null widgets")
+    assert "if (wid == NULL || !XmIsContainer(wid))" in region
+    assert region.index("if (wid == NULL || !XmIsContainer(wid))") < region.index("_XmWidgetToAppContext(wid)")
+print("PASS Container clipboard commands validate widget class")
