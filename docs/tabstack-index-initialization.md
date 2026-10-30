@@ -1,8 +1,9 @@
 # TabStack child-index initialization
 
-`TabToIndex` now initializes its child index and bounds its scan by the
-composite child count. Selecting a tab therefore passes a deterministic
-zero-based index to the tab box without reading beyond Xt's child array.
+`TabToIndex` and the optional `IndexToTab` helper now initialize their child
+indices and bound scans by the composite child count. Selecting or looking up
+a tab therefore uses deterministic zero-based indices without reading beyond
+Xt's child array or dereferencing a NULL stack.
 
 The focused source-contract check is:
 

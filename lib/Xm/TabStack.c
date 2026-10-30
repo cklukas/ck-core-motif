@@ -3432,17 +3432,21 @@ IndexToTab(tab, idx)
     int              idx;
 #endif
 {
-    WidgetList kid = tab->composite.children;
-    int i;
+    WidgetList kid;
+    Cardinal child_index;
+    int i = 0;
 
     if( tab == NULL || idx < 0 ) return( (Widget)NULL );
+    kid = tab->composite.children;
 
-    for( i = 0; kid != NULL; kid++ )
+    for (child_index = 0; child_index < tab->composite.num_children;
+         ++child_index)
     {
-	if( !IsValidChild(tab, *kid) ) continue;
-	if( i == idx )
+	kid = &tab->composite.children[child_index];
+	if (!IsValidChild(tab, *kid)) continue;
+	if (i == idx)
 	{
-	    return( *kid );
+	    return *kid;
 	}
 	++i;
     }
