@@ -125,6 +125,13 @@ Guard Text selection callbacks during teardown (2026-10-30)
 - Extend focused selection-source coverage and document the empty/no-op
   failure behavior.
 
+Guard Text source value/accessor helpers (2026-10-30)
+=====================================================
+
+- Validate source state before value replacement and editable, selection, and
+  maximum-length accessors dereference private storage.
+- Add focused accessor coverage and document neutral failure results.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

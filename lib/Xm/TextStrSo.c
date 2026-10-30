@@ -2365,14 +2365,21 @@ void
 _XmStringSourceSetValue(XmTextWidget tw,
 			char *value)
 {
-  XmTextSource source = tw->text.source;
-  XmSourceData data = source->data;
+  XmTextSource source;
+  XmSourceData data;
   Boolean editable, freeBlock;
   int maxallowed;
   XmTextBlockRec block, newblock;
   XmTextPosition fromPos = 0; 
-  XmTextPosition toPos = data->length;
+  XmTextPosition toPos;
   size_t value_length;
+
+  if (tw == NULL || tw->text.source == NULL ||
+      tw->text.source->data == NULL)
+    return;
+  source = tw->text.source;
+  data = source->data;
+  toPos = data->length;
 
   if (value == NULL)
     value = "";
@@ -2407,13 +2414,14 @@ _XmStringSourceSetValue(XmTextWidget tw,
 Boolean 
 _XmStringSourceHasSelection(XmTextSource source)
 {
-  return source->data->hasselection;
+  return source != NULL && source->data != NULL &&
+    source->data->hasselection;
 }
 
 Boolean 
 _XmStringSourceGetEditable(XmTextSource source)
 {
-  return source->data->editable;
+  return source != NULL && source->data != NULL && source->data->editable;
 }
 
 void 
@@ -2424,20 +2432,23 @@ _XmStringSourceSetEditable(XmTextSource source,
                            Boolean editable)
 #endif /* NeedWidePrototypes */
 {
-  source->data->editable = editable;
+  if (source != NULL && source->data != NULL)
+    source->data->editable = editable;
 }
 
 int 
 _XmStringSourceGetMaxLength(XmTextSource source)
 {
-  return source->data->maxallowed;
+  return source != NULL && source->data != NULL ?
+    source->data->maxallowed : 0;
 }
 
 void 
 _XmStringSourceSetMaxLength(XmTextSource source,
 			    int max)
 {
-  source->data->maxallowed = max;
+  if (source != NULL && source->data != NULL)
+    source->data->maxallowed = max;
 }
 
 
