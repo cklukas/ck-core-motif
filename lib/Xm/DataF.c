@@ -1757,6 +1757,11 @@ df_MakeCopy(
         XtArgVal *value )
 #endif /* _NO_PROTO */
 {
+    if (w == NULL || value == NULL)
+    {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmDataFieldGetString (w);
 }
 
@@ -1774,6 +1779,11 @@ df_WcsMakeCopy(
         XtArgVal *value )
 #endif /* _NO_PROTO */
 {
+    if (w == NULL || value == NULL)
+    {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmDataFieldGetStringWcs (w);
 }
 

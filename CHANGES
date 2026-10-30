@@ -1,3 +1,10 @@
+Guard DataField string getters (2026-10-30)
+============================================
+
+- Validate widget and output storage before narrow/wide string exports.
+- Return deterministic null values for invalid callback inputs.
+- Add focused source coverage and documentation.
+
 Guard SpinBox position hooks (2026-10-30)
 =========================================
 
