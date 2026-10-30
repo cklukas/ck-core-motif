@@ -2780,6 +2780,11 @@ XmColumnLabelDestroyedCallback(Widget widget, XtPointer client,
 /* ARGSUSED */
 static void Get_entryLabelString (Widget widget, int offset, XtArgVal *value)
 {
+    if (widget == NULL || value == NULL ||
+	!XtIsSubclass(widget, xmColumnWidgetClass)) {
+	if (value != NULL) *value = (XtArgVal) NULL;
+	return;
+    }
     (*value) = (XtArgVal) XmStringCopy(XiC(widget)->label_string);
 }
 

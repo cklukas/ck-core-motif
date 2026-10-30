@@ -1,3 +1,10 @@
+Guard Column label getter (2026-10-30)
+======================================
+
+- Validate Column class and output storage before constraint access.
+- Preserve copied `XmString` results for valid Column children.
+- Add focused source coverage and documentation.
+
 Guard Container synthetic getters (2026-10-30)
 ==============================================
 
