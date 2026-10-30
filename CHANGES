@@ -1,3 +1,11 @@
+Guard DropDown child allocation failures (2026-10-30)
+=====================================================
+
+- Validate label, text, and arrow construction before callbacks, resource
+  updates, and translations, and make geometry placement tolerate missing
+  children.
+- Add focused source coverage and documentation.
+
 Guard ColorSelector child allocation failures (2026-10-30)
 ============================================================
 

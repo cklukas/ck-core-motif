@@ -1698,7 +1698,7 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
     /*
      * Now resize the widgets
      */
-    if (XmDropDown_show_label(cbw)) 
+    if (XmDropDown_show_label(cbw) && label != NULL)
     {
 	_XmConfigureWidget(label, label_x, /* XmDropDown_h_space(cbw), */
 			   XmDropDown_v_space(cbw), 
@@ -1707,12 +1707,14 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 			   label_geom.border_width);
     }	
 
-    _XmConfigureWidget(text, text_x,
+    if (text != NULL)
+	_XmConfigureWidget(text, text_x,
 		       XmDropDown_v_space(cbw) + shadow, 
 		       text_width, DropDownChildSpan(child_height, text_geom.border_width),
 		       text_geom.border_width);
 
-    _XmConfigureWidget(arrow, arrow_x,
+    if (arrow != NULL)
+	_XmConfigureWidget(arrow, arrow_x,
 		       XmDropDown_v_space(cbw) + shadow,
 		       arrow_geom.width, 
 		       DropDownChildSpan(child_height, arrow_geom.border_width),
@@ -1812,6 +1814,9 @@ QueryChildSize(Widget child, XtWidgetGeometry *geometry)
     /* XtQueryGeometry only defines fields named in request_mode. */
     *geometry = (XtWidgetGeometry){0};
     geometry->request_mode = CWWidth | CWHeight | CWBorderWidth;
+
+    if (child == NULL)
+	return;
     geometry->width = child->core.width;
     geometry->height = child->core.height;
     geometry->border_width = child->core.border_width;
@@ -1940,12 +1945,13 @@ CreateChildren(Widget w, ArgList args, Cardinal num_args)
 
     XmDropDown_label(cbw) = XtCreateWidget("label", xmLabelWidgetClass, 
 				      w, args, num_args);
-    XtVaSetValues(XmDropDown_label(cbw), XmNtraversalOn, False, NULL);
+    if (XmDropDown_label(cbw) != NULL)
+	XtVaSetValues(XmDropDown_label(cbw), XmNtraversalOn, False, NULL);
 
     /*
      * If we are supposed to show this label lets manage the widget.
      */
-    if( XmDropDown_show_label(cbw) ) 
+    if( XmDropDown_show_label(cbw) && XmDropDown_label(cbw) != NULL )
     {
 	XtManageChild(XmDropDown_label(cbw));
     }
@@ -1995,6 +2001,9 @@ CreateChildren(Widget w, ArgList args, Cardinal num_args)
 	XtFree((XtPointer)merge);
     }
     
+    if (XmDropDown_text(cbw) == NULL)
+	return;
+
     XtAddCallback(XmDropDown_text(cbw), XmNlosingFocusCallback, 
 		  VerifyTextField, (XtPointer) cbw);
     XtAddCallback(XmDropDown_text(cbw), XmNactivateCallback,
@@ -2028,6 +2037,8 @@ CreateChildren(Widget w, ArgList args, Cardinal num_args)
 		    XtCreateManagedWidget("arrow", xmArrowButtonWidgetClass,
 				  w, args, num_args);
     }
+    if (XmDropDown_arrow(cbw) == NULL)
+	return;
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNarrowDirection, XmARROW_DOWN); num_largs++;
     XtSetValues(XmDropDown_arrow(cbw), largs, num_largs);
