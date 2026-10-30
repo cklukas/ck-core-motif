@@ -81,6 +81,14 @@ destroys the embedded SearchBox first.  The focused contract check is:
 python3 tests/automated/check-autosuggest-search-destroy-order.py
 ```
 
+EmptyState now uses `XmStringEmpty` when deciding whether to show its action
+button, preserving compound and multilingual action labels without flattening
+them into locale bytes.  The focused contract check is:
+
+```sh
+python3 tests/automated/check-emptystate-compound-action.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws

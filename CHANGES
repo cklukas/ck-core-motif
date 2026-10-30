@@ -30797,3 +30797,12 @@ Guard AutoSuggestBox SearchBox teardown order (2026-10-30)
   coverage/documentation.
 
 Preserve CommandPalette compound display strings (2026-10-30)
+Preserve EmptyState compound action labels (2026-10-30)
+==========================================================
+
+- Use `XmStringEmpty` to determine action visibility instead of flattening
+  the label through locale-dependent text conversion.
+- Preserve multilingual action labels with focused source coverage and
+  maintenance documentation.
+
+Guard AutoSuggestBox SearchBox teardown order (2026-10-30)

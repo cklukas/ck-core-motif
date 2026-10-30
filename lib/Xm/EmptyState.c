@@ -62,14 +62,8 @@ static Boolean has_icon(XmEmptyStateWidget state) {
     return state->empty_state.icon != XmUNSPECIFIED_PIXMAP;
 }
 static Boolean has_action(XmEmptyStateWidget state) {
-    char *text;
-    Boolean result;
-    if (!state->empty_state.action_label) return False;
-    text = XmStringUnparse(state->empty_state.action_label, NULL, XmCHARSET_TEXT,
-                           XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
-    result = text && *text;
-    XtFree(text);
-    return result;
+    return state->empty_state.action_label != NULL &&
+           !XmStringEmpty(state->empty_state.action_label);
 }
 static void preferred(Widget child, Dimension *width, Dimension *height) {
     XtWidgetGeometry wanted;
