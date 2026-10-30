@@ -31241,3 +31241,11 @@ Reject incomplete render-table tab lists (2026-10-30)
 - Add focused source-contract coverage and document the parser guard.
 
 Terminate render-table item scans at EOF (2026-10-30)
+Initialize compound-text resource-converter output (2026-10-30)
+================================================================
+
+- Clear `XrmValue.addr` and `XrmValue.size` before parsing so empty input and
+  conversion failures cannot leak stale caller data.
+- Add focused source-contract coverage and document the output contract.
+
+Initialize empty text-property conversion results (2026-10-30)

@@ -1224,6 +1224,9 @@ cvtTextToXmString(
     Boolean	    ok = True;
     Octet	    c;
 
+    to->addr = NULL;
+    to->size = 0;
+
     ctx = (ct_context *)XtMalloc(sizeof(*ctx));
     if (ctx == NULL) {
         to->addr = NULL;
