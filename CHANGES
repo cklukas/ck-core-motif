@@ -1,3 +1,10 @@
+Guard ColorSelector child allocation failures (2026-10-30)
+============================================================
+
+- Make slider, mode-toggle, and color-preview construction and updates safe
+  when an internal Xt child cannot be allocated.
+- Add focused source coverage and documentation.
+
 Guard SimpleSpinBox text-child allocation failures (2026-10-30)
 ===============================================================
 

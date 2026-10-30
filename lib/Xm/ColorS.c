@@ -900,14 +900,20 @@ SetSliders(XmColorSelectorWidget csw)
 	{ XmNvalue, (XtArgVal) NULL },
     };
 
-    args[0].value = (XtArgVal) XmColorS_slider_red(csw);
-    XtSetValues(XmColorS_sliders(csw)[0], args, XtNumber(args));
+    if (XmColorS_sliders(csw)[0] != NULL) {
+	args[0].value = (XtArgVal) XmColorS_slider_red(csw);
+	XtSetValues(XmColorS_sliders(csw)[0], args, XtNumber(args));
+	}
 
-    args[0].value = (XtArgVal) XmColorS_slider_green(csw);
-    XtSetValues(XmColorS_sliders(csw)[1], args, XtNumber(args));
+    if (XmColorS_sliders(csw)[1] != NULL) {
+	args[0].value = (XtArgVal) XmColorS_slider_green(csw);
+	XtSetValues(XmColorS_sliders(csw)[1], args, XtNumber(args));
+	}
 
-    args[0].value = (XtArgVal) XmColorS_slider_blue(csw);
-    XtSetValues(XmColorS_sliders(csw)[2], args, XtNumber(args));
+    if (XmColorS_sliders(csw)[2] != NULL) {
+	args[0].value = (XtArgVal) XmColorS_slider_blue(csw);
+	XtSetValues(XmColorS_sliders(csw)[2], args, XtNumber(args));
+	}
 }
 
 /*	Function Name: SelectColor
@@ -1233,14 +1239,18 @@ new_mode(XmColorSelectorWidget csw, XmColorMode mode)
   if (mode == XmScaleMode) {
     SetSliders(csw);
     
-    XtUnmanageChild(XmColorS_scrolled_list(csw));
-    XtManageChild(XmColorS_bb(csw));
+    if (XmColorS_scrolled_list(csw) != NULL)
+	XtUnmanageChild(XmColorS_scrolled_list(csw));
+    if (XmColorS_bb(csw) != NULL)
+	XtManageChild(XmColorS_bb(csw));
   }
   else {
       SelectColor(csw);	/* Select the current color in the list. */
 
-      XtUnmanageChild(XmColorS_bb(csw));
-      XtManageChild(XmColorS_scrolled_list(csw));
+      if (XmColorS_bb(csw) != NULL)
+	  XtUnmanageChild(XmColorS_bb(csw));
+      if (XmColorS_scrolled_list(csw) != NULL)
+	  XtManageChild(XmColorS_scrolled_list(csw));
   }
 }
 
@@ -1257,6 +1267,12 @@ compute_size(XmColorSelectorWidget csw)
     XtWidgetGeometry	input, radio_geom, color_geom;
     int			width, height;
     Position		x,y;			/* positions		*/
+
+    if (XmColorS_bb(csw) == NULL ||
+	XmColorS_scrolled_list(csw) == NULL ||
+	XmColorS_chose_radio(csw) == NULL ||
+	XmColorS_color_window(csw) == NULL)
+	return;
 
     /*
      * First size and place the button box and scrolled list.
@@ -1655,6 +1671,9 @@ CreateColorSliders(XmColorSelectorWidget csw,
 				       margs, cnum_args + num_args);
     XtFree((XtPointer) margs);
 
+    if (XmColorS_bb(csw) == NULL)
+	return;
+
     num_args = 0;
     XtSetArg(args[num_args], XmNmaximum, 255); num_args++;
     XtSetArg(args[num_args], XmNorientation, XmHORIZONTAL); num_args++;
@@ -1674,7 +1693,10 @@ CreateColorSliders(XmColorSelectorWidget csw,
 						   xmScaleWidgetClass,
 						   XmColorS_bb(csw), margs,
 						   num_args + cnum_args);
-    
+
+	if (XmColorS_sliders(csw)[i] == NULL)
+	    continue;
+
 	XtAddCallback(XmColorS_sliders(csw)[i], XmNdragCallback,
 		      slider_changed, csw);
 	XtAddCallback(XmColorS_sliders(csw)[i], XmNvalueChangedCallback, 
@@ -1715,6 +1737,9 @@ CreateSelectorRadio(XmColorSelectorWidget csw,
     XmColorS_chose_radio(csw) = w;
     XtFree((XtPointer) margs);    
 
+    if (w == NULL)
+	return;
+
     i = 0;
     XtSetArg(args[i], XmNlabelString, NULL); label = i++;
     margs = XtMergeArgLists(args, i, cargs, cnum_args);
@@ -1729,7 +1754,8 @@ CreateSelectorRadio(XmColorSelectorWidget csw,
 				  XmColorS_chose_radio(csw), margs, i + cnum_args);
 	XmColorS_chose_mode(csw)[count] = w;
 
-	XtAddCallback(w, XmNvalueChangedCallback, change_mode, csw);
+	if (w != NULL)
+	    XtAddCallback(w, XmNvalueChangedCallback, change_mode, csw);
     }
 
     XtFree((XtPointer) margs);    
@@ -1754,6 +1780,9 @@ CreateColorWindow(XmColorSelectorWidget csw,ArgList cargs, Cardinal cnum_args)
 
     fr = XtCreateManagedWidget("colorFrame", xmFrameWidgetClass,
 			       (Widget) csw, cargs, cnum_args);
+
+    if (fr == NULL)
+	return;
 
     n = 0;
     XtSetArg(args[n], XmNrecomputeSize, False); n++;
