@@ -12,6 +12,11 @@ block = text[start:end]
 
 assert "if (start < 0)" in block
 assert "source == NULL || source->data == NULL" in block
+newline_start = text.index("SourceNewlineCharacter(XmSourceData data)")
+newline_end = text.index("\n/* In a supported UTF-8 locale", newline_start)
+newline_block = text[newline_start:newline_end]
+assert "data->widgets == NULL || data->numwidgets <= 0" in newline_block
+assert "data->PSWC_NWLN == NULL" in newline_block
 assert "unsigned long skipped" in block
 assert "if (start >= data->length) return 0;" in block
 assert "length > (unsigned long)(data->length - start)" in block

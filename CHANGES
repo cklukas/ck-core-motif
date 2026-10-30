@@ -95,6 +95,13 @@ Guard Text line counting during teardown (2026-10-30)
   before `CountLines` reads range state.
 - Extend focused line-count coverage and document the safe callback behavior.
 
+Guard Text newline lookup during teardown (2026-10-30)
+=======================================================
+
+- Validate widget and newline storage before `SourceNewlineCharacter` reads
+  the native newline value.
+- Extend focused line-count coverage and document the safe fallback.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

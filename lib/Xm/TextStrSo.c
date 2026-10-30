@@ -596,9 +596,14 @@ SourceLineCharacter(XmSourceData data, XmTextPosition position)
 static unsigned long
 SourceNewlineCharacter(XmSourceData data)
 {
-  int character_size = data->widgets[0]->text.char_size;
+  int character_size;
   BITS16 short_character;
   wchar_t wide_character;
+
+  if (data == NULL || data->widgets == NULL || data->numwidgets <= 0 ||
+      data->widgets[0] == NULL || data->PSWC_NWLN == NULL)
+    return 0;
+  character_size = data->widgets[0]->text.char_size;
 
   if (character_size == 1)
     return (unsigned long)(unsigned char)data->PSWC_NWLN[0];

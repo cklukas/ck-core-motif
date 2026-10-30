@@ -11,3 +11,6 @@ The focused source contract is checked by
 
 The counter also returns zero when its source or private data has already been
 cleared, avoiding a teardown-time dereference before range normalization.
+
+The newline-character helper also validates its widget and newline storage, so
+partially initialized sources cannot be dereferenced while counting.
