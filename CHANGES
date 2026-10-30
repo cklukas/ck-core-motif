@@ -1,3 +1,10 @@
+Guard FontSelector name-window callback state (2026-10-30)
+============================================================
+
+- Reject missing callback data and tolerate absent label/family children.
+- Avoid font refreshes when partial initialization left font state unavailable.
+- Add focused source coverage and documentation.
+
 Guard FontSelector middle-pane callback state (2026-10-30)
 ============================================================
 

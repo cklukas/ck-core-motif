@@ -3561,24 +3561,33 @@ ToggleNameWindow(Widget w, XtPointer fsw_ptr, XtPointer data)
     char buf[BUFSIZ];
 
     info = (XmToggleButtonCallbackStruct *) data;
+    if (fsw == NULL || info == NULL)
+	return;
 
     XmFontS_show_font_name(fsw) = info->set;
     if (info->set) {
-	XtManageChild(XmFontS_name_label(fsw));
+	if (XmFontS_name_label(fsw) != NULL)
+	    XtManageChild(XmFontS_name_label(fsw));
 	
 	if (XmFontS_xlfd_mode(fsw)) {
+	    if (XmFontS_font_info(fsw) == NULL ||
+		XmFontS_font_info(fsw)->current_font == NULL)
+		return;
 	    DisplayCurrentFont(fsw,
 			       BuildFontString(fsw,
 					       XmFontS_font_info(fsw)->current_font,
 					       buf, BUFSIZ));
 	}
 	else {
+	    if (XmFontS_family_box(fsw) == NULL)
+		return;
 	    String str = XmDropDownGetValue(XmFontS_family_box(fsw));
-	    DisplayCurrentFont(fsw, str);
+	    if (str != NULL)
+		DisplayCurrentFont(fsw, str);
 	    XtFree((XtPointer) str);
 	}
     }
-    else
+	else if (XmFontS_name_label(fsw) != NULL)
 	XtUnmanageChild(XmFontS_name_label(fsw));
 }
 
