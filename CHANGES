@@ -31739,6 +31739,13 @@ Guard Container button-motion inputs (2026-10-30)
   before drag-selection updates.
 - Add focused source-contract coverage and document the invalid-input path.
 
+Guard Container selection-range inputs (2026-10-30)
+=====================================================
+
+- Return safely before range, marquee, or visual-reset traversal when no
+  Container widget is supplied.
+- Add focused source-contract coverage and document the invalid-input path.
+
 Guard Container selection inputs (2026-10-30)
 ==============================================
 

@@ -8580,9 +8580,13 @@ static	Boolean
 ResetMarkedCwids(
 	Widget	wid)
 {
-	XmContainerWidget	cw = (XmContainerWidget)wid;
+	XmContainerWidget	cw;
 	CwidNode 		node;
 	Boolean			selection_changes = False;
+
+	if (wid == NULL)
+	return(False);
+	cw = (XmContainerWidget)wid;
 
 	node = cw->container.first_node;
 	while (node)
@@ -8603,13 +8607,17 @@ MarkCwidsInRange(
 	Widget	cwid2,
 	Boolean	visual_only)
 {
-	XmContainerWidget       cw = (XmContainerWidget)wid;
+	XmContainerWidget       cw;
         CwidNode		node;
 	Boolean			cwid1_found = False;
 	Boolean			cwid2_found = False;
 	Boolean			marking_started = False;
 	Boolean			marking_ended = False;
 	Boolean			selection_changes = False;
+
+	if (wid == NULL)
+	return(False);
+	cw = (XmContainerWidget)wid;
 
 	node = cw->container.first_node;
 	if (cwid1 == NULL)
@@ -8645,10 +8653,14 @@ MarkCwidsInMarquee(
 	Boolean	find_anchor,
         Boolean visual_only)
 {
-	XmContainerWidget       cw = (XmContainerWidget)wid;
+	XmContainerWidget       cw;
         CwidNode		node;
         Boolean                 selection_changes = False;
 	XmContainerConstraint	c;
+
+	if (wid == NULL)
+	return(False);
+	cw = (XmContainerWidget)wid;
 
 	node = cw->container.first_node;
 	while (node)
