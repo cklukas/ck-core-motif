@@ -1,3 +1,11 @@
+Handle drag-context allocation failure (2026-10-30)
+===================================================
+
+- Stop drag startup cleanly when the private `XmDragContext` cannot be
+  created, releasing merged arguments and unlocking application state before
+  returning `NULL`.
+- Add focused source-contract coverage for the failure path.
+
 Guard failed scrolled-list construction (2026-10-30)
 =====================================================
 

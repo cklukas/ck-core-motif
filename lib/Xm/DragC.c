@@ -3332,6 +3332,12 @@ XmDragStart(
     dc = (XmDragContext)
       XtCreateWidget("dragContext", xmDragContextClass,
 		     (Widget) dd, mergedArgs, numArgs + 1);
+    if (dc == NULL) {
+      if (numArgs)
+	XtFree((char *)mergedArgs);
+      _XmAppUnlock(app);
+      return NULL;
+    }
     XtAddCallback(w, XmNdestroyCallback, cancelDrag, (XtPointer)dc);
     _XmDragStart(dc, w, event);
 
