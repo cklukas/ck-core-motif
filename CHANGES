@@ -31752,3 +31752,10 @@ Guard Container marquee recalculation inputs (2026-10-30)
 - Require a Container widget and a real anchor child before marquee geometry
   reads during extend-both selection.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container marquee drawing input (2026-10-30)
+===================================================
+
+- Return safely from `DrawMarquee` when no widget is supplied before reading
+  realization or Container state.
+- Add focused source-contract coverage and document the invalid-input path.

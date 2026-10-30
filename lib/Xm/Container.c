@@ -8573,8 +8573,12 @@ static  void
 DrawMarquee(
         Widget          wid)
 {
-	XmContainerWidget	cw = (XmContainerWidget)wid;
+	XmContainerWidget	cw;
 	Dimension		width,height;
+
+	if (wid == NULL)
+	    return;
+	cw = (XmContainerWidget)wid;
 
 	/*
 	 * If the container widget is realized, draw the marquee rectangle
