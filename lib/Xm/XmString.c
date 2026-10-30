@@ -10499,6 +10499,9 @@ XmStringGenerate(XtPointer   text,
   ** Get the parse table shared by generate and ungenerate.
   */
   table_size = _get_generate_parse_table (&gen_table);
+
+  if (table_size <= 0 || gen_table == NULL)
+    return NULL;
   
   /* Parse the text into an XmString. */
   result = XmStringParseText
@@ -10741,6 +10744,9 @@ _XmStringUngenerate(XmString    string,
   ** Get the parse table shared by generate and ungenerate.
   */
   table_size = _get_generate_parse_table (&gen_table);
+
+  if (table_size <= 0 || gen_table == NULL)
+    return NULL;
   
   /* Unparse the XmString into text. */
   result = XmStringUnparse

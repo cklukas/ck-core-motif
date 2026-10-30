@@ -1,3 +1,10 @@
+Reject unavailable XmString generation tables (2026-10-30)
+============================================================
+
+- Return `NULL` from generation and ungeneration when the shared tab/newline
+  parse table cannot be initialized, rather than silently changing mappings.
+- Add focused source-contract coverage and document the failure behavior.
+
 Report XmStringGenerate rendition failures (2026-10-30)
 ========================================================
 
