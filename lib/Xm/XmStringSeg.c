@@ -324,6 +324,23 @@ _XmStringGetSegment(_XmStringContext   context,
 	(void) XmeStringGetComponent(local_context, TRUE, FALSE, &len, &val);
     }
 
+  if (copy_data && !result)
+    {
+      unsigned int cleanup;
+      XtFree((char *)*text);
+      *text = NULL;
+      XtFree((char *)*tag);
+      *tag = NULL;
+      if (*rendition_tags != NULL)
+	{
+	  for (cleanup = 0; cleanup < *tag_count; ++cleanup)
+	    XtFree((char *)(*rendition_tags)[cleanup]);
+	  XtFree((char *)*rendition_tags);
+	  *rendition_tags = NULL;
+	  *tag_count = 0;
+	}
+    }
+
   if (copy_data && result)
     {
       /* Copy the tag. */

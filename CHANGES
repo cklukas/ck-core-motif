@@ -1,3 +1,10 @@
+Clean up failed XmString segment extraction (2026-10-30)
+=========================================================
+
+- Release owned text, tag, and rendition copies whenever segment extraction
+  fails after requesting copy-data outputs.
+- Add focused source-contract coverage and document the failure cleanup.
+
 Release XmString segment copies on failure (2026-10-30)
 ========================================================
 
