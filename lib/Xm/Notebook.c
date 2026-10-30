@@ -7163,6 +7163,8 @@ XmNotebookGetPageInfo (
     for (i = 0; i < nb->composite.num_children; i++)
     {
         child = nb->composite.children[i];
+        if (child == NULL || child->core.constraints == NULL)
+            continue;
         nc = NotebookConstraint(child);
 
 	if (nc->page_number > page_number)

@@ -1,3 +1,10 @@
+Skip malformed Notebook page children (2026-10-30)
+===================================================
+
+- Ignore null composite children and missing child constraints while
+  `XmNotebookGetPageInfo` scans page metadata.
+- Add focused source-contract coverage and document the malformed-state path.
+
 Guard Container child enumeration constraints (2026-10-30)
 ============================================================
 
