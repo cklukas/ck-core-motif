@@ -4070,21 +4070,27 @@ SetValues(Widget old, Widget request, Widget set,
 	SetDisplayedFont(set_fsw, XmFontS_current_font(set_fsw));
     }
 
-    if (XmFontS_show_font_name(old_fsw) != XmFontS_show_font_name(set_fsw)) {
+
+    if (XmFontS_show_font_name(old_fsw) != XmFontS_show_font_name(set_fsw) &&
+	XmFontS_show_font_toggle(set_fsw) != NULL) {
 	XmToggleButtonSetState(XmFontS_show_font_toggle(set_fsw), 
 			       XmFontS_show_font_name(set_fsw), True);
     }
 
-    if (XmFontS_use_scaling(old_fsw) != XmFontS_use_scaling(set_fsw)) {
+    if (XmFontS_use_scaling(old_fsw) != XmFontS_use_scaling(set_fsw) &&
+	XmFontS_use_scaling_toggle(set_fsw) != NULL) {
 	XmToggleButtonSetState(XmFontS_use_scaling_toggle(set_fsw), 
 			       XmFontS_use_scaling(set_fsw), True);
     }
 
     if (new_encoding_list)
     {
-	Widget parent = XtParent(XmFontS_option_menu(set_fsw));
-	XmFontS_option_menu(set_fsw) = CreateEncodingMenu(set_fsw, 
-						     parent, NULL, 0);
+	Widget option_menu = XmFontS_option_menu(set_fsw);
+	if (option_menu != NULL) {
+	    Widget parent = XtParent(option_menu);
+	    XmFontS_option_menu(set_fsw) = CreateEncodingMenu(set_fsw,
+						       parent, NULL, 0);
+	}
     }
 
     /* if new_encoding_list is true, then CreateEncodingMenu has already
@@ -4126,8 +4132,9 @@ SetValues(Widget old, Widget request, Widget set,
 	}
 
     (void)snprintf(buf, sizeof(buf), "*button_%d", current);
-	if ((button = 
-	     XtNameToWidget(XtParent(XmFontS_option_menu(set_fsw)), buf)) != NULL)
+	if (XmFontS_option_menu(set_fsw) != NULL &&
+	    (button = XtNameToWidget(XtParent(XmFontS_option_menu(set_fsw)),
+					      buf)) != NULL)
 	{
 	    num_largs = 0;
 	    XtSetArg(largs[num_largs], XmNmenuHistory, button); num_largs++;
@@ -4141,7 +4148,9 @@ SetValues(Widget old, Widget request, Widget set,
 	}
     }
 
-    if (XmFontS_text_rows(old_fsw) != XmFontS_text_rows(set_fsw)) {
+
+    if (XmFontS_text_rows(old_fsw) != XmFontS_text_rows(set_fsw) &&
+	XmFontS_text(set_fsw) != NULL) {
 	num_largs = 0;
 	XtSetArg(largs[num_largs], XmNrows, XmFontS_text_rows(set_fsw));num_largs++;
 	XtSetValues(XmFontS_text(set_fsw), largs, num_largs);
@@ -4149,6 +4158,10 @@ SetValues(Widget old, Widget request, Widget set,
 
 	{
 	Boolean reset = False;
+#define SetLabelIfPresent(widget,label) \
+	{ Widget label_widget = (widget); \
+	  if (label_widget != NULL) \
+	      XtVaSetValues(label_widget, XmNlabelString, (label), NULL); }
 #define DoCheck(old_one,new_one) \
 	{ XmString replacement; reset = False; \
 	  if (old_one != new_one) { \
@@ -4159,31 +4172,32 @@ SetValues(Widget old, Widget request, Widget set,
 	  } }
 
 	DoCheck( ANY_STRING(old_fsw), ANY_STRING(set_fsw)); /* PUNT! or else we need to check if on-screen right now */
-	DoCheck( BOLD_STRING(old_fsw), BOLD_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_bold_toggle(set_fsw), XmNlabelString, BOLD_STRING(set_fsw), NULL);
-	DoCheck( BOTH_STRING(old_fsw), BOTH_STRING(set_fsw)); if (reset) { XtVaSetValues( XmFontS_dpiAny(set_fsw), XmNlabelString, BOTH_STRING(set_fsw), NULL); XtVaSetValues( XmFontS_any_spacing(set_fsw), XmNlabelString, BOTH_STRING(set_fsw), NULL); }
-	DoCheck( DPI100_STRING(old_fsw), DPI100_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_dpi100(set_fsw), XmNlabelString, DPI100_STRING(set_fsw), NULL);
-	DoCheck( DPI75_STRING(old_fsw), DPI75_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_dpi75(set_fsw), XmNlabelString, DPI75_STRING(set_fsw), NULL);
-	DoCheck( ENCODING_ONLY_STRING(old_fsw), ENCODING_ONLY_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_option_menu(set_fsw), XmNlabelString, ENCODING_ONLY_STRING(set_fsw), NULL);
-	DoCheck( FAMILY_STRING(old_fsw), FAMILY_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_family_box(set_fsw), XmNlabelString, FAMILY_STRING(set_fsw), NULL);
-	DoCheck( ITALIC_STRING(old_fsw), ITALIC_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_italic_toggle(set_fsw), XmNlabelString, ITALIC_STRING(set_fsw), NULL);
+	DoCheck( BOLD_STRING(old_fsw), BOLD_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_bold_toggle(set_fsw), BOLD_STRING(set_fsw));
+	DoCheck( BOTH_STRING(old_fsw), BOTH_STRING(set_fsw)); if (reset) { SetLabelIfPresent(XmFontS_dpiAny(set_fsw), BOTH_STRING(set_fsw)); SetLabelIfPresent(XmFontS_any_spacing(set_fsw), BOTH_STRING(set_fsw)); }
+	DoCheck( DPI100_STRING(old_fsw), DPI100_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_dpi100(set_fsw), DPI100_STRING(set_fsw));
+	DoCheck( DPI75_STRING(old_fsw), DPI75_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_dpi75(set_fsw), DPI75_STRING(set_fsw));
+	DoCheck( ENCODING_ONLY_STRING(old_fsw), ENCODING_ONLY_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_option_menu(set_fsw), ENCODING_ONLY_STRING(set_fsw));
+	DoCheck( FAMILY_STRING(old_fsw), FAMILY_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_family_box(set_fsw), FAMILY_STRING(set_fsw));
+	DoCheck( ITALIC_STRING(old_fsw), ITALIC_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_italic_toggle(set_fsw), ITALIC_STRING(set_fsw));
 	DoCheck( LOWER_ANY_STRING(old_fsw), LOWER_ANY_STRING(set_fsw));		/* PUNT! or else we need to check if on-screen right now */
-	DoCheck( MONO_SPACE_STRING(old_fsw), MONO_SPACE_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_monospace(set_fsw), XmNlabelString, MONO_SPACE_STRING(set_fsw), NULL);
-	DoCheck( OPTION_STRING(old_fsw), OPTION_STRING(set_fsw)); if (reset) XtVaSetValues( XtNameToWidget((Widget)set_fsw, "*optionButton"), XmNlabelString, OPTION_STRING(set_fsw), NULL);
-	DoCheck( OTHER_FONT_STRING(old_fsw), OTHER_FONT_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_other_toggle(set_fsw), XmNlabelString, OTHER_FONT_STRING(set_fsw), NULL);
-	DoCheck( PROPORTIONAL_STRING(old_fsw), PROPORTIONAL_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_proportional(set_fsw), XmNlabelString, PROPORTIONAL_STRING(set_fsw), NULL);
+	DoCheck( MONO_SPACE_STRING(old_fsw), MONO_SPACE_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_monospace(set_fsw), MONO_SPACE_STRING(set_fsw));
+	DoCheck( OPTION_STRING(old_fsw), OPTION_STRING(set_fsw)); if (reset) SetLabelIfPresent(XtNameToWidget((Widget)set_fsw, "*optionButton"), OPTION_STRING(set_fsw));
+	DoCheck( OTHER_FONT_STRING(old_fsw), OTHER_FONT_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_other_toggle(set_fsw), OTHER_FONT_STRING(set_fsw));
+	DoCheck( PROPORTIONAL_STRING(old_fsw), PROPORTIONAL_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_proportional(set_fsw), PROPORTIONAL_STRING(set_fsw));
 	DoCheck( SAMPLE_TEXT(old_fsw), SAMPLE_TEXT(set_fsw)); 
 		if (reset) 
 		{
 		char * temp_txt = _XmGetMBStringFromXmString(SAMPLE_TEXT(set_fsw));
-		XtVaSetValues( XmFontS_text(set_fsw), XmNlabelString, temp_txt, NULL);
+		SetLabelIfPresent(XmFontS_text(set_fsw), temp_txt);
 		XtFree(temp_txt);
 		}
-	DoCheck( SCALING_STRING(old_fsw), SCALING_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_use_scaling_toggle(set_fsw), XmNlabelString, SCALING_STRING(set_fsw), NULL);
-	DoCheck( SHOW_NAME_STRING(old_fsw), SHOW_NAME_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_show_font_toggle(set_fsw), XmNlabelString, SHOW_NAME_STRING(set_fsw), NULL);
-	DoCheck( SIZE_STRING(old_fsw), SIZE_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_size_box(set_fsw), XmNlabelString, SIZE_STRING(set_fsw), NULL);
-	DoCheck( XLFD_STRING(old_fsw), XLFD_STRING(set_fsw)); if (reset) XtVaSetValues( XmFontS_xlfd_toggle(set_fsw), XmNlabelString, XLFD_STRING(set_fsw), NULL);
+	DoCheck( SCALING_STRING(old_fsw), SCALING_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_use_scaling_toggle(set_fsw), SCALING_STRING(set_fsw));
+	DoCheck( SHOW_NAME_STRING(old_fsw), SHOW_NAME_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_show_font_toggle(set_fsw), SHOW_NAME_STRING(set_fsw));
+	DoCheck( SIZE_STRING(old_fsw), SIZE_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_size_box(set_fsw), SIZE_STRING(set_fsw));
+	DoCheck( XLFD_STRING(old_fsw), XLFD_STRING(set_fsw)); if (reset) SetLabelIfPresent(XmFontS_xlfd_toggle(set_fsw), XLFD_STRING(set_fsw));
          
 #undef DoCheck
+	#undef SetLabelIfPresent
 	}
 
     return (False);

@@ -1,3 +1,11 @@
+Guard FontSelector SetValues after partial construction (2026-10-30)
+=====================================================================
+
+- Skip toggle, text, and encoding-menu updates when their child widgets are
+  unavailable after partial initialization.
+- Route label refreshes through a null-safe helper.
+- Add focused source coverage and documentation.
+
 Fix FontSelector partial-initialization teardown (2026-10-30)
 ===============================================================
 
