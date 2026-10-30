@@ -32248,3 +32248,10 @@ Guard Container DnD placement callback inputs (2026-10-30)
 - Validate callback data, transfer value data, and child Container
   constraints before adjusting a drop point during item moves.
 - Add focused source-contract coverage and document the invalid-callback path.
+
+Guard Container removal constraints (2026-10-30)
+=================================================
+
+- Return safely when removing a child without Container constraints before
+  checking placement or updating occupancy.
+- Add focused source-contract coverage and document the invalid-child path.

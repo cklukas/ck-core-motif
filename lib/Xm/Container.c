@@ -3604,6 +3604,9 @@ RemoveItem(
     XRectangle		cwid_rect;
     Region		cwid_region;
 
+    if (c == NULL)
+	return(False);
+
     if (!CtrItemIsPlaced(cwid))
 	return(True);
     switch(cw->container.spatial_style)
