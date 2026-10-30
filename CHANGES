@@ -1,3 +1,11 @@
+Guard MultiList operations during destruction (2026-10-30)
+============================================================
+
+- Reject MultiList selection, deselection, row-toggle, and visibility
+  operations once Xt marks the widget for destruction, including selected-row
+  queries that would otherwise touch a partially torn-down child list.
+- Add focused source-contract coverage for the guarded entry points.
+
 Guard List keyboard and horizontal scrolling during destruction (2026-10-30)
 =============================================================================
 

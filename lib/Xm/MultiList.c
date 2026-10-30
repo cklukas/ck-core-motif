@@ -1298,6 +1298,7 @@ XmMultiListGetSelectedRows(Widget w)
     XmMultiListRowInfo **ret_rows = NULL;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return NULL;
     _XmWidgetToAppContext(w);
@@ -1383,6 +1384,7 @@ XmMultiListUnselectAllItems(Widget w)
   XmMultiListWidget elist = (XmMultiListWidget)w;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return;
     _XmWidgetToAppContext(w);
@@ -1406,6 +1408,7 @@ XmMultiListUnselectItem(Widget w, XmMultiListRowInfo *row_info)
   XmMultiListWidget elist = (XmMultiListWidget) w;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return;
     _XmWidgetToAppContext(w);
@@ -1427,6 +1430,7 @@ XmMultiListToggleRow(Widget w, short row)
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return;
     _XmWidgetToAppContext(w);
@@ -1451,6 +1455,7 @@ void XmMultiListSelectItems(Widget w, XmString item,
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return;
     _XmWidgetToAppContext(w);
@@ -1475,6 +1480,7 @@ XmMultiListDeselectItems(Widget w, XmString item, int column)
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return;
     _XmWidgetToAppContext(w);
@@ -1497,6 +1503,7 @@ void XmMultiListSelectAllItems(Widget w, Boolean notify)
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return;
     _XmWidgetToAppContext(w);
@@ -1519,6 +1526,7 @@ XmMultiListSelectRow(Widget w, int row, Boolean notify)
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return;
     _XmWidgetToAppContext(w);
@@ -1540,6 +1548,7 @@ XmMultiListDeselectRow(Widget w, int row)
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return;
     _XmWidgetToAppContext(w);
@@ -1564,6 +1573,7 @@ XmMultiListGetSelectedRowArray(Widget w, int *num_rows)
     int *ret_val;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL) {
         if (num_rows != NULL)
             *num_rows = 0;
@@ -1591,6 +1601,7 @@ XmMultiListMakeRowVisible(Widget w, int row)
     XmMultiListWidget elist = (XmMultiListWidget) w;
 
     if (w == NULL || !XtIsSubclass(w, xmMultiListWidgetClass) ||
+        elist->core.being_destroyed ||
         XmMultiList_ilist(elist) == NULL)
         return;
     _XmWidgetToAppContext(w);

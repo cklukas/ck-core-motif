@@ -779,3 +779,8 @@ List keyboard-position and horizontal-scroll changes now fail closed during Xt
 teardown, avoiding redraw, IME, scrollbar, and accessibility work on partial
 state. The focused source check is
 `tests/automated/check-list-keyboard-scroll-destroy-guards.py`.
+
+MultiList selection, deselection, row-toggle, visibility, and selected-row
+queries now fail closed during Xt teardown, avoiding operations on a partially
+torn-down child list. The focused source check is
+`tests/automated/check-multilist-destroy-guards.py`.
