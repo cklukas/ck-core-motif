@@ -31458,5 +31458,12 @@ Redraw DatePicker after range changes (2026-10-30)
   range so range-dependent UI is refreshed immediately.
 - Add focused source-contract coverage and document the redraw behavior.
 
+Redraw TimePicker after range changes (2026-10-30)
+==================================================
+
+- Invalidate a realized time picker after successfully updating its time range
+  so range-dependent UI is refreshed immediately.
+- Add focused source-contract coverage and document the redraw behavior.
+
 Clear stale destinations for empty region operations (2026-10-30)
 ===================================================================

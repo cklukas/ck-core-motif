@@ -329,5 +329,7 @@ Boolean XmTimePickerSetRange(Widget widget, const XmTimePickerValue *minimum,
         return False;
     picker->time_picker.minimum = *minimum;
     picker->time_picker.maximum = *maximum;
+    if (XtIsRealized(widget))
+        XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
     return True;
 }
