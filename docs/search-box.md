@@ -14,6 +14,9 @@ callback; the toolkit performs no blocking search or network work.  All
 callbacks run on the owning Xt thread and applications own asynchronous work
 and lifetime.
 
-Accessibility exposes a text role with the current query length and one
-commit action.  The installed fixture covers placeholder separation,
-query/clear/commit ordering, direct API operation, sensitivity and teardown.
+Accessibility exposes a text role with the current query length and a `commit`
+action. When the clear button is enabled, the field is editable, and the query
+is non-empty, it also exposes a `clear` action; read-only and empty fields do
+not advertise or accept that action. The installed fixture covers placeholder
+separation, query/clear/commit ordering, direct API operation, accessibility
+action names, read-only behavior, sensitivity and teardown.

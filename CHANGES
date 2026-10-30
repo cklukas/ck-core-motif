@@ -1,3 +1,12 @@
+Expose SearchBox accessibility actions accurately (2026-10-30)
+================================================================
+
+- Name the SearchBox accessibility action `commit` and expose `clear` only
+  when the clear affordance is enabled, the query is non-empty, and editing is
+  allowed.
+- Dispatch and recheck both actions through the live widget state, with
+  focused source and native fixture coverage plus documentation.
+
 Reject done callbacks after transfer flush (2026-10-30)
 ==========================================================
 

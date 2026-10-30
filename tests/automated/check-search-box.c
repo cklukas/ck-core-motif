@@ -11,7 +11,7 @@ static void on_committed(Widget w, XtPointer c, XtPointer data) { XmSearchBoxCal
 static void on_cleared(Widget w, XtPointer c, XtPointer data) { XmSearchBoxCallbackStruct *cb = data; (void)w; (void)c; if (!cb || cb->reason != XmSEARCH_REASON_CLEARED) ++callback_errors; ++cleared; }
 int main(int argc, char **argv) {
     XtAppContext app; Widget shell, row, search; XmString placeholder;
-    XmAccessibility *accessibility; XmAccessibleInfo info; XmAccessibleId id; char *value;
+    XmAccessibility *accessibility; XmAccessibleInfo info; XmAccessibleId id; char *value, *action_name;
     (void)argv;
     shell = XtVaAppInitialize(&app, "SearchBoxTest", NULL, 0, &argc, argv, NULL,
                               XmNwidth, 300, XmNheight, 80, NULL);
@@ -33,8 +33,23 @@ int main(int argc, char **argv) {
     id = XmAccessibilityWidget(accessibility, search);
     CHECK(XmAccessibilityQuery(accessibility, id, &info));
     CHECK(info.role == XmACCESSIBLE_TEXT && info.action_count == 1 && info.text_length == 0);
+    action_name = XmAccessibilityActionName(accessibility, id, 0);
+    CHECK(action_name && strcmp(action_name, "commit") == 0); XtFree(action_name);
     XmAccessibleInfoClear(&info); CHECK(XmAccessibilityAction(accessibility, id, 0));
-    CHECK(committed == 2); XmAccessibilityDestroy(accessibility);
+    CHECK(committed == 2);
+    XmSearchBoxSetString(search, "clear me");
+    CHECK(XmAccessibilityQuery(accessibility, id, &info));
+    CHECK(info.action_count == 2 && info.text_length == 8);
+    action_name = XmAccessibilityActionName(accessibility, id, 1);
+    CHECK(action_name && strcmp(action_name, "clear") == 0); XtFree(action_name);
+    CHECK(XmAccessibilityAction(accessibility, id, 1));
+    CHECK(cleared == 2);
+    XmSearchBoxSetString(search, "readonly");
+    XtVaSetValues(search, XmNeditable, False, NULL);
+    CHECK(XmAccessibilityQuery(accessibility, id, &info));
+    CHECK(info.action_count == 1);
+    CHECK(!XmAccessibilityAction(accessibility, id, 1));
+    XmAccessibleInfoClear(&info); XmAccessibilityDestroy(accessibility);
     XtSetSensitive(search, False); XmSearchBoxCommit(search, NULL); CHECK(committed == 2);
     XtDestroyWidget(shell); XtCloseDisplay(XtDisplay(shell)); XtDestroyApplicationContext(app);
     printf("PASS search box: %u checks\n", checks); return EXIT_SUCCESS;

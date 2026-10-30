@@ -74,6 +74,7 @@ static void deferred_destroy(XtPointer, XtIntervalId *);
 static Boolean sync_native_list(XmAccessibility *, XmAccessibleNode *);
 static void list_changed(Widget, XtPointer, XtPointer);
 static XmAccessibleId focused_identity(XmAccessibility *);
+static Boolean search_clear_available(Widget);
 static int bounded_text_length(const char *text) {
   const unsigned char *p = (const unsigned char *)text;
   size_t remaining = text ? strlen(text) : 0;
@@ -1456,7 +1457,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->role = XmACCESSIBLE_TEXT;
     i->has_text = True;
     i->text_length = bounded_text_length(query);
-    i->action_count = 1;
+    i->action_count = 1 + (search_clear_available(w) ? 1 : 0);
     i->name = XtNewString("Search");
     if (query) XtFree(query);
   }
@@ -1746,6 +1747,21 @@ static Boolean input_allowed(XmAccessibility *a, XmAccessibleId id,
   }
   return False;
 }
+static Boolean search_clear_available(Widget widget) {
+  Boolean clear_button = False;
+  Boolean editable = False;
+  char *query;
+  Boolean available;
+
+  if (widget == NULL || !XmIsSearchBox(widget) || !XtIsSensitive(widget))
+    return False;
+  XtVaGetValues(widget, XmNsearchClearButton, &clear_button,
+                XmNeditable, &editable, NULL);
+  query = XmSearchBoxGetString(widget);
+  available = clear_button && editable && query != NULL && query[0] != '\0';
+  XtFree(query);
+  return available;
+}
 static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
                               unsigned int action) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
@@ -1777,6 +1793,19 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
     XmAccessibleInfoClear(&info);
     return XmAccessibilitySetValue(a, id, next);
   }
+  if (n->widget && XmIsSearchBox(n->widget)) {
+    if (!XtIsSensitive(n->widget))
+      return False;
+    if (action == 0) {
+      XmSearchBoxCommit(n->widget, NULL);
+      return True;
+    }
+    if (action == 1 && search_clear_available(n->widget)) {
+      XmSearchBoxClear(n->widget);
+      return True;
+    }
+    return False;
+  }
   if (!n->widget || action || !XtIsSensitive(n->widget))
     return False;
   if (menu_pane(XtParent(n->widget))) {
@@ -1807,10 +1836,6 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsLink(n->widget)) {
     XmLinkActivate(n->widget, NULL);
-    return True;
-  }
-  if (XmIsSearchBox(n->widget)) {
-    XmSearchBoxCommit(n->widget, NULL);
     return True;
   }
   if (XmIsEmptyState(n->widget) && action == 0) {
@@ -1884,6 +1909,8 @@ static char *action_name_impl(XmAccessibility *a, XmAccessibleId id,
   }
   XmAccessibleInfoClear(&info);
   if (n->list_owner) return XtNewString("select");
+  if (n->widget && XmIsSearchBox(n->widget))
+    return XtNewString(action == 0 ? "commit" : "clear");
   if (n->provider.action_name)
     return n->provider.action_name(n->data, action);
   {
