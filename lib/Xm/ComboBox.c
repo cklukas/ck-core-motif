@@ -2432,6 +2432,8 @@ CBGetSelectedPos(Widget    widget,
 
   if (widget == NULL || value == NULL)
     return;
+  if (!cb->composite.num_children || CB_List(cb) == NULL)
+    return;
 
   /* Using XmListGetSelectedPos would copy the positions array. */
   nargs = 0;
