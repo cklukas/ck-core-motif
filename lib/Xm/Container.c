@@ -5001,7 +5001,7 @@ ContainerEndSelect(
 	    XtParent(current_focus) == wid) {
 	  XmContainerConstraint c = 
 	    GetContainerConstraint(current_focus);
-	  if (c->selection_visual != XmSELECTED)
+	  if (c == NULL || c->selection_visual != XmSELECTED)
 	    set_cursor = True;
 	} else {
 	  set_cursor = True;

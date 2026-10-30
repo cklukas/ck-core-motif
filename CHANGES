@@ -32255,3 +32255,10 @@ Guard Container removal constraints (2026-10-30)
 - Return safely when removing a child without Container constraints before
   checking placement or updating occupancy.
 - Add focused source-contract coverage and document the invalid-child path.
+
+Guard Container end-select focus constraints (2026-10-30)
+===========================================================
+
+- Treat a focused child without Container constraints as outside the selected
+  set before focus restoration reads selection state.
+- Add focused source-contract coverage and document the invalid-focus path.
