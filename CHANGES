@@ -1,3 +1,10 @@
+Refresh NumberBox drawing colors (2026-10-30)
+================================================
+
+- Update text, arrow, and invalid-state graphics contexts when foreground,
+  shadow, or background resources change through `XtSetValues`.
+- Add focused source coverage and maintenance documentation.
+
 Refresh Calendar and TreeView drawing colors (2026-10-30)
 ============================================================
 

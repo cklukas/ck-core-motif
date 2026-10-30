@@ -47,6 +47,14 @@ is:
 python3 tests/automated/check-calendar-treeview-color-update.py
 ```
 
+NumberBox now updates all three semantic drawing GCs—text, arrow, and
+invalid-state—when its foreground, shadow, or background resources change.
+The focused contract check is:
+
+```sh
+python3 tests/automated/check-numberbox-color-update.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws

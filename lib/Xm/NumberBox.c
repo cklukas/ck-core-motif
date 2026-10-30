@@ -342,7 +342,32 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmNumberBoxWidget old = (XmNumberBoxWidget)old_widget;
     XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
     Boolean redraw_needed = False;
+    Boolean colors_changed = old->primitive.foreground != number->primitive.foreground ||
+                             old->primitive.bottom_shadow_color != number->primitive.bottom_shadow_color ||
+                             old->core.background_pixel != number->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed) {
+        Display *display = XtDisplay(widget);
+        if (number->number_box.text_gc) {
+            XSetForeground(display, number->number_box.text_gc,
+                           number->primitive.foreground);
+            XSetBackground(display, number->number_box.text_gc,
+                           number->core.background_pixel);
+        }
+        if (number->number_box.arrow_gc) {
+            XSetForeground(display, number->number_box.arrow_gc,
+                           number->primitive.foreground);
+            XSetBackground(display, number->number_box.arrow_gc,
+                           number->core.background_pixel);
+        }
+        if (number->number_box.invalid_gc) {
+            XSetForeground(display, number->number_box.invalid_gc,
+                           number->primitive.bottom_shadow_color);
+            XSetBackground(display, number->number_box.invalid_gc,
+                           number->core.background_pixel);
+        }
+        redraw_needed = True;
+    }
     normalize(number);
     if (old->number_box.render_table != number->number_box.render_table) {
         XmRenderTable new_table = number->number_box.render_table ?
