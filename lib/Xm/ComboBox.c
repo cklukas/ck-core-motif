@@ -3615,6 +3615,11 @@ XmComboBoxAddItem(Widget   widget,
       _XmAppUnlock(app);
       return;
     }
+  else if (cb->core.being_destroyed)
+    {
+      _XmAppUnlock(app);
+      return;
+    }
   else if (!CB_List(cb)) {
     _XmAppUnlock(app);
     return;
@@ -3654,6 +3659,11 @@ XmComboBoxDeletePos(Widget widget,
   if (!XmIsComboBox(widget))
     {
       XmeWarning(widget, NOTACOMBOBOX);
+      _XmAppUnlock(app);
+      return;
+    }
+  else if (cb->core.being_destroyed)
+    {
       _XmAppUnlock(app);
       return;
     }
@@ -3738,6 +3748,11 @@ XmComboBoxSelectItem(Widget   widget,
       _XmAppUnlock(app);
       return;
     }
+  else if (cb->core.being_destroyed)
+    {
+      _XmAppUnlock(app);
+      return;
+    }
   else if (!CB_List(cb)) {
     _XmAppUnlock(app);
     return;
@@ -3785,6 +3800,11 @@ XmComboBoxSetItem(Widget   widget,
   if (!XmIsComboBox(widget))
     {
       XmeWarning(widget, NOTACOMBOBOX);
+      _XmAppUnlock(app);
+      return;
+    }
+  else if (cb->core.being_destroyed)
+    {
       _XmAppUnlock(app);
       return;
     }
@@ -3847,6 +3867,11 @@ XmComboBoxUpdate(Widget widget)
   if (!XmIsComboBox(widget))
     {
       XmeWarning(widget, NOTACOMBOBOX);
+      _XmAppUnlock(app);
+      return;
+    }
+  else if (cb->core.being_destroyed)
+    {
       _XmAppUnlock(app);
       return;
     }

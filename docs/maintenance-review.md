@@ -754,3 +754,8 @@ DatePicker date/range changes and popup open/close requests now fail closed
 during Xt teardown, avoiding calendar updates, popup work, and notifications on
 partial state. The focused source check is
 `tests/automated/check-datepicker-mutator-destroy-guards.py`.
+
+ComboBox add, delete, select, set, and update convenience operations now fail
+closed during Xt teardown while preserving the existing application-lock
+discipline. The focused source check is
+`tests/automated/check-combobox-mutator-destroy-guards.py`.
