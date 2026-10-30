@@ -32361,3 +32361,12 @@ Bound Trait hash conversion (2026-10-30)
 
 Harden Xpm fallback case folding (2026-10-30)
 ==============================================
+Make default hash conversion portable (2026-10-30)
+====================================================
+
+- Bound pointer keys through `uintptr_t` before converting them to signed
+  `XmHashValue`, fixing the default hash path on 64-bit hosts.
+- Add focused source-contract coverage and document the hash behavior.
+
+Bound icon-name hash conversion (2026-10-30)
+=============================================

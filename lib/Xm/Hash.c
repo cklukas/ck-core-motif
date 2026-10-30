@@ -31,6 +31,7 @@
 
 
 #include <stdint.h>
+#include <limits.h>
 
 #include "XmI.h"
 #include "HashI.h"
@@ -73,7 +74,7 @@ Compare(XmHashKey x, XmHashKey y)
 static XmHashValue
 Hash(XmHashKey x)
 {
-  return((XmHashValue) (long) x);
+	return (XmHashValue)((uintptr_t)x % (uintptr_t)INT_MAX);
 }
 
 /* Hash callbacks historically return a signed value.  Convert it to an
