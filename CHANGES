@@ -31920,3 +31920,11 @@ Guard Container cell-size dispatch inputs (2026-10-30)
 - Return safely before querying spatial style when cell-size dispatch receives
   no Container widget.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container outline sizing inputs (2026-10-30)
+===================================================
+
+- Validate outline-button sizing widget and temporary gadget allocation, and
+  restore internal state when sizing cannot create its gadget; also initialize
+  the outline-column synthetic resource only after validating its widget.
+- Add focused source-contract coverage and document the invalid-input path.

@@ -1186,13 +1186,15 @@ GetOutlineColumnWidth(
         int             offset, /* unused */
         XtArgVal        *value)
 {
-    XmContainerWidget	cw = (XmContainerWidget)wid;
+    XmContainerWidget	cw;
 
     if (wid == NULL || value == NULL ||
 	!XtIsSubclass(wid, xmContainerWidgetClass)) {
 	if (value != NULL) *value = (XtArgVal) 0;
 	return;
     }
+
+    cw = (XmContainerWidget)wid;
 
     /* Send 0 if dynamic, real_first_col_width otherwise */
     if (CtrIsDynamic(cw,FIRSTCW))
@@ -7126,10 +7128,14 @@ static	void
 SizeOutlineButton(
     Widget	wid)
 {
-    XmContainerWidget	cw = (XmContainerWidget)wid;
+    XmContainerWidget	cw;
     Arg			wargs[10];
     int			n;
     Dimension		width,height;
+
+    if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
 
     /*
      * Create dummy outline button so we can get size.
@@ -7148,6 +7154,10 @@ SizeOutlineButton(
         cw->container.size_ob = XtCreateWidget(OBNAME,
                 xmPushButtonGadgetClass,(Widget)cw,wargs,n);
 	cw->container.create_cwid_type = CONTAINER_ICON;
+	if (cw->container.size_ob == NULL) {
+	    cw->container.self = False;
+	    return;
+	}
 	}
     XtVaGetValues(cw->container.size_ob,XmNwidth,&cw->container.ob_width,
 	XmNheight,&cw->container.ob_height,NULL);
