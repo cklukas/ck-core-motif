@@ -652,10 +652,14 @@ XmPrintSetup(
     String video_name, video_class ;
     Widget pappshell ;
     Widget print_shell;
-    Display  *print_display = DisplayOfScreen(print_screen);
+    Display  *print_display;
+
+    if (!video_widget || !print_screen || !print_shell_name)
+        return NULL;
+    print_display = DisplayOfScreen(print_screen);
 
     /* get to the video app root shell */
-    while(!XtIsApplicationShell(video_widget))
+    while(video_widget && !XtIsApplicationShell(video_widget))
 	video_widget = XtParent(video_widget);
 
     if (!video_widget) return NULL;
@@ -674,11 +678,17 @@ XmPrintSetup(
                                    print_display, 
                                    XmNscreen, print_screen, 
                                    NULL);
+    if (!pappshell)
+        return NULL;
 
     /* then create the XmPrintShell */
     print_shell = XtCreatePopupShell(print_shell_name, 
 				     xmPrintShellWidgetClass, 
 				     pappshell, args, num_args);
+    if (!print_shell) {
+        XtDestroyWidget(pappshell);
+        return NULL;
+    }
 
     /* Add callback to destroy application Shell parent. */
     XtAddCallback(print_shell, XmNdestroyCallback, 

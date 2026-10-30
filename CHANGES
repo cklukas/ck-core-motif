@@ -29487,6 +29487,15 @@ Guard DropDown popup and list lifecycle (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard TeachingTip popup allocation and teardown (2026-10-30)
+Guard XmPrintSetup inputs and shell allocation (2026-10-30)
+============================================================
+
+- Validate the video widget, print screen, and shell name before ancestor
+  traversal.
+- Handle application-shell and print-shell allocation failures without null
+  dereferences or leaked temporary shells.
+- Add focused source coverage and documentation.
+
 Guard ComboBox popup and list allocation (2026-10-30)
 =======================================================
 
