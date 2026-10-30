@@ -1,3 +1,9 @@
+Guard Avatar teardown input (2026-10-30)
+========================================
+
+- Reject null or wrong-class widgets before freeing Avatar resources.
+- Add focused source coverage and documentation.
+
 Guard Avatar SetValues input (2026-10-30)
 =========================================
 

@@ -107,6 +107,8 @@ static void Initialize(Widget request, Widget widget, ArgList args,
 
 static void Destroy(Widget widget) {
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
+    if (widget == NULL || !XtIsSubclass(widget, xmAvatarWidgetClass))
+        return;
     if (avatar->avatar.foreground_gc)
         XFreeGC(XtDisplay(widget), avatar->avatar.foreground_gc);
     if (avatar->avatar.fallback_font)
