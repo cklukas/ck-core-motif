@@ -9,5 +9,6 @@ end = source.index("\nstatic unsigned int\nExtensionsSize", start)
 region = source[start:end]
 
 assert "(size_t)(s - dataptr) >= (size_t)data_size" in region
+assert region.count("(size_t)(s - dataptr) >= (size_t)data_size") >= 2
 assert "(size_t)(s - dataptr) > (size_t)UINT_MAX - *used_size" in region
 print("PASS XPM pixel serialization bounds its final quote and size update")

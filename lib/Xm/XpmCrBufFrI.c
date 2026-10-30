@@ -362,6 +362,8 @@ WritePixels(
 
     h = height - 1;
     for (y = 0; y < h; y++) {
+	if ((size_t)(s - dataptr) >= (size_t)data_size)
+	    return 0;
 	*s++ = '"';
 	for (x = 0; x < width; x++, pixels++) {
 	    if ((size_t)(s - dataptr) > data_size ||
