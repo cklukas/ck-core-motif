@@ -29529,3 +29529,11 @@ Guard RowColumn popup-menu shell allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard ComboBox edit-field allocation (2026-10-30)
+Guard tear-off shell allocation (2026-10-30)
+============================================
+
+- Stop tear-off setup cleanly when the transient shell cannot be created.
+- Avoid title, atom, focus, and callback operations on a null shell.
+- Add focused source coverage and documentation.
+
+Guard RowColumn popup-menu shell allocation (2026-10-30)

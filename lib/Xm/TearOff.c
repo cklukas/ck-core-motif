@@ -983,6 +983,8 @@ _XmTearOffInitiate(
    to_shell = (ShellWidget)XtCreatePopupShell(DEFAULT_TEAR_OFF_TITLE,
       transientShellWidgetClass,
       toplevel, args, 9);
+   if (to_shell == NULL)
+      return;
 
    if (RC_TearOffTitle(submenu) != NULL)
      XmeSetWMShellTitle(RC_TearOffTitle(submenu), (Widget) to_shell);
