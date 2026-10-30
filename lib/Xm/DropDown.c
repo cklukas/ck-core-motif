@@ -369,7 +369,7 @@ XiMbstowcs(wchar_t* wcs, char* mbs, size_t n)
 	OsiStrncpy((char*)wcs, mbs, n);
 	return((size_t) strlen((char*) wcs));
     }
-    else
+    else if (child != NULL)
     {
 	return (0);
     }
@@ -1541,7 +1541,8 @@ ComboCancel(Widget w, XEvent *event, String *params, Cardinal *num_params)
     Cardinal num_args;
     XmDropDownWidget cbw = FindComboBox(w);
 
-    if ((cbw == NULL) || XmDropDown_list_state(cbw) != XmDropDown_UNPOSTED)
+    if ((cbw == NULL) || XmDropDown_list_state(cbw) != XmDropDown_UNPOSTED ||
+	XmDropDown_arrow(cbw) == NULL || XmDropDown_text(cbw) == NULL)
 	return;
 
     if (!XmIsGrabShell((Widget)cbw))
@@ -1574,6 +1575,8 @@ ComboCancel(Widget w, XEvent *event, String *params, Cardinal *num_params)
 static XmDropDownWidget
 FindComboBox(Widget w)
 {
+    if (w == NULL)
+	return NULL;
     while (!XtIsSubclass(w, xmDropDownWidgetClass)) {
 	if ((w = XtParent(w)) == NULL)
 	    break;
@@ -1592,7 +1595,7 @@ RegisterShellHandler(Widget w)
 {
     XmDropDownWidget cbw = (XmDropDownWidget) w;
 
-    if (XmDropDown_popup_shell(cbw) == NULL)
+    if (cbw == NULL || XmDropDown_popup_shell(cbw) == NULL)
 	return;
 
     /*
@@ -1650,7 +1653,7 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 	label_width = label_geom.width;
 	label_bw = label_geom.border_width;
     }
-    else 
+    else if (child != NULL)
     {
 	label_width = 0;
 	label_bw = 0;
@@ -1662,7 +1665,7 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
     {
 	_XmRequestNewSize(w, False, width, height, &rwidth, &rheight);
     }
-    else 
+    else if (child != NULL)
     {
 	rwidth = w->core.width;
 	rheight = w->core.height;
@@ -1884,34 +1887,42 @@ FindDesiredSize(Widget w, Widget child,
     else if ( child != XmDropDown_label(cbw) ) {
 	QueryChildSize(XmDropDown_label(cbw), label);
     } 
-    else
+    else if (child != NULL)
     {
 	label->width = child->core.width;
 	label->height = child->core.height;
 	label->border_width = child->core.border_width; 
-    }	
+	}
+    else
+	{
+	label->width = label->height = label->border_width = 0;
+	}
     
     if ( child != XmDropDown_text(cbw) ) 
     {	
 	QueryChildSize(XmDropDown_text(cbw), text);
     } 
-    else 
+    else if (child != NULL)
     {
 	text->width = child->core.width;
 	text->height = child->core.height;
 	text->border_width = child->core.border_width;
     }
+    else
+	text->width = text->height = text->border_width = 0;
 
     if ( child != XmDropDown_arrow(cbw) ) 
     {
 	QueryChildSize(XmDropDown_arrow(cbw), arrow);
     }
-    else 
+    else if (child != NULL)
     {
 	arrow->width = child->core.width;
 	arrow->height = child->core.height;
 	arrow->border_width = child->core.border_width;
     }
+    else
+	arrow->width = arrow->height = arrow->border_width = 0;
 
     label_width = label->width + 2 * label->border_width;
     text_width = text->width + 2 * text->border_width;

@@ -194,6 +194,15 @@ Guard DropDown secondary interactions (2026-10-30)
 - Make keyboard and popup callbacks safe after partial child construction.
 - Add focused source coverage and document the lifecycle behavior.
 
+Guard DropDown geometry and actions (2026-10-30)
+=================================================
+
+- Provide bounded zero geometry when optional label, text, or arrow children
+  are absent during preferred-size calculation.
+- Guard cancel actions, combo-box lookup, and shell registration against null
+  widgets.
+- Add focused source coverage and document partial-geometry behavior.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 
