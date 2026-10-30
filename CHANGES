@@ -32101,3 +32101,10 @@ Guard Container fit-test constraints (2026-10-30)
 - Reject fit tests for children without a Container constraint before grid or
   cell placement reads `cell_idx`.
 - Add focused source-contract coverage and document the invalid-child path.
+
+Guard Container button-down constraints (2026-10-30)
+=====================================================
+
+- Require a child Container constraint before reading selection state during
+  button-down transfer handling.
+- Add focused source-contract coverage and document the invalid-child path.

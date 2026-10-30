@@ -4649,7 +4649,9 @@ ContainerHandleBtn1Down(
   else
     cwidc = (XmContainerConstraint) NULL;
  
-  if (dpy -> display.enable_btn1_transfer && cwid != (Widget) NULL
+
+  if (dpy -> display.enable_btn1_transfer && cwid != (Widget) NULL &&
+	cwidc != (XmContainerConstraint) NULL
 	&& !CtrOUTLINE_BUTTON(cwid)) {
     /* Select if over unselected item or background*/
     if (cwidc -> selection_state != XmSELECTED) {
