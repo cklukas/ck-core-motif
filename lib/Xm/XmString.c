@@ -11065,6 +11065,8 @@ _XmStringTruncateASN1(unsigned char *str, int n)
     
   if (a == NULL) return((unsigned char *)NULL);
   if (n < ASNHEADERLEN + CSSHORTLEN) return((unsigned char *)NULL);
+  if (!_is_short_length(a) && n < ASNHEADERLEN + CSLONGLEN)
+    return((unsigned char *)NULL);
     
   head_size = used = _read_header_length(a);
   len = _read_string_length(a);

@@ -10,4 +10,5 @@ region = source[start:end]
 assert region.count("remaining < (size_t)(ASNTAG + CSSHORTLEN)") >= 2
 assert region.count("_is_asn1_long(ap)") >= 2
 assert region.count("length = _read_asn1_length(ap);") >= 2
+assert "if (!_is_short_length(a) && n < ASNHEADERLEN + CSLONGLEN)" in region
 print("PASS ASN.1 truncation checks component header bounds")
