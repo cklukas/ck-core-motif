@@ -1,3 +1,10 @@
+Guard ButtonBox constraint hook input (2026-10-30)
+==================================================
+
+- Reject missing child `set` widgets before accessing constraint geometry.
+- Preserve valid child layout and preferred-size invalidation.
+- Add focused source coverage and documentation.
+
 Guard ButtonBox initialization input (2026-10-30)
 =================================================
 

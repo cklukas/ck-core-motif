@@ -333,6 +333,8 @@ static void Initialize(Widget req, Widget set,
 static void 
 ConstraintInitialize(Widget request, Widget set, ArgList args, Cardinal *num_args)
 {
+    if (set == NULL)
+	return;
     XmButtonBoxC_pref_width(set) = XmButtonBoxC_pref_height(set) = 0;
 }
 
@@ -351,6 +353,9 @@ static Boolean
 ConstraintSetValues(Widget current, Widget request, Widget set,
 		    ArgList args, Cardinal * num_args)
 {
+    if (set == NULL)
+	return False;
+
     if ((XmButtonBoxC_pref_width(set) != set->core.width) ||
 	(XmButtonBoxC_pref_height(set) != set->core.height))
     {
