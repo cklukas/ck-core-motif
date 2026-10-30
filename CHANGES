@@ -32234,3 +32234,10 @@ Guard Container insertion sibling constraints (2026-10-30)
 - Skip siblings without Container constraints while insertion resequences
   linked-list positions.
 - Add focused source-contract coverage and document the invalid-sibling path.
+
+Guard Container marked-state constraints (2026-10-30)
+======================================================
+
+- Skip nodes without Container constraints while synchronizing marked
+  selection state during cleanup.
+- Add focused source-contract coverage and document the invalid-node path.

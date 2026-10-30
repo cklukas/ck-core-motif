@@ -8678,6 +8678,11 @@ SetMarkedCwids(
         while (node)
                 {
 		c = GetContainerConstraint(node->widget_ptr);
+		if (c == NULL)
+		    {
+		    node = GetNextNode(node);
+		    continue;
+		    }
 		c->selection_state = c->selection_visual;
                 node = GetNextNode(node);
                 }
