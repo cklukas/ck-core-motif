@@ -507,7 +507,8 @@ _XmStringSourceGetChar(XmSourceData data,
   size_t gap_size, byte_position, unit, logical_position;
   XmTextWidget tw;
 
-  if (data == NULL || data->widgets == NULL || data->numwidgets < 1)
+  if (data == NULL || data->widgets == NULL || data->numwidgets < 1 ||
+      data->widgets[0] == NULL)
     return ("");
   tw = (XmTextWidget) data->widgets[0];
   unit = tw->text.char_size < 3 ? (size_t)tw->text.char_size :

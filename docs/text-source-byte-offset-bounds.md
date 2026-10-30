@@ -19,3 +19,6 @@ Gap movement and source-block reads also validate their source/widget storage
 before dereferencing it. During teardown or partial initialization they now
 return without moving the gap, or return an empty block, rather than touching
 freed or missing state.
+
+Character lookup applies the same widget-entry check and returns an empty
+result when the source is partially torn down.

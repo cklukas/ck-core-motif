@@ -52,6 +52,13 @@ Guard Text gap helpers during teardown (2026-10-30)
 - Extend the byte-offset regression and document the safe no-op/empty-block
   behavior.
 
+Guard Text character lookup during teardown (2026-10-30)
+=========================================================
+
+- Reject a missing first widget before deriving its character width in the
+  gap-buffer character lookup helper.
+- Extend the byte-offset regression and document the empty-result behavior.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

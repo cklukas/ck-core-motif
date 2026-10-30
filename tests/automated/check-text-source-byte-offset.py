@@ -17,6 +17,7 @@ assert "TextSourceByteOffset(data, (XmTextPosition)start, unit" in read_region
 assert "int byte_start" not in read_region
 assert "source == NULL || source->data == NULL || block == NULL" in read_region
 assert "TextSourceByteOffset(data, position, unit" in get_region
+assert "data->widgets[0] == NULL" in get_region
 assert "register XmTextPosition char_pos" not in get_region
 replace_start = source.index("static XmTextStatus \nReplace")
 replace_region = source[replace_start:source.index("  /* add data */", replace_start)]
