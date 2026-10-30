@@ -1011,7 +1011,16 @@ static void
 GetColors(Widget w, 
 	  XmAccessColorData color_data)
 {
-    XmManagerWidget parent = (XmManagerWidget) XtParent(w);
+    Widget parent_widget;
+    XmManagerWidget parent;
+
+    if (w == NULL || color_data == NULL ||
+	!XtIsSubclass(w, xmGadgetClass))
+	return;
+    parent_widget = XtParent(w);
+    if (parent_widget == NULL || !XmIsManager(parent_widget))
+	return;
+    parent = (XmManagerWidget) parent_widget;
 
     color_data->valueMask = AccessForeground | AccessBackgroundPixel |
 	AccessHighlightColor | AccessTopShadowColor | AccessBottomShadowColor;

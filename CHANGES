@@ -1,3 +1,10 @@
+Guard Gadget access-colors trait (2026-10-30)
+=============================================
+
+- Validate gadget/output and manager-parent state before color access.
+- Preserve the existing color mask and values for valid gadgets.
+- Add focused source coverage and documentation.
+
 Guard List top-position import conversion (2026-10-30)
 =======================================================
 
