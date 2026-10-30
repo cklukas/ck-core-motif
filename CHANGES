@@ -29521,3 +29521,11 @@ Guard ComboBox edit-field allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard FontSelector encoding-menu allocation (2026-10-30)
+Guard RowColumn popup-menu shell allocation (2026-10-30)
+=========================================================
+
+- Reject null parent/name inputs in the shared menu constructor.
+- Check popup-shell creation before accessing menu-shell state.
+- Add focused source coverage and documentation.
+
+Guard ComboBox edit-field allocation (2026-10-30)

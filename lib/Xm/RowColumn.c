@@ -3265,6 +3265,9 @@ create(
     Widget m;
     int i, ac = 0;
 
+    if (p == NULL || name == NULL)
+	return NULL;
+
     if (is_radio)               /* get ours in ahead of the */
     {                           /* caller's, so his override */
         XtSetArg (al[ac], XmNpacking, XmPACK_COLUMN);    ac++;
@@ -3354,6 +3357,10 @@ create(
 
             pop = (XmMenuShellWidget)XtCreatePopupShell(b, 
                      xmMenuShellWidgetClass, pw, s_al, s_ac);
+            if (pop == NULL) {
+		XtFree(b);
+		return NULL;
+	    }
 
             /* Mark the shell as having been created by us */
             pop->menu_shell.private_shell = True;
