@@ -1694,8 +1694,10 @@ boxWidthCompare(
 {
 /****************/
 
-    return( (*((XmKidGeometry *) boxPtr1))->box.width
-                                 > (*((XmKidGeometry *) boxPtr2))->box.width) ;
+    Dimension width1 = (*((XmKidGeometry *) boxPtr1))->box.width;
+    Dimension width2 = (*((XmKidGeometry *) boxPtr2))->box.width;
+
+    return (width1 > width2) - (width1 < width2);
     }
 /****************************************************************
  * This routine alters box sizes such that the composite width is reduced

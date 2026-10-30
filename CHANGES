@@ -32304,6 +32304,13 @@ Guard Container reorder constraints (2026-10-30)
 - Validate first-item and list-entry Container constraints and node records
   before public reorder updates sibling positions.
 - Add focused source-contract coverage and document the invalid-item path.
+Fix GeoUtils box-width sorting contract (2026-10-30)
+=====================================================
+
+- Return a three-way ordering from the box-width comparator used by geometry
+  allocation, so `qsort` can order smaller and larger boxes correctly.
+- Add focused source-contract coverage and document the layout fix.
+
 Avoid Container reorder comparator overflow (2026-10-30)
 ===========================================================
 
