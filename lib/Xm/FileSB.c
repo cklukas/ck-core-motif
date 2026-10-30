@@ -3538,7 +3538,12 @@ FileSelectionPB(
             Boolean         allowUnmanage = FALSE ;
 /****************/
 
+    if (wid == NULL || call_data == NULL)
+        return;
+
     fs = (XmFileSelectionBoxWidget) XtParent( wid) ;
+    if (fs == NULL)
+        return;
 
     searchData.reason = XmCR_NONE ;
     searchData.event = callback->event ;
@@ -3559,7 +3564,8 @@ FileSelectionPB(
             searchData.mask =
 	      XmStringGenerate(text_value, XmFONTLIST_DEFAULT_TAG,
 			       XmCHARSET_TEXT, NULL) ;
-            searchData.mask_length = XmStringLength( searchData.mask) ;
+            if (searchData.mask != NULL)
+                searchData.mask_length = XmStringLength(searchData.mask);
             XtFree( text_value) ;
             } 
         if(    FS_DirText( fs)
@@ -3568,7 +3574,8 @@ FileSelectionPB(
             searchData.dir =
 	      XmStringGenerate(text_value, XmFONTLIST_DEFAULT_TAG,
 			       XmCHARSET_TEXT, NULL) ;
-            searchData.dir_length = XmStringLength( searchData.dir) ;
+            if (searchData.dir != NULL)
+                searchData.dir_length = XmStringLength(searchData.dir);
             XtFree( text_value) ;
             } 
         searchData.reason = XmCR_NONE ;

@@ -1,3 +1,11 @@
+Guard FileSelectionBox push-button callback input (2026-10-30)
+===============================================================
+
+- Reject missing callback widgets, callback data, and parent dialog state.
+- Avoid measuring null mask or directory compound strings after allocation
+  failure.
+- Add focused source coverage and documentation.
+
 Guard FileSelectionBox list callback input (2026-10-30)
 ========================================================
 
