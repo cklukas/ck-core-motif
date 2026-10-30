@@ -9640,7 +9640,7 @@ XmListSelectItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int		   item_pos;
-  if (w == NULL || !XmIsList(w) || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9675,7 +9675,7 @@ XmListSelectPos(Widget w,
 #endif /* NeedWidePrototypes */
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9708,7 +9708,7 @@ XmListDeselectItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int	i;
-  if (w == NULL || !XmIsList(w) || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9746,7 +9746,7 @@ XmListDeselectPos(Widget w,
 		  int pos)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9787,7 +9787,7 @@ XmListDeselectAllItems(Widget w)
 {
   XmListWidget  lw = (XmListWidget) w;
   int  i;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9830,7 +9830,7 @@ XmListSetPos(Widget w,
 	     int pos)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9915,7 +9915,7 @@ XmListSetItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int	i;
-  if (w == NULL || !XmIsList(w) || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9956,7 +9956,7 @@ XmListSetBottomItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int i, top;
-  if (w == NULL || !XmIsList(w) || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -10000,7 +10000,7 @@ XmListSetAddMode(Widget w,
 #endif /* NeedWidePrototypes */
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 

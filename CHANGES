@@ -1,3 +1,11 @@
+Guard List selection and viewport operations during destruction (2026-10-30)
+=============================================================================
+
+- Reject List selection, deselection, add-mode, and viewport-position changes
+  once Xt marks the widget for destruction, avoiding redraw, accessibility,
+  and keyboard-navigation work on partial state.
+- Add focused source-contract coverage for the guarded entry points.
+
 Guard List deletion and replacement during destruction (2026-10-30)
 ====================================================================
 

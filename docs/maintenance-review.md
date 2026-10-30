@@ -769,3 +769,8 @@ List item/position deletion and replacement operations now fail closed during
 Xt teardown as well, avoiding storage, geometry, scrollbar, and accessibility
 work on partial state. The focused source check is
 `tests/automated/check-list-delete-replace-destroy-guards.py`.
+
+List selection, deselection, add-mode, and viewport-position operations now fail
+closed during Xt teardown, avoiding redraw, accessibility, and keyboard
+navigation work on partial state. The focused source check is
+`tests/automated/check-list-selection-destroy-guards.py`.
