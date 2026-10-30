@@ -302,6 +302,10 @@ ClassPartInitialize(WidgetClass w_class )
 static void Initialize(Widget req, Widget set, 
 		       ArgList args, Cardinal * num_args)
 {
+    if (req == NULL || set == NULL ||
+	!XtIsSubclass(set, xmButtonBoxWidgetClass))
+	return;
+
     /*
      * This is here just in case no children are added before the
      * widget is realized.
