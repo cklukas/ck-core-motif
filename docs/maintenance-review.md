@@ -784,3 +784,8 @@ MultiList selection, deselection, row-toggle, visibility, and selected-row
 queries now fail closed during Xt teardown, avoiding operations on a partially
 torn-down child list. The focused source check is
 `tests/automated/check-multilist-destroy-guards.py`.
+
+I18List row toggles, selected-row queries, and internal selection helpers now
+fail closed during Xt teardown, preventing reentrant MultiList callbacks from
+touching partial row state. The focused source check is
+`tests/automated/check-i18list-selection-destroy-guards.py`.

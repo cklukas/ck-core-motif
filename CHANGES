@@ -1,3 +1,11 @@
+Guard I18List selection internals during destruction (2026-10-30)
+==================================================================
+
+- Reject I18List row toggles, selected-row queries, and internal selection
+  helpers once Xt marks the widget for destruction, preventing reentrant
+  MultiList callbacks from touching partial row state.
+- Add focused source-contract coverage for the guarded paths.
+
 Guard MultiList operations during destruction (2026-10-30)
 ============================================================
 

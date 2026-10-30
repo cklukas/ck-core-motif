@@ -3486,7 +3486,8 @@ void
 Xm18IListUnselectAllItems( Widget w )
 {
   register int row;
-  if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass))
+  if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass) ||
+      ((XmI18ListWidget)w)->core.being_destroyed)
     return;
 
   XmI18ListWidget ilist = (XmI18ListWidget) w;
@@ -3649,7 +3650,7 @@ GetSelectedRows(XmI18ListWidget i18list, int *num_rows)
     int		*rows, i;
 
     rows = NULL;
-    if (i18list == NULL || num_rows == NULL)
+    if (i18list == NULL || i18list->core.being_destroyed || num_rows == NULL)
 	return NULL;
 
     row_info = XmI18List_row_data(i18list);
@@ -3690,7 +3691,7 @@ static void
 SelectRow(XmI18ListWidget i18list, int row,
 	  Boolean select, Boolean notify)
 {
-    if (i18list == NULL)
+    if (i18list == NULL || i18list->core.being_destroyed)
 	return;
 
     XmMultiListRowInfo	*rows = XmI18List_row_data(i18list);
@@ -3723,7 +3724,7 @@ SelectItems(XmI18ListWidget i18list, XmString item,
     int	i, j;
     int	rowcount, colcount, colstart;
 
-    if (i18list == NULL)
+    if (i18list == NULL || i18list->core.being_destroyed)
 	return;
 
     rows = XmI18List_row_data(i18list);
