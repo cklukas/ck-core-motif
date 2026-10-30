@@ -3217,7 +3217,12 @@ ConvertToEncoding(Widget w, char* str, Atom encoding,
 static void
 FromPaddingPixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmLabelWidget iw = (XmLabelWidget) widget;
+    XmLabelWidget iw;
+
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmLabelWidgetClass))
+        return;
+    iw = (XmLabelWidget) widget;
 
     switch(iw->label.pixmap_placement) {
     case XmPIXMAP_TOP:
@@ -3243,7 +3248,12 @@ FromPaddingPixels(Widget widget, int offset, XtArgVal *value)
 static XmImportOperator
 ToPaddingPixels(Widget widget, int offset, XtArgVal *value)
 {
-    XmLabelWidget iw = (XmLabelWidget) widget;
+    XmLabelWidget iw;
+
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmLabelWidgetClass))
+        return XmSYNTHETIC_NONE;
+    iw = (XmLabelWidget) widget;
 
     switch(iw->label.pixmap_placement) {
     case XmPIXMAP_TOP:
