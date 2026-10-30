@@ -5867,6 +5867,9 @@ _XmStringNonOptCreate(
 	      push_seen = txt_seen = pop_seen = False;
 	    }
 
+	  if (_XmUnoptSegRendBeginCount(&seg) < 0 ||
+	      _XmUnoptSegRendBeginCount(&seg) == INT_MAX)
+	    goto conversion_failed;
 	  rend_cnt = _XmUnoptSegRendBeginCount(&seg) + 1;
 	  
 	  if (rend_cnt > 1) needs_unopt = True;
@@ -5983,6 +5986,9 @@ _XmStringNonOptCreate(
 	case XmSTRING_COMPONENT_RENDITION_END:
 	  txt_seen = True;
 
+	  if (_XmUnoptSegRendEndCount(&seg) < 0 ||
+	      _XmUnoptSegRendEndCount(&seg) == INT_MAX)
+	    goto conversion_failed;
 	  rend_cnt = _XmUnoptSegRendEndCount(&seg) + 1;
 	  
 	  if (rend_cnt > 1) needs_unopt = True;

@@ -10,6 +10,7 @@ region = source[start:end]
 
 assert region.count("sizeof(XmStringTag)") >= 4
 assert region.count("if (!new_tags)") >= 2
+assert region.count("== INT_MAX") >= 2
 assert "_XmUnoptSegRendBegins(&seg) = new_tags;" in region
 assert "_XmUnoptSegRendEnds(&seg) = new_tags;" in region
 print("PASS XmString parser rendition arrays use checked byte sizes")

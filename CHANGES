@@ -6,6 +6,14 @@ Reject negative XmString rendition indices (2026-10-30)
   out of bounds.
 - Add focused source-contract coverage and document the defensive behavior.
 
+Reject overflowing XmString parser rendition counts (2026-10-30)
+================================================================
+
+- Validate begin/end rendition counts before incrementing them while parsing
+  ASN.1 streams, preventing `INT_MAX + 1` from wrapping around allocation
+  checks.
+- Extend the parser-size regression and document the malformed-stream guard.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 
