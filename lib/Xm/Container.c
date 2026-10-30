@@ -7962,15 +7962,25 @@ static void ContainerResetDepths
 #ifdef FIX_1425
 static void FindMaxDepths(XmContainerConstraint	c, Widget w)
 {
-	XmContainerWidget cw = (XmContainerWidget)w;
+	XmContainerWidget cw;
 	CwidNode node;
 
-	if (c == NULL || c->node_ptr == NULL)
+	if (c == NULL || c->node_ptr == NULL || w == NULL)
 	    return;
+	cw = (XmContainerWidget)w;
 	node = c->node_ptr->child_ptr;
 	while (node) {
 		Widget child = node->widget_ptr;
-		XmContainerConstraint cc = GetContainerConstraint(child);
+		XmContainerConstraint cc;
+		if (child == NULL) {
+		    node = node->next_ptr;
+		    continue;
+		}
+		cc = GetContainerConstraint(child);
+		if (cc == NULL) {
+		    node = node->next_ptr;
+		    continue;
+		}
 		cw->container.max_depth = MAX(cw->container.max_depth, cc->depth);
 		FindMaxDepths(cc, (Widget)cw);
 		node = node->next_ptr;

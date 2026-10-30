@@ -31990,3 +31990,10 @@ Guard Container tree-helper inputs (2026-10-30)
 - Validate child and parent constraint state in recursive depth-reset and
   descendant-check helpers.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container max-depth inputs (2026-10-30)
+==============================================
+
+- Validate optional max-depth traversal state and skip malformed child or
+  constraint records.
+- Add focused source-contract coverage and document the invalid-input path.
