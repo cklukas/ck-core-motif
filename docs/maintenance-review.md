@@ -73,6 +73,14 @@ The focused contract check is:
 python3 tests/automated/check-command-palette-compound-display.py
 ```
 
+AutoSuggestBox now observes SearchBox destruction and clears its cached child
+pointer before teardown.  This avoids stale-child inspection when an ancestor
+destroys the embedded SearchBox first.  The focused contract check is:
+
+```sh
+python3 tests/automated/check-autosuggest-search-destroy-order.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws

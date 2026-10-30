@@ -29,6 +29,7 @@ static void list_selected(Widget, XtPointer, XtPointer);
 static void search_events(Widget, XtPointer, XEvent *, Boolean *);
 static void list_events(Widget, XtPointer, XEvent *, Boolean *);
 static void popup_destroyed(Widget, XtPointer, XtPointer);
+static void search_destroyed(Widget, XtPointer, XtPointer);
 
 #define Offset(field) XtOffsetOf(XmAutoSuggestBoxRec, auto_suggest.field)
 static XtResource resources[] = {
@@ -185,6 +186,14 @@ static void popup_destroyed(Widget shell, XtPointer closure, XtPointer data)
     box->auto_suggest.list = NULL;
 }
 
+static void search_destroyed(Widget search, XtPointer closure, XtPointer data)
+{
+    XmAutoSuggestBoxWidget box = (XmAutoSuggestBoxWidget)closure;
+    (void)data;
+    if (box != NULL && box->auto_suggest.search == search)
+        box->auto_suggest.search = NULL;
+}
+
 static void emit_query(XmAutoSuggestBoxWidget box, XEvent *event)
 {
     XmAutoSuggestCallbackStruct callback;
@@ -221,6 +230,8 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                       search_committed, box);
         XtAddEventHandler(box->auto_suggest.search, KeyPressMask, True,
                           search_events, box);
+        XtAddCallback(box->auto_suggest.search, XtNdestroyCallback,
+                      search_destroyed, box);
     }
     box->auto_suggest.initializing = False;
 }
@@ -228,14 +239,16 @@ static void Initialize(Widget request, Widget widget, ArgList args,
 static void Destroy(Widget widget)
 {
     XmAutoSuggestBoxWidget box = (XmAutoSuggestBoxWidget)widget;
-    if (box->auto_suggest.search &&
-        !((CoreWidget)box->auto_suggest.search)->core.being_destroyed) {
+    if (box->auto_suggest.search) {
         XtRemoveCallback(box->auto_suggest.search,
                          XmNsearchQueryChangedCallback, query_changed, box);
         XtRemoveCallback(box->auto_suggest.search,
                          XmNsearchCommittedCallback, search_committed, box);
+        XtRemoveCallback(box->auto_suggest.search, XtNdestroyCallback,
+                         search_destroyed, box);
         XtRemoveEventHandler(box->auto_suggest.search, KeyPressMask, True,
                              search_events, box);
+        box->auto_suggest.search = NULL;
     }
     free_items(box);
     if (box->auto_suggest.popup_shell &&

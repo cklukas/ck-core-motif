@@ -30788,3 +30788,12 @@ Preserve CommandPalette compound display strings (2026-10-30)
   add focused source coverage and maintenance documentation.
 
 Preserve Badge compound labels during drawing (2026-10-30)
+Guard AutoSuggestBox SearchBox teardown order (2026-10-30)
+==============================================================
+
+- Null the cached SearchBox pointer from its destroy callback before the
+  parent teardown path can inspect it.
+- Remove the observer during normal destruction and add focused lifecycle
+  coverage/documentation.
+
+Preserve CommandPalette compound display strings (2026-10-30)
