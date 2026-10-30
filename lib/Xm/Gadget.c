@@ -988,6 +988,8 @@ static XmNavigability
 WidgetNavigable(
         Widget wid)
 {   
+  if (wid == NULL || !XtIsSubclass(wid, xmGadgetClass))
+    return XmNOT_NAVIGABLE;
   if(    XtIsSensitive(wid)
      &&  ((XmGadget) wid)->gadget.traversal_on    )
     {   
