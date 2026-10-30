@@ -1,3 +1,10 @@
+Reject trailing ColorObj property data (2026-10-30)
+=====================================================
+
+- Require the fixed-format server pixel property to end after its final field,
+  rejecting trailing bytes before publishing color state.
+- Add focused source-contract coverage and document the input validation.
+
 Reject malformed XmString entry text storage (2026-10-30)
 ============================================================
 

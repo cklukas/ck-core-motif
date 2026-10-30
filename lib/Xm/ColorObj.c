@@ -724,6 +724,10 @@ FetchPixelData(Widget w, char * value, unsigned long value_length, int screen)
 	    return False;
 	}
     }
+    if (*cursor != '\0') {
+	XtFree(bounded_value);
+	return False;
+    }
     UpdateXrm (colors, screen, tmpColorObj);
     /* Publish the selector only after every pixel field was validated. */
     tmpColorObj->color_obj.colorUse[screen] = colorUse;
