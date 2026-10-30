@@ -230,12 +230,21 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
                          ArgList args, Cardinal *count) {
     XmDatePickerWidget old = (XmDatePickerWidget)old_widget;
     XmDatePickerWidget picker = (XmDatePickerWidget)new_widget;
+    XmDatePickerDate calendar_date;
     Boolean render_changed = old->date_picker.render_table != picker->date_picker.render_table;
     (void)request; (void)args; (void)count;
     if (!XmCalendarIsValidDate(&picker->date_picker.date) ||
         compare_dates(&picker->date_picker.date, &old->date_picker.minimum) < 0 ||
         compare_dates(&picker->date_picker.date, &old->date_picker.maximum) > 0)
         picker->date_picker.date = old->date_picker.date;
+    if (picker->date_picker.calendar != NULL &&
+        compare_dates(&picker->date_picker.date, &old->date_picker.date) != 0) {
+        if (!XmCalendarGetDate(picker->date_picker.calendar, &calendar_date) ||
+            (compare_dates(&calendar_date, &picker->date_picker.date) != 0 &&
+             !XmCalendarSetDate(picker->date_picker.calendar,
+                                &picker->date_picker.date, False)))
+            picker->date_picker.date = old->date_picker.date;
+    }
     if (render_changed) {
         XmFontList replacement = picker->date_picker.render_table
             ? XmFontListCopy(picker->date_picker.render_table)

@@ -1,3 +1,11 @@
+Synchronize DatePicker resource dates with popup calendars (2026-10-30)
+=======================================================================
+
+- Keep an existing calendar child aligned when date resources change through
+  `XtSetValues`, without emitting a duplicate callback.
+- Preserve the previous parent date if child synchronization fails.
+- Add focused source coverage and documentation.
+
 Make DatePicker range updates transactional (2026-10-30)
 =========================================================
 
