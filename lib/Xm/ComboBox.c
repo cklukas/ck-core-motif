@@ -2322,7 +2322,8 @@ CBSetSelectedItem(Widget    widget,
   XmString new_value;
   int pos = 0;
 
-  if (widget == NULL || value == NULL)
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmComboBoxWidgetClass))
 	return XmSYNTHETIC_NONE;
   new_value = (XmString) *value;
   if (new_value == NULL || !cb->composite.num_children ||
@@ -2361,7 +2362,8 @@ CBGetSelectedItem(Widget    widget,
 		  int       offset, /* unused */
 		  XtArgVal *value)
 {
-  if (widget == NULL || value == NULL)
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmComboBoxWidgetClass))
 	return;
   if (CB_EditBox((XmComboBoxWidget)widget) == NULL) {
 	*value = (XtArgVal)NULL;
@@ -2387,7 +2389,8 @@ CBSetSelectedPos(Widget    widget,
   Arg args[3];
   int new_pos;
 
-  if (widget == NULL || value == NULL)
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmComboBoxWidgetClass))
     return XmSYNTHETIC_NONE;
 
   /* 
@@ -2442,7 +2445,8 @@ CBGetSelectedPos(Widget    widget,
   int *pos, count;
   int result;
 
-  if (widget == NULL || value == NULL)
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmComboBoxWidgetClass))
     return;
   *value = (XtArgVal)XmINVALID_POSITION;
   if (!cb->composite.num_children || CB_List(cb) == NULL)
@@ -2479,7 +2483,8 @@ CBGetColumns(Widget    widget,
   Cardinal nargs;
   short columns = 0;
 
-  if (widget == NULL || value == NULL)
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmComboBoxWidgetClass))
 	return;
 
   /* Fetch the value from the child widget. */
@@ -2510,7 +2515,8 @@ CBGetItems(Widget    widget,
   Cardinal nargs;
   XmStringTable items = NULL;
 
-  if (widget == NULL || value == NULL)
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmComboBoxWidgetClass))
 	return;
 
   /* Fetch the value from the child widget. */
@@ -2541,7 +2547,8 @@ CBGetItemCount(Widget    widget,
   Cardinal nargs;
   int count = 0;
 
-  if (widget == NULL || value == NULL)
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmComboBoxWidgetClass))
 	return;
 
   /* Fetch the value from the child widget. */
@@ -2572,7 +2579,8 @@ CBGetVisibleItemCount(Widget    widget,
   Cardinal nargs;
   int viz_count = 0;
 
-  if (widget == NULL || value == NULL)
+  if (widget == NULL || value == NULL ||
+      !XtIsSubclass(widget, xmComboBoxWidgetClass))
 	return;
 
   /* Fetch the value from the child widget. */
