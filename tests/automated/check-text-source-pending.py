@@ -18,4 +18,11 @@ assert "pending = (Boolean *)XtMalloc" in block
 assert "if (pending == NULL)" in block
 assert "return NULL;" in block
 
+set_start = text.index("void\n_XmStringSourceSetPending")
+set_end = text.index("\n/*", set_start)
+set_block = text[set_start:set_end]
+assert "tw == NULL || tw->text.source == NULL" in set_block
+assert "data->widgets == NULL || data->numwidgets <= 0" in set_block
+assert "return;" in set_block
+
 print("text-source pending snapshot guards: ok")

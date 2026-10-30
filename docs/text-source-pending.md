@@ -9,5 +9,9 @@ They also reject a missing source or widget array before reading the count, so
 a snapshot racing teardown fails safely instead of dereferencing torn-down
 state.
 
+The setter uses the same source and widget-array guard and becomes a no-op
+during teardown, while valid snapshots and the existing sentinel values retain
+their behavior.
+
 The focused source contract is checked by
 `tests/automated/check-text-source-pending.py`.

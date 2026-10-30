@@ -36,6 +36,14 @@ Guard Text pending snapshots during teardown (2026-10-30)
 - Extend the focused pending-snapshot regression and document the lifecycle
   guard.
 
+Guard Text pending updates during teardown (2026-10-30)
+========================================================
+
+- Make `_XmStringSourceSetPending` reject missing source and widget-array
+  state before applying pending flags.
+- Extend the pending-state regression and document the setter lifecycle
+  behavior.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

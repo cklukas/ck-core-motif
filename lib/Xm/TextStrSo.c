@@ -755,8 +755,15 @@ void
 _XmStringSourceSetPending(XmTextWidget tw,
 			  Boolean *pending)
 {
-  XmSourceData data = tw->text.source->data;
+  XmSourceData data;
   int i;
+
+  if (tw == NULL || tw->text.source == NULL ||
+      tw->text.source->data == NULL)
+    return;
+  data = tw->text.source->data;
+  if (data->widgets == NULL || data->numwidgets <= 0)
+    return;
   
   if ((uintptr_t)pending > (uintptr_t)1)
     for (i=0; i<data->numwidgets; i++) 
