@@ -9028,8 +9028,10 @@ unparse_text(char                **result,
 	     unsigned int	   c_length,
 	     XtPointer	           c_value)
 {
+  /* A negative length is the helper's private conversion-failure sentinel. */
+#define UNPARSE_FAIL() do { *length = -1; return; } while (0)
   if (c_length != 0 && c_value == NULL)
-    return;
+    UNPARSE_FAIL();
 
   /* If we have an invalid character, treat it as a single byte. */
   if ((int)c_length < 0) 
@@ -9046,14 +9048,14 @@ unparse_text(char                **result,
 	  if (*length < 0 || (size_t)c_length > (size_t)INT_MAX -
 					(size_t)*length ||
 	      (size_t)*length > SIZE_MAX - (size_t)c_length)
-	return;
+		UNPARSE_FAIL();
       allocation_size = (size_t)*length + c_length;
       if (allocation_size > (size_t)((Cardinal)~0))
-	return;
+	UNPARSE_FAIL();
       /* No conversion is necessary. */
       new_result = XtRealloc(*result, (Cardinal)allocation_size);
       if (!new_result)
-	return;
+	UNPARSE_FAIL();
       *result = new_result;
       memcpy(*result + *length, c_value, c_length);
       *length += c_length;
@@ -9066,38 +9068,38 @@ unparse_text(char                **result,
       size_t allocation_size;
       char *new_result;
       if (c_length > SIZE_MAX / MB_CUR_MAX)
-	return;
+	UNPARSE_FAIL();
       max_bytes = (size_t)c_length * MB_CUR_MAX / sizeof(wchar_t);
       if ((size_t)c_length > SIZE_MAX - sizeof(wchar_t) ||
 	  (size_t)c_length + sizeof(wchar_t) > (size_t)((Cardinal)~0))
-	return;
+	UNPARSE_FAIL();
       wchar_t *null_text = (wchar_t*) XtMalloc((Cardinal)((size_t)c_length +
 							 sizeof(wchar_t)));
       if (!null_text)
-	return;
+	UNPARSE_FAIL();
       memcpy(null_text, c_value, c_length);
       null_text[c_length / sizeof(wchar_t)] = (wchar_t) '\0';
 
       if ((size_t)*length > SIZE_MAX - max_bytes) {
 	XtFree((char *)null_text);
-	return;
+	UNPARSE_FAIL();
       }
       allocation_size = (size_t)*length + max_bytes;
       if (allocation_size > (size_t)((Cardinal)~0)) {
 	XtFree((char *)null_text);
-	return;
+	UNPARSE_FAIL();
       }
       new_result = XtRealloc(*result, (Cardinal)allocation_size);
       if (!new_result) {
 	XtFree((char *)null_text);
-	return;
+	UNPARSE_FAIL();
       }
       *result = new_result;
       converted = wcstombs(*result + *length, null_text, max_bytes);
       if (converted == (size_t)-1 || converted >
 			(size_t)INT_MAX - (size_t)*length) {
 	XtFree((char*)null_text);
-	return;
+	UNPARSE_FAIL();
       }
 	  if (converted > 0)
 	*length += (int)converted;
@@ -9112,27 +9114,27 @@ unparse_text(char                **result,
       char *new_result;
       if ((size_t)c_length >= SIZE_MAX ||
 	  (size_t)c_length + 1 > (size_t)((Cardinal)~0))
-	return;
+	UNPARSE_FAIL();
       char *null_text = XtMalloc((Cardinal)((size_t)c_length + 1));
       if (!null_text)
-	return;
+	UNPARSE_FAIL();
       memcpy(null_text, c_value, c_length);
       null_text[c_length] = '\0';
 
       if ((size_t)c_length > (SIZE_MAX - (size_t)*length) / sizeof(wchar_t)) {
 	XtFree(null_text);
-	return;
+	UNPARSE_FAIL();
       }
       allocation_size = (size_t)*length +
 			    (size_t)c_length * sizeof(wchar_t);
       if (allocation_size > (size_t)((Cardinal)~0)) {
 	XtFree(null_text);
-	return;
+	UNPARSE_FAIL();
       }
       new_result = XtRealloc(*result, (Cardinal)allocation_size);
       if (!new_result) {
 	XtFree(null_text);
-	return;
+	UNPARSE_FAIL();
       }
       *result = new_result;
       converted = mbstowcs((wchar_t*) (*result + *length), null_text,
@@ -9140,13 +9142,14 @@ unparse_text(char                **result,
       if (converted == (size_t)-1 || converted >
 			((size_t)INT_MAX - (size_t)*length) / sizeof(wchar_t)) {
 	XtFree(null_text);
-	return;
+	UNPARSE_FAIL();
       }
 	  if (converted > 0)
 	*length += (int)(converted * sizeof(wchar_t));
 
       XtFree(null_text);
     }
+#undef UNPARSE_FAIL
 }
 
 /*
@@ -9390,6 +9393,12 @@ XmStringUnparse(XmString          string,
   /* Clean up. */
   if (string != NULL)
    _XmStringContextFree(&stack_context);
+
+  if (length < 0) {
+    XtFree(result);
+    _XmProcessUnlock();
+    return NULL;
+  }
 
   /* Null terminate the result. */
   switch(output_type)
