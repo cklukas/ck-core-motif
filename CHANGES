@@ -1,3 +1,10 @@
+Guard Form offset getters (2026-10-30)
+======================================
+
+- Validate child, Form parent, constraint storage, and output pointers.
+- Return deterministic zero values for invalid synthetic-resource calls.
+- Add focused source coverage and documentation.
+
 Guard Manager coordinate getters (2026-10-30)
 ==============================================
 

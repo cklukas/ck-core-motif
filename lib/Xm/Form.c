@@ -599,8 +599,18 @@ FromTopOffset(
 	int offset,
 	XtArgVal *value)
 {
-    XmFormWidget fw = (XmFormWidget) w->core.parent;
-    XmFormConstraint fc = GetFormConstraint(w);
+    XmFormWidget fw;
+    XmFormConstraint fc;
+
+    if (w == NULL || value == NULL || w->core.parent == NULL ||
+        w->core.constraints == NULL ||
+        !XtIsSubclass(w->core.parent, xmFormWidgetClass))
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    fw = (XmFormWidget) w->core.parent;
+    fc = GetFormConstraint(w);
 
     *value = (XtArgVal) GetFormOffset(fw, TOP, fc->att);
     XmeFromVerticalPixels(w, offset, value);
@@ -612,8 +622,18 @@ FromBottomOffset(
 	int offset,
 	XtArgVal *value)
 {
-    XmFormWidget fw = (XmFormWidget) w->core.parent;
-    XmFormConstraint fc = GetFormConstraint(w);
+    XmFormWidget fw;
+    XmFormConstraint fc;
+
+    if (w == NULL || value == NULL || w->core.parent == NULL ||
+        w->core.constraints == NULL ||
+        !XtIsSubclass(w->core.parent, xmFormWidgetClass))
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    fw = (XmFormWidget) w->core.parent;
+    fc = GetFormConstraint(w);
 
     *value = (XtArgVal) GetFormOffset(fw, BOTTOM, fc->att);
     XmeFromVerticalPixels(w, offset, value);
@@ -625,8 +645,18 @@ FromLeftOffset(
 	int offset,
 	XtArgVal *value)
 {
-    XmFormWidget fw = (XmFormWidget) w->core.parent;
-    XmFormConstraint fc = GetFormConstraint(w);
+    XmFormWidget fw;
+    XmFormConstraint fc;
+
+    if (w == NULL || value == NULL || w->core.parent == NULL ||
+        w->core.constraints == NULL ||
+        !XtIsSubclass(w->core.parent, xmFormWidgetClass))
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    fw = (XmFormWidget) w->core.parent;
+    fc = GetFormConstraint(w);
 
     *value = (XtArgVal) GetFormOffset(fw, LEFT, fc->att);
     XmeFromHorizontalPixels(w, offset, value);
@@ -638,8 +668,18 @@ FromRightOffset(
 	int offset,
 	XtArgVal *value)
 {
-    XmFormWidget fw = (XmFormWidget) w->core.parent;
-    XmFormConstraint fc = GetFormConstraint(w);
+    XmFormWidget fw;
+    XmFormConstraint fc;
+
+    if (w == NULL || value == NULL || w->core.parent == NULL ||
+        w->core.constraints == NULL ||
+        !XtIsSubclass(w->core.parent, xmFormWidgetClass))
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    fw = (XmFormWidget) w->core.parent;
+    fc = GetFormConstraint(w);
 
     *value = (XtArgVal) GetFormOffset(fw, RIGHT, fc->att);
     XmeFromHorizontalPixels(w, offset, value);
