@@ -109,6 +109,14 @@ Guard Text source scans during teardown (2026-10-30)
   active text widget.
 - Add focused scan-input coverage and document the safe position-zero result.
 
+Guard Text grapheme stepping during teardown (2026-10-30)
+==========================================================
+
+- Validate the source callback, private data, and attached widget before
+  `_XmStringSourceGraphemeStep` dispatches or builds a Unicode map.
+- Add focused grapheme-input coverage and document the position-preserving
+  fallback.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

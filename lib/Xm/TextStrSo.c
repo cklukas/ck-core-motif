@@ -1997,8 +1997,13 @@ _XmStringSourceGraphemeStep(XmTextSource source, XmTextPosition position,
 {
   XmSourceData data;
   size_t next;
+  if (source == NULL || source->Scan == NULL)
+    return position;
   if (source->Scan != Scan || !XmTextUnicodeLocaleAvailable())
     return (*source->Scan)(source, position, XmSELECT_POSITION, direction, 1, True);
+  if (source->data == NULL || source->data->widgets == NULL ||
+      source->data->numwidgets <= 0 || source->data->widgets[0] == NULL)
+    return position;
   data = source->data;
   if (direction == XmsdRight && position >= data->length)
     return data->length;
