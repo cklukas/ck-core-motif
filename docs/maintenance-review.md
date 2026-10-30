@@ -686,3 +686,7 @@ state. The focused source check is
 DataGrid selection, scrolling, editing, commit/cancel, and sort mutators also
 fail closed during Xt teardown. The focused source check is
 `tests/automated/check-datagrid-mutator-destroy-guards.py`.
+
+TreeView selection, expansion, and top-row setters likewise fail closed during
+Xt teardown. The focused source check is
+`tests/automated/check-treeview-mutator-destroy-guards.py`.

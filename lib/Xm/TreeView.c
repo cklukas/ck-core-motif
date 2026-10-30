@@ -638,7 +638,7 @@ XtPointer XmTreeViewGetSelectedId(Widget widget) {
 
 void XmTreeViewSetSelectedId(Widget widget, XtPointer id,
                              Boolean notify_change) {
-    if (widget != NULL && XmIsTreeView(widget))
+    if (widget != NULL && XmIsTreeView(widget) && !widget->core.being_destroyed)
         select_id((XmTreeViewWidget)widget, id, notify_change, NULL);
 }
 
@@ -646,7 +646,7 @@ Boolean XmTreeViewSetExpanded(Widget widget, XtPointer id, Boolean expanded,
                               Boolean notify_change) {
     XmTreeViewWidget view;
     int index;
-    if (widget == NULL || !XmIsTreeView(widget))
+    if (widget == NULL || !XmIsTreeView(widget) || widget->core.being_destroyed)
         return False;
     view = (XmTreeViewWidget)widget;
     index = find_id(view, id);
@@ -659,7 +659,7 @@ Boolean XmTreeViewSetExpanded(Widget widget, XtPointer id, Boolean expanded,
 Boolean XmTreeViewGetExpanded(Widget widget, XtPointer id) {
     XmTreeViewWidget view;
     int index;
-    if (widget == NULL || !XmIsTreeView(widget))
+    if (widget == NULL || !XmIsTreeView(widget) || widget->core.being_destroyed)
         return False;
     view = (XmTreeViewWidget)widget;
     index = find_id(view, id);

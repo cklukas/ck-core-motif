@@ -1,3 +1,10 @@
+Guard TreeView mutators during destruction (2026-10-30)
+=========================================================
+
+- Reject TreeView selection, expansion, and top-row setters once Xt marks the
+  widget for destruction, avoiding stale traversal and redraw work.
+- Add focused source-contract coverage for the mutator guard set.
+
 Guard DataGrid mutators during destruction (2026-10-30)
 =========================================================
 
