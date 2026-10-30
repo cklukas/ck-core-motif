@@ -44,12 +44,7 @@ externaldef(xmpromptwidgetclass) WidgetClass xmPromptWidgetClass =
     (WidgetClass)&xmPromptClassRec;
 
 static XmString copy_prompt(XmString source) {
-    char *text; XmString result;
-    if (!source) return XmStringCreateLocalized("");
-    text = XmStringUnparse(source, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
-                           NULL, 0, XmOUTPUT_ALL);
-    if (!text) return XmStringCreateLocalized("");
-    result = XmStringCreateLocalized(text); XtFree(text); return result;
+    return source ? XmStringCopy(source) : XmStringCreateLocalized("");
 }
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmPromptWidget prompt = (XmPromptWidget)widget; XGCValues values;

@@ -95,11 +95,11 @@ check is `tests/automated/check-teaching-tip-compound-copy.py`.
 
 ## Compound-string ownership across small widgets
 
-FormSection, SearchBox, IconLabel, Link, and EmptyState now copy retained
-labels directly as `XmString` values. Their multilingual and compound
-charset segments therefore survive resource ownership instead of being
-flattened through locale-dependent text conversion. The regression check is
-`tests/automated/check-compound-copy-helpers.py`.
+FormSection, SearchBox, IconLabel, Link, EmptyState, Prompt, RowActions, and
+AutoSuggestBox now copy retained labels directly as `XmString` values. Their
+multilingual and compound charset segments therefore survive resource
+ownership instead of being flattened through locale-dependent text
+conversion. The regression check is `tests/automated/check-compound-copy-helpers.py`.
 
 ## CommandPalette compound-string ownership
 

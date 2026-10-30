@@ -47,10 +47,7 @@ static char *text_copy(XmString value) {
     return text ? text : XtNewString("");
 }
 static XmString string_copy(XmString value) {
-    char *text = text_copy(value); XmString result;
-    if (!text) return NULL;
-    result = XmStringCreateLocalized(text);
-    XtFree(text); return result;
+    return value ? XmStringCopy(value) : XmStringCreateLocalized("");
 }
 static char *button_text(XmString label, XmString shortcut) {
     char *left = text_copy(label), *right = text_copy(shortcut), *combined;

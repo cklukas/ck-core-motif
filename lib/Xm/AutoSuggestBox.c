@@ -79,13 +79,7 @@ static char *text_copy(XmString value)
 
 static XmString string_copy(XmString value)
 {
-    char *text = text_copy(value);
-    XmString result;
-    if (!text)
-	return NULL;
-    result = XmStringCreateLocalized(text);
-    XtFree(text);
-    return result;
+    return value ? XmStringCopy(value) : XmStringCreateLocalized("");
 }
 
 static void free_items(XmAutoSuggestBoxWidget box)
