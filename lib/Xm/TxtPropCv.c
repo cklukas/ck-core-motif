@@ -610,7 +610,7 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	 when they are all converted to ASN1 strings. */
       for (i = 0, total_size = 0; i < count; ++i) {
 	int item_size = XmCvtXmStringToByteStream(string_table[i],NULL);
-	if (item_size < 0 || item_size > INT_MAX - total_size) {
+	if (item_size <= 0 || item_size > INT_MAX - total_size) {
 	    _XmAppUnlock(app);
 	    return BadAlloc;
 	}

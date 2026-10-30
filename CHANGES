@@ -31286,3 +31286,9 @@ Reject NULL XmString table entries on export (2026-10-30)
 - Validate every entry in non-empty XmString tables before text-property
   conversion, returning `BadValue` instead of silently emitting empty data.
 - Add focused source-contract coverage and document the input contract.
+Reject zero-sized COMPOUND_STRING conversions (2026-10-30)
+==========================================================
+
+- Treat a zero ASN.1 byte-stream size as conversion failure during
+  COMPOUND_STRING export instead of silently emitting empty data.
+- Add focused source-contract coverage and document the invariant.
