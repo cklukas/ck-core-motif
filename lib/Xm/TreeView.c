@@ -530,7 +530,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmTreeViewWidget old = (XmTreeViewWidget)old_widget;
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
+    Boolean colors_changed = old->primitive.foreground != view->primitive.foreground ||
+                             old->core.background_pixel != view->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed && view->tree_view.gc) {
+        XSetForeground(XtDisplay(widget), view->tree_view.gc,
+                       view->primitive.foreground);
+        XSetBackground(XtDisplay(widget), view->tree_view.gc,
+                       view->core.background_pixel);
+    }
     if (!view->tree_view.row_height)
         view->tree_view.row_height = 1;
     if (view->tree_view.visible_rows == 0)
@@ -553,7 +561,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
            old->tree_view.visible_rows != view->tree_view.visible_rows ||
            old->tree_view.top_row != view->tree_view.top_row ||
            old->tree_view.rtl != view->tree_view.rtl ||
-           old->tree_view.render_table != view->tree_view.render_table;
+           old->tree_view.render_table != view->tree_view.render_table || colors_changed;
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,

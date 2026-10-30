@@ -237,7 +237,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     XmCalendarWidget calendar = (XmCalendarWidget)new_widget;
     XmCalendarDate candidate = calendar->calendar.date;
     Boolean redraw = False;
+    Boolean colors_changed = old_calendar->primitive.foreground != calendar->primitive.foreground ||
+                             old_calendar->core.background_pixel != calendar->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed && calendar->calendar.gc) {
+        XSetForeground(XtDisplay(new_widget), calendar->calendar.gc,
+                       calendar->primitive.foreground);
+        XSetBackground(XtDisplay(new_widget), calendar->calendar.gc,
+                       calendar->core.background_pixel);
+    }
     if (!XmCalendarIsValidDate(&candidate) ||
         !date_in_range(old_calendar, &candidate)) {
         calendar->calendar.date = old_calendar->calendar.date;
@@ -263,7 +271,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
             calendar->calendar.render_table = old_calendar->calendar.render_table;
         }
     }
-    redraw = redraw || calendar->calendar.rtl != old_calendar->calendar.rtl;
+    redraw = redraw || colors_changed || calendar->calendar.rtl != old_calendar->calendar.rtl;
     return redraw;
 }
 

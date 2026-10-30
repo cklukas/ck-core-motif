@@ -1,3 +1,10 @@
+Refresh Calendar and TreeView drawing colors (2026-10-30)
+============================================================
+
+- Update cached text graphics contexts when foreground or background
+  resources change through `XtSetValues`, and request repaint.
+- Add focused source coverage and maintenance documentation.
+
 Refresh Link, IconLabel, and Divider drawing colors (2026-10-30)
 ===================================================================
 

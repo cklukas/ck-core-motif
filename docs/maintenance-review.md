@@ -39,6 +39,14 @@ runtime themes.  The focused contract check is:
 python3 tests/automated/check-link-iconlabel-divider-color-update.py
 ```
 
+Calendar and TreeView now refresh their cached text GCs and request repaint
+when foreground or background resources change.  The focused contract check
+is:
+
+```sh
+python3 tests/automated/check-calendar-treeview-color-update.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws
