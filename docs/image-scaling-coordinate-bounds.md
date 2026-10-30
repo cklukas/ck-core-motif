@@ -14,3 +14,7 @@ The existing dimension check still rejects a destination whose complete
 vertical extent cannot be represented.  The source regression in
 `tests/automated/check-image-scaling-coordinate-bounds.py` protects both the
 wide calculation and the checked conversion.
+
+The scaler also rejects source dimensions that cannot be represented by its
+`unsigned int` lookup tables before narrowing the XImage dimensions. This
+prevents large images from wrapping table indices on wider-`int` platforms.

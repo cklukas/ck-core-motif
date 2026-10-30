@@ -8,4 +8,6 @@ end = source.index("/*** COLOR CACHE NOW ***/", start)
 region = source[start:end]
 assert "y < image_height && table.y[y] < max_y" in region
 assert "table.y[image_height]" not in region
+assert "(uintmax_t)src_image->width > UINT_MAX" in region
+assert "(uintmax_t)src_image->height > UINT_MAX" in region
 print("scaled image row traversal is explicitly bounded")

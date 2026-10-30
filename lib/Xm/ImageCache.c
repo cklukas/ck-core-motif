@@ -2639,6 +2639,8 @@ void _XmPutScaledImage (
     if (display == NULL || d == None || gc == NULL ||
 	src_image == NULL || src_image->data == NULL ||
 	src_image->width <= 0 || src_image->height <= 0 ||
+	(uintmax_t)src_image->width > UINT_MAX ||
+	(uintmax_t)src_image->height > UINT_MAX ||
 	src_image->bytes_per_line <= 0 ||
 	src_image->bits_per_pixel <= 0 ||
 	(size_t)src_image->width >

@@ -66,6 +66,14 @@ Guard Text range extraction during teardown (2026-10-30)
   reads character storage, returning its existing `NULL` failure result.
 - Extend focused range coverage and document the teardown behavior.
 
+Reject unrepresentable ImageCache source dimensions (2026-10-30)
+================================================================
+
+- Validate XImage width and height before narrowing them to the unsigned
+  lookup-table type used by scaled-image walks.
+- Extend focused ImageCache scaling coverage and document the portability
+  guard.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 
