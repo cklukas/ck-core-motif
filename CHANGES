@@ -31843,3 +31843,10 @@ Guard Container size inputs (2026-10-30)
 - Validate natural-size outputs and skip malformed child or constraint state
   during geometry calculation.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container geometry inputs (2026-10-30)
+=============================================
+
+- Reject malformed child geometry requests before reading parent or
+  constraint state.
+- Add focused source-contract coverage and document the invalid-input path.

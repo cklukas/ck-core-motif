@@ -2657,12 +2657,22 @@ GeometryManager(
     XtWidgetGeometry 	*desired,
     XtWidgetGeometry 	*allowed) /* unused */
 {
-    Widget		wid = XtParent(cwid);
-    XmContainerWidget	cw = (XmContainerWidget)wid;
-    XmContainerConstraint c = GetContainerConstraint(cwid);
+    Widget		wid;
+    XmContainerWidget	cw;
+    XmContainerConstraint c;
     Position		save_x,save_y;
     Dimension		save_width, save_height, save_border_width;
     unsigned char	save_include_model;
+
+    if (cwid == NULL || desired == NULL)
+	return(XtGeometryNo);
+	wid = XtParent(cwid);
+	if (wid == NULL)
+	return(XtGeometryNo);
+	cw = (XmContainerWidget)wid;
+	c = GetContainerConstraint(cwid);
+	if (c == NULL)
+	return(XtGeometryNo);
 
     /* 
      * Position and changes always allowed for spatial None
