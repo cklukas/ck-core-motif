@@ -31724,3 +31724,10 @@ Bound Container scroll arithmetic (2026-10-30)
 - Apply navigator increments through saturating wide arithmetic before the
   normal range clamp, preventing signed overflow from malformed values.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container hit-test inputs (2026-10-30)
+=============================================
+
+- Skip null child nodes and missing child constraints before Container
+  hit-testing reads geometry or outline state.
+- Add focused source-contract coverage and document the invalid-input path.

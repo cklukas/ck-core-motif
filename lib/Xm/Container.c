@@ -8034,8 +8034,17 @@ ObjectAtPoint(Widget wid, Position x, Position y)
 	while (node) {
 	  XmContainerConstraint c;
 
+	  if (node->widget_ptr == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	  }
+
 	  g = (XmGadget)node->widget_ptr;
 	  c = GetContainerConstraint((Widget) g);
+	  if (c == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	  }
 
 	  /* If we are in OUTLINE_DETAIL,  then check for hit in outline
 	     button,  if there is one */
