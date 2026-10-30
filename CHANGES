@@ -30989,3 +30989,11 @@ Bound XPM data extension output cursors (2026-10-30)
   the failure behavior.
 
 Resolve stale OptionMenu4 conflict markers (2026-10-30)
+Guard Text preedit multibyte capacity multiplication (2026-10-30)
+==================================================================
+
+- Reject an unrepresentable `insert_length * MB_CUR_MAX` calculation before
+  allocating the wide-preedit conversion buffer.
+- Extend focused source-contract coverage and document the failure behavior.
+
+Initialize DataField drop-transfer state in order (2026-10-30)

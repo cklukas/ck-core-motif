@@ -3919,7 +3919,12 @@ PreeditDraw(XIC xic,
    * width.  The normal output pipeline shapes/draws it for every font kind. */
   if (insert_length > 0) {
     if (call_data->text->encoding_is_wchar) {
-      size_t capacity = (size_t)insert_length * MB_CUR_MAX + 1;
+      size_t capacity;
+      if ((size_t)insert_length > (SIZE_MAX - 1) / MB_CUR_MAX) {
+        (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
+        return;
+      }
+      capacity = (size_t)insert_length * MB_CUR_MAX + 1;
       if (capacity > (size_t)UINT_MAX) {
         (*tw->text.output->DrawInsertionPoint)(tw, tw->text.cursor_position, on);
         return;
