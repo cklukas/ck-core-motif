@@ -162,9 +162,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmAvatarWidget old = (XmAvatarWidget)old_widget;
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
-    Boolean font_changed = old->avatar.font != avatar->avatar.font;
-    Boolean initials_changed = old->avatar.initials != avatar->avatar.initials;
+    Boolean font_changed;
+    Boolean initials_changed;
     (void)request; (void)args; (void)count;
+    if (old_widget == NULL || widget == NULL ||
+        !XtIsSubclass(old_widget, xmAvatarWidgetClass) ||
+        !XtIsSubclass(widget, xmAvatarWidgetClass))
+        return False;
+    font_changed = old->avatar.font != avatar->avatar.font;
+    initials_changed = old->avatar.initials != avatar->avatar.initials;
     if (initials_changed) {
         XmString replacement = copy_initials(avatar->avatar.initials);
         if (replacement)
