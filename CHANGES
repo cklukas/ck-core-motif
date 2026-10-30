@@ -1,3 +1,11 @@
+Reject empty masked XPM color tables (2026-10-30)
+================================================
+
+- Validate color and pixel arrays before applying the transparent-mask offset,
+  preventing unsigned color-count underflow and null-pointer advancement on
+  malformed input.
+- Add focused source-contract coverage and document the guard.
+
 Bound the final XPM pixel-row quote (2026-10-30)
 ================================================
 

@@ -508,8 +508,13 @@ ScanOtherColors(
     else
 	rgb_fname = NULL;
 
+    if (ncolors != 0 && (colors == NULL || pixels == NULL))
+	return (XpmFileInvalid);
+
     /* start from the right element */
     if (mask) {
+	if (ncolors == 0 || colors == NULL || pixels == NULL)
+	    return (XpmFileInvalid);
 	colors++;
 	ncolors--;
 	pixels++;
