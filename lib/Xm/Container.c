@@ -10893,6 +10893,11 @@ XmContainerGetItemChildren(
 			return(0);
 		   }
 		c = GetContainerConstraint(item);
+		if (c == NULL)
+		   {
+			_XmAppUnlock(app);
+			return(0);
+		   }
 		node = c->node_ptr;
 		if (node == NULL || node->child_ptr == NULL)
 		   {

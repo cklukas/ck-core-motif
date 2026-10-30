@@ -32269,3 +32269,10 @@ Guard Container anchor-toggle constraints (2026-10-30)
 - Return safely when extended selection has no anchor Container constraint
   before reading its selection state.
 - Add focused source-contract coverage and document the invalid-anchor path.
+
+Guard Container child-list constraints (2026-10-30)
+====================================================
+
+- Return an empty result when public child lookup cannot retrieve the item’s
+  Container constraint, while releasing the application lock safely.
+- Add focused source-contract coverage and document the invalid-item path.
