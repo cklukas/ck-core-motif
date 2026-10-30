@@ -31787,3 +31787,10 @@ Guard Container traversal redirection parent (2026-10-30)
 - Return the requested focus unchanged when traversal redirection has no clip
   parent before testing clip-widget class state.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container traversal-node activity (2026-10-30)
+=====================================================
+
+- Reject traversal nodes without widgets, parents, or outline constraints
+  before activity and visibility checks.
+- Add focused source-contract coverage and document the invalid-input path.

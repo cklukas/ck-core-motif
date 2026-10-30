@@ -7659,14 +7659,19 @@ NodeIsActive(
     XmContainerWidget   cw;
     XmContainerConstraint c;
 
-    if (!node)
+
+    if (!node || node->widget_ptr == NULL)
 	return(False);
     if (!XtIsManaged(node->widget_ptr))
 	return(False);
     cw = (XmContainerWidget)XtParent(node->widget_ptr);
+	if (cw == NULL)
+	    return(False);
     if (CtrLayoutIsOUTLINE_DETAIL(cw))
 	{
 	c = GetContainerConstraint(node->widget_ptr);
+	if (c == NULL)
+	    return(False);
 	if (!c->visible_in_outline)
 	    return(False);
 	}
