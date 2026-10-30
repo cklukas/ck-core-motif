@@ -31615,3 +31615,11 @@ Guard List replacement APIs by widget class (2026-10-30)
 - Add focused source-contract coverage and document the invalid-input path.
 
 Guard List deletion APIs by widget class (2026-10-30)
+Guard List navigation setters by widget class (2026-10-30)
+============================================================
+
+- Reject non-List widgets before the four public position and visibility
+  setters access private geometry state.
+- Add focused source-contract coverage and document the invalid-input path.
+
+Guard List selection APIs by widget class (2026-10-30)

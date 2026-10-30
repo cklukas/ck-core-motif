@@ -9827,7 +9827,7 @@ XmListSetPos(Widget w,
 	     int pos)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -9867,7 +9867,7 @@ XmListSetBottomPos(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int top;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -9912,7 +9912,7 @@ XmListSetItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int	i;
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return;
   _XmWidgetToAppContext(w);
 
@@ -9953,7 +9953,7 @@ XmListSetBottomItem(Widget w,
 {
   XmListWidget  lw = (XmListWidget) w;
   int i, top;
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return;
   _XmWidgetToAppContext(w);
 
