@@ -10507,7 +10507,7 @@ XmListPosToBounds(Widget      w,
   Dimension  iwidth;      /* ...for debugging...       */
   Dimension  iheight;     /* ...purposes               */
 
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return False;
   _XmWidgetToAppContext(w);
 

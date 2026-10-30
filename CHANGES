@@ -31571,6 +31571,13 @@ Guard Notebook layout child scans (2026-10-30)
 - Add focused source-contract coverage and document the malformed-state path.
 
 Guard Notebook redisplay tab counts (2026-10-30)
+Guard List position bounds by widget class (2026-10-30)
+=========================================================
+
+- Reject non-List widgets before `XmListPosToBounds` reads list-private
+  geometry state.
+- Add focused source-contract coverage and document the invalid-input path.
+
 Guard Notebook unhighlight child constraints (2026-10-30)
 ===========================================================
 
