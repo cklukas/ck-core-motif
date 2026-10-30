@@ -31274,3 +31274,9 @@ Reject failed empty plain-text XmString generation (2026-10-30)
 - Check the generated empty `XmString` before returning an empty plain-text
   table, releasing the table and reporting `BadAlloc` on failure.
 - Add focused source-contract coverage and document the failure behavior.
+Reject failed COMPOUND_TEXT export conversions (2026-10-30)
+============================================================
+
+- Report `BadAlloc` and release prior entries when an XmString-to-
+  COMPOUND_TEXT conversion fails, instead of silently emitting an empty item.
+- Add focused source-contract coverage and document the failure behavior.
