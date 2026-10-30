@@ -156,10 +156,10 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         if (label_replacement) {
             XmStringFree(old->link.label);
             link->link.label = label_replacement;
+            redraw = True;
         } else {
             link->link.label = old->link.label;
         }
-        redraw = True;
     }
     if (old->link.target != link->link.target) {
         target_replacement = XtNewString(link->link.target ? link->link.target : "");

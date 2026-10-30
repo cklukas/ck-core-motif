@@ -110,6 +110,10 @@ ToggleSwitch now reports redisplay only after a label replacement succeeds or
 an explicit label clear is applied; failed copies retain the old label without
 claiming a visual update. The existing focused check covers this rollback.
 
+Link follows the same contract for label resources: failed replacement copies
+retain the previous label and do not request a spurious redraw. The focused
+check is `tests/automated/check-link-label-redraw.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as
