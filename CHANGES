@@ -32206,3 +32206,10 @@ Guard Container expand/collapse constraints (2026-10-30)
 - Return safely when the focused child has no Container constraint before
   reading its outline state.
 - Add focused source-contract coverage and document the invalid-child path.
+
+Guard Container closest-layout sizing constraints (2026-10-30)
+===============================================================
+
+- Skip nodes without Container constraints before closest-layout sizing reads
+  their logical coordinates.
+- Add focused source-contract coverage and document the invalid-node path.

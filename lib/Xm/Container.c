@@ -3723,6 +3723,11 @@ GetSpatialSize (
 	    if (CtrIncludeIsCLOSEST(cw))
 	    	{
 	    	c = GetContainerConstraint(node->widget_ptr);
+		if (c == NULL)
+		    {
+		    node = GetNextNode(node);
+		    continue;
+		    }
 	    extent = AddDimensionSaturated((Dimension)MAX(0, c->user_x),
 		(uint64_t)node->widget_ptr->core.width);
 	    trial_width = MAX(trial_width, extent);
