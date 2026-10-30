@@ -86,6 +86,13 @@ actually succeeds (or a label is intentionally cleared). Failed copies keep
 the previous label without claiming a visual change. The regression check is
 `tests/automated/check-label-copy-redraw-contract.py`.
 
+## TeachingTip compound-string ownership
+
+TeachingTip title and body resources now use direct `XmStringCopy`, preserving
+compound-string charset segments and multilingual text instead of flattening
+them through a locale-dependent unparse/recreate round trip. The regression
+check is `tests/automated/check-teaching-tip-compound-copy.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as

@@ -30667,3 +30667,10 @@ Correct label-copy redraw reporting (2026-10-30)
   succeeds or an explicit label clear is applied.
 - Add `tests/automated/check-label-copy-redraw-contract.py` and document the
   behavior in `docs/maintenance-review.md`.
+
+Preserve TeachingTip compound strings (2026-10-30)
+==================================================
+- Copy title and body `XmString` resources directly so compound charset
+  segments and multilingual text survive widget ownership.
+- Add `tests/automated/check-teaching-tip-compound-copy.py` and document the
+  preservation contract in `docs/maintenance-review.md`.
