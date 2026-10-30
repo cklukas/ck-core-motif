@@ -126,9 +126,10 @@ xpmHashSlot(
 	ns = (*p)->name;
 	if (ns[0] == s[0] && strcmp(ns, s) == 0)
 	    break;
-	p--;
-	if (p < atomTable)
+	if (p == atomTable)
 	    p = atomTable + table->size - 1;
+	else
+	    --p;
     }
     return p;
 }

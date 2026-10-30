@@ -32406,3 +32406,12 @@ Rollback failed Xpm hash growth (2026-10-30)
 
 Use ImageCache name tails in hashing (2026-10-30)
 ===================================================
+Avoid Xpm hash probe before-begin pointer (2026-10-30)
+========================================================
+
+- Wrap collision probing at the first bucket before decrementing, avoiding
+  undefined pointer arithmetic during hash lookup.
+- Add focused source-contract coverage and document the probe fix.
+
+Rollback failed Xpm hash growth (2026-10-30)
+=============================================
