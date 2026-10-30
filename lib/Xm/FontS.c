@@ -3244,13 +3244,25 @@ static void
 FamilyChanged(Widget w, XtPointer fsw_ptr, XtPointer junk)
 {
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) fsw_ptr;
-    FontData * cf = XmFontS_font_info(fsw)->current_font;
-    String str = XmDropDownGetValue(w);
+    FontData * cf;
+    String str;
     char buf[BUFSIZ];
-    XrmQuark familyq = XrmStringToQuark(str);
+    XrmQuark familyq;
 
-    if (cf->familyq == familyq)
+    if (fsw == NULL || w == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL)
+	return;
+    cf = XmFontS_font_info(fsw)->current_font;
+    str = XmDropDownGetValue(w);
+    if (str == NULL)
+	return;
+    familyq = XrmStringToQuark(str);
+
+
+    if (cf->familyq == familyq) {
+	XtFree((XtPointer) str);
 	return;			/* no change. */
+	}
 
     cf->familyq = familyq;
 

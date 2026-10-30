@@ -1,3 +1,10 @@
+Guard FontSelector family-change callback (2026-10-30)
+========================================================
+
+- Reject incomplete selector state and missing dropdown values safely.
+- Release the retrieved value on the no-change path.
+- Add focused source coverage and documentation.
+
 Guard FontSelector mode transitions (2026-10-30)
 =================================================
 
