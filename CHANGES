@@ -1,3 +1,10 @@
+Guard Avatar rendering input (2026-10-30)
+=========================================
+
+- Reject null or wrong-class widgets before Avatar expose rendering accesses
+  display/window state.
+- Add focused source coverage and documentation.
+
 Guard Avatar teardown input (2026-10-30)
 ========================================
 

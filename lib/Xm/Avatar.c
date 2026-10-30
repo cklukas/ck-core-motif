@@ -119,12 +119,16 @@ static void Destroy(Widget widget) {
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
-    Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Display *display;
+    Window window;
     unsigned int pixmap_width = 0, pixmap_height = 0;
     int diameter, x, y;
     Dimension text_width = 0, text_height = 0;
     (void)event; (void)region;
+    if (widget == NULL || !XtIsSubclass(widget, xmAvatarWidgetClass))
+        return;
+    display = XtDisplay(widget);
+    window = XtWindow(widget);
     if (!window) return;
     XClearWindow(display, window);
     diameter = (int)(avatar->core.width < avatar->core.height
