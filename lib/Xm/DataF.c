@@ -1802,8 +1802,17 @@ df_FreeContextData(
 #endif /* _NO_PROTO */
 {
     XmTextContextData ctx_data = (XmTextContextData) clientData;
-    Display *display = DisplayOfScreen(ctx_data->screen);
+    Display *display;
     XtPointer data_ptr;
+
+    if (ctx_data == NULL)
+        return;
+    if (ctx_data->screen == NULL)
+    {
+        XtFree((char *) ctx_data);
+        return;
+    }
+    display = DisplayOfScreen(ctx_data->screen);
 
     if (XFindContext(display, (Window) ctx_data->screen,
                      ctx_data->context, (char **) &data_ptr)) {

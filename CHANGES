@@ -1,3 +1,10 @@
+Guard DataField context cleanup (2026-10-30)
+=============================================
+
+- Validate callback-owned context and screen before X11 context operations.
+- Release screenless context records safely.
+- Add focused source coverage and documentation.
+
 Guard DataField string getters (2026-10-30)
 ============================================
 
