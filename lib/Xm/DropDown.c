@@ -2839,7 +2839,8 @@ Widget XmDropDownGetList(Widget w)
 {
     if(w == NULL || !XtIsSubclass(w, xmDropDownWidgetClass))
 	return NULL;
-    return XtNameToWidget(w, "*list");
+    /* Return the actual internal child, even when an application renamed it. */
+    return XmDropDown_list(w);
 }
 
 

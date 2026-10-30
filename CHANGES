@@ -1,3 +1,10 @@
+Preserve DropDown list child identity in public getters (2026-10-30)
+=====================================================================
+
+- Return the stored list child instead of relying on its default resource name,
+  so renamed list children remain accessible through the public API.
+- Add focused source coverage and documentation.
+
 Guard ColorSelector list allocation failures (2026-10-30)
 ===========================================================
 
