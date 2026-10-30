@@ -1257,6 +1257,8 @@ ModifyVerifyTextField(Widget w, XtPointer combo_ptr, XtPointer info_ptr)
     XmDropDownWidget     cbw = (XmDropDownWidget) combo_ptr;
     XmTextVerifyCallbackStruct *field = (XmTextVerifyCallbackStruct*) info_ptr;
 
+    if (cbw == NULL || field == NULL || field->text == NULL)
+	return;
     if (XmDropDown_activateOnFill(cbw) <= 0) return;
     
     if(field == NULL || field->event == NULL ||
@@ -1292,6 +1294,8 @@ ValueChangedTextField(Widget w, XtPointer combo_ptr, XtPointer info_ptr)
 {
     XmDropDownWidget     cbw = (XmDropDownWidget) combo_ptr;
     
+    if (cbw == NULL)
+	return;
     if(XmDropDown_inValueChanged(cbw)) return;
     
     XmDropDown_inValueChanged(cbw) = True;
@@ -1322,6 +1326,8 @@ ListSelected(Widget w, XtPointer cbw_ptr, XtPointer list_data_ptr)
     XmListCallbackStruct *list_data;
 
     if (cbw == NULL || list_data_ptr == NULL)
+	return;
+    if (!XmDropDown_customized_combo_box(cbw) && XmDropDown_list(cbw) == NULL)
 	return;
     list_data = (XmListCallbackStruct *) list_data_ptr;
 
@@ -1399,7 +1405,8 @@ ShellButtonEvent(Widget w, XtPointer cbw_ptr, XEvent *event, Boolean *dispatch)
     /* TODO: move the following into the switch statement above */
     if (event->xany.type != ButtonPress) {
 	if ((event->xany.type == ButtonRelease) &&
-	    !XmDropDown_customized_combo_box(cbw))
+	    !XmDropDown_customized_combo_box(cbw) &&
+	    XmDropDown_list(cbw) != NULL)
 	    {
 		XtCallActionProc(XmDropDown_list(cbw), "ListEndSelect",
 				 event, NULL, 0);
@@ -1456,7 +1463,11 @@ static void
 LoseFocusHandler(Widget w, XtPointer cbw_ptr, XEvent *event, Boolean *junk)
 {
     XmDropDownWidget cbw = (XmDropDownWidget) cbw_ptr;
-    XFocusChangeEvent *fevent = &(event->xfocus);
+    XFocusChangeEvent *fevent;
+
+    if (cbw == NULL || event == NULL)
+	return;
+    fevent = &(event->xfocus);
 
     if ((event->xany.type != FocusOut) || (XmDropDown_list_state(cbw) != XmDropDown_UNPOSTED) ||
 	(fevent->detail == NotifyInferior))
