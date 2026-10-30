@@ -28,6 +28,7 @@ static void search_committed(Widget, XtPointer, XtPointer);
 static void list_selected(Widget, XtPointer, XtPointer);
 static void search_events(Widget, XtPointer, XEvent *, Boolean *);
 static void list_events(Widget, XtPointer, XEvent *, Boolean *);
+static void popup_destroyed(Widget, XtPointer, XtPointer);
 
 #define Offset(field) XtOffsetOf(XmAutoSuggestBoxRec, auto_suggest.field)
 static XtResource resources[] = {
@@ -159,6 +160,10 @@ static void create_popup(XmAutoSuggestBoxWidget box)
     box->auto_suggest.popup_shell = XtCreatePopupShell(
         "suggestionsShell", overrideShellWidgetClass, parent_shell, args,
         count);
+    if (box->auto_suggest.popup_shell == NULL)
+        return;
+    XtAddCallback(box->auto_suggest.popup_shell, XtNdestroyCallback,
+                  popup_destroyed, (XtPointer)box);
     box->auto_suggest.list = XmCreateList(box->auto_suggest.popup_shell,
                                          (char *)"suggestions", NULL, 0);
     if (box->auto_suggest.list == NULL) {
@@ -174,6 +179,16 @@ static void create_popup(XmAutoSuggestBoxWidget box)
                       box);
     XtManageChild(box->auto_suggest.list);
     XtRealizeWidget(box->auto_suggest.popup_shell);
+}
+
+static void popup_destroyed(Widget shell, XtPointer closure, XtPointer data)
+{
+    XmAutoSuggestBoxWidget box = (XmAutoSuggestBoxWidget)closure;
+    (void)shell; (void)data;
+    if (box == NULL)
+        return;
+    box->auto_suggest.popup_shell = NULL;
+    box->auto_suggest.list = NULL;
 }
 
 static void emit_query(XmAutoSuggestBoxWidget box, XEvent *event)

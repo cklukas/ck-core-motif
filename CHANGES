@@ -29454,6 +29454,13 @@ Clear DatePicker popup pointers during external destruction (2026-10-30)
 
 Synchronize DatePicker resource dates with popup calendars (2026-10-30)
 =======================================================================
+Guard AutoSuggestBox popup creation and teardown (2026-10-30)
+==============================================================
+
+- Stop before list creation when the suggestions shell cannot be allocated.
+- Clear shell and list pointers when an existing popup is destroyed externally.
+- Add focused source coverage and documentation.
+
 Clear Flyout popup pointers during external destruction (2026-10-30)
 ====================================================================
 
