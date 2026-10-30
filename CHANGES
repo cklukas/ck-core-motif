@@ -31913,3 +31913,10 @@ Guard Container large-cell inputs (2026-10-30)
 - Validate large-cell sizing widget and first-node state, using screen-based
   defaults when no usable child widget is available.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container cell-size dispatch inputs (2026-10-30)
+=======================================================
+
+- Return safely before querying spatial style when cell-size dispatch receives
+  no Container widget.
+- Add focused source-contract coverage and document the invalid-input path.

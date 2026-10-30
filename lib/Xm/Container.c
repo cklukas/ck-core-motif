@@ -6931,6 +6931,8 @@ static  void
 SetCellSizes(
     Widget	wid)
 {
+    if (wid == NULL)
+	return;
     if (!CtrSpatialStyleIsGRID(wid) && !CtrSpatialStyleIsCELLS(wid))
 	return;
     if (CtrViewIsSMALL_ICON(wid))
