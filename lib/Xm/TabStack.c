@@ -4360,10 +4360,14 @@ MenuSelectCallback(widget, client, cbdata)
 {
     XtPointer data;
 
+    if (widget == NULL)
+	return;
     XtVaGetValues(widget,
 		  XmNuserData, &data,
 		  NULL);
 
+    if (data == NULL)
+	return;
     XmTabStackSelectTab((Widget)data);
 }
 

@@ -1,3 +1,10 @@
+Guard TabStack tear-off menu selection (2026-10-30)
+===================================================
+
+- Validate callback widget and user-data target before selecting a tab.
+- Preserve valid tear-off menu selection behavior.
+- Add focused source coverage and documentation.
+
 Guard TabStack selection callback (2026-10-30)
 ==============================================
 
