@@ -1,3 +1,11 @@
+Guard FileSelectionBox list callback input (2026-10-30)
+========================================================
+
+- Reject missing list callback and client payloads before selection handling.
+- Avoid measuring null mask or directory compound strings after allocation
+  failure.
+- Add focused source coverage and documentation.
+
 Guard FileSelectionBox search qualification input (2026-10-30)
 ===============================================================
 

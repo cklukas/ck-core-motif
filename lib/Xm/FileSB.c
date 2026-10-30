@@ -2542,6 +2542,9 @@ ListCallback(
             int             len ;
 /****************/
 
+    if (call_data == NULL || client_data == NULL)
+        return;
+
     callback = (XmListCallbackStruct *) call_data ;
     fsb = (XmFileSelectionBoxWidget) client_data ;
 
@@ -2562,7 +2565,8 @@ ListCallback(
                 change_data.mask =
 		  XmStringGenerate(textValue, XmFONTLIST_DEFAULT_TAG,
 				   XmCHARSET_TEXT, NULL) ;
-                change_data.mask_length = XmStringLength( change_data.mask) ;
+                if (change_data.mask != NULL)
+                    change_data.mask_length = XmStringLength(change_data.mask);
                 if(    FS_PathMode( fsb)  ==  XmPATH_MODE_FULL   )
                   {   
                     change_data.dir = XmStringCopy( callback->item) ;
@@ -2572,7 +2576,8 @@ ListCallback(
                     change_data.dir = XmStringConcat( FS_Directory( fsb),
                                                               callback->item) ;
                   } 
-                change_data.dir_length = XmStringLength( change_data.dir) ;
+                if (change_data.dir != NULL)
+                    change_data.dir_length = XmStringLength(change_data.dir);
                 change_data.pattern = NULL ;
                 change_data.pattern_length = 0 ;
 
