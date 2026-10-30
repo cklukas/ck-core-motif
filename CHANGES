@@ -1,3 +1,10 @@
+Release copied labels in Avatar, Divider, and IconLabel (2026-10-30)
+======================================================================
+
+- Free widget-owned `XmString` copies for Avatar initials, Divider labels, and
+  IconLabel labels during destruction.
+- Add focused ownership coverage and document the lifecycle behavior.
+
 Release copied labels in Badge, Link, and Prompt (2026-10-30)
 ===============================================================
 

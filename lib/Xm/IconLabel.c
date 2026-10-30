@@ -135,6 +135,8 @@ static void Destroy(Widget widget) {
         XFreeGC(XtDisplay(widget), label->icon_label.foreground_gc);
     if (label->icon_label.render_table)
         XmRenderTableFree(label->icon_label.render_table);
+    if (label->icon_label.label)
+        XmStringFree(label->icon_label.label);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {

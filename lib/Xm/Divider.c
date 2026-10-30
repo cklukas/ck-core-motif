@@ -111,6 +111,8 @@ static void Destroy(Widget widget) {
         XFreeGC(XtDisplay(widget), divider->divider.foreground_gc);
     if (divider->divider.font)
         XmRenderTableFree(divider->divider.font);
+    if (divider->divider.label)
+        XmStringFree(divider->divider.label);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmDividerWidget divider = (XmDividerWidget)widget;

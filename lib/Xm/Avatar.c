@@ -117,6 +117,8 @@ static void Destroy(Widget widget) {
         XFreeFont(XtDisplay(widget), avatar->avatar.fallback_font);
     if (avatar->avatar.font)
         XmRenderTableFree(avatar->avatar.font);
+    if (avatar->avatar.initials)
+        XmStringFree(avatar->avatar.initials);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
