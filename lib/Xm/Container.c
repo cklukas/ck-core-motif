@@ -9931,6 +9931,9 @@ DropDoneCallback(
 {
         XmContainerWidget       cw = (XmContainerWidget)client_data;
 
+	if (cw == NULL)
+	    return;
+
 	cw->container.drag_context = (Widget) NULL;
 }
 

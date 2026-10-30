@@ -31682,3 +31682,10 @@ Guard Container outline action state (2026-10-30)
 - Return safely when the private outline action has no parent Container or
   child constraint record.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container drop-finish input (2026-10-30)
+==============================================
+
+- Return safely when the private drop-finish callback receives no Container
+  client payload.
+- Add focused source-contract coverage and document the invalid-input path.
