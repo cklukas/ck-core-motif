@@ -31906,3 +31906,10 @@ Guard Container small-cell inputs (2026-10-30)
 - Validate small-cell sizing widget and first-node state, using screen-based
   defaults when no usable child widget is available.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container large-cell inputs (2026-10-30)
+===============================================
+
+- Validate large-cell sizing widget and first-node state, using screen-based
+  defaults when no usable child widget is available.
+- Add focused source-contract coverage and document the invalid-input path.

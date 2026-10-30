@@ -7035,8 +7035,12 @@ static  void
 SetLargeCellSizes(
     Widget      wid)
 {
-    XmContainerWidget   cw = (XmContainerWidget)wid;
+    XmContainerWidget   cw;
     CwidNode            node;
+
+    if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
 
     if (!CtrDynamicLargeCellHeight(cw))
         cw->container.real_large_cellh = cw->container.large_cell_height;
@@ -7052,12 +7056,23 @@ SetLargeCellSizes(
     {
 	cw->container.large_cell_dim_fixed = True;
         node = cw->container.first_node;
+	while (node && node->widget_ptr == NULL)
+	    node = GetNextNode(node);
+	if (node == NULL) {
+	    if (CtrDynamicLargeCellHeight(cw))
+		cw->container.real_large_cellh =
+		    MAX(20,(int) (.04 * HeightOfScreen(XtScreen((Widget)cw))));
+	    if (CtrDynamicLargeCellWidth(cw))
+		cw->container.real_large_cellw =
+		    MAX(20,(int) (.04 * WidthOfScreen(XtScreen((Widget)cw))));
+	    return;
+	}
 	if (CtrDynamicLargeCellHeight(cw))
             cw->container.real_large_cellh =
-                        cw->container.first_node->widget_ptr->core.height;
+                        node->widget_ptr->core.height;
 	if (CtrDynamicLargeCellWidth(cw))
            cw->container.real_large_cellw =
-                        cw->container.first_node->widget_ptr->core.width;
+                        node->widget_ptr->core.width;
         while (node)
             {
             if (CtrSpatialStyleIsGRID(cw))
