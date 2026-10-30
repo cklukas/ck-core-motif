@@ -2575,14 +2575,20 @@ CreateFamilyBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;
 
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL) {
+	XtFree((XtPointer) temp);
+	return;
+    }
     c_box = XtCreateManagedWidget("families", xmDropDownWidgetClass,
 				  parent, margs, num_args + num_largs);
+    XtFree((XtPointer) margs);
+    XtFree((XtPointer) temp);
+    if (c_box == NULL)
+	return;
 
     XtAddCallback(c_box, XmNverifyTextCallback, FamilyChanged, (XtPointer)fsw);
     XtAddCallback(c_box, XmNupdateTextCallback, FamilyChanged, (XtPointer)fsw);
 
-    XtFree((XtPointer) margs);
-    XtFree((XtPointer) temp);
     XmFontS_family_box(fsw) = c_box;	
 }
 

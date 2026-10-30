@@ -29561,3 +29561,12 @@ Guard FontSelector middle-pane allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard FontSelector top-pane allocation (2026-10-30)
+Guard FontSelector family DropDown allocation (2026-10-30)
+===========================================================
+
+- Validate merged arguments and family DropDown creation before callback
+  registration.
+- Release temporary text and argument storage on failure.
+- Add focused source coverage and documentation.
+
+Guard FontSelector middle-pane allocation (2026-10-30)
