@@ -9253,12 +9253,20 @@ static	void
 ExpandCwid(
     Widget	cwid)
 {
-    XmContainerWidget	cw = (XmContainerWidget)XtParent(cwid);
-    XmContainerConstraint c = GetContainerConstraint(cwid);
+    XmContainerWidget	cw;
+    XmContainerConstraint c;
     CwidNode 		node;
     CwidNode 		child_node;
     XtWidgetGeometry geo_desired ;
 
+    if (cwid == NULL)
+	return;
+    cw = (XmContainerWidget)XtParent(cwid);
+    if (cw == NULL)
+	return;
+    c = GetContainerConstraint(cwid);
+    if (c == NULL)
+	return;
     if (c->related_cwid == NULL)
 	return;
     cw->container.self = True;
@@ -9275,7 +9283,15 @@ ExpandCwid(
 	return;
     while (child_node)
 	{
+	if (child_node->widget_ptr == NULL) {
+	    child_node = child_node->next_ptr;
+	    continue;
+	}
 	c = GetContainerConstraint(child_node->widget_ptr);
+	if (c == NULL) {
+	    child_node = child_node->next_ptr;
+	    continue;
+	}
 	c->visible_in_outline = True;
 	child_node = child_node->next_ptr;
 	}
@@ -9297,12 +9313,20 @@ static  void
 CollapseCwid(
     Widget  cwid)
 {
-    XmContainerWidget   cw = (XmContainerWidget)XtParent(cwid);
-    XmContainerConstraint c = GetContainerConstraint(cwid);
+    XmContainerWidget   cw;
+    XmContainerConstraint c;
     CwidNode		node;
     CwidNode		child_node;
     XtWidgetGeometry geo_desired ;
 
+    if (cwid == NULL)
+	return;
+    cw = (XmContainerWidget)XtParent(cwid);
+    if (cw == NULL)
+	return;
+    c = GetContainerConstraint(cwid);
+    if (c == NULL)
+	return;
     if (c->related_cwid == NULL)
 	return;
     cw->container.self = True;
@@ -9319,7 +9343,15 @@ CollapseCwid(
 	return;
     while (child_node)
 	{
+        if (child_node->widget_ptr == NULL) {
+            child_node = child_node->next_ptr;
+            continue;
+        }
         c = GetContainerConstraint(child_node->widget_ptr);
+        if (c == NULL) {
+            child_node = child_node->next_ptr;
+            continue;
+        }
         c->visible_in_outline = False;
 	HideCwid(child_node->widget_ptr);
 	if (c->related_cwid)

@@ -31815,3 +31815,10 @@ Guard Container outline hiding inputs (2026-10-30)
 - Return safely for missing constraints and skip malformed child nodes during
   recursive Container outline hiding.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container outline-state inputs (2026-10-30)
+=================================================
+
+- Validate parent and constraint state, and skip malformed children during
+  Container expand/collapse visibility transitions.
+- Add focused source-contract coverage and document the invalid-input path.
