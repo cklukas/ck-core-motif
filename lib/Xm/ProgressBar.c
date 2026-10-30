@@ -91,12 +91,18 @@ static Position bounded_position(long long value) {
 static void UpdateGCs(XmProgressBarWidget progress) {
     Display *display = XtDisplay((Widget)progress);
     if (progress->progress.track_gc)
+        XSetBackground(display, progress->progress.track_gc,
+                       progress->core.background_pixel),
         XSetForeground(display, progress->progress.track_gc,
                        progress->primitive.bottom_shadow_color);
     if (progress->progress.fill_gc)
+        XSetBackground(display, progress->progress.fill_gc,
+                       progress->core.background_pixel),
         XSetForeground(display, progress->progress.fill_gc,
                        progress->primitive.highlight_color);
     if (progress->progress.text_gc)
+        XSetBackground(display, progress->progress.text_gc,
+                       progress->core.background_pixel),
         XSetForeground(display, progress->progress.text_gc,
                        progress->primitive.foreground);
 }

@@ -128,6 +128,11 @@ requests redisplay through `SetValues`, so live color updates are reflected
 without recreating the control. The focused check is
 `tests/automated/check-stepper-color-update.py`.
 
+ProgressBar, ProgressRing, Spinner, and ToggleSwitch now refresh GC background
+pixels alongside foreground colors during redisplay, keeping live background
+resource changes consistent. The focused check is
+`tests/automated/check-control-gc-background-update.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as

@@ -30722,3 +30722,10 @@ Update Stepper colors through SetValues (2026-10-30)
 - Apply foreground/background changes to the live Stepper drawing GC and
   request redisplay when those resources change.
 - Add `tests/automated/check-stepper-color-update.py` and document the change.
+
+Refresh interactive-control GC backgrounds (2026-10-30)
+=======================================================
+- Refresh GC background pixels alongside foreground colors for ProgressBar,
+  ProgressRing, Spinner, and ToggleSwitch live visual updates.
+- Add `tests/automated/check-control-gc-background-update.py` and document the
+  consistency guarantee.

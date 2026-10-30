@@ -169,12 +169,18 @@ static void Destroy(Widget widget) {
 
 static void UpdateGCs(XmSpinnerWidget spinner) {
     Display *display = XtDisplay((Widget)spinner);
-    if (spinner->spinner.ring_gc)
+    if (spinner->spinner.ring_gc) {
+        XSetBackground(display, spinner->spinner.ring_gc,
+                       spinner->core.background_pixel);
         XSetForeground(display, spinner->spinner.ring_gc,
                        spinner->primitive.foreground);
-    if (spinner->spinner.text_gc)
+    }
+    if (spinner->spinner.text_gc) {
+        XSetBackground(display, spinner->spinner.text_gc,
+                       spinner->core.background_pixel);
         XSetForeground(display, spinner->spinner.text_gc,
                        spinner->primitive.foreground);
+    }
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {

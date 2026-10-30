@@ -101,20 +101,27 @@ static void UpdateGCs(XmProgressRingWidget ring) {
     Dimension thickness = _XmDpiDefaultDimension((Widget)ring, 4);
     if (thickness == 0) thickness = 1;
     if (ring->progress_ring.track_gc) {
+        XSetBackground(display, ring->progress_ring.track_gc,
+                       ring->core.background_pixel);
         XSetForeground(display, ring->progress_ring.track_gc,
                        ring->primitive.bottom_shadow_color);
         XSetLineAttributes(display, ring->progress_ring.track_gc, thickness,
                            LineSolid, CapButt, JoinMiter);
     }
     if (ring->progress_ring.fill_gc) {
+        XSetBackground(display, ring->progress_ring.fill_gc,
+                       ring->core.background_pixel);
         XSetForeground(display, ring->progress_ring.fill_gc,
                        ring->primitive.foreground);
         XSetLineAttributes(display, ring->progress_ring.fill_gc, thickness,
                            LineSolid, CapButt, JoinMiter);
     }
-    if (ring->progress_ring.text_gc)
+    if (ring->progress_ring.text_gc) {
+        XSetBackground(display, ring->progress_ring.text_gc,
+                       ring->core.background_pixel);
         XSetForeground(display, ring->progress_ring.text_gc,
                        ring->primitive.foreground);
+    }
 }
 
 static void Initialize(Widget request, Widget widget, ArgList args,
