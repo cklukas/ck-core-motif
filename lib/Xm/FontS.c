@@ -2954,9 +2954,13 @@ CreateOtherChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     box = XtCreateManagedWidget("otherChoiceBox", xmButtonBoxWidgetClass, 
 				parent, margs, num_args + num_largs);
     XtFree((XtPointer) margs);
+    if (box == NULL)
+	return;
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNset, False); num_set = num_largs++;
@@ -2966,10 +2970,16 @@ CreateOtherChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
 
     margs[num_set].value = (XtArgVal) XmFontS_use_scaling(fsw);
     button = XtCreateManagedWidget("scalingButton", xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XmFontS_use_scaling_toggle(fsw) = button;
     AddToXlfdSensitiveList(fsw, button);
     XtAddCallback(button, XmNvalueChangedCallback,
@@ -2980,13 +2990,18 @@ CreateOtherChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     button = XtCreateManagedWidget("showNameButton",
 				   xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XmFontS_show_font_toggle(fsw) = button;
 
     XtAddCallback(button, XmNvalueChangedCallback,
 		  ToggleNameWindow, (XtPointer) fsw);
 
     XmFontS_option_menu(fsw) = CreateEncodingMenu(fsw, box, args, num_args);
-    AddToXlfdSensitiveList(fsw, XmFontS_option_menu(fsw));
+    if (XmFontS_option_menu(fsw) != NULL)
+	AddToXlfdSensitiveList(fsw, XmFontS_option_menu(fsw));
 
     XtFree((XtPointer) margs);
 }

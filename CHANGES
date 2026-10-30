@@ -1,3 +1,11 @@
+Guard FontSelector secondary-choice allocation failures (2026-10-30)
+======================================================================
+
+- Validate the secondary-choice box, merged arguments, and scaling/name
+  toggles before callback registration and child-pointer publication.
+- Avoid adding an unavailable encoding menu to the Xlfd sensitivity list.
+- Add focused source coverage and documentation.
+
 Guard FontSelector resolution allocation failures (2026-10-30)
 ================================================================
 
