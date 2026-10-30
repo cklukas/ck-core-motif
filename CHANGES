@@ -1,3 +1,9 @@
+Guard FontSelector text-error callback state (2026-10-30)
+===========================================================
+
+- Return safely when the error-removal callback has no selector instance.
+- Add focused source coverage and documentation.
+
 Guard FontSelector Other-mode callback state (2026-10-30)
 ===========================================================
 

@@ -3873,6 +3873,8 @@ RemoveUserError(Widget w, XtPointer fsw_ptr, XtPointer data)
 {
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) fsw_ptr;
 
+    if (fsw == NULL)
+	return;
     if (XmFontS_current_text(fsw) == NULL)
 	return;
 
