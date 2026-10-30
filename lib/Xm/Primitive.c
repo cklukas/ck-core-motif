@@ -536,7 +536,14 @@ GetXFromShell(
      */
 
     Position	rootx, rooty;
-    Widget parent = XtParent(wid);
+    Widget parent;
+
+    if (wid == NULL || value == NULL)
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    parent = XtParent(wid);
 
     if (XtIsShell(parent))
     {   
@@ -562,7 +569,14 @@ GetYFromShell(
      */
 
     Position	rootx, rooty;
-    Widget parent = XtParent(wid);
+    Widget parent;
+
+    if (wid == NULL || value == NULL)
+    {
+        if (value != NULL) *value = (XtArgVal) 0;
+        return;
+    }
+    parent = XtParent(wid);
 
     if (XtIsShell(parent))
     {   

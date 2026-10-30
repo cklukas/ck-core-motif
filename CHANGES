@@ -1,3 +1,10 @@
+Guard Primitive coordinate getters (2026-10-30)
+================================================
+
+- Validate widget and output storage before parent/shell geometry queries.
+- Return deterministic zero values for invalid callback inputs.
+- Add focused source coverage and documentation.
+
 Guard layout-direction converters (2026-10-30)
 ===============================================
 
