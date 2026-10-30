@@ -13,3 +13,7 @@ text source when a resize cannot be satisfied.
 The behavior is deliberately a safe read failure. It preserves the existing
 Text source API and avoids turning transient memory pressure into a crash or a
 partially updated buffer.
+
+`ReadSource` also rejects an invalid zero character-size state before doing
+length arithmetic. This prevents malformed widget state from reaching a
+division by zero while preserving the same safe read-failure behavior.

@@ -869,6 +869,9 @@ ReadSource(XmTextSource source,
   char_size = (tw->text.char_size < 3 ?
 		   (int)tw->text.char_size :
 		   sizeof(wchar_t));
+
+  if (char_size <= 0 || tw->text.char_size == 0)
+	return 0;
   
   if (position < 0 || position > INT_MAX)
 	return 0;

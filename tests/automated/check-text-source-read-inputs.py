@@ -11,6 +11,7 @@ body = source[start:end]
 
 assert "source == NULL || block == NULL || source->data == NULL" in body
 assert "data->widgets == NULL || data->numwidgets <= 0" in body
+assert "char_size <= 0 || tw->text.char_size == 0" in body
 assert "block->length > 0 && block->ptr != NULL" in body
 assert body.index("return 0") < body.index("_XmStringSourceReadString")
 
