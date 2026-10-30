@@ -391,7 +391,11 @@ WritePixels(
 	memcpy(s, colors[*pixels].string, cpp);
 	s += cpp;
     }
+	if ((size_t)(s - dataptr) >= (size_t)data_size)
+	    return 0;
     *s++ = '"';
+	if ((size_t)(s - dataptr) > (size_t)UINT_MAX - *used_size)
+	    return 0;
     *used_size += (unsigned int)(s - dataptr);
     return 1;
 }

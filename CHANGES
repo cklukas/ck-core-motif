@@ -1,3 +1,10 @@
+Bound the final XPM pixel-row quote (2026-10-30)
+================================================
+
+- Check remaining buffer space before writing the final row quote and guard
+  the resulting `used_size` increment against unsigned overflow.
+- Add focused source-contract coverage and document the serializer bound.
+
 Allocate the complete icon-cache offset table (2026-10-30)
 ===========================================================
 
