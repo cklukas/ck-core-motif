@@ -1,3 +1,10 @@
+Guard Label synthetic string getters (2026-10-30)
+=================================================
+
+- Validate output pointers and Label widget types before compound-string reads.
+- Return deterministic null values for invalid callback inputs.
+- Add focused source coverage and documentation.
+
 Guard RowColumn synthetic string getters (2026-10-30)
 ======================================================
 
