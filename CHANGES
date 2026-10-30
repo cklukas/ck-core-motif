@@ -1,3 +1,10 @@
+Guard SimpleSpinBox synthetic getter (2026-10-30)
+==================================================
+
+- Validate output storage, widget class, and child initialization before reads.
+- Return deterministic zero output for invalid or partially constructed inputs.
+- Add focused source coverage and documentation.
+
 Guard Icon compound-string getters (2026-10-30)
 ================================================
 

@@ -562,7 +562,16 @@ GetCallbackWidget(Widget widget)
 static void
 SyntheticGetValue(Widget widget, int offset, XtArgVal *value)
 {
-  XmSimpleSpinBoxWidget	ssb_w = (XmSimpleSpinBoxWidget) widget;
+  XmSimpleSpinBoxWidget	ssb_w;
+
+  if (value == NULL)
+    return;
+  *value = (XtArgVal) 0;
+  if (widget == NULL || !XtIsSubclass(widget, xmSimpleSpinBoxWidgetClass))
+    return;
+  ssb_w = (XmSimpleSpinBoxWidget) widget;
+  if (ssb_w->simpleSpinBox.text_field == NULL)
+    return;
   
   switch (offset)
    {
