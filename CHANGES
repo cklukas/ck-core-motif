@@ -31850,3 +31850,10 @@ Guard Container geometry inputs (2026-10-30)
 - Reject malformed child geometry requests before reading parent or
   constraint state.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container constraint lifecycle inputs (2026-10-30)
+=========================================================
+
+- Handle missing parent constraints during child initialization and missing
+  child or parent state during constraint destruction.
+- Add focused source-contract coverage and document the invalid-input path.

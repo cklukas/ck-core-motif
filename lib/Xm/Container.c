@@ -3133,10 +3133,17 @@ ConstraintInitialize(
         ArgList 	args,		/* unused */
         Cardinal 	*num_args)	/* unused */
 {
-	XmContainerWidget	cw = (XmContainerWidget)XtParent(ncwid);
-	XmContainerConstraint	nc = GetContainerConstraint(ncwid);
+	XmContainerWidget	cw;
+	XmContainerConstraint	nc;
 	XmContainerConstraint	pc;	/* parent's constraints */
 	CwidNode			node;
+
+	if (ncwid == NULL)
+	    return;
+	cw = (XmContainerWidget)XtParent(ncwid);
+	nc = GetContainerConstraint(ncwid);
+	if (cw == NULL || nc == NULL)
+	    return;
 		
 	nc->related_cwid = NULL;
 	nc->cwid_type = cw->container.create_cwid_type;
@@ -3190,6 +3197,12 @@ ConstraintInitialize(
 	if (nc->entry_parent)
 		{
 		pc = GetContainerConstraint(nc->entry_parent);
+		if (pc == NULL) {
+		    nc->entry_parent = NULL;
+		    nc->visible_in_outline = True;
+		    nc->depth = 0;
+		    return;
+		}
 		nc->depth = pc->depth +1;
 		cw->container.max_depth = MAX(cw->container.max_depth,
 						nc->depth);
@@ -3225,8 +3238,15 @@ static	void
 ConstraintDestroy(
 	Widget	cwid)
 {
-	XmContainerWidget	cw = (XmContainerWidget)XtParent(cwid);
-        XmContainerConstraint   c = GetContainerConstraint(cwid);
+	XmContainerWidget	cw;
+        XmContainerConstraint   c;
+
+	if (cwid == NULL)
+	    return;
+	cw = (XmContainerWidget)XtParent(cwid);
+	c = GetContainerConstraint(cwid);
+	if (cw == NULL || c == NULL)
+	    return;
 
         if (cwid == cw->container.anchor_cwid)
                 cw->container.anchor_cwid = NULL;
