@@ -3431,12 +3431,18 @@ static void
 ToggleBold(Widget w, XtPointer fsw_ptr, XtPointer data)
 {
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) fsw_ptr;
-    FontData * cf = XmFontS_font_info(fsw)->current_font;
+    FontData * cf;
     FamilyInfo *family;
     XmToggleButtonCallbackStruct *info;
     char buf[BUFSIZ];
 
     info = (XmToggleButtonCallbackStruct *) data;
+    if (fsw == NULL || info == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	(XmFontS_font_info(fsw)->num_families != 0 &&
+	 XmFontS_font_info(fsw)->family_info == NULL))
+	return;
+    cf = XmFontS_font_info(fsw)->current_font;
     if ((family = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			     XmFontS_font_info(fsw)->num_families)) == NULL) 
     {
