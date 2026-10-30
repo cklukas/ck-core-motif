@@ -652,3 +652,8 @@ Toast and CommandPalette public action/dismiss helpers now also fail closed
 while their widget is being destroyed. This keeps direct application calls and
 child callbacks from dispatching against partial state; the source contract is
 checked by `tests/automated/check-action-helper-destroy-guards.py`.
+
+The same teardown contract now covers BreadcrumbBar, NumberBox, EmptyState,
+ProgressRing, Sidebar, RowActions, Calendar, TeachingTip, and Flyout callbacks.
+The focused source check is
+`tests/automated/check-widget-callback-destroy-guards.py`.

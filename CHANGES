@@ -1,3 +1,11 @@
+Guard remaining widget callbacks during destruction (2026-10-30)
+==================================================================
+
+- Suppress late callbacks from BreadcrumbBar, NumberBox, EmptyState,
+  ProgressRing, Sidebar, RowActions, Calendar, TeachingTip, and Flyout while
+  Xt is tearing those widgets down.
+- Add focused source-contract coverage for the guarded callback families.
+
 Guard action helpers during destruction (2026-10-30)
 =====================================================
 

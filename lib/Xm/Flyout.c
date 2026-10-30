@@ -246,7 +246,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
 
 void XmFlyoutShow(Widget widget) {
     XmFlyoutWidget flyout;
-    if (widget == NULL || !XmIsFlyout(widget)) return;
+    if (widget == NULL || !XmIsFlyout(widget) || widget->core.being_destroyed) return;
     flyout = (XmFlyoutWidget)widget;
     if (!flyout->flyout.owner || !XtIsRealized(flyout->flyout.owner)) return;
     create_popup(flyout);

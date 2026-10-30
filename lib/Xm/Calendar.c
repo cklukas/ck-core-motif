@@ -152,6 +152,8 @@ static void normalize_visible(XmCalendarWidget calendar) {
 static void notify_date(XmCalendarWidget calendar, XEvent *event,
                         String callback_name, int reason) {
     XmCalendarCallbackStruct callback;
+    if (calendar == NULL || calendar->core.being_destroyed)
+        return;
     XtCallbackList list = callback_name &&
         strcmp(callback_name, XmNcalendarActivateCallback) == 0
         ? calendar->calendar.activate_callback

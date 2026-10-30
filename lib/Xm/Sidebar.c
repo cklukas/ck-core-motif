@@ -321,6 +321,8 @@ static void set_expanded(Widget widget, Boolean expanded, XEvent *event)
         XmProcessTraversal(sidebar->sidebar.saved_focus, XmTRAVERSE_CURRENT);
         sidebar->sidebar.saved_focus = NULL;
     }
+    if (sidebar->core.being_destroyed)
+        return;
     callback.reason = XmSIDEBAR_REASON_TOGGLED;
     callback.event = event;
     callback.expanded = expanded;

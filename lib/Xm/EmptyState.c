@@ -193,7 +193,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended,
 static void activate(Widget widget, XtPointer client, XtPointer call) {
     XmEmptyStateWidget state = (XmEmptyStateWidget)client; XmEmptyStateCallbackStruct callback;
     (void)widget;
-    if (state == NULL || !XmIsEmptyState((Widget)state)) return;
+    if (state == NULL || !XmIsEmptyState((Widget)state) || state->core.being_destroyed) return;
     callback.reason = XmCR_ACTIVATE; callback.event = call ? ((XmPushButtonCallbackStruct *)call)->event : NULL;
     XtCallCallbacks((Widget)state, XmNemptyStateActionCallback, &callback);
 }
@@ -202,4 +202,4 @@ Widget XmVaCreateEmptyState(Widget parent, char *name, ...) { Widget w; va_list 
 Widget XmVaCreateManagedEmptyState(Widget parent, char *name, ...) { Widget w; va_list v; int n; Va_start(v,name); n=XmeCountVaListSimple(v); va_end(v); Va_start(v,name); w=XmeVLCreateWidget(name,xmEmptyStateWidgetClass,parent,True,v,n); va_end(v); return w; }
 Widget XmEmptyStateGetMessage(Widget widget) { return widget && XmIsEmptyState(widget) ? ((XmEmptyStateWidget)widget)->empty_state.message_widget : NULL; }
 Widget XmEmptyStateGetAction(Widget widget) { return widget && XmIsEmptyState(widget) ? ((XmEmptyStateWidget)widget)->empty_state.action_widget : NULL; }
-void XmEmptyStateInvokeAction(Widget widget, XEvent *event) { XmEmptyStateCallbackStruct callback; if (!widget || !XmIsEmptyState(widget) || !has_action((XmEmptyStateWidget)widget)) return; callback.reason = XmCR_ACTIVATE; callback.event = event; XtCallCallbacks(widget, XmNemptyStateActionCallback, &callback); }
+void XmEmptyStateInvokeAction(Widget widget, XEvent *event) { XmEmptyStateCallbackStruct callback; if (!widget || !XmIsEmptyState(widget) || widget->core.being_destroyed || !has_action((XmEmptyStateWidget)widget)) return; callback.reason = XmCR_ACTIVATE; callback.event = event; XtCallCallbacks(widget, XmNemptyStateActionCallback, &callback); }

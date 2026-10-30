@@ -130,6 +130,8 @@ static short bounded_point(int value) {
 
 static void notify_value(XmNumberBoxWidget number, XEvent *event) {
     XmNumberBoxCallbackStruct callback;
+    if (number == NULL || number->core.being_destroyed)
+        return;
     callback.reason = XmCR_VALUE_CHANGED;
     callback.event = event;
     callback.minimum = number->number_box.minimum;
@@ -142,6 +144,8 @@ static void notify_value(XmNumberBoxWidget number, XEvent *event) {
 
 static void notify_invalid(XmNumberBoxWidget number, XEvent *event) {
     XmNumberBoxInvalidCallbackStruct callback;
+    if (number == NULL || number->core.being_destroyed)
+        return;
     callback.reason = XmCR_VALUE_CHANGED;
     callback.event = event;
     callback.text = number->number_box.text;

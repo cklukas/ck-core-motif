@@ -95,7 +95,8 @@ static Position bounded_position(long long value) {
 
 static void notify_current(XmBreadcrumbBarWidget bar, XEvent *event) {
     XmBreadcrumbBarCallbackStruct cb;
-    if (!bar->breadcrumb.current_changed_callback ||
+    if (bar == NULL || bar->core.being_destroyed ||
+        !bar->breadcrumb.current_changed_callback ||
         bar->breadcrumb.current < 0 ||
         (Cardinal)bar->breadcrumb.current >= bar->breadcrumb.count)
         return;
@@ -108,7 +109,8 @@ static void notify_current(XmBreadcrumbBarWidget bar, XEvent *event) {
 
 static void activate(XmBreadcrumbBarWidget bar, XEvent *event) {
     XmBreadcrumbBarCallbackStruct cb;
-    if (!bar->breadcrumb.activate_callback ||
+    if (bar == NULL || bar->core.being_destroyed ||
+        !bar->breadcrumb.activate_callback ||
         bar->breadcrumb.current < 0 ||
         (Cardinal)bar->breadcrumb.current >= bar->breadcrumb.count)
         return;
