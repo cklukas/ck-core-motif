@@ -1,3 +1,9 @@
+Guard Unicode text-source line access (2026-10-30)
+====================================================
+
+- Validate source storage, gap invariants, widget state, and byte offsets before scanning.
+- Add focused source coverage and documentation.
+
 Guard FontSelector fixed/proportional refresh (2026-10-30)
 ============================================================
 

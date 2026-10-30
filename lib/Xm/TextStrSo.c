@@ -535,19 +535,44 @@ _XmStringSourceGetChar(XmSourceData data,
 static unsigned long
 SourceLineCharacter(XmSourceData data, XmTextPosition position)
 {
-  size_t unit, before;
+  size_t unit, before, gap_bytes, byte_offset, gap_offset, total_bytes;
   char *at;
   BITS16 short_character;
   wchar_t wide_character;
   int character_size;
-  if (position < 0 || position >= data->length || data->numwidgets < 1)
+  if (data == NULL || data->ptr == NULL || data->gap_start == NULL ||
+      data->gap_end == NULL || data->gap_end < data->gap_start ||
+      data->length < 0 || data->maxlength < 0 || data->length > data->maxlength ||
+      position < 0 || position >= data->length || data->widgets == NULL ||
+      data->numwidgets < 1 || data->widgets[0] == NULL)
     return 0;
   character_size = data->widgets[0]->text.char_size;
   unit = character_size < 3 ? (size_t)character_size : sizeof(wchar_t);
-  if (!unit) return 0;
+  if (!unit || character_size > 3 || data->gap_start < data->ptr ||
+      (size_t)(data->gap_start - data->ptr) % unit != 0 ||
+      (size_t)(data->gap_end - data->gap_start) % unit != 0)
+    return 0;
+  gap_bytes = (size_t)(data->gap_end - data->gap_start);
+  if ((size_t)data->maxlength > SIZE_MAX / unit)
+    return 0;
+  total_bytes = (size_t)data->maxlength * unit;
+  gap_offset = (size_t)(data->gap_end - data->ptr);
+  if (gap_offset > total_bytes || gap_bytes > total_bytes - gap_offset)
+    return 0;
   before = (size_t)(data->gap_start - data->ptr) / unit;
-  at = (size_t)position < before ? data->ptr + (size_t)position * unit :
-       data->gap_end + ((size_t)position - before) * unit;
+  if ((size_t)position < before) {
+    if ((size_t)position > SIZE_MAX / unit)
+      return 0;
+    byte_offset = (size_t)position * unit;
+    at = data->ptr + byte_offset;
+  } else {
+    if ((size_t)position - before > SIZE_MAX / unit)
+      return 0;
+    byte_offset = ((size_t)position - before) * unit;
+    if (byte_offset > total_bytes - gap_offset)
+      return 0;
+    at = data->gap_end + byte_offset;
+  }
   if (character_size == 1) return (unsigned char)*at;
   if (character_size == 2) {
     memcpy(&short_character, at, sizeof(short_character));
