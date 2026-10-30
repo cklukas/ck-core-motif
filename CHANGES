@@ -1,3 +1,10 @@
+Preserve picker render tables on replacement failure (2026-10-30)
+===================================================================
+
+- Make DatePicker and TimePicker render-table updates transactional.
+- Keep the existing table and clear the change flag when replacement copying
+  fails, with focused coverage and documentation.
+
 Make NumberBox GC setup transactional (2026-10-30)
 ===================================================
 

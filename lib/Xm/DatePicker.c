@@ -263,9 +263,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
         XmFontList replacement = picker->date_picker.render_table
             ? XmFontListCopy(picker->date_picker.render_table)
             : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
-        if (old->date_picker.render_table)
-            XmRenderTableFree(old->date_picker.render_table);
-        picker->date_picker.render_table = replacement;
+        if (replacement) {
+            if (old->date_picker.render_table)
+                XmRenderTableFree(old->date_picker.render_table);
+            picker->date_picker.render_table = replacement;
+        } else {
+            picker->date_picker.render_table = old->date_picker.render_table;
+            render_changed = False;
+        }
     }
     return old->date_picker.date.year != picker->date_picker.date.year ||
            old->date_picker.date.month != picker->date_picker.date.month ||

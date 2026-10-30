@@ -186,9 +186,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
         XmFontList replacement = picker->time_picker.render_table
             ? XmFontListCopy(picker->time_picker.render_table)
             : XmFontListCopy(XmeGetDefaultRenderTable(new_widget, XmLABEL_FONTLIST));
-        if (old->time_picker.render_table)
-            XmRenderTableFree(old->time_picker.render_table);
-        picker->time_picker.render_table = replacement;
+        if (replacement) {
+            if (old->time_picker.render_table)
+                XmRenderTableFree(old->time_picker.render_table);
+            picker->time_picker.render_table = replacement;
+        } else {
+            picker->time_picker.render_table = old->time_picker.render_table;
+            render_changed = False;
+        }
     }
     return compare_values(&old->time_picker.value, &picker->time_picker.value) != 0 ||
            old->time_picker.format_24_hour != picker->time_picker.format_24_hour || render_changed;
