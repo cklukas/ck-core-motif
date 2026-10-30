@@ -31731,3 +31731,10 @@ Guard Container hit-test inputs (2026-10-30)
 - Skip null child nodes and missing child constraints before Container
   hit-testing reads geometry or outline state.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container selection inputs (2026-10-30)
+==============================================
+
+- Reject null children and missing constraints in shared selection-marking
+  helpers before reading selection state or sensitivity.
+- Add focused source-contract coverage and document the invalid-input path.

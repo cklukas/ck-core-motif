@@ -8189,9 +8189,16 @@ MarkCwid(
     Widget		cwid,
     Boolean		visual_only)
 {
-    XmContainerWidget	cw = (XmContainerWidget)XtParent(cwid);
-    XmContainerConstraint c = GetContainerConstraint(cwid);
+    XmContainerWidget	cw;
+    XmContainerConstraint c;
     Boolean		selection_changes = False;
+
+    if (cwid == NULL)
+	return(False);
+    cw = (XmContainerWidget)XtParent(cwid);
+    c = GetContainerConstraint(cwid);
+    if (cw == NULL || c == NULL)
+	return(False);
 
     if (XtIsSensitive(cwid))
       	{
@@ -8218,8 +8225,15 @@ static	Boolean
 UnmarkCwidVisual(
         Widget          cwid)
 {
-        XmContainerWidget       cw = (XmContainerWidget)XtParent(cwid);
-        XmContainerConstraint   c = GetContainerConstraint(cwid);
+        XmContainerWidget       cw;
+        XmContainerConstraint   c;
+
+        if (cwid == NULL)
+	    return(False);
+        cw = (XmContainerWidget)XtParent(cwid);
+        c = GetContainerConstraint(cwid);
+        if (cw == NULL || c == NULL)
+	    return(False);
 
 	/*
 	 * If the item visual matches its select state, or the item
