@@ -88,23 +88,19 @@ static void Destroy(Widget widget) {
     /* Xt releases XmNbadgeLabel resource storage after Destroy. */
 }
 static void text_value(XmBadgeWidget badge, char *buffer, size_t size) {
-    if (badge->badge.count >= 0) {
-        if (badge->badge.count > badge->badge.maximum)
-            snprintf(buffer, size, "%d+", badge->badge.maximum);
-        else snprintf(buffer, size, "%d", badge->badge.count);
-    } else {
-        char *text = XmStringUnparse(badge->badge.label, NULL, XmCHARSET_TEXT,
-                                     XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
-        if (text) { snprintf(buffer, size, "%s", text); XtFree(text); }
-        else buffer[0] = '\0';
-    }
+    if (badge->badge.count < 0) return;
+    if (badge->badge.count > badge->badge.maximum)
+        snprintf(buffer, size, "%d+", badge->badge.maximum);
+    else snprintf(buffer, size, "%d", badge->badge.count);
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmBadgeWidget badge = (XmBadgeWidget)widget; char text[64];
     XmString label; Dimension text_width = 0, text_height = 0;
     if (widget == NULL || !XtIsSubclass(widget, xmBadgeWidgetClass))
         return;
-    (void)event; (void)region; text_value(badge, text, sizeof(text));
+    (void)event; (void)region;
+    if (badge->badge.count >= 0)
+        text_value(badge, text, sizeof(text));
     if (!XtWindow(widget) || !badge->badge.foreground_gc) return;
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     if (badge->core.width > 1 && badge->core.height > 1)

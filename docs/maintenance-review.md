@@ -55,6 +55,15 @@ The focused contract check is:
 python3 tests/automated/check-numberbox-color-update.py
 ```
 
+Badge preserves supplied compound labels as `XmString` values during drawing;
+it no longer flattens them through a locale-dependent byte string.  This
+keeps multilingual and segmented labels intact.  The focused contract check
+is:
+
+```sh
+python3 tests/automated/check-badge-compound-label.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws

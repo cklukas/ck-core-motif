@@ -1,3 +1,11 @@
+Preserve Badge compound labels during drawing (2026-10-30)
+==============================================================
+
+- Draw supplied `XmString` labels directly instead of flattening them through
+  `XmStringUnparse` and recreating a localized string.
+- Preserve charset segments and non-ASCII text, with focused source coverage
+  and maintenance documentation.
+
 Refresh NumberBox drawing colors (2026-10-30)
 ================================================
 
