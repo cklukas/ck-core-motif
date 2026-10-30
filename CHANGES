@@ -31414,3 +31414,12 @@ Bound ASN.1 headers during XmString truncation (2026-10-30)
 
 Reject trailing ColorObj property data (2026-10-30)
 =====================================================
+Clear stale destinations for empty region operations (2026-10-30)
+===================================================================
+
+- Make `miRegionOp` clear the overwritten destination when both inputs are
+  empty, while retaining rollback behavior for overflow and allocation errors.
+- Add focused source-contract coverage and document the result semantics.
+
+Bound ASN.1 headers during XmString truncation (2026-10-30)
+==============================================================

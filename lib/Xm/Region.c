@@ -894,7 +894,11 @@ miRegionOp(
     
     {
 	long max_rects = MAX(reg1->numRects, reg2->numRects);
-	if (max_rects <= 0 || (unsigned long)max_rects >
+	if (max_rects <= 0) {
+	    _XmRegionClear(newReg);
+	    return;
+	}
+	if ((unsigned long)max_rects >
 	    (unsigned long)LONG_MAX / 2 ||
 	    (unsigned long)max_rects >
 	    (unsigned long)UINT_MAX / (2 * sizeof(XmRegionBox)))
