@@ -83,6 +83,8 @@ static int compare_dates(const XmDatePickerDate *a,
 static void notify(XmDatePickerWidget picker, XEvent *event, int reason,
                    String name) {
     XmDatePickerCallbackStruct callback;
+    if (picker == NULL || picker->core.being_destroyed)
+        return;
     XtCallbackList list = name &&
         strcmp(name, XmNdatePickerOpenChangedCallback) == 0
         ? picker->date_picker.open_changed_callback

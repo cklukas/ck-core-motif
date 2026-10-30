@@ -72,6 +72,8 @@ externaldef(xmcolorpickerwidgetclass) WidgetClass xmColorPickerWidgetClass =
 static void notify(XmColorPickerWidget picker, String resource, XEvent *event,
                    unsigned long value) {
     XmColorPickerCallbackStruct callback = {XmCR_VALUE_CHANGED, event, value};
+    if (picker == NULL || picker->core.being_destroyed)
+        return;
     XtCallCallbacks((Widget)picker, resource, &callback);
 }
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {

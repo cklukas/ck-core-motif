@@ -107,6 +107,8 @@ static XmTimePickerValue from_seconds(int seconds) {
 static void notify(XmTimePickerWidget picker, XEvent *event, String name,
                    int reason) {
     XmTimePickerCallbackStruct callback;
+    if (picker == NULL || picker->core.being_destroyed)
+        return;
     XtCallbackList list = name &&
         strcmp(name, XmNtimePickerActivateCallback) == 0
         ? picker->time_picker.activate_callback

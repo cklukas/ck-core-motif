@@ -633,3 +633,11 @@ reordering or inserting segments does not silently move the selection.
 `XmToolbarSetActionIcons` applies each borrowed icon to both the visible action
 button and its overflow-menu twin, so the same action remains recognizable when
 the toolbar moves it into the overflow menu.
+
+### Picker callback teardown
+
+DatePicker, TimePicker, ColorPicker, and RatingControl now suppress value or
+open-state callbacks after Xt marks the widget for destruction. This matches
+ToggleSwitch and prevents a setter invoked during teardown from dispatching a
+late callback against partially released widget state. The source contract is
+checked by `tests/automated/check-picker-destroy-callback-guards.py`.

@@ -47,7 +47,15 @@ static void draw_star(Display *display, Window window, GC gc, int center_x,
     XDrawLine(display, window, gc, points[RATING_STAR_POINTS - 1].x,
               points[RATING_STAR_POINTS - 1].y, points[0].x, points[0].y);
 }
-static void notify(XmRatingControlWidget rating, XEvent *event) { XmRatingControlCallbackStruct c={XmCR_VALUE_CHANGED,event,rating->rating.count,rating->rating.value}; XtCallCallbacks((Widget)rating,XmNratingValueChangedCallback,&c); }
+static void notify(XmRatingControlWidget rating, XEvent *event) {
+    XmRatingControlCallbackStruct callback;
+    if (rating == NULL || rating->core.being_destroyed)
+        return;
+    callback = (XmRatingControlCallbackStruct){XmCR_VALUE_CHANGED, event,
+                                               rating->rating.count,
+                                               rating->rating.value};
+    XtCallCallbacks((Widget)rating, XmNratingValueChangedCallback, &callback);
+}
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) { XmRatingControlWidget rating=(XmRatingControlWidget)widget; XGCValues values; (void)request;(void)args;(void)count; normalize(rating); if(!rating->core.width)rating->core.width=180; if(!rating->core.height)rating->core.height=32; values.foreground=rating->primitive.foreground; values.background=rating->core.background_pixel; rating->rating.gc=XCreateGC(XtDisplay(widget),DefaultRootWindow(XtDisplay(widget)),GCForeground|GCBackground,&values); XtAddEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL); }
 static void Destroy(Widget widget) { XmRatingControlWidget rating=(XmRatingControlWidget)widget; XtRemoveEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL); if(rating->rating.gc)XFreeGC(XtDisplay(widget),rating->rating.gc); }
 static void Redisplay(Widget widget, XEvent *event, Region region)

@@ -1,3 +1,12 @@
+Guard picker callbacks during destruction (2026-10-30)
+========================================================
+
+- Suppress DatePicker, TimePicker, ColorPicker, and RatingControl value
+  notifications once their widget enters Xt teardown, matching ToggleSwitch
+  behavior and preventing late application callbacks from observing partial
+  state.
+- Add focused source-contract coverage for all four picker callbacks.
+
 Release copied labels in Avatar, Divider, and IconLabel (2026-10-30)
 ======================================================================
 
