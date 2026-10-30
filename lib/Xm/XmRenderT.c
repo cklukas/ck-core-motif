@@ -3117,6 +3117,10 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
 
   _XmAppLock(app);
   buffer = XtMalloc(allocated_size);
+  if (buffer == NULL) {
+    _XmAppUnlock(app);
+    return 0;
+  }
 
   _XmProcessLock();
   if (CVTtvinited == 0) {

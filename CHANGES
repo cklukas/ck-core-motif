@@ -31188,3 +31188,11 @@ Clean up failed PNG image conversion (2026-10-30)
 - Add focused source-contract coverage and document the failure contract.
 
 Reject empty masked XPM color tables (2026-10-30)
+Handle initial render-table property allocation failure (2026-10-30)
+=====================================================================
+
+- Check the conversion buffer before copying the transfer vector and release
+  the app-context lock on allocation failure.
+- Add focused source-contract coverage and document the failure behavior.
+
+Clean up failed PNG image conversion (2026-10-30)
