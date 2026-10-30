@@ -1,3 +1,10 @@
+Guard XmList Motif-drop concatenation (2026-10-30)
+====================================================
+
+- Reject missing or malformed drag payloads before concatenation.
+- Release partial compound strings when item or separator copies fail.
+- Add focused source coverage and documentation.
+
 Validate XmList drag selected positions (2026-10-30)
 =====================================================
 

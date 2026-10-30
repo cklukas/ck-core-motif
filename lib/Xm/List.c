@@ -8008,6 +8008,43 @@ CompareCharAndItem(XmListWidget lw,
 
   return False;
 }
+
+static XmString
+ListConcatDragStrings(XmString *items, int count, XmString separator)
+{
+  XmString concat = NULL;
+  int i;
+
+  if (items == NULL || separator == NULL || count <= 0)
+    return NULL;
+  for (i = 0; i < count; i++) {
+    XmString item_copy;
+    XmString separator_copy;
+
+    if (items[i] == NULL)
+      continue;
+    item_copy = XmStringCopy(items[i]);
+    if (item_copy == NULL) {
+      XmStringFree(concat);
+      return NULL;
+    }
+    if (concat == NULL) {
+      concat = item_copy;
+      continue;
+    }
+    separator_copy = XmStringCopy(separator);
+    if (separator_copy == NULL) {
+      XmStringFree(item_copy);
+      XmStringFree(concat);
+      return NULL;
+    }
+    concat = XmStringConcatAndFree(concat, separator_copy);
+    concat = XmStringConcatAndFree(concat, item_copy);
+    if (concat == NULL)
+      return NULL;
+  }
+  return concat;
+}
 
 /***************************************************************************
  *									   *
@@ -8101,14 +8138,11 @@ ListConvert(Widget w, XtPointer client_data,
 
       if (cs->selection == atoms[XmA_MOTIF_DROP])
 	{
-	  int itemcount = ListDragConv->num_strings;
-	  XmString *items = ListDragConv->strings;
-
-	  concat = (itemcount ? XmStringCopy(items[0]) : NULL);
-	  for (i = 1; i < itemcount; i++) {
-	    concat = XmStringConcatAndFree(concat, XmStringCopy(sep));
-	    concat = XmStringConcatAndFree(concat, XmStringCopy(items[i]));
-	  }
+	  if (ListDragConv == NULL)
+	    concat = NULL;
+	  else
+	    concat = ListConcatDragStrings(ListDragConv->strings,
+					    ListDragConv->num_strings, sep);
 	}
       else
 	{
