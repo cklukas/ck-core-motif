@@ -10265,7 +10265,7 @@ df_DropTransferCallback(
     Atom CS_OF_LOCALE;
     XmTextPosition insertPosLeft, insertPosRight, left, right, cursorPos;
     int max_length = 0;
-    Boolean local = XmTextF_has_primary(tf);
+    Boolean local;
     char * total_tmp_value;
     wchar_t * wc_total_tmp_value;
     char ** tmp_value;
@@ -10301,6 +10301,7 @@ df_DropTransferCallback(
         return;
     }
     tf = (XmDataFieldWidget) transfer_rec->widget;
+    local = XmTextF_has_primary(tf);
 
    /* When type = NULL, we are assuming a DELETE request has been requested */
     if (*type == XmInternAtom(XtDisplay(transfer_rec->widget), "NULL", False)) {

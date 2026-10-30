@@ -7,6 +7,10 @@ now returns safely for a missing array and skips an item whose unparse failed,
 without passing a null pointer to `mbstowcs` or changing successful item
 serialization.
 
+DataField drop-transfer callbacks likewise assign and validate their target
+widget before reading widget state, avoiding an uninitialized-pointer query
+during external text drops.
+
 The public `XmDropDownGetValue` helper also rejects non-DropDown widget
 handles before accessing the private text child.  Valid DropDown and
 CombinationBox2 alias behavior is unchanged.

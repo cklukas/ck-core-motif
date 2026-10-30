@@ -30964,6 +30964,13 @@ Remove stray CommandPalette patch marker (2026-10-30)
   actually validates.
 
 Reject failed UIL debug formatting passes (2026-10-30)
+Initialize DataField drop-transfer state in order (2026-10-30)
+===============================================================
+
+- Query `XmTextF_has_primary` only after the drop callback has validated and
+  assigned its transfer widget, eliminating an uninitialized-pointer read.
+- Add focused source-contract coverage and document the lifecycle correction.
+
 Measure Label locale-conversion input safely (2026-10-30)
 ==========================================================
 
