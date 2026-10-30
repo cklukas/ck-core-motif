@@ -4416,6 +4416,10 @@ GetValuesHook(Widget w, ArgList args, Cardinal * num_args)
     String *str_ptr;
     register int i;
 
+    if (w == NULL || args == NULL || num_args == NULL ||
+	!XtIsSubclass(w, xmFontSelectorWidgetClass))
+	return;
+
     for (i = 0; i < *num_args; i++) {
 	if (streq(args[i].name, XmNcurrentFont))
 	{

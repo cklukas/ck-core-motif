@@ -1,3 +1,10 @@
+Guard FontSelector value-hook input (2026-10-30)
+================================================
+
+- Reject null or wrong-class widgets and missing value-hook arguments before
+  iterating the request list.
+- Add focused source coverage and documentation.
+
 Validate FileSelectionBox child lookup widget (2026-10-30)
 ===========================================================
 
