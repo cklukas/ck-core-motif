@@ -2732,10 +2732,14 @@ CreateSpacingBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     box = XtCreateManagedWidget("spacingBox", xmButtonBoxWidgetClass, 
 				parent, margs, num_args + num_largs);
-    AddToXlfdSensitiveList(fsw, box);
     XtFree((XtPointer) margs);
+    if (box == NULL)
+	return;
+    AddToXlfdSensitiveList(fsw, box);
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNset, False); num_set = num_largs++;
@@ -2745,9 +2749,15 @@ CreateSpacingBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
     margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    if (margs == NULL)
+	return;
     button = XtCreateManagedWidget("proportionalButton",
 				   xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XtAddCallback(button, XmNvalueChangedCallback, ToggleProportional,
 		  (XtPointer) fsw);
     XmFontS_proportional(fsw) = button;
@@ -2755,6 +2765,10 @@ CreateSpacingBox(XmFontSelectorWidget fsw, Widget parent,
     margs[num_str].value = (XtArgVal) MONO_SPACE_STRING(fsw);
     button = XtCreateManagedWidget("monoButton", xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XtAddCallback(button, XmNvalueChangedCallback, ToggleFixed,
 		  (XtPointer) fsw);
     XmFontS_monospace(fsw) = button;
@@ -2763,6 +2777,10 @@ CreateSpacingBox(XmFontSelectorWidget fsw, Widget parent,
     margs[num_set].value = (XtArgVal) True;
     button = XtCreateManagedWidget("bothButton", xmToggleButtonWidgetClass, 
 				   box, margs, num_args + num_largs);
+    if (button == NULL) {
+	XtFree((XtPointer) margs);
+	return;
+    }
     XtAddCallback(button, XmNvalueChangedCallback, ToggleBothSpacing,
 		  (XtPointer) fsw);
     XmFontS_any_spacing(fsw) = button;
