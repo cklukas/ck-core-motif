@@ -22,6 +22,7 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
 static void owner_events(Widget, XtPointer, XEvent *, Boolean *);
 static void popup_events(Widget, XtPointer, XEvent *, Boolean *);
 static void owner_destroyed(Widget, XtPointer, XtPointer);
+static void popup_destroyed(Widget, XtPointer, XtPointer);
 static void show_timeout(XtPointer, XtIntervalId *);
 
 #define Offset(field) XtOffsetOf(XmTeachingTipRec, field)
@@ -120,13 +121,26 @@ static void create_popup(XmTeachingTipWidget tip) {
     XtSetArg(args[count], XmNtransientFor, XtWindow(parent_shell)); ++count;
     tip->teaching_tip.popup_shell = XtCreatePopupShell(
         "teachingTipShell", overrideShellWidgetClass, parent_shell, args, count);
+    if (tip->teaching_tip.popup_shell == NULL)
+        return;
+    XtAddCallback(tip->teaching_tip.popup_shell, XtNdestroyCallback,
+                  popup_destroyed, (XtPointer)tip);
     content = XmCreateRowColumn(tip->teaching_tip.popup_shell,
                                 (char *)"teachingTipContent", NULL, 0);
+    if (content == NULL) {
+        XtDestroyWidget(tip->teaching_tip.popup_shell);
+        return;
+    }
     XtVaSetValues(content, XmNorientation, XmVERTICAL, XmNspacing, 4, NULL);
     tip->teaching_tip.title_label = XmCreateLabel(content, (char *)"title",
                                                    NULL, 0);
     tip->teaching_tip.text_label = XmCreateLabel(content, (char *)"text",
                                                   NULL, 0);
+    if (tip->teaching_tip.title_label == NULL ||
+        tip->teaching_tip.text_label == NULL) {
+        XtDestroyWidget(tip->teaching_tip.popup_shell);
+        return;
+    }
     XtVaSetValues(tip->teaching_tip.title_label,
                   XmNlabelString, tip->teaching_tip.title, NULL);
     XtVaSetValues(tip->teaching_tip.text_label,
@@ -138,6 +152,17 @@ static void create_popup(XmTeachingTipWidget tip) {
                       KeyPressMask | ButtonPressMask, False, popup_events,
                       (XtPointer)tip);
     XtRealizeWidget(tip->teaching_tip.popup_shell);
+}
+
+static void popup_destroyed(Widget shell, XtPointer closure, XtPointer data) {
+    XmTeachingTipWidget tip = (XmTeachingTipWidget)closure;
+    (void)shell; (void)data;
+    if (tip == NULL)
+        return;
+    tip->teaching_tip.popup_shell = NULL;
+    tip->teaching_tip.title_label = NULL;
+    tip->teaching_tip.text_label = NULL;
+    tip->teaching_tip.visible = False;
 }
 
 static void Initialize(Widget request, Widget widget, ArgList args,
