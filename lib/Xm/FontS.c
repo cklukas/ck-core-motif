@@ -3370,13 +3370,19 @@ static void
 ToggleScaling(Widget w, XtPointer fsw_ptr, XtPointer data)
 {
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) fsw_ptr;
-    FontData * cf = XmFontS_font_info(fsw)->current_font;
+    FontData * cf;
     FamilyInfo *family;
     XmToggleButtonCallbackStruct *info;
     LongFlag map;
     char buf[BUFSIZ];
 
     info = (XmToggleButtonCallbackStruct *) data;
+    if (fsw == NULL || info == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	(XmFontS_font_info(fsw)->num_families != 0 &&
+	 XmFontS_font_info(fsw)->family_info == NULL))
+	return;
+    cf = XmFontS_font_info(fsw)->current_font;
     if ((family = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			     XmFontS_font_info(fsw)->num_families)) == NULL) 
     {
@@ -3401,7 +3407,8 @@ ToggleScaling(Widget w, XtPointer fsw_ptr, XtPointer data)
 	    String temp = _XmGetMBStringFromXmString(ANY_STRING(fsw));
 
 	    cf->point_size = 0;	/* Reset to Any. */
-	    SetComboValue(XmFontS_size_box(fsw), temp);
+	    if (XmFontS_size_box(fsw) != NULL)
+		SetComboValue(XmFontS_size_box(fsw), temp);
 	    XtFree((XtPointer) temp);
 	}
     }

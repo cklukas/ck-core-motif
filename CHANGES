@@ -1,3 +1,10 @@
+Guard FontSelector scaling callback state (2026-10-30)
+=======================================================
+
+- Reject missing toggle data and incomplete font/family state safely.
+- Update the size control only when its child exists.
+- Add focused source coverage and documentation.
+
 Guard FontSelector encoding callback inputs (2026-10-30)
 ==========================================================
 
