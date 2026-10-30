@@ -10053,8 +10053,12 @@ ScrollProc(
     if (!(scrollFrameTrait &&
 	  (scrollFrameTrait->getInfo(sf,NULL,&nav,&num_nav_list))))
 	return;			/* this should never happen */
+    if (num_nav_list != 0 && nav == NULL)
+	return;
 
     for (i=0; i < num_nav_list; i++, nav++) {
+	if (*nav == NULL)
+	    continue;
 	navigatorTrait = (XmNavigatorTrait)
 	    XmeTraitGet((XtPointer)XtClass(*nav), XmQTnavigator);
 	if (navigatorTrait == NULL || navigatorTrait->getValue == NULL ||

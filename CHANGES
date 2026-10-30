@@ -31703,3 +31703,10 @@ Guard Container scroll timer inputs (2026-10-30)
 - Return safely when the auto-scroll timer closure or reparented scroll-frame
   ancestor is unavailable during teardown.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container scroll navigator inputs (2026-10-30)
+=====================================================
+
+- Reject inconsistent navigator lists and skip null navigator entries before
+  trait lookup during Container auto-scroll.
+- Add focused source-contract coverage and document the invalid-input path.
