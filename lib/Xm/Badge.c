@@ -152,6 +152,9 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply) {
     XmBadgeWidget badge = (XmBadgeWidget)widget; char text[64];
     size_t length;
+    if (widget == NULL || reply == NULL ||
+        !XtIsSubclass(widget, xmBadgeWidgetClass))
+        return XtGeometryNo;
     (void)request; text_value(badge, text, sizeof(text));
     reply->request_mode = CWWidth | CWHeight;
     length = strlen(text);

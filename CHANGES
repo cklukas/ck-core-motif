@@ -1,3 +1,11 @@
+Guard Badge geometry-query input (2026-10-30)
+=============================================
+
+- Reject null or wrong-class widgets and missing geometry replies before
+  reading badge state.
+- Return `XtGeometryNo` for malformed geometry negotiation.
+- Add focused source coverage and documentation.
+
 Guard Avatar geometry-query input (2026-10-30)
 ==============================================
 
