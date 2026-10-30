@@ -1,3 +1,10 @@
+Guard LabelGadget padding converters (2026-10-30)
+=================================================
+
+- Validate widget and value inputs before placement-dependent conversion.
+- Reject invalid imports without touching gadget state.
+- Add focused source coverage and documentation.
+
 Guard Gadget tooltip hooks (2026-10-30)
 =======================================
 

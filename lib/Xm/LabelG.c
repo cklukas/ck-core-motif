@@ -4195,6 +4195,9 @@ XrmValue *value)
 static void
 FromPaddingPixels(Widget widget, int offset, XtArgVal *value)
 {
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmLabelGadgetClass))
+        return;
     switch(LabG_PixmapPlacement(widget)) {
     case XmPIXMAP_TOP:
     case XmPIXMAP_BOTTOM:
@@ -4219,6 +4222,9 @@ FromPaddingPixels(Widget widget, int offset, XtArgVal *value)
 static XmImportOperator
 ToPaddingPixels(Widget widget, int offset, XtArgVal *value)
 {
+    if (widget == NULL || value == NULL ||
+        !XtIsSubclass(widget, xmLabelGadgetClass))
+        return XmSYNTHETIC_NONE;
     switch(LabG_PixmapPlacement(widget)) {
     case XmPIXMAP_TOP:
     case XmPIXMAP_BOTTOM:
