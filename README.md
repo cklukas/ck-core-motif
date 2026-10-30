@@ -51,6 +51,10 @@ disturbing valid trees. This keeps ordinary expand/collapse and selection
 callbacks compatible while making partially initialized widget hierarchies
 safer for both applications and embedders.
 
+Container drag-and-drop transfers now also stop cleanly when their destination
+state has expired or is malformed, preventing a stale transfer from being
+dereferenced during item movement.
+
 The development 2.4.0 cohort uses native ABI epoch 8, including the current
 Unicode text maps and optional native accessibility records. Rebuild every
 native consumer against one consistent header/library cohort; this is not a
