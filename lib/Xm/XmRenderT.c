@@ -3957,6 +3957,7 @@ XmRenderTableCvtFromProp(Widget w,
   /* These must both be big enough for the number of passed parameters */
   char *items[20];
   char *name;
+  char *prop_copy;
   Arg args[20];
   /* This must be big enough to hold all the strings returned by
      readtoken */
@@ -3970,11 +3971,19 @@ XmRenderTableCvtFromProp(Widget w,
 
   _XmAppLock(app);
   new_rt = NULL;
+  prop_copy = (char *)XtMalloc((Cardinal)len + 1);
+  if (prop_copy == NULL) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
+  memcpy(prop_copy, prop, len);
+  prop_copy[len] = '\0';
   scanpointer = 0;
   rarray_max = 10;
   rarray_count = 0;
   rarray = (XmRendition *) XtMalloc(sizeof(XmRendition) * rarray_max);
   if (rarray == NULL) {
+    XtFree(prop_copy);
     _XmAppUnlock(app);
     return NULL;
   }
@@ -3983,7 +3992,7 @@ XmRenderTableCvtFromProp(Widget w,
   for(j = 0; j < 20; j++) items[j] = NULL;
   /* Read the list of items */
   for(j = 0; j < 20; ) {
-    token = ReadToken(prop, &scanpointer, &reusetoken);
+    token = ReadToken(prop_copy, &scanpointer, &reusetoken);
     if (token -> type == T_NL || token -> type == T_EOF) break;
     if (token -> type == T_STR) {
       items[j] = token -> string;
@@ -3995,10 +4004,10 @@ XmRenderTableCvtFromProp(Widget w,
   count = 0;
   freecount = 0;
   while(True) {
-    token = ReadToken(prop, &scanpointer, &reusetoken);
+    token = ReadToken(prop_copy, &scanpointer, &reusetoken);
     /* We skip the separators */
     while(token -> type == T_SEP)
-      token = ReadToken(prop, &scanpointer, &reusetoken);
+      token = ReadToken(prop_copy, &scanpointer, &reusetoken);
     if (token -> type == T_EOF) goto finish;
 
     j++; /* Go to next item in items array */
@@ -4009,7 +4018,7 @@ XmRenderTableCvtFromProp(Widget w,
       /* End of line processing.  Scan for NewLine */
       while(token -> type != T_NL &&
 	    token -> type != T_EOF)
-        token = ReadToken(prop, &scanpointer, &reusetoken);
+        token = ReadToken(prop_copy, &scanpointer, &reusetoken);
       /* Store rendition */
       rendition = XmRenditionCreate(w, name, args, count);
       if (rendition == NULL)
@@ -4061,7 +4070,7 @@ XmRenderTableCvtFromProp(Widget w,
       if (token -> integer != -1) { /* AS IS */ 
 	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNfontType, token -> integer); count++;
-    token = ReadToken(prop, &scanpointer, &reusetoken);
+    token = ReadToken(prop_copy, &scanpointer, &reusetoken);
 	if (token -> type != T_STR) goto error;
 	if (count >= (int)(sizeof(args) / sizeof(args[0]))) {
 	  XtFree(token -> string);
@@ -4073,7 +4082,7 @@ XmRenderTableCvtFromProp(Widget w,
 	  goto error;
 	}
 	freelater[freecount] = token -> string; freecount++;
-    token = ReadToken(prop, &scanpointer, &reusetoken);
+    token = ReadToken(prop_copy, &scanpointer, &reusetoken);
 	if (token -> type != T_INT) goto error;
 	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNloadModel, token -> integer); count++;
@@ -4091,7 +4100,7 @@ XmRenderTableCvtFromProp(Widget w,
 	XmTab tabs[1];
 
 	tablist = NULL;
-    token = ReadToken(prop, &scanpointer, &reusetoken);
+    token = ReadToken(prop_copy, &scanpointer, &reusetoken);
 	while(token -> type != T_CLOSE) {
 	  if (token -> type == T_EOF || token -> type == T_NL)
 	    goto error;
@@ -4101,13 +4110,13 @@ XmRenderTableCvtFromProp(Widget w,
 	    value = token -> real;
 	  else
 	    value = (float) token -> integer;
-      token = ReadToken(prop, &scanpointer, &reusetoken);
+      token = ReadToken(prop_copy, &scanpointer, &reusetoken);
 	  if (token -> type != T_INT) goto error;
 	  units = token -> integer;
-      token = ReadToken(prop, &scanpointer, &reusetoken);
+      token = ReadToken(prop_copy, &scanpointer, &reusetoken);
 	  if (token -> type != T_INT) goto error;
 	  align = token -> integer;
-      token = ReadToken(prop, &scanpointer, &reusetoken);
+      token = ReadToken(prop_copy, &scanpointer, &reusetoken);
 	  if (token -> type != T_INT) goto error;
 	  model = (XmOffsetModel) token -> integer;
 	  tabs[0] = XmTabCreate(value, units, model, align, NULL);
@@ -4117,10 +4126,10 @@ XmRenderTableCvtFromProp(Widget w,
 	  while(token -> type != T_SEP) {
 	    if (token -> type == T_EOF || token -> type == T_NL)
 	      goto error;
-        token = ReadToken(prop, &scanpointer, &reusetoken);
+        token = ReadToken(prop_copy, &scanpointer, &reusetoken);
 	  }
 	  if (token -> type == T_SEP)
-        token = ReadToken(prop, &scanpointer, &reusetoken);
+        token = ReadToken(prop_copy, &scanpointer, &reusetoken);
 	}
 	if (count >= (int)(sizeof(args) / sizeof(args[0]))) {
 	  XmTabListFree(tablist);
@@ -4160,6 +4169,7 @@ XmRenderTableCvtFromProp(Widget w,
   new_rt = XmRenderTableAddRenditions(new_rt, rarray, rarray_count, XmMERGE_REPLACE);
   for (i = 0; i < rarray_count; i++) XmRenditionFree(rarray[i]);
   XtFree((char *)rarray);
+  XtFree(prop_copy);
   _XmAppUnlock(app);
   return(new_rt);
 

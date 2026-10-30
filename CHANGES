@@ -31262,3 +31262,9 @@ Validate XmString ASN.1 component bounds (2026-10-30)
 - Reject component lengths that extend beyond the encoded buffer before the
   truncation helper calls its component reader.
 - Extend the focused boundary regression and documentation.
+Bound render-table property parsing (2026-10-30)
+================================================
+
+- Parse a length-bounded NUL-terminated copy of render-table properties,
+  preventing `ReadToken` from scanning past non-NUL-terminated input.
+- Add focused source-contract coverage and document the input contract.
