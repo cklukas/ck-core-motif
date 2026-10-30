@@ -244,7 +244,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                    sw->toggle_switch.track_color);
     fill_round_rect(display, window, knob_gc, knob_x, knob_y,
                     TOGGLE_SWITCH_KNOB_DIAMETER, TOGGLE_SWITCH_KNOB_DIAMETER);
-    if (sw->toggle_switch.font)
+    if (sw->toggle_switch.font && sw->toggle_switch.label)
         XmStringExtent(sw->toggle_switch.font, sw->toggle_switch.label,
                        &label_width, &label_height);
     label_x = track_x + (int)track_width + (int)sw->toggle_switch.spacing;
@@ -300,7 +300,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     Dimension height = TOGGLE_SWITCH_TRACK_HEIGHT + 8;
     Dimension label_width = 0, label_height = 0;
     (void)request;
-    if (sw->toggle_switch.font)
+    if (sw->toggle_switch.font && sw->toggle_switch.label)
         XmStringExtent(sw->toggle_switch.font, sw->toggle_switch.label,
                        &label_width, &label_height);
     width += label_width;

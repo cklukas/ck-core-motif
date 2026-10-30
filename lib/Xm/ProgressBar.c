@@ -190,7 +190,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!progress->progress.track_gc || !progress->progress.fill_gc)
         return;
     XClearWindow(display, window);
-    if (progress->progress.font)
+    if (progress->progress.font && progress->progress.label)
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     text_gc = XtIsSensitive(widget) ? progress->progress.text_gc
@@ -300,7 +300,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     XmProgressBarWidget progress = (XmProgressBarWidget)widget;
     Dimension label_width = 0, label_height = 0;
     (void)request;
-    if (progress->progress.font)
+    if (progress->progress.font && progress->progress.label)
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     reply->request_mode = CWWidth | CWHeight;
