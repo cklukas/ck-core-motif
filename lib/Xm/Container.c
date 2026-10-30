@@ -4271,6 +4271,8 @@ HideCwid(
 
     if (cwid == NULL) return;
     c = GetContainerConstraint(cwid);
+    if (c == NULL)
+	return;
 
     XmeConfigureObject(
 	cwid,AdjustPositionSaturated(0,
@@ -4298,8 +4300,16 @@ HideCwid(
     child_node = node->child_ptr;
     while (child_node)
         {
+        if (child_node->widget_ptr == NULL) {
+            child_node = child_node->next_ptr;
+            continue;
+        }
         HideCwid(child_node->widget_ptr);
         c = GetContainerConstraint(child_node->widget_ptr);
+        if (c == NULL) {
+            child_node = child_node->next_ptr;
+            continue;
+        }
         if (c->related_cwid)
             HideCwid(c->related_cwid);
         child_node = child_node->next_ptr;

@@ -31808,3 +31808,10 @@ Guard Container default-action callback inputs (2026-10-30)
 - Validate the child, parent, and constraint before the Container default
   action callback reads selection state.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container outline hiding inputs (2026-10-30)
+==================================================
+
+- Return safely for missing constraints and skip malformed child nodes during
+  recursive Container outline hiding.
+- Add focused source-contract coverage and document the invalid-input path.
