@@ -477,6 +477,7 @@ static Boolean ctextConcat(
 #define CTEXT_APPEND_OR_FAIL_TOP(str, len, data, data_len) \
   do { \
     if (!ctextConcat(&(str), &(len), (data), (data_len))) { \
+      XtFree((char *)(str)); \
       if (ct_encoding) XtFree((char *)ct_encoding); \
       _XmStringContextFree(&stack_context); \
       return False; \
@@ -2338,8 +2339,12 @@ cvtXmStringToUTF8String(
 
 	  /* We must duplicate val because the routines we want to */
 	  /*	call don't take a length parameter. */
-	  if (len == UINT_MAX)
+	  if (len == UINT_MAX) {
+	    XtFree((char *)outc);
+	    if (ct_encoding) XtFree((char *)ct_encoding);
+	    _XmStringContextFree(&stack_context);
 	    return False;
+	  }
 	  tmp = (OctetPtr) XmStackAlloc(len + 1, tmp_buf);
 	  if (len != 0)
 	    memcpy((char*)tmp, val, len);
@@ -2361,6 +2366,8 @@ cvtXmStringToUTF8String(
 
 	  if (!ok)
 	    {
+	      XtFree((char *)outc);
+	      if (ct_encoding) XtFree((char *)ct_encoding);
 	      _XmStringContextFree(&stack_context);
 	      return(False);
 	    }
@@ -2403,6 +2410,8 @@ cvtXmStringToUTF8String(
 
 	  if (!ok)
 	    {
+	      XtFree((char *)outc);
+	      if (ct_encoding) XtFree((char *)ct_encoding);
 	      _XmStringContextFree(&stack_context);
 	      return(False);
 	    }
@@ -2504,8 +2513,12 @@ cvtXmStringToText(
 
 	  /* We must duplicate val because the routines we want to */
 	  /*	call don't take a length parameter. */
-	  if (len == UINT_MAX)
+	  if (len == UINT_MAX) {
+	    XtFree((char *)outc);
+	    if (ct_encoding) XtFree((char *)ct_encoding);
+	    _XmStringContextFree(&stack_context);
 	    return False;
+	  }
 	  tmp = (OctetPtr) XmStackAlloc(len + 1, tmp_buf);
 	  if (len != 0)
 	    memcpy((char*)tmp, val, len);
@@ -2527,6 +2540,8 @@ cvtXmStringToText(
 
 	  if (!ok)
 	    {
+	      XtFree((char *)outc);
+	      if (ct_encoding) XtFree((char *)ct_encoding);
 	      _XmStringContextFree(&stack_context);
 	      return(False);
 	    }
@@ -2569,6 +2584,8 @@ cvtXmStringToText(
 
 	  if (!ok)
 	    {
+	      XtFree((char *)outc);
+	      if (ct_encoding) XtFree((char *)ct_encoding);
 	      _XmStringContextFree(&stack_context);
 	      return(False);
 	    }

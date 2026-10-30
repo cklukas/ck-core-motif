@@ -1,3 +1,10 @@
+Release compound-text conversion buffers on failure (2026-10-30)
+================================================================
+
+- Free partially encoded output, copied charset state, and traversal context
+  on compound-text conversion failures, including append allocation errors.
+- Add focused source-contract coverage and document the cleanup contract.
+
 Initialize empty text-property conversion results (2026-10-30)
 ===============================================================
 
