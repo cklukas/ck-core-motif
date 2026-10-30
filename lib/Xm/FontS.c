@@ -661,7 +661,7 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
     any_fam->medium_nameq = XrmStringToQuark(DEFAULT_WEIGHT);
     any_fam->upright_nameq = XrmStringToQuark(DEFAULT_SLANT);
     any_fam->italic_nameq = XrmStringToQuark(ITALIC_SLANT);
-    strcpy(any_fam->fixed_spacing, DEFAULT_FIXED_SPACING);
+    StoreString(DEFAULT_FIXED_SPACING, any_fam->fixed_spacing, SPACING_LEN);
 
     any_fam->state = (Flag) 0;
     any_fam->sizes_75 = any_fam->sizes_100 = (LongFlag) 0;
@@ -1205,7 +1205,7 @@ UpdateExistingFamily(FamilyInfo *fam, FontData *font)
 	fam->upright_nameq = XrmStringToQuark(font->slant);
 
     if (!streq(font->spacing, PROPORTIONAL_SPACING))
-	strcpy(fam->fixed_spacing, font->spacing);
+	StoreString(font->spacing, fam->fixed_spacing, SPACING_LEN);
 
     if (font->point_size != 0) {
 	if ((font->resolution_x == 75) && (font->resolution_y == 75))
@@ -1273,9 +1273,9 @@ FillNewFamily(FamilyInfo *fam, FontData *font)
     }
 
     if (streq(font->spacing, PROPORTIONAL_SPACING))
-	strcpy(fam->fixed_spacing, DEFAULT_FIXED_SPACING);
+	StoreString(DEFAULT_FIXED_SPACING, fam->fixed_spacing, SPACING_LEN);
     else
-	strcpy(fam->fixed_spacing, font->spacing);
+	StoreString(font->spacing, fam->fixed_spacing, SPACING_LEN);
     
     if (CheckFlag(font->state, ITALIC)) {
 	fam->italic_nameq = XrmStringToQuark(font->slant);
@@ -1668,23 +1668,23 @@ UpdateFixedProportional(XmFontSelectorWidget fsw)
     if (CheckFlag(XmFontS_user_state(fsw), USER_PROPORTIONAL)) {
 	if (CheckFlag(XmFontS_user_state(fsw), USER_FIXED))
 	{
-	    strcpy(cf->spacing, STAR_STRING);
+	    StoreString(STAR_STRING, cf->spacing, SPACING_LEN);
 	    setMono = False; setProp = False; setAny = True;
 	}
 	else
 	{
-	    strcpy(cf->spacing, PROPORTIONAL_SPACING);
+	    StoreString(PROPORTIONAL_SPACING, cf->spacing, SPACING_LEN);
 	    setMono = False; setProp = True; setAny = False;
 	}
     }
     else if (CheckFlag(XmFontS_user_state(fsw), USER_FIXED))
     {
-	strcpy(cf->spacing, fam->fixed_spacing);
+	StoreString(fam->fixed_spacing, cf->spacing, SPACING_LEN);
 	setMono = True; setProp = False; setAny = False;
     }
     else
     {
-	strcpy(cf->spacing, STAR_STRING);
+	StoreString(STAR_STRING, cf->spacing, SPACING_LEN);
 	setMono = False; setProp = False; setAny = True;
     }
     if ( XmFontS_monospace(fsw) != NULL )

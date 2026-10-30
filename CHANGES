@@ -1,3 +1,9 @@
+Bound FontSelector spacing-field copies (2026-10-30)
+=====================================================
+
+- Route all fixed-spacing assignments through the bounded XLFD field helper.
+- Add focused source coverage and documentation.
+
 Guard FontSelector font-string construction (2026-10-30)
 ===========================================================
 
