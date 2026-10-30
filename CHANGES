@@ -31405,3 +31405,12 @@ Reject zero-sized COMPOUND_STRING conversions (2026-10-30)
 - Treat a zero ASN.1 byte-stream size as conversion failure during
   COMPOUND_STRING export instead of silently emitting empty data.
 - Add focused source-contract coverage and document the invariant.
+Bound ASN.1 headers during XmString truncation (2026-10-30)
+==============================================================
+
+- Check short and long component-header bounds before reading ASN.1 lengths
+  from external compound text.
+- Add focused source-contract coverage and document the malformed-input guard.
+
+Reject trailing ColorObj property data (2026-10-30)
+=====================================================

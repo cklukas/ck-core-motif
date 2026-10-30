@@ -11074,6 +11074,12 @@ _XmStringTruncateASN1(unsigned char *str, int n)
   a_end = ((unsigned char *) a) + len + head_size;
 
   if (ap < a_end) {
+    size_t remaining = (size_t)(a_end - ap);
+    if (remaining < (size_t)(ASNTAG + CSSHORTLEN) ||
+	(_is_asn1_long(ap) && remaining < (size_t)(ASNTAG + CSLONGLEN))) {
+	  XtFree((char *)str);
+	  return (NULL);
+    }
     length = _read_asn1_length(ap);
     header = _asn1_size(length);
   } else {
@@ -11101,6 +11107,12 @@ _XmStringTruncateASN1(unsigned char *str, int n)
       ap = new_c;
       if (ap >= a_end)
 	break;
+      remaining = (size_t)(a_end - ap);
+      if (remaining < (size_t)(ASNTAG + CSSHORTLEN) ||
+	  (_is_asn1_long(ap) && remaining < (size_t)(ASNTAG + CSLONGLEN))) {
+	XtFree((char *)str);
+	return (NULL);
+      }
       length = _read_asn1_length(ap);
       header = _asn1_size(length);
     }
