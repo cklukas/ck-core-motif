@@ -9747,6 +9747,9 @@ OutlineButtonAction(
     XmContainerOutlineCallbackStruct cbs;
     unsigned char state_before_callback;
 
+    if (cw == NULL || c == NULL)
+	return;
+
     /*
      * call the XmNoutlineChangedCallback callback
      */
