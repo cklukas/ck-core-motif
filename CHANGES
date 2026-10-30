@@ -32073,3 +32073,10 @@ Guard Container managed-child constraints (2026-10-30)
 - Skip managed children whose Container constraint record is unavailable
   before consulting node activity or outline state.
 - Add focused source-contract coverage and document the invalid-child path.
+
+Guard Container spatial-growth constraints (2026-10-30)
+========================================================
+
+- Reject spatial growth requests when the child has no Container constraint
+  record before reading logical coordinates.
+- Add focused source-contract coverage and document the invalid-child path.

@@ -3012,6 +3012,8 @@ RequestSpatialGrowth(
     	}
 
     c = GetContainerConstraint(cwid);
+    if (c == NULL)
+	return(False);
     if (CtrSpatialStyleIsNONE(cw))
 	{
 	if (grow_width_allowed)
