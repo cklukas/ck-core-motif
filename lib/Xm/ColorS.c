@@ -566,6 +566,13 @@ SetValues(Widget current, Widget request, Widget set,
     String color_name_copy;
     Boolean rgb_file_changed;
 
+    if (current == NULL || request == NULL || set == NULL || args == NULL ||
+	 num_args == NULL ||
+	 !XtIsSubclass(current, xmColorSelectorWidgetClass) ||
+	 !XtIsSubclass(request, xmColorSelectorWidgetClass) ||
+	 !XtIsSubclass(set, xmColorSelectorWidgetClass))
+	return False;
+
     /*
      * Pass argument list through to all children.
      */

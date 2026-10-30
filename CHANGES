@@ -1,3 +1,11 @@
+Guard ColorSelector SetValues input (2026-10-30)
+=================================================
+
+- Reject null or wrong-class widget records and missing argument inputs before
+  filtering child resources.
+- Return `False` without mutating state for malformed SetValues calls.
+- Add focused source coverage and documentation.
+
 Guard FontSelector SetValues resource names (2026-10-30)
 ==========================================================
 
