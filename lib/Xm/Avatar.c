@@ -85,6 +85,8 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
     XGCValues values;
     (void)request; (void)args; (void)count;
+    if (widget == NULL || !XtIsSubclass(widget, xmAvatarWidgetClass))
+        return;
     avatar->avatar.initials = copy_initials(avatar->avatar.initials);
     if (!avatar->avatar.font)
         avatar->avatar.font = XmFontListCopy(
