@@ -31864,3 +31864,10 @@ Guard Container dynamic tab inputs (2026-10-30)
 - Return safely when dynamic detail-tab generation receives no Container
   widget.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container first-column inputs (2026-10-30)
+================================================
+
+- Validate dynamic first-column sizing inputs and skip malformed child or
+  constraint state.
+- Add focused source-contract coverage and document the invalid-input path.

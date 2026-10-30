@@ -6213,7 +6213,7 @@ static 	Dimension
 GetDynFirstColWidth(
     Widget      wid)
 {
-    XmContainerWidget   cw = (XmContainerWidget)wid;
+    XmContainerWidget   cw;
     XmContainerItemDataRec      cItemData;
     XmContainerItemTrait        cItemTrait;
     XmContainerConstraint	c;
@@ -6222,6 +6222,10 @@ GetDynFirstColWidth(
     Dimension	cwid_fcw = 0;
     Dimension	fcw = 0;
     uint64_t    detail_indent;
+
+    if (wid == NULL)
+	return(0);
+	cw = (XmContainerWidget)wid;
 
     /*
      * Get the IconHeader's icon_width
@@ -6244,6 +6248,10 @@ GetDynFirstColWidth(
     while (node)
         {
         cwid = node->widget_ptr;
+	if (cwid == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	if ((cItemTrait = (XmContainerItemTrait)
 	            XmeTraitGet((XtPointer)XtClass(cwid),XmQTcontainerItem)) != NULL &&
 	    cItemTrait->getValues != NULL)
@@ -6259,6 +6267,10 @@ GetDynFirstColWidth(
 	    cwid_fcw = cwid->core.width;
 	
 	c = GetContainerConstraint(cwid);
+	if (c == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	detail_indent = (uint64_t)c->depth *
 	    (uint64_t)cw->container.outline_indent;
 	cwid_fcw = AddDimensionSaturated(cwid_fcw,
