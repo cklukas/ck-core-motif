@@ -704,3 +704,7 @@ Calendar date, range, and visible-month setters now fail closed during Xt
 teardown, preventing redraw and notification work on partial state. The
 focused source check is
 `tests/automated/check-calendar-mutator-destroy-guards.py`.
+
+TimePicker value and range setters now fail closed during Xt teardown as well,
+preventing redraw and notification work on partial state. The focused source
+check is `tests/automated/check-timepicker-mutator-destroy-guards.py`.

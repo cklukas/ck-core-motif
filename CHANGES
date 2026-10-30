@@ -1,3 +1,10 @@
+Guard TimePicker mutators during destruction (2026-10-30)
+===========================================================
+
+- Reject TimePicker value and range setters once Xt marks the widget for
+  destruction, avoiding redraw and callback work on partial state.
+- Add focused source-contract coverage for both mutator paths.
+
 Guard Calendar mutators during destruction (2026-10-30)
 =========================================================
 
