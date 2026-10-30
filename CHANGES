@@ -31745,3 +31745,10 @@ Guard Container marquee inputs (2026-10-30)
 - Skip malformed child nodes and missing constraints during marquee selection,
   and guard `InMarquee` against children without a Container parent.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container marquee recalculation inputs (2026-10-30)
+===========================================================
+
+- Require a Container widget and a real anchor child before marquee geometry
+  reads during extend-both selection.
+- Add focused source-contract coverage and document the invalid-input path.

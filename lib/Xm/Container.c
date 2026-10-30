@@ -8423,10 +8423,14 @@ RecalcMarquee(
 	Position	x,
 	Position	y)
 {
-	XmContainerWidget	cw = (XmContainerWidget)wid;
+	XmContainerWidget	cw;
 	Dimension		width,height;
 	Position		anchor_x,anchor_y,anchor_xw,anchor_yh;
 	Position		cwid_x,cwid_y,cwid_xw,cwid_yh;
+
+	if (wid == NULL)
+	    return;
+	cw = (XmContainerWidget)wid;
 
 	/*
 	 * Erase any marquee that is currently drawn.
@@ -8451,7 +8455,8 @@ RecalcMarquee(
 	switch(cw->container.selection_technique)
 	{
 	case	XmMARQUEE_EXTEND_BOTH:
-			if ((cw->container.started_in_anchor) && (cwid))
+			if ((cw->container.started_in_anchor) && (cwid) &&
+			    cw->container.anchor_cwid)
 				{
 				XtVaGetValues(cw->container.anchor_cwid,
 					XmNx,&anchor_x,XmNy,&anchor_y,
