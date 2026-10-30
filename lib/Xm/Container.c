@@ -9488,6 +9488,8 @@ ConvertRefuse(
         XtPointer       closure,	/* unused */
         XmConvertCallbackStruct *cs)
 {
+	if (cs == NULL)
+	    return;
 	cs->value = NULL;
 	cs->length = 0;
 	cs->type = 0;
