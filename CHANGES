@@ -1,3 +1,10 @@
+Bound FontSelector encoding matching (2026-10-30)
+===================================================
+
+- Validate selector/family state and unset encodings safely.
+- Check encoding capacity before every array access.
+- Add focused source coverage and documentation.
+
 Guard FontSelector Other-list construction (2026-10-30)
 =========================================================
 

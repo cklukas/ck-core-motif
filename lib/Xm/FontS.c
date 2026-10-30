@@ -3228,16 +3228,23 @@ CheckEncoding(XmFontSelectorWidget fsw, FamilyInfo *fam)
     int i;
     XrmQuark curr;
 
-    if (streq(ENCODING_STRING(fsw), ANY_ENCODING) || fam->encodings == NULL)
+    if (fsw == NULL || fam == NULL)
+	return(False);
+    if (ENCODING_STRING(fsw) == NULL ||
+	streq(ENCODING_STRING(fsw), ANY_ENCODING) || fam->encodings == NULL)
 	return(TRUE);
+	if (fam->encoding_alloc <= 0)
+	return(False);
 
     curr = XrmStringToQuark(ENCODING_STRING(fsw));
     for (i = 0; TRUE; i++)
     {
+	if (i >= fam->encoding_alloc)
+	    return(False);
 	if (fam->encodings[i] == curr)
 	    return(True);
 
-	if (fam->encodings[i] == 0 || i == fam->encoding_alloc)
+	if (fam->encodings[i] == 0)
 	    return(False);
     }
 }
