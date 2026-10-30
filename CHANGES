@@ -1,3 +1,10 @@
+Guard Container drag destination lookup (2026-10-30)
+======================================================
+
+- Reject drag-move transfers whose destination callback record is unavailable
+  before reading its flags.
+- Add focused source-contract coverage and document the malformed-transfer path.
+
 Guard Notebook child widget lookup (2026-10-30)
 ================================================
 

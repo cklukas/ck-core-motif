@@ -10437,6 +10437,8 @@ MoveItemCallback(
   if (cwid == NULL || cs == NULL || cs->value == NULL)
     return;
   ds = _XmTransferGetDestinationCBStruct(cs->transfer_id);
+  if (ds == NULL)
+    return;
   offset = (XPoint *) cs->value;
 
   c = GetContainerConstraint(cwid);
