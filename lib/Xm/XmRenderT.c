@@ -4126,25 +4126,25 @@ XmRenderTableCvtFromProp(Widget w,
 	goto error;
     } else if (strcmp(items[j], XmNbackground) == 0) {
       if (token -> type != T_INT) goto error;
-      if (token -> type != -1) {
+      if (token -> integer != -1) {
 	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNrenditionBackground, token -> integer); count++;
       }
     } else if (strcmp(items[j], XmNforeground) == 0) {
       if (token -> type != T_INT) goto error;
-      if (token -> type != -1) {
+      if (token -> integer != -1) {
 	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNrenditionForeground, token -> integer); count++;
       }
     } else if (strcmp(items[j], XmNunderlineType) == 0) {
       if (token -> type != T_INT) goto error;
-      if (token -> type != -1) {
+      if (token -> integer != -1) {
 	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNunderlineType, token -> integer); count++;
       }
     } else if (strcmp(items[j], XmNstrikethruType) == 0) {
       if (token -> type != T_INT) goto error;
-      if (token -> type != -1) {
+      if (token -> integer != -1) {
 	if (count >= (int)(sizeof(args) / sizeof(args[0]))) goto error;
 	XtSetArg(args[count], XmNstrikethruType, token -> integer); count++;
       }

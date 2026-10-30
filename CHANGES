@@ -31196,3 +31196,11 @@ Handle initial render-table property allocation failure (2026-10-30)
 - Add focused source-contract coverage and document the failure behavior.
 
 Clean up failed PNG image conversion (2026-10-30)
+Parse render-table AS_IS sentinels correctly (2026-10-30)
+==========================================================
+
+- Compare background, foreground, underline, and strikethrough token integers,
+  rather than the token type enum, when recognizing the `-1` AS_IS sentinel.
+- Add focused source-contract coverage and document the corrected import.
+
+Handle initial render-table property allocation failure (2026-10-30)
