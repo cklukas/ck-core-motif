@@ -1,3 +1,11 @@
+Snapshot SearchBox clear callbacks before dispatch (2026-10-30)
+==================================================================
+
+- Capture the cleared and query-changed callback lists before invoking either
+  callback, avoiding a second widget dereference after user code can destroy
+  the SearchBox.
+- Add focused source-contract coverage and document the callback lifetime.
+
 Avoid dead CommandPalette rebuild allocation (2026-10-30)
 ============================================================
 

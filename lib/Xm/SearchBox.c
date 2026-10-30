@@ -130,11 +130,25 @@ void XmSearchBoxSetString(Widget widget, const char *value) {
 }
 void XmSearchBoxClear(Widget widget) {
     XmSearchBoxWidget box;
+    XtCallbackList cleared_callbacks;
+    XtCallbackList query_callbacks;
+    XmSearchBoxCallbackStruct callback;
+    char *query;
     if (widget == NULL || !XmIsSearchBox(widget) || !XtIsSensitive(widget)) return;
-    box = (XmSearchBoxWidget)widget; box->search.clearing = True;
+    box = (XmSearchBoxWidget)widget;
+    cleared_callbacks = box->search.cleared_callback;
+    query_callbacks = box->search.query_changed_callback;
+    box->search.clearing = True;
     XmTextFieldSetString(widget, (char *)""); box->search.clearing = False;
-    emit(widget, box->search.cleared_callback, XmSEARCH_REASON_CLEARED, NULL);
-    emit(widget, box->search.query_changed_callback, XmSEARCH_REASON_QUERY_CHANGED, NULL);
+    query = query_copy(widget);
+    if (query == NULL) return;
+    callback.reason = XmSEARCH_REASON_CLEARED;
+    callback.event = NULL;
+    callback.query = query;
+    XtCallCallbackList(widget, cleared_callbacks, &callback);
+    callback.reason = XmSEARCH_REASON_QUERY_CHANGED;
+    XtCallCallbackList(widget, query_callbacks, &callback);
+    XtFree(query);
 }
 void XmSearchBoxCommit(Widget widget, XEvent *event) {
     XmSearchBoxWidget box;
