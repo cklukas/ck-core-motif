@@ -10036,6 +10036,9 @@ ScrollProc(
     XEvent event;
     Boolean selection_changes;
 
+    if (closure == NULL)
+	return;
+
     if (cw->container.scroll_proc_id == 0)
 	return;
 
@@ -10043,6 +10046,8 @@ ScrollProc(
 
     /* since we've got reparented by the clip the scrollFrame is 2 levels up */
     sf = XtParent(XtParent((Widget)cw));
+    if (sf == NULL)
+	return;
     scrollFrameTrait = (XmScrollFrameTrait)
 	XmeTraitGet((XtPointer)XtClass(sf), XmQTscrollFrame);
     if (!(scrollFrameTrait &&
