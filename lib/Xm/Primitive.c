@@ -1240,6 +1240,8 @@ FocusChange(
 static XmDirection 
 GetDirection(Widget w)
 {
+  if (w == NULL || !XtIsSubclass(w, xmPrimitiveWidgetClass))
+    return XmDEFAULT_DIRECTION;
   return XmPrim_layout_direction(((XmPrimitiveWidget)(w)));
 }
 
@@ -1282,7 +1284,12 @@ static void
 GetColors(Widget w, 
 	  XmAccessColorData color_data)
 {
-    XmPrimitiveWidget pw = (XmPrimitiveWidget) w ;
+    XmPrimitiveWidget pw;
+
+    if (w == NULL || color_data == NULL ||
+	!XtIsSubclass(w, xmPrimitiveWidgetClass))
+	return;
+    pw = (XmPrimitiveWidget) w;
 
     color_data->valueMask = AccessForeground | AccessBackgroundPixel |
 	AccessHighlightColor | AccessTopShadowColor | AccessBottomShadowColor;
@@ -1297,6 +1304,8 @@ GetColors(Widget w,
 static unsigned char
 GetUnitType(Widget w)
 {
+    if (w == NULL || !XtIsSubclass(w, xmPrimitiveWidgetClass))
+	return XmPIXELS;
     return ((XmPrimitiveWidget) w)->primitive.unit_type ;
 }
 
