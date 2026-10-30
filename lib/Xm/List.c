@@ -2313,7 +2313,17 @@ CvtToExternalPos(Widget wid,
 		 int offset,
 		 XtArgVal *value)
 {
-  XmListWidget lw = (XmListWidget) wid;
+  XmListWidget lw;
+
+  if (value == NULL || wid == NULL ||
+      !XtIsSubclass(wid, xmListWidgetClass))
+    {
+      if (value != NULL)
+	*value = (XtArgVal)XmINVALID_POSITION;
+      return;
+    }
+
+  lw = (XmListWidget) wid;
 
   (*value) = (XtArgVal) (lw->list.top_position + 1);
 }
@@ -2324,6 +2334,9 @@ CvtToInternalPos(Widget wid,
 		 int offset,
 		 XtArgVal *value)
 {
+  if (value == NULL)
+    return XmSYNTHETIC_NONE;
+
   (* (int *) value)--;
 
   return XmSYNTHETIC_LOAD;
