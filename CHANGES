@@ -31997,3 +31997,10 @@ Guard Container max-depth inputs (2026-10-30)
 - Validate optional max-depth traversal state and skip malformed child or
   constraint records.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container resequencing inputs (2026-10-30)
+=================================================
+
+- Validate Container and entry-parent state during position-index
+  resequencing, skipping malformed nodes and constraints.
+- Add focused source-contract coverage and document the invalid-input path.

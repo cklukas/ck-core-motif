@@ -8019,9 +8019,14 @@ static void ContainerResequenceNodes
 	CwidNode 	node;
 	int count = 0;
 
+	if (cw == NULL)
+	    return;
+
 	if (entryParent)
 	{
  		c = GetContainerConstraint(entryParent);
+		if (c == NULL || c->node_ptr == NULL)
+		    return;
 		node = c->node_ptr ? c->node_ptr->child_ptr : NULL;
 	}
 	else
@@ -8031,7 +8036,15 @@ static void ContainerResequenceNodes
 
 	while (node)
 	{
+		if (node->widget_ptr == NULL) {
+		    node = node->next_ptr;
+		    continue;
+		}
 		c = GetContainerConstraint(node->widget_ptr);
+		if (c == NULL) {
+		    node = node->next_ptr;
+		    continue;
+		}
 		c->position_index = count++;
 		node = node->next_ptr;
 	}
