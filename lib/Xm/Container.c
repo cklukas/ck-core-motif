@@ -9335,9 +9335,18 @@ CallActionCB(
 	Widget	cwid,
 	XEvent	*event)
 {
-	XmContainerWidget	cw = (XmContainerWidget)XtParent(cwid);
-	XmContainerConstraint	c = GetContainerConstraint(cwid);
+	XmContainerWidget	cw;
+	XmContainerConstraint	c;
 	XmContainerSelectCallbackStruct	cbs;
+
+	if (cwid == NULL)
+	    return;
+	cw = (XmContainerWidget)XtParent(cwid);
+	if (cw == NULL)
+	    return;
+	c = GetContainerConstraint(cwid);
+	if (c == NULL)
+	    return;
 
 	if (!(XtHasCallbacks((Widget)cw,XmNdefaultActionCallback)
 				== XtCallbackHasSome))
