@@ -1351,7 +1351,7 @@ Replace(XmTextWidget initiator,
         Boolean call_callbacks)	/* unused */
 #endif
 {
-  register XmSourceData data = initiator->text.source->data;
+  register XmSourceData data;
   register int i;
   register long delta;
   register int block_num_chars;  /* number of characters in the block */
@@ -1360,9 +1360,15 @@ Replace(XmTextWidget initiator,
   int old_maxlength;
   char *resized_ptr;
   XmTextUnicodeMap *replacement_map = NULL;
-  int char_size = (initiator->text.char_size < 3 ?
-		   (int)initiator->text.char_size :
-		   sizeof(wchar_t));
+  int char_size;
+
+  if (initiator == NULL || start == NULL || end == NULL || block == NULL ||
+      initiator->text.source == NULL ||
+      initiator->text.source->data == NULL)
+    return EditError;
+  data = initiator->text.source->data;
+  char_size = (initiator->text.char_size < 3 ?
+		   (int)initiator->text.char_size : sizeof(wchar_t));
 
   if (char_size <= 0)
 	return EditError;

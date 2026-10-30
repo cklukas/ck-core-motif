@@ -19,3 +19,6 @@ overflow in deletion geometry.
 Range extraction also rejects a missing widget or source before reading its
 character width, preserving the existing `NULL` failure contract during
 teardown.
+
+The replacement callback now rejects a missing initiator, source, range, or
+block before reading character storage and returns `EditError`.

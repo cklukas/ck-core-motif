@@ -132,6 +132,14 @@ Guard Text source value/accessor helpers (2026-10-30)
   maximum-length accessors dereference private storage.
 - Add focused accessor coverage and document neutral failure results.
 
+Guard Text replacement callback inputs (2026-10-30)
+===================================================
+
+- Reject missing initiator, source, range, and block state before `Replace`
+  reads character storage or computes edit geometry.
+- Extend focused replacement-range coverage and document the `EditError`
+  failure contract.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

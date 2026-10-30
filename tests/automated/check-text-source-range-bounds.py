@@ -16,6 +16,8 @@ assert "available > (XmTextPosition)(INT_MAX - position)" in read_region
 replace_start = source.index("static XmTextStatus \nReplace(")
 replace_end = source.index("\nstatic void \nScanParagraph", replace_start)
 replace_region = source[replace_start:replace_end]
+assert "initiator == NULL || start == NULL || end == NULL || block == NULL" in replace_region
+assert "initiator->text.source == NULL" in replace_region
 assert "if (char_size <= 0)" in replace_region
 assert "return EditError;" in replace_region
 
