@@ -426,6 +426,9 @@ ListCallback(
             Boolean         reset = FALSE ;
 ****************/
 
+    if (listCB == NULL || client_data == NULL)
+        return;
+
     argc = 0 ;
     XtSetArg( argv[argc], XmNitemCount, &count) ; ++argc ;
     XtGetValues( SB_List( cmdWid), argv, argc) ;
@@ -532,6 +535,9 @@ CommandCallback(
     XmCommandCallbackStruct  cb;
     char *str;
 /****************/
+
+    if (client_data == NULL || call_data == NULL)
+        return;
 
     cb.reason = XmCR_COMMAND_CHANGED;
     cb.event = ((XmAnyCallbackStruct *) call_data)->event ;

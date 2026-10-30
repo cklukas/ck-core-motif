@@ -1,3 +1,10 @@
+Guard Command callback input (2026-10-30)
+=========================================
+
+- Reject missing list/text callback and client payloads before dereferencing
+  internal Command state.
+- Add focused source coverage and documentation.
+
 Guard DataField picture callback input (2026-10-30)
 ===================================================
 
