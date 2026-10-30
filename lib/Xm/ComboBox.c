@@ -3055,6 +3055,8 @@ CreateChildren(Widget    widget,
 
   /* Create the editbox. */
   CreateEditBox(widget, TEXT_CHILD_NAME, widget, arglist, num_args);
+  if (CB_EditBox(cb) == NULL)
+    return;
   XtAddCallback(CB_EditBox(cb), XmNvalueChangedCallback,
 		TextChangedCB, (XtPointer) cb);
 
@@ -3212,6 +3214,8 @@ CreateEditBox(Widget    parent,
   XtFree((char *)merged_args);
   if (item)
     XtFree(item);
+  if (text_widget == NULL)
+    return NULL;
 
   XtManageChild(text_widget);
   assert(cb->composite.children[0] == text_widget);

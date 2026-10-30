@@ -29513,3 +29513,11 @@ Guard FontSelector encoding-menu allocation (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard XmPrintSetup inputs and shell allocation (2026-10-30)
+Guard ComboBox edit-field allocation (2026-10-30)
+=================================================
+
+- Stop text-field setup cleanly when `XmCreateTextField` fails.
+- Register the edit callback only after the child is available.
+- Add focused source coverage and documentation.
+
+Guard FontSelector encoding-menu allocation (2026-10-30)
