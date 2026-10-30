@@ -4093,6 +4093,8 @@ XmRenderTableCvtFromProp(Widget w,
 	tablist = NULL;
     token = ReadToken(prop, &scanpointer, &reusetoken);
 	while(token -> type != T_CLOSE) {
+	  if (token -> type == T_EOF || token -> type == T_NL)
+	    goto error;
 	  if (token -> type != T_FLOAT &&
 	      token -> type != T_INT) goto error;
 	  if (token -> type == T_FLOAT)
@@ -4112,8 +4114,11 @@ XmRenderTableCvtFromProp(Widget w,
 	  tablist = XmTabListInsertTabs(tablist, tabs, 1, 1000);
 	  XtFree((char*) tabs[0]);
 	  /* Go to next separator to skip unknown future values */
-	  while(token -> type != T_SEP) 
+	  while(token -> type != T_SEP) {
+	    if (token -> type == T_EOF || token -> type == T_NL)
+	      goto error;
         token = ReadToken(prop, &scanpointer, &reusetoken);
+	  }
 	  if (token -> type == T_SEP)
         token = ReadToken(prop, &scanpointer, &reusetoken);
 	}
