@@ -6293,7 +6293,7 @@ static  void
 ResizeIconWidths(
     Widget  wid)
 {
-    XmContainerWidget	cw = (XmContainerWidget)wid;
+    XmContainerWidget	cw;
     CwidNode		node;
     Widget		cwid;
     XmContainerConstraint c;
@@ -6301,6 +6301,10 @@ ResizeIconWidths(
     int64_t max_x = 0;
     int64_t edge_x;
     Dimension available_width;
+
+    if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
     
     /*** get the maximum right edge first */
     if (cw->core.width == cw->container.ideal_width)
@@ -6328,7 +6332,15 @@ ResizeIconWidths(
 	    while(node)
 		{
 		cwid = node->widget_ptr;
+		if (cwid == NULL) {
+		    node = GetNextNode(node);
+		    continue;
+		}
 		c = GetContainerConstraint(cwid);
+		if (c == NULL) {
+		    node = GetNextNode(node);
+		    continue;
+		}
 		/* This query depends on the current first column width,
 		   and the current x position.
 		 */
@@ -6370,7 +6382,15 @@ ResizeIconWidths(
     node = GetFirstNode(cw);
     while(node) {
 	cwid = node->widget_ptr;
+	if (cwid == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
 	c = GetContainerConstraint(cwid);
+	if (c == NULL) {
+	    node = GetNextNode(node);
+	    continue;
+	}
         cwid->core.x = cw->container.margin_w +
                 c->depth*cw->container.outline_indent
                 + ((CtrOB_PRESENT(cw))?cw->container.ob_width:0) ;

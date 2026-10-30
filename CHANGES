@@ -31871,3 +31871,10 @@ Guard Container first-column inputs (2026-10-30)
 - Validate dynamic first-column sizing inputs and skip malformed child or
   constraint state.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container resize inputs (2026-10-30)
+==========================================
+
+- Validate icon-width resizing inputs and skip malformed child or constraint
+  state in measurement and configuration passes.
+- Add focused source-contract coverage and document the invalid-input path.
