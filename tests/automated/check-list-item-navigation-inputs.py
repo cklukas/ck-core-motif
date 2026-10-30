@@ -8,7 +8,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "List.c").read_text(
 for function in ("XmListSetItem(", "XmListSetBottomItem("):
     start = source.rindex(function)
     body = source[start:source.index("\n}\n", start)]
-    assert "if (w == NULL || item == NULL)" in body
-    assert body.index("_XmWidgetToAppContext(w)") > body.index("if (w == NULL")
-    assert body.index("ItemNumber(lw, item)") > body.index("if (w == NULL")
+    assert "if (w == NULL || !XmIsList(w) || item == NULL)" in body
+    assert body.index("_XmWidgetToAppContext(w)") > body.index("!XmIsList(w)")
+    assert body.index("ItemNumber(lw, item)") > body.index("!XmIsList(w)")
 print("PASS item-based list navigation validates inputs")
