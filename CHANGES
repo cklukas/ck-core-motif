@@ -32220,3 +32220,10 @@ Guard Container none-style placement constraints (2026-10-30)
 - Return safely when none-style placement has no child Container constraint
   before writing placement state.
 - Add focused source-contract coverage and document the invalid-child path.
+
+Guard Container grid/cell placement constraints (2026-10-30)
+=============================================================
+
+- Return safely when grid/cell placement has no child Container constraint
+  before closest-cell coordinate or snapping reads.
+- Add focused source-contract coverage and document the invalid-child path.

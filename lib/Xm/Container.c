@@ -3885,6 +3885,9 @@ PlaceItemGridCells(
   XPoint 	place_point;
   XRectangle	cwidrect;
 
+  if (c == NULL)
+	return;
+
   /* A failed or incomplete reset leaves no usable occupancy grid. */
   if (cw->container.cells == NULL || cw->container.cell_count <= 0 ||
       (CtrSpatialStyleIsCELLS(cw) && cw->container.cells_region == NULL))
