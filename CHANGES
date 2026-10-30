@@ -31732,6 +31732,13 @@ Guard Container hit-test inputs (2026-10-30)
   hit-testing reads geometry or outline state.
 - Add focused source-contract coverage and document the invalid-input path.
 
+Guard Container outline refresh inputs (2026-10-30)
+====================================================
+
+- Return safely before outline-button traversal when no Container widget is
+  supplied.
+- Add focused source-contract coverage and document the invalid-input path.
+
 Guard Container button-motion inputs (2026-10-30)
 ==================================================
 

@@ -9558,13 +9558,17 @@ static	void
 ChangeOutlineButtons(
     Widget	wid)
 {
-    XmContainerWidget		cw = (XmContainerWidget)wid;
+	XmContainerWidget		cw;
     int				i;
     Widget			cwid;
     XmContainerConstraint	c;
     Pixmap			pm;
     Arg				wargs[2];
     int				n;
+
+	if (wid == NULL)
+	return;
+	cw = (XmContainerWidget)wid;
 
     for (i = 0; i < cw->composite.num_children; i++)
 	{
