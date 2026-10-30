@@ -81,6 +81,13 @@ Guard Text widget attachment state (2026-10-30)
   before `AddWidget` grows or inspects shared text-source storage.
 - Extend focused attachment coverage and document the safe failure behavior.
 
+Guard Text widget removal state (2026-10-30)
+============================================
+
+- Reject missing source, widget, and widget-array state before `RemoveWidget`
+  scans or mutates shared text-source storage.
+- Extend focused attachment/removal coverage and document the teardown guard.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

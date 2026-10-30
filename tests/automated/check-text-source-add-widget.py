@@ -19,4 +19,11 @@ assert "new_highlights = (_XmHighlightRec *)XtRealloc" in block
 assert "if (new_highlights == NULL)" in block
 assert "UINT_MAX / sizeof(XmTextWidget)" in block
 
+remove_start = text.index("static void \nRemoveWidget")
+remove_end = text.index("\n/********************************<->***********************************/", remove_start)
+remove_block = text[remove_start:remove_end]
+assert "source == NULL || tw == NULL || source->data == NULL" in remove_block
+assert "data->widgets == NULL || data->numwidgets <= 0" in remove_block
+assert "return;" in remove_block
+
 print("text-source AddWidget allocation guards: ok")

@@ -715,8 +715,14 @@ static void
 RemoveWidget(XmTextSource source,
 	     XmTextWidget tw)
 {
-  XmSourceData data = source->data;
+  XmSourceData data;
   int i;
+
+  if (source == NULL || tw == NULL || source->data == NULL)
+    return;
+  data = source->data;
+  if (data->widgets == NULL || data->numwidgets <= 0)
+    return;
   for (i=0; i<data->numwidgets; i++) {
     if (data->widgets[i] == tw) {
       XmTextPosition left, right;
