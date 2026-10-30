@@ -144,6 +144,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     gc = XCreateGC(display, window,
                    GCForeground | GCBackground | GCLineWidth | GCLineStyle,
                    &values);
+    if (gc == NULL)
+        return;
     if (highlight->drop_highlight.label && highlight->drop_highlight.font)
         XmStringExtent(highlight->drop_highlight.font,
                        highlight->drop_highlight.label,

@@ -1,3 +1,10 @@
+Guard DropHighlight rendering graphics-context allocation (2026-10-30)
+=======================================================================
+
+- Return safely when the temporary expose graphics context cannot be created,
+  before issuing rectangle or label drawing requests.
+- Add focused source coverage and documentation.
+
 Guard Chip and IconLabel rendering graphics contexts (2026-10-30)
 ===================================================================
 
