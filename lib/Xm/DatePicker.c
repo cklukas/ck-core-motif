@@ -340,11 +340,11 @@ Boolean XmDatePickerSetRange(Widget widget, const XmDatePickerDate *minimum,
     picker = (XmDatePickerWidget)widget;
     if (compare_dates(&picker->date_picker.date, minimum) < 0 ||
         compare_dates(&picker->date_picker.date, maximum) > 0) return False;
-    picker->date_picker.minimum = *minimum;
-    picker->date_picker.maximum = *maximum;
     if (picker->date_picker.calendar &&
         !XmCalendarSetRange(picker->date_picker.calendar, minimum, maximum))
         return False;
+    picker->date_picker.minimum = *minimum;
+    picker->date_picker.maximum = *maximum;
     return True;
 }
 
