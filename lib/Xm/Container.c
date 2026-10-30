@@ -7822,6 +7822,8 @@ static	CwidNode
 GetFirstNode(
     XmContainerWidget	cw)
 {
+  if (cw == NULL || cw->container.first_node == NULL)
+      return NULL;
   if (NodeIsActive(cw->container.first_node)) 
       return cw->container.first_node;
   else 
@@ -7841,7 +7843,11 @@ GetNextNode(
 
     if (!start_node)
 	return(NULL);
+    if (start_node->widget_ptr == NULL)
+	return(NULL);
     cw = (XmContainerWidget)XtParent(start_node->widget_ptr);
+	if (cw == NULL)
+	return(NULL);
 
     if (CtrLayoutIsSPATIAL(cw))
 	{

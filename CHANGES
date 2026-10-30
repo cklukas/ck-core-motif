@@ -31976,3 +31976,10 @@ Guard Container node deletion inputs (2026-10-30)
 
 - Validate child and constraint state before recursive node deletion.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container traversal inputs (2026-10-30)
+==============================================
+
+- Validate Container, node, and parent-widget state before first/next-node
+  traversal.
+- Add focused source-contract coverage and document the invalid-input path.
