@@ -1,3 +1,11 @@
+Guard SearchBox callbacks and mutators during destruction (2026-10-30)
+=======================================================================
+
+- Stop SearchBox text changes, clears, commits, event dispatch, and callback
+  emission once Xt begins destroying the widget, avoiding reads and redraw
+  work against partial text-field state.
+- Add focused source-contract coverage for the teardown guards.
+
 Guard AutoSuggestBox mutators during destruction (2026-10-30)
 ================================================================
 

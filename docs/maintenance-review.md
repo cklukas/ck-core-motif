@@ -744,3 +744,8 @@ now fail closed during Xt teardown. Commit callbacks are also followed by a
 destruction check before dismissing the popup or restoring traversal, avoiding
 post-callback access to a widget that the callback destroyed. The focused
 source check is `tests/automated/check-autosuggest-mutator-destroy-guards.py`.
+
+SearchBox text changes, clear/commit actions, event dispatch, and callback
+emission now fail closed during Xt teardown, avoiding reads or redraw work on
+partial text-field state. The focused source check is
+`tests/automated/check-searchbox-destroy-guards.py`.

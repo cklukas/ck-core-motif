@@ -42,7 +42,13 @@ static char *query_copy(Widget widget) {
     return value ? value : XtNewString("");
 }
 static void emit(Widget widget, XtCallbackList callbacks, int reason, XEvent *event) {
-    XmSearchBoxCallbackStruct callback; char *query = query_copy(widget);
+    XmSearchBoxWidget box;
+    XmSearchBoxCallbackStruct callback; char *query;
+    if (!widget || !XmIsSearchBox(widget)) return;
+    box = (XmSearchBoxWidget)widget;
+    if (box->core.being_destroyed) return;
+    query = query_copy(widget);
+    if (!query) return;
     callback.reason = reason; callback.event = event; callback.query = query;
     XtCallCallbackList(widget, callbacks, &callback);
     XtFree(query);
@@ -98,20 +104,21 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 static void query_changed(Widget widget, XtPointer closure, XtPointer data) {
     XmSearchBoxWidget box = (XmSearchBoxWidget)widget;
     (void)closure; (void)data;
-    if (box == NULL || !XmIsSearchBox(widget)) return;
+    if (box == NULL || !XmIsSearchBox(widget) || box->core.being_destroyed) return;
     if (!box->search.clearing) emit(widget, box->search.query_changed_callback,
                                     XmSEARCH_REASON_QUERY_CHANGED, NULL);
 }
 static void committed(Widget widget, XtPointer closure, XtPointer data) {
     XmSearchBoxWidget box = (XmSearchBoxWidget)widget;
     (void)closure; (void)data;
-    if (box == NULL || !XmIsSearchBox(widget)) return;
+    if (box == NULL || !XmIsSearchBox(widget) || box->core.being_destroyed) return;
     emit(widget, box->search.committed_callback, XmSEARCH_REASON_COMMITTED, NULL);
 }
 static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch) {
     XmSearchBoxWidget box = (XmSearchBoxWidget)widget; KeySym key; char input[8];
     (void)data;
-    if (box == NULL || event == NULL || !XmIsSearchBox(widget)) return;
+    if (box == NULL || event == NULL || !XmIsSearchBox(widget) ||
+        box->core.being_destroyed) return;
     if (!XtIsSensitive(widget)) return;
     if (event->type == ButtonPress && box->search.clear_button &&
         box->core.height >= 20 &&
@@ -130,7 +137,8 @@ char *XmSearchBoxGetString(Widget widget) {
     return widget != NULL && XmIsSearchBox(widget) ? XmTextFieldGetString(widget) : NULL;
 }
 void XmSearchBoxSetString(Widget widget, const char *value) {
-    if (widget != NULL && XmIsSearchBox(widget))
+    if (widget != NULL && XmIsSearchBox(widget) &&
+        !((XmSearchBoxWidget)widget)->core.being_destroyed)
         XmTextFieldSetString(widget, (char *)(value ? value : ""));
 }
 void XmSearchBoxClear(Widget widget) {
@@ -139,7 +147,8 @@ void XmSearchBoxClear(Widget widget) {
     XtCallbackList query_callbacks;
     XmSearchBoxCallbackStruct callback;
     char *query;
-    if (widget == NULL || !XmIsSearchBox(widget) || !XtIsSensitive(widget)) return;
+    if (widget == NULL || !XmIsSearchBox(widget) || !XtIsSensitive(widget) ||
+        ((XmSearchBoxWidget)widget)->core.being_destroyed) return;
     box = (XmSearchBoxWidget)widget;
     cleared_callbacks = box->search.cleared_callback;
     query_callbacks = box->search.query_changed_callback;
@@ -157,7 +166,8 @@ void XmSearchBoxClear(Widget widget) {
 }
 void XmSearchBoxCommit(Widget widget, XEvent *event) {
     XmSearchBoxWidget box;
-    if (widget == NULL || !XmIsSearchBox(widget) || !XtIsSensitive(widget)) return;
+    if (widget == NULL || !XmIsSearchBox(widget) || !XtIsSensitive(widget) ||
+        ((XmSearchBoxWidget)widget)->core.being_destroyed) return;
     box = (XmSearchBoxWidget)widget;
     emit(widget, box->search.committed_callback, XmSEARCH_REASON_COMMITTED, event);
 }
