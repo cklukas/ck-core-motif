@@ -1,3 +1,10 @@
+Guard model callbacks during destruction (2026-10-30)
+=======================================================
+
+- Suppress late DataGrid, TreeView, and Toolbar callbacks while Xt tears down
+  the owning widget, avoiding callback dispatch against partial model state.
+- Add focused source-contract coverage for the model-widget callback paths.
+
 Guard remaining widget callbacks during destruction (2026-10-30)
 ==================================================================
 

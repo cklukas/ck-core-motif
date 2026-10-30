@@ -657,3 +657,7 @@ The same teardown contract now covers BreadcrumbBar, NumberBox, EmptyState,
 ProgressRing, Sidebar, RowActions, Calendar, TeachingTip, and Flyout callbacks.
 The focused source check is
 `tests/automated/check-widget-callback-destroy-guards.py`.
+
+DataGrid, TreeView, and Toolbar now apply the same teardown guard to selection,
+sort, edit, expansion, and action callbacks. The focused source check is
+`tests/automated/check-model-callback-destroy-guards.py`.

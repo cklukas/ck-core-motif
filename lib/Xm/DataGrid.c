@@ -245,7 +245,8 @@ static void redraw(XmDataGridWidget grid) {
 
 static void notify_selection(XmDataGridWidget grid, XEvent *event) {
     XmDataGridSelectionCallbackStruct callback;
-    if (!grid->data_grid.selection_callback ||
+    if (grid == NULL || grid->core.being_destroyed ||
+        !grid->data_grid.selection_callback ||
         grid->data_grid.selected_row < 0 || grid->data_grid.selected_column < 0)
         return;
     callback.reason = 1;
@@ -260,7 +261,8 @@ static void notify_selection(XmDataGridWidget grid, XEvent *event) {
 static void notify_sort(XmDataGridWidget grid, XEvent *event,
                         XtPointer column_id, Boolean ascending) {
     XmDataGridSortCallbackStruct callback;
-    if (!grid->data_grid.sort_callback) return;
+    if (grid == NULL || grid->core.being_destroyed ||
+        !grid->data_grid.sort_callback) return;
     callback.reason = 2;
     callback.event = event;
     callback.column_id = column_id;
@@ -270,7 +272,8 @@ static void notify_sort(XmDataGridWidget grid, XEvent *event,
 
 static void notify_edit(XmDataGridWidget grid, XEvent *event) {
     XmDataGridEditCallbackStruct callback;
-    if (!grid->data_grid.edit_committed_callback) return;
+    if (grid == NULL || grid->core.being_destroyed ||
+        !grid->data_grid.edit_committed_callback) return;
     callback.reason = 3;
     callback.event = event;
     callback.row_id = grid->data_grid.rows[grid->data_grid.edit_row].id;
@@ -282,7 +285,8 @@ static void notify_edit(XmDataGridWidget grid, XEvent *event) {
 
 static void notify_edit_failed(XmDataGridWidget grid, XEvent *event) {
     XmDataGridEditFailedCallbackStruct callback;
-    if (!grid->data_grid.edit_failed_callback) return;
+    if (grid == NULL || grid->core.being_destroyed ||
+        !grid->data_grid.edit_failed_callback) return;
     callback.reason = 4;
     callback.event = event;
     callback.row_id = grid->data_grid.rows[grid->data_grid.edit_row].id;

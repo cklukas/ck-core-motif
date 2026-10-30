@@ -457,7 +457,8 @@ static void activate(Widget child, XtPointer client, XtPointer call)
     XmToolbarWidget toolbar = (XmToolbarWidget)client;
     Cardinal i;
     XmToolbarCallbackStruct callback;
-    if (toolbar == NULL || !XmIsToolbar((Widget)toolbar)) return;
+    if (toolbar == NULL || !XmIsToolbar((Widget)toolbar) ||
+        toolbar->core.being_destroyed) return;
     for (i = 0; i < toolbar->toolbar.action_count; ++i) {
         XmToolbarStoredAction *action = &toolbar->toolbar.actions[i];
         if (action->button == child || action->menu_button == child) {
@@ -634,7 +635,7 @@ void XmToolbarInvoke(Widget widget, Cardinal index, XEvent *event)
 {
     XmToolbarWidget toolbar;
     XmToolbarCallbackStruct callback;
-    if (!widget || !XmIsToolbar(widget))
+    if (!widget || !XmIsToolbar(widget) || widget->core.being_destroyed)
         return;
     toolbar = (XmToolbarWidget)widget;
     if (index >= toolbar->toolbar.action_count)
