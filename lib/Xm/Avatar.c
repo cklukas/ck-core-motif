@@ -131,7 +131,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         return;
     display = XtDisplay(widget);
     window = XtWindow(widget);
-    if (!window) return;
+    if (!window || !avatar->avatar.foreground_gc) return;
     XClearWindow(display, window);
     diameter = (int)(avatar->core.width < avatar->core.height
                          ? avatar->core.width : avatar->core.height);

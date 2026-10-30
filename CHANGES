@@ -1,3 +1,10 @@
+Guard Avatar rendering graphics context (2026-10-30)
+=====================================================
+
+- Skip Avatar expose drawing when graphics-context creation was unavailable,
+  preventing `XDrawArc`/`XCopyArea` calls with a null GC.
+- Add focused source coverage and documentation.
+
 Guard Avatar initialization input (2026-10-30)
 ===============================================
 
