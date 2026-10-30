@@ -7786,10 +7786,16 @@ static  void
 DeleteNode(
         Widget  cwid)
 {
-        XmContainerConstraint   c = GetContainerConstraint(cwid);
+        XmContainerConstraint   c;
         CwidNode        target_node;
         CwidNode        child_node;
         CwidNode        target_child;
+
+        if (cwid == NULL)
+            return;
+        c = GetContainerConstraint(cwid);
+        if (c == NULL)
+            return;
 
         if ((target_node = c->node_ptr) == NULL) return;
 
