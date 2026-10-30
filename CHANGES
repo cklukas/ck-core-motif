@@ -32143,3 +32143,10 @@ Guard Container begin-extend inputs (2026-10-30)
 - Return safely when begin-extend receives no event or parameter-count pointer
   before reading pointer coordinates or action arguments.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container end-extend inputs (2026-10-30)
+===============================================
+
+- Return safely when end-extend receives no event or parameter-count pointer
+  before activating gadgets or reading the selection timestamp.
+- Add focused source-contract coverage and document the invalid-input path.

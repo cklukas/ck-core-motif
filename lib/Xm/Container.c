@@ -5141,6 +5141,9 @@ ContainerEndExtend(
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 	Boolean			selection_changes;
 
+	if (event == NULL || num_params == NULL)
+	    return;
+
 	cw->container.extend_pressed = False;
 	cw->container.selecting = False;
 	if (cw->container.cancel_pressed)
