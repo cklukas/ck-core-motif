@@ -2223,6 +2223,9 @@ FileSelectionBoxUpdate(
             XmFileSelectionBoxCallbackStruct qualifiedSearchData ;
 /****************/
 
+    if (fs == NULL || searchData == NULL)
+        return;
+
     /* Unmap file list, so if it takes a long time to generate the
     *   list items, the user doesn't wonder what is going on.
     */
