@@ -1,3 +1,10 @@
+Guard FontSelector encoding-menu allocation failures (2026-10-30)
+===================================================================
+
+- Validate an existing option-menu child before rebuilding its popup menu.
+- Stop safely when an encoding label compound string cannot be allocated.
+- Add focused source coverage and documentation.
+
 Guard FontSelector name-label allocation failure (2026-10-30)
 ===============================================================
 

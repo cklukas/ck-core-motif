@@ -3058,6 +3058,8 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
     {
 	omenu = XmFontS_option_menu(fsw);
     }
+    if (omenu == NULL)
+	return NULL;
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNwidth, 1); num_largs++;
@@ -3122,6 +3124,8 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
     { 
 	char name[BUFSIZ];
 	XmString label = XmStringCreateLocalized(*encodings);
+	if (label == NULL)
+	    break;
 
 	margs[button_label].value = (XtArgVal) label;
 	(void)snprintf(name, sizeof(name), "button_%d", i);
