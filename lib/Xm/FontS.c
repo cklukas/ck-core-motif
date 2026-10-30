@@ -3964,6 +3964,9 @@ Destroy(Widget w)
     register String *ptr;
     XmFontSelectorWidget fsw = (XmFontSelectorWidget)w;
 
+    if (XmFontS_font_info(fsw) == NULL)
+	return;
+
     if (XmFontS_old_fontdata(fsw) != NULL) {
 	XFreeFont(XtDisplay(w), XmFontS_old_fontdata(fsw));
 	XmFontListFree(XmFontS_old_fontlist(fsw));
@@ -4010,7 +4013,8 @@ Destroy(Widget w)
 
     {
 	String *encodings;
-	for (encodings = ENCODING_LIST(fsw); *encodings != NULL; i++, encodings++) 
+	for (encodings = ENCODING_LIST(fsw);
+	     encodings != NULL && *encodings != NULL; encodings++)
 		XtFree(*encodings);
 	XtFree((char*)ENCODING_LIST(fsw));
     }

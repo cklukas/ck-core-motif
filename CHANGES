@@ -1,3 +1,10 @@
+Fix FontSelector partial-initialization teardown (2026-10-30)
+===============================================================
+
+- Return safely when destruction follows a failed font-information load.
+- Use an explicit encoding-list pointer guard during teardown.
+- Add focused source coverage and documentation.
+
 Guard FontSelector encoding-menu allocation failures (2026-10-30)
 ===================================================================
 
