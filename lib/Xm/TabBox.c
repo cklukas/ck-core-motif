@@ -6250,6 +6250,8 @@ DrawRightToLeftTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	    XmTabBox__one_GC(tab) = XCreateGC(XtDisplay(tab), bitmap, gcMask,
 	                                      &gcValues);
 	}
+	if( XmTabBox__zero_GC(tab) == NULL || XmTabBox__one_GC(tab) == NULL )
+	    return;
 
 	/*
 	 * Now we have all that we need to render the label string, so now
@@ -6853,6 +6855,8 @@ DrawVerticalTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	    XmTabBox__one_GC(tab) = XCreateGC(XtDisplay(tab), bitmap, gcMask,
 	                                      &gcValues);
 	}
+	if( XmTabBox__zero_GC(tab) == NULL || XmTabBox__one_GC(tab) == NULL )
+	    return;
 
 	/*
 	 * Now we have all that we need to render the label string, so now
