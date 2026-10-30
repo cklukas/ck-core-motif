@@ -7143,8 +7143,8 @@ Live gallery controls and Unicode welcome page (2026-10-27)
 Auto-suggest string-copy allocation guards (2026-10-26)
 ========================================================
 
-- Return cleanly when `XmAutoSuggestBox` cannot allocate a temporary text
-  buffer while copying an item string; see
+- Preserve retained AutoSuggestBox item labels with direct `XmStringCopy`
+  while keeping text-conversion allocation guards; see
   `docs/auto-suggest-string-copy-guards.md`.
 
 Icon-label geometry bounds (2026-10-26)

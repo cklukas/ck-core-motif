@@ -7,8 +7,9 @@ start = source.index("static XmString string_copy")
 end = source.index("static void free_items", start)
 region = source[start:end]
 
-assert "if (!text)" in region
-assert "XmStringCreateLocalized(text)" in region
+assert "return value ? XmStringCopy(value) : XmStringCreateLocalized(\"\");" in region
+assert "XmStringUnparse" not in region
+assert "XmStringCreateLocalized(text)" not in region
 assert "(size_t)count > (size_t)UINT_MAX / sizeof(*box->auto_suggest.items)" in source
 assert "if (!box->auto_suggest.items)" in source
 assert "if (!box->auto_suggest.items[i].id || !label)" in source
