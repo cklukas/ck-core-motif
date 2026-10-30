@@ -1308,6 +1308,9 @@ Replace(XmTextWidget initiator,
   int char_size = (initiator->text.char_size < 3 ?
 		   (int)initiator->text.char_size :
 		   sizeof(wchar_t));
+
+  if (char_size <= 0)
+	return EditError;
   
   if (*start == *end && block->length == 0) return EditReject;
   

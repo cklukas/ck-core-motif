@@ -21,6 +21,13 @@ Reject zero-width Text source state (2026-10-30)
   size from malformed or partially initialized widget state.
 - Add focused input coverage and document the safe read-failure behavior.
 
+Reject zero-width Text source edits (2026-10-30)
+================================================
+
+- Return `EditError` before replacement-range arithmetic can divide by an
+  invalid zero character size.
+- Extend the Text source range regression and document the edit-path guard.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

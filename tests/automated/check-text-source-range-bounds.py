@@ -13,6 +13,12 @@ read_end = source.index("\nvoid\n_XmTextValidate", read_start)
 read_region = source[read_start:read_end]
 assert "available > (XmTextPosition)(INT_MAX - position)" in read_region
 
+replace_start = source.index("static XmTextStatus \nReplace(")
+replace_end = source.index("\nstatic void \nScanParagraph", replace_start)
+replace_region = source[replace_start:replace_end]
+assert "if (char_size <= 0)" in replace_region
+assert "return EditError;" in replace_region
+
 get_start = source.index("_XmStringSourceGetString(XmTextWidget tw,")
 get_end = source.index("\n\nstatic void \nAddWidget", get_start)
 get_region = source[get_start:get_end]

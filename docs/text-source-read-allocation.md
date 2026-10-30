@@ -17,3 +17,7 @@ partially updated buffer.
 `ReadSource` also rejects an invalid zero character-size state before doing
 length arithmetic. This prevents malformed widget state from reaching a
 division by zero while preserving the same safe read-failure behavior.
+
+The edit path applies the corresponding `EditError` guard before converting a
+replacement range, so an invalid character-size state cannot reach its byte
+offset arithmetic either.
