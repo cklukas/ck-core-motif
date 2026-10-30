@@ -1,3 +1,10 @@
+Constrain InfoBar close hit testing (2026-10-30)
+=================================================
+
+- Require button presses to fall inside the drawn centered close rectangle,
+  preventing unrelated clicks in the right margin from dismissing the bar.
+- Add focused source-contract coverage and document the hit geometry.
+
 Snapshot SearchBox clear callbacks before dispatch (2026-10-30)
 ==================================================================
 
