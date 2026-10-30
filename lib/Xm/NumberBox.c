@@ -390,7 +390,10 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         old->number_box.page_step != number->number_box.page_step ||
         old->number_box.wrap != number->number_box.wrap)
         redraw_needed = True;
-    if (old->number_box.value != number->number_box.value) format_value(number);
+    if (old->number_box.value != number->number_box.value) {
+        number->number_box.invalid = False;
+        format_value(number);
+    }
     return redraw_needed;
 }
 
