@@ -1,3 +1,10 @@
+Guard Notebook page-info lookup by widget class (2026-10-30)
+==============================================================
+
+- Reject non-Notebook widget handles before `XmNotebookGetPageInfo` accesses
+  application context or private child constraints.
+- Add focused source-contract coverage and document the invalid-input result.
+
 Guard public Container helpers by widget class (2026-10-30)
 ============================================================
 

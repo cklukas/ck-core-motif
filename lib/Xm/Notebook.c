@@ -7149,7 +7149,7 @@ XmNotebookGetPageInfo (
     XmNotebookPageStatus result;
     int i;
 
-    if (notebook == NULL || page_info == NULL)
+    if (notebook == NULL || !XmIsNotebook(notebook) || page_info == NULL)
         return XmPAGE_INVALID;
     _XmWidgetToAppContext(notebook);
 
