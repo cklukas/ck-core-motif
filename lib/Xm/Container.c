@@ -8606,14 +8606,21 @@ KBSelect(
 	String		*params,	/* unused */
 	Cardinal	*num_params)	/* unused */
 {
-	XmContainerWidget	cw = (XmContainerWidget)wid;
-	Widget			focus_cwid = XmGetFocusWidget(wid);
+	XmContainerWidget	cw;
+	Widget			focus_cwid;
 	XmContainerConstraint	c;
+
+	if (wid == NULL || event == NULL)
+	    return;
+	cw = (XmContainerWidget)wid;
+	focus_cwid = XmGetFocusWidget(wid);
 
 	if ((focus_cwid == wid) || (focus_cwid == NULL))
 		return;
 	cw->container.no_auto_sel_changes = False;
 	c = GetContainerConstraint(focus_cwid);
+	if (c == NULL)
+	    return;
 	cw->container.anchor_cwid = focus_cwid;
 	if ((!cw->container.extending_mode || CtrPolicyIsSINGLE(cw)) &&
 	    ((cw->container.selected_item_count > 1) ||

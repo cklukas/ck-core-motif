@@ -31759,3 +31759,10 @@ Guard Container marquee drawing input (2026-10-30)
 - Return safely from `DrawMarquee` when no widget is supplied before reading
   realization or Container state.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container keyboard-selection inputs (2026-10-30)
+=======================================================
+
+- Reject missing widgets/events before focus lookup and missing constraints
+  before Container keyboard selection reads child state.
+- Add focused source-contract coverage and document the invalid-input path.
