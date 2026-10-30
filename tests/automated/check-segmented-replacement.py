@@ -14,7 +14,7 @@ assert "old_items = control->segmented.items;" in body
 assert body.index("old_items = control->segmented.items;") < body.index("XmCreateToggleButton")
 assert body.index("XmCreateToggleButton") < body.index("XtDestroyWidget(old_items[i].button)")
 assert "control->segmented.items = NULL;" not in body
-assert "XtPointer selected_id = NULL;" in body
-assert "copy[selected_index].id == selected_id" in body
+assert "const char *selected_id = NULL;" in body
+assert "strcmp(copy[selected_index].id, selected_id) == 0" in body
 assert "XmToggleButtonSetState(copy[i].button" in body
 print("PASS SegmentedControl replacement is transactional")
