@@ -571,7 +571,8 @@ Boolean XmDataGridSetSelectedCell(Widget widget, XtPointer row_id,
     XmDataGridWidget grid;
     int row, column;
     Boolean changed;
-    if (!widget || !XmIsDataGrid(widget)) return False;
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed)
+        return False;
     grid = (XmDataGridWidget)widget;
     row = find_row(grid, row_id); column = find_column(grid, column_id);
     if (row < 0 || column < 0 || (Cardinal)row >= XmDATA_GRID_MAX_ROWS)
@@ -604,7 +605,8 @@ Boolean XmDataGridGetSelectedCell(Widget widget, XtPointer *row_id_return,
 
 Boolean XmDataGridSetTopRow(Widget widget, Cardinal top_row) {
     XmDataGridWidget grid;
-    if (!widget || !XmIsDataGrid(widget)) return False;
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed)
+        return False;
     grid = (XmDataGridWidget)widget;
     grid->data_grid.top_row = top_row;
     clamp_top(grid);
@@ -621,7 +623,8 @@ Boolean XmDataGridBeginEdit(Widget widget) {
     XmDataGridWidget grid;
     const char *value;
     char *copy;
-    if (!widget || !XmIsDataGrid(widget)) return False;
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed)
+        return False;
     grid = (XmDataGridWidget)widget;
     if (grid->data_grid.selected_row < 0 || grid->data_grid.selected_column < 0 ||
         (Cardinal)grid->data_grid.selected_row >= grid->data_grid.row_count ||
@@ -645,7 +648,8 @@ Boolean XmDataGridBeginEdit(Widget widget) {
 Boolean XmDataGridSetEditText(Widget widget, const char *text) {
     XmDataGridWidget grid;
     char *copy;
-    if (!widget || !XmIsDataGrid(widget) || !text || strlen(text) > XmDATA_GRID_MAX_EDIT_TEXT)
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed ||
+        !text || strlen(text) > XmDATA_GRID_MAX_EDIT_TEXT)
         return False;
     grid = (XmDataGridWidget)widget;
     if (!grid->data_grid.editing) return False;
@@ -659,7 +663,8 @@ Boolean XmDataGridSetEditText(Widget widget, const char *text) {
 Boolean XmDataGridSetEditError(Widget widget, const char *error) {
     XmDataGridWidget grid;
     char *copy = NULL;
-    if (!widget || !XmIsDataGrid(widget) || !error) return False;
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed ||
+        !error) return False;
     grid = (XmDataGridWidget)widget;
     if (!grid->data_grid.editing) return False;
     copy = XtNewString(error);
@@ -677,7 +682,8 @@ const char *XmDataGridGetEditError(Widget widget) {
 Boolean XmDataGridCommitEdit(Widget widget, Boolean notify) {
     XmDataGridWidget grid;
     char *copy;
-    if (!widget || !XmIsDataGrid(widget)) return False;
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed)
+        return False;
     grid = (XmDataGridWidget)widget;
     if (!grid->data_grid.editing) return False;
     if (grid->data_grid.edit_error) {
@@ -699,7 +705,8 @@ Boolean XmDataGridCommitEdit(Widget widget, Boolean notify) {
 
 void XmDataGridCancelEdit(Widget widget) {
     XmDataGridWidget grid;
-    if (!widget || !XmIsDataGrid(widget)) return;
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed)
+        return;
     grid = (XmDataGridWidget)widget;
     if (!grid->data_grid.editing) return;
     grid->data_grid.editing = False;
@@ -715,7 +722,7 @@ Boolean XmDataGridIsEditing(Widget widget) {
 Boolean XmDataGridRequestSort(Widget widget, XtPointer column_id,
                               Boolean ascending, Boolean notify) {
     XmDataGridWidget grid;
-    if (!widget || !XmIsDataGrid(widget) ||
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed ||
         find_column((XmDataGridWidget)widget, column_id) < 0) return False;
     grid = (XmDataGridWidget)widget;
     if (notify) notify_sort(grid, NULL, column_id, ascending);

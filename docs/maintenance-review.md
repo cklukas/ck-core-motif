@@ -682,3 +682,7 @@ DataGrid, TreeView, CommandPalette, and Toolbar replacement APIs now reject
 calls during Xt teardown before they allocate, free, or rebuild owned model
 state. The focused source check is
 `tests/automated/check-model-replacement-destroy-guards.py`.
+
+DataGrid selection, scrolling, editing, commit/cancel, and sort mutators also
+fail closed during Xt teardown. The focused source check is
+`tests/automated/check-datagrid-mutator-destroy-guards.py`.
