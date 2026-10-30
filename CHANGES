@@ -130,6 +130,14 @@ Bound ColorSelector mode lifecycle (2026-10-30)
 - Reject incomplete mode callback data before reading callback fields.
 - Add focused source coverage and document partial mode construction.
 
+Normalize ColorSelector mode values (2026-10-30)
+================================================
+
+- Normalize direct, invalid `XmNcolorMode` values before indexing the
+  two-element mode-toggle array.
+- Preserve the existing list/scale resource contract and string conversion.
+- Add focused source coverage and document the fallback behavior.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 

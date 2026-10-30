@@ -1244,6 +1244,8 @@ change_mode(Widget w, XtPointer csw_ptr, XtPointer tp)
 static void
 new_mode(XmColorSelectorWidget csw, XmColorMode mode)
 {
+  if (mode != XmListMode && mode != XmScaleMode)
+	mode = XmScaleMode;
   XmColorS_color_mode(csw) = mode;
   
   if (mode == XmScaleMode) {
