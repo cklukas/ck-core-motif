@@ -32004,3 +32004,10 @@ Guard Container resequencing inputs (2026-10-30)
 - Validate Container and entry-parent state during position-index
   resequencing, skipping malformed nodes and constraints.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container selection-start inputs (2026-10-30)
+====================================================
+
+- Validate selection-start widget, event, and child constraint state before
+  reading pointer or selection fields.
+- Add focused source-contract coverage and document the invalid-input path.

@@ -8061,9 +8061,13 @@ StartSelect(
         String          *params,	/* unused */
         Cardinal        *num_params)	/* unused */
 {
-	XmContainerWidget	cw = (XmContainerWidget)wid;
+	XmContainerWidget	cw;
 	Widget			current_cwid;
 	XmContainerConstraint	c = NULL;
+
+	if (wid == NULL || event == NULL)
+	    return;
+	cw = (XmContainerWidget)wid;
 
 	current_cwid = ObjectAtPoint(wid,event->xbutton.x,event->xbutton.y);
 	/* Handle ObjectAtPoint returning an outline button */
@@ -8092,6 +8096,7 @@ StartSelect(
 		  /* Now check to see if the *item* is selected. */
 		  if (current_cwid
 		      && current_cwid == cw->container.anchor_cwid &&
+		      c != NULL &&
 		      c->selection_visual == XmSELECTED &&
 		      cw->container.selection_state == XmSELECTED) {
 		    /* Unselect if clicking on a selected item */
