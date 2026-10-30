@@ -8377,7 +8377,7 @@ XmListAddItem(Widget w,
 	      int pos)
 {
   XmListWidget lw = (XmListWidget) w;
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return;
   _XmWidgetToAppContext(w);
 
@@ -8547,7 +8547,7 @@ XmListAddItems(Widget w,
 	       int pos)
 {
   XmListWidget lw = (XmListWidget) w;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -8571,7 +8571,7 @@ XmListAddItemsUnselected(Widget w,
 			 int pos)
 {
   XmListWidget lw = (XmListWidget) w;
-  if (w == NULL)
+  if (w == NULL || !XmIsList(w))
     return;
   _XmWidgetToAppContext(w);
 
@@ -8595,7 +8595,7 @@ XmListAddItemUnselected(Widget w,
 			int pos)
 {
   XmListWidget lw = (XmListWidget) w;
-  if (w == NULL || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL)
     return;
   _XmWidgetToAppContext(w);
 

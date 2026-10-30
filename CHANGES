@@ -31571,6 +31571,13 @@ Guard Notebook layout child scans (2026-10-30)
 - Add focused source-contract coverage and document the malformed-state path.
 
 Guard Notebook redisplay tab counts (2026-10-30)
+Guard List insertion APIs by widget class (2026-10-30)
+========================================================
+
+- Reject non-List widgets before the four public item-insertion APIs enter
+  application context or mutate list-private state.
+- Extend focused source-contract coverage and document the invalid-input path.
+
 Guard List position bounds by widget class (2026-10-30)
 =========================================================
 

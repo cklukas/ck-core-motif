@@ -15,7 +15,7 @@ for function, item_guard in (("XmListAddItem(", True), ("XmListAddItems(", False
                              ("XmListAddItemUnselected(", True)):
     start = source.index(function)
     body = source[start:source.index("\n}\n", start)]
-    assert "if (w == NULL" in body
+    assert "if (w == NULL || !XmIsList(w)" in body
     if item_guard:
         assert "item == NULL" in body
 print("PASS list add APIs validate widget, count, and item inputs")
