@@ -7180,9 +7180,13 @@ static	void
 UpdateGCs(
 	Widget	wid)
 {
-	XmContainerWidget	cw = (XmContainerWidget)wid;
+	XmContainerWidget	cw;
 	XGCValues		values;
 	XtGCMask		valueMask, unusedMask;
+
+	if (wid == NULL)
+	    return;
+	cw = (XmContainerWidget)wid;
 
 	/*
 	 * Free any previous GC's
