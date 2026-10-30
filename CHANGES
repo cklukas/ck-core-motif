@@ -31473,5 +31473,12 @@ Clear stale NumberBox validation on updates (2026-10-30)
   styling.
 - Add focused source-contract coverage and document the state transition.
 
+Preserve SegmentedControl selection by item ID (2026-10-30)
+============================================================
+
+- Match replacement segments by ID before releasing the old item array,
+  avoiding dangling-pointer reads and preserving the selected segment.
+- Add focused source-contract coverage and document the replacement behavior.
+
 Clear stale destinations for empty region operations (2026-10-30)
 ===================================================================

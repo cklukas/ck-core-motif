@@ -284,7 +284,8 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     XmSegmentedControlItemRec *copy;
     XmSegmentedControlItemRec *old_items;
     Cardinal old_count, selected_index = 0;
-    XtPointer selected_id = NULL;
+    const char *selected_id = NULL;
+    int preserved_selected = -1;
     Cardinal i;
     if (widget == NULL || !XmIsSegmentedControl(widget) ||
         (count && !items) || count > (Cardinal)INT_MAX) return False;
@@ -351,6 +352,14 @@ Boolean XmSegmentedControlSetItems(Widget widget,
         XtAddEventHandler(copy[i].button, KeyPressMask, False, child_key,
                           (XtPointer)control);
     }
+    if (selected_id != NULL) {
+        for (selected_index = 0; selected_index < count; ++selected_index)
+            if (strcmp(copy[selected_index].id, selected_id) == 0 &&
+                copy[selected_index].enabled) {
+                preserved_selected = (int)selected_index;
+                break;
+            }
+    }
     for (i = 0; i < old_count; ++i)
         XtDestroyWidget(old_items[i].button);
     for (i = 0; i < old_count; ++i) {
@@ -360,15 +369,7 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     XtFree((char *)old_items);
     control->segmented.items = copy;
     control->segmented.item_count = count;
-    control->segmented.selected = -1;
-    if (selected_id != NULL) {
-        for (selected_index = 0; selected_index < count; ++selected_index)
-            if (copy[selected_index].id == selected_id &&
-                copy[selected_index].enabled) {
-                control->segmented.selected = (int)selected_index;
-                break;
-            }
-    }
+    control->segmented.selected = preserved_selected;
     /* Manage only after every item has a valid button.  Managing inside the
      * creation loop invokes the composite change-managed hook early; layout
      * then walks later, still-uninitialized item slots and dereferences a
