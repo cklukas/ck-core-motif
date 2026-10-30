@@ -1087,6 +1087,12 @@ GetDetailHeader(
     XmStringTable detail_header = NULL, icon_detail_header ;
     XmString label_string ;
 
+    if (wid == NULL || value == NULL ||
+	!XtIsSubclass(wid, xmContainerWidgetClass)) {
+	if (value != NULL) *value = (XtArgVal) NULL;
+	return;
+    }
+
     /* If there is an icon_header, fetch the information out of it */
     if ((icon_header = GetRealIconHeader(wid)) != NULL) {
 	
@@ -1147,6 +1153,12 @@ GetDetailHeaderCount(
     Widget icon_header ;
     Cardinal detail_header_count = 0 ;
 
+    if (wid == NULL || value == NULL ||
+	!XtIsSubclass(wid, xmContainerWidgetClass)) {
+	if (value != NULL) *value = (XtArgVal) 0;
+	return;
+    }
+
     /* If there is an icon_header, fetch the information out of it */
     if ((icon_header = GetRealIconHeader(wid)) != NULL) {
 	
@@ -1175,6 +1187,12 @@ GetOutlineColumnWidth(
         XtArgVal        *value)
 {
     XmContainerWidget	cw = (XmContainerWidget)wid;
+
+    if (wid == NULL || value == NULL ||
+	!XtIsSubclass(wid, xmContainerWidgetClass)) {
+	if (value != NULL) *value = (XtArgVal) 0;
+	return;
+    }
 
     /* Send 0 if dynamic, real_first_col_width otherwise */
     if (CtrIsDynamic(cw,FIRSTCW))

@@ -1,3 +1,10 @@
+Guard Container synthetic getters (2026-10-30)
+==============================================
+
+- Validate Container class and output storage before synthetic reads.
+- Preserve existing detail-header ownership and valid geometry behavior.
+- Add focused source coverage and documentation.
+
 Guard ComboBox synthetic callback classes (2026-10-30)
 =======================================================
 
