@@ -1371,11 +1371,17 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 	    return;
 	XmColorS_list(csw) = XmCreateScrolledList((Widget) csw, "list", 
 					    margs, i + cnum_args);
+	if (XmColorS_list(csw) == NULL)
+	{
+	    XtFree((XtPointer) margs);
+	    return;
+	}
 
 	XtManageChild(XmColorS_list(csw));
 	XmColorS_scrolled_list(csw) = XtParent(XmColorS_list(csw));
 
-	if (XmColorS_color_mode(csw) != XmListMode)
+	if (XmColorS_color_mode(csw) != XmListMode &&
+	    XmColorS_scrolled_list(csw) != NULL)
 	{
 	    /* Hide the scrolled list until it need be visible... */
 	    XtUnmanageChild(XmColorS_scrolled_list(csw));

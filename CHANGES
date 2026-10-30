@@ -1,3 +1,10 @@
+Guard ColorSelector list allocation failures (2026-10-30)
+===========================================================
+
+- Stop RGB-list loading cleanly when the lazy scrolled list cannot be created,
+  including safe handling of its optional parent and callbacks.
+- Add focused source coverage and documentation.
+
 Guard DropDown child allocation failures (2026-10-30)
 =====================================================
 
