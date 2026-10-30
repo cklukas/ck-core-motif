@@ -2224,19 +2224,28 @@ ChangeMode(XmFontSelectorWidget fsw, Boolean xlfd_mode, Boolean force)
     register WidgetList widgets;
     register int i, num;
     XmString family_label;
+    Widget mode_toggle;
+
+    if (fsw == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	XmFontS_family_box(fsw) == NULL)
+	return;
 
     XmFontS_xlfd_mode(fsw) = xlfd_mode; /* remember our current mode. */
 
     num = (int) XmFontS_num_xlfd_sensitive(fsw);
     widgets = XmFontS_xlfd_sensitive(fsw);
 
-    for (i = 0; i < num; i++, widgets++)
-	XtSetSensitive(*widgets, xlfd_mode);
+    for (i = 0; i < num && widgets != NULL; i++, widgets++)
+	if (*widgets != NULL)
+	    XtSetSensitive(*widgets, xlfd_mode);
 
     num = (int) XmFontS_num_xlfd_only(fsw);
     widgets = XmFontS_xlfd_only(fsw);
 
-    for (i = 0; i < num; i++, widgets++) {
+	for (i = 0; i < num && widgets != NULL; i++, widgets++) {
+	if (*widgets == NULL)
+	    continue;
 	if (xlfd_mode)
 	    XtManageChild(*widgets);
 	else
@@ -2247,6 +2256,8 @@ ChangeMode(XmFontSelectorWidget fsw, Boolean xlfd_mode, Boolean force)
 	char buf[BUFSIZ];
 	FontData * cf = XmFontS_font_info(fsw)->current_font;
 	String temp = _XmGetMBStringFromXmString(ANY_STRING(fsw));
+	if (temp == NULL)
+	    return;
 
 	family_label = FAMILY_STRING(fsw);
 
@@ -2280,7 +2291,10 @@ ChangeMode(XmFontSelectorWidget fsw, Boolean xlfd_mode, Boolean force)
      * Set the proper toggle buttons.
      */
 
-    UnsetSiblings((xlfd_mode) ? XmFontS_xlfd_toggle(fsw) : XmFontS_other_toggle(fsw));
+	mode_toggle = (xlfd_mode) ? XmFontS_xlfd_toggle(fsw) :
+	XmFontS_other_toggle(fsw);
+	if (mode_toggle != NULL)
+	    UnsetSiblings(mode_toggle);
 		    
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNlabelString, family_label); num_largs++;
