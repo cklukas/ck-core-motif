@@ -1,3 +1,9 @@
+Guard FontSelector bold/italic refresh (2026-10-30)
+====================================================
+
+- Validate selector/font/family state and both style toggle children before refresh.
+- Add focused source coverage and documentation.
+
 Prevent TextField activation use-after-destroy (2026-10-30)
 ==============================================================
 

@@ -1565,8 +1565,18 @@ static void
 UpdateBoldItalic(XmFontSelectorWidget fsw)
 {
     Boolean set;
-    FontData *cf = XmFontS_font_info(fsw)->current_font;
+    FontData *cf;
     FamilyInfo *fam;
+
+    if (fsw == NULL || XmFontS_font_info(fsw) == NULL ||
+	XmFontS_font_info(fsw)->current_font == NULL ||
+	XmFontS_bold_toggle(fsw) == NULL ||
+	XmFontS_italic_toggle(fsw) == NULL ||
+	(XmFontS_font_info(fsw)->num_families != 0 &&
+	 XmFontS_font_info(fsw)->family_info == NULL))
+	return;
+
+    cf = XmFontS_font_info(fsw)->current_font;
 
     if ((fam = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			  XmFontS_font_info(fsw)->num_families)) == NULL)
