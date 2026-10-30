@@ -4428,7 +4428,7 @@ GetValuesHook(Widget w, ArgList args, Cardinal * num_args)
 	return;
 
     for (i = 0; i < *num_args; i++) {
-	if (args[i].value == NULL)
+	if (args[i].name == NULL || args[i].value == NULL)
 	    continue;
 	if (streq(args[i].name, XmNcurrentFont))
 	{
