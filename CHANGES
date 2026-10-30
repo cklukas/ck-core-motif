@@ -1,3 +1,10 @@
+Guard MenuShell direction trait (2026-10-30)
+============================================
+
+- Validate MenuShell class identity before direction access.
+- Return `XmDEFAULT_DIRECTION` for invalid trait inputs.
+- Add focused source coverage and documentation.
+
 Guard Manager trait getters (2026-10-30)
 ========================================
 

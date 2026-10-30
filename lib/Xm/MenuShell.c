@@ -591,6 +591,8 @@ ClassInitialize( void )
 static XmDirection 
 GetDirection(Widget w)
 {
+  if (w == NULL || !XtIsSubclass(w, xmMenuShellWidgetClass))
+    return XmDEFAULT_DIRECTION;
   return ((XmMenuShellWidget)w)->menu_shell.layout_direction;
 }
 
