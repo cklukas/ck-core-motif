@@ -3600,6 +3600,11 @@ FileSelectionPB(
     /* Use the XmNqualifySearchDataProc routine to fill in all fields of the
     *   callback data record.
     */
+    if (FS_QualifySearchDataProc(fs) == NULL) {
+        XmStringFree(searchData.mask);
+        XmStringFree(searchData.dir);
+        return;
+    }
     (*FS_QualifySearchDataProc( fs))( (Widget) fs, (XtPointer) &searchData,
                                             (XtPointer) &qualifiedSearchData) ;
     switch(    (long) which_button    )

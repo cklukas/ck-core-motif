@@ -1,3 +1,11 @@
+Guard FileSelectionBox push-button qualifier (2026-10-30)
+===========================================================
+
+- Validate the qualify-search procedure before the OK/Apply callback invokes
+  it.
+- Release temporary search strings on the absent-procedure path.
+- Add focused source coverage and documentation.
+
 Guard FileSelectionBox search procedure callbacks (2026-10-30)
 ===============================================================
 
