@@ -10200,7 +10200,7 @@ XmContainerGetItemChildren(
 	WidgetList	clist;
 	int		i,clist_count;
 
-	if (item_children == NULL)
+	if (wid == NULL || !XmIsContainer(wid) || item_children == NULL)
 		return (0);
 	*item_children = NULL;
 
@@ -10274,7 +10274,7 @@ XmContainerRelayout(
 {
     XmContainerWidget	cw = (XmContainerWidget)wid;
 
-    if (wid == NULL)
+	if (wid == NULL || !XmIsContainer(wid))
 	return;
 
     _XmWidgetToAppContext(wid);
@@ -10323,7 +10323,8 @@ XmContainerReorder(
 	int *			pi_list;
 	int			i, pi_count;
 
-	if (wid == NULL || cwid_count <= 1 || cwid_list == NULL)
+	if (wid == NULL || !XmIsContainer(wid) ||
+	    cwid_count <= 1 || cwid_list == NULL)
 		return;
 	for (i = 0; i < cwid_count; i++)
 		if (cwid_list[i] == NULL)

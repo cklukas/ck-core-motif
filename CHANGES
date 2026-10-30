@@ -1,3 +1,10 @@
+Guard public Container helpers by widget class (2026-10-30)
+============================================================
+
+- Reject `NULL` and non-Container widgets in child enumeration, relayout,
+  and reorder entry points before accessing toolkit state.
+- Add focused source-contract coverage and document the malformed-input path.
+
 Reject trailing ColorObj property data (2026-10-30)
 =====================================================
 
