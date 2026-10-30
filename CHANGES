@@ -30946,6 +30946,14 @@ Make DropDown selection text conversion transactional (2026-10-30)
   coverage and maintenance documentation.
 
 Preserve EmptyState compound action labels (2026-10-30)
+Resolve stale OptionMenu4 conflict markers (2026-10-30)
+========================================================
+
+- Remove unresolved RCS conflict markers from the `REV_INFO` block in the
+  OptionMenu4 toolkit test, preserving the identical historical identifier.
+- Add a repository source-integrity check for unresolved C/C++ conflict
+  markers.
+
 Remove stray CommandPalette patch marker (2026-10-30)
 =======================================================
 

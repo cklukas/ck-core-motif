@@ -25,11 +25,7 @@
 */ 
 #ifdef REV_INFO
 #ifndef lint
-<<<<<<< 1.6.8.2
 static char rcsid[] = "$XConsortium: OptionMenu4.c /main/10 1995/07/13 18:50:16 drk $"
-======
-static char rcsid[] = "$XConsortium: OptionMenu4.c /main/10 1995/07/13 18:50:16 drk $"
->>>>>>> 1.6.7.2
 #endif
 #endif
 
