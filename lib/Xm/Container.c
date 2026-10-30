@@ -4830,6 +4830,9 @@ ContainerBeginSelect(
   XmContainerWidget	cw = (XmContainerWidget)wid;
   Widget		cwid = (Widget) NULL;
  
+  if (event == NULL || num_params == NULL)
+	return;
+
   cw->container.cancel_pressed = False;
   if (CtrLayoutIsOUTLINE_DETAIL(wid))
     {

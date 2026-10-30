@@ -32122,3 +32122,10 @@ Guard Container button-two parameters (2026-10-30)
 - Reject missing action-parameter counts in button-two down and motion
   handlers before they inspect the parameter list.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container begin-select inputs (2026-10-30)
+=================================================
+
+- Return safely when begin-selection receives no event or parameter-count
+  pointer before reading pointer coordinates or action arguments.
+- Add focused source-contract coverage and document the invalid-input path.
