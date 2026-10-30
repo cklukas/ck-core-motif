@@ -1,3 +1,10 @@
+Guard MessageBox synthetic getters (2026-10-30)
+================================================
+
+- Validate MessageBox class identity before child-state access.
+- Preserve existing valid message, pixmap, and button-label behavior.
+- Add focused source coverage and documentation.
+
 Guard Column label getter (2026-10-30)
 ======================================
 
