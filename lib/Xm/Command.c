@@ -549,6 +549,8 @@ CommandCallback(
     cb.value = XmStringGenerate(str, XmFONTLIST_DEFAULT_TAG,
 				XmCHARSET_TEXT, NULL);
     XtFree (str);
+    if (cb.value == NULL)
+        return;
 
     cb.length = XmStringLength (cb.value);
 

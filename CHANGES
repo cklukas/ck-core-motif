@@ -1,3 +1,10 @@
+Guard Command compound-string allocation (2026-10-30)
+======================================================
+
+- Stop Command value-change processing when `XmStringGenerate` fails.
+- Avoid measuring or delivering a null compound string.
+- Add focused source coverage and documentation.
+
 Guard Command text-string allocation (2026-10-30)
 =================================================
 
