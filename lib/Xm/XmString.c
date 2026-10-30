@@ -1470,15 +1470,18 @@ Unoptimize(_XmStringEntry entry, int free)
 
   if (_XmEntryType(entry) == XmSTRING_ENTRY_OPTIMIZED) {
     new_entry = EntryCvtToUnopt(entry);
-    if (free)
+    if (new_entry != NULL && free)
       _XmStringEntryFree(entry);
   } else if (_XmEntryMultiple(entry)) {
     if (free) {
       for (j = 0; j < _XmEntrySegmentCount(entry); j++) {
 	tmp_seg = _XmEntrySegment(entry)[j];
 	if (_XmEntryType(tmp_seg) == XmSTRING_ENTRY_OPTIMIZED) {
-	  _XmEntrySegment(entry)[j] = 
+	  _XmStringNREntry converted =
 	    (_XmStringNREntry)EntryCvtToUnopt((_XmStringEntry)tmp_seg);
+	  if (converted == NULL)
+	    return NULL;
+	  _XmEntrySegment(entry)[j] = converted;
 	  _XmStringEntryFree((_XmStringEntry)tmp_seg);
 	}	      
       }
@@ -1894,9 +1897,18 @@ XmStringConcatAndFree(XmString a,
   if (!a_needs_unopt) {
     b_needs_unopt = IsUnopt(b_str, _XmStrEntryCount(b_str));
 
-    if (b_needs_unopt) 
-      for (i = 0; i < a_lc; i++) 
-	_XmStrEntry(a_str)[i] = Unoptimize(_XmStrEntry(a_str)[i], True);
+    if (b_needs_unopt) {
+      for (i = 0; i < a_lc; i++) {
+	_XmStringEntry converted = Unoptimize(_XmStrEntry(a_str)[i], True);
+	if (converted == NULL) {
+	  _XmProcessUnlock();
+	  XmStringFree(a);
+	  XmStringFree(b);
+	  return NULL;
+	}
+	_XmStrEntry(a_str)[i] = converted;
+      }
+    }
   }
 
   _XmStrEntryCount(a_str) = lc;
@@ -2187,6 +2199,12 @@ XmStringConcatAndFree(XmString a,
 	  b_seg = (_XmStringNREntry)Unoptimize((_XmStringEntry)b_seg,modify_b);
 	else if (!modify_b)
 	  b_seg = (_XmStringNREntry)_XmStringEntryCopy((_XmStringEntry)b_seg);
+	if (b_seg == NULL) {
+	  _XmProcessUnlock();
+	  XmStringFree(a);
+	  XmStringFree(b);
+	  return NULL;
+	}
 	
 	if (_XmEntryDirectionGet((_XmStringEntry)b_seg) == 
 	    XmSTRING_DIRECTION_UNSET)
@@ -2205,8 +2223,15 @@ XmStringConcatAndFree(XmString a,
     for (i = 0; i < (b_sc - merged); i++)
       {
 	b_line = _XmStrEntry(b_str)[i + merged];
-	if (a_needs_unopt && !b_needs_unopt) 
+	if (a_needs_unopt && !b_needs_unopt) {
 	  _XmStrEntry(a_str)[a_lc] = Unoptimize(b_line, modify_b);
+	  if (_XmStrEntry(a_str)[a_lc] == NULL) {
+	    _XmProcessUnlock();
+	    XmStringFree(a);
+	    XmStringFree(b);
+	    return NULL;
+	  }
+	}
 	else if (modify_b) 
 	  _XmStrEntry(a_str)[a_lc] = b_line;
 	else
@@ -2223,6 +2248,13 @@ XmStringConcatAndFree(XmString a,
 	b_line = Unoptimize(b_line, modify_b);
       else if (!modify_b) 
 	b_line = _XmStringEntryCopy(b_line);
+
+      if (b_line == NULL) {
+	_XmProcessUnlock();
+	XmStringFree(a);
+	XmStringFree(b);
+	return NULL;
+      }
 
       b_sc = _XmEntrySegmentCountGet(b_line);
       

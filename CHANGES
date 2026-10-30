@@ -1,3 +1,11 @@
+Handle XmString optimized-entry conversion failures (2026-10-30)
+===================================================================
+
+- Preserve optimized entries when unoptimization allocation fails.
+- Check every concatenation conversion result before dereferencing it and
+  return `NULL` after releasing owned operands on failure.
+- Add focused source-contract coverage and document the failure behavior.
+
 Propagate XmStringConcat operand-copy failures (2026-10-30)
 =============================================================
 
