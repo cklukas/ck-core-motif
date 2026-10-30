@@ -2319,10 +2319,13 @@ CBSetSelectedItem(Widget    widget,
 		  XtArgVal *value)
 {
   XmComboBoxWidget cb = (XmComboBoxWidget)widget;
-  XmString new_value = (XmString) *value;
+  XmString new_value;
   int pos = 0;
 
-  if (!cb->composite.num_children)
+  if (widget == NULL || value == NULL)
+	return XmSYNTHETIC_NONE;
+  new_value = (XmString) *value;
+  if (!cb->composite.num_children || CB_List(cb) == NULL)
     return XmSYNTHETIC_NONE;
 
   pos = XmListItemPos(CB_List(cb), new_value);
@@ -2355,6 +2358,8 @@ CBGetSelectedItem(Widget    widget,
 		  int       offset, /* unused */
 		  XtArgVal *value)
 {
+  if (widget == NULL || value == NULL)
+	return;
   *value = (XtArgVal) GetEditBoxValue(widget);
 }
 
@@ -2466,6 +2471,9 @@ CBGetColumns(Widget    widget,
   Cardinal nargs;
   short columns = 0;
 
+  if (widget == NULL || value == NULL)
+	return;
+
   /* Fetch the value from the child widget. */
   if (CB_EditBox(cb))
     {
@@ -2493,6 +2501,9 @@ CBGetItems(Widget    widget,
   Arg args[1];
   Cardinal nargs;
   XmStringTable items = NULL;
+
+  if (widget == NULL || value == NULL)
+	return;
 
   /* Fetch the value from the child widget. */
   if (CB_List(cb))
@@ -2522,6 +2533,9 @@ CBGetItemCount(Widget    widget,
   Cardinal nargs;
   int count = 0;
 
+  if (widget == NULL || value == NULL)
+	return;
+
   /* Fetch the value from the child widget. */
   if (CB_List(cb))
     {
@@ -2549,6 +2563,9 @@ CBGetVisibleItemCount(Widget    widget,
   Arg args[1];
   Cardinal nargs;
   int viz_count = 0;
+
+  if (widget == NULL || value == NULL)
+	return;
 
   /* Fetch the value from the child widget. */
   if (CB_List(cb))

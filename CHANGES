@@ -29873,6 +29873,13 @@ Handle XmListDeleteItems copy failure (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard XmList conversion callback inputs (2026-10-30)
+Guard ComboBox synthetic accessors (2026-10-30)
+================================================
+
+- Validate widget and value pointers across synthetic import/export callbacks.
+- Keep pre-initialization imports safe when the list child is unavailable.
+- Add focused source coverage and documentation.
+
 Guard ComboBox selected-position export (2026-10-30)
 ======================================================
 
