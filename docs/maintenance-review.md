@@ -31,6 +31,14 @@ fills in sync with runtime theme updates.  The focused contract check is:
 python3 tests/automated/check-badge-avatar-chip-color-update.py
 ```
 
+Link, IconLabel, and Divider apply the same live color-resource update to
+their cached label/separator GCs, keeping text and rules synchronized with
+runtime themes.  The focused contract check is:
+
+```sh
+python3 tests/automated/check-link-iconlabel-divider-color-update.py
+```
+
 ## DatePicker typography
 
 `XmDatePicker` now owns a copy of its `XmNfontList`/`XmNrenderTable` and draws

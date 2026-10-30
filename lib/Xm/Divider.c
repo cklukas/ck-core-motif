@@ -156,8 +156,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmDividerWidget old = (XmDividerWidget)old_widget;
     XmDividerWidget divider = (XmDividerWidget)widget;
     Boolean font_changed = old->divider.font != divider->divider.font;
+    Boolean colors_changed = old->primitive.foreground != divider->primitive.foreground ||
+                             old->core.background_pixel != divider->core.background_pixel;
     XmString replacement;
     (void)request; (void)args; (void)count;
+    if (colors_changed && divider->divider.foreground_gc) {
+        XSetForeground(XtDisplay(widget), divider->divider.foreground_gc,
+                       divider->primitive.foreground);
+        XSetBackground(XtDisplay(widget), divider->divider.foreground_gc,
+                       divider->core.background_pixel);
+    }
     if (old->divider.label != divider->divider.label) {
         replacement = copy_label(divider->divider.label);
         if (replacement) {
@@ -184,7 +192,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     return old->divider.label != divider->divider.label ||
            old->divider.orientation != divider->divider.orientation ||
            old->divider.thickness != divider->divider.thickness ||
-           old->divider.spacing != divider->divider.spacing || font_changed;
+           old->divider.spacing != divider->divider.spacing || font_changed ||
+           colors_changed;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply) {

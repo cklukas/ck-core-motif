@@ -197,7 +197,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmIconLabelWidget label = (XmIconLabelWidget)widget;
     Boolean render_changed = old->icon_label.render_table != label->icon_label.render_table;
     Boolean label_changed = old->icon_label.label != label->icon_label.label;
+    Boolean colors_changed = old->primitive.foreground != label->primitive.foreground ||
+                             old->core.background_pixel != label->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (colors_changed && label->icon_label.foreground_gc) {
+        XSetForeground(XtDisplay(widget), label->icon_label.foreground_gc,
+                       label->primitive.foreground);
+        XSetBackground(XtDisplay(widget), label->icon_label.foreground_gc,
+                       label->core.background_pixel);
+    }
     if (label_changed) {
         XmString replacement = copy_label(label->icon_label.label);
         if (replacement)
@@ -220,7 +228,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     }
     return (label_changed && label->icon_label.label != old->icon_label.label) ||
            old->icon_label.pixmap != label->icon_label.pixmap ||
-           old->icon_label.spacing != label->icon_label.spacing || render_changed;
+           old->icon_label.spacing != label->icon_label.spacing || render_changed ||
+           colors_changed;
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,

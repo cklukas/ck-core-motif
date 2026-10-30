@@ -135,9 +135,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmLinkWidget old = (XmLinkWidget)old_widget, link = (XmLinkWidget)widget;
     Boolean redraw = False;
+    Boolean colors_changed = old->primitive.foreground != link->primitive.foreground ||
+                             old->core.background_pixel != link->core.background_pixel;
     XmString label_replacement;
     char *target_replacement;
     (void)request; (void)args; (void)count;
+    if (colors_changed && link->link.gc) {
+        XSetForeground(XtDisplay(widget), link->link.gc, link->primitive.foreground);
+        XSetBackground(XtDisplay(widget), link->link.gc, link->core.background_pixel);
+    }
     if (old->link.render_table != link->link.render_table) {
         XmRenderTable new_table = link->link.render_table ?
             XmFontListCopy(link->link.render_table) :
@@ -171,7 +177,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             link->link.target = old->link.target;
         }
     }
-    return redraw || old->link.visited != link->link.visited ||
+    return redraw || colors_changed || old->link.visited != link->link.visited ||
            old->link.visit_on_activate != link->link.visit_on_activate ||
            old->primitive.highlighted != link->primitive.highlighted;
 }

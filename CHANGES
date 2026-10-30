@@ -1,3 +1,10 @@
+Refresh Link, IconLabel, and Divider drawing colors (2026-10-30)
+===================================================================
+
+- Update cached label and divider graphics contexts when foreground or
+  background resources change through `XtSetValues`.
+- Add focused source coverage and maintenance documentation.
+
 Refresh Badge, Avatar, and Chip drawing colors (2026-10-30)
 ==============================================================
 
