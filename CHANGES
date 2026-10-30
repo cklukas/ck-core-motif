@@ -32213,3 +32213,10 @@ Guard Container closest-layout sizing constraints (2026-10-30)
 - Skip nodes without Container constraints before closest-layout sizing reads
   their logical coordinates.
 - Add focused source-contract coverage and document the invalid-node path.
+
+Guard Container none-style placement constraints (2026-10-30)
+==============================================================
+
+- Return safely when none-style placement has no child Container constraint
+  before writing placement state.
+- Add focused source-contract coverage and document the invalid-child path.

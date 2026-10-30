@@ -3849,6 +3849,9 @@ PlaceItemNone(
     int64_t content_bottom = (int64_t)cw->core.height -
 	(int64_t)cw->container.margin_h;
 
+    if (c == NULL)
+	return;
+
     PlaceCwid(cwid,cwid->core.x,cwid->core.y);
     /*
      * Mark the cwid as placed (any value except NO_CELL) if it's within
