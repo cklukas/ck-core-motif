@@ -8,6 +8,7 @@ region = source[start:end]
 assert "clist = (WidgetList)XtMalloc((Cardinal)(sizeof(Widget) *" in region
 assert "UINT_MAX / sizeof(Widget)" in region
 assert "if (clist == NULL)" in region
+assert "item->core.constraints == NULL" in region
 assert region.index("if (clist == NULL)") < region.index("clist[i] = node->widget_ptr")
 assert "_XmAppUnlock(app);" in region
 print("Container child-list allocation guard present")

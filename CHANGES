@@ -1,3 +1,10 @@
+Guard Container child enumeration constraints (2026-10-30)
+============================================================
+
+- Reject a parented item without constraint storage before reading its child
+  node during `XmContainerGetItemChildren`.
+- Add focused source-contract coverage and document the invalid-input path.
+
 Reject foreign children during Container reorder (2026-10-30)
 ===============================================================
 

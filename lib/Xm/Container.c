@@ -10218,7 +10218,7 @@ XmContainerGetItemChildren(
 		}
 	else
 		{
-		if (XtParent(item) != wid) 
+		if (XtParent(item) != wid || item->core.constraints == NULL)
 		   {
 			_XmAppUnlock(app);
 			return(0);
