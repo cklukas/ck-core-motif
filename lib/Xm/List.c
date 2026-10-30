@@ -2334,7 +2334,9 @@ CvtToInternalPos(Widget wid,
 		 int offset,
 		 XtArgVal *value)
 {
-  if (value == NULL)
+  if (wid == NULL || value == NULL ||
+      !XtIsSubclass(wid, xmListWidgetClass) ||
+      *(int *) value == INT_MIN)
     return XmSYNTHETIC_NONE;
 
   (* (int *) value)--;
