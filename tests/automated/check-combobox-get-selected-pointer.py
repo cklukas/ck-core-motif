@@ -7,7 +7,8 @@ start = source.index("static void\nCBGetSelectedPos")
 end = source.index("\n}\n", start)
 body = source[start:end]
 
-assert "if (widget == NULL || value == NULL)" in body
+assert "if (widget == NULL || value == NULL ||" in body
+assert "!XtIsSubclass(widget, xmComboBoxWidgetClass)" in body
 assert "result = (count > 0 && pos != NULL) ? *pos : 0;" in body
 assert "result = (count > 0) ? *pos : 0;" not in body
 
