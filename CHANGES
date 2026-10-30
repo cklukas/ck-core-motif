@@ -1,3 +1,11 @@
+Bound immediate XmString payload copies (2026-10-30)
+====================================================
+
+- Replace the immediate optimized-entry `strcpy` with a byte-counted copy.
+  Compact strings have no spare NUL terminator, and wide-character payloads
+  must not be interpreted as narrow text.
+- Add focused source-contract coverage and document the representation rule.
+
 Avoid compact XmString entry probes (2026-10-30)
 ================================================
 

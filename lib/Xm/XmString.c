@@ -6520,8 +6520,12 @@ _XmEntryTextSet(_XmStringEntry entry,
       return;
     }
 
-  /* This copy still relies on the segment's existing byte count/capacity. */
-  strcpy((char *)((_XmStringOptSeg)(entry))->data.chars, (char *)val);
+  /* Immediate segments are sized by byte_count and are not NUL-terminated.
+   * Copy the declared payload exactly; strcpy would both overrun compact
+   * strings and reinterpret wide-character payloads as narrow text.
+   */
+  memcpy((char *)((_XmStringOptSeg)(entry))->data.chars,
+         (const char *)val, _XmEntryByteCountGet(entry));
 }
 
 XtPointer
