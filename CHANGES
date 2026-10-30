@@ -1,3 +1,10 @@
+Guard Notebook child widget lookup (2026-10-30)
+================================================
+
+- Skip null children and missing constraint storage while resolving a Notebook
+  child by page and type.
+- Add focused source-contract coverage and document the malformed-state path.
+
 Skip malformed Notebook page children (2026-10-30)
 ===================================================
 
