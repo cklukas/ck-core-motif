@@ -11,6 +11,10 @@ assert "if (!window || !bar->info.gc)" in function
 assert "XGetGCValues" not in function
 assert "XGContextFromGC(" not in function
 assert "XDrawRectangle(display, window, bar->info.gc" in function
-assert "button_x + 5" in function
-assert "button_x + 13" in function
+assert "int button_cx = button_x + 9" in function
+assert "int button_cy = button_y + 9" in function
+assert "button_cx - 4, button_cy - 4" in function
+assert "button_cx + 4, button_cy + 4" in function
+assert "button_cx + 4, button_cy - 4" in function
+assert "button_cx - 4, button_cy + 4" in function
 print("PASS InfoBar redisplay uses a framed close control")
