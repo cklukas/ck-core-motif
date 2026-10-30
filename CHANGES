@@ -102,6 +102,13 @@ Guard Text newline lookup during teardown (2026-10-30)
   the native newline value.
 - Extend focused line-count coverage and document the safe fallback.
 
+Guard Text source scans during teardown (2026-10-30)
+====================================================
+
+- Validate source and widget-list state before the `Scan` callback reads the
+  active text widget.
+- Add focused scan-input coverage and document the safe position-zero result.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

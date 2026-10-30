@@ -1704,8 +1704,8 @@ Scan(XmTextSource source,
   register XmTextPosition position = pos;
   register int i;
   XmTextPosition temp;
-  XmSourceData data = source->data;
-  XmTextWidget tw = (XmTextWidget)data->widgets[0];
+  XmSourceData data;
+  XmTextWidget tw;
   char * c;
   BITS16 * bits16_ptr;
   wchar_t * wchar_t_ptr;
@@ -1713,6 +1713,13 @@ Scan(XmTextSource source,
   Boolean start_is_mb, cur_is_mb;  /* False == 1-byte char, else multi-byte */
   int num_bytes = 0;
   int ddir = (dir == XmsdRight) ? 1 : -1;
+
+  if (source == NULL || source->data == NULL ||
+      source->data->widgets == NULL || source->data->numwidgets <= 0 ||
+      source->data->widgets[0] == NULL)
+    return 0;
+  data = source->data;
+  tw = (XmTextWidget)data->widgets[0];
   
   switch (sType) {
   case XmSELECT_POSITION: 

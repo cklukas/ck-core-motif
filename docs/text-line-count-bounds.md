@@ -14,3 +14,7 @@ cleared, avoiding a teardown-time dereference before range normalization.
 
 The newline-character helper also validates its widget and newline storage, so
 partially initialized sources cannot be dereferenced while counting.
+
+The source `Scan` callback uses the same entry guard and returns position zero
+when its widget list is unavailable. The focused scan contract is checked by
+`tests/automated/check-text-source-scan-inputs.py`.
