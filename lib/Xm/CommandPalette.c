@@ -148,7 +148,8 @@ void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, 
     XmCommandPaletteWidget palette;
     XmCommandPaletteStoredItem *replacement;
     Cardinal i;
-    if (!widget || !XmIsCommandPalette(widget)) return;
+    if (!widget || !XmIsCommandPalette(widget) || widget->core.being_destroyed)
+        return;
     palette = (XmCommandPaletteWidget)widget;
     if (!count) { free_items(palette); rebuild(palette); return; }
     if (!items) { XtWarning("XmCommandPaletteSetItems: NULL item array"); return; }

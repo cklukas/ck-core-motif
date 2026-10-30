@@ -677,3 +677,8 @@ control state. The focused source check is
 
 List-backed accessibility actions also reject a list owner entering teardown,
 so selection updates cannot target a stale owner.
+
+DataGrid, TreeView, CommandPalette, and Toolbar replacement APIs now reject
+calls during Xt teardown before they allocate, free, or rebuild owned model
+state. The focused source check is
+`tests/automated/check-model-replacement-destroy-guards.py`.

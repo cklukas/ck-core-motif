@@ -513,7 +513,8 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
     XmToolbarWidget toolbar;
     XmToolbarStoredAction *replacement = NULL;
     Cardinal i;
-    if (!widget || !XmIsToolbar(widget) || (count && !actions))
+    if (!widget || !XmIsToolbar(widget) || widget->core.being_destroyed ||
+        (count && !actions))
         return;
     toolbar = (XmToolbarWidget)widget;
     if (count && ((size_t)count > SIZE_MAX / sizeof(*toolbar->toolbar.actions) ||

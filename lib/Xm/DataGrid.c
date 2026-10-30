@@ -548,7 +548,8 @@ Boolean XmDataGridSetModel(Widget widget, const XmDataGridColumn *columns,
                            Cardinal column_count, const XmDataGridRow *rows,
                            Cardinal row_count) {
     Boolean result;
-    if (!widget || !XmIsDataGrid(widget)) return False;
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed)
+        return False;
     result = copy_model((XmDataGridWidget)widget, columns, column_count, rows,
                         row_count);
     if (result) redraw((XmDataGridWidget)widget);

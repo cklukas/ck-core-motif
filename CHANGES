@@ -1,3 +1,11 @@
+Guard model replacement during destruction (2026-10-30)
+==========================================================
+
+- Reject DataGrid, TreeView, CommandPalette, and Toolbar model/action-array
+  replacement once Xt marks the widget for destruction, avoiding allocation,
+  freeing, and child rebuild work against partial state.
+- Add focused source-contract coverage for all four replacement APIs.
+
 Guard list-owner accessibility actions during destruction (2026-10-30)
 =======================================================================
 

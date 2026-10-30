@@ -593,7 +593,8 @@ void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,
     XmTreeViewItem *items;
     Cardinal i;
     XtPointer selected;
-    if (widget == NULL || !XmIsTreeView(widget) || count > TREE_VIEW_MAX_NODES ||
+    if (widget == NULL || !XmIsTreeView(widget) || widget->core.being_destroyed ||
+        count > TREE_VIEW_MAX_NODES ||
         !valid_input(nodes, count))
         return;
     view = (XmTreeViewWidget)widget;
