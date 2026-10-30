@@ -1,3 +1,10 @@
+Guard Container clipboard helpers by widget class (2026-10-30)
+===============================================================
+
+- Reject non-Container widgets before cut, copy, or copy-link operations read
+  private selection state.
+- Add focused source-contract coverage and document the invalid-input result.
+
 Guard Notebook page-info lookup by widget class (2026-10-30)
 ==============================================================
 
