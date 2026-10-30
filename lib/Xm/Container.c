@@ -7790,6 +7790,12 @@ InsertNode(
 	    while (next_node)
 		{
 		sc = GetContainerConstraint(next_node->widget_ptr);
+		if (sc == NULL)
+		    {
+		    prev_node = next_node;
+		    next_node = next_node->next_ptr;
+		    continue;
+		    }
 		if ((c->position_index != XmLAST_POSITION) &&
 			    (c->position_index <= sc->position_index))
 				break;
@@ -7817,6 +7823,11 @@ InsertNode(
 	while (next_node)
 	{
 		sc = GetContainerConstraint(next_node->widget_ptr);
+		if (sc == NULL)
+		    {
+		    next_node = next_node->next_ptr;
+		    continue;
+		    }
 		sc->position_index = count++;
 		next_node = next_node->next_ptr;
 	}

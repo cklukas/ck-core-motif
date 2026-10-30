@@ -32227,3 +32227,10 @@ Guard Container grid/cell placement constraints (2026-10-30)
 - Return safely when grid/cell placement has no child Container constraint
   before closest-cell coordinate or snapping reads.
 - Add focused source-contract coverage and document the invalid-child path.
+
+Guard Container insertion sibling constraints (2026-10-30)
+============================================================
+
+- Skip siblings without Container constraints while insertion resequences
+  linked-list positions.
+- Add focused source-contract coverage and document the invalid-sibling path.
