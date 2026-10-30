@@ -5088,6 +5088,9 @@ ContainerBeginExtend(
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 	Widget			current_cwid;
 
+	if (event == NULL || num_params == NULL)
+	    return;
+
 	if (CtrLayoutIsOUTLINE_DETAIL(wid))
 	    {
 	    current_cwid = (Widget)_XmInputForGadget(wid,
