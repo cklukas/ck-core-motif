@@ -1772,6 +1772,7 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
                               unsigned int action) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   if (!n || (n->widget && n->widget->core.being_destroyed) ||
+      (n->list_owner && n->list_owner->core.being_destroyed) ||
       !input_allowed(a, id, n))
     return False;
   if (n->list_owner) {

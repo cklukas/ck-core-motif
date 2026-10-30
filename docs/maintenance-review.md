@@ -674,3 +674,6 @@ Accessibility action dispatch now also fails closed when its target widget has
 entered Xt teardown, keeping screen-reader actions from traversing partial
 control state. The focused source check is
 `tests/automated/check-accessible-action-destroy-guard.py`.
+
+List-backed accessibility actions also reject a list owner entering teardown,
+so selection updates cannot target a stale owner.

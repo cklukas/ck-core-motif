@@ -1,3 +1,10 @@
+Guard list-owner accessibility actions during destruction (2026-10-30)
+=======================================================================
+
+- Reject list-item accessibility actions when their owning List widget is
+  entering teardown, preventing selection changes through a stale owner.
+- Extend the focused accessibility action contract check.
+
 Guard accessibility actions during destruction (2026-10-30)
 ==============================================================
 
