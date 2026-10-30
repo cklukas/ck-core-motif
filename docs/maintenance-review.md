@@ -114,6 +114,11 @@ Link follows the same contract for label resources: failed replacement copies
 retain the previous label and do not request a spurious redraw. The focused
 check is `tests/automated/check-link-label-redraw.py`.
 
+InfoBar now applies live foreground/background resource changes to its drawing
+GC before requesting redisplay, keeping color updates visible without
+recreating the widget. The focused check is
+`tests/automated/check-infobar-color-update.py`.
+
 ## CommandPalette compound-string ownership
 
 `XmCommandPalette` now copies item labels and shortcuts directly as
