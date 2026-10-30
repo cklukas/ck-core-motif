@@ -457,6 +457,11 @@ GetDialogTitle(
     XmString      data ;
 /****************/
 
+    if (bb == NULL || value == NULL) {
+        if (value != NULL)
+            *value = (XtArgVal) NULL;
+        return;
+    }
     data = XmStringCopy((XmString) ((XmBulletinBoardWidget) bb)
                                                 ->bulletin_board.dialog_title);
     *value = (XtArgVal) data ;

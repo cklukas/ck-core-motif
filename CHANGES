@@ -1,3 +1,10 @@
+Guard BulletinBoard dialog-title getter (2026-10-30)
+=====================================================
+
+- Validate widget and output storage before reading the dialog title.
+- Preserve the existing copied `XmString` result for valid widgets.
+- Add focused source coverage and documentation.
+
 Guard TabStack label getter (2026-10-30)
 ========================================
 
