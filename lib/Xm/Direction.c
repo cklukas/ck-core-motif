@@ -77,6 +77,8 @@ _XmFromLayoutDirection(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {   
+  if (wid == NULL || value == NULL)
+    return;
   if (XmIsManager(wid))
     *value = (XtArgVal)XmDirectionToStringDirection((XmDirection)*value);
   else if (XmIsLabel(wid) || XmIsLabelGadget(wid) || XmIsList(wid))
@@ -91,6 +93,8 @@ _XmToLayoutDirection(
         int resource_offset,	/* unused */
         XtArgVal *value )
 {   
+  if (wid == NULL || value == NULL)
+    return XmSYNTHETIC_LOAD;
   if (XmIsManager(wid)) {
     *value = (XtArgVal)XmStringDirectionToDirection((XmStringDirection)*value);
     return XmSYNTHETIC_LOAD;
