@@ -31668,3 +31668,10 @@ Guard Container conversion refusal input (2026-10-30)
 - Return safely when the private conversion-refusal callback receives no
   callback payload.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container outline callback inputs (2026-10-30)
+=====================================================
+
+- Reject missing outline client widgets, callback payloads, and constraints
+  before the private outline callback reads state.
+- Add focused source-contract coverage and document the invalid-input path.

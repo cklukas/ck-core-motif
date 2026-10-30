@@ -9713,7 +9713,13 @@ OutlineButtonCallback(
 {
     Widget cwid = (Widget)client_data;
     XmAnyCallbackStruct * pbcbs = (XmAnyCallbackStruct *)call_data;
-    XmContainerConstraint c = GetContainerConstraint(cwid);
+    XmContainerConstraint c;
+
+    if (cwid == NULL || pbcbs == NULL)
+        return;
+    c = GetContainerConstraint(cwid);
+    if (c == NULL)
+        return;
 
     if (c->outline_state == XmCOLLAPSED)
 	OutlineButtonAction(cwid, XmEXPANDED, pbcbs->event);
