@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[2]
 checks = {
     "lib/Xm/CommandPalette.c": "palette->core.being_destroyed",
     "lib/Xm/Toast.c": "toast->core.being_destroyed",
+    "lib/Xm/Sidebar.c": "widget->core.being_destroyed",
 }
 
 for relative, marker in checks.items():

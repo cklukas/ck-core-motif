@@ -665,3 +665,7 @@ sort, edit, expansion, and action callbacks. The focused source check is
 The same paths now reject stale upper-bound indices before reading model
 records, so replacement or removal cannot make a callback read past the
 current DataGrid or TreeView arrays.
+
+Toast show/pause, CommandPalette show, and Sidebar toggle also fail closed
+during destruction so teardown cannot schedule timers, traverse focus, or
+mutate child state.

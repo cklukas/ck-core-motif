@@ -297,7 +297,7 @@ static void set_expanded(Widget widget, Boolean expanded, XEvent *event)
     Widget focus;
     XmString label;
     XmSidebarCallbackStruct callback;
-    if (!widget || !XmIsSidebar(widget))
+    if (!widget || !XmIsSidebar(widget) || widget->core.being_destroyed)
         return;
     sidebar = (XmSidebarWidget)widget;
     if (sidebar->sidebar.expanded == expanded)

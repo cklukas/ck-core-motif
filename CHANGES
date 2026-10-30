@@ -1,3 +1,11 @@
+Guard show/pause helpers during destruction (2026-10-30)
+==========================================================
+
+- Reject Toast show/pause, CommandPalette show, and Sidebar toggle calls once
+  Xt marks the widget for destruction, avoiding new timers, focus traversal,
+  or callbacks during teardown.
+- Extend focused action-helper coverage to these mutating helpers.
+
 Bound model callback indices before access (2026-10-30)
 =========================================================
 
