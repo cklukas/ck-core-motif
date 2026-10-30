@@ -29487,3 +29487,11 @@ Guard DropDown popup and list lifecycle (2026-10-30)
 - Add focused source coverage and documentation.
 
 Guard TeachingTip popup allocation and teardown (2026-10-30)
+Guard ComboBox popup and list allocation (2026-10-30)
+=======================================================
+
+- Register popup callbacks only when the transient shell exists.
+- Stop scrolled-list setup cleanly when list creation fails.
+- Add focused source coverage and documentation.
+
+Guard DropDown popup and list lifecycle (2026-10-30)

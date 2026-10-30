@@ -3064,22 +3064,26 @@ CreateChildren(Widget    widget,
       CB_ListShell(cb) =
 	CreatePulldown(widget, SHELL_CHILD_NAME, widget, arglist, num_args);
 
-      XtAddCallback(CB_ListShell(cb), XmNpopupCallback, ShellPopupCB,
-		    (XtPointer) cb);
-      XtAddCallback(CB_ListShell(cb), XmNpopdownCallback, ShellPopdownCB,
-		    (XtPointer) cb);
+      if (CB_ListShell(cb))
+	{
+	  XtAddCallback(CB_ListShell(cb), XmNpopupCallback, ShellPopupCB,
+			(XtPointer) cb);
+	  XtAddCallback(CB_ListShell(cb), XmNpopdownCallback, ShellPopdownCB,
+			(XtPointer) cb);
 
-      /* Add Event Handler for pointer events in the popup */
-      XtAddEventHandler(CB_ListShell(cb), POPUP_EVENT_MASK, FALSE, 
-			PopupEH, (XtPointer)cb);
+	  /* Add Event Handler for pointer events in the popup */
+	  XtAddEventHandler(CB_ListShell(cb), POPUP_EVENT_MASK, FALSE,
+				PopupEH, (XtPointer)cb);
+	}
     }
 
   /* Create the list. */
   CB_List(cb) =
     CreateScrolledList(CB_ListShell(cb) ? CB_ListShell(cb) : widget, 
 		       LIST_CHILD_NAME, widget, arglist, num_args);
-  XtAddCallback(CB_List(cb), XmNbrowseSelectionCallback,
-		(XtCallbackProc)ListSelectionCB, (XtPointer)cb);
+  if (CB_List(cb))
+    XtAddCallback(CB_List(cb), XmNbrowseSelectionCallback,
+		  (XtCallbackProc)ListSelectionCB, (XtPointer)cb);
 
   /* CR 9868: Direct events properly in pointer focus mode. */
   if (_XmGetFocusPolicy((Widget) cb) == XmPOINTER)
@@ -3345,8 +3349,10 @@ CreateScrolledList(Widget    parent,
     return NULL;
 
   list = XmCreateScrolledList(parent, name, merged_args, n + *num_args);
-  XtManageChild(list);
   XtFree((char *)merged_args);
+  if (list == NULL)
+    return NULL;
+  XtManageChild(list);
   CB_ScrolledW(cb) = XtParent(list);
 
   n = 0;
