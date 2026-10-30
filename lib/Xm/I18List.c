@@ -3486,7 +3486,7 @@ void
 Xm18IListUnselectAllItems( Widget w )
 {
   register int row;
-  if (w == (Widget) NULL)
+  if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass))
     return;
 
   XmI18ListWidget ilist = (XmI18ListWidget) w;
@@ -3513,7 +3513,7 @@ void
 Xm18IListUnselectItem( Widget w, XmMultiListRowInfo *row_info )
 {
   register int row=0;
-  if (w == (Widget) NULL)
+  if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass))
     return;
 
   XmI18ListWidget ilist = (XmI18ListWidget) w;
@@ -3542,10 +3542,10 @@ Xm18IListUnselectItem( Widget w, XmMultiListRowInfo *row_info )
 void
 XmI18ListToggleRow(Widget w, short row)
 {
-      if (w == (Widget) NULL)
-	return;
+  if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass))
+    return;
 
-      ToggleRow(w, row);
+  ToggleRow(w, row);
 }
 
 /*
