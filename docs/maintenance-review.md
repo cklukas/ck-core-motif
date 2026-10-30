@@ -669,3 +669,8 @@ current DataGrid or TreeView arrays.
 Toast show/pause, CommandPalette show, and Sidebar toggle also fail closed
 during destruction so teardown cannot schedule timers, traverse focus, or
 mutate child state.
+
+Accessibility action dispatch now also fails closed when its target widget has
+entered Xt teardown, keeping screen-reader actions from traversing partial
+control state. The focused source check is
+`tests/automated/check-accessible-action-destroy-guard.py`.

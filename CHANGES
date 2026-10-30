@@ -1,3 +1,11 @@
+Guard accessibility actions during destruction (2026-10-30)
+==============================================================
+
+- Reject accessibility action dispatch when its target widget is already
+  entering Xt teardown, preventing screen-reader actions from traversing
+  partially destroyed controls.
+- Add focused source-contract coverage for the action guard.
+
 Guard show/pause helpers during destruction (2026-10-30)
 ==========================================================
 

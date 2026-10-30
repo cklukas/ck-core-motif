@@ -1771,7 +1771,8 @@ static Boolean search_clear_available(Widget widget) {
 static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
                               unsigned int action) {
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
-  if (!n || !input_allowed(a, id, n))
+  if (!n || (n->widget && n->widget->core.being_destroyed) ||
+      !input_allowed(a, id, n))
     return False;
   if (n->list_owner) {
     if (action || native_item_position(a, n) < 0 || !_XmAccessibilityNode(a, n->parent)->list_sync_valid) return False;
