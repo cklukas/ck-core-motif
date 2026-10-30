@@ -47,6 +47,7 @@ static char rcsid[] = "$TOG: ImageCache.c /main/44 1998/10/06 17:26:25 samborn $
 #include <X11/Xresource.h>
 #include <math.h>
 #include <stdint.h>
+#include <limits.h>
 #ifdef JPEG_SUPPORTED
 #include "JpegI.h"
 #endif
@@ -240,9 +241,9 @@ HashString (XmHashKey key)
     return 0;
   len = strlen(data);
   folded_len = (unsigned int)((uintmax_t)len ^ ((uintmax_t)len >> 32));
-  return (XmHashValue)((((folded_len << 8) |
+  return (XmHashValue)(((((folded_len << 8) |
 			      (unsigned int)(unsigned char)data[0]) << 8) |
-			    (unsigned int)(unsigned char)data[len]);
+			    (unsigned int)(unsigned char)data[len]) % (unsigned int)INT_MAX);
 }
 
 #ifdef SVG_SUPPORTED
@@ -1245,7 +1246,7 @@ FoldNativeHash(uintptr_t value)
   value ^= value >> 32;
 #endif
   value ^= value >> 16;
-  return (XmHashValue)(uint32_t)value;
+  return (XmHashValue)((uint32_t)value % (uint32_t)INT_MAX);
 }
 
 static XmHashValue 

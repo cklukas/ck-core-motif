@@ -32370,3 +32370,12 @@ Make default hash conversion portable (2026-10-30)
 
 Bound icon-name hash conversion (2026-10-30)
 =============================================
+Bound ImageCache hash conversions (2026-10-30)
+================================================
+
+- Bound string and native image-cache hash mixes before converting to signed
+  `XmHashValue`, avoiding implementation-defined high-bit narrowing.
+- Add focused source-contract coverage and document the cache-hash behavior.
+
+Make default hash conversion portable (2026-10-30)
+====================================================
