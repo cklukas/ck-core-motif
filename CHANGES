@@ -59,6 +59,13 @@ Guard Text character lookup during teardown (2026-10-30)
   gap-buffer character lookup helper.
 - Extend the byte-offset regression and document the empty-result behavior.
 
+Guard Text range extraction during teardown (2026-10-30)
+=========================================================
+
+- Reject a missing Text widget or source before `_XmStringSourceGetString`
+  reads character storage, returning its existing `NULL` failure result.
+- Extend focused range coverage and document the teardown behavior.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

@@ -15,3 +15,7 @@ protects the checked size calculation and both allocation guards.
 The replacement path also rejects a range whose character span cannot be
 multiplied by the source character width before expanding the gap, preventing
 overflow in deletion geometry.
+
+Range extraction also rejects a missing widget or source before reading its
+character width, preserving the existing `NULL` failure contract during
+teardown.

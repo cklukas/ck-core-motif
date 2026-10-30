@@ -363,6 +363,9 @@ _XmStringSourceGetString(XmTextWidget tw,
   size_t return_val = 0;
   XmTextPosition start_pos;
 
+  if (tw == NULL || tw->text.source == NULL ||
+      tw->text.source->data == NULL)
+	return NULL;
   if (!TextSourceRangeBytes(from, to,
 				want_wchar ? sizeof(wchar_t) : tw->text.char_size,
 				&allocation))

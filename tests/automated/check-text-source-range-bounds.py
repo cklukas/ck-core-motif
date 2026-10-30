@@ -22,6 +22,7 @@ assert "return EditError;" in replace_region
 get_start = source.index("_XmStringSourceGetString(XmTextWidget tw,")
 get_end = source.index("\n\nstatic void \nAddWidget", get_start)
 get_region = source[get_start:get_end]
+assert "tw == NULL || tw->text.source == NULL" in get_region
 assert get_region.count("if (pos != to)") == 2
 assert get_region.count("XtFree(buf);") >= 2
 
