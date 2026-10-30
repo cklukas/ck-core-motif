@@ -1,3 +1,11 @@
+Guard value callbacks during destruction (2026-10-30)
+=======================================================
+
+- Suppress late Stepper, ProgressBar, Spinner, and InfoBar callbacks after Xt
+  marks the widget for destruction, matching the picker and ToggleSwitch
+  teardown contract.
+- Add focused source-contract coverage for the four callback paths.
+
 Guard picker callbacks during destruction (2026-10-30)
 ========================================================
 

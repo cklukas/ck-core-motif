@@ -314,6 +314,8 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
 
 static void Notify(XmProgressBarWidget progress, XEvent *event) {
     XmProgressBarCallbackStruct callback;
+    if (progress == NULL || progress->core.being_destroyed)
+        return;
     callback.reason = XmCR_VALUE_CHANGED;
     callback.event = event;
     callback.minimum = progress->progress.minimum;

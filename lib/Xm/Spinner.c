@@ -315,6 +315,8 @@ static void Tick(XtPointer data, XtIntervalId *id) {
 
 static void Notify(XmSpinnerWidget spinner, XEvent *event) {
     XmSpinnerCallbackStruct callback;
+    if (spinner == NULL || spinner->core.being_destroyed)
+        return;
     callback.reason = XmCR_VALUE_CHANGED;
     callback.event = event;
     callback.active = spinner->spinner.active;

@@ -72,7 +72,10 @@ static void redraw(XmStepperWidget s) {
 }
 
 static void notify(XmStepperWidget s, XEvent *event) {
-    XmStepperCallbackStruct c = {XmCR_VALUE_CHANGED, event, s->stepper.minimum,
+    XmStepperCallbackStruct c;
+    if (s == NULL || s->core.being_destroyed)
+        return;
+    c = (XmStepperCallbackStruct){XmCR_VALUE_CHANGED, event, s->stepper.minimum,
                                  s->stepper.maximum, s->stepper.value, s->stepper.step};
     XtCallCallbacks((Widget)s, XmNstepperValueChangedCallback, &c);
 }

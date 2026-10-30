@@ -641,3 +641,9 @@ open-state callbacks after Xt marks the widget for destruction. This matches
 ToggleSwitch and prevents a setter invoked during teardown from dispatching a
 late callback against partially released widget state. The source contract is
 checked by `tests/automated/check-picker-destroy-callback-guards.py`.
+
+Stepper, ProgressBar, Spinner, and InfoBar apply the same destruction guard to
+their public value/action notifications. This prevents setters or action
+helpers called from teardown callbacks from dispatching into partially
+destroyed widget state; the source contract is checked by
+`tests/automated/check-value-callback-destroy-guards.py`.
