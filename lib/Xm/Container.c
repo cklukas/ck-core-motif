@@ -8408,9 +8408,13 @@ static	Boolean
 DeselectAllCwids(
 	Widget  wid)
 {
-	XmContainerWidget       cw = (XmContainerWidget)wid;
+	XmContainerWidget       cw;
         CwidNode  	        node;
 	Boolean			selection_changes = False;
+
+	if (wid == NULL)
+	    return(False);
+	cw = (XmContainerWidget)wid;
 
 	if (cw->container.selected_item_count == 0)
 		{

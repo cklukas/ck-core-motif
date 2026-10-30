@@ -32011,3 +32011,10 @@ Guard Container selection-start inputs (2026-10-30)
 - Validate selection-start widget, event, and child constraint state before
   reading pointer or selection fields.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container deselection inputs (2026-10-30)
+================================================
+
+- Return safely before reading selection state when deselect-all receives no
+  Container widget.
+- Add focused source-contract coverage and document the invalid-input path.
