@@ -141,6 +141,16 @@ TextPropertyToSingleTextItem(Display *display, XTextProperty *text_prop,
 	*text_item = newstring;
 	XFreeStringList(textlist);
     }
+    else
+    {
+	*text_item = XtNewString("");
+	if (*text_item == NULL)
+	  {
+	    XFreeStringList(textlist);
+	    return(XNoMemory);
+	  }
+	XFreeStringList(textlist);
+    }
     return(Success);
 }
 

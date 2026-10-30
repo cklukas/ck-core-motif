@@ -1,3 +1,10 @@
+Initialize empty text-property conversion results (2026-10-30)
+===============================================================
+
+- Return an allocated empty string when Xlib reports zero text items, while
+  preserving the existing allocation-failure result.
+- Add focused source-contract coverage and document the behavior.
+
 Reject failed COMPOUND_TEXT segment conversions (2026-10-30)
 =============================================================
 
