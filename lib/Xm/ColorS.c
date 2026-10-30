@@ -1817,36 +1817,64 @@ CreateColorWindow(XmColorSelectorWidget csw,ArgList cargs, Cardinal cnum_args)
 /* ARGSUSED */
 static void GetValues_XmNredSliderLabel ( Widget w, int n, XtArgVal *value) 
 {
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmColorSelectorWidgetClass)) {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmStringCopy(XmColorS_strings(w).slider_labels[0]);
 }
 /* ARGSUSED */
 static void GetValues_XmNgreenSliderLabel( Widget w, int n, XtArgVal *value) 
 {
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmColorSelectorWidgetClass)) {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmStringCopy(XmColorS_strings(w).slider_labels[1]);
 }
 /* ARGSUSED */
 static void GetValues_XmNblueSliderLabel( Widget w, int n, XtArgVal *value) 
 {
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmColorSelectorWidgetClass)) {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmStringCopy(XmColorS_strings(w).slider_labels[2]);
 }
 /* ARGSUSED */
 static void GetValues_XmNcolorListTogLabel( Widget w, int n, XtArgVal *value) 
 {
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmColorSelectorWidgetClass)) {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmStringCopy(XmColorS_strings(w).tog_labels[0]);
 }
 /* ARGSUSED */
 static void GetValues_XmNsliderTogLabel( Widget w, int n, XtArgVal *value) 
 {
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmColorSelectorWidgetClass)) {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmStringCopy(XmColorS_strings(w).tog_labels[1]);
 }
 /* ARGSUSED */
 static void GetValues_XmNnoCellError( Widget w, int n, XtArgVal *value) 
 {
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmColorSelectorWidgetClass)) {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmStringCopy(XmColorS_strings(w).no_cell_error);
 }
 /* ARGSUSED */
 static void GetValues_XmNfileReadError( Widget w, int n, XtArgVal *value) 
 {
+    if (w == NULL || value == NULL || !XtIsSubclass(w, xmColorSelectorWidgetClass)) {
+        if (value != NULL) *value = (XtArgVal) NULL;
+        return;
+    }
     (*value) = (XtArgVal) XmStringCopy(XmColorS_strings(w).file_read_error);
 }
 
