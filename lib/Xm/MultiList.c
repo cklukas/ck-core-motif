@@ -833,11 +833,13 @@ ActivateTextSearch(Widget w, XtPointer elist_ptr, XtPointer client)
     char * ptr;
     wchar_t *wc_string;
 
-    if (!XmMultiList_show_find(elist))
-        return;
-
-    if (find == NULL || find_text == NULL)
+    if (w == NULL || elist_ptr == NULL || client == NULL)
 	return;
+    if (!XmMultiList_show_find(elist) ||
+	XmMultiList_find(elist) == NULL ||
+	XmMultiList_find_text(elist) == NULL ||
+	XmMultiList_ilist(elist) == NULL)
+        return;
 
     ptr = XmTextFieldGetString(XmMultiList_find_text(elist));
     wc_string = XmTextFieldGetStringWcs(XmMultiList_find_text(elist));

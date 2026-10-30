@@ -154,6 +154,14 @@ Guard MultiList selection after partial construction (2026-10-30)
 - Return an empty row-array result and reset its count in that state.
 - Add focused source coverage and document the failure contract.
 
+Guard MultiList search callbacks (2026-10-30)
+==============================================
+
+- Validate the search callback payload and optional find/list children before
+  reading callback data or requesting text.
+- Make search activation a safe no-op after partial construction.
+- Add focused source coverage and document the callback contract.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 
