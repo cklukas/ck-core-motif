@@ -461,7 +461,7 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 
     RegisterShellHandler(set);
 
-    if (!XmDropDown_editable(cbw)) {
+    if (!XmDropDown_editable(cbw) && XmDropDown_text(cbw) != NULL) {
       VerifyTextField(NULL, (XtPointer) cbw, (XtPointer) NULL);
       XtAddEventHandler(XmDropDown_text(cbw), ButtonPressMask,
 			False, TextButtonPress, NULL);
@@ -518,7 +518,8 @@ GetValuesHook(Widget w, ArgList args, Cardinal *num_args)
     {
 	if (visible_quark == XrmStringToQuark(args[i].name))
 	{
-	    XtVaGetValues(XmDropDown_list(cbw), args[i].name, args[i].value, NULL);
+	    if (XmDropDown_list(cbw) != NULL)
+		XtVaGetValues(XmDropDown_list(cbw), args[i].name, args[i].value, NULL);
 
 	    break;
 	}
@@ -572,7 +573,8 @@ SetValues(Widget current, Widget request, Widget set,
 
 	    CreatePopup (set, f_args, f_num_args);
 	}
-	XtSetValues(XmDropDown_list(set_cbw), f_args, f_num_args);
+	if (XmDropDown_list(set_cbw) != NULL)
+	    XtSetValues(XmDropDown_list(set_cbw), f_args, f_num_args);
     }
     
     /* make it Create/Get only */
@@ -582,10 +584,10 @@ SetValues(Widget current, Widget request, Widget set,
     _XmSetValuesOnChildren(set, f_args, f_num_args);
 
     if (XmDropDown_editable(set_cbw) != XmDropDown_editable(old_cbw)){
-      if (!XmDropDown_editable(set_cbw)) 
+	if (!XmDropDown_editable(set_cbw) && XmDropDown_text(set_cbw) != NULL)
 	XtAddEventHandler(XmDropDown_text(set_cbw), ButtonPressMask, False,
 			  TextButtonPress, NULL);
-      else
+	else if (XmDropDown_text(set_cbw) != NULL)
 	XtRemoveEventHandler(XmDropDown_text(set_cbw), ButtonPressMask, False,
 			     TextButtonPress, NULL);
     }
@@ -601,7 +603,8 @@ SetValues(Widget current, Widget request, Widget set,
 	    /*
 	     * Non custom box, I created it, so I should destroy it.
 	     */
-	    XtDestroyWidget(XmDropDown_popup_shell(old_cbw));
+	    if (XmDropDown_popup_shell(old_cbw) != NULL)
+		XtDestroyWidget(XmDropDown_popup_shell(old_cbw));
 	}
 
 	RegisterShellHandler(set);
@@ -624,38 +627,44 @@ SetValues(Widget current, Widget request, Widget set,
 		/* ArrowB doesn't track this information itself; it draws
 		** itself minus its highlightThickness
 		*/
-		Dimension width, height;
+	Dimension width = 0, height = 0;
 		tn = 0;
 		XtSetArg(targs[tn], XmNwidth, &width); tn++;
 		XtSetArg(targs[tn], XmNheight, &height); tn++;
-		XtGetValues(XmDropDown_arrow(set_cbw),targs,tn);
+		if (XmDropDown_arrow(set_cbw) != NULL)
+		    XtGetValues(XmDropDown_arrow(set_cbw),targs,tn);
 		tn = 0;
 		XtSetArg(targs[tn], XmNwidth, width - 4); tn++;
 		XtSetArg(targs[tn], XmNheight, height - 4); tn++;
 		XtSetArg(targs[tn], XmNhighlightThickness, 0); tn++;
-		XtSetValues(XmDropDown_arrow(set_cbw),targs,tn);
+		if (XmDropDown_arrow(set_cbw) != NULL)
+		    XtSetValues(XmDropDown_arrow(set_cbw),targs,tn);
 		tn = 0;
 		XtSetArg(targs[tn], XmNhighlightThickness, 0); tn++;
 		XtSetArg(targs[tn], XmNshadowThickness, 0); tn++;
-		XtSetValues(XmDropDown_text(set_cbw),targs,tn);
+		if (XmDropDown_text(set_cbw) != NULL)
+		    XtSetValues(XmDropDown_text(set_cbw),targs,tn);
 		}
 	else
 		{
-		Dimension width, height;
+	Dimension width = 0, height = 0;
 		tn = 0;
 		XtSetArg(targs[tn], XmNwidth, &width); tn++;
 		XtSetArg(targs[tn], XmNheight, &height); tn++;
-		XtGetValues(XmDropDown_arrow(set_cbw),targs,tn);
+		if (XmDropDown_arrow(set_cbw) != NULL)
+		    XtGetValues(XmDropDown_arrow(set_cbw),targs,tn);
 		tn = 0;
 		XtSetArg(targs[tn], XmNwidth, width + 4); tn++;
 		XtSetArg(targs[tn], XmNheight, height + 4); tn++;
 		XtSetArg(targs[tn], XmNhighlightThickness, 2); tn++;
-		XtSetValues(XmDropDown_arrow(set_cbw),targs,tn);
+		if (XmDropDown_arrow(set_cbw) != NULL)
+		    XtSetValues(XmDropDown_arrow(set_cbw),targs,tn);
 
 		tn = 0;
 		XtSetArg(targs[tn], XmNhighlightThickness, 2); tn++;
 		XtSetArg(targs[tn], XmNshadowThickness, 2); tn++;
-		XtSetValues(XmDropDown_text(set_cbw),targs,tn);
+		if (XmDropDown_text(set_cbw) != NULL)
+		    XtSetValues(XmDropDown_text(set_cbw),targs,tn);
 		}
 	retval = True;	/* for shadows */
     }
@@ -665,11 +674,13 @@ SetValues(Widget current, Widget request, Widget set,
 	retval = True;
 	if (XmDropDown_show_label(old_cbw))
 	{
-	    XtUnmanageChild(XmDropDown_label(old_cbw));
+	    if (XmDropDown_label(old_cbw) != NULL)
+		XtUnmanageChild(XmDropDown_label(old_cbw));
 	}
 	else
 	{
-	    XtManageChild(XmDropDown_label(set_cbw));
+	    if (XmDropDown_label(set_cbw) != NULL)
+		XtManageChild(XmDropDown_label(set_cbw));
 	}
     }
     XtFree((char *) f_args);

@@ -170,6 +170,14 @@ Guard MultiList layout without find text (2026-10-30)
 - Preserve normal find-control positioning when both children exist.
 - Add focused source coverage and document the layout fallback.
 
+Guard DropDown child lifecycle updates (2026-10-30)
+====================================================
+
+- Guard initialization, `GetValues`, and `SetValues` operations when list,
+  text, arrow, or label children are unavailable.
+- Initialize visual-metric temporaries before optional arrow updates.
+- Add focused source coverage and document partial construction behavior.
+
 Guard Sidebar child allocation failures (2026-10-29)
 =====================================================
 
