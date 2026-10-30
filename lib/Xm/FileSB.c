@@ -3731,7 +3731,7 @@ XmFileSelectionDoSearch(
             String          textString ;
 /****************/
 
-    if (fs == NULL)
+    if (fs == NULL || !XtIsSubclass(fs, xmFileSelectionBoxWidgetClass))
         return;
     _XmWidgetToAppContext(fs);
     _XmAppLock(app);

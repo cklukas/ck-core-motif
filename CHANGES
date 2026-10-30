@@ -1,3 +1,9 @@
+Validate FileSelectionBox programmatic search widget (2026-10-30)
+==================================================================
+
+- Reject null and wrong-class widgets before accessing FileSelectionBox state.
+- Add focused source coverage and documentation.
+
 Guard FileSelectionBox push-button qualifier (2026-10-30)
 ===========================================================
 
