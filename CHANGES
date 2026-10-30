@@ -1,3 +1,11 @@
+Guard ColorSelector string getters (2026-10-30)
+===============================================
+
+- Validate each internal label/error string before copying it for a resource
+  query.
+- Return a null output value for partially initialized strings.
+- Add focused source coverage and documentation.
+
 Guard ButtonBox constraint hook input (2026-10-30)
 ==================================================
 
