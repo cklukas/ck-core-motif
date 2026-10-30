@@ -3,10 +3,9 @@ nav_exclude: true
 ---
 # Container selection input validation
 
-The shared selection-marking helpers now reject null children and missing
-Container constraints before reading selection state or sensitivity. Bulk
-selection operations therefore tolerate malformed or teardown-time child
-entries without changing valid selection behavior.
+Container selection callbacks now return safely for a missing container, and
+selected-item collection skips malformed nodes or missing constraint records
+instead of dereferencing them. Valid selection behavior is unchanged.
 
 The source contract is checked by
 `tests/automated/check-container-selection-inputs.py`.

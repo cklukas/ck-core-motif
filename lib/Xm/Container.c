@@ -9449,6 +9449,9 @@ CallSelectCB(
 	XmContainerWidget	cw = (XmContainerWidget)wid;
 	XmContainerSelectCallbackStruct	cbs;
 
+	if (wid == NULL)
+		return;
+
 	if (!(XtHasCallbacks(wid,XmNselectionCallback)
 				== XtCallbackHasSome))
 		return;
@@ -9499,11 +9502,15 @@ static  WidgetList
 GetSelectedCwids(
         Widget          wid)
 {
-        XmContainerWidget       cw = (XmContainerWidget)wid;
+        XmContainerWidget       cw;
 	WidgetList		selected_items;
 	CwidNode 		node;
 	unsigned int		tally = 0;
 	XmContainerConstraint	c;
+
+	if (wid == NULL)
+		return(NULL);
+	cw = (XmContainerWidget)wid;
 	
 	if (cw->container.selected_item_count == 0)
 		return(NULL);
@@ -9525,7 +9532,15 @@ GetSelectedCwids(
 	node = cw->container.first_node;
 	while (node)
 		{
+		if (node->widget_ptr == NULL) {
+			node = GetNextNode(node);
+			continue;
+		}
 		c = GetContainerConstraint(node->widget_ptr);
+		if (c == NULL) {
+			node = GetNextNode(node);
+			continue;
+		}
 		if (c->selection_visual == XmSELECTED)
 			{
 			selected_items[tally] = node->widget_ptr;
@@ -9543,7 +9558,15 @@ GetSelectedCwids(
 	node = cw->container.first_node;
 	while (node)
 		{
+		if (node->widget_ptr == NULL) {
+			node = GetNextNode(node);
+			continue;
+		}
 		c = GetContainerConstraint(node->widget_ptr);
+		if (c == NULL) {
+			node = GetNextNode(node);
+			continue;
+		}
 		if (c->selection_visual == XmSELECTED)
 			{
 			selected_items[tally] = node->widget_ptr;

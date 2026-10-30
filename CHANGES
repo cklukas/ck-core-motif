@@ -31829,3 +31829,10 @@ Guard Container outline-button inputs (2026-10-30)
 - Validate outline-button source state and unwind safely when gadget or
   constraint creation fails.
 - Add focused source-contract coverage and document the invalid-input path.
+
+Guard Container selection inputs (2026-10-30)
+=============================================
+
+- Validate selection callback inputs and skip malformed nodes or missing
+  constraint records during selected-item collection.
+- Add focused source-contract coverage and document the invalid-input path.
