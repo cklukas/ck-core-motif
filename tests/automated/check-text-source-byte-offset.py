@@ -12,8 +12,10 @@ read_region = source[source.index("_XmStringSourceReadString"):source.index("/* 
 get_region = source[source.index("_XmStringSourceGetChar"):source.index("/* Inspect one native source character", source.index("_XmStringSourceGetChar"))]
 assert "TextSourceByteOffset(data, position, char_size" in set_region
 assert "size_t count, byte_position" in set_region
+assert "data == NULL || data->widgets == NULL" in set_region
 assert "TextSourceByteOffset(data, (XmTextPosition)start, unit" in read_region
 assert "int byte_start" not in read_region
+assert "source == NULL || source->data == NULL || block == NULL" in read_region
 assert "TextSourceByteOffset(data, position, unit" in get_region
 assert "register XmTextPosition char_pos" not in get_region
 replace_start = source.index("static XmTextStatus \nReplace")

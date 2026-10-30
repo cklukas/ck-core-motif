@@ -44,6 +44,14 @@ Guard Text pending updates during teardown (2026-10-30)
 - Extend the pending-state regression and document the setter lifecycle
   behavior.
 
+Guard Text gap helpers during teardown (2026-10-30)
+===================================================
+
+- Validate source and widget-array state before gap movement and block reads,
+  preventing partially destroyed text sources from being dereferenced.
+- Extend the byte-offset regression and document the safe no-op/empty-block
+  behavior.
+
 Reject failed UIL debug formatting passes (2026-10-30)
 ======================================================
 

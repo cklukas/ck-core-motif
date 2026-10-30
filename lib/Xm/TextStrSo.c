@@ -782,8 +782,13 @@ void
 _XmStringSourceSetGappedBuffer(XmSourceData data,
 			       XmTextPosition position) /* starting position */
 {
-  XmTextWidget tw = (XmTextWidget) data->widgets[0];
+  XmTextWidget tw;
   size_t count, byte_position;
+
+  if (data == NULL || data->widgets == NULL || data->numwidgets <= 0 ||
+      data->widgets[0] == NULL)
+    return;
+  tw = (XmTextWidget)data->widgets[0];
   size_t char_size = (tw->text.char_size < 3 ?
 			      (size_t)tw->text.char_size : sizeof(wchar_t));
 
@@ -816,9 +821,23 @@ _XmStringSourceReadString(XmTextSource source,
 			  int start,
 			  XmTextBlock block)
 {
-  XmSourceData data = source->data;
-  XmTextWidget tw = (XmTextWidget) data->widgets[0];
+  XmSourceData data;
+  XmTextWidget tw;
   size_t gap_size, byte_start, unit;
+
+  if (source == NULL || source->data == NULL || block == NULL ||
+      source->data->widgets == NULL || source->data->numwidgets <= 0 ||
+      source->data->widgets[0] == NULL)
+    {
+    if (block != NULL)
+      {
+      block->ptr = NULL;
+      block->length = 0;
+      }
+    return;
+    }
+  data = source->data;
+  tw = (XmTextWidget)data->widgets[0];
 
   unit = tw->text.char_size < 3 ? (size_t)tw->text.char_size :
 						 sizeof(wchar_t);

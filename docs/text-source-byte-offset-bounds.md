@@ -14,3 +14,8 @@ calculation.
 
 `tests/automated/check-text-source-byte-offset.py` is the focused regression
 for the checked conversion and widened gap distances.
+
+Gap movement and source-block reads also validate their source/widget storage
+before dereferencing it. During teardown or partial initialization they now
+return without moving the gap, or return an empty block, rather than touching
+freed or missing state.
