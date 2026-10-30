@@ -79,6 +79,14 @@ static void free_items(XmBreadcrumbBarWidget bar) {
     bar->breadcrumb.count = 0;
 }
 
+static void free_item_array(XmBreadcrumbBarItem *items, Cardinal count) {
+    Cardinal i;
+    if (items == NULL) return;
+    for (i = 0; i < count; ++i)
+        XtFree(items[i].label);
+    XtFree((char *)items);
+}
+
 static Position bounded_position(long long value) {
     if (value < SHRT_MIN) return SHRT_MIN;
     if (value > SHRT_MAX) return SHRT_MAX;
@@ -409,46 +417,39 @@ void XmBreadcrumbBarSetSegments(Widget widget,
                                 const XmBreadcrumbSegment *segments,
                                 Cardinal count) {
     XmBreadcrumbBarWidget bar;
+    XmBreadcrumbBarItem *replacement = NULL;
     Cardinal i;
     if (widget == NULL || !XmIsBreadcrumbBar(widget) ||
         count > (Cardinal)INT_MAX || (count != 0 && segments == NULL))
         return;
     bar = (XmBreadcrumbBarWidget)widget;
-    free_items(bar);
     if (count) {
         if ((size_t)count > SIZE_MAX / sizeof(*bar->breadcrumb.items) ||
             (size_t)count > UINT_MAX / sizeof(*bar->breadcrumb.items))
-        {
-            bar->breadcrumb.current = -1;
             return;
-        }
-        bar->breadcrumb.items = (XmBreadcrumbBarItem *)XtCalloc(
-            (Cardinal)count, sizeof(*bar->breadcrumb.items));
-        if (!bar->breadcrumb.items) {
-            bar->breadcrumb.current = -1;
-            return;
-        }
+        replacement = (XmBreadcrumbBarItem *)XtCalloc(
+            (Cardinal)count, sizeof(*replacement));
+        if (!replacement) return;
         for (i = 0; i < count; ++i) {
-            bar->breadcrumb.items[i].label = XtNewString(
+            replacement[i].label = XtNewString(
                 segments && segments[i].label ? segments[i].label : "");
-            if (!bar->breadcrumb.items[i].label) {
-                while (i != 0) {
-                    --i;
-                    XtFree(bar->breadcrumb.items[i].label);
-                }
-                XtFree((char *)bar->breadcrumb.items);
-                bar->breadcrumb.items = NULL;
-                bar->breadcrumb.current = -1;
+            if (!replacement[i].label) {
+                free_item_array(replacement, i + 1);
                 return;
             }
-            bar->breadcrumb.items[i].id = segments ? segments[i].id : NULL;
+            replacement[i].id = segments ? segments[i].id : NULL;
         }
+    }
+    free_items(bar);
+    bar->breadcrumb.items = replacement;
+    bar->breadcrumb.count = count;
+    if (!count) {
+        bar->breadcrumb.current = -1;
+    } else {
         bar->breadcrumb.count = count;
         if (bar->breadcrumb.current < 0 ||
             (Cardinal)bar->breadcrumb.current >= count)
             bar->breadcrumb.current = (int)count - 1;
-    } else {
-        bar->breadcrumb.current = -1;
     }
     if (XtIsRealized(widget))
         XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
