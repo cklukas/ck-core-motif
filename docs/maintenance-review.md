@@ -759,3 +759,8 @@ ComboBox add, delete, select, set, and update convenience operations now fail
 closed during Xt teardown while preserving the existing application-lock
 discipline. The focused source check is
 `tests/automated/check-combobox-mutator-destroy-guards.py`.
+
+List item insertion and clear operations now fail closed during Xt teardown,
+avoiding list storage, geometry, scrollbar, and accessibility work on partial
+state. The focused source check is
+`tests/automated/check-list-insertion-destroy-guards.py`.
