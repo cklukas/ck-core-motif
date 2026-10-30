@@ -32304,3 +32304,12 @@ Guard Container reorder constraints (2026-10-30)
 - Validate first-item and list-entry Container constraints and node records
   before public reorder updates sibling positions.
 - Add focused source-contract coverage and document the invalid-item path.
+Avoid Container reorder comparator overflow (2026-10-30)
+===========================================================
+
+- Compare position indices relationally instead of subtracting signed
+  integers, keeping `qsort` defined for extreme values.
+- Add focused source-contract coverage and document the arithmetic fix.
+
+Guard Container destination prehook transfers (2026-10-30)
+=============================================================
