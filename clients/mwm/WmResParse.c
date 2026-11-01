@@ -8725,13 +8725,12 @@ GetNetworkFileName (char *pchFile)
 		host_part = NULL;
 	    }
 
-	    if (
+	    if ((*file_part == '~') && (file_part[1] == '/')
 #ifndef NO_MULTIBYTE
-	        (mblen(file_part, MB_CUR_MAX) == 1) && 
-		(mblen(file_part+1, MB_CUR_MAX) == 1) &&
+		&& (mblen(file_part, MB_CUR_MAX) == 1)
+		&& (mblen(file_part+1, MB_CUR_MAX) == 1)
 #endif
-		(*file_part == '~') &&
-		(*(file_part+1) == '/'))
+		)
 	    {
 		/*
 		 * Replace '~' with $HOME
@@ -8788,7 +8787,8 @@ GetNetworkFileName (char *pchFile)
 		goto fallback;
 	    }
 	    *pch = '\0';
-	    host_part = pchFile;
+	    /* pch points into the owned copy; preserve its separated host. */
+	    host_part = sName;
 	    file_part = pch+1;
 	}
 
@@ -8817,13 +8817,12 @@ GetNetworkFileName (char *pchFile)
 fallback:
     if (sReturn == NULL)
     {
-	if (
+	if ((*pchFile == '~') && (pchFile[1] == '/')
 #ifndef NO_MULTIBYTE
-	    (mblen(pchFile, MB_CUR_MAX) == 1) && 
-	    (mblen(pchFile+1, MB_CUR_MAX) == 1) &&
+	    && (mblen(pchFile, MB_CUR_MAX) == 1)
+	    && (mblen(pchFile+1, MB_CUR_MAX) == 1)
 #endif
-	    (*pchFile == '~') &&
-	    (*(pchFile+1) == '/'))
+	    )
 	{
 	    /*
 	     * Replace '~' with $HOME

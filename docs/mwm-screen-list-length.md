@@ -6,5 +6,9 @@ the name. Both explicitly listed names and the repeated-name fallback use the
 same bound, preventing truncating allocation sizes for oversized resource
 values.
 
+Both allocations are transactional as well: a temporary receives the
+replacement before the live screen-name slot changes. A failed replacement
+therefore preserves the old valid name even if shutdown is delayed or tested.
+
 The focused source contract is covered by
 `tests/automated/check-mwm-screen-list-length.py`.

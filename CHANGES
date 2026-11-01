@@ -189,6 +189,23 @@ Remove the fixed MWM client-command wildcard limit (2026-11-01)
   overwrite the matcher stack; allocation failure safely retains the prior
   match result.
 
+Preserve MWM screen-list names when replacement allocation fails (2026-11-01)
+==============================================================================
+
+- Stage both screen-list resource reallocations in a temporary pointer before
+  updating the live slot. A failed replacement now retains the previous valid
+  screen name instead of discarding it while MWM reports the allocation error.
+
+Keep the MWM ToolTalk network-file fallback split correctly (2026-11-01)
+========================================================================
+
+- When shell expansion cannot tokenize a `host:file` path, pass ToolTalk the
+  separated host from MWM's owned fallback copy instead of the original
+  unsplit string. Network file canonicalization therefore retains the intended
+  host/file boundary after expansion failure.
+- Check the `~/` prefix before asking the multibyte decoder for its second
+  byte, so empty and one-character malformed paths stay within the input.
+
 Reject invalid initial multibyte MWM session command lines safely (2026-11-01)
 ===============================================================================
 

@@ -74,6 +74,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM screen-warp warning allocation widths](mwm-screen-warp-warning-allocation.md) — guard unmanaged-screen diagnostics.
 - [MWM bitmap-cache path allocation](mwm-bitmap-cache-path-allocation.md) — guard cached bitmap path copies.
 - [MWM failed bitmap-cache loads](mwm-bitmap-cache-failure-cleanup.md) — release failed-load resources before slot reuse.
+- [MWM network-file fallback](mwm-network-file-fallback.md) — retain the separated host when ToolTalk path expansion falls back.
 - [MWM menu-pane name allocation](mwm-menu-pane-name-allocation.md) — guard parsed menu names.
 - [MWM NLS catalog-string allocation](mwm-nls-string-allocation.md) — centralize localized-string sizing.
 - [MWM workspace-string allocation](mwm-workspace-string-allocation.md) — reuse checked workspace copies.
