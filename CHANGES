@@ -1,5 +1,5 @@
 Preserve modern Container appearance across gadget recreation (2026-11-01)
-========================================================================
+=================================================================
 
 - Retire gadget appearance state through Object's destroy callback, preventing
   reused object addresses from skipping modern defaults. Detach remaining
@@ -10,6 +10,46 @@ Preserve modern Container appearance across gadget recreation (2026-11-01)
 - Reproduce stale gray bevels on the second real gallery preview, then qualify
   100 recreations with reused addresses, colored icon and row pixel checks,
   live theme/scale changes, overrides, existing appearance tests and all demos.
+=======
+Build rendition converter headers without a fixed shared buffer (2026-11-01)
+==========================================================================
+
+- Serialize the rendition property header through the converter's checked
+  dynamically growing output buffer instead of a fixed 256-byte global array.
+- Remove shared mutable header state; generated property strings and public
+  converter output remain unchanged.
+
+Keep MainWindow child growth warning-clean (2026-11-01)
+=======================================================
+
+- Retain the narrow-host byte-size guard for MainWindow child-list growth
+  while omitting its redundant 64-bit form, so strict builds do not report an
+  always-false comparison.
+
+Relayout MainWindow after same-size resource changes (2026-11-01)
+===============================================================
+
+- Apply MainWindow child layout when a live margin or separator change leaves
+  the outer geometry unchanged, so menus, work areas, and separators no
+  longer retain stale positions until a later resize.
+
+Bound DropDown selected-text assembly (2026-11-01)
+====================================================
+
+- Validate both temporary selected-item storage and the comma-separated text
+  result against Xt's `Cardinal` allocation boundary before allocation.
+- Keep ordinary multi-selection conversion and its transactional text update
+  unchanged; oversized selections now fail cleanly.
+- Initialize no-resize layout state from the current widget geometry and keep
+  optional label metrics zeroed when a label child is unavailable.
+
+Bound hash-table accounting and debug output (2026-11-01)
+========================================================
+
+- Refuse insertions once the public hash-table entry counter is full, rather
+  than allowing it to wrap and misreport an occupied table as empty.
+- Keep the optional debug hash-table summary defined for an empty table and
+  type-correct when it prints cardinal values.
 
 Modern dialog action widths and complete Mac demos (2026-11-01)
 ==============================================================
@@ -50,6 +90,13 @@ Match toolbar icons to action button surfaces (2026-11-01)
 - Reproduce the old background mismatch and pass native gallery-factory pixel
   checks for four profiles, two scales, pressed/disabled states and replacement.
   See docs/toolbar.md and its qualification record.
+
+Bound TreeView preorder scratch storage (2026-11-01)
+=====================================================
+
+- Check flat-model preorder scratch-array bytes against host and Xt allocator
+  limits before allocating either traversal array.
+- Add focused regression coverage and document the public model-count boundary.
 
 Clarify resource converter integer widths (2026-11-01)
 ========================================================

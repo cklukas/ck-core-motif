@@ -1064,16 +1064,16 @@ ChangeManaged(
 		    WidgetList new_children;
 		    if (mw->composite.num_slots >
 			(Cardinal)(~(Cardinal)0 - 2) -
-			(mw->composite.num_slots / 2) ||
-			(size_t)(mw->composite.num_slots +
-			         (mw->composite.num_slots / 2) + 2) >
-			    SIZE_MAX / sizeof(Widget) ||
-			    (size_t)(mw->composite.num_slots +
-			             (mw->composite.num_slots / 2) + 2) >
-			    UINT_MAX / sizeof(Widget))
+			(mw->composite.num_slots / 2))
 			return;
 		    new_slots = mw->composite.num_slots +
 			(mw->composite.num_slots / 2) + 2;
+#if SIZE_MAX < UINT_MAX
+		    if ((size_t)new_slots > SIZE_MAX / sizeof(Widget))
+			return;
+#endif
+		    if ((size_t)new_slots > UINT_MAX / sizeof(Widget))
+			return;
 		    new_children = (WidgetList)XtRealloc(
 			(char *)mw->composite.children,
 		(Cardinal)((size_t)new_slots * sizeof(Widget)));
@@ -1221,8 +1221,18 @@ SetValues(
 	if (XtIsRealized((Widget)new_w)) {
 	    Dimension width = 0, height = 0 ;
 	    GetSize (new_w, &width, &height);
-	    new_w->core.width = width ;
-	    new_w->core.height = height ;
+	    if (new_w->core.width == width && new_w->core.height == height)
+	    {
+		/* Xt does not invoke resize when the enclosing geometry is
+		 * unchanged.  Margin and separator changes still alter the
+		 * child layout, so apply that layout explicitly. */
+		Resize((Widget)new_w);
+	    }
+	    else
+	    {
+		new_w->core.width = width ;
+		new_w->core.height = height ;
+	    }
 	}
     }
            

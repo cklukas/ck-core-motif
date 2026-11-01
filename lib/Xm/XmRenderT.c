@@ -3041,11 +3041,6 @@ static XmConst char *CVTproperties[] = {
   NULL,
   };
 
-/* Must be big enough to take all the above strings concatenated with
-   commas separating them */
-static char CVTtransfervector[256];
-static int CVTtvinited = 0;
-
 /* Use this macro to encapsulate the code that extends the output
    buffer as needed */
 static Boolean
@@ -3122,21 +3117,16 @@ XmRenderTableCvtToProp(Widget widget, /* unused */
     return 0;
   }
 
-  _XmProcessLock();
-  if (CVTtvinited == 0) {
-    CVTtvinited = 1;
-    strcpy(CVTtransfervector, "");
-    for(i = 0; CVTproperties[i] != NULL; i++) {
-      strcat(CVTtransfervector, CVTproperties[i]);
-      strcat(CVTtransfervector, ",");
-    }
-    strcat(CVTtransfervector, "\n");
+  /* Build the property header in the checked output buffer.  Keeping it in
+     a fixed shared array made future property additions a buffer-overflow
+     hazard and forced unrelated conversions to share mutable state. */
+  buffer[0] = '\0';
+  for (i = 0; CVTproperties[i] != NULL; i++) {
+    size = strlen(CVTproperties[i]);
+    CVTaddString(buffer, CVTproperties[i], size);
+    CVTaddString(buffer, ",", 1);
   }
-  
-  /* Copy the transfer vector into the output buffer. */
-  strcpy(buffer, CVTtransfervector);
-  chars_used = strlen(buffer);
-  _XmProcessUnlock();
+  CVTaddString(buffer, "\n", 1);
 
   /* Now iterate over the list of renditions */
   for(i = 0; i < _XmRTCount(table); i++) {

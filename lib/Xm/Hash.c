@@ -272,6 +272,12 @@ _XmAddHashEntry(XmHashTable table, XmHashKey key, XtPointer value)
 
   if (table == NULL || table->buckets == NULL || table->size == 0)
     return False;
+
+  /* count is exposed through _XmHashTableCount().  Do not let a successful
+     insertion wrap that public cardinal value back to zero. */
+  if (table->count == UINT_MAX)
+    return False;
+
   hash = table -> hasher(key);
   index = HashIndex(hash, table -> size);
 
@@ -449,15 +455,15 @@ FreeBucket(XmHashBucket b)
 void
 _XmPrintHashTable(XmHashTable table)
 {
-  int i, max, total_in_use;
-  int count;
+  Cardinal i, max, total_in_use;
+  Cardinal count;
   XmHashBucket entry;
 
   max = 0;
   total_in_use = 0;
 
-  printf("size %d hash function %lx compare function %lx\n",
-	 table->size, (unsigned long) table->hasher, 
+  printf("size %u hash function %lx compare function %lx\n",
+	 (unsigned int)table->size, (unsigned long) table->hasher,
 	 (unsigned long) table->compare);
 
   for (i = 0; i < table -> size; i++) {
@@ -471,11 +477,16 @@ _XmPrintHashTable(XmHashTable table)
     if (count > max) max = count;
   }
 
-  printf("total entries %d\n", table -> count);
-  printf("total bucket chains in use %d or %d percent\n", total_in_use,
-	 (total_in_use * 100)/table -> size);
-  printf("bucket chain length %d average / %d max\n",
-	 table -> count / total_in_use, max);
+  printf("total entries %u\n", (unsigned int)table -> count);
+  printf("total bucket chains in use %u or %u percent\n",
+	 (unsigned int)total_in_use,
+	 (unsigned int)((total_in_use * 100U) / table -> size));
+  if (total_in_use != 0)
+    printf("bucket chain length %u average / %u max\n",
+	   (unsigned int)(table -> count / total_in_use),
+	   (unsigned int)max);
+  else
+    printf("bucket chain length 0 average / 0 max\n");
 }
 
 #endif

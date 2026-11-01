@@ -13,4 +13,9 @@ assert "w->core.height = old_height;" in body
 assert "QueryChildSize(XmDropDown_label(cbw), label);" in source
 assert "QueryChildSize(XmDropDown_text(cbw), text);" in source
 assert "QueryChildSize(XmDropDown_arrow(cbw), arrow);" in source
+place_start = source.index("static void\nPlaceChildren")
+place = source[place_start:source.index("static void\nGetTextAndLabelWidth", place_start)]
+assert "Dimension rwidth = w->core.width, rheight = w->core.height;" in place
+assert "Dimension text_width = 0, label_width = 0, label_bw = 0;" in place
+assert "XmDropDown_show_label(cbw) && XmDropDown_label(cbw) != NULL" in place
 print("PASS DropDown negotiation guards and request-mode handling")
