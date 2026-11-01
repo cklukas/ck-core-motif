@@ -114,5 +114,15 @@
     "gallery_hidden_navigation_and_missing_demo": "passed",
     "xft_text_frames": "24 consecutive frames in each of DBE, pixmap and direct modes passed on macOS; pre-fix DBE regression failed at frame 3",
     "mac_visual_check": "Actual combined gallery window inspected after Xft cache lifetime fix; final launch coordinated separately"
+  },
+  "broader_source_sweep": {
+    "scripts": 3975,
+    "passed": 3948,
+    "failed": 27,
+    "comparison": "All 27 failures reproduce on published origin/master 731f0cb6f; includes a native runner invoked without its required build arguments. No new failures."
+  },
+  "final_mac_native_gates": {
+    "pid": 54493,
+    "receipt": "Final dedicated build passed toolbar surfaces, 24 buffered text frames in each backend, sidebar pixels and gallery integration; actual final window visual inspection pending."
   }
 }
