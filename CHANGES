@@ -1,3 +1,19 @@
+Use CDE's WSM MWM-window helper (2026-11-02)
+==============================================
+
+- Make optional WSM MWM startup call CDE's declared `_DtGetMwmWindow` helper,
+  rather than the obsolete `_DtGetSmWindow` symbol. This restores the intended
+  session-manager window lookup contract; see
+  `docs/mwm-cde-wsm-window-helper.md`.
+
+Keep Xft color-cache growth failure-atomic (2026-11-02)
+=======================================================
+
+- Preserve optional Xft color-cache entries and their count when `XtRealloc`
+  fails while adding a newly queried color. The current rendering request still
+  receives its color; later requests can safely reuse the old cache. See
+  `docs/xm-render-table-growth.md`.
+
 Modernize BreadcrumbBar current-item and separator rendering (2026-11-01)
 ========================================================================
 

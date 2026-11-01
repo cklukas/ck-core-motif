@@ -15,4 +15,12 @@ cache_end = source.index("#endif", cache_start)
 cache_region = source[cache_start:cache_end]
 assert "SIZE_MAX / sizeof(XftColor)" in cache_region
 assert "UINT_MAX / sizeof(XftColor)" in cache_region
+assert "XftColor *grown_cache;" in cache_region
+assert "grown_cache = (XftColor *) XtRealloc" in cache_region
+assert "color_cache = grown_cache;" in cache_region
+assert "if (grown_cache != NULL)" in cache_region
+assert "color_cache = (XftColor *) XtRealloc" not in cache_region
+assert cache_region.index("if (grown_cache != NULL)") < cache_region.index(
+    "color_cache = grown_cache;"
+)
 print("PASS XmRenderTable growth respects Xt allocation width")

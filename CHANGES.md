@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-11-02 — CDE WSM MWM-window lookup
+
+- Use CDE's declared `_DtGetMwmWindow` helper for optional WSM startup rather
+  than an obsolete session-manager symbol, preserving the established lookup
+  and Xlib-status contract. See
+  [MWM CDE workspace-manager window lookup](docs/mwm-cde-wsm-window-helper.md).
+
+## 2026-11-02 — Xft color-cache allocation safety
+
+- Keep the optional Xft color cache intact if growth fails: preserve its prior
+  pointer and count while returning the current queried color for rendering.
+- Extend the focused allocation regression; see
+  [Render-table growth bounds](docs/xm-render-table-growth.md).
+
 ## 2026-11-01 — Text scratch line-table allocation safety
 
 - Make narrow and multibyte hard-line update buffers failure-atomic and bound
