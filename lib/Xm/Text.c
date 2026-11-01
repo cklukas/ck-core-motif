@@ -1746,8 +1746,8 @@ _XmTextUpdateLineTable(Widget widget,
 			      cur_start, PASTENDPOS);
   } else {
     register char *ptr;
-    register XmTextLineTable temp_table;
-    register int temp_table_size;
+    XmTextLineTable temp_table;
+    int temp_table_size;
     register int temp_index;
     
     temp_table = NULL;
