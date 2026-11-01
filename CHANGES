@@ -24,6 +24,13 @@ Match toolbar icons to action button surfaces (2026-11-01)
   checks for four profiles, two scales, pressed/disabled states and replacement.
   See docs/toolbar.md and its qualification record.
 
+Preserve wide rendition-pixel values (2026-11-01)
+====================================================
+
+- Copy direct `XmRPixel` converter input at the native `Pixel` width instead
+  of truncating it through `int`, and reject undersized source values.
+- Extend focused converter regression coverage and documentation.
+
 Buffered toolkit painting and gallery appearance selection (2026-11-01)
 
 * Full-frame toolkit controls now paint through their Xt expose methods into

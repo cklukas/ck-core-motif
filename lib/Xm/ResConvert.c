@@ -3062,8 +3062,10 @@ CvtPixelToRenditionPixel(Display *disp,
 			     XrmValue *to_val,
 			     XtPointer *converter_data ) /* unused */
 {
+    Pixel pixel;
+
     if (num_args == NULL || from_val == NULL || from_val->addr == NULL ||
-	to_val == NULL)
+	to_val == NULL || from_val->size < sizeof(pixel))
 	return False;
     if (*num_args != 0)
 	{
@@ -3074,7 +3076,8 @@ CvtPixelToRenditionPixel(Display *disp,
 		"Pixel to RenditionPixel conversion needs no extra arguments",
 			(String *) NULL, (Cardinal *)NULL);
 	}
-    _XM_CONVERTER_DONE(to_val, Pixel, *(int*)from_val->addr, ;)
+    memcpy(&pixel, from_val->addr, sizeof(pixel));
+    _XM_CONVERTER_DONE(to_val, Pixel, pixel, ;)
 }
 
 /************************************************************************
