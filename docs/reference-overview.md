@@ -74,6 +74,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM backdrop-request path allocation](mwm-backdrop-path-allocation.md) — guard WSM request paths.
 - [MWM property-array allocation](mwm-property-array-allocation.md) — guard X11 property counts.
 - [MWM command window-array width](mwm-command-window-array-width.md) — guard WSM command counts.
+- [MWM command-tree allocation failures](mwm-command-tree-allocation.md) — preserve existing commands when replacement allocation fails.
 - [MWM colormap-reference array width](mwm-colormap-reference-width.md) — guard dynamic reference lists.
 - [MWM transient-list growth](transient-list-growth.md) — propagate temporary-list allocation failure.
 - [MWM session command-vector width](mwm-session-command-vector-width.md) — guard restore vectors.

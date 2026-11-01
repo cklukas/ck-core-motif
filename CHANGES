@@ -1,3 +1,14 @@
+Preserve MWM command-tree entries on allocation failure (2026-11-01)
+=======================================================================
+
+- Make command-node construction fail cleanly when the node or either copied
+  label cannot be allocated, rather than dereferencing a null node.
+- Allocate replacement commands before removing an existing same-name command,
+  and remove the actual duplicate command ID. Preserve the historical
+  top-level fallback only when the requested command set is genuinely absent.
+- Add focused command-tree allocation coverage and document the ownership and
+  failure behavior.
+
 Preserve MWM command-tree path widths (2026-11-01)
 =====================================================
 
