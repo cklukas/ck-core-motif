@@ -110,3 +110,13 @@ UID-based examples receive a child-only UIDPATH containing their asset directory
 and locale subdirectories; a supplied UIDPATH keeps precedence. The parent
 process environment is unchanged. The international Hello example installs its
 language UID files with a C fallback.
+
+Anchored popup examples
+-----------------------
+
+Flyout and TeachingTip handles stay unmanaged inside a compact trigger owner.
+Only the trigger occupies preview space. To start with the panel visible:
+
+  ckmotif-gallery --appearance modern-light --component xm.flyoutwidgetclass --open-example
+
+The same option supports TeachingTip and standalone shell examples.

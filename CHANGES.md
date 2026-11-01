@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-01 — Anchored popup examples and Modern Flyout layout
+
+- Remove the Flyout/TeachingTip preview rectangle by keeping popup handles hidden.
+- Anchor to the trigger layout; give Modern Flyout readable padding, a small gap
+  and placement above the trigger near the screen bottom.
+- Fix deferred popup destruction and expose `--open-example` for these examples.
+- See the [Flyout contract and regression](docs/flyout.md).
+
 ## 2026-11-01 — Smooth font previews and stable live layout
 
 - Use antialiased Xft outlines for Modern Font Selector previews, preserving

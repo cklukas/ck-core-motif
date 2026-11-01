@@ -323,6 +323,8 @@ static const AppearanceDensityResource density_resources[] = {
     {"*XmPushButton.marginWidth", 12, 8},
     {"*XmLabel.marginWidth", 2, 2},
     {"*XmLabel.marginHeight", 2, 2},
+    {"*flyoutLabel.marginWidth", 12, 8},
+    {"*flyoutLabel.marginHeight", 8, 6},
     {"*XmLabelGadget.marginWidth", 2, 2},
     {"*XmLabelGadget.marginHeight", 2, 2},
     {"*XmPushButton.marginHeight", 6, 3},

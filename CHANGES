@@ -1,3 +1,16 @@
+Repair anchored popup gallery construction and Modern Flyout placement (2026-11-01)
+=================================================================================
+
+- Leave Flyout/TeachingTip handles unmanaged inside a compact trigger owner,
+  removing empty gray preview rectangles and anchoring to the actual control.
+- Give Modern Flyout a padded label, left-aligned placement with a scaled gap,
+  and above-owner fallback at the screen bottom; retain Classic placement.
+- Reposition on owner geometry and visible text changes. Detach popup destroy
+  callbacks before freeing Flyout/TeachingTip handles, including deferred Xt
+  destruction.
+- Support --open-example for anchored gallery popups and add native acceptance
+  across palettes, densities, scales and repeated activation/teardown.
+
 Smooth Modern Font Selector previews and finish live child layout (2026-11-01)
 ============================================================================
 

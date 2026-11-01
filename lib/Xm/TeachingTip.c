@@ -203,8 +203,12 @@ static void Destroy(Widget widget) {
                              StructureNotifyMask | ButtonPressMask, False,
                              owner_events, (XtPointer)tip);
     }
-    if (tip->teaching_tip.popup_shell)
-        XtDestroyWidget(tip->teaching_tip.popup_shell);
+    if (tip->teaching_tip.popup_shell) {
+        XtRemoveCallback(tip->teaching_tip.popup_shell, XtNdestroyCallback,
+                         popup_destroyed, (XtPointer)tip);
+        if (!((CoreWidget)tip->teaching_tip.popup_shell)->core.being_destroyed)
+            XtDestroyWidget(tip->teaching_tip.popup_shell);
+    }
     if (tip->teaching_tip.title) XmStringFree(tip->teaching_tip.title);
     if (tip->teaching_tip.text) XmStringFree(tip->teaching_tip.text);
 }

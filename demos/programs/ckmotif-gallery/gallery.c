@@ -2822,11 +2822,17 @@ int main(int argc, char **argv)
     if (integration_mode == 7) return verify_demo_apps(&state);
     if (integration_mode == 8) return verify_all_demo_apps(&state);
     if (open_example) {
-        if (!state.component_is_popup || !settle_gallery(&state)) {
-            fprintf(stderr, "--open-example requires a shell component\n");
+        if (!settle_gallery(&state)) return 2;
+        if (state.component && (XmIsFlyout(state.component) || XmIsTeachingTip(state.component))) {
+            Widget trigger = XtNameToWidget(state.component_host, "*showPopup");
+            if (!trigger) return 2;
+            XtCallCallbacks(trigger, XmNactivateCallback, NULL);
+        } else if (state.component_is_popup) {
+            component_activate(state.action, &state, NULL);
+        } else {
+            fprintf(stderr, "--open-example requires a shell or anchored-popup component\n");
             return 2;
         }
-        component_activate(state.action, &state, NULL);
     }
     if (screenshot_mode) XtAppAddWorkProc(app, capture_ready, &state);
     XtAppMainLoop(app);

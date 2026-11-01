@@ -860,13 +860,17 @@ gallery_create_component_example(Widget parent, WidgetClass class,
     } else if (class == xmFlyoutWidgetClass || class == xmTeachingTipWidgetClass) {
         /* GALLERY-SOURCE-BEGIN: construction xmFlyoutWidgetClass xmTeachingTipWidgetClass */
         XmString caption = XmStringCreateLocalized((char *)(class == xmFlyoutWidgetClass ? "Show details" : "Show keyboard tip"));
-        Widget trigger = XtVaCreateManagedWidget("showPopup", xmPushButtonWidgetClass, parent,
+        /* Popup handles stay unmanaged. Only the trigger participates in this
+         * compact owner layout, so popup placement follows the button bounds. */
+        Widget owner = XtVaCreateManagedWidget("popupAnchor", xmRowColumnWidgetClass, parent,
+            XmNorientation, XmVERTICAL, XmNmarginWidth, 0, XmNmarginHeight, 0,
+            XmNspacing, 0, NULL);
+        Widget trigger = XtVaCreateManagedWidget("showPopup", xmPushButtonWidgetClass, owner,
             XmNlabelString, caption, NULL);
         XmStringFree(caption);
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNy, 60, XmNwidth, 280, XmNheight, 40, NULL);
+        example = XtVaCreateWidget((char *)name, class, owner, NULL);
         if (class == xmFlyoutWidgetClass)
-            XtVaSetValues(example, XmNflyoutText, "Document details: saved locally and ready to export.", NULL);
+            XtVaSetValues(example, XmNflyoutText, "Document details\nSaved locally and ready to export.", NULL);
         if (class == xmTeachingTipWidgetClass) {
             XmString title = XmStringCreateLocalized((char *)"Move with the keyboard");
             XmString body = XmStringCreateLocalized((char *)"Press Tab to move forward and Shift+Tab to move back.");

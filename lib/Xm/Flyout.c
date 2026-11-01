@@ -8,6 +8,7 @@
 #include <X11/keysym.h>
 #include <Xm/FlyoutP.h>
 #include <Xm/Label.h>
+#include <Xm/Appearance.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
 #include <limits.h>
@@ -67,20 +68,27 @@ static void position_popup(XmFlyoutWidget flyout) {
     Dimension owner_width, owner_height, popup_width, popup_height;
     Screen *screen;
     long long x_pos, y_pos, max_x, max_y;
+    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplay((Widget)flyout));
+    Boolean modern = profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK;
+    Dimension gap = 0;
     if (!owner || !shell || !XtIsRealized(owner)) return;
     XtTranslateCoords(owner, 0, 0, &anchor_x, &anchor_y);
     XtVaGetValues(owner, XmNwidth, &owner_width, XmNheight, &owner_height,
                   NULL);
     XtVaGetValues(shell, XmNwidth, &popup_width, XmNheight, &popup_height,
                   NULL);
+    if (modern) (void)XmGetAppearanceSpacing(XtDisplay(owner), XmAPPEARANCE_SPACING_SMALL, &gap);
     x_pos = (long long)anchor_x +
-            ((long long)owner_width - (long long)popup_width) / 2 +
+            (modern ? 0 : ((long long)owner_width - (long long)popup_width) / 2) +
             (long long)flyout->flyout.offset_x;
-    y_pos = (long long)anchor_y + (long long)owner_height +
+    y_pos = (long long)anchor_y + (long long)owner_height + gap +
             (long long)flyout->flyout.offset_y;
     screen = XtScreen(shell);
     max_x = (long long)WidthOfScreen(screen) - (long long)popup_width;
     max_y = (long long)HeightOfScreen(screen) - (long long)popup_height;
+    /* Prefer the other side of the anchor before clamping into its content. */
+    long long above = (long long)anchor_y - popup_height - gap + flyout->flyout.offset_y;
+    if (modern && y_pos > max_y && above >= 0) y_pos = above;
     if (max_x < 0 || x_pos < 0) x_pos = 0;
     else if (x_pos > max_x) x_pos = max_x;
     if (max_y < 0 || y_pos < 0) y_pos = 0;
@@ -122,7 +130,8 @@ static void create_popup(XmFlyoutWidget flyout) {
         flyout->flyout.popup_shell = NULL;
         return;
     }
-    XtVaSetValues(flyout->flyout.label, XmNlabelString, label_string, NULL);
+    XtVaSetValues(flyout->flyout.label, XmNlabelString, label_string,
+                  XmNalignment, XmALIGNMENT_BEGINNING, NULL);
     XmStringFree(label_string);
     XtManageChild(flyout->flyout.label);
     XtAddEventHandler(flyout->flyout.popup_shell,
@@ -183,9 +192,13 @@ static void Destroy(Widget widget) {
                              StructureNotifyMask | ButtonPressMask, False,
                              owner_events, (XtPointer)flyout);
     }
-    if (flyout->flyout.popup_shell &&
-        !((CoreWidget)flyout->flyout.popup_shell)->core.being_destroyed)
-        XtDestroyWidget(flyout->flyout.popup_shell);
+    if (flyout->flyout.popup_shell) {
+        /* Xt can defer popup destruction until after this handle is freed. */
+        XtRemoveCallback(flyout->flyout.popup_shell, XtNdestroyCallback,
+                         popup_destroyed, (XtPointer)flyout);
+        if (!((CoreWidget)flyout->flyout.popup_shell)->core.being_destroyed)
+            XtDestroyWidget(flyout->flyout.popup_shell);
+    }
 }
 
 static void owner_events(Widget owner, XtPointer closure, XEvent *event,
@@ -195,6 +208,8 @@ static void owner_events(Widget owner, XtPointer closure, XEvent *event,
     if (flyout == NULL || event == NULL || !XmIsFlyout((Widget)flyout)) return;
     if (event->type == UnmapNotify || event->type == ButtonPress)
         XmFlyoutHide((Widget)flyout);
+    else if (event->type == ConfigureNotify && flyout->flyout.visible)
+        position_popup(flyout);
 }
 
 static void popup_events(Widget popup, XtPointer closure, XEvent *event,
@@ -231,7 +246,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     }
     if (flyout->flyout.visible &&
         (old->flyout.offset_x != flyout->flyout.offset_x ||
-         old->flyout.offset_y != flyout->flyout.offset_y))
+         old->flyout.offset_y != flyout->flyout.offset_y ||
+         old->flyout.text != flyout->flyout.text))
         position_popup(flyout);
     return False;
 }
