@@ -1,3 +1,10 @@
+Extend native non-text Unicode menu coverage (2026-11-01)
+===========================================================
+
+- Qualify Japanese cascade-menu labels in the installed-prefix Xvfb fixture,
+  alongside the existing mixed-script menu item, non-ASCII mnemonic and dialog
+  coverage.
+
 Remove the fixed MWM client-command wildcard limit (2026-11-01)
 ================================================================
 

@@ -7,10 +7,11 @@ Latin/Hebrew and Latin/Arabic labels.
 It checks label round-trip, a two-segment compound `XmString` with an explicit
 separator and a right-to-left segment direction, Japanese List selection and
 lookup, Japanese ComboBox selected-item round-trip, a menu item label, file-selection directory
-specification, message-dialog text, and selection-dialog prompt. This keeps
-multilingual navigation and display
-behavior under the same deterministic Xvfb validation used by the other widget
-fixtures. It also round-trips a non-ASCII `XmNmnemonic` resource. It is still
+specification, message-dialog text, and selection-dialog prompt. It checks
+Japanese cascade-menu labels as well. This keeps multilingual navigation and
+display behavior under the same deterministic Xvfb validation used by the
+other widget fixtures. It retains the existing mapped non-ASCII mnemonic
+round-trip. It is still
 a public-API consumer check, not a physical-keyboard or full application
 journey.
 

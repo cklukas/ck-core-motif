@@ -33,7 +33,8 @@ int main(int argc, char **argv)
     Widget label, compound_label, list, combo, files, message, selection;
     Widget toggle, segmented;
     XmString items[UNICODE_VALUE_COUNT], selected = NULL, expected_label, expected_combo;
-    XmString expected_menu, expected_file, expected_toggle, expected_nonbmp;
+    XmString expected_menu, expected_cascade, expected_file, expected_toggle;
+    XmString expected_nonbmp;
     XmString expected_bidi, expected_message, expected_selection, compound;
     XmString expected_file_text, expected_selection_text;
     const char *values[UNICODE_VALUE_COUNT] = {
@@ -65,6 +66,7 @@ int main(int argc, char **argv)
     expected_label = XmStringCreateLocalized((char *)values[5]);
     expected_combo = XmStringCreateLocalized((char *)values[5]);
     expected_menu = XmStringCreateLocalized((char *)values[3]);
+    expected_cascade = XmStringCreateLocalized((char *)values[5]);
     expected_file = XmStringCreateLocalized((char *)values[2]);
     expected_toggle = XmStringCreateLocalized((char *)values[3]);
     expected_nonbmp = XmStringCreateLocalized((char *)values[1]);
@@ -91,8 +93,8 @@ int main(int argc, char **argv)
     XtVaGetValues(menu_item, XmNmnemonic, &mnemonic, NULL);
     CHECK(mnemonic == XK_eacute);
     cascade = XtVaCreateManagedWidget("cascade", xmCascadeButtonWidgetClass,
-                                      menu, XmNsubMenuId, pulldown, NULL);
-    (void)cascade;
+                                      menu, XmNlabelString, expected_cascade,
+                                      XmNsubMenuId, pulldown, NULL);
 
     label = XtVaCreateManagedWidget("label", xmLabelWidgetClass, shell,
                                    XmNlabelString, expected_label, NULL);
@@ -194,6 +196,8 @@ int main(int argc, char **argv)
 
     XtVaGetValues(menu_item, XmNlabelString, &selected, NULL);
     CHECK(selected != NULL && XmStringByteCompare(selected, expected_menu));
+    XtVaGetValues(cascade, XmNlabelString, &selected, NULL);
+    CHECK(selected != NULL && XmStringByteCompare(selected, expected_cascade));
 
     XtVaSetValues(files, XmNdirSpec, expected_file, NULL);
     XtVaGetValues(files, XmNdirSpec, &selected, NULL);
@@ -214,6 +218,7 @@ int main(int argc, char **argv)
     XmStringFree(expected_label);
     XmStringFree(expected_combo);
     XmStringFree(expected_menu);
+    XmStringFree(expected_cascade);
     XmStringFree(expected_file);
     XmStringFree(expected_toggle);
     XmStringFree(expected_nonbmp);
@@ -226,6 +231,6 @@ int main(int argc, char **argv)
 
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
-    printf("PASS non-text Unicode label/compound/list/ComboBox/menu/file-selection/dialog/toggle/segmented matrix: %lu checks\n", checks);
+    printf("PASS non-text Unicode label/compound/list/ComboBox/menu/cascade/file-selection/dialog/toggle/segmented matrix: %lu checks\n", checks);
     return 0;
 }
