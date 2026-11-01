@@ -66,6 +66,16 @@ Release all text-property conversion intermediates (2026-11-01)
 - Add executable fault injection for all four locale/string styles, allocation
   failures, conversion errors, overflow cleanup, fallback and exact output bytes.
 
+Connect modern scrollbars to their content (2026-11-01)
+======================================================
+
+* Modern ScrolledWindow uses zero spacing and one shared flat perimeter for
+  automatic viewports and application-defined lists. Navigators meet the content
+  without a divider; all placements and the two-scrollbar corner are joined.
+  Preserve classic/high-contrast layouts and explicit separated spacing.
+* Extend native scrolled appearance coverage with exact edge-contact checks,
+  application-defined lists and frame corner pixels across live profiles/scales.
+
 Exercise independent X11 selection owners (2026-11-01)
 =====================================================
 
