@@ -1,3 +1,10 @@
+Initialize MWM per-screen selection atoms (2026-11-01)
+=========================================================
+
+- Zero-initialize MWM's per-screen `WM_Sn` selection-atom table so unmanaged
+  screen entries are defined as `None` rather than indeterminate memory.
+- Add focused source-contract coverage and document the selection invariant.
+
 Connect TreeView navigation and click focus (2026-11-01)
 ========================================================
 

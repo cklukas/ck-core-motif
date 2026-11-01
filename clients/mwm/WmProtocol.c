@@ -1221,7 +1221,6 @@ static void
 OwnWMSelections ( Time timestamp )
 {
   int scr;
-  size_t atom_bytes;
   
   
   if (wmGD.numScreens < 0 ||
@@ -1232,8 +1231,12 @@ OwnWMSelections ( Time timestamp )
 				   "Insufficient memory to own WM_nn selections")));
       return;
     }
-  atom_bytes = (size_t)wmGD.numScreens * sizeof(Atom);
-  wmGD.xa_WM = (Atom *)XtMalloc((Cardinal)atom_bytes);
+  /*
+   * The atom table is indexed by physical screen number elsewhere in the
+   * selection callback path.  Initialize unmanaged-screen entries to None
+   * rather than leaving them indeterminate.
+   */
+  wmGD.xa_WM = (Atom *)XtCalloc((Cardinal)wmGD.numScreens, sizeof(Atom));
   if (wmGD.xa_WM == NULL)
     {
       Warning (((char *)GETMESSAGE(56, 7,
