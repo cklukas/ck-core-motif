@@ -5767,6 +5767,7 @@ _XmStringOptCreate(
   _XmString      string;
   char          *tag = NULL;
   unsigned short length;
+  unsigned short header;
   
   _XmStrCreate(string, XmSTRING_OPTIMIZED, textlen);
   if (string == NULL)
@@ -5785,12 +5786,13 @@ _XmStringOptCreate(
   while (c < end)
     {
       length = _read_asn1_length (c);
+      header = _read_length(c);
       
       switch (*c)
 	{
 	case XmSTRING_COMPONENT_RENDITION_BEGIN:
 	  _XmStrRendIndex(string) =
-	    _XmStringIndexCacheTag((char *)(c + _asn1_size(length)),
+	    _XmStringIndexCacheTag((char *)(c + header),
 				   (int)length);
 	  _XmStrRendBegin(string) = TRUE;
 	  break;
@@ -5809,24 +5811,24 @@ _XmStringOptCreate(
 	  
 	case XmSTRING_COMPONENT_DIRECTION:		/* record dir */
 	  _XmStrDirection((_XmString) string) = 
-	    ((XmStringDirection)*(c + _asn1_size(length)));
+	    ((XmStringDirection)*(c + header));
 	  break;
 	  
 	case XmSTRING_COMPONENT_TEXT:
 	  _XmStrTextType((_XmString)string) = XmCHARSET_TEXT;
-	  memcpy(_XmStrText((_XmString)string), (c + _asn1_size(length)), 
+	  memcpy(_XmStrText((_XmString)string), (c + header),
 		 textlen);
 	  break;
 
 	case XmSTRING_COMPONENT_LOCALE_TEXT:
 	  _XmStrTextType((_XmString)string) = XmMULTIBYTE_TEXT;
-	  memcpy(_XmStrText((_XmString)string), (c + _asn1_size(length)), 
+	  memcpy(_XmStrText((_XmString)string), (c + header),
 		 textlen);
 	  break;
 	  
 	case XmSTRING_COMPONENT_RENDITION_END:
 	  _XmStrRendIndex(string) =
-	    _XmStringIndexCacheTag((char *)(c + _asn1_size(length)),
+	    _XmStringIndexCacheTag((char *)(c + header),
 				   (int)length);
 	  _XmStrRendEnd(string) = TRUE;
 	  break;
@@ -5840,7 +5842,7 @@ _XmStringOptCreate(
 	  break;
 	}
       
-      c += length + _asn1_size(length);
+      c += length + header;
     }
   
   return((_XmString) string);
@@ -5884,6 +5886,7 @@ _XmStringNonOptCreate(
   int lc, sc;
   _XmStringUnoptSegRec seg;
   unsigned short length;
+  unsigned short header;
   _XmString string ;
   char *tag = NULL;
   Boolean needs_unopt = False;
@@ -5914,6 +5917,7 @@ _XmStringNonOptCreate(
   while (c < end)
     {
       length = _read_asn1_length (c);
+      header = _read_length(c);
       need_finish = True;
       
       switch (*c)
@@ -5927,7 +5931,7 @@ _XmStringNonOptCreate(
 
 	  needs_unopt = True;
 	  push_seen = True;
-	  _XmEntryPushSet(&seg, (XmDirection)*(c + _asn1_size(length)));
+	  _XmEntryPushSet(&seg, (XmDirection)*(c + header));
 	  break;
 	  
 	case XmSTRING_COMPONENT_RENDITION_BEGIN:
@@ -5958,7 +5962,7 @@ _XmStringNonOptCreate(
 	  }
 	  
 	  _XmUnoptSegRendBegins(&seg)[rend_cnt - 1] =
-	    _XmStringCacheTag((char *)(c + _asn1_size(length)),
+	    _XmStringCacheTag((char *)(c + header),
 			      (int)length);
 	  break;
 	  
@@ -5972,7 +5976,7 @@ _XmStringNonOptCreate(
 	  _XmEntryTextTypeSet(&seg, XmMULTIBYTE_TEXT);
 	  prev_type = XmMULTIBYTE_TEXT;
 	  _XmUnoptSegTag(&seg) =
-	    _XmStringCacheTag((char *)(c+_asn1_size(length)), (int)length);
+	    _XmStringCacheTag((char *)(c + header), (int)length);
 	  break;
 
         case XmSTRING_COMPONENT_TAG:
@@ -5985,7 +5989,7 @@ _XmStringNonOptCreate(
 	  _XmEntryTextTypeSet(&seg, XmCHARSET_TEXT);
 	  prev_type = XmCHARSET_TEXT;
 	  _XmUnoptSegTag(&seg) =
-	    _XmStringCacheTag((char *)(c+_asn1_size(length)), (int)length);
+	    _XmStringCacheTag((char *)(c + header), (int)length);
 	  break;
 
 	case XmSTRING_COMPONENT_TAB:
@@ -6007,7 +6011,7 @@ _XmStringNonOptCreate(
 	      push_seen = txt_seen = pop_seen = False;
 	    }
   
-	  dir = (XmStringDirection)*(c + _asn1_size(length));
+	  dir = (XmStringDirection)*(c + header);
 	  break;
 	  
 	case XmSTRING_COMPONENT_WIDECHAR_TEXT:
@@ -6047,7 +6051,7 @@ _XmStringNonOptCreate(
 	  if (_XmEntryTextTypeGet((_XmStringEntry)&seg) == XmNO_TEXT)
 	    _XmEntryTextTypeSet(&seg, prev_type);
 	      
-	  _XmEntryTextSet((_XmStringEntry)&seg, (c + _asn1_size(length)));
+	  _XmEntryTextSet((_XmStringEntry)&seg, (c + header));
 	  _XmUnoptSegByteCount(&seg) = length;
 	  
 	  txt_seen = True;
@@ -6077,7 +6081,7 @@ _XmStringNonOptCreate(
 	  }
 	  
 	  _XmUnoptSegRendEnds(&seg)[rend_cnt - 1] =
-	    _XmStringCacheTag((char *)(c + _asn1_size(length)),
+	    _XmStringCacheTag((char *)(c + header),
 			      (int)length);
 	  break;
 
@@ -6126,7 +6130,7 @@ _XmStringNonOptCreate(
 	  break;
 	}
       
-      c += length + _asn1_size(length);
+      c += length + header;
     }
 
   if (need_finish) finish_segment(string, &seg, &lc, &sc, &needs_unopt, dir);
@@ -6153,6 +6157,7 @@ XmCvtByteStreamToXmString(unsigned char *property)
   unsigned char       *c_opt;
   unsigned char       *end;
   unsigned short      length;
+  unsigned short      component_header;
   unsigned short      txtlength;
   XmString            string ;
   Boolean     	      continue_flag;
@@ -6212,7 +6217,8 @@ XmCvtByteStreamToXmString(unsigned char *property)
 	break;
       }
       length = _read_asn1_length (c_opt);
-	  if ((size_t)length > remaining - (size_t)_asn1_size(length)) {
+	  component_header = _read_length(c_opt);
+	  if ((size_t)length > remaining - (size_t)component_header) {
 	malformed = TRUE;
 	break;
 	  }
@@ -6236,7 +6242,7 @@ XmCvtByteStreamToXmString(unsigned char *property)
 	    {
 	      begin_seen = TRUE;
 	      begin_index =
-		_XmStringIndexCacheTag((char *)(c_opt + _asn1_size(length)),
+		_XmStringIndexCacheTag((char *)(c_opt + component_header),
 				       (int)length);
 	      if (begin_index >= REND_INDEX_MAX) optimized = FALSE ;
 	    }
@@ -6245,7 +6251,7 @@ XmCvtByteStreamToXmString(unsigned char *property)
         case XmSTRING_COMPONENT_LOCALE:
         case XmSTRING_COMPONENT_TAG:
           tag_index = _XmStringIndexCacheTag 
-            ((char *) (c_opt + _asn1_size(length)), (int) length);
+            ((char *) (c_opt + component_header), (int) length);
 
           if (txt_seen ||
 	      (tag_index >= TAG_INDEX_MAX))
@@ -6283,7 +6289,7 @@ XmCvtByteStreamToXmString(unsigned char *property)
           /* Else fall through to text case. */
         case XmSTRING_COMPONENT_TEXT:
           if (txt_seen ||
-	      (((c_opt + length + _asn1_size(length)) < end) || 
+	      (((c_opt + length + component_header) < end) ||
 	       (length >= (1 << BYTE_COUNT_BITS))))
 	    optimized = FALSE;
 
@@ -6303,7 +6309,7 @@ XmCvtByteStreamToXmString(unsigned char *property)
 	      end_seen = TRUE;
 	      txt_seen = TRUE;
 	      end_index =
-		_XmStringIndexCacheTag((char *)(c_opt + _asn1_size(length)),
+		_XmStringIndexCacheTag((char *)(c_opt + component_header),
 				       (int)length);
 	      if ((end_index >= REND_INDEX_MAX) ||
 		  (end_index != begin_index))
@@ -6315,7 +6321,7 @@ XmCvtByteStreamToXmString(unsigned char *property)
           break;
         }
 
-      c_opt += length + _asn1_size(length);
+      c_opt += length + component_header;
       if ((c_opt >= end) || (!optimized))
 	continue_flag = FALSE;
     }
@@ -8122,6 +8128,7 @@ _Xm_dump_stream(
     while (c < end)
     {
 	unsigned short length = _read_asn1_length (c);
+	unsigned short header = _read_length(c);
 
 	switch (*c)
 	{
@@ -8134,9 +8141,9 @@ _Xm_dump_stream(
 		printf ("\tlength = %d\n", length);
 	  	printf ("\tvalue  = <");
 		for (k=0; k<length; k++) 
-		  printf ("%c", *(c + _asn1_size(length) + k));
+		  printf ("%c", *(c + header + k));
 		printf (">\n");
-		c += length + _asn1_size(length);
+		c += length + header;
 		break;
 
 	    case XmSTRING_COMPONENT_TEXT:
@@ -8148,9 +8155,9 @@ _Xm_dump_stream(
 		printf ("\tlength = %d\n", length);
 	  	printf ("\tvalue  = <");
 		for (k=0; k<length; k++) 
-		  printf ("%c", *(c + _asn1_size(length) + k));
+		  printf ("%c", *(c + header + k));
 		printf (">\n");
-		c += length + _asn1_size(length);
+		c += length + header;
 		break;
 
             case XmSTRING_COMPONENT_WIDECHAR_TEXT:
@@ -8158,22 +8165,22 @@ _Xm_dump_stream(
 		printf ("\tlength = %d\n", length);
 	  	printf ("\tvalue  = <");
 		for (k=0; k<length; k++) 
-		  printf ("%c", *(c + _asn1_size(length) + k));
+		  printf ("%c", *(c + header + k));
 		printf (">\n");
-		c += length + _asn1_size(length);
+		c += length + header;
 		break;
 
 	    case XmSTRING_COMPONENT_DIRECTION:		/* record dir */
 		printf ("\tDirection component\n");
 		printf ("\tlength = %d\n", length);
-	  	printf ("\tvalue  = %d\n", *(c + _asn1_size(length)));
-		c += length + _asn1_size(length);
+		printf ("\tvalue  = %d\n", *(c + header));
+		c += length + header;
 		break;
 
 	    case XmSTRING_COMPONENT_SEPARATOR:		/* start new line */
 		printf ("\tSeparator component\n");
 		printf ("\tlength = %d\n", length);
-		c += length + _asn1_size(length);
+		c += length + header;
 		break;
 
 	    default:
@@ -8181,9 +8188,9 @@ _Xm_dump_stream(
 		printf ("\tlength = %d\n", length);
 	  	printf ("\tvalue  = <");
 		for (k=0; k<length; k++)
-			printf ("%3d ", (int) *(c + _asn1_size(length) + k));
+			printf ("%3d ", (int) *(c + header + k));
 		printf ("\n");
-		c += length + _asn1_size(length);
+		c += length + header;
 		break;
 	}
 
@@ -11083,7 +11090,7 @@ _XmStringTruncateASN1(unsigned char *str, int n)
 	  return (NULL);
     }
     length = _read_asn1_length(ap);
-    header = _asn1_size(length);
+    header = _read_length(ap);
   } else {
     length = 0;
     header = 0;
@@ -11116,7 +11123,7 @@ _XmStringTruncateASN1(unsigned char *str, int n)
 	return (NULL);
       }
       length = _read_asn1_length(ap);
-      header = _asn1_size(length);
+      header = _read_length(ap);
     }
 
   if ((head_size == (ASNHEADERLEN + CSLONGLEN)) && 
