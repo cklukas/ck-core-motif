@@ -15,4 +15,8 @@ assert region.count("name_length = strlen((char *)string);") == 2
 assert region.count("if (name_length >= UINT_MAX)") == 2
 assert "(unsigned)(name_length + 1)" in region
 assert "WmRealloc ((char*)wmGD.screenNames[sNum], strlen" not in region
-print("PASS MWM screen-list names are bounded before replacement allocation")
+assert "unsigned char *resized;" in region
+assert region.count("resized = (unsigned char *)WmRealloc") == 2
+assert region.count("if (resized == NULL)") == 2
+assert region.count("wmGD.screenNames[sNum] = resized;") == 2
+print("PASS MWM screen-list names are bounded and replace transactionally")

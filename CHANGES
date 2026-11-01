@@ -178,6 +178,13 @@ Remove the fixed MWM client-command wildcard limit (2026-11-01)
   overwrite the matcher stack; allocation failure safely retains the prior
   match result.
 
+Preserve MWM screen-list names when replacement allocation fails (2026-11-01)
+==============================================================================
+
+- Stage both screen-list resource reallocations in a temporary pointer before
+  updating the live slot. A failed replacement now retains the previous valid
+  screen name instead of discarding it while MWM reports the allocation error.
+
 Keep the MWM ToolTalk network-file fallback split correctly (2026-11-01)
 ========================================================================
 
