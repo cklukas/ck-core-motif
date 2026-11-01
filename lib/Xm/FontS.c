@@ -147,7 +147,8 @@ static Widget CreateEncodingMenu(XmFontSelectorWidget,
 
 static FontInfo * LoadFontInfo(XmFontSelectorWidget);
 
-static int FindResolution(Widget), CmpStrings(const void *, const void *);
+static short FindResolution(Widget);
+static int CmpStrings(const void *, const void *);
 
 static Boolean CheckFlag(Flag, Flag), CheckLongFlag(LongFlag, LongFlag);
 static Boolean FillData(XmFontSelectorWidget, FontData *, char *);
@@ -211,7 +212,7 @@ ABCDEFGHIJKLMONPQRSTUVWXYZ\n\
  * of those we are closest to with FindResolution().
  */
 
-static int resolutions[] = { 75, 100 };
+static const short resolutions[] = { 75, 100 };
 
 static long long square_or_max(long long value)
 {
@@ -750,11 +751,12 @@ CmpStrings(const void * p1, const void *p2)
  *	Returns: the closest allowable resolution to the real resolution.
  */
 
-static int
+static short
 FindResolution(Widget w)
 {
     Screen *screen = XtScreen(w);
-    register int i, pref;
+    Cardinal i;
+    short pref;
     long long xres, yres, min;
 
     /*
@@ -1105,7 +1107,7 @@ static void
 StoreString(register String str, register String store, register int max_len)
 {
     register int i;
-    register int c;
+    register char c;
 
     for (i = 0; i < max_len; i++, str++, store++) {
 	if (((c = *str) == '-') || (c == '\0'))
@@ -1331,7 +1333,7 @@ FillNewFamily(FamilyInfo *fam, FontData *font)
 static LongFlag
 SizeMapping(short size)
 {
-    register int count;
+    Cardinal count;
 
     size /= POINT_DIVIDE;
 
@@ -1864,7 +1866,8 @@ UpdateSizes(XmFontSelectorWidget fsw)
     Arg largs[10];
     Cardinal num_largs = 0;
     register int count = 0;
-    register int i, size;
+    Cardinal i;
+    int size;
     XmString *strs;
     LongFlag size_flag;
     FamilyInfo *family;
@@ -4346,7 +4349,7 @@ SetValues(Widget old, Widget request, Widget set,
 	)
     {
 	char buf[BUFSIZ];
-	int current, i;
+	int current, encoding_index;
 	String *encodings = ENCODING_LIST(set_fsw);
 	Widget button;
 	String encoding_copy;
@@ -4365,14 +4368,15 @@ SetValues(Widget old, Widget request, Widget set,
 	}
 
 	/* some of this code is probably a duplicate of CreateEncodingMenu */
-	for (current = 0, i = 1 ; *encodings != NULL; i++, encodings++) 
+	for (current = 0, encoding_index = 1 ; *encodings != NULL;
+	     encoding_index++, encodings++)
 	{ 
 	    /*
 	     * If the default encoding matches this one then make this
 	     * the current item in the option menu.
 	     */
 	    if (strcmp(*encodings, ENCODING_STRING(set_fsw)) == 0)
-		current = i;
+		current = encoding_index;
 	}
 
     (void)snprintf(buf, sizeof(buf), "*button_%d", current);
@@ -4462,14 +4466,14 @@ GetValuesHook(Widget w, ArgList args, Cardinal * num_args)
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) w;
     FontData * cf;
     String *str_ptr;
-    register int i;
+    Cardinal i;
 
     if (w == NULL || args == NULL || num_args == NULL ||
 	!XtIsSubclass(w, xmFontSelectorWidgetClass))
 	return;
 
     for (i = 0; i < *num_args; i++) {
-	if (args[i].name == NULL || args[i].value == NULL)
+	if (args[i].name == NULL || args[i].value == (XtArgVal)0)
 	    continue;
 	if (streq(args[i].name, XmNcurrentFont))
 	{

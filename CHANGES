@@ -1,3 +1,12 @@
+Harden FontSelector strict portability (2026-11-01)
+====================================================
+
+- Keep supported resolution state at its storage width and use Xt-sized
+  iteration counters for font-size and resource argument arrays.
+- Keep the encoding-menu index distinct from the outer argument index and
+  compare `XtArgVal` output storage through its native integer representation.
+- Add focused contract coverage and document the strict compiler clean-up.
+
 Normalize FontSelector toggle callback state (2026-11-01)
 =========================================================
 
