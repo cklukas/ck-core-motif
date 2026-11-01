@@ -14,6 +14,11 @@ extern Widget gallery_create_component_example(Widget, WidgetClass, const char *
 extern void gallery_refresh_icon_resources(void);
 static int profile;
 static unsigned action;
+static void destroyed(Widget widget, XtPointer client, XtPointer call)
+{
+    (void)widget; (void)call;
+    *(Boolean *)client = True;
+}
 #define CHECK(c) do { if (!(c)) { fprintf(stderr, "FAIL toolbar icon: profile=%d action=%u line=%d: %s\n", profile, action, __LINE__, #c); exit(1); } } while (0)
 static void pump(XtAppContext app, Display *display)
 {
@@ -99,6 +104,17 @@ int main(int argc, char **argv)
             }
         }
     }
+    Boolean retired = False;
+    Widget previous = XmToolbarGetActionButton(toolbar, 0, False);
+    XtAddCallback(previous, XmNdestroyCallback, destroyed, &retired);
+    XmString label = XmStringCreateLocalized("Replacement");
+    XmToolbarAction replacement = {"replacement", label, NULL, False, 0, NULL};
+    XmToolbarSetActions(toolbar, &replacement, 1);
+    XmStringFree(label);
+    CHECK(retired && XmToolbarGetActionCount(toolbar) == 1);
+    CHECK(XmToolbarGetActionButton(toolbar, 0, False) != previous);
+    CHECK(XmToolbarGetActionButton(toolbar, 1, True) == NULL);
+    gallery_refresh_icon_resources();
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
     puts("PASS toolbar icon surfaces: normal, pressed, disabled and overflow; four profiles and two scales");

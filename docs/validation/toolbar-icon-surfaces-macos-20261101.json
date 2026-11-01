@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "implementation_commits": [
+    "e4db069dc",
+    "67fe2d9cc"
+  ],
+  "platform": "macOS arm64",
+  "compiler": "Apple Clang 21, C23",
+  "display": "Isolated Xvfb; no user desktop input",
+  "features": {
+    "Xft": true,
+    "Unicode": true,
+    "SVG": false
+  },
+  "library_sha256": "258d4cf6b4458fc08ed294bd5080c0b80db1a74f74cd15a9dd31d11cde9ca26c",
+  "test_source_sha256": "66a592c237e6bd0befb378c7a933087b2087905576f817aec84466483a6b2955",
+  "examples_object_sha256": "a1035e49696f9d113c83337198c1e2a8a4929966fcacb563bfbeac78d0ac2ad1",
+  "before": {
+    "factory_commit": "3fdfb0871",
+    "expected_background_mismatch_reproduced": true,
+    "diagnostic": "FAIL toolbar icon: profile=1 action=0 line=41: corner(display, normal, 0, 0) == background"
+  },
+  "after": {
+    "success": true,
+    "started_utc": "2026-11-01T17:28:28.311710+00:00",
+    "ended_utc": "2026-11-01T17:28:29.705231+00:00",
+    "elapsed_seconds": 1.381945542001631,
+    "profiles": [
+      "modern-light",
+      "modern-dark",
+      "high-contrast",
+      "classic"
+    ],
+    "scales": [
+      1.0,
+      1.5
+    ],
+    "checks": [
+      "Rendered normal, pressed and disabled icon corners match destination button surface",
+      "Overflow normal and pressed image resources match overflow button colors",
+      "Invalid action access returns NULL",
+      "Action replacement retires borrowed button and releases icon bindings"
+    ]
+  },
+  "source_checks": [
+    "gallery source contract: 105 manifest entries",
+    "gallery excerpt tests: 6 passed"
+  ],
+  "limitations": [
+    "SVG-enabled rasterization uses the same per-button color parameters but was not enabled in this Mac build.",
+    "This regression does not establish the appearance of a separate running gallery process."
+  ]
+}

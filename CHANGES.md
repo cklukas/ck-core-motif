@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-01 — Toolbar icon surfaces
+
+- Match toolbar action icons to each button’s normal, pressed and disabled
+  surfaces, including overflow entries and live theme/scale changes. This
+  removes the lighter rectangles caused by using the toolbar background.
+- Add the borrowed `XmToolbarGetActionButton` accessor without changing widget
+  records. Keep image ownership with the application.
+- Reproduce the original mismatch and verify real gallery-factory pixels across
+  four profiles and two scales; see [toolbar documentation](docs/toolbar.md).
+
 ## 2026-11-01 — Modern C and native macOS builds
 
 - Build the toolkit libraries, WML generators, UIL compiler, `mwm` and modern
