@@ -1,3 +1,12 @@
+Measure the encoded compound-string header (2026-11-01)
+======================================================
+
+- XmStringByteStreamLength now counts the header present in the byte stream,
+  rather than recalculating the shortest possible header from the payload size.
+  Long-form headers for short payloads are no longer undercounted by two bytes.
+- Add 262 executable length cases covering both header forms, boundary lengths,
+  invalid magic and null input under strict warnings and ASan/UBSan.
+
 Bound locale and STRING text-property imports (2026-11-01)
 =========================================================
 

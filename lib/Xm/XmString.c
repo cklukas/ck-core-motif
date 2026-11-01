@@ -7705,7 +7705,7 @@ XmStringByteStreamLength(unsigned char *string)
 
     _XmProcessLock();
     len = _read_string_length( string );
-    header_size = _calc_header_size(len);
+    header_size = _read_header_length(string);
     if (header_size > UINT_MAX - len)
 	{
 	  _XmProcessUnlock();
