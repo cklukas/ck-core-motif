@@ -1,0 +1,144 @@
+{
+  "tested_revision": "3f9a2bbb96790fd4cf0c3ec2760b4085c1f70527",
+  "recorded_utc": "2026-11-01T22:27:05.774882+00:00",
+  "scope": "Native macOS arm64 Clang C23 Xft/SVG/Unicode library and production gallery; no user desktop input automation",
+  "production_and_test_sources": {
+    "lib/Xm/Flyout.c": "710a26935ceaf129529335419aa77e81db011e86aedc6221166d3df2e88b2970",
+    "lib/Xm/TeachingTip.c": "5f436032110dcae175ff207bbec0c0d95a57c6e0ccf9f43c9bf7917403ef8055",
+    "lib/Xm/Appearance.c": "d6604368516ddc3fc459b027d82330dbfb0382f36f293268e04d66f7a74e6ca7",
+    "demos/programs/ckmotif-gallery/gallery.c": "465c2d24e3816d6e9f425293730cfc8b3262b4b197ecfa00021f7df7a8f7e3c8",
+    "demos/programs/ckmotif-gallery/gallery_examples.c": "c7f04ad9aca703318e429a9183cc7255da325824cba6d08cb77746372e50268e",
+    "tests/automated/check-flyout-gallery.c": "3ffcd57a0df67e097cef039a940df93ff2ae5e9d330fbc689559d868e15925e6"
+  },
+  "source_asset_manifest_sha256": "5c999e5d3eef7c8a79f61f61aecab78e4b4568f35d6eecc097a1197ba4ad019d",
+  "build": {
+    "configuration": "Mac arm64 Clang C23, Xft/Unicode/SVG, shared-only, -j3",
+    "started_utc": "2026-11-01T22:23:07.560172+00:00",
+    "ended_utc": "2026-11-01T22:23:11.631113+00:00",
+    "elapsed_seconds": 4.070727791993704,
+    "outputs": {
+      "/Volumes/S8T/tmp/motif-flyout-20261101/install/bin/ckmotif-gallery": {
+        "sha256": "d464e7441abc4599789cf71aaae9a04bcaf1129f9077b2280b3f45f12b4ff4c3",
+        "mtime_ns": 1793571791527360084,
+        "file": "/Volumes/S8T/tmp/motif-flyout-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+      },
+      "/Volumes/S8T/tmp/motif-flyout-20261101/install/lib/libXm.9.dylib": {
+        "sha256": "1dd4f4d8d16a36ce919e76fb90c8566ed59a51efe4983d3f47a7d426648a936f",
+        "mtime_ns": 1793571791075465915,
+        "file": "/Volumes/S8T/tmp/motif-flyout-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+      }
+    }
+  },
+  "clean_build": {
+    "configure_seconds": 26.542232084000716,
+    "library_seconds": 23.689372332999483,
+    "previous_comparable_clean_library_seconds": 37.21,
+    "freshness": "Fresh empty build/configure with direct Clang compilation. Subsequent recorded incremental compiles contain the teardown corrections. Source/asset manifest and installed output identities checked before launch; no output in the old running prefix was overwritten."
+  },
+  "native_acceptance": {
+    "focused_checks": 397,
+    "configurations": 24,
+    "profiles": [
+      "Classic",
+      "Modern Light",
+      "Modern Dark",
+      "Modern Light round-trip"
+    ],
+    "scales": [
+      1,
+      1.5,
+      2
+    ],
+    "densities": [
+      "comfortable",
+      "compact"
+    ],
+    "flyout_open_hide_cycles": 30,
+    "teaching_tip_open_hide_teardowns": 6,
+    "checks": [
+      "unmanaged popup handles",
+      "owner allocation matches trigger",
+      "modern left/below placement and scaled gap",
+      "density/scale padding",
+      "screen bounds and bottom-edge flip",
+      "deferred destruction without stale handle callback"
+    ],
+    "existing_flyout_checks": 5,
+    "default_button_cases": 124,
+    "dialog_shell_configurations": 18,
+    "dialog_shell_open_close_cycles": 54,
+    "source_guards": 11,
+    "existing_gallery_integration": true
+  },
+  "demos": {
+    "installed_executables": 34,
+    "elapsed_seconds": 20.56231233300059,
+    "installed_acceptance": "Matching executable/asset/UID source bytes, MWM/Wsm, 33 demo startups and gallery launch/missing notice with build-tree demos hidden."
+  },
+  "evidence": {
+    "build-receipt.json": "62568d31a14fd600d61a6911a8c6b145013198ec208c81ce8b5b1271c1105340",
+    "clean-build-receipt.json": "b0d4b2caba3aee62b79e156f0fcc4332d0e4503de1a62d7aa432220299875414",
+    "flyout-final-checks/receipt.json": "a44d2dd5f5df351161abf6f9a66804687affa1e016ccf51dc39fa8fc7b0f28ac",
+    "native-confirmed-checks/receipt.json": "16040015ae32a69ad2078c5bb2fe94b9a8f3038e7342cc5967a1c5d9baacb6da",
+    "installed-final-checks/receipt.json": "b3831d550c7609d341f24d4747075bb3ca950a59a881a7db16dd33a6654bcfcc",
+    "source-checks.json": "68640293447701bfe67f0565bbff3809812371bd6c52abcbcc1b4c103e712f4d"
+  },
+  "actual_xquartz": {
+    "running": {
+      "pid": 65204,
+      "logger_pid": 65203,
+      "executable": "/Volumes/S8T/tmp/motif-flyout-20261101/install/bin/ckmotif-gallery",
+      "display": "/var/run/com.apple.launchd.ezDZs4P3A0/org.xquartz:0",
+      "source_revision": "3f9a2bbb96790fd4cf0c3ec2760b4085c1f70527",
+      "outputs": {
+        "/Volumes/S8T/tmp/motif-flyout-20261101/install/bin/ckmotif-gallery": {
+          "sha256": "d464e7441abc4599789cf71aaae9a04bcaf1129f9077b2280b3f45f12b4ff4c3",
+          "mtime_ns": 1793571791527360084,
+          "file": "/Volumes/S8T/tmp/motif-flyout-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+        },
+        "/Volumes/S8T/tmp/motif-flyout-20261101/install/lib/libXm.9.dylib": {
+          "sha256": "1dd4f4d8d16a36ce919e76fb90c8566ed59a51efe4983d3f47a7d426648a936f",
+          "mtime_ns": 1793571791075465915,
+          "file": "/Volumes/S8T/tmp/motif-flyout-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+        }
+      },
+      "launched_utc": "2026-11-01T22:25:51.732926+00:00",
+      "arguments": [
+        "--appearance",
+        "modern-light",
+        "--scale",
+        "1",
+        "--component",
+        "xm.flyoutwidgetclass",
+        "--open-example",
+        "--screenshot-mode"
+      ],
+      "retired_gallery_pids": [
+        23612
+      ]
+    },
+    "windows": {
+      "gallery": {
+        "id": 6981,
+        "x": 954,
+        "y": 491,
+        "width": 1100,
+        "height": 762
+      },
+      "flyout": {
+        "id": 6982,
+        "x": 1236,
+        "y": 802,
+        "width": 283,
+        "height": 56
+      }
+    },
+    "screenshots": {
+      "/Volumes/S8T/tmp/motif-flyout-20261101/actual-flyout-window.png": "932d267789fd3707d24a0ed913881d882f10169ec0c8a1ca9b888bf1cc3d471c",
+      "/Volumes/S8T/tmp/motif-flyout-20261101/actual-flyout-panel.png": "6dbbd6f87022e3548d94bfeee0cd969e10286cc2d474ed0d564fed630ff14b7a"
+    },
+    "inspection": "Actual verified process and mapped DLL: no gray placeholder; compact trigger; padded two-line popup aligned at trigger left below it. Captured gallery and separate override-redirect popup windows; both remain open for manual testing."
+  },
+  "abi": "No public API or widget record layout changes.",
+  "raw_evidence_directory": "/Volumes/S8T/tmp/motif-flyout-20261101"
+}

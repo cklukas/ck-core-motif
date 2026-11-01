@@ -6,7 +6,10 @@
 - Anchor to the trigger layout; give Modern Flyout readable padding, a small gap
   and placement above the trigger near the screen bottom.
 - Fix deferred popup destruction and expose `--open-example` for these examples.
-- See the [Flyout contract and regression](docs/flyout.md).
+- Qualify 397 focused native checks, existing gallery/dialog behavior, installed
+  demos and the actual XQuartz window; see the
+  [validation record](docs/validation/macos-flyout-20261101.json) and
+  [Flyout contract](docs/flyout.md).
 
 ## 2026-11-01 — Smooth font previews and stable live layout
 
