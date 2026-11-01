@@ -53,6 +53,7 @@ static char rcsid[] = "$TOG: ScrollBar.c /main/20 1997/03/10 14:52:28 dbl $"
 #include "ScreenI.h"
 #include "XmI.h"
 #include "AppearanceDrawI.h"
+#include <Xm/ScrolledWP.h>
 
 /* see comments in ScrollBarP.h */
 #define slider_visual	etched_slider
@@ -1203,6 +1204,19 @@ ModernScrollBar(XmScrollBarWidget sbw)
         (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK);
 }
 
+/* Embedded modern navigators use the actual content surface, including
+ * application-supplied colors, without changing resource ownership. */
+static Pixel
+ModernScrollSurface(XmScrollBarWidget sbw)
+{
+    Widget parent=XtParent((Widget)sbw), content;
+    if (!_XmAppearanceConnectedScrolledWindow(parent))
+        return sbw->scrollBar.slider_visual == XmTROUGH_COLOR ?
+            sbw->core.background_pixel : sbw->scrollBar.trough_color;
+    content=((XmScrolledWindowWidget)parent)->swindow.WorkWindow;
+    return content ? content->core.background_pixel : parent->core.background_pixel;
+}
+
 /* End arrows retain their hit regions and repeat actions. Paint a bounded
  * chevron instead of the legacy triangle extending beyond those regions. */
 static Boolean
@@ -1219,7 +1233,8 @@ DrawModernScrollArrow(XmScrollBarWidget sbw, int x, int y, unsigned char directi
     GC gc;
     if (!ModernScrollBar(sbw)) return False;
     if (!XtIsRealized((Widget)sbw) || width <= 0 || height <= 0) return True;
-    values.foreground = sbw->core.background_pixel;
+    values.foreground = _XmAppearanceConnectedScrolledWindow(XtParent((Widget)sbw)) ?
+        ModernScrollSurface(sbw) : sbw->core.background_pixel;
     gc = XCreateGC(display, XtWindow(sbw), GCForeground, &values);
     clip = (XRectangle){x,y,width,height};
     XSetClipRectangles(display,gc,0,0,&clip,1,Unsorted);
@@ -1379,8 +1394,7 @@ DrawModernSlider(XmScrollBarWidget sbw)
     if (!ModernScrollBar(sbw) || sbw->scrollBar.sliding_mode == XmTHERMOMETER)
         return False;
     if (width <= 0 || height <= 0) return True;
-    values.foreground=sbw->scrollBar.slider_visual == XmTROUGH_COLOR ?
-        sbw->core.background_pixel : sbw->scrollBar.trough_color;
+    values.foreground=ModernScrollSurface(sbw);
     gc=XCreateGC(display,drawable,GCForeground,&values);
     XFillRectangle(display,drawable,gc,0,0,width,height);
     fill=sbw->scrollBar.slider_visual == XmTROUGH_COLOR ? sbw->scrollBar.trough_color :
@@ -1799,6 +1813,11 @@ Redisplay(
     XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
     Dimension shadow_width, shadow_height;
 
+    if (ModernScrollBar(sbw) && _XmAppearanceConnectedScrolledWindow(XtParent(wid))) {
+        XSetWindowBackground(XtDisplay(wid),XtWindow(wid),ModernScrollSurface(sbw));
+        XClearWindow(XtDisplay(wid),XtWindow(wid));
+        DrawSliderPixmap(sbw);
+    }
     shadow_width = (sbw->core.width >
 		    2 * sbw->primitive.highlight_thickness) ?
 		 sbw->core.width - 2 * sbw->primitive.highlight_thickness : 1;
@@ -1807,7 +1826,8 @@ Redisplay(
 		  sbw->core.height - 2 * sbw->primitive.highlight_thickness : 1;
 
 
-    if (sbw->primitive.shadow_thickness > 0 &&
+    if (!_XmAppearanceDrawScrolledChildFrame(wid) &&
+        sbw->primitive.shadow_thickness > 0 &&
         !_XmAppearanceDrawFieldFrame(wid))
 	XmeDrawShadows (XtDisplay (sbw), XtWindow (sbw), 
 		      sbw->primitive.bottom_shadow_GC, 

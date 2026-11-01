@@ -57,6 +57,7 @@ static char rcsid[] = "$TOG: ScrolledW.c /main/16 1997/07/25 16:49:57 samborn $"
 #include "ScrollFramTI.h"
 #include "TraversalI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 
 #define MAXPOS ((1 << 15)-1)
 
@@ -1495,6 +1496,28 @@ Region region )
     if (!XtIsRealized (wid)) return ;             /* get rid of that when GM redone*/
 
     st = sw->manager.shadow_thickness;
+    if (_XmAppearanceConnectedScrolledWindow(wid)) {
+        Widget hbar=(Widget)sw->swindow.hScrollBar, vbar=(Widget)sw->swindow.vScrollBar;
+        Boolean visible_h=hbar && XtIsManaged(hbar) && hbar->core.x < sw->core.width && hbar->core.y < sw->core.height;
+        Boolean visible_v=vbar && XtIsManaged(vbar) && vbar->core.x < sw->core.width && vbar->core.y < sw->core.height;
+        if (visible_h && visible_v && sw->swindow.WorkWindow) {
+            XGCValues values;
+            GC gc;
+            values.foreground = sw->swindow.WorkWindow->core.background_pixel;
+            gc = XCreateGC(XtDisplay(wid), XtWindow(wid), GCForeground, &values);
+            if (gc) {
+                XFillRectangle(XtDisplay(wid), XtWindow(wid), gc,
+                    vbar->core.x, hbar->core.y, vbar->core.width, hbar->core.height);
+                XFreeGC(XtDisplay(wid), gc);
+            }
+        }
+        if (visible_h || visible_v || sw->swindow.ScrollBarPolicy == XmSTATIC)
+            _XmAppearanceDrawFrameRegion(wid, sw->swindow.XOffset, sw->swindow.YOffset,
+                (int)sw->core.width-sw->swindow.XOffset-sw->swindow.WidthPad,
+                (int)sw->core.height-sw->swindow.YOffset-sw->swindow.HeightPad,st);
+        XmeRedisplayGadgets(wid,event,region);
+        return;
+    }
     if (sw->swindow.ScrollPolicy == XmAUTOMATIC)
     {
         XmeDrawShadows (XtDisplay (sw), XtWindow (sw),
@@ -1735,6 +1758,27 @@ Widget child )
  *	Used in both Variable and Constant layout			*
  *									*
  ************************************************************************/
+/* Connected modern chrome shares a perimeter; no inset belongs between
+ * the viewport and its navigators. This also applies to MainWindow offsets. */
+static void
+ConnectedGeometry(XmScrolledWindowWidget sw, Boolean horizontal, Boolean vertical,
+    Position *x, Position *y, Position *hx, Position *hy, Position *vx, Position *vy,
+    int *width, int *height)
+{
+    int left=sw->swindow.XOffset, top=sw->swindow.YOffset;
+    int w=MAX(1,(int)sw->core.width-left-sw->swindow.WidthPad);
+    int h=MAX(1,(int)sw->core.height-top-sw->swindow.HeightPad);
+    int frame=MIN(sw->manager.shadow_thickness,MIN((w-1)/2,(h-1)/2));
+    int vw=vertical ? sw->swindow.vScrollBar->core.width : 0;
+    int hh=horizontal ? sw->swindow.hScrollBar->core.height : 0;
+    Boolean on_left=sw->swindow.Placement==XmTOP_LEFT || sw->swindow.Placement==XmBOTTOM_LEFT;
+    Boolean on_top=sw->swindow.Placement==XmTOP_LEFT || sw->swindow.Placement==XmTOP_RIGHT;
+    *width=MAX(1,w-2*frame-vw); *height=MAX(1,h-2*frame-hh);
+    *x=left+frame+(on_left?vw:0); *y=top+frame+(on_top?hh:0);
+    *hx=*x; *hy=on_top?top+frame:*y+*height;
+    *vx=on_left?left+frame:*x+*width; *vy=*y;
+}
+
 static void
 ComputeLocations(
 XmScrolledWindowWidget sw,
@@ -2037,6 +2081,8 @@ XmScrolledWindowWidget sw )
 
     if (childWidth > MyWidth) childWidth = 2;
     if (childHeight > MyHeight) childHeight = 2;
+    if (_XmAppearanceConnectedScrolledWindow((Widget)sw))
+        ConnectedGeometry(sw,HasHSB,HasVSB,&newx,&newy,&hsbX,&hsbY,&vsbX,&vsbY,&childWidth,&childHeight);
     BoundViewport(sw, &newx, &newy, &childWidth, &childHeight);
 
     XmeConfigureObject(sw->swindow.WorkWindow, newx, newy,
@@ -2054,6 +2100,10 @@ XmScrolledWindowWidget sw )
     sw->swindow.hsbWidth = childWidth  + ((HSBht + shad + bw) * 2);
     sw->swindow.vsbHeight = childHeight  + ((VSBht + shad + bw) * 2);
 
+    if (_XmAppearanceConnectedScrolledWindow((Widget)sw)) {
+        sw->swindow.hsbWidth = sw->swindow.AreaWidth;
+        sw->swindow.vsbHeight = sw->swindow.AreaHeight;
+    }
     if (HasVSB)
         XmeConfigureObject((Widget) sw->swindow.vScrollBar, vsbX, vsbY,
             VSBwidth, sw->swindow.vsbHeight,
@@ -2149,7 +2199,9 @@ XmScrolledWindowWidget sw )
         clipY = shad + sw->swindow.YOffset;
         clipWidth = MyWidth - 2 * (int)shad;
         clipHeight = MyHeight - 2 * (int)shad;
-        BoundViewport(sw, &clipX, &clipY, &clipWidth, &clipHeight);
+        if (_XmAppearanceConnectedScrolledWindow((Widget)sw))
+        ConnectedGeometry(sw,HasHSB,HasVSB,&clipX,&clipY,&hsbX,&hsbY,&vsbX,&vsbY,&clipWidth,&clipHeight);
+    BoundViewport(sw, &clipX, &clipY, &clipWidth, &clipHeight);
         sw->swindow.AreaWidth = clipWidth;
         sw->swindow.AreaHeight = clipHeight;
         XmeConfigureObject((Widget)clip, clipX, clipY, clipWidth, clipHeight, 0);
@@ -2356,6 +2408,8 @@ XmScrolledWindowWidget sw )
      * retaining the old two-pixel minimum placed it outside a one-pixel pane. */
     ComputeLocations(sw, HasHSB ? HSBht : 0, HasVSB ? VSBht : 0,
         HasHSB, HasVSB, &clipX, &clipY, &hsbX, &hsbY, &vsbX, &vsbY);
+    if (_XmAppearanceConnectedScrolledWindow((Widget)sw))
+        ConnectedGeometry(sw,HasHSB,HasVSB,&clipX,&clipY,&hsbX,&hsbY,&vsbX,&vsbY,&clipWidth,&clipHeight);
     BoundViewport(sw, &clipX, &clipY, &clipWidth, &clipHeight);
 
     /****************
@@ -2486,6 +2540,8 @@ XmScrolledWindowWidget sw )
     ComputeLocations(sw,
         HSBht, VSBht, HasHSB, HasVSB,
         &clipX, &clipY, &hsbX, &hsbY, &vsbX, &vsbY);
+    if (_XmAppearanceConnectedScrolledWindow((Widget)sw))
+        ConnectedGeometry(sw,HasHSB,HasVSB,&clipX,&clipY,&hsbX,&hsbY,&vsbX,&vsbY,&clipWidth,&clipHeight);
     BoundViewport(sw, &clipX, &clipY, &clipWidth, &clipHeight);
 
     /****************
@@ -2498,6 +2554,10 @@ XmScrolledWindowWidget sw )
     sw->swindow.AreaWidth = clipWidth;
     sw->swindow.AreaHeight = clipHeight;
 
+    if (_XmAppearanceConnectedScrolledWindow((Widget)sw)) {
+        sw->swindow.hsbWidth = sw->swindow.AreaWidth;
+        sw->swindow.vsbHeight = sw->swindow.AreaHeight;
+    }
     if (HasVSB)
         XmeConfigureObject( (Widget) sw->swindow.vScrollBar, vsbX, vsbY,
             sw->swindow.vScrollBar->core.width, sw->swindow.vsbHeight,

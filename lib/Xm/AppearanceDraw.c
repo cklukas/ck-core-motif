@@ -5,6 +5,8 @@
 #include <Xm/PrimitiveP.h>
 #include <Xm/GadgetP.h>
 #include <Xm/NotebookP.h>
+#include <Xm/ScrolledWP.h>
+#include <Xm/ScrollBarP.h>
 #include <limits.h>
 #include <stdint.h>
 #include <math.h>
@@ -579,11 +581,39 @@ _XmAppearanceDrawFrameRegion(Widget widget, int x, int y,
     return True;
 }
 
+/* A scrolled surface owns its outer frame. Child windows paint only the
+ * no separate border between content and navigators. */
+Boolean
+_XmAppearanceConnectedScrolledWindow(Widget widget)
+{
+    XmAppearanceProfile profile;
+    if (!widget || !XmIsScrolledWindow(widget)) return False;
+    profile = _XmAppearanceGeometryProfile(XtDisplay(widget));
+    return (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) &&
+        ((XmScrolledWindowWidget)widget)->swindow.pad == 0 &&
+        ((XmScrolledWindowWidget)widget)->manager.shadow_thickness > 0;
+}
+
+Boolean
+_XmAppearanceDrawScrolledChildFrame(Widget widget)
+{
+    Widget parent = XtParent(widget);
+    XmScrolledWindowWidget sw;
+    Widget content;
+    if (!_XmAppearanceConnectedScrolledWindow(parent)) return False;
+    sw=(XmScrolledWindowWidget)parent;
+    content=sw->swindow.ScrollPolicy == XmAUTOMATIC ?
+        (Widget)sw->swindow.ClipWindow : sw->swindow.WorkWindow;
+    return widget == content || widget == (Widget)sw->swindow.hScrollBar ||
+        widget == (Widget)sw->swindow.vScrollBar;
+}
+
 Boolean
 _XmAppearanceDrawFieldFrame(Widget widget)
 {
     XmPrimitiveWidget field = (XmPrimitiveWidget)widget;
     int inset = field->primitive.highlight_thickness;
+    if (_XmAppearanceDrawScrolledChildFrame(widget)) return True;
     return _XmAppearanceDrawFrameRegion(widget, inset, inset,
         (int)field->core.width-2*inset, (int)field->core.height-2*inset,
         field->primitive.shadow_thickness);

@@ -222,6 +222,9 @@ EXTRA_DIST += tests/automated/check-datafield-wcs.c docs/datafield-wide-text.md
 # UIL debug listing regression.
 EXTRA_DIST += tests/automated/check-uil-listing.py docs/uil-listing.md
 EXTRA_DIST += tests/automated/run-uil-debug-runtime.py
+EXTRA_DIST += tests/automated/check-uil-source-path-copy.py \
+              tests/automated/run-uil-source-path-copy-unit.py \
+              docs/uil-source-paths.md
 EXTRA_DIST += tests/automated/run-tabbed-stack-copy-unit.py docs/tabbed-stack-copy-failure.md
 EXTRA_DIST += tests/automated/run-container-tab-pool-unit.py
 EXTRA_DIST += tests/automated/run-list-unicode-regressions.py

@@ -310,13 +310,31 @@ before this package is published or the visual overhaul is considered complete.
 
 ### Scrolled content framing
 
-Modern light and dark profiles default `XmScrolledWindow.shadowThickness` to
-zero. A scrolling viewport does not need a second recessed frame around its
-content; fields and controls retain their own boundaries. Explicit application
-`shadowThickness` resources remain authoritative, including during live profile
-changes. Classic and high-contrast framing is preserved. The native
-`tests/automated/run-scrolled-appearance.py` regression checks startup and live
-transitions at 1x/2x with automatic and explicitly framed viewports.
+Modern light and dark profiles give scrolled content a single flat outer frame,
+with zero `XmNspacing` between its viewport and navigators. The scrollbars touch
+the content, match the content background and share the perimeter and
+corner junction. Both automatic viewports and application-defined scrolled lists
+use this layout, in every scrollbar placement. MainWindow work-area offsets are
+preserved. Embedded fields and lists do not paint a second outer frame.
+
+The default frame is one logical pixel. Explicit nonzero spacing opts into the
+separated layout; explicit frame thickness remains authoritative. Classic and
+high-contrast profiles retain their existing layouts. Keyboard focus and list
+item selection remain available inside the shared surface.
+
+`tests/automated/run-scrolled-appearance.py` checks exact navigator/viewport
+edge contact, frame corner pixels, live profile changes, all four placements,
+RTL layout, 1x/2x scaling and allocations down to one pixel. Gallery and Periodic
+are also inspected from freshly verified native builds.
+
+Qualification on Linux/aarch64 used Xft/SVG and core-font builds. The final
+`run-scrolled-appearance.py --prefix <install> --out <fresh-directory>` runs
+passed in both; their libXm SHA-256 values were
+`903f3804bece48cda168f4925297d2a4eeed13f26c1efc0b993a64ed156a4549`
+and `7936b59963d5adeae288f1d8271a5b33e5d5be39995af2817f21d5d8ff42714b`.
+`run-scrollbar-interactions.py` passed on the Xft/SVG build. The wheel and
+Periodic appearance runners passed before the final corner-fill-only change;
+verified gallery and Periodic windows were then inspected using the final build.
 
 
 ### Modern text frames (development)

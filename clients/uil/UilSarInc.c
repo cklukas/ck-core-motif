@@ -179,7 +179,8 @@ void	sar_include_file(yystype * file_frame, yystype * include_frame, yystype * s
 		   value_entry -> w_length);
     buffer [value_entry -> w_length] = 0 ;
 
-    src_open_file (buffer, include_entry->full_file_name);
+    src_open_file (buffer, include_entry->full_file_name,
+		   sizeof(include_entry->full_file_name));
 
     /*
     **  Allocate a section entry for this include "section".

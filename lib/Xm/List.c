@@ -41,6 +41,7 @@ static char rcsid[] = "$TOG: List.c /main/47 1999/10/12 16:58:17 mgreess $"
 #include <X11/Xatom.h>
 #include <Xm/XmosP.h>
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 #include <Xm/AtomMgr.h>
 #include <Xm/CutPaste.h>
 
@@ -2390,6 +2391,7 @@ CvtToInternalPos(Widget wid,
 static void
 DrawListShadow(XmListWidget w)
 {
+  if (_XmAppearanceDrawScrolledChildFrame((Widget)w)) return;
   XmeDrawShadows(XtDisplay(w), XtWindow(w),
 		 w->primitive.bottom_shadow_GC, w->primitive.top_shadow_GC,
 		 0, 0, (int)w->core.width, (int)w->core.height,
@@ -10730,7 +10732,6 @@ XmCreateScrolledList(Widget parent,
   XtSetArg(my_args[nargs], XmNscrollingPolicy, XmAPPLICATION_DEFINED), nargs++;
   XtSetArg(my_args[nargs], XmNvisualPolicy, XmVARIABLE), nargs++;
   XtSetArg(my_args[nargs], XmNscrollBarDisplayPolicy, XmSTATIC), nargs++;
-  XtSetArg(my_args[nargs], XmNshadowThickness, 0), nargs++;
   assert(nargs <= XtNumber(my_args));
   Args = XtMergeArgLists(args, argCount, my_args, nargs);
   if (Args == NULL)

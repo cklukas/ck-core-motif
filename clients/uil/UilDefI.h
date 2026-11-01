@@ -47,6 +47,7 @@
 
 #define X_INCLUDE_TIME_H
 #define XOS_USE_XT_LOCKING
+#include <stddef.h>
 #ifdef HAVE_X11_XOS_R_H
 #include <X11/Xos_r.h>
 #else
@@ -549,7 +550,7 @@ extern void sar_cat_value_entry  _ARGUMENTS(( sym_value_entry_type **target_entr
 /* uilsrcsrc.c */
 extern void src_initialize_source  _ARGUMENTS(( void ));
 extern void Uil_src_cleanup_source  _ARGUMENTS(( void ));
-extern void src_open_file  _ARGUMENTS(( XmConst char *c_file_name , char *full_file_name ));
+extern void src_open_file  _ARGUMENTS(( XmConst char *c_file_name , char *full_file_name , size_t full_file_name_size ));
 extern status src_get_source_line  _ARGUMENTS(( void ));
 extern status open_source_file  _ARGUMENTS(( XmConst char *c_file_name , uil_fcb_type *az_fcb , src_source_buffer_type *az_source_buffer ));
 extern status close_source_file  _ARGUMENTS(( uil_fcb_type *az_fcb ));

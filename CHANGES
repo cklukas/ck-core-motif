@@ -20,6 +20,26 @@ Modern C and native macOS toolkit builds (2026-11-01)
   Mrm callbacks, callable UIL, WML attributes and existing string/Unicode APIs.
   See docs/build.md for the platform commands and qualification boundaries.
 
+Bound UIL include-file path bookkeeping (2026-11-01)
+=====================================================
+
+- Pass the capacity of the fixed include-file record field to `src_open_file`
+  and copy its resolved filename with explicit truncation and termination.
+  Oversized paths can no longer overwrite the following symbol-table fields.
+- Add focused ASan/UBSan coverage for long, ordinary, null, and zero-sized
+  destination filename copies, plus a source contract check for the caller.
+
+Read encoded XmString component header widths (2026-11-01)
+============================================================
+
+- Parse, inspect, and truncate external compound-string components using the
+  encoded ASN.1 component-header width rather than regenerating a canonical
+  width from the payload length. Valid long-form component headers with
+  0–127-byte payloads now preserve their payload alignment.
+- Extend the focused ASan/UBSan production-reader regression with short and
+  long component-header cases, and verify that all affected parser paths use
+  the encoded header width.
+
 Exercise ASN.1 property import with the production length decoder (2026-11-01)
 ============================================================================
 
@@ -87,6 +107,16 @@ Release all text-property conversion intermediates (2026-11-01)
   already allocated at that point and must not be left behind.
 - Add executable fault injection for all four locale/string styles, allocation
   failures, conversion errors, overflow cleanup, fallback and exact output bytes.
+
+Connect modern scrollbars to their content (2026-11-01)
+======================================================
+
+* Modern ScrolledWindow uses zero spacing and one shared flat perimeter for
+  automatic viewports and application-defined lists. Navigators meet the content
+  without a divider; all placements and the two-scrollbar corner are joined.
+  Preserve classic/high-contrast layouts and explicit separated spacing.
+* Extend native scrolled appearance coverage with exact edge-contact checks,
+  application-defined lists and frame corner pixels across live profiles/scales.
 
 Exercise independent X11 selection owners (2026-11-01)
 =====================================================

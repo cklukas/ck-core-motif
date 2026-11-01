@@ -3,6 +3,7 @@
 #include <Xm/XmAll.h>
 #include <Xm/Appearance.h>
 #include <Xm/Display.h>
+#include <X11/Xutil.h>
 #include <stdio.h>
 #include <stdlib.h>
 #define CHECK(c) do { if (!(c)) { fprintf(stderr, "FAIL %d: %s\n", __LINE__, #c); exit(1); } } while (0)
@@ -38,13 +39,27 @@ int main(int argc, char **argv)
         XtRealizeWidget(shell);
         XSync(display, False);
         XtVaGetValues(automatic, XmNshadowThickness, &shadow, NULL);
-        CHECK((profile == 1 || profile == 2) ? shadow == 0 : shadow > 0);
+        CHECK((profile == 1 || profile == 2) ? shadow == scale : shadow > 0);
         XtVaGetValues(explicit_frame, XmNshadowThickness, &shadow, NULL); CHECK(shadow == 5);
         CHECK(XtIsRealized(work));
+        if (profile==1 || profile==2) {
+            Widget viewport, hbar, vbar;
+            Dimension spacing;
+            XtVaGetValues(automatic,XmNclipWindow,&viewport,
+                XmNhorizontalScrollBar,&hbar,XmNverticalScrollBar,&vbar,
+                XmNspacing,&spacing,NULL);
+            CHECK(spacing==0);
+            CHECK(XtX(vbar)+XtWidth(vbar)==XtX(viewport) ||
+                  XtX(viewport)+XtWidth(viewport)==XtX(vbar));
+            CHECK(XtY(hbar)+XtHeight(hbar)==XtY(viewport) ||
+                  XtY(viewport)+XtHeight(viewport)==XtY(hbar));
+            CHECK(XtHeight(vbar)==XtHeight(viewport));
+            CHECK(XtWidth(hbar)==XtWidth(viewport));
+        }
         for (unsigned next = 0; next < XtNumber(profiles); ++next) {
             CHECK(XmApplyAppearanceProfile(display, profiles[next]));
             XtVaGetValues(automatic, XmNshadowThickness, &shadow, NULL);
-            CHECK((next == 1 || next == 2) ? shadow == 0 : shadow > 0);
+            CHECK((next == 1 || next == 2) ? shadow == scale : shadow > 0);
             XtVaGetValues(explicit_frame, XmNshadowThickness, &shadow, NULL); CHECK(shadow == 5);
         }
         CHECK(XmApplyAppearanceProfile(display, profiles[profile]));
@@ -89,6 +104,43 @@ int main(int argc, char **argv)
                 XtVaGetValues(bars[axis],XmNminimum,&minimum,XmNmaximum,&maximum,XmNsliderSize,&size,NULL);
                 int extent=axis?XtHeight(clip):XtWidth(clip);
                 CHECK(size==(extent<maximum-minimum?extent:maximum-minimum));
+            }
+        }
+        /* Application-defined list geometry must share the same continuous
+         * frame, including after a live profile transition. */
+        XtDestroyWidget(shell);
+        CHECK(XmApplyAppearanceProfile(display, profiles[profile]));
+        shell = XtAppCreateShell("listAppearance", "ScrolledAppearance", applicationShellWidgetClass, display, NULL, 0);
+        Arg args[5]; Cardinal n=0;
+        XtSetArg(args[n],XmNwidth,180*scale);++n;
+        XtSetArg(args[n],XmNheight,120*scale);++n;
+        Widget list=XmCreateScrolledList(shell,"list",args,n);
+        Widget pane=XtParent(list), vb;
+        XtVaSetValues(pane,XmNscrollBarPlacement,placements[place],NULL);
+        XmString item=XmStringCreateLocalized("A long list item for horizontal scrolling and framing");
+        for (unsigned i=0;i<40;++i) XmListAddItem(list,item,0);
+        XmStringFree(item); XtManageChild(list); XtRealizeWidget(shell);
+        for (unsigned next=0;next<XtNumber(profiles);++next) {
+            CHECK(XmApplyAppearanceProfile(display,profiles[next]));
+            XSync(display,False);
+            while(XtAppPending(app)) XtAppProcessEvent(app,XtIMAll);
+            if (next==1 || next==2) {
+                XtVaGetValues(pane,XmNverticalScrollBar,&vb,NULL);
+                CHECK(XtX(vb)+XtWidth(vb)==XtX(list) || XtX(list)+XtWidth(list)==XtX(vb));
+                CHECK(XtY(vb)==XtY(list)); CHECK(XtHeight(vb)==XtHeight(list));
+                Pixel surface; XtVaGetValues(list,XmNbackground,&surface,NULL);
+                XImage *bar_image=XGetImage(display,XtWindow(vb),0,0,XtWidth(vb),XtHeight(vb),AllPlanes,ZPixmap);
+                CHECK(bar_image);
+                int edge=XtX(vb)<XtX(list) ? XtWidth(vb)-1 : 0;
+                if (XGetPixel(bar_image,edge,XtHeight(vb)/2)!=surface) fprintf(stderr,"pixels profile=%u next=%u place=%u scale=%u actual=%lx expected=%lx\n",profile,next,place,scale,XGetPixel(bar_image,edge,XtHeight(vb)/2),surface);
+                CHECK(XGetPixel(bar_image,edge,XtHeight(vb)/2)==surface);
+                XDestroyImage(bar_image);
+                Pixel border; XtVaGetValues(pane,XmNbottomShadowColor,&border,NULL);
+                XImage *image=XGetImage(display,XtWindow(pane),0,0,XtWidth(pane),XtHeight(pane),AllPlanes,ZPixmap);
+                CHECK(image);
+                CHECK(XGetPixel(image,0,0)==border);
+                CHECK(XGetPixel(image,XtWidth(pane)-1,XtHeight(pane)-1)==border);
+                XDestroyImage(image);
             }
         }
         XtDestroyWidget(shell); ++cases;
