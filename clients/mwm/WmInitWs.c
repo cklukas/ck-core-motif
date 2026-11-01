@@ -873,7 +873,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 			    return;
 		    }
 
-		    _DtGetSmWindow(DISPLAY, 
+		    _DtGetMwmWindow(DISPLAY,
 				  RootWindow(DISPLAY, 0), 
 				  &wmGD.dtSmWindow) ;
 #ifdef PANACOMM

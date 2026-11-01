@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-02 — CDE WSM MWM-window lookup
+
+- Use CDE's declared `_DtGetMwmWindow` helper for optional WSM startup rather
+  than an obsolete session-manager symbol, preserving the established lookup
+  and Xlib-status contract. See
+  [MWM CDE workspace-manager window lookup](docs/mwm-cde-wsm-window-helper.md).
+
 ## 2026-11-02 — Xft color-cache allocation safety
 
 - Keep the optional Xft color cache intact if growth fails: preserve its prior
