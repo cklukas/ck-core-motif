@@ -27,12 +27,15 @@ int main(int argc, char **argv)
     XtAppContext app;
     Widget shell, row, menu, pulldown, cascade, menu_item;
     Widget label, compound_label, list, combo, files, toggle, segmented;
-    XmString items[3], selected = NULL, expected_label, expected_combo;
-    XmString expected_menu, expected_file, expected_toggle, compound;
+    XmString items[5], selected = NULL, expected_label, expected_combo;
+    XmString expected_menu, expected_file, expected_toggle, expected_nonbmp;
+    XmString expected_bidi, compound;
     const char *values[] = {
         "e\314\201clair",       /* combining acute */
         "\360\237\230\200 cafe", /* non-BMP emoji */
-        "\344\270\255\346\226\207" /* Han */
+        "\344\270\255\346\226\207", /* Han */
+        "abc \327\251\327\234\327\225\327\235 123", /* mixed Hebrew */
+        "abc \330\263\331\204\330\247\331\205 123" /* mixed Arabic */
     };
     char *label_text = NULL;
     int *positions = NULL, position_count = 0;
@@ -49,19 +52,20 @@ int main(int argc, char **argv)
     XtSetLanguageProc(NULL, NULL, NULL);
     shell = XtVaAppInitialize(&app, "NonTextUnicodeRegression", NULL, 0,
                               &argc, argv, NULL, NULL);
-    items[0] = XmStringCreateLocalized((char *)values[0]);
-    items[1] = XmStringCreateLocalized((char *)values[1]);
-    items[2] = XmStringCreateLocalized((char *)values[2]);
-    expected_label = XmStringCreateLocalized((char *)values[1]);
-    expected_combo = XmStringCreateLocalized((char *)values[2]);
-    expected_menu = XmStringCreateLocalized((char *)values[0]);
+    for (unsigned int i = 0; i < XtNumber(items); ++i)
+        items[i] = XmStringCreateLocalized((char *)values[i]);
+    expected_label = XmStringCreateLocalized((char *)values[4]);
+    expected_combo = XmStringCreateLocalized((char *)values[4]);
+    expected_menu = XmStringCreateLocalized((char *)values[3]);
     expected_file = XmStringCreateLocalized((char *)values[2]);
-    expected_toggle = XmStringCreateLocalized((char *)values[0]);
+    expected_toggle = XmStringCreateLocalized((char *)values[3]);
+    expected_nonbmp = XmStringCreateLocalized((char *)values[1]);
+    expected_bidi = XmStringCreateLocalized((char *)values[3]);
     compound = XmStringConcatAndFree(
         XmStringSegmentCreate((char *)values[0], XmFONTLIST_DEFAULT_TAG,
                               XmSTRING_DIRECTION_L_TO_R, True),
-        XmStringSegmentCreate((char *)values[1], XmFONTLIST_DEFAULT_TAG,
-                              XmSTRING_DIRECTION_L_TO_R, False));
+        XmStringSegmentCreate((char *)values[3], XmFONTLIST_DEFAULT_TAG,
+                              XmSTRING_DIRECTION_R_TO_L, False));
 
     row = XtVaCreateManagedWidget("row", xmRowColumnWidgetClass, shell,
                                   XmNorientation, XmVERTICAL, NULL);
@@ -79,15 +83,15 @@ int main(int argc, char **argv)
     (void)cascade;
 
     label = XtVaCreateManagedWidget("label", xmLabelWidgetClass, shell,
-                                   XmNlabelString, items[1], NULL);
+                                   XmNlabelString, expected_label, NULL);
     compound_label = XtVaCreateManagedWidget("compound-label",
                                              xmLabelWidgetClass, shell,
                                              XmNlabelString, compound, NULL);
     list = XtVaCreateManagedWidget("list", xmListWidgetClass, shell,
-                                  XmNitems, items, XmNitemCount, 3,
+                                  XmNitems, items, XmNitemCount, XtNumber(items),
                                   XmNselectionPolicy, XmBROWSE_SELECT, NULL);
     combo = XmVaCreateManagedComboBox(shell, "combo",
-                                      XmNitems, items, XmNitemCount, 3,
+                                      XmNitems, items, XmNitemCount, XtNumber(items),
                                       NULL);
     toggle = XtVaCreateManagedWidget("toggle", xmToggleSwitchWidgetClass,
                                     shell, XmNlabelString, expected_toggle,
@@ -125,7 +129,8 @@ int main(int argc, char **argv)
             CHECK(strcmp(segment_text, values[0]) == 0);
             CHECK(segment_separator == True);
         } else if (segment_count == 1) {
-            CHECK(strcmp(segment_text, values[1]) == 0);
+            CHECK(strcmp(segment_text, values[3]) == 0);
+            CHECK(segment_direction == XmSTRING_DIRECTION_R_TO_L);
             CHECK(segment_separator == False);
         }
         ++segment_count;
@@ -136,14 +141,19 @@ int main(int argc, char **argv)
     XmStringFreeContext(context);
     CHECK(segment_count == 2);
 
-    XmListSelectPos(list, 3, False);
+    XmListSelectPos(list, 5, False);
     CHECK(XmListGetSelectedPos(list, &positions, &position_count));
-    CHECK(position_count == 1 && positions[0] == 3);
+    CHECK(position_count == 1 && positions[0] == 5);
     XtFree((char *)positions);
-    CHECK(XmListItemExists(list, expected_label));
-    CHECK(XmListItemPos(list, expected_label) == 2);
-    CHECK(XmListGetMatchPos(list, expected_label, &matches, &match_count));
+    CHECK(XmListItemExists(list, expected_nonbmp));
+    CHECK(XmListItemPos(list, expected_nonbmp) == 2);
+    CHECK(XmListGetMatchPos(list, expected_nonbmp, &matches, &match_count));
     CHECK(match_count == 1 && matches[0] == 2);
+    XtFree((char *)matches);
+    CHECK(XmListItemExists(list, expected_bidi));
+    CHECK(XmListItemPos(list, expected_bidi) == 4);
+    CHECK(XmListGetMatchPos(list, expected_bidi, &matches, &match_count));
+    CHECK(match_count == 1 && matches[0] == 4);
     XtFree((char *)matches);
 
     XmComboBoxSelectItem(combo, expected_combo);
@@ -168,6 +178,8 @@ int main(int argc, char **argv)
     XmStringFree(expected_menu);
     XmStringFree(expected_file);
     XmStringFree(expected_toggle);
+    XmStringFree(expected_nonbmp);
+    XmStringFree(expected_bidi);
     XmStringFree(compound);
 
     XtDestroyWidget(shell);

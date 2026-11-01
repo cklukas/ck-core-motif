@@ -1,3 +1,13 @@
+Qualify mixed-direction non-text widget strings (2026-11-01)
+============================================================
+
+- Extend the installed non-text Unicode widget regression with mixed
+  Latin/Hebrew and Latin/Arabic labels, including List lookup and match
+  positions, ComboBox selection, menu and toggle labels, and a right-to-left
+  compound-string segment.
+- Document the public-API coverage boundary and retain the fresh
+  installed-prefix compile/run logs for each qualification run.
+
 Build Mwm numeric KeySym parsing on x86_64 (2026-11-01)
 =========================================================
 
