@@ -11,3 +11,11 @@ window entries, and nested arrays.
 If a malformed or extreme count cannot be represented by the `int` sizing
 contract, packing fails before allocating or writing a truncated buffer.  The
 wire format and valid message handling are unchanged.
+
+The public packer uses a `long` byte-count accumulator because it returns the
+length through an `unsigned long` out parameter.  The internal per-window
+helpers retain their `int` result contract, but now accumulate through the
+same checked `long` helper before their proven-safe result conversion.  This
+keeps the x86_64 build type-correct and avoids taking the address of a
+`register` variable.  The focused check compiles and executes the production
+checked-add helper under strict pointer-type warnings.

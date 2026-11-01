@@ -67,11 +67,11 @@ static int WinDataSizePacked(Display *, int,
 			     WSMWinData *, int, WSMConfigFormatType);
 
 static Boolean
-AddPackedSize(int *size, size_t amount)
+AddPackedSize(long *size, size_t amount)
 {
     if (size == NULL || *size < 0 || amount > (size_t)INT_MAX - (size_t)*size)
 	return False;
-    *size += (int)amount;
+    *size += (long)amount;
     return True;
 }
 
@@ -1045,7 +1045,7 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 static int 
 WinInfoSizePacked(Display *dpy, int screen_num, WSMWinInfo *win_info)
 {
-    int size = sizeof(CARD32);
+    long size = sizeof(CARD32);
     int data_size = WinDataSizePacked(dpy, screen_num,
 				       win_info->data_list, win_info->num_data_list,
 				       _WSMGetConfigFormatType(win_info->window));
@@ -1053,7 +1053,7 @@ WinInfoSizePacked(Display *dpy, int screen_num, WSMWinInfo *win_info)
 	return(-1);
     if (!AddPackedSize(&size, (size_t)data_size))
 	return(-1);
-    return(size);
+    return((int)size);
 }
 
 /*	Function Name: WinEntrySizePacked
@@ -1068,7 +1068,7 @@ WinInfoSizePacked(Display *dpy, int screen_num, WSMWinInfo *win_info)
 static int 
 WinEntrySizePacked(Display *dpy, int screen_num, WSMWinEntry *win_entry)
 {
-    int size;
+    long size;
 
     (void)dpy;
     (void)screen_num;
@@ -1085,7 +1085,7 @@ WinEntrySizePacked(Display *dpy, int screen_num, WSMWinEntry *win_entry)
 			   (size_t)win_entry->num_match_properties))
 	return(-1);
 
-    return(size);
+    return((int)size);
 }
 
 /*	Function Name: WinDataSizePacked
@@ -1103,7 +1103,8 @@ static int
 WinDataSizePacked(Display *dpy, int screen_num, 
 		  WSMWinData *win_data, int num, WSMConfigFormatType fmt)
 {
-    int i, size;
+    register int i;
+    long size;
     WSMConfigFormatData *fmt_data = _WSMGetConfigFormat(dpy, screen_num, fmt);
 
     if (fmt_data == NULL ||
@@ -1139,7 +1140,7 @@ WinDataSizePacked(Display *dpy, int screen_num,
 	}
     }
 
-    return(size);
+    return((int)size);
 }
 
 /************************************************************
