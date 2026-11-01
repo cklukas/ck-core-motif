@@ -1,3 +1,9 @@
+Enable SVG in the documented macOS gallery build (2026-11-01)
+============================================================
+
+* Include librsvg and --enable-svg in the native macOS build recipe so modern
+  gallery vector icons are available. Explain feature checks and bitmap fallback.
+
 Match toolbar icons to action button surfaces (2026-11-01)
 ========================================================
 

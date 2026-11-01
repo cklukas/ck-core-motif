@@ -37,8 +37,8 @@ On macOS, this builds native Mach-O libraries and programs for X11/Xt through
 [XQuartz](https://www.xquartz.org/). Install Xcode Command Line Tools (or Xcode),
 XQuartz, and the development tools/dependencies for the selected features.
 Homebrew supplies Autoconf, Automake, GNU Libtool (`glibtoolize`), GNU Make,
-pkg-config, ICU and HarfBuzz. GNU Make **4.3 or newer** is required by the grouped
-string-generator targets; invoke `gmake` rather than Apple's Make 3.81.
+pkg-config, ICU, HarfBuzz and librsvg (`brew install librsvg`). GNU Make **4.3 or
+newer** is required by the grouped string-generator targets; invoke `gmake` rather than Apple's Make 3.81.
 `autoreconf -fi` recognizes Homebrew's GNU Libtool without changing `autogen.sh`
 to call Apple's unrelated `libtool` program.
 
@@ -55,7 +55,7 @@ export PKG_CONFIG_PATH="/opt/X11/lib/pkgconfig:$(brew --prefix icu4c)/lib/pkgcon
 (cd "$work/build" && "$source/configure" CC="clang -std=c23" \
   --prefix="$work/install" \
   --x-includes=/opt/X11/include --x-libraries=/opt/X11/lib \
-  --enable-xft --enable-unicode-text --disable-atspi --disable-printing \
+  --enable-xft --enable-unicode-text --enable-svg --disable-atspi --disable-printing \
   CPPFLAGS=-I/opt/X11/include LDFLAGS=-L/opt/X11/lib)
 gmake -C "$work/build/lib" -j3
 gmake -C "$work/build/tools/wml" -j3
@@ -70,7 +70,11 @@ python3 "$source/tests/automated/run-modern-c-portability.py" \
 JPEG discovery can be directed to Homebrew with
 `--with-libjpeg-includes="$brew_prefix/include"` and
 `--with-libjpeg-lib="$brew_prefix/lib"`. SVG is a separate `--enable-svg`
-configuration requiring librsvg. Keep each install prefix isolated and rebuild
+configuration requiring librsvg; the macOS recipe above enables it for modern
+gallery vector icons. Without it, SVG examples report that SVG is required and
+controls can fall back to legacy bitmap icons even in a modern theme. Verify
+`pkg-config --modversion librsvg-2.0` and the configure SVG result before building.
+Keep each install prefix isolated and rebuild
 all consumers for its native ABI cohort. Mach-O function/data aliases are
 emitted in their owning object, so the same symbols and class-record addresses
 are available from both static archives and dylibs.
