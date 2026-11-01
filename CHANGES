@@ -3935,6 +3935,14 @@ Harden MultiList argument-list merging (2026-11-01)
 - Preserve valid zero-argument title creation and add focused regression
   coverage and documentation.
 
+Harden DropDown argument-list merging (2026-11-01)
+=====================================================
+
+- Reject wrapped child argument counts and stop before passing a failed merged
+  list to Xt during text, arrow, popup-shell, or popup-list construction.
+- Tear down a partial popup shell when its list arguments cannot be merged,
+  with focused regression coverage and documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 
