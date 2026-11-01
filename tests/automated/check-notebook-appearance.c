@@ -106,27 +106,33 @@ int main(int argc, char **argv)
 {
     XtAppContext app;
     Display *dpy;
+    const double scales[] = {1.0, 1.5, 2.0};
+    unsigned cases = 0;
     unsigned char placements[] = {XmBOTTOM_RIGHT, XmBOTTOM_LEFT, XmTOP_RIGHT, XmTOP_LEFT};
     XtToolkitInitialize();
     app = XtCreateApplicationContext();
     dpy = XtOpenDisplay(app, NULL, "notebookTest", "NotebookTest", NULL, 0, &argc, argv);
     CHECK(dpy);
-    for (unsigned scale = 1; scale <= 2; ++scale)
+    for (unsigned rtl = 0; rtl < 2; ++rtl)
+    for (unsigned scale_index = 0; scale_index < XtNumber(scales); ++scale_index)
+    for (unsigned flat = 0; flat < 2; ++flat)
     for (unsigned theme = 0; theme < 4; ++theme)
     for (unsigned minor = 0; minor < 2; ++minor)
     for (unsigned vertical = 0; vertical < 2; ++vertical)
     for (unsigned place = 0; place < XtNumber(placements); ++place) {
+        double scale = scales[scale_index];
         Widget shell, notebook, tabs[2];
         Pixel surface, frame, back, tab_surface;
         Boolean edge_vertical = minor ? !vertical : vertical;
         Boolean positive = edge_vertical ? place < 2 : place % 2 == 0;
         CHECK(XmSetDisplayScaleOverride(dpy, scale));
-        CHECK(XmSetAppearanceProfile(dpy, theme == 0 ? XmAPPEARANCE_CLASSIC : theme == 1 ? XmAPPEARANCE_MODERN_LIGHT : theme == 2 ? XmAPPEARANCE_MODERN_DARK : XmAPPEARANCE_HIGH_CONTRAST));
+        CHECK(XmApplyAppearanceProfile(dpy, theme == 0 ? XmAPPEARANCE_CLASSIC : theme == 1 ? XmAPPEARANCE_MODERN_LIGHT : theme == 2 ? XmAPPEARANCE_MODERN_DARK : XmAPPEARANCE_HIGH_CONTRAST));
         shell = XtAppCreateShell("notebookTest", "NotebookTest", applicationShellWidgetClass, dpy, NULL, 0);
         notebook = XtVaCreateManagedWidget("notebook", xmNotebookWidgetClass, shell,
-            XmNwidth, 440 * scale, XmNheight, 300 * scale,
+            XmNwidth, (Dimension)(440 * scale), XmNheight, (Dimension)(300 * scale),
             /* Keep content windows away from the pixels probing the page join. */
             XmNinnerMarginWidth, 8, XmNinnerMarginHeight, 8,
+            XmNlayoutDirection, rtl ? XmRIGHT_TO_LEFT : XmLEFT_TO_RIGHT,
             XmNorientation, vertical ? XmVERTICAL : XmHORIZONTAL,
             XmNbackPagePlacement, placements[place], NULL);
         for (unsigned i = 0; i < 2; ++i) {
@@ -136,7 +142,7 @@ int main(int argc, char **argv)
                 i ? xmPushButtonGadgetClass : xmPushButtonWidgetClass, notebook,
                 XmNnotebookChildType, minor ? XmMINOR_TAB : XmMAJOR_TAB, XmNpageNumber, i+1, NULL);
         }
-        if (scale == 2) XtVaSetValues(notebook, XmNframeShadowThickness, 0, NULL);
+        if (flat) XtVaSetValues(notebook, XmNframeShadowThickness, 0, NULL);
         XtRealizeWidget(shell);
         flush(app, dpy);
         XSetInputFocus(dpy, XtWindow(shell), RevertToParent, CurrentTime);
@@ -172,6 +178,68 @@ int main(int argc, char **argv)
         CHECK(((XmGadget)tabs[1])->gadget.highlighted);
         CHECK(connection(tabs[1], notebook, edge_vertical, positive) == 0);
         CHECK(edges(tabs[0], notebook, edge_vertical, positive) == 0);
+        /* Repeated selection must keep both widget and gadget flap edges
+         * connected after the parent has changed profile and saved shadows. */
+        for (unsigned cycle = 0; cycle < 4; ++cycle) {
+            unsigned selected = cycle % 2;
+            XtVaSetValues(notebook, XmNcurrentPageNumber, selected+1, NULL);
+            flush(app,dpy);
+            CHECK(XmProcessTraversal(tabs[selected],XmTRAVERSE_CURRENT));
+            flush(app,dpy);
+            CHECK(XmGetFocusWidget(shell)==tabs[selected]);
+            CHECK(connection(tabs[selected],notebook,edge_vertical,positive)==0);
+            CHECK(edges(tabs[1-selected],notebook,edge_vertical,positive)==0);
+        }
+        CHECK(XmApplyAppearanceProfile(dpy, theme == 0 ? XmAPPEARANCE_CLASSIC : theme == 1 ? XmAPPEARANCE_MODERN_LIGHT : theme == 2 ? XmAPPEARANCE_MODERN_DARK : XmAPPEARANCE_HIGH_CONTRAST));
+        flush(app,dpy);
+        /* Long labels and a constrained allocation must not send the active
+         * flap outside the notebook or disconnect it from the page. */
+        XmString long_label = XmStringCreateLocalized("Document configuration and appearance");
+        for (unsigned i = 0; i < 2; ++i)
+            XtVaSetValues(tabs[i], XmNlabelString, long_label, NULL);
+        XmStringFree(long_label);
+        Dimension natural_width[2], natural_height[2];
+        XtVaSetValues(shell, XmNwidth, (Dimension)(480 * scale),
+                      XmNheight, (Dimension)(340 * scale), NULL);
+        flush(app,dpy);
+        for (unsigned i = 0; i < 2; ++i) {
+            XtVaSetValues(notebook, XmNcurrentPageNumber, i+1, NULL);
+            flush(app,dpy);
+            natural_width[i] = XtWidth(tabs[i]);
+            natural_height[i] = XtHeight(tabs[i]);
+        }
+        XtVaSetValues(shell, XmNwidth, (Dimension)(280 * scale),
+                      XmNheight, (Dimension)(220 * scale), NULL);
+        flush(app,dpy);
+        for (unsigned i = 0; i < 2; ++i) {
+            XtVaSetValues(notebook, XmNcurrentPageNumber, i+1, NULL);
+            flush(app,dpy);
+            Position tx, ty; Dimension tw, th, nw, nh;
+            XtVaGetValues(tabs[i], XmNx, &tx, XmNy, &ty, XmNwidth, &tw, XmNheight, &th, NULL);
+            XtVaGetValues(notebook, XmNwidth, &nw, XmNheight, &nh, NULL);
+            if (tx < 0 || ty < 0 || tx + tw > nw || ty + th > nh) {
+                fprintf(stderr,"Constrained flap outside notebook: scale=%g theme=%u minor=%u vertical=%u place=%u tab=%d,%d %ux%u notebook=%ux%u\n",scale,theme,minor,vertical,place,tx,ty,tw,th,nw,nh);
+                XmNotebookWidget n=(XmNotebookWidget)notebook;
+                fprintf(stderr,"frame=%ux%u major=%ux%u minor=%ux%u scroll=%ux%u back=%u binding=%u shadow=%u first=%s top=%s current=%u need=%u\n",n->notebook.frame_width,n->notebook.frame_height,n->notebook.major_width,n->notebook.major_height,n->notebook.minor_width,n->notebook.minor_height,n->notebook.minor_scroller_width,n->notebook.minor_scroller_height,n->notebook.back_page_size,n->notebook.real_binding_width,n->notebook.shadow_thickness,n->notebook.first_minor?XtName(n->notebook.first_minor):"none",n->notebook.top_minor?XtName(n->notebook.top_minor):"none",i,n->notebook.need_scroller);
+                return 1;
+            }
+            CHECK(connection(tabs[i],notebook,edge_vertical,positive)==0);
+        }
+        /* Constrained layout must not overwrite the tab's preferred size. */
+        XtVaSetValues(shell, XmNwidth, (Dimension)(480 * scale),
+                      XmNheight, (Dimension)(340 * scale), NULL);
+        flush(app,dpy);
+        for (unsigned i = 0; i < 2; ++i) {
+            XtVaSetValues(notebook, XmNcurrentPageNumber, i+1, NULL);
+            flush(app,dpy);
+            if (XtWidth(tabs[i]) != natural_width[i] || XtHeight(tabs[i]) != natural_height[i]) {
+                fprintf(stderr,"Flap did not recover: scale=%g theme=%u minor=%u vertical=%u place=%u tab=%u actual=%ux%u expected=%ux%u\n",
+                    scale,theme,minor,vertical,place,i,XtWidth(tabs[i]),XtHeight(tabs[i]),natural_width[i],natural_height[i]);
+                return 1;
+            }
+            CHECK(connection(tabs[i],notebook,edge_vertical,positive)==0);
+        }
+        ++cases;
         XtVaSetValues(notebook, XmNframeBackground, BlackPixel(dpy, DefaultScreen(dpy)),
             XmNinnerMarginWidth, 13, NULL);
         CHECK(XmApplyAppearanceProfile(dpy, XmAPPEARANCE_CLASSIC));
@@ -185,6 +253,6 @@ int main(int argc, char **argv)
     }
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);
-    puts("PASS Notebook connected page flaps");
+    printf("PASS Notebook connected page flaps: %u configurations\n", cases);
     return 0;
 }

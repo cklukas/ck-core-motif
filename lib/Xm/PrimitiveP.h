@@ -124,6 +124,7 @@ typedef struct _XmPrimitivePart
 #ifdef OM22_COMPATIBILITY
    XmString tool_tip_string;
 #endif
+   unsigned char appearance_role;
 } XmPrimitivePart;
 
 #ifdef XM_PART_BC

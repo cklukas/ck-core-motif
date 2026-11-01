@@ -4,11 +4,16 @@
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <Xm/TreeViewP.h>
+#include <Xm/Appearance.h>
+#include <string.h>
 #include <Xm/XmP.h>
 #include <limits.h>
 #include <stdint.h>
 #include "PrimitiveI.h"
+#include "ColorI.h"
+#include "TransltnsP.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 
 #define TREE_VIEW_MAX_NODES 4096
 
@@ -25,6 +30,7 @@ static Position bounded_position(long long value) {
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
+static void Resize(Widget);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
@@ -45,10 +51,13 @@ static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
 
 #define Offset(field) XtOffsetOf(XmTreeViewRec, field)
 static XtResource resources[] = {
+    {XmNselectColor, XmCSelectColor, XmRPixel,
+     sizeof(Pixel), Offset(tree_view.select_color), XmRCallProc,
+     (XtPointer)_XmSelectColorDefault},
     {XmNtreeViewIndent, XmCTreeViewIndent, XmRHorizontalDimension,
      sizeof(Dimension), Offset(tree_view.indent), XmRImmediate, (XtPointer)16},
     {XmNtreeViewRowHeight, XmCTreeViewRowHeight, XmRVerticalDimension,
-     sizeof(Dimension), Offset(tree_view.row_height), XmRImmediate, (XtPointer)22},
+     sizeof(Dimension), Offset(tree_view.row_height), XmRImmediate, (XtPointer)0},
     {XmNtreeViewVisibleRows, XmCTreeViewVisibleRows, XmRCardinal,
      sizeof(Cardinal), Offset(tree_view.visible_rows), XmRImmediate, (XtPointer)8},
     {XmNtreeViewTopRow, XmCTreeViewTopRow, XmRCardinal,
@@ -59,6 +68,9 @@ static XtResource resources[] = {
      Offset(tree_view.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
      Offset(tree_view.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNactivateCallback, XmCCallback, XmRCallback,
+     sizeof(XtCallbackList), Offset(tree_view.activate_callback), XmRPointer,
+     (XtPointer)NULL},
     {XmNtreeViewSelectionCallback, XmCTreeViewSelectionCallback, XmRCallback,
      sizeof(XtCallbackList), Offset(tree_view.selection_callback), XmRPointer,
      (XtPointer)NULL},
@@ -76,9 +88,9 @@ externaldef(xmtreeviewclassrec) XmTreeViewClassRec xmTreeViewClassRec =
     {{(WidgetClass)&xmPrimitiveClassRec, "XmTreeView", sizeof(XmTreeViewRec),
       NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
       resources, XtNumber(resources), NULLQUARK, True,
-      XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay,
+      XtExposeCompressMaximal, True, False, Destroy, Resize, Redisplay,
       SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
-      XtInheritTranslations, QueryGeometry, NULL, NULL},
+      (String)_XmPrimitive_defaultTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
      {NULL}};
@@ -135,6 +147,32 @@ static Boolean valid_input(const XmTreeViewNode *nodes, Cardinal count) {
                 return False;
         }
     return True;
+}
+
+/* Normalize the accepted flat model to stable depth-first order. Iteration
+ * keeps model depth off the C stack; each node is queued exactly once after
+ * valid_input has established a forest with unique IDs. */
+static Cardinal *input_preorder(const XmTreeViewNode *nodes, Cardinal count) {
+    Cardinal *order, *stack, used = 0, pending = 0, i;
+    if (!count) return NULL;
+    order = (Cardinal *)XtMalloc(count * sizeof(*order));
+    stack = (Cardinal *)XtMalloc(count * sizeof(*stack));
+    if (!order || !stack) {
+        XtFree((char *)order);
+        XtFree((char *)stack);
+        return NULL;
+    }
+    for (i = count; i != 0; --i)
+        if (!nodes[i - 1].parent_id) stack[pending++] = i - 1;
+    while (pending) {
+        Cardinal index = stack[--pending];
+        order[used++] = index;
+        for (i = count; i != 0; --i)
+            if (nodes[i - 1].parent_id == nodes[index].id)
+                stack[pending++] = i - 1;
+    }
+    XtFree((char *)stack);
+    return order;
 }
 
 static int depth_of(XmTreeViewWidget view, Cardinal index) {
@@ -205,10 +243,11 @@ static int first_child(XmTreeViewWidget view, XtPointer parent_id) {
 
 static void notify_selection(XmTreeViewWidget view, XEvent *event) {
     XmTreeViewCallbackStruct cb;
+    if (view == NULL || view->core.being_destroyed) return;
     int index = find_id(view, view->tree_view.selected_id);
     if (view == NULL || view->core.being_destroyed ||
         !view->tree_view.selection_callback || index < 0 ||
-        (Cardinal)index >= view->tree_view.item_count)
+        (Cardinal)index >= view->tree_view.count)
         return;
     cb.reason = 1;
     cb.event = event;
@@ -219,11 +258,24 @@ static void notify_selection(XmTreeViewWidget view, XEvent *event) {
     XtCallCallbacks((Widget)view, XmNtreeViewSelectionCallback, &cb);
 }
 
+static void notify_activation(XmTreeViewWidget view, int index, XEvent *event) {
+    XmTreeViewCallbackStruct cb;
+    if (!view->tree_view.activate_callback || index < 0 ||
+        view->tree_view.items[index].has_children) return;
+    cb.reason = XmCR_ACTIVATE;
+    cb.event = event;
+    cb.id = view->tree_view.items[index].id;
+    cb.parent_id = view->tree_view.items[index].parent_id;
+    cb.index = (Cardinal)index;
+    cb.expanded = view->tree_view.items[index].expanded;
+    XtCallCallbacks((Widget)view, XmNactivateCallback, &cb);
+}
+
 static void notify_expansion(XmTreeViewWidget view, int index, XEvent *event) {
     XmTreeViewCallbackStruct cb;
     if (view == NULL || view->core.being_destroyed ||
         !view->tree_view.expansion_callback || index < 0 ||
-        (Cardinal)index >= view->tree_view.item_count)
+        (Cardinal)index >= view->tree_view.count)
         return;
     cb.reason = 2;
     cb.event = event;
@@ -240,21 +292,38 @@ static void redraw(XmTreeViewWidget view) {
                   True);
 }
 
-static void select_id(XmTreeViewWidget view, XtPointer id, Boolean notify,
-                      XEvent *event) {
-    int row;
-    if (find_id(view, id) < 0 || view->tree_view.selected_id == id)
-        return;
-    view->tree_view.selected_id = id;
-    row = visible_row_for_id(view, id);
+/* visible_rows is a preferred-size resource, not the allocated viewport. */
+static Cardinal viewport_rows(XmTreeViewWidget view) {
+    return MAX(1, view->core.height / MAX(1, view->tree_view.row_height));
+}
+
+static void ensure_selected_visible(XmTreeViewWidget view) {
+    int row=visible_row_for_id(view,view->tree_view.selected_id);
     if (row >= 0 && (Cardinal)row >= view->tree_view.top_row +
-                    view->tree_view.visible_rows)
-        view->tree_view.top_row = (Cardinal)row - view->tree_view.visible_rows + 1;
+                    viewport_rows(view))
+        view->tree_view.top_row = (Cardinal)row - viewport_rows(view) + 1;
     else if (row >= 0 && (Cardinal)row < view->tree_view.top_row)
         view->tree_view.top_row = (Cardinal)row;
+}
+
+static void Resize(Widget widget) {
+    XmTreeViewWidget view = (XmTreeViewWidget)widget;
+    Cardinal total = visible_count(view), rows = viewport_rows(view);
+    Cardinal last_top = total > rows ? total - rows : 0;
+    if (view->tree_view.top_row > last_top)
+        view->tree_view.top_row = last_top;
+    ensure_selected_visible(view);
     redraw(view);
-    if (notify)
-        notify_selection(view, event);
+}
+
+static void select_id(XmTreeViewWidget view, XtPointer id, Boolean notify,
+                      XEvent *event) {
+    Boolean changed=view->tree_view.selected_id != id;
+    if (find_id(view,id)<0) return;
+    view->tree_view.selected_id=id;
+    ensure_selected_visible(view);
+    redraw(view);
+    if (notify && changed) notify_selection(view,event);
 }
 
 static void toggle_item(XmTreeViewWidget view, int index, Boolean expanded,
@@ -268,22 +337,97 @@ static void toggle_item(XmTreeViewWidget view, int index, Boolean expanded,
         notify_expansion(view, index, event);
 }
 
+Boolean _XmTreeViewHasSelectionAction(Widget widget) {
+    XmTreeViewWidget view;
+    int index;
+    if (!widget || !XmIsTreeView(widget) || !XtIsSensitive(widget) ||
+        widget->core.being_destroyed) return False;
+    view = (XmTreeViewWidget)widget;
+    index = find_id(view, view->tree_view.selected_id);
+    return index >= 0 && is_visible(view, (Cardinal)index);
+}
+
+Boolean _XmTreeViewActivateSelection(Widget widget, XEvent *event) {
+    XmTreeViewWidget view;
+    int index;
+    if (!_XmTreeViewHasSelectionAction(widget)) return False;
+    view = (XmTreeViewWidget)widget;
+    index = find_id(view, view->tree_view.selected_id);
+    view->tree_view.pressed_id = NULL;
+    if (view->tree_view.items[index].has_children)
+        toggle_item(view, index, !view->tree_view.items[index].expanded,
+                    True, event);
+    else
+        notify_activation(view, index, event);
+    /* The callback can retire the widget or its accessibility bridge. */
+    return True;
+}
+
+/* The same modern disclosure slot drives measurement, drawing and hits. */
+static Boolean disclosure_metrics(XmTreeViewWidget view, int *inset,
+                                   int *size, int *gap) {
+    XmAppearanceProfile profile;
+    if (!XmGetAppearanceProfile(XtDisplay((Widget)view), &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT &&
+         profile != XmAPPEARANCE_MODERN_DARK)) return False;
+    *inset = _XmDpiDefaultDimension((Widget)view, 8);
+    *size = _XmDpiDefaultDimension((Widget)view, 12);
+    *gap = _XmDpiDefaultDimension((Widget)view, 6);
+    return True;
+}
+
+/* Include every node so expanding a branch does not change preferred width.
+ * Text extent, indentation and disclosure space share one measurement path. */
+static void natural_metrics(XmTreeViewWidget view, Dimension *width, Dimension *row_height) {
+    uint64_t widest=0, tallest=0;
+    Dimension padding=0;
+    int inset=4, indicator=9, gap=5;
+    Boolean modern=disclosure_metrics(view,&inset,&indicator,&gap);
+    XmString sample=XmStringCreateLocalized("Mg");
+    Dimension w=0,h=0;
+    if (view->tree_view.render_table)
+        XmStringExtent(view->tree_view.render_table,sample,&w,&h);
+    XmStringFree(sample);tallest=h;
+    (void)XmGetAppearanceSpacing(XtDisplay((Widget)view),XmAPPEARANCE_SPACING_XS,&padding);
+    for (Cardinal i=0;i<view->tree_view.count;++i) {
+        XmString label=XmStringCreateLocalized(view->tree_view.items[i].label);
+        uint64_t extent;
+        w=h=0;
+        if (view->tree_view.render_table)
+            XmStringExtent(view->tree_view.render_table,label,&w,&h);
+        XmStringFree(label);
+        extent=(uint64_t)w+(uint64_t)depth_of(view,i)*view->tree_view.indent+
+            (modern ? 2*inset+indicator+gap : 22);
+        if (extent>widest) widest=extent;
+        if (h>tallest) tallest=h;
+    }
+    if (!widest) widest=_XmDpiDefaultDimension((Widget)view,120);
+    tallest=MAX(tallest,(uint64_t)indicator)+2*(uint64_t)padding;
+    *width=(Dimension)MIN(widest,SHRT_MAX);
+    *row_height=(Dimension)MIN(MAX(tallest,1),USHRT_MAX);
+}
+
 static void Initialize(Widget request, Widget widget, ArgList args,
                        Cardinal *count) {
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
     XGCValues values;
     (void)request; (void)args; (void)count;
+    view->tree_view.automatic_height = ((XmTreeViewWidget)request)->core.height == 0;
     view->tree_view.items = NULL;
     view->tree_view.count = 0;
     view->tree_view.selected_id = NULL;
+    view->tree_view.pressed_id = NULL;
     if (view->tree_view.render_table == NULL)
         view->tree_view.render_table = XmFontListCopy(
             XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
     else
         view->tree_view.render_table = XmFontListCopy(
             view->tree_view.render_table);
-    if (!view->tree_view.row_height)
-        view->tree_view.row_height = 1;
+    view->tree_view.automatic_row_height = view->tree_view.row_height == 0;
+    if (view->tree_view.automatic_row_height) {
+        Dimension width;
+        natural_metrics(view,&width,&view->tree_view.row_height);
+    }
     if (!view->tree_view.visible_rows)
         view->tree_view.visible_rows = 1;
     values.foreground = view->primitive.foreground;
@@ -291,23 +435,25 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     view->tree_view.gc = XCreateGC(XtDisplay(widget),
                                    DefaultRootWindow(XtDisplay(widget)),
                                    GCForeground | GCBackground, &values);
-    if (!view->core.width)
-        view->core.width = 280;
-    if (!view->core.height) {
+    if (!((XmTreeViewWidget)request)->core.width) {
+        Dimension height;
+        natural_metrics(view,&view->core.width,&height);
+    }
+    if (!((XmTreeViewWidget)request)->core.height) {
         unsigned long long height =
             (unsigned long long)view->tree_view.row_height *
             (unsigned long long)view->tree_view.visible_rows;
         view->core.height = height > (unsigned long long)(Dimension)-1 ?
                             (Dimension)-1 : (Dimension)height;
     }
-    XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
+    XtAddEventHandler(widget, KeyPressMask | ButtonPressMask | ButtonReleaseMask, False, Events,
                       NULL);
 }
 
 static void Destroy(Widget widget) {
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
     Cardinal i;
-    XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
+    XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask | ButtonReleaseMask, False, Events,
                          NULL);
     for (i = 0; i < view->tree_view.count; ++i)
         XtFree(view->tree_view.items[i].label);
@@ -321,6 +467,25 @@ static void Destroy(Widget widget) {
 static void draw_disclosure(XmTreeViewWidget view, int x, int y, Boolean open) {
     Display *display = XtDisplay((Widget)view);
     Window window = XtWindow((Widget)view);
+    int inset, size, gap;
+    if (disclosure_metrics(view, &inset, &size, &gap)) {
+        int extent = MIN(size, (int)view->tree_view.row_height - 2);
+        int left = x + (size - extent) / 2;
+        int top = y + ((int)view->tree_view.row_height - extent) / 2;
+        XRectangle clip;
+        if (extent < 3 || left < 0 || left + extent > view->core.width ||
+            top < 0 || top + extent > view->core.height ||
+            left + extent > SHRT_MAX || top + extent > SHRT_MAX) return;
+        clip=(XRectangle){left,top,extent,extent};
+        XSetClipRectangles(display,view->tree_view.gc,0,0,&clip,1,Unsorted);
+        int glyph = MIN(extent, (int)_XmDpiDefaultDimension((Widget)view,8));
+        _XmAppearanceDrawChevron(display, window, view->tree_view.gc,
+            left+(extent-glyph)/2, top+(extent-glyph)/2, glyph, glyph,
+            _XmDpiDefaultDimension((Widget)view,2),
+            open ? XmARROW_DOWN : (view->tree_view.rtl ? XmARROW_LEFT : XmARROW_RIGHT));
+        XSetClipMask(display,view->tree_view.gc,None);
+        return;
+    }
     /* Use a nine-pixel raster box (an eight-pixel X11 extent), whose centre
      * is an actual pixel.  A one-pixel stroke then lands on the same centre
      * pixel horizontally and vertically instead of straddling an even-sized
@@ -347,13 +512,14 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
     Cardinal row, total = visible_count(view);
-    int index;
+    int index, inset=4, indicator=9, gap=5;
+    Boolean modern=disclosure_metrics(view,&inset,&indicator,&gap);
     const char *label;
     (void)event; (void)region;
     if (!window || !view->tree_view.gc)
         return;
     XClearWindow(display, window);
-    for (row = 0; row < view->tree_view.visible_rows; ++row) {
+    for (row = 0; row < viewport_rows(view); ++row) {
         Cardinal absolute = view->tree_view.top_row + row;
         int x;
         int y = clamp_coordinate((long long)row *
@@ -363,7 +529,17 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         index = visible_item(view, absolute);
         if (index < 0)
             break;
-        if (view->tree_view.items[index].id == view->tree_view.selected_id)
+        XSetBackground(display,view->tree_view.gc,view->core.background_pixel);
+        if (modern && view->tree_view.items[index].id == view->tree_view.selected_id) {
+            int height=MIN((int)view->tree_view.row_height,(int)view->core.height-y);
+            if (height > 2 && view->core.width > 4 && y < SHRT_MAX) {
+                XSetForeground(display,view->tree_view.gc,view->tree_view.select_color);
+                XFillRectangle(display,window,view->tree_view.gc,2,y+1,
+                    view->core.width-4,height-2);
+                XSetForeground(display,view->tree_view.gc,view->primitive.foreground);
+                XSetBackground(display,view->tree_view.gc,view->tree_view.select_color);
+            }
+        } else if (view->tree_view.items[index].id == view->tree_view.selected_id)
             XDrawRectangle(display, window, view->tree_view.gc, 1, y + 1,
                            view->core.width > 3 ? view->core.width - 3 : 1,
                            view->tree_view.row_height > 3 ?
@@ -372,7 +548,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             long long depth_offset = (long long)depth_of(view, (Cardinal)index) *
                                      view->tree_view.indent;
             long long origin = view->tree_view.rtl ?
-                               (long long)view->core.width - 14 : 4;
+                               (long long)view->core.width - (modern ? inset+indicator : 14) :
+                               (modern ? inset : 4);
             long long item_x = view->tree_view.rtl ? origin - depth_offset :
                                origin + depth_offset;
             x = item_x < INT_MIN ? INT_MIN :
@@ -382,7 +559,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             if (!view->tree_view.rtl)
                 draw_disclosure(view, x, y, view->tree_view.items[index].expanded);
             else
-                draw_disclosure(view, x - 10, y,
+                draw_disclosure(view, x - (modern ? 0 : 10), y,
                                 view->tree_view.items[index].expanded);
         }
         label = view->tree_view.items[index].label ?
@@ -394,9 +571,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                 XmStringExtent(view->tree_view.render_table, label_string,
                                &label_width, &label_height);
         if (!view->tree_view.rtl)
-            x += 14;
+            x += modern ? indicator+gap : 14;
         else {
-            long long rtl_x = (long long)x - (long long)label_width - 4;
+            long long rtl_x = (long long)x - (long long)label_width - (modern ? gap : 4);
             x = rtl_x < INT_MIN ? INT_MIN :
                 (rtl_x > INT_MAX ? INT_MAX : (int)rtl_x);
         }
@@ -414,6 +591,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             XmStringFree(label_string);
         }
     }
+    XSetBackground(display,view->tree_view.gc,view->core.background_pixel);
+    if (modern) XSetForeground(display,view->tree_view.gc,view->primitive.highlight_color);
     if (view->primitive.highlighted && view->primitive.highlight_thickness &&
         view->core.width > 2 * view->primitive.highlight_thickness &&
         view->core.height > 2 * view->primitive.highlight_thickness)
@@ -422,12 +601,14 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                        view->primitive.highlight_thickness - 1,
                        view->core.width - 2 * view->primitive.highlight_thickness,
                        view->core.height - 2 * view->primitive.highlight_thickness);
+    XSetForeground(display,view->tree_view.gc,view->primitive.foreground);
 }
 
 static int row_at(XmTreeViewWidget view, int y) {
     Cardinal total = visible_count(view);
     Cardinal row;
-    if (y < 0 || view->tree_view.row_height == 0)
+    if (y < 0 || y >= view->core.height || view->tree_view.row_height == 0 ||
+        (Cardinal)(y / view->tree_view.row_height) >= viewport_rows(view))
         return -1;
     row = view->tree_view.top_row + (Cardinal)(y / view->tree_view.row_height);
     if (row >= total)
@@ -437,13 +618,31 @@ static int row_at(XmTreeViewWidget view, int y) {
 
 static void Events(Widget widget, XtPointer data, XEvent *event,
                    Boolean *dispatch) {
+    if (widget == NULL || event == NULL || !XmIsTreeView(widget))
+        return;
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
     KeySym key;
     char buffer[2];
     int length, index, row, next;
     (void)data; (void)dispatch;
-    if (widget == NULL || event == NULL || !XmIsTreeView(widget)) return;
+    if (!XtIsSensitive(widget)) {
+        view->tree_view.pressed_id = NULL;
+        return;
+    }
+    if (event->type == ButtonRelease) {
+        XtPointer pressed = view->tree_view.pressed_id;
+        view->tree_view.pressed_id = NULL;
+        index = row_at(view,event->xbutton.y);
+        if (event->xbutton.button == Button1 && pressed && index >= 0 &&
+            event->xbutton.x >= 0 && event->xbutton.x < view->core.width &&
+            event->xbutton.y < view->core.height &&
+            pressed == view->tree_view.items[index].id &&
+            pressed == view->tree_view.selected_id)
+            notify_activation(view,index,event);
+        return;
+    }
     if (event->type == ButtonPress) {
+        view->tree_view.pressed_id = NULL;
         if (event->xbutton.button == Button4) {
             if (view->tree_view.top_row)
                 --view->tree_view.top_row;
@@ -451,7 +650,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
             return;
         }
         if (event->xbutton.button == Button5) {
-            if (view->tree_view.top_row + view->tree_view.visible_rows <
+            if (view->tree_view.top_row + viewport_rows(view) <
                 visible_count(view))
                 ++view->tree_view.top_row;
             redraw(view);
@@ -460,6 +659,26 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
         index = row_at(view, event->xbutton.y);
         if (index < 0)
             return;
+        {
+            int inset, size, gap;
+            if (view->tree_view.items[index].has_children &&
+                disclosure_metrics(view,&inset,&size,&gap)) {
+                long long offset=(long long)depth_of(view,(Cardinal)index)*view->tree_view.indent;
+                long long left=view->tree_view.rtl ?
+                    (long long)view->core.width-inset-size-offset : inset+offset;
+                if (event->xbutton.button == Button1 &&
+                    event->xbutton.x >= left-gap/2 &&
+                    event->xbutton.x < left+size+gap/2) {
+                    toggle_item(view,index,!view->tree_view.items[index].expanded,True,event);
+                    return;
+                }
+                select_id(view,view->tree_view.items[index].id,True,event);
+                return;
+            }
+        }
+        if (event->xbutton.button == Button1 && event->xbutton.x >= 0 &&
+            event->xbutton.x < view->core.width && event->xbutton.y < view->core.height)
+            view->tree_view.pressed_id = view->tree_view.items[index].id;
         if (view->tree_view.selected_id != view->tree_view.items[index].id) {
             select_id(view, view->tree_view.items[index].id, True, event);
             return;
@@ -475,8 +694,15 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
     }
     if (event->type != KeyPress)
         return;
+    view->tree_view.pressed_id = NULL;
     length = XLookupString(&event->xkey, buffer, sizeof(buffer), &key, NULL);
     (void)length;
+    /* Tree navigation consumes these keys; inherited Primitive traversal and
+     * parent activation must not also run for the same event. Tab and focus
+     * actions remain owned by the standard Primitive translation table. */
+    if (key == XK_Up || key == XK_Down || key == XK_Left || key == XK_Right ||
+        key == XK_Return || key == XK_KP_Enter)
+        *dispatch = False;
     index = find_id(view, view->tree_view.selected_id);
     row = index < 0 ? -1 : visible_row_for_id(view, view->tree_view.selected_id);
     if (key == XK_Up || key == XK_Down) {
@@ -488,13 +714,6 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
                 return;
         }
         if (next >= 0) {
-            row = visible_row_for_id(view, view->tree_view.items[next].id);
-            if (row >= 0 && (Cardinal)row >= view->tree_view.top_row +
-                view->tree_view.visible_rows)
-                view->tree_view.top_row = (Cardinal)row -
-                                           view->tree_view.visible_rows + 1;
-            else if (row >= 0 && (Cardinal)row < view->tree_view.top_row)
-                view->tree_view.top_row = (Cardinal)row;
             select_id(view, view->tree_view.items[next].id, True, event);
             return;
         }
@@ -523,9 +742,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
             }
         }
     } else if (key == XK_Return || key == XK_KP_Enter) {
-        if (index >= 0 && view->tree_view.items[index].has_children)
-            toggle_item(view, index, !view->tree_view.items[index].expanded,
-                        True, event);
+        (void)_XmTreeViewActivateSelection(widget, event);
         return;
     }
 }
@@ -537,14 +754,17 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     Boolean colors_changed = old->primitive.foreground != view->primitive.foreground ||
                              old->core.background_pixel != view->core.background_pixel;
     (void)request; (void)args; (void)count;
+    if (!XtIsSensitive(widget)) view->tree_view.pressed_id = NULL;
     if (colors_changed && view->tree_view.gc) {
-        XSetForeground(XtDisplay(widget), view->tree_view.gc,
-                       view->primitive.foreground);
-        XSetBackground(XtDisplay(widget), view->tree_view.gc,
-                       view->core.background_pixel);
+        XGCValues values;
+        values.foreground = view->primitive.foreground;
+        values.background = view->core.background_pixel;
+        XChangeGC(XtDisplay(widget), view->tree_view.gc,
+                  GCForeground | GCBackground, &values);
     }
-    if (!view->tree_view.row_height)
-        view->tree_view.row_height = 1;
+    for (Cardinal i=0;i<*count;++i)
+        if (!strcmp(args[i].name,XmNtreeViewRowHeight))
+            view->tree_view.automatic_row_height = view->tree_view.row_height == 0;
     if (view->tree_view.visible_rows == 0)
         view->tree_view.visible_rows = 1;
     if (old->tree_view.render_table != view->tree_view.render_table) {
@@ -560,7 +780,23 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             view->tree_view.render_table = old->tree_view.render_table;
         }
     }
-    return old->tree_view.indent != view->tree_view.indent ||
+    if (view->tree_view.automatic_row_height) {
+        Dimension width;
+        natural_metrics(view,&width,&view->tree_view.row_height);
+    }
+    for (Cardinal i=0;i<*count;++i)
+        if (!strcmp(args[i].name,XmNheight))
+            view->tree_view.automatic_height = (Dimension)args[i].value == 0;
+    if (view->tree_view.automatic_height) {
+        uint64_t height = (uint64_t)view->tree_view.row_height * view->tree_view.visible_rows;
+        view->core.height = (Dimension)MIN(MAX(height,1),USHRT_MAX);
+    }
+    if (old->tree_view.visible_rows != view->tree_view.visible_rows)
+        ensure_selected_visible(view);
+    return colors_changed ||
+           old->tree_view.select_color != view->tree_view.select_color ||
+           old->primitive.highlight_color != view->primitive.highlight_color ||
+           old->tree_view.indent != view->tree_view.indent ||
            old->tree_view.row_height != view->tree_view.row_height ||
            old->tree_view.visible_rows != view->tree_view.visible_rows ||
            old->tree_view.top_row != view->tree_view.top_row ||
@@ -572,14 +808,14 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
     unsigned long height;
-    (void)request;
+    Dimension row_height;
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = 280;
+    natural_metrics(view,&reply->width,&row_height);
     height = (unsigned long)view->tree_view.row_height *
              (unsigned long)view->tree_view.visible_rows;
     reply->height = height > (unsigned long)(Dimension)-1
                         ? (Dimension)-1 : (Dimension)height;
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget,request,reply);
 }
 
 Widget XmCreateTreeView(Widget parent, char *name, ArgList args,
@@ -591,7 +827,7 @@ void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,
                         Cardinal count) {
     XmTreeViewWidget view;
     XmTreeViewItem *items;
-    Cardinal i;
+    Cardinal i, *order;
     XtPointer selected;
     if (widget == NULL || !XmIsTreeView(widget) || widget->core.being_destroyed ||
         count > TREE_VIEW_MAX_NODES ||
@@ -602,27 +838,39 @@ void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,
     items = count ? (XmTreeViewItem *)XtCalloc(count, sizeof(*items)) : NULL;
     if (count != 0 && items == NULL)
         return;
+    order = input_preorder(nodes, count);
+    if (count && !order) {
+        XtFree((char *)items);
+        return;
+    }
     for (i = 0; i < count; ++i) {
-        items[i].id = nodes ? nodes[i].id : NULL;
-        items[i].parent_id = nodes ? nodes[i].parent_id : NULL;
-        items[i].label = XtNewString(nodes && nodes[i].label ?
-                                     nodes[i].label : "");
+        const XmTreeViewNode *node = &nodes[order[i]];
+        items[i].id = node->id;
+        items[i].parent_id = node->parent_id;
+        items[i].label = XtNewString(node->label ? node->label : "");
         if (items[i].label == NULL) {
             while (i != 0)
                 XtFree(items[--i].label);
             XtFree((char *)items);
+            XtFree((char *)order);
             return;
         }
-        items[i].has_children = nodes ? nodes[i].has_children : False;
-        items[i].expanded = nodes ? nodes[i].expanded : False;
+        items[i].has_children = node->has_children;
+        items[i].expanded = node->expanded;
     }
+    XtFree((char *)order);
     for (i = 0; i < view->tree_view.count; ++i)
         XtFree(view->tree_view.items[i].label);
     XtFree((char *)view->tree_view.items);
+    view->tree_view.pressed_id = NULL;
     view->tree_view.items = items;
     view->tree_view.count = count;
     view->tree_view.selected_id = find_id(view, selected) >= 0 ? selected : NULL;
     view->tree_view.top_row = 0;
+    if (view->tree_view.automatic_row_height) {
+        Dimension width;
+        natural_metrics(view,&width,&view->tree_view.row_height);
+    }
     redraw(view);
 }
 

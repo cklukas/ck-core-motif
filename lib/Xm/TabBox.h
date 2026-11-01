@@ -27,6 +27,8 @@
 #include <Xm/Ext.h>
 #include <Xm/DrawUtils.h>
 
+#define XmCTabArrowPlacement "TabArrowPlacement"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

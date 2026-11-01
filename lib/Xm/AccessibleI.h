@@ -2,6 +2,8 @@
 #define _XmAccessibleI_h
 #include "Accessible.h"
 #include <stddef.h>
+/* Canonical protocol names shared by native validation and D-Bus replies. */
+const char *_XmAccessibilityRoleName(unsigned int role);
 typedef struct _XmAccessibleNode {
   XmAccessibleId id, parent;
   Widget widget;

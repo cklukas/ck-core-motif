@@ -1,15 +1,12 @@
 ---
 nav_exclude: true
 ---
-# Stepper redisplay guards
+# Stepper rendering ownership
 
-`XmStepper` now returns safely when its drawing GC or queried X11 font is
-unavailable. This prevents a display-resource allocation failure from reaching
-font field access or Xlib drawing calls with a null GC.
+Stepper now uses native Label and PushButton children. It no longer creates a
+private drawing GC, queries X font IDs, or maintains a separate text baseline.
+Each native child owns its rendering resources and ordinary redisplay behavior.
 
-The font resource is retrieved from the live GC with `XGetGCValues(...,
-GCFont, ...)` before `XQueryFont`; a GC context ID is not a font ID and must
-not be passed to the latter.
-
-The focused source contract is checked by
-`tests/automated/check-stepper-redisplay-guard.py`.
+The earlier custom-redisplay source guard has been superseded by
+`tests/automated/run-stepper-native.py`, which exercises actual installed-library
+geometry and interaction. See [Stepper](stepper.md) for the current contract.

@@ -1343,6 +1343,7 @@ DoStuff(Widget w,
 	} else {
 	  wchar_t * wc_value;
 	  size_t total_len = strlen(total_value);
+	  size_t converted;
 	  int tmp_len;
 
 	  _XmProcessLock();
@@ -1403,6 +1404,7 @@ DoStuff(Widget w,
 	_XmProcessUnlock();
       } else {
 	wchar_t * wc_value;
+	size_t converted;
 	char *temp;
 
 	temp = XtMalloc((Cardinal)(ds->length + 1));

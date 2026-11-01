@@ -3951,6 +3951,19 @@ ResetTopPointers (
     if (num_visible_major < num_major)
 	{
 	nb->notebook.need_scroller = XmMAJOR_TAB_SCROLLER;
+        /* An oversized label must not reduce the scroll viewport to zero
+         * visible tabs. Allocate one bounded tab between the scroll arrows;
+         * its label renderer clips to this allocation. */
+        int available = (int)frame_dim - nb->notebook.back_page_size -
+            scroller_dim - MAX(0, (int)scroller_dim - nb->notebook.back_page_size) -
+            nb->notebook.shadow_thickness - spacing;
+        if (available > 0 && tab_dim > available) {
+            tab_dim = available;
+            if (nb->notebook.orientation == XmHORIZONTAL)
+                nb->notebook.major_height = tab_dim;
+            else
+                nb->notebook.major_width = tab_dim;
+        }
 	num_visible_major = (int)(frame_dim -
 			     nb->notebook.back_page_size -
 			     scroller_dim -
@@ -3985,6 +3998,23 @@ ResetTopPointers (
 	    nb->notebook.need_scroller = XmTAB_SCROLLER;
 	else
 	    nb->notebook.need_scroller = XmMINOR_TAB_SCROLLER;
+        int offset = nb->notebook.shadow_thickness == 0 ? 1 : 0;
+        int leading = MAX(0, (int)nb->notebook.back_page_size -
+                             nb->notebook.real_binding_width);
+        if (nb->notebook.binding_pos == RIGHT || nb->notebook.binding_pos == BOTTOM)
+            leading += offset;
+        else
+            leading = MAX(leading, 1 + offset);
+        int available = (int)frame_dim - leading -
+            scroller_dim - MAX(0, (int)scroller_dim - nb->notebook.back_page_size) -
+            nb->notebook.shadow_thickness - spacing;
+        if (available > 0 && tab_dim > available) {
+            tab_dim = available;
+            if (nb->notebook.orientation == XmHORIZONTAL)
+                nb->notebook.minor_width = tab_dim;
+            else
+                nb->notebook.minor_height = tab_dim;
+        }
 	num_visible_minor = (int)(frame_dim -
 			     MAX(0, (int)(nb->notebook.back_page_size - 
 				    nb->notebook.real_binding_width)) - 

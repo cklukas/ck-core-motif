@@ -7,6 +7,7 @@
 #include <Xm/XmP.h>
 #include <limits.h>
 #include <string.h>
+#include "XmI.h"
 
 static Position bounded_position(long long value) {
     if (value < SHRT_MIN) return (Position)SHRT_MIN;
@@ -46,6 +47,19 @@ externaldef(xmpromptwidgetclass) WidgetClass xmPromptWidgetClass =
 static XmString copy_prompt(XmString source) {
     return source ? XmStringCopy(source) : XmStringCreateLocalized("");
 }
+static Dimension padding(XmPromptWidget prompt) {
+    unsigned long frame = (unsigned long)prompt->primitive.highlight_thickness +
+                          prompt->primitive.shadow_thickness;
+    return (Dimension)MIN(USHRT_MAX, MAX(frame,
+        (unsigned long)_XmDpiDefaultDimension((Widget)prompt, 4)));
+}
+static void natural_size(XmPromptWidget prompt, Dimension *width, Dimension *height) {
+    Dimension tw = 0, th = 0, inset = padding(prompt);
+    if (prompt->prompt.font && prompt->prompt.text)
+        XmStringExtent(prompt->prompt.font, prompt->prompt.text, &tw, &th);
+    *width = (Dimension)MIN(USHRT_MAX, MAX(1, (unsigned long)tw + 2UL*inset));
+    *height = (Dimension)MIN(USHRT_MAX, MAX(1, (unsigned long)th + 2UL*inset));
+}
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmPromptWidget prompt = (XmPromptWidget)widget; XGCValues values;
     (void)args; (void)count;
@@ -58,17 +72,13 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     values.background = prompt->core.background_pixel;
     prompt->prompt.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
                                   GCForeground | GCBackground, &values);
-    if (!request->core.width || !request->core.height) {
-        Dimension width = 120, height = 24;
-        if (prompt->prompt.font && prompt->prompt.text) {
-            Dimension text_width = 0, text_height = 0;
-            XmStringExtent(prompt->prompt.font, prompt->prompt.text,
-                           &text_width, &text_height);
-            width = padded_extent(text_width, 8);
-            height = padded_extent(text_height, 8);
-        }
-        if (!request->core.width) prompt->core.width = width;
-        if (!request->core.height) prompt->core.height = height;
+    prompt->prompt.automatic_width = request->core.width == 0;
+    prompt->prompt.automatic_height = request->core.height == 0;
+    {
+        Dimension width, height;
+        natural_size(prompt, &width, &height);
+        if (prompt->prompt.automatic_width) prompt->core.width = width;
+        if (prompt->prompt.automatic_height) prompt->core.height = height;
     }
 }
 static void Destroy(Widget widget) {
@@ -81,14 +91,24 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmPromptWidget prompt = (XmPromptWidget)widget; Dimension width=0,height=0;
     (void)event; (void)region;
     if (!XtWindow(widget) || !prompt->prompt.gc) return;
+    XSetForeground(XtDisplay(widget), prompt->prompt.gc,
+        XtIsSensitive(widget) ? prompt->primitive.foreground : prompt->primitive.bottom_shadow_color);
+    XSetBackground(XtDisplay(widget), prompt->prompt.gc, prompt->core.background_pixel);
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     if (!prompt->prompt.visible) return;
     if (prompt->prompt.font && prompt->prompt.text) {
+        Dimension inset = padding(prompt);
+        XRectangle clip;
+        if ((unsigned long)prompt->core.width <= 2UL * inset ||
+            (unsigned long)prompt->core.height <= 2UL * inset) return;
+        clip.x = clip.y = (short)inset;
+        clip.width = prompt->core.width - 2 * inset;
+        clip.height = prompt->core.height - 2 * inset;
         XmStringExtent(prompt->prompt.font, prompt->prompt.text, &width, &height);
         XmStringDraw(XtDisplay(widget), XtWindow(widget), prompt->prompt.font,
-                     prompt->prompt.text, prompt->prompt.gc, bounded_position(4),
-                     bounded_position(((long long)prompt->core.height - height) / 2), width,
-                     XmALIGNMENT_BEGINNING, XmPrim_layout_direction(prompt), NULL);
+                     prompt->prompt.text, prompt->prompt.gc, inset,
+                     bounded_position(((long long)prompt->core.height - (long long)height) / 2), clip.width,
+                     XmALIGNMENT_BEGINNING, XmPrim_layout_direction(prompt), &clip);
     }
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -126,26 +146,34 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             prompt->prompt.text = old->prompt.text;
         }
     }
+    for (Cardinal i=0; i<*count; ++i) {
+        if (!strcmp(args[i].name, XmNwidth))
+            prompt->prompt.automatic_width = (Dimension)args[i].value == 0;
+        if (!strcmp(args[i].name, XmNheight))
+            prompt->prompt.automatic_height = (Dimension)args[i].value == 0;
+    }
+    {
+        Dimension width, height;
+        natural_size(prompt, &width, &height);
+        if (prompt->prompt.automatic_width) prompt->core.width = width;
+        if (prompt->prompt.automatic_height) prompt->core.height = height;
+    }
     return font_changed || colors_changed ||
+           old->primitive.bottom_shadow_color != prompt->primitive.bottom_shadow_color ||
+           XtIsSensitive(old_widget) != XtIsSensitive(widget) ||
            old->prompt.text != prompt->prompt.text ||
            old->prompt.visible != prompt->prompt.visible;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
+    if (widget == NULL || reply == NULL || !XmIsPrompt(widget))
+        return XtGeometryNo;
     XmPromptWidget prompt = (XmPromptWidget)widget;
-    (void)request;
     reply->request_mode = CWWidth | CWHeight;
-    if (prompt->prompt.font && prompt->prompt.text) {
-        Dimension width = 0, height = 0;
-        XmStringExtent(prompt->prompt.font, prompt->prompt.text, &width, &height);
-        reply->width = padded_extent(width, 8);
-        reply->height = padded_extent(height, 8);
-    } else {
-        reply->width = 8;
-        reply->height = 24;
-    }
-    return (widget->core.width == reply->width && widget->core.height == reply->height)
-               ? XtGeometryYes : XtGeometryAlmost;
+    natural_size(prompt, &reply->width, &reply->height);
+    if (!prompt->prompt.automatic_width) reply->width = prompt->core.width;
+    if (!prompt->prompt.automatic_height) reply->height = prompt->core.height;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 void XmPromptSetVisible(Widget widget, Boolean visible) {
     if (widget == NULL || !XmIsPrompt(widget)) return;

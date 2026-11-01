@@ -238,6 +238,7 @@ extern Display *_XmGetDefaultDisplay(void);
 extern Boolean _XmGetDpiScale(Display *display, double *scale);
 extern int _XmParsePrintResolution(const char *text);
 extern Boolean _XmGetGlobalDpiScale(Display *display, double *scale);
+extern Boolean _XmGetWidgetDpiScale(Widget widget, double *scale);
 extern Dimension _XmDpiDefaultDimension(Widget widget, Dimension baseline);
 extern Dimension _XmDpiScaleDimension(double scale, Dimension baseline);
 
@@ -261,6 +262,11 @@ extern void _XmScaleRelayoutWidget(Widget widget,
                                    double old_scale,
                                    double new_scale,
                                    XtPointer closure);
+extern void _XmInitializeAppearance(void);
+extern void _XmAppearanceNoteFontDefault(Widget widget, Widget provider,
+                                         unsigned char kind);
+extern unsigned char _XmValidateAppearanceRole(Widget widget,
+    unsigned char role, unsigned char fallback);
 extern Boolean _XmRegisterAppearanceChange(Widget widget,
                                             ArgList args,
                                             Cardinal num_args);
@@ -269,9 +275,43 @@ extern Boolean _XmApplyAppearanceChange(Display *display,
                                         XmAppearanceProfile new_profile,
                                         XmAppearanceDensity density);
 extern Boolean _XmAppearanceDefersLayout(Display *display);
+extern Boolean _XmAppearanceDefersChildPropagation(Display *display);
+extern XmAppearanceProfile _XmAppearanceGeometryProfile(Display *display);
+extern XmAppearanceDensity _XmAppearanceGeometryDensity(Display *display);
 extern Boolean _XmNotebookDrawTabBorder(Widget child);
+/* Values owned by the toggle; rendering does not change interaction state. */
+typedef struct {
+    int x, y, edge, inset;
+    unsigned char state, type, indicator;
+    Boolean visible, fill, armed;
+    Pixel background, foreground, border, select, unselect;
+} XmAppearanceToggle;
+extern Boolean _XmAppearanceOwnsResource(Widget, const char *);
+extern Boolean _XmContainerDrawDisclosure(Widget);
+extern Boolean _XmAppearanceDrawButton(Widget widget, Pixel fill,
+    Boolean emphasized, Boolean paint_background);
+extern Boolean _XmAppearanceDrawFieldFrame(Widget widget);
+/* Explicit rectangles support arrows embedded in composite controls. */
+extern Boolean _XmAppearanceDrawArrowRegion(Widget widget,
+    int x, int y, int width, int height, Dimension shadow,
+    unsigned char direction, Boolean pressed, Boolean sensitive);
+extern Boolean _XmAppearanceDrawArrowButton(Widget widget,
+    unsigned char direction, Boolean pressed);
 extern void _XmAppearanceInsetArrow(Widget widget, Position *x, Position *y,
                                      Dimension *width, Dimension *height);
+extern Dimension _XmAppearanceArrowExtent(Widget widget,
+    XmAppearanceProfile profile, XmAppearanceDensity density,
+    Dimension highlight, Dimension shadow);
+extern XtGeometryResult _XmArrowButtonQueryGeometry(Widget widget,
+    XtWidgetGeometry *request, XtWidgetGeometry *reply);
+extern Boolean _XmAppearanceDrawToggle(Widget widget,
+                                       const XmAppearanceToggle *toggle);
+
+extern void _XmAppearanceInheritFont(Widget child, Widget owner);
+extern void _XmAppearanceInheritForeground(Widget child, Widget owner);
+extern Boolean _XmAppearanceResetDefaultFont(Widget child, Widget provider,
+                                              unsigned char kind);
+extern Boolean _XmApplyAppearanceScale(Display *display, Widget root);
 extern void _XmAppearanceDefaultColors(Widget parent, Pixel *background,
     Pixel *foreground, Pixel *top_shadow, Pixel *bottom_shadow, Pixel *highlight);
 extern void _XmDestroyAppearanceDisplay(Display *display);
@@ -317,6 +357,9 @@ extern void (*_XtProcessLock)();
 #ifdef __cplusplus
 }  /* Close scope of 'extern "C"' declaration which encloses file. */
 #endif
+
+extern Boolean _XmSegmentedControlUsesModern(Widget);
+extern Boolean _XmSegmentedControlDraw(Widget);
 
 #define FIX_1396
 

@@ -30,3 +30,28 @@ bounded value summary.  A future release may add richer semantic cell
 providers, but this release does not infer formulas, charts, arbitrary data
 binding, lazy providers, variable-height rows, frozen panes, merged cells, or
 background callbacks.  Those restrictions are part of the public contract.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmDataGridWidgetClass demo](gallery-screenshots/xm-datagridwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDataGridWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L640-L659
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DataGrid.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

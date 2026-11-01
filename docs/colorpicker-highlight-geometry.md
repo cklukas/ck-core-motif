@@ -1,9 +1,10 @@
 ---
 nav_exclude: true
 ---
-# ColorPicker highlight geometry
+# ColorPicker focus and geometry
 
-ColorPicker draws a focus rectangle inset by its highlight thickness.  The
-focus path now checks that both widget dimensions exceed twice the inset before
-subtracting it, preventing unsigned geometry wraparound on very small pickers.
-Normal focus painting is unchanged.
+ColorPicker now delegates text, focus and buttons to native controls. Its only
+custom painting is the passive alpha-aware swatch, clipped to its allocated
+bounds. The obsolete Primitive focus rectangle and text GC have been removed.
+Native geometry and rendering are checked by `run-colorpicker-native.py`; see
+[ColorPicker](color-picker.md) for the current interaction contract.

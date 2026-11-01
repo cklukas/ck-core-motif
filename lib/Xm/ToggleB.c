@@ -35,6 +35,7 @@ static char rcsid[] = "$TOG: ToggleB.c /main/43 1999/12/06 18:09:38 samborn $"
 #include <limits.h>
 #include <stdint.h>
 #include "XmI.h"
+#include <Xm/SegmentedControlP.h>
 #include <X11/ShellP.h>
 #include <Xm/BaseClassP.h>
 #include <Xm/CascadeB.h>
@@ -667,6 +668,10 @@ redisplayPixmap(XmToggleButtonWidget tb,
   short saveY;
   unsigned short saveWidth, saveHeight;
   
+  /* HandlePixmap has selected the state pixmap already. The composite paints
+   * the whole surface and uses Label's combined pixmap/text geometry. */
+  if (_XmSegmentedControlDraw((Widget)tb)) return;
+
   offset = tb->primitive.highlight_thickness + tb->primitive.shadow_thickness;
 
   x = offset + tb->label.margin_width + tb->label.margin_left;
@@ -2204,6 +2209,17 @@ DrawToggle
 	y -= (w->toggle.ind_top_delta - fudge);
     }
   
+  {
+    XmAppearanceToggle appearance = {
+        x, y, edge, w->primitive.highlight_thickness + w->primitive.shadow_thickness,
+        w->toggle.visual_set, w->toggle.ind_type, w->toggle.ind_on,
+        w->toggle.visible, w->toggle.fill_on_select, w->toggle.Armed,
+        w->core.background_pixel, w->primitive.foreground,
+        w->primitive.bottom_shadow_color, w->toggle.select_color, w->toggle.unselect_color
+    };
+    if (_XmAppearanceDrawToggle((Widget)w, &appearance)) return;
+  }
+
   if (w->toggle.visible || (w->toggle.visual_set != XmUNSET))
     {
       /* The toggle indicator should be visible. */
@@ -2418,6 +2434,13 @@ BorderHighlight(
   XmToggleButtonWidget tb = (XmToggleButtonWidget) wid ;
   XEvent * event = NULL;
 
+  if (_XmSegmentedControlUsesModern(wid)) {
+      tb->primitive.highlighted = True;
+      tb->primitive.highlight_drawn = True;
+      _XmSegmentedControlDrawFocus(wid);
+      return;
+  }
+
   if (Lab_IsMenupane(tb))
     {
       XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
@@ -2475,6 +2498,13 @@ BorderUnhighlight(
   XmToggleButtonWidget tb = (XmToggleButtonWidget) wid ;
   XEvent * event = NULL;
   
+  if (_XmSegmentedControlUsesModern(wid)) {
+      tb->primitive.highlighted = False;
+      tb->primitive.highlight_drawn = False;
+      _XmSegmentedControlDrawFocus(wid);
+      return;
+  }
+
   if (Lab_IsMenupane(tb))
     {
       XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
@@ -2680,6 +2710,8 @@ Redisplay(
   if (! XtIsRealized(w) ) return;    /* Fix CR #4884, D. Rand 6/4/92 */
   
   ComputeSpace (tb);
+  if (!Lab_IsPixmap(tb) && !Lab_IsPixmapAndText(tb) &&
+      _XmSegmentedControlDraw(w)) return;
   
   if (Lab_IsPixmap(tb) || Lab_IsPixmapAndText(tb))
     SetAndDisplayPixmap(tb, event, region);
@@ -3543,6 +3575,8 @@ DrawToggleShadow(
   int width, height;
   int hilite_thickness;
   
+  if (_XmSegmentedControlUsesModern((Widget)tb)) return;
+
   if (tb->toggle.ind_on || (IsOn(tb) == XmUNSET))
     { 
       top_gc = tb->primitive.top_shadow_GC;
@@ -3589,6 +3623,8 @@ DrawToggleLabel(
   int fw, fh;
   Boolean restore_gc = False;
   GC tmp_gc = None, fill_gc;
+
+  if (_XmSegmentedControlDraw((Widget)tb)) return;
 
   if ((int)tb->core.width <= 2 * (int)margin ||
       (int)tb->core.height <= 2 * (int)margin)

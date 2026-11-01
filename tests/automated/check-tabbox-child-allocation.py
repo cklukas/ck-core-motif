@@ -22,3 +22,8 @@ draw = source[draw_start:source.index("#define XiCvtDone", draw_start)]
 assert "canvas == NULL" in draw
 
 print("TabBox canvas allocation failures are null-safe")
+
+assert "SCROLLED_LAYOUT" not in source
+assert "if (XmTabBox__left_arrow(s_tab))" in source
+assert "if (XmTabBox__right_arrow(s_tab))" in source
+assert "first && last && extent > major" in source

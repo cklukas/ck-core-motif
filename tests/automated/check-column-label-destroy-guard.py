@@ -9,7 +9,7 @@ start = source.rindex("XmColumnLabelDestroyedCallback(")
 end = source.index("\n}", start)
 body = source[start:end]
 assert "field == NULL" in body
-assert "XtIsSubclass(field, xmColumnWidgetClass)" in body
+assert "XtIsSubclass(XtParent(field), xmColumnWidgetClass)" in body
 assert "XiC(field)->label_widget = NULL" in body
 
 print("Column label-destroy guard present")

@@ -89,7 +89,7 @@ endif
 
 libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} -lm $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS) $(SVG_LIBS)
 
-noinst_HEADERS = AccessibleI.h BaseClassI.h \
+noinst_HEADERS = AccessibleI.h AppearanceDrawI.h ColorSpaceI.h BaseClassI.h \
 BitmapsI.h \
 BulletinBI.h \
 CacheI.h \
@@ -270,7 +270,7 @@ SRCS2 = Desktop.c       Messages.c      Transltns.c     RepType.c \
         Synthetic.c     XmFontList.c    ClipWindow.c    Transfer.c \
         Hash.c          ScrollFrameT.c  \
         XmTabList.c     Resolve.c       XmStringFunc.c \
-        XmRenderT.c     PixConv.c       Color.c         Xm.c         Appearance.c \
+        XmRenderT.c     PixConv.c       Color.c         Xm.c         Appearance.c AppearanceDraw.c \
         CareVisualT.c   Direction.c     XmStringObso.c  XmStringGet.c \
         IsMwmRun.c      MenuProc.c      MenuState.c     TextFind.c \
         TextFunc.c      ColorObj.c      IconFile.c      RCHook.c \
@@ -349,4 +349,9 @@ splint: $(STRING_FILES)
 # Original vector sources accompany their deterministic embedded representation.
 EXTRA_DIST += icons/dialog-error.svg icons/dialog-information.svg \
  icons/dialog-question.svg icons/dialog-warning.svg icons/dialog-working.svg \
- DialogIconsI.h
+ icons/dialog-template.svg icons/dialog-file.svg icons/dialog-selection.svg \
+ icons/dialog-prompt.svg DialogIconsI.h
+
+EXTRA_DIST += ActionIconsI.h icons/action-open.svg icons/action-document.svg \
+ icons/action-save.svg icons/action-print.svg icons/action-undo.svg \
+ icons/action-picture.svg icons/action-archive.svg

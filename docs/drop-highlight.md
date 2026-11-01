@@ -17,3 +17,28 @@ The application owns geometry and placement.  An optional copied
 `XmNdropHighlightLabel` is exposed as the accessible panel name; no
 accessibility action is advertised because acceptance and transfer remain
 application-owned.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmDropHighlightWidgetClass demo](gallery-screenshots/xm-drophighlightwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDropHighlightWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L848-L852
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DropHighlight.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

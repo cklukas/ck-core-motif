@@ -69,7 +69,7 @@ try:
     run("compile", ["cc", *flags, source, "-lXm", "-lXt", "-lX11",
                      "-o", binary])
     linked = run("link", ["ldd", binary])
-    if str(prefix / "lib/libXm.so.8") not in linked:
+    if str(prefix / "lib/libXm.so.9") not in linked:
         raise RuntimeError("fixture did not resolve selected libXm")
     log = run("run", ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24",
                        binary, "-xrm", "*ordinary.foreground: #00ff00"])

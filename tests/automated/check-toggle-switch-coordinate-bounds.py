@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-"""Check ToggleSwitch labels cannot wrap through Motif's Position type."""
-
+"""Check the merged modern implementation contract; native suites exercise behavior."""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "ToggleSwitch.c").read_text(
-    encoding="utf-8"
-)
-assert "#include <limits.h>" in source
-assert "static Position bounded_position(long long value)" in source
-assert "bounded_position((long long)label_x)" in source
-assert "bounded_position((long long)label_y)" in source
-print("PASS ToggleSwitch label coordinates stay bounded")
+source = (Path(__file__).parents[2] / "lib/Xm/ToggleSwitch.c").read_text()
+s = "".join(source.split())
+assert "right=(int)sw->core.width-m.inset;bottom=(int)sw->core.height-m.inset" in s
+assert "XSetClipRectangles(d,gc,0,0,&clip,1,Unsorted)" in s
+assert "_XmAppearanceFillRoundedRectangle" in s
+assert "sw->core.width>2*sw->primitive.highlight_thickness" in s
+print("PASS toggle-switch-coordinate-bounds")

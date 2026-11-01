@@ -10,7 +10,7 @@ required = [
     "width = (int)iw->core.width - (2 * dx);",
     "if ((int)iw->core.height > (2 * dy))",
     "height = (int)iw->core.height - (2 * dy);",
-    "if (width > 0 && height > 0 && topgc != NULL && bottomgc != NULL)",
+    "width > 0 && height > 0 && topgc != NULL && bottomgc != NULL",
 ]
 missing = [fragment for fragment in required if fragment not in text]
 if missing:

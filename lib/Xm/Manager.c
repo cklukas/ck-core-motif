@@ -192,6 +192,11 @@ static XtActionsRec actions[] = {
 static XtResource resources[] =
 {
    {
+     XmNappearanceRole, XmCAppearanceRole, XmRAppearanceRole,
+     sizeof(unsigned char), XtOffsetOf(XmManagerRec, manager.appearance_role),
+     XmRImmediate, (XtPointer)XmAPPEARANCE_ROLE_NORMAL
+   },
+   {
      XmNunitType, XmCUnitType, XmRUnitType, 
      sizeof (unsigned char), XtOffsetOf(XmManagerRec, manager.unit_type),
      XmRCallProc, (XtPointer) _XmUnitTypeDefault
@@ -588,7 +593,8 @@ ClassInitialize( void )
 {
     /* These routines are called for each base classes,
        they just returned if it has been done already */
-   _XmRegisterConverters();   
+   _XmRegisterConverters();
+   _XmInitializeAppearance();
    _XmRegisterPixmapConverters();
    _XmInitializeExtensions();
    _XmInitializeTraits();
@@ -784,6 +790,8 @@ Initialize(
     XmManagerWidget mw = (XmManagerWidget) new_w ;
     XtTranslations translations ;
 
+   mw->manager.appearance_role = _XmValidateAppearanceRole(new_w, mw->manager.appearance_role, XmAPPEARANCE_ROLE_NORMAL);
+
    /*  Initialize manager and composite instance data  */
 
    mw->manager.selected_gadget = NULL;
@@ -950,6 +958,8 @@ SetValues(
     Mask visualFlag = NoVisualChange;
     XmManagerWidget curmw = (XmManagerWidget) current;
     XmManagerWidget newmw = (XmManagerWidget) new_w;
+
+    newmw->manager.appearance_role = _XmValidateAppearanceRole(new_w, newmw->manager.appearance_role, curmw->manager.appearance_role);
 
     /*  Process the change in values */
    

@@ -1519,8 +1519,9 @@ Replace(XmTextWidget initiator,
   
   /* delete data */
   /* expand the end of the gap to the right */
-  if ((data->ptr + gap_size + end_byte_offset) > data->gap_end)
-    data->gap_end += removed_bytes;
+  /* The gap is now at start, including any capacity added above. Expand it
+   * by the removed range; the pre-growth gap size cannot locate end here. */
+  data->gap_end += removed_bytes;
   
   /* add data */
   /* copy the data into the gap_start and increment the gap start pointer */

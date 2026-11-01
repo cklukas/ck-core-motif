@@ -14,5 +14,6 @@ redisplay = source[source.index("Redisplay(Widget widget") : source.index("#defi
 assert "XCreateRegion()" in redisplay
 assert "XRectInRegion(region" in redisplay
 assert "XDestroyRegion(damage)" in redisplay
-assert "if (region)\n\t\tXSetRegion(XtDisplay(tab), XmTabBox__tab_GC(tab), region);" in source
+compact = "".join(source.split())
+assert "if(region)XSetRegion(XtDisplay(tab),XmTabBox__tab_GC(tab),region);" in compact
 print("TabBox partial repaint and bitmap lifetime guards are present")

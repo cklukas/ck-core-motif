@@ -8,7 +8,7 @@ typedef struct _XmSearchBoxClassRec { CoreClassPart core_class;
     XmSearchBoxClassPart search_class; } XmSearchBoxClassRec;
 typedef struct _XmSearchBoxPart { XmString placeholder; Boolean clear_button;
     XtCallbackList query_changed_callback, committed_callback, cleared_callback;
-    Boolean clearing; } XmSearchBoxPart;
+    Boolean clearing, clear_armed; } XmSearchBoxPart;
 typedef struct _XmSearchBoxRec { CorePart core; XmPrimitivePart primitive;
     XmTextFieldPart text; XmSearchBoxPart search; } XmSearchBoxRec;
 extern XmSearchBoxClassRec xmSearchBoxClassRec;

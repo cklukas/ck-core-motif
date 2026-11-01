@@ -16,7 +16,7 @@ AC_CANONICAL_TARGET
 dnl The version of the Motif libraries
 CKMOTIF_VERSION=2.4.0
 AC_SUBST(CKMOTIF_VERSION)
-CURRENT=8
+CURRENT=9
 REVISION=0
 AGE=0
 AC_SUBST(CURRENT)
@@ -34,7 +34,7 @@ dnl
 dnl AC_DISABLE_STATIC
 
 AC_CONFIG_HEADERS(include/config.h lib/Xm/Xm.h)
-AC_CONFIG_FILES([ckmotif++-8.pc])
+AC_CONFIG_FILES([ckmotif++-9.pc])
 
 AC_ARG_ENABLE([cxx-support],
   [AS_HELP_STRING([--enable-cxx-support],
@@ -120,6 +120,9 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 AC_TYPE_UID_T
 WEAK_ALIAS_SUPPORT
+
+dnl Pixel-center circular rasterization uses the C math library.
+AC_SEARCH_LIBS([sqrt], [m], [], [AC_MSG_ERROR([C math library is required])])
 
 dnl Checks for library functions.
 AC_FUNC_ALLOCA

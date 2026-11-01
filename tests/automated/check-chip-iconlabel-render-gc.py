@@ -6,7 +6,7 @@ from pathlib import Path
 
 root = Path(__file__).parents[2] / "lib" / "Xm"
 contracts = {
-    "Chip.c": "if (!window || !chip->chip.foreground_gc) return;",
+    "Chip.c": "if(!window || !gc)return;",
     "IconLabel.c": "if (!window || !label->icon_label.foreground_gc) return;",
 }
 

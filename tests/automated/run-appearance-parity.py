@@ -14,7 +14,7 @@ import time
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--build", type=Path, required=True)
 parser.add_argument("--out", type=Path, required=True)
-parser.add_argument("--suite", choices=("parity", "density"), default="parity")
+parser.add_argument("--suite", choices=("parity", "density", "roles"), default="parity")
 args = parser.parse_args()
 if platform.system() != "Linux":
     parser.error("native acceptance requires Linux and Xvfb")
@@ -28,7 +28,7 @@ output = args.out
 output.mkdir(parents=True)
 (output / "tmp").mkdir()
 env = dict(os.environ, TMPDIR=str(output / "tmp"),
-           LD_LIBRARY_PATH=str(library.parent), PYTHONDONTWRITEBYTECODE="1")
+           LD_LIBRARY_PATH=":".join((str(library.parent), str(build / "lib/Mrm/.libs"))), PYTHONDONTWRITEBYTECODE="1")
 for key in ("LD_PRELOAD", "LD_AUDIT", "XENVIRONMENT", "XAPPLRESDIR", "XUSERFILESEARCHPATH"):
     env.pop(key, None)
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -60,15 +60,30 @@ def run(name, command):
     if code:
         raise RuntimeError((output / (name + ".log")).read_text())
 try:
+    extra_links = []
+    fixture_args = []
+    if args.suite == "roles":
+        uid_source = root / "tests/automated/appearance-roles.uil"
+        uid_output = output / "appearance-roles.uid"
+        compiler = build / "clients/uil/uil"
+        run("uil", [compiler, "-o", uid_output, uid_source])
+        receipt["uil_source_sha256"] = digest(uid_source)
+        receipt["uil_executable_sha256"] = digest(build / "clients/uil/.libs/uil")
+        receipt["mrm_library_sha256"] = digest((build / "lib/Mrm/.libs/libMrm.so").resolve(strict=True))
+        receipt["font_provider_source_sha256"] = digest(root / "lib/Xm/ResConvert.c")
+        receipt["uid_sha256"] = digest(uid_output)
+        extra_links = ["-L" + str(build / "lib/Mrm/.libs"),
+                       "-Wl,-rpath," + str(build / "lib/Mrm/.libs"), "-lMrm"]
+        fixture_args = [uid_output]
     run("compile", ["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", "-O2",
         "-I" + str(build / "lib"), "-I" + str(root / "lib"), source,
         "-L" + str(library.parent), "-Wl,-rpath," + str(library.parent),
-        "-lXm", "-lXt", "-lX11", "-o", binary])
+        *extra_links, "-lXm", "-lXt", "-lX11", "-o", binary])
     run("link", ["ldd", binary])
     if str(library.parent) not in (output / "link.log").read_text():
         raise RuntimeError("fixture did not load the selected build")
     for profile in ("light", "dark", "contrast"):
-        run(profile, ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24", binary, profile])
+        run(profile, ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24", binary, profile, *fixture_args])
         if args.suite == "parity":
             run(profile + "-overrides", ["xvfb-run", "-a", "-s",
                 "-screen 0 1024x768x24", binary, profile, "overrides"])

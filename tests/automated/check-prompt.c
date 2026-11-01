@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
     XmPromptSetVisible(prompt, False); CHECK(!XmPromptGetVisible(prompt));
     CHECK(XmAccessibilityQuery(accessibility, id, &info)); CHECK(info.name == NULL); XmAccessibleInfoClear(&info);
     value = XmTextFieldGetString(field); CHECK(value && strcmp(value, "entered") == 0); XtFree(value);
-    XmAccessibilityDestroy(accessibility); XtDestroyWidget(shell); XtCloseDisplay(XtDisplay(shell));
+    Display *display = XtDisplay(shell);
+    XmAccessibilityDestroy(accessibility); XtDestroyWidget(shell); XtCloseDisplay(display);
     XtDestroyApplicationContext(app); printf("PASS prompt: %u checks\n", checks); return EXIT_SUCCESS;
 }

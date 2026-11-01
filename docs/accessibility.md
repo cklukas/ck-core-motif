@@ -180,6 +180,29 @@ controls reject writes. Integral native controls reject fractional, nonfinite
 and out-of-range requests; successful writes use the normal widget callback
 path. Reversed processing direction is preserved for native keyboard actions.
 
+Native NumberBox and Stepper nodes expose the spin-button role (AT-SPI 52),
+committed value, inclusive bounds and the configured step. Their scalar value is
+writable through the Value interface. Stepper offers `increment` and `decrement`;
+NumberBox additionally offers `page-increment` and `page-decrement`. These actions
+use the native stepping functions, preserving clamp/wrap behavior and callback
+counts. A write of the current value does not emit a second value-change callback.
+
+NumberBox's native editor separately exposes tentative text and caret information;
+the parent numeric Value remains the committed integer. An accepted numeric write
+replaces tentative text and clears inline validation, just as its public setter
+does. Native spin buttons are named “Increase value” and “Decrease value” for
+assistive clients. Disabled controls and controls outside the current modal scope
+reject semantic mutations while remaining readable. Callback-driven destruction
+of either the widget or bridge is supported.
+
+The toolkit's role constants and canonical transport names follow the
+[AT-SPI role enumeration](https://docs.gtk.org/atspi2/enum.Role.html): progress bar
+42, tree 65, calendar 5 and spin button 52. This corrects earlier numeric constants
+that could announce unrelated roles; rebuild clients comparing those constants.
+`run-numeric-accessibility.py` checks native numeric behavior and protocol names;
+`run-tree-view-accessibility.py` checks existing tree actions. These native tests
+do not establish screen-reader acceptance or an installed D-Bus round trip.
+
 Custom providers describe an available range and current value in
 `XmAccessibleInfo`, and implement `set_value` when editable. A provider may
 accept continuous values; the bridge does not impose the native ScrollBar's
@@ -362,3 +385,12 @@ usable and registration can be retried later.
 AT-SPI transport startup also checks its transport-state allocation and closes
 the temporary D-Bus session cleanly when memory is unavailable, preserving the
 normal unavailable status and allowing a later retry.
+
+## ColorPicker modes
+
+ColorPicker's visible HSV and Lab channels expose slider values in the units
+printed by the controls (degrees, percent or Lab coordinates), with 0.1-unit
+increments. RGBA remains 0–255 in unit increments. Hidden mode channels reject
+semantic writes. Named pencil buttons expose activation, and both visual fields
+have descriptive focusable identities with numeric sliders as equivalent inputs.
+The selected mode never changes the committed value by itself.

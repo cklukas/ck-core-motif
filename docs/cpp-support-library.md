@@ -10,11 +10,11 @@ The support layer is opt-in at build/install time through the normal headers
 and pkg-config metadata.  A consumer can use:
 
 ```sh
-c++ -std=c++17 widget.cpp $(pkg-config --cflags --libs ckmotif++-8)
+c++ -std=c++17 widget.cpp $(pkg-config --cflags --libs ckmotif++-9)
 ```
 
 The installed header is `ckmotif++/motif_support.hpp`; the package metadata is
-`ckmotif++-8.pc`.  The C++ layer adds no required dependency to a C-only
+`ckmotif++-9.pc`.  The C++ layer adds no required dependency to a C-only
 `libXm` build and leaves the Motif ABI unchanged.
 
 ## Contract

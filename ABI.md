@@ -1,8 +1,8 @@
 # Native ABI cohort
 
-CK Core Motif 2.4.0 uses native ABI epoch **8**. The suite's
-libtool version is `8:0:0`: ELF installations provide `libXm.so.8`,
-`libMrm.so.8` and `libUil.so.8`. These are rebuilt together. No alias to the
+CK Core Motif 2.4.0 uses native ABI epoch **9**. The suite's
+libtool version is `9:0:0`: ELF installations provide `libXm.so.9`,
+`libMrm.so.9` and `libUil.so.9`. These are rebuilt together. No alias to the
 previous SONAME is provided.
 
 Unicode input/layout and native semantic-provider changes affect private
@@ -26,7 +26,7 @@ widget library is not an ABI migration. Static linking also requires a clean
 rebuild of affected consumers.
 
 `XmVERSION`, `XmREVISION` and `XmUPDATE_LEVEL` identify source API version
-2.4.0. `XmABI_VERSION` identifies native layout epoch 8;
+2.4.0. `XmABI_VERSION` identifies native layout epoch 9;
 `XmToolkitABI()` returns the linked library's epoch. Admission tests must compare
 these values, prove the compilation header origin and inspect the executable's
 loaded library path and SONAME. The numeric epoch alone does not prove that
@@ -38,6 +38,21 @@ selecting that prefix. Never install a compatibility alias for an earlier SONAME
 old/new headers, or let runtime search paths select a library from another
 prefix. Keep old admitted prefixes isolated while they are still in use, then
 retire them after their consumers have moved to the verified replacement.
+
+## Epoch 9 semantic appearance roles
+
+Primitive, Manager and Gadget records now store the public `appearanceRole`
+resource. These base-record size changes affect every derived widget and gadget.
+Rebuild Xm, Mrm, Uil, generated resource consumers, native subclasses and
+applications together. The role's Xt resource representation is an unsigned
+byte; its public enum constants are also available to UIL. No epoch 8 objects
+may be linked into this cohort. Qualification of the new cohort remains a
+separate gate from implementing the records and resources.
+
+The ComboBox record also tracks whether each dimension is natural or explicitly
+supplied. Font and appearance updates recompute natural geometry even before
+realization; parent layout allocations do not become application size overrides.
+Setting a dimension to zero restores natural sizing.
 
 ## Epoch 8 incremental native Unicode source maps
 
@@ -65,3 +80,112 @@ including List protocol/lifetime and provider reentrancy. Xt/system dependencies
 are uninstrumented and leak checking is disabled. Actual-application adoption,
 deterministic real input-method service behavior and x86_64 qualification remain
 separate gates.
+
+TreeView's epoch 9 private record also stores automatic row-height and overall
+height ownership, plus its `selectColor` pixel. Subclasses embedding `XmTreeViewRec` must be rebuilt
+with this cohort; public opaque widget users do not access these fields.
+
+The Sidebar epoch 9 record owns its header label widget and copied title string.
+Rebuild subclasses embedding `XmSidebarRec` with the matching headers.
+
+ArrowButton and ArrowButtonGadget epoch 9 private records track pointer-inside
+state independently of the armed state so expose does not repaint a dragged-out
+control as pressed. Rebuild private-record consumers with this cohort.
+
+PushButton, PushButtonGadget and DrawnButton epoch 9 private records also retain pointer-inside
+state for armed drag feedback across expose. Rebuild private-record consumers.
+
+The epoch 9 Label and LabelGadget private records also own an uncached
+`insensitive_foreground` pixel. Rebuild subclasses using these records; the
+label gadget cache layout does not carry this per-instance text color.
+
+PushButton and PushButtonGadget also record the effective classic default-frame
+thickness and the space included in their margins. These epoch 9 private fields
+separate public default-action state from theme-dependent geometry.
+
+The epoch 9 XmTree private record owns a coalesced connector repaint work ID.
+Subclasses embedding `XmTreeRec` must rebuild with the matching private header.
+
+The epoch 9 ProgressRing and Spinner private records track render-table alias
+initialization and automatic dimension ownership. Rebuild subclasses embedding
+these records with the matching private headers.
+
+The epoch 9 Scale private record tracks automatic width and height ownership.
+Rebuild subclasses embedding `XmScaleRec` with the matching private header.
+
+The pending epoch-9 TreeView record also owns its activation callback list and
+pending pointer-press identity. Rebuild TreeView subclasses with this cohort.
+
+The pending epoch-9 ScrolledWindow record owns its wheel action hook and current
+gesture window/button/claim state. Rebuild ScrolledWindow/MainWindow subclasses
+and all consumers embedding these records with the same installed headers.
+
+## Pending epoch 9 tab overflow records
+
+The scrolling TabBox stores its logical major-axis offset as `long long`,
+preventing accumulated tab widths from overflowing an `int`. TabStack adds
+its `tab_arrow_placement` resource field and forwards it to the internal
+TabBox. These private-record changes belong to the same pending epoch 9
+cohort; rebuild subclasses and all consumers against its exact headers and
+library together.
+
+The pending epoch-9 ButtonBox child constraint record retains a proposed
+geometry and the preferred size from which it was calculated. Rebuild
+ButtonBox subclasses and private-record consumers with this cohort.
+
+The pending epoch-9 Link private record stores independent automatic width and
+height ownership. Rebuild subclasses and consumers embedding XmLinkRec with this
+cohort. The public Link resources remain unchanged.
+
+The pending epoch-9 Prompt, IconLabel and Badge private records store independent
+automatic width/height ownership. Rebuild subclasses and private-record
+consumers with the matching headers and library. Public resources are unchanged.
+
+The pending epoch-9 Chip private record tracks automatic dimensions and pointer
+targets. It no longer stores an unused background GC. Rebuild subclasses and
+private-record consumers with the matching headers and library.
+
+The pending epoch-9 Avatar private record removes the unused core-font fallback
+pointer and records automatic width/height ownership. Text uses its owned
+render table; rebuild private-record consumers
+against matching headers and library. Public resources are unchanged.
+
+The pending epoch-9 Divider private record tracks independent automatic
+width/height ownership. Rebuild private-record consumers with matching headers
+and library. Public resources are unchanged.
+
+The pending epoch-9 NumberBox now derives from XmManager and owns native
+TextField/ArrowButton children instead of a Primitive text buffer and drawing
+GCs. Its private class/instance layouts change; rebuild consumers and subclasses.
+Focus enters its editor, obtainable with XmNumberBoxGetTextField.
+
+The pending epoch-9 Stepper now derives from XmManager and owns native
+PushButton/Label children instead of a Primitive drawing GC. Its private class
+and instance records change; rebuild consumers and subclasses. The public numeric
+API remains available; XmNspacing controls the gaps around the value.
+
+The pending epoch-9 ColorPicker now derives from XmManager and owns native
+editing controls. Its value storage is explicitly 32-bit, matching its Cardinal
+resource. Rebuild private-record users and subclasses. New public helpers expose
+the preview value, borrowed editor, explicit commit and revert operations.
+The multi-mode extension adds mode selection and HSV/Lab preview APIs, with
+private native mode controls, model coordinates and owned raster/palette caches.
+
+The pending epoch-9 TextField private class record adds subclass decoration
+insets and repaint hooks. SearchBox uses these without changing its TextField
+inheritance or the public margin resources. Its private instance also tracks
+clear-button press state. Rebuild TextField/SearchBox subclasses and consumers
+with the matching private headers; older class records are not compatible.
+
+The pending epoch-9 AutoSuggestBox private record owns a scrolled-list popup,
+coalesced layout work, independent automatic dimensions, deferred show state,
+owned cancellation and focus-settlement timers, and transient outside-click
+observation records.
+Rebuild subclasses and private-record users with the matching header.
+
+The pending epoch-9 ToggleSwitch private record now tracks render-table alias
+initialization, independent automatic dimensions, pointer arming and hover. It
+removes unused color fields and superseded GCs; subclasses must rebuild.
+
+The pending epoch-9 RatingControl private record tracks independent automatic
+width and height ownership. Native subclasses must rebuild with this layout.

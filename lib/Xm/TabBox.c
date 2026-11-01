@@ -30,7 +30,6 @@
  * =======
  *
  * DEMO             - Controls if this is a demo version or not
- * SCROLLED_LAYOUT  - Controls if the scrolled layout features are supported
  * OVERLAYED_LAYOUT - Controls if the overlayed layout is supported
  *
  */
@@ -43,9 +42,7 @@
 #include <stdint.h>
 #include "XmI.h"
 #include <Xm/TabBoxP.h>
-#ifdef SCROLLED_LAYOUT
 #include <Xm/ArrowB.h>
-#endif
 #include <Xm/PrimitiveP.h>
 #include <Xm/TabStackP.h>
 #include <Xm/DrawUtils.h>
@@ -155,6 +152,11 @@ static void Layout _ARGS((XmTabBoxWidget));
 static void Redisplay _ARGS((Widget, XEvent*, Region));
 static void RedisplayTabs _ARGS((XmTabBoxWidget, Region));
 
+static void ScrolledLayout(XmTabBoxWidget, int);
+static void ScrollArrow(Widget, XtPointer, XtPointer);
+static void RevealTab(XmTabBoxWidget, int);
+static void ScrolledBaseline(XmTabBoxWidget);
+static void XmTabBoxTraverseEdge(Widget, XEvent *, String *, Cardinal *);
 static void DrawTab _ARGS((XmTabBoxWidget, XmTabAttributes, XiTabRect*,
 			   _XiBoolean, _XiBoolean));
 
@@ -171,11 +173,9 @@ static Boolean CvtStringToTabMode _ARGS((Display*, XrmValue*, Cardinal*,
 static Boolean CvtStringToTabEdge _ARGS((Display*, XrmValue*, Cardinal*,
 					 XrmValue*, XrmValue*, XtPointer*));
 
-#ifdef SCROLLED_LAYOUT
 static Boolean CvtStringToArrowPlacement _ARGS((Display*, XrmValue*, Cardinal*,
 						XrmValue*, XrmValue*,
 						XtPointer*));
-#endif
 static Boolean CvtStringToTabList _ARGS((Display*, XrmValue*, Cardinal*,
 					 XrmValue*, XrmValue*, XtPointer*));
 static void CvtDestroyTabList _ARGS((XtAppContext, XrmValue*, XtPointer,
@@ -361,6 +361,7 @@ static void CheckSetRenderTable(Widget wid, int offs, XrmValue *value);
 #define RemoveStipple(d,g) XSetFillStyle((d),(g), FillSolid)
 
 static XtActionsRec actions[] = {
+    { "XmTabBoxTraverseEdge", XmTabBoxTraverseEdge },
     { "XmTabBoxArmAndActivate",	  (XtActionProc) XmTabBoxArmAndActivate   },
     { "XmTabBoxArmTab",           (XtActionProc) XmTabBoxArmTab           },
     { "XmTabBoxSelectTab",        (XtActionProc) XmTabBoxSelectTab        },
@@ -373,7 +374,9 @@ static XtActionsRec actions[] = {
 };
 
 static char traversal_translations[] =
-    "<Key>osfRight:    XmTabBoxTraverseRight()\n\
+    "<Key>osfBeginLine: XmTabBoxTraverseEdge(first)\n\
+     <Key>osfEndLine: XmTabBoxTraverseEdge(last)\n\
+     <Key>osfRight:    XmTabBoxTraverseRight()\n\
      <Key>osfLeft:     XmTabBoxTraverseLeft()\n\
      <Key>osfUp:       XmTabBoxTraverseUp()\n\
      <Key>osfDown:     XmTabBoxTraverseDown()\n\
@@ -491,13 +494,11 @@ static XtResource resources[] =
       sizeof(int), XtOffsetOf(XmTabBoxRec, tab_box.num_stacks),
       XmRImmediate, (XtPointer) 5
   },
-#ifdef SCROLLED_LAYOUT
   {
     XmNtabArrowPlacement, XmCTabArrowPlacement, XmRTabArrowPlacement,
     sizeof(int), XtOffsetOf(XmTabBoxRec, tab_box.arrow_placement),
-    XmRImmediate, (XtPointer) XmTAB_ARROWS_ON_LEFT
+    XmRImmediate, (XtPointer) XmTAB_ARROWS_SPLIT
   },
-#endif
   {
     XmNtabEdge, XmCTabEdge, XmRTabEdge,
     sizeof(XmTabEdge), XtOffsetOf(XmTabBoxRec, tab_box.tab_edge),
@@ -745,10 +746,8 @@ ClassInitialize()
 		       CvtStringToTabEdge, NULL, 0, XtCacheNone, NULL);
     XtSetTypeConverter(XmRString, XmRTabSide,
 		       CvtStringToTabSide, NULL, 0, XtCacheNone, NULL);
-#ifdef SCROLLED_LAYOUT
     XtSetTypeConverter(XmRString, XmRTabArrowPlacement,
 		       CvtStringToArrowPlacement, NULL, 0, XtCacheNone, NULL);
-#endif
     XtSetTypeConverter(XmRString, XmRTabList,
 		       CvtStringToTabList, NULL, 0, XtCacheNone,
 		       CvtDestroyTabList);
@@ -801,15 +800,21 @@ Initialize(request, set, arg_list, arg_cnt)
 	return;
     }
 
-#ifdef SCROLLED_LAYOUT
     XmTabBox__left_arrow(st) =
 	XtCreateWidget("leftArrow", xmArrowButtonWidgetClass, set,
 		       filtered_args, num_filtered_args);
     XmTabBox__right_arrow(st) =
 	XtCreateWidget("rightArrow", xmArrowButtonWidgetClass, set,
 		       filtered_args, num_filtered_args);
-#endif
 
+    if (XmTabBox__left_arrow(st)) {
+        XtVaSetValues(XmTabBox__left_arrow(st), XmNtraversalOn, False, NULL);
+        XtAddCallback(XmTabBox__left_arrow(st), XmNactivateCallback, ScrollArrow, st);
+    }
+    if (XmTabBox__right_arrow(st)) {
+        XtVaSetValues(XmTabBox__right_arrow(st), XmNtraversalOn, False, NULL);
+        XtAddCallback(XmTabBox__right_arrow(st), XmNactivateCallback, ScrollArrow, st);
+    }
     XtFree((XtPointer)filtered_args);
 
     XmTabBox__bitmap(st) = XmUNSPECIFIED_PIXMAP;
@@ -953,8 +958,13 @@ Resize(widget)
 
     Layout(tab);
 
-    XtConfigureWidget(XmTabBox__canvas(tab), 0, 0,
-		      XtWidth(tab), XtHeight(tab), 0);
+    if (XmTabBox_tab_mode(tab) != XmTABS_SCROLLED) {
+        if (XmTabBox__left_arrow(tab)) XtUnmanageChild(XmTabBox__left_arrow(tab));
+        if (XmTabBox__right_arrow(tab)) XtUnmanageChild(XmTabBox__right_arrow(tab));
+        XtConfigureWidget(XmTabBox__canvas(tab), 0, 0,
+                          MAX(1, XtWidth(tab)), MAX(1, XtHeight(tab)), 0);
+        XmTabBox__scroll_x(tab) = 0;
+    }
 
     if( XtIsRealized(XmTabBox__canvas(tab)) )
     {
@@ -1254,6 +1264,7 @@ Redisplay(widget, event, region)
      * Call this handy dandy tab redisplay routine. This is kindof the
      * equivalent to XmRedisplayGadgets.
      */
+    if (XmTabBox_tab_mode(tab) == XmTABS_SCROLLED) ScrolledBaseline(tab);
     RedisplayTabs(tab, region);
 
     /*
@@ -1338,12 +1349,12 @@ SetValues(current, request, set, arg_list, arg_cnt)
 	_XmFilterArgs(arg_list, *arg_cnt, xm_std_filter,
 		      &filtered_args, &num_filtered_args);
 	XtSetValues(XmTabBox__canvas(s_tab), filtered_args, num_filtered_args);
-#ifdef SCROLLED_LAYOUT
-	XtSetValues(XmTabBox__left_arrow(s_tab), filtered_args,
+	if (XmTabBox__left_arrow(s_tab))
+	    XtSetValues(XmTabBox__left_arrow(s_tab), filtered_args,
 		    num_filtered_args);
-	XtSetValues(XmTabBox__right_arrow(s_tab), filtered_args,
+	if (XmTabBox__right_arrow(s_tab))
+	    XtSetValues(XmTabBox__right_arrow(s_tab), filtered_args,
 		    num_filtered_args);
-#endif
 	XtFree((XtPointer)filtered_args);
     }
 
@@ -1364,7 +1375,7 @@ SetValues(current, request, set, arg_list, arg_cnt)
 	need_layout = True;
     }
 
-    if( sfield(_selected) > _XmTabbedStackListCount(sfield(tab_list)) )
+    if( sfield(_selected) >= _XmTabbedStackListCount(sfield(tab_list)) )
     {
 	sfield(_selected) = -1;
 	if( _XmTabbedStackListCount(sfield(tab_list)) > 0 )
@@ -1374,7 +1385,7 @@ SetValues(current, request, set, arg_list, arg_cnt)
 	need_layout = True;
     }
 
-    if( sfield(_keyboard) > _XmTabbedStackListCount(sfield(tab_list)) )
+    if( sfield(_keyboard) >= _XmTabbedStackListCount(sfield(tab_list)) )
     {
 	sfield(_keyboard) = -1;
 	if( _XmTabbedStackListCount(sfield(tab_list)) > 0 )
@@ -1418,9 +1429,7 @@ SetValues(current, request, set, arg_list, arg_cnt)
         cfield(tab_margin_height) != sfield(tab_margin_height) ||
         cfield(tab_label_spacing) != sfield(tab_label_spacing) ||
         cfield(tab_corner_percent) != sfield(tab_corner_percent) ||
-#ifdef SCROLLED_LAYOUT
         cfield(arrow_placement) != sfield(arrow_placement) ||
-#endif
         cfield(tab_edge) != sfield(tab_edge) ||
         cfield(tab_offset) != sfield(tab_offset) ||
         cfield(highlight_thickness) != sfield(highlight_thickness) )
@@ -1615,6 +1624,7 @@ GetTabRectangle(tab, type, draw)
 	{
 	    rect.x = rect.y = 0;
 	    rect.width = rect.height = 0;
+	    return &rect;
 	}
     }
 
@@ -1659,8 +1669,8 @@ GetTabRectangle(tab, type, draw)
 
     rect.x = draw->x + horiz;
     rect.y = draw->y + vert;
-    rect.width = draw->width - (2 * horiz);
-    rect.height = draw->height - (2 * vert);
+    rect.width = MAX(0, draw->width - (2 * horiz));
+    rect.height = MAX(0, draw->height - (2 * vert));
 
     return( &rect );
 }
@@ -1680,16 +1690,10 @@ DrawBorder(tab, gc, idx)
     XRectangle      *draw, rect[4];
     XmTabAttributes info;
 
-    if( idx < 0 )
-    {
-	if( XmTabBox__keyboard(tab) < 0 ) return;
-	geometry = &(XmTabBox__actual(tab)[XmTabBox__keyboard(tab)]);
-	idx = XmTabBox__keyboard(tab);
-    }
-    else
-    {
-	geometry = &(XmTabBox__actual(tab)[idx]);
-    }
+    if (idx < 0) idx = XmTabBox__keyboard(tab);
+    if (idx < 0 || idx >= _XmTabbedStackListCount(XmTabBox_tab_list(tab))) return;
+    if (XmTabBox__actual(tab)[idx].width <= 0 || XmTabBox__actual(tab)[idx].height <= 0) return;
+    geometry = &(XmTabBox__actual(tab)[idx]);
     if( gc == tab->manager.background_GC && 
         (((info = _XmTabbedStackListGet(XmTabBox_tab_list(tab), idx)) != NULL &&
 	  XiBackgroundSpecified(info)) ||
@@ -1909,7 +1913,11 @@ _XmTabBoxTraverseRight(widget, event, params, num_params)
     case XmTABS_SCROLLED:
     case XmTABS_OVERLAYED:
     default:
-	XmTabBoxTraverseNext(widget, event, params, num_params);
+        if (XmTabBox_tab_mode(tab) == XmTABS_SCROLLED &&
+            XmTabBox_orientation(tab) == XmHORIZONTAL && LayoutIsRtoLP(tab))
+            XmTabBoxTraversePrevious(widget, event, params, num_params);
+        else
+            XmTabBoxTraverseNext(widget, event, params, num_params);
 	return;
 	break;
     case XmTABS_STACKED:
@@ -1988,7 +1996,11 @@ _XmTabBoxTraverseLeft(widget, event, params, num_params)
     case XmTABS_SCROLLED:
     case XmTABS_OVERLAYED:
     default:
-	XmTabBoxTraversePrevious(widget, event, params, num_params);
+        if (XmTabBox_tab_mode(tab) == XmTABS_SCROLLED &&
+            XmTabBox_orientation(tab) == XmHORIZONTAL && LayoutIsRtoLP(tab))
+            XmTabBoxTraverseNext(widget, event, params, num_params);
+        else
+            XmTabBoxTraversePrevious(widget, event, params, num_params);
 	return;
 	break;
     case XmTABS_STACKED:
@@ -2270,6 +2282,22 @@ XmTabBoxTraverseDown(widget, event, params, num_params)
     }
 }
 
+static void
+XmTabBoxTraverseEdge(Widget widget, XEvent *event, String *params, Cardinal *count)
+{
+    XmTabBoxWidget tab = XiTabParent(widget);
+    int n = _XmTabbedStackListCount(XmTabBox_tab_list(tab));
+    Boolean last = *count && !strcmp(params[0], "last");
+    int index = last ? n - 1 : 0;
+    while (index >= 0 && index < n && !IsTabSensitive(tab, index)) index += last ? -1 : 1;
+    if (index < 0 || index >= n) return;
+    DrawBorder(tab, tab->manager.background_GC, XmTabBox__keyboard(tab));
+    XmTabBox__keyboard(tab) = index;
+    RevealTab(tab, index);
+    if (XmTabBox_tab_auto_select(tab)) SelectTab(tab, event, XmTabBox__selected(tab), index);
+    else DrawBorder(tab, tab->manager.highlight_GC, index);
+}
+
 /* ARGSUSED */
 static void
 #ifndef _NO_PROTO
@@ -2331,6 +2359,7 @@ XmTabBoxTraversePrevious(widget, event, params, num_params)
     DrawBorder(tab, tab->manager.background_GC, old);
 
     XmTabBox__keyboard(tab) = idx;
+    RevealTab(tab, idx);
     if( XmTabBox_tab_auto_select(tab) )
     {
 	SelectTab(tab, event, old_selected, idx);
@@ -2391,6 +2420,7 @@ XmTabBoxTraverseNext(widget, event, params, num_params)
 
     DrawBorder(tab, tab->manager.background_GC, old);
     XmTabBox__keyboard(tab) = idx;
+    RevealTab(tab, idx);
 
     if( XmTabBox_tab_auto_select(tab) )
     {
@@ -3768,7 +3798,11 @@ DrawTab(tab, info, geometry, selected, keyboard)
      * Lets do the quick check here.  If we are not realized then there is
      * really nothing to draw so lets just leave.
      */
-    if( canvas == NULL || !XtIsRealized(canvas) || info == NULL ) return;
+    if( canvas == NULL || !XtIsRealized(canvas) || info == NULL ||
+        geometry->width <= 0 || geometry->height <= 0 ) return;
+    if (XmTabBox_tab_mode(tab) == XmTABS_SCROLLED &&
+        (geometry->x >= (int)XtWidth(canvas) || geometry->y >= (int)XtHeight(canvas) ||
+         geometry->x + geometry->width <= 0 || geometry->y + geometry->height <= 0)) return;
 
     if( (XmTabBox_tab_mode(tab) == XmTABS_STACKED ||
 	 XmTabBox_tab_mode(tab) == XmTABS_STACKED_STATIC) &&
@@ -4339,13 +4373,11 @@ CvtStringToTabMode(dpy, arg_list, arg_cnt, from, to, data)
     {
 	result = XmTABS_STACKED_STATIC;
     }
-#ifdef SCROLLED_LAYOUT
     else if( XmCompareISOLatin1(str, "SCROLLED") == 0 ||
 	     XmCompareISOLatin1(str, "XmTABS_SCROLLED") == 0 )
     {
 	result = XmTABS_SCROLLED;
     }
-#endif
 #ifdef OVERLAYED_LAYOUT
     else if( XmCompareISOLatin1(str, "OVERLAYED") == 0 ||
 	     XmCompareISOLatin1(str, "XmTABS_OVERLAYED") == 0 )
@@ -4406,7 +4438,6 @@ CvtStringToTabEdge(dpy, arg_list, arg_cnt, from, to, data)
     XiCvtDone(int, result);
 }
 
-#ifdef SCROLLED_LAYOUT
 static Boolean
 #ifndef _NO_PROTO
 CvtStringToArrowPlacement(Display *dpy, XrmValue *arg_list, Cardinal *arg_cnt,
@@ -4446,7 +4477,6 @@ CvtStringToArrowPlacement(dpy, arg_list, arg_cnt, from, to, data)
 
     XiCvtDone(int, result);
 }
-#endif
 
 /* ARGSUSED */
 static Boolean
@@ -4673,6 +4703,142 @@ XiFillCorner(dpy, d, gc, x, y, width, height, quadrant)
     }
 }
 
+/* Scroll positions are logical (index order), independent of physical RTL
+ * placement. The canvas is a real viewport: arrow windows never overlap its
+ * drawable, and pointer events already arrive in viewport coordinates. */
+static long long
+ScrolledExtent(XmTabBoxWidget tab)
+{
+    long long extent = 0;
+    int count = _XmTabbedStackListCount(XmTabBox_tab_list(tab));
+    for (int i = 0; i < count; ++i)
+        extent += XmTabBox_orientation(tab) == XmHORIZONTAL ?
+            XmTabBox__wanted(tab)[i].width : XmTabBox__wanted(tab)[i].height;
+    return extent;
+}
+
+static void
+ScrolledLayout(XmTabBoxWidget tab, int reveal)
+{
+    Boolean horizontal = XmTabBox_orientation(tab) == XmHORIZONTAL;
+    Boolean rtl = horizontal && LayoutIsRtoLP(tab);
+    int major = MAX(1, horizontal ? XtWidth(tab) : XtHeight(tab));
+    int minor = MAX(1, horizontal ? XtHeight(tab) : XtWidth(tab));
+    int count = _XmTabbedStackListCount(XmTabBox_tab_list(tab));
+    Widget first = XmTabBox__left_arrow(tab), last = XmTabBox__right_arrow(tab);
+    XtWidgetGeometry wanted;
+    long long extent = ScrolledExtent(tab), offset = XmTabBox__scroll_x(tab);
+    int arrow = 0, start = 0, viewport, first_pos = 0, last_pos = 0;
+    if (first && last && extent > major && major >= 3) {
+        XtQueryGeometry(first, NULL, &wanted);
+        arrow = MIN(MAX(1, horizontal ? wanted.width : wanted.height), (major - 1) / 2);
+    }
+    viewport = major - 2 * arrow;
+    if (arrow) {
+        switch (XmTabBox_arrow_placement(tab)) {
+        case XmTAB_ARROWS_ON_LEFT:
+            first_pos = 0; last_pos = arrow; start = 2 * arrow; break;
+        case XmTAB_ARROWS_ON_RIGHT:
+            first_pos = major - 2 * arrow; last_pos = major - arrow; break;
+        default:
+            first_pos = 0; last_pos = major - arrow; start = arrow; break;
+        }
+    }
+    offset = MAX(0LL, MIN(offset, MAX(0LL, extent - viewport)));
+    if (reveal >= 0 && reveal < count) {
+        long long begin = 0, size;
+        for (int i = 0; i < reveal; ++i)
+            begin += horizontal ? XmTabBox__wanted(tab)[i].width : XmTabBox__wanted(tab)[i].height;
+        size = horizontal ? XmTabBox__wanted(tab)[reveal].width : XmTabBox__wanted(tab)[reveal].height;
+        if (begin < offset || size > viewport) offset = begin;
+        else if (begin + size > offset + viewport) offset = begin + size - viewport;
+        offset = MAX(0LL, MIN(offset, MAX(0LL, extent - viewport)));
+    }
+    XmTabBox__scroll_x(tab) = offset;
+    XmTabBox__scroll_rect(tab) = (XRectangle){horizontal ? start : 0,
+        horizontal ? 0 : start, horizontal ? viewport : minor, horizontal ? minor : viewport};
+    XRectangle *view = &XmTabBox__scroll_rect(tab);
+    XtConfigureWidget(XmTabBox__canvas(tab), view->x, view->y, view->width, view->height, 0);
+    if (arrow) {
+        XtVaSetValues(first, XmNarrowDirection, horizontal ? XmARROW_LEFT : XmARROW_UP, XmNtraversalOn, False, NULL);
+        XtVaSetValues(last, XmNarrowDirection, horizontal ? XmARROW_RIGHT : XmARROW_DOWN, XmNtraversalOn, False, NULL);
+        XtConfigureWidget(first, horizontal ? first_pos : 0, horizontal ? 0 : first_pos,
+                          horizontal ? arrow : minor, horizontal ? minor : arrow, 0);
+        XtConfigureWidget(last, horizontal ? last_pos : 0, horizontal ? 0 : last_pos,
+                          horizontal ? arrow : minor, horizontal ? minor : arrow, 0);
+        XtSetSensitive(first, rtl ? offset + viewport < extent : offset > 0);
+        XtSetSensitive(last, rtl ? offset > 0 : offset + viewport < extent);
+        XtManageChild(first); XtManageChild(last);
+    } else {
+        if (first) XtUnmanageChild(first);
+        if (last) XtUnmanageChild(last);
+    }
+    long long cursor = 0;
+    for (int i = 0; i < count; ++i) {
+        XiTabRect *rect = &XmTabBox__actual(tab)[i];
+        int size = horizontal ? XmTabBox__wanted(tab)[i].width : XmTabBox__wanted(tab)[i].height;
+        long long position = rtl ? viewport - (cursor - offset) - size : cursor - offset;
+        *rect = (XiTabRect){0, 0, 0, 0, 0, i};
+        if (position < viewport && position + size > 0) {
+            rect->x = horizontal ? (int)position : 0;
+            rect->y = horizontal ? 0 : (int)position;
+            rect->width = horizontal ? size : minor;
+            rect->height = horizontal ? minor : size;
+        }
+        cursor += size;
+    }
+    XmTabBox__num_rows(tab) = count ? 1 : 0;
+    XmTabBox__num_columns(tab) = count;
+}
+
+static void
+RevealTab(XmTabBoxWidget tab, int index)
+{
+    if (XmTabBox_tab_mode(tab) != XmTABS_SCROLLED) return;
+    ScrolledLayout(tab, index);
+    if (XtIsRealized(XmTabBox__canvas(tab)))
+        Redisplay(XmTabBox__canvas(tab), NULL, NULL);
+}
+
+static void
+ScrollArrow(Widget arrow, XtPointer closure, XtPointer call_data)
+{
+    XmTabBoxWidget tab = (XmTabBoxWidget)closure;
+    Boolean horizontal = XmTabBox_orientation(tab) == XmHORIZONTAL;
+    Boolean forward = arrow == XmTabBox__right_arrow(tab);
+    int count = _XmTabbedStackListCount(XmTabBox_tab_list(tab));
+    long long offset = XmTabBox__scroll_x(tab), cursor = 0, target;
+    int viewport = horizontal ? XmTabBox__scroll_rect(tab).width : XmTabBox__scroll_rect(tab).height;
+    (void)call_data;
+    if (!XtIsSensitive(arrow) || XmTabBox_tab_mode(tab) != XmTABS_SCROLLED) return;
+    if (horizontal && LayoutIsRtoLP(tab)) forward = !forward;
+    target = forward ? offset + viewport : MAX(0LL, offset - viewport);
+    for (int i = 0; i < count; ++i) {
+        if (forward && cursor > offset) {target = MIN(target, cursor); break;}
+        if (!forward && cursor < offset) target = MAX(target, cursor);
+        cursor += horizontal ? XmTabBox__wanted(tab)[i].width : XmTabBox__wanted(tab)[i].height;
+    }
+    XmTabBox__armed_tab(tab) = -1;
+    XmTabBox__scroll_x(tab) = target;
+    ScrolledLayout(tab, -1);
+    if (XtIsRealized(XmTabBox__canvas(tab)))
+        Redisplay(XmTabBox__canvas(tab), NULL, NULL);
+}
+
+static void
+ScrolledBaseline(XmTabBoxWidget tab)
+{
+    Widget canvas = XmTabBox__canvas(tab);
+    int width = XtWidth(canvas), height = XtHeight(canvas);
+    int shadow = MIN(tab->manager.shadow_thickness, MIN(width, height));
+    Boolean bottom = XmTabBox_tab_edge(tab) == XmTAB_EDGE_BOTTOM_RIGHT;
+    GC gc = bottom ? tab->manager.top_shadow_GC : tab->manager.bottom_shadow_GC;
+    if (XmTabBox_orientation(tab) == XmHORIZONTAL)
+        XFillRectangle(XtDisplay(tab), XiCanvas(tab), gc, 0, bottom ? height-shadow : 0, width, shadow);
+    else
+        XFillRectangle(XtDisplay(tab), XiCanvas(tab), gc, bottom ? width-shadow : 0, 0, shadow, height);
+}
+
 static void
 #ifndef _NO_PROTO
 HorizontalBasicLayout(XmTabBoxWidget tab)
@@ -4745,6 +4911,7 @@ Layout(tab)
     
     if( count <= 0 )
     {
+        if (XmTabBox_tab_mode(tab) == XmTABS_SCROLLED) ScrolledLayout(tab, -1);
 	XmTabBox__num_columns(tab) = 0;
 	XmTabBox__num_rows(tab) = 0;
 	return;
@@ -4800,7 +4967,9 @@ Layout(tab)
 	}
 	break;
     case XmTABS_SCROLLED:
-	break;
+        ScrolledLayout(tab, Prim_HaveTraversal(XmTabBox__canvas(tab)) ?
+                       XmTabBox__keyboard(tab) : XmTabBox__selected(tab));
+        break;
     case XmTABS_OVERLAYED:
 	break;
     }
@@ -5124,8 +5293,8 @@ XiXYtoTab(tab, x, y)
 
     for( i = 0; i < cnt; ++i )
     {
-	if( x < area[i].x || x > (area[i].x + (int)area[i].width) ||
-	    y < area[i].y || y > (area[i].y + (int)area[i].height) )
+	if( x < area[i].x || x >= (area[i].x + (int)area[i].width) ||
+	    y < area[i].y || y >= (area[i].y + (int)area[i].height) )
 	{
 	    continue;
 	}
@@ -5907,11 +6076,13 @@ DrawLeftToRightTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	  SetRightGC(tab, gc, normal);
 #endif
 	}
+        /* Xft uses the XmString clip rectangle, not the core X GC clip.
+         * Keep long labels inside the tab even during a partial repaint. */
 	XmStringDraw(XtDisplay(tab), XiCanvas(tab), font_list,
 		     info->label_string, gc, bounded_position((long long)draw.x),
 		     bounded_position((long long)y), draw.width,
 		     info->label_alignment, info->string_direction,
-		     NULL);
+		     &draw);
     }
 }
     
@@ -7727,8 +7898,9 @@ RedisplayTabs(XmTabBoxWidget tab, Region region)
 	    DrawTab(tab, info, &(geom[i]),
 		    (Boolean)(XmTabBox__selected(tab) == i),
 		    (Boolean)(XmTabBox__keyboard(tab) == i));
-	    if (region)
-		XSetRegion(XtDisplay(tab), XmTabBox__tab_GC(tab), region);
+            /* DrawTab also uses this GC for label clipping and resets it.
+             * Reinstate damage before the next tab's background is painted. */
+            if (region) XSetRegion(XtDisplay(tab), XmTabBox__tab_GC(tab), region);
 	}
     }
 }
@@ -9121,6 +9293,14 @@ SelectTab(XmTabBoxWidget tab, XEvent *event, int old, int set)
 {
     int old_row, set_row;
 
+    if (set < 0 || set >= _XmTabbedStackListCount(XmTabBox_tab_list(tab))) return;
+    if (XmTabBox_tab_mode(tab) == XmTABS_SCROLLED) {
+        XmTabBox__selected(tab) = set;
+        XmTabBox__keyboard(tab) = set;
+        RevealTab(tab, set);
+        if (old != set) CallCallbacks(tab, event, old, set);
+        return;
+    }
     if( old == set ) return;
 
     XmTabBox__selected(tab) = set;
@@ -9602,7 +9782,9 @@ XmTabBoxXYToIndex(widget, x, y)
 #endif
 {
     if( !XmIsTabBox(widget) ) return( -1 );
-
+    Widget canvas = XmTabBox__canvas(widget);
+    x -= XtX(canvas); y -= XtY(canvas);
+    if (x < 0 || y < 0 || x >= (int)XtWidth(canvas) || y >= (int)XtHeight(canvas)) return -1;
     return( XiXYtoTab((XmTabBoxWidget)widget, x, y) );
 }
 

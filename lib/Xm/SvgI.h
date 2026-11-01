@@ -10,10 +10,10 @@ extern "C" {
 #endif
 
 /* Return zero only when an opaque XImage was produced successfully. */
-int _XmSvgGetImage(Screen *screen, const char *filename, Pixel background,
+int _XmSvgGetImage(Screen *screen, const char *filename, Pixel background, double scale,
                    XImage **image_return);
 
-int _XmSvgGetBuiltinImage(Screen *screen, const char *name, Pixel background,
+int _XmSvgGetBuiltinImage(Screen *screen, const char *name, Pixel background, double scale,
                           XImage **image_return);
 
 #ifdef __cplusplus

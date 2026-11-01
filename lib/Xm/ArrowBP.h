@@ -74,6 +74,7 @@ typedef struct _XmArrowButtonPart
   Time		 armTimeStamp;
   GC		 insensitive_GC;
   Dimension detail_shadow_thickness ;
+  Boolean pointer_inside; /* Armed pointer position survives expose. */
 } XmArrowButtonPart;
 
 

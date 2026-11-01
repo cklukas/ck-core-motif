@@ -82,6 +82,9 @@ typedef struct _XmButtonBoxClassRec
 
 typedef struct _XmBBoxConstraintsPart {
     Dimension pref_width, pref_height;
+    Boolean offer_valid;
+    Dimension offer_width, offer_height;
+    Dimension offer_pref_width, offer_pref_height;
 } XmBBoxConstraintsPart;
     
 typedef struct _XmBBoxConstraintsRec {

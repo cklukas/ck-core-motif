@@ -79,6 +79,10 @@ extern Boolean XmSetDisplayScaleOverride(
 extern Boolean XmGetDisplayScaleOverride(
                         Display *display,
                         double *scale_return);
+/* Effective widget scale: override, monitor scale, Xft.dpi, then 1.0.
+ * Values below one are clamped to one, matching toolkit default dimensions. */
+extern Boolean XmGetWidgetScale(Widget widget, double *scale_return);
+
 extern Boolean XmClearDisplayScaleOverride(
                         Display *display);
 

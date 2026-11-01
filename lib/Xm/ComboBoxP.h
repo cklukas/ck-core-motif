@@ -100,6 +100,11 @@ typedef struct _XmComboBoxPart {
   short			columns;
   XtEnum		position_mode;
 
+  /* Natural dimensions remain recomputable before and after realization.
+   * Explicit application dimensions are independent of parent allocations. */
+  Boolean               compute_width;
+  Boolean               compute_height;
+
 } XmComboBoxPart;
 
 

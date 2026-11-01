@@ -7,7 +7,8 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Divider.c").read_text(
 )
 redisplay = source[source.index("static void Redisplay(Widget widget") : source.index("static Boolean SetValues", source.index("static void Redisplay(Widget widget"))]
 assert "XDrawString" not in redisplay
-assert "XmStringExtent" in redisplay
+assert "label_extent(divider, &text_width, &text_height)" in redisplay
+assert "XmStringExtent" in source
 assert "XmStringDraw" in redisplay
 assert "XmNfontList" in source and "XmNrenderTable" in source
 print("PASS Divider draws labels through measured render-table text")

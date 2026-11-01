@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 checks = {
-    "lib/Xm/Stepper.c": "s == NULL || s->core.being_destroyed",
+    "lib/Xm/Stepper.c": "!s || s->core.being_destroyed",
     "lib/Xm/ProgressBar.c": "progress == NULL || progress->core.being_destroyed",
     "lib/Xm/Spinner.c": "spinner == NULL || spinner->core.being_destroyed",
     "lib/Xm/InfoBar.c": "!XmIsInfoBar(widget)||widget->core.being_destroyed",

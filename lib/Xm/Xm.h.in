@@ -79,10 +79,10 @@ extern "C" {
 #define XmREVISION	4
 #define XmUPDATE_LEVEL	0
 #define XmVersion	(XmVERSION * 1000 + XmREVISION)
-#define XmVERSION_STRING "@(#)CK Core Motif Version 2.4.0 (ABI 8)"
+#define XmVERSION_STRING "@(#)CK Core Motif Version 2.4.0 (ABI 9)"
 
 /* Native widget/private-record layout cohort, independent of source API tests. */
-#define XmABI_VERSION 8
+#define XmABI_VERSION 9
 extern unsigned int XmToolkitABI(void);
 
 externalref int xmUseVersion;
@@ -1412,6 +1412,15 @@ extern Pixmap XmGetPixmapByDepth(
                         Pixel foreground,
                         Pixel background,
 			int depth) ;
+/* A zero ratio selects the widget's current display/print scale. The caller
+ * owns one cache reference and releases it with XmDestroyPixmap. */
+extern Pixmap XmGetScaledPixmap(
+                        Widget widget,
+                        char *image_name,
+                        Pixel foreground,
+                        Pixel background,
+                        int depth,
+                        double scaling_ratio);
 extern Boolean XmDestroyPixmap( 
                         Screen *screen,
                         Pixmap pixmap) ;

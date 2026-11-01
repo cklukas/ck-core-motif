@@ -13,6 +13,13 @@ for name, (gc, foreground) in contracts.items():
     start = source.index("static Boolean SetValues(Widget old_widget")
     end = source.index("static XtGeometryResult QueryGeometry", start)
     body = source[start:end]
+    if name == "Avatar.c":
+        assert "old->primitive.foreground != avatar->primitive.foreground" in body
+        assert "old->core.background_pixel != avatar->core.background_pixel" in body
+        draw = source[source.index("static void Redisplay(Widget widget"):start]
+        assert "XSetForeground(display, gc, foreground);" in draw
+        assert "XSetBackground(display, gc, avatar->core.background_pixel);" in draw
+        continue
     for fragment in (
         "Boolean colors_changed =",
         f"if (colors_changed",

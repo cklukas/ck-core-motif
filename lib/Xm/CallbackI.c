@@ -225,3 +225,47 @@ _XmCallCallbackList(Widget widget,
   else
     icl->call_state = 0;
 }
+
+/* Observe immediate destruction during application callbacks. */
+static void
+CallbackDestroyed(Widget widget, XtPointer closure, XtPointer call_data)
+{
+  (void)widget;
+  (void)call_data;
+  *(Boolean *)closure = True;
+}
+
+/* Xt's compiled callback storage can be freed by immediate widget destruction
+ * while XtCallCallbackList is still iterating it. Own the dispatch snapshot and
+ * stop when the object is destroyed, including deferred event destruction. */
+Boolean
+_XmCallCallbacksUntilDestroyed(Widget w, String resource, XtPointer data)
+{
+  XtCallbackList callbacks = NULL;
+  XtCallbackRec *snapshot;
+  Cardinal count = 0;
+  Boolean destroyed = False, alive;
+  _XmWidgetToAppContext(w);
+  _XmAppLock(app);
+  XtVaGetValues(w, resource, &callbacks, NULL);
+  if (callbacks)
+    while (callbacks[count].callback) ++count;
+  if (count == 0) {
+    alive = !((Object)w)->object.being_destroyed;
+    _XmAppUnlock(app);
+    return alive;
+  }
+  snapshot = (XtCallbackRec *)XtMalloc(count * sizeof(*snapshot));
+  memcpy(snapshot, callbacks, count * sizeof(*snapshot));
+  XtAddCallback(w, XmNdestroyCallback, CallbackDestroyed, &destroyed);
+  for (Cardinal i = 0; i < count; ++i) {
+    if (destroyed || ((Object)w)->object.being_destroyed) break;
+    snapshot[i].callback(w, snapshot[i].closure, data);
+  }
+  if (!destroyed)
+    XtRemoveCallback(w, XmNdestroyCallback, CallbackDestroyed, &destroyed);
+  XtFree((char *)snapshot);
+  alive = !destroyed && !((Object)w)->object.being_destroyed;
+  _XmAppUnlock(app);
+  return alive;
+}

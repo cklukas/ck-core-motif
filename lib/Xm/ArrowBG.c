@@ -48,6 +48,7 @@ static char rcsid[] = "$TOG: ArrowBG.c /main/20 1999/01/26 15:30:15 mgreess $"
 #include "TravActI.h"
 #include "TraversalI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 
 #define DELAY_DEFAULT	100
 #define INVALID_PIXEL	((Pixel) -1)
@@ -73,6 +74,7 @@ static Boolean SetValues(Widget    cw,
 			 ArgList   args,
 			 Cardinal *num_args);
 static void HighlightBorder(Widget w);
+static void UnhighlightBorder(Widget w);
 static void InputDispatch(Widget wid, XEvent *event, Mask event_mask);
 static void Arm(XmArrowButtonGadget aw, XEvent *event);
 static void Activate(Widget    wid,
@@ -106,8 +108,7 @@ static void DealWithPixmaps(XmArrowButtonGadget ag);
 static void InitNewPixmapBehavior(XmArrowButtonGadget ag);
 
 static void DrawArrowG(XmArrowButtonGadget ag,
-		       GC                  top_gc,
-		       GC                  bottom_gc,
+		       Boolean pressed,
 		       GC                  center_gc);
 static void GetColors(Widget widget, XmAccessColorData color_data);
 
@@ -258,14 +259,14 @@ externaldef(xmarrowbuttongadgetclassrec) XmArrowButtonGadgetClassRec
     XtVersion,				/* version               */
     (XtPointer)NULL,			/* callback private      */
     (String)NULL,			/* tm_table              */
-    (XtGeometryHandler)NULL,		/* query_geometry        */
+    _XmArrowButtonQueryGeometry,		/* query_geometry        */
     NULL,				/* display_accelerator   */
     (XtPointer)NULL			/* extension             */
   },
   
   { /* XmGadget fields */
     HighlightBorder,			/* border highlight   */
-    XmInheritBorderUnhighlight,		/* border_unhighlight */
+    UnhighlightBorder,		/* border_unhighlight */
     ArmAndActivate,			/* arm_and_activate   */
     InputDispatch,			/* input dispatch     */
     XmInheritVisualChange,		/* visual_change      */
@@ -402,6 +403,7 @@ Initialize(
   /*  Set the internal arrow variables */
   new_w->arrowbutton.timer = 0;
   new_w->arrowbutton.selected = False;
+  new_w->arrowbutton.pointer_inside = True;
   
   /*  Get the drawing graphics contexts.  */
   DealWithColors(new_w);
@@ -540,8 +542,10 @@ Redisplay(
 		   background_width,
 		   background_height);
   
-  /*  Draw the arrow  */
-  if ((iwidth > 0) && (iheight > 0))
+  /* The shared renderer paints the complete modern face. */
+  if (!_XmAppearanceDrawArrowButton((Widget)aw, aw->arrowbutton.direction,
+          aw->arrowbutton.selected && aw->arrowbutton.pointer_inside && XtIsSensitive((Widget)aw)) &&
+      iwidth > 0 && iheight > 0)
     {
       if (aw->gadget.shadow_thickness > 0 &&
           aw->arrowbutton.top_shadow_GC != NULL &&
@@ -559,12 +563,10 @@ Redisplay(
 			aw->gadget.highlight_thickness,
 			aw->gadget.shadow_thickness, XmSHADOW_OUT);
       
-      if (aw->arrowbutton.selected && XtIsSensitive(w))
-	DrawArrowG(aw, aw->arrowbutton.bottom_shadow_GC,
-		   aw->arrowbutton.top_shadow_GC, aw->arrowbutton.arrow_GC);
+      if (aw->arrowbutton.selected && aw->arrowbutton.pointer_inside && XtIsSensitive(w))
+	DrawArrowG(aw, True, aw->arrowbutton.arrow_GC);
       else
-	DrawArrowG(aw, aw->arrowbutton.top_shadow_GC,
-		   aw->arrowbutton.bottom_shadow_GC,
+	DrawArrowG(aw, False,
 		   (XtIsSensitive(w) ? 
 		    aw->arrowbutton.arrow_GC : aw->arrowbutton.insensitive_GC));
     }
@@ -777,6 +779,22 @@ SetValues(
   XmArrowButtonGadget new_w = (XmArrowButtonGadget) nw;
   
   Boolean returnFlag = FALSE;
+  /* Losing effective sensitivity cancels a pointer gesture, including when
+   * an ancestor is disabled. A release after re-enabling must require a new
+   * press instead of reviving the old armed state. */
+  if (!XtIsSensitive(nw) && new_w->arrowbutton.selected) {
+    new_w->arrowbutton.selected = False;
+    returnFlag = TRUE;
+  }
+  /* Zero releases a requested axis; never send a zero-sized X window to
+   * the server while the appearance ownership hook records the release. */
+  if (new_w->rectangle.width == 0 || new_w->rectangle.height == 0) {
+    XtWidgetGeometry preferred = {0};
+    _XmArrowButtonQueryGeometry(nw,NULL,&preferred);
+    if (new_w->rectangle.width == 0) new_w->rectangle.width = preferred.width;
+    if (new_w->rectangle.height == 0) new_w->rectangle.height = preferred.height;
+  }
+
   
   
   /*  Check the data put into the new widget.  */
@@ -879,6 +897,8 @@ HighlightBorder(
   ag->gadget.highlighted = True;
   ag->gadget.highlight_drawn = True;
 
+  if (_XmAppearanceDrawButtonFocus(w, True)) return;
+
   /* CR 7330: Use XmeDrawHighlight, not _XmDrawHighlight. */
   XmeDrawHighlight(XtDisplay((Widget) ag), XtWindow((Widget) ag), 
 		   ag->arrowbutton.highlight_GC,
@@ -887,6 +907,22 @@ HighlightBorder(
 		   ag->gadget.highlight_thickness);
 }
 
+static void
+UnhighlightBorder(Widget widget)
+{
+  XmArrowButtonGadget arrow = (XmArrowButtonGadget)widget;
+  XtWidgetProc inherited;
+  if (_XmAppearanceDrawButtonFocus(widget, False)) {
+    arrow->gadget.highlighted = False;
+    arrow->gadget.highlight_drawn = False;
+    return;
+  }
+  _XmProcessLock();
+  inherited = xmGadgetClassRec.gadget_class.border_unhighlight;
+  _XmProcessUnlock();
+  inherited(widget);
+}
+
 static Boolean 
 HandleRedraw (
 	Widget kid, 	       
@@ -1085,9 +1121,9 @@ Arm(
   XmArrowButtonCallbackStruct call_value;
   
   aw->arrowbutton.selected = True;
+  aw->arrowbutton.pointer_inside = True;
   
-  DrawArrowG(aw, aw->arrowbutton.bottom_shadow_GC,
-	     aw->arrowbutton.top_shadow_GC, NULL);
+  DrawArrowG(aw, True, NULL);
   
   if (aw->arrowbutton.arm_callback)
     {
@@ -1121,11 +1157,13 @@ Activate(
   XButtonPressedEvent *buttonEvent = (XButtonPressedEvent *) event;
   
   XmPushButtonCallbackStruct call_value;
-  
+
+  if (!aw->arrowbutton.selected)
+    return;
+
   aw->arrowbutton.selected = False;
   
-  DrawArrowG(aw, aw->arrowbutton.top_shadow_GC, 
-	     aw->arrowbutton.bottom_shadow_GC, NULL);
+  DrawArrowG(aw, False, NULL);
   
   /* CR 9181: Consider clipping when testing visibility. */
   if ((buttonEvent->type == ButtonPress || 
@@ -1162,6 +1200,7 @@ ArmAndActivate(
   XtExposeProc expose;
   
   ab->arrowbutton.selected = TRUE;
+  ab->arrowbutton.pointer_inside = True;
   ab->arrowbutton.click_count = 1;
   _XmProcessLock();
   expose = ab->object.widget_class->core_class.expose;
@@ -1259,11 +1298,11 @@ Enter(
         XmArrowButtonGadget aw,
         XEvent *event)
 {
+  aw->arrowbutton.pointer_inside = True;
   _XmEnterGadget ((Widget) aw, event, NULL, NULL);
   
   if (aw->arrowbutton.selected && XtIsSensitive((Widget) aw))
-    DrawArrowG(aw, aw->arrowbutton.bottom_shadow_GC,
-	       aw->arrowbutton.top_shadow_GC, NULL);
+    DrawArrowG(aw, True, NULL);
 }
 
 /************************************************************************
@@ -1277,11 +1316,11 @@ Leave(
         XmArrowButtonGadget aw,
         XEvent *event)
 {
+  aw->arrowbutton.pointer_inside = False;
   _XmLeaveGadget ((Widget) aw, event, NULL, NULL);
 
   if (aw->arrowbutton.selected && XtIsSensitive((Widget) aw))
-    DrawArrowG(aw, aw->arrowbutton.top_shadow_GC,
-	       aw->arrowbutton.bottom_shadow_GC, NULL);
+    DrawArrowG(aw, False, NULL);
 }
 
 /************************************************************************
@@ -1421,14 +1460,17 @@ ActivateCommonG(
 /* Wrapper around XmeDrawArrow to calculate sizes. */
 static void
 DrawArrowG(XmArrowButtonGadget ag,
-	   GC		       top_gc,
-	   GC		       bottom_gc,
+	   Boolean pressed,
 	   GC		       center_gc)
 {
+  GC top_gc = pressed ? ag->arrowbutton.bottom_shadow_GC : ag->arrowbutton.top_shadow_GC;
+  GC bottom_gc = pressed ? ag->arrowbutton.top_shadow_GC : ag->arrowbutton.bottom_shadow_GC;
   Position x, y;
   Dimension width, height;
   unsigned int margin =
     (unsigned int)ag->gadget.highlight_thickness + ag->gadget.shadow_thickness;
+  if (_XmAppearanceDrawArrowButton((Widget)ag, ag->arrowbutton.direction, pressed))
+    return;
 
   /* Don't let large margins cause confusion. */
   if (margin <= (ag->rectangle.width / 2))

@@ -117,6 +117,7 @@ typedef struct _XmScrollBarPart
    unsigned char add_flags;
 /* Values for the additionnal flags field */
 #define SNAPPED_OUT         (1<<0)
+#define INTERACTION_ACTIVE  (1<<1)
 
 
    unsigned char change_type;

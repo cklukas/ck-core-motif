@@ -17,3 +17,28 @@ Accessibility exposes a shown toast as a panel named from its message and
 reports an action only when an action label is present.  The installed fixture
 covers show/dismiss, pause, action dispatch, timeout teardown, accessibility
 and destruction.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmToastWidgetClass demo](gallery-screenshots/xm-toastwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmToastWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L536-L540
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Toast.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

@@ -21,13 +21,16 @@
 #include <Xm/ListP.h>
 #include <Xm/InfoBar.h>
 #include <Xm/BreadcrumbBar.h>
-#include <Xm/TreeView.h>
+#include <Xm/TreeViewP.h>
 #include <Xm/Calendar.h>
 #include <Xm/DatePicker.h>
 #include <Xm/TimePicker.h>
 #include <Xm/DataGrid.h>
 #include <Xm/SegmentedControl.h>
-#include <Xm/ColorPicker.h>
+#include <Xm/ColorPickerP.h>
+#include <Xm/DrawnB.h>
+#include <Xm/Scale.h>
+#include "CallbackI.h"
 #include <Xm/Chip.h>
 #include <Xm/Badge.h>
 #include <Xm/IconLabel.h>
@@ -45,9 +48,9 @@
 #include <Xm/DropHighlight.h>
 #include <Xm/StatusBar.h>
 #include <Xm/Toolbar.h>
-#include <Xm/Sidebar.h>
+#include <Xm/SidebarP.h>
 #include <Xm/AutoSuggestBox.h>
-#include <Xm/NumberBox.h>
+#include <Xm/NumberBoxP.h>
 #include <Xm/PushB.h>
 #include <Xm/PushBG.h>
 #include <Xm/ProgressBar.h>
@@ -55,7 +58,7 @@
 #include <Xm/RatingControl.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/Spinner.h>
-#include <Xm/Stepper.h>
+#include <Xm/StepperP.h>
 #include <Xm/Text.h>
 #include <Xm/TextP.h>
 #include <Xm/TextF.h>
@@ -69,6 +72,27 @@
 #include <string.h>
 #include <wchar.h>
 #include <wctype.h>
+
+static int color_channel(Widget widget) {
+  Widget owner = widget ? XtParent(widget) : NULL;
+  if (owner && XmIsColorPicker(owner)) {
+    XmColorPickerWidget picker = (XmColorPickerWidget)owner;
+    for (unsigned i = 0; i < 4; ++i)
+      if (picker->color_picker.channels[i] == widget) return (int)i;
+    for (unsigned i = 0; i < 3; ++i)
+      if (picker->color_picker.mode_channels[i] == widget) return (int)i+4;
+  }
+  return -1;
+}
+
+static int color_pencil(Widget widget) {
+  Widget owner=widget?XtParent(widget):NULL;
+  if(owner && XmIsColorPicker(owner)){
+    XmColorPickerWidget p=(XmColorPickerWidget)owner;
+    for(int i=0;i<24;++i)if(p->color_picker.pencils[i]==widget)return i;
+  }
+  return -1;
+}
 
 static void deferred_destroy(XtPointer, XtIntervalId *);
 static Boolean sync_native_list(XmAccessibility *, XmAccessibleNode *);
@@ -445,6 +469,21 @@ static void text_value_changed(Widget w, XtPointer data, XtPointer call) {
   XmAccessibilityChanged((XmAccessibility *)data,
                          XmAccessibilityWidget((XmAccessibility *)data, w));
 }
+static void color_value_changed(Widget w, XtPointer data, XtPointer call) {
+  XmAccessibility *a = data;XmColorPickerWidget picker = (XmColorPickerWidget)w;
+  XmAccessibleId ids[32];(void)call;
+  if (a->destroy_requested) return;
+  ++a->dispatch_depth;
+  ids[0] = XmAccessibilityWidget(a, w);
+  for (unsigned i = 0; i < 4; ++i)
+    ids[i+1] = XmAccessibilityWidget(a, picker->color_picker.channels[i]);
+  for (unsigned i = 0; i < 3; ++i)
+    ids[i+5] = XmAccessibilityWidget(a, picker->color_picker.mode_channels[i]);
+  for(unsigned i=0;i<24;++i)ids[i+8]=XmAccessibilityWidget(a,picker->color_picker.pencils[i]);
+  for (unsigned i = 0; i < 32 && !a->destroy_requested; ++i)
+    if (ids[i] && _XmAccessibilityNode(a, ids[i])) XmAccessibilityChanged(a, ids[i]);
+  --a->dispatch_depth;_XmAccessibilityDispatchDone(a);
+}
 static const char *scroll_callbacks[] = {
     XmNvalueChangedCallback, XmNdragCallback,          XmNincrementCallback,
     XmNdecrementCallback,    XmNpageIncrementCallback, XmNpageDecrementCallback,
@@ -454,6 +493,8 @@ static void resource_changed(Widget hooks, XtPointer data, XtPointer call) {
   XtChangeHookData change = (XtChangeHookData)call;
   XmAccessibleId id;
   (void)hooks;
+  if (!strcmp(change->type, XtHsetValues) && XmIsColorPicker(change->widget) &&
+      XmAccessibilityWidget(a, change->widget)) color_value_changed(change->widget, a, NULL);
   if (!strcmp(change->type, XtHsetValues) && (XmIsScrollBar(change->widget) || XmIsList(change->widget)) &&
       (id = XmAccessibilityWidget(a, change->widget)))
     { if (XmIsList(change->widget)) list_changed(change->widget, a, NULL);
@@ -684,9 +725,10 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsSpinner(w))
       XtAddCallback(w, XmNspinnerStateChangedCallback, text_value_changed,
                     (XtPointer)a);
-    if (XmIsColorPicker(w))
-      XtAddCallback(w, XmNcolorPickerValueChangedCallback, text_value_changed,
-                    (XtPointer)a);
+    if (XmIsColorPicker(w)) {
+      XtAddCallback(w, XmNcolorPickerValueChangedCallback, color_value_changed, (XtPointer)a);
+      XtAddCallback(w, XmNcolorPickerPreviewCallback, color_value_changed, (XtPointer)a);
+    }
     if (XmIsRatingControl(w))
       XtAddCallback(w, XmNratingValueChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -696,9 +738,12 @@ static void add_widgets(XmAccessibility *a, Widget w, XmAccessibleId parent) {
     if (XmIsBreadcrumbBar(w))
       XtAddCallback(w, XmNbreadcrumbCurrentChangedCallback, text_value_changed,
                     (XtPointer)a);
-    if (XmIsTreeView(w))
+    if (XmIsTreeView(w)) {
       XtAddCallback(w, XmNtreeViewSelectionCallback, text_value_changed,
                     (XtPointer)a);
+      XtAddCallback(w, XmNtreeViewExpansionCallback, text_value_changed,
+                    (XtPointer)a);
+    }
     if (XmIsCalendar(w))
       XtAddCallback(w, XmNcalendarDateChangedCallback, text_value_changed,
                     (XtPointer)a);
@@ -850,9 +895,10 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
     if (XmIsSpinner(n->widget))
       XtRemoveCallback(n->widget, XmNspinnerStateChangedCallback,
                        text_value_changed, (XtPointer)a);
-    if (XmIsColorPicker(n->widget))
-      XtRemoveCallback(n->widget, XmNcolorPickerValueChangedCallback,
-                       text_value_changed, (XtPointer)a);
+    if (XmIsColorPicker(n->widget)) {
+      XtRemoveCallback(n->widget, XmNcolorPickerValueChangedCallback, color_value_changed, (XtPointer)a);
+      XtRemoveCallback(n->widget, XmNcolorPickerPreviewCallback, color_value_changed, (XtPointer)a);
+    }
     if (XmIsRatingControl(n->widget))
       XtRemoveCallback(n->widget, XmNratingValueChangedCallback,
                        text_value_changed, (XtPointer)a);
@@ -862,9 +908,12 @@ static void remove_callbacks(XmAccessibility *a, XmAccessibleNode *n) {
     if (XmIsBreadcrumbBar(n->widget))
       XtRemoveCallback(n->widget, XmNbreadcrumbCurrentChangedCallback,
                        text_value_changed, (XtPointer)a);
-    if (XmIsTreeView(n->widget))
+    if (XmIsTreeView(n->widget)) {
       XtRemoveCallback(n->widget, XmNtreeViewSelectionCallback,
                        text_value_changed, (XtPointer)a);
+      XtRemoveCallback(n->widget, XmNtreeViewExpansionCallback,
+                       text_value_changed, (XtPointer)a);
+    }
     if (XmIsCalendar(n->widget))
       XtRemoveCallback(n->widget, XmNcalendarDateChangedCallback,
                        text_value_changed, (XtPointer)a);
@@ -1225,10 +1274,37 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
       label = NULL;
     }
   }
-  if (XmIsPushButton(w) || XmIsPushButtonGadget(w) || XmIsArrowButton(w)) {
+  if (XmIsPushButton(w) || XmIsPushButtonGadget(w) || XmIsArrowButton(w) || color_pencil(w)>=0) {
     i->role = XmACCESSIBLE_BUTTON;
     i->action_count = 1;
     i->states |= XmACCESSIBLE_STATE(11);
+    if (XmIsArrowButton(w) && XtParent(w) && XmIsSidebar(XtParent(w)) &&
+        ((XmSidebarWidget)XtParent(w))->sidebar.toggle_button == w) {
+      XtFree(local);
+      local = XtNewString(XmSidebarGetExpanded(XtParent(w)) ?
+                          "Collapse sidebar" : "Expand sidebar");
+    }
+  }
+  if(XtParent(w) && XmIsColorPicker(XtParent(w)) && ((XmColorPickerWidget)XtParent(w))->color_picker.plane==w){
+    XmColorPickerWidget picker=(XmColorPickerWidget)XtParent(w);
+    XtFree(local);local=XtNewString(picker->color_picker.mode==XmCOLOR_PICKER_HSV?"Saturation and value color field":"Lab a star and b star color field");
+    i->states |= XmACCESSIBLE_STATE(11);
+  }
+  if (XtParent(w) && (XmIsNumberBox(XtParent(w)) || XmIsStepper(XtParent(w)))) {
+    Widget increment, decrement;
+    if (XmIsNumberBox(XtParent(w))) {
+      XmNumberBoxWidget owner = (XmNumberBoxWidget)XtParent(w);
+      increment = owner->number_box.increment;
+      decrement = owner->number_box.decrement;
+    } else {
+      XmStepperWidget owner = (XmStepperWidget)XtParent(w);
+      increment = owner->stepper.increment;
+      decrement = owner->stepper.decrement;
+    }
+    if (w == increment || w == decrement) {
+      XtFree(local);
+      local = XtNewString(w == increment ? "Increase value" : "Decrease value");
+    }
   }
   if (XmIsToggleButton(w) || XmIsToggleButtonGadget(w) ||
       XmIsToggleSwitch(w)) {
@@ -1283,11 +1359,10 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsColorPicker(w)) {
     char value_text[16];
-    i->role = XmACCESSIBLE_BUTTON;
-    /* No native activation operation is exposed; value updates use the
-     * accessibility value interface instead of a phantom action. */
-    i->action_count = 0;
+    i->role = XmACCESSIBLE_COLOR_CHOOSER;
+    i->action_count = 2;
     i->has_value = True;
+    i->states |= XmACCESSIBLE_STATE(7);
     i->minimum_value = 0;
     i->maximum_value = 4294967295.0;
     i->current_value = (double)XmColorPickerGetValue(w);
@@ -1295,6 +1370,23 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     snprintf(value_text, sizeof(value_text), "#%08lx",
              XmColorPickerGetValue(w) & 0xffffffffUL);
     i->value_text = XtNewString(value_text);
+  }
+  if (color_channel(w) >= 0) {
+    static const char *names[] = {"Red", "Green", "Blue", "Alpha"};
+    int value,minimum,maximum;XtEnum editable;Boolean traversal;
+    int channel=color_channel(w);double divisor=channel>=4?10:1;
+    XmScaleGetValue(w, &value);
+    XtVaGetValues(w,XmNminimum,&minimum,XmNmaximum,&maximum,NULL);
+    XtVaGetValues(w, XmNeditable, &editable, XmNtraversalOn, &traversal, NULL);
+    i->role = XmACCESSIBLE_SLIDER;i->has_value = True;
+    i->minimum_value = minimum/divisor;i->maximum_value = maximum/divisor;
+    i->current_value = value/divisor;i->minimum_increment = 1/divisor;
+    i->action_count = editable ? 2 : 0;
+    if (editable) i->states |= XmACCESSIBLE_STATE(7);
+    if (traversal) i->states |= XmACCESSIBLE_STATE(11);
+    const char *hsv[]={"Hue degrees","Saturation percent","Value percent"},*lab[]={"Lightness D50","a star","b star"};
+    XmColorPickerWidget picker=(XmColorPickerWidget)XtParent(w);
+    XtFree(local);local = XtNewString(channel<4?names[channel]:picker->color_picker.mode==XmCOLOR_PICKER_HSV?hsv[channel-4]:lab[channel-4]);
   }
   if (XmIsRatingControl(w)) {
     int count = 0;
@@ -1332,6 +1424,7 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   if (XmIsTreeView(w)) {
     XtPointer selected = XmTreeViewGetSelectedId(w);
     i->role = XmACCESSIBLE_TREE;
+    i->action_count = _XmTreeViewHasSelectionAction(w) ? 1 : 0;
     i->has_selection = selected != NULL;
     i->has_value = True;
     i->minimum_value = 0;
@@ -1389,9 +1482,10 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsChip(w)) {
     XmString label_string = NULL;
+    Boolean removable=False;
     i->role = XmACCESSIBLE_BUTTON;
-    i->action_count = 1;
-    XtVaGetValues(w, XmNchipLabel, &label_string, NULL);
+    XtVaGetValues(w, XmNchipLabel, &label_string, XmNchipRemovable, &removable, NULL);
+    i->action_count = removable ? 2 : 1;
     if (label_string)
       local = XmStringUnparse(label_string, NULL, XmCHARSET_TEXT,
                               XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
@@ -1566,27 +1660,30 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->action_count = XmAutoSuggestBoxGetSuggestionCount(w) ? 1 : 0;
     local = XtNewString("Suggestions");
   }
-  if (XmIsNumberBox(w)) {
-    int minimum, maximum;
-    i->role = XmACCESSIBLE_PROGRESS_BAR;
+  if (XmIsNumberBox(w) || XmIsStepper(w)) {
+    int minimum, maximum, increment;
+    Boolean traversal;
+    i->role = XmACCESSIBLE_SPIN_BUTTON;
     i->has_value = True;
-    XmNumberBoxGetRange(w, &minimum, &maximum);
+    if (XmIsNumberBox(w)) {
+      XmNumberBoxGetRange(w, &minimum, &maximum);
+      i->current_value = XmNumberBoxGetValue(w);
+      XtVaGetValues(w, XmNnumberStep, &increment, NULL);
+      i->action_count = 4;
+    } else {
+      XmStepperGetRange(w, &minimum, &maximum);
+      i->current_value = XmStepperGetValue(w);
+      XtVaGetValues(w, XmNstepperStep, &increment, NULL);
+      i->action_count = 2;
+    }
     i->minimum_value = minimum;
     i->maximum_value = maximum;
-    i->current_value = XmNumberBoxGetValue(w);
-    i->minimum_increment = 1;
-    i->action_count = 0;
-  }
-  if (XmIsStepper(w)) {
-    int minimum, maximum;
-    i->role = XmACCESSIBLE_PROGRESS_BAR;
-    i->has_value = True;
-    XmStepperGetRange(w, &minimum, &maximum);
-    i->minimum_value = minimum;
-    i->maximum_value = maximum;
-    i->current_value = XmStepperGetValue(w);
-    i->minimum_increment = 1;
-    i->action_count = 0;
+    i->minimum_increment = increment;
+    /* The scalar value is writable; the NumberBox editor independently
+     * exposes its text editing contract. Sensitivity gates all mutations. */
+    i->states |= XmACCESSIBLE_STATE(7);
+    XtVaGetValues(w, XmNtraversalOn, &traversal, NULL);
+    if (traversal) i->states |= XmACCESSIBLE_STATE(11);
   }
   if (XmIsText(w) || XmIsTextField(w)) {
     i->role = XmACCESSIBLE_TEXT;
@@ -1801,18 +1898,45 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
     XmAccessibleInfoClear(&info);
     return XmAccessibilitySetValue(a, id, next);
   }
+  if (n->widget && (XmIsNumberBox(n->widget) || XmIsStepper(n->widget))) {
+    Widget widget = n->widget;
+    Boolean number = XmIsNumberBox(widget);
+    if (!XtIsSensitive(widget) || action >= (number ? 4u : 2u)) return False;
+    /* Use the native stepping contract, including wrap, page step and
+     * exactly-once value callbacks. A callback may destroy the widget. */
+    if (number) XmNumberBoxStep(widget, (action & 1) ? -1 : 1, action >= 2, True);
+    else XmStepperStep(widget, action ? -1 : 1, True);
+    return True;
+  }
+  if (n->widget && XmIsColorPicker(n->widget)) {
+    if (action > 1 || !XtIsSensitive(n->widget)) return False;
+    if (action == 0) return XmColorPickerCommit(n->widget, True);
+    XmColorPickerRevert(n->widget);return True;
+  }
+  if (n->widget && color_channel(n->widget) >= 0) {
+    int value,minimum,maximum;
+    if (action > 1 || !XtIsManaged(n->widget)) return False;
+    XmScaleGetValue(n->widget, &value);
+    XtVaGetValues(n->widget,XmNminimum,&minimum,XmNmaximum,&maximum,NULL);
+    double divisor=color_channel(n->widget)>=4?10:1;
+    return XmAccessibilitySetValue(a, id, MAX(minimum, MIN(maximum, value + (action ? -1 : 1)))/divisor);
+  }
+  if (n->widget && XmIsChip(n->widget)) {
+    Boolean removable=False;
+    if (!XtIsSensitive(n->widget) || action>1) return False;
+    XtVaGetValues(n->widget,XmNchipRemovable,&removable,NULL);
+    if (action && !removable) return False;
+    if (action) XmChipRemove(n->widget,NULL);
+    else XmChipInvoke(n->widget,NULL);
+    return True;
+  }
   if (n->widget && XmIsSearchBox(n->widget)) {
-    if (!XtIsSensitive(n->widget))
-      return False;
-    if (action == 0) {
-      XmSearchBoxCommit(n->widget, NULL);
-      return True;
-    }
-    if (action == 1 && search_clear_available(n->widget)) {
+    if (!XtIsSensitive(n->widget) || action > 1) return False;
+    if (action) {
+      if (!search_clear_available(n->widget)) return False;
       XmSearchBoxClear(n->widget);
-      return True;
-    }
-    return False;
+    } else XmSearchBoxCommit(n->widget, NULL);
+    return True;
   }
   if (n->widget && XmIsSidebar(n->widget) && action == 0 &&
       XtIsSensitive(n->widget)) {
@@ -1845,13 +1969,11 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
     }
     return True;
   }
+  if (XmIsTreeView(n->widget))
+    return _XmTreeViewActivateSelection(n->widget, NULL);
   if (XmIsDisclosure(n->widget)) {
     XmDisclosureSetExpanded(n->widget, !XmDisclosureGetExpanded(n->widget),
                             True);
-    return True;
-  }
-  if (XmIsChip(n->widget)) {
-    XmChipInvoke(n->widget, NULL);
     return True;
   }
   if (XmIsLink(n->widget)) {
@@ -1901,6 +2023,11 @@ static Boolean action_impl(XmAccessibility *a, XmAccessibleId id,
         n->widget, !XmToggleButtonGadgetGetState(n->widget), True);
     return True;
   }
+  if(color_pencil(n->widget)>=0){
+    if(!XtIsManaged(n->widget))return False;
+    XmDrawnButtonCallbackStruct cb={XmCR_ACTIVATE,NULL,XtWindow(n->widget),1};
+    (void)_XmCallCallbacksUntilDestroyed(n->widget,XmNactivateCallback,&cb);return True;
+  }
   if (!XmIsPushButton(n->widget) && !XmIsPushButtonGadget(n->widget))
     return False;
   {
@@ -1937,10 +2064,73 @@ static char *action_name_impl(XmAccessibility *a, XmAccessibleId id,
     return XtNewString("commit-first-suggestion");
   if (n->provider.action_name)
     return n->provider.action_name(n->data, action);
+  if (n->widget && XmIsSearchBox(n->widget))
+    return XtNewString(action ? "clear" : "commit");
+  if (n->widget && XmIsColorPicker(n->widget))
+    return XtNewString(action ? "revert" : "apply");
+  if (n->widget && color_channel(n->widget) >= 0)
+    return XtNewString(names[action]);
+  if (n->widget && XmIsChip(n->widget))
+    return XtNewString(action ? "remove" : "activate");
   {
     const char *name =
-        n->widget && XmIsScrollBar(n->widget) ? names[action] : "activate";
+        n->widget && (XmIsScrollBar(n->widget) || XmIsNumberBox(n->widget) ||
+                      XmIsStepper(n->widget)) ? names[action] : "activate";
     return XtNewString(name);
+  }
+}
+const char *_XmAccessibilityRoleName(unsigned int role) {
+  switch (role) {
+  case XmACCESSIBLE_APPLICATION:
+    return "application";
+  case XmACCESSIBLE_FRAME:
+    return "frame";
+  case XmACCESSIBLE_PANEL:
+    return "panel";
+  case XmACCESSIBLE_LABEL:
+    return "label";
+  case XmACCESSIBLE_BUTTON:
+    return "push button";
+  case XmACCESSIBLE_CHECK_BOX:
+    return "check box";
+  case XmACCESSIBLE_TEXT:
+    return "text";
+  case XmACCESSIBLE_PASSWORD_TEXT:
+    return "password text";
+  case XmACCESSIBLE_SCROLL_BAR:
+    return "scroll bar";
+  case XmACCESSIBLE_LIST:
+    return "list";
+  case XmACCESSIBLE_LIST_ITEM:
+    return "list item";
+  case XmACCESSIBLE_MENU:
+    return "menu";
+  case XmACCESSIBLE_MENU_BAR:
+    return "menu bar";
+  case XmACCESSIBLE_MENU_ITEM:
+    return "menu item";
+  case XmACCESSIBLE_CHECK_MENU_ITEM:
+    return "check menu item";
+  case XmACCESSIBLE_RADIO_MENU_ITEM:
+    return "radio menu item";
+  case XmACCESSIBLE_TABLE:
+    return "table";
+  case XmACCESSIBLE_TABLE_CELL:
+    return "table cell";
+  case XmACCESSIBLE_PROGRESS_BAR:
+    return "progress bar";
+  case XmACCESSIBLE_TREE:
+    return "tree";
+  case XmACCESSIBLE_CALENDAR:
+    return "calendar";
+  case XmACCESSIBLE_SPIN_BUTTON:
+    return "spin button";
+  case XmACCESSIBLE_COLOR_CHOOSER:
+    return "color chooser";
+  case XmACCESSIBLE_SLIDER:
+    return "slider";
+  default:
+    return "unknown";
   }
 }
 static Boolean set_value_impl(XmAccessibility *a, XmAccessibleId id,
@@ -1961,10 +2151,35 @@ static Boolean set_value_impl(XmAccessibility *a, XmAccessibleId id,
     return False;
   if (n->provider.set_value)
     return n->provider.set_value(n->data, value);
-  if (!n->widget || !XmIsScrollBar(n->widget) || value < INT_MIN ||
-      value > INT_MAX || value != (double)(int)value)
+  if (n->widget && XmIsColorPicker(n->widget)) {
+    if (value < 0 || value > 4294967295.0 || value != (double)(uint32_t)value) return False;
+    XmColorPickerSetValue(n->widget, (unsigned long)(uint32_t)value, True);return True;
+  }
+  if (n->widget && color_channel(n->widget) >= 0) {
+    Widget widget = n->widget;int previous,minimum,maximum;
+    if(!XtIsManaged(widget))return False;
+    XtVaGetValues(widget,XmNminimum,&minimum,XmNmaximum,&maximum,NULL);
+    double native=value*(color_channel(widget)>=4?10:1);
+    if (native < minimum || native > maximum || fabs(native-round(native))>1e-7) return False;
+    value=round(native);
+    XmScaleGetValue(widget, &previous);
+    if (previous != (int)value) {
+      XmScaleCallbackStruct callback = {XmCR_VALUE_CHANGED, NULL, (int)value};
+      XmScaleSetValue(widget, (int)value);
+      (void)_XmCallCallbacksUntilDestroyed(widget, XmNvalueChangedCallback, &callback);
+    }
+    return True;
+  }
+  if (!n->widget || value < INT_MIN || value > INT_MAX ||
+      value != (double)(int)value)
     return False;
-  XmScrollBarSetValues(n->widget, (int)value, 0, 0, 0, True);
+  if (XmIsNumberBox(n->widget))
+    XmNumberBoxSetValue(n->widget, (int)value, True);
+  else if (XmIsStepper(n->widget))
+    XmStepperSetValue(n->widget, (int)value, True);
+  else if (XmIsScrollBar(n->widget))
+    XmScrollBarSetValues(n->widget, (int)value, 0, 0, 0, True);
+  else return False;
   return True;
 }
 static Boolean focus_impl(XmAccessibility *a, XmAccessibleId id) {

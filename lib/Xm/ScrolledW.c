@@ -35,6 +35,14 @@ static char rcsid[] = "$TOG: ScrolledW.c /main/16 1997/07/25 16:49:57 samborn $"
 #endif
 
 #include <Xm/ClipWindowP.h>
+#include <Xm/List.h>
+#include <Xm/Text.h>
+#include <Xm/TreeView.h>
+#include <Xm/DataGrid.h>
+#include <X11/StringDefs.h>
+#include <stdint.h>
+#include <string.h>
+#include "VendorSI.h"
 #include <Xm/DragDrop.h>
 #include <Xm/DrawP.h>
 #include <Xm/NavigatorT.h>
@@ -484,8 +492,15 @@ static XmSyntheticResource syn_resources[] =
  * SW directly (in the margins).
  ****************/
 
+static void WheelScroll(Widget, XEvent *, String *, Cardinal *);
+static void WheelChildCreated(Widget, XtPointer, XtPointer);
+static void WheelPrepare(Widget, XtPointer, XEvent *, Boolean *);
+static void WheelActionHook(Widget, XtPointer, String, XEvent *, String *, Cardinal *);
+static XtTranslations wheel_translations;
+
 static XtActionsRec actions[] =
 {
+    {"ScrolledWindowWheel", WheelScroll},
     {"SWBeginLine",        LeftEdge},
     {"SWEndLine",          RightEdge},
     {"SWTopLine",          TopEdge},
@@ -1078,6 +1093,14 @@ WidgetClass wc )
 
     }
 
+    if (!wheel_translations)
+        wheel_translations = XtParseTranslationTable(
+            "<Btn4Down>,<Btn4Up>: ScrolledWindowWheel()\n"
+            "<Btn5Down>,<Btn5Up>: ScrolledWindowWheel()\n"
+            /* Xt names only buttons 1..5. The generic fallback admits 6/7
+             * in the action and leaves all other buttons untouched. */
+            "<BtnDown>,<BtnUp>: ScrolledWindowWheel()");
+
     _XmFastSubclassInit (wc, XmSCROLLED_WINDOW_BIT);
 
     /* Install the scrollFrame trait for all subclasses as well. */
@@ -1189,6 +1212,10 @@ Cardinal *num_args )
      ****************/
 
     new_w->swindow.FromResize = FALSE;
+    new_w->swindow.wheel_action_hook = NULL;
+    new_w->swindow.wheel_window = None;
+    new_w->swindow.wheel_button = 0;
+    new_w->swindow.wheel_claimed = False;
 
     /* the mins actually never change, the others, max, extent, etc,
        get update the first time the SW is resized */
@@ -1303,6 +1330,12 @@ Cardinal *num_args )
      *
      *****************/
 
+    XtAddCallback(XtHooksOfDisplay(XtDisplay(nw)), XtNcreateHook,
+                  WheelChildCreated, nw);
+    XtAugmentTranslations(nw, wheel_translations);
+    XtInsertEventHandler(nw, ButtonPressMask, False, WheelPrepare, NULL, XtListHead);
+    new_w->swindow.wheel_action_hook = XtAppAddActionHook(
+        XtWidgetToApplicationContext(nw), WheelActionHook, nw);
     new_w->swindow.InInit = True;
 
     /* Default dimension here, not in ChangeManaged because
@@ -1830,7 +1863,7 @@ XmScrolledWindowWidget sw )
 {
     Position     newx, newy, vsbX, vsbY, hsbX, hsbY;
     Dimension HSBht = 0, VSBht = 0, VSBwidth = 0, HSBheight = 0;
-    Dimension MyWidth, MyHeight, childWidth, childHeight;
+    int MyWidth, MyHeight, childWidth, childHeight;
     Dimension shad = sw->manager.shadow_thickness,
         pad = sw->swindow.pad, bw;
     int tmp;
@@ -1867,12 +1900,12 @@ XmScrolledWindowWidget sw )
     /* worry about going negative */
     tmp = (int) sw->core.width - sw->swindow.XOffset - sw->swindow.WidthPad;
     if (tmp <= 0)
-        MyWidth = 10;
+        MyWidth = 1;
     else
         MyWidth = (Dimension )tmp;
     tmp = (int) sw->core.height - sw->swindow.YOffset - sw->swindow.HeightPad;
     if (tmp <= 0)
-        MyHeight = 10;
+        MyHeight = 1;
     else
         MyHeight = (Dimension )tmp;
 
@@ -1891,13 +1924,13 @@ XmScrolledWindowWidget sw )
 
     tmp = (int) MyWidth - (((int )shad+(int )bw) * 2);
     if (tmp <= 0)
-        childWidth = 2;
+        childWidth = 1;
     else
         childWidth = (Dimension )tmp;
 
     tmp = (int )MyHeight - (((int )shad+(int )bw) * 2);
     if (tmp <= 0)
-        childHeight = 2;
+        childHeight = 1;
     else
         childHeight = (Dimension )tmp;
 
@@ -2025,11 +2058,19 @@ XmScrolledWindowWidget sw )
         XmeConfigureObject((Widget) sw->swindow.vScrollBar, vsbX, vsbY,
             VSBwidth, sw->swindow.vsbHeight,
             SB_BORDER_WIDTH);
+    else if (ExistManaged((Widget)sw->swindow.vScrollBar))
+        XmeConfigureObject((Widget)sw->swindow.vScrollBar,
+            sw->core.width, 0, sw->swindow.vScrollBar->core.width,
+            MAX(1, MyHeight), SB_BORDER_WIDTH);
 
     if (HasHSB)
         XmeConfigureObject((Widget) sw->swindow.hScrollBar, hsbX, hsbY,
             sw->swindow.hsbWidth, HSBheight,
             SB_BORDER_WIDTH);
+    else if (ExistManaged((Widget)sw->swindow.hScrollBar))
+        XmeConfigureObject((Widget)sw->swindow.hScrollBar,
+            0, sw->core.height, MAX(1, MyWidth),
+            sw->swindow.hScrollBar->core.height, SB_BORDER_WIDTH);
 
 }
 
@@ -2039,6 +2080,7 @@ XmScrolledWindowWidget sw )
  * ConstantLayout - Layout the scrolled window for AUTOMATIC		*
  *									*
  ************************************************************************/
+
 static void
 ConstantLayout(
 XmScrolledWindowWidget sw )
@@ -2103,18 +2145,14 @@ XmScrolledWindowWidget sw )
             sw->swindow.hsbY = sw->swindow.hScrollBar->core.y;
         }
 
-        /* looks bogus, but who care of this extreme case */
-        sw->swindow.AreaWidth = (sw->core.width >
-            sw->swindow.WidthPad + (shad * 2)) ?
-            sw->core.width - sw->swindow.WidthPad - (shad * 2) : 0;
-        sw->swindow.AreaHeight = (sw->core.height >
-            sw->swindow.HeightPad + (shad * 2)) ?
-            sw->core.height - sw->swindow.HeightPad - (shad * 2) : 0;
-
-        XmeConfigureObject((Widget) clip,
-            shad + sw->swindow.XOffset,
-            shad + sw->swindow.YOffset,
-            sw->swindow.AreaWidth, sw->swindow.AreaHeight, 0);
+        clipX = shad + sw->swindow.XOffset;
+        clipY = shad + sw->swindow.YOffset;
+        clipWidth = MyWidth - 2 * (int)shad;
+        clipHeight = MyHeight - 2 * (int)shad;
+        BoundViewport(sw, &clipX, &clipY, &clipWidth, &clipHeight);
+        sw->swindow.AreaWidth = clipWidth;
+        sw->swindow.AreaHeight = clipHeight;
+        XmeConfigureObject((Widget)clip, clipX, clipY, clipWidth, clipHeight, 0);
         return;
     }
 
@@ -2289,9 +2327,36 @@ XmScrolledWindowWidget sw )
     HasVSB = (HasVSB && VSBExists);
     HasHSB = (HasHSB && HSBExists);
 
-    /* safe check */
-    if (clipHeight < 2) clipHeight = 2 ;
-    if (clipWidth < 2) clipWidth = 2 ;
+    /* A navigator needs its full cross-axis thickness plus a positive
+     * viewport. Hide optional chrome when that allocation cannot fit; do not
+     * squeeze it over the content or beyond the parent's window. Reevaluate
+     * from the requested policy on every layout so growth restores it. */
+    {
+        Boolean hadHSB = HasHSB, hadVSB = HasVSB;
+        if (HasHSB && MyHeight <= (int)sw->swindow.hScrollBar->core.height +
+                SB_BORDER_WIDTH + pad + 2 * (shad + VSBht))
+            HasHSB = False;
+        if (HasVSB && MyWidth <= (int)sw->swindow.vScrollBar->core.width +
+                SB_BORDER_WIDTH + pad + 2 * (shad + HSBht))
+            HasVSB = False;
+        if (HasHSB != hadHSB || HasVSB != hadVSB) {
+            HSBht = HasHSB ? HSBht : 0;
+            VSBht = HasVSB ? VSBht : 0;
+            clipWidth = MyWidth - 2 * (shad + HSBht) -
+                (HasVSB ? sw->swindow.vScrollBar->core.width +
+                 SB_BORDER_WIDTH + pad : 0);
+            clipHeight = MyHeight - 2 * (shad + VSBht) -
+                (HasHSB ? sw->swindow.hScrollBar->core.height +
+                 SB_BORDER_WIDTH + pad : 0);
+        }
+    }
+
+    /* Resolve the viewport before navigator extents. At undersized
+     * allocations, decorative insets must yield to a positive bounded clip;
+     * retaining the old two-pixel minimum placed it outside a one-pixel pane. */
+    ComputeLocations(sw, HasHSB ? HSBht : 0, HasVSB ? VSBht : 0,
+        HasHSB, HasVSB, &clipX, &clipY, &hsbX, &hsbY, &vsbX, &vsbY);
+    BoundViewport(sw, &clipX, &clipY, &clipWidth, &clipHeight);
 
     /****************
      *
@@ -3011,6 +3076,106 @@ XmScrolledWindowWidget sw)
 }
 
 
+/* Xt resolves action names through ancestor classes. Augmented translations
+ * supply a fallback without replacing a descendant's own wheel bindings. */
+static XmScrolledWindowWidget
+WheelOwner(Widget widget)
+{
+    for (; widget; widget = XtParent(widget)) {
+        if (XmIsScrollBar(widget) || XmIsList(widget) || XmIsText(widget) ||
+            XmIsTreeView(widget) || XmIsDataGrid(widget) || XtIsShell(widget))
+            return NULL;
+        if (XmIsScrolledWindow(widget))
+            return ((XmScrolledWindowWidget)widget)->swindow.ScrollPolicy == XmAUTOMATIC
+                ? (XmScrolledWindowWidget)widget : NULL;
+    }
+    return NULL;
+}
+
+static void
+WheelChildCreated(Widget hooks, XtPointer closure, XtPointer call_data)
+{
+    XtCreateHookData data = (XtCreateHookData)call_data;
+    Widget owner = (Widget)closure;
+    (void)hooks;
+    if (data && data->widget && XtIsWidget(data->widget) &&
+        (Widget)WheelOwner(data->widget) == owner) {
+        XtAugmentTranslations(data->widget, wheel_translations);
+        XtInsertEventHandler(data->widget, ButtonPressMask, False,
+                             WheelPrepare, NULL, XtListHead);
+    }
+}
+
+/* An existing press-only action and our longer fallback sequence can share
+ * an Xt translation prefix. Record ownership through the public action hook,
+ * rather than inspecting Xt's private translation-table representation. */
+static void
+WheelPrepare(Widget widget, XtPointer closure, XEvent *event, Boolean *dispatch)
+{
+    XmScrolledWindowWidget sw = WheelOwner(widget);
+    (void)closure; (void)dispatch;
+    if (!sw || event->type != ButtonPress || sw->core.being_destroyed) return;
+    sw->swindow.wheel_window = event->xbutton.window;
+    sw->swindow.wheel_button = event->xbutton.button;
+    sw->swindow.wheel_claimed = False;
+}
+
+static void
+WheelActionHook(Widget widget, XtPointer closure, String action, XEvent *event,
+                String *params, Cardinal *count)
+{
+    XmScrolledWindowWidget sw = (XmScrolledWindowWidget)closure;
+    (void)params; (void)count;
+    if (!event || (event->type != ButtonPress && event->type != ButtonRelease) ||
+        event->xbutton.button < 4 || event->xbutton.button > 7 ||
+        sw->core.being_destroyed || WheelOwner(widget) != sw ||
+        !strcmp(action, "ScrolledWindowWheel")) return;
+    if (event->xbutton.window == sw->swindow.wheel_window &&
+        event->xbutton.button == sw->swindow.wheel_button)
+        sw->swindow.wheel_claimed = True;
+}
+
+static void
+WheelScroll(Widget widget, XEvent *event, String *params, Cardinal *count)
+{
+    XmScrolledWindowWidget sw;
+    Widget bar;
+    Boolean horizontal;
+    XtEnum editable;
+    unsigned char direction;
+    int value, size, increment, page, minimum, maximum;
+    int64_t next, limit, delta;
+    unsigned button;
+    (void)params; (void)count;
+    if (!event || event->type != ButtonRelease || !XtIsSensitive(widget) ||
+        !_XmModalInputAllowed(widget) ||
+        (event->xbutton.state & (ControlMask | Mod1Mask | Mod4Mask))) return;
+    button = event->xbutton.button;
+    if (button < 4 || button > 7 || !(sw = WheelOwner(widget)) ||
+        sw->core.being_destroyed) return;
+    if (sw->swindow.wheel_window != event->xbutton.window ||
+        sw->swindow.wheel_button != button || sw->swindow.wheel_claimed) return;
+    sw->swindow.wheel_window = None;
+    horizontal = button >= 6 || (event->xbutton.state & ShiftMask);
+    bar = (Widget)(horizontal ? sw->swindow.hScrollBar : sw->swindow.vScrollBar);
+    if (!bar || bar->core.being_destroyed || !XtIsSensitive(bar)) return;
+    XtVaGetValues(bar, XmNminimum, &minimum, XmNmaximum, &maximum,
+        XmNprocessingDirection, &direction, XmNeditable, &editable, NULL);
+    if (!editable) return;
+    XmScrollBarGetValues(bar, &value, &size, &increment, &page);
+    limit = (int64_t)maximum - size;
+    if (limit <= minimum || increment <= 0) return;
+    delta = 3LL * increment * ((button == 4 || button == 6) ? -1 : 1);
+    if (direction == XmMAX_ON_TOP || direction == XmMAX_ON_LEFT) delta = -delta;
+    next = (int64_t)value + delta;
+    if (next < minimum) next = minimum;
+    if (next > limit) next = limit;
+    if (next == value) return;
+    /* One clamped update, including the native scroll-frame callback. A
+     * callback can destroy the scrollbar or owner: never access either again. */
+    XmScrollBarSetValues(bar, (int)next, size, increment, page, True);
+}
+
 /************************************************************************
  *
  *  Destroy
@@ -3023,6 +3188,10 @@ Widget wid )
 {
     XmScrolledWindowWidget sw = (XmScrolledWindowWidget) wid ;
 
+    XtRemoveCallback(XtHooksOfDisplay(XtDisplay(wid)), XtNcreateHook,
+                     WheelChildCreated, wid);
+    if (sw->swindow.wheel_action_hook)
+        XtRemoveActionHook(sw->swindow.wheel_action_hook);
     CancelAutoDrag(sw);
 
     if (sw->swindow.scroll_frame_inited)
@@ -3052,7 +3221,10 @@ Widget wid )
 {
     XmScrolledWindowWidget sw = (XmScrolledWindowWidget) wid ;
 
-    if (sw->swindow.ClipWindow == NULL)
+    /* Application-defined variable layout (including MainWindow) has no
+     * internal clip child. Only constant layout requires one. */
+    if (sw->swindow.VisualPolicy != XmVARIABLE &&
+        sw->swindow.ClipWindow == NULL)
 	return;
 
     if (sw->swindow.VisualPolicy == XmVARIABLE)
@@ -3159,6 +3331,28 @@ XtWidgetGeometry *reply )
     ht = sw->manager.shadow_thickness * 2;
     hsb = sw->swindow.hScrollBar;
     vsb = sw->swindow.vScrollBar;
+
+    /* A thickness-only navigator request consumes content space in the
+     * existing outer allocation. Both automatic and application-defined
+     * scrollers must work when their parent refuses enlargement. Each layout
+     * policy resizes its own clip/work area; query-only requests are inert. */
+    if (((w == (Widget)vsb) &&
+         (request->request_mode & ~XtCWQueryOnly) == CWWidth) ||
+        ((w == (Widget)hsb) &&
+         (request->request_mode & ~XtCWQueryOnly) == CWHeight)) {
+        if ((IsWidth(request) && !request->width) ||
+            (IsHeight(request) && !request->height)) return XtGeometryNo;
+        if (!IsQueryOnly(request)) {
+            XtWidgetProc resize;
+            if (IsWidth(request)) w->core.width = request->width;
+            if (IsHeight(request)) w->core.height = request->height;
+            _XmProcessLock();
+            resize = XtCoreProc(sw, resize);
+            _XmProcessUnlock();
+            (*resize)((Widget)sw);
+        }
+        return XtGeometryYes;
+    }
 
     /****************
      *

@@ -1942,18 +1942,18 @@ SetValues(
 	    }
 	}
 
-    if ((ncw->container.collapsed_state_pixmap !=
-	 ccw->container.collapsed_state_pixmap) ||
-	(ncw->container.expanded_state_pixmap !=
-	 ccw->container.expanded_state_pixmap)) {
+    if (!ccw->container.self) {
 	/* compute the size of the new outline buttons */
 	SizeOutlineButton(nw);
 	/* if the size has change, mark it for relayout */
 	if ((ncw->container.ob_width != ccw->container.ob_width) ||
 	    (ncw->container.ob_height != ccw->container.ob_height))
 	    outline_need_layout = True;
-	/* update all the buttons */
-	ChangeOutlineButtons(nw);
+        /* Geometry-only updates can occur during expansion, before the row
+         * stores its new state. Do not overwrite its in-flight pixmap. */
+        if (ncw->container.collapsed_state_pixmap != ccw->container.collapsed_state_pixmap ||
+            ncw->container.expanded_state_pixmap != ccw->container.expanded_state_pixmap)
+            ChangeOutlineButtons(nw);
     }
 
     /*
@@ -5539,7 +5539,7 @@ ContainerExpandOrCollapse(
     if (new_state == c->outline_state)
 	return;
 	
-    OutlineButtonAction(focus_cwid, new_state, NULL);
+    OutlineButtonAction(focus_cwid, new_state, event);
 }
 
 
@@ -7273,6 +7273,15 @@ SizeOutlineButton(
 		  XmNwidth,&width,XmNheight,&height,NULL);
     cw->container.ob_width = MAX(cw->container.ob_width,width);
     cw->container.ob_height = MAX(cw->container.ob_height,height);
+    XmAppearanceProfile profile;
+    if (XmGetAppearanceProfile(XtDisplay(wid), &profile) &&
+        (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) &&
+        (_XmAppearanceOwnsResource(wid, XmNexpandedStatePixmap) ||
+         _XmAppearanceOwnsResource(wid, XmNcollapsedStatePixmap))) {
+        Dimension extent = _XmDpiDefaultDimension(wid, 20);
+        cw->container.ob_width = MAX(cw->container.ob_width, extent);
+        cw->container.ob_height = MAX(cw->container.ob_height, extent);
+    }
 }
 
 /************************************************************************
@@ -7584,7 +7593,7 @@ GetRealIconHeader(
     if (!cw->container.icon_header) return NULL;
 
     /* determine the real icon_header id */
-    if (XtParent(cw->container.icon_header) != wid)
+    if (XtParent(cw->container.icon_header) != wid) {
 	/* we are in the SW auto case where a DA was created as
 	   the parent of the icon_header and store in container
 	   icon_header. */
@@ -7593,6 +7602,7 @@ GetRealIconHeader(
 	    return NULL;
 	return ((CompositeWidget)(cw->container.icon_header))
 	    ->composite.children[0] ;
+    }
     else 
 	return cw->container.icon_header ;
 }
@@ -9582,6 +9592,31 @@ GetPrevTraversalWidget(
 }
 
 
+/* Container owns the association and application pixmap contract; the shared
+ * arrow renderer owns modern glyph geometry, palette and pressed state. */
+Boolean
+_XmContainerDrawDisclosure(Widget button)
+{
+    Widget parent = XtParent(button);
+    XmAppearanceProfile profile;
+    if (!parent || !XmIsContainer(parent) || !CtrOUTLINE_BUTTON(button) ||
+        !XmGetAppearanceProfile(XtDisplay(parent), &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT && profile != XmAPPEARANCE_MODERN_DARK))
+        return False;
+    XmContainerConstraint proxy = GetContainerConstraint(button);
+    if (!proxy->related_cwid) return False;
+    XmContainerConstraint row = GetContainerConstraint(proxy->related_cwid);
+    Boolean expanded = row->outline_state == XmEXPANDED;
+    if (!_XmAppearanceOwnsResource(parent,
+            expanded ? XmNexpandedStatePixmap : XmNcollapsedStatePixmap)) return False;
+    return _XmAppearanceDrawArrowRegion(parent, XtX(button), XtY(button),
+        XtWidth(button), XtHeight(button), 0,
+        expanded ? XmARROW_DOWN : LayoutIsRtoLM((XmContainerWidget)parent) ? XmARROW_LEFT : XmARROW_RIGHT,
+        PBG_Armed((XmPushButtonGadget)button) &&
+            ((XmPushButtonGadget)button)->pushbutton.pointer_inside,
+        XtIsSensitive(button) && XtIsSensitive(proxy->related_cwid));
+}
+
 /************************************************************************
  * MakeOutlineButton (Private Function)
  ************************************************************************/
@@ -9667,11 +9702,12 @@ ChangeOutlineButtons(
 	if (CtrOUTLINE_BUTTON(cwid))
 	    {
 	    c = GetContainerConstraint(cwid);
-	    if (c == NULL || c->related_cwid == NULL)
-		continue;
-	    c = GetContainerConstraint(c->related_cwid);
-	    if (c == NULL)
-		continue;
+            /* The disclosure gadget is a proxy for its icon row. Its own
+             * constraint state is not the row's expansion state. The sizing
+             * gadget has no associated row and is handled separately. */
+            if (c == NULL || c->related_cwid == NULL) continue;
+            c = GetContainerConstraint(c->related_cwid);
+            if (c == NULL) continue;
 	    if (c->outline_state == XmEXPANDED)
 		pm = cw->container.expanded_state_pixmap;
 	    else
@@ -10363,6 +10399,10 @@ OutlineButtonAction(
 
     if (cw == NULL || c == NULL)
 	return;
+    /* The disclosure is a sibling proxy, so its sensitivity does not inherit
+     * the row's state. Gate both pointer and keyboard activation on the row. */
+    if (!XtIsSensitive(cwid))
+        return;
 
     /*
      * call the XmNoutlineChangedCallback callback

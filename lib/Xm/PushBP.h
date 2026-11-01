@@ -75,6 +75,9 @@ typedef struct _XmPushButtonPart
 		/* New resource - always add it
                     to widgets dimension. */
 
+   Dimension default_geometry; /* Effective classic outer-frame thickness. */
+   Dimension default_reservation; /* Space actually included in each margin. */
+   Boolean pointer_inside; /* Armed drag feedback survives expose. */
 } XmPushButtonPart;
 
 

@@ -39,6 +39,8 @@ void XmNumberBoxSetValue(Widget widget, int value, Boolean notify);
 void XmNumberBoxStep(Widget widget, int direction, Boolean page,
                      Boolean notify);
 Boolean XmNumberBoxIsInvalid(Widget widget);
+/* Borrowed native editor; owned and destroyed by the NumberBox. */
+Widget XmNumberBoxGetTextField(Widget widget);
 
 #ifdef __cplusplus
 }

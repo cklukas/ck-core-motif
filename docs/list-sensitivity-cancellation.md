@@ -1,13 +1,12 @@
----
-nav_exclude: true
----
 # List sensitivity cancellation
 
-`XmList` can schedule delayed drag initiation and edge auto-scroll callbacks.
-Changing a list to insensitive must cancel both timers and clear the transient
-button/append state; otherwise a queued callback could select an item or start
-a drag after the application disabled the widget.  The timeout callbacks also
-check sensitivity defensively before doing any work.
+A native List cancels a pending selection gesture when it or an ancestor loses
+effective sensitivity. A later release after re-enabling requires a new press;
+it cannot complete the cancelled gesture. Pending drag initiation and automatic
+scroll timers are removed, and append-selection state is cleared. Existing
+selection data remains intact.
 
-The focused regression check is
-`tests/automated/check-list-sensitivity-cancels-gestures.py`.
+`run-list-sensitivity.py` exercises single, multiple, browse and extended
+selection with direct and ancestor sensitivity changes in classic, modern light
+and modern dark appearances. It verifies that cancellation suppresses the old
+release while a subsequent fresh gesture still notifies normally.

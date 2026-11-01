@@ -60,6 +60,7 @@ static char rcsid[] = "$TOG: PushBG.c /main/29 1999/05/27 14:18:33 mgreess $"
 #include "TraversalI.h"
 #include "UniqueEvnI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 
 #define DELAY_DEFAULT		100
 #define XmINVALID_MULTICLICK	255
@@ -184,9 +185,6 @@ static void EraseDefaultButtonShadow(
                         XmPushButtonGadget pb);
 static void DrawDefaultButtonShadow( 
                         XmPushButtonGadget pb);
-static int AdjustHighLightThickness( 
-                        XmPushButtonGadget new_w,
-                        XmPushButtonGadget current);
 static void Redisplay( 
                         Widget wid,
                         XEvent *event,
@@ -229,7 +227,7 @@ static void ShowAsDefault(Widget w,
 static void PBG_FixTearoff( XmPushButtonGadget pb);
 
 /********    End Static Function Declarations    ********/
-
+
 /************************************************
  The uncached resources for Push Button  
  ************************************************/
@@ -353,7 +351,7 @@ static XmSyntheticResource cache_syn_resources[] =
      XmeToHorizontalPixels
    },
 };
-
+
 /*************************************<->*************************************
  *
  *
@@ -542,7 +540,7 @@ static XmMenuSavvyTraitRec MenuSavvyRecord = {
     NULL,
     _XmCBNameActivate,
 };
-
+
 /*****************************************************************
  *  SPECIAL PROPERTIES OF PUSHBUTTON GADGET INSIDE A MENU:
  *   When a PushButton (widget/gadget) is incorporated in a Menu
@@ -592,7 +590,7 @@ _XmPushBCacheCompare(
   else
     return 0;
 }
-
+
 /************************************************************************
  *
  *  InputDispatch
@@ -656,7 +654,7 @@ InputDispatch(
   else if (event_mask & XmBDRAG_EVENT)
     _XmProcessDrag ((Widget) pb, event, NULL, NULL);
 }
-
+
 /************************************************************************
  *
  *     Arm
@@ -672,6 +670,7 @@ Arm(
         XmPushButtonGadget pb,
         XEvent *event )
 {
+  pb->pushbutton.pointer_inside = True;
   XmPushButtonCallbackStruct call_value;
   XtExposeProc    expose;
   
@@ -693,7 +692,7 @@ Arm(
       XtCallCallbackList ((Widget) pb, PBG_ArmCallback(pb), &call_value);
     }
 }
-
+
 /************************************************************************
  *
  *     Activate
@@ -713,6 +712,9 @@ Activate(
   XmMenuSystemTrait menuSTrait;
   XtExposeProc    expose;
   
+  if (!PBG_Armed(pb) || !XtIsSensitive((Widget)pb))
+    return;
+
   menuSTrait = (XmMenuSystemTrait) 
     XmeTraitGet((XtPointer) XtClass(XtParent(pb)), XmQTmenuSystem);
   
@@ -748,7 +750,7 @@ Activate(
 	}
     }
 }
-
+
 static void 
 PBG_FixTearoff( XmPushButtonGadget pb)	
 {
@@ -781,6 +783,7 @@ ArmAndActivate(
         Cardinal *num_params )	/* unused */
 {  
   XmPushButtonGadget pb = (XmPushButtonGadget) wid;
+  pb->pushbutton.pointer_inside = True;
   XmPushButtonCallbackStruct call_value;
   Boolean already_armed = PBG_Armed(pb);
   Boolean is_menupane = LabG_IsMenupane(pb);
@@ -939,7 +942,7 @@ ArmAndActivate(
 	}
     }
 }
-
+
 /*ARGSUSED*/
 static void 
 ArmTimeout(
@@ -990,7 +993,7 @@ ArmTimeout(
       XFlush (XtDisplay (pb));
     }
 }
-
+
 /************************************************************************
  *
  *    Disarm
@@ -1016,7 +1019,7 @@ Disarm(
       XtCallCallbackList ((Widget) pb, PBG_DisarmCallback(pb), &call_value);
     }
 }
-
+
 /************************************************************************
  *
  *     BtnDown
@@ -1098,7 +1101,7 @@ BtnDown(
     }
   _XmRecordEvent (event);
 }
-
+
 /************************************************************************
  *
  *     BtnUp
@@ -1236,7 +1239,7 @@ BtnUp(
     XmProcessTraversal((Widget) pb, XmTRAVERSE_CURRENT);
   PBG_FixTearoff(pb);
 }
-
+
 /************************************************************************
  *
  *  Enter
@@ -1249,6 +1252,7 @@ Enter(
         XEvent *event )
 {
   XmPushButtonGadget pb = (XmPushButtonGadget) wid;
+  pb->pushbutton.pointer_inside = True;
   XmPushButtonCallbackStruct call_value;
   XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
   Boolean etched_in = dpy->display.enable_etched_in_menu;
@@ -1310,7 +1314,7 @@ Enter(
        }
     }
 }
-
+
 /************************************************************************
  *
  *  Leave
@@ -1322,6 +1326,7 @@ Leave(
         XEvent *event )
 {
   XmPushButtonGadget pb = (XmPushButtonGadget) wid;
+  pb->pushbutton.pointer_inside = False;
   XmPushButtonCallbackStruct call_value;
   
   if (LabG_IsMenupane(pb))
@@ -1378,7 +1383,7 @@ Leave(
 	}
     }
 }
-
+
 /*************************************<->*************************************
  *
  *  BorderHighlight 
@@ -1432,7 +1437,7 @@ BorderHighlight(
     } 
 }
 
-
+
 static void
 DrawBorderHighlight(
         Widget wid)
@@ -1447,8 +1452,9 @@ DrawBorderHighlight(
 
   pb->gadget.highlighted = True;
   pb->gadget.highlight_drawn = True;
+  if (_XmAppearanceDrawButtonFocus(wid, True)) return;
   
-  if ((PBG_DefaultButtonShadowThickness(pb) > 0))
+  if ((pb->pushbutton.default_geometry > 0))
     {
       if (pb->gadget.highlight_thickness <= Xm3D_ENHANCE_PIXEL)
         return;
@@ -1470,11 +1476,11 @@ DrawBorderHighlight(
 	  break;
 
 	case XmINTERNAL_HIGHLIGHT:
-	  if (PBG_DefaultButtonShadowThickness(pb))
+	  if (pb->pushbutton.default_geometry)
 	    delta = Xm3D_ENHANCE_PIXEL + 
 	      2 * (PBG_Compatible(pb) ? 
 		   PBG_ShowAsDefault(pb) : 
-		   PBG_DefaultButtonShadowThickness(pb));
+		   pb->pushbutton.default_geometry);
 	  else
 	    delta = 0;
 	  break;
@@ -1496,7 +1502,7 @@ DrawBorderHighlight(
 		       x, y, width, height, highlight_width);
     }
 } 
-
+
 /*************************************<->*************************************
  *
  *  BorderUnhighlight
@@ -1511,6 +1517,12 @@ BorderUnhighlight(
   XmPushButtonCallbackStruct call_value;
   XEvent * event = NULL;
   
+  if (!LabG_IsMenupane(pb) && _XmAppearanceDrawButtonFocus(wid, False)) {
+      pb->gadget.highlighted = False;
+      pb->gadget.highlight_drawn = False;
+      return;
+  }
+
   if (LabG_IsMenupane(pb))
     {
       XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
@@ -1552,7 +1564,7 @@ BorderUnhighlight(
       switch (default_button_emphasis)
 	{
 	case XmINTERNAL_HIGHLIGHT:
-	  if (PBG_DefaultButtonShadowThickness(pb) && (border > 0))
+	  if (pb->pushbutton.default_geometry && (border > 0))
 	    {
 	      int x, y, width, height, delta;
 
@@ -1562,7 +1574,7 @@ BorderUnhighlight(
 	      delta = Xm3D_ENHANCE_PIXEL + 
 		2 * (PBG_Compatible(pb) ? 
 		     PBG_ShowAsDefault(pb) :
-		     PBG_DefaultButtonShadowThickness(pb));
+		     pb->pushbutton.default_geometry);
 	    
 	      if (pb->rectangle.width <= 2 * delta ||
 	          pb->rectangle.height <= 2 * delta)
@@ -1589,7 +1601,7 @@ BorderUnhighlight(
     } 
   (void)_XmNotebookDrawTabBorder(wid);
 }
-
+
 /*************************************<->*************************************
  *
  *  KeySelect
@@ -1644,7 +1656,7 @@ KeySelect(
 	menuSTrait->reparentToTearOffShell(XtParent(pb), event);
     }
 }
-
+
 /***********************************************************
  *
  *  ClassInitialize
@@ -1703,7 +1715,7 @@ ClassInitialize( void )
   
   PushBGClassExtensionRec.record_type = XmQmotif;
 }
-
+
 /************************************************************************
  *
  *  ClassPartInitialize
@@ -1726,7 +1738,7 @@ ClassPartInitialize(
   /* Install the takesDefault trait for all subclasses */
   XmeTraitSet((XtPointer) wc, XmQTtakesDefault, (XtPointer) &pushButtonGTDT);
 }
-
+
 /************************************************************************
  *
  *  SecondaryObjectCreate
@@ -1804,7 +1816,7 @@ SecondaryObjectCreate(
 		       ((XmPushButtonGCacheObject)newSec)->ext.extensionType);
   memcpy(reqSec, newSec, size);
 }
-
+
 /************************************************************************
  *
  *  InitializePosthook
@@ -1823,7 +1835,7 @@ InitializePrehook(
   if (LabG_Font(new_w) == NULL)
     LabG_Font(new_w) = XmeGetDefaultRenderTable (new_w, XmBUTTON_FONTLIST);
 }
-
+
 /************************************************************************
  *
  *  InitializePosthook
@@ -1873,7 +1885,7 @@ InitializePosthook(
   _XmProcessUnlock();
   XtFree((char *) ext);
 }
-      
+
 /*************************************<->*************************************
  *
  *  Initialize 
@@ -1895,6 +1907,7 @@ Initialize(
   int		     adjustment = 0;
   XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(new_w));
   Boolean etched_in = dpy->display.enable_etched_in_menu;
+  new_w->pushbutton.pointer_inside = True;
   
   if (PBG_MultiClick(new_w) == XmINVALID_MULTICLICK)
     {
@@ -1941,6 +1954,13 @@ Initialize(
     }
 #endif
   
+  {
+    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplayOfObject(nw));
+    new_w->pushbutton.default_geometry =
+      (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) ? 0 : PBG_DefaultButtonShadowThickness(new_w);
+    new_w->pushbutton.default_reservation = 0;
+  }
+
   /* No unarm_pixmap but do have an arm_pixmap, use that. */
   if ((LabG_Pixmap(new_w) == XmUNSPECIFIED_PIXMAP) &&
       (PBG_ArmPixmap(new_w) != XmUNSPECIFIED_PIXMAP))
@@ -1972,7 +1992,7 @@ Initialize(
   PBG_UnarmPixmap(new_w) = LabG_Pixmap(new_w);
   
   
-  if (PBG_DefaultButtonShadowThickness(new_w))
+  if (new_w->pushbutton.default_geometry)
     { 
       /*
        * Special hack for 3d enhancement of location cursor highlight.
@@ -1985,9 +2005,10 @@ Initialize(
       pbgadget->highlight_thickness += Xm3D_ENHANCE_PIXEL;
       adjustment += Xm3D_ENHANCE_PIXEL;
       
-      increase =  2 * PBG_DefaultButtonShadowThickness(new_w) +
+      increase =  2 * new_w->pushbutton.default_geometry +
 	new_w->gadget.shadow_thickness + adjustment;
       
+      new_w->pushbutton.default_reservation = increase;
       /* Add the increase to the rectangle to compensate for extra space */
       if (increase != 0)
 	{
@@ -2042,7 +2063,7 @@ Initialize(
     XmFOCUS_IN_EVENT | XmFOCUS_OUT_EVENT | XmENTER_EVENT | XmLEAVE_EVENT
       | XmMULTI_ARM_EVENT |  XmMULTI_ACTIVATE_EVENT | XmBDRAG_EVENT;
 }
-
+
 /************************************************************************
  *
  *  GetFillGC
@@ -2066,7 +2087,7 @@ GetFillGC(
   
   PBG_FillGc(pb) = XtGetGC ((Widget) mw, valueMask, &values);
 }
-
+
 /************************************************************************
  *
  *  SetValuesPrehook
@@ -2166,7 +2187,7 @@ SetValuesPrehook(
   
   return FALSE;
 }
-
+
 /************************************************************************
  *
  *  GetValuesPrehook
@@ -2248,7 +2269,7 @@ GetValuesPrehook(
   
   _XmExtGetValuesHook((Widget)newSec, args, num_args);
 }
-
+
 /************************************************************************
  *
  *  GetValuesPosthook
@@ -2274,7 +2295,7 @@ GetValuesPosthook(
   _XmProcessUnlock();
   XtFree((char *) ext);
 }
-
+
 /************************************************************************
  *
  *  SetValuesPosthook
@@ -2335,7 +2356,7 @@ SetValuesPosthook(
   
   return FALSE;
 }
-
+
 /*************************************<->*************************************
  *
  *  SetValues(current, request, new_w)
@@ -2375,12 +2396,16 @@ SetValues(
   XmPushButtonGadget current = (XmPushButtonGadget) cw;
   XmPushButtonGadget request = (XmPushButtonGadget) rw;
   XmPushButtonGadget new_w = (XmPushButtonGadget) nw;
-  int		     increase;
   Boolean	     flag = FALSE;    /* our return value */
   XmManagerWidget    newmw = (XmManagerWidget) XtParent(new_w);
-  int		     adjustment;
   XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(new_w));
   Boolean etched_in = dpy->display.enable_etched_in_menu;
+
+  /* A disabled gesture must not resume when sensitivity returns. */
+  if (!XtIsSensitive(nw) && PBG_Armed(new_w)) {
+    PBG_Armed(new_w) = False;
+    flag = True;
+  }
 
   /*
    * Fix to introduce Resource XmNdefaultBorderWidth and compatibility
@@ -2404,73 +2429,45 @@ SetValues(
   if (PBG_Compatible (new_w))
     PBG_DefaultButtonShadowThickness(new_w) = PBG_ShowAsDefault(new_w);
   
-  adjustment = AdjustHighLightThickness (new_w, current);
-  
-  if (PBG_DefaultButtonShadowThickness(new_w) !=
-      PBG_DefaultButtonShadowThickness(current))
-    {
-      if (PBG_DefaultButtonShadowThickness(new_w) >
-	  PBG_DefaultButtonShadowThickness(current))
-	{
-	  if (PBG_DefaultButtonShadowThickness(current) > 0)
-            increase =  (2 * PBG_DefaultButtonShadowThickness(new_w) +
-                         new_w->gadget.shadow_thickness) -
-			   (2 * PBG_DefaultButtonShadowThickness(current) +
-			    current->gadget.shadow_thickness);
-	  else
-            increase =  (2 * PBG_DefaultButtonShadowThickness(new_w) +
-                         new_w->gadget.shadow_thickness);
-	}
-      else
-	{
-	  if (PBG_DefaultButtonShadowThickness(new_w) > 0)
-            increase = - ((2 * PBG_DefaultButtonShadowThickness(current) +
-                           current->gadget.shadow_thickness) -
-                          (2 * PBG_DefaultButtonShadowThickness(new_w) +
-                           new_w->gadget.shadow_thickness));
-	  else
-            increase = - (2 * PBG_DefaultButtonShadowThickness(current) +
-                          current->gadget.shadow_thickness);
-	}
-      
-      increase += adjustment;
-      
-      if (LabG_RecomputeSize(new_w) || request->rectangle.width == 0)
-	{
-	  LabG_MarginLeft(new_w) += increase;
-	  LabG_MarginRight(new_w) += increase;
-	  new_w->rectangle.width += (increase << 1);
-	  flag = TRUE;
-	}
-      else if (increase != 0)
-	{  
-	  /* add the change to the rectangle */
-	  LabG_MarginLeft(new_w) += increase;
-	  LabG_MarginRight(new_w) += increase;
-	  new_w->rectangle.width += (increase << 1);
-	  flag = TRUE;
-	}
-      
-      if (LabG_RecomputeSize(new_w) || request->rectangle.height == 0)
-	{
-	  LabG_MarginTop(new_w) += increase;
-	  LabG_MarginBottom(new_w) += increase;
-	  new_w->rectangle.height +=  (increase << 1);
-	  flag = TRUE;
-	}
-      else if (increase != 0)
-	{ 
-	  /* add the change to the rectangle */
-	  LabG_MarginTop(new_w)  += increase;
-	  LabG_MarginBottom(new_w) += increase;
-	  new_w->rectangle.height += (increase << 1);
-	  flag = TRUE;
-	}
-      
-#ifndef XTHREADS
-      _XmReCacheLabG((Widget) new_w);
-#endif
+  {
+    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplayOfObject(nw));
+    Dimension old_reservation = current->pushbutton.default_reservation;
+    Boolean specified[7] = {False};
+    const char *names[] = {XmNmarginLeft, XmNmarginRight, XmNmarginTop,
+      XmNmarginBottom, XmNhighlightThickness, XmNwidth, XmNheight};
+    Dimension *margins[] = {&LabG_MarginLeft(new_w), &LabG_MarginRight(new_w),
+      &LabG_MarginTop(new_w), &LabG_MarginBottom(new_w)};
+    int delta[4];
+    for (Cardinal i=0; i<*num_args; ++i)
+      for (unsigned j=0; j<XtNumber(names); ++j)
+        if (strcmp(args[i].name,names[j])==0) specified[j]=True;
+    new_w->pushbutton.default_geometry =
+      (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) ? 0 : PBG_DefaultButtonShadowThickness(new_w);
+    /* Highlight resources are public widths; the classic one-pixel enhancement
+     * is private and must be added/removed exactly once. */
+    if (!specified[4] && current->pushbutton.default_geometry &&
+        new_w->gadget.highlight_thickness >= Xm3D_ENHANCE_PIXEL)
+      new_w->gadget.highlight_thickness -= Xm3D_ENHANCE_PIXEL;
+    if (new_w->pushbutton.default_geometry)
+      new_w->gadget.highlight_thickness += Xm3D_ENHANCE_PIXEL;
+    new_w->pushbutton.default_reservation = new_w->pushbutton.default_geometry ?
+      2 * new_w->pushbutton.default_geometry + new_w->gadget.shadow_thickness + Xm3D_ENHANCE_PIXEL : 0;
+    for (unsigned i=0; i<4; ++i) {
+      int prior = specified[i] ? 0 : old_reservation;
+      delta[i] = (int)new_w->pushbutton.default_reservation - prior;
+      *margins[i] = (Dimension)MAX(0, (int)*margins[i] + delta[i]);
     }
+    if (!specified[5]) new_w->rectangle.width = (Dimension)MAX(1,(int)new_w->rectangle.width+delta[0]+delta[1]);
+    if (!specified[6]) new_w->rectangle.height = (Dimension)MAX(1,(int)new_w->rectangle.height+delta[2]+delta[3]);
+    if (old_reservation != new_w->pushbutton.default_reservation) {
+      /* Fixed allocations still need the label positioned for the new frame. */
+      Resize(nw);
+      flag = True;
+    }
+#ifndef XTHREADS
+    _XmReCacheLabG(nw);
+#endif
+  }
   
   if ((PBG_ArmPixmap(new_w) != PBG_ArmPixmap(current)) &&
       (LabG_LabelType(new_w) == XmPIXMAP) && (PBG_Armed(new_w))) 
@@ -2556,7 +2553,7 @@ SetValues(
   
   return flag;
 }
-
+
 /************************************************************************
  *
  *  Help
@@ -2583,7 +2580,7 @@ Help(
   if (is_menupane && menuSTrait != NULL)
     menuSTrait->reparentToTearOffShell(XtParent(pb), event);
 }
-
+
 /************************************************************************
  *
  *  Destroy
@@ -2623,7 +2620,7 @@ Destroy(
   _XmCacheDelete((XtPointer) PBG_Cache(pb));
   _XmProcessUnlock();
 }
-
+
 /**************************************************************************
  *
  * Resize(w)
@@ -2646,7 +2643,7 @@ Resize(
     (* resize) ((Widget) pb);
   }
 }
-
+
 /*ARGSUSED*/
 static void 
 ActivateCommonG(
@@ -2674,7 +2671,7 @@ ActivateCommonG(
 	  ((Widget) pb, event, NULL, NULL);
     }
 }
-
+
 /*********************************************************
  *   Functions for manipulating Secondary Resources.
  *********************************************************/
@@ -2704,7 +2701,7 @@ GetPushBGClassSecResData(
   
   return (arrayCount);
 }
-
+
 /*
  * GetPushBGClassResBase ()
  *   retrun the address of the base of resources.
@@ -2738,7 +2735,7 @@ GetPushBGClassSecResBase(
   _XmProcessUnlock();
   return (widgetSecdataPtr);
 }
-
+
 #ifdef DEFAULT_GLYPH_PIXMAP
 /*
  * DrawDefaultGlyphPixmap (pb)
@@ -2783,7 +2780,7 @@ DrawDefaultGlyphPixmap(
 	      LabG_NormalGC(pb), 0, 0, width, height, dx, dy, 1);
 }
 #endif /* DEFAULT_GLYPH_PIXMAP */
-
+
 #ifdef DEFAULT_GLYPH_PIXMAP
 /*
  * EraseDefaultGlyphPixmap (pb)
@@ -2816,7 +2813,7 @@ EraseDefaultGlyphPixmap(
 	      dx, dy, width, height, False);
 }
 #endif /* DEFAULT_GLYPH_PIXMAP */
-
+
 /*
  * EraseDefaultButtonShadow (pb)
  *  - Called from SetValues() - effort to optimize shadow drawing.
@@ -2832,6 +2829,10 @@ EraseDefaultButtonShadow(
   if (!XtIsRealized((Widget)pb) || !XtIsManaged((Widget)pb)) 
     return;
   
+  if (!LabG_IsMenupane(pb) && _XmAppearanceDrawButton((Widget)pb,
+          PBG_Armed(pb) && PBG_FillOnArm(pb) && XtIsSensitive((Widget)pb) ?
+          PBG_ArmColor(pb) : LabG_Background(pb), PBG_ShowAsDefault(pb) != 0, False)) return;
+
   if (LabG_IsMenupane(pb))
     {
       ShellWidget mshell = (ShellWidget) XtParent(XtParent(pb));
@@ -2848,7 +2849,7 @@ EraseDefaultButtonShadow(
     } 
 #endif
 
-  size = PBG_DefaultButtonShadowThickness(pb);
+  size = pb->pushbutton.default_geometry;
   if (size > 0)
     {
       XmDisplay xm_dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(pb));
@@ -2882,7 +2883,7 @@ EraseDefaultButtonShadow(
       XmeClearBorder(XtDisplay(pb), XtWindow(pb), x, y, width, height, size);
     }
 }
-
+
 /*
  * DrawDefaultButtonShadow (pb)
  *  - Called from SetValues() - effort to optimize shadow drawing.
@@ -2904,74 +2905,9 @@ DrawDefaultButtonShadow(
   
   DrawDefaultButtonShadows(pb);
 }
-
-/*
- * AdjustHighLightThickness ()
- *  HighlightThickness has a dependency on default_button-shadow-thickness;
- *  This routine (called from SetValues) adjust for that dependency.
- *  Applications should be aware that
- *  if a pushbutton gadget has  with (default_button-shadow-thickness == 0) 
- * - then if through a XtSetValue it sets (default_button-shadow-thickness > 0)
- *  the application-specified highlight-thickness is internally increased by 
- *  Xm3D_ENHANCE_PIXEL to enhance the 3D-appearance of the defaultButton
- *  Shadow. Similarly if a pushbutton gadget has (default_button-shadow_
- *  thickness > 0), and it resets the (default_button-shadow-thickness = 0)
- *  through a XtSetValue , then the existing highlight-thickness is decreased
- *  by Xm3D_ENHANCE_PIXEL.
- *  The border-highlight when drawn is however is always of the same
- *  thickness as specified by the application since compensation is done
- *  in the drawing routine (see BorderHighlight).
- */
 
-static int 
-AdjustHighLightThickness(
-        XmPushButtonGadget new_w,
-        XmPushButtonGadget current )
-{
-  XmGadgetPart  *pbnew, *pbcurrent;
-  int adjustment = 0;
-  
-  pbnew = (XmGadgetPart *) (&(new_w->gadget));
-  pbcurrent = (XmGadgetPart *) (&(current->gadget));
-  
-  if (PBG_DefaultButtonShadowThickness(new_w))
-    {
-      if (!(PBG_DefaultButtonShadowThickness(current)))
-	{
-	  pbnew->highlight_thickness += Xm3D_ENHANCE_PIXEL;
-	  adjustment += Xm3D_ENHANCE_PIXEL;
-	}
-      else if (pbnew->highlight_thickness != pbcurrent->highlight_thickness)
-	{
-	  pbnew->highlight_thickness += Xm3D_ENHANCE_PIXEL;
-	  adjustment += Xm3D_ENHANCE_PIXEL;
-	}
-    }
-  else
-    {
-      if (PBG_DefaultButtonShadowThickness(current))
-	{
-	  /* The default_button_shadow_thickness was > 0 and is now
-	   * being set to 0, so take away the adjustment for enhancement.
-	   */
-	  if (pbnew->highlight_thickness == pbcurrent->highlight_thickness)
-	    {
-	      pbnew->highlight_thickness -= Xm3D_ENHANCE_PIXEL;
-	      adjustment -= Xm3D_ENHANCE_PIXEL;
-	    }
-	}
-      /*
-       * This will have a bug if in a XtSetValues the application
-       * removes the default_button_shadow_thickness and also
-       * sets the high-light-thickness to a value of
-       * (old-high-light-thickness (from previous XtSetValue) +
-       *  Xm3D_ENHANCE_PIXEL).
-       * This will be documented.
-       */
-    }
-  return (adjustment);
-}
-
+
+
 /*ARGSUSED*/
 static void 
 Redisplay(
@@ -2980,6 +2916,8 @@ Redisplay(
         Region region )
 {
   XmPushButtonGadget pb = (XmPushButtonGadget) wid;
+  Boolean saved_armed = PBG_Armed(pb);
+  if (!pb->pushbutton.pointer_inside) PBG_Armed(pb) = False;
   
   if (XtIsRealized((Widget)pb))
     {
@@ -2989,8 +2927,7 @@ Redisplay(
 	  Boolean etched_in = dpy->display.enable_etched_in_menu;
 	  ShellWidget mshell = (ShellWidget)XtParent(XtParent(pb));
 	  
-	  if (!mshell->shell.popped_up)
-	    return;
+	  if (!mshell->shell.popped_up) { PBG_Armed(pb) = saved_armed; return; }
 
 	  DrawPushButtonLabelGadget (pb, event, region);
 
@@ -3007,8 +2944,9 @@ Redisplay(
 	    DrawBorderHighlight((Widget) pb);
 	}
     }
+  PBG_Armed(pb) = saved_armed;
 }
-
+
 /*
  * DrawPushButtonLabelGadget()
  */
@@ -3055,7 +2993,7 @@ DrawPushButtonLabelGadget(
     LabG_BackgroundGC(pb) =  fill_tmp_gc;
 }
 
-
+
 /*
  * DrawLabelGadget()
  */
@@ -3068,6 +3006,8 @@ DrawLabelGadget(
 {
   Boolean    deadjusted = False;
   LRectangle background_box;
+
+  if (_XmContainerDrawDisclosure((Widget)pb)) return;
 
   if (LabG_LabelType(pb) == XmPIXMAP ||
      LabG_LabelType(pb) == XmPIXMAP_AND_STRING)
@@ -3087,6 +3027,10 @@ DrawLabelGadget(
    * This doesn't need to be done here every time.  But it does do
    * the right thing.
    */
+  if (!LabG_IsMenupane(pb))
+      (void)_XmAppearanceDrawButton((Widget)pb,
+          PBG_Armed(pb) && PBG_FillOnArm(pb) && XtIsSensitive((Widget)pb) ?
+          PBG_ArmColor(pb) : LabG_Background(pb), PBG_ShowAsDefault(pb) != 0, True);
   ComputePBLabelArea(pb, &background_box);
   
   /*
@@ -3096,7 +3040,7 @@ DrawLabelGadget(
    */
   _XmProcessLock();
 
-  if (PBG_DefaultButtonShadowThickness(pb) > 0)
+  if (pb->pushbutton.default_geometry > 0)
     { 
       deadjusted = True;
       LabG_MarginLeft(pb) -= Xm3D_ENHANCE_PIXEL;
@@ -3120,7 +3064,7 @@ DrawLabelGadget(
 }  
 
 
-
+
 /*
  * DrawPushButtonGadgetShadows()
  *
@@ -3134,6 +3078,9 @@ DrawPushButtonGadgetShadows(
         XmPushButtonGadget pb )
 {
   if (_XmNotebookDrawTabBorder((Widget)pb)) return;
+  if (!LabG_IsMenupane(pb) && _XmAppearanceDrawButton((Widget)pb,
+          PBG_Armed(pb) && PBG_FillOnArm(pb) && XtIsSensitive((Widget)pb) ?
+          PBG_ArmColor(pb) : LabG_Background(pb), PBG_ShowAsDefault(pb) != 0, False)) return;
   if (PBG_DefaultButtonShadowThickness(pb)
 #ifdef DEFAULT_GLYPH_PIXMAP
       || (_XmGetDefaultGlyphPixmap (XtScreen((Widget)(pb)), NULL, NULL) !=
@@ -3149,7 +3096,7 @@ DrawPushButtonGadgetShadows(
   if (pb->gadget.shadow_thickness > 0)
     DrawPBGadgetShadows(pb);
 }
-
+
 /*
  * DrawPBGadgetShadows (pb)
  *   - Should be called only if PrimitiveShadowThickness > 0
@@ -3202,11 +3149,15 @@ DrawPBGadgetShadows(
 	}
     }
 }
-
+
 static void 
 EraseDefaultButtonShadows(
         XmPushButtonGadget pb )
 {
+  if (!LabG_IsMenupane(pb) && _XmAppearanceDrawButton((Widget)pb,
+          PBG_Armed(pb) && PBG_FillOnArm(pb) ? PBG_ArmColor(pb) : LabG_Background(pb),
+          PBG_ShowAsDefault(pb) != 0, False)) return;
+
   int x, y, width, height, delta;
   int default_button_shadow;
   XtEnum default_button_emphasis;
@@ -3214,7 +3165,7 @@ EraseDefaultButtonShadows(
   if (PBG_Compatible(pb))
     default_button_shadow = (int) (PBG_ShowAsDefault(pb));
   else
-    default_button_shadow = (int) (PBG_DefaultButtonShadowThickness(pb));
+    default_button_shadow = (int) (pb->pushbutton.default_geometry);
   
   if (default_button_shadow > 0)
     { 
@@ -3256,7 +3207,7 @@ EraseDefaultButtonShadows(
     EraseDefaultGlyphPixmap(pb);
 #endif
 }
-
+
 /*
  * DrawDefaultButtonShadows()
  *  - get the topShadowColor and bottomShadowColor from the parent;
@@ -3270,6 +3221,10 @@ static void
 DrawDefaultButtonShadows(
         XmPushButtonGadget pb )
 {
+  if (!LabG_IsMenupane(pb) && _XmAppearanceDrawButton((Widget)pb,
+          PBG_Armed(pb) && PBG_FillOnArm(pb) ? PBG_ArmColor(pb) : LabG_Background(pb),
+          PBG_ShowAsDefault(pb) != 0, False)) return;
+
   GC top_gc, bottom_gc;
   int default_button_shadow_thickness;
   
@@ -3291,7 +3246,7 @@ DrawDefaultButtonShadows(
   if (PBG_Compatible(pb))
     default_button_shadow_thickness = PBG_ShowAsDefault(pb);
   else
-    default_button_shadow_thickness = PBG_DefaultButtonShadowThickness(pb);
+    default_button_shadow_thickness = pb->pushbutton.default_geometry;
   
   /*
    * Compute location of bounding box to contain the defaultButtonShadow.
@@ -3330,7 +3285,7 @@ DrawDefaultButtonShadows(
 		     default_button_shadow_thickness, XmSHADOW_OUT);
     }
 }
-
+
 static XmImportOperator 
 ShowAsDef_ToHorizPix(
         Widget widget,
@@ -3352,7 +3307,7 @@ ShowAsDef_ToHorizPix(
 
   return(returnVal);
 } 
-
+
 static Boolean 
 ComputePBLabelArea(
         XmPushButtonGadget pb,
@@ -3368,11 +3323,10 @@ ComputePBLabelArea(
   if ((PBG_ArmColor(pb) == LabG_TopShadowColor(pb)) ||
       (PBG_ArmColor(pb) == LabG_BottomShadowColor(pb)))
     fill = 1;
-
   {
       if (PBG_DefaultButtonShadowThickness(pb) > 0)
 	{ 
-	  adjust = PBG_DefaultButtonShadowThickness(pb);
+	  adjust = pb->pushbutton.default_geometry;
 	  if (! LabG_IsMenupane(pb))
 	    adjust += pb->gadget.shadow_thickness;
 	  adjust = (adjust << 1);
@@ -3397,7 +3351,7 @@ ComputePBLabelArea(
 
   return (result);
 }
-
+
 static void 
 ExportHighlightThickness(
         Widget widget,
@@ -3416,7 +3370,7 @@ ExportHighlightThickness(
   
   XmeFromHorizontalPixels (widget, offset, value);
 }
-
+
 /*************************************************************************
  *
  * SetPushButtonSize(newpb)
@@ -3453,7 +3407,7 @@ SetPushButtonSize(
       (* resize) ((Widget) newpb);
   }
 }
-
+
 /************************************************************************
  *
  *  ChangeCB
@@ -3473,7 +3427,7 @@ ChangeCB(
   else
     XtRemoveCallback (w, XmNactivateCallback, activCB, closure);
 }
-
+
 /************************************************************************
  *
  *  ShowAsDefault
@@ -3550,7 +3504,7 @@ ShowAsDefault(Widget w,
 	  XtVaSetValues(w, XmNdefaultButtonShadowThickness, 0, NULL);
     }
 }
-	
+
 /************************************************************************
  *
  *		Application Accessible External Functions

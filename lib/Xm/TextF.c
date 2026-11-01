@@ -40,6 +40,7 @@ static char rcsid[] = "$TOG: TextF.c /main/65 1999/09/01 17:28:48 mgreess $"
 #include <ctype.h>
 #include <wctype.h>
 #include "XmI.h"
+#include "CallbackI.h"
 #include <X11/ShellP.h>
 #include <X11/VendorP.h>
 #include <X11/Xatom.h>
@@ -1999,13 +2000,36 @@ ChangeBlinkBehavior(XmTextFieldWidget tf,
   }
 }
 
+/* Keep decoration geometry shared by text clipping, caret scrolling,
+ * selection autoscroll, natural size and the public display rectangle. */
+static uint64_t
+TextFieldMargin(XmTextFieldWidget tf, Boolean right)
+{
+  XmTextFieldWidgetClass klass = (XmTextFieldWidgetClass)XtClass(tf);
+  Dimension left = 0, trailing = 0;
+  if (klass->text_class.decoration_insets)
+    klass->text_class.decoration_insets((Widget)tf, &left, &trailing);
+  return (uint64_t)TextF_MarginWidth(tf) + tf->primitive.shadow_thickness +
+    tf->primitive.highlight_thickness + (right ? trailing : left);
+}
+
+static void
+TextFieldDrawDecoration(XmTextFieldWidget tf)
+{
+  XmTextFieldWidgetClass klass = (XmTextFieldWidgetClass)XtClass(tf);
+  if (klass->text_class.draw_decoration && XtIsRealized((Widget)tf)) {
+    XRectangle rect;
+    GetRect(tf, &rect);
+    klass->text_class.draw_decoration((Widget)tf, &rect);
+  }
+}
+
 static void 
 GetRect(XmTextFieldWidget tf,
         XRectangle *rect)
 {
-  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
-    (uint64_t)tf->primitive.shadow_thickness +
-    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t margin_width = TextFieldMargin(tf, False);
+  uint64_t right_margin = TextFieldMargin(tf, True);
   uint64_t margin_top = (uint64_t)tf->text.margin_top +
     (uint64_t)tf->primitive.shadow_thickness +
     (uint64_t)tf->primitive.highlight_thickness;
@@ -2027,8 +2051,8 @@ GetRect(XmTextFieldWidget tf,
   else
     origin_y = tf->core.height;
   
-  content_width = margin_width <= (uint64_t)tf->core.width / 2 ?
-    (uint64_t)tf->core.width - 2 * margin_width : 0;
+  content_width = margin_width + right_margin <= (uint64_t)tf->core.width ?
+    (uint64_t)tf->core.width - margin_width - right_margin : 0;
   content_height = margin_top + margin_bottom < (uint64_t)tf->core.height ?
     (uint64_t)tf->core.height - margin_top - margin_bottom : 0;
   
@@ -2046,12 +2070,14 @@ SetFullGC(XmTextFieldWidget tf,
   uint64_t inset = (uint64_t)tf->primitive.shadow_thickness +
     (uint64_t)tf->primitive.highlight_thickness;
   
+  uint64_t left = TextFieldMargin(tf, False) - TextF_MarginWidth(tf);
+  uint64_t right = TextFieldMargin(tf, True) - TextF_MarginWidth(tf);
   /* adjust clip rectangle to allow the cursor to paint into the margins */
-  ClipRect.x = (short)(inset > (uint64_t)SHRT_MAX ? SHRT_MAX : inset);
-  ClipRect.y = ClipRect.x;
+  ClipRect.x = (short)(left > (uint64_t)SHRT_MAX ? SHRT_MAX : left);
+  ClipRect.y = (short)(inset > (uint64_t)SHRT_MAX ? SHRT_MAX : inset);
   ClipRect.width = (unsigned short)(
-    inset <= (uint64_t)tf->core.width / 2 ?
-      (uint64_t)tf->core.width - 2 * inset : 0);
+    left + right <= (uint64_t)tf->core.width ?
+      (uint64_t)tf->core.width - left - right : 0);
   ClipRect.height = (unsigned short)(
     inset <= (uint64_t)tf->core.height / 2 ?
       (uint64_t)tf->core.height - 2 * inset : 0);
@@ -2450,9 +2476,8 @@ RedisplayText(XmTextFieldWidget tf,
   _XmHighlightRec *l = tf->text.highlight.list;
   XRectangle rect;
   int x, y, i;
-  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
-    (uint64_t)tf->primitive.shadow_thickness +
-    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t margin_width = TextFieldMargin(tf, False);
+  uint64_t right_margin = TextFieldMargin(tf, True);
   uint64_t margin_top = (uint64_t)tf->text.margin_top +
     (uint64_t)tf->primitive.shadow_thickness +
     (uint64_t)tf->primitive.highlight_thickness;
@@ -2469,7 +2494,7 @@ RedisplayText(XmTextFieldWidget tf,
     return;
   }
   
-  if (margin_width > (uint64_t)tf->core.width / 2)
+  if (margin_width + right_margin > (uint64_t)tf->core.width)
     return;
   if (margin_top + margin_bottom >= (uint64_t)tf->core.height)
     return;
@@ -2482,6 +2507,7 @@ RedisplayText(XmTextFieldWidget tf,
   _XmTextFieldDrawInsertionPoint(tf, False);
 #if USE_XFT
   if (RedisplayUnicodeText(tf)) {
+    TextFieldDrawDecoration(tf);
     tf->text.refresh_ibeam_off = True;
     _XmTextFieldDrawInsertionPoint(tf, True);
     return;
@@ -2551,6 +2577,7 @@ RedisplayText(XmTextFieldWidget tf,
     XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc, x, rect.y,
 		   rect.x + rect.width - x, rect.height);
   }
+  TextFieldDrawDecoration(tf);
   tf->text.refresh_ibeam_off = True;
   _XmTextFieldDrawInsertionPoint(tf, True);
 }
@@ -2565,9 +2592,7 @@ ComputeSize(XmTextFieldWidget tf,
 	    Dimension *width,
 	    Dimension *height)
 {
-  uint64_t horizontal = 2 * ((uint64_t)TextF_MarginWidth(tf) +
-                             (uint64_t)tf->primitive.shadow_thickness +
-                             (uint64_t)tf->primitive.highlight_thickness);
+  uint64_t horizontal = TextFieldMargin(tf, False) + TextFieldMargin(tf, True);
   uint64_t vertical = 2 * ((uint64_t)TextF_MarginHeight(tf) +
                            (uint64_t)tf->primitive.shadow_thickness +
                            (uint64_t)tf->primitive.highlight_thickness);
@@ -2670,14 +2695,13 @@ AdjustText(XmTextFieldWidget tf,
 {
   int left_edge = 0;
   int diff;
-  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
-    (uint64_t)tf->primitive.shadow_thickness +
-    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t margin_width = TextFieldMargin(tf, False);
+  uint64_t right_margin = TextFieldMargin(tf, True);
   uint64_t thickness = 2 * ((uint64_t)tf->primitive.shadow_thickness +
                             (uint64_t)tf->primitive.highlight_thickness);
   Dimension temp;
 
-  if (margin_width >= (uint64_t)tf->core.width)
+  if (margin_width + right_margin >= (uint64_t)tf->core.width)
     return False;
   
   
@@ -2690,7 +2714,7 @@ AdjustText(XmTextFieldWidget tf,
       int shift = 0;
       left_edge = (int)lround(caret) + tf->text.h_offset;
       if (left_edge < (int)margin_width) shift = (int)margin_width - left_edge;
-      else if (left_edge > (int)tf->core.width - (int)margin_width) shift = (int)tf->core.width - (int)margin_width - left_edge;
+      else if (left_edge > (int)tf->core.width - (int)right_margin) shift = (int)tf->core.width - (int)right_margin - left_edge;
       if (shift) tf->text.h_offset += shift;
       if (shift || flag) RedisplayText(tf, 0, tf->text.string_length);
       return shift ? True : False;
@@ -2743,7 +2767,7 @@ AdjustText(XmTextFieldWidget tf,
     _XmTextFieldDrawInsertionPoint(tf, True);
     return True;
   } else if ((diff = (left_edge -
-		      (int)(tf->core.width - margin_width))) > 0) {
+		      (int)(tf->core.width - right_margin))) > 0) {
     /* We need to scroll the string to the left. */
     if (!XtIsRealized((Widget)tf)) {
       tf->text.h_offset -= diff;
@@ -2758,7 +2782,7 @@ AdjustText(XmTextFieldWidget tf,
     else
       temp = tf->core.width - thickness;
     XFillRectangle(XtDisplay(tf), XtWindow(tf), tf->text.gc,
-		      (int)((uint64_t)tf->core.width - margin_width),
+		      (int)((uint64_t)tf->core.width - right_margin),
 		   tf->primitive.shadow_thickness +
 		   tf->primitive.highlight_thickness,
 		   TextF_MarginWidth(tf),
@@ -2788,9 +2812,8 @@ AdjustSize(XmTextFieldWidget tf)
   int left_edge = 0;
   int diff;
   Boolean redisplay = False;
-  Dimension margin_width = TextF_MarginWidth(tf) +
-    tf->primitive.shadow_thickness +
-      tf->primitive.highlight_thickness;
+  int margin_width = (int)TextFieldMargin(tf, False);
+  int right_margin = (int)TextFieldMargin(tf, True);
   
   if (tf->text.max_char_size != 1) {
     left_edge = FindPixelLength(tf, (char *) TextF_WcValue(tf), 
@@ -2800,7 +2823,7 @@ AdjustSize(XmTextFieldWidget tf)
 				tf->text.string_length) + margin_width;
   }
   
-  if ((diff = (left_edge - (tf->core.width - (margin_width)))) > 0) {
+  if ((diff = (left_edge - ((int)tf->core.width - right_margin))) > 0) {
     if (tf->text.in_setvalues) {
       tf->core.width += diff;
       return;
@@ -4716,18 +4739,6 @@ ProcessCancel(Widget w,
   
 }
 
-/* ARGSUSED */
-/* Activation callbacks may destroy this field or its containing manager even
- * when an application calls the action outside Xt's event-dispatch deferral. */
-static void
-ActivationDestroyed(Widget widget, XtPointer closure, XtPointer call_data)
-{
-  (void)widget;
-  (void)call_data;
-  *(Boolean *)closure = True;
-}
-
-/* ARGSUSED */
 static void 
 Activate(Widget w,
 	 XEvent *event,
@@ -4735,9 +4746,7 @@ Activate(Widget w,
 	 Cardinal *num_params)
 {
   XmAnyCallbackStruct cb;
-  XmTextFieldWidget tf = (XmTextFieldWidget) w;
   XmParentInputActionRec  p_event;
-  Boolean destroyed = False;
   
   p_event.process_type = XmINPUT_ACTION;
   p_event.action = XmPARENT_ACTIVATE;
@@ -4747,12 +4756,7 @@ Activate(Widget w,
   
   cb.reason = XmCR_ACTIVATE;
   cb.event  = event;
-  XtAddCallback(w, XmNdestroyCallback, ActivationDestroyed, &destroyed);
-  XtCallCallbackList(w, TextF_ActivateCallback(tf), (XtPointer) &cb);
-  if (destroyed) return;
-  /* Remove the stack closure before any deferred destruction can run. */
-  XtRemoveCallback(w, XmNdestroyCallback, ActivationDestroyed, &destroyed);
-  if (w->core.being_destroyed) return;
+  if (!_XmCallCallbacksUntilDestroyed(w, XmNactivateCallback, (XtPointer)&cb)) return;
   
   (void) _XmParentProcess(XtParent(w), (XmParentProcessData) &p_event);
 }
@@ -5950,9 +5954,8 @@ CheckTimerScrolling(Widget w,
 		    XEvent *event)
 {
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
-  int64_t margin_size = (int64_t)TextF_MarginWidth(tf) +
-    (int64_t)tf->primitive.shadow_thickness +
-    (int64_t)tf->primitive.highlight_thickness;
+  int64_t margin_size = (int64_t)TextFieldMargin(tf, False);
+  int64_t right_margin = (int64_t)TextFieldMargin(tf, True);
   int64_t top_margin = (int64_t)TextF_MarginHeight(tf) +
     (int64_t)tf->primitive.shadow_thickness +
     (int64_t)tf->primitive.highlight_thickness;
@@ -5964,7 +5967,7 @@ CheckTimerScrolling(Widget w,
   tf->text.select_pos_x = event->xmotion.x;
   
   if ((int64_t)event->xmotion.x > margin_size &&
-      (int64_t)event->xmotion.x < (int64_t)tf->core.width - margin_size &&
+      (int64_t)event->xmotion.x < (int64_t)tf->core.width - right_margin &&
       (int64_t)event->xmotion.y > top_margin &&
       (int64_t)event->xmotion.y < text_bottom) {
     
@@ -5983,8 +5986,8 @@ CheckTimerScrolling(Widget w,
     }
     /* to the right of the text */
     else if ((int64_t)event->xmotion.x >=
-             (int64_t)tf->core.width - margin_size) {
-      edge_position = (int64_t)tf->core.width - margin_size +
+             (int64_t)tf->core.width - right_margin) {
+      edge_position = (int64_t)tf->core.width - right_margin +
         (int64_t)tf->text.average_char_width + 1;
       if (edge_position < SHRT_MIN) edge_position = SHRT_MIN;
       if (edge_position > SHRT_MAX) edge_position = SHRT_MAX;
@@ -6776,14 +6779,13 @@ PageRight(Widget w,
   Position x, y;
   int length = 0, value;
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
-  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
-    (uint64_t)tf->primitive.shadow_thickness +
-    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t margin_width = TextFieldMargin(tf, False);
+  uint64_t right_margin = TextFieldMargin(tf, True);
   int viewport_width;
 
-  if (margin_width >= (uint64_t)tf->core.width / 2)
+  if (margin_width + right_margin >= (uint64_t)tf->core.width)
     return;
-  viewport_width = (int)((uint64_t)tf->core.width - 2 * margin_width);
+  viewport_width = (int)((uint64_t)tf->core.width - margin_width - right_margin);
   
   TextFieldResetIC(w);
   if (tf->text.max_char_size != 1) {
@@ -6847,14 +6849,13 @@ PageLeft(Widget w,
   Position x, y;
   int value;
   XmTextFieldWidget tf = (XmTextFieldWidget) w;
-  uint64_t margin_width = (uint64_t)TextF_MarginWidth(tf) +
-    (uint64_t)tf->primitive.shadow_thickness +
-    (uint64_t)tf->primitive.highlight_thickness;
+  uint64_t margin_width = TextFieldMargin(tf, False);
+  uint64_t right_margin = TextFieldMargin(tf, True);
   int viewport_width;
 
-  if (margin_width >= (uint64_t)tf->core.width / 2)
+  if (margin_width + right_margin >= (uint64_t)tf->core.width)
     return;
-  viewport_width = (int)((uint64_t)tf->core.width - 2 * margin_width);
+  viewport_width = (int)((uint64_t)tf->core.width - margin_width - right_margin);
   
   TextFieldResetIC(w);
 
@@ -7331,6 +7332,14 @@ ClassPartInitialize(WidgetClass w_class)
   char *event_bindings;
   size_t event_bindings_len;
   
+  if (w_class != (WidgetClass)&xmTextFieldClassRec) {
+    XmTextFieldWidgetClass klass = (XmTextFieldWidgetClass)w_class;
+    XmTextFieldWidgetClass parent = (XmTextFieldWidgetClass)w_class->core_class.superclass;
+    if (!klass->text_class.decoration_insets)
+      klass->text_class.decoration_insets = parent->text_class.decoration_insets;
+    if (!klass->text_class.draw_decoration)
+      klass->text_class.draw_decoration = parent->text_class.draw_decoration;
+  }
   _XmFastSubclassInit (w_class, XmTEXT_FIELD_BIT);
   event_bindings_len = strlen(EventBindings1);
   if (event_bindings_len > SIZE_MAX - strlen(EventBindings2))
@@ -7906,9 +7915,7 @@ InitializeTextStruct(XmTextFieldWidget tf)
   tf->text.save_gc = NULL;
   tf->text.cursor_gc = NULL;
   
-  tf->text.h_offset = (TextF_MarginWidth(tf) +
-		       tf->primitive.shadow_thickness +
-		       tf->primitive.highlight_thickness);
+  tf->text.h_offset = (TextFieldMargin(tf, False));
 
   /* ValidateString will verify value contents, convert to appropriate
    * storage form (i.e. char* or wchar_t*), place in the appropriate
@@ -8555,15 +8562,10 @@ Resize(Widget w)
   tf->text.do_resize = False;
 
 #ifdef AS_TEXTFIELD  
-  tf->text.h_offset = TextF_MarginWidth(tf) + tf->primitive.shadow_thickness +
-    tf->primitive.highlight_thickness;
+  tf->text.h_offset = TextFieldMargin(tf, False);
 #else
-  new_width = tf->core.width - (2 * (TextF_MarginWidth(tf) + 
-				     tf->primitive.shadow_thickness + 
-				     tf->primitive.highlight_thickness));
-  offset = tf->text.h_offset - (TextF_MarginWidth(tf) + 
-				tf->primitive.shadow_thickness + 
-				tf->primitive.highlight_thickness);
+  new_width = (int)tf->core.width - (int)TextFieldMargin(tf, False) - (int)TextFieldMargin(tf, True);
+  offset = tf->text.h_offset - (TextFieldMargin(tf, False));
   if (tf->text.max_char_size != 1) 
     text_width = FindPixelLength(tf, (char *)TextF_WcValue(tf),
 				 tf->text.string_length);
@@ -8574,15 +8576,11 @@ Resize(Widget w)
   {
     if (text_width - new_width >= 0)
     {
-      tf->text.h_offset = (new_width - text_width) + TextF_MarginWidth(tf) + 
-	tf->primitive.shadow_thickness +
-	tf->primitive.highlight_thickness;
+      tf->text.h_offset = (new_width - text_width) + TextFieldMargin(tf, False);
   }
     else
     {
-      tf->text.h_offset = TextF_MarginWidth(tf) + 
-	tf->primitive.shadow_thickness +
-	tf->primitive.highlight_thickness;
+      tf->text.h_offset = TextFieldMargin(tf, False);
   }
 }
 
@@ -8651,7 +8649,8 @@ TextFieldExpose(Widget w,
   _XmTextFieldDrawInsertionPoint(tf, False);
   
   if (XtIsRealized((Widget)tf)) {
-    if (tf->primitive.shadow_thickness > 0)
+    if (tf->primitive.shadow_thickness > 0 &&
+        !_XmAppearanceDrawFieldFrame((Widget)tf))
       XmeDrawShadows(XtDisplay(tf), XtWindow(tf),
 		     tf->primitive.bottom_shadow_GC, 
 		     tf->primitive.top_shadow_GC,
@@ -8709,6 +8708,7 @@ SetValues(Widget old,
   XmTextFieldWidget old_tf = (XmTextFieldWidget) old;
   Boolean cursor_pos_set = False;
   Boolean new_size = False;
+  Boolean width_set = False, height_set = False;
   Boolean redisplay = False;
   Boolean redisplay_text = False;
   Boolean new_font = False;
@@ -8723,6 +8723,11 @@ SetValues(Widget old,
   XmTextPosition newInsert;
   int n = 0;
   
+  for (Cardinal i = 0; i < *num_args; ++i) {
+    if (!strcmp(args[i].name, XmNwidth)) width_set = True;
+    if (!strcmp(args[i].name, XmNheight)) height_set = True;
+  }
+
   if (new_w->core.being_destroyed) return False;
   new_tf->text.unicode_map = XmTextUnicodeMapRetain(old_tf->text.unicode_map);
   new_tf->text.unicode_font_context = NULL;
@@ -9023,9 +9028,7 @@ SetValues(Widget old,
       if (TextF_ResizeWidth(new_tf) && new_tf->text.do_resize)
 	AdjustSize(new_tf);
       else {
-	new_tf->text.h_offset = TextF_MarginWidth(new_tf) + 
-	  new_tf->primitive.shadow_thickness +
-	    new_tf->primitive.highlight_thickness;
+	new_tf->text.h_offset = TextFieldMargin(new_tf, False);
 	if (!AdjustText(new_tf, TextF_CursorPosition(new_tf), False))
 	  redisplay_text = True;
       }
@@ -9073,7 +9076,8 @@ SetValues(Widget old,
     new_tf->text.margin_bottom = TextF_MarginHeight(new_tf);
   }
   
-  new_size = TextF_MarginWidth(new_tf) != TextF_MarginWidth(old_tf) ||
+  new_size = TextFieldMargin(new_tf, False) != TextFieldMargin(old_tf, False) ||
+             TextFieldMargin(new_tf, True) != TextFieldMargin(old_tf, True) ||
              TextF_MarginHeight(new_tf) != TextF_MarginHeight(old_tf) ||
 	     TextF_FontList(new_tf) != TextF_FontList(old_tf) ||
 	     new_tf->primitive.highlight_thickness !=
@@ -9095,13 +9099,12 @@ SetValues(Widget old,
       ComputeSize(new_tf, &width, &height);
       AdjustText(new_tf, 0, False);
       
-      if (new_width == old_tf->core.width)
+      /* An equal-valued explicit argument still constrains a font change. */
+      if (!width_set && new_width == old_tf->core.width)
 	new_w->core.width = width;
-      if (new_height == old_tf->core.height)
+      if (!height_set && new_height == old_tf->core.height)
 	new_w->core.height = height;
-      new_tf->text.h_offset = TextF_MarginWidth(new_tf) +
-	new_tf->primitive.shadow_thickness +
-	  new_tf->primitive.highlight_thickness;
+      new_tf->text.h_offset = TextFieldMargin(new_tf, False);
       redisplay = True;
     }
   } else {
@@ -9331,41 +9334,11 @@ TextFieldGetBaselines(Widget w,
 }
 
 static Boolean
-TextFieldGetDisplayRect(Widget w,
-			XRectangle * display_rect)
+TextFieldGetDisplayRect(Widget w, XRectangle *display_rect)
 {
-  XmTextFieldWidget tf = (XmTextFieldWidget) w;
-  uint64_t margin_width;
-  uint64_t margin_top;
-  uint64_t margin_bottom;
-  uint64_t origin_x;
-  uint64_t origin_y;
-
-  if (display_rect == NULL)
-    return False;
-  margin_width = (uint64_t)TextF_MarginWidth(tf) +
-    (uint64_t)tf->primitive.shadow_thickness +
-    (uint64_t)tf->primitive.highlight_thickness;
-  margin_top = (uint64_t)tf->text.margin_top +
-    (uint64_t)tf->primitive.shadow_thickness +
-    (uint64_t)tf->primitive.highlight_thickness;
-  margin_bottom = (uint64_t)tf->text.margin_bottom +
-    (uint64_t)tf->primitive.shadow_thickness +
-    (uint64_t)tf->primitive.highlight_thickness;
-  origin_x = margin_width < tf->core.width ? margin_width : tf->core.width;
-  origin_y = margin_top < tf->core.height ? margin_top : tf->core.height;
-  (*display_rect).x = (short)(origin_x > (uint64_t)SHRT_MAX ?
-                              SHRT_MAX : origin_x);
-  (*display_rect).y = (short)(origin_y > (uint64_t)SHRT_MAX ?
-                              SHRT_MAX : origin_y);
-  (*display_rect).width = (unsigned short)(
-    margin_width <= (uint64_t)tf->core.width / 2 ?
-      (uint64_t)tf->core.width - 2 * margin_width : 0);
-  (*display_rect).height = (unsigned short)(
-    margin_top + margin_bottom < (uint64_t)tf->core.height ?
-      (uint64_t)tf->core.height - margin_top - margin_bottom : 0);
-  
-  return(TRUE);
+  if (!display_rect) return False;
+  GetRect((XmTextFieldWidget)w, display_rect);
+  return True;
 }
 
 
@@ -10136,7 +10109,7 @@ PreeditDraw(XIC xic,
         {
             input_bytes = strlen(call_data->text->string.multi_byte);
             if (input_bytes == SIZE_MAX || input_bytes + 1 > UINT_MAX) {
-                XtFree(over_wc);
+                XtFree((char *)over_wc);
                 _XmTextFieldDrawInsertionPoint(tf, True);
                 return;
             }
@@ -10963,17 +10936,19 @@ XmTextFieldSetString(Widget w,
   if (TextF_ResizeWidth(tf) && tf->text.do_resize)
     AdjustSize(tf);
   else {
-    tf->text.h_offset = TextF_MarginWidth(tf) + 
-      tf->primitive.shadow_thickness +
-	tf->primitive.highlight_thickness;
+    tf->text.h_offset = TextFieldMargin(tf, False);
     if (!AdjustText(tf, TextF_CursorPosition(tf), False))
       RedisplayText(tf, 0, tf->text.string_length);
   }
   
   cb.reason = XmCR_VALUE_CHANGED;
   cb.event = NULL;
-  XtCallCallbackList(w, TextF_ValueChangedCallback(tf), (XtPointer) &cb);
-  
+  if (!_XmCallCallbacksUntilDestroyed(w, XmNvalueChangedCallback, (XtPointer)&cb)) {
+    if (free_insert) XtFree(value);
+    _XmAppUnlock(app);
+    return;
+  }
+
   tf->text.refresh_ibeam_off = True;
   
   if (XtIsSensitive(w) && tf->text.has_focus)

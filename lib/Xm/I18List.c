@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <stdint.h>
+#include <X11/Intrinsic.h>
 
 static Position bounded_position(long long value)
 {
@@ -2789,6 +2790,7 @@ CvtRowColumnToPosition(Widget w, short row, short column, short * x, short * y)
 {
     XmI18ListWidget ilist = (XmI18ListWidget) w;
     int title_extra;
+    long long pixel_y;
 
     if(XmI18List_new_visual_style(ilist))
 	title_extra = ilist->primitive.shadow_thickness;

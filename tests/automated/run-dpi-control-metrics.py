@@ -78,13 +78,13 @@ try:
     run("compile", ["cc", *flags, source, "-lXm", "-lXt", "-lX11",
                      "-o", binary])
     linked = run("link", ["ldd", binary])
-    if str(prefix / "lib/libXm.so.8") not in linked:
+    if str(prefix / "lib/libXm.so.9") not in linked:
         raise RuntimeError("audit did not resolve libXm from selected prefix")
     log = run("run", ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24",
                        binary])
     rows = [line for line in log.splitlines() if line.startswith("DPI ")]
-    if len(rows) != 4 or {row.split()[1] for row in rows} != {"75", "150", "300", "600"}:
-        raise RuntimeError("audit did not report all three DPI rows")
+    if len(rows) != 4 or {row.split()[1] for row in rows} != {"96", "192", "384", "768"}:
+        raise RuntimeError("audit did not report all four DPI rows")
     for row in rows:
         fields = row.split()
         if fields[fields.index("PUSH_HIGHLIGHT") + 1] == "0":

@@ -465,7 +465,8 @@ static void
 _XmTextDrawShadow(XmTextWidget tw)
 {
   if (XtIsRealized((Widget)tw)) {
-    if (tw->primitive.shadow_thickness > 0)
+    if (tw->primitive.shadow_thickness > 0 &&
+        !_XmAppearanceDrawFieldFrame((Widget)tw))
       XmeDrawShadows (XtDisplay (tw), XtWindow (tw),
 		      tw->primitive.bottom_shadow_GC,
 		      tw->primitive.top_shadow_GC,
@@ -4056,12 +4057,13 @@ MakePositionVisible(XmTextWidget tw,
 	} else {
 	  line_num = _XmTextGetTableIndex(tw, position);
 	  if (position == tw->text.bottom_position ||
-	      (line_num < tw->text.total_lines && 
-	       position == tw->text.line_table[line_num+1].start_pos - 1))
+	      (line_num < tw->text.total_lines &&
+	       position == tw->text.line_table[line_num+1].start_pos - 1)) {
 	    line_start = line_num ? tw->text.line_table[line_num].start_pos : 0;
 	    target_position = position > (XmTextPosition)(data->rows / 2) ?
 	      position - (XmTextPosition)(data->rows / 2) : 0;
 	    position = target_position > line_start ? target_position : line_start;
+	  }
 	}
 	(void)PosToXY(tw, position, &x, &y);
       }
@@ -4084,12 +4086,13 @@ MakePositionVisible(XmTextWidget tw,
       } else {
 	line_num = _XmTextGetTableIndex(tw, position);
 	if (position == tw->text.bottom_position ||
-	    (line_num < tw->text.total_lines && 
-	     position == tw->text.line_table[line_num+1].start_pos - 1))
+	    (line_num < tw->text.total_lines &&
+	     position == tw->text.line_table[line_num+1].start_pos - 1)) {
 	  line_start = line_num ? tw->text.line_table[line_num].start_pos : 0;
 	  target_position = position > (XmTextPosition)(data->columns / 2) ?
 	    position - (XmTextPosition)(data->columns / 2) : 0;
 	  position = target_position > line_start ? target_position : line_start;
+	}
       }
       (void)PosToXY(tw, position, &x, &y);
     }

@@ -7,6 +7,6 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "IconLabel.c").read_text(
     encoding="utf-8"
 )
 assert "static Position bounded_position(long long value)" in source
-assert source.count("bounded_position((long long)x)") >= 2
-assert source.count("bounded_position((long long)y)") >= 2
+assert "bounded_position(left)" in source
+assert "bounded_position(((long long)label->core.height - (long long)value_height) / 2)" in source
 print("PASS IconLabel text coordinates stay bounded")

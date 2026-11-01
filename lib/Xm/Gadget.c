@@ -131,6 +131,11 @@ static XmImportOperator SetToolTipString (Widget wid,
 static XtResource resources[] =
 {
    {
+     XmNappearanceRole, XmCAppearanceRole, XmRAppearanceRole,
+     sizeof(unsigned char), XtOffsetOf(XmGadgetRec, gadget.appearance_role),
+     XmRImmediate, (XtPointer)XmAPPEARANCE_ROLE_NORMAL
+   },
+   {
      XmNx, XmCPosition, XmRHorizontalPosition, sizeof(Position),
      XtOffsetOf( struct _WidgetRec, core.x), XmRImmediate, (XtPointer) 0
    },
@@ -470,6 +475,7 @@ GetBottomShadowColor(
 static void 
 ClassInitialize( void )
 {
+   _XmInitializeAppearance();
    _XmInitializeExtensions();
    _XmInitializeTraits();
    baseClassExtRec.record_type = XmQmotif;
@@ -616,6 +622,8 @@ Initialize(
         },
     };
 
+   gw->gadget.appearance_role = _XmValidateAppearanceRole(nw, gw->gadget.appearance_role, XmAPPEARANCE_ROLE_NORMAL);
+
    if(    !XmRepTypeValidValue( XmRID_UNIT_TYPE, gw->gadget.unit_type,
                                                              (Widget) gw)    )
    {
@@ -718,6 +726,7 @@ SetValues(
         XmGadget req = (XmGadget) rw ;
         XmGadget new_w = (XmGadget) nw ;
    Boolean returnFlag;
+   new_w->gadget.appearance_role = _XmValidateAppearanceRole(nw, new_w->gadget.appearance_role, cur->gadget.appearance_role);
 
     if (XtIsSensitive(cw) != XtIsSensitive(nw))
     {

@@ -5,6 +5,7 @@ import datetime
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import select
 import signal
@@ -28,12 +29,15 @@ out.mkdir(parents=True)
 env = dict(os.environ, TMPDIR=str(out / "tmp"),
     LD_LIBRARY_PATH=":".join(str(build / p) for p in ("lib/Mrm/.libs", "lib/Xm/.libs")),
     XFILESEARCHPATH=str(out / "app-defaults/%N"), XUSERFILESEARCHPATH=str(out / "missing/%N"))
+env["PERIODIC_EXPECT_SVG"] = "1" if re.search(
+    r"^#define SVG_SUPPORTED 1$", (build / "include/config.h").read_text(), re.M) else "0"
 for key in ("LD_PRELOAD", "LD_AUDIT", "XENVIRONMENT", "XAPPLRESDIR", "UIDPATH"):
     env.pop(key, None)
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 sources = [root / "tests/automated/check-periodic-appearance.c", root / "demos/programs/periodic/periodic.c",
     root / "demos/programs/periodic/periodic.uil", root / "demos/programs/periodic/periodic_l.uil",
-    root / "lib/Xm/Appearance.c", root / "lib/Xm/List.c", root / "lib/Xm/XmString.c", Path(__file__)]
+    root / "demos/programs/periodic/periodic_layout.c",
+    root / "demos/programs/periodic/periodic_layout.h", root / "lib/Xm/Appearance.c", root / "lib/Xm/List.c", root / "lib/Xm/XmString.c", Path(__file__)]
 libraries = [(build / p).resolve(strict=True) for p in ("lib/Mrm/.libs/libMrm.so", "lib/Xm/.libs/libXm.so")]
 receipt = {"started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     "sources": {str(p): digest(p) for p in sources},
@@ -62,7 +66,7 @@ server = None
 read_fd, write_fd = os.pipe()
 try:
     run("compile", ["cc", "-std=c11", "-Wall", "-Wextra", "-Wno-unused-parameter", "-Werror", "-O2",
-        "-I" + str(build / "lib"), "-I" + str(root / "lib"), sources[0],
+        "-I" + str(build / "lib"), "-I" + str(root / "lib"), sources[0], root / "demos/programs/periodic/periodic_layout.c",
         "-L" + str(libraries[0].parent), "-L" + str(libraries[1].parent),
         "-lMrm", "-lXm", "-lXt", "-lX11", "-o", binary])
     run("link", ["ldd", binary])
@@ -86,6 +90,7 @@ try:
     if not display.isdigit(): raise RuntimeError("invalid Xvfb ready response")
     env["DISPLAY"] = ":" + display
     for mode, options in (("light", []), ("dark", ["--appearance", "modern-dark"]),
+        ("scaled", ["-xrm", "Xft.dpi: 144"]),
         ("contrast", ["--appearance", "high-contrast"]), ("compact", ["--density", "compact"]),
         ("classic", ["--appearance", "classic"]), ("historical", ["--historical-resources"]),
         ("override", ["-xrm", "*pushButton.background: #006644"])):

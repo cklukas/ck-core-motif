@@ -2254,6 +2254,7 @@ GeometryManager(
         XtWidgetGeometry *allowed )
 {
    XmRowColumnWidget m = (XmRowColumnWidget) XtParent(instigator);
+   XmRCKidGeometry saved_boxes = RC_Boxes(m);
    Dimension w = 0;
    Dimension h = 0;
    XtGeometryResult result = XtGeometryYes;
@@ -2346,6 +2347,7 @@ GeometryManager(
          if (result != XtGeometryYes)
          {
             XtFree( (char *) RC_Boxes(m));
+   RC_Boxes(m) = saved_boxes;
             return(result);
          }
       }
@@ -2370,6 +2372,7 @@ GeometryManager(
          if (result != XtGeometryYes)
          {
             XtFree( (char *) RC_Boxes(m));
+   RC_Boxes(m) = saved_boxes;
             return(result);
          }
       }
@@ -2380,6 +2383,7 @@ GeometryManager(
     */
 
    XtFree( (char *) RC_Boxes(m));
+   RC_Boxes(m) = saved_boxes;
    
    if ((w != XtWidth (m)) || (h != XtHeight (m)))
    {

@@ -24,16 +24,21 @@ typedef struct _XmTreeViewPart {
     XmTreeViewItem *items;
     Cardinal count;
     XtPointer selected_id;
+    XtPointer pressed_id;
     Cardinal top_row;
     Dimension indent;
     Dimension row_height;
+    Boolean automatic_row_height;
+    Boolean automatic_height;
     Cardinal visible_rows;
     Boolean rtl;
     XmRenderTable render_table;
     Boolean check_set_render_table;
     XtCallbackList selection_callback;
+    XtCallbackList activate_callback;
     XtCallbackList expansion_callback;
     GC gc;
+    Pixel select_color;
 } XmTreeViewPart;
 
 typedef struct _XmTreeViewRec {
@@ -43,5 +48,10 @@ typedef struct _XmTreeViewRec {
 } XmTreeViewRec;
 
 extern XmTreeViewClassRec xmTreeViewClassRec;
+
+/* Shared keyboard/accessibility selection action. Hidden descendants and
+ * insensitive widgets have no action. Invocation may destroy the widget. */
+extern Boolean _XmTreeViewHasSelectionAction(Widget);
+extern Boolean _XmTreeViewActivateSelection(Widget, XEvent *);
 
 #endif /* _XmTreeViewP_h */

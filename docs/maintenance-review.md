@@ -360,10 +360,9 @@ regression is `tests/automated/check-avatar-render-table.py`.
 
 ## Stepper control glyphs
 
-`XmStepper` now draws distinct centered increment (`+`) and decrement (`−`)
-glyphs in the two button regions using measured render-table text. This fixes
-the previous single oversized mark that crossed both hit regions. The focused
-regression is `tests/automated/check-stepper-control-glyphs.py`.
+`XmStepper` now uses native increment (`+`) and decrement (`-`) PushButtons
+around a value Label. Painting and hit testing share the same child bounds.
+The native regression is `tests/automated/run-stepper-native.py`.
 
 ## TabBox background fallback
 
@@ -445,12 +444,12 @@ check is:
 python3 tests/automated/check-calendar-text-metrics.py
 ```
 
-NumberBox and Stepper value text use the same measured-baseline rule, keeping
-compact numeric controls aligned with adjacent labels at different font sizes.
+NumberBox uses a native TextField and Stepper uses a native Label. Both size
+their numeric content from the active font metrics.
 The focused check is:
 
 ```sh
-python3 tests/automated/check-number-stepper-text-metrics.py
+python3 tests/automated/run-stepper-native.py --prefix PREFIX --build-dir BUILD --out OUTPUT
 ```
 
 Skeleton loading placeholders now use the theme's shadow colors for a muted
@@ -461,12 +460,12 @@ semantics remain unchanged.  The focused source check is:
 python3 tests/automated/check-skeleton-rendering.py
 ```
 
-ColorPicker's hexadecimal value label now uses the active font's measured
+ColorPicker's native hexadecimal editor uses the active font's measured
 baseline, keeping it vertically aligned beside the swatch at different font
 sizes.  The focused check is:
 
 ```sh
-python3 tests/automated/check-colorpicker-text-metrics.py
+python3 tests/automated/run-colorpicker-native.py --prefix PREFIX --build-dir BUILD --out OUTPUT
 ```
 
 DatePicker's ISO date value uses the same measured-baseline rule.  The focused
@@ -514,18 +513,18 @@ focused check is:
 python3 tests/automated/check-numberbox-font-fallback.py
 ```
 
-Stepper now draws its value through an owned copy of `XmNrenderTable`, keeping
-numeric text aligned with the active Motif typography. The focused check is:
+Stepper propagates its owned `XmNrenderTable` to native children while preserving
+explicit child overrides. The native geometry and override check is:
 
 ```sh
-python3 tests/automated/check-stepper-font-fallback.py
+python3 tests/automated/run-stepper-native.py --prefix PREFIX --build-dir BUILD --out OUTPUT
 ```
 
-ColorPicker now draws its value through an owned copy of `XmNrenderTable`,
-keeping color text aligned with active Motif typography. The focused check is:
+ColorPicker inherits its render table into native editing controls while
+preserving child overrides. The native rendering and interaction check is:
 
 ```sh
-python3 tests/automated/check-colorpicker-font-fallback.py
+python3 tests/automated/run-colorpicker-native.py --prefix PREFIX --build-dir BUILD --out OUTPUT
 ```
 
 Link now draws labels through an owned copy of `XmNrenderTable`, preserving

@@ -1,31 +1,29 @@
-/* Additive compact integer stepper. */
+/* Bounded integer stepper with native momentary buttons and value label. */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <stdint.h>
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
-#include <stdint.h>
 #include <Xm/StepperP.h>
+#include <Xm/PushB.h>
+#include <Xm/Label.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
-#include "PrimitiveI.h"
 #include "XmI.h"
-
-static Position bounded_position(long long value) {
-    if (value < SHRT_MIN) return (Position)SHRT_MIN;
-    if (value > SHRT_MAX) return (Position)SHRT_MAX;
-    return (Position)value;
-}
-
-static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+#include "CallbackI.h"
+static void Initialize(Widget,Widget,ArgList,Cardinal *);
 static void Destroy(Widget);
-static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
-static void Events(Widget, XtPointer, XEvent *, Boolean *);
+static void Resize(Widget);
+static void ChangeManaged(Widget);
+static Boolean SetValues(Widget,Widget,Widget,ArgList,Cardinal *);
+static XtGeometryResult GeometryManager(Widget,XtWidgetGeometry *,XtWidgetGeometry *);
+static XtGeometryResult QueryGeometry(Widget,XtWidgetGeometry *,XtWidgetGeometry *);
+static void Events(Widget,XtPointer,XEvent *,Boolean *);
+static void step(XmStepperWidget,int,Boolean,XEvent *);
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
 {
     XmStepperWidget stepper = (XmStepperWidget)widget;
@@ -47,166 +45,209 @@ static XtResource resources[] = {
     {XmNstepperValueChangedCallback, XmCStepperValueChangedCallback, XmRCallback, sizeof(XtCallbackList), Offset(stepper.value_changed_callback), XmRPointer, (XtPointer)NULL},
     {XmNfontList, XmCFontList, XmRFontList, sizeof(XmRenderTable), Offset(stepper.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable), Offset(stepper.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
-    {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean), Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
-    {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension, sizeof(Dimension), Offset(primitive.highlight_thickness), XmRCallProc, (XtPointer)_XmSetThickness}
+    {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean), Offset(manager.traversal_on), XmRImmediate, (XtPointer)True},
+    {XmNshadowThickness, XmCShadowThickness, XmRHorizontalDimension, sizeof(Dimension), Offset(manager.shadow_thickness), XmRImmediate, (XtPointer)0},
+    {XmNspacing, XmCSpacing, XmRHorizontalDimension, sizeof(Dimension), Offset(stepper.spacing), XmRImmediate, (XtPointer)4}
 };
 externaldef(xmstepperclassrec) XmStepperClassRec xmStepperClassRec = {
-    {(WidgetClass)&xmPrimitiveClassRec, "XmStepper", sizeof(XmStepperRec), NULL, NULL, False,
-     Initialize, NULL, XtInheritRealize, NULL, 0, resources, XtNumber(resources), NULLQUARK,
-     True, XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay, SetValues, NULL,
-     XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL, XtInheritTranslations,
-     QueryGeometry, NULL, NULL},
-    {XmInheritBorderHighlight, XmInheritBorderUnhighlight, XtInheritTranslations, NULL, NULL, 0, NULL},
-    {NULL}
+    {.superclass=(WidgetClass)&xmManagerClassRec, .class_name="XmStepper",
+     .widget_size=sizeof(XmStepperRec), .initialize=Initialize,
+     .realize=XtInheritRealize, .resources=resources, .num_resources=XtNumber(resources),
+     .compress_motion=True, .compress_exposure=XtExposeCompressMultiple,
+     .compress_enterleave=True, .destroy=Destroy, .resize=Resize,
+     .set_values=SetValues, .set_values_almost=XtInheritSetValuesAlmost,
+     .version=XtVersion, .tm_table=XtInheritTranslations, .query_geometry=QueryGeometry},
+    {.geometry_manager=GeometryManager, .change_managed=ChangeManaged,
+     .insert_child=XtInheritInsertChild, .delete_child=XtInheritDeleteChild},
+    {.constraint_size=sizeof(XmManagerConstraintRec)},
+    {.translations=XtInheritTranslations, .parent_process=XmInheritParentProcess}, {NULL}
 };
 externaldef(xmstepperwidgetclass) WidgetClass xmStepperWidgetClass = (WidgetClass)&xmStepperClassRec;
-
 static void normalize(XmStepperWidget s) {
-    if (s->stepper.maximum < s->stepper.minimum) s->stepper.maximum = s->stepper.minimum;
-    if (s->stepper.value < s->stepper.minimum) s->stepper.value = s->stepper.minimum;
-    if (s->stepper.value > s->stepper.maximum) s->stepper.value = s->stepper.maximum;
-    if (s->stepper.step < 1) s->stepper.step = 1;
+    if(s->stepper.maximum<s->stepper.minimum)s->stepper.maximum=s->stepper.minimum;
+    s->stepper.value=MAX(s->stepper.minimum,MIN(s->stepper.maximum,s->stepper.value));
+    if(s->stepper.step<1)s->stepper.step=1;
 }
-static void redraw(XmStepperWidget s) {
-    if (XtIsRealized((Widget)s)) XClearArea(XtDisplay((Widget)s), XtWindow((Widget)s), 0, 0, 0, 0, True);
+static Dimension dimension(unsigned long value) {return (Dimension)MAX(1,MIN(value,SHRT_MAX));}
+static void preferred(Widget child,Dimension *width,Dimension *height) {
+    XtWidgetGeometry reply={0};XtQueryGeometry(child,NULL,&reply);
+    *width=(reply.request_mode&CWWidth)?reply.width:child->core.width;
+    *height=(reply.request_mode&CWHeight)?reply.height:child->core.height;
 }
-
-static void notify(XmStepperWidget s, XEvent *event) {
-    XmStepperCallbackStruct c;
-    if (s == NULL || s->core.being_destroyed)
-        return;
-    c = (XmStepperCallbackStruct){XmCR_VALUE_CHANGED, event, s->stepper.minimum,
-                                 s->stepper.maximum, s->stepper.value, s->stepper.step};
-    XtCallCallbacks((Widget)s, XmNstepperValueChangedCallback, &c);
+/* Reserve the widest digit for every possible place, including the sign.
+ * Range changes resize the control; changing its value never shifts buttons. */
+static void natural_size(XmStepperWidget s,Dimension *width,Dimension *height,Dimension *button) {
+    Dimension dw,dh,iw,ih,vw,vh,digit=0,sign=0,tw,th,mw,ml,mr;
+    XmRenderTable font;char text[32];unsigned places=1;
+    preferred(s->stepper.decrement,&dw,&dh);preferred(s->stepper.increment,&iw,&ih);
+    preferred(s->stepper.label,&vw,&vh);
+    XtVaGetValues(s->stepper.label,XmNrenderTable,&font,XmNmarginWidth,&mw,
+                  XmNmarginLeft,&ml,XmNmarginRight,&mr,NULL);
+    for(int i=0;i<11;++i) {
+        text[0]=i==10?'-':'0'+i;text[1]=0;
+        XmString string=XmStringCreateLocalized(text);XmStringExtent(font,string,&tw,&th);XmStringFree(string);
+        if(i==10)sign=tw;else digit=MAX(digit,tw);
+    }
+    int endpoints[]={s->stepper.minimum,s->stepper.maximum};
+    for(unsigned i=0;i<XtNumber(endpoints);++i) {
+        snprintf(text,sizeof(text),"%d",endpoints[i]);
+        places=MAX(places,strlen(text)-(text[0]=='-'));
+    }
+    vw=dimension((unsigned long)places*digit+(s->stepper.minimum<0?sign:0)+2UL*mw+ml+mr);
+    *button=MAX(MAX(dw,iw),MAX(dh,ih));
+    *height=MAX(vh,*button);
+    *width=dimension((unsigned long)vw+2UL*(*button)+2UL*s->stepper.spacing);
 }
-static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
-    XmStepperWidget s = (XmStepperWidget)widget; XGCValues values;
-    (void)request; (void)args; (void)count; normalize(s);
-    if (!s->core.width) s->core.width = 72;
-    if (!s->core.height) s->core.height = 32;
-    values.foreground = s->primitive.foreground; values.background = s->core.background_pixel;
-    if (s->stepper.render_table == NULL)
-        s->stepper.render_table = XmFontListCopy(
-            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-    else
-        s->stepper.render_table = XmFontListCopy(s->stepper.render_table);
-    s->stepper.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
-                              GCForeground | GCBackground, &values);
-    XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
+static void Resize(Widget widget) {
+    XmStepperWidget s=(XmStepperWidget)widget;
+    if(s->stepper.initializing || s->stepper.updating)return;
+    s->stepper.updating=True;
+    Dimension nw,nh,b;natural_size(s,&nw,&nh,&b);
+    int width=MIN(s->core.width,SHRT_MAX),height=MIN(s->core.height,SHRT_MAX);
+    int bw=MIN(b,MAX(0,(width-1)/2));
+    int gap=MIN(s->stepper.spacing,MAX(0,(width-2*bw-1)/2));
+    int value_width=MAX(1,width-2*bw-2*gap);
+    unsigned char direction;XtVaGetValues(widget,XmNlayoutDirection,&direction,NULL);
+    Boolean rtl=XmDirectionMatch(direction,XmRIGHT_TO_LEFT);
+    XtSetMappedWhenManaged(s->stepper.decrement,bw>0);
+    XtSetMappedWhenManaged(s->stepper.increment,bw>0);
+    if(bw>0) {
+        XtConfigureWidget(s->stepper.decrement,rtl?width-bw:0,0,bw,MAX(1,height),0);
+        XtConfigureWidget(s->stepper.increment,rtl?0:width-bw,0,bw,MAX(1,height),0);
+    }
+    XtConfigureWidget(s->stepper.label,bw+gap,0,value_width,MAX(1,height),0);
+    s->stepper.updating=False;
+}
+static Boolean layout_work(XtPointer closure) {
+    XmStepperWidget s=(XmStepperWidget)closure;Dimension width,height,b;
+    s->stepper.layout_work=0;natural_size(s,&width,&height,&b);
+    if(!s->stepper.automatic_width)width=s->core.width;
+    if(!s->stepper.automatic_height)height=s->core.height;
+    if(width!=s->core.width || height!=s->core.height) {
+        XtWidgetGeometry request={0},reply={0};request.request_mode=CWWidth|CWHeight;
+        request.width=width;request.height=height;
+        if(XtMakeGeometryRequest((Widget)s,&request,&reply)==XtGeometryAlmost) {
+            if(reply.request_mode&CWWidth)request.width=reply.width;
+            if(reply.request_mode&CWHeight)request.height=reply.height;
+            XtMakeGeometryRequest((Widget)s,&request,NULL);
+        }
+    }
+    Resize((Widget)s);return True;
+}
+static void schedule_layout(XmStepperWidget s) {
+    if(!s->stepper.initializing && !s->core.being_destroyed && !s->stepper.layout_work)
+        s->stepper.layout_work=XtAppAddWorkProc(XtWidgetToApplicationContext((Widget)s),layout_work,s);
+}
+static void ChangeManaged(Widget widget){schedule_layout((XmStepperWidget)widget);}
+static XtGeometryResult GeometryManager(Widget child,XtWidgetGeometry *request,XtWidgetGeometry *reply) {
+    (void)reply;if(!(request->request_mode&XtCWQueryOnly))schedule_layout((XmStepperWidget)XtParent(child));
+    return XtGeometryNo;
+}
+static void refresh(XmStepperWidget s) {
+    char text[32];snprintf(text,sizeof(text),"%d",s->stepper.value);
+    XmString label=XmStringCreateLocalized(text);
+    XtVaSetValues(s->stepper.label,XmNlabelString,label,NULL);XmStringFree(label);
+    XtSetSensitive(s->stepper.decrement,s->stepper.minimum<s->stepper.maximum &&
+        (s->stepper.wrap || s->stepper.value>s->stepper.minimum));
+    XtSetSensitive(s->stepper.increment,s->stepper.minimum<s->stepper.maximum &&
+        (s->stepper.wrap || s->stepper.value<s->stepper.maximum));
+    schedule_layout(s);
+}
+static void notify(XmStepperWidget s,XEvent *event) {
+    if (!s || s->core.being_destroyed) return;
+    XmStepperCallbackStruct c={XmCR_VALUE_CHANGED,event,s->stepper.minimum,s->stepper.maximum,s->stepper.value,s->stepper.step};
+    _XmCallCallbacksUntilDestroyed((Widget)s,XmNstepperValueChangedCallback,&c);
+}
+static void activated(Widget child,XtPointer closure,XtPointer data) {
+    XmStepperWidget s=(XmStepperWidget)closure;
+    XmPushButtonCallbackStruct *callback=data;
+    if(s && XmIsStepper((Widget)s) && !s->core.being_destroyed && XtIsSensitive((Widget)s) && XtIsSensitive(child))
+        step(s,child==s->stepper.increment?1:-1,True,callback?callback->event:NULL);
+}
+static void Events(Widget child,XtPointer closure,XEvent *event,Boolean *dispatch) {
+    XmStepperWidget s=(XmStepperWidget)closure;(void)child;
+    if(!s || !XmIsStepper((Widget)s) || s->core.being_destroyed || !event || event->type!=KeyPress || !XtIsSensitive((Widget)s))return;
+    KeySym key=XLookupKeysym(&event->xkey,0);int direction=0;
+    if(key==XK_Up || key==XK_Right)direction=1;
+    else if(key==XK_Down || key==XK_Left)direction=-1;
+    if(direction){*dispatch=False;step(s,direction,True,event);}
+}
+static void Initialize(Widget request,Widget widget,ArgList args,Cardinal *count) {
+    XmStepperWidget s=(XmStepperWidget)widget;(void)args;(void)count;
+    s->stepper.initializing=True;s->stepper.updating=False;s->stepper.layout_work=0;
+    s->stepper.automatic_width=request->core.width==0;s->stepper.automatic_height=request->core.height==0;
+    normalize(s);
+    s->stepper.render_table=XmFontListCopy(s->stepper.render_table?s->stepper.render_table:
+        XmeGetDefaultRenderTable(widget,XmLABEL_FONTLIST));
+    XmString minus=XmStringCreateLocalized("-"),plus=XmStringCreateLocalized("+");
+    s->stepper.decrement=XtVaCreateManagedWidget("decrement",xmPushButtonWidgetClass,widget,
+        XmNlabelString,minus,XmNrenderTable,s->stepper.render_table,NULL);
+    s->stepper.label=XtVaCreateManagedWidget("value",xmLabelWidgetClass,widget,
+        XmNalignment,XmALIGNMENT_CENTER,XmNrenderTable,s->stepper.render_table,NULL);
+    s->stepper.increment=XtVaCreateManagedWidget("increment",xmPushButtonWidgetClass,widget,
+        XmNlabelString,plus,XmNrenderTable,s->stepper.render_table,NULL);
+    XmStringFree(minus);XmStringFree(plus);
+    Widget children[]={s->stepper.decrement,s->stepper.label,s->stepper.increment};
+    for(unsigned i=0;i<XtNumber(children);++i) {
+        _XmAppearanceInheritFont(children[i],widget);_XmAppearanceInheritForeground(children[i],widget);
+        XtAddEventHandler(children[i],KeyPressMask,False,Events,s);
+    }
+    XtAddEventHandler(widget,KeyPressMask,False,Events,s);
+    XtAddCallback(s->stepper.decrement,XmNactivateCallback,activated,s);
+    XtAddCallback(s->stepper.increment,XmNactivateCallback,activated,s);
+    refresh(s);s->stepper.initializing=False;
+    Dimension width,height,b;natural_size(s,&width,&height,&b);
+    if(s->stepper.automatic_width)s->core.width=width;
+    if(s->stepper.automatic_height)s->core.height=height;
+    Resize(widget);
 }
 static void Destroy(Widget widget) {
-    XmStepperWidget s = (XmStepperWidget)widget;
-    XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
-    if (s->stepper.gc) XFreeGC(XtDisplay(widget), s->stepper.gc);
-    if (s->stepper.render_table)
-        XmRenderTableFree(s->stepper.render_table);
+    XmStepperWidget s=(XmStepperWidget)widget;
+    if(s->stepper.layout_work)XtRemoveWorkProc(s->stepper.layout_work);
+    if(s->stepper.render_table)XmRenderTableFree(s->stepper.render_table);
 }
-static void Redisplay(Widget widget, XEvent *event, Region region) {
-    XmStepperWidget s = (XmStepperWidget)widget; Display *d = XtDisplay(widget); Window w = XtWindow(widget);
-    char text[32]; int split;
-    (void)event; (void)region;
-    if (!w || !s->stepper.gc) return;
-    XClearWindow(d, w);
-    snprintf(text, sizeof(text), "%d", s->stepper.value);
-    if (s->stepper.render_table) {
-        XmString value = XmStringCreateLocalized(text);
-        Dimension text_width = 0, text_height = 0;
-        if (value) {
-            XmStringExtent(s->stepper.render_table, value,
-                           &text_width, &text_height);
-            XmStringDraw(d, w, s->stepper.render_table, value, s->stepper.gc,
-                         bounded_position(8),
-                         bounded_position(((long long)s->core.height - text_height) / 2),
-                         text_width, XmALIGNMENT_BEGINNING,
-                         XmPrim_layout_direction(s), NULL);
-            XmStringFree(value);
-        }
-    }
-    split = s->core.width > 28 ? s->core.width - 28 : 0;
-    XDrawLine(d, w, s->stepper.gc, split, 0, split, s->core.height);
-    XDrawLine(d, w, s->stepper.gc, split + 14, 5, split + 14, s->core.height - 5);
-    if (s->stepper.render_table) {
-        const char *symbols[2] = {"+", "−"};
-        int centers[2] = {split + 7, split + 21};
-        int cell_height = (int)s->core.height / 2;
-        int i;
-        for (i = 0; i < 2; ++i) {
-            XmString symbol = XmStringCreateLocalized((char *)symbols[i]);
-            Dimension symbol_width = 0, symbol_height = 0;
-            if (symbol) {
-                XmStringExtent(s->stepper.render_table, symbol,
-                               &symbol_width, &symbol_height);
-                XmStringDraw(d, w, s->stepper.render_table, symbol,
-                             s->stepper.gc,
-                             bounded_position((long long)centers[i] - symbol_width / 2),
-                             bounded_position((long long)i * cell_height +
-                                              (cell_height - (int)symbol_height) / 2),
-                             symbol_width, XmALIGNMENT_BEGINNING,
-                             XmPrim_layout_direction(s), NULL);
-                XmStringFree(symbol);
+static void step(XmStepperWidget s,int direction,Boolean notify_change,XEvent *event) {
+    int64_t next=(int64_t)s->stepper.value+(direction<0?-(int64_t)s->stepper.step:(int64_t)s->stepper.step);
+    if(next<s->stepper.minimum || next>s->stepper.maximum)
+        next=s->stepper.wrap?(next<s->stepper.minimum?s->stepper.maximum:s->stepper.minimum):
+             (next<s->stepper.minimum?s->stepper.minimum:s->stepper.maximum);
+    if(s->stepper.value!=(int)next){s->stepper.value=(int)next;refresh(s);if(notify_change)notify(s,event);}
+}
+static Boolean SetValues(Widget old_widget,Widget request,Widget widget,ArgList args,Cardinal *count) {
+    XmStepperWidget old=(XmStepperWidget)old_widget,s=(XmStepperWidget)widget;(void)request;
+    normalize(s);
+    if(old->stepper.render_table!=s->stepper.render_table) {
+        XmRenderTable table=XmFontListCopy(s->stepper.render_table?s->stepper.render_table:
+            XmeGetDefaultRenderTable(widget,XmLABEL_FONTLIST));
+        if(table) {
+            if(old->stepper.render_table)XmRenderTableFree(old->stepper.render_table);
+            s->stepper.render_table=table;
+            Widget children[]={s->stepper.decrement,s->stepper.label,s->stepper.increment};
+            for(unsigned i=0;i<XtNumber(children);++i)if(_XmAppearanceOwnsResource(children[i],XmNrenderTable)) {
+                XtVaSetValues(children[i],XmNrenderTable,table,NULL);_XmAppearanceInheritFont(children[i],widget);
             }
-        }
+        }else s->stepper.render_table=old->stepper.render_table;
     }
-    if (s->primitive.highlighted && s->primitive.highlight_thickness)
-        XDrawRectangle(d, w, s->stepper.gc, s->primitive.highlight_thickness - 1,
-                       s->primitive.highlight_thickness - 1,
-                       s->core.width - 2 * s->primitive.highlight_thickness,
-                       s->core.height - 2 * s->primitive.highlight_thickness);
-}
-static void step(XmStepperWidget s, int direction, Boolean notify_change, XEvent *event) {
-    int64_t next = (int64_t)s->stepper.value +
-                   (direction < 0 ? -(int64_t)s->stepper.step :
-                                    (int64_t)s->stepper.step);
-    if (next < s->stepper.minimum || next > s->stepper.maximum) {
-        if (s->stepper.wrap) next = next < s->stepper.minimum ? s->stepper.maximum : s->stepper.minimum;
-        else next = next < s->stepper.minimum ? s->stepper.minimum : s->stepper.maximum;
+    for(Cardinal i=0;i<*count;++i) {
+        if(!strcmp(args[i].name,XmNwidth))s->stepper.automatic_width=(Dimension)args[i].value==0;
+        if(!strcmp(args[i].name,XmNheight))s->stepper.automatic_height=(Dimension)args[i].value==0;
     }
-    if (s->stepper.value != (int)next) { s->stepper.value = (int)next; redraw(s); if (notify_change) notify(s, event); }
+    refresh(s);Dimension width,height,b;natural_size(s,&width,&height,&b);
+    if(s->stepper.automatic_width)s->core.width=width;
+    if(s->stepper.automatic_height)s->core.height=height;
+    Resize(widget);return False;
 }
-static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch) {
-    XmStepperWidget s = (XmStepperWidget)widget; KeySym key; char buf[4]; int len;
-    (void)data; (void)dispatch;
-    if (s == NULL || event == NULL || !XmIsStepper(widget)) return;
-    if (event->type == ButtonPress) { step(s, event->xbutton.x < (int)s->core.width - 28 ? 1 : (event->xbutton.y < (int)s->core.height / 2 ? 1 : -1), True, event); return; }
-    if (event->type != KeyPress) return;
-    len = XLookupString(&event->xkey, buf, sizeof(buf), &key, NULL);
-    (void)len;
-    if (key == XK_Up || key == XK_Right) step(s, 1, True, event);
-    else if (key == XK_Down || key == XK_Left) step(s, -1, True, event);
+static XtGeometryResult QueryGeometry(Widget widget,XtWidgetGeometry *request,XtWidgetGeometry *reply) {
+    XmStepperWidget s=(XmStepperWidget)widget;Dimension b;
+    reply->request_mode=CWWidth|CWHeight;natural_size(s,&reply->width,&reply->height,&b);
+    if(!s->stepper.automatic_width)reply->width=s->core.width;
+    if(!s->stepper.automatic_height)reply->height=s->core.height;
+    return XmeReplyToQueryGeometry(widget,request,reply);
 }
-static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgList args, Cardinal *count) {
-    XmStepperWidget old = (XmStepperWidget)old_widget, s = (XmStepperWidget)widget; Boolean redraw_needed = False;
-    (void)request; (void)args; (void)count; normalize(s);
-    if ((old->primitive.foreground != s->primitive.foreground ||
-         old->core.background_pixel != s->core.background_pixel) && s->stepper.gc) {
-        XSetForeground(XtDisplay(widget), s->stepper.gc, s->primitive.foreground);
-        XSetBackground(XtDisplay(widget), s->stepper.gc, s->core.background_pixel);
-        redraw_needed = True;
-    }
-    if (old->stepper.render_table != s->stepper.render_table) {
-        XmRenderTable new_table = s->stepper.render_table ?
-            XmFontListCopy(s->stepper.render_table) :
-            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (new_table) {
-            if (old->stepper.render_table)
-                XmRenderTableFree(old->stepper.render_table);
-            s->stepper.render_table = new_table;
-            redraw_needed = True;
-        } else {
-            /* Keep the last valid table if a replacement cannot be copied. */
-            s->stepper.render_table = old->stepper.render_table;
-        }
-    }
-    if (old->stepper.minimum != s->stepper.minimum || old->stepper.maximum != s->stepper.maximum || old->stepper.value != s->stepper.value || old->stepper.step != s->stepper.step || old->stepper.wrap != s->stepper.wrap) redraw_needed = True;
-    return redraw_needed;
-}
-static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request, XtWidgetGeometry *reply) {
-    (void)widget; (void)request; reply->request_mode = CWWidth | CWHeight; reply->width = 72; reply->height = 32; return XtGeometryAlmost;
-}
-void XmStepperGetRange(Widget widget, int *minimum, int *maximum) { XmStepperWidget s; if (minimum) *minimum = 0; if (maximum) *maximum = 0; if (widget == NULL || !XmIsStepper(widget)) return; s = (XmStepperWidget)widget; if (minimum) *minimum = s->stepper.minimum; if (maximum) *maximum = s->stepper.maximum; }
-int XmStepperGetValue(Widget widget) { return widget != NULL && XmIsStepper(widget) ? ((XmStepperWidget)widget)->stepper.value : 0; }
-void XmStepperSetRange(Widget widget, int minimum, int maximum, Boolean notify_change) { XmStepperWidget s; int old; if (widget == NULL || !XmIsStepper(widget) || widget->core.being_destroyed) return; s = (XmStepperWidget)widget; old = s->stepper.value; s->stepper.minimum = minimum; s->stepper.maximum = maximum; normalize(s); redraw(s); if (notify_change && old != s->stepper.value) notify(s, NULL); }
-void XmStepperSetValue(Widget widget, int value, Boolean notify_change) { XmStepperWidget s; int old; if (widget == NULL || !XmIsStepper(widget) || widget->core.being_destroyed) return; s = (XmStepperWidget)widget; old = s->stepper.value; s->stepper.value = value; normalize(s); redraw(s); if (notify_change && old != s->stepper.value) notify(s, NULL); }
+void XmStepperGetRange(Widget widget, int *minimum, int *maximum) { XmStepperWidget s; if (minimum) *minimum = 0; if (maximum) *maximum = 0; if (widget == NULL || !XmIsStepper(widget) || widget->core.being_destroyed) return; s = (XmStepperWidget)widget; if (minimum) *minimum = s->stepper.minimum; if (maximum) *maximum = s->stepper.maximum; }
+int XmStepperGetValue(Widget widget) { return widget != NULL && XmIsStepper(widget) && !widget->core.being_destroyed ? ((XmStepperWidget)widget)->stepper.value : 0; }
+void XmStepperSetRange(Widget widget, int minimum, int maximum, Boolean notify_change) { XmStepperWidget s; int old; if (widget == NULL || !XmIsStepper(widget) || widget->core.being_destroyed) return; s = (XmStepperWidget)widget; old = s->stepper.value; s->stepper.minimum = minimum; s->stepper.maximum = maximum; normalize(s); refresh(s); if (notify_change && old != s->stepper.value) notify(s, NULL); }
+void XmStepperSetValue(Widget widget, int value, Boolean notify_change) { XmStepperWidget s; int old; if (widget == NULL || !XmIsStepper(widget) || widget->core.being_destroyed) return; s = (XmStepperWidget)widget; old = s->stepper.value; s->stepper.value = value; normalize(s); refresh(s); if (notify_change && old != s->stepper.value) notify(s, NULL); }
 void XmStepperStep(Widget widget, int direction, Boolean notify_change) { if (widget != NULL && XmIsStepper(widget) && !widget->core.being_destroyed) step((XmStepperWidget)widget, direction, notify_change, NULL); }
 Widget XmCreateStepper(Widget parent, char *name, ArgList args, Cardinal count) { return XtCreateWidget(name, xmStepperWidgetClass, parent, args, count); }
 Widget XmVaCreateStepper(Widget parent, char *name, ...) { Widget widget; va_list var; int count; Va_start(var, name); count = XmeCountVaListSimple(var); va_end(var); Va_start(var, name); widget = XmeVLCreateWidget(name, xmStepperWidgetClass, parent, False, var, count); va_end(var); return widget; }

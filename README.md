@@ -1,9 +1,9 @@
 # CK Core Motif
 
-Development source now requires native ABI8: TextField owns an incremental Unicode
-map cache. Rebuild toolkit libraries and all consumers together; see the
+Development source now requires native ABI9: semantic appearance roles and
+modern control geometry extend native widget records. Rebuild toolkit libraries and all consumers together; see the
 [ABI policy](https://cklukas.github.io/ck-core-motif/abi.html).
-Installed epoch8 qualification remains separate from historical cohort results
+Installed epoch9 qualification remains separate from historical cohort results
 recorded in the validation documentation.
 
 A maintained fork of the Motif native Xt widget toolkit, with corrections for
@@ -55,12 +55,12 @@ Container drag-and-drop transfers now also stop cleanly when their destination
 state has expired or is malformed, preventing a stale transfer from being
 dereferenced during item movement.
 
-The development 2.4.0 cohort uses native ABI epoch 8, including the current
-Unicode text maps and optional native accessibility records. Rebuild every
+The development 2.4.0 cohort uses native ABI epoch 9, including semantic appearance roles, modern control
+records, Unicode text maps and optional native accessibility records. Rebuild every
 native consumer against one consistent header/library cohort; this is not a
 drop-in replacement for `libXm.so.4`.
 
-The fresh installed ABI8 cohort passes the selected native feature fixtures,
+The historical installed ABI8 cohort passed its selected native feature fixtures,
 including native list identities, Selection, Unicode text maps, accessibility,
 display-scale and allocation-failure recovery. External input-method,
 application adoption and full cross-architecture validation remain separate

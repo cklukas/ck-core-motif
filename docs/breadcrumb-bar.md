@@ -22,3 +22,28 @@ from drawing or geometry negotiation.
 The control has no global popup, path model, or external URL behavior.  Empty
 segments are allowed and are rendered as empty labels.  Existing Button,
 Label, Menu and List contracts are unchanged.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmBreadcrumbBarWidgetClass demo](gallery-screenshots/xm-breadcrumbbarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmBreadcrumbBarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L511-L519
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/BreadcrumbBar.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

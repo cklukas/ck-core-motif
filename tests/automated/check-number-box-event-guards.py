@@ -1,14 +1,7 @@
 #!/usr/bin/env python3
-"""Ensure NumberBox event dispatch validates widget and event inputs first."""
-
+"""Check the merged modern implementation contract; native suites exercise behavior."""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "NumberBox.c").read_text(
-    encoding="utf-8"
-)
-start = source.index("static void Events(Widget widget")
-body = source[start : source.index("\nstatic Boolean SetValues", start)]
-guard = "if (widget == NULL || event == NULL || !XmIsNumberBox(widget)) return;"
-assert guard in body
-assert body.index(guard) < body.index("event->type")
-print("PASS NumberBox event callbacks validate widget and event inputs")
+source = (Path(__file__).parents[2] / "lib/Xm/NumberBox.c").read_text()
+s = "".join(source.split())
+assert "!number||!XmIsNumberBox((Widget)number)||number->core.being_destroyed||!event||event->type!=KeyPress" in s
+print("PASS number-box-event-guards")

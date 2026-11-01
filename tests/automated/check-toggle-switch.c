@@ -34,7 +34,11 @@ static void destroy_on_change(Widget widget, XtPointer closure,
 
 int main(int argc, char **argv) {
     XtAppContext app;
-    Widget shell, row, switch_widget, doomed;
+    Widget shell, row, switch_widget, doomed, sizing;
+    Display *display;
+    XEvent event = {0};
+    XtWidgetGeometry preferred = {0};
+    Dimension short_width;
     XmAccessibility *accessibility;
     XmAccessibleInfo info;
     XmAccessibleId id;
@@ -77,6 +81,60 @@ int main(int argc, char **argv) {
     XmToggleSwitchSetState(doomed, True, True);
     CHECK(destroyed == 1);
 
+    /* A release must belong to an armed press, and cancellation is sticky. */
+    XmToggleSwitchSetState(switch_widget, False, False);
+    event.xbutton.type = ButtonRelease;
+    event.xbutton.x = 2; event.xbutton.y = 2;
+    XtCallActionProc(switch_widget, "SwitchRelease", &event, NULL, 0);
+    CHECK(!XmToggleSwitchGetState(switch_widget));
+    event.xbutton.type = ButtonPress;
+    XtCallActionProc(switch_widget, "SwitchArm", &event, NULL, 0);
+    event.xbutton.type = ButtonRelease;
+    event.xbutton.x = -1;
+    XtCallActionProc(switch_widget, "SwitchRelease", &event, NULL, 0);
+    CHECK(!XmToggleSwitchGetState(switch_widget));
+    event.xbutton.type = ButtonPress; event.xbutton.x = 2;
+    XtCallActionProc(switch_widget, "SwitchArm", &event, NULL, 0);
+    XtSetSensitive(switch_widget, False);
+    XtSetSensitive(switch_widget, True);
+    event.xbutton.type = ButtonRelease;
+    XtCallActionProc(switch_widget, "SwitchRelease", &event, NULL, 0);
+    CHECK(!XmToggleSwitchGetState(switch_widget));
+    event.xbutton.type = ButtonPress;
+    XtCallActionProc(switch_widget, "SwitchArm", &event, NULL, 0);
+    event.xbutton.type = ButtonRelease;
+    XtCallActionProc(switch_widget, "SwitchRelease", &event, NULL, 0);
+    CHECK(XmToggleSwitchGetState(switch_widget));
+    XtSetSensitive(switch_widget, False);
+    XtCallActionProc(switch_widget, "ToggleSwitch", NULL, NULL, 0);
+    CHECK(XmToggleSwitchGetState(switch_widget));
+    XtSetSensitive(switch_widget, True);
+
+    /* Independent automatic axes must survive label changes and reset. */
+    sizing = XmCreateToggleSwitch(row, "sizing", NULL, 0);
+    XtQueryGeometry(sizing, NULL, &preferred);
+    short_width = preferred.width;
+    label = XmStringCreateLocalized("A substantially longer switch label");
+    XtVaSetValues(sizing, XmNlabelString, label, NULL);
+    XmStringFree(label);
+    XtQueryGeometry(sizing, NULL, &preferred);
+    CHECK(preferred.width > short_width);
+    XtVaSetValues(sizing, XmNwidth, 300, XmNheight, 80, NULL);
+    XtQueryGeometry(sizing, NULL, &preferred);
+    CHECK(preferred.width == 300 && preferred.height == 80);
+    XtVaSetValues(sizing, XmNwidth, 0, NULL);
+    XtQueryGeometry(sizing, NULL, &preferred);
+    CHECK(preferred.width > short_width && preferred.height == 80);
+    XtVaSetValues(sizing, XmNheight, 0, XmNlabelString, NULL, NULL);
+    XtQueryGeometry(sizing, NULL, &preferred);
+    CHECK(preferred.width == short_width && preferred.height < 80);
+    XtDestroyWidget(sizing);
+
+    doomed = XmCreateToggleSwitch(row, "actionDestroyed", NULL, 0);
+    XtAddCallback(doomed, XmNvalueChangedCallback, destroy_on_change, NULL);
+    XtCallActionProc(doomed, "ToggleSwitch", NULL, NULL, 0);
+    CHECK(destroyed == 2);
+
     accessibility = XmAccessibilityCreate(shell, "ToggleSwitchTest");
     CHECK(accessibility != NULL);
     id = XmAccessibilityWidget(accessibility, switch_widget);
@@ -89,8 +147,9 @@ int main(int argc, char **argv) {
     CHECK(!XmToggleSwitchGetState(switch_widget));
 
     XmAccessibilityDestroy(accessibility);
+    display = XtDisplay(shell);
     XtDestroyWidget(shell);
-    XtCloseDisplay(XtDisplay(shell));
+    XtCloseDisplay(display);
     XtDestroyApplicationContext(app);
     printf("PASS toggle switch: %u checks\n", checks);
     return EXIT_SUCCESS;

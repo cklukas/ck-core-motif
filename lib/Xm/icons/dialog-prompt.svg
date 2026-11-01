@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+<title>Prompt dialog</title>
+<rect x="4" y="7" width="32" height="28" rx="2" fill="#3f4760" opacity=".22"/>
+<rect x="4" y="5" width="32" height="28" rx="2" fill="#59647f" stroke="#343b50" stroke-width="1.5"/>
+<path d="M7 7h26" stroke="#a9b4cd" stroke-width="2"/>
+<path d="M7 12h26v18H7z" fill="#e9edf2"/>
+<path d="m11 17 4 4-4 4M19 25h9" fill="none" stroke="#465c79" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg>

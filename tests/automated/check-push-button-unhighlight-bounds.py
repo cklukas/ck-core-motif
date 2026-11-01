@@ -3,8 +3,9 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "PushB.c").read_text()
-start = source.index("static void \nBorderUnhighlight(")
-end = source.index("static int \nAdjustHighLightThickness(", start)
+name = source.rindex("BorderUnhighlight(")
+start = source.rfind("static", 0, name)
+end = source.index("\nstatic ", name)
 section = source[start:end]
 
 assert "pb->core.width <= 2 * delta" in section

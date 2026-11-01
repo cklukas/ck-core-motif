@@ -102,6 +102,7 @@ list formArgs : arguments {
 };
 
 list titleArgs : arguments {
+	XmNappearanceRole = XmAPPEARANCE_ROLE_SECTION;
 	XmNframeChildType = XmFRAME_TITLE_CHILD;
 	XmNchildHorizontalSpacing = 4;
 	XmNchildVerticalAlignment = XmALIGNMENT_WIDGET_BOTTOM;
@@ -136,6 +137,40 @@ object appMain : XmMainWindow {
 	unmanaged XmWorkingDialog workingDialog;
 	unmanaged XmPromptDialog promptDialog;
 	unmanaged XmInformationDialog showDialog;
+    };
+};
+
+! Modern layout keeps the periodic relationships and scrolls at natural size.
+object modernAppMain : XmMainWindow {
+    arguments {
+	XmNmenuBar = XmMenuBar menuBar;
+        XmNinitialFocus = XmMenuBar menuBar;
+    };
+    controls {
+	XmMenuBar menuBar;
+        XmScrolledWindow overviewScroll;
+
+	unmanaged XmFileSelectionDialog fileDialog;
+	unmanaged XmSelectionDialog selectDialog;
+	unmanaged XmTemplateDialog templateDialog;
+	unmanaged XmInformationDialog infoDialog;
+	unmanaged XmWarningDialog warningDialog;
+	unmanaged XmErrorDialog errorDialog;
+	unmanaged XmQuestionDialog questionDialog;
+	unmanaged XmWorkingDialog workingDialog;
+	unmanaged XmPromptDialog promptDialog;
+	unmanaged XmInformationDialog showDialog;
+    };
+};
+
+object overviewScroll : XmScrolledWindow {
+    arguments {
+        XmNscrollingPolicy = XmAUTOMATIC;
+        XmNscrollBarDisplayPolicy = XmAS_NEEDED;
+    };
+    controls { XmForm workArea; };
+    callbacks {
+        XmNtraverseObscuredCallback = procedure ScrollVisibleCb();
     };
 };
 
@@ -526,6 +561,7 @@ object titleLabel : XmLabel {
 	XmNleftPosition = x1; XmNrightPosition = x7;
 	XmNtopAttachment = XmATTACH_FORM;
 	XmNlabelString = titleLabelText;
+	XmNappearanceRole = XmAPPEARANCE_ROLE_PAGE_TITLE;
     };
 };
 object subtitleLabel : XmLabel {
@@ -536,6 +572,7 @@ object subtitleLabel : XmLabel {
 	XmNtopAttachment = XmATTACH_WIDGET;
 	XmNtopWidget = XmLabel titleLabel;
 	XmNlabelString = subtitleLabelText;
+	XmNappearanceRole = XmAPPEARANCE_ROLE_SECONDARY;
     };
 };
 
@@ -643,11 +680,9 @@ object pushFrame : XmFrame {
 object pushButton : XmPushButton {
        arguments {
            XmNleftAttachment = XmATTACH_FORM;
-           XmNrightAttachment = XmATTACH_FORM;
-           XmNtopAttachment = XmATTACH_POSITION;
-           XmNtopPosition = 10;
-           XmNbottomAttachment = XmATTACH_POSITION;
-           XmNbottomPosition = 90;
+           XmNrightAttachment = XmATTACH_NONE;
+           XmNtopAttachment = XmATTACH_FORM;
+           XmNbottomAttachment = XmATTACH_NONE;
            XmNlabelString = pushButtonText;
        };
 };
@@ -671,11 +706,9 @@ object toggleFrame : XmFrame {
 object toggleButton : XmToggleButton {
     arguments {
 	XmNleftAttachment = XmATTACH_FORM;
-	XmNrightAttachment = XmATTACH_FORM;
-	XmNtopAttachment = XmATTACH_POSITION;
-	XmNtopPosition = 10;
-	XmNbottomAttachment = XmATTACH_POSITION;
-	XmNbottomPosition = 90;
+	XmNrightAttachment = XmATTACH_NONE;
+	XmNtopAttachment = XmATTACH_FORM;
+	XmNbottomAttachment = XmATTACH_NONE;
 	XmNlabelString = toggleButtonText;
         XmNtoolTipString = "Tool Tips work when set in the uil file";
     };
@@ -702,9 +735,9 @@ object labelFrame : XmFrame {
 object labelLabel : XmLabel {
     arguments {
 	XmNleftAttachment = XmATTACH_FORM;
-	XmNrightAttachment = XmATTACH_FORM;
+	XmNrightAttachment = XmATTACH_NONE;
 	XmNtopAttachment = XmATTACH_FORM;
-	XmNbottomAttachment = XmATTACH_FORM;
+	XmNbottomAttachment = XmATTACH_NONE;
 	XmNlabelString = labelText;
     };
 };
@@ -786,8 +819,7 @@ object valueScale : XmScale {
     arguments {
 	XmNleftAttachment = XmATTACH_FORM;
 	XmNrightAttachment = XmATTACH_FORM;
-	XmNtopAttachment = XmATTACH_POSITION;
-	XmNtopPosition = 15;
+	XmNtopAttachment = XmATTACH_FORM;
 	XmNshowValue = true;
 	XmNminimum = scaleMinimum;
 	XmNmaximum = scaleMaximum;
@@ -915,8 +947,8 @@ object scrollFrame : XmFrame {
 		XmScrollBar { arguments {
 		    XmNleftAttachment = XmATTACH_FORM;
 		    XmNrightAttachment = XmATTACH_FORM;
-		    XmNbottomAttachment = XmATTACH_POSITION;
-		    XmNbottomPosition = 50;
+		    XmNtopAttachment = XmATTACH_FORM;
+		    XmNbottomAttachment = XmATTACH_NONE;
 		    XmNtraversalOn = true;
 		    XmNhighlightThickness = 2;
 		    XmNorientation = XmHORIZONTAL;
@@ -965,9 +997,8 @@ object comboBoxFrame : XmFrame {
 			XmNpositionMode = XmONE_BASED;
 			XmNleftAttachment = XmATTACH_FORM;
 			XmNrightAttachment = XmATTACH_FORM;
-			XmNbottomAttachment = XmATTACH_POSITION;
-			XmNbottomPosition = 50;
-			XmNbottomOffset = -1 font_unit;
+			XmNtopAttachment = XmATTACH_FORM;
+		    XmNbottomAttachment = XmATTACH_NONE;
 			XmNcomboBoxType = XmDROP_DOWN_LIST;
 			XmNselectedItem = hebrewAText;
 		    };
@@ -1025,7 +1056,6 @@ object popupWindow : XmLabel {
 	XmNrightAttachment = XmATTACH_FORM;
 	XmNtopAttachment = XmATTACH_FORM;
 	XmNbottomAttachment = XmATTACH_FORM;
-	XmNborderWidth = 1;
 	XmNlabelString = popupWindowText;
 	XmNtraversalOn = true;
     };
@@ -1095,13 +1125,7 @@ object drawFrame : XmFrame {
 	    arguments titleArgs;
 	    XmNlabelString = drawFrameText;
 	}; };
-	XmFrame {
-	    arguments {
-		XmNshadowType = XmSHADOW_IN;
-		XmNshadowThickness = 2;
-	    };
-	    controls { XmDrawingArea drawArea; };
-	};
+	XmDrawingArea drawArea;
     };
 };
 
@@ -1162,9 +1186,8 @@ object spinBoxFrame : XmFrame {
 		    arguments {
 			XmNleftAttachment = XmATTACH_FORM;
 			XmNrightAttachment = XmATTACH_FORM;
-			XmNbottomAttachment = XmATTACH_POSITION;
-			XmNbottomPosition = 50;
-			XmNbottomOffset = -1 font_unit;
+			XmNtopAttachment = XmATTACH_FORM;
+		    XmNbottomAttachment = XmATTACH_NONE;
 			XmNarrowLayout = XmARROWS_SPLIT;
 		    };
 		    controls {
@@ -2677,26 +2700,15 @@ object toggleButtonControlWin : XmScrolledWindow {
 	XmNtraverseObscuredCallback = procedure ScrollVisibleCb();
     };
     controls {
-	XmRowColumn toggleButtonControls;
+	XmColumn toggleButtonControls;
     };
 };
 
-object toggleButtonControls : XmRowColumn {
+object toggleButtonControls : XmColumn {
     arguments {
-	XmNnumColumns = 2;
-	XmNpacking = XmPACK_COLUMN;
-	XmNentryAlignment = XmALIGNMENT_END;
+	XmNdefaultEntryLabelAlignment = XmALIGNMENT_END;
     };
     controls {
-      	XmLabel toggleIndOnLabel;
-      	XmLabel toggleTogModeLabel;
-      	XmLabel toggleSetLabel;
-      	XmLabel toggleVizOffLabel;
-      	XmLabel toggleFillLabel;
-      	XmLabel toggleSelColorLabel;
-      	XmLabel toggleUnselColorLabel;
-      	XmLabel toggleIndTypeLabel;
-      	XmLabel toggleIndSizeLabel;
       	XmComboBox toggleIndOnControl;
       	XmComboBox toggleTogModeControl;
       	XmComboBox toggleSetControl;
@@ -2709,13 +2721,9 @@ object toggleButtonControls : XmRowColumn {
     };
 };
 
-object toggleIndOnLabel : XmLabel {
-    arguments {
-      	XmNlabelString = toggleIndOnText;
-    };
-};
 object toggleIndOnControl : XmComboBox {
     arguments {
+        XmNentryLabelString = toggleIndOnText;
 	XmNpositionMode = XmONE_BASED;
 	XmNarrowSize = 15;
       	XmNcomboBoxType = XmDROP_DOWN_LIST;
@@ -2733,13 +2741,9 @@ object toggleIndOnControl : XmComboBox {
 };
 
 
-object toggleIndTypeLabel : XmLabel {
-    arguments {
-      	XmNlabelString = toggleIndTypeText;
-    };
-};
 object toggleIndTypeControl : XmComboBox {
     arguments {
+        XmNentryLabelString = toggleIndTypeText;
 	XmNpositionMode = XmONE_BASED;
 	XmNarrowSize = 15;
       	XmNcomboBoxType = XmDROP_DOWN_LIST;
@@ -2757,13 +2761,9 @@ object toggleIndTypeControl : XmComboBox {
 };
 
 
-object toggleIndSizeLabel : XmLabel {
-    arguments {
-      	XmNlabelString = toggleIndSizeText;
-    };
-};
 object toggleIndSizeControl : XmComboBox {
     arguments {
+        XmNentryLabelString = toggleIndSizeText;
 	XmNpositionMode = XmONE_BASED;
 	XmNarrowSize = 15;
       	XmNcomboBoxType = XmDROP_DOWN_LIST;
@@ -2781,13 +2781,9 @@ object toggleIndSizeControl : XmComboBox {
 };
 
 
-object toggleTogModeLabel : XmLabel {
-    arguments {
-      	XmNlabelString = toggleTogModeText;
-    };
-};
 object toggleTogModeControl : XmComboBox {
     arguments {
+        XmNentryLabelString = toggleTogModeText;
 	XmNpositionMode = XmONE_BASED;
 	XmNarrowSize = 15;
 	XmNcomboBoxType = XmDROP_DOWN_LIST;
@@ -2805,13 +2801,9 @@ object toggleTogModeControl : XmComboBox {
 };
 
 
-object toggleVizOffLabel : XmLabel {
-    arguments {
-      	XmNlabelString = toggleVizOffText;
-    };
-};
 object toggleVizOffControl : XmComboBox {
     arguments {
+        XmNentryLabelString = toggleVizOffText;
 	XmNpositionMode = XmONE_BASED;
 	XmNarrowSize = 15;
       	XmNcomboBoxType = XmDROP_DOWN_LIST;
@@ -2829,13 +2821,9 @@ object toggleVizOffControl : XmComboBox {
 };
 
 
-object toggleSelColorLabel : XmLabel {
-    arguments {
-      	XmNlabelString = toggleSelColorText;
-    };
-};
 object toggleSelColorControl : XmComboBox {
     arguments {
+        XmNentryLabelString = toggleSelColorText;
 	XmNpositionMode = XmONE_BASED;
 	XmNarrowSize = 15;
       	XmNcomboBoxType = XmDROP_DOWN_COMBO_BOX;
@@ -2853,13 +2841,9 @@ object toggleSelColorControl : XmComboBox {
 };
 
 
-object toggleUnselColorLabel : XmLabel {
-    arguments {
-      	XmNlabelString = toggleUnselColorText;
-    };
-};
 object toggleUnselColorControl : XmComboBox {
     arguments {
+        XmNentryLabelString = toggleUnselColorText;
 	XmNpositionMode = XmONE_BASED;
 	XmNarrowSize = 15;
       	XmNcomboBoxType = XmDROP_DOWN_COMBO_BOX;
@@ -2877,13 +2861,9 @@ object toggleUnselColorControl : XmComboBox {
 };
 
 
-object toggleFillLabel : XmLabel {
-    arguments {
-      	XmNlabelString = toggleFillText;
-    };
-};
 object toggleFillControl : XmComboBox {
     arguments {
+        XmNentryLabelString = toggleFillText;
 	XmNpositionMode = XmONE_BASED;
 	XmNarrowSize = 15;
       	XmNcomboBoxType = XmDROP_DOWN_LIST;
@@ -2901,13 +2881,9 @@ object toggleFillControl : XmComboBox {
 };
 
 
-object toggleSetLabel : XmLabel {
-    arguments {
-      	XmNlabelString = toggleSetText;
-    };
-};
 object toggleSetControl : XmComboBox {
     arguments {
+        XmNentryLabelString = toggleSetText;
 	XmNpositionMode = XmONE_BASED;
 	XmNarrowSize = 15;
       	XmNcomboBoxType = XmDROP_DOWN_LIST;

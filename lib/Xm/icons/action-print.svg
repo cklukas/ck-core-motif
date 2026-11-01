@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+<title>Print</title>
+<polygon points="6,2 19,2 19,10 6,10" fill="#f4eee0" stroke="#46566b" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="2,9 23,9 23,19 2,19" fill="#a9b4bf" stroke="#46566b" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="6,15 19,15 19,22 6,22" fill="#f4eee0" stroke="#46566b" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="9,18 16,18" fill="none" stroke="#46566b" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="19,12 21,12" fill="none" stroke="#46566b" stroke-width="1" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

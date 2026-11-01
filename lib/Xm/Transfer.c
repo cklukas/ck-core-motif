@@ -2332,7 +2332,7 @@ CCHash(XtPointer x)
   a = (_XmCCKey) x;
 
   mixed = (uintptr_t)a->display ^
-          ((uintptr_t)a->selection * UINTPTR_C(0x9e3779b1));
+          ((uintptr_t)a->selection * (uintptr_t)UINT32_C(0x9e3779b1));
   return (XmHashValue)(mixed % (uintptr_t)INT_MAX);
 }
 

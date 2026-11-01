@@ -5,8 +5,11 @@ nav_exclude: true
 
 ck-core-motif reads the optional `Xft.dpi` X resource when a widget needs a
 scaled default. The value is accepted only when it is finite, positive and
-fully consumed after surrounding whitespace. The scale is `Xft.dpi / 75`,
-matching the historical Motif baseline.
+fully consumed after surrounding whitespace. The scale is `Xft.dpi / 96`. One logical pixel therefore maps to one device
+pixel at 96 DPI, consistently with the widget-scale override and XLibre scale.
+The ABI 9 development cohort replaces the former 75-DPI conversion; applications
+which used that conversion when constructing overrides should now pass their
+intended logical scale directly.
 
 Only toolkit-owned defaults are scaled. Explicit application resources remain
 authoritative: an explicit `XmNarrowSize` or `XmNindicatorSize` is returned
@@ -34,11 +37,24 @@ automatic pixmap scaling, compositor scaling or physical-monitor-DPI
 inference. Those require the separate XLibre-specific contract in WP-04A.
 
 The deterministic live fixture also exercises the gallery's logical DPI
-matrix: 96, 144, 192 and 288 DPI map to scales 1.28, 1.92, 2.56 and 3.84
-against the historical 75-DPI baseline. It verifies rounded ToggleButton,
+matrix: 96, 144, 192 and 288 DPI map to scales 1, 1.5, 2 and 3. It verifies rounded ToggleButton,
 SpinBox and ProgressRing defaults at every step and reverses the transitions.
 
 The installed fixture is `tests/automated/check-dpi.c`, run by
-`tests/automated/run-widget-regressions.py`. It exercises 75, 150 and 300
+`tests/automated/run-widget-regressions.py`. It exercises 96, 192 and 384
 DPI, malformed and non-finite values, saturation, and explicit-size
 preservation under Xvfb.
+
+In modern profiles, the scale transaction first stages toolkit-owned render
+tables and appearance metrics for the affected subtree. If preparation fails,
+no legacy scale callbacks run and the display override is rolled back. Logical
+profile dimensions are converted once; explicit dimensions and captured classic
+baselines remain device-pixel values. The role fixture compares live scaling
+with fresh controls at 1x, 1.5x, 2x and 3x and checks preserved explicit fonts.
+
+Applications can query `XmGetWidgetScale(widget, &scale)` from `<Xm/Display.h>`
+for layout outside toolkit-owned dimensions, such as initial shell sizing.
+It resolves the display override, then the widget's XLibre monitor scale, then
+`Xft.dpi`, with a 1.0 fallback. Its minimum is 1.0, matching default dimension
+scaling. Null arguments return False without writing an output value. The query
+does not change resources or trigger a layout transaction.

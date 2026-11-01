@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     XmNumberBoxSetRange(number, 2, 4, True);
     CHECK(XmNumberBoxGetValue(number) == 2 && changes == 5);
     CHECK(XmProcessTraversal(number, XmTRAVERSE_CURRENT));
-    CHECK(XmGetFocusWidget(shell) == number);
+    CHECK(XmGetFocusWidget(shell) == XmNumberBoxGetTextField(number));
     accessibility = XmAccessibilityCreate(shell, "NumberBoxTest");
     CHECK(accessibility != NULL);
     id = XmAccessibilityWidget(accessibility, number);
@@ -72,7 +72,9 @@ int main(int argc, char **argv) {
           info.maximum_value == 4 && info.current_value == 2);
     XmAccessibleInfoClear(&info);
     XmAccessibilityDestroy(accessibility);
-    XtDestroyWidget(number);
+    XtDestroyWidget(shell);
+    XtCloseDisplay(display);
+    XtDestroyApplicationContext(app);
     printf("PASS number box: %u checks\n", checks);
     return EXIT_SUCCESS;
 }

@@ -33,7 +33,7 @@ def main() -> int:
     output.mkdir(parents=True)
     fixture = source_root / "tests/automated/check-xlibre-live.c"
     header = source_root / "lib/Xm/XlibreDpiI.h"
-    installed_lib = prefix / "lib/libXm.so.8.0.0"
+    installed_lib = prefix / "lib/libXm.so.9.0.0"
     if not installed_lib.is_file():
         parser.error(f"installed libXm not found: {installed_lib}")
     started = time.monotonic()

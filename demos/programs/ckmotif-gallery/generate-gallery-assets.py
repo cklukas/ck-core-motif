@@ -8,12 +8,10 @@ from __future__ import annotations
 
 import json
 import hashlib
-import re
 import sys
 from pathlib import Path
 
-BEGIN = re.compile(r"/\* GALLERY-EXAMPLE-BEGIN: ([^*]+) \*/")
-END = re.compile(r"/\* GALLERY-EXAMPLE-END: ([^*]+) \*/")
+from gallery_source import GallerySource
 
 
 def fail(message: str) -> "NoReturn":
@@ -29,19 +27,7 @@ def main() -> int:
     if not isinstance(entries, list) or not entries:
         fail("manifest has no entries")
     source = examples_path.read_text(encoding="utf-8")
-    matches = list(BEGIN.finditer(source))
-    blocks: dict[str, str] = {}
-    for begin in matches:
-        key = begin.group(1).strip()
-        end = END.search(source, begin.end())
-        if not end or end.group(1).strip() != key:
-            fail(f"unterminated annotation {key}")
-        blocks[key] = source[begin.end():end.start()].strip("\n")
-    for required_block in ("shared-public-construction", "public-teardown",
-                           "drag-public-construction", "shell-public-construction",
-                           "segmented-control-construction"):
-        if required_block not in blocks:
-            fail(f"missing {required_block} annotation")
+    excerpts = GallerySource(source)
     for entry in entries:
         required = ("id", "class_symbol", "category", "constructible",
                     "source_fragment", "interaction_scenario", "docs_anchor",
@@ -109,18 +95,7 @@ def main() -> int:
                "    const char *fragment;", "    const char *text;",
                "} GallerySourceFragment;", "", "static const GallerySourceFragment gallery_sources[] = {"]
     for entry in entries:
-        popup_shell = int(entry["constructible"] and "Shell" in entry["class_symbol"])
-        if entry["class_symbol"] == "xmSegmentedControlWidgetClass":
-            construction = blocks["segmented-control-construction"]
-        elif entry["class_symbol"] == "xmDragOverShellWidgetClass":
-            construction = (blocks["shared-public-construction"] + "\n\n" +
-                            blocks["drag-public-construction"])
-        else:
-            construction = blocks["shell-public-construction" if popup_shell
-                                  else "shared-public-construction"]
-        snippet = construction + "\n\n" + blocks["public-teardown"]
-        text = (f"/* {entry['class_symbol']} example ({entry['category']}) */\n"
-                f"/* {entry['source_fragment']} */\n{snippet}")
+        text = excerpts.text(entry)
         text = text.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
         sources.append(f'    {{"{entry["source_fragment"]}", "{text}"}},')
     sources += ["};", "#endif"]

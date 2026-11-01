@@ -19,3 +19,28 @@ between hour, minute, and second fields.  Up/Down changes the focused field by
 one unit, clamped at the documented range.  Return activates the value.
 Callbacks are delivered after the value has been committed and may destroy
 the widget.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmTimePickerWidgetClass demo](gallery-screenshots/xm-timepickerwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTimePickerWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L769-L772
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TimePicker.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

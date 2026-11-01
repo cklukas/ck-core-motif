@@ -114,12 +114,14 @@ typedef struct _XmTabStackPart {
     Boolean		do_notify;	/* for notify XmNtabSelectedCallback */
 
     Boolean		check_set_render_table;
+    XmTabArrowPlacement tab_arrow_placement;
   
 } XmTabStackPart;
 
 #define XmTabStack_tab_select_callback(w) (((XmTabStackWidget)(w))->tab_stack.tab_select_callback)
 #define XmTabStack_font_list(w) (((XmTabStackWidget)(w))->tab_stack.font_list)
 #define XmTabStack_tab_style(w) (((XmTabStackWidget)(w))->tab_stack.tab_style)
+#define XmTabStack_tab_arrow_placement(w) (((XmTabStackWidget)(w))->tab_stack.tab_arrow_placement)
 #define XmTabStack_tab_mode(w) (((XmTabStackWidget)(w))->tab_stack.tab_mode)
 #define XmTabStack_tab_side(w) (((XmTabStackWidget)(w))->tab_stack.tab_side)
 #define XmTabStack_tab_orientation(w) (((XmTabStackWidget)(w))->tab_stack.tab_orientation)

@@ -185,6 +185,11 @@ static XtActionsRec actions[] =
 static XtResource resources[] =
 {
    {
+     XmNappearanceRole, XmCAppearanceRole, XmRAppearanceRole,
+     sizeof(unsigned char), XtOffsetOf(XmPrimitiveRec, primitive.appearance_role),
+     XmRImmediate, (XtPointer)XmAPPEARANCE_ROLE_NORMAL
+   },
+   {
      XmNunitType, XmCUnitType, XmRUnitType, 
      sizeof (unsigned char), XtOffsetOf(XmPrimitiveRec, primitive.unit_type),
      XmRCallProc, (XtPointer) _XmUnitTypeDefault
@@ -602,6 +607,7 @@ ClassInitialize( void )
    /* These routines are called for each base classes,
 	they just returned if it has been done already */
    _XmRegisterConverters();
+   _XmInitializeAppearance();
    _XmRegisterPixmapConverters();
    _XmInitializeExtensions();
    _XmInitializeTraits();
@@ -768,6 +774,8 @@ Initialize(
             XmRImmediate, (XtPointer) NULL
         },
     };
+
+    pw->primitive.appearance_role = _XmValidateAppearanceRole(nw, pw->primitive.appearance_role, XmAPPEARANCE_ROLE_NORMAL);
 
     _XmProcessLock();
     translations = (XtTranslations) ((XmPrimitiveClassRec *) XtClass( pw))
@@ -945,6 +953,7 @@ SetValues(
    XmPrimitiveWidget curpw = (XmPrimitiveWidget) current;
    XmPrimitiveWidget newpw = (XmPrimitiveWidget) new_w;
    Boolean returnFlag = False;
+   newpw->primitive.appearance_role = _XmValidateAppearanceRole(new_w, newpw->primitive.appearance_role, curpw->primitive.appearance_role);
 
     if (XtIsSensitive(current) != XtIsSensitive(new_w))
     {

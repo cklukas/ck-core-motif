@@ -1,0 +1,190 @@
+{
+  "schema": 1,
+  "kind": "development snapshot",
+  "entries": [
+    {
+      "variant": "classic",
+      "profile": "classic",
+      "dpi": 96,
+      "scale": 1.0,
+      "density": "comfortable",
+      "viewport": [
+        1440,
+        1200
+      ],
+      "logical_viewport": [
+        1440,
+        1200
+      ],
+      "pid_verified": true,
+      "executable": "demos/programs/periodic/.libs/periodic",
+      "binary_sha256": "d0b139769aceed8decc0603025277846b2d58ae6b4f308d61b7ad1579aea6a35",
+      "library_sha256": "e3160a30d702dc7cbef3d675d7a3259fdcf60ffab3f1e1c33e6f95910cf17610",
+      "uid_sha256": "63c18918de3ee027d2bf36afd3fa69299680b9971e0fb925057c9a77e11b652e",
+      "png": "classic.png",
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "3c95939bdc22913a9b11ff70b492f8ea92535d124bbb9dd52585a7d75055a91e"
+    },
+    {
+      "variant": "modern",
+      "profile": "modern-light",
+      "dpi": 96,
+      "scale": 1.0,
+      "density": "comfortable",
+      "viewport": [
+        1440,
+        1200
+      ],
+      "logical_viewport": [
+        1440,
+        1200
+      ],
+      "pid_verified": true,
+      "executable": "demos/programs/periodic/.libs/periodic",
+      "binary_sha256": "fac8c13948b625860c66f7947bed8b93b950bf21c01edfad51a97dad6f9f9520",
+      "library_sha256": "cb73f5a93257004b4509b09184782f17a99bdf583bf299cd5765b1540a4faa7a",
+      "uid_sha256": "9cefd2f183fbd6f15512ad0a9d4cce71fad9c6ef47e363d3d61d24947792a54d",
+      "png": "modern.png",
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "4fdee3ed7a01e14ced463d7e122d6e43c6cdce6579e0ad1d739fa17b5bf0e832"
+    },
+    {
+      "variant": "modern-scaled",
+      "profile": "modern-light",
+      "dpi": 144,
+      "scale": 1.5,
+      "density": "comfortable",
+      "viewport": [
+        2160,
+        1800
+      ],
+      "logical_viewport": [
+        1440,
+        1200
+      ],
+      "pid_verified": true,
+      "executable": "demos/programs/periodic/.libs/periodic",
+      "binary_sha256": "d0b139769aceed8decc0603025277846b2d58ae6b4f308d61b7ad1579aea6a35",
+      "library_sha256": "e3160a30d702dc7cbef3d675d7a3259fdcf60ffab3f1e1c33e6f95910cf17610",
+      "uid_sha256": "63c18918de3ee027d2bf36afd3fa69299680b9971e0fb925057c9a77e11b652e",
+      "png": "modern-scaled.png",
+      "dimensions": [
+        2160,
+        1800
+      ],
+      "sha256": "9e0e861123b1de7f5f571ea1b0e06e239d8ad85374fe8e9f7dfe29064a024e3d"
+    },
+    {
+      "variant": "modern-dark",
+      "profile": "modern-dark",
+      "dpi": 96,
+      "scale": 1.0,
+      "density": "comfortable",
+      "viewport": [
+        1440,
+        1200
+      ],
+      "logical_viewport": [
+        1440,
+        1200
+      ],
+      "pid_verified": true,
+      "executable": "demos/programs/periodic/.libs/periodic",
+      "binary_sha256": "fac8c13948b625860c66f7947bed8b93b950bf21c01edfad51a97dad6f9f9520",
+      "library_sha256": "cb73f5a93257004b4509b09184782f17a99bdf583bf299cd5765b1540a4faa7a",
+      "uid_sha256": "9cefd2f183fbd6f15512ad0a9d4cce71fad9c6ef47e363d3d61d24947792a54d",
+      "png": "modern-dark.png",
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "e79329b232712050677883aae384934f0c90d800aee7de79aa0b8c3af68773ed"
+    },
+    {
+      "variant": "modern-compact",
+      "profile": "modern-light",
+      "dpi": 96,
+      "scale": 1.0,
+      "density": "compact",
+      "viewport": [
+        1440,
+        1200
+      ],
+      "logical_viewport": [
+        1440,
+        1200
+      ],
+      "pid_verified": true,
+      "executable": "demos/programs/periodic/.libs/periodic",
+      "binary_sha256": "d0b139769aceed8decc0603025277846b2d58ae6b4f308d61b7ad1579aea6a35",
+      "library_sha256": "e3160a30d702dc7cbef3d675d7a3259fdcf60ffab3f1e1c33e6f95910cf17610",
+      "uid_sha256": "63c18918de3ee027d2bf36afd3fa69299680b9971e0fb925057c9a77e11b652e",
+      "png": "modern-compact.png",
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "d0a8d529b7dc447e1e706f6ce552f769efea9fcfa65748a7a798993763136da1"
+    },
+    {
+      "variant": "modern-light-toggles",
+      "profile": "modern-light",
+      "page": 11,
+      "dpi": 96,
+      "scale": 1.0,
+      "density": "comfortable",
+      "viewport": [
+        1440,
+        1200
+      ],
+      "logical_viewport": [
+        1440,
+        1200
+      ],
+      "pid_verified": true,
+      "executable": "demos/programs/periodic/.libs/periodic",
+      "binary_sha256": "fac8c13948b625860c66f7947bed8b93b950bf21c01edfad51a97dad6f9f9520",
+      "library_sha256": "b4017a19dfb436e33177eabe6c1ba4f192aa0a0e9956d42755e171f7023b11ab",
+      "uid_sha256": "9cefd2f183fbd6f15512ad0a9d4cce71fad9c6ef47e363d3d61d24947792a54d",
+      "png": "modern-light-page-11.png",
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "390ba804b90b776836b02f32cc3de9a4d32f253e5fe2513d13a25f6912dfdb1f"
+    },
+    {
+      "variant": "modern-dark-toggles",
+      "profile": "modern-dark",
+      "page": 11,
+      "dpi": 96,
+      "scale": 1.0,
+      "density": "comfortable",
+      "viewport": [
+        1440,
+        1200
+      ],
+      "logical_viewport": [
+        1440,
+        1200
+      ],
+      "pid_verified": true,
+      "executable": "demos/programs/periodic/.libs/periodic",
+      "binary_sha256": "fac8c13948b625860c66f7947bed8b93b950bf21c01edfad51a97dad6f9f9520",
+      "library_sha256": "b4017a19dfb436e33177eabe6c1ba4f192aa0a0e9956d42755e171f7023b11ab",
+      "uid_sha256": "9cefd2f183fbd6f15512ad0a9d4cce71fad9c6ef47e363d3d61d24947792a54d",
+      "png": "modern-dark-page-11.png",
+      "dimensions": [
+        1440,
+        1200
+      ],
+      "sha256": "6a2ee0de4909e3f34e5c2c1da65af20e2bfdbe9ff5341ec5eacd2e3b0313a315"
+    }
+  ]
+}

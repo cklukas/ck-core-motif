@@ -1,3 +1,33 @@
+Integrate modern appearance and native control cohort (2026-11-01)
+
+- Keep the modern control renderers and natural geometry alongside the
+  published allocation, bounds and callback-lifetime fixes. Rebuild the whole
+  Xm/Mrm/UIL and demo cohort for ABI 9.
+- Restore teardown and child-creation guards for redesigned controls, remove
+  duplicate merge helpers and fix Avatar label ownership during destruction.
+- Correct incoming C compilation defects in selection conversion, container
+  layout, coordinate helpers and UIL allocation-error propagation.
+- Draw button focus as a concentric rounded band, preserving equal corner
+  and edge thickness instead of clipping the inner boundary to a rectangle.
+- Allow variable ScrolledWindow/MainWindow layout without an internal clip
+  child, restoring the full Periodic work viewport.
+- Keep rating star fill and outline edges consistent; activate ratings on
+  primary-button release, preserve cancel behavior and mirror RTL input.
+- Guard Sidebar child failure paths and preserve clipped tab repainting.
+  Dispatch its shortcut from focused descendants through the owning Sidebar.
+  Create TabBox scroll arrows unconditionally and guard failed child creation.
+- Fix text replacement after gap-buffer growth: deletion now expands the
+  relocated gap by the removed range, allowing later shorter source excerpts
+  to replace longer ones. Add a native growth/compaction regression.
+- Validate Column label callbacks and constraint getters against the parent
+  Column, preventing stale label pointers during teardown. Initialize TabStack
+  callback child iteration only after validating and assigning its parent.
+- Allow an explicit bounded gallery live-test timeout for shared test hosts,
+  retaining every transaction and layout assertion.
+- Preserve one-bit XYBitmap depth during scaled-image construction so XPutImage
+  maps fallback icon bits through the requested foreground/background colors.
+  Add native pixel checks at 1x, 1.5x, 2x and 3x.
+
 Handle drag-context allocation failure (2026-10-30)
 ===================================================
 
@@ -13,6 +43,1253 @@ Guard failed scrolled-list construction (2026-10-30)
   failure, avoiding callbacks through a null child widget.
 - Add focused source-contract coverage for both failure paths.
 
+Repair Chip merge compilation (2026-11-01)
+
+- Include the private callback declaration used by destruction-aware dispatch.
+- Remove stale updates to the deleted background GC; the redesigned renderer
+  sets its retained foreground GC's background from the current fill color.
+
+Measure RatingControl from count and scaled metrics (2026-10-30)
+
+- Replace fixed natural dimensions with count-aware, scaled metrics and
+  independent automatic width/height ownership. Preserve explicit dimensions.
+- Relayout on scale and appearance changes, including classic restoration;
+  remove the gallery's fixed rating dimensions.
+- Clip stars to their content area, bound drawing work by available pixels,
+  and classify star polygons as concave. Add native live geometry coverage.
+
+Use horizontal margins consistently in ToggleButtonGadget (2026-10-30)
+
+- Calculate natural width, indicator placement and label placement from
+  marginWidth. Remove the modern-only indicator correction; all profiles now
+  share consistent horizontal geometry.
+- Keep RTL text coordinates relative to the gadget, avoiding a second addition
+  of its parent offset. Cover asymmetric margins, nonzero positions, live
+  margin changes, three profiles, three scales and both text directions.
+- Let gallery ToggleButton widgets and gadgets use their natural dimensions.
+
+Use application-colormap colors for ToggleSwitch contrast (2026-10-30)
+
+- Select the on-state thumb from the widget's existing foreground, background
+  and shadow colors by relative luminance contrast against the track. Expose
+  allocates no color cells and never assumes screen black/white pixel IDs apply
+  to a private colormap.
+- Add an 8-bit custom-colormap regression with all cells owned by the app and
+  deliberately different screen black/white entries.
+
+Update ToggleSwitch natural geometry on live scale changes (2026-10-30)
+
+- Register a lifecycle-managed scale observer so classic-profile switches
+  renegotiate their automatic dimensions even when their font stays unchanged.
+  Explicit size and font overrides remain owned by the application.
+- Compare live and newly created controls through 30 profile/density/scale
+  transitions; extend pixel coverage to hover, pressed and keyboard focus.
+
+Exercise ToggleSwitch allocation failures natively (2026-10-30)
+
+- Inject failed label, fallback-string, render-table and GC allocations into
+  native widgets; verify rollback, expose and destruction in both font builds.
+- Replace obsolete source-pattern guards with native failure and pixel tests,
+  and document the single owned GC and safe absent-label behavior.
+
+Center scaled ToggleSwitch pixels (2026-10-30)
+
+- Match the rounded knob and track pixel parity so fractional scales retain
+  identical top and bottom margins instead of a half-pixel center offset.
+- Add native image comparisons for five scales, light/dark profiles, both
+  states, RTL mirroring, disabled rendering, tiny allocations and absent GCs.
+
+IconLabel: constrain icon copies and text drawing to the padded allocation,
+reserve a separate text area beside the icon, and honor RTL alignment when
+space grows or shrinks. Verify native text/icon/combined pixel bounds.
+
+Prompt: align text within its allocated padded content area, including RTL,
+and clip constrained text to that area. Replace the obsolete fixed-size source
+check with native geometry and pixel checks across themes, scales and directions.
+
+MessageBox: rerender internally owned symbols on live display-scale changes
+and let the symbol label negotiate its new geometry. Preserve custom pixmaps
+and unregister the scale observer during destruction.
+
+MessageBox: regenerate internally owned dialog symbols after palette changes,
+so transparent SVG backgrounds and symbolic colors follow the dialog surface.
+Preserve application-supplied pixmaps when colors change.
+
+XmString: integrate the compact-layout probe correction from e0df14bbd.
+Use compile-time field offsets when choosing the padded entry representation,
+avoiding an out-of-bounds pointer read while drawing short menu mnemonics.
+
+Periodic: use native Column entry labels and viewport-width layout for the
+Toggles property editor, keeping dropdown arrows visible without sideways
+scrolling in modern, scaled and high-contrast reference views.
+
+Periodic: remove the redundant fixed inner border from the popup-menu sample
+in toolkit-default modes; retain the original border in historical resources.
+
+AutoSuggestBox: dismiss on outside application button presses without consuming
+the original event. Observe existing and newly created native widgets only while
+the popup is open, and release observers safely during callback-driven teardown.
+
+AutoSuggestBox: Tab and Shift+Tab dismiss the suggestion popup without committing
+and continue native traversal from the owning search field. Guard traversal
+after dismissal callbacks destroy the widget.
+
+AutoSuggestBox: support native traversal into the suggestion popup and dismiss
+when keyboard focus leaves its field/list. Resolve final focus after dispatch
+and release the owned check timer during destruction.
+
+SearchBox accessibility: name the commit action and expose a clear action for
+nonempty editable fields with the clear affordance enabled. Recheck current
+state at dispatch and preserve native sensitivity/modal input admission.
+
+SearchBox: respect read-only editing for pointer and Escape clearing, hide the
+clear affordance without shifting text, and cancel armed clearing on editability
+loss. Native layout regression covers read-only and immediate re-enable gestures.
+
+List and AutoSuggestBox sensitivity cancellation
+  * Cancel native List selection/drag state and pending scroll/drag timers on
+    loss of effective sensitivity, including an ancestor disable/re-enable.
+  * Latch AutoSuggestBox cancellation until its deferred dismissal runs; block
+    commit/reopening in that interval and keep late provider results inactive.
+  * Release pending cancellation timers when the owner is destroyed.
+
+AutoSuggestBox native sizing and bounded popup (pending epoch 9)
+  * Measure the search field naturally and negotiate each automatic axis;
+    replace the unrestricted popup List with an anchored native scrolled List.
+  * Limit visible results to eight rows, fit the screen, prefer placement above
+    when below is insufficient, and follow ancestor movement/unmapping.
+  * Copy result models transactionally, preserve compound-string labels, reject
+    stale generations and oversized native-list counts, and own no-result text.
+  * Guard commit/dismiss/query callback lifetimes and track child/popup teardown.
+    Escape dismisses without clearing; native single selection commits results.
+  * Replace the gallery's rejected fixed-generation data with a real provider.
+
+SearchBox measured native decoration layout (pending epoch 9)
+  * Reserve font-measured leading search and trailing clear lanes through
+    TextField's shared clipping, caret, scrolling and preferred-size geometry.
+  * Paint the placeholder on empty edits, mirror icon placement for RTL, and
+    inherit TextField resize/query behavior and modern field palette/density.
+  * Activate clear on primary-button release within its measured region;
+    ignore other buttons and cancelled releases. Remove gallery fixed sizing.
+
+SearchBox callback and placeholder ownership
+  * Snapshot search notifications and stop dispatch when callbacks destroy the
+    widget. Guard clear operations across inherited TextField notifications.
+  * Respect rejected clear edits and preserve placeholder compound-string
+    renditions, releasing owned storage at destruction.
+  * Cover direct and native Escape destruction, callback-list mutation, query
+    snapshots, verification vetoes and placeholder ownership in native tests.
+
+SegmentedControl selection and notification ownership
+  * Make explicit selection assignment idempotent, independent of the native
+    allow-clear gesture policy, and suppress unchanged selection callbacks.
+  * Snapshot callback IDs across model replacement, stop notification at
+    destruction, and avoid post-callback accesses in setters and navigation.
+  * Scan inward from disabled Home/End endpoints and focus only a surviving
+    current selection after reentrant callbacks.
+
+SegmentedControl required-selection correction
+  * Reassert the selected native toggle after repeat activation when clearing
+    is disabled, keeping its state and painted fill synchronized.
+
+ColorPicker multi-mode visual selection (pending epoch 9)
+  * Add native RGB/HSV/Lab/Pencils mode selection, saturation/value and Lab
+    a*/b* fields, 24 named pencil buttons, keyboard selection and common alpha.
+  * Use D50 Lab with Bradford adaptation; mark out-of-sRGB regions and report
+    clipped selections. Preserve preview/commit/revert semantics across modes.
+  * Add conversion-vector and native interaction/geometry/accessibility tests.
+    Qualification results are recorded in docs/modern-visual-overhaul.md.
+
+ColorPicker: replace placeholder alpha/bit toggling with a native RGBA editor,
+measured layout, alpha checkerboard, hex validation and explicit Apply/Revert.
+Separate preview/commit callbacks, normalize packed colours to 32 bits and release
+swatch colormap allocations. Expose colour-chooser and channel-slider semantics.
+Remove fixed gallery sizing. Native editing/geometry/lifetime regression passes
+36 configurations in both font builds; mode qualification is recorded below
+in docs/modern-visual-overhaul.md.
+
+Accessibility: expose NumberBox and Stepper as writable spin buttons with native
+increment/decrement actions, configured steps and named child buttons. Preserve
+bounds, wrap, disabled/modal admission and callback destruction behavior. Correct
+AT-SPI progress-bar/tree/calendar role IDs and share canonical transport names.
+Native numeric semantic tests cover 24 configurations in both font builds.
+
+Stepper: replace custom click regions and drawing with native decrement/value/
+increment children, measured range-stable sizing, RTL layout and inherited fonts.
+Remove gallery fixed geometry. Cancel PushButton armed state when effective
+sensitivity is lost, including ancestor disable/re-enable before release.
+Native Stepper regression covers geometry, input, endpoint states and destruction.
+
+Shared destruction-aware callback dispatch (development)
+
+- Centralize registered-resource callback snapshots in CallbackI; use the helper
+  for TextField activation/value and NumberBox value/invalid notifications.
+- Stop delivering callbacks once destruction begins. Keep callback registration
+  changes for the next dispatch and retain the application lock across dispatch.
+- Extend native regression coverage for multiple NumberBox callbacks and
+  callback removal/addition during TextField notification.
+
+TextField callback snapshots and NumberBox lifetime (development)
+
+- Copy activation and SetString value callbacks before dispatch, and stop when
+  the field is destroyed. Avoid reading Xt callback storage freed by immediate
+  destruction and avoid repainting a destroyed field.
+- Stop NumberBox formatting and its caller when an editor callback destroys the
+  composite. Extend native tests for immediate/deferred, multiple-callback and
+  borrowed-editor destruction paths. Native lifetime tests pass in both builds;
+  NumberBox editing passes Valgrind invalid-access checking.
+
+Gallery NumberBox callback feedback
+
+- Subscribe to both invalid-input and committed-value callbacks. Show rejected
+  input with the unchanged committed quantity, and report successful commits.
+- Label feedback as the last event so it does not claim to describe tentative
+  text edits. Check callback counts and exact messages during native gallery
+  invalid-input and recovery tests.
+
+Gallery field-example layout
+
+- Use a vertical RowColumn for field captions, controls and helper text instead
+  of initial-height coordinates. Inline NumberBox validation can grow without
+  overlapping the helper. Add an invalid-input layout integration assertion.
+- Include layout setup in exact source excerpts and regenerate component docs.
+
+NumberBox composite foreground ownership (development)
+
+- Inherit explicitly styled parent foregrounds in the native editor, arrows and
+  validation label without overriding child resource-file or setter choices.
+- Track inheritance through appearance state rather than pixel equality. Keep
+  default children theme-owned and preserve the editor's native input surface.
+- Add native constructor, database, equal-valued setter and live profile tests.
+
+ArrowButton sensitivity gesture cancellation
+
+- Cancel an armed pointer gesture when the widget or an ancestor becomes
+  insensitive. Re-enabling requires a new press; a stale release cannot invoke
+  the callback. Apply the same admission rule to gadgets and repeated clicks.
+- Native arrow and NumberBox regressions cover sensitivity cancellation,
+  release-outside, range/wrap and destruction during a step callback.
+
+TextField activation callback lifetime
+
+- Observe field destruction during activation callbacks and avoid propagating
+  input through a destroyed parent. Cover both immediate direct-action calls
+  and deferred keyboard dispatch without changing normal default-button behavior.
+- Add eight native regression cases; both font configurations pass.
+
+NumberBox native editor (development; broader qualification pending)
+
+- Replace the append-only custom editor and drawn triangles with an XmTextField
+  and native ArrowButtons. Home/End, caret insertion and backspace use native
+  editing; preserve committed-value, range, step, wrap and invalid callbacks.
+- Show an inline range message after invalid commits; Escape restores the value.
+- Add XmNumberBoxGetTextField for borrowed access to the native editor. Focus
+  traversal now enters this child. The private record joins the ABI-9 changes.
+- Add a native caret/edit/commit regression and replace obsolete custom-renderer
+  guards. Layout, clipboard, ownership and broad lifecycle acceptance continue.
+
+Gallery example guidance (development)
+
+- Distinguish passive previews, interactive examples, popup windows and
+  unavailable/infrastructure classes in full and compact descriptions.
+- Hide unused callback feedback for passive examples and return that space to
+  the preview. Restore feedback on interactive selections; check this in the
+  native component matrix.
+
+Divider measured geometry and bounded rendering (development)
+
+- Size from measured multiline text, line thickness and scaled padding; preserve
+  independent explicit axes and recompute automatic dimensions on live changes.
+- Honor thickness for labeled lines, omit reversed segments in narrow spaces,
+  clip text and refresh palette/sensitivity colours before drawing.
+- Add density-aware default spacing with explicit-resource ownership; remove
+  fixed gallery dimensions and add native geometry, pixel and overflow checks.
+- Release the owned label on destruction and preserve the old render table if
+  copying a replacement fails.
+
+Avatar natural geometry and appearance defaults (development)
+
+- Honor natural dimensions at construction and track independent explicit axes;
+  live avatarSize changes update automatic dimensions, and zero resets an axis.
+- Add modern comfortable/compact avatarSize defaults (48/40 logical pixels) to
+  the appearance ownership system, including live scale and classic restoration.
+- Remove fixed gallery dimensions; add native parent-manager, profile, density,
+  scale, explicit-resource and query-geometry regressions.
+
+Avatar circular image rendering (development)
+
+- Center-crop borrowed images and clip images and initials to the same symmetric
+  circular surface, including non-square allocations and tiny dimensions.
+- Render depth-one bitmaps with XCopyPlane and fall back to initials for other
+  incompatible depths. Refresh GC colours on resource and sensitivity changes.
+- Release replaced/copied initials and remove an unused fixed-font allocation.
+- Add native image-crop, bitmap, colour-refresh, long-text clipping and
+  pixel-symmetry regressions, and correct the accessibility fixture teardown.
+
+Chip geometry, rendering and interaction (development)
+
+- Replace fixed default dimensions with measured, scaled content geometry and
+  independent ownership for explicit width/height values.
+- Share drawing and pointer-target geometry across LTR/RTL; render bounded
+  pixmaps, symmetric capsule/focus outlines and modern hover/press feedback.
+- Activate on button-1 release over the original target, support drag-out
+  cancellation and clear interaction state before potentially destructive callbacks.
+- Expose the optional removal callback as a named accessible action; reject
+  removal when disabled or no longer removable.
+- Remove fixed Chip dimensions from the gallery and add native geometry,
+  pointer/keyboard, pixmap, focus-symmetry and accessibility regressions.
+
+Badge natural sizing and modern drawing (development)
+
+- Measure the displayed count or full compound label for initial and live
+  geometry; scale padding and preserve explicit width/height ownership.
+- Draw modern badges with a symmetric rounded outline and centered, clipped
+  text. Refresh drawing colours and clear transient text clipping before reuse.
+- Remove the gallery's fixed badge size. Extend native geometry coverage with
+  count/label changes, mirrored border pixels and explicit foreground updates.
+
+Gallery dialog icon refresh (development)
+
+- Bind built-in dialog symbols to their display widgets so live palette and
+  scale changes reacquire the correct cached pixmaps and release old references.
+- Preserve the actual dimensions of classic bitmap symbols, including
+  non-square images, and own each binding's image name for its full lifetime.
+- Extend the page regression with live transitions, actual resource identity,
+  image dimensions/background pixels and page containment in both builds.
+
+Gallery navigation layout transitions (development)
+
+- Unmanage the adjacent workspace before attaching narrow-screen navigation
+  across the full Form width, avoiding contradictory sibling constraints.
+- Reject Form edge-synchronization warnings in gallery integration checks and
+  exercise responsive navigation in classic/light/dark at 1x, 1.5x and 2x.
+
+Scalable action artwork (development)
+
+- Add embedded document, folder, save, print, undo, picture and archive images
+  through the existing named image-cache API. SVG builds rasterize vectors at
+  the requested size; non-SVG builds use matching monochrome outlines.
+- Generate vector and bitmap assets from one maintained geometry definition.
+- Bind gallery action images to their owning controls and refresh cached
+  pixmaps when scale, foreground or background changes.
+- Add native cache, dimension, background and installed-image override checks
+  for all seven names at four scales in both image configurations.
+
+FormSection layout defaults (development)
+
+- Use section/secondary typography for owned headers/footers and preserve
+  compound XmString formatting when copying their content.
+- Give the content host a single vertical layout without duplicate outer
+  padding or shared label-margin adjustment between unrelated controls.
+- Scale modern section padding and spacing with density while retaining
+  explicit application values and classic defaults.
+- Simplify the gallery to use the owned header and content host directly.
+
+Modern toggle caption alignment (development)
+
+- Align checkbox and radio captions beside the indicator in modern profiles,
+  following layout direction. Indicator-less toggles retain centered captions.
+- Reapply owned alignment immediately when indicator visibility changes; keep
+  explicit constructor/SetValues alignment and restore the classic default.
+- Extend 128 native toggle configurations with stretched Form layouts, caption
+  position checks, indicator toggling and explicit alignment ownership.
+
+IconButton modern appearance (development)
+
+- Use shared symmetric rounded faces and connected keyboard focus outlines in
+  modern profiles, retaining classic and high-contrast drawing paths.
+- Apply scaled horizontal/vertical margins and icon/text spacing through common
+  appearance density defaults; preserve explicit application overrides.
+- Extend native button coverage for IconButton state/focus/repaint, pixmap
+  preservation, keyboard activation, density changes and classic restoration.
+- Clip oversized IconButton pixmaps and text to the rounded interior, sharing
+  the face raster geometry; preserve borders with zero application margins.
+- Clamp undersized text extents instead of wrapping negative dimensions.
+
+Column generated-label typography (development)
+
+- Preserve default-font provenance when constructing entry labels, so modern
+  typography and live display scaling apply to generated labels.
+- Recognize defaultEntryLabelRenderTable/defaultEntryLabelFontList as explicit
+  parent font choices. Per-entry font overrides remain authoritative.
+- Clearing a per-entry font restores inherited typography immediately, including
+  the current display scale and classic fallback. Equal-valued parent font
+  assignments propagate to generated labels as explicit application choices.
+- Extend native composite-font coverage for startup, live scale/theme changes,
+  per-entry reset, classic restoration, explicit parent defaults, both Xrm
+  aliases and explicit per-entry fonts in both font builds.
+
+Arrow geometry during live appearance commits (development)
+
+- Query ArrowButton/ArrowButtonGadget natural size with the transaction's target
+  profile and density. Composite layout no longer measures the old profile while
+  applying new fonts and dimensions.
+- The native container fixture covers the core-font classic-to-modern Disclosure
+  transition that exposed a two-pixel discrepancy after commit.
+
+Gallery natural container sizing (development)
+
+- Remove the post-construction preferred-size repair block entirely.
+- Let IconBox, Column, Disclosure and FormSection examples request their natural
+  sizes; remove fixed IconBox child dimensions so labels can follow typography.
+- Add 96 native container configurations covering content containment, classic
+  and modern profiles, live scaling, two parent layouts and disclosure toggles.
+
+Prompt and IconLabel natural sizing (development)
+
+- Measure text with its render table, preserve compound-string formatting, and
+  include scaled padding and actual icon dimensions in preferred geometry.
+- Track independent automatic dimensions; explicit width/height assignments
+  retain application ownership and zero restores measurement.
+- Mirror IconLabel icon/text placement in RTL and refresh its theme/state colors.
+- Remove the gallery's Prompt/IconLabel-specific construction size repairs.
+- Extend the pending epoch-9 private records with automatic-size ownership.
+
+DropDown refused geometry and partial query replies (development)
+
+- Return a defined refusal and restore child dimensions when the parent cannot
+  provide the requested DropDown height. Do not inspect uninitialized compromise
+  fields or turn them into X window-configuration requests.
+- Honor child query masks when measuring preferred size; omitted dimensions and
+  borders retain their allocated values.
+- Add poisoned-query, refused-request and FontSelector lifecycle regressions.
+
+TreeView allocated viewport (development)
+
+- Separate the preferred visible-row count from the parent-allocated viewport.
+  Render, scroll and keep selection visible using the accepted height; resize
+  adjusts the scroll position without issuing another geometry request.
+- Remove the gallery's allocated-height-to-preferred-row synchronization and
+  avoid reapplying unchanged constraints and labels on ConfigureNotify.
+- Cover parent growth and shrinkage without mutating the preferred row resource.
+
+Link natural geometry and theme rendering (development)
+
+- Measure Link construction, geometry queries and live size updates from its
+  render table and compound label. Preserve independent explicit dimensions;
+  setting a dimension to zero restores automatic sizing.
+- Scale padding and underline placement with DPI, reserve visited-state rules,
+  and update drawing colors for theme and sensitivity changes.
+- Preserve compound-string formatting when copying labels. Remove the gallery's
+  Link-specific size repair and add native geometry/underline regressions.
+- Use target profile/density for internal geometry throughout live commits and
+  cross-child layout; public getters retain committed-settings semantics.
+- Extend the pending epoch-9 private record with automatic-dimension ownership.
+
+Rounded modern arrow-button focus (development)
+
+- Route ArrowButton and ArrowButtonGadget focus through the shared symmetric
+  rounded-focus renderer, matching their modern faces and other modern buttons.
+- Bound the shared focus radius to its reserved band so thin outlines remain
+  connected at corners without painting application-owned contents.
+- Preserve classic/high-contrast focus rendering and highlight-state ownership.
+- Add widget/gadget pixel checks for corner clearing, mirrored highlight bands,
+  outline connectivity, expose/repaint identity and unhighlight cleanup across
+  directions and scales; apply connectivity checks to ordinary buttons too.
+
+Notebook direction coverage and Periodic reference captures (development)
+
+- Extend native connected-flap, focus, constrained long-label and size-recovery
+  checks to right-to-left layout across all existing notebook configurations.
+- Capture Periodic reference variants at a consistent logical viewport, scaling
+  the native window with DPI so the scaled documentation image shows the full
+  table and notebook footer. Preserve actual-process and content-hash evidence.
+
+Focused gallery source excerpts (development)
+
+- Generate application and documentation Source tabs from the same annotated
+  construction ranges, including relevant state examples and field labels.
+- Show actual drag-source and aliased DropDown/MultiList construction; omit
+  unrelated callback dispatch and constructors from component excerpts.
+- Validate all manifest excerpts, exact documentation line ranges and malformed
+  annotation failures. Service classes retain an explicit inventory explanation.
+
+Gallery source scrolling (development)
+
+- Configure the read-only source viewer as multiline text so it exposes its
+  vertical scrollbar and permits navigation through the entire example.
+- Verify the Source tab's edit mode, vertical scrollbar and final-line
+  reachability during native gallery navigation tests.
+
+Core-font code typography (development)
+
+- Prefer scalable Courier for the code appearance role. Probe core-font
+  candidates before creating renditions so unavailable synthesized fonts do
+  not trigger Xt conversion warnings or substitute proportional code text.
+- Retain loadable fixed-family and fixed-alias fallbacks for limited servers.
+- Add native checks for monospaced advances, scale growth, live/fresh parity,
+  classic restoration and warning-free code-role font loading.
+
+Rounded modern button focus outlines (development)
+
+- Use the shared symmetric corner raster for PushButton, PushButtonGadget and
+  DrawnButton focus outlines in modern light/dark profiles. Paint only the
+  reserved highlight margin, preserving labels and application-drawn content.
+- Keep classic/high-contrast and notebook-flap focus rendering independent.
+- Extend native button coverage with corner/reflection, unhighlight and full
+  repaint checks for widget/gadget forms and application-drawn buttons.
+
+Gallery live controls and Sidebar focus ownership (development)
+
+- Enable the gallery Theme and Scale controls through the public live APIs.
+  Derive each next value from current settings rather than cached counters.
+- Preserve focus outside Sidebar during programmatic collapse/expansion.
+  Restore saved content focus only while focus remains within the sidebar.
+- Add native external-focus/sidebar lifecycle coverage and gallery control
+  activation checks for all theme and scale steps.
+
+Live appearance geometry ownership (development)
+
+- Make ButtonBox geometry compromises acceptable without repeatedly shrinking
+  the child. Retain the original preferences while the offer is outstanding;
+  invalidate offers on subsequent layout or geometry changes.
+- Preserve each RowColumn layout invocation's geometry array across nested
+  queries and geometry callbacks, preventing a double free during live scaling.
+- Add native negotiation/reentrant-layout regressions and a gallery live
+  appearance matrix that changes profile, density and scale without replacing
+  component instances. Full live-gallery qualification remains in progress.
+
+Shared modern chevron rasterization (development)
+
+- Use the symmetric pixel-center chevron primitive for modern ArrowButton and
+  ArrowButtonGadget faces, container disclosures and embedded arrow regions.
+  Remove the remaining rounded X line strokes from that shared renderer.
+- Extend native arrow tests with glyph reflection checks in normal, pressed,
+  drag-out/reentry, disabled and profile-restored states for all directions,
+  both densities, widget/gadget forms and three scales.
+
+Symmetric modern TreeView disclosure chevrons (development)
+
+- Replace unequal integer arm spans and X rounded-line rasterization with a
+  shared pixel-center chevron primitive. Mirrored sampling gives identical
+  arms at odd/even stroke widths, with balanced 45-degree slopes.
+- Track automatic overall TreeView height through font/row-count changes.
+  Explicit heights remain authoritative; zero restores natural sizing.
+- Let the gallery TreeView size from its visible-row count instead of a fixed
+  pixel height that hides rows at enlarged scales.
+- Retain existing disclosure slots, mouse targets, RTL direction and classic
+  indicators. Center the smaller glyph inside its existing row-aligned slot.
+- Extend native disclosure checks with pixel reflection symmetry for expanded
+  and collapsed indicators across light/dark, RTL/LTR and 1x through 3x scales.
+
+Gallery List and ComboBox content sizing (development)
+
+- Request three visible rows for the three-item List and ComboBox examples.
+  Remove the List's fixed pixel height and avoid the ComboBox's oversized
+  default list area. Toolkit font metrics determine the resulting height.
+- Extend native gallery integration to require exactly three visible rows and
+  verify that the third row fits completely inside the list.
+
+Gallery menu-preview geometry and documentation refresh (development)
+
+- Query RowColumn's preferred geometry when fitting a menu preview instead of
+  repeatedly requesting only its children's bounding box. Menu-bar insets and
+  spacing remain owned by the toolkit.
+- Refresh the five Periodic comparison images from verified current windows
+  and regenerate component Source-tab excerpts from the current demo code.
+
+Periodic overview control alignment (development)
+
+- Anchor the SpinBox, ComboBox, horizontal ScrollBar, Label and Scale examples
+  beneath their section headings instead of mixing centered and percentage-
+  positioned controls with top-aligned controls. Preserve natural vertical size.
+- Verify top attachment, unconstrained bottom attachment and actual zero local
+  y position in the real Mrm overview hierarchy.
+
+Periodic DrawingArea framing (development)
+
+- Remove the redundant inset Frame around the overview DrawingArea. The
+  section frame and drawing's own plot boundary provide the visual structure
+  without an extra explicitly beveled layer.
+- Keep the DrawingArea directly in its section frame and verify that hierarchy
+  in the real Mrm startup fixture.
+
+List horizontal scrollbar visibility at tiny widths (development)
+
+- Keep the available inner-width comparison signed. Negative space inside
+  margins no longer wraps to a large width and incorrectly hides a required
+  horizontal scrollbar during resize.
+- Compare the horizontal scrollbar's management state before and after its
+  visibility update, rather than the unrelated vertical scrollbar.
+- Extend native consumer coverage to assert required horizontal navigation,
+  matching visible scrollbar lengths, and empty-list removal/restoration.
+
+Application-defined ScrolledWindow bounds (development)
+
+- Use signed allocation arithmetic and bounded positive work-area geometry for
+  Scrolled List/Text. Temporarily move managed navigators off-frame when their
+  full thickness cannot fit beside content, preserving management ownership.
+- Add parent-driven tiny allocation and growth checks for both consumers.
+  Layout reentrancy and navigator-length consistency remain under qualification.
+
+Undersized automatic ScrolledWindow navigators (development)
+
+- Hide a navigator when its thickness, spacing and frame cannot coexist with
+  a positive viewport. Recompute the viewport before updating scroll ranges,
+  and restore navigators from the configured policy as the allocation grows.
+- Check visible scrollbar containment and separation from content at square,
+  narrow and short allocations, including restoration after growth.
+
+Modern scrollbar region geometry (development)
+
+- Partition modern arrow and track allocations with bounded signed arithmetic.
+  Retain a positive track at tiny sizes and omit arrows when there is no room
+  for separate regions. Apply the same layout to each-side and grouped arrows,
+  including reversed processing directions.
+- Use exclusive end bounds for thumb, track and arrow hit tests; zero-sized
+  arrow regions cannot activate. Adjacent regions no longer steal edge clicks.
+- Extend native tests with tiny lengths, all arrow placement modes, disjoint
+  geometry and activation of each available arrow.
+- Keep Scale's internal slider geometry owned by Scale, excluding it from
+  standalone scrollbar thickness updates. The wider Scale regression caught
+  and verifies fixed outer-width preservation during live DPI changes.
+
+Tiny automatic ScrolledWindow viewports (development)
+
+- Bound clipping-window position and extent to the actual outer allocation,
+  yielding decorative insets when the pane is too small. Use a positive
+  one-pixel viewport instead of placing a two-pixel window outside the pane.
+- Resolve viewport bounds before navigator extents so scroll ranges match the
+  clipping window. Apply the same bounds rule with no managed content.
+- Extend native coverage across all four scrollbar placements, both text
+  directions, four profiles, two scales, tiny sizes and content removal/restore.
+
+Scrolled consumer scale/layout (development)
+
+- Accept thickness-only navigator requests within application-defined as well
+  as automatic ScrolledWindow allocations, relaying out content without asking
+  the parent to enlarge the outer window.
+- Negotiate ScrolledWindow DPI-default size changes through Xt instead of
+  directly resizing the widget. Parent constraints remain authoritative even
+  when an allocated size happens to equal the previous DPI default.
+- Add native scrolled List/Text checks for live scrollbar scale, fixed Form
+  allocation and non-overlapping content in both font configurations.
+
+Scrollbar automatic-size updates (development)
+
+- Immediately recompute theme-owned scrollbar thickness when an application
+  resets a dimension to zero or changes orientation. Reuse the geometry-request
+  path used by arrow controls, preserving explicit dimensions and parent
+  allocation authority without requiring another appearance transaction.
+- Share thickness calculation between profile transactions and setter updates.
+  Extend native tests with size resets, orientation changes and explicit-axis
+  preservation; retain arrow-control sizing regression coverage.
+
+Modern scrollbar thickness (development; integration qualification)
+
+- Size theme-owned modern scrollbar thickness to 18 logical pixels in
+  comfortable density and 16 in compact density; update it with live scale and
+  density changes. Preserve explicit application dimensions and restore the
+  original thickness in classic/high-contrast profiles.
+- Keep ScrolledWindow-owned navigator borders outside appearance updates.
+  Automatic ScrolledWindow thickness-only geometry requests consume viewport
+  space instead of requiring an enlarged outer window; query-only requests
+  leave both the child and parent unchanged.
+- Add standalone and embedded scrollbar tests covering density, live scale,
+  query-only geometry and explicit size ownership.
+
+Modern scrollbar end-arrow defaults (development)
+
+- Retain an end arrow on each side in modern light and dark, using the existing
+  bounded chevrons and interaction paths. Preserve explicit arrowless settings.
+- Extend native rendering tests with both default arrow actions, startup/live
+  parity and explicit `showArrows: none` ownership.
+
+Container disclosure input (development)
+
+- Reject user expansion/collapse of insensitive icon rows in the shared action
+  path. The internal disclosure is a sibling gadget and does not inherit the
+  row's sensitivity; previously clicking it still changed a disabled row.
+- Preserve the triggering keyboard event in outline-change callbacks.
+- Extend the native disclosure regression with real XTest pointer clicks,
+  disable/re-enable transitions, Ctrl+arrow expansion/collapse and callback
+  event checks in all four profiles, three scales and both text directions.
+
+Modern Container disclosures (development; qualification in progress)
+
+- Render default outline disclosures with the shared modern chevron renderer,
+  including RTL, sensitivity and pressed state. Reserve a scaled 20-pixel
+  minimum extent for default disclosures. Classic/custom pixmaps retain their
+  existing rendering path.
+- Track expanded/collapsed pixmap ownership without modifying those resource
+  values. Explicit equal-valued overrides transfer ownership and trigger a
+  repaint, so application pixmaps are not silently replaced by theme glyphs.
+- Add native ownership, profile-transition, sizing and pixel checks.
+
+Container disclosure pixmap refresh (development)
+
+- Read the associated icon row's expansion state when refreshing outline
+  button pixmaps. The proxy gadget's constraint state does not describe its
+  row and previously selected the wrong symbol for expanded rows.
+- Exclude the internal sizing gadget from row-state refresh. Add native
+  coverage for repeated custom pixmap replacement and collapse/expand across
+  appearance profiles, scales and layout directions.
+
+Notebook oversized tab allocation (development; qualification in progress)
+
+- Bound oversized major/minor tabs to the space between their scroll arrows
+  instead of allowing the visible-tab count to become zero. Include the
+  minor-tab page-connection inset in the available-space calculation.
+- Extend native flap tests with long labels, constrained allocations and
+  selection of both widget and gadget tabs. Verify selected-tab containment
+  and the actual pixels joining the flap to its page.
+- Verify that long tabs recover their expanded-window dimensions after a
+  narrow allocation, and retain their page connection. Run the constrained
+  and restored checks in each original profile, including classic and high
+  contrast, rather than only after switching to modern rendering.
+
+Gallery preview and feedback grouping (development)
+
+- Size short component previews to their content and keep interaction feedback
+  directly beneath them. Bound larger previews to the available page height
+  while preserving the full scrollable component canvas.
+- Detach Form dependents before replacing an example so deletion cannot turn
+  their spacing into a stale absolute-position offset.
+
+Scrollable tab strips (development; qualification in progress)
+
+- Implement SCROLLED TabBox layout with a clipped canvas, bounded arrow
+  scrolling, selection/focus reveal and logical offsets for RTL layouts.
+  Expose arrow placement through TabStack and add first/last traversal.
+- Use scrolling tabs as the modern profile default while preserving explicit
+  application tab modes and restoring the classic default on profile changes.
+- Make the declared XmTabStackXYToWidget API available independently of the
+  disabled tear-off feature. Translate supplied widget coordinates into the
+  tab viewport and exclude arrow controls from tab hit testing.
+- Keep Up/Down traversal in visual order for vertical strips under RTL;
+  reverse Left/Right only for horizontal strips. Add real Home/End, arrow
+  and Space key events to the native scrolling and hit-testing regressions.
+  Full demo visual qualification remains in progress.
+
+Tab label clipping in constrained layouts (development)
+
+- Pass the tab's label rectangle to XmStringDraw so Xft clips long labels
+  consistently with core-font rendering. Partial repaints must not paint text
+  beyond the tab face or leave stray pixels on adjacent stacked pages.
+- Extend the native full-versus-partial repaint comparison to stacked and
+  static-stacked tabs, long labels, bitmap/color icons and narrow allocations.
+- Correct the side-tab width clamp, which mistakenly changed height and could
+  position the tab area outside the stack. Use the horizontal page margin on
+  the left side and clamp constrained page sizes before unsigned conversion.
+- Retry transient screenshot window/identity observation timeouts within the
+  existing deadline, retaining process identity checks. Cover polling behavior
+  with executable tests rather than requiring a particular sorting expression.
+
+Automatic ScrolledWindow wheel input (development)
+
+- Add toolkit wheel scrolling over plain content and dynamically created
+  descendants. Route to the nearest automatic scroll frame, preserving
+  application-defined frames and native List/Text/TreeView/DataGrid behavior.
+- Preserve existing press-only and press/release wheel actions through Xt
+  gesture ownership. Support vertical wheel, Shift-wheel and horizontal wheel
+  buttons, bounded increments, reversed directions and read-only/sensitivity.
+- Track wheel action ownership in the pending ABI 9 ScrolledWindow record.
+  Remove the action hook on destruction; callbacks may destroy the frame.
+- Add real XTest wheel regressions across classic/light/dark and three scales.
+
+TreeView accessibility activation (development)
+
+- Expose the selected TreeView row's activation through the accessibility
+  action interface, using the same implementation as Enter. Leaves activate;
+  group rows expand or collapse without changing selection.
+- Suppress unavailable actions for empty, hidden or insensitive selections,
+  notify accessibility clients about expansion changes, and preserve safe
+  callback-driven destruction of either the widget or the bridge.
+- Add native semantic-action/lifetime coverage and gallery navigation checks
+  that return to the example through an accessibility action.
+
+SVG rasterization at requested resolution (development)
+
+- Render built-in and file-based SVGs directly at the requested display or
+  print scale, retaining the scale/color/depth-aware pixmap cache. Avoid
+  enlarging an intrinsic-resolution bitmap and preserve bitmap scaling.
+- Bound both intrinsic and output raster dimensions. Add pixel-detail tests
+  for all nine symbols and external SVGs, fractional/tiny/large sizes, and
+  oversized requests; retain disabled-feature fallback coverage.
+
+Reflowing gallery overview and icon catalogue (development)
+
+- Wrap welcome-page prose using each label's render table, preserve its text,
+  and expose the complete page through a scrollable canvas.
+- Replace fixed icon cells with a natural-size grid of up to three columns.
+  Show all nine dialog symbols with scale-aware pixmap requests; keep legacy
+  bitmap fallbacks and identify symbols requiring SVG in non-SVG builds.
+- Add native wide/narrow/restore tests for overlap, overflow, text preservation,
+  icon dimensions and feature fallbacks across three themes and three scales.
+
+Compact gallery navigation and TreeView activation (development)
+
+- Use a full-width navigation page in constrained gallery windows, with a
+  concise header and instructions; restore the user's desktop sidebar choice.
+- Separate TreeView leaf activation from selection through XmNactivateCallback.
+  Enter and a matching primary-button release activate; navigation and canceled
+  presses do not. Callbacks use XmTreeViewCallbackStruct and XmCR_ACTIVATE.
+- Include the TreeView activation fields in the pending ABI 9 cohort.
+
+Gallery scale-aware startup geometry (development)
+
+- Size the gallery's default client with the effective widget scale and bound
+  it to the desktop work area; preserve explicit Xt geometry and size resources.
+- Remove assumptions about MWM decoration dimensions.
+- Add public XmGetWidgetScale for application layout using toolkit DPI policy.
+
+Modern dialog spacing and natural gallery sizes (development)
+
+- Apply shared comfortable/compact padding to MessageBox, SelectionBox,
+  Command and FileSelectionBox; modern content containers omit the redundant
+  outer shadow while preserving explicit application margins and borders.
+- Let gallery dialog examples use preferred geometry. Command/SelectionBox
+  show their three sample entries instead of constraining a five-row list
+  inside a fixed pixel height. Use Command history resource names directly.
+- Check the third sample row remains fully visible in gallery integration.
+
+Rotated tab repaint qualification (development)
+
+- The integrated Xft drawable/cache and TabBox bitmap-eviction fixes pass all
+  288 partial-repaint cases in each font configuration, including rotated
+  modern side tabs. This resolves the earlier orientation crash in this suite.
+
+Rotated-tab Xft integration (development; native qualification pending)
+
+- Integrate the independently published drawable-depth, cache and null-draw
+  handling corrections through upstream workstream commit 115c2265d.
+- Evict TabBox cached Xft draws before replacing or freeing rotated-label
+  bitmaps. The full Xft orientation matrix is being rerun; no completion claim.
+
+TabStack gallery selection feedback (development)
+
+- Subscribe to tabSelectedCallback and display the selected tab caption.
+- Exercise real public TabStack selection in gallery integration, checking
+  the selected page, callback count and visible feedback text. Both builds pass.
+
+TabBox partial repaint correction (development; Xft orientation gate open)
+
+- Repaint complete intersected tabs and restore the fill GC damage clip after
+  each label, preventing partial exposes from erasing inactive tab outlines.
+- Add native pixel comparisons between partial damage and full redraws across
+  four palettes, three scales, four tab sides and three tab styles.
+- All 288 cases pass with core fonts. Xft orientation testing exposes a
+  separate depth-1 rotated-label BadMatch; full Xft acceptance remains open.
+
+Modern tab padding defaults (development)
+
+- Give TabStack and standalone TabBox modern comfortable/compact tab padding
+  through the shared appearance resource ownership and DPI transaction path.
+- Restore classic defaults when leaving modern profiles and preserve explicit
+  application margins, including equal-valued setters.
+
+Notebook gallery interaction feedback (development)
+
+- Connect the Notebook example to its public pageChangedCallback so selecting
+  a flap or page number reports the current page beneath the example.
+- Exercise a real page change in gallery integration and verify both the
+  callback count and the visible feedback text.
+
+Rounded-renderer regression guard (development)
+
+- Update the ToggleSwitch source guard to require the shared pixel-qualified
+  rounded renderer instead of the superseded private XFillArc implementation.
+- Refresh the arc call-site audit to reflect completed ring/spinner conversion.
+
+Notebook gallery natural sizing and fractional-scale qualification (development)
+
+- Remove fixed Notebook dimensions and custom page-label padding from the
+  gallery. Use concise page content and toolkit defaults so the tabs and page
+  scroller remain visible in the 1.5x example pane.
+- Expand native flap/connection checks to 1x/1.5x/2x, zero and nonzero frames,
+  widget/gadget tabs, all placements and orientations, and repeated page/focus
+  changes after a theme transaction. All 384 configurations pass in both builds.
+
+SpinBox constrained-height arrow spacing (development)
+
+- Use the allocated height, not width, when reducing vertical arrow spacing.
+  A wide but short SpinBox could previously put its lower arrow hundreds of
+  pixels outside the control. Width changes now leave vertical positions
+  unchanged when the height is fixed.
+- Add native constrained-height checks across classic, high-contrast, both
+  modern profiles, three scales, beginning/end layouts, RTL and four heights.
+
+Modern composite editor frames and SpinBox preferred geometry (development)
+
+- Give modern SpinBox and drop-down ComboBox editors a shared outer frame
+  instead of nested default borders. Keep the plain ComboBox's separate editor
+  border and retain explicit child styling through appearance transactions.
+- Use a continuous white field surface for light-theme composite controls;
+  dark controls retain their dark surface. Preserve classic restoration.
+- Always compute SpinBox preferred dimensions, including when both requested
+  dimensions are nonzero. This fixes missing frames and stale layout inputs.
+  Saturate preferred dimensions and preserve nonzero caller allocations.
+  Modern frames enclose the full allocation, eliminating unframed field-colored
+  strips when a parent grants more than the preferred size.
+- Let gallery SpinBox examples use natural dimensions. Add regression coverage
+  for startup/live profiles, scaled borders, explicit/equal-valued child
+  overrides, fixed allocations, classic restoration and actual frame pixels.
+
+Modern OptionMenu disclosure (development)
+
+- Replace the default raised rectangular OptionMenu marker with the shared
+  downward chevron in modern light/dark profiles, including pressed and
+  insensitive colors. Retain text-driven geometry, RTL placement, explicit
+  cascade pixmaps and classic/high-contrast rendering.
+- Native coverage checks actual gadget pixels, the downward glyph topology,
+  bounds and custom pixmap preservation at 1x/1.5x/2x in both directions and
+  enabled/disabled/armed states. All 60 cases pass in both font configurations;
+  verified Periodic captures show the affordance and unchanged classic pixels.
+
+Scale drag painting and ScrollBar interaction cleanup (development)
+
+- Preserve pointer-derived slider geometry during motion; calculate geometry
+  from the committed value on expose instead. Erase the previous face before
+  painting the new track so dragging cannot erase the thumb or cut rail gaps.
+- End pointer ownership, keyboard grabs and repeat timers when a control is
+  disabled, made read-only, cancelled or destroyed. Do not rearm a timer after
+  a callback ends the interaction or destroys the widget; ignore late releases.
+- Keep Scale's explicit slider extent when computing travel, aligning its
+  endpoint ticks at larger display scales. Viewport scrollbars retain their
+  minimum thumb length.
+- Add native checks for immediate and timer callback teardown, real server
+  keyboard-grab release, cancellation, ticks and paint during both drag
+  directions; see docs/modern-visual-overhaul.md.
+
+Scale interaction, live DPI and ScrollBar callback ownership (development)
+
+- Track automatic Scale width/height independently and negotiate geometry on
+  live DPI changes even with an explicit font. Preserve explicit dimensions,
+  including equal-valued setters, and relayout children in fixed allocations.
+- Fill the modern Scale thumb while dragging; repaint on press, release and
+  cancellation, retaining the primitive focus border.
+- Remove ScrollBar's invalid manual callback snapshot. Callback resources are
+  Xt-compiled lists, not plain XtCallbackRec arrays; copying them corrupts
+  closures with multiple callbacks. Delegate dispatch and mutation lifetime to
+  XtCallCallbackList, fixing actual gallery release with accessibility enabled.
+- Extend native checks for callback observers/mutation, focus, pressed expose,
+  explicit-font live DPI, fixed sizes and tiny allocations. Real light/dark
+  gallery press/release captures deliver both accessibility and app callbacks.
+
+Modern Scale track and point thumb (development)
+
+- Render Scale's ScrollBar child as a thin value track with a round outlined
+  thumb. Preserve its full drag target and value engine; fill from the minimum
+  endpoint in each processing direction and repaint the complete track on move.
+- Use DPI-aware natural Scale dimensions and remove the default modern outer
+  frame and etched thumb marker. Preserve explicit dimensions, borders and
+  markers; thermometer mode retains its endpoint marker and renderer.
+- Track sliderMark through appearance transactions so startup/live conversion
+  and restoration preserve application choices. Use the transaction's target
+  profile when computing natural geometry.
+- Both Xft/SVG and core-font/non-SVG builds pass the native Scale matrix,
+  scrollbar interaction and composite-font regressions, and appearance parity,
+  density and role suites. Inspect verified gallery and Periodic windows.
+
+Modern embedded SpinBox and ComboBox arrows (development)
+
+- Share the modern chevron renderer with embedded spin and drop-down arrows.
+  Repaint the whole hit region for pressed/disabled transitions, use a bounded
+  glyph with adaptive padding in half-height steppers, and preserve classic
+  drawing and existing hit-test/interaction contracts.
+- Cover actual spin-box regions in all five layouts and both orientations,
+  drop-down list/editable types, RTL placement, sensitivity, pressed repaint,
+  pointer activation and per-arrow sensitivity in the native regression.
+- Both configurations pass 816 composite region/state cases and all 96
+  standalone arrow regressions. Fresh verified gallery and Periodic windows
+  show the updated arrows; classic Periodic pixels match the prior capture.
+
+ProgressRing and Spinner typography and natural sizing (development)
+
+- Add owned XmNfontList/XmNrenderTable aliases with transactional replacement.
+  Follow inherited modern typography and live DPI changes while preserving
+  explicit font and dimension choices.
+- Compute natural geometry from indicator and text metrics; size percentage
+  rings to contain their text and negotiate live size changes with the parent.
+- Remove fixed gallery dimensions for these controls so examples use defaults.
+- Both Xft/SVG and core-font/non-SVG builds pass 88 font/geometry cases each,
+  including injected font-copy failure, plus the existing behavior fixtures
+  and all 1,945 ring raster cases. Verified gallery captures show scaled text.
+
+Pixel-center progress ring and spinner strokes (development)
+
+- Replace thick X arc strokes with a shared annulus/sector renderer whose full
+  circles are reflection-symmetric for odd and even pixel diameters. Partial
+  progress and spinner phases are clipped within the same exact painted ring.
+- Draw stroke thickness inward, fit complete rings inside small allocations,
+  center unlabelled indicators and preserve primitive focus rendering.
+- Suppress percentage text when it cannot fit the inner ring. Scale spinner
+  stroke thickness, maximum diameter and label separation with display DPI.
+- Use bounded row spans and half-plane clipping instead of allocating an image
+  or evaluating trigonometry for each pixel. Configure locates the C math library.
+- Both Xft/SVG and core-font/non-SVG builds pass 1,945 native raster/widget
+  cases each and the existing ProgressRing/Spinner behavior fixtures. Inspect
+  six verified gallery windows in light, dark and 1.5x scale.
+- Screenshot review still finds a fixed-font percentage mismatch. Font
+  inheritance and the full visual overhaul remain unfinished.
+
+Tree connector attachment and repaint ownership (development)
+
+- Anchor connections to actual node geometry and visible primitive faces,
+  including odd sizes and explicit X window borders.
+- Draw the endpoint through the node focus gutter with a separately clipped
+  GC. Keep the parent GC clipped by children so lines cannot cross unrelated
+  child faces; preserve active keyboard focus indicators.
+- Coalesce child expose/focus events into a tree-owned repaint operation and
+  cancel it on destruction. Cover direct/ladder connections, both orientations,
+  classic/light/dark, scaling, child repaints, resize and focus unhighlight.
+- Both Xft/SVG and core-font/non-SVG builds pass 288 native lifecycle cases
+  each, including open/close controls and collapse/reopen. Fresh verified
+  Periodic windows show connected borders in light, dark, scaled and classic
+  modes. The full visual overhaul remains unfinished.
+
+Symmetric rounded control surfaces (development)
+
+- Replace assembled filled arcs with one pixel-center rounded-rectangle
+  renderer whose spans are mirrored across both axes. Preserve painted bounds
+  for tiny shapes and odd/even dimensions, including scaled corners.
+- Share it across modern buttons, arrows, toggles, segmented controls,
+  scrollbar capsules and ToggleSwitch tracks/knobs.
+- Native X arc experiments reproduced asymmetry in 144/144 existing rectangle
+  cases; reducing arc diameters restored symmetry but shrank painted bounds
+  and erased the smallest circles. Add native symmetry and bounds coverage.
+- Native qualification passes in Xft/SVG and core-font/non-SVG builds: 504
+  symmetry/bounds cases per build, plus existing border, button, toggle,
+  arrow, scrollbar and segmented-geometry regressions. Inspect fresh Periodic
+  windows in light, dark, scaled and classic modes against recorded binary
+  and library hashes.
+- Audit remaining arc sites separately: Avatar/Chip thin outlines pass native
+  symmetry probes; thick ProgressRing strokes need further work. The XmTree
+  connector gap remains under investigation. The full overhaul is unfinished.
+
+Complete Periodic dialog vector artwork (development)
+
+- Add matching template, file, selection and prompt SVG artwork to the five
+  embedded message symbols. Periodic modern modes request all nine through
+  the scale-aware toolkit cache and release their references on destruction.
+- Retain UIL bitmaps in classic/historical modes and when SVG is unavailable.
+- Resolve automatic screen pixmap scaling before cache lookup so live DPI
+  changes obtain a correctly sized cache entry; preserve print-resolution
+  scaling and explicit positive ratios.
+- Declare the existing XmGetScaledPixmap entry point in public Xm.h, avoiding
+  private-header dependencies in applications. Extend native icon coverage.
+- Modern IconGadget defaults omit the stepped decorative frame around icon
+  and label; explicit application frames remain authoritative.
+- Native qualification of this artwork checkpoint is pending.
+
+Flat modern shared borders and gadget color queries (development)
+
+- Use matching top/bottom colors and one logical pixel for shared modern
+  frames. Preserve classic/high-contrast shading and explicit application
+  resource ownership.
+- Do not assign profile shadow widths to RowColumn variants that own their
+  geometry internally; popup/pulldown panes and menu bars accept those changes.
+- Stop composite selectors from forwarding parent profile values during toolkit
+  commits. Each descendant receives its own plan, preserving explicit child
+  styling and avoiding illegal resource assignments in nested RowColumns.
+- Give dark ToggleButtonGadget the same indicator border as ToggleButton.
+- Correct LabelGadget and derived gadgets' synthetic shadow/highlight color
+  exports to return their own cached colors instead of their parent's colors.
+  Theme snapshots and public queries now describe the colors actually painted.
+- Add native frame-pixel, title, scale, live-profile, explicit-color and
+  widget/gadget parity coverage. The broader ABI 9 overhaul remains unfinished.
+
+Natural Periodic overview controls (development)
+
+- Remove the cell-stretching constraints from the PushButton and ToggleButton
+  examples. Both now display their toolkit-preferred size while the periodic
+  table cells retain the measured grid layout.
+- Extend the real Periodic startup/UIL regression to check both allocations
+  against preferred dimensions after repeated window resizes.
+- Correct repeated-profile renderer fixtures to use the live Apply APIs.
+  The Periodic startup/resize matrix passes in both recovered font builds,
+  with actual light/dark windows inspected. The complete modern overhaul
+  remains unfinished.
+
+Stable modern default-button geometry (development)
+
+- Separate public default-action resources from the classic outer-frame space
+  in PushButton and PushButtonGadget. Modern default emphasis stays inside the
+  existing frame without changing size, focus width or label position.
+- Track the effective default-frame reservation, remove or restore it during
+  live profile changes, and resolve geometry against the transaction's target
+  profile. Keep fixed allocations and reposition labels when framing changes.
+- Correct the gadget default-off direct repaint path, which previously relied
+  on a geometry change to repaint the accent frame.
+- Add a naturally sized default-action variant to gallery button examples.
+- The 28-case native geometry regression and 72-case button rendering matrix
+  pass in Xft/SVG and core-font configurations. Geometry includes constructor
+  defaults, dialog preparation, fixed/natural allocations, three scales and
+  repeated profile transitions, including a classic-first constructor.
+  The broader ABI 9 visual overhaul remains in development.
+
+Readable disabled label text (development)
+
+- Give Label/LabelGadget and their subclasses a dedicated
+  XmNinsensitiveForeground pixel resource, with readable modern light/dark
+  defaults and explicit application ownership through live profile changes.
+- Remove the offset embossed text shadow in modern themes, including mnemonic
+  underlines and menu accelerators; retain the classic rendering path.
+- Refresh label text GCs when fallback shadow colors change and balance gadget
+  shadow-GC releases during SetValues and inherited parent-color updates.
+- Extend the epoch 9 Label and LabelGadget private records; rebuild subclasses
+  and resource-compiler consumers with the same cohort.
+- The native regression reproduces the prior modern embossing defect and
+  covers 76 widget/gadget cases across both modern profiles and 1x/1.5x/2x,
+  explicit colors, fallback changes, menus and classic transitions. The wider
+  visual overhaul remains under qualification.
+
+Modern button frames and label geometry (development)
+
+- Share flat rounded PushButton/PushButtonGadget frames, pressed fills and
+  default-action emphasis; give DrawnButton the same frame while preserving
+  application-painted content. Keep notebook-tab and menu painting separate.
+- Preserve pointer-inside state for armed drag feedback through expose in
+  PushButton, PushButtonGadget and DrawnButton. Their private epoch 9 records
+  require rebuilt private-record consumers.
+- Honor equal-valued explicit width/height arguments in Label/LabelGadget
+  SetValues. Appearance font/margin changes no longer shrink constrained
+  controls; zero still restores natural geometry.
+- Remove gallery fixed button/label dimensions and fixed disabled/selected
+  sample sizes; arrange variants using measured heights and toolkit spacing.
+- Add native interaction/pixel/custom-content coverage and extend dimension
+  ownership tests to label and button classes. Full visual qualification remains
+  open; see docs/appearance-profiles.md.
+
+Modern scrollbar presentation (development)
+
+- Use a narrow rounded rail/thumb inside the full drag target, a bounded
+  24-logical-pixel minimum thumb, arrowless modern defaults and flat frames.
+  Explicit arrows use chevrons while retaining their actions.
+- Track showArrows, sliderVisual and troughColor ownership across live profile
+  changes. Preserve application settings and classic/high-contrast defaults.
+- Repaint from the committed profile and use consistent disabled painting for
+  both value updates and expose. Keep Scale's embedded thumb visible.
+- Add native rendering/input/resource-restoration coverage at three scales.
+  Overall visual qualification and publication remain open.
+  See docs/appearance-profiles.md.
+
+Modern ArrowButton and ArrowButtonGadget renderer (development)
+
+- Provide shared preferred target geometry: 36 logical pixels in comfortable
+  modern density and 28 in compact density, with room for explicit frame and
+  focus widths. Automatic axes follow profile/density/scale changes; explicit
+  axes preserve parent allocations, and zero restores natural sizing.
+- Pass 48 native sizing cases in both font configurations, including resource
+  dimensions and equal-valued setters. Remove the gallery's fixed arrow sizes
+  and regenerate its documentation source excerpts.
+- Replace the modern bevel/triangle with a shared flat rounded frame and
+  padded chevron. Preserve classic/high-contrast rendering and explicit frame
+  resources; provide light/dark border defaults and pressed/disabled states.
+- Pass 96 native rendering/interaction cases in each Xft/SVG and core-font
+  configuration, plus the glyph-bounds matrix through 3x and existing drawing
+  safety guards. The older bounds matrix now uses the explicit Apply API when
+  switching profiles on the same display, as required by the current contract.
+- See docs/arrow-button-redisplay-guards.md. Broader composite integration and
+  final publication qualification remain open.
+- Preserve pointer-inside state across expose while an arrow remains armed.
+  The regression reproduces the incorrect pressed repaint before the fix and
+  now passes for widgets/gadgets in modern, classic and high-contrast profiles
+  in both font configurations. Private arrow records are part of ABI epoch 9.
+
+Sidebar header and gallery space redistribution (development)
+
+- Add a measured title and directional toggle to Sidebar, with RTL layout,
+  accessible expand/collapse names, bounded tiny allocations and safe saved
+  focus ownership. Header tests pass 48 cases in each font configuration.
+- Use Form attachments for the gallery sidebar and workspace. Collapse now
+  releases its width to the workspace; reopening restores width and focus.
+  The gallery integration test checks exact space redistribution, and a real
+  pointer capture verifies the rebuilt scaled gallery's collapsed layout.
+- Route Ctrl+M through descendants, including children added after realization,
+  without toggling ancestor sidebars. Preserve the allocated height during
+  collapse/reopen. Both defects have native regressions in the header matrix;
+  the shortcut is also verified with real key input in the scaled gallery.
+- Focus the collapse toggle after geometry negotiation, preventing a temporary
+  out-of-bounds position from transferring focus into the workspace. The
+  gallery integration explicitly checks focus on the collapsed toggle.
+- Overall visual qualification remains open, including the shared arrow
+  renderer. See docs/sidebar.md.
+
+Modern TreeView disclosure controls (development)
+
+- Replace fixed tiny plus/minus boxes with centered, scale-aware chevrons in
+  modern light/dark profiles. Mirror closed chevrons for RTL, and share icon
+  geometry across natural measurement, painting and pointer hit testing.
+- Expand/collapse on the first disclosure click without changing selection;
+  label clicks select. Preserve classic/high-contrast disclosure presentation.
+- Bound glyphs to the row and signed X11 coordinates, suppressing glyphs when
+  explicit rows cannot contain them. Native light/dark, RTL/LTR and 1x through
+  3x cases pass in both font configurations; hierarchy/metrics regressions pass.
+  See docs/tree-view.md. Overall visual qualification remains in progress.
+
+Keep TreeView descendants adjacent to their parent (development)
+
+- Normalize accepted flat node models to depth-first display order, preserving
+  root and sibling input order. Children may precede parents in the input.
+  Use an iterative traversal so model depth does not consume the C call stack.
+- Hit testing, keyboard traversal and selection scrolling now agree with the
+  displayed hierarchy; collapsing a branch leaves unrelated roots in place.
+- Native regression reproduces the old pointer-selection ordering failure.
+  The corrected model passes 16 cases in each Xft/SVG and core-font/non-SVG
+  configuration, including mouse/keyboard selection, collapse/reopen, both
+  text directions and all profiles. Verified the actual scaled gallery.
+  See docs/tree-view.md. Standalone publication qualification remains pending.
+
+Modern viewport defaults and measured gallery navigation (development)
+
+- Remove the default outer ScrolledWindow bevel in modern light/dark profiles.
+  Explicit application frames retain ownership across live profile changes;
+  classic and high-contrast framing remains available.
+- Measure TreeView preferred width from labels and indentation, and automatic
+  row height from the render table and shared padding. Explicit nonzero row
+  heights remain fixed; zero restores automatic measurement.
+- Keep selection visible when visible row counts change or the same item is
+  selected again, without repeating selection callbacks.
+- Size gallery navigation from measured labels and actual viewport geometry,
+  including an initial layout pass before configure events are available.
+- Validation: ScrolledWindow startup/live profile ownership cases pass at 1x/2x
+  in Xft/SVG and core-font/non-SVG builds; TreeView metrics and 16 model checks
+  pass in both configurations. Verified gallery windows at light/dark/classic
+  and modern 1.5x confirm the viewport and navigation changes. Full overhaul
+  qualification and publication remain pending.
+
+Refresh TreeView drawing colors after resource changes (2026-10-26)
+=========================================================
+- Update the private drawing context and repaint when foreground or background
+  changes. This fixes stale text/disclosure/selection colors after appearance
+  initialization and live theme changes, including black text on dark surfaces.
+- Native GC/pixel regression passes four initial profiles, live transitions and
+  explicit palettes with Xft/SVG and core-font/non-SVG development builds.
+  Verified the actual gallery's dark navigation. See docs/tree-view-colors.md.
+
+Modern segmented-control drawing and disabled selection (2026-10-26)
+================================================================
+
+- Supply connected modern segment surfaces, single dividers, rounded outer
+  corners and inset focus without changing ToggleButton input ownership.
+- Keep the selected surface visible when the control is disabled. Separate
+  focus painting from label drawing and let an already-painted label surface
+  retain its background under anti-aliased text.
+- Geometry/state regression passes 43 fixture cases in both font configurations,
+  including 1/1.5/2/3 scales, both densities and reading directions, live profile
+  changes, explicit selection colors and press/cancel/release actions, with
+  text-only and pixmap/text items. Pixmap redraws preserve the connected surface
+  and combined text/icon geometry after selecting their state pixmap.
+- Light/dark gallery windows verified the connected renderer and label surface.
+  Natural size follows item/label/font changes while preserving explicit width
+  and height independently; zero restores toolkit ownership. Gallery segment
+  examples no longer specify fixed dimensions. Complete visual acceptance
+  remains pending.
+
+Preserve SegmentedControl natural geometry (2026-10-26)
+================================================================
+
+- Measure preferred segment sizes from label geometry instead of previous
+  allocations. Use the same bounded allocation for resize and geometry queries;
+  query-only requests no longer mutate children.
+- Preserve explicit gaps when they fit, mirror allocations for RTL, and unmap
+  zero-share segments without issuing invalid zero-sized window requests.
+- Native geometry regression passes four profiles in both reading directions,
+  including label growth, spacing extremes, tiny widths and resize restoration,
+  with Xft/SVG and core-font/non-SVG development builds. A separate Xft failure
+  across repeated display close/reopen remains under investigation; the layout
+  suite uses one live display, matching a normal application session.
 Fix ToggleButtonGadget horizontal margin geometry (2026-10-30)
 ===============================================================
 

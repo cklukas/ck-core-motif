@@ -93,7 +93,7 @@ typedef struct _XmTabBoxPart {
 
     int		     _armed_tab;
     
-    int              _scroll_x;
+    long long        _scroll_x; /* logical major-axis pixel offset */
     XRectangle	     _scroll_rect;
 
     int              _corner_size;

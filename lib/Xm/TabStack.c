@@ -364,6 +364,11 @@ static XtResource resources[] =
   },
 
   {
+    XmNtabArrowPlacement, XmCTabArrowPlacement, XmRTabArrowPlacement,
+    sizeof(XmTabArrowPlacement), XtOffsetOf(XmTabStackRec, tab_stack.tab_arrow_placement),
+    XmRImmediate, (XtPointer) XmTAB_ARROWS_SPLIT
+  },
+  {
     XmNtabMode, XmCTabMode, XmRTabMode,
     sizeof(XmTabMode), XtOffsetOf(XmTabStackRec, tab_stack.tab_mode),
     XmRImmediate, (XtPointer) XmTABS_BASIC
@@ -887,6 +892,7 @@ Initialize(request, set, arg_list, arg_cnt)
     XtSetArg(args[n], XmNbackground, ts->core.background_pixel); ++n;
     XtSetArg(args[n], XmNshadowThickness, ts->manager.shadow_thickness); ++n;
     XtSetArg(args[n], XmNtabMode, XmTabStack_tab_mode(ts)); ++n;
+    XtSetArg(args[n], XmNtabArrowPlacement, XmTabStack_tab_arrow_placement(ts)); ++n;
     XtSetArg(args[n], XmNtabStyle, XmTabStack_tab_style(ts)); ++n;
     XtSetArg(args[n], XmNtabAutoSelect, XmTabStack_tab_auto_select(ts)); ++n;
     XtSetArg(args[n], XmNtabSelectColor, XmTabStack_select_color(ts)); ++n;
@@ -918,6 +924,7 @@ Initialize(request, set, arg_list, arg_cnt)
 	XmTabStack_tab_box(ts) =
 	    XtCreateManagedWidget("tabBox", xmTabBoxWidgetClass, set,
 				  merged_args, n + num_filtered_args);
+	_XmAppearanceInheritFont(XmTabStack_tab_box(ts), set);
     }
     else
     {
@@ -1503,6 +1510,8 @@ SetValues(current, request, set, arg_list, arg_cnt)
 				      args, n);
 	XtSetValues(XmTabStack_tab_box(s_tab), merged_args,
 		    n + num_filtered_args); n = 0;
+	if (cfield(font_list) != sfield(font_list))
+	    _XmAppearanceInheritFont(XmTabStack_tab_box(s_tab), set);
 	XtFree((XtPointer)filtered_args);
 	XtFree((XtPointer)merged_args);
     }
@@ -3024,8 +3033,8 @@ PickSizes(tab, tab_width, tab_height, box, kid)
 	 */
 	max = tab_height - 2 * BBPart(tab).margin_height -
 	    tab->manager.shadow_thickness;
-
-	if( (int)got.height > max ) got.height = max;
+	max = MAX(1, max);
+	got.height = MAX(1, MIN((int)got.height, max));
 
 	width = tab_width - 2 * ((int)BBPart(tab).margin_width+
 				 (int)tab->manager.shadow_thickness);
@@ -3052,8 +3061,8 @@ PickSizes(tab, tab_width, tab_height, box, kid)
 	 */
 	max = tab_width - 2 * BBPart(tab).margin_width -
 	    tab->manager.shadow_thickness;
-
-	if( (int)got.width > max ) got.height = max;
+	max = MAX(1, max);
+	got.width = MAX(1, MIN((int)got.width, max));
 
 	height = tab_height - 2 *
 	    ((int)BBPart(tab).margin_height +
@@ -3109,7 +3118,7 @@ PickSizes(tab, tab_width, tab_height, box, kid)
 	box->y = 0;
 	box->width = got.width;
 	box->height = tab_height;
-	kid->x = got.width + BBPart(tab).margin_height;
+	kid->x = got.width + BBPart(tab).margin_width;
 	kid->y =
 	    BBPart(tab).margin_height + tab->manager.shadow_thickness;
 	break;
@@ -3186,8 +3195,13 @@ PickSizes(tab, tab_width, tab_height, box, kid)
 	}
     }
 
-    kid->width = width;
-    kid->height = height;
+    /* Decorations and margins yield to a constrained allocation. Clamp in
+     * signed arithmetic before storing dimensions in XRectangle; otherwise
+     * a negative remaining size becomes a very large child window. */
+    kid->x = MAX(0, MIN((int)kid->x, tab_width - 1));
+    kid->y = MAX(0, MIN((int)kid->y, tab_height - 1));
+    kid->width = MAX(1, MIN(width, tab_width - kid->x));
+    kid->height = MAX(1, MIN(height, tab_height - kid->y));
 }
 
 static void
@@ -3271,7 +3285,7 @@ TabSelectedCallback(widget, client, cbdata)
     XmTabBoxCallbackStruct   *info;
     XmTabStackWidget         tab;
     XmTabStackCallbackStruct data;
-    WidgetList               kid = tab->composite.children;
+    WidgetList               kid;
     Widget                   old, active = NULL;
     Cardinal                 i, idx = 0;
     int                      neg_x, x, y, width, height;
@@ -3282,6 +3296,7 @@ TabSelectedCallback(widget, client, cbdata)
     if (tab == NULL || !XtIsSubclass((Widget) tab, xmTabStackWidgetClass))
 	return;
     info = (XmTabBoxCallbackStruct*) cbdata;
+    kid = tab->composite.children;
 
     /*
      * It seems that a tab has been selected so we need to swap our
@@ -4339,6 +4354,64 @@ XmTabStackGetSelectedTab(widget)
     return (XmTabStack__active_child(tab));
 }
 
+Widget
+#ifndef _NO_PROTO
+XmTabStackXYToWidget(Widget widget, int x, int y)
+#else
+XmTabStackXYToWidget(widget, x, y)
+    Widget widget;
+    int    x, y;
+#endif
+{
+    Widget tab_stack, tab_box;
+
+    if (widget == NULL)
+	return( NULL );
+
+    _XmWidgetToAppContext(widget);
+    _XmAppLock(app);
+
+    if( XmIsTabStack(widget) )
+    {
+	tab_stack = widget;
+	tab_box = XmTabStack_tab_box((XmTabStackWidget)widget);
+
+    }
+    else if( XmIsTabBox(widget) )
+    {
+	tab_stack = XtParent(widget);
+	tab_box = widget;
+    }
+    else if( XtParent(widget) != NULL && XmIsTabBox(XtParent(widget)) )
+    {
+
+	tab_box = XtParent(widget);
+	tab_stack = XtParent(tab_box);
+    }
+    else
+    {
+      _XmAppUnlock(app);
+      return( NULL );
+    }
+
+    if (!XmIsTabStack(tab_stack)) {
+        _XmAppUnlock(app);
+        return NULL;
+    }
+
+    Position source_x, source_y, box_x, box_y;
+    XtTranslateCoords(widget, 0, 0, &source_x, &source_y);
+    XtTranslateCoords(tab_box, 0, 0, &box_x, &box_y);
+    long long local_x = (long long)x + source_x - box_x;
+    long long local_y = (long long)y + source_y - box_y;
+    Widget result = NULL;
+    if (local_x >= 0 && local_y >= 0 && local_x < XtWidth(tab_box) && local_y < XtHeight(tab_box))
+        result = XmTabStackIndexToWidget(tab_stack, XmTabBoxXYToIndex(tab_box, (int)local_x, (int)local_y));
+    _XmAppUnlock(app);
+    return result;
+}
+
+
 #ifdef TEAR_OFF_TABS
 
 static void
@@ -4649,50 +4722,6 @@ TabAtom(widget)
     return( XmInternAtom(XtDisplay(widget), pid_buf, False) );
 }
 
-Widget
-#ifndef _NO_PROTO
-XmTabStackXYToWidget(Widget widget, int x, int y)
-#else
-XmTabStackXYToWidget(widget, x, y)
-    Widget widget;
-    int    x, y;
-#endif
-{
-    Widget tab_stack, tab_box;
-
-    if (widget == NULL)
-	return( NULL );
-
-    _XmWidgetToAppContext(widget);
-    _XmAppLock(app);
-
-    if( XmIsTabStack(widget) )
-    {
-	tab_stack = widget;
-	tab_box = XmTabStack_tab_box((XmTabStackWidget)widget);
-
-    }
-    else if( XmIsTabBox(widget) )
-    {
-	tab_stack = XtParent(widget);
-	tab_box = widget;
-    }
-    else if( XtParent(widget) != NULL && XmIsTabBox(XtParent(widget)) )
-    {
-	
-	tab_box = XtParent(widget);
-	tab_stack = XtParent(tab_box);
-    }
-    else
-    {
-      _XmAppUnlock(app); 
-      return( NULL );
-    }
-
-    _XmAppUnlock(app); 
-    return( XmTabStackIndexToWidget(tab_stack,
-				    XmTabBoxXYToIndex(tab_box, x, y)) );
-}
 
 #define XiDeleteChild(c) \
 { \

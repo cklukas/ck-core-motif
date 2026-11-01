@@ -80,7 +80,7 @@ try:
     run("compile", [args.cc, *flags, source, "-Wl,--no-as-needed", "-lXm",
                      "-Wl,--as-needed", "-lXt", "-lX11", "-o", binary])
     linked = run("link", ["ldd", binary])
-    if str(prefix / "lib/libXm.so.8") not in linked:
+    if str(prefix / "lib/libXm.so.9") not in linked:
         raise RuntimeError("prototype did not resolve libXm from selected prefix")
     if "libXt.so.6" not in linked:
         raise RuntimeError("prototype did not resolve the Xt dependency")

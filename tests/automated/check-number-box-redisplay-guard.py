@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
-"""Check XmNumberBox Redisplay handles X11 resource failures safely."""
+"""NumberBox relies on native text/arrow drawing, without duplicate GC state."""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "NumberBox.c").read_text()
-start = source.index("static void Redisplay(")
-end = source.index("static void commit_text(", start)
-function = source[start:end]
-
-assert "!number->number_box.text_gc" in function
-assert "!number->number_box.arrow_gc" in function
-assert "XGetGCValues" not in function
-assert "XGContextFromGC(" not in function
-assert "number->core.height / 2" in function
-print("PASS NumberBox redisplay has a bounded text baseline")
+source=(Path(__file__).parents[2]/"lib/Xm/NumberBox.c").read_text()
+assert "xmTextFieldWidgetClass" in source and "xmArrowButtonWidgetClass" in source
+assert "XCreateGC" not in source and "XFillPolygon" not in source
+assert "XtRemoveWorkProc" in source
+print("PASS NumberBox delegates drawing and cancels deferred layout")

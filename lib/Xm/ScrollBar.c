@@ -43,6 +43,7 @@ static char rcsid[] = "$TOG: ScrollBar.c /main/20 1997/03/10 14:52:28 dbl $"
 #include <Xm/ManagerP.h>
 #include <Xm/NavigatorT.h>
 #include <Xm/ScrollBarP.h>
+#include <Xm/Scale.h>
 #include <Xm/TraitP.h>
 #include <Xm/TransltnsP.h>
 #include <Xm/VaSimpleP.h>
@@ -51,6 +52,7 @@ static char rcsid[] = "$TOG: ScrollBar.c /main/20 1997/03/10 14:52:28 dbl $"
 #include "RepTypeI.h"
 #include "ScreenI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 
 /* see comments in ScrollBarP.h */
 #define slider_visual	etched_slider
@@ -68,9 +70,17 @@ static char rcsid[] = "$TOG: ScrollBar.c /main/20 1997/03/10 14:52:28 dbl $"
 #define MESSAGE13	_XmMMsgScrollBar_0008
 #define MESSAGE14	_XmMMsgMotif_0001
 
+#include <Xm/Appearance.h>
+
+static void BeginInteraction(XmScrollBarWidget);
+static void FinishInteraction(XmScrollBarWidget);
+static Boolean ModernScrollBar(XmScrollBarWidget);
+static Boolean DrawModernScrollArrow(XmScrollBarWidget, int, int, unsigned char);
+
 #define MAXDIMENSION	65535
 
-#define DRAWARROW(sbw, t_gc, b_gc, x, y, dir)\
+#define DRAWARROW(sbw, t_gc, b_gc, x, y, dir) do {\
+    if (!DrawModernScrollArrow(sbw, x, y, dir)) \
     XmeDrawArrow(XtDisplay ((Widget) sbw),\
 		XtWindow ((Widget) sbw),\
 		t_gc, b_gc,\
@@ -79,7 +89,8 @@ static char rcsid[] = "$TOG: ScrollBar.c /main/20 1997/03/10 14:52:28 dbl $"
 		sbw->scrollBar.arrow_width+2,\
 		sbw->scrollBar.arrow_height+2,\
 		sbw->primitive.shadow_thickness,\
-		dir);
+		dir); \
+    } while (0)
 
 #define PROCESS_DIR_INVERSED(sbw) \
     ((sbw->scrollBar.processing_direction == XmMAX_ON_LEFT) || \
@@ -231,10 +242,6 @@ static void ScrollCallback(
                         int xpixel,
                         int ypixel,
                         XEvent *event) ;
-static void CallScrollCallbackList(
-                        Widget widget,
-                        XtCallbackList callbacks,
-                        XtPointer call_data);
 static void ExportScrollBarValue( 
                         Widget wid,
                         int offset,
@@ -1188,6 +1195,207 @@ GetSliderPixmap(
  *     the middle or the side.
  *
  ************************************************************************/
+static Boolean
+ModernScrollBar(XmScrollBarWidget sbw)
+{
+    XmAppearanceProfile profile;
+    return XmGetAppearanceProfile(XtDisplay(sbw), &profile) &&
+        (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK);
+}
+
+/* End arrows retain their hit regions and repeat actions. Paint a bounded
+ * chevron instead of the legacy triangle extending beyond those regions. */
+static Boolean
+DrawModernScrollArrow(XmScrollBarWidget sbw, int x, int y, unsigned char direction)
+{
+    Display *display = XtDisplay(sbw);
+    int width = sbw->scrollBar.arrow_width, height = sbw->scrollBar.arrow_height;
+    int side, line, half, depth, cx, cy, sign;
+    Boolean pressed = (x == sbw->scrollBar.arrow1_x && y == sbw->scrollBar.arrow1_y) ?
+        sbw->scrollBar.arrow1_selected : sbw->scrollBar.arrow2_selected;
+    XGCValues values;
+    XPoint points[3];
+    XRectangle clip;
+    GC gc;
+    if (!ModernScrollBar(sbw)) return False;
+    if (!XtIsRealized((Widget)sbw) || width <= 0 || height <= 0) return True;
+    values.foreground = sbw->core.background_pixel;
+    gc = XCreateGC(display, XtWindow(sbw), GCForeground, &values);
+    clip = (XRectangle){x,y,width,height};
+    XSetClipRectangles(display,gc,0,0,&clip,1,Unsorted);
+    XFillRectangle(display,XtWindow(sbw),gc,x,y,width,height);
+    side = MIN(MIN(width,height)-4,(int)_XmDpiDefaultDimension((Widget)sbw,12));
+    if (side >= 5) {
+        line = MIN(MAX(1,(int)_XmDpiDefaultDimension((Widget)sbw,2)),side/4);
+        half = (side-line)/2; depth = MAX(1,half/2);
+        cx = x+(width-1)/2; cy = y+(height-1)/2;
+        if (direction == XmARROW_UP || direction == XmARROW_DOWN) {
+            sign = direction == XmARROW_UP ? -1 : 1;
+            points[0]=(XPoint){cx-half,cy-sign*depth};
+            points[1]=(XPoint){cx,cy+sign*depth};
+            points[2]=(XPoint){cx+half,cy-sign*depth};
+        } else {
+            sign = direction == XmARROW_LEFT ? -1 : 1;
+            points[0]=(XPoint){cx-sign*depth,cy-half};
+            points[1]=(XPoint){cx+sign*depth,cy};
+            points[2]=(XPoint){cx-sign*depth,cy+half};
+        }
+        XSetForeground(display,gc,!XtIsSensitive((Widget)sbw) ?
+            sbw->primitive.top_shadow_color : pressed ?
+            sbw->primitive.highlight_color : sbw->primitive.foreground);
+        XSetLineAttributes(display,gc,line,LineSolid,CapRound,JoinRound);
+        XDrawLines(display,XtWindow(sbw),gc,points,3,CoordModeOrigin);
+    }
+    XFreeGC(display,gc);
+    return True;
+}
+
+/* The visual rail is narrow even when a layout grants a generous hit area. */
+static void
+ModernRail(XmScrollBarWidget sbw, int *x, int *y, int *width, int *height)
+{
+    int extent = _XmDpiDefaultDimension((Widget)sbw,8);
+    if (sbw->scrollBar.orientation == XmHORIZONTAL) {
+        extent = MIN(extent,MAX(1,*height-4));
+        *y += (*height-extent)/2; *height = extent;
+    } else {
+        extent = MIN(extent,MAX(1,*width-4));
+        *x += (*width-extent)/2; *width = extent;
+    }
+}
+
+static void
+FillScrollCapsule(Display *d, Drawable target, GC gc, int x, int y, int width, int height)
+{
+    _XmAppearanceFillRoundedRectangle(d, target, gc, x, y, width, height,
+                                      MIN(width, height) / 2);
+}
+
+static void
+DrawModernRail(XmScrollBarWidget sbw)
+{
+    int x=sbw->scrollBar.slider_area_x,y=sbw->scrollBar.slider_area_y;
+    int width=sbw->scrollBar.slider_area_width,height=sbw->scrollBar.slider_area_height;
+    XGCValues values;
+    GC gc;
+    if (!ModernScrollBar(sbw) || sbw->scrollBar.sliding_mode == XmTHERMOMETER ||
+        !XtIsRealized((Widget)sbw)) return;
+    values.foreground=sbw->primitive.top_shadow_color;
+    gc=XCreateGC(XtDisplay(sbw),XtWindow(sbw),GCForeground,&values);
+    ModernRail(sbw,&x,&y,&width,&height);
+    FillScrollCapsule(XtDisplay(sbw),XtWindow(sbw),gc,x,y,width,height);
+    XFreeGC(XtDisplay(sbw),gc);
+}
+
+/* Scale values need a point thumb, not the viewport-size capsule used by
+ * scrolling. Keep the existing slider rectangle as the complete drag target. */
+static Boolean
+DrawModernScale(XmScrollBarWidget sbw)
+{
+    Display *d = XtDisplay(sbw);
+    int x = sbw->scrollBar.slider_area_x, y = sbw->scrollBar.slider_area_y;
+    int width = sbw->scrollBar.slider_area_width;
+    int height = sbw->scrollBar.slider_area_height;
+    int sx = sbw->scrollBar.slider_x, sy = sbw->scrollBar.slider_y;
+    int sw = sbw->scrollBar.slider_width, sh = sbw->scrollBar.slider_height;
+    Boolean horizontal = sbw->scrollBar.orientation == XmHORIZONTAL;
+    int diameter, stroke, rail, tx, ty, first, last, center;
+    Pixel background, accent, fill;
+    XGCValues values;
+    XRectangle clip;
+    GC gc;
+    if (!ModernScrollBar(sbw) || !XmIsScale(XtParent(sbw)) ||
+        sbw->scrollBar.sliding_mode == XmTHERMOMETER) return False;
+    if (!XtIsRealized((Widget)sbw) || width <= 0 || height <= 0) return True;
+    diameter = MIN((int)_XmDpiDefaultDimension((Widget)sbw,16),MIN(sw,sh));
+    if (diameter <= 0) return True;
+    stroke = MIN(MAX(1,(int)_XmDpiDefaultDimension((Widget)sbw,2)),(diameter+1)/2);
+    rail = MIN(MAX(1,(int)_XmDpiDefaultDimension((Widget)sbw,4)),diameter);
+    background = sbw->scrollBar.slider_visual == XmTROUGH_COLOR ?
+                 sbw->core.background_pixel : sbw->scrollBar.trough_color;
+    accent = XtIsSensitive((Widget)sbw) ? sbw->primitive.highlight_color :
+                                       sbw->primitive.top_shadow_color;
+    fill = sbw->scrollBar.slider_visual == XmTROUGH_COLOR ? sbw->scrollBar.trough_color :
+           sbw->scrollBar.slider_visual == XmFOREGROUND_COLOR ? sbw->primitive.foreground :
+           sbw->core.background_pixel;
+    if (sbw->scrollBar.sliding_on && XtIsSensitive((Widget)sbw)) fill = accent;
+    tx = sx+(sw-diameter)/2; ty = sy+(sh-diameter)/2;
+    values.foreground = background;values.graphics_exposures = False;
+    gc = XCreateGC(d,XtWindow(sbw),GCForeground|GCGraphicsExposures,&values);
+    if (!gc) return True;
+    clip = (XRectangle){x,y,width,height};
+    XSetClipRectangles(d,gc,0,0,&clip,1,Unsorted);
+    XFillRectangle(d,XtWindow(sbw),gc,x,y,width,height);
+    /* Endpoints are the thumb centers at minimum and maximum. */
+    first = horizontal ? x+sw/2 : y+sh/2;
+    last = horizontal ? x+width-sw+sw/2 : y+height-sh+sh/2;
+    center = horizontal ? sx+sw/2 : sy+sh/2;
+    XSetForeground(d,gc,sbw->primitive.top_shadow_color);
+    if (horizontal) FillScrollCapsule(d,XtWindow(sbw),gc,first,y+(height-rail)/2,MAX(1,last-first+1),rail);
+    else FillScrollCapsule(d,XtWindow(sbw),gc,x+(width-rail)/2,first,rail,MAX(1,last-first+1));
+    XSetForeground(d,gc,accent);
+    if (PROCESS_DIR_INVERSED(sbw)) first=center; else last=center;
+    if (horizontal) FillScrollCapsule(d,XtWindow(sbw),gc,first,y+(height-rail)/2,MAX(1,last-first+1),rail);
+    else FillScrollCapsule(d,XtWindow(sbw),gc,x+(width-rail)/2,first,rail,MAX(1,last-first+1));
+    _XmAppearanceDrawRing(d,XtWindow(sbw),gc,tx,ty,diameter,(diameter+1)/2,0,360*64);
+    XSetForeground(d,gc,fill);
+    _XmAppearanceDrawRing(d,XtWindow(sbw),gc,tx+stroke,ty+stroke,
+        diameter-2*stroke,(diameter-2*stroke+1)/2,0,360*64);
+    /* Explicit marker resources remain visible, using flat modern ink. */
+    XSetForeground(d,gc,accent);
+    if (diameter > 4*stroke && sbw->scrollBar.slider_mark != XmNONE) {
+        int cx=tx+diameter/2,cy=ty+diameter/2,r=(diameter-4*stroke)/2;
+        if (sbw->scrollBar.slider_mark == XmROUND_MARK)
+            _XmAppearanceDrawRing(d,XtWindow(sbw),gc,cx-r,cy-r,2*r,1,0,360*64);
+        else {
+            if (horizontal) XDrawLine(d,XtWindow(sbw),gc,cx,cy-r,cx,cy+r);
+            else XDrawLine(d,XtWindow(sbw),gc,cx-r,cy,cx+r,cy);
+            if (sbw->scrollBar.slider_mark == XmTHUMB_MARK && r>=3) {
+                if (horizontal) {
+                    XDrawLine(d,XtWindow(sbw),gc,cx-2,cy-r,cx-2,cy+r);
+                    XDrawLine(d,XtWindow(sbw),gc,cx+2,cy-r,cx+2,cy+r);
+                } else {
+                    XDrawLine(d,XtWindow(sbw),gc,cx-r,cy-2,cx+r,cy-2);
+                    XDrawLine(d,XtWindow(sbw),gc,cx-r,cy+2,cx+r,cy+2);
+                }
+            }
+        }
+    }
+    XFreeGC(d,gc);
+    return True;
+}
+
+/* Keep the entire slider rectangle as the drag target; inset only its paint.
+ * Thermometer fills retain their endpoint semantics and explicit markers. */
+static Boolean
+DrawModernSlider(XmScrollBarWidget sbw)
+{
+    int width=sbw->scrollBar.slider_width,height=sbw->scrollBar.slider_height,x=0,y=0;
+    XGCValues values;
+    GC gc;
+    Pixel fill;
+    Display *display=XtDisplay(sbw);
+    Drawable drawable=sbw->scrollBar.pixmap;
+    if (!ModernScrollBar(sbw) || sbw->scrollBar.sliding_mode == XmTHERMOMETER)
+        return False;
+    if (width <= 0 || height <= 0) return True;
+    values.foreground=sbw->scrollBar.slider_visual == XmTROUGH_COLOR ?
+        sbw->core.background_pixel : sbw->scrollBar.trough_color;
+    gc=XCreateGC(display,drawable,GCForeground,&values);
+    XFillRectangle(display,drawable,gc,0,0,width,height);
+    fill=sbw->scrollBar.slider_visual == XmTROUGH_COLOR ? sbw->scrollBar.trough_color :
+        sbw->scrollBar.slider_visual == XmBACKGROUND_COLOR ? sbw->core.background_pixel :
+        sbw->primitive.foreground;
+    ModernRail(sbw,&x,&y,&width,&height);
+    XSetForeground(display,gc,sbw->primitive.top_shadow_color);
+    XFillRectangle(display,drawable,gc,x,y,width,height);
+    if (!XtIsSensitive((Widget)sbw)) fill=sbw->primitive.top_shadow_color;
+    XSetForeground(display,gc,fill);
+    FillScrollCapsule(display,drawable,gc,x,y,width,height);
+    XFreeGC(display,gc);
+    return True;
+}
+
 static void 
 DrawSliderPixmap(
         XmScrollBarWidget sbw )
@@ -1199,6 +1407,7 @@ DrawSliderPixmap(
    if (slider == None)
        return;
 
+   if (!DrawModernSlider(sbw)) {
    if ((sbw->scrollBar.slider_visual ==  XmFOREGROUND_COLOR) ||
        (sbw->scrollBar.slider_visual ==  XmTROUGH_COLOR)) {   
 	   /* we use the same GC, previously filled with either the 
@@ -1230,6 +1439,7 @@ DrawSliderPixmap(
 			   XmSHADOW_OUT);
    } 
 
+   }
 
    if (sbw->scrollBar.sliding_mode == XmTHERMOMETER) {
        /* in thermo mode, the mark must go on the side
@@ -1346,6 +1556,11 @@ static void
 CopySliderInWindow(
         XmScrollBarWidget sbw )
 {
+    /* Paint the supplied geometry. During dragging it is the pointer position;
+     * the value is committed by Moved only after this paint completes. */
+    if (DrawModernScale(sbw)) return;
+    DrawSliderPixmap(sbw);
+    DrawModernRail(sbw);
     /* use the pixmap that contains the slider graphics */
     if (XtIsRealized((Widget)sbw) && sbw->scrollBar.pixmap) {
 	XCopyArea (XtDisplay ((Widget) sbw),
@@ -1441,6 +1656,17 @@ CalcSliderRect(
 		if (sbw->scrollBar.sliding_mode == XmTHERMOMETER)
 		    minSliderHeight = 1;
 	}
+
+    /* Scale computes tick locations and its value conversion from the declared
+     * slider size. A viewport-scrollbar minimum must not change that travel. */
+    if (ModernScrollBar(sbw) && !XmIsScale(XtParent(sbw)) &&
+        sbw->scrollBar.sliding_mode != XmTHERMOMETER) {
+        int minimum = _XmDpiDefaultDimension((Widget)sbw,24);
+        if (sbw->scrollBar.orientation == XmHORIZONTAL)
+            minSliderWidth = MIN(minimum,MAX(1,sbw->scrollBar.slider_area_width));
+        else
+            minSliderHeight = MIN(minimum,MAX(1,sbw->scrollBar.slider_area_height));
+    }
 
 	/* Total number of user units displayed */
 	range = sbw->scrollBar.maximum - sbw->scrollBar.minimum;
@@ -1581,7 +1807,8 @@ Redisplay(
 		  sbw->core.height - 2 * sbw->primitive.highlight_thickness : 1;
 
 
-    if (sbw->primitive.shadow_thickness > 0)
+    if (sbw->primitive.shadow_thickness > 0 &&
+        !_XmAppearanceDrawFieldFrame(wid))
 	XmeDrawShadows (XtDisplay (sbw), XtWindow (sbw), 
 		      sbw->primitive.bottom_shadow_GC, 
 		      sbw->primitive.top_shadow_GC,
@@ -1592,7 +1819,10 @@ Redisplay(
 		      sbw->primitive.shadow_thickness,
 		      XmSHADOW_OUT);
 
-    /* dump the pixmap that contains the slider graphics */
+    /* Resolve committed profile geometry on expose. Pointer motion supplies
+     * its own position and must not be snapped back to the previous value. */
+    CalcSliderRect(sbw, &sbw->scrollBar.slider_x, &sbw->scrollBar.slider_y,
+                   &sbw->scrollBar.slider_width, &sbw->scrollBar.slider_height);
     CopySliderInWindow(sbw);
 
     if (sbw -> scrollBar.show_arrows) {
@@ -1617,7 +1847,7 @@ Redisplay(
 		sbw->scrollBar.arrow2_orientation);
   }
 
-    if (!(XtIsSensitive(wid))) {
+    if (!(XtIsSensitive(wid)) && !ModernScrollBar(sbw)) {
         XSetClipMask(XtDisplay(sbw), sbw->scrollBar.unavailable_GC, None);
 	XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
 		       sbw->scrollBar.unavailable_GC,
@@ -1689,6 +1919,7 @@ Resize(
     register int ht = sbw->primitive.highlight_thickness;
     register int st = sbw->primitive.shadow_thickness;
     int arrow_pos;
+    XmAppearanceProfile geometry_profile = _XmAppearanceGeometryProfile(XtDisplay(wid));
 
 #define CHECK(x) if (x <= 0) x = 1 
 
@@ -1718,7 +1949,47 @@ Resize(
 
     /*  Calculate all of the internal data for slider */
 
-    if (sbw->scrollBar.show_arrows) {
+    if (geometry_profile == XmAPPEARANCE_MODERN_LIGHT ||
+        geometry_profile == XmAPPEARANCE_MODERN_DARK) {
+        Boolean horizontal = sbw->scrollBar.orientation == XmHORIZONTAL;
+        int major = horizontal ? XtWidth(sbw) : XtHeight(sbw);
+        int cross = horizontal ? XtHeight(sbw) : XtWidth(sbw);
+        int inset = MIN(ht + st, MAX(0, (major - 1) / 2));
+        int cross_inset = MIN(ht + st, MAX(0, (cross - 1) / 2));
+        int space = MAX(1, major - 2 * inset);
+        int breadth = MAX(1, cross - 2 * cross_inset);
+        int gap = space >= 7 ? 1 : 0;
+        int arrow = sbw->scrollBar.show_arrows ?
+            MIN(breadth, MAX(0, (space - 1 - 2 * gap) / 2)) : 0;
+        int first = inset, second = inset, track = inset;
+        int span;
+        if (!arrow) gap = 0;
+        span = space - 2 * arrow - 2 * gap;
+        if (arrow) {
+            if (sbw->scrollBar.show_arrows == XmEACH_SIDE) {
+                track += arrow + gap;
+                second = inset + space - arrow;
+            } else if (BOTH_ARROWS_NEAR_SIDE(sbw)) {
+                second += arrow;
+                track += 2 * (arrow + gap);
+            } else {
+                first += span + 2 * gap;
+                second = first + arrow;
+            }
+        }
+        sbw->scrollBar.arrow1_orientation = horizontal ? XmARROW_LEFT : XmARROW_UP;
+        sbw->scrollBar.arrow2_orientation = horizontal ? XmARROW_RIGHT : XmARROW_DOWN;
+        sbw->scrollBar.arrow1_x = horizontal ? first : cross_inset;
+        sbw->scrollBar.arrow1_y = horizontal ? cross_inset : first;
+        sbw->scrollBar.arrow2_x = horizontal ? second : cross_inset;
+        sbw->scrollBar.arrow2_y = horizontal ? cross_inset : second;
+        sbw->scrollBar.arrow_width = arrow ? (horizontal ? arrow : breadth) : 0;
+        sbw->scrollBar.arrow_height = arrow ? (horizontal ? breadth : arrow) : 0;
+        sbw->scrollBar.slider_area_x = horizontal ? track : cross_inset;
+        sbw->scrollBar.slider_area_y = horizontal ? cross_inset : track;
+        sbw->scrollBar.slider_area_width = horizontal ? span : breadth;
+        sbw->scrollBar.slider_area_height = horizontal ? breadth : span;
+    } else if (sbw->scrollBar.show_arrows) {
 
 	if (sbw->scrollBar.orientation == XmHORIZONTAL) {
 
@@ -1950,11 +2221,42 @@ Realize(
  *	Clean up allocated resources when the widget is destroyed.
  *
  ************************************************************************/
+/* A pointer interaction owns one drop-site update bracket. Closing it is
+ * idempotent: cancellation, disabling and the eventual release may all arrive. */
+static void
+BeginInteraction(XmScrollBarWidget sbw)
+{
+    if (!(sbw->scrollBar.add_flags & INTERACTION_ACTIVE)) {
+        sbw->scrollBar.add_flags |= INTERACTION_ACTIVE;
+        sbw->scrollBar.saved_value = sbw->scrollBar.value;
+        XmDropSiteStartUpdate((Widget)sbw);
+    }
+}
+
+static void
+FinishInteraction(XmScrollBarWidget sbw)
+{
+    Boolean active = (sbw->scrollBar.add_flags & INTERACTION_ACTIVE) != 0;
+    sbw->scrollBar.add_flags &= ~(INTERACTION_ACTIVE | SNAPPED_OUT);
+    sbw->scrollBar.flags &= ~(FIRST_SCROLL_FLAG | END_TIMER);
+    if (sbw->scrollBar.timer) {
+        XtRemoveTimeOut(sbw->scrollBar.timer);
+        sbw->scrollBar.timer = 0;
+    }
+    if (sbw->scrollBar.flags & KEYBOARD_GRABBED) {
+        sbw->scrollBar.flags &= ~KEYBOARD_GRABBED;
+        XtUngrabKeyboard((Widget)sbw, CurrentTime);
+    }
+    if (active) XmDropSiteEndUpdate((Widget)sbw);
+}
+
 static void 
 Destroy(
         Widget wid )
 {
     XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
+
+    FinishInteraction(sbw);
 
     XtReleaseGC ((Widget) sbw, sbw->scrollBar.foreground_GC);
     XtReleaseGC ((Widget) sbw, sbw->scrollBar.unavailable_GC);
@@ -2431,7 +2733,7 @@ SetValues(
 	** considered.
 	** NOTE! doesn't deal with FUNKY_INSENSITIVE_VISUAL
 	*/
-	    if (!(XtIsSensitive((Widget)new_w))) {
+	    if (!(XtIsSensitive((Widget)new_w)) && !ModernScrollBar(new_w)) {
 		XmScrollBarWidget sbw = (XmScrollBarWidget) new_w;
 		XSetClipMask(XtDisplay(sbw), sbw->scrollBar.unavailable_GC, None);
 		XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
@@ -2448,6 +2750,15 @@ SetValues(
 	}
     }
     
+    if ((!XtIsSensitive(nw) || !new_w->scrollBar.editable) &&
+        (new_w->scrollBar.add_flags & INTERACTION_ACTIVE)) {
+        new_w->scrollBar.sliding_on = False;
+        new_w->scrollBar.arrow1_selected = False;
+        new_w->scrollBar.arrow2_selected = False;
+        new_w->scrollBar.flags |= OPERATION_CANCELLED;
+        FinishInteraction(new_w);
+        returnFlag = TRUE;
+    }
     if (XtIsSensitive(nw) != XtIsSensitive(cw))
 	returnFlag = TRUE;
     
@@ -2551,6 +2862,27 @@ CalcSliderVal(
  *     This function processes selections occuring on the scrollBar.
  *
  ************************************************************************/
+static void
+ScrollDestroyed(Widget widget, XtPointer closure, XtPointer call)
+{
+    (void)widget; (void)call;
+    *(Boolean *)closure = True;
+}
+
+/* Repeat paths continue using the widget after notifying applications. A
+ * callback may destroy it immediately or queue its destruction during input. */
+static Boolean
+ScrollCallbackSurvives(XmScrollBarWidget sbw, int reason, int value,
+                       int xpixel, int ypixel, XEvent *event)
+{
+    Boolean destroyed = False;
+    XtAddCallback((Widget)sbw, XmNdestroyCallback, ScrollDestroyed, &destroyed);
+    ScrollCallback(sbw,reason,value,xpixel,ypixel,event);
+    if (destroyed) return False;
+    XtRemoveCallback((Widget)sbw, XmNdestroyCallback, ScrollDestroyed, &destroyed);
+    return !sbw->core.being_destroyed;
+}
+
 static void 
 Select(
         Widget wid,
@@ -2566,7 +2898,7 @@ Select(
     int slider_height = sbw->scrollBar.slider_height;
     Boolean slider_moved;
      
-    if (!sbw->scrollBar.editable) return ;
+    if (!sbw->scrollBar.editable || !XtIsSensitive(wid)) return ;
 
 
     /* add a start update when the button is pressed
@@ -2574,7 +2906,7 @@ Select(
        configurations be bracketed for dropsite update.
        The endupdate is done in Release */
 	       
-    XmDropSiteStartUpdate(wid);
+    BeginInteraction(sbw);
     
     sbw->scrollBar.flags &=  ~OPERATION_CANCELLED ;
 
@@ -2627,15 +2959,16 @@ Select(
 	
     /*  Calculate whether the selection point is in the slider  */
     if ((buttonEvent->x >= slider_x)                 &&
-	(buttonEvent->x <= slider_x + slider_width)   &&
+	(buttonEvent->x < slider_x + slider_width)   &&
 	(buttonEvent->y >= slider_y)                      &&
-	(buttonEvent->y <= slider_y + slider_height) &&
+	(buttonEvent->y < slider_y + slider_height) &&
 	((buttonEvent->button != Button1) ||
 	 (sbw->scrollBar.sliding_mode != XmTHERMOMETER)))
 	{
 	    sbw->scrollBar.initial_x = slider_x;
 	    sbw->scrollBar.initial_y = slider_y;
 	    sbw->scrollBar.sliding_on = True;
+            (void)DrawModernScale(sbw);
 	    sbw->scrollBar.saved_value = sbw->scrollBar.value;
 	    sbw->scrollBar.arrow1_selected = FALSE;
 	    sbw->scrollBar.arrow2_selected = FALSE;
@@ -2670,9 +3003,9 @@ Select(
     /* ... in the trough (i.e. slider area)... */
     else if ((buttonEvent->x >= sbw->scrollBar.slider_area_x)   &&
 	     (buttonEvent->y >= sbw->scrollBar.slider_area_y)        &&
-	     (buttonEvent->x <= sbw->scrollBar.slider_area_x 
+	     (buttonEvent->x < sbw->scrollBar.slider_area_x
 	      + sbw->scrollBar.slider_area_width)                 &&
-	     (buttonEvent->y <= sbw->scrollBar.slider_area_y 
+	     (buttonEvent->y < sbw->scrollBar.slider_area_y
 	      + sbw->scrollBar.slider_area_height)) {
 
 	sbw->scrollBar.arrow1_selected = FALSE;
@@ -2740,11 +3073,12 @@ Select(
     }
     
     /* ... in arrow 1 */
-    else if ((buttonEvent->x >= sbw->scrollBar.arrow1_x)  &&
+    else if (sbw->scrollBar.show_arrows && sbw->scrollBar.arrow_width &&
+             sbw->scrollBar.arrow_height && (buttonEvent->x >= sbw->scrollBar.arrow1_x)  &&
 	     (buttonEvent->y >= sbw->scrollBar.arrow1_y)       &&
-	     (buttonEvent->x <= sbw->scrollBar.arrow1_x 
+	     (buttonEvent->x < sbw->scrollBar.arrow1_x
 	      + sbw->scrollBar.arrow_width)                 &&
-	     (buttonEvent->y <= sbw->scrollBar.arrow1_y 
+	     (buttonEvent->y < sbw->scrollBar.arrow1_y
 	      + sbw->scrollBar.arrow_height))
 	{   
 	    sbw->scrollBar.change_type = XmCR_DECREMENT;
@@ -2760,11 +3094,12 @@ Select(
 	}
     
     /* ... in arrow 2 */
-    else if ((buttonEvent->x >= sbw->scrollBar.arrow2_x)      &&
+    else if (sbw->scrollBar.show_arrows && sbw->scrollBar.arrow_width &&
+             sbw->scrollBar.arrow_height && (buttonEvent->x >= sbw->scrollBar.arrow2_x)      &&
 	     (buttonEvent->y >= sbw->scrollBar.arrow2_y)           &&
-	     (buttonEvent->x <= sbw->scrollBar.arrow2_x 
+	     (buttonEvent->x < sbw->scrollBar.arrow2_x
 	      + sbw->scrollBar.arrow_width)                     &&
-	     (buttonEvent->y <= sbw->scrollBar.arrow2_y 
+	     (buttonEvent->y < sbw->scrollBar.arrow2_y
 	      + sbw->scrollBar.arrow_height))
 	{
 	    sbw->scrollBar.change_type = XmCR_INCREMENT;
@@ -2784,8 +3119,10 @@ Select(
     
     if (slider_moved) {
 	    
-	ScrollCallback (sbw, sbw->scrollBar.change_type, 
-			sbw->scrollBar.value, 0, 0, (XEvent *) buttonEvent);
+        if (!ScrollCallbackSurvives(sbw, sbw->scrollBar.change_type,
+                sbw->scrollBar.value, 0, 0, (XEvent *)buttonEvent)) return;
+        if (!(sbw->scrollBar.add_flags & INTERACTION_ACTIVE) ||
+            !sbw->scrollBar.editable || !XtIsSensitive(wid)) return;
 	    
 	XSync (XtDisplay((Widget)sbw), False);
 	    
@@ -2793,7 +3130,9 @@ Select(
 	sbw->scrollBar.flags &= ~END_TIMER;
 	    
 	    
-	if (!sbw->scrollBar.timer)
+	if (!sbw->scrollBar.timer &&
+            (sbw->scrollBar.add_flags & INTERACTION_ACTIVE) &&
+            sbw->scrollBar.editable && XtIsSensitive((Widget)sbw))
 	    sbw->scrollBar.timer = XtAppAddTimeOut
 		(XtWidgetToApplicationContext((Widget) sbw),
 		 (unsigned long) sbw->scrollBar.initial_delay,
@@ -2820,22 +3159,10 @@ Release(
 {
     XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
 
-    if (!sbw->scrollBar.editable) return ;
+    if (!(sbw->scrollBar.add_flags & INTERACTION_ACTIVE)) return;
+    FinishInteraction(sbw);
+    sbw->scrollBar.flags &= ~OPERATION_CANCELLED;
 
-
-    /* add an end update when the button is released.
-       see comment in Select for the start update */
-
-    XmDropSiteEndUpdate(wid);
-
-    sbw->scrollBar.flags &=  ~OPERATION_CANCELLED ;
-    
-    if (sbw->scrollBar.flags & KEYBOARD_GRABBED)
-	{
-	    XtUngrabKeyboard(wid, ((XButtonPressedEvent *)event)->time);
-	    sbw->scrollBar.flags &= ~KEYBOARD_GRABBED;
-	}
-    
 #ifdef FUNKY_INSENSITIVE_VISUAL
     if ( (!(sbw->scrollBar.flags & ARROW1_AVAILABLE)) &&
 	(sbw->scrollBar.value > sbw->scrollBar.minimum))
@@ -2914,8 +3241,10 @@ Release(
     if (sbw->scrollBar.sliding_on == True)
 	{
 	    sbw->scrollBar.sliding_on = False;
-	    ScrollCallback (sbw, XmCR_VALUE_CHANGED, sbw->scrollBar.value, 
-			    event->xbutton.x, event->xbutton.y, event);
+            (void)DrawModernScale(sbw);
+            if (!ScrollCallbackSurvives(sbw, XmCR_VALUE_CHANGED,
+                    sbw->scrollBar.value, event->xbutton.x, event->xbutton.y,
+                    event)) return;
 	}
     
 #ifdef FUNKY_INSENSITIVE_VISUAL
@@ -2973,7 +3302,7 @@ Moved(
 	(sbw->scrollBar.snap_back_multiple + 
 	 (buttonEvent->y > 0)) * XtHeight(wid) ;
 
-    if (!sbw->scrollBar.editable) return ;
+    if (!sbw->scrollBar.editable || !XtIsSensitive(wid)) return ;
 
     if (! (sbw->scrollBar.flags & SLIDER_AVAILABLE)) return;
     
@@ -3134,7 +3463,7 @@ TopOrBottom(
     XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
     XmScrollBarPart *sbp = (XmScrollBarPart *) &(sbw->scrollBar);
 
-    if (!sbw->scrollBar.editable) return ;
+    if (!sbw->scrollBar.editable || !XtIsSensitive(wid)) return ;
 
     sbw->scrollBar.flags &=  ~OPERATION_CANCELLED ;
     
@@ -3235,7 +3564,7 @@ TopOrBottom(
 	XButtonPressedEvent *buttonEvent =
 	    (XButtonPressedEvent *) event;
 	
-	XmDropSiteStartUpdate(wid);
+	BeginInteraction(sbw);
 	
 	if /* In arrow1... */
 	    ((buttonEvent->x >= sbp->arrow1_x)                   &&
@@ -3467,7 +3796,7 @@ IncrementUpOrLeft(
 	    return;
 	}
 
-	if (!sbw->scrollBar.editable) return ;
+	if (!sbw->scrollBar.editable || !XtIsSensitive(wid)) return ;
 
 
 	sbw->scrollBar.flags &=  ~OPERATION_CANCELLED ;
@@ -3576,7 +3905,7 @@ IncrementDownOrRight(
 	    return;
 	}
 
-	if (!sbw->scrollBar.editable) return ;
+	if (!sbw->scrollBar.editable || !XtIsSensitive(wid)) return ;
 
 	sbw->scrollBar.flags &=  ~OPERATION_CANCELLED ;
 
@@ -3685,7 +4014,7 @@ PageUpOrLeft(
 	    return;
 	}
 
-	if (!sbw->scrollBar.editable) return ;
+	if (!sbw->scrollBar.editable || !XtIsSensitive(wid)) return ;
 
 	sbw->scrollBar.flags &=  ~OPERATION_CANCELLED ;
 
@@ -3793,7 +4122,7 @@ PageDownOrRight(
 	    return;
 	}
 
-	if (!sbw->scrollBar.editable) return ;
+	if (!sbw->scrollBar.editable || !XtIsSensitive(wid)) return ;
 
 	sbw->scrollBar.flags &=  ~OPERATION_CANCELLED ;
 
@@ -3883,31 +4212,27 @@ CancelDrag(
 {
 	XmScrollBarWidget sbw = (XmScrollBarWidget) wid;
 
-	if (!sbw->scrollBar.editable) return ;
-
-	if (sbw->scrollBar.flags & KEYBOARD_GRABBED)
+	if (sbw->scrollBar.add_flags & INTERACTION_ACTIVE)
 	{
 		short savedX, savedY, j1, j2;
 
-		XtUngrabKeyboard(wid, ((XButtonPressedEvent *)event)->time);
-		sbw->scrollBar.flags &= ~KEYBOARD_GRABBED;
+                FinishInteraction(sbw);
 
 		sbw->scrollBar.flags |= OPERATION_CANCELLED;
 
 		sbw->scrollBar.sliding_on = False;
+                sbw->scrollBar.arrow1_selected = False;
+                sbw->scrollBar.arrow2_selected = False;
 		sbw->scrollBar.value = sbw->scrollBar.saved_value;
 		CalcSliderRect(sbw, &savedX, &savedY, &j1, &j2);
 		MoveSlider(sbw, savedX, savedY);
+                Redisplay(wid,NULL,NULL);
 		if (sbw->scrollBar.sliding_mode == XmTHERMOMETER)
 		    RedrawSliderWindow (sbw);
 		ScrollCallback (sbw, XmCR_VALUE_CHANGED,
 		                sbw->scrollBar.value, savedX, savedY, 
 				(XEvent *) event);
 
-		if (sbw->scrollBar.timer != 0)
-		{
-			sbw->scrollBar.flags |= END_TIMER;
-		}
 
 	}
 	else
@@ -3942,76 +4267,21 @@ MoveSlider(
     int oldY = sbw->scrollBar.slider_y;
     int width = sbw->scrollBar.slider_width;
     int height = sbw->scrollBar.slider_height;
-    
-    XSegment seg[2];
-    
-    if ((currentX == oldX) && (currentY == oldY))
-	return;
-    
-    if (sbw->scrollBar.sliding_mode == XmTHERMOMETER) {
-	if (sbw->scrollBar.orientation == XmHORIZONTAL)
-	    sbw->scrollBar.slider_x = currentX;
-	else 
-	    sbw->scrollBar.slider_y = currentY;
-	return ;
-    }
 
+    if ((currentX == oldX) && (currentY == oldY)) return;
     if (sbw->scrollBar.orientation == XmHORIZONTAL)
-	{
-	    sbw->scrollBar.slider_x = currentX;
-	    
-	    seg[0].y1 = seg[0].y2 = oldY + 2;
-	    seg[1].y1 = seg[1].y2 = oldY + height - 3;
-	    
-	    if (oldX < currentX)
-		{
-		    seg[0].x1 = seg[1].x1 = oldX;
-		    seg[0].x2 = seg[1].x2 = oldX + currentX - oldX - 1;
-		}
-	    else
-		{
-		    seg[0].x1 = seg[1].x1 = currentX + width;
-		    seg[0].x2 = seg[1].x2 = seg[0].x1 + oldX - currentX - 1;
-		}
-	    
-	    
-	    if (sbw->scrollBar.pixmap != 0)
-		{
-		    CopySliderInWindow(sbw);
-		    XClearArea (XtDisplay((Widget)sbw), 
-				XtWindow((Widget)sbw),
-				seg[0].x1, oldY, 
-				seg[0].x2 - seg[0].x1 + 1, 
-				height, False);
-		}
-	} 
-    else /* sbw->scrollBar.orientation == XmVERTICAL */
-	{
-	    sbw->scrollBar.slider_y = currentY;
-	    
-	    seg[0].x1 = seg[0].x2 = oldX + 2;
-	    seg[1].x1 = seg[1].x2 = oldX + width - 3;
-	    
-	    if (oldY < currentY)
-		{
-		    seg[0].y1 = seg[1].y1 = oldY;
-		    seg[0].y2 = seg[1].y2 = oldY + currentY - oldY - 1;
-		}
-	    else
-		{
-		    seg[0].y1 = seg[1].y1 = currentY + height;
-		    seg[0].y2 = seg[1].y2 = seg[0].y1 + oldY - currentY - 1;
-		}
-	    
-	    if (sbw->scrollBar.pixmap != 0)
-		{
-		    CopySliderInWindow(sbw);
-		    XClearArea (XtDisplay((Widget)sbw), 
-				XtWindow((Widget)sbw),
-				oldX, seg[0].y1, width,
-				seg[0].y2 - seg[0].y1 + 1, False);
-		}
-	}
+        sbw->scrollBar.slider_x = currentX;
+    else
+        sbw->scrollBar.slider_y = currentY;
+
+    if (sbw->scrollBar.sliding_mode == XmTHERMOMETER) return;
+    if (!XtIsRealized((Widget)sbw)) return;
+
+    /* Erase the previous face before repainting. Modern Scale redraws the
+     * complete value track, and an erase afterwards would cut holes in it. */
+    XClearArea(XtDisplay(sbw), XtWindow(sbw), oldX, oldY,
+               width, height, False);
+    CopySliderInWindow(sbw);
 }
 
 
@@ -4087,6 +4357,8 @@ TimerEvent(
 	Boolean flag;
 
 	sbw->scrollBar.timer = 0;
+        if (!(sbw->scrollBar.add_flags & INTERACTION_ACTIVE) ||
+            !sbw->scrollBar.editable || !XtIsSensitive((Widget)sbw)) return;
 
 	if (sbw->scrollBar.flags & END_TIMER)
 	{
@@ -4115,9 +4387,8 @@ TimerEvent(
 	/*  If the orgin was changed invoke the application supplied  */
 	/*  slider moved callbacks                                    */
 
-	if (flag)
-		ScrollCallback (sbw, sbw->scrollBar.change_type, 
-			sbw->scrollBar.value, 0, 0, NULL);
+        if (flag && !ScrollCallbackSurvives(sbw, sbw->scrollBar.change_type,
+                sbw->scrollBar.value, 0, 0, NULL)) return;
 
 	/*
 	 * If the callback does alot of processing, and XSync is needed
@@ -4132,7 +4403,8 @@ TimerEvent(
 	/*  Add the repeat timer and check that the scrollbar hasn't been set 
 	    insensitive by some callbacks */
 
-	if (flag)
+	if (flag && (sbw->scrollBar.add_flags & INTERACTION_ACTIVE) &&
+            sbw->scrollBar.editable && XtIsSensitive((Widget)sbw))
 	{
 		sbw->scrollBar.timer = 
 		    XtAppAddTimeOut (XtWidgetToApplicationContext((Widget) sbw),
@@ -4152,36 +4424,9 @@ TimerEvent(
  *	main callback is called.
  *
  ************************************************************************/
-static void
-CallScrollCallbackList(
-        Widget widget,
-        XtCallbackList callbacks,
-        XtPointer call_data)
-{
-    XtCallbackList snapshot;
-    Cardinal count = 0;
-    Cardinal i;
-    size_t entries;
-
-    if (callbacks == NULL)
-        return;
-    while (callbacks[count].callback != NULL)
-        count++;
-    if (count == UINT_MAX)
-        return;
-    entries = (size_t)count + 1;
-    if (entries > SIZE_MAX / sizeof(*snapshot) ||
-        entries > UINT_MAX / sizeof(*snapshot))
-        return;
-    snapshot = (XtCallbackList)XtMalloc((Cardinal)(entries * sizeof(*snapshot)));
-    if (snapshot == NULL)
-        return;
-    for (i = 0; i <= count; i++)
-        snapshot[i] = callbacks[i];
-    XtCallCallbackList(widget, snapshot, call_data);
-    XtFree((char *)snapshot);
-}
-
+/* Xt owns the compiled callback-list representation and retains it during
+ * dispatch. Copying its storage as public XtCallbackRec entries corrupts the
+ * closures once the resource contains multiple callbacks. */
 static void
 ScrollCallback(
         XmScrollBarWidget sbw,
@@ -4232,85 +4477,85 @@ ScrollCallback(
    switch (reason) {
 
    case XmCR_VALUE_CHANGED:
-       CallScrollCallbackList ((Widget) sbw, sbw->scrollBar.value_changed_callback,
+       XtCallCallbackList ((Widget) sbw, sbw->scrollBar.value_changed_callback,
 			   &call_value);
        break;
 
    case XmCR_INCREMENT:
        if  (sbw->scrollBar.increment_callback)
-	   CallScrollCallbackList ((Widget) sbw,
+	   XtCallCallbackList ((Widget) sbw,
 			       sbw->scrollBar.increment_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       CallScrollCallbackList ((Widget) sbw,
+	       XtCallCallbackList ((Widget) sbw,
 				 sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
 
    case XmCR_DECREMENT:
        if  (sbw->scrollBar.decrement_callback)
-	   CallScrollCallbackList ((Widget) sbw,
+	   XtCallCallbackList ((Widget) sbw,
 			       sbw->scrollBar.decrement_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       CallScrollCallbackList ((Widget) sbw,
+	       XtCallCallbackList ((Widget) sbw,
 				sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
 
    case XmCR_PAGE_INCREMENT:
        if  (sbw->scrollBar.page_increment_callback)
-	   CallScrollCallbackList ((Widget) sbw,
+	   XtCallCallbackList ((Widget) sbw,
 			       sbw->scrollBar.page_increment_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       CallScrollCallbackList ((Widget) sbw,
+	       XtCallCallbackList ((Widget) sbw,
 				sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
 
    case XmCR_PAGE_DECREMENT:
        if  (sbw->scrollBar.page_decrement_callback)
-	   CallScrollCallbackList ((Widget) sbw,
+	   XtCallCallbackList ((Widget) sbw,
 			       sbw->scrollBar.page_decrement_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       CallScrollCallbackList ((Widget) sbw,
+	       XtCallCallbackList ((Widget) sbw,
 				 sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
 
    case XmCR_TO_TOP:
        if (sbw->scrollBar.to_top_callback)
-	   CallScrollCallbackList ((Widget) sbw,
+	   XtCallCallbackList ((Widget) sbw,
 			       sbw->scrollBar.to_top_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       CallScrollCallbackList ((Widget) sbw,
+	       XtCallCallbackList ((Widget) sbw,
 				sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
 
    case XmCR_TO_BOTTOM:
        if (sbw->scrollBar.to_bottom_callback)
-	   CallScrollCallbackList ((Widget) sbw,
+	   XtCallCallbackList ((Widget) sbw,
 			       sbw->scrollBar.to_bottom_callback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       CallScrollCallbackList ((Widget) sbw,
+	       XtCallCallbackList ((Widget) sbw,
 				 sbw->scrollBar.value_changed_callback, &call_value);
 	   }
        break;
 
    case XmCR_DRAG:
        if (sbw->scrollBar.drag_callback)
-	   CallScrollCallbackList ((Widget) sbw,
+	   XtCallCallbackList ((Widget) sbw,
 			       sbw->scrollBar.drag_callback, &call_value);
        break;
    }

@@ -63,7 +63,7 @@ try:
                      "-o", binary])
     linked = run("link", ["ldd", binary])
     run("run", ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24", binary])
-    if "libXm.so.8" not in (output / "link.log").read_text():
+    if "libXm.so.9" not in (output / "link.log").read_text():
         raise RuntimeError("regression did not link libXm")
     if "PASS XmTabBox live appearance redisplay" not in (output / "run.log").read_text():
         raise RuntimeError("regression did not report its pass marker")

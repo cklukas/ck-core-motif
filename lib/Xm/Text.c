@@ -3631,6 +3631,7 @@ PreeditDone(XIC xic,
   XmTextWidget tw = (XmTextWidget)client_data;
   Widget w = (Widget)client_data;
   int size, num_bytes = 0;
+  size_t mb_length;
   Widget p = w;
   Boolean need_verify, end_preedit = False;
   Boolean conversion_valid;

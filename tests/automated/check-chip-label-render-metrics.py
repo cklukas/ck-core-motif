@@ -1,16 +1,10 @@
-"""Check Chip measures labels before drawing and centers the close glyph."""
-
+"""Check Chip drawing consumes the shared measured layout."""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "Chip.c").read_text(
-    encoding="utf-8"
-)
-start = source.index("static void Redisplay")
-body = source[start : source.index("static void emit", start)]
-measure = body.index("XmStringExtent(chip->chip.font, chip->chip.label")
-draw = body.index("XmStringDraw", measure)
-assert measure < draw
-assert "int cy = (int)chip->core.height / 2;" in body
-assert "cx - 4, cy - 4" in body
-assert "cx + 4, cy + 4" in body
-print("PASS Chip measures labels and centers a fixed-size close glyph")
+source=(Path(__file__).parents[2]/"lib/Xm/Chip.c").read_text()
+start=source.index("static void Redisplay(Widget widget")
+body=source[start:source.index("static void emit",start)]
+assert body.index("metrics(chip,&m);layout(chip,&m,&l);") < body.index("XmStringDraw")
+assert "MIN(l.remove.width,l.remove.height)" in body
+assert "l.remove.x+(l.remove.width-extent)/2" in body
+assert "l.remove.y+(l.remove.height-extent)/2" in body
+print("PASS Chip draws measured labels and a centered bounded removal mark")

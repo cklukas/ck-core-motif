@@ -113,15 +113,6 @@ extern void _XmPutScaledImage (
 
 extern void _XmCleanPixmapCache(Screen * screen, Widget shell);
 
-/* for Xm.h */
-extern Pixmap XmGetScaledPixmap(
-    Widget widget,
-    char *image_name,
-    Pixel foreground,
-    Pixel background,
-    int depth,
-    double scaling_ratio);
-
 /********    End Private Function Declarations    ********/
 
 #ifdef __cplusplus

@@ -104,7 +104,6 @@ def main():
                           stderr=subprocess.STDOUT).returncode:
             print(compile_log.read_text(errors="replace"), file=sys.stderr)
             return 1
->>>>>>> theirs
     run = [str(binary)] if args.display else [
         "xvfb-run", "-a", "-s", "-screen 0 1024x768x24", str(binary)
     ]
@@ -140,7 +139,7 @@ def main():
     if "PASS XLibre RandR DPI contract and non-XLibre fallback" not in result:
         print(result, file=sys.stderr)
         return 1
-    library = prefix / "lib/libXm.so.8.0.0"
+    library = prefix / "lib/libXm.so.9.0.0"
     if library.exists():
         receipt["libXm_sha256"] = hashlib.sha256(library.read_bytes()).hexdigest()
     receipt["success"] = True

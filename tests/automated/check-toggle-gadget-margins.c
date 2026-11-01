@@ -21,6 +21,7 @@ int main(int argc,char **argv){
   XmStringFree(text);XmToggleButtonGadget p=(XmToggleButtonGadget)w;
   int inset=p->gadget.highlight_thickness+p->gadget.shadow_thickness+LabG_MarginWidth(p);
   int expected_width=LabG_TextRect(p).width+LabG_MarginLeft(p)+LabG_MarginRight(p)+2*inset;
+  fprintf(stderr,"STATE theme=%u scale=%u rtl=%u width=%u expected=%d x=%d\n",theme,scale,rtl,p->rectangle.width,expected_width,LabG_TextRect(p).x);
   CHECK(p->rectangle.width==expected_width);
   int expected_x=rtl?p->rectangle.width-inset-LabG_MarginRight(p)-LabG_TextRect(p).width:inset+LabG_MarginLeft(p);
   CHECK(LabG_TextRect(p).x==expected_x);

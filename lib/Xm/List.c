@@ -51,12 +51,6 @@ static Position bounded_position(long long value)
   return (Position)value;
 }
 
-static Boolean selected_position_valid(XmListWidget lw, int index)
-{
-  return index >= 0 && index < lw->list.selectedPositionCount &&
-    lw->list.selectedPositions[index] > 0 &&
-    lw->list.selectedPositions[index] <= lw->list.itemCount;
-}
 #include <Xm/DragC.h>
 #include <Xm/DragIcon.h>
 #include <Xm/DragIconP.h>
@@ -88,6 +82,13 @@ static Boolean selected_position_valid(XmListWidget lw, int index)
 #include "XmRenderTI.h"
 #include "XmStringI.h"
 #include "ToolTipI.h"
+
+static Boolean selected_position_valid(XmListWidget lw, int index)
+{
+  return index >= 0 && index < lw->list.selectedPositionCount &&
+    lw->list.selectedPositions[index] > 0 &&
+    lw->list.selectedPositions[index] <= lw->list.itemCount;
+}
 #include <Xm/XmP.h>
 
 #define FIX_1390	1
@@ -3120,7 +3121,6 @@ SetHorizontalScrollbar(XmListWidget lw)
   if (lw->list.ScrollBarDisplayPolicy == XmAS_NEEDED)
     {
       /* CR 9663: Hide scrollbars in empty lists. */
-
       /* Keep the available width signed before comparing it with MaxWidth.
        * A tiny allocation can make listwidth negative; converting that value
        * to Dimension would wrap it to a huge unsigned width and hide the
@@ -3275,8 +3275,6 @@ ResetExtents(XmListWidget lw,
 	     Boolean recache_extents)
 {
   register int i;
-  int valid_count;
-  Boolean have_valid;
   Dimension maxheight = 0;
   Dimension maxwidth = 0;
 
@@ -7599,6 +7597,8 @@ ListProcessDrag(Widget wid,
   XmListWidget lw = (XmListWidget) wid;
   register int i;
   int item = 0;
+  int valid_count;
+  Boolean have_valid;
   Widget drag_icon, dc;
   Arg args[10];
   int n, location_data;
@@ -9364,6 +9364,7 @@ XmListReplaceItemsPos(Widget w,
 		      int item_count,
 		      int position)
 {
+  XmListWidget lw = (XmListWidget)w;
   if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);

@@ -6,7 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "SearchBox.c").read_text(
     encoding="utf-8"
 )
 start = source.index("static void Destroy(Widget widget)")
-end = source.index("static void Redisplay", start)
+end = source.index("static unsigned icon_size", start)
 region = source[start:end]
 
 assert "XmSearchBoxWidget box = (XmSearchBoxWidget)widget;" in region

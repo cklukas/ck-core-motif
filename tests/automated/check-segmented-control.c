@@ -92,8 +92,11 @@ int main(int argc, char **argv) {
     CHECK(XmSegmentedControlSetSelectedIndex(doomed, 0, True));
     CHECK(destroyed == 1);
     for (i = 0; i < 3; ++i) XmStringFree(labels[i]);
-    XtDestroyWidget(shell);
-    XtCloseDisplay(XtDisplay(shell));
+    {
+        Display *display = XtDisplay(shell);
+        XtDestroyWidget(shell);
+        XtCloseDisplay(display);
+    }
     XtDestroyApplicationContext(app);
     printf("PASS segmented control: %u checks\n", checks);
     return EXIT_SUCCESS;

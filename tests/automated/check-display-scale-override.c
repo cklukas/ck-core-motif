@@ -1,5 +1,6 @@
 /* Installed-consumer proof for the deterministic display-scale override. */
 #include <Xm/Display.h>
+#include <Xm/BulletinB.h>
 #include <Xm/ProgressRing.h>
 #include <Xm/SpinB.h>
 #include <Xm/ToggleB.h>
@@ -25,7 +26,7 @@ int
 main(int argc, char **argv)
 {
     XtAppContext app;
-    Widget shell;
+    Widget shell, board;
     Widget baseline_toggle;
     Widget scaled_toggle;
     Widget explicit_toggle;
@@ -46,16 +47,20 @@ main(int argc, char **argv)
     Dimension baseline_ring_height;
     Dimension live_ring_height;
     Dimension explicit_ring_height;
-    const double gallery_scales[] = {1.28, 1.92, 2.56, 3.84};
+    const double gallery_scales[] = {1.0, 1.5, 2.0, 3.0};
     XmString empty_label;
     Arg empty_args[1];
     Arg explicit_args[2];
 
     shell = XtVaAppInitialize(&app, "DisplayScaleOverride", NULL, 0,
-                              &argc, argv, NULL, NULL);
+                              &argc, argv, NULL, XmNwidth, 1200, XmNheight, 1000, NULL);
+    board = XtVaCreateManagedWidget("board", xmBulletinBoardWidgetClass, shell,
+        XmNresizePolicy, XmRESIZE_NONE, NULL);
     display = XtDisplay(shell);
     database = XrmGetDatabase(display);
 
+    if (XmGetWidgetScale(NULL, &scale) || XmGetWidgetScale(shell, NULL))
+        return fail("effective scale accepted invalid arguments");
     if (XmGetDisplayScaleOverride(display, &scale))
         return fail("override unexpectedly existed before selection");
     if (XmSetDisplayScaleOverride(display, 0.0) ||
@@ -71,7 +76,7 @@ main(int argc, char **argv)
 
     empty_label = XmStringCreateLocalized("");
     XtSetArg(empty_args[0], XmNlabelString, empty_label);
-    baseline_toggle = XmCreateToggleButton(shell, "baseline", empty_args, 1);
+    baseline_toggle = XmCreateToggleButton(board, "baseline", empty_args, 1);
     XmStringFree(empty_label);
     XtManageChild(baseline_toggle);
 
@@ -85,6 +90,9 @@ main(int argc, char **argv)
     if (!XmSetDisplayScaleOverride(display, 2.0) ||
         !XmGetDisplayScaleOverride(display, &scale) || scale != 2.0)
         return fail("live override was not retained");
+    if (!XmGetWidgetScale(shell, &scale) || scale != 2.0 ||
+        !XmGetWidgetScale(baseline_toggle, &scale) || scale != 2.0)
+        return fail("effective widget scale did not follow override");
     XSync(display, False);
     XtVaGetValues(baseline_toggle, XmNindicatorSize, &live_indicator, NULL);
     if (live_indicator <= baseline_indicator)
@@ -94,19 +102,19 @@ main(int argc, char **argv)
 
     empty_label = XmStringCreateLocalized("");
     XtSetArg(empty_args[0], XmNlabelString, empty_label);
-    scaled_toggle = XmCreateToggleButton(shell, "scaled", empty_args, 1);
+    scaled_toggle = XmCreateToggleButton(board, "scaled", empty_args, 1);
     XmStringFree(empty_label);
     XtManageChild(scaled_toggle);
     empty_label = XmStringCreateLocalized("");
     XtSetArg(explicit_args[0], XmNlabelString, empty_label);
     XtSetArg(explicit_args[1], XmNindicatorSize, (Dimension)7);
-    explicit_toggle = XmCreateToggleButton(shell, "explicit", explicit_args, 2);
+    explicit_toggle = XmCreateToggleButton(board, "explicit", explicit_args, 2);
     XmStringFree(empty_label);
     XtManageChild(explicit_toggle);
 
-    baseline_spin = XmCreateSpinBox(shell, "baselineSpin", NULL, 0);
+    baseline_spin = XmCreateSpinBox(board, "baselineSpin", NULL, 0);
     XtManageChild(baseline_spin);
-    baseline_ring = XmCreateProgressRing(shell, "baselineRing", NULL, 0);
+    baseline_ring = XmCreateProgressRing(board, "baselineRing", NULL, 0);
     XtManageChild(baseline_ring);
     XtRealizeWidget(shell);
 
@@ -134,14 +142,14 @@ main(int argc, char **argv)
     if (live_ring_height >= baseline_ring_height)
         return fail("progress ring default metric did not reflow down");
 
-    explicit_ring = XmCreateProgressRing(shell, "explicitRing", NULL, 0);
+    explicit_ring = XmCreateProgressRing(board, "explicitRing", NULL, 0);
     XtVaSetValues(explicit_ring, XtNheight, (Dimension)100, NULL);
     XtManageChild(explicit_ring);
     XtVaGetValues(explicit_ring, XtNheight, &explicit_ring_height, NULL);
     if (explicit_ring_height != 100)
         return fail("progress ring explicit height was not retained");
 
-    explicit_spin = XmCreateSpinBox(shell, "explicitSpin", NULL, 0);
+    explicit_spin = XmCreateSpinBox(board, "explicitSpin", NULL, 0);
     XtVaSetValues(explicit_spin, XmNarrowSize, (Dimension)16, NULL);
     XtManageChild(explicit_spin);
     XtVaGetValues(explicit_spin, XmNarrowSize, &explicit_arrow, NULL);
@@ -183,6 +191,13 @@ main(int argc, char **argv)
     if (!XmClearDisplayScaleOverride(display) ||
         XmGetDisplayScaleOverride(display, &scale))
         return fail("override did not clear");
+    XrmPutStringResource(&database, "Xft.dpi", "144");
+    XrmSetDatabase(display, database);
+    if (!XmGetWidgetScale(shell, &scale) || scale != 1.5)
+        return fail("effective scale did not resolve Xft.dpi");
+    if (!XmSetDisplayScaleOverride(display, 0.5) ||
+        !XmGetWidgetScale(shell, &scale) || scale != 1.0)
+        return fail("effective scale did not match minimum default scale");
     XtDestroyWidget(shell);
     puts("PASS WP-05.2 display-scale override");
     return 0;

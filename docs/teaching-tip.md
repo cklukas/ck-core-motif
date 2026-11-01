@@ -22,3 +22,28 @@ pointer tracker or external URL/action dispatch.
 
 `tests/automated/run-teaching-tip.py` validates delay cancellation, show/hide,
 screen-edge placement, accessibility and owner teardown under Xvfb.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmTeachingTipWidgetClass demo](gallery-screenshots/xm-teachingtipwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTeachingTipWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L829-L844
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TeachingTip.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

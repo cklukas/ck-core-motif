@@ -17,11 +17,13 @@ typedef struct _XmSpinnerPart {
     int interval;
     XmString label;
     XmFontList font;
+    Boolean check_set_render_table;
     XtCallbackList state_changed_callback;
     XtIntervalId timer;
     Boolean timer_pending;
     unsigned int phase;
     Dimension spacing;
+    Boolean width_default, height_default;
     GC ring_gc, text_gc;
 } XmSpinnerPart;
 

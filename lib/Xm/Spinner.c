@@ -12,6 +12,8 @@
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
+#include <Xm/DrawP.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
@@ -22,8 +24,26 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 static void Tick(XtPointer, XtIntervalId *);
 
+static void PreferredSize(Widget, double, Dimension *, Dimension *);
+static void ScaleChanged(Widget, double, double, XtPointer);
+
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmSpinnerWidget spinner = (XmSpinnerWidget)widget;
+    (void)offset;
+    if (spinner->spinner.check_set_render_table) value->addr = NULL;
+    else {
+        spinner->spinner.check_set_render_table = True;
+        value->addr = (char *)&spinner->spinner.font;
+    }
+}
+
 #define Offset(field) XtOffsetOf(XmSpinnerRec, field)
 static XtResource resources[] = {
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(spinner.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(spinner.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNspinnerActive, XmCSpinnerActive, XmRBoolean, sizeof(Boolean),
      Offset(spinner.active), XmRImmediate, (XtPointer)False},
     {XmNspinnerInterval, XmCSpinnerInterval, XmRInt, sizeof(int),
@@ -118,7 +138,8 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     XGCValues values;
     XmFontList defaults;
     XmString replacement;
-    Dimension label_width = 0, label_height = 0;
+    Dimension preferred_width, preferred_height;
+    double scale = 1.0;
     unsigned long mask = GCForeground | GCBackground;
     (void)request; (void)args; (void)count;
     spinner->spinner.interval = bounded_interval(spinner->spinner.interval);
@@ -130,24 +151,22 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     }
     else
         spinner->spinner.label = XmStringCreateLocalized("");
-    defaults = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
+    defaults = spinner->spinner.font ? spinner->spinner.font :
+        XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
     spinner->spinner.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (spinner->spinner.font && spinner->spinner.label)
-        XmStringExtent(spinner->spinner.font, spinner->spinner.label,
-                       &label_width, &label_height);
-    if (!spinner->core.width)
-        spinner->core.width = bounded_dimension((size_t)label_width + 40 +
-                                                2 * (size_t)spinner->spinner.spacing);
-    if (!spinner->core.height)
-        spinner->core.height = bounded_dimension((size_t)(label_height > 28 ?
-                                                label_height : 28) +
-                                                 2 * (size_t)spinner->spinner.spacing);
+    spinner->spinner.width_default = (request->core.width == 0);
+    spinner->spinner.height_default = (request->core.height == 0);
+    _XmGetWidgetDpiScale(widget, &scale);
+    PreferredSize(widget, scale, &preferred_width, &preferred_height);
+    if (spinner->spinner.width_default) spinner->core.width = preferred_width;
+    if (spinner->spinner.height_default) spinner->core.height = preferred_height;
     values.foreground = spinner->primitive.foreground;
     values.background = spinner->core.background_pixel;
     spinner->spinner.ring_gc = XCreateGC(display, DefaultRootWindow(display),
                                          mask, &values);
     spinner->spinner.text_gc = XCreateGC(display, DefaultRootWindow(display),
                                          mask, &values);
+    (void)_XmRegisterScaleChange(widget, ScaleChanged, NULL);
     XtAddEventHandler(widget, StructureNotifyMask | VisibilityChangeMask,
                       False, Events, NULL);
 }
@@ -188,8 +207,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
     Dimension label_width = 0, label_height = 0;
-    Dimension diameter;
-    int center_x, center_y;
+    int diameter, ring_x, ring_y, thickness;
     GC gc;
     int start;
     (void)event; (void)region;
@@ -202,24 +220,18 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (spinner->spinner.font && spinner->spinner.label)
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &label_width, &label_height);
-    {
-        int available = (int)spinner->core.height -
-                        2 * (int)spinner->spinner.spacing;
-        diameter = available > 16 ? (Dimension)available : 16;
-    }
-    if (diameter > spinner->core.width) diameter = spinner->core.width;
-    if (diameter > 32) diameter = 32;
-    center_x = (int)spinner->spinner.spacing + (int)diameter / 2;
-    center_y = (int)spinner->core.height / 2;
+    _XmAppearanceRingBounds(spinner->core.width, spinner->core.height,
+        spinner->spinner.spacing, spinner->primitive.highlight_thickness,
+        _XmDpiDefaultDimension(widget,32), &ring_x, &ring_y, &diameter);
+    if (!label_width) ring_x = ((int)spinner->core.width - diameter) / 2;
+    thickness = MAX(1, (int)_XmDpiDefaultDimension(widget,3));
     start = (int)((spinner->spinner.phase % 12) * 30) * 64;
-    XDrawArc(display, window, gc, center_x - (int)diameter / 2,
-             center_y - (int)diameter / 2, diameter, diameter,
-             start, 250 * 64);
+    _XmAppearanceDrawRing(display, window, gc, ring_x, ring_y,
+                          diameter, thickness, start, 250 * 64);
     if (spinner->spinner.font && spinner->spinner.label) {
         XmStringDraw(display, window, spinner->spinner.font,
                      spinner->spinner.label, gc,
-                     bounded_position((long long)spinner->spinner.spacing +
-                                      (long long)diameter + 8),
+                     bounded_position((long long)ring_x + diameter + _XmDpiDefaultDimension(widget,8)),
                      centered_offset(spinner->core.height, label_height),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(spinner), NULL);
@@ -227,11 +239,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (spinner->primitive.highlighted && spinner->primitive.highlight_thickness &&
         spinner->core.width > 2 * spinner->primitive.highlight_thickness &&
         spinner->core.height > 2 * spinner->primitive.highlight_thickness)
-        XDrawRectangle(display, window, gc,
-                       spinner->primitive.highlight_thickness - 1,
-                       spinner->primitive.highlight_thickness - 1,
-                       spinner->core.width - 2 * spinner->primitive.highlight_thickness,
-                       spinner->core.height - 2 * spinner->primitive.highlight_thickness);
+        XmeDrawHighlight(display, window, spinner->primitive.highlight_GC,
+                         0, 0, spinner->core.width, spinner->core.height,
+                         spinner->primitive.highlight_thickness);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -241,11 +251,25 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     Boolean redraw = False;
     XmString replacement;
     (void)request; (void)args; (void)count;
+    for (Cardinal i = 0; i < *count; ++i) {
+        if (strcmp(args[i].name, XtNwidth) == 0) spinner->spinner.width_default = False;
+        else if (strcmp(args[i].name, XtNheight) == 0) spinner->spinner.height_default = False;
+    }
     spinner->spinner.interval = bounded_interval(spinner->spinner.interval);
     if (old->spinner.interval != spinner->spinner.interval &&
         spinner->spinner.timer_pending) {
         XtRemoveTimeOut(spinner->spinner.timer);
         spinner->spinner.timer_pending = False;
+    }
+    if (old->spinner.font != spinner->spinner.font) {
+        XmFontList source = spinner->spinner.font ? spinner->spinner.font :
+            XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
+        XmFontList replacement_font = source ? XmFontListCopy(source) : NULL;
+        if (replacement_font) {
+            if (old->spinner.font) XmFontListFree(old->spinner.font);
+            spinner->spinner.font = replacement_font;
+            redraw = True;
+        } else spinner->spinner.font = old->spinner.font;
     }
     if (old->spinner.label != spinner->spinner.label) {
         replacement = spinner->spinner.label != NULL
@@ -269,24 +293,59 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         old->core.background_pixel != spinner->core.background_pixel ||
         old->primitive.highlighted != spinner->primitive.highlighted)
         redraw = True;
+    if (old->spinner.spacing != spinner->spinner.spacing) redraw = True;
+    if (redraw) {
+        Dimension width, height;
+        double scale = 1.0;
+        _XmGetWidgetDpiScale(widget, &scale);
+        PreferredSize(widget, scale, &width, &height);
+        if (spinner->spinner.width_default) spinner->core.width = width;
+        if (spinner->spinner.height_default) spinner->core.height = height;
+    }
     return redraw;
 }
 
-static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
-                                      XtWidgetGeometry *reply) {
+static void PreferredSize(Widget widget, double scale, Dimension *width, Dimension *height)
+{
     XmSpinnerWidget spinner = (XmSpinnerWidget)widget;
-    Dimension width = 0, height = 0;
-    (void)request;
+    Dimension label_width = 0, label_height = 0;
+    unsigned long diameter = _XmDpiScaleDimension(scale,32);
+    unsigned long padding = 2UL * MAX(spinner->spinner.spacing,
+                                      spinner->primitive.highlight_thickness);
     if (spinner->spinner.font && spinner->spinner.label)
-        XmStringExtent(spinner->spinner.font, spinner->spinner.label,
-                       &width, &height);
+        XmStringExtent(spinner->spinner.font, spinner->spinner.label, &label_width, &label_height);
+    *width = bounded_dimension(diameter + padding + (label_width
+        ? (unsigned long)label_width + _XmDpiScaleDimension(scale,8) : 0));
+    *height = bounded_dimension(MAX(diameter,label_height) + padding);
+}
+
+static void ScaleChanged(Widget widget, double old_scale, double new_scale, XtPointer closure)
+{
+    XmSpinnerWidget spinner = (XmSpinnerWidget)widget;
+    Dimension width, height, offered_width, offered_height;
+    XtGeometryResult result;
+    (void)old_scale; (void)closure;
+    PreferredSize(widget,new_scale,&width,&height);
+    if (!spinner->spinner.width_default) width = spinner->core.width;
+    if (!spinner->spinner.height_default) height = spinner->core.height;
+    if (width != spinner->core.width || height != spinner->core.height) {
+        result = XtMakeResizeRequest(widget,width,height,&offered_width,&offered_height);
+        if (result == XtGeometryAlmost &&
+            (spinner->spinner.width_default || offered_width == width) &&
+            (spinner->spinner.height_default || offered_height == height))
+            (void)XtMakeResizeRequest(widget,offered_width,offered_height,NULL,NULL);
+    }
+    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget),XtWindow(widget),0,0,0,0,True);
+}
+
+static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
+                                      XtWidgetGeometry *reply)
+{
+    double scale = 1.0;
+    _XmGetWidgetDpiScale(widget,&scale);
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = bounded_dimension((size_t)width + 40 +
-                                     2 * (size_t)spinner->spinner.spacing);
-    reply->height = bounded_dimension((size_t)(height > 28 ? height : 28) +
-                                      2 * (size_t)spinner->spinner.spacing);
-    return (widget->core.width == reply->width && widget->core.height == reply->height)
-               ? XtGeometryYes : XtGeometryAlmost;
+    PreferredSize(widget,scale,&reply->width,&reply->height);
+    return XmeReplyToQueryGeometry(widget,request,reply);
 }
 
 static void Events(Widget widget, XtPointer data, XEvent *event,

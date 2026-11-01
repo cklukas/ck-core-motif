@@ -9,13 +9,11 @@
 #include <stdio.h>
 #include <limits.h>
 #include "PrimitiveI.h"
+#include "XmI.h"
+#include "AppearanceDrawI.h"
+#include <Xm/Appearance.h>
 
-static Position bounded_position(long long value) {
-    if (value < SHRT_MIN) return (Position)SHRT_MIN;
-    if (value > SHRT_MAX) return (Position)SHRT_MAX;
-    return (Position)value;
-}
-
+static void natural_size(XmBadgeWidget, Dimension *, Dimension *);
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
@@ -76,8 +74,12 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     badge->badge.foreground_gc = XCreateGC(XtDisplay(widget),
                                            DefaultRootWindow(XtDisplay(widget)),
                                            GCForeground | GCBackground, &values);
-    if (!badge->core.width) badge->core.width = 32;
-    if (!badge->core.height) badge->core.height = 22;
+    badge->badge.automatic_width = request->core.width == 0;
+    badge->badge.automatic_height = request->core.height == 0;
+    Dimension width, height;
+    natural_size(badge, &width, &height);
+    if (badge->badge.automatic_width) badge->core.width = width;
+    if (badge->badge.automatic_height) badge->core.height = height;
 }
 static void Destroy(Widget widget) {
     XmBadgeWidget badge = (XmBadgeWidget)widget;
@@ -87,36 +89,71 @@ static void Destroy(Widget widget) {
     if (badge->badge.font) XmRenderTableFree(badge->badge.font);
     if (badge->badge.label) XmStringFree(badge->badge.label);
 }
-static void text_value(XmBadgeWidget badge, char *buffer, size_t size) {
-    if (badge->badge.count < 0) return;
+/* Label mode keeps the complete compound string, including rendition tags. */
+static XmString display_label(XmBadgeWidget badge) {
+    if (badge->badge.count < 0) return XmStringCopy(badge->badge.label);
+    char text[32];
     if (badge->badge.count > badge->badge.maximum)
-        snprintf(buffer, size, "%d+", badge->badge.maximum);
-    else snprintf(buffer, size, "%d", badge->badge.count);
+        snprintf(text, sizeof(text), "%d+", badge->badge.maximum);
+    else snprintf(text, sizeof(text), "%d", badge->badge.count);
+    return XmStringCreateLocalized(text);
+}
+static void natural_size(XmBadgeWidget badge, Dimension *width, Dimension *height) {
+    Dimension tw=0, th=0;
+    XmString label=display_label(badge);
+    if (label && badge->badge.font) XmStringExtent(badge->badge.font,label,&tw,&th);
+    if (label) XmStringFree(label);
+    unsigned long horizontal=_XmDpiDefaultDimension((Widget)badge,6);
+    unsigned long vertical=_XmDpiDefaultDimension((Widget)badge,4);
+    *height=(Dimension)MIN(USHRT_MAX,MAX((unsigned long)_XmDpiDefaultDimension((Widget)badge,22),
+                                       (unsigned long)th+2*vertical));
+    *width=(Dimension)MIN(USHRT_MAX,MAX((unsigned long)*height,(unsigned long)tw+2*horizontal));
+}
+static Position bounded_position(long long value) {
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
-    XmBadgeWidget badge = (XmBadgeWidget)widget; char text[64];
-    XmString label; Dimension text_width = 0, text_height = 0;
-    if (widget == NULL || !XtIsSubclass(widget, xmBadgeWidgetClass))
-        return;
+    if (widget == NULL || !XtIsSubclass(widget, xmBadgeWidgetClass)) return;
+    XmBadgeWidget badge=(XmBadgeWidget)widget;
+    Display *display=XtDisplay(widget); Drawable window=XtWindow(widget);
+    GC gc=badge->badge.foreground_gc;
+    XmAppearanceProfile profile=XmAPPEARANCE_CLASSIC;
     (void)event; (void)region;
-    if (badge->badge.count >= 0)
-        text_value(badge, text, sizeof(text));
-    if (!XtWindow(widget) || !badge->badge.foreground_gc) return;
-    XClearWindow(XtDisplay(widget), XtWindow(widget));
-    if (badge->core.width > 1 && badge->core.height > 1)
-        XDrawRectangle(XtDisplay(widget), XtWindow(widget), badge->badge.foreground_gc,
-                       0, 0, badge->core.width - 1, badge->core.height - 1);
-    label = (badge->badge.count >= 0) ? XmStringCreateLocalized(text) :
-        badge->badge.label;
-    if (badge->badge.font && label) {
-        XmStringExtent(badge->badge.font, label, &text_width, &text_height);
-        XmStringDraw(XtDisplay(widget), XtWindow(widget), badge->badge.font,
-                     label, badge->badge.foreground_gc, bounded_position(6),
-                     bounded_position(((long long)badge->core.height - text_height) / 2),
-                     text_width, XmALIGNMENT_BEGINNING,
-                     XmPrim_layout_direction(badge), NULL);
+    if (!window || !gc) return;
+    XSetClipMask(display,gc,None);
+    XClearWindow(display,window);
+    XSetBackground(display,gc,badge->core.background_pixel);
+    (void)XmGetAppearanceProfile(display,&profile);
+    int width=badge->core.width, height=badge->core.height;
+    if (profile==XmAPPEARANCE_MODERN_LIGHT || profile==XmAPPEARANCE_MODERN_DARK) {
+        int radius=MIN(width,height)/2;
+        XSetForeground(display,gc,badge->primitive.bottom_shadow_color);
+        _XmAppearanceFillRoundedRectangle(display,window,gc,0,0,width,height,radius);
+        XSetForeground(display,gc,badge->core.background_pixel);
+        _XmAppearanceFillRoundedRectangle(display,window,gc,1,1,width-2,height-2,MAX(0,radius-1));
+    } else if (width>1 && height>1) {
+        XSetForeground(display,gc,badge->primitive.foreground);
+        XDrawRectangle(display,window,gc,0,0,width-1,height-1);
     }
-    if (badge->badge.count >= 0 && label) XmStringFree(label);
+    int horizontal=_XmDpiDefaultDimension(widget,6), vertical=_XmDpiDefaultDimension(widget,4);
+    int inner_width=width-2*horizontal, inner_height=height-2*vertical;
+    if (inner_width<=0 || inner_height<=0) return;
+    XmString label=display_label(badge);
+    if (label && badge->badge.font) {
+        Dimension tw=0, th=0;
+        XmStringExtent(badge->badge.font,label,&tw,&th);
+        XRectangle clip={horizontal,vertical,inner_width,inner_height};
+        XSetForeground(display,gc,XtIsSensitive(widget)?badge->primitive.foreground:
+                       badge->primitive.bottom_shadow_color);
+        XmStringDraw(display,window,badge->badge.font,label,gc,
+            bounded_position(horizontal),
+            bounded_position(((long long)height-(long long)th)/2),inner_width,XmALIGNMENT_CENTER,
+            XmPrim_layout_direction(badge),&clip);
+        XSetClipMask(display,gc,None);
+    }
+    if (label) XmStringFree(label);
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
@@ -159,36 +196,33 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     }
     if (badge->badge.maximum < 0) badge->badge.maximum = 0;
     if (badge->badge.count < -1) badge->badge.count = -1;
-    return old->badge.label != badge->badge.label || old->badge.count != badge->badge.count ||
+    for (Cardinal i=0;i<*count;++i) {
+        if (!strcmp(args[i].name,XmNwidth)) badge->badge.automatic_width=(Dimension)args[i].value==0;
+        if (!strcmp(args[i].name,XmNheight)) badge->badge.automatic_height=(Dimension)args[i].value==0;
+    }
+    Dimension width,height;
+    natural_size(badge,&width,&height);
+    if (badge->badge.automatic_width) badge->core.width=width;
+    if (badge->badge.automatic_height) badge->core.height=height;
+    return old->primitive.foreground != badge->primitive.foreground ||
+           old->core.background_pixel != badge->core.background_pixel ||
+           old->primitive.bottom_shadow_color != badge->primitive.bottom_shadow_color ||
+           XtIsSensitive(old_widget) != XtIsSensitive(widget) ||
+           old->badge.label != badge->badge.label || old->badge.count != badge->badge.count ||
            old->badge.maximum != badge->badge.maximum || old->badge.severity != badge->badge.severity ||
            font_changed || colors_changed;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply) {
-    XmBadgeWidget badge = (XmBadgeWidget)widget; char text[64];
-    size_t length;
     if (widget == NULL || reply == NULL ||
         !XtIsSubclass(widget, xmBadgeWidgetClass))
         return XtGeometryNo;
-    (void)request; text_value(badge, text, sizeof(text));
-    reply->request_mode = CWWidth | CWHeight;
-    length = strlen(text);
-    {
-        Dimension measured_width = 0, measured_height = 0;
-        XmString query_label = (badge->badge.count >= 0) ?
-            XmStringCreateLocalized(text) : badge->badge.label;
-        if (badge->badge.font && query_label)
-            XmStringExtent(badge->badge.font, query_label,
-                           &measured_width, &measured_height);
-        if (badge->badge.count >= 0 && query_label) XmStringFree(query_label);
-        unsigned long width = measured_width > 0 ? (unsigned long)measured_width :
-                               length > ULONG_MAX / 8UL ? ULONG_MAX : length * 8UL;
-        reply->width = width > (unsigned long)(Dimension)-1 - 12UL
-                           ? (Dimension)-1 : (Dimension)(width + 12UL);
-    }
-    reply->height = 22;
-    return (widget->core.width == reply->width && widget->core.height == reply->height)
-               ? XtGeometryYes : XtGeometryAlmost;
+    XmBadgeWidget badge=(XmBadgeWidget)widget;
+    reply->request_mode=CWWidth|CWHeight;
+    natural_size(badge,&reply->width,&reply->height);
+    if (!badge->badge.automatic_width) reply->width=badge->core.width;
+    if (!badge->badge.automatic_height) reply->height=badge->core.height;
+    return XmeReplyToQueryGeometry(widget,request,reply);
 }
 Widget XmCreateBadge(Widget parent, char *name, ArgList args, Cardinal count) {
     return XtCreateWidget(name, xmBadgeWidgetClass, parent, args, count);

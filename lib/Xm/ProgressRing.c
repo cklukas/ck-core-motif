@@ -4,6 +4,7 @@
 #endif
 
 #include <stdio.h>
+#include <math.h>
 #include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <Xm/ProgressRingP.h>
@@ -11,17 +12,37 @@
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
+#include <Xm/DrawP.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void ScaleChanged(Widget, double, double, XtPointer);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 
+static void PreferredSize(Widget, double, Dimension *, Dimension *);
+static Dimension RingDiameter(Widget, double);
+static void ScaleChanged(Widget, double, double, XtPointer);
+
+static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
+{
+    XmProgressRingWidget ring = (XmProgressRingWidget)widget;
+    (void)offset;
+    if (ring->progress_ring.check_set_render_table) value->addr = NULL;
+    else {
+        ring->progress_ring.check_set_render_table = True;
+        value->addr = (char *)&ring->progress_ring.font;
+    }
+}
+
 #define Offset(field) XtOffsetOf(XmProgressRingRec, field)
 static XtResource resources[] = {
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(progress_ring.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(progress_ring.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNprogressMinimum, XmCProgressMinimum, XmRInt, sizeof(int),
      Offset(progress_ring.minimum), XmRImmediate, (XtPointer)0},
     {XmNprogressMaximum, XmCProgressMaximum, XmRInt, sizeof(int),
@@ -98,23 +119,17 @@ static Position bounded_position(long long value) {
 
 static void UpdateGCs(XmProgressRingWidget ring) {
     Display *display = XtDisplay((Widget)ring);
-    Dimension thickness = _XmDpiDefaultDimension((Widget)ring, 4);
-    if (thickness == 0) thickness = 1;
     if (ring->progress_ring.track_gc) {
         XSetBackground(display, ring->progress_ring.track_gc,
                        ring->core.background_pixel);
         XSetForeground(display, ring->progress_ring.track_gc,
                        ring->primitive.bottom_shadow_color);
-        XSetLineAttributes(display, ring->progress_ring.track_gc, thickness,
-                           LineSolid, CapButt, JoinMiter);
     }
     if (ring->progress_ring.fill_gc) {
         XSetBackground(display, ring->progress_ring.fill_gc,
                        ring->core.background_pixel);
         XSetForeground(display, ring->progress_ring.fill_gc,
                        ring->primitive.foreground);
-        XSetLineAttributes(display, ring->progress_ring.fill_gc, thickness,
-                           LineSolid, CapButt, JoinMiter);
     }
     if (ring->progress_ring.text_gc) {
         XSetBackground(display, ring->progress_ring.text_gc,
@@ -127,11 +142,11 @@ static void UpdateGCs(XmProgressRingWidget ring) {
 static void Initialize(Widget request, Widget widget, ArgList args,
                        Cardinal *count) {
     XmProgressRingWidget ring = (XmProgressRingWidget)widget;
-    Widget request_widget = request;
     Display *display = XtDisplay(widget);
     XGCValues values;
     XmFontList defaults;
-    Dimension label_width = 0, label_height = 0, diameter;
+    Dimension preferred_width, preferred_height;
+    double scale = 1.0;
     unsigned long mask = GCForeground | GCBackground;
     XmString label_copy;
     (void)args; (void)count;
@@ -140,23 +155,15 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         ? XmStringCopy(ring->progress_ring.label) : NULL;
     ring->progress_ring.label = label_copy
         ? label_copy : XmStringCreateLocalized("");
-    defaults = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
+    defaults = ring->progress_ring.font ? ring->progress_ring.font :
+        XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
     ring->progress_ring.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (ring->progress_ring.font && ring->progress_ring.label)
-        XmStringExtent(ring->progress_ring.font, ring->progress_ring.label,
-                       &label_width, &label_height);
-    diameter = _XmDpiDefaultDimension(widget, 64);
-    if (diameter < 32) diameter = 32;
-    ring->progress_ring.height_default = (request_widget->core.height == 0);
-    ring->progress_ring.width_default = (request_widget->core.width == 0);
-    if (ring->progress_ring.height_default)
-        ring->core.height = ring->progress_ring.default_height =
-            bounded_dimension((unsigned long)diameter +
-                              2UL * ring->progress_ring.spacing);
-    if (ring->progress_ring.width_default)
-        ring->core.width = ring->progress_ring.default_width =
-            bounded_dimension((unsigned long)diameter + label_width +
-                              3UL * ring->progress_ring.spacing + 8);
+    ring->progress_ring.width_default = (request->core.width == 0);
+    ring->progress_ring.height_default = (request->core.height == 0);
+    _XmGetWidgetDpiScale(widget, &scale);
+    PreferredSize(widget, scale, &preferred_width, &preferred_height);
+    if (ring->progress_ring.width_default) ring->core.width = preferred_width;
+    if (ring->progress_ring.height_default) ring->core.height = preferred_height;
     values.foreground = ring->primitive.bottom_shadow_color;
     values.background = ring->core.background_pixel;
     ring->progress_ring.track_gc = XCreateGC(display, DefaultRootWindow(display),
@@ -179,7 +186,6 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         ring->progress_ring.text_gc = NULL;
     }
     (void)_XmRegisterScaleChange(widget, ScaleChanged, NULL);
-    (void)label_height;
 }
 
 static void Destroy(Widget widget) {
@@ -196,8 +202,10 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmProgressRingWidget ring = (XmProgressRingWidget)widget;
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
-    Dimension label_width = 0, label_height = 0, diameter;
-    int center_x, center_y;
+    Dimension label_width = 0, label_height = 0;
+    int diameter, ring_x, ring_y, thickness;
+    double scale = 1.0;
+    Position center_x, center_y;
     XmString text_string;
     char text[64];
     GC text_gc;
@@ -210,15 +218,16 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (ring->progress_ring.font && ring->progress_ring.label)
         XmStringExtent(ring->progress_ring.font, ring->progress_ring.label,
                        &label_width, &label_height);
-    diameter = ring->core.height > 2 * ring->progress_ring.spacing
-        ? ring->core.height - 2 * ring->progress_ring.spacing : 16;
-    if (diameter > ring->core.width) diameter = ring->core.width;
-    if (diameter < 16 && ring->core.width >= 16) diameter = 16;
-    center_x = (int)ring->progress_ring.spacing + (int)diameter / 2;
-    center_y = (int)ring->core.height / 2;
-    XDrawArc(display, window, ring->progress_ring.track_gc,
-             center_x - (int)diameter / 2,
-             center_y - (int)diameter / 2, diameter, diameter, 0, 360 * 64);
+    _XmGetWidgetDpiScale(widget, &scale);
+    _XmAppearanceRingBounds(ring->core.width, ring->core.height,
+        ring->progress_ring.spacing, ring->primitive.highlight_thickness,
+        MIN(SHRT_MAX, RingDiameter(widget,scale)), &ring_x, &ring_y, &diameter);
+    if (!label_width) ring_x = ((int)ring->core.width - diameter) / 2;
+    thickness = MAX(1, (int)_XmDpiDefaultDimension(widget,4));
+    center_x = ring_x + diameter / 2;
+    center_y = ring_y + diameter / 2;
+    _XmAppearanceDrawRing(display, window, ring->progress_ring.track_gc,
+                          ring_x, ring_y, diameter, thickness, 0, 360 * 64);
     if (ring->progress_ring.indeterminate) {
         fill_angle = 120 * 64;
     } else if (ring->progress_ring.maximum == ring->progress_ring.minimum) {
@@ -232,10 +241,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         fill_angle = (int)((numerator * 360 * 64) / denominator);
     }
     if (fill_angle)
-        XDrawArc(display, window, ring->progress_ring.fill_gc,
-                 center_x - (int)diameter / 2,
-                 center_y - (int)diameter / 2, diameter, diameter,
-                 90 * 64, -fill_angle);
+        _XmAppearanceDrawRing(display, window, ring->progress_ring.fill_gc,
+                              ring_x, ring_y, diameter, thickness, 90 * 64, -fill_angle);
     text_gc = XtIsSensitive(widget) && ring->progress_ring.text_gc
         ? ring->progress_ring.text_gc : ring->progress_ring.track_gc;
     if (ring->progress_ring.text_visible && ring->progress_ring.font) {
@@ -255,12 +262,16 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             Dimension text_width = 0, text_height = 0;
             XmStringExtent(ring->progress_ring.font, text_string, &text_width,
                            &text_height);
-            XmStringDraw(display, window, ring->progress_ring.font, text_string,
-                         text_gc,
-                         bounded_position((long long)center_x -
-                                          (long long)text_width / 2),
-                         bounded_position((long long)center_y -
-                                          (long long)text_height / 2), text_width,
+            /* Fit the text rectangle inside the circular opening, including
+             * its corners, rather than merely inside the opening's square. */
+            if (diameter > 2 * thickness &&
+                (unsigned long long)text_width * text_width +
+                (unsigned long long)text_height * text_height <=
+                (unsigned long long)(diameter - 2 * thickness) *
+                                    (diameter - 2 * thickness))
+                XmStringDraw(display, window, ring->progress_ring.font, text_string,
+                         text_gc, bounded_position((long long)center_x - (long long)text_width / 2),
+                         bounded_position((long long)center_y - (long long)text_height / 2), text_width,
                          XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(ring), NULL);
             XmStringFree(text_string);
@@ -269,8 +280,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (ring->progress_ring.label && ring->progress_ring.font && label_width) {
         XmStringDraw(display, window, ring->progress_ring.font,
                      ring->progress_ring.label, text_gc,
-                     bounded_position((long long)ring->progress_ring.spacing +
-                                      (long long)diameter + 8),
+                     bounded_position((long long)ring_x + diameter + _XmDpiDefaultDimension(widget,8)),
                      centered_offset(ring->core.height, label_height),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(ring), NULL);
@@ -278,11 +288,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (ring->primitive.highlighted && ring->primitive.highlight_thickness &&
         ring->core.width > 2 * ring->primitive.highlight_thickness &&
         ring->core.height > 2 * ring->primitive.highlight_thickness)
-        XDrawRectangle(display, window, ring->progress_ring.fill_gc,
-                       ring->primitive.highlight_thickness - 1,
-                       ring->primitive.highlight_thickness - 1,
-                       ring->core.width - 2 * ring->primitive.highlight_thickness,
-                       ring->core.height - 2 * ring->primitive.highlight_thickness);
+        XmeDrawHighlight(display, window, ring->primitive.highlight_GC,
+                         0, 0, ring->core.width, ring->core.height,
+                         ring->primitive.highlight_thickness);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -298,6 +306,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             ring->progress_ring.height_default = False;
     }
     Normalize(ring);
+    if (old->progress_ring.font != ring->progress_ring.font) {
+        XmFontList source = ring->progress_ring.font ? ring->progress_ring.font :
+            XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
+        XmFontList replacement_font = source ? XmFontListCopy(source) : NULL;
+        if (replacement_font) {
+            if (old->progress_ring.font) XmFontListFree(old->progress_ring.font);
+            ring->progress_ring.font = replacement_font;
+            redraw = True;
+        } else ring->progress_ring.font = old->progress_ring.font;
+    }
     if (old->progress_ring.label != ring->progress_ring.label) {
         XmString replacement = ring->progress_ring.label
             ? XmStringCopy(ring->progress_ring.label) : NULL;
@@ -318,63 +336,78 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         old->core.background_pixel != ring->core.background_pixel ||
         old->primitive.highlighted != ring->primitive.highlighted)
         redraw = True;
+    if (old->progress_ring.spacing != ring->progress_ring.spacing) redraw = True;
+    if (redraw) {
+        Dimension width, height;
+        double scale = 1.0;
+        _XmGetWidgetDpiScale(widget, &scale);
+        PreferredSize(widget, scale, &width, &height);
+        if (ring->progress_ring.width_default) ring->core.width = width;
+        if (ring->progress_ring.height_default) ring->core.height = height;
+    }
     return redraw;
 }
 
-static Dimension RingDiameter(double scale)
-{
-    Dimension diameter = _XmDpiScaleDimension(scale, 64);
-    return diameter < 32 ? 32 : diameter;
-}
-
-static void ScaleChanged(Widget widget, double old_scale, double new_scale,
-                         XtPointer closure)
+static Dimension RingDiameter(Widget widget, double scale)
 {
     XmProgressRingWidget ring = (XmProgressRingWidget)widget;
-    Dimension old_diameter, new_diameter;
-    Dimension width, height;
-    (void)closure;
-    old_diameter = RingDiameter(old_scale);
-    new_diameter = RingDiameter(new_scale);
-    if (old_diameter == new_diameter)
-        return;
-    width = ring->core.width;
-    height = ring->core.height;
-    if (ring->progress_ring.width_default) {
-        ring->progress_ring.default_width =
-            (Dimension)((int)ring->progress_ring.default_width +
-                        (int)new_diameter - (int)old_diameter);
-        width = ring->progress_ring.default_width;
+    unsigned long diameter = _XmDpiScaleDimension(scale,64);
+    if (ring->progress_ring.text_visible && ring->progress_ring.font) {
+        XmString sample = XmStringCreateLocalized("100%");
+        Dimension text_width = 0, text_height = 0;
+        if (sample) {
+            XmStringExtent(ring->progress_ring.font, sample, &text_width, &text_height);
+            XmStringFree(sample);
+            unsigned long content = (unsigned long)ceil(sqrt(
+                (double)text_width * text_width + (double)text_height * text_height));
+            content += 2UL * _XmDpiScaleDimension(scale,4) + _XmDpiScaleDimension(scale,4);
+            diameter = MAX(diameter,content);
+        }
     }
-    if (ring->progress_ring.height_default) {
-        ring->progress_ring.default_height =
-            (Dimension)((int)ring->progress_ring.default_height +
-                        (int)new_diameter - (int)old_diameter);
-        height = ring->progress_ring.default_height;
+    return bounded_dimension(diameter);
+}
+
+static void PreferredSize(Widget widget, double scale, Dimension *width, Dimension *height)
+{
+    XmProgressRingWidget ring = (XmProgressRingWidget)widget;
+    Dimension label_width = 0, label_height = 0;
+    unsigned long diameter = RingDiameter(widget,scale);
+    unsigned long padding = 2UL * MAX(ring->progress_ring.spacing,
+                                      ring->primitive.highlight_thickness);
+    if (ring->progress_ring.font && ring->progress_ring.label)
+        XmStringExtent(ring->progress_ring.font, ring->progress_ring.label, &label_width, &label_height);
+    *width = bounded_dimension(diameter + padding + (label_width
+        ? (unsigned long)label_width + _XmDpiScaleDimension(scale,8) : 0));
+    *height = bounded_dimension(MAX(diameter,label_height) + padding);
+}
+
+static void ScaleChanged(Widget widget, double old_scale, double new_scale, XtPointer closure)
+{
+    XmProgressRingWidget ring = (XmProgressRingWidget)widget;
+    Dimension width, height, offered_width, offered_height;
+    XtGeometryResult result;
+    (void)old_scale; (void)closure;
+    PreferredSize(widget,new_scale,&width,&height);
+    if (!ring->progress_ring.width_default) width = ring->core.width;
+    if (!ring->progress_ring.height_default) height = ring->core.height;
+    if (width != ring->core.width || height != ring->core.height) {
+        result = XtMakeResizeRequest(widget,width,height,&offered_width,&offered_height);
+        if (result == XtGeometryAlmost &&
+            (ring->progress_ring.width_default || offered_width == width) &&
+            (ring->progress_ring.height_default || offered_height == height))
+            (void)XtMakeResizeRequest(widget,offered_width,offered_height,NULL,NULL);
     }
-    if (width != ring->core.width || height != ring->core.height)
-        XtResizeWidget(widget, width, height, ring->core.border_width);
-    if (XtIsRealized(widget))
-        XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
+    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget),XtWindow(widget),0,0,0,0,True);
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
-                                      XtWidgetGeometry *reply) {
-    XmProgressRingWidget ring = (XmProgressRingWidget)widget;
-    Dimension label_width = 0, label_height = 0;
-    Dimension diameter = _XmDpiDefaultDimension(widget, 64);
-    (void)request;
-    if (ring->progress_ring.font && ring->progress_ring.label)
-        XmStringExtent(ring->progress_ring.font, ring->progress_ring.label,
-                       &label_width, &label_height);
-    if (diameter < 32) diameter = 32;
+                                      XtWidgetGeometry *reply)
+{
+    double scale = 1.0;
+    _XmGetWidgetDpiScale(widget,&scale);
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = bounded_dimension((unsigned long)diameter + label_width +
-                                     3UL * ring->progress_ring.spacing + 8);
-    reply->height = bounded_dimension((unsigned long)diameter +
-                                      2UL * ring->progress_ring.spacing);
-    return (widget->core.width == reply->width && widget->core.height == reply->height)
-               ? XtGeometryYes : XtGeometryAlmost;
+    PreferredSize(widget,scale,&reply->width,&reply->height);
+    return XmeReplyToQueryGeometry(widget,request,reply);
 }
 
 static void Notify(XmProgressRingWidget ring, XEvent *event) {

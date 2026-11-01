@@ -1,13 +1,10 @@
 ---
 nav_exclude: true
 ---
-# ColorPicker redisplay guards
+# ColorPicker rendering ownership
 
-`XmColorPicker` handles missing drawing GCs and failed swatch-GC allocation
-without issuing invalid Xlib calls. It also clamps the swatch height when a
-very short widget would otherwise underflow the unsigned dimension subtraction.
-The value label is centered from `XmStringExtent` metrics, so larger and
-complex-script fonts use their actual rendered height.
-
-The focused source contract is checked by
-`tests/automated/check-color-picker-redisplay-guard.py`.
+ColorPicker now delegates text, focus and buttons to native controls. Its only
+custom painting is the passive alpha-aware swatch, clipped to its allocated
+bounds. The obsolete Primitive focus rectangle and text GC have been removed.
+Native geometry and rendering are checked by `run-colorpicker-native.py`; see
+[ColorPicker](color-picker.md) for the current interaction contract.

@@ -30,7 +30,9 @@ int main(int argc, char **argv)
         Widget shell, board, form, explicit_form;
         Dimension shadow = 99;
         CHECK(XmSetDisplayScaleOverride(dpy, scales[s]));
-        CHECK(XmSetAppearanceProfile(dpy, dark ? XmAPPEARANCE_MODERN_DARK : XmAPPEARANCE_MODERN_LIGHT));
+        /* Set installs a startup default; Apply intentionally switches the
+         * same display between profiles during this regression matrix. */
+        CHECK(XmApplyAppearanceProfile(dpy, dark ? XmAPPEARANCE_MODERN_DARK : XmAPPEARANCE_MODERN_LIGHT));
         CHECK(XmSetAppearanceDensity(dpy, compact ? XmAPPEARANCE_DENSITY_COMPACT : XmAPPEARANCE_DENSITY_COMFORTABLE));
         shell = XtAppCreateShell("bounds", "Bounds", applicationShellWidgetClass, dpy, NULL, 0);
         board = XtVaCreateManagedWidget("board", xmBulletinBoardWidgetClass, shell,
@@ -67,8 +69,10 @@ int main(int argc, char **argv)
                 image = XGetImage(dpy, XtWindow((gadget ? board : arrow)),
                     gadget ? 10 : 0, gadget ? 10 : 0, width, height, AllPlanes, ZPixmap);
                 CHECK(image);
-                for (int y = 2; y < height - 2; ++y)
-                for (int x = 2; x < width - 2; ++x) {
+                /* Exclude the rounded frame, including its corner curvature. */
+                int frame = 2 + (int)(4 * scales[s] + 0.5);
+                for (int y = frame; y < height - frame; ++y)
+                for (int x = frame; x < width - frame; ++x) {
                     if (XGetPixel(image, x, y) == background) continue;
                     ++ink;
                     if (x < (width-side)/2 || x >= (width-side)/2+side ||

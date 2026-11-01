@@ -96,6 +96,7 @@ typedef struct _XmArrowButtonGadgetPart
 
   Boolean	 fill_bg_box;
   Dimension detail_shadow_thickness ;
+  Boolean pointer_inside; /* Armed pointer position survives expose. */
 } XmArrowButtonGadgetPart;
 
 

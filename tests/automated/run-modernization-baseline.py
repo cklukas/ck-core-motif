@@ -88,9 +88,9 @@ def main():
         return log.read_text(errors="replace")
 
     try:
-        library = (prefix / "lib/libXm.so.8").resolve(strict=True)
+        library = (prefix / "lib/libXm.so.9").resolve(strict=True)
         if not library.is_relative_to(prefix):
-            raise RuntimeError("libXm.so.8 escapes selected prefix")
+            raise RuntimeError("libXm.so.9 escapes selected prefix")
         receipt["library"] = {"path": str(library), "sha256": sha256(library)}
         binary = output / "modernization-baseline"
         dependency = output / "modernization-baseline.d"
@@ -100,7 +100,7 @@ def main():
         run("compile", [args.cc, *flags, fixture, "-lXm", "-lXt", "-lX11",
                          "-o", binary])
         linked = run("link", ["ldd", binary])
-        if str(prefix / "lib/libXm.so.8") not in linked:
+        if str(prefix / "lib/libXm.so.9") not in linked:
             raise RuntimeError("baseline did not resolve libXm from selected prefix")
         result = output / "baseline.txt"
         image = output / "baseline.ppm"

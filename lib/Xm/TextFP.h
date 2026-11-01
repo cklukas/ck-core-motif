@@ -47,6 +47,10 @@ extern "C" {
 
 typedef struct _XmTextFieldClassPart {
   XtPointer extension;		/* Pointer to extension record. */
+  /* Internal subclass presentation hooks. Insets exclude the ordinary margins;
+   * hooks must not invoke application callbacks or mutate widget state. */
+  void (*decoration_insets)(Widget, Dimension *, Dimension *);
+  void (*draw_decoration)(Widget, const XRectangle *);
 } XmTextFieldClassPart;
 
 typedef struct _XmTextFieldClassRec {

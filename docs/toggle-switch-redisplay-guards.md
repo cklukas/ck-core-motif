@@ -3,10 +3,11 @@ nav_exclude: true
 ---
 # ToggleSwitch redisplay guards
 
-`XmToggleSwitch` now tolerates failed track, knob, or insensitive GC creation.
-It uses an available GC for the knob and label, and skips rendering safely when
-none exists. Focus rectangles are also omitted when the widget is too small to
-represent their requested thickness, avoiding unsigned geometry underflow.
+The switch skips drawing when its window or owned GC is absent. Content clips
+to the allocated interior; one-pixel allocations do not wrap unsigned geometry.
+Focus borders are omitted when the allocation cannot contain their thickness.
 
-The focused source contract is checked by
-`tests/automated/check-toggle-switch-redisplay-guards.py`.
+`tests/automated/run-toggle-switch-pixels.py` exercises missing-GC redisplay and
+one-pixel allocations in addition to actual pixel symmetry, RTL, and disabled
+rendering. Pass `--build` with the configured build directory and `--out` with
+a fresh absolute results directory.

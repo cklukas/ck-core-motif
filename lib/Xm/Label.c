@@ -241,6 +241,12 @@ static XtActionsRec ActionsList[] = {
 static XtResource resources[] = 
 {
   {
+    XmNinsensitiveForeground, XmCInsensitiveForeground, XmRPixel,
+    sizeof(Pixel), XtOffsetOf(XmLabelRec, label.insensitive_foreground),
+    XmRImmediate, (XtPointer) XmUNSPECIFIED_PIXEL
+  },
+
+  {
     XmNshadowThickness, XmCShadowThickness, XmRHorizontalDimension,
     sizeof(Dimension), XtOffsetOf(XmLabelRec, primitive.shadow_thickness),
     XmRImmediate, (XtPointer) 0
@@ -740,7 +746,8 @@ SetNormalGC(XmLabelWidget lw)
   
 #ifdef FIX_1381
   /*generally gray insensitive foreground (instead stipple)*/
-  values.foreground =  _XmAssignInsensitiveColor((Widget)lw);
+  values.foreground = lw->label.insensitive_foreground != XmUNSPECIFIED_PIXEL ?
+      lw->label.insensitive_foreground : _XmAssignInsensitiveColor((Widget)lw);
   values.background = lw->core.background_pixel;
 #else
   valueMask |= GCFillStyle | GCStipple;
@@ -1441,12 +1448,19 @@ Destroy(
  *
 
  ***********************************************************************/
-static void 
-Redisplay(
-        Widget wid,
-        XEvent *event,
-        Region region)
+static void
+Redisplay(Widget wid, XEvent *event, Region region)
 {
+  _XmRedisplayLabel(wid, event, region, True);
+}
+
+void
+_XmRedisplayLabel(Widget wid, XEvent *event, Region region,
+                  Boolean clear_background)
+{
+#ifndef USE_XFT
+  (void)clear_background;
+#endif
   XmLabelWidget lw = (XmLabelWidget) wid;
   GC gc;
   GC clipgc = NULL;
@@ -1455,6 +1469,11 @@ Redisplay(
   Dimension availW, availH, marginal_width, marginal_height, max_text_height;
   int depth;
   
+#ifdef FIX_1381
+    XmAppearanceProfile profile;
+    Boolean embossed = !XmGetAppearanceProfile(XtDisplayOfObject(wid), &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT && profile != XmAPPEARANCE_MODERN_DARK);
+#endif
   lp = &(lw->label);
   
   /*
@@ -1522,7 +1541,7 @@ Redisplay(
 
 #ifdef USE_XFT
     /* it is needed to clear anti-aliased text before draw it again */
-    if ((Lab_IsText (lw) || Lab_IsPixmapAndText(lw)) && (lp->_label != NULL)
+    if (clear_background && (Lab_IsText (lw) || Lab_IsPixmapAndText(lw)) && (lp->_label != NULL)
 		&& lp->TextRect.width > 0 && lp->TextRect.height > 0)
       {
         XClearArea(XtDisplay(lw), XtWindow(lw),
@@ -1653,7 +1672,7 @@ Redisplay(
 	  else
 	  {
 		  /*Draw shadow for insensitive text*/
-		  XmStringDrawUnderline(XtDisplay(lw), XtWindow(lw),
+		  if (embossed) XmStringDrawUnderline(XtDisplay(lw), XtWindow(lw),
 				  lp->font, lp->_label,
 				  lp->shadow_GC,
 				  lp->TextRect.x+1 + lp->StringRect.x,
@@ -1706,7 +1725,7 @@ Redisplay(
 	else
 	  {
 	    /*Draw shadow for insensitive text*/
-	    XmStringDraw (XtDisplay(lw), XtWindow(lw),
+	    if (embossed) XmStringDraw (XtDisplay(lw), XtWindow(lw),
 			  lp->font, lp->_label,
 			  lp->shadow_GC,
 			  lp->TextRect.x+1 + lp->StringRect.x,
@@ -1782,7 +1801,7 @@ Redisplay(
 		  else
 		  {
 			/*Draw shadow for insensitive text*/
-			XmStringDraw (XtDisplay(lw), XtWindow(lw),
+			if (embossed) XmStringDraw (XtDisplay(lw), XtWindow(lw),
 					  lp->font, lp->_acc_text,
 					   lp->shadow_GC,
 					  lp->acc_TextRect.x+1, lp->acc_TextRect.y+1,
@@ -1885,6 +1904,12 @@ SetValues(Widget cw,
   XmString label_copy;
   XmString accelerator_copy;
   XmMenuSystemTrait menuSTrait;
+    Boolean width_requested = False, height_requested = False;
+    /* Equal-valued geometry arguments still express caller ownership. */
+    for (Cardinal i=0; i<*num_args; ++i) {
+        if (strcmp(args[i].name,XmNwidth)==0) width_requested=True;
+        if (strcmp(args[i].name,XmNheight)==0) height_requested=True;
+    }
   
   /* Get pointers to the label parts  */
   newlp = &(new_w->label);
@@ -2072,9 +2097,9 @@ SetValues(Widget cw,
 
       if (newlp->recompute_size)
 	{
-	  if (req->core.width == current->core.width)
+	  if (!width_requested && req->core.width == current->core.width)
 	    new_w->core.width = 0;
-	  if (req->core.height == current->core.height)
+	  if (!height_requested && req->core.height == current->core.height)
 	    new_w->core.height = 0;
 	}
 	  
@@ -2140,9 +2165,9 @@ SetValues(Widget cw,
       
       if (newlp->recompute_size)
         {
-          if (req->core.width == current->core.width)
+          if (!width_requested && req->core.width == current->core.width)
             new_w->core.width = 0;
-          if (req->core.height == current->core.height)
+          if (!height_requested && req->core.height == current->core.height)
             new_w->core.height = 0;
         }
       
@@ -2186,6 +2211,8 @@ SetValues(Widget cw,
       (new_w->core.background_pixel != current->core.background_pixel) ||
 #ifdef FIX_1381
       (new_w->primitive.top_shadow_color != current->primitive.top_shadow_color) ||
+      (new_w->primitive.bottom_shadow_color != current->primitive.bottom_shadow_color) ||
+      (newlp->insensitive_foreground != curlp->insensitive_foreground) ||
 #endif
       (newlp->font != curlp->font))
     {

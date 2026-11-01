@@ -66,7 +66,7 @@ try:
     run("compile", ["cc", *flags, source, "-lXm", "-lXt", "-lX11", "-ldl",
                      "-o", binary])
     linked = run("link", ["ldd", binary])
-    if str(prefix / "lib/libXm.so.8") not in linked:
+    if str(prefix / "lib/libXm.so.9") not in linked:
         raise RuntimeError("corpus did not resolve libXm from selected prefix")
     log = run("run", ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24",
                        binary, result_file])

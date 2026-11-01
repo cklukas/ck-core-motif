@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: ImageCache.c /main/44 1998/10/06 17:26:25 samborn $
 
 #include "XmI.h"
 #include "XmosI.h"              /* for mask name API and stuff */
+#include "ActionIconsI.h"
 #include "BitmapsI.h"		/* for built-in images */
 #include "ColorI.h"		/* for _XmSearchColorCache() */
 #include "HashI.h"		/* for hash table routines. */
@@ -180,7 +181,7 @@ static XtEnum GetImage(Screen *screen, char *image_name,
 		       XmAccessColorData acc_color, XImage **image,
 		       unsigned short * pixmap_resolution,
 		       Pixel **pixels,	/* allocated pixels */
-		       int *npixels);
+		       int *npixels, double svg_scale, Boolean *rasterized);
 static GC GetGCForPutImage(Screen *screen,
 			   Widget print_shell,
 			   XImage * image, 
@@ -954,13 +955,17 @@ GetImage(
 	 XImage **image,
 	 unsigned short * pixmap_resolution,
 	 Pixel **pixels,	/* allocated pixels */
-	 int *npixels)
+	 int *npixels, double svg_scale, Boolean *rasterized)
 {
     static XImage  * built_in_image = NULL;
 
     if (screen == NULL || image == NULL)
         return FALSE;
     *image = NULL;
+    if (rasterized) *rasterized = False;
+#ifndef SVG_SUPPORTED
+    (void)svg_scale;
+#endif
     register Display *display = DisplayOfScreen(screen);
     ImageData *entry;
     char *file_name;
@@ -1027,9 +1032,26 @@ GetImage(
      * cache. An explicitly installed image above keeps precedence. */
     if (_XmSvgGetBuiltinImage(screen, image_name,
             acc_color && acc_color->background != XmUNSPECIFIED_PIXEL
-                ? acc_color->background : WhitePixelOfScreen(screen), image) == 0)
+                ? acc_color->background : WhitePixelOfScreen(screen), svg_scale, image) == 0) {
+        if (rasterized) *rasterized = True;
         return NOT_CACHED;
+    }
 #endif
+
+    /* The same named action artwork remains available without SVG support.
+     * Return an owned image so the ordinary cache can scale and release it. */
+    for (size_t icon = 0; icon < XtNumber(action_icons); ++icon) {
+        if (!strcmp(image_name, action_icons[icon].name)) {
+            XImage *fallback = NULL;
+            char *data = malloc(sizeof(action_icons[icon].bits));
+            if (!data) return FALSE;
+            memcpy(data, action_icons[icon].bits, sizeof(action_icons[icon].bits));
+            _XmCreateImage(fallback, display, data, 24, 24, LSBFirst);
+            if (!fallback) { free(data); return FALSE; }
+            *image = fallback;
+            return NOT_CACHED;
+        }
+    }
 
     /*** if no entry, try to read a new file and cache it
          only if it is a bitmap */
@@ -1051,8 +1073,9 @@ GetImage(
 
         if (acc_color && acc_color->background != XmUNSPECIFIED_PIXEL)
             background = acc_color->background;
-        return_value = _XmSvgGetImage(screen, file_name, background, image) == 0
+        return_value = _XmSvgGetImage(screen, file_name, background, svg_scale, image) == 0
                            ? NOT_CACHED : FALSE;
+        if (rasterized && return_value == NOT_CACHED) *rasterized = True;
         XtFree(file_name);
         return return_value;
     }
@@ -1119,7 +1142,7 @@ _XmGetImage(
 	char *image_name,
 	XImage **image )
 {
-    return GetImage(screen, image_name, NULL, image, NULL, NULL, NULL) ;
+    return GetImage(screen, image_name, NULL, image, NULL, NULL, NULL, 1.0, NULL) ;
 }
 
 
@@ -1575,6 +1598,8 @@ _XmGetScaledPixmap(
     Boolean caller_owns_gc = False;
     Boolean cache_inserted;
     Dimension scaled_width, scaled_height;
+    double svg_scale;
+    Boolean rasterized;
 
     /*  Error checking  */    
     if (image_name == NULL || acc_color == NULL)
@@ -1622,6 +1647,16 @@ _XmGetScaledPixmap(
 	  ((XmPrintShellWidget)pix_data.print_shell)->print.print_resolution ;
 #endif
 
+    /* Resolve automatic screen scaling before cache lookup. Otherwise a
+     * zero-ratio entry would survive a live DPI change with its old pixels.
+     * Print shells retain their image-resolution conversion below. */
+    if (scaling_ratio == 0.0 && widget && !pix_data.print_shell) {
+        double display_scale = 1.0;
+        (void)_XmGetWidgetDpiScale(widget, &display_scale);
+        scaling_ratio = display_scale;
+        pix_data.scaling_ratio = display_scale;
+    }
+
     /* if scaling_ratio a real number, like 1 or 1.2 
        print_resolution still 100 and will not be used */
 
@@ -1648,8 +1683,23 @@ _XmGetScaledPixmap(
 	 - for xpm, on a case by case basis, depending
 	 if the corresponding symbolic color was used. */
        
-    if (!(ret = GetImage(screen, image_name, acc_color, &image, 
-			 &pixmap_resolution, &pixels, &npixels)))
+    /* SVG has no bitmap-resolution metadata. Resolve its automatic print
+     * scale here so the vector renderer receives the final pixel density. */
+    svg_scale = pix_data.scaling_ratio;
+    if (svg_scale == 0.0) {
+        unsigned short resolution = 100;
+#ifdef PRINTING_SUPPORTED
+        if (pix_data.print_shell)
+            resolution = ((XmPrintShellWidget)pix_data.print_shell)
+                ->print.default_pixmap_resolution;
+#endif
+        /* A non-SVG file can supply its own resolution even when the
+         * print default is zero. Let its normal metadata path decide. */
+        svg_scale = resolution ? (double)pix_data.print_resolution / resolution : 0.0;
+    }
+    if (!(ret = GetImage(screen, image_name, acc_color, &image,
+                         &pixmap_resolution, &pixels, &npixels,
+                         svg_scale, &rasterized)))
 	return (XmUNSPECIFIED_PIXMAP);
 
     /* now find how much we need to scale this baby */
@@ -1683,9 +1733,9 @@ _XmGetScaledPixmap(
     if (image->data == NULL || image->width <= 0 || image->height <= 0 ||
 	isfinite(pix_data.scaling_ratio) == 0 || pix_data.scaling_ratio <= 0.0 ||
 	!XmScaledDimension((unsigned int)image->width,
-			   pix_data.scaling_ratio, &scaled_width) ||
+			   (rasterized ? 1.0 : pix_data.scaling_ratio), &scaled_width) ||
 	!XmScaledDimension((unsigned int)image->height,
-			   pix_data.scaling_ratio, &scaled_height)) {
+			   (rasterized ? 1.0 : pix_data.scaling_ratio), &scaled_height)) {
 	if (ret == NOT_CACHED)
 	    XDestroyImage(image);
 	ReleaseImagePixels(screen, pixels, npixels);
@@ -2764,7 +2814,10 @@ void _XmPutScaledImage (
     if (XGetGeometry(display, d, &root, &geometry_x, &geometry_y,
 		     &geometry_width, &geometry_height, &geometry_border,
 		     &geometry_depth)) {
-	destination_depth = geometry_depth;
+	/* XYBitmap remains a one-bit image. XPutImage maps its bits through
+	 * the GC foreground/background when writing a deeper drawable. */
+	if (src_image->format != XYBitmap)
+	    destination_depth = geometry_depth;
 	if (ScreenCount(display) > 1) {
 	    unsigned int candidate;
 	    for (candidate = 0; candidate < (unsigned int)ScreenCount(display);

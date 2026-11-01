@@ -626,7 +626,7 @@ criteria.
 
 **Implementation progress (2026-10-25):** the optional release install path is
 now implemented behind `--enable-cxx-support`. It installs the header-only
-`ckmotif++-8` package metadata and leaves the default C-only build unchanged.
+`ckmotif++-9` package metadata and leaves the default C-only build unchanged.
 Fresh installed-prefix consumer and sanitizer qualification remain the release
 evidence gate; this package does not claim completion until those runs pass.
 

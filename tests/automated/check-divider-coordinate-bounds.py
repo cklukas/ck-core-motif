@@ -8,5 +8,5 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Divider.c").read_text(
 )
 assert "static Position bounded_position(long long value)" in source
 assert "bounded_position((long long)x)" in source
-assert "bounded_position(((long long)divider->core.height - label_height) / 2)" in source
+assert "bounded_position(((long long)height - (long long)text_height) / 2)" in source
 print("PASS Divider label coordinates stay bounded")

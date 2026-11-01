@@ -23,6 +23,7 @@
 ! 
 ! HISTORY
 
+XmdPeriodic*popupWindow.borderWidth:                1
 XmdPeriodic*XmText.columns:                         10
 XmdPeriodic*XmTextField.columns:                    10
 XmdPeriodic*XmComboBox*columns:                      8

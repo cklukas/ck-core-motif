@@ -3347,3 +3347,7 @@ public XmTextLayoutReference
 public XmTextFontContextGetShapingUsage
 internal _XmTextGetLineCapture
 internal _XmStringSourceUsesUnicodeLines
+
+/* Internal target appearance used while committing geometry. */
+internal _XmAppearanceGeometryProfile
+internal _XmAppearanceGeometryDensity

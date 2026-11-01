@@ -138,3 +138,11 @@ intermediates.
 
 The [layout and artwork validation record](gallery-ui-validation.md) summarizes
 the native acceptance checks and screenshot provenance.
+
+
+Example guidance follows the constructed demo. Passive labels, indicators and
+presentation controls offer Theme/Scale comparison without an unused callback
+status row. Interactive examples keep their feedback, and popup examples explain
+how to open their window. Compact layouts preserve the distinction. Source
+remains available for every class, including unavailable optional components
+and infrastructure classes.

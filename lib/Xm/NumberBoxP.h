@@ -2,30 +2,35 @@
 #define _XmNumberBoxP_h
 
 #include <Xm/NumberBox.h>
-#include <Xm/PrimitiveP.h>
+#include <Xm/ManagerP.h>
 
 typedef struct _XmNumberBoxClassPart { XtPointer extension; }
     XmNumberBoxClassPart;
 typedef struct _XmNumberBoxClassRec {
     CoreClassPart core_class;
-    XmPrimitiveClassPart primitive_class;
+    CompositeClassPart composite_class;
+    ConstraintClassPart constraint_class;
+    XmManagerClassPart manager_class;
     XmNumberBoxClassPart number_box_class;
 } XmNumberBoxClassRec;
 
 typedef struct _XmNumberBoxPart {
     int minimum, maximum, value, step, page_step;
     Boolean wrap, invalid;
-    char text[64];
+    Widget editor, increment, decrement, error_label;
+    Boolean initializing, updating, automatic_width, automatic_height;
+    XtWorkProcId layout_work;
     XtCallbackList value_changed_callback, invalid_callback;
     Dimension spacing;
-    GC text_gc, arrow_gc, invalid_gc;
     XmRenderTable render_table;
     Boolean check_set_render_table;
 } XmNumberBoxPart;
 
 typedef struct _XmNumberBoxRec {
     CorePart core;
-    XmPrimitivePart primitive;
+    CompositePart composite;
+    ConstraintPart constraint;
+    XmManagerPart manager;
     XmNumberBoxPart number_box;
 } XmNumberBoxRec;
 

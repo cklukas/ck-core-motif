@@ -33,3 +33,17 @@ The source contract is protected by
 `tests/automated/check-dropdown-negotiation-contract.py`. A native Linux/Xvfb
 runner can be added when an installed prefix is available for ABI-level
 qualification.
+
+
+Geometry negotiation also distinguishes a refused parent height from a valid
+width compromise. A refusal restores speculative child dimensions and returns
+`XtGeometryNo`; it never reads an uninitialized reply or sends its fields to X.
+Child preferred-size queries honor `request_mode`, using the allocated size and
+border for fields omitted by the child.
+
+`tests/automated/run-dropdown-negotiation.py --prefix PREFIX --out OUTPUT`
+checks poisoned partial query replies and 24 denied height/combined requests,
+including query-only calls, across classic/light/dark at 1x and 1.5x. It also
+recreates FontSelector twelve times while exercising 48 theme/density/scale
+transitions with allocator memory poisoning. FontSelector embeds DropDown and
+exposed the invalid ConfigureWindow request in a native lifecycle probe.

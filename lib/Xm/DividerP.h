@@ -19,6 +19,7 @@ typedef struct _XmDividerPart {
     Dimension thickness;
     Dimension spacing;
     GC foreground_gc;
+    Boolean automatic_width, automatic_height;
 } XmDividerPart;
 
 typedef struct _XmDividerRec {

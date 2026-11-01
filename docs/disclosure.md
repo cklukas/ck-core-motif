@@ -8,6 +8,31 @@ baseline. Consumers must rebuild against the selected exact
 header/library cohort; other architectures and application integration have
 separate acceptance checks.
 
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmDisclosureWidgetClass demo](gallery-screenshots/xm-disclosurewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDisclosureWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L785-L802
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Disclosure.h)
+
+:::
+<!-- gallery-demo-tabs: end -->
+
 ## Construction and ownership
 
 Create a section with `XmCreateDisclosure` or `xmDisclosureWidgetClass`. The

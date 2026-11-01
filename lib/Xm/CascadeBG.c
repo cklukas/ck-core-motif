@@ -902,6 +902,15 @@ DrawCascade(
          Dimension offset_x;
          int width;
 
+         /* The option indicator is a disclosure affordance, not a tiny
+          * raised button. Explicit cascade pixmaps keep their own rendering. */
+         if (_XmAppearanceDrawArrowRegion((Widget)cb,
+                 cb->rectangle.x + CBG_Cascade_x(cb),
+                 cb->rectangle.y + CBG_Cascade_y(cb),
+                 CBG_Cascade_width(cb), CBG_Cascade_height(cb), 0,
+                 XmARROW_DOWN, CBG_IsArmed(cb), XtIsSensitive((Widget)cb)))
+             return;
+
 	 switch((int)CBG_Cascade_height(cb) -
 	        2 * (int)G_ShadowThickness(cb)) {
 	    case 5:

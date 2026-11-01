@@ -2597,7 +2597,7 @@ if ((val_entry->b_aux_flags & sym_m_exp_eval) == 0)
 		    (value_segment -> az_next_table_value);
 	        cstr = (sym_value_entry_type *) sem_create_cstr();
 		if (cstr == NULL)
-		    return;
+		    return (sym_value_entry_type *)sym_az_error_value_entry;
 	        sem_append_str_to_cstr( cstr, 
 		    value_segment, FALSE);
 		_sym_copy_entry (value_segment,

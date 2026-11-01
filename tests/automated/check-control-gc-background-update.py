@@ -7,13 +7,12 @@ regions = {
     "ProgressBar.c": "static void UpdateGCs(XmProgressBarWidget",
     "ProgressRing.c": "static void UpdateGCs(XmProgressRingWidget",
     "Spinner.c": "static void UpdateGCs(XmSpinnerWidget",
-    "ToggleSwitch.c": "static void update_gcs(XmToggleSwitchWidget",
 }
 for name, marker in regions.items():
     source = (root / name).read_text()
     start = source.index(marker)
-    end = source.index("}", start) + 1
-    body = source[start:end]
+    next_static = source.find("\nstatic ", start + len(marker))
+    body = source[start:] if next_static < 0 else source[start:next_static]
     assert "XSetBackground" in body, name
     assert "core.background_pixel" in body, name
 

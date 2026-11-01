@@ -2594,7 +2594,7 @@ DrawToggle(
   if (LayoutIsRtoLG(w))
     x = w->rectangle.x + w->rectangle.width -
       w->gadget.highlight_thickness - w->gadget.shadow_thickness -
-      LabG_MarginWidth(w) - TBG_IndicatorDim(w);
+	LabG_MarginWidth(w) - TBG_IndicatorDim(w);
   else
     x = w->rectangle.x +
       w->gadget.highlight_thickness + w->gadget.shadow_thickness +
@@ -2626,6 +2626,17 @@ DrawToggle(
 	y -= (TBG_IndTopDelta(w) - fudge);
     }
   
+  {
+    XmAppearanceToggle appearance = {
+        x, y, edge, w->gadget.highlight_thickness + w->gadget.shadow_thickness,
+        TBG_VisualSet(w), TBG_IndType(w), TBG_IndOn(w),
+        TBG_Visible(w), TBG_FillOnSelect(w), TBG_Armed(w),
+        LabG_Background(w), LabG_Foreground(w), LabG_BottomShadowColor(w),
+        TBG_SelectColor(w), TBG_UnselectColor(w)
+    };
+    if (_XmAppearanceDrawToggle((Widget)w, &appearance)) return;
+  }
+
   if (TBG_Visible(w) || (IsOn(w) == XmSET))
     {
       /* The toggle indicator should be visible. */

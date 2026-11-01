@@ -45,10 +45,14 @@ static char rcsid[] = "$XConsortium: ArrowB.c /main/16 1995/10/25 19:50:57 cde-s
 #include "TravActI.h"
 #include "TraversalI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 
 #define DELAY_DEFAULT	100
 
 /********    Static Function Declarations    ********/
+
+static void HighlightBorder(Widget);
+static void UnhighlightBorder(Widget);
 
 static void ClassPartInitialize( 
                         WidgetClass wc);
@@ -124,8 +128,7 @@ static void ChangeCB(Widget w,
 		     XtPointer closure,
 		     Boolean setunset);
 static void DrawArrow(XmArrowButtonWidget aw,
-		      GC top_gc,
-		      GC bottom_gc,
+		      Boolean pressed,
 		      GC center_gc);
 
 /********    End Static Function Declarations    ********/
@@ -236,14 +239,14 @@ externaldef (xmarrowbuttonclassrec) XmArrowButtonClassRec xmArrowButtonClassRec=
     XtVersion,				/* version               */
     (XtPointer)NULL,			/* callback private      */
     defaultTranslations,		/* tm_table              */
-    (XtGeometryHandler)NULL,		/* query_geometry        */
+    _XmArrowButtonQueryGeometry,		/* query_geometry        */
     (XtStringProc)NULL,			/* display_accelerator   */
     (XtPointer)NULL			/* extension             */
   },
 
   { /* XmPrimitive fields */
-    XmInheritBorderHighlight,		/* Primitive border_highlight   */
-    XmInheritBorderUnhighlight,		/* Primitive border_unhighlight */
+    HighlightBorder,		/* Primitive border_highlight   */
+    UnhighlightBorder,		/* Primitive border_unhighlight */
     XtInheritTranslations,		/* translations                 */
     ArmAndActivate,			/* arm_and_activate             */
     syn_resources,         		/* syn_resources */
@@ -323,6 +326,7 @@ Initialize(
   /*  Set the internal arrow variables  */
   new_w->arrowbutton.timer = 0;
   new_w->arrowbutton.selected = False;
+  new_w->arrowbutton.pointer_inside = True;
   
   /*  Get the drawing graphics contexts.  */
   GetArrowGC (new_w);
@@ -388,8 +392,10 @@ Redisplay(
   iwidth = (int) aw->core.width - 2 * aw->primitive.highlight_thickness;
   iheight = (int) aw->core.height - 2 * aw->primitive.highlight_thickness;
   
-  /*  Draw the arrow  */
-  if ((iwidth > 0) && (iheight > 0))
+  /* The shared renderer paints the complete modern face. */
+  if (!_XmAppearanceDrawArrowButton((Widget)aw, aw->arrowbutton.direction,
+          aw->arrowbutton.selected && aw->arrowbutton.pointer_inside && XtIsSensitive((Widget)aw)) &&
+      iwidth > 0 && iheight > 0)
     {
       if (aw->primitive.shadow_thickness > 0 &&
           aw->primitive.top_shadow_GC != NULL &&
@@ -404,12 +410,10 @@ Redisplay(
 		       aw->primitive.shadow_thickness,
 		       XmSHADOW_OUT);
       
-      if (aw->arrowbutton.selected && XtIsSensitive(wid))
-	DrawArrow(aw, aw->primitive.bottom_shadow_GC,
-		  aw->primitive.top_shadow_GC, aw->arrowbutton.arrow_GC);
+      if (aw->arrowbutton.selected && aw->arrowbutton.pointer_inside && XtIsSensitive(wid))
+	DrawArrow(aw, True, aw->arrowbutton.arrow_GC);
       else
-	DrawArrow(aw, aw->primitive.top_shadow_GC,
-		  aw->primitive.bottom_shadow_GC,
+	DrawArrow(aw, False,
 		  (XtIsSensitive(wid) ?
 		   aw->arrowbutton.arrow_GC : aw->arrowbutton.insensitive_GC));
     }
@@ -421,6 +425,38 @@ Redisplay(
   (*(expose)) ((Widget) aw, event, region);
 }
 
+static void
+HighlightBorder(Widget widget)
+{
+  XmArrowButtonWidget arrow = (XmArrowButtonWidget)widget;
+  XtWidgetProc inherited;
+  if (_XmAppearanceDrawButtonFocus(widget, True)) {
+    arrow->primitive.highlighted = True;
+    arrow->primitive.highlight_drawn = True;
+    return;
+  }
+  _XmProcessLock();
+  inherited = xmPrimitiveClassRec.primitive_class.border_highlight;
+  _XmProcessUnlock();
+  inherited(widget);
+}
+
+static void
+UnhighlightBorder(Widget widget)
+{
+  XmArrowButtonWidget arrow = (XmArrowButtonWidget)widget;
+  XtWidgetProc inherited;
+  if (_XmAppearanceDrawButtonFocus(widget, False)) {
+    arrow->primitive.highlighted = False;
+    arrow->primitive.highlight_drawn = False;
+    return;
+  }
+  _XmProcessLock();
+  inherited = xmPrimitiveClassRec.primitive_class.border_unhighlight;
+  _XmProcessUnlock();
+  inherited(widget);
+}
+
 /************************************************************************
  *
  *  Destroy
@@ -460,6 +496,22 @@ SetValues(
   XmArrowButtonWidget new_w = (XmArrowButtonWidget) nw;
   
   Boolean returnFlag = FALSE;
+  /* Losing effective sensitivity cancels a pointer gesture, including when
+   * an ancestor is disabled. A release after re-enabling must require a new
+   * press instead of reviving the old armed state. */
+  if (!XtIsSensitive(nw) && new_w->arrowbutton.selected) {
+    new_w->arrowbutton.selected = False;
+    returnFlag = TRUE;
+  }
+  /* Zero releases a requested axis; never send a zero-sized X window to
+   * the server while the appearance ownership hook records the release. */
+  if (new_w->core.width == 0 || new_w->core.height == 0) {
+    XtWidgetGeometry preferred = {0};
+    _XmArrowButtonQueryGeometry(nw,NULL,&preferred);
+    if (new_w->core.width == 0) new_w->core.width = preferred.width;
+    if (new_w->core.height == 0) new_w->core.height = preferred.height;
+  }
+
   
   /*  Check the data put into the new widget.  */
   
@@ -513,10 +565,10 @@ Arm(
   (void) XmProcessTraversal((Widget) aw, XmTRAVERSE_CURRENT);
   
   aw->arrowbutton.selected = True;
+  aw->arrowbutton.pointer_inside = True;
   aw->arrowbutton.armTimeStamp = event->xbutton.time; /* see MultiActivate */
   
-  DrawArrow(aw, aw->primitive.bottom_shadow_GC,
-	    aw->primitive.top_shadow_GC, NULL);
+  DrawArrow(aw, True, NULL);
   
   if (aw->arrowbutton.arm_callback)
     {
@@ -580,6 +632,9 @@ MultiActivate(
    */
   XmArrowButtonWidget aw = (XmArrowButtonWidget) wid;
   
+  if (!aw->arrowbutton.selected)
+    return;
+
   if (aw->arrowbutton.multiClick == XmMULTICLICK_KEEP)
     {
       if ((buttonEvent->xbutton.time - aw->arrowbutton.armTimeStamp) > 
@@ -603,8 +658,7 @@ ActivateCommon(
   
   aw->arrowbutton.selected = False;
   
-  DrawArrow(aw, aw->primitive.top_shadow_GC,
-	    aw->primitive.bottom_shadow_GC, NULL);
+  DrawArrow(aw, False, NULL);
   
   /* CR 9181: Consider clipping when testing visibility. */
   if (((buttonEvent->xany.type == ButtonPress) || 
@@ -649,6 +703,7 @@ ArmAndActivate(
   XtExposeProc expose;
   
   ab->arrowbutton.selected = TRUE;
+  ab->arrowbutton.pointer_inside = True;
   _XmProcessLock();
   expose = ab->core.widget_class->core_class.expose;
   _XmProcessUnlock();
@@ -736,8 +791,7 @@ Disarm(
   
   aw->arrowbutton.selected = False;
   
-  DrawArrow(aw, aw->primitive.top_shadow_GC,
-	    aw->primitive.bottom_shadow_GC, NULL);
+  DrawArrow(aw, False, NULL);
   
   call_value.reason = XmCR_DISARM;
   call_value.event = event;
@@ -759,11 +813,11 @@ Enter(
 {
   XmArrowButtonWidget aw = (XmArrowButtonWidget) wid;
 
+  aw->arrowbutton.pointer_inside = True;
   _XmPrimitiveEnter (wid, event, params, num_params);
   
   if (aw->arrowbutton.selected && XtIsSensitive(wid))
-    DrawArrow(aw, aw->primitive.bottom_shadow_GC,
-	      aw->primitive.top_shadow_GC, NULL);
+    DrawArrow(aw, True, NULL);
 }
 
 /************************************************************************
@@ -781,11 +835,11 @@ Leave(
 {
   XmArrowButtonWidget aw = (XmArrowButtonWidget) wid;
 
+  aw->arrowbutton.pointer_inside = False;
   _XmPrimitiveLeave (wid, event, params, num_params);
   
   if (aw->arrowbutton.selected && XtIsSensitive(wid))
-    DrawArrow(aw, aw->primitive.top_shadow_GC,
-	      aw->primitive.bottom_shadow_GC, NULL);
+    DrawArrow(aw, False, NULL);
 }
 
 /************************************************************************
@@ -877,15 +931,19 @@ XmVaCreateManagedArrowButton(
 /* Wrapper around XmeDrawArrow to calculate sizes. */
 static void
 DrawArrow(XmArrowButtonWidget aw,
-	  GC		      top_gc,
-	  GC		      bottom_gc,
+	  Boolean pressed,
 	  GC		      center_gc)
 {
+  GC top_gc = pressed ? aw->primitive.bottom_shadow_GC : aw->primitive.top_shadow_GC;
+  GC bottom_gc = pressed ? aw->primitive.top_shadow_GC : aw->primitive.bottom_shadow_GC;
   Position x, y;
   Dimension width, height;
   unsigned int margin = ((unsigned int)aw->primitive.highlight_thickness +
 			  aw->primitive.shadow_thickness);
   
+  if (_XmAppearanceDrawArrowButton((Widget)aw, aw->arrowbutton.direction, pressed))
+    return;
+
   /* Don't let large margins cause confusion. */
   if (margin <= (aw->core.width / 2))
     {
@@ -910,7 +968,6 @@ DrawArrow(XmArrowButtonWidget aw,
     }
 
   _XmAppearanceInsetArrow((Widget)aw, &x, &y, &width, &height);
-
   /* A partially initialized widget can reach redisplay after a failed
      resource allocation.  Do not pass missing GCs or empty geometry into
      the X drawing helpers. */

@@ -135,6 +135,11 @@ typedef struct {
 
    XtPointer	auto_drag_rects;
    XtPointer	auto_drag_closure;
+
+   XtActionHookId wheel_action_hook;
+   Window wheel_window;
+   unsigned int wheel_button;
+   Boolean wheel_claimed;
 } XmScrolledWindowPart;
 
 
