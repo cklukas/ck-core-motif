@@ -95,6 +95,32 @@ CopyFeedbackString(const char *text)
     return(copy);
 }
 
+static Boolean
+FeedbackDimension(
+    int64_t       extent,
+    int64_t       padding,
+    unsigned int *dimension)
+{
+    int64_t value;
+
+    if (dimension == NULL || extent < 0 || padding < 0 ||
+	extent > INT_MAX - padding)
+	return False;
+    value = extent + padding;
+    *dimension = (unsigned int)value;
+    return True;
+}
+
+static int
+FeedbackCoordinate(int64_t value)
+{
+    if (value > INT_MAX)
+	return INT_MAX;
+    if (value < INT_MIN)
+	return INT_MIN;
+    return (int)value;
+}
+
 /* see WmGlobal.h for index defines: */
 
 #ifndef NO_MESSAGE_CATALOG
@@ -297,29 +323,42 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
      * Derive the size and position of the window from the text extents
      * Set starting position of each string 
      */
-    XTextExtents(pSD->feedbackAppearance.font, DEFAULT_POSITION_STRING, 
-		 strlen(DEFAULT_POSITION_STRING), &direction, &ascent, 
+    XTextExtents(pSD->feedbackAppearance.font, DEFAULT_POSITION_STRING,
+		 (int)(sizeof DEFAULT_POSITION_STRING - 1), &direction, &ascent,
 		 &descent, &xcsLocation);
     
-    pSD->fbWinWidth = xcsLocation.width + 4*FEEDBACK_BEVEL;
+    if (ascent < 0 || descent < 0 ||
+	!FeedbackDimension((int64_t)xcsLocation.width,
+			   4 * FEEDBACK_BEVEL, &pSD->fbWinWidth))
+	return;
 
     switch (pSD->fbStyle) 
     {
 	case FB_SIZE:
-	    pSD->fbSizeY = 2*FEEDBACK_BEVEL + ascent;
-	    pSD->fbWinHeight = (ascent + descent) + 4*FEEDBACK_BEVEL;
+	    pSD->fbSizeY = FeedbackCoordinate((int64_t)2 * FEEDBACK_BEVEL +
+						ascent);
+	    if (!FeedbackDimension((int64_t)ascent + descent,
+			   4 * FEEDBACK_BEVEL, &pSD->fbWinHeight))
+		return;
 	    break;
 
 	case FB_POSITION:
-	    pSD->fbLocY = 2*FEEDBACK_BEVEL + ascent;
-	    pSD->fbWinHeight = (ascent + descent) + 4*FEEDBACK_BEVEL;
+	    pSD->fbLocY = FeedbackCoordinate((int64_t)2 * FEEDBACK_BEVEL +
+					       ascent);
+	    if (!FeedbackDimension((int64_t)ascent + descent,
+			   4 * FEEDBACK_BEVEL, &pSD->fbWinHeight))
+		return;
 	    break;
 
 	default:
 	case (FB_SIZE | FB_POSITION):
-	    pSD->fbLocY = 2*FEEDBACK_BEVEL + ascent;
-	    pSD->fbSizeY = pSD->fbLocY + ascent + descent;
-	    pSD->fbWinHeight = 2*(ascent + descent) + 4*FEEDBACK_BEVEL;
+	    pSD->fbLocY = FeedbackCoordinate((int64_t)2 * FEEDBACK_BEVEL +
+					       ascent);
+	    pSD->fbSizeY = FeedbackCoordinate((int64_t)2 * FEEDBACK_BEVEL +
+						  2 * (int64_t)ascent + descent);
+	    if (!FeedbackDimension(2 * ((int64_t)ascent + descent),
+			   4 * FEEDBACK_BEVEL, &pSD->fbWinHeight))
+		return;
 	    break;
     }
 
@@ -327,21 +366,25 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
     {
 	unsigned int junkWidth, junkHeight;
 
-	mask = XParseGeometry(pSD->feedbackGeometry, &tmpX, &tmpY,
-			      &junkWidth, &junkHeight);
+	mask = (unsigned long)XParseGeometry(pSD->feedbackGeometry, &tmpX, &tmpY,
+					     &junkWidth, &junkHeight);
     }
 
     if (mask & (XValue|YValue))
     {
-	winX = (mask & XNegative) ? 
-	    DisplayWidth(DISPLAY, pSD->screen)  + tmpX - pSD->fbWinWidth : tmpX;
-	winY = (mask & YNegative) ? 
-	    DisplayHeight(DISPLAY, pSD->screen) + tmpY -pSD->fbWinHeight : tmpY;
+	winX = FeedbackCoordinate((mask & XNegative) ?
+	    (int64_t)DisplayWidth(DISPLAY, pSD->screen) + tmpX -
+	    (int64_t)pSD->fbWinWidth : tmpX);
+	winY = FeedbackCoordinate((mask & YNegative) ?
+	    (int64_t)DisplayHeight(DISPLAY, pSD->screen) + tmpY -
+	    (int64_t)pSD->fbWinHeight : tmpY);
     }
     else
     {
-	winX = (DisplayWidth(DISPLAY, pSD->screen) - pSD->fbWinWidth)/2;
-	winY = (DisplayHeight(DISPLAY, pSD->screen) -pSD->fbWinHeight)/2;
+	winX = FeedbackCoordinate(((int64_t)DisplayWidth(DISPLAY, pSD->screen) -
+			   pSD->fbWinWidth) / 2);
+	winY = FeedbackCoordinate(((int64_t)DisplayHeight(DISPLAY, pSD->screen) -
+			   pSD->fbWinHeight) / 2);
     }
 
     /* 
@@ -416,8 +459,8 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
     {
 	win_changes.x = winX;
 	win_changes.y = winY;
-	win_changes.width = pSD->fbWinWidth;
-	win_changes.height = pSD->fbWinHeight;
+	win_changes.width = (int)pSD->fbWinWidth;
+	win_changes.height = (int)pSD->fbWinHeight;
 	win_changes.stack_mode = Above;
 
 	mask = CWX | CWY | CWWidth | CWHeight | CWStackMode;
@@ -466,6 +509,8 @@ void ShowFeedbackWindow (WmScreenData *pSD, int x, int y, unsigned int width, un
  *************************************<->***********************************/
 void PaintFeedbackWindow (WmScreenData *pSD)
 {
+    size_t location_length, size_length;
+
     if (pSD == NULL || pSD->feedbackWin == None ||
 	pSD->fbTop == NULL || pSD->fbBottom == NULL)
 	return;
@@ -503,17 +548,19 @@ void PaintFeedbackWindow (WmScreenData *pSD)
 	 */
 	if (pSD->fbStyle & FB_POSITION) 
 	{
+	    location_length = strlen(pSD->fbLocation);
 	    WmDrawString (DISPLAY, pSD->feedbackWin, 
 			 pSD->feedbackAppearance.inactiveGC,
 			 pSD->fbLocX, pSD->fbLocY, 
-			 pSD->fbLocation, strlen(pSD->fbLocation));
+			 pSD->fbLocation, (unsigned int)location_length);
 	}
 	if (pSD->fbStyle & FB_SIZE) 
 	{
+	    size_length = strlen(pSD->fbSize);
 	    WmDrawString (DISPLAY, pSD->feedbackWin, 
 			 pSD->feedbackAppearance.inactiveGC,
 			 pSD->fbSizeX, pSD->fbSizeY, 
-			 pSD->fbSize, strlen(pSD->fbSize));
+			 pSD->fbSize, (unsigned int)size_length);
 	}
     }
 }
@@ -654,6 +701,7 @@ void UpdateFeedbackText (WmScreenData *pSD, int x, int y, unsigned int width, un
 {
     int         direction, ascent, descent;
     XCharStruct xcs;
+    size_t      text_length;
 
     if (pSD == NULL || pSD->feedbackAppearance.font == NULL)
 	return;
@@ -662,20 +710,28 @@ void UpdateFeedbackText (WmScreenData *pSD, int x, int y, unsigned int width, un
     {
 	(void)snprintf (pSD->fbLocation, sizeof pSD->fbLocation,
 		       "(%4d,%-4d)", x, y);
+	text_length = strlen(pSD->fbLocation);
+	if (text_length > INT_MAX)
+	    return;
 	XTextExtents(pSD->feedbackAppearance.font, pSD->fbLocation,
-		 strlen(pSD->fbLocation), &direction, &ascent, 
+		 (int)text_length, &direction, &ascent,
 		 &descent, &xcs);
-	pSD->fbLocX = (pSD->fbWinWidth - xcs.width)/2;
+	pSD->fbLocX = FeedbackCoordinate(((int64_t)pSD->fbWinWidth -
+				     xcs.width) / 2);
     }
 
     if (pSD->fbStyle & FB_SIZE) 
     {
 	(void)snprintf (pSD->fbSize, sizeof pSD->fbSize,
 		       "%4ux%-4u", width, height);
+	text_length = strlen(pSD->fbSize);
+	if (text_length > INT_MAX)
+	    return;
 	XTextExtents(pSD->feedbackAppearance.font, pSD->fbSize,
-		 strlen(pSD->fbSize), &direction, &ascent, 
+		 (int)text_length, &direction, &ascent,
 		 &descent, &xcs);
-	pSD->fbSizeX = (pSD->fbWinWidth - xcs.width)/2;
+	pSD->fbSizeX = FeedbackCoordinate(((int64_t)pSD->fbWinWidth -
+				      xcs.width) / 2);
     }
 }
 
@@ -802,7 +858,7 @@ static void CancelCB(Widget w, caddr_t client_data, caddr_t call_data)
 void ConfirmAction (WmScreenData *pSD, int nbr)
 {
     Arg           args[8];
-    register int  n;
+    Cardinal      n;
     int           x, y;
     Dimension     width, height;
     Widget        dialogShellW = NULL;

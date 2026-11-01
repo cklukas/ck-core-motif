@@ -10,6 +10,16 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Preserve signed MWM feedback geometry (2026-11-01)
+======================================================
+
+- Validate feedback dimensions derived from font extents and place the window
+  with checked signed arithmetic, avoiding unsigned wraparound for negative
+  geometry or a window larger than the display.
+- Bound text-length conversion for Xlib and add focused feedback-geometry
+  regression coverage with documentation.  Also use Xt's `Cardinal` type for
+  the confirmation dialog's resource count.
+
 Bound MWM configuration token parsing (2026-11-01)
 ====================================================
 
