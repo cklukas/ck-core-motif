@@ -1,0 +1,767 @@
+{
+  "date": "2026-11-01",
+  "source_base": "a41150a13c1589073df02a66d85bebaf8e5c8ac5",
+  "scope": "Modern Avatar rendering; native Mac arm64, XQuartz, Clang C23, Xft, SVG and Unicode enabled",
+  "production_sources": {
+    "lib/Xm/Avatar.c": "512c0a31fca9038b83fd7e47eb71689083f14152ddb1b4cef7e76167b91de27a",
+    "lib/Xm/Appearance.c": "988f263a34a2db796066dca972c1d1cbe86d75502ad2d1f2aa39fd068f2a2759"
+  },
+  "build": {
+    "started_utc": "2026-11-01T20:33:19.802737+00:00",
+    "source_base": "a41150a13",
+    "configuration": "Mac arm64 Clang C23, Xft/Unicode/SVG, shared-only, -j3",
+    "baseline": "Prior comparable clean C23/SVG Mac library build 25.86s at-j3; latest cohort needed 36.79s total library compilation after a corrected prototype. No freshness conclusion relies on duration alone.",
+    "steps": [
+      {
+        "name": "libraries",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/build/lib",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T20:33:33.612168+00:00",
+        "ended_utc": "2026-11-01T20:33:42.546835+00:00",
+        "elapsed_seconds": 8.934720708006353,
+        "exit_code": 0
+      },
+      {
+        "name": "wml",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/build/tools/wml",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T20:33:42.547458+00:00",
+        "ended_utc": "2026-11-01T20:33:43.548045+00:00",
+        "elapsed_seconds": 1.0006272919999901,
+        "exit_code": 0
+      },
+      {
+        "name": "uil",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/build/clients/uil",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T20:33:43.548926+00:00",
+        "ended_utc": "2026-11-01T20:33:44.692323+00:00",
+        "elapsed_seconds": 1.1434221669987892,
+        "exit_code": 0
+      },
+      {
+        "name": "mwm",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/build/clients/mwm",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T20:33:44.692699+00:00",
+        "ended_utc": "2026-11-01T20:33:45.986602+00:00",
+        "elapsed_seconds": 1.2939750000005006,
+        "exit_code": 0
+      },
+      {
+        "name": "gallery",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/build/demos/programs/ckmotif-gallery",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T20:33:45.987429+00:00",
+        "ended_utc": "2026-11-01T20:33:46.184938+00:00",
+        "elapsed_seconds": 0.1975308750043041,
+        "exit_code": 0
+      },
+      {
+        "name": "install-library",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/build/lib",
+          "-j3",
+          "install"
+        ],
+        "started_utc": "2026-11-01T20:33:46.185473+00:00",
+        "ended_utc": "2026-11-01T20:33:49.083646+00:00",
+        "elapsed_seconds": 2.8982051250059158,
+        "exit_code": 0
+      },
+      {
+        "name": "install-gallery",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/build/demos/programs/ckmotif-gallery",
+          "-j3",
+          "install"
+        ],
+        "started_utc": "2026-11-01T20:33:49.085887+00:00",
+        "ended_utc": "2026-11-01T20:33:49.285457+00:00",
+        "elapsed_seconds": 0.199646583001595,
+        "exit_code": 0
+      }
+    ],
+    "success": true,
+    "ended_utc": "2026-11-01T20:33:55.647569+00:00",
+    "elapsed_seconds": 35.84444604199962,
+    "outputs": {
+      "/Volumes/S8T/tmp/motif-avatar-20261101/install/bin/ckmotif-gallery": {
+        "sha256": "4eb1f4ee015701e4ebef7329096f0cb6cbf54852c40bb793a2737307f159dad3",
+        "mtime_ns": 1793565229260540865,
+        "file": "/Volumes/S8T/tmp/motif-avatar-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+      },
+      "/Volumes/S8T/tmp/motif-avatar-20261101/install/lib/libXm.9.dylib": {
+        "sha256": "d4cf2dba7734afa038b28a6037b26ae198c16a1dba4ef87424df10a4b5eb8764",
+        "mtime_ns": 1793565226972508537,
+        "file": "/Volumes/S8T/tmp/motif-avatar-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+      }
+    }
+  },
+  "modern_avatar": {
+    "started_utc": "2026-11-01T20:34:29.032489+00:00",
+    "scope": "Isolated native widget test; no user desktop input",
+    "library": "/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm/.libs/libXm.9.dylib",
+    "library_sha256": "d4cf2dba7734afa038b28a6037b26ae198c16a1dba4ef87424df10a4b5eb8764",
+    "source_sha256": "cefd9bebdd0c4281372c0e23825c57813da688f7e7e341c0873c3c0c686ca530",
+    "steps": [
+      {
+        "name": "compile",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm/.libs",
+          "-I/opt/X11/include",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-avatar-modern.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/avatar-inherited-confirmation/avatar-appearance"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "run",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/avatar-inherited-confirmation/avatar-appearance"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "success": true,
+    "ended_utc": "2026-11-01T20:34:42.151998+00:00",
+    "elapsed_seconds": 13.105276333000802
+  },
+  "regression_native": {
+    "started_utc": "2026-11-01T20:31:14.495218+00:00",
+    "scope": "Isolated native SVG and real gallery tests; no user display input",
+    "svg_enabled": true,
+    "library_sha256": "8105ba8fbcda7a15fa75219dfc26ad21f33652ed2b297a6c9ca6bd8ce2b8e305",
+    "configuration_sha256": "c8aee048c89fd1339015da127ddc4a636d8cce313e67a6ceb61180dda172c466",
+    "linked_libraries": "/Volumes/S8T/tmp/motif-avatar-20261101/install/lib/libXm.9.dylib:\n\t/Volumes/S8T/tmp/motif-avatar-20261101/install/lib/libXm.9.dylib (compatibility version 10.0.0, current version 10.0.0)\n\t/opt/X11/lib/libXmu.6.dylib (compatibility version 9.0.0, current version 9.0.0)\n\t/opt/X11/lib/libXt.6.dylib (compatibility version 7.0.0, current version 7.0.0)\n\t/opt/X11/lib/libXext.6.dylib (compatibility version 11.0.0, current version 11.0.0)\n\t/opt/homebrew/opt/icu4c@78/lib/libicui18n.78.dylib (compatibility version 78.0.0, current version 78.3.0)\n\t/opt/homebrew/opt/icu4c@78/lib/libicuuc.78.dylib (compatibility version 78.0.0, current version 78.3.0)\n\t/opt/homebrew/opt/harfbuzz/lib/libharfbuzz.0.dylib (compatibility version 61500.0.0, current version 61500.0.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.40.3)\n\t/opt/homebrew/opt/librsvg/lib/librsvg-2.2.dylib (compatibility version 2.0.0, current version 2.0.0)\n\t/opt/homebrew/opt/gdk-pixbuf/lib/libgdk_pixbuf-2.0.0.dylib (compatibility version 4401.0.0, current version 4401.6.0)\n\t/opt/homebrew/opt/glib/lib/libgio-2.0.0.dylib (compatibility version 9001.0.0, current version 9001.1.0)\n\t/opt/X11/lib/libcairo.2.dylib (compatibility version 1.0.0, current version 1.18.4)\n\t/opt/homebrew/opt/glib/lib/libgobject-2.0.0.dylib (compatibility version 9001.0.0, current version 9001.1.0)\n\t/opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib (compatibility version 9001.0.0, current version 9001.1.0)\n\t/opt/homebrew/opt/gettext/lib/libintl.8.dylib (compatibility version 13.0.0, current version 13.6.0)\n\t/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)\n\t/opt/X11/lib/libfreetype.6.dylib (compatibility version 27.0.0, current version 27.6.20)\n\t/opt/X11/lib/libXrender.1.dylib (compatibility version 1.0.0, current version 1.0.0)\n\t/opt/X11/lib/libX11.6.dylib (compatibility version 11.0.0, current version 11.0.0)\n\t/opt/X11/lib/libfontconfig.1.dylib (compatibility version 17.0.0, current version 17.0.0)\n\t/opt/X11/lib/libXft.2.dylib (compatibility version 2.0.0, current version 2.0.0)\n\t/opt/homebrew/opt/jpeg-turbo/lib/libjpeg.8.dylib (compatibility version 8.0.0, current version 8.3.2)\n\t/opt/X11/lib/libpng16.16.dylib (compatibility version 72.0.0, current version 72.0.0)\n",
+    "steps": [
+      {
+        "name": "compile-svg-image",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/install/include",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib/Xm",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm",
+          "-I/opt/X11/include",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/install/lib",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-svg-image.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/svg-image"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "compile-dialog-icons",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/install/include",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib/Xm",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm",
+          "-I/opt/X11/include",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/install/lib",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-dialog-icons.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/dialog-icons"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "compile-action-icons",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/install/include",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib/Xm",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm",
+          "-I/opt/X11/include",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/install/lib",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-action-icons.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/action-icons"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "compile-buffered-text",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/install/include",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib/Xm",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm",
+          "-I/opt/X11/include",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/install/lib",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-buffered-text.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/buffered-text"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "compile-live-appearance",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/install/include",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib/Xm",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm",
+          "-I/opt/X11/include",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/install/lib",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-live-appearance.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/live-appearance"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "compile-live-appearance-gadget",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/install/include",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib/Xm",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm",
+          "-I/opt/X11/include",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/install/lib",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-live-appearance-gadget.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/live-appearance-gadget"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "compile-default-button-geometry",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/install/include",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib/Xm",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm",
+          "-I/opt/X11/include",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/install/lib",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-default-button-geometry.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/default-button-geometry"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "compile-avatar-rendering",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/install/include",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib/Xm",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm",
+          "-I/opt/X11/include",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/install/lib",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-avatar-rendering.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/avatar-rendering"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "compile-avatar-geometry",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/install/include",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/src/lib/Xm",
+          "-I/Volumes/S8T/tmp/motif-avatar-20261101/build/lib/Xm",
+          "-I/opt/X11/include",
+          "-L/Volumes/S8T/tmp/motif-avatar-20261101/install/lib",
+          "-L/opt/X11/lib",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/src/tests/automated/check-avatar-geometry.c",
+          "-lXm",
+          "-lXt",
+          "-lX11",
+          "-o",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/avatar-geometry"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "avatar-rendering",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/avatar-rendering"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "avatar-geometry",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/avatar-geometry"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "live-appearance",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/live-appearance",
+          "-xrm",
+          "*ordinary.foreground: #00ff00"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "live-appearance-gadget",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/live-appearance-gadget"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "default-button-geometry",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/default-button-geometry"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "svg-image",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/svg-image",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/valid.svg",
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/invalid.svg"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "dialog-icons",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/dialog-icons"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "action-icons",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/action-icons"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "text-auto",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/buffered-text",
+          "-xrm",
+          "*paintBuffer: auto"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "text-pixmap",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/buffered-text",
+          "-xrm",
+          "*paintBuffer: pixmap"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "text-direct",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/native-final-checks/buffered-text",
+          "-xrm",
+          "*paintBuffer: direct"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "gallery-icons-all-nine",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/install/bin/ckmotif-gallery",
+          "--appearance",
+          "modern-light",
+          "--component",
+          "gallery.icons",
+          "--integration-pages"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "gallery-sidebar",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/install/bin/ckmotif-gallery",
+          "--appearance",
+          "modern-light",
+          "--component",
+          "gallery.icons",
+          "--integration-sidebar-pixels"
+        ],
+        "exit_code": 0
+      },
+      {
+        "name": "gallery-integration",
+        "command": [
+          "/Volumes/S8T/tmp/motif-avatar-20261101/install/bin/ckmotif-gallery",
+          "--integration-test"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "success": true,
+    "ended_utc": "2026-11-01T20:32:44.925964+00:00",
+    "elapsed_seconds": 90.16902154200216
+  },
+  "regression_note": "Broader regression suite used the preceding library before the final parent-relative background-color correction. The final library passed all 142 modern Avatar cases, including inherited backgrounds, and installed-gallery qualification. Existing 45 rendering and 16 geometry configurations passed in the broader suite.",
+  "demos": {
+    "installed_count": 34,
+    "qualification": {
+      "gallery_sha256": "4eb1f4ee015701e4ebef7329096f0cb6cbf54852c40bb793a2737307f159dad3",
+      "results": {
+        "wsm-ui": 0,
+        "--integration-all-demos": 0,
+        "--integration-demos": 0,
+        "missing": 0
+      },
+      "identical_build_outputs": {
+        "/Volumes/S8T/tmp/motif-avatar-20261101/install/bin/mwm": "10b1b23dd42a5aae051ab9a0f4406ca5178a22daabf21e1b4479a33ce8c8d8ed",
+        "/Volumes/S8T/tmp/motif-avatar-20261101/install/lib/libXm.9.dylib": "d4cf2dba7734afa038b28a6037b26ae198c16a1dba4ef87424df10a4b5eb8764",
+        "/Volumes/S8T/tmp/motif-avatar-20261101/install/share/Xm/wsm/wsm": "5b7c17d8a2f43bb7092dd9aa8f9158475072305fdefd0da489d11e49de8e6409",
+        "/Volumes/S8T/tmp/motif-avatar-20261101/install/bin/ckmotif-gallery": "4eb1f4ee015701e4ebef7329096f0cb6cbf54852c40bb793a2737307f159dad3"
+      },
+      "asset_sha256": {
+        "share/Xm/periodic/periodic.c": "05b33728e72bcaf48bf7c43c30444a347f9ba0a1a88f774d734d6f33863b0e16",
+        "share/Xm/periodic/README": "0dc7924243b6ab734df543c3d4255536e8369993e2c6085f4b07aa5b1cb68027",
+        "share/Xm/periodic/periodic_layout.h": "bc68ab1d2b27db115d9b77156879e82bdca4a6033b5d12ea5c12ec2f849e59d4",
+        "share/Xm/periodic/XmdPeriodic.ad": "fd86475e0f7925542efa5a876f5f60727f1e28030048e8f5f4cb20ae80f407f5",
+        "share/Xm/periodic/periodic.uid": "a16a693d036885a776d4124bb57cf6114e4d7fce2bcfbcf8c43c0f6d23cfd96e",
+        "share/Xm/periodic/periodic_l.uil": "4e5d77cef5f5ae05e599b98170c6a5650de03e7e2dddc870c46fe78b1dcf6bd7",
+        "share/Xm/periodic/periodic.uil": "5d05549ffeebae4d221d5d5a6cb71504ae44413601d92b9b7f9ba4c1246d3c79",
+        "share/Xm/periodic/periodic_layout.c": "b22a43315bfb76566b352fb37b9accbced847976c7d4616f6d0820bd742a7a40",
+        "share/Xm/sampler2_0/stack.xpm": "980b3f4351d0a53bd5d56642af17d4a7ee5bc76d89d0cc068854691054f59087",
+        "share/Xm/sampler2_0/README": "ceb663e882b5f09da5ef988cff992911e8d3a69623536ec4bc6f44eedb3d9022",
+        "share/Xm/sampler2_0/cherry.xpm": "af0aa4810d5eb6a4e3b03fdcfb23ccee0f98586e640a14801c8f5436a6e60ae9",
+        "share/Xm/sampler2_0/da.xpm": "734074538e4d28d443ec6eb70d6eb9a0efe17a7fe13123ad4eef526b0d9b8b4b",
+        "share/Xm/sampler2_0/sampler2_0.man": "d346c007c084914f44e30bfe0bd8601c7935fbf9dd5f0b6d13c54c4dab27089d",
+        "share/Xm/sampler2_0/labir.xpm": "59e785ff549c7bb28e214b9e8afe769dbc3898f89035f37e23b74d821839840f",
+        "share/Xm/sampler2_0/text.xpm": "9a85aa3561172c0225ad93901b2b8fba38d296a1a9f4365b84632f9e7586a2bb",
+        "share/Xm/sampler2_0/prev.xpm": "caadea1bd1c2af1d6f8d0d04fd53f3977f03a5809207860159acf94fb2d66926",
+        "share/Xm/sampler2_0/XmdSampler2_0.ad": "488a80b8eeb95090f27ef5b1a2de82cdd76abb71fa52a5a3dbe80c8248deb05f",
+        "share/Xm/sampler2_0/sampler2_0.c": "fe747f442b1527237db01ecb006a21d8aeffe63ebd1541dd3e2c042ff3ee8fbe",
+        "share/Xm/sampler2_0/girlface.xpm": "ba82ee53178ba0098b2615a418217b084d2c192a5451eb19cd6c1b205bcd8a6e",
+        "share/Xm/sampler2_0/main.xpm": "4d3260fc3b17ed3505a7485dcc6ec90d986ca1ba5cc501355888e87c50b0c857",
+        "share/Xm/sampler2_0/sampler2_0.help": "023f5cefd888022b8fd7495fe2dddba7253570622297e27c23cf87877206aee2",
+        "share/Xm/sampler2_0/bomb.xpm": "43e7059ac28b09e0154c2f5efe109bb6858cd3862c251e94e30074cd139b692c",
+        "share/Xm/sampler2_0/spir.xpm": "275b4832632e34513f49c4fa644e80a6c88e8390dc83acce6c1647a57c288e86",
+        "share/Xm/sampler2_0/k7.xpm": "61a24856b70cd37eed33ba3218da4d6526ad5141120c11dd83ab0df41d5d7c36",
+        "share/Xm/sampler2_0/pile.xpm": "0fdda1df56187c06623d9ddfc6ac4e7e87bbcf065fca3917502bfd498f2d5f8f",
+        "share/Xm/sampler2_0/bee.xpm": "3db318c9626d2386a02dce0a955f9af62ad9df95cd157d42e4039d9349f77663",
+        "share/Xm/airport/main.h": "5f9b8964e869885bfb4a0fdff97bd4c7cdabdd6a3ffabe523aa86306273d38b5",
+        "share/Xm/airport/airport.h": "c9265aaef3ea34eb877593bc657da940db936445396e1feecfd73076286eee77",
+        "share/Xm/airport/dragsource.h": "ce77b3ba1df1473cbfaa4a2904d76c5241e43f2dbbc2082f40bb4317c5b5dabf",
+        "share/Xm/airport/README": "891b2fe7d92f366643314174fb93699230d736eaa31b85f1f51f5dcb29f4a992",
+        "share/Xm/airport/dropsite.c": "c9512c4d00842542b05bcae51e04dcbdedfda8e0d86ed10c841a4197ce61a88d",
+        "share/Xm/airport/XmdAirport.ad": "2f0ae2f54a52a0c6c5f21c859000543ff295e3bab78d430c20d1f76d966a5501",
+        "share/Xm/airport/dragsource.c": "600c428a99a97191f891db4da624b6b3207ba5fbb781630839a1bf7df7ccafab",
+        "share/Xm/airport/main.c": "023a4081f92d56c2a3d483e0691cd61e616d8fc7f4cb11f030727d2251948186",
+        "share/Xm/airport/dropsite.h": "036bf4514225e7cbc2d5a32d14e16b053b74f0ac19f3c4e3b8007f20ad2db46c",
+        "share/Xm/animate/plane.uid": "5beaf4b0aa243984c049db97136cbf7408afd409aecca46f00ae370df55abe2c",
+        "share/Xm/animate/plane.uil": "1d585c2cd097e3953bdc469711ce2b14e94ae70aee1a37bab283d63c6dc98b11",
+        "share/Xm/animate/XmdAnimate.ad": "892356762ab740009fc67430efbb09691108fdee47089b21125cda7a3eb3dca5",
+        "share/Xm/animate/README": "6f9821e906b7d80ad5bd27f8cba952e41a77236f299da8b371b3082117ee9977",
+        "share/Xm/animate/dog.uil": "608eeb14b592438b8892600a7d3df64dfd498d5221e0a8a821b22d3d0b8507b0",
+        "share/Xm/animate/dog.uid": "28a89cd7b3aef440ad3825b37821ef6362ad8cec33fb416dfaa3a6db98b1521d",
+        "share/Xm/animate/animate.help": "524258a421f80ce6b642918a7b2a3bb8230a2ac7899660f3874e66bccea42491",
+        "share/Xm/animate/animate.man": "582d4ddcd93970d0e53bef63d42ea7592bdf6e4572c9134af71903b8c8b21aec",
+        "share/Xm/animate/superman.uid": "0c8c51179f6a5b49a9aefff5a46c4f22328195487e5d0291c4f5f6c1286f2c0a",
+        "share/Xm/animate/superman3.xbm": "b80640fa91bc8af9f47287c9e2c50d548bb57e5245399be90b196c153ba54afe",
+        "share/Xm/animate/superman2.xbm": "d6cb822dc8752d2b33fa4a601485e079a4415f8dd86d748390194d73660ccc2b",
+        "share/Xm/animate/superman.uil": "be64e4f2f214526bc9238ff6226bbb6069dd50c7de12730f6e246c270632663e",
+        "share/Xm/animate/superman1.xbm": "cdbb2cfec5e895f108df2bb82a9eaa4537434305365b13b7886391dd9794e244",
+        "share/Xm/animate/superman5.xbm": "74649161fb74b42936d19289651d75476fa8a5eb8b93160f371a95d3be771ef3",
+        "share/Xm/animate/superman4.xbm": "de3c2e10ca2e41ac49635a9c8bff763cd6810145b789c125fcc3478a903f473d",
+        "share/Xm/animate/superman6.xbm": "a647efc5e6a0cbd990bcb7f56f1942d4a81b122fadd1b06c97ad559049ce6a49",
+        "share/Xm/animate/xmanimate.man": "54d52e9654ce1aafbea1ed9c4c0cabfd72691c0daf99a7757109518722d5b1c9",
+        "share/Xm/animate/xmanimate.c": "b27997ddbab40d41261f017375c98eea8cc0e321b348627801b27351b172b541",
+        "share/Xm/animate/xmanimate.uil": "462b248aae49deec69af45d2984b73ec21cc3939b89d3d8bf4737d8c6bad7b10",
+        "share/Xm/animate/xmanimate.uid": "d797306c7eba2d8b15502283d69d0a6eb1ed75780662308cacd4222d53f829c6",
+        "share/Xm/drag_and_drop/DNDDemo.c": "25531ae1e185429ef2981a37912dfb4b346e81ae8ae7ba423a73265a1b4be563",
+        "share/Xm/drag_and_drop/README": "680f524dd7c8be6c99982d3562e022ffba7e34033da7b30575ee865c6c724c61",
+        "share/Xm/drag_and_drop/DNDDemo.man": "22d6ee88468ecb75a4b102e47c5ca60d960573076ef8a397646195e107f02caa",
+        "share/Xm/drag_and_drop/DNDDraw.c": "09269994243e8540cd14f36b43217bf48298480241fd8a17ddf48ac3d6a69242",
+        "share/Xm/drag_and_drop/simpledrop.c": "ce5b4769e85845ad40eabd07d3b8d017409f9d530095b74ae7e270f83216dca0",
+        "share/Xm/drag_and_drop/simpledrop.man": "996f9de767040272a1b4c8ab4ea3cbf81dba574c5ce53b156a8c3f947608b62c",
+        "share/Xm/draw/draw.man": "e1dbd3afa2683b8f09d45eb31252e8ec8d63faec5ac748c9e1dc15424d4df606",
+        "share/Xm/draw/README": "8e06124e831141111687293063c1abb84c104b4fb77844dbcb4abc2880a87235",
+        "share/Xm/draw/draw.help": "adb689a794960e0438334ccddd1ab3cbbba09038a297b0043930ea30913fcd94",
+        "share/Xm/draw/XmdDraw.ad": "ef58284f930cb66f9c92ef91901994aa81d26359702e83de892e851399f9c5f5",
+        "share/Xm/draw/draw.c": "426f19de562be9d97d3deafac08277c6988ebd0b33c40ebade0b5675aea73ff4",
+        "share/Xm/earth/earth.man": "ce08d6b4acb2c2a2c1ffaa3e2623c375430766ef3d5a9e8686fce3625f63b2db",
+        "share/Xm/earth/README": "6e492f7afb581cc27aea12be326343989460068312e0842cfca80cfec99dadac",
+        "share/Xm/earth/earth.c": "2fec305206e757567757a99ddb1e99aaf1186b56eabaf658aa5de68b0973dd8f",
+        "share/Xm/earth/terre.xbm": "12bf120ccb2d358ba0eb2420851ce6ce1dceed9719288f812bf54059accc3482",
+        "share/Xm/filemanager/XmdFilemanager.ad": "992e8b69a8c05182c540802eb485fa8894187f56ffa0da88fb389f11e4316902",
+        "share/Xm/filemanager/filemanager.h": "f07462e65f86779c996aef68b1aa7ca5056ccdac9c84e93ad30fffd0542cf977",
+        "share/Xm/filemanager/exec.xpm": "acc5a337efc5e9fdfe7bef3651b17f1612e1794a6a75542d26c7e4e0e1291cc7",
+        "share/Xm/filemanager/s_pix.xpm": "68fcbf93bfde50375852ff8b98662ef7f39a668e647e153f3a20864f5231ed78",
+        "share/Xm/filemanager/interface.c": "d8cc4e897f7532b84a22c5b146087da22d3dc6b392112f9c79db75985f2407de",
+        "share/Xm/filemanager/s_file.xpm": "93f2899503555cb593222c33cd4038bd5c2c8146e1ba133ee345e873e3e68b86",
+        "share/Xm/filemanager/convert.c": "64804cc22786eda509a7c7f3ce5cc531e8e0d4e791e633616226805fb308a645",
+        "share/Xm/filemanager/filemanager.help": "b13cc5d70f60e0cdde8eace23928eb0684f8565948e863990f23aac8feacf5ac",
+        "share/Xm/filemanager/none.xpm": "80cf93f0a1ff7045ea895414e53d28dc5b20e96d6c1175a4157046d575467338",
+        "share/Xm/filemanager/s_dir.xpm": "3265ac212504b29a77e360f05da83c1558667a9fdfacba8d29d5d931777dcc16",
+        "share/Xm/filemanager/readdir.c": "2749b4f31c718c9a42fbfc5f662745b5e2e01cd991e6f9bb7b8b29b94be9313e",
+        "share/Xm/filemanager/pix.xpm": "ba5af8c19c286de8a73d15472f569f596d6d94cb6d6fba184b90a94f2834ea94",
+        "share/Xm/filemanager/filemanager.c": "18105b4caf2862e19d5a9dbcdf1647a786b90d5824b07ac351fc84adc887c956",
+        "share/Xm/filemanager/s_exec.xpm": "334db776ff189d007043c63a67bef4018183282fa1a505441d1bd26c2f88f12a",
+        "share/Xm/filemanager/actions.c": "89119599095f03c4da31e81007c21612f3b9717f2956c9681a2e723002d70a00",
+        "share/Xm/filemanager/code.xpm": "399b40b4fea67c359d100040eba5b400e6888f16fb06ad3d2e996c1e4d56ef6e",
+        "share/Xm/filemanager/s_none.xpm": "7a9268b1f9ad7a275895fadf4732c465311defe4a6534b6d8351a9a7f2767165",
+        "share/Xm/filemanager/filemanager.man": "b68cbed2310101a848c5212e3921aaa74033c0c47c10264afbb50beebb908780",
+        "share/Xm/filemanager/dir.xpm": "5cff097100ccc6fe091c1745ba1b9b3f5933b8de88f27ee561d30bb6e1b650ca",
+        "share/Xm/filemanager/file.xpm": "bc48ede5274cbac90db91c5884d18c84ec1e8b047805b042cddfd78ebe7578e4",
+        "share/Xm/filemanager/obj.xpm": "c1990fb06b5940dac79f195861eae29aff216536f4dcb6452da2e5c00e963ccc",
+        "share/Xm/fileview/main.h": "33764c8c78e4b7d8be762a5808f323bc6711e34a49b395afdaded9dd9889c3c3",
+        "share/Xm/fileview/English.uil": "dfb3c3c196e80b2b3e21d871d03fb0573ff099124a7e8ede7157df31e95d2f47",
+        "share/Xm/fileview/German.df": "c3a4699bd2b64fbdd1b3c02a7532d795337a5bad05bb336d9609d5b1d31eecb9",
+        "share/Xm/fileview/English.uid": "72233803cbc7bd4b3a416fd067691e69996b6b4872ee576d80bb588c1650d1bc",
+        "share/Xm/fileview/README": "80264498adad6361b83c8c6f0d7db34ba055ae9ea63e705037bfae1bd7f6d0db",
+        "share/Xm/fileview/German.uil": "f5ddbd1763f34efd652b7ad18788e0ccfb2ca660b345e62165f5fc8b37abfabe",
+        "share/Xm/fileview/text.h": "6d35536ce4e02b72b824b1d22fb6257d916ec731b20f5e26a87cff0faf6102d1",
+        "share/Xm/fileview/German.uid": "53799b461354a493e3857502f69df2df84061c2638834bc1072987e2ef1e7a1b",
+        "share/Xm/fileview/French.uil": "c7b54cf42fe6ae4a2a7a56e97bcbeb07cfc0b6aa40e6c3becdca9700143d3e49",
+        "share/Xm/fileview/French.df": "b4d3dbd394e06ed6eb47a3d119f64c8f87facd36f2f107c32c94b557c8b03c0f",
+        "share/Xm/fileview/French.uid": "3ffd362d9ab7c296abfa91e23ffc9a41685a928e5f75900a20d1500468552aa6",
+        "share/Xm/fileview/file.h": "42b44d8265f8703c2a6a367530aa2dc2ae227bd4ecbceda2b9e22c0d2571d308",
+        "share/Xm/fileview/Fileview.ad": "139d252b1695fb3a946d2703f8d558ee2b85f956ffc8621465313a8efb34c4b1",
+        "share/Xm/fileview/fileview.h": "d3392ecccd7572194591bfc5a439eac2c52491d2048c80e28e8fe819c47b2190",
+        "share/Xm/fileview/main.c": "4f2f140c0988ef30c28a043e28b92150c58312dc0d556bb6d8f87eddbe56599a",
+        "share/Xm/fileview/textE.h": "3c007a734505bab6cc66c7f90028e0bf679c5afa0b5b4a93cbfb4acd627e80f6",
+        "share/Xm/fileview/fileE.h": "dd433063d70308348143009364db1a0fa46c9119e606c85280ff0a054570ebd2",
+        "share/Xm/fileview/text.c": "45d41ddcdf9747d5ab9129ea582fb56ecfb5f38568fd20dd5892b2648fb312f0",
+        "share/Xm/fileview/English.df": "3312e073b9abee2106413d06d2ae5f47b322f31ea505a159e21f54d562934c14",
+        "share/Xm/fileview/file.c": "63f55b95a5116017c36eeb7de9b79a226150af9a809553fa6cdb41b1cada2016",
+        "share/Xm/fileview/mainE.h": "5019fa247bbd9014beb24ca1fec00b9aa9eda915cbcefc05b58ecc4467332225",
+        "share/Xm/getsubres/README": "e67e0712f7fffde4194a3f6a649ec14bd886cfd4089429b59e1d27e395afdc77",
+        "share/Xm/getsubres/getsubres.help": "d02be6bc05b6b7d623f9c8767ae8ce484572bdab1c89a58e05e7ea574103dc9e",
+        "share/Xm/getsubres/getsubres.c": "596bc2c514ae51a3216175bbda1640a163da9d4bf18d81ef30ec4ed382b0c481",
+        "share/Xm/getsubres/getsubres.man": "6f806fac74598429839e9a9a5cb172886384ea5f26d4ed3603790ad1c9264c8d",
+        "share/Xm/hellomotif/hellomotif.c": "b8f4ba45278cab6496ce790aec7ab6dda84c9955d4e25df9687637ba62111c04",
+        "share/Xm/hellomotif/README": "44c924295da52ef1a28420511a431e7571ec241b9df3dd1d80ce35144a121527",
+        "share/Xm/hellomotif/hellomotif.uid": "b7fabd335d8ef22ec427f261979f2424203d24bcba6e51a8883a87700df43bcd",
+        "share/Xm/hellomotif/hellomotif.uil": "fd197dd43f91ba8170ab3ddea6cc02eccf2b3192ab00abd9a2c9e4d94dadaa14",
+        "share/Xm/helloint/helloint.uil": "699707683ca2d9341d6c787a5d8740101d93327e081b927a4c4e60c5a690a8ba",
+        "share/Xm/helloint/helloint.uid": "f512428177e3988e14ac2ef9b3adf685b1b93dd86233aafc24759d289c3ce1ed",
+        "share/Xm/helloint/README": "581879da0a7e524aaf3e6b10848f67164984f493f400671c4c248848ee6def8b",
+        "share/Xm/helloint/helloint.man": "937b82f637080723ce87933adf745a6bce59dca997a56063bb291767f28d7877",
+        "share/Xm/helloint/helloint.c": "d9dace469a63da6b41067a2d2b0a8fa28d7985f8ca964d43a5900dd4a973f05f",
+        "share/Xm/helloint/swedish/uid/l_strings.uid": "e9aeeab93b24bf951b01e8285d1f94f6097b8b21c30e70580eacc9f92470f51d",
+        "share/Xm/helloint/french/uid/l_strings.uid": "79e4b6ad3b09b2e27d2533787e2052845d72041d0fa49f96d3cff08c4bb7cb9b",
+        "share/Xm/helloint/hebrew/uid/l_strings.uid": "c68beacfcf96612edcbc95195517be65402663f93e551c055b982d7e4f7a19a8",
+        "share/Xm/helloint/english/uid/l_strings.uid": "eb740d263d1312a041ff7d3f323e630051541c63220181d597b25b950e19e4bc",
+        "share/Xm/helloint/japan/uid/l_strings.uid": "0ec4ff20efcab03dad1bece8cd4f3228963619cb3ca11e59f3976de7e8e215fb",
+        "share/Xm/helloint/C/uid/l_strings.uid": "1f8bcd24e8e00abe6b293b9b9a91f5fd274bcba651d445132b922760c1d2ccb9",
+        "share/Xm/helloint/japanese/uid/l_strings.uid": "5a68bcefc5f9e3a761e5092e02fb66225b3be53721a8fbb03e40aed5ab5177d8",
+        "share/Xm/i18ninput/XmdI18nInput.ad": "664dd6ecb176bcbfbb3c7c451dd60ba70e686cf3ab876af89aee28e8237a6d03",
+        "share/Xm/i18ninput/README": "8a8a3f8cd36d0d41a1d571661af84bccd6294c50abc816ecfb1a717a2fd14845",
+        "share/Xm/i18ninput/i18ninput.c": "8fca8cc9ebf86e0045b0f188ad4b19f5c9155283b37ac887b55a3e658c48c11c",
+        "share/Xm/i18ninput/input.c": "54013a75dfa21a1eddcf73c8e29783ff91906c59dc3d1e8eea25b54dfbd597a2",
+        "share/Xm/i18ninput/i18ninput.man": "c212f05d0f3b6e7270cf70e0e91084942e8eba2892c132630154675f9fbde287",
+        "share/Xm/i18ninput/i18ninput.help": "debfb2a756404839c8e07b35544f9d829c48c855b1f53b8ecfe091d55638070b",
+        "share/Xm/panner/panner.man": "def15fbbdb712fc7c58c4c6479f36b613570663b2fe5ffdd22e438b7e89ac3d0",
+        "share/Xm/panner/README": "12554855e37be49e51f5263225d2b09bc5a3bda52ed2648482613a8a6bdee430",
+        "share/Xm/panner/panner.c": "dee3495d226a954f43aa108950c300126328f06091d6f108e35f6332788a3abc",
+        "share/Xm/piano/Inv8_part2.piano": "721a24988543bd81430dee49d05ed100d4ef2bf6379dd5c806f726ae2d943345",
+        "share/Xm/piano/README": "c1d0c3c19d1b98c1578f1dcbaabf2e2622704e4d899c1bded2e3e2c42143086e",
+        "share/Xm/piano/piano.c": "af88f10a501f2960976111c802960c095b553c24e8abc354e4ce5f877c3048b2",
+        "share/Xm/piano/piano.man": "0c7832550f4043503986d359d16f88a45d93feed79ac67b304bc8533abaaa7c2",
+        "share/Xm/piano/Inv8_part1.piano": "043ab2e67981ea8b8db0adb27bc3ccb504e005e3d0d7a41514e0de6ba77520b0",
+        "share/Xm/piano/piano.images": "5b0758b7486a578b3d88497fa97e62a7e1be30eabb629bfe2522dd8815712e17",
+        "share/Xm/autopopups/README": "b9375602db3d584ff7f76a90f5724c7aa46c9cea00f9901c1576855b8f932c98",
+        "share/Xm/autopopups/autopopups.man": "e2795cafd9a8de3c03b032398269d9a9328089bb9161ed5a7503c82ff457e683",
+        "share/Xm/autopopups/autopopups.c": "b7292de2f774d7bc3d9e779b6650fc0879869b60e17ac59c8fec1960ae66674a",
+        "share/Xm/setDate/README": "6b5bf2d7ec26f2d46437657db73465bf8263de1060656b554950089d8d2b893e",
+        "share/Xm/setDate/XmdSetDate.ad": "57a631ddb999b2e3592f79687bdf1206e8040edc0e9e3398dc57f2321905754a",
+        "share/Xm/setDate/setDate.c": "1846f98c61d75a3e072751094dd22f4740eadc049d83ab1b5a5a2d437e9ba227",
+        "share/Xm/setDate/setDate.man": "896f94c2dc6788f45034d589dd532b0dcbe123c425301854704bb97da71ae81e",
+        "share/Xm/todo/page.h": "eafc0205fa41e4fa10e2d6cafaa9ec75e59ccb2584272b05e23bfa82d2726b62",
+        "share/Xm/todo/todo.man": "04cde5b25fe1a5ba549d826ffea00625afdf375c9b3642634971a113ee9efdda",
+        "share/Xm/todo/todo.c": "a4bf965a762e5bef2c50e58ef384a3777a85a62e2f9dfda80ad2933f6820455d",
+        "share/Xm/todo/README": "db78710e93f88e2fffbcf56cf3a8ff5fec2904dbed303c64b14c038ef129a9fa",
+        "share/Xm/todo/io.c": "d991efcf5ba9b10308036eef694fb557e876a9d577471bf34a3e985b1403afd0",
+        "share/Xm/todo/XmdTodo.ad": "f1961e912a26eccd22c1f5be885f81150ccffaf3cc28e0ae88b261cbd5970df9",
+        "share/Xm/todo/example.todo": "1d472b7633812227bfc9d8385d7f1f28b474fddde2a1a4151e17447faa621c6a",
+        "share/Xm/todo/todo.help": "ca7a7049d9d2c3e2c2a3f631b2fa4cacca79dd6311d5997e98d56cf20830a394",
+        "share/Xm/todo/actions.c": "1e89d1da784382857c811635712d10995fdf813b1cd18cbbf077a7c4796764aa",
+        "share/Xm/tooltips/tooltips.c": "9a117ea8e6549ce4644c1fb53f1b4f5a58e9ccac555ebdbf639c0a004b237bb4",
+        "share/Xm/ButtonBox/bboxdemo.c": "a6ef2053480f2c44238569fff1e7d11a7c8ebd5bb89e168ffcd0cc154a6174ad",
+        "share/Xm/Column/column.c": "1430bd15ccce34a56fde7c1a45666340b7dc8b83ba20b1f02cb2828a9f46be07",
+        "share/Xm/Column/Column.ad": "f5dc8c5ba6da463449293eb85b8950d61b194a4d99045364f4a7678ad3b3701c",
+        "share/Xm/fontsel/fontsel.c": "800d715a276fabefab2e5d1251433371fff117d4ced9fee2c39e1ef15dc7e740",
+        "share/Xm/fontsel/fontsel.h": "c962671d1d889fdedc793461627568cfe804b66668868083138f2b2d0400580f",
+        "share/Xm/fontsel/creation-c.c": "f7408a3f64c2463aeeef61553728d530d54ccb2aad1d31622f160de4e090b34e",
+        "share/Xm/fontsel/callbacks-c.c": "6250c5f2f64118fd90bf0827016c8f5369f6d9484af448d7cad5a3dadced5adb",
+        "share/Xm/Outline/outline.c": "d1d99870c34418d200e43fc71b63d4c1fb34b30645811c7d34bd3f8c6a6f0af3",
+        "share/Xm/Tabstack/creation.h": "18de954216a64f15f526ca8859a0f1977c8c88ee6ab5c50ca26cc5204f68400f",
+        "share/Xm/Tabstack/bxutils.c": "561b6107fcb58578016e69c9fdcc9082f182644116c5a72067d2bf750470eb16",
+        "share/Xm/Tabstack/main.c": "2bc63bc1c35b2563cd4cabfdea7db224c685f53acfe662af9354ec9d40acfd57",
+        "share/Xm/Tabstack/callbacks.c": "9e25a6bac1b44a74a6640b2ba7f55cb42e9b37ce7b42118a009755149c668e21",
+        "share/Xm/Tabstack/creation.c": "5dc5113904569b57ef7f273d8d458b21cd2f5edaaff68a6c021ce90b49d5797f",
+        "share/Xm/Tree/bxutil-c.c": "e00c46870f8b1e413f1cfa632a6b1899ff9ba5a2e1c5b54d0fe804e91b85b4ee",
+        "share/Xm/Tree/tree.c": "0a23ec292447ff7ce19f0a1ab8e8f37828eec83a5ce67a422a89d04d92a86df1",
+        "share/Xm/Color/colordemo.c": "a9d888827348615dcd1805176556d149ae1cd8be4f7b00ad9ee83d1a733ff7ed",
+        "share/Xm/Color/util-c.c": "6e17fe09eff1aa49e9d44e164c814bb14516d3f392fdd7ed86b809bfe06266dc",
+        "share/Xm/combo2/Combo.ad": "237867c8409b5d5644df0f51fd02c422dc9a631393b1895aa333e3bbbf4b7257",
+        "share/Xm/combo2/combo.c": "6003b13e0b57eb17447eed67956c6f512d21584bc3c49da7bf317c356065c125",
+        "share/Xm/Ext18list/ext18list.c": "0013b43900d3ad380d1505718fec131b46f709227c1b94b700530960de557c18",
+        "share/Xm/Ext18list/util-c.c": "9ef98c7c17048eea41e83dd4a4f34654a4f5bcf56b93c76a66f227087a37d9eb",
+        "share/Xm/Ext18list/extlist.h": "e3995a9c0edc37eb055bf26c5ba8cb02028a11ea46f7409436fbfd3626bf792f",
+        "share/Xm/Ext18list/creation.c": "3c9039045d494349725f9baa9595f73c234d1f2b671d7675eef4a501f462af57",
+        "share/Xm/Ext18list/callbacks-c.c": "040387e6f2f76617c617e3e5cc16e367e30df3d06939f9df16140fd702908c8d",
+        "share/Xm/Ext18list/pixmaps/eye.xpm": "bc31011728f158cdd4fe4b6a6b11d97cfeb9c2b5d6430a38e53f04aad83e937b",
+        "share/Xm/Ext18list/pixmaps/crab.xpm": "615514ddae0b0c5f41068f0e7108547fe0f39b01866d4cffb24719ae5ddb8ed5",
+        "share/Xm/Ext18list/pixmaps/clown.xbm": "07506a3521f685d6329d3a126570c2f441e80a4c56ea25c2b3426a57dab7b60f",
+        "share/Xm/Ext18list/pixmaps/porsche.xpm": "4a58396daa6de082c2bf4aeaf965a65ac1509fb6c0e21b2bcc9d92bcb06ed78e",
+        "share/Xm/Ext18list/pixmaps/stopsign.xpm": "46343969813a061ee3885cc90cedf3b68b7a81383511b276d20e513a7b47e09d",
+        "share/Xm/Icon/small.bm": "ed8972bcb3c694de59c4c5e96b702985fbfebd2b458c05b32c73a29f9048605b",
+        "share/Xm/Icon/iconbuttondemo.c": "cdf86bcb7d758c7d1d44e5074933f85cbb0dee032293ab127c5ecfe607e8f7ea",
+        "share/Xm/Icon/misc.c": "64b2b77bed6bd3a745248e732f3ea2ca966cde053c45888b930b20315b0d247b",
+        "share/Xm/Paned2/paned.c": "343d9fd6a01e33e6e88581ee2de7fbdfaa83ef8e487c1db6b549a591fea7fbf2",
+        "share/Xm/Paned2/creation-c.c": "607cfb695c03c33461ce6f2a8fc8a15507a93e5d759257e6e074b849d3efd39f",
+        "share/Xm/Exm/simple_app/README": "ee589f068b3ef022410c4c251181b815b135b785f72bbe3f1abe8641735bd3ff",
+        "share/Xm/wsm/wsm_ui.h": "f1eb20a9d735506eb17cf7cbacaec9e401a5e8fd01cec9e1c77d64c3c0ec6a08",
+        "share/Xm/wsm/wsm_cb.c": "3294e660e1dec3d7d0dbea582c47e36ae80529de4d1ee8795373f2c0ea0a8f74",
+        "share/Xm/wsm/xrmLib.h": "af8a058ccda0c695fe23ccca5db85f2d574c835693e238813610b15840ff6bf2",
+        "share/Xm/wsm/README": "eb9e50bca901adf90f9bdd636ddb39a7560bda9a948a8a631ac3f9c76e306782",
+        "share/Xm/wsm/wsm_create.c": "5d7035ef31e9d38cace11d4057c7f810942bd23f7db6ca33f629f9b5adf56048",
+        "share/Xm/wsm/wsmDebug.c": "7b5208a0e8978ad52efec807c40ddbedb5dc71b9dbd1d7cb3619666ba8f44392",
+        "share/Xm/wsm/wsmSend.h": "40635ac71905db7f7cda315580f413170dddf6ab5c518108bc51d234772fa496",
+        "share/Xm/wsm/command_ui.h": "bc1f92a042b63ff34672faffe80301ea9dd9e0ebe9a6d4847deecaca64592b0b",
+        "share/Xm/wsm/wsmData.c": "7c0110de336b187b8876251701262c53185bacd717948c5ae147db49bdb30999",
+        "share/Xm/wsm/wsmStruct.c": "e1dc6e161a7606bc23aff504f9e77603506e8901deef96e2dc952dce482b3595",
+        "share/Xm/wsm/wsm.h": "85b8c5e4d6a81f7d44b9f2316417a811cf753c9726289181f42e0af31b1b9efc",
+        "share/Xm/wsm/xrmLib.c": "088e0f39d8627b03705cbdb099b9281ea260742e06522942be82e39250f863cd",
+        "share/Xm/wsm/wsm_cb.h": "c682fa13551f9074b51fb6a16d59cdfd01ccde7370bcfeddfb4a8fd249c700c4",
+        "share/Xm/wsm/wsmSend.c": "2fcff07aca7d9f0d4fd32405d5ab53004ea5dd5bc19d86d126d9f0750b517792",
+        "share/Xm/wsm/wsmDebug.h": "ebcc66e5a3c18c8f3574ffde742d8cb19c08807119632b0a76c0681e594eaf32",
+        "share/Xm/wsm/wsm_create.h": "c13d94e2f00f71cd16e84a760274504e49042ac8c32e4223392b32f11b82ef90",
+        "share/Xm/wsm/wsm_integration.c": "857d83427e7c404aefb8c2081a254730eb0e8fc2897208e17e305c8c38ccbb2d",
+        "share/Xm/wsm/wsmData.h": "67c8aebb9f7532e8126641e3746833c5589391895c29d9fa22e2e76b3a28abc8",
+        "share/Xm/wsm/command_ui.c": "127cf681b2c911b1250e5c91b2e0ae4a9e1ab1eafc383bfe26fb9d92ee3e4747",
+        "share/Xm/wsm/wsm.man": "5ab39192bb637fa28343a63c9294dd358b4245a6bc86c26885644524483d12e0",
+        "share/Xm/wsm/client_win.c": "0d38d430741ca62148c5b80c9e4bde0ed6582f5162c470e6315a1bf17427ff9f",
+        "share/Xm/wsm/wsm.c": "2bf3f23983a5e3a408115b2be835642b66aed31838cdcf8389390364a11c3fe5",
+        "share/Xm/wsm/wsmStruct.h": "82ae5beb38a7f5092f9611be2fca834cc62f2b256dc7ed9e2849e51e6c0e810f"
+      },
+      "manager": {
+        "pid": 75362,
+        "executable": "/Volumes/S8T/tmp/motif-avatar-20261101/install/bin/mwm"
+      },
+      "wsm_exit_code": 0,
+      "success": true
+    }
+  },
+  "actual_window": {
+    "pid": 76049,
+    "cg_window_id": 5944,
+    "executable": "/Volumes/S8T/tmp/motif-avatar-20261101/install/bin/ckmotif-gallery",
+    "image": "/Volumes/S8T/tmp/motif-avatar-20261101/actual-avatar-window.png",
+    "image_sha256": "385300bf0967a5176eacc568e23fbd3c588688b613402af4fff28a953069e655",
+    "observed": "Modern light at 100%: smooth filled blue circle, centered bold blue CK initials, outer corners match parent, sidebar text visible.",
+    "input": "No input sent to user desktop. Gallery left open on Avatar for manual testing."
+  },
+  "duration_investigation": {
+    "observed_utc": "2026-11-01T20:22:56.854101+00:00",
+    "observation": "Clean autogen/configure slower than previous cohort. Configuration log advances through individual native compile/link probes; no cached or old output reused. Independent long-running filesystem scans and other builds are active; these were not interrupted. Freshness is established by source and binary fingerprints, logs, timestamps, and native tests."
+  }
+}

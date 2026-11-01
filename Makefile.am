@@ -1532,3 +1532,8 @@ EXTRA_DIST += tests/automated/check-outline-connections.c \
 
 EXTRA_DIST += tests/automated/check-infobar-action-layout.py
 EXTRA_DIST += tests/automated/check-mwm-identity-inputs.py
+
+EXTRA_DIST += tests/automated/check-avatar-modern.c \
+              tests/automated/run-avatar-modern.py
+
+EXTRA_DIST += docs/validation/macos-avatar-20261101.json

@@ -155,6 +155,10 @@ static const char modern_light_resources[] =
     "*XmSearchBox.highlightThickness: 2\n"
     "*XmText.highlightThickness: 2\n"
     "*XmIconGadget.shadowThickness: 0\n"
+    "*XmAvatar.background: #d3e3fd\n"
+    "*XmAvatar.foreground: #174ea6\n"
+    "*XmAvatar.highlightThickness: 0\n"
+    "*XmAvatar.shadowThickness: 0\n"
     "*XmContainer.shadowThickness: 0\n"
     "*XmContainer.outlineLineStyle: no_line\n"
     "*XmScrolledWindow.shadowThickness: 1\n"
@@ -257,6 +261,10 @@ static const char modern_dark_resources[] =
     "*XmSearchBox.highlightThickness: 2\n"
     "*XmText.highlightThickness: 2\n"
     "*XmIconGadget.shadowThickness: 0\n"
+    "*XmAvatar.background: #334b6d\n"
+    "*XmAvatar.foreground: #d3e3fd\n"
+    "*XmAvatar.highlightThickness: 0\n"
+    "*XmAvatar.shadowThickness: 0\n"
     "*XmContainer.shadowThickness: 0\n"
     "*XmContainer.outlineLineStyle: no_line\n"
     "*XmScrolledWindow.shadowThickness: 1\n"
@@ -1267,7 +1275,11 @@ appearance_font_role(XmAppearanceWidgetState *state)
         state = parent;
         provider = parent->widget;
     }
-    return appearance_role(provider);
+    unsigned char role = appearance_role(provider);
+    if (role == XmAPPEARANCE_ROLE_NORMAL && !state->explicit_role &&
+        XtIsSubclass(provider, xmAvatarWidgetClass))
+        return XmAPPEARANCE_ROLE_SECTION;
+    return role;
 }
 
 /* Composite constructors and font setters pass a table as an implementation

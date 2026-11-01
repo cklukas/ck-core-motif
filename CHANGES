@@ -1,3 +1,14 @@
+Modernize Avatar surfaces and initials (2026-11-01)
+==================================================
+
+- Give modern Avatars a tinted circular surface, smooth XRender edge coverage
+  and section-size initials. Match toolkit-owned outer corners to the parent
+  background and repaint them after parent background changes.
+- Preserve Classic, borrowed image cropping, explicit colors/fonts and native
+  records. Evict transient initials pixmaps from the Xft cache before freeing.
+- Add native rendered-pixel tests for light/dark, scale, density, parent tiles,
+  explicit colors and repeated creation/destruction.
+
 Connect Outline branches to visible node borders (2026-11-01)
 ============================================================
 

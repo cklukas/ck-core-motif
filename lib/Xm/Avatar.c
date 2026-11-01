@@ -10,8 +10,16 @@
 #include <Xm/XmP.h>
 #include <limits.h>
 #include <string.h>
+#include <X11/Xutil.h>
+#include <Xm/Appearance.h>
+#include <Xm/TraitP.h>
+#include <Xm/CareVisualT.h>
 #include "XmI.h"
+#include "XmRenderTI.h"
 #include "AppearanceDrawI.h"
+#ifdef HAVE_XRENDER
+#include <X11/extensions/Xrender.h>
+#endif
 
 static Position bounded_position(long long value) {
     if (value < SHRT_MIN) return (Position)SHRT_MIN;
@@ -20,6 +28,7 @@ static Position bounded_position(long long value) {
 }
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
+static void ClassPartInitialize(WidgetClass);
 static void Destroy(Widget);
 static void BufferedRedisplay(Widget, XEvent *, Region);
 static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
@@ -54,7 +63,7 @@ static XtResource resources[] = {
 
 externaldef(xmavatarclassrec) XmAvatarClassRec xmAvatarClassRec = {
     {(WidgetClass)&xmPrimitiveClassRec, "XmAvatar", sizeof(XmAvatarRec),
-     NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
+     NULL, ClassPartInitialize, False, Initialize, NULL, XtInheritRealize, NULL, 0,
      resources, XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal,
      True, False, Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL,
      XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
@@ -80,6 +89,164 @@ static Boolean pixmap_size(XmAvatarWidget avatar, unsigned int *width,
         return False;
     return XGetGeometry(XtDisplay((Widget)avatar), avatar->avatar.pixmap,
                         &root, &x, &y, width, height, &border, depth);
+}
+
+static Boolean modern_avatar(Widget widget) {
+    XmAppearanceProfile profile;
+    return XmGetAppearanceProfile(XtDisplay(widget), &profile) &&
+        (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK);
+}
+
+static Boolean ParentVisualChanged(Widget widget, Widget old_parent,
+                                   Widget parent, Mask flags) {
+    XmCareVisualTrait inherited = (XmCareVisualTrait)XmeTraitGet(
+        (XtPointer)xmPrimitiveWidgetClass, XmQTcareParentVisual);
+    Boolean redraw = inherited && inherited->redraw
+        ? inherited->redraw(widget, old_parent, parent, flags) : False;
+    if (modern_avatar(widget) &&
+        (flags & (VisualBackgroundPixel | VisualBackgroundPixmap)))
+        _XmPaintInvalidate(widget);
+    return redraw;
+}
+
+static XmCareVisualTraitRec avatar_visual = {0, ParentVisualChanged};
+static void ClassPartInitialize(WidgetClass class) {
+    XmeTraitSet((XtPointer)class, XmQTcareParentVisual, &avatar_visual);
+}
+
+/* An A8 coverage mask gives the circle a smooth edge without changing the
+ * native window shape or assuming that the parent uses the avatar's color. */
+static Boolean composite_circle(Widget widget, Drawable target, Pixmap face,
+                                 int x, int y, int diameter) {
+#ifdef HAVE_XRENDER
+    Display *display = XtDisplay(widget);
+    Screen *screen = XtScreen(widget);
+    int event, error;
+    XRenderPictFormat *format, *alpha;
+    XImage *image;
+    Pixmap mask;
+    GC gc;
+    Picture source, destination, coverage;
+    if (diameter > 2048 || widget->core.depth != DefaultDepthOfScreen(screen) ||
+        !XRenderQueryExtension(display, &event, &error)) return False;
+    format = XRenderFindVisualFormat(display, DefaultVisualOfScreen(screen));
+    alpha = XRenderFindStandardFormat(display, PictStandardA8);
+    if (!format || format->direct.alphaMask || !alpha) return False;
+    image = XCreateImage(display, DefaultVisualOfScreen(screen), 8, ZPixmap,
+                         0, NULL, diameter, diameter, 8, 0);
+    if (!image) return False;
+    image->data = XtCalloc((Cardinal)image->bytes_per_line, diameter);
+    if (!image->data) { XDestroyImage(image); return False; }
+    double radius = diameter / 2.0, squared = radius * radius;
+    for (int yy = 0; yy < diameter; ++yy)
+        for (int xx = 0; xx < diameter; ++xx) {
+            unsigned inside = 0;
+            for (unsigned sy = 0; sy < 4; ++sy)
+                for (unsigned sx = 0; sx < 4; ++sx) {
+                    double dx = xx + (sx + .5) / 4.0 - radius;
+                    double dy = yy + (sy + .5) / 4.0 - radius;
+                    inside += dx * dx + dy * dy <= squared;
+                }
+            XPutPixel(image, xx, yy, (inside * 255 + 8) / 16);
+        }
+    mask = XCreatePixmap(display, target, diameter, diameter, 8);
+    gc = XCreateGC(display, mask, 0, NULL);
+    XPutImage(display, mask, gc, image, 0, 0, 0, 0, diameter, diameter);
+    XFreeGC(display, gc);
+    XDestroyImage(image);
+    source = XRenderCreatePicture(display, face, format, 0, NULL);
+    destination = XRenderCreatePicture(display, target, format, 0, NULL);
+    coverage = XRenderCreatePicture(display, mask, alpha, 0, NULL);
+    XRenderComposite(display, PictOpOver, source, coverage, destination,
+                     0, 0, 0, 0, x, y, diameter, diameter);
+    XRenderFreePicture(display, coverage);
+    XRenderFreePicture(display, destination);
+    XRenderFreePicture(display, source);
+    XFreePixmap(display, mask);
+    return True;
+#else
+    (void)widget; (void)target; (void)face; (void)x; (void)y; (void)diameter;
+    return False;
+#endif
+}
+
+static void PaintModernAvatar(Widget widget, Drawable target, GC gc,
+                               int x, int y, int diameter, Pixel foreground) {
+    XmAvatarWidget avatar = (XmAvatarWidget)widget;
+    Display *display = XtDisplay(widget);
+    Pixel outside = avatar->core.background_pixel;
+    unsigned width = 0, height = 0, depth = 0;
+    Dimension text_width = 0, text_height = 0;
+    Pixmap face;
+    if (_XmAppearanceOwnsResource(widget, XmNbackground) && XtParent(widget))
+        outside = XtParent(widget)->core.background_pixel;
+    XSetClipMask(display, gc, None);
+    XSetForeground(display, gc, outside);
+    if (_XmAppearanceOwnsResource(widget, XmNbackground) && XtParent(widget)) {
+        Widget parent = XtParent(widget);
+        int origin_x = -widget->core.x - widget->core.border_width;
+        int origin_y = -widget->core.y - widget->core.border_width;
+        while (parent->core.background_pixmap == ParentRelative && XtParent(parent)) {
+            origin_x -= parent->core.x + parent->core.border_width;
+            origin_y -= parent->core.y + parent->core.border_width;
+            parent = XtParent(parent);
+        }
+        XSetForeground(display, gc, parent->core.background_pixel);
+        Pixmap tile = parent->core.background_pixmap;
+        if (tile != None && tile != ParentRelative && tile != XmUNSPECIFIED_PIXMAP) {
+            Window root;
+            int tile_x, tile_y;
+            unsigned tile_width, tile_height, border, tile_depth;
+            if (XGetGeometry(display, tile, &root, &tile_x, &tile_y,
+                    &tile_width, &tile_height, &border, &tile_depth) &&
+                tile_depth == widget->core.depth) {
+                XSetTile(display, gc, tile);
+                XSetFillStyle(display, gc, FillTiled);
+                XSetTSOrigin(display, gc, origin_x, origin_y);
+            }
+        }
+    }
+    XFillRectangle(display, target, gc, 0, 0, widget->core.width, widget->core.height);
+    XSetFillStyle(display, gc, FillSolid);
+    XSetTSOrigin(display, gc, 0, 0);
+    face = XCreatePixmap(display, target, diameter, diameter, widget->core.depth);
+    XSetForeground(display, gc, avatar->core.background_pixel);
+    XSetBackground(display, gc, avatar->core.background_pixel);
+    XFillRectangle(display, face, gc, 0, 0, diameter, diameter);
+    XSetForeground(display, gc, foreground);
+    if (pixmap_size(avatar, &width, &height, &depth) &&
+        (depth == 1 || depth == widget->core.depth)) {
+        unsigned copy_width = MIN(width, (unsigned)diameter);
+        unsigned copy_height = MIN(height, (unsigned)diameter);
+        if (depth == 1)
+            XCopyPlane(display, avatar->avatar.pixmap, face, gc,
+                (width-copy_width)/2, (height-copy_height)/2, copy_width, copy_height,
+                (diameter-(int)copy_width)/2, (diameter-(int)copy_height)/2, 1);
+        else
+            XCopyArea(display, avatar->avatar.pixmap, face, gc,
+                (width-copy_width)/2, (height-copy_height)/2, copy_width, copy_height,
+                (diameter-(int)copy_width)/2, (diameter-(int)copy_height)/2);
+    } else if (avatar->avatar.initials && avatar->avatar.font) {
+        XmStringExtent(avatar->avatar.font, avatar->avatar.initials,
+                         &text_width, &text_height);
+        if (text_width && text_height)
+            XmStringDraw(display, face, avatar->avatar.font, avatar->avatar.initials,
+                gc, bounded_position((diameter-(int)text_width)/2),
+                bounded_position((diameter-(int)text_height)/2), text_width,
+                XmALIGNMENT_BEGINNING, XmPrim_layout_direction(avatar), NULL);
+    }
+    if (!composite_circle(widget, target, face, x, y, diameter)) {
+        Region clip = _XmAppearanceRoundedRectangleRegion(x, y, diameter,
+                                                           diameter, diameter/2);
+        XSetRegion(display, gc, clip);
+        XCopyArea(display, face, target, gc, 0, 0, diameter, diameter, x, y);
+        XSetClipMask(display, gc, None);
+        XDestroyRegion(clip);
+    }
+#ifdef USE_XFT
+    _XmXftDrawEvict(display, face);
+#endif
+    XFreePixmap(display, face);
 }
 
 static void Initialize(Widget request, Widget widget, ArgList args,
@@ -140,6 +307,10 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (diameter <= 0) return;
     x = ((int)avatar->core.width - diameter) / 2;
     y = ((int)avatar->core.height - diameter) / 2;
+    if (modern_avatar(widget) && diameter <= 2048) {
+        PaintModernAvatar(widget, window, gc, x, y, diameter, foreground);
+        return;
+    }
     _XmAppearanceFillRoundedRectangle(display, window, gc, x, y,
                                       diameter, diameter, diameter / 2);
     inner = diameter - 2;
@@ -188,6 +359,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                          XmPrim_layout_direction(avatar), NULL);
             XSetRegion(display, gc, clip);
             XCopyArea(display, text, window, gc, 0, 0, diameter, diameter, x, y);
+#ifdef USE_XFT
+            _XmXftDrawEvict(display, text);
+#endif
             XFreePixmap(display, text);
         }
     }

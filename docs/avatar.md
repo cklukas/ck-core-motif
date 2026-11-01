@@ -12,15 +12,23 @@ foreground/background colours; colour pixmaps must match the widget depth.
 Unspecified or incompatible-depth pixmaps fall back to the copied initials.
 Applications must keep borrowed pixmaps alive while assigned; a destroyed X
 resource cannot be safely validated by querying it. With neither value, the
-accessible name is `Avatar` and the control renders an empty outlined marker.
+accessible name is `Avatar` and the control renders an empty marker.
 The supplied pixmap is never freed by the widget.
 
 Images are centered and cropped, without resampling, into the circular marker.
 Smaller images retain their native size. Initials and images share the same
-circular clip and symmetric one-pixel outline; long initials cannot paint into
-the outside corners. Rendering follows live foreground/background and
+circular clip; long initials cannot paint into the outside corners. Classic
+retains its symmetric one-pixel outline. Modern profiles use a filled, tinted
+circle with antialiased coverage when XRender is available, a solid circular
+fallback otherwise, and section-size initials. Toolkit-owned backgrounds blend
+the outside corners into the parent surface, including tiled backgrounds. An
+explicit application background continues to fill the complete widget rectangle.
+Explicit fonts and foreground/background colors remain authoritative. Rendering follows live foreground/background and
 sensitivity changes. The native `run-avatar-rendering.py` fixture checks these
-contracts independently of the gallery.
+contracts independently of the gallery. `run-avatar-modern.py --build BUILD
+--results RESULTS` additionally checks smooth edge pixels, parent-background
+updates, light/dark profiles, density, scale, readable initials and repeated
+creation/destruction on an isolated display.
 
 `XmNavatarSize` supplies the default width and height when the application
 does not provide explicit dimensions. Explicit `XmNwidth`/`XmNheight` values

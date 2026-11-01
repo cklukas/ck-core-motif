@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-01 — Modern Avatar rendering
+
+- Render modern Avatars as smooth tinted circles with larger initials and
+  corners matching the parent surface, including tiled backgrounds.
+- Preserve Classic rendering, image cropping and explicit application colors
+  and fonts; release cached Xft targets before freeing initials pixmaps.
+- Add native pixel, theme, scale and recreation coverage; see [Avatar](docs/avatar.md).
+
 ## 2026-11-01 — Connected Outline branches
 
 - Make Outline lines meet visible node borders through their focus margins,
