@@ -1,3 +1,12 @@
+Execute Container tab-pool failure and large-count coverage (2026-11-01)
+======================================================================
+
+- Exercise the production dynamic tab-pool builder under ASan/UBSan, injecting
+  failure into the pool, each temporary tab and the returned list allocations.
+- Check every generated position through 65,537 columns with INT_MAX spacing,
+  independent retained results, empty input and rejected oversized requests.
+  This supplements source checks with executable ownership and value oracles.
+
 Make tabbed-stack insertion atomic (2026-11-01)
 ==============================================
 
