@@ -21,3 +21,6 @@ The lock-mask sequence builder now also uses unsigned shift operands, rejects
 unrepresentable sequence widths before deriving `2^n - 1`, and returns safely
 when its initial zeroed allocation fails. The grab helper then follows its
 existing absent-sequence fallback.
+
+If Xlib cannot return a modifier mapping, MWM now retains the base Caps-Lock
+mask and builds that sequence without dereferencing the absent mapping.

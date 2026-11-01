@@ -19,4 +19,13 @@ allocation = body.index("XtCalloc ((Cardinal)(num_masks + 1U)")
 assert body.index("if (wmGD.pLockMaskSequence == NULL)", allocation) > allocation
 assert "run = (1U << (bit-1));" in body
 
+setup_start = source.index("static void\nSetupLockingModifierMask")
+setup_end = source.index("\n\n/******************************<->", setup_start)
+setup = source[setup_start:setup_end]
+mapping = setup.index("modifier_map = XGetModifierMapping(dpy);")
+null_guard = setup.index("if (modifier_map == NULL)", mapping)
+first_dereference = setup.index("modifier_map->max_keypermod", mapping)
+assert mapping < null_guard < first_dereference
+assert "BuildLockMaskSequence();" in setup[null_guard:first_dereference]
+
 print("PASS MWM lock-mask sequences reject unsafe width and allocation failure")

@@ -6,6 +6,13 @@ Connect TreeView navigation and click focus (2026-11-01)
 - Focus the tree on a primary click and exercise Tab traversal, scrollbar,
   wheel and overflow behavior in a native regression.
 - Place the gallery sidebar tree in an application-defined ScrolledWindow.
+
+Handle missing MWM modifier mappings (2026-11-01)
+===================================================
+
+- Preserve the base locking-modifier sequence when `XGetModifierMapping`
+  fails, instead of dereferencing a null Xlib result during input setup.
+- Extend focused lock-mask regression coverage and document the fallback.
 Bound MWM lock-mask sequence construction (2026-11-01)
 ========================================================
 

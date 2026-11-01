@@ -352,6 +352,11 @@ SetupLockingModifierMask(void)
     wmGD.lockingModMask = LockMask;
 
     modifier_map = XGetModifierMapping(dpy);
+    if (modifier_map == NULL)
+    {
+	BuildLockMaskSequence();
+	return;
+    }
 
     /* just check Mod1 through Mod5 */
     start_index = modifier_map->max_keypermod * Mod1MapIndex;
