@@ -265,6 +265,8 @@ int WmReturnIdentity ( int argc, char *argv[], char *environ[])
 	/* assume it's dtwm until proven differently */
 
  	int retVal = DT_MWM;
+	if (argc <= 0 || argv == NULL || argv[0] == NULL)
+	    return(retVal);
 
 	executableLength = strlen(argv[0]);
 	if (executableLength >= UINT_MAX ||

@@ -1,3 +1,9 @@
+Guard MWM identity selection against an empty argument vector (2026-11-01)
+==========================================================================
+
+- Return the existing DTWM default identity when no executable argument is
+  supplied, rather than dereferencing a null `argv[0]`.
+
 Align InfoBar actions using measured label geometry (2026-11-01)
 ================================================================
 

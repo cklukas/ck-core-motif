@@ -1526,3 +1526,4 @@ EXTRA_DIST += tests/automated/check-container-appearance.c \
               docs/validation/macos-container-20261101.json
 
 EXTRA_DIST += tests/automated/check-infobar-action-layout.py
+EXTRA_DIST += tests/automated/check-mwm-identity-inputs.py
