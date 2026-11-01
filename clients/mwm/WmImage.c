@@ -864,6 +864,17 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
      * Search a nonempty bitmap cache for a pathname match.
      */
     path = BitmapPathName (name);
+    /* A missing name selects the builtin icon.  A supplied name that cannot
+     * be represented in the path buffer is an error, not an alias for it. */
+    if (path == NULL && name != NULL && *name != '\0')
+    {
+#ifdef WSM
+      if (bReportError)
+#endif /* WSM */
+        MWarning (((char *)GETMESSAGE(38, 7,
+                  "Unable to read bitmap file %s\n")), name);
+        return (-1);
+    }
     for (n = 0, bitmapc = pSD->bitmapCache;
 	 n < pSD->bitmapCacheCount;
 	 n++, bitmapc++)

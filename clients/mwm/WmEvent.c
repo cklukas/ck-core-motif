@@ -582,6 +582,7 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
      XKeyEvent *keyEvent;
      KeySpec   *keySpecs;
      MenuButton   *menuBtnPtr;
+     unsigned int menuButtonSlots;
 
 
     if (event->type == KeyPress)
@@ -619,13 +620,20 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
                 }
 	    }
 	    /* Begin fixing CR 5227 */
-	    keySpecs = wmGD.menuActive->accelKeySpecs;
+            keySpecs = wmGD.menuActive->accelKeySpecs;
 	    keyEvent = (XKeyEvent *)event;
-	    menuBtnPtr = wmGD.menuActive->menuButtons + 
-	                 (wmGD.menuActive->menuButtonSize - 1);
-  
-	    while (keySpecs)
+	    menuBtnPtr = wmGD.menuActive->menuButtons;
+	    menuButtonSlots = wmGD.menuActive->menuButtonSize;
+
+	    /*
+	     * The accelerator list and the button table are built separately.
+	     * Do not form a before-begin pointer when a partial menu has no
+	     * button table, or after an inconsistent list outlives its slots.
+	     */
+	    while (keySpecs && menuBtnPtr != NULL && menuButtonSlots != 0)
 	      {
+		--menuButtonSlots;
+		menuBtnPtr = &wmGD.menuActive->menuButtons[menuButtonSlots];
                 if ((keyEvent->keycode == keySpecs->keycode) &&
 		    ((keyEvent->state == keySpecs->state) ||
 		    (NOLOCKMOD(keyEvent->state) == keySpecs->state))
@@ -636,7 +644,6 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
                     break;
                  } 
                  keySpecs = keySpecs->nextKeySpec;
-                 menuBtnPtr--;
                 } 
      
 	    doXtDispatchEvent = doXtDispatchEvent &&
@@ -698,12 +705,12 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
     else if (wmGD.checkHotspot &&
 	     ((event->type == ButtonPress) || 
 	      (event->type == ButtonRelease)) &&
-	     (event->x_root >= wmGD.hotspotRectangle.x) &&
-	     (event->y_root >= wmGD.hotspotRectangle.y) &&
-	     (event->x_root < (wmGD.hotspotRectangle.x + 
-	                       (short) wmGD.hotspotRectangle.width)) &&
-	     (event->y_root < (wmGD.hotspotRectangle.y + 
-	                       (short) wmGD.hotspotRectangle.height))&&
+	     ((long)event->x_root >= (long)wmGD.hotspotRectangle.x) &&
+	     ((long)event->y_root >= (long)wmGD.hotspotRectangle.y) &&
+	     ((long)event->x_root < (long)wmGD.hotspotRectangle.x +
+	                       (long)wmGD.hotspotRectangle.width) &&
+	     ((long)event->y_root < (long)wmGD.hotspotRectangle.y +
+	                       (long)wmGD.hotspotRectangle.height)&&
 #ifdef WSM
 	     (pCD || 
 	      (wmGD.rootButtonClick && wmGD.clickData.clickPending)))

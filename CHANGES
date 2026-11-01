@@ -9,6 +9,67 @@ Give custom interactive controls focus on primary click (2026-11-01)
   arrow and activation keys from also invoking parent traversal or activation.
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
+Reject unusable MWM bitmap paths (2026-11-01)
+================================================
+
+- Keep a null or empty bitmap name as the explicit built-in-icon request, but
+  reject a non-empty name whose pathname cannot be represented or resolved.
+  MWM no longer silently substitutes the built-in icon for an unusable custom
+  bitmap path.
+- Add the focused bitmap-path distinction regression and document its public
+  behavior.
+
+Qualify Unicode dialog text resources (2026-11-01)
+====================================================
+
+- Extend the installed non-text Unicode matrix through File Selection Box and
+  Selection Box editable-value round trips using supplementary and combining
+  values.
+- Document the public dialog-input coverage.
+
+Treat empty MWM protocol properties as absent (2026-11-01)
+===========================================================
+
+- Reject zero-item `WM_PROTOCOLS` payloads before allocation, matching the
+  existing empty `_MWM_MESSAGES` handling and avoiding zero-byte allocations.
+- Extend focused property-payload coverage and document the behavior.
+
+Reject empty MWM desktop-request properties (2026-11-01)
+=========================================================
+
+- Treat empty or null `DT_WM_REQUEST` property payloads as invalid instead of
+  forwarding a synthetic empty request to the MWM request parser.
+- Add focused property-input regression coverage and document the behavior.
+
+Preserve MWM hotspot rectangle extents (2026-11-01)
+======================================================
+
+- Widen hotspot coordinates and unsigned `XRectangle` extents before hit-test
+  arithmetic, preventing large extents from wrapping through signed `short`.
+- Add focused regression coverage and document the X11 geometry contract.
+
+Record loaded library for non-text Unicode regressions (2026-11-01)
+====================================================================
+
+- Require the installed non-text Unicode fixture to load `libXm` from its
+  requested prefix and retain an `ldd` log plus source, binary, and library
+  SHA-256 receipt.
+- Keep the runner compatible with Python versions without `hashlib.file_digest`
+  and document the bounded x86_64 qualification result.
+
+Bound MWM menu accelerator button traversal (2026-11-01)
+==========================================================
+
+- Keep accelerator sensitivity lookup within the available MWM menu-button
+  slots, avoiding null and before-begin pointer arithmetic for partial menus.
+- Add focused regression coverage and document the preserved dispatch behavior.
+
+Initialize MWM per-screen selection atoms (2026-11-01)
+=========================================================
+
+- Zero-initialize MWM's per-screen `WM_Sn` selection-atom table so unmanaged
+  screen entries are defined as `None` rather than indeterminate memory.
+- Add focused source-contract coverage and document the selection invariant.
 
 Connect TreeView navigation and click focus (2026-11-01)
 ========================================================
