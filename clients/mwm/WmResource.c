@@ -5177,6 +5177,7 @@ ProcessWorkspaceList (WmScreenData *pSD)
     Boolean bHaveWorkspaceList;
     Boolean bHaveWorkspaceCount;
     char **ppchWsNames = NULL;
+    char **resizedNames;
 
     /*
      * Validate initial resource settings
@@ -5196,6 +5197,7 @@ ProcessWorkspaceList (WmScreenData *pSD)
 	    Warning (((char *)GETMESSAGE(62, 26,
 		"Insufficient memory for workspace names")));
 	    ExitWM (WM_ERROR_EXIT_VALUE);
+	    return;
 	}
 	if (pSD->workspaceList)
 	{
@@ -5210,21 +5212,25 @@ ProcessWorkspaceList (WmScreenData *pSD)
 	while (wsNameCount < MAX_WORKSPACE_COUNT &&
 	       ((string = GetString(&lineP)) != NULL))
 	{
-	    ppchWsNames[wsNameCount] = (char *) string;
-
-	    if (++wsNameCount >= wsNamesAlloced)
+	    if (wsNameCount == wsNamesAlloced)
 	    {
 	       /*
-		*  Need to add more workspaces
+		*  Add pointer storage before publishing the next name.
 		*/
-		wsNamesAlloced += WS_ALLOC_AMOUNT;
-		if (!(ppchWsNames = (char **) XtRealloc 
-			  ((char *)ppchWsNames,
-			    wsNamesAlloced * sizeof(char *))))
+		resizedNames = (char **)XtRealloc(
+		    (char *)ppchWsNames,
+		    (Cardinal)((wsNamesAlloced + WS_ALLOC_AMOUNT) * sizeof(char *)));
+		if (resizedNames == NULL)
 		{
+		    XtFree((char *)ppchWsNames);
 		    ExitWM (WM_ERROR_EXIT_VALUE);
+		    return;
 		}
+		ppchWsNames = resizedNames;
+		wsNamesAlloced += WS_ALLOC_AMOUNT;
 	    }
+	    ppchWsNames[wsNameCount] = (char *) string;
+	    wsNameCount++;
 	}
 
 	if (!bHaveWorkspaceCount)

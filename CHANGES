@@ -132,6 +132,15 @@ Harden Mrm safe vector copies (2026-11-01)
 - Validate every embedded Char8 string pointer and terminator against the
   advertised span before rebasing it into the owned copy.
 
+Make MWM screen-name replacement failure-atomic (2026-11-01)
+=============================================================
+
+- Stage generated screen-name and workspace-name pointer-array reallocations
+  before publishing them, retaining valid state if controlled shutdown is
+  intercepted; see `docs/mwm-screen-name-replacement.md`.
+- Avoid needless workspace-array growth after the final accepted name and add
+  focused regression coverage.
+
 Guard MWM workspace-protocol allocation failures (2026-11-01)
 =============================================================
 

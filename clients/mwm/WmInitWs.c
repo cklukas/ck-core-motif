@@ -1382,6 +1382,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     WmWorkspaceData *pwsI;
     size_t buf_size;
     char screenName[sizeof("-2147483648")];
+    unsigned char *resized;
     int i;
     static int dupnum = 0;
     int iwsx;
@@ -1512,16 +1513,16 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 	    ExitWM (WM_ERROR_EXIT_VALUE);
 	}
 
-	if ((wmGD.screenNames[sNum] = 
-	     (unsigned char *)XtRealloc (wmGD.screenNames[sNum], (Cardinal)buf_size)) == NULL)
+	resized = (unsigned char *)XtRealloc (wmGD.screenNames[sNum],
+	                                      (Cardinal)buf_size);
+	if (resized == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(40, 7, "Cannot create enough memory for the screen names")));
 	    ExitWM (WM_ERROR_EXIT_VALUE);
+	    return;
 	}
-	else
-	{
-	    memcpy((char *)wmGD.screenNames[sNum], screenName, buf_size);
-	}
+	wmGD.screenNames[sNum] = resized;
+	memcpy((char *)wmGD.screenNames[sNum], screenName, buf_size);
     } /* if wmGD.screenNames[sNum] == UNSPECIFIED_SCREEN_NAME */
 
 #endif /* WSM */
