@@ -4,6 +4,8 @@ Guard MWM workspace-protocol allocation failures (2026-11-01)
 - Keep workspace-owner monitoring, per-window attribute snapshots and
   nonempty GET_STATE replies on safe failure paths when an allocation cannot
   be made. MWM no longer dereferences those failed allocations.
+- Reject missing or incomplete workspace configuration tables and malformed
+  counted request lists before using their pointers.
 
 Reject inconsistent MWM bitmap-cache capacities (2026-11-01)
 ============================================================

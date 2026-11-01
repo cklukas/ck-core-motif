@@ -132,21 +132,38 @@ static void formats(Display *display, int screen, WSMConfigFormatReply *reply)
 {
     WSMConfigFormatData *window = _WSMGetConfigFormat(display, screen, WSM_WINDOW_FMT);
     WSMConfigFormatData *icon = _WSMGetConfigFormat(display, screen, WSM_ICON_FMT);
+
+    if (!window || !icon || window->num_attrs < 0 || icon->num_attrs < 0 ||
+        (window->num_attrs != 0 && !window->attr_list) ||
+        (icon->num_attrs != 0 && !icon->attr_list))
+        return;
     if (!window->num_attrs) {
-        window->num_attrs = XtNumber(window_names);
-        window->attr_list = (WSMAttribute *)XtCalloc(window->num_attrs, sizeof(WSMAttribute));
-        for (int i = 0; i < window->num_attrs; ++i) {
-            window->attr_list[i].nameq = XrmStringToQuark(window_names[i]);
-            window->attr_list[i].size = i < 4 ? 32 : 8;
+        int count = XtNumber(window_names);
+        WSMAttribute *attributes = (WSMAttribute *)XtCalloc(
+            (Cardinal)count, sizeof(*attributes));
+
+        if (!attributes)
+            return;
+        for (int i = 0; i < count; ++i) {
+            attributes[i].nameq = XrmStringToQuark(window_names[i]);
+            attributes[i].size = i < 4 ? 32 : 8;
         }
+        window->attr_list = attributes;
+        window->num_attrs = count;
     }
     if (!icon->num_attrs) {
-        icon->num_attrs = XtNumber(icon_names);
-        icon->attr_list = (WSMAttribute *)XtCalloc(icon->num_attrs, sizeof(WSMAttribute));
-        for (int i = 0; i < icon->num_attrs; ++i) {
-            icon->attr_list[i].nameq = XrmStringToQuark(icon_names[i]);
-            icon->attr_list[i].size = 32;
+        int count = XtNumber(icon_names);
+        WSMAttribute *attributes = (WSMAttribute *)XtCalloc(
+            (Cardinal)count, sizeof(*attributes));
+
+        if (!attributes)
+            return;
+        for (int i = 0; i < count; ++i) {
+            attributes[i].nameq = XrmStringToQuark(icon_names[i]);
+            attributes[i].size = 32;
         }
+        icon->attr_list = attributes;
+        icon->num_attrs = count;
     }
     reply->accepts_diffs = True;
     reply->window_formats = window->attr_list;
@@ -198,6 +215,8 @@ static void tree_snapshot(ClientData *client, WSMWinInfo *items, int *used)
 
 static void apply(ClientData *client, Window id, WSMWinData *data, int count)
 {
+    if (!client || count < 0 || (count != 0 && !data))
+        return;
     Boolean icon = (id & ~WIN_MASK) != 0;
     int x = icon ? ICON_X(client) : client->clientX;
     int y = icon ? ICON_Y(client) : client->clientY;
@@ -240,6 +259,9 @@ void HandleWsmConvertRequest(Widget widget, XtPointer closure, WSMRequest *reque
     switch (request->any.type) {
     case WSM_CONNECT:
         track_owner(screen);
+        if (request->connect.num_versions <= 0 ||
+            !request->connect.known_versions)
+            break;
         for (int i = 0; i < request->connect.num_versions; ++i)
             if (request->connect.known_versions[i] >= 1 && request->connect.known_versions[i] <= 3) {
                 reply->connect.version = request->connect.known_versions[i]; break;
@@ -274,6 +296,10 @@ void HandleWsmConvertRequest(Widget widget, XtPointer closure, WSMRequest *reque
         break;
     }
     case WSM_SET_STATE:
+        if (request->set_state.num_win_info_list < 0 ||
+            (request->set_state.num_win_info_list != 0 &&
+             !request->set_state.win_info_list))
+            break;
         for (int i = 0; i < request->set_state.num_win_info_list; ++i) {
             WSMWinInfo *info = &request->set_state.win_info_list[i];
             ClientData *client = find_client(screen, info->window);
@@ -322,7 +348,10 @@ void WsmRegisterClient(ClientData *client)
     WmScreenData *screen = PSD_FOR_CLIENT(client);
     int number = screen->screen;
     Atom selection = _WSMGetSelectionAtom(DISPLAY, number, WSM_WORKSPACE_MANAGER);
-    if (!_WSMGetConfigFormat(DISPLAY, number, WSM_WINDOW_FMT)->num_attrs ||
+    WSMConfigFormatData *format = _WSMGetConfigFormat(
+        DISPLAY, number, WSM_WINDOW_FMT);
+
+    if (!format || format->num_attrs <= 0 || !format->attr_list ||
         XGetSelectionOwner(DISPLAY, selection) == None) return;
     for (int icon = 0; icon < 2; ++icon) {
         WSMRequest request = {0};

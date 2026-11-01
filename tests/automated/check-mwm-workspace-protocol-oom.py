@@ -31,5 +31,25 @@ assert "if (count != 0 && !reply->get_state.win_info_list)" in request
 assert request.index("if (count != 0 && !reply->get_state.win_info_list)") < request.index(
     "reply->any.allocated = True;"
 )
+assert "request->connect.num_versions <= 0 ||" in request
+assert "!request->connect.known_versions" in request
+assert "request->set_state.num_win_info_list < 0 ||" in request
+assert "!request->set_state.win_info_list" in request
+
+formats_start = source.index("static void formats")
+formats_end = source.index("\n}\n\nstatic void snapshot", formats_start)
+formats = source[formats_start:formats_end]
+assert "if (!window || !icon" in formats
+assert "if (!attributes)" in formats
+assert formats.index("if (!attributes)") < formats.index("window->attr_list = attributes;")
+
+apply_start = source.index("static void apply")
+apply_end = source.index("\n}\n\nvoid HandleWsmConvertRequest", apply_start)
+apply_body = source[apply_start:apply_end]
+assert "count < 0 || (count != 0 && !data)" in apply_body
+
+register_start = source.index("void WsmRegisterClient")
+register_body = source[register_start:]
+assert "if (!format || format->num_attrs <= 0 || !format->attr_list ||" in register_body
 
 print("PASS MWM workspace protocol allocation failures are guarded")
