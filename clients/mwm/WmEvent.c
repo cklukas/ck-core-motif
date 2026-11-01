@@ -783,7 +783,8 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
 		     ~wmGD.clickData.time + ((XButtonEvent *)event)->time + 1;
 		 }
 
-		 if (timeDiff < wmGD.doubleClickTime)
+		 if (wmGD.doubleClickTime > 0 &&
+		     timeDiff < (Time)wmGD.doubleClickTime)
 		 {
 #ifdef MOTIF_ONE_DOT_ONE
 		   TraversalOn (wmGD.menuActive);
@@ -1581,7 +1582,7 @@ Boolean CheckForButtonAction (XButtonEvent *buttonEvent, Context context, Contex
 		}
 
 	        if (!(buttonSpec->wmFunction (buttonSpec->wmFuncArgs, pCD,
-					      buttonEvent)))
+					      (XEvent *)buttonEvent)))
 		{
 		    /*
 		     * The window manager function return indicates that
@@ -1785,7 +1786,8 @@ void ProcessClickBPress (XButtonEvent *buttonEvent, ClientData *pCD, Context con
 	    timeDiff = ~wmGD.clickData.time + buttonEvent->time + 1;
 	}
 
-	if (timeDiff < wmGD.doubleClickTime)
+	if (wmGD.doubleClickTime > 0 &&
+	    timeDiff < (Time)wmGD.doubleClickTime)
 	{
 	    /*
 	     * A double-click has been done; save the context.
@@ -2591,14 +2593,13 @@ Time GetTimestamp (void)
     Time timestamp;
     WmScreenData *pSD = ACTIVE_PSD;
     XEvent event;
-    long property;
 
     /*
      * Do zero-length append to our own WM_STATE
      */
     XChangeProperty (DISPLAY, pSD->wmWorkspaceWin, wmGD.xa_WM_STATE, 
 	wmGD.xa_WM_STATE, 32, PropModeAppend, 
-	(unsigned char *)&property, 0);
+	NULL, 0);
 
     /*
      * Pick up the property notify event

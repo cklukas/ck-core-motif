@@ -436,7 +436,7 @@ void AddColormapWindowReference (ClientData *pCD, Window window)
 {
     ClientData          **cmap_window_data;
     Boolean             context_exists;
-    int                 i;
+    size_t              i;
     ClientData          **new_cmap_window_data;
 
     if (pCD == NULL)
@@ -455,7 +455,7 @@ void AddColormapWindowReference (ClientData *pCD, Window window)
                 return;
             }
         }
-        if ((size_t)i > UINT_MAX / sizeof(ClientData *) - 2)
+        if (i > UINT_MAX / sizeof(ClientData *) - 2)
         {
             Warning("Colormap window reference list is too large");
             return;
@@ -505,8 +505,9 @@ void RemoveColormapWindowReference (ClientData *pCD, Window window)
 {
     ClientData  **cmap_window_data;
     Boolean     context_exists;
-    int         i;
-    int         reference_idx = -1;
+    size_t      i;
+    size_t      reference_idx = 0;
+    Boolean     reference_found = False;
     ClientData  **new_cmap_window_data;
 
     if (pCD == NULL)
@@ -520,16 +521,19 @@ void RemoveColormapWindowReference (ClientData *pCD, Window window)
         for (i = 0; cmap_window_data[i] != NULL; i++)
         {
             if (cmap_window_data[i] == pCD)
+            {
                 reference_idx = i;
+                reference_found = True;
+            }
         }
-        if (reference_idx < 0)
+        if (!reference_found)
             return;
 
         if (i > 1)
         {
-        int     j,idx;
+        size_t  j,idx;
 
-            if ((size_t)i > UINT_MAX / sizeof(ClientData *))
+            if (i > UINT_MAX / sizeof(ClientData *))
             {
                 Warning("Colormap window reference list is too large");
                 return;

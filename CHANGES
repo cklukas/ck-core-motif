@@ -6,6 +6,81 @@ Connect TreeView navigation and click focus (2026-11-01)
 - Focus the tree on a primary click and exercise Tab traversal, scrollbar,
   wheel and overflow behavior in a native regression.
 - Place the gallery sidebar tree in an application-defined ScrolledWindow.
+Bound MWM lock-mask sequence construction (2026-11-01)
+========================================================
+
+- Reject unrepresentable locking-modifier sequence widths and handle failed
+  sequence allocation before filling the array, avoiding undefined shifts and
+  null dereferences during input setup.
+- Add focused regression coverage and document the fallback behavior.
+
+Validate MWM double-click resource thresholds (2026-11-01)
+============================================================
+
+- Require a positive `doubleClickTime` before comparing it with unsigned X11
+  event intervals, so invalid negative values disable recognition rather than
+  becoming near-unlimited timeouts.
+- Add focused regression coverage and document the resource behavior.
+
+Stop MWM initial-client adoption after allocation failure (2026-11-01)
+=======================================================================
+
+- Return after MWM's ancillary-window allocation failure path so an embeddable
+  or test shutdown hook cannot leave adoption dereferencing a null array.
+- Use unsigned XQueryTree traversal indexes and extend focused regression and
+  documentation coverage.
+
+Type MWM keyboard-state group masks explicitly (2026-11-01)
+============================================================
+
+- Form the shared XKB keyboard-group mask as an unsigned value before removing
+  it from input state, avoiding signed-mask conversions in key and button
+  binding dispatch.
+- Add focused regression coverage and document the portable mask contract.
+
+Initialize MWM client-message payloads (2026-11-01)
+======================================================
+
+- Clear outbound `XClientMessageEvent` records before assigning their defined
+  protocol fields, preventing unused payload words from carrying stack data.
+- Add focused regression coverage and document the X11 payload contract.
+
+Qualify Unicode standard-dialog resources (2026-11-01)
+=======================================================
+
+- Extend the installed non-text Unicode widget regression through MessageBox
+  message text and SelectionBox prompt labels, covering mixed Arabic and
+  supplementary-plane values through public dialog resources.
+- Update the Unicode qualification documentation.
+
+Preserve representable MWM session geometry (2026-11-01)
+=========================================================
+
+- Keep saved MWM client geometry signed to match its `%d` resource format and
+  clamp malformed base-size/increment combinations before persistence.
+- Add focused session-geometry regression coverage and documentation.
+
+Preserve MWM command window-list loop widths (2026-11-01)
+==========================================================
+
+- Iterate validated `CARD32` window-list counts with `CARD32` counters instead
+  of signed `int`, preventing loop-counter overflow for large protocol inputs.
+- Add focused coverage and document the unchanged command-list behavior.
+
+Clarify MWM timestamp property payload (2026-11-01)
+=====================================================
+
+- Use a null payload for MWM's intentional zero-item `XChangeProperty` call,
+  removing an uninitialized local address from the timestamp event path.
+- Add focused timestamp-event coverage and document the unchanged X11
+  round-trip behavior.
+
+Type MWM button-event callback dispatch (2026-11-01)
+=====================================================
+
+- Pass button bindings through the `WmFunction` callback's declared `XEvent *`
+  interface rather than relying on an incompatible pointer conversion.
+- Add focused dispatch coverage and document the preserved callback ABI.
 
 Initialize MWM named-icon fallback state (2026-11-01)
 ======================================================
@@ -34485,3 +34560,10 @@ Avoid ToggleSwitch post-callback access (2026-10-30)
 
 Handle null Xpm hash cleanup (2026-10-30)
 ==========================================
+Preserve MWM colormap-reference list index widths (2026-11-01)
+===============================================================
+
+- Use size-based traversal and removal indexes for MWM colormap-reference
+  lists, preventing signed-index overflow before the existing `Cardinal`
+  allocation bounds apply.
+- Add focused regression coverage and document the bounded replacement path.

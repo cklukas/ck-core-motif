@@ -42,6 +42,7 @@ static char rcsid[] = "$TOG: WmProtocol.c /main/8 1997/06/18 17:31:34 samborn $"
 #include "WmICCC.h"
 #include <limits.h>
 #include <stdint.h>
+#include <string.h>
 
 /*
  * include extern functions
@@ -437,6 +438,7 @@ void SendClientOffsetMessage (ClientData *pCD)
       
     XClientMessageEvent clientMsgEvent;
 
+    memset(&clientMsgEvent, 0, sizeof(clientMsgEvent));
     clientMsgEvent.type = ClientMessage;
     clientMsgEvent.window = pCD->client;
     clientMsgEvent.message_type = wmGD.xa_MWM_MESSAGES;
@@ -555,7 +557,7 @@ void SendClientMsg (Window window, long type, long data0, Time time, long *pData
     XClientMessageEvent clientMsgEvent;
     int i;
 
-
+    memset(&clientMsgEvent, 0, sizeof(clientMsgEvent));
     clientMsgEvent.type = ClientMessage;
     clientMsgEvent.window = window;
     clientMsgEvent.message_type = type;

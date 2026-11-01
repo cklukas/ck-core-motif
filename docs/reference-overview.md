@@ -75,12 +75,19 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM backdrop-request path allocation](mwm-backdrop-path-allocation.md) — guard WSM request paths.
 - [MWM property-array allocation](mwm-property-array-allocation.md) — guard X11 property counts.
 - [MWM command window-array width](mwm-command-window-array-width.md) — guard WSM command counts.
+- [MWM command window-list loop widths](mwm-command-window-loop-width.md) — retain protocol count width during traversal.
 - [MWM command-tree allocation failures](mwm-command-tree-allocation.md) — preserve existing commands when replacement allocation fails.
+- [MWM button-event callback dispatch](mwm-button-event-dispatch.md) — pass button bindings through the declared event type.
+- [MWM timestamp property event](mwm-timestamp-property-event.md) — request zero-item property notifications without undefined data.
 - [MWM colormap-reference array width](mwm-colormap-reference-width.md) — guard dynamic reference lists.
 - [MWM transient-list growth](transient-list-growth.md) — propagate temporary-list allocation failure.
 - [MWM session command-vector width](mwm-session-command-vector-width.md) — guard restore vectors.
 - [MWM query-XID buffer growth](mwm-query-xid-growth.md) — guard protocol conversion growth.
+- [MWM client-message initialization](mwm-client-message-initialization.md) — clear unused X11 payload words.
+- [MWM keyboard-state mask typing](mwm-keyboard-state-mask.md) — use explicit unsigned XKB group bits.
+- [MWM double-click time validation](mwm-double-click-time.md) — reject non-positive signed thresholds.
 - [MWM session workspace-string growth](mwm-session-workspace-growth.md) — guard joined session names.
+- [MWM session geometry persistence](mwm-session-geometry.md) — keep saved client dimensions representable.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.
