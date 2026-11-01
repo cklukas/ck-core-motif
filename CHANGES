@@ -1,3 +1,14 @@
+Exercise image-scaling validation branches and pixels (2026-11-01)
+=================================================================
+
+- Replace the null-data-only native test with 17 independently malformed
+  image/rectangle cases based on a fully initialized image, verifying that
+  rejected requests leave destination pixels unchanged.
+- Verify valid twofold scaling pixel-for-pixel, so an unconditional early
+  return cannot make negative cases pass.
+- Assert the actual loaded library path and record source/library hashes,
+  commands, logs and timings without rebuilding the toolkit.
+
 Exercise UIL listing formatter under sanitizers (2026-11-01)
 ===========================================================
 
