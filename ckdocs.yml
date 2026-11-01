@@ -71,889 +71,1233 @@ nav:
       - docs/disclosure.md
   - title: Reference
     pages:
-      - docs/compound-text-converter-display.md
-      - docs/charset-conversion-state-inputs.md
-      - docs/inverse-compound-text-converter-inputs.md
-      - docs/compound-text-converter-inputs.md
-      - docs/segment-encoding-tag-input.md
-      - docs/encoding-registry-length-output.md
-      - docs/provenance-check-invocation.md
-      - docs/color-object-property-format.md
-      - docs/container-cells-allocation.md
-      - docs/container-child-count-bounds.md
-      - docs/container-clipboard-inputs.md
-      - docs/container-header-position-bounds.md
-      - docs/container-relayout-inputs.md
-      - docs/container-reorder-inputs.md
-      - docs/container-tab-pool-bounds.md
-      - docs/container-disclosure-state.md
-      - docs/image-data-input.md
-      - docs/clip-window-translation-inputs.md
-      - docs/scrollbar-api-inputs.md
-      - docs/container-disclosure-sensitivity.md
-      - docs/drag-cancel-inputs.md
-      - docs/drag-source-inputs.md
-      - docs/drag-start-inputs.md
-      - docs/drag-target-inputs.md
-      - docs/drop-transfer-callback-guards.md
-      - docs/drop-transfer-callback-input.md
-      - docs/drop-transfer-drag-destroy.md
-      - docs/drop-transfer-inputs.md
-      - docs/drop-transfer-processing-failure.md
-      - docs/drop-transfer-selection-atom.md
-      - docs/drop-transfer-start-allocation.md
-      - docs/drop-transfer-start-inputs.md
-      - docs/drop-transfer-widget-input.md
-      - docs/dropsite-end-update-inputs.md
-      - docs/dropsite-query-inputs.md
-      - docs/dropsite-register-inputs.md
-      - docs/dropsite-retrieve-inputs.md
-      - docs/dropsite-start-update-inputs.md
-      - docs/dropsite-unregister-inputs.md
-      - docs/dropsite-update-inputs.md
-      - docs/filesb-directory-length-bounds.md
-      - docs/icon-cache-directory-bounds.md
-      - docs/icon-cache-flush-length-bounds.md
-      - docs/icon-cache-path-length-bounds.md
-      - docs/icon-name-hash.md
-      - docs/im-close-xim-inputs.md
-      - docs/im-focus-inputs.md
-      - docs/im-get-xic-inputs.md
-      - docs/im-get-xim-inputs.md
-      - docs/im-lookup-inputs.md
-      - docs/im-register-inputs.md
-      - docs/im-reset-inputs.md
-      - docs/im-reset-state-inputs.md
-      - docs/im-set-xic-inputs.md
-      - docs/im-varargs-inputs.md
-      - docs/image-cache-depth-sentinel.md
-      - docs/image-cache-depth1-bounds.md
-      - docs/image-cache-geometry-bounds.md
-      - docs/image-cache-scaling-ratio.md
-      - docs/image-cache-warning-state.md
-      - docs/image-color-release.md
-      - docs/image-converted-cleanup.md
-      - docs/image-scale-cleanup.md
-      - docs/image-scale-row-stride.md
-      - docs/image-scaling-conversions.md
-      - docs/image-scaling-row-stride.md
-      - docs/modern-visual-overhaul.md
-      - docs/mwm-action-parameter-bounds.md
-      - docs/mwm-active-icon-attributes.md
-      - docs/mwm-active-icon-geometry.md
-      - docs/mwm-active-icon-label-lifecycle.md
-      - docs/mwm-active-icon-label-painting.md
-      - docs/mwm-active-icon-label-show.md
-      - docs/mwm-active-icon-label-window.md
-      - docs/mwm-adopt-workspace-bounds.md
-      - docs/mwm-automation-reply-size.md
-      - docs/mwm-bevel-geometry.md
-      - docs/mwm-binding-token-boundaries.md
-      - docs/mwm-bindings-property-bounds.md
-      - docs/mwm-bindings-property.md
-      - docs/mwm-bitmap-cache-growth.md
-      - docs/mwm-bitmap-cache-index-bounds.md
-      - docs/mwm-bitmap-cache-init.md
-      - docs/mwm-bitmap-cache-installation.md
-      - docs/mwm-bitmap-cache-metadata.md
-      - docs/mwm-bitmap-cache-retry.md
-      - docs/mwm-bitmap-data-cache.md
-      - docs/mwm-cached-label-bitmap-bounds.md
-      - docs/mwm-cached-label-entry-validation.md
-      - docs/mwm-cached-label-resource-failure.md
-      - docs/mwm-client-adoption-inputs.md
-      - docs/mwm-client-base-window-initialization.md
-      - docs/mwm-client-creation-failure-cleanup.md
-      - docs/mwm-client-frame-state.md
-      - docs/mwm-client-icon-shape-initialization.md
-      - docs/mwm-client-list-inputs.md
-      - docs/mwm-client-sort-bounds.md
-      - docs/mwm-client-title-initialization.md
-      - docs/mwm-colormap-lifecycle-inputs.md
-      - docs/mwm-colormap-menu-inputs.md
-      - docs/mwm-colormap-reference-inputs.md
-      - docs/mwm-compact-gadget-geometry.md
-      - docs/mwm-compound-string-drawing-inputs.md
-      - docs/mwm-confirm-action-bounds.md
-      - docs/mwm-confirm-callback-state.md
-      - docs/mwm-confirmation-border-width.md
-      - docs/mwm-confirmation-geometry-bounds.md
-      - docs/mwm-confirmation-geometry.md
-      - docs/mwm-copyargv-fallback.md
-      - docs/mwm-current-workspace-initialization.md
-      - docs/mwm-decoration-allocation-inputs.md
-      - docs/mwm-default-colors-growth.md
-      - docs/mwm-dialog-context.md
-      - docs/mwm-dialog-frame-lifecycle.md
-      - docs/mwm-dt-request-inputs.md
-      - docs/mwm-embedded-client-growth.md
-      - docs/mwm-embedded-client-shutdown.md
-      - docs/mwm-feedback-colormap.md
-      - docs/mwm-feedback-update-inputs.md
-      - docs/mwm-feedback-window-create.md
-      - docs/mwm-feedback-window-lifecycle.md
-      - docs/mwm-frame-construction-inputs.md
-      - docs/mwm-frame-display-list-counts.md
-      - docs/mwm-frame-exposure.md
-      - docs/mwm-frame-id-lifecycle.md
-      - docs/mwm-frame-regeneration.md
-      - docs/mwm-frame-shape-inputs.md
-      - docs/mwm-frame-teardown.md
-      - docs/mwm-frame-window-construction.md
-      - docs/mwm-function-argument-bounds.md
-      - docs/mwm-function-table-indexes.md
-      - docs/mwm-gadget-bevel-allocation.md
-      - docs/mwm-gadget-rectangle-inputs.md
-      - docs/mwm-grab-mask-allocation.md
-      - docs/mwm-graphics-size-limits.md
-      - docs/mwm-group-argument-bounds.md
-      - docs/mwm-highlight-gc.md
-      - docs/mwm-icon-box-resources.md
-      - docs/mwm-icon-destination-bounds.md
-      - docs/mwm-icon-frame-window.md
-      - docs/mwm-icon-painting.md
-      - docs/mwm-icon-reparenting.md
-      - docs/mwm-icon-resource-failure.md
-      - docs/mwm-icon-screen-fallback.md
-      - docs/mwm-icon-shadow-gcs.md
-      - docs/mwm-icon-source-validation.md
-      - docs/mwm-icon-teardown.md
-      - docs/mwm-icon-title-geometry.md
-      - docs/mwm-icon-title-painting.md
-      - docs/mwm-iconbox-gc.md
-      - docs/mwm-initial-property-inputs.md
-      - docs/mwm-invoke-command-parsing.md
-      - docs/mwm-invoke-window-bounds.md
-      - docs/mwm-key-substitution-allocation.md
-      - docs/mwm-line-continuation-bounds.md
-      - docs/mwm-lower-argument-length.md
-      - docs/mwm-matte-gc-initialization.md
-      - docs/mwm-maximize-geometry.md
-      - docs/mwm-menu-conversion-results.md
-      - docs/mwm-message-initialization.md
-      - docs/mwm-modal-input-window.md
-      - docs/mwm-modal-window-mapping.md
-      - docs/mwm-named-icon-fallback.md
-      - docs/mwm-named-icon-metadata.md
-      - docs/mwm-normal-hints-range.md
-      - docs/mwm-null-client-icon-colors.md
-      - docs/mwm-number-argument-bounds.md
-      - docs/mwm-outline-gc.md
-      - docs/mwm-outline-window-transaction.md
-      - docs/mwm-property-payload-pointers.md
-      - docs/mwm-property-processors-inputs.md
-      - docs/mwm-property-reader-inputs.md
-      - docs/mwm-protocol-atom-bounds.md
-      - docs/mwm-query-client-guards.md
-      - docs/mwm-raise-argument-length.md
-      - docs/mwm-refresh-geometry-guard.md
-      - docs/mwm-refresh-tree-cleanup.md
-      - docs/mwm-refresh-window-base-guard.md
-      - docs/mwm-refresh-window-create.md
-      - docs/mwm-replacement-allocation.md
-      - docs/mwm-rlist-growth-ownership.md
-      - docs/mwm-running-inputs.md
-      - docs/mwm-screen-client-list-bounds.md
-      - docs/mwm-screen-list-length.md
-      - docs/mwm-screen-name-allocation.md
-      - docs/mwm-screen-name-table-bounds.md
-      - docs/mwm-screen-warning-format.md
-      - docs/mwm-session-hints-input.md
-      - docs/mwm-slide-cover-window.md
-      - docs/mwm-stretcher-corner-geometry.md
-      - docs/mwm-stretcher-geometry.md
-      - docs/mwm-stretcher-window-initialization.md
-      - docs/mwm-stretcher-window-rollback.md
-      - docs/mwm-system-button-width.md
-      - docs/mwm-system-modal-cursor.md
-      - docs/mwm-system-modal-screen-size.md
-      - docs/mwm-target-list-length.md
-      - docs/mwm-text-drawables.md
-      - docs/mwm-text-drawing-inputs.md
-      - docs/mwm-title-drawing-inputs.md
-      - docs/mwm-title-property-bounds.md
-      - docs/mwm-transient-list-growth.md
-      - docs/mwm-transient-window-bounds.md
-      - docs/mwm-unmanage-frame.md
-      - docs/mwm-virtual-key-counts.md
-      - docs/mwm-virtual-key-property-count.md
-      - docs/mwm-wait-cursor-resources.md
-      - docs/mwm-window-title-drawing.md
-      - docs/mwm-workspace-hints-inputs.md
-      - docs/mwm-workspace-list-failure-cleanup.md
-      - docs/mwm-workspace-metadata-inputs.md
-      - docs/mwm-workspace-window-create.md
-      - docs/mwm-wsm-tree-cleanup.md
-      - docs/mwm-xa-string-termination.md
-      - docs/mwm-xsmp-client-order.md
-      - docs/mwm-xsmp-proxy-property-bounds.md
-      - docs/notebook-appearance.md
-      - docs/periodic-modern-appearance.md
-      - docs/resconvert-token-whitespace.md
-      - docs/scrolled-window-fit.md
-      - docs/standard-convert-gadget-parent.md
-      - docs/tabstack-coordinate-inputs.md
-      - docs/text-autoscroll-bottom-bounds.md
-      - docs/text-clear-selection-bounds.md
-      - docs/text-conversion-inputs.md
-      - docs/text-drag-distance-bounds.md
-      - docs/text-drop-finished-callback.md
-      - docs/text-dynamic-growth.md
-      - docs/text-event-hit-test-bounds.md
-      - docs/text-highlight-snapshot-growth.md
-      - docs/text-horizontal-page-y-bounds.md
-      - docs/text-initialize-storage.md
-      - docs/text-input-edge-bounds.md
-      - docs/text-input-initialize.md
-      - docs/text-insert-string-bounds.md
-      - docs/text-kill-buffer-bounds.md
-      - docs/text-line-coordinate-bounds.md
-      - docs/text-next-page-y-bounds.md
-      - docs/text-previous-page-y-bounds.md
-      - docs/text-rtl-autoscroll-axis.md
-      - docs/text-rtl-autoscroll-edge-bounds.md
-      - docs/text-scroll-cursor-delta-bounds.md
-      - docs/text-scroll-cursor-line-table.md
-      - docs/text-scroll-cursor-parameter-bounds.md
-      - docs/text-secondary-extend-selection.md
-      - docs/text-select-outline-bounds.md
-      - docs/text-selection-array-byte-count.md
-      - docs/text-selection-hint-bounds.md
-      - docs/text-selection-length-bounds.md
-      - docs/text-selection-source-guard.md
-      - docs/text-selection-state-naming.md
-      - docs/text-selection-target-guard.md
-      - docs/text-source-destroy-guard.md
-      - docs/text-source-highlight-copy-bounds.md
-      - docs/text-source-length-narrowing.md
-      - docs/text-source-range-bounds.md
-      - docs/text-timer-point-bounds.md
-      - docs/text-transfer-point-bounds.md
-      - docs/text-wide-conversion-overflow.md
-      - docs/textfield-adjust-bounds.md
-      - docs/textfield-baseline-bounds.md
-      - docs/textfield-baselines.md
-      - docs/textfield-cursor-geometry.md
-      - docs/textfield-delete-range-naming.md
-      - docs/textfield-display-rect-bounds.md
-      - docs/textfield-dostuff-length-bound.md
-      - docs/textfield-full-gc-bounds.md
-      - docs/textfield-page-bounds.md
-      - docs/textfield-position-metrics.md
-      - docs/textfield-preedit-start.md
-      - docs/textfield-rect-bounds.md
-      - docs/textfield-redisplay-bounds.md
-      - docs/textfield-selection-restart-guard.md
-      - docs/textfield-selection-state-naming.md
-      - docs/textfield-size-bounds.md
-      - docs/textfield-substring-ranges.md
-      - docs/textfield-string-getters.md
-      - docs/textfield-mutator-inputs.md
-      - docs/textfield-state-accessors.md
-      - docs/datafield-state-accessors.md
-      - docs/datafield-mutator-inputs.md
-      - docs/datafield-string-inputs.md
-      - docs/datafield-selection-actions.md
-      - docs/datafield-selection-geometry.md
-      - docs/datafield-baseline-input.md
-      - docs/i18list-search-inputs.md
-      - docs/i18list-row-helper-inputs.md
-      - docs/spinbox-value-input.md
-      - docs/scrolled-window-areas-input.md
-      - docs/toggle-gadget-inputs.md
-      - docs/textfield-timer-scroll-bounds.md
-      - docs/textfield-transfer-lengths.md
-      - docs/textfield-wcstombs-width.md
-      - docs/textfield-wide-length-bound.md
-      - docs/textual-drag-icon-inputs.md
-      - docs/transfer-block-allocation-failure.md
-      - docs/tree-initialize-list.md
-      - docs/update-display-inputs.md
-      - docs/vertical-pixels-inputs.md
-      - docs/widget-geometry-inputs.md
-      - docs/wsm-unpack-entry-guards.md
-      - docs/xmos-build-filename-bounds.md
-      - docs/xmos-directory-length-bounds.md
-      - docs/xmos-initial-direction-bounds.md
-      - docs/xmos-mask-name-length.md
-      - docs/xpm-buffer-color-output-bounds.md
-      - docs/xpm-buffer-extension-output-bounds.md
-      - docs/xpm-color-output-bounds.md
-      - docs/xpm-comment-marker-lengths.md
-      - docs/xpm-string-duplicate-input.md
-      - docs/appearance-snapshot-bounds.md
-      - docs/auto-suggest-box.md
-      - docs/avatar.md
-      - docs/badge.md
-      - docs/baseclass-resource-copy-allocation.md
-      - docs/callback-capacity.md
-      - docs/cardinal-item-bounds.md
-      - docs/cascadebg-resource-merge.md
-      - docs/chip.md
-      - docs/clipboard-callback-snapshot-guard.md
-      - docs/clipboard-callback-table-growth.md
-      - docs/clipboard-cancel-copy-validation.md
-      - docs/clipboard-close-size-guard.md
-      - docs/clipboard-convert-allocation.md
-      - docs/clipboard-copy-allocation.md
-      - docs/clipboard-copy-by-name-validation.md
-      - docs/clipboard-copy-id-validation.md
-      - docs/clipboard-copy-input-validation.md
-      - docs/clipboard-data-ready-validation.md
-      - docs/clipboard-data-wait-cleanup.md
-      - docs/clipboard-delete-formats-validation.md
-      - docs/clipboard-delete-label-validation.md
-      - docs/clipboard-delete-state-validation.md
-      - docs/clipboard-end-copy-header-guard.md
-      - docs/clipboard-end-copy-record-validation.md
-      - docs/clipboard-event-record-validation.md
-      - docs/clipboard-format-atom-allocation.md
-      - docs/clipboard-format-buffer-validation.md
-      - docs/clipboard-format-length-validation.md
-      - docs/clipboard-header-validation.md
-      - docs/clipboard-inquire-count-header-guard.md
-      - docs/clipboard-inquire-format-guards.md
-      - docs/clipboard-inquire-format-zero-length.md
-      - docs/clipboard-inquire-length-guards.md
-      - docs/clipboard-inquiry-lock-cleanup.md
-      - docs/clipboard-inquiry-result-validation.md
-      - docs/clipboard-item-id-allocation.md
-      - docs/clipboard-mark-item-validation.md
-      - docs/clipboard-next-id-validation.md
-      - docs/clipboard-next-item-guard.md
-      - docs/clipboard-pending-header-guard.md
-      - docs/clipboard-pending-list-allocation.md
-      - docs/clipboard-receive-callback-validation.md
-      - docs/clipboard-request-count-lock.md
-      - docs/clipboard-request-lifetime.md
-      - docs/clipboard-retrieve-allocation.md
-      - docs/clipboard-retrieve-buffer-validation.md
-      - docs/clipboard-retrieve-data-bounds.md
-      - docs/clipboard-retrieve-header-guards.md
-      - docs/clipboard-selection-output-guards.md
-      - docs/clipboard-send-message-guards.md
-      - docs/clipboard-snapshot-allocation.md
-      - docs/clipboard-start-copy-allocation.md
-      - docs/clipboard-undo-copy-validation.md
-      - docs/clipwindow-translation-growth.md
-      - docs/color-selector-name-scope.md
-      - docs/colorobj-init-cleanup.md
-      - docs/colorobj-name-table-allocation.md
-      - docs/command-palette-allocation-bounds.md
-      - docs/command-palette.md
-      - docs/compact-controls-contract.md
-      - docs/container-cells-allocation.md
-      - docs/container-child-count-bounds.md
-      - docs/container-clipboard-inputs.md
-      - docs/container-header-position-bounds.md
-      - docs/container-relayout-inputs.md
-      - docs/container-reorder-inputs.md
-      - docs/container-tab-pool-bounds.md
-      - docs/context-menu-decision.md
-      - docs/cpp-support-library-prototype.md
-      - docs/cpp-support-library.md
-      - docs/cutpaste-atom-name-guards.md
-      - docs/cutpaste-callback-table-bounds.md
-      - docs/cutpaste-format-enumeration.md
-      - docs/dataf-clipboard-atom-name.md
-      - docs/datafield-action-snapshot.md
-      - docs/datafield-allocation.md
-      - docs/datafield-getter-allocation.md
-      - docs/datafield-paste-buffer.md
-      - docs/datafield-render-table-lifetime.md
-      - docs/datafield-replace-conversion.md
-      - docs/datafield-selection-assembly.md
-      - docs/datafield-selection-bounds.md
-      - docs/datafield-string-conversion.md
-      - docs/datafield-substring-byte-range.md
-      - docs/datafield-substring-range.md
-      - docs/datafield-substring-wcs-buffer.md
-      - docs/datafield-verify-buffer.md
-      - docs/datafield-wcvalue-init.md
-      - docs/datafield-wide-insertion-allocation.md
-      - docs/datafield-wide-selection-allocation.md
-      - docs/desktop-size-limit-header.md
-      - docs/direction-stack-bounds.md
-      - docs/display-scale-global-helper.md
-      - docs/display-scale-override.md
-      - docs/dnd-drop-site-stream-bounds.md
-      - docs/dnd-receiver-site-count.md
-      - docs/dnd-stream-region-input.md
-      - docs/dnd-transfer-lifecycle.md
-      - docs/drag-cancel-inputs.md
-      - docs/drag-copy-helper.md
-      - docs/drag-receiver-failure-guard.md
-      - docs/drag-receiver-info-allocation.md
-      - docs/drag-selection-request-guard.md
-      - docs/drag-start-inputs.md
-      - docs/drag-target-allocation-bounds.md
-      - docs/drag-target-heap-bound.md
-      - docs/drag-target-inputs.md
-      - docs/drag-targets-conversion-bounds.md
-      - docs/dragbs-target-allocation.md
-      - docs/draw-utils-size-limit-header.md
-      - docs/drop-highlight.md
-      - docs/drop-transfer-add-bounds.md
-      - docs/drop-transfer-callback-destruction.md
-      - docs/drop-transfer-callback-selection.md
-      - docs/drop-transfer-entry-allocation.md
-      - docs/drop-transfer-inputs.md
-      - docs/drop-transfer-processing-selection.md
-      - docs/dropsite-allocation-failure.md
-      - docs/dropsite-end-update-inputs.md
-      - docs/dropsite-lifecycle.md
-      - docs/dropsite-query-inputs.md
-      - docs/dropsite-register-inputs.md
-      - docs/dropsite-retrieve-inputs.md
-      - docs/dropsite-start-update-inputs.md
-      - docs/dropsite-unregister-inputs.md
-      - docs/dropsite-update-inputs.md
-      - docs/editres-child-bounds.md
-      - docs/empty-state.md
-      - docs/exm-demo-build.md
-      - docs/filesb-qualified-path-failure.md
-      - docs/fixed-pattern-bounds.md
-      - docs/font-selector-encoding-count.md
-      - docs/fontselector-sanitizer-boundary.md
-      - docs/form-section.md
-      - docs/gallery-ui-validation.md
-      - docs/header-bar-decision.md
-      - docs/hierarchy-child-insertion-braces.md
-      - docs/hierarchy-child-list-bounds.md
-      - docs/hierarchy-init-failure.md
-      - docs/hierarchy-node-table-allocation.md
-      - docs/icon-cache-pointer-types.md
-      - docs/icon-directory-bounds.md
-      - docs/icon-label-divider.md
-      - docs/icong-baseline-allocation.md
-      - docs/icong-mask-name-bounds.md
-      - docs/im-close-xim-inputs.md
-      - docs/im-focus-inputs.md
-      - docs/im-get-xic-inputs.md
-      - docs/im-get-xim-inputs.md
-      - docs/im-lookup-inputs.md
-      - docs/im-register-inputs.md
-      - docs/im-reset-inputs.md
-      - docs/im-reset-state-inputs.md
-      - docs/im-set-xic-inputs.md
-      - docs/im-varargs-inputs.md
-      - docs/image-cache-buffer-bounds.md
-      - docs/image-cache-depth-sentinel.md
-      - docs/image-cache-depth1-bounds.md
-      - docs/image-cache-geometry-bounds.md
-      - docs/image-cache-scaling-ratio.md
-      - docs/image-cache-table-bounds.md
-      - docs/image-scaling-conversions.md
-      - docs/image-scaling-row-stride.md
-      - docs/image-scaling-destination-bounds.md
-      - docs/image-scaling-source-origin.md
-      - docs/image-scaling-source-origin-y.md
-      - docs/legacy-charset-canonicalization.md
-      - docs/legacy-filesel-restore-bounds.md
-      - docs/legacy-menu-accelerator-bounds.md
-      - docs/link.md
-      - docs/list-add-items-height-state.md
-      - docs/list-drag-selection-allocation.md
-      - docs/list-scroll-arithmetic.md
-      - docs/list-sensitivity-cancellation.md
-      - docs/modern-gallery-screenshot-qualification.md
-      - docs/modern-toggle-appearance.md
-      - docs/motion-buffer-growth.md
-      - docs/motion-buffer-handoff.md
-      - docs/mwm-appearance-resource-widget.md
-      - docs/mwm-application-context.md
-      - docs/mwm-application-shells.md
-      - docs/mwm-db-home-regression.md
-      - docs/mwm-debug-resource-path-bounds.md
-      - docs/mwm-display-open-failure.md
-      - docs/mwm-error-code-format-bounds.md
-      - docs/mwm-feedback-dialog-creation.md
-      - docs/mwm-iconbox-hierarchy-creation.md
-      - docs/mwm-invoke-message-guard.md
-      - docs/mwm-menu-child-creation.md
-      - docs/mwm-menu-retry-state.md
-      - docs/mwm-menu-root-creation.md
-      - docs/mwm-query-atom-format-bounds.md
-      - docs/mwm-running-inputs.md
-      - docs/mwm-screen-name-initialization.md
-      - docs/mwm-session-db-format-bounds.md
-      - docs/mwm-startup-widget-creation.md
-      - docs/mwm-utm-selection-guard.md
-      - docs/notebook-appearance.md
-      - docs/numberbox-render-table-failure.md
-      - docs/obso1-2-rectangle-allocation.md
-      - docs/obso2-colordata-allocation.md
-      - docs/obso2-translation-growth.md
-      - docs/paned-separator-allocation.md
-      - docs/picture-allocation-guards.md
-      - docs/progress-ring.md
-      - docs/prompt.md
-      - docs/qualify-file-spec-failure.md
-      - docs/rc-layout-geometry-allocation.md
-      - docs/render-rendition-font-name-update.md
-      - docs/render-rendition-merge.md
-      - docs/render-rendition-null-font-name.md
-      - docs/render-rendition-update-renewal.md
-      - docs/render-table-add-null-entry.md
-      - docs/render-table-cardinal-bounds.md
-      - docs/render-table-export-entry-guards.md
-      - docs/render-table-export-inputs.md
-      - docs/render-table-null-entry-tag.md
-      - docs/render-table-remove-inputs.md
-      - docs/render-table-tag-entry-guards.md
-      - docs/rendition-copy-bounds.md
-      - docs/reptype-table-allocation.md
-      - docs/resencod-concat-failure.md
-      - docs/resencod-segment-bounds.md
-      - docs/resencod-stack-copy-length.md
-      - docs/row-actions-allocation-bounds.md
-      - docs/row-actions.md
-      - docs/scroll-autodrag-lifetime.md
-      - docs/scroll-frame-size-limit-header.md
-      - docs/scrollbar-callback-snapshot.md
-      - docs/scrolled-window-fit.md
-      - docs/search-box.md
-      - docs/sidebar.md
-      - docs/skeleton.md
-      - docs/spinb-numtostring-allocation.md
-      - docs/standard-convert-client-window-allocation.md
-      - docs/standard-convert-wm-name.md
-      - docs/status-bar.md
-      - docs/statusbar-allocation-failure.md
-      - docs/stepper-render-table-failure.md
-      - docs/tab-arglist-guard.md
-      - docs/tab-box-redisplay-guard.md
-      - docs/tab-null-guards.md
-      - docs/tab-position-bounds.md
-      - docs/tab-position-screen-guard.md
-      - docs/tabbed-stack-bounds.md
-      - docs/tablist-lock-boundaries.md
-      - docs/tablist-widget-guard.md
-      - docs/tabstack-coordinate-inputs.md
-      - docs/teaching-tip.md
-      - docs/tearoff-key-allocation.md
-      - docs/text-autoscroll-bottom-bounds.md
-      - docs/text-class-translation-allocation.md
-      - docs/text-clear-selection-bounds.md
-      - docs/text-conversion-inputs.md
-      - docs/text-cut-buffer-context.md
-      - docs/text-drag-distance-bounds.md
-      - docs/text-dynamic-growth.md
-      - docs/text-event-hit-test-bounds.md
-      - docs/text-highlight-snapshot-growth.md
-      - docs/text-horizontal-page-y-bounds.md
-      - docs/text-initialize-storage.md
-      - docs/text-initialize-wcs.md
-      - docs/text-input-initialize.md
-      - docs/text-insert-string-bounds.md
-      - docs/text-kill-buffer-bounds.md
-      - docs/text-line-coordinate-bounds.md
-      - docs/text-line-count-bounds.md
-      - docs/text-line-table-export.md
-      - docs/text-modify-verify-bounds.md
-      - docs/text-next-page-y-bounds.md
-      - docs/text-on-the-spot-allocation.md
-      - docs/text-preedit-overstrike-allocation.md
-      - docs/text-preedit-overstrike-concat.md
-      - docs/text-preedit-recovery-growth.md
-      - docs/text-preedit-wide-conversion.md
-      - docs/text-previous-page-y-bounds.md
-      - docs/text-reflow-scratch-table.md
-      - docs/text-reset-overstrike-allocation.md
-      - docs/text-rtl-autoscroll-axis.md
-      - docs/text-rtl-autoscroll-edge-bounds.md
-      - docs/text-rtl-translation-allocation.md
-      - docs/text-scroll-cursor-delta-bounds.md
-      - docs/text-scroll-cursor-line-table.md
-      - docs/text-scroll-cursor-parameter-bounds.md
-      - docs/text-secondary-extend-selection.md
-      - docs/text-secondary-resource-allocation.md
-      - docs/text-select-outline-bounds.md
-      - docs/text-selection-array-byte-count.md
-      - docs/text-selection-empty-buffer.md
-      - docs/text-selection-hint-bounds.md
-      - docs/text-selection-length-bounds.md
-      - docs/text-selection-source-failure.md
-      - docs/text-selection-source-guard.md
-      - docs/text-selection-target-allocation.md
-      - docs/text-set-string-wcs.md
-      - docs/text-setvalues-wcs.md
-      - docs/text-source-add-widget.md
-      - docs/text-source-block-payload.md
-      - docs/text-source-compaction.md
-      - docs/text-source-create-bounds.md
-      - docs/text-source-destroy-guard.md
-      - docs/text-source-highlight-copy-bounds.md
-      - docs/text-source-length-narrowing.md
-      - docs/text-source-pending-pointer-width.md
-      - docs/text-source-pending.md
-      - docs/text-source-range-bounds.md
-      - docs/text-source-replace-growth.md
-      - docs/text-source-value-bounds.md
-      - docs/text-timer-point-bounds.md
-      - docs/text-transfer-point-bounds.md
-      - docs/text-verify-allocation-guards.md
-      - docs/textfield-adjust-bounds.md
-      - docs/textfield-baseline-bounds.md
-      - docs/textfield-baselines.md
-      - docs/textfield-class-translation-allocation.md
-      - docs/textfield-cursor-geometry.md
-      - docs/textfield-display-rect-bounds.md
-      - docs/textfield-full-gc-bounds.md
-      - docs/textfield-modify-verify-allocation.md
-      - docs/textfield-page-bounds.md
-      - docs/textfield-position-metrics.md
-      - docs/textfield-preedit-start.md
-      - docs/textfield-rect-bounds.md
-      - docs/textfield-redisplay-bounds.md
-      - docs/textfield-selection-array-bounds.md
-      - docs/textfield-setvalues-restore.md
-      - docs/textfield-size-bounds.md
-      - docs/textfield-substring-ranges.md
-      - docs/textfield-timer-scroll-bounds.md
-      - docs/textfield-validate-allocation.md
-      - docs/textfield-wcs-callback-bounds.md
-      - docs/textual-drag-icon-inputs.md
-      - docs/toast.md
-      - docs/toolbar-allocation-failure.md
-      - docs/toolbar.md
-      - docs/transfer-callback-context-guards.md
-      - docs/transfer-callback-value.md
-      - docs/transfer-context-failure-guards.md
-      - docs/transfer-context-initialization.md
-      - docs/transfer-deferred-cleanup.md
-      - docs/transfer-lose-cleanup.md
-      - docs/transfer-move-cleanup.md
-      - docs/transfer-target-cleanup.md
-      - docs/transfer-target-list-cleanup.md
-      - docs/traversal-stack-node-list.md
-      - docs/tree-initialize-list.md
-      - docs/tree-view-colors.md
-      - docs/treeview-geometry-regressions.md
-      - docs/treeview-render-table-failure.md
-      - docs/update-display-inputs.md
-      - docs/utf8-conversion-input-validation.md
-      - docs/utm-payload-failure-cleanup.md
-      - docs/utm-send-widget-guard.md
-      - docs/vendors-lock-balance.md
-      - docs/vendorshell-modal-growth.md
-      - docs/vertical-pixels-inputs.md
-      - docs/virtkeys-invalid-keycode.md
-      - docs/widget-geometry-inputs.md
-      - docs/wm-feedback-size-limit-header.md
-      - docs/wsm-selection-format-bounds.md
-      - docs/wsm-widget-input-validation.md
-      - docs/x86-text-qualification.md
-      - docs/xm-iso10646-registry.md
-      - docs/xm-object-at-point-input.md
-      - docs/xme-class-dialog-creation.md
-      - docs/xmfontlist-create-failure.md
-      - docs/xmfontlist-locking.md
-      - docs/xmfontlist-null-tag.md
-      - docs/xmfontlist-remove-null-tag.md
-      - docs/xmos-qualified-dir-bounds.md
-      - docs/xmos-qualified-dir-helper-bounds.md
-      - docs/xmstring-asn1-failure-cleanup.md
-      - docs/xmstring-byte-conversion-locking.md
-      - docs/xmstring-cached-create.md
-      - docs/xmstring-component-allocation.md
-      - docs/xmstring-concat-allocation.md
-      - docs/xmstring-concat-bounds.md
-      - docs/xmstring-concat-entry-resize.md
-      - docs/xmstring-concat-optimized-a.md
-      - docs/xmstring-concat-realloc.md
-      - docs/xmstring-context-copy-failure.md
-      - docs/xmstring-conversion-failures.md
-      - docs/xmstring-create-failure.md
-      - docs/xmstring-entry-allocation.md
-      - docs/xmstring-entry-create-allocation.md
-      - docs/xmstring-enumeration-locking.md
-      - docs/xmstring-func-warning-guards.md
-      - docs/xmstring-function-locking.md
-      - docs/xmstring-generate-locking.md
-      - docs/xmstring-get-output-validation.md
-      - docs/xmstring-getcomponent-locking.md
-      - docs/xmstring-getltr-locking.md
-      - docs/xmstring-lock-boundaries.md
-      - docs/xmstring-make-str-concat.md
-      - docs/xmstring-make-str-failure.md
-      - docs/xmstring-make-str-segment.md
-      - docs/xmstring-obsolete-locking.md
-      - docs/xmstring-obsolete-locks.md
-      - docs/xmstring-optimized-rendition-allocation.md
-      - docs/xmstring-parse-array-inputs.md
-      - docs/xmstring-parse-initial-allocation.md
-      - docs/xmstring-parse-mapping-inputs.md
-      - docs/xmstring-parse-unmatched-failure.md
-      - docs/xmstring-put-rendition-copy.md
-      - docs/xmstring-put-rendition-failure.md
-      - docs/xmstring-realloc-failure.md
-      - docs/xmstring-rendering-warnings.md
-      - docs/xmstring-rendition-allocation.md
-      - docs/xmstring-rendition-resize.md
-      - docs/xmstring-rendition-tag-bounds.md
-      - docs/xmstring-segment-array-allocation.md
-      - docs/xmstring-segment-copy-allocation.md
-      - docs/xmstring-segment-copy-bounds.md
-      - docs/xmstring-segment-line-growth.md
-      - docs/xmstring-segment-merge-bounds.md
-      - docs/xmstring-segment-validation.md
-      - docs/xmstring-single-segment-outputs.md
-      - docs/xmstring-substring-null-tags.md
-      - docs/xmstring-table-break-concat.md
-      - docs/xmstring-table-break-copy.md
-      - docs/xmstring-table-concat-failure.md
-      - docs/xmstring-table-entry-copy.md
-      - docs/xmstring-table-inputs.md
-      - docs/xmstring-table-locking.md
-      - docs/xmstring-table-transaction.md
-      - docs/xmstring-tablist-locking.md
-      - docs/xmstring-unoptimize-cleanup.md
-      - docs/xmstring-unparse-array-inputs.md
-      - docs/xpm-buffer-pixel-index-bounds.md
-      - docs/xpm-comment-size-bounds.md
-      - docs/xpm-data-pixel-index-bounds.md
-      - docs/xpm-data-row-count-bounds.md
-      - docs/xpm-extension-size-bounds.md
-      - docs/xpm-file-pixel-index-bounds.md
-      - docs/xpm-grayscale-color-bounds.md
-      - docs/xpm-hash-growth-bounds.md
-      - docs/xpm-scan-growth-bounds.md
-      - docs/dragbs-atom-entry-growth.md
-      - docs/dropsmgr-child-growth.md
-      - docs/editres-stream-growth.md
-      - docs/outline-top-node-allocation.md
-      - docs/virtkeys-binding-growth.md
-      - docs/xft-draw-cache-growth.md
+      - title: appearance
+        pages:
+          - docs/appearance-snapshot-bounds.md
+      - title: auto
+        pages:
+          - docs/auto-suggest-box.md
+      - title: avatar.md
+        pages:
+          - docs/avatar.md
+      - title: badge.md
+        pages:
+          - docs/badge.md
+      - title: baseclass
+        pages:
+          - docs/baseclass-resource-copy-allocation.md
+      - title: callback
+        pages:
+          - docs/callback-capacity.md
+      - title: cardinal
+        pages:
+          - docs/cardinal-item-bounds.md
+      - title: cascadebg
+        pages:
+          - docs/cascadebg-resource-merge.md
+      - title: charset
+        pages:
+          - docs/charset-conversion-state-inputs.md
+      - title: chip.md
+        pages:
+          - docs/chip.md
+      - title: clip
+        pages:
+          - docs/clip-window-translation-inputs.md
+      - title: clipboard
+        pages:
+          - docs/clipboard-callback-snapshot-guard.md
+          - docs/clipboard-callback-table-growth.md
+          - docs/clipboard-cancel-copy-validation.md
+          - docs/clipboard-close-size-guard.md
+          - docs/clipboard-convert-allocation.md
+          - docs/clipboard-copy-allocation.md
+          - docs/clipboard-copy-by-name-validation.md
+          - docs/clipboard-copy-id-validation.md
+          - docs/clipboard-copy-input-validation.md
+          - docs/clipboard-data-ready-validation.md
+          - docs/clipboard-data-wait-cleanup.md
+          - docs/clipboard-delete-formats-validation.md
+          - docs/clipboard-delete-label-validation.md
+          - docs/clipboard-delete-state-validation.md
+          - docs/clipboard-end-copy-header-guard.md
+          - docs/clipboard-end-copy-record-validation.md
+          - docs/clipboard-event-record-validation.md
+          - docs/clipboard-format-atom-allocation.md
+          - docs/clipboard-format-buffer-validation.md
+          - docs/clipboard-format-length-validation.md
+          - docs/clipboard-header-validation.md
+          - docs/clipboard-inquire-count-header-guard.md
+          - docs/clipboard-inquire-format-guards.md
+          - docs/clipboard-inquire-format-zero-length.md
+          - docs/clipboard-inquire-length-guards.md
+          - docs/clipboard-inquiry-lock-cleanup.md
+          - docs/clipboard-inquiry-result-validation.md
+          - docs/clipboard-item-id-allocation.md
+          - docs/clipboard-mark-item-validation.md
+          - docs/clipboard-next-id-validation.md
+          - docs/clipboard-next-item-guard.md
+          - docs/clipboard-pending-header-guard.md
+          - docs/clipboard-pending-list-allocation.md
+          - docs/clipboard-receive-callback-validation.md
+          - docs/clipboard-request-count-lock.md
+          - docs/clipboard-request-lifetime.md
+          - docs/clipboard-retrieve-allocation.md
+          - docs/clipboard-retrieve-buffer-validation.md
+          - docs/clipboard-retrieve-data-bounds.md
+          - docs/clipboard-retrieve-header-guards.md
+          - docs/clipboard-selection-output-guards.md
+          - docs/clipboard-send-message-guards.md
+          - docs/clipboard-snapshot-allocation.md
+          - docs/clipboard-start-copy-allocation.md
+          - docs/clipboard-undo-copy-validation.md
+      - title: clipwindow
+        pages:
+          - docs/clipwindow-translation-growth.md
+      - title: color
+        pages:
+          - docs/color-object-property-format.md
+          - docs/color-selector-name-scope.md
+      - title: colorobj
+        pages:
+          - docs/colorobj-init-cleanup.md
+          - docs/colorobj-name-table-allocation.md
+      - title: command
+        pages:
+          - docs/command-palette-allocation-bounds.md
+          - docs/command-palette.md
+      - title: compact
+        pages:
+          - docs/compact-controls-contract.md
+      - title: compound
+        pages:
+          - docs/compound-text-converter-display.md
+          - docs/compound-text-converter-inputs.md
+      - title: container
+        pages:
+          - docs/container-cells-allocation.md
+          - docs/container-child-count-bounds.md
+          - docs/container-clipboard-inputs.md
+          - docs/container-header-position-bounds.md
+          - docs/container-relayout-inputs.md
+          - docs/container-reorder-inputs.md
+          - docs/container-tab-pool-bounds.md
+          - docs/container-disclosure-state.md
+          - docs/container-disclosure-sensitivity.md
+          - docs/container-cells-allocation.md
+          - docs/container-child-count-bounds.md
+          - docs/container-clipboard-inputs.md
+          - docs/container-header-position-bounds.md
+          - docs/container-relayout-inputs.md
+          - docs/container-reorder-inputs.md
+          - docs/container-tab-pool-bounds.md
+      - title: context
+        pages:
+          - docs/context-menu-decision.md
+      - title: cpp
+        pages:
+          - docs/cpp-support-library-prototype.md
+          - docs/cpp-support-library.md
+      - title: cutpaste
+        pages:
+          - docs/cutpaste-atom-name-guards.md
+          - docs/cutpaste-callback-table-bounds.md
+          - docs/cutpaste-format-enumeration.md
+      - title: dataf
+        pages:
+          - docs/dataf-clipboard-atom-name.md
+      - title: datafield
+        pages:
+          - docs/datafield-state-accessors.md
+          - docs/datafield-mutator-inputs.md
+          - docs/datafield-string-inputs.md
+          - docs/datafield-selection-actions.md
+          - docs/datafield-selection-geometry.md
+          - docs/datafield-baseline-input.md
+          - docs/datafield-action-snapshot.md
+          - docs/datafield-allocation.md
+          - docs/datafield-getter-allocation.md
+          - docs/datafield-paste-buffer.md
+          - docs/datafield-render-table-lifetime.md
+          - docs/datafield-replace-conversion.md
+          - docs/datafield-selection-assembly.md
+          - docs/datafield-selection-bounds.md
+          - docs/datafield-string-conversion.md
+          - docs/datafield-substring-byte-range.md
+          - docs/datafield-substring-range.md
+          - docs/datafield-substring-wcs-buffer.md
+          - docs/datafield-verify-buffer.md
+          - docs/datafield-wcvalue-init.md
+          - docs/datafield-wide-insertion-allocation.md
+          - docs/datafield-wide-selection-allocation.md
+      - title: desktop
+        pages:
+          - docs/desktop-size-limit-header.md
+      - title: direction
+        pages:
+          - docs/direction-stack-bounds.md
+      - title: display
+        pages:
+          - docs/display-scale-global-helper.md
+          - docs/display-scale-override.md
+      - title: dnd
+        pages:
+          - docs/dnd-drop-site-stream-bounds.md
+          - docs/dnd-receiver-site-count.md
+          - docs/dnd-stream-region-input.md
+          - docs/dnd-transfer-lifecycle.md
+      - title: drag
+        pages:
+          - docs/drag-cancel-inputs.md
+          - docs/drag-source-inputs.md
+          - docs/drag-start-inputs.md
+          - docs/drag-target-inputs.md
+          - docs/drag-cancel-inputs.md
+          - docs/drag-copy-helper.md
+          - docs/drag-receiver-failure-guard.md
+          - docs/drag-receiver-info-allocation.md
+          - docs/drag-selection-request-guard.md
+          - docs/drag-start-inputs.md
+          - docs/drag-target-allocation-bounds.md
+          - docs/drag-target-heap-bound.md
+          - docs/drag-target-inputs.md
+          - docs/drag-targets-conversion-bounds.md
+      - title: dragbs
+        pages:
+          - docs/dragbs-target-allocation.md
+          - docs/dragbs-atom-entry-growth.md
+      - title: draw
+        pages:
+          - docs/draw-utils-size-limit-header.md
+      - title: drop
+        pages:
+          - docs/drop-transfer-callback-guards.md
+          - docs/drop-transfer-callback-input.md
+          - docs/drop-transfer-drag-destroy.md
+          - docs/drop-transfer-inputs.md
+          - docs/drop-transfer-processing-failure.md
+          - docs/drop-transfer-selection-atom.md
+          - docs/drop-transfer-start-allocation.md
+          - docs/drop-transfer-start-inputs.md
+          - docs/drop-transfer-widget-input.md
+          - docs/drop-highlight.md
+          - docs/drop-transfer-add-bounds.md
+          - docs/drop-transfer-callback-destruction.md
+          - docs/drop-transfer-callback-selection.md
+          - docs/drop-transfer-entry-allocation.md
+          - docs/drop-transfer-inputs.md
+          - docs/drop-transfer-processing-selection.md
+      - title: dropsite
+        pages:
+          - docs/dropsite-end-update-inputs.md
+          - docs/dropsite-query-inputs.md
+          - docs/dropsite-register-inputs.md
+          - docs/dropsite-retrieve-inputs.md
+          - docs/dropsite-start-update-inputs.md
+          - docs/dropsite-unregister-inputs.md
+          - docs/dropsite-update-inputs.md
+          - docs/dropsite-allocation-failure.md
+          - docs/dropsite-end-update-inputs.md
+          - docs/dropsite-lifecycle.md
+          - docs/dropsite-query-inputs.md
+          - docs/dropsite-register-inputs.md
+          - docs/dropsite-retrieve-inputs.md
+          - docs/dropsite-start-update-inputs.md
+          - docs/dropsite-unregister-inputs.md
+          - docs/dropsite-update-inputs.md
+      - title: dropsmgr
+        pages:
+          - docs/dropsmgr-child-growth.md
+      - title: editres
+        pages:
+          - docs/editres-child-bounds.md
+          - docs/editres-stream-growth.md
+      - title: empty
+        pages:
+          - docs/empty-state.md
+      - title: encoding
+        pages:
+          - docs/encoding-registry-length-output.md
+      - title: exm
+        pages:
+          - docs/exm-demo-build.md
+      - title: filesb
+        pages:
+          - docs/filesb-directory-length-bounds.md
+          - docs/filesb-qualified-path-failure.md
+      - title: fixed
+        pages:
+          - docs/fixed-pattern-bounds.md
+      - title: font
+        pages:
+          - docs/font-selector-encoding-count.md
+      - title: fontselector
+        pages:
+          - docs/fontselector-sanitizer-boundary.md
+      - title: form
+        pages:
+          - docs/form-section.md
+      - title: gallery
+        pages:
+          - docs/gallery-ui-validation.md
+      - title: header
+        pages:
+          - docs/header-bar-decision.md
+      - title: hierarchy
+        pages:
+          - docs/hierarchy-child-insertion-braces.md
+          - docs/hierarchy-child-list-bounds.md
+          - docs/hierarchy-init-failure.md
+          - docs/hierarchy-node-table-allocation.md
+      - title: i18list
+        pages:
+          - docs/i18list-search-inputs.md
+          - docs/i18list-row-helper-inputs.md
+      - title: icon
+        pages:
+          - docs/icon-cache-directory-bounds.md
+          - docs/icon-cache-flush-length-bounds.md
+          - docs/icon-cache-path-length-bounds.md
+          - docs/icon-name-hash.md
+          - docs/icon-cache-pointer-types.md
+          - docs/icon-directory-bounds.md
+          - docs/icon-label-divider.md
+      - title: icong
+        pages:
+          - docs/icong-baseline-allocation.md
+          - docs/icong-mask-name-bounds.md
+      - title: im
+        pages:
+          - docs/im-close-xim-inputs.md
+          - docs/im-focus-inputs.md
+          - docs/im-get-xic-inputs.md
+          - docs/im-get-xim-inputs.md
+          - docs/im-lookup-inputs.md
+          - docs/im-register-inputs.md
+          - docs/im-reset-inputs.md
+          - docs/im-reset-state-inputs.md
+          - docs/im-set-xic-inputs.md
+          - docs/im-varargs-inputs.md
+          - docs/im-close-xim-inputs.md
+          - docs/im-focus-inputs.md
+          - docs/im-get-xic-inputs.md
+          - docs/im-get-xim-inputs.md
+          - docs/im-lookup-inputs.md
+          - docs/im-register-inputs.md
+          - docs/im-reset-inputs.md
+          - docs/im-reset-state-inputs.md
+          - docs/im-set-xic-inputs.md
+          - docs/im-varargs-inputs.md
+      - title: image
+        pages:
+          - docs/image-data-input.md
+          - docs/image-cache-depth-sentinel.md
+          - docs/image-cache-depth1-bounds.md
+          - docs/image-cache-geometry-bounds.md
+          - docs/image-cache-scaling-ratio.md
+          - docs/image-cache-warning-state.md
+          - docs/image-color-release.md
+          - docs/image-converted-cleanup.md
+          - docs/image-scale-cleanup.md
+          - docs/image-scale-row-stride.md
+          - docs/image-scaling-conversions.md
+          - docs/image-scaling-row-stride.md
+          - docs/image-cache-buffer-bounds.md
+          - docs/image-cache-depth-sentinel.md
+          - docs/image-cache-depth1-bounds.md
+          - docs/image-cache-geometry-bounds.md
+          - docs/image-cache-scaling-ratio.md
+          - docs/image-cache-table-bounds.md
+          - docs/image-scaling-conversions.md
+          - docs/image-scaling-row-stride.md
+          - docs/image-scaling-destination-bounds.md
+          - docs/image-scaling-source-origin.md
+          - docs/image-scaling-source-origin-y.md
+      - title: inverse
+        pages:
+          - docs/inverse-compound-text-converter-inputs.md
+      - title: legacy
+        pages:
+          - docs/legacy-charset-canonicalization.md
+          - docs/legacy-filesel-restore-bounds.md
+          - docs/legacy-menu-accelerator-bounds.md
+      - title: link.md
+        pages:
+          - docs/link.md
+      - title: list
+        pages:
+          - docs/list-add-items-height-state.md
+          - docs/list-drag-selection-allocation.md
+          - docs/list-scroll-arithmetic.md
+          - docs/list-sensitivity-cancellation.md
+      - title: modern
+        pages:
+          - docs/modern-visual-overhaul.md
+          - docs/modern-gallery-screenshot-qualification.md
+          - docs/modern-toggle-appearance.md
+      - title: motion
+        pages:
+          - docs/motion-buffer-growth.md
+          - docs/motion-buffer-handoff.md
+      - title: mwm
+        pages:
+          - title: A
+            pages:
+              - docs/mwm-action-parameter-bounds.md
+              - docs/mwm-active-icon-attributes.md
+              - docs/mwm-active-icon-geometry.md
+              - docs/mwm-active-icon-label-lifecycle.md
+              - docs/mwm-active-icon-label-painting.md
+              - docs/mwm-active-icon-label-show.md
+              - docs/mwm-active-icon-label-window.md
+              - docs/mwm-adopt-workspace-bounds.md
+              - docs/mwm-automation-reply-size.md
+              - docs/mwm-appearance-resource-widget.md
+              - docs/mwm-application-context.md
+              - docs/mwm-application-shells.md
+          - title: B
+            pages:
+              - docs/mwm-bevel-geometry.md
+              - docs/mwm-binding-token-boundaries.md
+              - docs/mwm-bindings-property-bounds.md
+              - docs/mwm-bindings-property.md
+              - docs/mwm-bitmap-cache-growth.md
+              - docs/mwm-bitmap-cache-index-bounds.md
+              - docs/mwm-bitmap-cache-init.md
+              - docs/mwm-bitmap-cache-installation.md
+              - docs/mwm-bitmap-cache-metadata.md
+              - docs/mwm-bitmap-cache-retry.md
+              - docs/mwm-bitmap-data-cache.md
+          - title: C
+            pages:
+              - docs/mwm-cached-label-bitmap-bounds.md
+              - docs/mwm-cached-label-entry-validation.md
+              - docs/mwm-cached-label-resource-failure.md
+              - docs/mwm-client-adoption-inputs.md
+              - docs/mwm-client-base-window-initialization.md
+              - docs/mwm-client-creation-failure-cleanup.md
+              - docs/mwm-client-frame-state.md
+              - docs/mwm-client-icon-shape-initialization.md
+              - docs/mwm-client-list-inputs.md
+              - docs/mwm-client-sort-bounds.md
+              - docs/mwm-client-title-initialization.md
+              - docs/mwm-colormap-lifecycle-inputs.md
+              - docs/mwm-colormap-menu-inputs.md
+              - docs/mwm-colormap-reference-inputs.md
+              - docs/mwm-compact-gadget-geometry.md
+              - docs/mwm-compound-string-drawing-inputs.md
+              - docs/mwm-confirm-action-bounds.md
+              - docs/mwm-confirm-callback-state.md
+              - docs/mwm-confirmation-border-width.md
+              - docs/mwm-confirmation-geometry-bounds.md
+              - docs/mwm-confirmation-geometry.md
+              - docs/mwm-copyargv-fallback.md
+              - docs/mwm-current-workspace-initialization.md
+          - title: D
+            pages:
+              - docs/mwm-decoration-allocation-inputs.md
+              - docs/mwm-default-colors-growth.md
+              - docs/mwm-dialog-context.md
+              - docs/mwm-dialog-frame-lifecycle.md
+              - docs/mwm-dt-request-inputs.md
+              - docs/mwm-db-home-regression.md
+              - docs/mwm-debug-resource-path-bounds.md
+              - docs/mwm-display-open-failure.md
+          - title: E
+            pages:
+              - docs/mwm-embedded-client-growth.md
+              - docs/mwm-embedded-client-shutdown.md
+              - docs/mwm-error-code-format-bounds.md
+          - title: F
+            pages:
+              - docs/mwm-feedback-colormap.md
+              - docs/mwm-feedback-update-inputs.md
+              - docs/mwm-feedback-window-create.md
+              - docs/mwm-feedback-window-lifecycle.md
+              - docs/mwm-frame-construction-inputs.md
+              - docs/mwm-frame-display-list-counts.md
+              - docs/mwm-frame-exposure.md
+              - docs/mwm-frame-id-lifecycle.md
+              - docs/mwm-frame-regeneration.md
+              - docs/mwm-frame-shape-inputs.md
+              - docs/mwm-frame-teardown.md
+              - docs/mwm-frame-window-construction.md
+              - docs/mwm-function-argument-bounds.md
+              - docs/mwm-function-table-indexes.md
+              - docs/mwm-feedback-dialog-creation.md
+          - title: G
+            pages:
+              - docs/mwm-gadget-bevel-allocation.md
+              - docs/mwm-gadget-rectangle-inputs.md
+              - docs/mwm-grab-mask-allocation.md
+              - docs/mwm-graphics-size-limits.md
+              - docs/mwm-group-argument-bounds.md
+          - title: H
+            pages:
+              - docs/mwm-highlight-gc.md
+          - title: I
+            pages:
+              - docs/mwm-icon-box-resources.md
+              - docs/mwm-icon-destination-bounds.md
+              - docs/mwm-icon-frame-window.md
+              - docs/mwm-icon-painting.md
+              - docs/mwm-icon-reparenting.md
+              - docs/mwm-icon-resource-failure.md
+              - docs/mwm-icon-screen-fallback.md
+              - docs/mwm-icon-shadow-gcs.md
+              - docs/mwm-icon-source-validation.md
+              - docs/mwm-icon-teardown.md
+              - docs/mwm-icon-title-geometry.md
+              - docs/mwm-icon-title-painting.md
+              - docs/mwm-iconbox-gc.md
+              - docs/mwm-initial-property-inputs.md
+              - docs/mwm-invoke-command-parsing.md
+              - docs/mwm-invoke-window-bounds.md
+              - docs/mwm-iconbox-hierarchy-creation.md
+              - docs/mwm-invoke-message-guard.md
+          - title: K
+            pages:
+              - docs/mwm-key-substitution-allocation.md
+          - title: L
+            pages:
+              - docs/mwm-line-continuation-bounds.md
+              - docs/mwm-lower-argument-length.md
+          - title: M
+            pages:
+              - docs/mwm-matte-gc-initialization.md
+              - docs/mwm-maximize-geometry.md
+              - docs/mwm-menu-conversion-results.md
+              - docs/mwm-message-initialization.md
+              - docs/mwm-modal-input-window.md
+              - docs/mwm-modal-window-mapping.md
+              - docs/mwm-menu-child-creation.md
+              - docs/mwm-menu-retry-state.md
+              - docs/mwm-menu-root-creation.md
+          - title: N
+            pages:
+              - docs/mwm-named-icon-fallback.md
+              - docs/mwm-named-icon-metadata.md
+              - docs/mwm-normal-hints-range.md
+              - docs/mwm-null-client-icon-colors.md
+              - docs/mwm-number-argument-bounds.md
+          - title: O
+            pages:
+              - docs/mwm-outline-gc.md
+              - docs/mwm-outline-window-transaction.md
+          - title: P
+            pages:
+              - docs/mwm-property-payload-pointers.md
+              - docs/mwm-property-processors-inputs.md
+              - docs/mwm-property-reader-inputs.md
+              - docs/mwm-protocol-atom-bounds.md
+          - title: Q
+            pages:
+              - docs/mwm-query-client-guards.md
+              - docs/mwm-query-atom-format-bounds.md
+          - title: R
+            pages:
+              - docs/mwm-raise-argument-length.md
+              - docs/mwm-refresh-geometry-guard.md
+              - docs/mwm-refresh-tree-cleanup.md
+              - docs/mwm-refresh-window-base-guard.md
+              - docs/mwm-refresh-window-create.md
+              - docs/mwm-replacement-allocation.md
+              - docs/mwm-rlist-growth-ownership.md
+              - docs/mwm-running-inputs.md
+              - docs/mwm-running-inputs.md
+          - title: S
+            pages:
+              - docs/mwm-screen-client-list-bounds.md
+              - docs/mwm-screen-list-length.md
+              - docs/mwm-screen-name-allocation.md
+              - docs/mwm-screen-name-table-bounds.md
+              - docs/mwm-screen-warning-format.md
+              - docs/mwm-session-hints-input.md
+              - docs/mwm-slide-cover-window.md
+              - docs/mwm-stretcher-corner-geometry.md
+              - docs/mwm-stretcher-geometry.md
+              - docs/mwm-stretcher-window-initialization.md
+              - docs/mwm-stretcher-window-rollback.md
+              - docs/mwm-system-button-width.md
+              - docs/mwm-system-modal-cursor.md
+              - docs/mwm-system-modal-screen-size.md
+              - docs/mwm-screen-name-initialization.md
+              - docs/mwm-session-db-format-bounds.md
+              - docs/mwm-startup-widget-creation.md
+          - title: T
+            pages:
+              - docs/mwm-target-list-length.md
+              - docs/mwm-text-drawables.md
+              - docs/mwm-text-drawing-inputs.md
+              - docs/mwm-title-drawing-inputs.md
+              - docs/mwm-title-property-bounds.md
+              - docs/mwm-transient-list-growth.md
+              - docs/mwm-transient-window-bounds.md
+          - title: U
+            pages:
+              - docs/mwm-unmanage-frame.md
+              - docs/mwm-utm-selection-guard.md
+          - title: V
+            pages:
+              - docs/mwm-virtual-key-counts.md
+              - docs/mwm-virtual-key-property-count.md
+          - title: W
+            pages:
+              - docs/mwm-wait-cursor-resources.md
+              - docs/mwm-window-title-drawing.md
+              - docs/mwm-workspace-hints-inputs.md
+              - docs/mwm-workspace-list-failure-cleanup.md
+              - docs/mwm-workspace-metadata-inputs.md
+              - docs/mwm-workspace-window-create.md
+              - docs/mwm-wsm-tree-cleanup.md
+          - title: X
+            pages:
+              - docs/mwm-xa-string-termination.md
+              - docs/mwm-xsmp-client-order.md
+              - docs/mwm-xsmp-proxy-property-bounds.md
+      - title: notebook
+        pages:
+          - docs/notebook-appearance.md
+          - docs/notebook-appearance.md
+      - title: numberbox
+        pages:
+          - docs/numberbox-render-table-failure.md
+      - title: obso1
+        pages:
+          - docs/obso1-2-rectangle-allocation.md
+      - title: obso2
+        pages:
+          - docs/obso2-colordata-allocation.md
+          - docs/obso2-translation-growth.md
+      - title: outline
+        pages:
+          - docs/outline-top-node-allocation.md
+      - title: paned
+        pages:
+          - docs/paned-separator-allocation.md
+      - title: periodic
+        pages:
+          - docs/periodic-modern-appearance.md
+      - title: picture
+        pages:
+          - docs/picture-allocation-guards.md
+      - title: progress
+        pages:
+          - docs/progress-ring.md
+      - title: prompt.md
+        pages:
+          - docs/prompt.md
+      - title: provenance
+        pages:
+          - docs/provenance-check-invocation.md
+      - title: qualify
+        pages:
+          - docs/qualify-file-spec-failure.md
+      - title: rc
+        pages:
+          - docs/rc-layout-geometry-allocation.md
+      - title: render
+        pages:
+          - docs/render-rendition-font-name-update.md
+          - docs/render-rendition-merge.md
+          - docs/render-rendition-null-font-name.md
+          - docs/render-rendition-update-renewal.md
+          - docs/render-table-add-null-entry.md
+          - docs/render-table-cardinal-bounds.md
+          - docs/render-table-export-entry-guards.md
+          - docs/render-table-export-inputs.md
+          - docs/render-table-null-entry-tag.md
+          - docs/render-table-remove-inputs.md
+          - docs/render-table-tag-entry-guards.md
+      - title: rendition
+        pages:
+          - docs/rendition-copy-bounds.md
+      - title: reptype
+        pages:
+          - docs/reptype-table-allocation.md
+      - title: resconvert
+        pages:
+          - docs/resconvert-token-whitespace.md
+      - title: resencod
+        pages:
+          - docs/resencod-concat-failure.md
+          - docs/resencod-segment-bounds.md
+          - docs/resencod-stack-copy-length.md
+      - title: row
+        pages:
+          - docs/row-actions-allocation-bounds.md
+          - docs/row-actions.md
+      - title: scroll
+        pages:
+          - docs/scroll-autodrag-lifetime.md
+          - docs/scroll-frame-size-limit-header.md
+      - title: scrollbar
+        pages:
+          - docs/scrollbar-api-inputs.md
+          - docs/scrollbar-callback-snapshot.md
+      - title: scrolled
+        pages:
+          - docs/scrolled-window-fit.md
+          - docs/scrolled-window-areas-input.md
+          - docs/scrolled-window-fit.md
+      - title: search
+        pages:
+          - docs/search-box.md
+      - title: segment
+        pages:
+          - docs/segment-encoding-tag-input.md
+      - title: sidebar.md
+        pages:
+          - docs/sidebar.md
+      - title: skeleton.md
+        pages:
+          - docs/skeleton.md
+      - title: spinb
+        pages:
+          - docs/spinb-numtostring-allocation.md
+      - title: spinbox
+        pages:
+          - docs/spinbox-value-input.md
+      - title: standard
+        pages:
+          - docs/standard-convert-gadget-parent.md
+          - docs/standard-convert-client-window-allocation.md
+          - docs/standard-convert-wm-name.md
+      - title: status
+        pages:
+          - docs/status-bar.md
+      - title: statusbar
+        pages:
+          - docs/statusbar-allocation-failure.md
+      - title: stepper
+        pages:
+          - docs/stepper-render-table-failure.md
+      - title: tab
+        pages:
+          - docs/tab-arglist-guard.md
+          - docs/tab-box-redisplay-guard.md
+          - docs/tab-null-guards.md
+          - docs/tab-position-bounds.md
+          - docs/tab-position-screen-guard.md
+      - title: tabbed
+        pages:
+          - docs/tabbed-stack-bounds.md
+      - title: tablist
+        pages:
+          - docs/tablist-lock-boundaries.md
+          - docs/tablist-widget-guard.md
+      - title: tabstack
+        pages:
+          - docs/tabstack-coordinate-inputs.md
+          - docs/tabstack-coordinate-inputs.md
+      - title: teaching
+        pages:
+          - docs/teaching-tip.md
+      - title: tearoff
+        pages:
+          - docs/tearoff-key-allocation.md
+      - title: text
+        pages:
+          - docs/text-autoscroll-bottom-bounds.md
+          - docs/text-clear-selection-bounds.md
+          - docs/text-conversion-inputs.md
+          - docs/text-drag-distance-bounds.md
+          - docs/text-drop-finished-callback.md
+          - docs/text-dynamic-growth.md
+          - docs/text-event-hit-test-bounds.md
+          - docs/text-highlight-snapshot-growth.md
+          - docs/text-horizontal-page-y-bounds.md
+          - docs/text-initialize-storage.md
+          - docs/text-input-edge-bounds.md
+          - docs/text-input-initialize.md
+          - docs/text-insert-string-bounds.md
+          - docs/text-kill-buffer-bounds.md
+          - docs/text-line-coordinate-bounds.md
+          - docs/text-next-page-y-bounds.md
+          - docs/text-previous-page-y-bounds.md
+          - docs/text-rtl-autoscroll-axis.md
+          - docs/text-rtl-autoscroll-edge-bounds.md
+          - docs/text-scroll-cursor-delta-bounds.md
+          - docs/text-scroll-cursor-line-table.md
+          - docs/text-scroll-cursor-parameter-bounds.md
+          - docs/text-secondary-extend-selection.md
+          - docs/text-select-outline-bounds.md
+          - docs/text-selection-array-byte-count.md
+          - docs/text-selection-hint-bounds.md
+          - docs/text-selection-length-bounds.md
+          - docs/text-selection-source-guard.md
+          - docs/text-selection-state-naming.md
+          - docs/text-selection-target-guard.md
+          - docs/text-source-destroy-guard.md
+          - docs/text-source-highlight-copy-bounds.md
+          - docs/text-source-length-narrowing.md
+          - docs/text-source-range-bounds.md
+          - docs/text-timer-point-bounds.md
+          - docs/text-transfer-point-bounds.md
+          - docs/text-wide-conversion-overflow.md
+          - docs/text-autoscroll-bottom-bounds.md
+          - docs/text-class-translation-allocation.md
+          - docs/text-clear-selection-bounds.md
+          - docs/text-conversion-inputs.md
+          - docs/text-cut-buffer-context.md
+          - docs/text-drag-distance-bounds.md
+          - docs/text-dynamic-growth.md
+          - docs/text-event-hit-test-bounds.md
+          - docs/text-highlight-snapshot-growth.md
+          - docs/text-horizontal-page-y-bounds.md
+          - docs/text-initialize-storage.md
+          - docs/text-initialize-wcs.md
+          - docs/text-input-initialize.md
+          - docs/text-insert-string-bounds.md
+          - docs/text-kill-buffer-bounds.md
+          - docs/text-line-coordinate-bounds.md
+          - docs/text-line-count-bounds.md
+          - docs/text-line-table-export.md
+          - docs/text-modify-verify-bounds.md
+          - docs/text-next-page-y-bounds.md
+          - docs/text-on-the-spot-allocation.md
+          - docs/text-preedit-overstrike-allocation.md
+          - docs/text-preedit-overstrike-concat.md
+          - docs/text-preedit-recovery-growth.md
+          - docs/text-preedit-wide-conversion.md
+          - docs/text-previous-page-y-bounds.md
+          - docs/text-reflow-scratch-table.md
+          - docs/text-reset-overstrike-allocation.md
+          - docs/text-rtl-autoscroll-axis.md
+          - docs/text-rtl-autoscroll-edge-bounds.md
+          - docs/text-rtl-translation-allocation.md
+          - docs/text-scroll-cursor-delta-bounds.md
+          - docs/text-scroll-cursor-line-table.md
+          - docs/text-scroll-cursor-parameter-bounds.md
+          - docs/text-secondary-extend-selection.md
+          - docs/text-secondary-resource-allocation.md
+          - docs/text-select-outline-bounds.md
+          - docs/text-selection-array-byte-count.md
+          - docs/text-selection-empty-buffer.md
+          - docs/text-selection-hint-bounds.md
+          - docs/text-selection-length-bounds.md
+          - docs/text-selection-source-failure.md
+          - docs/text-selection-source-guard.md
+          - docs/text-selection-target-allocation.md
+          - docs/text-set-string-wcs.md
+          - docs/text-setvalues-wcs.md
+          - docs/text-source-add-widget.md
+          - docs/text-source-block-payload.md
+          - docs/text-source-compaction.md
+          - docs/text-source-create-bounds.md
+          - docs/text-source-destroy-guard.md
+          - docs/text-source-highlight-copy-bounds.md
+          - docs/text-source-length-narrowing.md
+          - docs/text-source-pending-pointer-width.md
+          - docs/text-source-pending.md
+          - docs/text-source-range-bounds.md
+          - docs/text-source-replace-growth.md
+          - docs/text-source-value-bounds.md
+          - docs/text-timer-point-bounds.md
+          - docs/text-transfer-point-bounds.md
+          - docs/text-verify-allocation-guards.md
+      - title: textfield
+        pages:
+          - docs/textfield-adjust-bounds.md
+          - docs/textfield-baseline-bounds.md
+          - docs/textfield-baselines.md
+          - docs/textfield-cursor-geometry.md
+          - docs/textfield-delete-range-naming.md
+          - docs/textfield-display-rect-bounds.md
+          - docs/textfield-dostuff-length-bound.md
+          - docs/textfield-full-gc-bounds.md
+          - docs/textfield-page-bounds.md
+          - docs/textfield-position-metrics.md
+          - docs/textfield-preedit-start.md
+          - docs/textfield-rect-bounds.md
+          - docs/textfield-redisplay-bounds.md
+          - docs/textfield-selection-restart-guard.md
+          - docs/textfield-selection-state-naming.md
+          - docs/textfield-size-bounds.md
+          - docs/textfield-substring-ranges.md
+          - docs/textfield-string-getters.md
+          - docs/textfield-mutator-inputs.md
+          - docs/textfield-state-accessors.md
+          - docs/textfield-timer-scroll-bounds.md
+          - docs/textfield-transfer-lengths.md
+          - docs/textfield-wcstombs-width.md
+          - docs/textfield-wide-length-bound.md
+          - docs/textfield-adjust-bounds.md
+          - docs/textfield-baseline-bounds.md
+          - docs/textfield-baselines.md
+          - docs/textfield-class-translation-allocation.md
+          - docs/textfield-cursor-geometry.md
+          - docs/textfield-display-rect-bounds.md
+          - docs/textfield-full-gc-bounds.md
+          - docs/textfield-modify-verify-allocation.md
+          - docs/textfield-page-bounds.md
+          - docs/textfield-position-metrics.md
+          - docs/textfield-preedit-start.md
+          - docs/textfield-rect-bounds.md
+          - docs/textfield-redisplay-bounds.md
+          - docs/textfield-selection-array-bounds.md
+          - docs/textfield-setvalues-restore.md
+          - docs/textfield-size-bounds.md
+          - docs/textfield-substring-ranges.md
+          - docs/textfield-timer-scroll-bounds.md
+          - docs/textfield-validate-allocation.md
+          - docs/textfield-wcs-callback-bounds.md
+      - title: textual
+        pages:
+          - docs/textual-drag-icon-inputs.md
+          - docs/textual-drag-icon-inputs.md
+      - title: toast.md
+        pages:
+          - docs/toast.md
+      - title: toggle
+        pages:
+          - docs/toggle-gadget-inputs.md
+      - title: toolbar
+        pages:
+          - docs/toolbar-allocation-failure.md
+      - title: toolbar.md
+        pages:
+          - docs/toolbar.md
+      - title: transfer
+        pages:
+          - docs/transfer-block-allocation-failure.md
+          - docs/transfer-callback-context-guards.md
+          - docs/transfer-callback-value.md
+          - docs/transfer-context-failure-guards.md
+          - docs/transfer-context-initialization.md
+          - docs/transfer-deferred-cleanup.md
+          - docs/transfer-lose-cleanup.md
+          - docs/transfer-move-cleanup.md
+          - docs/transfer-target-cleanup.md
+          - docs/transfer-target-list-cleanup.md
+      - title: traversal
+        pages:
+          - docs/traversal-stack-node-list.md
+      - title: tree
+        pages:
+          - docs/tree-initialize-list.md
+          - docs/tree-initialize-list.md
+          - docs/tree-view-colors.md
+      - title: treeview
+        pages:
+          - docs/treeview-geometry-regressions.md
+          - docs/treeview-render-table-failure.md
+      - title: update
+        pages:
+          - docs/update-display-inputs.md
+          - docs/update-display-inputs.md
+      - title: utf8
+        pages:
+          - docs/utf8-conversion-input-validation.md
+      - title: utm
+        pages:
+          - docs/utm-payload-failure-cleanup.md
+          - docs/utm-send-widget-guard.md
+      - title: vendors
+        pages:
+          - docs/vendors-lock-balance.md
+      - title: vendorshell
+        pages:
+          - docs/vendorshell-modal-growth.md
+      - title: vertical
+        pages:
+          - docs/vertical-pixels-inputs.md
+          - docs/vertical-pixels-inputs.md
+      - title: virtkeys
+        pages:
+          - docs/virtkeys-invalid-keycode.md
+          - docs/virtkeys-binding-growth.md
+      - title: widget
+        pages:
+          - docs/widget-geometry-inputs.md
+          - docs/widget-geometry-inputs.md
+      - title: wm
+        pages:
+          - docs/wm-feedback-size-limit-header.md
+      - title: wsm
+        pages:
+          - docs/wsm-unpack-entry-guards.md
+          - docs/wsm-selection-format-bounds.md
+          - docs/wsm-widget-input-validation.md
+      - title: x86
+        pages:
+          - docs/x86-text-qualification.md
+      - title: xft
+        pages:
+          - docs/xft-draw-cache-growth.md
+      - title: xm
+        pages:
+          - docs/xm-iso10646-registry.md
+          - docs/xm-object-at-point-input.md
+      - title: xme
+        pages:
+          - docs/xme-class-dialog-creation.md
+      - title: xmfontlist
+        pages:
+          - docs/xmfontlist-create-failure.md
+          - docs/xmfontlist-locking.md
+          - docs/xmfontlist-null-tag.md
+          - docs/xmfontlist-remove-null-tag.md
+      - title: xmos
+        pages:
+          - docs/xmos-build-filename-bounds.md
+          - docs/xmos-directory-length-bounds.md
+          - docs/xmos-initial-direction-bounds.md
+          - docs/xmos-mask-name-length.md
+          - docs/xmos-qualified-dir-bounds.md
+          - docs/xmos-qualified-dir-helper-bounds.md
+      - title: xmstring
+        pages:
+          - docs/xmstring-asn1-failure-cleanup.md
+          - docs/xmstring-byte-conversion-locking.md
+          - docs/xmstring-cached-create.md
+          - docs/xmstring-component-allocation.md
+          - docs/xmstring-concat-allocation.md
+          - docs/xmstring-concat-bounds.md
+          - docs/xmstring-concat-entry-resize.md
+          - docs/xmstring-concat-optimized-a.md
+          - docs/xmstring-concat-realloc.md
+          - docs/xmstring-context-copy-failure.md
+          - docs/xmstring-conversion-failures.md
+          - docs/xmstring-create-failure.md
+          - docs/xmstring-entry-allocation.md
+          - docs/xmstring-entry-create-allocation.md
+          - docs/xmstring-enumeration-locking.md
+          - docs/xmstring-func-warning-guards.md
+          - docs/xmstring-function-locking.md
+          - docs/xmstring-generate-locking.md
+          - docs/xmstring-get-output-validation.md
+          - docs/xmstring-getcomponent-locking.md
+          - docs/xmstring-getltr-locking.md
+          - docs/xmstring-lock-boundaries.md
+          - docs/xmstring-make-str-concat.md
+          - docs/xmstring-make-str-failure.md
+          - docs/xmstring-make-str-segment.md
+          - docs/xmstring-obsolete-locking.md
+          - docs/xmstring-obsolete-locks.md
+          - docs/xmstring-optimized-rendition-allocation.md
+          - docs/xmstring-parse-array-inputs.md
+          - docs/xmstring-parse-initial-allocation.md
+          - docs/xmstring-parse-mapping-inputs.md
+          - docs/xmstring-parse-unmatched-failure.md
+          - docs/xmstring-put-rendition-copy.md
+          - docs/xmstring-put-rendition-failure.md
+          - docs/xmstring-realloc-failure.md
+          - docs/xmstring-rendering-warnings.md
+          - docs/xmstring-rendition-allocation.md
+          - docs/xmstring-rendition-resize.md
+          - docs/xmstring-rendition-tag-bounds.md
+          - docs/xmstring-segment-array-allocation.md
+          - docs/xmstring-segment-copy-allocation.md
+          - docs/xmstring-segment-copy-bounds.md
+          - docs/xmstring-segment-line-growth.md
+          - docs/xmstring-segment-merge-bounds.md
+          - docs/xmstring-segment-validation.md
+          - docs/xmstring-single-segment-outputs.md
+          - docs/xmstring-substring-null-tags.md
+          - docs/xmstring-table-break-concat.md
+          - docs/xmstring-table-break-copy.md
+          - docs/xmstring-table-concat-failure.md
+          - docs/xmstring-table-entry-copy.md
+          - docs/xmstring-table-inputs.md
+          - docs/xmstring-table-locking.md
+          - docs/xmstring-table-transaction.md
+          - docs/xmstring-tablist-locking.md
+          - docs/xmstring-unoptimize-cleanup.md
+          - docs/xmstring-unparse-array-inputs.md
+      - title: xpm
+        pages:
+          - docs/xpm-buffer-color-output-bounds.md
+          - docs/xpm-buffer-extension-output-bounds.md
+          - docs/xpm-color-output-bounds.md
+          - docs/xpm-comment-marker-lengths.md
+          - docs/xpm-string-duplicate-input.md
+          - docs/xpm-buffer-pixel-index-bounds.md
+          - docs/xpm-comment-size-bounds.md
+          - docs/xpm-data-pixel-index-bounds.md
+          - docs/xpm-data-row-count-bounds.md
+          - docs/xpm-extension-size-bounds.md
+          - docs/xpm-file-pixel-index-bounds.md
+          - docs/xpm-grayscale-color-bounds.md
+          - docs/xpm-hash-growth-bounds.md
+          - docs/xpm-scan-growth-bounds.md
   - title: Recent fixes
     pages:
-      - docs/accessibility-action-count-bounds.md
-      - docs/accessibility-child-index-bounds.md
-      - docs/accessibility-dbus-child-count.md
-      - docs/accessibility-keysym-bits.md
-      - docs/accessibility-memo-capacity-bounds.md
-      - docs/accessibility-metadata-bounds.md
-      - docs/accessibility-position-casts.md
-      - docs/accessibility-selection-count.md
-      - docs/accessibility-text-navigation-bounds.md
-      - docs/accessibility-text-position-bounds.md
-      - docs/autosuggest-selection-pointer.md
-      - docs/breadcrumb-count-range.md
-      - docs/combobox-delete-selection-pointer.md
-      - docs/combobox-get-selected-pointer.md
-      - docs/combobox-selected-import-input.md
-      - docs/combobox-selection-pointer.md
-      - docs/combobox-selection-sync.md
-      - docs/combobox-up-boundary.md
-      - docs/command-palette-selection-pointer.md
-      - docs/datafield-empty-wide-callback.md
-      - docs/datafield-getsubstring-conversion-failure.md
-      - docs/datafield-picture-callback-length.md
-      - docs/datafield-picture-null-result.md
-      - docs/datafield-selection-byte-count.md
-      - docs/datafield-splice-allocation-bounds.md
-      - docs/datafield-wcs-bridge-bounds.md
-      - docs/datafield-wcs-callback-bounds.md
-      - docs/datafield-wide-length-before-sentinel.md
-      - docs/dropdown-match-positions.md
-      - docs/dropdown-multibyte-failure-cleanup.md
-      - docs/dropdown-selection-inputs.md
-      - docs/command-api-inputs.md
-      - docs/list-api-inputs.md
-      - docs/frame-baseline-count.md
-      - docs/i18-list-adjust-position-bounds.md
-      - docs/i18-list-available-height.md
-      - docs/i18-list-background-height.md
-      - docs/i18-list-cell-edge-bounds.md
-      - docs/i18-list-column-pixel-bounds.md
-      - docs/i18-list-display-column-origin.md
-      - docs/i18-list-display-column-steps.md
-      - docs/i18-list-display-fill-origin.md
-      - docs/i18-list-display-row-y.md
-      - docs/i18-list-display-text-baseline.md
-      - docs/i18-list-first-column-bounds.md
-      - docs/i18-list-header-baselines.md
-      - docs/i18-list-hit-test-height.md
-      - docs/i18-list-invert-origin-bounds.md
-      - docs/i18-list-left-arrow-bounds.md
-      - docs/i18-list-left-visibility-move-bounds.md
-      - docs/i18-list-pixel-hit-bounds.md
-      - docs/i18-list-pixmap-centering.md
-      - docs/i18-list-position-row-bounds.md
-      - docs/i18-list-right-arrow-bounds.md
-      - docs/i18-list-row-position-bounds.md
-      - docs/i18-list-rtl-pixmap-width.md
-      - docs/i18-list-scroll-callback-bounds.md
-      - docs/i18-list-selected-fill-y.md
-      - docs/i18-list-slider-height.md
-      - docs/i18-list-text-centering.md
-      - docs/i18-list-total-width-bounds.md
-      - docs/i18-list-visibility-padding-bounds.md
-      - docs/i18-list-visible-height-bounds.md
-      - docs/i18-list-visible-origin-bounds.md
-      - docs/i18-list-visible-window-bounds.md
-      - docs/image-cache-growth-rollback.md
-      - docs/image-cache-print-resolution-bounds.md
-      - docs/image-cache-scaling-strip-bound.md
-      - docs/label-mnemonic-charset-width.md
-      - docs/label-wide-length-width.md
-      - docs/list-callback-length-bounds.md
-      - docs/list-translation-size.md
-      - docs/list-visibility-sum-bounds.md
-      - docs/rclayout-baseline-count.md
-      - docs/segmented-count-range.md
-      - docs/selection-callback-length-bounds.md
-      - docs/selectionbox-list-match.md
-      - docs/selectionbox-restore-items.md
-      - docs/text-block-length-bounds.md
-      - docs/text-scrolled-allocation-bounds.md
-      - docs/text-source-byte-output-termination.md
-      - docs/text-source-byte-termination.md
-      - docs/text-source-conversion-failure.md
-      - docs/text-source-wide-callback-buffer.md
-      - docs/text-wide-init-length.md
-      - docs/textfield-growth-capacity.md
-      - docs/textfield-selection-array-allocation.md
-      - docs/textfield-validate-string-bounds.md
-      - docs/textout-width-saturation.md
-      - docs/uil-argument-entry-allocation.md
-      - docs/uil-callback-entry-allocation.md
-      - docs/uil-coercion-constructors.md
-      - docs/uil-color-count-bounds.md
-      - docs/uil-color-item-allocation.md
-      - docs/uil-color-table-allocation.md
-      - docs/uil-comment-overflow.md
-      - docs/uil-compound-append-allocation.md
-      - docs/uil-compound-constructor-callers.md
-      - docs/uil-compound-string-allocation.md
-      - docs/uil-control-entry-allocation.md
-      - docs/uil-empty-filename-scan.md
-      - docs/uil-forward-list-allocation.md
-      - docs/uil-icon-allocation.md
-      - docs/uil-keysym-coercion-allocation.md
-      - docs/uil-lexer-buffer-allocation.md
-      - docs/uil-lexer-string-assembly.md
-      - docs/uil-nested-list-allocation.md
-      - docs/uil-object-allocation.md
-      - docs/uil-output-size-overflow.md
-      - docs/uil-parent-list-allocation.md
-      - docs/uil-resource-vector-allocation.md
-      - docs/uil-root-dir-bounds.md
-      - docs/uil-section-link-allocation.md
-      - docs/uil-source-open-allocation.md
-      - docs/uil-standard-color-table.md
-      - docs/uil-string-entry-bounds.md
-      - docs/uil-string-table-conversion.md
-      - docs/uil-string-value-allocation.md
-      - docs/uil-symbol-node-allocation.md
-      - docs/uil-value-entry-allocation.md
-      - docs/uil-wide-string-caller.md
-      - docs/uil-wide-string-constructor.md
-      - docs/virtkeys-empty-line-bounds.md
-      - docs/xmlist-queue-free-fallback.md
-      - docs/xmos-empty-path.md
-      - docs/xmstring-component-length.md
-      - docs/xmstring-length-bounds.md
-      - docs/xmstring-nconcat-bounds.md
-      - docs/xmstring-pattern-conversion.md
-      - docs/xmstring-unparse-multibyte-length.md
+      - title: accessibility
+        pages:
+          - docs/accessibility-action-count-bounds.md
+          - docs/accessibility-child-index-bounds.md
+          - docs/accessibility-dbus-child-count.md
+          - docs/accessibility-keysym-bits.md
+          - docs/accessibility-memo-capacity-bounds.md
+          - docs/accessibility-metadata-bounds.md
+          - docs/accessibility-position-casts.md
+          - docs/accessibility-selection-count.md
+          - docs/accessibility-text-navigation-bounds.md
+          - docs/accessibility-text-position-bounds.md
+      - title: autosuggest
+        pages:
+          - docs/autosuggest-selection-pointer.md
+      - title: breadcrumb
+        pages:
+          - docs/breadcrumb-count-range.md
+      - title: combobox
+        pages:
+          - docs/combobox-delete-selection-pointer.md
+          - docs/combobox-get-selected-pointer.md
+          - docs/combobox-selected-import-input.md
+          - docs/combobox-selection-pointer.md
+          - docs/combobox-selection-sync.md
+          - docs/combobox-up-boundary.md
+      - title: command
+        pages:
+          - docs/command-palette-selection-pointer.md
+          - docs/command-api-inputs.md
+      - title: datafield
+        pages:
+          - docs/datafield-empty-wide-callback.md
+          - docs/datafield-getsubstring-conversion-failure.md
+          - docs/datafield-picture-callback-length.md
+          - docs/datafield-picture-null-result.md
+          - docs/datafield-selection-byte-count.md
+          - docs/datafield-splice-allocation-bounds.md
+          - docs/datafield-wcs-bridge-bounds.md
+          - docs/datafield-wcs-callback-bounds.md
+          - docs/datafield-wide-length-before-sentinel.md
+      - title: dropdown
+        pages:
+          - docs/dropdown-match-positions.md
+          - docs/dropdown-multibyte-failure-cleanup.md
+          - docs/dropdown-selection-inputs.md
+      - title: frame
+        pages:
+          - docs/frame-baseline-count.md
+      - title: i18
+        pages:
+          - docs/i18-list-adjust-position-bounds.md
+          - docs/i18-list-available-height.md
+          - docs/i18-list-background-height.md
+          - docs/i18-list-cell-edge-bounds.md
+          - docs/i18-list-column-pixel-bounds.md
+          - docs/i18-list-display-column-origin.md
+          - docs/i18-list-display-column-steps.md
+          - docs/i18-list-display-fill-origin.md
+          - docs/i18-list-display-row-y.md
+          - docs/i18-list-display-text-baseline.md
+          - docs/i18-list-first-column-bounds.md
+          - docs/i18-list-header-baselines.md
+          - docs/i18-list-hit-test-height.md
+          - docs/i18-list-invert-origin-bounds.md
+          - docs/i18-list-left-arrow-bounds.md
+          - docs/i18-list-left-visibility-move-bounds.md
+          - docs/i18-list-pixel-hit-bounds.md
+          - docs/i18-list-pixmap-centering.md
+          - docs/i18-list-position-row-bounds.md
+          - docs/i18-list-right-arrow-bounds.md
+          - docs/i18-list-row-position-bounds.md
+          - docs/i18-list-rtl-pixmap-width.md
+          - docs/i18-list-scroll-callback-bounds.md
+          - docs/i18-list-selected-fill-y.md
+          - docs/i18-list-slider-height.md
+          - docs/i18-list-text-centering.md
+          - docs/i18-list-total-width-bounds.md
+          - docs/i18-list-visibility-padding-bounds.md
+          - docs/i18-list-visible-height-bounds.md
+          - docs/i18-list-visible-origin-bounds.md
+          - docs/i18-list-visible-window-bounds.md
+      - title: image
+        pages:
+          - docs/image-cache-growth-rollback.md
+          - docs/image-cache-print-resolution-bounds.md
+          - docs/image-cache-scaling-strip-bound.md
+      - title: label
+        pages:
+          - docs/label-mnemonic-charset-width.md
+          - docs/label-wide-length-width.md
+      - title: list
+        pages:
+          - docs/list-api-inputs.md
+          - docs/list-callback-length-bounds.md
+          - docs/list-translation-size.md
+          - docs/list-visibility-sum-bounds.md
+      - title: rclayout
+        pages:
+          - docs/rclayout-baseline-count.md
+      - title: segmented
+        pages:
+          - docs/segmented-count-range.md
+      - title: selection
+        pages:
+          - docs/selection-callback-length-bounds.md
+      - title: selectionbox
+        pages:
+          - docs/selectionbox-list-match.md
+          - docs/selectionbox-restore-items.md
+      - title: text
+        pages:
+          - docs/text-block-length-bounds.md
+          - docs/text-scrolled-allocation-bounds.md
+          - docs/text-source-byte-output-termination.md
+          - docs/text-source-byte-termination.md
+          - docs/text-source-conversion-failure.md
+          - docs/text-source-wide-callback-buffer.md
+          - docs/text-wide-init-length.md
+      - title: textfield
+        pages:
+          - docs/textfield-growth-capacity.md
+          - docs/textfield-selection-array-allocation.md
+          - docs/textfield-validate-string-bounds.md
+      - title: textout
+        pages:
+          - docs/textout-width-saturation.md
+      - title: uil
+        pages:
+          - docs/uil-argument-entry-allocation.md
+          - docs/uil-callback-entry-allocation.md
+          - docs/uil-coercion-constructors.md
+          - docs/uil-color-count-bounds.md
+          - docs/uil-color-item-allocation.md
+          - docs/uil-color-table-allocation.md
+          - docs/uil-comment-overflow.md
+          - docs/uil-compound-append-allocation.md
+          - docs/uil-compound-constructor-callers.md
+          - docs/uil-compound-string-allocation.md
+          - docs/uil-control-entry-allocation.md
+          - docs/uil-empty-filename-scan.md
+          - docs/uil-forward-list-allocation.md
+          - docs/uil-icon-allocation.md
+          - docs/uil-keysym-coercion-allocation.md
+          - docs/uil-lexer-buffer-allocation.md
+          - docs/uil-lexer-string-assembly.md
+          - docs/uil-nested-list-allocation.md
+          - docs/uil-object-allocation.md
+          - docs/uil-output-size-overflow.md
+          - docs/uil-parent-list-allocation.md
+          - docs/uil-resource-vector-allocation.md
+          - docs/uil-root-dir-bounds.md
+          - docs/uil-section-link-allocation.md
+          - docs/uil-source-open-allocation.md
+          - docs/uil-standard-color-table.md
+          - docs/uil-string-entry-bounds.md
+          - docs/uil-string-table-conversion.md
+          - docs/uil-string-value-allocation.md
+          - docs/uil-symbol-node-allocation.md
+          - docs/uil-value-entry-allocation.md
+          - docs/uil-wide-string-caller.md
+          - docs/uil-wide-string-constructor.md
+      - title: virtkeys
+        pages:
+          - docs/virtkeys-empty-line-bounds.md
+      - title: xmlist
+        pages:
+          - docs/xmlist-queue-free-fallback.md
+      - title: xmos
+        pages:
+          - docs/xmos-empty-path.md
+      - title: xmstring
+        pages:
+          - docs/xmstring-component-length.md
+          - docs/xmstring-length-bounds.md
+          - docs/xmstring-nconcat-bounds.md
+          - docs/xmstring-pattern-conversion.md
+          - docs/xmstring-unparse-multibyte-length.md
