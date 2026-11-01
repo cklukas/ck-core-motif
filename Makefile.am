@@ -1260,6 +1260,7 @@ EXTRA_DIST += tests/automated/check-dropdown-selection-inputs.py docs/dropdown-s
 EXTRA_DIST += tests/automated/check-dropdown-negotiation-contract.py docs/dropdown-layout-state.md
 EXTRA_DIST += tests/automated/check-mainwindow-width-query-bounds.py docs/mainwindow-live-layout.md
 EXTRA_DIST += tests/automated/check-render-table-property-header.py docs/render-table-property-header.md
+EXTRA_DIST += tests/automated/check-render-table-final-record.py docs/render-table-final-record.md
 
 EXTRA_DIST += tests/automated/check-tree-view-disclosure.c \
               tests/automated/run-tree-view-disclosure.py

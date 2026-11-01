@@ -10,7 +10,16 @@ Preserve modern Container appearance across gadget recreation (2026-11-01)
 - Reproduce stale gray bevels on the second real gallery preview, then qualify
   100 recreations with reused addresses, colored icon and row pixel checks,
   live theme/scale changes, overrides, existing appearance tests and all demos.
-=======
+
+Retain final newline-less rendition properties (2026-11-01)
+===========================================================
+
+- Record a fully parsed final rendition before acting on end-of-input, so
+  externally supplied render-table properties without a trailing newline no
+  longer silently lose their final entry.
+- Release a newly created rendition if extending the import array fails,
+  preserving the converter's existing partial-result behavior without a leak.
+
 Build rendition converter headers without a fixed shared buffer (2026-11-01)
 ==========================================================================
 
