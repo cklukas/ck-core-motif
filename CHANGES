@@ -1,3 +1,11 @@
+Bound MWM menu-button count growth (2026-11-01)
+==================================================
+
+- Reject configured menu-item lists before their unsigned button count can
+  wrap, and validate the resulting allocation against Xt's `Cardinal` width.
+- Add a focused menu-construction regression and document the failure boundary.
+  Valid menu layouts and item ordering are unchanged.
+
 Preserve appearance transaction snapshot counts (2026-11-01)
 ==============================================================
 

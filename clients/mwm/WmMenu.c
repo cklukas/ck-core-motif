@@ -307,6 +307,12 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
     {
 	if ((menuItem->greyedContext) || (menuItem->mgtMask))
 	{
+	    if (n == UINT_MAX)
+	    {
+		MWarning(((char *)GETMESSAGE(48, 3,
+		    "Menu button array is too large for menu %s\n")), menuName);
+		return (NULL);
+	    }
 	    n++;
 	}
 	menuItem = menuItem->nextMenuItem;
@@ -316,13 +322,20 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
     {
 	if ((menuItem->greyedContext) || (menuItem->mgtMask))
 	{
+	    if (n == UINT_MAX)
+	    {
+		MWarning(((char *)GETMESSAGE(48, 3,
+		    "Menu button array is too large for menu %s\n")), menuName);
+		return (NULL);
+	    }
 	    n++;
 	}
 	menuItem = menuItem->nextMenuItem;
     }
     if (n)
     {
-        if ((size_t)n > SIZE_MAX / sizeof(*menuSpec->menuButtons))
+        if ((size_t)n > SIZE_MAX / sizeof(*menuSpec->menuButtons) ||
+	    n > UINT_MAX / sizeof(*menuSpec->menuButtons))
         {
             MWarning(((char *)GETMESSAGE(48, 3,
                       "Menu button array is too large for menu %s\n")),
