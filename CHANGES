@@ -1,3 +1,13 @@
+Preserve appearance transaction snapshot counts (2026-11-01)
+==============================================================
+
+- Track live-widget snapshot counts in native `size_t` before enforcing Xt's
+  `Cardinal` allocation boundary, preventing an internal count wrap from
+  bypassing the transaction's existing allocation guards.
+- Extend the focused appearance snapshot contract check and document the
+  widened-count behavior. Valid appearance profile and density changes are
+  unchanged.
+
 Bound MWM lock-mask cache allocation width (2026-11-01)
 ========================================================
 
