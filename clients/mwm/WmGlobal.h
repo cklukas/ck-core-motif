@@ -2370,7 +2370,8 @@ typedef struct _WmGlobalData
 
 /* According to the xkb protocol bits 13 and 14 are interpreted as a  */
 /* two-bit unsigned numeric value and report the state keyboard group */
-#define NOLOCKMOD(state)  ((state) & ~wmGD.lockingModMask & ~(3 << 13))
+#define NOLOCKMOD(state)  ((unsigned int)(state) & ~wmGD.lockingModMask & \
+                           ~((unsigned int)3U << 13))
 
 #ifdef WSM
 /* absent map behavior policy values (absentMapBehavior): */

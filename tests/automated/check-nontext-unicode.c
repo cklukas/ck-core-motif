@@ -4,8 +4,10 @@
 #include <Xm/FileSB.h>
 #include <Xm/Label.h>
 #include <Xm/List.h>
+#include <Xm/MessageB.h>
 #include <Xm/PushB.h>
 #include <Xm/RowColumn.h>
+#include <Xm/SelectioB.h>
 #include <Xm/SegmentedControl.h>
 #include <Xm/ToggleSwitch.h>
 #include <Xm/Xm.h>
@@ -26,10 +28,12 @@ int main(int argc, char **argv)
 {
     XtAppContext app;
     Widget shell, row, menu, pulldown, cascade, menu_item;
-    Widget label, compound_label, list, combo, files, toggle, segmented;
+    Widget label, compound_label, list, combo, files, message, selection;
+    Widget toggle, segmented;
     XmString items[5], selected = NULL, expected_label, expected_combo;
     XmString expected_menu, expected_file, expected_toggle, expected_nonbmp;
-    XmString expected_bidi, compound;
+    XmString expected_bidi, expected_message, expected_selection, compound;
+    XmString expected_file_text, expected_selection_text;
     const char *values[] = {
         "e\314\201clair",       /* combining acute */
         "\360\237\230\200 cafe", /* non-BMP emoji */
@@ -61,6 +65,10 @@ int main(int argc, char **argv)
     expected_toggle = XmStringCreateLocalized((char *)values[3]);
     expected_nonbmp = XmStringCreateLocalized((char *)values[1]);
     expected_bidi = XmStringCreateLocalized((char *)values[3]);
+    expected_message = XmStringCreateLocalized((char *)values[4]);
+    expected_selection = XmStringCreateLocalized((char *)values[1]);
+    expected_file_text = XmStringCreateLocalized((char *)values[1]);
+    expected_selection_text = XmStringCreateLocalized((char *)values[0]);
     compound = XmStringConcatAndFree(
         XmStringSegmentCreate((char *)values[0], XmFONTLIST_DEFAULT_TAG,
                               XmSTRING_DIRECTION_L_TO_R, True),
@@ -109,10 +117,20 @@ int main(int argc, char **argv)
     }
     files = XmCreateFileSelectionBox(shell, "files", NULL, 0);
     XtManageChild(files);
+    message = XmCreateMessageBox(shell, "message", NULL, 0);
+    XtVaSetValues(message, XmNmessageString, expected_message, NULL);
+    XtManageChild(message);
+    selection = XmCreateSelectionBox(shell, "selection", NULL, 0);
+    XtVaSetValues(selection, XmNselectionLabelString, expected_selection, NULL);
+    XtManageChild(selection);
     for (unsigned int i = 0; i < XtNumber(items); ++i)
         XmStringFree(items[i]);
 
     XtRealizeWidget(shell);
+    XtVaSetValues(files, XmNdirSpec, expected_file_text, NULL);
+    XtVaSetValues(selection, XmNtextString, expected_selection_text, NULL);
+    XtVaGetValues(files, XmNdirSpec, &selected, NULL);
+    CHECK(selected != NULL && XmStringByteCompare(selected, expected_file_text));
     XtVaGetValues(label, XmNlabelString, &selected, NULL);
     CHECK(selected != NULL);
     CHECK(XmStringGetLtoR(selected, XmFONTLIST_DEFAULT_TAG, &label_text));
@@ -170,6 +188,15 @@ int main(int argc, char **argv)
     XtVaGetValues(files, XmNdirSpec, &selected, NULL);
     CHECK(selected != NULL && XmStringByteCompare(selected, expected_file));
 
+    XtVaGetValues(message, XmNmessageString, &selected, NULL);
+    CHECK(selected != NULL && XmStringByteCompare(selected, expected_message));
+
+    XtVaGetValues(selection, XmNselectionLabelString, &selected, NULL);
+    CHECK(selected != NULL && XmStringByteCompare(selected, expected_selection));
+    XtVaGetValues(selection, XmNtextString, &selected, NULL);
+    CHECK(selected != NULL &&
+          XmStringByteCompare(selected, expected_selection_text));
+
     XtVaGetValues(toggle, XmNlabelString, &selected, NULL);
     CHECK(selected != NULL && XmStringByteCompare(selected, expected_toggle));
 
@@ -180,10 +207,14 @@ int main(int argc, char **argv)
     XmStringFree(expected_toggle);
     XmStringFree(expected_nonbmp);
     XmStringFree(expected_bidi);
+    XmStringFree(expected_message);
+    XmStringFree(expected_selection);
+    XmStringFree(expected_file_text);
+    XmStringFree(expected_selection_text);
     XmStringFree(compound);
 
     XtDestroyWidget(shell);
     XtDestroyApplicationContext(app);
-    printf("PASS non-text Unicode label/compound/list/ComboBox/menu/file-selection/toggle/segmented matrix: %lu checks\n", checks);
+    printf("PASS non-text Unicode label/compound/list/ComboBox/menu/file-selection/dialog/toggle/segmented matrix: %lu checks\n", checks);
     return 0;
 }

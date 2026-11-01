@@ -70,7 +70,7 @@ externaldef(xmchipclassrec) XmChipClassRec xmChipClassRec = {
      XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True,
      False, Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL,
      XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
-     XtInheritTranslations, QueryGeometry, NULL, NULL},
+     (String)_XmPrimitiveTabFocusTranslations, QueryGeometry, NULL, NULL},
     {Highlight, Unhighlight,
      XtInheritTranslations, NULL, NULL, 0, NULL},
     {NULL}};
@@ -332,6 +332,8 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
     case LeaveNotify: chip->chip.hot_target=0;break;
     case KeyPress: {
         KeySym key;char input[8];XLookupString(&event->xkey,input,sizeof(input),&key,NULL);
+        if(dispatch && (key==XK_space || key==XK_Return || key==XK_KP_Enter ||
+            (chip->chip.removable && (key==XK_Delete || key==XK_BackSpace)))) *dispatch=False;
         if(key==XK_space || key==XK_Return || key==XK_KP_Enter)XmChipInvoke(widget,event);
         else if(chip->chip.removable && (key==XK_Delete || key==XK_BackSpace))XmChipRemove(widget,event);
         return;

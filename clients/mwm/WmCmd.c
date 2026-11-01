@@ -96,16 +96,33 @@ NewCommand (
      char   *defaultName)
 	    
 {
-  CmdTree *ptr = (CmdTree *) XtMalloc(sizeof(CmdTree));
+  CmdTree *ptr;
+
+  ptr = (CmdTree *)XtCalloc(1, sizeof(CmdTree));
+  if (ptr == NULL)
+    return NULL;
 
   ptr->commandID    = commandID;
   ptr->notifyWindow = notifyWindow;
 
   if (name != NULL) ptr->name = XtNewString(name);
   else              ptr->name = XtNewString("");
+  if (ptr->name == NULL)
+    {
+      XtFree((char *)ptr);
+      return NULL;
+    }
     
-  if (defaultName != NULL) ptr->defaultName = XtNewString(defaultName);
-  else                     ptr->defaultName = NULL;
+  if (defaultName != NULL)
+    {
+      ptr->defaultName = XtNewString(defaultName);
+      if (ptr->defaultName == NULL)
+        {
+          XtFree((char *)ptr->name);
+          XtFree((char *)ptr);
+          return NULL;
+        }
+    }
 
   ptr->subTrees = NULL;
 
@@ -195,6 +212,7 @@ AddCommand (
    */
 
   CmdTree *tmp;
+  CmdTree *newCommand;
   CARD32 duplicateID;
 
   if (ptr == NULL) return (False);
@@ -202,18 +220,22 @@ AddCommand (
   else if (ptr->commandID == commandSet)
     /* FOUND IT */
     {
+      newCommand = NewCommand(commandID, notifyWindow, name, defaultName);
+      if (newCommand == NULL)
+	return(False);
+
       if ((duplicateID = FindDuplicateName(CCI_TREE_OF_SCR(scr), name)) != 0)
 	{
 	  /* a duplicate menu item already exists here, remove it first.
 	   */
 	  if (ptr->subTrees != NULL)
-	    DestroyMenuSpec (&(wmGD.Screens[scr]), commandID);
-	  DeleteCommand(commandID, &CCI_TREE_OF_SCR(scr));
+	    DestroyMenuSpec (&(wmGD.Screens[scr]), duplicateID);
+	  DeleteCommand(duplicateID, &CCI_TREE_OF_SCR(scr));
 	}
 
       tmp = ptr->subTrees;
-      ptr->subTrees = NewCommand(commandID, notifyWindow, name, defaultName);
-      ptr->subTrees->next = tmp;
+      newCommand->next = tmp;
+      ptr->subTrees = newCommand;
 
       return(True);
     }
@@ -315,6 +337,7 @@ DefineCommand (
   CARD32  commandID, commandSet, selection, duplicateID;
   String  name, defaultLabel;
   Boolean found = False;
+  Boolean commandSetFound = False;
   Window  owner;
   XWindowAttributes attr;
 
@@ -355,13 +378,23 @@ DefineCommand (
   if (CCI_TREE(w) == NULL)
     {
       CCI_TREE(w) = NewCommand(0, 0, NULL, NULL);
+      if (CCI_TREE(w) == NULL)
+	{
+	  PRINT("Unable to allocate command tree root.\n");
+	  XtFree(name);
+	  XtFree(defaultLabel);
+	  return;
+	}
     }
 
 
   if (commandSet != 0)
     {
-      found = AddCommand(ScrNum(w), commandSet, commandID, selection, name,
-			 defaultLabel, CCI_TREE(w));
+      commandSetFound =
+	(FindCmd(commandSet, CCI_TREE(w)) != NULL);
+      if (commandSetFound)
+	found = AddCommand(ScrNum(w), commandSet, commandID, selection, name,
+			   defaultLabel, CCI_TREE(w));
     }
   else
     /*
@@ -371,19 +404,47 @@ DefineCommand (
      * found, remove it first and any menu spec if it is a command
      * set. 
      */
-    if ((duplicateID = FindDuplicateName(CCI_TREE(w), name)) != 0)
-      {
-	/* a duplicate menu item already exists here, remove it first.
-	 */
-	DestroyMenuSpec (&(wmGD.Screens[ScrNum(w)]), duplicateID);
-	DeleteCommand(duplicateID, &CCI_TREE(w));
-      }
-
-  if (!found || commandSet == 0)
     {
       CmdTree *tmp;
 
       tmp = NewCommand(commandID, selection, name, defaultLabel);
+      if (tmp == NULL)
+	{
+	  PRINT("Unable to allocate command tree entry.\n");
+	  XtFree(name);
+	  XtFree(defaultLabel);
+	  return;
+	}
+      if ((duplicateID = FindDuplicateName(CCI_TREE(w), name)) != 0)
+	{
+	  /* a duplicate menu item already exists here, remove it first. */
+	  DestroyMenuSpec (&(wmGD.Screens[ScrNum(w)]), duplicateID);
+	  DeleteCommand(duplicateID, &CCI_TREE(w));
+	}
+      tmp->next = CCI_TREE(w)->next;
+      CCI_TREE(w)->next = tmp;
+    }
+
+  if (!found && commandSet != 0)
+    {
+      CmdTree *tmp;
+
+      if (commandSetFound)
+	{
+	  PRINT("Unable to allocate command tree entry.\n");
+	  XtFree(name);
+	  XtFree(defaultLabel);
+	  return;
+	}
+
+      tmp = NewCommand(commandID, selection, name, defaultLabel);
+      if (tmp == NULL)
+	{
+	  PRINT("Unable to allocate command tree entry.\n");
+	  XtFree(name);
+	  XtFree(defaultLabel);
+	  return;
+	}
       tmp->next = CCI_TREE(w)->next;
       CCI_TREE(w)->next = tmp;
     }
@@ -409,7 +470,7 @@ IncludeCommand (
   CARD32         inLine, commandID, selection, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
 
   /*
@@ -558,7 +619,7 @@ EnableCommand (
   CARD32         commandID, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
 
   /*
@@ -702,7 +763,7 @@ DisableCommand (
   CARD32         commandID, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
 
   /*
@@ -846,7 +907,7 @@ RenameCommand (
   CARD32         commandID, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
   String	 newname;
 
@@ -1008,7 +1069,7 @@ RemoveCommand (
   CARD32         commandID, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
 
   /*
@@ -1385,7 +1446,9 @@ GetMaximizeInfo(ClientData *pcd, XtPointer reply)
       	}
       
       if (maxFound == False)
-	FillInvalidInfo (&maximize_button);
+	{
+	  FillInvalidInfo (&maximize_button);
+	}
 
 
 
@@ -1570,8 +1633,8 @@ GetMoveInfo(ClientData *pcd, XtPointer reply)
 
 {
       int i;
-      GadgetRectangle title;
-      GadgetRectangle menu;
+      GadgetRectangle title = { INVALID, { INVALID, INVALID, INVALID, INVALID } };
+      GadgetRectangle menu = { INVALID, { INVALID, INVALID, INVALID, INVALID } };
       CARD32 filledCount;
       CARD32 upperBorderWidth, lowerBorderWidth;
       CARD32 windowX, windowY;
@@ -1605,10 +1668,14 @@ GetMoveInfo(ClientData *pcd, XtPointer reply)
         }
 
         if (titleFound == False)
-	 FillInvalidInfo (&title);
+	 {
+	   FillInvalidInfo (&title);
+	 }
 
         if (system_found == False)
-	 FillInvalidInfo (&menu);
+	 {
+	   FillInvalidInfo (&menu);
+	 }
 			  
 
 	 reply = PackCARD32 (reply, (CARD32)filledCount);
@@ -1652,7 +1719,9 @@ GetResizeInfo(ClientData *pcd, XtPointer reply, int dir)
       filledCount = pcd->cTitleGadgets;
 
       if (!(pcd->decor & MWM_DECOR_RESIZEH))
-      	FillInvalidInfo (&gravity_resize);
+	{
+	  FillInvalidInfo (&gravity_resize);
+	}
       else
 	{
 		CopyMwmGadget (&pcd->pResizeGadgets[dir], &gravity_resize);
@@ -1662,14 +1731,18 @@ GetResizeInfo(ClientData *pcd, XtPointer reply, int dir)
 
 
        for (i=0; i < filledCount; i++)
-	if (pcd->pTitleGadgets[i].id == FRAME_TITLE)
-	   {
+	{
+	  if (pcd->pTitleGadgets[i].id == FRAME_TITLE)
+	    {
 	      CopyMwmGadget (&(pcd->pTitleGadgets[i]), &title);
               titleFound = True;
-	   }
+	    }
+	}
 
 	if (titleFound == False)
-	   FillInvalidInfo (&title);
+	  {
+	    FillInvalidInfo (&title);
+	  }
 		
 
 
@@ -1783,8 +1856,8 @@ static void
 GetWindowMenuPostInfo(ClientData *pcd, XtPointer reply)
 {
       int i;
-      GadgetRectangle title;
-      GadgetRectangle menu;
+      GadgetRectangle title = { INVALID, { INVALID, INVALID, INVALID, INVALID } };
+      GadgetRectangle menu = { INVALID, { INVALID, INVALID, INVALID, INVALID } };
       CARD32 filledCount;
       Window frameWin;
 

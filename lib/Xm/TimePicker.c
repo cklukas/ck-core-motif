@@ -71,7 +71,7 @@ externaldef(xmtimepickerclassrec) XmTimePickerClassRec xmTimePickerClassRec =
       resources, XtNumber(resources), NULLQUARK, True,
       XtExposeCompressMaximal, True, False, Destroy, NULL, BufferedRedisplay,
       BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
-      XtInheritTranslations, QueryGeometry, NULL, NULL},
+      (String)_XmPrimitiveTabFocusTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
      {NULL}};
@@ -257,14 +257,17 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     (void)closure; (void)continue_dispatch;
     if (picker == NULL || event == NULL || !XmIsTimePicker(widget))
 	return;
+    if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == ButtonPress) {
         picker->time_picker.field = (unsigned char)((event->xbutton.x < 34) ? 0 :
                                       (event->xbutton.x < 66 ? 1 : 2));
         return;
     }
-    if (event->type != KeyPress ||
-        XLookupString(&event->xkey, input, sizeof(input), &key, NULL) == 0)
-        return;
+    if (event->type != KeyPress) return;
+    XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
+    if (continue_dispatch && (key == XK_Left || key == XK_Right || key == XK_Up ||
+        key == XK_Down || key == XK_Return || key == XK_KP_Enter))
+        *continue_dispatch = False;
     if (key == XK_Left || key == XK_Right) {
         if (key == XK_Left && picker->time_picker.field) --picker->time_picker.field;
         if (key == XK_Right && picker->time_picker.field < 2) ++picker->time_picker.field;

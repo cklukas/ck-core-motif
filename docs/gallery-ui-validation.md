@@ -39,3 +39,9 @@ The clean SVG build uses Xft and librsvg, with `--enable-xft --enable-svg
 --disable-static` and debug compiler flags. Incremental checks rebuild the
 changed sources before capture. The gallery executable and dynamically loaded
 libXm have independent build records, and both identities are verified.
+
+Native gallery acceptance also reads the actual navigation X window and checks
+foreground label pixels across four visible rows. `--integration-sidebar-pixels`
+requires window-manager viewability and services pending Xt events before
+capture; a model-only selection or geometry check does not establish that
+sidebar labels are visible. Screenshot readiness uses the same check.

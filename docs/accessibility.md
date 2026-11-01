@@ -5,6 +5,35 @@ AT-SPI D-Bus transport is built with `--enable-atspi`; no ATK or GTK dependency
 is introduced. Normal widget operation does not depend on a running bus or
 registry.
 
+## Pointer and keyboard focus
+
+Primary clicks on focusable interactive controls request keyboard traversal to
+the clicked control before processing its action. This includes the custom Link,
+Calendar, DataGrid, BreadcrumbBar, DatePicker, TimePicker and InfoBar widgets,
+and the SearchBox clear target. Their focus handling matches the existing
+PushButton, ToggleButton and other native button behavior. A secondary click
+or a control with traversal disabled does not request focus. Popup controls may
+subsequently move focus into their popup. Tab follows the application’s Motif
+tab-group configuration; applications can explicitly set `XmNnavigationType`
+where separate tab stops are required. RatingControl and Chip also receive the
+standard primitive focus and Tab actions without forwarding their own
+arrow and activation keys to the parent. Focus callbacks can destroy a widget;
+the handler stops processing if this happens.
+
+`tests/automated/run-click-focus.py --prefix <install> --out <fresh-directory>`
+checks 16 widget classes and three button gadgets in four appearance profiles,
+secondary clicks, disabled traversal, insensitive controls and a focus callback
+that destroys the target, plus handled arrow and Enter keys in the presence of a parent default
+button. It passed on Linux/aarch64 with Xft/SVG and core fonts. The tested
+libXm SHA-256 values were
+`aaf8ac774c9c1cec8e296c933760bd4f24938ed15cdd079da197caf2961a876b` and
+`9c8e23fde7088a7644beffc37708c8739a76ff9c361b2c9925631ba3dfbc253e`;
+the fixture SHA-256 was
+`81a32c132a0889e1a1e24018259c464e60a46e8f1d93ade3310118db43b778f0`.
+Existing Link, Calendar, DataGrid, DatePicker, TimePicker, BreadcrumbBar,
+Chip, RatingControl and SearchBox interaction/layout checks also passed. Real
+gallery Link and PushButton windows were inspected after pointer and Tab input.
+
 ## Bridge and shell ownership
 
 Create one application bridge with `XmAccessibilityCreate(root, name)`.

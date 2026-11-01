@@ -81,7 +81,7 @@ externaldef(xmdatagridclassrec) XmDataGridClassRec xmDataGridClassRec =
       resources, XtNumber(resources), NULLQUARK, True,
       XtExposeCompressMaximal, True, False, Destroy, NULL, BufferedRedisplay,
       BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
-      XtInheritTranslations, QueryGeometry, NULL, NULL},
+      (String)_XmPrimitiveTabFocusTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
      {NULL}};
@@ -489,9 +489,14 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     int x, y, column, row;
     (void)closure; (void)continue_dispatch;
     if (widget == NULL || event == NULL || !XmIsDataGrid(widget)) return;
+    if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == KeyPress) {
-        if (XLookupString(&event->xkey, input, sizeof(input), &key, NULL) == 0)
-            return;
+        XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
+        if (continue_dispatch && (key == XK_Left || key == XK_Right || key == XK_Up ||
+            key == XK_Down || key == XK_Home || key == XK_End || key == XK_Return ||
+            key == XK_KP_Enter || key == XK_Page_Up || key == XK_Page_Down ||
+            (key == XK_Escape && grid->data_grid.editing)))
+            *continue_dispatch = False;
         if (key == XK_Left) { move_selection(grid, 0, grid->data_grid.rtl ? 1 : -1, event); return; }
         if (key == XK_Right) { move_selection(grid, 0, grid->data_grid.rtl ? -1 : 1, event); return; }
         if (key == XK_Up) { move_selection(grid, -1, 0, event); return; }

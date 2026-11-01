@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <X11/Xatom.h>
+#include <X11/Xutil.h>
+#include <time.h>
 #include <X11/keysym.h>
 #include <Xm/XmAll.h>
 #include <Xm/Sidebar.h>
@@ -70,6 +72,7 @@ typedef struct {
 
 static void layout_gallery(GalleryState *state);
 static Boolean settle_gallery(GalleryState *state);
+static int verify_navigation_pixels(GalleryState *state);
 static void close_compact_navigation(GalleryState *state);
 
 static XmString text(const char *value) { return XmStringCreateLocalized((char *)value); }
@@ -1189,6 +1192,7 @@ static int exercise_component_matrix(GalleryState *state)
 
 static int run_integration_test(GalleryState *state)
 {
+    if (verify_navigation_pixels(state)) return 1;
     XtPointer selected = (XtPointer)gallery_manifest[1].id;
     Cardinal i, available = 0, optional = 0;
     for (i = 0; i < GALLERY_MANIFEST_COUNT; ++i) {
@@ -1212,6 +1216,29 @@ static int run_integration_test(GalleryState *state)
         }
         XmTextFieldSetString(state->search, "");
         if (XmTreeViewGetNodeCount(state->tree) != all) return 1;
+    }
+    {
+        XEvent click = {0}, tab = {0};
+        if (!XmProcessTraversal(state->search, XmTRAVERSE_CURRENT)) return 1;
+        click.xbutton.type = ButtonPress;
+        click.xbutton.display = XtDisplay(state->tree);
+        click.xbutton.window = XtWindow(state->tree);
+        click.xbutton.button = Button1;
+        click.xbutton.x = 60; click.xbutton.y = 8;
+        XtDispatchEvent(&click);
+        if (XmGetFocusWidget(state->shell) != state->tree) {
+            fprintf(stderr, "gallery integration: clicking navigation did not focus tree\n");
+            return 1;
+        }
+        tab.xkey.type = KeyPress;
+        tab.xkey.display = XtDisplay(state->tree);
+        tab.xkey.window = XtWindow(state->tree);
+        tab.xkey.keycode = XKeysymToKeycode(XtDisplay(state->tree), XK_Tab);
+        XtDispatchEvent(&tab);
+        if (XmGetFocusWidget(state->shell) == state->tree) {
+            fprintf(stderr, "gallery integration: Tab did not leave navigation tree\n");
+            return 1;
+        }
     }
     XmTreeViewSetSelectedId(state->tree, selected, True);
         if (!XmProcessTraversal(state->tree, XmTRAVERSE_CURRENT)) {
@@ -1563,11 +1590,54 @@ static Widget create_icon_page(GalleryState *state)
     return page;
 }
 
+/* Validate the real navigation window, not only model/geometry metadata. */
+static int verify_navigation_pixels(GalleryState *state)
+{
+    Display *display = XtDisplay(state->tree);
+    XtAppContext app = XtWidgetToApplicationContext(state->tree);
+    Dimension width = 0, height = 0, row = 0;
+    Pixel foreground;
+    unsigned painted = 0;
+    for (unsigned attempt = 0; attempt < 200; ++attempt) {
+        XWindowAttributes attributes;
+        XSync(display, False);
+        while (XtAppPending(app)) XtAppProcessEvent(app, XtIMAll);
+        XtVaGetValues(state->tree, XmNwidth, &width, XmNheight, &height,
+            XmNtreeViewRowHeight, &row, XmNforeground, &foreground, NULL);
+        if (XtIsRealized(state->tree) &&
+            XGetWindowAttributes(display, XtWindow(state->tree), &attributes) &&
+            attributes.map_state == IsViewable && width > 48 && row > 6 && height / row >= 4) {
+            XImage *image = XGetImage(display, XtWindow(state->tree), 0, 0,
+                width, 4 * row, AllPlanes, ZPixmap);
+            if (!image) return 1;
+            painted = 0;
+            for (unsigned i = 0; i < 4; ++i) {
+                unsigned ink = 0;
+                for (int y = i * row + 3; y < (int)((i + 1) * row) - 3; ++y)
+                    for (int x = 20; x < (int)width - 20; ++x)
+                        if (XGetPixel(image, x, y) == foreground) ++ink;
+                if (ink >= 3) ++painted;
+            }
+            XDestroyImage(image);
+            if (painted == 4) {
+                puts("PASS gallery sidebar label pixels: four visible navigation rows");
+                return 0;
+            }
+        }
+        struct timespec delay = {0, 10000000};
+        nanosleep(&delay, NULL);
+    }
+    fprintf(stderr, "gallery sidebar pixels: %u/4 inked rows; window=%ux%u row=%u\n",
+        painted, width, height, row);
+    return 1;
+}
+
 static Boolean capture_ready(XtPointer client)
 {
     GalleryState *state = client;
     unsigned long pid = (unsigned long)getpid();
     unsigned long ready = 1;
+    if (verify_navigation_pixels(state)) return False;
     Display *display = XtDisplay(state->shell);
     Window window = XtWindow(state->shell);
     XChangeProperty(display, window, XInternAtom(display, "_NET_WM_PID", False),
@@ -2031,6 +2101,9 @@ int main(int argc, char **argv)
         if (!strcmp(argv[argument], "--integration-test")) {
             integration_mode = 1;
             remove_count = 1;
+        } else if (!strcmp(argv[argument], "--integration-sidebar-pixels")) {
+            integration_mode = 7;
+            remove_count = 1;
         } else if (!strcmp(argv[argument], "--integration-controls")) {
             integration_mode = 6;
             remove_count = 1;
@@ -2194,12 +2267,15 @@ int main(int argc, char **argv)
             XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, label, XmNtopOffset, 4,
             XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM, NULL);
         XtAddCallback(state.search, XmNvalueChangedCallback, search_changed, &state);
-        state.tree = XtVaCreateManagedWidget("components", xmTreeViewWidgetClass,
-            state.navigation_form, XmNtraversalOn, True,
-            XmNtreeViewVisibleRows, 17,
-            XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state.search, XmNtopOffset, 12,
-            XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM,
-            XmNbottomAttachment, XmATTACH_FORM, NULL);
+        {
+            Widget viewport = XtVaCreateManagedWidget("navigationViewport", xmScrolledWindowWidgetClass,
+                state.navigation_form, XmNscrollingPolicy, XmAPPLICATION_DEFINED,
+                XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state.search, XmNtopOffset, 12,
+                XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM,
+                XmNbottomAttachment, XmATTACH_FORM, NULL);
+            state.tree = XtVaCreateManagedWidget("components", xmTreeViewWidgetClass,
+                viewport, XmNtraversalOn, True, XmNtreeViewVisibleRows, 17, NULL);
+        }
         XtAddEventHandler(content, StructureNotifyMask, False, navigation_resize, &state);
         XtAddEventHandler(state.tree, StructureNotifyMask, False, navigation_resize, &state);
     }
@@ -2308,6 +2384,7 @@ int main(int argc, char **argv)
     if (integration_mode == 4) return verify_flow_pages(&state);
     if (integration_mode == 5) return verify_live_appearance(&state);
     if (integration_mode == 6) return verify_appearance_controls(&state);
+    if (integration_mode == 7) return verify_navigation_pixels(&state);
     if (screenshot_mode) XtAppAddWorkProc(app, capture_ready, &state);
     XtAppMainLoop(app);
     return 0;

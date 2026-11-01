@@ -80,6 +80,7 @@ def main() -> int:
         return 1
     if (result.returncode == 0 and
             "navigation tabs interaction state PASS" in result.stdout and
+            "PASS gallery sidebar label pixels:" in result.stdout and
             "keyboard traversal and focus restoration PASS" in result.stdout and
             "acceptance metadata" in result.stdout and
             "live catalogue transactions: use --integration-live" in result.stdout):

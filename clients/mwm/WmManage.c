@@ -142,7 +142,7 @@ void AdoptInitialClients (WmScreenData *pSD)
     ClientData *pcd = NULL;
     PropWMState *wmStateProp;
     Boolean manageOnRestart;
-    int i,j;
+    unsigned int i,j;
     long manageFlags;
 
 #ifdef WSM
@@ -165,6 +165,7 @@ void AdoptInitialClients (WmScreenData *pSD)
     {
 	Warning (((char *)GETMESSAGE(46, 1, "Insufficient memory to adopt initial clients")));
 	ExitWM (WM_ERROR_EXIT_VALUE);
+	return;
     }
     pWS0 = pSD->pWS;
     pWin1 = pAncillaryWindows;

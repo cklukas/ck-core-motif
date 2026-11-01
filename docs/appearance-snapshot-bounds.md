@@ -1,10 +1,13 @@
 # Appearance transaction snapshot bounds
 
 Appearance-profile changes snapshot all live widget states before preparing a
-transaction.  The snapshot and its per-widget change plans now reject a count
-that cannot fit both the `XtMalloc` `Cardinal` argument and the native `size_t`
-allocation arithmetic.  The transaction returns failure before taking any
-state references; valid transactions are unchanged.
+transaction.  The snapshot count is tracked in native `size_t`, rather than
+wrapping through the public `Cardinal` type, and the snapshot plus its
+per-widget change plans reject a count that cannot fit both the `XtMalloc`
+`Cardinal` argument and native allocation arithmetic. The transaction returns
+failure before taking any state references; valid transactions are unchanged.
+After that validation, the allocation is explicitly narrowed to Xt's accepted
+byte-count type.
 
 The modern arrow inset helper also clamps its position updates to the X11
 `Position` range, so large allocated cells cannot wrap the arrow origin.

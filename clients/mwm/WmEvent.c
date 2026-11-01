@@ -41,6 +41,7 @@ static char rcsid[] = "$XConsortium: WmEvent.c /main/7 1996/11/20 15:27:47 rswis
 #include "WmGlobal.h"
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 #include <stdlib.h>
 /*
  * include extern functions
@@ -249,6 +250,13 @@ _WmGrabMasks ( unsigned int modifiers, int *pnum_masks )
     if ((pRetMasks == NULL) || (len_ret_masks < num_masks+2))
     {
 	int required_len = num_masks+2;
+
+	/* XtRealloc accepts a Cardinal byte count.  The lock-mask resource
+	 * can be supplied by the user, so reject a count that would wrap
+	 * either the native multiplication or Xt's narrower allocation API. */
+	if ((size_t)required_len > SIZE_MAX / sizeof(*pRetMasks) ||
+	    (size_t)required_len > UINT_MAX / sizeof(*pRetMasks))
+	    return (NULL);
 
 	resized = (unsigned int *)XtRealloc ((char *)pRetMasks,
 					 (Cardinal)((size_t)required_len *
@@ -574,6 +582,7 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
      XKeyEvent *keyEvent;
      KeySpec   *keySpecs;
      MenuButton   *menuBtnPtr;
+     unsigned int menuButtonSlots;
 
 
     if (event->type == KeyPress)
@@ -611,13 +620,20 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
                 }
 	    }
 	    /* Begin fixing CR 5227 */
-	    keySpecs = wmGD.menuActive->accelKeySpecs;
+            keySpecs = wmGD.menuActive->accelKeySpecs;
 	    keyEvent = (XKeyEvent *)event;
-	    menuBtnPtr = wmGD.menuActive->menuButtons + 
-	                 (wmGD.menuActive->menuButtonSize - 1);
-  
-	    while (keySpecs)
+	    menuBtnPtr = wmGD.menuActive->menuButtons;
+	    menuButtonSlots = wmGD.menuActive->menuButtonSize;
+
+	    /*
+	     * The accelerator list and the button table are built separately.
+	     * Do not form a before-begin pointer when a partial menu has no
+	     * button table, or after an inconsistent list outlives its slots.
+	     */
+	    while (keySpecs && menuBtnPtr != NULL && menuButtonSlots != 0)
 	      {
+		--menuButtonSlots;
+		menuBtnPtr = &wmGD.menuActive->menuButtons[menuButtonSlots];
                 if ((keyEvent->keycode == keySpecs->keycode) &&
 		    ((keyEvent->state == keySpecs->state) ||
 		    (NOLOCKMOD(keyEvent->state) == keySpecs->state))
@@ -628,7 +644,6 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
                     break;
                  } 
                  keySpecs = keySpecs->nextKeySpec;
-                 menuBtnPtr--;
                 } 
      
 	    doXtDispatchEvent = doXtDispatchEvent &&
@@ -690,12 +705,12 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
     else if (wmGD.checkHotspot &&
 	     ((event->type == ButtonPress) || 
 	      (event->type == ButtonRelease)) &&
-	     (event->x_root >= wmGD.hotspotRectangle.x) &&
-	     (event->y_root >= wmGD.hotspotRectangle.y) &&
-	     (event->x_root < (wmGD.hotspotRectangle.x + 
-	                       (short) wmGD.hotspotRectangle.width)) &&
-	     (event->y_root < (wmGD.hotspotRectangle.y + 
-	                       (short) wmGD.hotspotRectangle.height))&&
+	     ((long)event->x_root >= (long)wmGD.hotspotRectangle.x) &&
+	     ((long)event->y_root >= (long)wmGD.hotspotRectangle.y) &&
+	     ((long)event->x_root < (long)wmGD.hotspotRectangle.x +
+	                       (long)wmGD.hotspotRectangle.width) &&
+	     ((long)event->y_root < (long)wmGD.hotspotRectangle.y +
+	                       (long)wmGD.hotspotRectangle.height)&&
 #ifdef WSM
 	     (pCD || 
 	      (wmGD.rootButtonClick && wmGD.clickData.clickPending)))
@@ -775,7 +790,8 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
 		     ~wmGD.clickData.time + ((XButtonEvent *)event)->time + 1;
 		 }
 
-		 if (timeDiff < wmGD.doubleClickTime)
+		 if (wmGD.doubleClickTime > 0 &&
+		     timeDiff < (Time)wmGD.doubleClickTime)
 		 {
 #ifdef MOTIF_ONE_DOT_ONE
 		   TraversalOn (wmGD.menuActive);
@@ -1573,7 +1589,7 @@ Boolean CheckForButtonAction (XButtonEvent *buttonEvent, Context context, Contex
 		}
 
 	        if (!(buttonSpec->wmFunction (buttonSpec->wmFuncArgs, pCD,
-					      buttonEvent)))
+					      (XEvent *)buttonEvent)))
 		{
 		    /*
 		     * The window manager function return indicates that
@@ -1777,7 +1793,8 @@ void ProcessClickBPress (XButtonEvent *buttonEvent, ClientData *pCD, Context con
 	    timeDiff = ~wmGD.clickData.time + buttonEvent->time + 1;
 	}
 
-	if (timeDiff < wmGD.doubleClickTime)
+	if (wmGD.doubleClickTime > 0 &&
+	    timeDiff < (Time)wmGD.doubleClickTime)
 	{
 	    /*
 	     * A double-click has been done; save the context.
@@ -2583,14 +2600,13 @@ Time GetTimestamp (void)
     Time timestamp;
     WmScreenData *pSD = ACTIVE_PSD;
     XEvent event;
-    long property;
 
     /*
      * Do zero-length append to our own WM_STATE
      */
     XChangeProperty (DISPLAY, pSD->wmWorkspaceWin, wmGD.xa_WM_STATE, 
 	wmGD.xa_WM_STATE, 32, PropModeAppend, 
-	(unsigned char *)&property, 0);
+	NULL, 0);
 
     /*
      * Pick up the property notify event

@@ -5,9 +5,13 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Appearance.c").read_text()
 start = source.index("static Boolean\nappearance_apply_subtree(Display *display, Widget root,", source.index("_XmRegisterAppearanceChange"))
 body = source[start:source.index("Boolean\n_XmApplyAppearanceChange", start)]
+assert "size_t count = 0;" in body
+assert "Cardinal count = 0;" not in body
 assert "SIZE_MAX / sizeof(*snapshot)" in body
 assert "UINT_MAX / sizeof(*snapshot)" in body
 assert "SIZE_MAX / sizeof(*plans)" in body
+assert "for (size_t i = 0; i < count; ++i)" in body
+assert "(Cardinal)(count * sizeof(*snapshot))" in body
 assert "return False;" in body
 print("PASS appearance transaction snapshot allocation bounds")
 

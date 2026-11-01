@@ -166,7 +166,7 @@ static int clientWorkspaceCompare(const void *, const void *);
 static char *getClientResource(char *, char *);
 static char *getXSMPResource(ClientData *, int, char *);
 static void getClientGeometry(ClientData *, int *, int *,
-			      unsigned int *, unsigned int *);
+			      int *, int *);
 static Boolean getProxyClientInfo(ClientData *, ProxyClientInfo *);
 static Bool cmpProxyClientProc(XrmDatabase *, XrmBindingList,
 			       XrmQuarkList, XrmRepresentation *,
@@ -1071,15 +1071,17 @@ findProxyClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
  */
 static void
 getClientGeometry(ClientData *pCD, int *clientX, int *clientY,
-		  unsigned int *clientWd, unsigned int *clientHt)
+		  int *clientWd, int *clientHt)
 {
     *clientX = pCD->clientX;
     *clientY = pCD->clientY;
-    *clientWd = (pCD->widthInc != 0) ?
-	(pCD->clientWidth - pCD->baseWidth) / pCD->widthInc :
+    *clientWd = (pCD->clientWidth <= pCD->baseWidth) ? 0 :
+	(pCD->widthInc > 0) ?
+	    (pCD->clientWidth - pCD->baseWidth) / pCD->widthInc :
 	    pCD->clientWidth;
-    *clientHt = (pCD->heightInc != 0) ?
-	(pCD->clientHeight - pCD->baseHeight) / pCD->heightInc :
+    *clientHt = (pCD->clientHeight <= pCD->baseHeight) ? 0 :
+	(pCD->heightInc > 0) ?
+	    (pCD->clientHeight - pCD->baseHeight) / pCD->heightInc :
 	    pCD->clientHeight;
 }
 
@@ -1090,7 +1092,7 @@ static Boolean
 saveXSMPClient(FILE *fp, ClientData *pCD)
 {
     int clientX, clientY;
-    unsigned int clientWd, clientHt;
+    int clientWd, clientHt;
     char *clientID = pCD->smClientID;
 
     fprintf(fp, dbClientFormat, XSMPClientStr, clientID, clientID);
@@ -1204,7 +1206,7 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
     int clientState;
     ProxyClientInfo proxyClientInfo;
     int clientX, clientY;
-    unsigned int clientWd, clientHt;
+    int clientWd, clientHt;
 #ifdef WSM
     char *clientWorkspaces;
 #endif

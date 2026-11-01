@@ -2091,7 +2091,7 @@ appearance_apply_subtree(Display *display, Widget root,
     XmAppearanceChangePlan *plans = NULL;
     XmAppearanceWidgetState *state;
     XmAppearanceDisplayState *display_state = find_display_state(display);
-    Cardinal count = 0;
+    size_t count = 0;
     Boolean success = True;
 
     appearance_prune_gadgets(display);
@@ -2108,7 +2108,8 @@ appearance_apply_subtree(Display *display, Widget root,
         return False;
     }
     if (count != 0)
-        snapshot = (XmAppearanceWidgetState **)XtMalloc(count * sizeof(*snapshot));
+        snapshot = (XmAppearanceWidgetState **)XtMalloc(
+	    (Cardinal)(count * sizeof(*snapshot)));
     if (count != 0 && snapshot == NULL) {
         _XmProcessUnlock();
         return False;
@@ -2132,7 +2133,7 @@ appearance_apply_subtree(Display *display, Widget root,
      * first, then restore authoritative child choices from the preflight. */
     if (count > 1)
         qsort(snapshot, count, sizeof(*snapshot), appearance_parent_first);
-    for (Cardinal i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         state = snapshot[i];
         if (!state->retired && state->widget != NULL) {
             if (!state->initialized && !initialize_appearance_state(state, old_profile))
@@ -2144,7 +2145,7 @@ appearance_apply_subtree(Display *display, Widget root,
             break;
     }
     if (!success) {
-        for (Cardinal i = 0; i < count; ++i) {
+        for (size_t i = 0; i < count; ++i) {
             appearance_plan_clear(&plans[i]);
             state = snapshot[i];
             _XmProcessLock();
@@ -2166,7 +2167,7 @@ appearance_apply_subtree(Display *display, Widget root,
         display_state->committing_geometry = True;
         display_state->defer_layout = True;
     }
-    for (Cardinal i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         state = snapshot[i];
         if (!state->retired && state->widget != NULL)
             appearance_widget_commit(&plans[i]);
@@ -2176,7 +2177,7 @@ appearance_apply_subtree(Display *display, Widget root,
     /* Retain every snapshot reference through the layout pass: a SetValues or
      * geometry callback may retire another object. Normalize only after all
      * siblings have their new margins. */
-    for (Cardinal i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         state = snapshot[i];
         if (!state->retired && state->widget != NULL &&
             XmIsRowColumn(state->widget)) {
@@ -2186,7 +2187,7 @@ appearance_apply_subtree(Display *display, Widget root,
     }
     if (display_state != NULL)
         display_state->committing_geometry = False;
-    for (Cardinal i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         appearance_plan_clear(&plans[i]);
         state = snapshot[i];
         _XmProcessLock();

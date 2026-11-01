@@ -47,7 +47,20 @@ layout controls the viewport, and TreeView adapts without another size request.
 The viewport is deliberately bounded. `XmNtreeViewVisibleRows` specifies the
 preferred capacity, while `XmNtreeViewTopRow` sets its starting row; wheel events and
 `XmTreeViewSetTopRow` move through the flattened visible rows.  This is a
-bounded drawing policy, not a general virtualization engine.  Lazy child
+bounded drawing policy, not a general virtualization engine. When placed in an
+application-defined ScrolledWindow without an existing vertical navigator,
+TreeView creates one and shows it only when visible rows overflow. Thumb, wheel, keyboard, expansion,
+selection and resize changes keep the navigator and viewport synchronized.
+A primary click moves keyboard focus to the tree, so Tab continues from it.
+The `tests/automated/run-tree-view-scroll.py --prefix <install> --out <fresh-directory>`
+regression covers overflow, thumb and wheel synchronization, expansion and
+collapse, click focus, Tab and destruction. It passed on Linux/aarch64 in both
+Xft/SVG and core-font builds, with libXm SHA-256 respectively
+`b1d41e3f6b4b6a841007bba69155f35c3698851270f4b79756cab8da5ad31304` and
+`c9b469530e1a9dc91ed292ad39bd49b3055362bf6c9c37979143518605a838a6`.
+The gallery integration additionally checks logical click focus and Tab in its
+actual widget hierarchy.
+Lazy child
 retrieval, incremental model callbacks and remote data loading are deferred
 until a separately specified model contract exists.
 

@@ -39,6 +39,8 @@ typedef struct _XmTreeViewPart {
     XtCallbackList expansion_callback;
     GC gc;
     Pixel select_color;
+    Widget scroll_bar;
+    Boolean updating_scrollbar;
 } XmTreeViewPart;
 
 typedef struct _XmTreeViewRec {

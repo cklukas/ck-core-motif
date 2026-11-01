@@ -42,6 +42,7 @@ static char rcsid[] = "$TOG: WmProtocol.c /main/8 1997/06/18 17:31:34 samborn $"
 #include "WmICCC.h"
 #include <limits.h>
 #include <stdint.h>
+#include <string.h>
 
 /*
  * include extern functions
@@ -437,6 +438,7 @@ void SendClientOffsetMessage (ClientData *pCD)
       
     XClientMessageEvent clientMsgEvent;
 
+    memset(&clientMsgEvent, 0, sizeof(clientMsgEvent));
     clientMsgEvent.type = ClientMessage;
     clientMsgEvent.window = pCD->client;
     clientMsgEvent.message_type = wmGD.xa_MWM_MESSAGES;
@@ -555,7 +557,7 @@ void SendClientMsg (Window window, long type, long data0, Time time, long *pData
     XClientMessageEvent clientMsgEvent;
     int i;
 
-
+    memset(&clientMsgEvent, 0, sizeof(clientMsgEvent));
     clientMsgEvent.type = ClientMessage;
     clientMsgEvent.window = window;
     clientMsgEvent.message_type = type;
@@ -1219,7 +1221,6 @@ static void
 OwnWMSelections ( Time timestamp )
 {
   int scr;
-  size_t atom_bytes;
   
   
   if (wmGD.numScreens < 0 ||
@@ -1230,8 +1231,12 @@ OwnWMSelections ( Time timestamp )
 				   "Insufficient memory to own WM_nn selections")));
       return;
     }
-  atom_bytes = (size_t)wmGD.numScreens * sizeof(Atom);
-  wmGD.xa_WM = (Atom *)XtMalloc((Cardinal)atom_bytes);
+  /*
+   * The atom table is indexed by physical screen number elsewhere in the
+   * selection callback path.  Initialize unmanaged-screen entries to None
+   * rather than leaving them indeterminate.
+   */
+  wmGD.xa_WM = (Atom *)XtCalloc((Cardinal)wmGD.numScreens, sizeof(Atom));
   if (wmGD.xa_WM == NULL)
     {
       Warning (((char *)GETMESSAGE(56, 7,

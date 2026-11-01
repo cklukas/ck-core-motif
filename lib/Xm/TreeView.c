@@ -15,6 +15,8 @@
 #include "TransltnsP.h"
 #include "XmI.h"
 #include "AppearanceDrawI.h"
+#include <Xm/ScrollBar.h>
+#include <Xm/ScrolledW.h>
 
 #define TREE_VIEW_MAX_NODES 4096
 
@@ -289,7 +291,37 @@ static void notify_expansion(XmTreeViewWidget view, int index, XEvent *event) {
     XtCallCallbacks((Widget)view, XmNtreeViewExpansionCallback, &cb);
 }
 
+static Cardinal viewport_rows(XmTreeViewWidget view);
+
+/* Keep the standard ScrolledWindow navigator in row units, including changes
+ * made by keyboard, wheel, expansion, resizing and programmatic selection. */
+static void update_scrollbar(XmTreeViewWidget view) {
+    Widget bar=view->tree_view.scroll_bar;
+    Cardinal total, rows, last;
+    if (!bar || view->tree_view.updating_scrollbar || view->core.being_destroyed) return;
+    view->tree_view.updating_scrollbar=True;
+    total=visible_count(view); rows=viewport_rows(view);
+    last=total>rows?total-rows:0;
+    if (view->tree_view.top_row>last) view->tree_view.top_row=last;
+    XtVaSetValues(bar, XmNminimum,0, XmNmaximum,MAX(1,total),
+        XmNsliderSize,MIN(MAX(1,total),rows), XmNvalue,view->tree_view.top_row,
+        XmNincrement,1, XmNpageIncrement,MAX(1,rows-1), NULL);
+    if (XtIsManaged((Widget)view) && total>rows) {
+        if (!XtIsManaged(bar)) XtManageChild(bar);
+    } else if (XtIsManaged(bar)) XtUnmanageChild(bar);
+    view->tree_view.updating_scrollbar=False;
+}
+
+static void slider_move(Widget bar, XtPointer closure, XtPointer call) {
+    XmTreeViewWidget view=(XmTreeViewWidget)closure;
+    XmScrollBarCallbackStruct *data=(XmScrollBarCallbackStruct *)call;
+    (void)bar;
+    if (view && !view->core.being_destroyed && data)
+        XmTreeViewSetTopRow((Widget)view,MAX(0,data->value));
+}
+
 static void redraw(XmTreeViewWidget view) {
+    update_scrollbar(view);
     if (XtIsRealized((Widget)view))
         _XmPaintInvalidate((Widget)view);
 }
@@ -409,6 +441,15 @@ static void natural_metrics(XmTreeViewWidget view, Dimension *width, Dimension *
     *row_height=(Dimension)MIN(MAX(tallest,1),USHRT_MAX);
 }
 
+static void clear_bar(Widget bar, XtPointer closure, XtPointer call) {
+    XmTreeViewWidget view=(XmTreeViewWidget)closure;
+    (void)bar; (void)call;
+    view->tree_view.scroll_bar=NULL;
+}
+static void focus_destroyed(Widget widget, XtPointer closure, XtPointer call) {
+    (void)widget; (void)call; *(Boolean *)closure=True;
+}
+
 static void Initialize(Widget request, Widget widget, ArgList args,
                        Cardinal *count) {
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
@@ -419,6 +460,8 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     view->tree_view.count = 0;
     view->tree_view.selected_id = NULL;
     view->tree_view.pressed_id = NULL;
+    view->tree_view.scroll_bar = NULL;
+    view->tree_view.updating_scrollbar = False;
     if (view->tree_view.render_table == NULL)
         view->tree_view.render_table = XmFontListCopy(
             XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
@@ -448,12 +491,35 @@ static void Initialize(Widget request, Widget widget, ArgList args,
         view->core.height = height > (unsigned long long)(Dimension)-1 ?
                             (Dimension)-1 : (Dimension)height;
     }
+    if (XmIsScrolledWindow(XtParent(widget))) {
+        Widget existing=NULL;
+        unsigned char policy;
+        XtVaGetValues(XtParent(widget),XmNverticalScrollBar,&existing,
+                      XmNscrollingPolicy,&policy,NULL);
+        if (policy==XmAPPLICATION_DEFINED && !existing) {
+            Arg a[3]; Cardinal n=0;
+            XtSetArg(a[n],XmNorientation,XmVERTICAL); ++n;
+            XtSetArg(a[n],XmNtraversalOn,False); ++n;
+            view->tree_view.scroll_bar=XmCreateScrollBar(XtParent(widget),"treeScrollBar",a,n);
+            if (view->tree_view.scroll_bar) {
+                XtAddCallback(view->tree_view.scroll_bar,XmNdestroyCallback,clear_bar,view);
+                XtAddCallback(view->tree_view.scroll_bar,XmNvalueChangedCallback,slider_move,view);
+                XtAddCallback(view->tree_view.scroll_bar,XmNdragCallback,slider_move,view);
+            }
+        }
+    }
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask | ButtonReleaseMask, False, Events,
                       NULL);
 }
 
 static void Destroy(Widget widget) {
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
+    Widget bar=view->tree_view.scroll_bar;
+    if (bar) {
+        XtRemoveCallback(bar,XmNdestroyCallback,clear_bar,view);
+        view->tree_view.scroll_bar=NULL;
+        if (!bar->core.being_destroyed) XtDestroyWidget(bar);
+    }
     Cardinal i;
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask | ButtonReleaseMask, False, Events,
                          NULL);
@@ -520,7 +586,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     (void)event; (void)region;
     if (!window || !view->tree_view.gc)
         return;
-
+    update_scrollbar(view);
     for (row = 0; row < viewport_rows(view); ++row) {
         Cardinal absolute = view->tree_view.top_row + row;
         int x;
@@ -664,6 +730,17 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
         return;
     }
     if (event->type == ButtonPress) {
+        if (event->xbutton.button == Button1 && view->primitive.traversal_on) {
+            Boolean destroyed=False;
+            XtAddCallback(widget,XmNdestroyCallback,focus_destroyed,&destroyed);
+            XmProcessTraversal(widget, XmTRAVERSE_CURRENT);
+            if (destroyed) return;
+            if (widget->core.being_destroyed) {
+                XtRemoveCallback(widget,XmNdestroyCallback,focus_destroyed,&destroyed);
+                return;
+            }
+            XtRemoveCallback(widget,XmNdestroyCallback,focus_destroyed,&destroyed);
+        }
         view->tree_view.pressed_id = NULL;
         if (event->xbutton.button == Button4) {
             if (view->tree_view.top_row)

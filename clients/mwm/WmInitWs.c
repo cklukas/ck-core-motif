@@ -214,8 +214,8 @@ BuildLockMaskSequence(void)
     unsigned int mask;
     unsigned int thisbit;
     Boolean bit_on;
-    int num_masks;
-    int num_bits;
+    unsigned int num_masks;
+    unsigned int num_bits;
     int bit;
     int run;
 
@@ -236,13 +236,21 @@ BuildLockMaskSequence(void)
 	}
 	mask = mask >> 1;
     }
-    num_masks = (0x1 << num_bits) - 1;
+    if (num_bits >= sizeof(unsigned int) * CHAR_BIT ||
+        (1U << num_bits) - 1U > UINT_MAX / sizeof(unsigned int) - 1U)
+    {
+	wmGD.pLockMaskSequence = NULL;
+	return;
+    }
+    num_masks = (1U << num_bits) - 1U;
 
     /*
      * Allocate the space for the mask sequence + terminator.
      */
-    wmGD.pLockMaskSequence = (unsigned int *) 
-			XtCalloc (num_masks+1, sizeof (unsigned int));
+    wmGD.pLockMaskSequence = (unsigned int *)
+			XtCalloc ((Cardinal)(num_masks + 1U), sizeof (unsigned int));
+    if (wmGD.pLockMaskSequence == NULL)
+	return;
 
     /*
      * Fill in the mask sequence
@@ -269,7 +277,7 @@ BuildLockMaskSequence(void)
 	 * funny because we skip the case of all the
 	 * bits cleared.
 	 */
-	run = (0x1 << (bit-1));	/* number of consecutive masks to set
+	run = (1U << (bit-1));	/* number of consecutive masks to set
 				   bits in */
 	bit_on = False;		/* are we setting bits or not? */
 
@@ -343,7 +351,18 @@ SetupLockingModifierMask(void)
      */
     wmGD.lockingModMask = LockMask;
 
+    if (wmGD.pLockMaskSequence != NULL)
+    {
+	XtFree((char *)wmGD.pLockMaskSequence);
+	wmGD.pLockMaskSequence = NULL;
+    }
+
     modifier_map = XGetModifierMapping(dpy);
+    if (modifier_map == NULL)
+    {
+	BuildLockMaskSequence();
+	return;
+    }
 
     /* just check Mod1 through Mod5 */
     start_index = modifier_map->max_keypermod * Mod1MapIndex;
@@ -390,6 +409,8 @@ MappingEventHandler(
         if(event->xany.type != MappingNotify ||
                 event->xmapping.request == MappingPointer)
                 return;
+
+        XRefreshKeyboardMapping(&event->xmapping);
  
         if(event->xmapping.request == MappingModifier)
                 SetupLockingModifierMask();

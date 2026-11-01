@@ -11,11 +11,325 @@ Buffered toolkit painting and gallery appearance selection (2026-11-01)
   Popup menus remain unposted during construction and post from their invoker.
 * Native regressions cover frame isolation, presentation and buffer lifetime;
   gallery integration covers direct appearance selection and example retention.
+  Native sidebar qualification requires label pixels across four visible rows,
+  including window-manager viewability before declaring capture readiness.
   See docs/buffered-painting.md for scope and configuration.
 * Correct hard-line character reads for wide UTF-8 storage and gaps with large
   unused capacity. Native scans now find source newlines instead of treating
   multiple paragraphs as one line; the gallery Source pane can reach its end.
   The native line-scan regression fails against the preceding library.
+
+Give custom interactive controls focus on primary click (2026-11-01)
+====================================================================
+
+- Request keyboard traversal on primary clicks in custom interactive controls
+  that previously bypassed native button focus handling, including the SearchBox
+  clear target. Respect sensitivity and traversal configuration and stop safely
+  if a focus callback destroys the widget.
+- Provide standard Tab actions for custom interactive controls and keep handled
+  arrow and activation keys from also invoking parent traversal or activation.
+  Restore non-text arrow key handling in DataGrid and TimePicker.
+- Add a native cross-control regression for click focus and Tab navigation.
+
+Bound MWM continued configuration lines (2026-11-01)
+=====================================================
+
+- Calculate continuation-buffer capacity in `size_t`, reject exhausted and
+  non-representable `fgets` lengths, and avoid implicit pointer-difference
+  conversion while appending continued configuration lines.
+- Add the focused continuation-bound regression and document the parser
+  behavior.
+
+Validate MWM icon geometry conversion boundaries (2026-11-01)
+=============================================================
+
+- Validate signed icon resource dimensions before converting them for Xlib,
+  retain explicit unsigned pixmap dimensions, and reject source offsets that
+  cannot be represented by Xlib's signed copy coordinates.
+- Validate display depth before pixmap creation and remove lossy internal
+  geometry conversions in the icon paths.
+- Add a focused geometry-bound regression and document the conversion contract.
+
+Release temporary MWM icon bevel GCs (2026-11-01)
+====================================================
+
+- Release the top and bottom `XtGetGC` references used only while composing a
+  custom icon bevel, including the partial-acquisition failure path.  Repeated
+  icon creation no longer accumulates temporary Xt GC references.
+- Add a focused ownership regression and document the graphics-context
+  lifecycle.
+
+Bound MWM action argument growth (2026-11-01)
+================================================
+
+- Reject `f.action` argument-array growth that cannot fit Xt's `Cardinal`
+  allocation size as well as native `size_t`, preventing a truncated
+  reallocation request for an oversized configuration.
+- Add the focused allocation-bound regression and document the parser contract.
+
+Reject unusable MWM bitmap paths (2026-11-01)
+================================================
+
+- Keep a null or empty bitmap name as the explicit built-in-icon request, but
+  reject a non-empty name whose pathname cannot be represented or resolved.
+  MWM no longer silently substitutes the built-in icon for an unusable custom
+  bitmap path.
+- Add the focused bitmap-path distinction regression and document its public
+  behavior.
+
+Qualify Unicode dialog text resources (2026-11-01)
+====================================================
+
+- Extend the installed non-text Unicode matrix through File Selection Box and
+  Selection Box editable-value round trips using supplementary and combining
+  values.
+- Document the public dialog-input coverage.
+
+Treat empty MWM protocol properties as absent (2026-11-01)
+===========================================================
+
+- Reject zero-item `WM_PROTOCOLS` payloads before allocation, matching the
+  existing empty `_MWM_MESSAGES` handling and avoiding zero-byte allocations.
+- Extend focused property-payload coverage and document the behavior.
+
+Reject empty MWM desktop-request properties (2026-11-01)
+=========================================================
+
+- Treat empty or null `DT_WM_REQUEST` property payloads as invalid instead of
+  forwarding a synthetic empty request to the MWM request parser.
+- Add focused property-input regression coverage and document the behavior.
+
+Preserve MWM hotspot rectangle extents (2026-11-01)
+======================================================
+
+- Widen hotspot coordinates and unsigned `XRectangle` extents before hit-test
+  arithmetic, preventing large extents from wrapping through signed `short`.
+- Add focused regression coverage and document the X11 geometry contract.
+
+Record loaded library for non-text Unicode regressions (2026-11-01)
+====================================================================
+
+- Require the installed non-text Unicode fixture to load `libXm` from its
+  requested prefix and retain an `ldd` log plus source, binary, and library
+  SHA-256 receipt.
+- Keep the runner compatible with Python versions without `hashlib.file_digest`
+  and document the bounded x86_64 qualification result.
+
+Bound MWM menu accelerator button traversal (2026-11-01)
+==========================================================
+
+- Keep accelerator sensitivity lookup within the available MWM menu-button
+  slots, avoiding null and before-begin pointer arithmetic for partial menus.
+- Add focused regression coverage and document the preserved dispatch behavior.
+
+Initialize MWM per-screen selection atoms (2026-11-01)
+=========================================================
+
+- Zero-initialize MWM's per-screen `WM_Sn` selection-atom table so unmanaged
+  screen entries are defined as `None` rather than indeterminate memory.
+- Add focused source-contract coverage and document the selection invariant.
+
+Connect TreeView navigation and click focus (2026-11-01)
+========================================================
+
+- Integrate TreeView with the standard ScrollFrame navigator so an embedded
+  vertical scrollbar appears on overflow and follows tree navigation.
+- Focus the tree on a primary click and exercise Tab traversal, scrollbar,
+  wheel and overflow behavior in a native regression.
+- Place the gallery sidebar tree in an application-defined ScrolledWindow.
+
+Refresh MWM keyboard mappings on X11 mapping events (2026-11-01)
+===============================================================
+
+- Refresh Xlib's keyboard mapping cache before rebuilding locking modifiers
+  after keyboard or modifier mapping notifications, avoiding stale key-symbol
+  lookup after input-layout changes.
+- Extend focused mapping-lifecycle coverage and documentation.
+
+Release MWM lock-mask sequences on mapping refresh (2026-11-01)
+================================================================
+
+- Free the old locking-modifier sequence before rebuilding it after an X11
+  modifier mapping change, preventing repeated mapping notifications from
+  leaking Xt-managed sequence storage.
+- Extend focused lock-mask regression coverage and document the lifecycle.
+
+Handle missing MWM modifier mappings (2026-11-01)
+===================================================
+
+- Preserve the base locking-modifier sequence when `XGetModifierMapping`
+  fails, instead of dereferencing a null Xlib result during input setup.
+- Extend focused lock-mask regression coverage and document the fallback.
+Bound MWM lock-mask sequence construction (2026-11-01)
+========================================================
+
+- Reject unrepresentable locking-modifier sequence widths and handle failed
+  sequence allocation before filling the array, avoiding undefined shifts and
+  null dereferences during input setup.
+- Add focused regression coverage and document the fallback behavior.
+
+Validate MWM double-click resource thresholds (2026-11-01)
+============================================================
+
+- Require a positive `doubleClickTime` before comparing it with unsigned X11
+  event intervals, so invalid negative values disable recognition rather than
+  becoming near-unlimited timeouts.
+- Add focused regression coverage and document the resource behavior.
+
+Stop MWM initial-client adoption after allocation failure (2026-11-01)
+=======================================================================
+
+- Return after MWM's ancillary-window allocation failure path so an embeddable
+  or test shutdown hook cannot leave adoption dereferencing a null array.
+- Use unsigned XQueryTree traversal indexes and extend focused regression and
+  documentation coverage.
+
+Type MWM keyboard-state group masks explicitly (2026-11-01)
+============================================================
+
+- Form the shared XKB keyboard-group mask as an unsigned value before removing
+  it from input state, avoiding signed-mask conversions in key and button
+  binding dispatch.
+- Add focused regression coverage and document the portable mask contract.
+
+Initialize MWM client-message payloads (2026-11-01)
+======================================================
+
+- Clear outbound `XClientMessageEvent` records before assigning their defined
+  protocol fields, preventing unused payload words from carrying stack data.
+- Add focused regression coverage and document the X11 payload contract.
+
+Qualify Unicode standard-dialog resources (2026-11-01)
+=======================================================
+
+- Extend the installed non-text Unicode widget regression through MessageBox
+  message text and SelectionBox prompt labels, covering mixed Arabic and
+  supplementary-plane values through public dialog resources.
+- Update the Unicode qualification documentation.
+
+Preserve representable MWM session geometry (2026-11-01)
+=========================================================
+
+- Keep saved MWM client geometry signed to match its `%d` resource format and
+  clamp malformed base-size/increment combinations before persistence.
+- Add focused session-geometry regression coverage and documentation.
+
+Preserve MWM command window-list loop widths (2026-11-01)
+==========================================================
+
+- Iterate validated `CARD32` window-list counts with `CARD32` counters instead
+  of signed `int`, preventing loop-counter overflow for large protocol inputs.
+- Add focused coverage and document the unchanged command-list behavior.
+
+Clarify MWM timestamp property payload (2026-11-01)
+=====================================================
+
+- Use a null payload for MWM's intentional zero-item `XChangeProperty` call,
+  removing an uninitialized local address from the timestamp event path.
+- Add focused timestamp-event coverage and document the unchanged X11
+  round-trip behavior.
+
+Type MWM button-event callback dispatch (2026-11-01)
+=====================================================
+
+- Pass button bindings through the `WmFunction` callback's declared `XEvent *`
+  interface rather than relying on an incompatible pointer conversion.
+- Add focused dispatch coverage and document the preserved callback ABI.
+
+Initialize MWM named-icon fallback state (2026-11-01)
+======================================================
+
+- Initialize the named-icon pixmap result before evaluating the fallback path,
+  preventing an arbitrary X resource ID from being returned for nameless
+  clients.
+- Extend the focused named-icon fallback regression and document the defined
+  fallback state.
+
+Clean failed MWM bitmap-cache slots (2026-11-01)
+===================================================
+
+- Clear the uncounted bitmap-cache slot after a failed named-bitmap read so a
+  later retry cannot retain a dangling path pointer.
+- Release the X pixmap obtained for a rejected zero-sized bitmap, and add
+  focused failure-cleanup coverage and documentation.
+
+Declare MWM grab-mask size bounds portably (2026-11-01)
+=========================================================
+
+- Include the standard definition of `SIZE_MAX` in MWM's grab-mask source
+  instead of relying on transitive X11/Motif headers.
+- Extend the focused grab-mask regression and document the portability
+  requirement. This restores x86_64 MWM compilation with the checked
+  allocation guard enabled.
+
+Preserve MWM command-tree entries on allocation failure (2026-11-01)
+=======================================================================
+
+- Make command-node construction fail cleanly when the node or either copied
+  label cannot be allocated, rather than dereferencing a null node.
+- Allocate replacement commands before removing an existing same-name command,
+  and remove the actual duplicate command ID. Preserve the historical
+  top-level fallback only when the requested command set is genuinely absent.
+- Add focused command-tree allocation coverage and document the ownership and
+  failure behavior.
+
+Preserve MWM command-tree path widths (2026-11-01)
+=====================================================
+
+- Keep checked inline command-path lengths in `size_t` instead of narrowing
+  them to `int` before Xt allocation and formatting.
+- Extend focused command-tree checks and document the width-preservation
+  contract. Ordinary command paths retain their rendered contents.
+
+Validate MWM menu-command formatter results (2026-11-01)
+===========================================================
+
+- Keep the signed result of measured menu-command formatting until errors are
+  rejected, then validate the allocation width before converting it to `size_t`.
+- Reject null command-tree and cascade-name inputs safely. Extend the focused
+  command-argument regression and document the failure contract.
+
+Keep checked allocation narrowing explicit (2026-11-01)
+========================================================
+
+- Narrow the validated appearance snapshot byte count explicitly at the Xt
+  allocation boundary, retaining its native-width accounting internally.
+- Keep MWM menu-button allocation validation at its actual `Cardinal` limit,
+  avoiding a redundant narrow-type comparison under strict compilers.
+
+Bound MWM menu-widget recreation lists (2026-11-01)
+======================================================
+
+- Track affected menu specifications in native `size_t` before allocating the
+  recreation list, preventing a count wrap from invalidating its byte checks.
+- Add a focused regression and document the allocation boundary. Ordinary
+  command-driven menu recreation remains unchanged.
+
+Bound MWM menu-button count growth (2026-11-01)
+==================================================
+
+- Reject configured menu-item lists before their unsigned button count can
+  wrap, and validate the resulting allocation against Xt's `Cardinal` width.
+- Add a focused menu-construction regression and document the failure boundary.
+  Valid menu layouts and item ordering are unchanged.
+
+Preserve appearance transaction snapshot counts (2026-11-01)
+==============================================================
+
+- Track live-widget snapshot counts in native `size_t` before enforcing Xt's
+  `Cardinal` allocation boundary, preventing an internal count wrap from
+  bypassing the transaction's existing allocation guards.
+- Extend the focused appearance snapshot contract check and document the
+  widened-count behavior. Valid appearance profile and density changes are
+  unchanged.
+
+Bound MWM lock-mask cache allocation width (2026-11-01)
+========================================================
+
+- Reject user-configured lock-mask sequences whose cached modifier array would
+  overflow native allocation arithmetic or Xt's `Cardinal` byte count.
+- Extend the focused allocation-failure regression and document the byte-width
+  contract; ordinary key and button grab combinations are unchanged.
 
 Modern C and native macOS toolkit builds (2026-11-01)
 =====================================================
@@ -40,6 +354,25 @@ Modern C and native macOS toolkit builds (2026-11-01)
 - Add native C23 regressions for all generator ABIs, static/shared aliases,
   Mrm callbacks, callable UIL, WML attributes and existing string/Unicode APIs.
   See docs/build.md for the platform commands and qualification boundaries.
+
+Initialize Mwm automation gadget records (2026-11-01)
+======================================================
+
+- Initialize move and window-menu automation reply records to the established
+  invalid sentinel before scanning title gadgets. This prevents any future
+  skipped fallback from serializing uninitialized geometry while preserving
+  ordinary valid and invalid gadget replies.
+- Extend the focused gadget-info check and compile the real Mwm source with
+  uninitialized-use diagnostics promoted to errors.
+
+Clarify Mwm gadget-info fallback scope (2026-11-01)
+======================================================
+
+- Brace maximize, move, and resize gadget fallback blocks so automation-reply
+  packing is visibly outside each fallback branch. This removes strict-build
+  misleading-indentation diagnostics without changing valid reply contents.
+- Add a focused control-flow contract check and document the reply-builder
+  boundary.
 
 Initialize Mwm exclusion parser state (2026-11-01)
 ===================================================
@@ -34381,3 +34714,10 @@ Avoid ToggleSwitch post-callback access (2026-10-30)
 
 Handle null Xpm hash cleanup (2026-10-30)
 ==========================================
+Preserve MWM colormap-reference list index widths (2026-11-01)
+===============================================================
+
+- Use size-based traversal and removal indexes for MWM colormap-reference
+  lists, preventing signed-index overflow before the existing `Cardinal`
+  allocation bounds apply.
+- Add focused regression coverage and document the bounded replacement path.

@@ -105,22 +105,32 @@ static String
 MakeMenuFunctionArgs(CmdTree *tree, ClientData *pCD, Atom selection)
 {
     size_t length;
+    int formatted_length;
     String args;
+
+    if (tree == NULL)
+	return (String)NULL;
 
     if (tree->subTrees != (CmdTree *)NULL)
     {
-        length = snprintf(NULL, 0, "<%s>", tree->name);
-        args = (length >= 0 && length < UINT_MAX) ?
-            (String)XtMalloc((Cardinal)length + 1) : (String)NULL;
+	if (tree->name == NULL)
+	    return (String)NULL;
+	formatted_length = snprintf(NULL, 0, "<%s>", tree->name);
+	if (formatted_length < 0 || (size_t)formatted_length >= UINT_MAX)
+	    return (String)NULL;
+	length = (size_t)formatted_length;
+	args = (String)XtMalloc((Cardinal)(length + 1));
         if (args != (String)NULL)
             (void)snprintf(args, (size_t)length + 1, "<%s>", tree->name);
     }
     else
     {
-        length = snprintf(NULL, 0, "%d %ld %ld", (int)tree->commandID,
-                          (pCD == NULL ? None : pCD->client), selection);
-        args = (length >= 0 && length < UINT_MAX) ?
-            (String)XtMalloc((Cardinal)length + 1) : (String)NULL;
+	formatted_length = snprintf(NULL, 0, "%d %ld %ld", (int)tree->commandID,
+				  (pCD == NULL ? None : pCD->client), selection);
+	if (formatted_length < 0 || (size_t)formatted_length >= UINT_MAX)
+	    return (String)NULL;
+	length = (size_t)formatted_length;
+	args = (String)XtMalloc((Cardinal)(length + 1));
         if (args != (String)NULL)
             (void)snprintf(args, (size_t)length + 1, "%d %ld %ld",
                            (int)tree->commandID,
@@ -307,6 +317,12 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
     {
 	if ((menuItem->greyedContext) || (menuItem->mgtMask))
 	{
+	    if (n == UINT_MAX)
+	    {
+		MWarning(((char *)GETMESSAGE(48, 3,
+		    "Menu button array is too large for menu %s\n")), menuName);
+		return (NULL);
+	    }
 	    n++;
 	}
 	menuItem = menuItem->nextMenuItem;
@@ -316,13 +332,19 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
     {
 	if ((menuItem->greyedContext) || (menuItem->mgtMask))
 	{
+	    if (n == UINT_MAX)
+	    {
+		MWarning(((char *)GETMESSAGE(48, 3,
+		    "Menu button array is too large for menu %s\n")), menuName);
+		return (NULL);
+	    }
 	    n++;
 	}
 	menuItem = menuItem->nextMenuItem;
     }
     if (n)
     {
-        if ((size_t)n > SIZE_MAX / sizeof(*menuSpec->menuButtons))
+	if (n > UINT_MAX / sizeof(*menuSpec->menuButtons))
         {
             MWarning(((char *)GETMESSAGE(48, 3,
                       "Menu button array is too large for menu %s\n")),
@@ -1861,20 +1883,27 @@ static void RecreateMenuWidgets (WmScreenData *pSD, ClientData *pCD,
 				 MatchList **matchlist)
 {
     MatchList *current;
-    int count = 0, i;
+    size_t count = 0, i;
     MenuSpec **to_change;
 
     /* First count how many menu specs we need to recreate widgets for */
     for (current = *matchlist;
 	 current != (MatchList *) NULL;
 	 current = current->next)
+    {
+      if (count == SIZE_MAX)
+      {
+	Warning ("Too many menu widgets to recreate");
+	return;
+      }
       ++count;
+    }
 
     /* If there are no affected menuspecs, then just return. */
     if (count == 0) return;
 
-    if ((size_t)count > SIZE_MAX / sizeof(*to_change) ||
-	(size_t)count > UINT_MAX / sizeof(*to_change)) {
+    if (count > SIZE_MAX / sizeof(*to_change) ||
+	count > UINT_MAX / sizeof(*to_change)) {
 	Warning ("Too many menu widgets to recreate");
 	return;
     }
@@ -2257,7 +2286,7 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 				Context greyed_context, Boolean inLine)
 {
     String new_command_str;
-    int length;
+    size_t length;
     MenuSpec *newMenuSpec, *last, *dupMenuSpec;
     CmdTree *subtree;
     MenuItem *bestMatch = (MenuItem *) NULL;
