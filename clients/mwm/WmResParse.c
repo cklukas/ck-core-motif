@@ -8788,7 +8788,8 @@ GetNetworkFileName (char *pchFile)
 		goto fallback;
 	    }
 	    *pch = '\0';
-	    host_part = pchFile;
+	    /* pch points into the owned copy; preserve its separated host. */
+	    host_part = sName;
 	    file_part = pch+1;
 	}
 

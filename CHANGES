@@ -178,6 +178,14 @@ Remove the fixed MWM client-command wildcard limit (2026-11-01)
   overwrite the matcher stack; allocation failure safely retains the prior
   match result.
 
+Keep the MWM ToolTalk network-file fallback split correctly (2026-11-01)
+========================================================================
+
+- When shell expansion cannot tokenize a `host:file` path, pass ToolTalk the
+  separated host from MWM's owned fallback copy instead of the original
+  unsplit string. Network file canonicalization therefore retains the intended
+  host/file boundary after expansion failure.
+
 Reject invalid initial multibyte MWM session command lines safely (2026-11-01)
 ===============================================================================
 
