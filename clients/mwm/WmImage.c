@@ -631,6 +631,10 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 
 	if (topGC == NULL || botGC == NULL)
 	{
+	    if (topGC != NULL)
+		XtReleaseGC(pSD->screenTopLevelW, topGC);
+	    if (botGC != NULL)
+		XtReleaseGC(pSD->screenTopLevelW, botGC);
 	    XFreePixmap (DISPLAY, iconPixmap);
 	    return ((Pixmap)NULL);
 	}
@@ -659,6 +663,8 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 							top_rects->used);
 	XFillRectangles (DISPLAY, iconPixmap, botGC, bot_rects->prect,
 							bot_rects->used);
+	XtReleaseGC(pSD->screenTopLevelW, topGC);
+	XtReleaseGC(pSD->screenTopLevelW, botGC);
     }
     return (iconPixmap);
 

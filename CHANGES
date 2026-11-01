@@ -10,6 +10,15 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Release temporary MWM icon bevel GCs (2026-11-01)
+====================================================
+
+- Release the top and bottom `XtGetGC` references used only while composing a
+  custom icon bevel, including the partial-acquisition failure path.  Repeated
+  icon creation no longer accumulates temporary Xt GC references.
+- Add a focused ownership regression and document the graphics-context
+  lifecycle.
+
 Bound MWM action argument growth (2026-11-01)
 ================================================
 
