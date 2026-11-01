@@ -3385,7 +3385,8 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
     size_t prefix_length;
     size_t suffix_length;
     int state = PRS_BEGIN;
-    String stream, unchanged_stream, exclusion_text;
+    String stream, unchanged_stream;
+    String exclusion_text = NULL;
     Boolean return_val = FALSE;
     Boolean exclusion = FALSE; /* this will be set to TRUE if the client
 				  command was parsed to be an exclusion
@@ -3622,7 +3623,8 @@ static Boolean ParseClientCommand (unsigned char **linePP, MenuSpec *menuSpec,
 	    /* Since the command was an exclusion, store the command
 	       string in the menuSpec and change the return value to
 	       FALSE. */
-	    StoreExclusion(menuSpec, exclusion_text);
+	    if (exclusion_text != NULL)
+		StoreExclusion(menuSpec, exclusion_text);
 	    return_val = FALSE;
 	}
 	else

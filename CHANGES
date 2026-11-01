@@ -22,6 +22,25 @@ Modern C and native macOS toolkit builds (2026-11-01)
   Mrm callbacks, callable UIL, WML attributes and existing string/Unicode APIs.
   See docs/build.md for the platform commands and qualification boundaries.
 
+Initialize Mwm exclusion parser state (2026-11-01)
+===================================================
+
+- Initialize the temporary exclusion command pointer and require a captured
+  value before storing it.  This removes the Mwm parser's possible-uninitialized
+  diagnostic while retaining valid exclusion ordering and matching behavior.
+- Extend the focused exclusion allocation/parser-state check and document the
+  temporary-pointer contract.
+
+Qualify mixed-direction non-text widget strings (2026-11-01)
+============================================================
+
+- Extend the installed non-text Unicode widget regression with mixed
+  Latin/Hebrew and Latin/Arabic labels, including List lookup and match
+  positions, ComboBox selection, menu and toggle labels, and a right-to-left
+  compound-string segment.
+- Document the public-API coverage boundary and retain the fresh
+  installed-prefix compile/run logs for each qualification run.
+
 Build Mwm numeric KeySym parsing on x86_64 (2026-11-01)
 =========================================================
 
