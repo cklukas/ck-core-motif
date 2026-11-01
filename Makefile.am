@@ -400,6 +400,7 @@ EXTRA_DIST += tests/automated/check-color-selector-preferred-size.py docs/color-
 EXTRA_DIST += tests/automated/check-colors-loader-allocation.py docs/motif-colors-loader-allocation.md
 EXTRA_DIST += tests/automated/check-color-selector-channel-bounds.py docs/color-selector-channel-bounds.md
 EXTRA_DIST += tests/automated/check-fontselector-argument-merge.py docs/fontselector-argument-merge.md
+EXTRA_DIST += tests/automated/check-fontselector-font-count-bounds.py docs/fontselector-font-count-bounds.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md

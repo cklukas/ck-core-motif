@@ -602,7 +602,11 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
 
     num = 1;		
     alloc = FAMILY_INC;
-    fam = (FamilyInfo *) XtMalloc(sizeof(FamilyInfo) * alloc);
+    if ((size_t)alloc > UINT_MAX / sizeof(*fam)) {
+	XtFree((char *)top);
+	return;
+    }
+    fam = (FamilyInfo *) XtMalloc((Cardinal)(sizeof(*fam) * (size_t)alloc));
     if (fam == NULL) {
 	XtFree((char *)top);
 	return;
@@ -617,6 +621,8 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
 	register FamilyInfo *cur_family = FindFamily(data->familyq, fam, num);
 	
 	if (cur_family == NULL) {
+	    if (num >= SHRT_MAX)
+		break;
 	    if ( num >= alloc ) {
 		if (alloc > INT_MAX - FAMILY_INC) {
 		    XtFree((char *)fam);
@@ -633,8 +639,10 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
 		}
 		alloc += FAMILY_INC;
 		{
+		    Cardinal allocation_size =
+			(Cardinal)(sizeof(*fam) * (size_t)alloc);
 		    FamilyInfo *new_fam = (FamilyInfo *) XtRealloc(
-			(XtPointer) fam, sizeof(FamilyInfo) * alloc);
+			(XtPointer) fam, allocation_size);
 		    if (new_fam == NULL) {
 			XtFree((char *)fam);
 			XtFree((char *)top);
@@ -653,7 +661,7 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
     }
 
     font_info->family_info = fam;
-    font_info->num_families = num;
+    font_info->num_families = (short)num;
 
     any_fam = fam + ANY_FAMILY;
     temp = _XmGetMBStringFromXmString(ANY_STRING(fsw));
@@ -691,7 +699,7 @@ SortOtherFontData(FontInfo *font_info, String *list, int num)
 {
     register int i = 0;
 
-    qsort((void *) list, num, sizeof(String), CmpStrings);
+    qsort((void *) list, (size_t)num, sizeof(String), CmpStrings);
 
     /*
      * Remove duplicates.
@@ -718,7 +726,7 @@ SortOtherFontData(FontInfo *font_info, String *list, int num)
     }
 
     font_info->others = list;
-    font_info->num_others = num;
+    font_info->num_others = (short)num;
 }
 
 /*	Function Name: CmpStrings
@@ -838,6 +846,8 @@ AddToXlfdList(XmFontSelectorWidget fsw,
 	      char *name, FontData **list, int *num, int *alloc)
 {
     FontData *current;
+    if (*num < 0 || *alloc < 0 || *num >= SHRT_MAX)
+	return;
     if (*num >= *alloc) {
 	int new_alloc;
 	FontData *new_list;
@@ -848,7 +858,8 @@ AddToXlfdList(XmFontSelectorWidget fsw,
 	    (size_t)new_alloc > UINT_MAX / sizeof(*new_list))
 	    return;
 	new_list = (FontData *) XtRealloc((XtPointer) *list,
-				  sizeof(*new_list) * (size_t)new_alloc);
+				  (Cardinal)(sizeof(*new_list) *
+				  (size_t)new_alloc));
 	if (new_list == NULL)
 	    return;
 	*list = new_list;
@@ -878,6 +889,8 @@ static void
 AddToOtherList(char *name, String **list, int *num, int *alloc)
 {
     String new_name;
+    if (*num < 0 || *alloc < 0 || *num >= SHRT_MAX)
+	return;
     if (*num >= *alloc) {
 	int new_alloc;
 	String *new_list;
@@ -888,7 +901,8 @@ AddToOtherList(char *name, String **list, int *num, int *alloc)
 	    (size_t)new_alloc > UINT_MAX / sizeof(*new_list))
 	    return;
 	new_list = (String *) XtRealloc((XtPointer) *list,
-				       sizeof(*new_list) * (size_t)new_alloc);
+				       (Cardinal)(sizeof(*new_list) *
+				       (size_t)new_alloc));
 	if (new_list == NULL)
 	    return;
 	*list = new_list;
@@ -1299,7 +1313,7 @@ FillNewFamily(FamilyInfo *fam, FontData *font)
     }
 
     fam->encoding_alloc = NUM_BUTTONS;
-    fam->encodings = (XrmQuark *) XtCalloc(fam->encoding_alloc,
+	    fam->encodings = (XrmQuark *) XtCalloc((Cardinal)fam->encoding_alloc,
 					   sizeof(XrmQuark));
     if (fam->encodings == NULL) {
 	fam->encoding_alloc = 0;

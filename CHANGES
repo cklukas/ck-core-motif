@@ -4022,6 +4022,14 @@ Harden FontSelector argument-list merging (2026-11-01)
 - Preserve each path's existing allocation-failure cleanup and add focused
   coverage and documentation.
 
+Harden FontSelector font-list count bounds (2026-11-01)
+=========================================================
+
+- Keep retained server font/family lists within the signed-short count range
+  represented by `FontInfo`, and use checked `Cardinal` byte sizes for their
+  Xt allocations and growth.
+- Add focused coverage and documentation for the count and allocation bounds.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 
