@@ -784,10 +784,12 @@ queries now fail closed during Xt teardown, avoiding operations on a partially
 torn-down child list. The focused source check is
 `tests/automated/check-multilist-destroy-guards.py`.
 
-I18List row toggles, selected-row queries, and internal selection helpers now
-fail closed during Xt teardown, preventing reentrant MultiList callbacks from
-touching partial row state. The focused source check is
-`tests/automated/check-i18list-selection-destroy-guards.py`.
+I18List row toggles, selected-row queries, search helpers, visibility changes,
+and internal selection helpers now fail closed during Xt teardown, preventing
+reentrant MultiList callbacks from touching partial row state. Direct search
+helpers also reject a failed temporary compound-string allocation and release
+the temporary compound string after each lookup. The
+focused source check is `tests/automated/check-i18list-selection-destroy-guards.py`.
 
 Classic Scale value and ScrollBar value/range updates now fail closed during Xt
 teardown, avoiding redraw and value-change callbacks on partial state. The

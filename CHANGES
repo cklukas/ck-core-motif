@@ -7,6 +7,14 @@ Guard public XmList queries during teardown (2026-11-01)
 - Apply the same teardown contract to selected-position, coordinate and bounds
   queries, and make selection-list rebuilding a no-op once destruction starts.
 
+Harden I18List convenience APIs (2026-11-01)
+============================================
+
+- Reject invalid or tearing-down I18List widgets before direct selected-row,
+  search, row-toggle, unselection, and visibility APIs inspect row state.
+- Reject temporary compound-string allocation failures and release the
+  temporary compound string created by both direct search APIs after lookup.
+
 Guard ComboBox compatibility value reads during teardown (2026-11-01)
 ======================================================================
 
