@@ -1,3 +1,10 @@
+Reject inconsistent MWM bitmap-cache capacities (2026-11-01)
+============================================================
+
+- Reject a bitmap cache whose recorded entry count exceeds its allocation
+  capacity before searching or appending. Corrupt or partially initialized
+  per-screen cache metadata can no longer index beyond the cache allocation.
+
 Modernize Avatar surfaces and initials (2026-11-01)
 ==================================================
 

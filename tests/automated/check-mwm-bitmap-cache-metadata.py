@@ -10,6 +10,10 @@ end = source.index("} /* END OF FUNCTION GetBitmapIndex", start)
 body = source[start:end]
 
 assert "pSD->bitmapCacheCount != 0 && pSD->bitmapCache == NULL" in body
+assert "pSD->bitmapCacheCount > pSD->bitmapCacheSize" in body
 assert body.index("bitmapCache == NULL") < body.index("bitmapc = pSD->bitmapCache")
+assert body.index("bitmapCacheCount > pSD->bitmapCacheSize") < body.index(
+    "bitmapc = pSD->bitmapCache"
+)
 
 print("PASS MWM bitmap-cache metadata is validated")
