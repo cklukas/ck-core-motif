@@ -4,7 +4,8 @@ Modern C and native macOS toolkit builds (2026-11-01)
 - Give string generators, WML, UIL and window-manager definitions and callback
   tables explicit parameter types; generate prototypes for the function ABI.
   Remove obsolete wide-character substitutes and use C23-compatible static
-  atomic initialization. Request system API declarations through Autoconf.
+  atomic initialization. Request system API declarations through Autoconf,
+  and use a standard C ASCII check for Paned sash actions.
 - Emit real Mach-O aliases for the deprecated DropDown and MultiList names,
   including function, widget-class and class-record identity in shared and
   static libraries. Keep the existing ELF alias implementation on Linux.

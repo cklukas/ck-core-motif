@@ -1712,8 +1712,9 @@ HandleSash(Widget sash, XtPointer junk, XtPointer callData)
 	return;
     }
 
-    if (isascii(action_type) && islower(action_type)) 
-	action_type = toupper(action_type);
+    if ((unsigned char)action_type <= 0x7fU &&
+        islower((unsigned char)action_type))
+        action_type = (char)toupper((unsigned char)action_type);
 
     loc = GetEventLocation(pw, event);
 

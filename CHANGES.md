@@ -7,7 +7,7 @@
 - Replace old-style definitions and untyped callback tables with explicit
   prototypes. Generate modern function-ABI declarations, use the standard
   wide-character functions, and initialize static atomics without the removed
-  `ATOMIC_VAR_INIT` macro.
+  `ATOMIC_VAR_INIT` macro. Use a standard-C ASCII check for Paned sash actions.
 - Export the existing deprecated widget functions, class pointers and class
   records as actual Mach-O aliases. The aliases preserve code/storage identity
   in both static archives and shared libraries.
