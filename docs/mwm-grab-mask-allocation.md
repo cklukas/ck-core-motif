@@ -16,3 +16,8 @@ successful grab behavior is unchanged. The source contract is covered by
 The implementation includes `<stdint.h>` directly for `SIZE_MAX`; this keeps
 the checked path portable to toolchains whose Motif/X11 headers do not happen
 to transitively provide that C definition.
+
+The lock-mask sequence builder now also uses unsigned shift operands, rejects
+unrepresentable sequence widths before deriving `2^n - 1`, and returns safely
+when its initial zeroed allocation fails. The grab helper then follows its
+existing absent-sequence fallback.

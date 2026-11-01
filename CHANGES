@@ -1,3 +1,11 @@
+Bound MWM lock-mask sequence construction (2026-11-01)
+========================================================
+
+- Reject unrepresentable locking-modifier sequence widths and handle failed
+  sequence allocation before filling the array, avoiding undefined shifts and
+  null dereferences during input setup.
+- Add focused regression coverage and document the fallback behavior.
+
 Validate MWM double-click resource thresholds (2026-11-01)
 ============================================================
 
