@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-01 — Text scratch line-table allocation safety
+
+- Make narrow and multibyte hard-line update buffers failure-atomic and bound
+  their capacity growth; a failed temporary allocation leaves reflow pending.
+- Extend the focused source coverage; see
+  [Text reflow scratch-table allocation](docs/text-reflow-scratch-table.md).
+
 ## 2026-11-01 — DataField highlight allocation safety
 
 - Make internal highlight-list growth transactional: allocation failure or an

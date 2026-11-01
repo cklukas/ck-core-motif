@@ -1,9 +1,13 @@
 # Text reflow scratch-table allocation
 
-Word-wrapped Text edits use a temporary line table while realigning changed
-lines.  Its element count is now checked for multiplication and Xt's
-allocation limit, and a failed allocation returns before the realignment
-helper sees a null table.  The existing pending-reflow state can retry later.
+Text edits use temporary line tables while realigning changed lines. Its
+element count is checked for multiplication and Xt's allocation limit, and
+both word-wrapped and hard-line update paths retain the old scratch table
+until replacement allocation succeeds. A failed growth frees only temporary
+storage and leaves reflow pending for a later retry.
 
 The focused source contract is checked by
 `tests/automated/check-text-reflow-scratch-table.py`.
+
+The non-word-wrapped growth path is additionally covered by
+`tests/automated/check-text-update-line-table-allocation.py`.

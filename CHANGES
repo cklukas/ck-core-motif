@@ -145,6 +145,14 @@ Harden Mrm safe vector copies (2026-11-01)
 - Validate every embedded Char8 string pointer and terminator against the
   advertised span before rebasing it into the owned copy.
 
+Make Text hard-line scratch growth failure-atomic (2026-11-01)
+================================================================
+
+- Keep the temporary Text line table published until its replacement has been
+  allocated and validated, including both narrow and multibyte hard-line
+  updates; see `docs/text-reflow-scratch-table.md`.
+- Bound capacity doubling and leave reflow pending after allocation failure.
+
 Make DataField highlight growth failure-atomic (2026-11-01)
 ===========================================================
 

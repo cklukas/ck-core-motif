@@ -171,6 +171,10 @@ static void AddLines(XmTextWidget tw,
 static Boolean InitializeLineTable(XmTextWidget tw,
 				register int size);
 
+static Boolean GrowTemporaryLineTable(XmTextLineTable *table,
+				      int *capacity,
+				      int requested_capacity);
+
 static void FindHighlightingChanges(XmTextWidget tw);
 
 static void Redisplay(XmTextWidget tw);
@@ -1497,6 +1501,30 @@ InitializeLineTable(XmTextWidget tw,
   return True;
 }
 
+/* Grow a scratch line table without publishing a failed replacement. */
+static Boolean
+GrowTemporaryLineTable(XmTextLineTable *table,
+		       int *capacity,
+		       int requested_capacity)
+{
+  XmTextLineTable resized;
+
+  if (table == NULL || capacity == NULL || requested_capacity <= 0 ||
+      (size_t)requested_capacity > SIZE_MAX / sizeof(XmTextLineTableRec) ||
+      (size_t)requested_capacity > UINT_MAX / sizeof(XmTextLineTableRec))
+    return False;
+
+  resized = (XmTextLineTable)XtRealloc(
+      (char *)*table,
+      (Cardinal)((size_t)requested_capacity * sizeof(XmTextLineTableRec)));
+  if (resized == NULL)
+    return False;
+
+  *table = resized;
+  *capacity = requested_capacity;
+  return True;
+}
+
 unsigned int
 _XmTextGetTableIndex(XmTextWidget tw,
 		     XmTextPosition pos)
@@ -1746,21 +1774,32 @@ _XmTextUpdateLineTable(Widget widget,
 	  line_table[begin_index].start_pos = (unsigned int)cur_start;
 	} else {
 	  if (temp_index >= temp_table_size) {
+	    int requested_size;
 	    if (!temp_table_size) {
 	      if (tw->text.output->data->columns > 1) {
-		temp_table_size = length / 
+		requested_size = length /
 		  (tw->text.output->data->columns / 2);
-		if (!temp_table_size) temp_table_size = 1;
+		if (!requested_size) requested_size = 1;
 	      } else {
 		if (length)
-		  temp_table_size = length;
+		  requested_size = length;
 		else
-		  temp_table_size = 1;
+		  requested_size = 1;
 	      }
-	    } else
-	      temp_table_size *= 2;
-	    temp_table = (XmTextLineTable)XtRealloc((char*)temp_table,
-				  temp_table_size * sizeof(XmTextLineTableRec));
+	    } else {
+	      if (temp_table_size > INT_MAX / 2) {
+		XtFree((char *)temp_table);
+		tw->text.needs_refigure_lines = TRUE;
+		return;
+	      }
+	      requested_size = temp_table_size * 2;
+	    }
+	    if (!GrowTemporaryLineTable(&temp_table, &temp_table_size,
+					requested_size)) {
+	      XtFree((char *)temp_table);
+	      tw->text.needs_refigure_lines = TRUE;
+	      return;
+	    }
 	  }
 	  temp_table[temp_index].start_pos = (unsigned int) cur_start;
 	  temp_table[temp_index].virt_line = (unsigned int) 0;
@@ -1784,21 +1823,32 @@ _XmTextUpdateLineTable(Widget widget,
 	    line_table[begin_index].start_pos = (unsigned int)cur_start;
 	  } else {
 	    if (temp_index >= temp_table_size) {
+	      int requested_size;
 	      if (!temp_table_size) {
 		if (tw->text.output->data->columns > 1) {
-		  temp_table_size = length /
+		  requested_size = length /
 		    (tw->text.output->data->columns / 2);
-		  if (!temp_table_size) temp_table_size = 1;
+		  if (!requested_size) requested_size = 1;
 		} else {
 		  if (length)
-		    temp_table_size = length;
+		    requested_size = length;
 		  else
-		    temp_table_size = 1;
+		    requested_size = 1;
 		}
-	      } else
-		temp_table_size *= 2;
-	      temp_table =(XmTextLineTable)XtRealloc((char*)temp_table,
-                               temp_table_size * sizeof(XmTextLineTableRec));
+	      } else {
+		if (temp_table_size > INT_MAX / 2) {
+		  XtFree((char *)temp_table);
+		  tw->text.needs_refigure_lines = TRUE;
+		  return;
+		}
+		requested_size = temp_table_size * 2;
+	      }
+	      if (!GrowTemporaryLineTable(&temp_table, &temp_table_size,
+					  requested_size)) {
+		XtFree((char *)temp_table);
+		tw->text.needs_refigure_lines = TRUE;
+		return;
+	      }
 	    }
 	    temp_table[temp_index].start_pos = (unsigned int) cur_start;
 	    temp_table[temp_index].virt_line = (unsigned int) 0;
