@@ -3997,6 +3997,15 @@ Harden ColorSelector RGB database ingestion (2026-11-01)
   the representable signed-short color count.
 - Extend focused loader coverage and document the bounded ingestion contract.
 
+Harden ColorSelector channel state (2026-11-01)
+=================================================
+
+- Normalize callback and display RGB channel values to 0–255 before building
+  color names or 16-bit X11 channels, preventing malformed values from
+  wrapping.
+- Make RGB-file change detection return an explicit Boolean, with focused
+  regression coverage and documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 

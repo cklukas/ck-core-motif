@@ -88,6 +88,16 @@ ColorSelectorAddDimension(uint64_t total, uint64_t amount)
     return total + amount;
 }
 
+static int
+ColorSelectorChannelValue(int value)
+{
+    if (value < 0)
+	return 0;
+    if (value > 255)
+	return 255;
+    return value;
+}
+
 static Boolean
 ParseColorChannels(const char *line,
 		   unsigned short *red,
@@ -577,7 +587,7 @@ static Boolean AreDiff(char *s1, char *s2)
 	if (s2 && !s1)	return True;
 	if (!s1 && !s2)	return False;
 	/* they exist; now safe to do strcmp */
-	return strcmp(s1, s2);
+	return strcmp(s1, s2) != 0;
 }
 
 /*      Function Name: SetValues
@@ -1102,11 +1112,11 @@ slider_changed(Widget w, XtPointer csw_ptr, XtPointer scale_ptr)
 
     if (scale_ptr != NULL) {	/* Set a new value. */
 	if (w == XmColorS_sliders(csw)[0])
-	    XmColorS_slider_red(csw) = scale->value;
+	    XmColorS_slider_red(csw) = ColorSelectorChannelValue(scale->value);
 	else if(w == XmColorS_sliders(csw)[1])
-	    XmColorS_slider_green(csw) = scale->value;
+	    XmColorS_slider_green(csw) = ColorSelectorChannelValue(scale->value);
 	else if(w == XmColorS_sliders(csw)[2])
-	    XmColorS_slider_blue(csw) = scale->value;
+	    XmColorS_slider_blue(csw) = ColorSelectorChannelValue(scale->value);
     }
 
     UpdateColorWindow(csw, False);
@@ -1132,9 +1142,15 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
     if (!use_name) /* Update color names */
     {	
 	char	*freeMe;
+	int red, green, blue;
 	freeMe = XmColorS_color_name(csw);
-	(void) snprintf(buf, sizeof(buf), "#%02x%02x%02x", XmColorS_slider_red(csw),
-		XmColorS_slider_green(csw), XmColorS_slider_blue(csw));
+	red = ColorSelectorChannelValue(XmColorS_slider_red(csw));
+	green = ColorSelectorChannelValue(XmColorS_slider_green(csw));
+	blue = ColorSelectorChannelValue(XmColorS_slider_blue(csw));
+	XmColorS_slider_red(csw) = red;
+	XmColorS_slider_green(csw) = green;
+	XmColorS_slider_blue(csw) = blue;
+	(void) snprintf(buf, sizeof(buf), "#%02x%02x%02x", red, green, blue);
 
 	if (FindColor(csw, &index)) 
 	{
@@ -1155,9 +1171,9 @@ UpdateColorWindow(XmColorSelectorWidget csw, Boolean use_name)
 	}
 
 	XtFree((XtPointer)freeMe );
-	color.red = XmColorS_slider_red(csw) * 256;
-	color.green = XmColorS_slider_green(csw) * 256;
-	color.blue = XmColorS_slider_blue(csw) * 256;
+	color.red = (unsigned short)(red * 256);
+	color.green = (unsigned short)(green * 256);
+	color.blue = (unsigned short)(blue * 256);
     }
     else /* Update color slider */
     {

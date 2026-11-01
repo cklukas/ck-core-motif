@@ -398,6 +398,7 @@ EXTRA_DIST += tests/automated/check-dropdown-argument-merge.py docs/dropdown-arg
 EXTRA_DIST += tests/automated/check-gadget-default-dimensions.py docs/gadget-default-dimensions.md
 EXTRA_DIST += tests/automated/check-color-selector-preferred-size.py docs/color-selector-preferred-size.md
 EXTRA_DIST += tests/automated/check-colors-loader-allocation.py docs/motif-colors-loader-allocation.md
+EXTRA_DIST += tests/automated/check-color-selector-channel-bounds.py docs/color-selector-channel-bounds.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md
