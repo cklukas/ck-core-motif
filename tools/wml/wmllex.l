@@ -1,3 +1,9 @@
+%top{
+/* Feature macros must precede the scanner skeleton system headers. */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+}
 %{
 /*
  * Motif

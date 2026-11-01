@@ -11,6 +11,8 @@
 - Export the existing deprecated widget functions, class pointers and class
   records as actual Mach-O aliases. The aliases preserve code/storage identity
   in both static archives and shared libraries.
+- Include configuration before generated WML scanner system headers so POSIX
+  declarations remain available in strict C23 mode.
 - Use Autoconf's detected lexer library instead of assuming Linux's `libfl`.
   Represent WML string and token attributes explicitly; recognize
   `XrmResource` boolean attributes in resource and datatype definitions.

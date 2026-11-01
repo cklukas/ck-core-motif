@@ -9,6 +9,7 @@ Modern C and native macOS toolkit builds (2026-11-01)
 - Emit real Mach-O aliases for the deprecated DropDown and MultiList names,
   including function, widget-class and class-record identity in shared and
   static libraries. Keep the existing ELF alias implementation on Linux.
+- Include configuration before WML scanner system headers in strict C23.
 - Use the detected lexer support library instead of forcing Linux's libfl.
   Represent WML string/token attributes explicitly, and recognize XrmResource
   booleans for resource and datatype definitions.
