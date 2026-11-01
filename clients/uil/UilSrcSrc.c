@@ -187,7 +187,7 @@ src_initialize_source(void)
 			       diag_k_no_source, diag_k_no_column,
 			       "<null file name>");
 
-    src_open_file ( Uil_cmd_z_command.ac_source_file, NULL );
+    src_open_file ( Uil_cmd_z_command.ac_source_file, NULL, 0 );
 
     /* fixes initial filename is NULL bug in callable UIL */
     Uil_current_file = Uil_cmd_z_command.ac_source_file;
@@ -341,9 +341,29 @@ Uil_src_cleanup_source(void)
 **--
 **/
 
+static void
+src_copy_file_name(char *destination, size_t destination_size,
+                   XmConst char *source)
+{
+    size_t length;
+
+    if (destination == NULL || destination_size == 0)
+	return;
+    if (source == NULL) {
+	destination[0] = 0;
+	return;
+    }
+    length = strlen(source);
+    if (length >= destination_size)
+	length = destination_size - 1;
+    memcpy(destination, source, length);
+    destination[length] = 0;
+}
+
 void
 src_open_file (XmConst char *c_file_name,
-               char         *full_file_name)
+               char         *full_file_name,
+               size_t        full_file_name_size)
 {
     uil_fcb_type		*az_fcb;	    /* file control block ptr */
     status			l_open_status;	    /* status variable */
@@ -416,8 +436,8 @@ src_open_file (XmConst char *c_file_name,
 
     Uil_file_size = stbuf.st_size;
 
-    if (full_file_name != NULL)
-	strcpy (full_file_name, az_fcb->expanded_name);
+    src_copy_file_name(full_file_name, full_file_name_size,
+			   az_fcb->expanded_name);
 
     az_fcb->v_position_before_get = FALSE;
 

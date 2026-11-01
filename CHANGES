@@ -1,3 +1,12 @@
+Bound UIL include-file path bookkeeping (2026-11-01)
+=====================================================
+
+- Pass the capacity of the fixed include-file record field to `src_open_file`
+  and copy its resolved filename with explicit truncation and termination.
+  Oversized paths can no longer overwrite the following symbol-table fields.
+- Add focused ASan/UBSan coverage for long, ordinary, null, and zero-sized
+  destination filename copies, plus a source contract check for the caller.
+
 Read encoded XmString component header widths (2026-11-01)
 ============================================================
 
