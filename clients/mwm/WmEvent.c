@@ -705,12 +705,12 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
     else if (wmGD.checkHotspot &&
 	     ((event->type == ButtonPress) || 
 	      (event->type == ButtonRelease)) &&
-	     (event->x_root >= wmGD.hotspotRectangle.x) &&
-	     (event->y_root >= wmGD.hotspotRectangle.y) &&
-	     (event->x_root < (wmGD.hotspotRectangle.x + 
-	                       (short) wmGD.hotspotRectangle.width)) &&
-	     (event->y_root < (wmGD.hotspotRectangle.y + 
-	                       (short) wmGD.hotspotRectangle.height))&&
+	     ((long)event->x_root >= (long)wmGD.hotspotRectangle.x) &&
+	     ((long)event->y_root >= (long)wmGD.hotspotRectangle.y) &&
+	     ((long)event->x_root < (long)wmGD.hotspotRectangle.x +
+	                       (long)wmGD.hotspotRectangle.width) &&
+	     ((long)event->y_root < (long)wmGD.hotspotRectangle.y +
+	                       (long)wmGD.hotspotRectangle.height)&&
 #ifdef WSM
 	     (pCD || 
 	      (wmGD.rootButtonClick && wmGD.clickData.clickPending)))

@@ -1,3 +1,10 @@
+Preserve MWM hotspot rectangle extents (2026-11-01)
+======================================================
+
+- Widen hotspot coordinates and unsigned `XRectangle` extents before hit-test
+  arithmetic, preventing large extents from wrapping through signed `short`.
+- Add focused regression coverage and document the X11 geometry contract.
+
 Record loaded library for non-text Unicode regressions (2026-11-01)
 ====================================================================
 
