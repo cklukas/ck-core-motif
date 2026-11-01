@@ -8,7 +8,7 @@ start=text.index("\nUrm__CW_SafeCopyValue ("); end=text.find("\n\n\f",start)
 region=text[start:] if end<0 else text[start:end]
 for needle in (
     "if (vec_count > 0 && cstr_table_src == NULL)",
-    "if (vec_count > 0 && char8_table_src == NULL)",
+    "if (vec_size > 0 && char8_table_src == NULL)",
     "if (char8_src == NULL)",
     "if (cstr_src == NULL)",
     "if (wchar_src == NULL)",

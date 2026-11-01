@@ -3241,7 +3241,8 @@ XmI18ListGetSelectedRows(Widget w)
     XmMultiListRowInfo **ret_rows = NULL;
     XmI18ListWidget ilist = (XmI18ListWidget) w;
 
-    if (w == NULL)
+    if (w == NULL || !XtIsSubclass(w, xmI18ListWidgetClass) ||
+        ilist->core.being_destroyed)
         return NULL;
 
     row_data = XmI18List_row_data(ilist);
@@ -3290,10 +3291,14 @@ XmI18ListDoSearch(Widget w, String str, Boolean reset)
     XmString xms;
     int found_row, found_column, search_column;
 
-    if (w == NULL || str == NULL)
+    if (w == NULL || str == NULL ||
+        !XtIsSubclass(w, xmI18ListWidgetClass) ||
+        ilist->core.being_destroyed)
         return False;
 
     xms = XmStringCreateLocalized(str);
+    if (xms == NULL)
+        return False;
 
     int first_selected_row = FirstSelectedRow(w);
 
@@ -3310,6 +3315,7 @@ XmI18ListDoSearch(Widget w, String str, Boolean reset)
     foundit = Search(ilist, xms, 
 		     first_selected_row, search_column,
 		     &found_row, &found_column);
+    XmStringFree(xms);
 
     if ( foundit )
     {
@@ -3337,13 +3343,17 @@ XmI18ListDoSearch(Widget w, String str, Boolean reset)
 XmMultiListRowInfo *XmI18ListFindRow(Widget w, String str, int *found_column,
 			      Boolean reset, Boolean do_visual)
 {
-    if (w == (Widget) NULL || str == NULL || found_column == NULL)
+    if (w == (Widget) NULL || str == NULL || found_column == NULL ||
+        !XtIsSubclass(w, xmI18ListWidgetClass) ||
+        ((XmI18ListWidget)w)->core.being_destroyed)
 	return NULL;
 
     XmI18ListWidget ilist = (XmI18ListWidget) w;
     XmMultiListRowInfo *ptr = XmI18List_row_data(ilist);
     Boolean foundit;
     XmString xms = XmStringCreateLocalized(str);
+    if (xms == NULL)
+        return NULL;
     int found_row, search_column;
     int first_selected_row = FirstSelectedRow(w);
 
@@ -3361,6 +3371,7 @@ XmMultiListRowInfo *XmI18ListFindRow(Widget w, String str, int *found_column,
 
     foundit = Search(ilist, xms, first_selected_row,
 		     search_column, &found_row, found_column);
+    XmStringFree(xms);
 
     if (do_visual)
     {
@@ -3516,7 +3527,8 @@ void
 Xm18IListUnselectItem( Widget w, XmMultiListRowInfo *row_info )
 {
   register int row=0;
-  if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass))
+  if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass) ||
+      ((XmI18ListWidget)w)->core.being_destroyed)
     return;
 
   XmI18ListWidget ilist = (XmI18ListWidget) w;
@@ -3545,9 +3557,12 @@ Xm18IListUnselectItem( Widget w, XmMultiListRowInfo *row_info )
 void
 XmI18ListToggleRow(Widget w, short row)
 {
-  if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass))
+  XmI18ListWidget ilist = (XmI18ListWidget)w;
+
+  if (w == (Widget) NULL || !XtIsSubclass(w, xmI18ListWidgetClass) ||
+      ilist->core.being_destroyed)
     return;
-  if (row < 0 || row >= XmI18List_num_rows((XmI18ListWidget)w))
+  if (row < 0 || row >= XmI18List_num_rows(ilist))
     return;
 
   ToggleRow(w, row);
@@ -4356,7 +4371,7 @@ XmI18ListGetSelectedRowArray(XmI18ListWidget i18list,
 void
 XmI18ListMakeRowVisible(XmI18ListWidget i18list, int row)
 {
-    if (i18list == NULL)
+    if (i18list == NULL || i18list->core.being_destroyed)
 	return;
 
     /* Use column zero as a rule when making a row visible... */

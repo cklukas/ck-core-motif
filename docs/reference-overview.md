@@ -20,6 +20,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 
 - [Unicode support](unicode.md) — locale, composition, shaping, and input behavior.
 - [Non-text Unicode coverage](nontext-unicode.md) — multilingual labels, lists, menus, and other widgets.
+- [XmList query teardown guards](list-query-destroy-guards.md) — make public list queries safe during destruction.
 - [Text-source bounds](text-source-bounds.md) — safe range and size handling in text sources.
 - [Input-method rollback](vendor-im-string-rollback.md) — failure cleanup at the input-method boundary.
 
@@ -83,6 +84,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM transient-list growth](transient-list-growth.md) — propagate temporary-list allocation failure.
 - [MWM session command-vector width](mwm-session-command-vector-width.md) — guard restore vectors.
 - [MWM query-XID buffer growth](mwm-query-xid-growth.md) — guard protocol conversion growth.
+- [MWM workspace-protocol allocation failures](mwm-workspace-protocol-oom.md) — retain a safe empty protocol result on allocation failure.
 - [MWM client-message initialization](mwm-client-message-initialization.md) — clear unused X11 payload words.
 - [MWM keyboard-state mask typing](mwm-keyboard-state-mask.md) — use explicit unsigned XKB group bits.
 - [MWM double-click time validation](mwm-double-click-time.md) — reject non-positive signed thresholds.

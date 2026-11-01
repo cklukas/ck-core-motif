@@ -9,6 +9,56 @@ Modernize Cascade button surfaces and menu examples (2026-11-01)
 - Construct gallery examples using a real menu bar and add native gallery
   factory pixel/state/ownership/recreation coverage.
 
+Guard public XmList queries during teardown (2026-11-01)
+=========================================================
+
+- Make public item and position queries return their established empty or
+  not-found values when a List is being destroyed, rather than examining
+  partially released list storage.
+- Apply the same teardown contract to selected-position, coordinate and bounds
+  queries, and make selection-list rebuilding a no-op once destruction starts.
+
+Harden I18List convenience APIs (2026-11-01)
+============================================
+
+- Reject invalid or tearing-down I18List widgets before direct selected-row,
+  search, row-toggle, unselection, and visibility APIs inspect row state.
+- Reject temporary compound-string allocation failures and release the
+  temporary compound string created by both direct search APIs after lookup.
+
+Guard ComboBox compatibility value reads during teardown (2026-11-01)
+======================================================================
+
+- Make `XmCombinationBoxGetValue` take the application lock and reject a
+  tearing-down ComboBox or missing edit child. Compatibility callers now get
+  `NULL` instead of accessing a partially destroyed child widget.
+
+Harden Mrm safe vector copies (2026-11-01)
+==========================================
+
+- Reject a nonempty Char8 vector span without its source table and widen
+  compound-string vector allocation arithmetic before multiplying. Malformed
+  callback/resource data can no longer reach a null byte copy or undersized
+  table allocation.
+- Validate every embedded Char8 string pointer and terminator against the
+  advertised span before rebasing it into the owned copy.
+
+Guard MWM workspace-protocol allocation failures (2026-11-01)
+=============================================================
+
+- Keep workspace-owner monitoring, per-window attribute snapshots and
+  nonempty GET_STATE replies on safe failure paths when an allocation cannot
+  be made. MWM no longer dereferences those failed allocations.
+- Reject missing or incomplete workspace configuration tables and malformed
+  counted request lists before using their pointers.
+
+Reject inconsistent MWM bitmap-cache capacities (2026-11-01)
+============================================================
+
+- Reject a bitmap cache whose recorded entry count exceeds its allocation
+  capacity before searching or appending. Corrupt or partially initialized
+  per-screen cache metadata can no longer index beyond the cache allocation.
+
 Modernize Avatar surfaces and initials (2026-11-01)
 ==================================================
 

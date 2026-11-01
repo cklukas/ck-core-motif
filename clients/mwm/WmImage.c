@@ -882,7 +882,8 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
     int           x, y;
 
     if (pSD == NULL || pSD->bitmapCacheCount > (unsigned int)INT_MAX ||
-	(pSD->bitmapCacheCount != 0 && pSD->bitmapCache == NULL))
+	(pSD->bitmapCacheCount != 0 && pSD->bitmapCache == NULL) ||
+	pSD->bitmapCacheCount > pSD->bitmapCacheSize)
         return (-1);
 
     if (pSD->bitmapCache == NULL && pSD->bitmapCacheCount == 0)
