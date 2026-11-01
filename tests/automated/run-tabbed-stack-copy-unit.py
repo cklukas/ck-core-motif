@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run production tabbed-stack copy/insert/free with fault injection."""
+"""Run production tabbed-stack label ownership with fault injection."""
 import argparse
 import datetime
 import hashlib
@@ -167,14 +167,40 @@ int main(void) {
     assert(empty.used==1 && empty.tabs[0].label_string==NULL);
     assert(empty.tabs[0].value_mode==XmTAB_VALUE_COPY && empty.tabs[0].sensitive==True);
     XtFree(empty.tabs);assert(live==0);
-    puts("PASS tabbed-stack copy/insert rollback, aliasing, sharing and defaults");
+    char shared_label[]="existing";
+    XmTabAttributeRec entry={0};
+    entry.label_string=shared_label;entry.value_mode=XmTAB_VALUE_SHARE;
+    entry.foreground=9;
+    XmTabbedStackListRec changing={1,1,&entry};
+    XmTabAttributeRec change={0};
+    change.value_mode=XmTAB_VALUE_COPY;change.label_string="unselected";
+    change.foreground=17;
+    calls=0;fail_at=1;
+    XmTabbedStackListModify(&changing,0,XmTAB_VALUE_MODE|XmTAB_FOREGROUND,&change);
+    assert(entry.value_mode==XmTAB_VALUE_SHARE && entry.label_string==shared_label);
+    assert(entry.foreground==9 && live==0);
+    calls=0;fail_at=0;
+    XmTabbedStackListModify(&changing,0,XmTAB_VALUE_MODE|XmTAB_FOREGROUND,&change);
+    assert(entry.value_mode==XmTAB_VALUE_COPY && entry.label_string!=shared_label);
+    assert(strcmp(entry.label_string,"existing")==0 && entry.foreground==17);
+    shared_label[0]='E';assert(entry.label_string[0]=='e');
+    XtFree(entry.label_string);assert(live==0);
+    entry.label_string=shared_label;entry.value_mode=XmTAB_VALUE_SHARE;
+    XmTabbedStackListModify(&changing,0,XmTAB_VALUE_MODE|XmTAB_LABEL_STRING,&change);
+    assert(entry.value_mode==XmTAB_VALUE_COPY && strcmp(entry.label_string,"unselected")==0);
+    XtFree(entry.label_string);assert(live==0);
+    entry.label_string=NULL;entry.value_mode=XmTAB_VALUE_SHARE;
+    XmTabbedStackListModify(&changing,0,XmTAB_VALUE_MODE,&change);
+    assert(entry.value_mode==XmTAB_VALUE_COPY && entry.label_string==NULL && live==0);
+    puts("PASS tabbed-stack copy/insert/modify ownership, rollback, aliasing and defaults");
 }
 '''
 program=args.out/'tab-copy.c'
 program.write_text(prefix + function('XmTabbedStackListCopy',
     'XmTabbedStackList XmTabbedStackListCopy(XmTabbedStackList tab_list)\n') +
     function('XmTabbedStackListFree', 'void XmTabbedStackListFree(XmTabbedStackList tab_list)\n') +
-    function('XmTabbedStackListInsert', 'int XmTabbedStackListInsert(XmTabbedStackList tab_list, int position, XtValueMask mask, XmTabAttributes attributes)\n') + checks)
+    function('XmTabbedStackListInsert', 'int XmTabbedStackListInsert(XmTabbedStackList tab_list, int position, XtValueMask mask, XmTabAttributes attributes)\n') +
+    function('XmTabbedStackListModify', 'void XmTabbedStackListModify(XmTabbedStackList tab_list, int position, XtValueMask mask, XmTabAttributes attributes)\n') + checks)
 binary=args.out/'tab-copy'
 began=time.monotonic()
 receipt={'source':str(path),'source_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
@@ -190,4 +216,4 @@ finally:
     receipt['seconds']=time.monotonic()-began
     receipt['ended_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat()
     (args.out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
-print('PASS tabbed-stack copy/insert fault injection under ASan/UBSan')
+print('PASS tabbed-stack ownership fault injection under ASan/UBSan')

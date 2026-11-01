@@ -548,8 +548,10 @@ XmTabbedStackListModify(tab_list, position, mask, attributes)
     copy_label = (switch_to_copy || (mask & XmTAB_LABEL_STRING &&
                                      tab->value_mode == XmTAB_VALUE_COPY));
     if (copy_label) {
-        replacement = XiXmStringCopy(attributes->label_string);
-        if (attributes->label_string != NULL && replacement == NULL)
+        XmString label = (mask & XmTAB_LABEL_STRING) ?
+            attributes->label_string : tab->label_string;
+        replacement = XiXmStringCopy(label);
+        if (label != NULL && replacement == NULL)
             return;
     }
 

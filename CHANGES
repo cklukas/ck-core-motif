@@ -1,3 +1,12 @@
+Preserve tab labels when changing ownership (2026-11-01)
+=======================================================
+
+- When XmTabbedStackListModify changes a shared label to copied ownership
+  without XmTAB_LABEL_STRING, copy the existing label rather than reading
+  an unselected caller field. A selected replacement label still takes effect.
+- Add executable tests for ownership-only changes, independent copies, null
+  labels, explicit replacements and unchanged state after allocation failure.
+
 Expand non-text Unicode navigation coverage (2026-11-01)
 ========================================================
 
