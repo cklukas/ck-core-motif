@@ -42,7 +42,9 @@ static GalleryIcons *gallery_icons;
 static void gallery_icon_colors(GalleryIcons *icons, Pixel *foreground, Pixel *background)
 {
     XtVaGetValues(icons->owner,XmNforeground,foreground,XmNbackground,background,NULL);
-    if (XtIsSubclass(icons->owner, xmIconButtonWidgetClass)) {
+    if (icons->resource && !strcmp(icons->resource, XmNarmPixmap)) {
+        XtVaGetValues(icons->owner,XmNarmColor,background,NULL);
+    } else if (XtIsSubclass(icons->owner, xmIconButtonWidgetClass)) {
         Boolean pressed;
         XtVaGetValues(icons->owner,XmNset,&pressed,NULL);
         if (pressed) XtVaGetValues(icons->owner,XmNarmColor,background,NULL);
@@ -619,7 +621,16 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         XmToolbarSetActions(example, actions, 4);
         {
             static const char *const icons[]={"action_open","action_save","action_print","action_undo"};
-            gallery_bind_icons(example,NULL,icons,XtNumber(icons));
+            for (Cardinal i = 0; i < XtNumber(icons); ++i) {
+                for (unsigned overflow = 0; overflow < 2; ++overflow) {
+                    Widget button = XmToolbarGetActionButton(example, i, overflow);
+                    /* Rasterize transparent image pixels against the actual
+                     * normal/pressed surface, not the toolbar's background. */
+                    gallery_bind_icon(button, XmNlabelPixmap, icons[i]);
+                    gallery_bind_icon(button, XmNarmPixmap, icons[i]);
+                    XtVaSetValues(button, XmNlabelType, XmPIXMAP, NULL);
+                }
+            }
         }
         if (callback)
             XtAddCallback(example, XmNtoolbarActivateCallback, callback, client_data);

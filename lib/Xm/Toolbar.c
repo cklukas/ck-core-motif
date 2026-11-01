@@ -615,6 +615,18 @@ void XmToolbarSetActionIcons(Widget widget, const Pixmap *icons,
     negotiate(toolbar);
 }
 
+Widget XmToolbarGetActionButton(Widget widget, Cardinal index, Boolean overflow)
+{
+    XmToolbarWidget toolbar;
+    if (!widget || !XmIsToolbar(widget) || widget->core.being_destroyed)
+        return NULL;
+    toolbar = (XmToolbarWidget)widget;
+    if (index >= toolbar->toolbar.action_count)
+        return NULL;
+    return overflow ? toolbar->toolbar.actions[index].menu_button
+                    : toolbar->toolbar.actions[index].button;
+}
+
 Cardinal XmToolbarGetActionCount(Widget widget)
 {
     return widget && XmIsToolbar(widget)

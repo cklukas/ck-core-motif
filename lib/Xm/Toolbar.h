@@ -43,6 +43,9 @@ void XmToolbarSetActions(Widget widget, const XmToolbarAction *actions,
  * keeps the normal text label; the toolbar does not take ownership. */
 void XmToolbarSetActionIcons(Widget widget, const Pixmap *icons,
                              Cardinal count);
+/* Borrow the normal or overflow PushButton for per-action resources. The
+ * toolbar owns it; replacing the actions destroys the returned widgets. */
+Widget XmToolbarGetActionButton(Widget widget, Cardinal index, Boolean overflow);
 Cardinal XmToolbarGetActionCount(Widget widget);
 Cardinal XmToolbarGetVisibleActionCount(Widget widget);
 Cardinal XmToolbarGetOverflowCount(Widget widget);
