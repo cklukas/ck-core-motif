@@ -1,4 +1,4 @@
-/* Verify live appearance updates for gadget children and stale-state pruning. */
+/* Verify live appearance updates for gadget children and state retirement. */
 #include <Xm/Appearance.h>
 #include <Xm/PushBG.h>
 #include <Xm/RowColumn.h>
@@ -63,9 +63,8 @@ main(int argc, char **argv)
             return fail("explicit gadget foreground was replaced");
     }
 
-    /* A destroyed gadget has no widget destroy callback.  The next
-     * transaction must prune its state from the parent manager before it is
-     * considered for resource reads. */
+    /* Gadgets inherit Object's destroy callback. The next transaction must
+     * not retain or read the destroyed object's appearance state. */
     XtDestroyWidget(gadget);
     if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_MODERN_DARK) ||
         !XmGetAppearanceProfile(display, &profile) ||

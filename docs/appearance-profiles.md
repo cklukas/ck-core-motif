@@ -60,8 +60,10 @@ outer call returns. This guard is per display and does not add a global
 process-wide serialization requirement. Gadget coverage is part of the same
 transaction: primary and secondary resource tables describe cached gadget
 resources, and the Xt create hook snapshots values after their `GetValues`
-paths are ready. Parent-manager membership prunes gadgets
-that have been destroyed without a normal widget destroy callback. A complete
+paths are ready. Gadgets inherit Object’s destroy callback: their appearance
+state is retired immediately when they are destroyed, before Xt can reuse the
+address. The display-close path detaches any remaining gadget callbacks before
+releasing their state. A complete
 historical-widget matrix remains an explicit later work-package gate; the
 representative consumer matrix below is an incremental qualification boundary,
 not a claim of full class coverage.
@@ -69,7 +71,7 @@ not a claim of full class coverage.
 The installed gadget regression is
 `tests/automated/run-live-appearance-gadget.py`. It transitions a
 `PushButtonGadget`, preserves an explicit foreground, destroys it, verifies
-that the next transition prunes its stale state, and creates a replacement
+that the next transition succeeds after destruction, and creates a replacement
 gadget under the active profile.
 
 The live-transition consumer also creates an `XmText` and an `XmTextField`
@@ -549,3 +551,18 @@ both modern profiles, and natural-size opt-out transitions, alongside the
 existing default-emphasis geometry regression. Default-action highlight exports
 subtract the classic frame adjustment only when that frame is actually reserved.
 The native runner supports Linux and macOS/XQuartz with an isolated Xvfb server.
+
+### Container presentation and recreated gadgets
+
+Modern Container outlines use flat IconGadget surfaces, themed foreground and
+background, no connecting lines, and density-scaled item padding and icon spacing.
+Classic and high-contrast presentation and explicit application resources retain
+their existing behavior.
+
+`run-container-appearance.py --build BUILD --results OUT` exercises the actual
+gallery Container factory. It repeatedly creates/destroys 100 previews without
+requiring a theme change between them, verifies reuse of gadget addresses, and
+checks resource ownership, rendered row backgrounds, colored icon pixmaps, live
+theme/scale changes and explicit application overrides. This covers the case
+where stale appearance state previously skipped modern defaults on a replacement
+gadget.

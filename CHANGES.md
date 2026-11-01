@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-01 — Modern Container rows and gadget lifetime
+
+- Fix stale appearance state when Xt reuses a destroyed gadget's address;
+  revisited Container previews retain modern colors and flat styling.
+- Improve modern Container padding and icon spacing and remove connector lines,
+  while preserving Classic styling and application overrides.
+- Qualify repeated gallery creation, rendered surfaces, vector icons and live
+  theme/scale changes; see the [native record](docs/validation/macos-container-20261101.json).
+
 ## 2026-11-01 — Modern dialog actions and complete Mac demos
 
 - Size short modern dialog actions to at least 80 logical pixels (64 compact),

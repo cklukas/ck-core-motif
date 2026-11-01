@@ -155,6 +155,8 @@ static const char modern_light_resources[] =
     "*XmSearchBox.highlightThickness: 2\n"
     "*XmText.highlightThickness: 2\n"
     "*XmIconGadget.shadowThickness: 0\n"
+    "*XmContainer.shadowThickness: 0\n"
+    "*XmContainer.outlineLineStyle: no_line\n"
     "*XmScrolledWindow.shadowThickness: 1\n"
     "*XmScrolledWindow.spacing: 0\n"
     "*XmForm.shadowThickness: 0\n"
@@ -255,6 +257,8 @@ static const char modern_dark_resources[] =
     "*XmSearchBox.highlightThickness: 2\n"
     "*XmText.highlightThickness: 2\n"
     "*XmIconGadget.shadowThickness: 0\n"
+    "*XmContainer.shadowThickness: 0\n"
+    "*XmContainer.outlineLineStyle: no_line\n"
     "*XmScrolledWindow.shadowThickness: 1\n"
     "*XmScrolledWindow.spacing: 0\n"
     "*XmForm.shadowThickness: 0\n"
@@ -330,6 +334,11 @@ static const AppearanceDensityResource density_resources[] = {
     {"*XmList.listMarginHeight", 8, 4},
     {"*XmList.listSpacing", 4, 2},
     {"*XmIconLabel.iconLabelSpacing", 6, 4},
+    {"*XmIconGadget.marginWidth", 4, 2},
+    {"*XmIconGadget.marginHeight", 4, 2},
+    {"*XmIconGadget.spacing", 6, 4},
+    {"*XmContainer.marginWidth", 8, 4},
+    {"*XmContainer.marginHeight", 8, 4},
     {"*XmFormSection.formSectionMarginWidth", 12, 8},
     {"*XmFormSection.formSectionMarginHeight", 12, 8},
     {"*XmFormSection.formSectionSpacing", 8, 6},
@@ -404,6 +413,7 @@ typedef enum {
     AP_SECTION_SPACING,
     AP_AVATAR_SIZE,
     AP_DIVIDER_SPACING,
+    AP_OUTLINE_LINE_STYLE,
     AP_COUNT
 } AppearanceProperty;
 
@@ -485,6 +495,7 @@ static void appearance_release_gadget_states(Display *display);
 static void appearance_created(Widget, XtPointer, XtPointer);
 static void appearance_changed(Widget, XtPointer, XtPointer);
 static void appearance_hooks_destroyed(Widget, XtPointer, XtPointer);
+static void appearance_widget_destroyed(Widget, XtPointer, XtPointer);
 
 void
 _XmDestroyAppearanceDisplay(Display *display)
@@ -552,7 +563,7 @@ appearance_property_name(AppearanceProperty property)
         XmNtabMarginWidth, XmNtabMarginHeight, XmNtabMode, XmNexpandedStatePixmap, XmNcollapsedStatePixmap, XmNiconLabelSpacing,
         XmNhorizontalMargin, XmNverticalMargin, XmNiconTextPadding, XmNalignment,
         XmNformSectionMarginWidth, XmNformSectionMarginHeight, XmNformSectionSpacing,
-        XmNavatarSize, XmNdividerSpacing
+        XmNavatarSize, XmNdividerSpacing, XmNoutlineLineStyle
     };
     return names[property];
 }
@@ -590,7 +601,8 @@ appearance_property_is_color(AppearanceProperty property)
            !appearance_property_is_boolean(property) &&
            property != AP_SHOW_ARROWS && property != AP_SLIDER_VISUAL &&
            property != AP_SLIDER_MARK && property != AP_TAB_MODE && property != AP_ALIGNMENT &&
-           property != AP_EXPANDED_PIXMAP && property != AP_COLLAPSED_PIXMAP;
+           property != AP_EXPANDED_PIXMAP && property != AP_COLLAPSED_PIXMAP &&
+           property != AP_OUTLINE_LINE_STYLE;
 }
 
 static const char *
@@ -756,11 +768,13 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
         return True;
     }
     if (property == AP_SHOW_ARROWS || property == AP_SLIDER_VISUAL ||
-        property == AP_SLIDER_MARK || property == AP_ALIGNMENT) {
+        property == AP_SLIDER_MARK || property == AP_ALIGNMENT ||
+        property == AP_OUTLINE_LINE_STYLE) {
         unsigned char value;
         XrmValue from = {strlen(text)+1, (XPointer)text};
         XrmValue to = {sizeof(value), (XPointer)&value};
         if (!XtConvertAndStore(widget, XmRString, &from,
+                property == AP_OUTLINE_LINE_STYLE ? XmRLineStyle :
                 property == AP_ALIGNMENT ? XmRAlignment :
                 property == AP_SHOW_ARROWS ? XmRShowArrows :
                 property == AP_SLIDER_MARK ? XmRSliderMark : XmRSliderVisual, &to))
@@ -1067,46 +1081,6 @@ _XmAppearanceOwnsResource(Widget widget, const char *name)
     return owned;
 }
 
-static Boolean
-appearance_gadget_is_live(XmAppearanceWidgetState *state)
-{
-    CompositeWidget parent;
-
-    if (!state->gadget || state->widget == NULL || state->parent == NULL)
-        return False;
-    if (find_live_widget_state(state->parent) == NULL ||
-        !XtIsComposite(state->parent))
-        return False;
-    parent = (CompositeWidget)state->parent;
-    for (Cardinal i = 0; i < parent->composite.num_children; ++i)
-        if (parent->composite.children[i] == state->widget)
-            return True;
-    return False;
-}
-
-static void
-appearance_prune_gadgets(Display *display)
-{
-    XmAppearanceWidgetState **link;
-    XmAppearanceWidgetState *state;
-
-    _XmProcessLock();
-    link = &appearance_widgets;
-    while (*link != NULL) {
-        state = *link;
-        if (state->display == display && state->gadget &&
-            !appearance_gadget_is_live(state)) {
-            state->retired = True;
-            *link = state->next;
-            if (state->references == 0)
-                appearance_free_widget_state(state);
-            continue;
-        }
-        link = &state->next;
-    }
-    _XmProcessUnlock();
-}
-
 static void
 appearance_release_gadget_states(Display *display)
 {
@@ -1118,6 +1092,9 @@ appearance_release_gadget_states(Display *display)
     while (*link != NULL) {
         state = *link;
         if (state->display == display && state->gadget) {
+            if (state->widget != NULL)
+                XtRemoveCallback(state->widget, XmNdestroyCallback,
+                    appearance_widget_destroyed, state);
             state->retired = True;
             *link = state->next;
             if (state->references == 0)
@@ -2054,9 +2031,10 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     state->next = appearance_widgets;
     appearance_widgets = state;
     _XmProcessUnlock();
-    if (!state->gadget)
-        XtAddCallback(widget, XmNdestroyCallback, appearance_widget_destroyed,
-                      (XtPointer)state);
+    /* RectObj gadgets inherit Object's destroyCallback too. Retire their
+     * state immediately, before Xt can reuse the address for another gadget. */
+    XtAddCallback(widget, XmNdestroyCallback, appearance_widget_destroyed,
+                  (XtPointer)state);
     return True;
 }
 
@@ -2094,7 +2072,6 @@ appearance_apply_subtree(Display *display, Widget root,
     size_t count = 0;
     Boolean success = True;
 
-    appearance_prune_gadgets(display);
     _XmProcessLock();
     for (state = appearance_widgets; state != NULL; state = state->next)
         if (!state->retired && state->display == display &&

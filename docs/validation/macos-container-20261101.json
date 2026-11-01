@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-01",
+  "base_revision": "be7302a58c2aaf415a7da1da9a453ab8ccdcdfad",
+  "platform": "Native macOS arm64, Clang C23 library/gallery, Xft/Unicode/SVG; GNU17 historical demos",
+  "defect": "Appearance state for destroyed gadgets survived until a later profile transaction. Reused gadget addresses skipped initialization and retained Classic gray bevels in modern Container previews.",
+  "before": {
+    "real_factory_recreation": "99 of100 recreations had gray background c4c4c4 and shadow2 instead of modern background f1f2f4 and shadow0",
+    "native_regression": "Baseline existing library fails at iteration1: bg==pbg",
+    "baseline_fixture_sha256": "0cb90c1632d1c64aff36a57f616962081ea50876cbb8b113898c88a84875535d"
+  },
+  "source_sha256": {
+    "lib/Xm/Appearance.c": "eba10895355251f2e93270bfd64cfffa907628fb33e5560989ea9bd92fb307d8",
+    "tests/automated/check-container-appearance.c": "ff1e772b3657a339ff0a0143c5339bf520cd81faa6d615ba02bcbd5e5e14b8f6",
+    "tests/automated/run-container-appearance.py": "6f964c2593b8cb2ac2759ff9ed5afce70a75bc1874d2ada130a226d1734cf2dd"
+  },
+  "configuration": "C23; --enable-xft --enable-svg --enable-unicode-text --enable-demos --disable-static; -j3",
+  "outputs": {
+    "/Volumes/S8T/tmp/motif-modern-container-20261101/install/bin/ckmotif-gallery": {
+      "sha256": "456ac1fc23dba8cdbda72351f9a155faeb0a0aaf4ea84c7b29f9472597b142dd",
+      "mtime_ns": 1793560533090586305,
+      "file": "/Volumes/S8T/tmp/motif-modern-container-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+    },
+    "/Volumes/S8T/tmp/motif-modern-container-20261101/install/lib/libXm.9.dylib": {
+      "sha256": "40dc2c5cb1ddb282b28b0bb921c1b352660231e662ecbfbddb7d2628b14208aa",
+      "mtime_ns": 1793560532467667983,
+      "file": "/Volumes/S8T/tmp/motif-modern-container-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+    }
+  },
+  "build_times": {
+    "configure_seconds": 26.31,
+    "clean_library_seconds": 24.56,
+    "comparable_clean_library_baseline_seconds": 25.86,
+    "final_incremental_library_seconds": 2.72
+  },
+  "checks": {
+    "container": {
+      "success": true,
+      "record_sha256": "a12af7ad0835675225aff07ac6e7a7cc6126a09d3b848214ecd11fec2f28effc",
+      "result": "148 checks,98 reused gadget addresses,100 destroy callbacks; colored icons, rendered row backgrounds, live profiles/scales, explicit overrides"
+    },
+    "native": {
+      "success": true,
+      "record_sha256": "6488f6cbfb1d7e9cfa4eff91f7c5ea4e901955eb5d2091ca9b354775b8e69ca1",
+      "result": "Live appearance and gadget tests;124 default button geometry cases;SVG/dialog/action icons;24 text frames in each paint mode;sidebar and gallery integration"
+    },
+    "installed_demos": {
+      "success": true,
+      "record_sha256": "4c0e5c6a1d78000889f6b66a89887a4fc702e93bac99975e901b9bf7acde46e8",
+      "result": "All34 executable targets and assets installed;33 Open/startup tests plus MWM/Wsm copy/move/link/visibility/save with build-tree demos hidden"
+    }
+  },
+  "limits": [
+    "Automated native tests use an isolated Xvfb display and do not send input to the user desktop.",
+    "Actual user-facing XQuartz window is inspected separately before reporting a visual fix."
+  ]
+}

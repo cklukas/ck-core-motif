@@ -1,3 +1,16 @@
+Preserve modern Container appearance across gadget recreation (2026-11-01)
+========================================================================
+
+- Retire gadget appearance state through Object's destroy callback, preventing
+  reused object addresses from skipping modern defaults. Detach remaining
+  gadget callbacks before display-state release rather than guessing lifetime
+  from parent membership during a later theme change.
+- Give modern Container outlines flat rows, no connector lines and density-scaled
+  padding and icon spacing; retain Classic and explicit application resources.
+- Reproduce stale gray bevels on the second real gallery preview, then qualify
+  100 recreations with reused addresses, colored icon and row pixel checks,
+  live theme/scale changes, overrides, existing appearance tests and all demos.
+
 Modern dialog action widths and complete Mac demos (2026-11-01)
 ==============================================================
 
