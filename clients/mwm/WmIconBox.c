@@ -565,7 +565,7 @@ Boolean MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
     XtAddEventHandler(pIBD->scrolledWidget, 
 			StructureNotifyMask, 
 			False, 
-			(XtEventHandler)UpdateIncrements, 
+			UpdateIncrements,
 			(XtPointer) pIBD);
     return (TRUE);
 
@@ -2136,19 +2136,19 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
 	    XtAddEventHandler(iconWidget, 
 			      SELECT_BUTTON_MOTION_MASK, 
 			      False, 
-			      (XtEventHandler)HandleIconBoxButtonMotion, 
+			      HandleIconBoxButtonMotion,
 			      (XtPointer)NULL);
 
 	    XtAddEventHandler(iconWidget, 
 			      DMANIP_BUTTON_MOTION_MASK, 
 			      False, 
-			      (XtEventHandler)HandleIconBoxButtonMotion, 
+			      HandleIconBoxButtonMotion,
 			      (XtPointer)NULL);
 
             XtAddEventHandler(iconWidget,
 			      KeyPressMask,
 			      False,
-			      (XtEventHandler)HandleIconBoxIconKeyPress,
+			      HandleIconBoxIconKeyPress,
 			      (XtPointer)NULL);
 
 	    
@@ -2158,7 +2158,7 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
 		XtAddEventHandler(iconWidget, 
 				  FocusChangeMask, 
 				  False, 
-				  (XtEventHandler)ChangeActiveIconboxIconText, 
+				  ChangeActiveIconboxIconText,
 				  (XtPointer)NULL);
 
 		if (pCD->pSD->activeLabelParent != pCD->pSD->rootWindow)
@@ -3601,8 +3601,11 @@ void IconActivateCallback (Widget w, caddr_t client_data, XmAnyCallbackStruct *c
  * 
  *************************************<->***********************************/
 
-void UpdateIncrements (Widget sWidget, IconBoxData *pIBD, XConfigureEvent *event)
+void UpdateIncrements (Widget sWidget, XtPointer client_data, XEvent *event,
+	Boolean *continue_to_dispatch)
 {
+    IconBoxData *pIBD = (IconBoxData *)client_data;
+
     if (pIBD == NULL || pIBD->pCD_iconBox == NULL)
 	return;
 
@@ -3651,7 +3654,8 @@ void ResetArrowButtonIncrements (ClientData *pCD)
  * 
  *************************************<->***********************************/
 
-void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent *event)
+void ChangeActiveIconboxIconText (Widget icon, XtPointer client_data,
+	XEvent *event, Boolean *continue_to_dispatch)
 {
 
     ClientData    	*pCD;
@@ -3676,14 +3680,14 @@ void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent 
     {
 	if (event->type == FocusIn) 
 	{
-	    if (event->send_event)
+	    if (event->xfocus.send_event)
 	    {
 	       ShowActiveIconText (pCD);
 	    }
 	}
 	else
 	{
-	    if (event->send_event)
+	    if (event->xfocus.send_event)
 	    {
 	        HideActiveIconText (pCD->pSD);
 	    }
@@ -3706,15 +3710,19 @@ void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent 
  *
  *************************************<->***********************************/
 
-void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
+void HandleIconBoxIconKeyPress (Widget icon, XtPointer client_data,
+	XEvent *event, Boolean *continue_to_dispatch)
 {
-    
     Context context; 
     ClientData          *pCD; 
     Window              theIcon;
+    XKeyEvent           *keyEvent;
 
-    if (icon == NULL || keyEvent == NULL)
+
+    if (icon == NULL || event == NULL)
 	return;
+
+    keyEvent = &event->xkey;
 
     /*
      * find context to get pCD and then post menu show active icon text.
@@ -3722,7 +3730,7 @@ void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
     
     theIcon = XtWindow(icon);
     if (!(XFindContext (DISPLAY, theIcon,
-			wmGD.windowContextType, (caddr_t *)&pCD)))
+			wmGD.windowContextType, (caddr_t *)&pCD)) && pCD != NULL)
     {
 #ifdef WSM
 	SetClientWsIndex (pCD);
@@ -3781,7 +3789,8 @@ void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
  * 
  *************************************<->***********************************/
 
-void HandleIconBoxButtonMotion (Widget icon, caddr_t client_data, XEvent *pev)
+void HandleIconBoxButtonMotion (Widget icon, XtPointer client_data,
+	XEvent *event, Boolean *continue_to_dispatch)
 {
 
 } /* END OF FUNCTION HandleIconBoxButtonMotion */

@@ -10,6 +10,13 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Correct MWM icon-box event handler ABI (2026-11-01)
+======================================================
+
+- Use Xt's native event-handler signature for icon-box structure, motion, key,
+  and focus handlers rather than casting incompatible function pointers.
+- Add focused ABI regression coverage and documentation.
+
 Harden MWM icon-list allocation arithmetic (2026-11-01)
 ==========================================================
 
