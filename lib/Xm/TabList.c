@@ -310,6 +310,8 @@ XmTabbedStackListInsert(tab_list, position, mask, attributes)
 {
     XmTabAttributes newTab;
     XmTabAttributes newTabs;
+    XmTabAttributeRec input;
+    XmString label_copy = NULL;
     int newAllocated;
 
     /*
@@ -319,6 +321,21 @@ XmTabbedStackListInsert(tab_list, position, mask, attributes)
     if( tab_list == NULL || position < XmTAB_LAST_POSITION ||
         (position > 0 && position >= tab_list->used) ||
         (mask != 0 && attributes == NULL) ) return XmTAB_NOT_FOUND;
+
+    /* Attributes may refer to an entry moved or reallocated below. */
+    if (attributes != NULL)
+    {
+        input = *attributes;
+        attributes = &input;
+    }
+    if ((mask & XmTAB_LABEL_STRING) &&
+        (!(mask & XmTAB_VALUE_MODE) ||
+         attributes->value_mode == XmTAB_VALUE_COPY))
+    {
+        label_copy = XiXmStringCopy(attributes->label_string);
+        if (attributes->label_string != NULL && label_copy == NULL)
+            return XmTAB_NOT_FOUND;
+    }
 
     /*
      * Now lets add our new tab to the list in the correct position.
@@ -336,13 +353,13 @@ XmTabbedStackListInsert(tab_list, position, mask, attributes)
             SIZE_MAX / sizeof(XmTabAttributeRec) ||
             (size_t)(tab_list->allocated + XmLIST_GROWTH_FACTOR) >
             UINT_MAX / sizeof(XmTabAttributeRec))
-            return XmTAB_NOT_FOUND;
+            goto failure;
         newAllocated = tab_list->allocated + XmLIST_GROWTH_FACTOR;
         newTabs = (XmTabAttributes)XtRealloc(
             (XtPointer)tab_list->tabs,
             (Cardinal)((size_t)newAllocated * sizeof(XmTabAttributeRec)));
         if (newTabs == NULL)
-            return XmTAB_NOT_FOUND;
+            goto failure;
         tab_list->tabs = newTabs;
         tab_list->allocated = newAllocated;
     }
@@ -394,7 +411,7 @@ XmTabbedStackListInsert(tab_list, position, mask, attributes)
     {
 	if( newTab->value_mode == XmTAB_VALUE_COPY )
 	{
-	    newTab->label_string = XiXmStringCopy(attributes->label_string);
+	    newTab->label_string = label_copy;
 	}
 	else
 	{
@@ -443,6 +460,10 @@ XmTabbedStackListInsert(tab_list, position, mask, attributes)
     }
 
     return( position );
+
+failure:
+    XiXmStringFree(label_copy);
+    return XmTAB_NOT_FOUND;
 }
 
 /*

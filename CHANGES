@@ -1,3 +1,14 @@
+Make tabbed-stack insertion atomic (2026-11-01)
+==============================================
+
+- Return XmTAB_NOT_FOUND without changing the list when copying an inserted
+  label or growing the attributes array fails. Release any prepared label
+  if array growth fails.
+- Snapshot incoming attributes before moving or reallocating entries, so
+  insertion can safely use an existing entry as its attributes source.
+- Extend executable ASan/UBSan tests with allocation failure, aliased
+  attributes, shared labels, append and default-attribute coverage.
+
 Roll back tabbed-stack label copy failures (2026-11-01)
 ======================================================
 
