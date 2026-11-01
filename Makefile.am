@@ -1455,3 +1455,4 @@ EXTRA_DIST += tests/automated/native-window.h
 EXTRA_DIST += docs/validation/buffered-painting-macos-20261101.json
 
 EXTRA_DIST += tests/automated/check-toolbar-icon-surfaces.c
+EXTRA_DIST += tests/automated/run-toolbar-icon-surfaces.py

@@ -38,8 +38,8 @@ static void check_button(Widget button, Boolean visible, XtAppContext app)
     XtVaGetValues(button, XmNbackground, &background, XmNarmColor, &armed,
         XmNlabelPixmap, &normal, XmNarmPixmap, &pressed, NULL);
     CHECK(normal != None && normal != XmUNSPECIFIED_PIXMAP);
-    CHECK(pressed != None && pressed != XmUNSPECIFIED_PIXMAP);
     CHECK(corner(display, normal, 0, 0) == background);
+    CHECK(pressed != None && pressed != XmUNSPECIFIED_PIXMAP);
     CHECK(corner(display, pressed, 0, 0) == armed);
     if (!visible) return;
     NativeWaitForViewable(button);

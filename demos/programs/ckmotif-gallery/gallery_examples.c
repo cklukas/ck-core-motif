@@ -15,6 +15,7 @@
 #include <Xm/TreeView.h>
 #include <Xm/DataGrid.h>
 #include <Xm/Calendar.h>
+#include <Xm/Appearance.h>
 #include <X11/Xlib.h>
 #include <X11/StringDefs.h>
 #include <Xm/Display.h>
@@ -44,6 +45,10 @@ static void gallery_icon_colors(GalleryIcons *icons, Pixel *foreground, Pixel *b
     XtVaGetValues(icons->owner,XmNforeground,foreground,XmNbackground,background,NULL);
     if (icons->resource && !strcmp(icons->resource, XmNarmPixmap)) {
         XtVaGetValues(icons->owner,XmNarmColor,background,NULL);
+    } else if (icons->resource && !strcmp(icons->resource, XmNlabelInsensitivePixmap)) {
+        XtVaGetValues(icons->owner,XmNinsensitiveForeground,foreground,NULL);
+        if (*foreground == XmUNSPECIFIED_PIXEL)
+            XtVaGetValues(icons->owner,XmNbottomShadowColor,foreground,NULL);
     } else if (XtIsSubclass(icons->owner, xmIconButtonWidgetClass)) {
         Boolean pressed;
         XtVaGetValues(icons->owner,XmNset,&pressed,NULL);
@@ -628,6 +633,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
                      * normal/pressed surface, not the toolbar's background. */
                     gallery_bind_icon(button, XmNlabelPixmap, icons[i]);
                     gallery_bind_icon(button, XmNarmPixmap, icons[i]);
+                    gallery_bind_icon(button, XmNlabelInsensitivePixmap, icons[i]);
                     XtVaSetValues(button, XmNlabelType, XmPIXMAP, NULL);
                 }
             }
