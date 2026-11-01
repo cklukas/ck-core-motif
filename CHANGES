@@ -1,3 +1,11 @@
+Roll back failed scrolled-list child construction (2026-11-01)
+=============================================================
+
+- Destroy the constructor-owned scrolled window if its list child cannot be
+  created, preventing an orphan managed window and its resources.
+- Add executable failure injection of the production constructor, covering
+  failed parent/child creation, normal ownership, null names and count bounds.
+
 Handle drag-context allocation failure (2026-10-30)
 ===================================================
 

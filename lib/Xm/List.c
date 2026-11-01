@@ -10747,7 +10747,10 @@ XmCreateScrolledList(Widget parent,
   lw = XtCreateWidget(name, xmListWidgetClass, sw, args, argCount);
 
   if (lw == NULL)
-	return NULL;
+    {
+      XtDestroyWidget(sw);
+      return NULL;
+    }
 
   XtAddCallback (lw, XmNdestroyCallback, _XmDestroyParentCallback, NULL);
   return (lw);
