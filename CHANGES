@@ -1,3 +1,14 @@
+Read encoded XmString component header widths (2026-11-01)
+============================================================
+
+- Parse, inspect, and truncate external compound-string components using the
+  encoded ASN.1 component-header width rather than regenerating a canonical
+  width from the payload length. Valid long-form component headers with
+  0–127-byte payloads now preserve their payload alignment.
+- Extend the focused ASan/UBSan production-reader regression with short and
+  long component-header cases, and verify that all affected parser paths use
+  the encoded header width.
+
 Exercise ASN.1 property import with the production length decoder (2026-11-01)
 ============================================================================
 

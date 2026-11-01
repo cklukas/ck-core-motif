@@ -31,6 +31,8 @@ def extract(name, signature):
 body = ''.join(extract(name, signature) for name, signature in [
     ('_is_short_length', 'static Boolean _is_short_length(unsigned char *p)\n'),
     ('_read_header_length', 'static unsigned short _read_header_length(unsigned char *p)\n'),
+    ('_read_asn1_length', 'static unsigned short _read_asn1_length(unsigned char *p)\n'),
+    ('_read_length', 'static unsigned short _read_length(unsigned char *p)\n'),
     ('_read_string_length', 'static unsigned short _read_string_length(unsigned char *p)\n'),
     ('_is_asn1', 'static Boolean _is_asn1(unsigned char *string)\n'),
     ('XmStringByteStreamLength', 'unsigned int XmStringByteStreamLength(unsigned char *string)\n'),
@@ -47,8 +49,10 @@ typedef int Boolean;
 #define CSSHORTLEN 1
 #define CSLONGLEN 3
 #define CSLONGBIT 0x80
+#define ASNTAG 1
 #define MAXSHORTVALUE 127
 #define _calc_header_size(len) (((unsigned short)(len) > MAXSHORTVALUE) ? 6 : 4)
+#define _is_asn1_long(p) (*((unsigned char *)(p) + ASNTAG) & CSLONGBIT)
 static const unsigned char ASNHeader[3]={0xdf,0x80,0x06};
 static int locks;
 #define _XmProcessLock() (++locks)
@@ -71,10 +75,19 @@ int main(void) {
         assert(XmStringByteStreamLength(encoded)==length+6);
         assert(locks==0);
     }
+    const unsigned char components[][4] = {
+        {0x01, 0x00}, {0x01, 0x7f},
+        {0x01, 0x82, 0x00, 0x00}, {0x01, 0x82, 0x00, 0x7f},
+    };
+    const unsigned short expected_lengths[] = {0, 127, 0, 127};
+    for(unsigned int i=0;i<sizeof(components)/sizeof(components[0]);++i) {
+        assert(_read_asn1_length((unsigned char *)components[i]) == expected_lengths[i]);
+        assert(_read_length((unsigned char *)components[i]) == (i < 2 ? 2 : 4));
+    }
     unsigned char bad_magic[]={0,0,0,0};
     assert(XmStringByteStreamLength(bad_magic)==0);
     assert(XmStringByteStreamLength(NULL)==0 && locks==0);
-    puts("PASS 262 byte-stream length cases: encoded short/long headers, boundaries, null/magic");
+    puts("PASS 266 ASN.1 header cases: encoded stream and component headers, boundaries, null/magic");
 }
 '''
 program = args.out / 'xmstring-stream-length.c'
