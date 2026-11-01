@@ -185,6 +185,8 @@ Keep the MWM ToolTalk network-file fallback split correctly (2026-11-01)
   separated host from MWM's owned fallback copy instead of the original
   unsplit string. Network file canonicalization therefore retains the intended
   host/file boundary after expansion failure.
+- Check the `~/` prefix before asking the multibyte decoder for its second
+  byte, so empty and one-character malformed paths stay within the input.
 
 Reject invalid initial multibyte MWM session command lines safely (2026-11-01)
 ===============================================================================

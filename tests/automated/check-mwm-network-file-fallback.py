@@ -16,5 +16,9 @@ assert "*pch = '\\0';" in fallback
 assert "host_part = sName;" in fallback
 assert "host_part = pchFile;" not in fallback
 assert "file_part = pch+1;" in fallback
+assert "if ((*file_part == '~') && (file_part[1] == '/')" in body
+assert "if ((*pchFile == '~') && (pchFile[1] == '/')" in body
+assert "mblen(file_part+1, MB_CUR_MAX)" in body
+assert "mblen(pchFile+1, MB_CUR_MAX)" in body
 
-print("MWM network-file fallback passes the owned split host to ToolTalk")
+print("MWM network-file fallback retains its split host and guards short paths")
