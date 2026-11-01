@@ -1,3 +1,11 @@
+Remove the fixed MWM client-command wildcard limit (2026-11-01)
+================================================================
+
+- Replace fixed stack bookkeeping for client-command wildcard positions with
+  checked dynamic storage.  Deep valid command specifications can no longer
+  overwrite the matcher stack; allocation failure safely retains the prior
+  match result.
+
 Reject invalid initial multibyte MWM session command lines safely (2026-11-01)
 ===============================================================================
 

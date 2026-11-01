@@ -74,6 +74,7 @@ clients exchanging Motif window-management messages.
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
+- [Client-command wildcard growth](mwm-command-wildcard-growth.md)
 - [Session command-vector width](mwm-session-command-vector-width.md)
 - [Session-command parsing rollback](mwm-session-command-rollback.md)
 - [Invalid multibyte session-command rejection](mwm-invalid-multibyte-line.md)

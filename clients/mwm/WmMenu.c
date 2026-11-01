@@ -1020,23 +1020,64 @@ static MenuItem *MakeClientCommandMenuItem (String label, String funcArgs)
  * 
  *************************************<->***********************************/
 
-/* @RGC: This is kind of arbitrary, but I can't imagine there being more
-   than a small number of segments in any given command specification. */
-#define MAXSEGMENTS	100
+static Boolean
+AppendClientCommandWildcard(size_t **positions, size_t *count,
+			    size_t *capacity, size_t position)
+{
+    size_t next_capacity;
+    size_t *resized;
+
+    if (*count == *capacity)
+    {
+	if (*capacity == 0)
+	    next_capacity = 8;
+	else if (*capacity > (size_t)UINT_MAX / sizeof(**positions) / 2)
+	    return (False);
+	else
+	    next_capacity = *capacity * 2;
+
+	if (next_capacity > (size_t)UINT_MAX / sizeof(**positions))
+	    return (False);
+
+	if (*positions == NULL)
+	    resized = (size_t *)XtMalloc(
+		(Cardinal)(next_capacity * sizeof(**positions)));
+	else
+	    resized = (size_t *)XtRealloc((char *)*positions,
+		(Cardinal)(next_capacity * sizeof(**positions)));
+	if (resized == NULL)
+	    return (False);
+
+	*positions = resized;
+	*capacity = next_capacity;
+    }
+
+    (*positions)[*count] = position;
+    ++*count;
+    return (True);
+}
+
+#define RETURN_CLIENT_COMMAND_MATCH(value) \
+    do { \
+	XtFree((char *)wildcardPositions); \
+	XtFree((char *)bestWildcardPositions); \
+	return (value); \
+    } while (0)
 
 static MenuItem *PerformClientCommandMatch (String clientCommand,
 				     MenuItem *menuItem,
 				     MenuItem *bestMatchSoFar)
 {
     String menuItemCommand, bestMatchStr;
-    int seglength, i;
-    int segments = 0, wildcards = 0, wildcardPositions[MAXSEGMENTS];
-    int bestSegments = 0, bestWildcards = 0;
-    int bestWildcardPositions[MAXSEGMENTS];
+    size_t seglength, i;
+    size_t segments = 0, wildcards = 0, wildcardCapacity = 0;
+    size_t bestSegments = 0, bestWildcards = 0, bestWildcardCapacity = 0;
+    size_t *wildcardPositions = NULL;
+    size_t *bestWildcardPositions = NULL;
     Boolean foundWildcard = FALSE;
 
     if (menuItem == (MenuItem *) NULL)
-      return(bestMatchSoFar);
+      RETURN_CLIENT_COMMAND_MATCH(bestMatchSoFar);
     menuItemCommand = menuItem->label;
     
     /* Skip any modifier characters at the beginning of the
@@ -1054,7 +1095,7 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
     
     /* If the menu item doesn't even contain a client command spec,
        then just return the existing best match. */
-    if (*menuItemCommand != '<') return(bestMatchSoFar);
+    if (*menuItemCommand != '<') RETURN_CLIENT_COMMAND_MATCH(bestMatchSoFar);
     
     /* Run down the clientCommand and the menuItemCommand together,
        matching along the way. If matching fails at any point, then
@@ -1077,7 +1118,9 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	       it and the current segment of the client command since
 	       the wildcard has to match at least one segment in
 	       the client command. */
-	    wildcardPositions[wildcards++] = segments;
+	    if (!AppendClientCommandWildcard(&wildcardPositions, &wildcards,
+					     &wildcardCapacity, segments))
+		RETURN_CLIENT_COMMAND_MATCH(bestMatchSoFar);
 	    ++menuItemCommand;
 	    while (isspace((unsigned char)*menuItemCommand)) ++menuItemCommand;
 	    while (*clientCommand != '>' && *clientCommand != '\0')
@@ -1095,7 +1138,8 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	      /*EMPTY*/;
 	    
 	    /* If we are pointing at '\0', then this isn't a match */
-	    if (menuItemCommand[seglength] == '\0') return(bestMatchSoFar);
+	    if (menuItemCommand[seglength] == '\0')
+		RETURN_CLIENT_COMMAND_MATCH(bestMatchSoFar);
 	    
 	    /* Get rid of trailing white space on the segment. */
 	    for (; seglength > 0; --seglength)
@@ -1114,7 +1158,8 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 		   character. */
 		clientCommand += seglength;
 		while (isspace((unsigned char)*clientCommand)) ++clientCommand;
-		if (*clientCommand != '>') return(bestMatchSoFar);
+		if (*clientCommand != '>')
+		    RETURN_CLIENT_COMMAND_MATCH(bestMatchSoFar);
 		
 		/* We have a match. Clear the foundWildcard since we
 		   have sync'ed up and keep trying to match. */
@@ -1127,7 +1172,7 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 		/* We didn't match and there wasn't wildcard to 
 		   swallow the discrepancy. Therefore, this is not
 		   a match. */
-		return(bestMatchSoFar);
+		RETURN_CLIENT_COMMAND_MATCH(bestMatchSoFar);
 	    }
 	}
 	
@@ -1146,14 +1191,14 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	    menuItemCommand += 2;
 	    clientCommand += 2;
 	}
-	else return(bestMatchSoFar);
+	else RETURN_CLIENT_COMMAND_MATCH(bestMatchSoFar);
     }
 
     /* If we terminated the loop because only one of the two commands being
        compared was empty, then we don't have a complete match. Return the
        best match so far. */
     if (*menuItemCommand != '\0' || *clientCommand != '\0')
-      return(bestMatchSoFar);
+      RETURN_CLIENT_COMMAND_MATCH(bestMatchSoFar);
     
     /* So the menuItemCommand must have matched. If the current best
        match is NULL, then just return the menuItem. Otherwise calculate some
@@ -1161,7 +1206,7 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
        to the menuItemCommand metrics to decide which of the two to
        return. */
     if (bestMatchSoFar == (MenuItem *) NULL)
-      return(menuItem);
+      RETURN_CLIENT_COMMAND_MATCH(menuItem);
     
     bestMatchStr = bestMatchSoFar->label;
     
@@ -1180,7 +1225,7 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
     
     /* If the best match  doesn't even contain a client command spec,
        then just return the new match as the best match. */
-    if (*bestMatchStr != '<') return(menuItem);
+    if (*bestMatchStr != '<') RETURN_CLIENT_COMMAND_MATCH(menuItem);
     
     for (bestSegments = 0;
 	 *bestMatchStr != '\0';
@@ -1195,7 +1240,12 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	   a wildcard. @RGC: We are assuming that there is nothing
 	   but possible whitespace after the *. */
 	if (*bestMatchStr == '*')
-	  bestWildcardPositions[bestWildcards++] = bestSegments;
+	{
+	    if (!AppendClientCommandWildcard(&bestWildcardPositions,
+					     &bestWildcards,
+					     &bestWildcardCapacity, bestSegments))
+		RETURN_CLIENT_COMMAND_MATCH(menuItem);
+	}
 	while (*bestMatchStr != '>' && *bestMatchStr != '\0')
 	  ++bestMatchStr;
 	
@@ -1206,7 +1256,7 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	  ++bestMatchStr;
 	else if (bestMatchStr[0] == '>' && bestMatchStr[1] == '.')
 	  bestMatchStr += 2;
-	else return(menuItem);
+	else RETURN_CLIENT_COMMAND_MATCH(menuItem);
     }
     
     /* Now compare the best match metrics with the menu item metrics to
@@ -1214,7 +1264,7 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
     if (bestWildcards != wildcards)
     {
 	/* Return the menuItem with the fewest wildcards. */
-	return(bestWildcards < wildcards ? bestMatchSoFar : menuItem);
+	RETURN_CLIENT_COMMAND_MATCH(bestWildcards < wildcards ? bestMatchSoFar : menuItem);
     }
     else
     {
@@ -1223,15 +1273,17 @@ static MenuItem *PerformClientCommandMatch (String clientCommand,
 	for (i = 0; i < wildcards; ++i)
 	  if (wildcardPositions[i] != bestWildcardPositions[i])
 	  {
-	      return(bestWildcardPositions[i] < wildcardPositions[i] ?
-		     bestMatchSoFar : menuItem);
+	      RETURN_CLIENT_COMMAND_MATCH(bestWildcardPositions[i] < wildcardPositions[i] ?
+				  bestMatchSoFar : menuItem);
 	  }
 	
 	/* If we got this far, then the two specifications are too
 	   close to call. Return bestMatchSoFar. */
-	return(bestMatchSoFar);
+	RETURN_CLIENT_COMMAND_MATCH(bestMatchSoFar);
     }
 }
+
+#undef RETURN_CLIENT_COMMAND_MATCH
 
 
 /*************************************<->*************************************
