@@ -13,6 +13,41 @@ Connect Outline branches to visible node borders (2026-11-01)
 - Add native pixel acceptance for both endpoints, partial exposure, window
   resizing, collapse/expand, focus, connection toggles and pending destruction.
 
+Guard MWM identity selection against an empty argument vector (2026-11-01)
+==========================================================================
+
+- Return the existing DTWM default identity when no executable argument is
+  supplied, rather than dereferencing a null `argv[0]`.
+
+Align InfoBar actions using measured label geometry (2026-11-01)
+================================================================
+
+- Replace fixed action-label drawing and click offsets with render-table
+  measurement and the actual close-control gutter. Localized action labels now
+  receive a matching visible and clickable region.
+
+Extend native non-text Unicode menu coverage (2026-11-01)
+===========================================================
+
+- Qualify Japanese cascade-menu labels in the installed-prefix Xvfb fixture,
+  alongside the existing mixed-script menu item, non-ASCII mnemonic and dialog
+  coverage.
+
+Remove the fixed MWM client-command wildcard limit (2026-11-01)
+================================================================
+
+- Replace fixed stack bookkeeping for client-command wildcard positions with
+  checked dynamic storage.  Deep valid command specifications can no longer
+  overwrite the matcher stack; allocation failure safely retains the prior
+  match result.
+
+Reject invalid initial multibyte MWM session command lines safely (2026-11-01)
+===============================================================================
+
+- Keep the workspace-session command-line copy loop behind its initial
+  multibyte validation.  A malformed initial sequence can no longer leave a
+  null output sentinel that a later valid sequence dereferences.
+
 Preserve modern Container appearance across gadget recreation (2026-11-01)
 =================================================================
 
@@ -25,7 +60,24 @@ Preserve modern Container appearance across gadget recreation (2026-11-01)
 - Reproduce stale gray bevels on the second real gallery preview, then qualify
   100 recreations with reused addresses, colored icon and row pixel checks,
   live theme/scale changes, overrides, existing appearance tests and all demos.
-=======
+
+Extend non-text Unicode widget qualification (2026-11-01)
+===========================================================
+
+- Add Japanese List selection and ComboBox round-trip coverage, plus Chinese
+  Han List search coverage, to the installed public-API Unicode fixture.
+- Retain the existing combining, non-BMP, mixed-direction and compound-string
+  checks; this is focused widget coverage, not a claim of full IME support.
+
+Retain final newline-less rendition properties (2026-11-01)
+===========================================================
+
+- Record a fully parsed final rendition before acting on end-of-input, so
+  externally supplied render-table properties without a trailing newline no
+  longer silently lose their final entry.
+- Release a newly created rendition if extending the import array fails,
+  preserving the converter's existing partial-result behavior without a leak.
+
 Build rendition converter headers without a fixed shared buffer (2026-11-01)
 ==========================================================================
 

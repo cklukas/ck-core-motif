@@ -5575,19 +5575,27 @@ GetNextLine (void)
 #ifndef NO_MULTIBYTE
 #ifdef FIX_1127
 	chlen = mblen((char *)parseP, MB_CUR_MAX);
-	if(chlen==-1) string = NULL;
+	/*
+	 * Do not enter the copy loop after an invalid initial multibyte
+	 * sequence.  The loop rechecks parseP and can otherwise find a later
+	 * valid sequence, then write through the NULL sentinel below.
+	 */
+	if (chlen < 0)
+	    string = NULL;
+	else
 #endif
-
-	while ((*parseP != '\0') &&
-               ((chlen = mblen ((char *)parseP, MB_CUR_MAX)) > 0) &&
-	       (*parseP != '\n'))
-	/* copy all but NULL and newlines to line buffer */
 	{
-	    while (chlen--)
+	    while ((*parseP != '\0') &&
+	           ((chlen = mblen ((char *)parseP, MB_CUR_MAX)) > 0) &&
+	           (*parseP != '\n'))
+	    /* copy all but NULL and newlines to line buffer */
 	    {
-	        *(string++) = *(parseP++);
+	        while (chlen--)
+	        {
+	            *(string++) = *(parseP++);
+	        }
 	    }
-        }
+	}
 #else
 	while ((*parseP != '\0') && (*parseP != '\n'))
 	/* copy all but end-of-line and newlines to line buffer */

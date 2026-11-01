@@ -4027,19 +4027,23 @@ XmRenderTableCvtFromProp(Widget w,
 	XmRendition *new_array;
 	if (rarray_max > INT_MAX - 10 ||
 	    (size_t)(rarray_max + 10) > SIZE_MAX / sizeof(XmRendition) ||
-	    (size_t)(rarray_max + 10) > (size_t)UINT_MAX / sizeof(XmRendition))
+	    (size_t)(rarray_max + 10) > (size_t)UINT_MAX / sizeof(XmRendition)) {
+	  XmRenditionFree(rendition);
 	  goto error;
+	}
 	new_max = rarray_max + 10;
 	new_array = (XmRendition *)XtRealloc(
 	    (char *)rarray, sizeof(XmRendition) * (size_t)new_max);
-	if (new_array == NULL)
+	if (new_array == NULL) {
+	  XmRenditionFree(rendition);
 	  goto error;
+	}
 	rarray = new_array;
 	rarray_max = new_max;
       }
-      if (token -> type == T_EOF) goto finish;
       rarray[rarray_count] = rendition;
       rarray_count++;
+      if (token -> type == T_EOF) goto finish;
     } else if (strcmp(items[j], XmNtag) == 0) {
       /* Next item should be a string with the name of the new
 	 rendition to create */

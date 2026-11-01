@@ -6,8 +6,8 @@ start = source.index("static void Events")
 end = source.index("\nstatic Boolean SetValues", start)
 region = source[start:end]
 assert "close_x=(int)bar->core.width>=24" in region
-assert "action_x=(int)bar->core.width>120" in region
+assert "action_x=ActionLeft(bar)" in region
 assert "event->xbutton.x>=close_x" in region
 assert "event->xbutton.x>=action_x" in region
-assert "event->xbutton.x>(int)bar->core.width-120" not in region
+assert "event->xbutton.x<ContentRight(bar)" in region
 print("InfoBar hit-zone bounds present")
