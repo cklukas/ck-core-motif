@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-01 — DataField highlight allocation safety
+
+- Make internal highlight-list growth transactional: allocation failure or an
+  unrepresentable Xt allocation size preserves the existing field state.
+- Add a focused source regression and document the failure contract; see
+  [DataField highlight-list allocation](docs/datafield-highlight-allocation.md).
+
 ## 2026-11-01 — Modern Breadcrumb Bar
 
 - Use directional chevrons and comfortable spacing in Modern profiles.

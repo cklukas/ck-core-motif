@@ -2104,6 +2104,9 @@ df_InsertHighlight(
 {
     _XmHighlightRec *l1;
     _XmHighlightRec *l = XmTextF_highlight(w).list;
+    _XmHighlightRec *new_list;
+    Cardinal old_maximum;
+    size_t allocation_size;
     int i, j;
 
     l1 = df_FindHighlight(w, position);
@@ -2113,9 +2116,22 @@ df_InsertHighlight(
        i = (l1 - l) + 1;
        XmTextF_highlight(w).number++;
        if (XmTextF_highlight(w).number > XmTextF_highlight(w).maximum) {
+          old_maximum = XmTextF_highlight(w).maximum;
+          allocation_size = (size_t)XmTextF_highlight(w).number *
+              (size_t)sizeof(_XmHighlightRec);
+          if (allocation_size > (size_t)UINT_MAX) {
+              XmTextF_highlight(w).number--;
+              return;
+          }
+          new_list = (_XmHighlightRec *)XtRealloc((char *)l,
+              (Cardinal)allocation_size);
+          if (new_list == NULL) {
+              XmTextF_highlight(w).number--;
+              XmTextF_highlight(w).maximum = old_maximum;
+              return;
+          }
+          l = XmTextF_highlight(w).list = new_list;
           XmTextF_highlight(w).maximum = XmTextF_highlight(w).number;
-          l = XmTextF_highlight(w).list = (_XmHighlightRec *)XtRealloc((char *) l,
-              (unsigned)(XmTextF_highlight(w).maximum * sizeof(_XmHighlightRec)));
        }
        for (j=XmTextF_highlight(w).number-1 ; j>i ; j--)
            l[j] = l[j-1];

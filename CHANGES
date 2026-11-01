@@ -145,6 +145,14 @@ Harden Mrm safe vector copies (2026-11-01)
 - Validate every embedded Char8 string pointer and terminator against the
   advertised span before rebasing it into the owned copy.
 
+Make DataField highlight growth failure-atomic (2026-11-01)
+===========================================================
+
+- Preserve the current highlight list, count, and capacity if replacement
+  allocation fails or cannot fit the Xt allocation width; see
+  `docs/datafield-highlight-allocation.md`.
+- Add focused regression coverage for transactional highlight-list growth.
+
 Make MWM screen-name replacement failure-atomic (2026-11-01)
 =============================================================
 
