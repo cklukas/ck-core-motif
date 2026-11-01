@@ -582,6 +582,7 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
      XKeyEvent *keyEvent;
      KeySpec   *keySpecs;
      MenuButton   *menuBtnPtr;
+     unsigned int menuButtonSlots;
 
 
     if (event->type == KeyPress)
@@ -619,13 +620,20 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
                 }
 	    }
 	    /* Begin fixing CR 5227 */
-	    keySpecs = wmGD.menuActive->accelKeySpecs;
+            keySpecs = wmGD.menuActive->accelKeySpecs;
 	    keyEvent = (XKeyEvent *)event;
-	    menuBtnPtr = wmGD.menuActive->menuButtons + 
-	                 (wmGD.menuActive->menuButtonSize - 1);
-  
-	    while (keySpecs)
+	    menuBtnPtr = wmGD.menuActive->menuButtons;
+	    menuButtonSlots = wmGD.menuActive->menuButtonSize;
+
+	    /*
+	     * The accelerator list and the button table are built separately.
+	     * Do not form a before-begin pointer when a partial menu has no
+	     * button table, or after an inconsistent list outlives its slots.
+	     */
+	    while (keySpecs && menuBtnPtr != NULL && menuButtonSlots != 0)
 	      {
+		--menuButtonSlots;
+		menuBtnPtr = &wmGD.menuActive->menuButtons[menuButtonSlots];
                 if ((keyEvent->keycode == keySpecs->keycode) &&
 		    ((keyEvent->state == keySpecs->state) ||
 		    (NOLOCKMOD(keyEvent->state) == keySpecs->state))
@@ -636,7 +644,6 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
                     break;
                  } 
                  keySpecs = keySpecs->nextKeySpec;
-                 menuBtnPtr--;
                 } 
      
 	    doXtDispatchEvent = doXtDispatchEvent &&

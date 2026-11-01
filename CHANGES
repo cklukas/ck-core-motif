@@ -1,3 +1,10 @@
+Bound MWM menu accelerator button traversal (2026-11-01)
+==========================================================
+
+- Keep accelerator sensitivity lookup within the available MWM menu-button
+  slots, avoiding null and before-begin pointer arithmetic for partial menus.
+- Add focused regression coverage and document the preserved dispatch behavior.
+
 Initialize MWM per-screen selection atoms (2026-11-01)
 =========================================================
 
