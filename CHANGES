@@ -10,6 +10,16 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Bound MWM configuration token parsing (2026-11-01)
+====================================================
+
+- Copy parsed context, modifier, event, and keysym tokens through bounded
+  `size_t`-based storage rather than narrowing pointer differences to `int`.
+- Reject out-of-range menu-function indices and `KeySym` values instead of
+  indexing or truncating them, and make locale byte classification defined.
+- Complement icon-box subcontext masks in the unsigned `Context` domain.
+- Add focused parser-bound regression coverage and document the behavior.
+
 Bound MWM continued configuration lines (2026-11-01)
 =====================================================
 
