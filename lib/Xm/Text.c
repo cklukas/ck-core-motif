@@ -4592,14 +4592,15 @@ XmCreateScrolledText(Widget parent,
   Widget stext;
   Arg args_cache[30];
   ArgList merged_args;
-  int n;
+  Cardinal n;
   char s_cache[30];
   char *s;
   Cardinal s_size;
   Cardinal arg_size;
   size_t name_size;
 
-  if (argcount > (Cardinal)(~(Cardinal)0 - 5))
+  if ((argcount != 0 && arglist == NULL) ||
+      argcount > (Cardinal)(~(Cardinal)0 - 5))
 	return NULL;
   arg_size = argcount + 5;
   name_size = name ? strlen(name) : 0;
@@ -4612,6 +4613,10 @@ XmCreateScrolledText(Widget parent,
   s_size = (Cardinal)(name_size + 3);
   
   s = (char *) XmStackAlloc(s_size, s_cache);  /* Name + NULL + "SW" */
+  if (s == NULL) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
   if (name) {
     strcpy(s, name);
     strcat(s, "SW");
@@ -4624,6 +4629,11 @@ XmCreateScrolledText(Widget parent,
    * creating the scrolled window portion of the scroll text.
    */
   merged_args = (ArgList)XmStackAlloc(arg_size*sizeof(Arg), args_cache);
+  if (merged_args == NULL) {
+    XmStackFree(s, s_cache);
+    _XmAppUnlock(app);
+    return NULL;
+  }
   for (n=0; n < argcount; n++) {
     merged_args[n].name = arglist[n].name;
     merged_args[n].value = arglist[n].value;
@@ -4638,9 +4648,19 @@ XmCreateScrolledText(Widget parent,
 				  merged_args, n);
   XmStackFree(s, s_cache);
   XmStackFree((char *)merged_args, args_cache);
+
+  if (swindow == NULL) {
+    _XmAppUnlock(app);
+    return NULL;
+  }
   
   /* Create Text widget.  */
   stext = XtCreateWidget(name, xmTextWidgetClass, swindow, arglist, argcount);
+  if (stext == NULL) {
+    XtDestroyWidget(swindow);
+    _XmAppUnlock(app);
+    return NULL;
+  }
   
   /* Add callback to destroy ScrolledWindow parent. */
   XtAddCallback (stext, XmNdestroyCallback, _XmDestroyParentCallback, NULL);

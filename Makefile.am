@@ -221,6 +221,7 @@ EXTRA_DIST += tests/automated/check-datafield-wcs.c docs/datafield-wide-text.md
 # UIL debug listing regression.
 EXTRA_DIST += tests/automated/check-uil-listing.py docs/uil-listing.md
 EXTRA_DIST += tests/automated/run-scrolled-list-constructor-unit.py
+EXTRA_DIST += docs/scrolled-text-create-failure.md
 EXTRA_DIST += tests/automated/check-uil-diagnostic-location-bounds.py docs/uil-diagnostic-location-bounds.md
 EXTRA_DIST += tests/automated/check-uil-output-bounds.py docs/uil-output-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-image-path-bounds.py docs/mwm-image-path-bounds.md

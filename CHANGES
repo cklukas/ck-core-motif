@@ -1,3 +1,13 @@
+Handle scrolled-text construction failures (2026-11-01)
+======================================================
+
+- Check temporary allocations and scrolled-window/text-child creation before
+  use; roll back the owned parent and balance application locks on failure.
+- Reject a nonzero argument count without an argument list and use Cardinal
+  for argument indexing.
+- Extend executable constructor fault injection to Text, including both
+  temporary-allocation failures and successful ownership paths.
+
 Roll back failed scrolled-list child construction (2026-11-01)
 =============================================================
 
