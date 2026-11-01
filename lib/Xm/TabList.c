@@ -145,6 +145,18 @@ XmTabbedStackListCopy(tab_list)
         {
             newList->tabs[i].label_string =
                 XiXmStringCopy(tab_list->tabs[i].label_string);
+            if (tab_list->tabs[i].label_string != NULL &&
+                newList->tabs[i].label_string == NULL)
+            {
+                while (i > 0)
+                {
+                    --i;
+                    XiXmStringFree(newList->tabs[i].label_string);
+                }
+                XtFree((XtPointer)newList->tabs);
+                XtFree((XtPointer)newList);
+                return NULL;
+            }
             newList->tabs[i].label_pixmap = tab_list->tabs[i].label_pixmap;
 	    newList->tabs[i].string_direction =
 		tab_list->tabs[i].string_direction;

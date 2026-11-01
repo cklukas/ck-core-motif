@@ -1,3 +1,12 @@
+Roll back tabbed-stack label copy failures (2026-11-01)
+======================================================
+
+- Return NULL from XmTabbedStackListCopy if copying any non-null compound
+  label fails, releasing all earlier copies and intermediate allocations.
+  The source list and its shared/copy ownership modes remain untouched.
+- Add executable allocation-failure coverage at every allocation, plus deep
+  copy, null-label and empty-list checks under ASan/UBSan.
+
 Exercise image-scaling validation branches and pixels (2026-11-01)
 =================================================================
 
