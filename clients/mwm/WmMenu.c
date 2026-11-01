@@ -105,22 +105,32 @@ static String
 MakeMenuFunctionArgs(CmdTree *tree, ClientData *pCD, Atom selection)
 {
     size_t length;
+    int formatted_length;
     String args;
+
+    if (tree == NULL)
+	return (String)NULL;
 
     if (tree->subTrees != (CmdTree *)NULL)
     {
-        length = snprintf(NULL, 0, "<%s>", tree->name);
-        args = (length >= 0 && length < UINT_MAX) ?
-            (String)XtMalloc((Cardinal)length + 1) : (String)NULL;
+	if (tree->name == NULL)
+	    return (String)NULL;
+	formatted_length = snprintf(NULL, 0, "<%s>", tree->name);
+	if (formatted_length < 0 || (size_t)formatted_length >= UINT_MAX)
+	    return (String)NULL;
+	length = (size_t)formatted_length;
+	args = (String)XtMalloc((Cardinal)(length + 1));
         if (args != (String)NULL)
             (void)snprintf(args, (size_t)length + 1, "<%s>", tree->name);
     }
     else
     {
-        length = snprintf(NULL, 0, "%d %ld %ld", (int)tree->commandID,
-                          (pCD == NULL ? None : pCD->client), selection);
-        args = (length >= 0 && length < UINT_MAX) ?
-            (String)XtMalloc((Cardinal)length + 1) : (String)NULL;
+	formatted_length = snprintf(NULL, 0, "%d %ld %ld", (int)tree->commandID,
+				  (pCD == NULL ? None : pCD->client), selection);
+	if (formatted_length < 0 || (size_t)formatted_length >= UINT_MAX)
+	    return (String)NULL;
+	length = (size_t)formatted_length;
+	args = (String)XtMalloc((Cardinal)(length + 1));
         if (args != (String)NULL)
             (void)snprintf(args, (size_t)length + 1, "%d %ld %ld",
                            (int)tree->commandID,

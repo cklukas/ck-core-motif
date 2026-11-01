@@ -10,6 +10,9 @@ stack storage.
 
 Both argument forms now use measured dynamic allocation and are released after
 matching completes.  Menu matching and command dispatch content are
-unchanged.
+unchanged. The formatter result remains signed until negative errors are
+rejected, then is checked against Xt's byte-count limit before allocation.
+Null command-tree and cascade-name inputs fail safely instead of reaching the
+formatter.
 
 `tests/automated/check-mwm-function-arg-bounds.py` protects this contract.

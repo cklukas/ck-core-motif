@@ -8,6 +8,12 @@ helper_end = source.index("\nstatic void InsertTreeOnClient", helper_start)
 helper = source[helper_start:helper_end]
 assert "snprintf(NULL, 0, \"<%s>\", tree->name)" in helper
 assert "snprintf(NULL, 0, \"%d %ld %ld\"" in helper
+assert "int formatted_length;" in helper
+assert "if (tree == NULL)" in helper
+assert "if (tree->name == NULL)" in helper
+assert helper.count("formatted_length < 0 || (size_t)formatted_length >= UINT_MAX") == 2
+assert helper.count("length = (size_t)formatted_length;") == 2
+assert "length >= 0" not in helper
 prototype_start = source.index(
     "static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,",
     helper_end + 1,

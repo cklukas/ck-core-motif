@@ -10,7 +10,8 @@ text = (Path(__file__).parents[2] / "clients" / "mwm" / "WmMenu.c").read_text(
 start = text.index("MakeMenuFunctionArgs(CmdTree *tree")
 end = text.index("\n}\n", start)
 function = text[start:end]
-assert function.count("length >= 0 && length < UINT_MAX") == 2
-assert function.count("XtMalloc((Cardinal)length + 1)") == 2
+assert function.count("formatted_length < 0 || (size_t)formatted_length >= UINT_MAX") == 2
+assert function.count("XtMalloc((Cardinal)(length + 1))") == 2
+assert function.count("length = (size_t)formatted_length;") == 2
 assert "XtMalloc((unsigned int)length + 1)" not in function
 print("MWM menu argument allocations are width-checked")

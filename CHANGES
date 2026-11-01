@@ -1,3 +1,11 @@
+Validate MWM menu-command formatter results (2026-11-01)
+===========================================================
+
+- Keep the signed result of measured menu-command formatting until errors are
+  rejected, then validate the allocation width before converting it to `size_t`.
+- Reject null command-tree and cascade-name inputs safely. Extend the focused
+  command-argument regression and document the failure contract.
+
 Keep checked allocation narrowing explicit (2026-11-01)
 ========================================================
 
