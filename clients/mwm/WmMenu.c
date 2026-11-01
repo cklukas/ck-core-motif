@@ -334,8 +334,7 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
     }
     if (n)
     {
-        if ((size_t)n > SIZE_MAX / sizeof(*menuSpec->menuButtons) ||
-	    n > UINT_MAX / sizeof(*menuSpec->menuButtons))
+	if (n > UINT_MAX / sizeof(*menuSpec->menuButtons))
         {
             MWarning(((char *)GETMESSAGE(48, 3,
                       "Menu button array is too large for menu %s\n")),
@@ -1874,20 +1873,27 @@ static void RecreateMenuWidgets (WmScreenData *pSD, ClientData *pCD,
 				 MatchList **matchlist)
 {
     MatchList *current;
-    int count = 0, i;
+    size_t count = 0, i;
     MenuSpec **to_change;
 
     /* First count how many menu specs we need to recreate widgets for */
     for (current = *matchlist;
 	 current != (MatchList *) NULL;
 	 current = current->next)
+    {
+      if (count == SIZE_MAX)
+      {
+	Warning ("Too many menu widgets to recreate");
+	return;
+      }
       ++count;
+    }
 
     /* If there are no affected menuspecs, then just return. */
     if (count == 0) return;
 
-    if ((size_t)count > SIZE_MAX / sizeof(*to_change) ||
-	(size_t)count > UINT_MAX / sizeof(*to_change)) {
+    if (count > SIZE_MAX / sizeof(*to_change) ||
+	count > UINT_MAX / sizeof(*to_change)) {
 	Warning ("Too many menu widgets to recreate");
 	return;
     }

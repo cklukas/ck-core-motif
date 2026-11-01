@@ -11,6 +11,7 @@ assert "SIZE_MAX / sizeof(*snapshot)" in body
 assert "UINT_MAX / sizeof(*snapshot)" in body
 assert "SIZE_MAX / sizeof(*plans)" in body
 assert "for (size_t i = 0; i < count; ++i)" in body
+assert "(Cardinal)(count * sizeof(*snapshot))" in body
 assert "return False;" in body
 print("PASS appearance transaction snapshot allocation bounds")
 

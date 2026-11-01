@@ -2103,7 +2103,8 @@ appearance_apply_subtree(Display *display, Widget root,
         return False;
     }
     if (count != 0)
-        snapshot = (XmAppearanceWidgetState **)XtMalloc(count * sizeof(*snapshot));
+        snapshot = (XmAppearanceWidgetState **)XtMalloc(
+	    (Cardinal)(count * sizeof(*snapshot)));
     if (count != 0 && snapshot == NULL) {
         _XmProcessUnlock();
         return False;

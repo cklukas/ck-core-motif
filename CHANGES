@@ -1,3 +1,19 @@
+Keep checked allocation narrowing explicit (2026-11-01)
+========================================================
+
+- Narrow the validated appearance snapshot byte count explicitly at the Xt
+  allocation boundary, retaining its native-width accounting internally.
+- Keep MWM menu-button allocation validation at its actual `Cardinal` limit,
+  avoiding a redundant narrow-type comparison under strict compilers.
+
+Bound MWM menu-widget recreation lists (2026-11-01)
+======================================================
+
+- Track affected menu specifications in native `size_t` before allocating the
+  recreation list, preventing a count wrap from invalidating its byte checks.
+- Add a focused regression and document the allocation boundary. Ordinary
+  command-driven menu recreation remains unchanged.
+
 Bound MWM menu-button count growth (2026-11-01)
 ==================================================
 
