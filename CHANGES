@@ -7,6 +7,14 @@ Connect TreeView navigation and click focus (2026-11-01)
   wheel and overflow behavior in a native regression.
 - Place the gallery sidebar tree in an application-defined ScrolledWindow.
 
+Refresh MWM keyboard mappings on X11 mapping events (2026-11-01)
+===============================================================
+
+- Refresh Xlib's keyboard mapping cache before rebuilding locking modifiers
+  after keyboard or modifier mapping notifications, avoiding stale key-symbol
+  lookup after input-layout changes.
+- Extend focused mapping-lifecycle coverage and documentation.
+
 Release MWM lock-mask sequences on mapping refresh (2026-11-01)
 ================================================================
 

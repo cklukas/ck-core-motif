@@ -31,4 +31,11 @@ first_dereference = setup.index("modifier_map->max_keypermod", mapping)
 assert mapping < null_guard < first_dereference
 assert "BuildLockMaskSequence();" in setup[null_guard:first_dereference]
 
+handler_start = source.index("static void\nMappingEventHandler")
+handler_end = source.index("\n\f\n/******************************<->", handler_start)
+handler = source[handler_start:handler_end]
+refresh = handler.index("XRefreshKeyboardMapping(&event->xmapping);")
+modifier = handler.index("if(event->xmapping.request == MappingModifier)")
+assert refresh < modifier
+
 print("PASS MWM lock-mask sequences reject unsafe width and allocation failure")

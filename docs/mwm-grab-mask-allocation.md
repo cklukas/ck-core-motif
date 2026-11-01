@@ -28,3 +28,8 @@ mask and builds that sequence without dereferencing the absent mapping.
 When XKB modifier mappings change, MWM releases the previous sequence before
 publishing its replacement, preventing one Xt allocation leak per mapping
 refresh.
+
+Before rebuilding a modifier sequence, MWM now refreshes Xlib's keyboard
+mapping cache for keyboard and modifier `MappingNotify` events. This keeps the
+key-symbol lookup used to discover locking modifiers synchronized after a
+layout or modifier change.

@@ -409,6 +409,8 @@ MappingEventHandler(
         if(event->xany.type != MappingNotify ||
                 event->xmapping.request == MappingPointer)
                 return;
+
+        XRefreshKeyboardMapping(&event->xmapping);
  
         if(event->xmapping.request == MappingModifier)
                 SetupLockingModifierMask();
