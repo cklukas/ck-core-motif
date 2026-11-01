@@ -351,7 +351,7 @@ void ProcessWmProtocols (ClientData *pCD)
     }
     else
     {
-	if ((nitems != 0 && property == NULL) ||
+	if (nitems == 0 || property == NULL ||
 	    nitems > SIZE_MAX / sizeof(Atom) ||
 	    nitems > UINT_MAX / sizeof(Atom) ||
 	    !(pCD->clientProtocols = (Atom *)XtMalloc(

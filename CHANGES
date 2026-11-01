@@ -1,3 +1,10 @@
+Treat empty MWM protocol properties as absent (2026-11-01)
+===========================================================
+
+- Reject zero-item `WM_PROTOCOLS` payloads before allocation, matching the
+  existing empty `_MWM_MESSAGES` handling and avoiding zero-byte allocations.
+- Extend focused property-payload coverage and document the behavior.
+
 Reject empty MWM desktop-request properties (2026-11-01)
 =========================================================
 
