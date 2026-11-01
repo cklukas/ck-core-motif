@@ -1,0 +1,209 @@
+{
+  "tested_revision": "3dae8370a76a9ae7bb6f46ae1a0fb1eee2dabebd",
+  "scope": "Native Mac arm64 C23 gallery with Xft/Unicode/SVG; actual Dialog Shell page, launcher callback, child lifecycle and close actions.",
+  "production_sources": {
+    "demos/programs/ckmotif-gallery/gallery.c": "e4f88ca060a32a0c6c05409353b612a07b8a29f93daf1dd2806aa6fe78468624",
+    "demos/programs/ckmotif-gallery/gallery_examples.c": "d3feb34053c9136366bbde4cbe77382d2605f9cb2667c9f15fc82c590f6333e9"
+  },
+  "source_asset_manifest_sha256": "37e982cef22c8c5d032514d70a3840afbaf789426589d566855502c4784a90b8",
+  "build": {
+    "started_utc": "2026-11-01T21:36:10.260308+00:00",
+    "ended_utc": "2026-11-01T21:36:16.823417+00:00",
+    "elapsed_seconds": 6.562968083002488,
+    "configuration": "Mac arm64 Clang C23, Xft/Unicode/SVG, shared-only, -j3",
+    "outputs": {
+      "/Volumes/S8T/tmp/motif-dialog-shell-20261101/install/bin/ckmotif-gallery": {
+        "sha256": "b1b412f388bd39b7c55d951923661a4155e28e518aac0ca1a4d19623c6525211",
+        "mtime_ns": 1793568976707165824,
+        "file": "/Volumes/S8T/tmp/motif-dialog-shell-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+      },
+      "/Volumes/S8T/tmp/motif-dialog-shell-20261101/install/lib/libXm.9.dylib": {
+        "sha256": "a49bb864cdf27efb9b5b3d5811a93da132496a28ceb0d40dd8b4d1e4691e9f1b",
+        "mtime_ns": 1793568976268044828,
+        "file": "/Volumes/S8T/tmp/motif-dialog-shell-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+      }
+    }
+  },
+  "clean_build_baseline": {
+    "previous_clean_library_seconds": 37.21,
+    "current_initial_clean_library_seconds": 24.52,
+    "current_configure_seconds": 27.34,
+    "freshness": "New empty configured build; direct Clang compilation recorded. Final incremental logs identify rebuilt maintenance inputs and gallery sources. Compiled fingerprints and native/installed tests establish identity."
+  },
+  "dialog_acceptance": {
+    "configurations": 18,
+    "open_close_cycles": 54,
+    "themes": [
+      "Classic",
+      "modern light",
+      "modern dark"
+    ],
+    "scales": [
+      1,
+      1.5,
+      2
+    ],
+    "densities": [
+      "comfortable",
+      "compact"
+    ],
+    "close_paths": [
+      "Close activate callback",
+      "WM_DELETE_WINDOW event",
+      "Escape key with keyboard focus established on the isolated server"
+    ],
+    "checks": [
+      "complete launcher text and frame fit",
+      "managed populated Form content and rendered text pixels",
+      "balanced child margins and no clipping",
+      "top-level transient owner",
+      "centered placement after moving owner",
+      "same native window reused across reopen",
+      "content and shell unmap on close"
+    ],
+    "command": [
+      "/Volumes/S8T/tmp/motif-dialog-shell-20261101/build/demos/programs/ckmotif-gallery/.libs/ckmotif-gallery",
+      "--integration-shells"
+    ],
+    "result": "PASS",
+    "receipt_sha256": "0f43ecdf644d519bb171e91ee49a820597d2c57f81b82da1878155b612fbcc33"
+  },
+  "native_regressions": {
+    "result": "PASS",
+    "steps": [
+      {
+        "name": "compile-svg-image",
+        "exit_code": 0
+      },
+      {
+        "name": "compile-dialog-icons",
+        "exit_code": 0
+      },
+      {
+        "name": "compile-action-icons",
+        "exit_code": 0
+      },
+      {
+        "name": "compile-buffered-text",
+        "exit_code": 0
+      },
+      {
+        "name": "compile-live-appearance",
+        "exit_code": 0
+      },
+      {
+        "name": "compile-live-appearance-gadget",
+        "exit_code": 0
+      },
+      {
+        "name": "compile-default-button-geometry",
+        "exit_code": 0
+      },
+      {
+        "name": "compile-avatar-rendering",
+        "exit_code": 0
+      },
+      {
+        "name": "compile-avatar-geometry",
+        "exit_code": 0
+      },
+      {
+        "name": "avatar-rendering",
+        "exit_code": 0
+      },
+      {
+        "name": "avatar-geometry",
+        "exit_code": 0
+      },
+      {
+        "name": "live-appearance",
+        "exit_code": 0
+      },
+      {
+        "name": "live-appearance-gadget",
+        "exit_code": 0
+      },
+      {
+        "name": "default-button-geometry",
+        "exit_code": 0
+      },
+      {
+        "name": "svg-image",
+        "exit_code": 0
+      },
+      {
+        "name": "dialog-icons",
+        "exit_code": 0
+      },
+      {
+        "name": "action-icons",
+        "exit_code": 0
+      },
+      {
+        "name": "text-auto",
+        "exit_code": 0
+      },
+      {
+        "name": "text-pixmap",
+        "exit_code": 0
+      },
+      {
+        "name": "text-direct",
+        "exit_code": 0
+      },
+      {
+        "name": "gallery-icons-all-nine",
+        "exit_code": 0
+      },
+      {
+        "name": "gallery-sidebar",
+        "exit_code": 0
+      },
+      {
+        "name": "gallery-integration",
+        "exit_code": 0
+      }
+    ]
+  },
+  "installed_cohort": {
+    "demos": 34,
+    "result": "PASS installed binary/asset identity, 33 demo startups plus separate MWM/Wsm workflow, Open and missing-notice behavior with build demos hidden",
+    "receipt_sha256": "596c69e40be4bee95b9bf63c47bd43ddee6e97a8f9417e0db10c0fd82eae2ed4"
+  },
+  "source_guards": [
+    {
+      "record": "source-checks.json",
+      "count": 17,
+      "sha256": "f89686dd2083dbf45e03c9384a3bda1589b70b3a16e9d032011f2c0f7b69c6b7",
+      "result": "PASS"
+    },
+    {
+      "record": "merged-source-checks.json",
+      "count": 4,
+      "sha256": "7f708b06443a1efa99a759014edd05a8ddcb4ca681bc19bb189e7b72649f2968",
+      "result": "PASS"
+    }
+  ],
+  "actual_window": {
+    "client_pid": 47766,
+    "executable": "/Volumes/S8T/tmp/motif-dialog-shell-20261101/install/bin/ckmotif-gallery",
+    "main": {
+      "id": 6713,
+      "x": 954,
+      "y": 491,
+      "width": 1100,
+      "height": 762
+    },
+    "dialog": {
+      "id": 6714,
+      "x": 1319,
+      "y": 793,
+      "width": 370,
+      "height": 201
+    },
+    "image": "/Volumes/S8T/tmp/motif-dialog-shell-20261101/actual-dialog-window.png",
+    "image_sha256": "4d59b9d643d5d96645b82503eb2f5c1dfdeec0e2b95826fc72d99a65aa368dc5",
+    "observed": "Full launcher caption. Populated, normally sized Dialog Shell over its gallery owner, with visible title, two message lines, balanced margins and Close action. Sidebar labels remain visible.",
+    "input": "Opened at startup with --open-example; no mouse/keyboard input sent to user desktop. Left open for manual testing."
+  }
+}

@@ -8,6 +8,8 @@
   and qualify repeated open/close behavior across themes and scales.
 - Add `--open-example` for inspection and native page acceptance. See
   [shell examples](docs/gallery-shell-examples.md).
+- Qualify 18 configurations, 54 open/close cycles and the actual XQuartz
+  window; see the [validation record](docs/validation/macos-dialog-shell-20261101.json).
 
 ## 2026-11-01 — Modern Cascade buttons
 
