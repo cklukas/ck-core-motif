@@ -1,3 +1,10 @@
+Reject empty MWM desktop-request properties (2026-11-01)
+=========================================================
+
+- Treat empty or null `DT_WM_REQUEST` property payloads as invalid instead of
+  forwarding a synthetic empty request to the MWM request parser.
+- Add focused property-input regression coverage and document the behavior.
+
 Preserve MWM hotspot rectangle extents (2026-11-01)
 ======================================================
 

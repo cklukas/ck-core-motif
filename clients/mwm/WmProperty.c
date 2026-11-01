@@ -1975,7 +1975,9 @@ GetDtWmRequest (
 	 */
 	if ((rValue != Success) || 
 	    (actualType == None) || 
-	    (actualFormat != 8))
+	    (actualFormat != 8) ||
+	    (nitems == 0) ||
+	    (property == NULL))
 	{
 	    /* The property does not exist or it is an invalid type. */
 	    if (property != NULL)
