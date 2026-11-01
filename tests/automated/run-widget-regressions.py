@@ -70,6 +70,7 @@ try:
     libraries = [p for p in (args.prefix / "lib").glob("libXm.so.*") if not p.is_symlink()]
     if len(libraries) != 1:
         raise RuntimeError("prefix must contain exactly one actual libXm ELF")
+    env["CKMOTIF_EXPECT_LIBRARY"] = str(libraries[0].resolve())
     receipt["libraries"] = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in libraries}
     ok = run("locale", ["localedef", "--no-archive", "-i", "de_DE", "-f", "UTF-8",
                          args.results / "locales/de_DE.UTF-8"])
@@ -98,7 +99,7 @@ try:
         receipt["sources"][source.name] = hashlib.sha256(source.read_bytes()).hexdigest()
         binary = args.results / ("check-" + name)
         if not run("compile-" + name, [args.cc, *flags, source,
-                                       "-lXm", "-lXt", "-lX11", "-o", binary]):
+                                       "-lXm", "-lXt", "-lX11", "-ldl", "-o", binary]):
             ok = False
             continue
         if not run("link-" + name, ["ldd", binary]):

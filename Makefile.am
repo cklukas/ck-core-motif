@@ -223,6 +223,7 @@ EXTRA_DIST += tests/automated/check-uil-listing.py docs/uil-listing.md
 EXTRA_DIST += tests/automated/run-uil-debug-runtime.py
 EXTRA_DIST += tests/automated/run-tabbed-stack-copy-unit.py docs/tabbed-stack-copy-failure.md
 EXTRA_DIST += tests/automated/run-container-tab-pool-unit.py
+EXTRA_DIST += tests/automated/run-list-unicode-regressions.py
 EXTRA_DIST += tests/automated/run-scrolled-list-constructor-unit.py
 EXTRA_DIST += docs/scrolled-text-create-failure.md
 EXTRA_DIST += tests/automated/check-uil-diagnostic-location-bounds.py docs/uil-diagnostic-location-bounds.md

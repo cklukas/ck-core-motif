@@ -1,3 +1,13 @@
+Expand non-text Unicode navigation coverage (2026-11-01)
+========================================================
+
+- Exercise List quick navigation with combining text, supplementary emoji,
+  Han, Hebrew and Arabic labels; verify exact selection callback payloads
+  and counts, malformed commits, cached-character replacement and list reuse.
+- Add a focused installed-prefix Xvfb runner with actual loaded-library proof,
+  source/header/library fingerprints and timing receipts. Update the existing
+  widget runner to supply the same expected-library contract.
+
 Expand installed text-source boundary validation (2026-11-01)
 ============================================================
 
