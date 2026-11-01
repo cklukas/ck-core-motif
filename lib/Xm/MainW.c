@@ -1221,8 +1221,18 @@ SetValues(
 	if (XtIsRealized((Widget)new_w)) {
 	    Dimension width = 0, height = 0 ;
 	    GetSize (new_w, &width, &height);
-	    new_w->core.width = width ;
-	    new_w->core.height = height ;
+	    if (new_w->core.width == width && new_w->core.height == height)
+	    {
+		/* Xt does not invoke resize when the enclosing geometry is
+		 * unchanged.  Margin and separator changes still alter the
+		 * child layout, so apply that layout explicitly. */
+		Resize((Widget)new_w);
+	    }
+	    else
+	    {
+		new_w->core.width = width ;
+		new_w->core.height = height ;
+	    }
 	}
     }
            

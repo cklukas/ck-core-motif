@@ -1,3 +1,10 @@
+Relayout MainWindow after same-size resource changes (2026-11-01)
+===============================================================
+
+- Apply MainWindow child layout when a live margin or separator change leaves
+  the outer geometry unchanged, so menus, work areas, and separators no
+  longer retain stale positions until a later resize.
+
 Bound DropDown selected-text assembly (2026-11-01)
 ====================================================
 

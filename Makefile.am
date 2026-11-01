@@ -1258,6 +1258,7 @@ EXTRA_DIST += tests/automated/check-tree-view-preorder-allocation.py docs/tree-v
 EXTRA_DIST += docs/hash-table-limits.md
 EXTRA_DIST += tests/automated/check-dropdown-selection-inputs.py docs/dropdown-selection-allocation.md
 EXTRA_DIST += tests/automated/check-dropdown-negotiation-contract.py docs/dropdown-layout-state.md
+EXTRA_DIST += tests/automated/check-mainwindow-width-query-bounds.py docs/mainwindow-live-layout.md
 
 EXTRA_DIST += tests/automated/check-tree-view-disclosure.c \
               tests/automated/run-tree-view-disclosure.py
