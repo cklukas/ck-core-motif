@@ -10,6 +10,13 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Bound RowColumn menu argument construction (2026-11-01)
+==========================================================
+
+- Replace fixed-size menu and popup-shell `Arg` stack arrays with checked,
+  dynamically allocated lists and reject invalid caller list pointers/counts.
+- Add focused regression coverage and construction-path documentation.
+
 Make MWM icon-box GC masks type-safe (2026-11-01)
 =====================================================
 
