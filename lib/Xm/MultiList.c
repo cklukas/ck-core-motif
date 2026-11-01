@@ -63,6 +63,8 @@ static Widget CreateScrollbar(Widget, Boolean, ArgList, Cardinal);
 static Widget CreateFindButton(Widget, ArgList, Cardinal);
 static Widget CreateFindText(Widget, ArgList, Cardinal);
 static Widget CreateFrame(Widget, ArgList, Cardinal);
+static ArgList MultiListMergeArgLists(ArgList, Cardinal, ArgList, Cardinal,
+				      Cardinal *);
 static Dimension multilist_frame_dimension(Dimension child, Dimension border);
 
 static void   ActivateTextSearch(Widget, XtPointer, XtPointer);
@@ -1107,16 +1109,19 @@ CreateTitle(Widget parent, XmString label, ArgList args, Cardinal num_args)
 {
     Widget w;
     Arg *new_args, largs[5];
-    Cardinal num_largs;
+    Cardinal num_largs, merged_num_args = 0;
 
     num_largs = 0;
     if (label != NULL) {
 	XtSetArg(largs[num_largs], XmNlabelString, label); num_largs++;
     }
-    new_args = XtMergeArgLists(args, num_args, largs, num_largs);
+    new_args = MultiListMergeArgLists(args, num_args, largs, num_largs,
+				      &merged_num_args);
+    if (new_args == NULL && merged_num_args != 0)
+	return(NULL);
 
     w = XtCreateManagedWidget("title", xmLabelWidgetClass, parent, 
-			      new_args, num_largs + num_args);
+			      new_args, merged_num_args);
 
     XtFree((XtPointer) new_args);
 
@@ -1139,7 +1144,7 @@ CreateScrollbar(Widget parent, Boolean is_vert,ArgList args, Cardinal num_args)
 {
     Widget w;
     Arg *new_args, largs[5];
-    Cardinal num_largs = 0;
+    Cardinal num_largs = 0, merged_num_args;
     String name;
 
     if (is_vert) {
@@ -1151,10 +1156,13 @@ CreateScrollbar(Widget parent, Boolean is_vert,ArgList args, Cardinal num_args)
 	name = "horizBar";
     }
     num_largs++;
-    new_args = XtMergeArgLists(args, num_args, largs, num_largs);
+    new_args = MultiListMergeArgLists(args, num_args, largs, num_largs,
+				      &merged_num_args);
+    if (new_args == NULL)
+	return(NULL);
 
     w = XtCreateManagedWidget(name, xmScrollBarWidgetClass, parent,
-			      new_args, num_args + num_largs);
+			      new_args, merged_num_args);
 
     XtFree((XtPointer) new_args);
 
@@ -1166,16 +1174,19 @@ CreateFindButton(Widget parent, ArgList args, Cardinal num_args)
 {
     Widget w;
     Arg *new_args, largs[5];
-    Cardinal num_largs = 0;
+    Cardinal num_largs = 0, merged_num_args;
     XmMultiListWidget elist = (XmMultiListWidget) parent;
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNlabelString, XmMultiList_find_label(elist)); 
                   num_largs++;
-    new_args = XtMergeArgLists(args, num_args, largs, num_largs);
+    new_args = MultiListMergeArgLists(args, num_args, largs, num_largs,
+				      &merged_num_args);
+    if (new_args == NULL)
+	return(NULL);
 
     w = XtCreateWidget("find", xmPushButtonWidgetClass, parent,
-                  new_args, num_largs + num_args);
+			  new_args, merged_num_args);
     if (w != NULL)
 	XtAddCallback(w, XmNactivateCallback, ActivateTextSearch, parent);
 
@@ -1225,14 +1236,17 @@ CreateFrame(Widget parent, ArgList args, Cardinal num_args)
     XmMultiListWidget elist = (XmMultiListWidget) parent;
     Widget w;
     Arg largs[2], * new_args;
-    Cardinal num_largs;
+    Cardinal num_largs, merged_num_args;
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNshadowType, XmSHADOW_IN); num_largs++;
-    new_args = XtMergeArgLists(args, num_args, largs, num_largs);
+    new_args = MultiListMergeArgLists(args, num_args, largs, num_largs,
+				      &merged_num_args);
+    if (new_args == NULL)
+	return(NULL);
 
     w = XtCreateWidget("frame", xmFrameWidgetClass, parent,
-		       new_args, num_args + num_largs);
+		       new_args, merged_num_args);
     
     XtFree((XtPointer) new_args);
 
@@ -1245,11 +1259,14 @@ CreateFrame(Widget parent, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNhorizontalScrollBar, XmMultiList_h_bar(elist));
     num_largs++;    
 
-    new_args = XtMergeArgLists(args, num_args, largs, num_largs);
+    new_args = MultiListMergeArgLists(args, num_args, largs, num_largs,
+				      &merged_num_args);
+    if (new_args == NULL)
+	return(w);
     
     XmMultiList_ilist(elist) = XtCreateManagedWidget("list", xmI18ListWidgetClass,
 						  w, new_args, 
-						  num_args + num_largs);
+						  merged_num_args);
 
     XtFree((XtPointer) new_args);
 
@@ -1268,6 +1285,20 @@ CreateFrame(Widget parent, ArgList args, Cardinal num_args)
     XtManageChild(w);
 
     return(w);
+}
+
+/* Merge caller and child arguments without wrapping the Cardinal count.
+ * A NULL list is valid only when the merged count is zero; otherwise callers
+ * handle it as a failed optional child. */
+static ArgList
+MultiListMergeArgLists(ArgList args, Cardinal num_args, ArgList local_args,
+		       Cardinal num_local_args, Cardinal *merged_num_args)
+{
+    if (num_args > (Cardinal)(~(Cardinal)0) - num_local_args)
+	return(NULL);
+
+    *merged_num_args = num_args + num_local_args;
+    return XtMergeArgLists(args, num_args, local_args, num_local_args);
 }
 
 static Dimension

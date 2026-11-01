@@ -29,8 +29,8 @@
 extern void AddIconBoxForWorkspace (WmWorkspaceData *pWS);
 #endif /* WSM */
 extern void AddNewBox (WmWorkspaceData *pWS, IconBoxData *pIBD);
-extern void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, 
-					 XFocusChangeEvent *event);
+extern void ChangeActiveIconboxIconText (Widget icon, XtPointer client_data,
+					 XEvent *event, Boolean *continue_to_dispatch);
 extern void CheckIconBoxResize (ClientData *pCD, unsigned int changedValues, 
 				int newWidth, int newHeight);
 extern Boolean CheckIconBoxSize (IconBoxData *pIBD);
@@ -43,10 +43,10 @@ extern void FindNewPosition (Cardinal *newPosition, IconPlacementData *pIPD,
 			     int newPlace);
 extern MenuItem *GetIconBoxMenuItems (WmScreenData *pSD);
 extern void GetIconBoxIconRootXY (ClientData *pCD, int *pX, int *pY);
-extern void HandleIconBoxButtonMotion (Widget icon, caddr_t client_data, 
-				       XEvent *pev);
-extern void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, 
-				       XKeyEvent *keyEvent);
+extern void HandleIconBoxButtonMotion (Widget icon, XtPointer client_data,
+				       XEvent *event, Boolean *continue_to_dispatch);
+extern void HandleIconBoxIconKeyPress (Widget icon, XtPointer client_data,
+				       XEvent *event, Boolean *continue_to_dispatch);
 #ifndef MOTIF_ONE_DOT_ONE
 extern void IconScrollVisibleCallback (Widget w, caddr_t client_data, 
 				  XmAnyCallbackStruct *call_data);
@@ -88,7 +88,7 @@ extern void ShowClientIconState (ClientData *pCD, int newState);
 #ifdef WSM
 extern void UnmapIconBoxes (WmWorkspaceData *pWS);
 #endif /* WSM */
-extern void UpdateIncrements (Widget sWidget, IconBoxData *pIBD, 
-			      XConfigureEvent *event);
+extern void UpdateIncrements (Widget sWidget, XtPointer client_data,
+			      XEvent *event, Boolean *continue_to_dispatch);
 extern String WmXmStringToString (XmString xmString);
 

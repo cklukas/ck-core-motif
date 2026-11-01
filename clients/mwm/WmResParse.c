@@ -2976,6 +2976,7 @@ static MenuItem *ParseMenuItems (WmScreenData *pSD
     MenuItem      *lastMenuItem;
     MenuItem      *menuItem;
     size_t          ix = 0;
+    int             parsed_ix;
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
     Boolean        use_separators = False;
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
@@ -3083,7 +3084,16 @@ static MenuItem *ParseMenuItems (WmScreenData *pSD
 	  ParseMenuItemName(&lineP, menuItem);
 	else
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
-	  ix = ParseWmFunction (&lineP, CRS_MENU, &menuItem->wmFunction);
+	  {
+	      parsed_ix = ParseWmFunction (&lineP, CRS_MENU,
+					  &menuItem->wmFunction);
+	      if (parsed_ix < 0 || (size_t)parsed_ix >= WMFUNCTIONTABLESIZE)
+	      {
+		  FreeMenuItem(menuItem);
+		  continue;
+	      }
+	      ix = (size_t)parsed_ix;
+	  }
 
 	/*
 	 * Determine context sensitivity and applicability mask.
@@ -4953,13 +4963,13 @@ static void ParseButtonSet (WmScreenData *pSD, unsigned char *lineP)
 	if ((functionTable[ix].greyedContext & F_SUBCONTEXT_IB_IICON) &&
 	    (buttonSpec->subContext & F_SUBCONTEXT_IB_IICON))
 	{
-	    buttonSpec->subContext &= ~F_SUBCONTEXT_IB_IICON;
+	    buttonSpec->subContext &= ~(Context)F_SUBCONTEXT_IB_IICON;
 	}
 
 	if ((functionTable[ix].greyedContext & F_SUBCONTEXT_IB_WICON) &&
 	    (buttonSpec->subContext & F_SUBCONTEXT_IB_WICON))
 	{
-	    buttonSpec->subContext &= ~F_SUBCONTEXT_IB_WICON;
+	    buttonSpec->subContext &= ~(Context)F_SUBCONTEXT_IB_WICON;
 	}
 
 	/*
@@ -5029,13 +5039,32 @@ static void ParseButtonSet (WmScreenData *pSD, unsigned char *lineP)
  * 
  *************************************<->***********************************/
 
+static size_t
+CopyParsedToken (
+    unsigned char       *destination,
+    size_t               destination_size,
+    const unsigned char *start,
+    const unsigned char *end)
+{
+    size_t length;
+
+    if (destination == NULL || destination_size == 0 || start == NULL ||
+	end == NULL || end < start)
+	return 0;
+    length = (size_t)(end - start);
+    if (length >= destination_size)
+	length = destination_size - 1;
+    memcpy(destination, start, length);
+    destination[length] = '\0';
+    return length;
+}
+
 static Boolean ParseContext (unsigned char **linePP, Context *context, 
 			     Context *subContext)
 {
     unsigned char   *lineP = *linePP;
     unsigned char   *startP;
     unsigned char    ctxStr[MAX_CONTEXT_STRLEN+1];
-    int     len;
 
     /*
      * Parse contexts while each is followed by "|".
@@ -5061,9 +5090,8 @@ static Boolean ParseContext (unsigned char **linePP, Context *context,
 	 * Found nonNULL string; compare it with valid contexts.
 	 */
 
-        len = min(lineP - startP, MAX_CONTEXT_STRLEN);
-        (void) strncpy ((char *)ctxStr, (char *)startP, len);
-        ctxStr[len] = '\0';
+	if (CopyParsedToken(ctxStr, sizeof(ctxStr), startP, lineP) == 0)
+	    return (FALSE);
         ToLower (ctxStr);
 
         if (!strcmp ("root", (char *)ctxStr))
@@ -5392,13 +5420,13 @@ static void ParseKeySet (WmScreenData *pSD, unsigned char *lineP)
 	if ((functionTable[ix].greyedContext & F_SUBCONTEXT_IB_IICON) &&
 	    (keySpec->subContext & F_SUBCONTEXT_IB_IICON))
 	{
-	    keySpec->subContext &= ~F_SUBCONTEXT_IB_IICON;
+	    keySpec->subContext &= ~(Context)F_SUBCONTEXT_IB_IICON;
 	}
 
 	if ((functionTable[ix].greyedContext & F_SUBCONTEXT_IB_WICON) &&
 	    (keySpec->subContext & F_SUBCONTEXT_IB_WICON))
 	{
-	    keySpec->subContext &= ~F_SUBCONTEXT_IB_WICON;
+	    keySpec->subContext &= ~(Context)F_SUBCONTEXT_IB_WICON;
 	}
 
         /* 
@@ -6253,7 +6281,6 @@ static Boolean ParseModifiers(unsigned char **linePP, unsigned int *state)
     unsigned char          modStr[MAX_MODIFIER_STRLEN+1];
     Boolean       fNot;
     unsigned int  maskBit;
-    int           len;
 
     *state = 0;
  
@@ -6281,9 +6308,8 @@ static Boolean ParseModifiers(unsigned char **linePP, unsigned int *state)
 	{
             return (FALSE);
         }
-        len = min(lineP - startP, MAX_MODIFIER_STRLEN);
-        (void) strncpy ((char *)modStr, (char *)startP, len);
-        modStr[len] = '\0';
+        if (CopyParsedToken(modStr, sizeof(modStr), startP, lineP) == 0)
+	    return (FALSE);
 
         if (!LookupModifier (modStr, &maskBit))
         /* Unknown modifier name */
@@ -6552,7 +6578,7 @@ static Boolean ParseEventType (unsigned char **linePP, EventTableEntry *table,
     unsigned char *lineP = *linePP;
     unsigned char *startP = *linePP;
     unsigned char eventTypeStr[MAX_EVENTTYPE_STRLEN+1];
-    register int  len;
+    Cardinal event_index;
 
     /* Parse out the event string */
     ScanAlphanumeric (&lineP);
@@ -6563,16 +6589,17 @@ static Boolean ParseEventType (unsigned char **linePP, EventTableEntry *table,
 
     if (startP != lineP)
     {
-        len = min (lineP - startP, MAX_EVENTTYPE_STRLEN);
-        (void) strncpy ((char *)eventTypeStr, (char *)startP, len);
-        eventTypeStr[len] = '\0';
+	if (CopyParsedToken(eventTypeStr, sizeof(eventTypeStr), startP,
+			    lineP) == 0)
+	    return (FALSE);
         ToLower (eventTypeStr);
 
-        for (len = 0; table[len].event != NULL; len++)
-            if (!strcmp (table[len].event, (char *)eventTypeStr))
+        for (event_index = 0; table[event_index].event != NULL;
+	     event_index++)
+            if (!strcmp (table[event_index].event, (char *)eventTypeStr))
             {
-               *ix = len;
-               *eventType = table[*ix].eventType;
+	       *ix = event_index;
+               *eventType = table[event_index].eventType;
                *linePP = lineP;
                return (TRUE); 
             }
@@ -6660,7 +6687,7 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
     unsigned char *startP;
     char           keySymName[MAX_KEYSYM_STRLEN+1];
     unsigned int   numericKeySym;
-    int            len;
+    KeySym         keySym;
 #ifndef NO_MULTIBYTE
     int            chlen;
 #endif
@@ -6685,15 +6712,17 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
     }
 #endif
 
-    len = min (lineP - startP, MAX_KEYSYM_STRLEN);
-    (void) strncpy (keySymName, (char *)startP, len);
-    keySymName[len] = '\0';
+    if (CopyParsedToken((unsigned char *)keySymName, sizeof(keySymName),
+			startP, lineP) == 0)
+	return (FALSE);
+
+    keySym = XStringToKeysym(keySymName);
 
 #ifndef NO_MULTIBYTE
-    if ((*detail = XStringToKeysym(keySymName)) == NoSymbol &&
+    if (keySym == NoSymbol &&
 	 (mblen (keySymName, MB_CUR_MAX) == 1))
 #else
-    if ((*detail = XStringToKeysym(keySymName)) == NoSymbol)
+    if (keySym == NoSymbol)
 #endif
     {
         if (!isdigit ((unsigned char)keySymName[0]) ||
@@ -6704,6 +6733,13 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
         }
         *detail = numericKeySym;
     }
+    else if (keySym > UINT_MAX)
+    {
+	*detail = NoSymbol;
+	return (FALSE);
+    }
+    else
+	*detail = (unsigned int)keySym;
     *linePP = lineP;
     return (TRUE);
 
@@ -7016,18 +7052,18 @@ void ToLower (unsigned char  *string)
 
     while (*pch && ((chlen = mblen ((char *)pch, MB_CUR_MAX)) > 0))
     {
-        if ((chlen == 1) && (isupper (*pch)))
+	if ((chlen == 1) && isupper((unsigned char)*pch))
 	{
-	    *pch = tolower(*pch);
+	    *pch = (unsigned char)tolower((unsigned char)*pch);
 	}
 	pch += chlen;
     }
 #else
     while (*pch != '\0')
     {
-        if (isupper (*pch))
+	if (isupper((unsigned char)*pch))
 	{
-	    *pch = tolower(*pch);
+	    *pch = (unsigned char)tolower((unsigned char)*pch);
 	}
 	pch++;
     }

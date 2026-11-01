@@ -109,6 +109,8 @@ static void CreateSizesBox(XmFontSelectorWidget, Widget, ArgList, Cardinal);
 static void CreateBoldItalicBox(XmFontSelectorWidget,Widget,ArgList, Cardinal);
 static void CreateOtherChoiceBox(XmFontSelectorWidget,
 				 Widget, ArgList, Cardinal);
+static ArgList FontSelectorMergeArgLists(ArgList, Cardinal, ArgList,
+					  Cardinal);
 
 /************************************************************
  *     Private functions. 
@@ -145,7 +147,8 @@ static Widget CreateEncodingMenu(XmFontSelectorWidget,
 
 static FontInfo * LoadFontInfo(XmFontSelectorWidget);
 
-static int FindResolution(Widget), CmpStrings(const void *, const void *);
+static short FindResolution(Widget);
+static int CmpStrings(const void *, const void *);
 
 static Boolean CheckFlag(Flag, Flag), CheckLongFlag(LongFlag, LongFlag);
 static Boolean FillData(XmFontSelectorWidget, FontData *, char *);
@@ -209,7 +212,7 @@ ABCDEFGHIJKLMONPQRSTUVWXYZ\n\
  * of those we are closest to with FindResolution().
  */
 
-static int resolutions[] = { 75, 100 };
+static const short resolutions[] = { 75, 100 };
 
 static long long square_or_max(long long value)
 {
@@ -600,7 +603,11 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
 
     num = 1;		
     alloc = FAMILY_INC;
-    fam = (FamilyInfo *) XtMalloc(sizeof(FamilyInfo) * alloc);
+    if ((size_t)alloc > UINT_MAX / sizeof(*fam)) {
+	XtFree((char *)top);
+	return;
+    }
+    fam = (FamilyInfo *) XtMalloc((Cardinal)(sizeof(*fam) * (size_t)alloc));
     if (fam == NULL) {
 	XtFree((char *)top);
 	return;
@@ -615,6 +622,8 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
 	register FamilyInfo *cur_family = FindFamily(data->familyq, fam, num);
 	
 	if (cur_family == NULL) {
+	    if (num >= SHRT_MAX)
+		break;
 	    if ( num >= alloc ) {
 		if (alloc > INT_MAX - FAMILY_INC) {
 		    XtFree((char *)fam);
@@ -631,8 +640,10 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
 		}
 		alloc += FAMILY_INC;
 		{
+		    Cardinal allocation_size =
+			(Cardinal)(sizeof(*fam) * (size_t)alloc);
 		    FamilyInfo *new_fam = (FamilyInfo *) XtRealloc(
-			(XtPointer) fam, sizeof(FamilyInfo) * alloc);
+			(XtPointer) fam, allocation_size);
 		    if (new_fam == NULL) {
 			XtFree((char *)fam);
 			XtFree((char *)top);
@@ -651,7 +662,7 @@ ProcessXlfdFontData(XmFontSelectorWidget fsw,
     }
 
     font_info->family_info = fam;
-    font_info->num_families = num;
+    font_info->num_families = (short)num;
 
     any_fam = fam + ANY_FAMILY;
     temp = _XmGetMBStringFromXmString(ANY_STRING(fsw));
@@ -689,7 +700,7 @@ SortOtherFontData(FontInfo *font_info, String *list, int num)
 {
     register int i = 0;
 
-    qsort((void *) list, num, sizeof(String), CmpStrings);
+    qsort((void *) list, (size_t)num, sizeof(String), CmpStrings);
 
     /*
      * Remove duplicates.
@@ -716,7 +727,7 @@ SortOtherFontData(FontInfo *font_info, String *list, int num)
     }
 
     font_info->others = list;
-    font_info->num_others = num;
+    font_info->num_others = (short)num;
 }
 
 /*	Function Name: CmpStrings
@@ -740,11 +751,12 @@ CmpStrings(const void * p1, const void *p2)
  *	Returns: the closest allowable resolution to the real resolution.
  */
 
-static int
+static short
 FindResolution(Widget w)
 {
     Screen *screen = XtScreen(w);
-    register int i, pref;
+    Cardinal i;
+    short pref;
     long long xres, yres, min;
 
     /*
@@ -836,6 +848,8 @@ AddToXlfdList(XmFontSelectorWidget fsw,
 	      char *name, FontData **list, int *num, int *alloc)
 {
     FontData *current;
+    if (*num < 0 || *alloc < 0 || *num >= SHRT_MAX)
+	return;
     if (*num >= *alloc) {
 	int new_alloc;
 	FontData *new_list;
@@ -846,7 +860,8 @@ AddToXlfdList(XmFontSelectorWidget fsw,
 	    (size_t)new_alloc > UINT_MAX / sizeof(*new_list))
 	    return;
 	new_list = (FontData *) XtRealloc((XtPointer) *list,
-				  sizeof(*new_list) * (size_t)new_alloc);
+				  (Cardinal)(sizeof(*new_list) *
+				  (size_t)new_alloc));
 	if (new_list == NULL)
 	    return;
 	*list = new_list;
@@ -876,6 +891,8 @@ static void
 AddToOtherList(char *name, String **list, int *num, int *alloc)
 {
     String new_name;
+    if (*num < 0 || *alloc < 0 || *num >= SHRT_MAX)
+	return;
     if (*num >= *alloc) {
 	int new_alloc;
 	String *new_list;
@@ -886,7 +903,8 @@ AddToOtherList(char *name, String **list, int *num, int *alloc)
 	    (size_t)new_alloc > UINT_MAX / sizeof(*new_list))
 	    return;
 	new_list = (String *) XtRealloc((XtPointer) *list,
-				       sizeof(*new_list) * (size_t)new_alloc);
+				       (Cardinal)(sizeof(*new_list) *
+				       (size_t)new_alloc));
 	if (new_list == NULL)
 	    return;
 	*list = new_list;
@@ -1089,7 +1107,7 @@ static void
 StoreString(register String str, register String store, register int max_len)
 {
     register int i;
-    register int c;
+    register char c;
 
     for (i = 0; i < max_len; i++, str++, store++) {
 	if (((c = *str) == '-') || (c == '\0'))
@@ -1297,7 +1315,7 @@ FillNewFamily(FamilyInfo *fam, FontData *font)
     }
 
     fam->encoding_alloc = NUM_BUTTONS;
-    fam->encodings = (XrmQuark *) XtCalloc(fam->encoding_alloc,
+	    fam->encodings = (XrmQuark *) XtCalloc((Cardinal)fam->encoding_alloc,
 					   sizeof(XrmQuark));
     if (fam->encodings == NULL) {
 	fam->encoding_alloc = 0;
@@ -1315,7 +1333,7 @@ FillNewFamily(FamilyInfo *fam, FontData *font)
 static LongFlag
 SizeMapping(short size)
 {
-    register int count;
+    Cardinal count;
 
     size /= POINT_DIVIDE;
 
@@ -1848,7 +1866,8 @@ UpdateSizes(XmFontSelectorWidget fsw)
     Arg largs[10];
     Cardinal num_largs = 0;
     register int count = 0;
-    register int i, size;
+    Cardinal i;
+    int size;
     XmString *strs;
     LongFlag size_flag;
     FamilyInfo *family;
@@ -2449,6 +2468,18 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
  *
  ************************************************************/
 
+/* Every caller returns before using its merged count when this fails. */
+static ArgList
+FontSelectorMergeArgLists(ArgList local_args, Cardinal num_local_args,
+			  ArgList caller_args, Cardinal num_caller_args)
+{
+    if (num_local_args > (Cardinal)(~(Cardinal)0) - num_caller_args)
+	return NULL;
+
+    return XtMergeArgLists(local_args, num_local_args,
+			   caller_args, num_caller_args);
+}
+
 /*	Function Name: CreateChildren
  *	Description: Creates all children of the font selector.
  *	Arguments: fsw - the font selector.
@@ -2470,7 +2501,7 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNfillOption, XmFillAll); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 2); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("box", xmButtonBoxWidgetClass, 
@@ -2486,7 +2517,7 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNwordWrap, True); num_largs++;
     XtSetArg(largs[num_largs], XmNscrollHorizontal, False); num_largs++;
     XtSetArg(largs[num_largs], XmNrows, XmFontS_text_rows(fsw)); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtFree((XtPointer) temp_txt);
 	return;
@@ -2507,7 +2538,7 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     temp = XtCreateWidget("nameLabel", xmLabelWidgetClass, 
@@ -2546,7 +2577,7 @@ CreateTopWidgets(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNspacing, 2); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginWidth, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     pane = XtCreateManagedWidget("topPane", xmPanedWidgetClass, 
@@ -2564,7 +2595,7 @@ CreateTopWidgets(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshadowThickness, 2); num_largs++;
     XtSetArg(largs[num_largs], XmNindicatorOn, False); num_largs++;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     button = XtCreateManagedWidget("optionButton", xmToggleButtonWidgetClass, 
@@ -2598,7 +2629,7 @@ CreateMiddleArea(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNspacing, 2); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginWidth, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     pane = XtCreateWidget("middlePane", xmPanedWidgetClass, 
@@ -2614,7 +2645,7 @@ CreateMiddleArea(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNmarginWidth, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     top_pane = XtCreateManagedWidget("leftPane", xmPanedWidgetClass, 
@@ -2664,7 +2695,7 @@ CreateFamilyBox(XmFontSelectorWidget fsw, Widget parent,
 
     XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;
 
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtFree((XtPointer) temp);
 	return;
@@ -2719,7 +2750,7 @@ CreateSizesBox(XmFontSelectorWidget fsw, Widget parent,
     temp = _XmGetMBStringFromXmString(ANY_STRING(fsw));
     XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;
 
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtFree((XtPointer) temp);
 	return;
@@ -2758,7 +2789,7 @@ CreateBoldItalicBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNorientation, XmHORIZONTAL); num_largs++;
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("boldItalicBox", xmButtonBoxWidgetClass, 
@@ -2774,7 +2805,7 @@ CreateBoldItalicBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmN_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     button = XtCreateManagedWidget("boldButton", xmToggleButtonWidgetClass, 
@@ -2821,7 +2852,7 @@ CreateSpacingBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("spacingBox", xmButtonBoxWidgetClass, 
@@ -2838,7 +2869,7 @@ CreateSpacingBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmONE_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     button = XtCreateManagedWidget("proportionalButton",
@@ -2899,7 +2930,7 @@ CreateFontChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("choiceBox", xmButtonBoxWidgetClass, 
@@ -2915,7 +2946,7 @@ CreateFontChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmONE_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     button = XtCreateManagedWidget("xlfdButton",
@@ -2964,7 +2995,7 @@ CreateResolutionBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("resolutionBox", xmButtonBoxWidgetClass, 
@@ -2983,7 +3014,7 @@ CreateResolutionBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmONE_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
 
@@ -3043,7 +3074,7 @@ CreateOtherChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("otherChoiceBox", xmButtonBoxWidgetClass, 
@@ -3059,7 +3090,7 @@ CreateOtherChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmN_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
 
@@ -3131,7 +3162,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 		 XmNlabelString, ENCODING_ONLY_STRING(fsw)); num_largs++;
 	XtSetArg(largs[num_largs], 
 		 XmNoptionLabel, ENCODING_ONLY_STRING(fsw)); num_largs++;
-	margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
 	if (margs == NULL)
 	    return NULL;
 	omenu = XtCreateWidget("encodingOptionMenu", xmRowColumnWidgetClass,
@@ -3151,7 +3182,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
     XtSetArg(largs[num_largs], XmNwidth, 1); num_largs++;
     XtSetArg(largs[num_largs], XmNheight, 1); num_largs++;
     XtSetArg(largs[num_largs], XmNancestorSensitive, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return omenu;
 
@@ -3165,7 +3196,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNrowColumnType, XmMENU_PULLDOWN); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtDestroyWidget(menuShell);
 	XmFontS_encoding_menu_shell(fsw) = NULL;
@@ -3184,7 +3215,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNlabelString, ANY_STRING(fsw)); 
     button_label = num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtDestroyWidget(menuShell);
 	XmFontS_encoding_menu_shell(fsw) = NULL;
@@ -3206,7 +3237,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 
     current = 0;
     for (i = 1, encodings = ENCODING_LIST(fsw) ;
-	 *encodings != NULL; i++, encodings++) 
+	 encodings != NULL && *encodings != NULL; i++, encodings++)
     { 
 	char name[BUFSIZ];
 	XmString label = XmStringCreateLocalized(*encodings);
@@ -3288,7 +3319,8 @@ CheckEncoding(XmFontSelectorWidget fsw, FamilyInfo *fam)
     if (ENCODING_STRING(fsw) == NULL ||
 	streq(ENCODING_STRING(fsw), ANY_ENCODING) || fam->encodings == NULL)
 	return(TRUE);
-	if (fam->encoding_alloc <= 0)
+
+    if (fam->encoding_alloc <= 0)
 	return(False);
 
     curr = XrmStringToQuark(ENCODING_STRING(fsw));
@@ -3435,8 +3467,7 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
 	return;
     fsw = (XmFontSelectorWidget) w;
     if (XmFontS_font_info(fsw) == NULL ||
-	XmFontS_font_info(fsw)->current_font == NULL ||
-	ENCODING_LIST(fsw) == NULL)
+	XmFontS_font_info(fsw)->current_font == NULL)
 	return;
     cf = XmFontS_font_info(fsw)->current_font;
     encoding_index = (int)(uintptr_t)data;
@@ -3447,6 +3478,8 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
 	}
     else
 	{
+	if (ENCODING_LIST(fsw) == NULL)
+	    return;
 	encodings = ENCODING_LIST(fsw);
 	while (encoding_index > 0 && *encodings != NULL) {
 	    if (encoding_index == 1)
@@ -3485,6 +3518,7 @@ ToggleScaling(Widget w, XtPointer fsw_ptr, XtPointer data)
     FontData * cf;
     FamilyInfo *family;
     XmToggleButtonCallbackStruct *info;
+    Boolean set;
     LongFlag map;
     char buf[BUFSIZ];
 
@@ -3494,6 +3528,7 @@ ToggleScaling(Widget w, XtPointer fsw_ptr, XtPointer data)
 	(XmFontS_font_info(fsw)->num_families != 0 &&
 	 XmFontS_font_info(fsw)->family_info == NULL))
 	return;
+    set = (info->set != 0) ? True : False;
     cf = XmFontS_font_info(fsw)->current_font;
     if ((family = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			     XmFontS_font_info(fsw)->num_families)) == NULL) 
@@ -3507,8 +3542,8 @@ ToggleScaling(Widget w, XtPointer fsw_ptr, XtPointer data)
 	return;
     }
 
-    XmFontS_use_scaling(fsw) = info->set;
-    if (!info->set) {
+    XmFontS_use_scaling(fsw) = set;
+    if (!set) {
 	Boolean map_bad = (map = SizeMapping(cf->point_size)) == 0;
 	Boolean bad_75 = (CheckFlag(XmFontS_user_state(fsw), DPI_75) && 
 			  !CheckLongFlag(family->sizes_75, map));
@@ -3546,6 +3581,7 @@ ToggleBold(Widget w, XtPointer fsw_ptr, XtPointer data)
     FontData * cf;
     FamilyInfo *family;
     XmToggleButtonCallbackStruct *info;
+    Boolean set;
     char buf[BUFSIZ];
 
     info = (XmToggleButtonCallbackStruct *) data;
@@ -3554,6 +3590,7 @@ ToggleBold(Widget w, XtPointer fsw_ptr, XtPointer data)
 	(XmFontS_font_info(fsw)->num_families != 0 &&
 	 XmFontS_font_info(fsw)->family_info == NULL))
 	return;
+    set = (info->set != 0) ? True : False;
     cf = XmFontS_font_info(fsw)->current_font;
     if ((family = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			     XmFontS_font_info(fsw)->num_families)) == NULL) 
@@ -3568,13 +3605,13 @@ ToggleBold(Widget w, XtPointer fsw_ptr, XtPointer data)
 	return;
     }
 
-    if (info->set) 
+    if (set)
 	cf->weightq = family->bold_nameq;
     else
 	cf->weightq = family->medium_nameq;
 
-    SetFlag(&(cf->state), BOLD, info->set);
-    SetFlag(&(XmFontS_user_state(fsw)), BOLD, info->set);
+    SetFlag(&(cf->state), BOLD, set);
+    SetFlag(&(XmFontS_user_state(fsw)), BOLD, set);
 
     DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
 }
@@ -3595,6 +3632,7 @@ ToggleItalic(Widget w, XtPointer fsw_ptr, XtPointer data)
     FontData * cf;
     FamilyInfo *family;
     XmToggleButtonCallbackStruct *info;
+    Boolean set;
     const char *slant;
     char buf[BUFSIZ];
 
@@ -3604,6 +3642,7 @@ ToggleItalic(Widget w, XtPointer fsw_ptr, XtPointer data)
 	(XmFontS_font_info(fsw)->num_families != 0 &&
 	 XmFontS_font_info(fsw)->family_info == NULL))
 	return;
+    set = (info->set != 0) ? True : False;
     cf = XmFontS_font_info(fsw)->current_font;
     if ((family = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			     XmFontS_font_info(fsw)->num_families)) == NULL) 
@@ -3617,15 +3656,15 @@ ToggleItalic(Widget w, XtPointer fsw_ptr, XtPointer data)
 	return;
     }
 
-    slant = info->set ? XrmQuarkToString(family->italic_nameq) :
+    slant = set ? XrmQuarkToString(family->italic_nameq) :
 	XrmQuarkToString(family->upright_nameq);
     if (slant == NULL)
 	return;
     strncpy(cf->slant, slant, SLANT_LEN);
     cf->slant[SLANT_LEN] = '\0';
 
-    SetFlag(&(cf->state), ITALIC, info->set);
-    SetFlag(&(XmFontS_user_state(fsw)), ITALIC, info->set);
+    SetFlag(&(cf->state), ITALIC, set);
+    SetFlag(&(XmFontS_user_state(fsw)), ITALIC, set);
     DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
 }
 
@@ -3670,14 +3709,16 @@ ToggleNameWindow(Widget w, XtPointer fsw_ptr, XtPointer data)
 {
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) fsw_ptr;
     XmToggleButtonCallbackStruct *info;
+    Boolean set;
     char buf[BUFSIZ];
 
     info = (XmToggleButtonCallbackStruct *) data;
     if (fsw == NULL || info == NULL)
 	return;
+    set = (info->set != 0) ? True : False;
 
-    XmFontS_show_font_name(fsw) = info->set;
-    if (info->set) {
+    XmFontS_show_font_name(fsw) = set;
+    if (set) {
 	if (XmFontS_name_label(fsw) != NULL)
 	    XtManageChild(XmFontS_name_label(fsw));
 	
@@ -4100,28 +4141,35 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
     /* XmFontS_current_font(fsw) handled internally */
 
     {
-	int i;
+	Cardinal count = 0;
 	String *encodings = ENCODING_LIST(fsw);
 	String *newList;
-	for (i=0, encodings = ENCODING_LIST(fsw); *encodings != NULL; i++, encodings++) 
-	i++;
-	if ((size_t)i > (SIZE_MAX / sizeof(*newList)) - 1 ||
-	    (size_t)i > (UINT_MAX / sizeof(*newList)) - 1)
-	    return;
-	newList = (String*)XtMalloc((Cardinal)((size_t)i * sizeof(*newList)));
+	Cardinal max_entries =
+	    (Cardinal)(UINT_MAX / sizeof(*newList)) - 1;
+
+	if (max_entries > (Cardinal)INT_MAX - 1)
+	    max_entries = (Cardinal)INT_MAX - 1;
+
+	if (encodings != NULL) {
+	    while (encodings[count] != NULL) {
+		if (count >= max_entries)
+		    return;
+		count++;
+	    }
+	}
+	newList = (String *)XtCalloc(count + 1, (Cardinal)sizeof(*newList));
 	if (newList == NULL)
 	    return;
-	for (i=0, encodings = ENCODING_LIST(fsw); *encodings != NULL; i++, encodings++) 
+	for (count = 0; encodings != NULL && encodings[count] != NULL; count++)
 	{
-	    newList[i] = XtNewString(*encodings);
-	    if (newList[i] == NULL) {
-		while (i > 0)
-		    XtFree(newList[--i]);
+	    newList[count] = XtNewString(encodings[count]);
+	    if (newList[count] == NULL) {
+		while (count != 0)
+		    XtFree(newList[--count]);
 		XtFree((char *)newList);
 		return;
 	    }
 	}
-	newList[i] = NULL;
 	ENCODING_LIST(fsw) = newList;
     }
 
@@ -4309,7 +4357,7 @@ SetValues(Widget old, Widget request, Widget set,
 	)
     {
 	char buf[BUFSIZ];
-	int current, i;
+	int current, encoding_index;
 	String *encodings = ENCODING_LIST(set_fsw);
 	Widget button;
 	String encoding_copy;
@@ -4328,14 +4376,16 @@ SetValues(Widget old, Widget request, Widget set,
 	}
 
 	/* some of this code is probably a duplicate of CreateEncodingMenu */
-	for (current = 0, i = 1 ; *encodings != NULL; i++, encodings++) 
+	for (current = 0, encoding_index = 1 ;
+	     encodings != NULL && *encodings != NULL;
+	     encoding_index++, encodings++)
 	{ 
 	    /*
 	     * If the default encoding matches this one then make this
 	     * the current item in the option menu.
 	     */
 	    if (strcmp(*encodings, ENCODING_STRING(set_fsw)) == 0)
-		current = i;
+		current = encoding_index;
 	}
 
     (void)snprintf(buf, sizeof(buf), "*button_%d", current);
@@ -4425,14 +4475,14 @@ GetValuesHook(Widget w, ArgList args, Cardinal * num_args)
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) w;
     FontData * cf;
     String *str_ptr;
-    register int i;
+    Cardinal i;
 
     if (w == NULL || args == NULL || num_args == NULL ||
 	!XtIsSubclass(w, xmFontSelectorWidgetClass))
 	return;
 
     for (i = 0; i < *num_args; i++) {
-	if (args[i].name == NULL || args[i].value == NULL)
+	if (args[i].name == NULL || args[i].value == (XtArgVal)0)
 	    continue;
 	if (streq(args[i].name, XmNcurrentFont))
 	{

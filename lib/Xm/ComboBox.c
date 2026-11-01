@@ -153,6 +153,8 @@ static void CreateChildren (Widget, ArgList, Cardinal *);
 static Widget CreateEditBox (Widget, String, Widget, ArgList, Cardinal *);
 static Widget CreateScrolledList (Widget, String, Widget, ArgList, Cardinal *);
 static Widget CreatePulldown (Widget, String, Widget, ArgList, Cardinal *);
+static ArgList ComboBoxMergeArgLists (ArgList, Cardinal, ArgList, Cardinal,
+				       Cardinal *);
 static void ComputeSize (Widget, Dimension, Dimension, Dimension*, Dimension*);
 static void DoLayout (Widget);
 static void GetThickness (Widget, Dimension *, Dimension *);
@@ -3210,6 +3212,20 @@ CreateChildren(Widget    widget,
     }
 }
 
+/* Merge caller and local child arguments without wrapping Cardinal. */
+static ArgList
+ComboBoxMergeArgLists(ArgList caller_args, Cardinal num_caller_args,
+		      ArgList local_args, Cardinal num_local_args,
+		      Cardinal *merged_num_args)
+{
+  if (num_caller_args > (Cardinal)(~(Cardinal)0) - num_local_args)
+    return NULL;
+
+  *merged_num_args = num_caller_args + num_local_args;
+  return XtMergeArgLists(caller_args, num_caller_args,
+			 local_args, num_local_args);
+}
+
 /*
  * CreateEditBox()
  *	Creates the EditBox child of the ComboBox.
@@ -3225,7 +3241,7 @@ CreateEditBox(Widget    parent,
   XmComboBoxWidget cb = (XmComboBoxWidget)w;
   Widget   	   text_widget;
   Arg      	   loc_args[15];
-  Cardinal 	   nloc;
+  Cardinal 	   nloc, merged_num_args;
   ArgList  	   merged_args;
   char		   *item = NULL;
 
@@ -3268,16 +3284,20 @@ CreateEditBox(Widget    parent,
   assert(nloc <= XtNumber(loc_args));
 
   /* Create the edit box. */
-  merged_args = XtMergeArgLists(arglist, *num_args, loc_args, nloc);
-  if (merged_args == NULL)
+  merged_args = ComboBoxMergeArgLists(arglist, *num_args, loc_args, nloc,
+				       &merged_num_args);
+  if (merged_args == NULL) {
+    if (item)
+      XtFree(item);
     return NULL;
-  text_widget = XmCreateTextField(parent, name, merged_args, *num_args + nloc);
-  _XmAppearanceInheritFont(text_widget, w);
+  }
+  text_widget = XmCreateTextField(parent, name, merged_args, merged_num_args);
   XtFree((char *)merged_args);
   if (item)
     XtFree(item);
   if (text_widget == NULL)
     return NULL;
+  _XmAppearanceInheritFont(text_widget, w);
 
   XtManageChild(text_widget);
   assert(cb->composite.children[0] == text_widget);
@@ -3303,18 +3323,19 @@ CreatePulldown(Widget    parent,
   Widget   shell;
   Arg      args[4];
   ArgList  merged_args;
-  Cardinal n;
+  Cardinal n, merged_num_args;
 
   n = 0;
   XtSetArg(args[n], XmNlayoutDirection, LayoutM(parent)), n++;
   XtSetArg(args[n], XmNownerEvents, True), n++;
   XtSetArg(args[n], XmNgrabStyle, GrabModeSync), n++;
   assert(n <= XtNumber(args));
-  merged_args = XtMergeArgLists(arglist, *num_args, args, n);
+  merged_args = ComboBoxMergeArgLists(arglist, *num_args, args, n,
+				       &merged_num_args);
   if (merged_args == NULL)
     return NULL;
   shell = XtCreatePopupShell(name, xmGrabShellWidgetClass, parent,
-			     merged_args, n + *num_args);
+			     merged_args, merged_num_args);
   XtFree((char*)merged_args);
 
   return shell;
@@ -3334,7 +3355,7 @@ CreateScrolledList(Widget    parent,
 		   ArgList   arglist,
 		   Cardinal *num_args)
 {
-  Cardinal n;
+  Cardinal n, merged_num_args;
   Arg loc_args[16];
   Widget list;
   XmComboBoxWidget cb = (XmComboBoxWidget)w;
@@ -3409,12 +3430,13 @@ CreateScrolledList(Widget    parent,
   XtSetArg(loc_args[n], XmNspacing, 0), n++;
   XtSetArg(loc_args[n], XmNvisualPolicy, XmVARIABLE), n++;
   assert(n <= XtNumber(loc_args));
-  merged_args = XtMergeArgLists(arglist, *num_args, loc_args, n);
+  merged_args = ComboBoxMergeArgLists(arglist, *num_args, loc_args, n,
+				       &merged_num_args);
 
   if (merged_args == NULL)
     return NULL;
 
-  list = XmCreateScrolledList(parent, name, merged_args, n + *num_args);
+  list = XmCreateScrolledList(parent, name, merged_args, merged_num_args);
   XtFree((char *)merged_args);
   if (list == NULL)
     return NULL;
@@ -3528,7 +3550,7 @@ XmCreateDropDownComboBox(Widget   parent,
 			 Cardinal num_args)
 {
   Arg loc_args[5];
-  Cardinal n;
+  Cardinal n, merged_num_args;
   ArgList merged_args;
   Widget result;
 
@@ -3536,11 +3558,12 @@ XmCreateDropDownComboBox(Widget   parent,
   XtSetArg(loc_args[n], XmNcomboBoxType, XmDROP_DOWN_COMBO_BOX), n++;
   assert(n <= XtNumber(loc_args));
 
-  merged_args = XtMergeArgLists(args, num_args, loc_args, n);
+  merged_args = ComboBoxMergeArgLists(args, num_args, loc_args, n,
+				       &merged_num_args);
   if (merged_args == NULL)
     return NULL;
   result = XtCreateWidget(name, xmComboBoxWidgetClass, parent,
-			  merged_args, n + num_args);
+		  merged_args, merged_num_args);
   XtFree((char *)merged_args);
 
   return result;
@@ -3553,7 +3576,7 @@ XmCreateDropDownList(Widget   parent,
 		     Cardinal num_args)
 {
   Arg loc_args[5];
-  Cardinal n;
+  Cardinal n, merged_num_args;
   ArgList merged_args;
   Widget result;
 
@@ -3561,11 +3584,12 @@ XmCreateDropDownList(Widget   parent,
   XtSetArg(loc_args[n], XmNcomboBoxType, XmDROP_DOWN_LIST), n++;
   assert(n <= XtNumber(loc_args));
 
-  merged_args = XtMergeArgLists(args, num_args, loc_args, n);
+  merged_args = ComboBoxMergeArgLists(args, num_args, loc_args, n,
+				       &merged_num_args);
   if (merged_args == NULL)
     return NULL;
   result = XtCreateWidget(name, xmComboBoxWidgetClass, parent,
-			  merged_args, n + num_args);
+		  merged_args, merged_num_args);
   XtFree((char *)merged_args);
 
   return result;

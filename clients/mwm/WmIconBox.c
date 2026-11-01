@@ -71,6 +71,7 @@ static char rcsid[] = "$TOG: WmIconBox.c /main/7 1999/05/20 16:35:12 mgreess $"
 
 #include <stdio.h>
 #include <limits.h>
+#include <stdint.h>
 
 /*
  * include extern functions
@@ -245,18 +246,29 @@ Boolean MakeIconBox (WmWorkspaceData *pWS, ClientData *pCD)
 	InitializeIconBoxData (pWS, pIBD);
 	InitializeClientData (pCD, pIBD);
 
-        if (pIBD->IPD.totalPlaces <= 0 ||
-            (size_t)pIBD->IPD.totalPlaces > UINT_MAX / sizeof(IconInfo) ||
-            !(pIBD->IPD.placeList =
-	    (IconInfo *)XtMalloc (pIBD->IPD.totalPlaces * sizeof (IconInfo))))
 	{
-	    Warning (((char *)GETMESSAGE(36, 2, "Insufficient memory to create icon box data")));
-	    XtFree ((char *)pIBD);
-            XtFree ((char *)pCD);  
-	    return (FALSE);  
+	    size_t places_bytes;
+
+	    if (pIBD->IPD.totalPlaces <= 0 ||
+		(size_t)pIBD->IPD.totalPlaces > SIZE_MAX / sizeof(IconInfo) ||
+		(size_t)pIBD->IPD.totalPlaces > UINT_MAX / sizeof(IconInfo))
+	    {
+		Warning (((char *)GETMESSAGE(36, 2, "Insufficient memory to create icon box data")));
+		XtFree ((char *)pIBD);
+                XtFree ((char *)pCD);
+		return (FALSE);
+	    }
+	    places_bytes = (size_t)pIBD->IPD.totalPlaces * sizeof(IconInfo);
+	    pIBD->IPD.placeList = (IconInfo *)XtMalloc((Cardinal)places_bytes);
+	    if (pIBD->IPD.placeList == NULL)
+	    {
+		Warning (((char *)GETMESSAGE(36, 2, "Insufficient memory to create icon box data")));
+		XtFree ((char *)pIBD);
+		XtFree ((char *)pCD);
+		return (FALSE);
+	    }
+	    memset (pIBD->IPD.placeList, 0, places_bytes);
 	}
-	memset (pIBD->IPD.placeList, 0, 
-	    pIBD->IPD.totalPlaces * sizeof (IconInfo));
 
         /*
          * Make  the top level shell for this icon box
@@ -553,7 +565,7 @@ Boolean MakeScrolledWindow (WmWorkspaceData *pWS, IconBoxData *pIBD)
     XtAddEventHandler(pIBD->scrolledWidget, 
 			StructureNotifyMask, 
 			False, 
-			(XtEventHandler)UpdateIncrements, 
+			UpdateIncrements,
 			(XtPointer) pIBD);
     return (TRUE);
 
@@ -1151,7 +1163,7 @@ void MakeShrinkWrapIconsGC (WmScreenData *pSD, Pixmap bgPixmap)
 	if (pSD->shrinkWrapGC == NULL)
 	    return;
 
-	copyMask = ~0L;
+	copyMask = ~(XtGCMask)0;
 
 	XCopyGC (DISPLAY, pSD->iconAppearance.inactiveGC,
 		copyMask, pSD->shrinkWrapGC);
@@ -1223,7 +1235,7 @@ void MakeFadeIconGC (WmScreenData *pSD)
 	return;
     }
 
-    copyMask = ~0L;
+    copyMask = ~(XtGCMask)0;
 
     XCopyGC (DISPLAY, pSD->iconAppearance.inactiveGC,
 		copyMask, pSD->fadeIconGC);
@@ -2124,19 +2136,19 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
 	    XtAddEventHandler(iconWidget, 
 			      SELECT_BUTTON_MOTION_MASK, 
 			      False, 
-			      (XtEventHandler)HandleIconBoxButtonMotion, 
+			      HandleIconBoxButtonMotion,
 			      (XtPointer)NULL);
 
 	    XtAddEventHandler(iconWidget, 
 			      DMANIP_BUTTON_MOTION_MASK, 
 			      False, 
-			      (XtEventHandler)HandleIconBoxButtonMotion, 
+			      HandleIconBoxButtonMotion,
 			      (XtPointer)NULL);
 
             XtAddEventHandler(iconWidget,
 			      KeyPressMask,
 			      False,
-			      (XtEventHandler)HandleIconBoxIconKeyPress,
+			      HandleIconBoxIconKeyPress,
 			      (XtPointer)NULL);
 
 	    
@@ -2146,7 +2158,7 @@ Boolean InsertIconIntoBox (IconBoxData *pIBD, ClientData *pCD)
 		XtAddEventHandler(iconWidget, 
 				  FocusChangeMask, 
 				  False, 
-				  (XtEventHandler)ChangeActiveIconboxIconText, 
+				  ChangeActiveIconboxIconText,
 				  (XtPointer)NULL);
 
 		if (pCD->pSD->activeLabelParent != pCD->pSD->rootWindow)
@@ -2954,6 +2966,7 @@ Boolean ExtendIconList (IconBoxData *pIBD, int incr)
 {
     Boolean rval;
     int newSize;
+    size_t old_bytes, added_bytes, new_bytes;
     IconInfo *pTmp;
 
     if (pIBD == NULL || incr <= 0 || pIBD->IPD.totalPlaces < 0 ||
@@ -2962,15 +2975,21 @@ Boolean ExtendIconList (IconBoxData *pIBD, int incr)
 	return (False);
 
     newSize = pIBD->IPD.totalPlaces + incr;
-    if ((size_t)newSize > UINT_MAX / sizeof(IconInfo))
+
+    if ((size_t)newSize > SIZE_MAX / sizeof(IconInfo) ||
+	(size_t)newSize > UINT_MAX / sizeof(IconInfo))
 	return (False);
 
-    if ((pTmp = (IconInfo *) XtMalloc (newSize*sizeof(IconInfo))) != NULL)
+    old_bytes = (size_t)pIBD->IPD.totalPlaces * sizeof(IconInfo);
+    added_bytes = (size_t)incr * sizeof(IconInfo);
+    new_bytes = (size_t)newSize * sizeof(IconInfo);
+
+    if ((pTmp = (IconInfo *) XtMalloc ((Cardinal)new_bytes)) != NULL)
     {
 	/* copy data */
-	memcpy (pTmp, pIBD->IPD.placeList, 
-	    pIBD->IPD.totalPlaces*sizeof(IconInfo));
-	memset (&pTmp[pIBD->IPD.totalPlaces], 0, incr*sizeof(IconInfo));
+	if (old_bytes != 0)
+	    memcpy (pTmp, pIBD->IPD.placeList, old_bytes);
+	memset (&pTmp[pIBD->IPD.totalPlaces], 0, added_bytes);
 
 	/* out with the old, in with the new */
 	XtFree ((char *)pIBD->IPD.placeList);
@@ -3582,8 +3601,11 @@ void IconActivateCallback (Widget w, caddr_t client_data, XmAnyCallbackStruct *c
  * 
  *************************************<->***********************************/
 
-void UpdateIncrements (Widget sWidget, IconBoxData *pIBD, XConfigureEvent *event)
+void UpdateIncrements (Widget sWidget, XtPointer client_data, XEvent *event,
+	Boolean *continue_to_dispatch)
 {
+    IconBoxData *pIBD = (IconBoxData *)client_data;
+
     if (pIBD == NULL || pIBD->pCD_iconBox == NULL)
 	return;
 
@@ -3632,7 +3654,8 @@ void ResetArrowButtonIncrements (ClientData *pCD)
  * 
  *************************************<->***********************************/
 
-void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent *event)
+void ChangeActiveIconboxIconText (Widget icon, XtPointer client_data,
+	XEvent *event, Boolean *continue_to_dispatch)
 {
 
     ClientData    	*pCD;
@@ -3657,14 +3680,14 @@ void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent 
     {
 	if (event->type == FocusIn) 
 	{
-	    if (event->send_event)
+	    if (event->xfocus.send_event)
 	    {
 	       ShowActiveIconText (pCD);
 	    }
 	}
 	else
 	{
-	    if (event->send_event)
+	    if (event->xfocus.send_event)
 	    {
 	        HideActiveIconText (pCD->pSD);
 	    }
@@ -3687,15 +3710,19 @@ void ChangeActiveIconboxIconText (Widget icon, caddr_t dummy, XFocusChangeEvent 
  *
  *************************************<->***********************************/
 
-void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
+void HandleIconBoxIconKeyPress (Widget icon, XtPointer client_data,
+	XEvent *event, Boolean *continue_to_dispatch)
 {
-    
     Context context; 
     ClientData          *pCD; 
     Window              theIcon;
+    XKeyEvent           *keyEvent;
 
-    if (icon == NULL || keyEvent == NULL)
+
+    if (icon == NULL || event == NULL)
 	return;
+
+    keyEvent = &event->xkey;
 
     /*
      * find context to get pCD and then post menu show active icon text.
@@ -3703,7 +3730,7 @@ void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
     
     theIcon = XtWindow(icon);
     if (!(XFindContext (DISPLAY, theIcon,
-			wmGD.windowContextType, (caddr_t *)&pCD)))
+			wmGD.windowContextType, (caddr_t *)&pCD)) && pCD != NULL)
     {
 #ifdef WSM
 	SetClientWsIndex (pCD);
@@ -3762,7 +3789,8 @@ void HandleIconBoxIconKeyPress (Widget icon, caddr_t dummy, XKeyEvent *keyEvent)
  * 
  *************************************<->***********************************/
 
-void HandleIconBoxButtonMotion (Widget icon, caddr_t client_data, XEvent *pev)
+void HandleIconBoxButtonMotion (Widget icon, XtPointer client_data,
+	XEvent *event, Boolean *continue_to_dispatch)
 {
 
 } /* END OF FUNCTION HandleIconBoxButtonMotion */

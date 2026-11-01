@@ -14,3 +14,8 @@ arithmetic.
 
 This preserves the normal layout for usable sizes while making very small or
 temporarily collapsed selectors deterministic during resize and realization.
+
+The final widths, heights, and accumulated positions are also converted through
+explicit range guards. This prevents a large margin or stacked child geometry
+from narrowing into a wrapped `Dimension` or signed `Position`, which could
+place children on the opposite edge of the selector.

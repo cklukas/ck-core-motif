@@ -9,6 +9,13 @@ assert "int\t\t\twidth, height;" in source
 assert "if (width < 0)" in source
 assert "if (height < 0)" in source
 assert "if (color_geom.height > 2 * color_geom.border_width)" in source
-assert "((int)csw->core.width - (int)radio_geom.width) / 2" in source
+assert "ColorSelectorDimension(long long value)" in source
+assert "ColorSelectorPosition(long long value)" in source
+assert "value > (long long)USHRT_MAX" in source
+assert "value > (long long)SHRT_MAX" in source
+assert "ColorSelectorPosition(((long long)csw->core.width -" in source
+assert "layout_width = ColorSelectorDimension((long long)width);" in source
+assert "layout_height = ColorSelectorDimension((long long)height);" in source
+assert "y += height" not in source
 
-print("ColorSelector layout geometry is bounded")
+print("ColorSelector layout geometry clamps dimensions and positions")

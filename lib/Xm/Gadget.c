@@ -32,6 +32,8 @@ static char rcsid[] = "$TOG: Gadget.c /main/17 1997/07/07 11:38:57 cshi $"
 
 
 #include <ctype.h>
+#include <limits.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <X11/Intrinsic.h>	/* <X11/Shell.h> doesn't define externalref */
 #include <X11/IntrinsicP.h>	/* <X11/ShellP.h> needs it. */
@@ -574,6 +576,9 @@ SecondaryObjectCreate(
 
     XtSetArg(myArgs[0] ,XmNlogicalParent, new_w);
 
+    if (*num_args == (Cardinal)(~(Cardinal)0))
+       return;
+
     if (*num_args)
        mergedArgs = XtMergeArgLists(args, *num_args, myArgs, XtNumber(myArgs));
     else
@@ -591,6 +596,17 @@ SecondaryObjectCreate(
 
     if (mergedArgs != myArgs)
       XtFree( (char *) mergedArgs);
+}
+
+/* Keep the implicit highlight and shadow extents representable as Dimension. */
+static Dimension
+GadgetDefaultDimension(Dimension size, Dimension highlight, Dimension shadow)
+{
+    uint64_t total = (uint64_t)size + 2 * (uint64_t)highlight +
+	2 * (uint64_t)shadow;
+
+    return total > (uint64_t)USHRT_MAX ? (Dimension)USHRT_MAX :
+	(Dimension)total;
 }
 
 
@@ -667,12 +683,14 @@ Initialize(
    /*  Check the geometry information for the widget  */
 
    if (request->rectangle.width == 0)
-      gw->rectangle.width += gw->gadget.highlight_thickness * 2 +
-                             gw->gadget.shadow_thickness * 2;
+      gw->rectangle.width = GadgetDefaultDimension(gw->rectangle.width,
+					       gw->gadget.highlight_thickness,
+					       gw->gadget.shadow_thickness);
 
    if (request->rectangle.height == 0)
-      gw->rectangle.height += gw->gadget.highlight_thickness * 2 + 
-                              gw->gadget.shadow_thickness * 2;
+      gw->rectangle.height = GadgetDefaultDimension(gw->rectangle.height,
+						gw->gadget.highlight_thickness,
+						gw->gadget.shadow_thickness);
 
 
    /*  Force the border width to 0  */

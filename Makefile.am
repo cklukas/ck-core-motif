@@ -385,6 +385,25 @@ EXTRA_DIST += tests/automated/check-mwm-action-argument-allocation.py docs/mwm-a
 EXTRA_DIST += tests/automated/check-mwm-icon-bevel-gc-release.py docs/mwm-icon-bevel-gcs.md
 EXTRA_DIST += tests/automated/check-mwm-icon-dimension-types.py docs/mwm-icon-dimension-types.md
 EXTRA_DIST += tests/automated/check-mwm-continuation-buffer-bounds.py docs/mwm-continuation-buffer-bounds.md
+EXTRA_DIST += tests/automated/check-mwm-parser-token-bounds.py docs/mwm-parser-token-bounds.md
+EXTRA_DIST += tests/automated/check-mwm-feedback-geometry.py docs/mwm-feedback-geometry.md
+EXTRA_DIST += tests/automated/check-mwm-command-wire-format.py docs/mwm-command-wire-format.md
+EXTRA_DIST += tests/automated/check-mwm-icon-list-allocation.py docs/mwm-icon-list-allocation.md
+EXTRA_DIST += tests/automated/check-mwm-icon-event-handlers.py docs/mwm-icon-event-handlers.md
+EXTRA_DIST += tests/automated/check-mwm-icon-gc-mask.py docs/mwm-icon-gc-mask.md
+EXTRA_DIST += tests/automated/check-rowcolumn-argument-list-bounds.py docs/rowcolumn-argument-list-bounds.md
+EXTRA_DIST += tests/automated/check-tabstack-argument-merge.py docs/tabstack-argument-merge.md
+EXTRA_DIST += tests/automated/check-multilist-argument-merge.py docs/multilist-argument-merge.md
+EXTRA_DIST += tests/automated/check-dropdown-argument-merge.py docs/dropdown-argument-merge.md
+EXTRA_DIST += tests/automated/check-gadget-default-dimensions.py docs/gadget-default-dimensions.md
+EXTRA_DIST += tests/automated/check-color-selector-preferred-size.py docs/color-selector-preferred-size.md
+EXTRA_DIST += tests/automated/check-colors-loader-allocation.py docs/motif-colors-loader-allocation.md
+EXTRA_DIST += tests/automated/check-color-selector-channel-bounds.py docs/color-selector-channel-bounds.md
+EXTRA_DIST += tests/automated/check-fontselector-argument-merge.py docs/fontselector-argument-merge.md
+EXTRA_DIST += tests/automated/check-fontselector-font-count-bounds.py docs/fontselector-font-count-bounds.md
+EXTRA_DIST += tests/automated/check-fontselector-toggle-state.py docs/fontselector-toggle-state.md
+EXTRA_DIST += tests/automated/check-fontselector-portability.py docs/fontselector-portability.md
+EXTRA_DIST += tests/automated/check-fontselector-encoding-list.py docs/fontselector-encoding-list.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md

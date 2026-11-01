@@ -124,6 +124,8 @@ static void LoseFocusHandler(Widget, XtPointer, XEvent *, Boolean *);
 static void RegisterShellHandler(Widget);
 static void CreateChildren(Widget, ArgList, Cardinal);
 static void CreatePopup(Widget, ArgList, Cardinal);
+static ArgList DropDownMergeArgLists(ArgList, Cardinal, ArgList, Cardinal,
+				     Cardinal *);
 static void PlaceChildren(Widget, Boolean, Widget);
 static void FindDesiredSize(Widget, Widget, Dimension *, Dimension *,
 		   XtWidgetGeometry *, XtWidgetGeometry *, XtWidgetGeometry *);
@@ -1989,7 +1991,7 @@ CreateChildren(Widget w, ArgList args, Cardinal num_args)
     Arg largs[10];
     Cardinal num_largs;
     Arg      targs[10], *merge;
-    Cardinal tn = 0;
+    Cardinal tn = 0, merged_num_args;
 
 
     XmDropDown_label(cbw) = XtCreateWidget("label", xmLabelWidgetClass, 
@@ -2018,10 +2020,13 @@ CreateChildren(Widget w, ArgList args, Cardinal num_args)
 	    XtSetArg(targs[tn], XmNshadowThickness, 2); tn++;
 	    XtSetArg(targs[tn], XmNhighlightThickness, 2); tn++;
 	}
-	merge = XtMergeArgLists(args, num_args, targs, tn);
+	merge = DropDownMergeArgLists(args, num_args, targs, tn,
+					 &merged_num_args);
+	if (merge == NULL)
+	    return;
 	XmDropDown_text(cbw) =
 	    XtCreateManagedWidget("text", xmTextFieldWidgetClass,
-				  w, merge, num_args+tn);
+				  w, merge, merged_num_args);
 	XtFree((XtPointer)merge);
     }
     else
@@ -2043,10 +2048,13 @@ CreateChildren(Widget w, ArgList args, Cardinal num_args)
 	XtSetArg(targs[tn], XmNscrollHorizontal, False); tn++;
 	XtSetArg(targs[tn], XmNscrollVertical, False); tn++;
 
-	merge = XtMergeArgLists(args, num_args, targs, tn);
+	merge = DropDownMergeArgLists(args, num_args, targs, tn,
+					 &merged_num_args);
+	if (merge == NULL)
+	    return;
 
 	XmDropDown_text(cbw) = XtCreateManagedWidget("text", xmTextWidgetClass,
-						w, merge, num_args + tn);
+						w, merge, merged_num_args);
 	XtFree((XtPointer)merge);
     }
     
@@ -2071,10 +2079,13 @@ CreateChildren(Widget w, ArgList args, Cardinal num_args)
 	tn = 0;
         XtSetArg(targs[tn], XmNhighlightThickness, 0); tn++;
         XtSetArg(targs[tn], XmNshadowThickness, 2); tn++;
-	merge = XtMergeArgLists(args, num_args, targs, tn);
+	merge = DropDownMergeArgLists(args, num_args, targs, tn,
+					 &merged_num_args);
+	if (merge == NULL)
+	    return;
 	XmDropDown_arrow(cbw) =
 	    XtCreateManagedWidget("arrow", xmArrowButtonWidgetClass,
-				  w, merge, num_args+tn);
+				  w, merge, merged_num_args);
 	XtFree((XtPointer)merge);
     }
     else
@@ -2156,7 +2167,7 @@ CreatePopup(Widget w, ArgList args, Cardinal num_args)
 {
     XmDropDownWidget cbw = (XmDropDownWidget) w;
     Arg *new_list, largs[10];
-    Cardinal num_largs;
+    Cardinal num_largs, merged_num_args;
     Widget sb;
 
     num_largs = 0;
@@ -2166,11 +2177,14 @@ CreatePopup(Widget w, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNancestorSensitive, True); num_largs++;
     XtSetArg(largs[num_largs], XmNownerEvents, True), num_largs++;
     XtSetArg(largs[num_largs], XmNgrabStyle, GrabModeSync), num_largs++;
-    new_list = XtMergeArgLists(args, num_args, largs, num_largs);
+    new_list = DropDownMergeArgLists(args, num_args, largs, num_largs,
+					  &merged_num_args);
+    if (new_list == NULL)
+	return;
     XmDropDown_popup_shell(cbw) = XtCreatePopupShell("popupShell", 
 						xmGrabShellWidgetClass, w,
 						new_list,
-						num_largs + num_args);
+						merged_num_args);
     XtFree((char *) new_list);
     if (XmDropDown_popup_shell(cbw) == NULL)
 	return;
@@ -2186,9 +2200,14 @@ CreatePopup(Widget w, ArgList args, Cardinal num_args)
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNvisibleItemCount,
 	     XmDropDown_visible_items(cbw)); num_largs++;
-    new_list = XtMergeArgLists(args, num_args, largs, num_largs);
+    new_list = DropDownMergeArgLists(args, num_args, largs, num_largs,
+					  &merged_num_args);
+    if (new_list == NULL) {
+	XtDestroyWidget(XmDropDown_popup_shell(cbw));
+	return;
+    }
     XmDropDown_list(cbw) = XmCreateScrolledList(XmDropDown_popup_shell(cbw), "list",
-					   new_list, num_args + num_largs);
+					   new_list, merged_num_args);
 
     XtFree((char *) new_list);
     if (XmDropDown_list(cbw) == NULL) {
@@ -2227,6 +2246,19 @@ CreatePopup(Widget w, ArgList args, Cardinal num_args)
 	  XtInsertEventHandler(sb, ButtonReleaseMask, False, SBBtnUpEH,
 			       (XtPointer) XmDropDown_popup_shell(cbw), XtListHead);
     }
+}
+
+/* Merge caller and internal child arguments without wrapping Cardinal.
+ * All current callers add one or more local arguments, so NULL is failure. */
+static ArgList
+DropDownMergeArgLists(ArgList args, Cardinal num_args, ArgList local_args,
+		      Cardinal num_local_args, Cardinal *merged_num_args)
+{
+    if (num_args > (Cardinal)(~(Cardinal)0) - num_local_args)
+	return(NULL);
+
+    *merged_num_args = num_args + num_local_args;
+    return XtMergeArgLists(args, num_args, local_args, num_local_args);
 }
 
 static void

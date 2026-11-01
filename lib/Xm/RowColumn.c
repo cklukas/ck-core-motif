@@ -3265,12 +3265,35 @@ create(
         int type,               /* menu kind to create */
         int is_radio )          /* the radio flag */
 {
-    Arg al[256];
+    Arg *al = NULL;
     Widget m;
-    int i, ac = 0;
+    Cardinal i, ac = 0;
+    Cardinal add_count;
+    size_t al_bytes;
+
+
 
     if (p == NULL || name == NULL)
 	return NULL;
+    if (old_ac != 0 && old_al == NULL)
+	return NULL;
+
+    add_count = (is_radio ? 4U : 0U) +
+	(type != UNDEFINED_TYPE ? 1U : 0U);
+    if (old_ac > (Cardinal)(~(Cardinal)0) - add_count)
+	return NULL;
+    ac = old_ac + add_count;
+    if (ac != 0)
+    {
+	al_bytes = (size_t)ac * sizeof(*al);
+	if (al_bytes / sizeof(*al) != (size_t)ac || al_bytes > UINT_MAX)
+	    return NULL;
+	al = (Arg *)XtMalloc((Cardinal)al_bytes);
+	if (al == NULL)
+	    return NULL;
+    }
+
+    ac = 0;
 
     if (is_radio)               /* get ours in ahead of the */
     {                           /* caller's, so his override */
@@ -3294,10 +3317,12 @@ create(
 
     if ((type == XmMENU_PULLDOWN) || (type == XmMENU_POPUP))
     {
-        Arg s_al[256];
+	Arg *s_al = NULL;
         XmMenuShellWidget pop = NULL;
         Widget pw;
-        int s_ac = 0;
+	Cardinal s_ac = 0;
+	Cardinal shell_add_count = 4;
+	size_t s_al_bytes;
 
         /*
          * if this is a pulldown of a pulldown or popup then the parent
@@ -3338,7 +3363,31 @@ create(
             size_t name_length = strlen(name);
             size_t name_size;
 
-            /* should pass in the old al */
+	#ifdef FIX_1351
+	    shell_add_count++;
+	#endif
+	    if (old_ac > (Cardinal)(~(Cardinal)0) - shell_add_count)
+	    {
+		XtFree((char *)al);
+		return NULL;
+	    }
+	    s_ac = old_ac + shell_add_count;
+	    s_al_bytes = (size_t)s_ac * sizeof(*s_al);
+	    if (s_al_bytes / sizeof(*s_al) != (size_t)s_ac ||
+		s_al_bytes > UINT_MAX)
+	    {
+		XtFree((char *)al);
+		return NULL;
+	    }
+	    s_al = (Arg *)XtMalloc((Cardinal)s_al_bytes);
+	    if (s_al == NULL)
+	    {
+		XtFree((char *)al);
+		return NULL;
+	    }
+	    s_ac = 0;
+
+	    /* should pass in the old al */
             for (i=0; i<old_ac; i++) s_al[s_ac++] = old_al[i];
 
             XtSetArg (s_al[s_ac], XmNwidth,             5);     s_ac++;
@@ -3350,19 +3399,32 @@ create(
 #endif
 
 	    if (prefix_length > SIZE_MAX - name_length - 1)
+	    {
+		XtFree((char *)s_al);
+		XtFree((char *)al);
 		return NULL;
+	    }
 	    name_size = prefix_length + name_length + 1;
 	    if (name_size > UINT_MAX)
+	    {
+		XtFree((char *)s_al);
+		XtFree((char *)al);
 		return NULL;
+	    }
 	    b = XtMalloc((Cardinal)name_size);
-	    if (b == NULL)
+	    if (b == NULL) {
+		XtFree((char *)s_al);
+		XtFree((char *)al);
 		return NULL;
+	    }
             sprintf (b, POPUP_PREFIX, name);
 
             pop = (XmMenuShellWidget)XtCreatePopupShell(b, 
                      xmMenuShellWidgetClass, pw, s_al, s_ac);
+	    XtFree((char *)s_al);
             if (pop == NULL) {
 		XtFree(b);
+		XtFree((char *)al);
 		return NULL;
 	    }
 
@@ -3377,6 +3439,7 @@ create(
     else
         m = XtCreateWidget (name, xmRowColumnWidgetClass, (Widget) p, al, ac);
 
+    XtFree((char *)al);
     return (m);
 }
 

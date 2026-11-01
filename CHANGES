@@ -33,6 +33,32 @@ Buffered toolkit painting and gallery appearance selection (2026-11-01)
   multiple paragraphs as one line; the gallery Source pane can reach its end.
   The native line-scan regression fails against the preceding library.
 
+Fix FontSelector encoding-list allocation (2026-11-01)
+========================================================
+
+- Allocate the terminating pointer when copying encoding lists, preventing the
+  initialization-time one-pointer overflow.
+- Support empty encoding lists through construction, menu rebuild and `Any`
+  selection, with allocation and menu-index bounds retained.
+- Add focused regression coverage and document the public empty-list behavior.
+
+Harden FontSelector strict portability (2026-11-01)
+====================================================
+
+- Keep supported resolution state at its storage width and use Xt-sized
+  iteration counters for font-size and resource argument arrays.
+- Keep the encoding-menu index distinct from the outer argument index and
+  compare `XtArgVal` output storage through its native integer representation.
+- Add focused contract coverage and document the strict compiler clean-up.
+
+Normalize FontSelector toggle callback state (2026-11-01)
+=========================================================
+
+- Normalize toggle callback `set` values before storing them in Boolean widget
+  state or passing them to flag helpers, avoiding unsafe integer narrowing.
+- Make the encoding-match capacity rejection an explicit control-flow branch.
+- Add focused regression coverage and documentation.
+
 Give custom interactive controls focus on primary click (2026-11-01)
 ====================================================================
 
@@ -44,6 +70,71 @@ Give custom interactive controls focus on primary click (2026-11-01)
   arrow and activation keys from also invoking parent traversal or activation.
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
+
+Harden TabStack argument-list merging (2026-11-01)
+=====================================================
+
+- Bound filtered-argument counts before merging internal TabBox resources and
+  handle merge or internal-widget allocation failure without dereferencing a
+  null result.
+- Add focused regression coverage and documentation.
+
+Bound RowColumn menu argument construction (2026-11-01)
+==========================================================
+
+- Replace fixed-size menu and popup-shell `Arg` stack arrays with checked,
+  dynamically allocated lists and reject invalid caller list pointers/counts.
+- Add focused regression coverage and construction-path documentation.
+
+Make MWM icon-box GC masks type-safe (2026-11-01)
+=====================================================
+
+- Express full graphics-context copy masks in Xt's unsigned mask type.
+- Add focused regression coverage and graphics-context documentation.
+
+Correct MWM icon-box event handler ABI (2026-11-01)
+======================================================
+
+- Use Xt's native event-handler signature for icon-box structure, motion, key,
+  and focus handlers rather than casting incompatible function pointers.
+- Add focused ABI regression coverage and documentation.
+
+Harden MWM icon-list allocation arithmetic (2026-11-01)
+==========================================================
+
+- Compute icon-box list allocation, copy, and initialization sizes in checked
+  `size_t` arithmetic before narrowing to Xt's `Cardinal` allocator boundary.
+- Add focused regression coverage and allocation documentation.
+
+Validate MWM client-command wire format (2026-11-01)
+=======================================================
+
+- Require the documented 8-bit packed-wire format for MWM client-command
+  selection requests before parsing Define, Include, Remove, Enable, Disable,
+  or Rename payloads.
+- Keep client-message atom conversions in range and reject negative public
+  message types before constructing an Xlib event.
+- Add focused regression coverage and protocol documentation.
+
+Preserve signed MWM feedback geometry (2026-11-01)
+======================================================
+
+- Validate feedback dimensions derived from font extents and place the window
+  with checked signed arithmetic, avoiding unsigned wraparound for negative
+  geometry or a window larger than the display.
+- Bound text-length conversion for Xlib and add focused feedback-geometry
+  regression coverage with documentation.  Also use Xt's `Cardinal` type for
+  the confirmation dialog's resource count.
+
+Bound MWM configuration token parsing (2026-11-01)
+====================================================
+
+- Copy parsed context, modifier, event, and keysym tokens through bounded
+  `size_t`-based storage rather than narrowing pointer differences to `int`.
+- Reject out-of-range menu-function indices and `KeySym` values instead of
+  indexing or truncating them, and make locale byte classification defined.
+- Complement icon-box subcontext masks in the unsigned `Context` domain.
+- Add focused parser-bound regression coverage and document the behavior.
 
 Bound MWM continued configuration lines (2026-11-01)
 =====================================================
@@ -3929,6 +4020,109 @@ Guard Notebook scroller allocation failures (2026-10-30)
   geometry, and navigator updates.
 - Tear down partial page-scroller construction safely and add focused coverage
   and documentation.
+
+Harden MultiList argument-list merging (2026-11-01)
+======================================================
+
+- Reject internal child argument counts that would wrap `Cardinal` and handle
+  failed merged-list allocation before calling Xt constructors.
+- Preserve valid zero-argument title creation and add focused regression
+  coverage and documentation.
+
+Harden DropDown argument-list merging (2026-11-01)
+=====================================================
+
+- Reject wrapped child argument counts and stop before passing a failed merged
+  list to Xt during text, arrow, popup-shell, or popup-list construction.
+- Tear down a partial popup shell when its list arguments cannot be merged,
+  with focused regression coverage and documentation.
+
+Guard Gadget secondary-object argument count (2026-11-01)
+==========================================================
+
+- Do not wrap the `Cardinal` count when adding the internal logical-parent
+  argument to a Gadget secondary object.
+- Extend the focused regression and document the overflow guard.
+
+Harden ColorSelector argument-list merging (2026-11-01)
+==========================================================
+
+- Route every internal child-argument merge through a checked helper so the
+  caller and local `Cardinal` counts cannot wrap.
+- Keep allocation-failure handling at every construction point and extend the
+  focused regression and documentation.
+
+Harden ComboBox argument-list merging (2026-11-01)
+======================================================
+
+- Route child and public convenience-constructor merges through a checked
+  helper to prevent `Cardinal` count wrap before Xt construction.
+- Release a temporary selected-item string on a failed edit-box merge and only
+  inherit a font after the text child exists; extend focused regressions and
+  documentation.
+
+Saturate Gadget default dimensions (2026-11-01)
+=================================================
+
+- Compute default highlight and shadow extents in a wide type and clamp them
+  to the `Dimension` range instead of wrapping a large control to a small one.
+- Add a focused regression and documentation.
+
+Clamp ColorSelector layout geometry (2026-11-01)
+==================================================
+
+- Keep derived child sizes and accumulated positions representable before
+  configuring ColorSelector children, avoiding `Dimension` and `Position`
+  wraparound with large margins or controls.
+- Extend the focused layout regression and documentation.
+
+Saturate ColorSelector preferred size (2026-11-01)
+====================================================
+
+- Accumulate child, border, and margin extents in a wide type and clamp the
+  preferred result to the `Dimension` range instead of wrapping it small.
+- Add focused regression coverage and documentation.
+
+Harden ColorSelector RGB database ingestion (2026-11-01)
+==========================================================
+
+- Check both ColorInfo/XmString allocator byte counts against Xt's `Cardinal`
+  allocation limit, use size-correct name and sort counts, and cap entries to
+  the representable signed-short color count.
+- Extend focused loader coverage and document the bounded ingestion contract.
+
+Harden ColorSelector channel state (2026-11-01)
+=================================================
+
+- Normalize callback and display RGB channel values to 0–255 before building
+  color names or 16-bit X11 channels, preventing malformed values from
+  wrapping.
+- Make RGB-file change detection return an explicit Boolean, with focused
+  regression coverage and documentation.
+
+Correct ColorSelector Xt converter ABI (2026-11-01)
+=====================================================
+
+- Use the native Xt type-converter count-pointer signature and register the
+  color-mode converter without an incompatible function-pointer cast.
+- Extend focused mode-value coverage and documentation.
+
+Harden FontSelector argument-list merging (2026-11-01)
+=========================================================
+
+- Route all 23 internal child and menu argument-list merges through one
+  checked helper so caller/local `Cardinal` counts cannot wrap before Xt
+  construction.
+- Preserve each path's existing allocation-failure cleanup and add focused
+  coverage and documentation.
+
+Harden FontSelector font-list count bounds (2026-11-01)
+=========================================================
+
+- Keep retained server font/family lists within the signed-short count range
+  represented by `FontInfo`, and use checked `Cardinal` byte sizes for their
+  Xt allocations and growth.
+- Add focused coverage and documentation for the count and allocation bounds.
 
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
