@@ -1,3 +1,11 @@
+Harden Mrm safe vector copies (2026-11-01)
+==========================================
+
+- Reject a nonempty Char8 vector span without its source table and widen
+  compound-string vector allocation arithmetic before multiplying. Malformed
+  callback/resource data can no longer reach a null byte copy or undersized
+  table allocation.
+
 Guard MWM workspace-protocol allocation failures (2026-11-01)
 =============================================================
 

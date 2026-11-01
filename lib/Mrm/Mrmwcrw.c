@@ -3052,7 +3052,8 @@ Urm__CW_SafeCopyValue (long				*val,
       if (vec_count > 0 && cstr_table_src == NULL)
 	return;
       cstr_table_dst =
-	(XmString *)XtMalloc(vec_count * sizeof(XmString)) ;
+	(XmString *)XtMalloc((Cardinal)((size_t)vec_count *
+					  sizeof(*cstr_table_dst))) ;
       if (cstr_table_dst == NULL)
 	return;
       for (cnt=0; cnt<vec_count; cnt++)
@@ -3076,7 +3077,8 @@ Urm__CW_SafeCopyValue (long				*val,
 
     case MrmRtypeChar8Vector:
       char8_table_src = (String *)*val ;
-      if (vec_count > 0 && char8_table_src == NULL)
+      /* vec_size covers the copied pointer table and string storage. */
+      if (vec_size > 0 && char8_table_src == NULL)
 	return;
       char8_table_dst = (String *) XtMalloc (vec_size) ;
       if (char8_table_dst == NULL && vec_size != 0)

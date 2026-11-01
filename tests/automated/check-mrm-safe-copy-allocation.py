@@ -34,6 +34,8 @@ if "(size_t)cnt > (SIZE_MAX / sizeof(wchar_t)) - 1" not in region:
     raise SystemExit("wide-character copy size is not overflow checked")
 if "size > (size_t)UINT_MAX" not in region:
     raise SystemExit("wide-character copy size is not Cardinal-bounded")
+if "XtMalloc((Cardinal)((size_t)vec_count *" not in region:
+    raise SystemExit("compound-string vector allocation multiplies before widening")
 if "while (cnt > 0)" not in region or "XmStringFree(cstr_table_dst[--cnt])" not in region:
     raise SystemExit("compound-string vector copies do not roll back partial failure")
 

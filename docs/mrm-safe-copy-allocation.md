@@ -11,5 +11,8 @@ vector copies also release earlier entries when a later copy fails.
 Wide-character size multiplication and the final Xt `Cardinal` byte width are
 checked before allocation as well.
 
+Compound-string vector allocation widens the element count before multiplying
+by the pointer size, so valid large counts cannot wrap a signed intermediate.
+
 The source-level regression is
 `tests/automated/check-mrm-safe-copy-allocation.py`.
