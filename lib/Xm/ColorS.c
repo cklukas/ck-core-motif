@@ -135,6 +135,8 @@ static void SetSliders(XmColorSelectorWidget);
 static void CreateColorSliders(XmColorSelectorWidget, ArgList, Cardinal);
 static void CreateSelectorRadio(XmColorSelectorWidget, ArgList, Cardinal);
 static void CreateColorWindow(XmColorSelectorWidget, ArgList, Cardinal);
+static ArgList ColorSelectorMergeArgLists(ArgList, Cardinal, ArgList,
+					 Cardinal, Cardinal *);
 static void NoPrivateColormaps(XmColorSelectorWidget, Pixel, XColor, char *);
 static void PrivateColormaps(XmColorSelectorWidget, Pixel, XColor, char *);
 
@@ -1368,6 +1370,19 @@ compute_size(XmColorSelectorWidget csw)
  *      Returns:       	none.
  */
 
+static ArgList
+ColorSelectorMergeArgLists(ArgList local_args, Cardinal num_local_args,
+			   ArgList supplied_args, Cardinal num_supplied_args,
+			   Cardinal *merged_num_args)
+{
+    if (num_local_args > (Cardinal)(~(Cardinal)0) - num_supplied_args)
+	return(NULL);
+
+    *merged_num_args = num_local_args + num_supplied_args;
+    return XtMergeArgLists(local_args, num_local_args,
+			   supplied_args, num_supplied_args);
+}
+
 /* ARGSUSED */
 static void
 read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Boolean initial)
@@ -1381,6 +1396,7 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
     ColorInfo * color_info = NULL;
     register int i;
     Arg	*margs, args[20];
+    Cardinal merged_num_args;
  
     /*
      * Create new list if needed, or delete any old list items.
@@ -1390,11 +1406,12 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 	i = 0;
 	XtSetArg(args[i], XmNlistSizePolicy, XmCONSTANT); i++;
 	XtSetArg(args[i], XmNvisibleItemCount, 15); i++;
-	margs = XtMergeArgLists(args, i, cargs, cnum_args);
+	margs = ColorSelectorMergeArgLists(args, (Cardinal)i, cargs, cnum_args,
+					   &merged_num_args);
 	if (margs == NULL)
 	    return;
 	XmColorS_list(csw) = XmCreateScrolledList((Widget) csw, "list", 
-					    margs, i + cnum_args);
+					    margs, merged_num_args);
 	if (XmColorS_list(csw) == NULL)
 	{
 	    XtFree((XtPointer) margs);
@@ -1686,19 +1703,20 @@ CreateColorSliders(XmColorSelectorWidget csw,
 		   ArgList cargs, Cardinal cnum_args)
 {
     register int i;
-    Cardinal	num_args, title;
+    Cardinal	num_args, title, merged_num_args;
     Arg		*margs, args[10];
     
     num_args = 0;
     XtSetArg(args[num_args], XmNborderWidth, 0); num_args++;
     XtSetArg(args[num_args], XmNorientation, XmVERTICAL); num_args++;
     XtSetArg(args[num_args], XmNfillOption, XmFillMinor); num_args++;
-    margs = XtMergeArgLists(args, num_args, cargs, cnum_args);
+    margs = ColorSelectorMergeArgLists(args, num_args, cargs, cnum_args,
+					   &merged_num_args);
     if (margs == NULL)
 	return;
     XmColorS_bb(csw) = XtCreateManagedWidget("buttonBox", xmButtonBoxWidgetClass, 
 				       (Widget) csw,
-				       margs, cnum_args + num_args);
+			       margs, merged_num_args);
     XtFree((XtPointer) margs);
 
     if (XmColorS_bb(csw) == NULL)
@@ -1712,7 +1730,8 @@ CreateColorSliders(XmColorSelectorWidget csw,
     num_args++;
     XtSetArg(args[num_args], XmNtitleString, NULL); title = num_args++;
 
-    margs = XtMergeArgLists(args, num_args, cargs, cnum_args);
+    margs = ColorSelectorMergeArgLists(args, num_args, cargs, cnum_args,
+					   &merged_num_args);
 
     if (margs == NULL)
 	return;
@@ -1722,7 +1741,7 @@ CreateColorSliders(XmColorSelectorWidget csw,
 	XmColorS_sliders(csw)[i] = XtCreateManagedWidget("scale", 
 						   xmScaleWidgetClass,
 						   XmColorS_bb(csw), margs,
-						   num_args + cnum_args);
+						   merged_num_args);
 
 	if (XmColorS_sliders(csw)[i] == NULL)
 	    continue;
@@ -1750,7 +1769,7 @@ CreateSelectorRadio(XmColorSelectorWidget csw,
 		    ArgList cargs, Cardinal cnum_args)
 {
     Widget w;
-    Cardinal	i, label;
+    Cardinal	i, label, merged_num_args;
     Arg		*margs, args[5];
     int count;
     static String names[] = { "colorListToggle", "colorSlidersToggle" };
@@ -1759,11 +1778,12 @@ CreateSelectorRadio(XmColorSelectorWidget csw,
     XtSetArg(args[i], XmNradioBehavior, True); i++;
     XtSetArg(args[i], XmNpacking, XmPACK_COLUMN); i++;
     XtSetArg(args[i], XmNnumColumns, 2); i++;
-    margs = XtMergeArgLists(args, i, cargs, cnum_args);
+    margs = ColorSelectorMergeArgLists(args, i, cargs, cnum_args,
+					   &merged_num_args);
     if (margs == NULL)
 	return;
     w = XtCreateManagedWidget("radioBox", xmRowColumnWidgetClass,
-			      (Widget) csw, margs, i + cnum_args);
+			      (Widget) csw, margs, merged_num_args);
     XmColorS_chose_radio(csw) = w;
     XtFree((XtPointer) margs);    
 
@@ -1772,7 +1792,8 @@ CreateSelectorRadio(XmColorSelectorWidget csw,
 
     i = 0;
     XtSetArg(args[i], XmNlabelString, NULL); label = i++;
-    margs = XtMergeArgLists(args, i, cargs, cnum_args);
+    margs = ColorSelectorMergeArgLists(args, i, cargs, cnum_args,
+					   &merged_num_args);
 
     if (margs == NULL)
 	return;
@@ -1781,7 +1802,7 @@ CreateSelectorRadio(XmColorSelectorWidget csw,
 	margs[label].value = (XtArgVal) XmColorS_strings(csw).tog_labels[count];
 
 	w = XtCreateManagedWidget(names[count], xmToggleButtonWidgetClass,
-				  XmColorS_chose_radio(csw), margs, i + cnum_args);
+				  XmColorS_chose_radio(csw), margs, merged_num_args);
 	XmColorS_chose_mode(csw)[count] = w;
 
 	if (w != NULL)
@@ -1806,7 +1827,7 @@ CreateColorWindow(XmColorSelectorWidget csw,ArgList cargs, Cardinal cnum_args)
 {
     Widget fr;
     Arg *margs, args[10];
-    Cardinal n;
+    Cardinal n, merged_num_args;
 
     fr = XtCreateManagedWidget("colorFrame", xmFrameWidgetClass,
 			       (Widget) csw, cargs, cnum_args);
@@ -1816,12 +1837,13 @@ CreateColorWindow(XmColorSelectorWidget csw,ArgList cargs, Cardinal cnum_args)
 
     n = 0;
     XtSetArg(args[n], XmNrecomputeSize, False); n++;
-    margs = XtMergeArgLists(args, n, cargs, cnum_args);
+    margs = ColorSelectorMergeArgLists(args, n, cargs, cnum_args,
+					   &merged_num_args);
     if (margs == NULL)
 	return;
     XmColorS_color_window(csw) = XtCreateManagedWidget("colorWindow", 
 						       xmLabelWidgetClass, 
-						       fr, margs, n + cnum_args);
+					       fr, margs, merged_num_args);
     XtFree((XtPointer) margs);    
 }
 

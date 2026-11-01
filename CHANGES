@@ -3950,6 +3950,14 @@ Guard Gadget secondary-object argument count (2026-11-01)
   argument to a Gadget secondary object.
 - Extend the focused regression and document the overflow guard.
 
+Harden ColorSelector argument-list merging (2026-11-01)
+==========================================================
+
+- Route every internal child-argument merge through a checked helper so the
+  caller and local `Cardinal` counts cannot wrap.
+- Keep allocation-failure handling at every construction point and extend the
+  focused regression and documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 
