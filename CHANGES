@@ -1,3 +1,10 @@
+Keep MainWindow child growth warning-clean (2026-11-01)
+=======================================================
+
+- Retain the narrow-host byte-size guard for MainWindow child-list growth
+  while omitting its redundant 64-bit form, so strict builds do not report an
+  always-false comparison.
+
 Relayout MainWindow after same-size resource changes (2026-11-01)
 ===============================================================
 

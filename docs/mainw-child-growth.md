@@ -12,3 +12,8 @@ The migration now checks slot arithmetic and both host `size_t` and Xt
 `Cardinal` byte limits, commits the new pointer and count only after successful
 allocation by passing the bounded size explicitly as an Xt `Cardinal`, and
 returns from that change-managed pass if growth cannot be completed.
+
+The host-size test is compiled only where `size_t` is narrower than Xt's
+`Cardinal` allocation boundary; on ordinary 64-bit hosts that condition is
+already implied by the Xt check and is intentionally not emitted as a
+misleading always-false diagnostic.

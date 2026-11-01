@@ -1064,16 +1064,16 @@ ChangeManaged(
 		    WidgetList new_children;
 		    if (mw->composite.num_slots >
 			(Cardinal)(~(Cardinal)0 - 2) -
-			(mw->composite.num_slots / 2) ||
-			(size_t)(mw->composite.num_slots +
-			         (mw->composite.num_slots / 2) + 2) >
-			    SIZE_MAX / sizeof(Widget) ||
-			    (size_t)(mw->composite.num_slots +
-			             (mw->composite.num_slots / 2) + 2) >
-			    UINT_MAX / sizeof(Widget))
+			(mw->composite.num_slots / 2))
 			return;
 		    new_slots = mw->composite.num_slots +
 			(mw->composite.num_slots / 2) + 2;
+#if SIZE_MAX < UINT_MAX
+		    if ((size_t)new_slots > SIZE_MAX / sizeof(Widget))
+			return;
+#endif
+		    if ((size_t)new_slots > UINT_MAX / sizeof(Widget))
+			return;
 		    new_children = (WidgetList)XtRealloc(
 			(char *)mw->composite.children,
 		(Cardinal)((size_t)new_slots * sizeof(Widget)));
