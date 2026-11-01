@@ -1575,7 +1575,7 @@ CvtStringToStringTable(
                 int cleanup;
                 String *new_table;
                 if (size >= INT_MAX ||
-                    (unsigned int)size > UINT_MAX / sizeof(String))
+                    (unsigned int)size >= UINT_MAX / sizeof(String))
                 {
                     for (cleanup = 0; cleanup < i; ++cleanup)
                         XtFree((char *)table[cleanup]);
