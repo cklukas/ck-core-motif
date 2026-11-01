@@ -1,3 +1,12 @@
+Exercise UIL listing formatter under sanitizers (2026-11-01)
+===========================================================
+
+- Execute the production formatter with a 20,000-character message, exact
+  buffer boundaries, blank lines, partial fragments, allocation failure and
+  a deterministic 12,000-character fragmented stream checked against an
+  independent output oracle.
+- Record tested source hashes and commands for the ASan/UBSan unit probe.
+
 Reject missing scrolled-list arguments (2026-11-01)
 ==================================================
 

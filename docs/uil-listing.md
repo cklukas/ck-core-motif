@@ -42,3 +42,19 @@ instead of writing past the pointer buffer.
 
 The focused source check is
 `tests/automated/check-uil-message-pointer-bounds.py`.
+
+The formatter itself also has an executable unit regression independent of
+the full compiler build:
+
+```sh
+python3 tests/automated/run-uil-debug-runtime.py --out /absolute/fresh/results
+```
+
+It compiles the actual production append/flush/variadic formatting functions
+with Clang ASan/UBSan. Cases cover 20,000-character output, the 131-byte line
+boundary, fragments, blank lines, allocation failure and a deterministic
+12,000-character stream compared against an independent output oracle. A
+`receipt.json` records the source hash, commands and results. The regression
+also detects a deliberately dropped final fragment; this mutation was tested
+separately during development. The full compiler probe above remains necessary
+to qualify the compiler's integration with listing-file I/O.
