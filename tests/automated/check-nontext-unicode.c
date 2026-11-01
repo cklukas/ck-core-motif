@@ -22,6 +22,8 @@
     ++checks; \
 } while (0)
 
+#define UNICODE_VALUE_COUNT 6
+
 static unsigned long checks;
 
 int main(int argc, char **argv)
@@ -30,16 +32,17 @@ int main(int argc, char **argv)
     Widget shell, row, menu, pulldown, cascade, menu_item;
     Widget label, compound_label, list, combo, files, message, selection;
     Widget toggle, segmented;
-    XmString items[5], selected = NULL, expected_label, expected_combo;
+    XmString items[UNICODE_VALUE_COUNT], selected = NULL, expected_label, expected_combo;
     XmString expected_menu, expected_file, expected_toggle, expected_nonbmp;
     XmString expected_bidi, expected_message, expected_selection, compound;
     XmString expected_file_text, expected_selection_text;
-    const char *values[] = {
+    const char *values[UNICODE_VALUE_COUNT] = {
         "e\314\201clair",       /* combining acute */
         "\360\237\230\200 cafe", /* non-BMP emoji */
         "\344\270\255\346\226\207", /* Han */
         "abc \327\251\327\234\327\225\327\235 123", /* mixed Hebrew */
-        "abc \330\263\331\204\330\247\331\205 123" /* mixed Arabic */
+        "abc \330\263\331\204\330\247\331\205 123", /* mixed Arabic */
+        "\343\201\223\343\202\223\343\201\253\343\201\241\343\201\257\344\270\226\347\225\214" /* Japanese */
     };
     char *label_text = NULL;
     int *positions = NULL, position_count = 0;
@@ -53,13 +56,14 @@ int main(int argc, char **argv)
     KeySym mnemonic = NoSymbol;
 
     CHECK(setlocale(LC_ALL, "C.UTF-8") != NULL);
+    CHECK(XtNumber(items) == XtNumber(values));
     XtSetLanguageProc(NULL, NULL, NULL);
     shell = XtVaAppInitialize(&app, "NonTextUnicodeRegression", NULL, 0,
                               &argc, argv, NULL, NULL);
     for (unsigned int i = 0; i < XtNumber(items); ++i)
         items[i] = XmStringCreateLocalized((char *)values[i]);
-    expected_label = XmStringCreateLocalized((char *)values[4]);
-    expected_combo = XmStringCreateLocalized((char *)values[4]);
+    expected_label = XmStringCreateLocalized((char *)values[5]);
+    expected_combo = XmStringCreateLocalized((char *)values[5]);
     expected_menu = XmStringCreateLocalized((char *)values[3]);
     expected_file = XmStringCreateLocalized((char *)values[2]);
     expected_toggle = XmStringCreateLocalized((char *)values[3]);
@@ -159,10 +163,12 @@ int main(int argc, char **argv)
     XmStringFreeContext(context);
     CHECK(segment_count == 2);
 
-    XmListSelectPos(list, 5, False);
+    XmListSelectPos(list, 6, False);
     CHECK(XmListGetSelectedPos(list, &positions, &position_count));
-    CHECK(position_count == 1 && positions[0] == 5);
+    CHECK(position_count == 1 && positions[0] == 6);
     XtFree((char *)positions);
+    CHECK(XmListItemExists(list, expected_label));
+    CHECK(XmListItemPos(list, expected_label) == 6);
     CHECK(XmListItemExists(list, expected_nonbmp));
     CHECK(XmListItemPos(list, expected_nonbmp) == 2);
     CHECK(XmListGetMatchPos(list, expected_nonbmp, &matches, &match_count));
@@ -172,6 +178,11 @@ int main(int argc, char **argv)
     CHECK(XmListItemPos(list, expected_bidi) == 4);
     CHECK(XmListGetMatchPos(list, expected_bidi, &matches, &match_count));
     CHECK(match_count == 1 && matches[0] == 4);
+    XtFree((char *)matches);
+    CHECK(XmListItemExists(list, expected_file));
+    CHECK(XmListItemPos(list, expected_file) == 3);
+    CHECK(XmListGetMatchPos(list, expected_file, &matches, &match_count));
+    CHECK(match_count == 1 && matches[0] == 3);
     XtFree((char *)matches);
 
     XmComboBoxSelectItem(combo, expected_combo);

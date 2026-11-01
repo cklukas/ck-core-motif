@@ -11,6 +11,14 @@ Preserve modern Container appearance across gadget recreation (2026-11-01)
   100 recreations with reused addresses, colored icon and row pixel checks,
   live theme/scale changes, overrides, existing appearance tests and all demos.
 
+Extend non-text Unicode widget qualification (2026-11-01)
+===========================================================
+
+- Add Japanese List selection and ComboBox round-trip coverage, plus Chinese
+  Han List search coverage, to the installed public-API Unicode fixture.
+- Retain the existing combining, non-BMP, mixed-direction and compound-string
+  checks; this is focused widget coverage, not a claim of full IME support.
+
 Retain final newline-less rendition properties (2026-11-01)
 ===========================================================
 
