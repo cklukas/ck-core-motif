@@ -24,3 +24,7 @@ existing absent-sequence fallback.
 
 If Xlib cannot return a modifier mapping, MWM now retains the base Caps-Lock
 mask and builds that sequence without dereferencing the absent mapping.
+
+When XKB modifier mappings change, MWM releases the previous sequence before
+publishing its replacement, preventing one Xt allocation leak per mapping
+refresh.

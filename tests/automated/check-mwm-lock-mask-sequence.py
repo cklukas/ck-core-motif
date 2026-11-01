@@ -23,6 +23,9 @@ setup_start = source.index("static void\nSetupLockingModifierMask")
 setup_end = source.index("\n\n/******************************<->", setup_start)
 setup = source[setup_start:setup_end]
 mapping = setup.index("modifier_map = XGetModifierMapping(dpy);")
+free_previous = setup.index("XtFree((char *)wmGD.pLockMaskSequence);")
+assert free_previous < mapping
+assert "wmGD.pLockMaskSequence = NULL;" in setup[free_previous:mapping]
 null_guard = setup.index("if (modifier_map == NULL)", mapping)
 first_dereference = setup.index("modifier_map->max_keypermod", mapping)
 assert mapping < null_guard < first_dereference

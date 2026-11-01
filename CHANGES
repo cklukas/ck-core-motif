@@ -7,6 +7,14 @@ Connect TreeView navigation and click focus (2026-11-01)
   wheel and overflow behavior in a native regression.
 - Place the gallery sidebar tree in an application-defined ScrolledWindow.
 
+Release MWM lock-mask sequences on mapping refresh (2026-11-01)
+================================================================
+
+- Free the old locking-modifier sequence before rebuilding it after an X11
+  modifier mapping change, preventing repeated mapping notifications from
+  leaking Xt-managed sequence storage.
+- Extend focused lock-mask regression coverage and document the lifecycle.
+
 Handle missing MWM modifier mappings (2026-11-01)
 ===================================================
 

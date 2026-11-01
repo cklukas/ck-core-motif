@@ -351,6 +351,12 @@ SetupLockingModifierMask(void)
      */
     wmGD.lockingModMask = LockMask;
 
+    if (wmGD.pLockMaskSequence != NULL)
+    {
+	XtFree((char *)wmGD.pLockMaskSequence);
+	wmGD.pLockMaskSequence = NULL;
+    }
+
     modifier_map = XGetModifierMapping(dpy);
     if (modifier_map == NULL)
     {
