@@ -1,3 +1,12 @@
+Initialize Mwm exclusion parser state (2026-11-01)
+===================================================
+
+- Initialize the temporary exclusion command pointer and require a captured
+  value before storing it.  This removes the Mwm parser's possible-uninitialized
+  diagnostic while retaining valid exclusion ordering and matching behavior.
+- Extend the focused exclusion allocation/parser-state check and document the
+  temporary-pointer contract.
+
 Qualify mixed-direction non-text widget strings (2026-11-01)
 ============================================================
 
