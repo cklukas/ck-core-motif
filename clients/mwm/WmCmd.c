@@ -1572,8 +1572,8 @@ GetMoveInfo(ClientData *pcd, XtPointer reply)
 
 {
       int i;
-      GadgetRectangle title;
-      GadgetRectangle menu;
+      GadgetRectangle title = { INVALID, { INVALID, INVALID, INVALID, INVALID } };
+      GadgetRectangle menu = { INVALID, { INVALID, INVALID, INVALID, INVALID } };
       CARD32 filledCount;
       CARD32 upperBorderWidth, lowerBorderWidth;
       CARD32 windowX, windowY;
@@ -1795,8 +1795,8 @@ static void
 GetWindowMenuPostInfo(ClientData *pcd, XtPointer reply)
 {
       int i;
-      GadgetRectangle title;
-      GadgetRectangle menu;
+      GadgetRectangle title = { INVALID, { INVALID, INVALID, INVALID, INVALID } };
+      GadgetRectangle menu = { INVALID, { INVALID, INVALID, INVALID, INVALID } };
       CARD32 filledCount;
       Window frameWin;
 

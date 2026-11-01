@@ -22,6 +22,16 @@ Modern C and native macOS toolkit builds (2026-11-01)
   Mrm callbacks, callable UIL, WML attributes and existing string/Unicode APIs.
   See docs/build.md for the platform commands and qualification boundaries.
 
+Initialize Mwm automation gadget records (2026-11-01)
+======================================================
+
+- Initialize move and window-menu automation reply records to the established
+  invalid sentinel before scanning title gadgets. This prevents any future
+  skipped fallback from serializing uninitialized geometry while preserving
+  ordinary valid and invalid gadget replies.
+- Extend the focused gadget-info check and compile the real Mwm source with
+  uninitialized-use diagnostics promoted to errors.
+
 Clarify Mwm gadget-info fallback scope (2026-11-01)
 ======================================================
 
