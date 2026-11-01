@@ -5,6 +5,7 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "clients/mwm/WmEvent.c").read_text(
     encoding="utf-8"
 )
+assert "#include <stdint.h>" in source
 start = source.index("static unsigned int *\n_WmGrabMasks")
 end = source.index("\n}", start) + 2
 region = source[start:end]

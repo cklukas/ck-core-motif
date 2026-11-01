@@ -12,3 +12,7 @@ native `size_t` arithmetic and Xt's `Cardinal` allocation interface. An
 unrepresentable resource leaves the existing cache untouched. Existing
 successful grab behavior is unchanged. The source contract is covered by
 `tests/automated/check-mwm-grab-mask-allocation.py`.
+
+The implementation includes `<stdint.h>` directly for `SIZE_MAX`; this keeps
+the checked path portable to toolchains whose Motif/X11 headers do not happen
+to transitively provide that C definition.

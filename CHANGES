@@ -1,3 +1,12 @@
+Declare MWM grab-mask size bounds portably (2026-11-01)
+=========================================================
+
+- Include the standard definition of `SIZE_MAX` in MWM's grab-mask source
+  instead of relying on transitive X11/Motif headers.
+- Extend the focused grab-mask regression and document the portability
+  requirement. This restores x86_64 MWM compilation with the checked
+  allocation guard enabled.
+
 Preserve MWM command-tree entries on allocation failure (2026-11-01)
 =======================================================================
 
