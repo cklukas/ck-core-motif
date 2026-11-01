@@ -705,6 +705,7 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	      /* Free up what we have so far ... */
 	      --i; /* skip the one that failed */
 	      while (i >= 0) XtFree(useable_text[i--]);
+	      XtFree((char *)useable_text);
 	      if (strict)
 		{
 		  /* If we got back XLocaleNotSupported, then pretend the
@@ -741,7 +742,7 @@ XmCvtXmStringTableToTextProperty(Display *display,
 	size_t item_size = strlen(useable_text[i]) + 1;
 	if (item_size > (size_t)INT_MAX - (size_t)total_size) {
 	    int cleanup;
-	    for (cleanup = 0; cleanup <= i; ++cleanup)
+	    for (cleanup = 0; cleanup < count; ++cleanup)
 		XtFree(useable_text[cleanup]);
 	    XtFree((char *)useable_text);
 	    _XmAppUnlock(app);

@@ -27,6 +27,28 @@ final buffers, and includes cleanup of all temporary converted strings when the
 total cannot be represented. The branch contract is covered by
 `tests/automated/check-locale-text-property-size.py`.
 
+Locale/string conversion releases its temporary pointer array when any item
+conversion fails, including before strict-mode compound-text fallback. Aggregate
+sizing occurs after all items have been converted, so overflow releases every
+item, including those after the item that exceeded the size limit. Successful
+output bytes, encoding choices and fallback behavior remain unchanged.
+
+The executable ownership regression extracts the production table-to-property
+function and exercises 43 cases across the four locale/string styles: every
+allocation failure, per-item conversion errors, oversized aggregate lengths,
+strict fallback and successful null-separated output bytes. Allocation, length
+and conversion test doubles allow overflow and rollback checks without large
+buffers or an X server. Outstanding allocations and application-lock balance
+must return to zero after failures; success retains only the caller's result.
+
+```sh
+python3 tests/automated/run-text-property-ownership-unit.py --out /absolute/fresh/results
+```
+
+The runner uses strict compiler warnings and ASan/UBSan and records the tested
+source hash, commands and results in `receipt.json`. This unit scope does not
+qualify the locale provider's actual character conversion or X11 transfers.
+
 The reverse conversion validates output pointers, property lengths, and required
 value storage before reading an X property. Compound-text element counting also
 rejects `int` counter overflow and pointer-table allocation overflow. The input

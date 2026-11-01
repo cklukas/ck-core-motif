@@ -1,3 +1,13 @@
+Release all text-property conversion intermediates (2026-11-01)
+===============================================================
+
+- Free the temporary pointer array when a locale/string item conversion fails,
+  including strict-mode fallback to compound text.
+- Free every converted item when aggregate sizing overflows; later items are
+  already allocated at that point and must not be left behind.
+- Add executable fault injection for all four locale/string styles, allocation
+  failures, conversion errors, overflow cleanup, fallback and exact output bytes.
+
 Exercise independent X11 selection owners (2026-11-01)
 =====================================================
 
