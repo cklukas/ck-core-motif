@@ -66,6 +66,7 @@ clients exchanging Motif window-management messages.
 - [Colormap-reference array width](mwm-colormap-reference-width.md)
 - [Transient-list growth](transient-list-growth.md)
 - [Query-XID buffer growth](mwm-query-xid-growth.md)
+- [Client-message initialization](mwm-client-message-initialization.md)
 - [Session workspace-string growth](mwm-session-workspace-growth.md)
 - [Session geometry persistence](mwm-session-geometry.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)

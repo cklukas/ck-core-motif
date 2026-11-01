@@ -1,3 +1,10 @@
+Initialize MWM client-message payloads (2026-11-01)
+======================================================
+
+- Clear outbound `XClientMessageEvent` records before assigning their defined
+  protocol fields, preventing unused payload words from carrying stack data.
+- Add focused regression coverage and document the X11 payload contract.
+
 Qualify Unicode standard-dialog resources (2026-11-01)
 =======================================================
 
