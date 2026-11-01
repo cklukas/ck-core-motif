@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT
 AC_CONFIG_SRCDIR([lib/Xm/Form.c])
 AC_USE_SYSTEM_EXTENSIONS
-AC_PREREQ(2.52)
+AC_PREREQ(2.60)
 AC_CONFIG_AUX_DIR(.)
 AC_CHECK_FILE(/usr/X/include/X11/X.h,
   AC_PREFIX_DEFAULT(/usr/X),
