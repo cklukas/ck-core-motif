@@ -1,3 +1,11 @@
+Bound MWM lock-mask cache allocation width (2026-11-01)
+========================================================
+
+- Reject user-configured lock-mask sequences whose cached modifier array would
+  overflow native allocation arithmetic or Xt's `Cardinal` byte count.
+- Extend the focused allocation-failure regression and document the byte-width
+  contract; ordinary key and button grab combinations are unchanged.
+
 Modern C and native macOS toolkit builds (2026-11-01)
 =====================================================
 

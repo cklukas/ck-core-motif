@@ -250,6 +250,13 @@ _WmGrabMasks ( unsigned int modifiers, int *pnum_masks )
     {
 	int required_len = num_masks+2;
 
+	/* XtRealloc accepts a Cardinal byte count.  The lock-mask resource
+	 * can be supplied by the user, so reject a count that would wrap
+	 * either the native multiplication or Xt's narrower allocation API. */
+	if ((size_t)required_len > SIZE_MAX / sizeof(*pRetMasks) ||
+	    (size_t)required_len > UINT_MAX / sizeof(*pRetMasks))
+	    return (NULL);
+
 	resized = (unsigned int *)XtRealloc ((char *)pRetMasks,
 					 (Cardinal)((size_t)required_len *
 						    sizeof(unsigned int)));
