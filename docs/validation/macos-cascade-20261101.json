@@ -1,0 +1,189 @@
+{
+  "tested_revision": "5e32caf53730b2e09291fafd269eba78688a133a",
+  "scope": "Native macOS arm64, Clang C23, Xft/Unicode/SVG, XQuartz. Cascade widget and gadget modern appearance.",
+  "production_fingerprints": {
+    "lib/Xm/Appearance.c": "36df2e5cfa6c4dcc1990260fbc38ab5f18a7688ab1365929a0828ee5687506af",
+    "lib/Xm/AppearanceDraw.c": "c8ef7eddb346123c3728cc2730635b41776e11457e3f5ec8aa93c5bb137ae8a0",
+    "lib/Xm/AppearanceDrawI.h": "d81f3416c95df4321dfd9a2c2ce48635db408a47988f7de6a17cd83a30765f97",
+    "lib/Xm/CascadeB.c": "5f5cf06528ee941d28ce634a92ff10aeb45b1ad6d05c4a4a3cb38c2ed790b4c4",
+    "lib/Xm/CascadeBG.c": "6a9c75894c5e8c1fd21bc90e58edb76a0b300b6b4af7d332b7bab5204e1519d4",
+    "lib/Xm/XmI.h": "921e0c316e4b12672594c61c67fc029ae9fe713af34cd03944667d677dacdac9",
+    "demos/programs/ckmotif-gallery/gallery_examples.c": "0a6d027be9f7ede977b1859725b8e1226094268c71fd6cbc15cb92ea832cc152"
+  },
+  "compiled_source_asset_manifest_sha256": "afdb9ec6404130f1e4465fdfe062a5e34dd2f6b3f254314c462a5e1087bdb5c7",
+  "build": {
+    "started_utc": "2026-11-01T21:03:38.265933+00:00",
+    "ended_utc": "2026-11-01T21:03:47.013773+00:00",
+    "elapsed_seconds": 8.747556916998292,
+    "configuration": "Mac arm64 Clang C23, Xft/Unicode/SVG, shared-only, -j3",
+    "outputs": {
+      "/Volumes/S8T/tmp/motif-cascade-20261101/install/bin/ckmotif-gallery": {
+        "sha256": "9ef79d5a25e5587f995d6bdbc7394108772ab61d801885462d3bfc141a359eb3",
+        "mtime_ns": 1793567026862771843,
+        "file": "/Volumes/S8T/tmp/motif-cascade-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+      },
+      "/Volumes/S8T/tmp/motif-cascade-20261101/install/lib/libXm.9.dylib": {
+        "sha256": "bad285a78a3f695ce0a8c242de9ce4f40726a361243c64168caae46c8f1ad89b",
+        "mtime_ns": 1793567026074309764,
+        "file": "/Volumes/S8T/tmp/motif-cascade-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+      }
+    }
+  },
+  "build_duration_investigation": {
+    "clean_library_seconds": 37.21,
+    "configure_seconds": 34.08,
+    "clean_compilation_units": 286,
+    "investigation": "This clean build was faster than the previous cohort under heavy concurrent load. A new empty build directory was configured against the new source checkout; full compiler commands for all listed units and native linking are recorded. Final merged incremental inputs and output hashes are recorded separately; duration is not the freshness proof."
+  },
+  "acceptance": {
+    "cascade": {
+      "cases": 186,
+      "source_sha256": "0ef5f282995c3388e5d0e963722091fdc7de13be698e5df1d809d7321b3ed8c6",
+      "library_sha256": "bad285a78a3f695ce0a8c242de9ce4f40726a361243c64168caae46c8f1ad89b",
+      "examples_object_sha256": "238476708e35fbcc7b89c0d192c833118b9bb007ffd9d092139b89fd93003287",
+      "command": [
+        "python3",
+        "tests/automated/run-cascade-appearance.py",
+        "--build",
+        "/Volumes/S8T/tmp/motif-cascade-20261101/build",
+        "--results",
+        "/Volumes/S8T/tmp/motif-cascade-20261101/cascade-host-acceptance",
+        "--cc",
+        "clang"
+      ],
+      "result": "PASS both classes, generic/supplied menu bars, no invalid-parent warnings, light/dark, scale, density, arm/disarm/expose, custom resources, callbacks, Classic restoration, 40 revisits"
+    },
+    "native_regressions": {
+      "library_sha256": "bad285a78a3f695ce0a8c242de9ce4f40726a361243c64168caae46c8f1ad89b",
+      "steps": [
+        {
+          "name": "compile-svg-image",
+          "exit_code": 0
+        },
+        {
+          "name": "compile-dialog-icons",
+          "exit_code": 0
+        },
+        {
+          "name": "compile-action-icons",
+          "exit_code": 0
+        },
+        {
+          "name": "compile-buffered-text",
+          "exit_code": 0
+        },
+        {
+          "name": "compile-live-appearance",
+          "exit_code": 0
+        },
+        {
+          "name": "compile-live-appearance-gadget",
+          "exit_code": 0
+        },
+        {
+          "name": "compile-default-button-geometry",
+          "exit_code": 0
+        },
+        {
+          "name": "compile-avatar-rendering",
+          "exit_code": 0
+        },
+        {
+          "name": "compile-avatar-geometry",
+          "exit_code": 0
+        },
+        {
+          "name": "avatar-rendering",
+          "exit_code": 0
+        },
+        {
+          "name": "avatar-geometry",
+          "exit_code": 0
+        },
+        {
+          "name": "live-appearance",
+          "exit_code": 0
+        },
+        {
+          "name": "live-appearance-gadget",
+          "exit_code": 0
+        },
+        {
+          "name": "default-button-geometry",
+          "exit_code": 0
+        },
+        {
+          "name": "svg-image",
+          "exit_code": 0
+        },
+        {
+          "name": "dialog-icons",
+          "exit_code": 0
+        },
+        {
+          "name": "action-icons",
+          "exit_code": 0
+        },
+        {
+          "name": "text-auto",
+          "exit_code": 0
+        },
+        {
+          "name": "text-pixmap",
+          "exit_code": 0
+        },
+        {
+          "name": "text-direct",
+          "exit_code": 0
+        },
+        {
+          "name": "gallery-icons-all-nine",
+          "exit_code": 0
+        },
+        {
+          "name": "gallery-sidebar",
+          "exit_code": 0
+        },
+        {
+          "name": "gallery-integration",
+          "exit_code": 0
+        }
+      ]
+    },
+    "gadget_lifetime": {
+      "cases": 148,
+      "reused_addresses": 98,
+      "destroy_callbacks": 100,
+      "note": "Qualified after gadget ownership-query change, before the final menu-bar-only geometry follow-up.",
+      "receipt_sha256": "6d8df53fb7977a3e330ed1ccef9b4e64b6a37933bb292a6447856eba1b731e5e"
+    },
+    "installed_demos": {
+      "count": 34,
+      "result": "PASS identical installed binaries/assets, 33 demo startups, separate MWM/Wsm workflow, real Open and missing-app notice with build demos unavailable",
+      "receipt_sha256": "28c1d2fc628e16a6e72d8dd6d94e50e9a5a2d862499086da939b05f4a919162f"
+    },
+    "source_guards": [
+      {
+        "receipt": "source-guard-checks.json",
+        "sha256": "e39838bb0cf5f63ca8eafcca8230b2bae62cd0bf54cbbf66ab2684000f8af545",
+        "count": 29,
+        "result": "PASS"
+      },
+      {
+        "receipt": "final-source-guards.json",
+        "sha256": "7b09a98907aca64bcd47a18ba0d33ff7414f9dfaf4b30ad5e0dd1103f278ab25",
+        "count": 21,
+        "result": "PASS"
+      }
+    ]
+  },
+  "actual_window": {
+    "client_pid": 79685,
+    "window_id": 6330,
+    "executable": "/Volumes/S8T/tmp/motif-cascade-20261101/install/bin/ckmotif-gallery",
+    "image": "/Volumes/S8T/tmp/motif-cascade-20261101/actual-cascade-window.png",
+    "image_sha256": "580d3dde505dec9bab704b1622fd5a4b791c17b701fc9da472276cf770486997",
+    "observed": "Modern light, 100%: readable File caption, modern padding, flat parent-matched surface and no outer frame. Sidebar and labels visible. No invalid-parent warnings.",
+    "input": "No user-desktop input sent. Left open for manual testing."
+  }
+}

@@ -9,6 +9,8 @@
 - Reuse supplied gallery menu bars, create one for generic hosts, and remove
   the modern menu bar's default outer shadow. See the
   [appearance contract](docs/cascade-button-appearance.md).
+- Qualify 186 native cases and the actual XQuartz window; see the
+  [validation record](docs/validation/macos-cascade-20261101.json).
 
 ## 2026-11-01 — Modern Avatar rendering
 
