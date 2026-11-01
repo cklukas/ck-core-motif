@@ -13,18 +13,19 @@
     "demos/programs/workspace/wsmSend.c": "2fcff07aca7d9f0d4fd32405d5ab53004ea5dd5bc19d86d126d9f0750b517792",
     "tests/automated/check-default-button-geometry.c": "bafe5ca09489ff59ed3ba726541b4a58296eb646fff3a8fc58fb02c3dac34116",
     "tests/automated/run-default-button-geometry.py": "31943b2d37cea7fe08f78f4f48736f7c1bcc58f83368c02e76ab26f41f70e523",
-    "tests/automated/run-gallery-installed-demos.py": "fa83211911ee584d2754effb78fd8cd4373014fedf28258164ce6e709838102e"
+    "tests/automated/run-gallery-installed-demos.py": "fa83211911ee584d2754effb78fd8cd4373014fedf28258164ce6e709838102e",
+    "lib/Xm/ResConvert.c": "f2c9348c8e5007ad23e885e0f9f2994f4e17b3ccbe3ba0037723ce21f4e950a0"
   },
   "test_prefix": "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install",
   "outputs": {
     "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install/bin/ckmotif-gallery": {
       "sha256": "67283837de6562bdb00a8bbcc2d4a4761cbfb173a85b37706d79fccd47c2de2f",
-      "mtime_ns": 1793559544588421758,
+      "mtime_ns": 1793559659038451488,
       "file": "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
     },
     "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install/lib/libXm.9.dylib": {
-      "sha256": "37ee4506da46a7216880cc9ebf108bbc39ad55a3dd73af810baee1bcb6e5d08e",
-      "mtime_ns": 1793559544089906518,
+      "sha256": "90febec986be8eada54063d5d931f80d8cdf3cf952140d71cd959e5c896a9e16",
+      "mtime_ns": 1793559658514619373,
       "file": "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
     }
   },
@@ -34,7 +35,8 @@
     "initial_failure": "ColorSelector converter forward declaration disagreed with implementation; corrected and resumed",
     "resumed_library_seconds": 11.38,
     "final_incremental_library_seconds": 2.03,
-    "baseline": "Prior comparable clean C23/SVG library 25.86s; final incremental build recompiled only changed inputs. Logs identify compile/link commands, source fingerprint and output identities."
+    "baseline": "Prior comparable clean C23/SVG library 25.86s; final incremental build recompiled only changed inputs. Logs identify compile/link commands, source fingerprint and output identities.",
+    "merged_incremental_library_seconds": 2.2280224170026486
   },
   "results": {
     "default_button_geometry": "124 cases passed: default emphasis, public highlights, centered short/long dialog labels, densities/scales/profiles and minimizeButtons toggles",
@@ -42,12 +44,50 @@
     "workspace_regression": "Original Mac Wsm integration SIGTRAP(-5) in GetMoveWindowRequest with uninitialized optional icon data; corrected cohort passes copy/move/link/geometry/visibility/save",
     "svg": "All nine gallery icons; 63 action icon cases; dialog defaults/scaling/cache/override",
     "painting": "24 contrasting text frames per auto/pixmap/direct mode; sidebar four label rows across six samples",
-    "launcher": "Resolution, literal exec, UIDPATH/cwd, missing app notice and child reaping passed"
+    "launcher": "Resolution, literal exec, UIDPATH/cwd, missing app notice and child reaping passed",
+    "actual_XQuartz_window": "Verified gallery PID95671 maps the intended executable and libXm, and inspected native desktop screenshot: complete sidebar, Demo Applications page, modern vector information icon, wide centered OK button."
   },
   "installed_asset_count": 222,
   "installed_asset_fingerprint": "f9f27a0d3621457b17a72aea5ae40adcb79e04694d6e82ca46ec8ab806c60ef8",
   "limits": [
-    "Automated native checks use isolated Xvfb; user-facing XQuartz visual acceptance is a separate manual check.",
+    "Native automated interaction uses isolated Xvfb. Actual user-facing XQuartz window was inspected by native screen capture; it is left open for manual interaction.",
     "Clipboard, XIM and accessibility were not requalified by this dialog/demo change."
-  ]
+  ],
+  "merged_source_revision": "976cdf651480fad2d6a30e7f4092cff4c207cb4b",
+  "demo_executable_sha256": {
+    "share/Xm/periodic/periodic": "722cdb45961ec3d296fbfb364c8c43980c6145d3674f65181ae0480c76b36591",
+    "share/Xm/sampler2_0/sampler2_0": "af7585fc88f70648b06cbfc2b6631b2ba4b1e1a053584ab143a5a0fb90822512",
+    "share/Xm/airport/airport": "c49d59677b9a8bce014ffdbbba65dbe2db8f35bcfb50fb2cb1bea2ef0bdb3398",
+    "share/Xm/animate/xmanimate": "7e295d099fd03685f7bcf89a3f33a86ce4c9b295b892e7e7b6f0afd9a68e945c",
+    "share/Xm/drag_and_drop/DNDDemo": "cb3f89be218d5155dcc813e96a4859d289ec3c8e1ec8efab6f17e6006e04fc52",
+    "share/Xm/drag_and_drop/simpledrop": "e4b9cf5d256920b1f965f6ca6db1947fdddb7cdf0a34d6feb4404579c2996413",
+    "share/Xm/draw/draw": "4a5194be29291a81fa2734c684eadcdc1b29e6f0740c43f863bfed4d981f6e26",
+    "share/Xm/earth/earth": "e4ef68be6b802149388184b1db876f5f1a3219bad2fb3600338a3c3896ad0e12",
+    "share/Xm/filemanager/filemanager": "ef0fb25646efd46d0e6e4580baeb75d22a6cd28c8239dcde282578536cd35aa8",
+    "share/Xm/fileview/fileview": "0d1b72f615e9f2f5e2c03c0bef8216058825ad3848ebd90fe9dfa5755f36e757",
+    "share/Xm/getsubres/getsubres": "1e82d4e684ad44930d9d14356e0e9956cf9751332f672428eb48e7572340fb32",
+    "share/Xm/hellomotif/hellomotif": "855c83071ec3b16978de5304dc8200b20a9c9f6f2bebc5f792fb6c9a0c1e7e6c",
+    "share/Xm/helloint/helloint": "eef8dda5505c2f6727e3c5e9a477998d3588c85259d1ac671f4c102d4497ba8c",
+    "share/Xm/i18ninput/i18ninput": "e9c66749d4c8088c9f9cb65309df449e0f92e196baa719fb96d70a32cdf9bf54",
+    "share/Xm/panner/panner": "4ae226c9bcb0d2165eff3e5c27799a39c4d93b3054fc95dbdde799b4a5ac2445",
+    "share/Xm/piano/piano": "4f74c939c412189c5655df1c7068319b3b256d04d0e58a504e6074cbe5bc71b5",
+    "share/Xm/autopopups/autopopups": "e7bee7a083c22a83640fadee8a7f6347dc1e35dc0f0ce476ff566b3c7459da80",
+    "share/Xm/setDate/setDate": "860d09711ef81369c9c5d060c89794f6a7d68aa98fb800c9fb14df6fe1e7be53",
+    "share/Xm/todo/todo": "f46b3efa5dde40bb7f87dcf31a79492a8f42da42eea29afe8b54591d802a8322",
+    "share/Xm/tooltips/tooltips": "997a612cab16d859c16d8942b140e75c3be22863f0e105391e4c04e284ddef10",
+    "share/Xm/ButtonBox/bboxdemo": "0de46be49d374edef1ca7258b30e6cd4a966d04a91790d9e5d048b198ad3433f",
+    "share/Xm/Column/column": "70c972781adea41992ff96763c52bbcadeade2361bc78d47966c086825221f63",
+    "share/Xm/fontsel/fontsel": "35ab60f6cfd60ea880272f611d8a1e7932f8b609c33909c2a7ff3d51b6f2a976",
+    "share/Xm/Outline/outline": "cd26dca463be82b59bc4716a7e7086c9e5463c4edc636b7e0dd0fac42bf72a32",
+    "share/Xm/Tabstack/tabstack": "5ef94f72580746032fb2021ccca5c3fada659d569823812b01e6f5c97bb256e4",
+    "share/Xm/Tree/tree": "9545f0bda057512222e0843d16a6321c4343ad4499fc71e679946f1fd6e61434",
+    "share/Xm/Color/colordemo": "1653d15d977fd36865facfc5f8837267146620208936f0fcb4e26df82fcf44b8",
+    "share/Xm/combo2/combo": "abb622bede3ddea8efde3bd943e8e0240f915657fc2f9dedf10b1251abb5986f",
+    "share/Xm/Ext18list/ext18list": "cf479145762413f6cc2b2516185aa0845934d85cf2699575a63bbbda6f8fb673",
+    "share/Xm/Icon/iconbuttondemo": "fdf495331a93509b5daef5ac4cedcf06f4cdf3bf96c11b7b4645f868a95cf3fe",
+    "share/Xm/Paned2/paned": "043eef3b1a99c02314d9304a14c2c961fb23f0ece51c08258a96fc93ff5c2792",
+    "share/Xm/Exm/app_in_c/exm_in_c": "bcb8814b88d295babc84b4f71ca3ddbc6b0252e897d3fbbd559275916695f8bd",
+    "share/Xm/Exm/simple_app/simpleDemo": "1cbe105303b454271086c48ac4036f92d924084d457f1cb4b677b88b4283a2fb",
+    "share/Xm/wsm/wsm": "19e2f8efe59a9fb5847d118d99fbff5e20373c2fddbe8e7f406c40b5bee12b79"
+  }
 }
