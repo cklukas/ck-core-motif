@@ -34498,3 +34498,10 @@ Avoid ToggleSwitch post-callback access (2026-10-30)
 
 Handle null Xpm hash cleanup (2026-10-30)
 ==========================================
+Preserve MWM colormap-reference list index widths (2026-11-01)
+===============================================================
+
+- Use size-based traversal and removal indexes for MWM colormap-reference
+  lists, preventing signed-index overflow before the existing `Cardinal`
+  allocation bounds apply.
+- Add focused regression coverage and document the bounded replacement path.
