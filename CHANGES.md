@@ -20,6 +20,8 @@
   `UilStatusProc` callbacks. UIL text buffers are borrowed `const char *`;
   callers must copy them before modification. Update the bundled callable
   compiler examples to use the typed interface.
+- Select the UIL parser semantic type independently of legacy platform macros
+  that strict C modes no longer define.
 - Make window-manager dispatch and argument parsers type-correct, including
   checked numeric keysyms and overflow rejection.
 - Add native regressions for all six generator ABIs, shared/static aliases,

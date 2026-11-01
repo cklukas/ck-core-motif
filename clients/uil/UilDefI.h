@@ -264,7 +264,8 @@ extern char* uil_mmove(char*, char*, int);
 #include "UilIODef.h"
 #include "UilDiagDef.h"
 #include "UilSarDef.h"
-#if defined(linux) || defined(__APPLE__)
+/* Generated parser headers must see the semantic type in every C mode. */
+#ifndef YYSTYPE
 #define YYSTYPE yystype
 #endif
 #include "UilLexPars.h"
