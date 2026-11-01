@@ -1045,9 +1045,10 @@ GetColors(Widget w,
 static unsigned char
 GetUnitType(Widget w)
 {
-  if (w == NULL || !XtIsSubclass(w, xmGadgetClass))
+  if (w == NULL || !XtIsSubclass(w, xmGadgetClass)) {
     return XmPIXELS;
-    return ((XmGadget) w)->gadget.unit_type ;
+  }
+  return ((XmGadget) w)->gadget.unit_type;
 }
 
 static XmDirection 

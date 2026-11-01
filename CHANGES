@@ -1,3 +1,13 @@
+Clarify Gadget unit-type trait control flow (2026-11-01)
+========================================================
+
+- Brace the invalid-widget fallback in Gadget's unit-type trait getter so its
+  instance dereference cannot be mistaken for part of the fallback branch.
+  This removes the strict-build misleading-indentation warning without changing
+  the established `XmPIXELS` fallback or valid Gadget behavior.
+- Strengthen the focused trait-getter source contract to require the explicit
+  fallback block and the subsequent valid-instance return.
+
 Bound UIL include-file path bookkeeping (2026-11-01)
 =====================================================
 
