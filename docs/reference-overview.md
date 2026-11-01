@@ -95,6 +95,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.
 - [WSM string unpack allocation](wsm-unpack-string-oom.md) — safe failure handling for decoded strings.
+- [WSM empty-collection decoding](wsm-empty-collection-unpack.md) — accept valid zero-count wire lists without a zero-byte allocation.
 - [WSM null input streams](wsm-unpack-null.md) — tolerate empty decoder inputs safely.
 - [WSM configuration-string failure](wsm-config-string-oom.md) — rollback of partial format updates.
 - [WSM window-entry allocation](wsm-win-entry-oom.md) — safe decoding of variable-length entry arrays.

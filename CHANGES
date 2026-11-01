@@ -1,3 +1,11 @@
+Decode empty WSM wire collections correctly (2026-11-01)
+=========================================================
+
+- Treat valid zero-count extension, state, property, match, and window-entry
+  lists as allocation-free decoded values rather than treating a permitted
+  `XtMalloc(0) == NULL` result as an error. `WM_WINDOWS` now continues to its
+  later fields after an empty property list.
+
 Modernize Cascade button surfaces and menu examples (2026-11-01)
 ===============================================================
 
