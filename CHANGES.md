@@ -8,6 +8,9 @@
 - Complete segmented layout after appearance changes so Icons remains visible.
 - Preserve Classic rendering and explicit control dimensions. See the
   [behavior and native regression](docs/font-selector-modern.md).
+- Qualify 351 focused native checks, existing geometry/rendering regressions,
+  34 installed demos and the actual XQuartz gallery; see the
+  [validation record](docs/validation/macos-font-selector-20261101.json).
 
 ## 2026-11-01 — Usable Dialog Shell gallery example
 

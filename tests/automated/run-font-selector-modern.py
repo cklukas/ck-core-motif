@@ -42,7 +42,7 @@ def main():
     env['LC_ALL'] = 'en_US.UTF-8' if platform.system() == 'Darwin' else 'C.UTF-8'
     fingerprint = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
     receipt = dict(started_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                   scope='Isolated native gallery-factory test; no user desktop input',
+                   scope='Isolated native FontSelector and segmented layout test; no user desktop input',
                    library=str(library), library_sha256=fingerprint(library),
                    source_sha256=fingerprint(source),
                    steps=[], success=False)
@@ -103,6 +103,6 @@ def main():
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        print('SKIP Cascade appearance: requires explicit build and results paths')
+        print('SKIP modern FontSelector: requires explicit build and results paths')
     else:
         main()

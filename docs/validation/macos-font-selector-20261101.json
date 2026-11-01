@@ -1,0 +1,240 @@
+{
+  "tested_revision": "8e70559bd8291ce95b28f90e73f5c4f6f2d53def",
+  "recorded_utc": "2026-11-01T22:09:36.685454+00:00",
+  "scope": "Native macOS arm64 C23 Xft/SVG/Unicode build, modern FontSelector and live composite geometry; no user desktop input automation",
+  "sources": {
+    "lib/Xm/FontS.c": "80bd36c1588637d267706644e9f9311e6687d47a04c4fc8ccedd6435389f68fc",
+    "lib/Xm/DropDown.c": "dce31465b5fa78b8b0499ceae85163c71814cccb73cb3a9610f45fe0a8d6f2fd",
+    "lib/Xm/Appearance.c": "1c00fc42782907fe2a13dc01559ae7e3f8ef6c984fb979a70ebc282e3207475d",
+    "lib/Xm/SegmentedControl.c": "160011c94120a6c0ad13c1d5af1060e1cb8cf5f1f167d4ec986ce973cabb12c6",
+    "lib/Xm/XmI.h": "cbb3892e1e97b524ea64eb1f72cb13ee582434d70ac5015e28e38e4781fc4967",
+    "tests/automated/check-font-selector-modern.c": "82bf5da63f67c65c2fbd105fcac7479633c795c188157614499d17b707a3430d"
+  },
+  "source_asset_manifest_sha256": "c0a39a4fad94f555c5ba87d4c62e91e1a9896c14900b9aafd87f5c17350c5539",
+  "build": {
+    "started_utc": "2026-11-01T22:07:11.389557+00:00",
+    "source_base": "8e70559bd8291ce95b28f90e73f5c4f6f2d53def",
+    "configuration": "Mac arm64 Clang C23, Xft/Unicode/SVG, shared-only, -j3",
+    "baseline": "Previous comparable clean C23/SVG library build took 37.21s at -j3; configure took 34.08s. No freshness conclusion relies on duration alone.",
+    "steps": [
+      {
+        "name": "libraries",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-font-selector-20261101/build/lib",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T22:07:11.488147+00:00",
+        "ended_utc": "2026-11-01T22:07:11.857770+00:00",
+        "elapsed_seconds": 0.3696425000016461,
+        "exit_code": 0
+      },
+      {
+        "name": "wml",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-font-selector-20261101/build/tools/wml",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T22:07:11.858118+00:00",
+        "ended_utc": "2026-11-01T22:07:11.873797+00:00",
+        "elapsed_seconds": 0.015699290997872595,
+        "exit_code": 0
+      },
+      {
+        "name": "uil",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-font-selector-20261101/build/clients/uil",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T22:07:11.874214+00:00",
+        "ended_utc": "2026-11-01T22:07:11.946498+00:00",
+        "elapsed_seconds": 0.07230654200247955,
+        "exit_code": 0
+      },
+      {
+        "name": "mwm",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-font-selector-20261101/build/clients/mwm",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T22:07:11.946884+00:00",
+        "ended_utc": "2026-11-01T22:07:12.597469+00:00",
+        "elapsed_seconds": 0.650605082999391,
+        "exit_code": 0
+      },
+      {
+        "name": "gallery",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-font-selector-20261101/build/demos/programs/ckmotif-gallery",
+          "-j3"
+        ],
+        "started_utc": "2026-11-01T22:07:12.597930+00:00",
+        "ended_utc": "2026-11-01T22:07:12.624578+00:00",
+        "elapsed_seconds": 0.026675832996261306,
+        "exit_code": 0
+      },
+      {
+        "name": "install-library",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-font-selector-20261101/build/lib",
+          "-j3",
+          "install"
+        ],
+        "started_utc": "2026-11-01T22:07:12.624977+00:00",
+        "ended_utc": "2026-11-01T22:07:13.541285+00:00",
+        "elapsed_seconds": 0.9163851249977597,
+        "exit_code": 0
+      },
+      {
+        "name": "install-gallery",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-font-selector-20261101/build/demos/programs/ckmotif-gallery",
+          "-j3",
+          "install"
+        ],
+        "started_utc": "2026-11-01T22:07:13.546768+00:00",
+        "ended_utc": "2026-11-01T22:07:13.684685+00:00",
+        "elapsed_seconds": 0.13794341599714244,
+        "exit_code": 0
+      }
+    ],
+    "success": true,
+    "ended_utc": "2026-11-01T22:07:13.824999+00:00",
+    "elapsed_seconds": 2.4352243749963236,
+    "outputs": {
+      "/Volumes/S8T/tmp/motif-font-selector-20261101/install/bin/ckmotif-gallery": {
+        "sha256": "b2e308b81d5e7082e982244d1ff2222ee17d573bda19398d14a85443cabbf761",
+        "mtime_ns": 1793570833680795075,
+        "file": "/Volumes/S8T/tmp/motif-font-selector-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+      },
+      "/Volumes/S8T/tmp/motif-font-selector-20261101/install/lib/libXm.9.dylib": {
+        "sha256": "58fe0b4021b1f4c1215327d7c284a3cc7d4b26b3467bba849c2edf57b59a7d74",
+        "mtime_ns": 1793570833162047544,
+        "file": "/Volumes/S8T/tmp/motif-font-selector-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+      }
+    }
+  },
+  "freshness": "Final merge changed MWM only: libXm matches the last successful post-fix build byte-for-byte. Final manifest covers all compiled code and assets; native library identities remained stable throughout tests. Initial clean library compilation resumed after a declaration-order correction; later incremental compiles identify changed inputs. Duration is not used as freshness proof.",
+  "demos": {
+    "count": 34,
+    "seconds": 19.90685054200003,
+    "baseline_seconds": 26.62,
+    "installed_assets_match_source": true
+  },
+  "native_acceptance": {
+    "font_selector_checks": 351,
+    "profiles": [
+      "Classic",
+      "Modern Light",
+      "Modern Dark"
+    ],
+    "scales": [
+      1,
+      1.5,
+      2
+    ],
+    "outline_family": "Utopia",
+    "styles": [
+      "regular",
+      "bold",
+      "italic",
+      "bold italic"
+    ],
+    "rendered_distinct_colors_minimum": 9,
+    "theme_scale_font_change_callbacks": 0,
+    "maximum_modern_baseline_difference_pixels": 1,
+    "segmented_geometry_cases": 43,
+    "dropdown_refusals": 24,
+    "font_selector_lifecycle_transitions": 48,
+    "source_checks": 105,
+    "source_failures": 0,
+    "legacy_source_guards": "Six encoding/pointer guards also failed at baseline cbfaed4045ffca50a86193a63f9551475c10c55f; assertions now recognize the existing bounded XtCalloc, transactional XtNewString and integral XtArgVal zero checks."
+  },
+  "broader_native_results": {
+    "success": true,
+    "library_sha256": "58fe0b4021b1f4c1215327d7c284a3cc7d4b26b3467bba849c2edf57b59a7d74",
+    "receipt_sha256": "41e00835598f5670b3fba8f308b52b90ba6d2858d543471cb771ec334267bdb2",
+    "results": {
+      "segmented-geometry": 0,
+      "dropdown-negotiation": 0,
+      "avatar-rendering": 0,
+      "avatar-geometry": 0,
+      "live-appearance": 0,
+      "live-appearance-gadget": 0,
+      "default-button-geometry": 0,
+      "svg-image": 0,
+      "dialog-icons": 0,
+      "action-icons": 0,
+      "text-auto": 0,
+      "text-pixmap": 0,
+      "text-direct": 0,
+      "gallery-icons-all-nine": 0,
+      "gallery-sidebar": 0,
+      "gallery-integration": 0
+    }
+  },
+  "installed_results": {
+    "success": true,
+    "receipt_sha256": "d7c6665f3d423d4ce7c6abdb0a0a0a503d12bcc861a0953199d3c8bf7687a37e",
+    "summary": "Installed MWM/Wsm, 33 demo startups, matching executable/UID/asset bytes, and gallery Open/missing-notice pass with build-tree demos hidden."
+  },
+  "actual_xquartz": {
+    "running": {
+      "pid": 18048,
+      "logger_pid": 18047,
+      "executable": "/Volumes/S8T/tmp/motif-font-selector-20261101/install/bin/ckmotif-gallery",
+      "display": "/var/run/com.apple.launchd.ezDZs4P3A0/org.xquartz:0",
+      "source_revision": "8e70559bd8291ce95b28f90e73f5c4f6f2d53def",
+      "outputs": {
+        "/Volumes/S8T/tmp/motif-font-selector-20261101/install/bin/ckmotif-gallery": {
+          "sha256": "b2e308b81d5e7082e982244d1ff2222ee17d573bda19398d14a85443cabbf761",
+          "mtime_ns": 1793570833680795075,
+          "file": "/Volumes/S8T/tmp/motif-font-selector-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+        },
+        "/Volumes/S8T/tmp/motif-font-selector-20261101/install/lib/libXm.9.dylib": {
+          "sha256": "58fe0b4021b1f4c1215327d7c284a3cc7d4b26b3467bba849c2edf57b59a7d74",
+          "mtime_ns": 1793570833162047544,
+          "file": "/Volumes/S8T/tmp/motif-font-selector-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+        }
+      },
+      "launched_utc": "2026-11-01T22:09:07.518594+00:00",
+      "arguments": [
+        "--appearance",
+        "modern-light",
+        "--scale",
+        "1",
+        "--component",
+        "xm.fontselectorwidgetclass",
+        "-xrm",
+        "*XmFontSelector.currentFont: -adobe-utopia-medium-r-normal--0-360-0-0-p-0-iso8859-1",
+        "--screenshot-mode"
+      ],
+      "retired_gallery_pids": [
+        47766
+      ]
+    },
+    "coregraphics_window": 6816,
+    "xquartz_server_pid": 6088,
+    "image": "/Volumes/S8T/tmp/motif-font-selector-20261101/actual-font-selector-window.png",
+    "image_sha256": "a7cebe73921e3d3e6f72cb99a56bdf233f6d408f144e787737aa0135594506e4",
+    "visual_inspection": "Actual verified gallery process: smooth Utopia preview, aligned Family/Size fields, complete Example/Source/Icons strip and visible sidebar. Left open for manual testing. Theme round-trips and scales were automated only on isolated Xvfb."
+  },
+  "raw_evidence_directory": "/Volumes/S8T/tmp/motif-font-selector-20261101",
+  "reproduction_commands": [
+    "python3 tests/automated/run-font-selector-modern.py --build /Volumes/S8T/tmp/motif-font-selector-20261101/build --results ABS_NEW_RESULTS --cc clang",
+    "python3 tests/automated/run-gallery-installed-demos.py --build-root /Volumes/S8T/tmp/motif-font-selector-20261101/build --prefix /Volumes/S8T/tmp/motif-font-selector-20261101/install --out ABS_NEW_RESULTS"
+  ]
+}
