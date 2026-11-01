@@ -783,7 +783,8 @@ Boolean WmDispatchMenuEvent (XButtonEvent *event)
 		     ~wmGD.clickData.time + ((XButtonEvent *)event)->time + 1;
 		 }
 
-		 if (timeDiff < wmGD.doubleClickTime)
+		 if (wmGD.doubleClickTime > 0 &&
+		     timeDiff < (Time)wmGD.doubleClickTime)
 		 {
 #ifdef MOTIF_ONE_DOT_ONE
 		   TraversalOn (wmGD.menuActive);
@@ -1785,7 +1786,8 @@ void ProcessClickBPress (XButtonEvent *buttonEvent, ClientData *pCD, Context con
 	    timeDiff = ~wmGD.clickData.time + buttonEvent->time + 1;
 	}
 
-	if (timeDiff < wmGD.doubleClickTime)
+	if (wmGD.doubleClickTime > 0 &&
+	    timeDiff < (Time)wmGD.doubleClickTime)
 	{
 	    /*
 	     * A double-click has been done; save the context.

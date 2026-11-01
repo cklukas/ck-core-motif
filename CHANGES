@@ -1,3 +1,11 @@
+Validate MWM double-click resource thresholds (2026-11-01)
+============================================================
+
+- Require a positive `doubleClickTime` before comparing it with unsigned X11
+  event intervals, so invalid negative values disable recognition rather than
+  becoming near-unlimited timeouts.
+- Add focused regression coverage and document the resource behavior.
+
 Stop MWM initial-client adoption after allocation failure (2026-11-01)
 =======================================================================
 
