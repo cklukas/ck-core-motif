@@ -84,6 +84,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM session command-vector width](mwm-session-command-vector-width.md) — guard restore vectors.
 - [MWM query-XID buffer growth](mwm-query-xid-growth.md) — guard protocol conversion growth.
 - [MWM session workspace-string growth](mwm-session-workspace-growth.md) — guard joined session names.
+- [MWM session geometry persistence](mwm-session-geometry.md) — keep saved client dimensions representable.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.
 - [MWM session database suffix updates](mwm-db-name-suffix.md) — bounded session-name suffix handling.
 - [Workspace-management command messages](command-message-argument-allocation.md) — bounded command-message construction.

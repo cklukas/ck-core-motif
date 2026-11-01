@@ -1,3 +1,10 @@
+Preserve representable MWM session geometry (2026-11-01)
+=========================================================
+
+- Keep saved MWM client geometry signed to match its `%d` resource format and
+  clamp malformed base-size/increment combinations before persistence.
+- Add focused session-geometry regression coverage and documentation.
+
 Preserve MWM command window-list loop widths (2026-11-01)
 ==========================================================
 
