@@ -272,6 +272,12 @@ _XmAddHashEntry(XmHashTable table, XmHashKey key, XtPointer value)
 
   if (table == NULL || table->buckets == NULL || table->size == 0)
     return False;
+
+  /* count is exposed through _XmHashTableCount().  Do not let a successful
+     insertion wrap that public cardinal value back to zero. */
+  if (table->count == UINT_MAX)
+    return False;
+
   hash = table -> hasher(key);
   index = HashIndex(hash, table -> size);
 
@@ -474,8 +480,11 @@ _XmPrintHashTable(XmHashTable table)
   printf("total entries %d\n", table -> count);
   printf("total bucket chains in use %d or %d percent\n", total_in_use,
 	 (total_in_use * 100)/table -> size);
-  printf("bucket chain length %d average / %d max\n",
-	 table -> count / total_in_use, max);
+  if (total_in_use != 0)
+    printf("bucket chain length %d average / %d max\n",
+	   table -> count / total_in_use, max);
+  else
+    printf("bucket chain length 0 average / 0 max\n");
 }
 
 #endif

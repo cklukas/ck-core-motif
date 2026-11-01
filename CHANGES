@@ -1,3 +1,10 @@
+Bound hash-table accounting and debug output (2026-11-01)
+========================================================
+
+- Refuse insertions once the public hash-table entry counter is full, rather
+  than allowing it to wrap and misreport an occupied table as empty.
+- Keep the optional debug hash-table summary defined for an empty table.
+
 Modern dialog action widths and complete Mac demos (2026-11-01)
 ==============================================================
 
