@@ -1,3 +1,14 @@
+Build WSM protocol packers on x86_64 (2026-11-01)
+===================================================
+
+- Use the protocol packer's existing `long` packet-size accumulator in its
+  checked-add helper and in the per-window size helpers.  This removes invalid
+  `long *`/`int *` calls and the illegal address-of-`register` use that stopped
+  the WmWsmLib build on LP64 hosts, while retaining the established `INT_MAX`
+  packet-size limit.
+- Add a strict compilation and execution regression for the production
+  checked-add helper and document the size-type boundary.
+
 Clarify Gadget unit-type trait control flow (2026-11-01)
 ========================================================
 
