@@ -10,6 +10,8 @@ assert "active_protocols_stack[MAX_PROTOCOLS]" in update
 assert "XtMalloc" in update
 assert "protocol_bytes > (size_t)UINT_MAX" in update
 assert "XtMalloc((Cardinal)protocol_bytes)" in update
+assert "(size_t)p_mgr->num_protocols > (size_t)INT_MAX" in update
+assert "atoms, (int)(num_atoms)" in source
 assert "match_list[MAX_PROTOCOLS]" not in remove
 assert "!protocols" in remove
 assert "shell == NULL || protocols == NULL" in source

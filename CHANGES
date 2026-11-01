@@ -1,3 +1,10 @@
+Bound protocol-property element counts (2026-11-01)
+=====================================================
+
+- Validate dynamically grown protocol lists against Xlib's signed property
+  count before serializing them. Oversized protocol-manager state now follows
+  the existing warning path rather than narrowing the count on the wire.
+
 Bound MWM Xlib property element counts (2026-11-01)
 =====================================================
 
