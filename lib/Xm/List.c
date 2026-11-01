@@ -10365,7 +10365,7 @@ XmListGetSelectedPos(Widget w,
     return FALSE;
   *pos_list = NULL;
   *pos_count = 0;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return FALSE;
   _XmWidgetToAppContext(w);
 
@@ -10469,7 +10469,7 @@ XmListYToPos(Widget w,
   XmListWidget lw = (XmListWidget)w;
   int pos;
 
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return 0;
   _XmWidgetToAppContext(w);
 
@@ -10505,7 +10505,7 @@ XmListPosToBounds(Widget      w,
 		  Dimension  *width,
 		  Dimension  *height)
 {
-  register XmListWidget lw;
+  register XmListWidget lw = (XmListWidget) w;
   register Dimension    ht;
 
   Position   ix;          /* values computed ahead...  */
@@ -10513,7 +10513,7 @@ XmListPosToBounds(Widget      w,
   Dimension  iwidth;      /* ...for debugging...       */
   Dimension  iheight;     /* ...purposes               */
 
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return False;
   _XmWidgetToAppContext(w);
 
@@ -10521,8 +10521,6 @@ XmListPosToBounds(Widget      w,
     return False;
 
   _XmAppLock(app);
-
-  lw = (XmListWidget) w;
 
   if (position < 0 || position > lw->list.itemCount) {
     _XmAppUnlock(app);
@@ -10579,7 +10577,7 @@ void
 XmListUpdateSelectedList(Widget w)
 {
   XmListWidget  lw = (XmListWidget) w;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return;
   _XmWidgetToAppContext(w);
 
@@ -10603,7 +10601,7 @@ XmListPosSelected(Widget w,
   int		int_pos;
   XmListWidget	lw = (XmListWidget) w;
   Boolean	selected;
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return False;
   _XmWidgetToAppContext(w);
 
