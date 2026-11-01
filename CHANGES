@@ -1,3 +1,13 @@
+Reject unusable MWM bitmap paths (2026-11-01)
+================================================
+
+- Keep a null or empty bitmap name as the explicit built-in-icon request, but
+  reject a non-empty name whose pathname cannot be represented or resolved.
+  MWM no longer silently substitutes the built-in icon for an unusable custom
+  bitmap path.
+- Add the focused bitmap-path distinction regression and document its public
+  behavior.
+
 Qualify Unicode dialog text resources (2026-11-01)
 ====================================================
 
