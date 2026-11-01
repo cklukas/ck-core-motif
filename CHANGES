@@ -1,3 +1,11 @@
+Build rendition converter headers without a fixed shared buffer (2026-11-01)
+==========================================================================
+
+- Serialize the rendition property header through the converter's checked
+  dynamically growing output buffer instead of a fixed 256-byte global array.
+- Remove shared mutable header state; generated property strings and public
+  converter output remain unchanged.
+
 Keep MainWindow child growth warning-clean (2026-11-01)
 =======================================================
 
