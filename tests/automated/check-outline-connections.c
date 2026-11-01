@@ -12,9 +12,12 @@
 static Boolean ready;
 static void done(XtPointer data, XtIntervalId *id) {(void)data;(void)id;ready=True;}
 static void drain(XtAppContext app, Display *d) {
-    ready=False;XtAppAddTimeOut(app,40,done,NULL);
-    while(!ready)XtAppProcessEvent(app,XtIMAll);
-    XSync(d,False);
+    for(unsigned settle=0;settle<3;++settle){
+        ready=False;XtAppAddTimeOut(app,20,done,NULL);
+        while(!ready)XtAppProcessEvent(app,XtIMAll);
+        XSync(d,False);
+        while(XtAppPending(app))XtAppProcessEvent(app,XtIMAll);
+    }
 }
 static Widget endpoint(Widget child) {
     OutlineConstraints node=(OutlineConstraints)child->core.constraints;
@@ -111,7 +114,7 @@ int main(int argc,char **argv) {
         for(unsigned i=0;i<3;++i)before[i]=gutter_pixels(nodes[i],line);
         for(unsigned i=0;i<3;++i)XClearArea(d,XtWindow(nodes[i]),0,0,0,0,True);
         drain(app,d);
-        for(unsigned i=0;i<3;++i)CHECK(before[i]==gutter_pixels(nodes[i],line));
+        for(unsigned i=0;i<3;++i){unsigned long after=gutter_pixels(nodes[i],line);if(before[i]!=after)fprintf(stderr,"gutter %s before=%lu after=%lu geom=%d,%d %ux%u\n",XtName(nodes[i]),before[i],after,nodes[i]->core.x,nodes[i]->core.y,nodes[i]->core.width,nodes[i]->core.height);CHECK(before[i]==after);}
         /* Focus unhighlight clears the gutter without a child expose. */
         Widget focus_node=endpoint(parent);
         Pixel focus_color=0xff00ff;

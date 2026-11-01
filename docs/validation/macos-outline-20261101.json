@@ -5,23 +5,23 @@
   "source_sha256": {
     "lib/Xm/Outline.c": "d8234a7c058732e68658bd2561d138274f78e1a9c31f6920f3fb03ffa3695b8f",
     "lib/Xm/Appearance.c": "d47912d87cdf46e90b20fbef06c50b2a9ff30757b2b07dd8133929f1e8cc9905",
-    "tests/automated/check-outline-connections.c": "5a49f0b287e7361afbb6dde59e62809b6177cbe295ab4594dc78b69df74cac4d",
+    "tests/automated/check-outline-connections.c": "3fb6804c5f2daedba29c772fe3a4beb7149bc3b62e2ce7af708bd884485666d5",
     "tests/automated/run-outline-connections.py": "a316c9ad37ac01ac45588e0263721e7e5ae1ae037f940424e75109e87ae715df"
   },
   "baseline": {
     "result": "Existing native library fails at first incoming focus-gutter pixel on the initial plain-node case.",
-    "fixture_sha256": "5a49f0b287e7361afbb6dde59e62809b6177cbe295ab4594dc78b69df74cac4d",
+    "fixture_sha256": "3fb6804c5f2daedba29c772fe3a4beb7149bc3b62e2ce7af708bd884485666d5",
     "log": "missing connector in first gutter pixel0; FAIL found"
   },
   "outputs": {
     "/Volumes/S8T/tmp/motif-outline-connections-20261101/install/bin/ckmotif-gallery": {
       "sha256": "3b8448d85f738434b5dc21236cbc439dbf91ab3b7271e728b84bae1453f5ea0b",
-      "mtime_ns": 1793562701378472427,
+      "mtime_ns": 1793562998080429700,
       "file": "/Volumes/S8T/tmp/motif-outline-connections-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
     },
     "/Volumes/S8T/tmp/motif-outline-connections-20261101/install/lib/libXm.9.dylib": {
-      "sha256": "89bb0e92c194c909297bf74c35f79e437c7c1702e4bb07fab41f2cb4f93dfe1e",
-      "mtime_ns": 1793562700935263998,
+      "sha256": "4e48b7a1a0369a61f9137f2f53edcea9918680fbcf30764456265c46c23ba6ff",
+      "mtime_ns": 1793562997637202376,
       "file": "/Volumes/S8T/tmp/motif-outline-connections-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
     }
   },
@@ -32,14 +32,32 @@
     "resumed_compile_seconds": 4.62,
     "comparable_clean_library_baseline_seconds": 24.56,
     "final_incremental_library_seconds": 1.7485828330027289,
-    "freshness": "Compile/link input logs and source/output fingerprints checked; short final builds recompile only changed modules."
+    "freshness": "Compile/link input logs and source/output fingerprints checked; short final builds recompile only changed modules.",
+    "merged_incremental_library_seconds": 2.031625957999495
   },
   "acceptance": {
-    "outline": "216 layout/repaint and6 density/ownership cases passed: visible-border endpoints, child and partial-parent exposure, window resize, collapse/expand, focus-ring preservation, connectNodes toggles, pending destruction; both width policies,3 profiles,3 scales",
-    "outline_record_sha256": "d4d6d1b78f13b41f82d1cea27504b1cb2edaef96746ea67fde2f2d94052dc7a9"
+    "outline": "216 layout/repaint and6 density/ownership cases passed twice; native fixture waits for queued child/parent painting and idle connector work to settle before pixel comparisons.",
+    "outline_record_sha256": "3bcf56051c35fcf0bdc59ae7f979bba2893a78ce2e63901f95faa75b3a67289b",
+    "outline_confirmation_record_sha256": "4cf6d086a002eb6cdd98b8690eeac5d96dbc0ba670f484bd9f6b142ae5b76978",
+    "native_record_sha256": "d105ab02ee652db2873be432070b2cb41336a32a0ba7c05f787ad14f3931ad4b",
+    "installed_demos_record_sha256": "2dadcc305c0142106d878929d27ea53a9d9cab84be998c3dde3b02dff00ce98b",
+    "tree_comparison": "Existing Tree fixture:288 layout/repaint cases passed.",
+    "native": "Live appearance/widget and gadget;124 default button geometry cases;SVG/dialog/action icons;24 contrasting text frames per auto/pixmap/direct mode;sidebar and gallery integration passed.",
+    "installed_demos": "34 executable targets and assets installed;33 Open/startup tests plus MWM/Wsm integration with build-tree demos hidden.",
+    "merged_source_guards": 7
   },
   "limits": [
     "Automated input/pixel checks run only on an isolated Xvfb display.",
-    "Actual user-facing XQuartz window is inspected separately before claiming a visual fix."
-  ]
+    "Actual user-facing XQuartz window inspected through native window capture after executable/mapped-library identity verification."
+  ],
+  "merged_source_revision": "dab2f115611ab8f46c3e7ed7da0b97873271a68d",
+  "actual_window": {
+    "pid": 21042,
+    "executable": "/Volumes/S8T/tmp/motif-outline-connections-20261101/install/bin/ckmotif-gallery",
+    "XQuartz_window_id": 5830,
+    "capture_sha256": "acf42df86f2660e2133da7876902522b3c44fe7ae7de426aadee6bcbab6314d0",
+    "configuration": "Modern light, scale1, xm.outlinewidgetclass, *XmOutline.connectNodes: True",
+    "observed": "Outgoing vertical trunk and incoming horizontal lines meet visible node borders with no focus-margin gaps. Sidebar and labels remain visible.",
+    "input": "No input sent to user desktop; left open for manual testing."
+  }
 }
