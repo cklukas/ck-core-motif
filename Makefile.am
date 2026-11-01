@@ -396,6 +396,7 @@ EXTRA_DIST += tests/automated/check-tabstack-argument-merge.py docs/tabstack-arg
 EXTRA_DIST += tests/automated/check-multilist-argument-merge.py docs/multilist-argument-merge.md
 EXTRA_DIST += tests/automated/check-dropdown-argument-merge.py docs/dropdown-argument-merge.md
 EXTRA_DIST += tests/automated/check-gadget-default-dimensions.py docs/gadget-default-dimensions.md
+EXTRA_DIST += tests/automated/check-color-selector-preferred-size.py docs/color-selector-preferred-size.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md

@@ -79,6 +79,15 @@ ColorSelectorPosition(long long value)
     return (Position)value;
 }
 
+static uint64_t
+ColorSelectorAddDimension(uint64_t total, uint64_t amount)
+{
+    if (total >= (uint64_t)USHRT_MAX ||
+	amount > (uint64_t)USHRT_MAX - total)
+	return (uint64_t)USHRT_MAX;
+    return total + amount;
+}
+
 static Boolean
 ParseColorChannels(const char *line,
 		   unsigned short *red,
@@ -861,30 +870,42 @@ CalcPreferredSize(XmColorSelectorWidget csw,
 {
     XtWidgetGeometry geo;
     Widget *childP;
+	uint64_t preferred_width = 0, preferred_height = 0;
 	
-    *height = *width = 0;
     ForAllChildren(csw, childP) {	
+	uint64_t child_width, child_height;
+
 	if (*childP == XmColorS_bb(csw))
 	    continue;
 
 	(void)XtQueryGeometry(*childP, NULL, &geo);
 	
-	ASSIGN_MAX(*width, (geo.width + (2 * geo.border_width)));
+	child_width = (uint64_t)geo.width + 2 * (uint64_t)geo.border_width;
+	if (child_width > preferred_width)
+	    preferred_width = child_width > (uint64_t)USHRT_MAX ?
+		(uint64_t)USHRT_MAX : child_width;
 	
-	geo.height += 2 * geo.border_width;
+	child_height = (uint64_t)geo.height + 2 * (uint64_t)geo.border_width;
 	if (XmColorS_color_window(csw) != NULL &&
 	    *childP == XtParent(XmColorS_color_window(csw)) )
 	    continue;
 	else if ( *childP == XmColorS_scrolled_list(csw) )	
-	    *height += (int)(4 * geo.height)/3;
+	    preferred_height = ColorSelectorAddDimension(preferred_height,
+		child_height + child_height / 3);
 	else
-	    *height += geo.height;
+	    preferred_height = ColorSelectorAddDimension(preferred_height,
+		child_height);
 
-	*height += XmColorS_margin_height(csw);
+	preferred_height = ColorSelectorAddDimension(preferred_height,
+	    (uint64_t)XmColorS_margin_height(csw));
     }
 
-    *width += 2 * XmColorS_margin_width(csw);
-    *height += 2 * XmColorS_margin_height(csw);
+    preferred_width = ColorSelectorAddDimension(preferred_width,
+	2 * (uint64_t)XmColorS_margin_width(csw));
+    preferred_height = ColorSelectorAddDimension(preferred_height,
+	2 * (uint64_t)XmColorS_margin_height(csw));
+    *width = ColorSelectorDimension((long long)preferred_width);
+    *height = ColorSelectorDimension((long long)preferred_height);
 }
 
 /*      Function Name: 	color_name_changed

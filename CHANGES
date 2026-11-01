@@ -3982,6 +3982,13 @@ Clamp ColorSelector layout geometry (2026-11-01)
   wraparound with large margins or controls.
 - Extend the focused layout regression and documentation.
 
+Saturate ColorSelector preferred size (2026-11-01)
+====================================================
+
+- Accumulate child, border, and margin extents in a wide type and clamp the
+  preferred result to the `Dimension` range instead of wrapping it small.
+- Add focused regression coverage and documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 
