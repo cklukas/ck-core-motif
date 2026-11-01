@@ -263,6 +263,9 @@ extern void _XmScaleRelayoutWidget(Widget widget,
                                    double new_scale,
                                    XtPointer closure);
 extern void _XmInitializeAppearance(void);
+extern void _XmDropDownRefreshGeometry(Widget);
+extern void _XmFontSelectorRefreshPreview(Widget);
+extern void _XmSegmentedControlRefreshGeometry(Widget);
 extern void _XmAppearanceNoteFontDefault(Widget widget, Widget provider,
                                          unsigned char kind);
 extern unsigned char _XmValidateAppearanceRole(Widget widget,

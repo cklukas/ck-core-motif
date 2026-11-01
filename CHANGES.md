@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-01 — Smooth font previews and stable live layout
+
+- Use antialiased Xft outlines for Modern Font Selector previews, preserving
+  the selected family, style and point size across theme and scale changes.
+- Align Family and Size editor baselines with their labels.
+- Complete segmented layout after appearance changes so Icons remains visible.
+- Preserve Classic rendering and explicit control dimensions. See the
+  [behavior and native regression](docs/font-selector-modern.md).
+
 ## 2026-11-01 — Usable Dialog Shell gallery example
 
 - Fit the complete launcher label and demonstrate Dialog Shell with populated

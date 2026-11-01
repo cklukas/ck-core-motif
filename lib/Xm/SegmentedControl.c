@@ -213,6 +213,12 @@ static void request_natural_size(XmSegmentedControlWidget control) {
     control->segmented.sizing=False;
 }
 
+void _XmSegmentedControlRefreshGeometry(Widget widget) {
+    XmSegmentedControlWidget control=(XmSegmentedControlWidget)widget;
+    request_natural_size(control);
+    layout(control);
+}
+
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmSegmentedControlWidget control = (XmSegmentedControlWidget)widget;
     (void)args; (void)count;

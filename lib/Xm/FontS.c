@@ -21,6 +21,15 @@
  * Floor, Boston, MA 02110-1301 USA
  * 
  */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <math.h>
+#include <strings.h>
+#ifdef USE_XFT
+#include <X11/Xft/Xft.h>
+#endif
+
 #define dbg() fprintf(stderr, "file: %s - XtWidgetToApplicationContext() on line: %d\n", __FILE__, __LINE__);
 #include <stdio.h>
 #include <ctype.h>
@@ -127,7 +136,7 @@ static void SetLongFlag(LongFlag *, LongFlag, Boolean);
 static void UpdateExistingFamily(FamilyInfo *, FontData *);
 static void FillNewFamily(FamilyInfo *, FontData *);
 static void SetResolution(XmFontSelectorWidget, FontData *);
-static void DisplayCurrentFont(XmFontSelectorWidget, String);
+static void DisplayCurrentFont(XmFontSelectorWidget, String, Boolean);
 static void UpdateBoldItalic(XmFontSelectorWidget);
 static void UpdateFixedProportional(XmFontSelectorWidget);
 static void UpdateFamilies(XmFontSelectorWidget);
@@ -1352,8 +1361,109 @@ SizeMapping(short size)
  *	Returns: none.
  */
 
+#ifdef USE_XFT
+/* XLFD fonts can be available to the X server without appearing in the
+ * client's Fontconfig configuration (notably XQuartz's Type 1 families).
+ * Prefer that same outline face rather than silently previewing a sans face. */
+static Boolean same_xlfd_face(const char *wanted, const char *candidate)
+{
+    if (!wanted || !candidate || *wanted++ != '-' || *candidate++ != '-') return False;
+    for (unsigned field=0;field<6;++field) {
+        const char *we=strchr(wanted,'-'), *ce=strchr(candidate,'-');
+        if (!we || !ce) return False;
+        size_t wn=(size_t)(we-wanted), cn=(size_t)(ce-candidate);
+        /* FontSelector canonicalizes medium/book/normal weights to regular. */
+        Boolean regular = field == 2 && wn == 7 && !strncasecmp(wanted,"regular",7) &&
+            ((cn == 6 && !strncasecmp(candidate,"medium",6)) ||
+             (cn == 4 && !strncasecmp(candidate,"book",4)) ||
+             (cn == 6 && !strncasecmp(candidate,"normal",6)));
+        if (!(wn==1 && *wanted=='*') && !regular &&
+            (wn!=cn || strncasecmp(wanted,candidate,wn))) return False;
+        wanted=we+1;candidate=ce+1;
+    }
+    return True;
+}
+
+static XftFont *server_outline_font(Widget widget, const char *name, FcPattern *request)
+{
+    int count=0;
+    char **paths=XGetFontPath(XtDisplay(widget),&count);
+    XftFont *font=NULL;
+    for (int i=0;paths && i<count && !font;++i) {
+        char directory[PATH_MAX], index[PATH_MAX], line[BUFSIZ];
+        if (snprintf(directory,sizeof(directory),"%s",paths[i]) >= (int)sizeof(directory)) continue;
+        char *suffix=strstr(directory,":unscaled");if(suffix && !suffix[9]) *suffix='\0';
+        if (snprintf(index,sizeof(index),"%s/fonts.dir",directory) >= (int)sizeof(index)) continue;
+        FILE *file=fopen(index,"r");if(!file)continue;
+        while (!font && fgets(line,sizeof(line),file)) {
+            char *space=strpbrk(line," \t");if(!space)continue;
+            *space++='\0';while(*space==' ' || *space=='\t')++space;
+            space[strcspn(space,"\r\n")]='\0';
+            if (!same_xlfd_face(name,space)) continue;
+            char path[PATH_MAX];int faces=0;
+            if(snprintf(path,sizeof(path),"%s/%s",directory,line) >= (int)sizeof(path))continue;
+            FcPattern *face=FcFreeTypeQuery((FcChar8*)path,0,NULL,&faces);
+            FcBool scalable=False;
+            if (face && FcPatternGetBool(face,FC_SCALABLE,0,&scalable)==FcResultMatch && scalable) {
+                FcPattern *render=FcFontRenderPrepare(NULL,request,face);
+                if (render) {
+                    font=XftFontOpenPattern(XtDisplay(widget),render);
+                    if(!font)FcPatternDestroy(render);
+                }
+            }
+            if(face)FcPatternDestroy(face);
+        }
+        fclose(file);
+    }
+    if(paths)XFreeFontPath(paths);
+    return font;
+}
+
+static XmFontList modern_preview_table(XmFontSelectorWidget fsw, const char *name)
+{
+    Widget widget=(Widget)fsw;
+    XmAppearanceProfile profile=_XmAppearanceGeometryProfile(XtDisplay(widget));
+    if (profile!=XmAPPEARANCE_MODERN_LIGHT && profile!=XmAPPEARANCE_MODERN_DARK) return NULL;
+    FcPattern *request=IsXlfdFont((String)name) ? XftXlfdParse(name,True,True) : FcNameParse((const FcChar8*)name);
+    if(!request)return NULL;
+    double scale=1.0, points=14.0;
+    FontData *selection=XmFontS_font_info(fsw)->current_font;
+    if (selection && selection->point_size>0) points=selection->point_size/(double)POINT_DIVIDE;
+    else {double size;if(FcPatternGetDouble(request,FC_SIZE,0,&size)==FcResultMatch && size>0)points=size;}
+    (void)_XmGetWidgetDpiScale(widget,&scale);
+    double pixels=points*(96.0/72.0)*scale;
+    if(!isfinite(pixels) || pixels<1 || pixels>65535){FcPatternDestroy(request);return NULL;}
+    FcPatternDel(request,FC_PIXEL_SIZE);FcPatternAddDouble(request,FC_PIXEL_SIZE,pixels);
+    FcPatternDel(request,FC_SIZE);FcPatternAddDouble(request,FC_SIZE,points);
+    FcPatternDel(request,FC_SCALABLE);FcPatternAddBool(request,FC_SCALABLE,True);
+    FcPatternDel(request,FC_ANTIALIAS);FcPatternAddBool(request,FC_ANTIALIAS,True);
+    FcPatternDel(request,FC_EMBEDDED_BITMAP);FcPatternAddBool(request,FC_EMBEDDED_BITMAP,False);
+    XftDefaultSubstitute(XtDisplay(widget),XScreenNumberOfScreen(XtScreen(widget)),request);
+    XftFont *font=IsXlfdFont((String)name) ? server_outline_font(widget,name,request) : NULL;
+    if(!font) {
+        FcResult result;
+        FcPattern *matched=XftFontMatch(XtDisplay(widget),XScreenNumberOfScreen(XtScreen(widget)),request,&result);
+        if(matched){font=XftFontOpenPattern(XtDisplay(widget),matched);if(!font)FcPatternDestroy(matched);}
+    }
+    FcPatternDestroy(request);
+    if(!font)return NULL;
+    Arg args[5];Cardinal count=0;
+    XtSetArg(args[count],XmNfontType,XmFONT_IS_XFT);++count;
+    XtSetArg(args[count],XmNfontName,name);++count;
+    XtSetArg(args[count],XmNfontSize,(int)points);++count;
+    XtSetArg(args[count],XmNxftFont,font);++count;
+    XtSetArg(args[count],XmNloadModel,XmLOAD_IMMEDIATE);++count;
+    XmRendition rendition=XmRenditionCreate(widget,XmFONTLIST_DEFAULT_TAG,args,count);
+    XftFontClose(XtDisplay(widget),font);
+    if(!rendition)return NULL;
+    XmRenderTable table=XmRenderTableAddRenditions(NULL,&rendition,1,XmMERGE_REPLACE);
+    XmRenditionFree(rendition);
+    return table;
+}
+#endif
+
 static void
-DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
+DisplayCurrentFont(XmFontSelectorWidget fsw, String font, Boolean notify)
 {
     Arg largs[10];
     Cardinal num_largs;
@@ -1362,6 +1472,17 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
     char buf[BUFSIZ * 2];
     Boolean	err = False;
 
+#ifdef USE_XFT
+    fl=modern_preview_table(fsw,font);
+    if(fl) {
+        XtVaSetValues(XmFontS_text(fsw),XmNfontList,fl,NULL);
+        if(XmFontS_old_fontdata(fsw))XFreeFont(XtDisplay((Widget)fsw),XmFontS_old_fontdata(fsw));
+        if(XmFontS_old_fontlist(fsw))XmFontListFree(XmFontS_old_fontlist(fsw));
+        XmFontS_old_fontdata(fsw)=NULL;XmFontS_old_fontlist(fsw)=fl;
+        RemoveUserError(NULL,(XtPointer)fsw,NULL);
+        goto preview_name;
+    }
+#endif
     if ((fontdata = XLoadQueryFont(XtDisplay((Widget) fsw), font)) == NULL)
     {
 	snprintf(buf, sizeof(buf), "Font '%s'\nis not availiable on this machine", font);
@@ -1472,13 +1593,16 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
 	if (XmFontS_old_fontdata(fsw) != NULL)
 	{
 	    XFreeFont(XtDisplay((Widget) fsw), XmFontS_old_fontdata(fsw));
-	    XmFontListFree(XmFontS_old_fontlist(fsw));
 	}
+        if (XmFontS_old_fontlist(fsw)) XmFontListFree(XmFontS_old_fontlist(fsw));
 
 	XmFontS_old_fontdata(fsw) = fontdata;
 	XmFontS_old_fontlist(fsw) = fl;
     }
 
+#ifdef USE_XFT
+preview_name:
+#endif
     if (XtIsManaged(XmFontS_name_label(fsw)))
     {
 	XmString xmstr = XmStringCreateLocalized(font);
@@ -1492,7 +1616,7 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
      * Fire off the callback for the user.
      */
 
-    {
+    if (notify) {
 	FontData	*cf = XmFontS_font_info(fsw)->current_font;
 	String 	str_ptr;
 
@@ -1506,6 +1630,18 @@ DisplayCurrentFont(XmFontSelectorWidget fsw, String font)
 	XtCallCallbackList((Widget) fsw,
 			   XmFontS_font_changed_callback(fsw), (XtPointer)str_ptr);
     }
+}
+
+
+void _XmFontSelectorRefreshPreview(Widget widget)
+{
+    XmFontSelectorWidget fsw=(XmFontSelectorWidget)widget;
+    if(!XmFontS_font_info(fsw) || !XmFontS_font_info(fsw)->current_font || !XmFontS_text(fsw))return;
+    FontData *selection=XmFontS_font_info(fsw)->current_font;
+    char name[BUFSIZ];
+    String selected=XmFontS_xlfd_mode(fsw) ? BuildFontString(fsw,selection,name,sizeof(name)) :
+                                                XrmQuarkToString(selection->familyq);
+    if(selected)DisplayCurrentFont(fsw,selected,False);
 }
 
 /*	Function Name: BuildFontString
@@ -2350,7 +2486,7 @@ ChangeMode(XmFontSelectorWidget fsw, Boolean xlfd_mode, Boolean force)
 	UpdateBoldItalic(fsw);
 	UpdateFixedProportional(fsw);
 
-	DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+	DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 
 	XtFree((XtPointer) temp);
     }
@@ -2423,7 +2559,7 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
 	 * This only to allow FamilyChanged to be more efficient.
 	 */
 	cf->familyq = XrmStringToQuark(*others); 
-	DisplayCurrentFont(fsw, *others);
+	DisplayCurrentFont(fsw, *others, True);
     }
 	else
 	{
@@ -2431,7 +2567,7 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
 		return;
 	    XtSetArg(largs[num_largs], XmNvalue, curFont); num_largs++;
 	    cf->familyq = XrmStringToQuark(curFont);
-	    DisplayCurrentFont(fsw, curFont);
+	    DisplayCurrentFont(fsw, curFont, True);
 	}
     }
     else {
@@ -2577,6 +2713,8 @@ CreateTopWidgets(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNspacing, 2); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginWidth, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
+    /* Internal panes must negotiate changed font metrics after realization. */
+    XtSetArg(largs[num_largs], XmNallowResize, True); num_largs++;
     margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
@@ -2695,6 +2833,8 @@ CreateFamilyBox(XmFontSelectorWidget fsw, Widget parent,
 
     XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;
 
+    /* Internal panes must negotiate changed font metrics after realization. */
+    XtSetArg(largs[num_largs], XmNallowResize, True); num_largs++;
     margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtFree((XtPointer) temp);
@@ -2750,6 +2890,8 @@ CreateSizesBox(XmFontSelectorWidget fsw, Widget parent,
     temp = _XmGetMBStringFromXmString(ANY_STRING(fsw));
     XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;
 
+    /* Internal panes must negotiate changed font metrics after realization. */
+    XtSetArg(largs[num_largs], XmNallowResize, True); num_largs++;
     margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtFree((XtPointer) temp);
@@ -3382,10 +3524,10 @@ FamilyChanged(Widget w, XtPointer fsw_ptr, XtPointer junk)
 	UpdateFixedProportional(fsw);
 	UpdateSizes(fsw);
 	
-	DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+	DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
     }
     else {
-	DisplayCurrentFont(fsw, str);
+	DisplayCurrentFont(fsw, str, True);
     }
 
     XtFree((XtPointer) str);
@@ -3438,7 +3580,7 @@ SizeChanged(Widget w, XtPointer fsw_ptr, XtPointer junk)
 
     UpdateFamilies(fsw);
 
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
     XtFree((XtPointer) str);
 }
 
@@ -3499,7 +3641,7 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
 	}
 
     UpdateFamilies(fsw);
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: ToggleScaling
@@ -3562,7 +3704,7 @@ ToggleScaling(Widget w, XtPointer fsw_ptr, XtPointer data)
 
     UpdateSizes(fsw);
     UpdateFamilies(fsw);
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: ToggleBold
@@ -3613,7 +3755,7 @@ ToggleBold(Widget w, XtPointer fsw_ptr, XtPointer data)
     SetFlag(&(cf->state), BOLD, set);
     SetFlag(&(XmFontS_user_state(fsw)), BOLD, set);
 
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: ToggleItalic
@@ -3665,7 +3807,7 @@ ToggleItalic(Widget w, XtPointer fsw_ptr, XtPointer data)
 
     SetFlag(&(cf->state), ITALIC, set);
     SetFlag(&(XmFontS_user_state(fsw)), ITALIC, set);
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: ToggleMiddlePane
@@ -3729,14 +3871,14 @@ ToggleNameWindow(Widget w, XtPointer fsw_ptr, XtPointer data)
 	    DisplayCurrentFont(fsw,
 			       BuildFontString(fsw,
 					       XmFontS_font_info(fsw)->current_font,
-					       buf, BUFSIZ));
+					       buf, BUFSIZ), True);
 	}
 	else {
 	    if (XmFontS_family_box(fsw) == NULL)
 		return;
 	    String str = XmDropDownGetValue(XmFontS_family_box(fsw));
 	    if (str != NULL)
-		DisplayCurrentFont(fsw, str);
+		DisplayCurrentFont(fsw, str, True);
 	    XtFree((XtPointer) str);
 	}
     }
@@ -3777,7 +3919,7 @@ Toggle75DPI(Widget w, XtPointer fsw_ptr, XtPointer data)
 
     UpdateFamilies(fsw);
     UpdateSizes(fsw);
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: Toggle100DPI
@@ -3814,7 +3956,7 @@ Toggle100DPI(Widget w, XtPointer fsw_ptr, XtPointer data)
     
     UpdateFamilies(fsw);
     UpdateSizes(fsw);
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: ToggleBothDPI
@@ -3849,7 +3991,7 @@ ToggleBothDPI(Widget w, XtPointer fsw_ptr, XtPointer data)
 
     UpdateFamilies(fsw);
     UpdateSizes(fsw);
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: ToggleProportional
@@ -3886,7 +4028,7 @@ ToggleProportional(Widget w, XtPointer fsw_ptr, XtPointer data)
 
     UpdateFamilies(fsw);
     UpdateSizes(fsw);
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: ToggleFixed
@@ -3922,7 +4064,7 @@ ToggleFixed(Widget w, XtPointer fsw_ptr, XtPointer data)
     UpdateFixedProportional(fsw);
     UpdateFamilies(fsw);
     UpdateSizes(fsw);
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: ToggleBothSpacing
@@ -3957,7 +4099,7 @@ ToggleBothSpacing(Widget w, XtPointer fsw_ptr, XtPointer data)
     UpdateFixedProportional(fsw);
     UpdateFamilies(fsw);
     UpdateSizes(fsw);
-    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
+    DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ), True);
 }
 
 /*	Function Name: XlfdMode
@@ -4216,8 +4358,8 @@ Destroy(Widget w)
 
     if (XmFontS_old_fontdata(fsw) != NULL) {
 	XFreeFont(XtDisplay(w), XmFontS_old_fontdata(fsw));
-	XmFontListFree(XmFontS_old_fontlist(fsw));
     }
+    if (XmFontS_old_fontlist(fsw)) XmFontListFree(XmFontS_old_fontlist(fsw));
 
     num = XmFontS_font_info(fsw)->num_others;
     ptr = XmFontS_font_info(fsw)->others;

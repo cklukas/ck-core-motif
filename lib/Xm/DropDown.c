@@ -1634,6 +1634,12 @@ DropDownChildSpan(int available, Dimension border)
     return span > 0 ? (Dimension)span : 0;
 }
 
+void
+_XmDropDownRefreshGeometry(Widget widget)
+{
+    PlaceChildren(widget, True, NULL);
+}
+
 static void
 PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 {
@@ -1733,23 +1739,46 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 	shadow = 0;
     }
 
-    /*
-     * Now resize the widgets
-     */
+    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplay(w));
+    Boolean modern = profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK;
+    /* Use the same inner top edge for both members of a modern labeled row. */
     if (XmDropDown_show_label(cbw) && label != NULL)
     {
 	_XmConfigureWidget(label, label_x, /* XmDropDown_h_space(cbw), */
-			   XmDropDown_v_space(cbw), 
+			   XmDropDown_v_space(cbw) + (modern ? shadow : 0),
 			   label_width, 
 			   DropDownChildSpan(child_height, label_geom.border_width),
 			   label_geom.border_width);
     }	
 
-    if (text != NULL)
-	_XmConfigureWidget(text, text_x,
-		       XmDropDown_v_space(cbw) + shadow, 
-		       text_width, DropDownChildSpan(child_height, text_geom.border_width),
-		       text_geom.border_width);
+    if (text != NULL) {
+        Dimension available = DropDownChildSpan(child_height, text_geom.border_width);
+        Dimension text_height = available;
+        int text_y = XmDropDown_v_space(cbw) + shadow;
+        if (modern && text_geom.height && text_geom.height < text_height) {
+            text_height = text_geom.height;
+            text_y += (available-text_height)/2;
+        }
+        _XmConfigureWidget(text, text_x, text_y, text_width, text_height,
+                           text_geom.border_width);
+        /* Labels center their text in a stretched row; TextField anchors its
+         * baseline to its top margin. Align actual baselines while keeping the
+         * editor's natural height and every pixel inside the available row. */
+        if (modern && label) {
+            Dimension *label_bases=NULL, *text_bases=NULL;
+            int label_lines=0, text_lines=0;
+            if (XmWidgetGetBaselines(label,&label_bases,&label_lines) && label_lines &&
+                XmWidgetGetBaselines(text,&text_bases,&text_lines) && text_lines) {
+                int desired = label->core.y + label->core.border_width + label_bases[0] -
+                              text_geom.border_width - text_bases[0];
+                int top = XmDropDown_v_space(cbw) + shadow;
+                int bottom = top + available - text_height;
+                text_y = MAX(top,MIN(bottom,desired));
+                _XmConfigureWidget(text,text_x,text_y,text_width,text_height,text_geom.border_width);
+            }
+            XtFree((char*)label_bases);XtFree((char*)text_bases);
+        }
+    }
 
     if (arrow != NULL)
 	_XmConfigureWidget(arrow, arrow_x,

@@ -31,6 +31,8 @@
 #include <Xm/GadgetP.h>
 #include <Xm/NotebookP.h>
 #include <Xm/SegmentedControl.h>
+#include <Xm/FontS.h>
+#include <Xm/DropDown.h>
 #include <Xm/ScrollBarP.h>
 #include <Xm/Scale.h>
 #include <Xm/ScrolledW.h>
@@ -2189,6 +2191,18 @@ appearance_apply_subtree(Display *display, Widget root,
             _XmRCDoMarginAdjustment((XmRowColumnWidget)state->widget);
             _XmRCAdaptToSize((XmRowColumnWidget)state->widget, NULL, NULL);
         }
+    }
+    /* These composites depend on final child font metrics, not on the
+     * intermediate mixture seen while individual resource plans commit. */
+    for (size_t i = 0; i < count; ++i) {
+        state = snapshot[i];
+        if (state->retired || !state->widget) continue;
+        if (XmIsSegmentedControl(state->widget))
+            _XmSegmentedControlRefreshGeometry(state->widget);
+        else if (XtIsSubclass(state->widget,xmDropDownWidgetClass))
+            _XmDropDownRefreshGeometry(state->widget);
+        else if (XtIsSubclass(state->widget,xmFontSelectorWidgetClass))
+            _XmFontSelectorRefreshPreview(state->widget);
     }
     if (display_state != NULL)
         display_state->committing_geometry = False;

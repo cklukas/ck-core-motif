@@ -14,7 +14,7 @@ assert "String replacement;" in change
 assert "if (replacement != NULL)" in change
 assert change.index("XtNewString(ANY_ENCODING)") < change.index("XtFree(ENCODING_STRING(fsw))")
 assert "String encoding_copy;" in set_region
-assert "encoding_copy = ENCODING_STRING(set_fsw) != NULL" in set_region
+assert "encoding_copy = XtNewString(ENCODING_STRING(set_fsw) != NULL" in set_region
 assert "ENCODING_STRING(set_fsw) = ENCODING_STRING(old_fsw);" in set_region
-assert set_region.index("XtNewString(ENCODING_STRING(set_fsw))") < set_region.index("XtFree(ENCODING_STRING(old_fsw))")
+assert set_region.index("XtNewString(ENCODING_STRING(set_fsw) != NULL") < set_region.index("XtFree(ENCODING_STRING(old_fsw))")
 print("FontSelector encoding preserves old values on copy failure")

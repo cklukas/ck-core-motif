@@ -1,3 +1,14 @@
+Smooth Modern Font Selector previews and finish live child layout (2026-11-01)
+============================================================================
+
+- Render selected scalable fonts through Xft in Modern profiles, retaining
+  server-only outline families and refreshing silently after appearance changes.
+- Align Modern DropDown editor and label baselines without stretching the text.
+- Relayout SegmentedControl after final child metrics commit, avoiding a clipped
+  last segment after Classic-to-Modern switches; preserve explicit geometry.
+- Add native theme/scale regressions and refresh six stale source guards against
+  the existing C23-safe encoding allocation and output-pointer checks.
+
 Repair Dialog Shell gallery construction and launcher geometry (2026-11-01)
 ==========================================================================
 
