@@ -28,6 +28,10 @@
 #include <stdio.h>
 #include <Xm/OutlineP.h>
 #include <Xm/DropSMgr.h>
+#include <Xm/PrimitiveP.h>
+#include <Xm/DrawP.h>
+#include <Xm/TraitP.h>
+#include <Xm/UnhighlightT.h>
 #include "XmI.h"
 
 /************************************************************
@@ -114,6 +118,18 @@ static void _OutlineDrawLine(Widget w, XRectangle *rect, OutlineConstraints pare
 	  OutlineConstraints child, LadderPoint from_ladder_point,
 	  LadderPoint *to_ladder_point );
 static void CreateGC(XmOutlineWidget ow);
+static void ChildConnectorEvent(Widget, XtPointer, XEvent *, Boolean *);
+static int NodeInset(Widget);
+static void DrawNodeGutter(Widget, Widget, Boolean, int, int, int, int);
+static void QueueConnectorRedraw(Widget);
+
+/* Keep repaint scheduling outside the public native widget record. */
+typedef struct _OutlineConnectorState {
+    Widget widget;
+    XtWorkProcId work;
+    struct _OutlineConnectorState *next;
+} OutlineConnectorState;
+static OutlineConnectorState *connector_states;
 
 /************************************************************
 *	STATIC DECLARATIONS
@@ -326,6 +342,16 @@ static void
 Destroy(Widget widget)
 {
   XmOutlineWidget ow = (XmOutlineWidget) widget;
+  OutlineConnectorState **link = &connector_states;
+  _XmProcessLock();
+  while (*link && (*link)->widget != widget) link = &(*link)->next;
+  if (*link) {
+      OutlineConnectorState *state = *link;
+      *link = state->next;
+      if (state->work) XtRemoveWorkProc(state->work);
+      XtFree((char *)state);
+  }
+  _XmProcessUnlock();
 
   _XmListFree(XmOutline_child_op_list(ow)); 
   XtReleaseGC(widget,XmOutline_draw_gc(ow));
@@ -415,8 +441,8 @@ Redisplay(Widget w, XEvent * event, Region region)
 	rect.height = XmOutline_lr_point(ow).y - XmOutline_ul_point(ow).y;
 
 	ProcessChildQueue((XmOutlineWidget) w, &rect);
-	if (XmOutline_connect_nodes(w))
-		RedrawOutlineLines(w,&rect);
+	RedrawOutlineLines(w,&rect);
+	QueueConnectorRedraw(w);
 	
 	/*
 	 * Reset upper right and lower left points.
@@ -524,7 +550,16 @@ SetValues(Widget current, Widget request, Widget set,
 	layout = XmHierarchy_refigure_mode(outline);
 
     if (XmOutline_connect_nodes(c_outline) != XmOutline_connect_nodes(outline))
-	retval = True;
+    {
+        /* Endpoint fragments live in the child focus margins. A parent-only
+         * redisplay cannot erase them when connections are turned off. */
+        for (Cardinal i = 0; i < outline->composite.num_children; ++i) {
+            Widget child = outline->composite.children[i];
+            if (NodeInset(child) && XtIsRealized(child))
+                XClearArea(XtDisplay(child), XtWindow(child), 0, 0, 0, 0, True);
+        }
+        retval = True;
+    }
 
     if (layout) {
 	XmOutlineWidgetClass oc = (XmOutlineWidgetClass) XtClass(set);
@@ -698,6 +733,9 @@ ConstraintInitialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 {
     XmOutlineC_widget_x(set->core.constraints)
       = XmOutlineC_open_close_x(set->core.constraints) = 0;
+    if (XtIsWidget(set))
+      XtAddEventHandler(set, ExposureMask | FocusChangeMask | StructureNotifyMask,
+                      False, ChildConnectorEvent, XtParent(set));
 }
 
 /*	Function Name: ConstraintSetValues
@@ -786,6 +824,9 @@ ConstraintDestroy(Widget w)
     XmListElem *elem, *next;
     XmOutlineWidget ow;
 
+    if (XtIsWidget(w))
+      XtRemoveEventHandler(w, ExposureMask | FocusChangeMask | StructureNotifyMask,
+                         False, ChildConnectorEvent, XtParent(w));
     if (XmHierarchyC_state(node) == XmNotInHierarchy) 
 	return;
 
@@ -1694,9 +1735,113 @@ static void
 RedrawOutlineLines(Widget w, XRectangle * rect)
 {
     XmOutlineWidget ow = (XmOutlineWidget) w;
+    XmSpecifyUnhighlightTrait trait;
+    XRectangle full = {0, 0, w->core.width, w->core.height};
+    (void)rect;
+    if (!XtIsRealized(w)) return;
+    trait = (XmSpecifyUnhighlightTrait)XmeTraitGet((XtPointer)XtClass(w),
+                                                 XmQTspecifyUnhighlight);
+    /* Erase endpoint fragments left by a moved/resized child, but preserve
+     * an active focus ring. Use the same surface contract as unhighlight. */
+    for (Cardinal i = 0; i < ow->composite.num_children; ++i) {
+        Widget child = ow->composite.children[i];
+        int inset = NodeInset(child);
+        GC background = ow->manager.background_GC;
+        if (!inset || !XtIsRealized(child) || !XtIsManaged(child) ||
+            child->core.being_destroyed ||
+            ((XmPrimitiveWidget)child)->primitive.highlighted) continue;
+        if (trait && trait->getUnhighlightGC)
+            background = trait->getUnhighlightGC(w, child);
+        XmeDrawHighlight(XtDisplay(w), XtWindow(child), background,
+                         0, 0, child->core.width, child->core.height, inset);
+    }
 
-    if (XtIsRealized(w))	/* && has children */
-	DrawOutlineLine(w, rect, (OutlineConstraints) XmHierarchy_top_node(ow));
+    if (XmOutline_connect_nodes(w))
+        DrawOutlineLine(w, &full, (OutlineConstraints) XmHierarchy_top_node(ow));
+}
+
+static int
+NodeInset(Widget child)
+{
+    if (!child || child->core.border_width || !XmIsPrimitive(child)) return 0;
+    return MIN(((XmPrimitiveWidget)child)->primitive.highlight_thickness,
+               MIN(child->core.width, child->core.height) / 2);
+}
+
+/* Parent drawing stays ClipByChildren. Extend only the actual endpoint's
+ * focus gutter, without painting across its face or changing the shared GC. */
+static void
+DrawNodeGutter(Widget outline, Widget child, Boolean outgoing,
+               int x1, int y1, int x2, int y2)
+{
+    int inset = NodeInset(child);
+    XRectangle clip;
+    GC gc;
+    if (!inset || !XtIsRealized(child) || !XtIsManaged(child) ||
+        child->core.being_destroyed ||
+        ((XmPrimitiveWidget)child)->primitive.highlighted) return;
+    clip.x = clip.y = 0;
+    clip.width = child->core.width;
+    clip.height = child->core.height;
+    if (outgoing) {
+        clip.y = child->core.height - inset;
+        clip.height = inset;
+    } else clip.width = inset;
+    gc = XCreateGC(XtDisplay(outline), XtWindow(child), 0, NULL);
+    if (gc == None) return;
+    XCopyGC(XtDisplay(outline), XmOutline_draw_gc(outline),
+        GCForeground | GCBackground | GCLineWidth | GCLineStyle | GCCapStyle |
+        GCJoinStyle | GCDashOffset | GCDashList, gc);
+    XSetClipRectangles(XtDisplay(outline), gc, 0, 0, &clip, 1, Unsorted);
+    XDrawLine(XtDisplay(outline), XtWindow(child), gc,
+        x1-child->core.x, y1-child->core.y,
+        x2-child->core.x, y2-child->core.y);
+    XFreeGC(XtDisplay(outline), gc);
+}
+
+static void
+ChildConnectorEvent(Widget child, XtPointer data, XEvent *event, Boolean *dispatch)
+{
+    Widget outline = (Widget)data;
+    (void)child; (void)event; (void)dispatch;
+    QueueConnectorRedraw(outline);
+}
+
+static Boolean
+RepaintChildConnections(XtPointer data)
+{
+    OutlineConnectorState *state = data;
+    Widget outline = state->widget;
+    XRectangle rect = {0, 0, outline->core.width, outline->core.height};
+    state->work = (XtWorkProcId)0;
+    if (!outline->core.being_destroyed) RedrawOutlineLines(outline, &rect);
+    return True;
+}
+
+static void
+QueueConnectorRedraw(Widget outline)
+{
+    OutlineConnectorState *state;
+    if (outline->core.being_destroyed || !XtIsRealized(outline)) return;
+    _XmProcessLock();
+    for (state = connector_states; state; state = state->next)
+        if (state->widget == outline) break;
+    if (!state) {
+        state = (OutlineConnectorState *)XtCalloc(1, sizeof(*state));
+        if (!state) {
+            _XmProcessUnlock();
+            return;
+        }
+        state->widget = outline;
+        state->next = connector_states;
+        connector_states = state;
+    }
+    /* Child painting (including buffered commits) and focus translations
+     * finish before the coalesced endpoint repaint, just as in XmTree. */
+    if (!state->work)
+        state->work = XtAppAddWorkProc(XtWidgetToApplicationContext(outline),
+                                      RepaintChildConnections, state);
+    _XmProcessUnlock();
 }
 
 static void
@@ -1768,6 +1913,10 @@ DrawOutlineLine(Widget w, XRectangle *rect, OutlineConstraints node)
 	     (x & y are not initialized if no kid managed) line */
           XDrawLine(XtDisplay(w), XtWindow(w), XmOutline_draw_gc(ow), from_node_point.x, from_node_point.y,
 		from_node_point.x, last_kid_point.y );
+          Widget outgoing = XmHierarchyC_open_close_button(from_node);
+          if (!outgoing) outgoing = XmHierarchyC_widget(from_node);
+          DrawNodeGutter(w, outgoing, True, from_node_point.x, from_node_point.y,
+                         from_node_point.x, last_kid_point.y);
 	}
    }
 }
@@ -1790,8 +1939,11 @@ _CalcNodeMidPoint( OutlineConstraints node, Widget w, LadderPoint *ret_point )
 	which = XmHierarchyC_widget(node);
 	}
 
-    ret_point->x = XmOutlineC_open_close_x(node) + value/2;
-    ret_point->y = XtY(which)+XtHeight(which);	/* plus possible pad */
+    ret_point->x = XmHierarchyC_open_close_button(node)
+        ? XtX(which) + which->core.border_width + value/2
+        : XmOutlineC_open_close_x(node) + value/2;
+    ret_point->y = XtY(which) + 2*which->core.border_width + XtHeight(which)
+        - 1 - NodeInset(which);
   }
 }
 
@@ -1831,8 +1983,10 @@ _OutlineDrawLine(Widget w, XRectangle *rect, OutlineConstraints parent,
 
     gc = XmOutline_draw_gc(ow);
 	
-      x2 = XmOutlineC_open_close_x(child);
-      y2 = XtY(XmHierarchyC_widget(child)) + XtHeight(XmHierarchyC_widget(child))/2;
+      Widget incoming = XmHierarchyC_open_close_button(child);
+      if (!incoming) incoming = XmHierarchyC_widget(child);
+      x2 = XtX(incoming) + NodeInset(incoming);
+      y2 = XtY(incoming) + incoming->core.border_width + XtHeight(incoming)/2;
 
     cx1 = MIN(from_ladder_point.x, x2);
     cx2 = MAX(from_ladder_point.x, x2);
@@ -1852,6 +2006,7 @@ _OutlineDrawLine(Widget w, XRectangle *rect, OutlineConstraints parent,
 
     if (!((cx1 > rx2) || (cy1 > ry2) || (cx2 < rect->x) || (cy2 < rect->y)))
 	    XDrawLine(XtDisplay(w), XtWindow(w), gc, cx1, cy1, cx2, cy2);
+    DrawNodeGutter(w, incoming, False, cx1, cy1, cx2, cy2);
 
     /* This is sent back because the ladder lines get connected later */
     to_ladder_point->x = cx1;

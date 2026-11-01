@@ -1,3 +1,18 @@
+Connect Outline branches to visible node borders (2026-11-01)
+============================================================
+
+- Extend Outline connector endpoints through primitive focus margins, as Tree
+  already does. Use actual node/disclosure geometry and keep parent drawing
+  clipped by child windows so unrelated node faces are not painted over.
+- Coalesce endpoint redraws after child exposure, focus and configuration;
+  erase old gutter fragments, preserve active focus rings, and cancel pending
+  repaint work when an Outline is destroyed without changing native records.
+- Scale modern Outline indentation with density/display scale so larger
+  disclosure buttons leave room for the connector trunk. Explicit application
+  indentation and existing Classic behavior remain authoritative.
+- Add native pixel acceptance for both endpoints, partial exposure, window
+  resizing, collapse/expand, focus, connection toggles and pending destruction.
+
 Preserve modern Container appearance across gadget recreation (2026-11-01)
 =================================================================
 

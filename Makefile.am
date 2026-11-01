@@ -1521,3 +1521,8 @@ EXTRA_DIST += docs/validation/macos-dialog-demos-20261101.json
 EXTRA_DIST += tests/automated/check-container-appearance.c \
               tests/automated/run-container-appearance.py \
               docs/validation/macos-container-20261101.json
+
+EXTRA_DIST += tests/automated/check-outline-connections.c \
+              tests/automated/run-outline-connections.py \
+              docs/outline-connections.md \
+              docs/validation/macos-outline-20261101.json

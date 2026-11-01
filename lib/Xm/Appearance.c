@@ -339,6 +339,7 @@ static const AppearanceDensityResource density_resources[] = {
     {"*XmIconGadget.spacing", 6, 4},
     {"*XmContainer.marginWidth", 8, 4},
     {"*XmContainer.marginHeight", 8, 4},
+    {"*XmOutline.indentSpace", 30, 24},
     {"*XmFormSection.formSectionMarginWidth", 12, 8},
     {"*XmFormSection.formSectionMarginHeight", 12, 8},
     {"*XmFormSection.formSectionSpacing", 8, 6},
@@ -414,6 +415,7 @@ typedef enum {
     AP_AVATAR_SIZE,
     AP_DIVIDER_SPACING,
     AP_OUTLINE_LINE_STYLE,
+    AP_OUTLINE_INDENT_SPACE,
     AP_COUNT
 } AppearanceProperty;
 
@@ -563,7 +565,7 @@ appearance_property_name(AppearanceProperty property)
         XmNtabMarginWidth, XmNtabMarginHeight, XmNtabMode, XmNexpandedStatePixmap, XmNcollapsedStatePixmap, XmNiconLabelSpacing,
         XmNhorizontalMargin, XmNverticalMargin, XmNiconTextPadding, XmNalignment,
         XmNformSectionMarginWidth, XmNformSectionMarginHeight, XmNformSectionSpacing,
-        XmNavatarSize, XmNdividerSpacing, XmNoutlineLineStyle
+        XmNavatarSize, XmNdividerSpacing, XmNoutlineLineStyle, XmNindentSpace
     };
     return names[property];
 }
@@ -585,7 +587,7 @@ appearance_property_is_dimension(AppearanceProperty property)
            property == AP_VERTICAL_MARGIN || property == AP_ICON_TEXT_PADDING ||
            property == AP_SECTION_MARGIN_WIDTH || property == AP_SECTION_MARGIN_HEIGHT ||
            property == AP_SECTION_SPACING || property == AP_AVATAR_SIZE ||
-           property == AP_DIVIDER_SPACING;
+           property == AP_DIVIDER_SPACING || property == AP_OUTLINE_INDENT_SPACE;
 }
 
 static Boolean

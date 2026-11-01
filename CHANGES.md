@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-01 — Connected Outline branches
+
+- Make Outline lines meet visible node borders through their focus margins,
+  matching Tree's endpoint behavior, while preserving active focus rings.
+- Keep endpoints correct after repaint, resize and collapse/expand; scale modern
+  indentation for larger disclosure buttons. See [the contract](docs/outline-connections.md).
+
 ## 2026-11-01 — Modern Container rows and gadget lifetime
 
 - Fix stale appearance state when Xt reuses a destroyed gadget's address;
