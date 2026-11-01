@@ -1,3 +1,11 @@
+Preserve MWM command-tree path widths (2026-11-01)
+=====================================================
+
+- Keep checked inline command-path lengths in `size_t` instead of narrowing
+  them to `int` before Xt allocation and formatting.
+- Extend focused command-tree checks and document the width-preservation
+  contract. Ordinary command paths retain their rendered contents.
+
 Validate MWM menu-command formatter results (2026-11-01)
 ===========================================================
 

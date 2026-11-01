@@ -2286,7 +2286,7 @@ static void InsertTreeOnClient (WmScreenData *pSD, ClientData *pCD,
 				Context greyed_context, Boolean inLine)
 {
     String new_command_str;
-    int length;
+    size_t length;
     MenuSpec *newMenuSpec, *last, *dupMenuSpec;
     CmdTree *subtree;
     MenuItem *bestMatch = (MenuItem *) NULL;
