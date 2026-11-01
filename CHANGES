@@ -1,3 +1,11 @@
+Normalize FontSelector toggle callback state (2026-11-01)
+=========================================================
+
+- Normalize toggle callback `set` values before storing them in Boolean widget
+  state or passing them to flag helpers, avoiding unsafe integer narrowing.
+- Make the encoding-match capacity rejection an explicit control-flow branch.
+- Add focused regression coverage and documentation.
+
 Give custom interactive controls focus on primary click (2026-11-01)
 ====================================================================
 

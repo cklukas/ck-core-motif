@@ -3316,7 +3316,8 @@ CheckEncoding(XmFontSelectorWidget fsw, FamilyInfo *fam)
     if (ENCODING_STRING(fsw) == NULL ||
 	streq(ENCODING_STRING(fsw), ANY_ENCODING) || fam->encodings == NULL)
 	return(TRUE);
-	if (fam->encoding_alloc <= 0)
+
+    if (fam->encoding_alloc <= 0)
 	return(False);
 
     curr = XrmStringToQuark(ENCODING_STRING(fsw));
@@ -3513,6 +3514,7 @@ ToggleScaling(Widget w, XtPointer fsw_ptr, XtPointer data)
     FontData * cf;
     FamilyInfo *family;
     XmToggleButtonCallbackStruct *info;
+    Boolean set;
     LongFlag map;
     char buf[BUFSIZ];
 
@@ -3522,6 +3524,7 @@ ToggleScaling(Widget w, XtPointer fsw_ptr, XtPointer data)
 	(XmFontS_font_info(fsw)->num_families != 0 &&
 	 XmFontS_font_info(fsw)->family_info == NULL))
 	return;
+    set = (info->set != 0) ? True : False;
     cf = XmFontS_font_info(fsw)->current_font;
     if ((family = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			     XmFontS_font_info(fsw)->num_families)) == NULL) 
@@ -3535,8 +3538,8 @@ ToggleScaling(Widget w, XtPointer fsw_ptr, XtPointer data)
 	return;
     }
 
-    XmFontS_use_scaling(fsw) = info->set;
-    if (!info->set) {
+    XmFontS_use_scaling(fsw) = set;
+    if (!set) {
 	Boolean map_bad = (map = SizeMapping(cf->point_size)) == 0;
 	Boolean bad_75 = (CheckFlag(XmFontS_user_state(fsw), DPI_75) && 
 			  !CheckLongFlag(family->sizes_75, map));
@@ -3574,6 +3577,7 @@ ToggleBold(Widget w, XtPointer fsw_ptr, XtPointer data)
     FontData * cf;
     FamilyInfo *family;
     XmToggleButtonCallbackStruct *info;
+    Boolean set;
     char buf[BUFSIZ];
 
     info = (XmToggleButtonCallbackStruct *) data;
@@ -3582,6 +3586,7 @@ ToggleBold(Widget w, XtPointer fsw_ptr, XtPointer data)
 	(XmFontS_font_info(fsw)->num_families != 0 &&
 	 XmFontS_font_info(fsw)->family_info == NULL))
 	return;
+    set = (info->set != 0) ? True : False;
     cf = XmFontS_font_info(fsw)->current_font;
     if ((family = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			     XmFontS_font_info(fsw)->num_families)) == NULL) 
@@ -3596,13 +3601,13 @@ ToggleBold(Widget w, XtPointer fsw_ptr, XtPointer data)
 	return;
     }
 
-    if (info->set) 
+    if (set)
 	cf->weightq = family->bold_nameq;
     else
 	cf->weightq = family->medium_nameq;
 
-    SetFlag(&(cf->state), BOLD, info->set);
-    SetFlag(&(XmFontS_user_state(fsw)), BOLD, info->set);
+    SetFlag(&(cf->state), BOLD, set);
+    SetFlag(&(XmFontS_user_state(fsw)), BOLD, set);
 
     DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
 }
@@ -3623,6 +3628,7 @@ ToggleItalic(Widget w, XtPointer fsw_ptr, XtPointer data)
     FontData * cf;
     FamilyInfo *family;
     XmToggleButtonCallbackStruct *info;
+    Boolean set;
     const char *slant;
     char buf[BUFSIZ];
 
@@ -3632,6 +3638,7 @@ ToggleItalic(Widget w, XtPointer fsw_ptr, XtPointer data)
 	(XmFontS_font_info(fsw)->num_families != 0 &&
 	 XmFontS_font_info(fsw)->family_info == NULL))
 	return;
+    set = (info->set != 0) ? True : False;
     cf = XmFontS_font_info(fsw)->current_font;
     if ((family = FindFamily(cf->familyq, XmFontS_font_info(fsw)->family_info,
 			     XmFontS_font_info(fsw)->num_families)) == NULL) 
@@ -3645,15 +3652,15 @@ ToggleItalic(Widget w, XtPointer fsw_ptr, XtPointer data)
 	return;
     }
 
-    slant = info->set ? XrmQuarkToString(family->italic_nameq) :
+    slant = set ? XrmQuarkToString(family->italic_nameq) :
 	XrmQuarkToString(family->upright_nameq);
     if (slant == NULL)
 	return;
     strncpy(cf->slant, slant, SLANT_LEN);
     cf->slant[SLANT_LEN] = '\0';
 
-    SetFlag(&(cf->state), ITALIC, info->set);
-    SetFlag(&(XmFontS_user_state(fsw)), ITALIC, info->set);
+    SetFlag(&(cf->state), ITALIC, set);
+    SetFlag(&(XmFontS_user_state(fsw)), ITALIC, set);
     DisplayCurrentFont(fsw, BuildFontString(fsw, cf, buf, BUFSIZ));
 }
 
@@ -3698,14 +3705,16 @@ ToggleNameWindow(Widget w, XtPointer fsw_ptr, XtPointer data)
 {
     XmFontSelectorWidget fsw = (XmFontSelectorWidget) fsw_ptr;
     XmToggleButtonCallbackStruct *info;
+    Boolean set;
     char buf[BUFSIZ];
 
     info = (XmToggleButtonCallbackStruct *) data;
     if (fsw == NULL || info == NULL)
 	return;
+    set = (info->set != 0) ? True : False;
 
-    XmFontS_show_font_name(fsw) = info->set;
-    if (info->set) {
+    XmFontS_show_font_name(fsw) = set;
+    if (set) {
 	if (XmFontS_name_label(fsw) != NULL)
 	    XtManageChild(XmFontS_name_label(fsw));
 	
