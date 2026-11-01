@@ -871,6 +871,11 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	}
 	if (text_prop->nitems == 0 && text_prop->value == NULL) {
 	    string_table[0] = XmCvtCTToXmString("");
+	    if (string_table[0] == NULL) {
+		XtFree((char *)string_table);
+		_XmAppUnlock(app);
+		return XConverterNotFound;
+	    }
 	    *string_table_return = string_table;
 	    _XmAppUnlock(app);
 	    return Success;

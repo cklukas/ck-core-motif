@@ -42,7 +42,7 @@ item, including those after the item that exceeded the size limit. Successful
 output bytes, encoding choices and fallback behavior remain unchanged.
 
 The executable ownership regression extracts the production property import/export
-functions and exercises 65 cases across the locale/string and ASN.1 styles: every
+functions and exercises 69 cases across the locale/string and ASN.1 styles: every
 allocation failure, per-item conversion errors, oversized aggregate lengths,
 strict fallback, serializer failures and successful output bytes. Allocation, length
 and conversion test doubles allow overflow and rollback checks without large
@@ -64,6 +64,13 @@ storage. The executable test models separately owned records and payloads,
 injects failures at all seven allocations of a three-element import, rejects
 each decoder position and late length check, and verifies successful ownership
 transfer and cleanup. Valid imported strings and public APIs are unchanged.
+
+An empty compound-text property still imports as one empty `XmString`. If
+creating that string fails, the converter frees its temporary table and returns
+`XConverterNotFound`, matching failed element conversion in the non-empty path.
+It no longer returns `Success` with a null table element. The unit test covers
+failure at each of the table/string/payload allocations and successful cleanup
+of the valid empty result.
 
 The reverse conversion validates output pointers, property lengths, and required
 value storage before reading an X property. Compound-text element counting also

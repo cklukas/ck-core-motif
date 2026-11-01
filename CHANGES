@@ -1,3 +1,11 @@
+Reject failed empty compound-text imports (2026-11-01)
+=====================================================
+
+- If empty-string conversion fails, release the temporary table and return
+  XConverterNotFound instead of Success with a null string element.
+- Cover every allocation failure and successful empty-string ownership in
+  the executable property-conversion regression under ASan/UBSan.
+
 Destroy imported compound strings correctly on rollback (2026-11-01)
 ==================================================================
 

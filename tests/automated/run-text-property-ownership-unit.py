@@ -215,6 +215,19 @@ int main(void) {
         assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==XConverterNotFound);
         assert(live==0 && locks==0 && output==NULL);
     }
+    length_fail_at=0;
+    property.value=NULL;property.nitems=0;property.encoding=42;
+    for(int failure=1;failure<=3;++failure) {
+        calls=0;fail_at=failure;output=NULL;
+        int expected=failure==1 ? BadAlloc : XConverterNotFound;
+        assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==expected);
+        assert(live==0 && locks==0 && output==NULL);
+    }
+    fail_at=0;
+    assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==Success);
+    assert(output_count==1 && output && output[0] && live==3 && locks==0);
+    assert(((OwnedString *)output[0])->payload[0]==0);
+    XmStringFree(output[0]);XtFree((char *)output);assert(live==0);
     puts("PASS text-property conversion allocation/overflow cleanup, strict fallback and output bytes");
 }
 '''
