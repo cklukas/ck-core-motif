@@ -47,3 +47,27 @@ Helpers and the complete factory are in gallery_examples.c.
 
 :::
 <!-- gallery-demo-tabs: end -->
+
+## Modern presentation
+
+An unset (`NULL`) `XmNbreadcrumbSeparator` selects the profile's automatic
+separator: a directional chevron in Modern Light/Dark and `/` in Classic.
+An explicit string, including `/` or an empty string, remains authoritative.
+Setting the resource back to `NULL` restores automatic separators. Chevron
+size and spacing follow display scale; RTL mirrors the direction.
+
+Modern mode reports the complete measured natural width and a font-aware height,
+with room for its indicator. Explicit widget dimensions remain authoritative.
+Modern mode keeps the current label on the normal bar background with a subtle
+accent underline. Classic retains its inverted current-item treatment.
+Rendering refreshes GC colors from the active resources on every frame, and
+modern item widths and hit tests share the visual-leading segment rule so RTL
+labels and separators use consistent space. No callback, ID or selection
+semantics or public widget-record layout changes.
+
+`tests/automated/run-breadcrumb-modern.py --build ABS_BUILD --results ABS_NEW_DIR`
+runs a native Xvfb rendering and input regression across repeated Classic,
+Modern Light/Dark, 100/150/200% scale and LTR/RTL transitions. It checks the plain
+current-item surface, accent pixels, custom separators, quiet theme changes,
+keyboard traversal and pointer activation. The existing BreadcrumbBar contract
+and source guards remain part of acceptance.

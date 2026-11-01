@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-01 — Modern Breadcrumb Bar
+
+- Use directional chevrons and comfortable spacing in Modern profiles.
+- Keep the current label on the normal surface with an accent underline.
+- Preserve explicit separators and Classic styling; refresh live palette colors
+  and align RTL hit-test metrics with rendering.
+- See the [Breadcrumb Bar behavior and regression](docs/breadcrumb-bar.md).
+
 ## 2026-11-01 — Anchored popup examples and Modern Flyout layout
 
 - Remove the Flyout/TeachingTip preview rectangle by keeping popup handles hidden.

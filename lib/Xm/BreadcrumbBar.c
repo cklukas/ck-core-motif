@@ -2,6 +2,8 @@
 #include <config.h>
 #endif
 #include "PaintI.h"
+#include "AppearanceDrawI.h"
+#include <Xm/Appearance.h>
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <limits.h>
@@ -35,7 +37,7 @@ static XtResource resources[] = {
     {XmNbreadcrumbMaxVisible, XmCBreadcrumbMaxVisible, XmRInt, sizeof(int),
      Offset(breadcrumb.max_visible), XmRImmediate, (XtPointer)0},
     {XmNbreadcrumbSeparator, XmCBreadcrumbSeparator, XmRString, sizeof(String),
-     Offset(breadcrumb.separator), XmRImmediate, (XtPointer)"/"},
+     Offset(breadcrumb.separator), XmRImmediate, (XtPointer)NULL},
     {XmNbreadcrumbRtl, XmCBreadcrumbRtl, XmRBoolean, sizeof(Boolean),
      Offset(breadcrumb.rtl), XmRImmediate, (XtPointer)False},
     {XmNbreadcrumbActivateCallback, XmCBreadcrumbActivateCallback,
@@ -134,11 +136,31 @@ static void set_current(XmBreadcrumbBarWidget bar, int index,
         notify_current(bar, event);
 }
 
+static Boolean modern_breadcrumb(XmBreadcrumbBarWidget bar) {
+    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplay((Widget)bar));
+    return profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK;
+}
+
+static int breadcrumb_pixels(XmBreadcrumbBarWidget bar, int logical) {
+    double scale = 1.0;
+    (void)_XmGetWidgetDpiScale((Widget)bar, &scale);
+    return (int)(logical * scale + 0.5);
+}
+
+static const char *separator_text(XmBreadcrumbBarWidget bar) {
+    return bar->breadcrumb.separator ? bar->breadcrumb.separator :
+        (modern_breadcrumb(bar) ? "" : "/");
+}
+
+/* The same visual-leading test drives drawing, widths and pointer lookup. */
+static Boolean first_visual_item(XmBreadcrumbBarWidget bar, Cardinal index) {
+    return bar->breadcrumb.rtl ? index + 1 == bar->breadcrumb.count : index == 0;
+}
+
 static int item_width(XmBreadcrumbBarWidget bar, Cardinal index) {
     const char *label = bar->breadcrumb.items[index].label ?
                         bar->breadcrumb.items[index].label : "";
-    const char *separator = bar->breadcrumb.separator ?
-                            bar->breadcrumb.separator : "";
+    const char *separator = separator_text(bar);
     XmString label_string = XmStringCreateLocalized((char *)label);
     XmString separator_string = XmStringCreateLocalized((char *)separator);
     Dimension label_width = 0, label_height = 0, separator_width = 0;
@@ -155,6 +177,13 @@ static int item_width(XmBreadcrumbBarWidget bar, Cardinal index) {
     XmStringFree(separator_string);
     if ((unsigned long)label_width + 10UL > (unsigned long)INT_MAX)
         return INT_MAX;
+    if (modern_breadcrumb(bar)) {
+        int gap = breadcrumb_pixels(bar, 12);
+        int prefix = first_visual_item(bar,index) ? 0 :
+            (bar->breadcrumb.separator ? separator_width : breadcrumb_pixels(bar,12)) + breadcrumb_pixels(bar,8);
+        if ((unsigned long)label_width + gap + prefix > INT_MAX) return INT_MAX;
+        return (int)label_width + gap + prefix;
+    }
     width = (int)label_width + 10;
     if (index) {
         if ((unsigned long)width + (unsigned long)separator_width + 8UL >
@@ -224,9 +253,9 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                                    DefaultRootWindow(XtDisplay(widget)),
                                    GCForeground | GCBackground, &values);
     if (!bar->core.width)
-        bar->core.width = 240;
+        bar->core.width = modern_breadcrumb(bar) ? breadcrumb_pixels(bar,320) : 240;
     if (!bar->core.height)
-        bar->core.height = 28;
+        bar->core.height = modern_breadcrumb(bar) ? breadcrumb_pixels(bar,36) : 28;
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask | ButtonReleaseMask,
                       False, Events, NULL);
 }
@@ -248,9 +277,12 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
     Drawable window = _XmPaintDrawable((Widget)bar);
     const char *label = bar->breadcrumb.items[index].label ?
                         bar->breadcrumb.items[index].label : "";
-    const char *separator = bar->breadcrumb.separator ?
-                            bar->breadcrumb.separator : "";
+    const char *separator = separator_text(bar);
     int width = item_width(bar, index);
+    if (*cursor >= bar->core.width) {
+        advance_cursor(cursor,width);
+        return;
+    }
     int text_x;
     XmString label_string = XmStringCreateLocalized((char *)label);
     XmString separator_string = XmStringCreateLocalized((char *)separator);
@@ -264,26 +296,48 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
         XmStringExtent(bar->breadcrumb.font, separator_string, &separator_width,
                        &separator_height);
     }
-    text_x = first ? *cursor :
-        (*cursor > INT_MAX - (int)separator_width - 4
-             ? INT_MAX : *cursor + (int)separator_width + 4);
+    Boolean modern = modern_breadcrumb(bar);
+    if (modern) {
+        int prefix = first ? 0 :
+            (bar->breadcrumb.separator ? separator_width : breadcrumb_pixels(bar,12)) + breadcrumb_pixels(bar,8);
+        text_x = *cursor > INT_MAX - prefix - breadcrumb_pixels(bar,6) ? INT_MAX :
+            *cursor + prefix + breadcrumb_pixels(bar,6);
+    } else {
+        text_x = first ? *cursor :
+            (*cursor > INT_MAX - (int)separator_width - 4
+                 ? INT_MAX : *cursor + (int)separator_width + 4);
+    }
     text_y = ((int)bar->core.height - (int)label_height) / 2;
-    if (bar->breadcrumb.font && !first && separator_string)
+    if (modern && !first && !bar->breadcrumb.separator) {
+        int edge = breadcrumb_pixels(bar,12);
+        _XmAppearanceDrawChevron(display,window,bar->breadcrumb.gc,*cursor,
+            ((int)bar->core.height-edge)/2,edge,edge,MAX(1,breadcrumb_pixels(bar,1)),
+            bar->breadcrumb.rtl ? XmARROW_LEFT : XmARROW_RIGHT);
+    }
+    if (bar->breadcrumb.font && !first && separator_string && (!modern || bar->breadcrumb.separator))
         XmStringDraw(display, window, bar->breadcrumb.font, separator_string,
                      bar->breadcrumb.gc, bounded_position(*cursor),
                      bounded_position(text_y), separator_width,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(bar), NULL);
-    if ((int)index == bar->breadcrumb.current)
+    if (!modern && (int)index == bar->breadcrumb.current)
         XFillRectangle(display, window, bar->breadcrumb.gc, text_x - 2, 5,
                        (unsigned)(label_width > 4 ? label_width + 4 : 1),
                        (unsigned)(bar->core.height > 10 ? bar->core.height - 10 : 1));
-    if ((int)index == bar->breadcrumb.current)
+    if (!modern && (int)index == bar->breadcrumb.current)
         XSetForeground(display, bar->breadcrumb.gc, bar->core.background_pixel);
     if (bar->breadcrumb.font && label_string)
         XmStringDraw(display, window, bar->breadcrumb.font, label_string,
                      bar->breadcrumb.gc, bounded_position(text_x),
                      bounded_position(text_y), label_width,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(bar), NULL);
+    if (modern && (int)index == bar->breadcrumb.current && label_width) {
+        int y = text_y + label_height + breadcrumb_pixels(bar,3);
+        int thickness = MAX(1,breadcrumb_pixels(bar,2));
+        if (y + thickness < bar->core.height) {
+            XSetForeground(display,bar->breadcrumb.gc,bar->primitive.highlight_color);
+            XFillRectangle(display,window,bar->breadcrumb.gc,text_x,y,label_width,thickness);
+        }
+    }
     if ((int)index == bar->breadcrumb.current)
         XSetForeground(display, bar->breadcrumb.gc, bar->primitive.foreground);
     XmStringFree(label_string);
@@ -301,6 +355,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!window || !bar->breadcrumb.gc)
         return;
 
+    XSetForeground(display,bar->breadcrumb.gc,bar->primitive.foreground);
     if (start) {
         XmString ellipsis = XmStringCreateLocalized("...");
         Dimension ellipsis_width = 0, ellipsis_height = 0;
@@ -415,6 +470,17 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     reply->request_mode = CWWidth | CWHeight;
     reply->width = (Dimension)(width > 240 ? 240 : width);
     reply->height = 28;
+    if (modern_breadcrumb(bar)) {
+        XmString sample = XmStringCreateLocalized("Mg");
+        Dimension text_width = 0, text_height = 0;
+        if (sample && bar->breadcrumb.font)
+            XmStringExtent(bar->breadcrumb.font,sample,&text_width,&text_height);
+        XmStringFree(sample);
+        unsigned long height = MAX((unsigned long)breadcrumb_pixels(bar,36),
+            (unsigned long)text_height + breadcrumb_pixels(bar,16));
+        reply->width = (Dimension)MIN(width,USHRT_MAX);
+        reply->height = (Dimension)MIN(height,USHRT_MAX);
+    }
     return XtGeometryAlmost;
 }
 

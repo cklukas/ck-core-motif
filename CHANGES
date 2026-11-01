@@ -1,3 +1,16 @@
+Modernize BreadcrumbBar current-item and separator rendering (2026-11-01)
+========================================================================
+
+- Replace Modern's inverted current-item block with normal text and an accent
+  underline. Refresh drawing colors from current resources every frame.
+- Use scale-aware directional chevrons for automatic Modern separators;
+  explicit separator strings remain authoritative and Classic keeps slashes.
+- Make Modern visual-leading item spacing agree with drawing and hit tests
+  in both LTR and RTL, preserving selection and callback semantics.
+- Report full Modern natural width and font-aware height instead of the legacy
+  240-pixel preferred-width cap; preserve explicitly allocated dimensions.
+- Add native pixel/input acceptance across live profile/scale/direction changes.
+
 Repair anchored popup gallery construction and Modern Flyout placement (2026-11-01)
 =================================================================================
 
