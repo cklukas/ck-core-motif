@@ -440,7 +440,7 @@ void XmProgressRingGetRange(Widget widget, int *minimum, int *maximum) {
     if (maximum) *maximum = ring->progress_ring.maximum;
 }
 int XmProgressRingGetValue(Widget widget) {
-    return widget != NULL && XmIsProgressRing(widget)
+    return widget != NULL && XmIsProgressRing(widget) && !widget->core.being_destroyed
         ? ((XmProgressRingWidget)widget)->progress_ring.value : 0;
 }
 void XmProgressRingSetRange(Widget widget, int minimum, int maximum,
@@ -475,14 +475,14 @@ void XmProgressRingSetValue(Widget widget, int value, Boolean notify) {
     if (notify && old_value != ring->progress_ring.value) Notify(ring, NULL);
 }
 Boolean XmProgressRingGetIndeterminate(Widget widget) {
-    return widget != NULL && XmIsProgressRing(widget)
+    return widget != NULL && XmIsProgressRing(widget) && !widget->core.being_destroyed
         ? ((XmProgressRingWidget)widget)->progress_ring.indeterminate : False;
 }
 void XmProgressRingSetIndeterminate(Widget widget, Boolean indeterminate,
                                     Boolean notify) {
     XmProgressRingWidget ring;
     Boolean old;
-    if (widget == NULL || !XmIsProgressRing(widget)) return;
+    if (widget == NULL || !XmIsProgressRing(widget) || widget->core.being_destroyed) return;
     ring = (XmProgressRingWidget)widget;
     old = ring->progress_ring.indeterminate;
     ring->progress_ring.indeterminate = indeterminate ? True : False;

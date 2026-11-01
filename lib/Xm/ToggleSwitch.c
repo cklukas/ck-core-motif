@@ -343,11 +343,11 @@ static void Leave(Widget w,XEvent *event,String *params,Cardinal *count) {
     ((XmToggleSwitchWidget)w)->toggle_switch.hover=False;redraw(w);
 }
 Boolean XmToggleSwitchGetState(Widget widget) {
-    if(widget == NULL || !XmIsToggleSwitch(widget))return False;
+    if(widget == NULL || !XmIsToggleSwitch(widget) || widget->core.being_destroyed)return False;
     return ((XmToggleSwitchWidget)widget)->toggle_switch.set;
 }
 void XmToggleSwitchSetState(Widget widget,Boolean state,Boolean notify) {
-    if(widget == NULL || !XmIsToggleSwitch(widget))return;
+    if(widget == NULL || !XmIsToggleSwitch(widget) || widget->core.being_destroyed)return;
     set_state(widget,state,notify,NULL);
 }
 

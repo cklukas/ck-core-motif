@@ -1,3 +1,10 @@
+Guard value controls during teardown (2026-11-01)
+====================================================
+
+- Keep Calendar, picker, toggle, skeleton, number, spinner, progress, and
+  rating control reads out of released state during destruction. Affected
+  value/state helpers now retain their established empty or no-op results.
+
 Guard collection-widget queries during teardown (2026-11-01)
 ==============================================================
 
