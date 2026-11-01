@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <Xm/LinkP.h>
@@ -21,8 +22,8 @@ static Position bounded_position(long long value) {
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
@@ -53,7 +54,7 @@ externaldef(xmlinkclassrec) XmLinkClassRec xmLinkClassRec = {
     {(WidgetClass)&xmPrimitiveClassRec, "XmLink", sizeof(XmLinkRec), NULL, NULL,
      False, Initialize, NULL, XtInheritRealize, NULL, 0, resources,
      XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True, False,
-     Destroy, NULL, Redisplay, SetValues, NULL, XtInheritSetValuesAlmost, NULL,
+     Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL,
      NULL, XtVersion, NULL, XtInheritTranslations, QueryGeometry, NULL, NULL},
     {XmInheritBorderHighlight, XmInheritBorderUnhighlight, XtInheritTranslations,
      NULL, NULL, 0, NULL}, NULL};
@@ -129,15 +130,15 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmString label;
     Dimension inset = padding(link);
     (void)event; (void)region;
-    if (!XtWindow(widget) || !link->link.gc) return;
+    if (!_XmPaintDrawable(widget) || !link->link.gc) return;
     XSetForeground(XtDisplay(widget), link->link.gc,
         XtIsSensitive(widget) ? link->primitive.foreground : link->primitive.bottom_shadow_color);
     XSetBackground(XtDisplay(widget), link->link.gc, link->core.background_pixel);
-    XClearWindow(XtDisplay(widget), XtWindow(widget));
+
     label = link->link.label;
     if (link->link.render_table && label) {
         XmStringExtent(link->link.render_table, label, &text_width, &text_height);
-        XmStringDraw(XtDisplay(widget), XtWindow(widget), link->link.render_table,
+        XmStringDraw(XtDisplay(widget), _XmPaintDrawable(widget), link->link.render_table,
                      label, link->link.gc, bounded_position(inset),
                      bounded_position(((long long)link->core.height - (long long)text_height) / 2),
                      text_width, XmALIGNMENT_BEGINNING,
@@ -149,17 +150,22 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         int gap = _XmDpiDefaultDimension(widget, 1);
         int underline_y = ((int)link->core.height + text_height) / 2 + gap;
         if (underline_y < (int)link->core.height)
-            XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc,
+            XDrawLine(XtDisplay(widget), _XmPaintDrawable(widget), link->link.gc,
                       inset, underline_y, underline_end, underline_y);
         /* A second rule makes visited state distinguishable without color. */
         if (link->link.visited && underline_y + 2 * gap < (int)link->core.height)
-            XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc,
+            XDrawLine(XtDisplay(widget), _XmPaintDrawable(widget), link->link.gc,
                       inset, underline_y + 2 * gap, underline_end, underline_y + 2 * gap);
     }
     if (link->primitive.highlighted && link->primitive.highlight_thickness &&
         link->core.width > 2 && link->core.height > 2)
-        XDrawRectangle(XtDisplay(widget), XtWindow(widget), link->link.gc,
+        XDrawRectangle(XtDisplay(widget), _XmPaintDrawable(widget), link->link.gc,
                        1, 1, link->core.width - 3, link->core.height - 3);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
@@ -265,4 +271,14 @@ Widget XmVaCreateLink(Widget parent, char *name, ...) {
 Widget XmVaCreateManagedLink(Widget parent, char *name, ...) {
     Widget widget; va_list var; int count; Va_start(var, name); count = XmeCountVaListSimple(var); va_end(var);
     Va_start(var, name); widget = XmeVLCreateWidget(name, xmLinkWidgetClass, parent, True, var, count); va_end(var); return widget;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

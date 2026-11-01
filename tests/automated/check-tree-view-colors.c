@@ -1,3 +1,4 @@
+#include "native-window.h"
 #include <Xm/XmAll.h>
 #include <Xm/Appearance.h>
 #include <Xm/TreeViewP.h>
@@ -18,6 +19,9 @@ static void verify(Widget widget,XtAppContext app) {
     image=XGetImage(XtDisplay(widget),XtWindow(widget),0,0,280,96,AllPlanes,ZPixmap);CHECK(image);
     CHECK(XmGetAppearanceProfile(XtDisplay(widget),&profile));
     XtVaGetValues(widget,XmNselectColor,&selection,NULL);
+    if (XGetPixel(image,20,1) != ((profile==XmAPPEARANCE_MODERN_LIGHT || profile==XmAPPEARANCE_MODERN_DARK) ? selection : fg))
+        fprintf(stderr, "TreeView profile=%d actual=%lu foreground=%lu selection=%lu background=%lu selected=%p highlighted=%d\n",
+            profile, XGetPixel(image,20,1), fg, selection, bg, view->tree_view.selected_id, view->primitive.highlighted);
     CHECK(XGetPixel(image,20,1)==
         ((profile==XmAPPEARANCE_MODERN_LIGHT || profile==XmAPPEARANCE_MODERN_DARK) ? selection : fg));
     CHECK(XGetPixel(image,275,90)==bg);
@@ -43,7 +47,7 @@ int main(int argc,char **argv) {
             XmNtreeViewRowHeight,28,XmNtreeViewVisibleRows,3,NULL);
         next=XtVaCreateManagedWidget("next",xmPushButtonWidgetClass,board,XmNx,300,NULL);
         XmTreeViewSetNodes(tree,&node,1);XmTreeViewSetSelectedId(tree,&id,False);
-        XtRealizeWidget(shell);verify(tree,app);
+        XtRealizeWidget(shell); NativeWaitForViewable(shell);verify(tree,app);
         CHECK(XmApplyAppearanceProfile(display,profiles[(i+1)%4]));verify(tree,app);
         if (profiles[(i+1)%4]==XmAPPEARANCE_MODERN_LIGHT ||
             profiles[(i+1)%4]==XmAPPEARANCE_MODERN_DARK) {

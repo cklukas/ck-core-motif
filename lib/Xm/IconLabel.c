@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 
 #include <X11/IntrinsicP.h>
 #include <Xm/IconLabelP.h>
@@ -19,8 +20,8 @@ static Position bounded_position(long long value) {
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 
 #define Offset(field) XtOffsetOf(XmIconLabelRec, field)
@@ -54,7 +55,7 @@ externaldef(xmiconlabelclassrec) XmIconLabelClassRec xmIconLabelClassRec = {
     {(WidgetClass)&xmPrimitiveClassRec, "XmIconLabel", sizeof(XmIconLabelRec),
      NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
      resources, XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal,
-     True, False, Destroy, NULL, Redisplay, SetValues, NULL,
+     True, False, Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL,
      XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
      XtInheritTranslations, QueryGeometry, NULL, NULL},
     {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
@@ -140,7 +141,7 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmIconLabelWidget label = (XmIconLabelWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     unsigned int icon_width = 0, icon_height = 0;
     Boolean have_icon = pixmap_size(label, &icon_width, &icon_height);
     Boolean rtl = XmDirectionMatchPartial(XmPrim_layout_direction(label),
@@ -154,7 +155,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XSetForeground(display, label->icon_label.foreground_gc,
         XtIsSensitive(widget) ? label->primitive.foreground : label->primitive.bottom_shadow_color);
     XSetBackground(display, label->icon_label.foreground_gc, label->core.background_pixel);
-    XClearWindow(display, window);
+
     if (right <= left || bottom <= top) return;
     if (value && label->icon_label.render_table)
         XmStringExtent(label->icon_label.render_table, value,
@@ -186,6 +187,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      bounded_position(((long long)label->core.height - (long long)value_height) / 2), clip.width,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(label), &clip);
     }
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -271,4 +277,14 @@ Widget XmVaCreateManagedIconLabel(Widget parent, char *name, ...) {
     Va_start(var, name); widget = XmeVLCreateWidget(name, xmIconLabelWidgetClass,
                                                      parent, True, var, count);
     va_end(var); return widget;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

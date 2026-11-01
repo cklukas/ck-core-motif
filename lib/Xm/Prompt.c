@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <Xm/PromptP.h>
 #include <Xm/VaSimpleP.h>
@@ -21,8 +22,8 @@ static Dimension padded_extent(Dimension value, Dimension padding) {
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 static void CheckSetRenderTable(Widget widget,int offset,XrmValue*value){XmPromptWidget prompt=(XmPromptWidget)widget;(void)offset;if(prompt->prompt.check_set_render_table)value->addr=NULL;else{prompt->prompt.check_set_render_table=True;value->addr=(char*)&prompt->prompt.font;}}
 #define Offset(field) XtOffsetOf(XmPromptRec, field)
@@ -37,7 +38,7 @@ externaldef(xmpromptclassrec) XmPromptClassRec xmPromptClassRec = {
     {(WidgetClass)&xmPrimitiveClassRec, "XmPrompt", sizeof(XmPromptRec), NULL, NULL,
      False, Initialize, NULL, XtInheritRealize, NULL, 0, resources,
      XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True, False,
-     Destroy, NULL, Redisplay, SetValues, NULL, XtInheritSetValuesAlmost, NULL,
+     Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL,
      NULL, XtVersion, NULL, XtInheritTranslations, QueryGeometry, NULL, NULL},
     {XmInheritBorderHighlight, XmInheritBorderUnhighlight, XtInheritTranslations,
      NULL, NULL, 0, NULL}, NULL};
@@ -90,11 +91,11 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmPromptWidget prompt = (XmPromptWidget)widget; Dimension width=0,height=0;
     (void)event; (void)region;
-    if (!XtWindow(widget) || !prompt->prompt.gc) return;
+    if (!_XmPaintDrawable(widget) || !prompt->prompt.gc) return;
     XSetForeground(XtDisplay(widget), prompt->prompt.gc,
         XtIsSensitive(widget) ? prompt->primitive.foreground : prompt->primitive.bottom_shadow_color);
     XSetBackground(XtDisplay(widget), prompt->prompt.gc, prompt->core.background_pixel);
-    XClearWindow(XtDisplay(widget), XtWindow(widget));
+
     if (!prompt->prompt.visible) return;
     if (prompt->prompt.font && prompt->prompt.text) {
         Dimension inset = padding(prompt);
@@ -105,11 +106,16 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         clip.width = prompt->core.width - 2 * inset;
         clip.height = prompt->core.height - 2 * inset;
         XmStringExtent(prompt->prompt.font, prompt->prompt.text, &width, &height);
-        XmStringDraw(XtDisplay(widget), XtWindow(widget), prompt->prompt.font,
+        XmStringDraw(XtDisplay(widget), _XmPaintDrawable(widget), prompt->prompt.font,
                      prompt->prompt.text, prompt->prompt.gc, inset,
                      bounded_position(((long long)prompt->core.height - (long long)height) / 2), clip.width,
                      XmALIGNMENT_BEGINNING, XmPrim_layout_direction(prompt), &clip);
     }
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
@@ -179,7 +185,7 @@ void XmPromptSetVisible(Widget widget, Boolean visible) {
     if (widget == NULL || !XmIsPrompt(widget)) return;
     if (((XmPromptWidget)widget)->prompt.visible != visible) {
         ((XmPromptWidget)widget)->prompt.visible = visible;
-        if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
+        if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
     }
 }
 Boolean XmPromptGetVisible(Widget widget) {
@@ -189,3 +195,13 @@ Boolean XmPromptGetVisible(Widget widget) {
 Widget XmCreatePrompt(Widget parent, char *name, ArgList args, Cardinal count) { return XtCreateWidget(name, xmPromptWidgetClass, parent, args, count); }
 Widget XmVaCreatePrompt(Widget parent, char *name, ...) { Widget w; va_list v; int n; Va_start(v,name); n=XmeCountVaListSimple(v); va_end(v); Va_start(v,name); w=XmeVLCreateWidget(name,xmPromptWidgetClass,parent,False,v,n); va_end(v); return w; }
 Widget XmVaCreateManagedPrompt(Widget parent, char *name, ...) { Widget w; va_list v; int n; Va_start(v,name); n=XmeCountVaListSimple(v); va_end(v); Va_start(v,name); w=XmeVLCreateWidget(name,xmPromptWidgetClass,parent,True,v,n); va_end(v); return w; }
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
+}

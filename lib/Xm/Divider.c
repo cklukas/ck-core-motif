@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 
 #include <X11/IntrinsicP.h>
 #include <limits.h>
@@ -21,8 +22,8 @@ static Position bounded_position(long long value)
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 static void natural_size(XmDividerWidget, Dimension *, Dimension *);
 
@@ -60,7 +61,7 @@ externaldef(xmdividerclassrec) XmDividerClassRec xmDividerClassRec = {
     {(WidgetClass)&xmPrimitiveClassRec, "XmDivider", sizeof(XmDividerRec),
      NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
      resources, XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal,
-     True, False, Destroy, NULL, Redisplay, SetValues, NULL,
+     True, False, Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL,
      XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
      XtInheritTranslations, QueryGeometry, NULL, NULL},
     {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
@@ -134,7 +135,7 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmDividerWidget divider = (XmDividerWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     GC gc = divider->divider.foreground_gc;
     int width = divider->core.width, height = divider->core.height;
     Dimension text_width, text_height;
@@ -149,7 +150,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XSetClipMask(display, gc, None);
     XSetForeground(display, gc, line);
     XSetBackground(display, gc, divider->core.background_pixel);
-    XClearWindow(display, window);
+
     label_extent(divider, &text_width, &text_height);
     if (divider->divider.orientation == XmHORIZONTAL) {
         int thickness = MIN(divider->divider.thickness, height);
@@ -178,6 +179,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                        thickness, height);
     }
     XSetClipMask(display, gc, None);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
@@ -267,4 +273,14 @@ Widget XmVaCreateManagedDivider(Widget parent, char *name, ...) {
     Va_start(var, name); widget = XmeVLCreateWidget(name, xmDividerWidgetClass,
                                                      parent, True, var, count);
     va_end(var); return widget;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

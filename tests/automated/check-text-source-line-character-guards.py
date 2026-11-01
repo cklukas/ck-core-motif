@@ -20,7 +20,9 @@ for guard in (
 ):
     assert guard in body
 assert "SIZE_MAX / unit" in body
-assert "gap_bytes > total_bytes - gap_offset" in body
+assert "character_size <= 0" in body
+assert "character_size > 3" not in body
+assert "gap_bytes > gap_offset" in body
 assert "byte_offset > total_bytes - gap_offset" in body
 
 print("Unicode source line character access is guarded")

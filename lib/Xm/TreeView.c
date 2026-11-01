@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <Xm/TreeViewP.h>
@@ -29,9 +30,11 @@ static Position bounded_position(long long value) {
 }
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static void Highlight(Widget);
+static void Unhighlight(Widget);
 static void Resize(Widget);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
@@ -88,10 +91,10 @@ externaldef(xmtreeviewclassrec) XmTreeViewClassRec xmTreeViewClassRec =
     {{(WidgetClass)&xmPrimitiveClassRec, "XmTreeView", sizeof(XmTreeViewRec),
       NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
       resources, XtNumber(resources), NULLQUARK, True,
-      XtExposeCompressMaximal, True, False, Destroy, Resize, Redisplay,
-      SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
+      XtExposeCompressMaximal, True, False, Destroy, Resize, BufferedRedisplay,
+      BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
       (String)_XmPrimitive_defaultTranslations, QueryGeometry, NULL, NULL},
-     {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
+     {Highlight, Unhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
      {NULL}};
 
@@ -288,8 +291,7 @@ static void notify_expansion(XmTreeViewWidget view, int index, XEvent *event) {
 
 static void redraw(XmTreeViewWidget view) {
     if (XtIsRealized((Widget)view))
-        XClearArea(XtDisplay((Widget)view), XtWindow((Widget)view), 0, 0, 0, 0,
-                  True);
+        _XmPaintInvalidate((Widget)view);
 }
 
 /* visible_rows is a preferred-size resource, not the allocated viewport. */
@@ -466,7 +468,7 @@ static void Destroy(Widget widget) {
 
 static void draw_disclosure(XmTreeViewWidget view, int x, int y, Boolean open) {
     Display *display = XtDisplay((Widget)view);
-    Window window = XtWindow((Widget)view);
+    Drawable window = _XmPaintDrawable((Widget)view);
     int inset, size, gap;
     if (disclosure_metrics(view, &inset, &size, &gap)) {
         int extent = MIN(size, (int)view->tree_view.row_height - 2);
@@ -510,7 +512,7 @@ static void draw_disclosure(XmTreeViewWidget view, int x, int y, Boolean open) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     Cardinal row, total = visible_count(view);
     int index, inset=4, indicator=9, gap=5;
     Boolean modern=disclosure_metrics(view,&inset,&indicator,&gap);
@@ -518,7 +520,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     (void)event; (void)region;
     if (!window || !view->tree_view.gc)
         return;
-    XClearWindow(display, window);
+
     for (row = 0; row < viewport_rows(view); ++row) {
         Cardinal absolute = view->tree_view.top_row + row;
         int x;
@@ -602,6 +604,26 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                        view->core.width - 2 * view->primitive.highlight_thickness,
                        view->core.height - 2 * view->primitive.highlight_thickness);
     XSetForeground(display,view->tree_view.gc,view->primitive.foreground);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
+}
+
+/* Keep focus transitions in the same frame as selection and disclosure marks.
+ * Primitive's border clearing would erase the selected row's top outline. */
+static void Highlight(Widget widget)
+{
+    XmTreeViewWidget view = (XmTreeViewWidget)widget;
+    view->primitive.highlighted = view->primitive.highlight_drawn = True;
+    BufferedRedisplay(widget, NULL, NULL);
+}
+static void Unhighlight(Widget widget)
+{
+    XmTreeViewWidget view = (XmTreeViewWidget)widget;
+    view->primitive.highlighted = view->primitive.highlight_drawn = False;
+    BufferedRedisplay(widget, NULL, NULL);
 }
 
 static int row_at(XmTreeViewWidget view, int y) {
@@ -930,4 +952,14 @@ void XmTreeViewSetTopRow(Widget widget, Cardinal top_row) {
 Cardinal XmTreeViewGetTopRow(Widget widget) {
     return widget != NULL && XmIsTreeView(widget)
         ? ((XmTreeViewWidget)widget)->tree_view.top_row : 0;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

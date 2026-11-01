@@ -10,6 +10,6 @@ assert "XmNrenderTable" in source
 assert "XmStringExtent" in source
 assert "XmStringDraw" in source
 assert "XmRenderTableFree" in source
-assert "if(widget==NULL||!XmIsInfoBar(widget))return;" in source
-assert "if(widget!=NULL&&XmIsInfoBar(widget))" in source
+assert "if(widget==NULL||!XmIsInfoBar(widget)||widget->core.being_destroyed)return;" in source
+assert "if(widget!=NULL&&XmIsInfoBar(widget)&&!widget->core.being_destroyed)" in source
 print("PASS InfoBar text uses its render table")

@@ -29,6 +29,7 @@ static char rcsid[] = "$TOG: Primitive.c /main/25 1999/01/27 16:08:04 mgreess $"
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 
 
 #include <Xm/AccColorT.h>
@@ -1078,6 +1079,10 @@ SetValues(
 
    /*  Return a flag which may indicate that a redraw needs to occur.  */
    
+   if (returnFlag && _XmPaintBufferKind(new_w)) {
+       _XmPaintInvalidate(new_w);
+       return False;
+   }
    return (returnFlag);
 }
 
@@ -1100,7 +1105,7 @@ HighlightBorder(
        || pw->primitive.highlight_thickness == 0) return ;
 
 
-    XmeDrawHighlight( XtDisplay( pw), XtWindow( pw), 
+    XmeDrawHighlight( XtDisplay( pw), _XmPaintDrawable((Widget)pw),
 		     pw->primitive.highlight_GC, 0, 0, 
 		     XtWidth( pw), XtHeight( pw),
 		     pw->primitive.highlight_thickness) ;
@@ -1147,7 +1152,7 @@ UnhighlightBorder(
 	    manager_background_GC = ((XmManagerWidget)(pw->core.parent))
 			    ->manager.background_GC;
 	    }
-	XmeDrawHighlight( XtDisplay( pw), XtWindow( pw), 
+	XmeDrawHighlight( XtDisplay( pw), _XmPaintDrawable((Widget)pw),
 			    manager_background_GC,
 			    0, 0, XtWidth( w), XtHeight( w),
 			    pw->primitive.highlight_thickness) ;

@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/Shell.h>
 #include <X11/keysym.h>
@@ -13,8 +14,8 @@
 #include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
@@ -62,8 +63,8 @@ externaldef(xmdatepickerclassrec) XmDatePickerClassRec xmDatePickerClassRec =
     {{(WidgetClass)&xmPrimitiveClassRec, "XmDatePicker", sizeof(XmDatePickerRec),
       NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
       resources, XtNumber(resources), NULLQUARK, True,
-      XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay,
-      SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
+      XtExposeCompressMaximal, True, False, Destroy, NULL, BufferedRedisplay,
+      BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
       XtInheritTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
@@ -294,14 +295,14 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Dimension width = 0, height = 0;
     (void)event; (void)region;
     if (!XtIsRealized(widget) || !picker->date_picker.gc) return;
-    XClearWindow(XtDisplay(widget), XtWindow(widget));
+
     snprintf(text, sizeof(text), "%04d-%02d-%02d",
              picker->date_picker.date.year, picker->date_picker.date.month,
              picker->date_picker.date.day);
     value = XmStringCreateLocalized(text);
     if (value && picker->date_picker.render_table) {
         XmStringExtent(picker->date_picker.render_table, value, &width, &height);
-        XmStringDraw(XtDisplay(widget), XtWindow(widget),
+        XmStringDraw(XtDisplay(widget), _XmPaintDrawable(widget),
                      picker->date_picker.render_table, value,
                      picker->date_picker.gc, 6,
                      ((int)picker->core.height - (int)height) / 2, width,
@@ -309,6 +310,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      XmPrim_layout_direction(picker), NULL);
     }
     XmStringFree(value);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 
 static void Events(Widget widget, XtPointer closure, XEvent *event,
@@ -366,7 +372,7 @@ Boolean XmDatePickerSetDate(Widget widget, const XmDatePickerDate *date,
         (date->month == picker->date_picker.date.month) &&
         (date->day == picker->date_picker.date.day)) return True;
     picker->date_picker.date = *date;
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget), 0,0,0,0,True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
     if (notify_change) notify(picker, NULL, 1, XmNdatePickerDateChangedCallback);
     return True;
 }
@@ -388,7 +394,7 @@ Boolean XmDatePickerSetRange(Widget widget, const XmDatePickerDate *minimum,
     picker->date_picker.minimum = *minimum;
     picker->date_picker.maximum = *maximum;
     if (XtIsRealized(widget))
-        XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
+        _XmPaintInvalidate(widget);
     return True;
 }
 
@@ -441,4 +447,14 @@ void XmDatePickerClose(Widget widget) {
         XtPopdown(picker->date_picker.popup_shell);
     picker->date_picker.open = False;
     notify(picker, NULL, 4, XmNdatePickerOpenChangedCallback);
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

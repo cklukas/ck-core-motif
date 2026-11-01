@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <limits.h>
@@ -14,7 +15,7 @@
 #include <Xm/Appearance.h>
 #include <limits.h>
 #include <string.h>
-static void Initialize(Widget, Widget, ArgList, Cardinal *); static void Redisplay(Widget, XEvent *, Region); static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *); static void Destroy(Widget); static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *); static void Events(Widget, XtPointer, XEvent *, Boolean *);
+static void Initialize(Widget, Widget, ArgList, Cardinal *); static void BufferedRedisplay(Widget, XEvent *, Region); static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *); static void Destroy(Widget); static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *); static void Events(Widget, XtPointer, XEvent *, Boolean *);
 static void Highlight(Widget);
 static void Unhighlight(Widget);
 #define RATING_STAR_POINTS 10
@@ -29,10 +30,10 @@ static XtResource resources[] = {
  {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean), Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
  {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension, sizeof(Dimension), Offset(primitive.highlight_thickness), XmRCallProc, (XtPointer)_XmSetThickness}
 };
-externaldef(xmratingcontrolclassrec) XmRatingControlClassRec xmRatingControlClassRec = {{(WidgetClass)&xmPrimitiveClassRec,"XmRatingControl",sizeof(XmRatingControlRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,Redisplay,SetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,XtInheritTranslations,QueryGeometry,NULL,NULL},{Highlight,Unhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
+externaldef(xmratingcontrolclassrec) XmRatingControlClassRec xmRatingControlClassRec = {{(WidgetClass)&xmPrimitiveClassRec,"XmRatingControl",sizeof(XmRatingControlRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,BufferedRedisplay,BufferedSetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,XtInheritTranslations,QueryGeometry,NULL,NULL},{Highlight,Unhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
 externaldef(xmratingcontrolwidgetclass) WidgetClass xmRatingControlWidgetClass=(WidgetClass)&xmRatingControlClassRec;
 static void normalize(XmRatingControlWidget rating) { if (rating->rating.count < 1) rating->rating.count=1; if (rating->rating.value<0) rating->rating.value=0; if (rating->rating.value>rating->rating.count) rating->rating.value=rating->rating.count; }
-static void draw_star(Display *display, Window window, GC gc, int center_x,
+static void draw_star(Display *display, Drawable window, GC gc, int center_x,
                       int center_y, int radius, Boolean filled) {
     static const int x_shape[RATING_STAR_POINTS] = {0, 3, 10, 5, 6, 0, -6, -5, -10, -3};
     static const int y_shape[RATING_STAR_POINTS] = {-10, -3, -3, 2, 8, 5, 8, 2, -3, -3};
@@ -60,7 +61,7 @@ static void notify(XmRatingControlWidget rating, XEvent *event) {
     (void)_XmCallCallbacksUntilDestroyed((Widget)rating, XmNratingValueChangedCallback, &c);
 }
 static void redraw(Widget widget) {
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
 }
 typedef struct {
     Dimension width, height, inset, cell, diameter;
@@ -124,7 +125,7 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmRatingControlWidget rating = (XmRatingControlWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     RatingMetrics m;
     int width, height;
     int shown = XtIsSensitive(widget) && !rating->rating.readonly && rating->rating.hover_value ?
@@ -132,7 +133,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     (void)event; (void)region;
     if (!window || !rating->rating.gc) return;
     metrics(rating, &m);
-    XClearWindow(display, window);
+
     width = (int)rating->core.width - 2 * m.inset;
     height = (int)rating->core.height - 2 * m.inset;
     /* Bound work by available pixels, including an arbitrarily large count. */
@@ -161,17 +162,22 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         rating->core.height > 2 * rating->primitive.highlight_thickness)
         xmPrimitiveClassRec.primitive_class.border_highlight(widget);
 }
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
+}
 static void Highlight(Widget widget) {
     XmRatingControlWidget rating = (XmRatingControlWidget)widget;
     rating->primitive.highlighted = True;
     rating->primitive.highlight_drawn = True;
-    Redisplay(widget, NULL, NULL);
+    BufferedRedisplay(widget, NULL, NULL);
 }
 static void Unhighlight(Widget widget) {
     XmRatingControlWidget rating = (XmRatingControlWidget)widget;
     rating->primitive.highlighted = False;
     rating->primitive.highlight_drawn = False;
-    Redisplay(widget, NULL, NULL);
+    BufferedRedisplay(widget, NULL, NULL);
 }
 
 static int hit_value(XmRatingControlWidget rating, int x, int y) {
@@ -273,5 +279,15 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     return XmeReplyToQueryGeometry(widget, request, reply);
 }
 int XmRatingControlGetValue(Widget widget){return widget != NULL && XmIsRatingControl(widget)?((XmRatingControlWidget)widget)->rating.value:0;}
-void XmRatingControlSetValue(Widget widget,int value,Boolean notify_change){XmRatingControlWidget rating;int old;if(widget == NULL || !XmIsRatingControl(widget) || widget->core.being_destroyed)return;rating=(XmRatingControlWidget)widget;old=rating->rating.value;rating->rating.value=value;normalize(rating);if(XtIsRealized(widget))XClearArea(XtDisplay(widget),XtWindow(widget),0,0,0,0,True);if(notify_change && old != rating->rating.value)notify(rating,NULL);}
+void XmRatingControlSetValue(Widget widget,int value,Boolean notify_change){XmRatingControlWidget rating;int old;if(widget == NULL || !XmIsRatingControl(widget) || widget->core.being_destroyed)return;rating=(XmRatingControlWidget)widget;old=rating->rating.value;rating->rating.value=value;normalize(rating);if(XtIsRealized(widget))_XmPaintInvalidate(widget);if(notify_change && old != rating->rating.value)notify(rating,NULL);}
 Widget XmCreateRatingControl(Widget parent,char*name,ArgList args,Cardinal count){return XtCreateWidget(name,xmRatingControlWidgetClass,parent,args,count);}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
+}

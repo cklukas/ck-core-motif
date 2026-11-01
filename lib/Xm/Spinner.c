@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 
 #include <stdio.h>
 #include <limits.h>
@@ -16,8 +17,8 @@
 #include <Xm/DrawP.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
@@ -67,8 +68,8 @@ externaldef(xmspinnerclassrec) XmSpinnerClassRec xmSpinnerClassRec = {
         (WidgetClass)&xmPrimitiveClassRec, "XmSpinner", sizeof(XmSpinnerRec),
         NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
         resources, XtNumber(resources), NULLQUARK, True,
-        XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay,
-        SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion,
+        XtExposeCompressMaximal, True, False, Destroy, NULL, BufferedRedisplay,
+        BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion,
         NULL, XtInheritTranslations, QueryGeometry, NULL, NULL
     },
     {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
@@ -205,7 +206,7 @@ static void UpdateGCs(XmSpinnerWidget spinner) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmSpinnerWidget spinner = (XmSpinnerWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     Dimension label_width = 0, label_height = 0;
     int diameter, ring_x, ring_y, thickness;
     GC gc;
@@ -216,7 +217,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     gc = spinner->spinner.ring_gc ? spinner->spinner.ring_gc
                                   : spinner->spinner.text_gc;
     if (!gc) return;
-    XClearWindow(display, window);
+
     if (spinner->spinner.font && spinner->spinner.label)
         XmStringExtent(spinner->spinner.font, spinner->spinner.label,
                        &label_width, &label_height);
@@ -242,6 +243,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XmeDrawHighlight(display, window, spinner->primitive.highlight_GC,
                          0, 0, spinner->core.width, spinner->core.height,
                          spinner->primitive.highlight_thickness);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -335,7 +341,7 @@ static void ScaleChanged(Widget widget, double old_scale, double new_scale, XtPo
             (spinner->spinner.height_default || offered_height == height))
             (void)XtMakeResizeRequest(widget,offered_width,offered_height,NULL,NULL);
     }
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget),XtWindow(widget),0,0,0,0,True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
@@ -367,8 +373,7 @@ static void Tick(XtPointer data, XtIntervalId *id) {
     if (!eligible(spinner)) return;
     spinner->spinner.phase = (spinner->spinner.phase + 1) % 12;
     if (XtIsRealized((Widget)spinner))
-        XClearArea(XtDisplay((Widget)spinner), XtWindow((Widget)spinner),
-                   0, 0, 0, 0, True);
+        _XmPaintInvalidate((Widget)spinner);
     SyncTimer(spinner);
 }
 
@@ -397,8 +402,7 @@ void XmSpinnerSetActive(Widget widget, Boolean active, Boolean notify) {
     old = spinner->spinner.active;
     spinner->spinner.active = active ? True : False;
     SyncTimer(spinner);
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
-                                         0, 0, 0, 0, True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
     if (notify && old != spinner->spinner.active)
         Notify(spinner, NULL);
 }
@@ -424,4 +428,14 @@ Widget XmVaCreateManagedSpinner(Widget parent, char *name, ...) {
     Va_start(var, name); widget = XmeVLCreateWidget(name, xmSpinnerWidgetClass,
         parent, True, var, count); va_end(var);
     return widget;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

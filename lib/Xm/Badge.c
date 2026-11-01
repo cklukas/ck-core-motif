@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <Xm/BadgeP.h>
 #include <Xm/VaSimpleP.h>
@@ -16,8 +17,8 @@
 static void natural_size(XmBadgeWidget, Dimension *, Dimension *);
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
 {
@@ -46,7 +47,7 @@ externaldef(xmbadgeclassrec) XmBadgeClassRec xmBadgeClassRec = {
     {(WidgetClass)&xmPrimitiveClassRec, "XmBadge", sizeof(XmBadgeRec), NULL, NULL,
      False, Initialize, NULL, XtInheritRealize, NULL, 0, resources,
      XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True, False,
-     Destroy, NULL, Redisplay, SetValues, NULL, XtInheritSetValuesAlmost, NULL,
+     Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL,
      NULL, XtVersion, NULL, XtInheritTranslations, QueryGeometry, NULL, NULL},
     {XmInheritBorderHighlight, XmInheritBorderUnhighlight, XtInheritTranslations,
      NULL, NULL, 0, NULL}, NULL};
@@ -117,13 +118,13 @@ static Position bounded_position(long long value) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (widget == NULL || !XtIsSubclass(widget, xmBadgeWidgetClass)) return;
     XmBadgeWidget badge=(XmBadgeWidget)widget;
-    Display *display=XtDisplay(widget); Drawable window=XtWindow(widget);
+    Display *display=XtDisplay(widget); Drawable window=_XmPaintDrawable(widget);
     GC gc=badge->badge.foreground_gc;
     XmAppearanceProfile profile=XmAPPEARANCE_CLASSIC;
     (void)event; (void)region;
     if (!window || !gc) return;
     XSetClipMask(display,gc,None);
-    XClearWindow(display,window);
+
     XSetBackground(display,gc,badge->core.background_pixel);
     (void)XmGetAppearanceProfile(display,&profile);
     int width=badge->core.width, height=badge->core.height;
@@ -154,6 +155,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XSetClipMask(display,gc,None);
     }
     if (label) XmStringFree(label);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
@@ -243,4 +249,14 @@ int XmBadgeGetDisplayedCount(Widget widget) {
     badge = (XmBadgeWidget)widget;
     if (badge->badge.count < 0) return -1;
     return badge->badge.count > badge->badge.maximum ? badge->badge.maximum : badge->badge.count;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

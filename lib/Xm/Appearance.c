@@ -2,6 +2,7 @@
  * Motif appearance-profile selection.
  */
 #ifdef HAVE_CONFIG_H
+#include "PaintI.h"
 #include <config.h>
 #endif
 
@@ -1682,7 +1683,9 @@ appearance_widget_commit(XmAppearanceChangePlan *plan)
     }
     if (old_font) XmRenderTableFree(old_font);
     if (state->widget != NULL && XtIsWidget(state->widget)) {
-        if (XtIsRealized(state->widget))
+        if (_XmPaintBufferKind(state->widget))
+            _XmPaintInvalidate(state->widget);
+        else if (XtIsRealized(state->widget))
             XClearArea(XtDisplay(state->widget), XtWindow(state->widget),
                        0, 0, 0, 0, True);
     } else if (state->parent != NULL && XtIsRealized(state->parent)) {
@@ -1901,7 +1904,9 @@ appearance_changed(Widget hooks, XtPointer closure, XtPointer data)
                         (property == AP_EXPANDED_PIXMAP || property == AP_COLLAPSED_PIXMAP);
                     state->explicit_arg[property] = True;
                     state->owned[property] = False;
-                    if (repaint && XtIsRealized(state->widget))
+                    if (repaint && _XmPaintBufferKind(state->widget))
+                        _XmPaintInvalidate(state->widget);
+                    else if (repaint && XtIsRealized(state->widget))
                         XClearArea(state->display, XtWindow(state->widget), 0, 0, 0, 0, True);
                 }
             for (unsigned int kind = 0; kind < 3; ++kind)

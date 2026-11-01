@@ -17,7 +17,8 @@ for filename, guard in contracts.items():
     region = source[start:] if end < 0 else source[start:end]
     if guard not in region:
         raise SystemExit(f"{filename} expose rendering must reject a missing GC")
-    if region.index("XClearWindow", region.index(guard)) < region.index(guard):
-        raise SystemExit(f"{filename} GC guard must precede window clearing")
+    assert "XClearWindow" not in region
+    assert "_XmBufferedPaint(widget, Redisplay, event, region);" in source
+    assert "_XmPaintDrawable(widget)" in region
 
-print("PASS Chip and IconLabel rendering skip missing graphics contexts")
+print("PASS Chip and IconLabel buffered rendering guards their graphics contexts")

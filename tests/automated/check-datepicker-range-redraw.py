@@ -12,6 +12,6 @@ assert "picker->date_picker.minimum = *minimum;" in body
 assert "picker->date_picker.maximum = *maximum;" in body
 invalidate = "if (XtIsRealized(widget))"
 assert invalidate in body
-assert "XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);" in body
+assert "_XmPaintInvalidate(widget);" in body
 assert body.index(invalidate) > body.index("picker->date_picker.maximum = *maximum;")
 print("PASS DatePicker range updates invalidate realized widgets")

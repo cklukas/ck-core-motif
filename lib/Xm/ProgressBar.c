@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 
 #include <stdio.h>
 #include <limits.h>
@@ -14,8 +15,8 @@
 #include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
@@ -57,7 +58,7 @@ externaldef(xmprogressbarclassrec) XmProgressBarClassRec
             sizeof(XmProgressBarRec), NULL, NULL, False, Initialize, NULL,
             XtInheritRealize, NULL, 0, resources,
             XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal,
-            True, False, Destroy, NULL, Redisplay, SetValues, NULL,
+            True, False, Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL,
             XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
             translations, QueryGeometry, NULL, NULL
         },
@@ -176,7 +177,7 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmProgressBarWidget progress = (XmProgressBarWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     Dimension label_width = 0, label_height = 0;
     Dimension bar_width, fill_width;
     int bar_x, bar_y;
@@ -189,7 +190,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     UpdateGCs(progress);
     if (!progress->progress.track_gc || !progress->progress.fill_gc)
         return;
-    XClearWindow(display, window);
+
     if (progress->progress.font && progress->progress.label)
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
@@ -262,6 +263,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                        progress->primitive.highlight_thickness - 1,
                        progress->core.width - 2 * progress->primitive.highlight_thickness,
                        progress->core.height - 2 * progress->primitive.highlight_thickness);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -351,8 +357,7 @@ void XmProgressBarSetRange(Widget widget, int minimum, int maximum,
     old_value = progress->progress.value;
     progress->progress.minimum = minimum; progress->progress.maximum = maximum;
     Normalize(progress);
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
-                                         0, 0, 0, 0, True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
     if (notify && (old_min != progress->progress.minimum ||
                    old_max != progress->progress.maximum ||
                    old_value != progress->progress.value))
@@ -365,8 +370,7 @@ void XmProgressBarSetValue(Widget widget, int value, Boolean notify) {
         return;
     progress = (XmProgressBarWidget)widget; old_value = progress->progress.value;
     progress->progress.value = value; Normalize(progress);
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
-                                         0, 0, 0, 0, True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
     if (notify && old_value != progress->progress.value) Notify(progress, NULL);
 }
 Boolean XmProgressBarGetIndeterminate(Widget widget) {
@@ -380,8 +384,7 @@ void XmProgressBarSetIndeterminate(Widget widget, Boolean indeterminate,
     if (widget == NULL || !XmIsProgressBar(widget)) return;
     progress = (XmProgressBarWidget)widget; old = progress->progress.indeterminate;
     progress->progress.indeterminate = indeterminate ? True : False;
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
-                                         0, 0, 0, 0, True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
     if (notify && old != progress->progress.indeterminate) Notify(progress, NULL);
 }
 
@@ -403,4 +406,14 @@ Widget XmVaCreateManagedProgressBar(Widget parent, char *name, ...) {
     Va_start(var, name); widget = XmeVLCreateWidget(name,
         xmProgressBarWidgetClass, parent, True, var, count); va_end(var);
     return widget;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

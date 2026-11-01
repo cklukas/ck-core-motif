@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
@@ -21,8 +22,8 @@ static void Highlight(Widget);
 static void Unhighlight(Widget);
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
@@ -67,7 +68,7 @@ externaldef(xmchipclassrec) XmChipClassRec xmChipClassRec = {
     {(WidgetClass)&xmPrimitiveClassRec, "XmChip", sizeof(XmChipRec), NULL,
      NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0, resources,
      XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True,
-     False, Destroy, NULL, Redisplay, SetValues, NULL,
+     False, Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL,
      XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
      XtInheritTranslations, QueryGeometry, NULL, NULL},
     {Highlight, Unhighlight,
@@ -216,13 +217,13 @@ static void rounded(Display *d,Drawable w,GC gc,XRectangle r,int inset) {
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmChipWidget chip=(XmChipWidget)widget;
-    Display *display=XtDisplay(widget);Window window=XtWindow(widget);
+    Display *display=XtDisplay(widget);Drawable window=_XmPaintDrawable(widget);
     GC gc=chip->chip.foreground_gc;ChipMetrics m;ChipLayout l;
     Boolean is_modern=modern(widget), sensitive=XtIsSensitive(widget);
     (void)event;(void)region;
     if(!window || !gc)return;
     metrics(chip,&m);layout(chip,&m,&l);
-    XSetClipMask(display,gc,None);XClearWindow(display,window);
+    XSetClipMask(display,gc,None);
     Pixel ink=sensitive?chip->primitive.foreground:chip->primitive.bottom_shadow_color;
     Pixel fill=chip->core.background_pixel;
     Boolean pressed=sensitive && chip->chip.armed_target &&
@@ -267,15 +268,20 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         }
     }
 }
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
+}
 static void Highlight(Widget widget) {
     XmChipWidget chip=(XmChipWidget)widget;
     chip->primitive.highlighted=True;chip->primitive.highlight_drawn=True;
-    Redisplay(widget,NULL,NULL);
+    BufferedRedisplay(widget,NULL,NULL);
 }
 static void Unhighlight(Widget widget) {
     XmChipWidget chip=(XmChipWidget)widget;
     chip->primitive.highlighted=False;chip->primitive.highlight_drawn=False;
-    Redisplay(widget,NULL,NULL);
+    BufferedRedisplay(widget,NULL,NULL);
 }
 
 static void emit(XmChipWidget chip, String resource, int reason, XEvent *event) {
@@ -315,7 +321,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
         hit=target(chip,event->xbutton.x,event->xbutton.y);
         unsigned char activate=chip->chip.armed_target;
         chip->chip.armed_target=0;chip->chip.hot_target=hit;
-        Redisplay(widget,NULL,NULL);
+        BufferedRedisplay(widget,NULL,NULL);
         /* Clear all interaction state before callbacks, which may destroy us. */
         if(activate && activate==hit) {
             if(activate==2)XmChipRemove(widget,event);else XmChipInvoke(widget,event);
@@ -332,7 +338,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
     }
     default:return;
     }
-    Redisplay(widget,NULL,NULL);
+    BufferedRedisplay(widget,NULL,NULL);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -431,4 +437,14 @@ Widget XmVaCreateManagedChip(Widget parent, char *name, ...) {
                                count);
     va_end(var);
     return widget;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

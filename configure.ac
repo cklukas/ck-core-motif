@@ -83,6 +83,7 @@ save_LIBS="$LIBS"
 save_CFLAGS="$CFLAGS"
 LIBS="$X_LIBS $LIBS"
 CFLAGS="$X_CFLAGS $CFLAGS"
+AC_CHECK_HEADERS([X11/extensions/Xdbe.h], [], [], [[#include <X11/Xlib.h>]])
 AC_CHECK_HEADERS(X11/Xmu/Editres.h,
 AC_CHECK_LIB(Xmu, _XEditResCheckMessages,
 X_XMU=-lXmu

@@ -13,8 +13,7 @@ contracts = {
 
 for filename, (current, old) in contracts.items():
     source = (root / filename).read_text(encoding="utf-8")
-    start = source.index("static Boolean SetValues(")
-    start = source.index("static Boolean SetValues(", start + 1)
+    start = source.rindex("static Boolean SetValues(")
     end = source.find("\nstatic ", start + 1)
     region = source[start:] if end < 0 else source[start:end]
     if "if (replacement)" not in region:

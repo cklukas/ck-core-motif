@@ -89,7 +89,7 @@ endif
 
 libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} -lm $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS) $(SVG_LIBS)
 
-noinst_HEADERS = SymbolAliasI.h AccessibleI.h AppearanceDrawI.h ColorSpaceI.h BaseClassI.h \
+noinst_HEADERS = PaintI.h SymbolAliasI.h AccessibleI.h AppearanceDrawI.h ColorSpaceI.h BaseClassI.h \
 BitmapsI.h \
 BulletinBI.h \
 CacheI.h \
@@ -270,7 +270,7 @@ SRCS2 = Desktop.c       Messages.c      Transltns.c     RepType.c \
         Synthetic.c     XmFontList.c    ClipWindow.c    Transfer.c \
         Hash.c          ScrollFrameT.c  \
         XmTabList.c     Resolve.c       XmStringFunc.c \
-        XmRenderT.c     PixConv.c       Color.c         Xm.c         Appearance.c AppearanceDraw.c \
+        XmRenderT.c     PixConv.c       Color.c         Xm.c         Appearance.c AppearanceDraw.c Paint.c \
         CareVisualT.c   Direction.c     XmStringObso.c  XmStringGet.c \
         IsMwmRun.c      MenuProc.c      MenuState.c     TextFind.c \
         TextFunc.c      ColorObj.c      IconFile.c      RCHook.c \

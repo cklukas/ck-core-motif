@@ -8,6 +8,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 
 #include <X11/IntrinsicP.h>
 #include <X11/StringDefs.h>
@@ -27,8 +28,8 @@
 
 static void ScaleChanged(Widget, double, double, XtPointer);
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Toggle(Widget, XEvent *, String *, Cardinal *);
 static void Arm(Widget, XEvent *, String *, Cardinal *);
@@ -94,7 +95,7 @@ externaldef(xmtoggleswitchclassrec) XmToggleSwitchClassRec
         sizeof(XmToggleSwitchRec), NULL, NULL, False, Initialize, NULL,
         XtInheritRealize, actions, XtNumber(actions), resources,
         XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True,
-        False, Destroy, NULL, Redisplay, SetValues, NULL,
+        False, Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL,
         XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL, translations,
         QueryGeometry, NULL, NULL
     },
@@ -144,7 +145,7 @@ static void size_automatic(XmToggleSwitchWidget sw) {
     if(sw->toggle_switch.automatic_height)sw->core.height=m.height;
 }
 static void redraw(Widget w) {
-    if(XtIsRealized(w))XClearArea(XtDisplay(w),XtWindow(w),0,0,0,0,True);
+    if(XtIsRealized(w))_XmPaintInvalidate(w);
 }
 static void fill_round_rect(Display *display, Window window, GC gc,
                             int x, int y, unsigned int width,
@@ -217,11 +218,11 @@ static Pixel contrast(XmToggleSwitchWidget sw, Pixel background) {
 }
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmToggleSwitchWidget sw=(XmToggleSwitchWidget)widget;SwitchMetrics m;
-    Display *d=XtDisplay(widget);Window window=XtWindow(widget);GC gc=sw->toggle_switch.track_gc;
+    Display *d=XtDisplay(widget);Drawable window=_XmPaintDrawable(widget);GC gc=sw->toggle_switch.track_gc;
     int left,right,top,bottom,tx,ty,kx,ky,knob,border;XRectangle clip;
     Pixel edge,fill,thumb;Boolean sensitive=XtIsSensitive(widget);
     (void)event;(void)region;if(!window || !gc)return;
-    measure(sw,&m);XClearWindow(d,window);
+    measure(sw,&m);
     left=top=m.inset;right=(int)sw->core.width-m.inset;bottom=(int)sw->core.height-m.inset;
     if(right>left && bottom>top) {
         clip=(XRectangle){left,top,right-left,bottom-top};XSetClipRectangles(d,gc,0,0,&clip,1,Unsorted);
@@ -259,15 +260,20 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
        sw->core.width>2*sw->primitive.highlight_thickness && sw->core.height>2*sw->primitive.highlight_thickness)
         xmPrimitiveClassRec.primitive_class.border_highlight(widget);
 }
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
+}
 static void Highlight(Widget w) {
     ((XmToggleSwitchWidget)w)->primitive.highlighted=True;
     ((XmToggleSwitchWidget)w)->primitive.highlight_drawn=True;
-    Redisplay(w,NULL,NULL);
+    BufferedRedisplay(w,NULL,NULL);
 }
 static void Unhighlight(Widget w) {
     ((XmToggleSwitchWidget)w)->primitive.highlighted=False;
     ((XmToggleSwitchWidget)w)->primitive.highlight_drawn=False;
-    Redisplay(w,NULL,NULL);
+    BufferedRedisplay(w,NULL,NULL);
 }
 static Boolean SetValues(Widget current,Widget request,Widget widget,ArgList args,Cardinal *count) {
     XmToggleSwitchWidget old=(XmToggleSwitchWidget)current,sw=(XmToggleSwitchWidget)widget;
@@ -373,4 +379,14 @@ Widget XmVaCreateManagedToggleSwitch(Widget parent, char *name, ...) {
                                var, count);
     va_end(var);
     return widget;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

@@ -1440,3 +1440,9 @@ EXTRA_DIST += tests/automated/check-mwm-modern-c.c
 EXTRA_DIST += CHANGES.md
 
 EXTRA_DIST += docs/modern-c-portability-validation.json
+
+EXTRA_DIST += tests/automated/check-buffered-paint.c docs/buffered-painting.md
+EXTRA_DIST += tests/automated/run-buffered-paint.py
+EXTRA_DIST += tests/automated/check-text-source-lines.c
+EXTRA_DIST += tests/automated/native-window.h
+EXTRA_DIST += docs/validation/buffered-painting-macos-20261101.json

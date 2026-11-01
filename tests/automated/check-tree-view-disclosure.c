@@ -1,4 +1,5 @@
 /* Modern disclosure pixels and immediate mouse activation at every scale. */
+#include "native-window.h"
 #include <Xm/XmAll.h>
 #include <Xm/Appearance.h>
 #include <Xm/Display.h>
@@ -56,7 +57,7 @@ int main(int argc,char **argv) {
         tree=XtVaCreateManagedWidget("tree",xmTreeViewWidgetClass,shell,XmNwidth,width,
             XmNheight,row*2,XmNtreeViewRowHeight,row,XmNtreeViewVisibleRows,2,XmNtreeViewRtl,rtl,NULL);
         XmTreeViewSetNodes(tree,nodes,2); XtAddCallback(tree,XmNtreeViewExpansionCallback,changed,NULL);
-        XtRealizeWidget(shell); drain(app,display); closed=pixels(tree,left,size,row,False);
+        XtRealizeWidget(shell); NativeWaitForViewable(shell); drain(app,display); closed=pixels(tree,left,size,row,False);
         event.xbutton.type=ButtonPress; event.xbutton.display=display; event.xbutton.window=XtWindow(tree);
         event.xbutton.button=Button1; event.xbutton.x=left+size/2; event.xbutton.y=row/2;
         changes=0; XtDispatchEvent(&event); drain(app,display);

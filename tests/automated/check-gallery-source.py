@@ -54,7 +54,7 @@ def main() -> int:
         if f"entry->{field}" not in gallery:
             print(f"gallery does not consume {field} metadata", file=sys.stderr)
             return 1
-    if "gallery_destroy_component_example(&state->component)" not in gallery:
+    if "gallery_destroy_component_example(&old_component)" not in gallery:
         print("gallery teardown is not routed through the annotated example code", file=sys.stderr)
         return 1
     if "--integration-test" not in (root / "tests/automated/run-gallery-integration.py").read_text():

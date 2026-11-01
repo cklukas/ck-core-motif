@@ -8,7 +8,7 @@ breadcrumb = Path("lib/Xm/BreadcrumbBar.c").read_text()
 segmented = Path("lib/Xm/SegmentedControl.c").read_text()
 
 assert "UINT_MAX / sizeof(*bar->breadcrumb.items)" in breadcrumb
-assert "(Cardinal)count, sizeof(*bar->breadcrumb.items)" in breadcrumb
+assert "(Cardinal)count, sizeof(*replacement)" in breadcrumb
 assert "UINT_MAX / sizeof(*copy)" in segmented
 assert "(Cardinal)count, sizeof(*copy)" in segmented
 

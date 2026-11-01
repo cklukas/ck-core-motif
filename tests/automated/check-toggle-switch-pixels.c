@@ -1,4 +1,5 @@
 /* Native pixels: symmetry, RTL, state changes, clipping and missing-GC safety. */
+#include "native-window.h"
 #include <Xm/ToggleSwitchP.h>
 #include <Xm/DrawingA.h>
 #include <Xm/Appearance.h>
@@ -38,7 +39,7 @@ int main(int argc,char **argv) {
     XtAppContext app;Widget shell=XtVaAppInitialize(&app,"SwitchPixels",NULL,0,&argc,argv,NULL,
         XmNwidth,900,XmNheight,600,NULL);
     Display *d=XtDisplay(shell);Widget host=XtVaCreateManagedWidget("host",xmDrawingAreaWidgetClass,shell,NULL);
-    XtRealizeWidget(shell);unsigned cases=0;
+    XtRealizeWidget(shell); NativeWaitForViewable(shell);unsigned cases=0;
     for(unsigned dark=0;dark<2;dark++)for(unsigned scale=0;scale<5;scale++) {
         CHECK(XmSetDisplayScaleOverride(d,1.+.25*scale));
         CHECK(XmApplyAppearanceProfile(d,dark?XmAPPEARANCE_MODERN_DARK:XmAPPEARANCE_MODERN_LIGHT));

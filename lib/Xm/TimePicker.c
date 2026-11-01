@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <stdio.h>
@@ -18,8 +19,8 @@ static Position bounded_position(long long value) {
 }
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
@@ -68,8 +69,8 @@ externaldef(xmtimepickerclassrec) XmTimePickerClassRec xmTimePickerClassRec =
     {{(WidgetClass)&xmPrimitiveClassRec, "XmTimePicker", sizeof(XmTimePickerRec),
       NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
       resources, XtNumber(resources), NULLQUARK, True,
-      XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay,
-      SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
+      XtExposeCompressMaximal, True, False, Destroy, NULL, BufferedRedisplay,
+      BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
       XtInheritTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
@@ -130,8 +131,7 @@ static Boolean set_value_internal(XmTimePickerWidget picker,
         return False;
     picker->time_picker.value = *value;
     if (XtIsRealized((Widget)picker))
-        XClearArea(XtDisplay((Widget)picker), XtWindow((Widget)picker),
-                   0, 0, 0, 0, True);
+        _XmPaintInvalidate((Widget)picker);
     if (notify_change)
         notify(picker, event, XmNtimePickerValueChangedCallback, 1);
     return True;
@@ -217,7 +217,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     int hour = picker->time_picker.value.hour;
     (void)event; (void)region;
     if (!XtIsRealized(widget) || !picker->time_picker.gc) return;
-    XClearWindow(XtDisplay(widget), XtWindow(widget));
+
     if (picker->time_picker.format_24_hour)
         snprintf(text, sizeof(text), "%02d:%02d:%02d", hour,
                  picker->time_picker.value.minute,
@@ -232,7 +232,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     value = XmStringCreateLocalized(text);
     if (value && picker->time_picker.render_table) {
         XmStringExtent(picker->time_picker.render_table, value, &width, &height);
-        XmStringDraw(XtDisplay(widget), XtWindow(widget),
+        XmStringDraw(XtDisplay(widget), _XmPaintDrawable(widget),
                      picker->time_picker.render_table, value,
                      picker->time_picker.gc, bounded_position(6),
                      bounded_position(((long long)picker->core.height - height) / 2), width,
@@ -240,6 +240,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      XmPrim_layout_direction(picker), NULL);
     }
     XmStringFree(value);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 
 static void Events(Widget widget, XtPointer closure, XEvent *event,
@@ -334,6 +339,16 @@ Boolean XmTimePickerSetRange(Widget widget, const XmTimePickerValue *minimum,
     picker->time_picker.minimum = *minimum;
     picker->time_picker.maximum = *maximum;
     if (XtIsRealized(widget))
-        XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
+        _XmPaintInvalidate(widget);
     return True;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

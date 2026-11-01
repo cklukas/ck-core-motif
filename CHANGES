@@ -1,3 +1,22 @@
+Buffered toolkit painting and gallery appearance selection (2026-11-01)
+
+* Full-frame toolkit controls now paint through their Xt expose methods into
+  a DBE back buffer when supported, otherwise into an offscreen pixmap, with
+  direct drawing retained if allocation fails. Window IDs and application
+  drawing callbacks keep their existing contracts. Repaint requests coalesce
+  without a preceding visible clear; buffers follow resize and widget lifetime.
+* Gallery preview roots are prepared unmanaged before a batched replacement.
+  Theme and scale use selection combo boxes, including the active custom scale;
+  responsive headers keep selectors accessible and retain their keyboard focus.
+  Popup menus remain unposted during construction and post from their invoker.
+* Native regressions cover frame isolation, presentation and buffer lifetime;
+  gallery integration covers direct appearance selection and example retention.
+  See docs/buffered-painting.md for scope and configuration.
+* Correct hard-line character reads for wide UTF-8 storage and gaps with large
+  unused capacity. Native scans now find source newlines instead of treating
+  multiple paragraphs as one line; the gallery Source pane can reach its end.
+  The native line-scan regression fails against the preceding library.
+
 Modern C and native macOS toolkit builds (2026-11-01)
 =====================================================
 

@@ -146,3 +146,24 @@ status row. Interactive examples keep their feedback, and popup examples explain
 how to open their window. Compact layouts preserve the distinction. Source
 remains available for every class, including unavailable optional components
 and infrastructure classes.
+
+## Appearance selectors and preview replacement
+
+The header provides read-only Theme and Scale combo boxes. Choose Classic,
+Modern light or Modern dark directly, and Automatic, 100%, 150%, 200% or 300%
+scale. A custom command-line scale is retained as an additional selectable item.
+Changing either selection preserves the current example and page.
+
+Preview replacement constructs its unmanaged native root before exchanging it
+with the previous root using XtChangeManagedSet. The old example is destroyed
+through the public example teardown after the replacement is ready. This avoids
+an empty managed preview followed by repeated parent layout during construction.
+See [buffered painting](buffered-painting.md) for the toolkit rendering contract
+and its DBE/pixmap fallback.
+
+At compact widths the header omits its decorative title and reflows the
+selectors as needed; the native window title still identifies the gallery.
+Selectors retain keyboard focus through theme/scale changes and responsive
+navigation transitions. Popup menu examples are created unposted beneath their
+invoker and posted with XmMenuPosition followed by XtManageChild, rather than
+posting while the example is still being constructed.

@@ -1,4 +1,5 @@
 /* Shared modern control drawing. Classic/high-contrast retain their renderers. */
+#include "PaintI.h"
 #include <Xm/XmP.h>
 #include <Xm/Appearance.h>
 #include "XmI.h"
@@ -247,7 +248,7 @@ _XmAppearanceDrawButtonFocus(Widget widget, Boolean focused)
     Dimension highlight;
     Pixel parent_background, accent;
     Display *display = XtDisplayOfObject(widget);
-    Drawable drawable = XtWindowOfObject(widget);
+    Drawable drawable = (XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget)));
     int x = XtIsWidget(widget) ? 0 : XtX(widget);
     int y = XtIsWidget(widget) ? 0 : XtY(widget);
     int width = XtWidth(widget), height = XtHeight(widget);
@@ -303,7 +304,7 @@ _XmAppearanceDrawButton(Widget widget, Pixel fill, Boolean emphasized,
     Dimension highlight,shadow;
     Pixel border,accent,parent_background;
     Display *display=XtDisplayOfObject(widget);
-    Drawable drawable=XtWindowOfObject(widget);
+    Drawable drawable=(XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget)));
     int x,y,width,height,stroke,radius,band;
     XGCValues values;
     XRectangle outer,inner;
@@ -369,7 +370,7 @@ _XmAppearanceDrawArrowRegion(Widget widget, int x, int y, int width, int height,
 {
     XmAppearanceProfile profile;
     Display *display = XtDisplayOfObject(widget);
-    Drawable drawable = XtWindowOfObject(widget);
+    Drawable drawable = (XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget)));
     Pixel foreground, background, border, fill, glyph;
     int stroke, radius, pad, side;
     XGCValues values;
@@ -471,7 +472,7 @@ _XmAppearanceDrawToggle(Widget widget, const XmAppearanceToggle *toggle)
 {
     XmAppearanceProfile profile;
     Display *display = XtDisplayOfObject(widget);
-    Drawable drawable = XtWindowOfObject(widget);
+    Drawable drawable = (XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget)));
     int left, top, right, bottom, x, y, edge, stroke, radius;
     Pixel border, fill, glyph;
     Boolean selected = toggle->state != XmUNSET;
@@ -564,19 +565,19 @@ _XmAppearanceDrawFrameRegion(Widget widget, int x, int y,
     profile = _XmAppearanceGeometryProfile(XtDisplayOfObject(widget));
     if (profile != XmAPPEARANCE_MODERN_LIGHT && profile != XmAPPEARANCE_MODERN_DARK)
         return False;
-    if (!XtWindowOfObject(widget)) return True;
+    if (!(XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget)))) return True;
     stroke = MIN(stroke, MIN(width, height)/2);
     if (stroke <= 0 || x < 0 || y < 0 || x+width > SHRT_MAX || y+height > SHRT_MAX)
         return True;
     XtVaGetValues(widget, XmNbottomShadowColor, &border, NULL);
     values.foreground = border;
-    gc = XCreateGC(XtDisplayOfObject(widget), XtWindowOfObject(widget), GCForeground, &values);
+    gc = XCreateGC(XtDisplayOfObject(widget), (XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget))), GCForeground, &values);
     if (!gc) return True;
     edges[0] = (XRectangle){x, y, width, stroke};
     edges[1] = (XRectangle){x, y+height-stroke, width, stroke};
     edges[2] = (XRectangle){x, y+stroke, stroke, height-2*stroke};
     edges[3] = (XRectangle){x+width-stroke, y+stroke, stroke, height-2*stroke};
-    XFillRectangles(XtDisplayOfObject(widget), XtWindowOfObject(widget), gc, edges, 4);
+    XFillRectangles(XtDisplayOfObject(widget), (XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget))), gc, edges, 4);
     XFreeGC(XtDisplayOfObject(widget), gc);
     return True;
 }

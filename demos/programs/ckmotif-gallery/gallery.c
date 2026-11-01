@@ -20,6 +20,9 @@
 #include <Xm/Accessible.h>
 #include <Xm/Appearance.h>
 #include <Xm/Display.h>
+#include <Xm/ComboBox.h>
+#include <Xm/List.h>
+#include <X11/Composite.h>
 
 #include "gallery_manifest.h"
 #include "gallery_sources.h"
@@ -58,7 +61,7 @@ typedef struct {
     unsigned int example_serial;
     unsigned long callback_count;
     char provenance_text[768];
-    Widget theme_control, scale_control;
+    Widget theme_control, scale_control, header, appearance_controls;
     Boolean component_is_popup, component_is_drag_source;
     Widget drag_context;
     XmAccessibility *accessibility;
@@ -212,13 +215,17 @@ static void component_name(const GalleryManifestEntry *entry, char *out, size_t 
 static void select_page(GalleryState *state, int page)
 {
     Widget pages[] = {state->welcome, state->example, state->source, state->icons};
-    unsigned int i;
+    Widget remove[4], add[1];
+    Cardinal removed = 0, added = 0;
     state->current_page = page;
-    for (i = 0; i < XtNumber(pages); ++i) {
+    for (unsigned i = 0; i < XtNumber(pages); ++i) {
         if (!pages[i]) continue;
-        if ((int)i + 1 == page) XtManageChild(pages[i]);
-        else XtUnmanageChild(pages[i]);
+        if ((int)i + 1 == page) {
+            if (!XtIsManaged(pages[i])) add[added++] = pages[i];
+        } else if (XtIsManaged(pages[i])) remove[removed++] = pages[i];
     }
+    if (removed || added)
+        XtChangeManagedSet(remove, removed, NULL, NULL, add, added);
     if (state->tabs) {
         if (page == 2 || page == 3 || page == 4) XtManageChild(state->tabs);
         else XtUnmanageChild(state->tabs);
@@ -591,7 +598,24 @@ static void component_activate(Widget widget, XtPointer client, XtPointer call)
         return;
     }
     if (state->component_is_popup && state->component) {
-        XtPopup(state->component, XtGrabNone);
+        if (XmIsMenuShell(state->component)) {
+            WidgetList children = NULL;
+            Cardinal count = 0;
+            Position x, y;
+            XButtonPressedEvent event = {0};
+            XtVaGetValues(state->component, XmNchildren, &children, XmNnumChildren, &count, NULL);
+            if (!count) return;
+            XtTranslateCoords(state->action, 0, 0, &x, &y);
+            event.type = ButtonPress;
+            event.display = XtDisplay(state->action);
+            event.window = XtWindow(state->action);
+            event.root = RootWindowOfScreen(XtScreen(state->action));
+            event.x_root = x; event.y_root = y;
+            event.button = Button3;
+            event.time = XtLastTimestampProcessed(event.display);
+            XmMenuPosition(children[0], &event);
+            XtManageChild(children[0]);
+        } else XtPopup(state->component, XtGrabNone);
         snprintf(message, sizeof(message),
                  "Callback #%lu: popup opened through public Xt popup API",
                  state->callback_count);
@@ -686,6 +710,9 @@ static const char *example_description(const GalleryManifestEntry *entry, Boolea
 static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
 {
     Widget anchor;
+    Widget old_component = state->component;
+    Widget old_root = state->preview_viewport ? state->preview_viewport : state->component_host;
+    Widget new_root = NULL;
     XmString title;
     char details[768];
     state->selected = entry;
@@ -694,7 +721,6 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     snprintf(details, sizeof(details), "%s", example_description(entry, False));
     strncpy(state->provenance_text, details, sizeof(state->provenance_text) - 1);
     state->provenance_text[sizeof(state->provenance_text) - 1] = '\0';
-    select_page(state, 2);
     if (!state->example) {
         state->example = create_page(state->notebook, "examplePage");
         state->title = gallery_label(state->example, "pageTitle", "Component");
@@ -746,7 +772,6 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
         XmStringFree(current);
         XmStringFree(label);
     }
-    XtUnmanageChild(state->action);
     if (state->drag_context) {
         XmDragCancel(state->drag_context);
         state->drag_context = NULL;
@@ -756,23 +781,16 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     XtVaSetValues(state->feedback, XmNtopWidget, state->provenance,
                   XmNtopOffset, 16, NULL);
     XtVaSetValues(state->action, XmNtopWidget, state->provenance, NULL);
-    if (state->component)
-        gallery_destroy_component_example(&state->component);
-    if (state->preview_viewport) {
-        XtDestroyWidget(state->preview_viewport);
-        state->preview_viewport = NULL;
-        state->component_host = NULL;
-    } else if (state->component_host) {
-        XtDestroyWidget(state->component_host);
-        state->component_host = NULL;
-    }
+    state->component = NULL;
+    state->preview_viewport = NULL;
+    state->component_host = NULL;
     state->component_is_popup = False;
     state->component_is_drag_source = False;
     if (entry->constructible && entry->class) {
         char name[48];
         snprintf(name, sizeof(name), "component%u", ++state->example_serial);
         if (!strcmp(entry->class_symbol, "xmDragOverShellWidgetClass")) {
-            state->component_host = XtVaCreateManagedWidget(
+            state->component_host = XtVaCreateWidget(
                 "componentHost", xmRowColumnWidgetClass, state->example,
                 XmNtopAttachment, XmATTACH_WIDGET,
                 XmNtopWidget, state->provenance,
@@ -785,7 +803,7 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
             state->component_is_drag_source = True;
             anchor = state->component_host;
         } else if (entry->popup_shell) {
-            state->component = gallery_create_shell_example(state->shell,
+            state->component = gallery_create_shell_example(state->action,
                                                             entry->class, name);
             state->component_is_popup = True;
             anchor = state->provenance;
@@ -793,7 +811,7 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
             int row_column_type = XmWORK_AREA;
             if (strstr(entry->class_symbol, "Cascade"))
                 row_column_type = XmMENU_BAR;
-            state->preview_viewport = XtVaCreateManagedWidget("previewViewport",
+            state->preview_viewport = XtVaCreateWidget("previewViewport",
                 xmScrolledWindowWidgetClass, state->example,
                 XmNscrollingPolicy, XmAUTOMATIC,                 XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state->provenance,
                 XmNtopOffset, 24, XmNleftAttachment, XmATTACH_FORM,
@@ -819,7 +837,6 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
                 state->component = gallery_create_component_example(
                     state->component_host, entry->class, name,
                     component_activate, state);
-            resize_preview(state);
             XtAddEventHandler(state->component_host,
                 StructureNotifyMask | SubstructureNotifyMask, False,
                 preview_configured, state);
@@ -830,6 +847,7 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
         if (entry->constructible)
             set_status(state, "This example is an optional capability disabled in this build");
     }
+    new_root = state->preview_viewport ? state->preview_viewport : state->component_host;
     XtVaSetValues(state->action, XmNtopWidget, anchor, NULL);
     XtVaSetValues(state->feedback, XmNtopWidget,
                   state->component_is_popup ? state->action : anchor, XmNtopOffset, 16, NULL);
@@ -838,7 +856,7 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
         XtVaSetValues(state->action, XmNlabelString, label, NULL);
         XmStringFree(label);
         XtManageChild(state->action);
-    }
+    } else XtUnmanageChild(state->action);
     {
         XmString label = text(!entry->constructible ?
             "This class provides services to other widgets. See Source for its public construction contract." :
@@ -849,6 +867,11 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
         if (passive_example(entry)) XtUnmanageChild(state->feedback);
         else XtManageChild(state->feedback);
     }
+    XtChangeManagedSet(old_root ? &old_root : NULL, old_root ? 1 : 0,
+                       NULL, NULL, new_root ? &new_root : NULL, new_root ? 1 : 0);
+    if (old_component) gallery_destroy_component_example(&old_component);
+    if (old_root) XtDestroyWidget(old_root);
+    resize_preview(state);
     XmTextSetString(state->source_text, (char *)source_for(entry));
     /* Select the live example after both component pages exist. */
     select_page(state, 2);
@@ -859,42 +882,106 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     layout_gallery(state);
 }
 
+static const XmAppearanceProfile gallery_themes[] = {
+    XmAPPEARANCE_CLASSIC, XmAPPEARANCE_MODERN_LIGHT, XmAPPEARANCE_MODERN_DARK
+};
+static const char *theme_choices[] = {"Theme: Classic", "Theme: Modern light", "Theme: Modern dark"};
+static const double gallery_scales[] = {0.0, 1.0, 1.5, 2.0, 3.0};
+static const char *scale_choices[] = {"Scale: Automatic", "Scale: 100%", "Scale: 150%", "Scale: 200%", "Scale: 300%"};
+
+static void sync_appearance_controls(GalleryState *state)
+{
+    XmAppearanceProfile profile;
+    double scale;
+    int theme = 0, scaling = 0;
+    if (XmGetAppearanceProfile(XtDisplay(state->shell), &profile))
+        for (unsigned i = 0; i < XtNumber(gallery_themes); ++i)
+            if (profile == gallery_themes[i]) theme = (int)i;
+    if (XmGetDisplayScaleOverride(XtDisplay(state->shell), &scale)) {
+        scaling = -1;
+        for (unsigned i = 1; i < XtNumber(gallery_scales); ++i)
+            if (fabs(scale - gallery_scales[i]) < 0.001) scaling = (int)i;
+        /* Keep a command-line scale visible and selectable too. */
+        if (scaling < 0) {
+            char label[64];
+            snprintf(label, sizeof(label), "Scale: %.4g%%", scale * 100);
+            XmString item = text(label);
+            XmComboBoxAddItem(state->scale_control, item, 0, True);
+            XmComboBoxSelectItem(state->scale_control, item);
+            XmStringFree(item);
+        }
+    }
+    XmString item = text(theme_choices[theme]);
+    XmComboBoxSelectItem(state->theme_control, item);
+    XmStringFree(item);
+    if (scaling >= 0) {
+        item = text(scale_choices[scaling]);
+        XmComboBoxSelectItem(state->scale_control, item);
+        XmStringFree(item);
+    }
+}
+
 static void theme_control(Widget widget, XtPointer client, XtPointer call)
 {
     GalleryState *state = (GalleryState *)client;
-    XmAppearanceProfile current;
-    (void)widget; (void)call;
-    if (!XmGetAppearanceProfile(XtDisplay(state->shell), &current)) return;
-    XmAppearanceProfile next = current == XmAPPEARANCE_CLASSIC ?
-        XmAPPEARANCE_MODERN_LIGHT : current == XmAPPEARANCE_MODERN_LIGHT ?
-        XmAPPEARANCE_MODERN_DARK : XmAPPEARANCE_CLASSIC;
-    if (XmApplyAppearanceProfile(XtDisplay(state->shell), next)) {
-        set_status(state, next == XmAPPEARANCE_CLASSIC ? "Theme: Classic" :
-            next == XmAPPEARANCE_MODERN_LIGHT ? "Theme: Modern light" : "Theme: Modern dark");
+    XmComboBoxCallbackStruct *selection = call;
+    (void)widget;
+    if (!selection || selection->item_position < 0 ||
+        (unsigned)selection->item_position >= XtNumber(gallery_themes)) return;
+    int index = selection->item_position;
+    if (XmApplyAppearanceProfile(XtDisplay(state->shell), gallery_themes[index])) {
+        set_status(state, theme_choices[index]);
         layout_gallery(state);
     } else set_status(state, "Theme change failed; previous settings retained");
+    sync_appearance_controls(state);
+    XmProcessTraversal(widget, XmTRAVERSE_CURRENT);
 }
 
 static void dpi_control(Widget widget, XtPointer client, XtPointer call)
 {
     GalleryState *state = (GalleryState *)client;
-    static const double scales[] = {1.0, 1.5, 2.0, 3.0};
-    double current = 0.0;
+    XmComboBoxCallbackStruct *selection = call;
     Display *display = XtDisplay(state->shell);
-    (void)widget; (void)call;
-    Boolean overridden = XmGetDisplayScaleOverride(display, &current);
-    unsigned next = 0;
-    if (overridden)
-        while (next < XtNumber(scales) && scales[next] <= current + 0.001) ++next;
-    Boolean changed = next == XtNumber(scales) ? XmClearDisplayScaleOverride(display) :
-        XmSetDisplayScaleOverride(display, scales[next]);
+    (void)widget;
+    if (!selection || selection->item_position < 0) return;
+    unsigned index = (unsigned)selection->item_position;
+    double value;
+    if (index < XtNumber(gallery_scales)) value = gallery_scales[index];
+    else {
+        char *label = NULL;
+        if (!XmStringGetLtoR(selection->item_or_text, XmFONTLIST_DEFAULT_TAG, &label)) return;
+        int parsed = sscanf(label, "Scale: %lf%%", &value);
+        XtFree(label);
+        if (parsed != 1) return;
+        value /= 100.0;
+    }
+    Boolean changed = value == 0.0 ? XmClearDisplayScaleOverride(display) :
+        XmSetDisplayScaleOverride(display, value);
     if (changed) {
-        char status[80];
-        if (next == XtNumber(scales)) strcpy(status, "Scale: Automatic");
-        else snprintf(status, sizeof(status), "Scale: %.0f%%", scales[next] * 100);
-        set_status(state, status);
+        set_status(state, index < XtNumber(scale_choices) ? scale_choices[index] : "Scale selected");
         layout_gallery(state);
     } else set_status(state, "Scale change failed; previous settings retained");
+    sync_appearance_controls(state);
+    /* Responsive reflow can collapse navigation; keep keyboard interaction on
+     * the selector that initiated this layout change. */
+    XmProcessTraversal(widget, XmTRAVERSE_CURRENT);
+}
+
+static Widget appearance_selector(Widget parent, const char *name,
+                                  const char **choices, unsigned count)
+{
+    XmString items[8];
+    short columns = 1;
+    for (unsigned i = 0; i < count; ++i) {
+        items[i] = text(choices[i]);
+        if (strlen(choices[i]) > (size_t)columns) columns = (short)strlen(choices[i]);
+    }
+    Widget selector = XmVaCreateManagedComboBox(parent, (char *)name,
+        XmNcomboBoxType, XmDROP_DOWN_LIST, XmNpositionMode, XmZERO_BASED,
+        XmNitems, items, XmNitemCount, (int)count, XmNselectedPosition, 0,
+        XmNvisibleItemCount, (int)count, XmNcolumns, columns, NULL);
+    for (unsigned i = 0; i < count; ++i) XmStringFree(items[i]);
+    return selector;
 }
 
 static int exercise_component_matrix(GalleryState *state)
@@ -1272,6 +1359,22 @@ static void layout_gallery(GalleryState *state)
             compact ? False : state->desktop_navigation_expanded);
     }
     expanded = XmSidebarGetExpanded(state->sidebar);
+    if (state->header && state->appearance_controls) {
+        unsigned char orientation;
+        unsigned char wanted = compact ? XmVERTICAL : XmHORIZONTAL;
+        XtVaGetValues(state->header, XmNorientation, &orientation, NULL);
+        if (orientation != wanted) XtVaSetValues(state->header, XmNorientation, wanted, NULL);
+        XtWidgetGeometry theme = {0}, scaling = {0};
+        Dimension spacing = 0;
+        XtQueryGeometry(state->theme_control, NULL, &theme);
+        XtQueryGeometry(state->scale_control, NULL, &scaling);
+        XtVaGetValues(state->appearance_controls, XmNspacing, &spacing,
+                      XmNorientation, &orientation, NULL);
+        wanted = (unsigned long)theme.width + scaling.width + spacing + 24 > width ?
+                 XmVERTICAL : XmHORIZONTAL;
+        if (orientation != wanted)
+            XtVaSetValues(state->appearance_controls, XmNorientation, wanted, NULL);
+    }
     {
         unsigned char attachment, wanted_attachment = compact && expanded ?
             XmATTACH_FORM : XmATTACH_NONE;
@@ -1296,8 +1399,13 @@ static void layout_gallery(GalleryState *state)
             XtVaSetValues(state->app_title, XmNlabelString, title, NULL);
         XmStringFree(current);
         XmStringFree(title);
-        if (compact) XtUnmanageChild(state->theme_note);
-        else XtManageChild(state->theme_note);
+        if (compact) {
+            XtUnmanageChild(state->app_title);
+            XtUnmanageChild(state->theme_note);
+        } else {
+            XtManageChild(state->app_title);
+            XtManageChild(state->theme_note);
+        }
     }
     if (state->provenance && state->selected) {
         char description[1024];
@@ -1581,9 +1689,9 @@ static int verify_appearance_controls(GalleryState *state)
     XmTreeViewSetSelectedId(state->tree, (XtPointer)entry->id, True);
     Widget component = state->component;
     unsigned long callbacks = state->callback_count;
-    const XmAppearanceProfile themes[] = {XmAPPEARANCE_MODERN_LIGHT,
-        XmAPPEARANCE_MODERN_DARK, XmAPPEARANCE_CLASSIC};
-    const double scales[] = {1.0, 1.5, 2.0, 3.0, 0.0};
+    const XmAppearanceProfile themes[] = {XmAPPEARANCE_MODERN_DARK,
+        XmAPPEARANCE_CLASSIC, XmAPPEARANCE_MODERN_LIGHT, XmAPPEARANCE_MODERN_DARK};
+    const double scales[] = {2.0, 1.0, 3.0, 0.0, 1.5};
     double existing_scale;
     if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_CLASSIC) ||
         (XmGetDisplayScaleOverride(display, &existing_scale) &&
@@ -1595,8 +1703,23 @@ static int verify_appearance_controls(GalleryState *state)
         if (!XtIsManaged(control) || !XtIsSensitive(control)) return appearance_control_failure(__LINE__);
         for (unsigned i = 0; i < count; ++i) {
             if (!XmProcessTraversal(control, XmTRAVERSE_CURRENT)) return appearance_control_failure(__LINE__);
-            XtCallActionProc(control, "ArmAndActivate", NULL, NULL, 0);
+            int position = -1;
+            if (group) {
+                for (unsigned j = 0; j < XtNumber(gallery_scales); ++j)
+                    if (scales[i] == gallery_scales[j]) position = (int)j;
+            } else {
+                for (unsigned j = 0; j < XtNumber(gallery_themes); ++j)
+                    if (themes[i] == gallery_themes[j]) position = (int)j;
+            }
+            if (position < 0) return appearance_control_failure(__LINE__);
+            Widget list = NULL;
+            XtVaGetValues(control, XmNlist, &list, NULL);
+            if (!list) return appearance_control_failure(__LINE__);
+            XmListSelectPos(list, position + 1, True);
             if (!settle_gallery(state)) return appearance_control_failure(__LINE__);
+            int selected = -1;
+            XtVaGetValues(control, XmNselectedPosition, &selected, NULL);
+            if (selected != position) return appearance_control_failure(__LINE__);
             if (group) {
                 double actual = 0.0;
                 Boolean overridden = XmGetDisplayScaleOverride(display, &actual);
@@ -1606,15 +1729,20 @@ static int verify_appearance_controls(GalleryState *state)
                 XmAppearanceProfile actual;
                 if (!XmGetAppearanceProfile(display, &actual) || actual != themes[i]) return appearance_control_failure(__LINE__);
             }
-            if (XmGetFocusWidget(state->shell) != control ||
+            Widget focus = XmGetFocusWidget(state->shell);
+            while (focus && focus != control) focus = XtParent(focus);
+            if (focus != control || !XtIsSubclass(control, xmComboBoxWidgetClass) ||
                 state->component != component || state->selected != entry ||
                 state->callback_count != callbacks || state->current_page != 2) {
-                fprintf(stderr, "gallery controls: state/focus changed group=%u step=%u\n", group,i);
+                fprintf(stderr, "gallery controls: state/focus changed group=%u step=%u focus=%s component=%d entry=%d callbacks=%lu/%lu page=%d\n",
+                    group, i, XmGetFocusWidget(state->shell) ? XtName(XmGetFocusWidget(state->shell)) : "none",
+                    state->component == component, state->selected == entry,
+                    state->callback_count, callbacks, state->current_page);
                 return appearance_control_failure(__LINE__);
             }
         }
     }
-    puts("PASS gallery appearance controls: activation, focus and state");
+    puts("PASS gallery appearance controls: direct selection and state");
     return 0;
 }
 
@@ -2019,18 +2147,17 @@ int main(int argc, char **argv)
                                         XmNtopAttachment, XmATTACH_FORM,
                                         XmNleftAttachment, XmATTACH_FORM,
                                         XmNrightAttachment, XmATTACH_FORM, NULL);
+    state.header = header;
     state.app_title = gallery_label(header, "title", "CK Core Motif / Component Gallery");
     state.theme_note = gallery_label(header, "themeNote", "Component reference");
     {
-        XmString theme_label = text("Theme"), scale_label = text("Scale");
-        state.theme_control = XtVaCreateManagedWidget("themeControl", xmPushButtonWidgetClass, header,
-            XmNlabelString, theme_label, NULL);
-        state.scale_control = XtVaCreateManagedWidget("dpiControl", xmPushButtonWidgetClass, header,
-            XmNlabelString, scale_label, NULL);
-        XmStringFree(theme_label);
-        XmStringFree(scale_label);
-        XtAddCallback(state.theme_control, XmNactivateCallback, theme_control, &state);
-        XtAddCallback(state.scale_control, XmNactivateCallback, dpi_control, &state);
+        state.appearance_controls = XmVaCreateManagedRowColumn(header, "appearanceControls",
+            XmNorientation, XmHORIZONTAL, XmNmarginWidth, 0, XmNmarginHeight, 0, NULL);
+        state.theme_control = appearance_selector(state.appearance_controls, "themeControl", theme_choices, XtNumber(theme_choices));
+        state.scale_control = appearance_selector(state.appearance_controls, "dpiControl", scale_choices, XtNumber(scale_choices));
+        sync_appearance_controls(&state);
+        XtAddCallback(state.theme_control, XmNselectionCallback, theme_control, &state);
+        XtAddCallback(state.scale_control, XmNselectionCallback, dpi_control, &state);
     }
     state.status = XmVaCreateManagedStatusBar(root, "status", XmNbottomAttachment, XmATTACH_FORM,
                                               XmNleftAttachment, XmATTACH_FORM,

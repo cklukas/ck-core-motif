@@ -35,6 +35,7 @@ nav:
       - docs/modern-integration-qualification.md
       - docs/modern-gallery-manifest.md
       - docs/modern-gallery.md
+      - docs/buffered-painting.md
       - docs/modern-gallery-components.md
       - docs/periodic-modern-appearance.md
       - docs/gallery-startup-profile.md

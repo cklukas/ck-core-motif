@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 
 #include <X11/IntrinsicP.h>
 #include <Xm/AvatarP.h>
@@ -20,8 +21,8 @@ static Position bounded_position(long long value) {
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 
 #define Offset(field) XtOffsetOf(XmAvatarRec, field)
@@ -55,7 +56,7 @@ externaldef(xmavatarclassrec) XmAvatarClassRec xmAvatarClassRec = {
     {(WidgetClass)&xmPrimitiveClassRec, "XmAvatar", sizeof(XmAvatarRec),
      NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
      resources, XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal,
-     True, False, Destroy, NULL, Redisplay, SetValues, NULL,
+     True, False, Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL,
      XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
      XtInheritTranslations, QueryGeometry, NULL, NULL},
     {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
@@ -121,7 +122,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (widget == NULL || !XtIsSubclass(widget, xmAvatarWidgetClass)) return;
     XmAvatarWidget avatar = (XmAvatarWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     GC gc = avatar->avatar.foreground_gc;
     unsigned int pixmap_width = 0, pixmap_height = 0, depth = 0;
     int diameter, x, y, inner;
@@ -134,7 +135,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XSetClipMask(display, gc, None);
     XSetForeground(display, gc, foreground);
     XSetBackground(display, gc, avatar->core.background_pixel);
-    XClearWindow(display, window);
+
     diameter = MIN(avatar->core.width, avatar->core.height);
     if (diameter <= 0) return;
     x = ((int)avatar->core.width - diameter) / 2;
@@ -192,6 +193,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     }
     XSetClipMask(display, gc, None);
     XDestroyRegion(clip);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -274,4 +280,14 @@ Widget XmVaCreateManagedAvatar(Widget parent, char *name, ...) {
     Va_start(var, name); widget = XmeVLCreateWidget(name, xmAvatarWidgetClass,
                                                      parent, True, var, count);
     va_end(var); return widget;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

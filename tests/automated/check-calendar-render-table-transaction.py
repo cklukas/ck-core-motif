@@ -7,8 +7,7 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Calendar.c").read_text(
     encoding="utf-8"
 )
-start = source.index("static Boolean SetValues(")
-start = source.index("static Boolean SetValues(", start + 1)
+start = source.rindex("static Boolean SetValues(")
 end = source.index("\nstatic int first_weekday", start)
 region = source[start:end]
 

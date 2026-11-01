@@ -2,6 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -16,8 +17,8 @@
 #include <Xm/DrawP.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
@@ -78,7 +79,7 @@ externaldef(xmprogressringclassrec) XmProgressRingClassRec
             sizeof(XmProgressRingRec), NULL, NULL, False, Initialize, NULL,
             XtInheritRealize, NULL, 0, resources, XtNumber(resources),
             NULLQUARK, True, XtExposeCompressMaximal, True, False, Destroy,
-            NULL, Redisplay, SetValues, NULL, XtInheritSetValuesAlmost, NULL,
+            NULL, BufferedRedisplay, BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL,
             NULL, XtVersion, NULL, XtInheritTranslations, QueryGeometry,
             NULL, NULL
         },
@@ -201,7 +202,7 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmProgressRingWidget ring = (XmProgressRingWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     Dimension label_width = 0, label_height = 0;
     int diameter, ring_x, ring_y, thickness;
     double scale = 1.0;
@@ -214,7 +215,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!window || !ring->core.width || !ring->core.height) return;
     UpdateGCs(ring);
     if (!ring->progress_ring.track_gc || !ring->progress_ring.fill_gc) return;
-    XClearWindow(display, window);
+
     if (ring->progress_ring.font && ring->progress_ring.label)
         XmStringExtent(ring->progress_ring.font, ring->progress_ring.label,
                        &label_width, &label_height);
@@ -291,6 +292,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XmeDrawHighlight(display, window, ring->primitive.highlight_GC,
                          0, 0, ring->core.width, ring->core.height,
                          ring->primitive.highlight_thickness);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
@@ -397,7 +403,7 @@ static void ScaleChanged(Widget widget, double old_scale, double new_scale, XtPo
             (ring->progress_ring.height_default || offered_height == height))
             (void)XtMakeResizeRequest(widget,offered_width,offered_height,NULL,NULL);
     }
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget),XtWindow(widget),0,0,0,0,True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
@@ -450,8 +456,7 @@ void XmProgressRingSetRange(Widget widget, int minimum, int maximum,
     ring->progress_ring.minimum = minimum;
     ring->progress_ring.maximum = maximum;
     Normalize(ring);
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
-                                         0, 0, 0, 0, True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
     if (notify && (old_min != ring->progress_ring.minimum ||
                    old_max != ring->progress_ring.maximum ||
                    old_value != ring->progress_ring.value))
@@ -466,8 +471,7 @@ void XmProgressRingSetValue(Widget widget, int value, Boolean notify) {
     old_value = ring->progress_ring.value;
     ring->progress_ring.value = value;
     Normalize(ring);
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
-                                         0, 0, 0, 0, True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
     if (notify && old_value != ring->progress_ring.value) Notify(ring, NULL);
 }
 Boolean XmProgressRingGetIndeterminate(Widget widget) {
@@ -482,8 +486,7 @@ void XmProgressRingSetIndeterminate(Widget widget, Boolean indeterminate,
     ring = (XmProgressRingWidget)widget;
     old = ring->progress_ring.indeterminate;
     ring->progress_ring.indeterminate = indeterminate ? True : False;
-    if (XtIsRealized(widget)) XClearArea(XtDisplay(widget), XtWindow(widget),
-                                         0, 0, 0, 0, True);
+    if (XtIsRealized(widget)) _XmPaintInvalidate(widget);
     if (notify && old != ring->progress_ring.indeterminate)
         Notify(ring, NULL);
 }
@@ -506,4 +509,14 @@ Widget XmVaCreateManagedProgressRing(Widget parent, char *name, ...) {
     Va_start(var, name); widget = XmeVLCreateWidget(name,
         xmProgressRingWidgetClass, parent, True, var, count); va_end(var);
     return widget;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

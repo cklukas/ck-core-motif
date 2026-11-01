@@ -1,4 +1,5 @@
 /* Native pointer/keyboard admission, mirrored focus and removal geometry. */
+#include "native-window.h"
 #include <Xm/XmAll.h>
 #include <Xm/Appearance.h>
 #include <Xm/Display.h>
@@ -36,7 +37,7 @@ int main(int argc,char **argv){
         XmString text=XmStringCreateLocalized("An active filter");
         Widget chip=XtVaCreateManagedWidget("chip",xmChipWidgetClass,board,XmNchipLabel,text,XmNchipRemovable,True,XmNlayoutDirection,rtl?XmRIGHT_TO_LEFT:XmLEFT_TO_RIGHT,NULL);XmStringFree(text);
         XtAddCallback(chip,XmNchipActivateCallback,activate,NULL);XtAddCallback(chip,XmNchipRemoveCallback,remove_chip,NULL);
-        XtRealizeWidget(shell);drain(app,d);Dimension width,height;
+        XtRealizeWidget(shell); NativeWaitForViewable(shell);drain(app,d);Dimension width,height;
         XtVaGetValues(chip,XmNwidth,&width,XmNheight,&height,NULL);
         int edge=(int)(12*scales[s]+0.5),body=rtl?width-edge:edge,close=rtl?edge:width-edge,y=height/2;
         unsigned a=activated,r=removed;

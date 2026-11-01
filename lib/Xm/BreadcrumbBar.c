@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <limits.h>
@@ -11,8 +12,8 @@
 #include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
@@ -59,7 +60,7 @@ xmBreadcrumbBarClassRec = {{(WidgetClass)&xmPrimitiveClassRec,
     "XmBreadcrumbBar", sizeof(XmBreadcrumbBarRec), NULL, NULL, False,
     Initialize, NULL, XtInheritRealize, NULL, 0, resources,
     XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True,
-    False, Destroy, NULL, Redisplay, SetValues, NULL,
+    False, Destroy, NULL, BufferedRedisplay, BufferedSetValues, NULL,
     XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
     XtInheritTranslations,
     QueryGeometry, NULL, NULL},
@@ -128,8 +129,7 @@ static void set_current(XmBreadcrumbBarWidget bar, int index,
         return;
     bar->breadcrumb.current = index;
     if (XtIsRealized((Widget)bar))
-        XClearArea(XtDisplay((Widget)bar), XtWindow((Widget)bar), 0, 0, 0, 0,
-                  True);
+        _XmPaintInvalidate((Widget)bar);
     if (notify)
         notify_current(bar, event);
 }
@@ -245,7 +245,7 @@ static void Destroy(Widget widget) {
 static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
                       Boolean first) {
     Display *display = XtDisplay((Widget)bar);
-    Window window = XtWindow((Widget)bar);
+    Drawable window = _XmPaintDrawable((Widget)bar);
     const char *label = bar->breadcrumb.items[index].label ?
                         bar->breadcrumb.items[index].label : "";
     const char *separator = bar->breadcrumb.separator ?
@@ -294,13 +294,13 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmBreadcrumbBarWidget bar = (XmBreadcrumbBarWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     Cardinal i, start = visible_start(bar);
     int cursor = 4;
     (void)event; (void)region;
     if (!window || !bar->breadcrumb.gc)
         return;
-    XClearWindow(display, window);
+
     if (start) {
         XmString ellipsis = XmStringCreateLocalized("...");
         Dimension ellipsis_width = 0, ellipsis_height = 0;
@@ -331,6 +331,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                        bar->primitive.highlight_thickness - 1,
                        bar->core.width - 2 * bar->primitive.highlight_thickness,
                        bar->core.height - 2 * bar->primitive.highlight_thickness);
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 
 static void Events(Widget widget, XtPointer data, XEvent *event,
@@ -463,7 +468,7 @@ void XmBreadcrumbBarSetSegments(Widget widget,
         new_current = (int)count - 1;
     bar->breadcrumb.current = new_current;
     if (XtIsRealized(widget))
-        XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
+        _XmPaintInvalidate(widget);
 }
 
 Cardinal XmBreadcrumbBarGetSegmentCount(Widget widget) {
@@ -480,4 +485,14 @@ void XmBreadcrumbBarSetCurrentIndex(Widget widget, int index,
                                     Boolean notify_change) {
     if (widget != NULL && XmIsBreadcrumbBar(widget))
         set_current((XmBreadcrumbBarWidget)widget, index, notify_change, NULL);
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

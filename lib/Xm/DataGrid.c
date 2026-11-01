@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <stdio.h>
@@ -12,8 +13,8 @@
 #include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
@@ -78,8 +79,8 @@ externaldef(xmdatagridclassrec) XmDataGridClassRec xmDataGridClassRec =
     {{(WidgetClass)&xmPrimitiveClassRec, "XmDataGrid", sizeof(XmDataGridRec),
       NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
       resources, XtNumber(resources), NULLQUARK, True,
-      XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay,
-      SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
+      XtExposeCompressMaximal, True, False, Destroy, NULL, BufferedRedisplay,
+      BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
       XtInheritTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
@@ -239,8 +240,7 @@ static void recompute_visible(XmDataGridWidget grid) {
 
 static void redraw(XmDataGridWidget grid) {
     if (XtIsRealized((Widget)grid))
-        XClearArea(XtDisplay((Widget)grid), XtWindow((Widget)grid), 0, 0, 0, 0,
-                   True);
+        _XmPaintInvalidate((Widget)grid);
 }
 
 static void notify_selection(XmDataGridWidget grid, XEvent *event) {
@@ -393,7 +393,7 @@ static void draw_text(XmDataGridWidget grid, int x, int top, Dimension height,
     value = XmStringCreateLocalized((char *)text);
     if (!value) return;
     XmStringExtent(grid->data_grid.render_table, value, &width, &text_height);
-    XmStringDraw(XtDisplay((Widget)grid), XtWindow((Widget)grid),
+    XmStringDraw(XtDisplay((Widget)grid), _XmPaintDrawable((Widget)grid),
                  grid->data_grid.render_table, value, grid->data_grid.gc,
                  bounded_position((long long)x),
                  bounded_position((long long)top +
@@ -414,7 +414,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     int cell_width;
     (void)event; (void)region;
     if (!XtIsRealized(widget) || !grid->data_grid.gc) return;
-    XClearWindow(XtDisplay(widget), XtWindow(widget));
+
     cell_width = grid->data_grid.column_count ?
         (int)grid->core.width / (int)grid->data_grid.column_count : 1;
     if (cell_width < 1) cell_width = 1;
@@ -436,7 +436,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                       (int)row * grid->data_grid.row_height;
             if ((int)model_row == grid->data_grid.selected_row &&
                 (int)column == grid->data_grid.selected_column)
-                XDrawRectangle(XtDisplay(widget), XtWindow(widget),
+                XDrawRectangle(XtDisplay(widget), _XmPaintDrawable(widget),
                                grid->data_grid.gc, x - 2,
                                top + 2,
                                (unsigned)(cell_width > 5 ? cell_width - 5 : 1),
@@ -446,6 +446,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                       grid->data_grid.rows[model_row].values[column]);
         }
     }
+}
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
 }
 
 static void move_selection(XmDataGridWidget grid, int row_delta,
@@ -727,4 +732,14 @@ Boolean XmDataGridRequestSort(Widget widget, XtPointer column_id,
     grid = (XmDataGridWidget)widget;
     if (notify) notify_sort(grid, NULL, column_id, ascending);
     return True;
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

@@ -559,7 +559,7 @@ SourceLineCharacter(XmSourceData data, XmTextPosition position)
     return 0;
   character_size = data->widgets[0]->text.char_size;
   unit = character_size < 3 ? (size_t)character_size : sizeof(wchar_t);
-  if (!unit || character_size > 3 || data->gap_start < data->ptr ||
+  if (!unit || character_size <= 0 || data->gap_start < data->ptr ||
       (size_t)(data->gap_start - data->ptr) % unit != 0 ||
       (size_t)(data->gap_end - data->gap_start) % unit != 0)
     return 0;
@@ -568,7 +568,7 @@ SourceLineCharacter(XmSourceData data, XmTextPosition position)
     return 0;
   total_bytes = (size_t)data->maxlength * unit;
   gap_offset = (size_t)(data->gap_end - data->ptr);
-  if (gap_offset > total_bytes || gap_bytes > total_bytes - gap_offset)
+  if (gap_offset > total_bytes || gap_bytes > gap_offset)
     return 0;
   before = (size_t)(data->gap_start - data->ptr) / unit;
   if ((size_t)position < before) {

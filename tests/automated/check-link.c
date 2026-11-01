@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
     XmAccessibleInfoClear(&info); CHECK(XmAccessibilityAction(accessibility, id, 0));
     CHECK(activations == 2); XmAccessibilityDestroy(accessibility);
     XtSetSensitive(link, False); XmLinkActivate(link, NULL); CHECK(activations == 2);
-    XtDestroyWidget(shell); XtCloseDisplay(XtDisplay(shell)); XtDestroyApplicationContext(app);
+    Display *display = XtDisplay(shell);
+    XtDestroyWidget(shell); XtCloseDisplay(display); XtDestroyApplicationContext(app);
     printf("PASS link: %u checks\n", checks); return EXIT_SUCCESS;
 }

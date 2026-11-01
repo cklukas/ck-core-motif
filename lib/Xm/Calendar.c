@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <limits.h>
@@ -12,8 +13,8 @@
 #include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+static void BufferedRedisplay(Widget, XEvent *, Region);
+static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
@@ -64,8 +65,8 @@ externaldef(xmcalendarclassrec) XmCalendarClassRec xmCalendarClassRec =
     {{(WidgetClass)&xmPrimitiveClassRec, "XmCalendar", sizeof(XmCalendarRec),
       NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
       resources, XtNumber(resources), NULLQUARK, True,
-      XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay,
-      SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
+      XtExposeCompressMaximal, True, False, Destroy, NULL, BufferedRedisplay,
+      BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
       XtInheritTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
@@ -181,8 +182,7 @@ static Boolean set_date_internal(XmCalendarWidget calendar,
     calendar->calendar.date = *date;
     normalize_visible(calendar);
     if (XtIsRealized((Widget)calendar))
-        XClearArea(XtDisplay((Widget)calendar), XtWindow((Widget)calendar),
-                   0, 0, 0, 0, True);
+        _XmPaintInvalidate((Widget)calendar);
     if (notify)
         notify_date(calendar, event, XmNcalendarDateChangedCallback, 1);
     return True;
@@ -309,7 +309,7 @@ static void draw_text(XmCalendarWidget calendar, const char *text, int x,
         return;
     XmStringExtent(calendar->calendar.render_table, value,
                    &text_width, &text_height);
-    XmStringDraw(XtDisplay((Widget)calendar), XtWindow((Widget)calendar),
+    XmStringDraw(XtDisplay((Widget)calendar), _XmPaintDrawable((Widget)calendar),
                  calendar->calendar.render_table, value, calendar->calendar.gc,
                  bounded_position(x),
                  bounded_position((long long)top +
@@ -322,7 +322,7 @@ static void draw_text(XmCalendarWidget calendar, const char *text, int x,
 static void draw_day(XmCalendarWidget calendar, int col, int row, int day,
                      Boolean enabled, Boolean selected) {
     Display *display = XtDisplay((Widget)calendar);
-    Window window = XtWindow((Widget)calendar);
+    Drawable window = _XmPaintDrawable((Widget)calendar);
     int cell_width = (int)calendar->core.width / 7;
     int x = col * cell_width + 4;
     if (!calendar->calendar.gc || cell_width < 1)
@@ -341,7 +341,7 @@ static void draw_day(XmCalendarWidget calendar, int col, int row, int day,
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmCalendarWidget calendar = (XmCalendarWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     int first = first_weekday(calendar->calendar.visible_year,
                               calendar->calendar.visible_month);
     int offset = (first - calendar->calendar.week_start + 7) % 7;
@@ -355,7 +355,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!XtIsRealized(widget) || !calendar->calendar.gc ||
         calendar->core.width < 7)
         return;
-    XClearWindow(display, window);
+
     snprintf(heading, sizeof(heading), "%s %d", month_name(calendar->calendar.visible_month),
              calendar->calendar.visible_year);
     draw_text(calendar, heading, 6, 0, (int)calendar->core.width - 12, 28,
@@ -381,6 +381,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     }
 }
 
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
+}
+
 static Boolean month_allowed(XmCalendarWidget calendar, int year, int month) {
     XmCalendarDate first = {year, month, 1};
     XmCalendarDate last = {year, month, days_in_month(year, month)};
@@ -400,8 +405,7 @@ static Boolean set_visible_month_internal(XmCalendarWidget calendar, int year,
     calendar->calendar.visible_year = year;
     calendar->calendar.visible_month = month;
     if (XtIsRealized((Widget)calendar))
-        XClearArea(XtDisplay((Widget)calendar), XtWindow((Widget)calendar),
-                   0, 0, 0, 0, True);
+        _XmPaintInvalidate((Widget)calendar);
     (void)event;
     return True;
 }
@@ -537,7 +541,7 @@ Boolean XmCalendarSetRange(Widget widget, const XmCalendarDate *minimum,
                        calendar->calendar.visible_month))
         normalize_visible(calendar);
     if (XtIsRealized(widget))
-        XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
+        _XmPaintInvalidate(widget);
     return True;
 }
 
@@ -557,4 +561,14 @@ Boolean XmCalendarSetVisibleMonth(Widget widget, int year, int month) {
         return False;
     return set_visible_month_internal((XmCalendarWidget)widget, year, month,
                                       NULL);
+}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
 }

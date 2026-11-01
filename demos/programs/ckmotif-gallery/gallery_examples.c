@@ -1158,7 +1158,7 @@ gallery_create_shell_example(Widget parent, WidgetClass class,
     Widget shell = XtCreatePopupShell((char *)name, class, parent, args, 2);
     XmString label = XmStringCreateLocalized((char *)"Popup shell example");
     if (class == xmMenuShellWidgetClass) {
-        Widget menu = XtVaCreateManagedWidget(
+        Widget menu = XtVaCreateWidget(
             "popupContent", xmRowColumnWidgetClass, shell,
             XmNrowColumnType, XmMENU_POPUP, NULL);
         XtVaCreateManagedWidget("popupAction", xmPushButtonWidgetClass, menu,

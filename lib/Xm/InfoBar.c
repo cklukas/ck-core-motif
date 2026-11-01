@@ -1,6 +1,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include "PaintI.h"
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
@@ -10,12 +11,12 @@
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
-static void Initialize(Widget,Widget,ArgList,Cardinal*); static void Redisplay(Widget,XEvent*,Region); static Boolean SetValues(Widget,Widget,Widget,ArgList,Cardinal*); static void Destroy(Widget); static XtGeometryResult QueryGeometry(Widget,XtWidgetGeometry*,XtWidgetGeometry*); static void Events(Widget,XtPointer,XEvent*,Boolean*);
+static void Initialize(Widget,Widget,ArgList,Cardinal*); static void BufferedRedisplay(Widget,XEvent*,Region); static Boolean BufferedSetValues(Widget,Widget,Widget,ArgList,Cardinal*); static void Destroy(Widget); static XtGeometryResult QueryGeometry(Widget,XtWidgetGeometry*,XtWidgetGeometry*); static void Events(Widget,XtPointer,XEvent*,Boolean*);
 static void CheckSetRenderTable(Widget widget,int offset,XrmValue*value){XmInfoBarWidget bar=(XmInfoBarWidget)widget;(void)offset;if(bar->info.check_set_render_table)value->addr=NULL;else{bar->info.check_set_render_table=True;value->addr=(char*)&bar->info.font;}}
 static Position bounded_position(long long value){if(value<SHRT_MIN)return(Position)SHRT_MIN;if(value>SHRT_MAX)return(Position)SHRT_MAX;return(Position)value;}
 #define Offset(field) XtOffsetOf(XmInfoBarRec,field)
 static XtResource resources[]={{XmNinfoMessage,XmCInfoMessage,XmRString,sizeof(String),Offset(info.message),XmRImmediate,(XtPointer)""},{XmNinfoSeverity,XmCInfoSeverity,XmRUnsignedChar,sizeof(unsigned char),Offset(info.severity),XmRImmediate,(XtPointer)XmINFO_SEVERITY_INFO},{XmNinfoClosable,XmCInfoClosable,XmRBoolean,sizeof(Boolean),Offset(info.closable),XmRImmediate,(XtPointer)True},{XmNinfoActionLabel,XmCInfoActionLabel,XmRString,sizeof(String),Offset(info.action_label),XmRImmediate,(XtPointer)NULL},{XmNinfoDismissCallback,XmCInfoDismissCallback,XmRCallback,sizeof(XtCallbackList),Offset(info.dismiss_callback),XmRPointer,(XtPointer)NULL},{XmNinfoActionCallback,XmCInfoActionCallback,XmRCallback,sizeof(XtCallbackList),Offset(info.action_callback),XmRPointer,(XtPointer)NULL},{XmNfontList,XmCFontList,XmRFontList,sizeof(XmRenderTable),Offset(info.font),XmRCallProc,(XtPointer)CheckSetRenderTable},{XmNrenderTable,XmCRenderTable,XmRRenderTable,sizeof(XmRenderTable),Offset(info.font),XmRCallProc,(XtPointer)CheckSetRenderTable},{XmNtraversalOn,XmCTraversalOn,XmRBoolean,sizeof(Boolean),Offset(primitive.traversal_on),XmRImmediate,(XtPointer)True},{XmNhighlightThickness,XmCHighlightThickness,XmRHorizontalDimension,sizeof(Dimension),Offset(primitive.highlight_thickness),XmRCallProc,(XtPointer)_XmSetThickness}};
-externaldef(xminfobarclassrec) XmInfoBarClassRec xmInfoBarClassRec={{(WidgetClass)&xmPrimitiveClassRec,"XmInfoBar",sizeof(XmInfoBarRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,Redisplay,SetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,XtInheritTranslations,QueryGeometry,NULL,NULL},{XmInheritBorderHighlight,XmInheritBorderUnhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
+externaldef(xminfobarclassrec) XmInfoBarClassRec xmInfoBarClassRec={{(WidgetClass)&xmPrimitiveClassRec,"XmInfoBar",sizeof(XmInfoBarRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,BufferedRedisplay,BufferedSetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,XtInheritTranslations,QueryGeometry,NULL,NULL},{XmInheritBorderHighlight,XmInheritBorderUnhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
 externaldef(xminfobarwidgetclass) WidgetClass xmInfoBarWidgetClass=(WidgetClass)&xmInfoBarClassRec;
 static void Initialize(Widget request,Widget widget,ArgList args,Cardinal*count){XmInfoBarWidget bar=(XmInfoBarWidget)widget;XGCValues values;Display *display=XtDisplay(widget);(void)request;(void)args;(void)count;if(bar->info.severity>XmINFO_SEVERITY_ERROR)bar->info.severity=XmINFO_SEVERITY_INFO;if(!bar->core.width)bar->core.width=360;if(!bar->core.height)bar->core.height=34;if(bar->info.font==NULL)bar->info.font=XmFontListCopy(XmeGetDefaultRenderTable(widget,XmLABEL_FONTLIST));else bar->info.font=XmFontListCopy(bar->info.font);values.foreground=bar->primitive.foreground;values.background=bar->core.background_pixel;bar->info.gc=XCreateGC(display,DefaultRootWindow(display),GCForeground|GCBackground,&values);XtAddEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL);}
 static void Destroy(Widget widget){XmInfoBarWidget bar=(XmInfoBarWidget)widget;XtRemoveEventHandler(widget,KeyPressMask|ButtonPressMask,False,Events,NULL);if(bar->info.gc)XFreeGC(XtDisplay(widget),bar->info.gc);if(bar->info.font)XmRenderTableFree(bar->info.font);}
@@ -23,7 +24,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
 {
     XmInfoBarWidget bar = (XmInfoBarWidget)widget;
     Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
+    Drawable window = _XmPaintDrawable(widget);
     const char *prefix;
     XmString prefix_string, message_string, action_string = NULL;
     Dimension prefix_width = 0, prefix_height = 0;
@@ -35,7 +36,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     if (!window || !bar->info.gc)
         return;
 
-    XClearWindow(display, window);
+
     prefix = bar->info.severity == XmINFO_SEVERITY_ERROR ? "Error: " :
              bar->info.severity == XmINFO_SEVERITY_WARNING ? "Warning: " :
              "Info: ";
@@ -84,9 +85,24 @@ static void Redisplay(Widget widget, XEvent *event, Region region)
     if (message_string) XmStringFree(message_string);
     if (action_string) XmStringFree(action_string);
 }
+
+static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
+{
+    _XmBufferedPaint(widget, Redisplay, event, region);
+}
 static void Events(Widget widget,XtPointer data,XEvent*event,Boolean*dispatch){XmInfoBarWidget bar=(XmInfoBarWidget)widget;(void)data;(void)dispatch;if(bar==NULL||event==NULL||!XmIsInfoBar(widget))return;if(event->type==ButtonPress){int close_x=(int)bar->core.width>=24?(int)bar->core.width-22:0;int close_y=(int)bar->core.height>=18?((int)bar->core.height-18)/2:0;int action_x=(int)bar->core.width>120?(int)bar->core.width-120:0;if(bar->info.closable&&bar->core.width>=24&&bar->core.height>=18&&event->xbutton.x>=close_x&&event->xbutton.x<close_x+18&&event->xbutton.y>=close_y&&event->xbutton.y<close_y+18){XmInfoBarDismiss(widget);return;}if(bar->info.action_label&&event->xbutton.x>=action_x){XmInfoBarInvokeAction(widget);return;}}if(event->type==KeyPress){KeySym key;char input[2];XLookupString(&event->xkey,input,sizeof(input),&key,NULL);if(key==XK_Escape&&bar->info.closable)XmInfoBarDismiss(widget);}}
 static Boolean SetValues(Widget old_widget,Widget request,Widget widget,ArgList args,Cardinal*count){XmInfoBarWidget old=(XmInfoBarWidget)old_widget,bar=(XmInfoBarWidget)widget;Boolean redraw=False;Boolean colors_changed=old->primitive.foreground!=bar->primitive.foreground||old->core.background_pixel!=bar->core.background_pixel;(void)request;(void)args;(void)count;if(colors_changed&&bar->info.gc){XSetForeground(XtDisplay(widget),bar->info.gc,bar->primitive.foreground);XSetBackground(XtDisplay(widget),bar->info.gc,bar->core.background_pixel);redraw=True;}if(old->info.font!=bar->info.font){XmRenderTable new_font=bar->info.font?XmFontListCopy(bar->info.font):XmFontListCopy(XmeGetDefaultRenderTable(widget,XmLABEL_FONTLIST));if(new_font){if(old->info.font)XmRenderTableFree(old->info.font);bar->info.font=new_font;redraw=True;}else bar->info.font=old->info.font;}if(old->info.message!=bar->info.message||old->info.action_label!=bar->info.action_label||old->info.severity!=bar->info.severity||old->info.closable!=bar->info.closable)redraw=True;return redraw;}
 static XtGeometryResult QueryGeometry(Widget widget,XtWidgetGeometry*request,XtWidgetGeometry*reply){(void)widget;(void)request;reply->request_mode=CWWidth|CWHeight;reply->width=360;reply->height=34;return XtGeometryAlmost;}
 void XmInfoBarDismiss(Widget widget){XmInfoBarWidget bar;XmInfoBarCallbackStruct c={XmCR_UNMAP,NULL,0};if(widget==NULL||!XmIsInfoBar(widget)||widget->core.being_destroyed)return;bar=(XmInfoBarWidget)widget;c.severity=bar->info.severity;XtCallCallbacks(widget,XmNinfoDismissCallback,&c);}
 void XmInfoBarInvokeAction(Widget widget){XmInfoBarCallbackStruct c={XmCR_ACTIVATE,NULL,0};if(widget!=NULL&&XmIsInfoBar(widget)&&!widget->core.being_destroyed)XtCallCallbacks(widget,XmNinfoActionCallback,&c);}
 Widget XmCreateInfoBar(Widget parent,char*name,ArgList args,Cardinal count){return XtCreateWidget(name,xmInfoBarWidgetClass,parent,args,count);}
+
+/* Xt's default redisplay request clears the front window. Queue our complete
+ * frame instead, after resource and geometry negotiation has finished. */
+static Boolean BufferedSetValues(Widget old, Widget request, Widget widget,
+                                ArgList args, Cardinal *count)
+{
+    if (SetValues(old, request, widget, args, count))
+        _XmPaintInvalidate(widget);
+    return False;
+}
