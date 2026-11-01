@@ -393,6 +393,7 @@ EXTRA_DIST += tests/automated/check-mwm-icon-event-handlers.py docs/mwm-icon-eve
 EXTRA_DIST += tests/automated/check-mwm-icon-gc-mask.py docs/mwm-icon-gc-mask.md
 EXTRA_DIST += tests/automated/check-rowcolumn-argument-list-bounds.py docs/rowcolumn-argument-list-bounds.md
 EXTRA_DIST += tests/automated/check-tabstack-argument-merge.py docs/tabstack-argument-merge.md
+EXTRA_DIST += tests/automated/check-multilist-argument-merge.py docs/multilist-argument-merge.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md
