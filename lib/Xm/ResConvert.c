@@ -1348,7 +1348,7 @@ GetNextXmString(
 #else
 	      csize = **s ? 1 : 0;
 #endif
-	      strncpy(tmp, *s, csize);
+	      strncpy(tmp, *s, (size_t)csize);
 	      tmp += csize;
 	      (*s) += csize;
 	    } else {
@@ -1670,7 +1670,7 @@ CvtStringToStringTable(
             XtFree((char *)table);
             return(False);
 	}
-        strncpy( table[i], top, len) ;
+	strncpy(table[i], top, (size_t)len);
 	(table[i])[len] = '\0' ;
         if (*p != '\0')
         {
@@ -1767,7 +1767,7 @@ CvtStringToCardinalList(
         return(False);
 
     crd_array = (Cardinal *)XtCalloc
-			(crd_array_size,sizeof(Cardinal));
+			((Cardinal)crd_array_size, sizeof(Cardinal));
     if (crd_array == NULL)
 	return(False);
     while (*p != '\0')
@@ -2012,7 +2012,8 @@ static XmFontList DefaultSystemFontList(Display *display, XmFontList fontlist)
 		    UINT_MAX / sizeof(SystemFontList))
 		return NULL;
 	    new_maxns_font_lists = maxnsFontLists + 8;
-	    nbytes = (Cardinal) sizeof(SystemFontList)*new_maxns_font_lists;
+	    nbytes = (Cardinal)((size_t)sizeof(SystemFontList) *
+				 (size_t)new_maxns_font_lists);
 	    if (NULL == sFontLists)
 	    {
 	        new_font_lists = (SystemFontList*) XtMalloc(nbytes);
@@ -2027,8 +2028,8 @@ static XmFontList DefaultSystemFontList(Display *display, XmFontList fontlist)
 		if (new_font_lists == NULL)
 		    return NULL;
 		memset((void*) &new_font_lists[nsFontLists], 0,
-		       sizeof(SystemFontList) *
-		       (new_maxns_font_lists - nsFontLists));
+	       sizeof(SystemFontList) *
+	       (size_t)(new_maxns_font_lists - nsFontLists));
 	    }
 	    sFontLists = new_font_lists;
 	    maxnsFontLists = new_maxns_font_lists;
@@ -2071,7 +2072,7 @@ _XmFreeDefaultRenderTable(Display *display)
             --nsFontLists;
             if (i < nsFontLists)
                 memmove(&sFontLists[i], &sFontLists[i + 1],
-                        sizeof(SystemFontList) * (nsFontLists - i));
+			sizeof(SystemFontList) * (size_t)(nsFontLists - i));
             memset(&sFontLists[nsFontLists], 0, sizeof(SystemFontList));
             if (!nsFontLists)
             {
@@ -2448,11 +2449,6 @@ CvtStringToCharSetTable(
     }
   strcpy(work_str, in_str);
 
-  if ((size_t)numCharsets > (SIZE_MAX / sizeof(XmStringCharSet)) - 1)
-    {
-      XtFree(work_str);
-      return(False);
-    }
   tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);
   if (strDataSize > SIZE_MAX - tableSize ||
       tableSize > (size_t)UINT_MAX ||
@@ -2629,7 +2625,7 @@ CvtStringToAtomList(
 		return(False);
 	      }
 	      memcpy((char *)new_names, (char *)name_list,
-		     (sizeof(char *) * atom_count));
+	     (sizeof(char *) * (size_t)atom_count));
 	      name_list = new_names;
 	    }
 	  else

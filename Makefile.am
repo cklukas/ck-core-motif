@@ -108,6 +108,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-atom-list-converter-inputs.py \
 	      tests/automated/check-unit-converter-inputs.py \
 	      tests/automated/check-pixel-converter-inputs.py \
+	      tests/automated/check-resconvert-portability.py \
 	      tests/automated/check-select-color-converter-inputs.py \
 	      tests/automated/check-tablist-converter-inputs.py \
 	      tests/automated/check-render-table-converter-inputs.py \
