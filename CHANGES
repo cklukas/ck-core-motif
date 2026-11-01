@@ -3974,6 +3974,14 @@ Saturate Gadget default dimensions (2026-11-01)
   to the `Dimension` range instead of wrapping a large control to a small one.
 - Add a focused regression and documentation.
 
+Clamp ColorSelector layout geometry (2026-11-01)
+==================================================
+
+- Keep derived child sizes and accumulated positions representable before
+  configuring ColorSelector children, avoiding `Dimension` and `Position`
+  wraparound with large margins or controls.
+- Extend the focused layout regression and documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 

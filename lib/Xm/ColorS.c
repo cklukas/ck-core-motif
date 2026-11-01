@@ -59,6 +59,26 @@
 
 #define SUPERCLASS ((WidgetClass) &xmManagerClassRec)
 
+static Dimension
+ColorSelectorDimension(long long value)
+{
+    if (value <= 0)
+	return (Dimension)0;
+    if (value > (long long)USHRT_MAX)
+	return (Dimension)USHRT_MAX;
+    return (Dimension)value;
+}
+
+static Position
+ColorSelectorPosition(long long value)
+{
+    if (value < (long long)SHRT_MIN)
+	return (Position)SHRT_MIN;
+    if (value > (long long)SHRT_MAX)
+	return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static Boolean
 ParseColorChannels(const char *line,
 		   unsigned short *red,
@@ -1292,6 +1312,7 @@ compute_size(XmColorSelectorWidget csw)
     XtWidgetGeometry	input, radio_geom, color_geom;
     int			width, height;
     Position		x,y;			/* positions		*/
+    Dimension		layout_width, layout_height;
 
     if (XmColorS_bb(csw) == NULL ||
 	XmColorS_scrolled_list(csw) == NULL ||
@@ -1303,14 +1324,15 @@ compute_size(XmColorSelectorWidget csw)
      * First size and place the button box and scrolled list.
      */
     
-    y = XmColorS_margin_height(csw);
-    x = XmColorS_margin_width(csw);
+    y = ColorSelectorPosition((long long)XmColorS_margin_height(csw));
+    x = ColorSelectorPosition((long long)XmColorS_margin_width(csw));
     width = (int)csw->core.width -
 	(2 * (int)XmColorS_margin_width(csw));
     if (width < 0)
 	width = 0;
 
-    input.width = width;
+    layout_width = ColorSelectorDimension((long long)width);
+    input.width = layout_width;
     input.request_mode = CWWidth;
 
     (void) XtQueryGeometry(XmColorS_chose_radio(csw), NULL, &radio_geom);
@@ -1327,39 +1349,46 @@ compute_size(XmColorSelectorWidget csw)
      * of the scrolled list and button box.
      */
 
-    color_geom.height = (Dimension)(height / 4);
+    color_geom.height = ColorSelectorDimension((long long)height / 4);
     height -= (int)color_geom.height;
     if (color_geom.height > 2 * color_geom.border_width)
-	color_geom.height -= 2 * color_geom.border_width;
+	color_geom.height = ColorSelectorDimension(
+	    (long long)color_geom.height - 2 * (long long)color_geom.border_width);
     else
 	color_geom.height = 0;
 
-    _XmConfigureWidget(XmColorS_bb(csw), x, y, width, height, 0);
-    _XmConfigureWidget(XmColorS_scrolled_list(csw), x, y, width, height, 0);
+    layout_height = ColorSelectorDimension((long long)height);
+    _XmConfigureWidget(XmColorS_bb(csw), x, y, layout_width, layout_height, 0);
+    _XmConfigureWidget(XmColorS_scrolled_list(csw), x, y, layout_width,
+			layout_height, 0);
     
-    y += height + XmColorS_margin_height(csw);
+    y = ColorSelectorPosition((long long)y + (long long)layout_height +
+	(long long)XmColorS_margin_height(csw));
     
     /*
      * Place the radio box.
      */
     
     if ( radio_geom.width < csw->core.width )
-	x = ((int)csw->core.width - (int)radio_geom.width) / 2;
+	x = ColorSelectorPosition(((long long)csw->core.width -
+				   (long long)radio_geom.width) / 2);
     else
-	x = XmColorS_margin_width(csw);
+	x = ColorSelectorPosition((long long)XmColorS_margin_width(csw));
 
     _XmConfigureWidget(XmColorS_chose_radio(csw), x, y, radio_geom.width, 
 		       radio_geom.height, radio_geom.border_width);
 
-    y += radio_geom.height + XmColorS_margin_height(csw);
+    y = ColorSelectorPosition((long long)y + (long long)radio_geom.height +
+	(long long)XmColorS_margin_height(csw));
     
     /*
      * Lastly, place the color window
      */
 
     if (XmColorS_color_window(csw) != NULL)
-	    _XmConfigureWidget(XtParent(XmColorS_color_window(csw)), XmColorS_margin_width(csw), y,
-			       width, color_geom.height, color_geom.border_width);
+	    _XmConfigureWidget(XtParent(XmColorS_color_window(csw)),
+			       ColorSelectorPosition((long long)XmColorS_margin_width(csw)), y,
+			       layout_width, color_geom.height, color_geom.border_width);
 }
 
 /*      Function Name: 	read_rgb_file
