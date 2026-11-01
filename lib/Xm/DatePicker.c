@@ -64,7 +64,7 @@ externaldef(xmdatepickerclassrec) XmDatePickerClassRec xmDatePickerClassRec =
       resources, XtNumber(resources), NULLQUARK, True,
       XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay,
       SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
-      XtInheritTranslations, QueryGeometry, NULL, NULL},
+      (String)_XmPrimitiveTabFocusTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
      {NULL}};
@@ -319,10 +319,12 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     (void)closure; (void)continue_dispatch;
     if (picker == NULL || event == NULL || !XmIsDatePicker(widget))
 	return;
+    if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == ButtonPress ||
         (event->type == KeyPress &&
          (XLookupString(&event->xkey, input, sizeof(input), &key, NULL) >= 0) &&
          (key == XK_Return || key == XK_KP_Enter || key == XK_space))) {
+        if (event->type == KeyPress && continue_dispatch) *continue_dispatch = False;
         if (picker->date_picker.open)
             XmDatePickerClose(widget);
         else

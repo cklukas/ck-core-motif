@@ -61,7 +61,7 @@ xmBreadcrumbBarClassRec = {{(WidgetClass)&xmPrimitiveClassRec,
     XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True,
     False, Destroy, NULL, Redisplay, SetValues, NULL,
     XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
-    XtInheritTranslations,
+    (String)_XmPrimitiveTabFocusTranslations,
     QueryGeometry, NULL, NULL},
     {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
      XtInheritTranslations, NULL, NULL, 0, NULL},
@@ -341,6 +341,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
     int length, index;
     (void)data; (void)dispatch;
     if (widget == NULL || event == NULL || !XmIsBreadcrumbBar(widget)) return;
+    if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == ButtonPress) {
         index = hit_test(bar, event->xbutton.x);
         if (index >= 0)
@@ -356,6 +357,8 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
         return;
     length = XLookupString(&event->xkey, buffer, sizeof(buffer), &key, NULL);
     (void)length;
+    if (dispatch && (key == XK_Return || key == XK_KP_Enter || key == XK_Left || key == XK_Right))
+        *dispatch = False;
     if (key == XK_Return || key == XK_KP_Enter) {
         activate(bar, event);
     } else if (key == XK_Left) {

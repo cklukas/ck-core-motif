@@ -1,3 +1,15 @@
+Give custom interactive controls focus on primary click (2026-11-01)
+====================================================================
+
+- Request keyboard traversal on primary clicks in custom interactive controls
+  that previously bypassed native button focus handling, including the SearchBox
+  clear target. Respect sensitivity and traversal configuration and stop safely
+  if a focus callback destroys the widget.
+- Provide standard Tab actions for custom interactive controls and keep handled
+  arrow and activation keys from also invoking parent traversal or activation.
+  Restore non-text arrow key handling in DataGrid and TimePicker.
+- Add a native cross-control regression for click focus and Tab navigation.
+
 Connect TreeView navigation and click focus (2026-11-01)
 ========================================================
 

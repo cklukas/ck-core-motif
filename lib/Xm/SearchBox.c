@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "CallbackI.h"
+#include "PrimitiveI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
@@ -205,6 +206,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
     if (event->type == LeaveNotify) { box->search.clear_armed = False; return; }
     if (event->type == ButtonPress && event->xbutton.button == Button1 &&
         clear_hit(box, event->xbutton.x, event->xbutton.y)) {
+        if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
         box->search.clear_armed = True;
         if (dispatch) *dispatch = False;
         return;

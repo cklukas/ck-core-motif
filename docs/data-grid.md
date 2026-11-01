@@ -13,6 +13,7 @@ above those limits) are rejected without replacing the previous snapshot.
 The control realizes only the finite visible viewport.  Header and row metrics,
 top-row scrolling, and RTL column presentation are resources; wheel events,
 keyboard traversal, and `XmDataGridSetTopRow` all clamp to the bounded model.
+Arrow and paging keysyms work even when the X input event produces no text.
 Sorting is request-only: `XmDataGridRequestSort` and header activation emit a
 sort callback, but never reorder application data.
 

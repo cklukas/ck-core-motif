@@ -29,7 +29,7 @@ static XtResource resources[] = {
  {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean), Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
  {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension, sizeof(Dimension), Offset(primitive.highlight_thickness), XmRCallProc, (XtPointer)_XmSetThickness}
 };
-externaldef(xmratingcontrolclassrec) XmRatingControlClassRec xmRatingControlClassRec = {{(WidgetClass)&xmPrimitiveClassRec,"XmRatingControl",sizeof(XmRatingControlRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,Redisplay,SetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,XtInheritTranslations,QueryGeometry,NULL,NULL},{Highlight,Unhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
+externaldef(xmratingcontrolclassrec) XmRatingControlClassRec xmRatingControlClassRec = {{(WidgetClass)&xmPrimitiveClassRec,"XmRatingControl",sizeof(XmRatingControlRec),NULL,NULL,False,Initialize,NULL,XtInheritRealize,NULL,0,resources,XtNumber(resources),NULLQUARK,True,XtExposeCompressMaximal,True,False,Destroy,NULL,Redisplay,SetValues,NULL,XtInheritSetValuesAlmost,NULL,NULL,XtVersion,NULL,(String)_XmPrimitiveTabFocusTranslations,QueryGeometry,NULL,NULL},{Highlight,Unhighlight,XtInheritTranslations,NULL,NULL,0,NULL},{NULL}};
 externaldef(xmratingcontrolwidgetclass) WidgetClass xmRatingControlWidgetClass=(WidgetClass)&xmRatingControlClassRec;
 static void normalize(XmRatingControlWidget rating) { if (rating->rating.count < 1) rating->rating.count=1; if (rating->rating.value<0) rating->rating.value=0; if (rating->rating.value>rating->rating.count) rating->rating.value=rating->rating.count; }
 static void draw_star(Display *display, Window window, GC gc, int center_x,
@@ -230,6 +230,10 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
         { KeySym key = XLookupKeysym(&event->xkey, 0);
           RatingMetrics m; metrics(rating, &m);
           int delta = 0;
+          if (dispatch && (key == XK_Left || key == XK_Right || key == XK_Up || key == XK_Down ||
+              key == XK_Home || key == XK_End ||
+              (rating->rating.allow_clear && (key == XK_Delete || key == XK_BackSpace))))
+              *dispatch = False;
           rating->rating.hover_value = 0; rating->rating.armed = False; redraw(widget);
           if (key == XK_Left) delta = m.rtl ? 1 : -1;
           else if (key == XK_Right) delta = m.rtl ? -1 : 1;

@@ -1508,6 +1508,44 @@ _XmPrimitiveParentCancel(
     _XmParentProcess( XtParent( pw), (XmParentProcessData) &pp_data) ;
 }
 
+/* Event-driven custom controls handle their own arrows and activation keys.
+ * Install focus and Tab traversal without also dispatching those keys to the
+ * parent as Primitive's full translation table would. */
+const char _XmPrimitiveTabFocusTranslations[] =
+    "<Unmap>: PrimitiveUnmap()\n"
+    "<FocusIn>: PrimitiveFocusIn()\n"
+    "<FocusOut>: PrimitiveFocusOut()\n"
+    "s ~m ~a <Key>Tab: PrimitivePrevTabGroup()\n"
+    "~m ~a <Key>Tab: PrimitiveNextTabGroup()";
+
+/* Custom interactive primitives use the same click-to-focus behavior as
+ * PushButton. Focus callbacks may destroy the target during traversal. */
+static void
+focus_click_destroyed(Widget widget, XtPointer closure, XtPointer call)
+{
+    (void)widget; (void)call;
+    *(Boolean *)closure = True;
+}
+
+Boolean
+_XmPrimitiveFocusOnPrimaryClick(Widget widget, XEvent *event)
+{
+    Boolean destroyed = False;
+    if (!widget || !event || event->type != ButtonPress ||
+        event->xbutton.button != Button1 || !XmIsPrimitive(widget) ||
+        !XtIsSensitive(widget) || !((XmPrimitiveWidget)widget)->primitive.traversal_on)
+        return True;
+    XtAddCallback(widget, XmNdestroyCallback, focus_click_destroyed, &destroyed);
+    XmProcessTraversal(widget, XmTRAVERSE_CURRENT);
+    if (destroyed) return False;
+    if (widget->core.being_destroyed) {
+        XtRemoveCallback(widget, XmNdestroyCallback, focus_click_destroyed, &destroyed);
+        return False;
+    }
+    XtRemoveCallback(widget, XmNdestroyCallback, focus_click_destroyed, &destroyed);
+    return True;
+}
+
 /**********************************************************************
  *
  * _XmButtonTakeFocus

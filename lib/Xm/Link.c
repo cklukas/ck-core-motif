@@ -54,7 +54,7 @@ externaldef(xmlinkclassrec) XmLinkClassRec xmLinkClassRec = {
      False, Initialize, NULL, XtInheritRealize, NULL, 0, resources,
      XtNumber(resources), NULLQUARK, True, XtExposeCompressMaximal, True, False,
      Destroy, NULL, Redisplay, SetValues, NULL, XtInheritSetValuesAlmost, NULL,
-     NULL, XtVersion, NULL, XtInheritTranslations, QueryGeometry, NULL, NULL},
+     NULL, XtVersion, NULL, (String)_XmPrimitiveTabFocusTranslations, QueryGeometry, NULL, NULL},
     {XmInheritBorderHighlight, XmInheritBorderUnhighlight, XtInheritTranslations,
      NULL, NULL, 0, NULL}, NULL};
 externaldef(xmlinkwidgetclass) WidgetClass xmLinkWidgetClass =
@@ -241,11 +241,14 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
     (void)data; (void)dispatch;
     if (widget == NULL || event == NULL || !XmIsLink(widget)) return;
     if (!XtIsSensitive(widget)) return;
+    if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == ButtonPress) { XmLinkActivate(widget, event); return; }
     if (event->type != KeyPress) return;
     XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
-    if (key == XK_space || key == XK_Return || key == XK_KP_Enter)
+    if (key == XK_space || key == XK_Return || key == XK_KP_Enter) {
+        if (dispatch) *dispatch = False;
         XmLinkActivate(widget, event);
+    }
 }
 void XmLinkActivate(Widget widget, XEvent *event) {
     XmLinkWidget link; XmLinkCallbackStruct callback;

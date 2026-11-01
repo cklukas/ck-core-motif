@@ -112,6 +112,8 @@ extern void _XmMenuButtonTakeFocusUp(
                         XEvent *event,
                         String *params,
                         Cardinal *num_params) ;
+extern Boolean _XmPrimitiveFocusOnPrimaryClick(Widget, XEvent *);
+extern const char _XmPrimitiveTabFocusTranslations[];
 /********    End Private Function Declarations    ********/
 
 

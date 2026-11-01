@@ -66,7 +66,7 @@ externaldef(xmcalendarclassrec) XmCalendarClassRec xmCalendarClassRec =
       resources, XtNumber(resources), NULLQUARK, True,
       XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay,
       SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
-      XtInheritTranslations, QueryGeometry, NULL, NULL},
+      (String)_XmPrimitiveTabFocusTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
       XtInheritTranslations, NULL, NULL, 0, NULL},
      {NULL}};
@@ -419,8 +419,13 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     int col, row, first, offset, position, day;
     (void)closure; (void)continue_dispatch;
     if (widget == NULL || event == NULL || !XmIsCalendar(widget)) return;
+    if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == KeyPress) {
         XLookupString(&event->xkey, buffer, sizeof(buffer), &key, NULL);
+        if (continue_dispatch && (key == XK_Left || key == XK_Right || key == XK_Up ||
+            key == XK_Down || key == XK_Page_Up || key == XK_Page_Down || key == XK_Home ||
+            key == XK_End || key == XK_Return || key == XK_KP_Enter))
+            *continue_dispatch = False;
         candidate = calendar->calendar.date;
         if (key == XK_Left || key == XK_Right || key == XK_Up ||
             key == XK_Down) {
