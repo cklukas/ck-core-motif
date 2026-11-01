@@ -2591,14 +2591,13 @@ Time GetTimestamp (void)
     Time timestamp;
     WmScreenData *pSD = ACTIVE_PSD;
     XEvent event;
-    long property;
 
     /*
      * Do zero-length append to our own WM_STATE
      */
     XChangeProperty (DISPLAY, pSD->wmWorkspaceWin, wmGD.xa_WM_STATE, 
 	wmGD.xa_WM_STATE, 32, PropModeAppend, 
-	(unsigned char *)&property, 0);
+	NULL, 0);
 
     /*
      * Pick up the property notify event

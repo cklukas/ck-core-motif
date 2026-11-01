@@ -77,6 +77,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM command window-array width](mwm-command-window-array-width.md) — guard WSM command counts.
 - [MWM command-tree allocation failures](mwm-command-tree-allocation.md) — preserve existing commands when replacement allocation fails.
 - [MWM button-event callback dispatch](mwm-button-event-dispatch.md) — pass button bindings through the declared event type.
+- [MWM timestamp property event](mwm-timestamp-property-event.md) — request zero-item property notifications without undefined data.
 - [MWM colormap-reference array width](mwm-colormap-reference-width.md) — guard dynamic reference lists.
 - [MWM transient-list growth](transient-list-growth.md) — propagate temporary-list allocation failure.
 - [MWM session command-vector width](mwm-session-command-vector-width.md) — guard restore vectors.

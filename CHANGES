@@ -1,3 +1,11 @@
+Clarify MWM timestamp property payload (2026-11-01)
+=====================================================
+
+- Use a null payload for MWM's intentional zero-item `XChangeProperty` call,
+  removing an uninitialized local address from the timestamp event path.
+- Add focused timestamp-event coverage and document the unchanged X11
+  round-trip behavior.
+
 Type MWM button-event callback dispatch (2026-11-01)
 =====================================================
 
