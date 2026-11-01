@@ -1,3 +1,10 @@
+Guard DataGrid queries during teardown (2026-11-01)
+=====================================================
+
+- Make DataGrid model, selection, edit, and state queries return their
+  established empty values while destruction is in progress, rather than
+  examining partially released backing storage.
+
 Bound protocol-property element counts (2026-11-01)
 =====================================================
 
