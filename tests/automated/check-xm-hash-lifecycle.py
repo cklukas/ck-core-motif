@@ -23,4 +23,7 @@ assert add.index("if (table->count == UINT_MAX)") < add.index("entry = NewBucket
 debug = source[source.index("#ifdef DEBUG"):]
 assert "if (total_in_use != 0)" in debug
 assert "table -> count / total_in_use" in debug
+assert "Cardinal i, max, total_in_use;" in debug
+assert "Cardinal count;" in debug
+assert 'printf("total entries %u\\n", (unsigned int)table -> count);' in debug
 print("PASS Xm hash lookup and removal lifecycle is guarded")
