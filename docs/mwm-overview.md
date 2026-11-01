@@ -11,6 +11,7 @@ clients exchanging Motif window-management messages.
 ## Protocol and property boundaries
 
 - [MWM protocol allocation behavior](mwm-protocol-oom.md)
+- [MWM property element-count bounds](mwm-property-count-width.md)
 - [WM state read guards](wmstate-read-guards.md)
 - [MWM hints read guards](mwm-hints-read-guards.md)
 - [MWM info read guards](mwm-info-read-guards.md)

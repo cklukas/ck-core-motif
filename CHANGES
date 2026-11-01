@@ -1,3 +1,11 @@
+Bound MWM Xlib property element counts (2026-11-01)
+=====================================================
+
+- Reject property element counts that exceed Xlib's signed `int` contract
+  before serializing embedded-client, workspace-info/list/presence, or MWM
+  client-list properties. Valid property updates, including empty lists, keep
+  their existing wire representation.
+
 Decode empty WSM wire collections correctly (2026-11-01)
 =========================================================
 
