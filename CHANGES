@@ -1,3 +1,10 @@
+Reject missing scrolled-list arguments (2026-11-01)
+==================================================
+
+- Reject a nonzero argument count with a null argument list before merging
+  arguments or creating widgets. Zero arguments still accept a null list.
+- Extend the executable constructor unit regression with the malformed input.
+
 Handle scrolled-text construction failures (2026-11-01)
 ======================================================
 

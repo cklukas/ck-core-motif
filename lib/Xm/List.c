@@ -10705,7 +10705,8 @@ XmCreateScrolledList(Widget parent,
   Arg my_args[4];
   Cardinal nargs;
 
-  if (argCount > (Cardinal)(~(Cardinal)0 - 4))
+  if ((argCount != 0 && args == NULL) ||
+      argCount > (Cardinal)(~(Cardinal)0 - 4))
     return NULL;
 
   if (XmStrlen(name) > SIZE_MAX - 3)

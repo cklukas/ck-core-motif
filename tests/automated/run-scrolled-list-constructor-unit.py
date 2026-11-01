@@ -101,11 +101,11 @@ int main(void) {
     assert(CreateScrolledInput(&parent_id,"overflow",NULL,UINT_MAX)==NULL);
     assert(shells==4 && children==3 && callbacks==2 && destroyed==1);
     assert(locks == 0);
+    assert(CreateScrolledInput(&parent_id,"missingArgs",NULL,1)==NULL);
+    assert(locks==0 && shells==4);
 #if TEST_TEXT
     {
         char long_name[65]; Arg many[31] = {{0}};
-        assert(CreateScrolledInput(&parent_id,"missingArgs",NULL,1)==NULL);
-        assert(locks==0 && shells==4);
         memset(long_name,'x',64); long_name[64]=0;
         allocation_calls=0;fail_allocation=1;
         assert(CreateScrolledInput(&parent_id,long_name,NULL,0)==NULL);
