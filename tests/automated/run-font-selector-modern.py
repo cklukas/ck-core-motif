@@ -65,6 +65,9 @@ def main():
                  '-L' + str(library.parent)]
         if platform.system() == 'Darwin':
             flags += ['-I/opt/X11/include', '-I/opt/X11/include/freetype2', '-L/opt/X11/lib']
+        else:
+            flags += shlex.split(subprocess.check_output(
+                ['pkg-config', '--cflags', 'xft', 'fontconfig'], env=env, text=True))
         run('compile', shlex.split(args.cc) + flags + [str(source),
             '-lXm', '-lXt', '-lX11', '-lXft', '-lfontconfig', '-o', str(binary)])
         xvfb = shutil.which('Xvfb') or '/opt/X11/bin/Xvfb'
