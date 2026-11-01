@@ -42,7 +42,7 @@ item, including those after the item that exceeded the size limit. Successful
 output bytes, encoding choices and fallback behavior remain unchanged.
 
 The executable ownership regression extracts the production property import/export
-functions and exercises 105 cases across the locale/string and ASN.1 styles: every
+functions and exercises 116 cases across the locale/string and ASN.1 styles: every
 allocation failure, per-item conversion errors, oversized aggregate lengths,
 strict fallback, serializer failures and successful output bytes. Allocation, length
 and conversion test doubles allow overflow and rollback checks without large
@@ -54,7 +54,7 @@ python3 tests/automated/run-text-property-ownership-unit.py --out /absolute/fres
 ```
 
 The runner uses strict compiler warnings and ASan/UBSan and records the tested
-source hash, commands and results in `receipt.json`. This unit scope does not
+source hashes, commands and results in `receipt.json`. This unit scope does not
 qualify the locale provider's actual character conversion or X11 transfers.
 
 ASN.1 import rollback destroys each completed `XmString` with `XmStringFree`,
@@ -118,3 +118,14 @@ the source bytes remain unchanged and returned items match, and injects failure
 at all seven allocations of a two-item import. Character-conversion providers
 remain test doubles; this is parsing/ownership coverage rather than live locale
 or X11 service qualification.
+
+ASN.1 property tests also execute the production `XmStringByteStreamLength`
+and its header readers from `XmString.c`, alongside the importer from
+`TxtPropCv.c`. Exact-sized truncated identifiers, short/long headers and missing
+payloads must be rejected before the element decoder runs, including a malformed
+tail after a valid element. Valid single and concatenated long-form encodings
+must produce the expected items. Both production files are fingerprinted.
+Restoring the old inferred-header calculation in a scratch copy reproduced an
+ASan heap-buffer-overread in this integrated test. Element creation and locale
+conversion remain ownership-aware test doubles; this does not qualify a whole
+installed toolkit build.

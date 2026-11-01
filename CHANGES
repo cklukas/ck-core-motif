@@ -1,3 +1,13 @@
+Exercise ASN.1 property import with the production length decoder (2026-11-01)
+============================================================================
+
+- Replace the property fixture's normal length stub with the production
+  XmStringByteStreamLength and its header readers; record both source hashes.
+- Reject truncated identifiers, short/long headers and missing payloads before
+  element decoding; verify valid single and concatenated long-form strings.
+- Confirm that restoring the previous inferred-header calculation makes the
+  integrated test reproduce a heap-buffer-overread under ASan.
+
 Measure the encoded compound-string header (2026-11-01)
 ======================================================
 

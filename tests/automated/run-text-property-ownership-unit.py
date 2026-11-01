@@ -33,6 +33,25 @@ while depth:
     depth += (content[end] == '{') - (content[end] == '}')
     end += 1
 reverse_body = 'int ' + content[start:end]
+length_source = source.with_name('XmString.c')
+length_content = length_source.read_text()
+
+def extract_length_function(name, signature):
+    start = length_content.index('\n' + name + '(')
+    begin = length_content.index('{', start)
+    end, depth = begin + 1, 1
+    while depth:
+        depth += (length_content[end] == '{') - (length_content[end] == '}')
+        end += 1
+    return signature + length_content[begin:end] + '\n'
+
+length_body = ''.join(extract_length_function(name, signature) for name, signature in [
+    ('_is_short_length', 'static Boolean _is_short_length(unsigned char *p)\n'),
+    ('_read_header_length', 'static unsigned short _read_header_length(unsigned char *p)\n'),
+    ('_read_string_length', 'static unsigned short _read_string_length(unsigned char *p)\n'),
+    ('_is_asn1', 'static Boolean _is_asn1(unsigned char *string)\n'),
+    ('XmStringByteStreamLength', 'unsigned int production_stream_length(unsigned char *string)\n'),
+])
 prefix = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -54,6 +73,17 @@ typedef enum {XmSTYLE_COMPOUND_TEXT, XmSTYLE_COMPOUND_STRING, XmSTYLE_LOCALE,
  XmSTYLE_TEXT, XmSTYLE_STRING, XmSTYLE_STANDARD_ICC_TEXT} XmICCEncodingStyle;
 #define True 1
 #define False 0
+#define TRUE True
+#define FALSE False
+#define ASNHEADERLEN 3
+#define CSSHORTLEN 1
+#define CSLONGLEN 3
+#define CSLONGBIT 0x80
+static const unsigned char ASNHeader[3]={0xdf,0x80,0x06};
+#define _XmProcessLock() (++locks)
+#define _XmProcessUnlock() (--locks)
+static unsigned short _read_header_length(unsigned char *p);
+unsigned int production_stream_length(unsigned char *string);
 #define Success 0
 #define BadValue 2
 #define BadAlloc 11
@@ -128,11 +158,11 @@ static void XmStringFree(XmString s) {
 static XmString XmCvtCTToXmString(char *text) { return owned_string(text); }
 static unsigned int XmStringByteStreamLength(unsigned char *s) {
     if(++length_calls==length_fail_at)return UINT_MAX;
-    return 4+(unsigned int)s[3];
+    return production_stream_length(s);
 }
 static XmString XmCvtByteStreamToXmString(unsigned char *s) {
     if(++decode_calls==decode_fail)return NULL;
-    char text[2]={(char)s[4],0};return owned_string(text);
+    char text[2]={(char)s[_read_header_length(s)],0};return owned_string(text);
 }
 static XmString XmStringGenerate(XtPointer text,XmStringTag tag,XmTextType type,XmStringTag rendition) {
     (void)tag;(void)type;(void)rendition;return owned_string(text);
@@ -189,7 +219,7 @@ int main(void) {
     assert(live==1 && locks==0 && property.nitems==19 && property.format==8);
     assert(memcmp(property.value,"first\0second\0third\0\0",20)==0);
     XtFree((char *)property.value);assert(live==0);
-    unsigned char encoded[]={1,2,3,1,'a',1,2,3,1,'b',1,2,3,1,'c'};
+    unsigned char encoded[]={0xdf,0x80,0x06,1,'a',0xdf,0x80,0x06,1,'b',0xdf,0x80,0x06,1,'c'};
     property.value=encoded;property.nitems=sizeof(encoded);property.encoding=43;
     XmStringTable output=NULL;int output_count=0;
     for(decode_fail=1;decode_fail<=3;++decode_fail) {
@@ -261,13 +291,43 @@ int main(void) {
         }
         fail_at=0;
     }
+    const unsigned char rejected[][11]={
+        {0xdf}, {0xdf,0x80}, {0xdf,0x80,0x06}, {0xdf,0x80,0x06,0x82},
+        {0xdf,0x80,0x06,0x82,0}, {0xdf,0x80,0x06,0x82,0,2},
+        {0xdf,0x80,0x06,2}, {1,2,3,1},
+        {0xdf,0x80,0x06,1,'a',0xdf,0x80,0x06,0x82,0,2}};
+    const size_t rejected_sizes[]={1,2,3,4,5,6,4,4,11};
+    property.encoding=43;length_fail_at=0;
+    for(unsigned sample=0;sample<XtNumber(rejected);++sample) {
+        unsigned char *exact=malloc(rejected_sizes[sample]);assert(exact);
+        memcpy(exact,rejected[sample],rejected_sizes[sample]);
+        property.value=exact;property.nitems=rejected_sizes[sample];
+        output=NULL;decode_calls=0;
+        assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==XConverterNotFound);
+        assert(decode_calls==0 && live==0 && locks==0 && output==NULL);
+        free(exact);
+    }
+    unsigned char long_forms[]={0xdf,0x80,0x06,0x82,0,1,'a',0xdf,0x80,0x06,0x82,0,1,'b'};
+    for(int count=1;count<=2;++count) {
+        property.value=long_forms;property.nitems=(unsigned long)count*7;
+        output=NULL;decode_calls=0;
+        assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==Success);
+        assert(output_count==count && decode_calls==count && locks==0);
+        for(int i=0;i<count;++i) {
+            assert(((OwnedString *)output[i])->payload[0]=='a'+i);
+            XmStringFree(output[i]);
+        }
+        XtFree((char *)output);assert(live==0);
+    }
     puts("PASS text-property conversion allocation/overflow cleanup, strict fallback and output bytes");
 }
 '''
 program = args.out / 'text-property.c'
-program.write_text(prefix + body + reverse_body + checks)
+program.write_text(prefix + length_body + body + reverse_body + checks)
 binary = args.out / 'text-property'
 receipt = {'source': str(source), 'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+           'length_source': str(length_source),
+           'length_source_sha256': hashlib.sha256(length_source.read_bytes()).hexdigest(),
            'started_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
            'duration_baseline': 'not established', 'steps': [], 'success': False}
 began = time.monotonic()
