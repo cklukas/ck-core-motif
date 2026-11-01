@@ -81,10 +81,7 @@ ObjectPtr	wml_cur_subobj;
  *	ctype		class type, one of METACLASS | WIDGET | GADGET
  */
 
-void wmlCreateClass (name, ctype)
-    char		*name;
-    int			ctype;
-
+void wmlCreateClass(char *name, int ctype)
 {
 
 WmlSynClassDefPtr	cdesc;		/* new class descriptor */
@@ -152,10 +149,7 @@ return;
  *			ARGUMENT | REASON | CONSTRAINT | SUBRESOURCE
  */
 
-void wmlCreateResource (name, rtype)
-    char		*name;
-    int			rtype;
-
+void wmlCreateResource(char *name, int rtype)
 {
 
 WmlSynResourceDefPtr	rdesc;		/* new resource descriptor */
@@ -224,9 +218,7 @@ return;
  *	name		the datatype name
  */
 
-void wmlCreateDatatype (name)
-    char		*name;
-
+void wmlCreateDatatype(char *name)
 {
 
 WmlSynDataTypeDefPtr	ddesc;		/* new datatype descriptor */
@@ -266,9 +258,7 @@ return;
  *	class		the class name
  */
 
-void wmlCreateChild (name, class)
-     char		*name;
-     char		*class;
+void wmlCreateChild(char *name, char *class)
 {
 
 WmlSynChildDefPtr	chdesc;		/* new child descriptor */
@@ -306,9 +296,7 @@ return;
  *	name		the controls list name
  */
 
-void wmlCreateOrAppendCtrlList (name)
-    char		*name;
-
+void wmlCreateOrAppendCtrlList(char *name)
 {
 int			idx;
 WmlSynCtrlListDefPtr	cdesc;		/* new CtrlList descriptor */
@@ -351,10 +339,7 @@ return;
  *	type		data type, must match a data type name
  */
 
-void wmlCreateEnumSet (name, dtype)
-    char		*name;
-    char		*dtype;
-
+void wmlCreateEnumSet(char *name, char *dtype)
 {
 
 WmlSynEnumSetDefPtr	esdesc;		/* new enumeration set descriptor */
@@ -393,9 +378,7 @@ return;
  *	name		the enumeration value name
  */
 
-void wmlCreateEnumValue (name)
-    char		*name;
-
+void wmlCreateEnumValue(char *name)
 {
 
 WmlSynEnumValueDefPtr	evdesc;		/* new enumeration value descriptor */
@@ -433,9 +416,7 @@ return;
  *	name		the charset name
  */
 
-void wmlCreateCharset (name)
-    char		*name;
-
+void wmlCreateCharset(char *name)
 {
 
 WmlSynCharSetDefPtr	ddesc;		/* new charset descriptor */
@@ -485,10 +466,7 @@ return;
  *	val		value of the attribute, usually a string
  */
 
-void wmlAddClassAttribute (attrid, val)
-    int			attrid;
-    char		*val;
-
+void wmlAddClassAttribute(int attrid, WmlAttributeValue val)
 {
 
 WmlSynClassDefPtr	cdesc;		/* the class descriptor */
@@ -517,25 +495,25 @@ if ( cdesc->validation != WmlClassDefValid )
 switch ( attrid )
     {
     case SUPERCLASS:
-        cdesc->superclass = wmlAllocateString (val);
+        cdesc->superclass = wmlAllocateString (val.string);
 	break;	
     case PARENTCLASS:
-        cdesc->parentclass = wmlAllocateString (val);
+        cdesc->parentclass = wmlAllocateString (val.string);
 	break;	
     case INTERNALLITERAL:
-        cdesc->int_lit = wmlAllocateString (val);
-	break;	
+        cdesc->int_lit = wmlAllocateString (val.string);
+	break;
     case CONVFUNC:
-        cdesc->convfunc = wmlAllocateString (val);
+        cdesc->convfunc = wmlAllocateString (val.string);
 	break;	
     case DOCNAME:
-        cdesc->docname = wmlAllocateString (val);
+        cdesc->docname = wmlAllocateString (val.string);
 	break;	
     case WIDGETCLASS:
-        cdesc->widgetclass = wmlAllocateString (val);
-	break;	
+        cdesc->widgetclass = wmlAllocateString (val.string);
+	break;
     case DIALOGCLASS:
-	switch ( (long)val )
+	switch ( val.token )
 	    {
 	    case ATTRTRUE:
 	        cdesc->dialog = TRUE;
@@ -543,7 +521,7 @@ switch ( attrid )
 	    }
 	break;	
     case CTRLMAPSRESOURCE:
-        cdesc->ctrlmapto = wmlAllocateString (val);
+        cdesc->ctrlmapto = wmlAllocateString (val.string);
 	break;	
     case ALIAS:
 	if ( cdesc->alias_cnt == 0 )
@@ -552,7 +530,7 @@ switch ( attrid )
 	    synlist = (char **)
 		realloc (cdesc->alias_list,
 			 (cdesc->alias_cnt+1)*sizeof(char **));
-	synlist[cdesc->alias_cnt] = wmlAllocateString (val);
+	synlist[cdesc->alias_cnt] = wmlAllocateString (val.string);
 	cdesc->alias_cnt += 1;
 	cdesc->alias_list = synlist;
 	break;
@@ -572,9 +550,7 @@ return;
  *	name		the name of the controlled class
  */
 
-void wmlAddClassControl (name)
-    char			*name;
-
+void wmlAddClassControl(char *name)
 {
     
 WmlSynClassDefPtr	cdesc;		/* the class descriptor */
@@ -626,9 +602,7 @@ return;
  *	name		the resource name
  */
 
-void wmlAddClassResource (name)
-    char			*name;
-
+void wmlAddClassResource(char *name)
 {
     
 WmlSynClassDefPtr	cdesc;		/* the class descriptor */
@@ -683,9 +657,7 @@ return;
  *	name		the resource name
  */
 
-void wmlAddClassChild (name)
-    char			*name;
-
+void wmlAddClassChild(char *name)
 {
     
 WmlSynClassDefPtr	cdesc;		/* the class descriptor */
@@ -738,10 +710,7 @@ return;
  *	val		attribute value, usually a string. Must be
  *			ATTRTRUE | ATTRFALSE for EXCLUDE.
  */
-void wmlAddClassResourceAttribute (attrid, val)
-    int			attrid;
-    char		*val;
-
+void wmlAddClassResourceAttribute(int attrid, WmlAttributeValue val)
 {
 
 WmlSynClassResDefPtr	rdesc;		/* current class resource descriptor */
@@ -768,13 +737,13 @@ if ( rdesc->validation != WmlClassResDefValid )
 switch ( attrid )
     {
     case TYPE:
-        rdesc->type = wmlAllocateString (val);
+        rdesc->type = wmlAllocateString (val.string);
 	break;
     case DEFAULT:
-        rdesc->dflt = wmlAllocateString (val);
+        rdesc->dflt = wmlAllocateString (val.string);
 	break;
     case EXCLUDE:
-	excval = (long) val;
+	excval = val.token;
 	switch ( excval )
 	    {
 	    case ATTRTRUE:
@@ -816,10 +785,7 @@ return;
  *	val		value of the attribute, usually a string
  */
 
-void wmlAddResourceAttribute (attrid, val)
-    int			attrid;
-    char		*val;
-
+void wmlAddResourceAttribute(int attrid, WmlAttributeValue val)
 {
 
 WmlSynResourceDefPtr	rdesc;		/* the resource descriptor */
@@ -849,29 +815,29 @@ if ( rdesc->validation != WmlResourceDefValid )
 switch ( attrid )
     {
     case TYPE:
-        rdesc->datatype = wmlAllocateString (val);
-	break;	
+        rdesc->datatype = wmlAllocateString (val.string);
+	break;
     case INTERNALLITERAL:
-        rdesc->int_lit = wmlAllocateString (val);
-	break;	
+        rdesc->int_lit = wmlAllocateString (val.string);
+	break;
     case RESOURCELITERAL:
         free (rdesc->resliteral);
-        rdesc->resliteral = wmlAllocateString (val);
+        rdesc->resliteral = wmlAllocateString (val.string);
 	break;	
     case ENUMERATIONSET:
-        rdesc->enumset = wmlAllocateString (val);
+        rdesc->enumset = wmlAllocateString (val.string);
 	break;	
     case DOCNAME:
-        rdesc->docname = wmlAllocateString (val);
+        rdesc->docname = wmlAllocateString (val.string);
 	break;	
     case RELATED:
-        rdesc->related = wmlAllocateString (val);
+        rdesc->related = wmlAllocateString (val.string);
 	break;	
     case DEFAULT:
-        rdesc->dflt = wmlAllocateString (val);
+        rdesc->dflt = wmlAllocateString (val.string);
 	break;	
     case XRMRESOURCE:
-	xrmval = (long) val;
+	xrmval = val.token;
 	switch ( xrmval )
 	    {
 	    case ATTRTRUE:
@@ -895,7 +861,7 @@ switch ( attrid )
 	    synlist = (char **)
 		realloc (rdesc->alias_list,
 			 (rdesc->alias_cnt+1)*sizeof(char **));
-	synlist[rdesc->alias_cnt] = wmlAllocateString (val);
+	synlist[rdesc->alias_cnt] = wmlAllocateString (val.string);
 	rdesc->alias_cnt += 1;
 	rdesc->alias_list = synlist;
 	break;
@@ -921,10 +887,7 @@ return;
  *	val		value of the attribute, usually a string
  */
 
-void wmlAddDatatypeAttribute (attrid, val)
-    int			attrid;
-    char		*val;
-
+void wmlAddDatatypeAttribute(int attrid, WmlAttributeValue val)
 {
 
 WmlSynDataTypeDefPtr	ddesc;		/* the datatype descriptor */
@@ -953,13 +916,13 @@ if ( ddesc->validation != WmlDataTypeDefValid )
 switch ( attrid )
     {
     case INTERNALLITERAL:
-        ddesc->int_lit = wmlAllocateString (val);
+        ddesc->int_lit = wmlAllocateString (val.string);
 	break;	
     case DOCNAME:
-        ddesc->docname = wmlAllocateString (val);
+        ddesc->docname = wmlAllocateString (val.string);
 	break;	
     case XRMRESOURCE:
-	xrmval = (long) val;
+	xrmval = val.token;
 	switch ( xrmval )
 	    {
 	    case ATTRTRUE:
@@ -996,9 +959,7 @@ return;
  *	name		the name of the controlled class
  */
 
-void wmlAddCtrlListControl (name)
-    char			*name;
-
+void wmlAddCtrlListControl(char *name)
 {
     
 WmlSynCtrlListDefPtr	cdesc;		/* the controls list descriptor */
@@ -1048,9 +1009,7 @@ return;
  *
  *	name		the name of the enumeration value
  */
-void wmlAddEnumSetValue (name)
-    char		*name;
-
+void wmlAddEnumSetValue(char *name)
 {
 
 WmlSynEnumSetDefPtr	esdesc;		/* the enumeration set descriptor */
@@ -1099,10 +1058,7 @@ wml_cur_subobj = (ObjectPtr) evelm;
  *	attrid		oneof ENUMLITERAL
  *	val		value of the attribute, usually a string
  */
-void wmlAddEnumValueAttribute (attrid, val)
-    int			attrid;
-    char		*val;
-
+void wmlAddEnumValueAttribute(int attrid, char *val)
 {
 
 WmlSynEnumValueDefPtr	evdesc;		/* the enumeration value descriptor */
@@ -1156,10 +1112,7 @@ return;
  *	val		value of the attribute, usually a string
  */
 
-void wmlAddCharsetAttribute (attrid, val)
-    int			attrid;
-    char		*val;
-
+void wmlAddCharsetAttribute(int attrid, WmlAttributeValue val)
 {
 
 WmlSynCharSetDefPtr	ddesc;		/* the charset descriptor */
@@ -1189,7 +1142,7 @@ if ( ddesc->validation != WmlCharSetDefValid )
 switch ( attrid )
     {
     case INTERNALLITERAL:
-        ddesc->int_lit = wmlAllocateString (val);
+        ddesc->int_lit = wmlAllocateString (val.string);
 	break;	
     case ALIAS:
 	if ( ddesc->alias_cnt == 0 )
@@ -1198,15 +1151,15 @@ switch ( attrid )
 	    synlist = (char **)
 		realloc (ddesc->alias_list,
 			 (ddesc->alias_cnt+1)*sizeof(char **));
-	synlist[ddesc->alias_cnt] = wmlAllocateString (val);
+	synlist[ddesc->alias_cnt] = wmlAllocateString (val.string);
 	ddesc->alias_cnt += 1;
 	ddesc->alias_list = synlist;
 	break;
     case XMSTRINGCHARSETNAME:
-        ddesc->xms_name = wmlAllocateString (val);
-	break;	
+        ddesc->xms_name = wmlAllocateString (val.string);
+	break;
     case DIRECTION:
-	atrval = (long) val;
+	atrval = val.token;
 	switch ( atrval )
 	    {
 	    case LEFTTORIGHT:
@@ -1222,9 +1175,9 @@ switch ( attrid )
 		return;
 		break;
 	    }
-	break;	
+	break;
     case PARSEDIRECTION:
-	atrval = (long) val;
+	atrval = val.token;
 	switch ( atrval )
 	    {
 	    case LEFTTORIGHT:
@@ -1242,7 +1195,7 @@ switch ( attrid )
 	    }
 	break;	
     case CHARACTERSIZE:
-	atrval = (long) val;
+	atrval = val.token;
 	switch ( atrval )
 	    {
 	    case ONEBYTE:
@@ -1279,9 +1232,7 @@ return;
  * For now, issue a very simple error message
  */
 
-void LexIssueError (tkn)
-    int			tkn;
-
+void LexIssueError(int tkn)
 {
 
 switch ( tkn )

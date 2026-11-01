@@ -130,11 +130,7 @@ static key_keytable_entry_type * key_keytable_ptr;
 **--
 **/
 key_keytable_entry_type *
-	key_find_keyword (symbol_length, symbol_ptr)
-
-unsigned int	symbol_length;
-char		* symbol_ptr;
-
+	key_find_keyword(unsigned int symbol_length, char * symbol_ptr)
 {
     
     int

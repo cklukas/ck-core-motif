@@ -74,7 +74,7 @@ static char rcsid[] = "$XConsortium: WmEvent.c /main/7 1996/11/20 15:27:47 rswis
 #endif /* PANELIST */
 
 #include <Xm/RowColumnP.h> /* for MS_LastManagedMenuTime */
-extern XmMenuState _XmGetMenuState();
+#include <Xm/MenuStateI.h>
 
 #ifdef WSM
 /*
@@ -1281,7 +1281,7 @@ Boolean HandleKeyPress (XKeyEvent *keyEvent,
 		}
 #endif /* ROOT_ICON_MENU */
 	      if (!(keySpecs->wmFunction (keySpecs->wmFuncArgs,
-					  functionClient, keyEvent)))
+					  functionClient, (XEvent *)keyEvent)))
 		{
 		  /*
 		   * The window manager function return indicates that further

@@ -165,10 +165,7 @@ extern yystype		yylval;
 **--
 **/
 
-void	sar_map_keyword_to_name( target_frame, keyword_frame )
-
-yystype	    *target_frame;
-yystype	    *keyword_frame;
+void	sar_map_keyword_to_name(yystype *target_frame, yystype *keyword_frame)
 {
     sym_name_entry_type	    *name_entry;
 
@@ -228,10 +225,7 @@ yystype	    *keyword_frame;
 **--
 **/
 
-void	sar_process_id( target_frame, id_frame )
-
-yystype	    *target_frame;
-yystype	    *id_frame;
+void	sar_process_id(yystype *target_frame, yystype *id_frame)
 {
 
     sym_name_entry_type	    *name_entry;
@@ -421,10 +415,7 @@ error_path:
 **--
 **/
 
-void	sar_process_id_ref ( id_frame )
-
-yystype	    * id_frame;
-
+void	sar_process_id_ref(yystype * id_frame)
 {
 
     _assert( id_frame->b_tag == sar_k_token_frame,
@@ -496,10 +487,7 @@ yystype	    * id_frame;
 **--
 **/
 
-int	sar_get_units_type ( parse_frame )
-
-yystype	    *parse_frame;
-
+int	sar_get_units_type(yystype *parse_frame)
 {
     char *units_name;
     int units_type;
@@ -558,20 +546,12 @@ yystype	    *parse_frame;
 **
 **  SIDE EFFECTS:
 **
-**      
+**
 **
 **--
 **/
 
-void	sar_make_private_value
-	    ( value_frame, token_frame, value_type, keyword_frame, arg_type )
-
-yystype	    *value_frame;
-yystype	    *token_frame;
-int	    value_type;
-yystype	    *keyword_frame;
-int	    arg_type;
-
+void	sar_make_private_value(yystype *value_frame, yystype *token_frame, int value_type, yystype *keyword_frame, int arg_type)
 {
     sym_value_entry_type    *value_entry = NULL;
     /*
@@ -724,15 +704,7 @@ int	    arg_type;
     value_frame->value.az_symbol_entry = (sym_entry_type *) value_entry;
 
 }
- void    sar_make_rgb_private_value
-            ( value_frame, token_frame, value_type, keyword_frame, arg_type )
-
-yystype     *value_frame;
-yystype     *token_frame;
-int         value_type;
-yystype     *keyword_frame;
-int         arg_type;
-
+ void    sar_make_rgb_private_value(yystype *value_frame, yystype *token_frame, int value_type, yystype *keyword_frame, int arg_type)
 {
 /* placeholder RAP for RGB data type */
 
@@ -780,13 +752,7 @@ int         arg_type;
 **--
 **/
 
-void	sar_append_table_value( value_frame, table_frame, table_type, comma_frame )
-
-yystype	    *value_frame;
-yystype	    *table_frame;
-int	    table_type;
-yystype	    *comma_frame;
-
+void	sar_append_table_value(yystype *value_frame, yystype *table_frame, int table_type, yystype *comma_frame)
 {
     sym_value_entry_type    *value_entry, *table_entry;
     int			    value_type;
@@ -961,12 +927,7 @@ yystype	    *comma_frame;
 **--
 **/
 
-void	sar_value_not_implemented( value_frame, token_frame, error_text )
-
-yystype	    *value_frame;
-yystype	    *token_frame;
-char	    *error_text;
-
+void	sar_value_not_implemented(yystype *value_frame, yystype *token_frame, char *error_text)
 {
     /*
     ** make the target frame an error value frame
@@ -1017,12 +978,7 @@ char	    *error_text;
 **--
 **/
 
-void	sar_cat_value( operator_frame, op1_frame, op2_frame )
-
-yystype	    *operator_frame;
-yystype	    *op1_frame;
-yystype	    *op2_frame;
-
+void	sar_cat_value(yystype *operator_frame, yystype *op1_frame, yystype *op2_frame)
 {
 
 /*
@@ -1259,11 +1215,7 @@ yystype	    *op2_frame;
 **--
 **/
 
-void	sar_chk_comp_str_attr( target_frame, value_frame, prior_value_frame )
-
-yystype	    *target_frame;
-yystype	    *value_frame;
-yystype	    *prior_value_frame;
+void	sar_chk_comp_str_attr(yystype *target_frame, yystype *value_frame, yystype *prior_value_frame)
 {
 sym_value_entry_type	*value_entry;
 
@@ -1434,13 +1386,7 @@ sym_value_entry_type	*value_entry;
 **--
 **/
 
-void	sar_make_comp_str
-    ( target_frame, value_frame, attr_frame, keyword_frame )
-
-yystype	    *target_frame;
-yystype	    *value_frame;
-yystype	    *attr_frame;
-yystype	    *keyword_frame;
+void	sar_make_comp_str(yystype *target_frame, yystype *value_frame, yystype *attr_frame, yystype *keyword_frame)
 {
 
     sym_value_entry_type    *value_entry;
@@ -1564,13 +1510,7 @@ yystype	    *keyword_frame;
 **--
 **/
 
-void	sar_make_comp_str_comp
-    ( target_frame, type_frame, value_frame, keyword_frame )
-
-yystype	    *target_frame;
-yystype	    *type_frame;
-yystype	    *value_frame;
-yystype	    *keyword_frame;
+void	sar_make_comp_str_comp(yystype *target_frame, yystype *type_frame, yystype *value_frame, yystype *keyword_frame)
 {
   key_keytable_entry_type	*type_entry;
   key_keytable_entry_type	*value_entry;
@@ -1862,13 +1802,7 @@ yystype	    *keyword_frame;
 **--
 **/
 
-void	sar_make_wchar_str
-    ( target_frame, value_frame, attr_frame, keyword_frame )
-
-yystype	    *target_frame;
-yystype	    *value_frame;
-yystype	    *attr_frame;
-yystype	    *keyword_frame;
+void	sar_make_wchar_str(yystype *target_frame, yystype *value_frame, yystype *attr_frame, yystype *keyword_frame)
 {
 
     sym_value_entry_type    *value_entry;
@@ -1945,12 +1879,7 @@ yystype	    *keyword_frame;
 **--
 **/
 
-void	sar_value_type_error( value_frame, expected_type )
-
-yystype	    *value_frame;
-int	    expected_type;
-
-
+void	sar_value_type_error(yystype *value_frame, int expected_type)
 {
 
     _assert( value_frame->b_tag == sar_k_value_frame, "value frame missing" );
@@ -2006,11 +1935,7 @@ int	    expected_type;
 **--
 **/
 
-void	sar_private_error( value_frame )
-
-yystype	    *value_frame;
-
-
+void	sar_private_error(yystype *value_frame)
 {
 
     _assert( value_frame->b_tag == sar_k_value_frame, "value frame missing" );
@@ -2070,16 +1995,13 @@ yystype	    *value_frame;
 **--
 **/
 
-void	sar_import_value_entry(target_frame, token_frame)
-
-yystype	    *target_frame;
-yystype	    *token_frame;
+void	sar_import_value_entry(yystype *target_frame, yystype *token_frame)
 {
     sym_value_entry_type    *value_entry;
 
     _assert( token_frame->b_tag == sar_k_token_frame, "token frame missing" );
 
-    /* 
+    /*
     ** Need to create a value entry and mark it as imported.
     ** The b_type field of the token has been set to the type of value
     ** by a prior grammar reduction
@@ -2144,12 +2066,7 @@ yystype	    *token_frame;
 **--
 **/
 
-void	sar_bind_value_name(id_frame, value_frame, semi_frame)
-
-yystype	    *id_frame;
-yystype	    *value_frame;
-yystype	    *semi_frame;
-
+void	sar_bind_value_name(yystype *id_frame, yystype *value_frame, yystype *semi_frame)
 {
     sym_name_entry_type	    *name_entry;
     sym_value_entry_type    *value_entry;
@@ -2284,10 +2201,7 @@ yystype	    *semi_frame;
 **/
 
 sym_name_entry_type
-    	*sem_dcl_name(id_frame)
-
-XmConst yystype	    *id_frame;
-
+        *sem_dcl_name(XmConst yystype *id_frame)
 {
     sym_name_entry_type	    *name_entry;
     char		    * ptr;
@@ -2380,11 +2294,7 @@ XmConst yystype	    *id_frame;
 **/
 
 sym_value_entry_type
-	*sem_create_value_entry( value, length, value_type )
-
-char	    *value;
-int	    length;
-int	    value_type;
+	*sem_create_value_entry(char *value, int length, int value_type)
 {
     sym_value_entry_type    *value_entry;
 
@@ -2503,11 +2413,7 @@ int	    value_type;
 **--
 **/
 
-void	sar_create_identifier (id_frame, semi_frame)
-
-XmConst yystype	    *id_frame;
-XmConst yystype	    *semi_frame;
-
+void	sar_create_identifier(XmConst yystype *id_frame, XmConst yystype *semi_frame)
 {
     sym_name_entry_type	    *name_entry;
     sym_value_entry_type    *value_entry;
@@ -2599,14 +2505,7 @@ XmConst yystype	    *semi_frame;
 **--
 **/
 
-void	sar_make_font_table
-	    (target_frame, font_frame, prior_target_frame, keyword_frame)
-
-yystype	    *target_frame;
-yystype	    *font_frame;
-yystype	    *prior_target_frame;
-yystype	    *keyword_frame;
-
+void	sar_make_font_table(yystype *target_frame, yystype *font_frame, yystype *prior_target_frame, yystype *keyword_frame)
 {
     sym_value_entry_type    *font_table_entry = NULL;
     sym_value_entry_type    *font_item;
@@ -2749,12 +2648,7 @@ yystype	    *keyword_frame;
 **--
 **/
 
-void	sar_make_font_item(target_frame, charset_frame, font_frame)
-
-yystype	    *target_frame;
-yystype	    *charset_frame;
-yystype	    *font_frame;
-
+void	sar_make_font_item(yystype *target_frame, yystype *charset_frame, yystype *font_frame)
 {
     sym_value_entry_type    *font_value_entry;
     int			    item_type;
@@ -2876,13 +2770,7 @@ yystype	    *font_frame;
 **--
 **/
 
-void	sar_make_font(target_frame, charset_frame, value_frame, keyword_frame)
-
-yystype	    *target_frame;
-yystype	    *charset_frame;
-yystype	    *value_frame;
-yystype	    *keyword_frame;
-
+void	sar_make_font(yystype *target_frame, yystype *charset_frame, yystype *value_frame, yystype *keyword_frame)
 {
     sym_value_entry_type    *font_value_entry;
     sym_value_entry_type    *value_entry;
@@ -2990,13 +2878,7 @@ yystype	    *keyword_frame;
 **--
 **/
 
-void	sar_make_fontset(target_frame, charset_frame, value_frame, keyword_frame)
-
-yystype	    *target_frame;
-yystype	    *charset_frame;
-yystype	    *value_frame;
-yystype	    *keyword_frame;
-
+void	sar_make_fontset(yystype *target_frame, yystype *charset_frame, yystype *value_frame, yystype *keyword_frame)
 {
     sym_value_entry_type    *font_value_entry;
     sym_value_entry_type    *value_entry;
@@ -3107,13 +2989,7 @@ yystype	    *keyword_frame;
 **--
 **/
 
-void	sar_make_color_item
-	    (target_frame, color_frame, letter_frame )
-
-yystype	    *target_frame;
-yystype	    *color_frame;
-yystype	    *letter_frame;
-
+void	sar_make_color_item(yystype *target_frame, yystype *color_frame, yystype *letter_frame)
 {
     sym_color_item_entry_type   *item_entry;
     sym_value_entry_type	*letter_entry;
@@ -3285,12 +3161,7 @@ yystype	    *letter_frame;
 **--
 **/
 
-void	sar_append_color_item(target_frame, item_frame, prior_target_frame)
-
-yystype	    *target_frame;
-yystype	    *item_frame;
-yystype	    *prior_target_frame;
-
+void	sar_append_color_item(yystype *target_frame, yystype *item_frame, yystype *prior_target_frame)
 {
     sym_color_item_entry_type   *item_entry;
     sym_color_item_entry_type   *prior_item_entry = NULL;
@@ -3402,12 +3273,7 @@ yystype	    *prior_target_frame;
 **--
 **/
 
-void	sar_make_color_table(target_frame, list_frame, keyword_frame)
-
-yystype	    *target_frame;
-yystype	    *list_frame;
-yystype	    *keyword_frame;
-
+void	sar_make_color_table(yystype *target_frame, yystype *list_frame, yystype *keyword_frame)
 {
     sym_color_item_entry_type   *next_item_entry;
     sym_value_entry_type	*color_table_entry = NULL;
@@ -3581,13 +3447,7 @@ yystype	    *keyword_frame;
 **--
 **/
 
-void	sar_make_color(target_frame, color_frame, mono_frame, keyword_frame)
-
-yystype	    *target_frame;
-yystype	    *color_frame;
-yystype	    *mono_frame;
-yystype	    *keyword_frame;
-
+void	sar_make_color(yystype *target_frame, yystype *color_frame, yystype *mono_frame, yystype *keyword_frame)
 {
     sym_value_entry_type    *color_entry;
     sym_value_entry_type    *value_entry;
@@ -3701,13 +3561,7 @@ yystype	    *keyword_frame;
 **--
 **/
 
-void	sar_make_icon(target_frame, list_frame, table_frame, keyword_frame)
-
-yystype	    *target_frame;
-yystype	    *table_frame;
-yystype	    *list_frame;
-yystype	    *keyword_frame;
-
+void	sar_make_icon(yystype *target_frame, yystype *list_frame, yystype *table_frame, yystype *keyword_frame)
 {
     sym_value_entry_type    *table_entry = NULL;
     sym_value_entry_type    *icon_entry;

@@ -1050,9 +1050,7 @@ WmAppendBitmapPath(char *destination, size_t capacity, const char *source)
     return True;
 }
 
-char *BitmapPathName (string)
-    char *string;
-
+char *BitmapPathName(char *string)
 {
     static char  fileName[MAXWMPATH+1];
     char *retname;

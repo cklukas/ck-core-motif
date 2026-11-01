@@ -115,12 +115,7 @@ static char rcsid[] = "$TOG: UilSarInc.c /main/12 1997/03/12 15:21:31 dbl $"
 **--
 **/
 
-void	sar_include_file ( file_frame, include_frame, semi_frame )
-
-yystype	    * file_frame;
-yystype	    * include_frame;
-yystype	    * semi_frame;
-
+void	sar_include_file(yystype * file_frame, yystype * include_frame, yystype * semi_frame)
 {
     sym_value_entry_type	* value_entry;
     sym_include_file_entry_type	* include_entry;

@@ -74,7 +74,7 @@ static char rcsid[] = "$TOG: WmResource.c /main/14 1997/04/15 10:30:02 dbl $"
 /*
  * Function Declarations:
  */
-XmColorData *_WmGetDefaultColors ();
+XmColorData *_WmGetDefaultColors(Screen *, Colormap, String);
 
 void _WmTopShadowPixmapDefault (Widget widget, int offset, XrmValue *value);
 void _WmIconImageFDefault (Widget widget, int offset, XrmValue *value);
@@ -6118,11 +6118,7 @@ _WmGetDynamicDefault (Widget widget, unsigned char type, String defaultColor, Pi
  * 
  *************************************<->***********************************/
 
-XmColorData * _WmGetDefaultColors (screen, colormap, defaultColor)
-	Screen *screen;
-	Colormap colormap;
-	String defaultColor;
-
+XmColorData * _WmGetDefaultColors(Screen *screen, Colormap colormap, String defaultColor)
 {
     static XmColorData *defaultSet[2] = {NULL, NULL};
     static int defaultCount[2] = {0, 0};
@@ -6224,7 +6220,7 @@ XmColorData * _WmGetDefaultColors (screen, colormap, defaultColor)
     set[count].screen    = screen;
     set[count].color_map = colormap;
     set[count].allocated = True;
-    
+
     XQueryColor(DISPLAY, colormap, &(set[count].background));
     XQueryColor(DISPLAY, colormap, &(set[count].foreground));
     XQueryColor(DISPLAY, colormap, &(set[count].top_shadow));
@@ -6264,10 +6260,7 @@ XmColorData * _WmGetDefaultColors (screen, colormap, defaultColor)
  * 
  *************************************<->***********************************/
 
-char * WmRealloc (ptr, size)
-	char *ptr;
-	unsigned size;
-
+char * WmRealloc(char *ptr, unsigned size)
 {
     if (ptr)
     {
@@ -6312,10 +6305,7 @@ char * WmRealloc (ptr, size)
  * 
  *************************************<->***********************************/
 
-char * WmMalloc (ptr, size)
-	char *ptr;
-	unsigned size;
-
+char * WmMalloc(char *ptr, unsigned size)
 {
     char *replacement;
 
@@ -6362,10 +6352,7 @@ char * WmMalloc (ptr, size)
  *************************************<->***********************************/
 
 void
-SetupDefaultResources (pSD)
-
-WmScreenData *pSD;
-
+SetupDefaultResources(WmScreenData *pSD)
 {
     KeySpec *nextKeySpec;
     String keyBindings;

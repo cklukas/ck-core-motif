@@ -64,7 +64,7 @@ struct _XmTextFontContext {
     struct ShapingAccounting *shaping;
 };
 #ifdef HAVE_UNICODE_TEXT
-static atomic_ulong font_configuration_epoch = ATOMIC_VAR_INIT(0);
+static atomic_ulong font_configuration_epoch = 0;
 static unsigned long current_font_epoch(void) {
     return atomic_load_explicit(&font_configuration_epoch,memory_order_acquire);
 }

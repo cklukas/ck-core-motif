@@ -1,0 +1,17 @@
+DataType
+    ProbeType { InternalLiteral = probe_literal; XrmResource = False; };
+Resource
+    ProbeResource : Argument { Type = ProbeType; XrmResource = False; };
+Class
+    ProbeWidget : Widget {
+        WidgetClass = probeWidgetClass;
+        DialogClass = True;
+        Resources { ProbeResource { Exclude = True; }; };
+    };
+CharacterSet
+    ProbeCharset {
+        XmStringCharsetName = "PROBE-CHARSET";
+        Direction = RightToLeft;
+        ParseDirection = LeftToRight;
+        CharacterSize = TwoByte;
+    };

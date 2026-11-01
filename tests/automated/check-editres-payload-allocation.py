@@ -3,8 +3,8 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "EditresCom.c").read_text(encoding="utf-8")
-string_start = source.index("_XEditResGetString8(stream, str)")
-widget_start = source.index("_XEditResGetWidgetInfo(stream, info)")
+string_start = source.index("\n_XEditResGetString8(")
+widget_start = source.index("\n_XEditResGetWidgetInfo(")
 string_region = source[string_start:widget_start]
 event_region = source[source.index("case SetValues:"):widget_start]
 widget_region = source[widget_start:source.index("#endif", widget_start)]

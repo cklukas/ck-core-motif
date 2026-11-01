@@ -157,7 +157,7 @@ void	sem_resolve_forward_refs()
 	*/
 	/* %COMPLETE */
 	Uil_percent_complete = 60;
-	if (Uil_cmd_z_command.status_cb != (Uil_continue_type(*)())NULL)
+	if (Uil_cmd_z_command.status_cb != NULL)
 	    diag_report_status();    
 
 
@@ -262,7 +262,7 @@ void	sem_resolve_forward_refs()
 	*/
 	/* %COMPLETE */
 	Uil_percent_complete = 60;
-	if (Uil_cmd_z_command.status_cb != (Uil_continue_type(*)())NULL)
+	if (Uil_cmd_z_command.status_cb != NULL)
 	    diag_report_status();    
 
 	name_entry = fwd_val_entry->az_name;

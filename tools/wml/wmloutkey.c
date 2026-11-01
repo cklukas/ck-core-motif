@@ -60,22 +60,22 @@ static char rcsid[] = "$TOG: wmloutkey.c /main/8 1997/04/14 12:55:51 dbl $"
 /*
  * Routines used only in this module
  */
-void wmlKeyWBuildTables ();
-void wmlKeyWClassTokens ();
-void wmlKeyWGrammarTokens ();
-int wmlKeyWGrammarClass ();
-void wmlKeyWArgTokens ();
-void wmlKeyWReasonTokens ();
-void wmlKeyWCharsetTokens ();
-void wmlKeyWEnumvalTokens ();
-void wmlKeyWChildTokens ();
-void wmlKeyWMakeTokens ();
-void wmlOutputUilKeyTab ();
-void wmlOutputUilKeyTabBody ();
-void wmlTokenClassString ();
-void wmlTokenSymKString ();
-void wmlTokenTokenString ();
-void wmlOutputUilTokName ();
+void wmlKeyWBuildTables(void);
+void wmlKeyWClassTokens(void);
+void wmlKeyWGrammarTokens(void);
+int wmlKeyWGrammarClass(char *token);
+void wmlKeyWArgTokens(void);
+void wmlKeyWReasonTokens(void);
+void wmlKeyWCharsetTokens(void);
+void wmlKeyWEnumvalTokens(void);
+void wmlKeyWChildTokens(void);
+void wmlKeyWMakeTokens(char *sens_name, int class, ObjectPtr obj);
+void wmlOutputUilKeyTab(void);
+void wmlOutputUilKeyTabBody(FILE *outfil, DynamicHandleListDefPtr tokvec, int *maxlen, int *maxkey);
+void wmlTokenClassString(char *dststg, WmlKeyWTokenPtr tok);
+void wmlTokenSymKString(char *dststg, WmlKeyWTokenPtr tok);
+void wmlTokenTokenString(char *dststg, WmlKeyWTokenPtr tok);
+void wmlOutputUilTokName(void);
 
 /*
  * globals
@@ -258,9 +258,7 @@ fclose (infil);
  * This routine translates a string identifying a token class into
  * its matching internal literal.
  */
-int wmlKeyWGrammarClass (token)
-    char		*token;
-
+int wmlKeyWGrammarClass(char *token)
 {
 
 if ( strcmp(token,"argument") == 0 )
@@ -486,11 +484,7 @@ for ( ndx=0 ; ndx<wml_obj_enumval_ptr->cnt ; ndx++ )
  * This routine constructs a case-sensitive and a case-insensitive token
  * and enters them the token vectors.
  */
-void wmlKeyWMakeTokens (sens_name, class, obj)
-    char		*sens_name;
-    int			class;
-    ObjectPtr		obj;
-
+void wmlKeyWMakeTokens(char *sens_name, int class, ObjectPtr obj)
 {
 
 WmlKeyWTokenPtr		senstok;	/* case-sensitive token */
@@ -592,12 +586,7 @@ fclose (outfil);
 /*
  * Routine to output the body of a keyword table
  */
-void wmlOutputUilKeyTabBody (outfil, tokvec, maxlen, maxkey)
-    FILE			*outfil;
-    DynamicHandleListDefPtr	tokvec;
-    int				*maxlen;
-    int				*maxkey;
-
+void wmlOutputUilKeyTabBody(FILE *outfil, DynamicHandleListDefPtr tokvec, int *maxlen, int *maxkey)
 {
 
 int			ndx;		/* loop index */
@@ -639,10 +628,7 @@ for ( ndx=0 ; ndx<tokvec->cnt ; ndx++ )
 /*
  * Routine to return the string for a token class, tkn_k_class_...
  */
-void wmlTokenClassString (dststg, tok)
-    char		*dststg;
-    WmlKeyWTokenPtr	tok;
-
+void wmlTokenClassString(char *dststg, WmlKeyWTokenPtr tok)
 {
 
 switch ( tok->class )
@@ -680,10 +666,7 @@ switch ( tok->class )
 /*
  * Routine to return the string for a sym_k_... for some object
  */
-void wmlTokenSymKString (dststg, tok)
-    char		*dststg;
-    WmlKeyWTokenPtr	tok;
-
+void wmlTokenSymKString(char *dststg, WmlKeyWTokenPtr tok)
 {
 
 WmlClassDefPtr		clsobj;		/* class object */
@@ -734,10 +717,7 @@ switch ( tok->class )
 /*
  * Routine to return the string for a token number, tkn_k_num_...
  */
-void wmlTokenTokenString (dststg, tok)
-    char		*dststg;
-    WmlKeyWTokenPtr	tok;
-
+void wmlTokenTokenString(char *dststg, WmlKeyWTokenPtr tok)
 {
 
 WmlGrammarTokenPtr	grtok;		/* grammar token */

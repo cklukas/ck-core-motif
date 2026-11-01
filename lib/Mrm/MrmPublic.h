@@ -27,6 +27,10 @@
 #include <X11/Intrinsic.h>
 #include <X11/Xmd.h>
 
+/* Widget construction and cleanup use the Xt constructor contract. */
+typedef Widget (*MrmCreateProc)(Widget, String, ArgList, Cardinal);
+typedef void (*MrmCleanupProc)(Widget);
+
 /*
  * Success or other non-error return codes
  */

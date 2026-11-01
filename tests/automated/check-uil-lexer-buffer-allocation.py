@@ -5,7 +5,7 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "clients" / "uil" / "UilLexAna.c").read_text()
 
 init = source[source.index("void  lex_initialize_analyzer"):source.index("\n\f\n/*", source.index("void  lex_initialize_analyzer"))]
-growth_start = source.index("static lex_buffer_type *get_lex_buffer( az_current_lex_buffer )")
+growth_start = source.index("static lex_buffer_type *get_lex_buffer(lex_buffer_type *az_current_lex_buffer)")
 growth = source[growth_start:source.index("\n\f\n/*", growth_start)]
 
 assert "if (comment_text == NULL)" in init

@@ -89,7 +89,7 @@ endif
 
 libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} -lm $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS) $(SVG_LIBS)
 
-noinst_HEADERS = AccessibleI.h AppearanceDrawI.h ColorSpaceI.h BaseClassI.h \
+noinst_HEADERS = SymbolAliasI.h AccessibleI.h AppearanceDrawI.h ColorSpaceI.h BaseClassI.h \
 BitmapsI.h \
 BulletinBI.h \
 CacheI.h \

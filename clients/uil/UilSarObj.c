@@ -150,9 +150,7 @@ extern yystype			yylval;
 **--
 **/
 
-void		sar_assoc_comment( object )
-
-sym_obj_entry_type    *object;
+void		sar_assoc_comment(sym_obj_entry_type *object)
 {
   char *comment;
   size_t comment_length = strlen(comment_text);
@@ -388,10 +386,7 @@ void		sar_create_child
 **--
 **/
 
-void	sar_link_section ( id_frame )
-
-yystype			* id_frame;
-
+void	sar_link_section(yystype * id_frame)
 {
 sym_section_entry_type	* section_entry;
 
@@ -441,10 +436,7 @@ section_entry->entries = id_frame->value.az_symbol_entry;
 **--
 **/
 
-void	sar_save_src_semicolon_pos (semi_frame)
-
-yystype			* semi_frame;
-
+void	sar_save_src_semicolon_pos(yystype * semi_frame)
 {
 sym_section_entry_type	* section_entry;
 
@@ -485,10 +477,7 @@ _sar_save_source_pos (&section_entry->entries->header, semi_frame);
 **--
 **/
 
-void	sar_save_list_end (close_frame)
-
-yystype	    *close_frame;
-
+void	sar_save_list_end(yystype *close_frame)
 {
     sym_list_entry_type		* list_entry;
     yystype			* list_frame;
@@ -534,11 +523,7 @@ yystype	    *close_frame;
 **--
 **/
 
-void	sar_save_src_entry_end (close_frame, entry_frame)
-
-yystype    *close_frame;
-yystype    *entry_frame;
-
+void	sar_save_src_entry_end(yystype *close_frame, yystype *entry_frame)
 {
     sym_entry_type		* entry;
 
@@ -708,11 +693,7 @@ void	sar_unset_object_flags
 **--
 **/
 
-void		sar_set_list_type
-			( current_frame )
-
-yystype		* current_frame;
-
+void		sar_set_list_type(yystype * current_frame)
 {
 
     sym_obj_entry_type		* obj_entry;
@@ -757,11 +738,7 @@ yystype		* current_frame;
 **--
 **/
 
-void		sar_set_object_class
-			( current_frame )
-
-yystype		* current_frame;
-
+void		sar_set_object_class(yystype * current_frame)
 {
 
     sym_obj_entry_type		* obj_entry;
@@ -815,11 +792,7 @@ yystype		* current_frame;
 **--
 **/
 
-void		sar_set_object_variant
-			( current_frame )
-
-yystype		* current_frame;
-
+void		sar_set_object_variant(yystype * current_frame)
 {
 
     sym_obj_entry_type		* obj_entry;
@@ -935,10 +908,7 @@ yystype		* current_frame;
 **--
 **/
 
-yystype		* sem_find_object ( current_frame )
-
-yystype 	* current_frame;
-
+yystype		* sem_find_object(yystype * current_frame)
 {
 
     yystype 	* object_frame;
@@ -989,9 +959,7 @@ yystype 	* current_frame;
 **--
 **/
 
-void		sar_object_reference ( ref_frame )
-yystype 	* ref_frame;
-
+void		sar_object_reference(yystype * ref_frame)
 {
     yystype			* obj_frame;
     sym_obj_entry_type		* obj_entry;
@@ -1177,11 +1145,7 @@ yystype 	* ref_frame;
 **--
 **/
 
-void		sar_update_parent_list
-			( control_list_frame )
-
-yystype 	* control_list_frame;
-
+void		sar_update_parent_list(yystype * control_list_frame)
 {
     yystype			* widget_frame;
     sym_widget_entry_type	* widget_entry;
@@ -1253,10 +1217,7 @@ yystype 	* control_list_frame;
 **--
 **/
 
-void parent_list_traverse (widget_entry, control_list_entry)
-    sym_widget_entry_type	*widget_entry;
-    sym_list_entry_type 	*control_list_entry;
-
+void parent_list_traverse(sym_widget_entry_type *widget_entry, sym_list_entry_type *control_list_entry)
 {
 sym_obj_entry_type		*control_list_member;
 sym_control_entry_type		*control_entry;
@@ -1405,11 +1366,7 @@ sym_parent_list_type		*parent_ptr;
 **--
 **/
 
-void		sar_save_feature
-			( feature_frame )
-
-yystype 	* feature_frame;
-
+void		sar_save_feature(yystype * feature_frame)
 {
     yystype			* widget_frame;
     sym_widget_entry_type	* widget_entry;
@@ -1520,13 +1477,7 @@ yystype 	* feature_frame;
 **
 **--
 **/
-void		sar_save_argument_pair
-  		  ( argument_frame, value_frame, equals_frame)
-
-yystype 	* argument_frame;
-yystype 	* value_frame;
-yystype		* equals_frame;
-
+void		sar_save_argument_pair(yystype * argument_frame, yystype * value_frame, yystype * equals_frame)
 {
 
     yystype			* object_frame;
@@ -1642,13 +1593,7 @@ yystype		* equals_frame;
 **--
 **/
 
-void		sar_save_reason_binding
-  		  	( reason_frame, proc_ref_frame, equals_frame )
-
-yystype		* reason_frame;
-yystype 	* proc_ref_frame;
-yystype 	* equals_frame;
-
+void		sar_save_reason_binding(yystype * reason_frame, yystype * proc_ref_frame, yystype * equals_frame)
 {
 
     yystype			* object_frame;
@@ -1747,12 +1692,7 @@ yystype 	* equals_frame;
 **--
 **/
 
-void		sar_save_control_item
-			( managed_frame, item_frame )
-
-yystype		* managed_frame;
-yystype		* item_frame;
-
+void		sar_save_control_item(yystype * managed_frame, yystype * item_frame)
 {
 
     yystype			* object_frame;
@@ -1840,12 +1780,7 @@ yystype		* item_frame;
 **--
 **/
 
-void		sar_save_control_widget
-			( control_frame, item_frame )
-
-yystype		* control_frame;
-yystype		* item_frame;
-
+void		sar_save_control_widget(yystype * control_frame, yystype * item_frame)
 {
 
     yystype			* object_frame;
@@ -1951,13 +1886,7 @@ yystype		* item_frame;
 **--
 **/
 
-void		sar_save_user_proc_ref_src
-			( procedure_frame, proc_id_frame, proc_arg_frame)
-
-yystype		* procedure_frame;
-yystype 	* proc_id_frame;
-yystype 	* proc_arg_frame;
-
+void		sar_save_user_proc_ref_src(yystype * procedure_frame, yystype * proc_id_frame, yystype * proc_arg_frame)
 {
     sym_proc_ref_entry_type	* proc_ref_entry;
 
@@ -2007,13 +1936,7 @@ yystype 	* proc_arg_frame;
 **--
 **/
 
-void		sar_process_proc_ref
-			( proc_id_frame, proc_arg_frame, context )
-
-yystype 	* proc_id_frame;
-yystype 	* proc_arg_frame;
-int		context;
-
+void		sar_process_proc_ref(yystype * proc_id_frame, yystype * proc_arg_frame, int context)
 {
 
 /*    Call the common routine to get the procedure reference node, and
@@ -2096,11 +2019,7 @@ int		context;
 **--
 **/
 
-void		sar_add_list_entry
-  		  	( entry_frame )
-
-yystype		* entry_frame;
-
+void		sar_add_list_entry(yystype * entry_frame)
 {
     yystype			* list_frame;
     sym_list_entry_type		* list_entry;
@@ -2219,11 +2138,7 @@ yystype		* entry_frame;
 **--
 **/
 
-void		sar_add_forward_list_entry
-  		  	( entry_frame )
-
-yystype		* entry_frame;
-
+void		sar_add_forward_list_entry(yystype * entry_frame)
 {
     yystype			* list_frame;
     sym_list_entry_type		* list_entry;
@@ -2300,10 +2215,7 @@ yystype		* entry_frame;
 **--
 **/
 
-void	sar_verify_object ( current_frame )
-
-yystype			* current_frame;
-
+void	sar_verify_object(yystype * current_frame)
 {
 yystype				* obj_frame;
 sym_widget_entry_type		* widget_entry;
@@ -2465,10 +2377,7 @@ sym_entry_type	* sem_allocate_node
 **--
 **/
 
-void	sem_free_node ( node_ptr )
-
-sym_entry_type		* node_ptr;
-
+void	sem_free_node(sym_entry_type * node_ptr)
 {
 
     UrmPlistAppendPointer (sym_az_freed_nodes, (XtPointer)node_ptr);

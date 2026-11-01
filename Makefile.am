@@ -1421,3 +1421,15 @@ EXTRA_DIST += tests/automated/check-column-label-lifetime.c tests/automated/run-
 EXTRA_DIST += tests/automated/check-scaled-bitmap-depth.c tests/automated/run-scaled-bitmap-depth.py
 
 EXTRA_DIST += docs/modern-integration-validation.json
+
+EXTRA_DIST += tests/automated/check-modern-c-generator.py \
+              tests/automated/check-symbol-aliases.py
+
+EXTRA_DIST += tests/automated/check-mrm-modern-c.c
+
+EXTRA_DIST += tests/automated/check-wml-typed-attributes.c \
+              tests/automated/modern-c-attributes.wml \
+              tests/automated/check-uil-modern-c.c \
+              tests/automated/run-modern-c-portability.py
+
+EXTRA_DIST += tests/automated/check-mwm-modern-c.c

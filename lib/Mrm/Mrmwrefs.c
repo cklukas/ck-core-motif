@@ -96,7 +96,7 @@ Urm__CW_InitWRef (URMResourceContextPtr		*wref_id)
   /*
    * Acquire and initialize resource context
    */
-  result = UrmGetResourceContext ((char *(*)())NULL,(void(*)())NULL, 
+  result = UrmGetResourceContext (NULL,NULL,
 				  500, wref_id);
   if ( result != MrmSUCCESS ) return result;
 

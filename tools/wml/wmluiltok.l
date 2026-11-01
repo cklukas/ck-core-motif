@@ -82,8 +82,8 @@ typedef struct _token
 TokenRec token[1000];
 TokenRec temp;
 
-void add_token ();
-int yywrap ();
+void add_token(Token t);
+int yywrap(void);
 
 int phase		= 0;
 int keyword_count;
@@ -180,8 +180,7 @@ int token_error		= 0;
 
 
 void
-add_token (t)					/* keep sorted by name */
-    Token t;
+add_token(Token t) /* keep sorted by name */
 {
     int i, j;
 
@@ -223,7 +222,7 @@ main (void)
     return token_error ? 1 : 0;
 }
 
-int yywrap ()
+int yywrap(void)
 {
     int i;
 

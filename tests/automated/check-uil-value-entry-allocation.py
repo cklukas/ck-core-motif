@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "clients" / "uil" / "UilSarVal.c").read_text()
-start = source.index("*sem_create_value_entry( value, length, value_type )")
+start = source.index("*sem_create_value_entry(char *value, int length, int value_type)")
 end = source.index("\n\f\n/*", start)
 body = source[start:end]
 

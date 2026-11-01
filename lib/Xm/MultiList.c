@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "XmI.h"
+#include "SymbolAliasI.h"
 #include "MessagesI.h"
 #include <Xm/MultiListP.h>
 #include <Xm/Ext18List.h>
@@ -1613,20 +1614,20 @@ XmMultiListMakeRowVisible(Widget w, int row)
 }
 
 /* aliases of deprecated functiosn of XmExt18List */
-extern WidgetClass xmExt18ListWidgetClass XM_ALIAS(xmMultiListWidgetClass);
-XmMultiListRowInfo ** XmExt18ListGetSelectedRows(Widget) XM_ALIAS(XmMultiListGetSelectedRows);
-Widget XmCreateExtended18List(Widget, String, ArgList, Cardinal) XM_ALIAS(XmCreateMultiList);
-Widget XmCreateExt18List(Widget, String, ArgList, Cardinal) XM_ALIAS(XmCreateMultiList);
-Widget XmVaCreateExt18List(Widget, char *, ...) XM_ALIAS(XmVaCreateMultiList);
-Widget XmVaCreateManagedExt18List(Widget, char *, ...) XM_ALIAS(XmVaCreateManagedMultiList);
-void XmExt18ListUnselectAllItems(Widget) XM_ALIAS(XmMultiListUnselectAllItems);
-void XmExt18ListUnselectItem(Widget, XmMultiListRowInfo*) XM_ALIAS(XmMultiListUnselectItem);
-void XmExt18ListToggleRow(Widget, short) XM_ALIAS(XmMultiListToggleRow);
-void XmExt18ListSelectItems(Widget, XmString, int, Boolean) XM_ALIAS(XmMultiListSelectItems);
-void XmExt18ListDeselectItems(Widget, XmString, int) XM_ALIAS(XmMultiListDeselectItems);
-void XmExt18ListSelectAllItems(Widget, Boolean) XM_ALIAS(XmMultiListSelectAllItems);
-void XmExt18ListSelectRow(Widget, int, Boolean) XM_ALIAS(XmMultiListSelectRow);
-void XmExt18ListDeselectRow(Widget, int) XM_ALIAS(XmMultiListDeselectRow);
-int *XmExt18ListGetSelectedRowArray(Widget, int *) XM_ALIAS(XmMultiListGetSelectedRowArray);
-void XmExt18ListMakeRowVisible(Widget, int) XM_ALIAS(XmMultiListMakeRowVisible);
-extern XmMultiListClassRec xmExt18ListClassRec XM_ALIAS(xmMultiListClassRec);
+_XmDefineAlias(xmExt18ListWidgetClass, xmMultiListWidgetClass);
+_XmDefineAlias(XmExt18ListGetSelectedRows, XmMultiListGetSelectedRows);
+_XmDefineAlias(XmCreateExtended18List, XmCreateMultiList);
+_XmDefineAlias(XmCreateExt18List, XmCreateMultiList);
+_XmDefineAlias(XmVaCreateExt18List, XmVaCreateMultiList);
+_XmDefineAlias(XmVaCreateManagedExt18List, XmVaCreateManagedMultiList);
+_XmDefineAlias(XmExt18ListUnselectAllItems, XmMultiListUnselectAllItems);
+_XmDefineAlias(XmExt18ListUnselectItem, XmMultiListUnselectItem);
+_XmDefineAlias(XmExt18ListToggleRow, XmMultiListToggleRow);
+_XmDefineAlias(XmExt18ListSelectItems, XmMultiListSelectItems);
+_XmDefineAlias(XmExt18ListDeselectItems, XmMultiListDeselectItems);
+_XmDefineAlias(XmExt18ListSelectAllItems, XmMultiListSelectAllItems);
+_XmDefineAlias(XmExt18ListSelectRow, XmMultiListSelectRow);
+_XmDefineAlias(XmExt18ListDeselectRow, XmMultiListDeselectRow);
+_XmDefineAlias(XmExt18ListGetSelectedRowArray, XmMultiListGetSelectedRowArray);
+_XmDefineAlias(XmExt18ListMakeRowVisible, XmMultiListMakeRowVisible);
+_XmDefineAlias(xmExt18ListClassRec, xmMultiListClassRec);

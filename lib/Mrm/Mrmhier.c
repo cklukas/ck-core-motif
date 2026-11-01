@@ -317,7 +317,7 @@ Urm__OpenHierarchy (MrmCount			num_files,
       cur_file->resource_ctable = NULL;
       class_ctx = NULL;
       resource_ctx = NULL;
-      result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL,
+      result = UrmGetResourceContext (NULL, NULL,
 				      0, &class_ctx);
       if ( result != MrmSUCCESS )
 	{
@@ -326,7 +326,7 @@ Urm__OpenHierarchy (MrmCount			num_files,
 	  Urm__CloseHierarchy (hiptr);
 	  return result;
 	}
-      result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL,
+      result = UrmGetResourceContext (NULL, NULL,
 				      0, &resource_ctx);
       if ( result != MrmSUCCESS )
 	{

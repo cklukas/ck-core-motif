@@ -55,8 +55,8 @@ static char rcsid[] = "$XConsortium: wmloutmm.c /main/9 1995/08/29 11:10:59 drk 
 /*
  * Routines used only in this module
  */
-void wmlOutputWmlUilMm ();
-void wmlOutputWmlUilMmClass ();
+void wmlOutputWmlUilMm(void);
+void wmlOutputWmlUilMmClass(FILE *outfil, WmlClassDefPtr clsobj, char *name);
 
 /*
  * globals
@@ -148,11 +148,7 @@ fclose (outfil);
  * Routine to write a table for a class entry
  */
 
-void wmlOutputWmlUilMmClass (outfil, clsobj, name)
-    FILE			*outfil;
-    WmlClassDefPtr		clsobj;
-    char			*name;
-
+void wmlOutputWmlUilMmClass(FILE *outfil, WmlClassDefPtr clsobj, char *name)
 {
 
 char		*canned1 =

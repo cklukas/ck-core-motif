@@ -236,6 +236,9 @@ typedef struct {
  *	o collection of resource attributes in one place
  *	o support for non-standard allocation routines
  */
+typedef char *(*MrmAllocateProc)(Cardinal);
+typedef void (*MrmDeallocateProc)(char *);
+
 #define	URMResourceContextValid	232570204
 typedef struct {
 	unsigned	validation ;	/* validation code =
@@ -247,8 +250,8 @@ typedef struct {
 	MrmType		type ;		/* resource type */
 	MrmCode		access ;	/* URMaPrivate or URMaPublic */
 	MrmCode		lock ;		/* resource locking code */
-	char		*((*alloc_func) ()) ;	/* memory allocation func */
-	void		(*free_func) () ;	/* deallocation func */
+	MrmAllocateProc alloc_func ;	/* memory allocation func */
+	MrmDeallocateProc free_func ;	/* deallocation func */
 	MrmFlag		byte_swapped ;	/* resource is byte_swapped */
 } URMResourceContext, *URMResourceContextPtr ;
 
@@ -378,11 +381,11 @@ typedef struct _WCIClassDesc {
 	String		creator_name ;	/* create routine name. This is also
 					   the accessor key for non-toolkit
 					   widget classes. */
-	Widget		(*creator) () ;	/* low-level create routine. This is
+	MrmCreateProc creator ;	/* low-level create routine. This is
 					   also the class identifier (name)
 					   used to match user classes. */
 	WidgetClass	class_record ;	/* Pointer to toolkit class record */
-	void		(*cleanup) () ;
+	MrmCleanupProc cleanup ;
 					/* low-level destructor routine.
 					   Used to clean up after creation
 					   routines that leave dangling
@@ -1253,8 +1256,8 @@ typedef struct {
 #include "IDB.h"			/* needed for prototype definitions */
 
 /* mrmcontext.c */
-extern Cardinal UrmGetResourceContext  _ARGUMENTS(( char *((*alloc_func )()), 
-						    void (*free_func )(), 
+extern Cardinal UrmGetResourceContext  _ARGUMENTS(( MrmAllocateProc alloc_func,
+						    MrmDeallocateProc free_func,
 						    MrmSize size , 
 						    URMResourceContextPtr *context_id_return ));
 extern Cardinal UrmResizeResourceContext  _ARGUMENTS(( URMResourceContextPtr context_id , 

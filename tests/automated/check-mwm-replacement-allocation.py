@@ -6,7 +6,7 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "clients/mwm/WmResource.c").read_text(
     encoding="utf-8"
 )
-start = source.index("char * WmMalloc (ptr, size)")
+start = source.index("char * WmMalloc(char *ptr, unsigned size)")
 end = source.index("\n} /* END OF FUNCTION WmMalloc */", start)
 region = source[start:end]
 

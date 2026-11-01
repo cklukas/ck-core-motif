@@ -360,7 +360,7 @@ UrmCreateWidgetTree (URMResourceContextPtr	context_id,
     {
       if ( widgetrec->children_offs >= widgetrec->size )
 	return MrmFAILURE ;
-      result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL, 0,
+      result = UrmGetResourceContext (NULL, NULL, 0,
 					      &child_ctx);
       if ( result != MrmSUCCESS || child_ctx == NULL )
 	return Urm__UT_Error ("UrmCreateWidgetTree", _MrmMMsg_0001,
@@ -690,7 +690,7 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
   int			ndx ;		/* loop index */
   RGMCallbackDescPtr	cbptr ;		/* creation callback descriptor */
   RGMCallbackItemPtr	itmptr ;	/* current callback item */
-  void			(* cb_rtn) () ;	/* current callback routine */
+  XtCallbackProc cb_rtn ;	/* current callback routine */
   /* BEGIN OSF Fix pir 1860, 2813 */
   XmAnyCallbackStruct	cb_reason; 	/* creation callback reason */
   /* END OSF Fix pir 1860, 2813 */
@@ -844,7 +844,7 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
 	  {
             itmptr = &cbptr->item[ndx] ;
 
-            cb_rtn = (void (*)()) itmptr->runtime.callback.callback ;
+            cb_rtn = itmptr->runtime.callback.callback ;
             if ( cb_rtn != (XtCallbackProc)NULL )
 	      /* BEGIN OSF Fix pir 2813 */
 	      {
@@ -1013,7 +1013,7 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   int			ndx ;		/* loop index */
   RGMCallbackDescPtr	cbptr ;		/* creation callback descriptor */
   RGMCallbackItemPtr	itmptr ;	/* current callback item */
-  void			(* cb_rtn) () ;	/* current callback routine */
+  XtCallbackProc cb_rtn ;	/* current callback routine */
   /* BEGIN OSF Fix pir 1860, 2813 */
   XmAnyCallbackStruct	cb_reason; 	/* creation callback reason */
   /* END OSF Fix pir 1860, 2813 */
@@ -1192,7 +1192,7 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
 	  {
             itmptr = &cbptr->item[ndx] ;
 
-            cb_rtn = (void (*)()) itmptr->runtime.callback.callback ;
+            cb_rtn = itmptr->runtime.callback.callback ;
             if ( cb_rtn != (XtCallbackProc)NULL )
 	      /* BEGIN OSF Fix pir 2813 */
 	      {
@@ -3380,7 +3380,7 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
   /*
    * Acquire a context and read the literal into it.
    */
-  result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL, 0,
+  result = UrmGetResourceContext (NULL, NULL, 0,
 				  &context_id) ;
   if ( result != MrmSUCCESS || context_id == NULL )
     return Urm__UT_Error ("Urm__CW_ReadLiteral", _MrmMMsg_0001,
@@ -3944,7 +3944,7 @@ Urm__CW_LoadWidgetResource (Widget			parent ,
    * Acquire a context, then load the widget and instantiate the tree.
    * An HGet call may replace the file for private references.
    */
-  result = UrmGetResourceContext ((char *(*)())NULL, (void(*)())NULL, 0,
+  result = UrmGetResourceContext (NULL, NULL, 0,
 				  &context_id) ;
   if ( result != MrmSUCCESS || context_id == NULL )
     return Urm__UT_Error ("Urm__CW_LoadWidgetResource", _MrmMMsg_0001,

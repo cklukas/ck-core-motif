@@ -57,8 +57,11 @@ static void Create_Uid_File();
 
 /* Callback routines for Callable UIL */
 
-Uil_status_type 	MessageCB();
-Uil_status_type		StatusCB();
+Uil_status_type MessageCB(char *data, int msg_number, int msg_severity,
+    const char *msg_text, const char *src_text, const char *ptr_text,
+    const char *loc_text, int *message_summary);
+Uil_status_type StatusCB(char *data, int percent_complete, int lines_processed,
+    const char *current_file, int *message_summary);
 
 char value_string[MAX_INFO];
 

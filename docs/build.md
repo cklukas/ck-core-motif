@@ -22,6 +22,77 @@ development libraries are needed for a source build. Optional image features
 require their corresponding development packages; inspect configure results
 instead of assuming they were enabled.
 
+## Modern C and macOS
+
+The toolkit libraries, WML generators, UIL compiler, window manager and modern
+widget gallery support C23 builds with current Clang. Select the language mode
+when configuring, for example `CC="clang -std=c23"`. The string generator uses
+fully typed callbacks and produces typed function-ABI declarations. WML/UIL
+and window-manager definitions and callback tables use explicit prototypes.
+Autoconf requests the host's system API declarations independently of the C
+language mode. Static atomic initialization does not use the removed
+`ATOMIC_VAR_INIT` macro.
+
+On macOS, this builds native Mach-O libraries and programs for X11/Xt through
+[XQuartz](https://www.xquartz.org/). Install Xcode Command Line Tools (or Xcode),
+XQuartz, and the development tools/dependencies for the selected features.
+Homebrew supplies Autoconf, Automake, GNU Libtool (`glibtoolize`), GNU Make,
+pkg-config, ICU and HarfBuzz. GNU Make **4.3 or newer** is required by the grouped
+string-generator targets; invoke `gmake` rather than Apple's Make 3.81.
+`autoreconf -fi` recognizes Homebrew's GNU Libtool without changing `autogen.sh`
+to call Apple's unrelated `libtool` program.
+
+With absolute `source` and `work` paths, a fresh build directory and a mounted
+scratch volume selected according to the host's workspace policy:
+
+```sh
+export TMPDIR="$work/tmp"
+mkdir -p "$TMPDIR" "$work/build"
+brew_prefix="$(brew --prefix)"
+export PATH="$brew_prefix/bin:/opt/X11/bin:$PATH"
+export PKG_CONFIG_PATH="/opt/X11/lib/pkgconfig:$(brew --prefix icu4c)/lib/pkgconfig:$brew_prefix/lib/pkgconfig"
+(cd "$source" && autoreconf -fi)
+(cd "$work/build" && "$source/configure" CC="clang -std=c23" \
+  --prefix="$work/install" \
+  --x-includes=/opt/X11/include --x-libraries=/opt/X11/lib \
+  --enable-xft --enable-unicode-text --disable-atspi --disable-printing \
+  CPPFLAGS=-I/opt/X11/include LDFLAGS=-L/opt/X11/lib)
+gmake -C "$work/build/lib" -j3
+gmake -C "$work/build/tools/wml" -j3
+gmake -C "$work/build/clients/uil" -j3
+gmake -C "$work/build/clients/mwm" -j3
+gmake -C "$work/build/demos/programs/ckmotif-gallery" -j3
+python3 "$source/tests/automated/run-modern-c-portability.py" \
+  --cc clang --standard c23 --build "$work/build" \
+  --results "$work/c23-results"
+```
+
+JPEG discovery can be directed to Homebrew with
+`--with-libjpeg-includes="$brew_prefix/include"` and
+`--with-libjpeg-lib="$brew_prefix/lib"`. SVG is a separate `--enable-svg`
+configuration requiring librsvg. Keep each install prefix isolated and rebuild
+all consumers for its native ABI cohort. Mach-O function/data aliases are
+emitted in their owning object, so the same symbols and class-record addresses
+are available from both static archives and dylibs.
+
+Mrm registration now declares `MrmCreateProc` as
+`Widget (*)(Widget, String, ArgList, Cardinal)` and `MrmCleanupProc` as
+`void (*)(Widget)`. UIL exposes `UilMessageProc` and `UilStatusProc` with their
+actual diagnostic/progress parameters. Message, source, location and filename
+buffers are borrowed `const char *`; applications that modify them must make
+owned copies. Callback counts remain `int *`, as in the documented callable
+compiler contract. These prototype changes do not add fields to native records.
+
+The portability runner compiles and executes all six string-generator ABIs,
+checks function/data aliases in a static archive and shared objects, exercises
+all 28 toolkit aliases, and runs native ABI, Mrm allocator/constructor/cleanup,
+UIL callback, WML attribute, Mwm parser dispatch/overflow, string and
+Unicode-map regressions. Results include
+commands, output and the exact loaded library fingerprint. Native compilation
+and these display-independent tests do not qualify an actual macOS window,
+clipboard, input-method session, scaling behavior or VoiceOver integration.
+The Linux AT-SPI and existing full-feature test services remain separate gates.
+
 ## Development text and accessibility features
 
 `--enable-xft` requires Xft, Fontconfig and FreeType development files.

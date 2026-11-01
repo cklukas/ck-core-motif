@@ -49,9 +49,7 @@ static char rcsid[] = "$XConsortium: wmlutils.c /main/8 1995/08/29 11:11:24 drk 
  * dynamic copy. Produces a NULL on null input.
  */
 
-char *wmlAllocateString (stg)
-    char	*stg;
-
+char *wmlAllocateString(char *stg)
 {
 
 char		*dynstg;	/* the dynamic copy */
@@ -72,9 +70,7 @@ return dynstg;
  * place, destroying the original string.
  */
 
-void wmlUpperCaseString (stg)
-    char	*stg;
-
+void wmlUpperCaseString(char *stg)
 {
 
 int		ndx;		/* loop index */
@@ -102,11 +98,7 @@ for ( ndx=0 ; ndx<strlen(stg) ; ndx++ )
  *	is_ordered	TRUE is list is to be ordered
  */
 
-void wmlInitHList (listptr, size, is_ordered)
-    DynamicHandleListDefPtr	listptr;
-    int				size;
-    int				is_ordered;
-
+void wmlInitHList(DynamicHandleListDefPtr listptr, int size, int is_ordered)
 {
 
 listptr->cnt = 0;
@@ -128,10 +120,7 @@ return;
  *	new_size	new list size
  */
 
-void wmlResizeHList (listptr, new_size)
-    DynamicHandleListDefPtr	listptr;
-    int				new_size;
-
+void wmlResizeHList(DynamicHandleListDefPtr listptr, int new_size)
 {    
 
 ObjectHandleDefPtr	new_vec;	/* reallocated vector */
@@ -157,9 +146,7 @@ return;
  *	listptr		the dynamic list
  */
 
-void wmlClearHList (listptr)
-    DynamicHandleListDefPtr	listptr;
-
+void wmlClearHList(DynamicHandleListDefPtr listptr)
 {    
 
 int		ndx;		/* current index in list */
@@ -190,10 +177,7 @@ return;
  *	< 0		name not found
  */
 
-int wmlFindInHList (listptr, name)
-    DynamicHandleListDefPtr	listptr;
-    char			*name;
-
+int wmlFindInHList(DynamicHandleListDefPtr listptr, char *name)
 {
 
 int		ndx;		/* current index in list */
@@ -244,11 +228,7 @@ else
  *	obj		the object to insert
  */
 
-void wmlInsertInHList (listptr, name, obj)
-    DynamicHandleListDefPtr	listptr;
-    char			*name;
-    ObjectPtr			obj;
-
+void wmlInsertInHList(DynamicHandleListDefPtr listptr, char *name, ObjectPtr obj)
 {
 
 int		ndx;		/* current index in list */
@@ -328,11 +308,7 @@ else
  *	name		the name under which to insert
  *	obj		the object to insert
  */
-void wmlInsertInKeyList (listptr, name, obj)
-    DynamicHandleListDefPtr	listptr;
-    char			*name;
-    ObjectPtr			obj;
-
+void wmlInsertInKeyList(DynamicHandleListDefPtr listptr, char *name, ObjectPtr obj)
 {
   int		ndx;				  /* current index in list */
   int		londx;				  /* low index */
@@ -391,10 +367,7 @@ void wmlInsertInKeyList (listptr, name, obj)
  * reference pointer.
  */
 
-WmlClassResDefPtr wmlResolveResIsMember (resobj, resref)
-    WmlResourceDefPtr		resobj;
-    WmlClassResDefPtr		resref;
-
+WmlClassResDefPtr wmlResolveResIsMember(WmlResourceDefPtr resobj, WmlClassResDefPtr resref)
 {
 
 while ( resref != NULL )
@@ -412,10 +385,7 @@ return NULL;
  * reference pointer.
  */
 
-WmlClassChildDefPtr wmlResolveChildIsMember (childobj, childref)
-    WmlChildDefPtr		childobj;
-    WmlClassChildDefPtr		childref;
-
+WmlClassChildDefPtr wmlResolveChildIsMember(WmlChildDefPtr childobj, WmlClassChildDefPtr childref)
 {
 
 while ( childref != NULL )

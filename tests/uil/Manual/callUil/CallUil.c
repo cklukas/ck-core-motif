@@ -312,37 +312,38 @@ void			(*handler_check)();
 /*	warnings appear.					    	   */
 /***************************************************************************/
 
-Uil_status_type MessageCB(message_user_data, msg_number, msg_severity,
-                          msg_text, src_text, ptr_text, loc_text,
-                          message_summary)
-int     *message_user_data;  /* user message number */
-int     msg_number;     /* constant to identify the error */
-int     msg_severity;   /* severity level */
-char    *msg_text;      /* text of message */
-char    *src_text;      /* text of source line on which error occured */
-char    *ptr_text;      /* source column information */
-char    *loc_text;      /* location line */
-unsigned int (*message_summary)[Uil_k_max_status+1];
+Uil_status_type MessageCB(char *data, int msg_number, int msg_severity,
+    const char *msg_text, const char *src_text, const char *ptr_text,
+    const char *loc_text, int *message_summary)
 {
+    int *message_user_data = (int *)data;
+
 char	tmp[1000];
+char *location = XtNewString(loc_text ? loc_text : "");
+char *source = XtNewString(src_text ? src_text : "");
+if (!location || !source) {
+    XtFree(location); XtFree(source); return Uil_k_terminate;
+}
 int 	i;
 
 /* remove tabs - compound string does not convert tabs to sensible characters */
 
-	for (i = 0 ; i < strlen(loc_text); i++)
-		if (loc_text[i] == '\t')
-			loc_text[i] = ' ';
-	for (i = 0 ; i < strlen(src_text); i++)
-		if (src_text[i] == '\t')
-			src_text[i] = ' ';
+	for (i = 0 ; i < strlen(location); i++)
+		if (location[i] == '\t')
+			location[i] = ' ';
+	for (i = 0 ; i < strlen(source); i++)
+		if (source[i] == '\t')
+			source[i] = ' ';
 
     	sprintf(tmp, "Message #%d -\n", *message_user_data);
 	strcat(mess_string, tmp);
 	sprintf(tmp, "      Error constant is: %d\n      Severity Level is: %d\n", msg_number, msg_severity);
 	strcat(mess_string, tmp);
-	sprintf(tmp, "      Message is: %s\n      Error on %s - %s\n", msg_text, loc_text, src_text);
+	sprintf(tmp, "      Message is: %s\n      Error on %s - %s\n", msg_text, location, source);
 	strcat(mess_string, tmp);
     	*message_user_data = *message_user_data + 1;
+        XtFree(location);
+        XtFree(source);
     	return Uil_k_continue;
 }
 
@@ -352,14 +353,11 @@ int 	i;
 /*	worked on, the number of lines, and the percentage completed       */
 /***************************************************************************/
 
-Uil_status_type StatusCB(status_user_data, percent_complete, lines_processed,
-                         current_file, message_summary)
-int		*status_user_data;
-unsigned int	percent_complete;
-unsigned int	lines_processed;
-char		*current_file;
-unsigned int	(*message_summary)[Uil_k_max_status+1];
+Uil_status_type StatusCB(char *data, int percent_complete, int lines_processed,
+    const char *current_file, int *message_summary)
 {
+    int *status_user_data = (int *)data;
+
 
 	char	tmp[1000];
 

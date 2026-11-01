@@ -76,8 +76,7 @@ extern "C" {
 
 /* uilmain.c */
 extern Uil_status_type Uil _ARGUMENTS((Uil_command_type
-*comand_desc,Uil_compile_desc_type *compile_desc,Uil_continue_type
-(*message_cb)(), char *message_data, Uil_continue_type (*status_cb)(),
+*comand_desc,Uil_compile_desc_type *compile_desc,UilMessageProc message_cb, char *message_data, UilStatusProc status_cb,
 char *status_data));
 
 /* uilsymstor.c */

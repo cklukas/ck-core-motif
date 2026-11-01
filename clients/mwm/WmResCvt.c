@@ -61,8 +61,7 @@ static char rcsid[] = "$XConsortium: WmResCvt.c /main/4 1995/11/01 11:49:54 rswi
  * Function Declarations:
  */
 
-unsigned char *NextToken ();
-long           DecStrToL ();
+long DecStrToL(unsigned char *str, unsigned char **ptr);
 
 #include "WmResCvt.h"
 

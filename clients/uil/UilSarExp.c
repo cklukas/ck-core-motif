@@ -114,12 +114,7 @@ static char rcsid[] = "$XConsortium: UilSarExp.c /main/11 1995/07/14 09:37:03 dr
 **
 **--
 **/
-void	sar_binary_op(operator_frame, op1_frame, op2_frame)
-
-yystype	    *operator_frame;
-yystype	    *op1_frame;
-yystype	    *op2_frame;
-
+void	sar_binary_op(yystype *operator_frame, yystype *op1_frame, yystype *op2_frame)
 {
     sym_value_entry_type    *res_entry;
     int	    		    operator = 0;
@@ -245,11 +240,7 @@ yystype	    *op2_frame;
 **
 **--
 **/
-void	sar_unary_op(operator_frame, op1_frame)
-
-yystype	    *operator_frame;
-yystype	    *op1_frame;
-
+void	sar_unary_op(yystype *operator_frame, yystype *op1_frame)
 {
     sym_value_entry_type    *res_entry;
     int			    operator = 0;

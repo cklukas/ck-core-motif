@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT
 AC_CONFIG_SRCDIR([lib/Xm/Form.c])
+AC_USE_SYSTEM_EXTENSIONS
 AC_PREREQ(2.52)
 AC_CONFIG_AUX_DIR(.)
 AC_CHECK_FILE(/usr/X/include/X11/X.h,
@@ -58,9 +59,7 @@ dnl AC_PROG_SPLINT
 AC_CHECK_PROGS(SPLINT, splint)
 
 AM_PROG_LEX
-if test "x$LEX" == xflex; then
-  AC_SUBST([LEXLIB], ['-lfl'])
-fi
+dnl Keep the detected lexer support library (libl on macOS, libfl on Linux).
 
 AC_PROG_INSTALL
 AC_PROG_LN_S

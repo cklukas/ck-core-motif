@@ -253,8 +253,7 @@ Boolean F_Beep (String args, ClientData *pCD, XEvent *event)
  * is to restack the dirty transient relative to the second to the
  * top transient.  This function is used to support freeFamily stacking.
  */
-ClientData * FindSecondToTopTransient (pcd)
-ClientData *pcd;
+ClientData * FindSecondToTopTransient(ClientData *pcd)
 {
     ClientData *pcdNext;
     static ClientData *second;
@@ -1011,9 +1010,9 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
     int   pid;
     int   w;
 #ifndef WSM
-    void (*intStat) ();
-    void (*quitStat) ();
-    void (*chldStat) ();
+    void (*intStat)(int);
+    void (*quitStat)(int);
+    void (*chldStat)(int);
 #endif /* WSM */
     char *shell;
     char *shellname;
@@ -1046,7 +1045,7 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
      * Moved before fork() to avoid race condition.
      * Change handler to SIG_DFL, SIG_IGN causes bug. paulsh@sequent 31-08-95.
      */
-    chldStat = (void (*)())signal (SIGCHLD, SIG_DFL); 
+    chldStat = signal (SIGCHLD, SIG_DFL);
 #endif
 
     /*
@@ -1149,8 +1148,8 @@ Boolean F_Exec (String args, ClientData *pCD, XEvent *event)
      */
 
 #ifndef WSM
-    intStat = (void (*)())signal (SIGINT, SIG_IGN);
-    quitStat = (void (*)())signal (SIGQUIT, SIG_IGN);
+    intStat = signal (SIGINT, SIG_IGN);
+    quitStat = signal (SIGQUIT, SIG_IGN);
 #endif /* WSM */
 
 #ifdef WSM
@@ -2380,11 +2379,7 @@ F_Push_Recall (String args, ClientData *pCD, XEvent *event)
  *
  *************************************<->***********************************/
 
-Boolean F_Pass_Key (args, pCD, event)
-    String args;
-    ClientData *pCD;
-    XEvent *event;
-
+Boolean F_Pass_Key(String args, ClientData *pCD, XEvent *event)
 {
     if (wmGD.passKeysActive)
     {

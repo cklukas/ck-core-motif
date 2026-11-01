@@ -67,9 +67,9 @@ typedef struct
 					    /* point is passed before	    */
 					    /* calling statusCB routine	    */
 					    /* 0 means called every time    */
-    Uil_continue_type	(*message_cb)();
+    UilMessageProc message_cb;
     char		*message_data;
-    Uil_continue_type	(*status_cb)();
+    UilStatusProc status_cb;
     char		*status_data;
     unsigned	    	v_use_setlocale: 1;    /* Allow localized strings */
     char		*ac_database;

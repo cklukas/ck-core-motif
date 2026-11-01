@@ -66,19 +66,19 @@ static char rcsid[] = "$XConsortium: wmlouth.c /main/8 1995/08/29 11:10:46 drk $
 /*
  * Routines used only in this module
  */
-void wmlOutputUilSymGen ();
-void wmlOutputUilSymArTy ();
-void wmlOutputUilSymChCl ();
-void wmlOutputUilSymRArg ();
-void wmlOutputUilUrmClas ();
-void wmlOutputUilConst ();
-void wmlOutputUilSymReas ();
-void wmlOutputUilSymArTa ();
-void wmlOutputUilSymChTa ();
-void wmlOutputUilSymCtl ();
-void wmlOutputUilSymNam ();
-void wmlOutputUilSymEnum ();
-void wmlOutputUilSymCSet ();
+void wmlOutputUilSymGen(void);
+void wmlOutputUilSymArTy(void);
+void wmlOutputUilSymChCl(void);
+void wmlOutputUilSymRArg(void);
+void wmlOutputUilUrmClas(void);
+void wmlOutputUilConst(void);
+void wmlOutputUilSymReas(void);
+void wmlOutputUilSymArTa(void);
+void wmlOutputUilSymChTa(void);
+void wmlOutputUilSymCtl(void);
+void wmlOutputUilSymNam(void);
+void wmlOutputUilSymEnum(void);
+void wmlOutputUilSymCSet(void);
 int wmlResolveCtlIsMember (WmlClassDefPtr, WmlClassCtrlDefPtr);
 
 /*
@@ -1312,10 +1312,7 @@ fclose (outfil);
  * Predicate to indicate if a class object is in a controls list.
  */
 
-int wmlResolveCtlIsMember (ctlobj, ctlref)
-    WmlClassDefPtr		ctlobj;
-    WmlClassCtrlDefPtr		ctlref;
-
+int wmlResolveCtlIsMember(WmlClassDefPtr ctlobj, WmlClassCtrlDefPtr ctlref)
 {
 
 while ( ctlref != NULL )

@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "EditresCom.c").read_text()
-start = source.index("HandleToolkitErrors(name, type, class, msg, params, num_params)")
+start = source.index("\nHandleToolkitErrors(")
 end = source.index("\n/*\tFunction Name: ExecuteSetValues", start)
 region = source[start:end]
 assert "snprintf(NULL, 0, msg, params[0])" in region

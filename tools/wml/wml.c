@@ -148,7 +148,7 @@ DynamicHandleListDefPtr	wml_tok_insens_ptr = &wml_tok_insens;
 /*
  * Routines only accessible in this module
  */
-void wmlInit ();
+void wmlInit(void);
 
 /*
  * External variables
@@ -169,10 +169,7 @@ extern  int yyparse();
  *	5. Output files
  */
 
-int main (argc, argv)
-    int		argc;
-    char	**argv;
-
+int main(int argc, char **argv)
 {
 
 int		done;

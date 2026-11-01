@@ -1103,7 +1103,7 @@ static int
 WinDataSizePacked(Display *dpy, int screen_num, 
 		  WSMWinData *win_data, int num, WSMConfigFormatType fmt)
 {
-    register int i, size;
+    int i, size;
     WSMConfigFormatData *fmt_data = _WSMGetConfigFormat(dpy, screen_num, fmt);
 
     if (fmt_data == NULL ||

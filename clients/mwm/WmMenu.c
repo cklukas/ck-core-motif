@@ -373,10 +373,7 @@ MenuSpec *MakeMenu (WmScreenData *pSD,
 
 
 /*************************************<->***********************************/
-void CheckTerminalSeparator(menuSpec, buttonWidget, manage)
-     MenuSpec *menuSpec;
-     Widget buttonWidget;
-     Boolean manage;
+void CheckTerminalSeparator(MenuSpec *menuSpec, Widget buttonWidget, Boolean manage)
 {
     CompositeWidget cw;
     WidgetList      children;

@@ -7,8 +7,8 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "EditresCom.c").read_text(
     encoding="utf-8"
 )
-start = source.index("_XEditResGet32(stream, val)")
-end = source.index("_XEditResGetString8(stream, str)", start)
+start = source.index("\n_XEditResGet32(")
+end = source.index("\n_XEditResGetString8(", start)
 region = source[start:end]
 
 assert "((unsigned long)temp1 << (XER_NBBY * 2))" in region

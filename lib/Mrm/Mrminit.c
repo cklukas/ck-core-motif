@@ -226,6 +226,17 @@ static	Boolean	urm__initialize_complete = FALSE;
  *--
  */
 
+/* Resource constructors return their opaque objects through Widget. */
+static void FreeRenderTable(Widget object)
+{
+  XmRenderTableFree((XmRenderTable)object);
+}
+
+static void FreeRendition(Widget object)
+{
+  XmRenditionFree((XmRendition)object);
+}
+
 void MrmInitialize (void)
 {
 
@@ -546,11 +557,11 @@ void MrmInitialize (void)
 
   MrmRegisterClassWithCleanup
     (0, NULL, "_XmCreateRenderTable", _XmCreateRenderTable,
-     (WidgetClass)NULL, XmRenderTableFree);
+     (WidgetClass)NULL, FreeRenderTable);
 
   MrmRegisterClassWithCleanup
     (0, NULL, "_XmCreateRendition", _XmCreateRendition,
-     (WidgetClass)NULL, XmRenditionFree);
+     (WidgetClass)NULL, FreeRendition);
 
   MrmRegisterClass
     (0, NULL, "_XmCreateTabList", _XmCreateTabList,

@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "clients" / "uil" / "UilDB.c").read_text()
-start = source.index("String init_wmd_path(filename)")
+start = source.index("String init_wmd_path(String filename)")
 end = source.index("\n}\n", start) + 2
 region = source[start:end]
 

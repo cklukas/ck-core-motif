@@ -684,8 +684,7 @@ XmCompareISOLatin1(first, second)
 }
 
 void
-XmCopyISOLatin1Lowered(dst, src)
-    char *dst, *src;
+XmCopyISOLatin1Lowered(char *dst, char *src)
 {
     register unsigned char *dest, *source;
 
@@ -706,10 +705,7 @@ XmCopyISOLatin1Lowered(dst, src)
 }
 
 void
-XmCopyISOLatin1LoweredN(dst, capacity, src)
-    char *dst;
-    unsigned int capacity;
-    const char *src;
+XmCopyISOLatin1LoweredN(char *dst, unsigned int capacity, const char *src)
 {
     unsigned int i;
 

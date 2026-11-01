@@ -12,7 +12,7 @@ parse_end = source.index("} /* END OF FUNCTION ParseWmFuncNbrArg */", parse_star
 parse = source[parse_start:parse_end]
 assert "string = GetString (linePP);" in parse
 assert "string == NULL || !StrToNum (string, &val)" in parse
-assert "*pNumber = (unsigned long)val;" in parse
+assert "*pArgs = (String)(uintptr_t)val;" in parse
 
 for name, base in (("StrToNum", "10U"), ("StrToHex", "16U"), ("StrToOct", "8U")):
     signature = f"static Boolean {name}(unsigned char *str"

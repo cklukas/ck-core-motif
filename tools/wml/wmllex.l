@@ -91,6 +91,7 @@ static int wml_copy_token(char *destination, size_t capacity,
 "InternalLiteral"	{ return INTERNALLITERAL; }
 "Constraint"		{ return CONSTRAINT; }
 "Exclude"		{ return EXCLUDE;}
+"XrmResource"		{ return XRMRESOURCE; }
 "Resources"		{ return RESOURCES; }
 "SuperClass"		{ return SUPERCLASS; }
 "ParentClass"		{ return PARENTCLASS; }

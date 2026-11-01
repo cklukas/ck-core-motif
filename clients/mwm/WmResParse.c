@@ -224,7 +224,7 @@ static MaskTableEntry modifierStrings[] = {
 typedef struct {
    char         *event;
    unsigned int  eventType;
-   Boolean       (*parseProc)();
+   Boolean       (*parseProc)(unsigned char **, unsigned int, unsigned int *);
    unsigned int  closure;
    Boolean       fClick;
 } EventTableEntry;
@@ -303,10 +303,10 @@ static Boolean ParseWmFuncStrArg (unsigned char **linePP,
 #endif /* PANELIST */
 void FreeMenuItem (MenuItem *menuItem);
 static Boolean ParseWmFuncGrpArg (unsigned char **linePP, 
-				  WmFunction wmFunction, GroupArg *pGroup);
+				  WmFunction wmFunction, String *pArgs);
 static Boolean ParseWmFuncNbrArg (unsigned char **linePP, 
 				  WmFunction wmFunction, 
-				  unsigned long *pNumber);
+				  String *pArgs);
 void ParseButtonStr (WmScreenData *pSD, unsigned char *buttonStr);
 static void ParseButtonSet (WmScreenData *pSD, unsigned char *lineP);
 static Boolean ParseContext (unsigned char **linePP, Context *context, 
@@ -378,14 +378,14 @@ static EventTableEntry buttonEvents[] = {
     {"btn5up",      ButtonRelease,  ParseImmed,    Button5,  FALSE},
     {"btn5click",   ButtonRelease,  ParseImmed,    Button5,  TRUE},
     {"btn5click2",  ButtonPress,    ParseImmed,    Button5,  TRUE},
-    { NULL, 0, (Boolean(*)())0, 0, (Boolean)0}
+    { NULL, 0, NULL, 0, (Boolean)0}
 };
 
 
 static EventTableEntry keyEvents[] = {
 
     {"key",         KeyPress,    ParseKeySym,    0,  FALSE},
-    { NULL, 0, (Boolean(*)())0, 0, (Boolean)0}
+    { NULL, 0, NULL, 0, (Boolean)0}
 };
 
 #ifdef PANELIST
@@ -424,7 +424,7 @@ typedef struct {
    unsigned int   resource;
    long           mgtMask;
    WmFunction     wmFunction;
-   Boolean       (*parseProc)();
+   Boolean       (*parseProc)(unsigned char **, WmFunction, String *);
 } FunctionTableEntry;
 
 
@@ -2181,8 +2181,7 @@ void ProcessWmFile (WmScreenData *pSD)
 /**** This function stolen from Xt/Intrinsic.c ****/
 /* The implementation of this routine is operating system dependent */
 
-static char *ExtractLocaleName(lang)
-    String	lang;
+static char *ExtractLocaleName(String lang)
 {
 
 #ifdef hpux	 /* hpux-specific parsing of the locale string */
@@ -4460,19 +4459,20 @@ void FreeMenuItem (MenuItem *menuItem)
  *************************************<->***********************************/
 
 static Boolean ParseWmFuncGrpArg (unsigned char **linePP, 
-				  WmFunction wmFunction, GroupArg *pGroup)
+				  WmFunction wmFunction, String *pArgs)
 {
     unsigned char  *lineP = *linePP;
     unsigned char  *startP;
     unsigned char   grpStr[MAX_GROUP_STRLEN+1];
     size_t len;
+    GroupArg group;
 
 
     /*
      * Parse groups while each is followed by "|".
      */
 
-    *pGroup = 0;
+    group = 0;
     while (1)
     {
         /* 
@@ -4485,14 +4485,14 @@ static Boolean ParseWmFuncGrpArg (unsigned char **linePP,
         if (startP == lineP)
         /* Group missing => use default or complain */
 	{
-	    if (*pGroup)
+	    if (group)
 	    {
                 PWarning (((char *)GETMESSAGE(60, 18, "Missing group specification")));
                 return (FALSE);
 	    }
 	    else
 	    {
-                *pGroup = F_GROUP_DEFAULT;
+                group = F_GROUP_DEFAULT;
 		break;
 	    }
         }
@@ -4510,15 +4510,15 @@ static Boolean ParseWmFuncGrpArg (unsigned char **linePP,
 
         if (!strcmp ("icon", (char *)grpStr))
         {
-            *pGroup |= F_GROUP_ICON;
+            group |= F_GROUP_ICON;
         }
         else if (!strcmp ("window", (char *)grpStr))
         {
-            *pGroup |= F_GROUP_WINDOW;
+            group |= F_GROUP_WINDOW;
         }
         else if (!strcmp ("transient", (char *)grpStr))
         {
-            *pGroup |= F_GROUP_TRANSIENT;
+            group |= F_GROUP_TRANSIENT;
         }
         else 
         /* Unknown group name */
@@ -4544,6 +4544,7 @@ static Boolean ParseWmFuncGrpArg (unsigned char **linePP,
         }
     }
 
+    *pArgs = (String)(uintptr_t)group;
     *linePP = lineP;
     return (TRUE);
 
@@ -4583,7 +4584,7 @@ static Boolean ParseWmFuncGrpArg (unsigned char **linePP,
 
 static Boolean ParseWmFuncNbrArg (unsigned char **linePP, 
 				  WmFunction wmFunction, 
-				  unsigned long *pNumber)
+				  String *pArgs)
 {
     unsigned int val;
     unsigned char *string;
@@ -4592,11 +4593,11 @@ static Boolean ParseWmFuncNbrArg (unsigned char **linePP,
     if (string == NULL || !StrToNum (string, &val))
     {
         PWarning (((char *)GETMESSAGE(60, 20, "Invalid number specification")));
-        *pNumber = 0;
+        *pArgs = NULL;
         return (FALSE);
     }
 
-    *pNumber = (unsigned long)val;
+    *pArgs = (String)(uintptr_t)val;
     return (TRUE);
 
 } /* END OF FUNCTION ParseWmFuncNbrArg */
@@ -6688,12 +6689,14 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
     if ((*detail = XStringToKeysym(keySymName)) == NoSymbol)
 #endif
     {
-        if (!isdigit (keySymName[0]) ||
-            ((*detail = StrToNum ((unsigned char *)&keySymName[0])) == -1))
+        unsigned int numeric_key;
+        if (!isdigit ((unsigned char)keySymName[0]) ||
+            !StrToNum ((unsigned char *)keySymName, &numeric_key))
         {
             *detail = NoSymbol;
             return (FALSE);
         }
+        *detail = numeric_key;
     }
     *linePP = lineP;
     return (TRUE);

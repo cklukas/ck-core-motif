@@ -151,7 +151,7 @@ MrmRegisterClass (
 #endif 
 		  String		class_name, /* unused */
 		  String		create_name,
-		  Widget		(* creator) (),
+		  MrmCreateProc creator,
 		  WidgetClass		class_record)
 {
   Cardinal	status = MrmRegisterClassWithCleanup(
@@ -171,9 +171,9 @@ MrmRegisterClassWithCleanup (
 #endif 
 		  String		class_name, /* unused */
 		  String		create_name,
-		  Widget		(* creator) (),
+		  MrmCreateProc creator,
 		  WidgetClass		class_record,
-		  void			(* cleanup) ())
+		  MrmCleanupProc cleanup)
 {
   /*
    *  Local variables

@@ -29,14 +29,18 @@ static char rcsid[] = "$TOG: uilsymdump.c /main/6 1998/04/17 11:26:22 mgreess $"
 #include <uil/UilDef.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 /*
 **
 ** Table of Contents
 **
 */
-Uil_status_type		MessageCB		();
-Uil_status_type	        StatusCB		();
+Uil_status_type MessageCB(char *data, int msg_number, int msg_severity,
+    const char *msg_text, const char *src_text, const char *ptr_text,
+    const char *loc_text, int *message_summary);
+Uil_status_type StatusCB(char *data, int percent_complete, int lines_processed,
+    const char *current_file, int *message_summary);
 
 
 /*
@@ -99,25 +103,12 @@ main(int argc, char *argv[])
     return return_status;
 }
 
-Uil_status_type	MessageCB(  message_user_data, 
-			    msg_number, 
-			    msg_severity,
-			    msg_text,
-			    src_text, 
-			    ptr_text, 
-			    loc_text,
-			    message_summary)
-
-    int    *message_user_data;	    /* Opaque, user-supplied argument */
-    int	    msg_number;	    /* constant to identify the error */
-    int	    msg_severity;   /* severity level */
-    char    *msg_text;	    /* text of message */
-    char    *src_text;	    /* text of source line on which error occured */
-    char    *ptr_text;	    /* source column information */
-    char    *loc_text;	    /* location line */
-    unsigned int (*message_summary)[Uil_k_max_status+1];
- 
+Uil_status_type MessageCB(char *data, int msg_number, int msg_severity,
+    const char *msg_text, const char *src_text, const char *ptr_text,
+    const char *loc_text, int *message_summary)
 {
+    int *message_user_data = (int *)data;
+
     printf ("Message(%d) -- %d-%d-%s\n    %s\n    %s\n    %s\n",
 		*message_user_data, msg_number, msg_severity, msg_text,
 		src_text, ptr_text, loc_text);
@@ -128,19 +119,11 @@ Uil_status_type	MessageCB(  message_user_data,
 
 
 
-Uil_status_type	StatusCB(	status_user_data, 
-				percent_complete, 
-				lines_processed,
-				current_file,
-				message_summary)
-
-    int			*status_user_data;
-    unsigned int	percent_complete;
-    unsigned int	lines_processed;
-    char		*current_file;
-    unsigned int (*message_summary)[Uil_k_max_status+1];
-
+Uil_status_type StatusCB(char *data, int percent_complete, int lines_processed,
+    const char *current_file, int *message_summary)
 {
+    int *status_user_data = (int *)data;
+
     printf("Status(%d) -- Percent: %d,  Lines: %d, File: %s\n",
 	    *status_user_data, percent_complete, lines_processed, current_file);
 

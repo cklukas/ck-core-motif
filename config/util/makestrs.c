@@ -33,15 +33,8 @@
 
 #include <stdio.h>
 #include <ctype.h>
-#include <X11/Xos.h>
-#ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
-#else
-char *malloc();
-#endif
-#if defined(macII) && !defined(__STDC__)  /* stdlib.h fails to define these */
-char *malloc();
-#endif /* macII */
+#include <string.h>
 
 typedef struct _TableEnt {
     struct _TableEnt* next;
@@ -150,7 +143,7 @@ FunctionWriteHeader (FILE* f, File* phile)
 
     WriteHeaderProlog (f, phile);
 
-    (void) fprintf (f, "%s %sConst char* %s();\n", 
+    (void) fprintf (f, "%s %sConst char* %s(int index);\n",
 		    externrefstr, conststr ? conststr : fileprotstr, 
 		    phile->table->name);
 
@@ -239,7 +232,7 @@ WriteHeader (char* tagline, File* phile, int abi)
     char* tmp;
     Table* t;
     TableEnt* te;
-    static void (*headerproc[])() = { DefaultWriteHeader, ArrayperWriteHeader,
+    static void (*const headerproc[])(FILE *, File *) = { DefaultWriteHeader, ArrayperWriteHeader,
 	                                  IntelABIWriteHeader, IntelABIWriteHeader,
 	                                  SPARCABIWriteHeader, FunctionWriteHeader };
 
@@ -354,7 +347,7 @@ FunctionWriteSource (int abi)
 		    WriteSourceLine (te, abi, t->next ? 1 : 0);
 	(void) printf ("%s\n\n", "};");
 
-	(void) printf ("%sConst char* %s(index)\n    int index;\n{\n    return &_%s[index];\n}\n\n",
+	(void) printf ("%sConst char* %s(int index)\n{\n    return &_%s[index];\n}\n\n",
 		       conststr ? conststr : "", 
 		       phile->table->name, phile->table->name);
     }
@@ -405,7 +398,7 @@ DefaultWriteSource (int abi)
 static void
 WriteSource(char* tagline, int abi)
 {
-    static void (*sourceproc[])() = { 
+    static void (*const sourceproc[])(int) = {
 	DefaultWriteSource, ArrayperWriteSource,
 	IntelABIWriteSource, IntelABIBCWriteSource,
 	DefaultWriteSource, FunctionWriteSource };
@@ -571,7 +564,7 @@ DoLine(char* buf)
 	    int rlen;
 	    int len;
 
-	    if ((right = index(buf, ' ')))
+	    if ((right = strchr(buf, ' ')))
 		    *right++ = 0;
 	    else
 		    right = buf + 1;
@@ -658,8 +651,8 @@ DoComment (char* line)
     size_t len;
 
     /* The first nonempty paired-dollar comment is the source identity. */
-    if ((tag = index (line, '$')) == NULL) return NULL;
-    if ((eol = index (tag + 1, '$')) == NULL) return NULL;
+    if ((tag = strchr(line, '$')) == NULL) return NULL;
+    if ((eol = strchr(tag + 1, '$')) == NULL) return NULL;
     len = (size_t)(eol - (tag + 1));
     while (len && isspace((unsigned char)tag[len])) --len;
     if (!len) return NULL;

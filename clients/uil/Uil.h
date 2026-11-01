@@ -125,6 +125,13 @@ typedef struct _Uil_comp_desc
 */
 
 typedef unsigned int	Uil_continue_type;
+
+/* Diagnostic and progress buffers are borrowed and read-only. */
+typedef Uil_continue_type (*UilMessageProc)(char *, int, int,
+    const char *, const char *, const char *, const char *, int *);
+typedef Uil_continue_type (*UilStatusProc)(char *, int, int,
+    const char *, int *);
+
 #define Uil_k_terminate		0
 #define Uil_k_continue		1
 
@@ -148,9 +155,9 @@ extern Uil_status_type Uil
 		    _ARGUMENTS((
 			Uil_command_type *command_desc ,
 			Uil_compile_desc_type *compile_desc ,
-			Uil_continue_type (*message_cb )(),
+			UilMessageProc message_cb,
 			char *message_data ,
-			Uil_continue_type (*status_cb )(),
+			UilStatusProc status_cb,
 			char *status_data ));
 
 

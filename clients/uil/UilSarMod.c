@@ -278,10 +278,7 @@ for ( i=0 ; i<uil_max_child+1 ; i++ )
 **--
 **/
 
-void	sar_create_root (root_frame)
-
-yystype	    *root_frame;
-
+void	sar_create_root(yystype *root_frame)
 {
     /*
     ** Allocate the symbol nodes
@@ -355,12 +352,7 @@ yystype	    *root_frame;
 **--
 **/
 
-void	sar_create_module(target_frame, id_frame, module_frame)
-
-yystype	    *target_frame;
-yystype	    *id_frame;
-yystype	    *module_frame;
-
+void	sar_create_module(yystype *target_frame, yystype *id_frame, yystype *module_frame)
 {
     sym_name_entry_type	    *name_entry;
 
@@ -453,11 +445,7 @@ yystype	    *module_frame;
 **--
 **/
 
-void	sar_process_module_version (value_frame, start_frame)
-
-yystype	    *value_frame;
-yystype	    *start_frame;
-
+void	sar_process_module_version(yystype *value_frame, yystype *start_frame)
 {
     sym_value_entry_type    *value_entry = NULL;
 
@@ -550,11 +538,7 @@ yystype	    *start_frame;
 **--
 **/
 
-void	sar_process_module_sensitivity (token_frame, start_frame)
-
-yystype	    *token_frame;
-yystype	    *start_frame;
-
+void	sar_process_module_sensitivity(yystype *token_frame, yystype *start_frame)
 {
     _assert( token_frame->b_tag == sar_k_token_frame, "token frame missing" );
 
@@ -629,11 +613,7 @@ yystype	    *start_frame;
 **--
 **/
 
-void	sar_process_module_charset(token_frame , start_frame)
-
-yystype	    *token_frame;
-yystype	    *start_frame;
-
+void	sar_process_module_charset(yystype *token_frame, yystype *start_frame)
 {
     sym_value_entry_type	*value_entry = NULL;
 
@@ -761,10 +741,7 @@ void	sar_save_module_source ()
 **--
 **/
 
-void	sar_make_def_obj (object_frame)
-
-yystype	    *object_frame;
-
+void	sar_make_def_obj(yystype *object_frame)
 {
 sym_def_obj_entry_type	*def_obj_entry;
 
@@ -815,11 +792,7 @@ sym_az_module_entry->az_def_obj = def_obj_entry;
 **--
 **/
 
-void	sar_process_module_variant  (obj_type_frame, variant_frame)
-
-yystype	    *obj_type_frame;
-yystype	    *variant_frame;
-
+void	sar_process_module_variant(yystype *obj_type_frame, yystype *variant_frame)
 {
 
     unsigned int		obj_type, obj_variant;
@@ -903,11 +876,7 @@ yystype	    *variant_frame;
 **--
 */
 
-void	sar_save_section_source (header_frame, section_type)
-
-yystype	    *header_frame;
-int	    section_type;
-
+void	sar_save_section_source(yystype *header_frame, int section_type)
 {
     sym_section_entry_type	*section_entry;
 

@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "EditresCom.c").read_text(encoding="utf-8")
-start = source.index("HandleToolkitErrors(name, type, class, msg, params, num_params)")
+start = source.index("\nHandleToolkitErrors(")
 end = source.index("/*\tFunction Name: ExecuteSetValues", start)
 region = source[start:end]
 

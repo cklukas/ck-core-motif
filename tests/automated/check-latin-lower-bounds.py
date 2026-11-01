@@ -3,7 +3,7 @@
 from pathlib import Path
 root = Path(__file__).parents[2] / "lib" / "Xm"
 helper = (root / "XmExtUtil.c").read_text(encoding="utf-8")
-assert "XmCopyISOLatin1LoweredN(dst, capacity, src)" in helper
+assert "XmCopyISOLatin1LoweredN(char *dst, unsigned int capacity, const char *src)" in helper
 assert "i + 1 < capacity" in helper
 for name in ['ButtonBox.c', 'ColorS.c', 'FontS.c', 'Hierarchy.c', 'IconButton.c', 'Paned.c', 'Tree.c']:
     text = (root / name).read_text(encoding="utf-8")

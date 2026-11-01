@@ -368,8 +368,7 @@ extern char *resource_name_from_code  _ARGUMENTS(( MrmCode resource ));
 /* uilmain.c */
 extern void uil_exit  _ARGUMENTS(( int severity ));
 extern Uil_status_type Uil _ARGUMENTS((Uil_command_type
-*comand_desc,Uil_compile_desc_type *compile_desc,Uil_continue_type
-(*message_cb)(), char *message_data, Uil_continue_type (*status_cb)(),
+*comand_desc,Uil_compile_desc_type *compile_desc,UilMessageProc message_cb, char *message_data, UilStatusProc status_cb,
 char *status_data));
 
 

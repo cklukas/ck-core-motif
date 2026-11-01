@@ -86,9 +86,9 @@ static	int	Uil_diag_status_delay_count;
 /*
  * Fix for CR 5534 - static storage for old signal handlers
  */
-static	void 	(*bus_handler)();
-static	void 	(*sys_handler)();
-static	void 	(*fpe_handler)();
+static	void 	(*bus_handler)(int);
+static	void 	(*sys_handler)(int);
+static	void 	(*fpe_handler)(int);
 
 /*
 **++
@@ -493,10 +493,7 @@ void	diag_issue_summary()
 **--
 **/
 
-char	*diag_tag_text( b_tag )
-
-int XmConst   b_tag;
-
+char	*diag_tag_text(int XmConst b_tag)
 {
 
     switch (b_tag)
@@ -583,10 +580,7 @@ int XmConst   b_tag;
 **--
 **/
 
-char	*diag_object_text( b_type )
-
-int XmConst   b_type;
-
+char	*diag_object_text(int XmConst b_type)
 {
     if ( b_type <= sym_k_error_object )
 #ifndef NO_MESSAGE_CATALOG
@@ -635,10 +629,7 @@ int XmConst   b_type;
 **--
 **/
 
-char	*diag_value_text( b_type )
-
-int XmConst   b_type;
-
+char	*diag_value_text(int XmConst b_type)
 {
 
     if ( b_type <= sym_k_error_value )
@@ -689,10 +680,7 @@ int XmConst   b_type;
 **--
 **/
 
-char	*diag_charset_text( b_type )
-
-int XmConst   b_type;
-
+char	*diag_charset_text(int XmConst b_type)
 {
     
     if ( b_type <= sym_k_error_charset )
@@ -858,10 +846,7 @@ void	diag_reset_overflow_handler()
 **--
 **/
 
-void	diag_handler( l_error )
-
-int	l_error;
-
+void	diag_handler(int l_error)
 {
     /* 
     **	This handler is invoked for access violations, oeverflows or bad 
@@ -943,10 +928,7 @@ int	l_error;
 **--
 **/
 
-void	diag_issue_internal_error( error_text )
-
-char	* error_text;
-
+void	diag_issue_internal_error(char * error_text)
 {
 
     /* 
@@ -1016,22 +998,14 @@ static char	XmConst severe_text[9]   = "Severe: ";
 static char	XmConst *severity_table [] =
     { success_text, info_text, warning_text, error_text, severe_text, };
 
-void	write_msg_to_standard_error
-		(message_number, src_buffer, ptr_buffer, msg_buffer, loc_buffer)
-
-XmConst int   message_number;
-XmConst char  *src_buffer;
-XmConst char  *ptr_buffer;
-XmConst char  *msg_buffer;
-XmConst char  *loc_buffer;
-
+void	write_msg_to_standard_error(XmConst int message_number, XmConst char *src_buffer, XmConst char *ptr_buffer, XmConst char *msg_buffer, XmConst char *loc_buffer)
 {
 
     /*
     **  If message callback was supplied, call it with the description of the
     **  error instead of writing it to standard output.
     */
-    if (Uil_cmd_z_command.message_cb != (Uil_continue_type(*)())NULL) 
+    if (Uil_cmd_z_command.message_cb != NULL)
     {
 	Uil_status_type return_status;
 /*
@@ -1136,10 +1110,7 @@ XmConst char  *loc_buffer;
 **--
 **/
 
-char XmConst *diag_get_message_abbrev( d_message_number )
-
-int	d_message_number;
-
+char XmConst *diag_get_message_abbrev(int d_message_number)
 {
     return
 	severity_table[ diag_rz_msg_table[ d_message_number ].l_severity ];
@@ -1190,7 +1161,7 @@ void	diag_report_status ( )
     /*
     **  If no status callback was supplied, just return.
     */
-    if (Uil_cmd_z_command.status_cb == (Uil_continue_type(*)())NULL) return;
+    if (Uil_cmd_z_command.status_cb == NULL) return;
 
     /*
     **	If delay is used up (less than or equal to zero) then invoke the

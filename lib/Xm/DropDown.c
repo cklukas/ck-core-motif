@@ -11,6 +11,7 @@
 #include <Xm/Xm.h>
 #include <Xm/XmP.h>
 #include "XmI.h"
+#include "SymbolAliasI.h"
 #include <Xm/VaSimpleP.h>
 #include <Xm/DrawP.h>
 
@@ -2934,14 +2935,14 @@ Widget XmDropDownGetChild(Widget w, int num)
 }
 
 /* aliases for deprecated functions of XmComboBox2 */
-extern WidgetClass xmCombinationBox2WidgetClass XM_ALIAS(xmDropDownWidgetClass);
-String XmCombinationBox2GetValue(Widget) XM_ALIAS(XmDropDownGetValue);
-Widget XmCreateCombinationBox2(Widget, char *, ArgList, Cardinal) XM_ALIAS(XmCreateDropDown);
-Widget XmVaCreateCombinationBox2(Widget, char *, ...) XM_ALIAS(XmVaCreateDropDown);
-Widget XmVaCreateManagedCombinationBox2(Widget, char *, ...) XM_ALIAS(XmVaCreateManagedDropDown);
-Widget XmCombinationBox2GetLabel(Widget) XM_ALIAS(XmDropDownGetLabel);
-Widget XmCombinationBox2GetArrow(Widget) XM_ALIAS(XmDropDownGetArrow);
-Widget XmCombinationBox2GetText(Widget) XM_ALIAS(XmDropDownGetText);
-Widget XmCombinationBox2GetList(Widget) XM_ALIAS(XmDropDownGetList);
-Widget XmCombinationBox2GetChild(Widget, int) XM_ALIAS(XmDropDownGetChild);
-extern XmDropDownClassRec xmCombinationBox2ClassRec XM_ALIAS(xmDropDownClassRec);
+_XmDefineAlias(xmCombinationBox2WidgetClass, xmDropDownWidgetClass);
+_XmDefineAlias(XmCombinationBox2GetValue, XmDropDownGetValue);
+_XmDefineAlias(XmCreateCombinationBox2, XmCreateDropDown);
+_XmDefineAlias(XmVaCreateCombinationBox2, XmVaCreateDropDown);
+_XmDefineAlias(XmVaCreateManagedCombinationBox2, XmVaCreateManagedDropDown);
+_XmDefineAlias(XmCombinationBox2GetLabel, XmDropDownGetLabel);
+_XmDefineAlias(XmCombinationBox2GetArrow, XmDropDownGetArrow);
+_XmDefineAlias(XmCombinationBox2GetText, XmDropDownGetText);
+_XmDefineAlias(XmCombinationBox2GetList, XmDropDownGetList);
+_XmDefineAlias(XmCombinationBox2GetChild, XmDropDownGetChild);
+_XmDefineAlias(xmCombinationBox2ClassRec, xmDropDownClassRec);

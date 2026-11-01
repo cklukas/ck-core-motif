@@ -1,3 +1,25 @@
+Modern C and native macOS toolkit builds (2026-11-01)
+====================================================
+
+- Give string generators, WML, UIL and window-manager definitions and callback
+  tables explicit parameter types; generate prototypes for the function ABI.
+  Remove obsolete wide-character substitutes and use C23-compatible static
+  atomic initialization. Request system API declarations through Autoconf.
+- Emit real Mach-O aliases for the deprecated DropDown and MultiList names,
+  including function, widget-class and class-record identity in shared and
+  static libraries. Keep the existing ELF alias implementation on Linux.
+- Use the detected lexer support library instead of forcing Linux's libfl.
+  Represent WML string/token attributes explicitly, and recognize XrmResource
+  booleans for resource and datatype definitions.
+- Define typed Mrm constructor/cleanup and UIL diagnostic/progress callbacks.
+  UIL diagnostic and progress text is borrowed, read-only storage. Update the
+  callable-compiler examples and keep allocation failure results type-correct.
+- Keep Mwm parser callbacks type-correct and numeric results in their argument
+  storage without accessing a pointer slot through an integer pointer.
+- Add native C23 regressions for all generator ABIs, static/shared aliases,
+  Mrm callbacks, callable UIL, WML attributes and existing string/Unicode APIs.
+  See docs/build.md for the platform commands and qualification boundaries.
+
 Exercise ASN.1 property import with the production length decoder (2026-11-01)
 ============================================================================
 

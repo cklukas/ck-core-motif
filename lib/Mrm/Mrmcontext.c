@@ -108,9 +108,9 @@ static char rcsid[] = "$XConsortium: Mrmcontext.c /main/12 1996/11/13 14:00:18 d
  *--
  */
 
-Cardinal 
-UrmGetResourceContext (char			*((*alloc_func) ()),
-		       void			(*free_func) (),
+Cardinal
+UrmGetResourceContext (MrmAllocateProc alloc_func,
+		       MrmDeallocateProc free_func,
 		       MrmSize			size,
 		       URMResourceContextPtr	*context_id_return)
 {
@@ -142,7 +142,7 @@ UrmGetResourceContext (char			*((*alloc_func) ()),
       (*context_id_return)->data_buffer = (char *) (*alloc_func) (size) ;
       if ( (*context_id_return)->data_buffer == NULL )
         {
-	  (*free_func) (*context_id_return) ;
+	  (*free_func) ((char *)*context_id_return) ;
 	  return Urm__UT_Error ("UrmGetResourceContext", _MrmMMsg_0001,
 				NULL, *context_id_return, MrmFAILURE) ;
         }
@@ -307,7 +307,7 @@ UrmFreeResourceContext (URMResourceContextPtr	context_id)
   context_id->validation = 0 ;
   if ( context_id->data_buffer != NULL )
     (*(context_id->free_func)) (context_id->data_buffer) ;
-  (*(context_id->free_func)) (context_id) ;
+  (*(context_id->free_func)) ((char *)context_id) ;
   return MrmSUCCESS ;
 
 }

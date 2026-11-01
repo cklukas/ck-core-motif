@@ -631,17 +631,17 @@ extern DynamicHandleListDefPtr	wml_tok_insens_ptr;
 /*
  * Defined in wmlutils.c
  */
-extern char *wmlAllocateString ();		/* dynamic string copy */
-extern void wmlUpperCaseString ();		/* convert to upper case */
-extern void wmlInitHList ();			/* init dynamic list */
-extern void wmlResizeHList ();			/* resize a list */
-extern void wmlClearHList ();			/* clear a list for reuse */
-extern int wmlFindInHList ();			/* find name in list */
-extern void wmlInsertInHList ();		/* generic list insert */
-extern void wmlInsertInKeyList ();		/* specialized list insert */
-extern WmlClassResDefPtr wmlResolveResIsMember ();
+extern char *wmlAllocateString(char *stg);		/* dynamic string copy */
+extern void wmlUpperCaseString(char *stg);		/* convert to upper case */
+extern void wmlInitHList(DynamicHandleListDefPtr listptr, int size, int is_ordered);			/* init dynamic list */
+extern void wmlResizeHList(DynamicHandleListDefPtr listptr, int new_size);			/* resize a list */
+extern void wmlClearHList(DynamicHandleListDefPtr listptr);			/* clear a list for reuse */
+extern int wmlFindInHList(DynamicHandleListDefPtr listptr, char *name);			/* find name in list */
+extern void wmlInsertInHList(DynamicHandleListDefPtr listptr, char *name, ObjectPtr obj);		/* generic list insert */
+extern void wmlInsertInKeyList(DynamicHandleListDefPtr listptr, char *name, ObjectPtr obj);		/* specialized list insert */
+extern WmlClassResDefPtr wmlResolveResIsMember(WmlResourceDefPtr resobj, WmlClassResDefPtr resref);
 						/* is resource in class? */
-extern WmlClassChildDefPtr wmlResolveChildIsMember ();
+extern WmlClassChildDefPtr wmlResolveChildIsMember(WmlChildDefPtr childobj, WmlClassChildDefPtr childref);
 						/* is child in class? */
 
 /*
@@ -653,30 +653,36 @@ extern int		yytknval1;		/* terminal token value 1 */
 extern int		yytknval2;		/* terminal token value 2 */
 extern ObjectPtr	wml_cur_obj;		/* object being constructed */
 extern ObjectPtr	wml_cur_subobj;		/* current subobject */
-extern void wmlCreateClass ();
-extern void wmlAddClassAttribute ();
-extern void wmlAddClassResource ();
-extern void wmlAddClassResourceAttribute ();
-extern void wmlAddClassControl ();
+/* Attribute IDs select a string or a grammar-token value. */
+typedef union {
+    char *string;
+    int token;
+} WmlAttributeValue;
+
+extern void wmlCreateClass(char *name, int ctype);
+extern void wmlAddClassAttribute(int attrid, WmlAttributeValue val);
+extern void wmlAddClassResource(char *name);
+extern void wmlAddClassResourceAttribute(int attrid, WmlAttributeValue val);
+extern void wmlAddClassControl(char *name);
 extern void wmlAddCtrList ();
-extern void wmlCreateResource ();
-extern void wmlCreateDatatype ();
-extern void wmlAddResourceAttribute ();
-extern void wmlAddDatatypeAttribute ();
+extern void wmlCreateResource(char *name, int rtype);
+extern void wmlCreateDatatype(char *name);
+extern void wmlAddResourceAttribute(int attrid, WmlAttributeValue val);
+extern void wmlAddDatatypeAttribute(int attrid, WmlAttributeValue val);
 extern void wmlAddCtrListControl ();
-extern void wmlCreateEnumSet ();
-extern void wmlAddEnumSetValue ();
-extern void wmlCreateEnumValue ();
-extern void wmlAddEnumValueAttribute ();
-extern void wmlCreateCharset ();
-extern void wmlAddCharsetAttribute ();
-extern void LexIssueError ();
+extern void wmlCreateEnumSet(char *name, char *dtype);
+extern void wmlAddEnumSetValue(char *name);
+extern void wmlCreateEnumValue(char *name);
+extern void wmlAddEnumValueAttribute(int attrid, char *val);
+extern void wmlCreateCharset(char *name);
+extern void wmlAddCharsetAttribute(int attrid, WmlAttributeValue val);
+extern void LexIssueError(int tkn);
 
 /*      May be, declaration of functions must be next:
-extern void wmlAddClassChild ();
-extern void wmlCreateChild ();
-extern void wmlCreateOrAppendCtrlList ();
-extern void wmlAddCtrlListControl ();
+extern void wmlAddClassChild(char *name);
+extern void wmlCreateChild(char *name, char *class);
+extern void wmlCreateOrAppendCtrlList(char *name);
+extern void wmlAddCtrlListControl(char *name);
         But, we are using real function arguments type declaration:
 */
 extern void wmlAddClassChild (char *);
@@ -689,14 +695,14 @@ extern void wmlAddCtrlListControl (char *);
 /*
  * Defined in wmlresolve.c
  */
-extern void wmlResolveDescriptors ();
-extern void wmlMarkReferencePointers ();
+extern void wmlResolveDescriptors(void);
+extern void wmlMarkReferencePointers(WmlClassDefPtr clsobj);
 
 
 /*
  * Defined in wmlouth.c
  */
-extern void wmlOutputHFiles ();
+extern void wmlOutputHFiles(void);
 
 
 /*
@@ -707,4 +713,4 @@ extern void wmlOutputDatFiles ();
 /*
  * Define in wmloutp1 or wmloutp2
  */
-extern void wmlOutput ();
+extern void wmlOutput(void);

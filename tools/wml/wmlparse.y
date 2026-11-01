@@ -305,12 +305,12 @@ class_attribute
 	: class_attribute_name
 	    EQUALS
 	    STRING
-		{ wmlAddClassAttribute (yytknval1, yystringval); }
+		{ wmlAddClassAttribute (yytknval1, (WmlAttributeValue){.string = yystringval}); }
 	    SEMICOLON
 	| boolean_class_attribute_name
 	    EQUALS
 	    boolean_attribute_value
-		{ wmlAddClassAttribute (yytknval1, yytknval2); }
+		{ wmlAddClassAttribute (yytknval1, (WmlAttributeValue){.token = yytknval2}); }
 	    SEMICOLON
 	| class_resources SEMICOLON
 	| class_controls SEMICOLON
@@ -378,12 +378,12 @@ class_resource_attribute_element
 	: class_resource_attribute_name
 	    EQUALS
 	    STRING
-		{ wmlAddClassResourceAttribute (yytknval1, yystringval); }
+		{ wmlAddClassResourceAttribute (yytknval1, (WmlAttributeValue){.string = yystringval}); }
 	    SEMICOLON
 	| boolean_class_resource_attribute_name
 	    EQUALS
 	    boolean_attribute_value
-		{ wmlAddClassResourceAttribute (yytknval1, yytknval2); }
+		{ wmlAddClassResourceAttribute (yytknval1, (WmlAttributeValue){.token = yytknval2}); }
 	    SEMICOLON
 	| error { LexIssueError(SEMICOLON); } SEMICOLON
 	;
@@ -486,12 +486,12 @@ resource_attribute
 	: resource_attribute_name
 	    EQUALS
 	    STRING
-		{ wmlAddResourceAttribute (yytknval1, yystringval); }
+		{ wmlAddResourceAttribute (yytknval1, (WmlAttributeValue){.string = yystringval}); }
 	    SEMICOLON
 	| boolean_resource_resource_attribute_name
 	    EQUALS
 	    boolean_attribute_value
-		{ wmlAddResourceAttribute (yytknval1, yytknval2); }
+		{ wmlAddResourceAttribute (yytknval1, (WmlAttributeValue){.token = yytknval2}); }
 	    SEMICOLON
 	| error { LexIssueError(SEMICOLON); } SEMICOLON
 	;
@@ -546,7 +546,10 @@ datatype_attribute
 	: datatype_attribute_name
 	    EQUALS
 	    STRING
-		{ wmlAddDatatypeAttribute (yytknval1, yystringval); }
+		{ wmlAddDatatypeAttribute (yytknval1, (WmlAttributeValue){.string = yystringval}); }
+	    SEMICOLON
+	| XRMRESOURCE EQUALS boolean_attribute_value
+		{ wmlAddDatatypeAttribute (XRMRESOURCE, (WmlAttributeValue){.token = yytknval2}); }
 	    SEMICOLON
 	| error { LexIssueError(SEMICOLON); } SEMICOLON
 	;
@@ -554,7 +557,6 @@ datatype_attribute
 datatype_attribute_name
 	: INTERNALLITERAL	{ yytknval1 = INTERNALLITERAL; }
 	| DOCNAME		{ yytknval1 = DOCNAME; }
-	| XRMRESOURCE		{ yytknval1 = XRMRESOURCE; }
 	;
 
 
@@ -695,12 +697,12 @@ charset_attribute
 	: charset_attribute_name
 	    EQUALS
 	    STRING
-		{ wmlAddCharsetAttribute (yytknval1, yystringval); }
+		{ wmlAddCharsetAttribute (yytknval1, (WmlAttributeValue){.string = yystringval}); }
 	    SEMICOLON
 	| predefined_charset_attribute_name
 	    EQUALS
 	    predefined_charset_attribute_value
-		{ wmlAddCharsetAttribute (yytknval1, yytknval2); }
+		{ wmlAddCharsetAttribute (yytknval1, (WmlAttributeValue){.token = yytknval2}); }
 	    SEMICOLON
 	| error { LexIssueError(SEMICOLON); } SEMICOLON
 	;

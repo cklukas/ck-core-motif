@@ -249,12 +249,7 @@ sym_value_entry_type 	*sem_create_wchar_str()
 **--
 **/
 
-void	sem_append_str_to_cstr(az_cstr_entry, az_str_entry, op2_temporary)
-
-sym_value_entry_type	*az_cstr_entry;
-sym_value_entry_type	*az_str_entry;
-boolean			op2_temporary;
-
+void	sem_append_str_to_cstr(sym_value_entry_type *az_cstr_entry, sym_value_entry_type *az_str_entry, boolean op2_temporary)
 {
     sym_value_entry_type	*last_str_entry;
     sym_value_entry_type	**ptr;
@@ -376,12 +371,7 @@ boolean			op2_temporary;
 **--
 **/
 
-void	sem_append_cstr_to_cstr(az_cstr1_entry, az_cstr2_entry, op2_temporary)
-
-sym_value_entry_type	*az_cstr1_entry;
-sym_value_entry_type	*az_cstr2_entry;
-boolean			op2_temporary;
-
+void	sem_append_cstr_to_cstr(sym_value_entry_type *az_cstr1_entry, sym_value_entry_type *az_cstr2_entry, boolean op2_temporary)
 {
     sym_value_entry_type	*last_str_entry;
     sym_value_entry_type	**ptr;
@@ -515,14 +505,7 @@ boolean			op2_temporary;
 **/
 
 sym_value_entry_type
-	*sem_cat_str_to_str
-	    (az_str1_entry, op1_temporary, az_str2_entry, op2_temporary)
-
-sym_value_entry_type	*az_str1_entry;
-boolean			op1_temporary;
-sym_value_entry_type	*az_str2_entry;
-boolean			op2_temporary;
-
+	*sem_cat_str_to_str(sym_value_entry_type *az_str1_entry, boolean op1_temporary, sym_value_entry_type *az_str2_entry, boolean op2_temporary)
 {
     sym_value_entry_type    *new_str_entry;
     int			    l1, l2;
@@ -629,10 +612,7 @@ boolean			op2_temporary;
 **--
 **/
 
-int	sem_map_subclass_to_charset(charset_as_subclass)
-
-int	charset_as_subclass;
-
+int	sem_map_subclass_to_charset(int charset_as_subclass)
 {
     switch (charset_as_subclass)
     {
@@ -682,10 +662,7 @@ int	charset_as_subclass;
 **--
 **/
 
-void    sar_charset_verify ( charset_frame )
-
-yystype           *charset_frame;
-
+void    sar_charset_verify(yystype *charset_frame)
 {
     key_keytable_entry_type	*az_keyword_entry;
 
@@ -735,8 +712,7 @@ yystype           *charset_frame;
 **--
 **/
 
-void sar_make_fallback_charset(name_frame)
-     yystype           *name_frame;
+void sar_make_fallback_charset(yystype *name_frame)
 {
   sym_name_entry_type			*symbol_entry;
   static key_keytable_entry_type	*az_keyword_entry = NULL;
@@ -807,11 +783,7 @@ void sar_make_fallback_charset(name_frame)
 **--
 **/
 
-void	sar_chk_charset_attr( target_frame, value_frame, prior_value_frame )
-
-yystype	    *target_frame;
-yystype	    *value_frame;
-yystype	    *prior_value_frame;
+void	sar_chk_charset_attr(yystype *target_frame, yystype *value_frame, yystype *prior_value_frame)
 {
 
     /*
@@ -937,12 +909,7 @@ yystype	    *prior_value_frame;
 **--
 **/
 
-void	sar_make_charset (target_frame, value_frame, attr_frame, keyword_frame)
-
-yystype	    *target_frame;
-yystype	    *value_frame;
-yystype	    *attr_frame;
-yystype	    *keyword_frame;
+void	sar_make_charset(yystype *target_frame, yystype *value_frame, yystype *attr_frame, yystype *keyword_frame)
 {
     sym_value_entry_type    *value_entry;
 

@@ -121,10 +121,7 @@ static char rcsid[] = "$TOG: UilSemCSet.c /main/10 1997/03/12 15:21:53 dbl $"
 **--
 **/
 
-char *sem_charset_name (l_charset, az_charset_entry)
-    int				l_charset;
-    sym_value_entry_type	*az_charset_entry;
-
+char *sem_charset_name(int l_charset, sym_value_entry_type *az_charset_entry)
 {
 
 int		charset;		/* mapped character set */
@@ -182,15 +179,7 @@ switch ( charset )
 **--
 **/
 
-void sem_charset_info
-    (l_charset, az_charset_entry, write_direction, parse_direction,  sixteen_bit)
-
-int			l_charset;
-sym_value_entry_type	*az_charset_entry;
-int			*write_direction;
-int			*parse_direction;
-int			*sixteen_bit;
-
+void sem_charset_info(int l_charset, sym_value_entry_type *az_charset_entry, int *write_direction, int *parse_direction, int *sixteen_bit)
 {
 
 int		charset;	/* mapped character set */
@@ -262,9 +251,7 @@ switch (charset)
 **--
 **/
 
-int sem_charset_lang_name (lang_charset)
-    char		*lang_charset;
-
+int sem_charset_lang_name(char *lang_charset)
 {
 
 char		uname[200];	/* upper-case character set name */

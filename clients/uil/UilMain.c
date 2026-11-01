@@ -251,10 +251,7 @@ static void	common_main()
 **--
 **/
 
-void	uil_exit(severity)
-
-int	severity;
-
+void	uil_exit(int severity)
 {
 
 
@@ -321,9 +318,7 @@ int	severity;
 **--
 **/
 
-int	main( l_argc, rac_argv )
-int	l_argc;
-char	*rac_argv[ ];
+int	main(int l_argc, char *rac_argv[ ])
 {
     
     setlocale(LC_ALL, "");
@@ -436,13 +431,13 @@ static void	common_cleanup()
 **/
 
 
-Uil_status_type Uil 
+Uil_status_type Uil
 
 (Uil_command_type        *command_desc,
 Uil_compile_desc_type   *compile_desc,
-Uil_continue_type       (*message_cb)(),
+UilMessageProc message_cb,
 char            *message_data,
-Uil_continue_type       (*status_cb)(),
+UilStatusProc status_cb,
 char            *status_data)
 
 
@@ -575,9 +570,7 @@ char            *status_data)
  * Local function to provide compiler wrapup processing. It is called both
  * from the longjmp and sequential paths in the callable compiler above.
  */
-static void UilWrapup (compile_desc)
-    Uil_compile_desc_type	*compile_desc;
-
+static void UilWrapup(Uil_compile_desc_type *compile_desc)
 {
 
     int i;  /* loop index for copying message counts		    */
@@ -646,9 +639,7 @@ static void UilWrapup (compile_desc)
 **--
 **/
 
-char *uil_mmove(s1, s2, n)
-char *s1, *s2;
-int n;
+char *uil_mmove(char *s1, char *s2, int n)
 {
      char *temp;
 
