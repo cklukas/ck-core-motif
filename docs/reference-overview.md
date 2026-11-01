@@ -83,6 +83,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM transient-list growth](transient-list-growth.md) — propagate temporary-list allocation failure.
 - [MWM session command-vector width](mwm-session-command-vector-width.md) — guard restore vectors.
 - [MWM query-XID buffer growth](mwm-query-xid-growth.md) — guard protocol conversion growth.
+- [MWM workspace-protocol allocation failures](mwm-workspace-protocol-oom.md) — retain a safe empty protocol result on allocation failure.
 - [MWM client-message initialization](mwm-client-message-initialization.md) — clear unused X11 payload words.
 - [MWM keyboard-state mask typing](mwm-keyboard-state-mask.md) — use explicit unsigned XKB group bits.
 - [MWM double-click time validation](mwm-double-click-time.md) — reject non-positive signed thresholds.

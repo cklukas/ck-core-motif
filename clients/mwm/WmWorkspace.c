@@ -107,7 +107,18 @@ static void monitor_owner(XtPointer closure, XtIntervalId *timer)
 
 static void track_owner(WmScreenData *screen)
 {
-    if (!owners) owners = (WorkspaceOwner *)XtCalloc(ScreenCount(DISPLAY), sizeof(WorkspaceOwner));
+    int screen_count = ScreenCount(DISPLAY);
+
+    if (!screen || screen_count <= 0 || screen->screen < 0 ||
+        screen->screen >= screen_count ||
+        (size_t)screen_count > UINT_MAX / sizeof(*owners))
+        return;
+    if (!owners) {
+        owners = (WorkspaceOwner *)XtCalloc((Cardinal)screen_count,
+                                             sizeof(*owners));
+        if (!owners)
+            return;
+    }
     WorkspaceOwner *owner = &owners[screen->screen];
     Atom selection = _WSMGetSelectionAtom(DISPLAY, screen->screen, WSM_WORKSPACE_MANAGER);
     Window current = XGetSelectionOwner(DISPLAY, selection);
@@ -155,6 +166,10 @@ static void snapshot(ClientData *client, Boolean icon, WSMWinInfo *info)
     info->window = client->client | (icon ? (Window)0xe0000000UL : 0);
     info->num_data_list = count;
     info->data_list = (WSMWinData *)XtCalloc(count, sizeof(WSMWinData));
+    if (!info->data_list) {
+        info->num_data_list = 0;
+        return;
+    }
     for (int i = 0; i < count; ++i) {
         info->data_list[i].nameq = XrmStringToQuark(names[i]);
         info->data_list[i].type = WSM_VALUE_DATA;
@@ -248,8 +263,10 @@ void HandleWsmConvertRequest(Widget widget, XtPointer closure, WSMRequest *reque
                 if (count > 65535) break;
             }
         if (count > 65535) break; /* protocol list count is CARD16 */
-        reply->any.allocated = True;
         reply->get_state.win_info_list = (WSMWinInfo *)XtCalloc(count, sizeof(WSMWinInfo));
+        if (count != 0 && !reply->get_state.win_info_list)
+            break;
+        reply->any.allocated = True;
         if (id && client) snapshot(client, (id & ~WIN_MASK) != 0, reply->get_state.win_info_list + used++);
         else if (!id) for (ClientListEntry *entry = screen->clientList; entry; entry = entry->nextSibling)
             if (entry->type == NORMAL_STATE) tree_snapshot(entry->pCD, reply->get_state.win_info_list, &used);
