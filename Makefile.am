@@ -1433,3 +1433,5 @@ EXTRA_DIST += tests/automated/check-wml-typed-attributes.c \
               tests/automated/run-modern-c-portability.py
 
 EXTRA_DIST += tests/automated/check-mwm-modern-c.c
+
+EXTRA_DIST += CHANGES.md

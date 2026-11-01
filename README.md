@@ -9,6 +9,22 @@ recorded in the validation documentation.
 A maintained fork of the Motif native Xt widget toolkit, with corrections for
 modern builds, selection handling, display scaling and input behavior.
 
+## Modern C and macOS
+
+The toolkit, WML generators, UIL compiler, `mwm` and modern widget gallery can
+be built with current Clang in C23 mode. Native macOS builds use XQuartz's
+X11/Xt libraries; Linux remains supported. Use GNU Make 4.3 or newer (`gmake`
+on macOS). The port fixes obsolete declarations and callback types rather than
+requiring an older C language mode, and supplies real Mach-O function/data
+aliases for the existing deprecated widget names.
+
+See the [build guide](docs/build.md#modern-c-and-macos) for dependencies,
+configuration commands, typed callback migration and native regression tests.
+Native build/runtime qualification and actual macOS desktop, clipboard,
+input-method and accessibility qualification are separate. The
+[Markdown changelog](CHANGES.md) describes this update; `CHANGES` retains the
+full historical maintenance log.
+
 ## What the maintenance work improves
 
 The maintenance work has one consistent aim: make the existing Motif API safer
