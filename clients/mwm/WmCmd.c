@@ -470,7 +470,7 @@ IncludeCommand (
   CARD32         inLine, commandID, selection, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
 
   /*
@@ -619,7 +619,7 @@ EnableCommand (
   CARD32         commandID, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
 
   /*
@@ -763,7 +763,7 @@ DisableCommand (
   CARD32         commandID, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
 
   /*
@@ -907,7 +907,7 @@ RenameCommand (
   CARD32         commandID, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
   String	 newname;
 
@@ -1069,7 +1069,7 @@ RemoveCommand (
   CARD32         commandID, count;
   Window        *windowIDs = NULL;
   CmdTree       *tPtr, *pNext;
-  int            i, win;
+  CARD32         i, win;
   unsigned long  activeContext = 0L;
 
   /*

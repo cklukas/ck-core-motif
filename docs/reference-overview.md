@@ -75,6 +75,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM backdrop-request path allocation](mwm-backdrop-path-allocation.md) — guard WSM request paths.
 - [MWM property-array allocation](mwm-property-array-allocation.md) — guard X11 property counts.
 - [MWM command window-array width](mwm-command-window-array-width.md) — guard WSM command counts.
+- [MWM command window-list loop widths](mwm-command-window-loop-width.md) — retain protocol count width during traversal.
 - [MWM command-tree allocation failures](mwm-command-tree-allocation.md) — preserve existing commands when replacement allocation fails.
 - [MWM button-event callback dispatch](mwm-button-event-dispatch.md) — pass button bindings through the declared event type.
 - [MWM timestamp property event](mwm-timestamp-property-event.md) — request zero-item property notifications without undefined data.

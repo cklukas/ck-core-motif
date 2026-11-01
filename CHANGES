@@ -1,3 +1,10 @@
+Preserve MWM command window-list loop widths (2026-11-01)
+==========================================================
+
+- Iterate validated `CARD32` window-list counts with `CARD32` counters instead
+  of signed `int`, preventing loop-counter overflow for large protocol inputs.
+- Add focused coverage and document the unchanged command-list behavior.
+
 Clarify MWM timestamp property payload (2026-11-01)
 =====================================================
 
