@@ -17,12 +17,12 @@
   "outputs": {
     "/Volumes/S8T/tmp/motif-modern-container-20261101/install/bin/ckmotif-gallery": {
       "sha256": "456ac1fc23dba8cdbda72351f9a155faeb0a0aaf4ea84c7b29f9472597b142dd",
-      "mtime_ns": 1793560533090586305,
+      "mtime_ns": 1793560734578619450,
       "file": "/Volumes/S8T/tmp/motif-modern-container-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
     },
     "/Volumes/S8T/tmp/motif-modern-container-20261101/install/lib/libXm.9.dylib": {
-      "sha256": "40dc2c5cb1ddb282b28b0bb921c1b352660231e662ecbfbddb7d2628b14208aa",
-      "mtime_ns": 1793560532467667983,
+      "sha256": "f416bcb48d0240e7cbc8fa95d270e1fe984ce8c2154ba2c50a94ef25d082f9cd",
+      "mtime_ns": 1793560734075653943,
       "file": "/Volumes/S8T/tmp/motif-modern-container-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
     }
   },
@@ -30,27 +30,41 @@
     "configure_seconds": 26.31,
     "clean_library_seconds": 24.56,
     "comparable_clean_library_baseline_seconds": 25.86,
-    "final_incremental_library_seconds": 2.72
+    "final_incremental_library_seconds": 2.72,
+    "merged_incremental_library_seconds": 2.5004787080033566
   },
   "checks": {
     "container": {
       "success": true,
-      "record_sha256": "a12af7ad0835675225aff07ac6e7a7cc6126a09d3b848214ecd11fec2f28effc",
+      "record_sha256": "cc5ad34c8d3557e156bdb32a36f47e55d8472dc04db22b35b9c7d90385abf78f",
       "result": "148 checks,98 reused gadget addresses,100 destroy callbacks; colored icons, rendered row backgrounds, live profiles/scales, explicit overrides"
     },
     "native": {
       "success": true,
-      "record_sha256": "6488f6cbfb1d7e9cfa4eff91f7c5ea4e901955eb5d2091ca9b354775b8e69ca1",
+      "record_sha256": "6f4b7fedd4a856ea587c17afb2cffc77041f720aeea5e27906baed6baf784c56",
       "result": "Live appearance and gadget tests;124 default button geometry cases;SVG/dialog/action icons;24 text frames in each paint mode;sidebar and gallery integration"
     },
     "installed_demos": {
       "success": true,
-      "record_sha256": "4c0e5c6a1d78000889f6b66a89887a4fc702e93bac99975e901b9bf7acde46e8",
+      "record_sha256": "5abea4ddb72373f06628edf403004215903defee8e5f8b793f57ebc869df232e",
       "result": "All34 executable targets and assets installed;33 Open/startup tests plus MWM/Wsm copy/move/link/visibility/save with build-tree demos hidden"
+    },
+    "merged_maintenance": {
+      "success": true,
+      "checks": 7
     }
   },
   "limits": [
     "Automated native tests use an isolated Xvfb display and do not send input to the user desktop.",
-    "Actual user-facing XQuartz window is inspected separately before reporting a visual fix."
-  ]
+    "Actual user-facing XQuartz window was inspected via native window capture after executable and mapped library verification."
+  ],
+  "merged_source_revision": "5a787f1e8fdd6d64014c4b8ecc3c5feda9181465",
+  "actual_window": {
+    "pid": 46466,
+    "executable": "/Volumes/S8T/tmp/motif-modern-container-20261101/install/bin/ckmotif-gallery",
+    "XQuartz_window_id": 5243,
+    "capture_sha256": "bd67b4b3434d76586fdc9348ab150a50e076a5435976ebc3db769669e65266e0",
+    "observed": "Container page has themed flat rows, colored vector folder/document icons, readable spacing and no raised gray tiles or connector lines; sidebar intact.",
+    "interaction": "Left open for manual testing; no input sent to user desktop."
+  }
 }
