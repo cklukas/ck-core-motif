@@ -1,3 +1,11 @@
+Qualify Unicode standard-dialog resources (2026-11-01)
+=======================================================
+
+- Extend the installed non-text Unicode widget regression through MessageBox
+  message text and SelectionBox prompt labels, covering mixed Arabic and
+  supplementary-plane values through public dialog resources.
+- Update the Unicode qualification documentation.
+
 Preserve representable MWM session geometry (2026-11-01)
 =========================================================
 
