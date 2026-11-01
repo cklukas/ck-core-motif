@@ -74,6 +74,9 @@ configuration requiring librsvg; the macOS recipe above enables it for modern
 gallery vector icons. Without it, SVG examples report that SVG is required and
 controls can fall back to legacy bitmap icons even in a modern theme. Verify
 `pkg-config --modversion librsvg-2.0` and the configure SVG result before building.
+The [native Mac SVG qualification](validation/macos-svg-20261101.json) records
+all nine built-in gallery icons, vector rerasterization, color/background
+matching, cache behavior and toolbar state/theme/scale tests.
 Keep each install prefix isolated and rebuild
 all consumers for its native ABI cohort. Mach-O function/data aliases are
 emitted in their owning object, so the same symbols and class-record addresses

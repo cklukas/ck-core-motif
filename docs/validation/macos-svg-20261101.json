@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-01",
+  "platform": "macOS arm64",
+  "compiler": "Apple Clang21 C23; legacy demo consumers GNU17",
+  "renderer": "librsvg2.62.3",
+  "source_archive_sha256": "d6474c7e25d88d5838f68d3eecc24e163cdb4003b4d80b2c6b6423790c524394",
+  "gallery_override_sha256": "5471ccaf8552772b340091383fc6f75b5ddb7ffa1537afb5e696802608dd9cd9",
+  "features": {
+    "Xft": true,
+    "Unicode": true,
+    "SVG": true,
+    "AT_SPI": false,
+    "printing": false
+  },
+  "library_sha256": "ac7bce8990b35645dd3ae0e74ae9e38e19afea8b7dbf1768a9ec51dde60056d0",
+  "executable_sha256": "615e778c7d2661b91c37808157baaafc13b8ee757c91df10e17f4d6fb21b8763",
+  "configuration_verified": "#define SVG_SUPPORTED 1; installed library links librsvg",
+  "native_checks": [
+    {
+      "name": "svg-image",
+      "exit_code": 0
+    },
+    {
+      "name": "dialog-icons",
+      "exit_code": 0
+    },
+    {
+      "name": "action-icons",
+      "exit_code": 0
+    },
+    {
+      "name": "text-auto",
+      "exit_code": 0
+    },
+    {
+      "name": "text-pixmap",
+      "exit_code": 0
+    },
+    {
+      "name": "text-direct",
+      "exit_code": 0
+    },
+    {
+      "name": "gallery-icons-all-nine",
+      "exit_code": 0
+    },
+    {
+      "name": "gallery-sidebar",
+      "exit_code": 0
+    },
+    {
+      "name": "gallery-integration",
+      "exit_code": 0
+    }
+  ],
+  "toolbar_pixel_checks": "PASS normal,pressed,disabled,overflow across4profiles/two scales withSVG enabled",
+  "legacy_catalogue": "34/34 executable consumers rebuilt",
+  "started_utc": "2026-11-01T18:20:09.814327+00:00",
+  "ended_utc": "2026-11-01T18:20:23.818965+00:00",
+  "limitations": [
+    "Native automated checks use an isolated Xvfb display; actual desktop appearance remains a separate manual check.",
+    "Historical SVG-disabled qualification records remain unchanged."
+  ]
+}

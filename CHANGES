@@ -1,3 +1,11 @@
+Qualify native macOS gallery SVG rendering (2026-11-01)
+=====================================================
+
+- Enable librsvg in the documented modern Mac gallery build and verify all
+  nine vector dialog symbols, scalable rendering, cache behavior and toolbar
+  surface matching. SVG-disabled builds intentionally retain bitmap fallback.
+- Record the native C23/SVG qualification in docs/validation/macos-svg-20261101.json.
+
 Enable SVG in the documented macOS gallery build (2026-11-01)
 ============================================================
 

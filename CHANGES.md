@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-01 — Native macOS SVG gallery
+
+- Qualify the native C23 Mac gallery with `--enable-svg` and librsvg2.62.3.
+  Modern themes then have all nine vector dialog icons instead of the optional
+  renderer’s legacy bitmap fallback and missing-icon placeholders.
+- Verify vector scaling, cache/override behavior and toolbar backgrounds across
+  normal, pressed and disabled states, four themes and two scales; retain the
+  historical SVG-disabled results separately. See the
+  [qualification record](docs/validation/macos-svg-20261101.json).
+
 ## 2026-11-01 — Buffered painting and direct gallery selection
 
 - Paint toolkit-owned full frames through normal Xt expose methods, using DBE
