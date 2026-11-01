@@ -4,7 +4,7 @@ PYTHON = @PYTHON@
 bin_PROGRAMS = ckmotif-gallery
 AM_CFLAGS = -Wall -Wextra -Werror
 
-ckmotif_gallery_SOURCES = gallery.c gallery_examples.c gallery_manifest.h gallery_sources.h
+ckmotif_gallery_SOURCES = gallery.c gallery_examples.c demo_launch.c demo_launch.h gallery_demos.h gallery_manifest.h gallery_sources.h
 BUILT_SOURCES = gallery_manifest.h gallery_sources.h gallery_provenance.json
 CLEANFILES = $(BUILT_SOURCES)
 ckmotif_gallery_DEPENDENCIES = $(BUILT_SOURCES)
@@ -28,3 +28,6 @@ check-local: gallery_provenance.json $(top_srcdir)/docs/modern-gallery-component
 	  $(srcdir)/../../../docs/modern-gallery-manifest.json \
 	  $(srcdir)/gallery_examples.c $(builddir)/gallery_provenance.json \
 	  $(top_srcdir)/docs/modern-gallery-components.md
+
+AM_CPPFLAGS = -DGALLERY_BUILD_DEMOS='"$(abs_top_builddir)/demos/programs"' \
+                -DGALLERY_INSTALL_DEMOS='"$(prefix)/share/Xm"'

@@ -1718,6 +1718,9 @@ typedef struct _ClientData
     long	focusPriority;
     unsigned long clientID;
     int		wmUnmapCount;
+#ifdef MWM_WSM
+    Boolean wsmHidden; /* visibility owned by the standalone workspace manager */
+#endif
 #ifdef PANELIST
     struct _WmFpEmbeddedClientData  *pECD; /* embedded client data */
     struct _WmFpPushRecallClientData  *pPRCD; /* embedded client data */

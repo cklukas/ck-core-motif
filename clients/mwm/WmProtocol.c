@@ -40,6 +40,7 @@ static char rcsid[] = "$TOG: WmProtocol.c /main/8 1997/06/18 17:31:34 samborn $"
 
 #include "WmGlobal.h"
 #include "WmICCC.h"
+#include "WmWorkspace.h"
 #include <limits.h>
 #include <stdint.h>
 #include <string.h>
@@ -1260,7 +1261,7 @@ OwnWMSelections ( Time timestamp )
 	   * See WSMProcessProtoTargets().
 	   */
 
-	  WSMRegisterRequestCallback(DISPLAY, scr, HandleWsmConvertRequest,
+	  WSMRegisterRequestCallback(DISPLAY, wmGD.Screens[scr].screen, HandleWsmConvertRequest,
 				     NULL);
 #endif
 
@@ -1289,6 +1290,9 @@ OwnWMSelections ( Time timestamp )
 	  else
 	    {
 	      PRINT("Owning selection %s\n", wm_scr);
+#ifdef MWM_WSM
+              WsmConnectExisting(&wmGD.Screens[scr]);
+#endif
 	    }
 	}
     }
@@ -1309,6 +1313,14 @@ OwnWMSelections ( Time timestamp )
  *************************************<->***********************************/
 
 /*ARGSUSED*/
+static int protocol_screen_index(Widget widget)
+{
+    int number = XScreenNumberOfScreen(XtScreen(widget));
+    for (int index = 0; index < wmGD.numScreens; ++index)
+        if (wmGD.Screens[index].screen == number) return index;
+    return -1;
+}
+
 static Boolean
 WMiConvert (
      Widget         w,
@@ -1335,8 +1347,8 @@ WMiConvert (
   *output    = NULL;
   *outputFmt = 8;
 
-  scr = XScreenNumberOfScreen(XtScreen(w));
-  if (!wmGD.Screens[scr].managed)
+  scr = protocol_screen_index(w);
+  if (scr < 0 || !wmGD.Screens[scr].managed)
     {
       Warning (((char *)GETMESSAGE(56, 7,
 		"Got convert request from unmanaged screen")));
@@ -1382,11 +1394,7 @@ WMiConvert (
       *targs++ = wmGD._MOTIF_WM_REQUEST_COMMAND;		targetCount++;
       *targs++ = wmGD._MOTIF_WM_WINDOW_FLAGS;			targetCount++;
 
-#ifdef MWM_WSM
-      /* virtual screen support */
-      *targs++ = wmGD._MOTIF_WM_PAN;				targetCount++;
-      *targs++ = wmGD._MOTIF_WM_GOTO;				targetCount++;
-#endif
+
 
       /* automation support */
 
@@ -1399,58 +1407,13 @@ WMiConvert (
       found = True;
     }
 
-#ifdef MWM_WSM    
-    /* virtual screen support */
-    else if (target == wmGD._MOTIF_WM_PAN)
-      {
-	int     dx, dy;
-	Boolean config;
-
-	if (input == NULL || inputFmt != WSM_PROTO_FMT || inputLen < 9)
-	  {
-	    found = False;
-	  }
-	else
-	  {
-	dx     = (int) UnpackCARD32(&input);
-	dy     = (int) UnpackCARD32(&input);
-	config = (Boolean) UnpackCARD8(&input);
-
-	PanRoot(dx, dy, config);
-
-	/*
-	 * Update the root property
-	 */
-
-	SetPanPosition (ACTIVE_PSD->panDx, ACTIVE_PSD->panDy);
-	
-	found = True;
-	  }
-      }
-    else if (target == wmGD._MOTIF_WM_GOTO)
-      {
-	int  x, y;
-
-	if (input == NULL || inputFmt != WSM_PROTO_FMT || inputLen < 8)
-	  {
-	    found = False;
-	  }
-	else
-	  {
-	x = (int) UnpackCARD32(&input);
-	y = (int) UnpackCARD32(&input);
-
-	PanRoot(x - ACTIVE_PSD->panDx, y - ACTIVE_PSD->panDy, 1);
-
-	found = True;
-	  }
-      }
-    
+#ifdef MWM_WSM
     /*
      * Handle the workspace manager protocol targets...
      */
     
-    else if (WSMIsKnownTarget(w, target))
+    else if (_WSMTargetToReqType(DISPLAY, target) <= WSM_REG_WINDOW &&
+             WSMIsKnownTarget(w, target))
       {
 	/*
 	 * Unpack data send in request and invoke CB specified
@@ -1573,8 +1536,8 @@ WMiConvertCB (
   XmConvertCallbackStruct *cnv = (XmConvertCallbackStruct *)callData;
   Atom _MOTIF_LOSE_SELECTION =
     XInternAtom(DISPLAY, "_MOTIF_LOSE_SELECTION", False);
-  int scr = XScreenNumberOfScreen(XtScreen(w));
-  
+  int scr = protocol_screen_index(w);
+  if (scr < 0 || cnv == NULL) return;
 
   /* Check to make sure we're dealing with the right selection.
    */
@@ -1594,9 +1557,12 @@ WMiConvertCB (
    */
   else
     {
+      WmScreenData *previous = ACTIVE_PSD;
+      ACTIVE_PSD = &wmGD.Screens[scr];
       WMiConvert (w, cnv->selection, cnv->target,
 		  cnv->parm, cnv->parm_length, cnv->parm_format,
 		  &(cnv->type), &(cnv->value), &(cnv->length), &(cnv->format));
+      ACTIVE_PSD = previous;
     }
 }
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */

@@ -465,7 +465,6 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 #endif /*PANELIST  */
 #endif  /* WSM */
 
-    SetupWmSignalHandlers (0); /* dummy paramater */
 
 
     /*
@@ -533,6 +532,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
         ExitWM (WM_ERROR_EXIT_VALUE);
         return;
     }
+    SetupWmSignalHandlers (0); /* Xt signal delivery requires the application context. */
     AddWmResourceConverters ();
     wmGD.display = XtOpenDisplay (wmGD.mwmAppContext,
 				  NULL,

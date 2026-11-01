@@ -28,6 +28,7 @@
 static char rcsid[] = "$TOG: wsm_cb.c /main/8 1997/05/02 10:05:18 dbl $"
 #endif
 #endif
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <Xm/Xm.h>
@@ -161,7 +162,9 @@ SendLeaveRoomCB(Widget w, XtPointer client, XtPointer call)
   Space *space;
   XmToggleButtonCallbackStruct *toggle_struct = (XmToggleButtonCallbackStruct*)call;
 
-  XtVaGetValues(w,XmNuserData, &wsm_index,NULL);
+  XtPointer button_id = NULL;
+  XtVaGetValues(w,XmNuserData, &button_id,NULL);
+  wsm_index = (int)(intptr_t)button_id;
   if (connected && !mwm_gone)
     {
       if (toggle_struct->set)
@@ -439,7 +442,9 @@ ToWorkspaceCB(Widget w, XtPointer client, XtPointer call)
   int room_num = 0;
   Space *space;
 
-  XtVaGetValues(w,XmNuserData,&room_num, NULL);
+  XtPointer button_id = NULL;
+  XtVaGetValues(w,XmNuserData,&button_id, NULL);
+  room_num = (int)(intptr_t)button_id;
   if (room_num != 0)
       space = GetSpaceFromID(room_num-1);
   else 
@@ -465,7 +470,9 @@ FromWorkspaceCB(Widget w, XtPointer client, XtPointer call)
   int room_num;
   Space *space;
   
-  XtVaGetValues(w,XmNuserData,&room_num, NULL);
+  XtPointer button_id = NULL;
+  XtVaGetValues(w,XmNuserData,&button_id, NULL);
+  room_num = (int)(intptr_t)button_id;
   space = GetSpaceFromID(room_num-1);
   if (space != NULL)
     {

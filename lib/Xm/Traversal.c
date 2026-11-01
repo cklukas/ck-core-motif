@@ -1189,9 +1189,16 @@ _XmSetRect(
    if (rect == NULL || w == NULL)
      return;
 
-   XtTranslateCoords(XtParent(w), w->core.x, w->core.y, &x, &y);
-   rect->x = x + w->core.border_width;
-   rect->y = y + w->core.border_width;
+   if (XtParent(w) != NULL) {
+     XtTranslateCoords(XtParent(w), w->core.x, w->core.y, &x, &y);
+     rect->x = x + w->core.border_width;
+     rect->y = y + w->core.border_width;
+   } else {
+     /* A top-level shell has root-window coordinates and no widget parent. */
+     XtTranslateCoords(w, 0, 0, &x, &y);
+     rect->x = x;
+     rect->y = y;
+   }
    rect->width = w->core.width;
    rect->height = w->core.height;
 }

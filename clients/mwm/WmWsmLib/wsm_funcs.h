@@ -143,7 +143,7 @@ Boolean WSMIsKnownTarget(
 Widget, Atom
 );
 
-Atom * GetTargetList(
+Atom * WSMGetTargetList(
 Widget, Boolean, unsigned long *
 );
 
@@ -191,5 +191,7 @@ XrmQuark, WSMConfigFormatData *
 WSMWinData * _WSMGetMatchingWinData(
 WSMWinData *, int, XrmQuark
 );
+
+Boolean _WSMValidateMessage(Display *, int, MessageData, unsigned long, WSMRequestType, Boolean);
 
 #endif /* DO NOT ADD ANYTHING AFTER THIS LINE */

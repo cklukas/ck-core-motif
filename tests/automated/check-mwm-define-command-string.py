@@ -16,7 +16,9 @@ assert "memcpy(result, bytes + 2, length);" in helper
 assert "len < (unsigned long)(3 * sizeof(CARD32))" in region
 assert "UnpackCommandString(&data, &remaining)" in region
 assert "Truncated string data passed to DefineCommand." in region
-assert region.count("XtFree(name);") == 2
-assert region.count("XtFree(defaultLabel);") == 2
+# Retain balanced decoded-string releases as allocation-failure branches grow.
+releases = region.count("XtFree(name);")
+assert releases >= 2
+assert region.count("XtFree(defaultLabel);") == releases
 assert "UnpackString(&data)" not in region
 print("MWM DefineCommand string contract passed")

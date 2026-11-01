@@ -1,0 +1,223 @@
+{
+  "date": "2026-11-01",
+  "tested_base_revision": "e29677dd88e69217ac77c272dfa11e7ba59d0255",
+  "source_asset_manifest": {
+    "files": 9658,
+    "sha256": "667c3125524f7cfd8b59096130daeaa08b135bd5796b294b6e3e1eaa43f569e8",
+    "cross_host_differences": 0,
+    "definition": "Sorted path-to-SHA256 JSON, indent=2 with trailing newline; git source files under lib/, clients/, demos/, tools/, config/, include/, tests/, plus configure.ac, Makefile.am, docs/modern-gallery-manifest.json and docs/modern-gallery-components.md; excludes __pycache__."
+  },
+  "build": {
+    "platform": "Linux aarch64",
+    "compiler": "Debian Clang 19.1.7",
+    "configuration": "--disable-static --enable-demos; CFLAGS=-O0 -g -std=gnu17",
+    "earlier_comparable_clean_build_seconds": 583,
+    "earlier_clean_build_jobs": 6,
+    "published_base_integration": {
+      "started_utc": "2026-11-01T16:21:50+00:00",
+      "ended_utc": "2026-11-01T16:26:48+00:00",
+      "seconds": 298.0,
+      "target": "make -j4; toolkit, clients and all examples"
+    },
+    "final_gallery": {
+      "started_utc": "2026-11-01T16:34:33+00:00",
+      "ended_utc": "2026-11-01T16:34:38+00:00",
+      "seconds": 5.0,
+      "target": "make -C demos/programs/ckmotif-gallery -j6"
+    },
+    "retained_runnable_paths": [
+      "PREFIX/bin/mwm",
+      "PREFIX/bin/ckmotif-gallery",
+      "PREFIX/share/Xm/wsm/wsm"
+    ]
+  },
+  "source_checks": {
+    "passed": 633,
+    "failed": 0,
+    "scope": "WSM, MWM, gallery, transfers, traversal, UIL and TreeView"
+  },
+  "compiled_regressions": [
+    {
+      "command": "python3 tests/automated/run-gallery-demo-launch.py",
+      "result": "pass"
+    },
+    {
+      "command": "python3 tests/automated/run-wsm-wire-validation.py",
+      "peers": 2,
+      "result": "pass"
+    },
+    {
+      "command": "python3 tests/automated/run-mwm-command-tree-lifecycle.py",
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ],
+      "result": "pass"
+    },
+    {
+      "command": "python3 tests/automated/run-mwm-numeric-keysym.py",
+      "result": "pass"
+    },
+    {
+      "command": "python3 tests/automated/run-panner-context-index.py",
+      "sanitizers": [
+        "ASan",
+        "UBSan"
+      ],
+      "result": "pass"
+    },
+    {
+      "command": "python3 tests/automated/run-uil-user-widget-references.py --uil BUILD/clients/uil/uil",
+      "result": "pass"
+    },
+    {
+      "command": "make -C BUILD/demos/programs/ckmotif-gallery check",
+      "provenance_entries": 105,
+      "result": "pass"
+    }
+  ],
+  "native_acceptance": {
+    "command": "python3 tests/automated/run-mwm-workspace-integration.py --build-root BUILD --out FRESH_EVIDENCE",
+    "started_utc": "2026-11-01T16:34:38.918911+00:00",
+    "ended_utc": "2026-11-01T16:36:29.560360+00:00",
+    "result": "pass",
+    "checks": {
+      "traversal": 0,
+      "targets": 0,
+      "protocol": 0,
+      "wsm-ui": 0,
+      "restart": 0,
+      "wsm-signal": 0,
+      "gallery-demos": 0,
+      "gallery-all-demos": 0,
+      "targets-after-demos": 0,
+      "gallery-missing": 0,
+      "gallery-regression": 0,
+      "targets-screen1": 0,
+      "protocol-screen1": 0,
+      "wsm-ui-screen1": 0
+    },
+    "x_screens": [
+      0,
+      1
+    ],
+    "xvfb_screen_geometry": "2560x1600x24",
+    "workspace_workflows": [
+      "handshake and advertised targets",
+      "full snapshots and partial updates",
+      "signed client-root geometry",
+      "iconic/maximized and hidden states",
+      "transient visibility",
+      "new-window registration",
+      "copy/link/move membership and geometry",
+      "persistence",
+      "selection-owner loss recovery",
+      "MWM restart reconnect",
+      "normal MWM/Wsm termination",
+      "stale withdrawn-frame focus events"
+    ],
+    "demo_catalogue_entries": 34,
+    "other_demo_startups": 33,
+    "startup_observation_seconds_per_demo": 1,
+    "gallery_profiles": [
+      "classic",
+      "modern-light",
+      "modern-dark"
+    ],
+    "gallery_scales": [
+      1,
+      1.5,
+      2
+    ]
+  },
+  "installed_acceptance": {
+    "command": "python3 tests/automated/run-gallery-installed-demos.py --build-root BUILD --prefix PREFIX --out FRESH_EVIDENCE",
+    "result": "pass",
+    "build_tree_demos_temporarily_unavailable": true,
+    "checked_asset_files": 222,
+    "results": {
+      "wsm-ui": 0,
+      "--integration-all-demos": 0,
+      "--integration-demos": 0,
+      "missing": 0
+    },
+    "identical_verified_build_outputs": {
+      "bin/mwm": "ede6fec5a9548b5e3e1c0a01c0db31f854667d8d9a4b482d6cacb155966a7acf",
+      "lib/libXm.so.9.0.0": "a974ba4baf25966dded9f237ce8d0cab040286cae966b1e9eca004fd23c6108d",
+      "share/Xm/wsm/wsm": "2ca5c821fc61bbdc27a53a6bfcec852a512a23173914b1bbbdef8b60e9d5ce79",
+      "bin/ckmotif-gallery": "f223f81f7db64c568a1669fcc776dc3031203ca26bfbdc92225b892b5dbdb755"
+    }
+  },
+  "configure_contract": {
+    "result": "pass",
+    "enabled_demos": [
+      "lib",
+      "programs",
+      "unsupported",
+      "doc"
+    ],
+    "disabled_demos": [
+      "programs"
+    ],
+    "disabled_programs": [
+      "ckmotif-gallery"
+    ],
+    "invalid_option_rejected": true,
+    "original_enabled_configuration_restored_identically": true
+  },
+  "captures": [
+    {
+      "file": "docs/gallery-screenshots/demo-applications-desktop.png",
+      "sha256": "84ddd253fa09b5fb95758821f8f70f12f405c2eece135c35c44b00d62bef3a97",
+      "width": 1100,
+      "height": 740,
+      "process_pid": 667798,
+      "x_window": "0x40056c",
+      "binary_sha256": "f223f81f7db64c568a1669fcc776dc3031203ca26bfbdc92225b892b5dbdb755",
+      "library_sha256": "a974ba4baf25966dded9f237ce8d0cab040286cae966b1e9eca004fd23c6108d",
+      "client_rectangle": {
+        "x": 737,
+        "y": 454,
+        "width": 1100,
+        "height": 740
+      },
+      "frame_rectangle": {
+        "x": 730,
+        "y": 430,
+        "width": 1114,
+        "height": 771
+      },
+      "viewable_frame_containment_and_nonblank": "pass"
+    },
+    {
+      "file": "docs/gallery-screenshots/demo-applications-compact.png",
+      "sha256": "04bef68944eb48652cb92fddf27bc39c6106807a6701542a2d1db853da33a43d",
+      "width": 450,
+      "height": 500,
+      "process_pid": 667856,
+      "x_window": "0x40056c",
+      "binary_sha256": "f223f81f7db64c568a1669fcc776dc3031203ca26bfbdc92225b892b5dbdb755",
+      "library_sha256": "a974ba4baf25966dded9f237ce8d0cab040286cae966b1e9eca004fd23c6108d",
+      "client_rectangle": {
+        "x": 1062,
+        "y": 574,
+        "width": 450,
+        "height": 500
+      },
+      "frame_rectangle": {
+        "x": 1055,
+        "y": 550,
+        "width": 464,
+        "height": 531
+      },
+      "viewable_frame_containment_and_nonblank": "pass"
+    }
+  ],
+  "validation_limits": [
+    "Native workspace and GUI acceptance ran on Linux/Xvfb; this record does not qualify the user's running Mac desktop.",
+    "The 33 non-workspace demos were qualified for startup through Open; their complete interactive workflows were not all exercised.",
+    "Legacy virtual-screen desktop panning is not implemented or advertised; Panner can display its miniature overview.",
+    "An earlier broad source sweep found 26 unrelated baseline failures, all reproduced against original base c6822e874; one requires explicit native-runner arguments. The relevant checks listed here pass."
+  ],
+  "compiled_regression_platform": "macOS arm64 with Apple Clang 21.0.0; UIL and display-backed tests on Linux aarch64"
+}

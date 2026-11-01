@@ -29,6 +29,8 @@
 
 #include "Wsm/wsm_proto.h"
 
+extern Boolean WsmSendRequest(Widget, WSMClientType, WSMRequest *, WSMReplyCallbackFunc, XtPointer);
+
 /*  Internal Data Strucures */
 
 #define MAX_LENGTH 256

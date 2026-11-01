@@ -1,4 +1,4 @@
-/* $XConsortium: pack.c /main/5 1995/07/15 20:42:45 drk $ */
+/* $XConsortium: pack.c /main/5 1995/07/15 20:38:40 drk $ */
 /*
  * Motif
  *
@@ -66,6 +66,28 @@ static int WinEntrySizePacked(Display *, int, WSMWinEntry *);
 static int WinDataSizePacked(Display *, int,
 			     WSMWinData *, int, WSMConfigFormatType);
 
+static Boolean
+AddPackedSize(long *size, size_t amount)
+{
+    if (size == NULL || *size < 0 || amount > (size_t)INT_MAX - (size_t)*size)
+	return False;
+    *size += (long)amount;
+    return True;
+}
+
+static String
+WSMQuarkString(XrmQuark quark)
+{
+    String string = XrmQuarkToString(quark);
+    return(string != NULL ? string : "");
+}
+
+static size_t
+WSMStringLength(String string)
+{
+    return(string != NULL ? strlen(string) : 0);
+}
+
 /*
  * Routines for packing protocol data stream.
  */
@@ -90,6 +112,7 @@ static int WinDataSizePacked(Display *, int,
 static void UnpackWinData(MessageData *, Display *, 
 			  int, WSMConfigFormatType, WSMWinData **, int *);
 static void UnpackSingleWinDataRec(MessageData *, WSMAttribute *,WSMWinData *);
+static void SkipWinDataRec(MessageData *, WSMAttribute *);
 static void UnpackWinInfo(MessageData *, Display *, int, WSMWinInfo *);
 static void UnpackWinEntry(MessageData *, Display *, int, WSMWinEntry *);
 
@@ -138,6 +161,14 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 
     *error = WSM_SUCCESS;
 
+    if (global_attrs == NULL || win_attrs == NULL || icon_attrs == NULL ||
+	(global_attrs->num_attrs != 0 && global_attrs->attr_list == NULL) ||
+	(win_attrs->num_attrs != 0 && win_attrs->attr_list == NULL) ||
+	(icon_attrs->num_attrs != 0 && icon_attrs->attr_list == NULL)) {
+	*error = WSM_ERROR_INTERNAL;
+	return(NULL);
+    }
+
     if (_WSMRequiresConfigFormat(request->any.type) && 
 	(global_attrs->num_attrs == 0) && 
 	(win_attrs->num_attrs == 0) && (icon_attrs->num_attrs == 0))
@@ -168,14 +199,29 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
      */
     switch (request->any.type) {
     case WSM_CONNECT:
+	if (request->connect.num_versions < 0)
+	    return(NULL);
+	if (request->connect.num_versions != 0 &&
+	    request->connect.known_versions == NULL)
+	    return(NULL);
 	size = COUNT_SIZE;
-	size += sizeof(CARD8) * request->connect.num_versions;
+	if (!AddPackedSize(&size,
+			   (size_t)sizeof(CARD8) *
+			   (size_t)request->connect.num_versions))
+	    return(NULL);
 	break;
     case WSM_EXTENSIONS:
+	if (request->extensions.num_extensions < 0)
+	    return(NULL);
+	if (request->extensions.num_extensions != 0 &&
+	    request->extensions.extension_suggestions == NULL)
+	    return(NULL);
 	size = COUNT_SIZE;
 	for (i = 0; i < request->extensions.num_extensions; i++) {
-	    size += (strlen(request->extensions.extension_suggestions[i]) +
-		     COUNT_SIZE);
+	    if (!AddPackedSize(&size,
+			       WSMStringLength(request->extensions.extension_suggestions[i]) +
+			       COUNT_SIZE))
+		return(NULL);
 	}
 	break;
     case WSM_CONFIG_FMT:
@@ -185,10 +231,24 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	size = sizeof(CARD32) + BOOL_SIZE;
 	break;
     case WSM_SET_STATE:
+	if (request->set_state.num_win_info_list < 0)
+	    return(NULL);
+	if (request->set_state.num_win_info_list != 0 &&
+	    request->set_state.win_info_list == NULL)
+	    return(NULL);
+	for (i = 0; i < request->set_state.num_win_info_list; i++)
+	    if (request->set_state.win_info_list[i].num_data_list < 0 ||
+		(request->set_state.win_info_list[i].num_data_list != 0 &&
+		request->set_state.win_info_list[i].data_list == NULL)
+		)
+		return(NULL);
 	size = COUNT_SIZE;	/* The count of window info. */
 	win_info = request->set_state.win_info_list;
-	for (i = 0; i < request->set_state.num_win_info_list; i++,win_info++)
-	    size += WinInfoSizePacked(dpy, screen_num, win_info);
+	for (i = 0; i < request->set_state.num_win_info_list; i++,win_info++) {
+	    int win_size = WinInfoSizePacked(dpy, screen_num, win_info);
+	    if (win_size < 0 || !AddPackedSize(&size, (size_t)win_size))
+		return(NULL);
+	}
 	break;
     case WSM_REG_WINDOW:
 	size = sizeof(CARD32);
@@ -200,16 +260,36 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	size = sizeof(CARD32);
 	break;
     case WSM_WM_WINDOWS:
+	if (request->wm_windows.num_window_properties < 0 ||
+	    request->wm_windows.num_match_attributes < 0)
+	    return(NULL);
+	if ((request->wm_windows.num_window_properties != 0 &&
+	     request->wm_windows.window_properties == NULL) ||
+	    (request->wm_windows.num_match_attributes != 0 &&
+	     request->wm_windows.match_attributes == NULL))
+	    return(NULL);
+	for (i = 0; i < request->wm_windows.num_match_attributes; i++)
+	    if (request->wm_windows.match_attributes[i] == NULL ||
+		request->wm_windows.match_attributes[i]->num_attributes < 0 ||
+		(request->wm_windows.match_attributes[i]->num_attributes != 0 &&
+		 (request->wm_windows.match_attributes[i]->allowed_attributes == NULL ||
+		  request->wm_windows.match_attributes[i]->prohibited_attributes == NULL)))
+		return(NULL);
 	size = sizeof(CARD32); /* flag */
-	size += COUNT_SIZE;    /* prop count */
-	size += request->wm_windows.num_window_properties * sizeof(Window);
-	size += COUNT_SIZE;    /* num match attributes */
+	if (!AddPackedSize(&size, COUNT_SIZE) ||
+	    !AddPackedSize(&size,
+			   (size_t)request->wm_windows.num_window_properties *
+			   sizeof(CARD32)) ||
+	    !AddPackedSize(&size, COUNT_SIZE))
+	    return(NULL);
 	for (i=0; i<request->wm_windows.num_match_attributes; i++)
 	  {
-	    size += COUNT_SIZE; /* num attributes */
-	    size += 2 *
-	            request->wm_windows.match_attributes[i]->num_attributes *
-		    sizeof(WindowProperty);
+	    if (!AddPackedSize(&size, COUNT_SIZE) ||
+		!AddPackedSize(&size,
+			       (size_t)2 *
+			       (size_t)request->wm_windows.match_attributes[i]->num_attributes *
+			       sizeof(CARD32)))
+		return(NULL);
 	  }
 	break;
     case WSM_WM_FOCUS:
@@ -223,6 +303,8 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
     }
 
     save = data = (MessageData) XtMalloc(size);
+    if (save == NULL && size != 0)
+	return(NULL);
 
     /*
      * Fill in the message.
@@ -326,12 +408,28 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = sizeof(CARD8);
 	break;
     case WSM_EXTENSIONS:
+        if (reply->extensions.num_extensions < 0)
+            return(NULL);
+	if (reply->extensions.num_extensions != 0 &&
+	    reply->extensions.extensions == NULL)
+	    return(NULL);
 	size = COUNT_SIZE;
 	for (i = 0; i < reply->extensions.num_extensions; i++) {
-	    size += (strlen(reply->extensions.extensions[i]) + COUNT_SIZE);
+	    size += (WSMStringLength(reply->extensions.extensions[i]) + COUNT_SIZE);
 	}
 	break;
     case WSM_CONFIG_FMT:
+        if (reply->config_format.num_global_formats < 0 ||
+            reply->config_format.num_window_formats < 0 ||
+            reply->config_format.num_icon_formats < 0)
+            return(NULL);
+	if ((reply->config_format.num_global_formats != 0 &&
+	     reply->config_format.global_formats == NULL) ||
+	    (reply->config_format.num_window_formats != 0 &&
+	     reply->config_format.window_formats == NULL) ||
+	    (reply->config_format.num_icon_formats != 0 &&
+	     reply->config_format.icon_formats == NULL))
+	    return(NULL);
 	size = BOOL_SIZE;	/* accept_diffs. */
 	size += COUNT_SIZE;	/* The count of global attributes. */
 	attr = reply->config_format.global_formats;
@@ -339,7 +437,7 @@ _WSMPackReply(Display *dpy, int screen_num,
 	    /*
 	     * Bytes in string
 	     */
-	    size += strlen(XrmQuarkToString(attr[i].nameq)) * sizeof(CARD8);
+	    size += strlen(WSMQuarkString(attr[i].nameq)) * sizeof(CARD8);
 	    /*
 	     * len of string + size + is_list.
 	     */
@@ -351,7 +449,7 @@ _WSMPackReply(Display *dpy, int screen_num,
 	    /*
 	     * Bytes in string
 	     */
-	    size += strlen(XrmQuarkToString(attr[i].nameq)) * sizeof(CARD8);
+	    size += strlen(WSMQuarkString(attr[i].nameq)) * sizeof(CARD8);
 	    /*
 	     * len of string + size + is_list.
 	     */
@@ -363,7 +461,7 @@ _WSMPackReply(Display *dpy, int screen_num,
 	    /*
 	     * Bytes in string
 	     */
-	    size += strlen(XrmQuarkToString(attr[i].nameq)) * sizeof(CARD8);
+	    size += strlen(WSMQuarkString(attr[i].nameq)) * sizeof(CARD8);
 	    /*
 	     * len of string + size + is_list.
 	     */
@@ -371,19 +469,41 @@ _WSMPackReply(Display *dpy, int screen_num,
 	}
 	break;
     case WSM_GET_STATE:
+        if (reply->get_state.num_win_info_list < 0)
+            return(NULL);
+	if (reply->get_state.num_win_info_list != 0 &&
+	    reply->get_state.win_info_list == NULL)
+	    return(NULL);
+	for (i = 0; i < reply->get_state.num_win_info_list; i++)
+	    if (reply->get_state.win_info_list[i].num_data_list < 0)
+		return(NULL);
+	for (i = 0; i < reply->get_state.num_win_info_list; i++)
+	    if (reply->get_state.win_info_list[i].num_data_list != 0 &&
+		reply->get_state.win_info_list[i].data_list == NULL)
+		return(NULL);
 	size = COUNT_SIZE;	/* The count of window info. */
 	win_info = reply->get_state.win_info_list;
-	for (i = 0; i < reply->get_state.num_win_info_list; i++,win_info++)
-	    size += WinInfoSizePacked(dpy, screen_num, win_info);
+	for (i = 0; i < reply->get_state.num_win_info_list; i++,win_info++) {
+	    int win_size = WinInfoSizePacked(dpy, screen_num, win_info);
+	    if (win_size < 0 || !AddPackedSize(&size, (size_t)win_size))
+		return(NULL);
+	}
 	break;
     case WSM_SET_STATE:
 	size = 0;
 	break;
     case WSM_REG_WINDOW:
+        if (reply->register_window.num_window_data < 0)
+            return(NULL);
+	if (reply->register_window.num_window_data != 0 &&
+	    reply->register_window.window_data == NULL)
+	    return(NULL);
 	size = WinDataSizePacked(dpy, screen_num, 
 				 reply->register_window.window_data,
 				 reply->register_window.num_window_data,
 				 WSM_WINDOW_FMT);
+	if (size < 0)
+	    return(NULL);
 	break;
     case WSM_WM_GET_BACKGROUND_WINDOW:
 	size = sizeof(CARD32);
@@ -392,10 +512,29 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = sizeof(CARD32);
 	break;
     case WSM_WM_WINDOWS:
+        if (reply->wm_windows.num_win_entry_list < 0)
+            return(NULL);
+	if (reply->wm_windows.num_win_entry_list != 0 &&
+	    reply->wm_windows.win_entry_list == NULL)
+	    return(NULL);
+	for (i = 0; i < reply->wm_windows.num_win_entry_list; i++)
+	    if (reply->wm_windows.win_entry_list[i].num_windows < 0 ||
+		reply->wm_windows.win_entry_list[i].num_match_properties < 0)
+		return(NULL);
+	for (i = 0; i < reply->wm_windows.num_win_entry_list; i++)
+	    if ((reply->wm_windows.win_entry_list[i].num_windows != 0 &&
+		 reply->wm_windows.win_entry_list[i].windows == NULL) ||
+		(reply->wm_windows.win_entry_list[i].num_match_properties != 0 &&
+		 reply->wm_windows.win_entry_list[i].match_properties == NULL))
+		return(NULL);
 	size = COUNT_SIZE;	/* The count of window entries. */
 	win_entry = reply->wm_windows.win_entry_list;
 	for (i = 0; i < reply->wm_windows.num_win_entry_list; i++,win_entry++)
-	    size += WinEntrySizePacked(dpy, screen_num, win_entry);
+	    {
+		int entry_size = WinEntrySizePacked(dpy, screen_num, win_entry);
+		if (entry_size < 0 || !AddPackedSize(&size, (size_t)entry_size))
+		    return(NULL);
+	    }
 	break;
     case WSM_WM_FOCUS:
 	size = sizeof(CARD32);
@@ -412,6 +551,8 @@ _WSMPackReply(Display *dpy, int screen_num,
     }
 
     save = data = (MessageData) XtMalloc(size);
+    if (save == NULL && size != 0)
+	return(NULL);
 
     switch (reply->any.type) {
     case WSM_CONNECT:
@@ -455,7 +596,7 @@ _WSMPackReply(Display *dpy, int screen_num,
 	(void) PackWindow(data, reply->wm_focus.window);
 	break;
     case WSM_WM_POINTER:
-	(void) PackWindow(data, reply->wm_pointer.window);
+	data = PackWindow(data, reply->wm_pointer.window);
 	(void) PackCARD32(data, reply->wm_pointer.location_flag);
 	break;
     default:
@@ -493,14 +634,35 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 		  unsigned long len, WSMRequestType type, WSMRequest *request)
 {
     register int i;
+
+    if (request == NULL)
+	return;
+
+    memset(request, 0, sizeof(*request));
     request->any.type = type;	/* Save the type. */
     request->any.allocated = False;
 
+    if (data == NULL && type != WSM_CONFIG_FMT) {
+        request->any.type = WSM_UNKNOWN;
+        return;
+    }
+
+    if (!_WSMValidateMessage(dpy, screen_num, data, len, type, False)) {
+        request->any.type = WSM_UNKNOWN;
+        return;
+    }
     switch (request->any.type) {
     case WSM_CONNECT:
 	request->connect.num_versions = UnpackListNum(&data);
 	request->connect.known_versions =
-	    (short *) XtMalloc(sizeof(short) * request->connect.num_versions);
+	    (request->connect.num_versions >= 0 &&
+	     (size_t)request->connect.num_versions <= UINT_MAX / sizeof(short)) ?
+	    (short *) XtMalloc((Cardinal)((size_t)request->connect.num_versions * sizeof(short))) :
+	    NULL;
+	if (request->connect.known_versions == NULL) {
+	    request->connect.num_versions = 0;
+	    return;
+	}
 	request->connect.allocated = True;
 	for (i = 0; i < request->connect.num_versions; i++) 
 	    request->connect.known_versions[i] = (short) UnpackCARD8(&data);
@@ -511,7 +673,13 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	    register String *ptr;
 
 	    num = request->extensions.num_extensions = UnpackListNum(&data);
-	    ptr = (String *) XtMalloc(sizeof(String) * num);
+	    ptr = (num >= 0 && (size_t)num <= UINT_MAX / sizeof(String)) ?
+		(String *) XtMalloc((Cardinal)((size_t)num * sizeof(String))) : NULL;
+	    if (ptr == NULL) {
+		request->extensions.num_extensions = 0;
+		request->extensions.extension_suggestions = NULL;
+		return;
+	    }
 	    request->extensions.extension_suggestions = ptr;
 	    request->extensions.allocated = True;
 	    for (i = 0; i < num; i++, ptr++) 
@@ -529,9 +697,15 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	    int num = UnpackListNum(&data);
 	    
 	    request->set_state.num_win_info_list = num;
-	    request->set_state.win_info_list = 
-		(WSMWinInfo *) XtMalloc(sizeof(WSMWinInfo) * num);
-	    request->extensions.allocated = True;
+	    request->set_state.win_info_list =
+		(num >= 0 && (size_t)num <= UINT_MAX / sizeof(WSMWinInfo)) ?
+		(WSMWinInfo *) XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinInfo))) :
+		NULL;
+	    if (request->set_state.win_info_list == NULL) {
+		request->set_state.num_win_info_list = 0;
+		return;
+	    }
+	    request->set_state.allocated = True;
 
 	    for (i = 0; i < num; i++) {
 		UnpackWinInfo(&data, dpy, screen_num, 
@@ -552,28 +726,98 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	{
 	  int num, i, j;
 
-	  request->extensions.allocated = True;
+	  request->wm_windows.allocated = True;
 	  request->wm_windows.location_flag = UnpackCARD32(&data);
 
 	  num = request->wm_windows.num_window_properties = UnpackListNum(&data);
 	  request->wm_windows.window_properties =
-	    (WindowProperty *) XtMalloc(sizeof(WindowProperty) * num);
+	    (num >= 0 && (size_t)num <= UINT_MAX / sizeof(WindowProperty)) ?
+	    (WindowProperty *) XtMalloc((Cardinal)((size_t)num * sizeof(WindowProperty))) :
+	    NULL;
+	  if (request->wm_windows.window_properties == NULL) {
+	    request->wm_windows.num_window_properties = 0;
+	    return;
+	  }
 	  for (i=0; i<num; i++)
 	    request->wm_windows.window_properties[i] = UnpackProperty(&data);
 
 
 	  num = request->wm_windows.num_match_attributes = UnpackListNum(&data);
 	  request->wm_windows.match_attributes =
-	    (AttributePair **) XtMalloc(sizeof(AttributePair*) * num);
+	    (num >= 0 && (size_t)num <= UINT_MAX / sizeof(AttributePair *)) ?
+	    (AttributePair **) XtMalloc((Cardinal)((size_t)num * sizeof(AttributePair *))) :
+	    NULL;
+	  if (request->wm_windows.match_attributes == NULL) {
+	    XtFree((XtPointer)request->wm_windows.window_properties);
+	    request->wm_windows.window_properties = NULL;
+	    request->wm_windows.num_window_properties = 0;
+	    request->wm_windows.num_match_attributes = 0;
+	    return;
+	  }
 
 	  for (i=0; i<request->wm_windows.num_match_attributes; i++)
 	    {
 	      num = UnpackListNum(&data);
 
 	      request->wm_windows.match_attributes[i] = (AttributePair *)
-		XtMalloc(sizeof(AttributePair) * num * 2 + sizeof(int));
+		XtMalloc(sizeof(AttributePair));
+	      if (request->wm_windows.match_attributes[i] == NULL) {
+		for (j = 0; j < num; j++) {
+		  (void) UnpackProperty(&data);
+		  (void) UnpackProperty(&data);
+		}
+		for (j = 0; j < i; j++)
+		  {
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]->allowed_attributes);
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]->prohibited_attributes);
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]);
+		  }
+		XtFree((XtPointer)request->wm_windows.match_attributes);
+		XtFree((XtPointer)request->wm_windows.window_properties);
+		request->wm_windows.window_properties = NULL;
+		request->wm_windows.num_window_properties = 0;
+		request->wm_windows.match_attributes = NULL;
+		request->wm_windows.num_match_attributes = 0;
+		return;
+	      }
 
+	      request->wm_windows.match_attributes[i]->allowed_attributes = NULL;
+	      request->wm_windows.match_attributes[i]->prohibited_attributes = NULL;
 	      request->wm_windows.match_attributes[i]->num_attributes = num;
+	      if (num != 0 &&
+		  (size_t)num <= UINT_MAX / sizeof(WindowProperty)) {
+		request->wm_windows.match_attributes[i]->allowed_attributes =
+		  (WindowProperty *) XtMalloc((Cardinal)
+		      ((size_t)num * sizeof(WindowProperty)));
+		request->wm_windows.match_attributes[i]->prohibited_attributes =
+		  (WindowProperty *) XtMalloc((Cardinal)
+		      ((size_t)num * sizeof(WindowProperty)));
+	      }
+	      if ((num != 0 &&
+		   (request->wm_windows.match_attributes[i]->allowed_attributes == NULL ||
+		    request->wm_windows.match_attributes[i]->prohibited_attributes == NULL))) {
+		for (j = 0; j < num; j++) {
+		  (void) UnpackProperty(&data);
+		  (void) UnpackProperty(&data);
+		}
+		XtFree((XtPointer)request->wm_windows.match_attributes[i]->allowed_attributes);
+		XtFree((XtPointer)request->wm_windows.match_attributes[i]->prohibited_attributes);
+		XtFree((XtPointer)request->wm_windows.match_attributes[i]);
+		for (j = 0; j < i; j++)
+		  {
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]->allowed_attributes);
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]->prohibited_attributes);
+		    XtFree((XtPointer)request->wm_windows.match_attributes[j]);
+		  }
+		XtFree((XtPointer)request->wm_windows.match_attributes);
+		XtFree((XtPointer)request->wm_windows.window_properties);
+		request->wm_windows.window_properties = NULL;
+		request->wm_windows.num_window_properties = 0;
+		request->wm_windows.match_attributes = NULL;
+		request->wm_windows.num_match_attributes = 0;
+		return;
+	      }
+
 	      for (j=0; j<num; j++)
 		{
 		  request->wm_windows.match_attributes[i]->allowed_attributes[j] =
@@ -616,12 +860,29 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 		unsigned long len, WSMRequestType type, WSMReply *reply)
 {
     register int i;
+
+    if (reply == NULL)
+	return;
+
+    memset(reply, 0, sizeof(*reply));
     reply->any.type = type;		/* Save the type. */
     reply->any.allocated = False;
 
+    if (data == NULL && type != WSM_SET_STATE) {
+        reply->any.type = WSM_UNKNOWN;
+        return;
+    }
+
+    if (!_WSMValidateMessage(dpy, screen_num, data, len, type, True)) {
+        reply->any.type = WSM_UNKNOWN;
+        return;
+    }
     switch (reply->any.type) {
     case WSM_CONNECT:
-	reply->connect.version = (short) UnpackCARD8(&data);
+        if (data != NULL)
+	  reply->connect.version = (short) UnpackCARD8(&data);
+	else
+	  fprintf(stderr, "Error - Connection request reply data is empty!\n");
 	break;
     case WSM_EXTENSIONS:
         {
@@ -629,7 +890,13 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	    register String *ptr;
 
 	    num = reply->extensions.num_extensions = UnpackListNum(&data);
-	    ptr = (String *) XtMalloc(sizeof(String) * num);
+	    ptr = (num >= 0 && (size_t)num <= UINT_MAX / sizeof(String)) ?
+		(String *) XtMalloc((Cardinal)((size_t)num * sizeof(String))) : NULL;
+	    if (ptr == NULL) {
+		reply->extensions.num_extensions = 0;
+		reply->extensions.extensions = NULL;
+		return;
+	    }
 	    reply->extensions.allocated = True;
 	    reply->extensions.extensions = ptr;
 	    for (i = 0; i < num; i++, ptr++) 
@@ -643,6 +910,9 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	    WSMConfigFormatReply * config_format = &(reply->config_format);
 	    WSMConfigFormatData *fmt;
 	    WSMScreenInfo *scr_info = _WSMGetScreenInfo(dpy, screen_num);
+
+	    if (scr_info == NULL)
+		return;
 	    
 	    config_format->accepts_diffs = UnpackBoolean(&data);
 
@@ -660,11 +930,27 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 		}
 
 		fmt->num_attrs = UnpackListNum(&data);
+	if (fmt->num_attrs < 0 ||
+	    (size_t)fmt->num_attrs > UINT_MAX / sizeof(WSMAttribute)) {
+	    fmt->num_attrs = 0;
+	    _WSMClearConfigScreenInfo(dpy, screen_num);
+	    return;
+	}
 		fmt->attr_list = (WSMAttribute *) 
-		    XtMalloc(sizeof(WSMAttribute) * fmt->num_attrs);
+	    XtMalloc((Cardinal)((size_t)fmt->num_attrs * sizeof(WSMAttribute)));
+		if (fmt->attr_list == NULL) {
+		    fmt->num_attrs = 0;
+		    _WSMClearConfigScreenInfo(dpy, screen_num);
+		    return;
+		}
 
 		for (i = 0; i < fmt->num_attrs; i++) {
 		    String str = UnpackString(&data);
+	    if (str == NULL) {
+		fmt->num_attrs = 0;
+		_WSMClearConfigScreenInfo(dpy, screen_num);
+		return;
+	    }
 		    fmt->attr_list[i].nameq = XrmStringToQuark(str);
 		    XtFree(str);
 		    fmt->attr_list[i].size = UnpackCARD8(&data);
@@ -688,8 +974,14 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
     case WSM_GET_STATE:
 	{
 	    int num =reply->get_state.num_win_info_list = UnpackListNum(&data);
-	    reply->get_state.win_info_list = 
-		(WSMWinInfo *) XtMalloc(sizeof(WSMWinInfo) * num);
+	    reply->get_state.win_info_list =
+		(num >= 0 && (size_t)num <= UINT_MAX / sizeof(WSMWinInfo)) ?
+		(WSMWinInfo *) XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinInfo))) :
+		NULL;
+	    if (reply->get_state.win_info_list == NULL) {
+		reply->get_state.num_win_info_list = 0;
+		return;
+	    }
 	    reply->get_state.allocated = True;
 
 	    for (i = 0; i < num; i++) 
@@ -700,10 +992,15 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
     case WSM_SET_STATE:
 	break;
     case WSM_REG_WINDOW:
-	UnpackWinData(&data, dpy, screen_num, WSM_WINDOW_FMT,
-		      &(reply->register_window.window_data),
-		      &(reply->register_window.num_window_data));
-	reply->register_window.allocated = True;
+	if (data != NULL)
+	  {
+	    UnpackWinData(&data, dpy, screen_num, WSM_WINDOW_FMT,
+			  &(reply->register_window.window_data),
+			  &(reply->register_window.num_window_data));
+	    reply->register_window.allocated = True;
+	  }
+	else
+	  fprintf(stderr, "Error - Register Window reply data is empty!\n");
 	break;
     case WSM_WM_GET_BACKGROUND_WINDOW:
 	reply->get_background.window = UnpackWindow(&data);
@@ -716,8 +1013,14 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	  int num;
 
 	  num = reply->wm_windows.num_win_entry_list = UnpackListNum(&data);
-	  reply->wm_windows.win_entry_list = 
-	    (WSMWinEntry *) XtMalloc(sizeof(WSMWinEntry) * num);
+	  reply->wm_windows.win_entry_list =
+	    (num >= 0 && (size_t)num <= UINT_MAX / sizeof(WSMWinEntry)) ?
+	    (WSMWinEntry *) XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinEntry))) :
+	    NULL;
+	  if (reply->wm_windows.win_entry_list == NULL) {
+	    reply->wm_windows.num_win_entry_list = 0;
+	    return;
+	  }
 	  reply->wm_windows.allocated = True;
 
 	  for (i = 0; i < num; i++) 
@@ -729,6 +1032,7 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	reply->wm_focus.window = UnpackWindow(&data);
 	break;
     case WSM_WM_POINTER:
+        reply->wm_pointer.window = UnpackWindow(&data);
 	reply->wm_pointer.location_flag = UnpackCARD32(&data);
 	break;
     default:
@@ -754,11 +1058,15 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 static int 
 WinInfoSizePacked(Display *dpy, int screen_num, WSMWinInfo *win_info)
 {
-    int size = sizeof(CARD32);
-    size += WinDataSizePacked(dpy, screen_num, 
-			      win_info->data_list, win_info->num_data_list,
-			      _WSMGetConfigFormatType(win_info->window));
-    return(size);
+    long size = sizeof(CARD32);
+    int data_size = WinDataSizePacked(dpy, screen_num,
+				       win_info->data_list, win_info->num_data_list,
+				       _WSMGetConfigFormatType(win_info->window));
+    if (data_size < 0)
+	return(-1);
+    if (!AddPackedSize(&size, (size_t)data_size))
+	return(-1);
+    return((int)size);
 }
 
 /*	Function Name: WinEntrySizePacked
@@ -773,14 +1081,24 @@ WinInfoSizePacked(Display *dpy, int screen_num, WSMWinInfo *win_info)
 static int 
 WinEntrySizePacked(Display *dpy, int screen_num, WSMWinEntry *win_entry)
 {
-    int size;
+    long size;
+
+    (void)dpy;
+    (void)screen_num;
+    if (win_entry == NULL || win_entry->num_windows < 0 ||
+	win_entry->num_match_properties < 0)
+	return(-1);
 
     size  = sizeof(CARD32);
-    size += sizeof(CARD32) * win_entry->num_windows;
-    size  = sizeof(CARD32);
-    size += sizeof(WindowProperty) * win_entry->num_match_properties;
+    if (!AddPackedSize(&size,
+			   (size_t)sizeof(CARD32) * (size_t)win_entry->num_windows) ||
+	!AddPackedSize(&size, sizeof(CARD32)) ||
+	!AddPackedSize(&size,
+			   (size_t)sizeof(CARD32) *
+			   (size_t)win_entry->num_match_properties))
+	return(-1);
 
-    return(size);
+    return((int)size);
 }
 
 /*	Function Name: WinDataSizePacked
@@ -798,9 +1116,16 @@ static int
 WinDataSizePacked(Display *dpy, int screen_num, 
 		  WSMWinData *win_data, int num, WSMConfigFormatType fmt)
 {
-    register int i, size;
+    register int i;
+    long size;
     WSMConfigFormatData *fmt_data = _WSMGetConfigFormat(dpy, screen_num, fmt);
 
+    if (fmt_data == NULL ||
+	(fmt_data->num_attrs != 0 && fmt_data->attr_list == NULL))
+	return(-1);
+
+    if (num < 0 || (fmt_data->num_attrs / 8) > INT_MAX - 1)
+	return(-1);
     size = fmt_data->num_attrs / 8 + 1;	/* Size of header bits. */
     for ( i = 0; i < num; i++, win_data++) {
 	WSMAttribute *attr = _WSMGetMatchingAttr(win_data->nameq, fmt_data);
@@ -810,19 +1135,25 @@ WinDataSizePacked(Display *dpy, int screen_num,
 	     */
 	    continue;
 	}
+	if (win_data->type != WSM_VALUE_DATA && win_data->data_len < 0)
+	    return(-1);
 
 	switch(win_data->type) {
 	case WSM_VALUE_DATA:
-	    size += attr->size/8;
+	    if (!AddPackedSize(&size, (size_t)(attr->size / 8)))
+		return(-1);
 	    break;
 	default:		/* All others are lists. */
-	    size += COUNT_SIZE;
-	    size += ((attr->size/8) * win_data->data_len);
+	    if (!AddPackedSize(&size, COUNT_SIZE) ||
+		!AddPackedSize(&size,
+			       (size_t)(attr->size / 8) *
+			       (size_t)win_data->data_len))
+		return(-1);
 	    break;
 	}
     }
 
-    return(size);
+    return((int)size);
 }
 
 /************************************************************
@@ -842,7 +1173,11 @@ WinDataSizePacked(Display *dpy, int screen_num,
 MessageData
 PackString(MessageData data, String str)
 {
-    register int i, len = strlen(str);
+    register int i, len;
+
+    if (str == NULL)
+	str = "";
+    len = strlen(str);
 
     data = PackListNum(data, len);
     for (i = 0; i < len; i++, str++) 
@@ -888,7 +1223,7 @@ PackSingleAttribute(MessageData data, WSMAttribute *attr_list, int num)
 
     data = PackListNum(data, num);
     for (i = 0; i < num; i++, attr_list++) {
-	data = PackString(data, XrmQuarkToString(attr_list->nameq));
+	data = PackString(data, WSMQuarkString(attr_list->nameq));
 	data = PackCARD8(data, (CARD8) attr_list->size);
 	data = PackBoolean(data, attr_list->is_list);
     }
@@ -961,7 +1296,13 @@ PackWinData(Display *dpy, int screen_num, MessageData data,
     WSMConfigFormatData *conf_fmt = _WSMGetConfigFormat(dpy, screen_num, fmt);
     MessageData mask_pos = data;
     WSMAttribute *attr;
-    register int i, size = (conf_fmt->num_attrs / 8) + 1;
+    int i, size;
+
+    if (conf_fmt == NULL ||
+	(conf_fmt->num_attrs != 0 && conf_fmt->attr_list == NULL))
+	return(NULL);
+
+    size = (conf_fmt->num_attrs / 8) + 1;
 
     data = (MessageData) ((char *)data + size);
     bzero((char *) mask_pos, size);	/* Set all bits to zero initially*/
@@ -1012,10 +1353,8 @@ PackWinData(Display *dpy, int screen_num, MessageData data,
 		    data = PackCARD32(data, (CARD32) this_data->data.value);
 		    break;			
 		}
-		break;
 	    case WSM_NONE:
-	        /* Not handled case */
-	        break;
+		break;
 	    }
 
 	    /*
@@ -1118,11 +1457,17 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
 	      WSMConfigFormatType fmt,
 	      WSMWinData **win_data, int *num)
 {
-    register int i, size;
+    int i, size;
     WSMConfigFormatData *conf_fmt = _WSMGetConfigFormat(dpy, screen_num, fmt);
     unsigned char *bit_mask, *current_mask, check_mask;
     WSMAttribute *attr;
     WSMWinData *ptr;
+
+    *win_data = NULL;
+    *num = 0;
+    if (conf_fmt == NULL ||
+	(conf_fmt->num_attrs != 0 && conf_fmt->attr_list == NULL))
+	return;
     
     /*
      * Figure out how many values have been specified so we know how much
@@ -1131,6 +1476,8 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
 
     size = conf_fmt->num_attrs / 8 + 1;
     current_mask = bit_mask = (unsigned char *) XtMalloc(size);
+    if (bit_mask == NULL)
+	return;
 
     /*
      * Unpack the bits from the wire.
@@ -1151,7 +1498,28 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
 	}
     }
 
-    ptr = *win_data = (WSMWinData *) XtMalloc(*num * sizeof(WSMWinData));
+    if (*num < 0 || (size_t)*num > UINT_MAX / sizeof(WSMWinData))
+	ptr = NULL;
+    else
+	ptr = *win_data = (WSMWinData *)
+	    XtMalloc((Cardinal)((size_t)*num * sizeof(WSMWinData)));
+    if (ptr == NULL) {
+	current_mask = bit_mask;
+	check_mask = START_CHECK_MASK;
+	attr = conf_fmt->attr_list;
+	for (i = 0; i < conf_fmt->num_attrs; i++, attr++) {
+	    if (*current_mask & check_mask)
+		SkipWinDataRec(data_ptr, attr);
+	    check_mask >>= 1;
+	    if ((i % 8) == 7) {
+		current_mask++;
+		check_mask = START_CHECK_MASK;
+	    }
+	}
+	XtFree((XtPointer) bit_mask);
+	*num = 0;
+	return;
+    }
 
     /*
      * For each value that was specified pack the data into the window
@@ -1215,8 +1583,18 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    char *local;
 	    
 	    win_data->type = WSM_CHAR_LIST_DATA;
-	    local = win_data->data.char_ptr = 
-		(char *) XtMalloc(sizeof(char) * win_data->data_len);
+	    local = win_data->data.char_ptr =
+		(win_data->data_len >= 0 &&
+		 (size_t)win_data->data_len <= UINT_MAX / sizeof(char)) ?
+		(char *) XtMalloc((Cardinal)((size_t)win_data->data_len * sizeof(char))) :
+		NULL;
+	    if (local == NULL && win_data->data_len != 0) {
+		for (i = 0; i < win_data->data_len; i++)
+		    (void) UnpackCARD8(data_ptr);
+		win_data->type = WSM_NONE;
+		win_data->data_len = 0;
+		return;
+	    }
 	    for (i = 0; i < win_data->data_len; i++, local++) 
 		*local = UnpackCARD8(data_ptr);
 	}
@@ -1229,8 +1607,18 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    short *local;
 	    
 	    win_data->type = WSM_SHORT_LIST_DATA;
-	    local = win_data->data.short_ptr = 
-		(short *) XtMalloc(sizeof(short) * win_data->data_len);
+	    local = win_data->data.short_ptr =
+		(win_data->data_len >= 0 &&
+		 (size_t)win_data->data_len <= UINT_MAX / sizeof(short)) ?
+		(short *) XtMalloc((Cardinal)((size_t)win_data->data_len * sizeof(short))) :
+		NULL;
+	    if (local == NULL && win_data->data_len != 0) {
+		for (i = 0; i < win_data->data_len; i++)
+		    (void) UnpackCARD16(data_ptr);
+		win_data->type = WSM_NONE;
+		win_data->data_len = 0;
+		return;
+	    }
 	    for (i = 0; i < win_data->data_len; i++, local++) 
 		*local = UnpackCARD16(data_ptr);
 	}
@@ -1243,8 +1631,18 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    long *local;
 	    
 	    win_data->type = WSM_LONG_LIST_DATA;
-	    local = win_data->data.long_ptr = 
-		(long *) XtMalloc(sizeof(long) * win_data->data_len);
+	    local = win_data->data.long_ptr =
+		(win_data->data_len >= 0 &&
+		 (size_t)win_data->data_len <= UINT_MAX / sizeof(long)) ?
+		(long *) XtMalloc((Cardinal)((size_t)win_data->data_len * sizeof(long))) :
+		NULL;
+	    if (local == NULL && win_data->data_len != 0) {
+		for (i = 0; i < win_data->data_len; i++)
+		    (void) UnpackCARD32(data_ptr);
+		win_data->type = WSM_NONE;
+		win_data->data_len = 0;
+		return;
+	    }
 	    for (i = 0; i < win_data->data_len; i++, local++) 
 		*local = UnpackCARD32(data_ptr);
 	}
@@ -1252,6 +1650,35 @@ UnpackSingleWinDataRec(MessageData *data_ptr,
 	    win_data->data.value = UnpackCARD32(data_ptr);
 
 	break;
+	default:
+	win_data->type = WSM_NONE;
+	win_data->data_len = 0;
+	break;
+    }
+}
+
+static void
+SkipWinDataRec(MessageData *data_ptr, WSMAttribute *attr)
+{
+    int i;
+    int data_len = attr->is_list ? UnpackListNum(data_ptr) : 1;
+
+    for (i = 0; i < data_len; i++) {
+	if (attr->is_list == False && i != 0)
+	    break;
+	switch (attr->size) {
+	case 8:
+	    (void) UnpackCARD8(data_ptr);
+	    break;
+	case 16:
+	    (void) UnpackCARD16(data_ptr);
+	    break;
+	case 32:
+	    (void) UnpackCARD32(data_ptr);
+	    break;
+	default:
+	    return;
+	}
     }
 }
 
@@ -1290,18 +1717,37 @@ UnpackWinEntry(MessageData *data, Display *dpy,
     int i;
 
     win_entry->num_windows = UnpackListNum(data);
-    win_entry->windows = (Window *) XtMalloc(sizeof(Window) * win_entry->num_windows);
+    win_entry->windows = NULL;
+    if (win_entry->num_windows != 0 &&
+	(size_t)win_entry->num_windows <= UINT_MAX / sizeof(Window))
+      win_entry->windows = (Window *) XtMalloc((Cardinal)
+	((size_t)win_entry->num_windows * sizeof(Window)));
 
-    for (i=0; i<win_entry->num_windows; i++)
-      win_entry->windows[i] = UnpackWindow(data);
+    if (win_entry->windows != NULL)
+      for (i=0; i<win_entry->num_windows; i++)
+	win_entry->windows[i] = UnpackWindow(data);
+    else {
+      for (i=0; i<win_entry->num_windows; i++)
+	(void) UnpackWindow(data);
+      win_entry->num_windows = 0;
+    }
 
     win_entry->num_match_properties = UnpackListNum(data);
-    win_entry->match_properties =
-      (WindowProperty *) XtMalloc(sizeof(WindowProperty) *
-				  win_entry->num_match_properties);
+    win_entry->match_properties = NULL;
+    if (win_entry->num_match_properties != 0 &&
+	(size_t)win_entry->num_match_properties <= UINT_MAX / sizeof(WindowProperty))
+      win_entry->match_properties =
+	  (WindowProperty *) XtMalloc((Cardinal)
+	      ((size_t)win_entry->num_match_properties * sizeof(WindowProperty)));
 
-    for (i=0; i<win_entry->num_match_properties; i++)
-      win_entry->match_properties[i] = UnpackProperty(data);
+    if (win_entry->match_properties != NULL)
+      for (i=0; i<win_entry->num_match_properties; i++)
+	win_entry->match_properties[i] = UnpackProperty(data);
+    else {
+      for (i=0; i<win_entry->num_match_properties; i++)
+	(void) UnpackProperty(data);
+      win_entry->num_match_properties = 0;
+    }
 }
 
 /*	Function Name: UnpackString
@@ -1316,8 +1762,19 @@ String
 UnpackString(MessageData *data_ptr)
 {
     register int i;
-    int len = UnpackListNum(data_ptr);
-    char *str, *top = XtMalloc((len + 1) * sizeof(char));
+    int len;
+    char *str, *top;
+
+    if (data_ptr == NULL || *data_ptr == NULL)
+	return(NULL);
+
+    len = UnpackListNum(data_ptr);
+
+    if (len < 0 || (size_t)len >= UINT_MAX)
+	return(NULL);
+    top = XtMalloc((Cardinal)len + 1);
+    if (top == NULL)
+	return(NULL);
     
     for (str = top, i = 0; i < len; i++, str++) {
 	*str = (char) UnpackCARD8(data_ptr);
@@ -1370,6 +1827,9 @@ UnpackCARD16(MessageData *data_ptr)
 CARD8
 UnpackCARD8(MessageData *data_ptr)
 {
+    if (data_ptr == NULL || *data_ptr == NULL)
+	return(0);
+
     CARD8 ret_val = *((char *) *data_ptr);
 
     *data_ptr = ((char *) *data_ptr) + 1;

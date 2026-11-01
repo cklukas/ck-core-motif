@@ -40,6 +40,7 @@ static char rcsid[] = "$XConsortium: WmSignal.c /main/6 1996/10/17 16:20:07 drk 
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <errno.h>
 
 
 /*
@@ -61,6 +62,19 @@ static char rcsid[] = "$XConsortium: WmSignal.c /main/6 1996/10/17 16:20:07 drk 
  * Global Variables:
  */
 
+
+static XtSignalId quitSignal;
+
+static void DispatchQuitSignal(XtPointer closure, XtSignalId *id)
+{
+    (void)closure; (void)id;
+    if (wmGD.showFeedback & WM_SHOW_FB_KILL) {
+        ConfirmAction(ACTIVE_PSD, QUIT_MWM_ACTION);
+        XFlush(DISPLAY);
+    } else {
+        Do_Quit_Mwm(False);
+    }
+}
 
 #ifdef WSM
 
@@ -167,6 +181,9 @@ void SetupWmSignalHandlers (int dummy)
 {
     void (*signalHandler)(int);
 
+    if (!quitSignal)
+        quitSignal = XtAppAddSignal(wmGD.mwmAppContext, DispatchQuitSignal, NULL);
+
 #ifdef WSM
     struct sigaction 	sa;
     struct sigaction 	osa;
@@ -260,15 +277,10 @@ void SetupWmSignalHandlers (int dummy)
 
 void QuitWmSignalHandler (int dummy)
 {
-    if (wmGD.showFeedback & WM_SHOW_FB_KILL)
-    {
-	ConfirmAction (ACTIVE_PSD, QUIT_MWM_ACTION);
-	XFlush(DISPLAY);
-    }
-    else
-    {
-	Do_Quit_Mwm(False);
-    }
+    int saved_errno = errno;
+    (void)dummy;
+    XtNoticeSignal(quitSignal);
+    errno = saved_errno;
 
 } /* END OF FUNCTION QuitWmSignalHandler */
 

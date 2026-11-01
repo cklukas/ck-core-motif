@@ -73,7 +73,7 @@ void
  |                  to UTMDestinationProc below.
  |         selection - selection to convert against.              |
  |         target - target to make request against.               |
- |         param - data to send to selection owner.               |
+ |         param - owned Xt buffer; consumed on every path.       |
  |         param_len - length of param in fmt units.              |
  |         param_fmt - param format (should be WSM_PROTO_FMT).    |
  |         callback - function to invoke when done.               |
@@ -95,6 +95,7 @@ UTMSendMessage(
   UTMPackageRec *pUtmData;
 
   if (w == NULL) {
+    XtFree((char *)param);
     fprintf(stderr, "UTM Error: cannot send a message without a widget.\n");
     return;
   }
@@ -105,6 +106,7 @@ UTMSendMessage(
   /* allocates and builds utm package to send. */
   pUtmData = (UTMPackageRec *) XtMalloc(sizeof(UTMPackageRec));
   if (pUtmData == NULL) {
+    XtFree((char *)param);
     fprintf(stderr, "UTM Error: unable to allocate transfer package.\n");
     return;
   }
@@ -217,6 +219,9 @@ UTMDestinationProc (
 			  pUtmData->len, /* size of param in fmt units */
 			  dcs->selection); /* not used */
   
+  XtFree((char *)pUtmData->param);
+  pUtmData->param = NULL;
+
   /* Make the transfer. This invokes the selection owner's ConvertCB.
    * When done, UTMReplyReceived callback proc is invoked.
    */

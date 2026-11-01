@@ -41,6 +41,7 @@ static char rcsid[] = "$TOG: WmFunction.c /main/19 1998/04/20 13:00:48 mgreess $
  */
 
 #include "WmGlobal.h"
+#include "WmWorkspace.h"
 #include <sys/types.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
@@ -1571,6 +1572,9 @@ static Window FindSomeReasonableClient(void)
 
 void Do_Focus_Key (ClientData *pCD, Time focusTime, long flags)
 {
+#ifdef MWM_WSM
+    if (pCD && WsmClientHidden(pCD)) return;
+#endif
     ClientData *pcdFocus;
     Window focusWindow;
 

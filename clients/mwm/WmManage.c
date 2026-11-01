@@ -39,6 +39,7 @@ static char rcsid[] = "$TOG: WmManage.c /main/11 1998/01/12 16:45:48 cshi $"
  */
 
 #include "WmGlobal.h"
+#include "WmWorkspace.h"
 #include <limits.h>
 #include <stdint.h>
 #include "WmICCC.h"
@@ -788,6 +789,9 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
     AddClientToList (pSD->pActiveWS, pCD, True /*on top*/);
 #endif /* WSM */
     SetClientState (pCD, initialState, GetTimestamp());
+#ifdef MWM_WSM
+    WsmRegisterClient(pCD);
+#endif
 
     /*
      * Set the keyboard input focus to the newly managed window if appropriate:
@@ -1187,6 +1191,11 @@ void WithdrawWindow (ClientData *pCD)
 	}
     }
 
+    /* Detach event associations while frame/icon IDs are still available.
+     * Their destructors clear the IDs; queued focus events must not recover
+     * a ClientData pointer after it has been freed. */
+    DeleteClientContext(pCD);
+
     /*
      * Free a custom system menu if one was created.
      */
@@ -1247,12 +1256,6 @@ void WithdrawWindow (ClientData *pCD)
      */
 
     DeleteClientWmTimers (pCD);
-
-
-    /*
-     * Free up window context associations.  
-     */
-    DeleteClientContext (pCD);
 
 
 #ifdef WSM

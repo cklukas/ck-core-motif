@@ -91,3 +91,5 @@ extern KeySym WmKeycodeToKeysym(Display *display, KeyCode keycode);
 /* FIXES */
 #define FIX_1611
 
+
+extern void ProcessClientConfiguration(ClientData *, int, int, unsigned int, unsigned int);

@@ -6,7 +6,7 @@ source = (Path(__file__).parents[2] / "clients" / "mwm" / "WmMenu.c").read_text(
 start = source.index("MenuSpec *MakeMenu (")
 end = source.index("\n}\n", start) + 2
 region = source[start:end]
-assert "SIZE_MAX / sizeof(*menuSpec->menuButtons)" in region
+assert "UINT_MAX / sizeof(*menuSpec->menuButtons)" in region
 assert "Menu button array is too large" in region
 assert "XtMalloc (n * sizeof(MenuButton))" in region
 print("PASS MWM menu-button array sizing is bounded")

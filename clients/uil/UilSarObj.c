@@ -2242,8 +2242,7 @@ switch (obj_entry->header.b_tag)
 	 */
         _assert (obj_entry->obj_header.b_flags & sym_m_def_in_progress,
 		 "widget definition not in progress");
-	obj_entry->obj_header.b_flags &=
-	    (unsigned char)(~sym_m_def_in_progress);
+	obj_entry->obj_header.b_flags &= ~sym_m_def_in_progress;
 	break;
     case sym_k_list_entry:
 	/*
@@ -2251,8 +2250,7 @@ switch (obj_entry->header.b_tag)
 	 */
 	_assert (obj_entry->obj_header.b_flags & sym_m_def_in_progress,
 		 "list definition not in progress");
-	obj_entry->obj_header.b_flags &=
-	    (unsigned char)(~sym_m_def_in_progress);
+	obj_entry->obj_header.b_flags &= ~sym_m_def_in_progress;
 	return;
 
     case sym_k_error_entry:

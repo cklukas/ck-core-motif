@@ -122,7 +122,9 @@ python3 tests/automated/run-gallery-screenshots.py \
 ```
 
 The runner selects each manifest component through `--component`, waits for its
-process-ID and idle-readiness properties, then captures that window with `xwd`.
+process-ID and idle-readiness properties, verifies the window is viewable,
+then captures that window with `xwd`. Capture readiness drains post-map expose
+and configuration events as well as the initial application queue.
 It skips when required runtime tools are absent and fails if a process exits or
 never becomes ready. A successful capture is evidence of identity and readiness;
 visual review remains required.
@@ -146,3 +148,70 @@ status row. Interactive examples keep their feedback, and popup examples explain
 how to open their window. Compact layouts preserve the distinction. Source
 remains available for every class, including unavailable optional components
 and infrastructure classes.
+
+
+## Standalone demo applications
+
+Choose **Demo Applications** in the navigation, or start with
+`ckmotif-gallery --component gallery.demos`. Each entry explains the example and
+provides an **Open** button. The catalogue covers all 34 installed standalone demo targets, including the widget samplers,
+application examples, drag-and-drop demonstrations, individual widget demos,
+custom widget examples and Wsm.
+
+The launcher checks the configured build directory and then the installed
+`PREFIX/share/Xm/<demo>/<executable>` location, preserving case. It runs the
+resolved executable directly, with its asset directory as the working directory
+and the gallery's display and environment. One instance of each example can be
+opened by a gallery at a time. Child exits are reaped and reported; closing the
+gallery leaves independently opened examples running.
+
+A missing or non-executable application produces a notice with the exact build
+and install paths. Build and install the examples with `./configure
+--enable-demos`, `make -j6` and `make install`. Examples are enabled by default;
+`--disable-demos` retains the gallery while omitting the other demo applications.
+The gallery remains usable with a partial installation.
+
+![Demo application catalogue at desktop width](gallery-screenshots/demo-applications-desktop.png)
+
+![Demo application catalogue at compact width](gallery-screenshots/demo-applications-compact.png)
+
+The [native acceptance record](mwm-workspace-validation.json) includes the
+captured binary and library identities and image hashes.
+
+Additional build-only teaching examples live under `demos/doc/programGuide`,
+and `demos/unsupported` contains `aicon`, `dainput`, `dogs`, another `hellomotif`,
+`motifshell`, `uilsymdump`, `xmfonts`, `xmforc`, `xmform` and `xmapdef`.
+These `noinst_PROGRAMS` targets are built with demos enabled and are kept in the
+source/build tree; the installed application catalogue covers `bin_PROGRAMS`.
+
+Panner can show the miniature desktop with this fork. Moving the desktop
+requires the older virtual-screen extension, which this MWM does not advertise.
+Its root-property context lookup uses pointer-sized storage and rejects display
+indices outside its configured capacity.
+
+Wsm requires MWM's standalone workspace protocol; see
+[MWM workspace management](mwm-workspace-manager.md).
+
+
+UID-based applications receive an asset search path containing their executable
+folder and locale UID subdirectories, with an inherited `UIDPATH` taking
+precedence. The international Hello example installs its language UID files,
+including a portable `C` fallback, so its Open action works after installation.
+
+Installed demo assets can be qualified independently of the build-tree copies:
+
+```sh
+python3 tests/automated/run-gallery-installed-demos.py \
+  --build-root /absolute/idle/build --prefix /absolute/install \
+  --out /absolute/fresh/evidence
+```
+
+Use an idle, task-owned build. This Linux/Xvfb test temporarily renames its
+demo directory, restores it on exit, launches all 33 non-workspace demos through
+the installed gallery, and checks its missing-app notice. Wsm has a separate
+native protocol and workspace UI acceptance suite.
+
+Gallery startup centers through a client-window configuration request and
+preserves explicit geometry positions. It measures the outer frame through the
+window hierarchy without moving the manager's base or frame windows. Native
+captures verify that the client remains inside its decorated frame.

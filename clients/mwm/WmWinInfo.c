@@ -189,6 +189,9 @@ GetClientInfo (WmScreenData *pSD, Window clientWindow, long manageFlags)
     pCD->pSOR = NULL;
 #endif /* PANELIST */
     pCD->wmUnmapCount = 0;
+#ifdef MWM_WSM
+    pCD->wsmHidden = False;
+#endif
     pCD->transientFor = (Window)0L;
     pCD->transientLeader = NULL;
     pCD->transientChildren = NULL;

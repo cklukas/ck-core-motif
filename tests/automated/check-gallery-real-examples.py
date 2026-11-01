@@ -42,8 +42,10 @@ assert "gallery_suggestion_matches" in suggestion
 assert 'GallerySource(source)' in generator
 assert 'XmNorientation, XmHORIZONTAL' in gallery
 assert 'center_shell_frame(shell)' in gallery
-assert 'XQueryTree(display, XtWindow(shell)' in gallery
-assert 'XMoveWindow(display, parent' in gallery
+assert 'XQueryTree(display, frame' in gallery
+assert 'frame = parent;' in gallery
+assert 'XMoveWindow(display, parent' not in gallery
+assert 'XReconfigureWMWindow(display, window' in gallery
 assert 'select_page(state, 2)' in gallery
 assert 'component_name(entry' in gallery
 assert 'create_welcome(&state)' in gallery

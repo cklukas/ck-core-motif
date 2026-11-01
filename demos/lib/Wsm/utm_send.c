@@ -1,4 +1,4 @@
-/* $XConsortium: utm_send.c /main/5 1995/07/15 20:43:02 drk $ */
+/* $XConsortium: utm_send.c /main/5 1995/07/15 20:38:59 drk $ */
 /*
  * Motif
  *
@@ -45,7 +45,11 @@ typedef struct _DataQueueRec {
 static DataQueueRec *dataQueue, *dataQueueTail  = NULL;
 
 
-static void EnqueueUtmData(
+static Boolean EnqueueUtmData(
+XtPointer
+);
+
+static Boolean RemoveUtmData(
 XtPointer
 );
 
@@ -69,7 +73,7 @@ void
  |                  to UTMDestinationProc below.
  |         selection - selection to convert against.              |
  |         target - target to make request against.               |
- |         param - data to send to selection owner.               |
+ |         param - owned Xt buffer; consumed on every path.       |
  |         param_len - length of param in fmt units.              |
  |         param_fmt - param format (should be WSM_PROTO_FMT).    |
  |         callback - function to invoke when done.               |
@@ -89,15 +93,23 @@ UTMSendMessage(
      Time time)
 {
   UTMPackageRec *pUtmData;
-  Display *dpy = XtDisplay(w);
-  int scr = XScreenNumberOfScreen(XtScreen(w));
 
+  if (w == NULL) {
+    XtFree((char *)param);
+    fprintf(stderr, "UTM Error: cannot send a message without a widget.\n");
+    return;
+  }
 
   /* make sure timestamp is valid
-  if (time == 0) time = GetTimestamp(dsp); */
+  if (time == 0) time = GetTimestamp(XtDisplay(w)); */
 
   /* allocates and builds utm package to send. */
   pUtmData = (UTMPackageRec *) XtMalloc(sizeof(UTMPackageRec));
+  if (pUtmData == NULL) {
+    XtFree((char *)param);
+    fprintf(stderr, "UTM Error: unable to allocate transfer package.\n");
+    return;
+  }
   pUtmData->fmt = paramFmt;
   pUtmData->len = paramLen;
   pUtmData->target = target;
@@ -112,7 +124,12 @@ UTMSendMessage(
    * to UTMDestionationProc!
    */
 
-  EnqueueUtmData(pUtmData);
+  if (!EnqueueUtmData(pUtmData)) {
+    XtFree((char *)pUtmData->param);
+    XtFree((char *)pUtmData);
+    fprintf(stderr, "UTM Error: unable to queue transfer package.\n");
+    return;
+  }
 
   /*
    * This causes the DestinationCB to be invoked.
@@ -123,8 +140,14 @@ UTMSendMessage(
 		    XmCOPY,
 		    NULL, /* location_data. holds param data (client data),
 			     free in TransferDone proc. */
-		    time))
-    fprintf(stderr, "UTM Error: UTMSendMessage failed.\n");
+		    time)) {
+	    if (RemoveUtmData((XtPointer)pUtmData))
+	    {
+	      XtFree((char *)pUtmData->param);
+	      XtFree((char *)pUtmData);
+	    }
+	    fprintf(stderr, "UTM Error: UTMSendMessage failed.\n");
+  }
 
 } /* UTMSendMessage */
 
@@ -160,7 +183,14 @@ UTMDestinationProc (
 
   if (dcs == NULL)
     {
-      /* bad data - just return. */
+      /* Drop the queued package when no destination callback is available;
+       * otherwise the next destination callback would consume stale state. */
+      pUtmData = (UTMPackageRec *)DequeueUtmData();
+      if (pUtmData != NULL)
+	{
+	  XtFree((char *)pUtmData->param);
+	  XtFree((char *)pUtmData);
+	}
       return;
     }
 
@@ -189,6 +219,9 @@ UTMDestinationProc (
 			  pUtmData->len, /* size of param in fmt units */
 			  dcs->selection); /* not used */
   
+  XtFree((char *)pUtmData->param);
+  pUtmData->param = NULL;
+
   /* Make the transfer. This invokes the selection owner's ConvertCB.
    * When done, UTMReplyReceived callback proc is invoked.
    */
@@ -209,10 +242,13 @@ UTMDestinationProc (
  | Puts data onto the queue between sending messages and having   |
  | the destination callback invoked.                              |
  *----------------------------------------------------------------*/
-static void
+static Boolean
 EnqueueUtmData(XtPointer data)
 {
   DataQueueRec *dataRec = (DataQueueRec *)XtMalloc(sizeof(DataQueueRec));
+
+  if (dataRec == NULL)
+    return(False);
 
   dataRec->data = data;
   dataRec->next = dataQueue;
@@ -224,7 +260,32 @@ EnqueueUtmData(XtPointer data)
     dataQueue->prev = dataRec;
   dataQueue = dataRec;
 
-  return;
+  return(True);
+}
+
+
+/* Remove one package when the sink rejects a request before dispatch. */
+static Boolean
+RemoveUtmData(XtPointer data)
+{
+  DataQueueRec *ptr;
+
+  for (ptr = dataQueue; ptr != NULL; ptr = ptr->next)
+    if (ptr->data == data)
+      {
+	if (ptr->prev != NULL)
+	  ptr->prev->next = ptr->next;
+	else
+	  dataQueue = ptr->next;
+	if (ptr->next != NULL)
+	  ptr->next->prev = ptr->prev;
+	else
+	  dataQueueTail = ptr->prev;
+	XtFree((char *)ptr);
+	return(True);
+      }
+
+  return(False);
 }
 
 

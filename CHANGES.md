@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-01 — Standalone workspaces and demo launching
+
+- Enable the standalone MWM workspace protocol and restore Wsm's window
+  membership, geometry, visibility, command menus, persistence and reconnect paths.
+- Add the gallery's Demo Applications catalogue with descriptions, Open buttons,
+  exact missing-app paths and `--enable-demos` build guidance.
+- Correct empty selection acknowledgements, parentless-shell traversal geometry,
+  command-tree cleanup and UIL custom-widget reference flags exercised by demos.
+
+
 ## 2026-11-01 — Modern C and native macOS builds
 
 - Build the toolkit libraries, WML generators, UIL compiler, `mwm` and modern

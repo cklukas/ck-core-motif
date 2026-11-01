@@ -1,4 +1,4 @@
-/* $XConsortium: recv.c /main/5 1995/07/15 20:42:50 drk $ */
+/* $XConsortium: recv.c /main/5 1995/07/15 20:38:46 drk $ */
 /*
  * Motif
  *
@@ -20,7 +20,7 @@
  * License along with these librararies and programs; if not, write
  * to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA
- * 
+ *
  */
 /*
  * HISTORY
@@ -29,15 +29,16 @@
 #include "wsm_proto.h"
 #include "utm_send.h"
 #include <X11/Xatom.h>
-#include <Xm/TransferP.h>
+#include <Xm/TransferP.h>	/* for XmeNamedSource() */
 
-extern Time GetTimestamp (Display *dpy);
-
+#ifdef JUNK
 static Boolean ConvertProc(
 Widget, Atom *, Atom *, XtPointer, unsigned long, int, Atom *,
 XtPointer *, unsigned long *, int *
 );
+#endif /* JUNK */
 
+extern Time GetTimestamp (Display *dpy);
 
 
 /*	Function Name: WSMDefaultOwnSelection
@@ -53,12 +54,12 @@ XtPointer *, unsigned long *, int *
  *                 request_data - Data passed to the request callback.
  *	Returns: True if no one currently owns the selection and I have
  *               taken ownership.
- * 
+ *
  * NOTE: The reply that is filled in by the application programmer is
  *       passed to FreeReply, so that memory may be freed.  If you
  *       want to take advantage of this, check wsm_proto.h or free.c
  *       to see what is freed for each type of protocol request, and
- *       then set the reply->any.allocated field to True to activate 
+ *       then set the reply->any.allocated field to True to activate
  *       automatic memory freeing.
  */
 
@@ -68,57 +69,68 @@ WSMDefaultOwnSelection(Widget w, WSMClientType client_type,
 		       XtPointer request_data)
 {
     Time time;
-    Display *dpy = XtDisplay(w);
-    Atom own_selection =
-	_WSMGetSelectionAtom(dpy, 
+    Display *dpy;
+    Atom own_selection;
+
+    if (w == NULL)
+    {
+        fprintf(stderr, "WSMDefaultOwnSelection: widget is required.\n");
+        return(False);
+    }
+
+    dpy = XtDisplay(w);
+    own_selection =
+	_WSMGetSelectionAtom(dpy,
 			     XScreenNumberOfScreen(XtScreen(w)), client_type);
-    
+
+    if (own_selection == None)
+	return(False);
+
     if (XGetSelectionOwner(dpy, own_selection) != None) {
 	/*
 	 * Someone out there already owns this selection, we should give
 	 * up and return.
 	 */
 
-        printf("Error - Someone out there already owns this selection.\n");
+        fprintf(stderr,"Error - Someone out there already owns this selection.\n");
 
 	return(False);
     }
-    
+
     if (!XtIsRealized(w)) {
 	fprintf(stderr, "%s must be realized, and is not.\n",
 		"Programmer Error: Widget passed to WSMDefaultOwnSelection");
 	return(False);
     }
 
-    WSMRegisterRequestCallback(dpy, 
+    WSMRegisterRequestCallback(XtDisplay(w),
  			       XScreenNumberOfScreen(XtScreen(w)),
  			       request_callback, request_data);
-    
-    time = GetTimestamp(dpy); /* CurrentTime or Zero is a no-no! */
 
     /*
      * NOTE - w MUST have its XmNconvertCallback set properly,
      *        otherwise, no conversions will be handled!
      */
+    time = GetTimestamp(XtDisplay(w)); /* CurrentTime or Zero is a no-no!*/
     XmeNamedSource(w, own_selection, time);
 
     return(True);
 }
 
 /*	Function Name: WSMRegisterRequestCallback
- *	Description: Registers the callback that will be called when 
+ *	Description: Registers the callback that will be called when
  *                   a request comes in on the WSM protocol.
  *	Arguments: disp - The display.
  *                 scr_num - The Screen number.
  *                 callback, data - The proc to register and the data
  *                                  to send to it.
  *	Returns: none.
- * 
+ *
  * NOTE: The reply that is filled in by the application programmer is
  *       passed to FreeReply, so that memory may be freed.  If you
  *       want to take advantage of this, check wsm_proto.h or free.c
  *       to see what is freed for each type of protocol request, and
- *       then set the reply->any.allocated field to True to activate 
+ *       then set the reply->any.allocated field to True to activate
  *       automatic memory freeing.
  */
 
@@ -129,17 +141,19 @@ WSMRegisterRequestCallback(Display *disp, int scr_num,
     WSMScreenInfo *scr_info;
 
     scr_info = _WSMGetScreenInfo(disp, scr_num);
+    if (scr_info == NULL)
+	return;
 
     /*
      * Since only one client can own a particular selection, we can hang
      * this data off of the screen data structure.  This is necessary because
      * No data is passed to the ConvertProc by Xm or Xt.
      *
-     * NOTE: We do not need to have room for one callback for the WSM and 
+     * NOTE: We do not need to have room for one callback for the WSM and
      *       one for the WM, since any given client will be one or the other,
      *       not both.
      */
-	
+
     scr_info->request_callback = callback;
     scr_info->request_data = data;
 }
@@ -147,7 +161,7 @@ WSMRegisterRequestCallback(Display *disp, int scr_num,
 
 /*	Function Name: WSMIsKnownTarget
  *	Description: Returns True if this target is part of the WSM protocol.
- *	Arguments: w - Any widget on the screen of the client 
+ *	Arguments: w - Any widget on the screen of the client
  *                     we are talking to.
  *                 target - the target to check if part of the protocol.
  *	Returns:  True if this target is part of the WSM protocol.
@@ -158,12 +172,20 @@ WSMRegisterRequestCallback(Display *disp, int scr_num,
 Boolean
 WSMIsKnownTarget(Widget w, Atom target)
 {
-    WSMDispInfo * disp_info = _WSMGetDispInfo(XtDisplay(w));
+    WSMDispInfo * disp_info;
+
+    if (w == NULL)
+	return(False);
+
+    disp_info = _WSMGetDispInfo(XtDisplay(w));
+
+    if (disp_info == NULL)
+	return(False);
 
     /*
      * Can't switch on dynamic data, sigh...
      */
-    
+
     if (disp_info->connect == target)
 	return(True);
     if (disp_info->extensions == target)
@@ -199,22 +221,36 @@ WSMIsKnownTarget(Widget w, Atom target)
  *                                    targets TIMESTAMP, MULTIPLE, and TARGETS.
  *                                    in the returned list.
  * RETURNED        len_ret - The number of atoms returned.
- *	Returns: The targets atom list.  This list has been allocated with 
+ *	Returns: The targets atom list.  This list has been allocated with
  *               XtMalloc, and must be free'd by the caller.
  */
 
 Atom *
 WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret)
 {
-    WSMDispInfo *disp_info = _WSMGetDispInfo(XtDisplay(w));
+    WSMDispInfo *disp_info;
     register int i;
     Atom *list;
+
+    if (w == NULL || len_ret == NULL)
+	return(NULL);
+
+    disp_info = _WSMGetDispInfo(XtDisplay(w));
+
+    if (disp_info == NULL) {
+	*len_ret = 0;
+	return(NULL);
+    }
 
     *len_ret = NUM_WSM_TARGETS;
     if (include_defaults)
 	*len_ret += NUM_EXTRA_TARGETS;
 
     list = (Atom *) XtMalloc(sizeof(Atom) * (*len_ret));
+    if (list == NULL) {
+	*len_ret = 0;
+	return(NULL);
+    }
 
     i = 0;
     list[i++] = disp_info->connect;
@@ -253,17 +289,28 @@ WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret)
  */
 
 Boolean
-WSMProcessProtoTarget(Widget w, Atom target, XtPointer input, 
+WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
 		      unsigned long input_len, int input_fmt,
-		      Atom *return_type, XtPointer *output, 
+		      Atom *return_type, XtPointer *output,
 		      unsigned long *output_len, int *output_fmt)
 {
     Display *dpy;
     int scr_num;
+    WSMRequestType request_type;
     WSMScreenInfo *screen_info;
     WSMRequest request;
-    WSMReply reply;    
-    
+    WSMReply reply;
+
+    if (w == NULL || return_type == NULL || output == NULL ||
+        output_len == NULL || output_fmt == NULL ||
+        (input == NULL && input_len != 0))
+	return(False);
+
+    *return_type = None;
+    *output = NULL;
+    *output_len = 0;
+    *output_fmt = WSM_PROTO_FMT;
+
     /*
      * Check the Target to make sure it is valid.
      * Check the format to make sure it is WSM_PROTO_FMT.
@@ -279,19 +326,30 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
 
     dpy = XtDisplay(w);
     scr_num = XScreenNumberOfScreen(XtScreen(w));
+    request_type = _WSMTargetToReqType(dpy, target);
+
+    /* CONFIG_FMT is the only request with no encoded payload.  The other
+     * decoders read at least one field and must not receive a null value. */
+    if (input == NULL && input_len == 0 && request_type != WSM_CONFIG_FMT)
+	return(False);
 
     /*
      * Unpack up the request from the wire.
      */
-    
-    _WSMUnpackRequest(dpy, scr_num, (MessageData) input, input_len, 
-		      _WSMTargetToReqType(dpy, target), &request);
+
+    _WSMUnpackRequest(dpy, scr_num, (MessageData) input, input_len,
+		      request_type, &request);
+    if (request.any.type == WSM_UNKNOWN) return False;
 
     /*
      * Call the app's callback function to process the request.
      */
 
     screen_info = _WSMGetScreenInfo(dpy, scr_num);
+    if (screen_info == NULL || screen_info->request_callback == NULL) {
+	FreeRequest(&request);
+	return(False);
+    }
     reply.any.type = request.any.type;
     reply.any.allocated = False;
     (*screen_info->request_callback)(w, screen_info->request_data,
@@ -301,6 +359,11 @@ WSMProcessProtoTarget(Widget w, Atom target, XtPointer input,
      */
 
     *output = (XtPointer) _WSMPackReply(dpy, scr_num, &reply, output_len);
+    if (*output == NULL && *output_len != 0) {
+	FreeReply(&reply);
+	FreeRequest(&request);
+	return(False);
+    }
     *output_fmt = WSM_PROTO_FMT;
     *return_type = target;	/* Is this the right return type? */
 

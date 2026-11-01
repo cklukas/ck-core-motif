@@ -1,5 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
+if BUILD_DEMOS
 SUBDIRS = airport \
          animate \
          drag_and_drop \
@@ -34,6 +35,10 @@ SUBDIRS = airport \
          Paned \
          ckmotif-gallery \
          pixmaps
+
+else
+SUBDIRS = ckmotif-gallery
+endif
 
 EXTRA_DIST =
 
