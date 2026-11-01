@@ -671,3 +671,31 @@ _XmAppearanceDrawChevron(Display *display, Drawable drawable, GC gc,
     }
     if (count) XFillRectangles(display, drawable, gc, spans, count);
 }
+
+/* Submenu disclosure is a glyph on the menu surface, without a beveled tile. */
+Boolean
+_XmAppearanceDrawCascadeIndicator(Widget widget, int x, int y, int width,
+                                  int height, unsigned char direction)
+{
+    XmAppearanceProfile profile;
+    Pixel foreground;
+    XGCValues values;
+    GC gc;
+    Display *display = XtDisplayOfObject(widget);
+    Drawable drawable = XtIsWidget(widget) ? _XmPaintDrawable(widget) :
+                                             _XmPaintDrawable(XtParent(widget));
+    if (!XmGetAppearanceProfile(display, &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT && profile != XmAPPEARANCE_MODERN_DARK))
+        return False;
+    if (!drawable || width < 1 || height < 1) return True;
+    XtVaGetValues(widget, XtIsSensitive(widget) ? XmNforeground : XmNbottomShadowColor,
+                  &foreground, NULL);
+    int side = MIN((int)_XmDpiDefaultDimension(widget, 12), MIN(width,height));
+    values.foreground = foreground;
+    gc = XCreateGC(display, drawable, GCForeground, &values);
+    _XmAppearanceDrawChevron(display, drawable, gc, x+(width-side)/2,
+        y+(height-side)/2, side, side,
+        MIN(MAX(1,(int)_XmDpiDefaultDimension(widget,2)),MAX(1,side/4)), direction);
+    XFreeGC(display, gc);
+    return True;
+}

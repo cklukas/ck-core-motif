@@ -415,7 +415,9 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         /* GALLERY-SOURCE-END */
     } else if (class == xmCascadeButtonWidgetClass || class == xmCascadeButtonGadgetClass) {
         /* GALLERY-SOURCE-BEGIN: construction xmCascadeButtonWidgetClass xmCascadeButtonGadgetClass */
-        Widget menu = XmCreatePulldownMenu(parent, "fileMenu", NULL, 0);
+        Widget bar = XmCreateMenuBar(parent, "fileMenuBar", NULL, 0);
+        XtManageChild(bar);
+        Widget menu = XmCreatePulldownMenu(bar, "fileMenu", NULL, 0);
         const char *actions[] = {"Open document", "Save changes", "Close document"};
         unsigned int i;
         for (i = 0; i < XtNumber(actions); ++i) {
@@ -426,7 +428,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             if (callback) XtAddCallback(item, XmNactivateCallback, callback, client_data);
         }
         label = XmStringCreateLocalized((char *)"File");
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
+        example = XtVaCreateManagedWidget((char *)name, class, bar,
             XmNlabelString, label, XmNsubMenuId, menu, NULL);
         /* GALLERY-SOURCE-END */
     } else if (class == xmPushButtonWidgetClass ||

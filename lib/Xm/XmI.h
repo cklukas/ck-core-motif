@@ -288,6 +288,7 @@ typedef struct {
 } XmAppearanceToggle;
 extern Boolean _XmAppearanceOwnsResource(Widget, const char *);
 extern Boolean _XmContainerDrawDisclosure(Widget);
+extern Pixel _XmAppearanceCascadeSelection(Widget, Pixel fallback);
 extern Boolean _XmAppearanceDrawButton(Widget widget, Pixel fill,
     Boolean emphasized, Boolean paint_background);
 extern Boolean _XmAppearanceDrawFieldFrame(Widget widget);

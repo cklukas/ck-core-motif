@@ -1,3 +1,14 @@
+Modernize Cascade button surfaces and menu examples (2026-11-01)
+===============================================================
+
+- Give Cascade widget and gadget modern density-aware padding and flat
+  selection surfaces. Preserve compound labels, custom colors/pixmaps,
+  Classic rendering and native records.
+- Render generated submenu arrows as clean chevrons and repaint the whole
+  surface on exposure, arm and disarm.
+- Construct gallery examples using a real menu bar and add native gallery
+  factory pixel/state/ownership/recreation coverage.
+
 Modernize Avatar surfaces and initials (2026-11-01)
 ==================================================
 

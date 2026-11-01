@@ -155,6 +155,8 @@ static const char modern_light_resources[] =
     "*XmSearchBox.highlightThickness: 2\n"
     "*XmText.highlightThickness: 2\n"
     "*XmIconGadget.shadowThickness: 0\n"
+    "*XmCascadeButton.shadowThickness: 0\n"
+    "*XmCascadeButtonGadget.shadowThickness: 0\n"
     "*XmAvatar.background: #d3e3fd\n"
     "*XmAvatar.foreground: #174ea6\n"
     "*XmAvatar.highlightThickness: 0\n"
@@ -261,6 +263,8 @@ static const char modern_dark_resources[] =
     "*XmSearchBox.highlightThickness: 2\n"
     "*XmText.highlightThickness: 2\n"
     "*XmIconGadget.shadowThickness: 0\n"
+    "*XmCascadeButton.shadowThickness: 0\n"
+    "*XmCascadeButtonGadget.shadowThickness: 0\n"
     "*XmAvatar.background: #334b6d\n"
     "*XmAvatar.foreground: #d3e3fd\n"
     "*XmAvatar.highlightThickness: 0\n"
@@ -310,6 +314,10 @@ typedef struct {
 } AppearanceDensityResource;
 
 static const AppearanceDensityResource density_resources[] = {
+    {"*XmCascadeButton.marginWidth", 12, 8},
+    {"*XmCascadeButton.marginHeight", 6, 3},
+    {"*XmCascadeButtonGadget.marginWidth", 12, 8},
+    {"*XmCascadeButtonGadget.marginHeight", 6, 3},
     {"*XmPushButton.marginWidth", 12, 8},
     {"*XmLabel.marginWidth", 2, 2},
     {"*XmLabel.marginHeight", 2, 2},
@@ -1080,7 +1088,10 @@ _XmAppearanceOwnsResource(Widget widget, const char *name)
 {
     Boolean owned = False;
     _XmProcessLock();
-    XmAppearanceWidgetState *state = find_live_widget_state(widget);
+    /* This query also serves gadgets. Their Object destroy callbacks retire
+     * state before an address can be reused, just as for windowed controls. */
+    XmAppearanceWidgetState *state = appearance_widgets;
+    while (state && (state->retired || state->widget != widget)) state = state->next;
     if (state && state->initialized)
         for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
             if (!strcmp(name, appearance_property_name(property))) {
@@ -2514,4 +2525,25 @@ XmGetAppearanceSpacing(Display *display, XmAppearanceSpacing spacing,
     (void)_XmGetDpiScale(display, &scale);
     *pixels_return = _XmDpiScaleDimension(scale, logical[spacing]);
     return True;
+}
+
+/* Cascades have no armColor resource. Resolve the shared selection palette
+ * only for theme-owned backgrounds; custom surfaces retain their derived GC. */
+Pixel
+_XmAppearanceCascadeSelection(Widget widget, Pixel fallback)
+{
+    XmAppearanceProfile profile;
+    XmAppearanceDensity density;
+    Pixel pixel;
+    XrmValue from, to = {sizeof(pixel), (XPointer)&pixel};
+    Widget context = XtIsWidget(widget) ? widget : XtParent(widget);
+    if (_XmAppearanceOwnsResource(widget, XmNbackground) &&
+        XmGetAppearanceProfile(XtDisplayOfObject(widget), &profile) &&
+        (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) &&
+        XmGetAppearanceDensity(XtDisplayOfObject(widget), &density) &&
+        appearance_database_named_value(widget, profile_defaults(profile,density),
+            XmNarmColor, XmCArmColor, &from) &&
+        XtConvertAndStore(context, XmRString, &from, XmRPixel, &to))
+        return pixel;
+    return fallback;
 }

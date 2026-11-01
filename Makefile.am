@@ -1537,3 +1537,7 @@ EXTRA_DIST += tests/automated/check-avatar-modern.c \
               tests/automated/run-avatar-modern.py
 
 EXTRA_DIST += docs/validation/macos-avatar-20261101.json
+
+EXTRA_DIST += tests/automated/check-cascade-appearance.c \
+              tests/automated/run-cascade-appearance.py \
+              docs/cascade-button-appearance.md

@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: CascadeB.c /main/27 1999/08/11 14:26:35 mgreess $"
 #include <stdint.h>
 
 
+#include "AppearanceDrawI.h"
 #include "XmI.h"		/* ShellP.h doesn't define externalref. */
 #include <X11/ShellP.h>
 #include <X11/keysymdef.h>
@@ -517,6 +518,30 @@ BorderUnhighlight(
 /*
  * Draw the 3D shadow around the widget if its is armed.
  */
+/* Modern cascades share the flat control surface while retaining Label's
+ * compound strings, pixmaps, mnemonics and direction handling. */
+static Boolean PaintModern(XmCascadeButtonWidget cb, XEvent *event, Region region)
+{
+    XmAppearanceProfile profile;
+    Widget widget = (Widget)cb;
+    XGCValues values;
+    Pixel fill = cb->core.background_pixel;
+    if (!XmGetAppearanceProfile(XtDisplay(widget), &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT && profile != XmAPPEARANCE_MODERN_DARK))
+        return False;
+    if (CB_IsArmed(cb) && XtIsSensitive(widget)) {
+        values.foreground = fill;
+        if (CB_ArmGC(cb))
+            XGetGCValues(XtDisplay(widget), CB_ArmGC(cb), GCForeground, &values);
+        fill = _XmAppearanceCascadeSelection(widget, values.foreground);
+    }
+    (void)_XmAppearanceDrawButton(widget, fill, False, True);
+    _XmRedisplayLabel((Widget)cb, event, region, False);
+    (void)_XmAppearanceDrawButton(widget, fill, False, False);
+    DrawCascade(cb);
+    return True;
+}
+
 static void 
 DrawShadow(
         register XmCascadeButtonWidget cb )
@@ -553,6 +578,10 @@ DrawCascade(
    if ((CB_HasCascade(cb)) && (CB_Cascade_width(cb) != 0) &&
        (CB_Cascade_height(cb) != 0) && XtIsRealized((Widget)cb))
    {
+      if (CB_ArmedPixmap(cb) != XmUNSPECIFIED_PIXMAP &&
+          _XmAppearanceDrawCascadeIndicator((Widget)cb, CB_Cascade_x(cb),
+              CB_Cascade_y(cb), CB_Cascade_width(cb), CB_Cascade_height(cb),
+              LayoutIsRtoLP(cb) ? XmARROW_LEFT : XmARROW_RIGHT)) return;
       Pixmap pixmap ;
       int depth = 0;
 
@@ -616,6 +645,8 @@ Redisplay(
 	GC tmpGC = NULL;
 	GC fillGC = NULL;
 	XtExposeProc expose;
+
+        if (PaintModern((XmCascadeButtonWidget)cb, event, region)) return;
 
 	if (etched_in) {
 #ifdef FIX_1509
@@ -717,7 +748,8 @@ Arm(
       
       CB_SetArmed(cb, TRUE);
 
-      if (etched_in) 
+      if (PaintModern(cb, NULL, NULL)) { /* face is current */ }
+      else if (etched_in)
 	  Redisplay((Widget) cb, NULL, NULL);
       else {
 	  DrawCascade(cb);
@@ -928,7 +960,8 @@ Disarm(
 	     XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(cb));
 	     Boolean etched_in = dpy->display.enable_etched_in_menu;
 
-	     if (etched_in) 
+	     if (PaintModern(cb, NULL, NULL)) { /* face is current */ }
+             else if (etched_in)
 		 Redisplay((Widget) cb, NULL, NULL);
 	 else if ((int)cb->core.width > 2 * (int)cb->primitive.highlight_thickness &&
 		  (int)cb->core.height > 2 * (int)cb->primitive.highlight_thickness)

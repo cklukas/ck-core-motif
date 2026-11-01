@@ -34,6 +34,7 @@ static char rcsid[] = "$TOG: CascadeBG.c /main/28 1999/02/01 18:47:11 mgreess $"
 #include <string.h>
 #include <limits.h>
 #include <stdint.h>
+#include "AppearanceDrawI.h"
 #include "XmI.h"
 #include <X11/ShellP.h>
 #include <X11/keysymdef.h>
@@ -853,6 +854,41 @@ BorderUnhighlight(
  * Draw the 3D shadow around the widget if its in an option menu or if the
  * widget is armed.
  */
+/* Modern cascades share the flat control surface while retaining Label's
+ * compound strings, pixmaps, mnemonics and direction handling. */
+static Boolean PaintModern(XmCascadeButtonGadget cb, XEvent *event, Region region)
+{
+    XmAppearanceProfile profile;
+    Widget widget = (Widget)cb;
+    XGCValues values;
+    GC face;
+    Pixel fill = LabG_Background(cb);
+    if (!XmGetAppearanceProfile(XtDisplay(widget), &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT && profile != XmAPPEARANCE_MODERN_DARK))
+        return False;
+    if (CBG_IsArmed(cb) && XtIsSensitive(widget)) {
+        values.foreground = fill;
+        if (CBG_ArmGC(cb))
+            XGetGCValues(XtDisplay(widget), CBG_ArmGC(cb), GCForeground, &values);
+        fill = _XmAppearanceCascadeSelection(widget, values.foreground);
+    }
+    (void)_XmAppearanceDrawButton(widget, fill, False, True);
+    values.foreground = fill;
+    face = XCreateGC(XtDisplay(widget), XtWindow(widget), GCForeground, &values);
+    /* Label cache entries may be shared by sibling gadgets. Give this draw
+     * a private view rather than changing a shared cache's background GC. */
+    XmLabelGCacheObjPart *saved = LabG_Cache(cb);
+    XmLabelGCacheObjPart painting = *saved;
+    painting.background_GC = face;
+    LabG_Cache(cb) = &painting;
+    (*xmLabelGadgetClassRec.rect_class.expose)((Widget)cb, event, region);
+    LabG_Cache(cb) = saved;
+    XFreeGC(XtDisplay(widget), face);
+    (void)_XmAppearanceDrawButton(widget, fill, False, False);
+    DrawCascade(cb);
+    return True;
+}
+
 static void 
 DrawShadow(
         XmCascadeButtonGadget cb )
@@ -894,6 +930,14 @@ DrawCascade(
 {
    if ((CBG_HasCascade(cb)) && (CBG_Cascade_width(cb) != 0))
    {
+      if ((CBG_ArmedPixmap(cb) != XmUNSPECIFIED_PIXMAP ||
+           (LabG_MenuType(cb) == XmMENU_OPTION &&
+            CBG_CascadePixmap(cb) == XmUNSPECIFIED_PIXMAP)) &&
+          _XmAppearanceDrawCascadeIndicator((Widget)cb,
+              cb->rectangle.x+CBG_Cascade_x(cb), cb->rectangle.y+CBG_Cascade_y(cb),
+              CBG_Cascade_width(cb), CBG_Cascade_height(cb),
+              LabG_MenuType(cb) == XmMENU_OPTION ? XmARROW_DOWN :
+                  (LayoutIsRtoLP(cb) ? XmARROW_LEFT : XmARROW_RIGHT))) return;
       /* draw the casacade */
       if ((LabG_MenuType(cb) == XmMENU_OPTION) &&
 	  (CBG_CascadePixmap(cb) == XmUNSPECIFIED_PIXMAP))
@@ -1105,6 +1149,8 @@ Redisplay(
 	      return;
        }
 
+       if (PaintModern(cb, event, region)) return;
+
        /*
 	* This might be necessary in an option menu to keep the glyph from
 	* moving when it's items vary in size.
@@ -1295,7 +1341,8 @@ Arm(
       
       CBG_SetArmed(cb, TRUE);
 
-      if (etched_in) 
+      if (PaintModern(cb, NULL, NULL)) { /* face is current */ }
+      else if (etched_in)
 	  Redisplay((Widget) cb, NULL, NULL);
       else {
 	  DrawCascade(cb);
@@ -1552,7 +1599,8 @@ Disarm(
 	     XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(cb));
 	     Boolean etched_in = dpy->display.enable_etched_in_menu;
 
-	     if (etched_in) 
+             if (PaintModern(cb, NULL, NULL)) { /* face is current */ }
+             else if (etched_in)
 		 Redisplay((Widget) cb, NULL, NULL);
 	     else
 		 XmeDrawHighlight(XtDisplay(cb),
