@@ -11,7 +11,9 @@ property-conversion cleanup path on oversized input.
 
 The optional Xft color cache applies the same checks before growing its
 per-process color array, so a large cache cannot wrap the `Cardinal` byte
-count.
+count. Its growth is failure-atomic: an allocation failure leaves the previous
+cache pointer and count intact, returns the freshly queried color for the
+current draw, and lets later requests continue to use the existing entries.
 
 The focused regression check is
 `tests/automated/check-xm-render-table-growth.py`.

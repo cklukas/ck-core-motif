@@ -1,3 +1,11 @@
+Keep Xft color-cache growth failure-atomic (2026-11-02)
+=======================================================
+
+- Preserve optional Xft color-cache entries and their count when `XtRealloc`
+  fails while adding a newly queried color. The current rendering request still
+  receives its color; later requests can safely reuse the old cache. See
+  `docs/xm-render-table-growth.md`.
+
 Modernize BreadcrumbBar current-item and separator rendering (2026-11-01)
 ========================================================================
 

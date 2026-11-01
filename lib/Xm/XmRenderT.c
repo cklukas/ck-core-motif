@@ -3851,6 +3851,7 @@ GetCachedXftColor(Display *display, Pixel color)
   static int colors_count = 0;
 
   XftColor xftcol = {0, {0,0,0,0xFFFF}};
+  XftColor *grown_cache;
   XColor xcol;
   Boolean color_exist = FALSE;
   int i;
@@ -3885,10 +3886,18 @@ GetCachedXftColor(Display *display, Pixel color)
             (size_t)UINT_MAX / sizeof(XftColor))
       return xftcol;
 
-    color_cache = (XftColor *) XtRealloc((char *) color_cache,
+    /*
+     * Do not overwrite the live cache until growth has succeeded.  XtRealloc
+     * returns NULL on failure and leaves the old allocation intact; assigning
+     * it directly would lose that allocation while retaining colors_count.
+     */
+    grown_cache = (XftColor *) XtRealloc((char *) color_cache,
       (Cardinal) (sizeof(XftColor) * (colors_count + 1)));
-    if (color_cache != NULL)
+    if (grown_cache != NULL)
+    {
+      color_cache = grown_cache;
       color_cache[colors_count++] = xftcol;
+    }
   }
 
   return xftcol;

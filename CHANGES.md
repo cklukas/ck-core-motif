@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-02 — Xft color-cache allocation safety
+
+- Keep the optional Xft color cache intact if growth fails: preserve its prior
+  pointer and count while returning the current queried color for rendering.
+- Extend the focused allocation regression; see
+  [Render-table growth bounds](docs/xm-render-table-growth.md).
+
 ## 2026-11-01 — Text scratch line-table allocation safety
 
 - Make narrow and multibyte hard-line update buffers failure-atomic and bound
