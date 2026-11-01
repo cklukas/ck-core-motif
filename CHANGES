@@ -3967,6 +3967,13 @@ Harden ComboBox argument-list merging (2026-11-01)
   inherit a font after the text child exists; extend focused regressions and
   documentation.
 
+Saturate Gadget default dimensions (2026-11-01)
+=================================================
+
+- Compute default highlight and shadow extents in a wide type and clamp them
+  to the `Dimension` range instead of wrapping a large control to a small one.
+- Add a focused regression and documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 
