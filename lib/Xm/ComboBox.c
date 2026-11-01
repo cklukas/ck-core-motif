@@ -3889,9 +3889,17 @@ XmComboBoxSetItem(Widget   widget,
 XmString
 XmCombinationBoxGetValue(Widget widget)
 {
-    if (widget == NULL || !XmIsComboBox(widget))
-        return NULL;
-    return (GetEditBoxValue(widget));
+  XmComboBoxWidget cb = (XmComboBoxWidget)widget;
+  XmString value = NULL;
+
+  if (widget == NULL || !XmIsComboBox(widget))
+    return NULL;
+  _XmWidgetToAppContext(widget);
+  _XmAppLock(app);
+  if (!cb->core.being_destroyed && CB_EditBox(cb) != NULL)
+    value = GetEditBoxValue(widget);
+  _XmAppUnlock(app);
+  return value;
 }
 
 /*

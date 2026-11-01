@@ -9,4 +9,11 @@ assert "if (widget == NULL)" in region
 assert region.index("if (widget == NULL)") < region.index("_XmWidgetToAppContext(widget)")
 getter = source[source.index("XmCombinationBoxGetValue") :]
 assert "if (widget == NULL || !XmIsComboBox(widget))" in getter
+assert "_XmWidgetToAppContext(widget);" in getter
+assert "_XmAppLock(app);" in getter
+assert "!cb->core.being_destroyed && CB_EditBox(cb) != NULL" in getter
+assert getter.index("!cb->core.being_destroyed && CB_EditBox(cb) != NULL") < getter.index(
+    "GetEditBoxValue(widget)"
+)
+assert "_XmAppUnlock(app);" in getter
 print("PASS ComboBox item-setting API validates null widgets")

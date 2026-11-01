@@ -1,3 +1,10 @@
+Guard ComboBox compatibility value reads during teardown (2026-11-01)
+======================================================================
+
+- Make `XmCombinationBoxGetValue` take the application lock and reject a
+  tearing-down ComboBox or missing edit child. Compatibility callers now get
+  `NULL` instead of accessing a partially destroyed child widget.
+
 Harden Mrm safe vector copies (2026-11-01)
 ==========================================
 
