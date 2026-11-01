@@ -157,8 +157,10 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
   Boolean errorFound = False;
   Atom type;
 
-  if (req_info == NULL)
+  if (req_info == NULL) {
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
     return;
+  }
   type = _WSMReqTypeToTarget(XtDisplay(w), req_info->request_type);
 
   if (scs == NULL) {
@@ -166,6 +168,7 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
       (*req_info->reply_callback)(w, req_info->reply_data, NULL,
 				  WSM_ERROR_INTERNAL);
     XtFree((XtPointer) req_info);
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
     return;
   }
 
@@ -187,6 +190,7 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
       (*req_info->reply_callback)(w, req_info->reply_data, NULL,
 				  WSM_ERROR_INTERNAL);
     XtFree((XtPointer) req_info);
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
     return;
   }
 
@@ -195,6 +199,7 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
       (*req_info->reply_callback)(w, req_info->reply_data, NULL,
 				  WSM_ERROR_INTERNAL);
     XtFree((XtPointer) req_info);
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
     return;
   }
 
@@ -206,6 +211,7 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
       (*req_info->reply_callback)(w, req_info->reply_data, NULL,
 				  WSM_ERROR_INTERNAL);
     XtFree((XtPointer) req_info);
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
     return;
   }
 
@@ -216,6 +222,8 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
 		scs->value, /* data returned from conversion. */
 		&scs->length,
 		&scs->format);
+  XtFree((char *)scs->value);
+  scs->value = NULL;
 }
 
 
@@ -300,7 +308,9 @@ ReplyReceived(Widget w, XtPointer req_info_ptr,
 			  req_info->request_type, &reply);
 	
 	if (req_info->reply_callback != NULL)
-	    (*req_info->reply_callback)(w, req_info->reply_data, &reply,fail_code);
+	    (*req_info->reply_callback)(w, req_info->reply_data,
+                reply.any.type == WSM_UNKNOWN ? NULL : &reply,
+                reply.any.type == WSM_UNKNOWN ? WSM_ERROR_CONVERSION_FAILED : fail_code);
 	
 	FreeReply(&reply);
     }

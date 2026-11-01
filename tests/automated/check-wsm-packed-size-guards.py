@@ -19,7 +19,7 @@ start = text.rindex("static Boolean\n" + signature)
 end = text.index("\n}", start) + 2
 helper = text[start:end]
 win_data = text[text.index("WinDataSizePacked(Display *dpy"):text.index("/************************************************************", text.index("WinDataSizePacked(Display *dpy"))]
-assert "win_data->data_len < 0" in win_data
+assert "win_data->type != WSM_VALUE_DATA && win_data->data_len < 0" in win_data
 assert "!AddPackedSize(&size" in win_data
 assert "register int i;\n    long size;" in win_data
 assert "WinInfoSizePacked" in text and "!AddPackedSize(&size, (size_t)win_size)" in text

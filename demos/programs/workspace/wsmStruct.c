@@ -1187,12 +1187,11 @@ void FinishRestartWSM()
 {
   WorkWindow *w;
 
-  for (w = work_windows; w != NULL; w = w->next)
+  for (w = work_windows; w != NULL; )
   {
-      if (w->used == False)
-      {
-	  RemoveWorkWindow(w,False);
-      }
+      WorkWindow *next = w->next;
+      if (w->used == False) RemoveWorkWindow(w,False);
+      w = next;
   }
 }
 /*------------------------------------------------------------------

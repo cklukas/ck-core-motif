@@ -95,3 +95,18 @@ integration matrix verifies that they do not overlap explanatory text.
 NumberBox feedback subscribes to invalid-input and committed-value callbacks.
 It labels the last event explicitly and retains the committed quantity when
 tentative input is rejected. Native integration checks rejection and recovery.
+
+Demo Applications
+-----------------
+The sidebar's Demo Applications page describes the standalone examples and
+provides Open buttons. `--component gallery.demos` opens it directly.
+The launcher checks the configured build tree, then the case-sensitive installed
+`PREFIX/share/Xm` directories. It executes the exact path without a shell, runs
+beside each application's assets, inherits DISPLAY and prevents duplicate
+instances launched by this gallery. Missing executables show both expected
+locations and `./configure --enable-demos; make -j6; make install` guidance.
+`--disable-demos` retains the gallery but omits the standalone examples.
+UID-based examples receive a child-only UIDPATH containing their asset directory
+and locale subdirectories; a supplied UIDPATH keeps precedence. The parent
+process environment is unchanged. The international Hello example installs its
+language UID files with a C fallback.

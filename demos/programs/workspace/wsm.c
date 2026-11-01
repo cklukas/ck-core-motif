@@ -30,6 +30,7 @@ static char rcsid[] = "$TOG: wsm.c /main/8 1997/05/02 10:08:35 dbl $"
 #endif
 
 #include <stdio.h>
+#include <errno.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <Xm/Xm.h>
@@ -73,7 +74,19 @@ Display *dsp;
 Space * current_space = NULL;
 Space *all_space;
 Space *space_list = NULL;
-WSMConfigFormatReply *config_format_reply = NULL;
+/* Constructed requests belong to this client; the transport copies their wire data. */
+Boolean WsmSendRequest(Widget widget, WSMClientType target, WSMRequest *request,
+                       WSMReplyCallbackFunc callback, XtPointer closure)
+{
+    Boolean sent = WSMSendMessage(widget, target, request, callback, closure);
+    if (!sent) fprintf(stderr,"Wsm: workspace request %d could not be sent\n",request->any.type);
+    FreeRequest(request);
+    return sent;
+}
+
+Boolean config_format_received = False;
+unsigned long wsm_connection_count = 0;
+extern void WsmStartIntegration(Boolean);
 XrmQuark *space_qlist;
 WorkWindow *work_windows;
 Window mwm_window;
@@ -255,7 +268,7 @@ static XtResource resources[] = {
     "workspaceList",
     "WorkspaceList",
     XtRStringTable,
-    sizeof(XtRStringTable),
+    sizeof(String *),
     XtOffsetOf(AppData, workspace_list),
     XtRString,
     (XtPointer) NULL,
@@ -264,7 +277,7 @@ static XtResource resources[] = {
     "backgroundList",
     "BackgroundList",
     XtRStringTable,
-    sizeof(XtRStringTable),
+    sizeof(String *),
     XtOffsetOf(AppData, background_list),
     XtRString,
     (XtPointer) NULL,
@@ -273,7 +286,7 @@ static XtResource resources[] = {
     "labelPixmapList",
     "LabelPixmapList",
     XtRStringTable,
-    sizeof(XtRStringTable),
+    sizeof(String *),
     XtOffsetOf(AppData, label_pixmap_list),
     XtRString,
     (XtPointer) NULL,
@@ -333,6 +346,13 @@ static Boolean WsmConvertProc(
 Widget, Atom *, Atom *, XtPointer, unsigned long,
 int, Atom *, XtPointer *, unsigned long *, int *
 );
+
+static XtSignalId quit_signal;
+static void DispatchWsmQuit(XtPointer closure, XtSignalId *id)
+{
+    (void)closure; (void)id;
+    ManageAllWindowsAndExit();
+}
 
 static void SetupWsmSignalHandlers(
 int
@@ -574,6 +594,16 @@ int main(argc, argv)
   String current_space_str;
   Boolean show_dialog = True;
 
+  Boolean integration_test = False, integration_restart = False;
+  for (int argument = 1; argument < argc; ++argument) {
+      if (!strcmp(argv[argument], "--integration-test") ||
+          !strcmp(argv[argument], "--integration-restart-test")) {
+          integration_restart = !strcmp(argv[argument], "--integration-restart-test");
+          integration_test = True;
+          for (int next = argument; next < argc; ++next) argv[next] = argv[next + 1];
+          --argc; --argument;
+      }
+  }
   shell = XtAppInitialize(&app_con, "WSM", options, XtNumber(options),
 			  &argc, argv, fallbacks, args, num_args);
   XtRealizeWidget(shell);
@@ -625,7 +655,8 @@ int main(argc, argv)
 
   wsm_shown = show_dialog;
   wsm_ui = (WSM_UI*)XtMalloc(sizeof(WSM_UI));
-  wsm_0_atom = XInternAtom(XtDisplay(shell), "WSM_S0", False);
+  wsm_0_atom = _WSMGetSelectionAtom(XtDisplay(shell),
+      XScreenNumberOfScreen(XtScreen(shell)), WSM_WORKSPACE_MANAGER);
   InitializeInterface(wsm_ui);
 
   if (XGetSelectionOwner(XtDisplay(shell), wsm_0_atom) != None) {
@@ -712,6 +743,7 @@ int main(argc, argv)
 
   SetupWsmSignalHandlers(0);
   
+  if (integration_test) WsmStartIntegration(integration_restart);
   for (;;) 
     {
       XtAppNextEvent(app_con, &event);
@@ -791,10 +823,22 @@ WsmConvertProc(Widget w, Atom *selection, Atom *target,
 
   PRINT("WsmConvertProc target is %s\n",XGetAtomName(dsp,*target));
   disp_info = _WSMGetDispInfo(XtDisplay(w));
+  *return_type = None;
+  *output = NULL;
+  *output_len = 0;
+  *output_fmt = WSM_PROTO_FMT;
 
   if (*target == disp_info->targets) {
-    *return_type = XA_STRING;
-    *output = (XtPointer) (long) WSMGetTargetList(w, TRUE, output_len);
+    *return_type = XA_ATOM;
+    Atom *targets = (Atom *)XtMalloc(6 * sizeof(Atom));
+    targets[0] = disp_info->targets;
+    targets[1] = disp_info->multiple;
+    targets[2] = disp_info->timestamp;
+    targets[3] = disp_info->connect;
+    targets[4] = disp_info->reg_window;
+    targets[5] = _MOTIF_WM_INVOKE_COMMAND;
+    *output = (XtPointer)targets;
+    *output_len = 6;
     *output_fmt = 32;
     return(True);
   }
@@ -808,10 +852,12 @@ WsmConvertProc(Widget w, Atom *selection, Atom *target,
     {
       /* ||| CARD8 type? */
       InvokeCommand(w, *target, (CARD8*)input, input_len, input_fmt);
+      *return_type = *target;
       return (TRUE);
     }
 
-  if (!WSMIsKnownTarget(w, *target))
+  if ((*target != disp_info->connect && *target != disp_info->reg_window) ||
+      !WSMIsKnownTarget(w, *target))
     {
       PRINT("isn't known target\n");
       return (False);
@@ -913,7 +959,7 @@ RequestReceived(Widget w, XtPointer textp,
 void
 SendConnect(Widget w)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   static short versions[] = { 3,2,1 };
   Display *dsp = XtDisplay(w);
   int scr = XScreenNumberOfScreen(XtScreen(shell));
@@ -930,7 +976,7 @@ SendConnect(Widget w)
       request.connect.allocated = False;
       request.connect.known_versions = versions;
       request.connect.num_versions = XtNumber(versions);
-      WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+      WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		     ReceiveConnectRCB, NULL);
     }
 }	
@@ -940,12 +986,13 @@ ReceiveConnectRCB(Widget w, XtPointer call,
 		  WSMReply *reply, WSMErrorCode error)
 {	
   PRINT("receive connect\n");
-  if (reply != NULL)
+  if (reply != NULL && error == WSM_SUCCESS &&
+      reply->connect.version >= 1 && reply->connect.version <= 3)
     {
       SendExtensionCB(w,call,call);
     }
   else
-    PRINT("receive connect == NULL\n");
+    fprintf(stderr, "Wsm: MWM workspace protocol negotiation failed; use an MWM build with MWM_WSM enabled.\n");
 }
 
 
@@ -953,7 +1000,7 @@ void
 SendExtensionCB(Widget w, XtPointer client,XtPointer call)
 {
   
-  WSMRequest request;
+  WSMRequest request = {0};
   static String extensions[] = { "Test", 
 				   "Extension #1", "Extension #123" };
 
@@ -961,7 +1008,7 @@ SendExtensionCB(Widget w, XtPointer client,XtPointer call)
   request.extensions.extension_suggestions = extensions;
   request.extensions.num_extensions = 3;
   request.extensions.allocated = False;
-  WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+  WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		 ReceiveExtensionsRCB, call);
   
 }
@@ -985,9 +1032,9 @@ ReceiveExtensionsRCB(Widget w, XtPointer client,
 void
 SendConfigCB(Widget w, XtPointer client, XtPointer call)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   request.any.type = WSM_CONFIG_FMT;
-  WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+  WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		 ReceiveConfigRCB, call);
 }
 
@@ -1011,6 +1058,7 @@ ReceiveConfigRCB(Widget w, XtPointer call,
   XrmQuark hideq = XrmStringToQuark("hidden");
   XrmQuark iconicq = XrmStringToQuark("iconic");
 
+  if (reply == NULL || error != WSM_SUCCESS) return;
   if (mwm_reconnect)
   {
       if (num_global_attrib != reply->config_format.num_global_formats)
@@ -1106,7 +1154,7 @@ ReceiveConfigRCB(Widget w, XtPointer call,
 	}
       icon_attribq[i] = NULLQUARK;
       num_icon_attrib = i;
-      config_format_reply = &(reply->config_format);
+      config_format_received = True;
     }
   if (reply != NULL)
     {
@@ -1119,12 +1167,12 @@ ReceiveConfigRCB(Widget w, XtPointer call,
 void
 SendStartGetStateCB(Widget w, XtPointer call, XtPointer client)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   PRINT("wsm: send start get state\n");
   request.get_state.window = (Window)0;
   request.get_state.diffs_allowed = False;
   request.any.type = WSM_GET_STATE;
-  WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request, SendStartSetStateRCB,
+  WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request, SendStartSetStateRCB,
 		 call);
 }
 
@@ -1132,14 +1180,14 @@ void
 SendStartSetStateRCB(Widget w, XtPointer call, 
 		     WSMReply *reply, WSMErrorCode error)
 {	
-  WSMRequest request;
+  WSMRequest request = {0};
   if (reply != NULL)
   {
-    if (reply->any.type == WSM_GET_STATE && config_format_reply != NULL)
+    if (reply->any.type == WSM_GET_STATE && config_format_received)
       {
 	CreateStartStateRequest(&(reply->get_state),
 				&request);
-	WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+	WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		       ReceiveSetStateRCB, call);
       }
   }
@@ -1153,6 +1201,7 @@ ReceiveSetStateRCB(Widget w, XtPointer call,
   Atom mwm_selection;
   WorkWindow *w_window;
 
+  if (reply == NULL || error != WSM_SUCCESS) return;
   SetInitialCommands();
   w_window = work_windows;
   for (w_window = work_windows; w_window != NULL; w_window = w_window->next)
@@ -1161,6 +1210,7 @@ ReceiveSetStateRCB(Widget w, XtPointer call,
 	DisableDeleteCommand(w_window->window);
 
   connected = True;
+  ++wsm_connection_count;
   mwm_gone = False;
   mwm_reconnect = False;
   mwm_selection = _WSMGetSelectionAtom(dsp,
@@ -1179,12 +1229,12 @@ ReceiveSetStateRCB(Widget w, XtPointer call,
 void
 SendSaveWsm(char *file_name)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   request.get_state.window = 0;
   request.get_state.diffs_allowed = False;
   request.any.type = WSM_GET_STATE;
   PRINT("wsm:  WSMSendMessage WSM_GET_STATE %s\n", file_name);
-  WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request, ReceiveSaveWsmRCB,
+  WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request, ReceiveSaveWsmRCB,
 		 (XtPointer)file_name);
 }	
 
@@ -1193,12 +1243,12 @@ SendSaveWsm(char *file_name)
 void
 SendLeaveRoom(Space *s)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   request.get_state.window = 0;
   request.get_state.diffs_allowed = False;
   request.any.type = WSM_GET_STATE;
   PRINT("wsm:  WSMSendMessage WSM_GET_STATE\n");
-  WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request, ReceiveLeaveRoomRCB,
+  WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request, ReceiveLeaveRoomRCB,
 		 (XtPointer)s);
 }
 
@@ -1249,7 +1299,7 @@ ReceiveEnterRoomRCB(Widget w, XtPointer client,
 void
 ChangeRoomCB(Widget w, XtPointer client, XtPointer call)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   Space *space = (Space*)client;
 
   PRINT("wsm: Get SET_STATE request\n");
@@ -1257,7 +1307,7 @@ ChangeRoomCB(Widget w, XtPointer client, XtPointer call)
   if (space != NULL)
     {
       GetChangeSpaceRequest(space,&request);
-      WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+      WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		     ReceiveEnterRoomRCB, NULL);
       SetSpaceBackground(space);
     }
@@ -1274,7 +1324,7 @@ ReceiveCopyMoveRCB(Widget w, XtPointer client,
 void
 CopyWindow(WorkWindow *w_window, Space *from_s, Space* to_s)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   CopyStruct *copy_struct;
 
   from_space = from_s;
@@ -1293,12 +1343,12 @@ CopyWindow(WorkWindow *w_window, Space *from_s, Space* to_s)
 	  request.get_state.diffs_allowed = True;
 	  request.any.type = WSM_GET_STATE;
 	  PRINT("Sending Get State \n");
-	  WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request, CopyRCB,
+	  WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request, CopyRCB,
 			 (XtPointer)copy_struct);
 	}
       else if (GetCopyWindowRequest(w_window->window, from_space, to_space,
 				    &request))
-	WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+	WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		       ReceiveCopyMoveRCB, NULL);
     }
   else PRINT("copy null window\n");
@@ -1309,7 +1359,7 @@ void
 CopyRCB(Widget w, XtPointer client, 
 	     WSMReply *reply, WSMErrorCode error)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   CopyStruct *copy_struct = (CopyStruct*)client;
   PRINT("Received get state\n");
   if (reply != NULL)
@@ -1321,7 +1371,7 @@ CopyRCB(Widget w, XtPointer client,
 	}
       if (GetCopyWindowRequest(copy_struct->window, copy_struct->from_space,
 			       copy_struct->to_space, &request))
-	WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+	WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		       ReceiveCopyMoveRCB, NULL);
     }
   XtFree((XtPointer)copy_struct);
@@ -1330,7 +1380,7 @@ CopyRCB(Widget w, XtPointer client,
 void
 MoveWindow(WorkWindow *w_window, Space *from_s, Space* to_s)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
 
   from_space = from_s;
   to_space = to_s;
@@ -1342,12 +1392,12 @@ MoveWindow(WorkWindow *w_window, Space *from_s, Space* to_s)
 	  request.get_state.window = w_window->window;
 	  request.get_state.diffs_allowed = True;
 	  request.any.type = WSM_GET_STATE;
-	  WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request, MoveRCB,
+	  WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request, MoveRCB,
 			 (XtPointer)w_window->window);
 	}
       else if (GetMoveWindowRequest(w_window->window, from_space, to_space,
 				    &request))
-	WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+	WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		       ReceiveCopyMoveRCB, NULL);
     }
 }
@@ -1356,7 +1406,7 @@ void
 MoveRCB(Widget w, XtPointer client, 
 	     WSMReply *reply, WSMErrorCode error)
 {
-    WSMRequest request;
+    WSMRequest request = {0};
 
     if (reply != NULL)
     {
@@ -1364,7 +1414,7 @@ MoveRCB(Widget w, XtPointer client,
 	if (GetMoveWindowRequest((Window)client, from_space, to_space,
 				 &request))
 	{
-	    WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+	    WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 			   ReceiveCopyMoveRCB, NULL);
 	}
     }
@@ -1376,14 +1426,14 @@ MoveRCB(Widget w, XtPointer client,
 void
 DeleteWindow(WorkWindow *w_window, Space *from_s)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
 
   from_space = from_s;
 
   if (w_window != NULL)
     {
       if (GetDeleteWindowRequest(w_window->window, from_space,&request))
-	WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+	WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		       ReceiveCopyMoveRCB, NULL);
     }
   
@@ -1392,7 +1442,7 @@ DeleteWindow(WorkWindow *w_window, Space *from_s)
 void
 LinkWindow(WorkWindow *w_window, Space *from_s, Space *to_s)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   CopyStruct *copy_struct;
   from_space = from_s;
   to_space = to_s;
@@ -1408,12 +1458,12 @@ LinkWindow(WorkWindow *w_window, Space *from_s, Space *to_s)
 	  request.get_state.window = w_window->window;
 	  request.get_state.diffs_allowed = True;
 	  request.any.type = WSM_GET_STATE;
-	  WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request, LinkRCB,
+	  WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request, LinkRCB,
 			 (XtPointer)copy_struct);
 	}
       else if (GetLinkWindowRequest(w_window->window, from_space, to_space,
 				    &request))
-	WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+	WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 		       ReceiveCopyMoveRCB, NULL);
     }
   else PRINT("copy null window\n");
@@ -1424,7 +1474,7 @@ void
 LinkRCB(Widget w, XtPointer client, 
 	     WSMReply *reply, WSMErrorCode error)
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   CopyStruct *copy_struct = (CopyStruct*)client;
 
   if (reply != NULL)
@@ -1432,7 +1482,7 @@ LinkRCB(Widget w, XtPointer client,
       SaveState(&(reply->get_state),True);
       if (GetLinkWindowRequest(copy_struct->window, copy_struct->from_space,
 			       copy_struct->to_space, &request))
-	  WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request,
+	  WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request,
 			 ReceiveCopyMoveRCB, NULL);
   }
   XtFree((XtPointer)copy_struct);
@@ -1486,12 +1536,12 @@ QuitCB(Widget w, XtPointer client, XtPointer call)
 void
 ManageAllWindowsAndExit()
 {
-  WSMRequest request;
+  WSMRequest request = {0};
   PRINT("ManageAllWindowsAndExit()\n");
   if (!mwm_gone)
     {
       if (GetManageAllWindowsRequest(&request))    
-	WSMSendMessage(utmShell, WSM_WINDOW_MANAGER, &request, ExitRCB, NULL);
+	WsmSendRequest(utmShell, WSM_WINDOW_MANAGER, &request, ExitRCB, NULL);
       else 
 	CleanUpAndExit();
     }
@@ -1526,17 +1576,20 @@ void CleanUpAndExit()
 /*ARGSUSED*/
 static void SetupWsmSignalHandlers (int dummy)
 {
-    void (*signalHandler) ();
+    if (!quit_signal)
+        quit_signal = XtAppAddSignal(XtWidgetToApplicationContext(shell), DispatchWsmQuit, NULL);
+
+    void (*signalHandler)(int);
 
 
-    signalHandler = (void (*)())signal (SIGINT, SIG_IGN);
-    if (signalHandler != (void (*)())SIG_IGN)
+    signalHandler = signal (SIGINT, SIG_IGN);
+    if (signalHandler != SIG_IGN)
     {
 	signal (SIGINT, QuitWsmSignalHandler);
     }
 
-    signalHandler = (void (*)())signal (SIGHUP, SIG_IGN);
-    if (signalHandler != (void (*)())SIG_IGN)
+    signalHandler = signal (SIGHUP, SIG_IGN);
+    if (signalHandler != SIG_IGN)
     {
 	signal (SIGHUP, QuitWsmSignalHandler);
     }
@@ -1564,6 +1617,8 @@ static void SetupWsmSignalHandlers (int dummy)
 /*ARGSUSED*/
 static void QuitWsmSignalHandler (int dummy)
 {
-    ManageAllWindowsAndExit();
-    XFlush(dsp);
+    int saved_errno = errno;
+    (void)dummy;
+    XtNoticeSignal(quit_signal);
+    errno = saved_errno;
 } /* END OF FUNCTION QuitWsmSignalHandler */

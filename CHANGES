@@ -5,6 +5,8 @@ Buffered toolkit painting and gallery appearance selection (2026-11-01)
   direct drawing retained if allocation fails. Window IDs and application
   drawing callbacks keep their existing contracts. Repaint requests coalesce
   without a preceding visible clear; buffers follow resize and widget lifetime.
+  Evict cached Xft draw pictures at DBE frame boundaries and before buffer
+  release so text survives backing-store replacement and drawable-ID reuse.
 * Gallery preview roots are prepared unmanaged before a batched replacement.
   Theme and scale use selection combo boxes, including the active custom scale;
   responsive headers keep selectors accessible and retain their keyboard focus.
@@ -128,6 +130,39 @@ Initialize MWM per-screen selection atoms (2026-11-01)
 - Zero-initialize MWM's per-screen `WM_Sn` selection-atom table so unmanaged
   screen entries are defined as `None` rather than indeterminate memory.
 - Add focused source-contract coverage and document the selection invariant.
+
+
+Restore standalone MWM workspace management and add gallery demo launching (2026-11-01)
+=====================================================================================
+
+- Enable MWM_WSM with negotiation, configuration/state handling, client registration,
+  geometry, iconic and workspace visibility updates, transient handling and recovery
+  after the workspace selection owner disappears. Stop advertising absent panning
+  extensions. Validate complete protocol envelopes before decoding in both peers.
+- Remove withdrawn client contexts before destroying frame/icon IDs, preventing
+  queued focus events from accessing freed clients and corrupting stacking lists.
+- Translate parentless-shell traversal rectangles from the shell itself,
+  preventing focus visibility checks from dereferencing a null parent.
+- Preserve UIL custom-widget reference flags when completing a definition, so
+  the dogs example compiles without false creation-procedure errors.
+- Accept valid allocated zero-length selection replies, including workspace
+  SET_STATE acknowledgements, and release delivered protocol payloads.
+- Dispatch normal MWM/Wsm termination through Xt signal notices, keeping Xlib
+  and widget operations out of asynchronous OS signal handlers.
+- Repair Wsm's callback ownership, failure handling and pointer-sized button IDs.
+  Add real MWM protocol and Wsm workspace-button/persistence acceptance tests.
+- Add the gallery's Demo Applications page with descriptions and direct Open
+  buttons. Resolve build/install paths, retain asset working directories, report
+  missing apps and build guidance, and reap child processes. Add --enable-demos
+  (default yes); --disable-demos retains the component gallery.
+- Read Panner X contexts with pointer-sized storage and validate display indices.
+  Describe its optional legacy virtual-screen requirement in the demo catalogue.
+- Center gallery windows through client configuration requests, preserving
+  manager-owned base/frame geometry and explicit user positions.
+- Wrap demo guidance at compact widths and wait for mapped, painted windows
+  before reporting screenshot readiness. Reject blank native captures.
+- Install International Hello locale UID assets and supply demo-local UIDPATH
+  search locations, including the C fallback, when launching examples.
 
 Connect TreeView navigation and click focus (2026-11-01)
 ========================================================

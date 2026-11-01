@@ -2,6 +2,7 @@
 #include <Xm/XmAll.h>
 #include <Xm/XmP.h>
 #include "PaintI.h"
+#include "native-window.h"
 #include <X11/Xutil.h>
 #include <assert.h>
 #include <stdio.h>
@@ -116,6 +117,8 @@ int main(int argc, char **argv)
     /* XtSetValues must not clear a buffered control before its frame runs. */
     Widget progress = XtVaCreateManagedWidget("progress", xmProgressBarWidgetClass,
         widget, XmNwidth, 80, XmNheight, 24, XmNprogressValue, 20, NULL);
+    NativeWaitForViewable(progress);
+    while (XtAppPending(app)) XtAppProcessEvent(app, XtIMAll);
     XSync(XtDisplay(widget), False);
     XtClass(progress)->core_class.expose(progress, NULL, NULL);
     XImage *old_image = XGetImage(XtDisplay(widget), XtWindow(progress), 0, 0,
@@ -126,8 +129,14 @@ int main(int argc, char **argv)
     XImage *pending_image = XGetImage(XtDisplay(widget), XtWindow(progress), 0, 0,
                                      80, 24, AllPlanes, ZPixmap);
     assert(pending_image);
+    unsigned changed = 0;
     for (int y = 0; y < 24; ++y) for (int x = 0; x < 80; ++x)
-        assert(XGetPixel(old_image, x, y) == XGetPixel(pending_image, x, y));
+        if (XGetPixel(old_image, x, y) != XGetPixel(pending_image, x, y)) {
+            if (!changed) fprintf(stderr, "Resource front changed at %d,%d: %lu -> %lu\n",
+                x, y, XGetPixel(old_image, x, y), XGetPixel(pending_image, x, y));
+            ++changed;
+        }
+    assert(changed == 0);
     XDestroyImage(old_image); XDestroyImage(pending_image);
     }
     /* A queued repaint must not outlive its widget. */

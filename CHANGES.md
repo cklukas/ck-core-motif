@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-11-01 — Buffered painting and direct gallery selection
+
+- Paint toolkit-owned full frames through normal Xt expose methods, using DBE
+  when supported and pixmap fallback otherwise, preserving application window
+  IDs, widget record layouts and application drawing callbacks.
+- Retire Xft draw-cache entries before buffer release and DBE swaps. A native
+  regression reproduced missing labels at frame three after resize; the fixed
+  build retains contrasting text through all 24 frames under DBE, pixmap and
+  direct modes.
+- Replace gallery Theme/Scale cycling buttons with selection ComboBoxes and
+  prepare preview roots before exchanging managed children.
+- Correct UTF-8 hard-line reads across wide storage and gap-buffer edits so the
+  Source pane can reach its final line.
+
+## 2026-11-01 — Standalone workspaces and demo launching
+
+- Enable the standalone MWM workspace protocol and restore Wsm's window
+  membership, geometry, visibility, command menus, persistence and reconnect paths.
+- Add the gallery's Demo Applications catalogue with descriptions, Open buttons,
+  exact missing-app paths and `--enable-demos` build guidance.
+- Correct empty selection acknowledgements, parentless-shell traversal geometry,
+  command-tree cleanup and UIL custom-widget reference flags exercised by demos.
+
+
 ## 2026-11-01 — Modern C and native macOS builds
 
 - Build the toolkit libraries, WML generators, UIL compiler, `mwm` and modern

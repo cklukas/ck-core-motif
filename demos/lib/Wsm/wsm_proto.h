@@ -32,7 +32,6 @@
 #include <stdio.h>
 #include <X11/Intrinsic.h>
 #include <X11/Xmd.h>
-#include <Xm/Xm.h>
 
 #define WSM_PROTO_FMT			8
 

@@ -27,6 +27,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <X11/Xmd.h>
 #include <Xm/TransferP.h>
 #include <Xm/AtomMgr.h>
@@ -548,6 +549,16 @@ WatchForWindowPanning (Display *dsp)
  | This routine checks the property changed and if its the right  |
  | property, grab the new panning position.                       |
  *----------------------------------------------------------------*/
+/* XFindContext stores a pointer-sized value, even for an integer index. */
+static int ContextDisplayIndex(Display *display, Window window)
+{
+    XPointer stored = NULL;
+    if (XFindContext(display, window, context, &stored)) return -1;
+    intptr_t index = (intptr_t)stored;
+    if (index < 0 || index >= MAX_DISPLAY_COUNT) return -1;
+    return (int)index;
+}
+
 static void
 HandlePropertyChange (XEvent *event)
 {
@@ -556,9 +567,8 @@ HandlePropertyChange (XEvent *event)
 
 
   /* Get the correct info record stored with the context manager. */
-  if (XFindContext(propEvent->display, propEvent->window, context,
-		   (XPointer*)&iDsp))
-    return;
+  iDsp = ContextDisplayIndex(propEvent->display, propEvent->window);
+  if (iDsp < 0) return;
 
   /* check if this is the right one. Othersize, we'll update when another
    * display changes.

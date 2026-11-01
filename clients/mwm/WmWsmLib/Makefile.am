@@ -1,6 +1,6 @@
 MAINTAINERCLEANFILES = Makefile.in
 
-SRCS = debug.c disp.c free.c pack.c recv.c send.c util.c utm_send.c
+SRCS = debug.c disp.c free.c pack.c wire.c recv.c send.c util.c utm_send.c
 
 noinst_HEADERS = utm_send.h	wsm_funcs.h	wsm_proto.h
 

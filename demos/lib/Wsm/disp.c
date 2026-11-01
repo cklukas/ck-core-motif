@@ -1,4 +1,4 @@
-/* $XConsortium: disp.c /main/5 1995/07/15 20:42:36 drk $ */
+/* $TOG: disp.c /main/6 1997/06/18 17:34:28 samborn $ */
 /*
  * Motif
  *
@@ -40,10 +40,31 @@ WSMDispInfo * GDispInfo = NULL;
 WSMDispInfo *
 _WSMGetDispInfo(Display *dpy)
 {
+    enum { XA_WSM_NAME_CONNECT, XA_WSM_NAME_EXTENSIONS, XA_WSM_NAME_CONFIG_FMT,
+	   XA_WSM_NAME_GET_STATE, XA_WSM_NAME_SET_STATE, XA_WSM_NAME_REG_WINDOW,
+	   XA_WSM_NAME_WM_GET_BACKGROUND_WINDOW,
+	   XA_WSM_NAME_WM_SET_BACKGROUND_WINDOW, XA_WSM_NAME_WM_WINDOWS,
+	   XA_WSM_NAME_WM_FOCUS, XA_WSM_NAME_WM_POINTER, XA_TARGETS,
+	   XA_MULTIPLE, XA_TIMESTAMP, NUM_ATOMS };
+    static char *atom_names[] = {
+           WSM_NAME_CONNECT, WSM_NAME_EXTENSIONS, WSM_NAME_CONFIG_FMT,
+	   WSM_NAME_GET_STATE, WSM_NAME_SET_STATE, WSM_NAME_REG_WINDOW,
+	   WSM_NAME_WM_GET_BACKGROUND_WINDOW,
+	   WSM_NAME_WM_SET_BACKGROUND_WINDOW, WSM_NAME_WM_WINDOWS,
+	   WSM_NAME_WM_FOCUS, WSM_NAME_WM_POINTER, "TARGETS",
+	   "MULTIPLE", "TIMESTAMP" };
+
     WSMDispInfo * disp_info;
+    WSMDispInfo *new_disp_info;
+    WSMDispInfo *parent_disp_info = NULL;
+    Atom atoms[XtNumber(atom_names)];
 
     if (GDispInfo == NULL) {
 	disp_info = GDispInfo = (WSMDispInfo *) XtMalloc(sizeof(WSMDispInfo));
+	if (disp_info == NULL) {
+	    XtWarning("Unable to allocate WSM display information");
+	    return(NULL);
+	}
     }
     else {
 	disp_info = GDispInfo;
@@ -62,8 +83,14 @@ _WSMGetDispInfo(Display *dpy)
 	 * This display is not on the global list, add it.
 	 */
 
-	disp_info->next = (WSMDispInfo *) XtMalloc(sizeof(WSMDispInfo));
-	disp_info = disp_info->next;
+	new_disp_info = (WSMDispInfo *) XtMalloc(sizeof(WSMDispInfo));
+	if (new_disp_info == NULL) {
+	    XtWarning("Unable to allocate WSM display information");
+	    return(NULL);
+	}
+	parent_disp_info = disp_info;
+	disp_info->next = new_disp_info;
+	disp_info = new_disp_info;
     }
 
     disp_info->disp = dpy;
@@ -74,29 +101,36 @@ _WSMGetDispInfo(Display *dpy)
      * ||| Should use XtConvertAndStore().
      */
 
-    disp_info->connect = XInternAtom(dpy, WSM_NAME_CONNECT, False);
-    disp_info->extensions = XInternAtom(dpy, WSM_NAME_EXTENSIONS, False);
-    disp_info->config_fmt = XInternAtom(dpy, WSM_NAME_CONFIG_FMT, False);
-    disp_info->get_state = XInternAtom(dpy, WSM_NAME_GET_STATE, False);
-    disp_info->set_state = XInternAtom(dpy, WSM_NAME_SET_STATE, False);
-    disp_info->reg_window = XInternAtom(dpy, WSM_NAME_REG_WINDOW, False);
+    if (!XInternAtoms(dpy, atom_names, XtNumber(atom_names), False, atoms)) {
+	if (parent_disp_info != NULL)
+	    parent_disp_info->next = NULL;
+	else
+	    GDispInfo = NULL;
+	XtFree((XtPointer) disp_info);
+	return(NULL);
+    }
 
-    disp_info->get_background =
-      XInternAtom(dpy, WSM_NAME_WM_GET_BACKGROUND_WINDOW, False);
-    disp_info->set_background =
-      XInternAtom(dpy, WSM_NAME_WM_SET_BACKGROUND_WINDOW, False);
+    disp_info->connect = atoms[XA_WSM_NAME_CONNECT];
+    disp_info->extensions = atoms[XA_WSM_NAME_EXTENSIONS];
+    disp_info->config_fmt = atoms[XA_WSM_NAME_CONFIG_FMT];
+    disp_info->get_state = atoms[XA_WSM_NAME_GET_STATE];
+    disp_info->set_state = atoms[XA_WSM_NAME_SET_STATE];
+    disp_info->reg_window = atoms[XA_WSM_NAME_REG_WINDOW];
 
-    disp_info->wm_windows = XInternAtom(dpy, WSM_NAME_WM_WINDOWS, False);
-    disp_info->wm_focus   = XInternAtom(dpy, WSM_NAME_WM_FOCUS, False);
-    disp_info->wm_pointer = XInternAtom(dpy, WSM_NAME_WM_POINTER, False);
+    disp_info->get_background = atoms[XA_WSM_NAME_WM_GET_BACKGROUND_WINDOW];
+    disp_info->set_background = atoms[XA_WSM_NAME_WM_SET_BACKGROUND_WINDOW];
+
+    disp_info->wm_windows = atoms[XA_WSM_NAME_WM_WINDOWS];
+    disp_info->wm_focus   = atoms[XA_WSM_NAME_WM_FOCUS];
+    disp_info->wm_pointer = atoms[XA_WSM_NAME_WM_POINTER];
 
     /*
      * These global resources are unlikely to change.
      */
 
-    disp_info->targets = XInternAtom(dpy, "TARGETS", False);
-    disp_info->multiple = XInternAtom(dpy, "MULTIPLE", False);
-    disp_info->timestamp = XInternAtom(dpy, "TIMESTAMP", False);
+    disp_info->targets = atoms[XA_TARGETS];
+    disp_info->multiple = atoms[XA_MULTIPLE];
+    disp_info->timestamp = atoms[XA_TIMESTAMP];
 
     disp_info->screen_info = NULL;
     disp_info->next = NULL;
@@ -117,7 +151,11 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 {
     WSMDispInfo * disp_info = _WSMGetDispInfo(dpy);
     WSMScreenInfo *screen_info;
+    WSMScreenInfo *new_screen_info;
     char temp[BUFSIZ];
+
+    if (disp_info == NULL)
+	return(NULL);
 
     if (disp_info->screen_info == NULL) {
 	/*
@@ -126,6 +164,10 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 	 */
 
 	screen_info = (WSMScreenInfo *) XtMalloc(sizeof(WSMScreenInfo));
+	if (screen_info == NULL) {
+	    XtWarning("Unable to allocate WSM screen information");
+	    return(NULL);
+	}
 	disp_info->screen_info = screen_info;
     }
     else {
@@ -152,22 +194,30 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 	 * This screen is not on the display's screen list, add it.
 	 */
 
-	screen_info->next = (WSMScreenInfo *) XtMalloc(sizeof(WSMScreenInfo));
-	screen_info = screen_info->next;
+	new_screen_info = (WSMScreenInfo *) XtMalloc(sizeof(WSMScreenInfo));
+	if (new_screen_info == NULL) {
+	    XtWarning("Unable to allocate WSM screen information");
+	    return(NULL);
+	}
+	screen_info->next = new_screen_info;
+	screen_info = new_screen_info;
     }
 
     screen_info->screen_num = screen_number;
 
-    sprintf(temp, WM_SELECTION_FORMAT, screen_number);
+    (void)snprintf(temp, sizeof(temp), WM_SELECTION_FORMAT, screen_number);
     screen_info->wm_selection = XInternAtom(dpy, temp, False);
 
-    sprintf(temp, WSM_SELECTION_FORMAT, screen_number);
+    (void)snprintf(temp, sizeof(temp), WSM_SELECTION_FORMAT, screen_number);
     screen_info->wsm_selection = XInternAtom(dpy, temp, False);
 
     screen_info->next = NULL;
     screen_info->global.num_attrs = 0;
+    screen_info->global.attr_list = NULL;
     screen_info->window.num_attrs = 0;
+    screen_info->window.attr_list = NULL;
     screen_info->icon.num_attrs = 0;
+    screen_info->icon.attr_list = NULL;
     screen_info->request_callback = NULL;
     screen_info->request_data = NULL;
 
@@ -191,7 +241,9 @@ _WSMClearConfigScreenInfo(Display *dpy, int screen_number)
 {
     WSMDispInfo * disp_info = _WSMGetDispInfo(dpy);
     WSMScreenInfo *screen_info;
-    char temp[BUFSIZ];
+
+    if (disp_info == NULL)
+	return;
 
     if (disp_info->screen_info != NULL)
       {
@@ -212,20 +264,23 @@ _WSMClearConfigScreenInfo(Display *dpy, int screen_number)
 	  screen_info = screen_info->next;
 	}
 
-	if (screen_info->global.num_attrs != 0){
+	if (screen_info->global.attr_list != NULL){
 	  XtFree((XtPointer)screen_info->global.attr_list);
-	  screen_info->global.num_attrs = 0;
+	  screen_info->global.attr_list = NULL;
 	}
+	screen_info->global.num_attrs = 0;
 	
-	if (screen_info->window.num_attrs != 0){
+	if (screen_info->window.attr_list != NULL){
 	  XtFree((XtPointer)screen_info->window.attr_list);
-	  screen_info->window.num_attrs = 0;
+	  screen_info->window.attr_list = NULL;
 	}
+	screen_info->window.num_attrs = 0;
 	
-	if (screen_info->icon.num_attrs != 0){
+	if (screen_info->icon.attr_list != NULL){
 	  XtFree((XtPointer)screen_info->icon.attr_list);
-	  screen_info->icon.num_attrs = 0;
+	  screen_info->icon.attr_list = NULL;
 	}
+	screen_info->icon.num_attrs = 0;
       }
 
 }

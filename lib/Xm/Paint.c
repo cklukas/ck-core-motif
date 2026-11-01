@@ -4,6 +4,9 @@
 #include <Xm/XmP.h>
 #include "PaintI.h"
 #include "XmI.h"
+#ifdef USE_XFT
+#include "XmRenderTI.h"
+#endif
 #include <string.h>
 #ifdef HAVE_X11_EXTENSIONS_XDBE_H
 #include <X11/extensions/Xdbe.h>
@@ -63,6 +66,9 @@ static void release_buffer(PaintState *state)
     Display *display = XtDisplay(state->widget);
     /* DestroyWindow already releases DBE resources on an unrealized window. */
     if (state->buffer) {
+#ifdef USE_XFT
+        _XmXftDrawEvict(display, state->buffer);
+#endif
 #ifdef HAVE_X11_EXTENSIONS_XDBE_H
         if (state->dbe) {
             if (XtWindow(state->widget) == state->window)
@@ -266,6 +272,9 @@ void _XmBufferedPaint(Widget widget, XtExposeProc paint, XEvent *event, Region r
     if (state->buffer) {
 #ifdef HAVE_X11_EXTENSIONS_XDBE_H
         if (state->dbe) {
+#ifdef USE_XFT
+            _XmXftDrawEvict(display, state->buffer);
+#endif
             XdbeSwapInfo swap = {state->window, XdbeUndefined};
             XdbeSwapBuffers(display, &swap, 1);
         } else

@@ -39,6 +39,7 @@ static char rcsid[] = "$XConsortium: WmWinState.c /main/6 1996/06/20 09:39:39 rs
  */
 
 #include "WmGlobal.h"
+#include "WmWorkspace.h"
 #include "WmICCC.h"
 #include "WmProtocol.h"
 
@@ -379,6 +380,9 @@ void SetClientStateWithEventMask (ClientData *pCD, int newState, Time setTime, u
 #endif /* WSM */
     }
 
+#ifdef MWM_WSM
+    if (newState != WITHDRAWN_STATE) WsmApplyVisibility(pCD);
+#endif
 } /* END OF FUNCTION SetClientStateWithEventMask */
 
 

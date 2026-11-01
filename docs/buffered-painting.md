@@ -77,3 +77,13 @@ Primitive's own redraw requests follow that path for already buffered controls.
 The native regression also checks that a ProgressBar frame remains unchanged
 between XtSetValues and the queued repaint. Native core background changes,
 window mapping and geometry exposures still follow Xt/X11 semantics.
+
+
+Xft draw-cache lifetime follows the backing storage, not just the numeric
+Drawable ID. A cached Render Picture can retain old storage after a DBE
+resize/swap or after a pixmap is freed. The toolkit evicts its Xft draw entry
+before each DBE swap and before releasing any buffer. This keeps subsequent
+text on the current back buffer. `check-buffered-text.c` requires contrasting
+label pixels in four rows through 24 frames, resizing and focus changes, under
+DBE, pixmap and direct modes. A regression was reproduced as missing text at
+frame three after resize before this cache-lifetime correction.

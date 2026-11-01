@@ -564,7 +564,7 @@ FreeValues(int num_values, XrmValue *value_list)
   WSMWinData *win_data;
   XrmValue *values;
   char* str;
-  char tempstr[10];
+  char tempstr[3 * sizeof(long) + 3];
   int num_values;
 
 
@@ -605,8 +605,8 @@ FreeValues(int num_values, XrmValue *value_list)
             }
           case WSM_VALUE_DATA:
             {
-              str = (char*)XtMalloc(10 *sizeof(char));
-              sprintf(str,"%ld", win_data->data.value);
+              str = (char*)XtMalloc(sizeof(tempstr));
+              snprintf(str,sizeof(tempstr),"%ld", win_data->data.value);
               values[num_values].addr = str;
               values[num_values].size = strlen(str) +1;
 #ifdef DEBUG

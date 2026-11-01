@@ -202,6 +202,7 @@ CreateStartStateRequest(WSMGetStateReply *get_state,
       if (mwm_reconnect && (w_window = GetWorkWindow(window)) != NULL)
       {
 	  w_window->used = True;
+          w_window->mapped = True;
 	  if ( !IsWorkWindowInSpace(w_window,current_space))
 	      CreateHideWSMWinData(diffs_allowed,
 				   w_window,
@@ -347,7 +348,7 @@ SaveState(WSMGetStateReply *get_state, Boolean diffs)
 	{
 	  no_save = False;
 	  print_window(w_window);
-	  if (!diffs) MapWorkWindow(w_window);
+	  MapWorkWindow(w_window);
 	  if (_WSMGetConfigFormatType(w_window->window) == WSM_WINDOW_FMT)
 	    {
 	      hide_data = _WSMGetMatchingWinData(get_state->win_info_list[i].data_list,

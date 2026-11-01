@@ -37,9 +37,11 @@ different languages, also called locales.
 There is also a UIL file for the default locale, C. This file is equivalent 
 to the english UIL file.
 
-To locate the UID files, the demo is using the $UIDPATH environment
-variable, which requires you to set $XAPPLRESDIR to ".", and the $LANG
-or the xnlLanguage resource to one of languages mentioned above.
+To locate the UID files, use UIDPATH with the executable directory and the
+chosen language's uid directory (each followed by /%U). XAPPLRESDIR need not
+be set to a particular value. The gallery configures the search path and a C
+fallback automatically, and installation includes the language UID files.
+Set LANG or the xnlLanguage resource to one of the languages mentioned above.
 (use *xnlLanguage: $LANG in your .Xdefaults or on the command line if 
  your system doesn't let you set $LANG to anything except C).
 

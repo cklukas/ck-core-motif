@@ -1453,3 +1453,32 @@ EXTRA_DIST += tests/automated/run-buffered-paint.py
 EXTRA_DIST += tests/automated/check-text-source-lines.c
 EXTRA_DIST += tests/automated/native-window.h
 EXTRA_DIST += docs/validation/buffered-painting-macos-20261101.json
+
+EXTRA_DIST += docs/mwm-workspace-manager.md tests/automated/probe-mwm-workspace.c \
+              tests/automated/mwm-workspace-integration.c \
+              tests/automated/run-mwm-workspace-integration.py \
+              tests/automated/run-wsm-wire-validation.py tests/automated/wsm-wire-validation.c \
+              tests/automated/run-gallery-demo-launch.py tests/automated/check-gallery-demo-catalogue.py
+
+EXTRA_DIST += tests/automated/run-mwm-numeric-keysym.py
+
+EXTRA_DIST += tests/automated/run-uil-user-widget-references.py
+
+EXTRA_DIST += docs/uil-user-widget-references.md
+
+EXTRA_DIST += docs/traversal-root-shell-geometry.md tests/automated/traversal-root-shell.c
+
+EXTRA_DIST += docs/mwm-command-tree-lifecycle.md tests/automated/run-mwm-command-tree-lifecycle.py
+
+EXTRA_DIST += tests/automated/check-workspace-signal-dispatch.py
+
+EXTRA_DIST += tests/automated/run-gallery-installed-demos.py
+
+EXTRA_DIST += tests/automated/check-mwm-client-context-lifecycle.py
+
+EXTRA_DIST += tests/automated/run-panner-context-index.py
+
+EXTRA_DIST += tests/automated/check-gallery-capture-viewability.py
+
+EXTRA_DIST += docs/mwm-workspace-validation.json
+EXTRA_DIST += tests/automated/check-buffered-text.c

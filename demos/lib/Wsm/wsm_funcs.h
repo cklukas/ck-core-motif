@@ -1,4 +1,4 @@
-/* $XConsortium: wsm_funcs.h /main/5 1995/07/15 20:43:11 drk $ */
+/* $XConsortium: wsm_funcs.h /main/5 1995/07/15 20:39:08 drk $ */
 /*
  * Motif
  *
@@ -103,6 +103,22 @@ String UnpackString(
 MessageData *
 );
 
+MessageData PackCARD8(
+MessageData, CARD8
+);
+
+CARD8 UnpackCARD8(
+MessageData *
+);
+
+MessageData PackCARD16(
+MessageData, CARD16
+);
+
+CARD16 UnpackCARD16(
+MessageData *
+);
+
 MessageData PackCARD32(
 MessageData, CARD32
 );
@@ -127,7 +143,7 @@ Boolean WSMIsKnownTarget(
 Widget, Atom
 );
 
-Atom * GetTargetList(
+Atom * WSMGetTargetList(
 Widget, Boolean, unsigned long *
 );
 
@@ -135,9 +151,6 @@ Boolean WSMProcessProtoTarget(
 Widget, Atom, XtPointer, unsigned long, 
 int, Atom *, XtPointer *, unsigned long *, int *
 );
-
-Atom *
-WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret);
 
 /*
  * send.c
@@ -178,5 +191,7 @@ XrmQuark, WSMConfigFormatData *
 WSMWinData * _WSMGetMatchingWinData(
 WSMWinData *, int, XrmQuark
 );
+
+Boolean _WSMValidateMessage(Display *, int, MessageData, unsigned long, WSMRequestType, Boolean);
 
 #endif /* DO NOT ADD ANYTHING AFTER THIS LINE */

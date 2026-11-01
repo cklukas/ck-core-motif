@@ -39,6 +39,7 @@ static char rcsid[] = "$XConsortium: WmKeyFocus.c /main/5 1996/05/17 12:53:16 rs
  */
 
 #include "WmGlobal.h"
+#include "WmWorkspace.h"
 /*
  * include extern functions
  */
@@ -224,6 +225,9 @@ void InitKeyboardFocus (void)
 
 void SetKeyboardFocus (ClientData *pCD, long focusFlags)
 {
+#ifdef MWM_WSM
+    if (pCD && WsmClientHidden(pCD)) pCD = NULL;
+#endif
     ClientData *currentFocus;
 
     
@@ -890,6 +894,9 @@ ClientData *FindLastTransientTreeFocus(ClientData *pCD, ClientData *pcdNoFocus)
     ClientData *pcdLastFocus = NULL;
 
 
+#ifdef MWM_WSM
+    if (WsmClientHidden(pCD)) return NULL;
+#endif
     pcdNext = pCD->transientChildren;
     while (pcdNext)
     {
@@ -950,6 +957,9 @@ ClientData *FindNextTFocusInSeq(ClientData *pCD, unsigned long startAt)
     ClientData *pcdFocus;
 
 
+#ifdef MWM_WSM
+    if (WsmClientHidden(pCD)) return NULL;
+#endif
     pcdNext = pCD->transientChildren;
     while (pcdNext)
     {
@@ -1229,6 +1239,9 @@ ClientData *FindPrevTFocusInSeq(ClientData *pCD, unsigned long startAt)
     ClientData *pcdFocus;
 
 
+#ifdef MWM_WSM
+    if (WsmClientHidden(pCD)) return NULL;
+#endif
     pcdNext = pCD->transientChildren;
     while (pcdNext)
     {
@@ -1294,7 +1307,9 @@ Boolean CheckForKeyFocus (ClientListEntry *pNextEntry, unsigned long type, Boole
     ClientData *pCD = pNextEntry->pCD;
     unsigned long windowType;
     Boolean focused = False;
-
+#ifdef MWM_WSM
+    if (WsmClientHidden(pCD)) return False;
+#endif
 
     /*
      * First check for focusing within a transient tree.
@@ -1467,6 +1482,9 @@ void AutoResetKeyFocus (ClientData *pcdNoFocus, Time focusTime)
 	    (wmGD.systemModalClient == pCD))
 	{
 	    if ((pNextEntry->type != MINIMIZED_STATE) &&
+#ifdef MWM_WSM
+                !WsmClientHidden(pCD) &&
+#endif
 	        (pCD->clientState != MINIMIZED_STATE) &&
 #ifdef WSM
 	        (!(pCD->clientState & UNSEEN_STATE)) &&

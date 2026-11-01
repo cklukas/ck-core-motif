@@ -43,6 +43,12 @@ AC_ARG_ENABLE([cxx-support],
   [], [enable_cxx_support=no])
 AM_CONDITIONAL([CXX_SUPPORT], [test "x$enable_cxx_support" = "xyes"])
 
+AC_ARG_ENABLE([demos],
+  [AS_HELP_STRING([--enable-demos], [build example applications (default=yes)])],
+  [], [enable_demos=yes])
+AS_CASE([$enable_demos], [yes|no], [], [AC_MSG_ERROR([--enable-demos expects yes or no])])
+AM_CONDITIONAL([BUILD_DEMOS], [test "x$enable_demos" = "xyes"])
+
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CPP

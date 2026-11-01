@@ -131,7 +131,10 @@ def wait_ready(window_id: str, process: subprocess.Popen[bytes],
                                 env=env, capture_output=True, text=True, timeout=2)
         if (f"_NET_WM_PID(CARDINAL) = {process.pid}" in result.stdout and
                 "_CKMOTIF_GALLERY_READY(CARDINAL) = 1" in result.stdout):
-            return
+            stats = subprocess.run(["xwininfo", "-id", window_id, "-stats"],
+                                   env=env, capture_output=True, text=True, timeout=2)
+            if "Map State: IsViewable" in stats.stdout:
+                return
         time.sleep(0.05)
     raise RuntimeError(f"{entry_id}: gallery did not signal capture readiness")
 

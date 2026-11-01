@@ -357,3 +357,18 @@ does not finalize the application-wide library. Leak detection stays enabled
 without suppressions. Independent controls distinguish this configuration from
 unreleased client patterns. The default-font-cache fixture uses ten simultaneous
 connections to exercise cache growth, per-display retirement and survivor drawing.
+
+
+## Example applications
+
+`--enable-demos` builds the example applications (the default).
+`--disable-demos` omits them while retaining `ckmotif-gallery` and its component
+examples. After changing this option, run `make -j6` and `make install`.
+The gallery's **Demo Applications** page reports missing executables with their
+configured build and install paths and the command needed to enable demos.
+Examples keep their historical installation locations under `PREFIX/share/Xm`;
+the gallery itself is installed into `PREFIX/bin`.
+
+The default MWM build enables the standalone `MWM_WSM` workspace protocol.
+This is independent of the CDE `WSM` compilation mode. See
+[workspace management](mwm-workspace-manager.md) for behavior and validation.

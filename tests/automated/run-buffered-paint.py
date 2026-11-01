@@ -9,6 +9,7 @@ from pathlib import Path
 import platform
 import subprocess
 import time
+import shlex
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--build', type=Path, required=True)
@@ -30,6 +31,7 @@ output.mkdir(parents=True)
 source = root / 'tests/automated/check-buffered-paint.c'
 paint = root / 'lib/Xm/Paint.c'
 lines = root / 'tests/automated/check-text-source-lines.c'
+text_frames = root / 'tests/automated/check-buffered-text.c'
 library = next((build / 'lib/Xm/.libs').glob('libXm.*.dylib'), None) if platform.system() == 'Darwin' else (build / 'lib/Xm/.libs/libXm.so').resolve()
 assert library and library.is_file()
 sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
@@ -41,11 +43,17 @@ flags = ['-std=c11', '-Wall', '-Wextra', '-Werror', '-D_POSIX_C_SOURCE=200809L',
          '-I' + str(build / 'lib'), '-I' + str(build / 'lib/Xm'), '-I' + str(build / 'include')]
 if platform.system() == 'Darwin':
     flags += ['-I/opt/X11/include', '-L/opt/X11/lib']
+if '#define USE_XFT 1' in (build / 'include/config.h').read_text():
+    pkg_env = dict(env)
+    if platform.system() == 'Darwin' and not pkg_env.get('PKG_CONFIG_PATH'):
+        pkg_env['PKG_CONFIG_PATH'] = '/opt/X11/lib/pkgconfig'
+    flags += shlex.split(subprocess.check_output(
+        [env.get('PKG_CONFIG', 'pkg-config'), '--cflags', 'xft'], env=pkg_env, text=True))
 flags += ['-L' + str(library.parent)]
 libs = ['-lXm', '-lXt', '-lX11', '-lXext']
 receipt = dict(started_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                display=env['DISPLAY'], library=str(library), library_sha256=sha(library),
-               sources={str(p.relative_to(root)): sha(p) for p in (source, paint, lines)},
+               sources={str(p.relative_to(root)): sha(p) for p in (source, paint, lines, text_frames)},
                steps=[], success=False)
 start = time.monotonic()
 
@@ -69,11 +77,19 @@ try:
     ):
         binary = output / name
         run('compile-' + name, [os.environ.get('CC', 'cc'), *flags, *definitions,
+                               '-D_XmBufferedPaint=TestBufferedPaint',
+                               '-D_XmPaintDrawable=TestPaintDrawable',
+                               '-D_XmPaintBufferKind=TestPaintBufferKind',
+                               '-D_XmPaintInvalidate=TestPaintInvalidate',
                                source, paint, *libs, '-o', binary])
         run(name, [binary, 'pixmap'])
     binary = output / 'source-lines'
     run('compile-source-lines', [os.environ.get('CC', 'cc'), *flags, lines, *libs, '-o', binary])
     run('source-lines', [binary])
+    binary = output / 'text-frames'
+    run('compile-text-frames', [os.environ.get('CC', 'cc'), *flags, text_frames, *libs, '-o', binary])
+    for mode in ('auto', 'pixmap', 'direct'):
+        run('text-' + mode, [binary, '-xrm', '*paintBuffer: ' + mode])
     receipt['success'] = True
     print('PASS native paint backends: DBE, pixmap, direct, no headers, no extension, allocation failure')
 finally:

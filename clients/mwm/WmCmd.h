@@ -53,4 +53,6 @@ extern void
 GetAutomationData (XtPointer input, Atom *outputType, XtPointer *output, unsigned long *outputLen, int *outputFmt);
 
 
+extern void RemoveCommandsForClient(int, Window);
+
 #endif /* _WM_CMD_ */

@@ -12,7 +12,7 @@ bin_PROGRAMS = mwm
 mwm_LDADD = ./WmWsmLib/libWsm.a ../../lib/Xm/libXm.la -lXt -lX11 -lXext
 
 
-INCLUDES = -DLARGECURSORS -DR2_COMPAT -DUNMAP_ON_RESTART \
+INCLUDES = -DMWM_WSM -DLARGECURSORS -DR2_COMPAT -DUNMAP_ON_RESTART \
            -DCDE_INSTALLATION_TOP=\"@CDE_INSTALLATION_TOP@\" \
            -DCDE_CONFIGURATION_TOP=\"@CDE_CONFIGURATION_TOP@\" \
            -DBITMAPDIR=\"@INCDIR@/bitmaps\" \
@@ -29,7 +29,7 @@ SRCS1=	WmCDInfo.c	WmCDecor.c	WmCEvent.c\
 	WmProperty.c	WmResCvt.c\
 	WmResParse.c	WmResource.c	WmSignal.c	            \
 	WmWinConf.c	WmWinInfo.c	WmWinList.c	WmWinState.c \
-	WmWsm.c		WmXSMP.c	version.c WmCmd.c WmImage.c WmInitWs.c WmMenu.c WmProtocol.c
+	WmWsm.c WmWorkspace.c WmWorkspace.h		WmXSMP.c	version.c WmCmd.c WmImage.c WmInitWs.c WmMenu.c WmProtocol.c
 
 noinst_HEADERS = WmBitmap.h \
 WmCDInfo.h \

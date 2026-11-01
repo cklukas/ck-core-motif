@@ -2204,8 +2204,7 @@ SelectionCallbackWrapper(Widget wid, XtPointer client_data,
 
   malformed_result = (*selection == None) ||
     (*format != 8 && *format != 16 && *format != 32) ||
-    (*length != 0 && (*type == None || value == NULL)) ||
-    (*length == 0 && value != NULL);
+    (*length != 0 && (*type == None || value == NULL));
   if (malformed_result) {
     XtFree((char *)value);
     value = NULL;

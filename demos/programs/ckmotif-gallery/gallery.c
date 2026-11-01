@@ -9,6 +9,10 @@
 #include <locale.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include "gallery_demos.h"
+#include "demo_launch.h"
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <time.h>
@@ -53,7 +57,7 @@ typedef struct {
 
 typedef struct {
     GalleryFlowPage welcome_flow, icons_flow;
-    Widget shell, sidebar, tree, notebook, welcome, example, source, icons, status;
+    Widget shell, sidebar, tree, notebook, welcome, example, source, icons, demos, status;
     Widget tabs, search, feedback, navigation_form;
     Widget body, workspace, app_title, theme_note;
     Dimension navigation_width;
@@ -78,6 +82,7 @@ static void close_compact_navigation(GalleryState *state);
 static XmString text(const char *value) { return XmStringCreateLocalized((char *)value); }
 static const char welcome_id[] = "gallery.welcome";
 static const char icons_id[] = "gallery.icons";
+static const char demos_id[] = "gallery.demos";
 
 /* Composite controls can negotiate larger sizes after realization or when
  * expanded. Keep their scrollable canvas in step with the actual allocation. */
@@ -217,8 +222,8 @@ static void component_name(const GalleryManifestEntry *entry, char *out, size_t 
 
 static void select_page(GalleryState *state, int page)
 {
-    Widget pages[] = {state->welcome, state->example, state->source, state->icons};
-    Widget remove[4], add[1];
+    Widget pages[] = {state->welcome, state->example, state->source, state->icons, state->demos};
+    Widget remove[5], add[1];
     Cardinal removed = 0, added = 0;
     state->current_page = page;
     for (unsigned i = 0; i < XtNumber(pages); ++i) {
@@ -444,32 +449,32 @@ static void create_welcome(GalleryState *state)
     layout_flow_page(flow);
 }
 
-static void center_shell_frame(Widget shell) {
+/* Ask the manager to position our client; its frame/base windows are private. */
+static void center_shell_frame(Widget shell)
+{
     Display *display = XtDisplay(shell);
-    Window root, parent, *children = NULL;
-    unsigned int child_count = 0;
-    int frame_x, frame_y;
-    unsigned int frame_width, frame_height, border, depth;
-    int screen_width, screen_height;
-    if (!XtIsRealized(shell) || !XQueryTree(display, XtWindow(shell), &root, &parent,
-                                            &children, &child_count))
+    Window window = XtWindow(shell), frame = window, root, parent, *children = NULL;
+    unsigned int child_count, width, height, border, depth;
+    int x, y, screen = XScreenNumberOfScreen(XtScreen(shell));
+    String geometry = NULL;
+    XtVaGetValues(shell, XtNgeometry, &geometry, NULL);
+    if (geometry && (XParseGeometry(geometry, &x, &y, &width, &height) & (XValue | YValue)))
         return;
-    if (children) XFree(children);
-    if (!XGetGeometry(display, parent, &root, &frame_x, &frame_y,
-                      &frame_width, &frame_height, &border, &depth))
-        return;
-    screen_width = DisplayWidth(display, DefaultScreen(display));
-    screen_height = DisplayHeight(display, DefaultScreen(display));
-    {
-        XWindowChanges changes;
-        changes.x = (screen_width > (int)frame_width)
-            ? (screen_width - (int)frame_width) / 2 : 0;
-        changes.y = (screen_height > (int)frame_height)
-            ? (screen_height - (int)frame_height) / 2 : 0;
-        XMoveWindow(display, parent, changes.x, changes.y);
-        (void)XReconfigureWMWindow(display, parent, DefaultScreen(display),
-                                   CWX | CWY, &changes);
+    if (!XtIsRealized(shell)) return;
+    /* MWM reparents through both a base and a frame. The direct parent is
+     * consequently not necessarily the decorated frame. */
+    for (unsigned level = 0; level < 64; ++level) {
+        if (!XQueryTree(display, frame, &root, &parent, &children, &child_count)) return;
+        if (children) { XFree(children); children = NULL; }
+        if (parent == root || parent == None) break;
+        frame = parent;
+        if (level == 63) return;
     }
+    if (!XGetGeometry(display, frame, &root, &x, &y, &width, &height, &border, &depth)) return;
+    XWindowChanges changes;
+    changes.x = DisplayWidth(display,screen) > (int)width ? (DisplayWidth(display,screen)-(int)width)/2 : 0;
+    changes.y = DisplayHeight(display,screen) > (int)height ? (DisplayHeight(display,screen)-(int)height)/2 : 0;
+    (void)XReconfigureWMWindow(display, window, screen, CWX | CWY, &changes);
     XSync(display, False);
 }
 
@@ -1298,6 +1303,13 @@ static int run_integration_test(GalleryState *state)
         }
         XmAccessibleInfoClear(&info);
     }
+    XmTreeViewSetSelectedId(state->tree, (XtPointer)demos_id, True);
+    if (state->current_page != 5 || !XtIsManaged(state->demos) ||
+        XtIsManaged(state->example) || XtIsManaged(state->tabs)) {
+        fprintf(stderr, "gallery integration: demo navigation failed\n");
+        return 1;
+    }
+    puts("gallery integration: demo applications navigation PASS");
     /* Restore the original selection after exercising the full component
      * matrix; this is the state-preservation assertion for the shell. */
     XmTreeViewSetSelectedId(state->tree, selected, True);
@@ -1318,6 +1330,233 @@ static int run_integration_test(GalleryState *state)
     return 0;
 }
 
+/* Keep child ownership local: never reap another library's children. */
+static pid_t demo_children[XtNumber(gallery_demos)];
+static GalleryState *demo_state;
+
+static void reap_demos(XtPointer client, XtIntervalId *timer)
+{
+    GalleryState *state = client;
+    (void)timer;
+    for (Cardinal i = 0; i < XtNumber(gallery_demos); ++i) {
+        int status;
+        if (!demo_children[i]) continue;
+        pid_t result = waitpid(demo_children[i], &status, WNOHANG);
+        if (result < 0 && errno == ECHILD) { demo_children[i] = 0; continue; }
+        if (result > 0) {
+            char message[512];
+            snprintf(message, sizeof(message), "%s closed%s", gallery_demos[i].title,
+                WIFEXITED(status) && WEXITSTATUS(status) == 0 ? "" : " with an error; see terminal output");
+            set_status(state, message);
+            demo_children[i] = 0;
+        }
+    }
+    XtAppAddTimeOut(XtWidgetToApplicationContext(state->shell), 500, reap_demos, state);
+}
+
+static void close_demo_notice(Widget widget, XtPointer client, XtPointer call)
+{
+    (void)client; (void)call;
+    XtDestroyWidget(widget);
+}
+
+static void open_demo(Widget widget, XtPointer client, XtPointer call)
+{
+    const GalleryDemo *demo = client;
+    size_t index = (size_t)(demo - gallery_demos);
+    char path[4096], message[9216];
+    (void)widget; (void)call;
+    if (demo_children[index]) {
+        set_status(demo_state, "This demo is already running. Close its window before opening it again.");
+        return;
+    }
+    int error = gallery_demo_path(GALLERY_BUILD_DEMOS, GALLERY_INSTALL_DEMOS,
+        demo->build_dir, demo->install_dir, demo->binary, path, sizeof(path));
+    if (error) {
+        snprintf(message, sizeof(message),
+            "App not found at %s\nBuild location: %s/%s/%s\n"
+            "Build the library with ./configure --enable-demos, then make -j6 && make install.",
+            path, GALLERY_BUILD_DEMOS, demo->build_dir, demo->binary);
+    } else {
+        error = gallery_demo_launch(path, &demo_children[index]);
+        snprintf(message, sizeof(message), "%s: %s%s", demo->title,
+            error ? strerror(error) : "Opened ", error ? "" : path);
+    }
+    char status[256];
+    if (error) snprintf(status, sizeof(status), "Demo unavailable; see the notice for details.");
+    else snprintf(status, sizeof(status), "Opened: %s", demo->title);
+    set_status(demo_state, status);
+    if (error) {
+        XmString value = text(message);
+        Arg argument;
+        XtSetArg(argument, XmNmessageString, value);
+        Widget dialog = XmCreateInformationDialog(demo_state->shell, "demoLaunchNotice", &argument, 1);
+        XmStringFree(value);
+        XtUnmanageChild(XmMessageBoxGetChild(dialog, XmDIALOG_HELP_BUTTON));
+        XtUnmanageChild(XmMessageBoxGetChild(dialog, XmDIALOG_CANCEL_BUTTON));
+        XtAddCallback(dialog, XmNokCallback, close_demo_notice, NULL);
+        XtManageChild(dialog);
+    }
+}
+
+static void demo_page_configured(Widget clip, XtPointer client, XEvent *event, Boolean *dispatch)
+{
+    Widget list = client;
+    static Boolean busy;
+    Dimension width;
+    WidgetList rows;
+    Cardinal count;
+    (void)dispatch;
+    if (busy || (event->type != ConfigureNotify && event->type != MapNotify)) return;
+    busy = True;
+    XtVaGetValues(clip, XmNwidth, &width, NULL);
+    XtVaGetValues(list, XmNchildren, &rows, XmNnumChildren, &count, NULL);
+    if (count > 1) {
+        XmString intro = flow_text(rows[1],
+            "Open a standalone example.\nMissing demos show paths and build instructions.",
+            width > 32 ? width - 32 : 1);
+        XtVaSetValues(rows[1], XmNlabelString, intro, NULL);
+        XmStringFree(intro);
+    }
+    for (Cardinal i = 2; i < count; ++i) {
+        Widget label = XtNameToWidget(rows[i], "description");
+        if (label) {
+            XmString wrapped = flow_text(label, gallery_demos[i - 2].description,
+                                          width > 64 ? width - 64 : 1);
+            XtVaSetValues(label, XmNlabelString, wrapped, NULL);
+            XmStringFree(wrapped);
+        }
+    }
+    XtVaSetValues(list, XmNwidth, width, NULL);
+    busy = False;
+}
+
+static void create_demos(GalleryState *state)
+{
+    demo_state = state;
+    state->demos = create_page(state->notebook, "demoAppsPage");
+    Widget viewport = XtVaCreateManagedWidget("demoViewport", xmScrolledWindowWidgetClass,
+        state->demos, XmNscrollingPolicy, XmAUTOMATIC,
+        XmNtopAttachment, XmATTACH_FORM, XmNbottomAttachment, XmATTACH_FORM,
+        XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM, NULL);
+    Widget list = XtVaCreateManagedWidget("demoApps", xmRowColumnWidgetClass, viewport,
+        XmNorientation, XmVERTICAL, XmNpacking, XmPACK_TIGHT, NULL);
+    gallery_label(list, "pageTitle", "Demo Applications");
+    gallery_label(list, "intro", "Open a standalone example.\nMissing demos show paths and build instructions.");
+    for (Cardinal i = 0; i < XtNumber(gallery_demos); ++i) {
+        Widget row = XtVaCreateManagedWidget(gallery_demos[i].binary, xmRowColumnWidgetClass,
+            list, XmNorientation, XmVERTICAL, XmNpacking, XmPACK_TIGHT, NULL);
+        gallery_label(row, "title", gallery_demos[i].title);
+        gallery_label(row, "description", gallery_demos[i].description);
+        Widget button = XtVaCreateManagedWidget("Open", xmPushButtonWidgetClass, row, NULL);
+        XtAddCallback(button, XmNactivateCallback, open_demo, (XtPointer)&gallery_demos[i]);
+    }
+    Widget clip = NULL;
+    XtVaGetValues(viewport, XmNclipWindow, &clip, NULL);
+    XtAddEventHandler(clip, StructureNotifyMask, False, demo_page_configured, list);
+    XtAppAddTimeOut(XtWidgetToApplicationContext(state->shell), 500, reap_demos, state);
+}
+
+static int verify_demo_apps(GalleryState *state)
+{
+    XmTreeViewSetSelectedId(state->tree, (XtPointer)demos_id, True);
+    if (!settle_gallery(state) || state->current_page != 5 || !XtIsManaged(state->demos)) return 1;
+    Widget list = XtNameToWidget(state->demos, "*demoApps");
+    if (!list) return 1;
+    XtVaSetValues(state->shell, XmNwidth, 450, XmNheight, 500, NULL);
+    if (!settle_gallery(state)) return 1;
+    Widget viewport = XtNameToWidget(state->demos, "demoViewport"), clip = NULL;
+    Dimension list_width, clip_width;
+    XtVaGetValues(viewport, XmNclipWindow, &clip, NULL);
+    XtVaGetValues(list, XmNwidth, &list_width, NULL);
+    XtVaGetValues(clip, XmNwidth, &clip_width, NULL);
+    if (list_width > clip_width) {
+        fprintf(stderr,"FAIL demo page needs horizontal scrolling at compact size: %u > %u\n",list_width,clip_width);
+        return 1;
+    }
+    for (Cardinal i = 0; i < XtNumber(gallery_demos); ++i) {
+        char name[256];
+        snprintf(name, sizeof(name), "%s.Open", gallery_demos[i].binary);
+        if (!XtNameToWidget(list, name) || !*gallery_demos[i].description) return 1;
+    }
+    for (Cardinal i = 0; i < XtNumber(gallery_demos); ++i) {
+        if (strcmp(gallery_demos[i].binary, "hellomotif")) continue;
+        char path[4096];
+        int available = gallery_demo_path(GALLERY_BUILD_DEMOS, GALLERY_INSTALL_DEMOS,
+            gallery_demos[i].build_dir, gallery_demos[i].install_dir,
+            gallery_demos[i].binary, path, sizeof(path)) == 0;
+        Widget button = XtNameToWidget(list, "hellomotif.Open");
+        XtCallCallbacks(button, XmNactivateCallback, NULL);
+        if (available) {
+            pid_t child = demo_children[i];
+            if (child <= 0) return 1;
+            XtCallCallbacks(button, XmNactivateCallback, NULL);
+            if (demo_children[i] != child) return 1;
+            kill(child, SIGTERM);
+            while (waitpid(child, NULL, 0) < 0 && errno == EINTR) {}
+            demo_children[i] = 0;
+            puts("PASS gallery demo catalogue, Open callback, execution and duplicate-instance guard");
+        } else {
+            Widget notice = XtNameToWidget(state->shell, "*demoLaunchNotice");
+            XmString label = NULL;
+            char *message = NULL;
+            if (!notice || !XtIsManaged(notice)) return 1;
+            XtVaGetValues(notice, XmNmessageString, &label, NULL);
+            if (label) message = XmStringUnparse(label, NULL, XmCHARSET_TEXT,
+                XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+            Boolean valid = message && strstr(message, path) && strstr(message, "--enable-demos");
+            if (message) XtFree(message);
+            Widget footer = XtNameToWidget(state->status, "item");
+            XmString footer_label = NULL;
+            char *footer_text = NULL;
+            if (footer) XtVaGetValues(footer, XmNlabelString, &footer_label, NULL);
+            if (footer_label) footer_text = XmStringUnparse(footer_label, NULL,
+                XmCHARSET_TEXT, XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL);
+            valid = valid && footer_text && strchr(footer_text, '\n') == NULL;
+            if (footer_label) XmStringFree(footer_label);
+            if (footer_text) XtFree(footer_text);
+            XtDestroyWidget(notice);
+            if (!valid) return 1;
+            puts("PASS gallery missing demo notice includes exact path and --enable-demos");
+        }
+        return 0;
+    }
+    return 1;
+}
+
+static int verify_all_demo_apps(GalleryState *state)
+{
+    XmTreeViewSetSelectedId(state->tree, (XtPointer)demos_id, True);
+    if (!settle_gallery(state)) return 1;
+    Widget list = XtNameToWidget(state->demos, "*demoApps");
+    unsigned checked = 0;
+    for (Cardinal i = 0; i < XtNumber(gallery_demos); ++i) {
+        if (!strcmp(gallery_demos[i].binary, "wsm")) continue; /* qualified by its own native suite */
+        char name[256];
+        snprintf(name,sizeof(name),"%s.Open",gallery_demos[i].binary);
+        Widget button = XtNameToWidget(list,name);
+        if (!button) return 1;
+        XtCallCallbacks(button,XmNactivateCallback,NULL);
+        pid_t child = demo_children[i];
+        if (child <= 0) { fprintf(stderr,"FAIL demo Open: %s\n",gallery_demos[i].title); return 1; }
+        for (int tick = 0; tick < 20; ++tick) {
+            usleep(50000);
+            while (XtAppPending(XtWidgetToApplicationContext(state->shell)))
+                XtAppProcessEvent(XtWidgetToApplicationContext(state->shell),XtIMAll);
+        }
+        int status;
+        pid_t result = waitpid(child,&status,WNOHANG);
+        Boolean running = demo_children[i] == child && result == 0;
+        if (result == 0) { kill(child,SIGTERM); while(waitpid(child,NULL,0)<0 && errno==EINTR) {} }
+        demo_children[i] = 0;
+        if (!running) { fprintf(stderr,"FAIL demo exited during Open: %s\n",gallery_demos[i].title); return 1; }
+        printf("PASS demo Open: %s\n",gallery_demos[i].title); fflush(stdout);
+        ++checked;
+    }
+    printf("PASS gallery Open startup for %u standalone apps; Wsm qualified separately\n",checked);
+    return 0;
+}
+
 static void tree_selected(Widget widget, XtPointer client, XtPointer call)
 {
     GalleryState *state = (GalleryState *)client;
@@ -1335,6 +1574,12 @@ static void tree_selected(Widget widget, XtPointer client, XtPointer call)
             state->selected = NULL;
             select_page(state, 4);
             set_status(state, "Built-in dialog symbols");
+            return;
+        }
+        if (!strcmp((const char *)callback->id, demos_id)) {
+            state->selected = NULL;
+            select_page(state, 5);
+            set_status(state, "Demo applications - choose Open to launch an example");
             return;
         }
         if (!entry) {
@@ -1469,8 +1714,8 @@ static void close_compact_navigation(GalleryState *state)
 static void add_tree_nodes(Widget tree, const char *query)
 {
     static char labels[128][96];
-    XmTreeViewNode nodes[128]; Cardinal i, used, offset = GALLERY_CATEGORY_COUNT + 2;
-    if (GALLERY_MANIFEST_COUNT + GALLERY_CATEGORY_COUNT + 2 > XtNumber(nodes)) return;
+    XmTreeViewNode nodes[128]; Cardinal i, used, offset = GALLERY_CATEGORY_COUNT + 3;
+    if (GALLERY_MANIFEST_COUNT + GALLERY_CATEGORY_COUNT + 3 > XtNumber(nodes)) return;
     nodes[0].id = (XtPointer)welcome_id;
     nodes[0].parent_id = NULL;
     nodes[0].label = "Welcome";
@@ -1479,9 +1724,13 @@ static void add_tree_nodes(Widget tree, const char *query)
     nodes[1].parent_id = NULL;
     nodes[1].label = "Built-in Icons";
     nodes[1].has_children = False; nodes[1].expanded = False;
+    nodes[2].id = (XtPointer)demos_id;
+    nodes[2].parent_id = NULL;
+    nodes[2].label = "Demo Applications";
+    nodes[2].has_children = False; nodes[2].expanded = False;
     for (i = 0; i < GALLERY_CATEGORY_COUNT; ++i) {
-        nodes[i + 2].id = (XtPointer)gallery_categories[i];
-        nodes[i + 2].parent_id = NULL;
+        nodes[i + 3].id = (XtPointer)gallery_categories[i];
+        nodes[i + 3].parent_id = NULL;
         const char *title = gallery_categories[i];
         if (!strcmp(title, "buttons-selection")) title = "Buttons & Selection";
         else if (!strcmp(title, "commands-navigation")) title = "Commands & Navigation";
@@ -1490,9 +1739,9 @@ static void add_tree_nodes(Widget tree, const char *query)
         else if (!strcmp(title, "feedback-dialogs")) title = "Feedback & Dialogs";
         else if (!strcmp(title, "layout")) title = "Layout";
         else if (!strcmp(title, "media")) title = "Media";
-        snprintf(labels[i + 2], sizeof(labels[i + 2]), "%s", title);
-        nodes[i + 2].label = labels[i + 2];
-        nodes[i + 2].has_children = True; nodes[i + 2].expanded = False;
+        snprintf(labels[i + 3], sizeof(labels[i + 3]), "%s", title);
+        nodes[i + 3].label = labels[i + 3];
+        nodes[i + 3].has_children = True; nodes[i + 3].expanded = False;
     }
     used = offset;
     for (i = 0; i < GALLERY_MANIFEST_COUNT; ++i) {
@@ -1507,7 +1756,7 @@ static void add_tree_nodes(Widget tree, const char *query)
         if (!query || !*query || strcasestr(labels[offset + i], query) ||
             strcasestr(gallery_manifest[i].class_symbol, query)) {
             nodes[used++] = nodes[offset + i];
-            if (query && *query) nodes[category + 2].expanded = True;
+            if (query && *query) nodes[category + 3].expanded = True;
         }
     }
     XmTreeViewSetNodes(tree, nodes, used);
@@ -1540,7 +1789,7 @@ static void search_changed(Widget widget, XtPointer client, XtPointer call)
     add_tree_nodes(state->tree, query);
     if (state->selected) XmTreeViewSetSelectedId(state->tree, (XtPointer)state->selected->id, False);
     else XmTreeViewSetSelectedId(state->tree,
-        (XtPointer)(state->current_page == 4 ? icons_id : welcome_id), False);
+        (XtPointer)(state->current_page == 5 ? demos_id : state->current_page == 4 ? icons_id : welcome_id), False);
     XtFree(query);
 }
 
@@ -1596,17 +1845,19 @@ static int verify_navigation_pixels(GalleryState *state)
     Display *display = XtDisplay(state->tree);
     XtAppContext app = XtWidgetToApplicationContext(state->tree);
     Dimension width = 0, height = 0, row = 0;
-    Pixel foreground;
-    unsigned painted = 0;
+    Pixel foreground, background;
+    unsigned painted = 0, stable = 0;
     for (unsigned attempt = 0; attempt < 200; ++attempt) {
         XWindowAttributes attributes;
         XSync(display, False);
         while (XtAppPending(app)) XtAppProcessEvent(app, XtIMAll);
         XtVaGetValues(state->tree, XmNwidth, &width, XmNheight, &height,
-            XmNtreeViewRowHeight, &row, XmNforeground, &foreground, NULL);
+            XmNtreeViewRowHeight, &row, XmNforeground, &foreground,
+            XmNbackground, &background, NULL);
         if (XtIsRealized(state->tree) &&
             XGetWindowAttributes(display, XtWindow(state->tree), &attributes) &&
-            attributes.map_state == IsViewable && width > 48 && row > 6 && height / row >= 4) {
+            attributes.map_state == IsViewable && foreground != background &&
+            width > 48 && row > 6 && height / row >= 4) {
             XImage *image = XGetImage(display, XtWindow(state->tree), 0, 0,
                 width, 4 * row, AllPlanes, ZPixmap);
             if (!image) return 1;
@@ -1620,10 +1871,12 @@ static int verify_navigation_pixels(GalleryState *state)
             }
             XDestroyImage(image);
             if (painted == 4) {
-                puts("PASS gallery sidebar label pixels: four visible navigation rows");
-                return 0;
-            }
-        }
+                if (++stable >= 6) {
+                    puts("PASS gallery sidebar label pixels: four visible navigation rows across six samples");
+                    return 0;
+                }
+            } else stable = 0;
+        } else stable = 0;
         struct timespec delay = {0, 10000000};
         nanosleep(&delay, NULL);
     }
@@ -1640,6 +1893,13 @@ static Boolean capture_ready(XtPointer client)
     if (verify_navigation_pixels(state)) return False;
     Display *display = XtDisplay(state->shell);
     Window window = XtWindow(state->shell);
+    XWindowAttributes attributes;
+    if (!XGetWindowAttributes(display, window, &attributes) ||
+        attributes.map_state != IsViewable) return False;
+    XSync(display, False);
+    /* Reparenting can map the shell after our first idle callback. Drain
+     * those exposure/configuration events before declaring pixels ready. */
+    if (XtAppPending(XtWidgetToApplicationContext(state->shell))) return False;
     XChangeProperty(display, window, XInternAtom(display, "_NET_WM_PID", False),
         XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&pid, 1);
     XChangeProperty(display, window, XInternAtom(display, "_CKMOTIF_GALLERY_READY", False),
@@ -1658,14 +1918,31 @@ static String gallery_resources[] = {
     NULL
 };
 
+static void settle_tick(XtPointer closure, XtIntervalId *id)
+{
+    (void)id;
+    *(Boolean *)closure = True;
+}
+
 static Boolean settle_gallery(GalleryState *state)
 {
+    unsigned idle_samples = 0;
     XtAppContext app = XtWidgetToApplicationContext(state->shell);
     for (unsigned int i = 0; i < 10000; ++i) {
         gallery_refresh_icon_resources();
         XSync(XtDisplay(state->shell), False);
         XtInputMask pending = XtAppPending(app);
-        if (!pending) return gallery_validate_icon_resources();
+        if (!pending) {
+            /* A separate window manager may still be processing our configure
+             * requests after XSync returns. Require several quiet event-loop
+             * samples before asserting the resulting layout. */
+            if (++idle_samples == 3) return gallery_validate_icon_resources();
+            Boolean tick = False;
+            XtAppAddTimeOut(app, 20, settle_tick, &tick);
+            while (!tick) XtAppProcessEvent(app, XtIMAll);
+            continue;
+        }
+        idle_samples = 0;
         if (i >= 9990 && (pending & XtIMXEvent)) {
             XEvent event;
             XPeekEvent(XtDisplay(state->shell), &event);
@@ -1822,7 +2099,10 @@ static Boolean child_fits(Widget child, Widget parent)
     Dimension width, height, parent_width, parent_height;
     XtVaGetValues(child, XmNx, &x, XmNy, &y, XmNwidth, &width, XmNheight, &height, NULL);
     XtVaGetValues(parent, XmNwidth, &parent_width, XmNheight, &parent_height, NULL);
-    return x >= 0 && y >= 0 && x + width <= parent_width && y + height <= parent_height;
+    Boolean fits = x >= 0 && y >= 0 && x + width <= parent_width && y + height <= parent_height;
+    if (!fits) fprintf(stderr, "gallery bounds: %s %d,%d %ux%u in %s %ux%u\n",
+        XtName(child), x, y, width, height, XtName(parent), parent_width, parent_height);
+    return fits;
 }
 
 static int verify_responsive_layout(GalleryState *state)
@@ -2098,11 +2378,17 @@ int main(int argc, char **argv)
     int argument;
     for (argument = 1; argument < argc;) {
         int remove_count = 0;
-        if (!strcmp(argv[argument], "--integration-test")) {
+        if (!strcmp(argv[argument], "--integration-all-demos")) {
+            integration_mode = 8;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--integration-demos")) {
+            integration_mode = 7;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--integration-test")) {
             integration_mode = 1;
             remove_count = 1;
         } else if (!strcmp(argv[argument], "--integration-sidebar-pixels")) {
-            integration_mode = 7;
+            integration_mode = 9;
             remove_count = 1;
         } else if (!strcmp(argv[argument], "--integration-controls")) {
             integration_mode = 6;
@@ -2303,6 +2589,7 @@ int main(int argc, char **argv)
         state.notebook = notebook;
     }
     create_welcome(&state);
+    create_demos(&state);
     state.icons = create_icon_page(&state);
     XtAddCallback(state.tree, XmNtreeViewSelectionCallback, tree_selected, &state);
     XtAddCallback(state.tree, XmNactivateCallback, activate_navigation, &state);
@@ -2320,16 +2607,18 @@ int main(int argc, char **argv)
         const GalleryManifestEntry *initial = initial_id ? find_entry(initial_id)
                                                          : &gallery_manifest[0];
         Boolean special_page = initial_id && (!strcmp(initial_id, "gallery.welcome") ||
-                                              !strcmp(initial_id, "gallery.icons"));
+                                              !strcmp(initial_id, "gallery.icons") ||
+                                              !strcmp(initial_id, demos_id));
         if (initial_id && !special_page && (!initial || strcmp(initial->id, initial_id))) {
             fprintf(stderr, "unknown gallery component: %s\n", initial_id);
             return 2;
         }
         XmTreeViewSetSelectedId(state.tree,
             (XtPointer)(initial_id && !special_page ? initial->id :
-                (initial_id && !strcmp(initial_id, icons_id) ? icons_id : welcome_id)), False);
+                (initial_id && !strcmp(initial_id, demos_id) ? demos_id :
+                 initial_id && !strcmp(initial_id, icons_id) ? icons_id : welcome_id)), False);
         if (initial_id && strcmp(initial_id, "gallery.icons") != 0 &&
-            strcmp(initial_id, "gallery.welcome") != 0) {
+            strcmp(initial_id, "gallery.welcome") != 0 && strcmp(initial_id, demos_id) != 0) {
             /* Create the requested component after the initial tree selection. */
         } else if (initial_id && !strcmp(initial_id, "gallery.icons"))
             select_page(&state, 4);
@@ -2342,6 +2631,9 @@ int main(int argc, char **argv)
         select_page(&state, 4);
     } else if (initial_id && !strcmp(initial_id, "gallery.welcome")) {
         select_page(&state, 1);
+    } else if (initial_id && !strcmp(initial_id, demos_id)) {
+        select_page(&state, 5);
+        set_status(&state, "Demo applications - choose Open to launch an example");
     } else if (initial_id) {
         const GalleryManifestEntry *initial = find_entry(initial_id);
         expand_entry_category(state.tree, initial);
@@ -2363,8 +2655,9 @@ int main(int argc, char **argv)
         return 2;
     }
     if (initial_id && strcmp(initial_id, "gallery.icons") != 0 &&
-        strcmp(initial_id, "gallery.welcome") != 0)
+        strcmp(initial_id, "gallery.welcome") != 0 && strcmp(initial_id, demos_id) != 0)
         select_page(&state, 2);
+    if (initial_id && !strcmp(initial_id, demos_id)) select_page(&state, 5);
     layout_gallery(&state);
     XtAddEventHandler(body, StructureNotifyMask, False, gallery_configured, &state);
     state.accessibility = XmAccessibilityCreate(root, "CkMotifGallery");
@@ -2384,7 +2677,9 @@ int main(int argc, char **argv)
     if (integration_mode == 4) return verify_flow_pages(&state);
     if (integration_mode == 5) return verify_live_appearance(&state);
     if (integration_mode == 6) return verify_appearance_controls(&state);
-    if (integration_mode == 7) return verify_navigation_pixels(&state);
+    if (integration_mode == 9) return verify_navigation_pixels(&state);
+    if (integration_mode == 7) return verify_demo_apps(&state);
+    if (integration_mode == 8) return verify_all_demo_apps(&state);
     if (screenshot_mode) XtAppAddWorkProc(app, capture_ready, &state);
     XtAppMainLoop(app);
     return 0;

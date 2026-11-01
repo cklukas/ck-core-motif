@@ -61,21 +61,6 @@ int main(int argc,
   XtAppContext app_context;
   Widget       top_level, helloworld_main;
   MrmCode      mrm_class;
-  char       * applresdir;
-
-  /*
-   *  This demo requires XAPPLRESDIR to be set to '.'. Mrm
-   *  will only report that l_strings.uid could not be found,
-   *  so, to be a little more friendly, we help the user. This
-   *  it not a check that normally would be done, since the uid
-   *  files would be installed in the appropriate directory.
-   */
-
-  if ((applresdir = (char *)getenv("XAPPLRESDIR")) == NULL ||
-      strcmp(applresdir, ".") != 0) {
-    XtError("Environment variable XAPPLRESDIR must be set to \".\"\n");
-  }
-
   /*
    *  Set up language environment.
    */

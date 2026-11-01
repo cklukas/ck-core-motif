@@ -8,8 +8,10 @@ text = source.read_text(encoding="utf-8")
 
 needle = "to_change = (MenuSpec **)XtMalloc("
 assert needle in text
-assert "(size_t)count > SIZE_MAX / sizeof(*to_change)" in text
-assert "(size_t)count > UINT_MAX / sizeof(*to_change)" in text
+assert "size_t count = 0, i;" in text
+assert "if (count == SIZE_MAX)" in text
+assert "count > SIZE_MAX / sizeof(*to_change)" in text
+assert "count > UINT_MAX / sizeof(*to_change)" in text
 assert "(Cardinal)(sizeof(MenuSpec *) * (size_t)count)" in text
 guard = text[text.index(needle):text.index(needle) + 260]
 assert "if (to_change == (MenuSpec **) NULL)" in guard

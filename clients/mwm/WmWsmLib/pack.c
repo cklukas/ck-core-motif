@@ -596,7 +596,7 @@ _WSMPackReply(Display *dpy, int screen_num,
 	(void) PackWindow(data, reply->wm_focus.window);
 	break;
     case WSM_WM_POINTER:
-	(void) PackWindow(data, reply->wm_pointer.window);
+	data = PackWindow(data, reply->wm_pointer.window);
 	(void) PackCARD32(data, reply->wm_pointer.location_flag);
 	break;
     default:
@@ -642,9 +642,15 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
     request->any.type = type;	/* Save the type. */
     request->any.allocated = False;
 
-    if (data == NULL && type != WSM_CONFIG_FMT)
-	return;
+    if (data == NULL && type != WSM_CONFIG_FMT) {
+        request->any.type = WSM_UNKNOWN;
+        return;
+    }
 
+    if (!_WSMValidateMessage(dpy, screen_num, data, len, type, False)) {
+        request->any.type = WSM_UNKNOWN;
+        return;
+    }
     switch (request->any.type) {
     case WSM_CONNECT:
 	request->connect.num_versions = UnpackListNum(&data);
@@ -862,9 +868,15 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
     reply->any.type = type;		/* Save the type. */
     reply->any.allocated = False;
 
-    if (data == NULL && type != WSM_SET_STATE)
-	return;
+    if (data == NULL && type != WSM_SET_STATE) {
+        reply->any.type = WSM_UNKNOWN;
+        return;
+    }
 
+    if (!_WSMValidateMessage(dpy, screen_num, data, len, type, True)) {
+        reply->any.type = WSM_UNKNOWN;
+        return;
+    }
     switch (reply->any.type) {
     case WSM_CONNECT:
         if (data != NULL)
@@ -1020,6 +1032,7 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	reply->wm_focus.window = UnpackWindow(&data);
 	break;
     case WSM_WM_POINTER:
+        reply->wm_pointer.window = UnpackWindow(&data);
 	reply->wm_pointer.location_flag = UnpackCARD32(&data);
 	break;
     default:
@@ -1122,7 +1135,7 @@ WinDataSizePacked(Display *dpy, int screen_num,
 	     */
 	    continue;
 	}
-	if (win_data->data_len < 0)
+	if (win_data->type != WSM_VALUE_DATA && win_data->data_len < 0)
 	    return(-1);
 
 	switch(win_data->type) {
@@ -1283,7 +1296,7 @@ PackWinData(Display *dpy, int screen_num, MessageData data,
     WSMConfigFormatData *conf_fmt = _WSMGetConfigFormat(dpy, screen_num, fmt);
     MessageData mask_pos = data;
     WSMAttribute *attr;
-    register int i, size;
+    int i, size;
 
     if (conf_fmt == NULL ||
 	(conf_fmt->num_attrs != 0 && conf_fmt->attr_list == NULL))
@@ -1444,7 +1457,7 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
 	      WSMConfigFormatType fmt,
 	      WSMWinData **win_data, int *num)
 {
-    register int i, size;
+    int i, size;
     WSMConfigFormatData *conf_fmt = _WSMGetConfigFormat(dpy, screen_num, fmt);
     unsigned char *bit_mask, *current_mask, check_mask;
     WSMAttribute *attr;

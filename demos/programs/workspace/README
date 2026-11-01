@@ -3,9 +3,10 @@
                        Motif Workspace Manager - Wsm
                        -----------------------------
 
-************************************************************************
-*  This demo only works with Mwm 2.0.  It does not work with Mwm 2.1.  *
-************************************************************************
+This fork restores the standalone MWM_WSM protocol in its default MWM build.
+The Wsm client is supported by that build; see docs/mwm-workspace-manager.md
+for the protocol, ownership behavior and native acceptance commands.
+The original upstream 2.0-only limitation below has been superseded.
 
 The Motif Workspace Manager uses the new Workspace Manager protocol
 supported in the Motif Window Manager (Mwm) 2.0.

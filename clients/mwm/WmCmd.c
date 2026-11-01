@@ -54,7 +54,7 @@
 static CARD32 cmdKillList[MAX_CLIENT_CMDS];
 static unsigned long cmdKillListIndex;
 
-#define ScrNum(w) (XScreenNumberOfScreen(XtScreen(w)))
+#define ScrNum(w) (wmGD.numScreens == 1 ? 0 : XScreenNumberOfScreen(XtScreen(w)))
 #define CCI_TREE(w) (wmGD.Screens[ScrNum(w)].cciTree)
 #define CCI_TREE_OF_SCR(scr) (wmGD.Screens[(scr)].cciTree)
 
@@ -260,19 +260,15 @@ AddCommand (
  | This routine all commands at the specified node in the command tree.      |
  *---------------------------------------------------------------------------*/
 void
-RemoveCommandBranch (CmdTree *menuTree)
+RemoveCommandBranch(CmdTree *menuTree)
 {
-  CmdTree *tmp = menuTree;
-
-  while (menuTree != NULL)
-    {
-      if (menuTree->subTrees != (CmdTree*)NULL)
-	RemoveCommandBranch(menuTree->subTrees);
-
-      menuTree = menuTree->next;
-      if (tmp->name != NULL)
-	XtFree((char*)tmp->name);
-      XtFree((char*)tmp);
+    while (menuTree != NULL) {
+        CmdTree *next = menuTree->next;
+        RemoveCommandBranch(menuTree->subTrees);
+        XtFree(menuTree->name);
+        XtFree(menuTree->defaultName);
+        XtFree((char *)menuTree);
+        menuTree = next;
     }
 }
 
@@ -282,41 +278,19 @@ RemoveCommandBranch (CmdTree *menuTree)
  | This routine deletes any matching command entries in the Command Tree.    |
  *---------------------------------------------------------------------------*/
 void
-DeleteCommand (
-     long      commandID,
-     CmdTree **pmenuTree)
+DeleteCommand(long commandID, CmdTree **pmenuTree)
 {
-  if ((pmenuTree == NULL) || (*pmenuTree == NULL))
-    return;
-
-  else
-    {
-      CmdTree *tmp  = *pmenuTree;
-      CmdTree *prev = NULL;
-
-      while (tmp != (CmdTree *)NULL)
-
-	if (tmp->commandID == commandID)
-	  {
-	    RemoveCommandBranch(tmp->subTrees); /* remove all sub-commands. */
-	    if (prev == (CmdTree *)NULL)
-	      *pmenuTree = tmp->next;
-	    else
-	      prev->next = tmp->next;
-	    
-	    if (tmp->name != NULL)
-	      XtFree((char*)tmp->name);
-	    XtFree((char *)tmp);
-	    tmp = prev;
-	  }
-
-	else
-	  {
-	    if (tmp->subTrees != (CmdTree *)NULL)
-	      DeleteCommand(commandID, &tmp->subTrees);
-	    prev = tmp;
-	    tmp = tmp->next;
-	  }
+    if (pmenuTree == NULL) return;
+    while (*pmenuTree != NULL) {
+        CmdTree *node = *pmenuTree;
+        if (node->commandID == (CARD32)commandID) {
+            *pmenuTree = node->next;
+            node->next = NULL;
+            RemoveCommandBranch(node);
+        } else {
+            DeleteCommand(commandID, &node->subTrees);
+            pmenuTree = &node->next;
+        }
     }
 }
 
@@ -1289,6 +1263,8 @@ RemoveCommandsForClient (
 void
 InvokeMessageReply (Widget w, XtPointer clientData, XtPointer callData)
 {
+  XmSelectionCallbackStruct *selection = callData;
+  if (selection) { XtFree((char *)selection->value); selection->value = NULL; }
   PRINT("Invoke message reply received.\n");
 }
 

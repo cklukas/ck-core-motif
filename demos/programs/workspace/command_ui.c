@@ -29,6 +29,8 @@ static char rcsid[] = "$TOG: command_ui.c /main/8 1997/05/02 10:08:26 dbl $"
 #endif
 #endif
 
+#include <stdint.h>
+#include <X11/Xlibint.h>
 #include <stdlib.h>
 #include <Xm/Xm.h>
 #include <Xm/ToggleB.h>
@@ -57,7 +59,17 @@ extern Boolean wsm_shown;
 
 int debug_index = 0;
 
-#define GET_COMMAND_ID(dpy) ((CARD32) XAllocID(dpy))
+/* XAllocIDs supports consecutive allocations with Xlib's reusable-ID allocator. */
+static CARD32 next_command_id(Display *dpy)
+{
+    XID id;
+    LockDisplay(dpy);
+    XAllocIDs(dpy, &id, 1);
+    UnlockDisplay(dpy);
+    SyncHandle();
+    return (CARD32)id;
+}
+#define GET_COMMAND_ID(dpy) next_command_id(dpy)
 
 CARD32 switch_id;
 CARD32 show_id;
@@ -109,7 +121,9 @@ GetTimestamp (Display *dpy)
 void 
 SelectionProc (Widget w, XtPointer clientData, XtPointer callData)
 {
-
+  XmSelectionCallbackStruct *selection = callData;
+  (void)w; (void)clientData;
+  if (selection) { XtFree((char *)selection->value); selection->value = NULL; }
 }
 
 
@@ -181,10 +195,8 @@ SendMessage(RType rtype, XtPointer msg, int len, Time time)
 
   UTMSendMessage(utmShell, WM_S0, target,
 		 (XtPointer) msg, (unsigned long)len, WSM_PROTO_FMT,
-		 s_proc, (XtPointer)++debug_index, time);
+		 s_proc, (XtPointer)(intptr_t)++debug_index, time);
 
-  if (msg != NULL)
-    XtFree(msg);
 }
 
 /*----------------------------------------------------------------------*
@@ -956,7 +968,7 @@ RemoveAllCommandsAndExit()
 void 
 InternStuff (Display *dsp)
 {
-  WM_S0                      = XInternAtom(dsp, "WM_S0", False);
+  WM_S0 = _WSMGetSelectionAtom(dsp, XScreenNumberOfScreen(XtScreen(shell)), WSM_WINDOW_MANAGER);
   _MOTIF_WM_DEFINE_COMMAND  = XInternAtom(dsp, "_MOTIF_WM_DEFINE_COMMAND", False);
   _MOTIF_WM_INCLUDE_COMMAND = XInternAtom(dsp, "_MOTIF_WM_INCLUDE_COMMAND", False);
   _MOTIF_WM_DISABLE_COMMAND = XInternAtom(dsp, "_MOTIF_WM_DISABLE_COMMAND", False);

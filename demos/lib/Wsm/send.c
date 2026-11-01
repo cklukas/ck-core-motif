@@ -1,4 +1,4 @@
-/* $XConsortium: send.c /main/5 1995/07/15 20:42:54 drk $ */
+/* $XConsortium: send.c /main/5 1995/07/15 20:38:50 drk $ */
 /*
  * Motif
  *
@@ -30,8 +30,6 @@
 #include "wsm_proto.h"
 #include "utm_send.h"
 
-extern Time GetTimestamp (Display *dpy);
-
 typedef struct _RequestInfo {
     WSMReplyCallbackFunc reply_callback; /* The reply callback func */
     XtPointer reply_data;	/* The user data for the callback func */
@@ -47,9 +45,7 @@ static void ReplyReceived(
 Widget, XtPointer, Atom *, Atom *, XtPointer, unsigned long *, int *
 );
 
-static UTMPackageRec *_WSMBuildUtmPackage(
-Atom, int, unsigned long, XtPointer, XtPointer
-);
+extern Time GetTimestamp (Display *dpy);
 
 /*	Function Name: WSMSendMessage
  *	Description: Sends a message to WSM or WM on the screen
@@ -75,19 +71,35 @@ Boolean
 WSMSendMessage(Widget w, WSMClientType send_to, WSMRequest *request, 
 	       WSMReplyCallbackFunc reply_callback, XtPointer reply_data)
 {
-    int screen_num = XScreenNumberOfScreen(XtScreen(w));
-    Display *dpy = XtDisplay(w);
-    Atom send_atom = _WSMGetSelectionAtom(dpy, screen_num, send_to);
+    int screen_num;
+    Display *dpy;
+    Atom send_atom;
     MessageData msg_data;
     unsigned long msg_len;
     RequestInfo *req_info;
     WSMErrorCode error;
-    UTMPackageRec *pUtmData;
-    Time time = GetTimestamp(dpy); /* 0 or CurrentTime not allowed. */
+    Time time;
+
+    if (w == NULL || request == NULL)
+    {
+        fprintf(stderr, "WSMSendMessage: widget and request are required.\n");
+        return(False);
+    }
+
+    screen_num = XScreenNumberOfScreen(XtScreen(w));
+    dpy = XtDisplay(w);
+    send_atom = _WSMGetSelectionAtom(dpy, screen_num, send_to);
+    time = GetTimestamp(dpy);
 
     if (send_atom == None) {
 	fprintf(stderr, "%s: Could not get selection atom to send message\n",
 		"Internal Error");
+	return(False);
+    }
+
+    if (!XtIsRealized(w)) {
+	fprintf(stderr, "%s WSMSendMessage must be realized, and is not.\n",
+		"Programmer Error: Widget passed to");
 	return(False);
     }
 
@@ -96,22 +108,22 @@ WSMSendMessage(Widget w, WSMClientType send_to, WSMRequest *request,
      */
     msg_data = _WSMPackRequest(dpy, screen_num, request, &msg_len, &error);
     if (msg_data == NULL) {
-	(*reply_callback)(w, reply_data, NULL, error);
+	if (reply_callback != NULL)
+	    (*reply_callback)(w, reply_data, NULL, error);
 	return(False);
     }
 
     req_info = (RequestInfo *) XtMalloc(sizeof(RequestInfo));
+    if (req_info == NULL) {
+	XtFree((XtPointer) msg_data);
+	if (reply_callback != NULL)
+	    (*reply_callback)(w, reply_data, NULL, WSM_ERROR_INTERNAL);
+	return(False);
+    }
     req_info->reply_callback = reply_callback;	/* The reply callback func */
     req_info->reply_data = reply_data;	/* user data for the callback func */
     req_info->request_type = request->any.type;/*request kind for cross check*/
     req_info->send_atom = send_atom;	/* Atom we sent this message to. */
-
-    if (!XtIsRealized(w)) {
-	fprintf(stderr, "%s WSMSendMessage must be realized, and is not.\n",
-		"Programmer Error: Widget passed to");
-	return(False);
-    }
-
     UTMSendMessage(w,
 		   send_atom,
 		   _WSMReqTypeToTarget(dpy, request->any.type),
@@ -143,7 +155,22 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
   XmSelectionCallbackStruct *scs = (XmSelectionCallbackStruct *) callData;
   RequestInfo *req_info = (RequestInfo *) clientData;
   Boolean errorFound = False;
-  Atom type = _WSMReqTypeToTarget(XtDisplay(w), req_info->request_type);
+  Atom type;
+
+  if (req_info == NULL) {
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
+    return;
+  }
+  type = _WSMReqTypeToTarget(XtDisplay(w), req_info->request_type);
+
+  if (scs == NULL) {
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL,
+				  WSM_ERROR_INTERNAL);
+    XtFree((XtPointer) req_info);
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
+    return;
+  }
 
   /* Let's check some other values just to make sure things are ok. */
   if (scs->reason != XmCR_OK) {
@@ -158,8 +185,35 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
     fprintf(stderr, "ERROR: Bad flags value received in UTMReplyReceived.\n");
     errorFound = True;
   }
-  if (errorFound)
+  if (errorFound) {
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL,
+				  WSM_ERROR_INTERNAL);
+    XtFree((XtPointer) req_info);
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
     return;
+  }
+
+  if (scs->value == NULL && scs->length != 0) {
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL,
+				  WSM_ERROR_INTERNAL);
+    XtFree((XtPointer) req_info);
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
+    return;
+  }
+
+  /* Only SET_STATE has a reply with no encoded payload.  All other
+   * request types are unpacked from the selection value below. */
+  if (scs->value == NULL && scs->length == 0 &&
+      req_info->request_type != WSM_SET_STATE) {
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL,
+				  WSM_ERROR_INTERNAL);
+    XtFree((XtPointer) req_info);
+    if (scs) { XtFree((char *)scs->value); scs->value = NULL; }
+    return;
+  }
 
   ReplyReceived(w,
 		req_info, /* the request info pointer to fill in. */
@@ -168,6 +222,8 @@ UTMReplyReceived(Widget w, XtPointer clientData, XtPointer callData)
 		scs->value, /* data returned from conversion. */
 		&scs->length,
 		&scs->format);
+  XtFree((char *)scs->value);
+  scs->value = NULL;
 }
 
 
@@ -193,6 +249,9 @@ ReplyReceived(Widget w, XtPointer req_info_ptr,
     int screen_num;
     WSMErrorCode fail_code = WSM_SUCCESS;
 
+    if (req_info == NULL)
+	return;
+
     /*
      * First a few checks to make sure everything is as we expect.
      */
@@ -209,7 +268,7 @@ ReplyReceived(Widget w, XtPointer req_info_ptr,
 	    if (XGetSelectionOwner(dpy, *selection) == None)
 	      {
 		fail_code = WSM_ERROR_NO_SEL_OWNER;
-		printf("No owner for selection #%d\n", (int)*selection);
+		fprintf(stderr, "No owner for selection #%d\n", (int)*selection);
 	      }
 	    else
 		fail_code = WSM_ERROR_CONVERSION_FAILED;
@@ -239,7 +298,8 @@ ReplyReceived(Widget w, XtPointer req_info_ptr,
 	 * Failure, call callback with NULL reply.
 	 */
 
-	(*req_info->reply_callback)(w, req_info->reply_data, NULL, fail_code);
+    if (req_info->reply_callback != NULL)
+      (*req_info->reply_callback)(w, req_info->reply_data, NULL, fail_code);
     }
     else {
 	screen_num = XScreenNumberOfScreen(XtScreen(w));
@@ -247,41 +307,13 @@ ReplyReceived(Widget w, XtPointer req_info_ptr,
 	_WSMUnpackReply(dpy, screen_num, value, *length,
 			  req_info->request_type, &reply);
 	
-	(*req_info->reply_callback)(w, req_info->reply_data, &reply,fail_code);
+	if (req_info->reply_callback != NULL)
+	    (*req_info->reply_callback)(w, req_info->reply_data,
+                reply.any.type == WSM_UNKNOWN ? NULL : &reply,
+                reply.any.type == WSM_UNKNOWN ? WSM_ERROR_CONVERSION_FAILED : fail_code);
 	
 	FreeReply(&reply);
     }
 
     XtFree((XtPointer) req_info_ptr);
-}
-
-
-
-/*	Function Name: 
- *	Description: 
- *	Arguments: target - target to make request against. this is the
- *                          same as the request type.
- *                 fmt - format of param data (should be WSM_PROTO_FMT).
- *                 len - length of param in fmt units.
- *                 param - parameter data to send to selection owner.
- *	Returns: The UTM data package.
- */
-static UTMPackageRec *
-_WSMBuildUtmPackage(
-     Atom           target,
-     int            fmt,
-     unsigned long  len,
-     XtPointer      param,
-     XtPointer      closure)
-{
-  UTMPackageRec *pUtmData;
-
-  pUtmData = (UTMPackageRec *) XtMalloc(sizeof(UTMPackageRec));
-  pUtmData->fmt = fmt;
-  pUtmData->len = len;
-  pUtmData->target = target;
-  pUtmData->param = param;
-  pUtmData->closure = closure;
-
-  return(pUtmData);
 }

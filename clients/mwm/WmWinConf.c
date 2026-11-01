@@ -1977,7 +1977,26 @@ Boolean WindowIsOnScreen (ClientData *pCD, int *dx, int *dy)
  * 
  *************************************<->***********************************/
 
-void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width, unsigned int height, Boolean clientRequest)
+static void ApplyNewConfiguration(ClientData *, int, int, unsigned int, unsigned int, Boolean, Boolean);
+
+void ProcessNewConfiguration(ClientData *pCD, int x, int y, unsigned int width, unsigned int height, Boolean clientRequest)
+{
+#ifdef CONFIG_RELATIVE_TO_CLIENT
+    Boolean clientCoordinates = True;
+#else
+    Boolean clientCoordinates = clientRequest && !wmGD.positionIsFrame;
+#endif
+    ApplyNewConfiguration(pCD,x,y,width,height,clientRequest,clientCoordinates);
+}
+
+/* Protocol snapshots use client-root coordinates, independent of interactive move state. */
+void ProcessClientConfiguration(ClientData *pCD, int x, int y, unsigned int width, unsigned int height)
+{
+    ApplyNewConfiguration(pCD,x,y,width,height,False,True);
+}
+
+static void ApplyNewConfiguration(ClientData *pCD, int x, int y, unsigned int width, unsigned int height,
+                                  Boolean clientRequest, Boolean clientCoordinates)
 {
     unsigned int changedValues = 0;
     int          xoff = 0, yoff = 0;
@@ -2086,17 +2105,12 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	}
     }
 
-#ifndef CONFIG_RELATIVE_TO_CLIENT
-    /*
-     * If positionIsFrame or user initiated configuration request,
-     * then adjust client position to by frame_width and frame_height.
-     */
-    if (wmGD.positionIsFrame || (!clientRequest))
+    if (!clientCoordinates)
     {
-	xoff = pCD->clientOffset.x;
-	yoff = pCD->clientOffset.y;
+        xoff = pCD->clientOffset.x;
+        yoff = pCD->clientOffset.y;
     }
-#endif
+
 
     /*
      * Changes in position update maximum geometry on maximized windows
@@ -2176,41 +2190,9 @@ void ProcessNewConfiguration (ClientData *pCD, int x, int y, unsigned int width,
 	RegenerateClientFrame(pCD);
     }
     if (changedValues & (CWX | CWY)) {
-	if (pCD->maxConfig)
-	{
-	  /*
-	   * Fix for 5217 - If the request is from the client, use the clients
-	   *                offsets instead of the static offsets
-	   */
-	  if (clientRequest)
-	    {
-	      XMoveWindow (DISPLAY, pCD->clientFrameWin,
-			   pCD->maxX - pCD->clientOffset.x,
-			   pCD->maxY - pCD->clientOffset.y);
-	    }
-	  else
-	    {
-	      XMoveWindow (DISPLAY, pCD->clientFrameWin, 
-			   pCD->maxX - offsetX,
-			   pCD->maxY - offsetY);
-	    }
-	  /* End fix 5217 */
-	}
-	else 
-	{
-            if (clientRequest)
-            {
-                XMoveWindow (DISPLAY, pCD->clientFrameWin,
-                             pCD->clientX - pCD->clientOffset.x,
-                             pCD->clientY - pCD->clientOffset.y);
-            }
-            else
-            {
-                XMoveWindow (DISPLAY, pCD->clientFrameWin,
-                             pCD->clientX - offsetX,
-                             pCD->clientY - offsetY);
-            }
-	}
+        XMoveWindow(DISPLAY, pCD->clientFrameWin,
+                    (pCD->maxConfig ? pCD->maxX : pCD->clientX) - pCD->clientOffset.x,
+                    (pCD->maxConfig ? pCD->maxY : pCD->clientY) - pCD->clientOffset.y);
 	SetFrameInfo (pCD);
 #ifdef PANELIST
 	if (pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL)

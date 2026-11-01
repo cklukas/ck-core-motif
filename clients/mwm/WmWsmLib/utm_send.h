@@ -41,6 +41,9 @@ typedef struct _UTMPackageRec {
 } UTMPackageRec;
 
 
+/* Takes ownership of the Xt-allocated parameter buffer, including on failure.
+ * It is released after XtTransferSetParameters copies it. The completion
+ * callback owns the delivered selection value and must release that value. */
 extern void UTMSendMessage(
 Widget, Atom, Atom, XtPointer, unsigned long, int,
 XtCallbackProc, XtPointer, Time

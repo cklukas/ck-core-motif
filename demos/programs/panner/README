@@ -3,9 +3,10 @@
                                 Panner
                                 ------
 
-************************************************************************
-*  This demo only works with Mwm 2.0.  It does not work with Mwm 2.1.  *
-************************************************************************
+The miniature desktop view works with this fork. Desktop panning requires
+Mwm 2.0's optional virtual-screen protocol. The current standalone workspace
+implementation does not advertise that extension, so dragging the viewport
+does not move the desktop with this MWM build.
 
 Panner demonstrates how an application can interface to Mwm's virtual
 screen support protocol.  The protocol allows other application to pan
