@@ -12,3 +12,8 @@ managed children.
 Valid resource values and the existing string converter are unchanged; this
 only makes direct malformed values recoverable instead of allowing an
 out-of-bounds array access.
+
+The string converter now also uses Xt's native `Cardinal *` converter-count
+parameter rather than an incompatible value parameter and function-pointer
+cast. This keeps resource conversion ABI-correct on platforms where the two
+calling conventions differ.

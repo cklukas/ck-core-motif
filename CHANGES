@@ -4006,6 +4006,13 @@ Harden ColorSelector channel state (2026-11-01)
 - Make RGB-file change detection return an explicit Boolean, with focused
   regression coverage and documentation.
 
+Correct ColorSelector Xt converter ABI (2026-11-01)
+=====================================================
+
+- Use the native Xt type-converter count-pointer signature and register the
+  color-mode converter without an incompatible function-pointer cast.
+- Extend focused mode-value coverage and documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 

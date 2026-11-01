@@ -419,8 +419,8 @@ ClassInitialize(void)
 {
     XmColorSelectorClassRec *wc = &xmColorSelectorClassRec;
 
-    XtSetTypeConverter(XmRString, XmRXmColorMode, 
-		       (XtTypeConverter) CvtStringToColorMode, 
+    XtSetTypeConverter(XmRString, XmRXmColorMode,
+		       CvtStringToColorMode,
 		       NULL, (Cardinal) 0, XtCacheAll, NULL);
 }
 
@@ -831,7 +831,7 @@ ChangeManaged(Widget w)
 
 /* ARGSUSED */
 static Boolean
-CvtStringToColorMode(Display *dpy, XrmValuePtr args, Cardinal num_args, 
+CvtStringToColorMode(Display *dpy, XrmValuePtr args, Cardinal *num_args,
 		     XrmValuePtr from, XrmValuePtr to, XtPointer * junk)
 {
     static XmColorMode	mode;
