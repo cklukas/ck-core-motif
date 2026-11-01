@@ -9,6 +9,15 @@ Give custom interactive controls focus on primary click (2026-11-01)
   arrow and activation keys from also invoking parent traversal or activation.
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
+
+Bound MWM action argument growth (2026-11-01)
+================================================
+
+- Reject `f.action` argument-array growth that cannot fit Xt's `Cardinal`
+  allocation size as well as native `size_t`, preventing a truncated
+  reallocation request for an oversized configuration.
+- Add the focused allocation-bound regression and document the parser contract.
+
 Reject unusable MWM bitmap paths (2026-11-01)
 ================================================
 

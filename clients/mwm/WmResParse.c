@@ -8463,7 +8463,8 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 		       if (iArgSz > INT_MAX - WM_ACTION_ARG_INCREMENT)
 			   break;
 		       new_arg_size = iArgSz + WM_ACTION_ARG_INCREMENT;
-		       if ((size_t)new_arg_size > SIZE_MAX / sizeof(DtActionArg))
+		       if ((size_t)new_arg_size > SIZE_MAX / sizeof(DtActionArg) ||
+			   (size_t)new_arg_size > UINT_MAX / sizeof(DtActionArg))
 			   break;
 		       new_aap = (DtActionArg *)
 			   XtRealloc((char *)pAP->aap,

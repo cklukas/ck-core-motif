@@ -381,6 +381,7 @@ EXTRA_DIST += tests/automated/check-geoutils-debug-bounds.py docs/geoutils-debug
 EXTRA_DIST += tests/automated/check-colors-selector-format-bounds.py docs/color-selector-format-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-system-menu-bounds.py docs/mwm-system-menu-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-bitmap-path-failure.py docs/mwm-bitmap-path-failure.md
+EXTRA_DIST += tests/automated/check-mwm-action-argument-allocation.py docs/mwm-action-argument-allocation.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md
