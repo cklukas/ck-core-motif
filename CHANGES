@@ -1,3 +1,12 @@
+Guard legacy dialog convenience APIs during teardown (2026-11-01)
+===================================================================
+
+- Make public FileSelectionBox, SelectionBox, MessageBox, and Command child
+  helpers return their existing empty result or no-op while their parent is
+  being destroyed, rather than accessing partial child state.
+- Free an empty converted Command append value before reporting the established
+  validation warning.
+
 Guard public XmList queries during teardown (2026-11-01)
 =========================================================
 

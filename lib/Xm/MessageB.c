@@ -1458,7 +1458,7 @@ XmMessageBoxGetChild(
 {
     XmMessageBoxWidget  w = (XmMessageBoxWidget)widget;
     Widget child_widget = NULL;
-    if (widget == NULL || !XmIsMessageBox(widget))
+    if (widget == NULL || !XmIsMessageBox(widget) || w->core.being_destroyed)
         return NULL;
     _XmWidgetToAppContext(widget);
 /****************/
