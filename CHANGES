@@ -22,6 +22,15 @@ Modern C and native macOS toolkit builds (2026-11-01)
   Mrm callbacks, callable UIL, WML attributes and existing string/Unicode APIs.
   See docs/build.md for the platform commands and qualification boundaries.
 
+Clarify Mwm gadget-info fallback scope (2026-11-01)
+======================================================
+
+- Brace maximize, move, and resize gadget fallback blocks so automation-reply
+  packing is visibly outside each fallback branch. This removes strict-build
+  misleading-indentation diagnostics without changing valid reply contents.
+- Add a focused control-flow contract check and document the reply-builder
+  boundary.
+
 Initialize Mwm exclusion parser state (2026-11-01)
 ===================================================
 

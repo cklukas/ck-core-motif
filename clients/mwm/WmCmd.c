@@ -1385,7 +1385,9 @@ GetMaximizeInfo(ClientData *pcd, XtPointer reply)
       	}
       
       if (maxFound == False)
-	FillInvalidInfo (&maximize_button);
+	{
+	  FillInvalidInfo (&maximize_button);
+	}
 
 
 
@@ -1605,10 +1607,14 @@ GetMoveInfo(ClientData *pcd, XtPointer reply)
         }
 
         if (titleFound == False)
-	 FillInvalidInfo (&title);
+	 {
+	   FillInvalidInfo (&title);
+	 }
 
         if (system_found == False)
-	 FillInvalidInfo (&menu);
+	 {
+	   FillInvalidInfo (&menu);
+	 }
 			  
 
 	 reply = PackCARD32 (reply, (CARD32)filledCount);
@@ -1652,7 +1658,9 @@ GetResizeInfo(ClientData *pcd, XtPointer reply, int dir)
       filledCount = pcd->cTitleGadgets;
 
       if (!(pcd->decor & MWM_DECOR_RESIZEH))
-      	FillInvalidInfo (&gravity_resize);
+	{
+	  FillInvalidInfo (&gravity_resize);
+	}
       else
 	{
 		CopyMwmGadget (&pcd->pResizeGadgets[dir], &gravity_resize);
@@ -1662,14 +1670,18 @@ GetResizeInfo(ClientData *pcd, XtPointer reply, int dir)
 
 
        for (i=0; i < filledCount; i++)
-	if (pcd->pTitleGadgets[i].id == FRAME_TITLE)
-	   {
+	{
+	  if (pcd->pTitleGadgets[i].id == FRAME_TITLE)
+	    {
 	      CopyMwmGadget (&(pcd->pTitleGadgets[i]), &title);
               titleFound = True;
-	   }
+	    }
+	}
 
 	if (titleFound == False)
-	   FillInvalidInfo (&title);
+	  {
+	    FillInvalidInfo (&title);
+	  }
 		
 
 
