@@ -984,12 +984,12 @@ void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,
 }
 
 Cardinal XmTreeViewGetNodeCount(Widget widget) {
-    return widget != NULL && XmIsTreeView(widget)
+    return widget != NULL && XmIsTreeView(widget) && !widget->core.being_destroyed
         ? ((XmTreeViewWidget)widget)->tree_view.count : 0;
 }
 
 XtPointer XmTreeViewGetSelectedId(Widget widget) {
-    return widget != NULL && XmIsTreeView(widget) ?
+    return widget != NULL && XmIsTreeView(widget) && !widget->core.being_destroyed ?
         ((XmTreeViewWidget)widget)->tree_view.selected_id : NULL;
 }
 
@@ -1037,7 +1037,7 @@ void XmTreeViewSetTopRow(Widget widget, Cardinal top_row) {
 }
 
 Cardinal XmTreeViewGetTopRow(Widget widget) {
-    return widget != NULL && XmIsTreeView(widget)
+    return widget != NULL && XmIsTreeView(widget) && !widget->core.being_destroyed
         ? ((XmTreeViewWidget)widget)->tree_view.top_row : 0;
 }
 

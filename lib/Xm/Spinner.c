@@ -390,7 +390,7 @@ static void Notify(XmSpinnerWidget spinner, XEvent *event) {
 }
 
 Boolean XmSpinnerGetActive(Widget widget) {
-    return widget != NULL && XmIsSpinner(widget)
+    return widget != NULL && XmIsSpinner(widget) && !widget->core.being_destroyed
         ? ((XmSpinnerWidget)widget)->spinner.active : False;
 }
 void XmSpinnerSetActive(Widget widget, Boolean active, Boolean notify) {
@@ -407,7 +407,7 @@ void XmSpinnerSetActive(Widget widget, Boolean active, Boolean notify) {
         Notify(spinner, NULL);
 }
 unsigned int XmSpinnerGetPhase(Widget widget) {
-    return widget != NULL && XmIsSpinner(widget)
+    return widget != NULL && XmIsSpinner(widget) && !widget->core.being_destroyed
         ? ((XmSpinnerWidget)widget)->spinner.phase : 0;
 }
 

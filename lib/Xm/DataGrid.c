@@ -567,12 +567,12 @@ Boolean XmDataGridSetModel(Widget widget, const XmDataGridColumn *columns,
 }
 
 Cardinal XmDataGridGetColumnCount(Widget widget) {
-    return widget && XmIsDataGrid(widget) ?
+    return widget && XmIsDataGrid(widget) && !widget->core.being_destroyed ?
         ((XmDataGridWidget)widget)->data_grid.column_count : 0;
 }
 
 Cardinal XmDataGridGetRowCount(Widget widget) {
-    return widget && XmIsDataGrid(widget) ?
+    return widget && XmIsDataGrid(widget) && !widget->core.being_destroyed ?
         ((XmDataGridWidget)widget)->data_grid.row_count : 0;
 }
 
@@ -600,7 +600,8 @@ Boolean XmDataGridSetSelectedCell(Widget widget, XtPointer row_id,
 Boolean XmDataGridGetSelectedCell(Widget widget, XtPointer *row_id_return,
                                   XtPointer *column_id_return) {
     XmDataGridWidget grid;
-    if (!widget || !XmIsDataGrid(widget) || !row_id_return ||
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed ||
+        !row_id_return ||
         !column_id_return) return False;
     grid = (XmDataGridWidget)widget;
     if (grid->data_grid.selected_row < 0 ||
@@ -625,7 +626,7 @@ Boolean XmDataGridSetTopRow(Widget widget, Cardinal top_row) {
 }
 
 Cardinal XmDataGridGetTopRow(Widget widget) {
-    return widget && XmIsDataGrid(widget) ?
+    return widget && XmIsDataGrid(widget) && !widget->core.being_destroyed ?
         ((XmDataGridWidget)widget)->data_grid.top_row : 0;
 }
 
@@ -685,7 +686,8 @@ Boolean XmDataGridSetEditError(Widget widget, const char *error) {
 }
 
 const char *XmDataGridGetEditError(Widget widget) {
-    if (!widget || !XmIsDataGrid(widget)) return NULL;
+    if (!widget || !XmIsDataGrid(widget) || widget->core.being_destroyed)
+        return NULL;
     return ((XmDataGridWidget)widget)->data_grid.edit_error;
 }
 
@@ -725,7 +727,7 @@ void XmDataGridCancelEdit(Widget widget) {
 }
 
 Boolean XmDataGridIsEditing(Widget widget) {
-    return widget && XmIsDataGrid(widget) &&
+    return widget && XmIsDataGrid(widget) && !widget->core.being_destroyed &&
            ((XmDataGridWidget)widget)->data_grid.editing;
 }
 

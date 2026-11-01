@@ -282,7 +282,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     reply->height = rating->rating.automatic_height ? m.height : rating->core.height;
     return XmeReplyToQueryGeometry(widget, request, reply);
 }
-int XmRatingControlGetValue(Widget widget){return widget != NULL && XmIsRatingControl(widget)?((XmRatingControlWidget)widget)->rating.value:0;}
+int XmRatingControlGetValue(Widget widget){return widget != NULL && XmIsRatingControl(widget) && !widget->core.being_destroyed?((XmRatingControlWidget)widget)->rating.value:0;}
 void XmRatingControlSetValue(Widget widget,int value,Boolean notify_change){XmRatingControlWidget rating;int old;if(widget == NULL || !XmIsRatingControl(widget) || widget->core.being_destroyed)return;rating=(XmRatingControlWidget)widget;old=rating->rating.value;rating->rating.value=value;normalize(rating);if(XtIsRealized(widget))_XmPaintInvalidate(widget);if(notify_change && old != rating->rating.value)notify(rating,NULL);}
 Widget XmCreateRatingControl(Widget parent,char*name,ArgList args,Cardinal count){return XtCreateWidget(name,xmRatingControlWidgetClass,parent,args,count);}
 

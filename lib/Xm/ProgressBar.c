@@ -343,7 +343,7 @@ void XmProgressBarGetRange(Widget widget, int *minimum, int *maximum) {
     if (maximum) *maximum = progress->progress.maximum;
 }
 int XmProgressBarGetValue(Widget widget) {
-    return widget != NULL && XmIsProgressBar(widget)
+    return widget != NULL && XmIsProgressBar(widget) && !widget->core.being_destroyed
         ? ((XmProgressBarWidget)widget)->progress.value : 0;
 }
 void XmProgressBarSetRange(Widget widget, int minimum, int maximum,
@@ -374,14 +374,14 @@ void XmProgressBarSetValue(Widget widget, int value, Boolean notify) {
     if (notify && old_value != progress->progress.value) Notify(progress, NULL);
 }
 Boolean XmProgressBarGetIndeterminate(Widget widget) {
-    return widget != NULL && XmIsProgressBar(widget)
+    return widget != NULL && XmIsProgressBar(widget) && !widget->core.being_destroyed
         ? ((XmProgressBarWidget)widget)->progress.indeterminate : False;
 }
 void XmProgressBarSetIndeterminate(Widget widget, Boolean indeterminate,
                                    Boolean notify) {
     XmProgressBarWidget progress;
     Boolean old;
-    if (widget == NULL || !XmIsProgressBar(widget)) return;
+    if (widget == NULL || !XmIsProgressBar(widget) || widget->core.being_destroyed) return;
     progress = (XmProgressBarWidget)widget; old = progress->progress.indeterminate;
     progress->progress.indeterminate = indeterminate ? True : False;
     if (XtIsRealized(widget)) _XmPaintInvalidate(widget);

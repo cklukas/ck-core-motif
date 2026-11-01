@@ -29,6 +29,7 @@ static char rcsid[] = "$XConsortium: Protocols.c /main/15 1996/10/17 12:00:24 cd
 #include <config.h>
 #endif
 
+#include <limits.h>
 
 #include <Xm/XmosP.h>           /* for bzero et al */
 #include <Xm/ProtocolsP.h>
@@ -400,7 +401,7 @@ GetAllProtocolsMgr(
 #define SetProtocolProperty(shell, property, prop_type, atoms, num_atoms) \
   XChangeProperty((shell)->core.screen->display, XtWindow(shell), \
 		  property, prop_type, 32, PropModeReplace, \
-		  atoms, num_atoms)
+		  atoms, (int)(num_atoms))
 
 
 /************************************<+>*************************************
@@ -421,6 +422,11 @@ UpdateProtocolMgrProperty(
     if (p_mgr == NULL ||
 	(p_mgr->num_protocols != 0 && p_mgr->protocols == NULL))
 	return;
+    if ((size_t)p_mgr->num_protocols > (size_t)INT_MAX)
+	{
+	    XmeWarning(NULL, MSG3);
+	    return;
+	}
     protocols = p_mgr->protocols;
 
     if (p_mgr->num_protocols > XtNumber(active_protocols_stack))

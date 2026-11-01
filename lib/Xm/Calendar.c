@@ -504,7 +504,8 @@ Widget XmCreateCalendar(Widget parent, char *name, ArgList args,
 
 Boolean XmCalendarGetDate(Widget widget, XmCalendarDate *date_return) {
     XmCalendarWidget calendar;
-    if (!widget || !date_return || !XmIsCalendar(widget))
+    if (!widget || !date_return || !XmIsCalendar(widget) ||
+        widget->core.being_destroyed)
         return False;
     calendar = (XmCalendarWidget)widget;
     *date_return = calendar->calendar.date;
@@ -521,7 +522,8 @@ Boolean XmCalendarSetDate(Widget widget, const XmCalendarDate *date,
 Boolean XmCalendarGetRange(Widget widget, XmCalendarDate *minimum_return,
                            XmCalendarDate *maximum_return) {
     XmCalendarWidget calendar;
-    if (!widget || !minimum_return || !maximum_return || !XmIsCalendar(widget))
+    if (!widget || !minimum_return || !maximum_return || !XmIsCalendar(widget) ||
+        widget->core.being_destroyed)
         return False;
     calendar = (XmCalendarWidget)widget;
     *minimum_return = calendar->calendar.minimum;
@@ -553,7 +555,8 @@ Boolean XmCalendarSetRange(Widget widget, const XmCalendarDate *minimum,
 Boolean XmCalendarGetVisibleMonth(Widget widget, int *year_return,
                                   int *month_return) {
     XmCalendarWidget calendar;
-    if (!widget || !year_return || !month_return || !XmIsCalendar(widget))
+    if (!widget || !year_return || !month_return || !XmIsCalendar(widget) ||
+        widget->core.being_destroyed)
         return False;
     calendar = (XmCalendarWidget)widget;
     *year_return = calendar->calendar.visible_year;

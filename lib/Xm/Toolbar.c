@@ -629,19 +629,19 @@ Widget XmToolbarGetActionButton(Widget widget, Cardinal index, Boolean overflow)
 
 Cardinal XmToolbarGetActionCount(Widget widget)
 {
-    return widget && XmIsToolbar(widget)
+    return widget && XmIsToolbar(widget) && !widget->core.being_destroyed
                ? ((XmToolbarWidget)widget)->toolbar.action_count : 0;
 }
 
 Cardinal XmToolbarGetVisibleActionCount(Widget widget)
 {
-    return widget && XmIsToolbar(widget)
+    return widget && XmIsToolbar(widget) && !widget->core.being_destroyed
                ? ((XmToolbarWidget)widget)->toolbar.visible_count : 0;
 }
 
 Cardinal XmToolbarGetOverflowCount(Widget widget)
 {
-    return widget && XmIsToolbar(widget)
+    return widget && XmIsToolbar(widget) && !widget->core.being_destroyed
                ? ((XmToolbarWidget)widget)->toolbar.overflow_count : 0;
 }
 

@@ -363,7 +363,7 @@ void XmNumberBoxGetRange(Widget widget, int *minimum, int *maximum) {
     if (maximum) *maximum = number->number_box.maximum;
 }
 int XmNumberBoxGetValue(Widget widget) {
-    return widget != NULL && XmIsNumberBox(widget)
+    return widget != NULL && XmIsNumberBox(widget) && !widget->core.being_destroyed
         ? ((XmNumberBoxWidget)widget)->number_box.value : 0;
 }
 void XmNumberBoxSetRange(Widget widget, int minimum, int maximum, Boolean notify) {
@@ -381,7 +381,7 @@ void XmNumberBoxSetRange(Widget widget, int minimum, int maximum, Boolean notify
 void XmNumberBoxSetValue(Widget widget, int value, Boolean notify) {
     XmNumberBoxWidget number;
     int old;
-    if (widget == NULL || !XmIsNumberBox(widget)) return;
+    if (widget == NULL || !XmIsNumberBox(widget) || widget->core.being_destroyed) return;
     number = (XmNumberBoxWidget)widget; old = number->number_box.value;
     number->number_box.value = value; normalize(number);
     if(!format_value(number))return;
@@ -393,11 +393,11 @@ void XmNumberBoxStep(Widget widget, int direction, Boolean page, Boolean notify)
         step_value((XmNumberBoxWidget)widget, direction, page, notify, NULL);
 }
 Boolean XmNumberBoxIsInvalid(Widget widget) {
-    return widget != NULL && XmIsNumberBox(widget)
+    return widget != NULL && XmIsNumberBox(widget) && !widget->core.being_destroyed
         ? ((XmNumberBoxWidget)widget)->number_box.invalid : False;
 }
 Widget XmNumberBoxGetTextField(Widget widget) {
-    return widget != NULL && XmIsNumberBox(widget)
+    return widget != NULL && XmIsNumberBox(widget) && !widget->core.being_destroyed
         ? ((XmNumberBoxWidget)widget)->number_box.editor : NULL;
 }
 Widget XmCreateNumberBox(Widget parent, char *name, ArgList args, Cardinal count) {

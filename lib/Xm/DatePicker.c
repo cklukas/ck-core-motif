@@ -352,7 +352,8 @@ Widget XmCreateDatePicker(Widget parent, char *name, ArgList args,
 }
 
 Boolean XmDatePickerGetDate(Widget widget, XmDatePickerDate *date_return) {
-    if (!widget || !date_return || !XmIsDatePicker(widget)) return False;
+    if (!widget || !date_return || !XmIsDatePicker(widget) ||
+        widget->core.being_destroyed) return False;
     *date_return = ((XmDatePickerWidget)widget)->date_picker.date;
     return True;
 }
@@ -403,7 +404,8 @@ Boolean XmDatePickerSetRange(Widget widget, const XmDatePickerDate *minimum,
 Boolean XmDatePickerGetRange(Widget widget, XmDatePickerDate *minimum_return,
                              XmDatePickerDate *maximum_return) {
     XmDatePickerWidget picker;
-    if (!widget || !XmIsDatePicker(widget) || !minimum_return ||
+    if (!widget || !XmIsDatePicker(widget) || widget->core.being_destroyed ||
+        !minimum_return ||
         !maximum_return) return False;
     picker = (XmDatePickerWidget)widget;
     *minimum_return = picker->date_picker.minimum;
@@ -412,7 +414,7 @@ Boolean XmDatePickerGetRange(Widget widget, XmDatePickerDate *minimum_return,
 }
 
 Boolean XmDatePickerIsOpen(Widget widget) {
-    return widget && XmIsDatePicker(widget) &&
+    return widget && XmIsDatePicker(widget) && !widget->core.being_destroyed &&
            ((XmDatePickerWidget)widget)->date_picker.open;
 }
 

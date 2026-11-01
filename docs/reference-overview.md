@@ -21,6 +21,9 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [Unicode support](unicode.md) — locale, composition, shaping, and input behavior.
 - [Non-text Unicode coverage](nontext-unicode.md) — multilingual labels, lists, menus, and other widgets.
 - [XmList query teardown guards](list-query-destroy-guards.md) — make public list queries safe during destruction.
+- [DataGrid query teardown guards](datagrid-query-destroy-guards.md) — keep model queries out of released DataGrid state.
+- [Collection-widget query teardown guards](collection-query-destroy-guards.md) — make modern collection queries safe during destruction.
+- [Value-control teardown guards](value-control-destroy-guards.md) — keep value and state APIs out of released control state.
 - [Legacy dialog teardown guards](dialog-teardown-guards.md) — keep dialog child helpers safe during destruction.
 - [Text-source bounds](text-source-bounds.md) — safe range and size handling in text sources.
 - [Input-method rollback](vendor-im-string-rollback.md) — failure cleanup at the input-method boundary.
@@ -52,6 +55,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 
 ## MWM and window-management protocol
 
+- [Protocol property element-count bounds](protocol-property-count-width.md) — keep dynamic protocol properties within Xlib's count contract.
 - [MWM protocol overview](mwm-protocol-oom.md) — protocol conversion and allocation-failure behavior.
 - [MWM graphics-list allocation](mwm-graphics-list-allocation.md) — bounded rectangle-list growth.
 - [MWM client workspace-list allocation](mwm-client-workspace-list-allocation.md) — bounded per-client workspace state.

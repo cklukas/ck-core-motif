@@ -304,7 +304,8 @@ Widget XmCreateTimePicker(Widget parent, char *name, ArgList args,
 }
 
 Boolean XmTimePickerGetValue(Widget widget, XmTimePickerValue *value_return) {
-    if (!widget || !value_return || !XmIsTimePicker(widget)) return False;
+    if (!widget || !value_return || !XmIsTimePicker(widget) ||
+        widget->core.being_destroyed) return False;
     *value_return = ((XmTimePickerWidget)widget)->time_picker.value;
     return True;
 }
@@ -320,7 +321,8 @@ Boolean XmTimePickerSetValue(Widget widget, const XmTimePickerValue *value,
 Boolean XmTimePickerGetRange(Widget widget, XmTimePickerValue *minimum_return,
                              XmTimePickerValue *maximum_return) {
     XmTimePickerWidget picker;
-    if (!widget || !minimum_return || !maximum_return || !XmIsTimePicker(widget))
+    if (!widget || !minimum_return || !maximum_return || !XmIsTimePicker(widget) ||
+        widget->core.being_destroyed)
         return False;
     picker = (XmTimePickerWidget)widget;
     *minimum_return = picker->time_picker.minimum;

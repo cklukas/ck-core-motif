@@ -9,6 +9,34 @@ Repair Dialog Shell gallery construction and launcher geometry (2026-11-01)
 - Add native acceptance for actual page geometry, rendered content, ownership,
   placement and repeated opening across palettes, densities and scales.
 
+Guard value controls during teardown (2026-11-01)
+====================================================
+
+- Keep Calendar, picker, toggle, skeleton, number, spinner, progress, and
+  rating control reads out of released state during destruction. Affected
+  value/state helpers now retain their established empty or no-op results.
+
+Guard collection-widget queries during teardown (2026-11-01)
+==============================================================
+
+- Make Row Actions, Command Palette, Status Bar, Toolbar, Segmented Control,
+  and Tree View queries return their existing empty values while destruction is
+  in progress instead of examining released item or child storage.
+
+Guard DataGrid queries during teardown (2026-11-01)
+=====================================================
+
+- Make DataGrid model, selection, edit, and state queries return their
+  established empty values while destruction is in progress, rather than
+  examining partially released backing storage.
+
+Bound protocol-property element counts (2026-11-01)
+=====================================================
+
+- Validate dynamically grown protocol lists against Xlib's signed property
+  count before serializing them. Oversized protocol-manager state now follows
+  the existing warning path rather than narrowing the count on the wire.
+
 Bound MWM Xlib property element counts (2026-11-01)
 =====================================================
 
