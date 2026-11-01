@@ -10,6 +10,12 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Make MWM icon-box GC masks type-safe (2026-11-01)
+=====================================================
+
+- Express full graphics-context copy masks in Xt's unsigned mask type.
+- Add focused regression coverage and graphics-context documentation.
+
 Correct MWM icon-box event handler ABI (2026-11-01)
 ======================================================
 

@@ -1163,7 +1163,7 @@ void MakeShrinkWrapIconsGC (WmScreenData *pSD, Pixmap bgPixmap)
 	if (pSD->shrinkWrapGC == NULL)
 	    return;
 
-	copyMask = ~0L;
+	copyMask = ~(XtGCMask)0;
 
 	XCopyGC (DISPLAY, pSD->iconAppearance.inactiveGC,
 		copyMask, pSD->shrinkWrapGC);
@@ -1235,7 +1235,7 @@ void MakeFadeIconGC (WmScreenData *pSD)
 	return;
     }
 
-    copyMask = ~0L;
+    copyMask = ~(XtGCMask)0;
 
     XCopyGC (DISPLAY, pSD->iconAppearance.inactiveGC,
 		copyMask, pSD->fadeIconGC);
