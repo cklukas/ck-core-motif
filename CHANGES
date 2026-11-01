@@ -3958,6 +3958,15 @@ Harden ColorSelector argument-list merging (2026-11-01)
 - Keep allocation-failure handling at every construction point and extend the
   focused regression and documentation.
 
+Harden ComboBox argument-list merging (2026-11-01)
+======================================================
+
+- Route child and public convenience-constructor merges through a checked
+  helper to prevent `Cardinal` count wrap before Xt construction.
+- Release a temporary selected-item string on a failed edit-box merge and only
+  inherit a font after the text child exists; extend focused regressions and
+  documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 

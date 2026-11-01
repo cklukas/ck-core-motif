@@ -16,5 +16,6 @@ edit_start = source.index("CreateEditBox(Widget")
 edit = source[edit_start:source.index("/*\n * CreatePulldown()", edit_start)]
 assert "if (text_widget == NULL)" in edit
 assert edit.index("if (text_widget == NULL)") < edit.index("XtManageChild(text_widget)")
+assert edit.index("if (text_widget == NULL)") < edit.index("_XmAppearanceInheritFont")
 
 print("ComboBox edit-field allocation failures are guarded")
