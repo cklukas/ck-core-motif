@@ -10,6 +10,13 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Harden MWM icon-list allocation arithmetic (2026-11-01)
+==========================================================
+
+- Compute icon-box list allocation, copy, and initialization sizes in checked
+  `size_t` arithmetic before narrowing to Xt's `Cardinal` allocator boundary.
+- Add focused regression coverage and allocation documentation.
+
 Validate MWM client-command wire format (2026-11-01)
 =======================================================
 

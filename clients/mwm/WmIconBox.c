@@ -71,6 +71,7 @@ static char rcsid[] = "$TOG: WmIconBox.c /main/7 1999/05/20 16:35:12 mgreess $"
 
 #include <stdio.h>
 #include <limits.h>
+#include <stdint.h>
 
 /*
  * include extern functions
@@ -245,18 +246,29 @@ Boolean MakeIconBox (WmWorkspaceData *pWS, ClientData *pCD)
 	InitializeIconBoxData (pWS, pIBD);
 	InitializeClientData (pCD, pIBD);
 
-        if (pIBD->IPD.totalPlaces <= 0 ||
-            (size_t)pIBD->IPD.totalPlaces > UINT_MAX / sizeof(IconInfo) ||
-            !(pIBD->IPD.placeList =
-	    (IconInfo *)XtMalloc (pIBD->IPD.totalPlaces * sizeof (IconInfo))))
 	{
-	    Warning (((char *)GETMESSAGE(36, 2, "Insufficient memory to create icon box data")));
-	    XtFree ((char *)pIBD);
-            XtFree ((char *)pCD);  
-	    return (FALSE);  
+	    size_t places_bytes;
+
+	    if (pIBD->IPD.totalPlaces <= 0 ||
+		(size_t)pIBD->IPD.totalPlaces > SIZE_MAX / sizeof(IconInfo) ||
+		(size_t)pIBD->IPD.totalPlaces > UINT_MAX / sizeof(IconInfo))
+	    {
+		Warning (((char *)GETMESSAGE(36, 2, "Insufficient memory to create icon box data")));
+		XtFree ((char *)pIBD);
+                XtFree ((char *)pCD);
+		return (FALSE);
+	    }
+	    places_bytes = (size_t)pIBD->IPD.totalPlaces * sizeof(IconInfo);
+	    pIBD->IPD.placeList = (IconInfo *)XtMalloc((Cardinal)places_bytes);
+	    if (pIBD->IPD.placeList == NULL)
+	    {
+		Warning (((char *)GETMESSAGE(36, 2, "Insufficient memory to create icon box data")));
+		XtFree ((char *)pIBD);
+		XtFree ((char *)pCD);
+		return (FALSE);
+	    }
+	    memset (pIBD->IPD.placeList, 0, places_bytes);
 	}
-	memset (pIBD->IPD.placeList, 0, 
-	    pIBD->IPD.totalPlaces * sizeof (IconInfo));
 
         /*
          * Make  the top level shell for this icon box
@@ -2954,6 +2966,7 @@ Boolean ExtendIconList (IconBoxData *pIBD, int incr)
 {
     Boolean rval;
     int newSize;
+    size_t old_bytes, added_bytes, new_bytes;
     IconInfo *pTmp;
 
     if (pIBD == NULL || incr <= 0 || pIBD->IPD.totalPlaces < 0 ||
@@ -2962,15 +2975,21 @@ Boolean ExtendIconList (IconBoxData *pIBD, int incr)
 	return (False);
 
     newSize = pIBD->IPD.totalPlaces + incr;
-    if ((size_t)newSize > UINT_MAX / sizeof(IconInfo))
+
+    if ((size_t)newSize > SIZE_MAX / sizeof(IconInfo) ||
+	(size_t)newSize > UINT_MAX / sizeof(IconInfo))
 	return (False);
 
-    if ((pTmp = (IconInfo *) XtMalloc (newSize*sizeof(IconInfo))) != NULL)
+    old_bytes = (size_t)pIBD->IPD.totalPlaces * sizeof(IconInfo);
+    added_bytes = (size_t)incr * sizeof(IconInfo);
+    new_bytes = (size_t)newSize * sizeof(IconInfo);
+
+    if ((pTmp = (IconInfo *) XtMalloc ((Cardinal)new_bytes)) != NULL)
     {
 	/* copy data */
-	memcpy (pTmp, pIBD->IPD.placeList, 
-	    pIBD->IPD.totalPlaces*sizeof(IconInfo));
-	memset (&pTmp[pIBD->IPD.totalPlaces], 0, incr*sizeof(IconInfo));
+	if (old_bytes != 0)
+	    memcpy (pTmp, pIBD->IPD.placeList, old_bytes);
+	memset (&pTmp[pIBD->IPD.totalPlaces], 0, added_bytes);
 
 	/* out with the old, in with the new */
 	XtFree ((char *)pIBD->IPD.placeList);
