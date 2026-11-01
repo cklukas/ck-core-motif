@@ -67,6 +67,9 @@ static char rcsid[] = "$TOG: WmProtocol.c /main/8 1997/06/18 17:31:34 samborn $"
 
 #include <Xm/TransferP.h>
 
+/* Client-command request payloads are byte streams of CARD values. */
+#define MWM_CCI_FORMAT 8
+
 /*
  * Function Declarations:
  */
@@ -432,18 +435,24 @@ void SendConfigureNotify (ClientData *pCD)
 
 void SendClientOffsetMessage (ClientData *pCD)
 {
-    long borderWidth = (long)pCD->xBorderWidth;
-    long offsetX = pCD->clientOffset.x;
-    long offsetY = pCD->clientOffset.y;
-      
+    long borderWidth;
+    long offsetX;
+    long offsetY;
     XClientMessageEvent clientMsgEvent;
+
+    if (pCD == NULL || wmGD.xa_MWM_OFFSET > (Atom)LONG_MAX)
+	return;
+
+    borderWidth = (long)pCD->xBorderWidth;
+    offsetX = pCD->clientOffset.x;
+    offsetY = pCD->clientOffset.y;
 
     memset(&clientMsgEvent, 0, sizeof(clientMsgEvent));
     clientMsgEvent.type = ClientMessage;
     clientMsgEvent.window = pCD->client;
     clientMsgEvent.message_type = wmGD.xa_MWM_MESSAGES;
     clientMsgEvent.format = 32;
-    clientMsgEvent.data.l[0] = wmGD.xa_MWM_OFFSET;
+    clientMsgEvent.data.l[0] = (long)wmGD.xa_MWM_OFFSET;
 
     /*
      * Use window gravity to allow the user to specify the window
@@ -557,10 +566,13 @@ void SendClientMsg (Window window, long type, long data0, Time time, long *pData
     XClientMessageEvent clientMsgEvent;
     int i;
 
+    if (type < 0)
+	return;
+
     memset(&clientMsgEvent, 0, sizeof(clientMsgEvent));
     clientMsgEvent.type = ClientMessage;
     clientMsgEvent.window = window;
-    clientMsgEvent.message_type = type;
+    clientMsgEvent.message_type = (Atom)type;
     clientMsgEvent.format = 32;
     clientMsgEvent.data.l[0] = data0;
     clientMsgEvent.data.l[1] = (long)time;
@@ -1472,47 +1484,71 @@ WMiConvert (
     
     else if (target == wmGD._MOTIF_WM_DEFINE_COMMAND)
       {
-	PRINT("Convert request made for _MOTIF_WM_DEFINE_COMMAND.\n");
-	DefineCommand(w, target, (MessageData)input, inputLen, inputFmt);
-	PRINT("Returning from _MOTIF_WM_DEFINE_COMMAND.\n");
-	
-	found = True;
+	if (input == NULL || inputFmt != MWM_CCI_FORMAT)
+	  found = False;
+	else
+	  {
+	    PRINT("Convert request made for _MOTIF_WM_DEFINE_COMMAND.\n");
+	    DefineCommand(w, target, (MessageData)input, inputLen, inputFmt);
+	    PRINT("Returning from _MOTIF_WM_DEFINE_COMMAND.\n");
+	    found = True;
+	  }
       }
     else if (target == wmGD._MOTIF_WM_INCLUDE_COMMAND)
       {
-	PRINT("Convert request made for _MOTIF_WM_INCLUDE_COMMAND.\n");
-	IncludeCommand(w, target, (MessageData)input, inputLen, inputFmt);
-	PRINT("Returning from _MOTIF_WM_INCLUDE_COMMAND.\n");
-	
-	found = True;
+	if (input == NULL || inputFmt != MWM_CCI_FORMAT)
+	  found = False;
+	else
+	  {
+	    PRINT("Convert request made for _MOTIF_WM_INCLUDE_COMMAND.\n");
+	    IncludeCommand(w, target, (MessageData)input, inputLen, inputFmt);
+	    PRINT("Returning from _MOTIF_WM_INCLUDE_COMMAND.\n");
+	    found = True;
+	  }
       }
     else if (target == wmGD._MOTIF_WM_REMOVE_COMMAND)
       {
-	PRINT("Convert request made for _MOTIF_WM_REMOVE_COMMAND.\n");
-	RemoveCommand(w, target, (MessageData)input, inputLen, inputFmt);
-	
-	found = True;
+	if (input == NULL || inputFmt != MWM_CCI_FORMAT)
+	  found = False;
+	else
+	  {
+	    PRINT("Convert request made for _MOTIF_WM_REMOVE_COMMAND.\n");
+	    RemoveCommand(w, target, (MessageData)input, inputLen, inputFmt);
+	    found = True;
+	  }
       }
     else if (target == wmGD._MOTIF_WM_ENABLE_COMMAND)
       {
-	PRINT("Convert request made for _MOTIF_WM_ENABLE_COMMAND.\n");
-	EnableCommand(w, target, (MessageData)input, inputLen, inputFmt);
-	
-	found = True;
+	if (input == NULL || inputFmt != MWM_CCI_FORMAT)
+	  found = False;
+	else
+	  {
+	    PRINT("Convert request made for _MOTIF_WM_ENABLE_COMMAND.\n");
+	    EnableCommand(w, target, (MessageData)input, inputLen, inputFmt);
+	    found = True;
+	  }
       }
     else if (target == wmGD._MOTIF_WM_DISABLE_COMMAND)
       {
-	PRINT("Convert request made for _MOTIF_WM_DISABLE_COMMAND.\n");
-	DisableCommand(w, target, (MessageData)input, inputLen, inputFmt);
-	
-	found = True;
+	if (input == NULL || inputFmt != MWM_CCI_FORMAT)
+	  found = False;
+	else
+	  {
+	    PRINT("Convert request made for _MOTIF_WM_DISABLE_COMMAND.\n");
+	    DisableCommand(w, target, (MessageData)input, inputLen, inputFmt);
+	    found = True;
+	  }
       }
     else if (target == wmGD._MOTIF_WM_RENAME_COMMAND)
       {
-	PRINT("Convert request made for _MOTIF_WM_RENAME_COMMAND.\n");
-	RenameCommand(w, target, (MessageData)input, inputLen, inputFmt);
-	
-	found = True;
+	if (input == NULL || inputFmt != MWM_CCI_FORMAT)
+	  found = False;
+	else
+	  {
+	    PRINT("Convert request made for _MOTIF_WM_RENAME_COMMAND.\n");
+	    RenameCommand(w, target, (MessageData)input, inputLen, inputFmt);
+	    found = True;
+	  }
       }
     else if (target == wmGD._MOTIF_WM_INVOKE_COMMAND)
       {

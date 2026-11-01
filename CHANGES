@@ -10,6 +10,16 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Validate MWM client-command wire format (2026-11-01)
+=======================================================
+
+- Require the documented 8-bit packed-wire format for MWM client-command
+  selection requests before parsing Define, Include, Remove, Enable, Disable,
+  or Rename payloads.
+- Keep client-message atom conversions in range and reject negative public
+  message types before constructing an Xlib event.
+- Add focused regression coverage and protocol documentation.
+
 Preserve signed MWM feedback geometry (2026-11-01)
 ======================================================
 
