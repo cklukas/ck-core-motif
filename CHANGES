@@ -1,3 +1,10 @@
+Guard collection-widget queries during teardown (2026-11-01)
+==============================================================
+
+- Make Row Actions, Command Palette, Status Bar, Toolbar, Segmented Control,
+  and Tree View queries return their existing empty values while destruction is
+  in progress instead of examining released item or child storage.
+
 Guard DataGrid queries during teardown (2026-11-01)
 =====================================================
 

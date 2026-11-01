@@ -534,16 +534,17 @@ Boolean XmSegmentedControlSetItems(Widget widget,
 }
 
 Cardinal XmSegmentedControlGetItemCount(Widget widget) {
-    return widget != NULL && XmIsSegmentedControl(widget)
+    return widget != NULL && XmIsSegmentedControl(widget) && !widget->core.being_destroyed
                ? ((XmSegmentedControlWidget)widget)->segmented.item_count : 0;
 }
 int XmSegmentedControlGetSelectedIndex(Widget widget) {
-    return widget != NULL && XmIsSegmentedControl(widget)
+    return widget != NULL && XmIsSegmentedControl(widget) && !widget->core.being_destroyed
                ? ((XmSegmentedControlWidget)widget)->segmented.selected : -1;
 }
 const char *XmSegmentedControlGetItemId(Widget widget, Cardinal index) {
     XmSegmentedControlWidget control;
-    if (widget == NULL || !XmIsSegmentedControl(widget)) return NULL;
+    if (widget == NULL || !XmIsSegmentedControl(widget) ||
+        widget->core.being_destroyed) return NULL;
     control = (XmSegmentedControlWidget)widget;
     if (index >= control->segmented.item_count)
         return NULL;

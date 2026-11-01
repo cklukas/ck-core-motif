@@ -22,6 +22,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [Non-text Unicode coverage](nontext-unicode.md) — multilingual labels, lists, menus, and other widgets.
 - [XmList query teardown guards](list-query-destroy-guards.md) — make public list queries safe during destruction.
 - [DataGrid query teardown guards](datagrid-query-destroy-guards.md) — keep model queries out of released DataGrid state.
+- [Collection-widget query teardown guards](collection-query-destroy-guards.md) — make modern collection queries safe during destruction.
 - [Legacy dialog teardown guards](dialog-teardown-guards.md) — keep dialog child helpers safe during destruction.
 - [Text-source bounds](text-source-bounds.md) — safe range and size handling in text sources.
 - [Input-method rollback](vendor-im-string-rollback.md) — failure cleanup at the input-method boundary.

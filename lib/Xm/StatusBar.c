@@ -424,18 +424,18 @@ void XmStatusBarSetItems(Widget widget, const XmStatusBarItem *items,
 
 Cardinal XmStatusBarGetItemCount(Widget widget)
 {
-    return widget && XmIsStatusBar(widget)
+    return widget && XmIsStatusBar(widget) && !widget->core.being_destroyed
                ? ((XmStatusBarWidget)widget)->status_bar.item_count : 0;
 }
 
 Cardinal XmStatusBarGetVisibleItemCount(Widget widget)
 {
-    return widget && XmIsStatusBar(widget)
+    return widget && XmIsStatusBar(widget) && !widget->core.being_destroyed
                ? ((XmStatusBarWidget)widget)->status_bar.visible_count : 0;
 }
 
 Cardinal XmStatusBarGetOverflowCount(Widget widget)
 {
-    return widget && XmIsStatusBar(widget)
+    return widget && XmIsStatusBar(widget) && !widget->core.being_destroyed
                ? ((XmStatusBarWidget)widget)->status_bar.overflow_count : 0;
 }
