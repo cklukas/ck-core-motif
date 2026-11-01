@@ -1,3 +1,10 @@
+Align InfoBar actions using measured label geometry (2026-11-01)
+================================================================
+
+- Replace fixed action-label drawing and click offsets with render-table
+  measurement and the actual close-control gutter. Localized action labels now
+  receive a matching visible and clickable region.
+
 Extend native non-text Unicode menu coverage (2026-11-01)
 ===========================================================
 

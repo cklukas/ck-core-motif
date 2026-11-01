@@ -1524,3 +1524,5 @@ EXTRA_DIST += docs/validation/macos-dialog-demos-20261101.json
 EXTRA_DIST += tests/automated/check-container-appearance.c \
               tests/automated/run-container-appearance.py \
               docs/validation/macos-container-20261101.json
+
+EXTRA_DIST += tests/automated/check-infobar-action-layout.py
