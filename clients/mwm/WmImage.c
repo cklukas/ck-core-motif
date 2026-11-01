@@ -279,8 +279,11 @@ Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
 			       pixmap, NULL, &depth, NULL, NULL, NULL, NULL,
 			       &width, &height))
 	      {
-		pixmap = MakeIconPixmap (pCD, pixmap, XmUNSPECIFIED_PIXMAP,
-					 width, height, depth);
+		if (depth > 0)
+		  pixmap = MakeIconPixmap (pCD, pixmap, XmUNSPECIFIED_PIXMAP,
+					   width, height, (unsigned int)depth);
+		else
+		  pixmap = XmUNSPECIFIED_PIXMAP;
 	      }
 	  else
 	      {
@@ -355,6 +358,8 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 #endif /* NO_CLIP_CENTER */
     Pixel        fg;
     Pixel        bg;
+    unsigned int min_width, min_height, max_width, max_height;
+    int          display_depth;
     static RList *top_rects = NULL;
     static RList *bot_rects = NULL;
     WmScreenData	*pSD;
@@ -395,20 +400,28 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     if (bitmap == None || width == 0 || height == 0)
 	return ((Pixmap)NULL);
 
-    if (pSD->iconImageMaximum.width == 0 ||
-	pSD->iconImageMaximum.height == 0 ||
-	pSD->iconImageMaximum.width > UINT_MAX -
-	    (2 * ICON_INTERNAL_SHADOW_WIDTH +
-	     ((wmGD.frameStyle == WmSLAB) ? 2U : 0U)) ||
-	pSD->iconImageMaximum.height > UINT_MAX -
-	    (2 * ICON_INTERNAL_SHADOW_WIDTH +
-	     ((wmGD.frameStyle == WmSLAB) ? 2U : 0U)))
+
+    if (pSD->iconImageMinimum.width < 0 ||
+	pSD->iconImageMinimum.height < 0 ||
+	pSD->iconImageMaximum.width <= 0 ||
+	pSD->iconImageMaximum.height <= 0)
+	return ((Pixmap)NULL);
+
+    min_width = (unsigned int)pSD->iconImageMinimum.width;
+    min_height = (unsigned int)pSD->iconImageMinimum.height;
+    max_width = (unsigned int)pSD->iconImageMaximum.width;
+    max_height = (unsigned int)pSD->iconImageMaximum.height;
+    if (max_width > UINT_MAX -
+	(2U * ICON_INTERNAL_SHADOW_WIDTH +
+	 ((wmGD.frameStyle == WmSLAB) ? 2U : 0U)) ||
+	max_height > UINT_MAX -
+	(2U * ICON_INTERNAL_SHADOW_WIDTH +
+	 ((wmGD.frameStyle == WmSLAB) ? 2U : 0U)))
 	return ((Pixmap)NULL);
 
     /* don't make icon pixmap if bitmap is too small */
 
-    if ((width < pSD->iconImageMinimum.width) ||
-	(height < pSD->iconImageMinimum.height))
+    if (width < min_width || height < min_height)
     {
 	/* bitmap is too small */
 	return ((Pixmap)NULL);
@@ -416,17 +429,21 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 #ifndef NO_CLIP_CENTER
     
     /* copy the center of the icon if too big */
-    if (width > pSD->iconImageMaximum.width)
+    if (width > max_width)
     {
-	src_x = (width - pSD->iconImageMaximum.width)/2;
+	if ((width - max_width) / 2U > (unsigned int)INT_MAX)
+	    return ((Pixmap)NULL);
+	src_x = (int)((width - max_width) / 2U);
     }
     else
     {
 	src_x = 0;
     }
-    if (height > pSD->iconImageMaximum.height)
+    if (height > max_height)
     {
-	src_y = (height - pSD->iconImageMaximum.height)/2;
+	if ((height - max_height) / 2U > (unsigned int)INT_MAX)
+	    return ((Pixmap)NULL);
+	src_y = (int)((height - max_height) / 2U);
     }
     else
     {
@@ -438,18 +455,19 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
      * SLAB frameStyle adds a single pixel of background color around
      * the image to set it off from the beveling.
      */
-    imageWidth = pSD->iconImageMaximum.width + 
-		  2 * ICON_INTERNAL_SHADOW_WIDTH +
-		  ((wmGD.frameStyle == WmSLAB) ? 2 : 0);
-    imageHeight = pSD->iconImageMaximum.height +
-		  2 * ICON_INTERNAL_SHADOW_WIDTH +
-		  ((wmGD.frameStyle == WmSLAB) ? 2 : 0);
+    imageWidth = max_width + 2U * ICON_INTERNAL_SHADOW_WIDTH +
+		  ((wmGD.frameStyle == WmSLAB) ? 2U : 0U);
+    imageHeight = max_height + 2U * ICON_INTERNAL_SHADOW_WIDTH +
+		  ((wmGD.frameStyle == WmSLAB) ? 2U : 0U);
+    display_depth = DefaultDepth(DISPLAY, pSD->screen);
+    if (display_depth <= 0)
+	return ((Pixmap)NULL);
 
     /* create a pixmap (to be returned) */
 
     iconPixmap = XCreatePixmap (DISPLAY, pSD->rootWindow, 
 		     imageWidth, imageHeight,
-		     DefaultDepth(DISPLAY, pSD->screen));
+		     (unsigned int)display_depth);
 
     if (iconPixmap == None)
 	return ((Pixmap)NULL);
@@ -524,18 +542,18 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
 
     /* center the image */
 
-    if (width > pSD->iconImageMaximum.width)
+    if (width > max_width)
     {
-	width = pSD->iconImageMaximum.width;
+	width = max_width;
     }
-    if (height > pSD->iconImageMaximum.height)
+    if (height > max_height)
     {
-	height = pSD->iconImageMaximum.height;
+	height = max_height;
     }
     /* center the image */
 
-    dest_x = (imageWidth - width) / 2;
-    dest_y = (imageHeight - height) / 2;
+    dest_x = (int)((imageWidth - width) / 2U);
+    dest_y = (int)((imageHeight - height) / 2U);
 
 #ifdef WSM
     if (mask)
@@ -577,7 +595,7 @@ Pixmap MakeIconPixmap (ClientData *pCD, Pixmap bitmap, Pixmap mask, unsigned int
     /* copy the bitmap to the pixmap */
 #ifndef DISALLOW_DEEP_ICONS
     if ((depth > 1) &&
-        (depth == DefaultDepth(DISPLAY, pSD->screen)))
+        (depth == (unsigned int)display_depth))
     {
 #ifndef NO_CLIP_CENTER
         XCopyArea (DISPLAY, bitmap, iconPixmap, imageGC, src_x, src_y,
@@ -711,6 +729,7 @@ Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmapIndex)
     Pixmap        pixmap = (Pixmap)NULL;
     GC            gc;
     XGCValues     gcv;
+    int           display_depth;
 
     if (pSD == NULL || menuW == NULL || bitmapIndex < 0 ||
 	(unsigned int) bitmapIndex >= pSD->bitmapCacheCount ||
@@ -732,7 +751,7 @@ Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmapIndex)
     i = 0;
     XtSetArg (args[i], XtNforeground, &fg); i++;
     XtSetArg (args[i], XtNbackground, &bg); i++;
-    XtGetValues (menuW, (ArgList)args, i);
+    XtGetValues (menuW, (ArgList)args, (Cardinal)i);
 
     pixmapc = bitmapc->pixmapCache;
     while (pixmapc)
@@ -758,9 +777,12 @@ Pixmap MakeCachedLabelPixmap (WmScreenData *pSD, Widget menuW, int bitmapIndex)
          * Only BadAlloc error possible; BadDrawable and BadValue are avoided.
          */
 
-        pixmap = XCreatePixmap (DISPLAY, pSD->rootWindow, 
+	display_depth = DefaultDepth(DISPLAY, pSD->screen);
+	if (display_depth <= 0)
+	    return ((Pixmap)NULL);
+	pixmap = XCreatePixmap (DISPLAY, pSD->rootWindow,
 				bitmapc->width, bitmapc->height,
-                                DefaultDepth (DISPLAY, pSD->screen));
+				(unsigned int)display_depth);
 	if (pixmap == None)
 	    return ((Pixmap)NULL);
 

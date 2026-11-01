@@ -10,6 +10,16 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Validate MWM icon geometry conversion boundaries (2026-11-01)
+=============================================================
+
+- Validate signed icon resource dimensions before converting them for Xlib,
+  retain explicit unsigned pixmap dimensions, and reject source offsets that
+  cannot be represented by Xlib's signed copy coordinates.
+- Validate display depth before pixmap creation and remove lossy internal
+  geometry conversions in the icon paths.
+- Add a focused geometry-bound regression and document the conversion contract.
+
 Release temporary MWM icon bevel GCs (2026-11-01)
 ====================================================
 
