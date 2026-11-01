@@ -1,0 +1,123 @@
+{
+  "tested_revision": "f9bf48c0c7387f0508a730ac2b0f79ab6de44d0c",
+  "recorded_utc": "2026-11-01T22:38:49.329695+00:00",
+  "scope": "Native macOS arm64 C23 BreadcrumbBar rendering and input; actual XQuartz gallery process; no automated user-desktop mouse/keyboard input.",
+  "sources": {
+    "lib/Xm/BreadcrumbBar.c": "f1f4a92ac64b5bbad1710a179e4858cf68576b670de0ca5c2f05b4201a61f57d",
+    "tests/automated/check-breadcrumb-modern.c": "4198fdd932c3db794e2e4cbb4b3feab86e0178446c070910c8c51ca5f69e6271",
+    "tests/automated/run-breadcrumb-modern.py": "e1f26a1f803976232d3e7d6ba4a1907867b990fcffb0a5264b13d5d60142b0b4"
+  },
+  "source_asset_manifest_sha256": "9115526c57d6ef45dc2cc34ced9869667e7250e8860b3e3958366c5bae4dec31",
+  "build": {
+    "configuration": "Mac arm64 Clang C23, Xft/Unicode/SVG, shared-only, -j3",
+    "started_utc": "2026-11-01T22:36:31.417187+00:00",
+    "ended_utc": "2026-11-01T22:36:33.642672+00:00",
+    "elapsed_seconds": 2.2252768329999526,
+    "outputs": {
+      "/Volumes/S8T/tmp/motif-breadcrumb-20261101/install/bin/ckmotif-gallery": {
+        "sha256": "af3cd619dfd545bd144c71d42ecd2f28a3b64b9df8f4b171d88fe3ab962e0c49",
+        "mtime_ns": 1793572593531800707,
+        "file": "/Volumes/S8T/tmp/motif-breadcrumb-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+      },
+      "/Volumes/S8T/tmp/motif-breadcrumb-20261101/install/lib/libXm.9.dylib": {
+        "sha256": "a2470c3753b097f91db6149e577a4ae874e76e10b3d82b85bb4d45fcdfc06223",
+        "mtime_ns": 1793572593010835766,
+        "file": "/Volumes/S8T/tmp/motif-breadcrumb-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+      }
+    }
+  },
+  "clean_build": {
+    "configure_seconds": 25.279153209005017,
+    "library_seconds": 24.97192491700116,
+    "previous_comparable_clean_library_seconds": 37.21,
+    "freshness": "Fresh configured workspace, direct Clang compilation at -j3. Subsequent natural-geometry update compiled successfully. Final short rebuilds changed test/docs inputs only; library byte identity matched the prior successful rendering/query/input acceptance and final installed tests. Source/assets and exact DLL/executable fingerprints checked before launch."
+  },
+  "focused_native": {
+    "configurations": 24,
+    "profiles": [
+      "Modern Light",
+      "Modern Dark",
+      "Classic",
+      "Modern Light round-trip"
+    ],
+    "scales": [
+      1,
+      1.5,
+      2
+    ],
+    "directions": [
+      "LTR",
+      "RTL"
+    ],
+    "checks_including_individual_pixel_samples": 11082,
+    "coverage": [
+      "plain current-item top strip instead of inversion",
+      "accent underline pixels",
+      "custom slash and automatic separator reset",
+      "natural width beyond old 240px cap and font-aware height",
+      "quiet profile changes",
+      "directional keyboard selection and Return activation",
+      "first visual item pointer activation"
+    ],
+    "existing_contract_checks": 10,
+    "source_guards": 13
+  },
+  "other_acceptance": {
+    "gallery_sidebar_pixels": true,
+    "gallery_keyboard_and_navigation_integration": true,
+    "installed_demos": 34,
+    "installed_demo_startups": 33,
+    "installed_mwm_wsm_assets_and_uid_identity": true,
+    "merged_mwm_source_guard": true,
+    "merged_mwm_native_build": true
+  },
+  "evidence": {
+    "build-receipt.json": "1a373ccd8432d5ea2b60aa999233652e71979df5a38870e7dff707ae5215485b",
+    "clean-build-receipt.json": "249c57bb297ec7d5914642d9bd6ab1d8267bcb32299f5f39c93433e07ec9fba6",
+    "breadcrumb-confirmed-checks/receipt.json": "d81e18b2c12d30e4510a4dbca2b78f6e997d4e2c6647f212c5135e3b3b2e01da",
+    "native-confirmed-checks/receipt.json": "444dd974eca11ab51d00de163a4ea280110c13f7e7b359d2665f26ea7e1ba7a3",
+    "installed-final-checks/receipt.json": "c452310f571c5d3d4a3db78f7b8ff737bdbbe383e27ac2930f30e8b5bd3e5d2f",
+    "source-checks.json": "4f009a500e644476d467d7e8d6cb5177fdfd3d66f09d7b4b081c5b95f04c57c5"
+  },
+  "actual_xquartz": {
+    "running": {
+      "pid": 9778,
+      "logger_pid": 9777,
+      "executable": "/Volumes/S8T/tmp/motif-breadcrumb-20261101/install/bin/ckmotif-gallery",
+      "display": "/var/run/com.apple.launchd.ezDZs4P3A0/org.xquartz:0",
+      "source_revision": "f9bf48c0c7387f0508a730ac2b0f79ab6de44d0c",
+      "outputs": {
+        "/Volumes/S8T/tmp/motif-breadcrumb-20261101/install/bin/ckmotif-gallery": {
+          "sha256": "af3cd619dfd545bd144c71d42ecd2f28a3b64b9df8f4b171d88fe3ab962e0c49",
+          "mtime_ns": 1793572593531800707,
+          "file": "/Volumes/S8T/tmp/motif-breadcrumb-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+        },
+        "/Volumes/S8T/tmp/motif-breadcrumb-20261101/install/lib/libXm.9.dylib": {
+          "sha256": "a2470c3753b097f91db6149e577a4ae874e76e10b3d82b85bb4d45fcdfc06223",
+          "mtime_ns": 1793572593010835766,
+          "file": "/Volumes/S8T/tmp/motif-breadcrumb-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+        }
+      },
+      "launched_utc": "2026-11-01T22:38:02.655418+00:00",
+      "arguments": [
+        "--appearance",
+        "modern-light",
+        "--scale",
+        "1",
+        "--component",
+        "xm.breadcrumbbarwidgetclass",
+        "--screenshot-mode"
+      ],
+      "retired_gallery_pids": [
+        65204
+      ]
+    },
+    "window_id": 7026,
+    "xquartz_server_pid": 6088,
+    "image": "/Volumes/S8T/tmp/motif-breadcrumb-20261101/actual-breadcrumb-window.png",
+    "image_sha256": "f9279ec7983fc177d1e49a8e1103b0b1d82a02b4a3e4dff0ad3c0659c10a3c01",
+    "observed": "Actual verified gallery/DLL: normal current-item background, blue underline, chevrons between labels, balanced spacing, full labels and visible sidebar. Left open for manual testing."
+  },
+  "compatibility": "No public API or record layout change. NULL separator now means automatic profile separator; explicit strings remain authoritative. Classic retains slash/inversion rendering.",
+  "raw_evidence_directory": "/Volumes/S8T/tmp/motif-breadcrumb-20261101"
+}

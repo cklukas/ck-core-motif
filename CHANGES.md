@@ -6,7 +6,10 @@
 - Keep the current label on the normal surface with an accent underline.
 - Preserve explicit separators and Classic styling; refresh live palette colors
   and align RTL hit-test metrics with rendering.
-- See the [Breadcrumb Bar behavior and regression](docs/breadcrumb-bar.md).
+- Qualify 24 native theme/scale/direction configurations, existing behavior,
+  installed demos and the actual XQuartz window; see the
+  [validation record](docs/validation/macos-breadcrumb-20261101.json) and
+  [Breadcrumb Bar contract](docs/breadcrumb-bar.md).
 
 ## 2026-11-01 — Anchored popup examples and Modern Flyout layout
 
