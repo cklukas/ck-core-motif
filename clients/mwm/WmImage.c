@@ -959,6 +959,9 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
 #endif /* WSM */
             MWarning (((char *)GETMESSAGE(38, 7, "Unable to read bitmap file %s\n")), path);
 	    XtFree ((char *)bitmapc->path);
+	    bitmapc->path = NULL;
+	    bitmapc->bitmap = None;
+	    bitmapc->width = bitmapc->height = 0;
 	    return (-1);
         }
 
@@ -968,7 +971,12 @@ int GetBitmapIndex (WmScreenData *pSD, char *name)
 	  if (bReportError)
 #endif /* WSM */
             MWarning (((char *)GETMESSAGE(38, 8, "Invalid bitmap file %s\n")), path);
+	    if (bitmapc->bitmap != None)
+		XFreePixmap (DISPLAY, bitmapc->bitmap);
 	    XtFree ((char *)bitmapc->path);
+	    bitmapc->path = NULL;
+	    bitmapc->bitmap = None;
+	    bitmapc->width = bitmapc->height = 0;
 	    return (-1);
         }
     }

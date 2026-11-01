@@ -1,3 +1,11 @@
+Clean failed MWM bitmap-cache slots (2026-11-01)
+===================================================
+
+- Clear the uncounted bitmap-cache slot after a failed named-bitmap read so a
+  later retry cannot retain a dangling path pointer.
+- Release the X pixmap obtained for a rejected zero-sized bitmap, and add
+  focused failure-cleanup coverage and documentation.
+
 Declare MWM grab-mask size bounds portably (2026-11-01)
 =========================================================
 
