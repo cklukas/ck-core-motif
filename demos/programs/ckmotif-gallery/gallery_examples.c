@@ -415,8 +415,13 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         /* GALLERY-SOURCE-END */
     } else if (class == xmCascadeButtonWidgetClass || class == xmCascadeButtonGadgetClass) {
         /* GALLERY-SOURCE-BEGIN: construction xmCascadeButtonWidgetClass xmCascadeButtonGadgetClass */
-        Widget bar = XmCreateMenuBar(parent, "fileMenuBar", NULL, 0);
-        XtManageChild(bar);
+        Widget bar = parent;
+        unsigned char type = XmWORK_AREA;
+        if (XmIsRowColumn(parent)) XtVaGetValues(parent, XmNrowColumnType, &type, NULL);
+        if (type != XmMENU_BAR) {
+            bar = XmCreateMenuBar(parent, "fileMenuBar", NULL, 0);
+            XtManageChild(bar);
+        }
         Widget menu = XmCreatePulldownMenu(bar, "fileMenu", NULL, 0);
         const char *actions[] = {"Open document", "Save changes", "Close document"};
         unsigned int i;

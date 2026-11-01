@@ -21,7 +21,10 @@ No public resources or native instance records change.
 Cascade controls belong in a menu RowColumn, such as a menu bar, pulldown or
 popup. Use `XmCreateMenuBar`, create the pulldown from that bar, then create the
 cascade as a child of the bar with `XmNsubMenuId` referencing the pulldown.
-The gallery uses this same public construction path for both classes.
+Modern menu bars default to zero outer shadow; explicit application shadows
+remain authoritative. The gallery reuses its supplied menu bar; the shared
+example factory creates one only when given a generic host. Both host paths
+are covered by native tests.
 
 Native qualification uses the actual gallery factory:
 

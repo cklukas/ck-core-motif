@@ -759,6 +759,9 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
         unsigned char type = ((XmRowColumnWidget)widget)->row_column.type;
         if (type != XmMENU_BAR && type != XmMENU_POPUP && type != XmMENU_PULLDOWN)
             return NULL;
+        if (type == XmMENU_BAR &&
+            (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK))
+            return "0";
     }
     if (appearance_database_value(widget, profile_defaults(profile, density), property,
                                   &value))

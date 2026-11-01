@@ -6,7 +6,8 @@
   clean generated submenu chevrons, preserving Classic and explicit resources.
 - Make theme ownership queries include live gadgets, so their selected colors
   follow the palette while explicit application resources remain authoritative.
-- Construct gallery Cascade examples inside a real menu bar. See the
+- Reuse supplied gallery menu bars, create one for generic hosts, and remove
+  the modern menu bar's default outer shadow. See the
   [appearance contract](docs/cascade-button-appearance.md).
 
 ## 2026-11-01 — Modern Avatar rendering
