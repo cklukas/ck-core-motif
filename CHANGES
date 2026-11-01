@@ -3989,6 +3989,14 @@ Saturate ColorSelector preferred size (2026-11-01)
   preferred result to the `Dimension` range instead of wrapping it small.
 - Add focused regression coverage and documentation.
 
+Harden ColorSelector RGB database ingestion (2026-11-01)
+==========================================================
+
+- Check both ColorInfo/XmString allocator byte counts against Xt's `Cardinal`
+  allocation limit, use size-correct name and sort counts, and cap entries to
+  the representable signed-short color count.
+- Extend focused loader coverage and document the bounded ingestion contract.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 

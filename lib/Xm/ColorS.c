@@ -1503,7 +1503,8 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
      * Read in all the colornames.
      */
     if ((file = fopen(XmColorS_rgb_file(csw), "r")) != NULL) {
-	register int alloc, count, len;
+	register int alloc, count;
+	size_t len;
 	register char *name;
 	Boolean allocation_failed = False;
 
@@ -1514,6 +1515,9 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 	     * Skip any comment lines in the file
 	     */
 	    if ( buf[0] == '!' ) continue;
+	    /* num_colors is a signed short, so retain only what it can represent. */
+	    if (count >= SHRT_MAX)
+		break;
 	    
 	    if (count >= alloc) {
 		if (0 == alloc)
@@ -1527,13 +1531,16 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 			}
 			alloc += ALLOC_INC;
 			}
-		if ((size_t)alloc > SIZE_MAX / sizeof(*color_info)) {
+		if ((size_t)alloc > SIZE_MAX / sizeof(*color_info) ||
+		    (size_t)alloc > UINT_MAX / sizeof(*color_info)) {
 		    allocation_failed = True;
 		    break;
 		}
 		{
+		    Cardinal allocation_size = (Cardinal)(sizeof(*color_info) *
+			(size_t)alloc);
 		    ColorInfo *new_info = (ColorInfo *)XtRealloc(
-			(XtPointer) color_info, sizeof(*color_info) * (size_t)alloc);
+			(XtPointer) color_info, allocation_size);
 		    if (new_info == NULL) {
 			allocation_failed = True;
 			break;
@@ -1561,8 +1568,8 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 	    }
 
 	    name = color_info[count].no_space_lower_name;
-	    for (i = 0; i < len; i++) {
-		register char c = color_name[i];
+	    for (size_t name_index = 0; name_index < len; name_index++) {
+		register char c = color_name[name_index];
 
 		/*
 		 * Copy in all characters that are ascii and non-spaces.
@@ -1576,8 +1583,8 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 
 	    name = color_info[count].name;
 	    color_name[0] = (char)toupper((unsigned char)color_name[0]);
-	    for (i = 0; i < len; i++) {
-		register char c = color_name[i];
+	    for (size_t name_index = 0; name_index < len; name_index++) {
+		register char c = color_name[name_index];
 
 		/*
 		 * Capitalize all characters after a space.
@@ -1585,8 +1592,9 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 
 		if (!isascii((unsigned char)c))
 		    continue;
-		if (isspace((unsigned char)c) && ((i + 1) < len)) {
-		    color_name[i + 1] = (char)toupper((unsigned char)color_name[i + 1]);
+		if (isspace((unsigned char)c) && ((name_index + 1) < len)) {
+		    color_name[name_index + 1] =
+			(char)toupper((unsigned char)color_name[name_index + 1]);
 		}
 
 		*name++ = c;
@@ -1601,7 +1609,7 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 	    return;
 	}
 	    
-	qsort(color_info, count, sizeof(ColorInfo), CmpColors);
+	qsort(color_info, (size_t)count, sizeof(ColorInfo), CmpColors);
 
 	/*
 	 * Remove duplicates.
@@ -1644,7 +1652,8 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 		    XtFree((char *)color_info);
 		    return;
 		}
-		strs = (XmString*)XtMalloc(sizeof(*strs) * (size_t)count);
+		strs = (XmString*)XtMalloc((Cardinal)(sizeof(*strs) *
+			(size_t)count));
 		if (strs == NULL && count != 0) {
 		    XtFree((char *)color_info);
 		    return;
@@ -1662,7 +1671,7 @@ read_rgb_file(XmColorSelectorWidget csw, ArgList cargs, Cardinal cnum_args, Bool
 
 	XtFree((char*)XmColorS_colors(csw));
 	XmColorS_colors(csw) = color_info;
-	XmColorS_num_colors(csw) = count;
+	XmColorS_num_colors(csw) = (short)count;
 
 	/* It would be better if we had cached the current index number so
 	** we could just reset the list to the string corresponding to that 
