@@ -1126,6 +1126,29 @@ static int run_integration_test(GalleryState *state)
         XmTextFieldSetString(state->search, "");
         if (XmTreeViewGetNodeCount(state->tree) != all) return 1;
     }
+    {
+        XEvent click = {0}, tab = {0};
+        if (!XmProcessTraversal(state->search, XmTRAVERSE_CURRENT)) return 1;
+        click.xbutton.type = ButtonPress;
+        click.xbutton.display = XtDisplay(state->tree);
+        click.xbutton.window = XtWindow(state->tree);
+        click.xbutton.button = Button1;
+        click.xbutton.x = 60; click.xbutton.y = 8;
+        XtDispatchEvent(&click);
+        if (XmGetFocusWidget(state->shell) != state->tree) {
+            fprintf(stderr, "gallery integration: clicking navigation did not focus tree\n");
+            return 1;
+        }
+        tab.xkey.type = KeyPress;
+        tab.xkey.display = XtDisplay(state->tree);
+        tab.xkey.window = XtWindow(state->tree);
+        tab.xkey.keycode = XKeysymToKeycode(XtDisplay(state->tree), XK_Tab);
+        XtDispatchEvent(&tab);
+        if (XmGetFocusWidget(state->shell) == state->tree) {
+            fprintf(stderr, "gallery integration: Tab did not leave navigation tree\n");
+            return 1;
+        }
+    }
     XmTreeViewSetSelectedId(state->tree, selected, True);
         if (!XmProcessTraversal(state->tree, XmTRAVERSE_CURRENT)) {
             fprintf(stderr, "gallery integration: tree traversal failed\n");
@@ -2067,12 +2090,15 @@ int main(int argc, char **argv)
             XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, label, XmNtopOffset, 4,
             XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM, NULL);
         XtAddCallback(state.search, XmNvalueChangedCallback, search_changed, &state);
-        state.tree = XtVaCreateManagedWidget("components", xmTreeViewWidgetClass,
-            state.navigation_form, XmNtraversalOn, True,
-            XmNtreeViewVisibleRows, 17,
-            XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state.search, XmNtopOffset, 12,
-            XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM,
-            XmNbottomAttachment, XmATTACH_FORM, NULL);
+        {
+            Widget viewport = XtVaCreateManagedWidget("navigationViewport", xmScrolledWindowWidgetClass,
+                state.navigation_form, XmNscrollingPolicy, XmAPPLICATION_DEFINED,
+                XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state.search, XmNtopOffset, 12,
+                XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM,
+                XmNbottomAttachment, XmATTACH_FORM, NULL);
+            state.tree = XtVaCreateManagedWidget("components", xmTreeViewWidgetClass,
+                viewport, XmNtraversalOn, True, XmNtreeViewVisibleRows, 17, NULL);
+        }
         XtAddEventHandler(content, StructureNotifyMask, False, navigation_resize, &state);
         XtAddEventHandler(state.tree, StructureNotifyMask, False, navigation_resize, &state);
     }

@@ -1312,6 +1312,7 @@ EXTRA_DIST += tests/automated/run-gallery-window-geometry.py
 
 EXTRA_DIST += tests/automated/check-tree-view-accessibility.c tests/automated/run-tree-view-accessibility.py
 EXTRA_DIST += tests/automated/check-tree-view-activation.c tests/automated/run-tree-view-activation.py
+EXTRA_DIST += tests/automated/check-tree-view-scroll.c tests/automated/run-tree-view-scroll.py
 
 EXTRA_DIST += tests/automated/run-gallery-pages.py
 
