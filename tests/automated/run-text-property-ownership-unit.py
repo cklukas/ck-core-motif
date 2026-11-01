@@ -26,6 +26,13 @@ while depth:
     depth += (content[end] == '{') - (content[end] == '}')
     end += 1
 body = 'int ' + content[start:end]
+start = content.index('XmCvtTextPropertyToXmStringTable(Display *display,')
+begin = content.index('{', start)
+end, depth = begin + 1, 1
+while depth:
+    depth += (content[end] == '{') - (content[end] == '}')
+    end += 1
+reverse_body = 'int ' + content[start:end]
 prefix = r'''
 #include <assert.h>
 #include <stdint.h>
@@ -34,6 +41,9 @@ prefix = r'''
 #include <stdio.h>
 #include <string.h>
 typedef unsigned int Cardinal;
+typedef void *XtPointer;
+typedef char *XmStringTag;
+typedef int XmTextType;
 typedef int Boolean;
 typedef int Display;
 typedef unsigned long Atom;
@@ -49,6 +59,11 @@ typedef enum {XmSTYLE_COMPOUND_TEXT, XmSTYLE_COMPOUND_STRING, XmSTYLE_LOCALE,
 #define BadAlloc 11
 #define XNoMemory -1
 #define XLocaleNotSupported -2
+#define XConverterNotFound -3
+#define _MOTIF_DEFAULT_LOCALE "locale"
+#define XmMULTIBYTE_TEXT 0
+#define XmCHARSET_TEXT 1
+#define XtNumber(a) (sizeof(a)/sizeof((a)[0]))
 #define _LOCALE_TEXT 0
 #define _STRING_TEXT 1
 #define XA_STRING 31
@@ -59,6 +74,8 @@ typedef enum {XmSTYLE_COMPOUND_TEXT, XmSTYLE_COMPOUND_STRING, XmSTYLE_LOCALE,
 #define _XmAppUnlock(a) (--locks)
 static int calls, fail_at, live, locks, forced_error, forced_item, converted, overflow;
 static int stream_override;
+static int decode_calls, decode_fail;
+static int length_calls, length_fail_at;
 static void *XtMalloc(Cardinal size) {
     void *p; if (++calls==fail_at) return NULL;
     p=malloc(size ? size : 1); if(p)++live;return p;
@@ -68,6 +85,10 @@ static Atom XInternAtom(Display *d,const char *name,Boolean only) {
     (void)d;(void)name;(void)only;return 42;
 }
 static Atom GetLocaleEncodingAtom(Display *d) { (void)d;return 43; }
+static void XInternAtoms(Display *d,char **names,int count,Boolean only,Atom *atoms) {
+    (void)d;(void)names;(void)only;
+    for(int i=0;i<count;++i)atoms[i]=42+(Atom)i;
+}
 static char *duplicate(const char *s) {
     size_t n=strlen(s)+1;char *p=XtMalloc((Cardinal)n);
     if(p)memcpy(p,s,n);return p;
@@ -91,6 +112,28 @@ static unsigned int XmCvtXmStringToByteStream(XmString s,unsigned char **out) {
 static size_t checked_length(const char *s) {
     if(overflow && !strcmp(s,"first")) return INT_MAX;
     return strlen(s);
+}
+typedef struct { char *payload; } OwnedString;
+static XmString owned_string(const char *text) {
+    OwnedString *s=XtMalloc(sizeof(*s));if(!s)return NULL;
+    s->payload=duplicate(text);
+    if(!s->payload){XtFree((char *)s);return NULL;}
+    return (XmString)s;
+}
+static void XmStringFree(XmString s) {
+    if(s){XtFree(((OwnedString *)s)->payload);XtFree((char *)s);}
+}
+static XmString XmCvtCTToXmString(char *text) { return owned_string(text); }
+static unsigned int XmStringByteStreamLength(unsigned char *s) {
+    if(++length_calls==length_fail_at)return UINT_MAX;
+    return 4+(unsigned int)s[3];
+}
+static XmString XmCvtByteStreamToXmString(unsigned char *s) {
+    if(++decode_calls==decode_fail)return NULL;
+    char text[2]={(char)s[4],0};return owned_string(text);
+}
+static XmString XmStringGenerate(XtPointer text,XmStringTag tag,XmTextType type,XmStringTag rendition) {
+    (void)tag;(void)type;(void)rendition;return owned_string(text);
 }
 #define strlen(s) checked_length(s)
 '''
@@ -144,11 +187,39 @@ int main(void) {
     assert(live==1 && locks==0 && property.nitems==19 && property.format==8);
     assert(memcmp(property.value,"first\0second\0third\0\0",20)==0);
     XtFree((char *)property.value);assert(live==0);
+    unsigned char encoded[]={1,2,3,1,'a',1,2,3,1,'b',1,2,3,1,'c'};
+    property.value=encoded;property.nitems=sizeof(encoded);property.encoding=43;
+    XmStringTable output=NULL;int output_count=0;
+    for(decode_fail=1;decode_fail<=3;++decode_fail) {
+        decode_calls=0;
+        assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==XConverterNotFound);
+        assert(live==0 && locks==0 && output==NULL);
+    }
+    decode_fail=0;
+    for(int failure=1;failure<=7;++failure) {
+        calls=0;fail_at=failure;decode_calls=0;
+        assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)!=Success);
+        assert(live==0 && locks==0 && output==NULL);
+    }
+    fail_at=0;decode_calls=0;
+    assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==Success);
+    assert(output_count==3 && live==7 && locks==0);
+    for(int i=0;i<3;++i) {
+        assert(((OwnedString *)output[i])->payload[0]=='a'+i);
+        assert(((OwnedString *)output[i])->payload[1]==0);
+        XmStringFree(output[i]);
+    }
+    XtFree((char *)output);assert(live==0);
+    for(length_fail_at=4;length_fail_at<=6;++length_fail_at) {
+        length_calls=0;output=NULL;decode_calls=0;
+        assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==XConverterNotFound);
+        assert(live==0 && locks==0 && output==NULL);
+    }
     puts("PASS text-property conversion allocation/overflow cleanup, strict fallback and output bytes");
 }
 '''
 program = args.out / 'text-property.c'
-program.write_text(prefix + body + checks)
+program.write_text(prefix + body + reverse_body + checks)
 binary = args.out / 'text-property'
 receipt = {'source': str(source), 'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
            'started_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),

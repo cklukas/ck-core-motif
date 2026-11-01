@@ -1,3 +1,14 @@
+Destroy imported compound strings correctly on rollback (2026-11-01)
+==================================================================
+
+- Use XmStringFree for decoded ASN.1 table elements when a later conversion
+  or length check fails. Raw XtFree left compound-string payloads and nested
+  storage behind.
+- Add nested-ownership tests for each decoder failure and allocation failure,
+  late length rejection and successful multi-element import under ASan/UBSan.
+- Remove an unused converter local and compare its bounded property length
+  using the validated integer range, keeping the strict-warning probe clean.
+
 Reject failed ASN.1 text-property serialization (2026-11-01)
 ==========================================================
 

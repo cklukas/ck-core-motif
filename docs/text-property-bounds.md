@@ -41,8 +41,8 @@ sizing occurs after all items have been converted, so overflow releases every
 item, including those after the item that exceeded the size limit. Successful
 output bytes, encoding choices and fallback behavior remain unchanged.
 
-The executable ownership regression extracts the production table-to-property
-function and exercises 51 cases across the locale/string and ASN.1 styles: every
+The executable ownership regression extracts the production property import/export
+functions and exercises 65 cases across the locale/string and ASN.1 styles: every
 allocation failure, per-item conversion errors, oversized aggregate lengths,
 strict fallback, serializer failures and successful output bytes. Allocation, length
 and conversion test doubles allow overflow and rollback checks without large
@@ -56,6 +56,14 @@ python3 tests/automated/run-text-property-ownership-unit.py --out /absolute/fres
 The runner uses strict compiler warnings and ASan/UBSan and records the tested
 source hash, commands and results in `receipt.json`. This unit scope does not
 qualify the locale provider's actual character conversion or X11 transfers.
+
+ASN.1 import rollback destroys each completed `XmString` with `XmStringFree`,
+including after a later decoder failure or post-decode length rejection. A raw
+`XtFree` only releases the outer record and leaks nested compound-string
+storage. The executable test models separately owned records and payloads,
+injects failures at all seven allocations of a three-element import, rejects
+each decoder position and late length check, and verifies successful ownership
+transfer and cleanup. Valid imported strings and public APIs are unchanged.
 
 The reverse conversion validates output pointers, property lengths, and required
 value storage before reading an X property. Compound-text element counting also
