@@ -159,9 +159,19 @@ static Boolean valid_input(const XmTreeViewNode *nodes, Cardinal count) {
  * valid_input has established a forest with unique IDs. */
 static Cardinal *input_preorder(const XmTreeViewNode *nodes, Cardinal count) {
     Cardinal *order, *stack, used = 0, pending = 0, i;
-    if (!count) return NULL;
-    order = (Cardinal *)XtMalloc(count * sizeof(*order));
-    stack = (Cardinal *)XtMalloc(count * sizeof(*stack));
+    size_t bytes;
+
+    if (!count)
+        return NULL;
+#if SIZE_MAX < UINT_MAX
+    if ((size_t)count > SIZE_MAX / sizeof(*order))
+        return NULL;
+#endif
+    if (count > UINT_MAX / sizeof(*order))
+        return NULL;
+    bytes = (size_t)count * sizeof(*order);
+    order = (Cardinal *)XtMalloc((Cardinal)bytes);
+    stack = (Cardinal *)XtMalloc((Cardinal)bytes);
     if (!order || !stack) {
         XtFree((char *)order);
         XtFree((char *)stack);

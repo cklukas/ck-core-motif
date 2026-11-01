@@ -1254,6 +1254,7 @@ EXTRA_DIST += tests/automated/check-scrolled-appearance.c \
 
 EXTRA_DIST += tests/automated/check-tree-view-order.c \
               tests/automated/run-tree-view-order.py
+EXTRA_DIST += tests/automated/check-tree-view-preorder-allocation.py docs/tree-view-preorder-allocation.md
 
 EXTRA_DIST += tests/automated/check-tree-view-disclosure.c \
               tests/automated/run-tree-view-disclosure.py

@@ -38,6 +38,13 @@ Match toolbar icons to action button surfaces (2026-11-01)
   checks for four profiles, two scales, pressed/disabled states and replacement.
   See docs/toolbar.md and its qualification record.
 
+Bound TreeView preorder scratch storage (2026-11-01)
+=====================================================
+
+- Check flat-model preorder scratch-array bytes against host and Xt allocator
+  limits before allocating either traversal array.
+- Add focused regression coverage and document the public model-count boundary.
+
 Clarify resource converter integer widths (2026-11-01)
 ========================================================
 
