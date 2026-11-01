@@ -248,7 +248,7 @@ Pixmap GetNamedPixmap (Screen *scr, String iconName,
 
 Pixmap MakeNamedIconPixmap (ClientData *pCD, String iconName)
 {
-  Pixmap pixmap;
+  Pixmap pixmap = XmUNSPECIFIED_PIXMAP;
   unsigned int width, height;
   int depth;
   WmScreenData *pSD;

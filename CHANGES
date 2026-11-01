@@ -1,3 +1,12 @@
+Initialize MWM named-icon fallback state (2026-11-01)
+======================================================
+
+- Initialize the named-icon pixmap result before evaluating the fallback path,
+  preventing an arbitrary X resource ID from being returned for nameless
+  clients.
+- Extend the focused named-icon fallback regression and document the defined
+  fallback state.
+
 Clean failed MWM bitmap-cache slots (2026-11-01)
 ===================================================
 

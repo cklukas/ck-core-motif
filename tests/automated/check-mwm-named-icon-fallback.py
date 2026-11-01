@@ -9,6 +9,7 @@ start = source.index("Pixmap MakeNamedIconPixmap")
 end = source.index("} /* END OF FUNCTION MakeNamedIconPixmap", start)
 body = source[start:end]
 
+assert "Pixmap pixmap = XmUNSPECIFIED_PIXMAP;" in body
 assert "if (pCD == NULL)" in body
 assert "return ((Pixmap)NULL);" in body
 assert "pSD = (pCD->pSD != NULL) ? pCD->pSD : wmGD.pActiveSD;" in body
