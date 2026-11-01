@@ -609,12 +609,12 @@ XmCvtXmStringTableToTextProperty(Display *display,
       /* First calculate how much space the compound strings will occupy
 	 when they are all converted to ASN1 strings. */
       for (i = 0, total_size = 0; i < count; ++i) {
-	int item_size = XmCvtXmStringToByteStream(string_table[i],NULL);
-	if (item_size <= 0 || item_size > INT_MAX - total_size) {
+	unsigned int item_size = XmCvtXmStringToByteStream(string_table[i],NULL);
+	if (item_size == 0 || item_size > (unsigned int)(INT_MAX - total_size)) {
 	    _XmAppUnlock(app);
 	    return BadAlloc;
 	}
-	total_size += item_size;
+	total_size += (int)item_size;
       }
       /* Allocate that amount of space and convert the compound strings
 	 to ASN1 strings, putting them directly into the buffer. */
@@ -631,9 +631,11 @@ XmCvtXmStringTableToTextProperty(Display *display,
       }
       for (i = 0; i < count; ++i)
 	{
-	  int size;
+	  unsigned int size;
+	  bufptr = NULL;
 	  size = XmCvtXmStringToByteStream(string_table[i],&bufptr);
-	  if (size < 0 || size > total_size - (int)(ubufptr - text_prop_return->value)) {
+	  if (size == 0 || bufptr == NULL ||
+	      size > (unsigned int)(total_size - (int)(ubufptr - text_prop_return->value))) {
 	    XtFree((char *)bufptr);
 	    XtFree((char *)text_prop_return->value);
 	    text_prop_return->value = NULL;

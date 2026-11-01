@@ -58,6 +58,7 @@ typedef enum {XmSTYLE_COMPOUND_TEXT, XmSTYLE_COMPOUND_STRING, XmSTYLE_LOCALE,
 #define _XmAppLock(a) (++locks)
 #define _XmAppUnlock(a) (--locks)
 static int calls, fail_at, live, locks, forced_error, forced_item, converted, overflow;
+static int stream_override;
 static void *XtMalloc(Cardinal size) {
     void *p; if (++calls==fail_at) return NULL;
     p=malloc(size ? size : 1); if(p)++live;return p;
@@ -77,9 +78,14 @@ static int GetUseableText(Display *d,XmString s,char **out,Boolean strict,unsign
     if(++converted==forced_item) return forced_error;
     *out=duplicate((char *)s);return *out ? Success : XNoMemory;
 }
-static int XmCvtXmStringToByteStream(XmString s,unsigned char **out) {
-    int n=(int)strlen((char *)s)+1;
-    if(out) { *out=(unsigned char *)duplicate((char *)s); if(!*out)return -1; }
+static unsigned int XmCvtXmStringToByteStream(XmString s,unsigned char **out) {
+    unsigned int n=(unsigned int)strlen((char *)s)+1;
+    if(out) {
+        if(stream_override==1) { *out=NULL;return n; }
+        *out=(unsigned char *)duplicate((char *)s); if(!*out)return 0;
+        if(stream_override==2)return 0;
+        if(stream_override==3)return UINT_MAX;
+    }
     return n;
 }
 static size_t checked_length(const char *s) {
@@ -122,6 +128,22 @@ int main(void) {
         XtFree((char *)property.value);property.value=NULL;
     }
     assert(live==0);
+    forced_item=0;
+    for(int failure=1;failure<=4;++failure) {
+        calls=0;fail_at=failure;property.value=NULL;
+        assert(XmCvtXmStringTableToTextProperty(NULL,table,3,XmSTYLE_COMPOUND_STRING,&property)==BadAlloc);
+        assert(live==0 && locks==0 && property.value==NULL);
+    }
+    fail_at=0;
+    for(stream_override=1;stream_override<=3;++stream_override) {
+        assert(XmCvtXmStringTableToTextProperty(NULL,table,3,XmSTYLE_COMPOUND_STRING,&property)==BadAlloc);
+        assert(live==0 && locks==0 && property.value==NULL);
+    }
+    stream_override=0;
+    assert(XmCvtXmStringTableToTextProperty(NULL,table,3,XmSTYLE_COMPOUND_STRING,&property)==Success);
+    assert(live==1 && locks==0 && property.nitems==19 && property.format==8);
+    assert(memcmp(property.value,"first\0second\0third\0\0",20)==0);
+    XtFree((char *)property.value);assert(live==0);
     puts("PASS text-property conversion allocation/overflow cleanup, strict fallback and output bytes");
 }
 '''

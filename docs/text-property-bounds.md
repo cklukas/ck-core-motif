@@ -21,6 +21,14 @@ Xt-sized allocation, allocates space for its final terminator, and verifies
 each conversion result before copying it. The branch contract is covered by
 `tests/automated/check-compound-string-bounds.py`.
 
+A zero-length serialization result denotes failure for a non-null compound
+string, including when its byte-stream allocation fails. The property converter
+returns `BadAlloc` and clears/frees its partial value; it no longer reports
+success with missing serialized elements and an overstated `nitems`. Missing
+payloads and results exceeding the remaining allocation are also rejected.
+Serializer lengths retain their unsigned type until checked against the signed
+aggregate limit. Successful ASN.1 output and the public API remain unchanged.
+
 Locale, text, and string conversion applies the same pointer-array and signed
 aggregate checks, passes explicit Xt `Cardinal` byte sizes for its pointer and
 final buffers, and includes cleanup of all temporary converted strings when the
@@ -34,9 +42,9 @@ item, including those after the item that exceeded the size limit. Successful
 output bytes, encoding choices and fallback behavior remain unchanged.
 
 The executable ownership regression extracts the production table-to-property
-function and exercises 43 cases across the four locale/string styles: every
+function and exercises 51 cases across the locale/string and ASN.1 styles: every
 allocation failure, per-item conversion errors, oversized aggregate lengths,
-strict fallback and successful null-separated output bytes. Allocation, length
+strict fallback, serializer failures and successful output bytes. Allocation, length
 and conversion test doubles allow overflow and rollback checks without large
 buffers or an X server. Outstanding allocations and application-lock balance
 must return to zero after failures; success retains only the caller's result.

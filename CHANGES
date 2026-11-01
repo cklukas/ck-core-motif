@@ -1,3 +1,13 @@
+Reject failed ASN.1 text-property serialization (2026-11-01)
+==========================================================
+
+- Treat zero-length or missing byte-stream results as failure rather than
+  returning success with a partially written compound-string property.
+- Keep serializer sizes unsigned until checked against the signed aggregate
+  limit, initialize each temporary result and release partial output on failure.
+- Extend executable ASan/UBSan regression coverage with every serialization
+  allocation failure, inconsistent results and successful output bytes.
+
 Release all text-property conversion intermediates (2026-11-01)
 ===============================================================
 
