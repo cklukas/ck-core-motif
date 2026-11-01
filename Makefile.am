@@ -386,6 +386,7 @@ EXTRA_DIST += tests/automated/check-mwm-action-argument-allocation.py docs/mwm-a
 EXTRA_DIST += tests/automated/check-mwm-icon-bevel-gc-release.py docs/mwm-icon-bevel-gcs.md
 EXTRA_DIST += tests/automated/check-mwm-icon-dimension-types.py docs/mwm-icon-dimension-types.md
 EXTRA_DIST += tests/automated/check-mwm-continuation-buffer-bounds.py docs/mwm-continuation-buffer-bounds.md
+EXTRA_DIST += tests/automated/check-mwm-invalid-multibyte-line.py docs/mwm-invalid-multibyte-line.md
 EXTRA_DIST += tests/automated/check-mwm-parser-token-bounds.py docs/mwm-parser-token-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-feedback-geometry.py docs/mwm-feedback-geometry.md
 EXTRA_DIST += tests/automated/check-mwm-command-wire-format.py docs/mwm-command-wire-format.md

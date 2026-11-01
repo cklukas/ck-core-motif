@@ -1,3 +1,10 @@
+Reject invalid initial multibyte MWM session command lines safely (2026-11-01)
+===============================================================================
+
+- Keep the workspace-session command-line copy loop behind its initial
+  multibyte validation.  A malformed initial sequence can no longer leave a
+  null output sentinel that a later valid sequence dereferences.
+
 Preserve modern Container appearance across gadget recreation (2026-11-01)
 =================================================================
 

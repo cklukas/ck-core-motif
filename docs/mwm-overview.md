@@ -76,6 +76,7 @@ clients exchanging Motif window-management messages.
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
 - [Session command-vector width](mwm-session-command-vector-width.md)
 - [Session-command parsing rollback](mwm-session-command-rollback.md)
+- [Invalid multibyte session-command rejection](mwm-invalid-multibyte-line.md)
 - [Motif-bindings path sizing](mwm-bindings-path-size.md)
 - [Session workspace and host string sizing](mwm-session-string-size.md)
 - [Icon-box geometry ownership](mwm-iconbox-geometry-ownership.md)
