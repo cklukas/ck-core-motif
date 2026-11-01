@@ -1,3 +1,10 @@
+Guard public XmList queries during teardown (2026-11-01)
+=========================================================
+
+- Make public item and position queries return their established empty or
+  not-found values when a List is being destroyed, rather than examining
+  partially released list storage.
+
 Guard ComboBox compatibility value reads during teardown (2026-11-01)
 ======================================================================
 

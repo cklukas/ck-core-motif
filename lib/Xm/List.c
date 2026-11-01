@@ -10088,7 +10088,7 @@ XmListItemExists(Widget w,
   XmListWidget  lw = (XmListWidget) w;
   Boolean exists;
 
-  if (w == NULL || !XmIsList(w) || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL || lw->core.being_destroyed)
     return FALSE;
   _XmWidgetToAppContext(w);
 
@@ -10118,7 +10118,7 @@ XmListItemPos(Widget w,
   XmListWidget  lw = (XmListWidget) w;
   int pos;
 
-  if (w == NULL || !XmIsList(w) || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL || lw->core.being_destroyed)
     return 0;
   _XmWidgetToAppContext(w);
 
@@ -10147,7 +10147,7 @@ XmListGetKbdItemPos(Widget w)
   XmListWidget  lw = (XmListWidget) w;
   int pos;
 
-  if (w == NULL || !XmIsList(w))
+  if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)
     return 0;
   _XmWidgetToAppContext(w);
 
@@ -10234,7 +10234,7 @@ XmListGetMatchPos(Widget w,
     return FALSE;
   *pos_list = NULL;
   *pos_count = 0;
-  if (w == NULL || !XmIsList(w) || item == NULL)
+  if (w == NULL || !XmIsList(w) || item == NULL || lw->core.being_destroyed)
     return FALSE;
   _XmWidgetToAppContext(w);
 

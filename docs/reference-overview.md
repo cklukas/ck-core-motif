@@ -20,6 +20,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 
 - [Unicode support](unicode.md) — locale, composition, shaping, and input behavior.
 - [Non-text Unicode coverage](nontext-unicode.md) — multilingual labels, lists, menus, and other widgets.
+- [XmList query teardown guards](list-query-destroy-guards.md) — make public list queries safe during destruction.
 - [Text-source bounds](text-source-bounds.md) — safe range and size handling in text sources.
 - [Input-method rollback](vendor-im-string-rollback.md) — failure cleanup at the input-method boundary.
 
