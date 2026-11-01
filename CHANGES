@@ -38,6 +38,29 @@ Match toolbar icons to action button surfaces (2026-11-01)
   checks for four profiles, two scales, pressed/disabled states and replacement.
   See docs/toolbar.md and its qualification record.
 
+Clarify resource converter integer widths (2026-11-01)
+========================================================
+
+- Keep established converter copy lengths and cache sizes in their native
+  unsigned representations until the checked Xt allocator boundary.
+- Remove a charset-table overflow condition that is unreachable for its
+  bounded counter, while retaining the authoritative byte-size checks.
+- Add focused portability coverage and documentation.
+
+Bound final StringTable growth (2026-11-01)
+================================================
+
+- Reject an already full Xt byte-capacity table before adding the terminating
+  empty entry, preventing a one-slot allocator-size wrap.
+- Strengthen the existing focused growth regression and document the boundary.
+
+Preserve wide rendition-pixel values (2026-11-01)
+====================================================
+
+- Copy direct `XmRPixel` converter input at the native `Pixel` width instead
+  of truncating it through `int`, and reject undersized source values.
+- Extend focused converter regression coverage and documentation.
+
 Buffered toolkit painting and gallery appearance selection (2026-11-01)
 
 * Full-frame toolkit controls now paint through their Xt expose methods into

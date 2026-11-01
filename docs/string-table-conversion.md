@@ -8,6 +8,10 @@ sizes explicitly as Xt `Cardinal` byte counts. Individual fields are measured
 in `size_t`, rejected before narrowing to the legacy `int` copy length, and
 allocated with the checked span.
 
+The one-slot growth used for a trailing empty field now rejects an already
+full Xt byte capacity before adding the slot. This prevents an exact-limit
+pointer table from wrapping at the legacy allocator boundary.
+
 Run the installed-prefix regression with:
 
 ```sh
