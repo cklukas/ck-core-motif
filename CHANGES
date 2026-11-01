@@ -1,3 +1,12 @@
+Expand installed text-source boundary validation (2026-11-01)
+============================================================
+
+- Exercise narrow and wide valid, empty, reversed, negative, oversized and
+  incomplete source ranges, plus missing widget/source and zero-width input.
+- Verify the actual loaded library using dladdr and reject a mismatched path.
+  Record source, installed-header, library and executable hashes with commands,
+  results and timing; reject source/library/header changes during the run.
+
 Execute Container tab-pool failure and large-count coverage (2026-11-01)
 ======================================================================
 
