@@ -1,3 +1,15 @@
+Match toolbar icons to action button surfaces (2026-11-01)
+========================================================
+
+- Resolve gallery normal, armed and insensitive icon backgrounds from each
+  actual action/overflow button, rather than the toolbar container. Refresh
+  application-owned image-cache references with theme and scale changes.
+- Add XmToolbarGetActionButton as a borrowed presentation accessor, preserving
+  native widget record layouts and toolbar action ownership.
+- Reproduce the old background mismatch and pass native gallery-factory pixel
+  checks for four profiles, two scales, pressed/disabled states and replacement.
+  See docs/toolbar.md and its qualification record.
+
 Buffered toolkit painting and gallery appearance selection (2026-11-01)
 
 * Full-frame toolkit controls now paint through their Xt expose methods into

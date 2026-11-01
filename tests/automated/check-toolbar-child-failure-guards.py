@@ -8,7 +8,8 @@ end = source.index("Cardinal XmToolbarGetActionCount", start)
 body = source[start:end]
 assert "if (stored->button != NULL)" in body
 assert "if (stored->menu_button != NULL)" in body
-assert "if (toolbar->toolbar.actions[i].button == NULL)" in body
+assert "if (stored->button == NULL || stored->menu_button == NULL)" in body
+assert "free_action_array(replacement, count, True);" in body
 assert body.index("stored->button != NULL") < body.index("XtAddCallback")
 assert body.index("stored->menu_button != NULL") < body.index("XtAddCallback", body.index("stored->menu_button != NULL"))
 print("PASS Toolbar child-creation failure paths are null-safe")

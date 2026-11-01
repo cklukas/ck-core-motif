@@ -125,15 +125,17 @@ static void resize_preview(GalleryState *state)
     Widget clip = NULL;
     Position top;
     Dimension page_height, feedback_height, viewport_height, clip_height;
+    Dimension viewport_border, feedback_border;
     int gap;
     XtVaGetValues(state->preview_viewport, XmNy, &top, XmNheight, &viewport_height,
-                  XmNclipWindow, &clip, NULL);
+                  XmNclipWindow, &clip, XmNborderWidth, &viewport_border, NULL);
     XtVaGetValues(state->example, XmNheight, &page_height, NULL);
-    XtVaGetValues(state->feedback, XmNheight, &feedback_height, XmNtopOffset, &gap, NULL);
-    if (!XtIsManaged(state->feedback)) { feedback_height = 0; gap = 0; }
+    XtVaGetValues(state->feedback, XmNheight, &feedback_height, XmNtopOffset, &gap, XmNborderWidth, &feedback_border, NULL);
+    if (!XtIsManaged(state->feedback)) { feedback_height = 0; feedback_border = 0; gap = 0; }
     clip_height = viewport_height;
     if (clip) XtVaGetValues(clip, XmNheight, &clip_height, NULL);
-    int available = (int)page_height - top - feedback_height - gap;
+    int available = (int)page_height - top - feedback_height - gap -
+                    2 * ((int)viewport_border + feedback_border);
     int chrome = (int)viewport_height - clip_height;
     int wanted = (int)natural_height + (chrome > 0 ? chrome : 0);
     if (wanted > available) wanted = available;
@@ -1695,6 +1697,18 @@ static void layout_gallery(GalleryState *state)
         XmStringFree(current);
         XmStringFree(label);
     }
+    /* Compact pages reserve room for the scroll frame's minimum chrome and
+     * feedback at larger font metrics instead of retaining desktop gaps. */
+    if (state->preview_viewport) {
+        int offset, wanted = (int)((compact ? 8 : 24) * scale + 0.5);
+        XtVaGetValues(state->preview_viewport, XmNtopOffset, &offset, NULL);
+        if (offset != wanted) XtVaSetValues(state->preview_viewport, XmNtopOffset, wanted, NULL);
+    }
+    if (state->feedback) {
+        int offset, wanted = (int)((compact ? 8 : 16) * scale + 0.5);
+        XtVaGetValues(state->feedback, XmNtopOffset, &offset, NULL);
+        if (offset != wanted) XtVaSetValues(state->feedback, XmNtopOffset, wanted, NULL);
+    }
     resize_preview(state);
     state->updating_layout = False;
 }
@@ -1766,7 +1780,8 @@ static void layout_navigation(GalleryState *state)
 {
     Widget content = XmSidebarGetContent(state->sidebar);
     Dimension width, height, current_width, current_height;
-    if (!state->navigation_form || !state->tree) return;
+    if (!state->navigation_form || !state->tree || !XtIsManaged(content) ||
+        !XmSidebarGetExpanded(state->sidebar)) return;
     XtVaGetValues(content, XmNwidth, &width, XmNheight, &height, NULL);
     XtVaGetValues(state->navigation_form, XmNwidth, &current_width,
         XmNheight, &current_height, NULL);

@@ -1482,3 +1482,8 @@ EXTRA_DIST += tests/automated/check-gallery-capture-viewability.py
 
 EXTRA_DIST += docs/mwm-workspace-validation.json
 EXTRA_DIST += tests/automated/check-buffered-text.c
+
+EXTRA_DIST += tests/automated/check-toolbar-icon-surfaces.c
+EXTRA_DIST += tests/automated/run-toolbar-icon-surfaces.py
+
+EXTRA_DIST += docs/validation/toolbar-icon-surfaces-macos-20261101.json
