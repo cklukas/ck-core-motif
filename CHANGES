@@ -10,6 +10,14 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Harden TabStack argument-list merging (2026-11-01)
+=====================================================
+
+- Bound filtered-argument counts before merging internal TabBox resources and
+  handle merge or internal-widget allocation failure without dereferencing a
+  null result.
+- Add focused regression coverage and documentation.
+
 Bound RowColumn menu argument construction (2026-11-01)
 ==========================================================
 

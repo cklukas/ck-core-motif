@@ -780,8 +780,8 @@ Initialize(request, set, arg_list, arg_cnt)
 {
     XmTabStackWidget  ts = (XmTabStackWidget) set;
     Arg               args[50];
-    ArgList           filtered_args, merged_args;
-    Cardinal          n = 0, num_filtered_args;
+    ArgList           filtered_args = NULL, merged_args = NULL;
+    Cardinal          n = 0, num_filtered_args = 0;
     XmTabOrientation  orientation = XmTabStack_tab_orientation(ts);
 #ifdef TEAR_OFF_TABS
     XmString           replacement;
@@ -915,8 +915,18 @@ Initialize(request, set, arg_list, arg_cnt)
      */
     _XmFilterArgs(arg_list, *arg_cnt, tab_stack_filter,
 		  &filtered_args, &num_filtered_args);
+    if (num_filtered_args > (Cardinal)(~(Cardinal)0) - n)
+    {
+	XtFree((XtPointer)filtered_args);
+	return;
+    }
     merged_args = XtMergeArgLists(filtered_args, num_filtered_args,
 				  args, n);
+    if (merged_args == NULL)
+    {
+	XtFree((XtPointer)filtered_args);
+	return;
+    }
 
 
     if( XmTabStack_tab_box(ts) == NULL )
@@ -924,6 +934,12 @@ Initialize(request, set, arg_list, arg_cnt)
 	XmTabStack_tab_box(ts) =
 	    XtCreateManagedWidget("tabBox", xmTabBoxWidgetClass, set,
 				  merged_args, n + num_filtered_args);
+	if (XmTabStack_tab_box(ts) == NULL)
+	{
+	    XtFree((XtPointer)filtered_args);
+	    XtFree((XtPointer)merged_args);
+	    return;
+	}
 	_XmAppearanceInheritFont(XmTabStack_tab_box(ts), set);
     }
     else
@@ -1382,7 +1398,7 @@ SetValues(current, request, set, arg_list, arg_cnt)
     XmTabStackWidget c_tab = (XmTabStackWidget) current,
                      s_tab = (XmTabStackWidget) set;
     Arg              args[25];
-    ArgList          filtered_args, merged_args;
+    ArgList          filtered_args = NULL, merged_args = NULL;
     int 		n = 0;
     Cardinal         num_filtered_args;
     Boolean          need_redraw = False, need_resize = False,
@@ -1506,10 +1522,15 @@ SetValues(current, request, set, arg_list, arg_cnt)
     {
 	_XmFilterArgs(arg_list, *arg_cnt, tab_stack_filter,
 		      &filtered_args, &num_filtered_args);
-	merged_args = XtMergeArgLists(filtered_args, num_filtered_args,
-				      args, n);
-	XtSetValues(XmTabStack_tab_box(s_tab), merged_args,
-		    n + num_filtered_args); n = 0;
+	if (num_filtered_args <= (Cardinal)(~(Cardinal)0) - (Cardinal)n)
+	{
+	    merged_args = XtMergeArgLists(filtered_args, num_filtered_args,
+				  args, (Cardinal)n);
+	    if (merged_args != NULL)
+		XtSetValues(XmTabStack_tab_box(s_tab), merged_args,
+			    (Cardinal)n + num_filtered_args);
+	}
+	n = 0;
 	if (cfield(font_list) != sfield(font_list))
 	    _XmAppearanceInheritFont(XmTabStack_tab_box(s_tab), set);
 	XtFree((XtPointer)filtered_args);
