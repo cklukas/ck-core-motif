@@ -1,3 +1,12 @@
+Record loaded library for non-text Unicode regressions (2026-11-01)
+====================================================================
+
+- Require the installed non-text Unicode fixture to load `libXm` from its
+  requested prefix and retain an `ldd` log plus source, binary, and library
+  SHA-256 receipt.
+- Keep the runner compatible with Python versions without `hashlib.file_digest`
+  and document the bounded x86_64 qualification result.
+
 Bound MWM menu accelerator button traversal (2026-11-01)
 ==========================================================
 

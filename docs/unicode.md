@@ -354,9 +354,16 @@ checks that navigation resumes with the new contents.
 The fixture interposes only `XmImMbLookupString` to supply deterministic commit
 bytes. It does not qualify physical keyboard input, IME services, grapheme-aware
 search or bidirectional visual ordering. Its receipt fingerprints the source,
-headers, library and executable; `dladdr` verifies the actual loaded toolkit.
+library and executable; `ldd` verifies the actual loaded toolkit.
 The expanded case passed on 2026-11-01 against the ARM64 ABI9 snapshot with
 SHA-256 `cb73f5a93257004b4509b09184782f17a99bdf583bf299cd5765b1540a4faa7a`.
+
+The same 39-check non-text widget matrix passed on 2026-11-01 against the
+installed x86_64 ABI9 prefix.  The runner now records `ldd.log` and rejects a
+binary unless `libXm` resolves from the requested prefix, alongside source,
+binary, and loaded-library SHA-256 values in `receipt.txt`.  This qualifies the
+fixture on that architecture only; it does not claim physical keyboard, IME,
+screen-reader, or complete widget-matrix acceptance.
 
 ## Default composition presentation
 
