@@ -1438,3 +1438,5 @@ EXTRA_DIST += tests/automated/check-wml-typed-attributes.c \
 EXTRA_DIST += tests/automated/check-mwm-modern-c.c
 
 EXTRA_DIST += CHANGES.md
+
+EXTRA_DIST += docs/modern-c-portability-validation.json

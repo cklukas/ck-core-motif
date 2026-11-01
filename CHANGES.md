@@ -28,6 +28,11 @@
   toolkit aliases, Mrm and UIL callbacks, WML attributes, Mwm parser dispatch,
   string handling, native ABI identity and Unicode source maps.
 
+Validated native arm64 macOS and Linux C23 builds and their display-independent
+regressions, GCC C23 Linux consumers, and 619 selected source checks. The
+[qualification record](docs/modern-c-portability-validation.json) identifies the
+tested commit, features and loaded library bytes.
+
 See [Build and install](docs/build.md#modern-c-and-macos) for the platform
 commands and qualification boundaries. macOS uses XQuartz for X11/Xt; desktop
 integration, clipboard/input-method sessions and VoiceOver are separate

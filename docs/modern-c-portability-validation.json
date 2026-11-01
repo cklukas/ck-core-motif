@@ -1,0 +1,288 @@
+{
+  "date": "2026-11-01",
+  "tested_code_commit": "7b6e191392e05a5909e66148ed533315acbf0f45",
+  "standard": "C23",
+  "native_abi": 9,
+  "source_asset_files": 1468,
+  "source_asset_manifest_sha256": "b32d117ec8bb07a5fd607f1a75889934b063b0cf46b7da7e7a31e7a14dc0905d",
+  "cross_host_source_asset_differences": 0,
+  "selected_source_checks": {
+    "passed": 619,
+    "failed": 0
+  },
+  "targets": [
+    "libXm",
+    "libMrm",
+    "libUil",
+    "WML generators",
+    "uil",
+    "mwm",
+    "ckmotif-gallery"
+  ],
+  "platforms": [
+    {
+      "platform": "macOS arm64",
+      "compiler": "Apple Clang 21",
+      "started_utc": "2026-11-01T14:40:12.857751+00:00",
+      "ended_utc": "2026-11-01T14:40:16.779237+00:00",
+      "runtime_seconds": 3.9074037919999682,
+      "loaded_libXm_sha256": "d8eb64d54ff8499d850348f3581e154adccdf9df0e494c4023c212e8dc3b7e49",
+      "checks": [
+        {
+          "name": "generator",
+          "exit_code": 0,
+          "output": "PASS modern C makestrs and all six generated ABIs"
+        },
+        {
+          "name": "aliases",
+          "exit_code": 0,
+          "output": "PASS static archive, shared function/data aliases and all 28 toolkit aliases"
+        },
+        {
+          "name": "abi",
+          "exit_code": 0,
+          "output": "ABI 9, TextField=912 Output=272 Source=120 LineExtra=8"
+        },
+        {
+          "name": "mrm",
+          "exit_code": 0,
+          "output": "PASS typed Mrm allocation, resize, constructor and cleanup callbacks"
+        },
+        {
+          "name": "mwm",
+          "exit_code": 0,
+          "output": "PASS typed Mwm parser dispatch, numeric overflow and numeric keysyms"
+        },
+        {
+          "name": "uil",
+          "exit_code": 0,
+          "output": "PASS typed UIL progress and diagnostic callbacks"
+        },
+        {
+          "name": "wml",
+          "exit_code": 0,
+          "output": "PASS WML string, boolean, direction and character-size attributes"
+        },
+        {
+          "name": "string-mb",
+          "exit_code": 0,
+          "output": "PASS bounded XmString multibyte conversion"
+        },
+        {
+          "name": "empty-concat",
+          "exit_code": 0,
+          "output": "XmString zero-byte concatenation content/direction/separator checks passed"
+        },
+        {
+          "name": "unicode-map",
+          "exit_code": 0,
+          "output": "many-paragraph mapped_bytes=130 mapped_scalars=129 rebuilt=1 reused=8191\nincremental map assertions=19681967"
+        }
+      ],
+      "features": {
+        "Xft": true,
+        "Unicode": true,
+        "AT_SPI": false,
+        "SVG": false,
+        "JPEG": true,
+        "PNG": true
+      },
+      "final_incremental_build": {
+        "started_utc": "2026-11-01T14:39:45.307088+00:00",
+        "ended_utc": "2026-11-01T14:39:49.124822+00:00",
+        "phases": [
+          {
+            "target": "libraries",
+            "seconds": 2.116166957999667,
+            "exit_code": 0
+          },
+          {
+            "target": "wml",
+            "seconds": 0.5283955830018385,
+            "exit_code": 0
+          },
+          {
+            "target": "uil",
+            "seconds": 0.3061764170015522,
+            "exit_code": 0
+          },
+          {
+            "target": "mwm",
+            "seconds": 0.8401624590005667,
+            "exit_code": 0
+          },
+          {
+            "target": "gallery",
+            "seconds": 0.024588000000221655,
+            "exit_code": 0
+          }
+        ]
+      }
+    },
+    {
+      "platform": "Linux arm64",
+      "compiler": "Clang 19.1.7",
+      "started_utc": "2026-11-01T14:41:59.813908+00:00",
+      "ended_utc": "2026-11-01T14:42:30.002633+00:00",
+      "runtime_seconds": 30.069636479998735,
+      "loaded_libXm_sha256": "e1634c2c30f732f3c4b3699bd86a00c3b45c37a1987920f79ca4f5e68d2059b2",
+      "checks": [
+        {
+          "name": "generator",
+          "exit_code": 0,
+          "output": "PASS modern C makestrs and all six generated ABIs"
+        },
+        {
+          "name": "aliases",
+          "exit_code": 0,
+          "output": "PASS static archive, shared function/data aliases and all 28 toolkit aliases"
+        },
+        {
+          "name": "abi",
+          "exit_code": 0,
+          "output": "ABI 9, TextField=912 Output=272 Source=120 LineExtra=8"
+        },
+        {
+          "name": "mrm",
+          "exit_code": 0,
+          "output": "PASS typed Mrm allocation, resize, constructor and cleanup callbacks"
+        },
+        {
+          "name": "mwm",
+          "exit_code": 0,
+          "output": "PASS typed Mwm parser dispatch, numeric overflow and numeric keysyms"
+        },
+        {
+          "name": "uil",
+          "exit_code": 0,
+          "output": "PASS typed UIL progress and diagnostic callbacks"
+        },
+        {
+          "name": "wml",
+          "exit_code": 0,
+          "output": "PASS WML string, boolean, direction and character-size attributes"
+        },
+        {
+          "name": "string-mb",
+          "exit_code": 0,
+          "output": "PASS bounded XmString multibyte conversion"
+        },
+        {
+          "name": "empty-concat",
+          "exit_code": 0,
+          "output": "XmString zero-byte concatenation content/direction/separator checks passed"
+        },
+        {
+          "name": "unicode-map",
+          "exit_code": 0,
+          "output": "many-paragraph mapped_bytes=130 mapped_scalars=129 rebuilt=1 reused=8191\nincremental map assertions=19681967"
+        }
+      ],
+      "features": {
+        "Xft": true,
+        "Unicode": true,
+        "AT_SPI": true,
+        "SVG": true,
+        "JPEG": true,
+        "PNG": true
+      },
+      "final_incremental_build": {
+        "started_utc": "2026-11-01T14:41:21.693937+00:00",
+        "ended_utc": "2026-11-01T14:41:59.420175+00:00",
+        "phases": [
+          {
+            "target": "libraries",
+            "seconds": 22.709585521999543,
+            "exit_code": 0
+          },
+          {
+            "target": "wml",
+            "seconds": 1.5912666809999791,
+            "exit_code": 0
+          },
+          {
+            "target": "uil",
+            "seconds": 1.904504120000638,
+            "exit_code": 0
+          },
+          {
+            "target": "mwm",
+            "seconds": 11.414402760001394,
+            "exit_code": 0
+          },
+          {
+            "target": "gallery",
+            "seconds": 0.09328987400294864,
+            "exit_code": 0
+          }
+        ]
+      }
+    },
+    {
+      "platform": "Linux arm64 consumers",
+      "compiler": "GCC 14.2",
+      "started_utc": "2026-11-01T14:42:30.434114+00:00",
+      "ended_utc": "2026-11-01T14:42:54.331922+00:00",
+      "runtime_seconds": 23.703193507000833,
+      "loaded_libXm_sha256": "e1634c2c30f732f3c4b3699bd86a00c3b45c37a1987920f79ca4f5e68d2059b2",
+      "checks": [
+        {
+          "name": "generator",
+          "exit_code": 0,
+          "output": "PASS modern C makestrs and all six generated ABIs"
+        },
+        {
+          "name": "aliases",
+          "exit_code": 0,
+          "output": "PASS static archive, shared function/data aliases and all 28 toolkit aliases"
+        },
+        {
+          "name": "abi",
+          "exit_code": 0,
+          "output": "ABI 9, TextField=912 Output=272 Source=120 LineExtra=8"
+        },
+        {
+          "name": "mrm",
+          "exit_code": 0,
+          "output": "PASS typed Mrm allocation, resize, constructor and cleanup callbacks"
+        },
+        {
+          "name": "mwm",
+          "exit_code": 0,
+          "output": "PASS typed Mwm parser dispatch, numeric overflow and numeric keysyms"
+        },
+        {
+          "name": "uil",
+          "exit_code": 0,
+          "output": "PASS typed UIL progress and diagnostic callbacks"
+        },
+        {
+          "name": "wml",
+          "exit_code": 0,
+          "output": "PASS WML string, boolean, direction and character-size attributes"
+        },
+        {
+          "name": "string-mb",
+          "exit_code": 0,
+          "output": "PASS bounded XmString multibyte conversion"
+        },
+        {
+          "name": "empty-concat",
+          "exit_code": 0,
+          "output": "XmString zero-byte concatenation content/direction/separator checks passed"
+        },
+        {
+          "name": "unicode-map",
+          "exit_code": 0,
+          "output": "many-paragraph mapped_bytes=130 mapped_scalars=129 rebuilt=1 reused=8191\nincremental map assertions=19681967"
+        }
+      ]
+    }
+  ],
+  "qualification_limits": [
+    "Display-independent regressions; no macOS window, clipboard, XIM, scaling or VoiceOver qualification.",
+    "macOS programs use XQuartz X11/Xt, with native arm64 Mach-O output.",
+    "GCC validation compiles generators, alias fixtures and consumers against the Clang-built Linux libraries; it is not a full GCC toolkit rebuild.",
+    "Unaccepted peer WSM/gallery work is outside this qualification."
+  ]
+}

@@ -93,6 +93,12 @@ and these display-independent tests do not qualify an actual macOS window,
 clipboard, input-method session, scaling behavior or VoiceOver integration.
 The Linux AT-SPI and existing full-feature test services remain separate gates.
 
+The [2026-11-01 qualification record](modern-c-portability-validation.json)
+records successful native arm64 macOS and Linux Clang C23 builds, GCC C23
+consumer regressions, 619 selected source checks, library fingerprints and the
+exact tested code commit. Linux enabled Xft, Unicode, AT-SPI and SVG; macOS
+enabled Xft and Unicode.
+
 ## Development text and accessibility features
 
 `--enable-xft` requires Xft, Fontconfig and FreeType development files.
