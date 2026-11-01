@@ -1,3 +1,13 @@
+Bound DropDown selected-text assembly (2026-11-01)
+====================================================
+
+- Validate both temporary selected-item storage and the comma-separated text
+  result against Xt's `Cardinal` allocation boundary before allocation.
+- Keep ordinary multi-selection conversion and its transactional text update
+  unchanged; oversized selections now fail cleanly.
+- Initialize no-resize layout state from the current widget geometry and keep
+  optional label metrics zeroed when a label child is unavailable.
+
 Bound hash-table accounting and debug output (2026-11-01)
 ========================================================
 

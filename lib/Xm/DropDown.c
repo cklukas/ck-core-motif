@@ -1638,9 +1638,10 @@ static void
 PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 {
     XmDropDownWidget cbw = (XmDropDownWidget) w;
-    Dimension width, height, rwidth, rheight;
+    Dimension width, height;
+    Dimension rwidth = w->core.width, rheight = w->core.height;
     int child_height;
-    Dimension text_width, label_width, label_bw;
+    Dimension text_width = 0, label_width = 0, label_bw = 0;
     Dimension shadow;
     int label_x, arrow_x, text_x;
     XtWidgetGeometry arrow_geom, label_geom, text_geom;
@@ -1651,7 +1652,7 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
     FindDesiredSize(w, child, &width, &height, 
 		    &label_geom, &text_geom, &arrow_geom);
 
-    if (XmDropDown_show_label(cbw)) 
+    if (XmDropDown_show_label(cbw) && XmDropDown_label(cbw) != NULL)
     {
 	label = XmDropDown_label(cbw);
 	label_width = label_geom.width;
@@ -1669,12 +1670,6 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
     {
 	_XmRequestNewSize(w, False, width, height, &rwidth, &rheight);
     }
-    else if (child != NULL)
-    {
-	rwidth = w->core.width;
-	rheight = w->core.height;
-    }	
-
     if (width != rwidth) 
     {
 	Dimension arrow_width = arrow_geom.width + 2 * arrow_geom.border_width;
@@ -2712,15 +2707,17 @@ SetTextFromList(Widget w)
     if (!set_text)
         return False;
     if (count > 0) {
-        if ((size_t)count > SIZE_MAX / sizeof(*parts))
+        if ((size_t)count > SIZE_MAX / sizeof(*parts) ||
+            (size_t)count > UINT_MAX / sizeof(*parts))
             return False;
-        parts = (String *)XtCalloc((Cardinal)count, sizeof(*parts));
+        parts = (String *)XtCalloc((Cardinal)count, (Cardinal)sizeof(*parts));
         if (parts == NULL)
             return False;
     }
     i = 0;
     while (i < count) {
 	size_t len;
+        size_t separator;
 
         parts[i] = XmStringUnparse(items[i], NULL, XmCHARSET_TEXT,
                                    XmMULTIBYTE_TEXT, NULL, 0, XmOUTPUT_ALL);
@@ -2737,12 +2734,17 @@ SetTextFromList(Widget w)
 
         (void)len;
         len = strlen(parts[i]);
-        if (total > SIZE_MAX - len - (i ? 2U : 0U))
+        separator = i ? 2U : 0U;
+        if (len > SIZE_MAX - total ||
+            separator > SIZE_MAX - total - len ||
+            total > (size_t)UINT_MAX ||
+            len > (size_t)UINT_MAX - total ||
+            separator > (size_t)UINT_MAX - total - len)
             goto conversion_failed;
-        total += len + (i ? 2U : 0U);
+        total += len + separator;
         i++;
     }
-    combined = (String)XtMalloc(total);
+    combined = (String)XtMalloc((Cardinal)total);
     if (combined == NULL)
         goto conversion_failed;
     combined[0] = '\0';
