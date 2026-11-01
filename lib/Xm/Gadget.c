@@ -574,6 +574,9 @@ SecondaryObjectCreate(
 
     XtSetArg(myArgs[0] ,XmNlogicalParent, new_w);
 
+    if (*num_args == (Cardinal)(~(Cardinal)0))
+       return;
+
     if (*num_args)
        mergedArgs = XtMergeArgLists(args, *num_args, myArgs, XtNumber(myArgs));
     else

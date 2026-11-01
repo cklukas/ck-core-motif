@@ -3943,6 +3943,13 @@ Harden DropDown argument-list merging (2026-11-01)
 - Tear down a partial popup shell when its list arguments cannot be merged,
   with focused regression coverage and documentation.
 
+Guard Gadget secondary-object argument count (2026-11-01)
+==========================================================
+
+- Do not wrap the `Cardinal` count when adding the internal logical-parent
+  argument to a Gadget secondary object.
+- Extend the focused regression and document the overflow guard.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 
