@@ -1,3 +1,12 @@
+Exercise independent X11 selection owners (2026-11-01)
+=====================================================
+
+- Use a separate X client connection for the foreign owner in the selection
+  lifecycle fixture; cover takeover in both directions, destruction of a former
+  Motif owner while the foreign client owns the selection, and reacquisition.
+- Verify actual loaded-library identity and record source/header/library hashes,
+  commands, exit results and timing in the focused installed-prefix runner.
+
 Preserve tab labels when changing ownership (2026-11-01)
 =======================================================
 
