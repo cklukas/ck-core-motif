@@ -6652,6 +6652,7 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
     unsigned char *lineP = *linePP;
     unsigned char *startP;
     char           keySymName[MAX_KEYSYM_STRLEN+1];
+    unsigned int   numericKeySym;
     int            len;
 #ifndef NO_MULTIBYTE
     int            chlen;
@@ -6688,12 +6689,13 @@ static Boolean ParseKeySym (unsigned char **linePP, unsigned int closure,
     if ((*detail = XStringToKeysym(keySymName)) == NoSymbol)
 #endif
     {
-        if (!isdigit (keySymName[0]) ||
-            ((*detail = StrToNum ((unsigned char *)&keySymName[0])) == -1))
+        if (!isdigit ((unsigned char)keySymName[0]) ||
+            !StrToNum ((unsigned char *)keySymName, &numericKeySym))
         {
             *detail = NoSymbol;
             return (FALSE);
         }
+        *detail = numericKeySym;
     }
     *linePP = lineP;
     return (TRUE);

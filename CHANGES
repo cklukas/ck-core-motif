@@ -1,3 +1,12 @@
+Build Mwm numeric KeySym parsing on x86_64 (2026-11-01)
+=========================================================
+
+- Pass the output pointer required by the checked `StrToNum` helper when Mwm
+  parses a numeric KeySym event detail, and assign the converted value only
+  after success. This repairs the one-argument call that prevented Mwm from
+  compiling on current C compilers while preserving invalid/overflow rejection.
+- Add a focused parser contract check and document the conversion behavior.
+
 Build WSM protocol packers on x86_64 (2026-11-01)
 ===================================================
 
