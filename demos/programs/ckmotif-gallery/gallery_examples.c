@@ -7,6 +7,8 @@
 #include <Xm/DrawingA.h>
 #include <Xm/DragC.h>
 #include <Xm/MenuShell.h>
+#include <Xm/Protocols.h>
+#include <Xm/AtomMgr.h>
 #include <Xm/PushB.h>
 #include <Xm/RowColumn.h>
 #include <Xm/SegmentedControl.h>
@@ -1171,11 +1173,66 @@ gallery_create_drag_source_example(Widget parent, XtCallbackProc callback,
 }
 /* GALLERY-EXAMPLE-END: drag-public-construction */
 
+static void close_shell_example(Widget widget, XtPointer client, XtPointer call)
+{
+    (void)widget; (void)call;
+    XtUnmanageChild((Widget)client);
+}
+
+/* DialogShell maps and positions its managed dialog child. A generic XtPopup
+ * bypasses that lifecycle when the dialog child has not been managed. */
+void gallery_open_shell_example(Widget shell)
+{
+    if (XmIsDialogShell(shell)) {
+        Widget content = XtNameToWidget(shell, "dialogContent");
+        if (!content) return;
+        XtVaSetValues(content, XmNdefaultPosition, True, NULL);
+        XtManageChild(content);
+        if (XtIsRealized(shell)) XRaiseWindow(XtDisplay(shell), XtWindow(shell));
+    } else XtPopup(shell, XtGrabNone);
+}
+
 /* GALLERY-EXAMPLE-BEGIN: shell-public-construction */
 Widget
 gallery_create_shell_example(Widget parent, WidgetClass class,
                              const char *name)
 {
+    if (class == xmDialogShellWidgetClass) {
+        Widget owner = parent;
+        while (owner && !XtIsShell(owner)) owner = XtParent(owner);
+        if (!owner) return NULL;
+        Widget shell = XtVaCreatePopupShell((char *)name, class, owner,
+            XmNtitle, "Dialog Shell example", XmNtransientFor, owner,
+            XmNallowShellResize, True, XmNdeleteResponse, XmDO_NOTHING, NULL);
+        Widget content = XtVaCreateWidget("dialogContent", xmFormWidgetClass, shell,
+            XmNdefaultPosition, True, XmNautoUnmanage, False,
+            XmNmarginWidth, 24, XmNmarginHeight, 24, NULL);
+        XmString title = XmStringCreateLocalized("Dialog Shell example");
+        Widget heading = XtVaCreateManagedWidget("dialogHeading", xmLabelWidgetClass, content,
+            XmNlabelString, title, XmNappearanceRole, XmAPPEARANCE_ROLE_SECTION,
+            XmNalignment, XmALIGNMENT_BEGINNING,
+            XmNtopAttachment, XmATTACH_FORM, XmNleftAttachment, XmATTACH_FORM, NULL);
+        XmStringFree(title);
+        XmString message = XmStringCreateLocalized(
+            "This window contains a managed dialog.\nClose it and open it again from the gallery.");
+        Widget body = XtVaCreateManagedWidget("dialogMessage", xmLabelWidgetClass, content,
+            XmNlabelString, message, XmNalignment, XmALIGNMENT_BEGINNING,
+            XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, heading, XmNtopOffset, 12,
+            XmNleftAttachment, XmATTACH_FORM, NULL);
+        XmStringFree(message);
+        XmString label = XmStringCreateLocalized("Close");
+        Widget close = XtVaCreateManagedWidget("closeExample", xmPushButtonWidgetClass, content,
+            XmNlabelString, label, XmNtopAttachment, XmATTACH_WIDGET,
+            XmNtopWidget, body, XmNtopOffset, 16,
+            XmNrightAttachment, XmATTACH_FORM, XmNbottomAttachment, XmATTACH_FORM, NULL);
+        XmStringFree(label);
+        XtVaSetValues(content, XmNdefaultButton, close, XmNcancelButton, close,
+                      XmNinitialFocus, close, NULL);
+        XtAddCallback(close, XmNactivateCallback, close_shell_example, content);
+        XmAddWMProtocolCallback(shell, XmInternAtom(XtDisplay(shell), "WM_DELETE_WINDOW", False),
+                                close_shell_example, content);
+        return shell;
+    }
     Arg args[2];
     XtSetArg(args[0], XmNwidth, 240);
     XtSetArg(args[1], XmNheight, 96);

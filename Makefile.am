@@ -1543,3 +1543,6 @@ EXTRA_DIST += tests/automated/check-cascade-appearance.c \
               docs/cascade-button-appearance.md
 
 EXTRA_DIST += docs/validation/macos-cascade-20261101.json
+
+EXTRA_DIST += tests/automated/run-gallery-dialog-shell.py \
+              docs/gallery-shell-examples.md

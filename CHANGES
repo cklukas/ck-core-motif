@@ -1,3 +1,14 @@
+Repair Dialog Shell gallery construction and launcher geometry (2026-11-01)
+==========================================================================
+
+- Construct the launcher with its complete caption before initial geometry
+  negotiation, avoiding a narrow placeholder allocation.
+- Give Dialog Shell a Form child with visible content and a Close action;
+  open/close through child management and use the main gallery as transient
+  owner for default centered placement.
+- Add native acceptance for actual page geometry, rendered content, ownership,
+  placement and repeated opening across palettes, densities and scales.
+
 Modernize Cascade button surfaces and menu examples (2026-11-01)
 ===============================================================
 

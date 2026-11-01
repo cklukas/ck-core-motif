@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-01 — Usable Dialog Shell gallery example
+
+- Fit the complete launcher label and demonstrate Dialog Shell with populated
+  dialog content, a Close action and the managed-child lifecycle.
+- Own and center the example on the gallery window, preserving screen bounds,
+  and qualify repeated open/close behavior across themes and scales.
+- Add `--open-example` for inspection and native page acceptance. See
+  [shell examples](docs/gallery-shell-examples.md).
+
 ## 2026-11-01 — Modern Cascade buttons
 
 - Give Cascade widget and gadget modern padding, flat selected surfaces and

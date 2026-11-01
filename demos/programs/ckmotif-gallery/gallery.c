@@ -40,6 +40,7 @@ extern Widget gallery_create_segmented_control_example(Widget, const char *,
                                                        XtCallbackProc,
                                                        XtPointer);
 extern Widget gallery_create_shell_example(Widget, WidgetClass, const char *);
+extern void gallery_open_shell_example(Widget);
 extern void gallery_destroy_component_example(Widget *);
 extern void gallery_refresh_icon_resources(void);
 extern Boolean gallery_validate_icon_resources(void);
@@ -625,7 +626,7 @@ static void component_activate(Widget widget, XtPointer client, XtPointer call)
             event.time = XtLastTimestampProcessed(event.display);
             XmMenuPosition(children[0], &event);
             XtManageChild(children[0]);
-        } else XtPopup(state->component, XtGrabNone);
+        } else gallery_open_shell_example(state->component);
         snprintf(message, sizeof(message),
                  "Callback #%lu: popup opened through public Xt popup API",
                  state->callback_count);
@@ -740,10 +741,13 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
         XtVaSetValues(state->provenance,
             XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state->title,
             XmNtopOffset, 12, XmNleftAttachment, XmATTACH_FORM, NULL);
+        XmString action_label = text("Open example window");
         state->action = XtVaCreateWidget("openExample", xmPushButtonWidgetClass,
-            state->example, XmNtopAttachment, XmATTACH_WIDGET,
+            state->example, XmNlabelString, action_label,
+            XmNtopAttachment, XmATTACH_WIDGET,
             XmNtopWidget, state->provenance, XmNtopOffset, 16,
             XmNleftAttachment, XmATTACH_FORM, NULL);
+        XmStringFree(action_label);
         XtAddCallback(state->action, XmNactivateCallback, component_activate, state);
         state->feedback = gallery_label(state->example, "feedback", "");
         XtVaSetValues(state->feedback, XmNtopAttachment, XmATTACH_WIDGET,
@@ -1972,6 +1976,118 @@ static Boolean settle_gallery(GalleryState *state)
     return False;
 }
 
+/* Exercise the actual page, launcher callback, dialog content and close action. */
+static int verify_dialog_shell_example(GalleryState *state)
+{
+    Display *display = XtDisplay(state->shell);
+    const double scales[] = {1, 1.5, 2};
+    const XmAppearanceProfile profiles[] = {XmAPPEARANCE_CLASSIC,
+        XmAPPEARANCE_MODERN_LIGHT, XmAPPEARANCE_MODERN_DARK};
+    unsigned configurations = 0, cycles = 0;
+#define DIALOG_CHECK(condition) do { if (!(condition)) { \
+    fprintf(stderr,"gallery Dialog Shell failure config=%u completed_cycles=%u line %d: %s\n",configurations,cycles,__LINE__,#condition); return 1; } } while (0)
+    for (unsigned p=0;p<XtNumber(profiles);++p)
+    for (unsigned scale=0;scale<XtNumber(scales);++scale)
+    for (unsigned compact=0;compact<2;++compact) {
+        DIALOG_CHECK(XmApplyAppearanceProfile(display, profiles[p]));
+        DIALOG_CHECK(XmSetDisplayScaleOverride(display, scales[scale]));
+        DIALOG_CHECK(XmApplyAppearanceDensity(display, compact ?
+            XmAPPEARANCE_DENSITY_COMPACT : XmAPPEARANCE_DENSITY_COMFORTABLE));
+        show_entry(state, find_entry("xm.dialogshellwidgetclass"));
+        select_page(state, 2);
+        DIALOG_CHECK(settle_gallery(state));
+        Widget dialog = state->component;
+        Widget content = XtNameToWidget(dialog, "dialogContent");
+        Widget close = content ? XtNameToWidget(content, "closeExample") : NULL;
+        DIALOG_CHECK(XmIsDialogShell(dialog) && content && close);
+        DIALOG_CHECK(XtParent(dialog) == state->shell && !XtIsManaged(content));
+        Widget transient = NULL;
+        XtVaGetValues(dialog, XmNtransientFor, &transient, NULL);
+        DIALOG_CHECK(transient == state->shell);
+        XmString label; XmRenderTable font;
+        Dimension width,height,tw,th,mw,mh,highlight,shadow;
+        XtVaGetValues(state->action, XmNlabelString,&label,XmNrenderTable,&font,
+            XmNwidth,&width,XmNheight,&height,XmNmarginWidth,&mw,XmNmarginHeight,&mh,
+            XmNhighlightThickness,&highlight,XmNshadowThickness,&shadow,NULL);
+        XmStringExtent(font,label,&tw,&th); XmStringFree(label);
+        DIALOG_CHECK(width >= tw+2*(mw+highlight+shadow));
+        DIALOG_CHECK(height >= th+2*(mh+highlight+shadow));
+        Window identity = None;
+        for (unsigned cycle=0;cycle<3;++cycle) {
+            XtVaSetValues(state->shell, XmNx, 100+40*cycle, XmNy, 80+30*cycle, NULL);
+            DIALOG_CHECK(settle_gallery(state));
+            component_activate(state->action, state, NULL);
+            DIALOG_CHECK(settle_gallery(state) && XtIsManaged(content));
+            XWindowAttributes attributes;
+            DIALOG_CHECK(XGetWindowAttributes(display,XtWindow(content),&attributes) &&
+                         attributes.map_state == IsViewable);
+            DIALOG_CHECK(attributes.width > 240 && attributes.height > 100);
+            if (identity) DIALOG_CHECK(identity == XtWindow(dialog));
+            identity = XtWindow(dialog);
+            const char *names[] = {"dialogHeading","dialogMessage","closeExample"};
+            for (unsigned i=0;i<XtNumber(names);++i) {
+                Widget child = XtNameToWidget(content,names[i]);
+                Position x,y;
+                DIALOG_CHECK(child && XtIsManaged(child));
+                XtVaGetValues(child,XmNx,&x,XmNy,&y,XmNwidth,&width,XmNheight,&height,
+                    XmNlabelString,&label,XmNrenderTable,&font,NULL);
+                XmStringExtent(font,label,&tw,&th);XmStringFree(label);
+                DIALOG_CHECK(width>=tw && height>=th && x>=0 && y>=0 &&
+                    x+width<=attributes.width && y+height<=attributes.height);
+            }
+            Widget message = XtNameToWidget(content,"dialogMessage");
+            XtVaGetValues(message,XmNwidth,&width,XmNheight,&height,NULL);
+            Pixel background;XtVaGetValues(message,XmNbackground,&background,NULL);
+            XImage *image=XGetImage(display,XtWindow(message),0,0,width,height,AllPlanes,ZPixmap);
+            DIALOG_CHECK(image);unsigned ink=0;
+            for(unsigned y=0;y<height;++y)for(unsigned x=0;x<width;++x)
+                ink += XGetPixel(image,x,y)!=background;
+            XDestroyImage(image);DIALOG_CHECK(ink>20);
+            Position ox,oy,dx,dy;Dimension ow,oh,dw,dh;
+            XtTranslateCoords(state->shell,0,0,&ox,&oy);XtTranslateCoords(dialog,0,0,&dx,&dy);
+            XtVaGetValues(state->shell,XmNwidth,&ow,XmNheight,&oh,NULL);
+            XtVaGetValues(dialog,XmNwidth,&dw,XmNheight,&dh,NULL);
+            int expected_x=ox+((int)ow-dw)/2, expected_y=oy+((int)oh-dh)/2;
+            int screen_width=WidthOfScreen(XtScreen(dialog)),screen_height=HeightOfScreen(XtScreen(dialog));
+            if(expected_x+dw>screen_width)expected_x=screen_width-dw;
+            if(expected_y+dh>screen_height)expected_y=screen_height-dh;
+            if(expected_x<0)expected_x=0;if(expected_y<0)expected_y=0;
+            DIALOG_CHECK(abs(dx-expected_x)<=2 && abs(dy-expected_y)<=2);
+            if (cycle == 0) XtCallCallbacks(close,XmNactivateCallback,NULL);
+            else if (cycle == 1) {
+                XEvent event = {0};
+                event.xclient.type = ClientMessage;
+                event.xclient.display = display;
+                event.xclient.window = XtWindow(dialog);
+                event.xclient.message_type = XInternAtom(display,"WM_PROTOCOLS",False);
+                event.xclient.format = 32;
+                event.xclient.data.l[0] = XInternAtom(display,"WM_DELETE_WINDOW",False);
+                event.xclient.data.l[1] = CurrentTime;
+                DIALOG_CHECK(XSendEvent(display,XtWindow(dialog),False,NoEventMask,&event));
+            } else {
+                /* The isolated server has no WM to assign keyboard focus. */
+                XSetInputFocus(display,XtWindow(close),RevertToParent,CurrentTime);
+                DIALOG_CHECK(settle_gallery(state));
+                XEvent event = {0};
+                event.xkey.type = KeyPress; event.xkey.display = display;
+                event.xkey.window = XtWindow(close);
+                event.xkey.root = RootWindowOfScreen(XtScreen(close));
+                event.xkey.same_screen = True;
+                event.xkey.keycode = XKeysymToKeycode(display,XK_Escape);
+                DIALOG_CHECK(XSendEvent(display,XtWindow(close),False,KeyPressMask,&event));
+            }
+            DIALOG_CHECK(settle_gallery(state) && !XtIsManaged(content));
+            DIALOG_CHECK(XGetWindowAttributes(display,XtWindow(dialog),&attributes) &&
+                         attributes.map_state != IsViewable);
+            ++cycles;
+        }
+        ++configurations;
+    }
+    printf("PASS gallery Dialog Shell: %u configurations, %u populated centered open/close cycles, launcher text fits\n",configurations,cycles);
+#undef DIALOG_CHECK
+    return 0;
+}
+
 /* Exercise transactions on the real gallery hierarchy without recreating
  * the selected example. Startup-only captures cannot prove this contract. */
 static int verify_live_appearance(GalleryState *state)
@@ -2384,6 +2500,7 @@ int main(int argc, char **argv)
     state.desktop_navigation_expanded = True;
     int integration_mode = 0;
     int screenshot_mode = 0;
+    Boolean open_example = False;
     const char *initial_id = NULL;
     const char *dialog_kind = NULL;
     Boolean requested_profile = True;
@@ -2393,7 +2510,13 @@ int main(int argc, char **argv)
     int argument;
     for (argument = 1; argument < argc;) {
         int remove_count = 0;
-        if (!strcmp(argv[argument], "--integration-all-demos")) {
+        if (!strcmp(argv[argument], "--integration-shells")) {
+            integration_mode = 10;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--open-example")) {
+            open_example = True;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--integration-all-demos")) {
             integration_mode = 8;
             remove_count = 1;
         } else if (!strcmp(argv[argument], "--integration-demos")) {
@@ -2693,8 +2816,16 @@ int main(int argc, char **argv)
     if (integration_mode == 5) return verify_live_appearance(&state);
     if (integration_mode == 6) return verify_appearance_controls(&state);
     if (integration_mode == 9) return verify_navigation_pixels(&state);
+    if (integration_mode == 10) return verify_dialog_shell_example(&state);
     if (integration_mode == 7) return verify_demo_apps(&state);
     if (integration_mode == 8) return verify_all_demo_apps(&state);
+    if (open_example) {
+        if (!state.component_is_popup || !settle_gallery(&state)) {
+            fprintf(stderr, "--open-example requires a shell component\n");
+            return 2;
+        }
+        component_activate(state.action, &state, NULL);
+    }
     if (screenshot_mode) XtAppAddWorkProc(app, capture_ready, &state);
     XtAppMainLoop(app);
     return 0;
