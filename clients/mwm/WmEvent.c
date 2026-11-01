@@ -1581,7 +1581,7 @@ Boolean CheckForButtonAction (XButtonEvent *buttonEvent, Context context, Contex
 		}
 
 	        if (!(buttonSpec->wmFunction (buttonSpec->wmFuncArgs, pCD,
-					      buttonEvent)))
+					      (XEvent *)buttonEvent)))
 		{
 		    /*
 		     * The window manager function return indicates that
