@@ -403,6 +403,7 @@ EXTRA_DIST += tests/automated/check-fontselector-argument-merge.py docs/fontsele
 EXTRA_DIST += tests/automated/check-fontselector-font-count-bounds.py docs/fontselector-font-count-bounds.md
 EXTRA_DIST += tests/automated/check-fontselector-toggle-state.py docs/fontselector-toggle-state.md
 EXTRA_DIST += tests/automated/check-fontselector-portability.py docs/fontselector-portability.md
+EXTRA_DIST += tests/automated/check-fontselector-encoding-list.py docs/fontselector-encoding-list.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md

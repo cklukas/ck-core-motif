@@ -3237,7 +3237,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 
     current = 0;
     for (i = 1, encodings = ENCODING_LIST(fsw) ;
-	 *encodings != NULL; i++, encodings++) 
+	 encodings != NULL && *encodings != NULL; i++, encodings++)
     { 
 	char name[BUFSIZ];
 	XmString label = XmStringCreateLocalized(*encodings);
@@ -3467,8 +3467,7 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
 	return;
     fsw = (XmFontSelectorWidget) w;
     if (XmFontS_font_info(fsw) == NULL ||
-	XmFontS_font_info(fsw)->current_font == NULL ||
-	ENCODING_LIST(fsw) == NULL)
+	XmFontS_font_info(fsw)->current_font == NULL)
 	return;
     cf = XmFontS_font_info(fsw)->current_font;
     encoding_index = (int)(uintptr_t)data;
@@ -3479,6 +3478,8 @@ ChangeEncoding(Widget w, XtPointer data, XtPointer junk)
 	}
     else
 	{
+	if (ENCODING_LIST(fsw) == NULL)
+	    return;
 	encodings = ENCODING_LIST(fsw);
 	while (encoding_index > 0 && *encodings != NULL) {
 	    if (encoding_index == 1)
@@ -4140,28 +4141,35 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
     /* XmFontS_current_font(fsw) handled internally */
 
     {
-	int i;
+	Cardinal count = 0;
 	String *encodings = ENCODING_LIST(fsw);
 	String *newList;
-	for (i=0, encodings = ENCODING_LIST(fsw); *encodings != NULL; i++, encodings++) 
-	i++;
-	if ((size_t)i > (SIZE_MAX / sizeof(*newList)) - 1 ||
-	    (size_t)i > (UINT_MAX / sizeof(*newList)) - 1)
-	    return;
-	newList = (String*)XtMalloc((Cardinal)((size_t)i * sizeof(*newList)));
+	Cardinal max_entries =
+	    (Cardinal)(UINT_MAX / sizeof(*newList)) - 1;
+
+	if (max_entries > (Cardinal)INT_MAX - 1)
+	    max_entries = (Cardinal)INT_MAX - 1;
+
+	if (encodings != NULL) {
+	    while (encodings[count] != NULL) {
+		if (count >= max_entries)
+		    return;
+		count++;
+	    }
+	}
+	newList = (String *)XtCalloc(count + 1, (Cardinal)sizeof(*newList));
 	if (newList == NULL)
 	    return;
-	for (i=0, encodings = ENCODING_LIST(fsw); *encodings != NULL; i++, encodings++) 
+	for (count = 0; encodings != NULL && encodings[count] != NULL; count++)
 	{
-	    newList[i] = XtNewString(*encodings);
-	    if (newList[i] == NULL) {
-		while (i > 0)
-		    XtFree(newList[--i]);
+	    newList[count] = XtNewString(encodings[count]);
+	    if (newList[count] == NULL) {
+		while (count != 0)
+		    XtFree(newList[--count]);
 		XtFree((char *)newList);
 		return;
 	    }
 	}
-	newList[i] = NULL;
 	ENCODING_LIST(fsw) = newList;
     }
 
@@ -4368,7 +4376,8 @@ SetValues(Widget old, Widget request, Widget set,
 	}
 
 	/* some of this code is probably a duplicate of CreateEncodingMenu */
-	for (current = 0, encoding_index = 1 ; *encodings != NULL;
+	for (current = 0, encoding_index = 1 ;
+	     encodings != NULL && *encodings != NULL;
 	     encoding_index++, encodings++)
 	{ 
 	    /*
