@@ -654,6 +654,10 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
     switch (request->any.type) {
     case WSM_CONNECT:
 	request->connect.num_versions = UnpackListNum(&data);
+	if (request->connect.num_versions == 0) {
+	    request->connect.known_versions = NULL;
+	    break;
+	}
 	request->connect.known_versions =
 	    (request->connect.num_versions >= 0 &&
 	     (size_t)request->connect.num_versions <= UINT_MAX / sizeof(short)) ?
@@ -673,6 +677,10 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	    register String *ptr;
 
 	    num = request->extensions.num_extensions = UnpackListNum(&data);
+	    if (num == 0) {
+		request->extensions.extension_suggestions = NULL;
+		break;
+	    }
 	    ptr = (num >= 0 && (size_t)num <= UINT_MAX / sizeof(String)) ?
 		(String *) XtMalloc((Cardinal)((size_t)num * sizeof(String))) : NULL;
 	    if (ptr == NULL) {
@@ -697,6 +705,10 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	    int num = UnpackListNum(&data);
 	    
 	    request->set_state.num_win_info_list = num;
+	    if (num == 0) {
+		request->set_state.win_info_list = NULL;
+		break;
+	    }
 	    request->set_state.win_info_list =
 		(num >= 0 && (size_t)num <= UINT_MAX / sizeof(WSMWinInfo)) ?
 		(WSMWinInfo *) XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinInfo))) :
@@ -730,29 +742,35 @@ _WSMUnpackRequest(Display *dpy, int screen_num, MessageData data,
 	  request->wm_windows.location_flag = UnpackCARD32(&data);
 
 	  num = request->wm_windows.num_window_properties = UnpackListNum(&data);
-	  request->wm_windows.window_properties =
-	    (num >= 0 && (size_t)num <= UINT_MAX / sizeof(WindowProperty)) ?
-	    (WindowProperty *) XtMalloc((Cardinal)((size_t)num * sizeof(WindowProperty))) :
-	    NULL;
-	  if (request->wm_windows.window_properties == NULL) {
-	    request->wm_windows.num_window_properties = 0;
-	    return;
+	  request->wm_windows.window_properties = NULL;
+	  if (num != 0) {
+	    request->wm_windows.window_properties =
+	      (num >= 0 && (size_t)num <= UINT_MAX / sizeof(WindowProperty)) ?
+	      (WindowProperty *) XtMalloc((Cardinal)((size_t)num * sizeof(WindowProperty))) :
+	      NULL;
+	    if (request->wm_windows.window_properties == NULL) {
+	      request->wm_windows.num_window_properties = 0;
+	      return;
+	    }
+	    for (i=0; i<num; i++)
+	      request->wm_windows.window_properties[i] = UnpackProperty(&data);
 	  }
-	  for (i=0; i<num; i++)
-	    request->wm_windows.window_properties[i] = UnpackProperty(&data);
 
 
 	  num = request->wm_windows.num_match_attributes = UnpackListNum(&data);
-	  request->wm_windows.match_attributes =
-	    (num >= 0 && (size_t)num <= UINT_MAX / sizeof(AttributePair *)) ?
-	    (AttributePair **) XtMalloc((Cardinal)((size_t)num * sizeof(AttributePair *))) :
-	    NULL;
-	  if (request->wm_windows.match_attributes == NULL) {
-	    XtFree((XtPointer)request->wm_windows.window_properties);
-	    request->wm_windows.window_properties = NULL;
-	    request->wm_windows.num_window_properties = 0;
-	    request->wm_windows.num_match_attributes = 0;
-	    return;
+	  request->wm_windows.match_attributes = NULL;
+	  if (num != 0) {
+	    request->wm_windows.match_attributes =
+	      (num >= 0 && (size_t)num <= UINT_MAX / sizeof(AttributePair *)) ?
+	      (AttributePair **) XtMalloc((Cardinal)((size_t)num * sizeof(AttributePair *))) :
+	      NULL;
+	    if (request->wm_windows.match_attributes == NULL) {
+	      XtFree((XtPointer)request->wm_windows.window_properties);
+	      request->wm_windows.window_properties = NULL;
+	      request->wm_windows.num_window_properties = 0;
+	      request->wm_windows.num_match_attributes = 0;
+	      return;
+	    }
 	  }
 
 	  for (i=0; i<request->wm_windows.num_match_attributes; i++)
@@ -890,6 +908,10 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	    register String *ptr;
 
 	    num = reply->extensions.num_extensions = UnpackListNum(&data);
+	    if (num == 0) {
+		reply->extensions.extensions = NULL;
+		break;
+	    }
 	    ptr = (num >= 0 && (size_t)num <= UINT_MAX / sizeof(String)) ?
 		(String *) XtMalloc((Cardinal)((size_t)num * sizeof(String))) : NULL;
 	    if (ptr == NULL) {
@@ -974,6 +996,10 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
     case WSM_GET_STATE:
 	{
 	    int num =reply->get_state.num_win_info_list = UnpackListNum(&data);
+	    if (num == 0) {
+		reply->get_state.win_info_list = NULL;
+		break;
+	    }
 	    reply->get_state.win_info_list =
 		(num >= 0 && (size_t)num <= UINT_MAX / sizeof(WSMWinInfo)) ?
 		(WSMWinInfo *) XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinInfo))) :
@@ -1013,19 +1039,21 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	  int num;
 
 	  num = reply->wm_windows.num_win_entry_list = UnpackListNum(&data);
-	  reply->wm_windows.win_entry_list =
-	    (num >= 0 && (size_t)num <= UINT_MAX / sizeof(WSMWinEntry)) ?
-	    (WSMWinEntry *) XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinEntry))) :
-	    NULL;
-	  if (reply->wm_windows.win_entry_list == NULL) {
-	    reply->wm_windows.num_win_entry_list = 0;
-	    return;
+	  reply->wm_windows.win_entry_list = NULL;
+	  if (num != 0) {
+	    reply->wm_windows.win_entry_list =
+	      (num >= 0 && (size_t)num <= UINT_MAX / sizeof(WSMWinEntry)) ?
+	      (WSMWinEntry *) XtMalloc((Cardinal)((size_t)num * sizeof(WSMWinEntry))) :
+	      NULL;
+	    if (reply->wm_windows.win_entry_list == NULL) {
+	      reply->wm_windows.num_win_entry_list = 0;
+	      return;
+	    }
+	    for (i = 0; i < num; i++)
+	      UnpackWinEntry(&data, dpy, screen_num,
+			     reply->wm_windows.win_entry_list + i);
 	  }
 	  reply->wm_windows.allocated = True;
-
-	  for (i = 0; i < num; i++) 
-	    UnpackWinEntry(&data, dpy, screen_num, 
-			   reply->wm_windows.win_entry_list + i);
 	}
 	break;
     case WSM_WM_FOCUS:

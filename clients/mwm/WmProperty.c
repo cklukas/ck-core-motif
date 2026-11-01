@@ -1339,7 +1339,8 @@ Status GetWorkspaceHints (Display *display, Window window,
 void SetEmbeddedClientsProperty (Window propWindow,
     Window *pEmbeddedClients, unsigned long cEmbeddedClients)
 {
-    if (cEmbeddedClients > 0 && pEmbeddedClients == NULL)
+    if (cEmbeddedClients > (unsigned long)INT_MAX ||
+        (cEmbeddedClients > 0 && pEmbeddedClients == NULL))
     {
         return;
     }
@@ -1347,7 +1348,7 @@ void SetEmbeddedClientsProperty (Window propWindow,
     XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_EMBEDDED_CLIENTS, 
 	wmGD.xa_DT_EMBEDDED_CLIENTS,
 	32, PropModeReplace, (unsigned char *)pEmbeddedClients,
-	cEmbeddedClients);
+	(int)cEmbeddedClients);
 
 } /* END OF FUNCTION SetEmbeddedClientsProperty */
 
@@ -1375,6 +1376,7 @@ void SetEmbeddedClientsProperty (Window propWindow,
 void SetWorkspaceInfo (Window propWindow, WorkspaceInfo *pWsInfo, unsigned long cInfo)
 {
     size_t bytes;
+    size_t element_count;
 
     if (cInfo > 0 && pWsInfo == NULL)
     {
@@ -1386,10 +1388,15 @@ void SetWorkspaceInfo (Window propWindow, WorkspaceInfo *pWsInfo, unsigned long 
     }
 
     bytes = (size_t)cInfo * sizeof(WorkspaceInfo);
+    element_count = bytes / sizeof(long);
+    if (element_count > (size_t)INT_MAX)
+    {
+        return;
+    }
     XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_INFO,
 	wmGD.xa_DT_WORKSPACE_INFO,
 	32, PropModeReplace, (unsigned char *)pWsInfo,
-	bytes / sizeof(long));
+	(int)element_count);
 
 } /* END OF FUNCTION SetWorkspaceInfo */
 #endif /* HP_VUE */
@@ -1417,6 +1424,7 @@ SetWorkspaceListProperty (WmScreenData *pSD)
 {
     WmWorkspaceData *pws;
     Atom *pWsList = NULL;
+    size_t element_count;
     int count;
 
     if (pSD == NULL || pSD->numWorkspaces < 0 ||
@@ -1444,11 +1452,20 @@ SetWorkspaceListProperty (WmScreenData *pSD)
         }
     }
 
+    element_count = ((size_t)pSD->numWorkspaces * sizeof(Atom)) /
+                    sizeof(long);
+    if (element_count > (size_t)INT_MAX)
+    {
+        XtFree ((char *) pWsList);
+        Warning ("Workspace list is too large");
+        return;
+    }
+
     XChangeProperty (DISPLAY, pSD->wmWorkspaceWin, 
         wmGD.xa_DT_WORKSPACE_LIST, 
 	XA_ATOM,
 	32, PropModeReplace, (unsigned char *)pWsList,
-	(pSD->numWorkspaces * sizeof(Atom))/sizeof(long));
+	(int)element_count);
 
     XtFree ((char *) pWsList);
 
@@ -1783,14 +1800,15 @@ WorkspacePropertyName (WmWorkspaceData *pWS)
 
 void SetWorkspacePresence (Window propWindow, Atom *pWsPresence, unsigned long cPresence)
 {
-    if (cPresence > 0 && pWsPresence == NULL)
+    if (cPresence > (unsigned long)INT_MAX ||
+        (cPresence > 0 && pWsPresence == NULL))
     {
         return;
     }
 
     XChangeProperty (DISPLAY, propWindow, wmGD.xa_DT_WORKSPACE_PRESENCE, 
 	wmGD.xa_DT_WORKSPACE_PRESENCE, 32, PropModeReplace, 
-	(unsigned char *)pWsPresence, cPresence);
+	(unsigned char *)pWsPresence, (int)cPresence);
     XFlush (DISPLAY);
 
 } /* END OF FUNCTION SetWorkspacePresence */
@@ -2243,12 +2261,13 @@ HasProperty (
 
 void SetMwmClientList (Window propWindow, Window *wmWindowList, unsigned int wmWindowCount)
 {
-    if ((wmWindowCount != 0) && (wmWindowList == NULL))
+    if (wmWindowCount > (unsigned int)INT_MAX ||
+        ((wmWindowCount != 0) && (wmWindowList == NULL)))
 	return;
 
     XChangeProperty (DISPLAY, propWindow, wmGD.xa_MWM_CLIENT_LIST, XA_WINDOW,
     32, PropModeReplace, (unsigned char *)wmWindowList,
-    wmWindowCount);
+    (int)wmWindowCount);
 
 } /* END OF FUNCTION SetMwmClientList */
 
