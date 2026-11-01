@@ -10,6 +10,15 @@ Give custom interactive controls focus on primary click (2026-11-01)
   Restore non-text arrow key handling in DataGrid and TimePicker.
 - Add a native cross-control regression for click focus and Tab navigation.
 
+Bound MWM continued configuration lines (2026-11-01)
+=====================================================
+
+- Calculate continuation-buffer capacity in `size_t`, reject exhausted and
+  non-representable `fgets` lengths, and avoid implicit pointer-difference
+  conversion while appending continued configuration lines.
+- Add the focused continuation-bound regression and document the parser
+  behavior.
+
 Validate MWM icon geometry conversion boundaries (2026-11-01)
 =============================================================
 

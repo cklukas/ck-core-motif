@@ -384,6 +384,7 @@ EXTRA_DIST += tests/automated/check-mwm-bitmap-path-failure.py docs/mwm-bitmap-p
 EXTRA_DIST += tests/automated/check-mwm-action-argument-allocation.py docs/mwm-action-argument-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-icon-bevel-gc-release.py docs/mwm-icon-bevel-gcs.md
 EXTRA_DIST += tests/automated/check-mwm-icon-dimension-types.py docs/mwm-icon-dimension-types.md
+EXTRA_DIST += tests/automated/check-mwm-continuation-buffer-bounds.py docs/mwm-continuation-buffer-bounds.md
 
 # Image scaling and malformed-image regression.
 EXTRA_DIST += tests/automated/check-image-scaling.c tests/automated/run-image-regressions.py docs/image-scaling.md

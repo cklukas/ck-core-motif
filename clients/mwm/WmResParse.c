@@ -5470,6 +5470,7 @@ GetNextLine (void)
 {
     register unsigned char	*string;
     int				len;
+    size_t			remaining;
 
 #ifndef NO_MULTIBYTE
     int   chlen;
@@ -5501,7 +5502,9 @@ GetNextLine (void)
 	    {
 		do
 		{
-		    if (!fgets((char *)string, MAXLINE - (string - line), cfileP))
+		    remaining = (size_t)MAXLINE - (size_t)(string - line);
+		    if (remaining <= 1 || remaining > (size_t)INT_MAX ||
+			!fgets((char *)string, (int)remaining, cfileP))
 			break;
 
 		    lastlen = 0;
@@ -5524,8 +5527,9 @@ GetNextLine (void)
 		{
 		do {
 		    string = &string[line_length - 2];
-		    if (fgets((char *)string, 
-		 	      MAXLINE - (string-line), cfileP) == NULL)
+		    remaining = (size_t)MAXLINE - (size_t)(string - line);
+		    if (remaining <= 1 || remaining > (size_t)INT_MAX ||
+			fgets((char *)string, (int)remaining, cfileP) == NULL)
 		       break;
 		    line_length = strlen((char *)string);
 		    linec++;
