@@ -1,3 +1,11 @@
+Stop MWM initial-client adoption after allocation failure (2026-11-01)
+=======================================================================
+
+- Return after MWM's ancillary-window allocation failure path so an embeddable
+  or test shutdown hook cannot leave adoption dereferencing a null array.
+- Use unsigned XQueryTree traversal indexes and extend focused regression and
+  documentation coverage.
+
 Type MWM keyboard-state group masks explicitly (2026-11-01)
 ============================================================
 
