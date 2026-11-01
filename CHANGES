@@ -33,6 +33,14 @@ Buffered toolkit painting and gallery appearance selection (2026-11-01)
   multiple paragraphs as one line; the gallery Source pane can reach its end.
   The native line-scan regression fails against the preceding library.
 
+Normalize null FontSelector default encoding (2026-11-01)
+==========================================================
+
+- Treat a null `XmNdefaultEncodingString` as the documented `Any` selection
+  during construction and runtime updates, while preserving the previous value
+  if allocation fails.
+- Add this public-resource case to the encoding-list regression contract.
+
 Fix FontSelector encoding-list allocation (2026-11-01)
 ========================================================
 

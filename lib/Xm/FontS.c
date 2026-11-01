@@ -4096,6 +4096,7 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
     XmFontSelectorWidget fsw = (XmFontSelectorWidget)set;
     ArgList f_args;
     Cardinal f_num_args;
+    String encoding;
 
     XmFontS_user_state(fsw) = 0;	/* Initialize user state to 0. */
     XmFontS_xlfd_mode(fsw) = True;	/* We start in Xlfd Mode. */
@@ -4135,7 +4136,9 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal * num_args)
     SIZE_STRING(fsw)		= CopyFontSelectorString(SIZE_STRING(fsw));
     XLFD_STRING(fsw)		= CopyFontSelectorString(XLFD_STRING(fsw));
 
-    ENCODING_STRING(fsw)	= XtNewString(ENCODING_STRING(fsw)); 
+    encoding = ENCODING_STRING(fsw);
+    ENCODING_STRING(fsw) = XtNewString(
+	encoding != NULL ? encoding : ANY_ENCODING);
     if (ENCODING_STRING(fsw) == NULL)
 	return;
     /* XmFontS_current_font(fsw) handled internally */
@@ -4285,6 +4288,7 @@ SetValues(Widget old, Widget request, Widget set,
     XmFontSelectorWidget old_fsw = (XmFontSelectorWidget) old;
     XmFontSelectorWidget set_fsw = (XmFontSelectorWidget) set;
     Boolean new_encoding_list = False;
+    Boolean encoding_changed;
 
     if (old == NULL || request == NULL || set == NULL || args == NULL ||
 	 num_args == NULL ||
@@ -4316,6 +4320,11 @@ SetValues(Widget old, Widget request, Widget set,
 	if (streq(args[i].name, XmNencodingList))
 	    new_encoding_list = True;
     }
+
+    encoding_changed = ENCODING_STRING(old_fsw) != ENCODING_STRING(set_fsw)
+	&& (ENCODING_STRING(old_fsw) == NULL ||
+	    ENCODING_STRING(set_fsw) == NULL ||
+	    !streq(ENCODING_STRING(old_fsw), ENCODING_STRING(set_fsw)));
 
     /*
      * ||| Protect against any of the strings being changed.
@@ -4351,10 +4360,7 @@ SetValues(Widget old, Widget request, Widget set,
     /* if new_encoding_list is true, then CreateEncodingMenu has already
     ** freed and recreated the ENCODING_STRING, so avoid redoing it
     */
-    if (new_encoding_list ||
-	(((ENCODING_STRING(old_fsw) != NULL) && (ENCODING_STRING(set_fsw) != NULL))
-	&& !streq(ENCODING_STRING(old_fsw), ENCODING_STRING(set_fsw)))
-	)
+    if (new_encoding_list || encoding_changed)
     {
 	char buf[BUFSIZ];
 	int current, encoding_index;
@@ -4364,10 +4370,9 @@ SetValues(Widget old, Widget request, Widget set,
 
 	if (!new_encoding_list)
 	{
-		encoding_copy = ENCODING_STRING(set_fsw) != NULL
-		    ? XtNewString(ENCODING_STRING(set_fsw)) : NULL;
-		if (ENCODING_STRING(set_fsw) == NULL || encoding_copy != NULL)
-		{
+		encoding_copy = XtNewString(ENCODING_STRING(set_fsw) != NULL
+		    ? ENCODING_STRING(set_fsw) : ANY_ENCODING);
+		if (encoding_copy != NULL) {
 		    XtFree(ENCODING_STRING(old_fsw));
 		    ENCODING_STRING(set_fsw) = encoding_copy;
 		}
@@ -4384,7 +4389,8 @@ SetValues(Widget old, Widget request, Widget set,
 	     * If the default encoding matches this one then make this
 	     * the current item in the option menu.
 	     */
-	    if (strcmp(*encodings, ENCODING_STRING(set_fsw)) == 0)
+	    if (ENCODING_STRING(set_fsw) != NULL &&
+		streq(*encodings, ENCODING_STRING(set_fsw)))
 		current = encoding_index;
 	}
 
