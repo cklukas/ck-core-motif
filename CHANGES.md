@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-01 — Modern dialog actions and complete Mac demos
+
+- Size short modern dialog actions to at least 80 logical pixels (64 compact),
+  preserving long labels, Classic geometry and the natural-size opt-out.
+- Correct default-action highlight reporting and a ColorSelector declaration
+  rejected by current Clang.
+- Initialize optional workspace demo data pointers; native Mac copy/move/link
+  integration now passes instead of trapping when icon data is absent.
+- Include all 34 gallery demo executables and runtime resources in the native
+  SVG-enabled Mac test installation. See [build guidance](docs/build.md).
+
 ## 2026-11-01 — Native macOS SVG gallery
 
 - Qualify the native C23 Mac gallery with `--enable-svg` and librsvg2.62.3.

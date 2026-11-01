@@ -1201,7 +1201,8 @@ _XmSelectionBoxGeoMatrixCreate(
         layoutPtr->space_above = vspace;
         vspace = BB_MarginHeight(sb);
         if(    !(sb->selection_box.minimize_buttons)    )
-        {   layoutPtr->even_width = 1 ;
+        {   layoutPtr->fix_up = _XmBB_ModernButtonWidths;
+            layoutPtr->even_width = 1 ;
             } 
         layoutPtr->even_height = 1 ;
 	++layoutPtr ;

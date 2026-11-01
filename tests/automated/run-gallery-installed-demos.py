@@ -19,14 +19,20 @@ parser.add_argument('--build-root', required=True, type=Path)
 parser.add_argument('--prefix', required=True, type=Path)
 parser.add_argument('--out', required=True, type=Path)
 a = parser.parse_args()
-if sys.platform == 'darwin':
-    parser.error('This native Xvfb qualification runs on Linux')
+mac = sys.platform == 'darwin'
 build, prefix, out = a.build_root.resolve(), a.prefix.resolve(), a.out.resolve()
 if out.exists(): parser.error('--out must be fresh')
+if mac and not any(out.is_relative_to(Path(root)) and Path(root).is_dir()
+                   for root in ('/Volumes/S8T/tmp', '/Volumes/PRO-BLADE/tmp')):
+    parser.error('macOS --out must be beneath a mounted project temporary volume')
 out.mkdir(parents=True)
 for name in ('tmp', 'home'): (out/name).mkdir()
 env = dict(os.environ, TMPDIR=str(out/'tmp'), HOME=str(out/'home'),
            LD_LIBRARY_PATH=str(prefix/'lib'))
+if mac:
+    env.update(DYLD_LIBRARY_PATH=str(prefix/'lib'),
+               PATH='/opt/X11/bin:'+os.environ['PATH'])
+source = Path(__file__).resolve().parents[2]
 programs = build/'demos/programs'
 hidden = programs.with_name('programs.install-test-hidden')
 if hidden.exists(): parser.error('build demos already hidden')
@@ -35,7 +41,8 @@ processes = []
 receipt = {'gallery_sha256': hashlib.sha256(gallery.read_bytes()).hexdigest(), 'results': {}, 'identical_build_outputs': {}}
 for built, installed in (
     (build/'clients/mwm/.libs/mwm', prefix/'bin/mwm'),
-    (build/'lib/Xm/.libs/libXm.so.9.0.0', prefix/'lib/libXm.so.9.0.0'),
+    (build/('lib/Xm/.libs/libXm.9.dylib' if mac else 'lib/Xm/.libs/libXm.so.9.0.0'),
+     prefix/('lib/libXm.9.dylib' if mac else 'lib/libXm.so.9.0.0')),
     (build/'demos/programs/workspace/.libs/wsm', prefix/'share/Xm/wsm/wsm'),
     (build/'demos/programs/ckmotif-gallery/.libs/ckmotif-gallery', gallery),
 ):
@@ -46,7 +53,7 @@ for built, installed in (
 
 # Installed data must match this build's intended asset bytes, including locale UIDs.
 entries=re.findall(r'\{"([^"]+)", "([^"]+)", "([^"]+)"',
-    (programs/'ckmotif-gallery/gallery_demos.h').read_text())
+    (source/'demos/programs/ckmotif-gallery/gallery_demos.h').read_text())
 asset_hashes={}
 installed_names={}
 for _,directory,name in entries: installed_names.setdefault(directory,set()).add(name)
@@ -56,6 +63,7 @@ for build_dir,install_dir,binary in entries:
         if not asset.is_file() or (asset.parent==installed_dir and asset.name in installed_names[install_dir]): continue
         relative=asset.relative_to(installed_dir)
         original=programs/build_dir/relative
+        if not original.is_file(): original=source/'demos/programs'/build_dir/relative
         if not original.is_file():
             raise RuntimeError('installed asset has no build input: '+str(asset))
         digest=hashlib.sha256(asset.read_bytes()).hexdigest()
@@ -78,23 +86,27 @@ def run_program(command, timeout):
     return subprocess.CompletedProcess(process.args, process.returncode, stdout, stderr)
 try:
     read_fd, write_fd = os.pipe()
-    server = subprocess.Popen(['Xvfb', '-displayfd', str(write_fd), '-screen', '0', '1280x900x24', '-nolisten', 'tcp'],
+    server = subprocess.Popen(['Xvfb', '-displayfd', str(write_fd), '-screen', '0', '1280x900x24', '-noreset'] +
+        ([':190', '-ac', '-listen', 'tcp'] if mac else ['-nolisten', 'tcp']),
         env=env, pass_fds=(write_fd,), stdout=(out/'xvfb.log').open('w'), stderr=subprocess.STDOUT)
     processes.append(server); os.close(write_fd)
-    with os.fdopen(read_fd) as pipe: env['DISPLAY'] = ':'+pipe.readline().strip()
+    with os.fdopen(read_fd) as pipe: env['DISPLAY'] = ('127.0.0.1:' if mac else ':')+pipe.readline().strip()
     manager_path=prefix/'bin/mwm'
     manager=subprocess.Popen([str(manager_path),'-xrm','Mwm*showFeedback: none',
         '-xrm','Mwm*keyboardFocusPolicy: explicit'],env=env,
         stdout=(out/'mwm.log').open('w'),stderr=subprocess.STDOUT)
     processes.append(manager);time.sleep(1)
-    if manager.poll() is not None or Path('/proc/'+str(manager.pid)+'/exe').resolve()!=manager_path:
+    identity = (subprocess.check_output(['ps','-p',str(manager.pid),'-o','comm='],text=True).strip() == str(manager_path)
+                if mac else Path('/proc/'+str(manager.pid)+'/exe').resolve() == manager_path)
+    if manager.poll() is not None or not identity:
         raise RuntimeError('installed MWM startup/identity failed')
     receipt['manager']={'pid':manager.pid,'executable':str(manager_path)}
     programs.rename(hidden)
     wsm=prefix/'share/Xm/wsm/wsm'
     result=run_program([wsm,'--integration-test','-file',out/'workspace.db','-workspaceList','One,Two'],40)
     (out/'wsm-ui.log').write_text(result.stdout+result.stderr)
-    if result.returncode: raise RuntimeError('installed Wsm UI failed')
+    receipt['wsm_exit_code'] = result.returncode
+    if result.returncode: raise RuntimeError('installed Wsm UI failed: '+str(result.returncode))
     receipt['results']['wsm-ui']=0
     for mode in ('--integration-all-demos', '--integration-demos'):
         result = run_program([gallery,mode], 100)

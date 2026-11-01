@@ -532,3 +532,20 @@ so the accent stroke retains its thickness through each corner. Face repaints
 restore the complete band, while focus removal preserves application-drawn
 content inside the rounded face. Native pixel tests cover light/dark profiles,
 comfortable/compact density and 1×, 1.5× and 2× scale.
+
+## Dialog action sizing
+
+Modern light and dark MessageBox and SelectionBox action rows reserve at least
+80 logical pixels per button in comfortable density, or 64 in compact density.
+The minimum follows the display scale; longer and translated labels retain their
+natural width. Existing equal-width row alignment and modern font/padding apply.
+`XmNminimizeButtons=True` requests natural widths instead. Classic and high
+contrast keep their existing layout. This policy belongs to dialog action rows;
+it does not enlarge toolbar icons or menu items.
+
+`check-default-button-geometry.c` exercises single-action MessageBoxes and
+SelectionBoxes with short/long labels, both densities, 1x/2x scales, Classic and
+both modern profiles, and natural-size opt-out transitions, alongside the
+existing default-emphasis geometry regression. Default-action highlight exports
+subtract the classic frame adjustment only when that frame is actually reserved.
+The native runner supports Linux and macOS/XQuartz with an isolated Xvfb server.

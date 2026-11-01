@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import select
 import signal
 import subprocess
 import time
@@ -22,10 +23,14 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--prefix", required=True, type=Path)
 parser.add_argument("--out", required=True, type=Path)
 args = parser.parse_args()
-if platform.system() != "Linux":
-    parser.error("default button geometry regression currently requires Linux/Xvfb")
+mac = platform.system() == "Darwin"
+if platform.system() not in ("Linux", "Darwin"):
+    parser.error("default button geometry regression requires Linux or macOS/Xvfb")
 prefix = args.prefix.resolve(strict=True)
 output = args.out.resolve()
+if mac and not any(output.is_relative_to(Path(root)) and Path(root).is_dir()
+                   for root in ("/Volumes/S8T/tmp", "/Volumes/PRO-BLADE/tmp")):
+    parser.error("macOS --out must be beneath a mounted project temporary volume")
 if output.exists() or output.is_relative_to(prefix) or prefix.is_relative_to(output):
     parser.error("--out must be fresh and separate from --prefix")
 output.mkdir(parents=True)
@@ -35,7 +40,9 @@ binary = output / "check-default-button-geometry"
 env = dict(os.environ, TMPDIR=str(output / "tmp"), LC_ALL="C.UTF-8",
            LD_LIBRARY_PATH=str(prefix / "lib"), PYTHONDONTWRITEBYTECODE="1")
 env.pop("DISPLAY", None)
-library = (prefix / "lib/libXm.so").resolve(strict=True)
+if mac:
+    env.update(DYLD_LIBRARY_PATH=str(prefix / "lib"), LC_ALL="en_US.UTF-8")
+library = (prefix / ("lib/libXm.9.dylib" if mac else "lib/libXm.so")).resolve(strict=True)
 receipt = {"library": str(library), "library_sha256": sha256(library), "source": str(source), "source_sha256": sha256(source),
            "prefix": str(prefix), "output": str(output), "steps": [],
            "success": False}
@@ -70,15 +77,31 @@ def run(name, command):
         raise SystemExit(process.returncode)
 
 
+server = None
 try:
     flags = ["-std=c11", "-Wall", "-Wextra", "-Werror", "-O2", "-g",
              "-I" + str(prefix / "include"), "-L" + str(prefix / "lib"),
              "-Wl,-rpath," + str(prefix / "lib")]
+    if mac:
+        flags += ["-I/opt/X11/include", "-L/opt/X11/lib"]
     run("compile", ["cc", *flags, source, "-lXm", "-lXt", "-lX11",
                      "-o", binary])
-    run("link", ["ldd", binary])
-    run("run", ["xvfb-run", "-a", "-s", "-screen 0 1600x1200x24", binary])
-    if "libXm.so" not in (output / "link.log").read_text():
+    run("link", ["otool", "-L", binary] if mac else ["ldd", binary])
+    read_fd, write_fd = os.pipe()
+    server = subprocess.Popen(["/opt/X11/bin/Xvfb" if mac else "Xvfb",
+        "-displayfd", str(write_fd), "-screen", "0", "1600x1200x24",
+        "-noreset", "-nolisten", "tcp"], env=env, pass_fds=(write_fd,),
+        stdout=(output / "xvfb.log").open("w"), stderr=subprocess.STDOUT)
+    os.close(write_fd)
+    with os.fdopen(read_fd) as pipe:
+        if not select.select([pipe], [], [], 10)[0]:
+            raise RuntimeError("Xvfb did not become ready")
+        number = pipe.readline().strip()
+        if not number.isdecimal():
+            raise RuntimeError("Xvfb did not allocate a display")
+        env["DISPLAY"] = ":" + number
+    run("run", [binary])
+    if "libXm." not in (output / "link.log").read_text():
         raise RuntimeError("regression did not link libXm")
     if "PASS default button geometry" not in (output / "run.log").read_text():
         raise RuntimeError("regression did not report its pass marker")
@@ -88,6 +111,9 @@ try:
         raise RuntimeError("library changed during qualification")
     receipt["success"] = True
 finally:
+    if server:
+        server.terminate()
+        server.wait(timeout=10)
     receipt["ended_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     receipt["seconds"] = round(time.monotonic() - started, 3)
     (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")

@@ -567,8 +567,7 @@ ExportHighlightThickness(
   if (widget == NULL || value == NULL ||
       !XtIsSubclass(widget, xmPushButtonWidgetClass))
     return;
-  if (pbw->pushbutton.show_as_default ||
-      pbw->pushbutton.default_button_shadow_thickness)
+  if (pbw->pushbutton.default_geometry)
     {
       if ((int)*value >= Xm3D_ENHANCE_PIXEL)
 	*value -= Xm3D_ENHANCE_PIXEL;

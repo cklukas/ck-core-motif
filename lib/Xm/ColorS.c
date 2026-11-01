@@ -157,7 +157,7 @@ static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
 static Boolean UpdateColorWindow(XmColorSelectorWidget, Boolean);
 static Boolean color_name_changed(XmColorSelectorWidget, char *);
 static Boolean FindColor(XmColorSelectorWidget, int *);
-static Boolean CvtStringToColorMode(Display *, XrmValuePtr, Cardinal, 
+static Boolean CvtStringToColorMode(Display *, XrmValuePtr, Cardinal *,
 				    XrmValuePtr, XrmValuePtr, XtPointer *);
 static Boolean DefaultVisualDisplay(XmColorSelectorWidget, Pixel, XColor, char *);
 

@@ -10,6 +10,7 @@ converter_end = source.index("static void \nCalcPreferredSize", converter_start)
 converter = source[converter_start:converter_end]
 assert "Cardinal *num_args" in converter
 assert "(XtTypeConverter) CvtStringToColorMode" not in source
+assert "CvtStringToColorMode(Display *, XrmValuePtr, Cardinal *," in source
 
 start = source.index("new_mode(XmColorSelectorWidget csw, XmColorMode mode)")
 end = source.index("/*", start)

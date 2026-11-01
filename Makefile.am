@@ -1508,3 +1508,5 @@ EXTRA_DIST += tests/automated/run-toolbar-icon-surfaces.py
 EXTRA_DIST += docs/validation/toolbar-icon-surfaces-macos-20261101.json
 
 EXTRA_DIST += docs/validation/macos-svg-20261101.json
+
+EXTRA_DIST += docs/validation/macos-dialog-demos-20261101.json

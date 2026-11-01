@@ -1,3 +1,17 @@
+Modern dialog action widths and complete Mac demos (2026-11-01)
+==============================================================
+
+- Give modern MessageBox and SelectionBox equal-width action rows a minimum
+  width of 80 logical pixels (64 compact), scaled for the display. Preserve
+  longer labels, Classic geometry and XmNminimizeButtons natural sizing.
+- Correct modern default-button highlight export to report the actual
+  geometry, and synchronize the ColorSelector converter prototype with its
+  Xt-compatible implementation for current Clang.
+- Initialize optional workspace demo data pointers; native Mac copy/move/link
+  integration now passes instead of trapping when icon data is absent.
+- Qualify the native SVG-enabled Mac test build with all 34 catalogue demos
+  installed alongside their UID files and other runtime resources.
+
 Qualify native macOS gallery SVG rendering (2026-11-01)
 =====================================================
 

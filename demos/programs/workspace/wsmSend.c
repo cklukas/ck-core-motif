@@ -178,7 +178,7 @@ CreateStartStateRequest(WSMGetStateReply *get_state,
   Window window;
   int i;
   XrmQuarkList rooms_qlist = NULL;
-  WSMWinData *xrm_data_list;
+  WSMWinData *xrm_data_list = NULL;
   int num_xrm_data_list;
   WorkWindow *w_window = NULL;
   Boolean linked = False;
@@ -413,7 +413,7 @@ GetChangeSpaceRequest(Space *to_s, WSMRequest *request)
   Boolean in_to_space = False;
   Boolean first = True;
   int num_win;
-  WSMWinData *xrm_data_list;
+  WSMWinData *xrm_data_list = NULL;
   int num_xrm_data_list;
   WSMWinInfo *win_info = NULL;
   XrmQuark room_name;
@@ -567,7 +567,7 @@ GetChangeSpaceRequest(Space *to_s, WSMRequest *request)
 void
 GetRegisterOldWindowReply(WorkWindow *w_window,WSMReply *reply)
 {
-  WSMWinData *xrm_data_list;
+  WSMWinData *xrm_data_list = NULL;
   int num_xrm_data_list = 0;
   Boolean in_current_space = False;
 
@@ -636,7 +636,7 @@ GetRegisterOldWindowReply(WorkWindow *w_window,WSMReply *reply)
 void
 GetRegisterWindowReply(Window window,WSMReply *reply)
 {
-  WSMWinData *xrm_data_list;
+  WSMWinData *xrm_data_list = NULL;
   int num_xrm_data_list = 0;
   WorkWindow *w_window;
   XrmQuarkList rooms_qlist;
@@ -976,8 +976,8 @@ CreateSetState(WSMWinData *data_list, int num_data_list,
 Boolean 
 GetCopyWindowRequest(Window win, Space *from_s, Space *to_s, WSMRequest *request)
 {
-  WSMWinData *xrm_data_list;
-  WSMWinData *xrm_data_list_i;
+  WSMWinData *xrm_data_list = NULL;
+  WSMWinData *xrm_data_list_i = NULL;
   int num_xrm_data_list = 0;
   int num_xrm_data_list_i = 0;
   WorkWindow *w_window;	
@@ -1158,7 +1158,7 @@ CopyWindowToSpace(WorkWindow *w_window, WorkWindow *i_window,
 Boolean 
 GetMoveWindowRequest(Window win, Space *from_s, Space *to_s, WSMRequest *request)
 {
-  WSMWinData *xrm_data_list, *xrm_data_list_i;
+  WSMWinData *xrm_data_list = NULL, *xrm_data_list_i = NULL;
   int num_xrm_data_list = 0;
   int num_xrm_data_list_i = 0;
   WorkWindow *w_window;	
@@ -1292,7 +1292,7 @@ GetDeleteWindowRequest(Window win, Space *from_s,WSMRequest *request)
 {
   
   WSMWinInfo *win_info;
-  WSMWinData *xrm_data_list;
+  WSMWinData *xrm_data_list = NULL;
   int num_xrm_data_list = 0;
   WorkWindow *w_window;	
   Boolean retval = False;
@@ -1351,9 +1351,9 @@ GetDeleteWindowRequest(Window win, Space *from_s,WSMRequest *request)
 Boolean 
 GetLinkWindowRequest(Window win, Space *from_s, Space *to_s, WSMRequest *request)
 {
-  WSMWinData *xrm_data_list;
+  WSMWinData *xrm_data_list = NULL;
   int num_xrm_data_list = 0;
-  WSMWinData *xrm_data_list_i;
+  WSMWinData *xrm_data_list_i = NULL;
   int num_xrm_data_list_i = 0;
   WorkWindow *w_window;	
   WorkWindow *i_window;	
@@ -1508,7 +1508,7 @@ Boolean
 GetManageAllWindowsRequest(WSMRequest *request)
 {
   WSMWinInfo *win_info;
-  WSMWinData *xrm_data_list;
+  WSMWinData *xrm_data_list = NULL;
   int num_xrm_data_list = 0;
   WorkWindow *w_window;	
   int num_win;

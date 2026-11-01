@@ -39,6 +39,32 @@
 #include <Xm/TakesDefT.h>
 #include "BulletinBI.h"
 #include "MessagesI.h"
+#include "XmI.h"
+
+/* Dialog action rows own their equal-width layout. Give short modern actions
+ * a useful target without imposing a fixed width on translated/long labels.
+ * Callers retain XmNminimizeButtons as the natural-size opt-out. */
+void
+_XmBB_ModernButtonWidths(XmGeoMatrix matrix, int action,
+    XmGeoMajorLayout layout, XmKidGeometry buttons)
+{
+    Widget bb = matrix->composite;
+    Display *display = XtDisplayOfObject(bb);
+    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(display);
+    double scale = 1.0;
+    Dimension minimum;
+    (void)layout;
+    if (action != XmGET_PREFERRED_SIZE && action != XmGET_ACTUAL_SIZE)
+        return;
+    if (profile != XmAPPEARANCE_MODERN_LIGHT &&
+        profile != XmAPPEARANCE_MODERN_DARK)
+        return;
+    (void)_XmGetWidgetDpiScale(bb, &scale);
+    minimum = (Dimension)((_XmAppearanceGeometryDensity(display) ==
+        XmAPPEARANCE_DENSITY_COMPACT ? 64 : 80) * scale + 0.5);
+    for (; buttons->kid; ++buttons)
+        buttons->box.width = MAX(buttons->box.width, minimum);
+}
 
 /* defines for label string resources coming from message catalog */
 #define OK_STRING         _XmMMsgResource_0001

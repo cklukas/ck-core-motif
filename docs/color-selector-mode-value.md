@@ -17,3 +17,6 @@ The string converter now also uses Xt's native `Cardinal *` converter-count
 parameter rather than an incompatible value parameter and function-pointer
 cast. This keeps resource conversion ABI-correct on platforms where the two
 calling conventions differ.
+
+The converter forward declaration also uses `Cardinal *`; a mismatched
+prototype is rejected by current Clang before the library can be built.

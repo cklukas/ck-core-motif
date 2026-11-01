@@ -375,7 +375,19 @@ The gallery's **Demo Applications** page reports missing executables with their
 configured build and install paths and the command needed to enable demos.
 Examples keep their historical installation locations under `PREFIX/share/Xm`;
 the gallery itself is installed into `PREFIX/bin`.
+A gallery test distribution must include these installed demo executables and
+their UID files, bitmaps, locale data and help resources, rather than copying
+only `ckmotif-gallery`. Check every catalogue entry in
+`demos/programs/ckmotif-gallery/gallery_demos.h` against the installed prefix;
+exercise resource-dependent examples such as Periodic Table and File Viewer
+from their installed directories.
 
 The default MWM build enables the standalone `MWM_WSM` workspace protocol.
 This is independent of the CDE `WSM` compilation mode. See
 [workspace management](mwm-workspace-manager.md) for behavior and validation.
+
+The [native Mac dialog/demo qualification](validation/macos-dialog-demos-20261101.json)
+records the complete installed cohort and automated results. Run
+`tests/automated/run-gallery-installed-demos.py --build-root BUILD --prefix PREFIX --out OUT`
+on an idle task-owned build; it temporarily hides its build-tree demos and restores
+them afterward. On macOS, OUT must be on a mounted project temporary volume.

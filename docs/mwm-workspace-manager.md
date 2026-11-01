@@ -32,7 +32,11 @@ windows. Graceful Wsm exit also restores windows and removes its menu commands.
 
 Both protocol peers validate complete message lengths, counts, attribute masks
 and scalar/list widths before allocation decoding. Truncated and trailing data
-are rejected. Wsm retrieves pointer-valued button IDs with pointer-sized storage
+are rejected. Wsm initializes optional window/icon data lists to null when their counts are
+zero, including move, copy and link requests without icon data. Current Clang
+can trap on an uninitialized optional pointer even when the corresponding count
+is zero; the native Mac workspace integration reproduces and checks this path.
+Wsm retrieves pointer-valued button IDs with pointer-sized storage
 and does not retain callback-owned configuration reply structures.
 
 Client withdrawal removes X context associations before frame/icon destructors

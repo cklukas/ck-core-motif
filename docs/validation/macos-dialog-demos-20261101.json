@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-01",
+  "base_revision": "0a3c28e3a6b45a7654aead998d932f036f21fd1e",
+  "platform": "macOS arm64, XQuartz libraries, Clang C23 toolkit / GNU17 historical demos, Xft, Unicode and SVG",
+  "source_sha256": {
+    "lib/Xm/BBUtil.c": "bb4705b9c0f5946e1a7bd60558edddecb4f9b382c179794b0848be06adae8f6b",
+    "lib/Xm/BulletinBI.h": "2a5dc5963a20d9ff41cf93be675e6fa824bc3d691770f485c2a47b3ffbbd4f1c",
+    "lib/Xm/MessageB.c": "427ac47d6b50142ffcba6ae375e9b675e1dabfb391fa8e471c3ccc08d363ab9e",
+    "lib/Xm/SelectioB.c": "5ab81d486e02b6388c19dce34e6bd579276d25d3d81530461d5bedfef2b93f7e",
+    "lib/Xm/PushB.c": "5c207256123b35cc6f0caac46d512d0f8259877a05b442054232d3e60435eac8",
+    "lib/Xm/PushBG.c": "707e75d6e62e83b8a2636eba2cbd53ca42bc267a964090ddbdc803ad6ffe89ce",
+    "lib/Xm/ColorS.c": "99d5625205141cf989e2576f6ec0cd9ed60ba41e04c98c547c6dad99f91aa9e4",
+    "demos/programs/workspace/wsmSend.c": "2fcff07aca7d9f0d4fd32405d5ab53004ea5dd5bc19d86d126d9f0750b517792",
+    "tests/automated/check-default-button-geometry.c": "bafe5ca09489ff59ed3ba726541b4a58296eb646fff3a8fc58fb02c3dac34116",
+    "tests/automated/run-default-button-geometry.py": "31943b2d37cea7fe08f78f4f48736f7c1bcc58f83368c02e76ab26f41f70e523",
+    "tests/automated/run-gallery-installed-demos.py": "fa83211911ee584d2754effb78fd8cd4373014fedf28258164ce6e709838102e"
+  },
+  "test_prefix": "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install",
+  "outputs": {
+    "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install/bin/ckmotif-gallery": {
+      "sha256": "67283837de6562bdb00a8bbcc2d4a4761cbfb173a85b37706d79fccd47c2de2f",
+      "mtime_ns": 1793559544588421758,
+      "file": "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+    },
+    "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install/lib/libXm.9.dylib": {
+      "sha256": "37ee4506da46a7216880cc9ebf108bbc39ad55a3dd73af810baee1bcb6e5d08e",
+      "mtime_ns": 1793559544089906518,
+      "file": "/Volumes/S8T/tmp/motif-modern-dialog-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+    }
+  },
+  "build_evidence": {
+    "initial_configure_seconds": 29.83,
+    "initial_compile_seconds": 25.41,
+    "initial_failure": "ColorSelector converter forward declaration disagreed with implementation; corrected and resumed",
+    "resumed_library_seconds": 11.38,
+    "final_incremental_library_seconds": 2.03,
+    "baseline": "Prior comparable clean C23/SVG library 25.86s; final incremental build recompiled only changed inputs. Logs identify compile/link commands, source fingerprint and output identities."
+  },
+  "results": {
+    "default_button_geometry": "124 cases passed: default emphasis, public highlights, centered short/long dialog labels, densities/scales/profiles and minimizeButtons toggles",
+    "installed_demos": "34 executable targets and installed assets verified; build-tree demos hidden for 33 startup/Open/duplicate-instance tests plus separate MWM/Wsm UI integration",
+    "workspace_regression": "Original Mac Wsm integration SIGTRAP(-5) in GetMoveWindowRequest with uninitialized optional icon data; corrected cohort passes copy/move/link/geometry/visibility/save",
+    "svg": "All nine gallery icons; 63 action icon cases; dialog defaults/scaling/cache/override",
+    "painting": "24 contrasting text frames per auto/pixmap/direct mode; sidebar four label rows across six samples",
+    "launcher": "Resolution, literal exec, UIDPATH/cwd, missing app notice and child reaping passed"
+  },
+  "installed_asset_count": 222,
+  "installed_asset_fingerprint": "f9f27a0d3621457b17a72aea5ae40adcb79e04694d6e82ca46ec8ab806c60ef8",
+  "limits": [
+    "Automated native checks use isolated Xvfb; user-facing XQuartz visual acceptance is a separate manual check.",
+    "Clipboard, XIM and accessibility were not requalified by this dialog/demo change."
+  ]
+}

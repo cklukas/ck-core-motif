@@ -49,6 +49,9 @@ typedef enum {
 
 /********    Private Function Declarations    ********/
 
+extern void _XmBB_ModernButtonWidths(XmGeoMatrix matrix, int action,
+    XmGeoMajorLayout layout, XmKidGeometry buttons);
+
 extern Widget _XmBB_CreateButtonG( 
                         Widget bb,
                         XmString l_string,

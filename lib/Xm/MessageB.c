@@ -666,6 +666,8 @@ SetValues(
     *    and/or re-layout subwidgets.
     */
     BB_InSetValues( new_w) = True;
+    if (current->message_box.minimize_buttons != new_w->message_box.minimize_buttons)
+        need_layout = True;
 
 	    /* fix for CR 5895 */
     if(    !new_w->message_box.symbol_pixmap    )
@@ -1158,7 +1160,8 @@ _XmMessageBoxGeoMatrixCreate(
     {   layoutPtr->fill_mode = XmGEO_CENTER ;
         layoutPtr->fit_mode = XmGEO_WRAP ;
         if(    !mb->message_box.minimize_buttons    )
-        {   layoutPtr->even_width = 1 ;
+        {   layoutPtr->fix_up = _XmBB_ModernButtonWidths;
+            layoutPtr->even_width = 1 ;
             } 
         layoutPtr->even_height = 1 ;
         layoutPtr->space_above = BB_MarginHeight( mb) ;
