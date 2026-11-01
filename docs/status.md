@@ -1,5 +1,9 @@
 # Implementation and validation status
 
+The current ABI 9 appearance cohort is documented in
+[modern integration qualification](modern-integration-qualification.md).
+The dated ABI 8 results below are historical and do not qualify ABI 9 binaries.
+
 The current WP-05.2 increment provides a deterministic per-display scale
 override and shared UI-thread scale transaction through `<Xm/Display.h>`.  The
 installed AArch64 `uconsole` consumer passes three fresh live Xvfb runs and a

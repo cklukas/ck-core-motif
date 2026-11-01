@@ -8,6 +8,7 @@
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
 #include <limits.h>
+#include "XmI.h"
 #include <string.h>
 
 static Position bounded_position(long long value) {
@@ -66,13 +67,11 @@ externaldef(xmiconlabelwidgetclass) WidgetClass xmIconLabelWidgetClass =
 static XmString copy_label(XmString source) {
     return source ? XmStringCopy(source) : XmStringCreateLocalized("");
 }
-
-static Dimension text_width(XmIconLabelWidget label) {
-    Dimension width = 0, height = 0;
-    if (label->icon_label.render_table && label->icon_label.label)
-        XmStringExtent(label->icon_label.render_table, label->icon_label.label,
-                       &width, &height);
-    return width;
+static Dimension padding(XmIconLabelWidget label) {
+    unsigned long frame = (unsigned long)label->primitive.highlight_thickness +
+                          label->primitive.shadow_thickness;
+    return (Dimension)MIN(USHRT_MAX, MAX(frame,
+        (unsigned long)_XmDpiDefaultDimension((Widget)label, 6)));
 }
 
 static Boolean pixmap_size(XmIconLabelWidget label, unsigned int *width,
@@ -90,19 +89,16 @@ static Boolean pixmap_size(XmIconLabelWidget label, unsigned int *width,
 static void dimensions(XmIconLabelWidget label, Dimension *width,
                        Dimension *height) {
     unsigned int icon_width = 0, icon_height = 0;
-    Dimension text = text_width(label);
+    Dimension tw=0, th=0, inset=padding(label);
     Boolean have_icon = pixmap_size(label, &icon_width, &icon_height);
-    unsigned long total_width = (unsigned long)text + 12;
+    if (label->icon_label.render_table && label->icon_label.label)
+        XmStringExtent(label->icon_label.render_table, label->icon_label.label, &tw, &th);
+    unsigned long total_width = (unsigned long)tw + 2UL*inset;
     if (have_icon)
-        total_width += (unsigned long)icon_width +
-                       label->icon_label.spacing;
-    *width = (Dimension)(total_width > USHRT_MAX ? USHRT_MAX : total_width);
-    {
-        unsigned long total_height = (unsigned long)(icon_height > 16 ?
-                                                      icon_height : 16) + 12;
-        *height = (Dimension)(total_height > USHRT_MAX ? USHRT_MAX :
-                              total_height);
-    }
+        total_width += icon_width + (tw ? (unsigned long)label->icon_label.spacing : 0);
+    unsigned long total_height = MAX((unsigned long)th,icon_height) + 2UL*inset;
+    *width = (Dimension)(total_width > USHRT_MAX ? USHRT_MAX : MAX(1,total_width));
+    *height = (Dimension)(total_height > USHRT_MAX ? USHRT_MAX : MAX(1,total_height));
 }
 
 static void Initialize(Widget request, Widget widget, ArgList args,
@@ -121,11 +117,13 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     label->icon_label.foreground_gc = XCreateGC(
         XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
         GCForeground | GCBackground, &values);
-    if (!request->core.width || !request->core.height) {
+    label->icon_label.automatic_width = request->core.width == 0;
+    label->icon_label.automatic_height = request->core.height == 0;
+    {
         Dimension width, height;
         dimensions(label, &width, &height);
-        if (!request->core.width) label->core.width = width;
-        if (!request->core.height) label->core.height = height;
+        if (label->icon_label.automatic_width) label->core.width = width;
+        if (label->icon_label.automatic_height) label->core.height = height;
     }
 }
 
@@ -145,51 +143,48 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Window window = XtWindow(widget);
     unsigned int icon_width = 0, icon_height = 0;
     Boolean have_icon = pixmap_size(label, &icon_width, &icon_height);
-    XmDirection direction = XmLEFT_TO_RIGHT;
-    XmString value;
-    Dimension value_width = 0, value_height = 0;
-    int x, y;
+    Boolean rtl = XmDirectionMatchPartial(XmPrim_layout_direction(label),
+                                          XmRIGHT_TO_LEFT, XmHORIZONTAL_MASK);
+    XmString value = label->icon_label.label;
+    Dimension value_width = 0, value_height = 0, inset = padding(label);
+    int left = inset, right = (int)label->core.width - inset;
+    int top = inset, bottom = (int)label->core.height - inset;
     (void)event; (void)region;
     if (!window || !label->icon_label.foreground_gc) return;
-    XtVaGetValues(widget, XmNlayoutDirection, &direction, NULL);
+    XSetForeground(display, label->icon_label.foreground_gc,
+        XtIsSensitive(widget) ? label->primitive.foreground : label->primitive.bottom_shadow_color);
+    XSetBackground(display, label->icon_label.foreground_gc, label->core.background_pixel);
     XClearWindow(display, window);
-    value = label->icon_label.label;
+    if (right <= left || bottom <= top) return;
     if (value && label->icon_label.render_table)
         XmStringExtent(label->icon_label.render_table, value,
                        &value_width, &value_height);
-    y = ((int)label->core.height - (int)value_height) / 2;
-    if (XmDirectionMatchPartial(direction, XmRIGHT_TO_LEFT,
-                                XmHORIZONTAL_MASK)) {
-        x = (int)label->core.width - 6;
-        if (value && label->icon_label.render_table) {
-            x -= (int)value_width;
-            XmStringDraw(display, window, label->icon_label.render_table, value,
-                         label->icon_label.foreground_gc,
-                         bounded_position((long long)x),
-                         bounded_position((long long)y), value_width,
-                         XmALIGNMENT_BEGINNING, XmPrim_layout_direction(label), NULL);
-        }
-        if (have_icon)
+    if (have_icon) {
+        int x = rtl ? right - (int)icon_width : left;
+        int y = ((int)label->core.height - (int)icon_height) / 2;
+        int x1 = MAX(left, x), y1 = MAX(top, y);
+        int x2 = MIN(right, x + (int)icon_width);
+        int y2 = MIN(bottom, y + (int)icon_height);
+        /* Intersect before the copy: source offsets and destination bounds
+         * remain valid even when the icon exceeds the allocated content. */
+        if (x2 > x1 && y2 > y1)
             XCopyArea(display, label->icon_label.pixmap, window,
-                      label->icon_label.foreground_gc, 0, 0, icon_width,
-                      icon_height, x - (int)label->icon_label.spacing -
-                      (int)icon_width, ((int)label->core.height -
-                      (int)icon_height) / 2);
-    } else {
-        x = 6;
-        if (have_icon) {
-            XCopyArea(display, label->icon_label.pixmap, window,
-                      label->icon_label.foreground_gc, 0, 0, icon_width,
-                      icon_height, x, ((int)label->core.height -
-                      (int)icon_height) / 2);
-            x += (int)icon_width + (int)label->icon_label.spacing;
-        }
-        if (value && label->icon_label.render_table)
-            XmStringDraw(display, window, label->icon_label.render_table, value,
-                         label->icon_label.foreground_gc,
-                         bounded_position((long long)x),
-                         bounded_position((long long)y), value_width,
-                         XmALIGNMENT_BEGINNING, XmPrim_layout_direction(label), NULL);
+                      label->icon_label.foreground_gc, x1 - x, y1 - y,
+                      x2 - x1, y2 - y1, x1, y1);
+        if (rtl)
+            right = x - (value_width ? label->icon_label.spacing : 0);
+        else
+            left = x + icon_width + (value_width ? label->icon_label.spacing : 0);
+    }
+    if (right > left && value && label->icon_label.render_table) {
+        XRectangle clip;
+        clip.x = (short)left; clip.y = (short)top;
+        clip.width = right - left; clip.height = bottom - top;
+        XmStringDraw(display, window, label->icon_label.render_table, value,
+                     label->icon_label.foreground_gc,
+                     bounded_position(left),
+                     bounded_position(((long long)label->core.height - (long long)value_height) / 2), clip.width,
+                     XmALIGNMENT_BEGINNING, XmPrim_layout_direction(label), &clip);
     }
 }
 
@@ -228,22 +223,35 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             render_changed = False;
         }
     }
+    for (Cardinal i=0; i<*count; ++i) {
+        if (!strcmp(args[i].name, XmNwidth))
+            label->icon_label.automatic_width = (Dimension)args[i].value == 0;
+        if (!strcmp(args[i].name, XmNheight))
+            label->icon_label.automatic_height = (Dimension)args[i].value == 0;
+    }
+    {
+        Dimension width, height;
+        dimensions(label, &width, &height);
+        if (label->icon_label.automatic_width) label->core.width = width;
+        if (label->icon_label.automatic_height) label->core.height = height;
+    }
     return (label_changed && label->icon_label.label != old->icon_label.label) ||
            old->icon_label.pixmap != label->icon_label.pixmap ||
            old->icon_label.spacing != label->icon_label.spacing || render_changed ||
-           colors_changed;
+           old->primitive.foreground != label->primitive.foreground ||
+           old->primitive.bottom_shadow_color != label->primitive.bottom_shadow_color ||
+           old->core.background_pixel != label->core.background_pixel ||
+           XtIsSensitive(old_widget) != XtIsSensitive(widget);
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply) {
     XmIconLabelWidget label = (XmIconLabelWidget)widget;
-    Dimension width, height;
-    (void)request;
-    dimensions(label, &width, &height);
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = width; reply->height = height;
-    return (widget->core.width == width && widget->core.height == height)
-               ? XtGeometryYes : XtGeometryAlmost;
+    dimensions(label, &reply->width, &reply->height);
+    if (!label->icon_label.automatic_width) reply->width = label->core.width;
+    if (!label->icon_label.automatic_height) reply->height = label->core.height;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 Widget XmCreateIconLabel(Widget parent, char *name, ArgList args,

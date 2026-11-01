@@ -35,3 +35,28 @@ does not access its instance after invoking a callback.
 This first implementation deliberately keeps the public contract bounded and
 date-only.  DatePicker and TimePicker controls, locale providers, and timezone
 or daylight-saving interpretation are separate work packages.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmCalendarWidgetClass demo](gallery-screenshots/xm-calendarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmCalendarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L663-L666
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Calendar.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

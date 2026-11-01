@@ -176,6 +176,7 @@ typedef struct _XmLabelGadgetPart
   GC		  shadow_GC;
 #endif
 
+  Pixel insensitive_foreground; /* Independent of bevel colors. */
 } XmLabelGadgetPart;
 
 

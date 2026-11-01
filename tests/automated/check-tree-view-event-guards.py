@@ -8,7 +8,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "TreeView.c").read_text(
 )
 start = source.index("static void Events(Widget widget")
 body = source[start : source.index("\nstatic Boolean SetValues", start)]
-guard = "if (widget == NULL || event == NULL || !XmIsTreeView(widget)) return;"
+guard = "if (widget == NULL || event == NULL || !XmIsTreeView(widget))"
 assert guard in body
 assert body.index(guard) < body.index("event->type")
 print("PASS TreeView event callbacks validate widget and event inputs")

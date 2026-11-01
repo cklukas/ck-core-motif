@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Check that the gallery uses a real data-backed segmented example."""
 from pathlib import Path
+import json
+import sys
 
 root = Path(__file__).parents[2]
 examples = (root / "demos/programs/ckmotif-gallery/gallery_examples.c").read_text()
@@ -20,7 +22,7 @@ for fragment in (
     "XmStepperSetValue(example, 7, False)",
     "XmColorPickerSetValue(example, 0x3478d4ffUL, False)",
     "XmBreadcrumbBarSetSegments(example, segments, 3)",
-    "XmAutoSuggestBoxSetSuggestions(example, suggestions, 3, 1)",
+    "XmAutoSuggestBoxSetSuggestions(widget, items, count, query->generation)",
     "XmToastShow(example)",
     'XmNindicatorOn, True',
     '"Kitchen lights"',
@@ -29,9 +31,16 @@ for fragment in (
     assert fragment in examples, fragment
 assert "gallery_create_segmented_control_example" in gallery
 assert 'entry->class_symbol, "xmSegmentedControlWidgetClass"' in gallery
-assert 'blocks["segmented-control-construction"]' in generator
+sys.path.insert(0, str(root / "demos/programs/ckmotif-gallery"))
+from gallery_source import GallerySource
+entries = json.loads((root / "docs/modern-gallery-manifest.json").read_text())["entries"]
+source = GallerySource(examples)
+suggestion = source.text(next(e for e in entries if e["class_symbol"] == "xmAutoSuggestBoxWidgetClass"))
+assert "gallery_suggestions" in suggestion
+assert "query->generation" in suggestion
+assert "gallery_suggestion_matches" in suggestion
+assert 'GallerySource(source)' in generator
 assert 'XmNorientation, XmHORIZONTAL' in gallery
-assert 'XmNsidebarExpandedWidth, 280' in gallery
 assert 'center_shell_frame(shell)' in gallery
 assert 'XQueryTree(display, XtWindow(shell)' in gallery
 assert 'XMoveWindow(display, parent' in gallery

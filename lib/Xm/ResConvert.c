@@ -2130,6 +2130,7 @@ XmeGetDefaultRenderTable(
     }
 
     if (fontlist) {
+        _XmAppearanceNoteFontDefault(origw, w, fontListType);
         return (fontlist);
     }
 

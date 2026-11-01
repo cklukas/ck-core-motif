@@ -151,6 +151,7 @@ typedef struct _TreePart {
     Dimension max_width;	/* Our new desired width. */
     Dimension max_height;	/* Our new desired height. */
     
+    XtWorkProcId connector_work; /* Coalesced child repaint repair. */
     XmList child_op_list;		/* List of child operations */
     XPoint ul_point, lr_point;	/* Bounding box for exposure compression. */
 

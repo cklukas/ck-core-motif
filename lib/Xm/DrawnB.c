@@ -48,6 +48,7 @@ static char rcsid[] = "$TOG: DrawnB.c /main/20 1999/04/29 13:05:14 samborn $"
 #include <Xm/TraitP.h>
 #include <Xm/TransltnsP.h>
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 #include "RepTypeI.h"
 #include "LabelI.h"
 #include "MenuUtilI.h"
@@ -458,6 +459,7 @@ Arm(
         Cardinal *num_params )	/* unused */
 {
     XmDrawnButtonWidget db = (XmDrawnButtonWidget) wid ;
+  db->drawnbutton.pointer_inside = True;
     XButtonEvent *buttonEvent = (XButtonEvent *) event;
     XmDrawnButtonCallbackStruct call_value;
    
@@ -629,6 +631,7 @@ ArmAndActivate(
         Cardinal *num_params )	/* unused */
 {
    XmDrawnButtonWidget db = (XmDrawnButtonWidget) wid ;
+  db->drawnbutton.pointer_inside = True;
    XmDrawnButtonCallbackStruct call_value;
    XmMenuSystemTrait menuSTrait;
 
@@ -992,6 +995,7 @@ Enter(
         Cardinal *num_params )
 {
    XmDrawnButtonWidget db = (XmDrawnButtonWidget) wid ;
+  db->drawnbutton.pointer_inside = True;
    XmDrawnButtonCallbackStruct call_value;
 
    if (Lab_IsMenupane(db)) {
@@ -1049,6 +1053,7 @@ Leave(
       Cardinal *num_params )
 {
   XmDrawnButtonWidget db = (XmDrawnButtonWidget) wid ;
+  db->drawnbutton.pointer_inside = False;
   XmDrawnButtonCallbackStruct call_value;
 
   if (Lab_IsMenupane(db)) {
@@ -1107,6 +1112,12 @@ BorderHighlight(
   XmDrawnButtonCallbackStruct call_value;
   XEvent * event = NULL;
   
+  if (!Lab_IsMenupane(db) && _XmAppearanceDrawButtonFocus(wid, True)) {
+      db->primitive.highlighted = True;
+      db->primitive.highlight_drawn = True;
+      return;
+  }
+
   if (Lab_IsMenupane(db)) {
     XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(wid));
     Boolean already_armed = db->drawnbutton.armed;
@@ -1150,6 +1161,12 @@ BorderUnhighlight(
   XmDrawnButtonWidget db = (XmDrawnButtonWidget) wid ;
   XmDrawnButtonCallbackStruct call_value;
   XEvent * event = NULL;
+
+  if (!Lab_IsMenupane(db) && _XmAppearanceDrawButtonFocus(wid, False)) {
+      db->primitive.highlighted = False;
+      db->primitive.highlight_drawn = False;
+      return;
+  }
 
   if (Lab_IsMenupane(db))
     {
@@ -1316,6 +1333,7 @@ Initialize(
      }
 
    new_w->drawnbutton.armed = FALSE;
+   new_w->drawnbutton.pointer_inside = True;
    new_w->drawnbutton.timer = 0;
 
    /* if menuProcs is not set up yet, try again */
@@ -1393,7 +1411,8 @@ Redisplay(
  	if (db->drawnbutton.pushbutton_enabled)
  	    DrawPushButton(db, db->drawnbutton.armed);
   
-	else if (CanDrawShadow(db))
+	else if (CanDrawShadow(db) &&
+            !_XmAppearanceDrawButton((Widget)db,db->core.background_pixel,False,False))
  	    XmeDrawShadows(XtDisplay((Widget) db),
  			    XtWindow((Widget) db),
  			    db -> primitive.top_shadow_GC,
@@ -1450,6 +1469,9 @@ DrawPushButton(
 
   if (!CanDrawShadow(db))
     return;
+  armed = armed && db->drawnbutton.pointer_inside;
+  if (!Lab_IsMenupane(db) && _XmAppearanceDrawButton((Widget)db,
+          db->core.background_pixel,armed,False)) return;
 
   dpy = (XmDisplay) XmGetXmDisplay(XtDisplay((Widget) db));
   etched_in = dpy -> display.enable_etched_in_menu;

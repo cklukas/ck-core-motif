@@ -38,6 +38,9 @@ extern "C" {
 
 /********    Private Function Declarations    ********/
 
+/* clear_background is False when the caller has painted the label surface. */
+extern void _XmRedisplayLabel(Widget, XEvent *, Region, Boolean clear_background);
+
 extern void _XmCalcLabelDimensions(Widget wid) ;
 extern void _XmLabelCloneMenuSavvy(WidgetClass, XmMenuSavvyTrait);
 extern char* _XmCBNameActivate(void);

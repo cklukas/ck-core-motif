@@ -3,6 +3,7 @@
 #include <Xm/RowColumn.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static unsigned checks, activated, removed;
 
@@ -58,13 +59,23 @@ int main(int argc, char **argv) {
     CHECK(accessibility != NULL);
     id = XmAccessibilityWidget(accessibility, chip);
     CHECK(id != XmACCESSIBLE_NONE && XmAccessibilityQuery(accessibility, id, &info));
-    CHECK(info.role == XmACCESSIBLE_BUTTON && info.action_count == 1);
+    CHECK(info.role == XmACCESSIBLE_BUTTON && info.action_count == 2);
     XmAccessibleInfoClear(&info);
     CHECK(XmAccessibilityAction(accessibility, id, 0));
     CHECK(activated == 2);
+    char *action=XmAccessibilityActionName(accessibility,id,1);
+    CHECK(action && !strcmp(action,"remove"));XtFree(action);
+    CHECK(XmAccessibilityAction(accessibility,id,1));CHECK(removed==1);
+    XtVaSetValues(chip,XmNchipRemovable,False,NULL);
+    CHECK(!XmAccessibilityAction(accessibility,id,1));
+    CHECK(XmAccessibilityQuery(accessibility,id,&info) && info.action_count==1);
+    XmAccessibleInfoClear(&info);
+    XtVaSetValues(chip,XmNchipRemovable,True,NULL);
     XtSetSensitive(chip, False);
     XmChipInvoke(chip, NULL);
     CHECK(activated == 2);
+    CHECK(!XmAccessibilityAction(accessibility,id,0));
+    CHECK(!XmAccessibilityAction(accessibility,id,1));
     XtSetSensitive(chip, True);
     XmAccessibilityDestroy(accessibility);
 
@@ -72,10 +83,11 @@ int main(int argc, char **argv) {
                                    True, NULL);
     XtAddCallback(doomed, XmNchipRemoveCallback, on_remove, NULL);
     XmChipRemove(doomed, NULL);
-    CHECK(removed == 1);
+    CHECK(removed == 2);
     XtDestroyWidget(doomed);
+    Display *display=XtDisplay(shell);
     XtDestroyWidget(shell);
-    XtCloseDisplay(XtDisplay(shell));
+    XtCloseDisplay(display);
     XtDestroyApplicationContext(app);
     printf("PASS chip: %u checks\n", checks);
     return EXIT_SUCCESS;

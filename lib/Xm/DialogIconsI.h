@@ -9,6 +9,16 @@ static const struct { const char *name; const char *source; } dialog_svg_icons[]
      "<path d=\"m14 13 12 12m0-12L14 25\" fill=\"none\" stroke=\"#fff5e8\" stroke-width=\"4\" stroke-linecap=\"square\"/>\n"
      "</svg>\n"
     },
+    {"dialog_file",
+     "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\" viewBox=\"0 0 40 40\">\n"
+     "<title>File selection dialog</title>\n"
+     "<path d=\"M4 11h12l4 4h16v20H4z\" fill=\"#705727\" opacity=\".22\"/>\n"
+     "<path d=\"M4 9h12l4 4h15v20H4z\" fill=\"#c99b50\" stroke=\"#705727\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/>\n"
+     "<path d=\"M6 11h9l4 4h14\" fill=\"none\" stroke=\"#f4d596\" stroke-width=\"2\"/>\n"
+     "<path d=\"M5 19h32l-4 14H2z\" fill=\"#e3bc75\" stroke=\"#705727\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/>\n"
+     "<path d=\"M7 21h27\" stroke=\"#fae4b6\" stroke-width=\"2\"/>\n"
+     "</svg>\n"
+    },
     {"dialog_information",
      "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\" viewBox=\"0 0 40 40\">\n"
      "<title>Information dialog</title>\n"
@@ -16,6 +26,16 @@ static const struct { const char *name; const char *source; } dialog_svg_icons[]
      "<rect x=\"4\" y=\"3\" width=\"32\" height=\"32\" rx=\"3\" fill=\"#447ca4\" stroke=\"#283e53\" stroke-width=\"1.5\"/>\n"
      "<path d=\"M7 31V6h26\" fill=\"none\" stroke=\"#a9d2e3\" stroke-width=\"1.5\"/>\n"
      "<path d=\"M18 17h4v11h-4zm0-8h4v4h-4z\" fill=\"#fff8e9\"/>\n"
+     "</svg>\n"
+    },
+    {"dialog_prompt",
+     "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\" viewBox=\"0 0 40 40\">\n"
+     "<title>Prompt dialog</title>\n"
+     "<rect x=\"4\" y=\"7\" width=\"32\" height=\"28\" rx=\"2\" fill=\"#3f4760\" opacity=\".22\"/>\n"
+     "<rect x=\"4\" y=\"5\" width=\"32\" height=\"28\" rx=\"2\" fill=\"#59647f\" stroke=\"#343b50\" stroke-width=\"1.5\"/>\n"
+     "<path d=\"M7 7h26\" stroke=\"#a9b4cd\" stroke-width=\"2\"/>\n"
+     "<path d=\"M7 12h26v18H7z\" fill=\"#e9edf2\"/>\n"
+     "<path d=\"m11 17 4 4-4 4M19 25h9\" fill=\"none\" stroke=\"#465c79\" stroke-width=\"2.5\" stroke-linecap=\"square\" stroke-linejoin=\"miter\"/>\n"
      "</svg>\n"
     },
     {"dialog_question",
@@ -26,6 +46,28 @@ static const struct { const char *name; const char *source; } dialog_svg_icons[]
      "<path d=\"M7 26V6h25\" fill=\"none\" stroke=\"#afd9d4\" stroke-width=\"1.5\"/>\n"
      "<path d=\"M14 12c0-6 12-6 12 0 0 4-6 4-6 8\" fill=\"none\" stroke=\"#fff8e8\" stroke-width=\"3.5\"/>\n"
      "<rect x=\"18.25\" y=\"24\" width=\"3.5\" height=\"3.5\" fill=\"#fff8e8\"/>\n"
+     "</svg>\n"
+    },
+    {"dialog_selection",
+     "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\" viewBox=\"0 0 40 40\">\n"
+     "<title>Selection dialog</title>\n"
+     "<rect x=\"6\" y=\"5\" width=\"28\" height=\"32\" rx=\"2\" fill=\"#345c55\" opacity=\".22\"/>\n"
+     "<rect x=\"6\" y=\"3\" width=\"28\" height=\"32\" rx=\"2\" fill=\"#e7efeb\" stroke=\"#345c55\" stroke-width=\"1.5\"/>\n"
+     "<path d=\"M9 6h22\" stroke=\"#fff7e9\" stroke-width=\"2\"/>\n"
+     "<path d=\"M10 11h3m4 0h12M10 27h3m4 0h12\" stroke=\"#637c75\" stroke-width=\"2\"/>\n"
+     "<rect x=\"8\" y=\"15\" width=\"24\" height=\"8\" rx=\"1\" fill=\"#538d80\"/>\n"
+     "<path d=\"m10 19 2 2 3-4M18 19h11\" fill=\"none\" stroke=\"#fff7e9\" stroke-width=\"2\"/>\n"
+     "</svg>\n"
+    },
+    {"dialog_template",
+     "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"40\" height=\"40\" viewBox=\"0 0 40 40\">\n"
+     "<title>Template dialog</title>\n"
+     "<rect x=\"4\" y=\"6\" width=\"32\" height=\"30\" rx=\"2\" fill=\"#354b68\" opacity=\".22\"/>\n"
+     "<rect x=\"4\" y=\"4\" width=\"32\" height=\"30\" rx=\"2\" fill=\"#e8edf2\" stroke=\"#354b68\" stroke-width=\"1.5\"/>\n"
+     "<path d=\"M6 6h28v7H6z\" fill=\"#6a87ab\"/>\n"
+     "<path d=\"M7 6h25\" stroke=\"#b5cce4\" stroke-width=\"2\"/>\n"
+     "<path d=\"M9 19h22M9 23h15\" stroke=\"#6b7785\" stroke-width=\"2\"/>\n"
+     "<rect x=\"22\" y=\"27\" width=\"9\" height=\"4\" rx=\"1\" fill=\"#6a87ab\" stroke=\"#354b68\"/>\n"
      "</svg>\n"
     },
     {"dialog_warning",

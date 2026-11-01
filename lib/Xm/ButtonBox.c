@@ -336,6 +336,7 @@ ConstraintInitialize(Widget request, Widget set, ArgList args, Cardinal *num_arg
     if (set == NULL)
 	return;
     XmButtonBoxC_pref_width(set) = XmButtonBoxC_pref_height(set) = 0;
+    ((XmBBoxConstraints)set->core.constraints)->bbox.offer_valid = False;
 }
 
 /*      Function Name: ConstraintSetValues
@@ -424,6 +425,18 @@ QueryGeometry(Widget w, XtWidgetGeometry *request,
     return(_XmHWQuery(w, request, preferred));
 }
 
+/* A compromise is valid only until another layout or geometry request.
+ * Accepting it must retain the preferences used to compute it: feeding the
+ * allocated share back into proportional sizing produces an endless series
+ * of shrinking Almost replies. */
+static void
+ClearGeometryOffers(XmButtonBoxWidget bbox)
+{
+    Widget *child;
+    ForAllChildren(bbox, child)
+        ((XmBBoxConstraints)(*child)->core.constraints)->bbox.offer_valid = False;
+}
+
 /*      Function Name: GeometryManager
  *      Description:   handles request from children for size changes.
  *      Arguments:     child - the child to change.
@@ -440,6 +453,23 @@ GeometryManager(Widget w, XtWidgetGeometry *request,
     XmButtonBoxWidget	bbox = (XmButtonBoxWidget)w->core.parent;
     Mask             	mask = 0;
     XtGeometryResult 	result;
+
+    XmBBoxConstraintsPart *constraint =
+        &((XmBBoxConstraints)w->core.constraints)->bbox;
+    Boolean query_only = (request->request_mode & XtCWQueryOnly) != 0;
+    if (constraint->offer_valid &&
+        (request->request_mode & (CWWidth | CWHeight)) == (CWWidth | CWHeight) &&
+        !(request->request_mode & (CWX | CWY | CWBorderWidth)) &&
+        request->width == constraint->offer_width &&
+        request->height == constraint->offer_height) {
+        if (!query_only) {
+            constraint->pref_width = constraint->offer_pref_width;
+            constraint->pref_height = constraint->offer_pref_height;
+            LayoutChildren((Widget)bbox, w);
+        }
+        return XtGeometryYes;
+    }
+    if (!query_only) ClearGeometryOffers(bbox);
 
     /*
      * Say no to any change in position.
@@ -521,6 +551,14 @@ GeometryManager(Widget w, XtWidgetGeometry *request,
 	else {
 	    result = XtGeometryNo;
 	}
+
+        if (result == XtGeometryAlmost && !query_only) {
+            constraint->offer_valid = True;
+            constraint->offer_width = child_width;
+            constraint->offer_height = child_height;
+            constraint->offer_pref_width = constraint->pref_width;
+            constraint->offer_pref_height = constraint->pref_height;
+        }
 
 	if ((request->request_mode & XtCWQueryOnly) ||
 	    (result != XtGeometryYes))
@@ -867,6 +905,7 @@ LayoutChildren(Widget w, Widget special_child)
     float  		pad = 0, pos_major;
     Cardinal   		num_managed;
 
+    ClearGeometryOffers(bbox);
     child_major = 0;
     child_minor = 0;
     

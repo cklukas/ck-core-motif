@@ -5,6 +5,8 @@
 
 This catalogue is generated from the gallery manifest. Each anchor is
 the documentation target recorded by the corresponding manifest entry.
+Use **Demo** to inspect the captured application and **Source** for its actual construction code.
+Screenshots retain their recorded capture version; they are not a claim of completed visual redesign.
 
 ## layout
 
@@ -17,7 +19,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.buttonboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-buttonboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmButtonBoxWidgetClass in the component demo](gallery-screenshots/xm-buttonboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmButtonBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ButtonBox.h)
+
+:::
 
 <a id="gallery.component.bulletinboardwidgetclass"></a>
 ### `xm.bulletinboardwidgetclass`
@@ -28,7 +47,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.bulletinboardwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-bulletinboardwidgetclass.png)
+::: tabs
+== Demo
+
+![xmBulletinBoardWidgetClass in the component demo](gallery-screenshots/xm-bulletinboardwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmBulletinBoardWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/BulletinB.h)
+
+:::
 
 <a id="gallery.component.columnwidgetclass"></a>
 ### `xm.columnwidgetclass`
@@ -39,7 +75,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.columnwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-columnwidgetclass.png)
+::: tabs
+== Demo
+
+![xmColumnWidgetClass in the component demo](gallery-screenshots/xm-columnwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmColumnWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L931-L940
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Column.h)
+
+:::
 
 <a id="gallery.component.containerwidgetclass"></a>
 ### `xm.containerwidgetclass`
@@ -50,7 +103,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.containerwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-containerwidgetclass.png)
+::: tabs
+== Demo
+
+![xmContainerWidgetClass in the component demo](gallery-screenshots/xm-containerwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmContainerWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L944-L960
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Container.h)
+
+:::
 
 <a id="gallery.component.displayclass"></a>
 ### `xm.displayclass`
@@ -61,7 +131,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.displayclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-displayclass.png)
+::: tabs
+== Demo
+
+![xmDisplayClass in the component demo](gallery-screenshots/xm-displayclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/Display.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Display.h)
+
+:::
 
 <a id="gallery.component.dragcontextclass"></a>
 ### `xm.dragcontextclass`
@@ -72,7 +156,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.dragcontextclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-dragcontextclass.png)
+::: tabs
+== Demo
+
+![xmDragContextClass in the component demo](gallery-screenshots/xm-dragcontextclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/DragC.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DragC.h)
+
+:::
 
 <a id="gallery.component.dragiconobjectclass"></a>
 ### `xm.dragiconobjectclass`
@@ -83,7 +181,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.dragiconobjectclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-dragiconobjectclass.png)
+::: tabs
+== Demo
+
+![xmDragIconObjectClass in the component demo](gallery-screenshots/xm-dragiconobjectclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/DragIcon.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DragIcon.h)
+
+:::
 
 <a id="gallery.component.dragovershellwidgetclass"></a>
 ### `xm.dragovershellwidgetclass`
@@ -94,7 +206,22 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.dragovershellwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-dragovershellwidgetclass.png)
+::: tabs
+== Demo
+
+![xmDragOverShellWidgetClass in the component demo](gallery-screenshots/xm-dragovershellwidgetclass.png)
+
+== Source
+
+Actual gallery factory for xmDragOverShellWidgetClass.
+The gallery host supplies the function arguments.
+Helpers are defined in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1129-L1140
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DragOverS.h)
+
+:::
 
 <a id="gallery.component.drawnbuttonwidgetclass"></a>
 ### `xm.drawnbuttonwidgetclass`
@@ -105,7 +232,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.drawnbuttonwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-drawnbuttonwidgetclass.png)
+::: tabs
+== Demo
+
+![xmDrawnButtonWidgetClass in the component demo](gallery-screenshots/xm-drawnbuttonwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDrawnButtonWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L758
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DrawnB.h)
+
+:::
 
 <a id="gallery.component.formwidgetclass"></a>
 ### `xm.formwidgetclass`
@@ -116,7 +260,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.formwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-formwidgetclass.png)
+::: tabs
+== Demo
+
+![xmFormWidgetClass in the component demo](gallery-screenshots/xm-formwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmFormWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Form.h)
+
+:::
 
 <a id="gallery.component.framewidgetclass"></a>
 ### `xm.framewidgetclass`
@@ -127,7 +288,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.framewidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-framewidgetclass.png)
+::: tabs
+== Demo
+
+![xmFrameWidgetClass in the component demo](gallery-screenshots/xm-framewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmFrameWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Frame.h)
+
+:::
 
 <a id="gallery.component.gadgetclass"></a>
 ### `xm.gadgetclass`
@@ -138,7 +316,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.gadgetclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-gadgetclass.png)
+::: tabs
+== Demo
+
+![xmGadgetClass in the component demo](gallery-screenshots/xm-gadgetclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/Gadget.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Gadget.h)
+
+:::
 
 <a id="gallery.component.mainwindowwidgetclass"></a>
 ### `xm.mainwindowwidgetclass`
@@ -149,7 +341,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.mainwindowwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-mainwindowwidgetclass.png)
+::: tabs
+== Demo
+
+![xmMainWindowWidgetClass in the component demo](gallery-screenshots/xm-mainwindowwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmMainWindowWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/MainW.h)
+
+:::
 
 <a id="gallery.component.managerwidgetclass"></a>
 ### `xm.managerwidgetclass`
@@ -160,7 +369,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.managerwidgetclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-managerwidgetclass.png)
+::: tabs
+== Demo
+
+![xmManagerWidgetClass in the component demo](gallery-screenshots/xm-managerwidgetclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/Manager.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Manager.h)
+
+:::
 
 <a id="gallery.component.treeviewwidgetclass"></a>
 ### `xm.treeviewwidgetclass`
@@ -171,7 +394,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.treeviewwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-treeviewwidgetclass.png)
+::: tabs
+== Demo
+
+![xmTreeViewWidgetClass in the component demo](gallery-screenshots/xm-treeviewwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTreeViewWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L626-L636
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TreeView.h)
+
+:::
 
 <a id="gallery.component.dividerwidgetclass"></a>
 ### `xm.dividerwidgetclass`
@@ -182,7 +422,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.dividerwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-dividerwidgetclass.png)
+::: tabs
+== Demo
+
+![xmDividerWidgetClass in the component demo](gallery-screenshots/xm-dividerwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDividerWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L355-L357
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Divider.h)
+
+:::
 
 <a id="gallery.component.formsectionwidgetclass"></a>
 ### `xm.formsectionwidgetclass`
@@ -193,7 +450,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.formsectionwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-formsectionwidgetclass.png)
+::: tabs
+== Demo
+
+![xmFormSectionWidgetClass in the component demo](gallery-screenshots/xm-formsectionwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmFormSectionWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/FormSection.h)
+
+:::
 
 <a id="gallery.component.rowactionswidgetclass"></a>
 ### `xm.rowactionswidgetclass`
@@ -204,7 +478,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.rowactionswidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-rowactionswidgetclass.png)
+::: tabs
+== Demo
+
+![xmRowActionsWidgetClass in the component demo](gallery-screenshots/xm-rowactionswidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmRowActionsWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L806-L825
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/RowActions.h)
+
+:::
 
 <a id="gallery.component.statusbarwidgetclass"></a>
 ### `xm.statusbarwidgetclass`
@@ -215,7 +506,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.statusbarwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-statusbarwidgetclass.png)
+::: tabs
+== Demo
+
+![xmStatusBarWidgetClass in the component demo](gallery-screenshots/xm-statusbarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmStatusBarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L776-L781
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/StatusBar.h)
+
+:::
 
 <a id="gallery.component.toolbarwidgetclass"></a>
 ### `xm.toolbarwidgetclass`
@@ -226,7 +534,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.toolbarwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-toolbarwidgetclass.png)
+::: tabs
+== Demo
+
+![xmToolbarWidgetClass in the component demo](gallery-screenshots/xm-toolbarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmToolbarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L595-L622
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Toolbar.h)
+
+:::
 
 <a id="gallery.component.sidebarwidgetclass"></a>
 ### `xm.sidebarwidgetclass`
@@ -237,7 +562,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.sidebarwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-sidebarwidgetclass.png)
+::: tabs
+== Demo
+
+![xmSidebarWidgetClass in the component demo](gallery-screenshots/xm-sidebarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmSidebarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L785-L802
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Sidebar.h)
+
+:::
 
 <a id="gallery.component.notebookwidgetclass"></a>
 ### `xm.notebookwidgetclass`
@@ -248,7 +590,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.notebookwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-notebookwidgetclass.png)
+::: tabs
+== Demo
+
+![xmNotebookWidgetClass in the component demo](gallery-screenshots/xm-notebookwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmNotebookWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L882-L900
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Notebook.h)
+
+:::
 
 <a id="gallery.component.panedwindowwidgetclass"></a>
 ### `xm.panedwindowwidgetclass`
@@ -259,7 +618,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.panedwindowwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-panedwindowwidgetclass.png)
+::: tabs
+== Demo
+
+![xmPanedWindowWidgetClass in the component demo](gallery-screenshots/xm-panedwindowwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmPanedWindowWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/PanedW.h)
+
+:::
 
 <a id="gallery.component.panedwidgetclass"></a>
 ### `xm.panedwidgetclass`
@@ -270,7 +646,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.panedwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-panedwidgetclass.png)
+::: tabs
+== Demo
+
+![xmPanedWidgetClass in the component demo](gallery-screenshots/xm-panedwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmPanedWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Paned.h)
+
+:::
 
 <a id="gallery.component.primitivewidgetclass"></a>
 ### `xm.primitivewidgetclass`
@@ -281,7 +674,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.primitivewidgetclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-primitivewidgetclass.png)
+::: tabs
+== Demo
+
+![xmPrimitiveWidgetClass in the component demo](gallery-screenshots/xm-primitivewidgetclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/Primitive.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Primitive.h)
+
+:::
 
 <a id="gallery.component.printshellwidgetclass"></a>
 ### `xm.printshellwidgetclass`
@@ -292,7 +699,22 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.printshellwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-printshellwidgetclass.png)
+::: tabs
+== Demo
+
+![xmPrintShellWidgetClass in the component demo](gallery-screenshots/xm-printshellwidgetclass.png)
+
+== Source
+
+Actual gallery factory for xmPrintShellWidgetClass.
+The gallery host supplies the function arguments.
+Helpers are defined in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1144-L1165
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Print.h)
+
+:::
 
 <a id="gallery.component.rowcolumnwidgetclass"></a>
 ### `xm.rowcolumnwidgetclass`
@@ -303,7 +725,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.rowcolumnwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-rowcolumnwidgetclass.png)
+::: tabs
+== Demo
+
+![xmRowColumnWidgetClass in the component demo](gallery-screenshots/xm-rowcolumnwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmRowColumnWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/RowColumn.h)
+
+:::
 
 <a id="gallery.component.screenclass"></a>
 ### `xm.screenclass`
@@ -314,7 +753,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.screenclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-screenclass.png)
+::: tabs
+== Demo
+
+![xmScreenClass in the component demo](gallery-screenshots/xm-screenclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/Screen.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Screen.h)
+
+:::
 
 <a id="gallery.component.scrolledwindowwidgetclass"></a>
 ### `xm.scrolledwindowwidgetclass`
@@ -325,7 +778,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.scrolledwindowwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-scrolledwindowwidgetclass.png)
+::: tabs
+== Demo
+
+![xmScrolledWindowWidgetClass in the component demo](gallery-screenshots/xm-scrolledwindowwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmScrolledWindowWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ScrolledW.h)
+
+:::
 
 <a id="gallery.component.selectionboxwidgetclass"></a>
 ### `xm.selectionboxwidgetclass`
@@ -336,7 +806,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.selectionboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-selectionboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmSelectionBoxWidgetClass in the component demo](gallery-screenshots/xm-selectionboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmSelectionBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L862-L870
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SelectioB.h)
+
+:::
 
 <a id="gallery.component.separatorgadgetclass"></a>
 ### `xm.separatorgadgetclass`
@@ -347,7 +834,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.separatorgadgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-separatorgadgetclass.png)
+::: tabs
+== Demo
+
+![xmSeparatorGadgetClass in the component demo](gallery-screenshots/xm-separatorgadgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmSeparatorGadgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L874-L878
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SeparatoG.h)
+
+:::
 
 <a id="gallery.component.separatorwidgetclass"></a>
 ### `xm.separatorwidgetclass`
@@ -358,7 +862,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.separatorwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-separatorwidgetclass.png)
+::: tabs
+== Demo
+
+![xmSeparatorWidgetClass in the component demo](gallery-screenshots/xm-separatorwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmSeparatorWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L874-L878
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Separator.h)
+
+:::
 
 <a id="gallery.component.tabboxwidgetclass"></a>
 ### `xm.tabboxwidgetclass`
@@ -369,7 +890,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.tabboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-tabboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmTabBoxWidgetClass in the component demo](gallery-screenshots/xm-tabboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTabBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L706-L717
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TabBox.h)
+
+:::
 
 <a id="gallery.component.tabstackwidgetclass"></a>
 ### `xm.tabstackwidgetclass`
@@ -380,7 +918,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.tabstackwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-tabstackwidgetclass.png)
+::: tabs
+== Demo
+
+![xmTabStackWidgetClass in the component demo](gallery-screenshots/xm-tabstackwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTabStackWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L561-L591
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TabStack.h)
+
+:::
 
 ## feedback-dialogs
 
@@ -393,7 +948,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.colorselectorwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-colorselectorwidgetclass.png)
+::: tabs
+== Demo
+
+![xmColorSelectorWidgetClass in the component demo](gallery-screenshots/xm-colorselectorwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmColorSelectorWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1029-L1032
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ColorS.h)
+
+:::
 
 <a id="gallery.component.infobarwidgetclass"></a>
 ### `xm.infobarwidgetclass`
@@ -404,7 +976,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.infobarwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-infobarwidgetclass.png)
+::: tabs
+== Demo
+
+![xmInfoBarWidgetClass in the component demo](gallery-screenshots/xm-infobarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmInfoBarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L529-L532
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/InfoBar.h)
+
+:::
 
 <a id="gallery.component.chipwidgetclass"></a>
 ### `xm.chipwidgetclass`
@@ -415,7 +1004,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.chipwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-chipwidgetclass.png)
+::: tabs
+== Demo
+
+![xmChipWidgetClass in the component demo](gallery-screenshots/xm-chipwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmChipWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L334-L337
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Chip.h)
+
+:::
 
 <a id="gallery.component.badgewidgetclass"></a>
 ### `xm.badgewidgetclass`
@@ -426,7 +1032,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.badgewidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-badgewidgetclass.png)
+::: tabs
+== Demo
+
+![xmBadgeWidgetClass in the component demo](gallery-screenshots/xm-badgewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmBadgeWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L341-L344
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Badge.h)
+
+:::
 
 <a id="gallery.component.avatarwidgetclass"></a>
 ### `xm.avatarwidgetclass`
@@ -437,7 +1060,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.avatarwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-avatarwidgetclass.png)
+::: tabs
+== Demo
+
+![xmAvatarWidgetClass in the component demo](gallery-screenshots/xm-avatarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmAvatarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L361-L363
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Avatar.h)
+
+:::
 
 <a id="gallery.component.emptystatewidgetclass"></a>
 ### `xm.emptystatewidgetclass`
@@ -448,7 +1088,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.emptystatewidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-emptystatewidgetclass.png)
+::: tabs
+== Demo
+
+![xmEmptyStateWidgetClass in the component demo](gallery-screenshots/xm-emptystatewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmEmptyStateWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L380-L382
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/EmptyState.h)
+
+:::
 
 <a id="gallery.component.skeletonwidgetclass"></a>
 ### `xm.skeletonwidgetclass`
@@ -459,7 +1116,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.skeletonwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-skeletonwidgetclass.png)
+::: tabs
+== Demo
+
+![xmSkeletonWidgetClass in the component demo](gallery-screenshots/xm-skeletonwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmSkeletonWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1036-L1037
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Skeleton.h)
+
+:::
 
 <a id="gallery.component.numberboxwidgetclass"></a>
 ### `xm.numberboxwidgetclass`
@@ -470,7 +1144,28 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.numberboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-numberboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmNumberBoxWidgetClass in the component demo](gallery-screenshots/xm-numberboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmNumberBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L319-L326
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L471-L473
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1071-L1074
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/NumberBox.h)
+
+:::
 
 <a id="gallery.component.progressbarwidgetclass"></a>
 ### `xm.progressbarwidgetclass`
@@ -481,7 +1176,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.progressbarwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-progressbarwidgetclass.png)
+::: tabs
+== Demo
+
+![xmProgressBarWidgetClass in the component demo](gallery-screenshots/xm-progressbarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmProgressBarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L482-L485
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ProgressBar.h)
+
+:::
 
 <a id="gallery.component.progressringwidgetclass"></a>
 ### `xm.progressringwidgetclass`
@@ -492,7 +1204,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.progressringwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-progressringwidgetclass.png)
+::: tabs
+== Demo
+
+![xmProgressRingWidgetClass in the component demo](gallery-screenshots/xm-progressringwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmProgressRingWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L489-L491
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ProgressRing.h)
+
+:::
 
 ## commands-navigation
 
@@ -505,7 +1234,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.combinationbox2widgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-combinationbox2widgetclass.png)
+::: tabs
+== Demo
+
+![xmCombinationBox2WidgetClass in the component demo](gallery-screenshots/xm-combinationbox2widgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmCombinationBox2WidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L692-L702
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ComboBox2.h)
+
+:::
 
 <a id="gallery.component.disclosurewidgetclass"></a>
 ### `xm.disclosurewidgetclass`
@@ -516,7 +1262,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.disclosurewidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-disclosurewidgetclass.png)
+::: tabs
+== Demo
+
+![xmDisclosureWidgetClass in the component demo](gallery-screenshots/xm-disclosurewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDisclosureWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L785-L802
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Disclosure.h)
+
+:::
 
 <a id="gallery.component.cascadebuttonwidgetclass"></a>
 ### `xm.cascadebuttonwidgetclass`
@@ -527,7 +1290,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.cascadebuttonwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-cascadebuttonwidgetclass.png)
+::: tabs
+== Demo
+
+![xmCascadeButtonWidgetClass in the component demo](gallery-screenshots/xm-cascadebuttonwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmCascadeButtonWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L404-L416
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/CascadeB.h)
+
+:::
 
 <a id="gallery.component.cascadebuttongadgetclass"></a>
 ### `xm.cascadebuttongadgetclass`
@@ -538,7 +1318,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.cascadebuttongadgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-cascadebuttongadgetclass.png)
+::: tabs
+== Demo
+
+![xmCascadeButtonGadgetClass in the component demo](gallery-screenshots/xm-cascadebuttongadgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmCascadeButtonGadgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L404-L416
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/CascadeBG.h)
+
+:::
 
 <a id="gallery.component.comboboxwidgetclass"></a>
 ### `xm.comboboxwidgetclass`
@@ -549,7 +1346,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.comboboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-comboboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmComboBoxWidgetClass in the component demo](gallery-screenshots/xm-comboboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmComboBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L453-L460
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ComboBox.h)
+
+:::
 
 <a id="gallery.component.commandwidgetclass"></a>
 ### `xm.commandwidgetclass`
@@ -560,7 +1374,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.commandwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-commandwidgetclass.png)
+::: tabs
+== Demo
+
+![xmCommandWidgetClass in the component demo](gallery-screenshots/xm-commandwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmCommandWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L862-L870
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Command.h)
+
+:::
 
 <a id="gallery.component.dialogshellwidgetclass"></a>
 ### `xm.dialogshellwidgetclass`
@@ -571,7 +1402,22 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.dialogshellwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-dialogshellwidgetclass.png)
+::: tabs
+== Demo
+
+![xmDialogShellWidgetClass in the component demo](gallery-screenshots/xm-dialogshellwidgetclass.png)
+
+== Source
+
+Actual gallery factory for xmDialogShellWidgetClass.
+The gallery host supplies the function arguments.
+Helpers are defined in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1144-L1165
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DialogS.h)
+
+:::
 
 <a id="gallery.component.fileselectionboxwidgetclass"></a>
 ### `xm.fileselectionboxwidgetclass`
@@ -582,7 +1428,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.fileselectionboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-fileselectionboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmFileSelectionBoxWidgetClass in the component demo](gallery-screenshots/xm-fileselectionboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmFileSelectionBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L904-L908
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/FileSB.h)
+
+:::
 
 <a id="gallery.component.grabshellwidgetclass"></a>
 ### `xm.grabshellwidgetclass`
@@ -593,7 +1456,22 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.grabshellwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-grabshellwidgetclass.png)
+::: tabs
+== Demo
+
+![xmGrabShellWidgetClass in the component demo](gallery-screenshots/xm-grabshellwidgetclass.png)
+
+== Source
+
+Actual gallery factory for xmGrabShellWidgetClass.
+The gallery host supplies the function arguments.
+Helpers are defined in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1144-L1165
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/GrabShell.h)
+
+:::
 
 <a id="gallery.component.menushellwidgetclass"></a>
 ### `xm.menushellwidgetclass`
@@ -604,7 +1482,22 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.menushellwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-menushellwidgetclass.png)
+::: tabs
+== Demo
+
+![xmMenuShellWidgetClass in the component demo](gallery-screenshots/xm-menushellwidgetclass.png)
+
+== Source
+
+Actual gallery factory for xmMenuShellWidgetClass.
+The gallery host supplies the function arguments.
+Helpers are defined in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1144-L1165
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/MenuShell.h)
+
+:::
 
 <a id="gallery.component.messageboxwidgetclass"></a>
 ### `xm.messageboxwidgetclass`
@@ -615,7 +1508,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.messageboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-messageboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmMessageBoxWidgetClass in the component demo](gallery-screenshots/xm-messageboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmMessageBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L856-L858
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/MessageB.h)
+
+:::
 
 <a id="gallery.component.flyoutwidgetclass"></a>
 ### `xm.flyoutwidgetclass`
@@ -626,7 +1536,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.flyoutwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-flyoutwidgetclass.png)
+::: tabs
+== Demo
+
+![xmFlyoutWidgetClass in the component demo](gallery-screenshots/xm-flyoutwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmFlyoutWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L829-L844
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Flyout.h)
+
+:::
 
 <a id="gallery.component.teachingtipwidgetclass"></a>
 ### `xm.teachingtipwidgetclass`
@@ -637,7 +1564,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.teachingtipwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-teachingtipwidgetclass.png)
+::: tabs
+== Demo
+
+![xmTeachingTipWidgetClass in the component demo](gallery-screenshots/xm-teachingtipwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTeachingTipWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L829-L844
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TeachingTip.h)
+
+:::
 
 <a id="gallery.component.breadcrumbbarwidgetclass"></a>
 ### `xm.breadcrumbbarwidgetclass`
@@ -648,7 +1592,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.breadcrumbbarwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-breadcrumbbarwidgetclass.png)
+::: tabs
+== Demo
+
+![xmBreadcrumbBarWidgetClass in the component demo](gallery-screenshots/xm-breadcrumbbarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmBreadcrumbBarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L511-L519
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/BreadcrumbBar.h)
+
+:::
 
 <a id="gallery.component.linkwidgetclass"></a>
 ### `xm.linkwidgetclass`
@@ -659,7 +1620,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.linkwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-linkwidgetclass.png)
+::: tabs
+== Demo
+
+![xmLinkWidgetClass in the component demo](gallery-screenshots/xm-linkwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmLinkWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L367-L370
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Link.h)
+
+:::
 
 <a id="gallery.component.toastwidgetclass"></a>
 ### `xm.toastwidgetclass`
@@ -670,7 +1648,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.toastwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-toastwidgetclass.png)
+::: tabs
+== Demo
+
+![xmToastWidgetClass in the component demo](gallery-screenshots/xm-toastwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmToastWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L536-L540
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Toast.h)
+
+:::
 
 <a id="gallery.component.commandpalettewidgetclass"></a>
 ### `xm.commandpalettewidgetclass`
@@ -681,7 +1676,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.commandpalettewidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-commandpalettewidgetclass.png)
+::: tabs
+== Demo
+
+![xmCommandPaletteWidgetClass in the component demo](gallery-screenshots/xm-commandpalettewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmCommandPaletteWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L806-L825
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/CommandPalette.h)
+
+:::
 
 ## text-input
 
@@ -694,7 +1706,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.fontselectorwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-fontselectorwidgetclass.png)
+::: tabs
+== Demo
+
+![xmFontSelectorWidgetClass in the component demo](gallery-screenshots/xm-fontselectorwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmFontSelectorWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1029-L1032
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/FontS.h)
+
+:::
 
 <a id="gallery.component.datafieldwidgetclass"></a>
 ### `xm.datafieldwidgetclass`
@@ -705,7 +1734,28 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.datafieldwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-datafieldwidgetclass.png)
+::: tabs
+== Demo
+
+![xmDataFieldWidgetClass in the component demo](gallery-screenshots/xm-datafieldwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDataFieldWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L319-L326
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L436-L438
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1071-L1074
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DataF.h)
+
+:::
 
 <a id="gallery.component.labelwidgetclass"></a>
 ### `xm.labelwidgetclass`
@@ -716,7 +1766,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.labelwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-labelwidgetclass.png)
+::: tabs
+== Demo
+
+![xmLabelWidgetClass in the component demo](gallery-screenshots/xm-labelwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmLabelWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L423-L425
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Label.h)
+
+:::
 
 <a id="gallery.component.labelgadgetclass"></a>
 ### `xm.labelgadgetclass`
@@ -727,7 +1794,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.labelgadgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-labelgadgetclass.png)
+::: tabs
+== Demo
+
+![xmLabelGadgetClass in the component demo](gallery-screenshots/xm-labelgadgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmLabelGadgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L423-L425
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/LabelG.h)
+
+:::
 
 <a id="gallery.component.iconlabelwidgetclass"></a>
 ### `xm.iconlabelwidgetclass`
@@ -738,7 +1822,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.iconlabelwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-iconlabelwidgetclass.png)
+::: tabs
+== Demo
+
+![xmIconLabelWidgetClass in the component demo](gallery-screenshots/xm-iconlabelwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmIconLabelWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L348-L351
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconLabel.h)
+
+:::
 
 <a id="gallery.component.searchboxwidgetclass"></a>
 ### `xm.searchboxwidgetclass`
@@ -749,7 +1850,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.searchboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-searchboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmSearchBoxWidgetClass in the component demo](gallery-screenshots/xm-searchboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmSearchBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L912-L915
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SearchBox.h)
+
+:::
 
 <a id="gallery.component.promptwidgetclass"></a>
 ### `xm.promptwidgetclass`
@@ -760,7 +1878,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.promptwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-promptwidgetclass.png)
+::: tabs
+== Demo
+
+![xmPromptWidgetClass in the component demo](gallery-screenshots/xm-promptwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmPromptWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L374-L376
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Prompt.h)
+
+:::
 
 <a id="gallery.component.autosuggestboxwidgetclass"></a>
 ### `xm.autosuggestboxwidgetclass`
@@ -771,7 +1906,26 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.autosuggestboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-autosuggestboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmAutoSuggestBoxWidgetClass in the component demo](gallery-screenshots/xm-autosuggestboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmAutoSuggestBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L279-L307
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L523-L525
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/AutoSuggestBox.h)
+
+:::
 
 <a id="gallery.component.textwidgetclass"></a>
 ### `xm.textwidgetclass`
@@ -782,7 +1936,28 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.textwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-textwidgetclass.png)
+::: tabs
+== Demo
+
+![xmTextWidgetClass in the component demo](gallery-screenshots/xm-textwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTextWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L319-L326
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L436-L438
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1071-L1074
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Text.h)
+
+:::
 
 <a id="gallery.component.textfieldwidgetclass"></a>
 ### `xm.textfieldwidgetclass`
@@ -793,7 +1968,28 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.textfieldwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-textfieldwidgetclass.png)
+::: tabs
+== Demo
+
+![xmTextFieldWidgetClass in the component demo](gallery-screenshots/xm-textfieldwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTextFieldWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L319-L326
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L436-L438
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1071-L1074
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TextF.h)
+
+:::
 
 ## data-views
 
@@ -806,7 +2002,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.hierarchywidgetclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-hierarchywidgetclass.png)
+::: tabs
+== Demo
+
+![xmHierarchyWidgetClass in the component demo](gallery-screenshots/xm-hierarchywidgetclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/Hierarchy.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Hierarchy.h)
+
+:::
 
 <a id="gallery.component.ext18listwidgetclass"></a>
 ### `xm.ext18listwidgetclass`
@@ -817,7 +2027,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.ext18listwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-ext18listwidgetclass.png)
+::: tabs
+== Demo
+
+![xmExt18ListWidgetClass in the component demo](gallery-screenshots/xm-ext18listwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmExt18ListWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L670-L688
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Ext18List.h)
+
+:::
 
 <a id="gallery.component.multilistwidgetclass"></a>
 ### `xm.multilistwidgetclass`
@@ -828,7 +2055,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.multilistwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-multilistwidgetclass.png)
+::: tabs
+== Demo
+
+![xmMultiListWidgetClass in the component demo](gallery-screenshots/xm-multilistwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmMultiListWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L670-L688
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/MultiList.h)
+
+:::
 
 <a id="gallery.component.iconboxwidgetclass"></a>
 ### `xm.iconboxwidgetclass`
@@ -839,7 +2083,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.iconboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-iconboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmIconBoxWidgetClass in the component demo](gallery-screenshots/xm-iconboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmIconBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L739-L749
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconBox.h)
+
+:::
 
 <a id="gallery.component.outlinewidgetclass"></a>
 ### `xm.outlinewidgetclass`
@@ -850,7 +2111,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.outlinewidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-outlinewidgetclass.png)
+::: tabs
+== Demo
+
+![xmOutlineWidgetClass in the component demo](gallery-screenshots/xm-outlinewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmOutlineWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L721-L735
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Outline.h)
+
+:::
 
 <a id="gallery.component.treewidgetclass"></a>
 ### `xm.treewidgetclass`
@@ -861,7 +2139,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.treewidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-treewidgetclass.png)
+::: tabs
+== Demo
+
+![xmTreeWidgetClass in the component demo](gallery-screenshots/xm-treewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTreeWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L721-L735
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Tree.h)
+
+:::
 
 <a id="gallery.component.calendarwidgetclass"></a>
 ### `xm.calendarwidgetclass`
@@ -872,7 +2167,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.calendarwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-calendarwidgetclass.png)
+::: tabs
+== Demo
+
+![xmCalendarWidgetClass in the component demo](gallery-screenshots/xm-calendarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmCalendarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L663-L666
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Calendar.h)
+
+:::
 
 <a id="gallery.component.datepickerwidgetclass"></a>
 ### `xm.datepickerwidgetclass`
@@ -883,7 +2195,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.datepickerwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-datepickerwidgetclass.png)
+::: tabs
+== Demo
+
+![xmDatePickerWidgetClass in the component demo](gallery-screenshots/xm-datepickerwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDatePickerWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L762-L765
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DatePicker.h)
+
+:::
 
 <a id="gallery.component.timepickerwidgetclass"></a>
 ### `xm.timepickerwidgetclass`
@@ -894,7 +2223,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.timepickerwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-timepickerwidgetclass.png)
+::: tabs
+== Demo
+
+![xmTimePickerWidgetClass in the component demo](gallery-screenshots/xm-timepickerwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmTimePickerWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L769-L772
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TimePicker.h)
+
+:::
 
 <a id="gallery.component.datagridwidgetclass"></a>
 ### `xm.datagridwidgetclass`
@@ -905,7 +2251,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.datagridwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-datagridwidgetclass.png)
+::: tabs
+== Demo
+
+![xmDataGridWidgetClass in the component demo](gallery-screenshots/xm-datagridwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDataGridWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L640-L659
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DataGrid.h)
+
+:::
 
 ## buttons-selection
 
@@ -918,7 +2281,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.arrowbuttonwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-arrowbuttonwidgetclass.png)
+::: tabs
+== Demo
+
+![xmArrowButtonWidgetClass in the component demo](gallery-screenshots/xm-arrowbuttonwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmArrowButtonWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L430-L431
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ArrowB.h)
+
+:::
 
 <a id="gallery.component.arrowbuttongadgetclass"></a>
 ### `xm.arrowbuttongadgetclass`
@@ -929,7 +2309,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.arrowbuttongadgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-arrowbuttongadgetclass.png)
+::: tabs
+== Demo
+
+![xmArrowButtonGadgetClass in the component demo](gallery-screenshots/xm-arrowbuttongadgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmArrowButtonGadgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L430-L431
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ArrowBG.h)
+
+:::
 
 <a id="gallery.component.iconbuttonwidgetclass"></a>
 ### `xm.iconbuttonwidgetclass`
@@ -940,7 +2337,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.iconbuttonwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-iconbuttonwidgetclass.png)
+::: tabs
+== Demo
+
+![xmIconButtonWidgetClass in the component demo](gallery-screenshots/xm-iconbuttonwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmIconButtonWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L758
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconButton.h)
+
+:::
 
 <a id="gallery.component.listwidgetclass"></a>
 ### `xm.listwidgetclass`
@@ -951,7 +2365,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.listwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-listwidgetclass.png)
+::: tabs
+== Demo
+
+![xmListWidgetClass in the component demo](gallery-screenshots/xm-listwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmListWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L442-L449
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/List.h)
+
+:::
 
 <a id="gallery.component.colorpickerwidgetclass"></a>
 ### `xm.colorpickerwidgetclass`
@@ -962,7 +2393,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.colorpickerwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-colorpickerwidgetclass.png)
+::: tabs
+== Demo
+
+![xmColorPickerWidgetClass in the component demo](gallery-screenshots/xm-colorpickerwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmColorPickerWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L506-L507
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ColorPicker.h)
+
+:::
 
 <a id="gallery.component.segmentedcontrolwidgetclass"></a>
 ### `xm.segmentedcontrolwidgetclass`
@@ -973,7 +2421,22 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.segmentedcontrolwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-segmentedcontrolwidgetclass.png)
+::: tabs
+== Demo
+
+![xmSegmentedControlWidgetClass in the component demo](gallery-screenshots/xm-segmentedcontrolwidgetclass.png)
+
+== Source
+
+Actual gallery factory for xmSegmentedControlWidgetClass.
+The gallery host supplies the function arguments.
+Helpers are defined in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1085-L1114
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SegmentedControl.h)
+
+:::
 
 <a id="gallery.component.ratingcontrolwidgetclass"></a>
 ### `xm.ratingcontrolwidgetclass`
@@ -984,7 +2447,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.ratingcontrolwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-ratingcontrolwidgetclass.png)
+::: tabs
+== Demo
+
+![xmRatingControlWidgetClass in the component demo](gallery-screenshots/xm-ratingcontrolwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmRatingControlWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L477-L478
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/RatingControl.h)
+
+:::
 
 <a id="gallery.component.pushbuttonwidgetclass"></a>
 ### `xm.pushbuttonwidgetclass`
@@ -995,7 +2475,26 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.pushbuttonwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-pushbuttonwidgetclass.png)
+::: tabs
+== Demo
+
+![xmPushButtonWidgetClass in the component demo](gallery-screenshots/xm-pushbuttonwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmPushButtonWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L423-L425
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1042-L1068
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/PushB.h)
+
+:::
 
 <a id="gallery.component.pushbuttongadgetclass"></a>
 ### `xm.pushbuttongadgetclass`
@@ -1006,7 +2505,26 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.pushbuttongadgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-pushbuttongadgetclass.png)
+::: tabs
+== Demo
+
+![xmPushButtonGadgetClass in the component demo](gallery-screenshots/xm-pushbuttongadgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmPushButtonGadgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L423-L425
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1042-L1068
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/PushBG.h)
+
+:::
 
 <a id="gallery.component.simplespinboxwidgetclass"></a>
 ### `xm.simplespinboxwidgetclass`
@@ -1017,7 +2535,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.simplespinboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-simplespinboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmSimpleSpinBoxWidgetClass in the component demo](gallery-screenshots/xm-simplespinboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmSimpleSpinBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L919-L927
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SSpinB.h)
+
+:::
 
 <a id="gallery.component.scalewidgetclass"></a>
 ### `xm.scalewidgetclass`
@@ -1028,7 +2563,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.scalewidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-scalewidgetclass.png)
+::: tabs
+== Demo
+
+![xmScaleWidgetClass in the component demo](gallery-screenshots/xm-scalewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmScaleWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L464-L467
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Scale.h)
+
+:::
 
 <a id="gallery.component.spinnerwidgetclass"></a>
 ### `xm.spinnerwidgetclass`
@@ -1039,7 +2591,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.spinnerwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-spinnerwidgetclass.png)
+::: tabs
+== Demo
+
+![xmSpinnerWidgetClass in the component demo](gallery-screenshots/xm-spinnerwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmSpinnerWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L495-L496
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Spinner.h)
+
+:::
 
 <a id="gallery.component.stepperwidgetclass"></a>
 ### `xm.stepperwidgetclass`
@@ -1050,7 +2619,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.stepperwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-stepperwidgetclass.png)
+::: tabs
+== Demo
+
+![xmStepperWidgetClass in the component demo](gallery-screenshots/xm-stepperwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmStepperWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L500-L502
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Stepper.h)
+
+:::
 
 <a id="gallery.component.scrollbarwidgetclass"></a>
 ### `xm.scrollbarwidgetclass`
@@ -1061,7 +2647,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.scrollbarwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-scrollbarwidgetclass.png)
+::: tabs
+== Demo
+
+![xmScrollBarWidgetClass in the component demo](gallery-screenshots/xm-scrollbarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmScrollBarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L464-L467
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ScrollBar.h)
+
+:::
 
 <a id="gallery.component.spinboxwidgetclass"></a>
 ### `xm.spinboxwidgetclass`
@@ -1072,7 +2675,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.spinboxwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-spinboxwidgetclass.png)
+::: tabs
+== Demo
+
+![xmSpinBoxWidgetClass in the component demo](gallery-screenshots/xm-spinboxwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmSpinBoxWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L919-L927
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SpinB.h)
+
+:::
 
 <a id="gallery.component.togglebuttonwidgetclass"></a>
 ### `xm.togglebuttonwidgetclass`
@@ -1083,7 +2703,26 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.togglebuttonwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-togglebuttonwidgetclass.png)
+::: tabs
+== Demo
+
+![xmToggleButtonWidgetClass in the component demo](gallery-screenshots/xm-togglebuttonwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmToggleButtonWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L396-L400
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1042-L1068
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ToggleB.h)
+
+:::
 
 <a id="gallery.component.toggleswitchwidgetclass"></a>
 ### `xm.toggleswitchwidgetclass`
@@ -1094,7 +2733,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.toggleswitchwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-toggleswitchwidgetclass.png)
+::: tabs
+== Demo
+
+![xmToggleSwitchWidgetClass in the component demo](gallery-screenshots/xm-toggleswitchwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmToggleSwitchWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L386-L391
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ToggleSwitch.h)
+
+:::
 
 <a id="gallery.component.togglebuttongadgetclass"></a>
 ### `xm.togglebuttongadgetclass`
@@ -1105,7 +2761,26 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.togglebuttongadgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-togglebuttongadgetclass.png)
+::: tabs
+== Demo
+
+![xmToggleButtonGadgetClass in the component demo](gallery-screenshots/xm-togglebuttongadgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmToggleButtonGadgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L396-L400
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1042-L1068
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ToggleBG.h)
+
+:::
 
 ## media
 
@@ -1118,7 +2793,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.drawingareawidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-drawingareawidgetclass.png)
+::: tabs
+== Demo
+
+![xmDrawingAreaWidgetClass in the component demo](gallery-screenshots/xm-drawingareawidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDrawingAreaWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1014-L1025
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DrawingA.h)
+
+:::
 
 <a id="gallery.component.dropsitemanagerobjectclass"></a>
 ### `xm.dropsitemanagerobjectclass`
@@ -1129,7 +2821,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.dropsitemanagerobjectclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-dropsitemanagerobjectclass.png)
+::: tabs
+== Demo
+
+![xmDropSiteManagerObjectClass in the component demo](gallery-screenshots/xm-dropsitemanagerobjectclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/DropSMgr.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DropSMgr.h)
+
+:::
 
 <a id="gallery.component.droptransferobjectclass"></a>
 ### `xm.droptransferobjectclass`
@@ -1140,7 +2846,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.droptransferobjectclass`
 - Capability: inventory-only
 
-![Gallery screenshot](gallery-screenshots/xm-droptransferobjectclass.png)
+::: tabs
+== Demo
+
+![xmDropTransferObjectClass in the component demo](gallery-screenshots/xm-droptransferobjectclass.png)
+
+== Source
+
+This is a service or abstract class, not a standalone control.
+The Demo tab explains its role in the toolkit.
+
+<<< @/lib/Xm/DropTrans.h
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DropTrans.h)
+
+:::
 
 <a id="gallery.component.icongadgetclass"></a>
 ### `xm.icongadgetclass`
@@ -1151,7 +2871,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.icongadgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-icongadgetclass.png)
+::: tabs
+== Demo
+
+![xmIconGadgetClass in the component demo](gallery-screenshots/xm-icongadgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmIconGadgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L758
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconG.h)
+
+:::
 
 <a id="gallery.component.iconheaderclass"></a>
 ### `xm.iconheaderclass`
@@ -1162,7 +2899,24 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.iconheaderclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-iconheaderclass.png)
+::: tabs
+== Demo
+
+![xmIconHeaderClass in the component demo](gallery-screenshots/xm-iconheaderclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmIconHeaderClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L758
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconH.h)
+
+:::
 
 <a id="gallery.component.drophighlightwidgetclass"></a>
 ### `xm.drophighlightwidgetclass`
@@ -1173,4 +2927,21 @@ the documentation target recorded by the corresponding manifest entry.
 - Screenshot: `gallery.screenshot.drophighlightwidgetclass`
 - Capability: constructible
 
-![Gallery screenshot](gallery-screenshots/xm-drophighlightwidgetclass.png)
+::: tabs
+== Demo
+
+![xmDropHighlightWidgetClass in the component demo](gallery-screenshots/xm-drophighlightwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDropHighlightWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L848-L852
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DropHighlight.h)
+
+:::

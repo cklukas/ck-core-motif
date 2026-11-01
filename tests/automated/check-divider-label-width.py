@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
-"""Check Divider label width avoids Dimension overflow."""
-
+"""Keep Divider dimensions saturated after measured size arithmetic."""
 from pathlib import Path
-
-source = Path(__file__).parents[2] / "lib/Xm/Divider.c"
-text = source.read_text(encoding="utf-8")
-
+text = (Path(__file__).parents[2] / "lib/Xm/Divider.c").read_text()
 assert "divider->divider.label && divider->divider.font" in text
-assert "unsigned long requested" in text
-assert "requested > USHRT_MAX ? USHRT_MAX : requested" in text
-assert "static Dimension divider_thickness_span(Dimension thickness);" in text
-assert "divider->core.height = divider_thickness_span" in text
-assert "divider->core.width = divider_thickness_span" in text
-assert "thickness > (Dimension)(USHRT_MAX - 12)" in text
-print("Divider label width and preferred geometry are bounded")
+assert "unsigned long w, h;" in text
+assert "*width = (Dimension)MIN(w, USHRT_MAX);" in text
+assert "*height = (Dimension)MIN(h, USHRT_MAX);" in text
+assert "natural_size(divider, &width, &height)" in text
+assert "natural_size(divider, &reply->width, &reply->height)" in text
+print("PASS Divider measured dimensions are saturated")

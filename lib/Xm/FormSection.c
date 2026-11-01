@@ -3,6 +3,7 @@
 #endif
 #include <Xm/FormSectionP.h>
 #include <Xm/Label.h>
+#include <Xm/Appearance.h>
 #include <Xm/RowColumn.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
@@ -130,12 +131,15 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     section->section.header_text = copy_string(section->section.header_text);
     section->section.footer_text = copy_string(section->section.footer_text);
     section->section.header = XtVaCreateManagedWidget("header", xmLabelWidgetClass, widget,
-        XmNlabelString, section->section.header_text, XmNalignment, XmALIGNMENT_BEGINNING, XmNborderWidth, 0, NULL);
+        XmNlabelString, section->section.header_text, XmNalignment, XmALIGNMENT_BEGINNING,
+        XmNappearanceRole, XmAPPEARANCE_ROLE_SECTION, XmNborderWidth, 0, NULL);
     section->section.content = XtVaCreateManagedWidget("content", xmRowColumnWidgetClass, widget,
-        XmNorientation, XmVERTICAL, XmNpacking, XmPACK_TIGHT, XmNborderWidth, 0, NULL);
+        XmNorientation, XmVERTICAL, XmNpacking, XmPACK_TIGHT,
+        XmNisAligned, False, XmNadjustMargin, False,
+        XmNmarginWidth, 0, XmNmarginHeight, 0, XmNborderWidth, 0, NULL);
     section->section.footer = XtVaCreateManagedWidget("footer", xmLabelWidgetClass, widget,
         XmNlabelString, section->section.footer_text, XmNalignment, XmALIGNMENT_BEGINNING,
-        XmNborderWidth, 0, XmNmappedWhenManaged, footer_visible(section), NULL);
+        XmNappearanceRole, XmAPPEARANCE_ROLE_SECONDARY, XmNborderWidth, 0, XmNmappedWhenManaged, footer_visible(section), NULL);
     section->section.initializing = False; natural(section, &width, &height);
     if (!section->core.width)
         section->core.width = width;

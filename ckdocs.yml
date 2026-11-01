@@ -31,9 +31,12 @@ nav:
   - title: Development
     pages:
       - docs/modern-gallery-work-plan.md
+      - docs/modern-visual-overhaul.md
+      - docs/modern-integration-qualification.md
       - docs/modern-gallery-manifest.md
       - docs/modern-gallery.md
       - docs/modern-gallery-components.md
+      - docs/periodic-modern-appearance.md
       - docs/gallery-startup-profile.md
   - title: APIs
     pages:
@@ -439,6 +442,13 @@ nav:
       - docs/command-palette-allocation-bounds.md
       - docs/command-palette.md
       - docs/compact-controls-contract.md
+      - docs/container-cells-allocation.md
+      - docs/container-child-count-bounds.md
+      - docs/container-clipboard-inputs.md
+      - docs/container-header-position-bounds.md
+      - docs/container-relayout-inputs.md
+      - docs/container-reorder-inputs.md
+      - docs/container-tab-pool-bounds.md
       - docs/context-menu-decision.md
       - docs/cpp-support-library-prototype.md
       - docs/cpp-support-library.md
@@ -470,12 +480,15 @@ nav:
       - docs/dnd-receiver-site-count.md
       - docs/dnd-stream-region-input.md
       - docs/dnd-transfer-lifecycle.md
+      - docs/drag-cancel-inputs.md
       - docs/drag-copy-helper.md
       - docs/drag-receiver-failure-guard.md
       - docs/drag-receiver-info-allocation.md
       - docs/drag-selection-request-guard.md
+      - docs/drag-start-inputs.md
       - docs/drag-target-allocation-bounds.md
       - docs/drag-target-heap-bound.md
+      - docs/drag-target-inputs.md
       - docs/drag-targets-conversion-bounds.md
       - docs/dragbs-target-allocation.md
       - docs/draw-utils-size-limit-header.md
@@ -484,9 +497,17 @@ nav:
       - docs/drop-transfer-callback-destruction.md
       - docs/drop-transfer-callback-selection.md
       - docs/drop-transfer-entry-allocation.md
+      - docs/drop-transfer-inputs.md
       - docs/drop-transfer-processing-selection.md
       - docs/dropsite-allocation-failure.md
+      - docs/dropsite-end-update-inputs.md
       - docs/dropsite-lifecycle.md
+      - docs/dropsite-query-inputs.md
+      - docs/dropsite-register-inputs.md
+      - docs/dropsite-retrieve-inputs.md
+      - docs/dropsite-start-update-inputs.md
+      - docs/dropsite-unregister-inputs.md
+      - docs/dropsite-update-inputs.md
       - docs/editres-child-bounds.md
       - docs/empty-state.md
       - docs/exm-demo-build.md
@@ -506,8 +527,24 @@ nav:
       - docs/icon-label-divider.md
       - docs/icong-baseline-allocation.md
       - docs/icong-mask-name-bounds.md
+      - docs/im-close-xim-inputs.md
+      - docs/im-focus-inputs.md
+      - docs/im-get-xic-inputs.md
+      - docs/im-get-xim-inputs.md
+      - docs/im-lookup-inputs.md
+      - docs/im-register-inputs.md
+      - docs/im-reset-inputs.md
+      - docs/im-reset-state-inputs.md
+      - docs/im-set-xic-inputs.md
+      - docs/im-varargs-inputs.md
       - docs/image-cache-buffer-bounds.md
+      - docs/image-cache-depth-sentinel.md
+      - docs/image-cache-depth1-bounds.md
+      - docs/image-cache-geometry-bounds.md
+      - docs/image-cache-scaling-ratio.md
       - docs/image-cache-table-bounds.md
+      - docs/image-scaling-conversions.md
+      - docs/image-scaling-row-stride.md
       - docs/image-scaling-destination-bounds.md
       - docs/image-scaling-source-origin.md
       - docs/image-scaling-source-origin-y.md
@@ -518,7 +555,9 @@ nav:
       - docs/list-add-items-height-state.md
       - docs/list-drag-selection-allocation.md
       - docs/list-scroll-arithmetic.md
+      - docs/list-sensitivity-cancellation.md
       - docs/modern-gallery-screenshot-qualification.md
+      - docs/modern-toggle-appearance.md
       - docs/motion-buffer-growth.md
       - docs/motion-buffer-handoff.md
       - docs/mwm-appearance-resource-widget.md
@@ -535,10 +574,12 @@ nav:
       - docs/mwm-menu-retry-state.md
       - docs/mwm-menu-root-creation.md
       - docs/mwm-query-atom-format-bounds.md
+      - docs/mwm-running-inputs.md
       - docs/mwm-screen-name-initialization.md
       - docs/mwm-session-db-format-bounds.md
       - docs/mwm-startup-widget-creation.md
       - docs/mwm-utm-selection-guard.md
+      - docs/notebook-appearance.md
       - docs/numberbox-render-table-failure.md
       - docs/obso1-2-rectangle-allocation.md
       - docs/obso2-colordata-allocation.md
@@ -570,6 +611,7 @@ nav:
       - docs/scroll-autodrag-lifetime.md
       - docs/scroll-frame-size-limit-header.md
       - docs/scrollbar-callback-snapshot.md
+      - docs/scrolled-window-fit.md
       - docs/search-box.md
       - docs/sidebar.md
       - docs/skeleton.md
@@ -587,25 +629,52 @@ nav:
       - docs/tabbed-stack-bounds.md
       - docs/tablist-lock-boundaries.md
       - docs/tablist-widget-guard.md
+      - docs/tabstack-coordinate-inputs.md
       - docs/teaching-tip.md
       - docs/tearoff-key-allocation.md
+      - docs/text-autoscroll-bottom-bounds.md
       - docs/text-class-translation-allocation.md
+      - docs/text-clear-selection-bounds.md
+      - docs/text-conversion-inputs.md
       - docs/text-cut-buffer-context.md
+      - docs/text-drag-distance-bounds.md
+      - docs/text-dynamic-growth.md
+      - docs/text-event-hit-test-bounds.md
+      - docs/text-highlight-snapshot-growth.md
+      - docs/text-horizontal-page-y-bounds.md
+      - docs/text-initialize-storage.md
       - docs/text-initialize-wcs.md
+      - docs/text-input-initialize.md
+      - docs/text-insert-string-bounds.md
+      - docs/text-kill-buffer-bounds.md
+      - docs/text-line-coordinate-bounds.md
       - docs/text-line-count-bounds.md
       - docs/text-line-table-export.md
       - docs/text-modify-verify-bounds.md
+      - docs/text-next-page-y-bounds.md
       - docs/text-on-the-spot-allocation.md
       - docs/text-preedit-overstrike-allocation.md
       - docs/text-preedit-overstrike-concat.md
       - docs/text-preedit-recovery-growth.md
       - docs/text-preedit-wide-conversion.md
+      - docs/text-previous-page-y-bounds.md
       - docs/text-reflow-scratch-table.md
       - docs/text-reset-overstrike-allocation.md
+      - docs/text-rtl-autoscroll-axis.md
+      - docs/text-rtl-autoscroll-edge-bounds.md
       - docs/text-rtl-translation-allocation.md
+      - docs/text-scroll-cursor-delta-bounds.md
+      - docs/text-scroll-cursor-line-table.md
+      - docs/text-scroll-cursor-parameter-bounds.md
+      - docs/text-secondary-extend-selection.md
       - docs/text-secondary-resource-allocation.md
+      - docs/text-select-outline-bounds.md
+      - docs/text-selection-array-byte-count.md
       - docs/text-selection-empty-buffer.md
+      - docs/text-selection-hint-bounds.md
+      - docs/text-selection-length-bounds.md
       - docs/text-selection-source-failure.md
+      - docs/text-selection-source-guard.md
       - docs/text-selection-target-allocation.md
       - docs/text-set-string-wcs.md
       - docs/text-setvalues-wcs.md
@@ -613,17 +682,38 @@ nav:
       - docs/text-source-block-payload.md
       - docs/text-source-compaction.md
       - docs/text-source-create-bounds.md
+      - docs/text-source-destroy-guard.md
+      - docs/text-source-highlight-copy-bounds.md
+      - docs/text-source-length-narrowing.md
       - docs/text-source-pending-pointer-width.md
       - docs/text-source-pending.md
+      - docs/text-source-range-bounds.md
       - docs/text-source-replace-growth.md
       - docs/text-source-value-bounds.md
+      - docs/text-timer-point-bounds.md
+      - docs/text-transfer-point-bounds.md
       - docs/text-verify-allocation-guards.md
+      - docs/textfield-adjust-bounds.md
+      - docs/textfield-baseline-bounds.md
+      - docs/textfield-baselines.md
       - docs/textfield-class-translation-allocation.md
+      - docs/textfield-cursor-geometry.md
+      - docs/textfield-display-rect-bounds.md
+      - docs/textfield-full-gc-bounds.md
       - docs/textfield-modify-verify-allocation.md
+      - docs/textfield-page-bounds.md
+      - docs/textfield-position-metrics.md
+      - docs/textfield-preedit-start.md
+      - docs/textfield-rect-bounds.md
+      - docs/textfield-redisplay-bounds.md
       - docs/textfield-selection-array-bounds.md
       - docs/textfield-setvalues-restore.md
+      - docs/textfield-size-bounds.md
+      - docs/textfield-substring-ranges.md
+      - docs/textfield-timer-scroll-bounds.md
       - docs/textfield-validate-allocation.md
       - docs/textfield-wcs-callback-bounds.md
+      - docs/textual-drag-icon-inputs.md
       - docs/toast.md
       - docs/toolbar-allocation-failure.md
       - docs/toolbar.md
@@ -637,14 +727,19 @@ nav:
       - docs/transfer-target-cleanup.md
       - docs/transfer-target-list-cleanup.md
       - docs/traversal-stack-node-list.md
+      - docs/tree-initialize-list.md
+      - docs/tree-view-colors.md
       - docs/treeview-geometry-regressions.md
       - docs/treeview-render-table-failure.md
+      - docs/update-display-inputs.md
       - docs/utf8-conversion-input-validation.md
       - docs/utm-payload-failure-cleanup.md
       - docs/utm-send-widget-guard.md
       - docs/vendors-lock-balance.md
       - docs/vendorshell-modal-growth.md
+      - docs/vertical-pixels-inputs.md
       - docs/virtkeys-invalid-keycode.md
+      - docs/widget-geometry-inputs.md
       - docs/wm-feedback-size-limit-header.md
       - docs/wsm-selection-format-bounds.md
       - docs/wsm-widget-input-validation.md

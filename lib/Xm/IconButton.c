@@ -36,6 +36,8 @@
 #include <X11/bitmaps/gray>
 #include <Xm/ExtP.h>
 #include "PrimitiveI.h"
+#include "XmI.h"
+#include "AppearanceDrawI.h"
 #include "XmStrDefsI.h"
 #include "xmlist.h"
 #include "RepTypeI.h"
@@ -96,6 +98,8 @@ static void Resize(Widget), Destroy(Widget), ClassInit(void);
 static void ClassPartInitialize(WidgetClass w_class);
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
+static void BorderHighlight(Widget);
+static void BorderUnhighlight(Widget);
 static XtGeometryResult QueryGeometry(Widget,
 				      XtWidgetGeometry *, XtWidgetGeometry *);
 
@@ -131,7 +135,7 @@ static void DecPixCache(Display *, Pixmap);
 static void Deactivate(XtPointer, XtIntervalId *);
 static void GetDesiredSize(Widget, Dimension *, Dimension *);
 static void RequestNewSize(Widget, Dimension, Dimension);
-static void CalcLocations(Widget), DrawTextAndImage(Widget, GC, GC, GC);
+static void CalcLocations(Widget), DrawTextAndImage(Widget, GC, GC, GC, Region);
 static void CreateGCs(Widget), DestroyGCs(Widget w);
 
 static void FromPaddingPixels(Widget, int, XtArgVal *);
@@ -399,8 +403,8 @@ XmIconButtonClassRec xmIconButtonClassRec = {
     /* extension		*/	NULL
   },
   { /* Xmprimitive fields */
-      (XtWidgetProc)_XtInherit, /* border_highlight   */
-      (XtWidgetProc)_XtInherit, /* border_unhighlight */
+      BorderHighlight, /* border_highlight   */
+      BorderUnhighlight, /* border_unhighlight */
       traverseTranslations,	/* translations       */
       NULL,                     /* arm_and_activate   */
       get_resources,   	    	/* syn resources      */
@@ -613,11 +617,34 @@ Resize(Widget w)
 
 /*ARGSUSED*/
 static void
+BorderHighlight(Widget w)
+{
+    XmIconButtonWidget iw = (XmIconButtonWidget)w;
+    if (_XmAppearanceDrawButtonFocus(w, True)) {
+        iw->primitive.highlighted = True;
+        iw->primitive.highlight_drawn = True;
+    } else _XmExtHighlightBorder(w);
+}
+
+static void
+BorderUnhighlight(Widget w)
+{
+    XmIconButtonWidget iw = (XmIconButtonWidget)w;
+    if (_XmAppearanceDrawButtonFocus(w, False)) {
+        iw->primitive.highlighted = False;
+        iw->primitive.highlight_drawn = False;
+    } else _XmExtUnhighlightBorder(w);
+}
+
+static void
 Redisplay(Widget w, XEvent * event, Region region)
 {
     XmIconButtonWidget iw = (XmIconButtonWidget) w;
     int dx, dy, width, height;
     GC topgc, bottomgc, text_gc, icon_gc, icon_stippled_gc;
+    Boolean modern = _XmAppearanceDrawButton(w,
+        XmIconButton_set(iw) ? XmIconButton_arm_color(iw) : iw->core.background_pixel,
+        False, True);
 
     dx = iw->primitive.highlight_thickness;
     dy = dx;
@@ -650,7 +677,7 @@ Redisplay(Widget w, XEvent * event, Region region)
 	else 
 	    fill_height = 0;
 
-	if ((fill_width != 0) && (fill_height != 0))
+	if (!modern && (fill_width != 0) && (fill_height != 0))
 	    XFillRectangle(XtDisplay(w), XtWindow(w), XmIconButton_fill_gc(iw),
 			   FILL_SPACE(iw), FILL_SPACE(iw),
 			   fill_width, fill_height);
@@ -682,17 +709,27 @@ Redisplay(Widget w, XEvent * event, Region region)
 	    text_gc = XmIconButton_stippled_text_gc(iw);
     }
 
-    DrawTextAndImage(w, text_gc, icon_gc, icon_stippled_gc);
+    {
+        Region content = NULL;
+        if (modern) {
+            int stroke = MIN((int)iw->primitive.shadow_thickness, MIN(width,height)/2);
+            int radius = MIN((int)_XmDpiDefaultDimension(w,4), MIN(width,height)/2);
+            content = _XmAppearanceRoundedRectangleRegion(dx+stroke,dy+stroke,
+                width-2*stroke,height-2*stroke,MAX(0,radius-stroke));
+        }
+        DrawTextAndImage(w, text_gc, icon_gc, icon_stippled_gc, content);
+        if (content) XDestroyRegion(content);
+    }
 
-    if (width > 0 && height > 0 && topgc != NULL && bottomgc != NULL)
+    if (!modern && width > 0 && height > 0 && topgc != NULL && bottomgc != NULL)
         XmeDrawShadows(XtDisplay(w), XtWindow(w), topgc, bottomgc,
                        dx, dy, width, height,
                        iw->primitive.shadow_thickness, XmSHADOW_OUT);
 
     if (iw->primitive.highlighted)
-	_XmExtHighlightBorder(w);
+	BorderHighlight(w);
     else
-	_XmExtUnhighlightBorder(w);
+	BorderUnhighlight(w);
 }
 
 /*	Function Name: SetValuesAlmost
@@ -1614,8 +1651,8 @@ CalcLocations(Widget w)
     else
 	extra_y_space = 0;
 
-    XmIconButton_max_text_width(iw) = width - 2 * H_SPACE(iw);
-    XmIconButton_max_text_height(iw) = height - 2 * V_SPACE(iw);
+    XmIconButton_max_text_width(iw) = MAX(0, (int)width - 2 * H_SPACE(iw));
+    XmIconButton_max_text_height(iw) = MAX(0, (int)height - 2 * V_SPACE(iw));
     XmIconButton_text_x(iw) = H_SPACE(iw);
     XmIconButton_text_y(iw) = V_SPACE(iw);
 
@@ -1770,12 +1807,17 @@ CalcLocations(Widget w)
  */
 
 static void
-    DrawTextAndImage(Widget w, GC text_gc, GC icon_gc, GC icon_stippled_gc)
+    DrawTextAndImage(Widget w, GC text_gc, GC icon_gc, GC icon_stippled_gc,
+                     Region content)
 {
     XmIconButtonWidget iw = (XmIconButtonWidget) w;
 
     if( XmIconButton_icon_placement(iw) != XmIconNone && ValidPixmap(XmIconButton_pixmap(iw)) )
     {
+        if (content) {
+            XSetRegion(XtDisplay(w),icon_gc,content);
+            if (icon_stippled_gc != None) XSetRegion(XtDisplay(w),icon_stippled_gc,content);
+        }
 	if (XmIconButton_pix_depth(iw) == 1)
 	{
 	    XCopyPlane(XtDisplay(w), XmIconButton_pixmap(iw), XtWindow(w), icon_gc,
@@ -1800,6 +1842,10 @@ static void
 			   XmIconButton_pix_x(iw), XmIconButton_pix_y(iw),
 			   XmIconButton_pix_width(iw), XmIconButton_pix_height(iw));
 	}
+        if (content) {
+            XSetClipMask(XtDisplay(w),icon_gc,None);
+            if (icon_stippled_gc != None) XSetClipMask(XtDisplay(w),icon_stippled_gc,None);
+        }
     }
 
     if( XmIconButton_icon_placement(iw) != XmIconOnly )
@@ -1837,8 +1883,18 @@ static void
 	     * Set the clip rectangle so things do not
 	     * overlap or go out of bounds.
 	     */
-	    XSetClipRectangles(XtDisplay(w), text_gc,
-			       0, 0, &clip, 1, Unsorted);
+            if (content) {
+                Region text_clip = XCreateRegion();
+                XUnionRectWithRegion(&clip,text_clip,text_clip);
+                XIntersectRegion(text_clip,content,text_clip);
+                XSetRegion(XtDisplay(w),text_gc,text_clip);
+#ifdef FIX_1381
+                XSetRegion(XtDisplay(w),XmIconButton_shadow_gc(iw),text_clip);
+#endif
+                XDestroyRegion(text_clip);
+            } else {
+                XSetClipRectangles(XtDisplay(w), text_gc,0,0,&clip,1,Unsorted);
+            }
 #ifdef FIX_1381
 		/*Draw shadow for insensitive text*/
 		if (!XtIsSensitive(w)) {
@@ -1857,6 +1913,9 @@ static void
 			 XmIconButton_max_text_width(iw), XmIconButton_alignment(iw),
 			 XmPrim_layout_direction(iw), NULL);
 	    XSetClipMask(XtDisplay(w), text_gc, None);
+#ifdef FIX_1381
+            if (content) XSetClipMask(XtDisplay(w),XmIconButton_shadow_gc(iw),None);
+#endif
 	}
     }
 }

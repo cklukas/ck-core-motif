@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     XrmDatabase database = XrmGetDatabase(display);
     Widget row = XtVaCreateManagedWidget("row", xmRowColumnWidgetClass, shell, NULL);
     struct { const char *text; int valid; double scale; } values[] = {
-        {"75", 1, 1}, {"150", 1, 2}, {"300", 1, 4}, {" 150 ", 1, 2},
+        {"96", 1, 1}, {"192", 1, 2}, {"384", 1, 4}, {" 192 ", 1, 2},
         {"NaN", 0, 0}, {"inf", 0, 0}, {"1e999", 0, 0},
         {"0", 0, 0}, {"-75", 0, 0}, {"96junk", 0, 0}, {"", 0, 0}
     };
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
         Widget spin, explicit_spin, toggle, gadget;
         XmString empty = XmStringCreateLocalized("");
         Dimension arrows = 0, explicit_arrows = 0, indicator = 0, gadget_indicator = 0;
-        snprintf(dpi, sizeof(dpi), "%u", i * 75);
+        snprintf(dpi, sizeof(dpi), "%u", i * 96);
         XrmPutStringResource(&database, "Xft.dpi", dpi);
         spin = XtVaCreateWidget("spin", xmSpinBoxWidgetClass, row, NULL);
         explicit_spin = XtVaCreateWidget("explicit", xmSpinBoxWidgetClass, row,

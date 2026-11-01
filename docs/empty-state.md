@@ -16,3 +16,28 @@ launching a command or changing view state.  Accessibility exposes the
 composite as a panel named from the message and reports one action only when
 the action button is present.  The installed fixture covers action dispatch,
 dynamic action visibility, accessibility, constrained geometry and teardown.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmEmptyStateWidgetClass demo](gallery-screenshots/xm-emptystatewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmEmptyStateWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L380-L382
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/EmptyState.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

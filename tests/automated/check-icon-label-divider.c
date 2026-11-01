@@ -76,8 +76,9 @@ int main(int argc, char **argv) {
     CHECK(info.role == XmACCESSIBLE_LABEL && info.name != NULL);
     XmAccessibleInfoClear(&info);
     XmAccessibilityDestroy(accessibility);
+    Display *display=XtDisplay(shell);
     XtDestroyWidget(shell);
-    XtCloseDisplay(XtDisplay(shell));
+    XtCloseDisplay(display);
     XtDestroyApplicationContext(app);
     printf("PASS icon-label-divider: %u checks\n", checks);
     return EXIT_SUCCESS;

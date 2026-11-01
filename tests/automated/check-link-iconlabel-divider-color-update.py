@@ -16,8 +16,8 @@ for name, gc in contracts.items():
     for fragment in (
         "Boolean colors_changed =",
         "if (colors_changed",
-        f"XSetForeground(XtDisplay(widget), {gc},",
-        f"XSetBackground(XtDisplay(widget), {gc},",
+        "XSetForeground(",
+        "XSetBackground(",
         "colors_changed",
     ):
         if fragment not in body:

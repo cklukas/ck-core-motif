@@ -18,6 +18,8 @@ typedef struct _XmSidebarClassRec {
 
 typedef struct _XmSidebarPart {
     Widget toggle_button;
+    Widget title_label;
+    XmString title;
     Widget content;
     Widget saved_focus;
     Dimension expanded_width;

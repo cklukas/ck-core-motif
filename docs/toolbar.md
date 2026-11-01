@@ -18,3 +18,28 @@ The toolbar owns only its push-button and menu-entry presentation children.
 It does not create a navigation model, launch commands, or change existing
 menus and toolbar widgets.  Accessibility exposes a named toolbar panel and
 reports one action when an overflow menu is available.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmToolbarWidgetClass demo](gallery-screenshots/xm-toolbarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmToolbarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L595-L622
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Toolbar.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

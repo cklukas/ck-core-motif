@@ -57,6 +57,11 @@ extern void _XmCallCallbackList(Widget widget,
 				XtCallbackList callbacks,
 				XtPointer call_data);
 extern void _XmRemoveAllCallbacks(InternalCallbackList *callbacks);
+/* Registered callback resources of real Xt objects only (not extension
+ * records). Snapshot dispatch stops at destruction; False forbids any further
+ * access to the object. Registration changes apply to subsequent dispatches. */
+extern Boolean _XmCallCallbacksUntilDestroyed(Widget widget, String resource,
+                                              XtPointer call_data);
 
 /********    End Private Function Declarations    ********/
 

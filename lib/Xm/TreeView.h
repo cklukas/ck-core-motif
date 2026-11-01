@@ -32,6 +32,9 @@ typedef struct {
     Boolean expanded;
 } XmTreeViewCallbackStruct;
 
+/* XmNactivateCallback supplies XmTreeViewCallbackStruct with XmCR_ACTIVATE.
+ * Enter activates a leaf; primary-button release activates the pressed leaf.
+ * Selection changes alone do not activate. */
 Widget XmCreateTreeView(Widget parent, char *name, ArgList args,
                         Cardinal count);
 void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,

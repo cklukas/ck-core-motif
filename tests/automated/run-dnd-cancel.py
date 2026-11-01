@@ -31,7 +31,7 @@ receipt = {
     "source": str(source),
     "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
     "library_sha256": hashlib.sha256(
-        (args.prefix / "lib/libXm.so.8.0.0").read_bytes()).hexdigest(),
+        (args.prefix / "lib/libXm.so.9.0.0").read_bytes()).hexdigest(),
 }
 started = time.monotonic()
 try:

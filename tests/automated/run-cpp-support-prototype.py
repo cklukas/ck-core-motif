@@ -24,7 +24,7 @@ if not args.prefix.is_absolute() or not args.out.is_absolute():
     parser.error("--prefix and --out must be absolute")
 prefix = args.prefix.resolve(strict=True)
 installed_header = prefix / "include/ckmotif++/motif_support.hpp"
-installed_pc = prefix / "lib/pkgconfig/ckmotif++-8.pc"
+installed_pc = prefix / "lib/pkgconfig/ckmotif++-9.pc"
 if not installed_header.is_file() or not installed_pc.is_file():
     parser.error("prefix does not contain the installed ckmotif++ header and metadata")
 output = args.out.resolve()
@@ -72,7 +72,7 @@ try:
     run("compile", [args.cxx, *flags, str(source), "-lXm", "-lXt", "-lX11",
                      "-o", str(binary)])
     linked = run("link", ["ldd", str(binary)])
-    if str(prefix / "lib/libXm.so.8") not in linked:
+    if str(prefix / "lib/libXm.so.9") not in linked:
         raise RuntimeError("prototype did not resolve libXm from selected prefix")
     fixture = ["xvfb-run", "-a", "-s", "-screen 0 1024x768x24", str(binary)]
     if args.sanitize:

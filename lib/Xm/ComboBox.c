@@ -499,7 +499,7 @@ externaldef(xmcomboboxwidgetclass) WidgetClass xmComboBoxWidgetClass =
 
 /*ARGSUSED*/
 static void
-Initialize(Widget    request,	/* unused */
+Initialize(Widget    request,
 	   Widget    new_w,
 	   ArgList   args,
 	   Cardinal *num_args)
@@ -513,6 +513,8 @@ Initialize(Widget    request,	/* unused */
 #endif
 
   /* Setup internal state. */
+  newcb->combo_box.compute_width = XtWidth(request) == 0;
+  newcb->combo_box.compute_height = XtHeight(request) == 0;
   CB_ShellState(newcb) = POPPED_DOWN;
   newcb->combo_box.scrolling = FALSE;
   newcb->combo_box.vsb = NULL;
@@ -704,10 +706,10 @@ InsertChild(Widget child)
 /*ARGSUSED*/
 static Boolean
 SetValues(Widget    current,
-	  Widget    request,	/* unused */
+	  Widget    request,
 	  Widget    new_w,
-	  ArgList   user_args,	/* unused */
-	  Cardinal *num_args)	/* unused */
+	  ArgList   user_args,
+	  Cardinal *num_args)
 {
   XmComboBoxWidget curcb = (XmComboBoxWidget)current;
   XmComboBoxWidget newcb = (XmComboBoxWidget)new_w;
@@ -721,6 +723,20 @@ SetValues(Widget    current,
   Cardinal	   neditbox = 0;
   Arg		   editbox_args[10];
   XmFontList	   old_render_table = NULL;
+
+  for (Cardinal i = 0; i < *num_args; ++i)
+    {
+      if (strcmp(user_args[i].name, XmNwidth) == 0)
+        {
+          newcb->combo_box.compute_width = XtWidth(request) == 0;
+          resize = dolayout = TRUE;
+        }
+      if (strcmp(user_args[i].name, XmNheight) == 0)
+        {
+          newcb->combo_box.compute_height = XtHeight(request) == 0;
+          resize = dolayout = TRUE;
+        }
+    }
 
   /* The position_mode cannot be changed after creation. */
   if (CB_PositionMode(curcb) != CB_PositionMode(newcb))
@@ -919,7 +935,11 @@ SetValues(Widget    current,
     XtSetValues(CB_EditBox(newcb), editbox_args, neditbox);
 
   if (old_render_table)
-	XmFontListFree(old_render_table);
+    {
+      _XmAppearanceInheritFont(CB_EditBox(newcb), new_w);
+      _XmAppearanceInheritFont(CB_List(newcb), new_w);
+      XmFontListFree(old_render_table);
+    }
 
 
   /* Recompute our ideal size. */
@@ -927,8 +947,8 @@ SetValues(Widget    current,
 
   if ( resize)
     {
-      if (XtIsRealized((Widget)newcb))
-          XtWidth(newcb) = XtHeight(newcb) = 0;
+      if (newcb->combo_box.compute_width) XtWidth(newcb) = 0;
+      if (newcb->combo_box.compute_height) XtHeight(newcb) = 0;
 
       ComputeSize((Widget)newcb, 0, 0, &(XtWidth(newcb)), &(XtHeight(newcb)));
     }
@@ -3003,6 +3023,12 @@ DrawArrow(Widget widget,
   if (CB_ArrowSize(cb) == XmINVALID_DIMENSION)
     CB_ArrowSize(cb) = GetDefaultArrowSize((Widget) cb);
 
+  if (_XmAppearanceDrawArrowRegion(widget,
+          CB_HitRect(cb).x, CB_HitRect(cb).y,
+          CB_HitRect(cb).width, CB_HitRect(cb).height,
+          0, XmARROW_DOWN, pressed, XtIsSensitive(widget)))
+    return;
+
   /* CR 6912: Reduce size to fit the actual space available. */
   max_height = (int) XtHeight(cb) -
     2 * ((int) CB_MarginHeight(cb) + (int) CB_HighlightThickness(cb) +
@@ -3246,6 +3272,7 @@ CreateEditBox(Widget    parent,
   if (merged_args == NULL)
     return NULL;
   text_widget = XmCreateTextField(parent, name, merged_args, *num_args + nloc);
+  _XmAppearanceInheritFont(text_widget, w);
   XtFree((char *)merged_args);
   if (item)
     XtFree(item);
@@ -3391,6 +3418,7 @@ CreateScrolledList(Widget    parent,
   XtFree((char *)merged_args);
   if (list == NULL)
     return NULL;
+  _XmAppearanceInheritFont(list, w);
   XtManageChild(list);
   CB_ScrolledW(cb) = XtParent(list);
 

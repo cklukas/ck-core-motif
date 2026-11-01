@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check value-only widgets do not advertise undispatchable actions."""
+"""Check ColorPicker actions are dispatched and RatingControl exposes its value."""
 
 from pathlib import Path
 
@@ -10,9 +10,10 @@ rating_start = source.rindex("if (XmIsRatingControl(w))")
 color = source[color_start : rating_start]
 rating = source[rating_start : source.rindex("if (XmIsInfoBar(w))")]
 
-assert "i->action_count = 0;" in color
+assert "i->action_count = 2;" in color
 assert "i->action_count = 0;" in rating
-assert "phantom action" in color
+assert "XmColorPickerCommit(n->widget" in source
+assert "XmColorPickerRevert(n->widget" in source
 assert "no action dispatcher" in rating
 
-print("value-only accessibility widgets advertise no phantom actions")
+print("ColorPicker actions and RatingControl value have matching dispatch contracts")

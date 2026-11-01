@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate ToggleButtonGadget horizontal margins against an out-of-tree build."""
+"""Validate native ToggleButtonGadget horizontal margins against a selected out-of-tree build."""
 import argparse
 import os
 from pathlib import Path

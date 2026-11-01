@@ -9,5 +9,5 @@ stepping at an extreme value could overflow before the range clamp ran.  The
 operation now uses `int64_t`, preserving the existing wrap and clamp behavior
 across 32-bit and 64-bit platforms.
 
-`tests/automated/check-stepper-arithmetic.py` keeps the fixed-width arithmetic
-in the step path.
+`tests/automated/run-stepper-native.py` exercises INT_MIN/INT_MAX
+wrapping with an INT_MAX step through the public API.

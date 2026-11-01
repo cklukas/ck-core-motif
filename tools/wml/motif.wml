@@ -294,6 +294,11 @@ EnumerationSet
           XmINDICATOR_CHECK; XmINDICATOR_CHECK_BOX;
           XmINDICATOR_CROSS; XmINDICATOR_CROSS_BOX;
           FALSE; TRUE;};
+    AppearanceRole : integer
+        { XmAPPEARANCE_ROLE_NORMAL; XmAPPEARANCE_ROLE_PAGE_TITLE;
+          XmAPPEARANCE_ROLE_SECTION; XmAPPEARANCE_ROLE_SECONDARY;
+          XmAPPEARANCE_ROLE_CODE; XmAPPEARANCE_ROLE_PRIMARY;
+          XmAPPEARANCE_ROLE_DESTRUCTIVE; };
     UnitType : integer
         { XmPIXELS; Xm100TH_MILLIMETERS; Xm1000TH_INCHES;
           Xm100TH_POINTS; Xm100TH_FONT_UNITS; XmINCHES;
@@ -845,6 +850,7 @@ Class
         Resources
             {
             ! new resources
+            XmNappearanceRole;
             XmNbottomShadowColor;
             XmNbottomShadowPixmap;
             XmNconvertCallback;
@@ -909,6 +915,10 @@ Resource
     XmNtraversalOn : Argument
         { Type = boolean;
           Default = "True"; };
+    XmNappearanceRole : Argument
+        { Type = integer;
+          EnumerationSet = AppearanceRole;
+          Default = "XmAPPEARANCE_ROLE_NORMAL"; };
     XmNunitType : Argument
         { Type = integer;
           EnumerationSet = UnitType;
@@ -945,6 +955,7 @@ Class
         Resources
             {
             ! new resources
+            XmNappearanceRole;
             XmNbackground;
             XmNhelpCallback;
             XmNhighlightOnEnter;
@@ -1101,6 +1112,7 @@ Class
             XmNbackground;
             XmNfontList;
             XmNrenderTable;
+            XmNinsensitiveForeground;
             XmNlabelInsensitivePixmap;
             XmNlabelPixmap;
             XmNlabelString;
@@ -1126,6 +1138,9 @@ Class
                     };
         };
 Resource
+    XmNinsensitiveForeground : Argument
+        { Type = color;
+          Default = "XmUNSPECIFIED_PIXEL"; };
     XmNaccelerator : Argument
         { Type = string;
           Default = "Null"; };
@@ -1576,6 +1591,7 @@ Class
             XmNalignment;
             XmNfontList;
             XmNrenderTable;
+            XmNinsensitiveForeground;
             XmNlabelInsensitivePixmap;
             XmNlabelPixmap;
             XmNlabelString;
@@ -2158,6 +2174,7 @@ Class
         Resources
             {
             ! new resources
+            XmNappearanceRole;
             XmNbottomShadowColor;
             XmNbottomShadowPixmap;
             XmNforeground;

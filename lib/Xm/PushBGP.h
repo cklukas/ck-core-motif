@@ -121,6 +121,9 @@ typedef struct _XmPushButtonGadgetPart
    
    XmPushButtonGCacheObjPart  *cache; /* Replace cache instance fields */
 					/* with a pointer */
+   Dimension default_geometry; /* Effective classic outer-frame thickness. */
+   Dimension default_reservation; /* Space actually included in each margin. */
+   Boolean pointer_inside; /* Armed drag feedback survives expose. */
 } XmPushButtonGadgetPart;
 
 /* Full instance record declaration */

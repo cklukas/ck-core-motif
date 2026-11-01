@@ -73,6 +73,7 @@ typedef struct _XmDrawnButtonPart
    int              click_count;
    Time		    armTimeStamp;
 
+   Boolean pointer_inside; /* Armed drag feedback survives expose. */
 } XmDrawnButtonPart;
 
 

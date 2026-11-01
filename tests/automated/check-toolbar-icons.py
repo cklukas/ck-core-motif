@@ -10,7 +10,7 @@ header = (root / "lib/Xm/Toolbar.h").read_text(encoding="utf-8")
 gallery = (root / "demos/programs/ckmotif-gallery/gallery_examples.c").read_text(encoding="utf-8")
 assert "XmToolbarSetActionIcons" in header
 assert "icons[i] != None" in source
-assert "XmToolbarSetActionIcons(example, icons, 4)" in gallery
+assert "gallery_bind_icons(example,NULL,icons,XtNumber(icons))" in gallery
 start = source.index("void XmToolbarSetActionIcons")
 end = source.index("\nCardinal XmToolbarGetActionCount", start)
 body = source[start:end]

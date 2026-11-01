@@ -5,6 +5,7 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Container.c").read_text(encoding="utf-8")
 start = source.rindex("ContainerDestPrehookProc(")
 region = source[start:source.index("\n}", start)]
-guard = region.index("if (wid == NULL || cs == NULL)")
+guard = region.index("wid == NULL")
+assert "cs == NULL" in region[guard:]
 assert guard < region.index("cs->selection"), "prehook reads callback data before its null guard"
 print("PASS Container destination prehook validates widget and callback inputs")

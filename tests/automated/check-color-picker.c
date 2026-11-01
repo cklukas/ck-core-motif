@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
     a = XmAccessibilityCreate(shell, "ColorPickerTest"); CHECK(a != NULL);
     id = XmAccessibilityWidget(a, picker); CHECK(id != XmACCESSIBLE_NONE);
     CHECK(XmAccessibilityQuery(a, id, &info));
-    CHECK(info.has_value && info.action_count == 0 &&
+    CHECK(info.has_value && info.action_count == 2 &&
           info.current_value == (double)0xaabbccddUL && info.value_text != NULL);
     XmAccessibleInfoClear(&info); XmAccessibilityDestroy(a); XtDestroyWidget(picker);
     printf("PASS color picker: %u checks\n", checks); return EXIT_SUCCESS;

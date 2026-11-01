@@ -407,9 +407,12 @@ apply_scale_change(Display *display, Widget root,
         }
   _XmProcessUnlock();
 
+  /* Appearance preparation can fail. Do it before legacy void callbacks so
+   * the caller can roll back scale metadata without partially changing them. */
+  success = _XmApplyAppearanceScale(display, root);
   for (i = 0; i < count; ++i) {
     XmScaleWidgetState *callback_state = callbacks[i]->state;
-    if (!callbacks[i]->retired)
+    if (success && !callbacks[i]->retired)
       callbacks[i]->proc(callback_state->widget, old_scale, new_scale,
                          callbacks[i]->closure);
     _XmProcessLock();
@@ -656,7 +659,7 @@ _XmGetGlobalDpiScale(Display *display, double *scale)
       return False;
     }
 
-  *scale = dpi / 75.0;
+  *scale = dpi / 96.0;
 
   if (owns_db)
     XrmDestroyDatabase(db);
@@ -682,6 +685,16 @@ _XmGetWidgetDpiScale(Widget widget, double *scale)
 #endif
   return widget != NULL &&
          _XmGetGlobalDpiScale(XtDisplayOfObject(widget), scale);
+}
+
+Boolean
+XmGetWidgetScale(Widget widget, double *scale_return)
+{
+  double scale = 1.0;
+  if (widget == NULL || scale_return == NULL) return False;
+  (void)_XmGetWidgetDpiScale(widget, &scale);
+  *scale_return = scale > 1.0 ? scale : 1.0;
+  return True;
 }
 
 /* Explicit application dimensions bypass this bounded default conversion. */

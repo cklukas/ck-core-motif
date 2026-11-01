@@ -21,6 +21,26 @@ typedef enum {
     XmAPPEARANCE_MODERN_DARK = 3
 } XmAppearanceProfile;
 
+/* Label and LabelGadget disabled-text color; XmUNSPECIFIED_PIXEL follows the
+ * historical bottom-shadow color. Appearance owns only unconfigured values. */
+#define XmNinsensitiveForeground "insensitiveForeground"
+#define XmCInsensitiveForeground "InsensitiveForeground"
+
+/* Semantic presentation belongs to the toolkit. The role does not change a
+ * control's interaction, callbacks or accessibility role. */
+#define XmNappearanceRole "appearanceRole"
+#define XmCAppearanceRole "AppearanceRole"
+#define XmRAppearanceRole "AppearanceRole"
+typedef enum {
+    XmAPPEARANCE_ROLE_NORMAL = 0,
+    XmAPPEARANCE_ROLE_PAGE_TITLE,
+    XmAPPEARANCE_ROLE_SECTION,
+    XmAPPEARANCE_ROLE_SECONDARY,
+    XmAPPEARANCE_ROLE_CODE,
+    XmAPPEARANCE_ROLE_PRIMARY,
+    XmAPPEARANCE_ROLE_DESTRUCTIVE
+} XmAppearanceRole;
+
 /* Density changes layout defaults in modern profiles. Classic retains its
  * traditional resource defaults. Choose startup settings before creating
  * controls; use Apply for an existing hierarchy. */

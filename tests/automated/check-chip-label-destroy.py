@@ -6,7 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Chip.c").read_text(
     encoding="utf-8"
 )
 start = source.index("static void Destroy(Widget widget)")
-end = source.index("static void label_metrics", start)
+end = source.index("typedef struct", start)
 region = source[start:end]
 
 assert "if (chip->chip.label) XmStringFree(chip->chip.label);" in region

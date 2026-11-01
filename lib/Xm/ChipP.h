@@ -19,8 +19,9 @@ typedef struct _XmChipPart {
     XtCallbackList activate_callback;
     XtCallbackList remove_callback;
     GC foreground_gc;
-    GC background_gc;
     Boolean check_set_render_table;
+    Boolean automatic_width, automatic_height;
+    unsigned char hot_target, armed_target;
 } XmChipPart;
 
 typedef struct _XmChipRec {

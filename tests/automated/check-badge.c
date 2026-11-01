@@ -29,7 +29,8 @@ int main(int argc, char **argv) {
     CHECK(info.has_value && info.current_value == 99 && info.value_text != NULL);
     XmAccessibleInfoClear(&info);
     XmAccessibilityDestroy(accessibility);
-    XtDestroyWidget(shell); XtCloseDisplay(XtDisplay(shell));
+    Display *display = XtDisplay(shell);
+    XtDestroyWidget(shell); XtCloseDisplay(display);
     XtDestroyApplicationContext(app);
     printf("PASS badge: %u checks\n", checks); return EXIT_SUCCESS;
 }

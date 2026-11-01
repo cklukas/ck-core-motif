@@ -14,9 +14,10 @@ alongside the gallery provenance.
 
 The gallery shell uses only public Xm interfaces.  Theme and DPI controls are
 wired to `XmApplyAppearanceProfile` and the public display-scale transaction
-APIs, but remain disabled by default until the toolkit qualification matrix is
-complete.  Define `CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS` only for a
-qualified build.  PrintShell
+APIs. Theme cycles through classic, modern light and modern dark. Scale cycles
+through 100%, 150%, 200%, 300% and automatic display sizing. Each activation
+reads the current public setting, so command-line overrides and external
+changes are respected without a stale local counter. PrintShell
 is conditional on PRINTING_SUPPORTED and remains visible as an unavailable
 optional capability in a print-disabled build.
 
@@ -33,6 +34,64 @@ approved temporary volume:
 
 The screenshot runner starts each component with explicit `--appearance` and
 `--scale` values. The gallery parses those values strictly and applies them
-through the public `XmApplyAppearanceProfile` and
-`XmSetDisplayScaleOverride` transactions after realization; invalid values or
+through the public `XmSetAppearanceProfile` and
+`XmSetDisplayScaleOverride` APIs before constructing the examples; invalid values or
 a failed transaction abort the scenario.
+
+Startup geometry follows the effective toolkit scale: the default 1100 by 740
+logical-pixel client is bounded to 95 percent of the current desktop work area
+(or screen when the window manager supplies no valid EWMH work area). Explicit
+Xt `-geometry` dimensions and positions remain authoritative. Width/height
+resources are also preserved. Window decorations are owned by the window manager;
+the gallery does not assume MWM-specific frame dimensions.
+
+Constrained windows present navigation as a full-width page. Use arrow keys to
+choose a leaf, then Enter to return to its example; pointer release also
+activates it. Widening restores the user's desktop sidebar preference. The
+native `--integration-responsive` mode checks transitions, content bounds,
+selection versus activation and preference restoration.
+
+The welcome page reflows its prose to the available viewport. The icon catalogue
+uses natural cell sizes and includes all nine built-in dialog symbols. Both pages
+scroll vertically when needed. To verify their wide/narrow/restore geometry:
+
+  python3 tests/automated/run-gallery-pages.py --binary ABSOLUTE_BINARY \
+    --prefix ABSOLUTE_INSTALL_PREFIX --out FRESH_OUTPUT_DIRECTORY
+
+Use --expect-no-svg for a non-SVG build. This runs the gallery's
+--integration-pages mode in classic, modern light and modern dark at three scales.
+Each run also changes the palette and scale of the existing icon widgets.
+Named image bindings own their cache references and refresh them for the target
+widget's colours and scale; classic fallback symbols retain their native aspect
+ratio. The checks verify assigned resources as well as the rendered pixels.
+
+The List and ComboBox examples request three visible rows for their three sample
+items. Their vertical size follows toolkit row metrics instead of a fixed pixel
+height or the default larger list capacity. This is sample content allocation,
+not a theme-specific style override.
+
+Live appearance qualification
+-----------------------------
+`--integration-live` applies light, dark and classic profiles, both densities
+and 1x/1.5x/2x scales to each available realized component without replacing
+its instance. It checks public state, selection, callback counts and embedded
+preview containment. Run with an explicit display through
+`tests/automated/run-gallery-integration.py --live`; the full catalogue takes
+several minutes. The default integration runner also exercises the visible
+Theme and Scale controls and verifies focus/state preservation. These checks
+do not establish complete visual/interaction acceptance for every widget.
+
+Example instructions describe the constructed example: passive labels,
+indicators and presentation controls invite Theme/Scale comparisons and do not
+reserve a callback-feedback row. Interactive examples retain their feedback;
+popup examples explain how to open their window. Compact descriptions preserve
+that distinction. The component integration matrix checks feedback visibility
+while moving between passive and interactive examples.
+
+Field examples use native RowColumn layout for captions, controls and helper
+text. Growing NumberBox validation messages participate in the layout; the
+integration matrix verifies that they do not overlap explanatory text.
+
+NumberBox feedback subscribes to invalid-input and committed-value callbacks.
+It labels the last event explicitly and retains the committed quantity when
+tentative input is rejected. Native integration checks rejection and recovery.

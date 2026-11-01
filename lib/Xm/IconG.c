@@ -33,12 +33,6 @@
 #include <limits.h>
 #include <stdint.h>
 
-static Position bounded_position(long long value)
-{
-    if (value < SHRT_MIN) return (Position)SHRT_MIN;
-    if (value > SHRT_MAX) return (Position)SHRT_MAX;
-    return (Position)value;
-}
 #include <Xm/AccColorT.h>
 #include <Xm/CareVisualT.h>
 #include <Xm/ContItemT.h>
@@ -66,6 +60,14 @@ static Position bounded_position(long long value)
 #include "XmosI.h"
 #include "IconGI.h"
 #include <Xm/XmP.h>
+
+static Position bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 
 
 /* spacing between the line and the detail string.

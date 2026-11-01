@@ -11,13 +11,12 @@ for name, padding in (("Prompt.c", "8UL"), ("Link.c", "8UL"), ("Badge.c", "12UL"
     end = tail.index("Widget XmCreate") if "Widget XmCreate" in tail else tail.index("void Xm")
     body = tail[:end]
     if name == "Prompt.c":
-        assert "padded_extent(width, 8)" in body, name
-        assert "padded_extent(height, 8)" in body, name
+        assert "natural_size(prompt" in text, name
+        assert "MIN(USHRT_MAX" in text, name
     elif name == "Link.c":
-        assert "(Dimension)-1" in body, name
-        assert "(unsigned long)(Dimension)-1 - 8UL" in body, name
+        assert "natural_size(link" in text, name
+        assert "MIN(USHRT_MAX" in text, name
     else:
-        assert "(Dimension)-1" in body, name
-        assert "size_t length;" in body, name
-        assert f"- {padding}" in body, name
+        assert "natural_size(badge" in text, name
+        assert "MIN(USHRT_MAX" in text, name
 print("text-control preferred widths are bounded")

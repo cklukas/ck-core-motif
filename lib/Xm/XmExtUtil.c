@@ -318,6 +318,12 @@ _XmSetValuesOnChildren(Widget w, ArgList args, Cardinal num_args)
         return;
     if (!XtIsSubclass(w, compositeWidgetClass))
 	return;
+    /* A profile commit owns each descendant's resources separately. Forwarding
+     * the parent's values here would overwrite explicit child resources and
+     * class-specific defaults before their own commit, or after initialization. */
+    if (_XmAppearanceDefersChildPropagation(XtDisplay(w)))
+        return;
+
 
     ForAllChildren((CompositeWidget) w, childP) {
 	XtSetValues(*childP, args, num_args);

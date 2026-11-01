@@ -12,6 +12,6 @@ function = source[start:end]
 assert "if (spinner->spinner.ring_gc)" in update
 assert "gc = spinner->spinner.ring_gc ? spinner->spinner.ring_gc" in function
 assert "if (!gc) return;" in function
-assert "int available = (int)spinner->core.height" in function
+assert "_XmAppearanceRingBounds(spinner->core.width, spinner->core.height," in function
 assert "spinner->core.width > 2 * spinner->primitive.highlight_thickness" in function
 print("PASS Spinner redisplay guards")

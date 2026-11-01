@@ -163,6 +163,7 @@ typedef struct _XmManagerPart
    XtCallbackList   popup_handler_callback;
 #endif
 
+   unsigned char appearance_role;
 } XmManagerPart;
 
 typedef struct _XmManagerRec

@@ -1624,6 +1624,10 @@ _XmRCPreferredSize(
         Dimension *w,
         Dimension *h )
 {
+   /* Nested child geometry callbacks may query or lay out this same
+    * RowColumn. Each invocation owns its array and restores its caller's. */
+   XmRCKidGeometry saved_boxes = RC_Boxes(m);
+
    Widget *q;
    int i;
    Dimension * baselines;
@@ -1751,6 +1755,7 @@ _XmRCPreferredSize(
    _XmRCThinkAboutSize (m, w, h, NULL, NULL);
 
    XtFree ((char *) RC_Boxes(m));
+   RC_Boxes(m) = saved_boxes;
 }
 
 /*
@@ -1765,6 +1770,10 @@ _XmRCAdaptToSize(
         Widget instigator,
         XtWidgetGeometry *request )
 {
+   /* Nested child geometry callbacks may query or lay out this same
+    * RowColumn. Each invocation owns its array and restores its caller's. */
+   XmRCKidGeometry saved_boxes = RC_Boxes(m);
+
    Dimension w = XtWidth (m);
    Dimension h = XtHeight (m);
    Dimension instigator_w = 0 ;
@@ -1932,7 +1941,7 @@ _XmRCAdaptToSize(
    if (RC_Boxes(m))
    {
      XtFree ( (char *) RC_Boxes(m));
-     RC_Boxes(m) = NULL;
+     RC_Boxes(m) = saved_boxes;
    }
 }
 

@@ -7,5 +7,9 @@ nav_exclude: true
 `XmString`. Allocation failure preserves the existing label, while NULL still
 explicitly clears it.
 
-The focused source regression is
-`tests/automated/check-toggle-switch-label-rollback.py`.
+The native allocation-failure regression is
+`tests/automated/run-toggle-switch-failures.py`.
+
+The native runner requires `--build` pointing to the configured build directory
+and `--out` pointing to a fresh absolute results directory. It executes the real
+widget rather than checking implementation text.

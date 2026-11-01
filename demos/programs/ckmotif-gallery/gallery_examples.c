@@ -16,52 +16,191 @@
 #include <Xm/DataGrid.h>
 #include <Xm/Calendar.h>
 #include <X11/Xlib.h>
+#include <X11/StringDefs.h>
+#include <Xm/Display.h>
+#include <math.h>
+#include <string.h>
+#include <ctype.h>
 
-static void free_toolbar_icons(Widget widget, XtPointer client, XtPointer call)
+/* Image resources are application content. Keep their cache references alive
+ * and refresh them through public APIs when their owner's colors/scale change. */
+typedef struct GalleryIcons {
+    Widget owner, hooks;
+    const char *resource;
+    const char *names[4];
+    Pixmap pixmaps[4];
+    Cardinal count;
+    unsigned logical_width, logical_height;
+    Pixel foreground, background;
+    double scale;
+    XtWorkProcId work;
+    Boolean updating, initialized;
+    struct GalleryIcons *next;
+} GalleryIcons;
+static GalleryIcons *gallery_icons;
+
+static void gallery_icon_colors(GalleryIcons *icons, Pixel *foreground, Pixel *background)
 {
-    Pixmap *icons = client;
-    unsigned int i;
-    (void)call;
-    for (i = 0; i < 4; ++i) if (icons[i]) XFreePixmap(XtDisplay(widget), icons[i]);
+    XtVaGetValues(icons->owner,XmNforeground,foreground,XmNbackground,background,NULL);
+    if (XtIsSubclass(icons->owner, xmIconButtonWidgetClass)) {
+        Boolean pressed;
+        XtVaGetValues(icons->owner,XmNset,&pressed,NULL);
+        if (pressed) XtVaGetValues(icons->owner,XmNarmColor,background,NULL);
+    }
+}
+
+static Boolean refresh_gallery_icons(XtPointer closure)
+{
+    GalleryIcons *icons = closure;
+    Pixel foreground,background;
+    double scale;
+    int depth;
+    Pixmap next[4] = {0};
+    icons->work = 0;
+    gallery_icon_colors(icons,&foreground,&background);
+    if (!XmGetWidgetScale(icons->owner,&scale)) return True;
+    if (icons->initialized && icons->foreground==foreground && icons->background==background &&
+        fabs(icons->scale-scale)<0.00001) return True;
+    XtVaGetValues(XtIsWidget(icons->owner)?icons->owner:XtParent(icons->owner),XmNdepth,&depth,NULL);
+    for (Cardinal i=0;i<icons->count;++i) {
+        next[i]=XmGetScaledPixmap(icons->owner,(char *)icons->names[i],foreground,background,depth,0.0);
+        if (next[i]==XmUNSPECIFIED_PIXMAP || next[i]==None) {
+            for(Cardinal j=0;j<i;++j) XmDestroyPixmap(XtScreenOfObject(icons->owner),next[j]);
+            XtAppWarning(XtWidgetToApplicationContext(icons->owner),"Cannot load gallery icon");
+            return True;
+        }
+    }
+    icons->updating=True;
+    if (icons->resource) XtVaSetValues(icons->owner,icons->resource,next[0],NULL);
+    else XmToolbarSetActionIcons(icons->owner,next,icons->count);
+    icons->updating=False;
+    for (Cardinal i=0;i<icons->count;++i) {
+        if(icons->initialized) XmDestroyPixmap(XtScreenOfObject(icons->owner),icons->pixmaps[i]);
+        icons->pixmaps[i]=next[i];
+    }
+    icons->foreground=foreground;icons->background=background;icons->scale=scale;
+    icons->initialized=True;
+    return True;
+}
+
+static void gallery_icon_changed(Widget hooks, XtPointer closure, XtPointer data)
+{
+    GalleryIcons *icons=closure;
+    XtChangeHookData change=data;
+    (void)hooks;
+    if (!icons->updating && !icons->work && change && change->widget==icons->owner &&
+        change->type && strcmp(change->type,XtHsetValues)==0)
+        icons->work=XtAppAddWorkProc(XtWidgetToApplicationContext(icons->owner),refresh_gallery_icons,icons);
+}
+
+static void destroy_gallery_icons(Widget owner, XtPointer closure, XtPointer data)
+{
+    GalleryIcons *icons=closure, **link=&gallery_icons;
+    (void)data;
+    if(icons->work) XtRemoveWorkProc(icons->work);
+    XtRemoveCallback(icons->hooks,XtNchangeHook,gallery_icon_changed,icons);
+    while(*link && *link!=icons)link=&(*link)->next;
+    if(*link) *link=icons->next;
+    for(Cardinal i=0;i<icons->count;++i) {
+        if(icons->initialized) XmDestroyPixmap(XtScreenOfObject(owner),icons->pixmaps[i]);
+        XtFree((char *)icons->names[i]);
+    }
     XtFree((char *)icons);
 }
 
-static void gallery_toolbar_icons(Widget widget, Pixmap icons[4])
+static void gallery_bind_sized_icons(Widget owner, const char *resource,
+                               const char *const *names, Cardinal count,
+                               unsigned width, unsigned height)
 {
-    static const unsigned char open_bits[32] = {
-        0x00,0x00,0xfc,0x1f,0x04,0x10,0x04,0x10,
-        0x04,0x10,0x04,0x10,0x04,0x10,0xfc,0x1f,
-        0x04,0x10,0x04,0x10,0x04,0x10,0x04,0x10,
-        0x04,0x10,0x04,0x10,0xfc,0x1f,0x00,0x00
-    };
-    static const unsigned char save_bits[32] = {
-        0xfc,0x1f,0x04,0x10,0x04,0x10,0xfc,0x1f,
-        0x84,0x11,0x84,0x11,0x84,0x11,0xfc,0x1f,
-        0x04,0x10,0x04,0x10,0x04,0x10,0x04,0x10,
-        0x04,0x10,0x04,0x10,0x04,0x10,0xfc,0x1f
-    };
-    static const unsigned char print_bits[32] = {
-        0x00,0x00,0xfc,0x1f,0x04,0x10,0xfc,0x1f,
-        0x04,0x10,0x04,0x10,0xfc,0x1f,0x04,0x10,
-        0xfc,0x1f,0x04,0x10,0x04,0x10,0xfc,0x1f,
-        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00
-    };
-    static const unsigned char undo_bits[32] = {
-        0x00,0x00,0x10,0x10,0x30,0x18,0x7c,0x1e,
-        0xfc,0x1f,0x7c,0x1e,0x30,0x18,0x10,0x10,
-        0x10,0x10,0x10,0x10,0x10,0x10,0x10,0x10,
-        0x10,0x10,0x10,0x10,0x10,0x10,0x10,0x10
-    };
-    Display *display = XtDisplay(widget);
-    Window root = RootWindowOfScreen(XtScreen(widget));
-    Pixel foreground, background;
-    XtVaGetValues(widget, XmNforeground, &foreground, XmNbackground, &background, NULL);
-    const unsigned char *bits[4] = {open_bits, save_bits, print_bits, undo_bits};
-    Cardinal i;
-    for (i = 0; i < 4; ++i)
-        icons[i] = XCreatePixmapFromBitmapData(display, root, (char *)bits[i],
-                                               16, 16, foreground, background,
-                                               DefaultDepthOfScreen(XtScreen(widget)));
+    GalleryIcons *icons=(GalleryIcons *)XtCalloc(1,sizeof(*icons));
+    if(!icons || count==0 || count>4) { XtFree((char *)icons);return; }
+    icons->owner=owner;icons->resource=resource;icons->count=count;
+    icons->logical_width=width;icons->logical_height=height;
+    for(Cardinal i=0;i<count;++i)icons->names[i]=XtNewString(names[i]);
+    icons->hooks=XtHooksOfDisplay(XtDisplayOfObject(owner));
+    icons->next=gallery_icons;gallery_icons=icons;
+    XtAddCallback(owner,XmNdestroyCallback,destroy_gallery_icons,icons);
+    XtAddCallback(icons->hooks,XtNchangeHook,gallery_icon_changed,icons);
+    refresh_gallery_icons(icons);
+}
+
+static void gallery_bind_icons(Widget owner, const char *resource,
+                               const char *const *names, Cardinal count)
+{
+    gallery_bind_sized_icons(owner,resource,names,count,24,24);
+}
+
+/* Discover the available representation at logical size, then let the binding
+ * own scaled cache references. Classic bitmap symbols need not be square. */
+Boolean gallery_bind_named_icon(Widget owner, const char *resource,
+                                const char *primary, const char *fallback)
+{
+    const char *names[]={primary,fallback};
+    Pixel foreground,background;
+    int depth;
+    XtVaGetValues(owner,XmNforeground,&foreground,XmNbackground,&background,NULL);
+    XtVaGetValues(XtIsWidget(owner)?owner:XtParent(owner),XmNdepth,&depth,NULL);
+    for(Cardinal i=0;i<XtNumber(names);++i) {
+        if(!names[i]) continue;
+        Pixmap probe=XmGetScaledPixmap(owner,(char *)names[i],foreground,background,depth,1.0);
+        if(probe==None || probe==XmUNSPECIFIED_PIXMAP) continue;
+        Window root;int x,y;unsigned width,height,border,pixmap_depth;
+        Boolean valid=XGetGeometry(XtDisplayOfObject(owner),probe,&root,&x,&y,
+                                   &width,&height,&border,&pixmap_depth);
+        if(valid) gallery_bind_sized_icons(owner,resource,&names[i],1,width,height);
+        XmDestroyPixmap(XtScreenOfObject(owner),probe);
+        return valid;
+    }
+    return False;
+}
+
+static void gallery_bind_icon(Widget owner, const char *resource, const char *name)
+{
+    const char *names[]={name};gallery_bind_icons(owner,resource,names,1);
+}
+
+void gallery_refresh_icon_resources(void)
+{
+    for(GalleryIcons *icons=gallery_icons;icons;icons=icons->next) {
+        if(icons->work) { XtRemoveWorkProc(icons->work);icons->work=0; }
+        refresh_gallery_icons(icons);
+    }
+}
+
+Boolean gallery_validate_icon_resources(void)
+{
+    for(GalleryIcons *icons=gallery_icons;icons;icons=icons->next) {
+        Pixel foreground,background;double scale;
+        gallery_icon_colors(icons,&foreground,&background);
+        if(!icons->initialized || !XmGetWidgetScale(icons->owner,&scale) ||
+           foreground!=icons->foreground || background!=icons->background ||
+           fabs(scale-icons->scale)>0.00001) return False;
+        if(icons->resource) {
+            Pixmap assigned=None;
+            XtVaGetValues(icons->owner,icons->resource,&assigned,NULL);
+            if(assigned!=icons->pixmaps[0]) return False;
+        }
+        for(Cardinal i=0;i<icons->count;++i) {
+            Window root;int x,y;unsigned int width=0,height=0,border,depth;
+            if(!XGetGeometry(XtDisplayOfObject(icons->owner),icons->pixmaps[i],&root,&x,&y,
+                             &width,&height,&border,&depth) ||
+               width!=(unsigned)(icons->logical_width*scale+0.5) ||
+               height!=(unsigned)(icons->logical_height*scale+0.5)) {
+                fprintf(stderr,"gallery icon size: %s actual=%ux%u logical=%ux%u scale=%g\n",
+                    icons->names[i],width,height,icons->logical_width,icons->logical_height,scale);
+                return False;
+            }
+            XImage *image=XGetImage(XtDisplayOfObject(icons->owner),icons->pixmaps[i],0,0,1,1,AllPlanes,ZPixmap);
+            if(!image) return False;
+            Boolean valid=XGetPixel(image,0,0)==background;
+            XDestroyImage(image);
+            if(!valid) {
+                fprintf(stderr,"gallery icon background mismatch: %s\n",icons->names[i]);
+                return False;
+            }
+        }
+    }
+    return True;
 }
 
 static void show_popup_example(Widget widget, XtPointer client, XtPointer call)
@@ -121,14 +260,20 @@ gallery_attach_public_callback(Widget example, XtCallbackProc callback,
         XmNtreeViewSelectionCallback, "dataGridSelectionCallback",
         XmNexpandedCallback, XmNtoolbarActivateCallback,
         "commandPaletteInvokeCallback", "rowActionsInvokeCallback",
-        XmNtoastActionCallback, XmNnumberValueChangedCallback,
+        XmNtoastActionCallback,
         XmNstepperValueChangedCallback, XmNcalendarDateChangedCallback,
         XmNdatePickerDateChangedCallback, XmNtimePickerValueChangedCallback,
         XmNratingValueChangedCallback, XmNcolorPickerValueChangedCallback,
         XmNbreadcrumbActivateCallback, XmNautoSuggestCommittedCallback,
         XmNsearchQueryChangedCallback, XmNchipRemoveCallback,
-        XmNinfoActionCallback, XmNdefaultActionCallback, XmNhelpCallback
+        XmNinfoActionCallback, XmNdefaultActionCallback, XmNpageChangedCallback, XmNtabSelectedCallback,
+        XmNhelpCallback
     };
+    if (XmIsNumberBox(example)) {
+        XtAddCallback(example, XmNnumberValueChangedCallback, callback, client_data);
+        XtAddCallback(example, XmNnumberInvalidCallback, callback, client_data);
+        return;
+    }
     unsigned int i;
     for (i = 0; i < XtNumber(names); ++i)
         if (XtHasCallbacks(example, names[i]) != XtCallbackNoList) {
@@ -136,6 +281,38 @@ gallery_attach_public_callback(Widget example, XtCallbackProc callback,
             return;
         }
 }
+
+/* GALLERY-SOURCE-BEGIN: setup xmAutoSuggestBoxWidgetClass */
+static Boolean gallery_suggestion_matches(const char *label, const char *query)
+{
+    if (!*query) return True;
+    for (; *label; ++label) {
+        size_t i = 0;
+        while (query[i] && label[i] &&
+               tolower((unsigned char)query[i]) == tolower((unsigned char)label[i])) ++i;
+        if (!query[i]) return True;
+    }
+    return False;
+}
+static void gallery_suggestions(Widget widget, XtPointer closure, XtPointer data)
+{
+    static const char *const names[] = {"Open document", "Open folder", "Open recent"};
+    static const char *const ids[] = {"document", "folder", "recent"};
+    XmAutoSuggestCallbackStruct *query = data;
+    XmAutoSuggestItem items[3];
+    Cardinal count = 0;
+    (void)closure;
+    for (Cardinal i = 0; i < XtNumber(names); ++i) {
+        if (!gallery_suggestion_matches(names[i], query->query)) continue;
+        items[count].id = ids[i];
+        items[count].label = XmStringCreateLocalized((char *)names[i]);
+        items[count].user_data = NULL;
+        ++count;
+    }
+    XmAutoSuggestBoxSetSuggestions(widget, items, count, query->generation);
+    for (Cardinal i = 0; i < count; ++i) XmStringFree(items[i].label);
+}
+/* GALLERY-SOURCE-END */
 
 Widget
 gallery_create_component_example(Widget parent, WidgetClass class,
@@ -145,64 +322,92 @@ gallery_create_component_example(Widget parent, WidgetClass class,
     XmString label = NULL;
     Widget example;
 
+    /* GALLERY-SOURCE-BEGIN: setup xmTextFieldWidgetClass xmDataFieldWidgetClass xmTextWidgetClass xmNumberBoxWidgetClass */
+    if (class == xmTextFieldWidgetClass || class == xmDataFieldWidgetClass ||
+        class == xmTextWidgetClass || class == xmNumberBoxWidgetClass) {
+        parent = XtVaCreateManagedWidget("fieldLayout", xmRowColumnWidgetClass, parent,
+            XmNorientation, XmVERTICAL, XmNpacking, XmPACK_TIGHT,
+            XmNadjustLast, False, XmNentryAlignment, XmALIGNMENT_BEGINNING, NULL);
+        sample_label(parent, "fieldLabel",
+            class == xmNumberBoxWidgetClass ? "Quantity" : "Document title");
+    }
+    /* GALLERY-SOURCE-END */
+
     /* Compound controls need a small, useful model to render anything.  Keep
      * these values in the same public construction function used by the live
      * gallery; a bare class instantiation is not a meaningful example. */
     if (class == xmChipWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmChipWidgetClass */
         label = XmStringCreateLocalized((char *)"Filter: active");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNchipLabel, label,
-                                          XmNchipRemovable, True, XmNwidth, 160, XmNheight, 36, NULL);
+                                          XmNchipRemovable, True, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmBadgeWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmBadgeWidgetClass */
         label = XmStringCreateLocalized((char *)"Notifications");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNbadgeLabel, label,
-                                          XmNbadgeCount, 3, XmNwidth, 36, XmNheight, 28, NULL);
+                                          XmNbadgeCount, 3, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmIconLabelWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmIconLabelWidgetClass */
         label = XmStringCreateLocalized((char *)"Recent document");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNiconLabelLabel, label, NULL);
+        gallery_bind_icon(example,XmNiconLabelPixmap,"action_document");
+        /* GALLERY-SOURCE-END */
     } else if (class == xmDividerWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmDividerWidgetClass */
         label = XmStringCreateLocalized((char *)"Presentation");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNdividerLabel, label,
-                                          XmNwidth, 360, XmNheight, 40, NULL);
+                                          XmNdividerLabel, label, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmAvatarWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmAvatarWidgetClass */
         label = XmStringCreateLocalized((char *)"CK");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNavatarInitials, label, XmNwidth, 48, XmNheight, 48, NULL);
+                                          XmNavatarInitials, label, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmLinkWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmLinkWidgetClass */
         label = XmStringCreateLocalized((char *)"Open documentation");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNlinkLabel, label,
                                           XmNlinkTarget, (char *)"docs", NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmPromptWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmPromptWidgetClass */
         label = XmStringCreateLocalized((char *)"Choose a component to inspect");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNpromptText, label, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmEmptyStateWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmEmptyStateWidgetClass */
         label = XmStringCreateLocalized((char *)"Nothing selected yet");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNemptyStateMessage, label, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmToggleSwitchWidgetClass) {
-        XmString switch_label = XmStringCreateLocalized((char *)"Off");
+        /* GALLERY-SOURCE-BEGIN: construction xmToggleSwitchWidgetClass */
         XmString title_label = XmStringCreateLocalized((char *)"Kitchen lights");
 
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNlabelString, title_label,
-                                          XmNset, False,
-                                          XmNwidth, 220, XmNheight, 44, NULL);
+                                          XmNset, False, NULL);
         XmStringFree(title_label);
-        XmStringFree(switch_label);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmToggleButtonWidgetClass ||
                class == xmToggleButtonGadgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmToggleButtonWidgetClass xmToggleButtonGadgetClass */
         /* Keep the familiar check-box indicator visible. */
         label = XmStringCreateLocalized((char *)"Enable notifications");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNlabelString, label,
-                                          XmNindicatorOn, True,
-                                          XmNwidth, 220, XmNheight, 44, NULL);
+                                          XmNindicatorOn, True, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmCascadeButtonWidgetClass || class == xmCascadeButtonGadgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmCascadeButtonWidgetClass xmCascadeButtonGadgetClass */
         Widget menu = XmCreatePulldownMenu(parent, "fileMenu", NULL, 0);
         const char *actions[] = {"Open document", "Save changes", "Close document"};
         unsigned int i;
@@ -216,81 +421,100 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         label = XmStringCreateLocalized((char *)"File");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNlabelString, label, XmNsubMenuId, menu, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmPushButtonWidgetClass ||
                class == xmPushButtonGadgetClass ||
                class == xmLabelWidgetClass ||
                class == xmLabelGadgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmPushButtonWidgetClass xmPushButtonGadgetClass xmLabelWidgetClass xmLabelGadgetClass */
         label = XmStringCreateLocalized((char *)"Apply changes");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNlabelString, label,
-                                          XmNwidth, 220, XmNheight, 44, NULL);
+                                          XmNlabelString, label, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmArrowButtonWidgetClass ||
                class == xmArrowButtonGadgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmArrowButtonWidgetClass xmArrowButtonGadgetClass */
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNarrowDirection, XmARROW_RIGHT,
-                                          XmNwidth, 56, XmNheight, 44, NULL);
+                                          XmNarrowDirection, XmARROW_RIGHT, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmTextWidgetClass || class == xmTextFieldWidgetClass ||
                class == xmDataFieldWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmTextWidgetClass xmTextFieldWidgetClass xmDataFieldWidgetClass */
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNvalue, (char *)"Editable sample text",
-                                          XmNcolumns, 28, XmNwidth, 360,
-                                          XmNheight, 44, NULL);
+                                          XmNcolumns, 28, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmListWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmListWidgetClass */
         XmString rows[3];
         rows[0] = XmStringCreateLocalized((char *)"First item");
         rows[1] = XmStringCreateLocalized((char *)"Second item");
         rows[2] = XmStringCreateLocalized((char *)"Third item");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNitems, rows, XmNitemCount, 3,
-                                          XmNwidth, 300, XmNheight, 110, NULL);
+                                          XmNvisibleItemCount, 3, XmNwidth, 300, NULL);
         XmStringFree(rows[0]); XmStringFree(rows[1]); XmStringFree(rows[2]);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmComboBoxWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmComboBoxWidgetClass */
         XmString rows[3];
         rows[0] = XmStringCreateLocalized((char *)"Alpha");
         rows[1] = XmStringCreateLocalized((char *)"Beta");
         rows[2] = XmStringCreateLocalized((char *)"Gamma");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNitems, rows, XmNitemCount, 3,
-                                          XmNwidth, 300, NULL);
+                                          XmNvisibleItemCount, 3, XmNwidth, 300, NULL);
         XmStringFree(rows[0]); XmStringFree(rows[1]); XmStringFree(rows[2]);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmScaleWidgetClass || class == xmScrollBarWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmScaleWidgetClass xmScrollBarWidgetClass */
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNorientation, XmHORIZONTAL, XmNminimum, 0, XmNmaximum, 100,
                                           XmNvalue, 65, XmNwidth, 320,
                                           XmNheight, 48, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmNumberBoxWidgetClass) {
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 220, XmNheight, 48, NULL);
+        /* GALLERY-SOURCE-BEGIN: construction xmNumberBoxWidgetClass */
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmNumberBoxSetRange(example, 0, 100, False);
         XmNumberBoxSetValue(example, 42, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmRatingControlWidgetClass) {
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 180, XmNheight, 36, NULL);
+        /* GALLERY-SOURCE-BEGIN: construction xmRatingControlWidgetClass */
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmRatingControlSetValue(example, 4, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmProgressBarWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmProgressBarWidgetClass */
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNwidth, 360, XmNheight, 40, NULL);
         XmProgressBarSetRange(example, 0, 100, False);
         XmProgressBarSetValue(example, 68, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmProgressRingWidgetClass) {
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 96, XmNheight, 96, NULL);
+        /* GALLERY-SOURCE-BEGIN: construction xmProgressRingWidgetClass */
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmProgressRingSetRange(example, 0, 100, False);
         XmProgressRingSetValue(example, 68, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmSpinnerWidgetClass) {
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 72, XmNheight, 72, NULL);
+        /* GALLERY-SOURCE-BEGIN: construction xmSpinnerWidgetClass */
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmSpinnerSetActive(example, True, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmStepperWidgetClass) {
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 180, XmNheight, 48, NULL);
+        /* GALLERY-SOURCE-BEGIN: construction xmStepperWidgetClass */
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmStepperSetRange(example, 0, 100, False);
         XmStepperSetValue(example, 7, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmColorPickerWidgetClass) {
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 180, XmNheight, 48, NULL);
+        /* GALLERY-SOURCE-BEGIN: construction xmColorPickerWidgetClass */
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmColorPickerSetValue(example, 0x3478d4ffUL, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmBreadcrumbBarWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmBreadcrumbBarWidgetClass */
         XmBreadcrumbSegment segments[3] = {
             {"Home", (XtPointer)"home"},
             {"Components", (XtPointer)"components"},
@@ -300,32 +524,30 @@ gallery_create_component_example(Widget parent, WidgetClass class,
                                           XmNwidth, 420, XmNheight, 44, NULL);
         XmBreadcrumbBarSetSegments(example, segments, 3);
         XmBreadcrumbBarSetCurrentIndex(example, 2, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmAutoSuggestBoxWidgetClass) {
-        XmString suggestions_text[3];
-        XmAutoSuggestItem suggestions[3];
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 360, XmNheight, 48, NULL);
-        suggestions_text[0] = XmStringCreateLocalized((char *)"Open document");
-        suggestions_text[1] = XmStringCreateLocalized((char *)"Open folder");
-        suggestions_text[2] = XmStringCreateLocalized((char *)"Open recent");
-        suggestions[0] = (XmAutoSuggestItem){"document", suggestions_text[0], NULL};
-        suggestions[1] = (XmAutoSuggestItem){"folder", suggestions_text[1], NULL};
-        suggestions[2] = (XmAutoSuggestItem){"recent", suggestions_text[2], NULL};
-        XmAutoSuggestBoxSetSuggestions(example, suggestions, 3, 1);
-        XmStringFree(suggestions_text[0]); XmStringFree(suggestions_text[1]);
-        XmStringFree(suggestions_text[2]);
+        /* GALLERY-SOURCE-BEGIN: construction xmAutoSuggestBoxWidgetClass */
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
+        XtAddCallback(example, XmNautoSuggestQueryChangedCallback, gallery_suggestions, NULL);
+        XmSearchBoxSetString(XmAutoSuggestBoxGetSearchField(example), "Open");
+        /* GALLERY-SOURCE-END */
     } else if (class == xmInfoBarWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmInfoBarWidgetClass */
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNinfoMessage, (char *)"Changes saved",
                                           XmNinfoActionLabel, (char *)"Undo",
                                           XmNwidth, 420, XmNheight, 48, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmToastWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmToastWidgetClass */
         label = XmStringCreateLocalized((char *)"Document saved successfully");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNwidth, 360, XmNheight, 64, XmNtoastMessage, label,
                                           XmNtoastTimeout, 0, NULL);
         XmToastShow(example);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmSegmentedControlWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmSegmentedControlWidgetClass */
         /* This branch is retained for callers outside the gallery's
          * specialized constructor.  It still renders real segments. */
         XmString segments[3];
@@ -336,12 +558,13 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         items[0] = (XmSegmentedControlItem){"overview", segments[0], XmUNSPECIFIED_PIXMAP, True};
         items[1] = (XmSegmentedControlItem){"details", segments[1], XmUNSPECIFIED_PIXMAP, True};
         items[2] = (XmSegmentedControlItem){"activity", segments[2], XmUNSPECIFIED_PIXMAP, True};
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 360, XmNheight, 42, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         (void)XmSegmentedControlSetItems(example, items, 3);
         XmSegmentedControlSetSelectedIndex(example, 0, False);
         XmStringFree(segments[0]); XmStringFree(segments[1]); XmStringFree(segments[2]);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmTabStackWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmTabStackWidgetClass */
         /* TabStack is a manager: an empty instance is only a frame.  Build
          * three real tab pages so the gallery shows the widget's defining
          * interaction rather than metadata or a placeholder label. */
@@ -373,7 +596,9 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         (void)page;
         XmStringFree(tab_labels[0]); XmStringFree(tab_labels[1]);
         XmStringFree(tab_labels[2]);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmToolbarWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmToolbarWidgetClass */
         XmToolbarAction actions[4];
         XmString labels[4];
         XmString shortcuts[4];
@@ -393,10 +618,8 @@ gallery_create_component_example(Widget parent, WidgetClass class,
                                           XmNwidth, 420, XmNheight, 48, NULL);
         XmToolbarSetActions(example, actions, 4);
         {
-            Pixmap *icons = (Pixmap *)XtCalloc(4, sizeof(Pixmap));
-            gallery_toolbar_icons(example, icons);
-            XmToolbarSetActionIcons(example, icons, 4);
-            XtAddCallback(example, XmNdestroyCallback, free_toolbar_icons, icons);
+            static const char *const icons[]={"action_open","action_save","action_print","action_undo"};
+            gallery_bind_icons(example,NULL,icons,XtNumber(icons));
         }
         if (callback)
             XtAddCallback(example, XmNtoolbarActivateCallback, callback, client_data);
@@ -404,7 +627,9 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         XmStringFree(labels[2]); XmStringFree(labels[3]);
         XmStringFree(shortcuts[0]); XmStringFree(shortcuts[1]);
         XmStringFree(shortcuts[2]); XmStringFree(shortcuts[3]);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmTreeViewWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmTreeViewWidgetClass */
         static const XmTreeViewNode nodes[] = {
             {(XtPointer)"root", NULL, "Project", True, True},
             {(XtPointer)"src", (XtPointer)"root", "Source", True, True},
@@ -412,11 +637,13 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             {(XtPointer)"docs", (XtPointer)"root", "Documentation", False, False}
         };
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 360, XmNheight, 140,
+                                          XmNwidth, 360,
                                           XmNtreeViewVisibleRows, 5, NULL);
         XmTreeViewSetNodes(example, nodes, XtNumber(nodes));
         XmTreeViewSetSelectedId(example, (XtPointer)"gallery", False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmDataGridWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmDataGridWidgetClass */
         static const char *const values0[] = {"Button", "Enabled", "Ready"};
         static const char *const values1[] = {"Slider", "Enabled", "65%"};
         static const char *const values2[] = {"Dialog", "Preview", "Open"};
@@ -437,12 +664,16 @@ gallery_create_component_example(Widget parent, WidgetClass class,
                            XtNumber(rows));
         XmDataGridSetSelectedCell(example, (XtPointer)"slider",
                                   (XtPointer)"value", False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmCalendarWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmCalendarWidgetClass */
         XmCalendarDate date = {2026, 10, 25};
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNwidth, 300, XmNheight, 220, NULL);
         XmCalendarSetDate(example, &date, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmMultiListWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmMultiListWidgetClass xmExt18ListWidgetClass */
         GalleryListData *data = (GalleryListData *)XtCalloc(1, sizeof(*data));
         const char *columns[] = {"Document", "Status", "Pages"};
         const char *values[3][3] = {{"Quarterly report", "Saved", "12"},
@@ -462,7 +693,9 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             XmNfirstColumnPixmaps, False, NULL);
         XtAddCallback(example, XmNdestroyCallback, free_list_data, data);
         for (column = 0; column < 3; ++column) XmStringFree(titles[column]);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmDropDownWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmCombinationBox2WidgetClass */
         XmString values[3];
         values[0] = XmStringCreateLocalized((char *)"Draft");
         values[1] = XmStringCreateLocalized((char *)"Reviewed");
@@ -474,7 +707,9 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         label = XmStringCreateLocalized((char *)"Status");
         XtVaSetValues(XmDropDownGetLabel(example), XmNlabelString, label, NULL);
         XmStringFree(values[0]); XmStringFree(values[1]); XmStringFree(values[2]);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmTabBoxWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmTabBoxWidgetClass */
         XmTabbedStackList tabs = XmTabbedStackListCreate();
         const char *names[] = {"Overview", "Details", "Activity"};
         unsigned int i;
@@ -487,7 +722,9 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNtabList, tabs, XmNwidth, 480, XmNheight, 48, NULL);
         XmTabbedStackListFree(tabs);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmOutlineWidgetClass || class == xmTreeWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmOutlineWidgetClass xmTreeWidgetClass */
         Widget root;
         XmString caption = XmStringCreateLocalized((char *)"Documents");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
@@ -503,47 +740,60 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         XtVaCreateManagedWidget("notes", xmPushButtonWidgetClass, example,
             XmNlabelString, caption, XmNparentNode, root, XmNnodeState, XmAlwaysOpen, NULL);
         XmStringFree(caption);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmIconBoxWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmIconBoxWidgetClass */
         const char *titles[] = {"Documents", "Pictures", "Archive"};
-        Pixmap *icons = (Pixmap *)XtCalloc(4, sizeof(Pixmap));
         unsigned int i;
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 480, XmNheight, 200, NULL);
-        gallery_toolbar_icons(example, icons);
-        XtAddCallback(example, XmNdestroyCallback, free_toolbar_icons, icons);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         for (i = 0; i < 3; ++i) {
             XmString caption = XmStringCreateLocalized((char *)titles[i]);
-            XtVaCreateManagedWidget(titles[i], xmIconButtonWidgetClass, example,
-                XmNlabelString, caption, XmNpixmap, icons[i],
-                XmNcellX, i, XmNcellY, 0, XmNwidth, 140, XmNheight, 72, NULL);
+            static const char *const icons[]={"action_document","action_picture","action_archive"};
+            Widget item=XtVaCreateManagedWidget(titles[i], xmIconButtonWidgetClass, example,
+                XmNlabelString, caption, XmNcellX, i, XmNcellY, 0, NULL);
+            gallery_bind_icon(item,XmNpixmap,icons[i]);
             XmStringFree(caption);
         }
+        /* GALLERY-SOURCE-END */
     } else if (class == xmIconButtonWidgetClass || class == xmIconGadgetClass ||
                class == xmIconHeaderClass || class == xmDrawnButtonWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmIconButtonWidgetClass xmIconGadgetClass xmIconHeaderClass xmDrawnButtonWidgetClass */
         label = XmStringCreateLocalized((char *)"Open document");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNlabelString, label, XmNwidth, 180, XmNheight, 48, NULL);
+            XmNlabelString, label, NULL);
+        if (class == xmIconButtonWidgetClass) gallery_bind_icon(example,XmNpixmap,"action_open");
+        else if (class == xmIconGadgetClass) gallery_bind_icon(example,XmNlargeIconPixmap,"action_document");
+        /* GALLERY-SOURCE-END */
     } else if (class == xmDatePickerWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmDatePickerWidgetClass */
         XmDatePickerDate date = {2026, 10, 25};
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNwidth, 260, XmNheight, 44, NULL);
         XmDatePickerSetDate(example, &date, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmTimePickerWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmTimePickerWidgetClass */
         XmTimePickerValue value = {14, 30, 0};
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNwidth, 260, XmNheight, 44, NULL);
         XmTimePickerSetValue(example, &value, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmStatusBarWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmStatusBarWidgetClass */
         XmStatusBarItem item = {0};
         label = XmStringCreateLocalized((char *)"All changes saved");
         item.id = "save"; item.label = label; item.kind = XmSTATUS_BAR_ITEM_TEXT;
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNwidth, 480, XmNheight, 40, NULL);
         XmStatusBarSetItems(example, &item, 1);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmDisclosureWidgetClass || class == xmSidebarWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmDisclosureWidgetClass xmSidebarWidgetClass */
         Widget content;
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 360, XmNheight, 180, NULL);
+        example = class == xmDisclosureWidgetClass ?
+            XtVaCreateManagedWidget((char *)name, class, parent, NULL) :
+            XtVaCreateManagedWidget((char *)name, class, parent,
+                XmNwidth, 360, XmNheight, 180, NULL);
         if (class == xmDisclosureWidgetClass) {
             label = XmStringCreateLocalized((char *)"Document options");
             XtVaSetValues(example, XmNlabelString, label, NULL);
@@ -557,7 +807,9 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             XmNlabelString, caption, XmNset, True, NULL);
         XmStringFree(caption);
         if (class == xmDisclosureWidgetClass) XmDisclosureSetExpanded(example, True, False);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmCommandPaletteWidgetClass || class == xmRowActionsWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmCommandPaletteWidgetClass xmRowActionsWidgetClass */
         XmString captions[3], shortcuts[3];
         const char *names[] = {"Open document", "Save changes", "Export PDF"};
         const char *keys[] = {"Ctrl+O", "Ctrl+S", "Ctrl+E"};
@@ -574,11 +826,13 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         }
         if (class == xmCommandPaletteWidgetClass) {
             XmCommandPaletteSetItems(example, commands, 3); XmCommandPaletteShow(example);
-        } else {
+    } else {
             XmRowActionsSetItems(example, actions, 3); XmRowActionsReveal(example, True);
         }
         for (i = 0; i < 3; ++i) { XmStringFree(captions[i]); XmStringFree(shortcuts[i]); }
+        /* GALLERY-SOURCE-END */
     } else if (class == xmFlyoutWidgetClass || class == xmTeachingTipWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmFlyoutWidgetClass xmTeachingTipWidgetClass */
         XmString caption = XmStringCreateLocalized((char *)(class == xmFlyoutWidgetClass ? "Show details" : "Show keyboard tip"));
         Widget trigger = XtVaCreateManagedWidget("showPopup", xmPushButtonWidgetClass, parent,
             XmNlabelString, caption, NULL);
@@ -595,46 +849,54 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             XmStringFree(title); XmStringFree(body);
         }
         XtAddCallback(trigger, XmNactivateCallback, show_popup_example, example);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmDropHighlightWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmDropHighlightWidgetClass */
         label = XmStringCreateLocalized((char *)"Drop a document here");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNdropHighlightLabel, label,
             XmNwidth, 360, XmNheight, 120, NULL);
         XmDropHighlightSetState(example, XmDROP_HIGHLIGHT_VALID);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmMessageBoxWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmMessageBoxWidgetClass */
         label = XmStringCreateLocalized((char *)"Your changes have been saved.");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNmessageString, label, XmNdialogType, XmDIALOG_INFORMATION,
-            XmNwidth, 480, XmNheight, 180, NULL);
+            XmNmessageString, label, XmNdialogType, XmDIALOG_INFORMATION, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmCommandWidgetClass || class == xmSelectionBoxWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmCommandWidgetClass xmSelectionBoxWidgetClass */
         XmString values[3];
         values[0] = XmStringCreateLocalized((char *)"Open document");
         values[1] = XmStringCreateLocalized((char *)"Save changes");
         values[2] = XmStringCreateLocalized((char *)"Export report");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 480, XmNheight, 260, XmNlistItems, values, XmNlistItemCount, 3,
-            XmNlistVisibleItemCount, 5, NULL);
+            class == xmCommandWidgetClass ? XmNhistoryItems : XmNlistItems, values,
+            class == xmCommandWidgetClass ? XmNhistoryItemCount : XmNlistItemCount, 3,
+            class == xmCommandWidgetClass ? XmNhistoryVisibleItemCount : XmNlistVisibleItemCount, 3, NULL);
         XmStringFree(values[0]); XmStringFree(values[1]); XmStringFree(values[2]);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmSeparatorWidgetClass || class == xmSeparatorGadgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmSeparatorWidgetClass xmSeparatorGadgetClass */
         sample_label(parent, "above", "Document settings");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNy, 40, XmNwidth, 360, XmNheight, 12, NULL);
         Widget below = sample_label(parent, "below", "Export options");
         XtVaSetValues(below, XmNy, 68, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmNotebookWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmNotebookWidgetClass */
         unsigned int i;
         const char *names[] = {"Overview", "Details", "Activity"};
-        const char *contents[] = {"Project overview\n\nA classic notebook groups related pages.",
-            "Document details\n\nChoose a tab to switch between these live pages.",
+        const char *contents[] = {"Project overview\n\nRelated pages in one place.",
+            "Document details\n\nSwitch pages with the tabs.",
             "Recent activity\n\nCreated document\nSaved changes\nExported report"};
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 520, XmNheight, 260, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         for (i = 0; i < 3; ++i) {
             XmString value = XmStringCreateLocalized((char *)contents[i]);
             XtVaCreateManagedWidget("page", xmLabelWidgetClass, example,
                 XmNnotebookChildType, XmPAGE, XmNpageNumber, (int)i + 1,
-                XmNlabelString, value, XmNalignment, XmALIGNMENT_BEGINNING,
-                XmNmarginWidth, 20, XmNmarginHeight, 20, NULL);
+                XmNlabelString, value, XmNalignment, XmALIGNMENT_BEGINNING, NULL);
             XmStringFree(value);
             value = XmStringCreateLocalized((char *)names[i]);
             XtVaCreateManagedWidget("tab", xmPushButtonWidgetClass, example,
@@ -643,20 +905,25 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             XmStringFree(value);
         }
         XtVaSetValues(example, XmNcurrentPageNumber, 1, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmFileSelectionBoxWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmFileSelectionBoxWidgetClass */
         XmString directory = XmStringCreateLocalized((char *)"./demos/programs/ckmotif-gallery/");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNdirectory, directory, XmNpathMode, XmPATH_MODE_RELATIVE,
-            XmNwidth, 620, XmNheight, 350,
-            XmNlistVisibleItemCount, 7, NULL);
+            XmNlistVisibleItemCount, 5, NULL);
         XmStringFree(directory);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmSearchBoxWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmSearchBoxWidgetClass */
+        label = XmStringCreateLocalized((char *)"Find a document");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 340, XmNheight, 40, NULL);
-        XmSearchBoxSetString(example, "Find a document");
+            XmNsearchPlaceholder, label, XmNcolumns, 28, NULL);
+        XmSearchBoxSetString(example, "Motif");
+        /* GALLERY-SOURCE-END */
     } else if (class == xmSpinBoxWidgetClass || class == xmSimpleSpinBoxWidgetClass) {
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 200, XmNheight, 48, NULL);
+        /* GALLERY-SOURCE-BEGIN: construction xmSpinBoxWidgetClass xmSimpleSpinBoxWidgetClass */
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         if (class == xmSimpleSpinBoxWidgetClass)
             XtVaSetValues(example, XmNspinBoxChildType, XmNUMERIC,
                 XmNminimumValue, 0, XmNmaximumValue, 100, XmNposition, 7,
@@ -665,57 +932,64 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             XtVaCreateManagedWidget("quantity", xmTextFieldWidgetClass, example,
                 XmNspinBoxChildType, XmNUMERIC, XmNminimumValue, 0,
                 XmNmaximumValue, 100, XmNposition, 7, XmNcolumns, 6, NULL);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmColumnWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmColumnWidgetClass */
         const char *captions[] = {"Document", "Status", "Owner"};
         const char *values[] = {"Quarterly report", "Draft", "Design team"};
         unsigned int i;
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 520, XmNheight, 200, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         for (i = 0; i < XtNumber(captions); ++i) {
             XmString caption = XmStringCreateLocalized((char *)captions[i]);
             XtVaCreateManagedWidget("field", xmTextFieldWidgetClass, example,
                 XmNentryLabelString, caption, XmNvalue, values[i], XmNcolumns, 28, NULL);
             XmStringFree(caption);
         }
+        /* GALLERY-SOURCE-END */
     } else if (class == xmContainerWidgetClass) {
-        Pixmap *icons = (Pixmap *)XtCalloc(4, sizeof(Pixmap));
+        /* GALLERY-SOURCE-BEGIN: construction xmContainerWidgetClass */
         Widget folder;
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNwidth, 520, XmNheight, 240, XmNlayoutType, XmOUTLINE,
             XmNentryViewType, XmSMALL_ICON, NULL);
-        gallery_toolbar_icons(example, icons);
-        XtAddCallback(example, XmNdestroyCallback, free_toolbar_icons, icons);
         label = XmStringCreateLocalized((char *)"Documents");
         folder = XtVaCreateManagedWidget("folder", xmIconGadgetClass, example,
-            XmNlabelString, label, XmNsmallIconPixmap, icons[0],
-            XmNoutlineState, XmEXPANDED, NULL);
+            XmNlabelString, label, XmNoutlineState, XmEXPANDED, NULL);
+        gallery_bind_icon(folder,XmNsmallIconPixmap,"action_open");
         const char *names[] = {"Quarterly report", "Meeting notes"};
         unsigned int i;
         for (i = 0; i < XtNumber(names); ++i) {
             XmString caption = XmStringCreateLocalized((char *)names[i]);
-            XtVaCreateManagedWidget("document", xmIconGadgetClass, example,
-                XmNlabelString, caption, XmNsmallIconPixmap, icons[i + 1],
-                XmNentryParent, folder, NULL);
+            Widget item=XtVaCreateManagedWidget("document", xmIconGadgetClass, example,
+                XmNlabelString, caption, XmNentryParent, folder, NULL);
+            gallery_bind_icon(item,XmNsmallIconPixmap,"action_document");
             XmStringFree(caption);
         }
+        /* GALLERY-SOURCE-END */
     } else if (class == xmFormWidgetClass || class == xmFrameWidgetClass ||
                class == xmBulletinBoardWidgetClass || class == xmRowColumnWidgetClass ||
                class == xmButtonBoxWidgetClass ||
                class == xmPanedWindowWidgetClass || class == xmPanedWidgetClass ||
                class == xmMainWindowWidgetClass ||
                class == xmScrolledWindowWidgetClass || class == xmFormSectionWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmFormWidgetClass xmFrameWidgetClass xmBulletinBoardWidgetClass xmRowColumnWidgetClass xmButtonBoxWidgetClass xmPanedWindowWidgetClass xmPanedWidgetClass xmMainWindowWidgetClass xmScrolledWindowWidgetClass xmFormSectionWidgetClass */
         Widget panels;
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 520, XmNheight, 260, NULL);
-        panels = XtVaCreateManagedWidget("settings", xmRowColumnWidgetClass,
-            class == xmFormSectionWidgetClass ? XmFormSectionGetContent(example) : example,
+        example = class == xmFormSectionWidgetClass ?
+            XtVaCreateManagedWidget((char *)name, class, parent, NULL) :
+            XtVaCreateManagedWidget((char *)name, class, parent,
+                XmNwidth, 520, XmNheight, 260, NULL);
+        panels = class == xmFormSectionWidgetClass ? XmFormSectionGetContent(example) :
+            XtVaCreateManagedWidget("settings", xmRowColumnWidgetClass, example,
             XmNorientation, XmVERTICAL, XmNpacking, XmPACK_TIGHT,
             XmNisAligned, False, XmNspacing, 12, XmNmarginWidth, 16,
             XmNmarginHeight, 16, NULL);
         {
             XmString value = XmStringCreateLocalized((char *)"Document settings");
-            XtVaCreateManagedWidget("sectionTitle", xmLabelWidgetClass, panels,
-                XmNlabelString, value, XmNalignment, XmALIGNMENT_BEGINNING, NULL);
+            if (class == xmFormSectionWidgetClass)
+                XtVaSetValues(example, XmNformSectionHeader, value, NULL);
+            else
+                XtVaCreateManagedWidget("sectionTitle", xmLabelWidgetClass, panels,
+                    XmNlabelString, value, XmNalignment, XmALIGNMENT_BEGINNING, NULL);
             XmStringFree(value);
             value = XmStringCreateLocalized((char *)"Document name");
             XtVaCreateManagedWidget("nameLabel", xmLabelWidgetClass, panels,
@@ -741,7 +1015,9 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             XmStringFree(preview);
             XtVaSetValues(example, XmNheight, 360, NULL);
         }
+        /* GALLERY-SOURCE-END */
     } else if (class == xmDrawingAreaWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmDrawingAreaWidgetClass */
         const char *days[] = {"Mon", "Tue", "Wed", "Thu", "Fri"};
         unsigned int i;
         example = XtVaCreateManagedWidget((char *)name, class, parent,
@@ -754,57 +1030,56 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         }
         XtAddCallback(example, XmNexposeCallback, draw_activity, NULL);
         if (callback) XtAddCallback(example, XmNinputCallback, callback, client_data);
+        /* GALLERY-SOURCE-END */
     } else if (class == xmFontSelectorWidgetClass || class == xmColorSelectorWidgetClass) {
+        /* GALLERY-SOURCE-BEGIN: construction xmFontSelectorWidgetClass xmColorSelectorWidgetClass */
         /* These legacy composites require an initial allocation before their
          * internal panes can negotiate usable child geometry. */
         example = XtVaCreateManagedWidget((char *)name, class, parent,
             XmNwidth, 720, XmNheight, 340, NULL);
+        /* GALLERY-SOURCE-END */
     } else {
+        /* GALLERY-SOURCE-BEGIN: construction * */
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNwidth, 360, XmNheight, 64, NULL);
 
+        /* GALLERY-SOURCE-END */
     }
-    {
-        Dimension width, height;
-        XtWidgetGeometry preferred = {0};
-        XtVaGetValues(example, XmNwidth, &width, XmNheight, &height, NULL);
-        if (class == xmLinkWidgetClass || class == xmPromptWidgetClass ||
-            class == xmIconLabelWidgetClass || class == xmIconBoxWidgetClass ||
-            class == xmColumnWidgetClass || class == xmDisclosureWidgetClass ||
-            class == xmFormSectionWidgetClass ||
-            width <= 1 || height <= 1) {
-            XtQueryGeometry(example, NULL, &preferred);
-            if ((preferred.request_mode & CWWidth) && preferred.width)
-                XtVaSetValues(example, XmNwidth, preferred.width, NULL);
-            if ((preferred.request_mode & CWHeight) && preferred.height)
-                XtVaSetValues(example, XmNheight, preferred.height, NULL);
-        }
-    }
+    /* GALLERY-SOURCE-BEGIN: states xmPushButtonWidgetClass xmPushButtonGadgetClass xmToggleButtonWidgetClass xmToggleButtonGadgetClass */
     if (class == xmPushButtonWidgetClass || class == xmPushButtonGadgetClass ||
         class == xmToggleButtonWidgetClass || class == xmToggleButtonGadgetClass) {
         XmString alternate = XmStringCreateLocalized((char *)"Unavailable");
-        XtVaCreateManagedWidget("disabledState", class, parent,
+        Dimension height, disabled_height, gap;
+        XmGetAppearanceSpacing(XtDisplay(parent), XmAPPEARANCE_SPACING_MEDIUM, &gap);
+        XtVaGetValues(example, XmNheight, &height, NULL);
+        Widget disabled = XtVaCreateManagedWidget("disabledState", class, parent,
             XmNlabelString, alternate, XmNsensitive, False,
-            XmNy, 64, XmNwidth, 220, XmNheight, 44, NULL);
+            XmNy, height + gap, NULL);
+        XtVaGetValues(disabled, XmNheight, &disabled_height, NULL);
         XmStringFree(alternate);
         if (class == xmToggleButtonWidgetClass || class == xmToggleButtonGadgetClass) {
             alternate = XmStringCreateLocalized((char *)"Selected option");
             Widget selected = XtVaCreateManagedWidget("selectedState", class, parent,
                 XmNlabelString, alternate, XmNset, True,
-                XmNy, 128, XmNwidth, 220, XmNheight, 44, NULL);
+                XmNy, height + disabled_height + 2 * gap, NULL);
             if (callback) XtAddCallback(selected, XmNvalueChangedCallback, callback, client_data);
+            XmStringFree(alternate);
+        } else {
+            alternate = XmStringCreateLocalized((char *)"Default action");
+            Widget primary = XtVaCreateManagedWidget("defaultState", class, parent,
+                XmNlabelString, alternate, XmNshowAsDefault, True,
+                XmNy, height + disabled_height + 2 * gap, NULL);
+            if (callback) XtAddCallback(primary, XmNactivateCallback, callback, client_data);
             XmStringFree(alternate);
         }
     }
+    /* GALLERY-SOURCE-END */
+    /* GALLERY-SOURCE-BEGIN: labels xmTextFieldWidgetClass xmDataFieldWidgetClass xmTextWidgetClass xmNumberBoxWidgetClass */
     if (class == xmTextFieldWidgetClass || class == xmDataFieldWidgetClass ||
         class == xmTextWidgetClass || class == xmNumberBoxWidgetClass) {
-        sample_label(parent, "fieldLabel", class == xmNumberBoxWidgetClass ? "Quantity" : "Document title");
-        XtVaSetValues(example, XmNy, 32, NULL);
-        Widget help = sample_label(parent, "fieldHelp", "Edit the value to see its change notification.");
-        Dimension height;
-        XtVaGetValues(example, XmNheight, &height, NULL);
-        XtVaSetValues(help, XmNy, height + 48, NULL);
+        sample_label(parent, "fieldHelp", "Edit the value to see its change notification.");
     }
+    /* GALLERY-SOURCE-END */
     if (label)
         XmStringFree(label);
     if (callback)
@@ -829,8 +1104,7 @@ gallery_create_segmented_control_example(Widget parent, const char *name,
     items[1] = (XmSegmentedControlItem){"details", labels[1], XmUNSPECIFIED_PIXMAP, True};
     items[2] = (XmSegmentedControlItem){"activity", labels[2], XmUNSPECIFIED_PIXMAP, True};
     example = XtVaCreateManagedWidget((char *)name,
-                                      xmSegmentedControlWidgetClass, parent,
-                                      XmNwidth, 360, XmNheight, 42, NULL);
+                                      xmSegmentedControlWidgetClass, parent, NULL);
     if (!XmSegmentedControlSetItems(example, items, 3)) {
         XtDestroyWidget(example);
         example = NULL;

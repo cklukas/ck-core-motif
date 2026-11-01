@@ -32,6 +32,8 @@ typedef struct _XmSegmentedControlPart {
     Dimension spacing;
     XtCallbackList selection_changed_callback;
     Boolean rebuilding;
+    Boolean compute_width, compute_height, sizing;
+    Widget geometry_child;
 } XmSegmentedControlPart;
 
 typedef struct _XmSegmentedControlRec {
@@ -43,5 +45,6 @@ typedef struct _XmSegmentedControlRec {
 } XmSegmentedControlRec;
 
 extern XmSegmentedControlClassRec xmSegmentedControlClassRec;
+extern void _XmSegmentedControlDrawFocus(Widget);
 
 #endif /* _XmSegmentedControlP_h */

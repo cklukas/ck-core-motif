@@ -50,7 +50,7 @@ def process_failure(process: subprocess.Popen[bytes], entry_id: str) -> RuntimeE
     if returncode is None:
         return None
     _, stderr = process.communicate()
-    detail = stderr.decode(errors="replace").strip()
+    detail = (stderr or b"").decode(errors="replace").strip()
     suffix = f": {detail}" if detail else ""
     return RuntimeError(
         f"{entry_id}: gallery exited with status {returncode} before capture{suffix}"
@@ -79,8 +79,15 @@ def find_window_id(xwininfo: str, env: dict[str, str], timeout: float = 10,
             if failure is not None:
                 raise failure
         remaining = max(0.1, min(1.0, deadline - time.monotonic()))
-        result = subprocess.run([xwininfo, "-root", "-tree"], env=env,
-                                capture_output=True, text=True, timeout=remaining)
+        try:
+            result = subprocess.run([xwininfo, "-root", "-tree"], env=env,
+                                    capture_output=True, text=True, timeout=remaining)
+        except subprocess.TimeoutExpired:
+            # A busy X server may miss one observation deadline while the
+            # gallery is still starting. Keep observing the same process
+            # within the overall deadline; never launch a replacement here.
+            last_error = "xwininfo observation timed out"
+            continue
         if result.returncode:
             last_error = result.stderr.strip() or "xwininfo failed"
         else:
@@ -91,8 +98,21 @@ def find_window_id(xwininfo: str, env: dict[str, str], timeout: float = 10,
                     width, height = (int(match.group(index)) for index in (2, 3))
                     if width > 1 and height > 1:
                         candidates.append((width * height, match.group(1)))
-            if candidates:
-                return max(candidates)[1]
+            for _, candidate in sorted(candidates, reverse=True):
+                if process is not None:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        break
+                    try:
+                        identity = subprocess.run(
+                            ["xprop", "-id", candidate, "_NET_WM_PID"], env=env,
+                            capture_output=True, text=True, timeout=min(1.0, remaining))
+                    except subprocess.TimeoutExpired:
+                        last_error = "window identity observation timed out"
+                        continue
+                    if f"_NET_WM_PID(CARDINAL) = {process.pid}" not in identity.stdout:
+                        continue
+                return candidate
             last_error = f"mapped {WINDOW_NAME} window not found"
         time.sleep(0.05)
     raise RuntimeError(last_error)
@@ -204,7 +224,7 @@ def main() -> int:
                     receipt["library_sha256"] = fingerprint
                 with xwd_output.open("wb") as stream:
                     capture = subprocess.run(
-                        [xwd, "-id", window_id, "-silent"], env=env,
+                        [xwd, "-id", window_id, "-silent", "-screen"], env=env,
                         stdout=stream, stderr=subprocess.PIPE, timeout=10,
                     )
                 if capture.returncode:

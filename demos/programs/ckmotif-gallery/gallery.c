@@ -2,6 +2,7 @@
 /* ckmotif-gallery: a manifest-driven native component gallery. */
 #include <stdio.h>
 #include <errno.h>
+#include <ctype.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,9 +10,10 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <X11/Xatom.h>
-#include <X11/Xft/Xft.h>
+#include <X11/keysym.h>
 #include <Xm/XmAll.h>
 #include <Xm/Sidebar.h>
+#include <Xm/SegmentedControl.h>
 #include <Xm/TreeView.h>
 #include <Xm/Notebook.h>
 #include <Xm/StatusBar.h>
@@ -30,54 +32,46 @@ extern Widget gallery_create_segmented_control_example(Widget, const char *,
                                                        XtPointer);
 extern Widget gallery_create_shell_example(Widget, WidgetClass, const char *);
 extern void gallery_destroy_component_example(Widget *);
+extern void gallery_refresh_icon_resources(void);
+extern Boolean gallery_validate_icon_resources(void);
+extern Boolean gallery_bind_named_icon(Widget, const char *, const char *, const char *);
 extern Widget gallery_create_drag_source_example(Widget, XtCallbackProc, XtPointer);
 
 typedef struct {
+    Widget viewport, canvas, clip;
+    Widget items[9];
+    const char *paragraphs[9];
+    Cardinal count;
+    Dimension measured_width;
+    Boolean grid, laying_out;
+} GalleryFlowPage;
+
+typedef struct {
+    GalleryFlowPage welcome_flow, icons_flow;
     Widget shell, sidebar, tree, notebook, welcome, example, source, icons, status;
-    Widget tabs, example_tab, source_tab, icons_tab, search, feedback, navigation_form;
+    Widget tabs, search, feedback, navigation_form;
+    Widget body, workspace, app_title, theme_note;
+    Dimension navigation_width;
+    Boolean compact_layout, desktop_navigation_expanded, updating_layout;
     int current_page;
     Widget title, provenance, action, component, component_host, source_text, preview_viewport;
     unsigned int example_serial;
     unsigned long callback_count;
     char provenance_text[768];
-    XmAppearanceProfile profile;
-    unsigned int dpi_step;
+    Widget theme_control, scale_control;
     Boolean component_is_popup, component_is_drag_source;
     Widget drag_context;
     XmAccessibility *accessibility;
     const GalleryManifestEntry *selected;
 } GalleryState;
 
+static void layout_gallery(GalleryState *state);
+static Boolean settle_gallery(GalleryState *state);
+static void close_compact_navigation(GalleryState *state);
+
 static XmString text(const char *value) { return XmStringCreateLocalized((char *)value); }
 static const char welcome_id[] = "gallery.welcome";
 static const char icons_id[] = "gallery.icons";
-
-/* Keep the tab strip legible in the light profile without relying on the
- * selected-state shadow.  ToggleButton's shadow is intentionally reserved
- * for the active tab; inactive tabs still need a quiet, one-pixel outline. */
-static Pixel gallery_tab_outline(Widget widget)
-{
-    XColor exact, screen;
-    Colormap colormap = DefaultColormapOfScreen(XtScreen(widget));
-    Pixel background;
-
-    if (XAllocNamedColor(XtDisplay(widget), colormap, "#aeb7c2",
-                         &screen, &exact))
-        return screen.pixel;
-    XtVaGetValues(widget, XmNbackground, &background, NULL);
-    return background;
-}
-
-static void style_gallery_tab(Widget tab, Pixel outline)
-{
-    /* Keep a real one-pixel border in addition to the selected-state shadow.
-     * ToggleButton only paints its shadow while armed/selected, so relying on
-     * shadow colors alone leaves inactive tabs visually frameless. */
-    XtVaSetValues(tab, XmNborderWidth, 1, XmNborderColor, outline,
-                  XmNshadowThickness, 1,
-                  XmNtopShadowColor, outline, XmNbottomShadowColor, outline,
-                  NULL);
-}
 
 /* Composite controls can negotiate larger sizes after realization or when
  * expanded. Keep their scrollable canvas in step with the actual allocation. */
@@ -101,13 +95,40 @@ static void resize_preview(GalleryState *state)
         if (right > natural_width) natural_width = right;
         if (bottom > natural_height) natural_height = bottom;
     }
+    /* RowColumn owns spacing and frame insets around its children. Their
+     * bounding box alone is not a legal preferred size for a menu bar: asking
+     * for it on each ConfigureNotify causes repeated geometry negotiation. */
+    if (XmIsRowColumn(state->component_host)) {
+        XtWidgetGeometry preferred = {0};
+        XtQueryGeometry(state->component_host, NULL, &preferred);
+        if (preferred.request_mode & CWWidth) natural_width = preferred.width;
+        if (preferred.request_mode & CWHeight) natural_height = preferred.height;
+    }
     Dimension old_width, old_height;
     XtVaGetValues(state->component_host, XmNwidth, &old_width, XmNheight, &old_height, NULL);
     if (old_width != natural_width || old_height != natural_height)
         XtVaSetValues(state->component_host, XmNwidth, natural_width,
                       XmNheight, natural_height, NULL);
-    XtVaSetValues(state->preview_viewport, XmNheight,
-        natural_height < 340 ? natural_height + 16 : 356, NULL);
+    /* Keep short examples compact; use the remaining page as the maximum
+     * viewport for large examples. The scroll frame owns its chrome metrics. */
+    Widget clip = NULL;
+    Position top;
+    Dimension page_height, feedback_height, viewport_height, clip_height;
+    int gap;
+    XtVaGetValues(state->preview_viewport, XmNy, &top, XmNheight, &viewport_height,
+                  XmNclipWindow, &clip, NULL);
+    XtVaGetValues(state->example, XmNheight, &page_height, NULL);
+    XtVaGetValues(state->feedback, XmNheight, &feedback_height, XmNtopOffset, &gap, NULL);
+    if (!XtIsManaged(state->feedback)) { feedback_height = 0; gap = 0; }
+    clip_height = viewport_height;
+    if (clip) XtVaGetValues(clip, XmNheight, &clip_height, NULL);
+    int available = (int)page_height - top - feedback_height - gap;
+    int chrome = (int)viewport_height - clip_height;
+    int wanted = (int)natural_height + (chrome > 0 ? chrome : 0);
+    if (wanted > available) wanted = available;
+    if (wanted < 1) wanted = 1;
+    if (viewport_height != wanted)
+        XtVaSetValues(state->preview_viewport, XmNheight, wanted, NULL);
 }
 
 static void preview_configured(Widget widget, XtPointer client, XEvent *event,
@@ -201,45 +222,216 @@ static void select_page(GalleryState *state, int page)
     if (state->tabs) {
         if (page == 2 || page == 3 || page == 4) XtManageChild(state->tabs);
         else XtUnmanageChild(state->tabs);
-        XmToggleButtonSetState(state->example_tab, page == 2, False);
-        XmToggleButtonSetState(state->source_tab, page == 3, False);
-        XmToggleButtonSetState(state->icons_tab, page == 4, False);
+        if (page >= 2 && page <= 4)
+            XmSegmentedControlSetSelectedIndex(state->tabs, page - 2, False);
     }
 }
 
 static void select_tab(Widget widget, XtPointer client, XtPointer call)
 {
     GalleryState *state = client;
-    (void)call;
-    select_page(state, widget == state->source_tab ? 3 :
-                widget == state->icons_tab ? 4 : 2);
+    XmSegmentedControlCallbackStruct *selection = call;
+    (void)widget;
+    if (selection && selection->selected_index >= 0)
+        select_page(state, selection->selected_index + 2);
+}
+
+static int verify_view_navigation(GalleryState *state)
+{
+    const int indices[] = {1, 2, 0};
+    Widget pages[] = {state->example, state->source, state->icons};
+    if (!state->example || !state->source) return 0;
+    for (unsigned i = 0; i < XtNumber(indices); ++i) {
+        int index = indices[i];
+        if (!XmSegmentedControlSetSelectedIndex(state->tabs, index, True) ||
+            state->current_page != index + 2 || !XtIsManaged(pages[index])) {
+            fprintf(stderr, "gallery: view navigation did not select page %d\n", index + 2);
+            return 1;
+        }
+        for (unsigned j = 0; j < XtNumber(pages); ++j)
+            if ((int)j != index && XtIsManaged(pages[j])) return 1;
+        if (index == 1) {
+            int mode;
+            Widget vertical = NULL;
+            Position x, y;
+            Dimension height;
+            if (!settle_gallery(state)) return 1;
+            XtVaGetValues(state->source_text, XmNeditMode, &mode, XmNheight, &height, NULL);
+            XtVaGetValues(XtParent(state->source_text), XmNverticalScrollBar, &vertical, NULL);
+            if (mode != XmMULTI_LINE_EDIT || !vertical || !XtIsManaged(vertical)) {
+                fprintf(stderr, "gallery: source view has no multiline vertical scrolling\n");
+                return 1;
+            }
+            XmTextPosition last = XmTextGetLastPosition(state->source_text);
+            if (last > 0) {
+                XmTextShowPosition(state->source_text, last-1);
+                if (!settle_gallery(state) ||
+                    !XmTextPosToXY(state->source_text, last-1, &x, &y) || y < 0 || y >= height) {
+                    fprintf(stderr, "gallery: final source line is unreachable\n");
+                    return 1;
+                }
+                XmTextShowPosition(state->source_text, 0);
+            }
+        }
+    }
+    return 0;
 }
 
 static Widget create_page(Widget parent, const char *name)
 {
     return XtVaCreateWidget(name, xmFormWidgetClass, parent,
         XmNmarginWidth, 24, XmNmarginHeight, 24,
-        XmNshadowThickness, 0, XmNborderWidth, 0,
         XmNtopAttachment, XmATTACH_FORM, XmNbottomAttachment, XmATTACH_FORM,
         XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM, NULL);
 }
 
+/* XmLabel accepts explicit line breaks. Keep the source prose immutable and
+ * derive its lines from the actual render table, preserving UTF-8 word bytes.
+ * A word wider than the viewport stays intact on the scrollable canvas. */
+static XmString flow_text(Widget label, const char *source, Dimension available)
+{
+    char *copy = XtNewString(source), *line = copy, *word = copy;
+    XmRenderTable table = NULL;
+    XtVaGetValues(label, XmNrenderTable, &table, NULL);
+    while (*word) {
+        while (*word == ' ' || *word == '\t') ++word;
+        if (*word == '\n') { line = ++word; continue; }
+        if (!*word) break;
+        char *end = word;
+        while (*end && *end != ' ' && *end != '\t' && *end != '\n') ++end;
+        char saved = *end;
+        *end = '\0';
+        XmString candidate = text(line);
+        Dimension width = 0, height = 0;
+        if (table) XmStringExtent(table, candidate, &width, &height);
+        XmStringFree(candidate);
+        *end = saved;
+        if (width > available && word > line) {
+            word[-1] = '\n';
+            line = word;
+        }
+        word = end;
+    }
+    XmString result = text(copy);
+    XtFree(copy);
+    return result;
+}
+
+static void layout_flow_page(GalleryFlowPage *flow)
+{
+    Dimension available, gap = 0;
+    unsigned int width = 1, height = 0;
+    if (!flow->clip || !flow->count || flow->laying_out) return;
+    XtVaGetValues(flow->clip, XmNwidth, &available, NULL);
+    if (available == flow->measured_width) return;
+    flow->laying_out = True;
+    flow->measured_width = available;
+    (void)XmGetAppearanceSpacing(XtDisplay(flow->canvas), XmAPPEARANCE_SPACING_MEDIUM, &gap);
+    if (flow->grid) {
+        unsigned int cell_width = 1, image_height = 1, caption_height = 1;
+        Dimension image_gap = 0;
+        (void)XmGetAppearanceSpacing(XtDisplay(flow->canvas), XmAPPEARANCE_SPACING_XS, &image_gap);
+        for (Cardinal i = 0; i < flow->count; ++i) {
+            Widget picture = XtNameToWidget(flow->items[i],"bitmap");
+            if (!picture) picture = XtNameToWidget(flow->items[i],"description");
+            Widget caption = XtNameToWidget(flow->items[i],"name");
+            XtWidgetGeometry preferred = {0};
+            XtQueryGeometry(picture, NULL, &preferred);
+            if (preferred.width > cell_width) cell_width = preferred.width;
+            if (preferred.height > image_height) image_height = preferred.height;
+            XtQueryGeometry(caption, NULL, &preferred);
+            if (preferred.width > cell_width) cell_width = preferred.width;
+            if (preferred.height > caption_height) caption_height = preferred.height;
+        }
+        unsigned int cell_height = image_height + image_gap + caption_height;
+        for (Cardinal i = 0; i < flow->count; ++i) {
+            Widget picture = XtNameToWidget(flow->items[i],"bitmap");
+            if (!picture) picture = XtNameToWidget(flow->items[i],"description");
+            Widget caption = XtNameToWidget(flow->items[i],"name");
+            XtVaSetValues(caption, XmNtopOffset, image_height + image_gap, NULL);
+            XtVaSetValues(picture, XmNbottomOffset, image_gap, NULL);
+        }
+        unsigned int columns = (available + gap) / (cell_width + gap);
+        if (!columns) columns = 1;
+        if (columns > 3) columns = 3;
+        unsigned int rows = (flow->count + columns - 1) / columns;
+        for (Cardinal i = 0; i < flow->count; ++i)
+            XtVaSetValues(flow->items[i], XmNx, (i % columns) * (cell_width + gap),
+                XmNy, (i / columns) * (cell_height + gap),
+                XmNwidth, cell_width, XmNheight, cell_height, NULL);
+        width = columns * cell_width + (columns - 1) * gap;
+        height = rows * cell_height + (rows - 1) * gap;
+    } else {
+        for (Cardinal i = 0; i < flow->count; ++i) {
+            Dimension margin, left, right, shadow, highlight;
+            XtVaGetValues(flow->items[i], XmNmarginWidth, &margin,
+                XmNmarginLeft, &left, XmNmarginRight, &right,
+                XmNshadowThickness, &shadow, XmNhighlightThickness, &highlight, NULL);
+            unsigned int inset = 2U * (margin + shadow + highlight) + left + right;
+            XmString lines = flow_text(flow->items[i], flow->paragraphs[i],
+                                      available > inset ? available - inset : 1);
+            XtVaSetValues(flow->items[i], XmNlabelString, lines, NULL);
+            XmStringFree(lines);
+            XtWidgetGeometry preferred = {0};
+            XtQueryGeometry(flow->items[i], NULL, &preferred);
+            XtVaSetValues(flow->items[i], XmNx, 0, XmNy, height,
+                XmNwidth, preferred.width, XmNheight, preferred.height, NULL);
+            if (preferred.width > width) width = preferred.width;
+            height += preferred.height + (i + 1 < flow->count ? gap : 0);
+        }
+    }
+    XtVaSetValues(flow->canvas, XmNwidth, width, XmNheight, height ? height : 1, NULL);
+    flow->laying_out = False;
+}
+
+static void flow_configured(Widget widget, XtPointer client, XEvent *event,
+                            Boolean *dispatch)
+{
+    GalleryFlowPage *flow = client;
+    (void)dispatch;
+    if (event->type == ConfigureNotify || event->type == MapNotify) {
+        if (widget != flow->clip) flow->measured_width = 0;
+        layout_flow_page(flow);
+    }
+}
+
+static void create_flow_page(Widget page, Widget heading, GalleryFlowPage *flow)
+{
+    flow->viewport = XtVaCreateManagedWidget("pageViewport", xmScrolledWindowWidgetClass,
+        page, XmNscrollingPolicy, XmAUTOMATIC,
+        XmNtopAttachment, heading ? XmATTACH_WIDGET : XmATTACH_FORM,
+        XmNtopWidget, heading, XmNtopOffset, heading ? 16 : 0,
+        XmNbottomAttachment, XmATTACH_FORM, XmNleftAttachment, XmATTACH_FORM,
+        XmNrightAttachment, XmATTACH_FORM, NULL);
+    flow->canvas = XtVaCreateManagedWidget("pageCanvas", xmBulletinBoardWidgetClass,
+        flow->viewport, XmNresizePolicy, XmRESIZE_ANY,
+        XmNmarginWidth, 0, XmNmarginHeight, 0, NULL);
+    XtVaGetValues(flow->viewport, XmNclipWindow, &flow->clip, NULL);
+    XtAddEventHandler(flow->clip, StructureNotifyMask, False, flow_configured, flow);
+}
+
 static void create_welcome(GalleryState *state)
 {
-    Widget column;
+    static const struct { const char *role, *value; } copy[] = {
+        {"pageTitle", "Explore Motif"},
+        {"intro", "A working reference for classic and contemporary desktop controls."},
+        {"sectionTitle", "Start with a component"},
+        {"intro", "Open navigation to browse a category or search by component name. Try each example and inspect its source."},
+        {"sectionTitle", "Built for exploration"},
+        {"intro", "Buttons & Selection: actions, toggles and value controls\nText & Input: editing, search and suggestions\nData Views: lists, trees, calendars and tables\nLayout: forms, panes and page containers"},
+        {"sectionTitle", "Familiar details, clearer presentation"},
+        {"intro", "Raised buttons, inset fields and explicit keyboard focus preserve Motif's character. Use Tab to move between controls and the arrow keys inside lists and trees."}
+    };
     state->welcome = create_page(state->notebook, "welcomePage");
-    column = XtVaCreateManagedWidget("welcomeContent", xmRowColumnWidgetClass,
-        state->welcome, XmNorientation, XmVERTICAL, XmNpacking, XmPACK_TIGHT,
-        XmNisAligned, False, XmNspacing, 16,
-        XmNtopAttachment, XmATTACH_FORM, XmNleftAttachment, XmATTACH_FORM, NULL);
-    gallery_label(column, "pageTitle", "Explore Motif");
-    gallery_label(column, "intro", "A working reference for classic and contemporary desktop controls.");
-    gallery_label(column, "sectionTitle", "Start with a component");
-    gallery_label(column, "intro", "Browse a category or search by component name on the left.\nOperate each example directly and inspect the source used to create it.");
-    gallery_label(column, "sectionTitle", "Built for exploration");
-    gallery_label(column, "intro", "Buttons & Selection: actions, toggles and value controls\nText & Input: editing, search and suggestions\nData Views: lists, trees, calendars and tables\nLayout: forms, panes and page containers");
-    gallery_label(column, "sectionTitle", "Familiar details, clearer presentation");
-    gallery_label(column, "intro", "Raised buttons, inset fields and explicit keyboard focus preserve Motif's character.\nUse Tab to move between controls and the arrow keys inside lists and trees.");
+    GalleryFlowPage *flow = &state->welcome_flow;
+    create_flow_page(state->welcome, NULL, flow);
+    for (Cardinal i = 0; i < XtNumber(copy); ++i) {
+        flow->items[i] = gallery_label(flow->canvas, copy[i].role, copy[i].value);
+        flow->paragraphs[i] = copy[i].value;
+        XtAddEventHandler(flow->items[i], StructureNotifyMask, False, flow_configured, flow);
+    }
+    flow->count = XtNumber(copy);
+    layout_flow_page(flow);
 }
 
 static void center_shell_frame(Widget shell) {
@@ -363,12 +555,28 @@ static void component_activate(Widget widget, XtPointer client, XtPointer call)
         if (XmIsToggleButton(widget))
             snprintf(message, sizeof(message), "Selection: %s", XmToggleButtonGetState(widget) ? "on" : "off");
         else if (XmIsNumberBox(widget))
-            snprintf(message, sizeof(message), "Quantity: %d", XmNumberBoxGetValue(widget));
+            snprintf(message, sizeof(message), XmNumberBoxIsInvalid(widget) ?
+                "Last event: input rejected; committed quantity: %d" :
+                "Last event: committed quantity: %d", XmNumberBoxGetValue(widget));
         else if (XmIsStepper(widget))
             snprintf(message, sizeof(message), "Value: %d", XmStepperGetValue(widget));
         else if (XmIsRatingControl(widget))
             snprintf(message, sizeof(message), "Rating: %d", XmRatingControlGetValue(widget));
-        else if (XmIsTextField(widget)) {
+        else if (XmIsTabStack(widget)) {
+            Widget selected = XmTabStackGetSelectedTab(widget);
+            XmString caption = NULL;
+            char *value = NULL;
+            if (selected) XtVaGetValues(selected, XmNtabLabelString, &caption, NULL);
+            if (caption) XmStringGetLtoR(caption, XmFONTLIST_DEFAULT_TAG, &value);
+            snprintf(message, sizeof(message), "Current tab: %.120s",
+                     value ? value : selected ? XtName(selected) : "none");
+            XtFree(value);
+            if (caption) XmStringFree(caption);
+        } else if (XmIsNotebook(widget)) {
+            int page;
+            XtVaGetValues(widget, XmNcurrentPageNumber, &page, NULL);
+            snprintf(message, sizeof(message), "Current page: %d", page);
+        } else if (XmIsTextField(widget)) {
             char *value = XmTextFieldGetString(widget);
             snprintf(message, sizeof(message), "Current value: %.120s", value ? value : "");
             XtFree(value);
@@ -418,7 +626,19 @@ static Boolean invoke_component_callback(Widget component, GalleryState *state)
 {
     if (!component)
         return False;
-    if (XtHasCallbacks(component, XmNactivateCallback) == XtCallbackHasSome)
+    if (XmIsTabStack(component)) {
+        Widget selected = XmTabStackGetSelectedTab(component);
+        Widget first = XmTabStackIndexToWidget(component, 0);
+        Widget next = XmTabStackIndexToWidget(component, 1);
+        if (!first || !next) return False;
+        XmTabStackSelectTab(selected == first ? next : first, True);
+    } else if (XmIsNotebook(component)) {
+        int current, first, last;
+        XtVaGetValues(component, XmNcurrentPageNumber, &current,
+                      XmNfirstPageNumber, &first, XmNlastPageNumber, &last, NULL);
+        XtVaSetValues(component, XmNcurrentPageNumber,
+                      current < last ? current + 1 : first, NULL);
+    } else if (XtHasCallbacks(component, XmNactivateCallback) == XtCallbackHasSome)
         XtCallCallbacks(component, XmNactivateCallback, NULL);
     else if (XtHasCallbacks(component, XmNvalueChangedCallback) == XtCallbackHasSome)
         XtCallCallbacks(component, XmNvalueChangedCallback, NULL);
@@ -430,6 +650,39 @@ static Boolean invoke_component_callback(Widget component, GalleryState *state)
     return True;
 }
 
+/* These examples present data without a user action. This describes the
+ * constructed example, not whether a class can expose optional actions. */
+static Boolean passive_example(const GalleryManifestEntry *entry)
+{
+    WidgetClass class = entry->class;
+    return class && (class == xmAvatarWidgetClass || class == xmBadgeWidgetClass ||
+        class == xmDividerWidgetClass || class == xmIconLabelWidgetClass ||
+        class == xmPromptWidgetClass || class == xmEmptyStateWidgetClass ||
+        class == xmLabelWidgetClass || class == xmLabelGadgetClass ||
+        class == xmSeparatorWidgetClass || class == xmSeparatorGadgetClass ||
+        class == xmProgressBarWidgetClass || class == xmProgressRingWidgetClass ||
+        class == xmSpinnerWidgetClass || class == xmSkeletonWidgetClass ||
+        class == xmStatusBarWidgetClass);
+}
+
+static const char *example_description(const GalleryManifestEntry *entry, Boolean compact)
+{
+    if (!entry->constructible)
+        return compact ? "Toolkit service. See Source." :
+            "Infrastructure class: used by the toolkit rather than placed in a layout.";
+    if (!entry->class)
+        return compact ? "Unavailable in this build. See Source." :
+            "This optional component is not available in this build.";
+    if (passive_example(entry))
+        return compact ? "Preview: Theme / Scale." :
+            "A display-only example. Use Theme and Scale to compare its appearance.";
+    if (entry->popup_shell)
+        return compact ? "Open the example window below." :
+            "Open the example window to explore this component.";
+    return compact ? "Explore the example below." :
+        "Explore the example below. Select Source to see how it is constructed.";
+}
+
 static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
 {
     Widget anchor;
@@ -438,10 +691,7 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     state->selected = entry;
     expand_entry_category(state->tree, entry);
     XmTreeViewSetSelectedId(state->tree, (XtPointer)entry->id, False);
-    snprintf(details, sizeof(details), "%s", !entry->constructible ?
-             "Infrastructure class: used by the toolkit rather than placed in a layout." :
-             !entry->class ? "This optional component is not available in this build." :
-             "Try the control below. Changes are reported beneath the example.");
+    snprintf(details, sizeof(details), "%s", example_description(entry, False));
     strncpy(state->provenance_text, details, sizeof(state->provenance_text) - 1);
     state->provenance_text[sizeof(state->provenance_text) - 1] = '\0';
     select_page(state, 2);
@@ -459,16 +709,19 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
             XmNtopWidget, state->provenance, XmNtopOffset, 16,
             XmNleftAttachment, XmATTACH_FORM, NULL);
         XtAddCallback(state->action, XmNactivateCallback, component_activate, state);
-        state->feedback = gallery_label(state->example, "feedback", "Ready for interaction");
+        state->feedback = gallery_label(state->example, "feedback", "");
         XtVaSetValues(state->feedback, XmNtopAttachment, XmATTACH_WIDGET,
-            XmNtopWidget, state->provenance, XmNtopOffset, 24,
+            XmNtopWidget, state->provenance, XmNtopOffset, 16,
             XmNleftAttachment, XmATTACH_FORM, NULL);
+        XtAddEventHandler(state->example, StructureNotifyMask, False,
+                          preview_configured, state);
         state->source = create_page(state->notebook, "sourcePage");
         {
-            Arg args[1];
+            Arg args[2];
             XtSetArg(args[0], XmNeditable, False);
+            XtSetArg(args[1], XmNeditMode, XmMULTI_LINE_EDIT);
             state->source_text = XmCreateScrolledText(
-                state->source, (char *)"sourceText", args, 1);
+                state->source, (char *)"sourceText", args, 2);
             XtManageChild(state->source_text);
             XtVaSetValues(XtParent(state->source_text),
                           XmNtopAttachment, XmATTACH_FORM,
@@ -486,7 +739,11 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
         XmString label;
         snprintf(description, sizeof(description), "%s\n\n%s", entry->class_symbol, details);
         label = text(description);
-        XtVaSetValues(state->provenance, XmNlabelString, label, NULL);
+        XmString current = NULL;
+        XtVaGetValues(state->provenance, XmNlabelString, &current, NULL);
+        if (!XmStringCompare(current, label))
+            XtVaSetValues(state->provenance, XmNlabelString, label, NULL);
+        XmStringFree(current);
         XmStringFree(label);
     }
     XtUnmanageChild(state->action);
@@ -494,6 +751,11 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
         XmDragCancel(state->drag_context);
         state->drag_context = NULL;
     }
+    /* Detach dependents before removing their anchor: Form otherwise preserves
+     * the old absolute position by rewriting the attachment offset. */
+    XtVaSetValues(state->feedback, XmNtopWidget, state->provenance,
+                  XmNtopOffset, 16, NULL);
+    XtVaSetValues(state->action, XmNtopWidget, state->provenance, NULL);
     if (state->component)
         gallery_destroy_component_example(&state->component);
     if (state->preview_viewport) {
@@ -533,10 +795,13 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
                 row_column_type = XmMENU_BAR;
             state->preview_viewport = XtVaCreateManagedWidget("previewViewport",
                 xmScrolledWindowWidgetClass, state->example,
-                XmNscrollingPolicy, XmAUTOMATIC, XmNshadowThickness, 0,
-                XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state->provenance,
+                XmNscrollingPolicy, XmAUTOMATIC,                 XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state->provenance,
                 XmNtopOffset, 24, XmNleftAttachment, XmATTACH_FORM,
-                XmNrightAttachment, XmATTACH_FORM, XmNheight, 300, NULL);
+                XmNrightAttachment, XmATTACH_FORM,
+                XmNbottomAttachment, XmATTACH_NONE, NULL);
+            XtVaSetValues(state->feedback, XmNtopWidget, state->preview_viewport, NULL);
+            XtAddEventHandler(state->preview_viewport, StructureNotifyMask, False,
+                              preview_configured, state);
             if (row_column_type == XmMENU_BAR)
                 state->component_host = XtVaCreateManagedWidget(
                     "componentHost", xmRowColumnWidgetClass, state->preview_viewport,
@@ -546,7 +811,7 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
                 state->component_host = XtVaCreateManagedWidget(
                     "componentHost", xmBulletinBoardWidgetClass, state->preview_viewport,
                     XmNresizePolicy, XmRESIZE_ANY, XmNmarginWidth, 0,
-                    XmNmarginHeight, 0, XmNshadowThickness, 0, NULL);
+                    XmNmarginHeight, 0, NULL);
             if (!strcmp(entry->class_symbol, "xmSegmentedControlWidgetClass"))
                 state->component = gallery_create_segmented_control_example(
                     state->component_host, name, component_activate, state);
@@ -567,7 +832,7 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     }
     XtVaSetValues(state->action, XmNtopWidget, anchor, NULL);
     XtVaSetValues(state->feedback, XmNtopWidget,
-        state->component_is_popup ? state->action : anchor, NULL);
+                  state->component_is_popup ? state->action : anchor, XmNtopOffset, 16, NULL);
     if (state->component_is_popup) {
         XmString label = text("Open example window");
         XtVaSetValues(state->action, XmNlabelString, label, NULL);
@@ -578,9 +843,11 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
         XmString label = text(!entry->constructible ?
             "This class provides services to other widgets. See Source for its public construction contract." :
             !entry->class ? "See Source for the optional component's construction contract." :
-            "Ready for interaction");
+            passive_example(entry) ? "" : "Ready for interaction");
         XtVaSetValues(state->feedback, XmNlabelString, label, NULL);
         XmStringFree(label);
+        if (passive_example(entry)) XtUnmanageChild(state->feedback);
+        else XtManageChild(state->feedback);
     }
     XmTextSetString(state->source_text, (char *)source_for(entry));
     /* Select the live example after both component pages exist. */
@@ -588,50 +855,46 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
     if (entry->constructible && !entry->class)
         set_status(state, "Selected component; optional example unavailable in this build");
     else
-        set_status(state, "Use Tab to move between controls. Open Source to inspect the example.");
+        set_status(state, "Tab: move focus | Source: view code");
+    layout_gallery(state);
 }
 
 static void theme_control(Widget widget, XtPointer client, XtPointer call)
 {
     GalleryState *state = (GalleryState *)client;
+    XmAppearanceProfile current;
     (void)widget; (void)call;
-#ifdef CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS
-    XmAppearanceProfile next = (XmAppearanceProfile)
-        ((state->profile + 1) % (XmAPPEARANCE_MODERN_DARK + 1));
+    if (!XmGetAppearanceProfile(XtDisplay(state->shell), &current)) return;
+    XmAppearanceProfile next = current == XmAPPEARANCE_CLASSIC ?
+        XmAPPEARANCE_MODERN_LIGHT : current == XmAPPEARANCE_MODERN_LIGHT ?
+        XmAPPEARANCE_MODERN_DARK : XmAPPEARANCE_CLASSIC;
     if (XmApplyAppearanceProfile(XtDisplay(state->shell), next)) {
-        state->profile = next;
-        set_status(state, "Appearance profile applied through the public live API");
-    } else {
-        set_status(state, "Appearance profile transaction failed; state preserved");
-    }
-#else
-    set_status(state, "Theme control pending toolkit live-transaction qualification");
-#endif
+        set_status(state, next == XmAPPEARANCE_CLASSIC ? "Theme: Classic" :
+            next == XmAPPEARANCE_MODERN_LIGHT ? "Theme: Modern light" : "Theme: Modern dark");
+        layout_gallery(state);
+    } else set_status(state, "Theme change failed; previous settings retained");
 }
 
 static void dpi_control(Widget widget, XtPointer client, XtPointer call)
 {
     GalleryState *state = (GalleryState *)client;
+    static const double scales[] = {1.0, 1.5, 2.0, 3.0};
+    double current = 0.0;
+    Display *display = XtDisplay(state->shell);
     (void)widget; (void)call;
-#ifdef CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS
-    static const double scales[] = { 1.0, 1.5, 2.0, 3.0 };
-    ++state->dpi_step;
-    if (state->dpi_step >= XtNumber(scales)) {
-        if (XmClearDisplayScaleOverride(XtDisplay(state->shell))) {
-            state->dpi_step = 0;
-            set_status(state, "DPI override cleared through the public live API");
-        } else {
-            set_status(state, "DPI transaction failed; state preserved");
-        }
-    } else if (XmSetDisplayScaleOverride(XtDisplay(state->shell),
-                                          scales[state->dpi_step])) {
-        set_status(state, "DPI override applied through the public live API");
-    } else {
-        set_status(state, "DPI transaction failed; state preserved");
-    }
-#else
-    set_status(state, "DPI control pending toolkit live-transaction qualification");
-#endif
+    Boolean overridden = XmGetDisplayScaleOverride(display, &current);
+    unsigned next = 0;
+    if (overridden)
+        while (next < XtNumber(scales) && scales[next] <= current + 0.001) ++next;
+    Boolean changed = next == XtNumber(scales) ? XmClearDisplayScaleOverride(display) :
+        XmSetDisplayScaleOverride(display, scales[next]);
+    if (changed) {
+        char status[80];
+        if (next == XtNumber(scales)) strcpy(status, "Scale: Automatic");
+        else snprintf(status, sizeof(status), "Scale: %.0f%%", scales[next] * 100);
+        set_status(state, status);
+        layout_gallery(state);
+    } else set_status(state, "Scale change failed; previous settings retained");
 }
 
 static int exercise_component_matrix(GalleryState *state)
@@ -651,6 +914,10 @@ static int exercise_component_matrix(GalleryState *state)
          * tree, but keep the matrix deterministic for toolkit test doubles. */
         if (state->selected != entry)
             show_entry(state, entry);
+        if (XtIsManaged(state->feedback) == passive_example(entry)) {
+            fprintf(stderr, "gallery integration: inappropriate feedback for %s\n", entry->id);
+            return 1;
+        }
         if (state->preview_viewport) {
             XtAppContext app = XtWidgetToApplicationContext(state->shell);
             unsigned int events = 0;
@@ -679,6 +946,77 @@ static int exercise_component_matrix(GalleryState *state)
                 return 1;
             }
         }
+        if (entry->class == xmTreeViewWidgetClass) {
+            Dimension row, height;
+            XtVaGetValues(state->component, XmNtreeViewRowHeight, &row,
+                XmNheight, &height, NULL);
+            if (row == 0 || (unsigned long)row * 4 > height) {
+                fprintf(stderr, "gallery integration: TreeView sample rows clipped row=%u height=%u\n", row, height);
+                return 1;
+            }
+        }
+        if (entry->class == xmListWidgetClass || entry->class == xmComboBoxWidgetClass) {
+            Widget list = state->component;
+            int visible;
+            Position x, y;
+            Dimension row_width, row_height, list_height;
+            if (entry->class == xmComboBoxWidgetClass)
+                XtVaGetValues(state->component, XmNlist, &list, NULL);
+            if (!list) return 1;
+            XtVaGetValues(list, XmNvisibleItemCount, &visible, XmNheight, &list_height, NULL);
+            if (visible != 3 || !XmListPosToBounds(list, 3, &x, &y, &row_width, &row_height) ||
+                y < 0 || (unsigned)y + row_height > list_height) {
+                fprintf(stderr, "gallery integration: three-row sample geometry invalid for %s\n", entry->id);
+                return 1;
+            }
+        }
+        if (entry->class == xmNumberBoxWidgetClass) {
+            Widget number=state->component, layout=XtParent(number);
+            Widget help=XtNameToWidget(layout,"fieldHelp");
+            if (!help) return 1;
+            unsigned long before=state->callback_count;
+            XmTextFieldSetString(XmNumberBoxGetTextField(number),"99999999");
+            XtCallActionProc(XmNumberBoxGetTextField(number),"activate",NULL,NULL,0);
+            if (!settle_gallery(state) || !XmNumberBoxIsInvalid(number) ||
+                state->callback_count!=before+1) return 1;
+            XmString feedback;char *feedback_text=NULL;
+            XtVaGetValues(state->feedback,XmNlabelString,&feedback,NULL);
+            Boolean rejected=feedback && XmStringGetLtoR(feedback,XmFONTLIST_DEFAULT_TAG,&feedback_text) &&
+                !strcmp(feedback_text,"Last event: input rejected; committed quantity: 42");
+            XtFree(feedback_text);if(feedback)XmStringFree(feedback);
+            if (!rejected) return 1;
+            Position number_y,help_y;Dimension number_height;
+            XtVaGetValues(number,XmNy,&number_y,XmNheight,&number_height,NULL);
+            XtVaGetValues(help,XmNy,&help_y,NULL);
+            if (help_y < number_y+number_height) {
+                fprintf(stderr,"gallery integration: NumberBox validation overlaps helper text\n");
+                return 1;
+            }
+            XmTextFieldSetString(XmNumberBoxGetTextField(number),"43");
+            XtCallActionProc(XmNumberBoxGetTextField(number),"activate",NULL,NULL,0);
+            if (!settle_gallery(state) || XmNumberBoxIsInvalid(number) ||
+                XmNumberBoxGetValue(number)!=43 || state->callback_count!=before+2) return 1;
+            feedback_text=NULL;
+            XtVaGetValues(state->feedback,XmNlabelString,&feedback,NULL);
+            Boolean committed=feedback && XmStringGetLtoR(feedback,XmFONTLIST_DEFAULT_TAG,&feedback_text) &&
+                !strcmp(feedback_text,"Last event: committed quantity: 43");
+            XtFree(feedback_text);if(feedback)XmStringFree(feedback);
+            if (!committed) return 1;
+        }
+        if (entry->class == xmSelectionBoxWidgetClass || entry->class == xmCommandWidgetClass) {
+            Widget list = XmSelectionBoxGetChild(state->component, XmDIALOG_LIST);
+            Position x, y;
+            Dimension width, height, list_height;
+            if (!list || !XmListPosToBounds(list, 3, &x, &y, &width, &height)) {
+                fprintf(stderr, "gallery integration: third sample item is hidden for %s\n", entry->id);
+                return 1;
+            }
+            XtVaGetValues(list, XmNheight, &list_height, NULL);
+            if (y < 0 || (unsigned int)y + height > list_height) {
+                fprintf(stderr, "gallery integration: third sample item is clipped for %s\n", entry->id);
+                return 1;
+            }
+        }
         if (entry->class == xmPushButtonWidgetClass) {
             Widget disabled = XtNameToWidget(state->component_host, "disabledState");
             Widget clip = NULL;
@@ -689,22 +1027,65 @@ static int exercise_component_matrix(GalleryState *state)
             XtVaGetValues(disabled, XmNy, &y, XmNheight, &height, NULL);
             XtVaGetValues(clip, XmNheight, &clip_height, NULL);
             if (y < 0 || (unsigned int)y + height > clip_height) {
-                fprintf(stderr, "gallery integration: disabled button is clipped\n");
+                Position py; Dimension ph, vh, fh;
+                XtVaGetValues(state->preview_viewport, XmNy, &py, XmNheight, &vh, NULL);
+                XtVaGetValues(state->example, XmNheight, &ph, NULL);
+                XtVaGetValues(state->feedback, XmNheight, &fh, NULL);
+                fprintf(stderr, "gallery integration: disabled button clipped y=%d height=%u clip=%u preview=%d/%u page=%u feedback=%u\n", y,height,clip_height,py,vh,ph,fh);
                 return 1;
             }
         }
         {
-            /* The source buffer contains the generated fragment body, not a
-             * hand-maintained label; the ID must still be present in it. */
+            /* Compare the displayed buffer with the selected generated excerpt. */
             char *source = XmTextGetString(state->source_text);
-            Boolean source_matches = source && strstr(source, entry->source_fragment);
+            Boolean source_matches = source && *source &&
+                !strcmp(source, source_for(entry));
+            if (!source_matches)
+                fprintf(stderr, "gallery source mismatch: expected %zu bytes, received %zu bytes\n",
+                        strlen(source_for(entry)), source ? strlen(source) : 0);
             XtFree(source);
             if (state->selected != entry || !source_matches) {
                 fprintf(stderr, "gallery integration: source/selection failed for %s\n", entry->id);
                 return 1;
             }
         }
-        if (state->component_is_drag_source) {
+        if (XmIsTabStack(state->component)) {
+            unsigned long before = state->callback_count;
+            XmString label = NULL;
+            char *value = NULL;
+            invoke_component_callback(state->component, state);
+            Widget selected = XmTabStackGetSelectedTab(state->component);
+            XtVaGetValues(state->feedback, XmNlabelString, &label, NULL);
+            if (label) XmStringGetLtoR(label, XmFONTLIST_DEFAULT_TAG, &value);
+            if (label) XmStringFree(label);
+            Boolean valid = selected == XmTabStackIndexToWidget(state->component, 1) &&
+                state->callback_count == before + 1 &&
+                value && !strcmp(value, "Current tab: Details");
+            XtFree(value);
+            if (!valid) {
+                fprintf(stderr, "gallery integration: TabStack selection feedback failed\n");
+                return 1;
+            }
+            puts("gallery integration: TabStack selection callback and feedback PASS");
+        } else if (XmIsNotebook(state->component)) {
+            unsigned long before = state->callback_count;
+            XmString label = NULL;
+            char *value = NULL;
+            int page;
+            invoke_component_callback(state->component, state);
+            XtVaGetValues(state->component, XmNcurrentPageNumber, &page, NULL);
+            XtVaGetValues(state->feedback, XmNlabelString, &label, NULL);
+            if (label) XmStringGetLtoR(label, XmFONTLIST_DEFAULT_TAG, &value);
+            if (label) XmStringFree(label);
+            Boolean valid = page == 2 && state->callback_count == before + 1 &&
+                value && !strcmp(value, "Current page: 2");
+            XtFree(value);
+            if (!valid) {
+                fprintf(stderr, "gallery integration: Notebook page feedback failed\n");
+                return 1;
+            }
+            puts("gallery integration: Notebook page callback and feedback PASS");
+        } else if (state->component_is_drag_source) {
             set_status(state, "Drag source callback and public DnD path ready");
         } else if (state->component_is_popup) {
             component_activate(state->action, state, NULL);
@@ -752,15 +1133,36 @@ static int run_integration_test(GalleryState *state)
         }
     {
         Widget focus_before = XmGetFocusWidget(state->shell);
+        Widget workspace = XtParent(state->notebook);
+        Dimension expanded, collapsed, restored, content_before, content_after;
+        XtVaGetValues(state->sidebar, XmNwidth, &expanded, NULL);
+        XtVaGetValues(workspace, XmNwidth, &content_before, NULL);
         XmSidebarSetExpanded(state->sidebar, False);
+        if (XmGetFocusWidget(state->shell) != XtNameToWidget(state->sidebar, "toggle")) {
+            fprintf(stderr, "gallery integration: collapsed sidebar toggle lost focus\n");
+            return 1;
+        }
+        XtVaGetValues(state->sidebar, XmNwidth, &collapsed, NULL);
+        XtVaGetValues(workspace, XmNwidth, &content_after, NULL);
+        if (collapsed >= expanded || content_after <= content_before ||
+            expanded - collapsed != content_after - content_before) {
+            fprintf(stderr, "gallery integration: sidebar collapse did not release space (%u -> %u; workspace %u -> %u)\n",
+                expanded, collapsed, content_before, content_after);
+            return 1;
+        }
         XmSidebarSetExpanded(state->sidebar, True);
+        XtVaGetValues(state->sidebar, XmNwidth, &restored, NULL);
+        if (restored != expanded) {
+            fprintf(stderr, "gallery integration: sidebar width was not restored\n");
+            return 1;
+        }
         if (focus_before && XmGetFocusWidget(state->shell) != focus_before) {
             fprintf(stderr, "gallery integration: focus was not restored\n");
             return 1;
         }
     }
     select_page(state, 3);
-    if (exercise_component_matrix(state))
+    if (verify_view_navigation(state) || exercise_component_matrix(state))
         return 1;
     {
         if (state->current_page != 2 || XmStatusBarGetItemCount(state->status) != 1 ||
@@ -798,7 +1200,7 @@ static int run_integration_test(GalleryState *state)
            (unsigned)GALLERY_MANIFEST_COUNT);
     puts("gallery integration: navigation tabs interaction state PASS");
     puts("gallery integration: keyboard traversal and focus restoration PASS");
-    puts("gallery integration: theme/dpi live transaction PENDING toolkit qualification");
+    puts("gallery integration: live catalogue transactions: use --integration-live");
     return 0;
 }
 
@@ -825,11 +1227,19 @@ static void tree_selected(Widget widget, XtPointer client, XtPointer call)
             set_status(state, "Category expanded; choose a component example");
             return;
         }
-        if (!strcmp(entry->id, (const char *)callback->id))
+        if (!strcmp(entry->id, (const char *)callback->id)) {
             show_entry(state, entry);
+        }
         else
             set_status(state, "Category expanded; choose a component example");
     }
+}
+
+static void activate_navigation(Widget widget, XtPointer client, XtPointer call)
+{
+    GalleryState *state = client;
+    (void)widget; (void)call;
+    close_compact_navigation(state);
 }
 
 static void toggle_sidebar(Widget widget, XtPointer client, XtPointer call)
@@ -837,7 +1247,88 @@ static void toggle_sidebar(Widget widget, XtPointer client, XtPointer call)
     GalleryState *state = (GalleryState *)client;
     XmSidebarCallbackStruct *callback = (XmSidebarCallbackStruct *)call;
     (void)widget;
+    if (!state->updating_layout && !state->compact_layout && callback)
+        state->desktop_navigation_expanded = callback->expanded;
+    if (!state->updating_layout) layout_gallery(state);
     set_status(state, callback && callback->expanded ? "Navigation expanded" : "Navigation collapsed");
+}
+
+/* Narrow windows use a navigation page, not two competing narrow columns.
+ * Automatic mode changes never replace the user's desktop sidebar preference. */
+static void layout_gallery(GalleryState *state)
+{
+    Dimension width;
+    double scale = 1.0;
+    Boolean compact, expanded;
+    if (!state->body || !state->workspace || !state->navigation_width ||
+        state->updating_layout) return;
+    state->updating_layout = True;
+    XtVaGetValues(state->body, XmNwidth, &width, NULL);
+    (void)XmGetWidgetScale(state->body, &scale);
+    compact = width < state->navigation_width + 640.0 * scale;
+    if (compact != state->compact_layout) {
+        state->compact_layout = compact;
+        XmSidebarSetExpanded(state->sidebar,
+            compact ? False : state->desktop_navigation_expanded);
+    }
+    expanded = XmSidebarGetExpanded(state->sidebar);
+    {
+        unsigned char attachment, wanted_attachment = compact && expanded ?
+            XmATTACH_FORM : XmATTACH_NONE;
+        Dimension expanded_width, wanted_width = compact && expanded ?
+            width : state->navigation_width;
+        /* The navigation page occupies the complete Form width. Remove the
+         * sibling pane before attaching that page to both edges: while both
+         * are managed, the pane also demands space to the right of it. */
+        if (compact && expanded) XtUnmanageChild(state->workspace);
+        XtVaGetValues(state->sidebar, XmNrightAttachment, &attachment,
+            XmNsidebarExpandedWidth, &expanded_width, NULL);
+        if (attachment != wanted_attachment || expanded_width != wanted_width)
+            XtVaSetValues(state->sidebar, XmNrightAttachment, wanted_attachment,
+                XmNsidebarExpandedWidth, wanted_width, NULL);
+        if (!(compact && expanded)) XtManageChild(state->workspace);
+    }
+    {
+        XmString title = text(compact ? "Motif Gallery" : "CK Core Motif / Component Gallery");
+        XmString current = NULL;
+        XtVaGetValues(state->app_title, XmNlabelString, &current, NULL);
+        if (!XmStringCompare(current, title))
+            XtVaSetValues(state->app_title, XmNlabelString, title, NULL);
+        XmStringFree(current);
+        XmStringFree(title);
+        if (compact) XtUnmanageChild(state->theme_note);
+        else XtManageChild(state->theme_note);
+    }
+    if (state->provenance && state->selected) {
+        char description[1024];
+        if (compact)
+            snprintf(description, sizeof(description), "%s",
+                     example_description(state->selected, True));
+        else
+            snprintf(description, sizeof(description), "%s\n\n%s",
+                     state->selected->class_symbol, state->provenance_text);
+        XmString label = text(description);
+        XmString current = NULL;
+        XtVaGetValues(state->provenance, XmNlabelString, &current, NULL);
+        if (!XmStringCompare(current, label))
+            XtVaSetValues(state->provenance, XmNlabelString, label, NULL);
+        XmStringFree(current);
+        XmStringFree(label);
+    }
+    resize_preview(state);
+    state->updating_layout = False;
+}
+
+static void gallery_configured(Widget widget, XtPointer client, XEvent *event,
+                               Boolean *dispatch)
+{
+    (void)widget; (void)dispatch;
+    if (event->type == ConfigureNotify) layout_gallery((GalleryState *)client);
+}
+
+static void close_compact_navigation(GalleryState *state)
+{
+    if (state->compact_layout) XmSidebarSetExpanded(state->sidebar, False);
 }
 
 static void add_tree_nodes(Widget tree, const char *query)
@@ -887,18 +1378,23 @@ static void add_tree_nodes(Widget tree, const char *query)
     XmTreeViewSetNodes(tree, nodes, used);
 }
 
+static void layout_navigation(GalleryState *state)
+{
+    Widget content = XmSidebarGetContent(state->sidebar);
+    Dimension width, height, current_width, current_height;
+    if (!state->navigation_form || !state->tree) return;
+    XtVaGetValues(content, XmNwidth, &width, XmNheight, &height, NULL);
+    XtVaGetValues(state->navigation_form, XmNwidth, &current_width,
+        XmNheight, &current_height, NULL);
+    if (width != current_width || height != current_height)
+        XtVaSetValues(state->navigation_form, XmNwidth, width, XmNheight, height, NULL);
+
+}
+
 static void navigation_resize(Widget widget, XtPointer client, XEvent *event, Boolean *dispatch)
 {
-    GalleryState *state = client;
-    Dimension width, height;
-    Cardinal rows;
-    (void)dispatch;
-    if (event->type != ConfigureNotify || !state->navigation_form) return;
-    XtVaGetValues(widget, XmNwidth, &width, XmNheight, &height, NULL);
-    XtVaSetValues(state->navigation_form, XmNwidth, width, XmNheight, height, NULL);
-    rows = height > 84 ? (height - 84) / 28 : 1;
-    if (!rows) rows = 1;
-    XtVaSetValues(state->tree, XmNtreeViewVisibleRows, rows, NULL);
+    (void)widget; (void)dispatch;
+    if (event->type == ConfigureNotify) layout_navigation((GalleryState *)client);
 }
 
 static void search_changed(Widget widget, XtPointer client, XtPointer call)
@@ -913,62 +1409,49 @@ static void search_changed(Widget widget, XtPointer client, XtPointer call)
     XtFree(query);
 }
 
-static void release_icon(Widget widget, XtPointer client, XtPointer call)
+static Widget create_icon_page(GalleryState *state)
 {
-    (void)call;
-    XmDestroyPixmap(XtScreen(widget), (Pixmap)(uintptr_t)client);
-}
-
-static Widget create_icon_page(Widget notebook)
-{
-    static const char *names[] = {
-        "dialog_error", "dialog_information", "dialog_question",
-        "dialog_warning", "dialog_working"
+    static const struct { const char *name, *caption; } icons[] = {
+        {"error", "Error"}, {"information", "Information"}, {"question", "Question"},
+        {"warning", "Warning"}, {"working", "Working"}, {"template", "Template"},
+        {"file", "File"}, {"selection", "Selection"}, {"prompt", "Prompt"}
     };
-    static const char *captions[] = {"Error", "Information", "Question", "Warning", "Working"};
     XtInitializeWidgetClass(xmMessageBoxWidgetClass);
-    Widget page = create_page(notebook, "iconsPage");
+    Widget page = create_page(state->notebook, "iconsPage");
     Widget title = gallery_label(page, "pageTitle", "Built-in icons");
     XtVaSetValues(title, XmNtopAttachment, XmATTACH_FORM,
         XmNleftAttachment, XmATTACH_FORM, NULL);
-    Widget grid = XtVaCreateManagedWidget("iconGrid", xmRowColumnWidgetClass, page,
-                                         XmNnumColumns, 3,
-                                         XmNorientation, XmVERTICAL,
-                                         XmNpacking, XmPACK_COLUMN,
-                                         XmNspacing, 16,
-                                         XmNleftAttachment, XmATTACH_FORM,
-                                         XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, title,
-                                         XmNtopOffset, 24, NULL);
-    size_t i;
-    for (i = 0; i < XtNumber(names); ++i) {
-        Pixel foreground, background;
-        XtVaGetValues(page, XmNforeground, &foreground, XmNbackground, &background, NULL);
-        Pixmap pixmap = XmGetPixmap(XtScreen(page), (char *)names[i], foreground, background);
-        if (pixmap == XmUNSPECIFIED_PIXMAP) {
-            char fallback[64];
-            snprintf(fallback, sizeof(fallback), "default_xm_%s", names[i] + 7);
-            pixmap = XmGetPixmap(XtScreen(page), fallback,
-                foreground, background);
+    GalleryFlowPage *flow = &state->icons_flow;
+    flow->grid = True;
+    create_flow_page(page, title, flow);
+    for (Cardinal i = 0; i < XtNumber(icons); ++i) {
+        char name[64], fallback[64];
+        snprintf(name, sizeof(name), "dialog_%s", icons[i].name);
+        snprintf(fallback, sizeof(fallback), "default_xm_%s", icons[i].name);
+        Widget cell = XtVaCreateManagedWidget("iconCell", xmFormWidgetClass,
+            flow->canvas, XmNmarginWidth, 0, XmNmarginHeight, 0, NULL);
+        Widget picture = XtVaCreateManagedWidget("bitmap", xmLabelWidgetClass, cell,
+            XmNlabelType, XmPIXMAP, NULL);
+        if (!gallery_bind_named_icon(picture, XmNlabelPixmap, name, fallback)) {
+            XtDestroyWidget(picture);
+            gallery_label(cell, "description", "Requires SVG");
         }
-        XmString label = XmStringCreateLocalized((char *)captions[i]);
-        Widget cell = XtVaCreateManagedWidget("iconCell", xmFormWidgetClass, grid,
-                                              XmNwidth, 190, XmNheight, 112, XmNresizePolicy, XmRESIZE_NONE,
-                                              XmNshadowThickness, 0, NULL);
-        XtVaCreateManagedWidget("bitmap", xmLabelWidgetClass, cell,
-                                XmNlabelType, XmPIXMAP, XmNlabelPixmap, pixmap,
-                                XmNtopAttachment, XmATTACH_FORM,
-                                XmNleftAttachment, XmATTACH_FORM,
-                                XmNrightAttachment, XmATTACH_FORM, NULL);
-        XtVaCreateManagedWidget("name", xmLabelWidgetClass, cell,
-                                XmNlabelString, label,
-                                XmNtopAttachment, XmATTACH_WIDGET,
-                                XmNtopWidget, XtNameToWidget(cell, "bitmap"),
-                                XmNleftAttachment, XmATTACH_FORM,
-                                XmNrightAttachment, XmATTACH_FORM, NULL);
+        XmString label = text(icons[i].caption);
+        Widget caption = XtVaCreateManagedWidget("name", xmLabelWidgetClass, cell,
+            XmNlabelString, label, XmNtopAttachment, XmATTACH_FORM,
+            XmNbottomAttachment, XmATTACH_FORM,
+            XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM, NULL);
+        picture = XtNameToWidget(cell,"bitmap");
+        if (!picture) picture = XtNameToWidget(cell,"description");
+        XtVaSetValues(picture, XmNtopAttachment, XmATTACH_FORM,
+            XmNbottomAttachment, XmATTACH_WIDGET, XmNbottomWidget, caption,
+            XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM, NULL);
         XmStringFree(label);
-        if (pixmap != XmUNSPECIFIED_PIXMAP)
-            XtAddCallback(cell, XmNdestroyCallback, release_icon, (XtPointer)(uintptr_t)pixmap);
+        flow->items[i] = cell;
+        XtAddEventHandler(cell, StructureNotifyMask, False, flow_configured, flow);
     }
+    flow->count = XtNumber(icons);
+    layout_flow_page(flow);
     return page;
 }
 
@@ -987,52 +1470,425 @@ static Boolean capture_ready(XtPointer client)
     return True;
 }
 
+/* Semantic roles only: palette, typography and control chrome belong to Motif. */
 static String gallery_resources[] = {
-    "*renderTable: ui",
-    "*defaultEntryLabelRenderTable: ui",
-    "*entryLabelRenderTable: ui",
-    "*ui.fontType: FONT_IS_XFT",
-    "*ui.fontName: DejaVu Sans",
-    "*ui.fontSize: 11",
-    "*pageTitle.renderTable: heading",
-    "*heading.fontType: FONT_IS_XFT",
-    "*heading.fontName: DejaVu Sans",
-    "*heading.fontSize: 20",
-    "*sectionTitle.renderTable: section",
-    "*section.fontType: FONT_IS_XFT",
-    "*section.fontName: DejaVu Sans",
-    "*section.fontSize: 12",
-    "*section.fontStyle: Bold",
-    "*sourceText.renderTable: code",
-    "*code.fontType: FONT_IS_XFT",
-    "*code.fontName: DejaVu Sans Mono",
-    "*code.fontSize: 11",
-    "*XmLabel.traversalOn: False",
-    "*XmLabel.highlightThickness: 0",
-    "*XmLabelGadget.highlightThickness: 0",
-    "*header.marginWidth: 16",
-    "*header.marginHeight: 12",
-    "*header.spacing: 24",
-    "*body.spacing: 12",
-    "*viewTabs.marginWidth: 24",
-    "*viewTabs.marginHeight: 8",
-    "*exampleTab.topShadowColor: #a8afb8",
-    "*exampleTab.bottomShadowColor: #a8afb8",
-    "*sourceTab.topShadowColor: #a8afb8",
-    "*sourceTab.bottomShadowColor: #a8afb8",
-    "*iconsTab.topShadowColor: #a8afb8",
-    "*iconsTab.bottomShadowColor: #a8afb8",
-    "*welcomePage.topShadowColor: #a8afb8",
-    "*welcomePage.bottomShadowColor: #a8afb8",
-    "*iconsPage.topShadowColor: #a8afb8",
-    "*iconsPage.bottomShadowColor: #a8afb8",
+    "*pageTitle.appearanceRole: page_title",
+    "*sectionTitle.appearanceRole: section",
+    "*description.appearanceRole: secondary",
+    "*themeNote.appearanceRole: secondary",
+    "*sourceText.appearanceRole: code",
     NULL
 };
+
+static Boolean settle_gallery(GalleryState *state)
+{
+    XtAppContext app = XtWidgetToApplicationContext(state->shell);
+    for (unsigned int i = 0; i < 10000; ++i) {
+        gallery_refresh_icon_resources();
+        XSync(XtDisplay(state->shell), False);
+        XtInputMask pending = XtAppPending(app);
+        if (!pending) return gallery_validate_icon_resources();
+        if (i >= 9990 && (pending & XtIMXEvent)) {
+            XEvent event;
+            XPeekEvent(XtDisplay(state->shell), &event);
+            Widget owner = XtWindowToWidget(XtDisplay(state->shell), event.xany.window);
+            fprintf(stderr, "gallery settling: event=%d widget=%s window=%lu size=%dx%d\n",
+                event.type, owner ? XtName(owner) : "unknown", event.xany.window,
+                event.type == ConfigureNotify ? event.xconfigure.width : 0,
+                event.type == ConfigureNotify ? event.xconfigure.height : 0);
+        }
+        XtAppProcessEvent(app, XtIMAll);
+    }
+    return False;
+}
+
+/* Exercise transactions on the real gallery hierarchy without recreating
+ * the selected example. Startup-only captures cannot prove this contract. */
+static int verify_live_appearance(GalleryState *state)
+{
+    static const XmAppearanceProfile profiles[] = {
+        XmAPPEARANCE_MODERN_LIGHT, XmAPPEARANCE_MODERN_DARK,
+        XmAPPEARANCE_CLASSIC, XmAPPEARANCE_MODERN_LIGHT
+    };
+    static const double scales[] = {1.0, 1.5, 2.0, 1.0};
+    Display *display = XtDisplay(state->shell);
+    unsigned cases = 0;
+    for (Cardinal i = 0; i < GALLERY_MANIFEST_COUNT; ++i) {
+        const GalleryManifestEntry *entry = &gallery_manifest[i];
+        if (!entry->constructible || !entry->class) continue;
+        XmTreeViewSetSelectedId(state->tree, (XtPointer)entry->id, True);
+        if (!settle_gallery(state)) return 1;
+        Widget component = state->component;
+        unsigned long callbacks = state->callback_count;
+        printf("gallery live: %s\n", entry->id);
+        fflush(stdout);
+        for (unsigned step = 0; step < XtNumber(profiles); ++step) {
+            XmAppearanceDensity density = step % 2 ?
+                XmAPPEARANCE_DENSITY_COMPACT : XmAPPEARANCE_DENSITY_COMFORTABLE;
+            XmAppearanceProfile actual_profile;
+            XmAppearanceDensity actual_density;
+            double actual_scale;
+            Dimension width, height, host_width, host_height;
+            const char *failed = NULL;
+            if (!XmApplyAppearanceProfile(display, profiles[step])) failed = "profile";
+            else if (!XmApplyAppearanceDensity(display, density)) failed = "density";
+            else if (!XmSetDisplayScaleOverride(display, scales[step])) failed = "scale";
+            else if (!settle_gallery(state)) failed = "event settling";
+            if (failed) {
+                fprintf(stderr, "gallery live: transaction failed %s step=%u operation=%s\n", entry->id, step, failed);
+                return 1;
+            }
+            if (!XmGetAppearanceProfile(display, &actual_profile) ||
+                !XmGetAppearanceDensity(display, &actual_density) ||
+                !XmGetWidgetScale(component, &actual_scale) ||
+                actual_profile != profiles[step] || actual_density != density ||
+                fabs(actual_scale - scales[step]) > 0.001 ||
+                state->component != component || state->selected != entry ||
+                XmTreeViewGetSelectedId(state->tree) != (XtPointer)entry->id ||
+                state->callback_count != callbacks || state->current_page != 2) {
+                fprintf(stderr, "gallery live: state changed %s step=%u\n", entry->id, step);
+                return 1;
+            }
+            XtVaGetValues(component, XmNwidth, &width, XmNheight, &height, NULL);
+            host_width = width;
+            host_height = height;
+            if (state->preview_viewport)
+                XtVaGetValues(state->component_host, XmNwidth, &host_width,
+                              XmNheight, &host_height, NULL);
+            if (!width || !height || (state->preview_viewport &&
+                (width > host_width || height > host_height))) {
+                fprintf(stderr, "gallery live: canvas clips %s step=%u component=%ux%u host=%ux%u\n",
+                    entry->id, step, width, height, host_width, host_height);
+                return 1;
+            }
+            ++cases;
+        }
+    }
+    printf("PASS gallery live appearance: %u transitions\n", cases);
+    return 0;
+}
+
+static int appearance_control_failure(int line)
+{
+    fprintf(stderr, "FAIL gallery appearance controls at line %d\n", line);
+    return 1;
+}
+
+static int verify_appearance_controls(GalleryState *state)
+{
+    Display *display = XtDisplay(state->shell);
+    const GalleryManifestEntry *entry = find_entry("xm.pushbuttonwidgetclass");
+    XmTreeViewSetSelectedId(state->tree, (XtPointer)entry->id, True);
+    Widget component = state->component;
+    unsigned long callbacks = state->callback_count;
+    const XmAppearanceProfile themes[] = {XmAPPEARANCE_MODERN_LIGHT,
+        XmAPPEARANCE_MODERN_DARK, XmAPPEARANCE_CLASSIC};
+    const double scales[] = {1.0, 1.5, 2.0, 3.0, 0.0};
+    double existing_scale;
+    if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_CLASSIC) ||
+        (XmGetDisplayScaleOverride(display, &existing_scale) &&
+         !XmClearDisplayScaleOverride(display)) || !settle_gallery(state)) return appearance_control_failure(__LINE__);
+    XSetInputFocus(display, XtWindow(state->shell), RevertToParent, CurrentTime);
+    for (unsigned group = 0; group < 2; ++group) {
+        Widget control = group ? state->scale_control : state->theme_control;
+        unsigned count = group ? XtNumber(scales) : XtNumber(themes);
+        if (!XtIsManaged(control) || !XtIsSensitive(control)) return appearance_control_failure(__LINE__);
+        for (unsigned i = 0; i < count; ++i) {
+            if (!XmProcessTraversal(control, XmTRAVERSE_CURRENT)) return appearance_control_failure(__LINE__);
+            XtCallActionProc(control, "ArmAndActivate", NULL, NULL, 0);
+            if (!settle_gallery(state)) return appearance_control_failure(__LINE__);
+            if (group) {
+                double actual = 0.0;
+                Boolean overridden = XmGetDisplayScaleOverride(display, &actual);
+                if ((scales[i] == 0.0 && overridden) ||
+                    (scales[i] != 0.0 && (!overridden || fabs(actual-scales[i]) > 0.001))) return appearance_control_failure(__LINE__);
+            } else {
+                XmAppearanceProfile actual;
+                if (!XmGetAppearanceProfile(display, &actual) || actual != themes[i]) return appearance_control_failure(__LINE__);
+            }
+            if (XmGetFocusWidget(state->shell) != control ||
+                state->component != component || state->selected != entry ||
+                state->callback_count != callbacks || state->current_page != 2) {
+                fprintf(stderr, "gallery controls: state/focus changed group=%u step=%u\n", group,i);
+                return appearance_control_failure(__LINE__);
+            }
+        }
+    }
+    puts("PASS gallery appearance controls: activation, focus and state");
+    return 0;
+}
+
+static Boolean child_fits(Widget child, Widget parent)
+{
+    Position x, y;
+    Dimension width, height, parent_width, parent_height;
+    XtVaGetValues(child, XmNx, &x, XmNy, &y, XmNwidth, &width, XmNheight, &height, NULL);
+    XtVaGetValues(parent, XmNwidth, &parent_width, XmNheight, &parent_height, NULL);
+    return x >= 0 && y >= 0 && x + width <= parent_width && y + height <= parent_height;
+}
+
+static int verify_responsive_layout(GalleryState *state)
+{
+    double scale = 1.0;
+    (void)XmGetWidgetScale(state->shell, &scale);
+    Dimension wide = (Dimension)(1100 * scale), high = (Dimension)(740 * scale);
+    Dimension narrow = (Dimension)(450 * scale), low = (Dimension)(325 * scale);
+    const GalleryManifestEntry *entry = find_entry("xm.selectionboxwidgetclass");
+    if (!entry) return 1;
+    show_entry(state, entry);
+#define RESPONSIVE_CHECK(condition, message) do { \
+    if (!(condition)) { fprintf(stderr, "gallery responsive: %s\n", message); return 1; } \
+} while (0)
+    XtVaSetValues(state->shell, XmNwidth, wide, XmNheight, high, NULL);
+    RESPONSIVE_CHECK(settle_gallery(state), "wide layout did not settle");
+    RESPONSIVE_CHECK(!state->compact_layout && XmSidebarGetExpanded(state->sidebar), "wide navigation missing");
+    XtVaSetValues(state->shell, XmNwidth, narrow, XmNheight, low, NULL);
+    RESPONSIVE_CHECK(settle_gallery(state), "narrow layout did not settle");
+    RESPONSIVE_CHECK(state->compact_layout && !XmSidebarGetExpanded(state->sidebar) &&
+        XtIsManaged(state->workspace), "narrow mode did not release workspace");
+    RESPONSIVE_CHECK(child_fits(state->tabs,state->workspace) &&
+        child_fits(state->title,state->example) && child_fits(state->provenance,state->example) &&
+        child_fits(state->preview_viewport,state->example) && child_fits(state->feedback,state->example),
+        "narrow content clipped");
+    XmSidebarToggle(state->sidebar, NULL);
+    RESPONSIVE_CHECK(settle_gallery(state), "navigation page did not settle");
+    RESPONSIVE_CHECK(XmSidebarGetExpanded(state->sidebar) && !XtIsManaged(state->workspace) &&
+        child_fits(state->sidebar,state->body), "navigation page did not replace workspace");
+    const GalleryManifestEntry *next = find_entry("xm.messageboxwidgetclass");
+    RESPONSIVE_CHECK(next != NULL, "missing message box entry");
+    XmTreeViewSetSelectedId(state->tree, (XtPointer)next->id, True);
+    RESPONSIVE_CHECK(settle_gallery(state) && XmSidebarGetExpanded(state->sidebar),
+        "selection prematurely closed navigation");
+    RESPONSIVE_CHECK(XmProcessTraversal(state->tree, XmTRAVERSE_CURRENT), "tree could not receive focus");
+    XEvent activation = {0};
+    activation.xkey.type = KeyPress;
+    activation.xkey.display = XtDisplay(state->tree);
+    activation.xkey.window = XtWindow(state->tree);
+    activation.xkey.keycode = XKeysymToKeycode(XtDisplay(state->tree), XK_Return);
+    XtDispatchEvent(&activation);
+    RESPONSIVE_CHECK(settle_gallery(state), "selected page did not settle");
+    RESPONSIVE_CHECK(!XmSidebarGetExpanded(state->sidebar) && XtIsManaged(state->workspace),
+        "selection did not return to example");
+    XmSidebarToggle(state->sidebar, NULL);
+    RESPONSIVE_CHECK(settle_gallery(state) && XmSidebarGetExpanded(state->sidebar),
+        "semantic navigation page did not open");
+    RESPONSIVE_CHECK(state->accessibility != NULL, "missing accessibility bridge");
+    XmAccessibleId tree_id = XmAccessibilityWidget(state->accessibility, state->tree);
+    RESPONSIVE_CHECK(tree_id && XmAccessibilityAction(state->accessibility, tree_id, 0),
+        "semantic activation rejected selected page");
+    RESPONSIVE_CHECK(settle_gallery(state) && !XmSidebarGetExpanded(state->sidebar) &&
+        XtIsManaged(state->workspace), "semantic activation did not return to example");
+    XtVaSetValues(state->shell, XmNwidth, wide, XmNheight, high, NULL);
+    RESPONSIVE_CHECK(settle_gallery(state) && XmSidebarGetExpanded(state->sidebar), "desktop preference was lost");
+    XmSidebarSetExpanded(state->sidebar, False);
+    XtVaSetValues(state->shell, XmNwidth, narrow, XmNheight, low, NULL);
+    RESPONSIVE_CHECK(settle_gallery(state), "second narrow layout did not settle");
+    XtVaSetValues(state->shell, XmNwidth, wide, XmNheight, high, NULL);
+    RESPONSIVE_CHECK(settle_gallery(state) && !XmSidebarGetExpanded(state->sidebar),
+        "manual desktop collapse was overwritten");
+#undef RESPONSIVE_CHECK
+    puts("PASS gallery responsive layout, navigation selection and preference restoration");
+    return 0;
+}
+
+static Boolean same_words(const char *left, const char *right)
+{
+    while (*left || *right) {
+        while (isspace((unsigned char)*left)) ++left;
+        while (isspace((unsigned char)*right)) ++right;
+        const char *a = left, *b = right;
+        while (*left && !isspace((unsigned char)*left)) ++left;
+        while (*right && !isspace((unsigned char)*right)) ++right;
+        if (left-a != right-b || strncmp(a,b,(size_t)(left-a))) return False;
+    }
+    return True;
+}
+
+static char *flow_plain_text(XmString label)
+{
+    XmStringContext context;
+    char *result = XtNewString("");
+    size_t used = 0;
+    if (!XmStringInitContext(&context,label)) return result;
+    char *segment, *charset; XmStringDirection direction; Boolean separator;
+    while (XmStringGetNextSegment(context,&segment,&charset,&direction,&separator)) {
+        size_t length = strlen(segment);
+        result = XtRealloc(result,used+length+(separator ? 1 : 0)+1);
+        memcpy(result+used,segment,length); used += length;
+        if (separator) result[used++] = '\n';
+        result[used] = '\0';
+        XtFree(segment); XtFree(charset);
+    }
+    XmStringFreeContext(context);
+    return result;
+}
+
+static int verify_flow_pages(GalleryState *state)
+{
+    double scale = 1.0;
+    (void)XmGetWidgetScale(state->shell, &scale);
+    Boolean svg = getenv("XM_EXPECT_SVG_UNAVAILABLE") == NULL;
+    unsigned cases = 0;
+    Dimension first_height[2] = {0,0};
+    for (unsigned page = 0; page < 2; ++page) {
+        GalleryFlowPage *flow = page ? &state->icons_flow : &state->welcome_flow;
+        select_page(state, page ? 4 : 1);
+        for (unsigned size = 0; size < 3; ++size) {
+            Boolean narrow = size == 1;
+            XtVaSetValues(state->shell, XmNwidth, (Dimension)((narrow ? 450 : 1100) * scale),
+                XmNheight, (Dimension)((narrow ? 325 : 740) * scale), NULL);
+            if (!settle_gallery(state)) {
+                fprintf(stderr,"gallery pages: layout did not settle\n"); return 1;
+            }
+            Dimension canvas_width, canvas_height, clip_width;
+            XtVaGetValues(flow->canvas, XmNwidth, &canvas_width, XmNheight, &canvas_height, NULL);
+            XtVaGetValues(flow->clip, XmNwidth, &clip_width, NULL);
+            if (canvas_width > clip_width) {
+                fprintf(stderr,"gallery pages: page %u horizontal overflow %u > %u\n",page,canvas_width,clip_width); return 1;
+            }
+            if (size == 0) first_height[page] = canvas_height;
+            if (!page && narrow && canvas_height <= first_height[page]) {
+                fprintf(stderr,"gallery pages: narrow prose did not reflow\n"); return 1;
+            }
+            if (size == 2 && canvas_height != first_height[page]) {
+                fprintf(stderr,"gallery pages: wide layout did not restore\n"); return 1;
+            }
+            for (Cardinal i = 0; i < flow->count; ++i) {
+                if (!child_fits(flow->items[i],flow->canvas)) {
+                    fprintf(stderr,"gallery pages: item outside canvas\n"); return 1;
+                }
+                Position item_x,item_y; Dimension item_width,item_height;
+                XtVaGetValues(flow->items[i],XmNx,&item_x,XmNy,&item_y,
+                    XmNwidth,&item_width,XmNheight,&item_height,NULL);
+                for (Cardinal j=0;j<i;++j) {
+                    Position x,y; Dimension width,height;
+                    XtVaGetValues(flow->items[j],XmNx,&x,XmNy,&y,XmNwidth,&width,XmNheight,&height,NULL);
+                    if (item_x < x+width && x < item_x+item_width &&
+                        item_y < y+height && y < item_y+item_height) {
+                        fprintf(stderr,"gallery pages: page %u size %u items %u and %u overlap (%d,%d %ux%u / %d,%d %ux%u)\n",page,size,i,j,item_x,item_y,item_width,item_height,x,y,width,height); return 1;
+                    }
+                }
+                if (!page) {
+                    XmString label = NULL; char *value = NULL;
+                    XtVaGetValues(flow->items[i],XmNlabelString,&label,NULL);
+                    if (label) value = flow_plain_text(label);
+                    Boolean valid = value && same_words(value,flow->paragraphs[i]);
+                    XmStringFree(label); XtFree(value);
+                    if (!valid) { fprintf(stderr,"gallery pages: prose lost during wrapping\n"); return 1; }
+                } else {
+                    Widget bitmap = XtNameToWidget(flow->items[i],"bitmap");
+                    Widget picture = bitmap ? bitmap : XtNameToWidget(flow->items[i],"description");
+                    Widget caption = XtNameToWidget(flow->items[i],"name");
+                    Position caption_y, first_y;
+                    XtVaGetValues(caption,XmNy,&caption_y,NULL);
+                    XtVaGetValues(XtNameToWidget(flow->items[0],"name"),XmNy,&first_y,NULL);
+                    if (!child_fits(picture,flow->items[i]) || !child_fits(caption,flow->items[i]) ||
+                        caption_y != first_y) {
+                        fprintf(stderr,"gallery pages: icon slots or caption alignment invalid\n"); return 1;
+                    }
+                    if ((svg || i < 5) != (bitmap != NULL)) {
+                        fprintf(stderr,"gallery pages: incorrect SVG capability fallback\n"); return 1;
+                    }
+                    if (bitmap) {
+                        Pixmap pixmap; Window root; int x,y; unsigned width,height,border,depth;
+                        XtVaGetValues(bitmap,XmNlabelPixmap,&pixmap,NULL);
+                        if (!XGetGeometry(XtDisplay(bitmap),pixmap,&root,&x,&y,&width,&height,&border,&depth) ||
+                            (svg && (width != (unsigned)(40*scale+0.5) || height != width))) {
+                            fprintf(stderr,"gallery pages: icon scale mismatch\n"); return 1;
+                        }
+                    }
+                }
+            }
+            if (page && flow->count != 9) return 1;
+            ++cases;
+        }
+    }
+    /* Keep the same icon widgets alive through palette and DPI changes. The
+     * settling check validates their assigned pixmaps, dimensions and pixels. */
+    const XmAppearanceProfile profiles[]={XmAPPEARANCE_MODERN_LIGHT,
+        XmAPPEARANCE_MODERN_DARK,XmAPPEARANCE_CLASSIC,XmAPPEARANCE_MODERN_LIGHT};
+    const double scales[]={1.0,1.5,2.0,1.0};
+    for(unsigned step=0;step<XtNumber(profiles);++step) {
+        if(!XmApplyAppearanceProfile(XtDisplay(state->shell),profiles[step]) ||
+           !XmSetDisplayScaleOverride(XtDisplay(state->shell),scales[step]) ||
+           !settle_gallery(state)) {
+            fprintf(stderr,"gallery pages: live icon transition failed at step %u\n",step);
+            return 1;
+        }
+        for(Cardinal i=0;i<state->icons_flow.count;++i)
+            if(!child_fits(state->icons_flow.items[i],state->icons_flow.canvas)) return 1;
+        ++cases;
+    }
+    printf("PASS gallery flow pages: %u resize/content/icon scenarios\n",cases);
+    return 0;
+}
+
+/* Read bounded EWMH cardinal data without trusting its format or length. */
+static Boolean root_cardinals(Display *display, Window root, const char *name,
+                             long offset, unsigned long count, unsigned long *values)
+{
+    Atom type;
+    int format;
+    unsigned long items, remaining;
+    unsigned char *data = NULL;
+    int result = XGetWindowProperty(display, root, XInternAtom(display, name, False),
+        offset, (long)count, False, XA_CARDINAL, &type, &format, &items,
+        &remaining, &data);
+    Boolean valid = result == Success && type == XA_CARDINAL && format == 32 &&
+                    items == count && data != NULL;
+    if (valid) memcpy(values, data, count * sizeof(unsigned long));
+    if (data) XFree(data);
+    return valid;
+}
+
+static void configure_startup_geometry(Widget shell)
+{
+    Display *display = XtDisplay(shell);
+    Screen *screen = XtScreen(shell);
+    int left = 0, top = 0, width = WidthOfScreen(screen), height = HeightOfScreen(screen);
+    unsigned long desktop = 0, area[4];
+    double scale = 1.0;
+    String geometry = NULL;
+    Dimension resource_width = 0, resource_height = 0;
+    int geometry_x, geometry_y;
+    unsigned int geometry_width, geometry_height;
+    int specified = 0;
+    (void)XmGetWidgetScale(shell, &scale);
+    (void)root_cardinals(display, RootWindowOfScreen(screen), "_NET_CURRENT_DESKTOP", 0, 1, &desktop);
+    if (desktop < 4096 && root_cardinals(display, RootWindowOfScreen(screen),
+            "_NET_WORKAREA", (long)(desktop * 4), 4, area) &&
+        area[0] < (unsigned long)width && area[1] < (unsigned long)height &&
+        area[2] > 0 && area[2] <= (unsigned long)width - area[0] &&
+        area[3] > 0 && area[3] <= (unsigned long)height - area[1]) {
+        left = (int)area[0]; top = (int)area[1];
+        width = (int)area[2]; height = (int)area[3];
+    }
+    XtVaGetValues(shell, XtNgeometry, &geometry, XmNwidth, &resource_width,
+                  XmNheight, &resource_height, NULL);
+    if (geometry) specified = XParseGeometry(geometry, &geometry_x, &geometry_y,
+                                             &geometry_width, &geometry_height);
+    /* Leave five percent for decorations; do not assume a particular WM. */
+    int available_width = width - width / 20;
+    int available_height = height - height / 20;
+    int target_width = (1100.0 * scale >= available_width ? available_width : (int)(1100.0 * scale + 0.5));
+    int target_height = (740.0 * scale >= available_height ? available_height : (int)(740.0 * scale + 0.5));
+    if (resource_width) target_width = resource_width;
+    if (resource_height) target_height = resource_height;
+    if (specified & WidthValue) target_width = (int)geometry_width;
+    if (specified & HeightValue) target_height = (int)geometry_height;
+    XtVaSetValues(shell, XmNwidth, target_width, XmNheight, target_height, NULL);
+    /* Xt applies explicit positions, including negative offsets, at realize. */
+    if (!(specified & XValue))
+        XtVaSetValues(shell, XmNx, left + (width > target_width ? (width-target_width)/2 : 0), NULL);
+    if (!(specified & YValue))
+        XtVaSetValues(shell, XmNy, top + (height > target_height ? (height-target_height)/2 : 0), NULL);
+}
 
 int main(int argc, char **argv)
 {
     XtAppContext app; Widget shell, root, header, body, sidebar, notebook;
     GalleryState state = {0};
+    state.desktop_navigation_expanded = True;
     int integration_mode = 0;
     int screenshot_mode = 0;
     const char *initial_id = NULL;
@@ -1046,6 +1902,18 @@ int main(int argc, char **argv)
         int remove_count = 0;
         if (!strcmp(argv[argument], "--integration-test")) {
             integration_mode = 1;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--integration-controls")) {
+            integration_mode = 6;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--integration-live")) {
+            integration_mode = 5;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--integration-pages")) {
+            integration_mode = 4;
+            remove_count = 1;
+        } else if (!strcmp(argv[argument], "--integration-responsive")) {
+            integration_mode = 3;
             remove_count = 1;
         } else if (!strcmp(argv[argument], "--integration-smoke")) {
             integration_mode = 2;
@@ -1128,23 +1996,8 @@ int main(int argc, char **argv)
     XtSetLanguageProc(NULL, NULL, NULL);
     gallery_manifest_initialize();
     shell = XtVaAppInitialize(&app, "CkMotifGallery", NULL, 0, &argc, argv,
-                              gallery_resources, XmNallowShellResize, False,
-                              XmNwidth, 1100, XmNheight, 740, XmNminWidth, 980, XmNminHeight, 680, NULL);
+                              gallery_resources, XmNallowShellResize, False, NULL);
     state.shell = shell;
-    {
-        /* The source-built MWM frame adds 14 horizontal and 31 vertical
-         * pixels around this 1100x740 client.  Include those decorations in
-         * the initial geometry; MWM owns the frame position after mapping. */
-        const int frame_width = 1114;
-        const int frame_height = 771;
-        int screen_width = DisplayWidth(XtDisplay(shell), DefaultScreen(XtDisplay(shell)));
-        int screen_height = DisplayHeight(XtDisplay(shell), DefaultScreen(XtDisplay(shell)));
-        Position x = screen_width > frame_width ? (Position)((screen_width - frame_width) / 2) : 0;
-        Position y = screen_height > frame_height ? (Position)((screen_height - frame_height) / 2) : 0;
-        XtVaSetValues(shell, XmNx, x, XmNy, y, NULL);
-    }
-    state.profile = requested_profile ? requested_profile_value
-                                      : XmAPPEARANCE_CLASSIC;
     /* Select the requested profile before creating any child widgets.  The
      * live transaction API is intentionally for an already-created
      * application hierarchy; using it here made some legacy widgets rebuild
@@ -1160,57 +2013,50 @@ int main(int argc, char **argv)
         fprintf(stderr, "gallery: requested display scale failed\n");
         return 3;
     }
+    configure_startup_geometry(shell);
     root = XmVaCreateManagedForm(shell, "root", NULL);
     header = XmVaCreateManagedRowColumn(root, "header", XmNorientation, XmHORIZONTAL,
                                         XmNtopAttachment, XmATTACH_FORM,
                                         XmNleftAttachment, XmATTACH_FORM,
                                         XmNrightAttachment, XmATTACH_FORM, NULL);
-    XtVaCreateManagedWidget("title", xmLabelWidgetClass, header,
-                            XmNlabelString, text("CK Core Motif / Component Gallery"), NULL);
-    XtVaCreateManagedWidget("themeNote", xmLabelWidgetClass, header,
-                            XmNlabelString, text("Component reference"), NULL);
+    state.app_title = gallery_label(header, "title", "CK Core Motif / Component Gallery");
+    state.theme_note = gallery_label(header, "themeNote", "Component reference");
     {
-        Widget theme = XtVaCreateManagedWidget("themeControl", xmPushButtonWidgetClass, header,
-                                               XmNlabelString, text("Theme"),
-#ifdef CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS
-                                               XmNsensitive, True,
-#else
-                                               XmNsensitive, False,
-#endif
-                                               NULL);
-        Widget dpi = XtVaCreateManagedWidget("dpiControl", xmPushButtonWidgetClass, header,
-                                             XmNlabelString, text("DPI"),
-#ifdef CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS
-                                             XmNsensitive, True,
-#else
-                                             XmNsensitive, False,
-#endif
-                                             NULL);
-#ifndef CKMOTIF_GALLERY_ENABLE_LIVE_TRANSACTIONS
-        XtUnmanageChild(theme);
-        XtUnmanageChild(dpi);
-#endif
-        XtAddCallback(theme, XmNactivateCallback, theme_control, &state);
-        XtAddCallback(dpi, XmNactivateCallback, dpi_control, &state);
+        XmString theme_label = text("Theme"), scale_label = text("Scale");
+        state.theme_control = XtVaCreateManagedWidget("themeControl", xmPushButtonWidgetClass, header,
+            XmNlabelString, theme_label, NULL);
+        state.scale_control = XtVaCreateManagedWidget("dpiControl", xmPushButtonWidgetClass, header,
+            XmNlabelString, scale_label, NULL);
+        XmStringFree(theme_label);
+        XmStringFree(scale_label);
+        XtAddCallback(state.theme_control, XmNactivateCallback, theme_control, &state);
+        XtAddCallback(state.scale_control, XmNactivateCallback, dpi_control, &state);
     }
     state.status = XmVaCreateManagedStatusBar(root, "status", XmNbottomAttachment, XmATTACH_FORM,
                                               XmNleftAttachment, XmATTACH_FORM,
                                               XmNrightAttachment, XmATTACH_FORM, NULL);
-    body = XmVaCreateManagedPanedWindow(root, "body", XmNorientation, XmHORIZONTAL,
+    body = XmVaCreateManagedForm(root, "body",
                                         XmNtopAttachment, XmATTACH_WIDGET,
                                         XmNtopWidget, header, XmNleftAttachment, XmATTACH_FORM,
                                         XmNrightAttachment, XmATTACH_FORM,
                                         XmNbottomAttachment, XmATTACH_WIDGET,
                                         XmNbottomWidget, state.status, NULL);
-    sidebar = XmVaCreateManagedSidebar(body, "navigation",
-                                       XmNsidebarExpandedWidth, 280,
-                                       XmNtraversalOn, True, NULL);
+    state.body = body;
+    {
+        XmString title = XmStringCreateLocalized("Components");
+        sidebar = XmVaCreateManagedSidebar(body, "navigation",
+            XmNlabelString, title, XmNsidebarExpandedWidth, 280,
+            XmNtopAttachment, XmATTACH_FORM, XmNbottomAttachment, XmATTACH_FORM,
+            XmNleftAttachment, XmATTACH_FORM, XmNtraversalOn, True, NULL);
+        XmStringFree(title);
+    }
     state.sidebar = sidebar;
     {
         Widget content = XmSidebarGetContent(sidebar);
         Widget label;
         XtVaSetValues(content, XmNpacking, XmPACK_NONE,
-            XmNmarginWidth, 0, XmNmarginHeight, 0, NULL);
+            XmNmarginWidth, 0, XmNmarginHeight, 0,
+            XmNresizeWidth, False, XmNresizeHeight, False, NULL);
         state.navigation_form = XmVaCreateManagedForm(content, "navigationForm",
             XmNwidth, 280, XmNheight, 560, XmNmarginWidth, 8, XmNmarginHeight, 8, NULL);
         label = gallery_label(state.navigation_form, "searchLabel", "Find a component");
@@ -1223,50 +2069,50 @@ int main(int argc, char **argv)
         XtAddCallback(state.search, XmNvalueChangedCallback, search_changed, &state);
         state.tree = XtVaCreateManagedWidget("components", xmTreeViewWidgetClass,
             state.navigation_form, XmNtraversalOn, True,
-            XmNtreeViewVisibleRows, 17, XmNtreeViewRowHeight, 28,
+            XmNtreeViewVisibleRows, 17,
             XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state.search, XmNtopOffset, 12,
             XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM,
             XmNbottomAttachment, XmATTACH_FORM, NULL);
         XtAddEventHandler(content, StructureNotifyMask, False, navigation_resize, &state);
+        XtAddEventHandler(state.tree, StructureNotifyMask, False, navigation_resize, &state);
     }
     XtManageChild(state.tree);
     {
-        Widget pane = XmVaCreateManagedForm(body, "workspace", XmNshadowThickness, 0, NULL);
-        state.tabs = XmVaCreateRowColumn(pane, "viewTabs", XmNorientation, XmHORIZONTAL,
-            XmNpacking, XmPACK_TIGHT, XmNspacing, 4,
-            XmNtopAttachment, XmATTACH_FORM, XmNleftAttachment, XmATTACH_FORM, NULL);
-        state.example_tab = XtVaCreateManagedWidget("exampleTab", xmToggleButtonWidgetClass,
-            state.tabs, XmNlabelString, text("Example"), XmNindicatorOn, False,
-            XmNfillOnSelect, True, XmNshadowThickness, 1, XmNhighlightThickness, 0,
-            XmNmarginWidth, 14, XmNmarginHeight, 6, NULL);
-        state.source_tab = XtVaCreateManagedWidget("sourceTab", xmToggleButtonWidgetClass,
-            state.tabs, XmNlabelString, text("Source"), XmNindicatorOn, False,
-            XmNfillOnSelect, True, XmNshadowThickness, 1, XmNhighlightThickness, 0,
-            XmNmarginWidth, 14, XmNmarginHeight, 6, NULL);
-        state.icons_tab = XtVaCreateManagedWidget("iconsTab", xmToggleButtonWidgetClass,
-            state.tabs, XmNlabelString, text("Built-in Icons"), XmNindicatorOn, False,
-            XmNfillOnSelect, True, XmNshadowThickness, 1, XmNhighlightThickness, 0,
-            XmNmarginWidth, 14, XmNmarginHeight, 6, NULL);
-        {
-            Pixel outline = gallery_tab_outline(state.example_tab);
-            style_gallery_tab(state.example_tab, outline);
-            style_gallery_tab(state.source_tab, outline);
-            style_gallery_tab(state.icons_tab, outline);
-        }
-        XtAddCallback(state.example_tab, XmNvalueChangedCallback, select_tab, &state);
-        XtAddCallback(state.source_tab, XmNvalueChangedCallback, select_tab, &state);
-        XtAddCallback(state.icons_tab, XmNvalueChangedCallback, select_tab, &state);
-        notebook = XmVaCreateManagedForm(pane, "content", XmNshadowThickness, 0,
-            XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state.tabs,
+        Widget pane = XmVaCreateManagedForm(body, "workspace",
+            XmNtopAttachment, XmATTACH_FORM, XmNbottomAttachment, XmATTACH_FORM,
+            XmNleftAttachment, XmATTACH_WIDGET, XmNleftWidget, sidebar,
+            XmNrightAttachment, XmATTACH_FORM, NULL);
+        state.workspace = pane;
+        XmSegmentedControlItem views[3];
+        XmString view_labels[3] = {text("Example"), text("Source"), text("Icons")};
+        const char *view_ids[3] = {"example", "source", "icons"};
+        state.tabs = XmVaCreateSegmentedControl(pane, "viewTabs",
+            XmNtopAttachment, XmATTACH_FORM, XmNleftAttachment, XmATTACH_FORM,
+            XmNtopOffset, 12, XmNleftOffset, 24, NULL);
+        for (unsigned i = 0; i < 3; ++i)
+            views[i] = (XmSegmentedControlItem){view_ids[i], view_labels[i], XmUNSPECIFIED_PIXMAP, True};
+        XmSegmentedControlSetItems(state.tabs, views, 3);
+        for (unsigned i = 0; i < 3; ++i) XmStringFree(view_labels[i]);
+        XtAddCallback(state.tabs, XmNSegmentedSelectionCallback, select_tab, &state);
+        notebook = XmVaCreateManagedForm(pane, "content",             XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, state.tabs,
             XmNbottomAttachment, XmATTACH_FORM, XmNleftAttachment, XmATTACH_FORM,
             XmNrightAttachment, XmATTACH_FORM, NULL);
         state.notebook = notebook;
     }
     create_welcome(&state);
-    state.icons = create_icon_page(notebook);
+    state.icons = create_icon_page(&state);
     XtAddCallback(state.tree, XmNtreeViewSelectionCallback, tree_selected, &state);
+    XtAddCallback(state.tree, XmNactivateCallback, activate_navigation, &state);
     XtAddCallback(sidebar, XmNsidebarToggleCallback, toggle_sidebar, &state);
     add_tree_nodes(state.tree, NULL);
+    {
+        XtWidgetGeometry preferred = {0};
+        Dimension padding = 0;
+        XmGetAppearanceSpacing(XtDisplay(shell), XmAPPEARANCE_SPACING_SMALL, &padding);
+        XtQueryGeometry(state.tree, NULL, &preferred);
+        state.navigation_width = preferred.width + 2*padding;
+        XtVaSetValues(sidebar, XmNsidebarExpandedWidth, state.navigation_width, NULL);
+    }
     {
         const GalleryManifestEntry *initial = initial_id ? find_entry(initial_id)
                                                          : &gallery_manifest[0];
@@ -1301,6 +2147,7 @@ int main(int argc, char **argv)
     }
     XtManageChild(root);
     XtRealizeWidget(shell);
+    layout_navigation(&state);
     center_shell_frame(shell);
     /* Keep the requested landing page visible after geometry negotiation. */
     if (initial_id && !strcmp(initial_id, "gallery.icons")) {
@@ -1315,6 +2162,8 @@ int main(int argc, char **argv)
     if (initial_id && strcmp(initial_id, "gallery.icons") != 0 &&
         strcmp(initial_id, "gallery.welcome") != 0)
         select_page(&state, 2);
+    layout_gallery(&state);
+    XtAddEventHandler(body, StructureNotifyMask, False, gallery_configured, &state);
     state.accessibility = XmAccessibilityCreate(root, "CkMotifGallery");
     if (state.accessibility) {
         XmAccessibilityAttachShell(state.accessibility, shell);
@@ -1327,7 +2176,11 @@ int main(int argc, char **argv)
         if (state.accessibility) XmAccessibilityDestroy(state.accessibility);
         return result;
     }
-    if (integration_mode == 2) return 0;
+    if (integration_mode == 2) return verify_view_navigation(&state);
+    if (integration_mode == 3) return verify_responsive_layout(&state);
+    if (integration_mode == 4) return verify_flow_pages(&state);
+    if (integration_mode == 5) return verify_live_appearance(&state);
+    if (integration_mode == 6) return verify_appearance_controls(&state);
     if (screenshot_mode) XtAppAddWorkProc(app, capture_ready, &state);
     XtAppMainLoop(app);
     return 0;

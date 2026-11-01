@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Check safe AutoSuggestBox XmString copying."""
+"""Guard transactional suggestion ownership and native-list count bounds."""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "AutoSuggestBox.c").read_text(encoding="utf-8")
-start = source.index("static XmString string_copy")
-end = source.index("static void free_items", start)
+source = (Path(__file__).parents[2] / "lib/Xm/AutoSuggestBox.c").read_text()
+start = source.index("Boolean XmAutoSuggestBoxSetSuggestions(")
+end = source.index("Cardinal XmAutoSuggestBoxGetSuggestionCount(", start)
 region = source[start:end]
-
-assert "return value ? XmStringCopy(value) : XmStringCreateLocalized(\"\");" in region
-assert "XmStringUnparse" not in region
-assert "XmStringCreateLocalized(text)" not in region
-assert "(size_t)count > (size_t)UINT_MAX / sizeof(*box->auto_suggest.items)" in source
-assert "if (!replacement)" in source
-assert "if (!replacement[i].id || !label)" in source
-assert "free_item_array(replacement, i + 1)" in source
-print("PASS AutoSuggestBox string copies validate conversion allocation")
+assert "count > INT_MAX" in region
+assert "(size_t)count > SIZE_MAX / sizeof(*replacement)" in region
+assert "(size_t)count > (size_t)UINT_MAX / sizeof(*replacement)" in region
+assert "if (!replacement || !labels) goto failed" in region
+assert "XmStringCopy(items[i].label)" in region
+assert "if (!replacement[i].id || !replacement[i].label) goto failed" in region
+assert region.index("copied = i + 1") < region.index("free_items(box)")
+assert "i < copied" in region
+assert "XtFree((char *)replacement); XtFree((char *)labels)" in region
+print("PASS AutoSuggestBox bounded transactional model replacement")

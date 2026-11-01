@@ -19,3 +19,28 @@ reports popup open/close transitions.
 The compact field uses an unambiguous `YYYY-MM-DD` representation.  Locale
 formatting and time-zone interpretation are intentionally outside this
 date-only control and are separate work.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmDatePickerWidgetClass demo](gallery-screenshots/xm-datepickerwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmDatePickerWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L762-L765
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DatePicker.h)
+
+:::
+<!-- gallery-demo-tabs: end -->

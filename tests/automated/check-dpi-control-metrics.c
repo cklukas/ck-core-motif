@@ -37,7 +37,7 @@ main(int argc, char **argv)
     Display *display;
     XrmDatabase database;
     /* Exercise 1x, 2x, 4x and an explicit high-density boundary. */
-    const unsigned dpis[] = {75U, 150U, 300U, 600U};
+    const unsigned dpis[] = {96U, 192U, 384U, 768U};
     unsigned dpi_index;
 
     shell = XtVaAppInitialize(&app, "DpiControlMetrics", NULL, 0,

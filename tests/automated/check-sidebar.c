@@ -37,6 +37,7 @@ int main(int argc, char **argv)
     XmAccessibleId id;
     XmString text;
     Dimension width;
+    Display *display;
 
     (void)argv;
     shell = XtVaAppInitialize(&app, "SidebarTest", NULL, 0, &argc, argv,
@@ -86,8 +87,9 @@ int main(int argc, char **argv)
     CHECK(!XmSidebarGetExpanded(sidebar) && toggles == 3 && !last_expanded);
     XmAccessibilityDestroy(accessibility);
 
+    display=XtDisplay(shell);
     XtDestroyWidget(shell);
-    XtCloseDisplay(XtDisplay(shell));
+    XtCloseDisplay(display);
     XtDestroyApplicationContext(app);
     printf("PASS sidebar: %u checks\n", checks);
     return EXIT_SUCCESS;

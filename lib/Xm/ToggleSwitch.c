@@ -18,28 +18,40 @@
 #include "PrimitiveI.h"
 #include "TravActI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
+#include <limits.h>
+#include <math.h>
+#include <string.h>
+#include <Xm/Appearance.h>
+#include "CallbackI.h"
 
-static Position bounded_position(long long value) {
-    if (value < SHRT_MIN) return (Position)SHRT_MIN;
-    if (value > SHRT_MAX) return (Position)SHRT_MAX;
-    return (Position)value;
-}
-
+static void ScaleChanged(Widget, double, double, XtPointer);
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Toggle(Widget, XEvent *, String *, Cardinal *);
+static void Arm(Widget, XEvent *, String *, Cardinal *);
+static void Release(Widget, XEvent *, String *, Cardinal *);
+static void Enter(Widget, XEvent *, String *, Cardinal *);
+static void Leave(Widget, XEvent *, String *, Cardinal *);
+static void Highlight(Widget);
+static void Unhighlight(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 
 static char translations[] =
     "<Key>space: ToggleSwitch()\n"
     "<Key>Return: ToggleSwitch()\n"
-    "<Btn1Up>: ToggleSwitch()";
+    "<Btn1Down>: SwitchArm()\n"
+    "<Btn1Up>: SwitchRelease()\n"
+    "<EnterWindow>: SwitchEnter()\n"
+    "<LeaveWindow>: SwitchLeave()";
 
 static XtActionsRec actions[] = {
     {"ToggleSwitch", Toggle},
+    {"SwitchArm", Arm}, {"SwitchRelease", Release},
+    {"SwitchEnter", Enter}, {"SwitchLeave", Leave},
     {"ButtonTakeFocus", _XmButtonTakeFocus}
 };
 
@@ -47,8 +59,18 @@ static XtActionsRec actions[] = {
 #define TOGGLE_SWITCH_TRACK_HEIGHT 24
 #define TOGGLE_SWITCH_KNOB_DIAMETER 18
 
+static void CheckSetRenderTable(Widget w, int offset, XrmValue *value) {
+    XmToggleSwitchWidget sw=(XmToggleSwitchWidget)w;(void)offset;
+    if(sw->toggle_switch.check_set_render_table)value->addr=NULL;
+    else { sw->toggle_switch.check_set_render_table=True;
+           value->addr=(char *)&sw->toggle_switch.font; }
+}
 #define Offset(field) XtOffsetOf(XmToggleSwitchRec, field)
 static XtResource resources[] = {
+    {XmNfontList, XmCFontList, XmRFontList, sizeof(XmFontList),
+     Offset(toggle_switch.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(toggle_switch.font), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNset, XmCSet, XmRBoolean, sizeof(Boolean),
      Offset(toggle_switch.set), XmRImmediate, (XtPointer)False},
     {XmNlabelString, XmCXmString, XmRXmString, sizeof(XmString),
@@ -77,7 +99,7 @@ externaldef(xmtoggleswitchclassrec) XmToggleSwitchClassRec
         QueryGeometry, NULL, NULL
     },
     {
-        XmInheritBorderHighlight, XmInheritBorderUnhighlight,
+        Highlight, Unhighlight,
         XtInheritTranslations, NULL, NULL, 0, NULL
     },
     {NULL}
@@ -86,260 +108,241 @@ externaldef(xmtoggleswitchclassrec) XmToggleSwitchClassRec
 externaldef(xmtoggleswitchwidgetclass) WidgetClass xmToggleSwitchWidgetClass =
     (WidgetClass)&xmToggleSwitchClassRec;
 
-static void update_gcs(XmToggleSwitchWidget sw) {
-    Display *display = XtDisplay((Widget)sw);
-    sw->toggle_switch.track_color = sw->primitive.foreground;
-    sw->toggle_switch.knob_color = sw->toggle_switch.set
-        ? sw->primitive.highlight_color : sw->primitive.foreground;
-    if (sw->toggle_switch.track_gc) {
-        XSetBackground(display, sw->toggle_switch.track_gc,
-                       sw->core.background_pixel);
-        XSetForeground(display, sw->toggle_switch.track_gc,
-                       sw->toggle_switch.track_color);
-    }
-    if (sw->toggle_switch.knob_gc) {
-        XSetBackground(display, sw->toggle_switch.knob_gc,
-                       sw->core.background_pixel);
-        XSetForeground(display, sw->toggle_switch.knob_gc,
-                       sw->toggle_switch.knob_color);
-    }
-    if (sw->toggle_switch.label_gc) {
-        XSetBackground(display, sw->toggle_switch.label_gc,
-                       sw->core.background_pixel);
-        XSetForeground(display, sw->toggle_switch.label_gc,
-                       sw->primitive.foreground);
-    }
-    if (sw->toggle_switch.insensitive_gc) {
-        XSetBackground(display, sw->toggle_switch.insensitive_gc,
-                       sw->core.background_pixel);
-        XSetForeground(display, sw->toggle_switch.insensitive_gc,
-                       sw->primitive.bottom_shadow_color);
-    }
-}
+typedef struct {
+    Dimension width,height,inset,track_width,track_height,knob;
+    Dimension text_width,text_height;
+    Boolean rtl,modern;
+} SwitchMetrics;
 
+static Dimension bounded(unsigned long value) {
+    return (Dimension)MIN(USHRT_MAX,MAX(1UL,value));
+}
+static void measure(XmToggleSwitchWidget sw, SwitchMetrics *m) {
+    Widget w=(Widget)sw;
+    XmAppearanceProfile profile=_XmAppearanceGeometryProfile(XtDisplay(w));
+    Boolean compact=_XmAppearanceGeometryDensity(XtDisplay(w))==XmAPPEARANCE_DENSITY_COMPACT;
+    unsigned long frame=(unsigned long)sw->primitive.highlight_thickness+sw->primitive.shadow_thickness;
+    memset(m,0,sizeof(*m));
+    m->modern=profile==XmAPPEARANCE_MODERN_LIGHT || profile==XmAPPEARANCE_MODERN_DARK;
+    m->rtl=XmDirectionMatchPartial(XmPrim_layout_direction(sw),XmRIGHT_TO_LEFT,XmHORIZONTAL_MASK);
+    m->track_width=_XmDpiDefaultDimension(w,TOGGLE_SWITCH_TRACK_WIDTH);
+    m->track_height=_XmDpiDefaultDimension(w,TOGGLE_SWITCH_TRACK_HEIGHT);
+    m->knob=_XmDpiDefaultDimension(w,TOGGLE_SWITCH_KNOB_DIAMETER);
+    /* Equal parity gives an integral center and identical opposite margins. */
+    if ((m->track_height - m->knob) & 1) ++m->knob;
+    m->inset=(Dimension)MIN(USHRT_MAX,MAX(frame,(unsigned long)_XmDpiDefaultDimension(w,compact?2:4)));
+    if(sw->toggle_switch.font && sw->toggle_switch.label)
+        XmStringExtent(sw->toggle_switch.font,sw->toggle_switch.label,&m->text_width,&m->text_height);
+    m->width=bounded(2UL*m->inset+m->track_width+m->text_width+
+                    (m->text_width?sw->toggle_switch.spacing:0));
+    m->height=bounded(2UL*m->inset+MAX(m->track_height,m->text_height));
+    if(m->modern)m->height=MAX(m->height,_XmDpiDefaultDimension(w,compact?28:34));
+}
+static void size_automatic(XmToggleSwitchWidget sw) {
+    SwitchMetrics m;measure(sw,&m);
+    if(sw->toggle_switch.automatic_width)sw->core.width=m.width;
+    if(sw->toggle_switch.automatic_height)sw->core.height=m.height;
+}
+static void redraw(Widget w) {
+    if(XtIsRealized(w))XClearArea(XtDisplay(w),XtWindow(w),0,0,0,0,True);
+}
 static void fill_round_rect(Display *display, Window window, GC gc,
                             int x, int y, unsigned int width,
                             unsigned int height) {
-    unsigned int diameter;
-    unsigned int body_width;
-    if (!gc || width == 0 || height == 0) return;
-    diameter = width < height ? width : height;
-    body_width = width - diameter;
-    XFillRectangle(display, window, gc, x + (int)(diameter / 2), y,
-                   body_width, height);
-    XFillArc(display, window, gc, x, y, diameter, diameter, 0, 360 * 64);
-    XFillArc(display, window, gc, x + (int)body_width, y,
-             diameter, diameter, 0, 360 * 64);
+    if(!gc || !width || !height || width > INT_MAX || height > INT_MAX)return;
+    _XmAppearanceFillRoundedRectangle(display,window,gc,x,y,width,height,MIN(width,height)/2);
 }
-
-static void Initialize(Widget request, Widget new_widget, ArgList args,
-                       Cardinal *num_args) {
-    XmToggleSwitchWidget sw = (XmToggleSwitchWidget)new_widget;
-    Display *display = XtDisplay(new_widget);
-    XGCValues values;
-    unsigned long mask = GCForeground | GCBackground;
-    XmFontList defaults;
-    XmString replacement;
-    Dimension label_width = 0, label_height = 0;
-    (void)request; (void)args; (void)num_args;
-
-    if (!sw->toggle_switch.label)
-        sw->toggle_switch.label = XmStringCreateLocalized("");
-    else
-    {
-        replacement = XmStringCopy(sw->toggle_switch.label);
-        if (replacement != NULL)
-            sw->toggle_switch.label = replacement;
-        else
-            sw->toggle_switch.label = XmStringCreateLocalized("");
-    }
-    defaults = XmeGetDefaultRenderTable(new_widget, XmBUTTON_FONTLIST);
-    sw->toggle_switch.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (sw->toggle_switch.font && sw->toggle_switch.label)
-        XmStringExtent(sw->toggle_switch.font, sw->toggle_switch.label,
-                       &label_width, &label_height);
-    if (!sw->core.width)
-        sw->core.width = label_width + 36 + sw->toggle_switch.spacing;
-    if (!sw->core.height)
-        sw->core.height = (label_height > 18 ? label_height : 18) + 8;
-
-    sw->toggle_switch.track_color = sw->primitive.foreground;
-    sw->toggle_switch.knob_color = sw->primitive.foreground;
-    values.foreground = sw->toggle_switch.track_color;
-    values.background = sw->core.background_pixel;
-    sw->toggle_switch.track_gc = XCreateGC(display, DefaultRootWindow(display),
-                                            mask, &values);
-    values.foreground = sw->toggle_switch.knob_color;
-    sw->toggle_switch.knob_gc = XCreateGC(display, DefaultRootWindow(display),
-                                           mask, &values);
-    values.foreground = sw->primitive.foreground;
-    sw->toggle_switch.label_gc = XCreateGC(display, DefaultRootWindow(display),
-                                            mask, &values);
-    values.foreground = sw->primitive.bottom_shadow_color;
-    sw->toggle_switch.insensitive_gc = XCreateGC(
-        display, DefaultRootWindow(display), mask, &values);
-    if (!sw->toggle_switch.track_gc || !sw->toggle_switch.knob_gc ||
-        !sw->toggle_switch.label_gc || !sw->toggle_switch.insensitive_gc) {
-        if (sw->toggle_switch.track_gc)
-            XFreeGC(display, sw->toggle_switch.track_gc);
-        if (sw->toggle_switch.knob_gc)
-            XFreeGC(display, sw->toggle_switch.knob_gc);
-        if (sw->toggle_switch.label_gc)
-            XFreeGC(display, sw->toggle_switch.label_gc);
-        if (sw->toggle_switch.insensitive_gc)
-            XFreeGC(display, sw->toggle_switch.insensitive_gc);
-        sw->toggle_switch.track_gc = NULL;
-        sw->toggle_switch.knob_gc = NULL;
-        sw->toggle_switch.label_gc = NULL;
-        sw->toggle_switch.insensitive_gc = NULL;
-    }
+static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
+    XmToggleSwitchWidget sw=(XmToggleSwitchWidget)widget;
+    XGCValues values;XmString copy;(void)args;(void)count;
+    copy=sw->toggle_switch.label?XmStringCopy(sw->toggle_switch.label):NULL;
+    sw->toggle_switch.label=copy?copy:XmStringCreateLocalized("");
+    sw->toggle_switch.font=XmFontListCopy(sw->toggle_switch.font?sw->toggle_switch.font:
+                                         XmeGetDefaultRenderTable(widget,XmBUTTON_FONTLIST));
+    sw->toggle_switch.automatic_width=request->core.width==0;
+    sw->toggle_switch.automatic_height=request->core.height==0;
+    sw->toggle_switch.armed=False;sw->toggle_switch.hover=False;
+    values.foreground=sw->primitive.foreground;values.background=sw->core.background_pixel;
+    values.graphics_exposures=False;
+    sw->toggle_switch.track_gc=XCreateGC(XtDisplay(widget),DefaultRootWindow(XtDisplay(widget)),
+        GCForeground|GCBackground|GCGraphicsExposures,&values);
+    size_automatic(sw);
+    (void)_XmRegisterScaleChange(widget, ScaleChanged, NULL);
 }
-
+static void ScaleChanged(Widget widget, double old_scale, double new_scale, XtPointer closure) {
+    (void)closure;
+    if (old_scale == new_scale || widget->core.being_destroyed) return;
+    /* Recompute natural axes through Xt geometry negotiation, preserving
+     * explicit resource ownership. No widget access after callbacks. */
+    XtSetValues(widget, NULL, 0);
+}
 static void Destroy(Widget widget) {
-    XmToggleSwitchWidget sw = (XmToggleSwitchWidget)widget;
-    Display *display = XtDisplay(widget);
-    if (sw->toggle_switch.track_gc) XFreeGC(display, sw->toggle_switch.track_gc);
-    if (sw->toggle_switch.knob_gc) XFreeGC(display, sw->toggle_switch.knob_gc);
-    if (sw->toggle_switch.label_gc) XFreeGC(display, sw->toggle_switch.label_gc);
-    if (sw->toggle_switch.insensitive_gc)
-        XFreeGC(display, sw->toggle_switch.insensitive_gc);
-    if (sw->toggle_switch.label) XmStringFree(sw->toggle_switch.label);
-    if (sw->toggle_switch.font) XmFontListFree(sw->toggle_switch.font);
+    XmToggleSwitchWidget sw=(XmToggleSwitchWidget)widget;
+    _XmUnregisterScaleChange(widget, ScaleChanged, NULL);
+    if(sw->toggle_switch.track_gc)XFreeGC(XtDisplay(widget),sw->toggle_switch.track_gc);
+    if(sw->toggle_switch.label)XmStringFree(sw->toggle_switch.label);
+    if(sw->toggle_switch.font)XmFontListFree(sw->toggle_switch.font);
 }
-
-static void Redisplay(Widget widget, XEvent *event, Region region) {
-    XmToggleSwitchWidget sw = (XmToggleSwitchWidget)widget;
-    Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
-    Dimension track_width = TOGGLE_SWITCH_TRACK_WIDTH;
-    Dimension track_height = TOGGLE_SWITCH_TRACK_HEIGHT;
-    int track_x = (int)sw->toggle_switch.spacing;
-    int track_y = ((int)sw->core.height - (int)track_height) / 2;
-    int knob_inset = ((int)track_height - TOGGLE_SWITCH_KNOB_DIAMETER) / 2;
-    int knob_x = sw->toggle_switch.set
-        ? track_x + (int)track_width - (int)track_height + knob_inset
-        : track_x + knob_inset;
-    int knob_y = track_y +
-        ((int)track_height - (int)TOGGLE_SWITCH_KNOB_DIAMETER) / 2;
-    GC knob_gc;
-    GC label_gc;
-    Dimension label_width = 0, label_height = 0;
-    int label_x, label_y;
-    (void)event; (void)region;
-    if (!window) return;
-    update_gcs(sw);
-    knob_gc = sw->toggle_switch.knob_gc ? sw->toggle_switch.knob_gc
-                                        : sw->toggle_switch.track_gc;
-    label_gc = XtIsSensitive(widget) ? sw->toggle_switch.label_gc
-                                     : (sw->toggle_switch.insensitive_gc ?
-                                        sw->toggle_switch.insensitive_gc : knob_gc);
-    if (!sw->toggle_switch.track_gc || !knob_gc || !label_gc) return;
-    XClearWindow(display, window);
-    fill_round_rect(display, window, sw->toggle_switch.track_gc,
-                    track_x, track_y, track_width, track_height);
-    XSetForeground(display, sw->toggle_switch.track_gc, sw->core.background_pixel);
-    fill_round_rect(display, window, sw->toggle_switch.track_gc,
-                    track_x + 3, track_y + 3, track_width - 6, track_height - 6);
-    XSetForeground(display, sw->toggle_switch.track_gc,
-                   sw->toggle_switch.track_color);
-    fill_round_rect(display, window, knob_gc, knob_x, knob_y,
-                    TOGGLE_SWITCH_KNOB_DIAMETER, TOGGLE_SWITCH_KNOB_DIAMETER);
-    if (sw->toggle_switch.font && sw->toggle_switch.label)
-        XmStringExtent(sw->toggle_switch.font, sw->toggle_switch.label,
-                       &label_width, &label_height);
-    label_x = track_x + (int)track_width + (int)sw->toggle_switch.spacing;
-    label_y = ((int)sw->core.height - (int)label_height) / 2;
-    if (sw->toggle_switch.font && sw->toggle_switch.label)
-        XmStringDraw(display, window, sw->toggle_switch.font,
-                     sw->toggle_switch.label, label_gc,
-                     bounded_position((long long)label_x),
-                     bounded_position((long long)label_y),
-                     label_width, XmALIGNMENT_BEGINNING,
-                     XmPrim_layout_direction(sw), NULL);
-    if (sw->primitive.highlighted && sw->primitive.highlight_thickness &&
-        sw->core.width > 2 * sw->primitive.highlight_thickness &&
-        sw->core.height > 2 * sw->primitive.highlight_thickness) {
-        XDrawRectangle(display, window, knob_gc,
-                       sw->primitive.highlight_thickness - 1,
-                       sw->primitive.highlight_thickness - 1,
-                       sw->core.width - 2 * sw->primitive.highlight_thickness,
-                       sw->core.height - 2 * sw->primitive.highlight_thickness);
+static double linear_channel(unsigned short value) {
+    double channel = value / 65535.0;
+    return channel <= 0.04045 ? channel / 12.92 :
+        pow((channel + 0.055) / 1.055, 2.4);
+}
+static double luminance(const XColor *color) {
+    return 0.2126 * linear_channel(color->red) +
+           0.7152 * linear_channel(color->green) +
+           0.0722 * linear_channel(color->blue);
+}
+static Pixel contrast(XmToggleSwitchWidget sw, Pixel background) {
+    /* Reuse application-owned colors: screen black/white pixel IDs are not
+     * portable across colormaps, and expose must not allocate color cells. */
+    XColor colors[5] = {{0}};
+    double best = 0.0, backdrop;
+    Pixel result = sw->primitive.foreground;
+    colors[0].pixel = background;
+    colors[1].pixel = result;
+    colors[2].pixel = sw->core.background_pixel;
+    colors[3].pixel = sw->primitive.top_shadow_color;
+    colors[4].pixel = sw->primitive.bottom_shadow_color;
+    if (!XQueryColors(XtDisplay((Widget)sw), sw->core.colormap, colors, 5))
+        return result;
+    backdrop = luminance(&colors[0]);
+    for (unsigned i = 1; i < 5; ++i) {
+        double candidate = luminance(&colors[i]);
+        double ratio = (MAX(candidate, backdrop) + 0.05) /
+                       (MIN(candidate, backdrop) + 0.05);
+        if (ratio > best) { best = ratio; result = colors[i].pixel; }
     }
+    return result;
 }
-static Boolean SetValues(Widget current, Widget request, Widget new_widget,
-                         ArgList args, Cardinal *num_args) {
-    XmToggleSwitchWidget old_sw = (XmToggleSwitchWidget)current;
-    XmToggleSwitchWidget new_sw = (XmToggleSwitchWidget)new_widget;
-    Boolean redraw = False;
-    XmString replacement;
-    (void)request; (void)args; (void)num_args;
-    if (old_sw->toggle_switch.set != new_sw->toggle_switch.set) redraw = True;
-    if (old_sw->toggle_switch.label != new_sw->toggle_switch.label) {
-        replacement = new_sw->toggle_switch.label != NULL
-            ? XmStringCopy(new_sw->toggle_switch.label) : NULL;
-        if (new_sw->toggle_switch.label == NULL || replacement != NULL) {
-            if (old_sw->toggle_switch.label)
-                XmStringFree(old_sw->toggle_switch.label);
-            new_sw->toggle_switch.label = replacement;
-            redraw = True;
-        } else {
-            new_sw->toggle_switch.label = old_sw->toggle_switch.label;
+static void Redisplay(Widget widget, XEvent *event, Region region) {
+    XmToggleSwitchWidget sw=(XmToggleSwitchWidget)widget;SwitchMetrics m;
+    Display *d=XtDisplay(widget);Window window=XtWindow(widget);GC gc=sw->toggle_switch.track_gc;
+    int left,right,top,bottom,tx,ty,kx,ky,knob,border;XRectangle clip;
+    Pixel edge,fill,thumb;Boolean sensitive=XtIsSensitive(widget);
+    (void)event;(void)region;if(!window || !gc)return;
+    measure(sw,&m);XClearWindow(d,window);
+    left=top=m.inset;right=(int)sw->core.width-m.inset;bottom=(int)sw->core.height-m.inset;
+    if(right>left && bottom>top) {
+        clip=(XRectangle){left,top,right-left,bottom-top};XSetClipRectangles(d,gc,0,0,&clip,1,Unsorted);
+        tx=m.rtl?right-m.track_width:left;ty=((int)sw->core.height-m.track_height)/2;
+        edge=sensitive?(m.modern?sw->primitive.bottom_shadow_color:sw->primitive.foreground):sw->primitive.bottom_shadow_color;
+        if(sensitive && (sw->toggle_switch.hover || sw->toggle_switch.set))edge=sw->primitive.highlight_color;
+        fill=m.modern && sensitive && sw->toggle_switch.set?sw->primitive.highlight_color:sw->core.background_pixel;
+        thumb=!sensitive?sw->primitive.bottom_shadow_color:
+            (m.modern && sw->toggle_switch.set?contrast(sw,fill):sw->primitive.foreground);
+        border=MIN((int)_XmDpiDefaultDimension(widget,1),m.track_height/2);
+        XSetForeground(d,gc,edge);fill_round_rect(d,window,gc,tx,ty,m.track_width,m.track_height);
+        XSetForeground(d,gc,fill);
+        if(m.track_width>2*border && m.track_height>2*border)
+            fill_round_rect(d,window,gc,tx+border,ty+border,m.track_width-2*border,m.track_height-2*border);
+        knob=m.knob;
+        if(sensitive && sw->toggle_switch.armed && sw->toggle_switch.hover)
+            knob=MIN(m.track_height-2*border,knob+(int)_XmDpiDefaultDimension(widget,2));
+        if ((m.track_height-knob) & 1) ++knob;
+        kx=tx+(m.track_height-knob)/2;
+        if(sw->toggle_switch.set != m.rtl)kx+=m.track_width-m.track_height;
+        ky=ty+((int)m.track_height-knob)/2;
+        XSetForeground(d,gc,thumb);fill_round_rect(d,window,gc,kx,ky,knob,knob);
+        if(m.rtl)right=tx-sw->toggle_switch.spacing;
+        else left=tx+m.track_width+sw->toggle_switch.spacing;
+        XSetClipMask(d,gc,None);
+        if(right>left && sw->toggle_switch.font && sw->toggle_switch.label) {
+            clip=(XRectangle){left,top,right-left,bottom-top};
+            XSetForeground(d,gc,sensitive?sw->primitive.foreground:sw->primitive.bottom_shadow_color);
+            XmStringDraw(d,window,sw->toggle_switch.font,sw->toggle_switch.label,gc,left,
+                ((int)sw->core.height-m.text_height)/2,clip.width,XmALIGNMENT_BEGINNING,
+                XmPrim_layout_direction(sw),&clip);
         }
     }
-    if (old_sw->primitive.foreground != new_sw->primitive.foreground ||
-        old_sw->core.background_pixel != new_sw->core.background_pixel ||
-        old_sw->primitive.highlighted != new_sw->primitive.highlighted)
-        redraw = True;
-    return redraw;
+    if(!_XmAppearanceDrawButtonFocus(widget,sw->primitive.highlighted) && sw->primitive.highlighted &&
+       sw->core.width>2*sw->primitive.highlight_thickness && sw->core.height>2*sw->primitive.highlight_thickness)
+        xmPrimitiveClassRec.primitive_class.border_highlight(widget);
 }
-
-static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
-                                      XtWidgetGeometry *reply) {
-    XmToggleSwitchWidget sw = (XmToggleSwitchWidget)widget;
-    Dimension width = TOGGLE_SWITCH_TRACK_WIDTH + sw->toggle_switch.spacing + 8;
-    Dimension height = TOGGLE_SWITCH_TRACK_HEIGHT + 8;
-    Dimension label_width = 0, label_height = 0;
+static void Highlight(Widget w) {
+    ((XmToggleSwitchWidget)w)->primitive.highlighted=True;
+    ((XmToggleSwitchWidget)w)->primitive.highlight_drawn=True;
+    Redisplay(w,NULL,NULL);
+}
+static void Unhighlight(Widget w) {
+    ((XmToggleSwitchWidget)w)->primitive.highlighted=False;
+    ((XmToggleSwitchWidget)w)->primitive.highlight_drawn=False;
+    Redisplay(w,NULL,NULL);
+}
+static Boolean SetValues(Widget current,Widget request,Widget widget,ArgList args,Cardinal *count) {
+    XmToggleSwitchWidget old=(XmToggleSwitchWidget)current,sw=(XmToggleSwitchWidget)widget;
     (void)request;
-    if (sw->toggle_switch.font && sw->toggle_switch.label)
-        XmStringExtent(sw->toggle_switch.font, sw->toggle_switch.label,
-                       &label_width, &label_height);
-    width += label_width;
-    if (label_height + 12 > height) height = label_height + 12;
-    reply->request_mode = CWWidth | CWHeight;
-    reply->width = width; reply->height = height;
-    return (widget->core.width == width && widget->core.height == height)
-               ? XtGeometryYes : XtGeometryAlmost;
+    if(old->toggle_switch.font!=sw->toggle_switch.font) {
+        XmFontList font=XmFontListCopy(sw->toggle_switch.font?sw->toggle_switch.font:
+                                      XmeGetDefaultRenderTable(widget,XmBUTTON_FONTLIST));
+        if(font) { if(old->toggle_switch.font)XmFontListFree(old->toggle_switch.font);sw->toggle_switch.font=font; }
+        else sw->toggle_switch.font=old->toggle_switch.font;
+    }
+    if(old->toggle_switch.label!=sw->toggle_switch.label) {
+        XmString label=sw->toggle_switch.label?XmStringCopy(sw->toggle_switch.label):XmStringCreateLocalized("");
+        if(label) {if(old->toggle_switch.label)XmStringFree(old->toggle_switch.label);sw->toggle_switch.label=label;}
+        else sw->toggle_switch.label=old->toggle_switch.label;
+    }
+    for(Cardinal i=0;i<*count;++i) {
+        if(!strcmp(args[i].name,XmNwidth))sw->toggle_switch.automatic_width=(Dimension)args[i].value==0;
+        if(!strcmp(args[i].name,XmNheight))sw->toggle_switch.automatic_height=(Dimension)args[i].value==0;
+    }
+    if(!XtIsSensitive(widget)) {sw->toggle_switch.armed=False;sw->toggle_switch.hover=False;}
+    size_automatic(sw);return True;
 }
-
-static void Toggle(Widget widget, XEvent *event, String *params,
-                   Cardinal *num_params) {
-    (void)params; (void)num_params;
-    XmToggleSwitchSetState(widget,
-                           !XmToggleSwitchGetState(widget), True);
-    (void)event;
+static XtGeometryResult QueryGeometry(Widget widget,XtWidgetGeometry *request,XtWidgetGeometry *reply) {
+    XmToggleSwitchWidget sw=(XmToggleSwitchWidget)widget;SwitchMetrics m;measure(sw,&m);
+    reply->request_mode=CWWidth|CWHeight;
+    reply->width=sw->toggle_switch.automatic_width?m.width:sw->core.width;
+    reply->height=sw->toggle_switch.automatic_height?m.height:sw->core.height;
+    return XmeReplyToQueryGeometry(widget,request,reply);
 }
-
+static Boolean inside(Widget w,XEvent *event) {
+    return event && event->xbutton.x>=0 && event->xbutton.y>=0 &&
+        event->xbutton.x<(int)w->core.width && event->xbutton.y<(int)w->core.height;
+}
+static void set_state(Widget widget,Boolean state,Boolean notify,XEvent *event) {
+    XmToggleSwitchWidget sw=(XmToggleSwitchWidget)widget;
+    XmToggleSwitchCallbackStruct callback;Boolean changed;
+    if(widget->core.being_destroyed)return;
+    state=state?True:False;changed=sw->toggle_switch.set!=state;
+    sw->toggle_switch.set=state;redraw(widget);
+    if(!notify || !changed || widget->core.being_destroyed)return;
+    callback.reason=XmCR_VALUE_CHANGED;callback.event=event;callback.set=state;
+    (void)_XmCallCallbacksUntilDestroyed(widget,XmNvalueChangedCallback,&callback);
+}
+static void Toggle(Widget w,XEvent *event,String *params,Cardinal *count) {
+    (void)params;(void)count;if(!XtIsSensitive(w) || w->core.being_destroyed)return;
+    set_state(w,!((XmToggleSwitchWidget)w)->toggle_switch.set,True,event);
+}
+static void Arm(Widget w,XEvent *event,String *params,Cardinal *count) {
+    XmToggleSwitchWidget sw=(XmToggleSwitchWidget)w;(void)params;(void)count;
+    if(!XtIsSensitive(w) || w->core.being_destroyed || !inside(w,event))return;
+    sw->toggle_switch.armed=True;sw->toggle_switch.hover=True;redraw(w);
+    XmProcessTraversal(w,XmTRAVERSE_CURRENT);
+}
+static void Release(Widget w,XEvent *event,String *params,Cardinal *count) {
+    XmToggleSwitchWidget sw=(XmToggleSwitchWidget)w;Boolean activate;
+    (void)params;(void)count;
+    activate=sw->toggle_switch.armed && XtIsSensitive(w) && inside(w,event);
+    sw->toggle_switch.armed=False;redraw(w);
+    if(activate)set_state(w,!sw->toggle_switch.set,True,event);
+}
+static void Enter(Widget w,XEvent *event,String *params,Cardinal *count) {
+    (void)event;(void)params;(void)count;
+    ((XmToggleSwitchWidget)w)->toggle_switch.hover=XtIsSensitive(w);redraw(w);
+}
+static void Leave(Widget w,XEvent *event,String *params,Cardinal *count) {
+    (void)event;(void)params;(void)count;
+    ((XmToggleSwitchWidget)w)->toggle_switch.hover=False;redraw(w);
+}
 Boolean XmToggleSwitchGetState(Widget widget) {
-    if (widget == NULL || !XmIsToggleSwitch(widget)) return False;
+    if(widget == NULL || !XmIsToggleSwitch(widget))return False;
     return ((XmToggleSwitchWidget)widget)->toggle_switch.set;
 }
-
-void XmToggleSwitchSetState(Widget widget, Boolean state, Boolean notify) {
-    XmToggleSwitchWidget sw;
-    XmToggleSwitchCallbackStruct callback;
-    Boolean changed;
-    if (widget == NULL || !XmIsToggleSwitch(widget)) return;
-    sw = (XmToggleSwitchWidget)widget;
-    state = state ? True : False;
-    changed = sw->toggle_switch.set != state;
-    sw->toggle_switch.set = state;
-    if (XtIsRealized(widget))
-        XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
-    if (!notify || !changed || widget->core.being_destroyed) return;
-    callback.reason = XmCR_VALUE_CHANGED;
-    callback.event = NULL;
-    callback.set = state;
-    XtCallCallbacks(widget, XmNvalueChangedCallback, &callback);
+void XmToggleSwitchSetState(Widget widget,Boolean state,Boolean notify) {
+    if(widget == NULL || !XmIsToggleSwitch(widget))return;
+    set_state(widget,state,notify,NULL);
 }
 
 Widget XmCreateToggleSwitch(Widget parent, char *name, ArgList args,

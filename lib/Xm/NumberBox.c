@@ -1,9 +1,7 @@
-/* Additive integer NumberBox.  Text is edited locally and committed only
- * after complete parsing; existing XmTextField/XmSpinBox records are untouched. */
+/* Bounded integer editor composed from native text and arrow controls. */
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
@@ -13,18 +11,23 @@
 #include <X11/IntrinsicP.h>
 #include <X11/keysym.h>
 #include <Xm/NumberBoxP.h>
+#include <Xm/TextF.h>
+#include <Xm/ArrowB.h>
+#include <Xm/Label.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
-#include "PrimitiveI.h"
 #include "XmI.h"
-
-static void Initialize(Widget, Widget, ArgList, Cardinal *);
-static void Redisplay(Widget, XEvent *, Region);
-static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
+#include "CallbackI.h"
+static void Initialize(Widget,Widget,ArgList,Cardinal *);
 static void Destroy(Widget);
-static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
-                                      XtWidgetGeometry *);
-static void Events(Widget, XtPointer, XEvent *, Boolean *);
+static void Resize(Widget);
+static void ChangeManaged(Widget);
+static Boolean SetValues(Widget,Widget,Widget,ArgList,Cardinal *);
+static XtGeometryResult GeometryManager(Widget,XtWidgetGeometry *,XtWidgetGeometry *);
+static XtGeometryResult QueryGeometry(Widget,XtWidgetGeometry *,XtWidgetGeometry *);
+static void Events(Widget,XtPointer,XEvent *,Boolean *);
+static void refresh(XmNumberBoxWidget);
+static void schedule_layout(XmNumberBoxWidget);
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
 {
     XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
@@ -64,28 +67,25 @@ static XtResource resources[] = {
     {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
      Offset(number_box.render_table), XmRCallProc, (XtPointer)CheckSetRenderTable},
     {XmNtraversalOn, XmCTraversalOn, XmRBoolean, sizeof(Boolean),
-     Offset(primitive.traversal_on), XmRImmediate, (XtPointer)True},
-    {XmNhighlightThickness, XmCHighlightThickness, XmRHorizontalDimension,
-     sizeof(Dimension), Offset(primitive.highlight_thickness), XmRCallProc,
-     (XtPointer)_XmSetThickness}
+     Offset(manager.traversal_on), XmRImmediate, (XtPointer)True},
+    {XmNshadowThickness, XmCShadowThickness, XmRHorizontalDimension,
+     sizeof(Dimension), Offset(manager.shadow_thickness), XmRImmediate, (XtPointer)0}
 };
-
 externaldef(xmnumberboxclassrec) XmNumberBoxClassRec xmNumberBoxClassRec = {
-    {
-        (WidgetClass)&xmPrimitiveClassRec, "XmNumberBox", sizeof(XmNumberBoxRec),
-        NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
-        resources, XtNumber(resources), NULLQUARK, True,
-        XtExposeCompressMaximal, True, False, Destroy, NULL, Redisplay,
-        SetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion,
-        NULL, XtInheritTranslations, QueryGeometry, NULL, NULL
-    },
-    {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
-     XtInheritTranslations, NULL, NULL, 0, NULL},
-    {NULL}
+    {.superclass=(WidgetClass)&xmManagerClassRec, .class_name="XmNumberBox",
+     .widget_size=sizeof(XmNumberBoxRec), .initialize=Initialize,
+     .realize=XtInheritRealize, .resources=resources, .num_resources=XtNumber(resources),
+     .compress_motion=True, .compress_exposure=XtExposeCompressMultiple,
+     .compress_enterleave=True, .destroy=Destroy, .resize=Resize,
+     .set_values=SetValues, .set_values_almost=XtInheritSetValuesAlmost,
+     .version=XtVersion, .tm_table=XtInheritTranslations, .query_geometry=QueryGeometry},
+    {.geometry_manager=GeometryManager, .change_managed=ChangeManaged,
+     .insert_child=XtInheritInsertChild, .delete_child=XtInheritDeleteChild},
+    {.constraint_size=sizeof(XmManagerConstraintRec)},
+    {.translations=XtInheritTranslations, .parent_process=XmInheritParentProcess}, {NULL}
 };
 externaldef(xmnumberboxwidgetclass) WidgetClass xmNumberBoxWidgetClass =
     (WidgetClass)&xmNumberBoxClassRec;
-
 static void normalize(XmNumberBoxWidget number) {
     if (number->number_box.maximum < number->number_box.minimum)
         number->number_box.maximum = number->number_box.minimum;
@@ -96,11 +96,6 @@ static void normalize(XmNumberBoxWidget number) {
     if (number->number_box.step < 1) number->number_box.step = 1;
     if (number->number_box.page_step < 1)
         number->number_box.page_step = number->number_box.step;
-}
-
-static void format_value(XmNumberBoxWidget number) {
-    (void)snprintf(number->number_box.text, sizeof(number->number_box.text),
-                   "%d", number->number_box.value);
 }
 
 static Boolean parse_text(const char *text, int *value) {
@@ -116,299 +111,247 @@ static Boolean parse_text(const char *text, int *value) {
     return True;
 }
 
-static void redraw(XmNumberBoxWidget number) {
-    if (XtIsRealized((Widget)number))
-        XClearArea(XtDisplay((Widget)number), XtWindow((Widget)number),
-                   0, 0, 0, 0, True);
+static Dimension dimension(unsigned long value) {
+    return (Dimension)MAX(1,MIN(value,USHRT_MAX));
 }
-
-static short bounded_point(int value) {
-    if (value < SHRT_MIN) return SHRT_MIN;
-    if (value > SHRT_MAX) return SHRT_MAX;
-    return (short)value;
+static void preferred(Widget child,Dimension *width,Dimension *height) {
+    XtWidgetGeometry reply={0};XtQueryGeometry(child,NULL,&reply);
+    *width=(reply.request_mode&CWWidth)?reply.width:child->core.width;
+    *height=(reply.request_mode&CWHeight)?reply.height:child->core.height;
 }
-
-static void notify_value(XmNumberBoxWidget number, XEvent *event) {
-    XmNumberBoxCallbackStruct callback;
-    if (number == NULL || number->core.being_destroyed)
-        return;
-    callback.reason = XmCR_VALUE_CHANGED;
-    callback.event = event;
-    callback.minimum = number->number_box.minimum;
-    callback.maximum = number->number_box.maximum;
-    callback.value = number->number_box.value;
-    callback.step = number->number_box.step;
-    callback.page_step = number->number_box.page_step;
-    XtCallCallbacks((Widget)number, XmNnumberValueChangedCallback, &callback);
+static void natural_size(XmNumberBoxWidget number,Dimension *width,Dimension *height) {
+    Dimension ew,eh,aw,ah,lw=0,lh=0;
+    preferred(number->number_box.editor,&ew,&eh);
+    preferred(number->number_box.increment,&aw,&ah);
+    if(number->number_box.invalid)preferred(number->number_box.error_label,&lw,&lh);
+    *width=dimension(MAX((unsigned long)ew+number->number_box.spacing+aw,lw));
+    *height=dimension((unsigned long)MAX(eh,ah)+(lh?lh+number->number_box.spacing:0));
 }
-
-static void notify_invalid(XmNumberBoxWidget number, XEvent *event) {
-    XmNumberBoxInvalidCallbackStruct callback;
-    if (number == NULL || number->core.being_destroyed)
-        return;
-    callback.reason = XmCR_VALUE_CHANGED;
-    callback.event = event;
-    callback.text = number->number_box.text;
-    XtCallCallbacks((Widget)number, XmNnumberInvalidCallback, &callback);
-}
-
-static void Initialize(Widget request, Widget widget, ArgList args,
-                       Cardinal *count) {
-    XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
-    Display *display = XtDisplay(widget);
-    XGCValues values;
-    unsigned long mask = GCForeground | GCBackground;
-    (void)request; (void)args; (void)count;
-    normalize(number);
-    format_value(number);
-    values.foreground = number->primitive.foreground;
-    values.background = number->core.background_pixel;
-    if (number->number_box.render_table == NULL)
-        number->number_box.render_table = XmFontListCopy(
-            XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-    else
-        number->number_box.render_table = XmFontListCopy(
-            number->number_box.render_table);
-    number->number_box.text_gc = XCreateGC(display, DefaultRootWindow(display),
-                                           mask, &values);
-    values.foreground = number->primitive.foreground;
-    number->number_box.arrow_gc = XCreateGC(display, DefaultRootWindow(display),
-                                            mask, &values);
-    values.foreground = number->primitive.bottom_shadow_color;
-    number->number_box.invalid_gc = XCreateGC(display, DefaultRootWindow(display),
-                                              mask, &values);
-    if (number->number_box.text_gc == NULL ||
-        number->number_box.arrow_gc == NULL ||
-        number->number_box.invalid_gc == NULL) {
-        if (number->number_box.text_gc)
-            XFreeGC(display, number->number_box.text_gc);
-        if (number->number_box.arrow_gc)
-            XFreeGC(display, number->number_box.arrow_gc);
-        if (number->number_box.invalid_gc)
-            XFreeGC(display, number->number_box.invalid_gc);
-        number->number_box.text_gc = NULL;
-        number->number_box.arrow_gc = NULL;
-        number->number_box.invalid_gc = NULL;
+static void Resize(Widget widget) {
+    XmNumberBoxWidget number=(XmNumberBoxWidget)widget;
+    if(number->number_box.initializing || number->number_box.updating)return;
+    number->number_box.updating=True;
+    Dimension aw,ah,lw=0,lh=0;unsigned char direction;
+    int width=MIN(number->core.width,SHRT_MAX),height=MIN(number->core.height,SHRT_MAX);
+    preferred(number->number_box.increment,&aw,&ah);
+    if(number->number_box.invalid)preferred(number->number_box.error_label,&lw,&lh);
+    int field_height=MAX(1,height-(lh?MIN((int)lh+number->number_box.spacing,height-1):0));
+    int arrow_width=MIN((int)aw,MAX(0,width/3));
+    int gap=MIN((int)number->number_box.spacing,MAX(0,width-arrow_width-1));
+    int editor_width=MAX(1,width-arrow_width-gap);
+    XtVaGetValues(widget,XmNlayoutDirection,&direction,NULL);
+    Boolean rtl=XmDirectionMatch(direction,XmRIGHT_TO_LEFT);
+    int editor_x=rtl?arrow_width+gap:0,arrow_x=rtl?0:editor_width+gap;
+    XtConfigureWidget(number->number_box.editor,editor_x,0,editor_width,field_height,0);
+    Boolean arrows=arrow_width>0 && field_height>=2;
+    XtSetMappedWhenManaged(number->number_box.increment,arrows);
+    XtSetMappedWhenManaged(number->number_box.decrement,arrows);
+    if(arrows) {
+        int half=field_height/2;
+        XtConfigureWidget(number->number_box.increment,arrow_x,0,arrow_width,half,0);
+        XtConfigureWidget(number->number_box.decrement,arrow_x,half,arrow_width,field_height-half,0);
     }
-    if (!number->core.width) number->core.width = 140;
-    if (!number->core.height) number->core.height = 32;
-    XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
-                      NULL);
+    if(lh)XtConfigureWidget(number->number_box.error_label,0,MIN(height-1,field_height+gap),
+                           width,MAX(1,height-field_height-gap),0);
+    number->number_box.updating=False;
 }
-
+static Boolean layout_work(XtPointer closure) {
+    XmNumberBoxWidget number=(XmNumberBoxWidget)closure;
+    number->number_box.layout_work=0;
+    Dimension width,height;natural_size(number,&width,&height);
+    if(!number->number_box.automatic_width)width=number->core.width;
+    if(!number->number_box.automatic_height)height=number->core.height;
+    if(width!=number->core.width || height!=number->core.height) {
+        XtWidgetGeometry request={0},reply={0};request.request_mode=CWWidth|CWHeight;
+        request.width=width;request.height=height;
+        if(XtMakeGeometryRequest((Widget)number,&request,&reply)==XtGeometryAlmost) {
+            if(reply.request_mode&CWWidth)request.width=reply.width;
+            if(reply.request_mode&CWHeight)request.height=reply.height;
+            XtMakeGeometryRequest((Widget)number,&request,NULL);
+        }
+    }
+    Resize((Widget)number);return True;
+}
+static void schedule_layout(XmNumberBoxWidget number) {
+    if(!number->number_box.initializing && !number->core.being_destroyed && !number->number_box.layout_work)
+        number->number_box.layout_work=XtAppAddWorkProc(XtWidgetToApplicationContext((Widget)number),layout_work,number);
+}
+static void ChangeManaged(Widget widget) { schedule_layout((XmNumberBoxWidget)widget); }
+static XtGeometryResult GeometryManager(Widget child,XtWidgetGeometry *request,XtWidgetGeometry *reply) {
+    XmNumberBoxWidget number=(XmNumberBoxWidget)XtParent(child);(void)reply;
+    if(!(request->request_mode&XtCWQueryOnly))schedule_layout(number);
+    /* Child allocation belongs to this composite, not its tentative request. */
+    return XtGeometryNo;
+}
+static void formatting_destroyed(Widget widget,XtPointer closure,XtPointer data) {
+    (void)widget;(void)data;*(Boolean*)closure=True;
+}
+static Boolean format_value(XmNumberBoxWidget number) {
+    char text[32];Boolean destroyed=False;
+    Widget widget=(Widget)number,editor=number->number_box.editor;
+    snprintf(text,sizeof(text),"%d",number->number_box.value);
+    number->number_box.updating=True;
+    XtAddCallback(widget,XmNdestroyCallback,formatting_destroyed,&destroyed);
+    XmTextFieldSetString(editor,text);
+    if (!destroyed && !widget->core.being_destroyed)
+        XmTextFieldSetInsertionPosition(editor,strlen(text));
+    if (destroyed) return False;
+    XtRemoveCallback(widget,XmNdestroyCallback,formatting_destroyed,&destroyed);
+    if (widget->core.being_destroyed) return False;
+    number->number_box.updating=False;
+    return True;
+}
+static void refresh(XmNumberBoxWidget number) {
+    char low[32],high[32],message[128];
+    snprintf(low,sizeof(low),"%d",number->number_box.minimum);
+    snprintf(high,sizeof(high),"%d",number->number_box.maximum);
+    short columns=(short)MAX(3,MAX(strlen(low),strlen(high)));
+    short current;XtVaGetValues(number->number_box.editor,XmNcolumns,&current,NULL);
+    if(current!=columns)XtVaSetValues(number->number_box.editor,XmNcolumns,columns,NULL);
+    snprintf(message,sizeof(message),"Enter an integer from %d to %d.",number->number_box.minimum,number->number_box.maximum);
+    XmString label=XmStringCreateLocalized(message);
+    XtVaSetValues(number->number_box.error_label,XmNlabelString,label,NULL);XmStringFree(label);
+    if(number->number_box.invalid)XtManageChild(number->number_box.error_label);
+    else XtUnmanageChild(number->number_box.error_label);
+    schedule_layout(number);
+}
+static void notify_value(XmNumberBoxWidget number,XEvent *event) {
+    XmNumberBoxCallbackStruct callback={XmCR_VALUE_CHANGED,event,number->number_box.minimum,
+        number->number_box.maximum,number->number_box.value,number->number_box.step,number->number_box.page_step};
+    (void)_XmCallCallbacksUntilDestroyed((Widget)number,XmNnumberValueChangedCallback,&callback);
+}
+static void commit_text(XmNumberBoxWidget number,XEvent *event) {
+    char *text=XmTextFieldGetString(number->number_box.editor);int value;
+    if(!parse_text(text,&value) || value<number->number_box.minimum || value>number->number_box.maximum) {
+        number->number_box.invalid=True;refresh(number);
+        XmNumberBoxInvalidCallbackStruct callback={XmCR_VALUE_CHANGED,event,text};
+        (void)_XmCallCallbacksUntilDestroyed((Widget)number,XmNnumberInvalidCallback,&callback);
+        XtFree(text);return;
+    }
+    XtFree(text);Boolean changed=value!=number->number_box.value;
+    number->number_box.value=value;number->number_box.invalid=False;refresh(number);
+    if(changed)notify_value(number,event);
+}
+static void step_value(XmNumberBoxWidget number,int direction,Boolean page,Boolean notify,XEvent *event) {
+    int64_t delta=(int64_t)(page?number->number_box.page_step:number->number_box.step);
+    int64_t next=(int64_t)number->number_box.value+(direction<0?-delta:delta);
+    if(next<number->number_box.minimum || next>number->number_box.maximum) {
+        if(number->number_box.wrap)next=next<number->number_box.minimum?number->number_box.maximum:number->number_box.minimum;
+        else next=MAX(number->number_box.minimum,MIN(next,number->number_box.maximum));
+    }
+    Boolean changed=number->number_box.value!=(int)next;
+    number->number_box.value=(int)next;number->number_box.invalid=False;
+    if(!format_value(number))return;
+    refresh(number);
+    if(changed && notify)notify_value(number,event);
+}
+static void edited(Widget widget,XtPointer closure,XtPointer data) {
+    XmNumberBoxWidget number=closure;(void)widget;(void)data;
+    if(!number || !XmIsNumberBox((Widget)number) || number->core.being_destroyed || number->number_box.updating)return;
+    if(number->number_box.invalid){number->number_box.invalid=False;refresh(number);}
+}
+static void activated(Widget widget,XtPointer closure,XtPointer data) {
+    XmNumberBoxWidget number=closure;XmAnyCallbackStruct *call=data;(void)widget;
+    if(number && XmIsNumberBox((Widget)number) && !number->core.being_destroyed && XtIsSensitive((Widget)number))commit_text(number,call?call->event:NULL);
+}
+static void spin(Widget widget,XtPointer closure,XtPointer data) {
+    XmNumberBoxWidget number=closure;XmArrowButtonCallbackStruct *call=data;
+    if(!number || !XmIsNumberBox((Widget)number) || number->core.being_destroyed || !XtIsSensitive((Widget)number))return;
+    step_value(number,widget==number->number_box.increment?1:-1,False,True,call?call->event:NULL);
+}
+static void Events(Widget widget,XtPointer closure,XEvent *event,Boolean *dispatch) {
+    XmNumberBoxWidget number=closure;(void)widget;
+    if(!number || !XmIsNumberBox((Widget)number) || number->core.being_destroyed || !event || event->type!=KeyPress || !XtIsSensitive((Widget)number))return;
+    KeySym symbol=XLookupKeysym(&event->xkey,0);
+    if(event->xkey.state&(ControlMask|Mod1Mask))return;
+    switch(symbol) {
+    case XK_Up:case XK_Down:case XK_Page_Up:case XK_Page_Down:
+        *dispatch=False;step_value(number,(symbol==XK_Up || symbol==XK_Page_Up)?1:-1,
+            symbol==XK_Page_Up || symbol==XK_Page_Down,True,event);return;
+    case XK_Escape:*dispatch=False;number->number_box.invalid=False;
+        if(format_value(number))refresh(number);
+        return;
+    default:return;
+    }
+}
+static void Initialize(Widget request,Widget widget,ArgList args,Cardinal *count) {
+    XmNumberBoxWidget number=(XmNumberBoxWidget)widget;(void)args;(void)count;
+    number->number_box.initializing=True;number->number_box.updating=False;number->number_box.layout_work=0;
+    number->number_box.automatic_width=request->core.width==0;
+    number->number_box.automatic_height=request->core.height==0;
+    normalize(number);
+    number->number_box.render_table=XmFontListCopy(number->number_box.render_table?
+        number->number_box.render_table:XmeGetDefaultRenderTable(widget,XmTEXT_FONTLIST));
+    number->number_box.editor=XtVaCreateManagedWidget("editor",xmTextFieldWidgetClass,widget,
+        XmNrenderTable,number->number_box.render_table,XmNmaxLength,63,XmNresizeWidth,False,NULL);
+    _XmAppearanceInheritFont(number->number_box.editor,widget);
+    number->number_box.increment=XtVaCreateManagedWidget("increment",xmArrowButtonWidgetClass,widget,
+        XmNarrowDirection,XmARROW_UP,XmNtraversalOn,False,XmNhighlightThickness,0,NULL);
+    number->number_box.decrement=XtVaCreateManagedWidget("decrement",xmArrowButtonWidgetClass,widget,
+        XmNarrowDirection,XmARROW_DOWN,XmNtraversalOn,False,XmNhighlightThickness,0,NULL);
+    number->number_box.error_label=XtVaCreateWidget("validation",xmLabelWidgetClass,widget,
+        XmNalignment,XmALIGNMENT_BEGINNING,XmNrenderTable,number->number_box.render_table,NULL);
+    _XmAppearanceInheritFont(number->number_box.error_label,widget);
+    Widget color_children[]={number->number_box.editor,number->number_box.increment,
+        number->number_box.decrement,number->number_box.error_label};
+    for(unsigned i=0;i<XtNumber(color_children);++i)
+        _XmAppearanceInheritForeground(color_children[i],widget);
+    XtAddEventHandler(number->number_box.editor,KeyPressMask,False,Events,number);
+    XtAddCallback(number->number_box.editor,XmNvalueChangedCallback,edited,number);
+    XtAddCallback(number->number_box.editor,XmNactivateCallback,activated,number);
+    XtAddCallback(number->number_box.increment,XmNactivateCallback,spin,number);
+    XtAddCallback(number->number_box.decrement,XmNactivateCallback,spin,number);
+    if(!format_value(number))return;
+    refresh(number);
+    number->number_box.initializing=False;
+    Dimension width,height;natural_size(number,&width,&height);
+    if(number->number_box.automatic_width)number->core.width=width;
+    if(number->number_box.automatic_height)number->core.height=height;
+    Resize(widget);
+}
 static void Destroy(Widget widget) {
-    XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
-    Display *display = XtDisplay(widget);
-    XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False,
-                         Events, NULL);
-    if (number->number_box.text_gc) XFreeGC(display, number->number_box.text_gc);
-    if (number->number_box.arrow_gc) XFreeGC(display, number->number_box.arrow_gc);
-    if (number->number_box.invalid_gc) XFreeGC(display, number->number_box.invalid_gc);
-    if (number->number_box.render_table)
-        XmRenderTableFree(number->number_box.render_table);
+    XmNumberBoxWidget number=(XmNumberBoxWidget)widget;
+    if(number->number_box.layout_work)XtRemoveWorkProc(number->number_box.layout_work);
+    if(number->number_box.render_table)XmRenderTableFree(number->number_box.render_table);
 }
-
-static void Redisplay(Widget widget, XEvent *event, Region region) {
-    XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
-    Display *display = XtDisplay(widget);
-    Window window = XtWindow(widget);
-    int arrow_x;
-    XPoint up[3], down[3];
-    GC text_gc;
-    (void)event; (void)region;
-    if (!window || !number->number_box.text_gc ||
-        !number->number_box.arrow_gc)
-        return;
-    text_gc = number->number_box.invalid ? number->number_box.invalid_gc
-                                         : number->number_box.text_gc;
-    if (!text_gc)
-        return;
-    XClearWindow(display, window);
-    if (number->number_box.render_table) {
-        XmString value = XmStringCreateLocalized(number->number_box.text);
-        Dimension text_width = 0, text_height = 0;
-        if (value) {
-            XmStringExtent(number->number_box.render_table, value,
-                           &text_width, &text_height);
-            XmStringDraw(display, window, number->number_box.render_table,
-                         value, text_gc, (int)number->number_box.spacing,
-                         ((int)number->core.height - (int)text_height) / 2,
-                         text_width, XmALIGNMENT_BEGINNING,
-                         XmPrim_layout_direction(number), NULL);
-            XmStringFree(value);
-        }
-    }
-    arrow_x = number->core.width > 24 ? number->core.width - 24 : 0;
-    if (arrow_x > SHRT_MAX - 19)
-        arrow_x = SHRT_MAX - 19;
-    XDrawLine(display, window, number->number_box.arrow_gc, arrow_x, 0,
-              arrow_x, number->core.height);
-    up[0].x = bounded_point(arrow_x + 12); up[0].y = 5;
-    up[1].x = bounded_point(arrow_x + 5);
-    up[1].y = bounded_point((int)number->core.height / 2 - 2);
-    up[2].x = bounded_point(arrow_x + 19); up[2].y = up[1].y;
-    down[0].x = up[1].x;
-    down[0].y = bounded_point((int)number->core.height / 2 + 2);
-    down[1].x = up[2].x; down[1].y = down[0].y;
-    down[2].x = up[0].x;
-    down[2].y = bounded_point((int)number->core.height - 5);
-    XFillPolygon(display, window, number->number_box.arrow_gc, up, 3,
-                 Convex, CoordModeOrigin);
-    XFillPolygon(display, window, number->number_box.arrow_gc, down, 3,
-                 Convex, CoordModeOrigin);
-    if (number->primitive.highlighted && number->primitive.highlight_thickness &&
-        number->core.width > 2 * number->primitive.highlight_thickness &&
-        number->core.height > 2 * number->primitive.highlight_thickness)
-        XDrawRectangle(display, window, number->number_box.arrow_gc,
-                       number->primitive.highlight_thickness - 1,
-                       number->primitive.highlight_thickness - 1,
-                       number->core.width - 2 * number->primitive.highlight_thickness,
-                       number->core.height - 2 * number->primitive.highlight_thickness);
-}
-
-static void commit_text(XmNumberBoxWidget number, XEvent *event) {
-    int value;
-    if (!parse_text(number->number_box.text, &value) ||
-        value < number->number_box.minimum || value > number->number_box.maximum) {
-        number->number_box.invalid = True;
-        redraw(number);
-        notify_invalid(number, event);
-        return;
-    }
-    number->number_box.invalid = False;
-    if (number->number_box.value != value) {
-        number->number_box.value = value;
-        redraw(number);
-        notify_value(number, event);
-    } else redraw(number);
-}
-
-static void step_value(XmNumberBoxWidget number, int direction, Boolean page,
-                       Boolean notify, XEvent *event) {
-    int64_t delta = (int64_t)(page ? number->number_box.page_step :
-                              number->number_box.step);
-    int64_t next = (int64_t)number->number_box.value +
-                   (direction < 0 ? -delta : delta);
-    if (next < number->number_box.minimum || next > number->number_box.maximum) {
-        if (!number->number_box.wrap) {
-            next = next < number->number_box.minimum ? number->number_box.minimum
-                                                     : number->number_box.maximum;
-        } else if (next < number->number_box.minimum) next = number->number_box.maximum;
-        else next = number->number_box.minimum;
-    }
-    number->number_box.invalid = False;
-    if (number->number_box.value != (int)next) {
-        number->number_box.value = (int)next;
-        format_value(number);
-        redraw(number);
-        if (notify) notify_value(number, event);
-    }
-}
-
-static void Events(Widget widget, XtPointer data, XEvent *event,
-                   Boolean *dispatch) {
-    XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
-    char input[8]; KeySym symbol; int length;
-    (void)data; (void)dispatch;
-    if (widget == NULL || event == NULL || !XmIsNumberBox(widget)) return;
-    if (event->type == ButtonPress) {
-        XButtonEvent *button = &event->xbutton;
-        if (button->x >= (int)number->core.width - 24)
-            step_value(number, button->y < (int)number->core.height / 2 ? 1 : -1,
-                       False, True, event);
-        return;
-    }
-    if (event->type != KeyPress) return;
-    length = XLookupString(&event->xkey, input, sizeof(input) - 1, &symbol, NULL);
-    if (symbol == XK_Up) { step_value(number, 1, False, True, event); return; }
-    if (symbol == XK_Down) { step_value(number, -1, False, True, event); return; }
-    if (symbol == XK_Page_Up) { step_value(number, 1, True, True, event); return; }
-    if (symbol == XK_Page_Down) { step_value(number, -1, True, True, event); return; }
-    if (symbol == XK_Return) { commit_text(number, event); return; }
-    if (symbol == XK_Escape) { number->number_box.invalid = False; format_value(number); redraw(number); return; }
-    if (symbol == XK_BackSpace || symbol == XK_Delete) {
-        size_t length_now = strlen(number->number_box.text);
-        if (length_now) number->number_box.text[length_now - 1] = '\0';
-    } else if (length == 1 && ((input[0] >= '0' && input[0] <= '9') ||
-                               (input[0] == '-' && !number->number_box.text[0]))) {
-        size_t length_now = strlen(number->number_box.text);
-        if (length_now + 1 < sizeof(number->number_box.text)) {
-            number->number_box.text[length_now] = input[0];
-            number->number_box.text[length_now + 1] = '\0';
-        }
-    } else return;
-    number->number_box.invalid = False;
-    redraw(number);
-}
-
-static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
-                         ArgList args, Cardinal *count) {
-    XmNumberBoxWidget old = (XmNumberBoxWidget)old_widget;
-    XmNumberBoxWidget number = (XmNumberBoxWidget)widget;
-    Boolean redraw_needed = False;
-    Boolean colors_changed = old->primitive.foreground != number->primitive.foreground ||
-                             old->primitive.bottom_shadow_color != number->primitive.bottom_shadow_color ||
-                             old->core.background_pixel != number->core.background_pixel;
-    (void)request; (void)args; (void)count;
-    if (colors_changed) {
-        Display *display = XtDisplay(widget);
-        if (number->number_box.text_gc) {
-            XSetForeground(display, number->number_box.text_gc,
-                           number->primitive.foreground);
-            XSetBackground(display, number->number_box.text_gc,
-                           number->core.background_pixel);
-        }
-        if (number->number_box.arrow_gc) {
-            XSetForeground(display, number->number_box.arrow_gc,
-                           number->primitive.foreground);
-            XSetBackground(display, number->number_box.arrow_gc,
-                           number->core.background_pixel);
-        }
-        if (number->number_box.invalid_gc) {
-            XSetForeground(display, number->number_box.invalid_gc,
-                           number->primitive.bottom_shadow_color);
-            XSetBackground(display, number->number_box.invalid_gc,
-                           number->core.background_pixel);
-        }
-        redraw_needed = True;
-    }
+static Boolean SetValues(Widget old_widget,Widget request,Widget widget,ArgList args,Cardinal *count) {
+    XmNumberBoxWidget old=(XmNumberBoxWidget)old_widget,number=(XmNumberBoxWidget)widget;(void)request;
     normalize(number);
-    if (old->number_box.render_table != number->number_box.render_table) {
-        XmRenderTable new_table = number->number_box.render_table ?
-            XmFontListCopy(number->number_box.render_table) :
-            XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (new_table) {
-            if (old->number_box.render_table)
-                XmRenderTableFree(old->number_box.render_table);
-            number->number_box.render_table = new_table;
-            redraw_needed = True;
-        } else {
-            /* Keep the last valid table if a replacement cannot be copied. */
-            number->number_box.render_table = old->number_box.render_table;
-        }
+    if(old->number_box.render_table!=number->number_box.render_table) {
+        XmRenderTable new_table=XmFontListCopy(number->number_box.render_table?
+            number->number_box.render_table:XmeGetDefaultRenderTable(widget,XmTEXT_FONTLIST));
+        if(new_table) {
+            if(old->number_box.render_table)XmRenderTableFree(old->number_box.render_table);
+            number->number_box.render_table=new_table;
+            Widget children[]={number->number_box.editor,number->number_box.error_label};
+            for(unsigned i=0;i<XtNumber(children);++i)if(_XmAppearanceOwnsResource(children[i],XmNrenderTable)) {
+                XtVaSetValues(children[i],XmNrenderTable,new_table,NULL);
+                _XmAppearanceInheritFont(children[i],widget);
+            }
+        } else number->number_box.render_table=old->number_box.render_table;
     }
-    if (old->number_box.minimum != number->number_box.minimum ||
-        old->number_box.maximum != number->number_box.maximum ||
-        old->number_box.value != number->number_box.value ||
-        old->number_box.step != number->number_box.step ||
-        old->number_box.page_step != number->number_box.page_step ||
-        old->number_box.wrap != number->number_box.wrap)
-        redraw_needed = True;
-    if (old->number_box.value != number->number_box.value) {
-        number->number_box.invalid = False;
-        format_value(number);
+    if(old->number_box.value!=number->number_box.value || old->number_box.minimum!=number->number_box.minimum ||
+       old->number_box.maximum!=number->number_box.maximum) {
+        number->number_box.invalid=False;
+        if(!format_value(number))return False;
     }
-    return redraw_needed;
+    for(Cardinal i=0;i<*count;++i) {
+        if(!strcmp(args[i].name,XmNwidth))number->number_box.automatic_width=(Dimension)args[i].value==0;
+        if(!strcmp(args[i].name,XmNheight))number->number_box.automatic_height=(Dimension)args[i].value==0;
+    }
+    refresh(number);
+    Dimension width,height;natural_size(number,&width,&height);
+    if(number->number_box.automatic_width)number->core.width=width;
+    if(number->number_box.automatic_height)number->core.height=height;
+    Resize(widget);return False;
 }
-
-static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
-                                      XtWidgetGeometry *reply) {
-    (void)widget; (void)request;
-    reply->request_mode = CWWidth | CWHeight;
-    reply->width = 140; reply->height = 32;
-    return XtGeometryAlmost;
+static XtGeometryResult QueryGeometry(Widget widget,XtWidgetGeometry *request,XtWidgetGeometry *reply) {
+    XmNumberBoxWidget number=(XmNumberBoxWidget)widget;
+    reply->request_mode=CWWidth|CWHeight;natural_size(number,&reply->width,&reply->height);
+    if(!number->number_box.automatic_width)reply->width=number->core.width;
+    if(!number->number_box.automatic_height)reply->height=number->core.height;
+    return XmeReplyToQueryGeometry(widget,request,reply);
 }
-
 void XmNumberBoxGetRange(Widget widget, int *minimum, int *maximum) {
     XmNumberBoxWidget number;
     if (minimum) *minimum = 0;
@@ -431,7 +374,8 @@ void XmNumberBoxSetRange(Widget widget, int minimum, int maximum, Boolean notify
     number = (XmNumberBoxWidget)widget; old = number->number_box.value;
     number->number_box.minimum = minimum; number->number_box.maximum = maximum;
     normalize(number); number->number_box.invalid = False;
-    format_value(number); redraw(number);
+    if(!format_value(number))return;
+    refresh(number);
     if (notify && old != number->number_box.value) notify_value(number, NULL);
 }
 void XmNumberBoxSetValue(Widget widget, int value, Boolean notify) {
@@ -439,8 +383,9 @@ void XmNumberBoxSetValue(Widget widget, int value, Boolean notify) {
     int old;
     if (widget == NULL || !XmIsNumberBox(widget)) return;
     number = (XmNumberBoxWidget)widget; old = number->number_box.value;
-    number->number_box.value = value; normalize(number); format_value(number);
-    number->number_box.invalid = False; redraw(number);
+    number->number_box.value = value; normalize(number);
+    if(!format_value(number))return;
+    number->number_box.invalid = False; refresh(number);
     if (notify && old != number->number_box.value) notify_value(number, NULL);
 }
 void XmNumberBoxStep(Widget widget, int direction, Boolean page, Boolean notify) {
@@ -450,6 +395,10 @@ void XmNumberBoxStep(Widget widget, int direction, Boolean page, Boolean notify)
 Boolean XmNumberBoxIsInvalid(Widget widget) {
     return widget != NULL && XmIsNumberBox(widget)
         ? ((XmNumberBoxWidget)widget)->number_box.invalid : False;
+}
+Widget XmNumberBoxGetTextField(Widget widget) {
+    return widget != NULL && XmIsNumberBox(widget)
+        ? ((XmNumberBoxWidget)widget)->number_box.editor : NULL;
 }
 Widget XmCreateNumberBox(Widget parent, char *name, ArgList args, Cardinal count) {
     return XtCreateWidget(name, xmNumberBoxWidgetClass, parent, args, count);

@@ -33,6 +33,7 @@
 
 #include <ctype.h>
 #include <limits.h>
+#include <errno.h>
 #include <stdint.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>

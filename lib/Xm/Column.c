@@ -29,6 +29,7 @@
 #include <Xm/ColumnP.h>
 #include <limits.h>
 #include <stdint.h>
+#include <string.h>
 #include <Xm/RowColumn.h>
 #include <Xm/Label.h>
 #include <Xm/VaSimpleP.h>
@@ -569,6 +570,15 @@ SetValues(Widget current, Widget request, Widget set, ArgList arg_list,
     WidgetList     kid, kids = cs->composite.children;
     Cardinal       n, i, kidCnt = cs->composite.num_children;
     Arg            args[10];
+    Boolean        label_font_argument = False;
+
+    /* Equal-valued assignments still transfer font ownership to the app. */
+    for (i = 0; i < *arg_cnt; ++i)
+        if (strcmp(arg_list[i].name, XmNdefaultEntryLabelFontList) == 0 ||
+            strcmp(arg_list[i].name, XmNdefaultEntryLabelRenderTable) == 0 ||
+            strcmp(arg_list[i].name, XmNlabelFontList) == 0 ||
+            strcmp(arg_list[i].name, XmNlabelRenderTable) == 0)
+            label_font_argument = True;
 
     VerifyResources((XmColumnWidget) request, cc, cs);
 
@@ -610,7 +620,7 @@ SetValues(Widget current, Widget request, Widget set, ArgList arg_list,
 	XtSetValues(XiC(*kid)->label_widget, args, n);
     }
 
-    if( BBPart(cc)->label_font_list !=
+    if( label_font_argument || BBPart(cc)->label_font_list !=
             BBPart(cs)->label_font_list )
     {
 	for( i = 0, kid = kids; i < kidCnt; ++i, ++kid )
@@ -1089,7 +1099,6 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 {
     static         Boolean label_widget = False;	/* STATIC DATA */
     XmColumnWidget cw = (XmColumnWidget) XtParent(new_w);
-    XmBulletinBoardPart *bbpart;
     XmString label_copy;
 
 	/* CR03562 CR02961 When ChangeManaged is bypassed, request width and height
@@ -1156,9 +1165,6 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 	label_widget = True;
 
 	lfont = XmColumnC_label_font_list(new_w);
-	bbpart = BBPart(XtParent(new_w));
-	if(lfont == NULL)
-	    lfont = bbpart->label_font_list;
 
 	nargs = 0;
 	XtSetArg(args[nargs], XmNmarginWidth,        0); nargs++;
@@ -1176,7 +1182,11 @@ ConstraintInitialize(Widget request, Widget new_w, ArgList arg_list,
 	XtSetArg(args[nargs],
 		 XmNlabelPixmap, XiC(new_w)->label_pixmap); nargs++;
 	XtSetArg(args[nargs], XmNalignment,   XiAlignment(new_w));     nargs++;
-	XtSetArg(args[nargs], XmNrenderTable,    lfont);          nargs++;
+	/* Leave default font lookup to Label so appearance ownership follows
+	 * the parent provider. Only per-entry fonts are child overrides. */
+	if (lfont != NULL) {
+	    XtSetArg(args[nargs], XmNrenderTable, lfont); nargs++;
+	}
 	XtSetArg(args[nargs], XmNrecomputeSize, True);                 nargs++;
 	XtSetArg(args[nargs], XmNforeground,  cw->manager.foreground); nargs++;
 	XtSetArg(args[nargs],
@@ -1283,6 +1293,9 @@ ConstraintSetValues(Widget current, Widget request, Widget new_w,
     }
 
     if( i >  0 ) XtSetValues(sc->label_widget, args, i);
+    if (cc->label_font_list != sc->label_font_list && sc->label_font_list == NULL &&
+        !_XmAppearanceResetDefaultFont(sc->label_widget, (Widget)cw, XmLABEL_FONTLIST))
+        XmeWarning((Widget)cw, "Cannot restore Column label appearance font");
 
     XmColumn_resize_done(cw) = False;
     if( cc->show_label != sc->show_label )
@@ -2774,7 +2787,8 @@ XmColumnLabelDestroyedCallback(Widget widget, XtPointer client,
 {
     Widget field = (Widget) client;
 
-    if (field == NULL || !XtIsSubclass(field, xmColumnWidgetClass))
+    if (field == NULL || XtParent(field) == NULL ||
+        !XtIsSubclass(XtParent(field), xmColumnWidgetClass))
 	return;
     XiC(field)->label_widget = NULL;
 }
@@ -2783,7 +2797,8 @@ XmColumnLabelDestroyedCallback(Widget widget, XtPointer client,
 static void Get_entryLabelString (Widget widget, int offset, XtArgVal *value)
 {
     if (widget == NULL || value == NULL ||
-	!XtIsSubclass(widget, xmColumnWidgetClass)) {
+	XtParent(widget) == NULL ||
+        !XtIsSubclass(XtParent(widget), xmColumnWidgetClass)) {
 	if (value != NULL) *value = (XtArgVal) NULL;
 	return;
     }

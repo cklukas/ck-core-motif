@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 checks = {
     "lib/Xm/ColorPicker.c": "if (picker == NULL || picker->core.being_destroyed)",
-    "lib/Xm/RatingControl.c": "rating == NULL || rating->core.being_destroyed",
+    "lib/Xm/RatingControl.c": "!rating || rating->core.being_destroyed",
     "lib/Xm/DatePicker.c": "if (picker == NULL || picker->core.being_destroyed)",
     "lib/Xm/TimePicker.c": "if (picker == NULL || picker->core.being_destroyed)",
 }

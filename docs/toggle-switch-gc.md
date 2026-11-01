@@ -3,10 +3,11 @@ nav_exclude: true
 ---
 # ToggleSwitch graphics-context setup
 
-`XmToggleSwitch` now cleans up any graphics contexts already created when one
-of its four GC allocations fails. All GC fields are reset to `NULL`, so expose
-and destroy paths remain safe even when the server cannot provide the complete
-set of drawing resources.
+`XmToggleSwitch` owns one mutable graphics context for its track, knob and label.
+If allocation fails, expose skips drawing and destruction checks the handle
+before freeing it. There is no partial set of drawing GCs to retain or release.
 
-The focused source contract is checked by
-`tests/automated/check-toggle-switch-gc.py`.
+`tests/automated/run-toggle-switch-failures.py` injects a real `XCreateGC`
+failure during construction and exercises expose and destruction. Pass `--build`
+with the configured build directory and `--out` with a fresh absolute results
+directory.

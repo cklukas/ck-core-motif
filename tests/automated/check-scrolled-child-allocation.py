@@ -13,7 +13,8 @@ assert "scroll_frame != NULL && scroll_frame->init != NULL" in initialize
 
 resize_start = source.index("Resize(\nWidget wid")
 resize = source[resize_start:source.index("GetVariableSize", resize_start)]
-assert "if (sw->swindow.ClipWindow == NULL)" in resize
+assert "sw->swindow.VisualPolicy != XmVARIABLE &&" in resize
+assert "sw->swindow.ClipWindow == NULL)" in resize
 assert resize.index("ClipWindow == NULL") < resize.index("VariableLayout(sw)")
 
 constant_start = source.index("ConstantLayout(\nXmScrolledWindowWidget sw")

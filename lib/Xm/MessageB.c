@@ -151,6 +151,8 @@ static void GetHelpLabelString(
                         Widget wid,
                         int resource_offset,
                         XtArgVal *value) ;
+static void SymbolScaleChanged(Widget widget, double old_scale,
+                               double new_scale, XtPointer closure);
 static void GetMsgBoxPixmap( 
                         XmMessageBoxWidget mBox) ;
 
@@ -503,6 +505,7 @@ Initialize(
         } 
 
     CreateWidgets( new_w) ;
+    (void)_XmRegisterScaleChange(nw, SymbolScaleChanged, NULL);
 
     if(    !XmRepTypeValidValue( XmRID_DEFAULT_BUTTON_TYPE,
                               new_w->message_box.default_type, (Widget) new_w)    )
@@ -543,6 +546,7 @@ Destroy(
 {
             XmMessageBoxWidget d = (XmMessageBoxWidget) wid ;
 /****************/
+    _XmUnregisterScaleChange(wid, SymbolScaleChanged, NULL);
 
     if(    (d->message_box.symbol_pixmap != XmUNSPECIFIED_PIXMAP)
         && d->message_box.internal_pixmap    )
@@ -701,11 +705,18 @@ SetValues(
             } 
         } 
     else
-    {   /* If symbol pixmap is unchanged and a new dialog type is specified,
-        *   then set to default pixmap.
-        */
-        if(    new_w->message_box.dialog_type
-                                       != current->message_box.dialog_type    )
+    {   /* Default symbols contain the colors used when they were rendered.
+         * Reacquire them after palette changes so transparent SVG pixels and
+         * symbolic image colors follow the dialog surface. Application-owned
+         * pixmaps retain their pixels and ownership.
+         */
+        if(    new_w->message_box.dialog_type != current->message_box.dialog_type
+            || (current->message_box.internal_pixmap &&
+                (new_w->core.background_pixel != current->core.background_pixel
+                 || new_w->manager.foreground != current->manager.foreground
+                 || new_w->manager.top_shadow_color != current->manager.top_shadow_color
+                 || new_w->manager.bottom_shadow_color != current->manager.bottom_shadow_color
+                 || new_w->manager.highlight_color != current->manager.highlight_color)))
         {   newPixmap = TRUE ;
 
             GetMsgBoxPixmap( new_w) ;
@@ -1600,6 +1611,28 @@ GetHelpLabelString(
     return ;
 }
 /****************************************************************/
+static void
+SymbolScaleChanged(Widget widget, double old_scale, double new_scale,
+                   XtPointer closure)
+{
+    XmMessageBoxWidget box = (XmMessageBoxWidget)widget;
+    Pixmap previous;
+    Widget symbol;
+    (void)closure;
+    if (old_scale == new_scale || box->core.being_destroyed ||
+        !box->message_box.internal_pixmap || !box->message_box.symbol_wid)
+        return;
+
+    previous = box->message_box.symbol_pixmap;
+    symbol = box->message_box.symbol_wid;
+    GetMsgBoxPixmap(box);
+    if (previous != XmUNSPECIFIED_PIXMAP)
+        XmDestroyPixmap(XtScreen(widget), previous);
+    /* The normal label geometry request resizes the dialog as needed.
+     * Do not access box after this callback-capable child update. */
+    XtVaSetValues(symbol, XmNlabelPixmap, box->message_box.symbol_pixmap, NULL);
+}
+
 static void 
 GetMsgBoxPixmap(
         XmMessageBoxWidget mBox )

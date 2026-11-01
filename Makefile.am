@@ -140,6 +140,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
               tests/automated/generate-gallery-catalogue.py \
               tests/automated/check-gallery-manifest.py \
               tests/automated/check-gallery-source.py \
+              tests/automated/check-gallery-excerpts.py \
               tests/automated/check-gallery-provenance.py \
               tests/automated/run-gallery-integration.py \
               tests/automated/run-gallery-screenshots.py \
@@ -1129,10 +1130,10 @@ EXTRA_DIST += tests/automated/check-reference-overview-links.py docs/reference-o
 EXTRA_DIST += tests/automated/check-xpm-create-image-size.py docs/xpm-create-image-size.md
 EXTRA_DIST += tests/automated/check-info-bar-redisplay-guard.py docs/info-bar-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-number-box-redisplay-guard.py docs/number-box-redisplay-guard.md
-EXTRA_DIST += tests/automated/check-stepper-redisplay-guard.py docs/stepper-redisplay-guard.md
-EXTRA_DIST += tests/automated/check-color-picker-redisplay-guard.py docs/color-picker-redisplay-guard.md
+EXTRA_DIST += tests/automated/check-stepper-native.c tests/automated/run-stepper-native.py docs/stepper-redisplay-guard.md
+EXTRA_DIST += docs/color-picker-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-rating-control-geometry-guards.py docs/rating-control-geometry-guards.md
-EXTRA_DIST += tests/automated/check-toggle-switch-redisplay-guards.py docs/toggle-switch-redisplay-guards.md
+EXTRA_DIST += docs/toggle-switch-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-progress-bar-redisplay-guards.py docs/progress-bar-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-date-picker-redisplay-guard.py docs/date-picker-redisplay-guard.md
 EXTRA_DIST += tests/automated/check-spinner-redisplay-guards.py docs/spinner-redisplay-guards.md
@@ -1152,7 +1153,7 @@ EXTRA_DIST += tests/automated/check-cascade-button-shadow-redisplay-guards.py do
 EXTRA_DIST += tests/automated/check-cascade-button-gadget-shadow-redisplay-guards.py docs/cascade-button-gadget-shadow-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-bulletin-board-shadow-redisplay-guards.py docs/bulletin-board-shadow-redisplay-guards.md
 EXTRA_DIST += tests/automated/check-color-selector-layout-bounds.py docs/color-selector-layout-geometry.md
-EXTRA_DIST += tests/automated/check-colorpicker-highlight-bounds.py docs/colorpicker-highlight-geometry.md
+EXTRA_DIST += docs/colorpicker-highlight-geometry.md
 EXTRA_DIST += tests/automated/check-toggle-pixmap-center-bounds.py docs/toggle-pixmap-center-geometry.md
 EXTRA_DIST += tests/automated/check-gallery-screenshot-runner.py \
               tests/automated/check-gallery-screenshot-matrix.py \
@@ -1160,7 +1161,7 @@ EXTRA_DIST += tests/automated/check-gallery-screenshot-runner.py \
               docs/modern-gallery-screenshot-qualification.md
 EXTRA_DIST += tests/automated/check-gallery-screenshot-assets.py tests/automated/generate-gallery-screenshot-manifest.py docs/gallery-screenshots/manifest.json docs/gallery-screenshots/*.png
 
-EXTRA_DIST += cpp/ckmotif++/motif_support.hpp ckmotif++-8.pc.in
+EXTRA_DIST += cpp/ckmotif++/motif_support.hpp ckmotif++-9.pc.in
 EXTRA_DIST += docs/cpp-support-library.md docs/cpp-support-library-proposal.md
 EXTRA_DIST += docs/cpp-support-library-release-decision.md tests/cpp/support_lifecycle.cpp
 EXTRA_DIST += tests/automated/run-cpp-support-prototype.py
@@ -1170,7 +1171,7 @@ if CXX_SUPPORT
 ckmotifxxincludedir = $(includedir)/ckmotif++
 ckmotifxxinclude_HEADERS = cpp/ckmotif++/motif_support.hpp
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = ckmotif++-8.pc
+pkgconfig_DATA = ckmotif++-9.pc
 endif
 
 EXTRA_DIST += scripts/generate-dialog-icons.py \
@@ -1181,7 +1182,9 @@ check-local: check-dialog-artwork
 check-dialog-artwork:
 	$(PYTHON) $(srcdir)/scripts/generate-dialog-icons.py --check
 
-EXTRA_DIST += tests/automated/check-appearance-density.c
+EXTRA_DIST += tests/automated/check-appearance-density.c \
+              tests/automated/check-appearance-roles.c \
+              tests/automated/appearance-roles.uil
 
 EXTRA_DIST += tests/automated/check-periodic-appearance.c \
               tests/automated/run-periodic-appearance.py
@@ -1193,8 +1196,226 @@ EXTRA_DIST += docs/periodic-modern-appearance.md
 
 EXTRA_DIST += tests/automated/check-arrow-bounds.c tests/automated/run-arrow-bounds.py
 
+EXTRA_DIST += tests/automated/check-composite-appearance-fonts.c \
+              tests/automated/run-composite-appearance-fonts.py
+
+EXTRA_DIST += tests/automated/check-notebook-appearance.c \
+              tests/automated/run-notebook-appearance.py docs/notebook-appearance.md
+
+EXTRA_DIST += tests/automated/check-modern-toggles.c \
+              tests/automated/run-modern-toggles.py docs/modern-toggle-appearance.md
+
+EXTRA_DIST += tests/automated/check-scrolled-window-fit.c \
+              tests/automated/run-scrolled-window-fit.py docs/scrolled-window-fit.md
+
+EXTRA_DIST += tests/automated/check-segmented-geometry.c \
+              tests/automated/run-segmented-geometry.py
+
+EXTRA_DIST += tests/automated/check-tree-view-colors.c \
+              tests/automated/run-tree-view-colors.py docs/tree-view-colors.md
+
+EXTRA_DIST += tests/automated/check-gallery-toolkit-defaults.py
+
+EXTRA_DIST += tests/automated/check-tree-view-metrics.c \
+              tests/automated/run-tree-view-metrics.py
+
+EXTRA_DIST += tests/automated/check-scrolled-appearance.c \
+              tests/automated/run-scrolled-appearance.py
+
+EXTRA_DIST += tests/automated/check-tree-view-order.c \
+              tests/automated/run-tree-view-order.py
+
+EXTRA_DIST += tests/automated/check-tree-view-disclosure.c \
+              tests/automated/run-tree-view-disclosure.py
+
+EXTRA_DIST += tests/automated/check-modern-fields.c \
+              tests/automated/run-modern-fields.py
+
+EXTRA_DIST += tests/automated/check-appearance-dimensions.c \
+              tests/automated/run-appearance-dimensions.py
+
+EXTRA_DIST += tests/automated/check-sidebar-header.c \
+              tests/automated/run-sidebar-header.py
+EXTRA_DIST += tests/automated/check-modern-arrows.c \
+              tests/automated/run-modern-arrows.py
+EXTRA_DIST += tests/automated/check-arrow-sizing.c \
+              tests/automated/run-arrow-sizing.py
+
+EXTRA_DIST += tests/automated/check-modern-scrollbars.c \
+              tests/automated/run-modern-scrollbars.py
+
+EXTRA_DIST += tests/automated/check-modern-buttons.c \
+              tests/automated/run-modern-buttons.py
+
+EXTRA_DIST += tests/automated/check-disabled-labels.c \
+              tests/automated/run-disabled-labels.py
+
+EXTRA_DIST += tests/automated/check-default-button-geometry.c \
+              tests/automated/run-default-button-geometry.py
+
+EXTRA_DIST += tests/automated/check-modern-borders.c \
+              tests/automated/run-modern-borders.py
+
+EXTRA_DIST += tests/automated/check-action-icons.c \
+              tests/automated/run-action-icons.py
+
+EXTRA_DIST += tests/automated/check-chip-geometry.c \
+              tests/automated/run-chip-geometry.py \
+              tests/automated/check-chip-interaction.c \
+              tests/automated/run-chip-interaction.py
+
+EXTRA_DIST += tests/automated/check-modern-rounding.c \
+              tests/automated/run-modern-rounding.py
+
+EXTRA_DIST += tests/automated/check-tree-connections.c \
+              tests/automated/run-tree-connections.py
+
+EXTRA_DIST += tests/automated/check-ring-raster.c \
+              tests/automated/run-ring-raster.py
+
+EXTRA_DIST += tests/automated/check-ring-fonts.c \
+              tests/automated/run-ring-fonts.py
+
+EXTRA_DIST += tests/automated/check-composite-arrows.c \
+              tests/automated/run-composite-arrows.py
+
+EXTRA_DIST += tests/automated/check-modern-scale.c \
+              tests/automated/run-modern-scale.py
+
+EXTRA_DIST += tests/automated/check-scrollbar-interactions.c \
+              tests/automated/run-scrollbar-interactions.py
+
+EXTRA_DIST += tests/automated/check-option-menu-appearance.c \
+              tests/automated/run-option-menu-appearance.py
+
+EXTRA_DIST += tests/automated/check-composite-frames.c \
+              tests/automated/run-composite-frames.py
+
+EXTRA_DIST += tests/automated/check-spinbox-height.c \
+              tests/automated/run-spinbox-height.py
+
+EXTRA_DIST += tests/automated/check-tab-padding.c \
+              tests/automated/run-tab-padding.py
+
+EXTRA_DIST += tests/automated/check-tab-repaint.c \
+              tests/automated/run-tab-repaint.py
+
+EXTRA_DIST += tests/automated/check-dialog-spacing.c \
+              tests/automated/run-dialog-spacing.py
+
+EXTRA_DIST += tests/automated/run-gallery-window-geometry.py
+
+EXTRA_DIST += tests/automated/check-tree-view-accessibility.c tests/automated/run-tree-view-accessibility.py
+EXTRA_DIST += tests/automated/check-tree-view-activation.c tests/automated/run-tree-view-activation.py
+
+EXTRA_DIST += tests/automated/run-gallery-pages.py
+
+EXTRA_DIST += tests/automated/check-scrolled-wheel.c tests/automated/run-scrolled-wheel.py
+
+EXTRA_DIST += docs/scrolled-window-wheel.md
+
+EXTRA_DIST += tests/automated/check-tab-scrolling.c tests/automated/run-tab-scrolling.py
+
+EXTRA_DIST += tests/automated/check-container-disclosure.c tests/automated/run-container-disclosure.py
+
+EXTRA_DIST += tests/automated/check-buttonbox-negotiation.c \
+              tests/automated/run-buttonbox-negotiation.py
+
+EXTRA_DIST += tests/automated/check-rowcolumn-layout-reentry.c \
+              tests/automated/run-rowcolumn-layout-reentry.py
+
+EXTRA_DIST += tests/automated/check-code-role-fonts.c \
+              tests/automated/run-code-role-fonts.py
+
+EXTRA_DIST += tests/automated/check-link-geometry.c tests/automated/run-link-geometry.py
+
+EXTRA_DIST += tests/automated/check-dropdown-negotiation.c tests/automated/run-dropdown-negotiation.py
+
+EXTRA_DIST += tests/automated/check-label-geometry.c tests/automated/run-label-geometry.py
+
+EXTRA_DIST += tests/automated/check-section-geometry.c tests/automated/run-section-geometry.py
+
+EXTRA_DIST += scripts/generate-action-icons.py
+
+EXTRA_DIST += tests/automated/check-avatar-rendering.c \
+              tests/automated/run-avatar-rendering.py
+
+EXTRA_DIST += tests/automated/check-avatar-geometry.c \
+              tests/automated/run-avatar-geometry.py
+
+EXTRA_DIST += tests/automated/check-divider-geometry.c \
+              tests/automated/run-divider-geometry.py
+
+EXTRA_DIST += tests/automated/check-numberbox-editing.c \
+              tests/automated/run-numberbox-editing.py
+
+EXTRA_DIST += tests/automated/check-numberbox-geometry.c \
+              tests/automated/run-numberbox-geometry.py
+
+EXTRA_DIST += tests/automated/check-textfield-activation-lifetime.c \
+              tests/automated/run-textfield-activation-lifetime.py
+
+EXTRA_DIST += tests/automated/check-numberbox-colors.c \
+              tests/automated/run-numberbox-colors.py
+
+EXTRA_DIST += tests/automated/check-textfield-setstring-lifetime.c \
+              tests/automated/run-textfield-setstring-lifetime.py
+
+EXTRA_DIST += tests/automated/check-pushbutton-sensitivity.c tests/automated/run-pushbutton-sensitivity.py
+
+EXTRA_DIST += tests/automated/check-numeric-accessibility.c tests/automated/run-numeric-accessibility.py
+
+EXTRA_DIST += tests/automated/check-accessible-protocol-roles.c tests/automated/run-accessible-protocol-roles.py
+
+EXTRA_DIST += tests/automated/check-colorpicker-native.c tests/automated/run-colorpicker-native.py
+
+EXTRA_DIST += tests/automated/check-colorpicker-modes.c tests/automated/run-colorpicker-modes.py
+
+EXTRA_DIST += tests/automated/check-segmented-selection.c tests/automated/run-segmented-selection.py
+
+EXTRA_DIST += tests/automated/check-searchbox-layout.c tests/automated/run-searchbox-layout.py
+
+EXTRA_DIST += tests/automated/check-autosuggest-native.c tests/automated/run-autosuggest-native.py
+
+EXTRA_DIST += tests/automated/check-list-sensitivity.c tests/automated/run-list-sensitivity.py
+EXTRA_DIST += docs/list-sensitivity-cancellation.md
+
+# Periodic reference captures and their provenance travel with source releases.
+EXTRA_DIST += scripts/capture-periodic-docs.py $(wildcard docs/periodic-screenshots/*.png) $(wildcard docs/periodic-screenshots/*.json)
+
+EXTRA_DIST += tests/automated/check-xmstring-compact-layout.py docs/xmstring-compact-layout.md
+
+EXTRA_DIST += docs/messagebox-symbol-palette.md
+
+EXTRA_DIST += tests/automated/check-prompt-layout.c tests/automated/check-prompt-geometry.py
+
+EXTRA_DIST += tests/automated/check-iconlabel-layout.c tests/automated/run-iconlabel-layout.py
+
+EXTRA_DIST += tests/automated/check-toggle-switch-pixels.c tests/automated/run-toggle-switch-pixels.py
+
+EXTRA_DIST += tests/automated/check-toggle-switch-failures.c tests/automated/run-toggle-switch-failures.py
+
+EXTRA_DIST += tests/automated/check-toggle-switch-live.c tests/automated/run-toggle-switch-live.py
+
+EXTRA_DIST += tests/automated/check-toggle-switch-colormap.c tests/automated/run-toggle-switch-colormap.py
+
+EXTRA_DIST += tests/automated/check-toggle-gadget-margins.c tests/automated/run-toggle-gadget-margins.py
+
+EXTRA_DIST += tests/automated/check-rating-layout.c tests/automated/run-rating-layout.py
 EXTRA_DIST += tests/automated/check-notebook-appearance.c \
               tests/automated/run-notebook-appearance.py docs/notebook-appearance.md
 
 EXTRA_DIST += tests/automated/check-scrolled-window-fit.c \
               tests/automated/run-scrolled-window-fit.py docs/scrolled-window-fit.md
+
+EXTRA_DIST += tests/automated/check-textout-position-visible-branches.py
+
+EXTRA_DIST += docs/modern-integration-qualification.md
+
+EXTRA_DIST += tests/automated/check-text-replace-gap.c tests/automated/run-text-replace-gap.py
+
+EXTRA_DIST += tests/automated/check-column-label-lifetime.c tests/automated/run-column-label-lifetime.py
+
+EXTRA_DIST += tests/automated/check-scaled-bitmap-depth.c tests/automated/run-scaled-bitmap-depth.py
+
+EXTRA_DIST += docs/modern-integration-validation.json

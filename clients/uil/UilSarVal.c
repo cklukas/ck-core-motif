@@ -2087,8 +2087,13 @@ yystype	    *token_frame;
 
     value_entry = (sym_value_entry_type *)
 	sem_allocate_node (sym_k_value_entry, sym_k_value_entry_size);
-    if (value_entry == NULL)
-	return (sym_value_entry_type *)sym_az_error_value_entry;
+    if (value_entry == NULL) {
+        target_frame->b_tag = sar_k_value_frame;
+        target_frame->b_flags = sym_m_private;
+        target_frame->b_type = sym_k_error_value;
+        target_frame->value.az_symbol_entry = (sym_entry_type *)sym_az_error_value_entry;
+        return;
+    }
     _sar_save_source_pos ( &value_entry->header, &yylval );
 
 /*    value_entry->az_source_rec = yylval.az_source_record; */

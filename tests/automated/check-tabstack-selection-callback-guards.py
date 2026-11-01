@@ -13,3 +13,5 @@ assert "!XtIsSubclass((Widget) tab, xmTabStackWidgetClass)" in body
 assert "old == NULL" in body
 
 print("TabStack selection callback guards present")
+
+assert body.index("tab = (XmTabStackWidget) XtParent(widget);") < body.index("kid = tab->composite.children;")

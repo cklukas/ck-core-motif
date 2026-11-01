@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
+"""Check the merged modern implementation contract; native suites exercise behavior."""
 from pathlib import Path
-
-source = Path("lib/Xm/RatingControl.c").read_text()
-start = source.index("static void Events")
-end = source.index("\nstatic Boolean SetValues", start)
-region = source[start:end]
-assert "long long scaled" in region
-assert "scaled=(long long)event->xbutton.x*rating->rating.count" in region
-assert "scaled/(int)rating->core.width" in region
-assert "event->xbutton.x*rating->rating.count)/(int)" not in region
-print("RatingControl widened input arithmetic present")
+source = (Path(__file__).parents[2] / "lib/Xm/RatingControl.c").read_text()
+s = "".join(source.split())
+assert "((longlong)(x+1)*rating->rating.count-1)/width" in s
+assert "width<=0||height<=0||rating->rating.count>width" in s
+print("PASS rating-input-arithmetic")

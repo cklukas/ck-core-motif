@@ -29,7 +29,7 @@ typedef struct {
     int reason;            /* XmCR_VALUE_CHANGED */
     XEvent *event;         /* NULL for resource/API changes */
     int selected_index;    /* -1 when the selection was cleared */
-    const char *selected_id; /* borrowed until the next mutation */
+    const char *selected_id; /* dispatch snapshot; borrowed for this callback */
 } XmSegmentedControlCallbackStruct;
 
 Widget XmCreateSegmentedControl(Widget parent, char *name, ArgList args,
@@ -42,6 +42,8 @@ Boolean XmSegmentedControlSetItems(Widget widget,
 Cardinal XmSegmentedControlGetItemCount(Widget widget);
 int XmSegmentedControlGetSelectedIndex(Widget widget);
 const char *XmSegmentedControlGetItemId(Widget widget, Cardinal index);
+/* Assignment is idempotent. True means accepted, even if a notification
+ * callback subsequently replaces the model, changes selection or destroys it. */
 Boolean XmSegmentedControlSetSelectedIndex(Widget widget, int index,
                                            Boolean notify);
 void XmSegmentedControlClearSelection(Widget widget, Boolean notify);

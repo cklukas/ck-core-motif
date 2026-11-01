@@ -17,6 +17,7 @@ typedef struct _XmIconLabelPart {
     Dimension spacing;
     XmFontList render_table;
     Boolean check_set_render_table;
+    Boolean automatic_width, automatic_height;
     GC foreground_gc;
 } XmIconLabelPart;
 

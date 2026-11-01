@@ -262,3 +262,255 @@ construction, while explicit parent colors remain authoritative. This avoids
 saving a modern parent's palette as a gadget's classic defaults. Pixel
 conversion uses Xt's cache and the widget's actual colormap, including custom
 colormaps; it does not allocate against the default screen colormap.
+
+## Semantic roles (ABI 9 development)
+
+`XmNappearanceRole` is a native unsigned-byte resource inherited by Primitive,
+Manager and Gadget subclasses. It describes presentation without changing the
+widget's interaction or accessibility role. C and UIL use these constants:
+
+| Constant | Intended presentation |
+| --- | --- |
+| `XmAPPEARANCE_ROLE_NORMAL` | Body text and ordinary controls |
+| `XmAPPEARANCE_ROLE_PAGE_TITLE` | Page title, sans-serif 18 pt |
+| `XmAPPEARANCE_ROLE_SECTION` | Section heading, sans-serif 12 pt bold |
+| `XmAPPEARANCE_ROLE_SECONDARY` | Supporting text with subdued foreground |
+| `XmAPPEARANCE_ROLE_CODE` | Monospace 11 pt |
+| `XmAPPEARANCE_ROLE_PRIMARY` | Emphasized action |
+| `XmAPPEARANCE_ROLE_DESTRUCTIVE` | Destructive action |
+
+X resource values are `normal`, `page_title`, `section`, `secondary`, `code`,
+`primary` and `destructive`. The default is `normal`. Invalid assignments retain
+an existing valid role, or use `normal` at construction, and emit an Xt warning.
+Changing the resource with `XtSetValues` stages new toolkit-owned appearance
+resources for the affected subtree. A preparation failure restores the previous
+role. Classic appearance retains its original resource values.
+
+Modern default tables use measured font extents. Explicit widget `fontList`
+and `renderTable` values remain application-owned, including equal-valued live
+assignments. Appearance preparation retains explicit child tables before
+committing parent controls, so a composite's propagation cannot replace those
+choices. Standard dialog font defaults retain their provider provenance.
+
+ComboBox text/list children, Scale title gadgets and internally created TabStack
+tab boxes inherit their owner's semantic font role. Toolkit-internal font
+arguments do not count as independent application choices. A direct child font
+assignment remains authoritative during a theme transaction; an explicit parent
+font assignment continues to propagate to its implementation children.
+
+ComboBox natural geometry is recomputed when its font changes, including before
+the first realization. Explicit width and height remain fixed independently;
+setting either dimension to zero returns that axis to natural sizing.
+`tests/automated/run-composite-appearance-fonts.py` checks live role/profile/scale
+updates, explicit fonts, startup text fit and explicit/natural dimensions.
+
+This ABI 9 work is under qualification. The complete inherited-font, composite,
+DPI, non-Xft, native-consumer and actual-window acceptance matrix must pass
+before this package is published or the visual overhaul is considered complete.
+
+### Scrolled content framing
+
+Modern light and dark profiles default `XmScrolledWindow.shadowThickness` to
+zero. A scrolling viewport does not need a second recessed frame around its
+content; fields and controls retain their own boundaries. Explicit application
+`shadowThickness` resources remain authoritative, including during live profile
+changes. Classic and high-contrast framing is preserved. The native
+`tests/automated/run-scrolled-appearance.py` regression checks startup and live
+transitions at 1x/2x with automatic and explicitly framed viewports.
+
+
+### Modern text frames (development)
+
+TextField and Text use a shared flat border in modern light/dark profiles.
+`shadowThickness` defaults to one logical pixel and `highlightThickness` to two;
+explicit application values retain ownership. The dark border uses a subdued
+color rather than the old black/gray bevel. Classic and high contrast retain
+their original shadow rendering. `tests/automated/run-modern-fields.py` exercises
+both text renderers, densities, 1x/1.5x/2x/3x scaling, editing, focus, disabled
+state and explicit resources. Explicit-width ownership during initial modern
+font application is covered by the dimension regression described below.
+
+
+### Dimension ownership and resource databases
+
+Application-supplied nonzero width and height independently constrain appearance
+updates. The appearance transaction passes the current allocation alongside its
+font/spacing changes, preserving subsequent parent layout decisions rather than
+reapplying obsolete requested pixels. Zero releases the appearance constraint;
+unconstrained dimensions continue to derive from the control's font and content.
+Resource-file dimensions follow the same ownership rules, including zero values.
+TextField honors explicit equal-valued dimensions during font updates.
+
+Successful profile/density transactions merge their staged resources into the
+existing Xrm database. Xt's cached per-screen resource lookup therefore retains
+the same database identity, and controls created after a theme change still see
+application resources. Failed preparation leaves the database unchanged.
+`tests/automated/run-appearance-dimensions.py` covers initial and live geometry,
+independent axes, equal-value setters, parent allocations and resource files.
+
+### Modern scrollbars (development)
+
+Modern light/dark scrollbars use an eight-logical-pixel rail and rounded thumb
+inside the full drag target. A minimum thumb length of 24 logical pixels remains
+bounded by the available track. Modern defaults retain an end arrow on each
+side, rendered as bounded chevrons without outer bevels. An explicit
+`showArrows: none` remains authoritative. Explicit frame
+widths use a flat border. Scale's embedded shadowed slider also uses the visible
+modern thumb; thermometer fill geometry and marks retain their semantics.
+
+Modern default scrollbar thickness is 18 logical pixels in comfortable density
+and 16 in compact density, scaled with the widget's display scale. Appearance
+updates adjust the orientation's short axis only when the application has not
+set that dimension explicitly. Automatic and application-defined ScrolledWindow
+layouts consume content space for thickness changes within the outer allocation.
+ScrolledWindow negotiates its own DPI-default size changes with its parent, so
+fixed Form attachments remain authoritative. Its navigator
+window borders remain parent-owned.
+Setting the short-axis dimension to zero returns it to automatic thickness
+immediately. Orientation updates resolve the new short axis against the current
+profile, density and scale; explicitly constrained dimensions remain unchanged.
+
+`showArrows`, `sliderVisual`, and `troughColor` now participate in appearance
+resource ownership. Explicit application settings survive live changes, and
+classic/high-contrast restore their original defaults. Painting resolves the
+committed profile so cached pixmaps cannot retain an earlier theme. Disabled
+value updates use the same subdued rendering as expose events.
+
+`tests/automated/run-modern-scrollbars.py` checks native pixels, startup/live
+parity, drag callbacks, keyboard increments, reversed directions, value endpoints,
+minimum thumb length, disabled updates, and explicit resource preservation across
+light, dark, classic and high-contrast transitions at three scales.
+
+### Modern buttons (development)
+
+PushButton and PushButtonGadget share a flat rounded frame in modern profiles,
+with theme-owned one-logical-pixel borders, two-pixel focus space, and measured
+comfortable/compact padding. Pressed fills respect `armColor` and `fillOnArm`;
+primary/destructive appearance roles retain their semantic colors. Default
+buttons receive accent emphasis in the same frame. Notebook tabs retain their
+connected page border and menu items retain their menu painting paths.
+
+DrawnButton uses the same frame without repainting the application-owned center.
+Widget/gadget buttons and DrawnButton retain pointer-inside state independently
+of armed state, preventing an expose event from restoring pressed feedback after
+a drag outside. Their epoch 9 private records require matching consumer headers.
+
+Label and LabelGadget now honor explicit width/height arguments even when equal
+to the current dimensions. Font, string, or margin changes in the same SetValues
+call no longer discard those dimensions. This also lets the appearance owner
+preserve constrained axes through theme/density/scale changes. Zero restores
+natural sizing. Gallery button examples and their disabled/selected variants use
+natural dimensions and measured spacing.
+
+The native button matrix covers ordinary/primary/destructive roles, widget and
+gadget variants, densities/scales, pressed/disabled/default states, drag-out
+expose, classic/high-contrast repaint continuity, and DrawnButton custom content.
+The dimension matrix includes labels and their button subclasses in every profile.
+
+### Disabled label text
+
+Label and LabelGadget, including their button and toggle subclasses, expose
+`XmNinsensitiveForeground` (`XmCInsensitiveForeground`, type `Pixel`). Modern
+light uses `#747b84`; modern dark uses `#9aa0a6`. Modern disabled text,
+mnemonic underlines and accelerators use a single color without an offset
+embossed shadow. Classic retains its shadow treatment.
+
+Explicit application colors survive live profile changes. Setting the resource
+to `XmUNSPECIFIED_PIXEL` selects the historical bottom-shadow-color fallback.
+Changes to that fallback and inherited gadget shadow colors refresh the text
+GCs, with balanced releases of all three label GCs.
+
+`tests/automated/run-disabled-labels.py` exercises disabled label, push-button
+and toggle widget/gadget rendering, mnemonics, explicit colors, fallback color
+updates and live classic/modern transitions at 1x, 1.5x and 2x. It also
+checks menu accelerator text for both widget and gadget paths. The semantic
+roles UIL fixture verifies the resource in compiled widget/gadget definitions.
+
+### Default-action button geometry
+
+Modern default-action emphasis occupies the existing button frame. Changing
+`XmNshowAsDefault`, preparing a dialog default button, or setting
+`XmNdefaultButtonShadowThickness` does not enlarge a modern PushButton or
+PushButtonGadget, alter its public focus width, or move its label. The resource
+values remain available; classic appearance uses them for its outer frame.
+
+A live profile change removes or restores the actual classic frame reservation.
+Layout uses the target profile during the appearance transaction, including for
+buttons whose other resources are all application-owned. Label positioning is
+updated even when the parent keeps the same allocation.
+
+`tests/automated/run-default-button-geometry.py` checks natural and fixed
+allocations, widget and gadget forms, default-at-creation, dialog default
+preparation and repeated classic/modern transitions at 1x, 1.5x and 2x.
+
+### Shared modern frames and gadget colors
+
+Modern light and dark profiles use equal top/bottom shadow colors and a
+one-logical-pixel default border. This makes inherited frame rendering flat
+without changing classic or high-contrast shading. Explicit shadow colors and
+widths remain application-owned across profile changes. RowColumn work areas,
+radio boxes and option menus retain their internally owned shadow geometry;
+live profile updates assign shadow widths only to popup/pulldown panes and menu
+bars. Composite selectors do not forward their own profile settings to children
+during a toolkit commit: each descendant has an independent resource plan.
+Explicit child styling survives, and ordinary application SetValues retains its
+existing propagation behavior.
+
+LabelGadget and its button/toggle subclasses export their own cached
+`topShadowColor`, `bottomShadowColor` and `highlightColor` through `XtGetValues`.
+Previously inherited synthetic exports returned the parent's colors even when
+the gadget painted different colors. Correct queries also keep classic color
+snapshots accurate during modern profile transitions. Dark toggle widgets and
+gadgets share the same indicator border default.
+
+`tests/automated/run-modern-borders.py` checks all four rendered frame edges,
+titled frames, 1x/1.5x/2x scales, classic/modern transitions, explicit colors and
+widths, gadget color exports and absence of RowColumn resource warnings.
+
+Modern IconGadget defaults use `shadowThickness: 0`, leaving artwork and labels
+unframed. Focus and selection remain the gadget's existing interactive states.
+Explicit shadow thicknesses remain application-owned across theme changes;
+classic and high-contrast retain their shadow defaults.
+
+## Scale presentation
+
+Modern profiles distinguish a Scale value from a scrollable viewport. A Scale
+uses a thin track and a round outlined thumb, with the minimum-to-value range
+colored using the highlight color. The existing slider rectangle remains the
+full drag target. Processing direction controls which end represents minimum.
+Disabled controls use the neutral track color. Ordinary ScrollBars retain
+viewport-sized capsule thumbs.
+
+Natural Scale major/minor extents use display scaling (100/24 logical pixels
+plus focus margins). Explicit `XmNscaleWidth` and `XmNscaleHeight` retain their
+pixel dimensions. Classic and high-contrast natural defaults are unchanged.
+Modern defaults remove the outer shadow and etched thumb mark; explicit
+`XmNshadowThickness` and `XmNsliderMark` remain authoritative. Marker ownership
+participates in live appearance transactions and classic restoration.
+Thermometer mode retains its range-fill rendering and endpoint marker.
+
+
+Internal geometry measurement uses the target profile and density while widget
+resources and the subsequent cross-child layout are committed. Public profile
+and density getters continue to expose committed settings until the transaction
+succeeds. This prevents natural-size widgets from measuring against old density
+minimums or retaining modern minimums while restoring classic appearance.
+
+## Composite foreground ownership
+
+NumberBox registers its native editor, arrows and validation label as foreground
+consumers. Only an application-owned parent foreground overrides their normal
+palette. Constructor arguments, resource-file values and later setters all
+establish ownership, including setters equal to the previous default. A child
+with its own foreground remains independently styled. Profile transactions use
+this relationship without turning inherited writes into application overrides;
+input backgrounds keep their native appearance surface.
+
+## Rounded button focus
+
+Modern push buttons, push-button gadgets, drawn buttons and icon buttons use
+a concentric rounded focus band. Its inner boundary follows the button face,
+so the accent stroke retains its thickness through each corner. Face repaints
+restore the complete band, while focus removal preserves application-drawn
+content inside the rounded face. Native pixel tests cover light/dark profiles,
+comfortable/compact density and 1×, 1.5× and 2× scale.

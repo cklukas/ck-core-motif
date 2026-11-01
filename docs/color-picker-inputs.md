@@ -10,4 +10,4 @@ the existing neutral value or no-op result; valid value, redraw, and callback
 behavior is unchanged.
 
 The focused regression check is
-`tests/automated/check-color-picker-inputs.py`.
+`tests/automated/run-colorpicker-native.py`.

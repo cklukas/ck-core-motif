@@ -13,7 +13,7 @@ region = source[start:end]
 
 assert "uint64_t margin_width" in region
 assert "uint64_t thickness" in region
-assert "margin_width >= (uint64_t)tf->core.width" in region
+assert "margin_width + right_margin >= (uint64_t)tf->core.width" in region
 assert "(uint64_t)tf->core.height <= thickness" in region
 assert "Dimension margin_width" not in region
 

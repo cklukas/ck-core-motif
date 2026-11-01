@@ -15,9 +15,9 @@ for name, gc in contracts.items():
     for fragment in (
         "Boolean colors_changed =",
         "if (colors_changed",
-        f"XSetForeground(XtDisplay(",
-        f"{gc},",
-        "XSetBackground(",
+        "XSetForeground(" if name == "Calendar.c" else "XChangeGC(",
+        gc,
+        "XSetBackground(" if name == "Calendar.c" else "GCForeground | GCBackground",
         "colors_changed",
     ):
         if fragment not in body:

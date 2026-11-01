@@ -13,7 +13,7 @@ region = source[start:end]
 
 assert "uint64_t inset" in region
 assert "inset > (uint64_t)SHRT_MAX" in region
-assert "inset <= (uint64_t)tf->core.width / 2" in region
+assert "left + right <= (uint64_t)tf->core.width" in region
 assert "inset <= (uint64_t)tf->core.height / 2" in region
 assert "2 * inset" in region
 assert "ClipRect.width = tf->core.width" not in region

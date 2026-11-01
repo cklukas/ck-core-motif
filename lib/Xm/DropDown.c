@@ -789,8 +789,8 @@ GeometryManager(Widget w, XtWidgetGeometry * request,
     _XmRequestNewSize((Widget) cbw, True, 
        c_width, c_height, &r_width, &r_height);
 
-    /* A rejected height is refusal, not an uninitialized compromise.  Restore
-     * the speculative child geometry before returning to the parent. */
+    /* No feasible height means refusal, not an uninitialized compromise.
+     * Restore speculative child geometry on every non-accepting path. */
     if (c_height != r_height) {
         w->core.width = old_width;
         w->core.height = old_height;

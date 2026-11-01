@@ -13,6 +13,6 @@ assert "db->primitive.bottom_shadow_GC != NULL" in section
 assert "db->primitive.shadow_thickness != 0" in section
 assert "db->core.width > 2 * db->primitive.highlight_thickness" in section
 assert "db->core.height > 2 * db->primitive.highlight_thickness" in section
-assert "else if (CanDrawShadow(db))" in section
+assert "CanDrawShadow(db)" in section
 assert "if (!CanDrawShadow(db))" in section
 print("PASS DrawnButton shadow redisplay guards")

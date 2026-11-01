@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
-"""Check SetSelectedIndex reports the resulting selection accurately."""
-
+"""Check the merged modern implementation contract; native suites exercise behavior."""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "SegmentedControl.c").read_text()
-start = source.index("Boolean XmSegmentedControlSetSelectedIndex")
-end = source.index("\n}\n", start) + 2
-body = source[start:end]
-
-assert "select_index((XmSegmentedControlWidget)widget, index, notify, NULL);" in body
-assert "return index == ((XmSegmentedControlWidget)widget)->segmented.selected;" in body
-assert "return index == -1 ||" not in body
-print("PASS SetSelectedIndex reports rejected clear operations")
+source = (Path(__file__).parents[2] / "lib/Xm/SegmentedControl.c").read_text()
+s = "".join(source.split())
+body=s[s.index("BooleanXmSegmentedControlSetSelectedIndex"):s.index("voidXmSegmentedControlClearSelection")]
+assert "returnselect_index((XmSegmentedControlWidget)widget,index,notify,NULL)!=SelectionRejected;" in body
+assert "if(index< -1" in s or "if(index<-1||index>=(int)control->segmented.item_count)" in s
+print("PASS segmented-selection-result")

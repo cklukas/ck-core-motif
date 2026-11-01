@@ -172,6 +172,9 @@ static void InitNewPixmapBehavior(XmLabelGadget lw);
 static char* GetLabelGadgetAccelerator(Widget);
 static KeySym GetLabelGadgetMnemonic(Widget);
 static void GetColors(Widget widget, XmAccessColorData color_data);
+static void GetHighlightPixel(Widget, int, XtArgVal *);
+static void GetTopShadowPixel(Widget, int, XtArgVal *);
+static void GetBottomShadowPixel(Widget, int, XtArgVal *);
 /********    End Static Function Declarations    ********/
 
 void _XmLabelConvert(Widget w, XtPointer ignore, XmConvertCallbackStruct*);
@@ -221,6 +224,12 @@ static XmConst XmAccessColorsTraitRec labACT =
 
 static XtResource resources[] =
 {
+  {
+    XmNinsensitiveForeground, XmCInsensitiveForeground, XmRPixel,
+    sizeof(Pixel), XtOffsetOf(XmLabelGadgetRec, label.insensitive_foreground),
+    XmRImmediate, (XtPointer) XmUNSPECIFIED_PIXEL
+  },
+
     /* The following hackery is a way in Xt to see if a widget has been
      * initialized.  We need to know whether or not the gadget cache is
      * valid.  We use "." in the name so that an end user cannot access
@@ -487,6 +496,11 @@ static XtResource cache_resources[] =
 
 static XmSyntheticResource syn_resources[] =
 {
+    /* Override Gadget's parent-color exports: Label gadgets own cached colors. */
+    { XmNhighlightColor, sizeof(Pixel), 0, GetHighlightPixel, NULL },
+    { XmNtopShadowColor, sizeof(Pixel), 0, GetTopShadowPixel, NULL },
+    { XmNbottomShadowColor, sizeof(Pixel), 0, GetBottomShadowPixel, NULL },
+
     {
         XmNlabelString,
         sizeof(XmString), XtOffsetOf(XmLabelGadgetRec, label._label),
@@ -1250,6 +1264,17 @@ BorderHighlight(Widget w)
  *
  ************************************************************************/
 
+/* Every SetNormalGC acquisition has a matching release, including shadow_GC. */
+static void
+ReleaseLabelGC(XmLabelGadget label)
+{
+    XtReleaseGC(XtParent(label), LabG_NormalGC(label));
+    XtReleaseGC(XtParent(label), LabG_InsensitiveGC(label));
+#ifdef FIX_1381
+    XtReleaseGC(XtParent(label), LabG_ShadowGC(label));
+#endif
+}
+
 static void
 SetNormalGC(XmLabelGadget lw)
 {
@@ -1278,7 +1303,8 @@ SetNormalGC(XmLabelGadget lw)
 
 #ifdef FIX_1381
     /*generally gray insensitive foreground (instead stipple)*/
-    values.foreground = _XmAssignInsensitiveColor((Widget)lw);
+    values.foreground = lw->label.insensitive_foreground != XmUNSPECIFIED_PIXEL ?
+        lw->label.insensitive_foreground : _XmAssignInsensitiveColor((Widget)lw);
     values.background = LabG_Background(lw);
 #else
     valueMask |= GCFillStyle | GCStipple;
@@ -2238,11 +2264,7 @@ Destroy(Widget w)
 
     XtFree ((char*) ((XmLabelGadget)w)->label.baselines);
 
-    XtReleaseGC (XtParent(w), LabG_NormalGC(w));
-    XtReleaseGC (XtParent(w), LabG_InsensitiveGC(w));
-#ifdef FIX_1381
-	XtReleaseGC (XtParent(w), LabG_ShadowGC(w));
-#endif
+    ReleaseLabelGC((XmLabelGadget)w);
     XtReleaseGC (XtParent(w), LabG_BackgroundGC(w));
     XtReleaseGC (XtParent(w), LabG_HighlightGC(w));
     XtReleaseGC (XtParent(w), LabG_TopShadowGC(w));
@@ -2332,6 +2354,11 @@ LRectangle *background_box)
     XRectangle clip_rect;
     Dimension availW, availH, marginal_width, marginal_height, max_text_height;
 
+#ifdef FIX_1381
+    XmAppearanceProfile profile;
+    Boolean embossed = !XmGetAppearanceProfile(XtDisplayOfObject(wid), &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT && profile != XmAPPEARANCE_MODERN_DARK);
+#endif
     if (!XtIsRealized(wid)) return ;
 
     if (LabG_IsMenupane(lw))
@@ -2566,7 +2593,7 @@ LRectangle *background_box)
 			else
 			{
 				/*Draw shadow for insensitive text*/
-				XmStringDrawUnderline(XtDisplay(lw), XtWindow(lw),
+				if (embossed) XmStringDrawUnderline(XtDisplay(lw), XtWindow(lw),
 						LabG_Font(lw), LabG__label(lw),
 						LabG_ShadowGC(lw),
 						lw->rectangle.x+1 + LabG_TextRect(lw).x + LabG_StringRect(lw).x,
@@ -2612,7 +2639,7 @@ LRectangle *background_box)
 			else
 			{
 				/*Draw shadow for insensitive text*/
-				XmStringDraw (XtDisplay(lw), XtWindow(lw),
+				if (embossed) XmStringDraw (XtDisplay(lw), XtWindow(lw),
 						LabG_Font(lw), LabG__label(lw),
 						LabG_ShadowGC(lw),
 						lw->rectangle.x + LabG_TextRect(lw).x+1 + LabG_StringRect(lw).x,
@@ -2686,7 +2713,7 @@ LRectangle *background_box)
 			else
 			{
 				/*Draw shadow for insensitive text*/
-				XmStringDraw (XtDisplay(lw), XtWindow(lw),
+				if (embossed) XmStringDraw (XtDisplay(lw), XtWindow(lw),
 						LabG_Font(lw), LabG__acceleratorText(lw),
 						LabG_ShadowGC(lw) ,
 						lw->rectangle.x + LabG_AccTextRect(lw).x+1,
@@ -2752,6 +2779,12 @@ Cardinal *num_args)                               /* unused */
     Boolean Call_Resize = False;
     XmString replacement;
     XmMenuSystemTrait menuSTrait;
+    Boolean width_requested = False, height_requested = False;
+    /* Equal-valued geometry arguments still express caller ownership. */
+    for (Cardinal i=0; i<*num_args; ++i) {
+        if (strcmp(args[i].name,XmNwidth)==0) width_requested=True;
+        if (strcmp(args[i].name,XmNheight)==0) height_requested=True;
+    }
 
     /* Invalidate the basline cache if necessary. */
     if ((LabG__label(new_w) != LabG__label(current)) ||
@@ -2940,9 +2973,9 @@ Cardinal *num_args)                               /* unused */
 
         if (LabG_RecomputeSize(new_w))
         {
-            if (req->rectangle.width == current->rectangle.width)
+            if (!width_requested && req->rectangle.width == current->rectangle.width)
                 new_w->rectangle.width = 0;
-            if (req->rectangle.height == current->rectangle.height)
+            if (!height_requested && req->rectangle.height == current->rectangle.height)
                 new_w->rectangle.height = 0;
         }
 
@@ -2979,9 +3012,9 @@ Cardinal *num_args)                               /* unused */
     {
         if (LabG_RecomputeSize(new_w))
         {
-            if (req->rectangle.width == current->rectangle.width)
+            if (!width_requested && req->rectangle.width == current->rectangle.width)
                 new_w->rectangle.width = 0;
-            if (req->rectangle.height == current->rectangle.height)
+            if (!height_requested && req->rectangle.height == current->rectangle.height)
                 new_w->rectangle.height = 0;
         }
 
@@ -3023,11 +3056,13 @@ Cardinal *num_args)                               /* unused */
 
     if (LabG_Font(new_w) != LabG_Font(current) ||
         LabG_Foreground(new_w) != LabG_Foreground(current) ||
-        LabG_Background(new_w) != LabG_Background(current))
+        LabG_Background(new_w) != LabG_Background(current) ||
+        LabG_TopShadowColor(new_w) != LabG_TopShadowColor(current) ||
+        LabG_BottomShadowColor(new_w) != LabG_BottomShadowColor(current) ||
+        new_w->label.insensitive_foreground != current->label.insensitive_foreground)
     {
-        /* Recreate the GC's if the font has been changed */
-        XtReleaseGC (XtParent (current), LabG_NormalGC(current));
-        XtReleaseGC (XtParent (current), LabG_InsensitiveGC(current));
+        /* Font and all text colors share the same GC ownership. */
+        ReleaseLabelGC(current);
         SetNormalGC(new_w);
         flag = True;
     }
@@ -3259,12 +3294,6 @@ Mask visual_flag)
         _XmLabelSetBackgroundGC((XmLabelGadget)lw);
     }
 
-    if (do_normal)
-    {
-        XtReleaseGC (XtParent(lw), LabG_NormalGC(lw));
-        XtReleaseGC (XtParent(lw), LabG_InsensitiveGC(lw));
-        SetNormalGC((XmLabelGadget)lw);
-    }
 
     if (visual_flag & (VisualTopShadowColor | VisualTopShadowPixmap))
     {
@@ -3326,6 +3355,13 @@ Mask visual_flag)
             LabG_Background(lw),
             LabG_HighlightPixmap(lw));
 
+        redraw = True;
+    }
+
+    /* Resolve inherited shadow colors before refreshing disabled text GCs. */
+    if (do_normal || (visual_flag & (VisualTopShadowColor | VisualBottomShadowColor))) {
+        ReleaseLabelGC(lw);
+        SetNormalGC(lw);
         redraw = True;
     }
 
@@ -3890,6 +3926,28 @@ XtWidgetGeometry *reply)
         *request = *reply;
 }
 
+
+/* Synthetic exports run after the secondary cache GetValues hook. */
+static void
+GetHighlightPixel(Widget w, int offset, XtArgVal *value)
+{
+    (void)offset;
+    *value = (XtArgVal)LabG_HighlightColor(w);
+}
+
+static void
+GetTopShadowPixel(Widget w, int offset, XtArgVal *value)
+{
+    (void)offset;
+    *value = (XtArgVal)LabG_TopShadowColor(w);
+}
+
+static void
+GetBottomShadowPixel(Widget w, int offset, XtArgVal *value)
+{
+    (void)offset;
+    *value = (XtArgVal)LabG_BottomShadowColor(w);
+}
 
 static void
 GetColors(Widget w,

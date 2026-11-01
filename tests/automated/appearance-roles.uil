@@ -1,0 +1,34 @@
+! Exercise inherited native role resources in widgets, gadgets and managers.
+module appearance_roles
+    names = case_sensitive
+object
+    roleForm : XmForm {
+        arguments { XmNappearanceRole = XmAPPEARANCE_ROLE_NORMAL; };
+        controls {
+            XmLabel roleTitle;
+            XmLabelGadget roleSection;
+            XmPushButton rolePrimary;
+            XmTextField roleCode;
+        };
+    };
+    roleTitle : XmLabel {
+        arguments {
+            XmNlabelString = compound_string('Page title');
+            XmNinsensitiveForeground = color('#0033cc');
+            XmNappearanceRole = XmAPPEARANCE_ROLE_PAGE_TITLE;
+        };
+    };
+    roleSection : XmLabelGadget {
+        arguments {
+            XmNlabelString = compound_string('Section');
+            XmNinsensitiveForeground = color('#0033cc');
+            XmNappearanceRole = XmAPPEARANCE_ROLE_SECTION;
+        };
+    };
+    rolePrimary : XmPushButton {
+        arguments { XmNappearanceRole = XmAPPEARANCE_ROLE_PRIMARY; };
+    };
+    roleCode : XmTextField {
+        arguments { XmNappearanceRole = XmAPPEARANCE_ROLE_CODE; };
+    };
+end module;

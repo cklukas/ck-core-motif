@@ -13,7 +13,7 @@ leak detection enabled.
 ## Decision
 
 **Go for WP-09 release.** Install the header-only, separately versioned
-`ckmotif++-8` package and its pkg-config metadata. Keep `libXm`'s C ABI
+`ckmotif++-9` package and its pkg-config metadata. Keep `libXm`'s C ABI
 unchanged; do not hide a global widget registry or claim thread-safe widgets.
 
 The accepted release evidence is a fresh installed prefix and proves, at
@@ -33,7 +33,7 @@ x86_64 qualification gate.
 ## Installation contract
 
 Configure with `--enable-cxx-support` to install the header and
-`ckmotif++-8.pc`. The default C build does not install or compile this optional
+`ckmotif++-9.pc`. The default C build does not install or compile this optional
 package, and `libXm` retains its unchanged C ABI. The installed-prefix
 consumer fixture remains the release gate for callback, ownership and
 destruction behavior.

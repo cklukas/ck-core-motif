@@ -109,6 +109,7 @@ typedef struct
    XtCallbackList   convert_callback;       /* Selection convert callback */
 
    Region value_region;
+   Boolean width_default, height_default;
 } XmScalePart;
 
 

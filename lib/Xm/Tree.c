@@ -30,6 +30,10 @@
 #include "XmI.h"
 #include "xmlist.h"
 #include <Xm/TreeP.h>
+#include <Xm/PrimitiveP.h>
+#include <Xm/DrawP.h>
+#include <Xm/TraitP.h>
+#include <Xm/UnhighlightT.h>
 #include <X11/Xutil.h>
 
 /************************************************************
@@ -115,7 +119,10 @@ static void _ResetPlacedFlag(TreeConstraints);
 
 static void FindNodeLocations(Widget);
 static void DrawTreeLine(Widget, XRectangle *, TreeConstraints);
-static void RedrawTreeLines(Widget, XRectangle *);
+static void RedrawTreeLines(Widget);
+static int NodeInset(Widget);
+static void ChildConnectorEvent(Widget, XtPointer, XEvent *, Boolean *);
+static void DrawNodeConnection(Widget, GC, Widget, Boolean, int, int, int, int);
 
 static Boolean RequestNewSize(Widget);
 
@@ -392,6 +399,7 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
     XmTreeWidget tw = (XmTreeWidget) set;
     TreeConstraints top_node;
 
+    tw->tree.connector_work = (XtWorkProcId)0;
     top_node = ((TreeConstraints) 
 		XtRealloc((XtPointer) XmHierarchy_top_node(tw),
 			  sizeof(TreeConstraintRec)));
@@ -497,7 +505,7 @@ Redisplay(Widget w, XEvent * event, Region region)
 	rect.height = XmTree_lr_point(tw).y - XmTree_ul_point(tw).y;
 
 	ProcessChildQueue((XmTreeWidget) w, &rect);
-	RedrawTreeLines(w, &rect);
+	RedrawTreeLines(w);
 	
 	/*
 	 * Reset upper right and lower left points.
@@ -629,6 +637,8 @@ static void TreeDestroy (Widget widget)
 {
   XmTreeWidget tree = (XmTreeWidget) widget;
 
+    if (tree->tree.connector_work) XtRemoveWorkProc(tree->tree.connector_work);
+    tree->tree.connector_work = (XtWorkProcId)0;
     _XmListFree(XmTree_child_op_list(tree)); 
 }
 
@@ -753,6 +763,8 @@ ConstraintInitialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
     XmTreeC_placed(node) = False;
     XmTreeC_is_compressed(node) = False;
 
+    XtAddEventHandler(set, ExposureMask | FocusChangeMask, False,
+                      ChildConnectorEvent, (XtPointer)XtParent(set));
     LineStyle_confirm(set, LineSolid);
     
     if (XmHierarchyC_state(node) != XmNotInHierarchy)
@@ -778,6 +790,8 @@ ConstraintDestroy(Widget w)
     XmListElem *elem, *next;
     XmTreeWidget tw;
 
+    XtRemoveEventHandler(w, ExposureMask | FocusChangeMask, False,
+                         ChildConnectorEvent, (XtPointer)XtParent(w));
     if (XmHierarchyC_state(node) == XmNotInHierarchy) 
     {
       return;
@@ -1272,12 +1286,31 @@ DrawExtraLadderLines( Widget w, GC gc, LadderPoint first_kid,
  */
 
 static void
-RedrawTreeLines(Widget w, XRectangle * rect)
+RedrawTreeLines(Widget w)
 {
     XmTreeWidget tw = (XmTreeWidget) w;
-
-    if (XtIsRealized(w))
-	DrawTreeLine(w, rect, (TreeConstraints) XmHierarchy_top_node(tw));
+    XRectangle rect = {0, 0, w->core.width, w->core.height};
+    Cardinal i;
+    XmSpecifyUnhighlightTrait trait;
+    if (!XtIsRealized(w)) return;
+    trait = (XmSpecifyUnhighlightTrait)XmeTraitGet((XtPointer)XtClass(w),
+                                                 XmQTspecifyUnhighlight);
+    /* Moving/resizing nodes preserves their window pixels. Erase old endpoint
+     * fragments before drawing the current graph, using the same background
+     * contract as primitive focus unhighlight. Never erase active focus. */
+    for (i = 0; i < tw->composite.num_children; ++i) {
+        Widget child = tw->composite.children[i];
+        int inset = NodeInset(child);
+        GC background = tw->manager.background_GC;
+        if (!inset || !XtIsRealized(child) || !XtIsManaged(child) ||
+            child->core.being_destroyed ||
+            ((XmPrimitiveWidget)child)->primitive.highlighted) continue;
+        if (trait && trait->getUnhighlightGC)
+            background = trait->getUnhighlightGC(w, child);
+        XmeDrawHighlight(XtDisplay(w), XtWindow(child), background,
+                         0, 0, child->core.width, child->core.height, inset);
+    }
+    DrawTreeLine(w, &rect, (TreeConstraints)XmHierarchy_top_node(tw));
 }
 
 /*	Function Name: _CalcNodeMidPoint
@@ -1290,35 +1323,97 @@ RedrawTreeLines(Widget w, XRectangle * rect)
  *                 ret_point - return values for calculated points
  *	Returns: none
  */
-static void
-_CalcNodeMidPoint( TreeConstraints node, Widget w,
-		   LadderPoint *ret_point )
+/* Anchors use the actual mapped child geometry, including border width.
+ * The focus margin is outside the visible primitive face. */
+static int
+NodeInset(Widget child)
 {
-  register int extra_space;
-  XmTreeWidget tw = (XmTreeWidget)w;
+    if (!child || child->core.border_width || !XmIsPrimitive(child)) return 0;
+    return MIN(((XmPrimitiveWidget)child)->primitive.highlight_thickness,
+               MIN(child->core.width, child->core.height) / 2);
+}
 
-  if (!XmHierarchyC_widget(node)) return;
+static Widget
+IncomingNode(TreeConstraints node)
+{
+    Widget button = XmHierarchyC_open_close_button(node);
+    return button ? button : XmHierarchyC_widget(node);
+}
 
-  if (XmTree_orientation(tw) == XmHORIZONTAL)
-  {
-    ret_point->x = (XmTreeC_box_x(node) + XmTreeC_widget_offset(node) +
-		  (XmHierarchyC_widget(node))->core.width + 
-		  XmHierarchy_h_margin(tw));
-  
-    extra_space = GetExtraVertSpace(w);
-  
-    ret_point->y = XmTreeC_box_y(node)+(int)(XmTreeC_bb_height(node)+extra_space)/2;
-  }
-  else    /* orientation == XmVERTICAL */
-  {
-    ret_point->y = (XmTreeC_box_y(node) + XmTreeC_widget_offset(node) +
-		  (XmHierarchyC_widget(node))->core.height + 
-		  XmHierarchy_v_margin(tw));
-  
-    extra_space = GetExtraHorizSpace(w);
-  
-    ret_point->x = XmTreeC_box_x(node)+(int)(XmTreeC_bb_width(node)+extra_space)/2;
-  }
+static LadderPoint
+NodeAnchor(Widget tree, Widget child, Boolean outgoing)
+{
+    LadderPoint point = {0, 0};
+    int inset, border;
+    if (!child) return point;
+    inset = NodeInset(child); border = child->core.border_width;
+    point.x = child->core.x + border + child->core.width / 2;
+    point.y = child->core.y + border + child->core.height / 2;
+    if (XmTree_orientation(tree) == XmHORIZONTAL)
+        point.x = child->core.x + (outgoing
+            ? 2 * border + child->core.width - 1 - inset : inset);
+    else
+        point.y = child->core.y + (outgoing
+            ? 2 * border + child->core.height - 1 - inset : inset);
+    return point;
+}
+
+static void
+_CalcNodeMidPoint(TreeConstraints node, Widget w, LadderPoint *point)
+{
+    *point = NodeAnchor(w, XmHierarchyC_widget(node), True);
+}
+
+/* Paint only the endpoint's focus gutter. Parent-window drawing remains
+ * ClipByChildren: connectors must never draw across unrelated child faces.
+ * Copy the GC so clipping cannot mutate the shared Xt GC or its dash phase. */
+static void
+DrawNodeConnection(Widget tree, GC source, Widget child, Boolean outgoing,
+                   int x1, int y1, int x2, int y2)
+{
+    int inset = NodeInset(child);
+    XRectangle clip;
+    GC gc;
+    Display *display = XtDisplay(tree);
+    if (!inset || !XtIsRealized(child) || !XtIsManaged(child) ||
+        child->core.being_destroyed ||
+        ((XmPrimitiveWidget)child)->primitive.highlighted) return;
+    clip.x = clip.y = 0;
+    clip.width = child->core.width; clip.height = child->core.height;
+    if (XmTree_orientation(tree) == XmHORIZONTAL) {
+        clip.width = inset;
+        if (outgoing) clip.x = child->core.width - inset;
+    } else {
+        clip.height = inset;
+        if (outgoing) clip.y = child->core.height - inset;
+    }
+    gc = XCreateGC(display, XtWindow(child), 0, NULL);
+    XCopyGC(display, source, GCForeground | GCBackground | GCLineWidth |
+            GCLineStyle | GCCapStyle | GCJoinStyle | GCDashOffset | GCDashList, gc);
+    XSetClipRectangles(display, gc, 0, 0, &clip, 1, Unsorted);
+    XDrawLine(display, XtWindow(child), gc,
+              x1 - child->core.x, y1 - child->core.y,
+              x2 - child->core.x, y2 - child->core.y);
+    XFreeGC(display, gc);
+}
+
+static Boolean
+RepaintChildConnections(XtPointer data)
+{
+    XmTreeWidget tree = (XmTreeWidget)data;
+    tree->tree.connector_work = (XtWorkProcId)0;
+    if (!tree->core.being_destroyed) RedrawTreeLines((Widget)tree);
+    return True;
+}
+
+static void
+ChildConnectorEvent(Widget child, XtPointer data, XEvent *event, Boolean *dispatch)
+{
+    XmTreeWidget tree = (XmTreeWidget)data;
+    (void)child; (void)event; (void)dispatch;
+    if (!tree->core.being_destroyed && !tree->tree.connector_work)
+        tree->tree.connector_work = XtAppAddWorkProc(
+            XtWidgetToApplicationContext((Widget)tree), RepaintChildConnections, data);
 }
 
 /*	Function Name: DrawTreeLine
@@ -1400,6 +1495,10 @@ DrawTreeLine(Widget w, XRectangle *rect, TreeConstraints node)
      * drawing loop at least twice
      */
     if ((num_kids > 1) && (!first_time) && (XmTree_connect_style(tw) == XmTreeLadder)) {
+      DrawNodeConnection(w, XmTreeC_gc(node), XmHierarchyC_widget(from_node), True,
+          from_node_point.x, from_node_point.y,
+          XmTree_orientation(tw) == XmHORIZONTAL ? first_kid_point.x : from_node_point.x,
+          XmTree_orientation(tw) == XmHORIZONTAL ? from_node_point.y : first_kid_point.y);
       DrawExtraLadderLines( w, XmTreeC_gc(node), first_kid_point,
 			   last_kid_point, from_node_point );
     }
@@ -1428,7 +1527,7 @@ _DrawLine(Widget w, XRectangle *rect, TreeConstraints parent,
 {
     GC gc;
     XmTreeWidget tw = (XmTreeWidget) w;
-    register int x2=0, y2=0, extra_space;
+    register int x2=0, y2=0;
     register int rx2, ry2, cx1, cx2, cy1, cy2;
 
     /*
@@ -1457,17 +1556,9 @@ _DrawLine(Widget w, XRectangle *rect, TreeConstraints parent,
 
     gc = XmTreeC_gc(child);
 	
-    if (XmTree_orientation(tw) == XmHORIZONTAL)
     {
-      extra_space = GetExtraVertSpace(w);
-      x2 = (XmTreeC_box_x(child) + XmHierarchy_h_margin(tw));
-      y2 = XmTreeC_box_y(child) + (int)(XmTreeC_bb_height(child) + extra_space)/2;
-    }
-    else     /* orientation == XmVERTICAL */
-    {
-      extra_space = GetExtraHorizSpace(w);
-      y2 = (XmTreeC_box_y(child) + XmHierarchy_v_margin(tw));
-      x2 = XmTreeC_box_x(child) + (int)(XmTreeC_bb_width(child) + extra_space)/2;
+      LadderPoint anchor = NodeAnchor(w, IncomingNode(child), False);
+      x2 = anchor.x; y2 = anchor.y;
     }
 
     cx1 = MIN(from_ladder_point.x, x2);
@@ -1523,6 +1614,16 @@ _DrawLine(Widget w, XRectangle *rect, TreeConstraints parent,
 	else
 	    XDrawLine(XtDisplay(w), XtWindow(w), gc, from_ladder_point.x,
 		      from_ladder_point.y, x2, y2);
+    }
+
+    if (XmTree_connect_style(tw) == XmTreeLadder &&
+        XmHierarchyC_num_children(parent) > 1) {
+        DrawNodeConnection(w, gc, IncomingNode(child), False, cx1, cy1, cx2, cy2);
+    } else {
+        DrawNodeConnection(w, gc, XmHierarchyC_widget(parent), True,
+                           from_ladder_point.x, from_ladder_point.y, x2, y2);
+        DrawNodeConnection(w, gc, IncomingNode(child), False,
+                           from_ladder_point.x, from_ladder_point.y, x2, y2);
     }
 
     /* This is sent back because the ladder lines get connected later */

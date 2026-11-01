@@ -6,9 +6,12 @@
 #include <Xm/LinkP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include <Xm/Appearance.h>
 #include <stdio.h>
 #include <limits.h>
+#include <string.h>
 #include "PrimitiveI.h"
+#include "XmI.h"
 
 static Position bounded_position(long long value) {
     if (value < SHRT_MIN) return (Position)SHRT_MIN;
@@ -60,6 +63,34 @@ externaldef(xmlinkwidgetclass) WidgetClass xmLinkWidgetClass =
 static XmString copy_label(XmString source) {
     return source ? XmStringCopy(source) : XmStringCreateLocalized("");
 }
+
+static Dimension padding(XmLinkWidget link) {
+    /* Reserve both underline rules even before visiting, so state changes do
+     * not move adjacent controls. Rounded DPI gaps can exceed 4*scale at 1.5x. */
+    unsigned long inset = MAX(_XmDpiDefaultDimension((Widget)link, 4),
+                          3UL * _XmDpiDefaultDimension((Widget)link, 1) + 1);
+    unsigned long frame = (unsigned long)link->primitive.highlight_thickness +
+                          link->primitive.shadow_thickness;
+    return (Dimension)MIN(USHRT_MAX, MAX((unsigned long)inset, frame));
+}
+
+static void natural_size(XmLinkWidget link, Dimension *width, Dimension *height) {
+    Dimension text_width = 0, text_height = 0, inset = padding(link);
+    XmAppearanceProfile profile;
+    XmAppearanceDensity density;
+    unsigned long minimum = 1;
+    if (link->link.render_table && link->link.label)
+        XmStringExtent(link->link.render_table, link->link.label, &text_width, &text_height);
+    profile = _XmAppearanceGeometryProfile(XtDisplay((Widget)link));
+    if (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) {
+        density = _XmAppearanceGeometryDensity(XtDisplay((Widget)link));
+        minimum = _XmDpiDefaultDimension((Widget)link,
+            density == XmAPPEARANCE_DENSITY_COMPACT ? 28 : 34);
+    }
+    *width = (Dimension)MIN(USHRT_MAX, MAX(1UL, text_width + 2UL * inset));
+    *height = (Dimension)MIN(USHRT_MAX, MAX(minimum, text_height + 2UL * inset));
+}
+
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmLinkWidget link = (XmLinkWidget)widget; XGCValues values;
     (void)args; (void)count;
@@ -74,17 +105,13 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
         link->link.render_table = XmFontListCopy(link->link.render_table);
     link->link.gc = XCreateGC(XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
                               GCForeground | GCBackground, &values);
-    if (!request->core.width || !request->core.height) {
-        Dimension width = 80, height = 24;
-        if (link->link.render_table && link->link.label) {
-            Dimension text_width = 0, text_height = 0;
-            XmStringExtent(link->link.render_table, link->link.label,
-                           &text_width, &text_height);
-            width = text_width > (Dimension)-1 - 8 ? (Dimension)-1 : text_width + 8;
-            height = text_height + 8;
-        }
-        if (!request->core.width) link->core.width = width;
-        if (!request->core.height) link->core.height = height;
+    link->link.automatic_width = request->core.width == 0;
+    link->link.automatic_height = request->core.height == 0;
+    {
+        Dimension width, height;
+        natural_size(link, &width, &height);
+        if (link->link.automatic_width) link->core.width = width;
+        if (link->link.automatic_height) link->core.height = height;
     }
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events, NULL);
 }
@@ -100,31 +127,34 @@ static void Destroy(Widget widget) {
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmLinkWidget link = (XmLinkWidget)widget; Dimension text_width = 0, text_height = 0;
     XmString label;
+    Dimension inset = padding(link);
     (void)event; (void)region;
     if (!XtWindow(widget) || !link->link.gc) return;
+    XSetForeground(XtDisplay(widget), link->link.gc,
+        XtIsSensitive(widget) ? link->primitive.foreground : link->primitive.bottom_shadow_color);
+    XSetBackground(XtDisplay(widget), link->link.gc, link->core.background_pixel);
     XClearWindow(XtDisplay(widget), XtWindow(widget));
     label = link->link.label;
     if (link->link.render_table && label) {
         XmStringExtent(link->link.render_table, label, &text_width, &text_height);
         XmStringDraw(XtDisplay(widget), XtWindow(widget), link->link.render_table,
-                     label, link->link.gc, bounded_position(4),
-                     bounded_position(((long long)link->core.height - text_height) / 2),
+                     label, link->link.gc, bounded_position(inset),
+                     bounded_position(((long long)link->core.height - (long long)text_height) / 2),
                      text_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(link), NULL);
     }
-    if (link->core.width > 4 && link->core.height >= 5) {
-        int underline_end = 4 + (int)text_width;
-        if (underline_end > (int)link->core.width - 1)
-            underline_end = (int)link->core.width - 1;
-        XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
-                  (int)link->core.height - 5, underline_end,
-                  (int)link->core.height - 5);
-    /* Visited state is visible without depending on colour: a second rule
-       distinguishes it in monochrome and high-contrast themes. */
-    if (link->link.visited)
-        XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc, 4,
-                  (int)link->core.height - 2, underline_end,
-                  (int)link->core.height - 2);
+    if (text_width && link->core.width > 2 * inset) {
+        int underline_end = MIN((int)inset + text_width - 1,
+                                (int)link->core.width - inset - 1);
+        int gap = _XmDpiDefaultDimension(widget, 1);
+        int underline_y = ((int)link->core.height + text_height) / 2 + gap;
+        if (underline_y < (int)link->core.height)
+            XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc,
+                      inset, underline_y, underline_end, underline_y);
+        /* A second rule makes visited state distinguishable without color. */
+        if (link->link.visited && underline_y + 2 * gap < (int)link->core.height)
+            XDrawLine(XtDisplay(widget), XtWindow(widget), link->link.gc,
+                      inset, underline_y + 2 * gap, underline_end, underline_y + 2 * gap);
     }
     if (link->primitive.highlighted && link->primitive.highlight_thickness &&
         link->core.width > 2 && link->core.height > 2)
@@ -177,27 +207,34 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
             link->link.target = old->link.target;
         }
     }
-    return redraw || colors_changed || old->link.visited != link->link.visited ||
+    for (Cardinal i = 0; i < *count; ++i) {
+        if (!strcmp(args[i].name, XmNwidth))
+            link->link.automatic_width = (Dimension)args[i].value == 0;
+        if (!strcmp(args[i].name, XmNheight))
+            link->link.automatic_height = (Dimension)args[i].value == 0;
+    }
+    {
+        Dimension width, height;
+        natural_size(link, &width, &height);
+        if (link->link.automatic_width) link->core.width = width;
+        if (link->link.automatic_height) link->core.height = height;
+    }
+    return redraw || old->primitive.foreground != link->primitive.foreground ||
+           old->core.background_pixel != link->core.background_pixel ||
+           old->primitive.bottom_shadow_color != link->primitive.bottom_shadow_color ||
+           XtIsSensitive(old_widget) != XtIsSensitive(widget) ||
+           old->link.visited != link->link.visited ||
            old->link.visit_on_activate != link->link.visit_on_activate ||
            old->primitive.highlighted != link->primitive.highlighted;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmLinkWidget link = (XmLinkWidget)widget;
-    (void)request;
     reply->request_mode = CWWidth | CWHeight;
-    {
-        Dimension measured_width = 0, measured_height = 0;
-        if (link->link.render_table && link->link.label)
-            XmStringExtent(link->link.render_table, link->link.label,
-                           &measured_width, &measured_height);
-        unsigned long width = measured_width > 0 ? (unsigned long)measured_width : 0;
-        reply->width = width > (unsigned long)(Dimension)-1 - 8UL
-                           ? (Dimension)-1 : (Dimension)(width + 8UL);
-    }
-    reply->height = 24;
-    return (widget->core.width == reply->width && widget->core.height == reply->height)
-               ? XtGeometryYes : XtGeometryAlmost;
+    natural_size(link, &reply->width, &reply->height);
+    if (!link->link.automatic_width) reply->width = link->core.width;
+    if (!link->link.automatic_height) reply->height = link->core.height;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch) {
     KeySym key; char input[8];

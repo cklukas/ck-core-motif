@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+<title>File selection dialog</title>
+<path d="M4 11h12l4 4h16v20H4z" fill="#705727" opacity=".22"/>
+<path d="M4 9h12l4 4h15v20H4z" fill="#c99b50" stroke="#705727" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M6 11h9l4 4h14" fill="none" stroke="#f4d596" stroke-width="2"/>
+<path d="M5 19h32l-4 14H2z" fill="#e3bc75" stroke="#705727" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M7 21h27" stroke="#fae4b6" stroke-width="2"/>
+</svg>

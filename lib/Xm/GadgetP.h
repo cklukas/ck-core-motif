@@ -158,6 +158,7 @@ typedef struct _XmGadgetPart
 #ifdef OM22_COMPATIBILITY   
    XmString tool_tip_string;
 #endif
+   unsigned char appearance_role;
 } XmGadgetPart;
 
 /*  Full instance record declaration  */

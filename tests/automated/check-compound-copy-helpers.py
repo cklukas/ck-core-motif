@@ -11,7 +11,7 @@ helpers = {
     "EmptyState.c": ("static XmString copy_string", "XmStringCopy(source)"),
     "Prompt.c": ("static XmString copy_prompt", "XmStringCopy(source)"),
     "RowActions.c": ("static XmString string_copy", "XmStringCopy(value)"),
-    "AutoSuggestBox.c": ("static XmString string_copy", "XmStringCopy(value)"),
+
 }
 for name, (marker, copy_call) in helpers.items():
     source = (root / name).read_text()
@@ -22,4 +22,6 @@ for name, (marker, copy_call) in helpers.items():
     assert "XmStringUnparse" not in body, name
     assert "XmStringCreateLocalized(text)" not in body, name
 
+autosuggest = (root / "AutoSuggestBox.c").read_text()
+assert "items[i].label ? XmStringCopy(items[i].label)" in autosuggest
 print("Compound-string copy helpers preserve label segments")

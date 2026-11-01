@@ -115,10 +115,10 @@ static Region null_region = NULL;
 
 #define SCROLLBAR_MAX	1000000000
 #define SCALE_VALUE_MARGIN 3
-#define SCALE_DEFAULT_MAJOR_SIZE \
-	(100 + (2 * sw->scale.highlight_thickness))
-#define SCALE_DEFAULT_MINOR_SIZE \
-	(15 + (2 * sw->scale.highlight_thickness))
+static Dimension ScaleDefaultExtent(XmScaleWidget, Boolean);
+static void ScaleChanged(Widget, double, double, XtPointer);
+#define SCALE_DEFAULT_MAJOR_SIZE ScaleDefaultExtent(sw, True)
+#define SCALE_DEFAULT_MINOR_SIZE ScaleDefaultExtent(sw, False)
 
 #define SLIDER_SIZE(sca)	((sca->scale.sliding_mode == XmTHERMOMETER)?\
 				 0:sca->scale.slider_size)
@@ -931,6 +931,7 @@ CreateScaleTitle(
 	title = (XmLabelGadget) XmCreateLabelGadget( (Widget) new_w, 
 						    "Title",
 		args, n);
+	_XmAppearanceInheritFont((Widget) title, (Widget) new_w);
 
 	if (new_w->scale.title) {
 	    XtManageChild ((Widget) title);
@@ -1044,6 +1045,8 @@ Initialize(
     XmScaleWidget req = (XmScaleWidget) rw ;
     XmScaleWidget new_w = (XmScaleWidget) nw ;
     
+    new_w->scale.width_default = (req->core.width == 0);
+    new_w->scale.height_default = (req->core.height == 0);
     new_w->scale.value_region = XCreateRegion();
 
     /* Validate the incoming data  */                      
@@ -1087,6 +1090,7 @@ Initialize(
 
     /* add the handler that drags the value shown in the scale window */
     XtAddEventHandler(nw, ButtonPressMask, False, StartDrag, NULL);
+    (void)_XmRegisterScaleChange(nw, ScaleChanged, NULL);
 }
 
 
@@ -1149,6 +1153,29 @@ Resize(
  *  SetValues stuff
  *
  ************************************************************************/
+
+static void
+ScaleChanged(Widget widget, double old_scale, double new_scale, XtPointer closure)
+{
+    XmScaleWidget sw = (XmScaleWidget)widget;
+    Dimension width = 0, height = 0, offered_width, offered_height;
+    XtGeometryResult result;
+    (void)old_scale; (void)new_scale; (void)closure;
+    GetScaleSize(sw, &width, &height);
+    if (!sw->scale.width_default) width = sw->core.width;
+    if (!sw->scale.height_default) height = sw->core.height;
+    if (width != sw->core.width || height != sw->core.height) {
+        result = XtMakeResizeRequest(widget,width,height,&offered_width,&offered_height);
+        if (result == XtGeometryAlmost &&
+            (sw->scale.width_default || offered_width == width) &&
+            (sw->scale.height_default || offered_height == height))
+            (void)XtMakeResizeRequest(widget,offered_width,offered_height,NULL,NULL);
+    }
+    /* Fixed outer allocations still need their children's new natural sizes. */
+    Resize(widget);
+    if (XtIsRealized(widget))
+        XClearArea(XtDisplay(widget),XtWindow(widget),0,0,0,0,True);
+}
 
 static void 
 ValidateInputs(
@@ -1274,6 +1301,8 @@ HandleTitle(
 	}
 
 	if (n) XtSetValues (new_w->composite.children[0], args, n);
+	if (new_w->scale.font_list != cur->scale.font_list)
+	    _XmAppearanceInheritFont(new_w->composite.children[0], (Widget) new_w);
 	
 	if (new_w->scale.title != cur->scale.title) {
 	    if (new_w->scale.title != NULL) {
@@ -1363,6 +1392,11 @@ SetValues(
     Boolean redisplay = False ;
 
 #define DIFF(x) ((new_w->x) != (cur->x))
+
+    for (Cardinal i = 0; i < *num_args_in; ++i) {
+        if (strcmp(args_in[i].name, XmNwidth) == 0) new_w->scale.width_default = False;
+        if (strcmp(args_in[i].name, XmNheight) == 0) new_w->scale.height_default = False;
+    }
 
     /* this flag is checked in the GM */
     new_w->scale.state_flags |= FROM_SET_VALUE ;
@@ -1462,10 +1496,10 @@ SetValues(
 	
 	GetScaleSize (new_w, &width, &height);
 
-	if (new_w->core.width == cur->core.width)
+	if (new_w->scale.width_default)
 	    new_w->core.width = width ;
 
-	if (new_w->core.height == cur->core.height)
+	if (new_w->scale.height_default)
 	    new_w->core.height = height ;
     }
     
@@ -2145,6 +2179,19 @@ MajorTrailPad(
 }
 
 
+
+/* Resolve the transaction's target profile so live conversion and startup
+ * compute identical natural dimensions. Explicit scaleWidth/Height bypass it. */
+static Dimension
+ScaleDefaultExtent(XmScaleWidget sw, Boolean major)
+{
+    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplay(sw));
+    unsigned long extent = major ? 100 : 15;
+    if (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK)
+        extent = _XmDpiDefaultDimension((Widget)sw,major ? 100 : 24);
+    extent += 2UL * sw->scale.highlight_thickness;
+    return (Dimension)MIN(extent,USHRT_MAX);
+}
 
 static Dimension 
 ScrollWidth(

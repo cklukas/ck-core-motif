@@ -13,8 +13,15 @@ int main(int argc, char **argv) {
     (void)argv;
     shell = XtVaAppInitialize(&app, "FormSectionTest", NULL, 0, &argc, argv, NULL, XmNwidth, 320, XmNheight, 160, NULL);
     row = XtVaCreateWidget("row", xmRowColumnWidgetClass, shell, XmNresizeWidth, False, XmNwidth, 120, NULL); XtManageChild(row);
-    header = XmStringCreateLocalized((char *)"Account"); footer = XmStringCreateLocalized((char *)"Required fields");
+    header = XmStringCreate((char *)"Account", (char *)"section-heading"); footer = XmStringCreateLocalized((char *)"Required fields");
     section = XmVaCreateManagedFormSection(row, (char *)"section", XmNformSectionHeader, header, XmNformSectionFooter, footer, XmNformSectionSpacing, 3, NULL);
+    {
+        XmString stored=NULL;
+        XtVaGetValues(section,XmNformSectionHeader,&stored,NULL);
+        CHECK(XmStringCompare(header,stored));
+        XtVaGetValues(XmFormSectionGetHeader(section),XmNlabelString,&stored,NULL);
+        CHECK(XmStringCompare(header,stored));XmStringFree(stored);
+    }
     XmStringFree(header); XmStringFree(footer);
     content = XmFormSectionGetContent(section); CHECK(content != NULL); CHECK(XmFormSectionGetHeader(section) != NULL); CHECK(XmFormSectionGetFooter(section) != NULL);
     { XmString child_label = XmStringCreateLocalized((char *)"Value");
@@ -31,6 +38,8 @@ int main(int argc, char **argv) {
     XtVaSetValues(row, XmNwidth, 86, NULL); XSync(XtDisplay(shell), False); XtVaGetValues(section, XmNwidth, &width, XmNheight, &height, NULL); CHECK(width == 80 && height > 0);
     accessibility = XmAccessibilityCreate(shell, "FormSectionTest"); CHECK(accessibility != NULL); id = XmAccessibilityWidget(accessibility, section);
     CHECK(XmAccessibilityQuery(accessibility, id, &info)); CHECK(info.role == XmACCESSIBLE_PANEL && info.name != NULL && strcmp(info.name, "Profile") == 0); XmAccessibleInfoClear(&info);
-    XmAccessibilityDestroy(accessibility); XtDestroyWidget(shell); XtCloseDisplay(XtDisplay(shell)); XtDestroyApplicationContext(app);
+    XmAccessibilityDestroy(accessibility);
+    { Display *display=XtDisplay(shell);XtDestroyWidget(shell);XtCloseDisplay(display); }
+    XtDestroyApplicationContext(app);
     printf("PASS form section: %u checks\n", checks); return EXIT_SUCCESS;
 }

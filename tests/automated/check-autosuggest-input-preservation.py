@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
-"""Check oversized AutoSuggest input is rejected before existing items are freed."""
+"""Check the merged modern implementation contract; native suites exercise behavior."""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "AutoSuggestBox.c").read_text()
-start = source.index("Boolean XmAutoSuggestBoxSetSuggestions")
-end = source.index("Cardinal XmAutoSuggestBoxGetSuggestionCount", start)
-function = source[start:end]
-guard = function.index("SIZE_MAX / sizeof(*box->auto_suggest.items)")
-free = function.index("free_items(box)")
-assert guard < free
-assert "(count && !items)" in function
-print("AutoSuggestBox rejects oversized suggestion arrays before replacing existing items")
+source = (Path(__file__).parents[2] / "lib/Xm/AutoSuggestBox.c").read_text()
+s = "".join(source.split())
+body=s[s.index("BooleanXmAutoSuggestBoxSetSuggestions"):s.index("CardinalXmAutoSuggestBoxGetSuggestionCount")]
+assert body.index("SIZE_MAX/sizeof(*replacement)")<body.index("free_items(box)")
+assert body.index("generation!=box->auto_suggest.generation")<body.index("free_items(box)")
+print("PASS autosuggest-input-preservation")

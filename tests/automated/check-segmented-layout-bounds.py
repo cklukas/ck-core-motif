@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
+"""Supplement native geometry tests with the signed X-coordinate bound."""
 from pathlib import Path
-
-source = Path("lib/Xm/SegmentedControl.c").read_text()
-start = source.index("static void layout")
-end = source.index("\nstatic XtGeometryResult QueryGeometry", start)
-region = source[start:end]
-assert "if (x >= available)" in region
-assert "width = available - x;" in region
-assert "if (x < available && width < available - x)" in region
-assert "x = available;" in region
-assert "if (x + width > available) width = available - x;" not in region
-print("SegmentedControl layout bounds present")
+source = (Path(__file__).parents[2] / "lib/Xm/SegmentedControl.c").read_text()
+start = source.index("static void allocate_segments")
+region = source[start:source.index("static void Initialize", start)]
+assert "MIN(control->core.width, SHRT_MAX)" in region
+assert "XtSetMappedWhenManaged(child, width != 0)" in region
+assert "if (width)" in region
+print("PASS SegmentedControl signed positions and zero-share mapping are bounded")

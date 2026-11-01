@@ -5,6 +5,8 @@
 
 #include <X11/IntrinsicP.h>
 #include <limits.h>
+#include <string.h>
+#include <Xm/Appearance.h>
 #include <Xm/DividerP.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
@@ -22,7 +24,7 @@ static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
 static Boolean SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
-static Dimension divider_thickness_span(Dimension thickness);
+static void natural_size(XmDividerWidget, Dimension *, Dimension *);
 
 #define Offset(field) XtOffsetOf(XmDividerRec, field)
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
@@ -71,18 +73,33 @@ externaldef(xmdividerwidgetclass) WidgetClass xmDividerWidgetClass =
 static XmString copy_label(XmString source) {
     return source ? XmStringCopy(source) : XmStringCreateLocalized("");
 }
-static Dimension label_width(XmDividerWidget divider) {
-    Dimension width = 0, height = 0;
+static void label_extent(XmDividerWidget divider, Dimension *width, Dimension *height) {
+    *width = *height = 0;
     if (divider->divider.label && divider->divider.font)
-        XmStringExtent(divider->divider.font, divider->divider.label,
-                       &width, &height);
-    return width;
+        XmStringExtent(divider->divider.font, divider->divider.label, width, height);
+}
+static void natural_size(XmDividerWidget divider, Dimension *width, Dimension *height) {
+    Dimension text_width, text_height;
+    unsigned long w, h;
+    unsigned long padding = _XmDpiDefaultDimension((Widget)divider, 6);
+    label_extent(divider, &text_width, &text_height);
+    if (divider->divider.orientation == XmHORIZONTAL) {
+        w = text_width ? (unsigned long)text_width + 2UL * divider->divider.spacing +
+            2UL * _XmDpiDefaultDimension((Widget)divider, 16) :
+            _XmDpiDefaultDimension((Widget)divider, 120);
+        h = MAX(text_height, divider->divider.thickness) + 2UL * padding;
+    } else {
+        w = (unsigned long)divider->divider.thickness + 2UL * padding;
+        h = _XmDpiDefaultDimension((Widget)divider, 40);
+    }
+    *width = (Dimension)MIN(w, USHRT_MAX);
+    *height = (Dimension)MIN(h, USHRT_MAX);
 }
 static void Initialize(Widget request, Widget widget, ArgList args,
                        Cardinal *count) {
     XmDividerWidget divider = (XmDividerWidget)widget;
     XGCValues values;
-    (void)request; (void)args; (void)count;
+    (void)args; (void)count;
     divider->divider.label = copy_label(divider->divider.label);
     if (!divider->divider.font)
         divider->divider.font = XmFontListCopy(
@@ -95,15 +112,15 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     divider->divider.foreground_gc = XCreateGC(
         XtDisplay(widget), DefaultRootWindow(XtDisplay(widget)),
         GCForeground | GCBackground, &values);
-    if (!divider->core.width || !divider->core.height) {
-        if (divider->divider.orientation == XmHORIZONTAL) {
-            divider->core.width = 120;
-            divider->core.height = divider_thickness_span(divider->divider.thickness);
-        } else {
-            divider->core.width = divider_thickness_span(divider->divider.thickness);
-            divider->core.height = 40;
-        }
-    }
+    if (divider->divider.orientation != XmHORIZONTAL &&
+        divider->divider.orientation != XmVERTICAL)
+        divider->divider.orientation = XmHORIZONTAL;
+    divider->divider.automatic_width = request->core.width == 0;
+    divider->divider.automatic_height = request->core.height == 0;
+    Dimension width, height;
+    natural_size(divider, &width, &height);
+    if (divider->divider.automatic_width) divider->core.width = width;
+    if (divider->divider.automatic_height) divider->core.height = height;
 }
 static void Destroy(Widget widget) {
     XmDividerWidget divider = (XmDividerWidget)widget;
@@ -118,40 +135,49 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XmDividerWidget divider = (XmDividerWidget)widget;
     Display *display = XtDisplay(widget);
     Window window = XtWindow(widget);
-    int y, x;
-    Dimension label_height = 0;
-    Dimension label = label_width(divider);
+    GC gc = divider->divider.foreground_gc;
+    int width = divider->core.width, height = divider->core.height;
+    Dimension text_width, text_height;
+    XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
+    Pixel foreground = XtIsSensitive(widget) ? divider->primitive.foreground :
+                                             divider->primitive.bottom_shadow_color;
+    Pixel line;
     (void)event; (void)region;
     if (!window || !divider->divider.foreground_gc) return;
+    (void)XmGetAppearanceProfile(display, &profile);
+    line = profile == XmAPPEARANCE_CLASSIC ? foreground : divider->primitive.bottom_shadow_color;
+    XSetClipMask(display, gc, None);
+    XSetForeground(display, gc, line);
+    XSetBackground(display, gc, divider->core.background_pixel);
     XClearWindow(display, window);
+    label_extent(divider, &text_width, &text_height);
     if (divider->divider.orientation == XmHORIZONTAL) {
-        y = (int)divider->core.height / 2;
-        if (label && divider->divider.font) {
-            XmStringExtent(divider->divider.font, divider->divider.label,
-                           &label, &label_height);
-            x = ((int)divider->core.width - (int)label) / 2;
-            XDrawLine(display, window, divider->divider.foreground_gc, 0, y,
-                      x - (int)divider->divider.spacing, y);
-            XDrawLine(display, window, divider->divider.foreground_gc,
-                      x + (int)label + (int)divider->divider.spacing, y,
-                      (int)divider->core.width, y);
-            XmStringDraw(display, window, divider->divider.font,
-                         divider->divider.label, divider->divider.foreground_gc,
-                         bounded_position((long long)x),
-                         bounded_position(((long long)divider->core.height - label_height) / 2),
-                         label, XmALIGNMENT_BEGINNING,
-                         XmPrim_layout_direction(divider), NULL);
+        int thickness = MIN(divider->divider.thickness, height);
+        int y = (height - thickness) / 2;
+        if (text_width && text_height) {
+            int x = (width - (int)text_width) / 2;
+            int left_end = MAX(0, MIN(width, x - divider->divider.spacing));
+            int right_start = MAX(0, MIN(width, x + text_width + divider->divider.spacing));
+            XRectangle clip = {0, 0, (unsigned short)width, (unsigned short)height};
+            if (left_end > 0)
+                XFillRectangle(display, window, gc, 0, y, left_end, thickness);
+            if (right_start < width)
+                XFillRectangle(display, window, gc, right_start, y, width - right_start, thickness);
+            XSetForeground(display, gc, foreground);
+                XmStringDraw(display, window, divider->divider.font,
+                         divider->divider.label, gc, bounded_position((long long)x),
+                         bounded_position(((long long)height - (long long)text_height) / 2),
+                         text_width, XmALIGNMENT_BEGINNING,
+                         XmPrim_layout_direction(divider), &clip);
         } else {
-            XFillRectangle(display, window, divider->divider.foreground_gc, 0,
-                           y - (int)divider->divider.thickness / 2,
-                           divider->core.width, divider->divider.thickness);
+            XFillRectangle(display, window, gc, 0, y, width, thickness);
         }
     } else {
-        x = (int)divider->core.width / 2;
-        XFillRectangle(display, window, divider->divider.foreground_gc,
-                       x - (int)divider->divider.thickness / 2, 0,
-                       divider->divider.thickness, divider->core.height);
+        int thickness = MIN(divider->divider.thickness, width);
+        XFillRectangle(display, window, gc, (width - thickness) / 2, 0,
+                       thickness, height);
     }
+    XSetClipMask(display, gc, None);
 }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
@@ -161,13 +187,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     Boolean colors_changed = old->primitive.foreground != divider->primitive.foreground ||
                              old->core.background_pixel != divider->core.background_pixel;
     XmString replacement;
-    (void)request; (void)args; (void)count;
-    if (colors_changed && divider->divider.foreground_gc) {
-        XSetForeground(XtDisplay(widget), divider->divider.foreground_gc,
-                       divider->primitive.foreground);
-        XSetBackground(XtDisplay(widget), divider->divider.foreground_gc,
-                       divider->core.background_pixel);
-    }
+    (void)request;
     if (old->divider.label != divider->divider.label) {
         replacement = copy_label(divider->divider.label);
         if (replacement) {
@@ -184,43 +204,51 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         if (replacement) {
             if (old->divider.font) XmRenderTableFree(old->divider.font);
             divider->divider.font = replacement;
-            font_changed = True;
         } else {
             divider->divider.font = old->divider.font;
             font_changed = False;
         }
     }
     if (!divider->divider.thickness) divider->divider.thickness = 1;
+    if (divider->divider.orientation != XmHORIZONTAL &&
+        divider->divider.orientation != XmVERTICAL)
+        divider->divider.orientation = old->divider.orientation;
+    for (Cardinal i = 0; i < *count; ++i) {
+        if (!strcmp(args[i].name, XmNwidth))
+            divider->divider.automatic_width = (Dimension)args[i].value == 0;
+        if (!strcmp(args[i].name, XmNheight))
+            divider->divider.automatic_height = (Dimension)args[i].value == 0;
+    }
+    if (colors_changed && divider->divider.foreground_gc) {
+        XSetForeground(XtDisplay(widget), divider->divider.foreground_gc,
+                       divider->primitive.foreground);
+        XSetBackground(XtDisplay(widget), divider->divider.foreground_gc,
+                       divider->core.background_pixel);
+    }
+    Dimension width, height;
+    natural_size(divider, &width, &height);
+    if (divider->divider.automatic_width) divider->core.width = width;
+    if (divider->divider.automatic_height) divider->core.height = height;
     return old->divider.label != divider->divider.label ||
            old->divider.orientation != divider->divider.orientation ||
            old->divider.thickness != divider->divider.thickness ||
            old->divider.spacing != divider->divider.spacing || font_changed ||
-           colors_changed;
+           old->primitive.foreground != divider->primitive.foreground ||
+           old->primitive.bottom_shadow_color != divider->primitive.bottom_shadow_color ||
+           old->core.background_pixel != divider->core.background_pixel ||
+           XtIsSensitive(old_widget) != XtIsSensitive(widget) ||
+           XmPrim_layout_direction(old) != XmPrim_layout_direction(divider);
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply) {
+    if (widget == NULL || reply == NULL || !XmIsDivider(widget))
+        return XtGeometryNo;
     XmDividerWidget divider = (XmDividerWidget)widget;
-    Dimension label = label_width(divider);
-    (void)request;
     reply->request_mode = CWWidth | CWHeight;
-    if (divider->divider.orientation == XmHORIZONTAL) {
-        unsigned long requested = label ? (unsigned long)label +
-            2UL * (unsigned long)divider->divider.spacing + 16UL : 120UL;
-        reply->width = (Dimension)(requested > USHRT_MAX ? USHRT_MAX : requested);
-        reply->height = divider_thickness_span(divider->divider.thickness);
-    } else {
-        reply->width = divider_thickness_span(divider->divider.thickness);
-        reply->height = 40;
-    }
-    return (widget->core.width == reply->width && widget->core.height == reply->height)
-               ? XtGeometryYes : XtGeometryAlmost;
-}
-
-static Dimension
-divider_thickness_span(Dimension thickness)
-{
-    return thickness > (Dimension)(USHRT_MAX - 12) ?
-        (Dimension)USHRT_MAX : (Dimension)(thickness + 12);
+    natural_size(divider, &reply->width, &reply->height);
+    if (!divider->divider.automatic_width) reply->width = divider->core.width;
+    if (!divider->divider.automatic_height) reply->height = divider->core.height;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 Widget XmCreateDivider(Widget parent, char *name, ArgList args, Cardinal count) {

@@ -8,7 +8,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Sidebar.c").read_text(
 )
 start = source.index("static void key_handler(Widget widget")
 body = source[start : source.index("\nWidget XmCreateSidebar", start)]
-guard = "if (widget == NULL || event == NULL || !XmIsSidebar(widget))"
-assert guard in body
-assert body.index(guard) < body.index("event->type")
+for guard in ("widget == NULL", "event == NULL", "client == NULL", "!XmIsSidebar((Widget)client)"):
+    assert guard in body
+assert body.index("widget == NULL") < body.index("event->type")
 print("PASS Sidebar keyboard callbacks validate widget and event inputs")

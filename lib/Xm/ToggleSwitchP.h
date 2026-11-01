@@ -19,13 +19,11 @@ typedef struct _XmToggleSwitchPart {
     XmString label;
     XmFontList font;
     XtCallbackList value_changed_callback;
-    Pixel track_color;
-    Pixel knob_color;
     Dimension spacing;
     GC track_gc;
-    GC knob_gc;
-    GC label_gc;
-    GC insensitive_gc;
+    Boolean check_set_render_table;
+    Boolean automatic_width, automatic_height;
+    Boolean armed, hover;
 } XmToggleSwitchPart;
 
 typedef struct _XmToggleSwitchRec {

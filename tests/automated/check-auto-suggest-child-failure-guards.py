@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Check AutoSuggestBox internal child failure paths are null-safe."""
+"""Check the merged modern implementation contract; native suites exercise behavior."""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "AutoSuggestBox.c").read_text()
-assert "box->auto_suggest.list == NULL" in source
-assert "box->auto_suggest.search == NULL" in source
-assert "if (box->auto_suggest.search != NULL)" in source
-assert "if (box->auto_suggest.list != NULL)" in source
-assert "Widget parent_shell = shell_ancestor(widget);" in source
-print("PASS AutoSuggestBox child-creation failure paths are null-safe")
+source = (Path(__file__).parents[2] / "lib/Xm/AutoSuggestBox.c").read_text()
+s = "".join(source.split())
+assert "if(!box->auto_suggest.search)" in s
+assert "if(!box->auto_suggest.list)" in s
+assert "if(box->auto_suggest.search!=NULL)" in s
+assert "if(!box->auto_suggest.search||!XtIsRealized(box->auto_suggest.search))return;" in s
+print("PASS auto-suggest-child-failure-guards")

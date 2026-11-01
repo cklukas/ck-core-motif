@@ -4,5 +4,5 @@ from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "RatingControl.c").read_text(encoding="utf-8")
 assert "widget != NULL && XmIsRatingControl(widget)" in source
-assert "if(widget == NULL || !XmIsRatingControl(widget))return;" in source
+assert "if(widget == NULL || !XmIsRatingControl(widget) || widget->core.being_destroyed)return;" in source
 print("PASS RatingControl value APIs validate null widgets")

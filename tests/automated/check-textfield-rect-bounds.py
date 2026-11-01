@@ -14,7 +14,7 @@ region = source[start:end]
 assert "uint64_t margin_width" in region
 assert "uint64_t margin_top" in region
 assert "uint64_t margin_bottom" in region
-assert "2 * margin_width" in region
+assert "margin_width - right_margin" in region
 assert "margin_top + margin_bottom" in region
 assert "SHRT_MAX" in region
 assert "Dimension margin_width" not in region

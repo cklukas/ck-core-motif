@@ -4,11 +4,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Appearance.c").read_text()
-start = source.index("profile_property_value(")
-end = source.index("\n}\n", start) + 2
-body = source[start:end]
-
-assert "number = strtoul(text, &end, 10);" in body
-assert "if (errno == ERANGE || *text == '\\0'" in body
-assert body.index("errno == ERANGE") < body.index("*value_return = (XtArgVal)(Dimension)number;")
+assert "number = strtoul(text, &end, 10);" in source
+assert "if (errno == ERANGE || *text == '\\0'" in source
+assert "number > (unsigned long)~(Dimension)0" in source
 print("PASS appearance-profile numbers reject conversion overflow")

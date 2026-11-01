@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Check Avatar initials rendering has a drawable fallback font."""
+"""Avatar uses the owned render table for both text measurement and drawing."""
 from pathlib import Path
-
 source = Path("lib/Xm/Avatar.c").read_text(encoding="utf-8")
-assert 'XLoadQueryFont(XtDisplay(widget), "fixed")' in source
-assert "GCFont" in source
-assert "XFreeFont(XtDisplay(widget), avatar->avatar.fallback_font)" in source
-print("PASS Avatar installs and releases a fallback text font")
+assert "XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST)" in source
+assert "XmStringExtent(avatar->avatar.font" in source
+assert "XmStringDraw(display, text, avatar->avatar.font" in source
+assert "XLoadQueryFont" not in source
+assert "XmRenderTableFree(avatar->avatar.font)" in source
+print("PASS Avatar render-table fallback and ownership")

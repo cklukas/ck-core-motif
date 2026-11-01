@@ -3,8 +3,8 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "Appearance.c").read_text()
-start = source.index("Boolean\n_XmApplyAppearanceChange")
-body = source[start:source.index("static Boolean\nprofile_from_name", start)]
+start = source.index("static Boolean\nappearance_apply_subtree(Display *display, Widget root,", source.index("_XmRegisterAppearanceChange"))
+body = source[start:source.index("Boolean\n_XmApplyAppearanceChange", start)]
 assert "SIZE_MAX / sizeof(*snapshot)" in body
 assert "UINT_MAX / sizeof(*snapshot)" in body
 assert "SIZE_MAX / sizeof(*plans)" in body

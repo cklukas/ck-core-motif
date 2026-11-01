@@ -8,7 +8,7 @@ source = (Path(__file__).parents[2] / "lib/Xm/DataF.c").read_text()
 needle = """     { /* caller expects char */
 \t\t if (wcs_vcb.text->wcsptr != NULL)
 \t\t     wcs_vcb.text->wcsptr[wcs_vcb.text->length] = 0L;
-\t\t if (*insert_length > 0) 
+\t\t if (*insert_length > 0)\x20
 """
 assert needle in source
 assert source.index("wcs_vcb.text->wcsptr != NULL") < source.index(

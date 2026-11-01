@@ -46,6 +46,7 @@
 
 #include <Xm/AccTextT.h>
 #include <Xm/DrawP.h>
+#include "AppearanceDrawI.h"
 #include <Xm/NavigatorT.h>
 #include <Xm/PrimitiveP.h>
 #include <Xm/Text.h>
@@ -628,6 +629,10 @@ Redisplay(Widget w,
 	  height = (spinW->spinBox.ideal_height < XtHeight(spinW)) ? 
 		  spinW->spinBox.ideal_height :
 		  XtHeight(spinW);
+
+          /* The modern field frame includes all parent-granted space. */
+          if (!_XmAppearanceDrawFrameRegion(w, 0, 0, XtWidth(w), XtHeight(w),
+                                             spinW->manager.shadow_thickness))
 
 	  XmeDrawShadows(
 			 XtDisplay(w), XtWindow(w),
@@ -1997,6 +2002,13 @@ DrawSpinArrow(Widget arrowWidget, int arrowFlag)
 	  }
 	}
  
+      if (_XmAppearanceDrawArrowRegion(arrowWidget, arrowX, arrowY,
+              arrowWidth, arrowHeight, 0,
+              GetArrowDirection(arrowWidget, arrowFlag), arrowPressed,
+              arrowFlag == XmARROW_UP ? UpArrowSensitive(spinW) :
+                                       DownArrowSensitive(spinW)))
+        return;
+
       arrowWidth  = (arrowWidth  > 1) ? arrowWidth  - 1 : 0;
       arrowHeight = (arrowHeight > 1) ? arrowHeight - 1 : 0;
       arrowDirection = GetArrowDirection(arrowWidget, arrowFlag);
@@ -2479,82 +2491,30 @@ ArrowSpinDown(Widget w, XEvent *callEvent)
 static void
 GetSpinSize(Widget w, Dimension *wide, Dimension *high)
 {
-  XmSpinBoxWidget spinW;
-  Dimension	 childHeight;
-  Dimension	 saveWide;
-  Dimension	 saveHigh;
-  Widget	 childW;
-  int		 i;
-  int            arrowSize;
-  int            arrowsWide;
-  int            arrowsHigh;
-  int            spacing;
-  
-  spinW = (XmSpinBoxWidget)w;
-  
-  saveWide = XtWidth(spinW);
-  saveHigh = XtHeight(spinW);
-  
-  XtWidth(spinW) = *wide;
-  XtHeight(spinW) = *high;
-  
-  
-  arrowSize = spinW->spinBox.arrow_size;
-  arrowsWide = SB_NumArrowsWide(spinW);
-  arrowsHigh = SB_NumArrowsHigh(spinW);
-  spacing = spinW->spinBox.spacing;
+  XmSpinBoxWidget spinW = (XmSpinBoxWidget)w;
+  unsigned long arrowSize = spinW->spinBox.arrow_size;
+  unsigned long arrowsWide = SB_NumArrowsWide(spinW);
+  unsigned long arrowsHigh = SB_NumArrowsHigh(spinW);
+  unsigned long spacing = spinW->spinBox.spacing;
+  unsigned long width = arrowsWide * arrowSize + (arrowsWide - 1) * spacing +
+      2UL * spinW->spinBox.margin_width + 2UL * SB_ShadowPixels(spinW);
+  unsigned long height = arrowsHigh * arrowSize + (arrowsHigh - 1) * spacing +
+      2UL * spinW->spinBox.margin_height;
 
-  if (*wide == 0)
-    {
-      *wide = arrowsWide * arrowSize;
-      *wide += (arrowsWide - 1) * spacing;
-      *wide += 2 * spinW->spinBox.margin_width;
-      *wide += 2 * SB_ShadowPixels(spinW);
-      
-      if (SB_WithChild(spinW))
-	for (i = 0; i < SB_ChildCount(spinW); i++)
-	  {
-	    childW = spinW->composite.children[i];
-	    
-	    if (XtIsManaged(childW))
-	      *wide += XtWidth(childW) + spinW->spinBox.spacing;
-	  }
-
-      /* Remember our best width */
-      spinW->spinBox.ideal_width = *wide;
-    }
-  
-  if (!*high)
-    {
-      *high = arrowsHigh * arrowSize;
-      *high += (arrowsHigh - 1) * spacing;
-      *high += 2 * spinW->spinBox.margin_height;
-
-      if (SB_WithChild(spinW))
-	for (i = 0; i < SB_ChildCount(spinW); i++)
-	  {
-	    childW = spinW->composite.children[i];
-	    
-	    if (XtIsManaged(childW))
-	      {
-		childHeight = XtHeight(childW);
-		*high = MAX(*high, childHeight);
-	      }
-	  }
-
-      /* Factor in the shadow thickness and remember our best size */
-      *high += 2 * SB_ShadowPixels(spinW);
-      spinW->spinBox.ideal_height = *high;
-    }
-  
-  if (*wide == 0)
-    *wide = 1;
-  
-  if (*high == 0)
-    *high = 1;
-  
-  XtWidth(spinW) = saveWide;
-  XtHeight(spinW) = saveHigh;
+  /* Natural geometry is also needed for layout and frame painting when the
+   * caller supplies both dimensions. Never leave ideal_* zero or stale. */
+  for (Cardinal i = 0; i < spinW->composite.num_children; ++i) {
+      Widget child = spinW->composite.children[i];
+      if (XtIsManaged(child)) {
+          width = MIN((unsigned long)USHRT_MAX, width + XtWidth(child) + spacing);
+          height = MAX(height, (unsigned long)XtHeight(child));
+      }
+  }
+  height += 2UL * SB_ShadowPixels(spinW);
+  spinW->spinBox.ideal_width = (Dimension)MAX(1UL, MIN(width, (unsigned long)USHRT_MAX));
+  spinW->spinBox.ideal_height = (Dimension)MAX(1UL, MIN(height, (unsigned long)USHRT_MAX));
+  if (*wide == 0) *wide = spinW->spinBox.ideal_width;
+  if (*high == 0) *high = spinW->spinBox.ideal_height;
 }
 
 /******************************************************************************

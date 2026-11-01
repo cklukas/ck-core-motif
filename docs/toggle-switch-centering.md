@@ -8,5 +8,9 @@ This keeps the control symmetric when its geometry changes and removes the
 previous hard-coded offset that placed the 18-pixel knob one pixel too low in
 the 24-pixel track.
 
-The focused source contract is checked by
-`tests/automated/check-toggle-switch-centering.py`.
+The native pixel contract is checked by
+`tests/automated/run-toggle-switch-pixels.py`.
+
+The native runner requires `--build` pointing to the configured build directory
+and `--out` pointing to a fresh absolute results directory. It executes the real
+widget rather than checking implementation text.

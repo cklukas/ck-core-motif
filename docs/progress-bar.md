@@ -7,6 +7,31 @@ nav_exclude: true
 existing Xt/Motif object model intact while providing a small, typed state
 contract for determinate and indeterminate feedback.
 
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmProgressBarWidgetClass demo](gallery-screenshots/xm-progressbarwidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmProgressBarWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L482-L485
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ProgressBar.h)
+
+:::
+<!-- gallery-demo-tabs: end -->
+
 ## State contract
 
 The `XmNprogressMinimum`, `XmNprogressMaximum`, and `XmNprogressValue`

@@ -102,48 +102,6 @@ static dbus_int32_t bounded_action_count(unsigned int count) {
 static XmAccessibleId child_at(XmAccessibility *a, XmAccessibleId id, int index) {
   return index < 0 ? 0 : _XmAccessibilityChildAt(a, id, (size_t)index);
 }
-static const char *role_name(unsigned int role) {
-  switch (role) {
-  case 75:
-    return "application";
-  case 23:
-    return "frame";
-  case 39:
-    return "panel";
-  case 29:
-    return "label";
-  case 43:
-    return "push button";
-  case 7:
-    return "check box";
-  case 61:
-    return "text";
-  case 40:
-    return "password text";
-  case 48:
-    return "scroll bar";
-  case 31:
-    return "list";
-  case 32:
-    return "list item";
-  case 33:
-    return "menu";
-  case 34:
-    return "menu bar";
-  case 35:
-    return "menu item";
-  case 8:
-    return "check menu item";
-  case 45:
-    return "radio menu item";
-  case 55:
-    return "table";
-  case 56:
-    return "table cell";
-  default:
-    return "unknown";
-  }
-}
 static void interfaces(DBusMessageIter *i, XmAccessibleInfo *info,
                        XmAccessibleId id) {
   DBusMessageIter array;
@@ -940,7 +898,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     }
     if (!strcmp(method, "GetRoleName") ||
         !strcmp(method, "GetLocalizedRoleName")) {
-      string_value(&out, role_name(info.role));
+      string_value(&out, _XmAccessibilityRoleName(info.role));
       goto done;
     }
     if (!strcmp(method, "GetState")) {

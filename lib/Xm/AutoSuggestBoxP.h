@@ -26,10 +26,17 @@ typedef struct _XmAutoSuggestBoxPart {
     Widget search;
     Widget popup_shell;
     Widget list;
+    Widget scroller;
+    XtWorkProcId layout_work;
+    XtIntervalId cancel_timer;
+    XtIntervalId focus_timer;
+    struct _XmAutoSuggestWatch *outside_watches;
+    Boolean watching_outside;
+    Boolean automatic_width, automatic_height;
     XmAutoSuggestStoredItem *items;
     Cardinal item_count;
     unsigned long generation;
-    Boolean visible;
+    Boolean visible, pending_show, cancel_pending;
     Boolean no_results;
     String no_results_label;
     XtCallbackList query_changed_callback;

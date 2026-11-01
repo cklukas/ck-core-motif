@@ -48,12 +48,12 @@ int main(int argc, char **argv) {
     XtRealizeWidget(shell);
     XSync(XtDisplay(shell), False);
     geometry_result = XtQueryGeometry(initials, NULL, &preferred);
-    CHECK((geometry_result == XtGeometryAlmost || geometry_result == XtGeometryYes) &&
+    CHECK((geometry_result == XtGeometryAlmost || geometry_result == XtGeometryNo) &&
           preferred.width == 40 && preferred.height == 40);
     XtVaGetValues(initials, XmNwidth, &width, XmNheight, &height, NULL);
     CHECK(height == 40 && width >= 40);
     geometry_result = XtQueryGeometry(fallback, NULL, &preferred);
-    CHECK((geometry_result == XtGeometryAlmost || geometry_result == XtGeometryYes) &&
+    CHECK((geometry_result == XtGeometryAlmost || geometry_result == XtGeometryNo) &&
           preferred.width == 28 && preferred.height == 28);
     XtVaGetValues(fallback, XmNwidth, &width, XmNheight, &height, NULL);
     CHECK(height == 28 && width >= 28);
@@ -67,8 +67,9 @@ int main(int argc, char **argv) {
     CHECK(info.role == XmACCESSIBLE_LABEL && info.name != NULL);
     XmAccessibleInfoClear(&info);
     XmAccessibilityDestroy(accessibility);
+    Display *display = XtDisplay(shell);
     XtDestroyWidget(shell);
-    XtCloseDisplay(XtDisplay(shell));
+    XtCloseDisplay(display);
     XtDestroyApplicationContext(app);
     printf("PASS avatar: %u checks\n", checks);
     return EXIT_SUCCESS;

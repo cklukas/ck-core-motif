@@ -11,5 +11,8 @@ assert "XmString replacement;" in region
 assert "replacement = XmStringCopy(spinner->spinner.label);" in region
 assert "replacement != NULL" in region
 assert "spinner->spinner.label = XmStringCreateLocalized(\"\");" in region
-assert "if (spinner->spinner.font && spinner->spinner.label)" in region
+assert "PreferredSize(widget, scale, &preferred_width, &preferred_height)" in region
+preferred = source[source.index("static void PreferredSize(Widget widget"):
+                   source.index("static void ScaleChanged(Widget widget")]
+assert "if (spinner->spinner.font && spinner->spinner.label)" in preferred
 print("Spinner initialization handles label allocation failure")

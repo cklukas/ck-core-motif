@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+<title>Template dialog</title>
+<rect x="4" y="6" width="32" height="30" rx="2" fill="#354b68" opacity=".22"/>
+<rect x="4" y="4" width="32" height="30" rx="2" fill="#e8edf2" stroke="#354b68" stroke-width="1.5"/>
+<path d="M6 6h28v7H6z" fill="#6a87ab"/>
+<path d="M7 6h25" stroke="#b5cce4" stroke-width="2"/>
+<path d="M9 19h22M9 23h15" stroke="#6b7785" stroke-width="2"/>
+<rect x="22" y="27" width="9" height="4" rx="1" fill="#6a87ab" stroke="#354b68"/>
+</svg>

@@ -51,6 +51,7 @@ static char rcsid[] = "$XConsortium: periodic.c /main/8 1996/04/22 23:28:50 pasc
 #include <Xm/ScrolledW.h>
 #include <Xm/ToggleB.h>
 #include <Mrm/MrmPublic.h>
+#include "periodic_layout.h"
 
 
 typedef struct _DrawData {
@@ -61,6 +62,8 @@ typedef struct _DrawData {
 	Dimension drawHeight;
 } DrawData;
 
+
+static void InstallDialogArtwork(Widget root);
 
 static GC GetGC(
 	Widget w );
@@ -175,6 +178,7 @@ static MRMRegisterArg mrmNames[] = {
 };
 
 static String historicalResources[] = {
+"*popupWindow.borderWidth:                1",
 "*XmText.columns:                         10",
 "*XmTextField.columns:                    10",
 "*XmComboBox*columns:                      8",
@@ -314,14 +318,19 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     if (MrmRegisterNames(mrmNames, XtNumber(mrmNames)) != MrmSUCCESS ||
-        MrmFetchWidget(mrmId, "appMain", shell, &appMain, &mrmClass) != MrmSUCCESS) {
+        MrmFetchWidget(mrmId, (!options.historical && options.profile != XmAPPEARANCE_CLASSIC) ?
+                       "modernAppMain" : "appMain", shell, &appMain, &mrmClass) != MrmSUCCESS) {
         fputs("periodic: cannot construct the widget table\n", stderr);
         MrmCloseHierarchy(mrmId);
         return EXIT_FAILURE;
     }
     MrmCloseHierarchy(mrmId);
+    if (!options.historical && options.profile != XmAPPEARANCE_CLASSIC)
+        InstallDialogArtwork(appMain);
     XtManageChild(appMain);
     XtRealizeWidget(shell);
+    if (!options.historical && options.profile != XmAPPEARANCE_CLASSIC)
+        PeriodicInstallOverviewLayout(appMain);
     {
         unsigned long pid = (unsigned long)getpid();
         XChangeProperty(XtDisplay(shell), XtWindow(shell),
@@ -330,6 +339,50 @@ main(int argc, char *argv[])
     }
     XtAppMainLoop(appContext);
     return EXIT_SUCCESS;
+}
+
+/* Demo artwork uses the toolkit cache and its scale-aware public loader. */
+static void
+ReleaseDialogArtwork(Widget widget, XtPointer closure, XtPointer call_data)
+{
+    Pixmap *pixmap = (Pixmap *)closure;
+    (void)call_data;
+    XmDestroyPixmap(XtScreen(widget), *pixmap);
+    XtFree((char *)pixmap);
+}
+
+static void
+InstallDialogArtwork(Widget root)
+{
+    static const struct { const char *widget; const char *image; } artwork[] = {
+        {"*templatePick", "dialog_template"},
+        {"*infoPick", "dialog_information"},
+        {"*warningPick", "dialog_warning"},
+        {"*errorPick", "dialog_error"},
+        {"*questionPick", "dialog_question"},
+        {"*workingPick", "dialog_working"},
+        {"*filePick", "dialog_file"},
+        {"*selectPick", "dialog_selection"},
+        {"*promptPick", "dialog_prompt"}
+    };
+    for (Cardinal i = 0; i < XtNumber(artwork); ++i) {
+        Widget item = XtNameToWidget(root, (char *)artwork[i].widget);
+        Pixel foreground, background;
+        int depth;
+        Pixmap image, *owned;
+        if (!item) continue;
+        XtVaGetValues(item, XmNforeground, &foreground,
+                      XmNbackground, &background, NULL);
+        XtVaGetValues(XtParent(item), XmNdepth, &depth, NULL);
+        image = XmGetScaledPixmap(item, (char *)artwork[i].image,
+                                 foreground, background, depth, 0.0);
+        /* Non-SVG builds retain the original UIL bitmap. */
+        if (image == XmUNSPECIFIED_PIXMAP) continue;
+        owned = (Pixmap *)XtMalloc(sizeof(*owned));
+        *owned = image;
+        XtVaSetValues(item, XmNlargeIconPixmap, image, NULL);
+        XtAddCallback(item, XmNdestroyCallback, ReleaseDialogArtwork, owned);
+    }
 }
 
 static void

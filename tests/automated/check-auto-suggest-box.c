@@ -133,8 +133,8 @@ int main(int argc, char **argv)
     XmAccessibleInfoClear(&info);
     XmAccessibilityDestroy(accessibility);
 
-    XtDestroyWidget(shell);
-    XtCloseDisplay(XtDisplay(shell));
+    { Display *display = XtDisplay(shell);
+      XtDestroyWidget(shell); XtCloseDisplay(display); }
     XtDestroyApplicationContext(app);
     printf("PASS auto suggest box: %u checks\n", checks);
     return EXIT_SUCCESS;

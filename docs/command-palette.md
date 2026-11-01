@@ -23,3 +23,28 @@ accessibility, no-match behavior, dismissal and teardown.
 The source-contract checks also reject accidental patch markers in this
 translation unit, so malformed hand-edited source cannot silently bypass the
 CommandPalette checks.
+
+<!-- gallery-demo-tabs: begin -->
+## Component demo
+
+Captured gallery example and its corresponding source excerpt.
+
+::: tabs
+== Demo
+
+![xmCommandPaletteWidgetClass demo](gallery-screenshots/xm-commandpalettewidgetclass.png)
+
+== Source
+
+Actual gallery excerpt: class = xmCommandPaletteWidgetClass.
+The host supplies parent, name, callback and client_data.
+Shared factory locals: Widget example; XmString label = NULL.
+The shared factory frees label, attaches callbacks and sizes the preview.
+Helpers and the complete factory are in gallery_examples.c.
+
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L806-L825
+
+[Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/CommandPalette.h)
+
+:::
+<!-- gallery-demo-tabs: end -->
