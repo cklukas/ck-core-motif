@@ -42,7 +42,7 @@ item, including those after the item that exceeded the size limit. Successful
 output bytes, encoding choices and fallback behavior remain unchanged.
 
 The executable ownership regression extracts the production property import/export
-functions and exercises 69 cases across the locale/string and ASN.1 styles: every
+functions and exercises 105 cases across the locale/string and ASN.1 styles: every
 allocation failure, per-item conversion errors, oversized aggregate lengths,
 strict fallback, serializer failures and successful output bytes. Allocation, length
 and conversion test doubles allow overflow and rollback checks without large
@@ -103,3 +103,18 @@ Locale, STRING, and UTF-8 import handles an empty property as one empty
 `XmString` and uses non-underflowing bounds for non-empty payloads. Oversized
 property lengths are rejected before the `int` element counter is used. The
 contract is covered by `tests/automated/check-text-property-empty.py`.
+
+These imports also bound each element by `nitems`, copying it into terminated
+temporary storage before calling `XmStringGenerate`. A caller-supplied property
+whose final item has no null terminator is therefore read only within its
+declared payload. Embedded separators, trailing empty items, item order and
+valid conversion behavior remain unchanged. Temporary-segment or string
+allocation failure releases every previously generated item and the table.
+
+The executable ownership regression reproduced the previous heap-buffer-overread
+under ASan with an exact-sized, unterminated four-byte property. It now checks
+five payload layouts in each of the locale, STRING and UTF-8 branches, verifies
+the source bytes remain unchanged and returned items match, and injects failure
+at all seven allocations of a two-item import. Character-conversion providers
+remain test doubles; this is parsing/ownership coverage rather than live locale
+or X11 service qualification.

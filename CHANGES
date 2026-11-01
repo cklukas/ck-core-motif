@@ -1,3 +1,13 @@
+Bound locale and STRING text-property imports (2026-11-01)
+=========================================================
+
+- Bound each imported element by nitems before calling the C-string parser.
+  A missing final terminator no longer lets parsing read past the property.
+- Preserve item ordering and empty-item behavior, and roll back all generated
+  strings if a temporary segment or string allocation fails.
+- Add exact-sized payload tests for locale, STRING and UTF-8 imports, including
+  unterminated final items, embedded/trailing empty items and every allocation.
+
 Reject failed empty compound-text imports (2026-11-01)
 =====================================================
 

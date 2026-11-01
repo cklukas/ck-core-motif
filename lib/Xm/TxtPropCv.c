@@ -1093,30 +1093,37 @@ XmCvtTextPropertyToXmStringTable(Display *display,
 	return BadAlloc;
     }
     
-    /* Create XmStrings from each string in the value field */
-    string_table[0] = XmStringGenerate((XtPointer)text_prop->value, 
-				       tag, type, NULL);
-    if (string_table[0] == NULL) {
-	XtFree((char *)string_table);
-	_XmAppUnlock(app);
-	return BadAlloc;
-    }
-    for (i = 0, elements = 1; i + 1 < (int)text_prop->nitems; ++i)
+    /* The property length bounds the last element too; callers need not
+     * supply a C-string terminator beyond nitems. */
     {
-	if (text_prop->value[i] == '\0')
-	  {
-	    XmString generated = XmStringGenerate(
-		(XtPointer) &(text_prop->value[i + 1]), tag, type, NULL);
-	    if (generated == NULL) {
-		int cleanup;
-		for (cleanup = 0; cleanup < elements; ++cleanup)
-		    XmStringFree(string_table[cleanup]);
-		XtFree((char *)string_table);
-		_XmAppUnlock(app);
-		return BadAlloc;
-	    }
-	    string_table[elements++] = generated;
-	  }
+        size_t offset = 0;
+        for (i = 0; i < elements; ++i) {
+            size_t remaining = (size_t)text_prop->nitems - offset;
+            unsigned char *start = text_prop->value + offset;
+            unsigned char *nul = (unsigned char *)memchr(start, '\0', remaining);
+            size_t length = nul ? (size_t)(nul - start) : remaining;
+            /* nitems is already bounded by INT_MAX, so length + 1 fits
+             * the unsigned Cardinal allocation size. */
+            char *segment = XtMalloc((Cardinal)(length + 1));
+            XmString generated = NULL;
+
+            if (segment != NULL) {
+                memcpy(segment, start, length);
+                segment[length] = '\0';
+                generated = XmStringGenerate((XtPointer)segment, tag, type, NULL);
+                XtFree(segment);
+            }
+            if (generated == NULL) {
+                int cleanup;
+                for (cleanup = 0; cleanup < i; ++cleanup)
+                    XmStringFree(string_table[cleanup]);
+                XtFree((char *)string_table);
+                _XmAppUnlock(app);
+                return BadAlloc;
+            }
+            string_table[i] = generated;
+            offset += length + (nul != NULL);
+        }
     }
     *string_table_return = string_table;
     *count_return = elements;

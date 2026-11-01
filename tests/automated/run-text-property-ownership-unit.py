@@ -69,6 +69,8 @@ typedef enum {XmSTYLE_COMPOUND_TEXT, XmSTYLE_COMPOUND_STRING, XmSTYLE_LOCALE,
 #define XA_STRING 31
 #define XmSCOMPOUND_TEXT "COMPOUND_TEXT"
 #define XmS_MOTIF_COMPOUND_STRING "MOTIF_COMPOUND_STRING"
+#define UTF8_SUPPORTED
+#define XmSUTF8_STRING "UTF8_STRING"
 #define _XmDisplayToAppContext(d) (void)(d)
 #define _XmAppLock(a) (++locks)
 #define _XmAppUnlock(a) (--locks)
@@ -84,7 +86,7 @@ static void XtFree(char *p) { if(p){assert(live>0);--live;free(p);} }
 static Atom XInternAtom(Display *d,const char *name,Boolean only) {
     (void)d;(void)name;(void)only;return 42;
 }
-static Atom GetLocaleEncodingAtom(Display *d) { (void)d;return 43; }
+static Atom GetLocaleEncodingAtom(Display *d) { (void)d;return 99; }
 static void XInternAtoms(Display *d,char **names,int count,Boolean only,Atom *atoms) {
     (void)d;(void)names;(void)only;
     for(int i=0;i<count;++i)atoms[i]=42+(Atom)i;
@@ -228,6 +230,37 @@ int main(void) {
     assert(output_count==1 && output && output[0] && live==3 && locks==0);
     assert(((OwnedString *)output[0])->payload[0]==0);
     XmStringFree(output[0]);XtFree((char *)output);assert(live==0);
+    const char *payloads[]={"tail","left\0right","one\0\0","a\0b\0","e\314\201\0\360\237\230\200"};
+    const size_t sizes[]={4,10,5,4,8};
+    const int counts[]={1,2,2,2,2};
+    const char *expected_values[][2]={{"tail",NULL},{"left","right"},{"one",""},
+        {"a","b"},{"e\314\201","\360\237\230\200"}};
+    const Atom encodings[]={XA_STRING,99,44};
+    for(unsigned encoding=0;encoding<XtNumber(encodings);++encoding) {
+        property.encoding=encodings[encoding];
+        for(unsigned sample=0;sample<XtNumber(payloads);++sample) {
+            unsigned char *exact=malloc(sizes[sample]);assert(exact);
+            memcpy(exact,payloads[sample],sizes[sample]);
+            property.value=exact;property.nitems=sizes[sample];
+            output=NULL;
+            assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==Success);
+            assert(output_count==counts[sample] && locks==0);
+            assert(memcmp(exact,payloads[sample],sizes[sample])==0);
+            for(int i=0;i<output_count;++i) {
+                assert(strcmp(((OwnedString *)output[i])->payload,expected_values[sample][i])==0);
+                XmStringFree(output[i]);
+            }
+            XtFree((char *)output);free(exact);assert(live==0);
+        }
+        unsigned char exact[3]={'a',0,'b'};
+        property.value=exact;property.nitems=sizeof(exact);
+        for(int failure=1;failure<=7;++failure) {
+            calls=0;fail_at=failure;output=NULL;
+            assert(XmCvtTextPropertyToXmStringTable(NULL,&property,&output,&output_count)==BadAlloc);
+            assert(live==0 && locks==0 && output==NULL);
+        }
+        fail_at=0;
+    }
     puts("PASS text-property conversion allocation/overflow cleanup, strict fallback and output bytes");
 }
 '''
