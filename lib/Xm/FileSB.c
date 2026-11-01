@@ -3689,7 +3689,8 @@ XmFileSelectionBoxGetChild(
             Widget          child = NULL;
 /****************/
 
-    if (fs == NULL || !XtIsSubclass(fs, xmFileSelectionBoxWidgetClass))
+    if (fs == NULL || !XtIsSubclass(fs, xmFileSelectionBoxWidgetClass) ||
+        ((XmFileSelectionBoxWidget)fs)->core.being_destroyed)
         return NULL;
     _XmWidgetToAppContext(fs);
     _XmAppLock(app);
@@ -3731,7 +3732,8 @@ XmFileSelectionDoSearch(
             String          textString ;
 /****************/
 
-    if (fs == NULL || !XtIsSubclass(fs, xmFileSelectionBoxWidgetClass))
+    if (fs == NULL || !XtIsSubclass(fs, xmFileSelectionBoxWidgetClass) ||
+        ((XmFileSelectionBoxWidget)fs)->core.being_destroyed)
         return;
     _XmWidgetToAppContext(fs);
     _XmAppLock(app);

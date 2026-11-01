@@ -2102,7 +2102,8 @@ XmSelectionBoxGetChild(
 {
 /****************/
 	Widget	child = NULL;
-	if (sb == NULL || !XmIsSelectionBox(sb))
+	if (sb == NULL || !XmIsSelectionBox(sb) ||
+	    ((XmSelectionBoxWidget)sb)->core.being_destroyed)
                 return NULL;
 	_XmWidgetToAppContext(sb);
 	_XmAppLock(app);
