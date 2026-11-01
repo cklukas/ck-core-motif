@@ -1,3 +1,11 @@
+Qualify Unicode dialog text resources (2026-11-01)
+====================================================
+
+- Extend the installed non-text Unicode matrix through File Selection Box and
+  Selection Box editable-value round trips using supplementary and combining
+  values.
+- Document the public dialog-input coverage.
+
 Treat empty MWM protocol properties as absent (2026-11-01)
 ===========================================================
 

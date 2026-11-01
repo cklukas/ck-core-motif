@@ -365,6 +365,11 @@ binary, and loaded-library SHA-256 values in `receipt.txt`.  This qualifies the
 fixture on that architecture only; it does not claim physical keyboard, IME,
 screen-reader, or complete widget-matrix acceptance.
 
+The matrix also sets and round-trips a supplementary-plane value through the
+realized File Selection Box `XmNdirSpec` resource and a combining-mark value
+through the realized Selection Box text resource.  These are public dialog
+inputs, distinct from their static labels and list items.
+
 ## Default composition presentation
 
 The vendor shell now prefers `OnTheSpot,OverTheSpot,OffTheSpot,Root` for native
