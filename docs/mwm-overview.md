@@ -67,6 +67,7 @@ clients exchanging Motif window-management messages.
 - [Transient-list growth](transient-list-growth.md)
 - [Query-XID buffer growth](mwm-query-xid-growth.md)
 - [Client-message initialization](mwm-client-message-initialization.md)
+- [Keyboard-state mask typing](mwm-keyboard-state-mask.md)
 - [Session workspace-string growth](mwm-session-workspace-growth.md)
 - [Session geometry persistence](mwm-session-geometry.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)

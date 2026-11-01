@@ -84,6 +84,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM session command-vector width](mwm-session-command-vector-width.md) — guard restore vectors.
 - [MWM query-XID buffer growth](mwm-query-xid-growth.md) — guard protocol conversion growth.
 - [MWM client-message initialization](mwm-client-message-initialization.md) — clear unused X11 payload words.
+- [MWM keyboard-state mask typing](mwm-keyboard-state-mask.md) — use explicit unsigned XKB group bits.
 - [MWM session workspace-string growth](mwm-session-workspace-growth.md) — guard joined session names.
 - [MWM session geometry persistence](mwm-session-geometry.md) — keep saved client dimensions representable.
 - [MWM home-directory path bounds](mwm-home-path.md) — bounded legacy home-path resolution.

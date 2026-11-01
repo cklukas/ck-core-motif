@@ -1,3 +1,11 @@
+Type MWM keyboard-state group masks explicitly (2026-11-01)
+============================================================
+
+- Form the shared XKB keyboard-group mask as an unsigned value before removing
+  it from input state, avoiding signed-mask conversions in key and button
+  binding dispatch.
+- Add focused regression coverage and document the portable mask contract.
+
 Initialize MWM client-message payloads (2026-11-01)
 ======================================================
 
