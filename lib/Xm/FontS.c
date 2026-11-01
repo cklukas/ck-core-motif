@@ -109,6 +109,8 @@ static void CreateSizesBox(XmFontSelectorWidget, Widget, ArgList, Cardinal);
 static void CreateBoldItalicBox(XmFontSelectorWidget,Widget,ArgList, Cardinal);
 static void CreateOtherChoiceBox(XmFontSelectorWidget,
 				 Widget, ArgList, Cardinal);
+static ArgList FontSelectorMergeArgLists(ArgList, Cardinal, ArgList,
+					  Cardinal);
 
 /************************************************************
  *     Private functions. 
@@ -2449,6 +2451,18 @@ SetOtherList(XmFontSelectorWidget fsw, Boolean force)
  *
  ************************************************************/
 
+/* Every caller returns before using its merged count when this fails. */
+static ArgList
+FontSelectorMergeArgLists(ArgList local_args, Cardinal num_local_args,
+			  ArgList caller_args, Cardinal num_caller_args)
+{
+    if (num_local_args > (Cardinal)(~(Cardinal)0) - num_caller_args)
+	return NULL;
+
+    return XtMergeArgLists(local_args, num_local_args,
+			   caller_args, num_caller_args);
+}
+
 /*	Function Name: CreateChildren
  *	Description: Creates all children of the font selector.
  *	Arguments: fsw - the font selector.
@@ -2470,7 +2484,7 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNfillOption, XmFillAll); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 2); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("box", xmButtonBoxWidgetClass, 
@@ -2486,7 +2500,7 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNwordWrap, True); num_largs++;
     XtSetArg(largs[num_largs], XmNscrollHorizontal, False); num_largs++;
     XtSetArg(largs[num_largs], XmNrows, XmFontS_text_rows(fsw)); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtFree((XtPointer) temp_txt);
 	return;
@@ -2507,7 +2521,7 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     temp = XtCreateWidget("nameLabel", xmLabelWidgetClass, 
@@ -2546,7 +2560,7 @@ CreateTopWidgets(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNspacing, 2); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginWidth, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     pane = XtCreateManagedWidget("topPane", xmPanedWidgetClass, 
@@ -2564,7 +2578,7 @@ CreateTopWidgets(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshadowThickness, 2); num_largs++;
     XtSetArg(largs[num_largs], XmNindicatorOn, False); num_largs++;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     button = XtCreateManagedWidget("optionButton", xmToggleButtonWidgetClass, 
@@ -2598,7 +2612,7 @@ CreateMiddleArea(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNspacing, 2); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginWidth, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     pane = XtCreateWidget("middlePane", xmPanedWidgetClass, 
@@ -2614,7 +2628,7 @@ CreateMiddleArea(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
     XtSetArg(largs[num_largs], XmNmarginWidth, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNmarginHeight, 0); num_largs++;
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     top_pane = XtCreateManagedWidget("leftPane", xmPanedWidgetClass, 
@@ -2664,7 +2678,7 @@ CreateFamilyBox(XmFontSelectorWidget fsw, Widget parent,
 
     XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;
 
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtFree((XtPointer) temp);
 	return;
@@ -2719,7 +2733,7 @@ CreateSizesBox(XmFontSelectorWidget fsw, Widget parent,
     temp = _XmGetMBStringFromXmString(ANY_STRING(fsw));
     XtSetArg(largs[num_largs], XmNvalue, temp); num_largs++;
 
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtFree((XtPointer) temp);
 	return;
@@ -2758,7 +2772,7 @@ CreateBoldItalicBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNorientation, XmHORIZONTAL); num_largs++;
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("boldItalicBox", xmButtonBoxWidgetClass, 
@@ -2774,7 +2788,7 @@ CreateBoldItalicBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmN_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     button = XtCreateManagedWidget("boldButton", xmToggleButtonWidgetClass, 
@@ -2821,7 +2835,7 @@ CreateSpacingBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("spacingBox", xmButtonBoxWidgetClass, 
@@ -2838,7 +2852,7 @@ CreateSpacingBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmONE_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     button = XtCreateManagedWidget("proportionalButton",
@@ -2899,7 +2913,7 @@ CreateFontChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("choiceBox", xmButtonBoxWidgetClass, 
@@ -2915,7 +2929,7 @@ CreateFontChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmONE_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     button = XtCreateManagedWidget("xlfdButton",
@@ -2964,7 +2978,7 @@ CreateResolutionBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("resolutionBox", xmButtonBoxWidgetClass, 
@@ -2983,7 +2997,7 @@ CreateResolutionBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmONE_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
 
@@ -3043,7 +3057,7 @@ CreateOtherChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNfillOption, XmFillMajor); num_largs++;
     XtSetArg(largs[num_largs], XmNequalSize, True); num_largs++;
     XtSetArg(largs[num_largs], XmNshowSash, False); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
     box = XtCreateManagedWidget("otherChoiceBox", xmButtonBoxWidgetClass, 
@@ -3059,7 +3073,7 @@ CreateOtherChoiceBox(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNindicatorType, XmN_OF_MANY); num_largs++;
     XtSetArg(largs[num_largs], XmNalignment, XmALIGNMENT_BEGINNING);
     num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
 
@@ -3131,7 +3145,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 		 XmNlabelString, ENCODING_ONLY_STRING(fsw)); num_largs++;
 	XtSetArg(largs[num_largs], 
 		 XmNoptionLabel, ENCODING_ONLY_STRING(fsw)); num_largs++;
-	margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
 	if (margs == NULL)
 	    return NULL;
 	omenu = XtCreateWidget("encodingOptionMenu", xmRowColumnWidgetClass,
@@ -3151,7 +3165,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
     XtSetArg(largs[num_largs], XmNwidth, 1); num_largs++;
     XtSetArg(largs[num_largs], XmNheight, 1); num_largs++;
     XtSetArg(largs[num_largs], XmNancestorSensitive, True); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return omenu;
 
@@ -3165,7 +3179,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNrowColumnType, XmMENU_PULLDOWN); num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtDestroyWidget(menuShell);
 	XmFontS_encoding_menu_shell(fsw) = NULL;
@@ -3184,7 +3198,7 @@ CreateEncodingMenu(XmFontSelectorWidget fsw,
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNlabelString, ANY_STRING(fsw)); 
     button_label = num_largs++;
-    margs = XtMergeArgLists(largs, num_largs, args, num_args);
+    margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL) {
 	XtDestroyWidget(menuShell);
 	XmFontS_encoding_menu_shell(fsw) = NULL;

@@ -4013,6 +4013,15 @@ Correct ColorSelector Xt converter ABI (2026-11-01)
   color-mode converter without an incompatible function-pointer cast.
 - Extend focused mode-value coverage and documentation.
 
+Harden FontSelector argument-list merging (2026-11-01)
+=========================================================
+
+- Route all 23 internal child and menu argument-list merges through one
+  checked helper so caller/local `Cardinal` counts cannot wrap before Xt
+  construction.
+- Preserve each path's existing allocation-failure cleanup and add focused
+  coverage and documentation.
+
 Guard MultiList child allocation failures (2026-10-30)
 =======================================================
 
