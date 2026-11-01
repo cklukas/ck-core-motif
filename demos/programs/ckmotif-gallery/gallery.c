@@ -2032,8 +2032,10 @@ static int verify_dialog_shell_example(GalleryState *state)
                 XtVaGetValues(child,XmNx,&x,XmNy,&y,XmNwidth,&width,XmNheight,&height,
                     XmNlabelString,&label,XmNrenderTable,&font,NULL);
                 XmStringExtent(font,label,&tw,&th);XmStringFree(label);
-                DIALOG_CHECK(width>=tw && height>=th && x>=0 && y>=0 &&
-                    x+width<=attributes.width && y+height<=attributes.height);
+                Dimension padding;
+                XtVaGetValues(content,XmNmarginWidth,&padding,NULL);
+                DIALOG_CHECK(width>=tw && height>=th && x>=padding && y>=0 &&
+                    x+width<=attributes.width-padding && y+height<=attributes.height);
             }
             Widget message = XtNameToWidget(content,"dialogMessage");
             XtVaGetValues(message,XmNwidth,&width,XmNheight,&height,NULL);

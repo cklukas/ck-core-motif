@@ -1211,14 +1211,15 @@ gallery_create_shell_example(Widget parent, WidgetClass class,
         Widget heading = XtVaCreateManagedWidget("dialogHeading", xmLabelWidgetClass, content,
             XmNlabelString, title, XmNappearanceRole, XmAPPEARANCE_ROLE_SECTION,
             XmNalignment, XmALIGNMENT_BEGINNING,
-            XmNtopAttachment, XmATTACH_FORM, XmNleftAttachment, XmATTACH_FORM, NULL);
+            XmNtopAttachment, XmATTACH_FORM, XmNleftAttachment, XmATTACH_FORM,
+            XmNrightAttachment, XmATTACH_FORM, NULL);
         XmStringFree(title);
         XmString message = XmStringCreateLocalized(
             "This window contains a managed dialog.\nClose it and open it again from the gallery.");
         Widget body = XtVaCreateManagedWidget("dialogMessage", xmLabelWidgetClass, content,
             XmNlabelString, message, XmNalignment, XmALIGNMENT_BEGINNING,
             XmNtopAttachment, XmATTACH_WIDGET, XmNtopWidget, heading, XmNtopOffset, 12,
-            XmNleftAttachment, XmATTACH_FORM, NULL);
+            XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM, NULL);
         XmStringFree(message);
         XmString label = XmStringCreateLocalized("Close");
         Widget close = XtVaCreateManagedWidget("closeExample", xmPushButtonWidgetClass, content,
