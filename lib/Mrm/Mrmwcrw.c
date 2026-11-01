@@ -3011,6 +3011,9 @@ Urm__CW_SafeCopyValue (long				*val,
   String		*char8_table_dst ;
   wchar_t		*wchar_src;	/* to copy wide character strings */
   wchar_t		*wchar_dst;
+  uintptr_t		char8_base;
+  uintptr_t		char8_end;
+  uintptr_t		char8_item;
   size_t		size;		
   int			cnt ;
 
@@ -3080,6 +3083,21 @@ Urm__CW_SafeCopyValue (long				*val,
       /* vec_size covers the copied pointer table and string storage. */
       if (vec_size > 0 && char8_table_src == NULL)
 	return;
+      if (vec_count > 0)
+	{
+	  char8_base = (uintptr_t)(void *)char8_table_src;
+	  if ((size_t)vec_size > UINTPTR_MAX - char8_base)
+	    return;
+	  char8_end = char8_base + (size_t)vec_size;
+	  for (cnt = 0; cnt < vec_count; cnt++)
+	    {
+	      char8_item = (uintptr_t)(void *)char8_table_src[cnt];
+	      if (char8_item < char8_base || char8_item >= char8_end ||
+		  memchr((const void *)char8_table_src[cnt], '\0',
+			 (size_t)(char8_end - char8_item)) == NULL)
+		return;
+	    }
+	}
       char8_table_dst = (String *) XtMalloc (vec_size) ;
       if (char8_table_dst == NULL && vec_size != 0)
 	return;
@@ -3092,10 +3110,10 @@ Urm__CW_SafeCopyValue (long				*val,
 	 instead of the source. */
       for (cnt=0; cnt<vec_count; cnt++)
 	{
+	  char8_item = (uintptr_t)(void *)char8_table_src[cnt];
 	  char8_table_dst[cnt] 
 	    = (String) ((char *) char8_table_dst + 
-			((unsigned long) char8_table_src[cnt] - 
-			 (unsigned long) char8_table_src)) ;
+			(size_t)(char8_item - char8_base)) ;
 	}
       *val = (long) char8_table_dst ;
       if (cblist != NULL)

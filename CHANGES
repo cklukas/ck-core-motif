@@ -5,6 +5,8 @@ Harden Mrm safe vector copies (2026-11-01)
   compound-string vector allocation arithmetic before multiplying. Malformed
   callback/resource data can no longer reach a null byte copy or undersized
   table allocation.
+- Validate every embedded Char8 string pointer and terminator against the
+  advertised span before rebasing it into the owned copy.
 
 Guard MWM workspace-protocol allocation failures (2026-11-01)
 =============================================================
