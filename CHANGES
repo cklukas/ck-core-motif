@@ -1,3 +1,11 @@
+Correct CDE WSM session-manager endpoint lookup (2026-11-02)
+============================================================
+
+- Restore `_DtGetSmWindow` for MWM's `dtSmWindow` startup field.  The field
+  receives `_DT_SM_WM_PROTOCOL` readiness and acknowledgement messages, so it
+  must identify CDE's session manager, not MWM itself.  Document the two
+  helpers' opposite directions and add a focused protocol-endpoint regression.
+
 Make Periodic Font menu choices change the application fonts (2026-11-02)
 =======================================================================
 

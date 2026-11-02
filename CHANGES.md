@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-02 — Correct CDE WSM session-manager endpoint
+
+- Restore CDE's `_DtGetSmWindow` lookup for MWM's session-manager protocol
+  endpoint. `_DtGetMwmWindow` is the converse helper used by a session manager
+  that needs to contact MWM.
+- Add a focused regression that verifies readiness and acknowledgement messages
+  retain the session-manager destination. See
+  [MWM CDE session-manager lookup](docs/mwm-cde-wsm-window-helper.md).
+
 ## 2026-11-02 — Working Periodic Font menu
 
 - Make Small, Medium and Large resize the demo fonts, including menus and
