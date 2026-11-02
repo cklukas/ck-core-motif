@@ -9,6 +9,8 @@ site:
     - title: Source
       url: https://github.com/cklukas/ck-core-motif
       icon: github
+    - title: CK Core Apps
+      url: https://cklukas.github.io/ck-core-apps/
 source: docs
 home: docs/index.md
 search: true

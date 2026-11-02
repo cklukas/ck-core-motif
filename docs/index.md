@@ -2,6 +2,7 @@
 layout: home
 hero:
   name: CK Core Motif
+  text: The maintained native Xt widget toolkit
   tagline: >
     CK Core Motif is a maintained fork of the Motif native Xt widget toolkit.
     It retains Motif's widget, resource and callback model while correcting
@@ -10,6 +11,35 @@ hero:
   image:
     src: images/sun-workstation-hero.png
     alt: Pixel-art Sun workstation displaying a classic CDE and Motif desktop.
+  actions:
+    - text: Build the toolkit
+      link: build.md
+      theme: brand
+    - text: Explore the APIs
+      link: components.md
+    - text: View CK Core Apps
+      link: https://cklukas.github.io/ck-core-apps/
+features:
+  - icon: ":toolbox:"
+    title: Native Xt widgets
+    details: Maintained Motif widgets, resources and callbacks for native X11 applications.
+    link: components.md
+  - icon: ":capital_abcd:"
+    title: Unicode text
+    details: Explicit byte, scalar, grapheme and visual-position behavior throughout the text stack.
+    link: unicode.md
+  - icon: "♿"
+    title: Native accessibility
+    details: Semantic providers and optional AT-SPI integration without replacing the Xt model.
+    link: accessibility.md
+  - icon: ":white_check_mark:"
+    title: Maintained and validated
+    details: Focused regressions, native integration checks and documented qualification evidence.
+    link: status.md
+  - icon: ":desktop_computer:"
+    title: CK Core Apps
+    details: See the native desktop applications built on CK Core Motif and integrated with CK Core CDE.
+    link: https://cklukas.github.io/ck-core-apps/
 ---
 
 The development **2.4.0 / native ABI epoch 8** cohort is a deliberate binary
