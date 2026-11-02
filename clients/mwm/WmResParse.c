@@ -794,6 +794,18 @@ FunctionTableEntry functionTable[] = {
 
 #define WMFUNCTIONTABLESIZE (sizeof(functionTable)/sizeof(functionTable[0]))
 
+/* External callers can request a prefix of the built-in function table.  Keep
+ * an invalid size from extending that request beyond the table itself. */
+static int
+BoundFunctionTableSize(int tableSize)
+{
+    if (tableSize <= 0)
+	return 0;
+    if ((size_t)tableSize > WMFUNCTIONTABLESIZE)
+	return (int)WMFUNCTIONTABLESIZE;
+    return tableSize;
+}
+
 /*
  * Be sure to update these define, whenever adding/deleting a function.
  */
@@ -845,6 +857,8 @@ void
 GetFunctionTableValues (int *execIndex, int *nopIndex,
 		    int *actionIndex)
 {
+	if (execIndex == NULL || nopIndex == NULL || actionIndex == NULL)
+	    return;
 
 	GetExecIndex (WMFUNCTIONTABLESIZE, execIndex);
 
@@ -879,6 +893,10 @@ void
 GetExecIndex (int tableSize, int *execIndex)
 {
 	int i;
+	tableSize = BoundFunctionTableSize(tableSize);
+	if (execIndex == NULL)
+	    return;
+	*execIndex = 0;
 
 	for (i = 0; i < (tableSize); i++)
 	{
@@ -886,10 +904,6 @@ GetExecIndex (int tableSize, int *execIndex)
 		{
 			*execIndex = i;
 			return;
-		}
-		else
-		{
-			*execIndex = 0;
 		}
 	}
 } /* END OF FUNCTION GetExecIndex */
@@ -919,6 +933,10 @@ void
 GetActionIndex (int tableSize, int *actionIndex)
 {
 	int i;
+	tableSize = BoundFunctionTableSize(tableSize);
+	if (actionIndex == NULL)
+	    return;
+	*actionIndex = 0;
 
 	for (i = 0; i < (tableSize); i++)
 	{
@@ -926,10 +944,6 @@ GetActionIndex (int tableSize, int *actionIndex)
 		{
 			*actionIndex = i;
 			return;
-		}
-		else
-		{
-			*actionIndex = 0;
 		}
 	}
 } /* END OF FUNCTION GetActionIndex */
@@ -958,6 +972,10 @@ void
 GetNopIndex (int tableSize, int *nopIndex)
 {
 	int i;
+	tableSize = BoundFunctionTableSize(tableSize);
+	if (nopIndex == NULL)
+	    return;
+	*nopIndex = 0;
 
 	for (i = 0; i < (tableSize); i++)
 	{
@@ -965,10 +983,6 @@ GetNopIndex (int tableSize, int *nopIndex)
 		{
 			*nopIndex = i;
 			return;
-		}
-		else
-		{
-			*nopIndex = 0;
 		}
 	}
 } /* END OF FUNCTION GetNopIndex */

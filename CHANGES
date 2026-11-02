@@ -1,3 +1,10 @@
+Bound MWM function-table index helpers (2026-11-02)
+====================================================
+
+- Clamp caller-supplied function-table lengths before MWM scans its static
+  table, and reject missing output pointers before writing indexes; see
+  `docs/mwm-function-index-bounds.md`.
+
 Validate IconGadget geometry-trait outputs (2026-11-02)
 =========================================================
 
