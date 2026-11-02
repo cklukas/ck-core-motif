@@ -9226,7 +9226,11 @@ df_LoadFontMetrics(
           XmeWarning ((Widget)tf, MSG4);
     }
 
-    if (XmTextF_max_char_size(tf) > 1 && !have_font_set){
+    if (XmTextF_max_char_size(tf) > 1 && !have_font_set
+#ifdef USE_XFT
+        && !have_xft_font
+#endif
+       ){
      /*XmeWarning((Widget)tf, MSGnnn); */
      /* printf ("You've got the wrong font baby, Uh-Huh!\n"); */
      /* Must have a font set, as text will be rendered only with new R5 calls 

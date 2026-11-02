@@ -30,6 +30,7 @@
 #endif
 
 #include <stdint.h>
+#include <limits.h>
 
 #include "XmI.h"
 #include <Xm/TraitP.h>
@@ -168,48 +169,77 @@ _XmSFRemoveNavigator(
  *  _XmSFUpdateNavigatorsValues convenience function
  *
  *************************************<->***********************************/
-void
-_XmSFUpdateNavigatorsValue(
-        Widget sf,
-        XmNavigatorData nav_data,
-        Boolean notify)
+typedef struct {
+    Widget widget;
+    Boolean destroyed;
+} NavigatorUpdateLifetime;
+
+static void NavigatorUpdateDestroyed(Widget widget, XtPointer closure,
+                                     XtPointer call_data)
 {
-    Cardinal i, num_nav_list ;
-    Widget * nav_list ;
-    Boolean inited ;
-    XmScrollFrameTrait sf_trait ;
-
-    /* there is a possibility that the SW was not inited for
-       navigation business: APP_DEFINED where no scrollbar have
-       been added yet */
-    if (sf == NULL)
-	return;
-    sf_trait = (XmScrollFrameTrait)
-	       XmeTraitGet((XtPointer) XtClass(sf), XmQTscrollFrame);
-    if ((sf_trait == NULL) || (sf_trait->getInfo == NULL))
-	return;
-    inited = sf_trait->getInfo(sf, NULL, &nav_list, &num_nav_list);
-
-    if (!inited || (nav_list == NULL)) return ;
-
-    /* loop over the associated navigator list and call the change value
-       method for each navigator */
-    /* Updating the first navigator only if notify is True is not
-       enough, since the dimension is pertinent */
-
-    for (i=0; i < num_nav_list; i++) {
-	Widget nav = nav_list[i] ;
-	XmNavigatorTrait nav_trait;
-	XmNavigatorSetValueProc nav_setValue;
-	if (nav == NULL)
-	    continue;
-	nav_trait = (XmNavigatorTrait)
-	     XmeTraitGet((XtPointer) XtClass(nav), XmQTnavigator);
-	if ((nav_trait == NULL) || (nav_trait->setValue == NULL))
-	    continue;
-	nav_setValue = nav_trait->setValue;
-
-	nav_setValue(nav, nav_data, notify);
-    }
+    NavigatorUpdateLifetime *lifetime = (NavigatorUpdateLifetime *)closure;
+    (void)widget;
+    (void)call_data;
+    lifetime->destroyed = True;
 }
 
+void
+_XmSFUpdateNavigatorsValue(Widget sf, XmNavigatorData nav_data, Boolean notify)
+{
+    Cardinal count, current_count;
+    Widget *nav_list, *current_list;
+    XmScrollFrameTrait sf_trait;
+    NavigatorUpdateLifetime owner = {sf, False};
+    NavigatorUpdateLifetime *snapshot;
+
+    if (sf == NULL)
+        return;
+    sf_trait = (XmScrollFrameTrait)
+        XmeTraitGet((XtPointer)XtClass(sf), XmQTscrollFrame);
+    if (sf_trait == NULL || sf_trait->getInfo == NULL ||
+        !sf_trait->getInfo(sf, NULL, &nav_list, &count) ||
+        nav_list == NULL || count == 0 ||
+        (size_t)count > UINT_MAX / sizeof(*snapshot))
+        return;
+    snapshot = (NavigatorUpdateLifetime *)XtCalloc(count, sizeof(*snapshot));
+    if (snapshot == NULL)
+        return;
+    XtAddCallback(sf, XmNdestroyCallback, NavigatorUpdateDestroyed, &owner);
+    for (Cardinal i = 0; i < count; ++i) {
+        snapshot[i].widget = nav_list[i];
+        if (snapshot[i].widget != NULL)
+            XtAddCallback(snapshot[i].widget, XmNdestroyCallback,
+                          NavigatorUpdateDestroyed, &snapshot[i]);
+    }
+
+    /* A setValue notification can remove navigators, reallocate the borrowed
+     * list, or destroy the entire frame. Watch the snapshot's lifetimes and
+     * recheck current membership before invoking another navigator. */
+    for (Cardinal i = 0; i < count; ++i) {
+        Widget nav = snapshot[i].widget;
+        XmNavigatorTrait nav_trait;
+        Boolean present = False;
+        if (owner.destroyed || sf->core.being_destroyed)
+            break;
+        if (nav == NULL || snapshot[i].destroyed || nav->core.being_destroyed)
+            continue;
+        if (!sf_trait->getInfo(sf, NULL, &current_list, &current_count) ||
+            current_list == NULL)
+            break;
+        for (Cardinal j = 0; j < current_count; ++j)
+            if (current_list[j] == nav) present = True;
+        if (!present)
+            continue;
+        nav_trait = (XmNavigatorTrait)
+            XmeTraitGet((XtPointer)XtClass(nav), XmQTnavigator);
+        if (nav_trait != NULL && nav_trait->setValue != NULL)
+            nav_trait->setValue(nav, nav_data, notify);
+    }
+    for (Cardinal i = 0; i < count; ++i)
+        if (snapshot[i].widget != NULL && !snapshot[i].destroyed)
+            XtRemoveCallback(snapshot[i].widget, XmNdestroyCallback,
+                             NavigatorUpdateDestroyed, &snapshot[i]);
+    if (!owner.destroyed)
+        XtRemoveCallback(sf, XmNdestroyCallback, NavigatorUpdateDestroyed, &owner);
+    XtFree((char *)snapshot);
+}

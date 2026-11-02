@@ -32,12 +32,18 @@ def sha256(path: Path) -> str:
 
 
 def loaded_library(process: subprocess.Popen[bytes]) -> tuple[str, str] | None:
-    """Fingerprint the library actually mapped by the Linux gallery process."""
-    if platform.system() != "Linux":
+    """Fingerprint the actual gallery mapping on Linux and macOS."""
+    if platform.system() == "Darwin":
+        result = subprocess.run(["lsof", "-a", "-p", str(process.pid), "-d", "txt", "-Fn"],
+                                capture_output=True, text=True, timeout=5, check=True)
+        paths = {line[1:] for line in result.stdout.splitlines()
+                 if line.startswith("n") and "/libXm." in line and line.endswith(".dylib")}
+    elif platform.system() == "Linux":
+        paths = {line.split()[-1] for line in
+                 Path(f"/proc/{process.pid}/maps").read_text().splitlines()
+                 if "/libXm.so" in line}
+    else:
         return None
-    paths = {line.split()[-1] for line in
-             Path(f"/proc/{process.pid}/maps").read_text().splitlines()
-             if "/libXm.so" in line}
     if len(paths) != 1:
         raise RuntimeError(f"Cannot identify the gallery's loaded libXm: {paths}")
     path = Path(paths.pop()).resolve(strict=True)

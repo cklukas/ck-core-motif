@@ -71,11 +71,11 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L319-L326
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L335-L342
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L471-L473
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L494-L496
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1071-L1074
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1108-L1111
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/NumberBox.h)
 

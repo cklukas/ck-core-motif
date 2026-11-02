@@ -8,6 +8,6 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "TimePicker.c").read_text(
 )
 assert "#include <limits.h>" in source
 assert "static Position bounded_position(long long value)" in source
-assert "bounded_position(6)" in source
+assert "bounded_position(modern?_XmDpiDefaultDimension(widget,12):6)" in source
 assert "bounded_position(((long long)picker->core.height - height) / 2)" in source
 print("PASS TimePicker text coordinates stay bounded")

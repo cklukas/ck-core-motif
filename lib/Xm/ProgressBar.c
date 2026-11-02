@@ -3,6 +3,8 @@
 #include <config.h>
 #endif
 #include "PaintI.h"
+#include "AppearanceDrawI.h"
+#include <Xm/Appearance.h>
 
 #include <stdio.h>
 #include <limits.h>
@@ -25,6 +27,8 @@ static char translations[] = "";
 
 #define Offset(field) XtOffsetOf(XmProgressBarRec, field)
 static XtResource resources[] = {
+    {XmNrenderTable, XmCRenderTable, XmRRenderTable, sizeof(XmRenderTable),
+     Offset(progress.font), XmRImmediate, (XtPointer)NULL},
     {XmNprogressMinimum, XmCProgressMinimum, XmRInt, sizeof(int),
      Offset(progress.minimum), XmRImmediate, (XtPointer)0},
     {XmNprogressMaximum, XmCProgressMaximum, XmRInt, sizeof(int),
@@ -89,6 +93,30 @@ static Position bounded_position(long long value) {
     return (Position)value;
 }
 
+static Boolean modern_progress(Widget widget) {
+    XmAppearanceProfile profile=_XmAppearanceGeometryProfile(XtDisplay(widget));
+    return profile==XmAPPEARANCE_MODERN_LIGHT||profile==XmAPPEARANCE_MODERN_DARK;
+}
+static int track_height(XmProgressBarWidget progress) {
+    if(!modern_progress((Widget)progress))return 16;
+    XmString sample=XmStringCreateLocalized("100%");Dimension w=0,h=0;
+    if(sample&&progress->progress.font)XmStringExtent(progress->progress.font,sample,&w,&h);
+    XmStringFree(sample);
+    return MAX((int)_XmDpiDefaultDimension((Widget)progress,16),
+        progress->progress.text_visible?(int)h+2*(int)_XmDpiDefaultDimension((Widget)progress,4):0);
+}
+static void preferred_size(XmProgressBarWidget progress,Dimension *width,Dimension *height) {
+    Dimension lw=0,lh=0;
+    if(progress->progress.font&&progress->progress.label&&!XmStringEmpty(progress->progress.label))XmStringExtent(progress->progress.font,progress->progress.label,&lw,&lh);
+    if(modern_progress((Widget)progress)) {
+        *width=bounded_dimension(MAX((size_t)lw,(size_t)_XmDpiDefaultDimension((Widget)progress,180))+2*(size_t)progress->progress.spacing);
+        *height=bounded_dimension((size_t)lh+track_height(progress)+_XmDpiDefaultDimension((Widget)progress,4)+2*(size_t)progress->progress.spacing);
+    } else {
+        *width=bounded_dimension((size_t)lw+180+2*(size_t)progress->progress.spacing);
+        *height=bounded_dimension((size_t)lh+34+2*(size_t)progress->progress.spacing);
+    }
+}
+
 static void UpdateGCs(XmProgressBarWidget progress) {
     Display *display = XtDisplay((Widget)progress);
     if (progress->progress.track_gc) {
@@ -130,17 +158,15 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     }
     else
         progress->progress.label = XmStringCreateLocalized("");
-    defaults = XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
+    defaults = progress->progress.font ? progress->progress.font : XmeGetDefaultRenderTable(widget, XmTEXT_FONTLIST);
     progress->progress.font = defaults ? XmFontListCopy(defaults) : NULL;
-    if (progress->progress.font && progress->progress.label)
+    if (progress->progress.font && progress->progress.label &&
+        !XmStringEmpty(progress->progress.label))
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
-    if (!progress->core.width)
-        progress->core.width = bounded_dimension((size_t)label_width + 180 +
-                                                 2 * (size_t)progress->progress.spacing);
-    if (!progress->core.height)
-        progress->core.height = bounded_dimension((size_t)label_height + 34 +
-                                                  2 * (size_t)progress->progress.spacing);
+    {Dimension w,h;preferred_size(progress,&w,&h);
+     if(!request->core.width)progress->core.width=w;
+     if(!request->core.height)progress->core.height=h;}
     values.foreground = progress->primitive.bottom_shadow_color;
     values.background = progress->core.background_pixel;
     progress->progress.track_gc = XCreateGC(display, DefaultRootWindow(display),
@@ -180,7 +206,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Drawable window = _XmPaintDrawable(widget);
     Dimension label_width = 0, label_height = 0;
     Dimension bar_width, fill_width;
-    int bar_x, bar_y;
+    int bar_x, bar_y, bar_height;
+    Boolean modern=modern_progress(widget);
     char text[64];
     XmString text_string;
     unsigned long long numerator, denominator;
@@ -191,7 +218,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (!progress->progress.track_gc || !progress->progress.fill_gc)
         return;
 
-    if (progress->progress.font && progress->progress.label)
+    if (progress->progress.font && progress->progress.label &&
+        !XmStringEmpty(progress->progress.label))
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     text_gc = XtIsSensitive(widget) ? progress->progress.text_gc
@@ -205,11 +233,14 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(progress), NULL);
     bar_x = (int)progress->progress.spacing;
-    bar_y = (int)progress->progress.spacing + (int)label_height + 4;
+    bar_y = (int)progress->progress.spacing + (int)label_height + (modern?_XmDpiDefaultDimension(widget,4):4);
+    bar_height=track_height(progress);
+    if(modern)bar_height=MIN(bar_height,MAX(0,(int)progress->core.height-bar_y-(int)progress->progress.spacing));
+    if(bar_height<=0)return;
     bar_width = progress->core.width > 2 * progress->progress.spacing
         ? progress->core.width - 2 * progress->progress.spacing : 1;
-    XFillRectangle(display, window, progress->progress.track_gc, bar_x, bar_y,
-                   bar_width, 16);
+    if(modern)_XmAppearanceFillRoundedRectangle(display,window,progress->progress.track_gc,bar_x,bar_y,bar_width,bar_height,_XmDpiDefaultDimension(widget,3));
+    else XFillRectangle(display, window, progress->progress.track_gc, bar_x, bar_y,bar_width,16);
     if (progress->progress.indeterminate) {
         fill_width = bar_width / 3;
         if (!fill_width) fill_width = 1;
@@ -223,9 +254,10 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      (unsigned long long)progress->progress.minimum;
         fill_width = (Dimension)((numerator * bar_width) / denominator);
     }
-    if (fill_width)
-        XFillRectangle(display, window, progress->progress.fill_gc, bar_x, bar_y,
-                       fill_width, 16);
+    if (fill_width) {
+        if(modern)_XmAppearanceFillRoundedRectangle(display,window,progress->progress.fill_gc,bar_x,bar_y,fill_width,bar_height,_XmDpiDefaultDimension(widget,3));
+        else XFillRectangle(display,window,progress->progress.fill_gc,bar_x,bar_y,fill_width,16);
+    }
     if (progress->progress.text_visible) {
         if (progress->progress.indeterminate)
             snprintf(text, sizeof(text), "…");
@@ -243,14 +275,19 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             Dimension text_width = 0, text_height = 0;
             XmStringExtent(progress->progress.font, text_string, &text_width,
                            &text_height);
-            XmStringDraw(display, window, progress->progress.font, text_string,
-                         text_gc,
-                         bounded_position((long long)bar_x +
-                                          ((long long)bar_width - text_width) / 2),
-                         bounded_position((long long)bar_y +
-                                          (16LL - text_height) / 2), text_width,
-                         XmALIGNMENT_BEGINNING,
-                         XmPrim_layout_direction(progress), NULL);
+            Position tx=bounded_position((long long)bar_x+((long long)bar_width-text_width)/2);
+            Position ty=bounded_position((long long)bar_y+((long long)bar_height-text_height)/2);
+            if(modern) {
+                XGCValues values;XGetGCValues(display,progress->progress.fill_gc,GCForeground,&values);
+                XRectangle part={(short)bar_x,(short)bar_y,fill_width,(unsigned short)bar_height};
+                if(part.width) {
+                    XSetForeground(display,text_gc,_XmAppearanceTextOnFill(widget,values.foreground));
+                    XmStringDraw(display,window,progress->progress.font,text_string,text_gc,tx,ty,text_width,XmALIGNMENT_BEGINNING,XmPrim_layout_direction(progress),&part);
+                }
+                part.x=bar_x+fill_width;part.width=bar_width-fill_width;
+                XSetForeground(display,text_gc,XtIsSensitive(widget)?progress->primitive.foreground:progress->primitive.bottom_shadow_color);
+                if(part.width)XmStringDraw(display,window,progress->progress.font,text_string,text_gc,tx,ty,text_width,XmALIGNMENT_BEGINNING,XmPrim_layout_direction(progress),&part);
+            } else XmStringDraw(display,window,progress->progress.font,text_string,text_gc,tx,ty,text_width,XmALIGNMENT_BEGINNING,XmPrim_layout_direction(progress),NULL);
         }
         if (text_string)
             XmStringFree(text_string);
@@ -276,8 +313,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmProgressBarWidget progress = (XmProgressBarWidget)widget;
     Boolean redraw = False;
     XmString replacement;
+    Dimension old_width, old_height;
+    preferred_size(old, &old_width, &old_height);
     (void)request; (void)args; (void)count;
     Normalize(progress);
+    if(old->progress.font!=progress->progress.font) {
+        XmFontList source=progress->progress.font?progress->progress.font:XmeGetDefaultRenderTable(widget,XmTEXT_FONTLIST);
+        XmFontList replacement_font=source?XmFontListCopy(source):NULL;
+        if(replacement_font){if(old->progress.font)XmFontListFree(old->progress.font);progress->progress.font=replacement_font;redraw=True;}
+        else progress->progress.font=old->progress.font;
+    }
     if (old->progress.label != progress->progress.label) {
         replacement = progress->progress.label != NULL
             ? XmStringCopy(progress->progress.label) : NULL;
@@ -296,8 +341,23 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         old->progress.text_visible != progress->progress.text_visible ||
         old->primitive.foreground != progress->primitive.foreground ||
         old->core.background_pixel != progress->core.background_pixel ||
-        old->primitive.highlighted != progress->primitive.highlighted)
+        old->primitive.highlighted != progress->primitive.highlighted ||
+        old->primitive.highlight_color != progress->primitive.highlight_color ||
+        old->primitive.bottom_shadow_color != progress->primitive.bottom_shadow_color ||
+        old->core.sensitive != progress->core.sensitive ||
+        old->core.ancestor_sensitive != progress->core.ancestor_sensitive)
         redraw = True;
+    if (old->progress.font != progress->progress.font ||
+        old->progress.label != progress->progress.label ||
+        old->progress.spacing != progress->progress.spacing ||
+        old->progress.text_visible != progress->progress.text_visible) {
+        Dimension width, height;
+        preferred_size(progress, &width, &height);
+        if (widget->core.width == old->core.width && old->core.width == old_width)
+            widget->core.width = width;
+        if (widget->core.height == old->core.height && old->core.height == old_height)
+            widget->core.height = height;
+    }
     return redraw;
 }
 
@@ -306,14 +366,12 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     XmProgressBarWidget progress = (XmProgressBarWidget)widget;
     Dimension label_width = 0, label_height = 0;
     (void)request;
-    if (progress->progress.font && progress->progress.label)
+    if (progress->progress.font && progress->progress.label &&
+        !XmStringEmpty(progress->progress.label))
         XmStringExtent(progress->progress.font, progress->progress.label,
                        &label_width, &label_height);
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = bounded_dimension((size_t)label_width + 180 +
-                                     2 * (size_t)progress->progress.spacing);
-    reply->height = bounded_dimension((size_t)label_height + 34 +
-                                      2 * (size_t)progress->progress.spacing);
+    preferred_size(progress,&reply->width,&reply->height);
     return (widget->core.width == reply->width && widget->core.height == reply->height)
                ? XtGeometryYes : XtGeometryAlmost;
 }

@@ -1,3 +1,24 @@
+Modern macOS control appearance audit (2026-11-02)
+=================================================
+
+- Complete modern field, progress, calendar, status and tab rendering: retain Xft
+  in UTF-8 DataField locales; add ProgressBar render-table support and readable
+  percentage text; provide measured date/time/calendar geometry, field frames,
+  month navigation and time spinner affordances; preserve tab contrast after
+  disabled paints. Add profile-aware link/status/activity colors and flat icon
+  and toast frames while preserving explicit overrides and classic rendering.
+- Honor non-overlapping compound-string clip rectangles for core and Xft text;
+  keep dark progress percentage text readable across filled and unfilled regions.
+- Hide semantically empty FormSection footers. Register scroll-only drag sites
+  without invalid pointer-valued X atoms; preserve automatic scrolling timers.
+  Keep navigator updates valid when callbacks remove navigators or destroy frames.
+  Snapshot public ScrollBar callbacks and stop after immediate destruction,
+  avoiding compiled Xt callback-list double frees during timer notifications.
+  Restore measured gallery feedback after passive examples.
+- Accept empty Xt argument lists in ColorSelector constructors and updates.
+- Add production-gallery light/dark state captures and font/clipping inventory,
+  native control and tab-color regressions. See docs/modern-macos-ui-audit.md.
+
 Use CDE's WSM MWM-window helper (2026-11-02)
 ==============================================
 

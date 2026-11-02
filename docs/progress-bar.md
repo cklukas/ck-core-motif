@@ -25,7 +25,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L482-L485
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L505-L508
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ProgressBar.h)
 
@@ -72,3 +72,14 @@ profiles remain owned by the application.
 dimensions, range normalization and clamping, notifications, indeterminate
 state, focus/sensitivity, accessibility values and busy state, callback
 re-entry, and widget teardown.
+
+## Modern rendering
+
+`XmNrenderTable` selects the copied render table used for the label and percentage.
+Empty labels reserve no label space. Font changes recompute dimensions that still
+match the prior preferred size, preserving custom allocations. Modern profiles
+measure the preferred height, round the track, and choose readable
+default percentage colors over both filled and unfilled portions.
+[Disjoint clip handling](xmstring-clip-regions.md) keeps the two text passes
+independent. Fixed application heights
+remain authoritative; allow preferred geometry when changing fonts or scale.

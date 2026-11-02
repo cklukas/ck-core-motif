@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <math.h>
+#include <string.h>
 #include "AppearanceDrawI.h"
 
 Dimension
@@ -698,4 +699,49 @@ _XmAppearanceDrawCascadeIndicator(Widget widget, int x, int y, int width,
         MIN(MAX(1,(int)_XmDpiDefaultDimension(widget,2)),MAX(1,side/4)), direction);
     XFreeGC(display, gc);
     return True;
+}
+
+/* Choose readable status/progress text using linear-light luminance. Xt caches
+ * the black/white conversion in the widget's actual screen/colormap context. */
+Pixel
+_XmAppearanceTextOnFill(Widget widget, Pixel fill)
+{
+    Widget context = XtIsWidget(widget) ? widget : XtParent(widget);
+    Colormap map;XColor color;double c[3];Pixel result;
+    XtVaGetValues(context,XmNcolormap,&map,XmNforeground,&result,NULL);
+    color.pixel=fill;XQueryColor(XtDisplayOfObject(widget),map,&color);
+    c[0]=color.red/65535.0;c[1]=color.green/65535.0;c[2]=color.blue/65535.0;
+    for(unsigned i=0;i<3;i++)c[i]=c[i]<=0.04045?c[i]/12.92:pow((c[i]+0.055)/1.055,2.4);
+    const char *name=0.2126*c[0]+0.7152*c[1]+0.0722*c[2]<0.179?"white":"black";
+    XrmValue from={(unsigned int)strlen(name)+1,(XPointer)name},to={sizeof(result),(XPointer)&result};
+    (void)XtConvertAndStore(context,XmRString,&from,XmRPixel,&to);
+    return result;
+}
+
+Boolean
+_XmAppearancePickerSize(Widget widget,XmRenderTable table,const char *sample,Dimension *width,Dimension *height)
+{
+    XmAppearanceProfile profile=_XmAppearanceGeometryProfile(XtDisplay(widget));
+    if(profile!=XmAPPEARANCE_MODERN_LIGHT&&profile!=XmAPPEARANCE_MODERN_DARK)return False;
+    XmString label=XmStringCreateLocalized((char*)sample);Dimension w=0,h=0;
+    if(label&&table)XmStringExtent(table,label,&w,&h);XmStringFree(label);
+    *width=(Dimension)MIN(USHRT_MAX,MAX((unsigned long)_XmDpiDefaultDimension(widget,160),(unsigned long)w+_XmDpiDefaultDimension(widget,52)));
+    *height=(Dimension)MIN(USHRT_MAX,MAX((unsigned long)_XmDpiDefaultDimension(widget,_XmAppearanceGeometryDensity(XtDisplay(widget))==XmAPPEARANCE_DENSITY_COMPACT?28:36),(unsigned long)h+_XmDpiDefaultDimension(widget,16)));
+    return True;
+}
+Boolean
+_XmAppearanceDrawPickerFrame(Widget widget,Boolean spin)
+{
+    if(!_XmAppearanceDrawFieldFrame(widget))return False;
+    XmPrimitiveWidget field=(XmPrimitiveWidget)widget;
+    Drawable drawable=_XmPaintDrawable(widget);if(!drawable)return True;
+    int edge=MIN((int)_XmDpiDefaultDimension(widget,12),MIN((int)field->core.width/3,(int)field->core.height/3));
+    if(edge<3)return True;
+    int x=(int)field->core.width-_XmDpiDefaultDimension(widget,10)-edge;
+    XGCValues values;values.foreground=XtIsSensitive(widget)?field->primitive.foreground:field->primitive.bottom_shadow_color;
+    GC gc=XCreateGC(XtDisplay(widget),drawable,GCForeground,&values);if(!gc)return True;
+    int stroke=MAX(1,_XmDpiDefaultDimension(widget,1));
+    if(spin){_XmAppearanceDrawChevron(XtDisplay(widget),drawable,gc,x,field->core.height/4-edge/2,edge,edge,stroke,XmARROW_UP);_XmAppearanceDrawChevron(XtDisplay(widget),drawable,gc,x,3*field->core.height/4-edge/2,edge,edge,stroke,XmARROW_DOWN);}
+    else _XmAppearanceDrawChevron(XtDisplay(widget),drawable,gc,x,((int)field->core.height-edge)/2,edge,edge,stroke,XmARROW_DOWN);
+    XFreeGC(XtDisplay(widget),gc);return True;
 }

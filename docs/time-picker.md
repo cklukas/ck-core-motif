@@ -39,7 +39,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L769-L772
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L802-L805
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TimePicker.h)
 

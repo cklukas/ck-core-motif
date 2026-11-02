@@ -8,6 +8,8 @@
 #include <Xm/XmP.h>
 #include <X11/keysym.h>
 #include <limits.h>
+#include "AppearanceDrawI.h"
+#include "XmI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *); static void Destroy(Widget);
 static void Resize(Widget); static void ChangeManaged(Widget);
@@ -16,6 +18,11 @@ static XtGeometryResult GeometryManager(Widget, XtWidgetGeometry *, XtWidgetGeom
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *, XtWidgetGeometry *);
 static void activate(Widget, XtPointer, XtPointer); static void events(Widget, XtPointer, XEvent *, Boolean *);
 static void timeout(XtPointer, XtIntervalId *);
+static void Redisplay(Widget widget,XEvent *event,Region region) {
+    (void)event;(void)region;
+    (void)_XmAppearanceDrawFrameRegion(widget,0,0,widget->core.width,widget->core.height,
+                                      MAX(1,_XmDpiDefaultDimension(widget,1)));
+}
 #define Offset(field) XtOffsetOf(XmToastRec, toast.field)
 static XtResource resources[] = {
     {XmNtoastMessage, XmCToastMessage, XmRXmString, sizeof(XmString), Offset(message), XmRImmediate, NULL},
@@ -29,7 +36,7 @@ externaldef(xmtoastclassrec) XmToastClassRec xmToastClassRec = {
     {.superclass = (WidgetClass)&xmManagerClassRec, .class_name = "XmToast", .widget_size = sizeof(XmToastRec),
      .initialize = Initialize, .realize = XtInheritRealize, .resources = resources, .num_resources = XtNumber(resources),
      .compress_motion = True, .compress_exposure = XtExposeCompressMultiple, .compress_enterleave = True,
-     .destroy = Destroy, .resize = Resize, .set_values = SetValues, .set_values_almost = XtInheritSetValuesAlmost,
+     .destroy = Destroy, .expose = Redisplay, .resize = Resize, .set_values = SetValues, .set_values_almost = XtInheritSetValuesAlmost,
      .version = XtVersion, .tm_table = XtInheritTranslations, .query_geometry = QueryGeometry},
     {.geometry_manager = GeometryManager, .change_managed = ChangeManaged, .insert_child = XtInheritInsertChild,
      .delete_child = XtInheritDeleteChild}, {.constraint_size = sizeof(XmManagerConstraintRec)},

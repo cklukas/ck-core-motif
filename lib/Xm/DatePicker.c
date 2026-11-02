@@ -12,6 +12,7 @@
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void BufferedRedisplay(Widget, XEvent *, Region);
@@ -138,8 +139,6 @@ static void create_popup(XmDatePickerWidget picker) {
         picker->date_picker.popup_shell = NULL;
         return;
     }
-    XtVaSetValues(picker->date_picker.calendar, XmNwidth, 224,
-                  XmNheight, 192, NULL);
     XmCalendarSetRange(picker->date_picker.calendar,
                        &picker->date_picker.minimum,
                        &picker->date_picker.maximum);
@@ -164,9 +163,12 @@ static void position_popup(XmDatePickerWidget picker) {
     XtVaGetValues(owner, XmNwidth, &width, XmNheight, &height, NULL);
     XtVaGetValues(picker->date_picker.popup_shell, XmNwidth, &popup_width,
                   XmNheight, &popup_height, NULL);
-    x_pos = (long long)owner_x +
-            ((long long)width - (long long)popup_width) / 2;
-    y_pos = (long long)owner_y + (long long)height;
+    XmAppearanceProfile profile=_XmAppearanceGeometryProfile(XtDisplay(owner));
+    Boolean modern=profile==XmAPPEARANCE_MODERN_LIGHT||profile==XmAPPEARANCE_MODERN_DARK;
+    int gap=modern?_XmDpiDefaultDimension(owner,8):0;
+    x_pos=(long long)owner_x+(modern?0:((long long)width-popup_width)/2);
+    y_pos=(long long)owner_y+height+gap;
+    if(modern&&y_pos+popup_height>HeightOfScreen(XtScreen(owner))&&(long long)owner_y-popup_height-gap>=0)y_pos=(long long)owner_y-popup_height-gap;
     screen = XtScreen(picker->date_picker.popup_shell);
     if (popup_width >= (Dimension)WidthOfScreen(screen))
         x_pos = 0;
@@ -224,8 +226,10 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     picker->date_picker.gc = XCreateGC(XtDisplay(widget),
                                        DefaultRootWindow(XtDisplay(widget)),
                                        GCForeground | GCBackground, &values);
-    if (!picker->core.width) picker->core.width = 120;
-    if (!picker->core.height) picker->core.height = 28;
+    {Dimension width=120,height=28;
+     (void)_XmAppearancePickerSize(widget,picker->date_picker.render_table,"0000-00-00",&width,&height);
+     if(!request->core.width)picker->core.width=width;
+     if(!request->core.height)picker->core.height=height;}
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
                       NULL);
 }
@@ -234,9 +238,10 @@ static void Destroy(Widget widget) {
     XmDatePickerWidget picker = (XmDatePickerWidget)widget;
     XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False,
                          Events, NULL);
-    if (picker->date_picker.popup_shell &&
-        !((CoreWidget)picker->date_picker.popup_shell)->core.being_destroyed)
-        XtDestroyWidget(picker->date_picker.popup_shell);
+    if (picker->date_picker.popup_shell) {
+        XtRemoveCallback(picker->date_picker.popup_shell,XtNdestroyCallback,popup_destroyed,(XtPointer)picker);
+        if(!((CoreWidget)picker->date_picker.popup_shell)->core.being_destroyed)XtDestroyWidget(picker->date_picker.popup_shell);
+    }
     if (picker->date_picker.gc)
         XFreeGC(XtDisplay(widget), picker->date_picker.gc);
     if (picker->date_picker.render_table)
@@ -295,6 +300,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Dimension width = 0, height = 0;
     (void)event; (void)region;
     if (!XtIsRealized(widget) || !picker->date_picker.gc) return;
+    Boolean modern=_XmAppearanceDrawPickerFrame(widget,False);
+    XSetForeground(XtDisplay(widget),picker->date_picker.gc,XtIsSensitive(widget)?picker->primitive.foreground:picker->primitive.bottom_shadow_color);
 
     snprintf(text, sizeof(text), "%04d-%02d-%02d",
              picker->date_picker.date.year, picker->date_picker.date.month,
@@ -304,7 +311,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XmStringExtent(picker->date_picker.render_table, value, &width, &height);
         XmStringDraw(XtDisplay(widget), _XmPaintDrawable(widget),
                      picker->date_picker.render_table, value,
-                     picker->date_picker.gc, 6,
+                     picker->date_picker.gc, modern?_XmDpiDefaultDimension(widget,12):6,
                      ((int)picker->core.height - (int)height) / 2, width,
                      XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(picker), NULL);
@@ -340,9 +347,10 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
-    (void)widget; (void)request;
-    reply->request_mode = CWWidth | CWHeight;
-    reply->width = 120; reply->height = 28;
+    XmDatePickerWidget picker=(XmDatePickerWidget)widget;
+    (void)request;reply->request_mode=CWWidth|CWHeight;
+    reply->width=120;reply->height=28;
+    (void)_XmAppearancePickerSize(widget,picker->date_picker.render_table,"0000-00-00",&reply->width,&reply->height);
     return XtGeometryAlmost;
 }
 

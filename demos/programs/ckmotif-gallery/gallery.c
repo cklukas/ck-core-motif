@@ -132,7 +132,15 @@ static void resize_preview(GalleryState *state)
                   XmNclipWindow, &clip, XmNborderWidth, &viewport_border, NULL);
     XtVaGetValues(state->example, XmNheight, &page_height, NULL);
     XtVaGetValues(state->feedback, XmNheight, &feedback_height, XmNtopOffset, &gap, XmNborderWidth, &feedback_border, NULL);
+    Dimension allocated_feedback_height = feedback_height;
     if (!XtIsManaged(state->feedback)) { feedback_height = 0; feedback_border = 0; gap = 0; }
+    else {
+        /* Reserve the label's measured row, not a previous squeezed allocation.
+         * The old viewport can otherwise prevent a newly managed row growing. */
+        XtWidgetGeometry preferred = {0};
+        XtQueryGeometry(state->feedback, NULL, &preferred);
+        if (preferred.request_mode & CWHeight) feedback_height = preferred.height;
+    }
     clip_height = viewport_height;
     if (clip) XtVaGetValues(clip, XmNheight, &clip_height, NULL);
     int available = (int)page_height - top - feedback_height - gap -
@@ -143,6 +151,8 @@ static void resize_preview(GalleryState *state)
     if (wanted < 1) wanted = 1;
     if (viewport_height != wanted)
         XtVaSetValues(state->preview_viewport, XmNheight, wanted, NULL);
+    if (XtIsManaged(state->feedback) && allocated_feedback_height != feedback_height)
+        XtVaSetValues(state->feedback, XmNheight, feedback_height, NULL);
 }
 
 static void preview_configured(Widget widget, XtPointer client, XEvent *event,
@@ -749,10 +759,10 @@ static void show_entry(GalleryState *state, const GalleryManifestEntry *entry)
             XmNleftAttachment, XmATTACH_FORM, NULL);
         XmStringFree(action_label);
         XtAddCallback(state->action, XmNactivateCallback, component_activate, state);
-        state->feedback = gallery_label(state->example, "feedback", "");
+        state->feedback = gallery_label(state->example, "feedback", "Ready for interaction");
         XtVaSetValues(state->feedback, XmNtopAttachment, XmATTACH_WIDGET,
             XmNtopWidget, state->provenance, XmNtopOffset, 16,
-            XmNleftAttachment, XmATTACH_FORM, NULL);
+            XmNleftAttachment, XmATTACH_FORM, XmNrightAttachment, XmATTACH_FORM, NULL);
         XtAddEventHandler(state->example, StructureNotifyMask, False,
                           preview_configured, state);
         state->source = create_page(state->notebook, "sourcePage");
@@ -2495,6 +2505,8 @@ static void configure_startup_geometry(Widget shell)
         XtVaSetValues(shell, XmNy, top + (height > target_height ? (height-target_height)/2 : 0), NULL);
 }
 
+#include "gallery_audit.h"
+
 int main(int argc, char **argv)
 {
     XtAppContext app; Widget shell, root, header, body, sidebar, notebook;
@@ -2505,6 +2517,7 @@ int main(int argc, char **argv)
     Boolean open_example = False;
     const char *initial_id = NULL;
     const char *dialog_kind = NULL;
+    const char *audit_directory = NULL;
     Boolean requested_profile = True;
     XmAppearanceProfile requested_profile_value = XmAPPEARANCE_MODERN_LIGHT;
     Boolean requested_scale = False;
@@ -2512,7 +2525,9 @@ int main(int argc, char **argv)
     int argument;
     for (argument = 1; argument < argc;) {
         int remove_count = 0;
-        if (!strcmp(argv[argument], "--integration-shells")) {
+        if (!strcmp(argv[argument], "--audit-modern") && argument+1<argc) {
+            audit_directory=argv[argument+1];remove_count=2;
+        } else if (!strcmp(argv[argument], "--integration-shells")) {
             integration_mode = 10;
             remove_count = 1;
         } else if (!strcmp(argv[argument], "--open-example")) {
@@ -2807,6 +2822,7 @@ int main(int argc, char **argv)
     }
     if (requested_profile || requested_scale)
         XSync(XtDisplay(shell), False);
+    if (audit_directory) return audit_modern_gallery(&state,audit_directory);
     if (integration_mode == 1) {
         int result = run_integration_test(&state);
         if (state.accessibility) XmAccessibilityDestroy(state.accessibility);

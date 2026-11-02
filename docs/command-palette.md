@@ -42,7 +42,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L806-L825
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L839-L858
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/CommandPalette.h)
 

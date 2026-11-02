@@ -5373,7 +5373,11 @@ _calc_align_and_clip(
 {
 
     Boolean l_to_r = XmDirectionMatch(lay_dir, XmSTRING_DIRECTION_L_TO_R);
-
+    (void)y;
+    (void)descender;
+#ifdef FIX_1488
+    (void)line_height;
+#endif
 
     switch (align)
     {
@@ -5391,19 +5395,8 @@ _calc_align_and_clip(
 	    break;
    }
 
+    /* A disjoint region must suppress the line, not disable its clipping. */
     if ((clip != NULL) && ( ! *restore))
-
-#ifdef FIX_1488
-        if (((*x) <= clip->x + clip->width) &&
-            (clip->x <= (*x) + line_width) &&
-            (y - line_height + descender <= clip->y + clip->height) &&
-            (clip->y <= y + descender))
-#else
-/* BEGIN OSF Fix CR 5106 */
-        if ((line_width > clip->width) ||
-/* END OSF Fix CR 5106 */
-	     (y + descender) > (clip->y + clip->height))
-#endif
 	{
 	    *restore = TRUE;
 #ifdef USE_XFT

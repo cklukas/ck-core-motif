@@ -1,0 +1,425 @@
+{
+  "recorded_utc": "2026-11-02T00:22:50.461126+00:00",
+  "tested_base_revision": "8f7133673e30582533468a3bad13d66be5ee08da",
+  "scope": "Native macOS arm64 C23 Xft/Unicode/SVG toolkit; actual production XQuartz gallery windows; no external desktop mouse or keyboard injection.",
+  "configuration": "Mac arm64 Clang C23, Xft/Unicode/SVG, shared-only, -j3",
+  "source_asset_manifest_sha256": "738cecef1c25e659822c561a3126e2b224716f9a7d1efb592017766cce91739b",
+  "changed_native_sources": {
+    "demos/programs/ckmotif-gallery/gallery.c": "b23fcf78cf7848f57b203c28466181298d96cb43e8891e0367bf13eb8a47685b",
+    "demos/programs/ckmotif-gallery/gallery_audit.h": "72b07a3395804ec465cafc30b6062dffd43313bf6e7b7e97a182ec78c77987ad",
+    "demos/programs/ckmotif-gallery/gallery_examples.c": "742e094e4e7784c4c1e7db43226acc37268e34e30d9ca8dcb0554e9196dd503d",
+    "lib/Xm/Appearance.c": "d11900ae13aa66d47ac011287a651d8c59d2651123f76698c593b4d243411c68",
+    "lib/Xm/AppearanceDraw.c": "4a04ff03340af279771e1c7381c10b38c9178754047a96ac1563dcd2069339ae",
+    "lib/Xm/AppearanceDrawI.h": "e80b8a83247c5af27e576806c8a056cfcc7dad5066dd5ec633509d1f316cefd3",
+    "lib/Xm/Calendar.c": "384087a17efe8b0b54d0754027f8b141c0f56cec03abb2bd9e93b0cbc4f8e576",
+    "lib/Xm/CallbackI.c": "0511739a014e64bc4f7920f1b662e504e85ab87c11edc5bb9ecb73d6096161a5",
+    "lib/Xm/ColorS.c": "ad9acbac30c52469aa3661e3588ba33f8719c5b47eae314d6f0116f7ff440675",
+    "lib/Xm/DataF.c": "e0719d7ed87e8b1d4b785730a722cb027f4ef513aa369b0e69af2483394f05c1",
+    "lib/Xm/DatePicker.c": "732f1f274bdff53699f55997e69a5481780349e85a862b9b17811488d340e97e",
+    "lib/Xm/FormSection.c": "5712a7ba3394dde20222f5fb5ccd06bdb5765c04c139046603d2a8305c80b61d",
+    "lib/Xm/IconG.c": "6de09ba93c1a47f7ace801755bdecfad4a169096c587324c15a9eefa253aff9c",
+    "lib/Xm/ProgressBar.c": "14fc5130674c979a3ae80f20f06dd2e08bbe9e428e414cd1bd761c59ef204ddd",
+    "lib/Xm/ProgressRing.c": "c73a50a34355ce4a320b0a60b8ba0f1debc5e8d4d4a8aec1d4e7604c9994778a",
+    "lib/Xm/ScrollBar.c": "5f26f8c6955bf54dc15c52adb90b78b0f5cbd553c4b161e66d055c89790a2bdd",
+    "lib/Xm/ScrollFrameT.c": "63fc139267df9e0ba67ed5a72e6eff53c5162b13613e4cee4856d300a62163fb",
+    "lib/Xm/ScrolledW.c": "dc1097c6ddc49312327fd2e134c78f7a243976789c8b9ef9c5e434260eb36f60",
+    "lib/Xm/Spinner.c": "5860fc504458d941e4cddcf3d6a6315853ecb78d6dfe8c9ef4633a9a42fcfb80",
+    "lib/Xm/TabBox.c": "da27e334ba0d2e6b5f3fb6074c43e00c966e80e89e9b7d23d93e4b07470fb347",
+    "lib/Xm/TimePicker.c": "359ddbac1101b745fd39417374552ddf99d4d40696996ab87fee4009ebad0d7a",
+    "lib/Xm/Toast.c": "1425e4d542467b458227dd7cba25736deabd384905400c684bfc9c9b6c0a1912",
+    "lib/Xm/XmString.c": "75d531aeb1b323b91f3db83d9d4d104874763a9874190cb3275cedccf582fc2b"
+  },
+  "outputs": {
+    "bin/ckmotif-gallery": {
+      "sha256": "a9e9f3042bdea40ba9dac76de8473c34795728577dc50e19d68daa2eaf81d045",
+      "mtime_ns": 1793578581341789206,
+      "file": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/bin/ckmotif-gallery: Mach-O 64-bit executable arm64"
+    },
+    "lib/libXm.9.dylib": {
+      "sha256": "4ceb46c64c2afdabf5f36ce484beff2590da90c5fd32990ad3d099b7c0acd486",
+      "mtime_ns": 1793578299765580176,
+      "file": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib/libXm.9.dylib: Mach-O 64-bit dynamically linked shared library arm64"
+    }
+  },
+  "build": {
+    "started_utc": "2026-11-02T00:11:35.690675+00:00",
+    "ended_utc": "2026-11-02T00:16:21.354085+00:00",
+    "elapsed_seconds": 4.68318545800139,
+    "freshness_review": "Incremental library rebuild 1.89s versus previous comparable 2.52s: logs compile changed ScrollBar input and relink Xm/Mrm. Callback dispatch had compiled in the earlier 2.38s stage build. Gallery unchanged in initial rebuild (0.03s); subsequent audit selector update rebuilt gallery. Input hashes, output byte identity, and timestamps verified; installed library stayed unchanged during final native qualification."
+  },
+  "native": {
+    "groups": [
+      {
+        "name": "modern-audit-controls",
+        "source_sha256": "b94ef040d0006c5e2764e3e3dd2e51cae8adf0521156da064cce05e844a47b6b",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.7431323749988223
+      },
+      {
+        "name": "modern-status-colors",
+        "source_sha256": "502f42f9639057f69d7090767bef740a1315297656d311cf3ea5971357d1ccd6",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3438896669977112
+      },
+      {
+        "name": "xmstring-disjoint-clip",
+        "source_sha256": "76e76b0c2d30d6dc9afc8e91ef206359e54bf6b884bdc529fcf6716dcd757fbf",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.38973499999701744
+      },
+      {
+        "name": "tab-color-state",
+        "source_sha256": "2cc5be5e5f77c377c2dd14c6d11985e8897e18e1dfce74ab06b5a408cd9c437a",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.38465049999649636
+      },
+      {
+        "name": "scroll-lifetime",
+        "source_sha256": "dbed3d1f011f06e0757bd85c3055b61ca1d2c6af809645f4dff2358090f251e7",
+        "compile": 0,
+        "run": 0,
+        "seconds": 1.2384404999975231
+      },
+      {
+        "name": "progress-bar",
+        "source_sha256": "9c0354e239dc787cb7089d3a4812cea26fbeeb3bf658a2229eb31691572e6217",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3856372080044821
+      },
+      {
+        "name": "progress-ring",
+        "source_sha256": "9d7a5b5670e651e07f33c97930d22aa953cab753d535cfcbe6fa5c28627c4969",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3330293340040953
+      },
+      {
+        "name": "calendar",
+        "source_sha256": "926ba3f1687d1cffc53258ce289ed500cbfd0f19806e9a7b52cd7fd8472e2711",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3446706670001731
+      },
+      {
+        "name": "date-picker",
+        "source_sha256": "dc551e70d8dc6d49d8a83d4c97a3f1c8c8763dc9332f0abd16e95b3de325e8c1",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3179852920002304
+      },
+      {
+        "name": "time-picker",
+        "source_sha256": "027198496dd50059287a12c3a339d71b30fdf1a09f826bb8a63034fff272da5f",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3240010000008624
+      },
+      {
+        "name": "modern-fields",
+        "source_sha256": "0346c3e32722642249acceaf8e2905835bffe70ada0632bcf31b63d3a8c2eeda",
+        "compile": 0,
+        "run": 0,
+        "seconds": 2.29219920799369
+      },
+      {
+        "name": "modern-buttons",
+        "source_sha256": "ebc7e1c35c2ab9402e4d472899e51a076561d5e3733e77861f3597592b854799",
+        "compile": 0,
+        "run": 0,
+        "seconds": 2.8336865000019316
+      },
+      {
+        "name": "modern-arrows",
+        "source_sha256": "71fc86e26fa32b60cee35abb6410e23008d367739e908b2e2a84737516c60f45",
+        "compile": 0,
+        "run": 0,
+        "seconds": 2.211706166002841
+      },
+      {
+        "name": "modern-toggles",
+        "source_sha256": "1e6112a626c3eec9d8e92b163e35f125995e89cf80ea0981a8970901642016a8",
+        "compile": 0,
+        "run": 0,
+        "seconds": 4.027948250004556
+      },
+      {
+        "name": "modern-borders",
+        "source_sha256": "b489ef2df044efd52f0b0fd1585ed85436e3c460801a3aaa00c3a4d5af5c2875",
+        "compile": 0,
+        "run": 0,
+        "seconds": 2.673751833004644
+      },
+      {
+        "name": "modern-scrollbars",
+        "source_sha256": "b823440856fd0aa798f530e5077555e2a5ff8ea52606a0a8e0b58547212ed0f2",
+        "compile": 0,
+        "run": 0,
+        "seconds": 3.5658708339979057
+      },
+      {
+        "name": "composite-appearance-fonts",
+        "source_sha256": "ced8ccfa518cc1018dcc08c77e8cf4f65a4bb7a8a6fa77a5405b7d1c1402e354",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.9289600000047358
+      },
+      {
+        "name": "cascade-appearance",
+        "source_sha256": "0ef5f282995c3388e5d0e963722091fdc7de13be698e5df1d809d7321b3ed8c6",
+        "compile": 0,
+        "run": 0,
+        "seconds": 17.30093141600082
+      },
+      {
+        "name": "container-appearance",
+        "source_sha256": "ff1e772b3657a339ff0a0143c5339bf520cd81faa6d615ba02bcbd5e5e14b8f6",
+        "compile": 0,
+        "run": 0,
+        "seconds": 3.951989875000436
+      },
+      {
+        "name": "avatar-modern",
+        "source_sha256": "cefd9bebdd0c4281372c0e23825c57813da688f7e7e341c0873c3c0c686ca530",
+        "compile": 0,
+        "run": 0,
+        "seconds": 10.755672125000274
+      },
+      {
+        "name": "breadcrumb-modern",
+        "source_sha256": "4198fdd932c3db794e2e4cbb4b3feab86e0178446c070910c8c51ca5f69e6271",
+        "compile": 0,
+        "run": 0,
+        "seconds": 3.6222783330013044
+      },
+      {
+        "name": "font-selector-modern",
+        "source_sha256": "82bf5da63f67c65c2fbd105fcac7479633c795c188157614499d17b707a3430d",
+        "compile": 0,
+        "run": 0,
+        "seconds": 1.4957974580029259
+      },
+      {
+        "name": "appearance-roles",
+        "source_sha256": "074431b0d352bd0ff5c7c44303dc7861bd996f67efbb95290400e2ab6d1a903c",
+        "compile": 0,
+        "run": 0,
+        "seconds": 1.56871991600201
+      },
+      {
+        "name": "modern-scale",
+        "source_sha256": "4a927a8653318be5874ed21bac5579592ccc0668b5ebb01e9eaef76f32fe08ca",
+        "compile": 0,
+        "run": 0,
+        "seconds": 2.460306833003415
+      },
+      {
+        "name": "modern-light-profile",
+        "source_sha256": "f5f8e06a82468a259fd3410b423c0eb1b43d8aa66eeb37fcda2bce91a3789d1a",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3606439159993897
+      },
+      {
+        "name": "modern-dark-profile",
+        "source_sha256": "5213bae46f2a3808891023e3ca1287d4bad12f4b0ed4416e1a537c4d68774348",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3339757079957053
+      }
+    ],
+    "success": true,
+    "library_sha256": "4ceb46c64c2afdabf5f36ce484beff2590da90c5fd32990ad3d099b7c0acd486"
+  },
+  "callback_stress": [
+    {
+      "case": "scroll-lifetime",
+      "iteration": 0,
+      "exit": 0,
+      "seconds": 1.6237005000002682
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 1,
+      "exit": 0,
+      "seconds": 1.7827512500007288
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 2,
+      "exit": 0,
+      "seconds": 1.2708228750052513
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 3,
+      "exit": 0,
+      "seconds": 1.4227728330006357
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 4,
+      "exit": 0,
+      "seconds": 1.1888020409969613
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 5,
+      "exit": 0,
+      "seconds": 1.74234612500004
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 6,
+      "exit": 0,
+      "seconds": 1.372901291004382
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 7,
+      "exit": 0,
+      "seconds": 1.5277207079998334
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 8,
+      "exit": 0,
+      "seconds": 1.1147497909987578
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 9,
+      "exit": 0,
+      "seconds": 1.3425475830008509
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 10,
+      "exit": 0,
+      "seconds": 1.4187484579961165
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 11,
+      "exit": 0,
+      "seconds": 1.1022062500051106
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 12,
+      "exit": 0,
+      "seconds": 1.2182210000028135
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 13,
+      "exit": 0,
+      "seconds": 1.1240743750022375
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 14,
+      "exit": 0,
+      "seconds": 1.288945332998992
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 15,
+      "exit": 0,
+      "seconds": 1.3829682499999763
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 16,
+      "exit": 0,
+      "seconds": 0.9860836669977289
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 17,
+      "exit": 0,
+      "seconds": 0.9963452919982956
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 18,
+      "exit": 0,
+      "seconds": 0.9345212920015911
+    },
+    {
+      "case": "scroll-lifetime",
+      "iteration": 19,
+      "exit": 0,
+      "seconds": 0.9269427089966484
+    },
+    {
+      "case": "modern-scale",
+      "iteration": 0,
+      "exit": 0,
+      "seconds": 1.920908915999462
+    }
+  ],
+  "actual_xquartz": {
+    "entry_profile_checks": 210,
+    "font_renditions": 32158,
+    "legacy_core_font_findings": 0,
+    "clipped_label_findings": 0,
+    "captures": 554,
+    "library_sha256": "4ceb46c64c2afdabf5f36ce484beff2590da90c5fd32990ad3d099b7c0acd486",
+    "success": true,
+    "desktop_window": {
+      "gallery_pid": 69852,
+      "core_graphics_window_id": 7893,
+      "core_graphics_owner": "XQuartz",
+      "inspected": true,
+      "capture_sha256": "4a95530f1b8a1c8a7a020fa84abfeef2d7c10816929322f1cfb80ffdf12ff0a1"
+    }
+  },
+  "live_transitions": {
+    "count": 376,
+    "components": 94,
+    "receipt_sha256": "249238fcb1f343157975a27be68fa29fc98eccebca0bf9215606128801c33dca",
+    "renderer_library_sha256": "7fb6e0037413b80c30fb9509116f309ee4a912361ae56de7a11dbbaa2101e30e",
+    "note": "Completed on the same rendering changes before the final callback-only teardown correction. Final native interaction and repeated teardown acceptance uses the final library above."
+  },
+  "source_guards": {
+    "toolkit": 247,
+    "gallery": 15,
+    "failed": 0
+  },
+  "demos": {
+    "installed_executables": 34,
+    "startup_tests": 33,
+    "wsm_mwm_integration": true,
+    "build_tree_demos_hidden": true,
+    "asset_count": 222,
+    "results": {
+      "wsm-ui": 0,
+      "--integration-all-demos": 0,
+      "--integration-demos": 0,
+      "missing": 0
+    }
+  },
+  "documentation_captures": {
+    "entries": 105,
+    "manifest_sha256": "d6b86652a02efae58756a5c186536e441783f40e47bb0d52f2c4975d1fc9649a",
+    "note": "Capture manifest preserves exact producing executable/library identities; subsequent callback teardown and audit-selector-label changes do not change component painting."
+  },
+  "limits": [
+    "Visual and native integration audit, not comprehensive macOS clipboard, input-method or accessibility qualification.",
+    "Ten service entries have no standalone visual surface; optional PrintShell is unavailable in this build."
+  ],
+  "evidence": {
+    "build-receipt.json": "45b8960f547920cbe18af2d2e8fcbdd589226ded948264c20481b62cf1793055",
+    "native-release-acceptance/receipt.json": "ff0c8d42918fe6b01ea4c1e7403025be3d954484342362e6f7ff9a57e9ce2568",
+    "callback-installed-final/receipt.json": "19ac469ce91ab08b125371960888e7f8e350aa04d58ed39199adc7932c4024f1",
+    "actual-xquartz-verified/receipt.json": "79e678245d3e8e454d5d2503ecb9d5f5fad58dd8b729d6b62a035b8550a82638",
+    "installed-verified-acceptance/receipt.json": "4265823c36920913e9f41d9548579919207cf0142b0bb00b207c6e3ec4919494",
+    "source-checks-publication.json": "901336ff36c1a2c7454279bd59e4ddb8c48846522bad6b85fefb9f53158119c3",
+    "gallery-source-publication.json": "b16dd7cc8027ae2681eee1801cb042505e147f7688ecac2ea6d1a00129bcb23d"
+  }
+}

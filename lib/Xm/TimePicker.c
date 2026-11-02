@@ -11,6 +11,7 @@
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 
 static Position bounded_position(long long value) {
     if (value < SHRT_MIN) return (Position)SHRT_MIN;
@@ -158,8 +159,10 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     picker->time_picker.gc = XCreateGC(XtDisplay(widget),
                                        DefaultRootWindow(XtDisplay(widget)),
                                        GCForeground | GCBackground, &values);
-    if (!picker->core.width) picker->core.width = 96;
-    if (!picker->core.height) picker->core.height = 28;
+    {Dimension width=96,height=28;
+     (void)_XmAppearancePickerSize(widget,picker->time_picker.render_table,picker->time_picker.format_24_hour?"00:00:00":"00:00:00 AM",&width,&height);
+     if(!request->core.width)picker->core.width=width;
+     if(!request->core.height)picker->core.height=height;}
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
                       NULL);
 }
@@ -217,6 +220,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     int hour = picker->time_picker.value.hour;
     (void)event; (void)region;
     if (!XtIsRealized(widget) || !picker->time_picker.gc) return;
+    Boolean modern=_XmAppearanceDrawPickerFrame(widget,True);
+    XSetForeground(XtDisplay(widget),picker->time_picker.gc,XtIsSensitive(widget)?picker->primitive.foreground:picker->primitive.bottom_shadow_color);
 
     if (picker->time_picker.format_24_hour)
         snprintf(text, sizeof(text), "%02d:%02d:%02d", hour,
@@ -234,10 +239,18 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XmStringExtent(picker->time_picker.render_table, value, &width, &height);
         XmStringDraw(XtDisplay(widget), _XmPaintDrawable(widget),
                      picker->time_picker.render_table, value,
-                     picker->time_picker.gc, bounded_position(6),
+                     picker->time_picker.gc, bounded_position(modern?_XmDpiDefaultDimension(widget,12):6),
                      bounded_position(((long long)picker->core.height - height) / 2), width,
                      XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(picker), NULL);
+    }
+    if(modern&&picker->primitive.highlighted&&value) {
+        const char *prefix=picker->time_picker.field==0?"":picker->time_picker.field==1?"00:":"00:00:";
+        XmString before=XmStringCreateLocalized((char*)prefix),digits=XmStringCreateLocalized("00");Dimension pw=0,ph=0,dw=0,dh=0;
+        XmStringExtent(picker->time_picker.render_table,before,&pw,&ph);XmStringExtent(picker->time_picker.render_table,digits,&dw,&dh);XmStringFree(before);XmStringFree(digits);
+        int y=((int)picker->core.height+height)/2+_XmDpiDefaultDimension(widget,2);
+        XSetForeground(XtDisplay(widget),picker->time_picker.gc,picker->primitive.highlight_color);
+        XFillRectangle(XtDisplay(widget),_XmPaintDrawable(widget),picker->time_picker.gc,_XmDpiDefaultDimension(widget,12)+pw,y,dw,MAX(1,_XmDpiDefaultDimension(widget,1)));
     }
     XmStringFree(value);
 }
@@ -259,19 +272,27 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
 	return;
     if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == ButtonPress) {
-        picker->time_picker.field = (unsigned char)((event->xbutton.x < 34) ? 0 :
-                                      (event->xbutton.x < 66 ? 1 : 2));
-        return;
+        XmAppearanceProfile profile=_XmAppearanceGeometryProfile(XtDisplay(widget));
+        Boolean modern=profile==XmAPPEARANCE_MODERN_LIGHT||profile==XmAPPEARANCE_MODERN_DARK;
+        if(modern&&event->xbutton.x>=(int)picker->core.width-(int)_XmDpiDefaultDimension(widget,36)) {
+            key=event->xbutton.y<(int)picker->core.height/2?XK_Up:XK_Down;
+        } else {
+            int left=34,right=66;
+            if(modern){XmString first=XmStringCreateLocalized("00:"),second=XmStringCreateLocalized("00:00:");Dimension w=0,h=0;XmStringExtent(picker->time_picker.render_table,first,&w,&h);left=_XmDpiDefaultDimension(widget,12)+w;XmStringExtent(picker->time_picker.render_table,second,&w,&h);right=_XmDpiDefaultDimension(widget,12)+w;XmStringFree(first);XmStringFree(second);}
+            picker->time_picker.field=(unsigned char)(event->xbutton.x<left?0:event->xbutton.x<right?1:2);
+            _XmPaintInvalidate(widget);return;
+        }
+    } else {
+        if (event->type != KeyPress) return;
+        XLookupString(&event->xkey,input,sizeof(input),&key,NULL);
     }
-    if (event->type != KeyPress) return;
-    XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
     if (continue_dispatch && (key == XK_Left || key == XK_Right || key == XK_Up ||
         key == XK_Down || key == XK_Return || key == XK_KP_Enter))
         *continue_dispatch = False;
     if (key == XK_Left || key == XK_Right) {
         if (key == XK_Left && picker->time_picker.field) --picker->time_picker.field;
         if (key == XK_Right && picker->time_picker.field < 2) ++picker->time_picker.field;
-        return;
+        _XmPaintInvalidate(widget);return;
     }
     if (key == XK_Return || key == XK_KP_Enter) {
         notify(picker, event, XmNtimePickerActivateCallback, 2);
@@ -292,9 +313,10 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
-    (void)widget; (void)request;
-    reply->request_mode = CWWidth | CWHeight;
-    reply->width = 96; reply->height = 28;
+    XmTimePickerWidget picker=(XmTimePickerWidget)widget;
+    (void)request;reply->request_mode=CWWidth|CWHeight;
+    reply->width=96;reply->height=28;
+    (void)_XmAppearancePickerSize(widget,picker->time_picker.render_table,picker->time_picker.format_24_hour?"00:00:00":"00:00:00 AM",&reply->width,&reply->height);
     return XtGeometryAlmost;
 }
 

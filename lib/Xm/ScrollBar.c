@@ -52,6 +52,7 @@ static char rcsid[] = "$TOG: ScrollBar.c /main/20 1997/03/10 14:52:28 dbl $"
 #include "RepTypeI.h"
 #include "ScreenI.h"
 #include "XmI.h"
+#include "CallbackI.h"
 #include "AppearanceDrawI.h"
 #include <Xm/ScrolledWP.h>
 
@@ -4497,86 +4498,72 @@ ScrollCallback(
    switch (reason) {
 
    case XmCR_VALUE_CHANGED:
-       XtCallCallbackList ((Widget) sbw, sbw->scrollBar.value_changed_callback,
-			   &call_value);
+       (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNvalueChangedCallback, &call_value);
        break;
 
    case XmCR_INCREMENT:
        if  (sbw->scrollBar.increment_callback)
-	   XtCallCallbackList ((Widget) sbw,
-			       sbw->scrollBar.increment_callback, &call_value);
+	   (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNincrementCallback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw,
-				 sbw->scrollBar.value_changed_callback, &call_value);
+	       (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNvalueChangedCallback, &call_value);
 	   }
        break;
 
    case XmCR_DECREMENT:
        if  (sbw->scrollBar.decrement_callback)
-	   XtCallCallbackList ((Widget) sbw,
-			       sbw->scrollBar.decrement_callback, &call_value);
+	   (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNdecrementCallback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw,
-				sbw->scrollBar.value_changed_callback, &call_value);
+	       (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNvalueChangedCallback, &call_value);
 	   }
        break;
 
    case XmCR_PAGE_INCREMENT:
        if  (sbw->scrollBar.page_increment_callback)
-	   XtCallCallbackList ((Widget) sbw,
-			       sbw->scrollBar.page_increment_callback, &call_value);
+	   (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNpageIncrementCallback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw,
-				sbw->scrollBar.value_changed_callback, &call_value);
+	       (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNvalueChangedCallback, &call_value);
 	   }
        break;
 
    case XmCR_PAGE_DECREMENT:
        if  (sbw->scrollBar.page_decrement_callback)
-	   XtCallCallbackList ((Widget) sbw,
-			       sbw->scrollBar.page_decrement_callback, &call_value);
+	   (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNpageDecrementCallback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw,
-				 sbw->scrollBar.value_changed_callback, &call_value);
+	       (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNvalueChangedCallback, &call_value);
 	   }
        break;
 
    case XmCR_TO_TOP:
        if (sbw->scrollBar.to_top_callback)
-	   XtCallCallbackList ((Widget) sbw,
-			       sbw->scrollBar.to_top_callback, &call_value);
+	   (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNtoTopCallback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw,
-				sbw->scrollBar.value_changed_callback, &call_value);
+	       (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNvalueChangedCallback, &call_value);
 	   }
        break;
 
    case XmCR_TO_BOTTOM:
        if (sbw->scrollBar.to_bottom_callback)
-	   XtCallCallbackList ((Widget) sbw,
-			       sbw->scrollBar.to_bottom_callback, &call_value);
+	   (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNtoBottomCallback, &call_value);
        else
 	   {
 	       call_value.reason = XmCR_VALUE_CHANGED;
-	       XtCallCallbackList ((Widget) sbw,
-				 sbw->scrollBar.value_changed_callback, &call_value);
+	       (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNvalueChangedCallback, &call_value);
 	   }
        break;
 
    case XmCR_DRAG:
        if (sbw->scrollBar.drag_callback)
-	   XtCallCallbackList ((Widget) sbw,
-			       sbw->scrollBar.drag_callback, &call_value);
+	   (void)_XmCallCallbacksUntilDestroyed((Widget)sbw, XmNdragCallback, &call_value);
        break;
    }
 }
@@ -4722,7 +4709,7 @@ NavigSetValue(
     }
     /* The callback may destroy the scrollbar and its parent.  Capture all
        widget state before entering user code; do not read sbw again after
-       XtCallCallbackList has returned. */
+       ScrollCallback has returned. */
     if (value_changed)
 	ScrollCallback (sbw, XmCR_VALUE_CHANGED,
 			callback_value, 0, 0, NULL);

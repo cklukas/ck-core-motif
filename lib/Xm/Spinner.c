@@ -13,6 +13,7 @@
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
+#include <Xm/Appearance.h>
 #include "AppearanceDrawI.h"
 #include <Xm/DrawP.h>
 
@@ -189,11 +190,16 @@ static void Destroy(Widget widget) {
 
 static void UpdateGCs(XmSpinnerWidget spinner) {
     Display *display = XtDisplay((Widget)spinner);
+    unsigned char role=XmAPPEARANCE_ROLE_NORMAL;XtVaGetValues((Widget)spinner,XmNappearanceRole,&role,NULL);
     if (spinner->spinner.ring_gc) {
         XSetBackground(display, spinner->spinner.ring_gc,
                        spinner->core.background_pixel);
         XSetForeground(display, spinner->spinner.ring_gc,
-                       spinner->primitive.foreground);
+                       !XtIsSensitive((Widget)spinner) ? spinner->primitive.bottom_shadow_color :
+                       ((_XmAppearanceGeometryProfile(display)==XmAPPEARANCE_MODERN_LIGHT ||
+                         _XmAppearanceGeometryProfile(display)==XmAPPEARANCE_MODERN_DARK) &&
+                        role==XmAPPEARANCE_ROLE_NORMAL && _XmAppearanceOwnsResource((Widget)spinner,XmNforeground) ?
+                        spinner->primitive.highlight_color : spinner->primitive.foreground));
     }
     if (spinner->spinner.text_gc) {
         XSetBackground(display, spinner->spinner.text_gc,

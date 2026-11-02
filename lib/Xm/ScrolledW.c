@@ -1628,8 +1628,9 @@ Widget w )
             n = 0 ;
             XtSetArg(args[n], XmNdropProc, HandleDrop); n++ ;
             XtSetArg(args[n], XmNdragProc, HandleDrag); n++ ;
-            XtSetArg(args[n], XmNnumImportTargets, 1); n++ ;
-            XtSetArg(args[n], XmNimportTargets, w); n++ ;
+            /* Scroll-only sites consume no data. Widget pointers are not X atoms. */
+            XtSetArg(args[n], XmNnumImportTargets, 0); n++ ;
+            XtSetArg(args[n], XmNimportTargets, NULL); n++ ;
             XmDropSiteRegister(w, args, n);
         }
     }
@@ -4100,8 +4101,8 @@ Cardinal *num_args )                              /* unused */
             n = 0 ;
             XtSetArg(s_args[n], XmNdropProc, HandleDrop), n++ ;
             XtSetArg(s_args[n], XmNdragProc, HandleDrag), n++ ;
-            XtSetArg(s_args[n], XmNnumImportTargets, 1), n++ ;
-            XtSetArg(s_args[n], XmNimportTargets, new_w), n++ ;
+            XtSetArg(s_args[n], XmNnumImportTargets, 0), n++ ;
+            XtSetArg(s_args[n], XmNimportTargets, NULL), n++ ;
             assert(n <= XtNumber(s_args));
             if (new_w->swindow.hScrollBar)
                 XmDropSiteRegister((Widget)new_w->swindow.hScrollBar,

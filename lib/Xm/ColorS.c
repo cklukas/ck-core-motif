@@ -463,7 +463,8 @@ Initialize(Widget request, Widget set, ArgList args, Cardinal *num_args)
     Cardinal 			f_num_args;
     Widget			button;
 
-    if (request == NULL || set == NULL || args == NULL || num_args == NULL ||
+    if (request == NULL || set == NULL || num_args == NULL ||
+        (*num_args != 0 && args == NULL) ||
 	!XtIsSubclass(set, xmColorSelectorWidgetClass))
 	return;
 
@@ -611,8 +612,8 @@ SetValues(Widget current, Widget request, Widget set,
     String color_name_copy;
     Boolean rgb_file_changed;
 
-    if (current == NULL || request == NULL || set == NULL || args == NULL ||
-	 num_args == NULL ||
+    if (current == NULL || request == NULL || set == NULL ||
+	 num_args == NULL || (*num_args != 0 && args == NULL) ||
 	 !XtIsSubclass(current, xmColorSelectorWidgetClass) ||
 	 !XtIsSubclass(request, xmColorSelectorWidgetClass) ||
 	 !XtIsSubclass(set, xmColorSelectorWidgetClass))

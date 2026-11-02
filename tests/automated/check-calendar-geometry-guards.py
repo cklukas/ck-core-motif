@@ -10,8 +10,9 @@ redisplay = source[start:end]
 events_start = source.rindex("static void Events(")
 events = source[events_start:source.index("static XtGeometryResult QueryGeometry(", events_start)]
 
-assert "!calendar->calendar.gc || cell_width < 1" in draw
-assert "cell_width > 5 ? cell_width - 5 : 1" in draw
+compact = "".join(draw.split())
+assert "!calendar->calendar.gc||cell_width<1" in compact
+assert "cell_width>5?cell_width-5:1" in compact
 assert "!calendar->calendar.gc" in redisplay
 assert "calendar->core.width < 7" in redisplay
 assert "if (cell_width < 1)" in events

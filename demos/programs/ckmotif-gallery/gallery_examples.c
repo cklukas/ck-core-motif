@@ -503,7 +503,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
     } else if (class == xmProgressBarWidgetClass) {
         /* GALLERY-SOURCE-BEGIN: construction xmProgressBarWidgetClass */
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 360, XmNheight, 40, NULL);
+                                          XmNwidth, 360, NULL);
         XmProgressBarSetRange(example, 0, 100, False);
         XmProgressBarSetValue(example, 68, False);
         /* GALLERY-SOURCE-END */
@@ -695,7 +695,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         /* GALLERY-SOURCE-BEGIN: construction xmCalendarWidgetClass */
         XmCalendarDate date = {2026, 10, 25};
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 300, XmNheight, 220, NULL);
+                                          NULL);
         XmCalendarSetDate(example, &date, False);
         /* GALLERY-SOURCE-END */
     } else if (class == xmMultiListWidgetClass) {
@@ -794,14 +794,14 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         /* GALLERY-SOURCE-BEGIN: construction xmDatePickerWidgetClass */
         XmDatePickerDate date = {2026, 10, 25};
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 260, XmNheight, 44, NULL);
+            NULL);
         XmDatePickerSetDate(example, &date, False);
         /* GALLERY-SOURCE-END */
     } else if (class == xmTimePickerWidgetClass) {
         /* GALLERY-SOURCE-BEGIN: construction xmTimePickerWidgetClass */
         XmTimePickerValue value = {14, 30, 0};
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 260, XmNheight, 44, NULL);
+            NULL);
         XmTimePickerSetValue(example, &value, False);
         /* GALLERY-SOURCE-END */
     } else if (class == xmStatusBarWidgetClass) {

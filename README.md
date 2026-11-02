@@ -23,6 +23,8 @@ configuration commands, typed callback migration and native regression tests.
 The Mac gallery test installation includes the standalone demo applications and
 their runtime resources. Modern dialog action rows use comfortable minimum
 button widths, with compact density and natural-size opt-out support.
+The [modern macOS UI audit](docs/modern-macos-ui-audit.md) covers gallery states,
+Xft font selection, measured controls and theme-transition regressions.
 Native build/runtime qualification and actual macOS desktop, clipboard,
 input-method and accessibility qualification are separate. The
 [Markdown changelog](CHANGES.md) describes this update; `CHANGES` retains the

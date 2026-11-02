@@ -11,6 +11,8 @@
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
+#include <Xm/Appearance.h>
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void BufferedRedisplay(Widget, XEvent *, Region);
@@ -188,6 +190,28 @@ static Boolean set_date_internal(XmCalendarWidget calendar,
     return True;
 }
 
+static Boolean modern_calendar(XmCalendarWidget calendar) {
+    XmAppearanceProfile profile=_XmAppearanceGeometryProfile(XtDisplay((Widget)calendar));
+    return profile==XmAPPEARANCE_MODERN_LIGHT||profile==XmAPPEARANCE_MODERN_DARK;
+}
+static void calendar_metrics(XmCalendarWidget calendar,int *heading,int *week,int *row) {
+    *heading=28;*week=14;*row=22;
+    if(!modern_calendar(calendar))return;
+    XmString sample=XmStringCreateLocalized("Mg");Dimension w=0,h=0;
+    if(sample&&calendar->calendar.render_table)XmStringExtent(calendar->calendar.render_table,sample,&w,&h);XmStringFree(sample);
+    *heading=MAX((int)_XmDpiDefaultDimension((Widget)calendar,36),(int)h+_XmDpiDefaultDimension((Widget)calendar,12));
+    *week=MAX((int)_XmDpiDefaultDimension((Widget)calendar,28),(int)h+_XmDpiDefaultDimension((Widget)calendar,8));
+    *row=MAX((int)_XmDpiDefaultDimension((Widget)calendar,32),(int)h+_XmDpiDefaultDimension((Widget)calendar,12));
+}
+static void calendar_size(XmCalendarWidget calendar,Dimension *width,Dimension *height) {
+    *width=224;*height=192;if(!modern_calendar(calendar))return;
+    int heading,week,row;calendar_metrics(calendar,&heading,&week,&row);
+    XmString sample=XmStringCreateLocalized("30");Dimension w=0,h=0;
+    if(sample&&calendar->calendar.render_table)XmStringExtent(calendar->calendar.render_table,sample,&w,&h);XmStringFree(sample);
+    *width=(Dimension)MIN(USHRT_MAX,MAX((unsigned long)_XmDpiDefaultDimension((Widget)calendar,280),7UL*(w+_XmDpiDefaultDimension((Widget)calendar,16))));
+    *height=(Dimension)MIN(USHRT_MAX,(unsigned long)heading+week+6UL*row);
+}
+
 static void Initialize(Widget request, Widget widget, ArgList args,
                        Cardinal *count) {
     XmCalendarWidget calendar = (XmCalendarWidget)widget;
@@ -215,10 +239,9 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     calendar->calendar.gc = XCreateGC(XtDisplay(widget),
                                       DefaultRootWindow(XtDisplay(widget)),
                                       GCForeground | GCBackground, &values);
-    if (!calendar->core.width)
-        calendar->core.width = 224;
-    if (!calendar->core.height)
-        calendar->core.height = 192;
+    {Dimension width,height;calendar_size(calendar,&width,&height);
+     if(!request->core.width)calendar->core.width=width;
+     if(!request->core.height)calendar->core.height=height;}
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
                       NULL);
 }
@@ -319,23 +342,23 @@ static void draw_text(XmCalendarWidget calendar, const char *text, int x,
     XmStringFree(value);
 }
 
-static void draw_day(XmCalendarWidget calendar, int col, int row, int day,
-                     Boolean enabled, Boolean selected) {
-    Display *display = XtDisplay((Widget)calendar);
-    Drawable window = _XmPaintDrawable((Widget)calendar);
-    int cell_width = (int)calendar->core.width / 7;
-    int x = col * cell_width + 4;
-    if (!calendar->calendar.gc || cell_width < 1)
-        return;
-    int top = 42 + row * 22;
-    char text[12];
-    snprintf(text, sizeof(text), "%2d", day);
-    if (selected)
-        XDrawRectangle(display, window, calendar->calendar.gc, x - 2, top + 1,
-                       (unsigned)(cell_width > 5 ? cell_width - 5 : 1), 20);
-    if (enabled)
-        draw_text(calendar, text, x, top, cell_width - 5, 22,
-                  XmALIGNMENT_BEGINNING);
+static void draw_day(XmCalendarWidget calendar,int col,int row,int day,Boolean enabled,Boolean selected) {
+    Display *display=XtDisplay((Widget)calendar);Drawable window=_XmPaintDrawable((Widget)calendar);
+    int cell_width=(int)calendar->core.width/7;int heading,week,row_height;calendar_metrics(calendar,&heading,&week,&row_height);
+    if(!calendar->calendar.gc||cell_width<1)return;
+    Boolean modern=modern_calendar(calendar);int top=heading+week+row*row_height;
+    int x=col*cell_width+(modern?_XmDpiDefaultDimension((Widget)calendar,2):4);
+    char text[12];snprintf(text,sizeof(text),modern?"%d":"%2d",day);
+    Pixel normal=XtIsSensitive((Widget)calendar)&&enabled?calendar->primitive.foreground:calendar->primitive.bottom_shadow_color;
+    XSetForeground(display,calendar->calendar.gc,normal);
+    if(selected) {
+        if(modern){int pad=_XmDpiDefaultDimension((Widget)calendar,2);Pixel fill=XtIsSensitive((Widget)calendar)?calendar->primitive.highlight_color:calendar->primitive.bottom_shadow_color;
+            XSetForeground(display,calendar->calendar.gc,fill);_XmAppearanceFillRoundedRectangle(display,window,calendar->calendar.gc,x,top+pad,MAX(1,cell_width-2*pad),MAX(1,row_height-2*pad),_XmDpiDefaultDimension((Widget)calendar,4));
+            XSetForeground(display,calendar->calendar.gc,_XmAppearanceTextOnFill((Widget)calendar,fill));
+        } else XDrawRectangle(display,window,calendar->calendar.gc,x-2,top+1,(unsigned)(cell_width>5?cell_width-5:1),20);
+    }
+    if(enabled||modern)draw_text(calendar,text,x,top,MAX(1,cell_width-(modern?2*(int)_XmDpiDefaultDimension((Widget)calendar,2):5)),row_height,modern?XmALIGNMENT_CENTER:XmALIGNMENT_BEGINNING);
+    XSetForeground(display,calendar->calendar.gc,normal);
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
@@ -356,16 +379,22 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         calendar->core.width < 7)
         return;
 
+    XSetForeground(display,calendar->calendar.gc,XtIsSensitive(widget)?calendar->primitive.foreground:calendar->primitive.bottom_shadow_color);
+    int heading_height,week_height,row_height;calendar_metrics(calendar,&heading_height,&week_height,&row_height);
     snprintf(heading, sizeof(heading), "%s %d", month_name(calendar->calendar.visible_month),
              calendar->calendar.visible_year);
-    draw_text(calendar, heading, 6, 0, (int)calendar->core.width - 12, 28,
-              XmALIGNMENT_BEGINNING);
+    Boolean modern=modern_calendar(calendar);
+    int navigation=modern?_XmDpiDefaultDimension(widget,72):0;
+    draw_text(calendar,heading,6,0,MAX(1,(int)calendar->core.width-12-navigation),heading_height,XmALIGNMENT_BEGINNING);
+    if(modern){int edge=_XmDpiDefaultDimension(widget,12),slot=_XmDpiDefaultDimension(widget,32),stroke=MAX(1,_XmDpiDefaultDimension(widget,1));
+        for(int i=0;i<2;i++)_XmAppearanceDrawChevron(display,window,calendar->calendar.gc,(int)calendar->core.width-navigation+i*slot+(slot-edge)/2,(heading_height-edge)/2,edge,edge,stroke,i?XmARROW_RIGHT:XmARROW_LEFT);}
+
     for (index = 0; index < 7; ++index) {
         int col = calendar->calendar.rtl ? 6 - index : index;
         int weekday = (calendar->calendar.week_start + index) % 7;
         draw_text(calendar, weekdays[weekday],
-                  col * ((int)calendar->core.width / 7) + 5, 28,
-                  (int)calendar->core.width / 7 - 5, 14,
+                  col * ((int)calendar->core.width / 7) + 5, heading_height,
+                  (int)calendar->core.width / 7 - 5, week_height,
                   XmALIGNMENT_BEGINNING);
     }
     for (day = 1; day <= days; ++day) {
@@ -460,15 +489,23 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
         set_date_internal(calendar, &candidate, True, event);
         return;
     }
-    if (event->type != ButtonPress || event->xbutton.y < 40)
-        return;
+    int heading_height,week_height,row_height;calendar_metrics(calendar,&heading_height,&week_height,&row_height);
+    Boolean modern=modern_calendar(calendar);
+    int grid_top=modern?heading_height+week_height:40;
+    if(modern&&event->type==ButtonPress&&event->xbutton.y<heading_height&&event->xbutton.x>=(int)calendar->core.width-(int)_XmDpiDefaultDimension(widget,72)) {
+        int delta=event->xbutton.x<(int)calendar->core.width-(int)_XmDpiDefaultDimension(widget,40)?-1:1;
+        int month=calendar->calendar.visible_month+delta,year=calendar->calendar.visible_year;
+        if(month<1){month=12;--year;}if(month>12){month=1;++year;}
+        (void)set_visible_month_internal(calendar,year,month,event);return;
+    }
+    if(event->type!=ButtonPress||event->xbutton.y<grid_top)return;
     {
         int cell_width = (int)calendar->core.width / 7;
         if (cell_width < 1)
             return;
         col = event->xbutton.x / cell_width;
     }
-    row = (event->xbutton.y - 40) / 22;
+    row = (event->xbutton.y-grid_top)/row_height;
     if (col < 0 || col > 6 || row < 0 || row > 5)
         return;
     if (calendar->calendar.rtl)
@@ -492,8 +529,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended,
                                       XtWidgetGeometry *preferred) {
     (void)widget; (void)intended;
     preferred->request_mode = CWWidth | CWHeight;
-    preferred->width = 224;
-    preferred->height = 192;
+    calendar_size((XmCalendarWidget)widget,&preferred->width,&preferred->height);
     return XtGeometryAlmost;
 }
 

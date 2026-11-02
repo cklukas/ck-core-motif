@@ -7,7 +7,7 @@ header/content/footer children and performs normal Xt geometry negotiation.
 
 `XmNformSectionHeader` and `XmNformSectionFooter` are copied `XmString`
 values.  Margin and spacing resources are explicit and scale through normal
-Motif dimension conversion.  A missing footer remains unmapped, and narrow
+Motif dimension conversion.  A missing or semantically empty (`XmStringEmpty`) footer remains unmapped, and narrow
 widths clamp child geometry without changing content ownership or managed
 states.  The section has no form-data model, validation behavior, focus trap,
 or implicit overlay.
@@ -41,7 +41,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/FormSection.h)
 

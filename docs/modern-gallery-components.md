@@ -32,7 +32,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ButtonBox.h)
 
@@ -60,7 +60,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/BulletinB.h)
 
@@ -88,7 +88,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L931-L940
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L968-L977
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Column.h)
 
@@ -116,7 +116,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L944-L960
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L981-L997
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Container.h)
 
@@ -217,7 +217,7 @@ Actual gallery factory for xmDragOverShellWidgetClass.
 The gallery host supplies the function arguments.
 Helpers are defined in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1129-L1140
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1166-L1177
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DragOverS.h)
 
@@ -245,7 +245,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L758
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L787-L791
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DrawnB.h)
 
@@ -273,7 +273,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Form.h)
 
@@ -301,7 +301,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Frame.h)
 
@@ -354,7 +354,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/MainW.h)
 
@@ -407,7 +407,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L626-L636
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L659-L669
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TreeView.h)
 
@@ -435,7 +435,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L355-L357
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L371-L373
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Divider.h)
 
@@ -463,7 +463,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/FormSection.h)
 
@@ -491,7 +491,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L806-L825
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L839-L858
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/RowActions.h)
 
@@ -519,7 +519,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L776-L781
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L809-L814
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/StatusBar.h)
 
@@ -547,7 +547,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L595-L622
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L618-L655
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Toolbar.h)
 
@@ -575,7 +575,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L785-L802
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L818-L835
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Sidebar.h)
 
@@ -603,7 +603,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L882-L900
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L919-L937
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Notebook.h)
 
@@ -631,7 +631,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/PanedW.h)
 
@@ -659,7 +659,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Paned.h)
 
@@ -710,7 +710,7 @@ Actual gallery factory for xmPrintShellWidgetClass.
 The gallery host supplies the function arguments.
 Helpers are defined in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1144-L1165
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1200-L1258
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Print.h)
 
@@ -738,7 +738,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/RowColumn.h)
 
@@ -791,7 +791,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L969-L1010
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1006-L1047
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ScrolledW.h)
 
@@ -819,7 +819,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L862-L870
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L899-L907
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SelectioB.h)
 
@@ -847,7 +847,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L874-L878
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L911-L915
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SeparatoG.h)
 
@@ -875,7 +875,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L874-L878
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L911-L915
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Separator.h)
 
@@ -903,7 +903,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L706-L717
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L739-L750
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TabBox.h)
 
@@ -931,7 +931,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L561-L591
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L584-L614
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TabStack.h)
 
@@ -961,7 +961,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1029-L1032
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1066-L1069
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ColorS.h)
 
@@ -989,7 +989,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L529-L532
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L552-L555
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/InfoBar.h)
 
@@ -1017,7 +1017,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L334-L337
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L350-L353
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Chip.h)
 
@@ -1045,7 +1045,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L341-L344
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L357-L360
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Badge.h)
 
@@ -1073,7 +1073,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L361-L363
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L377-L379
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Avatar.h)
 
@@ -1101,7 +1101,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L380-L382
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L396-L398
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/EmptyState.h)
 
@@ -1129,7 +1129,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1036-L1037
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1073-L1074
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Skeleton.h)
 
@@ -1157,11 +1157,11 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L319-L326
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L335-L342
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L471-L473
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L494-L496
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1071-L1074
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1108-L1111
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/NumberBox.h)
 
@@ -1189,7 +1189,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L482-L485
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L505-L508
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ProgressBar.h)
 
@@ -1217,7 +1217,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L489-L491
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L512-L514
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ProgressRing.h)
 
@@ -1247,7 +1247,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L692-L702
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L725-L735
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ComboBox2.h)
 
@@ -1275,7 +1275,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L785-L802
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L818-L835
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Disclosure.h)
 
@@ -1303,7 +1303,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L404-L416
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L420-L439
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/CascadeB.h)
 
@@ -1331,7 +1331,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L404-L416
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L420-L439
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/CascadeBG.h)
 
@@ -1359,7 +1359,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L453-L460
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L476-L483
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ComboBox.h)
 
@@ -1387,7 +1387,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L862-L870
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L899-L907
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Command.h)
 
@@ -1413,7 +1413,7 @@ Actual gallery factory for xmDialogShellWidgetClass.
 The gallery host supplies the function arguments.
 Helpers are defined in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1144-L1165
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1200-L1258
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DialogS.h)
 
@@ -1441,7 +1441,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L904-L908
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L941-L945
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/FileSB.h)
 
@@ -1467,7 +1467,7 @@ Actual gallery factory for xmGrabShellWidgetClass.
 The gallery host supplies the function arguments.
 Helpers are defined in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1144-L1165
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1200-L1258
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/GrabShell.h)
 
@@ -1493,7 +1493,7 @@ Actual gallery factory for xmMenuShellWidgetClass.
 The gallery host supplies the function arguments.
 Helpers are defined in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1144-L1165
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1200-L1258
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/MenuShell.h)
 
@@ -1521,7 +1521,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L856-L858
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L893-L895
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/MessageB.h)
 
@@ -1549,7 +1549,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L829-L844
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L862-L881
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Flyout.h)
 
@@ -1577,7 +1577,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L829-L844
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L862-L881
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TeachingTip.h)
 
@@ -1605,7 +1605,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L511-L519
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L534-L542
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/BreadcrumbBar.h)
 
@@ -1633,7 +1633,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L367-L370
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L383-L386
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Link.h)
 
@@ -1661,7 +1661,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L536-L540
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L559-L563
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Toast.h)
 
@@ -1689,7 +1689,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L806-L825
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L839-L858
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/CommandPalette.h)
 
@@ -1719,7 +1719,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1029-L1032
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1066-L1069
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/FontS.h)
 
@@ -1747,11 +1747,11 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L319-L326
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L335-L342
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L436-L438
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L459-L461
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1071-L1074
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1108-L1111
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DataF.h)
 
@@ -1779,7 +1779,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L423-L425
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L446-L448
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Label.h)
 
@@ -1807,7 +1807,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L423-L425
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L446-L448
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/LabelG.h)
 
@@ -1835,7 +1835,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L348-L351
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L364-L367
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconLabel.h)
 
@@ -1863,7 +1863,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L912-L915
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L949-L952
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SearchBox.h)
 
@@ -1891,7 +1891,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L374-L376
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L390-L392
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Prompt.h)
 
@@ -1919,9 +1919,9 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L279-L307
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L295-L323
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L523-L525
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L546-L548
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/AutoSuggestBox.h)
 
@@ -1949,11 +1949,11 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L319-L326
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L335-L342
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L436-L438
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L459-L461
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1071-L1074
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1108-L1111
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Text.h)
 
@@ -1981,11 +1981,11 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L319-L326
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L335-L342
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L436-L438
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L459-L461
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1071-L1074
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1108-L1111
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TextF.h)
 
@@ -2040,7 +2040,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L670-L688
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L703-L721
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Ext18List.h)
 
@@ -2068,7 +2068,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L670-L688
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L703-L721
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/MultiList.h)
 
@@ -2096,7 +2096,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L739-L749
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L772-L782
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconBox.h)
 
@@ -2124,7 +2124,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L721-L735
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L768
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Outline.h)
 
@@ -2152,7 +2152,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L721-L735
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L768
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Tree.h)
 
@@ -2180,7 +2180,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L663-L666
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L696-L699
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Calendar.h)
 
@@ -2208,7 +2208,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L762-L765
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L795-L798
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DatePicker.h)
 
@@ -2236,7 +2236,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L769-L772
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L802-L805
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/TimePicker.h)
 
@@ -2264,7 +2264,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L640-L659
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L673-L692
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DataGrid.h)
 
@@ -2294,7 +2294,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L430-L431
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L453-L454
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ArrowB.h)
 
@@ -2322,7 +2322,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L430-L431
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L453-L454
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ArrowBG.h)
 
@@ -2350,7 +2350,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L758
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L787-L791
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconButton.h)
 
@@ -2378,7 +2378,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L442-L449
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L465-L472
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/List.h)
 
@@ -2406,7 +2406,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L506-L507
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L529-L530
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ColorPicker.h)
 
@@ -2432,7 +2432,7 @@ Actual gallery factory for xmSegmentedControlWidgetClass.
 The gallery host supplies the function arguments.
 Helpers are defined in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1085-L1114
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1122-L1151
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SegmentedControl.h)
 
@@ -2460,7 +2460,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L477-L478
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L500-L501
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/RatingControl.h)
 
@@ -2488,9 +2488,9 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L423-L425
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L446-L448
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1042-L1068
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1079-L1105
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/PushB.h)
 
@@ -2518,9 +2518,9 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L423-L425
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L446-L448
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1042-L1068
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1079-L1105
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/PushBG.h)
 
@@ -2548,7 +2548,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L919-L927
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L956-L964
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SSpinB.h)
 
@@ -2576,7 +2576,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L464-L467
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L487-L490
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Scale.h)
 
@@ -2604,7 +2604,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L495-L496
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L518-L519
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Spinner.h)
 
@@ -2632,7 +2632,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L500-L502
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L523-L525
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/Stepper.h)
 
@@ -2660,7 +2660,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L464-L467
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L487-L490
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ScrollBar.h)
 
@@ -2688,7 +2688,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L919-L927
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L956-L964
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SpinB.h)
 
@@ -2716,9 +2716,9 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L396-L400
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L412-L416
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1042-L1068
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1079-L1105
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ToggleB.h)
 
@@ -2746,7 +2746,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L386-L391
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L402-L407
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ToggleSwitch.h)
 
@@ -2774,9 +2774,9 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L396-L400
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L412-L416
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1042-L1068
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1079-L1105
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/ToggleBG.h)
 
@@ -2806,7 +2806,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1014-L1025
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1051-L1062
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DrawingA.h)
 
@@ -2884,7 +2884,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L758
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L787-L791
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconG.h)
 
@@ -2912,7 +2912,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L754-L758
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L787-L791
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/IconH.h)
 
@@ -2940,7 +2940,7 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L848-L852
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L885-L889
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/DropHighlight.h)
 

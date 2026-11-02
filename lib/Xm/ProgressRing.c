@@ -13,6 +13,7 @@
 #include <Xm/XmP.h>
 #include "PrimitiveI.h"
 #include "XmI.h"
+#include <Xm/Appearance.h>
 #include "AppearanceDrawI.h"
 #include <Xm/DrawP.h>
 
@@ -120,6 +121,7 @@ static Position bounded_position(long long value) {
 
 static void UpdateGCs(XmProgressRingWidget ring) {
     Display *display = XtDisplay((Widget)ring);
+    unsigned char role=XmAPPEARANCE_ROLE_NORMAL;XtVaGetValues((Widget)ring,XmNappearanceRole,&role,NULL);
     if (ring->progress_ring.track_gc) {
         XSetBackground(display, ring->progress_ring.track_gc,
                        ring->core.background_pixel);
@@ -130,7 +132,11 @@ static void UpdateGCs(XmProgressRingWidget ring) {
         XSetBackground(display, ring->progress_ring.fill_gc,
                        ring->core.background_pixel);
         XSetForeground(display, ring->progress_ring.fill_gc,
-                       ring->primitive.foreground);
+                       !XtIsSensitive((Widget)ring) ? ring->primitive.bottom_shadow_color :
+                       ((_XmAppearanceGeometryProfile(display)==XmAPPEARANCE_MODERN_LIGHT ||
+                         _XmAppearanceGeometryProfile(display)==XmAPPEARANCE_MODERN_DARK) &&
+                        role==XmAPPEARANCE_ROLE_NORMAL && _XmAppearanceOwnsResource((Widget)ring,XmNforeground) ?
+                        ring->primitive.highlight_color : ring->primitive.foreground));
     }
     if (ring->progress_ring.text_gc) {
         XSetBackground(display, ring->progress_ring.text_gc,

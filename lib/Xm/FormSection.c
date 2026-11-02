@@ -72,7 +72,7 @@ static void preferred(Widget child, Dimension *width, Dimension *height) {
     *height = wanted.request_mode & CWHeight ? wanted.height : child->core.height;
 }
 static Boolean footer_visible(XmFormSectionWidget section) {
-    return section->section.footer_text && XmStringLength(section->section.footer_text) != 0;
+    return section->section.footer_text && !XmStringEmpty(section->section.footer_text);
 }
 static void natural(XmFormSectionWidget section, Dimension *width, Dimension *height) {
     Dimension hw, hh, fw = 0, fh = 0, cw, ch;

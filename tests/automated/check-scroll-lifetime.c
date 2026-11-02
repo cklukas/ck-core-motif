@@ -78,7 +78,7 @@ int main(int argc, char **argv)
         display = XtDisplay(shell);
         scroll = XtVaCreateManagedWidget("scroll", xmScrolledWindowWidgetClass,
                     shell, XmNscrollingPolicy, XmAUTOMATIC,
-                    XmNautoDragModel, XmAUTO_DRAG_ENABLED, NULL);
+                    XmNautoDragModel, scenario % 2 ? XmAUTO_DRAG_DISABLED : XmAUTO_DRAG_ENABLED, NULL);
         XtVaCreateManagedWidget("canvas", xmDrawingAreaWidgetClass, scroll,
                     XmNwidth, 1000, XmNheight, 1000, NULL);
         XtRealizeWidget(shell);
@@ -86,6 +86,18 @@ int main(int argc, char **argv)
         CHECK(scrollbar != NULL);
         XtVaGetValues(scroll, XmNhorizontalScrollBar, &horizontal, NULL);
         CHECK(horizontal != NULL);
+        if (scenario % 2)
+            XtVaSetValues(scroll, XmNautoDragModel, XmAUTO_DRAG_ENABLED, NULL);
+        Widget bars[] = {horizontal, scrollbar};
+        for (unsigned i = 0; i < 2; ++i) {
+            Atom *targets = (Atom *)1;
+            Cardinal count = 1;
+            Arg resources[2];
+            XtSetArg(resources[0], XmNimportTargets, &targets);
+            XtSetArg(resources[1], XmNnumImportTargets, &count);
+            XmDropSiteRetrieve(bars[i], resources, 2);
+            CHECK(count == 0 && targets == NULL);
+        }
         frame = (XmScrollFrameTrait)XmeTraitGet((XtPointer)XtClass(scroll), XmQTscrollFrame);
         CHECK(frame != NULL);
         /* Notify the active vertical navigator first. A callback destroying

@@ -32,6 +32,7 @@
 #include <Xm/NotebookP.h>
 #include <Xm/SegmentedControl.h>
 #include <Xm/FontS.h>
+#include <Xm/InfoBar.h>
 #include <Xm/DropDown.h>
 #include <Xm/ScrollBarP.h>
 #include <Xm/Scale.h>
@@ -109,6 +110,12 @@ static const char modern_light_resources[] =
     "*shadowThickness: 1\n"
     "*armColor: #dbeafe\n"
     "*selectColor: #dbeafe\n"
+    "*XmLink.foreground: #1967d2\n"
+    "*XmDataField.background: #ffffff\n"
+    "*XmDatePicker.background: #ffffff\n"
+    "*XmCalendar.background: #ffffff\n"
+    "*XmTimePicker.background: #ffffff\n"
+    "*XmProgressBar.bottomShadowColor: #dfe3e7\n"
     "*XmLabel.traversalOn: False\n"
     "*XmLabel.highlightThickness: 0\n"
     "*XmLabelGadget.traversalOn: False\n"
@@ -228,6 +235,12 @@ static const char modern_dark_resources[] =
     "*insensitiveForeground: #9aa0a6\n"
     "*XmToggleButton.bottomShadowColor: #9aa0a6\n"
     "*XmToggleButtonGadget.bottomShadowColor: #9aa0a6\n"
+    "*XmLink.foreground: #8ab4f8\n"
+    "*XmDataField.background: #202124\n"
+    "*XmDatePicker.background: #303134\n"
+    "*XmCalendar.background: #303134\n"
+    "*XmTimePicker.background: #303134\n"
+    "*XmProgressBar.bottomShadowColor: #3c4043\n"
     "*XmLabel.traversalOn: False\n"
     "*XmLabel.highlightThickness: 0\n"
     "*XmLabelGadget.traversalOn: False\n"
@@ -364,6 +377,7 @@ static const AppearanceDensityResource density_resources[] = {
     {"*XmFormSection.formSectionMarginHeight", 12, 8},
     {"*XmFormSection.formSectionSpacing", 8, 6},
     {"*XmAvatar.avatarSize", 48, 40},
+    {"*XmProgressBar.spacing", 8, 6},
     {"*XmDivider.dividerSpacing", 8, 6},
     {"*XmNumberBox.spacing", 4, 2},
     {"*XmStepper.spacing", 4, 2},
@@ -701,6 +715,14 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
     unsigned char role = appearance_role(widget);
     if (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) {
         Boolean dark = profile == XmAPPEARANCE_MODERN_DARK;
+        if (role == XmAPPEARANCE_ROLE_NORMAL && XmIsInfoBar(widget) && (property == AP_FOREGROUND || property == AP_BACKGROUND)) {
+            unsigned char severity;XtVaGetValues(widget,XmNinfoSeverity,&severity,NULL);
+            if(property == AP_BACKGROUND)
+                return severity == XmINFO_SEVERITY_ERROR ? (dark?"#5c292d":"#fce8e6") :
+                    severity == XmINFO_SEVERITY_WARNING ? (dark?"#4b3b17":"#fef7e0") : (dark?"#253b57":"#e8f0fe");
+            return severity == XmINFO_SEVERITY_ERROR ? (dark?"#f6c7c3":"#a50e0e") :
+                severity == XmINFO_SEVERITY_WARNING ? (dark?"#fdd663":"#754c00") : (dark?"#d3e3fd":"#174ea6");
+        }
         if (property == AP_ALIGNMENT &&
             (XmIsToggleButton(widget) || XmIsToggleButtonGadget(widget))) {
             unsigned char indicator;
@@ -1927,7 +1949,8 @@ appearance_changed(Widget hooks, XtPointer closure, XtPointer data)
             Boolean foreground_changed =
                 appearance_has_argument(values->args, values->num_args, XmNforeground) &&
                 appearance_has_foreground_dependents(state->widget);
-            if (foreground_changed || appearance_has_argument(values->args, values->num_args, XmNappearanceRole) ||
+            Boolean severity_changed = XmIsInfoBar(state->widget) && appearance_has_argument(values->args,values->num_args,XmNinfoSeverity);
+            if (severity_changed || foreground_changed || appearance_has_argument(values->args, values->num_args, XmNappearanceRole) ||
                 ((XmIsToggleButton(state->widget) || XmIsToggleButtonGadget(state->widget)) &&
                  appearance_has_argument(values->args, values->num_args, XmNindicatorOn))) {
                 XmAppearanceProfile profile;
@@ -1935,7 +1958,7 @@ appearance_changed(Widget hooks, XtPointer closure, XtPointer data)
                 Boolean role_argument = appearance_has_argument(values->args, values->num_args,
                                                                  XmNappearanceRole);
                 if (role_argument) state->explicit_role = True;
-                if ((foreground_changed || appearance_has_argument(values->args,values->num_args,XmNindicatorOn) ||
+                if ((severity_changed || foreground_changed || appearance_has_argument(values->args,values->num_args,XmNindicatorOn) ||
                      state->applied_role != appearance_role(state->widget)) &&
                     XmGetAppearanceProfile(state->display, &profile) &&
                     XmGetAppearanceDensity(state->display, &density) &&

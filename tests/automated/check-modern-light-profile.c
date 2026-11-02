@@ -169,7 +169,7 @@ main(int argc, char **argv)
 
     XtVaGetValues(button, XmNhighlightThickness, &highlight,
                   XmNmarginWidth, &margin, NULL);
-    if (highlight != 1 || margin != 12 ||
+    if (highlight != 2 || margin != 12 ||
         !widget_pixel_matches(button, "#ffffff") ||
         !widget_pixel_matches(toggle, "#fff4cc")) {
         fprintf(stderr, "button metrics or explicit color precedence failed\n");
@@ -183,8 +183,8 @@ main(int argc, char **argv)
         goto done;
     }
     XtVaGetValues(notebook, XmNframeShadowThickness, &frame_shadow, NULL);
-    if (frame_shadow != 0) {
-        fprintf(stderr, "modern-light notebook frame remained multi-edge\n");
+    if (frame_shadow != 1) {
+        fprintf(stderr, "modern-light notebook frame thickness differs from flat profile\n");
         goto done;
     }
 

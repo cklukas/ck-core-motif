@@ -56,6 +56,7 @@
 #include "SyntheticI.h"
 #include "TravActI.h"
 #include "XmI.h"
+#include "AppearanceDrawI.h"
 #include "XmTabListI.h"
 #include "XmosI.h"
 #include "IconGI.h"
@@ -2379,7 +2380,9 @@ Redisplay(
 			 &shad_points[0]) ;
 	/* only draw the polygon shadow if there is no mask
 	   and an existing pixmap */
-	if (n == 2) {
+	if (n == 2 && !_XmAppearanceDrawFrameRegion(wid,
+            shad_points[0].x,shad_points[0].y,
+            shad_points[1].x-shad_points[0].x,shad_points[1].y-shad_points[0].y,ist)) {
 	    XmeDrawShadows(XtDisplay(wid),XtWindow(wid),
 			   IG_TopShadowGC(wid), IG_BottomShadowGC(wid),
 			   shad_points[0].x,  shad_points[0].y,
@@ -2387,7 +2390,9 @@ Redisplay(
 			   shad_points[1].y - shad_points[0].y, 
 			   ist, XmSHADOW_OUT);
 	}
-	else if (n == 8) {
+	else if (n == 8 && !_XmAppearanceDrawFrameRegion(wid,
+            ig->rectangle.x+ht,ig->rectangle.y+ht,
+            ig->rectangle.width-2*ht,ig->rectangle.height-2*ht,ist)) {
 	    XmeDrawPolygonShadow (XtDisplay(wid),XtWindow(wid),
 				  IG_TopShadowGC(wid), IG_BottomShadowGC(wid),
 				  shad_points, n, ist, XmSHADOW_OUT);

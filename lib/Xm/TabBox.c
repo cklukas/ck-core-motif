@@ -201,7 +201,7 @@ static int CalcGeometryMajor _ARGS((XmTabBoxWidget, int));
 static void CallCallbacks _ARGS((XmTabBoxWidget, XEvent*, int, int));
 
 #ifdef FIX_1381
-static void SetRightGC(XmTabBoxWidget tab, GC gc, GC_type);
+static void SetRightGC(XmTabBoxWidget tab, GC gc, GC_type, Pixel);
 #endif
 static void DrawVerticalTab _ARGS((XmTabBoxWidget, XmTabAttributes, GC,
 				   _XiBoolean, int, int, int, _XiBoolean, int,
@@ -5792,39 +5792,15 @@ CallCallbacks(XmTabBoxWidget tab, XEvent *event, int from, int to)
 }
 #ifdef FIX_1381
 static void
-SetRightGC(XmTabBoxWidget tab, GC gc, GC_type gc_type)
+SetRightGC(XmTabBoxWidget tab, GC gc, GC_type gc_type, Pixel foreground)
 {
-    XGCValues       values;
-    XtGCMask        valueMask;
-    static Pixel 	p = 0;
-    static GC_type 	last = normal;
-    valueMask = GCForeground;
-    values.foreground = 0;
-    switch( gc_type )
-      {
-        case normal:
-          if (last !=normal)
-            {
-              values.foreground = p;
-                XChangeGC(XtDisplay(tab),gc, valueMask, &values);
-            }
-          last = normal;
-          break;
-        case insensitive:
-          if (last == normal) p=values.foreground;
-            values.foreground = tab->manager.bottom_shadow_color;
-            XChangeGC(XtDisplay(tab),gc, valueMask, &values);
-            last = insensitive;
-          break;
-        case shadow:
-          if (last == normal) p=values.foreground;
-            values.foreground = tab->manager.top_shadow_color;
-            XChangeGC(XtDisplay(tab),gc, valueMask, &values);
-            last = shadow;
-          break;
-        default:
-          break;
-      }
+    /* No process-wide saved color: another tab or a disabled paint must not
+     * change the next tab's text color. The caller supplies its own color. */
+    XGCValues values;
+    values.foreground = gc_type == shadow ? tab->manager.top_shadow_color :
+                        gc_type == insensitive ? tab->manager.bottom_shadow_color :
+                        foreground;
+    XChangeGC(XtDisplay(tab), gc, GCForeground, &values);
 }
 #endif
 
@@ -6059,13 +6035,13 @@ DrawLeftToRightTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	    SetStippledGC(XtDisplay(tab), gc, XmTabBox__gray_stipple(tab));
 #else
 	  /*Draw shadow for insensitive text*/
-	  SetRightGC(tab, gc, shadow);
+	  SetRightGC(tab, gc, shadow, info->foreground == XmCOLOR_DYNAMIC ? tab->manager.foreground : info->foreground);
 	  XmStringDraw(XtDisplay(tab), XiCanvas(tab), font_list,
 		info->label_string, gc, bounded_position((long long)draw.x + 1),
 		bounded_position((long long)y + 1), draw.width,
 		info->label_alignment, info->string_direction,
 		NULL);
-	  SetRightGC(tab, gc, insensitive);
+	  SetRightGC(tab, gc, insensitive, info->foreground == XmCOLOR_DYNAMIC ? tab->manager.foreground : info->foreground);
 #endif
 	}
 	else
@@ -6073,7 +6049,7 @@ DrawLeftToRightTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 #ifndef FIX_1381
 	    RemoveStipple(XtDisplay(tab), gc);
 #else
-	  SetRightGC(tab, gc, normal);
+	  SetRightGC(tab, gc, normal, info->foreground == XmCOLOR_DYNAMIC ? tab->manager.foreground : info->foreground);
 #endif
 	}
         /* Xft uses the XmString clip rectangle, not the core X GC clip.
@@ -6445,11 +6421,11 @@ DrawRightToLeftTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 			  XmTabBox__gray_stipple(tab));
 #else
 	  /*Draw shadow for insensitive text*/
-	  SetRightGC(tab, XmTabBox__one_GC(tab), shadow);
+	  SetRightGC(tab, XmTabBox__one_GC(tab), shadow, 1);
 	  XmStringDraw(XtDisplay(tab), bitmap, font_list, info->label_string,
 	  XmTabBox__one_GC(tab), -1, -1, (Dimension)label_width,
 	  info->label_alignment, info->string_direction, NULL);
-	  SetRightGC(tab, XmTabBox__one_GC(tab), insensitive);
+	  SetRightGC(tab, XmTabBox__one_GC(tab), insensitive, 1);
 #endif
 	}
 	else
@@ -6457,7 +6433,7 @@ DrawRightToLeftTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 #ifndef FIX_1381
 	    RemoveStipple(XtDisplay(tab), XmTabBox__one_GC(tab));
 #else
-	  SetRightGC(tab, XmTabBox__one_GC(tab), normal);
+	  SetRightGC(tab, XmTabBox__one_GC(tab), normal, 1);
 #endif
 	}
 	XmStringDraw(XtDisplay(tab), bitmap, font_list, info->label_string,
@@ -7066,11 +7042,11 @@ DrawVerticalTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	  {
 	    x=-1; y=1;
 	  }
-	  SetRightGC(tab, XmTabBox__one_GC(tab), shadow);
+	  SetRightGC(tab, XmTabBox__one_GC(tab), shadow, 1);
 	  XmStringDraw(XtDisplay(tab), bitmap, font_list, info->label_string,
 	  		XmTabBox__one_GC(tab), x, y, (Dimension)label_width,
 			info->label_alignment, info->string_direction, NULL);
-	  SetRightGC(tab, XmTabBox__one_GC(tab), insensitive);
+	  SetRightGC(tab, XmTabBox__one_GC(tab), insensitive, 1);
 #endif
 	}
 	else
@@ -7078,7 +7054,7 @@ DrawVerticalTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 #ifndef FIX_1381
 	    RemoveStipple(XtDisplay(tab), XmTabBox__one_GC(tab));
 #else
-	  SetRightGC(tab, XmTabBox__one_GC(tab), normal);
+	  SetRightGC(tab, XmTabBox__one_GC(tab), normal, 1);
 #endif
 	}
 	XmStringDraw(XtDisplay(tab), bitmap, font_list, info->label_string,

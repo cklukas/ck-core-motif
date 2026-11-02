@@ -244,19 +244,35 @@ _XmCallCallbacksUntilDestroyed(Widget w, String resource, XtPointer data)
   XtCallbackList callbacks = NULL;
   XtCallbackRec *snapshot;
   Cardinal count = 0;
+  const Cardinal maximum = UINT_MAX / sizeof(*snapshot);
   Boolean destroyed = False, alive;
+  if (w == NULL || resource == NULL)
+    return False;
   _XmWidgetToAppContext(w);
   _XmAppLock(app);
   XtVaGetValues(w, resource, &callbacks, NULL);
-  if (callbacks)
-    while (callbacks[count].callback) ++count;
+  if (callbacks) {
+    while (callbacks[count].callback) {
+      if (count == maximum) {
+        alive = !((Object)w)->object.being_destroyed;
+        _XmAppUnlock(app);
+        return alive;
+      }
+      ++count;
+    }
+  }
   if (count == 0) {
     alive = !((Object)w)->object.being_destroyed;
     _XmAppUnlock(app);
     return alive;
   }
-  snapshot = (XtCallbackRec *)XtMalloc(count * sizeof(*snapshot));
-  memcpy(snapshot, callbacks, count * sizeof(*snapshot));
+  snapshot = (XtCallbackRec *)XtMalloc((Cardinal)((size_t)count * sizeof(*snapshot)));
+  if (snapshot == NULL) {
+    alive = !((Object)w)->object.being_destroyed;
+    _XmAppUnlock(app);
+    return alive;
+  }
+  memcpy(snapshot, callbacks, (size_t)count * sizeof(*snapshot));
   XtAddCallback(w, XmNdestroyCallback, CallbackDestroyed, &destroyed);
   for (Cardinal i = 0; i < count; ++i) {
     if (destroyed || ((Object)w)->object.being_destroyed) break;

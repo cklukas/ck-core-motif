@@ -46,7 +46,8 @@ static void focus_face(Widget w) {
             CHECK(XGetPixel(im,x,y)==XGetPixel(im,im->width-1-x,y));
             CHECK(XGetPixel(im,x,y)==XGetPixel(im,x,im->height-1-y));
         }
-    /* Every focus pixel must belong to one 8-connected outline. Symmetry
+    /* Rounded corners extend inside the rectangular highlight band.
+     * Every focus pixel, including those corner arcs, must belong to one 8-connected outline. Symmetry
      * alone also accepts four disconnected, identically clipped sides. */
     {
         size_t total = (size_t)im->width * im->height, count = 0, reached = 0;
@@ -54,8 +55,7 @@ static void focus_face(Widget w) {
         size_t *queue = malloc(total * sizeof(*queue));
         CHECK(seen && queue);
         for (int y = 0; y < im->height; ++y) for (int x = 0; x < im->width; ++x)
-            if ((x < highlight || y < highlight || x >= im->width-highlight || y >= im->height-highlight) &&
-                XGetPixel(im,x,y) == accent) {
+            if (XGetPixel(im,x,y) == accent) {
                 if (!count) { queue[0] = (size_t)y*im->width+x; seen[queue[0]] = 1; reached = 1; }
                 ++count;
             }
@@ -65,7 +65,7 @@ static void focus_face(Widget w) {
                 int nx = x+dx, ny = y+dy;
                 if (nx < 0 || ny < 0 || nx >= im->width || ny >= im->height) continue;
                 size_t index = (size_t)ny*im->width+nx;
-                if (!seen[index] && (nx < highlight || ny < highlight || nx >= im->width-highlight || ny >= im->height-highlight) &&
+                if (!seen[index] &&
                     XGetPixel(im,nx,ny) == accent) { seen[index] = 1; queue[reached++] = index; }
             }
         }

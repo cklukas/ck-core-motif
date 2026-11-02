@@ -64,8 +64,8 @@ int main(int argc,char**argv){XtAppContext app;Display*d;unsigned cases=0;const 
    selectors[0]=XtVaCreateWidget("colorSelector",xmColorSelectorWidgetClass,board,NULL);
    selectors[1]=XtVaCreateWidget("fontSelector",xmFontSelectorWidgetClass,board,NULL);
    preserved[0]=XtNameToWidget(selectors[0],"*radioBox");
-   preserved[1]=XtNameToWidget(selectors[1],"*encodingOptionMenu");
-   for(unsigned i=0;i<2;++i){CHECK(preserved[i]);XtVaSetValues(preserved[i],XmNbottomShadowColor,WhitePixelOfScreen(XtScreen(board)),NULL);}
+   preserved[1]=XtNameToWidget(selectors[1],"*optionButton");
+   for(unsigned i=0;i<2;++i){if(!preserved[i])fprintf(stderr,"missing selector child %u in %s\n",i,XtName(selectors[i]));CHECK(preserved[i]);XtVaSetValues(preserved[i],XmNbottomShadowColor,WhitePixelOfScreen(XtScreen(board)),NULL);}
   }
   {
    Widget icon=XtVaCreateWidget("icon",xmIconGadgetClass,board,NULL);

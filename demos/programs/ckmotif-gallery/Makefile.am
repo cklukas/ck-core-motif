@@ -4,7 +4,7 @@ PYTHON = @PYTHON@
 bin_PROGRAMS = ckmotif-gallery
 AM_CFLAGS = -Wall -Wextra -Werror
 
-ckmotif_gallery_SOURCES = gallery.c gallery_examples.c demo_launch.c demo_launch.h gallery_demos.h gallery_manifest.h gallery_sources.h
+ckmotif_gallery_SOURCES = gallery_audit.h gallery.c gallery_examples.c demo_launch.c demo_launch.h gallery_demos.h gallery_manifest.h gallery_sources.h
 BUILT_SOURCES = gallery_manifest.h gallery_sources.h gallery_provenance.json
 CLEANFILES = $(BUILT_SOURCES)
 ckmotif_gallery_DEPENDENCIES = $(BUILT_SOURCES)

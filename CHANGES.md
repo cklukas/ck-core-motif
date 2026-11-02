@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-02 — Modern macOS UI audit
+
+- Complete measured date/time/calendar controls, readable progress text, Xft
+  DataField text, status/link colors, flat frames and disabled-to-normal tab
+  contrast; preserve explicit application styling and classic appearance.
+- Honor disjoint compound-string clips, preserving progress-text contrast.
+- Make automatic scrolling and callback teardown safe when notifications remove
+  navigators or immediately destroy their owning frame.
+- Add whole-gallery light/dark state captures, font/clipping inventory and native
+  regressions. See [Modern macOS UI audit](docs/modern-macos-ui-audit.md).
+
 ## 2026-11-02 — CDE WSM MWM-window lookup
 
 - Use CDE's declared `_DtGetMwmWindow` helper for optional WSM startup rather
