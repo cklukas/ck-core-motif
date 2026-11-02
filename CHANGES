@@ -1,3 +1,9 @@
+Clean up failed Mrm compound-string vectors (2026-11-02)
+========================================================
+
+- Release already-converted vector entries when a later malformed entry fails
+  compound-string conversion; see `docs/mrm-cstring-vector-cleanup.md`.
+
 Reject failed Mrm compound-string conversions (2026-11-02)
 =========================================================
 

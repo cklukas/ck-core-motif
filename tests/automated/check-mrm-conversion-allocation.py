@@ -35,4 +35,12 @@ assert "cstg = XmCvtByteStreamToXmString((unsigned char *)*val);" in cstring
 assert "if (cstg == NULL)" in cstring
 assert cstring.index("if (cstg == NULL)") < cstring.index("*val = (long)cstg;")
 
+vector_start = text.index("case MrmRtypeChar8Vector:")
+vector_end = text.index("case MrmRtypeWideCharacter:", vector_start)
+vector = text[vector_start:vector_end]
+assert "XmString converted = XmCvtByteStreamToXmString(" in vector
+assert "if (converted == NULL)" in vector
+assert "while (--fixndx >= 0)" in vector
+assert "XmStringFree((XmString)vecptr->item[fixndx].pointer);" in vector
+
 print("Mrm conversion allocation failures are handled")

@@ -2083,10 +2083,18 @@ Urm__CW_FixupValue (long			val,
 	  if (reptype == MrmRtypeChar8Vector)
 	    vecptr->item[fixndx].pointer = (XtPointer)
 	      ((char *)bufptr+vecptr->item[fixndx].text_item.offset) ;
-	  else 
-	    vecptr->item[fixndx].pointer = (XtPointer)
-	      XmCvtByteStreamToXmString((unsigned char *)bufptr +
-					vecptr->item[fixndx].text_item.offset);
+	  else
+	    {
+	      XmString converted = XmCvtByteStreamToXmString(
+		(unsigned char *)bufptr + vecptr->item[fixndx].text_item.offset);
+	      if (converted == NULL)
+		{
+		  while (--fixndx >= 0)
+		    XmStringFree((XmString)vecptr->item[fixndx].pointer);
+		  return MrmFAILURE;
+		}
+	      vecptr->item[fixndx].pointer = (XtPointer)converted;
+	    }
 	}
       *swap_needed = FALSE;
       break ;
