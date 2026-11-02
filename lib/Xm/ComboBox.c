@@ -77,6 +77,14 @@
 #define NOSETKIDS	_XmMMsgComboBox_0013
 #define MODEWARNING	_XmMMsgComboBox_0014
 
+static Position
+bounded_position(long long value)
+{
+  if (value < SHRT_MIN) return (Position)SHRT_MIN;
+  if (value > SHRT_MAX) return (Position)SHRT_MAX;
+  return (Position)value;
+}
+
 #define default_translations	_XmComboBox_defaultTranslations
 
 #define	LIST_CHILD_NAME		"List"
@@ -1834,15 +1842,17 @@ CBDropDownList(Widget    widget,
 	  Arg args[3];
 	  Cardinal n;
 	  int tmp;
-	  Position root_x, root_y, shell_x, shell_y;
+	  Position root_x, root_y;
+	  int shell_x, shell_y;
 	  Dimension shell_width;
 
 	  XtTranslateCoords((Widget)cb, XtX(cb), XtY(cb), &root_x, &root_y);
 	
-	  shell_x = root_x - XtX(cb) + CB_HighlightThickness(cb) -
-	    XtBorderWidth(CB_ListShell(cb)); 
-	  shell_y = root_y + XtHeight(cb) - CB_HighlightThickness(cb) -
-	    XtY(cb); 
+	  shell_x = (int)root_x - (int)XtX(cb) +
+	    (int)CB_HighlightThickness(cb) -
+	    (int)XtBorderWidth(CB_ListShell(cb));
+	  shell_y = (int)root_y + (int)XtHeight(cb) -
+	    (int)CB_HighlightThickness(cb) - (int)XtY(cb);
 	
 	  /* Try to position the shell on the screen. */
 	  tmp = WidthOfScreen(XtScreen(cb)) - XtWidth(CB_ListShell(cb));
@@ -1857,8 +1867,8 @@ CBDropDownList(Widget    widget,
 	      XtWidth(cb) - 2 * CB_HighlightThickness(cb) : 1;
 
 	  n = 0;
-	  XtSetArg(args[n], XmNx, shell_x), n++;
-	  XtSetArg(args[n], XmNy, shell_y), n++;
+	  XtSetArg(args[n], XmNx, bounded_position(shell_x)), n++;
+	  XtSetArg(args[n], XmNy, bounded_position(shell_y)), n++;
 	  XtSetArg(args[n], XmNwidth, shell_width), n++;
 	  assert(n <= XtNumber(args));
 	  XtSetValues(CB_ListShell(cb), args, n);
