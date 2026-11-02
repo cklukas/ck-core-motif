@@ -1,3 +1,9 @@
+Clamp DropDown child-layout boundaries (2026-11-02)
+====================================================
+
+- Keep child placement origins and width-split arithmetic wide until the
+  legacy `Position`/`Dimension` configuration boundary.
+
 Bound DropDown modern frame drawing geometry (2026-11-02)
 ==========================================================
 

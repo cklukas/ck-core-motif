@@ -1670,6 +1670,9 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
     Dimension text_width = 0, label_width = 0, label_bw = 0;
     Dimension shadow;
     int label_x, arrow_x, text_x;
+    int child_y, label_y;
+    XmAppearanceProfile profile;
+    Boolean modern;
     XtWidgetGeometry arrow_geom, label_geom, text_geom;
     Widget label = NULL;
     Widget text = XmDropDown_text(cbw);
@@ -1736,7 +1739,6 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 	text_geom.border_width = 0;
     }
 
-    XmDropDown_text_x(cbw) = text_x;
     if ( XmDropDown_new_visual_style(cbw) ) 
     {
 	shadow        = cbw->manager.shadow_thickness;
@@ -1759,13 +1761,18 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 	shadow = 0;
     }
 
-    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplay(w));
-    Boolean modern = profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK;
+    XmDropDown_text_x(cbw) = dropdown_bounded_position(text_x);
+    child_y = (int)XmDropDown_v_space(cbw) + shadow;
+    profile = _XmAppearanceGeometryProfile(XtDisplay(w));
+    modern = profile == XmAPPEARANCE_MODERN_LIGHT ||
+        profile == XmAPPEARANCE_MODERN_DARK;
+    label_y = (int)XmDropDown_v_space(cbw) + (modern ? shadow : 0);
+
     /* Use the same inner top edge for both members of a modern labeled row. */
     if (XmDropDown_show_label(cbw) && label != NULL)
     {
-	_XmConfigureWidget(label, label_x, /* XmDropDown_h_space(cbw), */
-			   XmDropDown_v_space(cbw) + (modern ? shadow : 0),
+	_XmConfigureWidget(label, dropdown_bounded_position(label_x),
+		   dropdown_bounded_position(label_y),
 			   label_width, 
 			   DropDownChildSpan(child_height, label_geom.border_width),
 			   label_geom.border_width);
@@ -1774,12 +1781,13 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
     if (text != NULL) {
         Dimension available = DropDownChildSpan(child_height, text_geom.border_width);
         Dimension text_height = available;
-        int text_y = XmDropDown_v_space(cbw) + shadow;
+        int text_y = child_y;
         if (modern && text_geom.height && text_geom.height < text_height) {
             text_height = text_geom.height;
             text_y += (available-text_height)/2;
         }
-        _XmConfigureWidget(text, text_x, text_y, text_width, text_height,
+        _XmConfigureWidget(text, dropdown_bounded_position(text_x),
+                           dropdown_bounded_position(text_y), text_width, text_height,
                            text_geom.border_width);
         /* Labels center their text in a stretched row; TextField anchors its
          * baseline to its top margin. Align actual baselines while keeping the
@@ -1794,15 +1802,17 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
                 int top = XmDropDown_v_space(cbw) + shadow;
                 int bottom = top + available - text_height;
                 text_y = MAX(top,MIN(bottom,desired));
-                _XmConfigureWidget(text,text_x,text_y,text_width,text_height,text_geom.border_width);
+                _XmConfigureWidget(text, dropdown_bounded_position(text_x),
+                                   dropdown_bounded_position(text_y), text_width,
+                                   text_height, text_geom.border_width);
             }
             XtFree((char*)label_bases);XtFree((char*)text_bases);
         }
     }
 
     if (arrow != NULL)
-	_XmConfigureWidget(arrow, arrow_x,
-		       XmDropDown_v_space(cbw) + shadow,
+	_XmConfigureWidget(arrow, dropdown_bounded_position(arrow_x),
+		       dropdown_bounded_position(child_y),
 		       arrow_geom.width, 
 		       DropDownChildSpan(child_height, arrow_geom.border_width),
 		       arrow_geom.border_width);
@@ -1847,7 +1857,8 @@ GetTextAndLabelWidth(Widget w, Dimension combo_width, Dimension arrow_width,
 
     if (text_and_label >= (long long)(*text_width + *label_width))
     {
-	*text_width = text_and_label - *label_width;
+	*text_width = dropdown_bounded_dimension(
+	    (unsigned long)(text_and_label - *label_width));
     }
     /*
      * We need to shrink each a bit. 
