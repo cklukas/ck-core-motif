@@ -85,6 +85,13 @@ bounded_position(long long value)
   return (Position)value;
 }
 
+static Dimension
+bounded_dimension(unsigned long value)
+{
+  if (value > USHRT_MAX) return (Dimension)USHRT_MAX;
+  return (Dimension)(value ? value : 1);
+}
+
 #define default_translations	_XmComboBox_defaultTranslations
 
 #define	LIST_CHILD_NAME		"List"
@@ -2840,10 +2847,10 @@ ComputeSize(Widget w,
 	    Dimension *width,
 	    Dimension *height)
 {
-  Dimension cbWidth, cbHeight;
   Dimension thickW, thickH;
   XmComboBoxWidget cb = (XmComboBoxWidget)w;
   int textWidth, textHeight;
+  unsigned long cbWidth, cbHeight;
 
   /* Size of ComboBox
    *	width  = (text width) + [arrow space & width] + (surrounding space)
@@ -2865,8 +2872,12 @@ ComputeSize(Widget w,
     }
   cb->combo_box.ideal_ebwidth = textWidth;
   cb->combo_box.ideal_ebheight = textHeight;
-  cbWidth = textWidth + 2 * (thickW + XtBorderWidth(CB_EditBox(cb)));
-  cbHeight = textHeight + 2 * (thickH + XtBorderWidth(CB_EditBox(cb)));
+  cbWidth = (unsigned long)(textWidth > 0 ? textWidth : 1) +
+      2UL * ((unsigned long)thickW +
+             (unsigned long)XtBorderWidth(CB_EditBox(cb)));
+  cbHeight = (unsigned long)(textHeight > 0 ? textHeight : 1) +
+      2UL * ((unsigned long)thickH +
+             (unsigned long)XtBorderWidth(CB_EditBox(cb)));
 
   /* Adjust dimensions taking optional children into account. */
   if (CB_Type(cb) == XmCOMBO_BOX)
@@ -2874,24 +2885,27 @@ ComputeSize(Widget w,
       /* For a COMBO_BOX add in the height of the list. */
       XtWidgetGeometry pref;
       (void) XtQueryGeometry(CB_ScrolledW(cb), NULL, &pref);
-      cbHeight += (pref.height + 2 * XtBorderWidth(CB_ScrolledW(cb)));
+      cbHeight += (unsigned long)pref.height +
+          2UL * (unsigned long)XtBorderWidth(CB_ScrolledW(cb));
     }
   else
     {
       /* For other types consider the arrow dimensions. */
       if (CB_ArrowSize(cb) == XmINVALID_DIMENSION)
-	CB_ArrowSize(cb) = (int) ((float) textHeight * DEFAULT_ARROW_SCALING);
+	CB_ArrowSize(cb) = GetDefaultArrowSize((Widget)cb);
 
-      cbWidth += CB_ArrowSize(cb) + CB_ArrowSpacing(cb);
+      cbWidth += (unsigned long)CB_ArrowSize(cb) +
+          (unsigned long)CB_ArrowSpacing(cb);
       if (CB_ArrowSize(cb) > textHeight)
-	cbHeight += (CB_ArrowSize(cb) - textHeight);
+	cbHeight += (unsigned long)CB_ArrowSize(cb) -
+            (unsigned long)(textHeight > 0 ? textHeight : 0);
     }
 
   /* Preserve existing sizes. */
   if (! *width)
-    *width = MAX(cbWidth, 1);
+    *width = bounded_dimension(cbWidth);
   if (! *height)
-    *height = MAX(cbHeight, 1);
+    *height = bounded_dimension(cbHeight);
 }
 
 /*
@@ -2930,7 +2944,8 @@ GetDefaultArrowSize(Widget w)
   if (!cb->combo_box.ideal_ebheight)
     GetIdealTextSize((Widget)cb, NULL, &cb->combo_box.ideal_ebheight);
 
-  return((int) ((float) cb->combo_box.ideal_ebheight * DEFAULT_ARROW_SCALING));
+  return bounded_dimension((unsigned long)
+      ((double)cb->combo_box.ideal_ebheight * DEFAULT_ARROW_SCALING));
 }
 
 /*
