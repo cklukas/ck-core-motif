@@ -1,3 +1,10 @@
+Keep Scale locale decimal lengths wide (2026-11-02)
+======================================================
+
+- Retain the locale decimal separator length as `size_t` while validating
+  value-formatting storage, so the existing buffer guard cannot be bypassed
+  by a narrowed length.
+
 Saturate Scale metric geometry (2026-11-02)
 ============================================
 

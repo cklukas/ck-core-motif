@@ -2895,7 +2895,8 @@ GetValueString(
         String buffer,
         size_t buffer_size)
 {
-    int diff, dec_point_size, formatted;
+    int diff, formatted;
+    size_t dec_point_size;
     struct lconv *loc_values;
 
     if (buffer == NULL || buffer_size == 0)
@@ -2913,14 +2914,13 @@ GetValueString(
       loc_values = localeconv();
       dec_point_size = strlen(loc_values->decimal_point);
 
-      if (dec_point_size < 0 ||
-	  (size_t)formatted + (size_t)dec_point_size >= buffer_size)
+      if ((size_t)formatted + dec_point_size >= buffer_size)
 	  return;
 
       memmove(buffer + diff + dec_point_size, buffer + diff,
 	      (size_t)(formatted - diff) + 1);
       memcpy(buffer + diff, loc_values->decimal_point,
-	     (size_t)dec_point_size);
+	     dec_point_size);
 
     } else
       (void)snprintf(buffer, buffer_size, "%d", value);
@@ -3008,6 +3008,12 @@ ShowValue(
     
     GetValueString(sw, sw->scale.value, buffer, sizeof(buffer));
 
+#if !USE_XFT
+    /* buffer is the fixed 256-byte array above, so this Xlib int length is
+     * representable after GetValueString has terminated it. */
+    int buffer_length = (int)strlen(buffer);
+#endif
+
     /*  Calculate the x, y, width, and height of the string to display  */
     
 #if USE_XFT
@@ -3017,7 +3023,7 @@ ShowValue(
     sw->scale.show_value_width = width;
     sw->scale.show_value_height = height;
 #else
-    XTextExtents (sw->scale.font_struct, buffer, strlen(buffer),
+    XTextExtents (sw->scale.font_struct, buffer, buffer_length,
 		  &direction, &height, &descent, &width_return);
     width = width_return.rbearing - width_return.lbearing;
     sw->scale.show_value_width = width;
@@ -3131,7 +3137,7 @@ ShowValue(
 	}
     } else {
 	XDrawImageString(XtDisplay(sw), XtWindow(sw),
-			 sw->scale.foreground_GC, x, y, buffer, strlen(buffer));
+			 sw->scale.foreground_GC, x, y, buffer, buffer_length);
     }
 #endif
 }
