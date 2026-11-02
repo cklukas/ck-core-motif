@@ -1,3 +1,9 @@
+Saturate PushButton default-frame geometry (2026-11-02)
+=========================================================
+
+- Keep widget and gadget default-frame reservations, margins, text origins,
+  and resulting sizes within Motif's legacy geometry boundaries.
+
 Bound Label wide-character conversion storage (2026-11-02)
 ===========================================================
 

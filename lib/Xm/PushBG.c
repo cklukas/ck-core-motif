@@ -30,6 +30,7 @@ static char rcsid[] = "$TOG: PushBG.c /main/29 1999/05/27 14:18:33 mgreess $"
 #endif
 
 #include <stdio.h>
+#include <limits.h>
 #include <stdint.h>
 #include <string.h>
 #include <X11/IntrinsicP.h>
@@ -64,6 +65,22 @@ static char rcsid[] = "$TOG: PushBG.c /main/29 1999/05/27 14:18:33 mgreess $"
 
 #define DELAY_DEFAULT		100
 #define XmINVALID_MULTICLICK	255
+
+static Dimension
+PushButtonGadgetBoundedDimension(long long value, Dimension minimum)
+{
+  if (value < minimum) return minimum;
+  if (value > USHRT_MAX) return (Dimension)USHRT_MAX;
+  return (Dimension)value;
+}
+
+static Position
+PushButtonGadgetBoundedPosition(long long value)
+{
+  if (value < SHRT_MIN) return (Position)SHRT_MIN;
+  if (value > SHRT_MAX) return (Position)SHRT_MAX;
+  return (Position)value;
+}
 
 
 /********    Static Function Declarations    ********/
@@ -2008,19 +2025,29 @@ Initialize(
       increase =  2 * new_w->pushbutton.default_geometry +
 	new_w->gadget.shadow_thickness + adjustment;
       
-      new_w->pushbutton.default_reservation = increase;
+      new_w->pushbutton.default_reservation =
+	PushButtonGadgetBoundedDimension(increase, 0);
+      increase = new_w->pushbutton.default_reservation;
       /* Add the increase to the rectangle to compensate for extra space */
       if (increase != 0)
 	{
-	  LabG_MarginLeft(new_w) += increase;
-	  LabG_MarginRight(new_w) += increase;
-	  LabG_TextRect_x(new_w) += increase;
-	  new_w->rectangle.width += (increase  << 1);
+	  LabG_MarginLeft(new_w) = PushButtonGadgetBoundedDimension(
+	      (long long)LabG_MarginLeft(new_w) + increase, 0);
+	  LabG_MarginRight(new_w) = PushButtonGadgetBoundedDimension(
+	      (long long)LabG_MarginRight(new_w) + increase, 0);
+	  LabG_TextRect_x(new_w) = PushButtonGadgetBoundedPosition(
+	      (long long)LabG_TextRect_x(new_w) + increase);
+	  new_w->rectangle.width = PushButtonGadgetBoundedDimension(
+	      (long long)new_w->rectangle.width + 2 * (long long)increase, 1);
 	  
-	  LabG_MarginTop(new_w)   += increase;
-	  LabG_MarginBottom(new_w) += increase;
-	  LabG_TextRect_y(new_w) += increase;
-	  new_w->rectangle.height += (increase  << 1);
+	  LabG_MarginTop(new_w) = PushButtonGadgetBoundedDimension(
+	      (long long)LabG_MarginTop(new_w) + increase, 0);
+	  LabG_MarginBottom(new_w) = PushButtonGadgetBoundedDimension(
+	      (long long)LabG_MarginBottom(new_w) + increase, 0);
+	  LabG_TextRect_y(new_w) = PushButtonGadgetBoundedPosition(
+	      (long long)LabG_TextRect_y(new_w) + increase);
+	  new_w->rectangle.height = PushButtonGadgetBoundedDimension(
+	      (long long)new_w->rectangle.height + 2 * (long long)increase, 1);
 	}
     }
   
@@ -2451,14 +2478,21 @@ SetValues(
     if (new_w->pushbutton.default_geometry)
       new_w->gadget.highlight_thickness += Xm3D_ENHANCE_PIXEL;
     new_w->pushbutton.default_reservation = new_w->pushbutton.default_geometry ?
-      2 * new_w->pushbutton.default_geometry + new_w->gadget.shadow_thickness + Xm3D_ENHANCE_PIXEL : 0;
+	PushButtonGadgetBoundedDimension(
+	    2 * (long long)new_w->pushbutton.default_geometry +
+	    new_w->gadget.shadow_thickness + Xm3D_ENHANCE_PIXEL, 0) : 0;
     for (unsigned i=0; i<4; ++i) {
       int prior = specified[i] ? 0 : old_reservation;
       delta[i] = (int)new_w->pushbutton.default_reservation - prior;
-      *margins[i] = (Dimension)MAX(0, (int)*margins[i] + delta[i]);
+      *margins[i] = PushButtonGadgetBoundedDimension(
+	  (long long)*margins[i] + delta[i], 0);
     }
-    if (!specified[5]) new_w->rectangle.width = (Dimension)MAX(1,(int)new_w->rectangle.width+delta[0]+delta[1]);
-    if (!specified[6]) new_w->rectangle.height = (Dimension)MAX(1,(int)new_w->rectangle.height+delta[2]+delta[3]);
+    if (!specified[5]) new_w->rectangle.width =
+	PushButtonGadgetBoundedDimension((long long)new_w->rectangle.width +
+	    delta[0] + delta[1], 1);
+    if (!specified[6]) new_w->rectangle.height =
+	PushButtonGadgetBoundedDimension((long long)new_w->rectangle.height +
+	    delta[2] + delta[3], 1);
     if (old_reservation != new_w->pushbutton.default_reservation) {
       /* Fixed allocations still need the label positioned for the new frame. */
       Resize(nw);
