@@ -6,4 +6,6 @@ start = text.index("PropMwmInfo *GetMwmInfo")
 body = text[start:text.index("/* END OF FUNCTION GetMwmInfo", start)]
 assert "actual_format == 32" in body
 assert "nitems == PROP_MWM_INFO_ELEMENTS" in body
-print("GetMwmInfo validates property format and length")
+assert "leftover == 0" in body
+assert "property != NULL" in body
+print("GetMwmInfo validates complete property payloads")

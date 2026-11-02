@@ -6,4 +6,6 @@ start = text.index("PropWMState *\nGetWMState")
 body = text[start:text.index("/* END OF FUNCTION GetWMState", start)]
 assert "actual_format == 32" in body
 assert "nitems == PROP_WM_STATE_ELEMENTS" in body
-print("GetWMState validates property format and length")
+assert "leftover == 0" in body
+assert "property != NULL" in body
+print("GetWMState validates complete property payloads")

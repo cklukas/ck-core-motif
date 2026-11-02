@@ -1,3 +1,9 @@
+Require complete fixed-size MWM property reads (2026-11-02)
+===========================================================
+
+- Reject truncated or null `WM_STATE` and `_MOTIF_WM_INFO` payloads rather
+  than accepting a prefix with the expected item count.
+
 Release MWM parent-query child lists by pointer (2026-11-02)
 ===========================================================
 

@@ -638,6 +638,7 @@ GetWMState(
     if (!((ret_val == Success) && (actual_type == wmGD.xa_WM_STATE) &&
          (actual_format == 32) &&
          (nitems == PROP_WM_STATE_ELEMENTS) &&
+	 (leftover == 0) &&
          (property != NULL)))
     {
         /*
@@ -834,7 +835,9 @@ PropMwmInfo *GetMwmInfo (Window rootWindowOfScreen)
 
     if ((ret_val == Success) && (actual_type == wmGD.xa_MWM_INFO) &&
         (actual_format == 32) &&
-        (nitems == PROP_MWM_INFO_ELEMENTS))
+        (nitems == PROP_MWM_INFO_ELEMENTS) &&
+	(leftover == 0) &&
+	(property != NULL))
     {
 	return (property);			/* indicate success */
     }
