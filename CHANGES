@@ -1933,6 +1933,14 @@ Use horizontal margins consistently in ToggleButtonGadget (2026-10-30)
   margin changes, three profiles, three scales and both text directions.
 - Let gallery ToggleButton widgets and gadgets use their natural dimensions.
 
+Report current InfoBar geometry to Xt parents (2026-11-02)
+
+- Make `XmInfoBar` geometry queries return the widget's current allocation
+  through `XmeReplyToQueryGeometry`, rather than always advertising the
+  initial 360x34 default after an application changes its size.
+- Add native and focused source regressions, documented in
+  `docs/infobar-query-geometry.md`.
+
 Use application-colormap colors for ToggleSwitch contrast (2026-10-30)
 
 - Select the on-state thumb from the widget's existing foreground, background
