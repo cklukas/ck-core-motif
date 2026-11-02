@@ -17,6 +17,8 @@ hero:
       theme: brand
     - text: Explore the APIs
       link: components.md
+    - text: View CK Core CDE
+      link: https://cklukas.github.io/ck-core-cde/
     - text: View CK Core Apps
       link: https://cklukas.github.io/ck-core-apps/
 features:
@@ -36,6 +38,10 @@ features:
     title: Maintained and validated
     details: Focused regressions, native integration checks and documented qualification evidence.
     link: status.md
+  - icon: ":desktop_computer:"
+    title: CK Core CDE
+    details: See the maintained Common Desktop Environment built and tested with CK Core Motif.
+    link: https://cklukas.github.io/ck-core-cde/
   - icon: ":desktop_computer:"
     title: CK Core Apps
     details: See the native desktop applications built on CK Core Motif and integrated with CK Core CDE.
