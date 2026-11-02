@@ -1546,6 +1546,7 @@ EXTRA_DIST += tests/automated/check-virtual-binding-converter-bounds.py docs/vir
 EXTRA_DIST += tests/automated/check-virtual-key-result-bounds.py docs/virtual-key-result-bounds.md
 EXTRA_DIST += tests/automated/check-virtual-binding-property-length.py docs/virtual-binding-property-length.md
 EXTRA_DIST += tests/automated/check-virtual-binding-converter-inputs.py docs/virtual-binding-converter-inputs.md
+EXTRA_DIST += tests/automated/check-virtual-binding-fallback-inputs.py docs/virtual-binding-fallback-inputs.md
 EXTRA_DIST += tests/automated/check-mwm-identity-inputs.py
 
 EXTRA_DIST += tests/automated/check-avatar-modern.c \

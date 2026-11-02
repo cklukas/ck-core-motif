@@ -1138,6 +1138,9 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
   char *bindDir;
   static XmConst char xmbinddir_fallback[] = XMBINDDIR_FALLBACK;
   Atom atoms[XtNumber(atom_names)];
+
+  if (display == NULL || binding == NULL)
+    return 0;
   
   *binding = NULL;
   

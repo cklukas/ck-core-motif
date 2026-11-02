@@ -1,3 +1,10 @@
+Validate virtual-key fallback loader inputs before use (2026-11-02)
+=================================================================
+
+- Reject null display and output-pointer inputs before fallback virtual-key
+  binding lookup clears output or interns X11 atoms; see
+  `docs/virtual-binding-fallback-inputs.md`.
+
 Validate virtual-key converter inputs before use (2026-11-02)
 ===========================================================
 
