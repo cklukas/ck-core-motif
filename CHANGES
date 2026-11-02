@@ -1,3 +1,11 @@
+Avoid traversal crashes for top-level-shell children (2026-11-02)
+=================================================================
+
+- Translate realized top-level shell windows to their root with Xlib rather
+  than calling `XtTranslateCoords` on an unparented shell.  Preserve requested
+  root-relative geometry if the window cannot be translated.  Cover the actual
+  focus traversal path as well as root-shell, child-widget and gadget geometry.
+
 Correct CDE WSM session-manager endpoint lookup (2026-11-02)
 ============================================================
 
