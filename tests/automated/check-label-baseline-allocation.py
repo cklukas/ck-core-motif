@@ -17,7 +17,10 @@ assert "count > (Cardinal)INT_MAX" in region
 assert "(size_t)count >= SIZE_MAX / sizeof(*new_baselines)" in region
 assert "(size_t)count >= (size_t)UINT_MAX / sizeof(*new_baselines)" in region
 assert "(size_t)count >= (size_t)UINT_MAX / sizeof(Dimension)" in region
-assert "((size_t)count + 1) * sizeof(*new_baselines)" in region
+assert "cache_bytes = (Cardinal)(((size_t)count + 1) *" in region
+assert "result_bytes = (Cardinal)((size_t)count * sizeof(Dimension));" in region
+assert "label_line_count = XmStringLineCount(lw->label._label);" in region
+assert "if (label_line_count < 0)" in region
 assert "Cardinal tmp;" in region
 
 print("PASS Label baseline allocation checks")

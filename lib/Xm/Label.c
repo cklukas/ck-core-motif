@@ -2694,8 +2694,16 @@ XmLabelGetBaselines(Widget wid,
 {
   XmLabelWidget lw = (XmLabelWidget)wid;
   Cardinal count;
+  Cardinal cache_bytes;
+  Cardinal result_bytes;
+  int label_line_count;
   int delta;
-  
+
+  /* The baseline trait is callable through generic geometry code.  Match
+   * LabelGadget's contract before reading widget state or publishing output. */
+  if (wid == NULL || baselines == NULL || line_count == NULL)
+    return False;
+
   if (Lab_IsPixmap(wid)) 
     return False;
 
@@ -2715,9 +2723,11 @@ XmLabelGetBaselines(Widget wid,
       }
 
       /* Store the current offset in an extra location. */
+      cache_bytes = (Cardinal)(((size_t)count + 1) *
+                               sizeof(*new_baselines));
       new_baselines = (Dimension *)XtRealloc(
 	  (char *)lw->label.baselines,
-	  ((size_t)count + 1) * sizeof(*new_baselines));
+	  cache_bytes);
       if (new_baselines == NULL) {
 	XtFree((char *)lw->label.baselines);
 	lw->label.baselines = NULL;
@@ -2728,7 +2738,10 @@ XmLabelGetBaselines(Widget wid,
     }
   else
     {
-      count = XmStringLineCount(lw->label._label);
+      label_line_count = XmStringLineCount(lw->label._label);
+      if (label_line_count < 0)
+        return False;
+      count = (Cardinal)label_line_count;
     }
 
   if (count == (Cardinal)-1 || count > (Cardinal)INT_MAX ||
@@ -2746,17 +2759,17 @@ XmLabelGetBaselines(Widget wid,
     }
 
   /* Copy the cached data. */
-  *line_count = count;
+  *line_count = (int)count;
   if (count == 0) {
     *baselines = NULL;
     return True;
   }
-  *baselines = (Dimension*) XtMalloc((size_t)*line_count *
-				     sizeof(Dimension));
+  result_bytes = (Cardinal)((size_t)count * sizeof(Dimension));
+  *baselines = (Dimension*) XtMalloc(result_bytes);
   if (*baselines == NULL)
     return False;
   memcpy((char*) *baselines, (char*) lw->label.baselines,
-	 *line_count * sizeof(Dimension));
+	 (size_t)count * sizeof(Dimension));
 
   return True;
 }

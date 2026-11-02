@@ -1,3 +1,12 @@
+Validate Label baseline trait output pointers (2026-11-02)
+=========================================================
+
+- Align the Label widget baseline trait with LabelGadget by rejecting null
+  widget and output pointers before accessing widget state, and keep its
+  already-validated allocation byte counts explicit at the Xt `Cardinal`
+  boundary. Reject an invalid signed line count before unsigned conversion; see
+  `docs/label-baseline-output-validation.md`.
+
 Validate virtual-key fallback loader inputs before use (2026-11-02)
 =================================================================
 
