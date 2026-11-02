@@ -37,6 +37,12 @@ Harden xmapdef file-viewer demo (2026-11-02)
 - Modernize xmapdef's callback contracts, fix old line-table cleanup indexing,
   close successful reads, and clamp scrollbar-derived line drawing ranges.
 
+Modernize xmfonts demo font lifecycle (2026-11-02)
+===================================================
+
+- Give xmfonts typed C23 callback declarations, bound font-name messages, and
+  release each loaded font when its sample dialog is closed.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 
