@@ -89,6 +89,16 @@ Harden Todo print staging and callback contracts (2026-11-02)
   when it is unset), clean it up after synchronous printing, and guard missing
   home-directory, page, and print-range state.
 
+Harden UIL machine-code inputs and listing growth (2026-11-02)
+===============================================================
+
+- Reject missing nonempty machine-code buffers and prevent the compact source
+  record count from wrapping at its 16-bit maximum.
+- Keep the previous machine-code listing vector until a larger replacement is
+  successfully allocated, avoiding a null dereference on allocation failure.
+- Derive rendered word chunks from the actual `unsigned long` element size;
+  add focused source and ASan/UBSan regression coverage.
+
 Correct Panner Xlib error-handler contract (2026-11-02)
 =========================================================
 

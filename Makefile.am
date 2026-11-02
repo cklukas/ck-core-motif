@@ -226,6 +226,9 @@ EXTRA_DIST += tests/automated/run-uil-debug-runtime.py
 EXTRA_DIST += tests/automated/check-uil-source-path-copy.py \
               tests/automated/run-uil-source-path-copy-unit.py \
               docs/uil-source-paths.md
+EXTRA_DIST += tests/automated/check-uil-machine-code-inputs.py \
+              tests/automated/run-uil-machine-code-inputs-unit.py \
+              docs/uil-machine-code-inputs.md
 EXTRA_DIST += tests/automated/run-tabbed-stack-copy-unit.py docs/tabbed-stack-copy-failure.md
 EXTRA_DIST += tests/automated/run-container-tab-pool-unit.py
 EXTRA_DIST += tests/automated/run-list-unicode-regressions.py
