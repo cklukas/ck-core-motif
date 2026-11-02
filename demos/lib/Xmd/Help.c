@@ -380,8 +380,8 @@ Destroy(
 
   /* Cleanup internal allocations */
   for(i = 0; i < help -> help.num_titles; i++) {
-    XtFree((char*) help -> help.titles[i]);
-    XtFree((char*) help -> help.help_text[i]);
+    XmStringFree(help -> help.titles[i]);
+    XmStringFree(help -> help.help_text[i]);
   }
 
   XtFree((char*) help -> help.titles);
@@ -509,8 +509,8 @@ Layout(
 	XmeConfigureObject(child, x, y, 
 			   XtWidth(child), XtHeight(child),
 			   XtBorderWidth(child));
-	x += XtWidth(child) + spacing;
       }
+      x += XtWidth(child) + 2 * XtBorderWidth(child) + spacing;
     }
   }
 }
@@ -566,7 +566,7 @@ GeometryManager (
   XtWidgetGeometry parentRequest;
   XtGeometryResult result;
   Dimension curWidth, curHeight, curBW;
-  Dimension new_width, new_height;
+  Dimension new_width = 0, new_height = 0;
 
   /* Deny any requests for a new position. */
   if ((request->request_mode & CWX) || (request->request_mode & CWY))
@@ -576,6 +576,12 @@ GeometryManager (
   curWidth = w->core.width;
   curHeight = w->core.height;
   curBW = w->core.border_width;
+
+  /* Calculate with the requested geometry, including query-only requests. */
+  if (request->request_mode & CWWidth) w->core.width = request->width;
+  if (request->request_mode & CWHeight) w->core.height = request->height;
+  if (request->request_mode & CWBorderWidth)
+    w->core.border_width = request->border_width;
 
   CalcSize(XtParent(w), w, &new_width, &new_height);
 
@@ -698,7 +704,7 @@ CalcSize (
 
     total_height = 2 * (spacing + cb) + ch;
     height = MAX(height, total_height);
-    width += spacing + cw;
+    width += spacing + cw + 2 * cb;
   }
 
   width += spacing;
@@ -778,8 +784,8 @@ ReadHelpFile(Widget w)
 
   /* Cleanup internal allocations (if any) */
   for(i = 0; i < help -> help.num_titles; i++) {
-    XtFree((char*) help -> help.titles[i]);
-    XtFree((char*) help -> help.help_text[i]);
+    XmStringFree(help -> help.titles[i]);
+    XmStringFree(help -> help.help_text[i]);
   }
 
   help -> help.num_titles = 0;

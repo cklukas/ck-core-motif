@@ -1,3 +1,13 @@
+Fix shared demo help dialog geometry (2026-11-02)
+================================================
+
+- Initialize natural-size calculations and honor requested child geometry in
+  XmdHelp, preventing oversized help popups in File Manager and other demos.
+- Preserve child placement across query-only requests and include borders and
+  the resizing child when positioning following controls.
+- Release help compound strings with XmStringFree. Add native regression
+  coverage for sizing, resize negotiation, reopening and destruction.
+
 Pace animation demo with elapsed-time timers (2026-11-02)
 ========================================================
 

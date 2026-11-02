@@ -1566,3 +1566,6 @@ EXTRA_DIST += docs/validation/periodic-push-feedback-20261102.json
 
 EXTRA_DIST += tests/automated/check-container-relayout-metrics.c \
               docs/validation/periodic-font-menu-20261102.json
+
+EXTRA_DIST += docs/demo-help.md tests/automated/check-help-geometry.c \
+              tests/automated/run-help-geometry.py

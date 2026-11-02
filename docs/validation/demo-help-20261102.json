@@ -1,0 +1,133 @@
+{
+  "library_sha256": "dbc0be5cdb1449ff607b9c917c3990afe8625601f32cdf6b5b3de7ce786a45df",
+  "target": "help-geometry native help geometry regression",
+  "started_utc": "2026-11-02T06:11:50.475817+00:00",
+  "sources": {
+    "tests/automated/check-help-geometry.c": "4475e106865af5ac98699237726d16e477936a71261e29b973a9e4a80be6546a",
+    "tests/automated/run-help-geometry.py": "1df03ef746164c51cbcf0ac4e17accd51ba71d25ed401e79af54c71e970df78e",
+    "demos/lib/Xmd/Help.c": "0155633d8aa94aee248bdbffcd10be94ea8bab091d72faa7bfd84c56543e29c7",
+    "demos/lib/Xmd/HelpP.h": "f734fb9decfd9a30d3913607c795e08adda56cbd4a85d51fcf3174fb04e91245",
+    "demos/lib/Xmd/Help.h": "58e72399570b20d7f5f4bea888ba64ffc6acaa33ededa0d6885ae8301ecab2a3",
+    "demos/programs/filemanager/filemanager.help": "b13cc5d70f60e0cdde8eace23928eb0684f8565948e863990f23aac8feacf5ac"
+  },
+  "commands": [
+    {
+      "command": [
+        "cc",
+        "-std=gnu17",
+        "-Wno-deprecated-non-prototype",
+        "-ftrivial-auto-var-init=pattern",
+        "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/install/include",
+        "-I/opt/X11/include",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/tests/automated/check-help-geometry.c",
+        "-L/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib",
+        "-L/opt/X11/lib",
+        "-lXm",
+        "-lXt",
+        "-lX11",
+        "-lXtst",
+        "-o",
+        "/Volumes/S8T/tmp/motif-help-20261102/verified/check-help-geometry"
+      ],
+      "seconds": 0.10994075000053272,
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "/Volumes/S8T/tmp/motif-help-20261102/verified/check-help-geometry",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/%N.help",
+        "-xrm",
+        "ckCoreMotif.appearanceProfile: classic"
+      ],
+      "seconds": 0.18947216699598357,
+      "exit": 0,
+      "output": "PASS: bounded help geometry, child resize, borders, query-only, denied position, reopen\n"
+    },
+    {
+      "command": [
+        "/Volumes/S8T/tmp/motif-help-20261102/verified/check-help-geometry",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/%N.help",
+        "-xrm",
+        "ckCoreMotif.appearanceProfile: modern-light"
+      ],
+      "seconds": 0.09869687500759028,
+      "exit": 0,
+      "output": "PASS: bounded help geometry, child resize, borders, query-only, denied position, reopen\n"
+    },
+    {
+      "command": [
+        "/Volumes/S8T/tmp/motif-help-20261102/verified/check-help-geometry",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/%N.help",
+        "-xrm",
+        "ckCoreMotif.appearanceProfile: modern-dark"
+      ],
+      "seconds": 0.09676741699513514,
+      "exit": 0,
+      "output": "PASS: bounded help geometry, child resize, borders, query-only, denied position, reopen\n"
+    }
+  ],
+  "success": true,
+  "baseline": "No comparable standalone help-geometry fixture build duration recorded.",
+  "executable_sha256": "a0757c0175245bbffbde7187d81ec2fb245e4a9a9b560b7c7220caae07351bca",
+  "ended_utc": "2026-11-02T06:11:51.039843+00:00",
+  "before_fix": {
+    "command": [
+      "/Volumes/S8T/tmp/motif-help-20261102/before/check-help-geometry",
+      "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/%N.help"
+    ],
+    "seconds": 0.3390835000027437,
+    "exit": -6,
+    "output": "Assertion failed: (XtWidth(notebook) == request.width), function main, file before.c, line 43.\n"
+  },
+  "visual_validation": "Unavailable: XQuartz computer-use connection timed out. Automated tests do not establish the user-facing window appearance.",
+  "runtime": {
+    "pid": 71826,
+    "executable": "/Volumes/S8T/tmp/motif-help-20261102/filemanager/filemanager",
+    "verified_by": "ps and lsof txt path",
+    "build": {
+      "started": "2026-11-02T06:10:09.818948+00:00",
+      "sources": {
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/lib/Xmd/Help.c": "0155633d8aa94aee248bdbffcd10be94ea8bab091d72faa7bfd84c56543e29c7",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/interface.c": "d8cc4e897f7532b84a22c5b146087da22d3dc6b392112f9c79db75985f2407de",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/convert.c": "64804cc22786eda509a7c7f3ce5cc531e8e0d4e791e633616226805fb308a645",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/readdir.c": "2749b4f31c718c9a42fbfc5f662745b5e2e01cd991e6f9bb7b8b29b94be9313e",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/filemanager.c": "18105b4caf2862e19d5a9dbcdf1647a786b90d5824b07ac351fc84adc887c956",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/actions.c": "89119599095f03c4da31e81007c21612f3b9717f2956c9681a2e723002d70a00"
+      },
+      "commands": [
+        {
+          "command": [
+            "cc",
+            "-std=gnu17",
+            "-Wno-deprecated-non-prototype",
+            "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/install/include",
+            "-I/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/lib",
+            "-I/opt/X11/include",
+            "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/lib/Xmd/Help.c",
+            "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/interface.c",
+            "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/convert.c",
+            "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/readdir.c",
+            "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/filemanager.c",
+            "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/filemanager/actions.c",
+            "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/lib/Xmd/libXmd.a",
+            "-L/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib",
+            "-L/opt/X11/lib",
+            "-lXm",
+            "-lXt",
+            "-lX11",
+            "-o",
+            "/Volumes/S8T/tmp/motif-help-20261102/filemanager/filemanager"
+          ],
+          "seconds": 0.3398086250090273,
+          "exit": 0,
+          "output": ""
+        }
+      ],
+      "baseline": "No comparable standalone File Manager rebuild duration recorded.",
+      "ended": "2026-11-02T06:10:10.160579+00:00",
+      "executable_sha256": "7d7d1eb7cd64e2db80f13d46491d41c8b73c9ef9391dd3a16f833295ae76a2a7",
+      "mtime_ns": 1793599810156468333
+    }
+  }
+}
