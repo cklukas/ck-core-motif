@@ -1,3 +1,9 @@
+Validate MWM screen-record allocation (2026-11-02)
+====================================================
+
+- Validate the managed screen count and `WmScreenData` byte size before Xt
+  allocation or screen access during MWM startup.
+
 Release Container grids without an optional remove hook (2026-11-02)
 ====================================================================
 

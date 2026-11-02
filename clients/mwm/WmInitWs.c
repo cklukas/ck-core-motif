@@ -689,6 +689,17 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     ProcessGlobalScreenResources ();
     ProcessCommandLine (argc, argv);
 
+    if (wmGD.numScreens <= 0 ||
+	(size_t)wmGD.numScreens > SIZE_MAX / sizeof(WmScreenData) ||
+	(size_t)wmGD.numScreens > UINT_MAX / sizeof(WmScreenData))
+    {
+	ShowWaitState (FALSE);
+	Warning (((char *)GETMESSAGE(40, 2,
+		"Insufficient memory for Screen data")));
+	ExitWM (WM_ERROR_EXIT_VALUE);
+	return;
+    }
+
 #ifdef WSM
     /*
      * Make sure backdrops are in our icon search path. 
@@ -724,7 +735,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
      */
 
     if (!(wmGD.Screens = (WmScreenData *) 
-	    XtCalloc (wmGD.numScreens, sizeof(WmScreenData))))
+	    XtCalloc ((Cardinal)wmGD.numScreens, sizeof(WmScreenData))))
     {
 	ShowWaitState (FALSE);
 	Warning (((char *)GETMESSAGE(40, 2, "Insufficient memory for Screen data")));
