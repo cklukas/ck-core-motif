@@ -1,3 +1,10 @@
+Validate Label display-rectangle trait outputs (2026-11-02)
+=========================================================
+
+- Reject null Label widget and display-rectangle output pointers before the
+  class display-rectangle trait accesses Label state; see
+  `docs/label-baseline-output-validation.md`.
+
 Validate Label baseline trait output pointers (2026-11-02)
 =========================================================
 
