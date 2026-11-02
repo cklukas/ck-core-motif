@@ -1,3 +1,10 @@
+Avoid uninitialized Mrm color pixels (2026-11-02)
+===================================================
+
+- Stop widget argument conversion after an invalid named, RGB, or descriptor
+  color error instead of storing an uninitialized pixel value; see
+  `docs/mrm-createarg-color-fontfixup.md`.
+
 Preserve public Mrm widget override counts (2026-11-02)
 =========================================================
 

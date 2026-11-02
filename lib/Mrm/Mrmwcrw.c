@@ -1668,6 +1668,7 @@ Urm__CW_CreateArglist (Widget			parent,
 		      result = Urm__UT_Error ("Urm__CW_ConvertValue",
 					      err_msg, NULL, NULL, MrmFAILURE) ;
 		    };
+		  if ( result != MrmSUCCESS ) continue ;
 		  val = (long) pix ;
 		}
 	      else
