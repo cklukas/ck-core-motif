@@ -1,3 +1,9 @@
+Require complete MWM normal-hints reads (2026-11-02)
+=====================================================
+
+- Reject truncated or null `WM_NORMAL_HINTS` payloads rather than parsing a
+  bounded prefix as a complete legacy or current ICCCM record.
+
 Harden ColorObj type boundaries (2026-11-02)
 =============================================
 

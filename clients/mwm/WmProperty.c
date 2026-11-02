@@ -169,7 +169,9 @@ GetNormalHints(
 			&nitems, &leftover, (unsigned char **)&property)) ||
 	  (actualType != XA_WM_SIZE_HINTS) ||
 	  (nitems < (PROP_SIZE_HINTS_ELEMENTS - 3)) ||
-	  (actualFormat != 32)))
+	  (actualFormat != 32) ||
+	  (leftover != 0) ||
+	  (property == NULL)))
 #else /* WSM */
     if ((Success != XGetWindowProperty (DISPLAY, pCD->client,
 			XA_WM_NORMAL_HINTS, 0L, (long)PROP_SIZE_HINTS_ELEMENTS,
@@ -177,7 +179,9 @@ GetNormalHints(
 			&nitems, &leftover, (unsigned char **)&property)) ||
 	 (actualType != XA_WM_SIZE_HINTS) ||
 	 (nitems < (PROP_SIZE_HINTS_ELEMENTS - 3)) ||
-	 (actualFormat != 32))
+	 (actualFormat != 32) ||
+	 (leftover != 0) ||
+	 (property == NULL))
 #endif /* WSM */
     {
 	/*
