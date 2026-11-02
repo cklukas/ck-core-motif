@@ -322,6 +322,10 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
     XmOutline_lr_point(ow).y = 0;
 
     XmOutline_child_op_list(ow) = _XmListInit();
+    if (XmOutline_child_op_list(ow) == NULL) {
+	XtError("Unable to allocate Outline child-operation list");
+	return;
+    }
 
     CreateGC(ow);
 }
@@ -1142,6 +1146,7 @@ LayoutChildren(Widget w, Widget assign_child)
     register int cur_node, v_margin;
     int oc_x = 0, oc_y = 0;
     Boolean register_workproc = True;
+    XmList replacement_child_op_list;
 
     if (!XmHierarchy_refigure_mode(ow))
 	return;
@@ -1154,13 +1159,19 @@ LayoutChildren(Widget w, Widget assign_child)
      */
 
     if (XmListFirst(XmOutline_child_op_list(ow)) != NULL) {
+	replacement_child_op_list = _XmListInit();
+	if (replacement_child_op_list == NULL) {
+	    XtError("Unable to allocate Outline child-operation list");
+	    XmDropSiteEndUpdate(w);
+	    return;
+	}
 	if( XmHierarchy_work_proc_id(ow) != (XtWorkProcId) NULL )
 	{
 	    XtRemoveWorkProc(XmHierarchy_work_proc_id(ow));
 	    XmHierarchy_work_proc_id(ow) = (XtWorkProcId) NULL;
 	}
 	_XmListFree(XmOutline_child_op_list(ow));
-	XmOutline_child_op_list(ow) = _XmListInit();
+	XmOutline_child_op_list(ow) = replacement_child_op_list;
 	register_workproc = False;
     }
 

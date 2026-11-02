@@ -1535,6 +1535,7 @@ EXTRA_DIST += tests/automated/check-outline-connections.c \
 
 EXTRA_DIST += tests/automated/check-infobar-action-layout.py
 EXTRA_DIST += tests/automated/check-infobar-query-geometry.py docs/infobar-query-geometry.md
+EXTRA_DIST += tests/automated/check-outline-initialize-list.py docs/outline-child-list-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-identity-inputs.py
 
 EXTRA_DIST += tests/automated/check-avatar-modern.c \

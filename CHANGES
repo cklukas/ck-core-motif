@@ -1,3 +1,11 @@
+Make Outline child-list allocation failure explicit (2026-11-02)
+================================================================
+
+- Stop `XmOutline` initialization or list replacement with an Xt error when its
+  required child-operation list cannot be allocated, matching the existing
+  `XmTree` contract and preventing later null-list dereferences; see
+  `docs/outline-child-list-allocation.md`.
+
 Release grown atom-list converter storage after successful interning (2026-11-02)
 ===============================================================================
 
