@@ -201,6 +201,7 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
       indexlen > SIZE_MAX - sizeof(RGMResourceDesc))
     {
       XtFree((char *)locargs);
+      UrmPlistFree (ptrlist);
       return MrmFAILURE;
     }
   resptr = (RGMResourceDescPtr) XtMalloc

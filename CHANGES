@@ -1,3 +1,10 @@
+Release the Mrm literal-index pointer list on failure (2026-11-02)
+===================================================================
+
+- Release the internal pointer list when `MrmFetchSetValues` rejects an
+  overlong literal index after allocating that list; see
+  `docs/mrm-fetch-set-values-failure-cleanup.md`.
+
 Validate Mrm FetchSetValues argument counts (2026-11-02)
 ========================================================
 

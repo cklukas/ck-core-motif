@@ -67,6 +67,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-mrm-widget-fetch-parameters.py \
 	      tests/automated/check-mrm-fetch-set-values-icon-arguments.py \
 	      tests/automated/check-mrm-fetch-set-values-argument-count.py \
+	      tests/automated/check-mrm-fetch-set-values-failure-cleanup.py \
 	      tests/automated/check-mwm-help-argument-bounds.py \
 	      tests/automated/check-mwm-exec-multibyte-delimiter.py \
 	      tests/automated/check-mwm-panelist-function-arguments.py \
