@@ -1,3 +1,10 @@
+Release all partial Mrm bitmap icon mappings (2026-11-02)
+==========================================================
+
+- Apply the graphics-context failure cleanup to the ordinary and depth-one
+  bitmap icon mappers as well as the previously corrected color-mapping
+  paths; see `docs/mrm-icon-gc-cleanup.md`.
+
 Release partial Mrm icon mappings on GC failure (2026-11-02)
 ==============================================================
 

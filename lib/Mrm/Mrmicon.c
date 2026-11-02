@@ -531,8 +531,13 @@ Urm__MapIconBitmap(RGMIconImagePtr		icon,
 		  GCForeground | GCBackground | GCFillStyle | GCTile,
 		  &gcValues);
   if ( gc == NULL )
-    return Urm__UT_Error ("Urm__MapIconBitmap", _MrmMMsg_0036,
-			  NULL, NULL, MrmFAILURE);
+    {
+      XFreePixmap (display, *pixmap);
+      XFree((char*)imagep);
+      *pixmap = (Pixmap)0;
+      return Urm__UT_Error ("Urm__MapIconBitmap", _MrmMMsg_0036,
+			    NULL, NULL, MrmFAILURE);
+    }
 
   /*
    * Put bits into the pixmap
@@ -707,8 +712,13 @@ Urm__MapIconBitmapDepth1 (RGMIconImagePtr	icon,
 		  &gcValues);
 
   if ( gc == NULL )
-    return Urm__UT_Error ("Urm__MapIconBitmapDepth1", _MrmMMsg_0036,
-			  NULL, NULL, MrmFAILURE);
+    {
+      XFreePixmap (display, *pixmap);
+      XFree((char*)imagep);
+      *pixmap = (Pixmap)0;
+      return Urm__UT_Error ("Urm__MapIconBitmapDepth1", _MrmMMsg_0036,
+			    NULL, NULL, MrmFAILURE);
+    }
 
   /*
    * Put bits into the pixmap
