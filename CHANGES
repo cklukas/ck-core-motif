@@ -1,3 +1,10 @@
+Modernize Animate demo C23 callbacks (2026-11-02)
+==================================================
+
+- Replace the Animate demonstration's K&R definitions and unspecified callback
+  declarations with typed C23 signatures, preserving its Mrm callback ABI and
+  allowing the demo to build with the current compiler.
+
 Modernize Exm WML database generator C23 definitions (2026-11-02)
 ================================================================
 
