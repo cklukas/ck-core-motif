@@ -4150,9 +4150,19 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 int ParseWmFunction (unsigned char **linePP, unsigned int res_spec, 
 			    WmFunction *pWmFunction)
 {
-    unsigned char *lineP = *linePP;
+    unsigned char *lineP;
     unsigned char *string;
     register int  low, mid, high, cmp;
+
+    if (pWmFunction == NULL)
+	return (F_NOP_INDEX);
+    if (linePP == NULL || *linePP == NULL)
+	{
+	    *pWmFunction = F_Nop;
+	    return (F_NOP_INDEX);
+	}
+
+    lineP = *linePP;
 
     /*
      * Skip leading white space.
