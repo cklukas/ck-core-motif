@@ -49,6 +49,12 @@ Modernize xmform layout demo (2026-11-02)
 - Give xmform typed C23 helper declarations and protect its empty-word layout
   path from division by zero.
 
+Modernize Exm Container sample constructor API (2026-11-02)
+============================================================
+
+- Match the unsupported Exm Container constructor declaration to its typed C23
+  implementation.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 
