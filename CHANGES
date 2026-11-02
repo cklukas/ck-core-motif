@@ -1,3 +1,11 @@
+Make MWM transient-tree operations iterative (2026-11-02)
+==========================================================
+
+- Replace recursive modal, full-modal cleanup, fixup, and count walks with
+  iterative parent-linked traversal. Deep dialog chains no longer consume the
+  process stack, and saturated counts retain existing allocation fail-closed
+  behavior.
+
 Select the first focusable MWM transient sibling (2026-11-02)
 ===============================================================
 

@@ -92,6 +92,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM query-XID buffer growth](mwm-query-xid-growth.md) — guard protocol conversion growth.
 - [MWM workspace-protocol allocation failures](mwm-workspace-protocol-oom.md) — retain a safe empty protocol result on allocation failure.
 - [MWM workspace transient-tree traversal](mwm-workspace-tree-walk.md) — avoid stack exhaustion while walking deep client hierarchies.
+- [MWM transient-tree traversal](mwm-transient-tree-walk.md) — keep modal and restacking walks iterative for deep dialog chains.
 - [MWM workspace callback input lifecycle](mwm-workspace-callback-inputs.md) — reject detached asynchronous callback state safely.
 - [MWM transient-property refresh](mwm-transient-property-reset.md) — discard stale managed leaders after `WM_TRANSIENT_FOR` changes.
 - [MWM client-message initialization](mwm-client-message-initialization.md) — clear unused X11 payload words.
