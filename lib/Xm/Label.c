@@ -3381,13 +3381,15 @@ LabelSetValue(Widget w, XtPointer value, int type)
 	  length = 0;
 	  while (str2[length] != 0)
 	    length++;
-	  if ((size_t) length > (SIZE_MAX - 1) / (size_t) MB_CUR_MAX)
+	  if ((size_t) length > (SIZE_MAX - 1) / (size_t) MB_CUR_MAX ||
+	      (size_t) length > ((size_t)UINT_MAX - 1) /
+	      (size_t) MB_CUR_MAX)
 	    {
 	      XtFree((char *) value);
 	      return;
 	    }
 	  byte_length = (size_t) MB_CUR_MAX * (size_t) length + 1;
-	  str = (char*) XtMalloc(byte_length);
+	  str = (char*) XtMalloc((Cardinal)byte_length);
 	  if (str == NULL)
 	    {
 	      XtFree((char*) value);

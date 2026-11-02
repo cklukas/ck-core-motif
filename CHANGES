@@ -1,3 +1,9 @@
+Bound Label wide-character conversion storage (2026-11-02)
+===========================================================
+
+- Reject wide Label values whose multibyte conversion storage cannot fit
+  Xt's legacy `Cardinal` allocation interface.
+
 Clamp DropDown child-layout boundaries (2026-11-02)
 ====================================================
 
