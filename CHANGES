@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Release empty MWM menu-property payloads (2026-11-02)
+======================================================
+
+- Free an allocated Xlib `_MWM_MENU` payload when its zero item count causes
+  the property to be rejected.
+
 Correct MWM XSMP property-buffer ownership (2026-11-02)
 =========================================================
 

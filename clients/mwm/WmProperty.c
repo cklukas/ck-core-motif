@@ -1188,6 +1188,8 @@ GetMwmMenuItems(
     /* _MWM_MENU does not exist or it is an invalid type.  */
     {
 	menuItems = NULL;
+	if (textProperty.value != NULL)
+	    XFree((void *)textProperty.value);
     }
 
     else

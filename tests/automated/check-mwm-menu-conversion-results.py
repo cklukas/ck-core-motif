@@ -11,4 +11,9 @@ assert "char **textList = NULL;" in region
 assert "int nItems = 0;" in region
 assert "if (textList != NULL)\n\t\tXFreeStringList(textList);" in region
 assert "textProperty.nitems == 0" in region
+empty_start = region.index("if ((rValue == 0)")
+empty_end = region.index("\n\n    else", empty_start)
+empty = region[empty_start:empty_end]
+assert "if (textProperty.value != NULL)" in empty
+assert "XFree((void *)textProperty.value);" in empty
 print("PASS MWM menu conversion validates returned text entries")
