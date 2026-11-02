@@ -1543,6 +1543,7 @@ EXTRA_DIST += tests/automated/check-tabbox-mode-converter.py docs/tabbox-mode-co
 EXTRA_DIST += tests/automated/check-directory-cache-path-capacity.py docs/directory-cache-path-capacity.md
 EXTRA_DIST += tests/automated/check-directory-entry-list-growth.py docs/directory-entry-list-growth.md
 EXTRA_DIST += tests/automated/check-virtual-binding-converter-bounds.py docs/virtual-binding-converter-bounds.md
+EXTRA_DIST += tests/automated/check-virtual-key-result-bounds.py docs/virtual-key-result-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-identity-inputs.py
 
 EXTRA_DIST += tests/automated/check-avatar-modern.c \
