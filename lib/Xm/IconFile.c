@@ -182,6 +182,10 @@ MakeCachedDirEntry(String dirName)
 
     if (dirName == NULL || *dirName == '\0')
 	return NULL;
+    if (strlen(dirName) > INT_MAX) {
+	XtFree(dirName);
+	return NULL;
+    }
 
     if ((fileDesc = opendir (dirName)) == NULL)  {
 	/* invalid directory */
@@ -280,7 +284,7 @@ MakeCachedDirEntry(String dirName)
                 return NULL;
             }
 
-	    validDir->dirNameLen = strlen(dirName);
+	    validDir->dirNameLen = (int)strlen(dirName);
 	    validDir->dirName = dirName;
 	    validDir->numFiles = numFiles;
 	    cachedDirType = 
@@ -314,7 +318,7 @@ MakeCachedDirEntry(String dirName)
         }
 	cachedDir->common.cachedDirType =
 	  cachedDirType;
-	cachedDir->common.dirNameLen = strlen(dirName);
+		cachedDir->common.dirNameLen = (int)strlen(dirName);
 	cachedDir->common.dirName = dirName;
 	break;
       case DtVALID_CACHED_DIR:
@@ -415,6 +419,8 @@ CheckDirCache(String	path)
     if (dirNameLen == 0) {
 	return DtINVALID_CACHED_DIR;
     }
+    if (dirNameLen > INT_MAX)
+	return DtUNCACHED_DIR;
 
     /*
      * loop thru the dir list. on the last pass create the new cached

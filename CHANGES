@@ -1,3 +1,9 @@
+Keep IconFile cache directory lengths representable (2026-11-02)
+=================================================================
+
+- Reject directory cache keys that cannot fit the record's signed length field,
+  using the existing uncached path instead of narrowing the key.
+
 Clamp large TabList coordinate conversion (2026-11-02)
 ========================================================
 

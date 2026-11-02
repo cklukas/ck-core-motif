@@ -7,3 +7,7 @@ narrowing a `strlen` result to `int` before the bound check.
 
 The focused source regression is
 `tests/automated/check-icon-cache-directory-bounds.py`.
+
+Directory cache records store their key length as an `int`; path components
+outside that range now use the existing uncached fallback rather than
+truncating the cache key.
