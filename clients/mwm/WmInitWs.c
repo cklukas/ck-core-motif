@@ -65,9 +65,9 @@ static char rcsid[] = "$TOG: WmInitWs.c /main/18 1999/09/20 15:18:22 mgreess $"
 #ifndef NO_HP_KEY_REMAP
 #include <Xm/VirtKeysP.h>
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
 # include <Xm/DrawingA.h>
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
 typedef struct
   {
@@ -141,10 +141,10 @@ typedef struct
 
 #include "WmInitWs.h"
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
 # include "WmWsmLib/wsm_proto.h"
 # include "WmWsmLib/utm_send.h"
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
 #ifdef WSM
 static void InsureDefaultBackdropDir(char **ppchBackdropDirs);
@@ -1442,9 +1442,9 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     pSD->bitmapCacheCount = 0;
     pSD->dataType = SCREEN_DATA_TYPE;
     pSD->managed = False;
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
     pSD->cciTree = NULL;
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
 #ifdef WSM
     pSD->initialWorkspace=NULL;
@@ -1568,7 +1568,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
         return;
     }
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
     /* Create a DrawingArea as a child of the popupShell.  This will be used
      * to handle UTM traffic relating to cci.  We need this
      * particular widget to get the callbacks from conversion requests made
@@ -1591,7 +1591,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     /* Must realize to own WM_i if unmapped, causes mwm to
        freeze when menu is displayed. */
     XtPopup(pSD->screenTopLevelW, XtGrabNone);
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
 #ifdef WSM
     argnum = 0;

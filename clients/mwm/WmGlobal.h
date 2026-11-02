@@ -898,7 +898,7 @@ typedef struct _MenuSpec
 
 } MenuSpec;
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
 /* The range to which a client command operation should apply. */
 typedef enum { SINGLE, ROOT, ALL } OpRange;
 
@@ -924,7 +924,7 @@ typedef struct _matchlist {
     struct _matchlist *next;
 
 } MatchList;
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
 
 /*************************************<->*************************************
@@ -1276,9 +1276,9 @@ typedef struct _WmScreenData
     Window	rootWindow;
     Widget	screenTopLevelW;
     Widget	screenTopLevelW1;       /* for internal WM components */
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
     Widget	utmShell;		/* DrawingArea used for UTM */
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
     Widget      confirmboxW[4];
 #ifdef PANELIST
     Widget	wPanelist;		/* panel object */
@@ -1315,9 +1315,9 @@ typedef struct _WmScreenData
 #ifdef WSM
     struct _WmWorkspaceData	*pLastWS;	/* previously active WS */
 #endif /* WSM */
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
     CmdTree     *cciTree;               /* pointer to cci definitions */
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
     /* per screen caches */
     BitmapCache *bitmapCache;

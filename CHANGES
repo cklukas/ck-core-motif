@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Complete the standalone MWM workspace feature contract (2026-11-02)
+====================================================================
+
+- Enable the per-screen command-tree and UTM state required by `MWM_WSM`, so
+  that its workspace-owner monitoring and message transport compile together.
+
 Declare MWM WSM initialization dependencies directly (2026-11-02)
 ===================================================================
 

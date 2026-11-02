@@ -55,6 +55,7 @@ clients exchanging Motif window-management messages.
 - [WSM help-record type availability](mwm-wsm-help-type.md)
 - [WSM workspace-property declarations](mwm-wsm-property-declarations.md)
 - [WSM initialization declarations](mwm-wsm-init-declarations.md)
+- [Standalone WSM command and UTM state](mwm-standalone-wsm-contract.md)
 - [Locale-copy allocation](mwm-locale-allocation.md)
 - [Localized system-menu allocation](mwm-system-menu-allocation.md)
 - [Catalog-string allocation](mwm-catalog-allocation.md)
