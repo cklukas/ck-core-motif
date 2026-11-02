@@ -52,6 +52,7 @@ static char rcsid[] = "$TOG: Mrmwcrw.c /main/20 1999/05/19 15:26:23 mgreess $"
  *
  */
 #include <stdio.h>
+#include <limits.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -681,13 +682,15 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
   RGMWidgetRecordPtr	widgetrec ;	/* widget record in the context */
   RGMArgListDescPtr	argdesc = NULL ;  /* arg list descriptor in record */
   Arg			*args = NULL ;  /* arg list argument for create */
+  Cardinal		arg_bytes = 0 ;	/* byte count for Xt allocation */
   Cardinal		num_used = 0 ;	/* number of args used in arglist */
-  MrmCount		num_listent = ov_num_args ;  /* # entries in args */
+  size_t		num_listent = (size_t)ov_num_args ; /* # entries in args */
   WCIClassDescPtr	cldesc ;	/* class descriptor */
   URMPointerListPtr	ptrlist = NULL ; /* to hold scratch callbacks */
   URMPointerListPtr	cblist = NULL ; /* to hold scratch contexts */
   URMPointerListPtr	ftllist = NULL ; /* to hold scratch fontlists */
   int			ndx ;		/* loop index */
+  Cardinal		ov_ndx ;	/* override-argument loop index */
   RGMCallbackDescPtr	cbptr ;		/* creation callback descriptor */
   RGMCallbackItemPtr	itmptr ;	/* current callback item */
   XtCallbackProc cb_rtn ;	/* current callback routine */
@@ -749,7 +752,7 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
 	  (size_t)argdesc->extra >
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
 	return MrmFAILURE;
-      num_listent += argdesc->count + argdesc->extra ;
+      num_listent += (size_t)argdesc->count + (size_t)argdesc->extra ;
       if (UrmPlistInit (10, &ftllist) != MrmSUCCESS)
         return MrmFAILURE;
     }
@@ -758,7 +761,8 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
       if ((size_t)num_listent > SIZE_MAX / sizeof(Arg) ||
           num_listent > UINT_MAX / sizeof(Arg))
 	return MrmFAILURE;
-      args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
+      arg_bytes = (Cardinal)(num_listent * sizeof(Arg));
+      args = (Arg *) XtMalloc (arg_bytes) ;
       if (args == NULL)
         {
           if (ftllist != NULL) UrmPlistFree (ftllist);
@@ -796,10 +800,10 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
   /*
    * Copy in any override args
    */
-  for ( ndx=0 ; ndx<ov_num_args ; ndx++ )
+  for ( ov_ndx=0 ; ov_ndx<ov_num_args ; ov_ndx++ )
     {
-      args[ndx+num_used].name = ov_args[ndx].name ;
-      args[ndx+num_used].value = ov_args[ndx].value ;
+      args[ov_ndx+num_used].name = ov_args[ov_ndx].name ;
+      args[ov_ndx+num_used].value = ov_args[ov_ndx].value ;
     }
   num_used += ov_num_args ;
 
@@ -1005,12 +1009,14 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   size_t		c_name_len ;	/* child name length */
   RGMArgListDescPtr	argdesc = NULL ; /* arg list descriptor in record */
   Arg			*args = NULL ;  /* arg list argument for create */
+  Cardinal		arg_bytes = 0 ;	/* byte count for Xt allocation */
   Cardinal		num_used = 0 ;	/* number of args used in arglist */
-  MrmCount		num_listent = ov_num_args ; /* # entries in args */
+  size_t		num_listent = (size_t)ov_num_args ; /* # entries in args */
   URMPointerListPtr	ptrlist = NULL ;/* to hold scratch contexts */
   URMPointerListPtr	cblist = NULL ; /* to hold scratch callbacks */
   URMPointerListPtr	ftllist = NULL ;/* to hold scratch fontlists */
   int			ndx ;		/* loop index */
+  Cardinal		ov_ndx ;	/* override-argument loop index */
   RGMCallbackDescPtr	cbptr ;		/* creation callback descriptor */
   RGMCallbackItemPtr	itmptr ;	/* current callback item */
   XtCallbackProc cb_rtn ;	/* current callback routine */
@@ -1099,7 +1105,7 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
 	  (size_t)argdesc->extra >
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
 	return MrmFAILURE;
-      num_listent += argdesc->count + argdesc->extra ;
+      num_listent += (size_t)argdesc->count + (size_t)argdesc->extra ;
       if (UrmPlistInit (10, &ftllist) != MrmSUCCESS)
         return MrmFAILURE;
     }
@@ -1108,7 +1114,8 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
       if ((size_t)num_listent > SIZE_MAX / sizeof(Arg) ||
           num_listent > UINT_MAX / sizeof(Arg))
 	return MrmFAILURE;
-      args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
+      arg_bytes = (Cardinal)(num_listent * sizeof(Arg));
+      args = (Arg *) XtMalloc (arg_bytes) ;
       if (args == NULL)
         {
           if (ftllist != NULL) UrmPlistFree (ftllist);
@@ -1146,10 +1153,10 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   /*
    * Copy in any override args
    */
-  for ( ndx=0 ; ndx<ov_num_args ; ndx++ )
+  for ( ov_ndx=0 ; ov_ndx<ov_num_args ; ov_ndx++ )
     {
-      args[ndx+num_used].name = ov_args[ndx].name ;
-      args[ndx+num_used].value = ov_args[ndx].value ;
+      args[ov_ndx+num_used].name = ov_args[ov_ndx].name ;
+      args[ov_ndx+num_used].value = ov_args[ov_ndx].value ;
     }
   num_used += ov_num_args ;
 

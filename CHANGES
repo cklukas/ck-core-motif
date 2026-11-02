@@ -1,3 +1,11 @@
+Preserve public Mrm widget override counts (2026-11-02)
+=========================================================
+
+- Keep widget-creation and automatic-child override argument counts at their
+  public `Cardinal` width while calculating allocation capacity and copying
+  arguments, instead of truncating them to the 16-bit on-disk `MrmCount`
+  representation; see `docs/mrm-widget-override-counts.md`.
+
 Bound deferred Mrm bitmap arguments (2026-11-02)
 ==================================================
 
