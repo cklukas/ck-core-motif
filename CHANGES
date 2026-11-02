@@ -1,3 +1,9 @@
+Reject incomplete MWM session-hint properties (2026-11-02)
+=========================================================
+
+- Require the bounded CDE session-hint property read to be complete before
+  parsing, preventing truncated session state from being restored.
+
 Reject incomplete MWM desktop-request properties (2026-11-02)
 ===========================================================
 

@@ -9,3 +9,7 @@ cannot fit in the Xt `Cardinal` allocation size are rejected without touching
 the destination. The allocation byte count is computed once in `size_t` and
 reused for zero-initialization, so allocation and initialization cannot
 disagree.
+
+The bounded X11 property read must be complete before its bytes are copied into
+the session parser. A property with bytes remaining is discarded with the same
+restart cleanup as any other unusable session hint.

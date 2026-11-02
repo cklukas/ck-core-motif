@@ -1867,7 +1867,8 @@ void GetDtSessionHints (WmScreenData *pSD, int sNum)
 
 
     if ((rValue != Success) || (actualType == None) || (actualFormat != 8) ||
-	(property == NULL) || (nitems == 0) || (nitems >= UINT_MAX))
+	(property == NULL) || (nitems == 0) || (leftover != 0) ||
+	(nitems >= UINT_MAX))
         /* _DT_SESSION_HINTS does not exist or it is an invalid type.  */
     {
         pSD->pDtSessionItems = NULL;
