@@ -89,11 +89,11 @@ static XtGeometryResult GeometryManager(Widget,
  *********************/
 
 static Boolean CvtStringToConnectStyle(Display *, XrmValuePtr, Cardinal *, 
-				       XrmValuePtr, XrmValuePtr);
+				       XrmValuePtr, XrmValuePtr, XtPointer *);
 static Boolean CvtStringToCompressStyle(Display *, XrmValuePtr, Cardinal *, 
-				       XrmValuePtr, XrmValuePtr);
+				       XrmValuePtr, XrmValuePtr, XtPointer *);
 static Boolean CvtStringToLineStyle(Display *, XrmValuePtr, Cardinal *, 
-				       XrmValuePtr, XrmValuePtr);
+				       XrmValuePtr, XrmValuePtr, XtPointer *);
 
 static void ReleaseNodeGCs(Widget), GetNodeGCs(Widget);
 static TreeConstraints GetNodeInfo(Widget);
@@ -356,13 +356,13 @@ ClassInit(void)
     XmTreeClassRec* wc = &xmTreeClassRec;
 
     XtSetTypeConverter(XmRString, XmRXmConnectStyle,
-		       (XtTypeConverter) CvtStringToConnectStyle,
+		       CvtStringToConnectStyle,
 		       NULL, (Cardinal) 0, XtCacheAll, (XtDestructor) NULL);
     XtSetTypeConverter(XmRString, XmRXmCompressStyle,
-		       (XtTypeConverter) CvtStringToCompressStyle,
+		       CvtStringToCompressStyle,
 		       NULL, (Cardinal) 0, XtCacheAll, (XtDestructor) NULL);
     XtSetTypeConverter(XmRString, XmRXmLineStyle,
-		       (XtTypeConverter) CvtStringToLineStyle,
+		       CvtStringToLineStyle,
 		       NULL, (Cardinal) 0, XtCacheNone, (XtDestructor) NULL);
 }
 
@@ -1005,7 +1005,8 @@ ToggleNodeState(Widget w, XtPointer node_ptr, XtPointer call_data)
 /*ARGSUSED*/
 static Boolean
 CvtStringToConnectStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args, 
-			XrmValuePtr fromVal, XrmValuePtr toVal)
+			XrmValuePtr fromVal, XrmValuePtr toVal,
+			XtPointer *converter_data)
 {
     static XmTreeConnectStyle connect;
     static XrmQuark XtQELadder;
@@ -1013,6 +1014,8 @@ CvtStringToConnectStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     static Boolean haveQuarks = FALSE;
     XrmQuark q;
     char lowerName[BUFSIZ];
+
+    (void)converter_data;
     
     if (!haveQuarks) {
 	XtQELadder = XrmStringToQuark("ladder");
@@ -1061,7 +1064,8 @@ CvtStringToConnectStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 /*ARGSUSED*/
 static Boolean
 CvtStringToCompressStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
-                        XrmValuePtr fromVal, XrmValuePtr toVal)
+                        XrmValuePtr fromVal, XrmValuePtr toVal,
+                        XtPointer *converter_data)
 {
     static XmTreeCompressStyle compress;
     static XrmQuark XtQECompressNone;
@@ -1070,6 +1074,8 @@ CvtStringToCompressStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     static Boolean haveQuarks = FALSE;
     XrmQuark q;
     char lowerName[BUFSIZ];
+
+    (void)converter_data;
 
     if (!haveQuarks) {
         XtQECompressNone = XrmStringToQuark("compressnone");
@@ -1112,10 +1118,13 @@ CvtStringToCompressStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 /* ARGSUSED */
 static Boolean
 CvtStringToLineStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args, 
-			XrmValuePtr fromVal, XrmValuePtr toVal)
+			XrmValuePtr fromVal, XrmValuePtr toVal,
+			XtPointer *converter_data)
 {
     static int lineStyle = LineSolid;
     char lowerName[BUFSIZ];
+
+    (void)converter_data;
     
     XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     

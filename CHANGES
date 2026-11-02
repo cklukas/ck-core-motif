@@ -1,3 +1,11 @@
+Correct XmTree resource converter ABI (2026-11-02)
+====================================================
+
+- Match the Xt type-converter callback signature for Tree connect-style,
+  compress-style, and line-style resource conversion, removing incompatible
+  function-pointer casts while preserving conversion and cache behavior; see
+  `docs/tree-converter-abi.md`.
+
 Define Picture processing completion output on growth failure (2026-11-02)
 ==========================================================================
 
