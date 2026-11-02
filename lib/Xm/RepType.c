@@ -1293,7 +1293,7 @@ CopyRecord(
     if (values) {
 	memcpy(OutputEntry->values, values, (size_t)num_values);
     } else if (!copy_in) {
-	Cardinal i ;
+	unsigned char i ;
 	for (i=0; i<num_values;i++) OutputEntry->values[i] = i ;
     }
 
@@ -1352,12 +1352,15 @@ XmRepTypeRegister(
     XtConvertArgRec convertArg;
     XmRepTypeId reptype_id;
     
-    if (!num_values || !rep_type_name || !value_names) 
+    if (!num_values || (unsigned int)num_values > UCHAR_MAX ||
+	!rep_type_name || !value_names)
 	return( XmREP_TYPE_INVALID) ;
 
     _XmProcessLock();
     /** expand the dynamic table */
-    if (DynamicRepTypeNumRecords == UINT_MAX ||
+    if (StandardNumRecs >= XmREP_TYPE_INVALID ||
+	DynamicRepTypeNumRecords >= XmREP_TYPE_INVALID - StandardNumRecs ||
+	DynamicRepTypeNumRecords == UINT_MAX ||
 	(size_t)DynamicRepTypeNumRecords + 1 >
 	    SIZE_MAX / sizeof(XmRepTypeEntryRec) ||
 	DynamicRepTypeNumRecords + 1 >
@@ -1384,10 +1387,11 @@ XmRepTypeRegister(
             
 	if (!CopyRecord(NewRecord,
 		       rep_type_name, value_names,
-		       (ValuesConsecutiveStartingAtZero( values, num_values)) ?
+		       (ValuesConsecutiveStartingAtZero(values,
+						 (unsigned char)num_values)) ?
 		       NULL:values,
-		       num_values, False,
-		       DynamicRepTypeNumRecords + StandardNumRecs,
+		       (unsigned char)num_values, False,
+		       (XmRepTypeId)(DynamicRepTypeNumRecords + StandardNumRecs),
 		       True)) {
 	_XmProcessUnlock();
 	return( XmREP_TYPE_INVALID);
@@ -1422,8 +1426,12 @@ XmRepTypeAddReverse(
     XtConvertArgRec convertArg;
     XmRepTypeEntry Record;
 
+#if NeedWidePrototypes
+    if (rep_type_id < 0 || rep_type_id >= XmREP_TYPE_INVALID)
+	return;
+#endif
     _XmProcessLock();
-    Record = GetRepTypeRecord( rep_type_id);
+    Record = GetRepTypeRecord((XmRepTypeId)rep_type_id);
 
     if(    Record  &&  !Record->reverse_installed    )
       {   
@@ -1451,9 +1459,13 @@ XmRepTypeValidValue(
      Widget enable_default_warning)
 {
     XmRepTypeEntry Record; 
-    
+
+#if NeedWidePrototypes
+    if (rep_type_id < 0 || rep_type_id >= XmREP_TYPE_INVALID)
+	return FALSE;
+#endif
     _XmProcessLock();
-    Record = GetRepTypeRecord( rep_type_id);
+    Record = GetRepTypeRecord((XmRepTypeId)rep_type_id);
     if (!Record) {   
 	_XmProcessUnlock();
 	if (enable_default_warning) {
@@ -1525,7 +1537,7 @@ XmRepTypeGetRegistered( void )
 	  if (!CopyRecord(&(OutputList[Index]),
 			   Record->rep_type_name, Record->value_names,
 			   Record->values, Record->num_values,
-			   Record->reverse_installed, Index,
+		   Record->reverse_installed, (XmRepTypeId)Index,
 			   False)) {
 	      while (Index != 0) {
 		  --Index;
@@ -1544,7 +1556,8 @@ XmRepTypeGetRegistered( void )
 	  if (!CopyRecord(&(OutputList[StandardNumRecs + Index]),
 			   Record->rep_type_name, Record->value_names,
 			   Record->values, Record->num_values,
-			   Record->reverse_installed, Index + StandardNumRecs,
+		   Record->reverse_installed,
+		   (XmRepTypeId)(Index + StandardNumRecs),
 			   False)) {
 	      while (Index != 0) {
 		  --Index;
@@ -1575,8 +1588,12 @@ XmRepTypeGetRecord(
     XmRepTypeEntry Record; 
     XmRepTypeEntry OutputRecord ;
 
+#if NeedWidePrototypes
+    if (rep_type_id < 0 || rep_type_id >= XmREP_TYPE_INVALID)
+	return NULL;
+#endif
     _XmProcessLock();
-    Record = GetRepTypeRecord( rep_type_id);
+    Record = GetRepTypeRecord((XmRepTypeId)rep_type_id);
     if(    Record    )
       {   
 	  OutputRecord = (XmRepTypeEntry) 
@@ -1589,7 +1606,7 @@ XmRepTypeGetRecord(
 	  if (!CopyRecord(OutputRecord,
 			   Record->rep_type_name, Record->value_names,
 			   Record->values, Record->num_values,
-			   Record->reverse_installed, rep_type_id,
+		   Record->reverse_installed, (XmRepTypeId)rep_type_id,
 			   False)) {
 	      XtFree((char *)OutputRecord);
 	      _XmProcessUnlock();
@@ -1625,7 +1642,7 @@ XmRepTypeGetId(
 				  StandardRepTypes[Index].rep_type_name ) ;
 	if(compare_name == 0) {
 		_XmProcessUnlock();
-		return  Index;
+		return (XmRepTypeId)Index;
 	}
 	else if (compare_name < 0) break ;
 	
@@ -1639,7 +1656,7 @@ XmRepTypeGetId(
 	  if( !strcmp( rep_type_name, 
 		      DynamicRepTypes[Index].rep_type_name )) {
 	    _XmProcessUnlock();
-	    return Index + StandardNumRecs ;
+	    return (XmRepTypeId)(Index + StandardNumRecs) ;
 	  }
       }
 
@@ -1660,11 +1677,15 @@ XmRepTypeGetNameList(
     XmRepTypeEntry Record;
     String *name_list = NULL;
 
+#if NeedWidePrototypes
+    if (rep_type_id < 0 || rep_type_id >= XmREP_TYPE_INVALID)
+	return NULL;
+#endif
     _XmProcessLock();
-    Record = GetRepTypeRecord( rep_type_id);
+    Record = GetRepTypeRecord((XmRepTypeId)rep_type_id);
     if(Record) {
 	name_list = CopyStringArray(Record->value_names, Record->num_values,
-				use_uppercase_format);
+				use_uppercase_format ? True : False);
     } 
     _XmProcessUnlock();
     return name_list;

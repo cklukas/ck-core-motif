@@ -1,3 +1,10 @@
+Bound representation-type public identifiers (2026-11-02)
+==========================================================
+
+- Reserve the documented invalid `XmRepTypeId` sentinel during dynamic
+  registration and reject out-of-range wide-prototype IDs before narrowing.
+- Reject wide-prototype value counts that do not fit the public entry record.
+
 Bound charset-table converter source and table sizes (2026-11-02)
 ==================================================================
 
