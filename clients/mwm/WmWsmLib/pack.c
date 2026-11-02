@@ -162,6 +162,8 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
     *error = WSM_SUCCESS;
 
     if (global_attrs == NULL || win_attrs == NULL || icon_attrs == NULL ||
+	global_attrs->num_attrs < 0 || win_attrs->num_attrs < 0 ||
+	icon_attrs->num_attrs < 0 ||
 	(global_attrs->num_attrs != 0 && global_attrs->attr_list == NULL) ||
 	(win_attrs->num_attrs != 0 && win_attrs->attr_list == NULL) ||
 	(icon_attrs->num_attrs != 0 && icon_attrs->attr_list == NULL)) {
@@ -1148,7 +1150,7 @@ WinDataSizePacked(Display *dpy, int screen_num,
     long size;
     WSMConfigFormatData *fmt_data = _WSMGetConfigFormat(dpy, screen_num, fmt);
 
-    if (fmt_data == NULL ||
+    if (fmt_data == NULL || fmt_data->num_attrs < 0 ||
 	(fmt_data->num_attrs != 0 && fmt_data->attr_list == NULL))
 	return(-1);
 
@@ -1326,7 +1328,7 @@ PackWinData(Display *dpy, int screen_num, MessageData data,
     WSMAttribute *attr;
     int i, size;
 
-    if (conf_fmt == NULL ||
+    if (conf_fmt == NULL || conf_fmt->num_attrs < 0 ||
 	(conf_fmt->num_attrs != 0 && conf_fmt->attr_list == NULL))
 	return(NULL);
 
@@ -1493,7 +1495,7 @@ UnpackWinData(MessageData *data_ptr, Display *dpy, int screen_num,
 
     *win_data = NULL;
     *num = 0;
-    if (conf_fmt == NULL ||
+    if (conf_fmt == NULL || conf_fmt->num_attrs < 0 ||
 	(conf_fmt->num_attrs != 0 && conf_fmt->attr_list == NULL))
 	return;
     

@@ -7,6 +7,7 @@ start = source.index("\nUnpackWinData(MessageData")
 end = source.index("\nUnpackSingleWinDataRec(MessageData", start)
 region = source[start:end]
 assert "*num < 0" in region
+assert "conf_fmt->num_attrs < 0" in region
 assert "(size_t)*num > UINT_MAX / sizeof(WSMWinData)" in region
 assert "XtMalloc((Cardinal)((size_t)*num * sizeof(WSMWinData)))" in region
 assert "XtMalloc(*num * sizeof(WSMWinData))" not in region

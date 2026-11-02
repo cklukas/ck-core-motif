@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Reject invalid WSM configuration counts (2026-11-02)
+=====================================================
+
+- Reject negative WSM configuration attribute counts before request packing,
+  sizing, data packing, bit-mask allocation, or window-data unpacking.
+
 Preserve wide MWM diagnostic and session lengths (2026-11-02)
 ===============================================================
 
