@@ -2738,6 +2738,7 @@ GetBindingsProperty(
       || (actual_format != 8)
       || (prop == NULL)
       || (num_items == 0)
+      || (bytes_after != 0)
       || (num_items >= UINT_MAX))
     {
       if(    prop != NULL    )

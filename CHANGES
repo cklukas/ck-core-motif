@@ -1,3 +1,9 @@
+Reject truncated MWM virtual-key binding properties (2026-11-02)
+===============================================================
+
+- Require MWM's bounded binding-property fetch to be complete before parsing
+  or rewriting it, preserving oversized root-window properties intact.
+
 Correct MWM virtual-key binding ownership (2026-11-02)
 ========================================================
 
