@@ -1,3 +1,9 @@
+Bound DropDown modern frame drawing geometry (2026-11-02)
+==========================================================
+
+- Keep modern-style DropDown frame origins and combined child extents wide
+  until the legacy X11 drawing boundary, avoiding wrapped frames.
+
 Clamp DropDown popup placement geometry (2026-11-02)
 ======================================================
 

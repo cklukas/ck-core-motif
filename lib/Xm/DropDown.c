@@ -908,8 +908,9 @@ ChangeManaged(Widget w)
 static void
 ExposeMethod(Widget wid, XEvent *event, Region r)
 {
-    Position x, y;
+    int x, y;
     Dimension w, h;
+    unsigned long frame_width, frame_height;
     XmDropDownWidget cbw = (XmDropDownWidget)wid;
     Widget text  = XmDropDown_text(cbw);
     Widget arrow = XmDropDown_arrow(cbw);
@@ -918,26 +919,29 @@ ExposeMethod(Widget wid, XEvent *event, Region r)
 	return;
 
     if (LayoutIsRtoLM(cbw))
-	x = (Position)((int)arrow->core.x - (int)arrow->core.border_width -
-	    (int)cbw->manager.shadow_thickness);
+	x = (int)arrow->core.x - (int)arrow->core.border_width -
+	    (int)cbw->manager.shadow_thickness;
     else
-	x = (Position)((int)text->core.x - (int)text->core.border_width -
-	    (int)cbw->manager.shadow_thickness);
+	x = (int)text->core.x - (int)text->core.border_width -
+	    (int)cbw->manager.shadow_thickness;
 
-    y = (Position)((int)text->core.y - (int)text->core.border_width -
-	(int)cbw->manager.shadow_thickness);
+y = (int)text->core.y - (int)text->core.border_width -
+	(int)cbw->manager.shadow_thickness;
 
-    w = text->core.width + arrow->core.width +
-	2*(text->core.border_width + arrow->core.border_width) +
-	2*cbw->manager.shadow_thickness;
+    frame_width = (unsigned long)text->core.width + arrow->core.width +
+	2UL * ((unsigned long)text->core.border_width +
+	       arrow->core.border_width + cbw->manager.shadow_thickness);
+    w = dropdown_bounded_dimension(frame_width);
 
-    h = text->core.height + 2*text->core.border_width +
-	2*cbw->manager.shadow_thickness;
+    frame_height = (unsigned long)text->core.height +
+	2UL * ((unsigned long)text->core.border_width +
+	       cbw->manager.shadow_thickness);
+    h = dropdown_bounded_dimension(frame_height);
 
     XmeDrawShadows(XtDisplay(cbw), XtWindow(cbw),
 		   cbw->manager.top_shadow_GC,
 		   cbw->manager.bottom_shadow_GC,
-		   x, y, w, h,
+		   dropdown_bounded_position(x), dropdown_bounded_position(y), w, h,
 		   cbw->manager.shadow_thickness,
 		   XmSHADOW_IN);
 		   
