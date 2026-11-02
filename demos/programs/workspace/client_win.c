@@ -30,15 +30,13 @@ static char rcsid[] = "$XConsortium: client_win.c /main/5 1995/07/14 09:47:48 dr
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
-static Window TryChildren();
+static Window TryChildren(Display *, Window, Atom, unsigned int **);
 
 /* Find a window with WM_STATE, else return win itself, as per ICCCM */
 static Atom WM_STATE = None;
 
-Window IsClientWindow(dpy, win, retdata)
-	Display *dpy;
-	Window win;
-	unsigned int **retdata;
+Window
+IsClientWindow(Display *dpy, Window win, unsigned int **retdata)
 {
 	Atom type = None;
 	int format;
@@ -66,11 +64,8 @@ Window IsClientWindow(dpy, win, retdata)
 	return inf;
 }
 
-static Window TryChildren (dpy, win, WM_STATE, retdata)
-	Display *dpy;
-	Window win;
-	Atom WM_STATE;
-	unsigned int **retdata;
+static Window
+TryChildren(Display *dpy, Window win, Atom wm_state, unsigned int **retdata)
 {
 	Window root, parent;
 	Window *children;
@@ -85,7 +80,7 @@ static Window TryChildren (dpy, win, WM_STATE, retdata)
 	if (!XQueryTree(dpy, win, &root, &parent, &children, &nchildren))
 		return 0;
 	for (i = 0; !inf && (i < nchildren); i++) {
-		XGetWindowProperty(dpy, children[i], WM_STATE, 0, 2, False,
+		XGetWindowProperty(dpy, children[i], wm_state, 0, 2, False,
 			AnyPropertyType, &type, &format, &nitems,
 			&after, (unsigned char **)&data);
 		if (type) {
@@ -94,7 +89,7 @@ static Window TryChildren (dpy, win, WM_STATE, retdata)
 		}
 	}
 	for (i = 0; !inf && (i < nchildren); i++)
-		inf = TryChildren(dpy, children[i], WM_STATE, retdata);
+		inf = TryChildren(dpy, children[i], wm_state, retdata);
 	if (children) XFree((char *)children);
 	return inf;
 }

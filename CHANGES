@@ -1,3 +1,10 @@
+Modernize Workspace client-window discovery C23 contracts (2026-11-02)
+====================================================================
+
+- Replace legacy Workspace ICCCM client-window traversal definitions with
+  typed Xlib declarations, preserving the recursive `WM_STATE` lookup used by
+  the workspace demo.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 
