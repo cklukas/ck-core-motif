@@ -37,6 +37,7 @@ static char rcsid[] = "$TOG: XmTabList.c /main/9 1999/04/27 17:49:59 samborn $"
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <limits.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -805,7 +806,9 @@ _XmTabListGetPosition(
         Cardinal tab_position)
 {
     XmTab tab ;
-    Position xpos = 0 ;
+    float tab_value;
+    int converted;
+    int previous;
     unsigned char units; 
     XmOffsetModel offset; 
 
@@ -815,21 +818,38 @@ _XmTabListGetPosition(
     tab = XmTabListGetTab(tab_list, tab_position);
 
     if (tab) {
-	xpos = (Position) XmTabGetValues(tab, 
-					 &units, 
-					 &offset, 
-					 NULL, 
-					 NULL);
-	xpos = _XmConvertUnits(screen, XmHORIZONTAL, units, xpos, unit_type);
+	tab_value = XmTabGetValues(tab,
+				   &units,
+				   &offset,
+				   NULL,
+				   NULL);
+	if (tab_value >= (float)INT_MAX)
+	    converted = INT_MAX;
+	else if (tab_value <= (float)INT_MIN)
+	    converted = INT_MIN;
+	else
+	    converted = _XmConvertUnits(screen, XmHORIZONTAL, units,
+					 (int)tab_value, unit_type);
 	/* a little bit of recursivity here */
 	if ((offset == XmRELATIVE) && tab_position){
-	    xpos += _XmTabListGetPosition(screen, tab_list, unit_type,
-					  tab_position-1);
+	    previous = _XmTabListGetPosition(screen, tab_list, unit_type,
+					      tab_position-1);
+	    if ((converted > 0 && previous > SHRT_MAX - converted) ||
+		(converted < 0 && previous < SHRT_MIN - converted)) {
+		XmTabFree(tab);
+		return converted > 0 ? SHRT_MAX : SHRT_MIN;
+	    }
+	    converted += previous;
 	}
 	XmTabFree(tab) ;
+	if (converted > SHRT_MAX)
+	    return SHRT_MAX;
+	if (converted < SHRT_MIN)
+	    return SHRT_MIN;
+	return (Position)converted;
     }
 
-    return xpos ;
+    return 0;
 }
 
 #ifdef _XmDEBUG_XMTABLIST

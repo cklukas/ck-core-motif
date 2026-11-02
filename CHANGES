@@ -1,3 +1,9 @@
+Clamp large TabList coordinate conversion (2026-11-02)
+========================================================
+
+- Keep tab unit conversion and relative offsets wide until the legacy X11
+  `Position` return boundary, clamping out-of-range values instead of wrapping.
+
 Bound representation-type public identifiers (2026-11-02)
 ==========================================================
 
