@@ -3331,6 +3331,10 @@ AdjustSlideOutGeometry ( ClientData *pCD)
 
     pCD->slideDirection = SLIDE_NORTH;	/* assume up for now */
     pPanelist = (WmPanelistObject) pCD->pSD->wPanelist;
+    if (pPanelist == NULL || O_Shell(pPanelist) == NULL)
+    {
+	return;
+    }
     (void) XFindContext (DISPLAY, XtWindow(O_Shell(pPanelist)),
 		  wmGD.windowContextType, (caddr_t *)&pCD_FP);
 

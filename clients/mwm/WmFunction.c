@@ -3706,7 +3706,7 @@ F_Toggle_Front_Panel (String args, ClientData *pCD, XEvent *event)
     }
 
     pCD = NULL;
-    if (pPanelist)
+    if (pPanelist && O_Shell(pPanelist))
     {
 	(void) XFindContext (DISPLAY, XtWindow(O_Shell(pPanelist)),
 			    wmGD.windowContextType, (caddr_t *)&pCD);
@@ -3768,7 +3768,7 @@ F_Version (String args, ClientData *pCD, XEvent *event)
         pPanelist = (WmPanelistObject) ACTIVE_PSD->wPanelist;
     }
 
-    if (pPanelist)
+    if (pPanelist && O_Shell(pPanelist))
     {
 	WmDtHelpOnVersion (O_Shell (pPanelist));
     }

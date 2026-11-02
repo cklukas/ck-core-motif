@@ -364,7 +364,8 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
     /*
      *  Handle case of transients that derive from embedded clients.
      */
-    if (wmGD.dtSD && (wmGD.dtSD == pCD->pSD))
+    if (wmGD.dtSD && (wmGD.dtSD == pCD->pSD) &&
+	pCD->pSD->wPanelist != NULL)
     {
 	if (pCD->transientLeader && pCD->transientLeader->pECD)
 	{
@@ -372,7 +373,8 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
 	    ClientData *pCDfp = NULL;
 
 	    pPanelist = (WmPanelistObject) pCD->pSD->wPanelist;
-	    if (!XFindContext (DISPLAY, XtWindow(O_Shell (pPanelist)),
+	    if (O_Shell (pPanelist) != NULL &&
+		!XFindContext (DISPLAY, XtWindow(O_Shell (pPanelist)),
 		      wmGD.windowContextType, (caddr_t *)&pCDfp) &&
 		pCDfp != NULL)
 	    {

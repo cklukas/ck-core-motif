@@ -1,3 +1,11 @@
+Handle unavailable MWM front panels safely (2026-11-02)
+========================================================
+
+- Guard embedded-transient remapping, slide-out geometry, and panel actions
+  while the optional CDE front-panel object or shell is starting or has been
+  torn down. Transients retain their regular leader and geometry rather than
+  dereferencing an absent panel shell.
+
 Preserve MWM transient leaders during panel lookup failure (2026-11-02)
 =======================================================================
 
