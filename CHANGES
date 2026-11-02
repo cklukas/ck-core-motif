@@ -1,3 +1,9 @@
+Clamp DropDown popup placement geometry (2026-11-02)
+======================================================
+
+- Keep popup position and screen-fit arithmetic wide, clamping only at the
+  legacy X11 `Position`/`Dimension` boundary instead of wrapping offsets.
+
 Bound Label natural geometry and drawing origins (2026-11-02)
 ================================================================
 

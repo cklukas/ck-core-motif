@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #if defined(VMS) && !defined(__alpha)
 #define mbstowcs(a,b,n) XiMbstowcs(a,b,n)
 #endif
@@ -70,6 +71,21 @@
 /* From GrabShell.c */
 #define Events	(EnterWindowMask | LeaveWindowMask | ButtonPressMask | \
 		 ButtonReleaseMask)
+
+static Position
+dropdown_bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
+static Dimension
+dropdown_bounded_dimension(unsigned long value)
+{
+    if (value > USHRT_MAX) return (Dimension)USHRT_MAX;
+    return (Dimension)(value ? value : 1);
+}
 
 
 static void TextButtonPress(Widget, XtPointer, XEvent *, Boolean *);
@@ -2377,7 +2393,8 @@ PopupList(Widget w)
 {	
     XmDropDownWidget cbw = (XmDropDownWidget) w;
     Widget shell;
-    Position x, y, temp;
+    Position translated_x, translated_y;
+    int x, y, temp;
     Dimension width;
     int available_width;
     int ret, scr_width, scr_height;
@@ -2393,7 +2410,9 @@ PopupList(Widget w)
 	return(False);
     }
 
-    XtTranslateCoords(w, 0, XtHeight(w), &x, &y);
+    XtTranslateCoords(w, 0, XtHeight(w), &translated_x, &translated_y);
+    x = translated_x;
+    y = translated_y;
     XtRealizeWidget(shell);
 
     num_args = 0;
@@ -2412,7 +2431,7 @@ PopupList(Widget w)
 	 * width, while preserving the normal requested width. */
 	if (available_width < 1)
 	    available_width = 1;
-	width = (Dimension)available_width;
+	width = dropdown_bounded_dimension((unsigned long)available_width);
 	XtSetArg(args[num_args], XmNwidth, width); num_args++;
     }
     else
@@ -2432,21 +2451,21 @@ PopupList(Widget w)
     scr_width = WidthOfScreen(XtScreen(shell));
     scr_height = HeightOfScreen(XtScreen(shell));
 
-    if( (int)(y + XtHeight(shell)) > scr_height )
+    if( (long long)y + XtHeight(shell) > scr_height )
     {
-	Position tmp;
-	XtTranslateCoords(w, 0, 0, &tmp, &y);
-	y -= ((int)XtHeight(shell));
+	Position top_y;
+	XtTranslateCoords(w, 0, 0, &translated_x, &top_y);
+	y = (int)top_y - (int)XtHeight(shell);
     }
     if( y < 0 ) y = 0;
-    if( (int)(x + width) > scr_width )
+    if( (long long)x + width > scr_width )
     {
 	x = scr_width - ((int)width);
     }
     if( x < 0 ) x = 0;
 
-    XtSetArg(args[num_args], XmNx, x); num_args++;
-    XtSetArg(args[num_args], XmNy, y); num_args++;
+    XtSetArg(args[num_args], XmNx, dropdown_bounded_position(x)); num_args++;
+    XtSetArg(args[num_args], XmNy, dropdown_bounded_position(y)); num_args++;
     XtSetValues(shell, args, num_args);
     
     /*
