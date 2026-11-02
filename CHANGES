@@ -1,3 +1,10 @@
+Send one final CDE WSM-ready notification (2026-11-02)
+========================================================
+
+- Remove the legacy `PANACOMM` early `_DT_WM_READY` send. WSM builds now
+  notify the CDE session manager exactly once, after MWM initialization is
+  complete, matching dtwm's protocol ordering.
+
 Avoid traversal crashes for top-level-shell children (2026-11-02)
 =================================================================
 

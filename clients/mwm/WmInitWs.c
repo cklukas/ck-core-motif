@@ -877,19 +877,6 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 		    _DtGetSmWindow(DISPLAY,
 				  RootWindow(DISPLAY, 0), 
 				  &wmGD.dtSmWindow) ;
-#ifdef PANACOMM
-		    /*
-		     * If this is the first screen we've managed,
-		     * tell the session manager we're ready 
-		     */
-		    if (!processedGlobalResources)
-		    {
-			SendClientMsg( wmGD.dtSmWindow,
-				      (long) wmGD.xa_DT_SM_WM_PROTOCOL,
-				      (long) wmGD.xa_DT_WM_READY,
-				      CurrentTime, NULL, 0);
-		    }
-#endif /* PANACOMM */
 
 		    /* create topmost shell (application shell) */
 		    argnum = 0;

@@ -24,5 +24,12 @@ on a successful lookup. MWM retains that established optional-WSM startup
 behavior; it does not redirect acknowledgements to its own manager window when
 no session manager is running.
 
+MWM sends its one `_DT_WM_READY` notification only after its initial screens,
+internal shell, IPC endpoint, decorations, workspace properties, and keyboard
+focus have been initialized. This matches CDE dtwm: a legacy
+`PANACOMM`-only early send would have produced a duplicate ready message before
+that initialization was complete. CDE session managers therefore see one
+authoritative final readiness signal regardless of that legacy compile flag.
+
 The focused source regression is
 `tests/automated/check-mwm-cde-wsm-window-helper.py`.

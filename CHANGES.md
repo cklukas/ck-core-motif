@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-02 — Single final CDE WSM-ready notification
+
+- Remove the legacy early `PANACOMM` readiness send so CDE session managers
+  receive one `_DT_WM_READY` message after MWM initialization is complete.
+
 ## 2026-11-02 — Safe top-level-shell traversal geometry
 
 - Prevent focus traversal from calling `XtTranslateCoords` on an unparented
