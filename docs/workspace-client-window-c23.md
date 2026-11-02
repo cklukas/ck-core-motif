@@ -6,6 +6,10 @@ recursive search continues to look for `WM_STATE` properties through child
 windows, and the client-window module is accepted by the current C23 compiler
 configuration.
 
+The generated popup-menu post handler likewise declares the standard Xt event
+handler arguments explicitly, so it can be registered directly with
+`XtAddEventHandler` without an incompatible function pointer.
+
 The focused source-contract check is:
 
 ```sh
