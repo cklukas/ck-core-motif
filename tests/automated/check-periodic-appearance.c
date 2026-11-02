@@ -292,6 +292,12 @@ static void VerifyApplication(XtAppContext context)
 
 int main(int argc, char **argv)
 {
+    {
+        PeriodicOptions options;int n=1;char *plain[]={"periodic",NULL};
+        assert(ParseOptions(&n,plain,&options)==1 && !options.profile_given && !options.density_given);
+        n=5;char *explicit[]={"periodic","--appearance","modern-dark","--density","compact",NULL};
+        assert(ParseOptions(&n,explicit,&options)==1 && options.profile_given && options.density_given);
+    }
     /* Exercise the sentinel before any other Motif call initializes its cache. */
     XmStringTag tag = _XmStringCacheTag("periodic-native-tag", XmSTRING_TAG_STRLEN);
     assert(tag != NULL && !strcmp(tag, "periodic-native-tag"));

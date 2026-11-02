@@ -17,3 +17,7 @@ The ordering contract is checked by:
 ```sh
 python3 tests/automated/check-gallery-startup-profile.py
 ```
+
+Standalone examples receive the selected startup profile, density and effective
+scale before constructing their widgets, through standard Xt `-xrm` arguments.
+See [Demo launch appearance](demo-launch-appearance.md).

@@ -1548,3 +1548,16 @@ EXTRA_DIST += tests/automated/run-gallery-dialog-shell.py \
               docs/gallery-shell-examples.md
 
 EXTRA_DIST += docs/validation/macos-dialog-shell-20261101.json
+
+EXTRA_DIST += tests/automated/run-gallery-demo-reflow.py \
+              tests/automated/run-airport-behavior.py \
+              tests/automated/check-appearance-visual-object-lifetime.c \
+              tests/automated/run-modern-macos-audit.py \
+              tests/automated/check-modern-audit-controls.c \
+              tests/automated/check-modern-status-colors.c \
+              tests/automated/check-tab-color-state.c \
+              tests/automated/check-xmstring-disjoint-clip.c \
+              tests/automated/check-callback-dispatch-allocation.py \
+              docs/demo-launch-appearance.md docs/airport-demo.md \
+              docs/appearance-object-lifetime.md \
+              docs/validation/macos-demo-airport-20261102.json

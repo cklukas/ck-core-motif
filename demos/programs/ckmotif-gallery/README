@@ -100,8 +100,8 @@ Demo Applications
 -----------------
 The sidebar's Demo Applications page describes the standalone examples and
 provides Open buttons. `--component gallery.demos` opens it directly.
-The launcher checks the configured build tree, then the case-sensitive installed
-`PREFIX/share/Xm` directories. It executes the exact path without a shell, runs
+The launcher checks case-sensitive `PREFIX/share/Xm` locations first, then the
+configured build tree. It executes the exact path without a shell, runs
 beside each application's assets, inherits DISPLAY and prevents duplicate
 instances launched by this gallery. Missing executables show both expected
 locations and `./configure --enable-demos; make -j6; make install` guidance.
@@ -120,3 +120,12 @@ Only the trigger occupies preview space. To start with the panel visible:
   ckmotif-gallery --appearance modern-light --component xm.flyoutwidgetclass --open-example
 
 The same option supports TeachingTip and standalone shell examples.
+
+Demo startup appearance
+-----------------------
+New child windows inherit the selected theme, density and effective scale via
+child-only Xt -xrm resources. Close and reopen an example to apply a changed
+selection. --open-demo airport opens the demos page and launches Airport at
+startup; other catalogue executable names work too. Installed copies take
+precedence over build-tree copies to keep the running installation consistent.
+Airport now contains both departure and destination airports in one window.

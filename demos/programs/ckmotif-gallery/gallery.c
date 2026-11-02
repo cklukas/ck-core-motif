@@ -1394,7 +1394,17 @@ static void open_demo(Widget widget, XtPointer client, XtPointer call)
             "Build the library with ./configure --enable-demos, then make -j6 && make install.",
             path, GALLERY_BUILD_DEMOS, demo->build_dir, demo->binary);
     } else {
-        error = gallery_demo_launch(path, &demo_children[index]);
+        XmAppearanceProfile profile;
+        XmAppearanceDensity density;
+        double scale = 1.0;
+        static const char *profiles[] = {"classic", "modern-light", "high-contrast", "modern-dark"};
+        (void)XmGetWidgetScale(demo_state->shell, &scale);
+        if (!XmGetAppearanceProfile(XtDisplay(demo_state->shell), &profile) ||
+            !XmGetAppearanceDensity(XtDisplay(demo_state->shell), &density) ||
+            (unsigned)profile >= XtNumber(profiles)) error = EINVAL;
+        else error = gallery_demo_launch_with_appearance(path, profiles[profile],
+            density == XmAPPEARANCE_DENSITY_COMPACT ? "compact" : "comfortable",
+            scale, &demo_children[index]);
         snprintf(message, sizeof(message), "%s: %s%s", demo->title,
             error ? strerror(error) : "Opened ", error ? "" : path);
     }
@@ -1429,7 +1439,7 @@ static void demo_page_configured(Widget clip, XtPointer client, XEvent *event, B
     XtVaGetValues(list, XmNchildren, &rows, XmNnumChildren, &count, NULL);
     if (count > 1) {
         XmString intro = flow_text(rows[1],
-            "Open a standalone example.\nMissing demos show paths and build instructions.",
+            "Open an example with the current Theme and Scale.\nClose and reopen an example after changing these settings.",
             width > 32 ? width - 32 : 1);
         XtVaSetValues(rows[1], XmNlabelString, intro, NULL);
         XmStringFree(intro);
@@ -1444,6 +1454,14 @@ static void demo_page_configured(Widget clip, XtPointer client, XEvent *event, B
         }
     }
     XtVaSetValues(list, XmNwidth, width, NULL);
+    /* Wrapping changes text before RowColumn commits the final allocation.
+     * Invalidate those labels after layout, including when their windows shrink
+     * and the server has no newly exposed area to repaint automatically. */
+    for (Cardinal i=1;i<count;i++) {
+        Widget label=i==1?rows[i]:XtNameToWidget(rows[i],"description");
+        if(label && XtIsRealized(label))
+            XClearArea(XtDisplay(label),XtWindow(label),0,0,0,0,True);
+    }
     busy = False;
 }
 
@@ -1458,7 +1476,7 @@ static void create_demos(GalleryState *state)
     Widget list = XtVaCreateManagedWidget("demoApps", xmRowColumnWidgetClass, viewport,
         XmNorientation, XmVERTICAL, XmNpacking, XmPACK_TIGHT, NULL);
     gallery_label(list, "pageTitle", "Demo Applications");
-    gallery_label(list, "intro", "Open a standalone example.\nMissing demos show paths and build instructions.");
+    gallery_label(list, "intro", "Open an example with the current Theme and Scale.\nClose and reopen an example after changing these settings.");
     for (Cardinal i = 0; i < XtNumber(gallery_demos); ++i) {
         Widget row = XtVaCreateManagedWidget(gallery_demos[i].binary, xmRowColumnWidgetClass,
             list, XmNorientation, XmVERTICAL, XmNpacking, XmPACK_TIGHT, NULL);
@@ -2518,6 +2536,7 @@ int main(int argc, char **argv)
     const char *initial_id = NULL;
     const char *dialog_kind = NULL;
     const char *audit_directory = NULL;
+    const GalleryDemo *launch_demo = NULL;
     Boolean requested_profile = True;
     XmAppearanceProfile requested_profile_value = XmAPPEARANCE_MODERN_LIGHT;
     Boolean requested_scale = False;
@@ -2525,7 +2544,14 @@ int main(int argc, char **argv)
     int argument;
     for (argument = 1; argument < argc;) {
         int remove_count = 0;
-        if (!strcmp(argv[argument], "--audit-modern") && argument+1<argc) {
+        if (!strcmp(argv[argument], "--open-demo")) {
+            if (argument+1>=argc) { fprintf(stderr,"--open-demo requires an installed demo name\n"); return 2; }
+            launch_demo=NULL;
+            for (Cardinal i=0;i<XtNumber(gallery_demos);i++)
+                if (!strcmp(argv[argument+1],gallery_demos[i].binary)) launch_demo=&gallery_demos[i];
+            if (!launch_demo) { fprintf(stderr,"unknown demo: %s\n",argv[argument+1]); return 2; }
+            remove_count=2;
+        } else if (!strcmp(argv[argument], "--audit-modern") && argument+1<argc) {
             audit_directory=argv[argument+1];remove_count=2;
         } else if (!strcmp(argv[argument], "--integration-shells")) {
             integration_mode = 10;
@@ -2822,6 +2848,12 @@ int main(int argc, char **argv)
     }
     if (requested_profile || requested_scale)
         XSync(XtDisplay(shell), False);
+    if (launch_demo) {
+        XmTreeViewSetSelectedId(state.tree,(XtPointer)demos_id,False);
+        select_page(&state,5);
+        if (!settle_gallery(&state)) return 2;
+        open_demo(NULL,(XtPointer)launch_demo,NULL);
+    }
     if (audit_directory) return audit_modern_gallery(&state,audit_directory);
     if (integration_mode == 1) {
         int result = run_integration_test(&state);

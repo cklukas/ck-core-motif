@@ -8,4 +8,8 @@ int gallery_demo_path(const char *build_root, const char *install_root,
                       const char *binary, char *path, size_t size);
 /* Child inherits display/environment, runs beside its assets. Returns exec errors synchronously. */
 int gallery_demo_launch(const char *path, pid_t *pid);
+/* Snapshot the gallery selection into child-only Xt command-line resources.
+ * Explicit Xft.dpi carries the effective scale, including Automatic mode. */
+int gallery_demo_launch_with_appearance(const char *path, const char *profile,
+                                        const char *density, double scale, pid_t *pid);
 #endif

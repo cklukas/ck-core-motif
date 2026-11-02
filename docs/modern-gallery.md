@@ -179,12 +179,23 @@ provides an **Open** button. The catalogue covers all 34 installed standalone de
 application examples, drag-and-drop demonstrations, individual widget demos,
 custom widget examples and Wsm.
 
-The launcher checks the configured build directory and then the installed
-`PREFIX/share/Xm/<demo>/<executable>` location, preserving case. It runs the
+The launcher checks the installed `PREFIX/share/Xm/<demo>/<executable>` first,
+then the configured build directory as a development fallback, preserving case. It runs the
 resolved executable directly, with its asset directory as the working directory
 and the gallery's display and environment. One instance of each example can be
 opened by a gallery at a time. Child exits are reaped and reported; closing the
 gallery leaves independently opened examples running.
+
+New demo windows inherit the gallery's current appearance profile, density and
+**effective** scale, including Automatic mode, through child-only Xt command-line
+resources. Close and reopen a demo after changing these selections. The parent
+process environment and global X resource database are unchanged. See
+[Demo launch appearance](demo-launch-appearance.md).
+
+`ckmotif-gallery --appearance modern-dark --scale 1.5 --open-demo airport`
+opens the gallery and immediately launches the selected installed example.
+[Airport](airport-demo.md) now presents two airports in one window, with
+left-button drag-and-drop, click/Fly and keyboard operation.
 
 A missing or non-executable application produces a notice with the exact build
 and install paths. Build and install the examples with `./configure

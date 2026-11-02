@@ -43,7 +43,15 @@ static void SomethingLanding(Widget dc, XtPointer client_data,
 			     XmDropProcCallbackStruct *call_data);
 /* drop proc callback on airport. Something is landing */
 
-static void TaxiIn(Widget transfer,  Airport this,
+typedef struct { Airport airport; int gate; Boolean delivered; } ArrivalRec;
+static void ArrivalFinished(Widget widget, XtPointer closure, XtPointer data)
+{
+    ArrivalRec *arrival=closure;(void)widget;(void)data;
+    if(!arrival->delivered)arrival->airport->park.spots[arrival->gate].reserved=False;
+    XtFree((char *)arrival);
+}
+
+static void TaxiIn(Widget transfer, XtPointer closure,
 		   Atom * selection, Atom * type, XtPointer value,
 		   unsigned long *length, int *format);
 /* Xt Selection Callback. Transfer flight number from source */
@@ -76,6 +84,13 @@ static void TrafficSignal(Widget dropSite, XtPointer client_data,
    Airport this;
 
    XtVaGetValues(dropSite, XmNuserData, &this, NULL);
+   Boolean available=False;
+   for(int i=0;i<this->park.spot_count;i++)
+       if(this->park.spots[i].empty && !this->park.spots[i].reserved)available=True;
+   if(!available && call_data->reason!=XmCR_DROP_SITE_LEAVE_MESSAGE) {
+       call_data->dropSiteStatus=XmINVALID_DROP_SITE;
+       AirportSetStatus(this,False,"Full — no free gates");return;
+   }
    switch(call_data->reason) { 
       
    case XmCR_DROP_SITE_MOTION_MESSAGE:
@@ -85,11 +100,11 @@ static void TrafficSignal(Widget dropSite, XtPointer client_data,
       break;
       
    case XmCR_DROP_SITE_ENTER_MESSAGE:
-      XmToggleButtonSetState(this->to.enter, True, True);
+      AirportSetStatus(this,False,"Plane approaching");
       break;
 
    case XmCR_DROP_SITE_LEAVE_MESSAGE: 
-      XmToggleButtonSetState(this->to.leave, True, True);
+      AirportSetStatus(this,False,"Ready");
       DrawAirport(this, XtWindow(dropSite),
 		  AirportResources.track_background,
 		  AirportResources.track_foreground);
@@ -109,45 +124,37 @@ static void TrafficSignal(Widget dropSite, XtPointer client_data,
 static void SomethingLanding(Widget dropSite, XtPointer client_data,
 			     XmDropProcCallbackStruct *call_data)
 {
-#define NUMREC 2
-   Arg args[16];
-   int n;
-   XmDropTransferEntryRec target_data[NUMREC];
-   Airport this;
-   unsigned char status = XmTRANSFER_FAILURE;
-   int num_targets = 0;
-
-   XtVaGetValues(dropSite, XmNuserData, &this, NULL);
-   XmToggleButtonSetState(this->to.landing, True, True);
-   n = 0;
-   if (call_data->dropSiteStatus == XmVALID_DROP_SITE)
-     {
-	int gate;
-	      
-	for (gate = 0; gate < this->park.spot_count; gate ++) {
-	   if (this->park.spots[gate].empty == True)
-	     break;
-	}
-	if (gate == this->park.spot_count)
-	  Paging(this, "Airport saturated, no landing");
-	else {
-	   status = XmTRANSFER_SUCCESS;
-	   call_data->operation = XmDROP_MOVE;
-	   num_targets = 1;
-	   this->to.gate = gate;
-	   target_data[0].client_data = (XtPointer) this;
-	   target_data[0].target = FlightAtom;
-	   XtSetArg(args[n], XmNtransferProc, TaxiIn);  n++;
-	   XtSetArg(args[n], XmNdropTransfers, target_data);  n++;
-	}
-     }
-   else {
-      Paging(this, "Non Identified Flying Object is landing");
+   Airport airport;Arg args[4];int n=0,gate;
+   XmDropTransferEntryRec target;ArrivalRec *arrival=NULL;
+   unsigned char status=XmTRANSFER_FAILURE;
+   XtVaGetValues(dropSite,XmNuserData,&airport,NULL);
+   (void)client_data;
+   for(gate=0;gate<airport->park.spot_count;gate++)
+       if(airport->park.spots[gate].empty && !airport->park.spots[gate].reserved)break;
+   if(gate==airport->park.spot_count) {
+       AirportSetStatus(airport,False,"Full — no free gates");
+       Paging(airport,"Airport full. Fly a plane out before accepting arrivals.");
+   } else if(call_data->dropAction!=XmDROP || call_data->operation!=XmDROP_MOVE) {
+       Paging(airport,"Flight cancelled. Planes move between airports; use How to fly for instructions.");
+   } else if(call_data->dropSiteStatus!=XmVALID_DROP_SITE) {
+       Paging(airport,"Unsupported drop. Drag an Airport plane to this airport.");
+   } else {
+       arrival=(ArrivalRec *)XtCalloc(1,sizeof(*arrival));
+       if(arrival) {
+           arrival->airport=airport;arrival->gate=gate;airport->park.spots[gate].reserved=True;
+           target.client_data=arrival;target.target=FlightAtom;status=XmTRANSFER_SUCCESS;
+           AirportSetStatus(airport,False,"Landing");
+           XtSetArg(args[n],XmNtransferProc,TaxiIn);n++;
+           XtSetArg(args[n],XmNdropTransfers,&target);n++;
+       } else Paging(airport,"Unable to reserve a gate. The plane will return.");
    }
-   XtSetArg(args[n], XmNnumDropTransfers, num_targets);  n++;
-   XtSetArg(args[n], XmNtransferStatus, status);  n++;
-   XmDropTransferStart(call_data->dragContext, args, n);
-#undef NUMREC
+   XtSetArg(args[n],XmNnumDropTransfers,arrival?1:0);n++;
+   XtSetArg(args[n],XmNtransferStatus,status);n++;
+   Widget transfer=XmDropTransferStart(call_data->dragContext,args,n);
+   if(arrival) {
+       if(transfer)XtAddCallback(transfer,XmNdestroyCallback,ArrivalFinished,arrival);
+       else {airport->park.spots[gate].reserved=False;XtFree((char *)arrival);}
+   }
 }
 
 /* ===============================================================
@@ -156,34 +163,22 @@ static void SomethingLanding(Widget dropSite, XtPointer client_data,
  * If some error occured during the transfer, do plane crash
  */
 
-static void TaxiIn(Widget transfer, Airport this,
-		   Atom * selection, Atom * type, XtPointer value,
-		   unsigned long *length, int *format)
+static void TaxiIn(Widget transfer, XtPointer closure,
+                   Atom *selection, Atom *type, XtPointer value,
+                   unsigned long *length, int *format)
 {
-   if ((*format == 32) && (*length == 1) && (*type == FlightAtom)) {
-      /* 
-       * received a 32 bit value that is the flight number
-       */
-      long flight_number;
-      char msg[256];
-
-      flight_number =  *((long *)value); 
-      this->park.spots[this->to.gate].empty = False;
-      sprintf(msg, "Flight %ld arrived at gate %d",
-	   flight_number, this->to.gate);
-      Paging(this, msg);
-      DrawAirport(this, XtWindow(this->airport),
-		  AirportResources.track_foreground,
-		  AirportResources.track_background);
-      XmToggleButtonSetState(this->to.leave, True, True);
-      XtFree(value);
-  }
-   else {
-     Paging(this, "Too bad: plane has crashed in landing");
-     XtVaSetValues(transfer,
-		   XmNtransferStatus, XmTRANSFER_FAILURE,
-		   XmNnumDropTransfers, 0,
-		   NULL);
-     return;
-  }
+   ArrivalRec *arrival=closure; Airport airport=arrival->airport;
+   (void)selection;
+   airport->park.spots[arrival->gate].reserved=False;arrival->delivered=True;
+   if (value && *format==32 && *length==1 && *type==FlightAtom &&
+       AirportAcceptPlane(airport,*((long *)value))>=0) {
+       /* Source removes its plane only after the successful transfer completes. */
+   } else {
+       Paging(airport,"Flight transfer failed. The plane stays at its departure gate.");
+       AirportSetStatus(airport,False,"Transfer failed");
+       if(value)XtFree((char *)value);
+       XtVaSetValues(transfer,XmNtransferStatus,XmTRANSFER_FAILURE,XmNnumDropTransfers,0,NULL);
+       return;
+   }
+   if(value)XtFree((char *)value);
 }

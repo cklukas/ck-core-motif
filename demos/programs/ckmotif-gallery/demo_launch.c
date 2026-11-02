@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <math.h>
 extern char **environ;
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,16 +24,30 @@ int gallery_demo_path(const char *build_root, const char *install_root,
 {
     if (!build_root || !install_root || !build_dir || !install_dir || !binary || !path || !size)
         return EINVAL;
-    int length = snprintf(path, size, "%s/%s/%s", build_root, build_dir, binary);
+    int length = snprintf(path, size, "%s/%s/%s", install_root, install_dir, binary);
     if (length < 0 || (size_t)length >= size) return ENAMETOOLONG;
     if (executable(path)) return 0;
-    length = snprintf(path, size, "%s/%s/%s", install_root, install_dir, binary);
+    length = snprintf(path, size, "%s/%s/%s", build_root, build_dir, binary);
     if (length < 0 || (size_t)length >= size) return ENAMETOOLONG;
-    return executable(path) ? 0 : ENOENT;
+    if (executable(path)) return 0;
+    /* Keep the missing-app notice anchored to the installed location. */
+    length = snprintf(path, size, "%s/%s/%s", install_root, install_dir, binary);
+    return length < 0 || (size_t)length >= size ? ENAMETOOLONG : ENOENT;
 }
 
-int gallery_demo_launch(const char *path, pid_t *pid)
+static int launch(const char *path, const char *profile, const char *density,
+                  double scale, pid_t *pid)
 {
+    char profile_resource[96], density_resource[96], dpi_resource[96];
+    if (profile) {
+        if ((strcmp(profile,"classic") && strcmp(profile,"modern-light") &&
+             strcmp(profile,"modern-dark") && strcmp(profile,"high-contrast")) ||
+            !density || (strcmp(density,"comfortable") && strcmp(density,"compact")) ||
+            !isfinite(scale) || scale <= 0.0 || !isfinite(scale*96.0)) return EINVAL;
+        snprintf(profile_resource,sizeof(profile_resource),"ckCoreMotif.appearanceProfile: %s",profile);
+        snprintf(density_resource,sizeof(density_resource),"ckCoreMotif.appearanceDensity: %s",density);
+        snprintf(dpi_resource,sizeof(dpi_resource),"Xft.dpi: %.17g",scale*96.0);
+    }
     int channel[2], error = 0;
     if (!path || path[0] != '/' || !pid) return EINVAL;
     char *directory = strdup(path);
@@ -64,7 +79,8 @@ int gallery_demo_launch(const char *path, pid_t *pid)
     if (child == 0) {
         close(channel[0]);
         if (chdir(*directory ? directory : "/") == 0) {
-            char *const arguments[] = {(char *)path, NULL};
+            char *const arguments[] = {(char *)path, profile ? "-xrm" : NULL,
+                profile_resource, "-xrm", density_resource, "-xrm", dpi_resource, NULL};
             execve(path, arguments, environment);
         }
         error = errno;
@@ -86,4 +102,16 @@ int gallery_demo_launch(const char *path, pid_t *pid)
     }
     close(channel[0]);
     return error;
+}
+
+int gallery_demo_launch(const char *path, pid_t *pid)
+{
+    return launch(path, NULL, NULL, 0.0, pid);
+}
+
+int gallery_demo_launch_with_appearance(const char *path, const char *profile,
+                                        const char *density, double scale, pid_t *pid)
+{
+    if (!profile) return EINVAL;
+    return launch(path, profile, density, scale, pid);
 }

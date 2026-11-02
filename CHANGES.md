@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-11-02 — Demo appearance and usable Airport flights
+
+- Launch demos with the selected theme, density and scale; installed copies win
+  over build-tree copies. Add `--open-demo` for direct gallery startup.
+- Repaint wrapped demo descriptions after viewport resizing.
+- Let Periodic respect inherited theme/density resources.
+- Rework Airport into two usable airports with bounded gates, normal dragging,
+  click/Fly and keyboard controls, real flight feedback, Help and safe transfers.
+- Retire visual appearance/scale state through phase-one lifetime hooks, fixing
+  the Periodic hierarchy teardown crash and surviving callback replacement.
+- Add native pointer/keyboard, cross-process transfer and appearance qualification.
+  See [Airport](docs/airport-demo.md) and
+  [Demo launch appearance](docs/demo-launch-appearance.md).
+
 ## 2026-11-02 — Modern macOS UI audit
 
 - Complete measured date/time/calendar controls, readable progress text, Xft

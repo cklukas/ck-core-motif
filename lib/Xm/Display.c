@@ -140,6 +140,7 @@ typedef struct _XmScaleDisplayState XmScaleDisplayState;
 struct _XmScaleDisplayState {
   Display *display;
   Boolean transaction_active;
+  Widget hooks;
   XmScaleDisplayState *next;
 };
 
@@ -207,53 +208,68 @@ scale_transaction_end(Display *display)
 }
 
 static void
-scale_display_destroyed(Display *display)
+retire_scale_widget_state(XmScaleWidgetState *state)
 {
-  XmScaleDisplayState **link;
-  XmScaleDisplayState *state;
-
-  _XmProcessLock();
-  link = &scaleDisplayStates;
-  while (*link != NULL && (*link)->display != display)
-    link = &(*link)->next;
-  if (*link != NULL) {
-    state = *link;
-    *link = state->next;
+  XmScaleWidgetState **link=&scaleWidgetStates;
+  XmScaleCallback *callback;
+  state->retired=True;state->widget=NULL;
+  while (*link && *link!=state) link=&(*link)->next;
+  if (*link) *link=state->next;
+  for(callback=state->callbacks;callback;callback=callback->next)callback->retired=True;
+  if(!state->references) {
+    callback=state->callbacks;
+    while(callback){XmScaleCallback *next=callback->next;XtFree((char *)callback);callback=next;}
     XtFree((char *)state);
   }
+}
+static void
+scale_destroying(Widget hooks,XtPointer closure,XtPointer data)
+{
+  XtDestroyHookData destroyed=data;XmScaleWidgetState *state;
+  (void)hooks;(void)closure;if(!destroyed)return;
+  _XmProcessLock();
+  for(state=scaleWidgetStates;state;state=state->next)
+    if(state->widget==destroyed->widget){retire_scale_widget_state(state);break;}
   _XmProcessUnlock();
 }
-
 static void
-scale_widget_destroyed(Widget widget, XtPointer client_data,
-                       XtPointer call_data)
+scale_hooks_destroyed(Widget hooks,XtPointer closure,XtPointer data)
+{(void)hooks;(void)data;((XmScaleDisplayState *)closure)->hooks=NULL;}
+static Boolean
+ensure_scale_destroy_hook(Display *display)
 {
-  XmScaleWidgetState *state = (XmScaleWidgetState *)client_data;
-  XmScaleWidgetState **link;
-  XmScaleCallback *callback;
-  (void)widget;
-  (void)call_data;
-
+  XmScaleDisplayState *state;
   _XmProcessLock();
-  if (state == NULL || state->retired) {
-    _XmProcessUnlock();
-    return;
+  for(state=scaleDisplayStates;state;state=state->next)if(state->display==display)break;
+  if(!state){
+    state=(XmScaleDisplayState *)XtCalloc(1,sizeof(*state));
+    if(!state){_XmProcessUnlock();return False;}
+    state->display=display;state->next=scaleDisplayStates;scaleDisplayStates=state;
   }
-  state->retired = True;
-  link = &scaleWidgetStates;
-  while (*link != NULL && *link != state)
-    link = &(*link)->next;
-  if (*link == state)
-    *link = state->next;
-  for (callback = state->callbacks; callback != NULL;
-       callback = callback->next)
-    callback->retired = True;
-  if (state->references == 0) {
-    callback = state->callbacks;
-    while (callback != NULL) {
-      XmScaleCallback *next = callback->next;
-      XtFree((char *)callback);
-      callback = next;
+  _XmProcessUnlock();
+  if(!state->hooks){
+    state->hooks=XtHooksOfDisplay(display);
+    XtAddCallback(state->hooks,XtNdestroyHook,scale_destroying,state);
+    XtAddCallback(state->hooks,XtNdestroyCallback,scale_hooks_destroyed,state);
+  }
+  return True;
+}
+static void
+scale_display_destroyed(Display *display)
+{
+  XmScaleDisplayState **link,*state;XmScaleWidgetState *widget,*next;
+  _XmProcessLock();
+  for(widget=scaleWidgetStates;widget;widget=next){
+    next=widget->next;
+    if(widget->display==display)retire_scale_widget_state(widget);
+  }
+  link=&scaleDisplayStates;
+  while(*link && (*link)->display!=display)link=&(*link)->next;
+  if((state=*link)!=NULL){
+    *link=state->next;
+    if(state->hooks){
+      XtRemoveCallback(state->hooks,XtNdestroyHook,scale_destroying,state);
+      XtRemoveCallback(state->hooks,XtNdestroyCallback,scale_hooks_destroyed,state);
     }
     XtFree((char *)state);
   }
@@ -266,10 +282,10 @@ _XmRegisterScaleChange(Widget widget, _XmScaleChangeProc proc,
 {
   XmScaleWidgetState *state;
   XmScaleCallback *callback;
-  Boolean install_destroy_callback = False;
 
-  if (widget == NULL || proc == NULL)
+  if (widget == NULL || proc == NULL || !XtIsRectObj(widget))
     return False;
+  if (!ensure_scale_destroy_hook(XtDisplayOfObject(widget))) return False;
 
   _XmProcessLock();
   for (state = scaleWidgetStates; state != NULL; state = state->next)
@@ -285,7 +301,6 @@ _XmRegisterScaleChange(Widget widget, _XmScaleChangeProc proc,
     state->display = XtDisplayOfObject(widget);
     state->next = scaleWidgetStates;
     scaleWidgetStates = state;
-    install_destroy_callback = True;
   }
   for (callback = state->callbacks; callback != NULL;
        callback = callback->next)
@@ -305,9 +320,6 @@ _XmRegisterScaleChange(Widget widget, _XmScaleChangeProc proc,
   callback->next = state->callbacks;
   state->callbacks = callback;
   _XmProcessUnlock();
-  if (install_destroy_callback)
-    XtAddCallback(widget, XmNdestroyCallback, scale_widget_destroyed,
-                  (XtPointer)state);
   return True;
 }
 

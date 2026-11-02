@@ -23,41 +23,14 @@
 ! 
 ! HISTORY
 
-!*fontList: *-Helvetica-medium-r-normal-*-14-*
-*defaultFontList:  *-Helvetica-medium-r-normal-*-14-*
-XmdAirport.trackMargin: 20
-XmdAirport.trackBackground: CadetBlue
-XmdAirport.trackForeground: Wheat
-XmdAirport.spotBackground: Cyan
-XmdAirport.spotForeground: Magenta
-XmdAirport.dragUnderBackground: Wheat
-XmdAirport.dragUnderForeground: CadetBlue
-XmdAirport.flyingBackground: Black
-XmdAirport.flyingForeground: Green
-XmdAirport.noneForeground: Turquoise
-XmdAirport.validForeground: Pink
-XmdAirport.invalidForeground: Red
-XmdAirport.bellDuration: 100
-XmdAirport.bellPercent: 100
-*dragInitiatorProtocolStyle: XmDRAG_DYNAMIC
-*dragReceiverProtocolStyle: XmDRAG_DYNAMIC
-*main*menubar*Background: PeachPuff
-*main*menubar*Foreground: Black
-*main*fontList: *-Helvetica-medium-r-normal-*-14-*
-*main*Background: Aquamarine
-*main*Foreground: Black
-*main.airport.marginWidth: 8
-*main.message*marginWidth: 8
-*main.message*marginHeight: 6
-*main.airport.flight.title.labelString: Flight Information
-*main.airport.flight.panel.departure.labelString: Departure
-*main.airport.flight.panel.over_ocean.labelString: Over Ocean
-*main.airport.flight.panel.over_land.labelString: Over Land
-*main.airport.flight.panel.radar.labelString: Radar Echo
-*main.airport.flight.panel.landing.labelString: Landing
-*main.airport.flight.panel.landed.labelString: Landed
-*main.airport.traffic.title.labelString: Traffic
-*main.airport.traffic.traffic_box.no_traffic.labelString: No Traffic
-*main.airport.traffic.traffic_box.radar_echo.labelString: Radar Echo
-*main.airport.traffic.traffic_box.landing.labelString: Landing
-*main.message.title.labelString: Paging
+! Defaults follow the active toolkit palette and scale.
+! Override individual semantic drawing colors only when desired, e.g.:
+! XmdAirport.trackBackground: #9aa0ad
+! XmdAirport.trackForeground: #202124
+! XmdAirport.spotForeground: #202124
+! XmdAirport.dragUnderBackground: #1a73e8
+! XmdAirport.dragUnderForeground: white
+!
+! Dynamic feedback is the built-in default; select preregister if required:
+! *dragInitiatorProtocolStyle: XmDRAG_PREREGISTER
+! *dragReceiverProtocolStyle: XmDRAG_PREREGISTER

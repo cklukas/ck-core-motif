@@ -1,0 +1,2037 @@
+{
+  "recorded_utc": "2026-11-02T01:50:28.953941+00:00",
+  "source_base": "96f8a6806802edf60e8c100165523fb97cf6fd29",
+  "platform": "macOS arm64, C23, XQuartz/Xft/Unicode/SVG",
+  "scope": "Native isolated Xvfb tests, plus read-only inspection of actual XQuartz gallery and Airport windows. No desktop input injected.",
+  "results": {
+    "native-control-accepted.json": {
+      "sha256": "64331712b16a54cf1538eaccdbdc7b06ccbfe98177a65dcaa4257933b056b29b",
+      "report": {
+        "started_utc": "2026-11-02T01:19:47.150947+00:00",
+        "scope": "native isolated Xvfb; no user desktop input",
+        "library_path": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib/libXm.9.dylib",
+        "library": "7eccb28fe5348791168551bc8b635078f5ead8126726a8bdebd0021606d9be1a",
+        "cases": [
+          {
+            "name": "appearance-visual-object-lifetime",
+            "source_sha256": "78a778d1d1a936b21554f66e9273fcdecdcbdd26e8308bac94c3f8ffa21b961d",
+            "compile": 0,
+            "run": 0,
+            "seconds": 1.037518083001487
+          },
+          {
+            "name": "live-appearance",
+            "source_sha256": "bd60bff5e4a0399af1859bf488476db3d9bca814c4acd9304fce8d80d244ee65",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.7632369159982773,
+            "initial_invocation_run": 1,
+            "command": [
+              "/Volumes/S8T/tmp/motif-modern-audit-20261101/demos-followup-20261102/native-control-final/check-live-appearance",
+              "-xrm",
+              "*ordinary.foreground: #00ff00"
+            ],
+            "invocation_correction": "Match the existing run-live-appearance.py required explicit green resource; the first suite invocation omitted this fixture precondition."
+          },
+          {
+            "name": "live-appearance-gadget",
+            "source_sha256": "8323f1dcd8a34e8bfa5a6b0d9a8c3c53b9de6aedd956890249fbe9bad55638f6",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.35132500000327127
+          },
+          {
+            "name": "display-scale-reentrant",
+            "source_sha256": "56fa39db5b28329546ea15ec4dde2d71af6e9e88952ad81ce69a9ae9b2002924",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.3694532080044155
+          },
+          {
+            "name": "display-scale-override",
+            "source_sha256": "37b856e6dc569db62a82da4c4ec82afb4ac11ba890c6661798e08a5228e2c63c",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.3555532500031404
+          },
+          {
+            "name": "modern-audit-controls",
+            "source_sha256": "b94ef040d0006c5e2764e3e3dd2e51cae8adf0521156da064cce05e844a47b6b",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.8974175000039395
+          },
+          {
+            "name": "modern-status-colors",
+            "source_sha256": "502f42f9639057f69d7090767bef740a1315297656d311cf3ea5971357d1ccd6",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.44261008300236426
+          },
+          {
+            "name": "xmstring-disjoint-clip",
+            "source_sha256": "76e76b0c2d30d6dc9afc8e91ef206359e54bf6b884bdc529fcf6716dcd757fbf",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.46541729199816473
+          },
+          {
+            "name": "tab-color-state",
+            "source_sha256": "2cc5be5e5f77c377c2dd14c6d11985e8897e18e1dfce74ab06b5a408cd9c437a",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.4249496249976801
+          },
+          {
+            "name": "scroll-lifetime",
+            "source_sha256": "dbed3d1f011f06e0757bd85c3055b61ca1d2c6af809645f4dff2358090f251e7",
+            "compile": 0,
+            "run": 0,
+            "seconds": 1.2730357500040554
+          },
+          {
+            "name": "progress-bar",
+            "source_sha256": "9c0354e239dc787cb7089d3a4812cea26fbeeb3bf658a2229eb31691572e6217",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.3804042919946369
+          },
+          {
+            "name": "progress-ring",
+            "source_sha256": "9d7a5b5670e651e07f33c97930d22aa953cab753d535cfcbe6fa5c28627c4969",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.35207954199722735
+          },
+          {
+            "name": "calendar",
+            "source_sha256": "926ba3f1687d1cffc53258ce289ed500cbfd0f19806e9a7b52cd7fd8472e2711",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.3579669999962789
+          },
+          {
+            "name": "date-picker",
+            "source_sha256": "dc551e70d8dc6d49d8a83d4c97a3f1c8c8763dc9332f0abd16e95b3de325e8c1",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.35286345799977425
+          },
+          {
+            "name": "time-picker",
+            "source_sha256": "027198496dd50059287a12c3a339d71b30fdf1a09f826bb8a63034fff272da5f",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.36125675000221236
+          },
+          {
+            "name": "modern-fields",
+            "source_sha256": "0346c3e32722642249acceaf8e2905835bffe70ada0632bcf31b63d3a8c2eeda",
+            "compile": 0,
+            "run": 0,
+            "seconds": 1.2884702919982374
+          },
+          {
+            "name": "modern-buttons",
+            "source_sha256": "ebc7e1c35c2ab9402e4d472899e51a076561d5e3733e77861f3597592b854799",
+            "compile": 0,
+            "run": 0,
+            "seconds": 3.5743172920047073
+          },
+          {
+            "name": "modern-arrows",
+            "source_sha256": "71fc86e26fa32b60cee35abb6410e23008d367739e908b2e2a84737516c60f45",
+            "compile": 0,
+            "run": 0,
+            "seconds": 3.1978338330009137
+          },
+          {
+            "name": "modern-toggles",
+            "source_sha256": "1e6112a626c3eec9d8e92b163e35f125995e89cf80ea0981a8970901642016a8",
+            "compile": 0,
+            "run": 0,
+            "seconds": 5.084536750000552
+          },
+          {
+            "name": "modern-borders",
+            "source_sha256": "b489ef2df044efd52f0b0fd1585ed85436e3c460801a3aaa00c3a4d5af5c2875",
+            "compile": 0,
+            "run": 0,
+            "seconds": 3.302278082999692
+          },
+          {
+            "name": "modern-scrollbars",
+            "source_sha256": "b823440856fd0aa798f530e5077555e2a5ff8ea52606a0a8e0b58547212ed0f2",
+            "compile": 0,
+            "run": 0,
+            "seconds": 5.678070959002071
+          },
+          {
+            "name": "composite-appearance-fonts",
+            "source_sha256": "ced8ccfa518cc1018dcc08c77e8cf4f65a4bb7a8a6fa77a5405b7d1c1402e354",
+            "compile": 0,
+            "run": 0,
+            "seconds": 1.3037433330027852
+          },
+          {
+            "name": "cascade-appearance",
+            "source_sha256": "0ef5f282995c3388e5d0e963722091fdc7de13be698e5df1d809d7321b3ed8c6",
+            "compile": 0,
+            "run": 0,
+            "seconds": 18.158185042004334
+          },
+          {
+            "name": "container-appearance",
+            "source_sha256": "ff1e772b3657a339ff0a0143c5339bf520cd81faa6d615ba02bcbd5e5e14b8f6",
+            "compile": 0,
+            "run": 0,
+            "seconds": 4.213983542002097
+          },
+          {
+            "name": "avatar-modern",
+            "source_sha256": "cefd9bebdd0c4281372c0e23825c57813da688f7e7e341c0873c3c0c686ca530",
+            "compile": 0,
+            "run": 0,
+            "seconds": 11.976693709002575
+          },
+          {
+            "name": "breadcrumb-modern",
+            "source_sha256": "4198fdd932c3db794e2e4cbb4b3feab86e0178446c070910c8c51ca5f69e6271",
+            "compile": 0,
+            "run": 0,
+            "seconds": 3.934985500003677
+          },
+          {
+            "name": "font-selector-modern",
+            "source_sha256": "82bf5da63f67c65c2fbd105fcac7479633c795c188157614499d17b707a3430d",
+            "compile": 0,
+            "run": 0,
+            "seconds": 2.3157162920033443
+          },
+          {
+            "name": "appearance-roles",
+            "source_sha256": "074431b0d352bd0ff5c7c44303dc7861bd996f67efbb95290400e2ab6d1a903c",
+            "compile": 0,
+            "run": 0,
+            "seconds": 2.961321249997127
+          },
+          {
+            "name": "modern-scale",
+            "source_sha256": "4a927a8653318be5874ed21bac5579592ccc0668b5ebb01e9eaef76f32fe08ca",
+            "compile": 0,
+            "run": 0,
+            "seconds": 4.3649930829997174
+          },
+          {
+            "name": "modern-light-profile",
+            "source_sha256": "f5f8e06a82468a259fd3410b423c0eb1b43d8aa66eeb37fcda2bce91a3789d1a",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.5044394580036169
+          },
+          {
+            "name": "modern-dark-profile",
+            "source_sha256": "5213bae46f2a3808891023e3ca1287d4bad12f4b0ed4416e1a537c4d68774348",
+            "compile": 0,
+            "run": 0,
+            "seconds": 0.6627021250023972
+          }
+        ],
+        "ended_utc": "2026-11-02T01:21:08.356941+00:00",
+        "success": true,
+        "qualification": "All 31 native groups pass; one fixture rerun with its documented required Xrm argument after correcting the runner invocation.",
+        "initial_receipt_sha256": "98b0b095032b6eae573fea1e88f84c89f0b0acb3cde3cc7215d9e32291213603"
+      }
+    },
+    "native-airport-final/receipt.json": {
+      "sha256": "decc4ab91804bc773b00ec2605c368aa5158c6bbfe7e3e88655a8e7773692cbf",
+      "report": {
+        "started_utc": "2026-11-02T01:19:47.850399+00:00",
+        "binary": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/share/Xm/airport/airport",
+        "binary_sha256": "50bfce75ac3b7bad13c67c1b4d411cbe8b9be349f5f89cc8e69ece41b3c62059",
+        "library_sha256": "7eccb28fe5348791168551bc8b635078f5ead8126726a8bdebd0021606d9be1a",
+        "scope": "Real server input on isolated Xvfb; no desktop input",
+        "success": true,
+        "cases": [
+          {
+            "profile": "modern-light",
+            "scale": 1,
+            "density": "comfortable",
+            "via_gallery": false,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-light",
+            "scale": 1.5,
+            "density": "comfortable",
+            "via_gallery": false,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-light",
+            "scale": 2,
+            "density": "comfortable",
+            "via_gallery": false,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-dark",
+            "scale": 1,
+            "density": "comfortable",
+            "via_gallery": false,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-dark",
+            "scale": 1.5,
+            "density": "comfortable",
+            "via_gallery": false,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-dark",
+            "scale": 2,
+            "density": "comfortable",
+            "via_gallery": false,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "classic",
+            "scale": 1,
+            "density": "comfortable",
+            "via_gallery": false,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-dark",
+            "scale": 1.5,
+            "density": "compact",
+            "via_gallery": false,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-light",
+            "scale": "automatic",
+            "density": "comfortable",
+            "via_gallery": true,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-light",
+            "scale": 1.5,
+            "density": "comfortable",
+            "via_gallery": true,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-dark",
+            "scale": 2,
+            "density": "comfortable",
+            "via_gallery": true,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "classic",
+            "scale": 1,
+            "density": "comfortable",
+            "via_gallery": true,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          },
+          {
+            "profile": "modern-dark",
+            "scale": 1.5,
+            "density": "compact",
+            "via_gallery": true,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          }
+        ],
+        "runner_sha256": "b4011f198e8b570e26085c57a400cd055d56ff65bb8d75dbba0418b160611dab",
+        "cross_process_full_rejection_and_transfer": "pass",
+        "ended_utc": "2026-11-02T01:21:33.456171+00:00"
+      }
+    },
+    "native-preregister-verified/receipt.json": {
+      "sha256": "d45a413e8172bdaf6226319ddfbae00e2497d2b1f7056b841624cd3b0d67ec0a",
+      "report": {
+        "started_utc": "2026-11-02T01:32:03.913344+00:00",
+        "binary": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/share/Xm/airport/airport",
+        "binary_sha256": "50bfce75ac3b7bad13c67c1b4d411cbe8b9be349f5f89cc8e69ece41b3c62059",
+        "library_sha256": "7eccb28fe5348791168551bc8b635078f5ead8126726a8bdebd0021606d9be1a",
+        "scope": "Real server input on isolated Xvfb; no desktop input",
+        "success": true,
+        "cases": [
+          {
+            "profile": "modern-light",
+            "scale": 1,
+            "density": "comfortable",
+            "via_gallery": false,
+            "selection_keyboard_buttons_drag_drop_cancel_invalid_resize_help_close": "pass"
+          }
+        ],
+        "runner_sha256": "4b96ae60aa7189454c5f387e6bca7538551d55abca59e2a33ed025cce9b55982",
+        "cross_process_full_rejection_and_transfer": "pass",
+        "ended_utc": "2026-11-02T01:32:17.288300+00:00"
+      }
+    },
+    "periodic-native-final/receipt.json": {
+      "sha256": "91f6bb521dd728e11aaede16c7d68770dbbefa30a834379c48c69dcb7da460a1",
+      "report": {
+        "started_utc": "2026-11-02T01:21:54.995176+00:00",
+        "success": true,
+        "cases": [
+          {
+            "name": "light",
+            "exit": 0,
+            "seconds": 4.763173958002881
+          },
+          {
+            "name": "dark",
+            "exit": 0,
+            "seconds": 3.6651033329981146
+          },
+          {
+            "name": "scaled",
+            "exit": 0,
+            "seconds": 3.044505208999908
+          },
+          {
+            "name": "contrast",
+            "exit": 0,
+            "seconds": 3.516521207995538
+          },
+          {
+            "name": "compact",
+            "exit": 0,
+            "seconds": 3.3345280419962364
+          },
+          {
+            "name": "classic",
+            "exit": 0,
+            "seconds": 0.4467907079961151
+          },
+          {
+            "name": "historical",
+            "exit": 0,
+            "seconds": 0.4014482089987723
+          },
+          {
+            "name": "override",
+            "exit": 0,
+            "seconds": 3.3032263329951093
+          },
+          {
+            "name": "inherited-dark",
+            "exit": 0,
+            "seconds": 3.5053857079983572
+          },
+          {
+            "name": "inherited-classic",
+            "exit": 0,
+            "seconds": 0.3895481250001467
+          },
+          {
+            "name": "inherited-compact",
+            "exit": 0,
+            "seconds": 3.520281500001147
+          }
+        ],
+        "ended_utc": "2026-11-02T01:22:25.563904+00:00"
+      }
+    },
+    "all-demo-themes-final/receipt.json": {
+      "sha256": "64b4a7e6eec5f4c25d0363b181ce6da9925c85342fb40291f72ecc86aaedb413",
+      "report": {
+        "success": true,
+        "started_utc": "2026-11-02T01:21:53.944897+00:00",
+        "cases": [
+          {
+            "profile": "modern-light",
+            "scale": 1,
+            "exit": 0,
+            "seconds": 37.73584733399912,
+            "startup_checks": 33
+          },
+          {
+            "profile": "modern-dark",
+            "scale": 1.5,
+            "exit": 0,
+            "seconds": 36.826438666001195,
+            "startup_checks": 33
+          }
+        ],
+        "gallery_sha256": "33686802ad6c25cc0e4c13ec232a052534df9185f7dfe82d7bf9d948def1f5a3",
+        "ended_utc": "2026-11-02T01:23:08.654332+00:00"
+      }
+    },
+    "source-checks.json": {
+      "sha256": "a797cd18a69ca7b1eab2b9ae0e7f1b59e51a3b421f6589d8820a1b081b469ba7",
+      "report": [
+        {
+          "name": "check-appearance-profile-number-overflow.py",
+          "exit": 0,
+          "output": "PASS appearance-profile numbers reject conversion overflow\n"
+        },
+        {
+          "name": "check-appearance-snapshot-bounds.py",
+          "exit": 0,
+          "output": "PASS appearance transaction snapshot allocation bounds\n"
+        },
+        {
+          "name": "check-calendar-coordinate-bounds.py",
+          "exit": 0,
+          "output": "PASS Calendar draw coordinates are bounded before XmStringDraw\n"
+        },
+        {
+          "name": "check-calendar-day-arithmetic.py",
+          "exit": 0,
+          "output": "PASS Calendar day navigation clamps wide ordinal arithmetic\n"
+        },
+        {
+          "name": "check-calendar-event-guards.py",
+          "exit": 0,
+          "output": "PASS Calendar event callbacks validate widget and event inputs\n"
+        },
+        {
+          "name": "check-calendar-geometry-guards.py",
+          "exit": 0,
+          "output": "PASS Calendar geometry guards\n"
+        },
+        {
+          "name": "check-calendar-month-bounds.py",
+          "exit": 0,
+          "output": "PASS Calendar month helpers validate bounds\n"
+        },
+        {
+          "name": "check-calendar-mutator-destroy-guards.py",
+          "exit": 0,
+          "output": "PASS Calendar mutators guard destruction\n"
+        },
+        {
+          "name": "check-calendar-render-table-transaction.py",
+          "exit": 0,
+          "output": "PASS Calendar render-table updates are transactional\n"
+        },
+        {
+          "name": "check-calendar-render-table.py",
+          "exit": 0,
+          "output": "PASS Calendar labels and day names use the measured render table\n"
+        },
+        {
+          "name": "check-calendar-text-metrics.py",
+          "exit": 0,
+          "output": "PASS Calendar text uses render-table metrics\n"
+        },
+        {
+          "name": "check-calendar-treeview-color-update.py",
+          "exit": 0,
+          "output": "Calendar and TreeView color changes refresh cached text GCs\n"
+        },
+        {
+          "name": "check-callback-dispatch-allocation.py",
+          "exit": 0,
+          "output": "PASS callback dispatch allocation and lifetime guards\n"
+        },
+        {
+          "name": "check-color-picker-change-callback.py",
+          "exit": 0,
+          "output": "PASS color-picker-change-callback\n"
+        },
+        {
+          "name": "check-color-picker-coordinate-bounds.py",
+          "exit": 0,
+          "output": "PASS color-picker-coordinate-bounds\n"
+        },
+        {
+          "name": "check-color-selector-channel-bounds.py",
+          "exit": 0,
+          "output": "ColorSelector channel values and filename comparisons are bounded\n"
+        },
+        {
+          "name": "check-color-selector-child-allocation.py",
+          "exit": 0,
+          "output": "ColorSelector internal child allocation failures are null-safe\n"
+        },
+        {
+          "name": "check-color-selector-child-update.py",
+          "exit": 0,
+          "output": "ColorSelector optional child updates are null-safe\n"
+        },
+        {
+          "name": "check-color-selector-initialize-input.py",
+          "exit": 0,
+          "output": "ColorSelector Initialize validates widget and argument inputs\n"
+        },
+        {
+          "name": "check-color-selector-label-bounds.py",
+          "exit": 0,
+          "output": "ColorSelector label formatting is bounded\n"
+        },
+        {
+          "name": "check-color-selector-label-init-rollback.py",
+          "exit": 0,
+          "output": "ColorSelector initialization preserves labels on allocation failure\n"
+        },
+        {
+          "name": "check-color-selector-layout-bounds.py",
+          "exit": 0,
+          "output": "ColorSelector layout geometry clamps dimensions and positions\n"
+        },
+        {
+          "name": "check-color-selector-list-allocation.py",
+          "exit": 0,
+          "output": "ColorSelector list allocation failures are null-safe\n"
+        },
+        {
+          "name": "check-color-selector-mode-lifecycle.py",
+          "exit": 0,
+          "output": "ColorSelector mode lifecycle is null-safe\n"
+        },
+        {
+          "name": "check-color-selector-mode-value.py",
+          "exit": 0,
+          "output": "ColorSelector mode values use the Xt ABI and are normalized before indexing\n"
+        },
+        {
+          "name": "check-color-selector-name-allocation.py",
+          "exit": 0,
+          "output": "ColorSelector name allocation checks passed\n"
+        },
+        {
+          "name": "check-color-selector-name-copy-rollback.py",
+          "exit": 0,
+          "output": "ColorSelector preserves equal color names on copy failure\n"
+        },
+        {
+          "name": "check-color-selector-name-rollback.py",
+          "exit": 0,
+          "output": "ColorSelector preserves color name on copy failure\n"
+        },
+        {
+          "name": "check-color-selector-name-scope.py",
+          "exit": 0,
+          "output": "color selector replacement name has function scope\n"
+        },
+        {
+          "name": "check-color-selector-preferred-size.py",
+          "exit": 0,
+          "output": "ColorSelector preferred dimensions saturate instead of wrapping\n"
+        },
+        {
+          "name": "check-color-selector-preview-allocation.py",
+          "exit": 0,
+          "output": "ColorSelector preview updates are null-safe\n"
+        },
+        {
+          "name": "check-color-selector-rgb-file-rollback.py",
+          "exit": 0,
+          "output": "ColorSelector preserves RGB-file state on copy failure\n"
+        },
+        {
+          "name": "check-color-selector-set-values-input.py",
+          "exit": 0,
+          "output": "ColorSelector SetValues validates widget and argument inputs\n"
+        },
+        {
+          "name": "check-color-selector-string-getters.py",
+          "exit": 0,
+          "output": "ColorSelector string getters validate internal strings\n"
+        },
+        {
+          "name": "check-colorpicker-event-guards.py",
+          "exit": 0,
+          "output": "PASS colorpicker-event-guards\n"
+        },
+        {
+          "name": "check-colorpicker-mutator-destroy-guards.py",
+          "exit": 0,
+          "output": "PASS ColorPicker mutators guard destruction\n"
+        },
+        {
+          "name": "check-datafield-action-insertion-conversion.py",
+          "exit": 0,
+          "output": "PASS DataField action insertion conversion guards\n"
+        },
+        {
+          "name": "check-datafield-action-snapshot.py",
+          "exit": 0,
+          "output": "DataField action-snapshot checks passed\n"
+        },
+        {
+          "name": "check-datafield-allocation.py",
+          "exit": 0,
+          "output": "DataField allocation checks passed\n"
+        },
+        {
+          "name": "check-datafield-baseline-input.py",
+          "exit": 0,
+          "output": "PASS DataField baseline getter validates NULL widgets\n"
+        },
+        {
+          "name": "check-datafield-class-bindings.py",
+          "exit": 0,
+          "output": "DataField class-binding checks passed\n"
+        },
+        {
+          "name": "check-datafield-clear-selection-span.py",
+          "exit": 0,
+          "output": "DataField clear-selection span is bounds-checked\n"
+        },
+        {
+          "name": "check-datafield-clear-selection.py",
+          "exit": 0,
+          "output": "DataField clear-selection checks passed\n"
+        },
+        {
+          "name": "check-datafield-clip-mask.py",
+          "exit": 0,
+          "output": "DataField clip-mask checks passed\n"
+        },
+        {
+          "name": "check-datafield-context-cleanup-guards.py",
+          "exit": 0,
+          "output": "DataField context cleanup validates client data and screen\n"
+        },
+        {
+          "name": "check-datafield-destination-context.py",
+          "exit": 0,
+          "output": "DataField destination-context checks passed\n"
+        },
+        {
+          "name": "check-datafield-display-rect-bounds.py",
+          "exit": 0,
+          "output": "PASS DataField display rectangles use widened bounded geometry\n"
+        },
+        {
+          "name": "check-datafield-dnd-callback-inputs.py",
+          "exit": 0,
+          "output": "DataField DnD callbacks validate inputs\n"
+        },
+        {
+          "name": "check-datafield-dnd-context.py",
+          "exit": 0,
+          "output": "DataField DnD callbacks validate drag context\n"
+        },
+        {
+          "name": "check-datafield-dnd-destroy-widget.py",
+          "exit": 0,
+          "output": "DataField DnD cleanup tolerates a missing widget\n"
+        },
+        {
+          "name": "check-datafield-draw-length.py",
+          "exit": 0,
+          "output": "DataField Unicode drawing uses checked size arithmetic\n"
+        },
+        {
+          "name": "check-datafield-drawing-conversion.py",
+          "exit": 0,
+          "output": "PASS DataField drawing conversion rejects invalid input\n"
+        },
+        {
+          "name": "check-datafield-drop-length-bounds.py",
+          "exit": 0,
+          "output": "PASS DataField drop-transfer lengths are bounded\n"
+        },
+        {
+          "name": "check-datafield-drop-local-init.py",
+          "exit": 0,
+          "output": "PASS DataField drop callback initializes widget before local-state query\n"
+        },
+        {
+          "name": "check-datafield-drop-metadata-cleanup.py",
+          "exit": 0,
+          "output": "DataField malformed transfer metadata releases incoming values\n"
+        },
+        {
+          "name": "check-datafield-drop-transfer-cleanup.py",
+          "exit": 0,
+          "output": "DataField transfer teardown frees incoming values and fails\n"
+        },
+        {
+          "name": "check-datafield-drop-transfer-inputs.py",
+          "exit": 0,
+          "output": "DataField drop-transfer callbacks validate inputs\n"
+        },
+        {
+          "name": "check-datafield-drop-transfer.py",
+          "exit": 0,
+          "output": "DataField drop-transfer checks passed\n"
+        },
+        {
+          "name": "check-datafield-empty-wide-callback.py",
+          "exit": 0,
+          "output": "DataField does not dereference NULL for empty wide callback results\n"
+        },
+        {
+          "name": "check-datafield-export-targets.py",
+          "exit": 0,
+          "output": "DataField drops reject a missing export-target array\n"
+        },
+        {
+          "name": "check-datafield-full-gc-bounds.py",
+          "exit": 0,
+          "output": "PASS DataField full-GC clipping is bounded for tiny allocations\n"
+        },
+        {
+          "name": "check-datafield-gc-context.py",
+          "exit": 0,
+          "output": "DataField GC-context checks passed\n"
+        },
+        {
+          "name": "check-datafield-gc-resources.py",
+          "exit": 0,
+          "output": "DataField GC-resource checks passed\n"
+        },
+        {
+          "name": "check-datafield-getsubstring-conversion-failure.py",
+          "exit": 0,
+          "output": "DataField substring conversion failures are reported\n"
+        },
+        {
+          "name": "check-datafield-getter-allocation.py",
+          "exit": 0,
+          "output": "DataField getter allocation checks passed\n"
+        },
+        {
+          "name": "check-datafield-growth-arithmetic.py",
+          "exit": 0,
+          "output": "DataField replacement growth arithmetic is checked\n"
+        },
+        {
+          "name": "check-datafield-highlight-allocation.py",
+          "exit": 0,
+          "output": "PASS DataField highlight growth is allocation-safe\n"
+        },
+        {
+          "name": "check-datafield-input-conversion.py",
+          "exit": 0,
+          "output": "PASS DataField keyboard conversion rejects invalid multibyte input\n"
+        },
+        {
+          "name": "check-datafield-invalid-wchar-warning.py",
+          "exit": 0,
+          "output": "DataField invalid wchar warnings stay within scratch\n"
+        },
+        {
+          "name": "check-datafield-mblen-progress.py",
+          "exit": 0,
+          "output": "DataField multibyte counting terminates when mblen returns zero\n"
+        },
+        {
+          "name": "check-datafield-modify-verify-cleanup.py",
+          "exit": 0,
+          "output": "DataField modify-verify invalid callback data is cleaned up\n"
+        },
+        {
+          "name": "check-datafield-modify-verify-conversion.py",
+          "exit": 0,
+          "output": "PASS DataField modify-verify conversion guards\n"
+        },
+        {
+          "name": "check-datafield-modify-verify-result-allocation.py",
+          "exit": 0,
+          "output": "DataField modify-verify result allocations are checked\n"
+        },
+        {
+          "name": "check-datafield-modify-verify-size.py",
+          "exit": 0,
+          "output": "DataField modify-verify temporary sizes are bounded\n"
+        },
+        {
+          "name": "check-datafield-modify-verify-snapshot.py",
+          "exit": 0,
+          "output": "PASS DataField modify-verify snapshot conversion checks\n"
+        },
+        {
+          "name": "check-datafield-multibyte-scratch.py",
+          "exit": 0,
+          "output": "DataField multibyte scratch buffers cover MB_LEN_MAX\n"
+        },
+        {
+          "name": "check-datafield-mutator-inputs.py",
+          "exit": 0,
+          "output": "PASS DataField mutators reject NULL widgets before context lookup\n"
+        },
+        {
+          "name": "check-datafield-paste-buffer.py",
+          "exit": 0,
+          "output": "DataField paste-buffer checks passed\n"
+        },
+        {
+          "name": "check-datafield-paste-conversion.py",
+          "exit": 0,
+          "output": "DataField paste-conversion checks passed\n"
+        },
+        {
+          "name": "check-datafield-picture-allocation.py",
+          "exit": 0,
+          "output": "DataField picture-allocation checks passed\n"
+        },
+        {
+          "name": "check-datafield-picture-callback-input.py",
+          "exit": 0,
+          "output": "DataField picture verification rejects malformed callback input\n"
+        },
+        {
+          "name": "check-datafield-picture-callback-length.py",
+          "exit": 0,
+          "output": "DataField picture callback lengths are bounded before narrowing\n"
+        },
+        {
+          "name": "check-datafield-picture-init.py",
+          "exit": 0,
+          "output": "DataField picture-init checks passed\n"
+        },
+        {
+          "name": "check-datafield-picture-null-result.py",
+          "exit": 0,
+          "output": "DataField picture generation checks for a NULL result\n"
+        },
+        {
+          "name": "check-datafield-picture-source.py",
+          "exit": 0,
+          "output": "DataField picture-source checks passed\n"
+        },
+        {
+          "name": "check-datafield-pixel-length.py",
+          "exit": 0,
+          "output": "DataField pixel measurement uses checked Unicode sizes\n"
+        },
+        {
+          "name": "check-datafield-pixmap-context.py",
+          "exit": 0,
+          "output": "DataField pixmap-context checks passed\n"
+        },
+        {
+          "name": "check-datafield-pixmap-names.py",
+          "exit": 0,
+          "output": "DataField cursor pixmap names are bounded\n"
+        },
+        {
+          "name": "check-datafield-portability-warnings.py",
+          "exit": 0,
+          "output": "DataField null-value conversions are type-correct\n"
+        },
+        {
+          "name": "check-datafield-position-geometry.py",
+          "exit": 0,
+          "output": "PASS DataField position geometry is widened and clamped\n"
+        },
+        {
+          "name": "check-datafield-primary-conversion.py",
+          "exit": 0,
+          "output": "DataField primary-conversion checks passed\n"
+        },
+        {
+          "name": "check-datafield-primary-fallback-bounds.py",
+          "exit": 0,
+          "output": "DataField primary-fallback-bound checks passed\n"
+        },
+        {
+          "name": "check-datafield-primary-fallback.py",
+          "exit": 0,
+          "output": "DataField primary-fallback checks passed\n"
+        },
+        {
+          "name": "check-datafield-primary-selection.py",
+          "exit": 0,
+          "output": "DataField primary-selection checks passed\n"
+        },
+        {
+          "name": "check-datafield-primary-wide-conversion.py",
+          "exit": 0,
+          "output": "DataField primary-wide-conversion checks passed\n"
+        },
+        {
+          "name": "check-datafield-public-conversion-bounds.py",
+          "exit": 0,
+          "output": "PASS DataField public conversion bounds\n"
+        },
+        {
+          "name": "check-datafield-realloc-failure.py",
+          "exit": 0,
+          "output": "DataField replacement preserves pointers on realloc failure\n"
+        },
+        {
+          "name": "check-datafield-replace-conversion.py",
+          "exit": 0,
+          "output": "PASS DataField replacement rejects invalid wide conversion\n"
+        },
+        {
+          "name": "check-datafield-selection-actions.py",
+          "exit": 0,
+          "output": "PASS DataField selection actions validate NULL widgets before display use\n"
+        },
+        {
+          "name": "check-datafield-selection-array.py",
+          "exit": 0,
+          "output": "DataField selection-array checks passed\n"
+        },
+        {
+          "name": "check-datafield-selection-assembly.py",
+          "exit": 0,
+          "output": "DataField selection assembly checks temporary allocations\n"
+        },
+        {
+          "name": "check-datafield-selection-bounds.py",
+          "exit": 0,
+          "output": "DataField selection bounds checks passed\n"
+        },
+        {
+          "name": "check-datafield-selection-byte-count.py",
+          "exit": 0,
+          "output": "DataField selection byte counts reject conversion failure and overflow\n"
+        },
+        {
+          "name": "check-datafield-selection-callback-inputs.py",
+          "exit": 0,
+          "output": "PASS DataField selection callback validates inputs\n"
+        },
+        {
+          "name": "check-datafield-selection-geometry.py",
+          "exit": 0,
+          "output": "PASS DataField selection and geometry APIs validate inputs\n"
+        },
+        {
+          "name": "check-datafield-selection-length.py",
+          "exit": 0,
+          "output": "DataField selection conversion bounds external byte lengths\n"
+        },
+        {
+          "name": "check-datafield-selection-span.py",
+          "exit": 0,
+          "output": "PASS DataField selection exports validate position spans before narrowing\n"
+        },
+        {
+          "name": "check-datafield-selection-target-allocation.py",
+          "exit": 0,
+          "output": "PASS DataField selection target allocations are guarded\n"
+        },
+        {
+          "name": "check-datafield-selection-value-allocation.py",
+          "exit": 0,
+          "output": "PASS DataField selection values use bounded allocation checks\n"
+        },
+        {
+          "name": "check-datafield-setvalues-selection-array.py",
+          "exit": 0,
+          "output": "DataField SetValues selection-array checks passed\n"
+        },
+        {
+          "name": "check-datafield-splice-allocation-bounds.py",
+          "exit": 0,
+          "output": ""
+        },
+        {
+          "name": "check-datafield-state-accessors.py",
+          "exit": 0,
+          "output": "PASS DataField state and selection APIs validate inputs\n"
+        },
+        {
+          "name": "check-datafield-string-conversion.py",
+          "exit": 0,
+          "output": "DataField string-conversion checks passed\n"
+        },
+        {
+          "name": "check-datafield-string-getter-guards.py",
+          "exit": 0,
+          "output": "DataField string getters validate widget and output pointers\n"
+        },
+        {
+          "name": "check-datafield-string-inputs.py",
+          "exit": 0,
+          "output": "PASS DataField string APIs validate widgets before context lookup\n"
+        },
+        {
+          "name": "check-datafield-string-wcs-conversion.py",
+          "exit": 0,
+          "output": "DataField wide-string conversion handles invalid input\n"
+        },
+        {
+          "name": "check-datafield-string-wcs-size.py",
+          "exit": 0,
+          "output": "DataField wide-string access checks allocation size\n"
+        },
+        {
+          "name": "check-datafield-substring-byte-range.py",
+          "exit": 0,
+          "output": "DataField byte-substring range checks passed\n"
+        },
+        {
+          "name": "check-datafield-substring-conversion.py",
+          "exit": 0,
+          "output": "PASS DataField substring exports detect conversion failure\n"
+        },
+        {
+          "name": "check-datafield-substring-range.py",
+          "exit": 0,
+          "output": "DataField substring range checks passed\n"
+        },
+        {
+          "name": "check-datafield-substring-wcs-buffer.py",
+          "exit": 0,
+          "output": "DataField wide-substring buffer checks passed\n"
+        },
+        {
+          "name": "check-datafield-target-callback-inputs.py",
+          "exit": 0,
+          "output": "PASS DataField target callback validates selection inputs\n"
+        },
+        {
+          "name": "check-datafield-timer-edge-bounds.py",
+          "exit": 0,
+          "output": "PASS DataField timer edge geometry is widened and clamped\n"
+        },
+        {
+          "name": "check-datafield-validate-capacity.py",
+          "exit": 0,
+          "output": "DataField validation capacity arithmetic stays representable\n"
+        },
+        {
+          "name": "check-datafield-validate-length.py",
+          "exit": 0,
+          "output": "DataField validation rejects unrepresentable source lengths\n"
+        },
+        {
+          "name": "check-datafield-value-conversion.py",
+          "exit": 0,
+          "output": "PASS DataField value conversion rejects invalid multibyte input\n"
+        },
+        {
+          "name": "check-datafield-verify-allocation.py",
+          "exit": 0,
+          "output": "DataField modify-verify allocation checks passed\n"
+        },
+        {
+          "name": "check-datafield-verify-buffer.py",
+          "exit": 0,
+          "output": "DataField verify-buffer checks passed\n"
+        },
+        {
+          "name": "check-datafield-warning-bounds.py",
+          "exit": 0,
+          "output": "DataField warning formatting is dynamically bounded\n"
+        },
+        {
+          "name": "check-datafield-wcs-bridge-bounds.py",
+          "exit": 0,
+          "output": ""
+        },
+        {
+          "name": "check-datafield-wcs-callback-bounds.py",
+          "exit": 0,
+          "output": ""
+        },
+        {
+          "name": "check-datafield-wcs-verify-allocation.py",
+          "exit": 0,
+          "output": "DataField wide modify-verify allocation checks passed\n"
+        },
+        {
+          "name": "check-datafield-wcvalue-init.py",
+          "exit": 0,
+          "output": "DataField wide-value initialization checks passed\n"
+        },
+        {
+          "name": "check-datafield-wide-insert-allocation.py",
+          "exit": 0,
+          "output": "PASS DataField wide insertion allocation guard\n"
+        },
+        {
+          "name": "check-datafield-wide-insertion-allocation.py",
+          "exit": 0,
+          "output": "DataField wide insertion allocation guard: ok\n"
+        },
+        {
+          "name": "check-datafield-wide-length-before-sentinel.py",
+          "exit": 0,
+          "output": "DataField validates wide-string length before sentinel reads\n"
+        },
+        {
+          "name": "check-datafield-wide-selection-allocation.py",
+          "exit": 0,
+          "output": "DataField wide-selection allocation guard: ok\n"
+        },
+        {
+          "name": "check-datafield-wide-value-export.py",
+          "exit": 0,
+          "output": "PASS DataField wide value export checks wcstombs\n"
+        },
+        {
+          "name": "check-date-picker-callback-guards.py",
+          "exit": 0,
+          "output": "PASS DatePicker calendar callbacks validate picker and calendar widgets\n"
+        },
+        {
+          "name": "check-date-picker-position-bounds.py",
+          "exit": 0,
+          "output": "PASS DatePicker popup positioning clamps wide coordinates\n"
+        },
+        {
+          "name": "check-date-picker-redisplay-guard.py",
+          "exit": 0,
+          "output": "PASS DatePicker redisplay guard\n"
+        },
+        {
+          "name": "check-datepicker-event-guards.py",
+          "exit": 0,
+          "output": "DatePicker event callbacks validate widget and event inputs\n"
+        },
+        {
+          "name": "check-datepicker-mutator-destroy-guards.py",
+          "exit": 0,
+          "output": "PASS DatePicker mutator guards destruction\n"
+        },
+        {
+          "name": "check-datepicker-popup-creation.py",
+          "exit": 0,
+          "output": "DatePicker popup creation failures are cleaned up\n"
+        },
+        {
+          "name": "check-datepicker-popup-destroy.py",
+          "exit": 0,
+          "output": "DatePicker popup destruction clears stale shell and calendar pointers\n"
+        },
+        {
+          "name": "check-datepicker-popup-position-contract.py",
+          "exit": 0,
+          "output": "PASS DatePicker popup regression tracks wide positions\n"
+        },
+        {
+          "name": "check-datepicker-popup-position.py",
+          "exit": 0,
+          "output": "DatePicker oversized popup positioning is clamped\n"
+        },
+        {
+          "name": "check-datepicker-range-redraw.py",
+          "exit": 0,
+          "output": "PASS DatePicker range updates invalidate realized widgets\n"
+        },
+        {
+          "name": "check-datepicker-range-transaction.py",
+          "exit": 0,
+          "output": "DatePicker range updates commit parent state after calendar success\n"
+        },
+        {
+          "name": "check-datepicker-render-table.py",
+          "exit": 0,
+          "output": "PASS DatePicker draws its date through measured render-table text\n"
+        },
+        {
+          "name": "check-datepicker-resource-sync.py",
+          "exit": 0,
+          "output": "DatePicker resource updates synchronize an existing calendar child\n"
+        },
+        {
+          "name": "check-datepicker-teardown-guards.py",
+          "exit": 0,
+          "output": "PASS DatePicker popup and calendar teardown paths are guarded\n"
+        },
+        {
+          "name": "check-datepicker-text-metrics.py",
+          "exit": 0,
+          "output": "PASS DatePicker text uses render-table metrics\n"
+        },
+        {
+          "name": "check-form-section-child-failure-guards.py",
+          "exit": 0,
+          "output": "PASS FormSection child-creation failure paths are null-safe\n"
+        },
+        {
+          "name": "check-form-section-margin-bounds.py",
+          "exit": 0,
+          "output": "PASS form-section margin comparisons are bounded\n"
+        },
+        {
+          "name": "check-form-section-position-bounds.py",
+          "exit": 0,
+          "output": "PASS FormSection layout origins are bounded\n"
+        },
+        {
+          "name": "check-gallery-capture-viewability.py",
+          "exit": 0,
+          "output": "PASS screenshot readiness follows shell mapping and event draining\n"
+        },
+        {
+          "name": "check-gallery-page-padding.py",
+          "exit": 0,
+          "output": "PASS gallery pages share consistent padding and purpose-sized previews\n"
+        },
+        {
+          "name": "check-gallery-source.py",
+          "exit": 0,
+          "output": "gallery source contract: 105 manifest entries covered\ngenerator: /Volumes/S8T/tmp/motif-modern-audit-20261101/src/demos/programs/ckmotif-gallery/generate-gallery-assets.py\n"
+        },
+        {
+          "name": "check-gallery-startup-profile.py",
+          "exit": 0,
+          "output": "PASS gallery capture options are selected before child creation\n"
+        },
+        {
+          "name": "check-image-scaling-progress.py",
+          "exit": 0,
+          "output": "scaled image strips reject zero-progress row traversal\n"
+        },
+        {
+          "name": "check-info-bar-coordinate-bounds.py",
+          "exit": 0,
+          "output": "PASS InfoBar text coordinates stay bounded\n"
+        },
+        {
+          "name": "check-info-bar-redisplay-guard.py",
+          "exit": 0,
+          "output": "PASS InfoBar redisplay uses a framed close control\n"
+        },
+        {
+          "name": "check-info-bar-text-bounds.py",
+          "exit": 0,
+          "output": "PASS info-bar text geometry uses measured render-table extents\n"
+        },
+        {
+          "name": "check-infobar-action-layout.py",
+          "exit": 0,
+          "output": "PASS InfoBar action label placement and hit testing use measured bounds\n"
+        },
+        {
+          "name": "check-infobar-close-geometry.py",
+          "exit": 0,
+          "output": "info-bar close-icon geometry is bounded\n"
+        },
+        {
+          "name": "check-infobar-close-hit-rectangle.py",
+          "exit": 0,
+          "output": "PASS InfoBar close input is limited to its drawn rectangle\n"
+        },
+        {
+          "name": "check-infobar-close-icon.py",
+          "exit": 0,
+          "output": "PASS InfoBar close icon is centered and symmetric\n"
+        },
+        {
+          "name": "check-infobar-color-update.py",
+          "exit": 0,
+          "output": "InfoBar color changes update the live drawing GC\n"
+        },
+        {
+          "name": "check-infobar-event-guards.py",
+          "exit": 0,
+          "output": "InfoBar event callbacks validate widget and event inputs\n"
+        },
+        {
+          "name": "check-infobar-font-guard.py",
+          "exit": 0,
+          "output": "PASS InfoBar text uses its render table\n"
+        },
+        {
+          "name": "check-infobar-hit-zones.py",
+          "exit": 0,
+          "output": "InfoBar hit-zone bounds present\n"
+        },
+        {
+          "name": "check-modern-c-generator.py",
+          "exit": 0,
+          "output": "PASS modern C makestrs and all six generated ABIs\n"
+        },
+        {
+          "name": "check-mwm-appearance-resource-widget.py",
+          "exit": 0,
+          "output": ""
+        },
+        {
+          "name": "check-notebook-scrollframe-allocation.py",
+          "exit": 0,
+          "output": "Notebook scroll-frame allocation guard present\n"
+        },
+        {
+          "name": "check-picker-color-update.py",
+          "exit": 0,
+          "output": "DatePicker and TimePicker color changes refresh live drawing GCs\n"
+        },
+        {
+          "name": "check-picker-destroy-callback-guards.py",
+          "exit": 0,
+          "output": "PASS picker callbacks guard widget destruction\n"
+        },
+        {
+          "name": "check-picker-render-table-transaction.py",
+          "exit": 0,
+          "output": "PASS DatePicker and TimePicker render-table updates are transactional\n"
+        },
+        {
+          "name": "check-progress-bar-coordinate-bounds.py",
+          "exit": 0,
+          "output": "PASS ProgressBar label and text coordinates stay bounded\n"
+        },
+        {
+          "name": "check-progress-bar-gc-setup.py",
+          "exit": 0,
+          "output": "PASS ProgressBar drawing GC setup rolls back incomplete allocation\n"
+        },
+        {
+          "name": "check-progress-bar-inputs.py",
+          "exit": 0,
+          "output": "PASS ProgressBar state APIs validate null widgets\n"
+        },
+        {
+          "name": "check-progress-bar-redisplay-guards.py",
+          "exit": 0,
+          "output": "PASS ProgressBar redisplay guards\n"
+        },
+        {
+          "name": "check-progress-bar-text-allocation.py",
+          "exit": 0,
+          "output": "PASS progress-bar text allocation is guarded\n"
+        },
+        {
+          "name": "check-progress-ring-coordinate-bounds.py",
+          "exit": 0,
+          "output": "PASS ProgressRing center and text coordinates stay bounded\n"
+        },
+        {
+          "name": "check-progress-ring-gc-setup.py",
+          "exit": 0,
+          "output": "ProgressRing GC setup check passed\n"
+        },
+        {
+          "name": "check-progress-ring-geometry-bounds.py",
+          "exit": 0,
+          "output": "PASS progress-ring geometry is bounded\n"
+        },
+        {
+          "name": "check-progress-ring-geometry-label.py",
+          "exit": 0,
+          "output": "ProgressRing geometry-label check passed\n"
+        },
+        {
+          "name": "check-progress-ring-inputs.py",
+          "exit": 0,
+          "output": "PASS ProgressRing state APIs validate null widgets\n"
+        },
+        {
+          "name": "check-progress-ring-label-centering.py",
+          "exit": 0,
+          "output": "ProgressRing label centering uses signed arithmetic\n"
+        },
+        {
+          "name": "check-progress-ring-label-init.py",
+          "exit": 0,
+          "output": "ProgressRing label-init check passed\n"
+        },
+        {
+          "name": "check-progress-ring-resources.py",
+          "exit": 0,
+          "output": "ProgressRing resource checks passed\n"
+        },
+        {
+          "name": "check-progress-ring-text-allocation.py",
+          "exit": 0,
+          "output": "PASS progress-ring text allocation is guarded\n"
+        },
+        {
+          "name": "check-progressbar-label-init-rollback.py",
+          "exit": 0,
+          "output": "ProgressBar initialization handles label allocation failure\n"
+        },
+        {
+          "name": "check-progressbar-label-rollback.py",
+          "exit": 0,
+          "output": "ProgressBar preserves labels on copy failure\n"
+        },
+        {
+          "name": "check-progressbar-mutator-destroy-guards.py",
+          "exit": 0,
+          "output": "PASS ProgressBar mutators guard destruction\n"
+        },
+        {
+          "name": "check-progressbar-size-bounds.py",
+          "exit": 0,
+          "output": "ProgressBar size bounds present\n"
+        },
+        {
+          "name": "check-progressring-mutator-destroy-guards.py",
+          "exit": 0,
+          "output": "PASS ProgressRing mutators guard destruction\n"
+        },
+        {
+          "name": "check-scrollbar-callback-snapshot.py",
+          "exit": 0,
+          "output": "PASS ScrollBar dispatch uses the shared public-array callback snapshot\n"
+        },
+        {
+          "name": "check-scrolled-autodrag-allocation.py",
+          "exit": 0,
+          "output": "scrolled-window auto-drag allocation and rectangle results are guarded\n"
+        },
+        {
+          "name": "check-scrolled-window-auto-drag-allocation.py",
+          "exit": 0,
+          "output": "ScrolledWindow auto-drag allocation checks passed\n"
+        },
+        {
+          "name": "check-scrolledw-scrollframe-allocation.py",
+          "exit": 0,
+          "output": "ScrolledWindow scroll-frame allocation guard present\n"
+        },
+        {
+          "name": "check-scrollframe-add-input.py",
+          "exit": 0,
+          "output": "PASS ScrollFrame navigator addition validates inputs\n"
+        },
+        {
+          "name": "check-scrollframe-callbacks.py",
+          "exit": 0,
+          "output": ""
+        },
+        {
+          "name": "check-scrollframe-nav-growth.py",
+          "exit": 0,
+          "output": "ScrollFrame navigator-list growth guards present\n"
+        },
+        {
+          "name": "check-scrollframe-nav-remove.py",
+          "exit": 0,
+          "output": "ScrollFrame navigator-removal list guard present\n"
+        },
+        {
+          "name": "check-scrollframe-remove-callback.py",
+          "exit": 0,
+          "output": "ScrollFrame navigator callback hook guard present\n"
+        },
+        {
+          "name": "check-scrollframe-remove-input.py",
+          "exit": 0,
+          "output": "PASS ScrollFrame navigator removal validates inputs\n"
+        },
+        {
+          "name": "check-scrollframe-update-guards.py",
+          "exit": 0,
+          "output": "PASS ScrollFrame navigator update guards are present\n"
+        },
+        {
+          "name": "check-spinner-callback-guards.py",
+          "exit": 0,
+          "output": "Spinner event and timer callbacks guard teardown inputs\n"
+        },
+        {
+          "name": "check-spinner-coordinate-bounds.py",
+          "exit": 0,
+          "output": "PASS Spinner center and label coordinates stay bounded\n"
+        },
+        {
+          "name": "check-spinner-inputs.py",
+          "exit": 0,
+          "output": "PASS Spinner state APIs validate null widgets\n"
+        },
+        {
+          "name": "check-spinner-interval-reschedule.py",
+          "exit": 0,
+          "output": "Spinner interval reschedule present\n"
+        },
+        {
+          "name": "check-spinner-label-centering.py",
+          "exit": 0,
+          "output": "Spinner label centering uses signed arithmetic\n"
+        },
+        {
+          "name": "check-spinner-label-init-rollback.py",
+          "exit": 0,
+          "output": "Spinner initialization handles label allocation failure\n"
+        },
+        {
+          "name": "check-spinner-label-rollback.py",
+          "exit": 0,
+          "output": "Spinner preserves labels on copy failure\n"
+        },
+        {
+          "name": "check-spinner-mutator-destroy-guard.py",
+          "exit": 0,
+          "output": "PASS Spinner mutator guards destruction\n"
+        },
+        {
+          "name": "check-spinner-redisplay-guards.py",
+          "exit": 0,
+          "output": "PASS Spinner redisplay guards\n"
+        },
+        {
+          "name": "check-spinner-size-bounds.py",
+          "exit": 0,
+          "output": "Spinner size bounds present\n"
+        },
+        {
+          "name": "check-tab-box-label-coordinate-bounds.py",
+          "exit": 0,
+          "output": "PASS TabBox canvas label coordinates stay bounded\n"
+        },
+        {
+          "name": "check-tab-box-redisplay-guard.py",
+          "exit": 0,
+          "output": "PASS XmTabBox mutable-GC and font ownership guard\n"
+        },
+        {
+          "name": "check-tabbox-background-fallback.py",
+          "exit": 0,
+          "output": "PASS TabBox uses its own background when no TabStack supplies one\n"
+        },
+        {
+          "name": "check-tabbox-child-allocation.py",
+          "exit": 0,
+          "output": "TabBox canvas allocation failures are null-safe\n"
+        },
+        {
+          "name": "check-tabbox-geometry-allocation.py",
+          "exit": 0,
+          "output": "PASS TabBox geometry and cache allocation failures are handled\n"
+        },
+        {
+          "name": "check-tabbox-image-failures.py",
+          "exit": 0,
+          "output": "tab-box image rotation handles allocation and image creation failure\n"
+        },
+        {
+          "name": "check-tabbox-image-size-bounds.py",
+          "exit": 0,
+          "output": "TabBox image allocation bounds present\n"
+        },
+        {
+          "name": "check-tabbox-inactive-outlines.py",
+          "exit": 0,
+          "output": "PASS TabBox inactive tabs keep complete outlines\n"
+        },
+        {
+          "name": "check-tabbox-label-gc.py",
+          "exit": 0,
+          "output": "PASS TabBox label rendering handles missing bitmap graphics contexts\n"
+        },
+        {
+          "name": "check-tabbox-num-stacks.py",
+          "exit": 0,
+          "output": "TabBox num-stacks guard present\n"
+        },
+        {
+          "name": "check-tabbox-render-gc.py",
+          "exit": 0,
+          "output": "PASS TabBox rendering handles missing graphics contexts\n"
+        },
+        {
+          "name": "check-tabbox-repaint-clipping.py",
+          "exit": 0,
+          "output": "TabBox partial repaint and bitmap lifetime guards are present\n"
+        },
+        {
+          "name": "check-tabbox-rtl-placement.py",
+          "exit": 0,
+          "output": "TabBox right-to-left placement arithmetic is signed\n"
+        },
+        {
+          "name": "check-text-source-progress.py",
+          "exit": 0,
+          "output": ""
+        },
+        {
+          "name": "check-textout-line-wrap-source-progress.py",
+          "exit": 0,
+          "output": "TextOut line wrapping guards source progress\n"
+        },
+        {
+          "name": "check-textout-postoxy-source-progress.py",
+          "exit": 0,
+          "output": "TextOut position-to-coordinate reads guard source progress\n"
+        },
+        {
+          "name": "check-textout-resize-source-progress.py",
+          "exit": 0,
+          "output": "TextOut resize measurement guards source progress\n"
+        },
+        {
+          "name": "check-textout-xytopos-source-progress.py",
+          "exit": 0,
+          "output": "TextOut coordinate hit testing guards source progress\n"
+        },
+        {
+          "name": "check-time-picker-coordinate-bounds.py",
+          "exit": 0,
+          "output": "PASS TimePicker text coordinates stay bounded\n"
+        },
+        {
+          "name": "check-time-picker-redisplay-guard.py",
+          "exit": 0,
+          "output": "PASS TimePicker redisplay and callback guards\n"
+        },
+        {
+          "name": "check-timepicker-event-guards.py",
+          "exit": 0,
+          "output": "TimePicker event callbacks validate widget and event inputs\n"
+        },
+        {
+          "name": "check-timepicker-mutator-destroy-guards.py",
+          "exit": 0,
+          "output": "PASS TimePicker mutators guard destruction\n"
+        },
+        {
+          "name": "check-timepicker-range-redraw.py",
+          "exit": 0,
+          "output": "PASS TimePicker range updates invalidate realized widgets\n"
+        },
+        {
+          "name": "check-timepicker-render-table.py",
+          "exit": 0,
+          "output": "PASS TimePicker draws its formatted time through measured render-table text\n"
+        },
+        {
+          "name": "check-toast-action-position-bounds.py",
+          "exit": 0,
+          "output": "PASS Toast action position is bounded\n"
+        },
+        {
+          "name": "check-toast-callback-guards.py",
+          "exit": 0,
+          "output": "PASS Toast callbacks validate widget data\n"
+        },
+        {
+          "name": "check-toast-child-failure-guards.py",
+          "exit": 0,
+          "output": "PASS Toast child-creation failure paths are null-safe\n"
+        },
+        {
+          "name": "check-toast-event-guards.py",
+          "exit": 0,
+          "output": "Toast event callbacks validate widget and event inputs\n"
+        },
+        {
+          "name": "check-toast-setvalues-redraw.py",
+          "exit": 0,
+          "output": "PASS Toast reports SetValues changes and preserves compound action labels\n"
+        }
+      ]
+    },
+    "source-gallery-final.json": {
+      "sha256": "362da73d0e12138b764bb3685b71138fd07a749dda8a9da3018e956d14c696a2",
+      "report": [
+        {
+          "name": "check-gallery-provenance.py",
+          "exit": 0,
+          "output": "gallery provenance: 105 entries verified and catalogue anchors\n"
+        },
+        {
+          "name": "check-gallery-screenshot-assets.py",
+          "exit": 0,
+          "output": "PASS gallery screenshot assets: 105 PNGs verified\n"
+        },
+        {
+          "name": "check-gallery-source.py",
+          "exit": 0,
+          "output": "gallery source contract: 105 manifest entries covered\ngenerator: /Volumes/S8T/tmp/motif-modern-audit-20261101/src/demos/programs/ckmotif-gallery/generate-gallery-assets.py\n"
+        },
+        {
+          "name": "check-gallery-manifest.py",
+          "exit": 0,
+          "output": "PASS gallery manifest: 105 public classes (95 constructible, 10 explicit exclusions)\n"
+        },
+        {
+          "name": "check-gallery-capture-viewability.py",
+          "exit": 0,
+          "output": "PASS screenshot readiness follows shell mapping and event draining\n"
+        },
+        {
+          "name": "check-gallery-excerpts.py",
+          "exit": 0,
+          "output": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.330s\n\nOK\n"
+        },
+        {
+          "name": "check-gallery-live-examples.py",
+          "exit": 0,
+          "output": "PASS gallery manager examples render live controls\n"
+        },
+        {
+          "name": "check-gallery-startup-profile.py",
+          "exit": 0,
+          "output": "PASS gallery capture options are selected before child creation\n"
+        },
+        {
+          "name": "check-gallery-disclosure-state.py",
+          "exit": 0,
+          "output": "PASS gallery disclosure indicators match category expansion state\n"
+        },
+        {
+          "name": "check-gallery-screenshot-runner.py",
+          "exit": 0,
+          "output": "PASS gallery screenshot runner contract\n"
+        },
+        {
+          "name": "check-gallery-screenshot-matrix.py",
+          "exit": 0,
+          "output": "PASS gallery screenshot matrix runner contract\n"
+        },
+        {
+          "name": "check-gallery-demo-catalogue.py",
+          "exit": 0,
+          "output": "PASS all 34 installed demo targets have descriptions and exact build/install paths\n"
+        },
+        {
+          "name": "check-gallery-toolkit-defaults.py",
+          "exit": 0,
+          "output": "PASS gallery uses toolkit styling and semantic roles\n"
+        },
+        {
+          "name": "check-gallery-page-padding.py",
+          "exit": 0,
+          "output": "PASS gallery pages share consistent padding and purpose-sized previews\n"
+        },
+        {
+          "name": "check-gallery-real-examples.py",
+          "exit": 0,
+          "output": "PASS gallery uses interactive data-backed examples and native content layout\n"
+        },
+        {
+          "name": "run-gallery-demo-launch.py",
+          "exit": 0,
+          "output": "PASS installed-first demo resolution, build fallback, literal exec, child appearance resources, asset cwd, display, exec errors and reaping\n"
+        }
+      ]
+    },
+    "reflow-native-final/receipt.json": {
+      "sha256": "a6433344fc544524dfb8eb193822c6018c41844a0d7d57df3d6bdc8941a68ccb",
+      "report": {
+        "success": true,
+        "captures": [
+          {
+            "name": "desktop",
+            "geometry": "1100x740",
+            "sha256": "068012f2994d6e727334a19ca6a9b22c5d368e5a6c5e3ec9d81f7ad44477466c"
+          },
+          {
+            "name": "compact",
+            "geometry": "450x500",
+            "sha256": "a4fea588341180cd96b25667012e05d64b22a386451c51e74633098639b2ccc5"
+          }
+        ],
+        "gallery_sha256": "aae831800a01ef18242aceb1b2b54a1a969faf4a2d51db9c12273dba158bde62",
+        "ink": {
+          "intro": 3300,
+          "description": 1656
+        },
+        "scope": "External resize and read-only pixel observation on isolated Xvfb, modern-light at scale 1"
+      }
+    }
+  },
+  "build": {
+    "started_utc": "2026-11-02T01:18:32.190699+00:00",
+    "configuration": "C23 arm64 Xft/Unicode/SVG, staged appearance/scale lifetime hooks; unchanged ABI; -j3",
+    "steps": [
+      {
+        "name": "library",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/lib",
+          "-j3",
+          "all"
+        ],
+        "exit": 0,
+        "seconds": 0.7325114159975783
+      },
+      {
+        "name": "install-library",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/lib",
+          "-j3",
+          "install"
+        ],
+        "exit": 0,
+        "seconds": 1.0874482500003069
+      },
+      {
+        "name": "gallery",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/ckmotif-gallery",
+          "-j3",
+          "all"
+        ],
+        "exit": 0,
+        "seconds": 0.0412937500004773
+      },
+      {
+        "name": "install-gallery",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/ckmotif-gallery",
+          "-j3",
+          "install"
+        ],
+        "exit": 0,
+        "seconds": 0.14822724999976344
+      },
+      {
+        "name": "airport",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/airport",
+          "-j3",
+          "all"
+        ],
+        "exit": 0,
+        "seconds": 0.2558076249988517
+      },
+      {
+        "name": "install-airport",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/airport",
+          "-j3",
+          "install"
+        ],
+        "exit": 0,
+        "seconds": 0.12598954100394621
+      },
+      {
+        "name": "periodic",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/periodic",
+          "-j3",
+          "all"
+        ],
+        "exit": 0,
+        "seconds": 0.3341528750024736
+      },
+      {
+        "name": "install-periodic",
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/periodic",
+          "-j3",
+          "install"
+        ],
+        "exit": 0,
+        "seconds": 0.13294216700160177
+      }
+    ],
+    "success": true,
+    "sources": {
+      "lib/Xm/Appearance.c": "4d16a4e5eee0317c2ea3ad610e5f63c822f766990a4649fab2038aef5d5b8bc1",
+      "lib/Xm/Display.c": "b68e46745b2db40cd8b33530d712e7dd7a368a5a6800455300fa92f5d748bf55",
+      "lib/Xm/BaseClass.c": "4301666e5f1afc00607712833eb30d54de836d5189a03e5a6ea49a074986e343"
+    },
+    "outputs": {
+      "lib/libXm.9.dylib": {
+        "sha256": "7eccb28fe5348791168551bc8b635078f5ead8126726a8bdebd0021606d9be1a",
+        "mtime_ns": 1793582314581632253
+      },
+      "lib/libMrm.9.dylib": {
+        "sha256": "58f8ccb5c7b03d40b3296c9f114a1342397092419a17155624943e34ae8624ba",
+        "mtime_ns": 1793582315012682517
+      },
+      "bin/ckmotif-gallery": {
+        "sha256": "aae831800a01ef18242aceb1b2b54a1a969faf4a2d51db9c12273dba158bde62",
+        "mtime_ns": 1793584183531525210
+      },
+      "share/Xm/airport/airport": {
+        "sha256": "50bfce75ac3b7bad13c67c1b4d411cbe8b9be349f5f89cc8e69ece41b3c62059",
+        "mtime_ns": 1793582315661916642
+      },
+      "share/Xm/periodic/periodic": {
+        "sha256": "8b247bf3e5506dac0eab363c9b249ba2bf5fc5f60c4c9d0d5d61f3fdc4321a1a",
+        "mtime_ns": 1793582316130790069
+      }
+    },
+    "ended_utc": "2026-11-02T01:18:36.139307+00:00",
+    "seconds": 3.948439124993456,
+    "freshness": "Changed Appearance/Display/BaseClass inputs compiled in the successful phase-one-lifetime-build.log stage. The final no-op library step installs that unchanged stage, followed by matching demo clients. Airport/gallery prior clean builds took 0.45/0.92s; retained comparable library increments took 2.04/2.52s. Source/object/output timestamps, compiler logs and byte identity establish freshness; elapsed time alone is not used.",
+    "gallery_reflow_followup": "gallery-reflow-build-receipt.json"
+  },
+  "actual_windows": {
+    "launched_utc": "2026-11-02T01:49:46.948998+00:00",
+    "logger_pid": 56346,
+    "pid": 56347,
+    "airport_pid": 56385,
+    "executable": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/bin/ckmotif-gallery",
+    "airport_executable": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/share/Xm/airport/airport",
+    "display": "/var/run/com.apple.launchd.ezDZs4P3A0/org.xquartz:0",
+    "arguments": [
+      "--appearance",
+      "modern-light",
+      "--scale",
+      "1",
+      "--open-demo",
+      "airport"
+    ],
+    "outputs": {
+      "lib/libXm.9.dylib": {
+        "sha256": "7eccb28fe5348791168551bc8b635078f5ead8126726a8bdebd0021606d9be1a",
+        "mtime_ns": 1793582314581632253
+      },
+      "lib/libMrm.9.dylib": {
+        "sha256": "58f8ccb5c7b03d40b3296c9f114a1342397092419a17155624943e34ae8624ba",
+        "mtime_ns": 1793582315012682517
+      },
+      "bin/ckmotif-gallery": {
+        "sha256": "aae831800a01ef18242aceb1b2b54a1a969faf4a2d51db9c12273dba158bde62",
+        "mtime_ns": 1793584183531525210
+      },
+      "share/Xm/airport/airport": {
+        "sha256": "50bfce75ac3b7bad13c67c1b4d411cbe8b9be349f5f89cc8e69ece41b3c62059",
+        "mtime_ns": 1793582315661916642
+      },
+      "share/Xm/periodic/periodic": {
+        "sha256": "8b247bf3e5506dac0eab363c9b249ba2bf5fc5f60c4c9d0d5d61f3fdc4321a1a",
+        "mtime_ns": 1793582316130790069
+      }
+    },
+    "success": true,
+    "gallery_command": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/bin/ckmotif-gallery --appearance modern-light --scale 1 --open-demo airport",
+    "airport_command": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/share/Xm/airport/airport -xrm ckCoreMotif.appearanceProfile: modern-light -xrm ckCoreMotif.appearanceDensity: comfortable -xrm Xft.dpi: 96"
+  },
+  "limits": [
+    "66 startup checks cover 33 non-WSM demos in light and dark, not full behavioral qualification of every demo.",
+    "Airport full native behavior: 13 profile/scale/density/launcher cases plus preregister protocol and cross-process full/recovered transfers.",
+    "The gallery reflow defect is scheduling dependent: a before-fix capture lost text, while a subsequent before-fix test invocation repainted successfully. The accepted external pixel check passes with the explicit invalidation fix.",
+    "31 native control groups include one corrected rerun with the existing live-appearance fixture required Xrm precondition; original failure is preserved."
+  ],
+  "actual_window_captures": {
+    "actual-gallery.png": "b1449856e5be052a7aaaa21d702e85b7ab4d2d81acc70def7fbce6b60e2f7cf3",
+    "actual-airport.png": "ddefe7221816e959eb4386f3ea7d5daf7a5a1666530719b0c214c72fc2a3aaef"
+  },
+  "changed_source_fingerprints": {
+    "CHANGES": "a69f6ef43e5c7785a122de476b08fa4326cac682631110e7ef792e194f1004b7",
+    "CHANGES.md": "295949a79b74bfc5eb18a519b99822cb11c35d0239809e7cb98a498b3c0fa22d",
+    "Makefile.am": "776716b57b0a4c8b6bd69662ab9759657b8daf9e821958a9cfe58478b047c408",
+    "README.md": "631e59f336831b22a19f9ad8268096d9d120e003ce13c551d640bcc6a805ae74",
+    "demos/programs/airport/README": "266167d9cf13352480b1d745c3696dedd42bac915d8adc4754c14e753ce86f8a",
+    "demos/programs/airport/XmdAirport.ad": "62b331ea177a6e0c8b554bfdb063b82de79197f44f53341977943234f1f6f2a9",
+    "demos/programs/airport/airport.h": "2ac709719f06fda61795b475c2bf6370688616dfeb583c51a4b921cbaa3cf725",
+    "demos/programs/airport/dragsource.c": "3e6039013b8778487129d9a4d91ffdd36ff7eb2c2b14cc1b59a4857bd37fe20e",
+    "demos/programs/airport/dropsite.c": "87326673fdfe55162de27a7c2ca33f0fae673d8f3d6ff6639d1d681520674432",
+    "demos/programs/airport/main.c": "64f55942f1a0d3a26c87bc70335a938387a3fb2f5ba38d625cde8633d599ff65",
+    "demos/programs/airport/main.h": "4347045f22721dff93d232cfa23c43456992da2494aa8a116a5b643c2683c425",
+    "demos/programs/ckmotif-gallery/README": "71b47056076ea53d344a294e330640707cd212a230cfc7aae1f7abfd989a13e8",
+    "demos/programs/ckmotif-gallery/demo_launch.c": "26d3e185d71ed4052d939fb5ea033866cc98e2d7e30642fb7bab73ffa434fcb3",
+    "demos/programs/ckmotif-gallery/demo_launch.h": "f8678e21418b9a49e4fbc937e6ee9ebc306616e605e570916d2bc7e38f70462e",
+    "demos/programs/ckmotif-gallery/gallery.c": "edeed5969b9bbef6473a6a8e23981163a6cfb4f70dbd5067461b87d5a136213d",
+    "demos/programs/ckmotif-gallery/gallery_demos.h": "6951b04e13690ba996403b01af4c343ea31416efb83b4b6d2dceae7586175956",
+    "demos/programs/periodic/periodic.c": "cd0e74ddb2c1e296ace971f35f41a5283f7abe12cd10a00054f1ee1a712b7a7c",
+    "docs/appearance-profiles.md": "8e33311aeaaedbc5ffa6475ab87befb539291ee608701ee906225fbc2bbfe8f0",
+    "docs/gallery-screenshots/demo-applications-compact.png": "a4fea588341180cd96b25667012e05d64b22a386451c51e74633098639b2ccc5",
+    "docs/gallery-screenshots/demo-applications-desktop.png": "068012f2994d6e727334a19ca6a9b22c5d368e5a6c5e3ec9d81f7ad44477466c",
+    "docs/gallery-startup-profile.md": "36bce5441c4edb4ed524466deef1b83bb3820ca151e1734902698a04c5ed0d79",
+    "docs/modern-gallery.md": "ddad37dfbb61fa7af96f9ab6c7fa0d9546daf291e1f52afd2da01345b7c34836",
+    "docs/periodic-modern-appearance.md": "89a512c47bbc2e15a36ad8c64999f8e19515e93b99ab40f0e84fc9254f77f3e9",
+    "lib/Xm/Appearance.c": "4d16a4e5eee0317c2ea3ad610e5f63c822f766990a4649fab2038aef5d5b8bc1",
+    "lib/Xm/BaseClass.c": "4301666e5f1afc00607712833eb30d54de836d5189a03e5a6ea49a074986e343",
+    "lib/Xm/Display.c": "b68e46745b2db40cd8b33530d712e7dd7a368a5a6800455300fa92f5d748bf55",
+    "tests/automated/check-periodic-appearance.c": "49c25913c2749eb3411fedd7f9975c6410bbbf6812f726cbb6b8bacd9faa4e26",
+    "tests/automated/run-gallery-demo-launch.py": "9d7ee91762f9d745974eb3f407fce9b56bc17e9bb43fb02409672b8f53547178",
+    "tests/automated/run-modern-macos-audit.py": "ac4452d3fb04ec69bb9117eff5d31d83a30706e08640c187a6add849f474a364",
+    "tests/automated/run-periodic-appearance.py": "23d2090a510a2c7f269cbcd98d968a192b9a52a4a400541a4f891b7b56a746f7",
+    "tests/automated/check-appearance-visual-object-lifetime.c": "78a778d1d1a936b21554f66e9273fcdecdcbdd26e8308bac94c3f8ffa21b961d",
+    "tests/automated/run-airport-behavior.py": "45f0b80438b07c86f979a50e619948ad2625b86fb26da73df2b6e6707e4ef471",
+    "tests/automated/run-gallery-demo-reflow.py": "2e51d6ab692f211ea324bdf0f6430a4883d380debf1818d36a9d28f1eea49c5d"
+  }
+}

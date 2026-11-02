@@ -95,19 +95,14 @@ void TakeOff(Widget area, Airport this, XButtonEvent *evt, int spot)
    Flight flight;
    Widget dc;
    char msg[256];
-   static Boolean init = True;
-
-   if (init) {
-      srand((unsigned int) XtWindow(area));
-      init = False;
-   }
-
+   if (this->active_drag || spot < 0 || spot >= this->park.spot_count ||
+       this->park.spots[spot].empty) return;
    flight = (Flight)XtCalloc(sizeof(FlightRec), 1);
-   flight->number = rand();
+   flight->number = this->park.spots[spot].number;
    flight->from = this;
    flight->gate = spot;
    sprintf(msg, "Flight %ld leaving from gate %d",
-	   flight->number, flight->gate);
+	   flight->number, flight->gate + 1);
    Paging(this, msg);
    n = 0;
    XtSetArg(args[n], XmNclientData, flight); n++;
@@ -128,6 +123,9 @@ void TakeOff(Widget area, Airport this, XButtonEvent *evt, int spot)
    XtSetArg(args[n], XmNexportTargets, &FlightAtom); n++;
    XtSetArg(args[n], XmNnumExportTargets, 1); n++;
    dc = XmDragStart(area, (XEvent *)evt, args, n);
+   if (!dc) { Paging(this,"Unable to start flight. Try again."); XtFree((char *)flight); return; }
+   this->active_drag=dc;
+   AirportSetStatus(this,True,"Flying — drop over the other airport");
    XtAddCallback(dc, XmNdragMotionCallback,
 		 (XtCallbackProc) Flying, (XtPointer) this);
    XtAddCallback(dc, XmNdropSiteEnterCallback,
@@ -159,7 +157,7 @@ static void EnterTopLevel(Widget dc, Airport this,
 {
 
    if (call_data->window != this->ocean)
-     XmToggleButtonSetState(this->from.over_land, True, True);
+     AirportSetStatus(this,True,"Over land");
 }
 
 /* ===============================================================
@@ -170,7 +168,7 @@ static void EnterTopLevel(Widget dc, Airport this,
 static void LeaveTopLevel(Widget dc, Airport this,
 			  XmTopLevelLeaveCallbackStruct *call_data)
 {  
-   XmToggleButtonSetState(this->from.over_ocean, True, True);
+   AirportSetStatus(this,True,"Over ocean");
 }
 
 /* ===============================================================
@@ -181,7 +179,7 @@ static void LeaveTopLevel(Widget dc, Airport this,
 static void DropSiteEnter(Widget dc, Airport this,
 			  XmDropSiteEnterCallbackStruct *call_data)
 {
-   XmToggleButtonSetState(this->from.over_site, True, True);
+   AirportSetStatus(this,True,call_data->dropSiteStatus==XmVALID_DROP_SITE?"Destination detected":"Destination unavailable");
 }
 
 /* ===============================================================
@@ -192,7 +190,7 @@ static void DropSiteEnter(Widget dc, Airport this,
 static void DropSiteLeave(Widget dc, Airport this,
 			  XmDropSiteLeaveCallbackStruct *call_data)
 {  
-   XmToggleButtonSetState(this->from.over_land, True, True);
+   AirportSetStatus(this,True,"Over land");
 }
 
 /* ===============================================================
@@ -204,21 +202,8 @@ static void DropSiteLeave(Widget dc, Airport this,
 static void Flying(Widget dc,  Airport this,
 		   XmDragMotionCallbackStruct *call_data)
 {
-   static Boolean first = True;
-
-   if (first) 
-     { 
-	XKeyboardControl controlValues;
-	unsigned long valueMask = KBBellPercent | KBBellPitch | KBBellDuration;
-
-	controlValues.bell_percent  = AirportResources.bell_percent;
-	controlValues.bell_pitch    = 440; 
-	controlValues.bell_duration = AirportResources.bell_duration;
-	XChangeKeyboardControl(this->display, valueMask, &controlValues);
-	first = False; 
-     }
-
-   XBell(this->display, 100);
+   /* Visual feedback is sufficient; never modify the user's X server bell settings. */
+   (void)dc; (void)this; (void)call_data;
 
 }
 
@@ -230,7 +215,7 @@ static void Flying(Widget dc,  Airport this,
 static void PlaneLanding(Widget dc, Flight flight,
 			 XmDropStartCallbackStruct *call_data)
 {
-   XmToggleButtonSetState(flight->from->from.landing, True, True);
+   AirportSetStatus(flight->from,True,"Landing");
 }
 
 
@@ -255,14 +240,14 @@ static void PlaneHasLanded(Widget dc, Flight flight,
    Airport this = flight->from;
    char msg[256];
 
-   XmToggleButtonSetState(this->from.landed, True, True);
+   AirportSetStatus(this,True,call_data->completionStatus == XmDROP_SUCCESS ? "Landed safely" : "Returned to departure gate");
 
    if (call_data->completionStatus == XmDROP_SUCCESS) {
       Spot spot = &(this->park.spots[flight->gate]);
       
       spot->empty = True;
-      XClearArea(this->display, XtWindow(this->airport), 
-		 spot->x, spot->y, plane_width, plane_height, False);
+      spot->number = 0;
+      AirportRefresh(this);
      sprintf(msg, "Passengers from flight %ld have landed safely",
 	      flight->number);
    }
@@ -280,7 +265,7 @@ static void FlightFinished(Widget dc, Flight flight,
 {
    Airport this = flight->from;
 
-   XmToggleButtonSetState(this->from.departure, True, True);
+   this->active_drag=NULL; AirportRefresh(this);
    XtFree((char *) flight);
 }
 /* ===============================================================
@@ -303,6 +288,7 @@ static Boolean SendPlaneID(Widget drag_context, Atom *selection, Atom *target,
    if (*target == FlightAtom) {
       long * data = (long *) XtMalloc(sizeof(long));
 
+      if (!data) return False;
       *data = flight->number;
       *type = FlightAtom;
       *value = (XtPointer) data;

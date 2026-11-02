@@ -53,25 +53,10 @@
  *  General Types
  */
 
-typedef struct _Source {
-   Widget departure;
-   Widget over_ocean;
-   Widget over_land;
-   Widget over_site;
-   Widget landing;
-   Widget landed;
-} SourceRec, *Source;
-
-typedef struct _Destination {
-   Widget enter;
-   Widget leave;
-   Widget landing;
-   Widget parked;
-   int gate;
-} DestinationRec, *Destination;
-
 typedef struct _Spot {
    Boolean empty;
+   Boolean reserved;
+   long number;
    Position x,y;
 } SpotRec, *Spot;
 
@@ -115,8 +100,16 @@ typedef struct _Airport {
    Widget warning_dialog;
    Widget dragIcon;
    Widget msg_area;
-   SourceRec from; /* the drag data */
-   DestinationRec to; /* drop site data */
+   Widget shell, outgoing, incoming, fly_button, title;
+   struct _Airport *peer;
+   const char *name;
+   char code;
+   double scale;
+   int selected, plane_size;
+   Boolean pressed;
+   XButtonEvent press;
+   Widget active_drag;
+   Pixmap drag_bitmap;
    ParkRec park; /* info on available gates at the airport */
    TrackRec track; /* info on track graphics */
 } AirportRec, *Airport;
@@ -179,6 +172,10 @@ global void DrawAirport(Airport this, Window wd, Pixel bg, Pixel fg);
 /* draw the tracks and parked planes */
 
 global void Paging(Airport this, String msg);
+global void AirportSetStatus(Airport airport, Boolean outgoing, const char *status);
+global void AirportRefresh(Airport airport);
+global int AirportAcceptPlane(Airport airport, long number);
+global Boolean AirportSendSelected(Airport airport);
 /* display a message in message area */
 
 

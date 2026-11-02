@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+import math
 
 root = Path(__file__).resolve().parents[2]
 with tempfile.TemporaryDirectory(prefix="gallery-demo-launch-") as temporary:
@@ -17,6 +18,7 @@ with tempfile.TemporaryDirectory(prefix="gallery-demo-launch-") as temporary:
     api = ctypes.CDLL(str(library))
     api.gallery_demo_path.argtypes = [ctypes.c_char_p] * 6 + [ctypes.c_size_t]
     api.gallery_demo_launch.argtypes = [ctypes.c_char_p, ctypes.POINTER(ctypes.c_int)]
+    api.gallery_demo_launch_with_appearance.argtypes = [ctypes.c_char_p,ctypes.c_char_p,ctypes.c_char_p,ctypes.c_double,ctypes.POINTER(ctypes.c_int)]
     build, install = work / "build", work / "install"
     for directory in (build / "demo", install / "Demo"):
         directory.mkdir(parents=True)
@@ -43,13 +45,25 @@ with tempfile.TemporaryDirectory(prefix="gallery-demo-launch-") as temporary:
     assert reported[:2] == [str(executable.parent), ":private-test-display"]
     assert reported[2] == "/custom/uid/%U:" + ":".join(str(executable.parent) + suffix for suffix in
         ("/%U", "/%L/uid/%U", "/%l/uid/%U", "/C/uid/%U"))
+    executable.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > appearance-arguments\n')
+    assert api.gallery_demo_launch_with_appearance(buffer.value,b"modern-dark",b"compact",1.5,ctypes.byref(pid)) == 0
+    assert os.waitpid(pid.value,0)[1] == 0
+    arguments=(executable.parent / "appearance-arguments").read_text().splitlines()
+    assert arguments==["-xrm","ckCoreMotif.appearanceProfile: modern-dark","-xrm","ckCoreMotif.appearanceDensity: compact","-xrm","Xft.dpi: 144"]
+    assert os.environ["UIDPATH"]=="/custom/uid/%U"
+    for profile,density,scale in [(b"unknown",b"comfortable",1),(b"modern-light",b"bad",1),(b"modern-dark",b"compact",math.nan),(b"classic",b"compact",0)]:
+        assert api.gallery_demo_launch_with_appearance(buffer.value,profile,density,scale,ctypes.byref(pid))==errno.EINVAL
     assert not list(work.rglob("INJECTED"))
     candidate = build / "demo" / name
     candidate.write_bytes(b"invalid executable")
     candidate.chmod(0o755)
+    assert resolve() == 0 and buffer.value.decode() == str(executable)  # installed wins
+    saved=executable.with_name("saved-example")
+    executable.rename(saved)
     assert resolve() == 0 and buffer.value.decode() == str(candidate)
     assert api.gallery_demo_launch(buffer.value, ctypes.byref(pid)) == errno.ENOEXEC
     candidate.unlink()
+    saved.rename(executable)
     executable.unlink()
     assert api.gallery_demo_launch(os.fsencode(executable), ctypes.byref(pid)) == errno.ENOENT
     try:
@@ -57,4 +71,4 @@ with tempfile.TemporaryDirectory(prefix="gallery-demo-launch-") as temporary:
         raise AssertionError("failed exec left an unreaped child")
     except ChildProcessError:
         pass
-print("PASS demo resolution, installation fallback, literal exec, asset cwd, display, exec errors and reaping")
+print("PASS installed-first demo resolution, build fallback, literal exec, child appearance resources, asset cwd, display, exec errors and reaping")

@@ -222,6 +222,7 @@ typedef struct {
     XmAppearanceProfile profile;
     XmAppearanceDensity density;
     Boolean historical;
+    Boolean profile_given, density_given;
 } PeriodicOptions;
 
 static void
@@ -242,6 +243,7 @@ ParseOptions(int *argc, char **argv, PeriodicOptions *options)
     options->profile = XmAPPEARANCE_MODERN_LIGHT;
     options->density = XmAPPEARANCE_DENSITY_COMFORTABLE;
     options->historical = False;
+    options->profile_given = options->density_given = False;
     for (read = 1; read < *argc; ++read) {
         const char *option = argv[read];
         if (!strcmp(option, "--help")) return 0;
@@ -252,13 +254,14 @@ ParseOptions(int *argc, char **argv, PeriodicOptions *options)
             if (++read == *argc) return -1;
             value = argv[read];
             if (!strcmp(option, "--appearance")) {
-                appearance_given = True;
+                appearance_given = options->profile_given = True;
                 if (!strcmp(value, "modern-light")) options->profile = XmAPPEARANCE_MODERN_LIGHT;
                 else if (!strcmp(value, "modern-dark")) options->profile = XmAPPEARANCE_MODERN_DARK;
                 else if (!strcmp(value, "classic")) options->profile = XmAPPEARANCE_CLASSIC;
                 else if (!strcmp(value, "high-contrast")) options->profile = XmAPPEARANCE_HIGH_CONTRAST;
                 else return -1;
             } else {
+                options->density_given = True;
                 if (!strcmp(value, "comfortable")) options->density = XmAPPEARANCE_DENSITY_COMFORTABLE;
                 else if (!strcmp(value, "compact")) options->density = XmAPPEARANCE_DENSITY_COMPACT;
                 else return -1;
@@ -270,6 +273,7 @@ ParseOptions(int *argc, char **argv, PeriodicOptions *options)
     if (options->historical) {
         if (appearance_given && options->profile != XmAPPEARANCE_CLASSIC) return -1;
         options->profile = XmAPPEARANCE_CLASSIC;
+        options->profile_given = True;
     }
     argv[write] = NULL;
     *argc = write;
@@ -303,6 +307,19 @@ main(int argc, char *argv[])
     if (argc != 1) {
         Usage(stderr, argv[0]);
         return EXIT_FAILURE;
+    }
+    /* A gallery (or ordinary -xrm startup) may already select the profile.
+     * Keep the standalone modern-light default only when no selection exists. */
+    if (!options.profile_given) {
+        XrmValue value; char *type;
+        if (XrmGetDatabase(display) && XrmGetResource(XrmGetDatabase(display),
+                "ckCoreMotif.appearanceProfile", "CkCoreMotif.AppearanceProfile", &type, &value) &&
+            !XmGetAppearanceProfile(display, &options.profile)) {
+            fputs("periodic: invalid inherited appearance\n",stderr);return EXIT_FAILURE;
+        }
+    }
+    if (!options.density_given && !XmGetAppearanceDensity(display, &options.density)) {
+        fputs("periodic: invalid inherited density\n",stderr);return EXIT_FAILURE;
     }
     /* Session-shell initialization can create Motif tooltip/display objects.
      * Select before creating even the shell, not merely before MrmFetchWidget. */

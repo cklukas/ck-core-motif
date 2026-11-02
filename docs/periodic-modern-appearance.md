@@ -15,7 +15,10 @@ into a global wildcard database when comparing toolkit defaults.
 Appearance and density are selected after opening the display and before creating
 the session shell: shell initialization itself can create internal Motif objects.
 All fetched controls, menus and dialogs then observe the selected settings.
-Standard Xt options and explicit resources remain authoritative. Missing UID
+A profile or density already selected through Xt resources is adopted unless
+an explicit Periodic option selects it. This permits gallery-launched dark,
+classic and compact instances while retaining modern-light as the standalone
+default. Standard Xt options and explicit resources remain authoritative. Missing UID
 files and failed hierarchy construction are reported with a failing exit status.
 The realized shell publishes `_NET_WM_PID` for actual-process visual verification.
 The overview fills the MainWindow work area. Variable-layout MainWindow instances

@@ -27,7 +27,7 @@ os.close(wr)
 with os.fdopen(rd) as f:
     assert select.select([f], [], [], 10)[0]
     e['DISPLAY'] = '127.0.0.1:' + f.readline().strip()
-names = ['modern-audit-controls', 'modern-status-colors', 'xmstring-disjoint-clip', 'tab-color-state', 'scroll-lifetime', 'progress-bar', 'progress-ring', 'calendar', 'date-picker', 'time-picker', 'modern-fields', 'modern-buttons', 'modern-arrows', 'modern-toggles', 'modern-borders', 'modern-scrollbars', 'composite-appearance-fonts', 'cascade-appearance', 'container-appearance', 'avatar-modern', 'breadcrumb-modern', 'font-selector-modern', 'appearance-roles', 'modern-scale', 'modern-light-profile', 'modern-dark-profile']
+names = ['appearance-visual-object-lifetime', 'live-appearance', 'live-appearance-gadget', 'display-scale-reentrant', 'display-scale-override', 'modern-audit-controls', 'modern-status-colors', 'xmstring-disjoint-clip', 'tab-color-state', 'scroll-lifetime', 'progress-bar', 'progress-ring', 'calendar', 'date-picker', 'time-picker', 'modern-fields', 'modern-buttons', 'modern-arrows', 'modern-toggles', 'modern-borders', 'modern-scrollbars', 'composite-appearance-fonts', 'cascade-appearance', 'container-appearance', 'avatar-modern', 'breadcrumb-modern', 'font-selector-modern', 'appearance-roles', 'modern-scale', 'modern-light-profile', 'modern-dark-profile']
 r = {'started_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'scope': 'native isolated Xvfb; no user desktop input', 'library_path': str(prefix / 'lib/libXm.9.dylib'), 'library': hashlib.sha256((prefix / 'lib/libXm.9.dylib').read_bytes()).hexdigest(), 'cases': []}
 try:
     uid = o / 'appearance-roles.uid'
@@ -40,13 +40,13 @@ try:
         b = o / ('check-' + n)
         start = time.monotonic()
         row = {'name': n, 'source_sha256': hashlib.sha256(s.read_bytes()).hexdigest()}
-        cmd = ['clang', '-std=c23', '-O1', '-DUSE_XFT', '-I/opt/X11/include/freetype2', '-I' + str(build / 'include'), '-I' + str(source / 'lib'), '-I' + str(prefix / 'include'), '-I/opt/X11/include', '-L' + str(prefix / 'lib'), '-L/opt/X11/lib', '-Wl,-rpath,' + str(prefix / 'lib'), str(s), *([str(build / 'demos/programs/ckmotif-gallery/gallery_examples.o')] if n in ['cascade-appearance', 'container-appearance'] else []), '-lMrm', '-lXm', '-lXt', '-lX11', '-lXft', '-lfontconfig', '-o', str(b)]
+        cmd = ['clang', '-std=c23', '-O1', '-DUSE_XFT', '-I/opt/X11/include/freetype2', '-I' + str(build / 'include'), '-I' + str(build / 'lib/Xm'), '-I' + str(source / 'lib'), '-I' + str(prefix / 'include'), '-I/opt/X11/include', '-L' + str(prefix / 'lib'), '-L/opt/X11/lib', '-Wl,-rpath,' + str(prefix / 'lib'), str(s), *([str(build / 'demos/programs/ckmotif-gallery/gallery_examples.o')] if n in ['cascade-appearance', 'container-appearance'] else []), '-lMrm', '-lXm', '-lXt', '-lX11', '-lXft', '-lfontconfig', '-o', str(b)]
         with (o / (n + '.log')).open('w') as f:
             p = subprocess.run(cmd, env=e, stdout=f, stderr=subprocess.STDOUT)
             row['compile'] = p.returncode
             if not p.returncode:
                 try:
-                    arguments = [str(b), *(['-xrm', 'ModernLightTest*XmToggleButton.background: #fff4cc'] if n == 'modern-light-profile' else [])]
+                    arguments = [str(b), *(['-xrm', 'ModernLightTest*XmToggleButton.background: #fff4cc'] if n == 'modern-light-profile' else ['-xrm', '*ordinary.foreground: #00ff00'] if n == 'live-appearance' else [])]
                     profiles = ['light', 'dark', 'contrast'] if n == 'appearance-roles' else [None]
                     row['run'] = 0
                     for profile in profiles:

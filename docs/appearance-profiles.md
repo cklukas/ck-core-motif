@@ -178,7 +178,12 @@ value is preserved even if it equals a theme default; equality does not turn
 an application resource into a toolkit-owned one. Xt create hooks capture
 fully initialized widget/backend/cache values; Xt change hooks record explicit
 SetValues arguments, including equal-valued assignments made before the first
-live appearance change. Hook lifetime follows the display. Cached secondary
+live appearance change. Destroy hooks retire visual widget/gadget state at Xt phase one, before storage
+is reclaimed, independently of replaceable per-object destroy callbacks.
+Nonvisual extension/cache objects are excluded. Snapshot references defer freeing
+retired records, which are immediately unlinked from the live registry. See
+[Appearance object lifetime](appearance-object-lifetime.md). Hook lifetime follows
+the display. Cached secondary
 resources participate in both support detection and Xrm resource-class lookup.
 
 The native fixture `tests/automated/run-appearance-parity.py` compares startup

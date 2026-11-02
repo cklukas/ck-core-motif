@@ -1,3 +1,27 @@
+Inherit gallery appearance in demos and repair Airport usability (2026-11-02)
+============================================================================
+
+- Pass the current theme, density and effective scale to standalone examples as
+  child-only Xt resources, including Automatic scaling. Prefer installed demos
+  over build-tree copies; add --open-demo for deterministic interactive startup.
+- Repaint wrapped demo descriptions after viewport resizing.
+- Let Periodic adopt inherited Xt appearance/density selections instead of
+  conflicting with its standalone modern-light default.
+- Present Airport as two airports in one window with four initial planes and
+  eight spaced gates each. Preserve gate contents and flight numbers on resize;
+  use scaled transparent aircraft silhouettes, palette-aware drawing, a scrollable
+  layout, clear instructions, a flight log and meaningful Help.
+- Support normal left-button dragging alongside middle-button dragging, plus
+  click/Fly and keyboard operation. Preserve native FLIGHT selection transfers
+  between processes, return cancelled/invalid flights, reject full destinations,
+  release transfer reservations on teardown, and avoid global X bell changes.
+- Track appearance/scale state through phase-one display destroy hooks, independent
+  of mutable per-object callback resources. Reject nonvisual extension/cache
+  objects and unlink retired records before releasing snapshot references.
+- Add native XTest coverage for transfers, selection, keyboard, buttons, Help,
+  cancellation, invalid/full drops, resize and gallery appearance inheritance.
+  See docs/demo-launch-appearance.md and docs/airport-demo.md.
+
 Modern macOS control appearance audit (2026-11-02)
 =================================================
 

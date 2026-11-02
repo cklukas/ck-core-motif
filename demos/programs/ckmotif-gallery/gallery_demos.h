@@ -3,7 +3,7 @@ typedef struct { const char *build_dir, *install_dir, *binary, *title, *descript
 static const GalleryDemo gallery_demos[] = {
     {"periodic", "periodic", "periodic", "Periodic Table", "Explore classic Motif widgets in an interactive periodic table."},
     {"sampler2_0", "sampler2_0", "sampler2_0", "Widget Sampler", "Browse the historical Motif 2.0 widget sampler."},
-    {"airport", "airport", "airport", "Airport", "Drag planes between two airport windows; open a second airport from another session."},
+    {"airport", "airport", "airport", "Airport", "Fly between two airports: drag a plane, or select a gate and choose Fly."},
     {"animate", "animate", "xmanimate", "Animation", "Play a sequence of bitmap frames."},
     {"drag_and_drop", "drag_and_drop", "DNDDemo", "Drag and Drop", "Explore Motif drag sources, drop sites and transfers."},
     {"drag_and_drop", "drag_and_drop", "simpledrop", "Simple Drop", "A small drop-site example."},

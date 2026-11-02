@@ -527,11 +527,11 @@ static XmAppearancePendingFont *appearance_pending_fonts;
 static XmAppearanceWidgetState *appearance_widgets;
 static XmAppearanceDisplayState *appearance_displays;
 
-static void appearance_release_gadget_states(Display *display);
+static void appearance_release_widget_states(Display *display);
 static void appearance_created(Widget, XtPointer, XtPointer);
 static void appearance_changed(Widget, XtPointer, XtPointer);
 static void appearance_hooks_destroyed(Widget, XtPointer, XtPointer);
-static void appearance_widget_destroyed(Widget, XtPointer, XtPointer);
+static void appearance_destroying(Widget, XtPointer, XtPointer);
 
 void
 _XmDestroyAppearanceDisplay(Display *display)
@@ -543,7 +543,7 @@ _XmDestroyAppearanceDisplay(Display *display)
     if (display == NULL)
         return;
 
-    appearance_release_gadget_states(display);
+    appearance_release_widget_states(display);
 
     _XmProcessLock();
     {
@@ -570,6 +570,7 @@ _XmDestroyAppearanceDisplay(Display *display)
     if (state->hooks != NULL) {
         XtRemoveCallback(state->hooks, XtNcreateHook, appearance_created, state);
         XtRemoveCallback(state->hooks, XtNchangeHook, appearance_changed, state);
+        XtRemoveCallback(state->hooks, XtNdestroyHook, appearance_destroying, state);
         XtRemoveCallback(state->hooks, XtNdestroyCallback,
                          appearance_hooks_destroyed, state);
     }
@@ -1117,8 +1118,8 @@ _XmAppearanceOwnsResource(Widget widget, const char *name)
 {
     Boolean owned = False;
     _XmProcessLock();
-    /* This query also serves gadgets. Their Object destroy callbacks retire
-     * state before an address can be reused, just as for windowed controls. */
+    /* The display destroy hook retires both gadgets and windowed controls
+     * before an address can be reused. */
     XmAppearanceWidgetState *state = appearance_widgets;
     while (state && (state->retired || state->widget != widget)) state = state->next;
     if (state && state->initialized)
@@ -1132,7 +1133,7 @@ _XmAppearanceOwnsResource(Widget widget, const char *name)
 }
 
 static void
-appearance_release_gadget_states(Display *display)
+appearance_release_widget_states(Display *display)
 {
     XmAppearanceWidgetState **link;
     XmAppearanceWidgetState *state;
@@ -1141,10 +1142,9 @@ appearance_release_gadget_states(Display *display)
     link = &appearance_widgets;
     while (*link != NULL) {
         state = *link;
-        if (state->display == display && state->gadget) {
-            if (state->widget != NULL)
-                XtRemoveCallback(state->widget, XmNdestroyCallback,
-                    appearance_widget_destroyed, state);
+        if (state->display == display) {
+            /* No callback resource on a possibly reclaimed object is touched. */
+            state->widget = NULL;
             state->retired = True;
             *link = state->next;
             if (state->references == 0)
@@ -1190,24 +1190,23 @@ ensure_display_state(Display *display)
     return state;
 }
 
+/* Xt's phase-one destroy hook is independent of the application's mutable
+ * destroyCallback resource, and runs before any hierarchy storage is freed. */
 static void
-appearance_widget_destroyed(Widget widget, XtPointer closure,
-                            XtPointer call_data)
+appearance_destroying(Widget hooks, XtPointer closure, XtPointer data)
 {
-    XmAppearanceWidgetState *state = (XmAppearanceWidgetState *)closure;
-    XmAppearanceWidgetState **link;
-    (void)widget;
-    (void)call_data;
+    XtDestroyHookData destroyed = data;
+    XmAppearanceWidgetState **link, *state;
+    (void)hooks;(void)closure;
+    if (!destroyed) return;
     _XmProcessLock();
-    state->retired = True;
-    state->widget = NULL;
-    if (state->references == 0) {
-        link = &appearance_widgets;
-        while (*link != NULL && *link != state)
-            link = &(*link)->next;
-        if (*link == state)
-            *link = state->next;
-        appearance_free_widget_state(state);
+    link = &appearance_widgets;
+    while (*link && (*link)->widget != destroyed->widget) link = &(*link)->next;
+    if ((state = *link) != NULL) {
+        *link = state->next;
+        state->retired = True;
+        state->widget = NULL;
+        if (state->references == 0) appearance_free_widget_state(state);
     }
     _XmProcessUnlock();
 }
@@ -2029,7 +2028,9 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     XmAppearanceWidgetState *existing;
     XmAppearanceDisplayState *display_state;
 
-    if (widget == NULL || !XtIsObject(widget))
+    /* Extension/cache Objects may be freed without an Xt destroy lifecycle.
+     * Only Widgets and actual RectObj gadgets participate in visual state. */
+    if (widget == NULL || !XtIsRectObj(widget))
         return False;
     display_state = ensure_display_state(XtDisplayOfObject(widget));
     if (display_state == NULL) return False;
@@ -2039,6 +2040,8 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
                       appearance_created, display_state);
         XtAddCallback(display_state->hooks, XtNchangeHook,
                       appearance_changed, display_state);
+        XtAddCallback(display_state->hooks, XtNdestroyHook,
+                      appearance_destroying, display_state);
         XtAddCallback(display_state->hooks, XtNdestroyCallback,
                       appearance_hooks_destroyed, display_state);
     }
@@ -2086,10 +2089,6 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     state->next = appearance_widgets;
     appearance_widgets = state;
     _XmProcessUnlock();
-    /* RectObj gadgets inherit Object's destroyCallback too. Retire their
-     * state immediately, before Xt can reuse the address for another gadget. */
-    XtAddCallback(widget, XmNdestroyCallback, appearance_widget_destroyed,
-                  (XtPointer)state);
     return True;
 }
 

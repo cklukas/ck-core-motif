@@ -93,8 +93,11 @@ try:
         ("scaled", ["-xrm", "Xft.dpi: 144"]),
         ("contrast", ["--appearance", "high-contrast"]), ("compact", ["--density", "compact"]),
         ("classic", ["--appearance", "classic"]), ("historical", ["--historical-resources"]),
-        ("override", ["-xrm", "*pushButton.background: #006644"])):
-        env["PERIODIC_EXPECT"] = mode
+        ("override", ["-xrm", "*pushButton.background: #006644"]),
+        ("inherited-dark", ["-xrm", "ckCoreMotif.appearanceProfile: modern-dark"]),
+        ("inherited-classic", ["-xrm", "ckCoreMotif.appearanceProfile: classic"]),
+        ("inherited-compact", ["-xrm", "ckCoreMotif.appearanceDensity: compact"])):
+        env["PERIODIC_EXPECT"] = {"inherited-dark":"dark", "inherited-classic":"classic", "inherited-compact":"compact"}.get(mode, mode)
         run(mode, [binary] + options)
     run("missing-uid", [binary], expect=1, directory=out)
     run("invalid-profile", [binary, "--appearance", "unknown"], expect=1)
