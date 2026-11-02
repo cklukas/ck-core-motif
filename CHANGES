@@ -1,3 +1,11 @@
+Bound deferred Mrm bitmap arguments (2026-11-02)
+==================================================
+
+- Apply the existing deferred-pixmap staging bound to every
+  `MrmRtypeXBitmapFile` path in `Urm__CW_CreateArglist`, preventing more than
+  ten deferred bitmap arguments from overrunning its legacy staging array; see
+  `docs/mrm-deferred-bitmap-arguments.md`.
+
 Release the Mrm literal-index pointer list on failure (2026-11-02)
 ===================================================================
 
