@@ -408,14 +408,44 @@ Initialize(
 
     if (cw->container.detail_header && 
 	cw->container.detail_header_count) {
+	XmStringTable copied_header = NULL;
+	Boolean copied = True;
 
-	/**** first make a copy of the detail header table */
-	cw->container.detail_header = (XmStringTable) 
-	    XtMalloc(cw->container.detail_header_count * sizeof(XmString));
+	if ((size_t)cw->container.detail_header_count >
+	    UINT_MAX / sizeof(*copied_header)) {
+	    copied = False;
+	} else {
+	    copied_header = (XmStringTable)XtCalloc(
+		(Cardinal)cw->container.detail_header_count,
+		(Cardinal)sizeof(*copied_header));
+	    if (copied_header == NULL) {
+		copied = False;
+	    } else {
+		for (i = 0; i < cw->container.detail_header_count; ++i) {
+		    if (rcw->container.detail_header[i] != NULL) {
+			copied_header[i] =
+			    XmStringCopy(rcw->container.detail_header[i]);
+			if (copied_header[i] == NULL) {
+			    copied = False;
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+	if (!copied) {
+	    for (i = 0; copied_header && i < cw->container.detail_header_count;
+		 ++i)
+		XmStringFree(copied_header[i]);
+	    XtFree((char *)copied_header);
+	    cw->container.detail_header = NULL;
+	    cw->container.detail_header_count = 0;
+	} else {
+	    cw->container.detail_header = copied_header;
+	}
+    }
 
-	for (i=0; i<cw->container.detail_header_count; i++)
-	    cw->container.detail_header[i] = 
-		XmStringCopy(rcw->container.detail_header[i]);
+    if (cw->container.detail_header && cw->container.detail_header_count) {
 
 	/**** deal with the IconHeader creation */
 	scrollFrameTrait = (XmScrollFrameTrait) 
