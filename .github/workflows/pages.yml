@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: cklukas/ck-git-hosting
-          ref: 5019729cd37c06ae4e0c1d2c07e4127f3a72394d
+          ref: 06e4e4bfbf65dddf4c8b88b991582eddc07fa6ea
           path: .docs-tool
           persist-credentials: false
       - name: Install compiler prerequisites
