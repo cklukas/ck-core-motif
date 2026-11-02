@@ -1554,7 +1554,7 @@ ClientData * FindTransientFocus (ClientData *pcd)
 	while (pcdFocus && IS_APP_MODALIZED(pcdFocus))
 	{
 	    pcdSibling = pcdFocus;
-	    while (pcdSibling->transientSiblings && IS_APP_MODALIZED(pcdFocus))
+	    while (pcdSibling->transientSiblings && IS_APP_MODALIZED(pcdSibling))
 	    {
 		pcdSibling = pcdSibling->transientSiblings;
 	    }

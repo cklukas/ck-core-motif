@@ -1,3 +1,10 @@
+Select the first focusable MWM transient sibling (2026-11-02)
+===============================================================
+
+- Correct modal transient focus search to test the sibling being scanned.
+  This prevents focus repair from bypassing an available sibling and entering
+  a later modal branch.
+
 Refresh MWM transient associations on property changes (2026-11-02)
 ===================================================================
 
