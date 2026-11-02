@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-02 — Safe top-level-shell traversal geometry
+
+- Prevent focus traversal from calling `XtTranslateCoords` on an unparented
+  top-level shell. Use window-to-root Xlib translation and cover the real
+  root-shell focus path in the traversal regression.
+
 ## 2026-11-02 — Working Periodic Font menu
 
 - Make Small, Medium and Large resize the demo fonts, including menus and

@@ -1194,10 +1194,23 @@ _XmSetRect(
      rect->x = x + w->core.border_width;
      rect->y = y + w->core.border_width;
    } else {
-     /* A top-level shell has root-window coordinates and no widget parent. */
-     XtTranslateCoords(w, 0, 0, &x, &y);
-     rect->x = x;
-     rect->y = y;
+     /* XtTranslateCoords requires a parented widget.  Resolve a realized
+      * top-level shell's window against its root directly instead. */
+     int root_x, root_y;
+     Window child;
+
+     if (XtIsRealized(w) &&
+         XTranslateCoordinates(XtDisplay(w), XtWindow(w),
+                               RootWindowOfScreen(XtScreen(w)), 0, 0,
+                               &root_x, &root_y, &child)) {
+       rect->x = (Position)root_x;
+       rect->y = (Position)root_y;
+     } else {
+       /* Keep pre-realization callers safe and retain the shell's requested
+        * root-relative geometry when X cannot translate its window. */
+       rect->x = w->core.x;
+       rect->y = w->core.y;
+     }
    }
    rect->width = w->core.width;
    rect->height = w->core.height;
