@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-02 — Safe MWM workspace transient-tree traversal
+
+- Replace recursive workspace transient-client walks with a checked heap-backed
+  depth-first walker, preserving parent/child/sibling ordering without using
+  the window-manager call stack.
+- Bound `WSM_GET_STATE` to its CARD16 result capacity and release an incomplete
+  reply snapshot before returning its empty, valid result. See
+  [MWM workspace transient-tree traversal](docs/mwm-workspace-tree-walk.md).
+
 ## 2026-11-02 — Single final CDE WSM-ready notification
 
 - Remove the legacy early `PANACOMM` readiness send so CDE session managers

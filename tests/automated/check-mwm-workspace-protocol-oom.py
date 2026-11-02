@@ -18,7 +18,7 @@ assert track_owner.index("if (!owners)\n            return;") < track_owner.inde
 )
 
 snapshot_start = source.index("static void snapshot")
-snapshot_end = source.index("\n}\n\nstatic int tree_count", snapshot_start)
+snapshot_end = source.index("\ntypedef struct {\n    int count;\n} TreeCount;", snapshot_start)
 snapshot = source[snapshot_start:snapshot_end]
 assert "if (!info->data_list)" in snapshot
 assert "info->num_data_list = 0;" in snapshot

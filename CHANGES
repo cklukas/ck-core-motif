@@ -1,3 +1,11 @@
+Avoid MWM workspace transient-tree stack exhaustion (2026-11-02)
+================================================================
+
+- Replace recursive standalone-workspace transient-client traversals with a
+  checked heap-backed depth-first walker. Preserve parent/child/sibling order,
+  bound `WSM_GET_STATE` to its CARD16 result capacity, and discard incomplete
+  reply snapshots rather than leaving partially allocated reply ownership.
+
 Send one final CDE WSM-ready notification (2026-11-02)
 ========================================================
 
