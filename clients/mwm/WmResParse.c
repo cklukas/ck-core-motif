@@ -988,6 +988,26 @@ GetNopIndex (int tableSize, int *nopIndex)
 } /* END OF FUNCTION GetNopIndex */
 
 
+static Boolean
+CopyHelpArgument(unsigned char *destination, const unsigned char *source)
+{
+    size_t length;
+
+    if (destination == NULL || source == NULL)
+	return False;
+
+    length = strlen((const char *)source);
+    if (length > MAXWMPATH)
+	{
+	destination[0] = '\0';
+	return False;
+	}
+
+    memcpy(destination, source, length + 1);
+    return True;
+}
+
+
 
 
 /*************************************<->*************************************
@@ -1023,24 +1043,29 @@ WmDtGetHelpArgs(char *args,
     unsigned char *string;
     unsigned char *lineP;
 
+    if (args == NULL || volume == NULL || topic == NULL || argsCount == NULL)
+	return;
+
+    volume[0] = '\0';
+    topic[0] = '\0';
+    *argsCount = 0;
     cfileP = NULL;
     linec = 0;
     parseP = (unsigned char*) args;
 
     if(GetNextLine () != NULL)
     {
-	*argsCount = 0;
 	lineP = line;
 	if ((string = GetSmartSMString (&lineP)) != NULL)
 	{
-	    *argsCount = *argsCount + 1;
-	    strcpy ((char*)topic, (char*)string);
+	    if (CopyHelpArgument(topic, string))
+		*argsCount = *argsCount + 1;
 	}
 
 	if ((string = GetSmartSMString (&lineP)) != NULL)
 	{
-	    *argsCount = *argsCount + 1;
-	    strcpy ((char*)volume, (char *)string);
+	    if (CopyHelpArgument(volume, string))
+		*argsCount = *argsCount + 1;
 	}
     }
 

@@ -1,3 +1,11 @@
+Bound MWM help-argument token copies (2026-11-02)
+===================================================
+
+- Keep parsed MWM help topics and volumes within their existing
+  `MAXWMPATH + 1` caller-buffer contract, rejecting invalid outputs and
+  oversized tokens without changing the public function signature; see
+  `docs/mwm-help-argument-bounds.md`.
+
 Bound MWM function-table index helpers (2026-11-02)
 ====================================================
 
