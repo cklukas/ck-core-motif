@@ -1,3 +1,10 @@
+Harden IconButton string conversion input bounds (2026-11-02)
+============================================================
+
+- Reject null or `Cardinal`-unrepresentable legacy IconButton labels before
+  passing their length to Xt string conversion; see
+  `docs/iconbutton-string-conversion.md`.
+
 Correct legacy resource converter ABI and output sizing (2026-11-02)
 ====================================================================
 

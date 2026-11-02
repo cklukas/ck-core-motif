@@ -2094,8 +2094,15 @@ CreateXmString(Widget w, String str)
 {
     XrmValue		fromVal, toVal;	
     XmString xmstr;
-    
-    fromVal.size = strlen(str) + 1; /* space for NULL. */
+    size_t str_length;
+
+    if (str == NULL)
+	return(NULL);
+    str_length = strlen(str);
+    if (str_length >= (size_t)UINT_MAX)
+	return(NULL);
+
+    fromVal.size = (Cardinal)(str_length + 1); /* space for NULL. */
     fromVal.addr = str;
 
     toVal.size = sizeof(XmString);
