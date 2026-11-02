@@ -16,7 +16,7 @@ assert "(sizeof(char *) * (size_t)atom_count)" in source
 
 charset_start = source.rfind("CvtStringToCharSetTable(")
 charset = source[charset_start:source.rfind("CvtStringToAtomList(")]
-assert "numCharsets > (SIZE_MAX / sizeof(XmStringCharSet)) - 1" not in charset
+assert "numCharsets > (SIZE_MAX / sizeof(XmStringCharSet)) - 1" in charset
 assert "tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);" in charset
 
 print("resource converter arithmetic uses checked native-width values")

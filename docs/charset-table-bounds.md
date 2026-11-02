@@ -10,3 +10,5 @@ The combined size is also checked against Xt's `Cardinal` range and passed
 explicitly at the allocator boundary.
 Malformed or unrepresentably large resource values return conversion failure
 after releasing the temporary input copy instead of wrapping a size calculation.
+The pointer-table multiplication and temporary input-copy width are both
+validated before their allocations are evaluated.

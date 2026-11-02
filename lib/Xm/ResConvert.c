@@ -2416,6 +2416,7 @@ CvtStringToCharSetTable(
   String in_str;
   XmStringCharSetTable charsetTable;
   unsigned int numCharsets = 0;
+  size_t in_str_size = 0;
   size_t strDataSize = 0;
   size_t tableSize;
   char * dataPtr;
@@ -2428,9 +2429,19 @@ CvtStringToCharSetTable(
   if (in_str == NULL)
     return(False);
 
-  work_str = XtNewString(in_str);
+  while (in_str[in_str_size]) {
+    if (in_str_size == SIZE_MAX)
+      return(False);
+    ++in_str_size;
+  }
+  if (in_str_size == SIZE_MAX || in_str_size >= (size_t)UINT_MAX)
+    return(False);
+  ++in_str_size;
+
+  work_str = (String)XtMalloc((Cardinal)in_str_size);
   if (work_str == NULL)
     return(False);
+  memcpy(work_str, in_str, in_str_size);
 
   for (cs_str = work_str; ; cs_str = separator + 1)
     {
@@ -2456,8 +2467,13 @@ CvtStringToCharSetTable(
       if (!separator)
 	break;
     }
-  strcpy(work_str, in_str);
+  memcpy(work_str, in_str, in_str_size);
 
+  if (numCharsets > (SIZE_MAX / sizeof(XmStringCharSet)) - 1)
+    {
+      XtFree(work_str);
+      return(False);
+    }
   tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);
   if (strDataSize > SIZE_MAX - tableSize ||
       tableSize > (size_t)UINT_MAX ||
@@ -2474,7 +2490,7 @@ CvtStringToCharSetTable(
   }
   charsetTable[numCharsets] = (XmStringCharSet)NULL;
   dataPtr = (char *) &charsetTable[numCharsets+1];
-  strcpy(work_str, in_str);
+  memcpy(work_str, in_str, in_str_size);
 
   for (i = 0, cs_str = work_str; i < numCharsets; ++i)
 	{

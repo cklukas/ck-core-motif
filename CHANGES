@@ -1,3 +1,9 @@
+Bound charset-table converter source and table sizes (2026-11-02)
+==================================================================
+
+- Validate the resource-string copy and pointer-table multiplication before
+  Xt `Cardinal` allocation in `XmRCharSetTable` conversion.
+
 Bound KeySym converter source-copy sizing (2026-11-02)
 =======================================================
 

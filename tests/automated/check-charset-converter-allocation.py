@@ -13,8 +13,10 @@ for needle in (
     "if (work_str == NULL)",
     "if (charsetTable == NULL)",
     "XtFree(work_str);",
+    "XtMalloc((Cardinal)in_str_size)",
+    "memcpy(work_str, in_str, in_str_size);",
 ):
     if needle not in block:
         raise SystemExit(f"character-set converter is missing {needle}")
 
-print("character-set table conversion handles allocation failure")
+print("character-set table conversion handles bounded allocation failure")

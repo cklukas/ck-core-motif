@@ -9,8 +9,12 @@ text = source.read_text(encoding="utf-8")
 
 for needle in (
     "size_t strDataSize = 0;",
+    "size_t in_str_size = 0;",
+    "in_str_size >= (size_t)UINT_MAX",
+    "XtMalloc((Cardinal)in_str_size)",
     "strDataSize > SIZE_MAX - (itemSize + 1)",
     "if (numCharsets == UINT_MAX)",
+    "numCharsets > (SIZE_MAX / sizeof(XmStringCharSet)) - 1",
     "tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);",
     "strDataSize > SIZE_MAX - tableSize",
     "strDataSize > (size_t)UINT_MAX - tableSize",
