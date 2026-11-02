@@ -9,5 +9,6 @@ source = (Path(__file__).parents[2] / "lib/Xm/Outline.c").read_text(
 
 assert "HierarchyConstraints top_node" in source
 assert "if (top_node == NULL)" in source
+assert 'XtError("Unable to allocate Outline top-node constraint");' in source
 assert "XmHierarchy_top_node(ow) = top_node" in source
-print("Outline top-node allocation is failure-safe")
+print("PASS XmOutline top-node allocation failure is explicit and terminal")

@@ -1,3 +1,11 @@
+Make hierarchy root-allocation failures explicit (2026-11-02)
+============================================================
+
+- Raise an Xt error if the required root constraint cannot be allocated for
+  `XmHierarchy`, `XmTree`, or `XmOutline`, avoiding partially initialized
+  hierarchy widgets after memory exhaustion; see
+  `docs/hierarchy-top-node-allocation.md`.
+
 Make Outline child-list allocation failure explicit (2026-11-02)
 ================================================================
 

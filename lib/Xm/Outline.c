@@ -308,8 +308,10 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 
     top_node = (HierarchyConstraints)XtRealloc(
 	(XtPointer)XmHierarchy_top_node(ow), sizeof(OutlineConstraintRec));
-    if (top_node == NULL)
+    if (top_node == NULL) {
+	XtError("Unable to allocate Outline top-node constraint");
 	return;
+    }
     XmHierarchy_top_node(ow) = top_node;
 
     XmOutline_top_node_of_display(ow) = NULL;

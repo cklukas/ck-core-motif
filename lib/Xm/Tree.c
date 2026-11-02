@@ -404,8 +404,10 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 		XtRealloc((XtPointer) XmHierarchy_top_node(tw),
 			  sizeof(TreeConstraintRec)));
 
-    if (top_node == NULL)
+    if (top_node == NULL) {
+	XtError("Unable to allocate Tree top-node constraint");
 	return;
+    }
 
     XmHierarchy_top_node(tw) = (HierarchyConstraints) top_node;
 
