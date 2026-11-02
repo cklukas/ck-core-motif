@@ -1,3 +1,10 @@
+Keep gallery dialog geometry checks warning-clean (2026-11-02)
+==============================================================
+
+- Separate the final horizontal and vertical screen-edge clamps in the native
+  Dialog Shell verification so strict compilers do not reject the gallery for
+  misleading indentation.
+
 Type-correct WML generic object pointers (2026-11-02)
 =====================================================
 

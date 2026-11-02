@@ -34,3 +34,6 @@ python3 tests/automated/run-gallery-dialog-shell.py \
 `--integration-shells` checks Classic, modern light and modern dark, multiple
 scales/densities, launcher bounds, visible rendered content, child bounds,
 transient ownership, centered placement and repeated close/reopen cycles.
+The gallery builds this verifier with strict warning checks; keep the horizontal
+and vertical screen-edge clamps as distinct statements so both the compiler and
+reviewers see the independent bounds clearly.

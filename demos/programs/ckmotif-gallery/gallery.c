@@ -2081,7 +2081,8 @@ static int verify_dialog_shell_example(GalleryState *state)
             int screen_width=WidthOfScreen(XtScreen(dialog)),screen_height=HeightOfScreen(XtScreen(dialog));
             if(expected_x+dw>screen_width)expected_x=screen_width-dw;
             if(expected_y+dh>screen_height)expected_y=screen_height-dh;
-            if(expected_x<0)expected_x=0;if(expected_y<0)expected_y=0;
+            if (expected_x < 0) expected_x = 0;
+            if (expected_y < 0) expected_y = 0;
             DIALOG_CHECK(abs(dx-expected_x)<=2 && abs(dy-expected_y)<=2);
             if (cycle == 0) XtCallCallbacks(close,XmNactivateCallback,NULL);
             else if (cycle == 1) {
