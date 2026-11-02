@@ -2329,14 +2329,21 @@ CvtStringToKeySymTable(
 
   comma_count = 0;
   while (in_str[in_str_size])
-    {   
-	if (in_str_size == SIZE_MAX)
+    {
+      if (in_str_size == SIZE_MAX)
+	return(FALSE);
+      if (in_str[in_str_size++] == ',') {
+	if (comma_count == SIZE_MAX)
 	  return(FALSE);
-      if (in_str[in_str_size++] == ',')
 	++comma_count;
+      }
     } 
+  if (in_str_size == SIZE_MAX)
+    return(FALSE);
+  ++in_str_size;
   if (comma_count > (SIZE_MAX / sizeof(KeySym)) - 2 ||
-      comma_count > ((size_t)UINT_MAX / sizeof(KeySym)) - 2)
+      comma_count > ((size_t)UINT_MAX / sizeof(KeySym)) - 2 ||
+      in_str_size > (size_t)UINT_MAX)
     return(FALSE);
 
   keySymTable = (XmKeySymTable) XtMalloc(
@@ -2344,11 +2351,12 @@ CvtStringToKeySymTable(
   if (keySymTable == NULL)
     return(FALSE);
   keySymTable[comma_count + 1] = (KeySym)NULL;
-  work_str = XtNewString(in_str);
+  work_str = (String)XtMalloc((Cardinal)in_str_size);
   if (work_str == NULL) {
     XtFree((char *) keySymTable);
     return(FALSE);
   }
+  memcpy(work_str, in_str, in_str_size);
 
   for (ks_str = work_str, i = 0; i < comma_count + 1; ++i)
     {

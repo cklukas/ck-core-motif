@@ -13,8 +13,9 @@ for needle in (
     "if (keySymTable == NULL)",
     "if (work_str == NULL)",
     "XtFree((char *) keySymTable);",
+    "XtMalloc((Cardinal)in_str_size)",
 ):
     if needle not in block:
         raise SystemExit(f"KeySym converter is missing {needle}")
 
-print("KeySym resource conversion handles allocation failure")
+print("KeySym resource conversion handles bounded allocation failure")

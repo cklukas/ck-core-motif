@@ -1,3 +1,9 @@
+Bound KeySym converter source-copy sizing (2026-11-02)
+=======================================================
+
+- Validate KeySym resource-string length and comma-count growth before Xt
+  `Cardinal` allocation, preventing wrapped input-copy or table sizes.
+
 Release ButtonType converter scratch input on parse failure (2026-11-02)
 ==========================================================================
 
