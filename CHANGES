@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Correct MWM XSMP property-buffer ownership (2026-11-02)
+=========================================================
+
+- Release Xlib-owned proxy command and machine properties with `XFree`,
+  including the session-save formatting failure path.
+
 Bound WSM 16-bit wire-list counts (2026-11-02)
 ================================================
 

@@ -55,6 +55,21 @@ typedef struct _ProxyClientInfo
     char *clientID;
 } ProxyClientInfo;
 
+static void
+FreeProxyClientInfoProperties(ProxyClientInfo *proxyClientInfo)
+{
+    if (proxyClientInfo == NULL)
+	return;
+    if (proxyClientInfo->wmCommand != NULL) {
+	XFree(proxyClientInfo->wmCommand);
+	proxyClientInfo->wmCommand = NULL;
+    }
+    if (proxyClientInfo->wmClientMachine != NULL) {
+	XFree(proxyClientInfo->wmClientMachine);
+	proxyClientInfo->wmClientMachine = NULL;
+    }
+}
+
 #define RESTORE_RESOURCE(pCD, resFlag) \
 	((pCD)->ignoreWMSaveHints || !((pCD)->wmSaveHintFlags & (resFlag)))
 #define SAVE_RESOURCE(pCD, resFlag) RESTORE_RESOURCE(pCD, resFlag)
@@ -865,7 +880,7 @@ getProxyClientInfo(ClientData *pCD, ProxyClientInfo *proxyClientInfo)
 	(textProperty.value[0] == '\0'))
     {
 	if (textProperty.value)
-	    free((char *)textProperty.value);
+	    XFree((char *)textProperty.value);
 
 	return False;
     }
@@ -957,10 +972,7 @@ findProxyClientID(ClientData *pCD)
 			     (XPointer)&proxyClientInfo))
 	clientID = proxyClientInfo.clientID;
 
-    if (proxyClientInfo.wmCommand)
-	free(proxyClientInfo.wmCommand);
-    if (proxyClientInfo.wmClientMachine)
-	free(proxyClientInfo.wmClientMachine);
+    FreeProxyClientInfoProperties(&proxyClientInfo);
 
     return clientID;
 }
@@ -1215,8 +1227,10 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
 	return False;
 
     clientIDLength = snprintf(clientID, sizeof(clientID), "%d", clientIDNum);
-    if (clientIDLength < 0 || (size_t)clientIDLength >= sizeof(clientID))
+    if (clientIDLength < 0 || (size_t)clientIDLength >= sizeof(clientID)) {
+	FreeProxyClientInfoProperties(&proxyClientInfo);
 	return False;
+    }
     fprintf(fp, dbClientFormat, proxyClientStr, clientID, clientID);
 
     fprintf(fp, screenStr, clientID);
@@ -1224,14 +1238,14 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
 
     fprintf(fp, wmCommandStr, clientID);
     fprintf(fp, strArg, proxyClientInfo.wmCommand);
-    free(proxyClientInfo.wmCommand);
 
     if (proxyClientInfo.wmClientMachine != (char *)NULL)
     {
 	fprintf(fp, wmClientMachineStr, clientID);
 	fprintf(fp, strArg, proxyClientInfo.wmClientMachine);
-	free(proxyClientInfo.wmClientMachine);
     }
+
+    FreeProxyClientInfoProperties(&proxyClientInfo);
 
     getClientGeometry(pCD, &clientX, &clientY, &clientWd, &clientHt);
 

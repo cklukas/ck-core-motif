@@ -48,6 +48,7 @@ clients exchanging Motif window-management messages.
 - [Session database-name allocation](mwm-db-name-allocation.md)
 - [Session database suffix updates](mwm-db-name-suffix.md)
 - [WSM session-file path bounds](mwm-session-path.md)
+- [XSMP property-buffer ownership](mwm-xsmp-property-ownership.md)
 - [Locale-copy allocation](mwm-locale-allocation.md)
 - [Localized system-menu allocation](mwm-system-menu-allocation.md)
 - [Catalog-string allocation](mwm-catalog-allocation.md)
