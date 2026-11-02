@@ -24,6 +24,9 @@ assert "volume[0] = '\\0';" in region
 assert "topic[0] = '\\0';" in region
 assert "*argsCount = 0;" in region
 assert region.count("CopyHelpArgument(") == 2
+assert "if (!CopyHelpArgument(topic, string))" in region
+assert "if (!CopyHelpArgument(volume, string))" in region
+assert "topic[0] = '\\0';\n\t\t*argsCount = 0;\n\t\treturn;" in region
 assert "strcpy ((char*)topic" not in region
 assert "strcpy ((char*)volume" not in region
 

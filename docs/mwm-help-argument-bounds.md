@@ -7,8 +7,9 @@ nav_exclude: true
 `WmDtGetHelpArgs` keeps its existing ABI and `MAXWMPATH + 1` output-buffer
 contract.  It now validates all required pointers, initializes successful
 outputs deterministically, and accepts a parsed topic or volume only when it
-fits that established limit.  Oversized tokens are rejected with an empty
-output instead of overflowing the caller's buffer.
+fits that established limit.  Oversized tokens reject the complete parsed
+argument set with empty outputs instead of overflowing the caller's buffer or
+leaving a misleading partial argument count.
 
 Well-formed help arguments retain their original topic, volume, and argument
 count. The focused source-level regression is

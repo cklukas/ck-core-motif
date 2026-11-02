@@ -1058,14 +1058,20 @@ WmDtGetHelpArgs(char *args,
 	lineP = line;
 	if ((string = GetSmartSMString (&lineP)) != NULL)
 	{
-	    if (CopyHelpArgument(topic, string))
-		*argsCount = *argsCount + 1;
+	    if (!CopyHelpArgument(topic, string))
+		return;
+	    *argsCount = *argsCount + 1;
 	}
 
 	if ((string = GetSmartSMString (&lineP)) != NULL)
 	{
-	    if (CopyHelpArgument(volume, string))
-		*argsCount = *argsCount + 1;
+	    if (!CopyHelpArgument(volume, string))
+	    {
+		topic[0] = '\0';
+		*argsCount = 0;
+		return;
+	    }
+	    *argsCount = *argsCount + 1;
 	}
     }
 
