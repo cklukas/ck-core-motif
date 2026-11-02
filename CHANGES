@@ -1,3 +1,10 @@
+Harden ColorObj type boundaries (2026-11-02)
+=============================================
+
+- Guard the signed Xlib screen count before converting it for per-screen Xt
+  allocations, compare the unsigned selection-timeout sentinel by type, and
+  keep Xlib request status separate from Boolean color-property parse results.
+
 Require complete fixed-size MWM property reads (2026-11-02)
 ===========================================================
 
