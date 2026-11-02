@@ -1,3 +1,9 @@
+Validate MWM WM_STATE writes (2026-11-02)
+==========================================
+
+- Reject negative state values before converting to the unsigned X11
+  `WM_STATE` property representation.
+
 Require complete variable-length MWM property reads (2026-11-02)
 =================================================================
 

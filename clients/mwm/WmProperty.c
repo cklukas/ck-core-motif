@@ -699,8 +699,10 @@ void SetWMState (Window window, int state, Window icon)
 {
     PropWMState property;
 
+    if (state < 0)
+	return;
 
-    property.state = state;
+    property.state = (unsigned long)state;
     property.icon = icon;
 
     XChangeProperty (DISPLAY, window, wmGD.xa_WM_STATE, wmGD.xa_WM_STATE, 32,
