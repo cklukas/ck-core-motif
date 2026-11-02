@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: Scale.c /main/31 1999/10/13 16:18:07 mgreess $"
 
 #include <stdio.h>
 #include <limits.h>
+#include <stdint.h>
 #ifndef CSRG_BASED
 /*
  * Modification by Integrated Computer Solutions, Inc.  May 2000
@@ -115,6 +116,15 @@ static Region null_region = NULL;
 
 #define SCROLLBAR_MAX	1000000000
 #define SCALE_VALUE_MARGIN 3
+
+static Dimension
+ScaleBoundedDimension(int64_t value)
+{
+    if (value <= 0) return 0;
+    if (value > USHRT_MAX) return (Dimension)USHRT_MAX;
+    return (Dimension)value;
+}
+
 static Dimension ScaleDefaultExtent(XmScaleWidget, Boolean);
 static void ScaleChanged(Widget, double, double, XtPointer);
 #define SCALE_DEFAULT_MAJOR_SIZE ScaleDefaultExtent(sw, True)
@@ -1832,10 +1842,10 @@ ValueTroughHeight(
         XmRenderTableGetDefaultFontExtents(sw->scale.font_list,
                                            &ret_val, NULL, NULL);
     }
-    return (Dimension)ret_val;
+    return ScaleBoundedDimension(ret_val);
 #else
     char buff[15];
-    register Dimension tmp_max, tmp_min, result;
+    register int tmp_max, tmp_min, result;
     int direction, ascent, descent;
     XCharStruct overall_return;
     
@@ -1856,7 +1866,7 @@ ValueTroughHeight(
 	GET_MAX(tmp_max, sw->scale.maximum) ;
 	GET_MAX(tmp_min, sw->scale.minimum) ;
 	result = MAX(tmp_min, tmp_max);
-	return (result);
+	return ScaleBoundedDimension(result);
 	}
     else
 	return (0);
@@ -1874,10 +1884,10 @@ ValueTroughAscent(
         XmRenderTableGetDefaultFontExtents(sw->scale.font_list,
                                            NULL, &ret_val, NULL);
     }
-    return (Dimension)ret_val;
+    return ScaleBoundedDimension(ret_val);
 #else
     char buff[15];
-    register Dimension tmp_max, tmp_min, result;
+    register int tmp_max, tmp_min, result;
     int direction, ascent, descent;
     XCharStruct overall_return;
     
@@ -1898,7 +1908,7 @@ ValueTroughAscent(
 	GET_MAX(tmp_max, sw->scale.maximum) ;
 	GET_MAX(tmp_min, sw->scale.minimum) ;
 	result = MAX(tmp_min, tmp_max);
-	return (result);
+	return ScaleBoundedDimension(result);
 	}
     else
 	return (0);
@@ -1916,10 +1926,10 @@ ValueTroughDescent(
         XmRenderTableGetDefaultFontExtents(sw->scale.font_list,
                                            NULL, NULL, &ret_val);
     }
-    return (Dimension)ret_val;
+    return ScaleBoundedDimension(ret_val);
 #else
     char buff[15];
-    register Dimension tmp_max, tmp_min, result;
+    register int tmp_max, tmp_min, result;
     int direction, ascent, descent;
     XCharStruct overall_return;
     
@@ -1940,7 +1950,7 @@ ValueTroughDescent(
 	GET_MAX(tmp_max, sw->scale.maximum) ;
 	GET_MAX(tmp_min, sw->scale.minimum) ;
 	result = MAX(tmp_min, tmp_max);
-	return (result);
+	return ScaleBoundedDimension(result);
 	}
     else
 	return (0);
@@ -1953,7 +1963,7 @@ ValueTroughWidth(
         XmScaleWidget sw)
 {
     char buff[15];
-    register Dimension tmp_max, tmp_min, result;
+    register int tmp_max, tmp_min, result;
     int direction, ascent, descent;
     XCharStruct overall_return;
     
@@ -1988,7 +1998,7 @@ ValueTroughWidth(
 	GET_MAX(tmp_max, sw->scale.maximum) ;
 	GET_MAX(tmp_min, sw->scale.minimum) ;
 	result = MAX(tmp_min, tmp_max);
-	return (result);
+	return ScaleBoundedDimension(result);
 	}
     else
 	return (0);
@@ -2112,7 +2122,7 @@ MajorLeadPad(
     ASSIGN_MAX(tmp1, 0);
     ASSIGN_MAX(tmp2, 0);
 
-    return(MAX(tmp1, tmp2));
+    return ScaleBoundedDimension(MAX(tmp1, tmp2));
 }
 
 
@@ -2175,7 +2185,7 @@ MajorTrailPad(
     ASSIGN_MAX(tmp1, 0);
     ASSIGN_MAX(tmp2, 0);
 
-    return(MAX(tmp1, tmp2));
+    return ScaleBoundedDimension(MAX(tmp1, tmp2));
 }
 
 
@@ -2269,7 +2279,7 @@ ScrollWidth(
 	if (tmp <= 0) tmp = SCALE_DEFAULT_MAJOR_SIZE;
     }
     
-    return((Dimension) tmp);
+    return ScaleBoundedDimension(tmp);
 }
 
 static Dimension 
@@ -2354,7 +2364,7 @@ ScrollHeight(
 	if (tmp <= 0) tmp = SCALE_DEFAULT_MAJOR_SIZE;
     }
     
-    return((Dimension)tmp);
+    return ScaleBoundedDimension(tmp);
 }
 
 

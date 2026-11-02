@@ -1,3 +1,10 @@
+Saturate Scale metric geometry (2026-11-02)
+============================================
+
+- Keep Scale value metrics, title/tick padding, and scrollbar natural extents
+  wide until their final legacy `Dimension` boundary, then saturate rather
+  than allowing oversized font or DPI-derived values to wrap.
+
 Saturate ToggleButton indicator margin deltas (2026-11-02)
 ===========================================================
 
