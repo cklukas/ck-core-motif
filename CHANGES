@@ -1,3 +1,10 @@
+Keep Scale scrollbar span arithmetic wide (2026-11-02)
+=========================================================
+
+- Calculate the Scale scrollbar span and slider-size product in `int64_t`,
+  clamping only at the existing integer scrollbar API boundary instead of
+  relying on a post-overflow result.
+
 Keep Scale locale decimal lengths wide (2026-11-02)
 ======================================================
 

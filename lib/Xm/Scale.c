@@ -3158,13 +3158,13 @@ CalcScrollBarData(
         int *ppage )
 {
     int slider_size, increment, page, value ;
-    Dimension scrollbar_size;
+    int64_t scrollbar_size, slider_size_wide;
     float sb_value, tmp;
     XmScrollBarWidget scrollbar = 
 	    (XmScrollBarWidget) sw->composite.children[1];
     register int ht = scrollbar->primitive.highlight_thickness;
     register int st = scrollbar->primitive.shadow_thickness;
-    int size;
+    int64_t size;
     
 	/*  Adjust the slider size to take SLIDER_SIZE area.    */
 	/*  Adjust value to be in the bounds of the scrollbar.  */
@@ -3185,17 +3185,16 @@ CalcScrollBarData(
 		scrollbar_size -= 2 * (sw->scale.highlight_thickness
 			+ sw->manager.shadow_thickness);
 
-    slider_size = (SCROLLBAR_MAX / scrollbar_size) * SLIDER_SIZE( sw);
+    slider_size_wide = ((int64_t)SCROLLBAR_MAX / scrollbar_size)
+	* (int64_t)SLIDER_SIZE(sw);
 
-    /*
-     * Now error check our arithmetic
-     */
-    if (slider_size < 0)
-	slider_size = SCROLLBAR_MAX;   
-    else if (slider_size < 1)
+    /* Clamp before returning to the legacy int scrollbar API. */
+    if (slider_size_wide < 1)
 	slider_size = 1;
-    else if (slider_size > SCROLLBAR_MAX)
+    else if (slider_size_wide > SCROLLBAR_MAX)
 	slider_size = SCROLLBAR_MAX;
+    else
+	slider_size = (int)slider_size_wide;
 
     sb_value = (float) (sw->scale.value - sw->scale.minimum) / 
 		(float) (sw->scale.maximum - sw->scale.minimum);
