@@ -1,3 +1,10 @@
+Bound MWM accelerator display-text formatting (2026-11-02)
+===========================================================
+
+- Reject malformed multibyte accelerator syntax and grow the display buffer
+  safely for longer substitutions, preventing cursor underflow and
+  label-buffer overwrite during menu parsing.
+
 Validate MWM display-name allocation arithmetic (2026-11-02)
 =============================================================
 

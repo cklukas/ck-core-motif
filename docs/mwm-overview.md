@@ -90,6 +90,7 @@ clients exchanging Motif window-management messages.
 - [Preprocessor command bounds](mwm-preprocess-command-bounds.md)
 - [Network-file path sizing](mwm-network-path-size.md)
 - [Display-string bounds](mwm-display-string-bounds.md)
+- [Accelerator display-text bounds](mwm-accelerator-text-bounds.md)
 - [Executable identity basename](mwm-identity-basename.md)
 - [Builtin binding buffer size](mwm-binding-buffer-size.md)
 - [Menu query array bounds](mwm-menu-array-bounds.md)

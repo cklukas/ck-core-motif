@@ -340,8 +340,13 @@ void ScanWhitespace(unsigned char  **linePP);
 void ToLower (unsigned char  *string);
 void
 PWarning (char *message);
-static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
-			      unsigned char *destP);
+static Boolean AppendAccelText(unsigned char **destP, size_t *capacity,
+			       size_t *used, const unsigned char *source,
+			       size_t count);
+static Boolean ProcessAccelText (unsigned char *startP,
+				 unsigned char *endP,
+				 unsigned char **destP,
+				 size_t *destCapacity);
 void ProcessCommandLine (int argc,  char *argv[]);
 static void ParseScreensArgument (int argc, char *argv[], int *pArgnum,
 				  unsigned char *lineP);
@@ -3909,8 +3914,13 @@ static Boolean ParseWmAccelerator (unsigned char **linePP, MenuItem *menuItem)
     {
         if (ParseKeyEvent(&lineP, &eventType, &keycode, &state))
         {
-            if ((string = (String) XtMalloc 
-		 ((unsigned int) (lineP - *linePP + 1))) == NULL)
+            size_t acceleratorLength;
+            size_t acceleratorCapacity;
+            unsigned char *acceleratorText;
+
+            if (lineP < *linePP ||
+                (acceleratorLength = (size_t)(lineP - *linePP)) >= UINT_MAX ||
+		(string = (String)XtMalloc((Cardinal)acceleratorLength + 1)) == NULL)
             {
 	        PWarning (((char *)GETMESSAGE(60, 15, "Insufficient memory for accelerator specification")));
                 status = FALSE;
@@ -3921,10 +3931,23 @@ static Boolean ParseWmAccelerator (unsigned char **linePP, MenuItem *menuItem)
 	     * Process and save the accelerator text.
 	     */
             {
-	        ProcessAccelText (*linePP, lineP, (unsigned char *) string);
-                menuItem->accelState = state;
-                menuItem->accelKeyCode = keycode;
-                menuItem->accelText = string;
+	        acceleratorCapacity = acceleratorLength + 1;
+		acceleratorText = (unsigned char *)string;
+	        if (ProcessAccelText(*linePP, lineP,
+			     &acceleratorText, &acceleratorCapacity))
+		{
+		    string = (String)acceleratorText;
+		    menuItem->accelState = state;
+		    menuItem->accelKeyCode = keycode;
+		    menuItem->accelText = string;
+		}
+		else
+		{
+		    XtFree((char *)acceleratorText);
+		    PWarning (((char *)GETMESSAGE(60, 16,
+			"Invalid accelerator specification")));
+		    status = FALSE;
+		}
             }
         }
 	else
@@ -7396,21 +7419,71 @@ static void InitKeySubs (
  * 
  *************************************<->***********************************/
 
-static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
-			      unsigned char *destP)
+static Boolean
+AppendAccelText(unsigned char **destP, size_t *capacity, size_t *used,
+		const unsigned char *source, size_t count)
+{
+    size_t required;
+    size_t newCapacity;
+    unsigned char *resized;
+
+    if (destP == NULL || *destP == NULL || capacity == NULL || used == NULL ||
+	source == NULL || *used >= *capacity || count > SIZE_MAX - *used - 1)
+	return False;
+    required = *used + count + 1;
+    if (required > *capacity)
+	{
+	    if (required > UINT_MAX)
+		return False;
+	    newCapacity = *capacity;
+	    while (newCapacity < required)
+	    {
+		if (newCapacity > UINT_MAX / 2)
+		{
+		    newCapacity = required;
+		    break;
+		}
+		newCapacity *= 2;
+	    }
+	    resized = (unsigned char *)XtRealloc((char *)*destP,
+		(Cardinal)newCapacity);
+	    if (resized == NULL)
+		return False;
+	    *destP = resized;
+	    *capacity = newCapacity;
+	}
+    memcpy(*destP + *used, source, count);
+    *used += count;
+    return True;
+}
+
+static Boolean ProcessAccelText (unsigned char *startP, unsigned char *endP,
+				 unsigned char **destP, size_t *destCapacity)
 {
 #ifndef NO_MULTIBYTE
     int   chlen;
+    size_t maxCharBytes;
 #endif
 #ifdef WSM
     static Boolean	bAccelInit = False;
     static KeySub	*pKeySub;
     static int		numKeySubs;
-    unsigned char *	pchFirst;
     unsigned char *	pchSub;
-    int			lenSub;
+    size_t			lenSub;
     int			i;
+#endif /* WSM */
+    unsigned char *pchFirst;
+    size_t destUsed = 0;
 
+    if (startP == NULL || endP == NULL || destP == NULL || *destP == NULL ||
+	destCapacity == NULL || *destCapacity == 0 || startP > endP)
+	return False;
+#ifndef NO_MULTIBYTE
+    maxCharBytes = (size_t)MB_CUR_MAX;
+    if (maxCharBytes == 0)
+	return False;
+#endif
+#ifdef WSM
     if (!bAccelInit)
     {
 	InitKeySubs (&pKeySub, &numKeySubs);
@@ -7422,43 +7495,37 @@ static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
      * Copy modifiers
      */
 
-    ScanWhitespace (&startP);
+    while (startP < endP && isspace((unsigned char)*startP))
+	startP++;
 
-    while (*startP != '<')
+    while (startP < endP && *startP != '<')
     {
         if (*startP == '~') 
 	{
-            *destP++ = *startP++;
+	    if (!AppendAccelText(destP, destCapacity, &destUsed, startP, 1))
+		return False;
+	    startP++;
         }
-#ifdef WSM
 	pchFirst = startP;
-#endif /* WSM */
 
 #ifndef NO_MULTIBYTE
-        while (*startP &&
-	       (((chlen = mblen ((char *)startP, MB_CUR_MAX)) > 1)
-		|| isalnum (*startP)))
+        while (startP < endP && *startP)
         {
-	    while (chlen--)
-	    {
-#ifdef WSM
-	        startP++;
+	    size_t remaining = (size_t)(endP - startP);
 
-#else /* WSM */
-	        *destP++ = *startP++;
-#endif /* WSM */
-	    }
+	    chlen = mblen((char *)startP,
+		   remaining < maxCharBytes ? remaining : maxCharBytes);
+	    if (chlen <= 0 ||
+		(chlen == 1 && !isalnum((unsigned char)*startP)))
+		break;
+	    startP += chlen;
 	}
 #else
-        while (isalnum (*startP))
-        {
-#ifdef WSM
-	        startP++;
-#else /* WSM */
-	    *destP++ = *startP++;
-#endif /* WSM */
-	}
+        while (startP < endP && isalnum((unsigned char)*startP))
+	    startP++;
 #endif
+        if (startP == pchFirst)
+	    return False;
 #ifdef WSM
 	/* find substitution */
 	pchSub = NULL;
@@ -7479,44 +7546,67 @@ static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
 
         if ((pchSub != NULL) && (lenSub > 0))
 	{
-	    memcpy (destP, pchSub, lenSub);
-	    destP += lenSub;
+	    if (!AppendAccelText(destP, destCapacity, &destUsed, pchSub, lenSub))
+		return False;
 	}
 	else
 	{
-	    memcpy (destP, pchFirst, startP-pchFirst);
-	    destP += startP-pchFirst;
+	    if (!AppendAccelText(destP, destCapacity, &destUsed, pchFirst,
+		(size_t)(startP - pchFirst)))
+		return False;
 	}
+#else
+	if (!AppendAccelText(destP, destCapacity, &destUsed, pchFirst,
+	    (size_t)(startP - pchFirst)))
+	    return False;
 #endif /* WSM */
-	*destP++ = '+';
+	if (!AppendAccelText(destP, destCapacity, &destUsed,
+	    (const unsigned char *)"+", 1))
+	    return False;
 
-        ScanWhitespace (&startP);
+        while (startP < endP && isspace((unsigned char)*startP))
+	    startP++;
     }
+    if (startP >= endP || *startP != '<')
+	return False;
 
     /*
      * Skip the key event type.
      */
     startP++;  /* skip '<' */
-    while (*startP != '>')
+    while (startP < endP && *startP != '>')
     {
 #ifndef NO_MULTIBYTE
-        startP += mblen ((char *)startP, MB_CUR_MAX);
+        size_t remaining = (size_t)(endP - startP);
+
+        chlen = mblen((char *)startP,
+	      remaining < maxCharBytes ? remaining : maxCharBytes);
+        if (chlen <= 0)
+	    return False;
+        startP += chlen;
 #else
         startP++;
 #endif
     }
+    if (startP >= endP)
+	return False;
     startP++;  /* skip '>' */
 
     /*
      * Copy the KeySym string.
      */
 
-    ScanWhitespace (&startP);
+    while (startP < endP && isspace((unsigned char)*startP))
+	startP++;
     while (startP != endP)
     {
-        *destP++ = *startP++;
+	if (!AppendAccelText(destP, destCapacity, &destUsed, startP, 1))
+	    return False;
+	startP++;
     }
-    *destP = '\0';
+    (*destP)[destUsed] = '\0';
+
+    return True;
 
 } /* END OF FUNCTION ProcessAccelText */
 
