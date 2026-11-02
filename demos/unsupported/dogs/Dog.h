@@ -34,6 +34,8 @@
 #ifndef _Dog_h
 #define _Dog_h
 
+#include <Xm/Xm.h>
+
 #define USING_UIL
 
 externalref WidgetClass dogWidgetClass;
@@ -50,9 +52,10 @@ typedef struct _DogRec *DogWidget;
 
 #define IsDog(w) XtIsSubclass((w), dogWidgetClass)
 
-extern Widget DogCreate();
+extern Widget DogCreate(Widget parent, char *name, ArgList arglist,
+			Cardinal nargs);
 #ifdef	USING_UIL
-extern int DogMrmInitialize();
+extern int DogMrmInitialize(void);
 #endif
 
 #endif /* _Dog_h */

@@ -55,6 +55,13 @@ Modernize Exm Container sample constructor API (2026-11-02)
 - Match the unsupported Exm Container constructor declaration to its typed C23
   implementation.
 
+Modernize dogs custom widgets and callbacks (2026-11-02)
+=========================================================
+
+- Give the dogs demo and its Dog/Square custom widgets typed Xt/Mrm callback
+  contracts, safe callback data handling, bounded geometry, and tracked tail
+  wag timeouts.
+
 Harden aicon directory population (2026-11-02)
 =================================================
 

@@ -41,8 +41,9 @@ externalref WidgetClass squareWidgetClass;
 typedef struct _SquareClassRec *SquareWidgetClass;
 typedef struct _SquareRec *SquareWidget;
 
-extern Widget SquareCreate();
-extern int SquareMrmInitialize();
+extern Widget SquareCreate(Widget parent, char *name, ArgList arglist,
+			   Cardinal nargs);
+extern int SquareMrmInitialize(void);
 
 #define IsSquare(w) XtIsSubclass((w), squareWidgetClass)
 

@@ -50,12 +50,12 @@ XtAppContext  app_context;
 #define k_dog3_id 3
 #define k_help_id 4
 
-static void create_cb();
-static void bark_cb();
-static void tb_cb();
-static void scale_cb();
-static void help_cb();
-static void exit_cb();
+static void create_cb(Widget w, XtPointer client_data, XtPointer call_data);
+static void bark_cb(Widget w, XtPointer client_data, XtPointer call_data);
+static void tb_cb(Widget w, XtPointer client_data, XtPointer call_data);
+static void scale_cb(Widget w, XtPointer client_data, XtPointer call_data);
+static void help_cb(Widget w, XtPointer client_data, XtPointer call_data);
+static void exit_cb(Widget w, XtPointer client_data, XtPointer call_data);
 
 static MrmHierarchy mrm_id;
 static char *mrm_vec[]={"dogs.uid"};
@@ -74,9 +74,8 @@ static Widget dog2_id;
 static Widget dog3_id;
 static Widget help_id;
 
-int main(argc, argv)
-    int argc;
-    char **argv;
+int
+main(int argc, char **argv)
 {
     Widget shell;
     Display *display;
@@ -103,9 +102,13 @@ int main(argc, argv)
     shell = XtAppCreateShell(argv[0], NULL, applicationShellWidgetClass,
 			  display, args, 3);
 
-    if (MrmOpenHierarchy (1, mrm_vec, NULL, &mrm_id) != MrmSUCCESS) exit(0);
-    MrmRegisterNames(mrm_names, XtNumber(mrm_names));
-    MrmFetchWidget (mrm_id, "app_main", shell, &app_main, &mrm_class);
+    if (MrmOpenHierarchy(1, mrm_vec, NULL, &mrm_id) != MrmSUCCESS ||
+	MrmRegisterNames(mrm_names, XtNumber(mrm_names)) != MrmSUCCESS ||
+	MrmFetchWidget(mrm_id, "app_main", shell, &app_main, &mrm_class) != MrmSUCCESS ||
+	!app_main) {
+	fprintf(stderr, "%s: cannot load dogs.uid\n", argv[0]);
+	exit(EXIT_FAILURE);
+    }
     XtManageChild(app_main);
     XtRealizeWidget(shell);
     XtAppMainLoop(app_context);
@@ -113,11 +116,15 @@ int main(argc, argv)
     return 0;    /* make compiler happy */
 }
 
-static void create_cb(w, id, reason)
-    Widget w;
-    int *id;
-    unsigned long *reason;
+static void
+create_cb(Widget w, XtPointer client_data, XtPointer call_data)
 {
+    const int *id = (const int *)client_data;
+
+    (void)call_data;
+    if (!id)
+	return;
+
     switch (*id) {
         case k_dog1_id: dog1_id = w; break;
         case k_dog2_id: dog2_id = w; break;
@@ -132,66 +139,84 @@ static void create_cb(w, id, reason)
     }
 }
 
-static void bark_cb (w, volume, cb)
-    Widget w;
-    int *volume;
-    XtPointer cb;
+static void
+bark_cb(Widget w, XtPointer client_data, XtPointer call_data)
 {
+    const int *volume = (const int *)client_data;
+
+    (void)call_data;
+    if (!volume)
+	return;
     XBell(XtDisplay(w), *volume);
 }
 
-static void tb_cb (w, tag, cb)
-    Widget w;
-    int *tag;
-    XmToggleButtonCallbackStruct *cb;
+static void
+tb_cb(Widget w, XtPointer client_data, XtPointer call_data)
 {
     Arg args[1];
     Widget dog=NULL;
+    const int *tag = (const int *)client_data;
+    const XmToggleButtonCallbackStruct *cb =
+	(const XmToggleButtonCallbackStruct *)call_data;
 
+    (void)w;
+    if (!tag || !cb)
+	return;
     switch (*tag) {
 	case(1) : dog = dog1_id; break;
 	case(2) : dog = dog2_id; break;	
 	case(3) : dog = dog3_id; break;	
     }
+    if (!dog)
+	return;
     XtSetArg(args[0], SquareNmakeSquare, cb->set);
     XtSetValues(dog, args, 1);
 }
 
-static void scale_cb(w, tag, cb)
-    Widget w;
-    int *tag;
-    XmScaleCallbackStruct *cb;
+static void
+scale_cb(Widget w, XtPointer client_data, XtPointer call_data)
 {
     Arg args[1];
     Widget dog = NULL;
+    const int *tag = (const int *)client_data;
+    const XmScaleCallbackStruct *cb =
+	(const XmScaleCallbackStruct *)call_data;
 
+    (void)w;
+    if (!tag || !cb)
+	return;
     switch (*tag) {
 	case(1) : dog = dog1_id; break;
 	case(2) : dog = dog2_id; break;	
 	case(3) : dog = dog3_id; break;	
     }
+    if (!dog)
+	return;
     XtSetArg(args[0], DogNwagTime, cb->value);
     XtSetValues(dog, args, 1);
 }
 
-static void help_cb (w, name, cb)
-    Widget w;
-    XmString name;
-    XtPointer cb;
+static void
+help_cb(Widget w, XtPointer client_data, XtPointer call_data)
 {
     Arg args[1];
+    XmString name = (XmString)client_data;
 
-    if (name == NULL) return;
+    (void)w;
+    (void)call_data;
+    if (!name || !help_id)
+	return;
     XtSetArg (args[0], XmNmessageString, name);
     XtSetValues(help_id, args, 1);
     XtManageChild(help_id);
 }
 
-static void exit_cb (w, name, cb)
-    Widget w;
-    XmString name;
-    XtPointer cb;
+static void
+exit_cb(Widget w, XtPointer client_data, XtPointer call_data)
 {
+    (void)w;
+    (void)client_data;
+    (void)call_data;
     exit(0);
 }
 
