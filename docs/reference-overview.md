@@ -93,6 +93,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM workspace-protocol allocation failures](mwm-workspace-protocol-oom.md) — retain a safe empty protocol result on allocation failure.
 - [MWM workspace transient-tree traversal](mwm-workspace-tree-walk.md) — avoid stack exhaustion while walking deep client hierarchies.
 - [MWM workspace callback input lifecycle](mwm-workspace-callback-inputs.md) — reject detached asynchronous callback state safely.
+- [MWM transient-property refresh](mwm-transient-property-reset.md) — discard stale managed leaders after `WM_TRANSIENT_FOR` changes.
 - [MWM client-message initialization](mwm-client-message-initialization.md) — clear unused X11 payload words.
 - [MWM keyboard-state mask typing](mwm-keyboard-state-mask.md) — use explicit unsigned XKB group bits.
 - [MWM double-click time validation](mwm-double-click-time.md) — reject non-positive signed thresholds.

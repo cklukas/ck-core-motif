@@ -2730,6 +2730,19 @@ ProcessWmTransientFor (ClientData *pCD)
     Window window;
     ClientData *leader;
 
+    if (pCD == NULL)
+    {
+        return;
+    }
+
+    /*
+     * This routine is also called after a WM_TRANSIENT_FOR PropertyNotify.
+     * Drop a previous managed association before resolving the replacement.
+     * A self reference or an as-yet unmanaged window is still a transient
+     * hint, but it must not retain the old leader and stack relationship.
+     */
+    pCD->transientFor = (Window)0L;
+    pCD->transientLeader = NULL;
 
 #ifdef WSM
     if ((HasProperty (pCD, XA_WM_TRANSIENT_FOR)) &&

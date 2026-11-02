@@ -1,3 +1,10 @@
+Refresh MWM transient associations on property changes (2026-11-02)
+===================================================================
+
+- Clear a client's old managed transient leader before resolving a changed
+  `WM_TRANSIENT_FOR` hint.  A self or unmanaged replacement cannot leave the
+  client stacked or modalized beneath its former leader.
+
 Validate MWM workspace callback lifecycle inputs (2026-11-02)
 =============================================================
 
