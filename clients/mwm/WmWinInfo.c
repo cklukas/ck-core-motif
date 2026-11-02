@@ -114,6 +114,47 @@ WmWarningWithString(const char *format, const char *value)
     XtFree(message);
 }
 
+/* Reject a self reference, an indirect reference back to client, and a
+ * pre-existing corrupt leader loop before linking a transient relationship. */
+static Boolean
+WouldCreateTransientCycle(ClientData *client, ClientData *leader)
+{
+    ClientData *slow = leader;
+    ClientData *fast = leader;
+
+    while (slow != NULL)
+    {
+	if (slow == client)
+	{
+	    return (True);
+	}
+	slow = slow->transientLeader;
+
+	if (fast != NULL)
+	{
+	    if (fast == client)
+	    {
+		return (True);
+	    }
+	    fast = fast->transientLeader;
+	}
+	if (fast != NULL)
+	{
+	    if (fast == client)
+	    {
+		return (True);
+	    }
+	    fast = fast->transientLeader;
+	}
+	if (slow != NULL && slow == fast)
+	{
+	    return (True);
+	}
+    }
+
+    return (False);
+}
+
 /*
  * Global Variables:
  */
@@ -1210,7 +1251,8 @@ ProcessWmHints (ClientData *pCD, Boolean firstTime)
 
 		if ((pCD->client != pCD->windowGroup) &&
 		    !XFindContext (DISPLAY, pCD->windowGroup, 
-			wmGD.windowContextType, (caddr_t *)&leader))
+			wmGD.windowContextType, (caddr_t *)&leader) &&
+		    !WouldCreateTransientCycle(pCD, leader))
 		{
 		    pCD->transientFor = pCD->windowGroup;
 		    pCD->transientLeader = leader;
@@ -2760,7 +2802,8 @@ ProcessWmTransientFor (ClientData *pCD)
 
 	if ((pCD->client != window) &&
 	    !XFindContext (DISPLAY, window, wmGD.windowContextType,
-		(caddr_t *)&leader))
+		(caddr_t *)&leader) &&
+	    !WouldCreateTransientCycle(pCD, leader))
 	{
 	    pCD->transientFor = window;
 	    pCD->transientLeader = leader;

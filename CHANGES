@@ -1,3 +1,10 @@
+Reject cyclic MWM transient associations (2026-11-02)
+=======================================================
+
+- Validate managed `WM_TRANSIENT_FOR` and pseudo-transient window-group
+  leaders before linking. Direct, indirect, and pre-existing leader loops are
+  rejected so malformed changing hints cannot hang focus or stacking walks.
+
 Make MWM transient-tree operations iterative (2026-11-02)
 ==========================================================
 
