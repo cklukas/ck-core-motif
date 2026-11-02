@@ -1,3 +1,10 @@
+Modernize Editres C23 prototypes (2026-11-02)
+================================================
+
+- Replace the Editres demonstration protocol's K&R definitions and unspecified
+  forward declarations with exact typed C prototypes, preserving its protocol
+  behavior while allowing the source to compile in the current C23 build.
+
 Assemble DropDown selection text linearly (2026-11-02)
 =======================================================
 
