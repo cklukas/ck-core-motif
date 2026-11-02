@@ -1,3 +1,10 @@
+Correct Panner Xlib error-handler contract (2026-11-02)
+=========================================================
+
+- Store and restore the Panner demo's Xlib error handler with the exact
+  `XErrorHandler` type, and skip windows whose attributes cannot be fetched
+  while their tree is being redrawn.
+
 Modernize GetSubRes reporting and C23 callbacks (2026-11-02)
 ==========================================================
 
