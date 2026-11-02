@@ -12,4 +12,6 @@ assert "format != 8" in cleanup
 assert "target == None" in cleanup
 assert "if (value != NULL)" in cleanup
 assert "XFree(value)" in cleanup
+success = body[body.index("result = FetchPixelData"):body.index("return result;")]
+assert "XFree(value);" in success
 print("ColorCachePropertyExists frees failed or malformed property data")

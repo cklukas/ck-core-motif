@@ -1,3 +1,9 @@
+Release successful ColorObj property reads (2026-11-02)
+========================================================
+
+- Free the Xlib pixel-set-property buffer after a successful bounded parse,
+  preventing a color-cache lookup leak.
+
 Harden Motif window-manager detection failures (2026-11-02)
 ===========================================================
 

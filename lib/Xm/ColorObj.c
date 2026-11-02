@@ -780,6 +780,7 @@ ColorCachePropertyExists(
 	value[length - 1] = 0 ; /* extract version info */
 
         result = FetchPixelData(w, value, length - 1, screen);
+	XFree(value);
     }
 	else if (value != NULL)
 	    XFree(value);
