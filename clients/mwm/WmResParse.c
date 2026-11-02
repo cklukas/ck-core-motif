@@ -4437,7 +4437,6 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
         if (wmFunction == F_Exec)
 	{
 	    append_delimiter = (len == 0);
-	    lastlen = 0;
 	    p = *pArgs;
 	    while (*p &&
 		   ((lastlen = mblen(p, (size_t)MB_CUR_MAX)) > 0))
