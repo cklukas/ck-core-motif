@@ -12,7 +12,7 @@ def main() -> None:
     start = text.index("void \nMakeAppearanceResources")
     end = text.index("\n} /* END OF FUNCTION MakeAppearanceResources */", start)
     region = text[start:end]
-    assert "(unsigned int)messageLength < UINT_MAX" in region
+    assert "(size_t)messageLength < UINT_MAX" in region
     assert "XtMalloc((Cardinal)messageLength + 1)" in region
     assert "XtMalloc((unsigned int)messageLength + 1)" not in region
     print("mwm font-load diagnostics are width-checked")
