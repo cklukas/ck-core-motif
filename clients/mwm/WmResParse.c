@@ -1421,6 +1421,11 @@ void ParseSessionClientState (WmScreenData *pSD, int count,
 
 {
 
+    if (string == NULL)
+    {
+	return;
+    }
+
     if(!strcmp((char *)string, "NormalState"))
     {
 	pSD->pDtSessionItems[count].clientState = NORMAL_STATE;
@@ -1456,6 +1461,11 @@ void ParseSessionGeometry (WmScreenData *pSD, int count,
     int mask /* = 0 */;
     int X, Y, width, height;
     X = Y = width = height = 0;
+
+    if (string == NULL)
+    {
+	return;
+    }
     
     /*
      *  XParseGeometry
@@ -1526,6 +1536,11 @@ void ParseSessionWorkspaces (WmScreenData *pSD,  int count,
 			     unsigned char *string)
 
 {
+
+    if (string == NULL)
+    {
+	return;
+    }
 
     /*
      * Allocate space for the workspaces string
@@ -1709,6 +1724,11 @@ void ParseSessionHost (WmScreenData *pSD,  int count,
 			     unsigned char *string)
 
 {
+
+    if (string == NULL)
+    {
+	return;
+    }
 
     /*
      * Allocate space for the workspaces string
@@ -4336,7 +4356,7 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
          */
 
 #ifndef NO_MULTIBYTE
-	if ((wmFunction == F_Exec))
+        if (wmFunction == F_Exec)
 	{
 	    lastlen = 0;
 	    p = *pArgs;

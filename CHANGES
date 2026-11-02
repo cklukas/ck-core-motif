@@ -1,3 +1,10 @@
+Reject missing MWM session state and geometry values (2026-11-02)
+===============================================================
+
+- Ignore malformed session `-state`, `-geometry`, `-workspaces`, and `-host`
+  switches that lack a value before calling parsing routines or reporting false
+  allocation failures. Other session records continue to restore normally.
+
 Validate MWM front-panel registration (2026-11-02)
 ===================================================
 

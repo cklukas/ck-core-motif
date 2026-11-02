@@ -73,6 +73,7 @@ clients exchanging Motif window-management messages.
 - [Double-click time validation](mwm-double-click-time.md)
 - [Session workspace-string growth](mwm-session-workspace-growth.md)
 - [Session geometry persistence](mwm-session-geometry.md)
+- [Missing session values](mwm-session-missing-values.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)
