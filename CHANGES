@@ -1,3 +1,10 @@
+Validate MWM display-name allocation arithmetic (2026-11-02)
+=============================================================
+
+- Check the raw X display-name length before adding its terminator and MWM's
+  formatting slack, preventing a wrapped `size_t` value from reaching Xt
+  allocation.
+
 Validate MWM screen-record allocation (2026-11-02)
 ====================================================
 

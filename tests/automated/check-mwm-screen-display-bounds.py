@@ -9,8 +9,13 @@ region = source[start:end]
 assert "#define LENCBUFFER 256" not in region
 assert "char buffer[LENCBUFFER]" not in region
 assert "char displayName[LENCBUFFER]" not in region
-assert "displayNameLength = strlen(pDisplayName) + 1" in region
-assert "displayNameLength > SIZE_MAX - 64" in region
+assert "displayNameLength = strlen(pDisplayName);" in region
+assert "displayNameLength > SIZE_MAX - 65" in region
+assert "displayNameLength > (size_t)UINT_MAX - 65" in region
+assert "displayNameLength++;" in region
+assert region.index("displayNameLength > SIZE_MAX - 65") < region.index(
+    "displayNameLength++;"
+)
 assert "bufferLength = displayNameLength + 64" in region
 assert "buffer = (char *)XtMalloc((Cardinal)bufferLength)" in region
 assert "XtFree(buffer);" in region

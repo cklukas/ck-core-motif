@@ -1700,14 +1700,18 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 
 
     pDisplayName = DisplayString (DISPLAY);
-    displayNameLength = strlen(pDisplayName) + 1;
-    if (displayNameLength > SIZE_MAX - 64 ||
-        displayNameLength + 64 > UINT_MAX)
+    /* Keep every addition outside the unchecked strlen result.  Xt's
+     * Cardinal allocator needs the private NUL-terminated name plus the
+     * display-string formatting slack to fit without wrapping. */
+    displayNameLength = strlen(pDisplayName);
+    if (displayNameLength > SIZE_MAX - 65 ||
+        displayNameLength > (size_t)UINT_MAX - 65)
     {
         Warning (((char *)GETMESSAGE(40, 9,
                                 "Display string is too long")));
         return;
     }
+    displayNameLength++;
     bufferLength = displayNameLength + 64;
     displayName = (char *)XtMalloc((Cardinal)displayNameLength);
     buffer = (char *)XtMalloc((Cardinal)bufferLength);
