@@ -1,3 +1,15 @@
+Guard MWM workspace resource tables by build mode (2026-11-02)
+==============================================================
+
+- Skip workspace-only resource lookups in non-WSM builds, avoiding invalid
+  pointer-size resource counts.
+
+Make MWM default-menu fallback allocation-free (2026-11-02)
+===========================================================
+
+- Use MWM's built-in menu definition directly when localized menu allocation
+  fails, so the recovery path cannot fail a second time.
+
 Reject unavailable MWM request copies (2026-11-02)
 ===================================================
 

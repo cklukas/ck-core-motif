@@ -200,6 +200,17 @@ CopyCatalogString(const char *text)
     return(copy);
 }
 
+static void
+UseBuiltinSystemMenuFallback(void)
+{
+#ifdef WSM
+    builtinSystemMenu = DtwmBehavior ? (char *)DEFAULT_DTWM_SYSTEMMENU :
+        (char *)BUILTINSYSTEMMENU;
+#else /* WSM */
+    builtinSystemMenu = (char *)BUILTINSYSTEMMENU;
+#endif /* WSM */
+}
+
 void InitBuiltinSystemMenu(void)
 {
     char * tmpString;
@@ -392,21 +403,7 @@ void InitBuiltinSystemMenu(void)
 
     if (!gotItAll)
     {
-#ifdef WSM
-	if (DtwmBehavior)
-	{
-	    builtinSystemMenu = (char *) 
-			XtNewString((String)DEFAULT_DTWM_SYSTEMMENU);
-	}
-	else
-	{
-	    builtinSystemMenu = (char *) 
-			XtNewString((String)BUILTINSYSTEMMENU);
-	}
-#else /* WSM */
-	builtinSystemMenu = (char *)
-			XtNewString((String)BUILTINSYSTEMMENU);
-#endif /* WSM */
+	UseBuiltinSystemMenuFallback();
     }
     else
     {
@@ -435,14 +432,7 @@ void InitBuiltinSystemMenu(void)
         {
             Warning (((char *)GETMESSAGE(62, 21,
                      "Insufficient memory for localized default system menu")));
-#ifdef WSM
-            builtinSystemMenu = (char *)XtNewString(
-                DtwmBehavior ? (String)DEFAULT_DTWM_SYSTEMMENU :
-                (String)BUILTINSYSTEMMENU);
-#else /* WSM */
-            builtinSystemMenu = (char *)XtNewString(
-                (String)BUILTINSYSTEMMENU);
-#endif /* WSM */
+	    UseBuiltinSystemMenuFallback();
             goto dsm_done;
         }
 #ifdef WSM
@@ -468,21 +458,7 @@ void InitBuiltinSystemMenu(void)
 	     (char *)XtMalloc ((Cardinal)(dsm_size + 1))) == NULL)
 	{
 	   Warning (((char *)GETMESSAGE(62, 21, "Insufficient memory for localized default system menu")));
-#ifdef WSM
-	    if (DtwmBehavior)
-	    {
-		builtinSystemMenu = (char *) 
-			XtNewString((String)DEFAULT_DTWM_SYSTEMMENU);
-	    }
-	    else
-	    {
-		builtinSystemMenu = (char *) 
-			XtNewString((String)BUILTINSYSTEMMENU);
-	    }
-#else /* WSM */
-	    builtinSystemMenu = (char *) 
-			XtNewString((String)BUILTINSYSTEMMENU);
-#endif /* WSM */
+	   UseBuiltinSystemMenuFallback();
 	}
 	else
 	{
@@ -5334,10 +5310,11 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
     pResWS = pWS;	/* save current ws for default processing */
 #endif /* WSM */
 
+#ifdef WSM
     if (wmGD.useStandardBehavior)
     {
-	XtGetSubresources (pWS->pSD->screenTopLevelW, (XtPointer) pWS, 
-	    pWS->name, pWS->name, wmStdWorkspaceResources, 
+	XtGetSubresources (pWS->pSD->screenTopLevelW, (XtPointer) pWS,
+	    pWS->name, pWS->name, wmStdWorkspaceResources,
 	    XtNumber (wmStdWorkspaceResources), NULL, 0);
 
 	/*
@@ -5345,17 +5322,16 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
 	 *
 	 * (no code for this right now)
 	 */
-#ifdef WSM
         pWS->iconBoxGeometry = NULL;
-#endif /* WSM */
     }
     else
     {
-	XtGetSubresources (pWS->pSD->screenTopLevelW, (XtPointer) pWS, 
-	    pWS->name, pWS->name, wmWorkspaceResources, 
+	XtGetSubresources (pWS->pSD->screenTopLevelW, (XtPointer) pWS,
+	    pWS->name, pWS->name, wmWorkspaceResources,
 	    XtNumber (wmWorkspaceResources), NULL, 0);
 
     }
+#endif /* WSM */
 
 #ifdef WSM
     if (pWS->title == NULL)
