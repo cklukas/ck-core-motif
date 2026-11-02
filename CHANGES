@@ -18,6 +18,12 @@ Correct Extended List demo toggle handling and C23 contracts (2026-11-02)
   and modernize its remaining generated callback declarations and pointer-width
   player identifiers.
 
+Correct Paned demo third sash control (2026-11-02)
+==================================================
+
+- Construct the Paned demo's third sash control as a toggle button and attach
+  its sash callback, while modernizing its generated factory declarations.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 
