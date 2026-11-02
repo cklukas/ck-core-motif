@@ -40,6 +40,8 @@ static char rcsid[] = "$TOG: WmProperty.c /main/7 1997/12/02 10:00:00 bill $"
 
 #include "WmGlobal.h"
 #include "WmICCC.h"
+#include "WmIconBox.h"
+#include <Xm/AtomMgr.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <limits.h>
@@ -1639,7 +1641,7 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
 
     /* number of backdrop windows */
     ix = (i * WIP_NUMBER_SIZE);
-    if ((pWS->backdrop.window == None))
+    if (pWS->backdrop.window == None)
     {
 	strcpy (&pch[ix], "0");
     }

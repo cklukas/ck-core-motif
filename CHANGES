@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Declare MWM WSM workspace-property dependencies directly (2026-11-02)
+=======================================================================
+
+- Include the Motif atom and window-manager XmString helper declarations used
+  by the WSM workspace-property writer, enabling strict C compilation.
+
 Make the MWM WSM help record configuration-independent (2026-11-02)
 ======================================================================
 
