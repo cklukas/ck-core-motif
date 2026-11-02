@@ -1,5 +1,8 @@
 # Periodic Table as a toolkit appearance reference
 
+The [menu action guide](periodic-menu-actions.md) covers working document,
+clipboard, search, wrapping, direction, calendar, help and local message actions.
+
 `demos/programs/periodic` now starts with toolkit modern-light defaults. Use
 `--appearance modern-dark`, `--appearance high-contrast`, `--appearance classic`
 or `--density compact` to compare the same UIL hierarchy. Its modern resource

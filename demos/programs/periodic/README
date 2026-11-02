@@ -53,3 +53,16 @@ Options > Font selects Small (85%), Medium (the original fonts), or Large
 without changing the display scale or theme. Medium restores the original
 fonts exactly; repeated selections do not accumulate. The modern overview
 reflows and scrolls to keep enlarged controls accessible.
+
+The other menus now operate on real examples too. File/Edit share the overview
+Text example with a larger document editor. Direction changes the last focused
+arrow; Case Sensitive controls Find; Word Wrap changes editor line wrapping.
+View supplies working calendar ranges and arranges multiple open example
+windows. Help supplies context guidance, a tutorial and toolkit information.
+
+Template Preview Message and Save Draft are local operations. Include inserts
+a text file; Check English Spelling uses a system word list or the file selected
+by PERIODIC_DICTIONARY. No mail is sent. Print first previews the document;
+only its Print button submits to the system's lp command.
+
+See docs/periodic-menu-actions.md for all actions, limits and native tests.

@@ -1,3 +1,26 @@
+Working Periodic menus and connected arrow focus (2026-11-02)
+=============================================================
+
+- Implement Periodic's File/Edit actions with shared document state, bounded
+  undo, clipboard editing, safe text-file saving and unsaved-change prompts.
+- Make Direction target the last focused arrow, Case Sensitive control Unicode
+  Find, and Word Wrap change rendered line layout without altering text.
+- Add working calendar ranges, Stack/Tile, context help, tutorial and version.
+  Provide local template preview/draft/include/spelling and working file filters.
+  Print previews before an explicit asynchronous submission; report errors.
+- Preserve activated option-menu children during dismissal so quick selections
+  update their label and history. Permit eventless Text/TextField clipboard paste,
+  retain the clipboard undo record and remove duplicate record frees.
+- Validate the macOS font-library dependency cohort and preserve selected
+  package library directories in shared/static linking. Document matching Xft
+  construction with XQuartz X11 and
+  Homebrew's font libraries, preventing historical-font shaping crashes.
+- Restore typed Earth startup, input and timer callback declarations so the
+  updated demo builds with C23; qualify its native controls in that mode.
+- Restore complete rounded arrow focus after interaction painting, including
+  shadowless arrows. Cover the real Periodic hierarchy and modern arrow states
+  with native integration regressions in light, dark, scaled and classic modes.
+
 Avoid traversal crashes for top-level-shell children (2026-11-02)
 ==========================================================
 - Translate realized top-level shell windows to their root with Xlib rather

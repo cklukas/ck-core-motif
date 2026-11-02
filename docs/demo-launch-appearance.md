@@ -43,6 +43,9 @@ isolated Xvfb server and checks visible text pixels without forcing exposure.
 
 ## Earth window and rotation speed
 
+Earth startup and Xt callbacks use typed declarations compatible with C23. Its
+native regression compiles both the actual demo and fixture in that mode.
+
 Earth uses `XmGetAppearanceProfile`, as other standalone demos do, to select
 its rendering. Modern light/dark project a single 2048×1024 NASA world map onto
 a sphere using bilinear sampling, surface lighting and an antialiased edge.

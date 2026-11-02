@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Check the internal next-item ID setter releases its property buffer."""
+"""Property replacement owns the record; callers must not free it twice.
+
+The native Periodic menu regression also exercises repeated clipboard copies.
+"""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "CutPaste.c").read_text()
-start = source.index("static void \nClipboardSetNextItemId(")
-end = source.index("static Boolean \nWeOwnSelection(", start)
+import re
+source = (Path(__file__).parents[2] / "lib/Xm/CutPaste.c").read_text()
+start = source.index('static void \nClipboardSetNextItemId(')
+end = source.index('static Boolean \nWeOwnSelection(', start + len('static void \nClipboardSetNextItemId('))
 body = source[start:end]
-
-replace = body.index("ClipboardReplaceItem(")
-release = body.index("XtFree( (char *)int_ptr );", replace)
-assert release < body.index("}\n", release)
-
-print("Clipboard next-item ID setter releases its property buffer")
+calls = list(re.finditer(r"ClipboardReplaceItem\s*\([^;]+;", body))
+consuming = [c for c in calls if re.search(r"\bint_ptr\b", c[0]) and "True" in c[0]]
+assert len(consuming) == 1
+following = body[consuming[0].end():]
+assert not re.search(r"XtFree\(\s*\(char \*\)\s*int_ptr\s*\)", following)

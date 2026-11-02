@@ -42,15 +42,48 @@ newer** is required by the grouped string-generator targets; invoke `gmake` rath
 `autoreconf -fi` recognizes Homebrew's GNU Libtool without changing `autogen.sh`
 to call Apple's unrelated `libtool` program.
 
+The Xft, Fontconfig and HarfBuzz libraries must use the same FreeType dylib.
+Passing an Xft-owned face from XQuartz's FreeType into Homebrew HarfBuzz's
+separate FreeType can crash when shaping historical fonts. Configure now checks
+this dependency graph on macOS and prioritizes the actual package library
+directories ahead of the broad XQuartz search directory. This ordering is also
+retained in libtool and static-link metadata. Xft must
+also use the selected XQuartz Xlib.
+
 With absolute `source` and `work` paths, a fresh build directory and a mounted
-scratch volume selected according to the host's workspace policy:
+scratch volume selected according to the host's workspace policy, build a
+matching Xft when using Homebrew HarfBuzz with XQuartz:
 
 ```sh
 export TMPDIR="$work/tmp"
-mkdir -p "$TMPDIR" "$work/build"
+export XDG_CACHE_HOME="$work/cache"
+export PYTHONPYCACHEPREFIX="$work/pycache"
+mkdir -p "$TMPDIR" "$XDG_CACHE_HOME" "$PYTHONPYCACHEPREFIX" "$work/build"
 brew_prefix="$(brew --prefix)"
 export PATH="$brew_prefix/bin:/opt/X11/bin:$PATH"
-export PKG_CONFIG_PATH="/opt/X11/lib/pkgconfig:$(brew --prefix icu4c)/lib/pkgconfig:$brew_prefix/lib/pkgconfig"
+ft_prefix="$(brew --prefix freetype)"
+fc_prefix="$(brew --prefix fontconfig)"
+font_work="$work/font-stack"
+mkdir -p "$font_work/src" "$font_work/build"
+curl --fail --location \
+  https://xorg.freedesktop.org/archive/individual/lib/libXft-2.3.9.tar.xz \
+  --output "$font_work/libXft-2.3.9.tar.xz"
+printf '%s  %s\n' \
+  60a25b78945ed6932635b3bb1899a517d31df7456e69867ffba27f89ff3976f5 \
+  "$font_work/libXft-2.3.9.tar.xz" | shasum -a 256 -c -
+tar -xJf "$font_work/libXft-2.3.9.tar.xz" -C "$font_work/src"
+export PKG_CONFIG_PATH="$fc_prefix/lib/pkgconfig:$ft_prefix/lib/pkgconfig:/opt/X11/lib/pkgconfig:$brew_prefix/lib/pkgconfig"
+(cd "$font_work/build" && "$font_work/src/libXft-2.3.9/configure" \
+  --prefix="$font_work/install" --disable-static \
+  FREETYPE_CFLAGS="-I$ft_prefix/include/freetype2" \
+  FREETYPE_LIBS="-L$ft_prefix/lib -lfreetype" \
+  FONTCONFIG_CFLAGS="-I$fc_prefix/include" \
+  FONTCONFIG_LIBS="-L$fc_prefix/lib -lfontconfig" \
+  XRENDER_CFLAGS=-I/opt/X11/include \
+  XRENDER_LIBS="-L/opt/X11/lib -lXrender -lX11")
+gmake -C "$font_work/build" -j3
+gmake -C "$font_work/build" install
+export PKG_CONFIG_PATH="$font_work/install/lib/pkgconfig:$fc_prefix/lib/pkgconfig:$ft_prefix/lib/pkgconfig:/opt/X11/lib/pkgconfig:$(brew --prefix harfbuzz)/lib/pkgconfig:$(brew --prefix icu4c)/lib/pkgconfig:$brew_prefix/lib/pkgconfig"
 (cd "$source" && autoreconf -fi)
 (cd "$work/build" && "$source/configure" CC="clang -std=c23" \
   --prefix="$work/install" \

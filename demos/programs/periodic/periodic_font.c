@@ -197,7 +197,9 @@ Boolean PeriodicInstallFontMenu(Widget root, PeriodicFontLayoutProc layout, XtPo
     static const char *buttons[]={"*smallFontButton","*mediumFontButton","*largeFontButton"};
     static const double factors[]={0.85,1.0,1.25};
     static const char *popups[]={"*fileDialog","*selectDialog","*templateDialog","*infoDialog",
-        "*warningDialog","*errorDialog","*questionDialog","*workingDialog","*promptDialog","*showDialog","*popupWindow","*popupMenu"};
+        "*warningDialog","*errorDialog","*questionDialog","*workingDialog","*promptDialog","*showDialog","*popupWindow","*popupMenu",
+        "*periodicDocumentDialog","*periodicHelpDialog","*periodicPreviewDialog",
+        "*periodicCalendarDialog","*periodicUnsavedDialog","*periodicOverwriteDialog"};
     #ifdef USE_XFT
     if(!FcInit())return False;
     #endif

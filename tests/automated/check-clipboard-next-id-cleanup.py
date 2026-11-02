@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Check next-item ID buffers are released after property replacement."""
+"""Property replacement owns the record; callers must not free it twice.
+
+The native Periodic menu regression also exercises repeated clipboard copies.
+"""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "CutPaste.c").read_text()
-start = source.index("static itemId\nClipboardGetNewItemId(")
-end = source.index("static void \nClipboardSetAccess(", start)
+import re
+source = (Path(__file__).parents[2] / "lib/Xm/CutPaste.c").read_text()
+start = source.index('static itemId\nClipboardGetNewItemId(')
+end = source.index('static void \nClipboardSetAccess(', start + len('static itemId\nClipboardGetNewItemId('))
 body = source[start:end]
-
-replace = body.index("ClipboardReplaceItem(")
-release = body.index("XtFree( (char *)propertynumber );", replace)
-assert release < body.index("return loc_id;", release)
-
-print("Clipboard next-item ID buffer is released")
+calls = list(re.finditer(r"ClipboardReplaceItem\s*\([^;]+;", body))
+consuming = [c for c in calls if re.search(r"\bpropertynumber\b", c[0]) and "True" in c[0]]
+assert len(consuming) == 1
+following = body[consuming[0].end():]
+assert not re.search(r"XtFree\(\s*\(char \*\)\s*propertynumber\s*\)", following)

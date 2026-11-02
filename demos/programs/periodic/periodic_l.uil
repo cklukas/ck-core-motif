@@ -258,15 +258,15 @@ saturdayButtonMnem :	"a";
 
 templateCascadeText :	"File";
 templateCascadeMnem :	"F";
-templateOkText :	"Send";
+templateOkText :	"Preview Message";
 templateOkMnem :	"S";
 templateCancelText :	"Cancel";
 templateCancelMnem :	"C";
 templateIncludeText :	"Include...";
 templateIncludeMnem :	"I";
-templateDraftText :	"Draft";
+templateDraftText :	"Save Draft...";
 templateDraftMnem :	"D";
-templateSpellText :	"Spell";
+templateSpellText :	"Check English Spelling";
 templateSpellMnem :	"p";
 templatePixmap : icon("                         ",
 		      " *********************** ",
@@ -474,7 +474,7 @@ fileNoMatchText :	" [    ] ";
 fileFilterText :	"Filter";
 fileCancelText :	"Cancel";
 fileMergeText :		"Merge";
-fileRemoveText :	"Remove";
+fileRemoveText : "Clear selection";
 filePixmap : icon("                         ",
 		  "  ****************       ",
 		  "  *** * * * * * ***      ",
@@ -502,7 +502,7 @@ filePixmap : icon("                         ",
 		  "                         ");
 
 
-formatCascadeText :	"Format";
+formatCascadeText : "File filter";
 formatCascadeMnem :	"F";
 audioButtonText :	"Audio";
 audioButtonMnem :	"A";

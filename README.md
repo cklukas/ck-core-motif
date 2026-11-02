@@ -28,6 +28,9 @@ Gallery-launched demos inherit its selected theme, density and scale. The
 click and keyboard flight controls.
 The [modern macOS UI audit](docs/modern-macos-ui-audit.md) covers gallery states,
 Xft font selection, measured controls and theme-transition regressions.
+The [Periodic menu guide](docs/periodic-menu-actions.md) describes working
+document, clipboard, search, wrapping, direction, calendar and help actions,
+including local message preview and draft saving.
 Native build/runtime qualification and actual macOS desktop, clipboard,
 input-method and accessibility qualification are separate. The
 [Markdown changelog](CHANGES.md) describes this update; `CHANGES` retains the

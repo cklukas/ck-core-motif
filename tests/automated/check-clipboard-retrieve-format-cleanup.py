@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
-"""Check retrieve releases the matching format after persisting it."""
+"""Property replacement owns the record; callers must not free it twice.
+
+The native Periodic menu regression also exercises repeated clipboard copies.
+"""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "CutPaste.c").read_text()
-start = source.index("static int\nClipboardRetrieve(")
-end = source.index("int \nXmClipboardInquireCount(", start)
+import re
+source = (Path(__file__).parents[2] / "lib/Xm/CutPaste.c").read_text()
+start = source.index('static int\nClipboardRetrieve(')
+end = source.index('int \nXmClipboardInquireCount(', start + len('static int\nClipboardRetrieve('))
 body = source[start:end]
-replace = body.index("ClipboardReplaceItem(display, \n\t\t\t\t matchid")
-release = body.index("XtFree( (char *) matchformat );", replace)
-assert release < body.index("}\n\n\n\t/* Unfortunately", release)
-
-print("Clipboard retrieve releases the matching format record")
+calls = list(re.finditer(r"ClipboardReplaceItem\s*\([^;]+;", body))
+consuming = [c for c in calls if re.search(r"\bmatchformat\b", c[0]) and "True" in c[0]]
+assert len(consuming) == 1
+following = body[consuming[0].end():]
+following = following[:following.index("/* Unfortunately")]
+assert not re.search(r"XtFree\(\s*\(char \*\)\s*matchformat\s*\)", following)

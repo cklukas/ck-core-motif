@@ -3,7 +3,12 @@ datadir = ${prefix}/share/Xm/doc
 #data_DATA = BUGREPORT COPYRIGHT.MOTIF COPYING \
 #            README RELEASE RELNOTES
 
-EXTRA_DIST = tests/accessibility/scrollbar.c tests/accessibility/observe_scrollbar.py \
+EXTRA_DIST = scripts/macos-font-libs.sh scripts/macos-pkg-libdirs.sh \
+ tests/automated/check-macos-font-cohort.py tests/automated/check-macos-pkg-libdirs.py \
+ tests/automated/native_macos_fonts.py \
+ tests/automated/check-periodic-menu-actions.c tests/automated/run-periodic-menu-actions.py \
+ docs/periodic-menu-actions.md docs/validation/periodic-menu-actions-20261102.json \
+ tests/accessibility/scrollbar.c tests/accessibility/observe_scrollbar.py \
               tests/accessibility/modality.c tests/accessibility/selection_reentrancy.c \
               tests/accessibility/provider.c tests/accessibility/observe.py tests/accessibility/README.md \
               tests/accessibility/native_controls.c tests/accessibility/observe_orca.py \

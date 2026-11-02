@@ -50,6 +50,7 @@ module periodic
 include file ("periodic_l.uil");
 
 procedure
+	ActionCb(integer);
 	ManageCb();
 	UnmanageCb(string);
 	ShowCb(string);
@@ -213,41 +214,46 @@ object fileCascade : XmCascadeButton {
 };
 
 object newButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(1); };
     arguments {
 	XmNlabelString = newButtonText;
 	XmNmnemonic = keysym(newButtonMnem);
     };
 };
 object openButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(2); };
     arguments {
 	XmNlabelString = openButtonText;
 	XmNmnemonic = keysym(openButtonMnem);
     };
 };
 object saveButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(3); };
     arguments {
 	XmNlabelString = saveButtonText;
 	XmNmnemonic = keysym(saveButtonMnem);
     };
 };
 object saveAsButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(4); };
     arguments {
 	XmNlabelString = saveAsButtonText;
 	XmNmnemonic = keysym(saveAsButtonMnem);
     };
 };
 object printButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(5); };
     arguments {
 	XmNlabelString = printButtonText;
 	XmNmnemonic = keysym(printButtonMnem);
     };
 };
 object exitButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(6); };
     arguments {
 	XmNlabelString = exitButtonText;
 	XmNmnemonic = keysym(exitButtonMnem);
     };
-    callbacks { XmNactivateCallback = procedure ExitCb(); };
 };
 
 object editCascade : XmCascadeButton {
@@ -271,36 +277,42 @@ object editCascade : XmCascadeButton {
 };
 
 object undoButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(10); };
     arguments {
 	XmNlabelString = undoButtonText;
 	XmNmnemonic = keysym(undoButtonMnem);
     };
 };
 object cutButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(11); };
     arguments {
 	XmNlabelString = cutButtonText;
 	XmNmnemonic = keysym(cutButtonMnem);
     };
 };
 object copyButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(12); };
     arguments {
 	XmNlabelString = copyButtonText;
 	XmNmnemonic = keysym(copyButtonMnem);
     };
 };
 object pasteButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(13); };
     arguments {
 	XmNlabelString = pasteButtonText;
 	XmNmnemonic = keysym(pasteButtonMnem);
     };
 };
 object clearButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(14); };
     arguments {
 	XmNlabelString = clearButtonText;
 	XmNmnemonic = keysym(clearButtonMnem);
     };
 };
 object deleteButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(15); };
     arguments {
 	XmNlabelString = deleteButtonText;
 	XmNmnemonic = keysym(deleteButtonMnem);
@@ -327,52 +339,52 @@ object viewCascade : XmCascadeButton {
 };
 
 object stackButton : XmToggleButton {
+    callbacks { XmNvalueChangedCallback = procedure ActionCb(20); };
     arguments {
 	XmNlabelString = stackButtonText;
 	XmNmnemonic = keysym(stackButtonMnem);
 	XmNindicatorType = XmONE_OF_MANY;
     };
-    callbacks { XmNvalueChangedCallback = procedure LayoutCb(); };
 };
 object tileButton : XmToggleButton {
+    callbacks { XmNvalueChangedCallback = procedure ActionCb(21); };
     arguments {
 	XmNlabelString = tileButtonText;
 	XmNmnemonic = keysym(tileButtonMnem);
 	XmNindicatorType = XmONE_OF_MANY;
     };
-    callbacks { XmNvalueChangedCallback = procedure LayoutCb(); };
 };
 object dayButton : XmToggleButton {
+    callbacks { XmNvalueChangedCallback = procedure ActionCb(22); };
     arguments {
 	XmNlabelString = dayButtonText;
 	XmNmnemonic = keysym(dayButtonMnem);
 	XmNindicatorType = XmONE_OF_MANY;
     };
-    callbacks { XmNvalueChangedCallback = procedure ViewCb(); };
 };
 object weekButton : XmToggleButton {
+    callbacks { XmNvalueChangedCallback = procedure ActionCb(23); };
     arguments {
 	XmNlabelString = weekButtonText;
 	XmNmnemonic = keysym(weekButtonMnem);
 	XmNindicatorType = XmONE_OF_MANY;
     };
-    callbacks { XmNvalueChangedCallback = procedure ViewCb(); };
 };
 object monthButton : XmToggleButton {
+    callbacks { XmNvalueChangedCallback = procedure ActionCb(24); };
     arguments {
 	XmNlabelString = monthButtonText;
 	XmNmnemonic = keysym(monthButtonMnem);
 	XmNindicatorType = XmONE_OF_MANY;
     };
-    callbacks { XmNvalueChangedCallback = procedure ViewCb(); };
 };
 object yearButton : XmToggleButton {
+    callbacks { XmNvalueChangedCallback = procedure ActionCb(25); };
     arguments {
 	XmNlabelString = yearButtonText;
 	XmNmnemonic = keysym(yearButtonMnem);
 	XmNindicatorType = XmONE_OF_MANY;
     };
-    callbacks { XmNvalueChangedCallback = procedure ViewCb(); };
 };
 
 object optionsCascade : XmCascadeButton {
@@ -442,36 +454,42 @@ object directCascade : XmCascadeButton {
 };
 
 object upDirButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(30); };
     arguments {
 	XmNlabelString = upButtonText;
 	XmNmnemonic = keysym(upButtonMnem);
     };
 };
 object downDirButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(31); };
     arguments {
 	XmNlabelString = downButtonText;
 	XmNmnemonic = keysym(downButtonMnem);
     };
 };
 object leftDirButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(32); };
     arguments {
 	XmNlabelString = leftButtonText;
 	XmNmnemonic = keysym(leftButtonMnem);
     };
 };
 object rightDirButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(33); };
     arguments {
 	XmNlabelString = rightButtonText;
 	XmNmnemonic = keysym(rightButtonMnem);
     };
 };
 object caseButton : XmToggleButton {
+    callbacks { XmNvalueChangedCallback = procedure ActionCb(34); };
     arguments {
 	XmNlabelString = caseButtonText;
 	XmNmnemonic = keysym(caseButtonMnem);
     };
 };
 object wrapButton : XmToggleButton {
+    callbacks { XmNvalueChangedCallback = procedure ActionCb(35); };
     arguments {
 	XmNlabelString = wrapButtonText;
 	XmNmnemonic = keysym(wrapButtonMnem);
@@ -495,24 +513,28 @@ object helpCascade : XmCascadeButton {
 };
 
 object contextButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(40); };
     arguments {
 	XmNlabelString = contextButtonText;
 	XmNmnemonic = keysym(contextButtonMnem);
     };
 };
 object windowButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(41); };
     arguments {
 	XmNlabelString = windowButtonText;
 	XmNmnemonic = keysym(windowButtonMnem);
     };
 };
 object tutorButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(42); };
     arguments {
 	XmNlabelString = tutorButtonText;
 	XmNmnemonic = keysym(tutorButtonMnem);
     };
 };
 object versionButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(43); };
     arguments {
 	XmNlabelString = versionButtonText;
 	XmNmnemonic = keysym(versionButtonMnem);
@@ -923,11 +945,10 @@ object textFrame : XmFrame {
 	    arguments titleArgs;
 	    XmNlabelString = textFrameText;
 	}; }; 
-	XmText { arguments {
-	    XmNeditMode = XmMULTI_LINE_EDIT;
-	}; };
+	XmText sampleText;
     };
 };
+object sampleText : XmText { arguments { XmNeditMode = XmMULTI_LINE_EDIT; }; };
 
 object scrollFrame : XmFrame {
     arguments {
@@ -1067,44 +1088,14 @@ object popupMenu : XmPopupMenu {
     controls {
 	XmLabel { arguments { XmNlabelString = popupTitleText; }; };
 	XmSeparator { arguments { XmNseparatorType = XmDOUBLE_LINE; }; };
-	XmPushButton {
-	    arguments {
-		XmNlabelString = popupUndoText;
-		XmNmnemonic = keysym(popupUndoMnem);
-	    };
-	};
+	XmPushButton popupUndoButton;
 	XmSeparator { };
-	XmPushButton {
-	    arguments {
-		XmNlabelString = popupCutText;
-		XmNmnemonic = keysym(popupCutMnem);
-	    };
-	};
-	XmPushButton {
-	    arguments {
-		XmNlabelString = popupCopyText;
-		XmNmnemonic = keysym(popupCopyMnem);
-	    };
-	};
-	XmPushButton {
-	    arguments {
-		XmNlabelString = popupPasteText;
-		XmNmnemonic = keysym(popupPasteMnem);
-	    };
-	};
+	XmPushButton popupCutButton;
+	XmPushButton popupCopyButton;
+	XmPushButton popupPasteButton;
 	XmSeparator { };
-	XmPushButton {
-	    arguments {
-		XmNlabelString = popupClearText;
-		XmNmnemonic = keysym(popupClearMnem);
-	    };
-	};
-	XmPushButton {
-	    arguments {
-		XmNlabelString = popupDeleteText;
-		XmNmnemonic = keysym(popupDeleteMnem);
-	    };
-	};
+	XmPushButton popupClearButton;
+	XmPushButton popupDeleteButton;
     };
     callbacks {
 	MrmNcreateCallback = procedure InitPopupCb("*popupWindow");
@@ -2157,13 +2148,10 @@ object templateDialog : XmTemplateDialog{
     };
     controls {
 	XmMenuBar templateMenuBar;
-	XmScrolledText { arguments {
-	    XmNeditMode = XmMULTI_LINE_EDIT;
-	    XmNrows = 10;
-	};};
-	XmPushButton { arguments { XmNlabelString = templateIncludeText; }; };
-	XmPushButton { arguments { XmNlabelString = templateDraftText; }; };
-	XmPushButton { arguments { XmNlabelString = templateSpellText; }; };
+	XmScrolledText templateText;
+	XmPushButton templateIncludeButton;
+	XmPushButton templateDraftButton;
+	XmPushButton templateSpellButton;
     };
     callbacks {
 	XmNcancelCallback = procedure UnmanageCb("*templateDialog");
@@ -2193,36 +2181,38 @@ object templateFileCascade : XmCascadeButton {
 };
 
 object sendButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(50); };
     arguments {
 	XmNlabelString = templateOkText;
 	XmNmnemonic = keysym(templateOkMnem);
     };
 };
 object includeButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(51); };
     arguments {
 	XmNlabelString = templateIncludeText;
 	XmNmnemonic = keysym(templateIncludeMnem);
     };
 };
 object draftButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(52); };
     arguments {
 	XmNlabelString = templateDraftText;
 	XmNmnemonic = keysym(templateDraftMnem);
     };
 };
 object spellButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(53); };
     arguments {
 	XmNlabelString = templateSpellText;
 	XmNmnemonic = keysym(templateSpellMnem);
     };
 };
 object cancelButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(54); };
     arguments {
 	XmNlabelString = templateCancelText;
 	XmNmnemonic = keysym(templateCancelMnem);
-    };
-    callbacks {
-	XmNactivateCallback = procedure UnmanageCb("*templateDialog");
     };
 };
 object showDialog : XmInformationDialog {
@@ -2345,8 +2335,8 @@ object fileDialog : XmFileSelectionDialog {
 	Xm_Help unmanaged { };
 	unmanaged XmSeparator { }; ! First, a dummy work area child
 	XmMenuBar fileMenuBar;
-	XmPushButton { arguments { XmNlabelString = fileMergeText; }; };
-	XmPushButton { arguments { XmNlabelString = fileRemoveText; }; };
+	XmPushButton fileMergeButton;
+	XmPushButton fileClearButton;
     };
 };
 
@@ -2371,18 +2361,21 @@ object filterCascade : XmCascadeButton {
 };
 
 object audioButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(60); };
     arguments {
 	XmNlabelString = audioButtonText;
 	XmNmnemonic = keysym(audioButtonMnem);
     };
 };
 object graphicsButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(61); };
     arguments {
 	XmNlabelString = graphicsButtonText;
 	XmNmnemonic = keysym(graphicsButtonMnem);
     };
 };
 object textButton : XmPushButton {
+    callbacks { XmNactivateCallback = procedure ActionCb(62); };
     arguments {
 	XmNlabelString = textButtonText;
 	XmNmnemonic = keysym(textButtonMnem);
@@ -2899,5 +2892,73 @@ object toggleSetControl : XmComboBox {
         XmNselectionCallback = procedure ToggleControlCb(5);
     };
 };
+
+! Functional menu and template actions.
+object popupUndoButton : XmPushButton { arguments { XmNlabelString = popupUndoText;
+    XmNmnemonic = keysym(popupUndoMnem);
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(10);
+    };
+    };
+object popupCutButton : XmPushButton { arguments { XmNlabelString = popupCutText;
+    XmNmnemonic = keysym(popupCutMnem);
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(11);
+    };
+    };
+object popupCopyButton : XmPushButton { arguments { XmNlabelString = popupCopyText;
+    XmNmnemonic = keysym(popupCopyMnem);
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(12);
+    };
+    };
+object popupPasteButton : XmPushButton { arguments { XmNlabelString = popupPasteText;
+    XmNmnemonic = keysym(popupPasteMnem);
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(13);
+    };
+    };
+object popupClearButton : XmPushButton { arguments { XmNlabelString = popupClearText;
+    XmNmnemonic = keysym(popupClearMnem);
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(14);
+    };
+    };
+object popupDeleteButton : XmPushButton { arguments { XmNlabelString = popupDeleteText;
+    XmNmnemonic = keysym(popupDeleteMnem);
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(15);
+    };
+    };
+object templateIncludeButton : XmPushButton { arguments { XmNlabelString = templateIncludeText;
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(51);
+    };
+    };
+object templateDraftButton : XmPushButton { arguments { XmNlabelString = templateDraftText;
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(52);
+    };
+    };
+object templateSpellButton : XmPushButton { arguments { XmNlabelString = templateSpellText;
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(53);
+    };
+    };
+object fileMergeButton : XmPushButton { arguments { XmNlabelString = fileMergeText;
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(63);
+    };
+    };
+object fileClearButton : XmPushButton { arguments { XmNlabelString = fileRemoveText;
+    };
+    callbacks { XmNactivateCallback = procedure ActionCb(64);
+    };
+    };
+object templateText : XmScrolledText { arguments { XmNeditMode = XmMULTI_LINE_EDIT;
+    XmNscrollHorizontal = false;
+    XmNrows = 10;
+    };
+    };
 
 end module;

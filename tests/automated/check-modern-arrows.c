@@ -84,6 +84,30 @@ static void focus_face(Widget w) {
     CHECK(XGetPixel(im,im->width/2,0)==parent);
     XDestroyImage(im);
 }
+/* Observe the ring after state transitions without repainting it first. */
+static void focus_connected(Widget w,Boolean install) {
+    if(install) {
+        XtWidgetProc on=XtIsWidget(w)?((XmPrimitiveWidgetClass)XtClass(w))->primitive_class.border_highlight:
+            ((XmGadgetClass)XtClass(w))->gadget_class.border_highlight;
+        on(w);
+    }
+    Pixel accent;XtVaGetValues(w,XmNhighlightColor,&accent,NULL);
+    XImage *im=capture(w);CHECK(im);
+    size_t total=(size_t)im->width*im->height,count=0,reached=0;
+    unsigned char *seen=calloc(total,1);size_t *queue=malloc(total*sizeof(*queue));CHECK(seen && queue);
+    for(int y=0;y<im->height;y++)for(int x=0;x<im->width;x++)if(XGetPixel(im,x,y)==accent) {
+        if(!count){queue[0]=(size_t)y*im->width+x;seen[queue[0]]=1;reached=1;}count++;
+    }
+    for(size_t head=0;head<reached;head++) {
+        int x=queue[head]%im->width,y=queue[head]/im->width;
+        for(int dy=-1;dy<=1;dy++)for(int dx=-1;dx<=1;dx++) {
+            int nx=x+dx,ny=y+dy;if(nx<0 || ny<0 || nx>=im->width || ny>=im->height)continue;
+            size_t n=(size_t)ny*im->width+nx;
+            if(!seen[n] && XGetPixel(im,nx,ny)==accent){seen[n]=1;queue[reached++]=n;}
+        }
+    }
+    CHECK(count>0 && reached==count);free(queue);free(seen);XDestroyImage(im);
+}
 static void input(Widget w,const char *action,Mask mask) {
     XEvent event={0};
     Position root_x,root_y;
@@ -109,8 +133,9 @@ static void face(Widget w,Boolean pressed,Boolean disabled,double scale) {
         XmNforeground,&foreground,XmNbackground,&background,XmNbottomShadowColor,&border,NULL);
     fill=pressed?foreground:background;
     glyph=disabled?border:(pressed?background:foreground);
-    CHECK(XGetPixel(image,highlight,highlight)==background);
-    CHECK(XGetPixel(image,XtWidth(w)/2,highlight)==(pressed?foreground:border));
+    Boolean focused=XtIsWidget(w)?((XmPrimitiveWidget)w)->primitive.highlighted:((XmGadget)w)->gadget.highlighted;
+    CHECK(focused || XGetPixel(image,highlight,highlight)==background);
+    CHECK(XGetPixel(image,XtWidth(w)/2,highlight)==(shadow?(pressed?foreground:border):fill));
     CHECK(XGetPixel(image,XtWidth(w)/2,highlight+shadow+(int)(3*scale))==fill);
     {
         unsigned ink=0;
@@ -147,7 +172,7 @@ int main(int argc,char **argv) {
     display=XtOpenDisplay(app,NULL,"modernArrows","ModernArrows",NULL,0,&argc,argv);CHECK(display);
     for(unsigned scale=0;scale<3;++scale) for(unsigned dark=0;dark<2;++dark)
     for(unsigned compact=0;compact<2;++compact) for(unsigned gadget=0;gadget<2;++gadget)
-    for(unsigned direction=0;direction<4;++direction) {
+    for(unsigned direction=0;direction<4;++direction) for(unsigned flat=0;flat<2;++flat) {
         Widget shell,board,arrow;Dimension shadow;
         CHECK(XmSetDisplayScaleOverride(display,scales[scale]));
         CHECK(XmApplyAppearanceDensity(display,compact?XmAPPEARANCE_DENSITY_COMPACT:XmAPPEARANCE_DENSITY_COMFORTABLE));
@@ -158,22 +183,27 @@ int main(int argc,char **argv) {
         arrow=XtVaCreateManagedWidget("arrow",gadget?xmArrowButtonGadgetClass:xmArrowButtonWidgetClass,
             board,XmNx,20,XmNy,20,XmNwidth,(int)(80*scales[scale]),XmNheight,(int)(56*scales[scale]),
             XmNarrowDirection,directions[direction],NULL);
+        if(flat)XtVaSetValues(arrow,XmNshadowThickness,0,NULL);
         XtAddCallback(arrow,XmNactivateCallback,activated,NULL);
         XtRealizeWidget(shell);drain(app,display);
         XtVaGetValues(arrow,XmNshadowThickness,&shadow,NULL);
-        CHECK(shadow==(Dimension)(scales[scale]+0.5));
+        CHECK(shadow==(flat?0:(Dimension)(scales[scale]+0.5)));
         face(arrow,False,False,scales[scale]);
         focus_face(arrow);
+        focus_connected(arrow,True);
         input(arrow,"Arm",XmARM_EVENT);drain(app,display);
+        focus_connected(arrow,False);
         face(arrow,True,False,scales[scale]);
         input(arrow,"Leave",XmLEAVE_EVENT);
+        focus_connected(arrow,False);
         face(arrow,False,False,scales[scale]);
         XClearArea(display,XtWindowOfObject(arrow),0,0,0,0,True);drain(app,display);
         face(arrow,False,False,scales[scale]);
         input(arrow,"Enter",XmENTER_EVENT);
+        focus_connected(arrow,False);
         face(arrow,True,False,scales[scale]);
         activations=0;input(arrow,"Activate",XmACTIVATE_EVENT);drain(app,display);
-        CHECK(activations==1);face(arrow,False,False,scales[scale]);
+        CHECK(activations==1);focus_connected(arrow,False);face(arrow,False,False,scales[scale]);
         XtSetSensitive(arrow,False);drain(app,display);
         face(arrow,False,True,scales[scale]);
         XtSetSensitive(arrow,True);

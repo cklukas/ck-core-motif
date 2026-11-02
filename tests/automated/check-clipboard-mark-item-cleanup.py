@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Check clipboard mark updates release their retrieved item buffer."""
+"""Property replacement owns the record; callers must not free it twice.
+
+The native Periodic menu regression also exercises repeated clipboard copies.
+"""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "CutPaste.c").read_text()
-start = source.index("ClipboardMarkItem(")
-start = source.index("ClipboardMarkItem(", start + 1)
-end = source.index("/*---------------------------------------------*/", start)
+import re
+source = (Path(__file__).parents[2] / "lib/Xm/CutPaste.c").read_text()
+start = source.index('static void \nClipboardMarkItem(')
+end = source.index('/*---------------------------------------------*/', start + len('static void \nClipboardMarkItem('))
 body = source[start:end]
-
-assert "ClipboardReplaceItem(display, dataitemid" in body
-assert "XtFree((char *)itemheader);" in body
-
-print("Clipboard mark updates release retrieved item buffers")
+calls = list(re.finditer(r"ClipboardReplaceItem\s*\([^;]+;", body))
+consuming = [c for c in calls if re.search(r"\bitemheader\b", c[0]) and "True" in c[0]]
+assert len(consuming) == 1
+following = body[consuming[0].end():]
+assert not re.search(r"XtFree\(\s*\(char \*\)\s*itemheader\s*\)", following)

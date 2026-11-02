@@ -1926,7 +1926,7 @@ TextFieldDestinationCallback(Widget w,
   XPoint *drop_point;
 
   if (w == NULL || ds == NULL || ds->transfer_id == NULL ||
-      ds->event == NULL) {
+      (ds->selection == XA_SECONDARY && ds->event == NULL)) {
     if (ds != NULL && ds->transfer_id != NULL)
       XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
     return;
