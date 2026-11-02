@@ -28,13 +28,22 @@
 #include <Xm/LabelP.h>
 #include <Xm/VendorSEP.h>
 #include <Xm/GadgetP.h>
-#include <Xm/SlideC.h>
 #include <Xm/TraitP.h>
 #include <Xm/ToolTipCT.h>
 #include <Xm/ToolTipT.h>
 #include "BaseClassI.h"
 #include "ToolTipI.h"
 #include "XmI.h"
+
+static void
+ToolTipFrame(Widget label, Position x, Position y, Dimension width,
+             Dimension height)
+{
+   Widget shell = XtParent(label);
+   XtVaSetValues(shell, XmNx, x, XmNy, y, XmNwidth, width,
+                 XmNheight, height, NULL);
+   XtResizeWidget(label, width, height, 0);
+}
 
 #ifdef FIX_1388
 static void ToolTipLabelDestroyCallback(Widget w, XtPointer client_data, XtPointer call_data)
@@ -79,7 +88,8 @@ ToolTipGetData (Widget w)
 
       shell = XtVaCreateWidget ("TipShell",
                                 transientShellWidgetClass, top,
-                                XmNoverrideRedirect, True, NULL);
+                                XmNoverrideRedirect, True,
+                                XmNallowShellResize, True, NULL);
       if (shell == NULL)
          return ttp;
 
@@ -130,31 +140,14 @@ ToolTipUnpost (XtPointer client_data,
 }
 
 static void
-ToolTipPostFinish (Widget slide,
-                   XtPointer client_data,
-                   XtPointer call_data)
+ToolTipStartDuration (XmToolTipConfigTrait ttp)
 {
-   XmToolTipConfigTrait ttp;
-
-   ttp = (XmToolTipConfigTrait) client_data;
-
-   if (ttp == NULL)
-   {
-      XtWarning ("ToolTipPostFinish() - ttp==NULL");
+   if (ttp == NULL || ttp->label == NULL)
       return;
-   }
-
-   if (ttp->label == NULL)
-      return;
-
-   ttp->slider = NULL;
    if (ttp->post_duration > 0)
-   {
-      ttp->duration_timer =
-         XtAppAddTimeOut (XtWidgetToApplicationContext (ttp->label),
-                          (unsigned long) ttp->post_duration,
-                          (XtTimerCallbackProc) ToolTipUnpost, client_data);
-   }
+      ttp->duration_timer = XtAppAddTimeOut (
+         XtWidgetToApplicationContext (ttp->label),
+         (unsigned long) ttp->post_duration, ToolTipUnpost, ttp);
 }
 
 static void
@@ -170,7 +163,11 @@ ToolTipPost (XtPointer client_data,
    unsigned int key;
    Window root,
      child;
-   XtWidgetGeometry geo;
+   XtWidgetGeometry geo = {0};
+   Dimension width, height, extra_x, extra_y;
+   int screen_w, screen_h;
+   Pixel outline, background, foreground;
+   Widget shell;
    Position destX,
      destY;
 
@@ -214,40 +211,49 @@ ToolTipPost (XtPointer client_data,
       XmStringFree (string);
    }
    XtQueryGeometry (ttp->label, NULL, &geo);
+   width = (geo.request_mode & CWWidth) ? geo.width : XtWidth(ttp->label);
+   height = (geo.request_mode & CWHeight) ? geo.height : XtHeight(ttp->label);
+   if (width == 0) width = 1;
+   if (height == 0) height = 1;
+   /* Keep the one-pixel outline on screen. Grow only the padding, never
+    * from a rectangle smaller than the natural label. */
+   screen_w = MAX(1, WidthOfScreen(XtScreen(w)) - 2);
+   screen_h = MAX(1, HeightOfScreen(XtScreen(w)) - 2);
+   width = MIN(width, screen_w);
+   height = MIN(height, screen_h);
+   extra_x = MIN(10, screen_w - width);
+   extra_y = MIN(6, screen_h - height);
+   width += extra_x;
+   height += extra_y;
 
    /* rws 25 Feb 2001
       Fix for Bug #1153
       Don't let the tip be off the right/bottom of the screen
     */
    destX = rx + (XmIsGadget (w) ? XtX (w) : 0) - x + XtWidth (w) / 2;
-   if (destX + geo.width > WidthOfScreen (XtScreen (w)))
+   if (destX + width > screen_w)
    {
-      destX = WidthOfScreen (XtScreen (w)) - geo.width;
+      destX = screen_w - width;
    }
    destY = ry + (XmIsGadget (w) ? XtY (w) : 0) - y + XtHeight (w);
-   if (destY + geo.height > HeightOfScreen (XtScreen (w)))
+   if (destY + height > screen_h)
    {
-      destY = ry + (XmIsGadget (w) ? XtY (w) : 0) - y - geo.height;
+      destY = ry + (XmIsGadget (w) ? XtY (w) : 0) - y - height - 2;
    }
 
-   XtVaSetValues (XtParent (ttp->label),
-                  XmNx, rx + 1,
-                  XmNy, ry + 1, XmNwidth, 1, XmNheight, 1, NULL);
-   ttp->slider =
-      XtVaCreateWidget ("ToolTipSlider", xmSlideContextWidgetClass,
-                        XmGetXmDisplay (XtDisplay (w)), XmNslideWidget,
-                        XtParent (ttp->label),
-                        XmNslideDestX, destX,
-                        XmNslideDestY, destY,
-                        XmNslideDestWidth, geo.width,
-                        XmNslideDestHeight, geo.height, NULL);
+   if (destX < 0) destX = 0;
+   if (destY < 0) destY = 0;
 
-   if (ttp->slider == NULL)
-      return;
-   XtAddCallback (ttp->slider, XmNslideFinishCallback,
-                  (XtCallbackProc) ToolTipPostFinish, ttp);
-
-   XtPopup (XtParent (ttp->label), XtGrabNone);
+   /* Lay out the full label before mapping. Growing a mapped shell from 1x1
+    * clips the text and leaves resize trails on composited X11 servers. */
+   shell = XtParent(ttp->label);
+   XtVaGetValues(ttp->label, XmNbottomShadowColor, &outline,
+                 XmNbackground, &background, XmNforeground, &foreground, NULL);
+   if (outline == background) outline = foreground;
+   XtVaSetValues(shell, XmNborderWidth, 1, XmNborderColor, outline, NULL);
+   ToolTipFrame(ttp->label, destX, destY, width, height);
+   XtPopup(XtParent(ttp->label), XtGrabNone);
+   ToolTipStartDuration(ttp);
 }
 
 /*

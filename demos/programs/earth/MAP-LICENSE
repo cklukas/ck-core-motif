@@ -1,0 +1,22 @@
+world-map.xpm
+=============
+
+NASA Blue Marble: Land Surface, Shallow Water, and Shaded Topography (2002).
+Source: https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57752/land_shallow_topo_2048.jpg
+Catalogue: https://visibleearth.nasa.gov/view.php?id=57752
+NASA media usage: https://www.nasa.gov/nasa-brand-center/images-and-media/
+
+Credit: NASA Goddard Space Flight Center; Reto Stoeckli (land surface,
+shallow water); Robert Simmon (ocean color and compositing). Data and support:
+MODIS Land, Science Data Support, Atmosphere and Ocean groups; USGS EROS
+Data Center (topography); USGS Flagstaff (Antarctica).
+
+NASA-produced imagery is generally not subject to copyright in the United
+States. This attributed geographic texture is used for an informational
+computer graphics demonstration; no NASA endorsement is claimed. The NASA
+imagery is separate from the software license applying to the renderer.
+
+The 2048x1024 source is converted to a 256-color XPM without changing its
+geographic projection or dimensions. Reproduction command (ImageMagick):
+  magick land_shallow_topo_2048.jpg -colors 256 world-map.xpm
+Source JPEG SHA-256: 5b54cc586c6cbf2b28762ef4d4011f6cf4227a8b93a637b818a0c54090ce6c2c

@@ -1,0 +1,76 @@
+{
+  "target": "Earth optimized native demo and native X11/Xt integration tests",
+  "configuration": "macOS, 24-bit Xvfb, classic / modern-light / modern-dark",
+  "started_utc": "2026-11-02T06:41:00.106259+00:00",
+  "ended_utc": "2026-11-02T06:41:12.106321+00:00",
+  "source_sha256": {
+    "tests/automated/check-earth.c": "aca4951ba733f1e9636c34f2fa352ceb7eb0893c3260d40ba6d1ff0e46a51662",
+    "demos/programs/earth/earth.c": "57a17c2230dff068106946a55addd9c11296a18d33343fd6457b4176586c1ab4",
+    "demos/programs/earth/terre.xbm": "12bf120ccb2d358ba0eb2420851ce6ce1dceed9719288f812bf54059accc3482",
+    "demos/programs/earth/globe.h": "b5717d60f9dc0de984b303314376ba918b2fe23697df341671d4d7de4cedf9be",
+    "demos/programs/earth/world-map.xpm": "e6b14a15af9a02c681382c9e9282c4bb58db4dc2b68cfca68500653f611b5285"
+  },
+  "command": "python3 tests/automated/run-earth.py --prefix \"$PREFIX\" --out \"$OUT\"",
+  "executable_sha256": "8504528ad7b8026c815c33603a2552a634310ea5b499b13dc26789145d7f48ff",
+  "outputs": {
+    "demo": "$OUT/earth",
+    "fixture": "$OUT/check-earth"
+  },
+  "steps": [
+    {
+      "command": "cc -std=gnu17 -Wno-deprecated-non-prototype -O2 -I$PREFIX/include -I$SOURCE/demos/lib -I/opt/X11/include -DEARTH_MAP_FILE=\"$PREFIX/share/Xm/earth/world-map.xpm\" -DEARTH_SOURCE_MAP_FILE=\"$SOURCE/demos/programs/earth/world-map.xpm\" $SOURCE/tests/automated/check-earth.c -L$PREFIX/lib -L/opt/X11/lib -lXm -lXt -lX11 -lXext -lXtst -lm -o $OUT/check-earth",
+      "seconds": 0.610305292007979,
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "command": "cc -std=gnu17 -Wno-deprecated-non-prototype -O2 -I$PREFIX/include -I/opt/X11/include -DEARTH_MAP_FILE=\"$PREFIX/share/Xm/earth/world-map.xpm\" -DEARTH_SOURCE_MAP_FILE=\"$SOURCE/demos/programs/earth/world-map.xpm\" $SOURCE/demos/programs/earth/earth.c -L$PREFIX/lib -L/opt/X11/lib -lXm -lXt -lX11 -lm -o $OUT/earth",
+      "seconds": 0.15723150000849273,
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "command": "$OUT/check-earth -xrm ckCoreMotif.appearanceProfile: classic",
+      "seconds": 3.4061844579991885,
+      "exit": 0,
+      "output": "inline geometry: draw=391 scale=399+69 layout=480\ncadence: 16 frames in 0.501 seconds\nPASS: Earth continuous projection, interpolation, 30 FPS timer, elapsed-time rotation, pause/resume/reverse, slider, drag-to-spin/release/hold, shell and resized rendering"
+    },
+    {
+      "command": "$OUT/check-earth -xrm ckCoreMotif.appearanceProfile: modern-light",
+      "seconds": 3.1984440829983214,
+      "exit": 0,
+      "output": "inline geometry: draw=376 scale=384+84 layout=480\ncadence: 16 frames in 0.504 seconds\nPASS: Earth continuous projection, interpolation, 30 FPS timer, elapsed-time rotation, pause/resume/reverse, slider, drag-to-spin/release/hold, shell and resized rendering"
+    },
+    {
+      "command": "$OUT/check-earth -xrm ckCoreMotif.appearanceProfile: modern-dark",
+      "seconds": 3.1545195420039818,
+      "exit": 0,
+      "output": "inline geometry: draw=376 scale=384+84 layout=480\ncadence: 16 frames in 0.504 seconds\nPASS: Earth continuous projection, interpolation, 30 FPS timer, elapsed-time rotation, pause/resume/reverse, slider, drag-to-spin/release/hold, shell and resized rendering"
+    },
+    {
+      "command": "$OUT/check-earth -xrm ckCoreMotif.appearanceProfile: modern-light -speed 0",
+      "seconds": 0.1804004590085242,
+      "exit": 0,
+      "output": "PASS: startup speed/FPS resources, timer ownership and independent cadence"
+    },
+    {
+      "command": "$OUT/check-earth -xrm ckCoreMotif.appearanceProfile: modern-light -fps 60",
+      "seconds": 0.6810463339934358,
+      "exit": 0,
+      "output": "PASS: startup speed/FPS resources, timer ownership and independent cadence"
+    },
+    {
+      "command": "$OUT/check-earth -xrm ckCoreMotif.appearanceProfile: modern-light -speed 2147483647 -fps 999",
+      "seconds": 0.2029137079953216,
+      "exit": 0,
+      "output": "PASS: startup speed/FPS resources, timer ownership and independent cadence"
+    },
+    {
+      "command": "$OUT/check-earth -xrm ckCoreMotif.appearanceProfile: modern-light -speed -2147483648 -fps 0",
+      "seconds": 0.19137787500221748,
+      "exit": 0,
+      "output": "PASS: startup speed/FPS resources, timer ownership and independent cadence"
+    }
+  ],
+  "passed": true
+}

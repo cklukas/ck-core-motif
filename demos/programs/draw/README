@@ -1,16 +1,37 @@
-/* $XConsortium: README /main/3 1996/07/15 14:03:06 drk $ */
+Motif Paint (draw)
+==================
 
-A ScrolledWindow/DrawingArea graphic demo.
+A raster drawing application demonstrating Motif menus, tool controls, dialogs,
+a DrawingArea, conditional scrollbars, and a display-independent document model.
 
-You'll be presented with a canvas in which you can interactively draw
-lines or create buttons.
+The two-column tool panel and top action bar use original classic-style icons.
+Hover over any icon for its name or keyboard shortcut. Icons are generated at
+the display scale, with centered artwork and equal padding. The two-row palette
+keeps its color swatches square. Ink accepts #RRGGBB.
+The canvas fits the available window by default. Zoom reveals scrollbars only
+when needed; resizing the window never changes the document's pixels.
 
-Read the man page and use the help system to get more information.
+Tools: Pencil, Brush, Eraser, Line, Rectangle, Ellipse, Fill, Eyedropper, Text,
+and rectangular Select. Size controls brush/eraser/shape thickness. Solid shapes
+fills rectangles and ellipses. Right-button drawing uses white. Copy/Cut operate
+on the selection; Paste places it at the next click. This clipboard is local to
+the drawing session. Text uses an X11 bitmap font. Escape cancels a gesture.
 
-This demo is Editres aware.
+File: New, Open, Save, Save As, Quit. Images use PNG when the toolkit is built
+with libpng, and uncompressed 24-bit BMP on all builds. PNG transparency is
+flattened onto white. The filename extension chooses the save format. Failed
+loads preserve the current document; completed saves replace the target using
+a sibling temporary file. Unsaved changes and file replacement are confirmed.
 
-Do something like:
+Edit: sixteen undo/redo steps, including canvas size changes. Canvas size crops
+or extends without resampling. The default document is 960 x 640; dimensions
+must be between 1 and 4096 pixels. TrueColor X11 is required.
 
-   XENVIRONMENT=XmdDraw draw
+Keyboard: Ctrl+N/O/S, Ctrl+Shift+S, Ctrl+Z/Y, Ctrl+C/X/V, Delete, Escape,
++/- for zoom, and 0 for fit. See Help > Drawing guide in the application.
 
-Daniel Dardailler.
+Regression checks:
+  python3 tests/automated/run-paint.py --prefix /path/to/install --out "$TMPDIR/paint-check"
+
+The runner builds the actual executable, tests the raster model with sanitizers,
+and exercises the production UI through XTest on a separate Xvfb display.

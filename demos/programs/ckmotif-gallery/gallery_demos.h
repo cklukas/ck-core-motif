@@ -7,7 +7,7 @@ static const GalleryDemo gallery_demos[] = {
     {"animate", "animate", "xmanimate", "Animation", "Play a sequence of bitmap frames."},
     {"drag_and_drop", "drag_and_drop", "DNDDemo", "Drag and Drop", "Explore Motif drag sources, drop sites and transfers."},
     {"drag_and_drop", "drag_and_drop", "simpledrop", "Simple Drop", "A small drop-site example."},
-    {"draw", "draw", "draw", "Drawing", "Draw and manipulate graphical objects."},
+    {"draw", "draw", "draw", "Paint", "Paint pictures with brushes, shapes, fill, text, selections and undo."},
     {"earth", "earth", "earth", "Earth", "Display an animated rotating globe."},
     {"filemanager", "filemanager", "filemanager", "File Manager", "Browse files with container and drag-and-drop controls."},
     {"fileview", "fileview", "fileview", "File Viewer", "Read text files through a UIL-built multilingual interface."},

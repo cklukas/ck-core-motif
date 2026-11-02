@@ -12,7 +12,6 @@ static String fallbacks[] = {
 "?.TipShell.TipLabel.background: blue",
 "*ToolTipControl.messageString: ToolTip Control Panel",
 "*ToolTipControl.messageAlignment: XmALIGNMENT_CENTER",
-"*ToolTipSlider.slideInterval: 5",
 "*toolTipEnable.indicatorOn: False",
 "*toolTipEnable.shadowThickness: 2",
 "*toolTipEnable.fillOnSelect: True",
