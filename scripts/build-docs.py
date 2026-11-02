@@ -12,9 +12,9 @@ import subprocess
 import sys
 import time
 
-TOOL_COMMIT = "5019729cd37c06ae4e0c1d2c07e4127f3a72394d"
-TOOL_VERSION = "0.8.1"
-TOOL_TREE = "4105740b7e806ecf3eba8ae5c739fc8bafbd9122"
+TOOL_COMMIT = "06e4e4bfbf65dddf4c8b88b991582eddc07fa6ea"
+TOOL_VERSION = "0.10.1"
+TOOL_TREE = "14a55198f09344227807d7d76c160a9329028dca"
 
 
 def digest(path):
