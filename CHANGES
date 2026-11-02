@@ -1,3 +1,9 @@
+Bound Label natural geometry and drawing origins (2026-11-02)
+================================================================
+
+- Saturate Label resize metrics, accelerator margins, and text positions at
+  the legacy X11 representation boundaries instead of wrapping large values.
+
 Saturate ComboBox natural geometry (2026-11-02)
 ================================================
 
