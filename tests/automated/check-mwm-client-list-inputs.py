@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the invalid client-list pointer/count combination is rejected."""
+"""Check MWM client-list inputs are safe for the Xlib count parameter."""
 
 from pathlib import Path
 
@@ -10,7 +10,10 @@ body = source[start : source.index("} /* END OF FUNCTION SetMwmClientList */", s
 
 assert "wmWindowCount != 0" in body
 assert "wmWindowList == NULL" in body
+assert "wmWindowCount > (unsigned int)INT_MAX" in body
 assert "return;" in body
-assert body.index("if ((wmWindowCount != 0)") < body.index("XChangeProperty")
+assert body.index("if (wmWindowCount > (unsigned int)INT_MAX") < body.index(
+    "XChangeProperty"
+)
 
-print("PASS MWM client-list setter rejects nonzero count with null storage")
+print("PASS MWM client-list setter rejects invalid storage and oversized counts")

@@ -7,7 +7,7 @@ start = source.index("PerformClientCommandMatch (clientCommand")
 end = source.index("\n}\n", start)
 region = source[start:end]
 
-assert region.count("isspace((unsigned char)") == 7
+assert region.count("isspace(") == region.count("isspace((unsigned char)")
 assert "isspace(*menuItemCommand)" not in region
 assert "isspace(*clientCommand)" not in region
 assert "isspace(*bestMatchStr)" not in region
