@@ -1,3 +1,13 @@
+Validate MWM front-panel registration (2026-11-02)
+===================================================
+
+- Resolve embedded-client, push/recall-client, and icon-box registration
+  widgets through one checked managed-screen lookup. Invalid lifecycle calls,
+  foreign panel widgets, and invalid record counts now fail closed instead of
+  using an unmatched screen record; valid zero-count registrations still clear
+  a list. Embedded and push/recall record matching also reject incomplete
+  client and record state before comparing names.
+
 Validate MWM push/recall action inputs (2026-11-02)
 ====================================================
 
