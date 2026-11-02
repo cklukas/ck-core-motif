@@ -3082,6 +3082,9 @@ GetBaselines(
     Dimension *	base_array;
     Position label_y ;
 
+    if (wid == NULL || baselines == NULL || line_count == NULL)
+	return False;
+
     *line_count = 0;
     *baselines = NULL;
     base_array = (Dimension *)XtMalloc(sizeof(Dimension));
@@ -3113,12 +3116,19 @@ GetDisplayRect(
 	XRectangle	*displayrect)
 {
     Dimension w = 0, h = 0 ;
+    Dimension highlight;
 
-    (*displayrect).x = IG_HLThickness(wid);
-    (*displayrect).y = IG_HLThickness(wid);
+    if (wid == NULL || displayrect == NULL)
+	return False;
+
+    highlight = IG_HLThickness(wid);
+    (*displayrect).x = bounded_position((long long)highlight);
+    (*displayrect).y = bounded_position((long long)highlight);
     GetSize(wid, &w, &h);
-    (*displayrect).width = w - 2*IG_HLThickness(wid);
-    (*displayrect).height = h - 2*IG_HLThickness(wid) ;
+    (*displayrect).width = (w > 2 * highlight) ?
+	w - 2 * highlight : 0;
+    (*displayrect).height = (h > 2 * highlight) ?
+	h - 2 * highlight : 0;
 
     return(True);
 }
@@ -3131,6 +3141,9 @@ MarginsProc(
 	Widget		w,
 	XmBaselineMargins *margins_rec)
 {
+    if (w == NULL || margins_rec == NULL)
+	return;
+
     if (margins_rec->get_or_set == XmBASELINE_GET) {
       margins_rec->margin_top = DEFAULT_LABEL_MARGIN_HEIGHT;
       margins_rec->margin_bottom = DEFAULT_LABEL_MARGIN_HEIGHT;

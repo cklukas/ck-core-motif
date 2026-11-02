@@ -1,3 +1,11 @@
+Validate IconGadget geometry-trait outputs (2026-11-02)
+=========================================================
+
+- Reject invalid baseline, display-rectangle, and margin trait arguments
+  before accessing IconGadget state.  Clamp display dimensions to zero when a
+  gadget is smaller than its highlight border instead of wrapping unsigned
+  geometry; see `docs/icong-geometry-traits.md`.
+
 Propagate display-rectangle trait failures (2026-11-02)
 ========================================================
 
