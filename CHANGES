@@ -1,3 +1,10 @@
+Bound file-selection directory-entry list growth (2026-11-02)
+============================================================
+
+- Validate directory-entry list allocation bytes against `size_t` and Xt's
+  `Cardinal` range before growing the returned pointer table; see
+  `docs/directory-entry-list-growth.md`.
+
 Grow file-selection cache paths for long directory entries (2026-11-02)
 =======================================================================
 

@@ -1541,6 +1541,7 @@ EXTRA_DIST += tests/automated/check-legacy-converter-abi.py docs/legacy-converte
 EXTRA_DIST += tests/automated/check-iconbutton-string-conversion.py docs/iconbutton-string-conversion.md
 EXTRA_DIST += tests/automated/check-tabbox-mode-converter.py docs/tabbox-mode-converter.md
 EXTRA_DIST += tests/automated/check-directory-cache-path-capacity.py docs/directory-cache-path-capacity.md
+EXTRA_DIST += tests/automated/check-directory-entry-list-growth.py docs/directory-entry-list-growth.md
 EXTRA_DIST += tests/automated/check-mwm-identity-inputs.py
 
 EXTRA_DIST += tests/automated/check-avatar-modern.c \

@@ -221,7 +221,8 @@ AddEntryToCache(char *entryName,
 	  if ((size_t)new_alloc > (size_t)UINT_MAX / sizeof(*new_cache))
 	return 0;
       new_cache = (XmDirCache)XtRealloc(
-	(char *)dirCache, (size_t)new_alloc * sizeof(*new_cache));
+	(char *)dirCache,
+	(Cardinal)((size_t)new_alloc * sizeof(*new_cache)));
       if (new_cache == NULL)
 	return 0;
       dirCache = new_cache;
@@ -955,8 +956,12 @@ void
 	      if (*pNumAlloc > (unsigned)-1 - FILE_LIST_BLOCK)
 		break;
 	      new_alloc = *pNumAlloc + FILE_LIST_BLOCK;
+	      if ((size_t)new_alloc > SIZE_MAX / sizeof(*new_entries) ||
+		  (size_t)new_alloc > (size_t)UINT_MAX / sizeof(*new_entries))
+		break;
 	      new_entries = (String *)XtRealloc(
-		(char *)*pEntries, (size_t)new_alloc * sizeof(*new_entries));
+		(char *)*pEntries,
+		(Cardinal)((size_t)new_alloc * sizeof(*new_entries)));
 	      if (new_entries == NULL)
 		break;
 	      *pEntries = new_entries;
