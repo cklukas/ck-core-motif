@@ -1,3 +1,9 @@
+Bound Container layout-simulation allocation (2026-11-02)
+==========================================================
+
+- Apply Xt `Cardinal` byte-size bounds to the temporary occupancy grid used
+  during spatial Container layout negotiation.
+
 Bound Container cell-grid allocation (2026-11-02)
 ==================================================
 

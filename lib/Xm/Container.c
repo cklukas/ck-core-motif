@@ -7375,9 +7375,12 @@ GetSpatialSizeCellAdjustment(
 	(size_t)width_in_cells > SIZE_MAX / (size_t)height_in_cells)
 	return;
     cell_count = (size_t)width_in_cells * (size_t)height_in_cells;
-    if (cell_count > SIZE_MAX / sizeof(*cell_occupied))
+
+    if (cell_count > SIZE_MAX / sizeof(*cell_occupied) ||
+	cell_count > UINT_MAX / sizeof(*cell_occupied))
 	return;
-    cell_occupied = (Boolean *)XtCalloc(cell_count, sizeof(*cell_occupied));
+    cell_occupied = (Boolean *)XtCalloc((Cardinal)cell_count,
+					sizeof(*cell_occupied));
     if (cell_occupied == NULL)
 	return;
     i = 0;
