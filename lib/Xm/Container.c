@@ -4103,21 +4103,23 @@ PlaceItemReset(
     /*
      * Deallocate old cell structure.
      */
-    if ((cw->container.cells) &&
-	(((XmContainerWidgetClass)XtClass(wid))->container_class.remove_item))
+    if (cw->container.cells)
 	{
-	node = cw->container.first_node;
-        while (node)
-            {
-	    if (CtrItemIsPlaced(node->widget_ptr))
-		(*((XmContainerWidgetClass)
-		XtClass(wid))->container_class.remove_item)
-			(wid,node->widget_ptr);
-	    node = GetNextNode(node);
+	if (((XmContainerWidgetClass)XtClass(wid))->container_class.remove_item)
+	    {
+	    node = cw->container.first_node;
+            while (node)
+		{
+		if (CtrItemIsPlaced(node->widget_ptr))
+		    (*((XmContainerWidgetClass)
+		    XtClass(wid))->container_class.remove_item)
+			    (wid,node->widget_ptr);
+		 node = GetNextNode(node);
+		}
 	    }
 	XtFree((char*)cw->container.cells);
 	cw->container.cells = NULL;
-    }
+	}
 
     if (CtrSpatialStyleIsNONE(cw))
 	return;

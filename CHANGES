@@ -1,3 +1,9 @@
+Release Container grids without an optional remove hook (2026-11-02)
+====================================================================
+
+- Always free the previous spatial occupancy grid during reset; custom
+  Container subclasses may omit the optional item-removal hook.
+
 Bound Container layout-simulation allocation (2026-11-02)
 ==========================================================
 
