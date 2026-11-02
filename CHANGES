@@ -1,3 +1,11 @@
+Resize shared help content with its window (2026-11-02)
+=====================================================
+
+- Allocate the help notebook the available width and height on window resize,
+  keeping Dismiss at its natural size and allowing the scrolling page to resize.
+- Test native shell growth and shrinkage in classic, modern-light and modern-dark
+  appearances, including the resulting notebook and scrolling viewport sizes.
+
 Fix shared demo help dialog geometry (2026-11-02)
 ================================================
 

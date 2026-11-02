@@ -12,6 +12,35 @@ static void check_size(Widget help)
     assert(XtWidth(help) < 1000 && XtHeight(help) < 800);
 }
 
+static void tick(XtPointer data, XtIntervalId *id)
+{
+    (void)id;
+    *(Boolean *)data = True;
+}
+
+static void resize_window(XtAppContext app, Widget help, int dw, int dh)
+{
+    XmdHelpWidget hw = (XmdHelpWidget)help;
+    Widget notebook = hw->help.notebook;
+    Widget viewport = XtNameToWidget(notebook, "Text_SW");
+    Boolean settled = False;
+    XtAppAddTimeOut(app, 100, tick, &settled);
+    while (!settled) XtAppProcessEvent(app, XtIMAll);
+    Dimension width = XtWidth(help), height = XtHeight(help);
+    Dimension nw = XtWidth(notebook), nh = XtHeight(notebook);
+    Dimension vw = XtWidth(viewport), vh = XtHeight(viewport);
+    Boolean done = False;
+    XResizeWindow(XtDisplay(help), XtWindow(XtParent(help)), width + dw, height + dh);
+    XtAppAddTimeOut(app, 100, tick, &done);
+    while (!done) XtAppProcessEvent(app, XtIMAll);
+    fprintf(stderr,"resize %u,%u -> %u,%u expected %d,%d shell %u,%u\n",width,height,XtWidth(help),XtHeight(help),width+dw,height+dh,XtWidth(XtParent(help)),XtHeight(XtParent(help)));
+    assert(XtWidth(help) == width + dw && XtHeight(help) == height + dh);
+    assert(XtWidth(notebook) == nw + dw && XtHeight(notebook) == nh + dh);
+    assert(XtWidth(viewport) == vw + dw && XtHeight(viewport) == vh + dh);
+    assert(XtX(hw->help.dismiss) == XtX(notebook) + XtWidth(notebook) +
+           2 * XtBorderWidth(notebook) + hw->help.spacing);
+}
+
 int main(int argc, char **argv)
 {
     XtAppContext app;
@@ -58,10 +87,12 @@ int main(int argc, char **argv)
     request.x = 500;
     assert(XtMakeGeometryRequest(notebook, &request, &reply) == XtGeometryNo);
     check_size(help);
+    resize_window(app, help, 180, 140);
+    resize_window(app, help, -260, -200);
     XtUnmanageChild(help);
     XtManageChild(help);
     check_size(help);
     XtDestroyWidget(shell);
-    puts("PASS: bounded help geometry, child resize, borders, query-only, denied position, reopen");
+    puts("PASS: bounded help geometry, child resize, borders, query-only, denied position, window growth/shrink, reopen");
     return 0;
 }

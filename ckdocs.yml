@@ -40,6 +40,7 @@ nav:
       - docs/modern-gallery-components.md
       - docs/periodic-modern-appearance.md
       - docs/gallery-startup-profile.md
+      - docs/demo-help.md
   - title: APIs
     pages:
       - docs/unicode.md

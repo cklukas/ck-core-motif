@@ -303,7 +303,7 @@ Initialize(Widget request_w,
   XtSetArg(args[n], XmNwidth, 500); n++;
   XtSetArg(args[n], XmNheight, 240); n++;
   XtSetArg(args[n], XmNpageNumber, 1); n++;
-  XtSetArg(args[n], XmNresizable, FALSE); n++;
+  XtSetArg(args[n], XmNresizable, TRUE); n++;
   XtSetArg(args[n], XmNnotebookChildType, XmPAGE); n++;
   display_parent = 
     XmCreateScrolledWindow(nw -> help.notebook, "Text_SW", args, n);
@@ -499,19 +499,30 @@ Layout(
 
   x = y = spacing;
 
-  /* There are only a few children.  They are laid out in a simple
-     left to right fashion */
-  for (i = 0; i < help -> composite.num_children; i++) {
-    child = help -> composite.children[i];
-
+  /* Give the notebook the space left after the fixed-size controls. */
+  int available_width = XtWidth(wid) - spacing;
+  int available_height = XtHeight(wid) - 2 * spacing;
+  for (i = 0; i < help->composite.num_children; i++) {
+    child = help->composite.children[i];
     if (XtIsManaged(child)) {
-      if (instigator != child) {
-	XmeConfigureObject(child, x, y, 
-			   XtWidth(child), XtHeight(child),
-			   XtBorderWidth(child));
-      }
-      x += XtWidth(child) + 2 * XtBorderWidth(child) + spacing;
+      available_width -= spacing + 2 * XtBorderWidth(child);
+      if (child != help->help.notebook)
+        available_width -= XtWidth(child);
     }
+  }
+
+  for (i = 0; i < help->composite.num_children; i++) {
+    child = help->composite.children[i];
+    if (!XtIsManaged(child)) continue;
+    if (child != instigator) {
+      Dimension width = XtWidth(child), height = XtHeight(child);
+      if (child == help->help.notebook) {
+        width = MAX(1, available_width);
+        height = MAX(1, available_height - 2 * XtBorderWidth(child));
+      }
+      XmeConfigureObject(child, x, y, width, height, XtBorderWidth(child));
+    }
+    x += XtWidth(child) + 2 * XtBorderWidth(child) + spacing;
   }
 }
 

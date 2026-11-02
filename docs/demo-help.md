@@ -5,7 +5,10 @@ Dismiss button determine the dialog's natural size. Child resize requests must
 use initialized parent dimensions and the child's requested width, height and
 border width. Query-only or rejected requests leave the child unchanged;
 accepted requests retain spacing between the notebook and Dismiss button.
-The help manager does not derive its width from the screen width.
+The help manager does not derive its width from the screen width. Resizing the
+window gives the notebook the remaining width beside Dismiss and the available
+height. The scrolling page grows and shrinks with the notebook, while Dismiss
+keeps its natural size.
 
 Help titles and page contents are compound strings and are released with
 `XmStringFree` when replaced or destroyed.
@@ -23,6 +26,6 @@ Use a fresh output directory beneath a mounted project temporary volume and
 set `TMPDIR` there before invoking the runner. The native test uses an isolated
 Xvfb server and the File Manager help asset. It checks bounded initial geometry,
 query-only requests, accepted child resizing, border spacing, rejected position
-requests, reopening and destruction. Pattern-initialized automatic variables
+requests, native window growth and shrinkage, reopening and destruction. Pattern-initialized automatic variables
 make dependence on uninitialized geometry reproducible. The runner records
 source hashes, compiler commands, elapsed times and results.
