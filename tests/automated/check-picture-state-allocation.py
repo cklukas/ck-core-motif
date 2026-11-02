@@ -15,6 +15,12 @@ assert parse_region.index("if (picture->nodes == NULL)") < parse_region.index("_
 
 public_region = source[source.index("XmPictureProcessCharacter("):]
 assert "if (state == NULL || is_finished == NULL)" in public_region
+output_init = public_region.index("*is_finished = False;")
+growth_failure = public_region.index("new_string == NULL")
+assert output_init < growth_failure
+cardinal_limit = public_region.index("required > (size_t)UINT_MAX")
+reallocation = public_region.index("XtRealloc(state->current_string")
+assert cardinal_limit < reallocation
 assert "if (p == NULL)" in public_region
 assert "if (s == NULL)" in public_region
 assert "if (state == NULL)" in public_region
@@ -41,4 +47,4 @@ assert region.index("if (state->state == NULL)") < region.index("state->newstate
 assert region.index("if (state->newstate == NULL)") < region.index("state->current_capacity =")
 assert region.index("if (state->current_string == NULL)") < region.index("_XmPictureSetState")
 
-print("Picture state allocation guards present")
+print("PASS Picture state allocation and failure outputs are guarded")

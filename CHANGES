@@ -1,3 +1,12 @@
+Define Picture processing completion output on growth failure (2026-11-02)
+==========================================================================
+
+- Initialize `XmPictureProcessCharacter`'s valid `is_finished` output before
+  processing, so a failed current-string growth returns `NULL` with a defined
+  non-complete result instead of stale caller state. Reject growth beyond Xt's
+  `Cardinal` allocation range before it can truncate at `XtRealloc`; see
+  `docs/picture-state-allocation.md`.
+
 Make hierarchy root-allocation failures explicit (2026-11-02)
 ============================================================
 

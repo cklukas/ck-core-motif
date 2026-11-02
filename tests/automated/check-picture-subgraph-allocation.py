@@ -6,7 +6,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Picture.c").read_text(enco
 start = source.index("static XmPictureNode*\n_XmPictureCopySubGraph")
 end = source.index("static void\n_XmPictureFillTraverse", start)
 region = source[start:end]
-assert "XtMalloc(tablesize * sizeof(XmPictureNode*)" in region
+assert "XtMalloc((Cardinal)((size_t)tablesize * sizeof(*table)))" in region
 assert "UINT_MAX / sizeof(XmPictureNode *)" in region
 assert "if (table == NULL)" in region
 assert "return end;" in region

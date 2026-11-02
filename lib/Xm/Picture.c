@@ -116,13 +116,13 @@ XmGetNewPictureState(XmPicture picture)
 
     state->picture = picture;
 
-    state->state = (unsigned char*) XtMalloc(state->statesize);
+    state->state = (unsigned char*) XtMalloc((Cardinal)state->statesize);
     if (state->state == NULL) {
 	XtFree((char*)state);
 	return NULL;
     }
 
-    state->newstate = (unsigned char*) XtMalloc(state->statesize);
+    state->newstate = (unsigned char*) XtMalloc((Cardinal)state->statesize);
     if (state->newstate == NULL) {
 	XtFree((char*)state->state);
 	XtFree((char*)state);
@@ -130,7 +130,7 @@ XmGetNewPictureState(XmPicture picture)
     }
 
     state->current_capacity = 1024;
-    state->current_string = XtMalloc(state->current_capacity);
+    state->current_string = XtMalloc((Cardinal)state->current_capacity);
     if (state->current_string == NULL) {
 	XtFree((char*)state->newstate);
 	XtFree((char*)state->state);
@@ -168,6 +168,10 @@ XmPictureProcessCharacter(XmPictureState state, char in, Boolean *is_finished)
     if (state == NULL || is_finished == NULL)
 	return NULL;
 
+    /* A buffer-growth failure below returns NULL. Give callers a defined
+     * completion result on every valid-output path, including that failure. */
+    *is_finished = False;
+
     /*
      * Reset the current-processing info
      */
@@ -204,6 +208,8 @@ XmPictureProcessCharacter(XmPictureState state, char in, Boolean *is_finished)
                 return NULL;
             size_t required = length + 2;
             size_t new_capacity = state->current_capacity;
+            if (required > (size_t)UINT_MAX)
+                return NULL;
             char *new_string;
             while (new_capacity < required) {
                 if (new_capacity > SIZE_MAX / 2)
@@ -212,7 +218,7 @@ XmPictureProcessCharacter(XmPictureState state, char in, Boolean *is_finished)
                     new_capacity *= 2;
             }
             new_string = (char *)XtRealloc(state->current_string,
-                                           new_capacity);
+                                           (Cardinal)new_capacity);
             if (new_string == NULL)
                 return NULL;
             state->current_string = new_string;
@@ -838,7 +844,7 @@ _XmPictureCopySubGraph(XmPictureRec *picture, int n,
 	(size_t)tablesize > UINT_MAX / sizeof(XmPictureNode *))
 	return end;
     table = (XmPictureNode**)
-	    XtMalloc(tablesize * sizeof(XmPictureNode*));
+	    XtMalloc((Cardinal)((size_t)tablesize * sizeof(*table)));
     if (table == NULL)
 	return end;
     for(i=0; i<picture->num_nodes; i++)

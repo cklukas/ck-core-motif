@@ -21,7 +21,11 @@ result from allocation failure.  The public processing, deletion, query, and
 auto-fill helpers also reject null handles, making cleanup and optional
 processing paths safe without changing valid-handle behavior.  Auto-fill also
 stops and returns the current partial string when character processing cannot
-grow its buffer, instead of retrying indefinitely.
+grow its buffer, instead of retrying indefinitely. `XmPictureProcessCharacter`
+also initializes its valid `is_finished` output to `False` before processing,
+so a later growth failure cannot leave callers with a stale completion value.
+Growth is also limited to Xt's `Cardinal` byte range before the reallocation,
+so a large `size_t` capacity cannot be truncated at the allocator boundary.
 
 The source-level regression check is
 `tests/automated/check-picture-state-allocation.py`.
