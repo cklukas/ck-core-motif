@@ -1,3 +1,10 @@
+Clamp Scale value-label redraw geometry (2026-11-02)
+======================================================
+
+- Clamp calculated Scale value-label coordinates and extents before recording
+  the X11 redraw rectangle, preventing large metrics from wrapping a later
+  clear or redisplay region.
+
 Keep Scale scrollbar span arithmetic wide (2026-11-02)
 =========================================================
 

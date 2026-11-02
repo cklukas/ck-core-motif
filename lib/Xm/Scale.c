@@ -125,6 +125,14 @@ ScaleBoundedDimension(int64_t value)
     return (Dimension)value;
 }
 
+static Position
+ScaleBoundedPosition(int64_t value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static Dimension ScaleDefaultExtent(XmScaleWidget, Boolean);
 static void ScaleChanged(Widget, double, double, XtPointer);
 #define SCALE_DEFAULT_MAJOR_SIZE ScaleDefaultExtent(sw, True)
@@ -2938,10 +2946,11 @@ static void
 ShowValue(
         XmScaleWidget sw)
 {
+    int x, y;
 #if USE_XFT
-    Dimension x, y, width, height;
+    Dimension width, height;
 #else
-    int x, y, width, height;
+    int width, height;
 #endif
     XCharStruct width_return;
     char buffer[256];
@@ -2949,6 +2958,8 @@ ShowValue(
     XmScrollBarWidget scrollbar;
     Region value_region = sw->scale.value_region;
     XRectangle value_rect;
+    Position old_x, old_y;
+    Dimension old_width, old_height;
     XmString tmp_str;
     
     if (!XtIsRealized((Widget)sw) ||
@@ -2969,17 +2980,21 @@ ShowValue(
     y = sw->scale.show_value_y;
     width = sw->scale.show_value_width;
     height = sw->scale.show_value_height;
+    old_x = ScaleBoundedPosition(x);
+    old_y = ScaleBoundedPosition(y);
+    old_width = ScaleBoundedDimension(width);
+    old_height = ScaleBoundedDimension(height);
     
     if (!sw->scale.show_value) { /* turn off the value display */
 	
 	if (width) { /* We were displaying, so we must clear it */
 	    
-	    XClearArea (XtDisplay (sw), XtWindow (sw), x, y, width, 
-			height, FALSE);
-	    value_rect.x = x;
-	    value_rect.y = y;
-	    value_rect.width = width;
-	    value_rect.height = height;
+	    XClearArea (XtDisplay (sw), XtWindow (sw), old_x, old_y, old_width,
+			old_height, FALSE);
+	    value_rect.x = old_x;
+	    value_rect.y = old_y;
+	    value_rect.width = old_width;
+	    value_rect.height = old_height;
 	    XIntersectRegion(null_region, value_region, value_region);
 	    XUnionRectWithRegion(&value_rect, value_region, value_region);
 	    XmeRedisplayGadgets( (Widget) sw, NULL, value_region);
@@ -2994,12 +3009,13 @@ ShowValue(
     
     if (width)	{
 	/* Clear the old one */
-	value_rect.x = x;
-	value_rect.y = y;
-	value_rect.width = width;
-	value_rect.height = height;
+	value_rect.x = old_x;
+	value_rect.y = old_y;
+	value_rect.width = old_width;
+	value_rect.height = old_height;
 	XIntersectRegion(null_region, value_region, value_region);
-	XClearArea(XtDisplay(sw), XtWindow(sw), x, y, width, height, FALSE);
+	XClearArea(XtDisplay(sw), XtWindow(sw), old_x, old_y, old_width,
+		   old_height, FALSE);
 	XUnionRectWithRegion(&value_rect, value_region, value_region);
 	XmeRedisplayGadgets( (Widget) sw, NULL, value_region);
     }
@@ -3020,15 +3036,17 @@ ShowValue(
     XmStringExtent(sw->scale.font_list, tmp_str = XmStringCreateSimple(buffer),
 		  &width, &height);
     XmStringFree(tmp_str);
-    sw->scale.show_value_width = width;
-    sw->scale.show_value_height = height;
 #else
     XTextExtents (sw->scale.font_struct, buffer, buffer_length,
 		  &direction, &height, &descent, &width_return);
     width = width_return.rbearing - width_return.lbearing;
-    sw->scale.show_value_width = width;
-    sw->scale.show_value_height = height + descent;
+    height += descent;
 #endif
+
+    width = ScaleBoundedDimension(width);
+    height = ScaleBoundedDimension(height);
+    sw->scale.show_value_width = width;
+    sw->scale.show_value_height = height;
 
     scrollbar = (XmScrollBarWidget) sw->composite.children[1];
     
@@ -3103,12 +3121,18 @@ ShowValue(
 #endif
     }
 
-#if USE_XFT    
+#if USE_XFT
+    x = ScaleBoundedPosition(x);
+    y = ScaleBoundedPosition(y);
     sw->scale.show_value_x = x;
-    sw->scale.show_value_y = y + 1;
+    sw->scale.show_value_y = ScaleBoundedPosition((int64_t)y + 1);
 #else
-    sw->scale.show_value_x = x + width_return.lbearing;
-    sw->scale.show_value_y = y - height + 1;
+    x = ScaleBoundedPosition(x);
+    y = ScaleBoundedPosition(y);
+    sw->scale.show_value_x =
+	ScaleBoundedPosition((int64_t)x + width_return.lbearing);
+    sw->scale.show_value_y =
+	ScaleBoundedPosition((int64_t)y - height + 1);
 #endif
     
     
