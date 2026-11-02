@@ -1,3 +1,10 @@
+Modernize GetSubRes reporting and C23 callbacks (2026-11-02)
+==========================================================
+
+- Replace the GetSubRes demo's K&R definitions with typed C23 declarations.
+- Format resource-report lines into exact dynamically allocated storage rather
+  than a fixed `vsprintf` buffer, with an allocation and column-width bound.
+
 Harden File Manager unreadable-entry fallback (2026-11-02)
 ===========================================================
 
