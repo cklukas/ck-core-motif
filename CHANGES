@@ -1,3 +1,10 @@
+Bound virtual-key binding converter allocation size (2026-11-02)
+================================================================
+
+- Validate parsed virtual-key binding output bytes before converting their
+  count to Xt's `Cardinal` allocation size; see
+  `docs/virtual-binding-converter-bounds.md`.
+
 Bound file-selection directory-entry list growth (2026-11-02)
 ============================================================
 

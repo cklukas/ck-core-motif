@@ -197,6 +197,7 @@ CvtStringToVirtualBinding(Display    *dpy,
     int		  codes_per_sym;
     KeyCode	  minK;
     Modifiers	  used_mods;
+    size_t        binding_bytes;
 
     /* Lookup codes_per_sym, and let Xt cache the result instead of */
     /* always downloading a new copy with XGetKeyboardMapping(). */
@@ -208,6 +209,17 @@ CvtStringToVirtualBinding(Display    *dpy,
     if (count > 0)
       {
 	Boolean fini;
+
+	if ((size_t)count > SIZE_MAX / sizeof(XmKeyBindingRec) ||
+	    (size_t)count > (size_t)UINT_MAX / sizeof(XmKeyBindingRec))
+	  {
+	    XtFree((char*) eventTypes);
+	    XtFree((char*) keysyms);
+	    XtFree((char*) modifiers);
+	    XtDisplayStringConversionWarning(dpy, str, XmRVirtualBinding);
+	    return False;
+	  }
+	binding_bytes = (size_t)count * sizeof(XmKeyBindingRec);
 
 	for (tmp = 0; tmp < count; tmp++)
 	  {
@@ -318,9 +330,9 @@ CvtStringToVirtualBinding(Display    *dpy,
 	
 	/* Fail if insufficient storage was provided. */
 	if ((toVal->addr != NULL) &&
-	    (toVal->size < sizeof(XmKeyBindingRec) * count))
+	    (toVal->size < binding_bytes))
 	  {
-	    toVal->size = sizeof(XmKeyBindingRec) * count;
+	    toVal->size = (Cardinal)binding_bytes;
 
 	    XtFree((char*) eventTypes);
 	    XtFree((char*) keysyms);
@@ -329,7 +341,7 @@ CvtStringToVirtualBinding(Display    *dpy,
 	  }
 
 	/* Allocate storage if none was provided. */
-	toVal->size = sizeof(XmKeyBindingRec) * count;
+	toVal->size = (Cardinal)binding_bytes;
 	if (toVal->addr == NULL)
 	  {
 	    toVal->addr = XtMalloc(toVal->size);
