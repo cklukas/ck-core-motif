@@ -1457,6 +1457,9 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     pSD->pDtSessionItems = NULL;
     pSD->totalSessionItems = 0;
     pSD->remainingSessionItems = 0;
+    pSD->dtWmRequestProperty = NULL;
+    pSD->dtWmRequestItems = 0;
+    pSD->dtWmRequestNext = 0;
 
     pSD->cachedHelp = NULL;
     pSD->dtHelp.shell  = (Widget)NULL;

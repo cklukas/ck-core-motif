@@ -1454,6 +1454,12 @@ typedef struct _WmScreenData
     int                        totalSessionItems;
     int                        remainingSessionItems;
 
+    /* Pending _DT_WM_REQUEST data is per screen: requests from different
+     * workspace windows may arrive interleaved. */
+    char                       *dtWmRequestProperty;
+    unsigned long               dtWmRequestItems;
+    unsigned long               dtWmRequestNext;
+
 
     /* workspace list for this screen */
     String                      initialWorkspace; /* private resource */

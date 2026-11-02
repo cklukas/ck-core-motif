@@ -1960,13 +1960,10 @@ GetDtWmRequest (
 
     int           rValue;
     char	 *chRequest = NULL;
-    static char  *property = NULL;
-    static int    iNext = -1;
-    int 	  i;
+    unsigned long i;
     Atom          actualType;
     int           actualFormat;
     unsigned long leftover;
-    static unsigned long nitems = 0;
 
     if (pSD == NULL || pszReq == NULL || pmore == NULL)
 	return;
@@ -1979,7 +1976,7 @@ GetDtWmRequest (
      * We need to read the property again if we have no data left
      * over from last time;
      */
-    if (property == NULL)
+    if (pSD->dtWmRequestProperty == NULL)
     {
 #ifdef PARANOID
 	/*
@@ -1995,8 +1992,9 @@ GetDtWmRequest (
 	rValue = XGetWindowProperty (DISPLAY, pSD->wmWorkspaceWin,
 				     wmGD.xa_DT_WM_REQUEST, 0L,
 				     (long)1000000, True, AnyPropertyType,
-				     &actualType, &actualFormat, &nitems,
-				     &leftover, (unsigned char **)&property);
+				     &actualType, &actualFormat,
+				     &pSD->dtWmRequestItems, &leftover,
+				     (unsigned char **)&pSD->dtWmRequestProperty);
 
 #ifdef PARANOID
 	/* Give the server back */ 
@@ -2009,9 +2007,9 @@ GetDtWmRequest (
 	if ((rValue != Success) || 
 	    (actualType == None) || 
 	    (actualFormat != 8) ||
-	    (nitems == 0) ||
+	    (pSD->dtWmRequestItems == 0) ||
 	    (leftover != 0) ||
-	    (property == NULL))
+	    (pSD->dtWmRequestProperty == NULL))
 	{
 	    /* The property does not exist or it is an invalid type. */
 	    if (leftover != 0)
@@ -2021,18 +2019,18 @@ GetDtWmRequest (
 		XDeleteProperty (DISPLAY, pSD->wmWorkspaceWin,
 		    wmGD.xa_DT_WM_REQUEST);
 	    }
-	    if (property != NULL)
+	    if (pSD->dtWmRequestProperty != NULL)
 	    {
-		XFree ((char *)property);
+		XFree (pSD->dtWmRequestProperty);
 	    }
-	    property = NULL;
-	    iNext = -1;
-	    nitems = 0;
+	    pSD->dtWmRequestProperty = NULL;
+	    pSD->dtWmRequestNext = 0;
+	    pSD->dtWmRequestItems = 0;
 	}
 	else
 	{
 	    /* the property is fine, set the index of the next char. */
-	    iNext = 0;
+	    pSD->dtWmRequestNext = 0;
 	}
     }
 
@@ -2041,21 +2039,22 @@ GetDtWmRequest (
      * If we've got something, then extract and return the next
      * request.
      */
-    if (property && iNext >= 0)
+    if (pSD->dtWmRequestProperty != NULL &&
+	pSD->dtWmRequestNext < pSD->dtWmRequestItems)
     {
 	size_t requestLength;
 
-	for (i=iNext; i<nitems; i++)
+	for (i = pSD->dtWmRequestNext; i < pSD->dtWmRequestItems; i++)
 	{
-	    if (property [i] == '\0')
+	    if (pSD->dtWmRequestProperty[i] == '\0')
 	    {
 		break;
 	    }
 	}
-	if (i >= nitems)
-	    i = nitems;
+	if (i >= pSD->dtWmRequestItems)
+	    i = pSD->dtWmRequestItems;
 
-	requestLength = (size_t)i - (size_t)iNext + 1;
+	requestLength = (size_t)i - (size_t)pSD->dtWmRequestNext + 1;
 	if (requestLength > UINT_MAX)
 	{
 	    Warning (((char *)GETMESSAGE(54, 2, "Window management request is too long")));
@@ -2066,29 +2065,38 @@ GetDtWmRequest (
 	    if (chRequest == NULL)
 	    {
 		Warning (((char *)GETMESSAGE(54, 2, "Insufficient memory for window management data")));
+		/* Avoid retrying the same queued request indefinitely on OOM. */
+		XFree (pSD->dtWmRequestProperty);
+		pSD->dtWmRequestProperty = NULL;
+		pSD->dtWmRequestNext = 0;
+		pSD->dtWmRequestItems = 0;
 	    }
 	    else
 	    {
 		/* Dequeue the request without reading past the X property. */
-		memcpy(chRequest, &property[iNext], requestLength - 1);
+		memcpy(chRequest, &pSD->dtWmRequestProperty[pSD->dtWmRequestNext],
+		       requestLength - 1);
 		chRequest[requestLength - 1] = '\0';
-		iNext = (i < nitems) ? i + 1 : (int)nitems;
+		pSD->dtWmRequestNext =
+		    (i < pSD->dtWmRequestItems) ? i + 1 : pSD->dtWmRequestItems;
 	    }
 	}
 	
-	if (iNext >= nitems)
+	if (pSD->dtWmRequestProperty != NULL &&
+	    pSD->dtWmRequestNext >= pSD->dtWmRequestItems)
 	{
 	    /*
 	     * Extracted the last request, free up the storage
 	     * and reset for next time.
 	     */
-	    XFree ((char *)property);
-	    iNext = -1;
-	    property = NULL;
+	    XFree (pSD->dtWmRequestProperty);
+	    pSD->dtWmRequestProperty = NULL;
+	    pSD->dtWmRequestNext = 0;
+	    pSD->dtWmRequestItems = 0;
 	}
     }
     
-    *pmore = (property != NULL);
+    *pmore = (pSD->dtWmRequestProperty != NULL);
     *pszReq = chRequest;
 
 } /* END OF FUNCTION GetDtWmRequest */

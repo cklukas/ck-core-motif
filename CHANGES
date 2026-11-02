@@ -35747,6 +35747,13 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Isolate MWM desktop-request queues by screen (2026-11-02)
+==========================================================
+
+- Store partially consumed `_DT_WM_REQUEST` data per workspace screen, so
+  interleaved multi-screen requests cannot share parser state or property
+  ownership; abandon a queued request cleanly after copy-allocation failure.
+
 Require complete MWM save-hint properties (2026-11-02)
 =======================================================
 
