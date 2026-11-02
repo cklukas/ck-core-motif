@@ -1,3 +1,10 @@
+Keep List pointer hit testing wide (2026-11-02)
+=================================================
+
+- Preserve 32-bit X event Y coordinates through List hit testing and use wide
+  row arithmetic, preventing legacy `Position` truncation from selecting the
+  wrong row in large windows.
+
 Keep IconFile cache directory lengths representable (2026-11-02)
 =================================================================
 

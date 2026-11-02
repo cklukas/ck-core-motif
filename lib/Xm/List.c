@@ -232,7 +232,7 @@ static void BuildSelectedList(XmListWidget lw, Boolean commit);
 static void BuildSelectedPositions(XmListWidget lw, int count);
 static void UpdateSelectedList(XmListWidget lw, Boolean rebuild);
 static void UpdateSelectedPositions(XmListWidget lw, int count);
-static int WhichItem(XmListWidget w, Position EventY);
+static int WhichItem(XmListWidget w, int EventY);
 static void SelectRange(XmListWidget lw, int first, int last, Boolean select);
 static void RestoreRange(XmListWidget lw, int first, int last, Boolean dostart);
 static void ArrangeRange(XmListWidget lw, int item);
@@ -4473,11 +4473,12 @@ ListSelectionChanged(XmListWidget w)
 
 static int
 WhichItem(XmListWidget w,
-	  Position EventY)
+	  int EventY)
 {
   XmListWidget lw = w;
-  Position y = EventY;
-  int item, lines;
+  int y = EventY;
+  int item;
+  long long lines;
 
   if (lw->list.Traversing && lw->list.KbdSelection)
     return lw->list.CurrentKbdItem;
@@ -4494,7 +4495,7 @@ WhichItem(XmListWidget w,
       else
 	return(0);
     }
-  if ((Dimension) y > lw->core.height)
+  if (y > (int)lw->core.height)
     {
       if ((lw->list.top_position + lw->list.visibleItemCount) >=
 	  lw->list.itemCount)
@@ -4508,14 +4509,17 @@ WhichItem(XmListWidget w,
     return(-1);
 
   /* Calculate the line offset directly, since lines are fixed height. */
-  lines = (((int) (y + lw->list.spacing) -
-	    (int) (lw->list.BaseY + lw->list.HighlightThickness + 1)) /
-	   (int) (lw->list.MaxItemHeight + lw->list.spacing));
+  lines = (((long long)y + (long long)lw->list.spacing -
+	    ((long long)lw->list.BaseY +
+	     (long long)lw->list.HighlightThickness + 1)) /
+	   ((long long)lw->list.MaxItemHeight +
+	    (long long)lw->list.spacing));
 
   if (lines <= 0)
     item = lw->list.top_position;
-  else if (lw->list.top_position + lines < lw->list.itemCount)
-    item = lw->list.top_position + lines;
+  else if ((long long)lw->list.top_position + lines <
+           (long long)lw->list.itemCount)
+    item = (int)((long long)lw->list.top_position + lines);
   else
     item = lw->list.itemCount;
 
@@ -10441,7 +10445,7 @@ XmListSetHorizPos(Widget w,
       }
 
       lw->list.hOrigin = position;
-      lw->list.XOrigin = position;
+      lw->list.XOrigin = bounded_position(position);
       SetHorizontalScrollbar(lw);
       DrawList(lw, NULL, TRUE);
     }
