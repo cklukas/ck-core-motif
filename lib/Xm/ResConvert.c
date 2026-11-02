@@ -2698,6 +2698,12 @@ CvtStringToAtomList(
   while(--atom_count >= 0)
     XtFree(name_list[atom_count]);
 
+  /* The stack-backed case needs no release, but a long resource value
+   * grows this temporary name vector.  XInternAtoms has consumed the
+   * names above, so discard that vector before handing the result to Xt. */
+  if (name_list != stack_names)
+    XtFree((char *)name_list);
+
   {
     static Atom *buf;
 

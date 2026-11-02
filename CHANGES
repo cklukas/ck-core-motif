@@ -1,3 +1,10 @@
+Release grown atom-list converter storage after successful interning (2026-11-02)
+===============================================================================
+
+- Free the temporary heap-backed atom-name vector after `XInternAtoms` has
+  consumed a resource value with more than 128 names. The atom result and its
+  caller ownership are unchanged; see `docs/atom-list-converter-allocation.md`.
+
 Modernize Workspace client-window discovery C23 contracts (2026-11-02)
 ====================================================================
 
