@@ -55,6 +55,12 @@ Modernize Exm Container sample constructor API (2026-11-02)
 - Match the unsupported Exm Container constructor declaration to its typed C23
   implementation.
 
+Correct Exm Container generated-tab ownership (2026-11-02)
+==========================================================
+
+- Replace the shared default-tab pool with bounded per-widget tab-list storage
+  so one Exm Container cannot invalidate another widget's generated tabs.
+
 Modernize dogs custom widgets and callbacks (2026-11-02)
 =========================================================
 
