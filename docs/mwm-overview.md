@@ -52,6 +52,7 @@ clients exchanging Motif window-management messages.
 - [XSMP property-buffer ownership](mwm-xsmp-property-ownership.md)
 - [Session client-ID property bounds](mwm-session-client-id-bounds.md)
 - [Desktop-request queue ownership](mwm-dt-request-queue-ownership.md)
+- [WSM help-record type availability](mwm-wsm-help-type.md)
 - [Locale-copy allocation](mwm-locale-allocation.md)
 - [Localized system-menu allocation](mwm-system-menu-allocation.md)
 - [Catalog-string allocation](mwm-catalog-allocation.md)

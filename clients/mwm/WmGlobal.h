@@ -726,9 +726,10 @@ typedef struct _WsPresenceData
 typedef struct _WsPresenceData *PtrWsPresenceData;
 
 
-#ifdef PANELIST
 /*
- * Specific data for top level help dialog 
+ * Specific data for the top-level workspace help dialog.  WmScreenData owns
+ * this record for every WSM build, even when the optional Panelist frontend
+ * is disabled, so its type must not depend on PANELIST.
  */
 
 typedef struct _WsDtHelpData
@@ -747,7 +748,6 @@ typedef struct _WsDtHelpData
 } WsDtHelpData;
 
 typedef struct _WsDtHelpData *PtrWsDtHelpData;
-#endif /*  PANELIST */
 
 
 /*************************************<->*************************************
