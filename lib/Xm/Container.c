@@ -4151,7 +4151,18 @@ PlaceItemReset(
 	return;
 	}
     cw->container.cell_count = width_in_cells * height_in_cells;
-    cw->container.cells = (int *)XtCalloc((size_t)cw->container.cell_count,
+
+    if ((size_t)cw->container.cell_count >
+	SIZE_MAX / sizeof(*cw->container.cells) ||
+	(size_t)cw->container.cell_count >
+	UINT_MAX / sizeof(*cw->container.cells))
+	{
+	cw->container.cell_count = 0;
+	cw->container.current_width_in_cells = 0;
+	cw->container.current_height_in_cells = 0;
+	return;
+	}
+    cw->container.cells = (int *)XtCalloc((Cardinal)cw->container.cell_count,
 					 sizeof(*cw->container.cells));
     if (cw->container.cells == NULL)
 	{

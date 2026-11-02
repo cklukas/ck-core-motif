@@ -1,3 +1,10 @@
+Bound Container cell-grid allocation (2026-11-02)
+==================================================
+
+- Reject spatial layouts whose occupancy array cannot be represented by Xt's
+  `Cardinal` allocation contract, preventing a very large cell count from
+  truncating its byte allocation.
+
 Validate MWM title-font metrics (2026-11-02)
 =============================================
 
