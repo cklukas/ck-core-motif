@@ -11,6 +11,8 @@ start = text.index("WinEntrySizePacked(Display *dpy, int screen_num, WSMWinEntry
 end = text.index("\n}\n", start)
 function = text[start:end]
 assert "win_entry->num_windows < 0" in function
+assert "win_entry->num_windows > WSM_MAX_LIST_ITEMS" in function
+assert "win_entry->num_match_properties > WSM_MAX_LIST_ITEMS" in function
 assert "AddPackedSize(&size," in function
 assert "win_entry->num_match_properties" in function
 assert "size  = sizeof(CARD32);\n    size += sizeof(WindowProperty)" not in function

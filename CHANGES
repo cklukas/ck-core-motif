@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Bound WSM 16-bit wire-list counts (2026-11-02)
+================================================
+
+- Reject outbound list, string, and background-screen values that cannot be
+  represented by WSM's `CARD16` wire fields instead of silently truncating.
+
 Bound WSM packed-message arithmetic (2026-11-02)
 ==================================================
 
