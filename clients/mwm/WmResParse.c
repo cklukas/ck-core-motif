@@ -7282,6 +7282,14 @@ static void InitKeySubs (
     {
 	ScanWhitespace (&pch0);
 	if (*pch0 == '\0') break;
+	if (numKS < 0 || numKS == INT_MAX ||
+	    (size_t)(numKS + 1) > SIZE_MAX / sizeof(KeySub) ||
+	    (size_t)(numKS + 1) > UINT_MAX / sizeof(KeySub))
+	{
+	    *ppKeySubs = pKSret;
+	    *pNumKeySubs = numKS;
+	    return;
+	}
 
 	/* 
 	 * allocate space for next key sub 
@@ -7325,23 +7333,24 @@ static void InitKeySubs (
 #else /* NO_MULTIBYTE */
 	while (*pch1 && (*pch1 != ' ')) pch1++;
 #endif /* NO_MULTIBYTE */
-	pKS->lenFrom = pch1 - pch0;
-	if (pKS->lenFrom < 1) 
+	len = (size_t)(pch1 - pch0);
+	if (len < 1 || len > INT_MAX)
 	{
 	    /*
 	     * no "from" string
 	     */
 	    break;
 	}
-	pKS->pchFrom = (unsigned char *) XtMalloc (1+pKS->lenFrom);
+	pKS->lenFrom = (int)len;
+	pKS->pchFrom = (unsigned char *)XtMalloc((Cardinal)(len + 1));
 	if (pKS->pchFrom == NULL)
 	{
 	    *ppKeySubs = pKSret;
 	    *pNumKeySubs = numKS;
 	    return;
 	}
-	memcpy (pKS->pchFrom, pch0, pKS->lenFrom);
-	pKS->pchFrom[pKS->lenFrom] = '\0';
+	memcpy (pKS->pchFrom, pch0, len);
+	pKS->pchFrom[len] = '\0';
 
 	/* get "to" string */
 	ScanWhitespace (&pch1);
@@ -7368,7 +7377,7 @@ static void InitKeySubs (
 	     */
 	    break;
 	}
-	pKS->pchTo = (unsigned char *) XtMalloc (1+len);
+	pKS->pchTo = (unsigned char *)XtMalloc((Cardinal)(len + 1));
 	if (pKS->pchTo == NULL)
 	{
 	    XtFree((char *)pKS->pchFrom);

@@ -1,3 +1,8 @@
+Bound MWM key-substitution parsing (2026-11-02)
+=================================================
+
+- Validate localized key-substitution table growth and token-length narrowing.
+
 Reject unterminated MWM menu labels (2026-11-02)
 =================================================
 
