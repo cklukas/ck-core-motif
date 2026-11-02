@@ -2049,6 +2049,12 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 		}
 	    }
 	    sRequest = XtNewString (pchReq);
+	    if (sRequest == NULL)
+	    {
+		Warning ("Insufficient memory to process workspace manager request.");
+		XtFree (pchReq);
+		continue;
+	    }
 	    _DtWmParseSetLine (wmGD.pWmPB, (unsigned char *)sRequest);
 	    lineP = wmGD.pWmPB->pchLine;
             iFuncIndex = ParseWmFunction (&lineP, CRS_BUTTON|CRS_KEY, 

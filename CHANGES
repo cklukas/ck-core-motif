@@ -1,3 +1,9 @@
+Reject unavailable MWM request copies (2026-11-02)
+===================================================
+
+- Reject a desktop request safely when MWM cannot allocate its private parser
+  copy, preserving the parser and later requests.
+
 Clarify MWM backdrop request failures (2026-11-02)
 ====================================================
 
