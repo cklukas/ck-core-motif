@@ -1,3 +1,11 @@
+Remove the Mrm icon-argument limit (2026-11-02)
+===================================================
+
+- Store deferred icon arguments for `MrmFetchSetValues` in checked dynamic
+  storage instead of a fixed ten-entry stack array, so larger valid argument
+  lists cannot overflow it; see
+  `docs/mrm-fetch-set-values-icon-arguments.md`.
+
 Validate Mrm widget-fetch output parameters (2026-11-02)
 =========================================================
 

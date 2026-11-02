@@ -145,7 +145,7 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   long			val ;		/* value as immediate or pointer */
   int			vec_count ;	/* number of items in val if vector */
   int			vec_size ;
-  _SavePixmapArg	pixargs[10] ;	/* to save pixmap args */
+  _SavePixmapArgPtr	pixargs ;	/* to save pixmap args */
   Cardinal		pixargs_cnt = 0 ;  /* # pixargs saved */
   _SavePixmapArgPtr	savepix ;	/* current saved pixmap entry */
   Screen		*screen ;	/* screen for pixmaps */
@@ -209,6 +209,24 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   resptr->type = URMrIndex ;
   resptr->res_group = URMgLiteral ;
   resptr->cvt_type = URMtNul ;
+
+  if ((size_t)num_args > SIZE_MAX / sizeof(*pixargs) ||
+      num_args > UINT_MAX / sizeof(*pixargs))
+    {
+      XtFree ((char *)resptr);
+      XtFree ((char *)locargs);
+      UrmPlistFree (ptrlist);
+      return MrmFAILURE;
+    }
+  pixargs = (_SavePixmapArgPtr) XtMalloc
+    ((Cardinal)((size_t)num_args * sizeof(*pixargs)));
+  if (pixargs == NULL)
+    {
+      XtFree ((char *)resptr);
+      XtFree ((char *)locargs);
+      UrmPlistFree (ptrlist);
+      return MrmFAILURE;
+    }
 
   /*
    * Loop through all the entries in the given arglist. Copy each tag into
@@ -362,6 +380,7 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 
   XtFree ((char*)locargs) ;
   XtFree ((char*)resptr) ;
+  XtFree ((char*)pixargs) ;
   for ( ndx=0 ; ndx<UrmPlistNum(ptrlist) ; ndx++ )
     UrmFreeResourceContext ((URMResourceContextPtr)UrmPlistPtrN(ptrlist,ndx)) ;
   UrmPlistFree (ptrlist) ;
