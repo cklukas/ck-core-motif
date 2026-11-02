@@ -1,3 +1,10 @@
+Release failed Mrm wide-character conversion storage (2026-11-02)
+=================================================================
+
+- Free the temporary wide-character buffer when an invalid multibyte literal
+  makes `mbstowcs` fail during Mrm fixup; see
+  `docs/mrm-wide-character-fixup-cleanup.md`.
+
 Release rejected MWM normal-hints payloads (2026-11-02)
 =========================================================
 
