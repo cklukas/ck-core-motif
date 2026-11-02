@@ -55,6 +55,12 @@ Modernize Exm Container sample constructor API (2026-11-02)
 - Match the unsupported Exm Container constructor declaration to its typed C23
   implementation.
 
+Harden aicon directory population (2026-11-02)
+=================================================
+
+- Modernize aicon callbacks and bound directory-driven icon paths, list growth,
+  selection access, and temporary resource lifetimes.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 
