@@ -1,3 +1,9 @@
+Clamp ToggleButtonGadget pixmap redraw geometry (2026-11-02)
+===============================================================
+
+- Bound temporary LabelGadget rectangle coordinates and dimensions used to
+  redraw ToggleButtonGadget pixmaps.
+
 Clamp ToggleButton text-origin geometry (2026-11-02)
 =======================================================
 

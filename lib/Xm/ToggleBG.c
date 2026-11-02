@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: ToggleBG.c /main/46 1999/12/06 18:10:15 samborn $"
 
 #include <stdio.h>
 #include <stdint.h>
+#include <limits.h>
 #include "XmI.h"
 #include <X11/ShellP.h>
 #include <Xm/CareVisualT.h>
@@ -73,6 +74,20 @@ static char rcsid[] = "$TOG: ToggleBG.c /main/46 1999/12/06 18:10:15 samborn $"
 #define PixmapInsenOff(w)	(LabG_PixmapInsensitive(w))
 #define PixmapInsenInd(w)	(TBG_IndeterminateInsensitivePixmap(w))
 #define IsNull(p)		((p) == XmUNSPECIFIED_PIXMAP)
+
+static Dimension
+togglebg_bounded_dimension(uint64_t value)
+{
+  return value > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)value;
+}
+
+static Position
+togglebg_bounded_position(int64_t value)
+{
+  if (value < SHRT_MIN) return (Position)SHRT_MIN;
+  if (value > SHRT_MAX) return (Position)SHRT_MAX;
+  return (Position)value;
+}
 #define IsOn(w)			(TBG_VisualSet(w))
 
 #define IsOneOfMany(ind_type)	(((ind_type) == XmONE_OF_MANY) || \
@@ -1153,9 +1168,9 @@ redisplayPixmap(XmToggleButtonGadget tb, XEvent *event, Region region)
 		     &onW, &onH);
   
   h = ((int)tb->rectangle.height - (int)onH) / 2;
-  LabG_TextRect_y(tb) = MAX(h, 0);
-  LabG_TextRect_height(tb) = onH;
-  LabG_TextRect_width(tb) = onW;
+  LabG_TextRect_y(tb) = togglebg_bounded_position(MAX(h, 0));
+  LabG_TextRect_height(tb) = togglebg_bounded_dimension(onH);
+  LabG_TextRect_width(tb) = togglebg_bounded_dimension(onW);
   _XmRedisplayLabG ((Widget) tb, event, region, &background_box);
   
   memcpy(&LabG_TextRect(tb), &saved_Text, sizeof(XRectangle));
