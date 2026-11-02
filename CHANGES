@@ -1,3 +1,11 @@
+Clarify MWM backdrop request failures (2026-11-02)
+====================================================
+
+- Require the exact backdrop-change request token, so unrelated request names
+  with that token as a prefix are not misinterpreted.
+- Do not report a second, false allocation failure after rejecting a
+  valid backdrop-change request with no path.
+
 Correct the MWM help-argument declaration (2026-11-02)
 ========================================================
 

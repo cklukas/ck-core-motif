@@ -2112,7 +2112,9 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 		}
 	    }
 	    else if (!strncmp (pchReq, DTWM_REQ_CHANGE_BACKDROP,
-			strlen(DTWM_REQ_CHANGE_BACKDROP)))
+			strlen(DTWM_REQ_CHANGE_BACKDROP)) &&
+		     ((pchReq[strlen(DTWM_REQ_CHANGE_BACKDROP)] == '\0') ||
+		      (pchReq[strlen(DTWM_REQ_CHANGE_BACKDROP)] == ' ')))
 	    {
 		Pixmap pixmap = None;
 		char *pch;
@@ -2164,7 +2166,7 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 		    }
 		    XtFree (pchFile);
 		}
-		else
+		else if (pch != NULL)
 		{
 		    Warning (((char *)GETMESSAGE(32, 2, "Insufficient memory to handle backdrop change.")));
 		}
