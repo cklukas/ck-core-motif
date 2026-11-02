@@ -16,3 +16,8 @@ The focused source regression is:
 ```sh
 python3 tests/automated/check-mwm-push-recall-timeout.py
 ```
+
+The action also rejects an absent argument, screen, active workspace,
+registration table, callback, or an out-of-range signed registration index
+before it accesses a slot. Invalid menu bindings consequently do nothing and
+leave normal configured push/recall behavior unchanged.

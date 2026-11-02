@@ -2261,7 +2261,14 @@ F_Push_Recall (String args, ClientData *pCD, XEvent *event)
     pPRP = (WmPushRecallArg *) args;
     pSD = (pCD) ? PSD_FOR_CLIENT(pCD) : ACTIVE_PSD;
 
-    if (pPRP->ixReg  < pSD->numPushRecallClients)
+    if (pPRP == NULL || pSD == NULL || pSD->pActiveWS == NULL ||
+	pSD->pPRCD == NULL || pSD->numPushRecallClients <= 0 ||
+	pPRP->ixReg < 0 || pPRP->ixReg >= pSD->numPushRecallClients ||
+	pPRP->wmFunc == NULL)
+    {
+	return (True);
+    }
+
     {
 	/* get slot for this client */
 	pPRCD = &(pSD->pPRCD[pPRP->ixReg]);
@@ -2363,7 +2370,6 @@ F_Push_Recall (String args, ClientData *pCD, XEvent *event)
 		    pPRCD->tvTimeout.tv_usec = 0;
 		}
 	    }
-	}
     }
 
     return (True);

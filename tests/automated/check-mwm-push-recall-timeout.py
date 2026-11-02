@@ -11,6 +11,13 @@ start = source.index("F_Push_Recall")
 end = source.index("#endif /* PANELIST */", start)
 body = source[start:end]
 
+guard = "if (pPRP == NULL || pSD == NULL || pSD->pActiveWS == NULL ||"
+assert guard in body
+assert "pSD->pPRCD == NULL || pSD->numPushRecallClients <= 0 ||" in body
+assert "pPRP->ixReg < 0 || pPRP->ixReg >= pSD->numPushRecallClients ||" in body
+assert "pPRP->wmFunc == NULL" in body
+assert body.index(guard) < body.index("pPRCD = &(pSD->pPRCD[pPRP->ixReg]);")
+assert body.index(guard) < body.index("pPRP->wmFunc ( pPRP->pArgs, pCD, event);")
 assert "long clientTimeout = 0;" in body
 assert "if (clientTimeout > 0)" in body
 assert body.index("if (clientTimeout > 0)") < body.index(
