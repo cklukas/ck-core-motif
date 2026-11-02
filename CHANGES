@@ -1,3 +1,10 @@
+Make Mrm file-name allocation width explicit (2026-11-02)
+==========================================================
+
+- Convert the already validated low-level filename allocation size explicitly
+  to Xt's `Cardinal` contract before allocating it; see
+  `docs/mrm-file-open-input.md`.
+
 Release all partial Mrm bitmap icon mappings (2026-11-02)
 ==========================================================
 
