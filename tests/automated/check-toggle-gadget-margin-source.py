@@ -7,7 +7,7 @@ source = (Path(__file__).resolve().parents[2] / "lib/Xm/ToggleBG.c").read_text(
     encoding="utf-8"
 )
 
-assert "2 * LabG_MarginWidth(new_w)" in source
+assert "2 * (uint64_t)LabG_MarginWidth(new_w)" in source
 assert "LabG_MarginWidth(w) - TBG_IndicatorDim(w)" in source
 assert "tb->rectangle.x + tb->rectangle.width" not in source
 assert "LabG_MarginWidth(tb)" in source
