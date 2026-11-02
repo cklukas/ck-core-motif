@@ -31,6 +31,12 @@ Harden gallery geometry and toolbar icon binding (2026-11-02)
   reject oversized text extraction allocations, and skip absent overflow action
   buttons before assigning toolbar icons.
 
+Harden xmapdef file-viewer demo (2026-11-02)
+================================================
+
+- Modernize xmapdef's callback contracts, fix old line-table cleanup indexing,
+  close successful reads, and clamp scrollbar-derived line drawing ranges.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 
