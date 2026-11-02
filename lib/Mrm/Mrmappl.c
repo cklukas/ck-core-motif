@@ -52,10 +52,25 @@ static char rcsid[] = "$XConsortium: Mrmappl.c /main/17 1996/11/13 13:59:58 drk 
  *
  */
 
+#include <limits.h>
 #include <stdint.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include "MrmMsgI.h"
+
+
+#if NeedWidePrototypes
+/*
+ * Public wide-prototype callers pass an int, whereas legacy MRM internals use
+ * MrmCount (a signed short).  Check the public value before it is narrowed at
+ * an internal call boundary.
+ */
+static Boolean
+Mrm__ValidLegacyCount (int count)
+{
+  return count >= 0 && count <= SHRT_MAX;
+}
+#endif
 
 
 /*
@@ -135,9 +150,15 @@ MrmOpenHierarchy (
    */
   Cardinal result;
 
+#if NeedWidePrototypes
+  if (!Mrm__ValidLegacyCount(num_files))
+    return MrmFAILURE;
+#endif
+
   _MrmProcessLock();
   result = Urm__OpenHierarchy
-    (num_files, name_list, os_ext_list, hierarchy_id_return, FALSE, NULL);
+    ((MrmCount)num_files, name_list, os_ext_list, hierarchy_id_return, FALSE,
+     NULL);
   _MrmProcessUnlock();
 
   return result;
@@ -198,14 +219,25 @@ MrmOpenHierarchyPerDisplay (Display		*display,
   MrmOsOpenParamPtr	new_os_ext_list = &os_data;
   Cardinal		result;
 
+#if NeedWidePrototypes
+  if (!Mrm__ValidLegacyCount(num_files))
+    return MrmFAILURE;
+#endif
+
   _MrmProcessLock();
  
+  if (os_ext_list != NULL && *os_ext_list == NULL)
+    {
+      _MrmProcessUnlock();
+      return MrmFAILURE;
+    }
+
   if (os_ext_list == NULL) 
     os_ext_list = (MrmOsOpenParamPtr *)&new_os_ext_list;
       
   (*os_ext_list)->display = display;
   
-  result = Urm__OpenHierarchy(num_files, name_list, os_ext_list, 
+  result = Urm__OpenHierarchy((MrmCount)num_files, name_list, os_ext_list,
 			      hierarchy_id_return, FALSE, NULL);
   _MrmProcessUnlock();
   return result;
@@ -365,18 +397,25 @@ MrmRegisterNames (MrmRegisterArglist		reglist,
   if (num_reg == 0)
     return MrmSUCCESS;
 
+#if NeedWidePrototypes
+  if (!Mrm__ValidLegacyCount(num_reg))
+    return MrmFAILURE;
+#endif
+
 
   _MrmProcessLock();
   /*
    * Construct RegisterNames vectors, and call the WCI routine
    */
-  names = (String *) XtMalloc (num_reg*sizeof(String));
+  names = (String *) XtMalloc
+    ((Cardinal)((size_t)num_reg * sizeof(String)));
   if (names == NULL)
     {
       _MrmProcessUnlock();
       return MrmFAILURE;
     }
-  values = (XtPointer *) XtMalloc (num_reg*sizeof(XtPointer));
+  values = (XtPointer *) XtMalloc
+    ((Cardinal)((size_t)num_reg * sizeof(XtPointer)));
   if (values == NULL)
     {
       XtFree ((char *)names);
@@ -389,7 +428,7 @@ MrmRegisterNames (MrmRegisterArglist		reglist,
       values[ndx] = reglist[ndx].value;
     }
 
-  result = Urm__WCI_RegisterNames (names, values, num_reg);
+  result = Urm__WCI_RegisterNames (names, values, (MrmCount)num_reg);
   XtFree ((char*)names);
   XtFree ((char*)values);
   _MrmProcessUnlock();
@@ -461,17 +500,24 @@ MrmRegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
   if (num_reg == 0)
     return MrmSUCCESS;
 
+#if NeedWidePrototypes
+  if (!Mrm__ValidLegacyCount(num_reg))
+    return MrmFAILURE;
+#endif
+
   _MrmProcessLock();
   /*
    * Construct RegisterNames vectors, and call the hierarchy routine
    */
-  names = (String *) XtMalloc (num_reg*sizeof(String));
+  names = (String *) XtMalloc
+    ((Cardinal)((size_t)num_reg * sizeof(String)));
   if (names == NULL)
     {
       _MrmProcessUnlock();
       return MrmFAILURE;
     }
-  values = (XtPointer *) XtMalloc (num_reg*sizeof(XtPointer));
+  values = (XtPointer *) XtMalloc
+    ((Cardinal)((size_t)num_reg * sizeof(XtPointer)));
   if (values == NULL)
     {
       XtFree ((char *)names);
@@ -485,7 +531,7 @@ MrmRegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
     }
 
   result = Urm__RegisterNamesInHierarchy
-    (hierarchy_id, names, values, num_reg);
+    (hierarchy_id, names, values, (MrmCount)num_reg);
   XtFree ((char*)names);
   XtFree ((char*)values);
   _MrmProcessUnlock();

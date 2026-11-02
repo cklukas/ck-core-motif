@@ -1,3 +1,13 @@
+Validate Mrm hierarchy-open parameters (2026-11-02)
+====================================================
+
+- Return `MrmFAILURE` for a null first OS-extension entry in
+  `MrmOpenHierarchyPerDisplay` instead of dereferencing it before the existing
+  hierarchy validator can report the input error.  Also reject invalid
+  wide-prototype hierarchy and registration counts before they can narrow to
+  legacy `MrmCount` internal interfaces; see
+  `docs/mrm-per-display-open-parameters.md`.
+
 Validate exported MWM event parser inputs (2026-11-02)
 =======================================================
 
