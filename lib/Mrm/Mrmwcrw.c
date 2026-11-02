@@ -2534,6 +2534,8 @@ Urm__CW_ConvertValue (Widget			parent,
       if ( *val == 0 )
 	return MrmFAILURE ;
       cstg = XmCvtByteStreamToXmString((unsigned char *)*val);
+      if (cstg == NULL)
+	return MrmFAILURE;
       *val = (long)cstg;
       /* BEGIN OSF Fix CR 8392 */
       /* fix memory leak */

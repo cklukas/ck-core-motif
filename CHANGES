@@ -1,3 +1,10 @@
+Reject failed Mrm compound-string conversions (2026-11-02)
+=========================================================
+
+- Return `MrmFAILURE` when malformed serialized compound-string data cannot
+  be converted, instead of passing a null value to widget construction; see
+  `docs/mrm-cstring-conversion-failure.md`.
+
 Release failed Mrm wide-character conversion storage (2026-11-02)
 =================================================================
 

@@ -28,4 +28,11 @@ assert "XtRealloc((char *)wcstr_r,\n\t\t\t\t\t    wcstr_bytes)" in wide
 invalid_multibyte = wide.index("if (str_size == (size_t)-1)")
 assert "XtFree ((char *)wcstr_r);" in wide[invalid_multibyte:]
 
+cstring_start = text.index("case MrmRtypeCString:")
+cstring_end = text.index("case MrmRtypeIntegerVector:", cstring_start)
+cstring = text[cstring_start:cstring_end]
+assert "cstg = XmCvtByteStreamToXmString((unsigned char *)*val);" in cstring
+assert "if (cstg == NULL)" in cstring
+assert cstring.index("if (cstg == NULL)") < cstring.index("*val = (long)cstg;")
+
 print("Mrm conversion allocation failures are handled")
