@@ -4472,6 +4472,9 @@ void
 MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean makeActiveResources)
 {
     Pixel foreground;
+#ifndef NO_MULTIBYTE
+    long titleHeight;
+#endif
 
     /*
      * Extract a font from the font list.
@@ -4506,8 +4509,15 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
     /*
      *  Calculate title bar's height and store it in pAData.
      */
-    pAData->titleHeight = (pAData->font)->ascent + (pAData->font)->descent
-        + WM_TITLE_BAR_PADDING;
+    titleHeight = (long)(pAData->font)->ascent +
+	(long)(pAData->font)->descent + WM_TITLE_BAR_PADDING;
+    if (titleHeight <= 0 || titleHeight > (long)UINT_MAX)
+    {
+	Warning("Invalid title font metrics");
+	pAData->titleHeight = 16;
+    }
+    else
+	pAData->titleHeight = (unsigned int)titleHeight;
 #endif
 
 

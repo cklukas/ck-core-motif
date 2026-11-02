@@ -1,3 +1,10 @@
+Validate MWM title-font metrics (2026-11-02)
+=============================================
+
+- Calculate title-bar text heights in a signed wide type and fall back safely
+  for invalid or unrepresentable X font metrics instead of wrapping them into
+  unsigned geometry.
+
 Validate MWM WM_STATE writes (2026-11-02)
 ==========================================
 
