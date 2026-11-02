@@ -20,4 +20,11 @@ assert "else if (slider_size_wide > SCROLLBAR_MAX)" in body
 assert "slider_size = (int)slider_size_wide;" in body
 assert "slider_size = (SCROLLBAR_MAX / scrollbar_size) * SLIDER_SIZE( sw);" not in body
 
+value_changed_start = source.index("static void \nValueChanged(")
+value_changed_end = source.index("static void \nStartDrag", value_changed_start)
+value_changed = source[value_changed_start:value_changed_end]
+assert "int scroll_range = SCROLLBAR_MAX - sb->scrollBar.slider_size;" in value_changed
+assert "if (scroll_range <= 0)" in value_changed
+assert "/ (float)scroll_range;" in value_changed
+
 print("Scale scrollbar arithmetic remains wide until the public int boundary")

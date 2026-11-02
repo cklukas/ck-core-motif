@@ -3295,9 +3295,14 @@ ValueChanged(
     XmScaleCallbackStruct scale_callback;
     float sb_value;
     XmScrollBarWidget sb = (XmScrollBarWidget)(sw->composite.children[1]);
+    int scroll_range = SCROLLBAR_MAX - sb->scrollBar.slider_size;
+
+    /* A fully occupied scrollbar has no representable value movement. */
+    if (scroll_range <= 0)
+	return;
 
     sb_value = (float) scroll_callback->value 
-	     / (float) (SCROLLBAR_MAX - sb->scrollBar.slider_size);
+	     / (float)scroll_range;
     sb_value = (sb_value * (float) (sw->scale.maximum - sw->scale.minimum))
 	       + (float) sw->scale.minimum;
     

@@ -1,3 +1,9 @@
+- Ignore full-span Scale scrollbar callbacks (2026-11-02)
+========================================================
+
+- Avoid a zero travel-range division when a Scale scrollbar's slider occupies
+  the full coordinate range; the non-movable control now retains its value.
+
 Clamp Scale value-label redraw geometry (2026-11-02)
 ======================================================
 
