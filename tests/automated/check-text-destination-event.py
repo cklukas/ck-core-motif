@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check Text destination callbacks validate their event pointer."""
+"""Only secondary-selection insertion requires a source event."""
 
 from pathlib import Path
 
@@ -12,7 +12,7 @@ for name, marker in (
     start = source.rindex(marker)
     end = source.find("\nstatic ", start)
     body = source[start:] if end == -1 else source[start:end]
-    assert "ds->event == NULL" in body, name
+    assert "(ds->selection == XA_SECONDARY && ds->event == NULL)" in body, name
     assert "XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL)" in body, name
 
-print("Text destination callbacks validate their event pointer")
+print("Eventless programmatic clipboard pastes remain valid")

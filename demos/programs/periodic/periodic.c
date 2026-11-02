@@ -53,6 +53,9 @@ static char rcsid[] = "$XConsortium: periodic.c /main/8 1996/04/22 23:28:50 pasc
 #include <Mrm/MrmPublic.h>
 #include "periodic_layout.h"
 #include "periodic_font.h"
+#include "periodic_actions.h"
+static PeriodicActions *periodic_actions;
+static void ActionCb(Widget w,int *action,XtPointer call) { PeriodicDispatchAction(periodic_actions,w,*action,call); }
 
 
 typedef struct _DrawData {
@@ -159,6 +162,7 @@ static MrmHierarchy mrmId;
 static char *mrmFile[]={"periodic.uid"};
 static MrmCode mrmClass;
 static MRMRegisterArg mrmNames[] = {
+        {"ActionCb", (XtPointer)ActionCb },
         {"InitPopupCb", (XtPointer)InitPopupCb },
         {"PopdownCb", (XtPointer)PopdownCb },
         {"UnmanageCb", (XtPointer)UnmanageCb },
@@ -365,6 +369,8 @@ main(int argc, char *argv[])
     MrmCloseHierarchy(mrmId);
     if (!options.historical && options.profile != XmAPPEARANCE_CLASSIC)
         InstallDialogArtwork(appMain);
+    periodic_actions=PeriodicInstallActions(shell);
+    if (!periodic_actions) { fputs("periodic: cannot initialize menu actions\n",stderr); return EXIT_FAILURE; }
     XtManageChild(appMain);
     XtRealizeWidget(shell);
     if (!options.historical && options.profile != XmAPPEARANCE_CLASSIC)
@@ -495,7 +501,6 @@ ManageCb(
     XtPointer cd,
     XmContainerSelectCallbackStruct *cb )
 {
-  static Widget managedDialog = NULL;
 
   int i;
 
@@ -503,13 +508,6 @@ ManageCb(
     {
       Widget dialog = NULL;
       char *name = XtName(cb->selected_items[i]);
-
-      if ((managedDialog != NULL) &&
-	  XtIsManaged(managedDialog))
-	{
-	  XtUnmanageChild(managedDialog);
-	  managedDialog = NULL;
-	}
 
       if ((strlen(name) > 4) &&
 	  strcmp(name + strlen(name) - 4, "Pick") == 0)
@@ -523,8 +521,8 @@ ManageCb(
 
 	  if (dialog)
 	    {
-	      managedDialog = dialog;
 	      XtManageChild(dialog);
+              PeriodicPrepareSampleDialog(periodic_actions,dialog);
 	    }
 	}
     }

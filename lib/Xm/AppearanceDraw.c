@@ -424,12 +424,19 @@ _XmAppearanceDrawArrowButton(Widget widget, unsigned char direction, Boolean pre
     Dimension highlight, shadow;
     XtVaGetValues(widget, XmNhighlightThickness, &highlight,
                   XmNshadowThickness, &shadow, NULL);
-    return _XmAppearanceDrawArrowRegion(widget,
+    Boolean painted = _XmAppearanceDrawArrowRegion(widget,
         (XtIsWidget(widget) ? 0 : XtX(widget)) + highlight,
         (XtIsWidget(widget) ? 0 : XtY(widget)) + highlight,
         (int)XtWidth(widget) - 2*highlight,
         (int)XtHeight(widget) - 2*highlight,
         shadow, direction, pressed, XtIsSensitive(widget));
+    /* Face painting clears the rectangular corner area inside the highlight
+     * band. Restore the curved ring after every arm/leave/release paint too,
+     * including borderless arrows; expose is not the only repaint path. */
+    if (painted && ((XmIsPrimitive(widget) && ((XmPrimitiveWidget)widget)->primitive.highlighted) ||
+                    (XmIsGadget(widget) && ((XmGadget)widget)->gadget.highlighted)))
+        _XmAppearanceDrawButtonFocus(widget, True);
+    return painted;
 }
 
 /* Fill nested shapes rather than stroking outside their allocated bounds. */

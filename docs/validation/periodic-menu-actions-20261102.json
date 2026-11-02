@@ -1,0 +1,450 @@
+{
+  "date": "2026-11-02",
+  "platform": "macOS arm64 / XQuartz",
+  "source_identity": "SHA-256 map committed with the tested changes",
+  "success": true,
+  "desktop_verification": {
+    "success": true,
+    "actual_visible_window_owners": "XResQueryClientIds; exact installed executable paths and mapped toolkit checked",
+    "profiles": [
+      "modern-light"
+    ],
+    "reviewed_actual_window_captures": true,
+    "one_Xft_Fontconfig_FreeType_Cairo_library_per_process": true,
+    "left_open_for_manual_testing": true
+  },
+  "qualification": {
+    "toolkit": {
+      "success": true,
+      "cases": [
+        {
+          "name": "traversal-root-shell",
+          "source_sha256": "140791e1ba2f553fb0ccb6705bedf2b32c79d398bfd777f5d93b5a1f2cb2edc4",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.3158955000108108
+        },
+        {
+          "name": "unicode-clipboard",
+          "source_sha256": "122c1a7e5e0635d8b0ac18694f528d288c58c9a921ade397935a30b16113865f",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.3135127499990631
+        },
+        {
+          "name": "container-relayout-metrics",
+          "source_sha256": "a80027382be70a4e87b525bad8dd55af344c44ab2367dbd817ebb0713c32d74e",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.4954160839988617
+        },
+        {
+          "name": "appearance-visual-object-lifetime",
+          "source_sha256": "78a778d1d1a936b21554f66e9273fcdecdcbdd26e8308bac94c3f8ffa21b961d",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.3487377080018632
+        },
+        {
+          "name": "live-appearance",
+          "source_sha256": "bd60bff5e4a0399af1859bf488476db3d9bca814c4acd9304fce8d80d244ee65",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.33593837499211077
+        },
+        {
+          "name": "live-appearance-gadget",
+          "source_sha256": "8323f1dcd8a34e8bfa5a6b0d9a8c3c53b9de6aedd956890249fbe9bad55638f6",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.3160302500036778
+        },
+        {
+          "name": "display-scale-reentrant",
+          "source_sha256": "56fa39db5b28329546ea15ec4dde2d71af6e9e88952ad81ce69a9ae9b2002924",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.26523066699155606
+        },
+        {
+          "name": "display-scale-override",
+          "source_sha256": "37b856e6dc569db62a82da4c4ec82afb4ac11ba890c6661798e08a5228e2c63c",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.3333430829952704
+        },
+        {
+          "name": "modern-audit-controls",
+          "source_sha256": "b94ef040d0006c5e2764e3e3dd2e51cae8adf0521156da064cce05e844a47b6b",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.5845189590036171
+        },
+        {
+          "name": "modern-status-colors",
+          "source_sha256": "502f42f9639057f69d7090767bef740a1315297656d311cf3ea5971357d1ccd6",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.337413834000472
+        },
+        {
+          "name": "xmstring-disjoint-clip",
+          "source_sha256": "76e76b0c2d30d6dc9afc8e91ef206359e54bf6b884bdc529fcf6716dcd757fbf",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.35976833300082944
+        },
+        {
+          "name": "tab-color-state",
+          "source_sha256": "2cc5be5e5f77c377c2dd14c6d11985e8897e18e1dfce74ab06b5a408cd9c437a",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.33612116699805483
+        },
+        {
+          "name": "scroll-lifetime",
+          "source_sha256": "dbed3d1f011f06e0757bd85c3055b61ca1d2c6af809645f4dff2358090f251e7",
+          "compile": 0,
+          "run": 0,
+          "seconds": 1.2597519170085434
+        },
+        {
+          "name": "progress-bar",
+          "source_sha256": "9c0354e239dc787cb7089d3a4812cea26fbeeb3bf658a2229eb31691572e6217",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.2802667499927338
+        },
+        {
+          "name": "progress-ring",
+          "source_sha256": "9d7a5b5670e651e07f33c97930d22aa953cab753d535cfcbe6fa5c28627c4969",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.27281012501043733
+        },
+        {
+          "name": "calendar",
+          "source_sha256": "926ba3f1687d1cffc53258ce289ed500cbfd0f19806e9a7b52cd7fd8472e2711",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.26784133299952373
+        },
+        {
+          "name": "date-picker",
+          "source_sha256": "dc551e70d8dc6d49d8a83d4c97a3f1c8c8763dc9332f0abd16e95b3de325e8c1",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.26597170799504966
+        },
+        {
+          "name": "time-picker",
+          "source_sha256": "027198496dd50059287a12c3a339d71b30fdf1a09f826bb8a63034fff272da5f",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.3232548749947455
+        },
+        {
+          "name": "modern-fields",
+          "source_sha256": "0346c3e32722642249acceaf8e2905835bffe70ada0632bcf31b63d3a8c2eeda",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.8243645829934394
+        },
+        {
+          "name": "modern-buttons",
+          "source_sha256": "ebc7e1c35c2ab9402e4d472899e51a076561d5e3733e77861f3597592b854799",
+          "compile": 0,
+          "run": 0,
+          "seconds": 2.31261637499847
+        },
+        {
+          "name": "modern-arrows",
+          "source_sha256": "3ce09231fd02861faf21537f780ea826572755e5c6d0a141bbdad2fa5b717a7e",
+          "compile": 0,
+          "run": 0,
+          "seconds": 3.7572397500043735
+        },
+        {
+          "name": "modern-toggles",
+          "source_sha256": "1e6112a626c3eec9d8e92b163e35f125995e89cf80ea0981a8970901642016a8",
+          "compile": 0,
+          "run": 0,
+          "seconds": 2.946543708007084
+        },
+        {
+          "name": "modern-borders",
+          "source_sha256": "b489ef2df044efd52f0b0fd1585ed85436e3c460801a3aaa00c3a4d5af5c2875",
+          "compile": 0,
+          "run": 0,
+          "seconds": 2.023344792003627
+        },
+        {
+          "name": "modern-scrollbars",
+          "source_sha256": "b823440856fd0aa798f530e5077555e2a5ff8ea52606a0a8e0b58547212ed0f2",
+          "compile": 0,
+          "run": 0,
+          "seconds": 2.687100458002533
+        },
+        {
+          "name": "composite-appearance-fonts",
+          "source_sha256": "ced8ccfa518cc1018dcc08c77e8cf4f65a4bb7a8a6fa77a5405b7d1c1402e354",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.6758987079956569
+        },
+        {
+          "name": "cascade-appearance",
+          "source_sha256": "0ef5f282995c3388e5d0e963722091fdc7de13be698e5df1d809d7321b3ed8c6",
+          "compile": 0,
+          "run": 0,
+          "seconds": 16.535057375003817
+        },
+        {
+          "name": "container-appearance",
+          "source_sha256": "ff1e772b3657a339ff0a0143c5339bf520cd81faa6d615ba02bcbd5e5e14b8f6",
+          "compile": 0,
+          "run": 0,
+          "seconds": 2.2874268750019837
+        },
+        {
+          "name": "avatar-modern",
+          "source_sha256": "cefd9bebdd0c4281372c0e23825c57813da688f7e7e341c0873c3c0c686ca530",
+          "compile": 0,
+          "run": 0,
+          "seconds": 10.504283000002033
+        },
+        {
+          "name": "breadcrumb-modern",
+          "source_sha256": "4198fdd932c3db794e2e4cbb4b3feab86e0178446c070910c8c51ca5f69e6271",
+          "compile": 0,
+          "run": 0,
+          "seconds": 3.9587697079987265
+        },
+        {
+          "name": "font-selector-modern",
+          "source_sha256": "82bf5da63f67c65c2fbd105fcac7479633c795c188157614499d17b707a3430d",
+          "compile": 0,
+          "run": 0,
+          "seconds": 1.330136999997194
+        },
+        {
+          "name": "appearance-roles",
+          "source_sha256": "074431b0d352bd0ff5c7c44303dc7861bd996f67efbb95290400e2ab6d1a903c",
+          "compile": 0,
+          "run": 0,
+          "seconds": 1.311617750005098
+        },
+        {
+          "name": "modern-scale",
+          "source_sha256": "4a927a8653318be5874ed21bac5579592ccc0668b5ebb01e9eaef76f32fe08ca",
+          "compile": 0,
+          "run": 0,
+          "seconds": 1.526601457997458
+        },
+        {
+          "name": "modern-light-profile",
+          "source_sha256": "f5f8e06a82468a259fd3410b423c0eb1b43d8aa66eeb37fcda2bce91a3789d1a",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.3287640000053216
+        },
+        {
+          "name": "modern-dark-profile",
+          "source_sha256": "5213bae46f2a3808891023e3ca1287d4bad12f4b0ed4416e1a537c4d68774348",
+          "compile": 0,
+          "run": 0,
+          "seconds": 0.32931037500384264
+        }
+      ],
+      "modern_arrow_parameter_combinations": 192,
+      "root_shell_traversal": true,
+      "large_unicode_clipboard": true
+    },
+    "menus": {
+      "success": true,
+      "cases": [
+        {
+          "name": "light",
+          "exit": 0,
+          "seconds": 12.203688124995097
+        },
+        {
+          "name": "dark",
+          "exit": 0,
+          "seconds": 11.704393499996513
+        },
+        {
+          "name": "scaled",
+          "exit": 0,
+          "seconds": 12.076766791011323
+        },
+        {
+          "name": "classic",
+          "exit": 0,
+          "seconds": 8.428388749991427
+        }
+      ],
+      "terminal_menu_callbacks": 45,
+      "built_in_weekday_choices": 7,
+      "extra_dialog_buttons": true,
+      "real_clipboard_round_trips": true,
+      "rendered_word_wrap_positions": true,
+      "unicode_case_matching": true,
+      "print_service": "fake lp; success/failure/cancellation, argument and document bytes checked"
+    },
+    "periodic_appearance": {
+      "success": true,
+      "cases": [
+        {
+          "name": "geometry",
+          "exit": 0,
+          "seconds": 10.138411624997389
+        },
+        {
+          "name": "light",
+          "exit": 0,
+          "seconds": 10.331815874989843
+        },
+        {
+          "name": "dark",
+          "exit": 0,
+          "seconds": 9.874903542004176
+        },
+        {
+          "name": "scaled",
+          "exit": 0,
+          "seconds": 10.209926083000028
+        },
+        {
+          "name": "contrast",
+          "exit": 0,
+          "seconds": 10.25052549999964
+        },
+        {
+          "name": "compact",
+          "exit": 0,
+          "seconds": 10.899716375002754
+        },
+        {
+          "name": "classic",
+          "exit": 0,
+          "seconds": 6.334238750001532
+        },
+        {
+          "name": "historical",
+          "exit": 0,
+          "seconds": 6.484956999993301
+        },
+        {
+          "name": "override",
+          "exit": 0,
+          "seconds": 9.833969208993949
+        },
+        {
+          "name": "inherited-dark",
+          "exit": 0,
+          "seconds": 10.025578917004168
+        },
+        {
+          "name": "inherited-classic",
+          "exit": 0,
+          "seconds": 6.686421042002621
+        },
+        {
+          "name": "inherited-compact",
+          "exit": 0,
+          "seconds": 9.774921707998146
+        }
+      ]
+    },
+    "clipboard_source_contracts": {
+      "success": true,
+      "cases": 153
+    },
+    "macos_font_cohort": {
+      "success": true,
+      "cases": 6
+    },
+    "macos_package_precedence": {
+      "success": true,
+      "checks": [
+        "per-package search paths",
+        "canonical symlink targets",
+        "deduplication",
+        "system libraries"
+      ]
+    },
+    "earth_c23": {
+      "success": true,
+      "profiles": [
+        "classic",
+        "modern-light",
+        "modern-dark"
+      ]
+    },
+    "historical_font_asan": {
+      "success": true
+    }
+  },
+  "sources": {
+    "Makefile.am": "32e3a5165c11247f53a09270c8a4735e51e590a04a27abfd79048e308671fa9a",
+    "ac_find_xft.m4": "359c6da0169220fdad4a8a47a068fe79c561216cdce20d2a2937b93ca1bb74cc",
+    "demos/programs/earth/earth.c": "18040e6ceab89e9fdb2496c4f1cf162ae89aded0f56beb226103cf127005e3f8",
+    "demos/programs/periodic/Makefile.am": "3bc7fc312bbf26b1acbedf25b43961e799a432739b7334a7048c0954b7ef9f3a",
+    "demos/programs/periodic/periodic.c": "5dcd7f36dd27b7edfaecea1e615f39084ef759cbc9c0678572363e574a6a2d72",
+    "demos/programs/periodic/periodic.uil": "e72a0cc380e80880eeaa0eb0a7f8406538eb46a1e642b7eb2abd5571dae128d1",
+    "demos/programs/periodic/periodic_actions.c": "7087c5252ff6f3e4d56408052a7f15fe2fac2dad4457a2ac40140fbdc8cb4643",
+    "demos/programs/periodic/periodic_actions.h": "39b8b7d6ba9aaf2bae50aa4d3d3e0f34b99489bb7c700df7ce8e23121e115839",
+    "demos/programs/periodic/periodic_font.c": "be2b56d259c4ef7535d9ecb5d64cf544c8aeebec128552ee6634b3ca996b9af0",
+    "demos/programs/periodic/periodic_l.uil": "8a03dc5477d95d2d8bb819fce85ae91470948d2152d232fb305860ca0aa82f5a",
+    "lib/Xm/AppearanceDraw.c": "17f7f580a84a8452de7682b25b38dd2d4987671b5637225da8e03b36801e8a20",
+    "lib/Xm/CutPaste.c": "a754c8b2f6f653785461e991960b10abecb5ea5a29a971e97318a75763e385c4",
+    "lib/Xm/RCMenu.c": "8cdbd3293b136982efdf9368cd5908418714325246c96e84b7ef506f269908b4",
+    "lib/Xm/TextFSel.c": "2603e56af5d84cc824bb5282574aca1df2c73e8f2130a1270b6ec368c393131d",
+    "lib/Xm/TextSel.c": "e11375ff6c06a6a0d3212df20da8125548de1c20ce26a28881a6fa34b315d24d",
+    "scripts/macos-font-libs.sh": "111bf18c69332f79dc90ad0b1728a61823d252f955477fa81c195d5cc284a379",
+    "scripts/macos-pkg-libdirs.sh": "dc2c714cd9efa2e28dae6bbe11750177f060d3365a7248ac33d3bbc87ae02236",
+    "tests/automated/check-clipboard-mark-item-cleanup.py": "56b165d092b6e2834d5668ebb2d003a829289546181944f6c429eea0387b4c7f",
+    "tests/automated/check-clipboard-next-id-cleanup.py": "31adc504157b24a5bafa2c4b6963cb518279af92d16b8817738dea87a1f126f3",
+    "tests/automated/check-clipboard-retrieve-format-cleanup.py": "88d073f64e5556818b39787262296cde46099f6aadbb71472085e8ae754a315e",
+    "tests/automated/check-clipboard-send-header-cleanup.py": "8e05f67f1d32be409b4f7d9db525b982d0645dc0f1cb4023379a52d88827188e",
+    "tests/automated/check-clipboard-set-next-id-cleanup.py": "664f1ab0e677c7a1e9d09a3430bd6fdb685f62aa55b8229ba3757a9b11d9244e",
+    "tests/automated/check-macos-font-cohort.py": "3b1872d1181be73bb81e60dccc1894a8a3c8fca688ad514ced6f52669f862cbb",
+    "tests/automated/check-macos-pkg-libdirs.py": "13c44829b2a5bbf33fd8495777dd4312fbf989e12682fa6049aad4764e51b198",
+    "tests/automated/check-modern-arrows.c": "3ce09231fd02861faf21537f780ea826572755e5c6d0a141bbdad2fa5b717a7e",
+    "tests/automated/check-periodic-menu-actions.c": "71f8ece5220a54cde0784c931f09e83da0f547fc1c8ad6d3e182efa83653479b",
+    "tests/automated/check-text-destination-event.py": "eb8d790fc02c651087fe34afbe86d0a4846e16564e097b4fd2d4eaecca111f2c",
+    "tests/automated/native_macos_fonts.py": "c26ee05364c7295f405020fd714b58806c59d6ccc7fc6684fd7e9dbf56c27290",
+    "tests/automated/run-earth.py": "5f94b5b9cd6adc91fca2e9554ec209b1bef8f5936e526a35e36f9ed9420bb286",
+    "tests/automated/run-modern-macos-audit.py": "a94a51d94f6fc9bc0b75c408a277b60149e64f5967c04e81c1689b0e03b45ca0",
+    "tests/automated/run-periodic-appearance.py": "4762849d8aac91b300753c94d4e4c4392fc667b624297e3914fcdd1162abebac",
+    "tests/automated/run-periodic-menu-actions.py": "3117ceab8dbb242b9b1973a66c2b17806202c8a49c198b1683972846b9ec3ba4"
+  },
+  "library_sha256": "70f41b158e4a6978d6ef77f90a8c7c5324c07bce375a4a9bcadc775652062cb2",
+  "limits": [
+    "Desktop mouse/keyboard interactions remain manual; automated input used isolated Xvfb only.",
+    "No real printer or mail submission was performed. Template preview and drafts are local."
+  ],
+  "build": {
+    "configuration": "arm64 C23 toolkit/tools and feature-demo objects; GNU17 legacy demos; coherent native font/SVG dependencies",
+    "clean_toolkit_and_feature_build_seconds": 80.94625058400561,
+    "clean_consumers_seconds": 44.971421042006114,
+    "final_package_link_seconds": 93.38198374999047,
+    "object_bytes_preserved_on_final_relink": true,
+    "installed_asset_files_verified": 159
+  },
+  "outputs": {
+    "lib/libXm.9.dylib": "70f41b158e4a6978d6ef77f90a8c7c5324c07bce375a4a9bcadc775652062cb2",
+    "bin/ckmotif-gallery": "c3c2829092105f5a08121fae4ef1d5310daed9bf21973a61c2cf872ce13079ba",
+    "share/Xm/periodic/periodic": "ff1fc1b24bf010ab61499a60d71609a5aa7e922ce98a9cfaf60ee4400933743c",
+    "share/Xm/periodic/periodic.uid": "0cbd6b9819f5e055583bb7a92d61ab2fec0d91da12c9d04e086a474221623c89",
+    "share/Xm/draw/draw": "39dbb95cfece2f0de416f2dc77bebc856dba308f01109adf37e7330ad089932b",
+    "share/Xm/earth/earth": "08fee3f325e8dcff4645fe042845b317262e7ec8e169e0acd2ed4d277bc2e69c"
+  },
+  "commands": [
+    "python3 tests/automated/run-modern-macos-audit.py --prefix <prefix> --build <build> --out <fresh-results>",
+    "python3 tests/automated/run-periodic-menu-actions.py --build <build> --out <fresh-results>",
+    "python3 tests/automated/check-macos-font-cohort.py",
+    "python3 tests/automated/check-macos-pkg-libdirs.py"
+  ]
+}

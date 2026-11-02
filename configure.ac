@@ -373,6 +373,26 @@ else
 fi
 AC_SUBST([SVG_CFLAGS])
 AC_SUBST([SVG_LIBS])
+case "$host_os" in
+darwin*)
+  ck_packages=""
+  if test "x$enable_xft" = "xyes"; then
+    ck_packages="xft fontconfig freetype2 xrender"
+  fi
+  if test "x$enable_unicode_text" = "xyes"; then
+    ck_packages="$ck_packages icu-uc icu-i18n harfbuzz"
+  fi
+  if test "x$enable_svg" = "xyes"; then
+    ck_packages="$ck_packages librsvg-2.0"
+  fi
+  if test -n "$ck_packages"; then
+    ck_package_dirs=`$SHELL "$srcdir/scripts/macos-pkg-libdirs.sh" "$PKG_CONFIG" $ck_packages` ||
+      AC_MSG_ERROR([cannot resolve macOS package library directories])
+    LDFLAGS="$ck_package_dirs $LDFLAGS"
+    LIBS="$ck_package_dirs $LIBS"
+  fi
+  ;;
+esac
 AM_CONDITIONAL([OM_LIBRSVG], [test "x$enable_svg" = "xyes"])
 
 

@@ -18,6 +18,8 @@ AC_ARG_WITH(fontconfig_config,   [  --with-fontconfig-config=PROG  Use Fontconfi
 
 if test "$enable_xft" = "yes"
 then
+ck_freetype_dir="$freetype_lib"
+ck_fontconfig_dir="$fontconfig_lib"
 
 AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
 if test -z "$PKG_CONFIG" || ! "$PKG_CONFIG" --exists xft fontconfig freetype2 xrender
@@ -273,6 +275,22 @@ AC_DEFINE(USE_XFT, 1, This means we will be using the Xft library)
 CFLAGS="$CFLAGS `$PKG_CONFIG xft --cflags`"
 AC_SUBST(CFLAGS)
 LIBS="$LIBS `$PKG_CONFIG xft --libs`"
+case "$host_os" in
+darwin*)
+    AC_MSG_CHECKING([for a coherent macOS font dependency stack])
+    ck_font_libs=`$SHELL "$srcdir/scripts/macos-font-libs.sh" "$PKG_CONFIG" "$enable_unicode_text" "$ck_freetype_dir" "$ck_fontconfig_dir"` ||
+        AC_MSG_ERROR([incompatible macOS font dependencies; see docs/build.md])
+    ck_nonfont_libs=""
+    for ck_lib in $LIBS; do
+        case "$ck_lib" in
+        -lXft|-lfontconfig|-lfreetype) ;;
+        *) ck_nonfont_libs="$ck_nonfont_libs $ck_lib" ;;
+        esac
+    done
+    LIBS="$ck_nonfont_libs $ck_font_libs"
+    AC_MSG_RESULT([yes])
+    ;;
+esac
 AC_SUBST(LIBS)
 
 

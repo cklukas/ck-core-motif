@@ -3024,7 +3024,9 @@ ButtonMenuPopDown(
 
    excPP->num_panes = (short)depth;
 
-   _XmMenuPopDown((Widget)rc, event, &posted);
+   /* Preserve the selected child: option menus distinguish a new choice
+    * from the remembered item when deciding whether to remain posted. */
+   _XmMenuPopDown(w, event, &posted);
 
    /* _XmExcludedParentPane structure is used to delay the restoration to
     * preserve menu state until after PushB and ToggleB have a chance to

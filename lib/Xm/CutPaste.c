@@ -559,7 +559,7 @@ ClipboardSetNextItemId(
     ClipboardReplaceItem( display, XM_NEXT_ID, int_ptr, length,
 			PropModeReplace, 32, True, XA_INTEGER);
 
-    XtFree( (char *)int_ptr );
+    /* ClipboardReplaceItem consumes int_ptr on the successful path. */
 }
 
 
@@ -1684,7 +1684,11 @@ ClipboardHeaderRecordValid(
     unsigned long list_offset;
 
     if (header == NULL || length < sizeof(ClipboardHeaderRec) ||
-	header->maxItems == 0 || header->currItems > header->maxItems ||
+	header->maxItems == 0 ||
+        /* One retired item is retained for XmClipboardUndoCopy until the
+         * next copy deletes it. It is part of the on-server record. */
+        (header->currItems > header->maxItems &&
+         header->currItems - header->maxItems > 1) ||
 	header->currItems > (unsigned long)INT_MAX ||
 	header->dataItemList > ULONG_MAX / CONVERT_32_FACTOR)
 	return False;
@@ -2534,7 +2538,7 @@ ClipboardMarkItem(
 			 itemlength, PropModeReplace, 32, True,
 			 XA_INTEGER );
 
-    XtFree((char *)itemheader);
+    /* ClipboardReplaceItem already released this record. */
 
 }
 
@@ -2610,7 +2614,7 @@ ClipboardSendMessage(
 				 headerlength, PropModeReplace,
 				 32, True, XA_INTEGER );
 
-	    XtFree((char *)root_clipboard_header);
+	    /* ClipboardReplaceItem already released this record. */
 
             event_sent.data.l[0] = (long)atoms[XmA_MOTIF_CLIP_DATA_REQUEST];
 	    break;
@@ -3042,7 +3046,7 @@ ClipboardGetNewItemId(
     ClipboardReplaceItem(display, XM_NEXT_ID, propertynumber, length,
 			 PropModeReplace, 32, True, XA_INTEGER);
 
-    XtFree( (char *)propertynumber );
+    /* ClipboardReplaceItem consumes propertynumber when free_flag is True. */
 
     return loc_id;
 }
@@ -4782,7 +4786,7 @@ ClipboardRetrieve(Display *display, Window window,
 				 32,
 				 True,
 				 XA_INTEGER );
-	    XtFree( (char *) matchformat );
+	    /* ClipboardReplaceItem already released this record. */
 	}
 
 

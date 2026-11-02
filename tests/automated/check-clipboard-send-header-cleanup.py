@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""Check clipboard request messages release the updated header buffer."""
+"""Property replacement owns the record; callers must not free it twice.
+
+The native Periodic menu regression also exercises repeated clipboard copies.
+"""
 from pathlib import Path
-
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "CutPaste.c").read_text()
-start = source.index("static int \nClipboardSendMessage(")
-end = source.index("static int", start + 1)
+import re
+source = (Path(__file__).parents[2] / "lib/Xm/CutPaste.c").read_text()
+start = source.index('static int \nClipboardSendMessage(')
+end = source.index('static int', start + len('static int \nClipboardSendMessage('))
 body = source[start:end]
-
-request = body[body.index("case XM_DATA_REQUEST_MESSAGE:"):body.index("case XM_DATA_DELETE_MESSAGE:")]
-assert "ClipboardReplaceItem(display, XM_HEADER_ID" in request
-assert "XtFree((char *)root_clipboard_header);" in request
-
-print("Clipboard request messages release updated header buffers")
+calls = list(re.finditer(r"ClipboardReplaceItem\s*\([^;]+;", body))
+consuming = [c for c in calls if re.search(r"\broot_clipboard_header\b", c[0]) and "True" in c[0]]
+assert len(consuming) == 1
+following = body[consuming[0].end():]
+following = following[:following.index("case XM_DATA_DELETE_MESSAGE:")]
+assert not re.search(r"XtFree\(\s*\(char \*\)\s*root_clipboard_header\s*\)", following)

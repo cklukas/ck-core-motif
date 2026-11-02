@@ -1,3 +1,6 @@
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
 /*
  * Motif
  *
@@ -70,7 +73,7 @@ static XtResource resources[] = {
     { 
 	XmNspeed, XmCSpeed, XmRInt, sizeof(int),
 	XtOffsetOf (ApplicationData, speed), 
-	XmRImmediate, (caddr_t) 5 },
+	XmRImmediate, (XtPointer) 5 },
 
     /* overwrite the default colors (doing that will lead to weird
        behavior if you specify -fg or -bg on the command line, but
@@ -194,11 +197,11 @@ static void destroy_callback(Widget widget, XtPointer closure, XtPointer call)
   XtAppSetExitFlag(app_con);
 }
 
-static void    Syntax() ;
-static void    input_callback();
-static void    expose_callback();
-static void    speed_callback() ;
-static void    NextBitmap ();
+static void Syntax(const char *command);
+static void input_callback(Widget widget, XtPointer tag, XtPointer callback_data);
+static void expose_callback(Widget widget, XtPointer tag, XtPointer callback_data);
+static void speed_callback(Widget widget, XtPointer tag, XtPointer callback_data);
+static void NextBitmap(XtPointer client_data, XtIntervalId *id);
 
 /* Speed is tenths of RPM; presentation cadence is independently set in FPS. */
 static int normalized_speed(int speed)
@@ -418,7 +421,7 @@ char *fallback[] = {
 };
 
 
-int main(argc, argv) int argc; char **argv ;
+int main(int argc, char **argv)
 /**************************************/
 {
     Arg args[10] ;
@@ -464,10 +467,10 @@ int main(argc, argv) int argc; char **argv ;
     XtAddCallback(draw, XmNdestroyCallback, destroy_callback, NULL);
     XtAddEventHandler(draw, ButtonPressMask | ButtonReleaseMask |
         PointerMotionMask | KeyPressMask, False, spin_handler, NULL);
-    XtAddCallback(draw,XmNinputCallback,(XtCallbackProc)input_callback,NULL);
-    XtAddCallback(draw,XmNexposeCallback,(XtCallbackProc)expose_callback,NULL);
+    XtAddCallback(draw,XmNinputCallback,input_callback,NULL);
+    XtAddCallback(draw,XmNexposeCallback,expose_callback,NULL);
 
-    XtAddCallback(draw,XmNresizeCallback,(XtCallbackProc)expose_callback,NULL);
+    XtAddCallback(draw,XmNresizeCallback,expose_callback,NULL);
     XtRealizeWidget(toplevel);
 
     /* create a GC for the earth colors */
@@ -490,10 +493,7 @@ int main(argc, argv) int argc; char **argv ;
     return 0;    /* make compiler happy */
 }
 
-static void NextBitmap (client_data, id)
-/****************************************************/
-XtPointer client_data;
-XtIntervalId *id;
+static void NextBitmap(XtPointer client_data, XtIntervalId *id)
 {
 
 
@@ -510,20 +510,12 @@ XtIntervalId *id;
 }
 
 
-static void expose_callback(widget, tag, callback_data)
-/****************************************************/
-Widget widget ;
-XtPointer tag ;
-XtPointer callback_data ;
+static void expose_callback(Widget widget, XtPointer tag, XtPointer callback_data)
 {
     render_earth();
 }
 
-static void input_callback(widget, tag, callback_data)
-/****************************************************/
-Widget widget ;
-XtPointer tag ;
-XtPointer callback_data ;
+static void input_callback(Widget widget, XtPointer tag, XtPointer callback_data)
 {
   XmDrawingAreaCallbackStruct * dacb = (XmDrawingAreaCallbackStruct *) callback_data ;
   if (!dragging && dacb->event && dacb->event->type == ButtonPress &&
@@ -563,11 +555,7 @@ XtPointer callback_data ;
 }
 
 
-static void speed_callback(widget, tag, callback_data)
-/******************************************************/
-Widget widget ;
-XtPointer tag ;
-XtPointer callback_data ;
+static void speed_callback(Widget widget, XtPointer tag, XtPointer callback_data)
 {
   XmScaleCallbackStruct * scb = 
     (XmScaleCallbackStruct *) callback_data ;
@@ -581,7 +569,7 @@ XtPointer callback_data ;
 }
 
 
-static void Syntax(com) char * com ;
+static void Syntax(const char *com)
 /**********************************/
 {
     fprintf(stderr, "%s understands all standard Xt options, plus:\n",com);

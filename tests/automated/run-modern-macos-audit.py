@@ -3,6 +3,8 @@
 from pathlib import Path
 import os, subprocess, json, hashlib, time, select
 import argparse, sys, platform, datetime, shlex
+sys.dont_write_bytecode = True
+from native_macos_fonts import font_libraries
 parser = argparse.ArgumentParser(description='Run native modern appearance regressions on an isolated Xvfb display.')
 parser.add_argument('--prefix', type=Path, required=True)
 parser.add_argument('--build', type=Path, required=True)
@@ -20,15 +22,17 @@ if not any((base.parent.is_mount() and o.is_relative_to(base) for base in [Path(
     parser.error('use a mounted Mac project temporary volume')
 o.mkdir(parents=True)
 (o / 'tmp').mkdir()
-e = dict(os.environ, TMPDIR=str(o / 'tmp'), DYLD_LIBRARY_PATH=str(prefix / 'lib'), LC_ALL='en_US.UTF-8', PATH='/opt/homebrew/bin:/opt/X11/bin:' + os.environ['PATH'])
+e = dict(os.environ, TMPDIR=str(o / 'tmp'), XDG_CACHE_HOME=str(o / 'cache'), DYLD_LIBRARY_PATH=str(prefix / 'lib'), LC_ALL='en_US.UTF-8', PATH='/opt/homebrew/bin:/opt/X11/bin:' + os.environ['PATH'])
 rd, wr = os.pipe()
-server = subprocess.Popen(['/opt/X11/bin/Xvfb', '-displayfd', str(wr), '-noreset', '-screen', '0', '1920x1440x24', '-listen', 'tcp', '-nolisten', 'unix', '-nolisten', 'local'], env=e, pass_fds=(wr,), stdout=(o / 'xvfb.log').open('w'), stderr=subprocess.STDOUT)
+server = subprocess.Popen(['/opt/X11/bin/Xvfb', '-displayfd', str(wr), '-nolock', '-noreset', '-screen', '0', '1920x1440x24', '-listen', 'tcp', '-nolisten', 'unix', '-nolisten', 'local'], env=e, pass_fds=(wr,), stdout=(o / 'xvfb.log').open('w'), stderr=subprocess.STDOUT)
 os.close(wr)
 with os.fdopen(rd) as f:
     assert select.select([f], [], [], 10)[0]
     e['DISPLAY'] = '127.0.0.1:' + f.readline().strip()
-names = ['container-relayout-metrics', 'appearance-visual-object-lifetime', 'live-appearance', 'live-appearance-gadget', 'display-scale-reentrant', 'display-scale-override', 'modern-audit-controls', 'modern-status-colors', 'xmstring-disjoint-clip', 'tab-color-state', 'scroll-lifetime', 'progress-bar', 'progress-ring', 'calendar', 'date-picker', 'time-picker', 'modern-fields', 'modern-buttons', 'modern-arrows', 'modern-toggles', 'modern-borders', 'modern-scrollbars', 'composite-appearance-fonts', 'cascade-appearance', 'container-appearance', 'avatar-modern', 'breadcrumb-modern', 'font-selector-modern', 'appearance-roles', 'modern-scale', 'modern-light-profile', 'modern-dark-profile']
+names = ['traversal-root-shell', 'unicode-clipboard', 'container-relayout-metrics', 'appearance-visual-object-lifetime', 'live-appearance', 'live-appearance-gadget', 'display-scale-reentrant', 'display-scale-override', 'modern-audit-controls', 'modern-status-colors', 'xmstring-disjoint-clip', 'tab-color-state', 'scroll-lifetime', 'progress-bar', 'progress-ring', 'calendar', 'date-picker', 'time-picker', 'modern-fields', 'modern-buttons', 'modern-arrows', 'modern-toggles', 'modern-borders', 'modern-scrollbars', 'composite-appearance-fonts', 'cascade-appearance', 'container-appearance', 'avatar-modern', 'breadcrumb-modern', 'font-selector-modern', 'appearance-roles', 'modern-scale', 'modern-light-profile', 'modern-dark-profile']
+fonts = font_libraries(prefix / 'lib/libXm.9.dylib')
 r = {'started_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'scope': 'native isolated Xvfb; no user desktop input', 'library_path': str(prefix / 'lib/libXm.9.dylib'), 'library': hashlib.sha256((prefix / 'lib/libXm.9.dylib').read_bytes()).hexdigest(), 'cases': []}
+r['font_libraries'] = {path: hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in fonts}
 try:
     uid = o / 'appearance-roles.uid'
     p = subprocess.run([str(prefix / 'bin/uil'), '-o', str(uid), str(source / 'tests/automated/appearance-roles.uil')], env=e, capture_output=True, text=True)
@@ -36,11 +40,11 @@ try:
     if p.returncode:
         raise RuntimeError('appearance roles UID compilation failed')
     for n in names:
-        s = source / 'tests/automated' / ('check-' + n + '.c')
+        s = source / 'tests/automated' / (('' if n == 'traversal-root-shell' else 'check-') + n + '.c')
         b = o / ('check-' + n)
         start = time.monotonic()
         row = {'name': n, 'source_sha256': hashlib.sha256(s.read_bytes()).hexdigest()}
-        cmd = ['clang', '-std=c23', '-O1', '-DUSE_XFT', '-I/opt/X11/include/freetype2', '-I' + str(build / 'include'), '-I' + str(build / 'lib/Xm'), '-I' + str(source / 'lib'), '-I' + str(prefix / 'include'), '-I/opt/X11/include', '-L' + str(prefix / 'lib'), '-L/opt/X11/lib', '-Wl,-rpath,' + str(prefix / 'lib'), str(s), *([str(build / 'demos/programs/ckmotif-gallery/gallery_examples.o')] if n in ['cascade-appearance', 'container-appearance'] else []), '-lMrm', '-lXm', '-lXt', '-lX11', '-lXft', '-lfontconfig', '-o', str(b)]
+        cmd = ['clang', '-std=c23', '-O1', '-DUSE_XFT', '-I/opt/X11/include/freetype2', '-I' + str(build / 'include'), '-I' + str(build / 'lib/Xm'), '-I' + str(source / 'lib'), '-I' + str(prefix / 'include'), '-I/opt/X11/include', '-L' + str(prefix / 'lib'), '-L/opt/X11/lib', '-Wl,-rpath,' + str(prefix / 'lib'), str(s), *([str(build / 'demos/programs/ckmotif-gallery/gallery_examples.o')] if n in ['cascade-appearance', 'container-appearance'] else []), '-lMrm', '-lXm', '-lXt', '-lX11', *fonts, '-o', str(b)]
         with (o / (n + '.log')).open('w') as f:
             p = subprocess.run(cmd, env=e, stdout=f, stderr=subprocess.STDOUT)
             row['compile'] = p.returncode

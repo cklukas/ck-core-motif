@@ -37,7 +37,7 @@ def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 sources = [root / "tests/automated/check-periodic-appearance.c", root / "demos/programs/periodic/periodic.c",
     root / "demos/programs/periodic/periodic.uil", root / "demos/programs/periodic/periodic_l.uil",
     root / "demos/programs/periodic/periodic_layout.c",
-    root / "demos/programs/periodic/periodic_layout.h", root / "demos/programs/periodic/periodic_font.c", root / "demos/programs/periodic/periodic_font.h", root / "lib/Xm/Appearance.c", root / "lib/Xm/List.c", root / "lib/Xm/XmString.c", Path(__file__)]
+    root / "demos/programs/periodic/periodic_layout.h", root / "demos/programs/periodic/periodic_font.c", root / "demos/programs/periodic/periodic_font.h", root / "demos/programs/periodic/periodic_actions.c", root / "demos/programs/periodic/periodic_actions.h", root / "lib/Xm/Appearance.c", root / "lib/Xm/List.c", root / "lib/Xm/XmString.c", Path(__file__)]
 libraries = [(build / p).resolve(strict=True) for p in ("lib/Mrm/.libs/libMrm.so", "lib/Xm/.libs/libXm.so")]
 receipt = {"started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     "sources": {str(p): digest(p) for p in sources},
@@ -67,7 +67,7 @@ read_fd, write_fd = os.pipe()
 try:
     font_flags = subprocess.check_output(["pkg-config", "--cflags", "--libs", "xft", "fontconfig"], text=True).split() if re.search(r"^#define USE_XFT 1$", (build / "include/config.h").read_text(), re.M) else []
     run("compile", ["cc", "-DHAVE_CONFIG_H", "-I" + str(build / "include"), "-std=c11", "-Wall", "-Wextra", "-Wno-unused-parameter", "-Werror", "-O2",
-        "-I" + str(build / "lib"), "-I" + str(root / "lib"), sources[0], root / "demos/programs/periodic/periodic_layout.c", root / "demos/programs/periodic/periodic_font.c",
+        "-I" + str(build / "lib"), "-I" + str(root / "lib"), sources[0], root / "demos/programs/periodic/periodic_layout.c", root / "demos/programs/periodic/periodic_font.c", root / "demos/programs/periodic/periodic_actions.c",
         "-L" + str(libraries[0].parent), "-L" + str(libraries[1].parent),
         "-lMrm", "-lXm", "-lXt", "-lX11", "-lXtst", "-o", binary] + font_flags)
     run("link", ["ldd", binary])
