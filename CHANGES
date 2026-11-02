@@ -1,3 +1,11 @@
+Correct legacy resource converter ABI and output sizing (2026-11-02)
+====================================================================
+
+- Match the Xt type-converter callback signature for IconButton, ButtonBox,
+  and Column converters and remove their incompatible registration casts.
+  ButtonBox now checks its caller output buffer before writing a fill-option
+  result; see `docs/legacy-converter-abi.md`.
+
 Correct XmTree resource converter ABI (2026-11-02)
 ====================================================
 

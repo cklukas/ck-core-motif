@@ -148,7 +148,7 @@ static void CheckSetRenderTable(Widget wid, int offs, XrmValue *value);
  ******************/
 
 static Boolean CvtStringToIconPlacement(Display *, XrmValuePtr, Cardinal *, 
-					XrmValuePtr, XrmValuePtr);
+					XrmValuePtr, XrmValuePtr, XtPointer *);
 
 /************************************************************
 *	STATIC DECLARATIONS
@@ -443,7 +443,7 @@ ClassInit()
     XmIconButtonClassRec *wc = &xmIconButtonClassRec;
 
     XtSetTypeConverter(XmRString, XmRXmIconPlacement,
-		       (XtTypeConverter) CvtStringToIconPlacement,
+		       CvtStringToIconPlacement,
 		       NULL, (Cardinal) 0, XtCacheAll, (XtDestructor) NULL);
 }
 
@@ -1088,7 +1088,8 @@ QueryGeometry(Widget w,XtWidgetGeometry *intended, XtWidgetGeometry *preferred)
 /*ARGSUSED*/
 static Boolean
 CvtStringToIconPlacement(Display * dpy, XrmValuePtr args, Cardinal *num_args, 
-			 XrmValuePtr fromVal, XrmValuePtr toVal)
+			 XrmValuePtr fromVal, XrmValuePtr toVal,
+			 XtPointer *converter_data)
 {
     static XmIconPlacement type;
     static XrmQuark XtQETop;
@@ -1100,6 +1101,8 @@ CvtStringToIconPlacement(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     static Boolean haveQuarks = FALSE;
     XrmQuark q;
     char lowerName[BUFSIZ];
+
+    (void)converter_data;
     
     if (!haveQuarks) {
 	XtQETop = XrmStringToQuark("top");

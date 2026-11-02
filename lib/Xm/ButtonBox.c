@@ -78,7 +78,7 @@ static Boolean  SetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static Boolean  ConstraintSetValues(Widget, Widget,
 				    Widget, ArgList, Cardinal *);
 static Boolean CvtStringToFillOption(Display *, XrmValuePtr, Cardinal *,
-				     XrmValuePtr, XrmValuePtr);
+				     XrmValuePtr, XrmValuePtr, XtPointer *);
 
 static XtGeometryResult GeometryManager(Widget, XtWidgetGeometry *,
 					XtWidgetGeometry *);
@@ -256,7 +256,7 @@ static void
 ClassInitialize()
 {
     XtSetTypeConverter(XmRString, XmRXmFillOption, 
-		       (XtTypeConverter) CvtStringToFillOption,
+		       CvtStringToFillOption,
                        NULL, (Cardinal)0, XtCacheAll, (XtDestructor)NULL);
 }
 
@@ -736,10 +736,13 @@ SetValues(Widget current, Widget request, Widget set,
 /* ARGSUSED */
 static Boolean
 CvtStringToFillOption(Display * dpy, XrmValuePtr args, Cardinal *num_args,
-		      XrmValuePtr fromVal, XrmValuePtr toVal)
+		      XrmValuePtr fromVal, XrmValuePtr toVal,
+		      XtPointer *converter_data)
 {
     static XmFillOption 	option;
     char 			lowerName[BUFSIZ];
+
+    (void)converter_data;
 
     XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *)fromVal->addr);
     
@@ -765,7 +768,6 @@ CvtStringToFillOption(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     }
     else
     {
-	toVal->size = sizeof(XmFillOption);
 	if ( toVal->size >= sizeof(XmFillOption) ) 
 	{
 	    XmFillOption *state = (XmFillOption *)toVal->addr;
@@ -775,6 +777,7 @@ CvtStringToFillOption(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 	}
 	else
 	{
+	    toVal->size = sizeof(XmFillOption);
 	    return(False);
 	}
     }

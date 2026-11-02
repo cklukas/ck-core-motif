@@ -57,13 +57,13 @@ static void ConstraintGetValues(Widget, ArgList, Cardinal*);
 
 
 static Boolean CvtStringToXiAlignment(
-	Display*, XrmValue*, Cardinal*, XrmValue*, XrmValue*, XtPointer
+	Display*, XrmValue*, Cardinal*, XrmValue*, XrmValue*, XtPointer*
 );
 static Boolean CvtStringToFillStyle(
-	Display*, XrmValue*, Cardinal*, XrmValue*, XrmValue*, XtPointer
+	Display*, XrmValue*, Cardinal*, XrmValue*, XrmValue*, XtPointer*
 );
 static Boolean CvtStringToDistribution(
-	Display*, XrmValue*, Cardinal*, XrmValue*, XrmValue*, XtPointer
+	Display*, XrmValue*, Cardinal*, XrmValue*, XrmValue*, XtPointer*
 );
 
 static void Layout(
@@ -422,13 +422,13 @@ ClassInitialize(void)
 		       NULL, 0, XtCacheAll, NULL);
 #endif
     XtSetTypeConverter(XmRString, XmRXmAlignment,
-		       (XtTypeConverter) CvtStringToXiAlignment,
+		       CvtStringToXiAlignment,
 		       NULL, 0, XtCacheAll, NULL);
     XtSetTypeConverter(XmRString, XmRFillStyle,
-		       (XtTypeConverter) CvtStringToFillStyle,
+		       CvtStringToFillStyle,
 		       NULL, 0, XtCacheAll, NULL);
     XtSetTypeConverter(XmRString, XmRDistribution,
-		       (XtTypeConverter) CvtStringToDistribution,
+		       CvtStringToDistribution,
 		       NULL, 0, XtCacheAll, NULL);
 }
 
@@ -1517,11 +1517,13 @@ CvtStringToLabelPosition(Display *dpy, XrmValue *args, Cardinal *arg_cnt,
 /* ARGSUSED */
 static Boolean
 CvtStringToXiAlignment(Display *dpy, XrmValue *args, Cardinal *arg_cnt,
-		       XrmValue *from, XrmValue *to, XtPointer data)
+		       XrmValue *from, XrmValue *to, XtPointer *converter_data)
 
 {
     unsigned char result = XmALIGNMENT_CENTER;
     String        str = (String) (from->addr);
+
+    (void)converter_data;
 
     if( CompareISOLatin1(str, "alignment_unspecified") == 0 ||
         CompareISOLatin1(str, "unspecified") == 0 )
@@ -1571,10 +1573,12 @@ CvtStringToXiAlignment(Display *dpy, XrmValue *args, Cardinal *arg_cnt,
 /* ARGSUSED */
 static Boolean
 CvtStringToFillStyle(Display *dpy, XrmValue *args, Cardinal *arg_cnt,
-		     XrmValue *from, XrmValue *to, XtPointer data)
+		     XrmValue *from, XrmValue *to, XtPointer *converter_data)
 {
     unsigned char result = XmFILL_UNSPECIFIED;
     String        str = (String) (from->addr);
+
+    (void)converter_data;
 
     if( CompareISOLatin1(str, "fill_unspecified") == 0 ||
         CompareISOLatin1(str, "unspecified") == 0 )
@@ -1619,10 +1623,12 @@ CvtStringToFillStyle(Display *dpy, XrmValue *args, Cardinal *arg_cnt,
 /* ARGSUSED */
 static Boolean
 CvtStringToDistribution(Display *dpy, XrmValue *args, Cardinal *arg_cnt,
-			XrmValue *from, XrmValue *to, XtPointer data)
+			XrmValue *from, XrmValue *to, XtPointer *converter_data)
 {
     unsigned char result = XmDISTRIBUTE_TIGHT;
     String        str = (String) (from->addr);
+
+    (void)converter_data;
 
     if( CompareISOLatin1(str, "distribute_tight") == 0 ||
         CompareISOLatin1(str, "tight") == 0 )
