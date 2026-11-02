@@ -171,6 +171,7 @@ static void Initialize(
                         ArgList args,
                         Cardinal *num_args) ;
 static Dimension toggle_bounded_dimension(uint64_t value);
+static Position toggle_bounded_position(int64_t value);
 static void Destroy( 
                         Widget wid) ;
 static void DrawToggle( 
@@ -705,9 +706,9 @@ redisplayPixmap(XmToggleButtonWidget tb,
   saveHeight = Lab_TextRect_height(tb);
 
   h = ((int)XtHeight(tb) - (int)onH) / 2;
-  Lab_TextRect_y(tb) = MAX(h, 0);
-  Lab_TextRect_height(tb) = onH;
-  Lab_TextRect_width(tb) = onW;
+  Lab_TextRect_y(tb) = toggle_bounded_position(MAX(h, 0));
+  Lab_TextRect_height(tb) = toggle_bounded_dimension(onH);
+  Lab_TextRect_width(tb) = toggle_bounded_dimension(onW);
   {
     XtExposeProc expose;
     _XmProcessLock();
@@ -1725,6 +1726,14 @@ static Dimension
 toggle_bounded_dimension(uint64_t value)
 {
   return value > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)value;
+}
+
+static Position
+toggle_bounded_position(int64_t value)
+{
+  if (value < SHRT_MIN) return (Position)SHRT_MIN;
+  if (value > SHRT_MAX) return (Position)SHRT_MAX;
+  return (Position)value;
 }
 
 /*ARGSUSED*/

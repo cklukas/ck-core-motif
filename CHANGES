@@ -1,3 +1,9 @@
+Clamp ToggleButton pixmap redraw geometry (2026-11-02)
+=========================================================
+
+- Bound temporary Label rectangle coordinates and dimensions used to redraw
+  ToggleButton pixmaps.
+
 Saturate PushButton default-frame geometry (2026-11-02)
 =========================================================
 
