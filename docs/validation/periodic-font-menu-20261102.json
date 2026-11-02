@@ -1,0 +1,1034 @@
+{
+  "source_base": "e240399be525e3715f5726ec68eb6e47a18aba8b",
+  "recorded_utc": "2026-11-02T02:59:24.280589+00:00",
+  "success": true,
+  "platform": "macOS arm64 C23, XQuartz/Xft/Unicode/SVG",
+  "build": {
+    "started_utc": "2026-11-02T02:43:13.671344+00:00",
+    "configuration": "arm64 C23 Xft/SVG, -j3; Container relayout cache fix and Periodic Font menu",
+    "baseline": "Prior same-project library increments 0.73/2.04/2.52s; Periodic increments 0.33/0.42s and first new-module build 1.20s. Verify compiled inputs and hashes.",
+    "source": {
+      "lib/Xm/Container.c": "508edf23cdfa78e83df7e6b1663f95dd743f8d26146c54b00f55fa712badd30f",
+      "demos/programs/periodic/periodic.c": "2dcaee9cb44b71589ed166593f98b602d06df242655c03ea854fb4f6b6d4857a",
+      "demos/programs/periodic/periodic_font.c": "1b130360d4fcfaa78d661a4af2bc2ac6693dfd78514228193d5b0c59a0ba89a0",
+      "demos/programs/periodic/periodic_font.h": "47f136a79308eb8aed0eab9c8cb550fd6c0c99f57411a36ca31550b8be9a71dd",
+      "demos/programs/periodic/periodic_layout.c": "95a6f99bd2c84ca2f2db77daacd3c502692c7b0add2056312d8be22233b7a0f7",
+      "demos/programs/periodic/periodic_layout.h": "846cf5d37a2ba25e77bee430ebae376be42242a2f84a6c9d0f486fce762eff80",
+      "demos/programs/periodic/Makefile.am": "66ab417a80bcb6e546b99c9da72abea61cfc000da9578b2921150531846d53ae"
+    },
+    "steps": [
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/lib",
+          "-j3",
+          "all"
+        ],
+        "exit": 0,
+        "seconds": 2.1418532919997233
+      },
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/periodic",
+          "-j3",
+          "all"
+        ],
+        "exit": 0,
+        "seconds": 0.35198254200076917
+      },
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/lib",
+          "-j3",
+          "install"
+        ],
+        "exit": 0,
+        "seconds": 0.9297813329976634
+      },
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/periodic",
+          "-j3",
+          "install"
+        ],
+        "exit": 0,
+        "seconds": 0.1126892910033348
+      }
+    ],
+    "success": true,
+    "ended_utc": "2026-11-02T02:43:16.167813+00:00",
+    "seconds": 2.493990583003324,
+    "stage_outputs": {
+      "lib/Xm/.libs/libXm.9.dylib": {
+        "sha256": "dbc0be5cdb1449ff607b9c917c3990afe8625601f32cdf6b5b3de7ce786a45df",
+        "mtime_ns": 1793587395454886344
+      },
+      "demos/programs/periodic/.libs/periodic": {
+        "sha256": "92f4bbe125eaf3943f97e5ff3cb0b955efa93201bf41a9caa5a0c20e9cfe6a25",
+        "mtime_ns": 1793587396156205485
+      }
+    },
+    "outputs": {
+      "lib/libXm.9.dylib": {
+        "sha256": "dbc0be5cdb1449ff607b9c917c3990afe8625601f32cdf6b5b3de7ce786a45df",
+        "mtime_ns": 1793587568601956437
+      },
+      "lib/libMrm.9.dylib": {
+        "sha256": "58f8ccb5c7b03d40b3296c9f114a1342397092419a17155624943e34ae8624ba",
+        "mtime_ns": 1793587568956574024
+      },
+      "bin/ckmotif-gallery": {
+        "sha256": "aae831800a01ef18242aceb1b2b54a1a969faf4a2d51db9c12273dba158bde62",
+        "mtime_ns": 1793584183531525210
+      },
+      "share/Xm/airport/airport": {
+        "sha256": "50bfce75ac3b7bad13c67c1b4d411cbe8b9be349f5f89cc8e69ece41b3c62059",
+        "mtime_ns": 1793582315661916642
+      },
+      "share/Xm/periodic/periodic": {
+        "sha256": "92f4bbe125eaf3943f97e5ff3cb0b955efa93201bf41a9caa5a0c20e9cfe6a25",
+        "mtime_ns": 1793587569133653755
+      },
+      "share/Xm/periodic/periodic.uid": {
+        "sha256": "b954b8b6e5436a1eb1efdc573ebf28f9264496b406cc458e914c4a643caee000",
+        "mtime_ns": 1793587569075993981
+      },
+      "share/Xm/periodic/periodic.c": {
+        "sha256": "2dcaee9cb44b71589ed166593f98b602d06df242655c03ea854fb4f6b6d4857a",
+        "mtime_ns": 1793587569071539322
+      },
+      "share/Xm/periodic/periodic_l.uil": {
+        "sha256": "b7f517ad62cf14ac7dabe17e10af860aa793b4963814cc475d7a9fa44a41db40",
+        "mtime_ns": 1793587569068218703
+      },
+      "share/Xm/periodic/periodic.uil": {
+        "sha256": "5d05549ffeebae4d221d5d5a6cb71504ae44413601d92b9b7f9ba4c1246d3c79",
+        "mtime_ns": 1793587569066120957
+      },
+      "share/Xm/periodic/periodic_font.c": {
+        "sha256": "1b130360d4fcfaa78d661a4af2bc2ac6693dfd78514228193d5b0c59a0ba89a0",
+        "mtime_ns": 1793587569074041360
+      },
+      "share/Xm/periodic/periodic_font.h": {
+        "sha256": "47f136a79308eb8aed0eab9c8cb550fd6c0c99f57411a36ca31550b8be9a71dd",
+        "mtime_ns": 1793587569074444692
+      },
+      "share/Xm/periodic/periodic_layout.c": {
+        "sha256": "95a6f99bd2c84ca2f2db77daacd3c502692c7b0add2056312d8be22233b7a0f7",
+        "mtime_ns": 1793587569072744154
+      },
+      "share/Xm/periodic/periodic_layout.h": {
+        "sha256": "846cf5d37a2ba25e77bee430ebae376be42242a2f84a6c9d0f486fce762eff80",
+        "mtime_ns": 1793587569073469777
+      },
+      "share/Xm/periodic/README": {
+        "sha256": "e107bf587d4ef1053345412b73db97918429fead08edea8435f5082e56b23734",
+        "mtime_ns": 1793587569070582366
+      }
+    },
+    "installed_utc": "2026-11-02T02:46:09.141573+00:00"
+  },
+  "native_controls": {
+    "started_utc": "2026-11-02T02:46:09.287451+00:00",
+    "scope": "native isolated Xvfb; no user desktop input",
+    "library_path": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib/libXm.9.dylib",
+    "library": "dbc0be5cdb1449ff607b9c917c3990afe8625601f32cdf6b5b3de7ce786a45df",
+    "cases": [
+      {
+        "name": "container-relayout-metrics",
+        "source_sha256": "a80027382be70a4e87b525bad8dd55af344c44ab2367dbd817ebb0713c32d74e",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.8323176249978133,
+        "initial_attempt": {
+          "name": "container-relayout-metrics",
+          "source_sha256": "f81e3c7bf5453c5e214f6523d9bcfbc7d269241c01759633a5e810472786ad69",
+          "compile": 0,
+          "run": -6,
+          "seconds": 0.6635422500039567
+        },
+        "fixture_correction": "Force the API under test once after child initialization before checking forced-layout invariants. Matching final fixture is also red against the pre-fix Container function."
+      },
+      {
+        "name": "appearance-visual-object-lifetime",
+        "source_sha256": "78a778d1d1a936b21554f66e9273fcdecdcbdd26e8308bac94c3f8ffa21b961d",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.38711541699740337
+      },
+      {
+        "name": "live-appearance",
+        "source_sha256": "bd60bff5e4a0399af1859bf488476db3d9bca814c4acd9304fce8d80d244ee65",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3801958330004709
+      },
+      {
+        "name": "live-appearance-gadget",
+        "source_sha256": "8323f1dcd8a34e8bfa5a6b0d9a8c3c53b9de6aedd956890249fbe9bad55638f6",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.32244912500027567
+      },
+      {
+        "name": "display-scale-reentrant",
+        "source_sha256": "56fa39db5b28329546ea15ec4dde2d71af6e9e88952ad81ce69a9ae9b2002924",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.315739042001951
+      },
+      {
+        "name": "display-scale-override",
+        "source_sha256": "37b856e6dc569db62a82da4c4ec82afb4ac11ba890c6661798e08a5228e2c63c",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3305515000029118
+      },
+      {
+        "name": "modern-audit-controls",
+        "source_sha256": "b94ef040d0006c5e2764e3e3dd2e51cae8adf0521156da064cce05e844a47b6b",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.6839637090015458
+      },
+      {
+        "name": "modern-status-colors",
+        "source_sha256": "502f42f9639057f69d7090767bef740a1315297656d311cf3ea5971357d1ccd6",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3361040000017965
+      },
+      {
+        "name": "xmstring-disjoint-clip",
+        "source_sha256": "76e76b0c2d30d6dc9afc8e91ef206359e54bf6b884bdc529fcf6716dcd757fbf",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.33207412500632927
+      },
+      {
+        "name": "tab-color-state",
+        "source_sha256": "2cc5be5e5f77c377c2dd14c6d11985e8897e18e1dfce74ab06b5a408cd9c437a",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3291931249987101
+      },
+      {
+        "name": "scroll-lifetime",
+        "source_sha256": "dbed3d1f011f06e0757bd85c3055b61ca1d2c6af809645f4dff2358090f251e7",
+        "compile": 0,
+        "run": 0,
+        "seconds": 1.1381295410028542
+      },
+      {
+        "name": "progress-bar",
+        "source_sha256": "9c0354e239dc787cb7089d3a4812cea26fbeeb3bf658a2229eb31691572e6217",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3248800840010517
+      },
+      {
+        "name": "progress-ring",
+        "source_sha256": "9d7a5b5670e651e07f33c97930d22aa953cab753d535cfcbe6fa5c28627c4969",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.27486604200385045
+      },
+      {
+        "name": "calendar",
+        "source_sha256": "926ba3f1687d1cffc53258ce289ed500cbfd0f19806e9a7b52cd7fd8472e2711",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3239053330034949
+      },
+      {
+        "name": "date-picker",
+        "source_sha256": "dc551e70d8dc6d49d8a83d4c97a3f1c8c8763dc9332f0abd16e95b3de325e8c1",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.31443504199705785
+      },
+      {
+        "name": "time-picker",
+        "source_sha256": "027198496dd50059287a12c3a339d71b30fdf1a09f826bb8a63034fff272da5f",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.31843133400252555
+      },
+      {
+        "name": "modern-fields",
+        "source_sha256": "0346c3e32722642249acceaf8e2905835bffe70ada0632bcf31b63d3a8c2eeda",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.9733137500006706
+      },
+      {
+        "name": "modern-buttons",
+        "source_sha256": "ebc7e1c35c2ab9402e4d472899e51a076561d5e3733e77861f3597592b854799",
+        "compile": 0,
+        "run": 0,
+        "seconds": 2.703417625001748
+      },
+      {
+        "name": "modern-arrows",
+        "source_sha256": "71fc86e26fa32b60cee35abb6410e23008d367739e908b2e2a84737516c60f45",
+        "compile": 0,
+        "run": 0,
+        "seconds": 2.1199400840050657
+      },
+      {
+        "name": "modern-toggles",
+        "source_sha256": "1e6112a626c3eec9d8e92b163e35f125995e89cf80ea0981a8970901642016a8",
+        "compile": 0,
+        "run": 0,
+        "seconds": 3.853773957998783
+      },
+      {
+        "name": "modern-borders",
+        "source_sha256": "b489ef2df044efd52f0b0fd1585ed85436e3c460801a3aaa00c3a4d5af5c2875",
+        "compile": 0,
+        "run": 0,
+        "seconds": 2.4176870419978513
+      },
+      {
+        "name": "modern-scrollbars",
+        "source_sha256": "b823440856fd0aa798f530e5077555e2a5ff8ea52606a0a8e0b58547212ed0f2",
+        "compile": 0,
+        "run": 0,
+        "seconds": 3.2089661249992787
+      },
+      {
+        "name": "composite-appearance-fonts",
+        "source_sha256": "ced8ccfa518cc1018dcc08c77e8cf4f65a4bb7a8a6fa77a5405b7d1c1402e354",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.9345587080024416
+      },
+      {
+        "name": "cascade-appearance",
+        "source_sha256": "0ef5f282995c3388e5d0e963722091fdc7de13be698e5df1d809d7321b3ed8c6",
+        "compile": 0,
+        "run": 0,
+        "seconds": 17.00330683300126
+      },
+      {
+        "name": "container-appearance",
+        "source_sha256": "ff1e772b3657a339ff0a0143c5339bf520cd81faa6d615ba02bcbd5e5e14b8f6",
+        "compile": 0,
+        "run": 0,
+        "seconds": 3.6216724999976577
+      },
+      {
+        "name": "avatar-modern",
+        "source_sha256": "cefd9bebdd0c4281372c0e23825c57813da688f7e7e341c0873c3c0c686ca530",
+        "compile": 0,
+        "run": 0,
+        "seconds": 10.639757375000045
+      },
+      {
+        "name": "breadcrumb-modern",
+        "source_sha256": "4198fdd932c3db794e2e4cbb4b3feab86e0178446c070910c8c51ca5f69e6271",
+        "compile": 0,
+        "run": 0,
+        "seconds": 3.618004624993773
+      },
+      {
+        "name": "font-selector-modern",
+        "source_sha256": "82bf5da63f67c65c2fbd105fcac7479633c795c188157614499d17b707a3430d",
+        "compile": 0,
+        "run": 0,
+        "seconds": 1.4381631249998463
+      },
+      {
+        "name": "appearance-roles",
+        "source_sha256": "074431b0d352bd0ff5c7c44303dc7861bd996f67efbb95290400e2ab6d1a903c",
+        "compile": 0,
+        "run": 0,
+        "seconds": 1.512613250000868
+      },
+      {
+        "name": "modern-scale",
+        "source_sha256": "4a927a8653318be5874ed21bac5579592ccc0668b5ebb01e9eaef76f32fe08ca",
+        "compile": 0,
+        "run": 0,
+        "seconds": 2.254598250001436
+      },
+      {
+        "name": "modern-light-profile",
+        "source_sha256": "f5f8e06a82468a259fd3410b423c0eb1b43d8aa66eeb37fcda2bce91a3789d1a",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.4096112500046729
+      },
+      {
+        "name": "modern-dark-profile",
+        "source_sha256": "5213bae46f2a3808891023e3ca1287d4bad12f4b0ed4416e1a537c4d68774348",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.3944681249995483
+      }
+    ],
+    "ended_utc": "2026-11-02T02:47:13.554390+00:00",
+    "success": true
+  },
+  "periodic_cases": {
+    "started_utc": "2026-11-02T02:46:08.896117+00:00",
+    "success": true,
+    "cases": [
+      {
+        "name": "geometry",
+        "exit": 0,
+        "seconds": 15.715669917000923
+      },
+      {
+        "name": "light",
+        "exit": 0,
+        "seconds": 15.520375250001962
+      },
+      {
+        "name": "dark",
+        "exit": 0,
+        "seconds": 15.567479291996278
+      },
+      {
+        "name": "scaled",
+        "exit": 0,
+        "seconds": 15.577411833000951
+      },
+      {
+        "name": "contrast",
+        "exit": 0,
+        "seconds": 17.132666166995477
+      },
+      {
+        "name": "compact",
+        "exit": 0,
+        "seconds": 15.53350812500139
+      },
+      {
+        "name": "classic",
+        "exit": 0,
+        "seconds": 9.02290216700203
+      },
+      {
+        "name": "historical",
+        "exit": 0,
+        "seconds": 9.094214583004941
+      },
+      {
+        "name": "override",
+        "exit": 0,
+        "seconds": 15.419628332994762
+      },
+      {
+        "name": "inherited-dark",
+        "exit": 0,
+        "seconds": 15.978902167000342
+      },
+      {
+        "name": "inherited-classic",
+        "exit": 0,
+        "seconds": 10.157456916000228
+      },
+      {
+        "name": "inherited-compact",
+        "exit": 0,
+        "seconds": 15.767126624996308
+      }
+    ],
+    "ended_utc": "2026-11-02T02:48:59.867122+00:00"
+  },
+  "font_menu_before": {
+    "started_utc": "2026-11-02T02:23:37.668384+00:00",
+    "success": false,
+    "cases": [
+      {
+        "name": "light",
+        "exit": -6,
+        "seconds": 2.5533708750008373
+      }
+    ],
+    "ended_utc": "2026-11-02T02:23:40.621760+00:00"
+  },
+  "container_old_function": {
+    "started_utc": "2026-11-02T02:54:22.432196+00:00",
+    "scope": "native isolated Xvfb; no user desktop input",
+    "library_path": "/Volumes/S8T/tmp/motif-modern-audit-20261101/font-menu-20261102/container-reference/lib/libXm.9.dylib",
+    "library": "cb5e89633a525374675d59a405b0c6caf6216387ef6b4d12d9fda50be38c86ca",
+    "cases": [
+      {
+        "name": "container-relayout-metrics",
+        "source_sha256": "a80027382be70a4e87b525bad8dd55af344c44ab2367dbd817ebb0713c32d74e",
+        "compile": 0,
+        "run": -6,
+        "seconds": 0.8845504999990226
+      }
+    ],
+    "ended_utc": "2026-11-02T02:54:23.663354+00:00",
+    "success": false
+  },
+  "container_fixed_function": {
+    "started_utc": "2026-11-02T02:50:15.833610+00:00",
+    "scope": "native isolated Xvfb; no user desktop input",
+    "library_path": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib/libXm.9.dylib",
+    "library": "dbc0be5cdb1449ff607b9c917c3990afe8625601f32cdf6b5b3de7ce786a45df",
+    "cases": [
+      {
+        "name": "container-relayout-metrics",
+        "source_sha256": "a80027382be70a4e87b525bad8dd55af344c44ab2367dbd817ebb0713c32d74e",
+        "compile": 0,
+        "run": 0,
+        "seconds": 0.8323176249978133
+      }
+    ],
+    "ended_utc": "2026-11-02T02:50:16.777385+00:00",
+    "success": true
+  },
+  "reference_build": {
+    "reference_source_commit": "e240399be525e3715f5726ec68eb6e47a18aba8b",
+    "source_sha256": "9801e2ffd11b39d70ea7c941eb28189e64263e00bb8cb4cdba8b2f489ba22bc2",
+    "commands": [
+      [
+        "clang",
+        "-std=c23",
+        "-DHAVE_CONFIG_H",
+        "-I.",
+        "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/src/lib/Xm",
+        "-I../../include",
+        "-I..",
+        "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/src/lib/Xm/..",
+        "-DXMBINDDIR_FALLBACK=\"/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib/X11/bindings\"",
+        "-DINCDIR=\"/Volumes/S8T/tmp/motif-modern-audit-20261101/install/include/X11\"",
+        "-DLIBDIR=\"/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib/X11\"",
+        "-I/opt/X11/include",
+        "-I/opt/homebrew/opt/icu4c@78/include",
+        "-I/opt/homebrew/Cellar/harfbuzz/15.0.0/include/harfbuzz",
+        "-I/opt/X11/include/freetype2",
+        "-I/opt/homebrew/Cellar/glib/2.90.1/include/glib-2.0",
+        "-I/opt/homebrew/Cellar/glib/2.90.1/lib/glib-2.0/include",
+        "-I/opt/homebrew/opt/gettext/include",
+        "-I/opt/homebrew/Cellar/pcre2/10.49/include",
+        "-I/opt/homebrew/opt/graphite2/include",
+        "-I/opt/homebrew/Cellar/librsvg/2.62.3/include/librsvg-2.0",
+        "-I/opt/homebrew/include/gdk-pixbuf-2.0",
+        "-I/opt/homebrew/opt/libtiff/include",
+        "-I/opt/homebrew/opt/webp/include",
+        "-I/opt/homebrew/opt/webp/include/webp",
+        "-I/opt/homebrew/opt/zstd/include",
+        "-I/opt/homebrew/Cellar/xz/5.8.4/include",
+        "-I/opt/homebrew/opt/jpeg-turbo/include",
+        "-I/opt/homebrew/Cellar/cairo/1.18.6/include/cairo",
+        "-I/opt/X11/include",
+        "-I/opt/homebrew/Cellar/pango/1.58.2/include/pango-1.0",
+        "-I/opt/homebrew/Cellar/glib/2.90.1/include",
+        "-I/opt/homebrew/Cellar/fribidi/1.0.17/include/fribidi",
+        "-I/opt/homebrew/Cellar/libthai/0.1.30/include",
+        "-I/opt/homebrew/Cellar/libdatrie/0.2.14/include",
+        "-I/opt/X11/include/cairo",
+        "-I/opt/X11/include/libpng16",
+        "-I/opt/homebrew/Cellar/xorgproto/2026.1/include",
+        "-I/opt/X11/include/pixman-1",
+        "-I/opt/homebrew/Cellar/harfbuzz/15.0.0/include/harfbuzz",
+        "-I/opt/X11/include/freetype2",
+        "-I/opt/homebrew/opt/graphite2/include",
+        "-I/Library/Developer/CommandLineTools/SDKs/MacOSX27.sdk/usr/include/ffi",
+        "-I/opt/homebrew/Cellar/glib/2.90.1/include/glib-2.0",
+        "-I/opt/homebrew/Cellar/glib/2.90.1/lib/glib-2.0/include",
+        "-I/opt/homebrew/opt/gettext/include",
+        "-I/opt/homebrew/Cellar/pcre2/10.49/include",
+        "-I/opt/X11/include",
+        "-I/opt/X11/include/freetype2",
+        "-I/opt/X11/include",
+        "-I/opt/X11/include",
+        "-I/opt/X11/include/freetype2",
+        "-I/opt/homebrew/Cellar/xorgproto/2026.1/include",
+        "-I/opt/X11/include",
+        "-I/opt/X11/include/freetype2",
+        "-g",
+        "-O2",
+        "-Wall",
+        "-g",
+        "-fno-strict-aliasing",
+        "-Wno-unused",
+        "-Wno-comment",
+        "-I/opt/X11/include",
+        "-I/opt/homebrew/Cellar/xorgproto/2026.1/include",
+        "-I/opt/X11/include/freetype2",
+        "-I/opt/homebrew/include",
+        "-c",
+        "/Volumes/S8T/tmp/motif-modern-audit-20261101/font-menu-20261102/container-reference/Container.c",
+        "-fno-common",
+        "-DPIC",
+        "-o",
+        "/Volumes/S8T/tmp/motif-modern-audit-20261101/font-menu-20261102/container-reference/Container.o"
+      ],
+      [
+        "clang",
+        "-std=c23",
+        "-dynamiclib",
+        "-Wl,-undefined",
+        "-Wl,dynamic_lookup",
+        "-Wl,-no_fixup_chains",
+        "-o",
+        "/Volumes/S8T/tmp/motif-modern-audit-20261101/font-menu-20261102/container-reference/lib/libXm.9.dylib",
+        ".libs/Accessible.o",
+        ".libs/XtInput.o",
+        ".libs/TextUnicode.o",
+        ".libs/TextLayout.o",
+        ".libs/XmStrDefs.o",
+        ".libs/ArrowB.o",
+        ".libs/ArrowBG.o",
+        ".libs/BulletinB.o",
+        ".libs/CallbackI.o",
+        ".libs/CascadeB.o",
+        ".libs/CascadeBG.o",
+        ".libs/Command.o",
+        ".libs/CutPaste.o",
+        ".libs/Dest.o",
+        ".libs/DialogS.o",
+        ".libs/DialogSE.o",
+        ".libs/DragBS.o",
+        ".libs/DragC.o",
+        ".libs/DragOverS.o",
+        ".libs/DragICC.o",
+        ".libs/DragIcon.o",
+        ".libs/DragUnder.o",
+        ".libs/DrawingA.o",
+        ".libs/DrawnB.o",
+        ".libs/DropSMgr.o",
+        ".libs/DropSMgrI.o",
+        ".libs/DropTrans.o",
+        ".libs/ExtObject.o",
+        ".libs/FileSB.o",
+        ".libs/Form.o",
+        ".libs/Frame.o",
+        ".libs/Gadget.o",
+        ".libs/GadgetUtil.o",
+        ".libs/GeoUtils.o",
+        ".libs/ImageCache.o",
+        ".libs/Label.o",
+        ".libs/LabelG.o",
+        ".libs/List.o",
+        ".libs/MainW.o",
+        ".libs/MapEvents.o",
+        ".libs/MenuShell.o",
+        ".libs/MenuUtil.o",
+        ".libs/MessageB.o",
+        ".libs/PanedW.o",
+        ".libs/PushB.o",
+        ".libs/PushBG.o",
+        ".libs/ReadImage.o",
+        ".libs/Region.o",
+        ".libs/ResConvert.o",
+        ".libs/ResInd.o",
+        ".libs/RowColumn.o",
+        ".libs/Sash.o",
+        ".libs/Scale.o",
+        ".libs/ScrollBar.o",
+        ".libs/ScrolledW.o",
+        ".libs/SelectioB.o",
+        ".libs/SeparatoG.o",
+        ".libs/Separator.o",
+        ".libs/Simple.o",
+        ".libs/Text.o",
+        ".libs/TextIn.o",
+        ".libs/TextOut.o",
+        ".libs/TextStrSo.o",
+        ".libs/TextSel.o",
+        ".libs/ToggleB.o",
+        ".libs/ToggleBG.o",
+        ".libs/ToggleSwitch.o",
+        ".libs/SegmentedControl.o",
+        ".libs/Chip.o",
+        ".libs/Badge.o",
+        ".libs/IconLabel.o",
+        ".libs/Divider.o",
+        ".libs/Avatar.o",
+        ".libs/Link.o",
+        ".libs/SearchBox.o",
+        ".libs/Prompt.o",
+        ".libs/FormSection.o",
+        ".libs/EmptyState.o",
+        ".libs/Toast.o",
+        ".libs/CommandPalette.o",
+        ".libs/Skeleton.o",
+        ".libs/RowActions.o",
+        ".libs/DropHighlight.o",
+        ".libs/StatusBar.o",
+        ".libs/Toolbar.o",
+        ".libs/Sidebar.o",
+        ".libs/AutoSuggestBox.o",
+        ".libs/ColorPicker.o",
+        ".libs/Flyout.o",
+        ".libs/TeachingTip.o",
+        ".libs/InfoBar.o",
+        ".libs/BreadcrumbBar.o",
+        ".libs/TreeView.o",
+        ".libs/Calendar.o",
+        ".libs/DatePicker.o",
+        ".libs/TimePicker.o",
+        ".libs/DataGrid.o",
+        ".libs/NumberBox.o",
+        ".libs/RatingControl.o",
+        ".libs/ProgressBar.o",
+        ".libs/ProgressRing.o",
+        ".libs/Spinner.o",
+        ".libs/Stepper.o",
+        ".libs/TrackLoc.o",
+        ".libs/UniqueEvnt.o",
+        ".libs/VaSimple.o",
+        ".libs/VirtKeys.o",
+        ".libs/XmString.o",
+        ".libs/ResEncod.o",
+        ".libs/TextF.o",
+        ".libs/TextFSel.o",
+        ".libs/AtomMgr.o",
+        ".libs/Cache.o",
+        ".libs/Protocols.o",
+        ".libs/Primitive.o",
+        ".libs/Manager.o",
+        ".libs/Traversal.o",
+        ".libs/TravAct.o",
+        ".libs/TraversalI.o",
+        ".libs/BaseClass.o",
+        ".libs/Desktop.o",
+        ".libs/Messages.o",
+        ".libs/Transltns.o",
+        ".libs/RepType.o",
+        ".libs/Xmos.o",
+        ".libs/Draw.o",
+        ".libs/TearOff.o",
+        ".libs/TearOffB.o",
+        ".libs/XmIm.o",
+        ".libs/GMUtils.o",
+        ".libs/Display.o",
+        ".libs/Screen.o",
+        ".libs/ShellE.o",
+        ".libs/VendorS.o",
+        ".libs/VendorSE.o",
+        ".libs/RCMenu.o",
+        ".libs/RCLayout.o",
+        ".libs/GetPixData.o",
+        ".libs/RCPopup.o",
+        ".libs/Trait.o",
+        ".libs/Synthetic.o",
+        ".libs/XmFontList.o",
+        ".libs/ClipWindow.o",
+        ".libs/Transfer.o",
+        ".libs/Hash.o",
+        ".libs/ScrollFrameT.o",
+        ".libs/XmTabList.o",
+        ".libs/Resolve.o",
+        ".libs/XmStringFunc.o",
+        ".libs/XmRenderT.o",
+        ".libs/PixConv.o",
+        ".libs/Color.o",
+        ".libs/Xm.o",
+        ".libs/Appearance.o",
+        ".libs/AppearanceDraw.o",
+        ".libs/Paint.o",
+        ".libs/CareVisualT.o",
+        ".libs/Direction.o",
+        ".libs/XmStringObso.o",
+        ".libs/XmStringGet.o",
+        ".libs/IsMwmRun.o",
+        ".libs/MenuProc.o",
+        ".libs/MenuState.o",
+        ".libs/TextFind.o",
+        ".libs/TextFunc.o",
+        ".libs/ColorObj.o",
+        ".libs/IconFile.o",
+        ".libs/RCHook.o",
+        ".libs/GetRes.o",
+        ".libs/BBUtil.o",
+        ".libs/ChColor.o",
+        ".libs/ColObjFunc.o",
+        ".libs/DrTog.o",
+        ".libs/DrArrow.o",
+        ".libs/DrPoly.o",
+        ".libs/DrHiDash.o",
+        ".libs/ValTime.o",
+        ".libs/FocusAct.o",
+        ".libs/CvtUnit.o",
+        ".libs/ScalTics.o",
+        ".libs/ScroVis.o",
+        ".libs/WidGet.o",
+        ".libs/Obso1_2.o",
+        ".libs/ObsoStr.o",
+        ".libs/ObsoXme.o",
+        ".libs/Obso2_0.o",
+        ".libs/XpmAttrib.o",
+        ".libs/XpmCrIFrDat.o",
+        ".libs/XpmInfo.o",
+        ".libs/XpmWrFFrDat.o",
+        ".libs/Xpmmisc.o",
+        ".libs/XpmCrBufFrI.o",
+        ".libs/XpmCrIFrP.o",
+        ".libs/XpmRdFToBuf.o",
+        ".libs/XpmWrFFrI.o",
+        ".libs/Xpmparse.o",
+        ".libs/XpmCrBufFrP.o",
+        ".libs/XpmCrPFrBuf.o",
+        ".libs/XpmRdFToDat.o",
+        ".libs/XpmWrFFrP.o",
+        ".libs/Xpmrgb.o",
+        ".libs/XpmCrDatFrI.o",
+        ".libs/XpmCrPFrDat.o",
+        ".libs/XpmRdFToI.o",
+        ".libs/Xpmcreate.o",
+        ".libs/Xpmscan.o",
+        ".libs/XpmCrDatFrP.o",
+        ".libs/XpmCrPFrI.o",
+        ".libs/XpmRdFToP.o",
+        ".libs/Xpmdata.o",
+        ".libs/XpmCrIFrBuf.o",
+        ".libs/XpmImage.o",
+        ".libs/XpmWrFFrBuf.o",
+        ".libs/Xpmhashtab.o",
+        ".libs/IconH.o",
+        "/Volumes/S8T/tmp/motif-modern-audit-20261101/font-menu-20261102/container-reference/Container.o",
+        ".libs/IconG.o",
+        ".libs/Notebook.o",
+        ".libs/ComboBox.o",
+        ".libs/GrabShell.o",
+        ".libs/SpinB.o",
+        ".libs/SSpinB.o",
+        ".libs/TxtPropCv.o",
+        ".libs/XmStringSeg.o",
+        ".libs/TranslNew.o",
+        ".libs/SlideC.o",
+        ".libs/ToolTip.o",
+        ".libs/EditresCom.o",
+        ".libs/XmExtUtil.o",
+        ".libs/Column.o",
+        ".libs/ButtonBox.o",
+        ".libs/Disclosure.o",
+        ".libs/ColorS.o",
+        ".libs/Picture.o",
+        ".libs/DataFSel.o",
+        ".libs/DataF.o",
+        ".libs/MultiList.o",
+        ".libs/I18List.o",
+        ".libs/Paned.o",
+        ".libs/FontS.o",
+        ".libs/IconBox.o",
+        ".libs/IconButton.o",
+        ".libs/xmlist.o",
+        ".libs/Hierarchy.o",
+        ".libs/Outline.o",
+        ".libs/TabBox.o",
+        ".libs/TabList.o",
+        ".libs/TabStack.o",
+        ".libs/DrawUtils.o",
+        ".libs/Tree.o",
+        ".libs/DropDown.o",
+        ".libs/Jpeg.o",
+        ".libs/Png.o",
+        ".libs/Svg.o",
+        "-L/opt/X11/lib",
+        "-lXmu",
+        "-lXt",
+        "-lXext",
+        "-L/opt/homebrew/opt/icu4c@78/lib",
+        "-licui18n",
+        "-licuuc",
+        "-L/opt/homebrew/Cellar/harfbuzz/15.0.0/lib",
+        "-lharfbuzz",
+        "-lm",
+        "-L/opt/homebrew/Cellar/librsvg/2.62.3/lib",
+        "-lrsvg-2",
+        "-L/opt/homebrew/lib",
+        "-lgdk_pixbuf-2.0",
+        "-L/opt/homebrew/Cellar/glib/2.90.1/lib",
+        "-lgio-2.0",
+        "-lcairo",
+        "-lgobject-2.0",
+        "-lglib-2.0",
+        "-L/opt/homebrew/opt/gettext/lib",
+        "-lintl",
+        "-liconv",
+        "-lfreetype",
+        "-lXrender",
+        "-lX11",
+        "-lfontconfig",
+        "-lXft",
+        "-ljpeg",
+        "-lpng",
+        "-g",
+        "-O2",
+        "-Wall",
+        "-g",
+        "-Wno-unused",
+        "-Wno-comment",
+        "-install_name",
+        "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib/libXm.9.dylib",
+        "-compatibility_version",
+        "10",
+        "-current_version",
+        "10.0"
+      ]
+    ],
+    "scope": "Isolated old-function regression oracle, never a desktop application build",
+    "seconds": 1.788415166993218,
+    "sha256": "cb5e89633a525374675d59a405b0c6caf6216387ef6b4d12d9fda50be38c86ca"
+  },
+  "syntax": {
+    "success": true,
+    "source_sha256": "1b130360d4fcfaa78d661a4af2bc2ac6693dfd78514228193d5b0c59a0ba89a0",
+    "cases": [
+      {
+        "mode": "xft",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-DHAVE_CONFIG_H",
+          "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/build/include",
+          "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/build/lib",
+          "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/src/lib",
+          "-I/opt/X11/include/freetype2",
+          "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/install/include",
+          "-I/opt/X11/include",
+          "-fsyntax-only",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/src/demos/programs/periodic/periodic_font.c"
+        ],
+        "exit": 0,
+        "output": ""
+      },
+      {
+        "mode": "core-conditional",
+        "command": [
+          "clang",
+          "-std=c23",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/font-menu-20261102/core-syntax/include",
+          "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/install/include",
+          "-I/opt/X11/include",
+          "-fsyntax-only",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/src/demos/programs/periodic/periodic_font.c"
+        ],
+        "exit": 0,
+        "output": ""
+      }
+    ],
+    "scope": "Core conditional branch is syntax-only using the same generated public header with optional Xft support disabled; no non-Xft runtime cohort is claimed."
+  },
+  "actual_window": {
+    "launched_utc": "2026-11-02T02:55:16.928236+00:00",
+    "logger_pid": 68168,
+    "pid": 68169,
+    "periodic_pid": 68192,
+    "executable": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/bin/ckmotif-gallery",
+    "periodic_executable": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/share/Xm/periodic/periodic",
+    "display": "/var/run/com.apple.launchd.ezDZs4P3A0/org.xquartz:0",
+    "arguments": [
+      "--appearance",
+      "modern-light",
+      "--scale",
+      "1",
+      "--open-demo",
+      "periodic"
+    ],
+    "outputs": {
+      "lib/libXm.9.dylib": {
+        "sha256": "dbc0be5cdb1449ff607b9c917c3990afe8625601f32cdf6b5b3de7ce786a45df",
+        "mtime_ns": 1793587568601956437
+      },
+      "lib/libMrm.9.dylib": {
+        "sha256": "58f8ccb5c7b03d40b3296c9f114a1342397092419a17155624943e34ae8624ba",
+        "mtime_ns": 1793587568956574024
+      },
+      "bin/ckmotif-gallery": {
+        "sha256": "aae831800a01ef18242aceb1b2b54a1a969faf4a2d51db9c12273dba158bde62",
+        "mtime_ns": 1793584183531525210
+      },
+      "share/Xm/airport/airport": {
+        "sha256": "50bfce75ac3b7bad13c67c1b4d411cbe8b9be349f5f89cc8e69ece41b3c62059",
+        "mtime_ns": 1793582315661916642
+      },
+      "share/Xm/periodic/periodic": {
+        "sha256": "92f4bbe125eaf3943f97e5ff3cb0b955efa93201bf41a9caa5a0c20e9cfe6a25",
+        "mtime_ns": 1793587569133653755
+      },
+      "share/Xm/periodic/periodic.uid": {
+        "sha256": "b954b8b6e5436a1eb1efdc573ebf28f9264496b406cc458e914c4a643caee000",
+        "mtime_ns": 1793587569075993981
+      },
+      "share/Xm/periodic/periodic.c": {
+        "sha256": "2dcaee9cb44b71589ed166593f98b602d06df242655c03ea854fb4f6b6d4857a",
+        "mtime_ns": 1793587569071539322
+      },
+      "share/Xm/periodic/periodic_l.uil": {
+        "sha256": "b7f517ad62cf14ac7dabe17e10af860aa793b4963814cc475d7a9fa44a41db40",
+        "mtime_ns": 1793587569068218703
+      },
+      "share/Xm/periodic/periodic.uil": {
+        "sha256": "5d05549ffeebae4d221d5d5a6cb71504ae44413601d92b9b7f9ba4c1246d3c79",
+        "mtime_ns": 1793587569066120957
+      },
+      "share/Xm/periodic/periodic_font.c": {
+        "sha256": "1b130360d4fcfaa78d661a4af2bc2ac6693dfd78514228193d5b0c59a0ba89a0",
+        "mtime_ns": 1793587569074041360
+      },
+      "share/Xm/periodic/periodic_font.h": {
+        "sha256": "47f136a79308eb8aed0eab9c8cb550fd6c0c99f57411a36ca31550b8be9a71dd",
+        "mtime_ns": 1793587569074444692
+      },
+      "share/Xm/periodic/periodic_layout.c": {
+        "sha256": "95a6f99bd2c84ca2f2db77daacd3c502692c7b0add2056312d8be22233b7a0f7",
+        "mtime_ns": 1793587569072744154
+      },
+      "share/Xm/periodic/periodic_layout.h": {
+        "sha256": "846cf5d37a2ba25e77bee430ebae376be42242a2f84a6c9d0f486fce762eff80",
+        "mtime_ns": 1793587569073469777
+      },
+      "share/Xm/periodic/README": {
+        "sha256": "e107bf587d4ef1053345412b73db97918429fead08edea8435f5082e56b23734",
+        "mtime_ns": 1793587569070582366
+      }
+    },
+    "success": true,
+    "gallery_command": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/bin/ckmotif-gallery --appearance modern-light --scale 1 --open-demo periodic",
+    "periodic_command": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/share/Xm/periodic/periodic -xrm ckCoreMotif.appearanceProfile: modern-light -xrm ckCoreMotif.appearanceDensity: comfortable -xrm Xft.dpi: 96"
+  },
+  "captures": {
+    "actual-periodic.png": "1276fd83744a1ccecdde44ee0813fe5c66785dc4e7324047791997fe8f4bf9e4",
+    "native-captures-final/medium.png": "e4c7831ca618aa9c449539d2557ad5fcbfddae7b334b70975e4e4e3a59262554",
+    "native-captures-final/large.png": "59f882535c9ee826ae9e91b545f30e924aab2e5f15b4af79a527649aaf2c8e8e"
+  },
+  "limits": [
+    "No desktop pointer/keyboard input was injected. Actual XQuartz window inspected read-only; font choices were exercised on the production UIL hierarchy in isolated native fixtures.",
+    "Font choices use the actual registered activate callbacks. Existing push-button mouse/Space behavior remains exercised by native XTest.",
+    "The relayout regression explicitly forces a baseline layout after child initialization. It qualifies the forced-relayout API, not unforced construction layout.",
+    "No Linux or non-Xft runtime qualification is claimed in this Mac run."
+  ],
+  "source_fingerprints": {
+    "CHANGES": "fbb5dfece51ab10ee61c5d9cb5da65711caa7bc285d031f40d5f00c115c19ed8",
+    "CHANGES.md": "969776078cab8c975985bddd0b9ded11ad9d2e5c25d4c290fd9aa3c676576d6b",
+    "Makefile.am": "f240fab4993d488c522825f425d20f9e835812750f5c72142a9dbd283985beb0",
+    "demos/programs/periodic/Makefile.am": "66ab417a80bcb6e546b99c9da72abea61cfc000da9578b2921150531846d53ae",
+    "demos/programs/periodic/README": "e107bf587d4ef1053345412b73db97918429fead08edea8435f5082e56b23734",
+    "demos/programs/periodic/periodic.c": "2dcaee9cb44b71589ed166593f98b602d06df242655c03ea854fb4f6b6d4857a",
+    "demos/programs/periodic/periodic_layout.c": "95a6f99bd2c84ca2f2db77daacd3c502692c7b0add2056312d8be22233b7a0f7",
+    "demos/programs/periodic/periodic_layout.h": "846cf5d37a2ba25e77bee430ebae376be42242a2f84a6c9d0f486fce762eff80",
+    "doc/man/man3/XmContainerRelayout.3": "421a40905ffb00557843f76e021ea2658b0ee12ed303aeb649ef95fdaaf11876",
+    "docs/periodic-modern-appearance.md": "bf8b6316e2c65629a5da751698c7895a3ccac4b1df05816a2e619f3a08cb412a",
+    "lib/Xm/Container.c": "508edf23cdfa78e83df7e6b1663f95dd743f8d26146c54b00f55fa712badd30f",
+    "tests/automated/check-periodic-appearance.c": "4329cec6d905a2d41463e215be85da749af96a0f4a1161d1f7ec4efce1649570",
+    "tests/automated/run-modern-macos-audit.py": "245ee827e70099184eaf4769f1988f14f65ae30dd2018082314dee3e9001310f",
+    "tests/automated/run-periodic-appearance.py": "ac6128656ef762a12ae039eba02eb8794a266dd9d10d51b88fb0365b31824767",
+    "demos/programs/periodic/periodic_font.c": "1b130360d4fcfaa78d661a4af2bc2ac6693dfd78514228193d5b0c59a0ba89a0",
+    "demos/programs/periodic/periodic_font.h": "47f136a79308eb8aed0eab9c8cb550fd6c0c99f57411a36ca31550b8be9a71dd",
+    "tests/automated/check-container-relayout-metrics.c": "a80027382be70a4e87b525bad8dd55af344c44ab2367dbd817ebb0713c32d74e"
+  }
+}

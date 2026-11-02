@@ -1,3 +1,20 @@
+Make Periodic Font menu choices change the application fonts (2026-11-02)
+=======================================================================
+
+- Wire Small/Medium/Large to application-scoped render-table updates. Retain
+  original font tables for repeatable 85%/100%/125% choices and exact Medium
+  restoration. Preserve Xft family/weight/text tags, theme and display scale;
+  normalize legacy bitmap-to-outline line metrics in Xft builds.
+- Update controls, cached gadgets, menus and pre-created dialogs. Retire font
+  snapshots with their widgets. Reflow modern overview tracks from original
+  measured budgets after font changes, including shrinking back to Medium.
+- Permit Periodic shell geometry negotiation so larger menu labels fit.
+- Recompute automatic Container grid/cell dimensions in XmContainerRelayout
+  from current item geometry, preserving explicit cell dimensions. Add an
+  eight-case grow/shrink regression for large/small grid/cell views.
+- Add native checks for font metrics, family/weight, unchanged scale/profile,
+  repeated selections, enlarged control bounds and application teardown.
+
 Make Periodic push-button activation observable (2026-11-02)
 ============================================================
 

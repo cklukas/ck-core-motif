@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-02 — Working Periodic Font menu
+
+- Make Small, Medium and Large resize the demo fonts, including menus and
+  dialogs. Preserve theme and display scale; Medium restores the original fonts.
+- Let menus negotiate their new sizes and refresh Container grid measurements
+  so enlarged labels remain separated.
+- Reflow the modern overview for enlarged fonts and verify repeated changes,
+  font metrics and layout bounds with native tests.
+
 ## 2026-11-02 — Periodic push-button feedback
 
 - Make Start Filming switch to Stop Filming on activation, and back on the next

@@ -52,6 +52,7 @@ static char rcsid[] = "$XConsortium: periodic.c /main/8 1996/04/22 23:28:50 pasc
 #include <Xm/ToggleB.h>
 #include <Mrm/MrmPublic.h>
 #include "periodic_layout.h"
+#include "periodic_font.h"
 
 
 typedef struct _DrawData {
@@ -330,7 +331,8 @@ main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
     shell = XtVaAppCreateShell(NULL, application_class, sessionShellWidgetClass,
-                              display, XtNargc, argc, XtNargv, argv, NULL);
+                              display, XtNargc, argc, XtNargv, argv,
+                              XtNallowShellResize, True, NULL);
     if (!options.historical && options.profile != XmAPPEARANCE_CLASSIC) {
         Dimension width, height;
         double scale = 1.0;
@@ -367,6 +369,10 @@ main(int argc, char *argv[])
     XtRealizeWidget(shell);
     if (!options.historical && options.profile != XmAPPEARANCE_CLASSIC)
         PeriodicInstallOverviewLayout(appMain);
+    if (!PeriodicInstallFontMenu(shell, PeriodicSetOverviewFontFactor, appMain)) {
+        fputs("periodic: cannot initialize Font menu\n", stderr);
+        return EXIT_FAILURE;
+    }
     {
         unsigned long pid = (unsigned long)getpid();
         XChangeProperty(XtDisplay(shell), XtWindow(shell),

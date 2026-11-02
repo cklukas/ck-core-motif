@@ -10,6 +10,10 @@
 #include <Xm/ListP.h>
 #include <Xm/Frame.h>
 #include <Xm/PushBP.h>
+#include <Xm/MessageB.h>
+#ifdef USE_XFT
+#include <X11/Xft/Xft.h>
+#endif
 #include <Xm/XmStringI.h>
 static void CheckDialogArtwork(Widget root, Boolean modern)
 {
@@ -115,6 +119,104 @@ static void CheckPushFeedback(XtAppContext context, XmAppearanceProfile profile)
     XtVaGetValues(button,XmNlabelString,&restarted,NULL);
     assert(XmStringCompare(initial,restarted));
     XmStringFree(initial);XmStringFree(stopped);XmStringFree(restarted);
+}
+
+static Dimension FontHeight(Widget widget)
+{
+    XmRenderTable table=NULL;Dimension width,height;
+    XmString text=XmStringCreateLocalized("Ag");
+    XtVaGetValues(widget,XmNrenderTable,&table,NULL);
+    assert(table);XmStringExtent(table,text,&width,&height);XmStringFree(text);
+    return height;
+}
+
+#ifdef USE_XFT
+static Boolean FontFamily(Widget widget, char *family, int *weight)
+{
+    XmRenderTable table;XmStringTag *tags=NULL;Boolean found=False;
+    XtVaGetValues(widget,XmNrenderTable,&table,NULL);
+    int count=XmRenderTableGetTags(table,&tags);
+    for(int i=0;i<count;i++) {
+        XmRendition rendition=XmRenderTableGetRendition(table,tags[i]);
+        XmFontType type;XftFont *font=NULL;Arg args[2];
+        XtSetArg(args[0],XmNfontType,&type);XtSetArg(args[1],XmNxftFont,&font);
+        XmRenditionRetrieve(rendition,args,2);
+        if(!found && type==XmFONT_IS_XFT && font && (unsigned long)font!=XmAS_IS) {
+            FcChar8 *name;
+            if(FcPatternGetString(font->pattern,FC_FAMILY,0,&name)==FcResultMatch) {
+                snprintf(family,256,"%s",name);*weight=0;
+                FcPatternGetInteger(font->pattern,FC_WEIGHT,0,weight);found=True;
+            }
+        }
+        XmRenditionFree(rendition);XtFree(tags[i]);
+    }
+    XtFree((char *)tags);return found;
+}
+#endif
+
+static void CheckOverviewBounds(void);
+
+static void CheckFontLayout(void)
+{
+    const char *menus[]={"*fileCascade","*editCascade","*viewCascade","*optionsCascade","*helpCascade"};
+    for(Cardinal i=0;i<XtNumber(menus);i++) {
+        Widget item=XtNameToWidget(shell,(char *)menus[i]);XtWidgetGeometry preferred={0};Dimension width,height;
+        assert(item);XtQueryGeometry(item,NULL,&preferred);XtVaGetValues(item,XmNwidth,&width,XmNheight,&height,NULL);
+        assert(!(preferred.request_mode & CWWidth) || width>=preferred.width);
+        assert(!(preferred.request_mode & CWHeight) || height>=preferred.height);
+    }
+    Widget container=XtNameToWidget(shell,"*dialogContainer");WidgetList children;Cardinal count;
+    assert(container);XtVaGetValues(container,XmNchildren,&children,XmNnumChildren,&count,NULL);
+    for(Cardinal i=0;i<count;i++)for(Cardinal j=i+1;j<count;j++)
+        if(XmIsIconGadget(children[i]) && XmIsIconGadget(children[j])) {
+            Position ax,ay,bx,by;Dimension aw,ah,bw,bh;
+            XtVaGetValues(children[i],XmNx,&ax,XmNy,&ay,XmNwidth,&aw,XmNheight,&ah,NULL);
+            XtVaGetValues(children[j],XmNx,&bx,XmNy,&by,XmNwidth,&bw,XmNheight,&bh,NULL);
+            assert(!(ax<bx+bw && bx<ax+aw && ay<by+bh && by<ay+ah));
+        }
+}
+
+static void CheckFontChoices(XtAppContext context)
+{
+    const char *names[]={"*pushButton","*titleLabel","*smallFontButton","*textFrame","*infoDialog*OK"};
+    Widget targets[XtNumber(names)];Dimension medium[XtNumber(names)],small[XtNumber(names)];
+    double scale_before=1.0,scale_after=1.0;
+    XmAppearanceProfile profile_before,profile_after;
+    assert(XmGetWidgetScale(shell,&scale_before));
+    assert(XmGetAppearanceProfile(XtDisplay(shell),&profile_before));
+    for(Cardinal i=0;i<XtNumber(names);i++) {
+        targets[i]=XtNameToWidget(shell,(char *)names[i]);
+        if(i==3) { WidgetList children;Cardinal count;XtVaGetValues(targets[i],XmNchildren,&children,XmNnumChildren,&count,NULL);
+            for(Cardinal j=0;j<count;j++)if(XmIsText(children[j])) { targets[i]=children[j];break; } }
+        if(i==4)targets[i]=XmMessageBoxGetChild(XtNameToWidget(shell,"*infoDialog"),XmDIALOG_OK_BUTTON);
+        assert(targets[i]);medium[i]=FontHeight(targets[i]);
+    }
+#ifdef USE_XFT
+    char original_family[256];int original_weight;
+    Boolean check_family=FontFamily(targets[1],original_family,&original_weight);
+#endif
+    Widget choice=XtNameToWidget(shell,"*smallFontButton");
+    assert(XtHasCallbacks(choice,XmNactivateCallback)==XtCallbackHasSome);
+    XtCallCallbacks(choice,XmNactivateCallback,NULL);DrainLayout(context);
+    for(Cardinal i=0;i<XtNumber(names);i++) { small[i]=FontHeight(targets[i]);if(small[i]>=medium[i])fprintf(stderr,"font target %s small=%u medium=%u\n",names[i],small[i],medium[i]);assert(small[i]<medium[i]); }
+    XtCallCallbacks(XtNameToWidget(shell,"*largeFontButton"),XmNactivateCallback,NULL);DrainLayout(context);
+    for(Cardinal i=0;i<XtNumber(names);i++)assert(FontHeight(targets[i])>medium[i]);
+#ifdef USE_XFT
+    if(check_family) { char family[256];int weight;
+        assert(FontFamily(targets[1],family,&weight));
+        assert(!strcmp(family,original_family) && weight==original_weight);
+    }
+#endif
+    CheckFontLayout();
+    if(XtNameToWidget(shell,"*overviewScroll"))CheckOverviewBounds();
+    XtCallCallbacks(XtNameToWidget(shell,"*mediumFontButton"),XmNactivateCallback,NULL);DrainLayout(context);
+    for(Cardinal i=0;i<XtNumber(names);i++)assert(FontHeight(targets[i])==medium[i]);
+    /* Repeat to detect cumulative resizing or a baseline replaced by Large. */
+    XtCallCallbacks(choice,XmNactivateCallback,NULL);DrainLayout(context);
+    for(Cardinal i=0;i<XtNumber(names);i++)assert(FontHeight(targets[i])==small[i]);
+    XtCallCallbacks(XtNameToWidget(shell,"*mediumFontButton"),XmNactivateCallback,NULL);DrainLayout(context);
+    assert(XmGetWidgetScale(shell,&scale_after) && scale_after==scale_before);
+    assert(XmGetAppearanceProfile(XtDisplay(shell),&profile_after) && profile_after==profile_before);
 }
 
 static void CheckOverviewBounds(void)
@@ -240,6 +342,7 @@ static void VerifyApplication(XtAppContext context)
         if (!strcmp(expected, "geometry")) assert(width == 800 && height == 600);
     }
     CheckPushFeedback(context, profile);
+    CheckFontChoices(context);
     CheckDialogArtwork(shell, !historical && profile != XmAPPEARANCE_CLASSIC);
     {
         Widget surface = XtNameToWidget(shell,"*popupWindow");

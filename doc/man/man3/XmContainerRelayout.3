@@ -63,6 +63,9 @@
 \fBXmContainerRelayout\fP forces a layout of all items in the Container using
 the \fBXmNpositionIndex\fP and \fBXmNentryParent\fP constraint resources
 associated with each item\&.
+For grid and cell spatial layouts, automatic cell dimensions are recomputed
+from current item geometry. Explicit cell width and height resources are
+preserved. This does not change the Container widget geometry.
 .IP "\fIcontainer\fP" 10
 Specifies the Container widget ID\&.
 .PP

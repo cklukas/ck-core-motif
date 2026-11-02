@@ -1563,3 +1563,6 @@ EXTRA_DIST += tests/automated/run-gallery-demo-reflow.py \
               docs/validation/macos-demo-airport-20261102.json
 
 EXTRA_DIST += docs/validation/periodic-push-feedback-20261102.json
+
+EXTRA_DIST += tests/automated/check-container-relayout-metrics.c \
+              docs/validation/periodic-font-menu-20261102.json

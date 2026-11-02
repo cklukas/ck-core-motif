@@ -11017,6 +11017,15 @@ XmContainerRelayout(
 	return;
     }
 
+    /* A forced relayout must measure current item geometry. Font/label changes
+     * can invalidate automatic cell sizes cached by an earlier layout. Keep
+     * explicit dimensions, and invalidate both views for a later view switch. */
+    if (CtrDynamicSmallCellWidth(cw) || CtrDynamicSmallCellHeight(cw))
+        cw->container.small_cell_dim_fixed = False;
+    if (CtrDynamicLargeCellWidth(cw) || CtrDynamicLargeCellHeight(cw))
+        cw->container.large_cell_dim_fixed = False;
+    SetCellSizes(wid);
+
     /* Reset grid/cell information */
     (*((XmContainerWidgetClass)XtClass(wid))->container_class.place_item)
            					(wid,NULL,ANY_FIT);

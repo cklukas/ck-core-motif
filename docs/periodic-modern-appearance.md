@@ -214,3 +214,32 @@ and released pixels, both label transitions, profile overrides and teardown.
 
 Unspecified modern window dimensions default to a usable scaled viewport, clamped
 to the screen. Explicit width/height resources and `-geometry` remain authoritative.
+
+## Font size menu
+
+**Options → Font → Small / Medium / Large** changes this application's existing
+fonts to 85%, 100% or 125% of their original size. Controls, menu panes, cached
+gadgets and pre-created dialogs participate. Medium restores the original font
+tables exactly, so repeated choices do not accumulate scaling.
+
+This is a text-size preference: the selected appearance profile, display scale,
+density and current control values remain unchanged. Xft renditions retain their
+font families, weights and text tags. Legacy bitmap fonts use scalable outline
+substitutes in Xft builds, normalized to their original line height. Builds
+without Xft use available scalable X11 fonts.
+
+The modern overview recomputes its track budgets from the original measurements
+and chosen font factor. Enlarged examples can scroll; returning to Medium also
+restores the original minimum track sizes. The native fixture checks actual
+control/menu/text/dialog font metrics, repeated Small/Large/Medium choices, Xft
+family and weight, unchanged theme/scale, enlarged bounds and teardown.
+
+The shell permits normal resize negotiation so menu labels can request their new
+width and height. After the batch, Periodic calls `XmContainerRelayout` for its
+spatial icon pages. That API recomputes automatic cell dimensions from current
+item geometry while preserving explicit cell dimensions. This keeps enlarged
+icon labels separate.
+
+![Periodic with the original Medium fonts](gallery-screenshots/periodic-font-medium.png)
+
+![Periodic after selecting Large](gallery-screenshots/periodic-font-large.png)

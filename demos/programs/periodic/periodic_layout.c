@@ -20,10 +20,11 @@ typedef struct {
 } OverviewCell;
 
 typedef struct {
-    Widget table, clip, scroll, title, subtitle;
+    Widget table, clip, scroll, title, subtitle, main_window;
     OverviewCell *cells;
     Cardinal count;
     unsigned columns[COLUMN_COUNT], rows[ROW_COUNT];
+    unsigned original_columns[COLUMN_COUNT], original_rows[ROW_COUNT];
     Dimension gap, padding;
     Dimension viewport_width, viewport_height;
     XtIntervalId pending;
@@ -239,6 +240,8 @@ PeriodicInstallOverviewLayout(Widget main_window)
     if(!scroll)return;
     InstallEditorLayout(main_window);
     layout=(OverviewLayout *)XtCalloc(1,sizeof(*layout));
+    layout->main_window=main_window;
+    XtVaSetValues(main_window,XmNuserData,layout,NULL);
     layout->scroll=scroll;
     layout->table=XtNameToWidget(scroll,"*workArea");
     layout->title=XtNameToWidget(layout->table,"*titleLabel");
@@ -305,6 +308,8 @@ PeriodicInstallOverviewLayout(Widget main_window)
     FitSpan(layout->columns,1,6,Preferred(layout->subtitle,True),layout->gap);
     FitSpan(layout->rows,0,1,Preferred(layout->title,False)+layout->gap+
             Preferred(layout->subtitle,False),layout->gap);
+    memcpy(layout->original_columns,layout->columns,sizeof(layout->columns));
+    memcpy(layout->original_rows,layout->rows,sizeof(layout->rows));
     XtAddEventHandler(layout->clip,StructureNotifyMask,False,ViewportChanged,layout);
     XtAddCallback(layout->table,XmNdestroyCallback,Destroyed,layout);
     Layout(layout);
@@ -315,4 +320,18 @@ PeriodicInstallOverviewLayout(Widget main_window)
         if(first)XmProcessTraversal(first,XmTRAVERSE_CURRENT);
         XmScrollVisible(scroll,layout->table,0,0);
     }
+}
+
+/* Font changes reflow from the original measured budgets, so returning to
+ * Medium restores the original minima instead of retaining a grown allocation. */
+void PeriodicSetOverviewFontFactor(XtPointer closure, double factor)
+{
+    Widget main_window=(Widget)closure;
+    OverviewLayout *layout=NULL;
+    XtVaGetValues(main_window,XmNuserData,&layout,NULL);
+    if(!layout)return; /* Historical layout keeps its original fractions. */
+    for(unsigned i=0;i<COLUMN_COUNT;i++)layout->columns[i]=(unsigned)(layout->original_columns[i]*factor+0.5);
+    for(unsigned i=0;i<ROW_COUNT;i++)layout->rows[i]=(unsigned)(layout->original_rows[i]*factor+0.5);
+    layout->viewport_width=layout->viewport_height=0;
+    Layout(layout);
 }

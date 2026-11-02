@@ -5,7 +5,7 @@ datadir = ${prefix}/share/Xm/periodic
 
 bin_PROGRAMS = periodic
 EXTRA_DIST = periodic.uil periodic_l.uil XmdPeriodic.ad README
-periodic_SOURCES = periodic.c periodic_layout.c periodic_layout.h
+periodic_SOURCES = periodic.c periodic_layout.c periodic_layout.h periodic_font.c periodic_font.h
 data_DATA = $(EXTRA_DIST) $(periodic_SOURCES) periodic.uid
 LDADD = ../../../lib/Xm/libXm.la ../../../lib/Mrm/libMrm.la -lXt -lX11
 

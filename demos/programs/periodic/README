@@ -47,3 +47,9 @@ The overview Start Filming push button is a reversible UI demonstration: click
 to show Stop Filming and click again to reset it. Space activates the focused
 button too. No camera or media is accessed. Modern buttons show their arm color
 while held and restore the normal face on release.
+
+Options > Font selects Small (85%), Medium (the original fonts), or Large
+(125%) for this application. It changes existing controls, menus and dialogs
+without changing the display scale or theme. Medium restores the original
+fonts exactly; repeated selections do not accumulate. The modern overview
+reflows and scrolls to keep enlarged controls accessible.
