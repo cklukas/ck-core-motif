@@ -1,49 +1,34 @@
-.\" $XConsortium: draw.man /main/4 1995/07/17 10:46:58 drk $
-.\" Motif
-.\"
-.\" Copyright (c) 1987-2012, The Open Group. All rights reserved.
-.\"
-.\" These libraries and programs are free software; you can
-.\" redistribute them and/or modify them under the terms of the GNU
-.\" Lesser General Public License as published by the Free Software
-.\" Foundation; either version 2 of the License, or (at your option)
-.\" any later version.
-.\"
-.\" These libraries and programs are distributed in the hope that
-.\" they will be useful, but WITHOUT ANY WARRANTY; without even the
-.\" implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-.\" PURPOSE. See the GNU Lesser General Public License for more
-.\" details.
-.\"
-.\" You should have received a copy of the GNU Lesser General Public
-.\" License along with these librararies and programs; if not, write
-.\" to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
-.\" Floor, Boston, MA 02110-1301 USA
-...\" 
-...\" 
-...\" HISTORY
-.TH draw 1X MOTIF "Demonstration programs"
+.TH draw 1 "November 2026" "Motif"
 .SH NAME
-\*Ldraw\*O\ - a ScrolledWindow/DrawingArea graphic demo.
+draw \- Motif Paint raster drawing demonstration
 .SH SYNOPSIS
-.sS
-\*Ldraw\*O
-.sE
+.B draw
+.RI [ "Xt options" ]
 .SH DESCRIPTION
-\*LDraw\*O
-provides a demonstration of using a DrawingArea in an AUTOMATIC
-ScrolledWindow. 
-
-.SH Files
-.nf
-.ta 1.2i
-XmdDraw: the app-default file is very important for usability.
-Try running something like: (XENVIRONMENT=XmdDraw draw) 
-.fi
-.SH X Defaults
-The class of this application is \fIXmdDraw\fR.  
-
-.SH Editres: 
-Draw is Editres aware, so you can use 'editres' to see the
-names of the widgets in the instance hierarchy.
-
+Draw is a Paint-style drawing application. A compact toolbar and color palette
+sit above a canvas that fits the window. Zoom enables scrollbars only when the
+picture exceeds the viewport. Window resizing never resamples the document.
+.SH TOOLS
+Tool and action buttons use centered, scalable classic icons with hover tooltips.
+The palette uses two rows of square color swatches.
+Pencil, Brush, Eraser, Line, Rectangle, Ellipse, Fill, Eyedropper, Text and
+rectangular Select are available in the left tool panel. Size controls the
+brush, eraser and shape thickness. Solid shapes fills rectangles and ellipses.
+Right-button drawing uses white. Ink accepts a custom hexadecimal RGB color.
+Text places an X11 bitmap label. Select a rectangle before Copy or Cut; Paste
+places the session-local clipboard at the next canvas click.
+.SH FILES
+Open and Save support uncompressed 24-bit BMP. Builds configured with libpng
+also support PNG; transparency is flattened onto white. The filename extension
+chooses the save format. A failed load does not replace the current picture.
+Unsaved changes and replacement of existing files are confirmed.
+.SH EDITING
+Undo and Redo retain sixteen edits. Canvas size crops or extends the picture
+without resampling and can be undone. The initial document is 960 by 640 pixels;
+width and height are bounded to 1 through 4096 pixels. TrueColor X11 is required.
+.SH KEYS
+Ctrl+N/O/S: New/Open/Save. Ctrl+Shift+S: Save As. Ctrl+Z/Y: Undo/Redo.
+Ctrl+C/X/V: Copy/Cut/Paste. Delete: clear selection, or canvas if none.
+Escape: cancel drawing or paste. Plus/minus: zoom. Zero: fit.
+.SH HELP
+The Help menu contains the drawing guide.

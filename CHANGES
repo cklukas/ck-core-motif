@@ -1,3 +1,33 @@
+Show complete tooltip text on the first mapped frame (2026-11-02)
+=================================================================
+
+- Size the tooltip shell and label before mapping. Remove the 1x1-to-full-size
+  slide animation which clipped text and left resize trails on composited X11
+  displays. Frame the complete label with a subtle outline and reveal at most
+  10 x 6 pixels of padding over 96 ms using a cancellable monotonic Xt timer.
+  Keep hover delay, dismissal duration and screen-edge placement.
+- Verify all four frame edges, full text pixels throughout the reveal, bounded
+  growth, early cancellation and settled geometry in classic and modern styles.
+
+Replace the drawing demo with Motif Paint (2026-11-02)
+=====================================================
+
+- Replace the resource-polyline example and oversized command area with a
+  raster document, compact tool panel, color palette and fit-to-window view.
+  Scrollbars appear only when an explicitly zoomed picture exceeds the view.
+- Add pencil, brush, eraser, line, rectangle, ellipse, flood fill, eyedropper,
+  bitmap text, rectangular selection, session copy/cut/paste and custom colors.
+  Include sixteen undo/redo steps and undoable canvas cropping/extension.
+- Add 22 original classic tool/action icons with hover tooltips, scale-aware
+  rasterization, centered artwork and equal padding. Keep palette swatches
+  square in two rows and tools in a compact two-column grid.
+- Read/write PNG with configured libpng and 24-bit BMP on all builds. Preserve
+  the document on failed loads, confirm unsaved changes and replacements, and
+  finish file writes before replacing the destination.
+- Add sanitized raster/file/history tests and native XTest coverage for tools,
+  previews, keyboard commands, selection/paste, scrolling, zoom transforms,
+  resize preservation and text at classic and scaled modern appearances.
+
 Modernize Earth rendering, timing and window controls (2026-11-02)
 ================================================================
 

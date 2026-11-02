@@ -25,16 +25,154 @@
 #include <config.h>
 #endif
 
+#include <time.h>
+#include <X11/extensions/shape.h>
 #include <Xm/LabelP.h>
 #include <Xm/VendorSEP.h>
 #include <Xm/GadgetP.h>
-#include <Xm/SlideC.h>
 #include <Xm/TraitP.h>
 #include <Xm/ToolTipCT.h>
 #include <Xm/ToolTipT.h>
 #include "BaseClassI.h"
 #include "ToolTipI.h"
 #include "XmI.h"
+
+/* Private state lives on the label, so the public VendorShell trait keeps
+ * its existing layout. The text is never used as the animated dimension:
+ * only a few pixels of padding are revealed around a fully laid-out label. */
+typedef struct {
+   Widget label;
+   XtIntervalId tick;
+   struct timespec start;
+   Dimension width, height, extra_x, extra_y;
+} ToolTipReveal;
+
+#define TIP_REVEAL_MS 96
+#define TIP_TICK_MS 16
+
+static XrmQuark
+ToolTipRevealQuark(void)
+{
+   return XrmPermStringToQuark("XmPrivateToolTipReveal");
+}
+
+static void
+ToolTipCancelReveal(Widget label)
+{
+   ToolTipReveal *r = label ? XmeTraitGet(label, ToolTipRevealQuark()) : NULL;
+   if (r && r->tick) {
+      XtRemoveTimeOut(r->tick);
+      r->tick = 0;
+   }
+}
+
+static void
+ToolTipDestroyReveal(Widget label, XtPointer closure, XtPointer call)
+{
+   ToolTipReveal *r = closure;
+   (void)call;
+   if (r->tick) XtRemoveTimeOut(r->tick);
+   XmeTraitSet(label, ToolTipRevealQuark(), NULL);
+   XtFree((char *)r);
+}
+
+static void
+ToolTipFrame(Widget label, Position x, Position y, Dimension width,
+             Dimension height)
+{
+   Widget shell = XtParent(label);
+   XtVaSetValues(shell, XmNx, x, XmNy, y, XmNwidth, width,
+                 XmNheight, height, NULL);
+   XtResizeWidget(label, width, height, 0);
+}
+
+/* Shape only the empty padding. Resizing a mapped label can invalidate its
+ * backing pixels between ConfigureNotify and Expose on composited servers. */
+static void
+ToolTipRevealBounds(ToolTipReveal *r, unsigned inset_x, unsigned inset_y)
+{
+   Widget shell = XtParent(r->label);
+   Display *dpy = XtDisplay(shell);
+   Window win = XtWindow(shell);
+   if (!inset_x && !inset_y) {
+      XShapeCombineMask(dpy, win, ShapeBounding, 0, 0, None, ShapeSet);
+      XShapeCombineMask(dpy, win, ShapeClip, 0, 0, None, ShapeSet);
+   } else {
+      XRectangle clip, border;
+      clip.x = inset_x / 2; clip.y = inset_y / 2;
+      clip.width = r->width - inset_x; clip.height = r->height - inset_y;
+      border.x = clip.x - 1; border.y = clip.y - 1;
+      border.width = clip.width + 2; border.height = clip.height + 2;
+      XShapeCombineRectangles(dpy, win, ShapeBounding, 0, 0, &border, 1, ShapeSet, Unsorted);
+      XShapeCombineRectangles(dpy, win, ShapeClip, 0, 0, &clip, 1, ShapeSet, Unsorted);
+   }
+}
+
+static void
+ToolTipRevealTick(XtPointer closure, XtIntervalId *id)
+{
+   ToolTipReveal *r = closure;
+   struct timespec now;
+   long elapsed = TIP_REVEAL_MS;
+   unsigned remaining_x, remaining_y;
+   if (!r || !id || r->tick != *id) return;
+   r->tick = 0;
+   if (r->label->core.being_destroyed) return;
+   if (clock_gettime(CLOCK_MONOTONIC, &now) == 0) {
+      double ms = (now.tv_sec - r->start.tv_sec) * 1000.0 +
+                  (now.tv_nsec - r->start.tv_nsec) / 1000000.0;
+      elapsed = ms >= TIP_REVEAL_MS ? TIP_REVEAL_MS : (ms > 0 ? (long)ms : 0);
+   }
+   /* Ease out; a delayed event loop jumps directly to the current frame. */
+   {
+      double left = (double)(TIP_REVEAL_MS - elapsed) / TIP_REVEAL_MS;
+      remaining_x = (unsigned)(r->extra_x * left * left + 0.5);
+      remaining_y = (unsigned)(r->extra_y * left * left + 0.5);
+   }
+   ToolTipRevealBounds(r, remaining_x, remaining_y);
+   if (remaining_x || remaining_y)
+      r->tick = XtAppAddTimeOut(XtWidgetToApplicationContext(r->label),
+                                TIP_TICK_MS, ToolTipRevealTick, r);
+}
+
+static void
+ToolTipMap(Widget label, Position x, Position y, Dimension width, Dimension height,
+           Dimension extra_x, Dimension extra_y)
+{
+   int event_base, error_base;
+   Widget shell = XtParent(label);
+   ToolTipReveal *r = XmeTraitGet(label, ToolTipRevealQuark());
+   if (!r) {
+      r = (ToolTipReveal *)XtCalloc(1, sizeof(*r));
+      if (r && !XmeTraitSet(label, ToolTipRevealQuark(), r)) {
+         XtFree((char *)r);
+         r = NULL;
+      }
+      if (r) {
+         r->label = label;
+         XtAddCallback(label, XmNdestroyCallback, ToolTipDestroyReveal, r);
+      }
+   }
+   ToolTipCancelReveal(label);
+   ToolTipFrame(label, x, y, width, height);
+   if (!XtIsRealized(shell)) XtRealizeWidget(shell);
+   if (!XShapeQueryExtension(XtDisplay(shell), &event_base, &error_base)) {
+      XtPopup(shell, XtGrabNone);
+      return;
+   }
+   if (!r || (!extra_x && !extra_y) || clock_gettime(CLOCK_MONOTONIC, &r->start)) {
+      XShapeCombineMask(XtDisplay(shell), XtWindow(shell), ShapeBounding, 0, 0, None, ShapeSet);
+      XShapeCombineMask(XtDisplay(shell), XtWindow(shell), ShapeClip, 0, 0, None, ShapeSet);
+      XtPopup(shell, XtGrabNone);
+      return;
+   }
+   r->width = width; r->height = height;
+   r->extra_x = extra_x; r->extra_y = extra_y;
+   ToolTipRevealBounds(r, extra_x, extra_y);
+   XtPopup(shell, XtGrabNone);
+   r->tick = XtAppAddTimeOut(XtWidgetToApplicationContext(label), TIP_TICK_MS,
+                             ToolTipRevealTick, r);
+}
 
 #ifdef FIX_1388
 static void ToolTipLabelDestroyCallback(Widget w, XtPointer client_data, XtPointer call_data)
@@ -79,7 +217,8 @@ ToolTipGetData (Widget w)
 
       shell = XtVaCreateWidget ("TipShell",
                                 transientShellWidgetClass, top,
-                                XmNoverrideRedirect, True, NULL);
+                                XmNoverrideRedirect, True,
+                                XmNallowShellResize, True, NULL);
       if (shell == NULL)
          return ttp;
 
@@ -107,6 +246,7 @@ ToolTipUnpost (XtPointer client_data,
    if (ttp == NULL)
       return;
 
+   ToolTipCancelReveal(ttp->label);
    if (ttp->duration_timer)
    {
       if (!id || (id && (*id != ttp->duration_timer)))
@@ -130,31 +270,14 @@ ToolTipUnpost (XtPointer client_data,
 }
 
 static void
-ToolTipPostFinish (Widget slide,
-                   XtPointer client_data,
-                   XtPointer call_data)
+ToolTipStartDuration (XmToolTipConfigTrait ttp)
 {
-   XmToolTipConfigTrait ttp;
-
-   ttp = (XmToolTipConfigTrait) client_data;
-
-   if (ttp == NULL)
-   {
-      XtWarning ("ToolTipPostFinish() - ttp==NULL");
+   if (ttp == NULL || ttp->label == NULL)
       return;
-   }
-
-   if (ttp->label == NULL)
-      return;
-
-   ttp->slider = NULL;
    if (ttp->post_duration > 0)
-   {
-      ttp->duration_timer =
-         XtAppAddTimeOut (XtWidgetToApplicationContext (ttp->label),
-                          (unsigned long) ttp->post_duration,
-                          (XtTimerCallbackProc) ToolTipUnpost, client_data);
-   }
+      ttp->duration_timer = XtAppAddTimeOut (
+         XtWidgetToApplicationContext (ttp->label),
+         (unsigned long) ttp->post_duration, ToolTipUnpost, ttp);
 }
 
 static void
@@ -170,7 +293,11 @@ ToolTipPost (XtPointer client_data,
    unsigned int key;
    Window root,
      child;
-   XtWidgetGeometry geo;
+   XtWidgetGeometry geo = {0};
+   Dimension width, height, extra_x, extra_y;
+   int screen_w, screen_h;
+   Pixel outline, background, foreground;
+   Widget shell;
    Position destX,
      destY;
 
@@ -214,40 +341,48 @@ ToolTipPost (XtPointer client_data,
       XmStringFree (string);
    }
    XtQueryGeometry (ttp->label, NULL, &geo);
+   width = (geo.request_mode & CWWidth) ? geo.width : XtWidth(ttp->label);
+   height = (geo.request_mode & CWHeight) ? geo.height : XtHeight(ttp->label);
+   if (width == 0) width = 1;
+   if (height == 0) height = 1;
+   /* Keep the one-pixel outline on screen. Grow only the padding, never
+    * from a rectangle smaller than the natural label. */
+   screen_w = MAX(1, WidthOfScreen(XtScreen(w)) - 2);
+   screen_h = MAX(1, HeightOfScreen(XtScreen(w)) - 2);
+   width = MIN(width, screen_w);
+   height = MIN(height, screen_h);
+   extra_x = MIN(10, screen_w - width);
+   extra_y = MIN(6, screen_h - height);
+   width += extra_x;
+   height += extra_y;
 
    /* rws 25 Feb 2001
       Fix for Bug #1153
       Don't let the tip be off the right/bottom of the screen
     */
    destX = rx + (XmIsGadget (w) ? XtX (w) : 0) - x + XtWidth (w) / 2;
-   if (destX + geo.width > WidthOfScreen (XtScreen (w)))
+   if (destX + width > screen_w)
    {
-      destX = WidthOfScreen (XtScreen (w)) - geo.width;
+      destX = screen_w - width;
    }
    destY = ry + (XmIsGadget (w) ? XtY (w) : 0) - y + XtHeight (w);
-   if (destY + geo.height > HeightOfScreen (XtScreen (w)))
+   if (destY + height > screen_h)
    {
-      destY = ry + (XmIsGadget (w) ? XtY (w) : 0) - y - geo.height;
+      destY = ry + (XmIsGadget (w) ? XtY (w) : 0) - y - height - 2;
    }
 
-   XtVaSetValues (XtParent (ttp->label),
-                  XmNx, rx + 1,
-                  XmNy, ry + 1, XmNwidth, 1, XmNheight, 1, NULL);
-   ttp->slider =
-      XtVaCreateWidget ("ToolTipSlider", xmSlideContextWidgetClass,
-                        XmGetXmDisplay (XtDisplay (w)), XmNslideWidget,
-                        XtParent (ttp->label),
-                        XmNslideDestX, destX,
-                        XmNslideDestY, destY,
-                        XmNslideDestWidth, geo.width,
-                        XmNslideDestHeight, geo.height, NULL);
+   if (destX < 0) destX = 0;
+   if (destY < 0) destY = 0;
 
-   if (ttp->slider == NULL)
-      return;
-   XtAddCallback (ttp->slider, XmNslideFinishCallback,
-                  (XtCallbackProc) ToolTipPostFinish, ttp);
-
-   XtPopup (XtParent (ttp->label), XtGrabNone);
+   /* Lay out the full label before mapping. Growing a mapped shell from 1x1
+    * clips the text and leaves resize trails on composited X11 servers. */
+   shell = XtParent(ttp->label);
+   XtVaGetValues(ttp->label, XmNbottomShadowColor, &outline,
+                 XmNbackground, &background, XmNforeground, &foreground, NULL);
+   if (outline == background) outline = foreground;
+   XtVaSetValues(shell, XmNborderWidth, 1, XmNborderColor, outline, NULL);
+   ToolTipMap(ttp->label, destX, destY, width, height, extra_x, extra_y);
+   ToolTipStartDuration(ttp);
 }
 
 /*

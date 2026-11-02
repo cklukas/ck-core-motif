@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-02",
+  "scope": "Motif Paint demo",
+  "result": "passed",
+  "tested_sources": {
+    "demos/programs/draw/draw.c": "7131d8cfc970fd948dff150d5b5fed8c783f2586cbe34bad9c060b92d308a80a",
+    "demos/programs/draw/paint.c": "5b34c04e59240dc525d0966b989465c1f097b3d53de4d9dcb1fe148c4ac4b862",
+    "demos/programs/draw/paint.h": "55c65ef0f1859077363fd388b05b61b478955e11093ecefaf42bcf9312a0b1ee",
+    "demos/programs/draw/paint-icons.c": "59c210eb061455487ce445d9e78d3b03e3cdf94eb2bab65f0eec4faf6daa96a6",
+    "demos/programs/draw/paint-icons.h": "26dbb6aef433a68cf865ea95ecbb4692cd117bbbfd3f9c8459f783a14535bd0b",
+    "tests/automated/run-paint.py": "4d3b66f8a95f3c633443f5d77d2dfc4639c4e3263d9e8486b95de34d949b2592",
+    "tests/automated/check-paint.c": "ce69d6d97bf48821dc3ae1c3a89f1e9bc7e7fb93218478e4afa67ef5b0edb6be",
+    "tests/automated/check-paint-ui.c": "3623ce2e5d21c68587cc1362c86ba411578914cb1b2aa72e7d61868a757bd6b3",
+    "lib/Xm/ToolTip.c": "9ba94ff0e2eea33a2d08a3315574a994054b48639547571baa98541f7a4ecc4f"
+  },
+  "commands": [
+    "python3 tests/automated/run-paint.py --prefix <isolated-fixed-toolkit> --out <fresh-scratch>/tooltip-fixed",
+    "python3 tests/automated/check-tooltip-child-failure-guards.py",
+    "Run the seven other tooltip lifecycle/allocation/string/trait guard checks",
+    "gmake -j6 -C <build>/demos/programs/draw && gmake -j6 -C <build>/demos/programs/draw install"
+  ],
+  "configurations": [
+    "C11, -O2, -Wall -Wextra -Werror",
+    "AddressSanitizer + UndefinedBehaviorSanitizer",
+    "PNG and BMP-only raster builds",
+    "XTest: classic and modern-light at 150%"
+  ],
+  "checks": [
+    "raster tools, flood fill, clipped paste",
+    "bounded undo/redo and redo-branch invalidation",
+    "PNG/BMP roundtrip and malformed-load preservation",
+    "real pointer and keyboard input",
+    "shape preview and Escape cancellation",
+    "zoom/scroll coordinates and resize preservation",
+    "canvas size and bitmap text undo",
+    "22 centered icons with equal padding and square buttons",
+    "square color swatches",
+    "real hover tooltip text",
+    "first mapped tooltip shell equals full label size; visible glyph pixels before any delay or resize",
+    "all four outline edges present in screen readback",
+    "full text pixels retained throughout padding-only X Shape reveal",
+    "bounded monotonic growth, stable text surface and settled outline",
+    "timer cancellation on leave and destruction during reveal"
+  ],
+  "build_started_utc": "2026-11-02T06:53:23.324577+00:00",
+  "build_and_test_ended_utc": "2026-11-02T06:54:28.161919+00:00",
+  "executable_sha256": "bdb09087fd8acf3d16f32be7e4a4027c475acdaf7d51f938ca4dc0cd5ab01562",
+  "library_sha256": "da603fca06e3ff072b5e776c65912d974d3a2a7d79bedaaeb39d1089bc2498ef",
+  "compile_seconds": 0.40054349999991246,
+  "comparable_previous_compile_seconds": 0.6297209579934133,
+  "freshness": "Clean production draw target compiled draw.c, paint.c and paint-icons.c and installed matching assets. Runtime library hash equals the library exercised in native tests.",
+  "visual_check": "Inspected the actual running production window and its visible framed Zoom in (+) tooltip on XQuartz. Native tests sampled root-window pixels, including the outline, in every observed reveal frame.",
+  "documentation": "Documentation sources updated after executable tests; no C/header/test input changed.",
+  "before_fix": {
+    "first_frame_check": "failed as expected: mapped shell and label sizes differ",
+    "test_exit": -6
+  },
+  "after_fix": {
+    "classic": {
+      "Pencil": "45 x 22 to 55 x 28; 115 text pixels in every sampled frame",
+      "Save": "141 x 22 to 151 x 28; 351 text pixels in every sampled frame"
+    },
+    "modern_150_percent": {
+      "Pencil": "51 x 28 to 61 x 34; 115 text pixels in every sampled frame",
+      "Save": "147 x 28 to 157 x 34; 351 text pixels in every sampled frame"
+    },
+    "additional_modern_runs_passed": 3
+  },
+  "clean_library_seconds": 17.731503250004607,
+  "comparable_previous_clean_library_seconds": 22.93
+}
