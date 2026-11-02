@@ -1,3 +1,9 @@
+Release MWM parent-query child lists by pointer (2026-11-02)
+===========================================================
+
+- Free successful `XQueryTree` results whenever Xlib returns a child-list
+  pointer, including empty parent queries.
+
 Release successful ColorObj property reads (2026-11-02)
 ========================================================
 
