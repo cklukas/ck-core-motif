@@ -74,6 +74,7 @@ clients exchanging Motif window-management messages.
 - [Session workspace-string growth](mwm-session-workspace-growth.md)
 - [Session geometry persistence](mwm-session-geometry.md)
 - [Missing session values](mwm-session-missing-values.md)
+- [Help-argument declaration](mwm-help-args-declaration.md)
 - [Menu argument allocation](mwm-menu-args-allocation.md)
 - [Home-directory path bounds](mwm-home-path.md)
 - [Action-argument reallocation](mwm-action-arg-reallocation.md)

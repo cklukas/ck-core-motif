@@ -1,3 +1,10 @@
+Correct the MWM help-argument declaration (2026-11-02)
+========================================================
+
+- Match the public parser header's help-argument symbol spelling and output
+  buffer types to the implementation so CDE-facing callers compile against the
+  real interface.
+
 Reject missing MWM session state and geometry values (2026-11-02)
 ===============================================================
 
