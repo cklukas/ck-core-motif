@@ -1,0 +1,220 @@
+{
+  "source_base": "59519b878ca26c5ece0765c76f3fb56cbb69e8e3",
+  "success": true,
+  "platform": "macOS arm64, C23, XQuartz/Xft; native input on isolated Xvfb",
+  "sources": {
+    "CHANGES": "7dab48931f445da36c975a47c65b288a54f5311bdf64e7486395e97dca104a5b",
+    "CHANGES.md": "648e3496619679339634d6934ee43b7cd2a2d11d5f1ff24df17effe7a0595bd8",
+    "Makefile.am": "9663da4191ee6719e2cbec2da50bac8c77ab7d92be1b1d8b2c4e0385841e7887",
+    "demos/programs/periodic/README": "707add511df514dd297f766e7fd2aa98274250ed08e4d488bd92ed49c9d11437",
+    "demos/programs/periodic/periodic.c": "79b21b0cb9e4e83d7f1b5a20ef20588f8352eac34b860c1265459ba788b9cda1",
+    "demos/programs/periodic/periodic_l.uil": "b7f517ad62cf14ac7dabe17e10af860aa793b4963814cc475d7a9fa44a41db40",
+    "docs/periodic-modern-appearance.md": "504a8d8454c51e9d019959de4d68bf8fab8055e983edf87e0c9edf33292c4650",
+    "tests/automated/check-periodic-appearance.c": "258098824cd1fa5198b3633109fee85275c3d40508dac0d2a7f793722d5a74f8",
+    "tests/automated/run-periodic-appearance.py": "546c51a79a9752be8d5caf40def0ec26a67e19ed91492d1b18b3d953e84de54f"
+  },
+  "build": {
+    "started_utc": "2026-11-02T02:00:14.261701+00:00",
+    "steps": [
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/periodic",
+          "-j3",
+          "all"
+        ],
+        "seconds": 0.4156889170044451,
+        "exit": 0
+      },
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-modern-audit-20261101/build/demos/programs/periodic",
+          "-j3",
+          "install"
+        ],
+        "seconds": 0.1061009590048343,
+        "exit": 0
+      }
+    ],
+    "source": {
+      "demos/programs/periodic/periodic.c": "79b21b0cb9e4e83d7f1b5a20ef20588f8352eac34b860c1265459ba788b9cda1",
+      "demos/programs/periodic/periodic.uil": "5d05549ffeebae4d221d5d5a6cb71504ae44413601d92b9b7f9ba4c1246d3c79",
+      "demos/programs/periodic/periodic_l.uil": "b7f517ad62cf14ac7dabe17e10af860aa793b4963814cc475d7a9fa44a41db40"
+    },
+    "baseline": "Prior Periodic incremental build 0.33 seconds; UIL regeneration is additional work, no invented clean baseline.",
+    "outputs": {
+      "share/Xm/periodic/periodic": {
+        "sha256": "13adbbe1e341ae9e22687744ae35fb876a86a0a707411eefb6a094465fdaff80",
+        "mtime_ns": 1793584814780475986
+      },
+      "share/Xm/periodic/periodic.uid": {
+        "sha256": "b954b8b6e5436a1eb1efdc573ebf28f9264496b406cc458e914c4a643caee000",
+        "mtime_ns": 1793584814721408074
+      },
+      "share/Xm/periodic/periodic.c": {
+        "sha256": "79b21b0cb9e4e83d7f1b5a20ef20588f8352eac34b860c1265459ba788b9cda1",
+        "mtime_ns": 1793584814717146744
+      },
+      "share/Xm/periodic/periodic.uil": {
+        "sha256": "5d05549ffeebae4d221d5d5a6cb71504ae44413601d92b9b7f9ba4c1246d3c79",
+        "mtime_ns": 1793584814711794332
+      },
+      "share/Xm/periodic/periodic_l.uil": {
+        "sha256": "b7f517ad62cf14ac7dabe17e10af860aa793b4963814cc475d7a9fa44a41db40",
+        "mtime_ns": 1793584814713743164
+      }
+    },
+    "success": true,
+    "ended_utc": "2026-11-02T02:00:14.784675+00:00",
+    "seconds": 0.5227281249972293
+  },
+  "native_cases": {
+    "started_utc": "2026-11-02T02:00:14.826607+00:00",
+    "success": true,
+    "cases": [
+      {
+        "name": "light",
+        "exit": 0,
+        "seconds": 2.536256665996916
+      },
+      {
+        "name": "dark",
+        "exit": 0,
+        "seconds": 2.5388594169999124
+      },
+      {
+        "name": "scaled",
+        "exit": 0,
+        "seconds": 2.533779792000132
+      },
+      {
+        "name": "contrast",
+        "exit": 0,
+        "seconds": 2.4784867909984314
+      },
+      {
+        "name": "compact",
+        "exit": 0,
+        "seconds": 2.4537953749968437
+      },
+      {
+        "name": "classic",
+        "exit": 0,
+        "seconds": 0.28542612500314135
+      },
+      {
+        "name": "historical",
+        "exit": 0,
+        "seconds": 0.2765964589998475
+      },
+      {
+        "name": "override",
+        "exit": 0,
+        "seconds": 2.455481625001994
+      },
+      {
+        "name": "inherited-dark",
+        "exit": 0,
+        "seconds": 2.4446450830000686
+      },
+      {
+        "name": "inherited-classic",
+        "exit": 0,
+        "seconds": 0.2918680000002496
+      },
+      {
+        "name": "inherited-compact",
+        "exit": 0,
+        "seconds": 3.009248457994545
+      }
+    ],
+    "ended_utc": "2026-11-02T02:00:36.551793+00:00"
+  },
+  "geometry_case": {
+    "started_utc": "2026-11-02T02:00:52.574907+00:00",
+    "success": true,
+    "cases": [
+      {
+        "name": "geometry",
+        "exit": 0,
+        "seconds": 2.6496521669978392
+      }
+    ],
+    "ended_utc": "2026-11-02T02:00:55.665373+00:00"
+  },
+  "actual_window": {
+    "success": true,
+    "recorded_utc": "2026-11-02T02:02:12.393565+00:00",
+    "pid": 74305,
+    "periodic_pid": 74328,
+    "logger_pid": 74304,
+    "outputs": {
+      "lib/libXm.9.dylib": {
+        "sha256": "7eccb28fe5348791168551bc8b635078f5ead8126726a8bdebd0021606d9be1a",
+        "mtime_ns": 1793582314581632253
+      },
+      "lib/libMrm.9.dylib": {
+        "sha256": "58f8ccb5c7b03d40b3296c9f114a1342397092419a17155624943e34ae8624ba",
+        "mtime_ns": 1793582315012682517
+      },
+      "bin/ckmotif-gallery": {
+        "sha256": "aae831800a01ef18242aceb1b2b54a1a969faf4a2d51db9c12273dba158bde62",
+        "mtime_ns": 1793584183531525210
+      },
+      "share/Xm/airport/airport": {
+        "sha256": "50bfce75ac3b7bad13c67c1b4d411cbe8b9be349f5f89cc8e69ece41b3c62059",
+        "mtime_ns": 1793582315661916642
+      },
+      "share/Xm/periodic/periodic": {
+        "sha256": "13adbbe1e341ae9e22687744ae35fb876a86a0a707411eefb6a094465fdaff80",
+        "mtime_ns": 1793584814780475986
+      },
+      "share/Xm/periodic/periodic.uid": {
+        "sha256": "b954b8b6e5436a1eb1efdc573ebf28f9264496b406cc458e914c4a643caee000",
+        "mtime_ns": 1793584814721408074
+      },
+      "share/Xm/periodic/periodic.c": {
+        "sha256": "79b21b0cb9e4e83d7f1b5a20ef20588f8352eac34b860c1265459ba788b9cda1",
+        "mtime_ns": 1793584814717146744
+      },
+      "share/Xm/periodic/periodic.uil": {
+        "sha256": "5d05549ffeebae4d221d5d5a6cb71504ae44413601d92b9b7f9ba4c1246d3c79",
+        "mtime_ns": 1793584814711794332
+      },
+      "share/Xm/periodic/periodic_l.uil": {
+        "sha256": "b7f517ad62cf14ac7dabe17e10af860aa793b4963814cc475d7a9fa44a41db40",
+        "mtime_ns": 1793584814713743164
+      }
+    },
+    "appearance": "modern-light",
+    "scale": 1,
+    "snapshot_scope": "Actual user-facing XQuartz process; read-only screenshot. Pointer/keyboard tests run only on isolated Xvfb.",
+    "gallery_command": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/bin/ckmotif-gallery --appearance modern-light --scale 1 --open-demo periodic",
+    "gallery_executable": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/bin/ckmotif-gallery",
+    "periodic_command": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/share/Xm/periodic/periodic -xrm ckCoreMotif.appearanceProfile: modern-light -xrm ckCoreMotif.appearanceDensity: comfortable -xrm Xft.dpi: 96",
+    "periodic_executable": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/share/Xm/periodic/periodic",
+    "screenshot_sha256": "710f5301cfa238ded6b98714ecddb41acd88f9a9bbd8d09c16e042342971ab24",
+    "launch_probe_correction": "Initial lsof ran before dyld mapping completed; confirmed exact mappings after startup, without relaunch."
+  },
+  "regression_evidence": {
+    "original_uid": {
+      "started_utc": "2026-11-02T01:55:11.368406+00:00",
+      "success": false,
+      "cases": [
+        {
+          "name": "light",
+          "exit": -6,
+          "seconds": 2.600488582997059
+        }
+      ],
+      "ended_utc": "2026-11-02T01:55:14.430046+00:00"
+    },
+    "original_failure": "Original UIL sample had no activation callback. Extended native fixture failed at XtHasCallbacks before the fix.",
+    "test_precondition": "Focus/scroll the actual button into view before determining pointer coordinates; otherwise traversal can move the button after stale coordinates are recorded.",
+    "accepted_behavior": "Real XTest held button uses arm pixels; release restores face and changes Start to Stop. Focused Space changes back. All 11 profile/scale/density cases plus explicit geometry pass.",
+    "scope_limit": "Filming is a reversible button demonstration; no camera or recording backend is provided."
+  }
+}

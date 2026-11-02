@@ -199,3 +199,18 @@ appearance defaults remain owned by the toolkit.
 
 The [message dialog review](messagebox-symbol-palette.md) shows the actual
 Information dialog in light/dark tabs and explains the shared symbol-palette fix.
+
+## Push-button feedback
+
+The overview **Start Filming** sample changes to **Stop Filming** when activated
+and returns to **Start Filming** on the next activation. This demonstrates a
+reversible command; it does not access a camera or create a recording. Modern
+profiles show the arm color while held and restore the normal face on release.
+The persistent label change also makes short clicks observable.
+
+The native Periodic fixture requires XTest (`libXtst`) and exercises the actual
+UIL button with mouse press/release and the focused Space key. It checks pressed
+and released pixels, both label transitions, profile overrides and teardown.
+
+Unspecified modern window dimensions default to a usable scaled viewport, clamped
+to the screen. Explicit width/height resources and `-geometry` remain authoritative.

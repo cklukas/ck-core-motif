@@ -68,7 +68,7 @@ try:
     run("compile", ["cc", "-std=c11", "-Wall", "-Wextra", "-Wno-unused-parameter", "-Werror", "-O2",
         "-I" + str(build / "lib"), "-I" + str(root / "lib"), sources[0], root / "demos/programs/periodic/periodic_layout.c",
         "-L" + str(libraries[0].parent), "-L" + str(libraries[1].parent),
-        "-lMrm", "-lXm", "-lXt", "-lX11", "-o", binary])
+        "-lMrm", "-lXm", "-lXt", "-lX11", "-lXtst", "-o", binary])
     run("link", ["ldd", binary])
     for library in libraries:
         if str(library.parent) not in (out / "link.log").read_text():
@@ -89,7 +89,7 @@ try:
     display = ready_bytes.decode().strip()
     if not display.isdigit(): raise RuntimeError("invalid Xvfb ready response")
     env["DISPLAY"] = ":" + display
-    for mode, options in (("light", []), ("dark", ["--appearance", "modern-dark"]),
+    for mode, options in (("geometry", ["-geometry", "800x600+20+20"]), ("light", []), ("dark", ["--appearance", "modern-dark"]),
         ("scaled", ["-xrm", "Xft.dpi: 144"]),
         ("contrast", ["--appearance", "high-contrast"]), ("compact", ["--density", "compact"]),
         ("classic", ["--appearance", "classic"]), ("historical", ["--historical-resources"]),

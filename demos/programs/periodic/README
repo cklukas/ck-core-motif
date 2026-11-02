@@ -42,3 +42,8 @@ README for The Periodic Table of Motif Widgets
 	Michael K. Yee
 	Alastair Gourlay
 
+
+The overview Start Filming push button is a reversible UI demonstration: click
+to show Stop Filming and click again to reset it. Space activates the focused
+button too. No camera or media is accessed. Modern buttons show their arm color
+while held and restore the normal face on release.

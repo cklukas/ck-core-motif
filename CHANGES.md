@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-11-02 — Periodic push-button feedback
+
+- Make Start Filming switch to Stop Filming on activation, and back on the next
+  activation. This is a reversible UI demonstration; no camera is accessed.
+- Give modern Periodic a usable initial viewport while preserving explicit
+  window dimensions and Xt geometry.
+- Verify held/released painting and mouse/keyboard activation on the actual
+  Periodic sample with native XTest input.
+
 ## 2026-11-02 — Demo appearance and usable Airport flights
 
 - Launch demos with the selected theme, density and scale; installed copies win

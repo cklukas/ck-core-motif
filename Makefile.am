@@ -1561,3 +1561,5 @@ EXTRA_DIST += tests/automated/run-gallery-demo-reflow.py \
               docs/demo-launch-appearance.md docs/airport-demo.md \
               docs/appearance-object-lifetime.md \
               docs/validation/macos-demo-airport-20261102.json
+
+EXTRA_DIST += docs/validation/periodic-push-feedback-20261102.json

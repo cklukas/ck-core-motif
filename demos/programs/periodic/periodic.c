@@ -64,6 +64,7 @@ typedef struct _DrawData {
 
 
 static void InstallDialogArtwork(Widget root);
+static Boolean InstallPushFilming(Widget root);
 
 static GC GetGC(
 	Widget w );
@@ -330,6 +331,19 @@ main(int argc, char *argv[])
     }
     shell = XtVaAppCreateShell(NULL, application_class, sessionShellWidgetClass,
                               display, XtNargc, argc, XtNargv, argv, NULL);
+    if (!options.historical && options.profile != XmAPPEARANCE_CLASSIC) {
+        Dimension width, height;
+        double scale = 1.0;
+        int screen_width = WidthOfScreen(XtScreen(shell));
+        int screen_height = HeightOfScreen(XtScreen(shell));
+        (void)XmGetWidgetScale(shell, &scale);
+        XtVaGetValues(shell, XtNwidth, &width, XtNheight, &height, NULL);
+        /* Automatic scrolling has a tiny preferred size. Supply usable defaults
+         * only for unspecified dimensions; Xt still applies explicit -geometry. */
+        if (!width) width = (Dimension)(1440 * scale < screen_width - 64 ? 1440 * scale : (screen_width > 64 ? screen_width - 64 : 1));
+        if (!height) height = (Dimension)(1080 * scale < screen_height - 96 ? 1080 * scale : (screen_height > 96 ? screen_height - 96 : 1));
+        XtVaSetValues(shell, XtNwidth, width, XtNheight, height, NULL);
+    }
     if (MrmOpenHierarchy(1, mrmFile, NULL, &mrmId) != MrmSUCCESS) {
         fputs("periodic: cannot open periodic.uid; run beside it or set UIDPATH\n", stderr);
         return EXIT_FAILURE;
@@ -338,6 +352,11 @@ main(int argc, char *argv[])
         MrmFetchWidget(mrmId, (!options.historical && options.profile != XmAPPEARANCE_CLASSIC) ?
                        "modernAppMain" : "appMain", shell, &appMain, &mrmClass) != MrmSUCCESS) {
         fputs("periodic: cannot construct the widget table\n", stderr);
+        MrmCloseHierarchy(mrmId);
+        return EXIT_FAILURE;
+    }
+    if (!InstallPushFilming(appMain)) {
+        fputs("periodic: cannot initialize push button example\n", stderr);
         MrmCloseHierarchy(mrmId);
         return EXIT_FAILURE;
     }
@@ -356,6 +375,53 @@ main(int argc, char *argv[])
     }
     XtAppMainLoop(appContext);
     return EXIT_SUCCESS;
+}
+
+/* A persistent demo action makes activation observable after release. No camera
+ * or media is accessed; the two labels demonstrate a reversible command. */
+typedef struct {
+    XmString start, stop;
+    Boolean filming;
+} FilmingState;
+
+static void
+PushFilmingCb(Widget w, XtPointer client, XtPointer call)
+{
+    FilmingState *state = (FilmingState *)client;
+    (void)call;
+    state->filming = !state->filming;
+    XtVaSetValues(w, XmNlabelString, state->filming ? state->stop : state->start, NULL);
+}
+
+static void
+ReleasePushFilming(Widget w, XtPointer client, XtPointer call)
+{
+    FilmingState *state = (FilmingState *)client;
+    (void)w;
+    (void)call;
+    XmStringFree(state->start);
+    XmStringFree(state->stop);
+    XtFree((char *)state);
+}
+
+static Boolean
+InstallPushFilming(Widget root)
+{
+    Widget button = XtNameToWidget(root, "*pushButton");
+    FilmingState *state = (FilmingState *)XtCalloc(1, sizeof(*state));
+    MrmCode type;
+    /* Resolve localized literals while the hierarchy is still open. */
+    if (!button ||
+        MrmFetchLiteral(mrmId, "pushButtonText", XtDisplay(root),
+                        (XtPointer *)&state->start, &type) != MrmSUCCESS ||
+        MrmFetchLiteral(mrmId, "pushButtonStopText", XtDisplay(root),
+                        (XtPointer *)&state->stop, &type) != MrmSUCCESS) {
+        ReleasePushFilming(root, state, NULL);
+        return False;
+    }
+    XtAddCallback(button, XmNactivateCallback, PushFilmingCb, state);
+    XtAddCallback(button, XmNdestroyCallback, ReleasePushFilming, state);
+    return True;
 }
 
 /* Demo artwork uses the toolkit cache and its scale-aware public loader. */

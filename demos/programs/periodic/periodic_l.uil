@@ -178,8 +178,10 @@ promptTitleText :	"PromptDialog";
 
 ! widget text
 
-pushButtonText :	compound_string("Start", separate = true) &
+pushButtonText :	exported compound_string("Start", separate = true) &
 			compound_string("Filming");
+pushButtonStopText : exported compound_string("Stop", separate = true) &
+                     compound_string("Filming");
 
 toggleButtonText :		"Lights";
 

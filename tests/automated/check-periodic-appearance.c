@@ -1,12 +1,15 @@
 /* Exercise the real demo startup and Mrm hierarchy, replacing only its loop. */
 #include <X11/Intrinsic.h>
 #include <X11/Xutil.h>
+#include <X11/keysym.h>
+#include <X11/extensions/XTest.h>
 #include <X11/Xresource.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <Xm/ListP.h>
 #include <Xm/Frame.h>
+#include <Xm/PushBP.h>
 #include <Xm/XmStringI.h>
 static void CheckDialogArtwork(Widget root, Boolean modern)
 {
@@ -54,6 +57,64 @@ static void DrainLayout(XtAppContext context)
         XtAppProcessEvent(context,XtIMAll);
         XSync(XtDisplay(shell),False);
     }
+}
+
+/* Exercise the actual UIL button's action path and callback, not a clone. */
+static void CheckPushFeedback(XtAppContext context, XmAppearanceProfile profile)
+{
+    Widget button = XtNameToWidget(shell, "*pushButton");
+    XmString initial, stopped, restarted;
+    Pixel background, arm;
+    Dimension highlight, shadow;
+    Position rx, ry;
+    XEvent event = {0};
+    assert(button && XtHasCallbacks(button, XmNactivateCallback) == XtCallbackHasSome);
+    XtVaGetValues(button, XmNlabelString, &initial, XmNbackground, &background,
+        XmNarmColor, &arm, XmNhighlightThickness, &highlight,
+        XmNshadowThickness, &shadow, NULL);
+    /* Bring the actual sample into view before recording pointer coordinates. */
+    assert(XmProcessTraversal(button, XmTRAVERSE_CURRENT));
+    DrainLayout(context);
+    event.xbutton.type = ButtonPress;
+    event.xbutton.display = XtDisplay(button);
+    event.xbutton.window = XtWindow(button);
+    event.xbutton.button = Button1;
+    event.xbutton.same_screen = True;
+    event.xbutton.x = XtWidth(button)/2;
+    event.xbutton.y = XtHeight(button)/2;
+    XtTranslateCoords(button,event.xbutton.x,event.xbutton.y,&rx,&ry);
+    event.xbutton.x_root=rx;event.xbutton.y_root=ry;
+    XTestFakeMotionEvent(XtDisplay(button), DefaultScreen(XtDisplay(button)), rx, ry, 0);
+    XTestFakeButtonEvent(XtDisplay(button), Button1, True, 0);
+    DrainLayout(context);
+    assert(((XmPushButtonWidget)button)->pushbutton.armed);
+    if(profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) {
+        XImage *image=XGetImage(XtDisplay(button),XtWindow(button),0,0,
+            XtWidth(button),XtHeight(button),AllPlanes,ZPixmap);
+        assert(image && arm != background);
+        assert(XGetPixel(image,XtWidth(button)/2,highlight+shadow+1)==arm);
+        XDestroyImage(image);
+    }
+    event.xbutton.type=ButtonRelease;
+    XTestFakeButtonEvent(XtDisplay(button), Button1, False, 0);
+    DrainLayout(context);
+    assert(!((XmPushButtonWidget)button)->pushbutton.armed);
+    XtVaGetValues(button,XmNlabelString,&stopped,NULL);
+    assert(!XmStringCompare(initial,stopped));
+    if(profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) {
+        XImage *image=XGetImage(XtDisplay(button),XtWindow(button),0,0,
+            XtWidth(button),XtHeight(button),AllPlanes,ZPixmap);
+        assert(image && XGetPixel(image,XtWidth(button)/2,highlight+shadow+1)==background);
+        XDestroyImage(image);
+    }
+    KeyCode key = XKeysymToKeycode(XtDisplay(button), XK_space);
+    assert(key);
+    XTestFakeKeyEvent(XtDisplay(button), key, True, 0);
+    XTestFakeKeyEvent(XtDisplay(button), key, False, 0);
+    DrainLayout(context);
+    XtVaGetValues(button,XmNlabelString,&restarted,NULL);
+    assert(XmStringCompare(initial,restarted));
+    XmStringFree(initial);XmStringFree(stopped);XmStringFree(restarted);
 }
 
 static void CheckOverviewBounds(void)
@@ -172,6 +233,13 @@ static void VerifyApplication(XtAppContext context)
         assert(width+2*(margin+shadow+border)==main_width);
         assert(height>main_height/2);
     }
+    if (!historical && profile != XmAPPEARANCE_CLASSIC) {
+        Dimension width, height;
+        XtVaGetValues(shell, XtNwidth, &width, XtNheight, &height, NULL);
+        assert(width >= 800 && height >= 600);
+        if (!strcmp(expected, "geometry")) assert(width == 800 && height == 600);
+    }
+    CheckPushFeedback(context, profile);
     CheckDialogArtwork(shell, !historical && profile != XmAPPEARANCE_CLASSIC);
     {
         Widget surface = XtNameToWidget(shell,"*popupWindow");

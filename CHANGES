@@ -1,3 +1,16 @@
+Make Periodic push-button activation observable (2026-11-02)
+============================================================
+
+- Give the overview Start Filming button a reversible demonstration action:
+  activation changes its localized label to Stop Filming, then back on the next
+  activation. No camera or media is accessed. Own the labels per button and free
+  them on destruction; resolve UIL literals before closing the hierarchy.
+- Give modern Periodic a usable initial viewport while preserving explicit
+  window dimensions and Xt geometry.
+- Test the actual UIL sample with native XTest pointer/keyboard input, held-arm
+  pixels, released-face pixels, persistent label changes and hierarchy teardown
+  across modern light/dark, scale, density, classic and explicit overrides.
+
 Inherit gallery appearance in demos and repair Airport usability (2026-11-02)
 ============================================================================
 
