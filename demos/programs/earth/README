@@ -1,34 +1,43 @@
-/* $XConsortium: README /main/3 1996/07/15 14:03:26 drk $ */
-				Earth
-				-----
+Earth
+=====
 
-This demo demonstrates the use of the shape extension within Motif and
-the Motif WindowManager.
+Earth is a movable, resizable Motif globe demonstration. In modern-light and
+modern-dark profiles it projects one 2048x1024 world texture onto a sphere,
+with bilinear sampling, lighting and an antialiased silhouette. Classic and
+high-contrast profiles retain the original two-color artwork. The canvas is
+black in every profile, and the globe stays centered and uniformly scaled.
 
-It starts a decoration-less small (64x64 pixels) rotating earth on your
-screen that you can control using a dialog scale popped up with Btn3
-on the earth itself.
+Right-click the globe to show the speed slider below it, within the same
+window. Right-click again to hide it and reclaim the space. There is no popup.
+Only the globe area is black; the slider uses normal theme colors and a
+scale-aware 32-pixel track height, with its preferred overall height allocated.
 
-The following resources are supported:
+Left-click without dragging stops the globe. Hold and drag left/right to turn
+it directly; release to continue at the gesture's direction and speed, bounded
+to +/-20 RPM. Holding still for 150 ms before release stops it. Rotation is
+frozen immediately on press, with no automatic timer movement during a drag.
+Scroll up to enlarge the globe or down to shrink it in fine 2% steps (5%–200%). The zoom
+center is always the center of the globe area, even in a non-square window.
+The slider reflects the released speed. Escape cancels a drag. Releasing
+outside the window still ends the drag because the pointer is grabbed.
 
-	speed
-		Sets the rotation speed.
-		Default = 50.
-	foreground
-		Sets the color of land.
-		Default = brown
-	background
-		Sets the color of water.
-		Default = turquoise
+Animation uses one cancellable Xt timer with a default cadence of 30 FPS.
+Rotation is computed from monotonic elapsed time, independently of FPS. Missed
+presentation deadlines are skipped; there is no catch-up burst. The default
+speed is 0.5 RPM, one revolution every two minutes. The slider displays RPM
+from -20.0 to 20.0 in 0.1 increments. Zero pauses; negative values reverse.
 
+Resources and options:
+  speed / -speed N  Integer tenths of RPM, -200..200; default 5 (0.5 RPM).
+  fps / -fps N      Presentation rate, 1..120; default 30.
+Out-of-range resource values are clamped. Pausing removes the timer entirely.
+The foreground/background resources set classic land/water colors.
 
-It also supports the command-line option:
+Examples:
+  earth -xrm 'ckCoreMotif.appearanceProfile: modern-light'
+  earth -xrm 'ckCoreMotif.appearanceProfile: modern-dark' -fps 60 -speed 3
 
-	-speed
-		Sets the rotation speed.
-
-------
-Enjoy,
-
-- Daniel Dardailler
-- Andrew deBlois
+The installed world-map.xpm is loaded once through the toolkit's XPM loader;
+no JPEG/PNG decoder or network is needed. A build-tree source-path fallback
+supports running before installation. Modern rendering requires TrueColor.
+See MAP-LICENSE for NASA source, attribution and conversion details.

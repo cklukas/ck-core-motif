@@ -1,3 +1,20 @@
+Modernize Earth rendering, timing and window controls (2026-11-02)
+================================================================
+
+- Project one attributed 2048x1024 NASA world map onto a continuously rotating
+  sphere in modern light/dark themes, with interpolated sampling and shading.
+  Retain original artwork for classic/high-contrast profiles.
+- Target 30 FPS independently of rotation speed; use monotonic elapsed time,
+  skip missed deadlines, and cancel the timer on pause or destruction.
+  Default to 0.5 RPM, with a signed decimal-RPM slider and -fps option.
+- Provide a decorated, movable, resizable window with a black canvas and a
+  centered globe. Right-click toggles a normally themed, properly sized inline
+  slider below it. Left-click stops; drag/release controls spin up to +/-20 RPM.
+  Automatic rotation is disabled throughout pointer control. The wheel zooms
+  the globe around the center of the viewport without resizing the window.
+- Add native coverage for theme selection, timer cadence, delayed dispatch,
+  pause/reverse/resume, projection, interpolation, texture detail and layout.
+
 Restore drag negotiation and make DNDDemo interactive (2026-11-02)
 =================================================================
 

@@ -24,20 +24,32 @@
 ...\" HISTORY
 .TH earth 1X MOTIF "Demonstration programs"
 .SH NAME
-\*Learth\*O\ - a shape extension/animation demo.
+\*Learth\*O\ - a resizable globe animation demo.
 .SH SYNOPSIS
 .sS
-\*Learth\*O [-speed number]
+\*Learth\*O [-speed tenths-rpm] [-fps number]
 .sE
 .SH DESCRIPTION
 \*LEarth\*O
-provides a demonstration of using a shaped window within a Motif
-application and mwm.
+displays a rotating globe in a decorated, movable, resizable window with a
+black background. Modern light/dark profiles project one high-resolution
+world map onto a shaded sphere. Classic profiles use the original artwork.
+Right-click the globe to toggle an inline, normally themed speed slider below
+it. Left-click without dragging to stop. Drag left/right and release to set
+spin direction and speed; holding still before release stops. Automatic
+rotation is suspended throughout pointer control. The mouse wheel zooms in or
+out in 2-percent steps around the center of the globe area (5 to 200 percent).
 
-The speed argument is a number between -100,100.
+The speed argument is an integer in tenths of revolutions per minute, from
+-200 to 200. The default is 5 (0.5 RPM, one turn every two minutes). Zero
+pauses; negative values reverse rotation. The slider displays decimal RPM.
+The -fps argument independently sets presentation cadence from 1 to 120 FPS
+(default 30). Out-of-range values are clamped. A monotonic clock determines
+rotation, so dropped frames do not alter angular speed or create catch-up
+bursts. Pausing removes the animation timer.
 
 .SH X Defaults
 The class of this application is \fIXmdEarth\fR.  
 
 Earth supports the following application resources:
-      speed, background, foreground.
+      speed, fps, background, foreground.
