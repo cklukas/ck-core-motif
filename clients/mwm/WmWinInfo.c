@@ -1079,6 +1079,7 @@ ProcessSmClientID (ClientData *pCD)
 			    &leftover, (unsigned char **)&clientID)
 	 == Success) &&
 	(actualType != None) && (actualFormat == 8) && (nitems > 0) &&
+	(leftover == 0) &&
 	(clientID != NULL) &&
 	(nitems < (unsigned long)UINT_MAX))
     {

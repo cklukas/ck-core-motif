@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Require complete MWM session client-ID properties (2026-11-02)
+=============================================================
+
+- Reject an `SM_CLIENT_ID` property when the bounded X11 read leaves a
+  truncated suffix instead of persisting the prefix.
+
 Release empty MWM menu-property payloads (2026-11-02)
 ======================================================
 
