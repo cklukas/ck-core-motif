@@ -1539,6 +1539,7 @@ EXTRA_DIST += tests/automated/check-outline-initialize-list.py docs/outline-chil
 EXTRA_DIST += tests/automated/check-tree-converter-abi.py docs/tree-converter-abi.md
 EXTRA_DIST += tests/automated/check-legacy-converter-abi.py docs/legacy-converter-abi.md
 EXTRA_DIST += tests/automated/check-iconbutton-string-conversion.py docs/iconbutton-string-conversion.md
+EXTRA_DIST += tests/automated/check-tabbox-mode-converter.py docs/tabbox-mode-converter.md
 EXTRA_DIST += tests/automated/check-mwm-identity-inputs.py
 
 EXTRA_DIST += tests/automated/check-avatar-modern.c \

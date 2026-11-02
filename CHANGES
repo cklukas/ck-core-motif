@@ -1,3 +1,10 @@
+Reset TabBox basic-mode resource conversion state (2026-11-02)
+===============================================================
+
+- Ensure a later `BASIC` `XmNtabMode` resource conversion overwrites the
+  converter's static result after a different mode was converted; see
+  `docs/tabbox-mode-converter.md`.
+
 Harden IconButton string conversion input bounds (2026-11-02)
 ============================================================
 

@@ -4362,6 +4362,7 @@ CvtStringToTabMode(dpy, arg_list, arg_cnt, from, to, data)
     if( XmCompareISOLatin1(str, "BASIC") == 0 ||
         XmCompareISOLatin1(str, "XmTABS_BASIC") == 0 )
     {
+	result = XmTABS_BASIC;
     }
     else if( XmCompareISOLatin1(str, "STACKED") == 0 ||
 	     XmCompareISOLatin1(str, "XmTABS_STACKED") == 0 )
