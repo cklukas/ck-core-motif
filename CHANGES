@@ -1,3 +1,10 @@
+Validate Mrm FetchSetValues argument counts (2026-11-02)
+========================================================
+
+- Reject public argument counts that cannot be represented by the internal
+  `int` pointer-list and loop interfaces used by `MrmFetchSetValues`; see
+  `docs/mrm-fetch-set-values-argument-count.md`.
+
 Remove the Mrm icon-argument limit (2026-11-02)
 ===================================================
 
