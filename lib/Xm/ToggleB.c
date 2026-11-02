@@ -1957,10 +1957,18 @@ Initialize(
       if (maxIndicatorSize > boxSize)
 	{ 
 	  delta = (maxIndicatorSize - boxSize) / 2;
-	  new_w->toggle.ind_top_delta = delta;
-	  new_w->label.margin_top += new_w->toggle.ind_top_delta;
-	  new_w->toggle.ind_bottom_delta = delta;
-	  new_w->label.margin_bottom += new_w->toggle.ind_bottom_delta;
+	  {
+	    Dimension old_margin = new_w->label.margin_top;
+	    Dimension new_margin = toggle_bounded_dimension(
+	      (uint64_t)old_margin + delta);
+	    new_w->toggle.ind_top_delta = new_margin - old_margin;
+	    new_w->label.margin_top = new_margin;
+	    old_margin = new_w->label.margin_bottom;
+	    new_margin = toggle_bounded_dimension(
+	      (uint64_t)old_margin + delta);
+	    new_w->toggle.ind_bottom_delta = new_margin - old_margin;
+	    new_w->label.margin_bottom = new_margin;
+	  }
 	}
       
       /* CR 2337: Make room for toggle indicator and spacing */
@@ -1970,8 +1978,11 @@ Initialize(
 		   new_w->label.margin_right);
 	  if (delta > 0)
 	    {
-	      new_w->toggle.ind_right_delta = delta;
-	      new_w->label.margin_right += delta;
+	      Dimension old_margin = new_w->label.margin_right;
+	      Dimension new_margin = toggle_bounded_dimension(
+		(uint64_t)old_margin + delta);
+	      new_w->toggle.ind_right_delta = new_margin - old_margin;
+	      new_w->label.margin_right = new_margin;
 	    }
 	}
       else
@@ -1980,8 +1991,11 @@ Initialize(
 		   new_w->label.margin_left);
 	  if (delta > 0)
 	    {
-	      new_w->toggle.ind_left_delta = delta;
-	      new_w->label.margin_left += delta;
+	      Dimension old_margin = new_w->label.margin_left;
+	      Dimension new_margin = toggle_bounded_dimension(
+		(uint64_t)old_margin + delta);
+	      new_w->toggle.ind_left_delta = new_margin - old_margin;
+	      new_w->label.margin_left = new_margin;
 	    }
 	}
     }

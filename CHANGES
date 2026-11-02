@@ -1,3 +1,9 @@
+Saturate ToggleButton indicator margin deltas (2026-11-02)
+===========================================================
+
+- Record the actual bounded indicator-margin increase instead of wrapping a
+  large requested delta through legacy geometry fields.
+
 Clamp ToggleButtonGadget text-origin geometry (2026-11-02)
 =============================================================
 
