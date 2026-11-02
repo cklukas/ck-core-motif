@@ -1,3 +1,11 @@
+Validate MWM Panelist function arguments (2026-11-02)
+=======================================================
+
+- Reject invalid MWM function-table indexes and required parser arguments in
+  the exported Panelist helper before dereferencing the table, and clear a
+  supplied output argument on failure; see
+  `docs/mwm-panelist-function-arguments.md`.
+
 Correct MWM `f.exec` multibyte delimiters (2026-11-02)
 =========================================================
 

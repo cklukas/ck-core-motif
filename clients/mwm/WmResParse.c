@@ -7995,9 +7995,17 @@ ParseWmFunctionArg (
 		String sClientName,
 		String sTitle)
 {
-    unsigned char *lineP = *linePP;
+    unsigned char *lineP;
     Boolean bValidArg = True;
     unsigned char *str = NULL;
+
+    if (ppArg != NULL)
+	*ppArg = NULL;
+    if (linePP == NULL || ppArg == NULL || ix < 0 ||
+	(size_t)ix >= WMFUNCTIONTABLESIZE || functionTable[ix].parseProc == NULL)
+	return False;
+
+    lineP = *linePP;
 
     /*
      * If this is (possibly) a string argument, put it 
