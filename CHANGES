@@ -1,3 +1,8 @@
+Display framed tooltips without animation (2026-11-02)
+======================================================
+
+- Show the complete frame and padding when the hover delay expires.
+
 Show complete tooltip text on the first mapped frame (2026-11-02)
 =================================================================
 

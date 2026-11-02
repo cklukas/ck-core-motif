@@ -19,8 +19,8 @@ assert "if (shell == NULL)" in data
 assert "if (ttp->label == NULL)" in data
 assert "Widget shell = XtParent (ttp->label);" in unpost
 assert "ttp == NULL || ttp->label == NULL" in finish
-assert "ToolTipMap(ttp->label, destX, destY, width, height, extra_x, extra_y);" in post
-assert "ToolTipCancelReveal(ttp->label);" in unpost
+assert "ToolTipFrame(ttp->label, destX, destY, width, height);" in post
+assert "XtPopup(XtParent(ttp->label), XtGrabNone);" in post
 assert "ToolTipStartDuration(ttp);" in post
 assert "ToolTipSlider" not in post
 print("PASS ToolTip child and timer failure paths are null-safe")

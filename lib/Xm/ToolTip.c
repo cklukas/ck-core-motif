@@ -25,8 +25,6 @@
 #include <config.h>
 #endif
 
-#include <time.h>
-#include <X11/extensions/shape.h>
 #include <Xm/LabelP.h>
 #include <Xm/VendorSEP.h>
 #include <Xm/GadgetP.h>
@@ -37,45 +35,6 @@
 #include "ToolTipI.h"
 #include "XmI.h"
 
-/* Private state lives on the label, so the public VendorShell trait keeps
- * its existing layout. The text is never used as the animated dimension:
- * only a few pixels of padding are revealed around a fully laid-out label. */
-typedef struct {
-   Widget label;
-   XtIntervalId tick;
-   struct timespec start;
-   Dimension width, height, extra_x, extra_y;
-} ToolTipReveal;
-
-#define TIP_REVEAL_MS 96
-#define TIP_TICK_MS 16
-
-static XrmQuark
-ToolTipRevealQuark(void)
-{
-   return XrmPermStringToQuark("XmPrivateToolTipReveal");
-}
-
-static void
-ToolTipCancelReveal(Widget label)
-{
-   ToolTipReveal *r = label ? XmeTraitGet(label, ToolTipRevealQuark()) : NULL;
-   if (r && r->tick) {
-      XtRemoveTimeOut(r->tick);
-      r->tick = 0;
-   }
-}
-
-static void
-ToolTipDestroyReveal(Widget label, XtPointer closure, XtPointer call)
-{
-   ToolTipReveal *r = closure;
-   (void)call;
-   if (r->tick) XtRemoveTimeOut(r->tick);
-   XmeTraitSet(label, ToolTipRevealQuark(), NULL);
-   XtFree((char *)r);
-}
-
 static void
 ToolTipFrame(Widget label, Position x, Position y, Dimension width,
              Dimension height)
@@ -84,94 +43,6 @@ ToolTipFrame(Widget label, Position x, Position y, Dimension width,
    XtVaSetValues(shell, XmNx, x, XmNy, y, XmNwidth, width,
                  XmNheight, height, NULL);
    XtResizeWidget(label, width, height, 0);
-}
-
-/* Shape only the empty padding. Resizing a mapped label can invalidate its
- * backing pixels between ConfigureNotify and Expose on composited servers. */
-static void
-ToolTipRevealBounds(ToolTipReveal *r, unsigned inset_x, unsigned inset_y)
-{
-   Widget shell = XtParent(r->label);
-   Display *dpy = XtDisplay(shell);
-   Window win = XtWindow(shell);
-   if (!inset_x && !inset_y) {
-      XShapeCombineMask(dpy, win, ShapeBounding, 0, 0, None, ShapeSet);
-      XShapeCombineMask(dpy, win, ShapeClip, 0, 0, None, ShapeSet);
-   } else {
-      XRectangle clip, border;
-      clip.x = inset_x / 2; clip.y = inset_y / 2;
-      clip.width = r->width - inset_x; clip.height = r->height - inset_y;
-      border.x = clip.x - 1; border.y = clip.y - 1;
-      border.width = clip.width + 2; border.height = clip.height + 2;
-      XShapeCombineRectangles(dpy, win, ShapeBounding, 0, 0, &border, 1, ShapeSet, Unsorted);
-      XShapeCombineRectangles(dpy, win, ShapeClip, 0, 0, &clip, 1, ShapeSet, Unsorted);
-   }
-}
-
-static void
-ToolTipRevealTick(XtPointer closure, XtIntervalId *id)
-{
-   ToolTipReveal *r = closure;
-   struct timespec now;
-   long elapsed = TIP_REVEAL_MS;
-   unsigned remaining_x, remaining_y;
-   if (!r || !id || r->tick != *id) return;
-   r->tick = 0;
-   if (r->label->core.being_destroyed) return;
-   if (clock_gettime(CLOCK_MONOTONIC, &now) == 0) {
-      double ms = (now.tv_sec - r->start.tv_sec) * 1000.0 +
-                  (now.tv_nsec - r->start.tv_nsec) / 1000000.0;
-      elapsed = ms >= TIP_REVEAL_MS ? TIP_REVEAL_MS : (ms > 0 ? (long)ms : 0);
-   }
-   /* Ease out; a delayed event loop jumps directly to the current frame. */
-   {
-      double left = (double)(TIP_REVEAL_MS - elapsed) / TIP_REVEAL_MS;
-      remaining_x = (unsigned)(r->extra_x * left * left + 0.5);
-      remaining_y = (unsigned)(r->extra_y * left * left + 0.5);
-   }
-   ToolTipRevealBounds(r, remaining_x, remaining_y);
-   if (remaining_x || remaining_y)
-      r->tick = XtAppAddTimeOut(XtWidgetToApplicationContext(r->label),
-                                TIP_TICK_MS, ToolTipRevealTick, r);
-}
-
-static void
-ToolTipMap(Widget label, Position x, Position y, Dimension width, Dimension height,
-           Dimension extra_x, Dimension extra_y)
-{
-   int event_base, error_base;
-   Widget shell = XtParent(label);
-   ToolTipReveal *r = XmeTraitGet(label, ToolTipRevealQuark());
-   if (!r) {
-      r = (ToolTipReveal *)XtCalloc(1, sizeof(*r));
-      if (r && !XmeTraitSet(label, ToolTipRevealQuark(), r)) {
-         XtFree((char *)r);
-         r = NULL;
-      }
-      if (r) {
-         r->label = label;
-         XtAddCallback(label, XmNdestroyCallback, ToolTipDestroyReveal, r);
-      }
-   }
-   ToolTipCancelReveal(label);
-   ToolTipFrame(label, x, y, width, height);
-   if (!XtIsRealized(shell)) XtRealizeWidget(shell);
-   if (!XShapeQueryExtension(XtDisplay(shell), &event_base, &error_base)) {
-      XtPopup(shell, XtGrabNone);
-      return;
-   }
-   if (!r || (!extra_x && !extra_y) || clock_gettime(CLOCK_MONOTONIC, &r->start)) {
-      XShapeCombineMask(XtDisplay(shell), XtWindow(shell), ShapeBounding, 0, 0, None, ShapeSet);
-      XShapeCombineMask(XtDisplay(shell), XtWindow(shell), ShapeClip, 0, 0, None, ShapeSet);
-      XtPopup(shell, XtGrabNone);
-      return;
-   }
-   r->width = width; r->height = height;
-   r->extra_x = extra_x; r->extra_y = extra_y;
-   ToolTipRevealBounds(r, extra_x, extra_y);
-   XtPopup(shell, XtGrabNone);
-   r->tick = XtAppAddTimeOut(XtWidgetToApplicationContext(label), TIP_TICK_MS,
-                             ToolTipRevealTick, r);
 }
 
 #ifdef FIX_1388
@@ -246,7 +117,6 @@ ToolTipUnpost (XtPointer client_data,
    if (ttp == NULL)
       return;
 
-   ToolTipCancelReveal(ttp->label);
    if (ttp->duration_timer)
    {
       if (!id || (id && (*id != ttp->duration_timer)))
@@ -381,7 +251,8 @@ ToolTipPost (XtPointer client_data,
                  XmNbackground, &background, XmNforeground, &foreground, NULL);
    if (outline == background) outline = foreground;
    XtVaSetValues(shell, XmNborderWidth, 1, XmNborderColor, outline, NULL);
-   ToolTipMap(ttp->label, destX, destY, width, height, extra_x, extra_y);
+   ToolTipFrame(ttp->label, destX, destY, width, height);
+   XtPopup(XtParent(ttp->label), XtGrabNone);
    ToolTipStartDuration(ttp);
 }
 

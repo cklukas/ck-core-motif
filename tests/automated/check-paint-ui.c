@@ -81,9 +81,9 @@ static int sample_tip(Widget tip, XRectangle *clip, const char *capture)
 }
 static void hover_tip(Widget w,const char *expected,int cancel_early)
 {
-    Position x,y;Dimension width,height,tw,th,text_w,text_h;Widget tip=NULL;int i,ink,changes=0;
+    Position x,y;Dimension width,height,tw,th,text_w,text_h;Widget tip=NULL;int i,ink;
     char *text=NULL,filename[64];XmString label_string;XmRenderTable table;
-    struct timespec delay={0,10000000};XWindowAttributes attributes;XRectangle first,prior,current;
+    struct timespec delay={0,10000000};XWindowAttributes attributes;XRectangle first,current;
     XtVaGetValues(w,XmNwidth,&width,XmNheight,&height,NULL);XtTranslateCoords(w,width/2,height/2,&x,&y);
     XTestFakeMotionEvent(app.display,-1,x,y,CurrentTime);XFlush(app.display);
     for(i=0;i<150;++i){
@@ -108,20 +108,14 @@ static void hover_tip(Widget w,const char *expected,int cancel_early)
         if(cancel_early!=2){XGetWindowAttributes(app.display,XtWindow(XtParent(tip)),&attributes);assert(attributes.map_state!=IsViewable);}
         return;
     }
-    prior=first;
+    assert(first.x==0 && first.y==0 && first.width==tw && first.height==th);
     for(i=0;i<20;++i){
         nanosleep(&delay,NULL);drain();
         XGetWindowAttributes(app.display,XtWindow(XtParent(tip)),&attributes);
         assert(attributes.map_state==IsViewable && attributes.width==tw && attributes.height==th);
         assert(sample_tip(tip,&current,NULL)==ink);
-        assert(current.width>=prior.width && current.height>=prior.height && current.width<=first.width+10 && current.height<=first.height+6);
-        assert(abs(2*current.x+current.width-tw)<=1 && abs(2*current.y+current.height-th)<=1);
-        if(current.width!=prior.width || current.height!=prior.height)++changes;
-        if(i>=12)assert(current.width==tw && current.height==th);
-        prior=current;
+        assert(current.x==0 && current.y==0 && current.width==tw && current.height==th);
     }
-    assert(changes>0 && prior.width>first.width && prior.height>first.height);
-    fprintf(stderr,"%s: %u x %u to %u x %u in %d observed reveal steps, %d text pixels retained in every frame\n",expected,first.width,first.height,tw,th,changes,ink);
 }
 int main(int argc,char **argv)
 {

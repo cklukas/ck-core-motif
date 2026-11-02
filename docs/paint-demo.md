@@ -25,7 +25,7 @@ Both the icon viewport and its visible artwork are centered, with equal margins;
 the toolbar explicitly requests centered entry alignment. Native tests measure
 pixel bounds, padding and image alignment, and verify actual hover popup text
 under classic and 150% modern styling. Tooltips show the full text and a subtle outline in the
-first frame; a brief timed reveal expands the padding only; see [tooltip popup geometry](tooltip-child-allocation.md).
+first frame, at its final size. See [tooltip popup geometry](tooltip-child-allocation.md).
 
 A tooltip captured from the running application:
 
