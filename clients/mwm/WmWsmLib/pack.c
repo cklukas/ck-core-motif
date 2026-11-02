@@ -88,6 +88,26 @@ WSMStringLength(String string)
     return(string != NULL ? strlen(string) : 0);
 }
 
+static Boolean
+AddConfigFormatSize(long *size, WSMAttribute *attributes, int count)
+{
+    int i;
+
+    if (count < 0 || (count != 0 && attributes == NULL))
+	return False;
+    if (!AddPackedSize(size, COUNT_SIZE))
+	return False;
+    for (i = 0; i < count; i++) {
+	if (!AddPackedSize(size, WSMStringLength(WSMQuarkString(
+		attributes[i].nameq))) ||
+	    !AddPackedSize(size, COUNT_SIZE) ||
+	    !AddPackedSize(size, sizeof(CARD8)) ||
+	    !AddPackedSize(size, BOOL_SIZE))
+	    return False;
+    }
+    return True;
+}
+
 /*
  * Routines for packing protocol data stream.
  */
@@ -304,7 +324,9 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	return(NULL);
     }
 
-    save = data = (MessageData) XtMalloc(size);
+    if (size < 0 || (size_t)size > UINT_MAX)
+	return(NULL);
+    save = data = (MessageData) XtMalloc((Cardinal)size);
     if (save == NULL && size != 0)
 	return(NULL);
 
@@ -396,7 +418,6 @@ MessageData
 _WSMPackReply(Display *dpy, int screen_num,
 	      WSMReply *reply, unsigned long *msg_data_len)
 {
-    WSMAttribute *attr;
     WSMWinInfo *win_info;
     WSMWinEntry *win_entry;
     register int i;
@@ -417,7 +438,10 @@ _WSMPackReply(Display *dpy, int screen_num,
 	    return(NULL);
 	size = COUNT_SIZE;
 	for (i = 0; i < reply->extensions.num_extensions; i++) {
-	    size += (WSMStringLength(reply->extensions.extensions[i]) + COUNT_SIZE);
+	    if (!AddPackedSize(&size,
+			       WSMStringLength(reply->extensions.extensions[i])) ||
+		!AddPackedSize(&size, COUNT_SIZE))
+		return(NULL);
 	}
 	break;
     case WSM_CONFIG_FMT:
@@ -433,42 +457,13 @@ _WSMPackReply(Display *dpy, int screen_num,
 	     reply->config_format.icon_formats == NULL))
 	    return(NULL);
 	size = BOOL_SIZE;	/* accept_diffs. */
-	size += COUNT_SIZE;	/* The count of global attributes. */
-	attr = reply->config_format.global_formats;
-	for (i = 0; i < reply->config_format.num_global_formats; i++)  {
-	    /*
-	     * Bytes in string
-	     */
-	    size += strlen(WSMQuarkString(attr[i].nameq)) * sizeof(CARD8);
-	    /*
-	     * len of string + size + is_list.
-	     */
-	    size += COUNT_SIZE + sizeof(CARD8) + BOOL_SIZE; 
-	}
-	size += COUNT_SIZE;	/* The count of window attributes. */
-	attr = reply->config_format.window_formats;
-	for (i = 0; i < reply->config_format.num_window_formats; i++)  {
-	    /*
-	     * Bytes in string
-	     */
-	    size += strlen(WSMQuarkString(attr[i].nameq)) * sizeof(CARD8);
-	    /*
-	     * len of string + size + is_list.
-	     */
-	    size += COUNT_SIZE + sizeof(CARD8) + BOOL_SIZE; 
-	}
-	size += COUNT_SIZE;	/* The count of icon attributes. */
-	attr = reply->config_format.icon_formats;
-	for (i = 0; i < reply->config_format.num_icon_formats; i++)  {
-	    /*
-	     * Bytes in string
-	     */
-	    size += strlen(WSMQuarkString(attr[i].nameq)) * sizeof(CARD8);
-	    /*
-	     * len of string + size + is_list.
-	     */
-	    size += COUNT_SIZE + sizeof(CARD8) + BOOL_SIZE; 
-	}
+	if (!AddConfigFormatSize(&size, reply->config_format.global_formats,
+				 reply->config_format.num_global_formats) ||
+	    !AddConfigFormatSize(&size, reply->config_format.window_formats,
+				 reply->config_format.num_window_formats) ||
+	    !AddConfigFormatSize(&size, reply->config_format.icon_formats,
+				 reply->config_format.num_icon_formats))
+	    return(NULL);
 	break;
     case WSM_GET_STATE:
         if (reply->get_state.num_win_info_list < 0)
@@ -552,7 +547,9 @@ _WSMPackReply(Display *dpy, int screen_num,
 	return(NULL);
     }
 
-    save = data = (MessageData) XtMalloc(size);
+    if (size < 0 || (size_t)size > UINT_MAX)
+	return(NULL);
+    save = data = (MessageData) XtMalloc((Cardinal)size);
     if (save == NULL && size != 0)
 	return(NULL);
 

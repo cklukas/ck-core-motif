@@ -11,7 +11,8 @@ for marker in ("_WSMPackRequest", "_WSMPackReply"):
     start = text.index(marker)
     end = text.index("\n}\n", start)
     function = text[start:end]
-    assert "save = data = (MessageData) XtMalloc(size);" in function
+    assert "if (size < 0 || (size_t)size > UINT_MAX)" in function
+    assert "save = data = (MessageData) XtMalloc((Cardinal)size);" in function
     assert "if (save == NULL && size != 0)" in function
     assert "return(NULL);" in function
 print("WSM packers handle non-empty allocation failure")

@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Bound WSM packed-message arithmetic (2026-11-02)
+==================================================
+
+- Accumulate extension and configuration-format output sizes with checked
+  arithmetic and validate the final Xt `Cardinal` allocation width.
+
 Reject invalid WSM configuration counts (2026-11-02)
 =====================================================
 
