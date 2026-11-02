@@ -190,7 +190,7 @@ CvtStringToVirtualBinding(Display    *dpy,
 			  XrmValuePtr toVal,
 			  XtPointer  *closure_ret )
 {
-    char 	 *str = (char *)fromVal->addr;
+    char 	 *str;
     XKeyEvent	  event;
     int		  count, tmp;
     int		 *eventTypes;
@@ -201,6 +201,11 @@ CvtStringToVirtualBinding(Display    *dpy,
     KeyCode	  minK;
     Modifiers	  used_mods;
     size_t        binding_bytes;
+
+    if (dpy == NULL || fromVal == NULL || fromVal->addr == NULL ||
+	toVal == NULL)
+	return False;
+    str = (char *)fromVal->addr;
 
     /* Lookup codes_per_sym, and let Xt cache the result instead of */
     /* always downloading a new copy with XGetKeyboardMapping(). */

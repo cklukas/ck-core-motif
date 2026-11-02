@@ -1,3 +1,9 @@
+Validate virtual-key converter inputs before use (2026-11-02)
+===========================================================
+
+- Reject null Xt conversion inputs before virtual-key binding conversion can
+  dereference them; see `docs/virtual-binding-converter-inputs.md`.
+
 Validate virtual-binding X11 property publication length (2026-11-02)
 =====================================================================
 
