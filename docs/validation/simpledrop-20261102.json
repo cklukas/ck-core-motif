@@ -1,0 +1,79 @@
+{
+  "library_sha256": "dbc0be5cdb1449ff607b9c917c3990afe8625601f32cdf6b5b3de7ce786a45df",
+  "target": "simpledrop native pointer/transfer regression",
+  "started_utc": "2026-11-02T06:05:47.579456+00:00",
+  "sources": {
+    "tests/automated/check-simpledrop.c": "778c541255b7a9f55f507ff85444e4f4e94554476a7228102813ce4282728b30",
+    "demos/programs/drag_and_drop/simpledrop.c": "47a18402213d8796f39dc3d31de78aa7a1c199203b2614653bedab638fe15d00"
+  },
+  "commands": [
+    {
+      "command": [
+        "cc",
+        "-std=gnu17",
+        "-Wno-deprecated-non-prototype",
+        "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/install/include",
+        "-I/opt/X11/include",
+        "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/tests/automated/check-simpledrop.c",
+        "-L/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib",
+        "-L/opt/X11/lib",
+        "-lXm",
+        "-lXt",
+        "-lX11",
+        "-lXtst",
+        "-o",
+        "/Volumes/S8T/tmp/motif-simpledrop-20261102/final-test/check-simpledrop"
+      ],
+      "seconds": 0.10449875000631437,
+      "exit": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "/Volumes/S8T/tmp/motif-simpledrop-20261102/final-test/check-simpledrop"
+      ],
+      "seconds": 1.5478243749967078,
+      "exit": 0,
+      "output": "PASS: simpledrop primary/middle drags transfer current numbers; labels correct\n"
+    }
+  ],
+  "success": true,
+  "baseline": "No comparable standalone simpledrop fixture build duration recorded.",
+  "ended_utc": "2026-11-02T06:05:49.305062+00:00",
+  "build": {
+    "start": "2026-11-02T06:04:38.164904+00:00",
+    "target": "simpledrop",
+    "configuration": "native macOS, installed Motif; direct clean compile",
+    "source_sha256": "47a18402213d8796f39dc3d31de78aa7a1c199203b2614653bedab638fe15d00",
+    "assets": "No bundled assets",
+    "output": "/Volumes/S8T/tmp/motif-simpledrop-20261102/simpledrop",
+    "baseline": "No directly comparable standalone simpledrop compile recorded; single C translation unit.",
+    "command": [
+      "cc",
+      "-std=gnu17",
+      "-O2",
+      "-g",
+      "-I/Volumes/S8T/tmp/motif-modern-audit-20261101/install/include",
+      "-I/opt/X11/include",
+      "/Volumes/PRO-BLADE/git/cworks_dir/ck-core-motif/demos/programs/drag_and_drop/simpledrop.c",
+      "-L/Volumes/S8T/tmp/motif-modern-audit-20261101/install/lib",
+      "-L/opt/X11/lib",
+      "-lXm",
+      "-lXt",
+      "-lX11",
+      "-o",
+      "/Volumes/S8T/tmp/motif-simpledrop-20261102/simpledrop"
+    ],
+    "elapsed": 0.3771055420074845,
+    "end": "2026-11-02T06:04:38.542552+00:00",
+    "exit": 0,
+    "log": "",
+    "binary_sha256": "08989dc32e4494e0c9d1e345566fc45abecac90b614533e5b7fdd25cf7bf5773"
+  },
+  "running_verification": {
+    "pid": 28962,
+    "executable": "/Volumes/S8T/tmp/motif-modern-audit-20261101/install/share/Xm/drag_and_drop/simpledrop",
+    "sha256": "08989dc32e4494e0c9d1e345566fc45abecac90b614533e5b7fdd25cf7bf5773"
+  },
+  "visual_limit": "XQuartz computer-use connection timed out; native XTest transfers passed. No live-window visual claim."
+}

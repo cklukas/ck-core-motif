@@ -36,3 +36,13 @@ shows off the most basic features in Motif Drag and Drop.  It also
 serves as a programming example.
 
 
+
+.SH INTERACTION
+Set the slider, then drag the "Drag number" label beneath it into
+"drop here" with the left mouse button. The label follows the slider value;
+each drop copies the number captured when the drag began. The middle mouse
+button also works. The scale's original middle-button drag from the numeric
+value above the slider remains available.
+.PP
+The destination accepts STRING, COMPOUND_TEXT and PIXMAP transfers from
+compatible Motif drag sources, not arbitrary desktop file drops.

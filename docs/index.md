@@ -30,3 +30,5 @@ not regenerate or import that entire reference collection.
 - [Fork history](history.md) records the corrections preceding the new ABI cohort.
 
 The toolkit follows the licensing terms in the repository's `COPYING` file.
+
+See the [simple drag and drop demo](simpledrop.md) for mouse gestures and validation.

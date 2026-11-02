@@ -40,6 +40,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <Xm/XmAll.h>
 
 /* ======================================================================
@@ -96,6 +97,70 @@ static void TransferDone(Widget transfer, XtPointer client_data,
 		   Atom * selection, Atom * type, XtPointer value,
 		   unsigned long *length, int *format);
 /* Xt Selection Callback. Transfer flight number from source */
+
+/* The explicit source supports ordinary primary-button dragging, including
+ * mice without a middle button. Snapshot the value for the transfer lifetime. */
+static Boolean ConvertNumber(Widget dc, Atom *selection, Atom *target,
+                             Atom *type, XtPointer *value,
+                             unsigned long *length, int *format)
+{
+   char *number;
+   (void)selection;
+   if (*target != StringAtom) return False;
+   XtVaGetValues(dc, XmNclientData, &number, NULL);
+   *type = StringAtom;
+   *value = XtNewString(number);
+   *length = strlen(number);
+   *format = 8;
+   return True;
+}
+
+static void NumberDragFinished(Widget dc, XtPointer data, XtPointer call)
+{
+   (void)dc;
+   (void)call;
+   XtFree((char *)data);
+}
+
+static void DragNumber(Widget source, XtPointer data, XEvent *event,
+                       Boolean *continue_dispatch)
+{
+   Widget dc;
+   int value;
+   char number[32];
+   char *snapshot;
+   Arg args[6];
+   XtCallbackRec finished[2] = {{NumberDragFinished, NULL}, {NULL, NULL}};
+   (void)continue_dispatch;
+   if (event->type != ButtonPress ||
+       (event->xbutton.button != Button1 && event->xbutton.button != Button2))
+      return;
+   XmScaleGetValue((Widget)data, &value);
+   snprintf(number, sizeof(number), "%d", value);
+   snapshot = XtNewString(number);
+   XtSetArg(args[0], XmNexportTargets, &StringAtom);
+   XtSetArg(args[1], XmNnumExportTargets, 1);
+   XtSetArg(args[2], XmNdragOperations, XmDROP_COPY);
+   XtSetArg(args[3], XmNconvertProc, ConvertNumber);
+   XtSetArg(args[4], XmNclientData, snapshot);
+   finished[0].closure = snapshot;
+   XtSetArg(args[5], XmNdragDropFinishCallback, finished);
+   dc = XmDragStart(source, event, args, XtNumber(args));
+   if (!dc) XtFree(snapshot);
+}
+
+static void UpdateNumber(Widget scale, XtPointer data, XtPointer call)
+{
+   int value;
+   char text[96];
+   XmString label;
+   (void)call;
+   XmScaleGetValue(scale, &value);
+   snprintf(text, sizeof(text), "Drag number: %d (left mouse button)", value);
+   label = XmStringCreateLocalized(text);
+   XtVaSetValues((Widget)data, XmNlabelString, label, NULL);
+   XmStringFree(label);
+}
 
 /* =====================================================================
  * Show application modal warning dialogue box with specified messages
@@ -180,7 +245,7 @@ static Widget MenuBarEntry(Widget menubar, String entry, String labels[],
 int main(int argc, char *argv[])
 {
 #define MAIN_CHILDREN		3
-#define FORM_CHILDREN		2
+#define FORM_CHILDREN		3
 #define SetMenuEntry(k,l,p,d) labels[k]=l;procs[k]=p;private[k]=d;
 #define NUM_TARGETS 3
    Atom targets[NUM_TARGETS];
@@ -189,6 +254,7 @@ int main(int argc, char *argv[])
    Widget form_kid[FORM_CHILDREN];
    Widget framed[2];
    Widget entry;
+   XmString drop_label;
    static char myClass[] = "DropDemo";
    Arg args[10];
    int n ;
@@ -263,9 +329,18 @@ int main(int argc, char *argv[])
 		      XmStringCreateLocalized("Number To Drag")); n++;
    form_kid[0] = XmCreateScale(main_kid[1], "scale", args, n);
 
+   form_kid[2] = XtVaCreateWidget("number_source", xmLabelWidgetClass,
+      main_kid[1], XmNtopAttachment, XmATTACH_WIDGET,
+      XmNtopWidget, form_kid[0], XmNleftAttachment, XmATTACH_FORM,
+      XmNrightAttachment, XmATTACH_FORM, NULL);
+   XtAddEventHandler(form_kid[2], ButtonPressMask, False, DragNumber, form_kid[0]);
+   XtAddCallback(form_kid[0], XmNdragCallback, UpdateNumber, form_kid[2]);
+   XtAddCallback(form_kid[0], XmNvalueChangedCallback, UpdateNumber, form_kid[2]);
+   UpdateNumber(form_kid[0], form_kid[2], NULL);
+
    n = 0;
    XtSetArg(args[n], XmNtopAttachment, XmATTACH_WIDGET) ; n++;
-   XtSetArg(args[n], XmNtopWidget, form_kid[0]) ; n++;
+   XtSetArg(args[n], XmNtopWidget, form_kid[2]) ; n++;
    XtSetArg(args[n], XmNbottomAttachment,XmATTACH_FORM); n++; 
    XtSetArg(args[n], XmNleftAttachment, XmATTACH_FORM) ; n++;
    XtSetArg(args[n], XmNrightAttachment, XmATTACH_FORM) ; n++;
@@ -273,7 +348,10 @@ int main(int argc, char *argv[])
 
    n = 0;
    XtSetArg(args[n], XmNchildType, XmFRAME_TITLE_CHILD); n++;
+   drop_label = XmStringCreateLocalized("drop here");
+   XtSetArg(args[n], XmNlabelString, drop_label); n++;
    framed[0] = XmCreateLabel(form_kid[1], "drop_here", args, n);
+   XmStringFree(drop_label);
 /*
  * Create the dropping area
  */
@@ -287,6 +365,7 @@ int main(int argc, char *argv[])
    targets[2] = CTAtom;
    XtSetArg(args[n], XmNimportTargets, targets); n++;
    XtSetArg(args[n], XmNnumImportTargets, NUM_TARGETS); n++;
+   XtSetArg(args[n], XmNdropSiteOperations, XmDROP_COPY); n++;
    XtSetArg(args[n], XmNdragProc, NULL); n++;
    XtSetArg(args[n], XmNdropProc, SomethingDropped); n++;
    XmDropSiteRegister(this->drop_area, args, n);
@@ -323,7 +402,9 @@ static void HelpCallback(Widget button, XtPointer client_data, XtPointer cbs)
 {
    DropDemo this = (DropDemo) client_data;
    static char helpmsg[] =
-     "Please drag the value of the scale into the drop area";
+     "Set the slider, then drag the number below it into drop here with "
+     "the left mouse button. You can also middle-drag the value above "
+     "the slider. The area accepts text and pixmaps from Motif drag sources.";
 
   if ( this->help_dialog == NULL ) {
      Arg args[8];

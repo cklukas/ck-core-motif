@@ -1,3 +1,13 @@
+Make simpledrop usable with primary-button dragging (2026-11-02)
+===============================================================
+
+- Add a visible number source that follows the slider and supports left- and
+  middle-button drags, with a value snapshot owned by the drag context.
+- Display "drop here" as the destination title, advertise copy operations,
+  and explain supported gestures and transfer types in the help and manual.
+- Exercise real pointer drags and selection transfers through the demo in
+  a native regression test, checking both buttons and the displayed labels.
+
 Make animation demo minimum speed advance frames (2026-11-02)
 =============================================================
 
