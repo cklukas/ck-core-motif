@@ -1,3 +1,10 @@
+Modernize Earth demo callbacks and timer lifecycle (2026-11-02)
+===============================================================
+
+- Replace the Earth demonstration's K&R definitions with typed C23 callbacks.
+- Do not schedule a timer at zero speed, guard delay calculation from division
+  by zero, and retain the timeout ID when animation resumes from zero.
+
 Modernize Animate demo C23 callbacks (2026-11-02)
 ==================================================
 

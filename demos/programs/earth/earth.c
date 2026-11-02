@@ -96,21 +96,22 @@ static Pixmap       pterre ;
 static GC           gc ;
 static int          n ;
 
-static void    Syntax() ;
-static void    input_callback();
-static void    expose_callback();
-static void    speed_callback() ;
-static void    NextBitmap ();
+static void Syntax(char *);
+static void input_callback(Widget, XtPointer, XtPointer);
+static void expose_callback(Widget, XtPointer, XtPointer);
+static void speed_callback(Widget, XtPointer, XtPointer);
+static void NextBitmap(XtPointer, XtIntervalId *);
 
-int delayInterval (speed)
-/**************************/
-int speed;
+static unsigned long
+delayInterval(int speed)
 {
   double maxDelay = 1000.0;
-  double val      = (double)(abs(speed));
+  double val = speed < 0 ? -(double)speed : (double)speed;
 
+  if (speed == 0)
+    return 0UL;
 
-  return (int)( maxDelay / val );
+  return (unsigned long)(maxDelay / val);
 } 
 
 char *fallback[] = {
@@ -121,7 +122,8 @@ char *fallback[] = {
 };
 
 
-int main(argc, argv) int argc; char **argv ;
+int
+main(int argc, char **argv)
 /**************************************/
 {
     Arg args[10] ;
@@ -200,20 +202,22 @@ int main(argc, argv) int argc; char **argv ;
     }
 
     /* animation done in background */
-    AppData.timeoutID = XtAppAddTimeOut(app_con, 
-					delayInterval(AppData.speed), 
-					NextBitmap, NULL);
+    if (AppData.speed != 0)
+        AppData.timeoutID = XtAppAddTimeOut(app_con,
+					    delayInterval(AppData.speed),
+					    NextBitmap, NULL);
     
     XtAppMainLoop(app_con);
 
     return 0;    /* make compiler happy */
 }
 
-static void NextBitmap (client_data, id)
-/****************************************************/
-XtPointer client_data;
-XtIntervalId *id;
+static void
+NextBitmap(XtPointer client_data, XtIntervalId *id)
 {
+
+  (void)client_data;
+  (void)id;
 
 
   AppData.timeoutID = 0;
@@ -222,8 +226,6 @@ XtIntervalId *id;
     {
       if (XtIsRealized(draw))
 	{
-	  Position x, y;
-
 	  if (AppData.speed > 0) n = (n>28)?0:n+1;
 	  else                   n = (n>0)?n-1:29;
 
@@ -252,21 +254,19 @@ XtIntervalId *id;
 }
 
 
-static void expose_callback(widget, tag, callback_data)
-/****************************************************/
-Widget widget ;
-XtPointer tag ;
-XtPointer callback_data ;
+static void
+expose_callback(Widget widget, XtPointer tag, XtPointer callback_data)
 {
+    (void)widget;
+    (void)tag;
+    (void)callback_data;
+
     XCopyPlane (XtDisplay(draw), pterre, XtWindow(draw), gc,
 		0, 64*n, 64, 64, 0, 0, 1);
 }
 
-static void input_callback(widget, tag, callback_data)
-/****************************************************/
-Widget widget ;
-XtPointer tag ;
-XtPointer callback_data ;
+static void
+input_callback(Widget widget, XtPointer tag, XtPointer callback_data)
 {
   XmDrawingAreaCallbackStruct * dacb = (XmDrawingAreaCallbackStruct *) callback_data ;
   static Widget speed_dialog = NULL ;
@@ -275,6 +275,8 @@ XtPointer callback_data ;
   Cardinal n;
   XmString title_string;
   
+  (void)widget;
+  (void)tag;
 
   if ((dacb->event->type == ButtonPress) &&
        (dacb->event->xbutton.button == Button3))
@@ -314,29 +316,29 @@ XtPointer callback_data ;
 }
 
 
-static void speed_callback(widget, tag, callback_data)
-/******************************************************/
-Widget widget ;
-XtPointer tag ;
-XtPointer callback_data ;
+static void
+speed_callback(Widget widget, XtPointer tag, XtPointer callback_data)
 {
   XmScaleCallbackStruct * scb = 
     (XmScaleCallbackStruct *) callback_data ;
 
+  (void)widget;
+  (void)tag;
 
   if ((AppData.speed == 0) && (scb->value != 0))
     {
       AppData.speed = scb->value;
       if (AppData.timeoutID != 0) XtRemoveTimeOut(AppData.timeoutID);
-      XtAppAddTimeOut(app_con, delayInterval(AppData.speed), NextBitmap, NULL);
+      AppData.timeoutID = XtAppAddTimeOut(app_con, delayInterval(AppData.speed),
+					       NextBitmap, NULL);
     }
   else
     AppData.speed = scb->value ;
 }
 
 
-static void Syntax(com) char * com ;
-/**********************************/
+static void
+Syntax(char *com)
 {
     fprintf(stderr, "%s understands all standard Xt options, plus:\n",com);
     fprintf(stderr, "       -speed:    -100,100  (earth rotation speed)\n");
