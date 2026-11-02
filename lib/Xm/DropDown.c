@@ -2741,6 +2741,7 @@ SetTextFromList(Widget w)
     register int i;
     String *parts = NULL;
     String combined = NULL;
+    char *write_ptr;
     size_t total = 1;
     Boolean set_text = False;
     XmDropDownClassPartExtension *addition;
@@ -2797,7 +2798,7 @@ SetTextFromList(Widget w)
 
         (void)len;
         len = strlen(parts[i]);
-        separator = i ? 2U : 0U;
+        separator = i ? 1U : 0U;
         if (len > SIZE_MAX - total ||
             separator > SIZE_MAX - total - len ||
             total > (size_t)UINT_MAX ||
@@ -2810,11 +2811,14 @@ SetTextFromList(Widget w)
     combined = (String)XtMalloc((Cardinal)total);
     if (combined == NULL)
         goto conversion_failed;
-    combined[0] = '\0';
+    write_ptr = combined;
     for (i = 0; i < count; ++i) {
-        if (i) strcat(combined, ",");
-        strcat(combined, parts[i]);
+        size_t len = strlen(parts[i]);
+        if (i) *write_ptr++ = ',';
+        memcpy(write_ptr, parts[i], len);
+        write_ptr += len;
     }
+    *write_ptr = '\0';
     XmTextFieldSetString(XmDropDown_text(cbw), combined);
     XmTextFieldSetInsertionPosition(XmDropDown_text(cbw), 0);
     XtFree((char *)combined);

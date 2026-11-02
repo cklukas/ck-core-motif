@@ -18,3 +18,8 @@ The converted selection-table allocation is checked before entries are copied;
 allocation failure uses the existing selection error cleanup path instead of
 dereferencing a null table. The source regression is
 `tests/automated/check-dropdown-selection-allocation.py`.
+
+For multiple or extended selection, the resulting comma-separated field text
+is now allocated to its exact byte count and assembled with linear copies.
+This avoids repeatedly rescanning the growing result while retaining the same
+text, separator, conversion-failure cleanup, and allocation limits.

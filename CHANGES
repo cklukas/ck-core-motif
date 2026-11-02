@@ -1,3 +1,9 @@
+Assemble DropDown selection text linearly (2026-11-02)
+=======================================================
+
+- Build multi-selection DropDown text with exact checked storage and linear
+  copies rather than repeated concatenation of the growing result.
+
 - Ignore full-span Scale scrollbar callbacks (2026-11-02)
 ========================================================
 
