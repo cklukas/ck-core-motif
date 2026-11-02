@@ -1,3 +1,9 @@
+Preserve failed Mrm legacy font-list state (2026-11-02)
+=======================================================
+
+- Release an uninstalled replacement when legacy font-list fixup fails; see
+  `docs/mrm-legacy-fontlist-fixup.md`.
+
 Clean up failed Mrm compound-string vectors (2026-11-02)
 ========================================================
 
