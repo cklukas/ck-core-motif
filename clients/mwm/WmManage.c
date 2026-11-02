@@ -372,10 +372,12 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
 	    ClientData *pCDfp = NULL;
 
 	    pPanelist = (WmPanelistObject) pCD->pSD->wPanelist;
-	    (void) XFindContext (DISPLAY, XtWindow(O_Shell (pPanelist)),
-		      wmGD.windowContextType, (caddr_t *)&pCDfp);
-
-	    pCD->transientLeader = pCDfp;
+	    if (!XFindContext (DISPLAY, XtWindow(O_Shell (pPanelist)),
+		      wmGD.windowContextType, (caddr_t *)&pCDfp) &&
+		pCDfp != NULL)
+	    {
+		pCD->transientLeader = pCDfp;
+	    }
 	}
     }
 
@@ -1826,7 +1828,7 @@ void ReManageDialog (WmScreenData *pSD, Widget dialogboxW)
 	XMapWindow (DISPLAY, pCD->clientFrameWin);
     XtManageChild (dialogboxW);
 
-    if ((wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_EXPLICIT))
+    if (wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_EXPLICIT)
     {
 	Do_Focus_Key (pCD, GetTimestamp() , ALWAYS_SET_FOCUS);
     }

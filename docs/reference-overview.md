@@ -95,6 +95,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM transient-tree traversal](mwm-transient-tree-walk.md) — keep modal and restacking walks iterative for deep dialog chains.
 - [MWM workspace callback input lifecycle](mwm-workspace-callback-inputs.md) — reject detached asynchronous callback state safely.
 - [MWM transient-property refresh](mwm-transient-property-reset.md) — discard stale managed leaders after `WM_TRANSIENT_FOR` changes.
+- [MWM embedded transient leader fallback](mwm-embedded-transient-leader.md) — retain a valid owner if the front-panel lookup is unavailable.
 - [MWM client-message initialization](mwm-client-message-initialization.md) — clear unused X11 payload words.
 - [MWM keyboard-state mask typing](mwm-keyboard-state-mask.md) — use explicit unsigned XKB group bits.
 - [MWM double-click time validation](mwm-double-click-time.md) — reject non-positive signed thresholds.

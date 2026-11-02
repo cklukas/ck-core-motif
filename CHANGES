@@ -1,3 +1,12 @@
+Preserve MWM transient leaders during panel lookup failure (2026-11-02)
+=======================================================================
+
+- Retain the client-hint transient leader when the optional front-panel
+  remapping lookup has no managed panel client. Panel startup and teardown no
+  longer silently turn an embedded-client transient into a top-level window.
+- Remove a redundant conditional comparison wrapper in the same MWM path so
+  strict compiler builds stay warning-clean.
+
 Reject cyclic MWM transient associations (2026-11-02)
 =======================================================
 
