@@ -10,6 +10,17 @@ for name, needles in files.items():
     for needle in needles:
         assert needle in source, (name, needle)
 property_source = Path("clients/mwm/WmProperty.c").read_text(encoding="utf-8")
+normal_start = property_source.index("SizeHints * \nGetNormalHints")
+normal_end = property_source.index(
+    "} /* END OF FUNCTION GetNormalHints */", normal_start
+)
+normal_hints = property_source[normal_start:normal_end]
+rejected_hints = normal_hints.index(
+    "sizeHints.icccVersion = ICCC_UNKNOWN;",
+    normal_hints.index("XGetWindowProperty"),
+)
+assert "if (property)" in normal_hints[:rejected_hints]
+assert "XFree ((char *)property);" in normal_hints[:rejected_hints]
 assert "(nitems == PROP_WM_STATE_ELEMENTS) &&" in property_source
 assert "(nitems >= PROP_MWM_HINTS_ELEMENTS) &&" in property_source
 assert "(property != NULL)" in property_source

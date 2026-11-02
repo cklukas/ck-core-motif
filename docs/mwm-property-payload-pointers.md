@@ -5,6 +5,11 @@ The readers now require that pointer to be non-null alongside the expected
 type, format, and item count before copying, parsing, or returning data.  This
 keeps malformed or failed property replies from becoming null-pointer
 accesses, including the WM_STATE and _MWM_HINTS getters.
+
+`WM_NORMAL_HINTS` also releases a returned Xlib payload when later validation
+rejects its type, format, item count, or trailing data.  Xlib can allocate that
+payload before reporting metadata that MWM does not accept, so rejecting the
+metadata must not leave the temporary allocation behind.
 The same contract now covers the WM_PROTOCOLS, _MWM_MESSAGES, and
 WM_COLORMAP_WINDOWS arrays before their elements are consumed.
 

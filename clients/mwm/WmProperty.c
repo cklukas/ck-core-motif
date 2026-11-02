@@ -190,6 +190,11 @@ GetNormalHints(
 	 * Indicate no property values were retrieved:
 	 */
 
+	if (property)
+	{
+	    XFree ((char *)property);
+	    property = NULL;
+	}
 	sizeHints.icccVersion = ICCC_UNKNOWN;
 	sizeHints.flags = 0;
     }

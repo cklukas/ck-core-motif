@@ -1,3 +1,10 @@
+Release rejected MWM normal-hints payloads (2026-11-02)
+=========================================================
+
+- Free an Xlib `WM_NORMAL_HINTS` payload when its metadata fails MWM's
+  validation, matching the other property readers; see
+  `docs/mwm-property-payload-pointers.md`.
+
 Bound MWM resource-key construction (2026-11-02)
 ===================================================
 
