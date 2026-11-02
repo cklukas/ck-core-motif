@@ -11,3 +11,10 @@ WM_COLORMAP_WINDOWS arrays before their elements are consumed.
 `WM_PROTOCOLS` additionally treats a zero-item property as absent.  It no
 longer asks Xt for a zero-byte protocol array or emits a misleading allocation
 warning for an empty client property.
+
+All three variable-length readers use bounded `XGetWindowProperty` requests.
+They now require `bytes_after` to be zero before inspecting the returned
+array.  A client property that exceeds MWM's historical 40-item limit is not
+partly applied, so a suffix cannot silently change the intended protocol,
+message, or colormap-window list.  Once the complete bounded count is
+accepted, conversions to MWM's `int` count fields are explicit.

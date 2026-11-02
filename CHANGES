@@ -1,3 +1,10 @@
+Require complete variable-length MWM property reads (2026-11-02)
+=================================================================
+
+- Reject truncated `WM_PROTOCOLS`, `_MWM_MESSAGES`, and
+  `WM_COLORMAP_WINDOWS` payloads instead of applying a bounded prefix;
+  accepted counts now convert explicitly into MWM's `int` state fields.
+
 Require complete MWM normal-hints reads (2026-11-02)
 =====================================================
 

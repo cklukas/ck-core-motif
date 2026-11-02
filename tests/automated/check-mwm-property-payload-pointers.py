@@ -16,6 +16,6 @@ assert "(property != NULL)" in property_source
 protocol_start = property_source.index("void ProcessWmProtocols")
 protocol_end = property_source.index("\n} /* END OF FUNCTION ProcessWmProtocols */", protocol_start)
 protocol = property_source[protocol_start:protocol_end]
-assert "if (nitems == 0 || property == NULL ||" in protocol
+assert "(leftover != 0) || (nitems == 0) || (property == NULL)" in protocol
 assert protocol.index("nitems == 0") < protocol.index("XtMalloc")
 print("PASS MWM X11 property readers validate payload pointers")

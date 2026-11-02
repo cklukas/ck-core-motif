@@ -334,7 +334,8 @@ void ProcessWmProtocols (ClientData *pCD)
 		 (unsigned char **)&property);
 
 
-    if ((rValue != Success) || (actualType == None) || (actualFormat != 32))
+    if ((rValue != Success) || (actualType == None) || (actualFormat != 32) ||
+	(leftover != 0) || (nitems == 0) || (property == NULL))
 #else
 #ifdef WSM
     if (!HasProperty (pCD, wmGD.xa_WM_PROTOCOLS))
@@ -355,8 +356,7 @@ void ProcessWmProtocols (ClientData *pCD)
     }
     else
     {
-	if (nitems == 0 || property == NULL ||
-	    nitems > SIZE_MAX / sizeof(Atom) ||
+	if (nitems > SIZE_MAX / sizeof(Atom) ||
 	    nitems > UINT_MAX / sizeof(Atom) ||
 	    !(pCD->clientProtocols = (Atom *)XtMalloc(
 		(Cardinal)(nitems * sizeof(Atom)))))
@@ -371,9 +371,9 @@ void ProcessWmProtocols (ClientData *pCD)
 	     * protocols.
 	     */
 
-    	    pCD->clientProtocolCount = nitems;
+	    pCD->clientProtocolCount = (int)nitems;
 
-    	    for (i = 0; i < nitems; i++)
+	    for (i = 0; i < (int)nitems; i++)
     	    {
 		pCD->clientProtocols[i] = property[i];
 		if (property[i] == wmGD.xa_WM_SAVE_YOURSELF)
@@ -466,7 +466,7 @@ void ProcessMwmMessages (ClientData *pCD)
 
 
     if ((rValue != Success) || (actualType == None) || (actualFormat != 32)
-	|| (nitems == 0) || (property == NULL))
+	|| (leftover != 0) || (nitems == 0) || (property == NULL))
     {
 	/*
 	 * _MWM_MESSAGES does not exist or it is an invalid type.
@@ -491,11 +491,12 @@ void ProcessMwmMessages (ClientData *pCD)
 	     * protocols.
 	     */
 
-    	    pCD->mwmMessagesCount = nitems;
+	    pCD->mwmMessagesCount = (int)nitems;
 
-    	    for (i = 0; i < nitems; i++)
+	    for (i = 0; i < (int)nitems; i++)
     	    {
-		if ((pCD->mwmMessages[i] = property[i]) == wmGD.xa_MWM_OFFSET)
+		if ((unsigned long)(pCD->mwmMessages[i] = property[i]) ==
+		    wmGD.xa_MWM_OFFSET)
 		{
 		    pCD->protocolFlags |= PROTOCOL_MWM_OFFSET;
 		}
@@ -894,6 +895,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
     unsigned long leftover;
     unsigned long nitems;
     int i;
+    int propertyCount;
     Window *pWindows;
     Colormap *pColormaps;
     int colormapCount;
@@ -925,13 +927,14 @@ void ProcessWmColormapWindows (ClientData *pCD)
 
 
     if ((rValue == Success) && (actualType != None) && (actualFormat == 32) &&
-	(nitems > 0) && (property != NULL))
+	(leftover == 0) && (nitems > 0) && (property != NULL))
     {
 	/*
 	 * WM_COLORMAP_WINDOWS exists and is a valid type.
 	 */
 
-        if ((size_t)nitems == SIZE_MAX)
+	propertyCount = (int)nitems;
+	if ((size_t)nitems == SIZE_MAX)
             windowCount = 0;
         else
             windowCount = (size_t)nitems + 1;
@@ -970,7 +973,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 	     * If it is not then add it to the head of the list.
 	     */
 
-    	    for (i = 0; i < nitems; i++)
+	    for (i = 0; i < propertyCount; i++)
 	    {
 		if (property[i] == pCD->client)
 		{
@@ -979,7 +982,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 	    }
 
 	    colormapCount = 0;
-	    if (i == nitems)
+	    if (i == propertyCount)
 	    {
 		/* add the client window to the colormap window list */
 		pWindows[0] = pCD->client;
@@ -988,7 +991,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 	    }
 
 	    sAttributes.event_mask = (ColormapChangeMask);
-    	    for (i = 0; i < nitems; i++)
+	    for (i = 0; i < propertyCount; i++)
     	    {
 		if ((pColormaps[colormapCount] = 
 		     FindColormap (pCD, property[i])) != None)
