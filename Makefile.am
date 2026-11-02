@@ -389,6 +389,7 @@ EXTRA_DIST += tests/automated/check-mwm-invoke-message-allocation.py docs/mwm-in
 EXTRA_DIST += tests/automated/check-mwm-multiscreen-selection.py docs/mwm-multiscreen-selection.md
 EXTRA_DIST += tests/automated/check-mwm-fscreen-default.py docs/mwm-fscreen-default.md
 EXTRA_DIST += tests/automated/check-mwm-icon-resource-bounds.py docs/mwm-icon-resource-bounds.md
+EXTRA_DIST += tests/automated/check-mwm-resource-key-bounds.py docs/mwm-resource-key-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-menutree-bounds.py docs/mwm-menutree-bounds.md
 EXTRA_DIST += tests/automated/check-screen-lookup-bounds.py docs/screen-lookup-bounds.md
 EXTRA_DIST += tests/automated/check-wmcmd-label-bounds.py docs/wmcmd-label-bounds.md

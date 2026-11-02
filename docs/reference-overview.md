@@ -57,6 +57,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 
 - [Protocol property element-count bounds](protocol-property-count-width.md) — keep dynamic protocol properties within Xlib's count contract.
 - [MWM protocol overview](mwm-protocol-oom.md) — protocol conversion and allocation-failure behavior.
+- [MWM resource-key construction bounds](mwm-resource-key-bounds.md) — keep generated X resource names within the legacy buffer.
 - [MWM graphics-list allocation](mwm-graphics-list-allocation.md) — bounded rectangle-list growth.
 - [MWM client workspace-list allocation](mwm-client-workspace-list-allocation.md) — bounded per-client workspace state.
 - [MWM argument-vector allocation](mwm-argv-allocation.md) — bounded initialization argument copies.

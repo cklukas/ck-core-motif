@@ -1,3 +1,10 @@
+Bound MWM resource-key construction (2026-11-02)
+===================================================
+
+- Keep the shared MWM X resource-key buffer's remaining length unsigned and
+  bounded for every component, preventing a truncated name from turning a
+  later append into an unbounded copy; see `docs/mwm-resource-key-bounds.md`.
+
 Make Mrm file-name allocation width explicit (2026-11-02)
 ==========================================================
 

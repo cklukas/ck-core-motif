@@ -4131,22 +4131,42 @@ WriteOutXrmColors (WmScreenData *pSD)
  *
  *  Comments:
  *  --------
- *  Does no limit checking on the static buffer 
+ *  The result uses wmGD.tmpBuffer and is therefore truncated at MAXBUF.
+ *  Keep truncation terminal: an exhausted buffer must never turn into a
+ *  negative strncat() count for a later component.
  * 
  *************************************<->***********************************/
+
+static void
+AppendResourceNamePart (String value, size_t *remaining)
+{
+    size_t appendLength;
+
+    if (value == NULL || remaining == NULL || *remaining == 0)
+    {
+	return;
+    }
+
+    appendLength = strlen ((char *)value);
+    if (appendLength > *remaining)
+    {
+	appendLength = *remaining;
+    }
+
+    strncat ((char *)wmGD.tmpBuffer, (char *)value, appendLength);
+    *remaining -= appendLength;
+}
 
 String
 ResCat (String s1, String s2, String s3, String s4)
 {
-
-
-    int count;
+    size_t remaining;
 
     Boolean useResourceClass = True;
 
     wmGD.tmpBuffer[0] = '\0';
 
-    count = MAXBUF - 1;
+    remaining = MAXBUF - 1;
 
     if (s1)
     {
@@ -4171,29 +4191,23 @@ ResCat (String s1, String s2, String s3, String s4)
 	}
 	else
 	{
-	    strncat((char *)wmGD.tmpBuffer, s1, count);
-	    count -= strlen(s1);
+	    AppendResourceNamePart (s1, &remaining);
 	}
 
-	if (s2 && (count > 0))
+	if (s2 && (remaining > 0))
 	{
-	    strncat ((char *)wmGD.tmpBuffer, "*", count);
-	    count -= 1;
-	    strncat ((char *)wmGD.tmpBuffer, s2, count);
-	    count -= strlen (s2);
+	    AppendResourceNamePart ("*", &remaining);
+	    AppendResourceNamePart (s2, &remaining);
 
-	    if (s3 && (count > 0))
+	    if (s3 && (remaining > 0))
 	    {
-		strncat ((char *)wmGD.tmpBuffer, "*", count);
-		count -= 1;
-		strncat ((char *)wmGD.tmpBuffer, s3, count);
-		count -= strlen (s3);
+		AppendResourceNamePart ("*", &remaining);
+		AppendResourceNamePart (s3, &remaining);
 
 		if (s4)
 		{
-		    strncat ((char *)wmGD.tmpBuffer, "*", count);
-		    count -= 1;
-		    strncat ((char *)wmGD.tmpBuffer, s4, count);
+		    AppendResourceNamePart ("*", &remaining);
+		    AppendResourceNamePart (s4, &remaining);
 		}
 	    }
 	}

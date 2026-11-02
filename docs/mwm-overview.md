@@ -38,6 +38,7 @@ clients exchanging Motif window-management messages.
 - [Argument-vector allocation](mwm-argv-allocation.md)
 - [Virtual-key replacement allocation](mwm-virtual-key-replacement-allocation.md)
 - [Screen-name replacement safety](mwm-screen-name-replacement.md)
+- [Resource-key construction bounds](mwm-resource-key-bounds.md)
 
 ## Workspace and persistence data
 
