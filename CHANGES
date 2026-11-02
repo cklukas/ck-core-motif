@@ -1,3 +1,9 @@
+Clamp ToggleButtonGadget text-origin geometry (2026-11-02)
+=============================================================
+
+- Keep ToggleButtonGadget text and accelerator origin arithmetic wide until
+  it is stored in Motif's legacy signed coordinate fields.
+
 Clamp ToggleButtonGadget pixmap redraw geometry (2026-11-02)
 ===============================================================
 

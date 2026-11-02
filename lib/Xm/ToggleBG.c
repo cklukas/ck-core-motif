@@ -1410,7 +1410,7 @@ Leave(
 			   (int) w->rectangle.height -
 			   2 * (int) w->gadget.highlight_thickness,
 			   w->gadget.shadow_thickness);
-	  
+
 	  
 	  if (TBG_DisarmCB(w))
 	    {
@@ -2376,10 +2376,18 @@ Initialize(
       if (maxIndicatorSize > boxSize)
 	{ 
 	  delta = (maxIndicatorSize - boxSize) / 2;
-	  TBG_IndTopDelta(new_w) = delta;
-	  LabG_MarginTop(new_w) += delta;
-	  TBG_IndBottomDelta(new_w) = delta;
-	  LabG_MarginBottom(new_w) += delta;
+	  {
+	    Dimension old_margin = LabG_MarginTop(new_w);
+	    Dimension new_margin = togglebg_bounded_dimension(
+	      (uint64_t)old_margin + delta);
+	    TBG_IndTopDelta(new_w) = new_margin - old_margin;
+	    LabG_MarginTop(new_w) = new_margin;
+	    old_margin = LabG_MarginBottom(new_w);
+	    new_margin = togglebg_bounded_dimension(
+	      (uint64_t)old_margin + delta);
+	    TBG_IndBottomDelta(new_w) = new_margin - old_margin;
+	    LabG_MarginBottom(new_w) = new_margin;
+	  }
 	} 
       
       /* CR 2337: Make room for toggle indicator and spacing */
@@ -2389,8 +2397,11 @@ Initialize(
 		   LabG_MarginRight(new_w));
 	  if (delta > 0)
 	    {
-	      TBG_IndRightDelta(new_w) = delta;
-	      LabG_MarginRight(new_w) += delta;
+	      Dimension old_margin = LabG_MarginRight(new_w);
+	      Dimension new_margin = togglebg_bounded_dimension(
+		(uint64_t)old_margin + delta);
+	      TBG_IndRightDelta(new_w) = new_margin - old_margin;
+	      LabG_MarginRight(new_w) = new_margin;
 	    }
 	}
       else
@@ -2399,19 +2410,23 @@ Initialize(
 		   LabG_MarginLeft(new_w));
 	  if (delta > 0)
 	    {
-	      TBG_IndLeftDelta(new_w) = delta;
-	      LabG_MarginLeft(new_w) += delta;
+	      Dimension old_margin = LabG_MarginLeft(new_w);
+	      Dimension new_margin = togglebg_bounded_dimension(
+		(uint64_t)old_margin + delta);
+	      TBG_IndLeftDelta(new_w) = new_margin - old_margin;
+	      LabG_MarginLeft(new_w) = new_margin;
 	    }
 	}
     }
   
   if (request->rectangle.width == 0)
     {
-      new_w->rectangle.width = LabG_TextRect(new_w).width +
-	2 * LabG_MarginWidth(new_w) +
-	  LabG_MarginRight(new_w) + LabG_MarginLeft(new_w) +
-	      2 * (new_w->gadget.highlight_thickness +
-		   new_w->gadget.shadow_thickness);
+      new_w->rectangle.width = togglebg_bounded_dimension(
+	(uint64_t)LabG_TextRect(new_w).width +
+	2 * (uint64_t)LabG_MarginWidth(new_w) +
+	LabG_MarginRight(new_w) + LabG_MarginLeft(new_w) +
+	2 * ((uint64_t)new_w->gadget.highlight_thickness +
+	     new_w->gadget.shadow_thickness));
       
       if (new_w->rectangle.width == 0)
 	new_w->rectangle.width = 1;
@@ -2420,37 +2435,39 @@ Initialize(
       {
 	if (LayoutIsRtoLG(new_w))
         {
-	  LabG_AccTextRect(new_w).x =   new_w->gadget.highlight_thickness +
-	    new_w->gadget.shadow_thickness + LabG_MarginHeight(new_w);
+	  LabG_AccTextRect(new_w).x = togglebg_bounded_position(
+	    (int64_t)new_w->gadget.highlight_thickness +
+	    new_w->gadget.shadow_thickness + LabG_MarginHeight(new_w));
       }
 	else
         {
-	  LabG_AccTextRect(new_w).x = (short)((int)new_w->rectangle.width -
-	    (int)new_w->gadget.highlight_thickness -
-	      (int)new_w->gadget.shadow_thickness -
-		(int)LabG_MarginHeight(new_w) -
-		  (int)LabG_MarginRight(new_w) + LABELG_ACC_PAD);
+	  LabG_AccTextRect(new_w).x = togglebg_bounded_position(
+	    (int64_t)new_w->rectangle.width - new_w->gadget.highlight_thickness -
+	    new_w->gadget.shadow_thickness - LabG_MarginHeight(new_w) -
+	    LabG_MarginRight(new_w) + LABELG_ACC_PAD);
       }
       }
     }
   
   if (request->rectangle.height == 0) 
-    new_w->rectangle.height = 
-      MAX(TBG_IndicatorDim(new_w),
-	  LabG_TextRect(new_w).height + 2 * LabG_MarginHeight(new_w) +
+    new_w->rectangle.height = togglebg_bounded_dimension(
+      MAX((uint64_t)TBG_IndicatorDim(new_w),
+	  (uint64_t)LabG_TextRect(new_w).height +
+	  2 * (uint64_t)LabG_MarginHeight(new_w) +
 	  LabG_MarginTop(new_w) + LabG_MarginBottom(new_w)) +
-	    2 * (new_w->gadget.highlight_thickness +
-		 new_w->gadget.shadow_thickness);  
-  
-  LabG_TextRect(new_w).y = new_w->gadget.highlight_thickness
-    + new_w->gadget.shadow_thickness
-      + LabG_MarginHeight(new_w) + LabG_MarginTop(new_w) +
-	(((int)new_w->rectangle.height - (int)LabG_MarginTop(new_w)
-	  - (int)LabG_MarginBottom(new_w)
-	  - (2 * ((int)LabG_MarginHeight(new_w)
-		  + (int)new_w->gadget.highlight_thickness
-		  + (int)new_w->gadget.shadow_thickness))
-	  - (int)LabG_TextRect(new_w).height) / 2);
+	2 * ((uint64_t)new_w->gadget.highlight_thickness +
+	     new_w->gadget.shadow_thickness));
+
+  LabG_TextRect(new_w).y = togglebg_bounded_position(
+    (int64_t)new_w->gadget.highlight_thickness +
+    new_w->gadget.shadow_thickness + LabG_MarginHeight(new_w) +
+    LabG_MarginTop(new_w) +
+    (((int64_t)new_w->rectangle.height - LabG_MarginTop(new_w) -
+      LabG_MarginBottom(new_w) -
+      (2 * ((int64_t)LabG_MarginHeight(new_w) +
+	    new_w->gadget.highlight_thickness +
+	    new_w->gadget.shadow_thickness)) -
+      LabG_TextRect(new_w).height) / 2));
   
   if (new_w->rectangle.height == 0)
     new_w->rectangle.height = 1;
@@ -3072,16 +3089,16 @@ ComputeSpace(
   
   if (needed_height > tb->rectangle.height)
     if (TBG_IndOn(tb))
-      LabG_TextRect(tb).y = tb->gadget.shadow_thickness +
-	tb->gadget.highlight_thickness +
-	  LabG_MarginHeight(tb) +
-	    LabG_MarginTop(tb) +
-	      (((int)tb->rectangle.height - (int)LabG_MarginTop(tb)
-		- (int)LabG_MarginBottom(tb)
-		- (2 * ((int)LabG_MarginHeight(tb)
-			+ (int)tb->gadget.highlight_thickness
-			+ (int)tb->gadget.shadow_thickness))
-		- (int)LabG_TextRect(tb).height) / 2);
+      LabG_TextRect(tb).y = togglebg_bounded_position(
+	(int64_t)tb->gadget.shadow_thickness +
+	tb->gadget.highlight_thickness + LabG_MarginHeight(tb) +
+	LabG_MarginTop(tb) +
+	(((int64_t)tb->rectangle.height - LabG_MarginTop(tb) -
+	  LabG_MarginBottom(tb) -
+	  (2 * ((int64_t)LabG_MarginHeight(tb) +
+		 tb->gadget.highlight_thickness +
+		 tb->gadget.shadow_thickness)) -
+	  LabG_TextRect(tb).height) / 2));
   
   if (LayoutIsRtoLG(tb))
     {
@@ -3094,12 +3111,10 @@ ComputeSpace(
 	  (needed_width == tb->rectangle.width))
 	{
 	  if (TBG_IndOn(tb))
-	    LabG_TextRect(tb).x = tb->rectangle.width -
-	      (tb->gadget.shadow_thickness +
-	       tb->gadget.highlight_thickness +
-	       LabG_MarginWidth(tb) +
-	       LabG_MarginRight(tb) +
-	       LabG_TextRect(tb).width);
+	    LabG_TextRect(tb).x = togglebg_bounded_position(
+	      (int64_t)tb->rectangle.width - tb->gadget.shadow_thickness -
+	      tb->gadget.highlight_thickness - LabG_MarginWidth(tb) -
+	      LabG_MarginRight(tb) - LabG_TextRect(tb).width);
 	}
     }
   else
@@ -3113,10 +3128,10 @@ ComputeSpace(
 	  (needed_width == tb->rectangle.width))
 	{
 	  if (TBG_IndOn(tb))
-	    LabG_TextRect(tb).x =  tb->gadget.shadow_thickness +
-	      tb->gadget.highlight_thickness +
-		LabG_MarginWidth(tb) +
-		  LabG_MarginLeft(tb);
+	    LabG_TextRect(tb).x = togglebg_bounded_position(
+	      (int64_t)tb->gadget.shadow_thickness +
+	      tb->gadget.highlight_thickness + LabG_MarginWidth(tb) +
+	      LabG_MarginLeft(tb));
 	} 
     }
 }
