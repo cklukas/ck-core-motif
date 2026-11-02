@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <Xm/Xm.h>           /* Motif Toolkit */
@@ -301,10 +302,12 @@ process_single_entry(Widget parent, char* dir, int ind,
   
   if (user != NULL)
     details[num_details++] = XmStringCreateLocalized(user->pw_name);
-  else {
+  else if (status != -1) {
     sprintf(buf, "%d", FI[ind].statbuf.st_uid);
     details[num_details++] = XmStringCreateLocalized(buf);
   }
+  else
+    details[num_details++] = XmStringCreateLocalized("?");
   
   /* Permissions */
   if (status != -1)
@@ -352,7 +355,7 @@ process_single_entry(Widget parent, char* dir, int ind,
 
   XmStringFree(stemp);
   
-  if (S_ISDIR(FI[ind].statbuf.st_mode) &&
+  if (status != -1 && S_ISDIR(FI[ind].statbuf.st_mode) &&
       strcmp(info -> d_name, ".") != 0 &&
       strcmp(info -> d_name, "..") != 0) {
     ind++;
@@ -385,7 +388,7 @@ static int
 GetNewEntry(int vFI, char* dir, struct dirent *info)
 {
   char buf[256];
-  int status;
+  int path_length, status;
 
   if (vFI >= maxFI) {
     int newsize;
@@ -402,10 +405,11 @@ GetNewEntry(int vFI, char* dir, struct dirent *info)
 
   FI[vFI].name = XtNewString(info -> d_name);
   /* More UNIX specific code */
-  strcpy(buf, dir);
-  strcat(buf, "/");
-  strcat(buf, info -> d_name);
-  status = stat(buf, &FI[vFI].statbuf);
+  path_length = snprintf(buf, sizeof(buf), "%s/%s", dir, info->d_name);
+  if (path_length < 0 || (size_t)path_length >= sizeof(buf))
+    status = -1;
+  else
+    status = stat(buf, &FI[vFI].statbuf);
 
   if (vFI >= maxIcons) {
     int newsize;
@@ -441,29 +445,25 @@ find_suffix(char *filename)
     return(filename);
 }
 
-static void readIcon(str, icon, mask, fg, bg)
-     char *str;
-     Pixmap *icon;
-     Pixmap *mask;
-     Pixel fg, bg;
+static void
+readIcon(char *str, Pixmap *icon, Pixmap *mask, Pixel fg, Pixel bg)
 {
   if (str != NULL) {
-    char msk[256];
+    size_t name_length = strlen(str);
+    char *msk = XtMalloc(name_length + 7U);
 
-    if (strcmp(find_suffix(str), "xpm") == 0) {
-      int len = strlen(str);
-      strncpy(msk, str, len - 4);
-      msk[len - 4] = 0;
-      strcat(msk, "_m.xpm");
+    if (name_length > 4U && strcmp(str + name_length - 4U, ".xpm") == 0) {
+      (void)snprintf(msk, name_length + 7U, "%.*s_m.xpm",
+		     (int)(name_length - 4U), str);
     } else {
-      strcpy(msk, str);
-      strcat(msk, "_m");
+      (void)snprintf(msk, name_length + 7U, "%s_m", str);
     }
 
     *icon = XmGetPixmap(XtScreen(toplevel), str, fg, bg);
     *mask = XmGetPixmapByDepth(XtScreen(toplevel), msk,
                                WhitePixelOfScreen(XtScreen(toplevel)),
                                BlackPixelOfScreen(XtScreen(toplevel)), 1);
+    XtFree(msk);
   }
 }
 
@@ -473,7 +473,7 @@ getIcons(int ind, Pixmap *icon, Pixmap *mask, Pixmap *sicon, Pixmap *smask)
   Boolean	isdir;
   Boolean	isexec;
   Boolean	canRead;
-  FileInfoRec *info = &FI[ind];
+  FileInfoRec *info = ind >= 0 ? &FI[ind] : NULL;
   mode_t	mode;
   XrmQuark	path[10];
   XrmQuark	classes[10];
@@ -516,8 +516,8 @@ getIcons(int ind, Pixmap *icon, Pixmap *mask, Pixmap *sicon, Pixmap *smask)
 	*sicon != XmUNSPECIFIED_PIXMAP) return;
   }
 
-  isdir = S_ISDIR(info -> statbuf.st_mode);
-  mode = info -> statbuf.st_mode;
+  isdir = info != NULL && S_ISDIR(info->statbuf.st_mode);
+  mode = info != NULL ? info->statbuf.st_mode : 0;
   isexec = (mode & S_IXUSR) | (mode & S_IXGRP) | (mode & S_IXOTH);
 
   /* Defaults */

@@ -1,3 +1,10 @@
+Harden File Manager unreadable-entry fallback (2026-11-02)
+===========================================================
+
+- Use a typed C definition for the icon loader and keep failed `stat()` entries
+  on the default-icon path without indexing `FI[-1]` or reading unavailable
+  metadata.  Path and mask-name assembly are now bounded.
+
 Modernize Earth demo callbacks and timer lifecycle (2026-11-02)
 ===============================================================
 
