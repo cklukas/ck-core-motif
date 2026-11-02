@@ -1,3 +1,9 @@
+Reject unterminated MWM menu labels (2026-11-02)
+=================================================
+
+- Require a closing quote before accepting a client-command menu label, for
+  both multibyte and single-byte resource parsing.
+
 Bound MWM accelerator display-text formatting (2026-11-02)
 ===========================================================
 

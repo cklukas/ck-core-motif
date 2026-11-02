@@ -4030,12 +4030,13 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 	    if ((chlen == 1 && *endquote == '\n') || *endquote == '\0') return;
 	    endquote += chlen;
 	}
-	if (chlen < 0) return; /* invalid character */
+	if (chlen != 1 || *endquote != '"') return;
 #else
 	while (*endquote != '\0' && *endquote != '"') {
 	  if (*endquote == '\n' || *endquote == '\0') return;
 	  endquote++;
 	}
+	if (*endquote != '"') return;
 #endif
 
 	/* Well, we have a valid menu item name. Store it in the 
