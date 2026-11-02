@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-02",
+  "source_sha256": {
+    "tests/automated/check-animate-speed.c": "dcd542017a48cb3f9adf40ea5ba8b4b5488a662babf5c54129967df287d12c6f",
+    "demos/programs/animate/animate.c": "3c4752a0a650faaa1fcabd604bd18db0ca7fcc8475a908be2b85e1fcee3a65b6",
+    "demos/programs/animate/animate.uil": "7c88d23d888bacd3bd1fc3298a438fe676d9f9b38410f405d733ed09058beb37",
+    "demos/programs/animate/dog.uil": "608eeb14b592438b8892600a7d3df64dfd498d5221e0a8a821b22d3d0b8507b0",
+    "demos/programs/animate/plane.uil": "1d585c2cd097e3953bdc469711ce2b14e94ae70aee1a37bab283d63c6dc98b11",
+    "demos/programs/animate/superman.uil": "be64e4f2f214526bc9238ff6226bbb6069dd50c7de12730f6e246c270632663e",
+    "demos/programs/animate/xmanimate.c": "b27997ddbab40d41261f017375c98eea8cc0e321b348627801b27351b172b541",
+    "demos/programs/animate/xmanimate.uil": "ffe499c05c01bf0461e5e7e5cbb1a20acc6e092b9bc61559b2623e378f65e565"
+  },
+  "command": "PATH=/opt/X11/bin:$PATH python3 tests/automated/run-animate-speed.py --prefix PREFIX --xmd-library BUILD/demos/lib/Xmd/libXmd.a --out TASK_TMP/test",
+  "result": "PASS for animate.uil and xmanimate.uil: initial/minimum frames advance; speed callbacks, Stop and One step work",
+  "negative_control": "Original HEAD xmanimate.uil fails the minimum/initial-value assertion",
+  "scope": "Native callbacks and rendering on isolated Xvfb; actual desktop inspection unavailable due to XQuartz accessibility timeout",
+  "documentation": "Rendered build.html verified to contain Animation demo speed"
+}

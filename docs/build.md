@@ -391,3 +391,24 @@ records the complete installed cohort and automated results. Run
 `tests/automated/run-gallery-installed-demos.py --build-root BUILD --prefix PREFIX --out OUT`
 on an idle task-owned build; it temporarily hides its build-tree demos and restores
 them afterward. On macOS, OUT must be on a mounted project temporary volume.
+
+### Animation demo speed
+
+The animation demo uses a Speed range of 1–100 and starts at 1. The left
+endpoint is the slowest advancing setting; use Stop to pause and One step
+to advance a single frame. The historical work-procedure timing remains
+machine-dependent; these values are relative speeds, not frames per second.
+
+After changing the UIL definition, rebuild and install `xmanimate.uid`;
+recompiling only the executable does not update the interface resources.
+Run the native regression with an installed toolkit and the built Xmd archive:
+
+```sh
+python3 tests/automated/run-animate-speed.py --prefix PREFIX \
+  --xmd-library BUILD/demos/lib/Xmd/libXmd.a --out TASK_TMP/animate-speed
+```
+
+The runner needs `Xvfb` on PATH and a C compiler. It compiles both UIL
+definitions, loads the actual demo, and checks that initial and restored
+minimum speed advance frames and that Stop and One step retain their behavior.
+It uses an isolated display and records source hashes, commands and results.

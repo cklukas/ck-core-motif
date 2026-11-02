@@ -1,3 +1,12 @@
+Make animation demo minimum speed advance frames (2026-11-02)
+=============================================================
+
+- Set the animation Speed scale range explicitly to 1–100, initially 1,
+  in both UIL definitions. Start now advances frames at the left endpoint;
+  Stop remains the pause control.
+- Add native regression coverage for initial and restored minimum speed,
+  speed callbacks, Stop and One step using the actual demo implementation.
+
 Make Periodic Font menu choices change the application fonts (2026-11-02)
 =======================================================================
 

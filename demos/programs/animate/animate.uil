@@ -185,6 +185,9 @@ object
     motifanim_speed : XmScale {
 	arguments { 
 	    XmNtitleString = compound_string('Speed');
+	    XmNminimum = 1;
+	    XmNmaximum = 100;
+	    XmNvalue = 1;
 	    XmNorientation = XmHORIZONTAL ;
 	    XmNbottomAttachment = XmATTACH_FORM ;
 	    XmNleftAttachment = XmATTACH_WIDGET ;
