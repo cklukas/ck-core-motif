@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Require complete MWM save-hint properties (2026-11-02)
+=======================================================
+
+- Read `_DT_WMSAVE_HINT` as its single complete 32-bit flag word rather than
+  accepting a prefix from an oversized or truncated property.
+
 Bound MWM restart-command vector counts (2026-11-02)
 ======================================================
 

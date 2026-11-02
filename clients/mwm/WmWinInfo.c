@@ -1132,11 +1132,12 @@ ProcessWmSaveHint (ClientData *pCD)
     BITS32 *saveHintFlags = (BITS32 *)NULL;
 
     if ((XGetWindowProperty(DISPLAY, pCD->client, wmGD.xa_WMSAVE_HINT,
-			    0L, (long)1000000, False, AnyPropertyType,
+		    0L, 1L, False, AnyPropertyType,
 			    &actualType, &actualFormat, &nitems,
 			    &leftover, (unsigned char **)&saveHintFlags)
 	 == Success) &&
-	(actualType != None) && (actualFormat == 32) && (nitems > 0) &&
+	(actualType != None) && (actualFormat == 32) && (nitems == 1) &&
+	(leftover == 0) &&
 	(saveHintFlags != NULL))
     {
 	/* the WMSAVE_HINT property exists for the client window */
