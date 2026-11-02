@@ -1,3 +1,11 @@
+Harden Todo print staging and callback contracts (2026-11-02)
+============================================================
+
+- Replace Todo's legacy manage callback definition with a typed C23 contract.
+- Create a unique print staging file under `TMPDIR` (or the current directory
+  when it is unset), clean it up after synchronous printing, and guard missing
+  home-directory, page, and print-range state.
+
 Correct Panner Xlib error-handler contract (2026-11-02)
 =========================================================
 

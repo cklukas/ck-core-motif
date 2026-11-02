@@ -33,6 +33,9 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 #include <pwd.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
 /* X include files */
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
@@ -89,6 +92,7 @@ XrmOptionDescRec optionDesc[] = {
 
 static void QuitAppl(Widget, char *, XmPushButtonCallbackStruct *);
 static void TextChanged(Widget, XtPointer, XtPointer);
+static FILE *CreatePrintFile(char **);
 
 void manageCB(Widget, Widget, XtPointer);
 void PresentFDialog(Widget, XtPointer, XmPushButtonCallbackStruct*);
@@ -127,7 +131,7 @@ main(int argc, char* argv[])
   Arg args[10];
   int n, i;
   XmString tmp;
-  char temppath[256];
+  const char *home_directory;
 
   if (argc == 2 && strcmp(argv[1], "-help") == 0) {
     printf("Usage: todo [-todoFile pathname]\n");
@@ -224,9 +228,17 @@ main(int argc, char* argv[])
   }
 
   if (options.todoFile == NULL) {
-    strcpy(temppath, user -> pw_dir);
-    strcat(temppath, "/.todo");
-    options.todoFile = XtNewString(temppath);
+    size_t todo_path_length;
+
+    home_directory = user != NULL ? user->pw_dir : ".";
+    todo_path_length = strlen(home_directory) + sizeof("/.todo");
+    if (todo_path_length > (size_t)UINT_MAX) {
+      XtWarning("Default todo path is too long");
+      return 1;
+    }
+    options.todoFile = XtMalloc((Cardinal)todo_path_length);
+    (void)snprintf(options.todoFile, todo_path_length, "%s/.todo",
+		   home_directory);
   } else {
     /* Copy the string for consistency */
     options.todoFile = XtNewString(options.todoFile);
@@ -256,10 +268,8 @@ TextChanged(Widget w, XtPointer i, XtPointer i2)
   modified = 1;
 }
 
-void manageCB( widget, w_to_manage, callback_data)
-     Widget widget;
-     Widget w_to_manage;
-     XtPointer callback_data;
+void
+manageCB(Widget widget, Widget w_to_manage, XtPointer callback_data)
 {
   if (w_to_manage != (Widget) NULL)
     XtManageChild(w_to_manage);
@@ -330,14 +340,56 @@ help_cb(Widget w, XtPointer item, XmAnyCallbackStruct *cb)
   XmdGotoHelpItem(w, (int) item, help_widget);
 }
 
+static FILE *
+CreatePrintFile(char **pathname)
+{
+  const char *temporary_directory = getenv("TMPDIR");
+  char *template_path;
+  size_t template_length;
+  int descriptor;
+  FILE *file;
+
+  if (temporary_directory == NULL || temporary_directory[0] == '\0')
+    temporary_directory = ".";
+
+  template_length = strlen(temporary_directory) + sizeof("/xmdtodo-XXXXXX");
+  if (template_length > (size_t)UINT_MAX)
+    return NULL;
+
+  template_path = XtMalloc((Cardinal)template_length);
+  (void)snprintf(template_path, template_length, "%s/xmdtodo-XXXXXX",
+		 temporary_directory);
+  descriptor = mkstemp(template_path);
+  if (descriptor == -1) {
+    XtFree(template_path);
+    return NULL;
+  }
+
+  file = fdopen(descriptor, "w");
+  if (file == NULL) {
+    (void)close(descriptor);
+    (void)unlink(template_path);
+    XtFree(template_path);
+    return NULL;
+  }
+
+  *pathname = template_path;
+  return file;
+}
+
 void 
 Print(Widget w, char *ignore, XmdPrintCallbackStruct *cb)
 {
   int i;
   FILE *temp;
   int from, to;
+  char *temporary_path;
 
-  temp = fopen("/tmp/.todoout", "w");
+  temp = CreatePrintFile(&temporary_path);
+  if (temp == NULL) {
+    XtWarning("Cannot create temporary todo print file");
+    return;
+  }
 
   if (cb -> first == cb -> last &&
       cb -> first == 0) {
@@ -345,18 +397,24 @@ Print(Widget w, char *ignore, XmdPrintCallbackStruct *cb)
     to = maxpages - 1;
   } else {
     from = MAX(0, cb -> first - 1);
-    to = MIN(maxpages, cb -> last - 1);
+    to = MIN(maxpages - 1, cb -> last - 1);
   }
 
   for (i = from; i <= to; i++) {
+    if (pages[i] == NULL)
+      continue;
     if (pages[i] -> label != NULL) {
       fprintf(temp, "Subject: %s\n", pages[i] -> label);
       fprintf(temp, "---------------------------\n\n\n");
     }
-    fprintf(temp, "%s", pages[i] -> page);
+    fprintf(temp, "%s", pages[i] -> page != NULL ? pages[i]->page : "");
     if (i != (maxpages - 1)) fprintf(temp, "\f");
   }
 
-  fclose(temp);
-  XmdPrintDocument("/tmp/.todoout", cb);
+  if (fclose(temp) == 0)
+    XmdPrintDocument(temporary_path, cb);
+  else
+    XtWarning("Cannot finish temporary todo print file");
+  (void)unlink(temporary_path);
+  XtFree(temporary_path);
 }
