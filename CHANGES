@@ -1,3 +1,9 @@
+Reject incomplete MWM desktop-request properties (2026-11-02)
+===========================================================
+
+- Reject and clear desktop-request properties that exceed MWM's bounded X11
+  fetch, rather than parsing a truncated command.
+
 Reject truncated MWM virtual-key binding properties (2026-11-02)
 ===============================================================
 

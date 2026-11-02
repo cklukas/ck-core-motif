@@ -1995,9 +1995,17 @@ GetDtWmRequest (
 	    (actualType == None) || 
 	    (actualFormat != 8) ||
 	    (nitems == 0) ||
+	    (leftover != 0) ||
 	    (property == NULL))
 	{
 	    /* The property does not exist or it is an invalid type. */
+	    if (leftover != 0)
+	    {
+		Warning (((char *)GETMESSAGE(54, 2,
+		    "Window management request property is too long")));
+		XDeleteProperty (DISPLAY, pSD->wmWorkspaceWin,
+		    wmGD.xa_DT_WM_REQUEST);
+	    }
 	    if (property != NULL)
 	    {
 		XFree ((char *)property);
