@@ -6,6 +6,7 @@ Cross-link the CK Core documentation sites (2026-11-02)
 - Connect CK Core Motif, CK Core CDE and CK Core Apps through direct header
   links and front-page project panels.
 - Build GitHub Pages and rpi4 documentation with ckdocs v0.10.1.
+- Place the related project links in the ckdocs v0.10.1 site selector.
 
 Working Periodic menus and connected arrow focus (2026-11-02)
 =============================================================
