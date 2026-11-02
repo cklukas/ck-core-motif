@@ -1,3 +1,10 @@
+Validate MWM workspace callback lifecycle inputs (2026-11-02)
+=============================================================
+
+- Reject absent callback request/reply/widget/client/screen state before Xt or
+  Xlib access. Return an empty unknown conversion reply when one can be sent,
+  and stop owner-monitor rescheduling after its UTM shell is gone.
+
 Avoid MWM workspace transient-tree stack exhaustion (2026-11-02)
 ================================================================
 

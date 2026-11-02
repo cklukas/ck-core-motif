@@ -97,6 +97,8 @@ static Boolean visit_tree(ClientData *root, WsmTreeVisitor visitor,
 
 static WmScreenData *screen_for_widget(Widget widget)
 {
+    if (widget == NULL || wmGD.Screens == NULL || wmGD.numScreens <= 0)
+        return NULL;
     int number = XScreenNumberOfScreen(XtScreen(widget));
     for (int i = 0; i < wmGD.numScreens; ++i)
         if (wmGD.Screens[i].managed && wmGD.Screens[i].screen == number) return &wmGD.Screens[i];
@@ -128,6 +130,8 @@ static ClientData *find_tree(ClientData *client, Window id)
 
 static ClientData *find_client(WmScreenData *screen, Window id)
 {
+    if (screen == NULL)
+        return NULL;
     id &= WIN_MASK;
     for (ClientListEntry *entry = screen->clientList; entry; entry = entry->nextSibling) {
         if (entry->type != NORMAL_STATE) continue;
@@ -182,6 +186,12 @@ static Boolean release_tree(ClientData *client, XtPointer closure)
 static void monitor_owner(XtPointer closure, XtIntervalId *timer)
 {
     WorkspaceOwner *owner = closure;
+
+    if (owner == NULL || owner->screen == NULL || owner->screen->utmShell == NULL) {
+        if (owner != NULL)
+            owner->timer = 0;
+        return;
+    }
     Atom selection = _WSMGetSelectionAtom(DISPLAY, owner->screen->screen, WSM_WORKSPACE_MANAGER);
     Window current = XGetSelectionOwner(DISPLAY, selection);
     (void)timer;
@@ -221,7 +231,7 @@ static void track_owner(WmScreenData *screen)
     Window current = XGetSelectionOwner(DISPLAY, selection);
     if (owner->timer) XtRemoveTimeOut(owner->timer);
     owner->screen = screen; owner->owner = current; owner->timer = 0;
-    if (current != None)
+    if (current != None && screen->utmShell != NULL)
         owner->timer = XtAppAddTimeOut(XtWidgetToApplicationContext(screen->utmShell), 500, monitor_owner, owner);
 }
 
@@ -396,11 +406,20 @@ static void apply(ClientData *client, Window id, WSMWinData *data, int count)
 
 void HandleWsmConvertRequest(Widget widget, XtPointer closure, WSMRequest *request, WSMReply *reply)
 {
-    int screen_number = XScreenNumberOfScreen(XtScreen(widget));
-    WmScreenData *screen = screen_for_widget(widget);
-    if (!screen) { reply->any.type = WSM_UNKNOWN; return; }
+    int screen_number;
+    WmScreenData *screen;
+
     (void)closure;
+    if (reply == NULL)
+        return;
     memset(reply, 0, sizeof(*reply));
+    reply->any.type = WSM_UNKNOWN;
+    if (widget == NULL || request == NULL)
+        return;
+    screen_number = XScreenNumberOfScreen(XtScreen(widget));
+    screen = screen_for_widget(widget);
+    if (screen == NULL)
+        return;
     reply->any.type = request->any.type;
     switch (request->any.type) {
     case WSM_CONNECT:
@@ -480,6 +499,8 @@ void HandleWsmConvertRequest(Widget widget, XtPointer closure, WSMRequest *reque
 
 void WsmConnectExisting(WmScreenData *screen)
 {
+    if (screen == NULL || screen->utmShell == NULL)
+        return;
     Atom selection = _WSMGetSelectionAtom(DISPLAY, screen->screen, WSM_WORKSPACE_MANAGER);
     if (XGetSelectionOwner(DISPLAY, selection) == None) return;
     short versions[] = {3, 2, 1};
@@ -502,7 +523,13 @@ static void registered(Widget widget, XtPointer closure, WSMReply *reply, WSMErr
 
 void WsmRegisterClient(ClientData *client)
 {
-    WmScreenData *screen = PSD_FOR_CLIENT(client);
+    WmScreenData *screen;
+
+    if (client == NULL)
+        return;
+    screen = PSD_FOR_CLIENT(client);
+    if (screen == NULL || screen->utmShell == NULL)
+        return;
     int number = screen->screen;
     Atom selection = _WSMGetSelectionAtom(DISPLAY, number, WSM_WORKSPACE_MANAGER);
     WSMConfigFormatData *format = _WSMGetConfigFormat(

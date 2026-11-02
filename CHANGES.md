@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-02 — MWM workspace callback lifecycle inputs
+
+- Reject detached request, reply, widget, client, screen and UTM-shell state
+  before workspace callbacks enter Xt or Xlib. An available invalid conversion
+  reply is empty and explicitly `WSM_UNKNOWN`; owner monitoring stops when its
+  UTM shell has gone away. See
+  [MWM workspace callback input lifecycle](docs/mwm-workspace-callback-inputs.md).
+
 ## 2026-11-02 — Safe MWM workspace transient-tree traversal
 
 - Replace recursive workspace transient-client walks with a checked heap-backed
