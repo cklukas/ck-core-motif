@@ -35746,3 +35746,9 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   lists, preventing signed-index overflow before the existing `Cardinal`
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
+
+Preserve wide MWM diagnostic and session lengths (2026-11-02)
+===============================================================
+
+- Check formatted MWM property-warning and session-resource lengths as
+  `size_t` before narrowing to Xt `Cardinal` allocation sizes.

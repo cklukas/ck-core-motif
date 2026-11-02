@@ -9,8 +9,9 @@ values into a fixed 200-byte array, so long localized messages or atom names
 could overwrite stack storage and the `%.100s` limit could truncate useful
 context.
 
-Warnings are now measured with `snprintf`, allocated to their rendered length,
-and released after dispatch.  Normal warning text and conversion fallback
-behavior remain unchanged; atom names are also released after use.
+Warnings are now measured with `snprintf`, validated as `size_t` values before
+the Xt `Cardinal` conversion, allocated to their rendered length, and released
+after dispatch.  Normal warning text and conversion fallback behavior remain
+unchanged; atom names are also released after use.
 
 `tests/automated/check-mwm-property-warning-bounds.py` protects this contract.

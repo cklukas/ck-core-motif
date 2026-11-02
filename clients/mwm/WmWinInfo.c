@@ -99,7 +99,7 @@ WmWarningWithString(const char *format, const char *value)
     char *message;
 
     messageLength = snprintf(NULL, 0, format, value);
-    if (messageLength < 0 || (unsigned int)messageLength >= UINT_MAX)
+    if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
         return;
 
     message = (char *)XtMalloc((Cardinal)messageLength + 1);

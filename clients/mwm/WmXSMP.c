@@ -725,7 +725,7 @@ getClientResource(char *clientID, char *fmtStr)
     resourceLength = snprintf(NULL, 0, fmtStr, clientID);
     if (resourceLength < 0)
         return (char *)NULL;
-    if ((unsigned int)resourceLength >= UINT_MAX)
+    if ((size_t)resourceLength >= UINT_MAX)
         return (char *)NULL;
     resourceBuf = (char *)XtMalloc((Cardinal)resourceLength + 1);
     if (resourceBuf == (char *)NULL)
@@ -1309,7 +1309,7 @@ dbRemoveProxyClientEntry(char *proxyClientID)
     resourceLength = snprintf(NULL, 0, wmCommandStr, proxyClientID);
     if (resourceLength < 0)
         return;
-    if ((unsigned int)resourceLength >= UINT_MAX - 1)
+    if ((size_t)resourceLength >= UINT_MAX - 1)
         return;
     resourceBuf = (char *)XtMalloc((Cardinal)resourceLength + 2);
     if (resourceBuf == (char *)NULL)
