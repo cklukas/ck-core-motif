@@ -4488,7 +4488,7 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
             (const char *)pAData->fontList : "";
         int messageLength = snprintf(NULL, 0, format, fontList);
         char *message = (messageLength >= 0 &&
-                         (unsigned int)messageLength < UINT_MAX) ?
+                         (size_t)messageLength < UINT_MAX) ?
             (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
         if (message != NULL)

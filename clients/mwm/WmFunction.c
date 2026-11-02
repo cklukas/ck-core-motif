@@ -4644,7 +4644,7 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
                                              "Unable to warp to unmanaged screen %d\n",
                                              scr);
                 char *message = (messageLength >= 0 &&
-                                 (unsigned int)messageLength < UINT_MAX) ?
+                                 (size_t)messageLength < UINT_MAX) ?
                     (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
                 if (message != NULL)

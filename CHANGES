@@ -1,3 +1,9 @@
+Keep MWM diagnostic allocation lengths wide (2026-11-02)
+=========================================================
+
+- Validate measured localized diagnostic lengths as `size_t` before Xt
+  `Cardinal` allocation.
+
 Validate MWM inline-menu formatting widths (2026-11-02)
 =========================================================
 

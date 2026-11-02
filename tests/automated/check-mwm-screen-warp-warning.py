@@ -9,7 +9,7 @@ region = source[start:end]
 assert "char pch[80]" not in region
 assert "sprintf(pch" not in region
 assert "snprintf(NULL, 0," in region
-assert "(unsigned int)messageLength < UINT_MAX" in region
+assert "(size_t)messageLength < UINT_MAX" in region
 assert "XtMalloc((Cardinal)messageLength + 1)" in region
 assert "XtMalloc((unsigned int)messageLength + 1)" not in region
 assert "XtFree(message);" in region

@@ -7172,7 +7172,7 @@ PWarning (char *message)
                                  managerName, messageText, linec);
     }
     formattedMessage = (messageLength >= 0 &&
-			(unsigned int)messageLength < UINT_MAX) ?
+			(size_t)messageLength < UINT_MAX) ?
         (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
     if (formattedMessage != NULL)
     {
@@ -8272,7 +8272,7 @@ WarnConfigAllocation(const char *fileName)
     const char *path = (fileName != NULL) ? fileName : "";
     int messageLength = snprintf(NULL, 0, format, path);
     char *message = (messageLength >= 0 &&
-			(unsigned int)messageLength < UINT_MAX) ?
+			(size_t)messageLength < UINT_MAX) ?
         (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
     if (message != NULL)
@@ -8459,7 +8459,7 @@ static void ConfigStackPop (void)
                 pPrev->fileName : "";
             int messageLength = snprintf(NULL, 0, format, fileName);
             char *message = (messageLength >= 0 &&
-				     (unsigned int)messageLength < UINT_MAX) ?
+				     (size_t)messageLength < UINT_MAX) ?
                 (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
             if (message != NULL)
