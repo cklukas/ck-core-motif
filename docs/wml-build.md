@@ -8,6 +8,12 @@ UIL database is generated.  `wmluiltok` now has an explicit `main` entry point,
 so it builds with current flex versions that no longer supply an implicit
 scanner driver.
 
+The Exm WML database generator likewise uses typed C definitions for its
+entry point and emitters, rather than K&R declarations.  This preserves its
+database output while allowing the `wmldbcreate` object to compile under the
+current C23 configuration.  `tests/automated/check-wmldbcreate-c23.py` checks
+the relevant source contracts.
+
 The generated `Uil.c`/`Uil.h` parser pair and the `UilLexPars.c`/
 `UilLexPars.h` compatibility symlinks are created through stamp rules.  This
 makes `make -j` deterministic: concurrent object prerequisites no longer run

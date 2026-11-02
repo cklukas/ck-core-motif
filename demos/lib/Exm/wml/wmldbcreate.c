@@ -32,6 +32,8 @@ static char rcsid[] = "$TOG: wmldbcreate.c /main/7 1997/04/15 10:20:28 dbl $"
 
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <Mrm/MrmWidget.h>
 #include <Xm/Xm.h> 
@@ -98,9 +100,8 @@ int DEBUG=FALSE;
 char outfilename[80];
 char debugfilename[80];
 
-int main(argc, argv)
-int argc;
-char **argv;
+int
+main(int argc, char **argv)
 {
     _db_header	header;
 
@@ -233,8 +234,8 @@ void emit_globals(void)
 
 
 
-void emit_header(header)
-_db_header_ptr header;
+void
+emit_header(_db_header_ptr header)
 {
 
     fwrite (header, sizeof(_db_header), 1, bfile);
@@ -246,8 +247,8 @@ _db_header_ptr header;
 
 
 
-void emit_chars(table_id)
-    int	    table_id;
+void
+emit_chars(int table_id)
 {
     _db_header	    header;
     unsigned char   *ptr = NULL;
@@ -324,8 +325,8 @@ void emit_chars(table_id)
 }
 
 
-void emit_ints_and_string(table_id)
-    int	    table_id;
+void
+emit_ints_and_string(int table_id)
 {
     _db_header		    header;
     key_keytable_entry_type *table = NULL;
@@ -363,8 +364,8 @@ void emit_ints_and_string(table_id)
 }
 
 
-void emit_char_table(table_id)
-int	table_id;
+void
+emit_char_table(int table_id)
 {
     unsigned char **table = NULL;
     _db_header header;
@@ -421,8 +422,8 @@ int	table_id;
 }
 
 
-void emit_length_and_string(table_id)
-int	table_id;
+void
+emit_length_and_string(int table_id)
 {
     _db_header	header;
     int		*lengths;
@@ -544,8 +545,8 @@ int	table_id;
 }
 
 
-void emit_shorts(table_id)
-    int	    table_id;
+void
+emit_shorts(int table_id)
 {
     _db_header		header;
     unsigned short int	*ptr = NULL;
@@ -610,8 +611,8 @@ void emit_shorts(table_id)
 }
 
 
-void emit_int_and_table_shorts(table_id)
-    int	    table_id;
+void
+emit_int_and_table_shorts(int table_id)
 {
     _db_header		header;
     UilEnumSetDescDef	*table = NULL;
@@ -643,8 +644,8 @@ void emit_int_and_table_shorts(table_id)
 }
 
 
-void emit_ints(table_id)
-    int	    table_id;
+void
+emit_ints(int table_id)
 {
     _db_header	header;
     int		*ptr = NULL;

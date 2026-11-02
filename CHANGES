@@ -1,3 +1,10 @@
+Modernize Exm WML database generator C23 definitions (2026-11-02)
+================================================================
+
+- Replace legacy K&R definitions in the Exm WML database generator with typed
+  C declarations and include the standard declarations it uses, allowing the
+  generated database tool to compile in the current C23 build.
+
 Modernize Editres C23 prototypes (2026-11-02)
 ================================================
 
