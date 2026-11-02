@@ -55,20 +55,19 @@ extern void MENU_POST();
 /*
  * Callback procedure declarations
  */
-extern void CreateHypeLabel();
-extern void ShowFontValChCB();
-extern void ExplainCB();
-extern void ShowCurFont();
-extern void ShowOtherCB();
-extern void QuitCB();
+extern void CreateHypeLabel(Widget, XtPointer, XtPointer);
+extern void ShowFontValChCB(Widget, XtPointer, XtPointer);
+extern void ExplainCB(Widget, XtPointer, XtPointer);
+extern void ShowCurFont(Widget, XtPointer, XtPointer);
+extern void ShowOtherCB(Widget, XtPointer, XtPointer);
+extern void QuitCB(Widget, XtPointer, XtPointer);
 
 /*
  * Function: CreateDemoForm()
  *        Create form hierarchy of widgets.
  */
 Widget
-CreateDemoForm( parent)
-Widget parent;
+CreateDemoForm(Widget parent)
 {
     Arg    	args[512];
     Cardinal   	argcnt;

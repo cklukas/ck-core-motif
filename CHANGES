@@ -5,6 +5,12 @@ Modernize Workspace client-window discovery C23 contracts (2026-11-02)
   generated popup-menu event callback with typed Xlib/Xt declarations,
   preserving the recursive `WM_STATE` lookup and menu-post behavior.
 
+Modernize Font Selector demo C23 callbacks (2026-11-02)
+=========================================================
+
+- Give Font Selector callbacks, its form factory, and its entry point typed C
+  declarations so that current compilers can validate their Xt registrations.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 

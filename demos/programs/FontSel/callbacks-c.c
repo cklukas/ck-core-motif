@@ -10,6 +10,7 @@
  **************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <Xm/Xm.h>
 #include <Xm/ToggleB.h>
 #include <Xm/MessageB.h>
@@ -23,10 +24,7 @@ extern Widget G_font;
 
 /* ARGSUSED */
 void
-CreateHypeLabel(w, client, call)
-Widget w;
-XtPointer client;
-XtPointer call;
+CreateHypeLabel(Widget w, XtPointer client, XtPointer call)
 {
     Arg args[5];
     Cardinal argcnt;
@@ -45,10 +43,7 @@ weight, and other advanced criteria from the X Logical Font Description (XFLD)."
 
 /* ARGSUSED */
 void
-ShowFontValChCB(w, client, call)
-Widget w;
-XtPointer client;
-XtPointer call;
+ShowFontValChCB(Widget w, XtPointer client, XtPointer call)
 {
     Arg args[5];
     Cardinal argcnt;
@@ -61,16 +56,13 @@ XtPointer call;
 
 /* ARGSUSED */
 void
-ExplainCB(w, client, call)
-Widget w;
-XtPointer client;
-XtPointer call;
+ExplainCB(Widget w, XtPointer client, XtPointer call)
 {
     Arg args[5];
     Cardinal argcnt;
     XmString xmstring=NULL;
     static Widget info = NULL;
-    int explain = (int) client;
+    int explain = (int)(intptr_t)client;
 
     if (info == NULL) {
 	Widget temp;
@@ -116,10 +108,7 @@ a separate dialog.",
 
 /* ARGSUSED */
 void
-ShowCurFont(w, client, call)
-Widget w;
-XtPointer client;
-XtPointer call;
+ShowCurFont(Widget w, XtPointer client, XtPointer call)
 {
     Arg args[5];
     Cardinal argcnt;
@@ -159,10 +148,7 @@ XtPointer call;
 
 /* ARGSUSED */
 void
-ShowOtherCB(w, client, call)
-Widget w;
-XtPointer client;
-XtPointer call;
+ShowOtherCB(Widget w, XtPointer client, XtPointer call)
 {
     Arg args[5];
     Cardinal argcnt;
@@ -204,10 +190,7 @@ appearance:\n\
 
 /* ARGSUSED */
 void
-QuitCB(w, client, call)
-Widget w;
-XtPointer client;
-XtPointer call;
+QuitCB(Widget w, XtPointer client, XtPointer call)
 {
     exit(0);
 }
