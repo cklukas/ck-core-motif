@@ -50,6 +50,9 @@
 ****************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <Xm/Scale.h>
 #include <Xm/Xm.h>          /* Motif Toolkit */
 #include <Mrm/MrmPublic.h>   /* Mrm */
 #include <Xmd/RegEdit.h>   
@@ -65,14 +68,14 @@ static int vecnum = sizeof(vec) / sizeof(char*);
 static MrmCode		class, return_type ;
 
        /* forward declaration of interface procedures */
-static void p_motifanim_start();
-static void p_motifanim_stop();
-static void p_motifanim_step();
-static void p_motifanim_speed();
-static void p_motifanim_draw();
-static void p_motifanim_exit();
-static void p_motifanim_help();
-static void InitAnim();
+static void p_motifanim_start(Widget, XtPointer, XtPointer);
+static void p_motifanim_stop(Widget, XtPointer, XtPointer);
+static void p_motifanim_step(Widget, XtPointer, XtPointer);
+static void p_motifanim_speed(Widget, XtPointer, XtPointer);
+static void p_motifanim_draw(Widget, XtPointer, XtPointer);
+static void p_motifanim_exit(Widget, XtPointer, XtPointer);
+static void p_motifanim_help(Widget, XtPointer, XtPointer);
+static void InitAnim(void);
 
        /* binding of uil procedure names with C functions */
 static MRMRegisterArg	regvec[] = {
@@ -113,7 +116,9 @@ static int nimage, step_size  ;    /* initalized with uil value by fetching */
 
 static GC gc ;
 static Widget drawingArea;
-static int speedcount ;
+static XtIntervalId animation_timer;
+static Boolean timer_pending = False;
+static void cancel_animation(Widget, XtPointer, XtPointer);
 
 #define APP_CLASS "XmdAnimate"
 
@@ -125,9 +130,7 @@ NULL
 /******************************************************************
  *  Main program: motifanim [-anim anim_name] [-speed speed_factor]
  */
-int main(argc, argv)
-     int    argc;
-     String argv[];
+int main(int argc, String argv[])
 {
      /*
      *  Declare the variables to contain the two widget ids
@@ -157,7 +160,19 @@ int main(argc, argv)
 	    if (*++argv)  anim_name = *argv ; 
 	} else
 	if (!strcmp(*argv,"-speed")) {
-	    if (*++argv)  speed_factor = atoi(*argv) ; 
+	    char *end;
+            long factor;
+            if (!*++argv) {
+                fprintf(stderr, "-speed requires an integer from 1 to 100\n");
+                return 1;
+            }
+            errno = 0;
+            factor = strtol(*argv, &end, 10);
+            if (errno || end == *argv || *end || factor < 1 || factor > 100) {
+                fprintf(stderr, "-speed requires an integer from 1 to 100\n");
+                return 1;
+            }
+            speed_factor = (int)factor;
 	}
     }
 		
@@ -211,7 +226,7 @@ int main(argc, argv)
 }
 
 
-static void InitAnim()
+static void InitAnim(void)
 /********/
 {
 
@@ -270,32 +285,67 @@ static void InitAnim()
     gcv.graphics_exposures = False ; 
     gc = XCreateGC(XtDisplay(drawingArea), XtWindow(drawingArea), 
 		   GCGraphicsExposures, &gcv);
-    speedcount = 0 ;
+    XtAddCallback(drawingArea, XmNdestroyCallback, cancel_animation, NULL);
 }
 
 
 
-/**
-  Background Work Procedure: it return the current value of stop
-  and then is automatically removed when stop = true.
-**/
-static Boolean fstep(client_data)
-/************************/
-     XtPointer client_data ;       /* scalespeed */
+/* Real-time pacing: 2 to 50 frames per second at the default factor.
+ * Each timeout draws one frame and schedules the next. A busy event loop
+ * slows playback instead of accumulating catch-up frames or spinning. */
+static unsigned long frame_interval(void)
 {
-    speedcount += (int)*(int*)client_data ;
-    if (speedcount >= (max_scale*speed_factor)) {
-	speedcount = 0 ;
-	XClearArea(XtDisplay(drawingArea), XtWindow(drawingArea),
-		   xanim, yanim, wanim[ianim], hanim[ianim] , False);
-	xanim = (xanim > width)?(-wanim[ianim]):(xanim+step_size) ;
-	ianim = (ianim == nimage)?0:(ianim+1);
-	XCopyArea(XtDisplay(drawingArea), panim[ianim], XtWindow(drawingArea),
-		  gc, 0, 0, wanim[ianim], hanim[ianim], 
-		  xanim, yanim);
-	XSync(XtDisplay(drawingArea),False);
+    double fraction = max_scale > 1 ?
+        (double)(scalespeed - 1) / (max_scale - 1) : 0.0;
+    double fps;
+    if (fraction < 0.0) fraction = 0.0;
+    if (fraction > 1.0) fraction = 1.0;
+    fps = 2.0 + 48.0 * fraction;
+    return (unsigned long)(1000.0 * speed_factor / (20.0 * fps) + 0.5);
+}
+
+static void advance_frame(void)
+{
+    XClearArea(XtDisplay(drawingArea), XtWindow(drawingArea),
+               xanim, yanim, wanim[ianim], hanim[ianim], False);
+    xanim = (xanim > width) ? -(int)wanim[ianim] : xanim + step_size;
+    ianim = (ianim == nimage) ? 0 : ianim + 1;
+    XCopyArea(XtDisplay(drawingArea), panim[ianim], XtWindow(drawingArea),
+              gc, 0, 0, wanim[ianim], hanim[ianim], xanim, yanim);
+    XFlush(XtDisplay(drawingArea));
+}
+
+static void animation_tick(XtPointer data, XtIntervalId *id);
+
+static void schedule_frame(void)
+{
+    if (!stop && !timer_pending) {
+        animation_timer = XtAppAddTimeOut(app_context, frame_interval(),
+                                          animation_tick, NULL);
+        timer_pending = True;
     }
-    return stop ;
+}
+
+static void animation_tick(XtPointer data, XtIntervalId *id)
+{
+    (void)data;
+    (void)id;
+    timer_pending = False;
+    if (stop) return;
+    advance_frame();
+    schedule_frame();
+}
+
+static void cancel_animation(Widget widget, XtPointer data, XtPointer call)
+{
+    (void)widget;
+    (void)data;
+    (void)call;
+    stop = True;
+    if (timer_pending) {
+        XtRemoveTimeOut(animation_timer);
+        timer_pending = False;
+    }
 }
 
 /** The callbacks **/
@@ -313,56 +363,47 @@ p_motifanim_help (Widget w, XtPointer client_data, XtPointer call_data)
 }
 
 
-static void p_motifanim_start( widget, tag, callback_data )
-	Widget	widget;
-	char    *tag;
-	XmAnyCallbackStruct *callback_data;
+static void p_motifanim_start(Widget widget, XtPointer tag, XtPointer call_data)
 {
-    XtAppAddWorkProc(app_context,fstep, (XtPointer)&scalespeed);
-    stop = False ;
+    stop = False;
+    schedule_frame();
 }
 
-static void p_motifanim_stop( widget, tag, callback_data )
-	Widget	widget;
-	char    *tag;
-	XmAnyCallbackStruct *callback_data;
+static void p_motifanim_stop(Widget widget, XtPointer tag, XtPointer call_data)
 {
-    stop = True ;
+    cancel_animation(widget, NULL, NULL);
 }
 
-static void p_motifanim_step( widget, tag, callback_data )
-	Widget	widget;
-	char    *tag;
-	XmAnyCallbackStruct *callback_data;
+static void p_motifanim_step(Widget widget, XtPointer tag, XtPointer call_data)
 {
-    int max = (max_scale*speed_factor) ;
-
-    fstep(&max) ;
+    advance_frame();
 }
 
-static void p_motifanim_speed( widget, tag, callback_data )
-	Widget	widget;
-	int    *tag;
-	XmScaleCallbackStruct *callback_data;
+static void p_motifanim_speed(Widget widget, XtPointer tag, XtPointer call_data)
 {
+    XmScaleCallbackStruct *callback_data = (XmScaleCallbackStruct *)call_data;
     Arg arg ;
 
-    if (*tag == 0) {
+    if (*(int *)tag == 0) {
 	XmScaleGetValue(widget,&scalespeed);
 	XtSetArg(arg,XmNmaximum,&max_scale);
 	XtGetValues(widget,&arg,1);
     }
-    else scalespeed = callback_data->value ;
+    else {
+        scalespeed = callback_data->value;
+        if (timer_pending) {
+            XtRemoveTimeOut(animation_timer);
+            timer_pending = False;
+        }
+        schedule_frame();
+    }
 }
 
-static void p_motifanim_draw( widget, tag, callback_data )
-	Widget	widget;
-	int    *tag;
-	XmAnyCallbackStruct *callback_data;
+static void p_motifanim_draw(Widget widget, XtPointer tag, XtPointer call_data)
 {
     Arg arg ;
 
-    if (*tag == 0) {
+    if (*(int *)tag == 0) {
 	XtSetArg(arg,XmNwidth,&width);
 	XtGetValues(widget,&arg,1);
 	drawingArea = widget ; 
@@ -375,10 +416,7 @@ static void p_motifanim_draw( widget, tag, callback_data )
 
 }
 
-static void p_motifanim_exit( widget, tag, callback_data )
-	Widget	widget;
-	char    *tag;
-	XmAnyCallbackStruct *callback_data;
+static void p_motifanim_exit(Widget widget, XtPointer tag, XtPointer call_data)
 {
     exit(0);
 }

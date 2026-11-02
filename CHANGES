@@ -1,3 +1,15 @@
+Pace animation demo with elapsed-time timers (2026-11-02)
+========================================================
+
+- Replace the CPU-dependent idle work loop with one cancellable Xt timeout
+  in both animation demos. Default playback spans 2–50 fps; the initial
+  minimum advances once every 500 ms. Delayed frames never catch up in bursts.
+- Make Start idempotent, cancel playback on Stop/destruction, and reschedule
+  when speed changes. Keep One step independent of playback scheduling.
+- Validate -speed as an integer from 1 to 100 (default 20), scaling frame
+  intervals by N/20. Document timing and check real elapsed-time frame counts,
+  idle CPU consumption, repeated Start, speed changes and timer lifecycle.
+
 Make simpledrop usable with primary-button dragging (2026-11-02)
 ===============================================================
 

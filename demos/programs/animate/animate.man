@@ -35,8 +35,7 @@ demonstrates the following Motif features:
      - declaration of icon/bitmap using UIL
      - exchange of value between UIL and C using Mrm.
      - use of the Motif form widget.
-     - background procedure running while the client process
-       is waiting for inputs (Xt intrinsics feature).
+     - timeout callbacks for CPU-independent animation pacing (Xt intrinsics).
      
 The pixmaps are not fixed by animate but instead read at startup from
 existing UID files. 
@@ -55,7 +54,14 @@ is 'dog'. To run the demo with the other animations, use the command:
 motiflogo.uil, animate.uil and animate.c are the core components 
 of the program.
 
-speed_factor is a number between 0 and 100.
+The Speed slider ranges from 2 frames per second at the left endpoint to
+50 frames per second at the right endpoint. Playback uses elapsed-time
+Xt timers, independent of CPU speed. Start is safe to click repeatedly;
+Stop pauses playback and One step advances exactly one frame.
+
+speed_factor is an integer from 1 to 100 (default 20). It multiplies the
+frame interval by speed_factor/20, so larger values slow playback.
+Zero, negative, non-integer and out-of-range values are rejected.
 
 
 .SH Files

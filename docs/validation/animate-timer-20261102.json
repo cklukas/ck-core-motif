@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-02",
+  "sources": {
+    "tests/automated/check-animate-speed.c": "d6da4fd13975f586747fd6bd54871c8684c4803c6f33ef9743d1f5ad153b5eaa",
+    "demos/programs/animate/animate.c": "14f522fe90d3c4d8477b16eb1e1bb4f9da798f15ae89b93ce630f5ab9e1316c0",
+    "demos/programs/animate/animate.uil": "7c88d23d888bacd3bd1fc3298a438fe676d9f9b38410f405d733ed09058beb37",
+    "demos/programs/animate/dog.uil": "608eeb14b592438b8892600a7d3df64dfd498d5221e0a8a821b22d3d0b8507b0",
+    "demos/programs/animate/plane.uil": "1d585c2cd097e3953bdc469711ce2b14e94ae70aee1a37bab283d63c6dc98b11",
+    "demos/programs/animate/superman.uil": "be64e4f2f214526bc9238ff6226bbb6069dd50c7de12730f6e246c270632663e",
+    "demos/programs/animate/xmanimate.c": "808a035835167d02c1033ed0909cd2586d1a7b07991cd7579d55763a66822748",
+    "demos/programs/animate/xmanimate.uil": "ffe499c05c01bf0461e5e7e5cbb1a20acc6e092b9bc61559b2623e378f65e565"
+  },
+  "command": "PATH=/opt/X11/bin:$PATH python3 tests/automated/run-animate-speed.py --prefix PREFIX --xmd-library BUILD/demos/lib/Xmd/libXmd.a --out TASK_TMP/test",
+  "results": [
+    "minimum: 2 frames in 1150 ms; no busy loop\nmaximum: 12 frames in 250 ms\nPASS: timed playback, repeated Start, speed changes, Stop, Step and destruction",
+    "minimum: 2 frames in 1150 ms; no busy loop\nmaximum: 12 frames in 250 ms\nPASS: timed playback, repeated Start, speed changes, Stop, Step and destruction"
+  ],
+  "invalid_speed_cases": "missing, zero, negative, >100, nonnumeric, fractional, overflow: rejected in both variants",
+  "build": "C23 native macOS; compile/link/install passed; installed executable newer than source with recorded hash",
+  "desktop": "Restarted one installed instance; XQuartz inspection timed out, so actual-window visual confirmation unavailable"
+}

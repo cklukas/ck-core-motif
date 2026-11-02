@@ -396,8 +396,14 @@ them afterward. On macOS, OUT must be on a mounted project temporary volume.
 
 The animation demo uses a Speed range of 1–100 and starts at 1. The left
 endpoint is the slowest advancing setting; use Stop to pause and One step
-to advance a single frame. The historical work-procedure timing remains
-machine-dependent; these values are relative speeds, not frames per second.
+to advance a single frame. Playback uses a single Xt timeout, from 500 ms per frame at the left endpoint
+(2 fps) to 20 ms per frame at the right endpoint (50 fps), at the default
+`-speed 20`. The slider interpolates the frame rate between those endpoints.
+`-speed N` accepts integers 1–100 and scales the interval by N/20. Invalid
+values are rejected. Repeated Start clicks do not multiply timers; Stop and
+widget destruction cancel pending playback. A speed change replaces the pending
+timeout. Each tick schedules the next after drawing, so event-loop delays slow
+playback rather than producing catch-up bursts.
 
 After changing the UIL definition, rebuild and install `xmanimate.uid`;
 recompiling only the executable does not update the interface resources.
@@ -410,5 +416,7 @@ python3 tests/automated/run-animate-speed.py --prefix PREFIX \
 
 The runner needs `Xvfb` on PATH and a C compiler. It compiles both UIL
 definitions, loads the actual demo, and checks that initial and restored
-minimum speed advance frames and that Stop and One step retain their behavior.
+minimum speed advance frames at measured elapsed-time intervals. It also checks
+maximum speed, idle CPU use, repeated Start, speed changes, delayed event handling,
+Stop, One step and destruction.
 It uses an isolated display and records source hashes, commands and results.
