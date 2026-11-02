@@ -1,3 +1,10 @@
+Define MWM push/recall timeout without a busy indicator (2026-11-02)
+=====================================================================
+
+- Initialize the optional front-panel launch timeout and create a retry
+  deadline only for positive values. Missing, zero, or invalid busy-light
+  resources no longer feed uninitialized stack data into push/recall timing.
+
 Handle unavailable MWM front panels safely (2026-11-02)
 ========================================================
 

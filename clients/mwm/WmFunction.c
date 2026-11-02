@@ -2322,7 +2322,7 @@ F_Push_Recall (String args, ClientData *pCD, XEvent *event)
 
 	    if (!bWaiting)
 	    {
-		long clientTimeout;
+		long clientTimeout = 0;
 		Arg al[5];
 		int ac;
 		WmPanelistObject  pPanelist;
@@ -2341,18 +2341,27 @@ F_Push_Recall (String args, ClientData *pCD, XEvent *event)
 		    XtGetValues (panel.busy_light_data->icon, (ArgList)al, ac);
 		}
 
-		/*
-		 * ClientTimeout is in milliseconds, timeval values
-		 * are in seconds and microseconds.
-		 */
-		gettimeofday (&(pPRCD->tvTimeout), &tz);
+		if (clientTimeout > 0)
+		{
+		    /*
+		     * ClientTimeout is in milliseconds, timeval values
+		     * are in seconds and microseconds.
+		     */
+		    gettimeofday (&(pPRCD->tvTimeout), &tz);
 
-		pPRCD->tvTimeout.tv_sec += clientTimeout / 1000;
-		pPRCD->tvTimeout.tv_usec += 
-		    (clientTimeout % 1000) * 1000;
+		    pPRCD->tvTimeout.tv_sec += clientTimeout / 1000;
+		    pPRCD->tvTimeout.tv_usec +=
+		        (clientTimeout % 1000) * 1000;
 
-		pPRCD->tvTimeout.tv_sec += pPRCD->tvTimeout.tv_usec / 1000000;
-		pPRCD->tvTimeout.tv_usec %= 1000000;
+		    pPRCD->tvTimeout.tv_sec += pPRCD->tvTimeout.tv_usec / 1000000;
+		    pPRCD->tvTimeout.tv_usec %= 1000000;
+		}
+		else
+		{
+		    /* The optional front-panel busy indicator supplied no timeout. */
+		    pPRCD->tvTimeout.tv_sec = 0;
+		    pPRCD->tvTimeout.tv_usec = 0;
+		}
 	    }
 	}
     }
