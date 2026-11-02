@@ -54,6 +54,7 @@ clients exchanging Motif window-management messages.
 - [Desktop-request queue ownership](mwm-dt-request-queue-ownership.md)
 - [WSM help-record type availability](mwm-wsm-help-type.md)
 - [WSM workspace-property declarations](mwm-wsm-property-declarations.md)
+- [WSM initialization declarations](mwm-wsm-init-declarations.md)
 - [Locale-copy allocation](mwm-locale-allocation.md)
 - [Localized system-menu allocation](mwm-system-menu-allocation.md)
 - [Catalog-string allocation](mwm-catalog-allocation.md)

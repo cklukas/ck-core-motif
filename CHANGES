@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Declare MWM WSM initialization dependencies directly (2026-11-02)
+===================================================================
+
+- Include the CDE backdrop-search API and declare the session-hint reader
+  used by WSM initialization; initialize the X11 backdrop window as `None`.
+
 Declare MWM WSM workspace-property dependencies directly (2026-11-02)
 =======================================================================
 

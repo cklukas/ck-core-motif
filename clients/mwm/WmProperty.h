@@ -39,6 +39,7 @@ extern void ProcessWmColormapWindows (ClientData *pCD);
 extern Colormap FindColormap (ClientData *pCD, Window window);
 extern MenuItem * GetMwmMenuItems (ClientData *pCD);
 #ifdef WSM
+extern void GetDtSessionHints (WmScreenData *pSD, int sNum);
 extern void GetInitialPropertyList (ClientData *pCD);
 extern Status GetWorkspaceHints (Display *display, Window window, Atom **ppWsAtoms, unsigned int *pCount, Boolean *pbAll);
 #ifdef HP_VUE

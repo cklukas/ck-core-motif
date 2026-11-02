@@ -77,6 +77,7 @@ typedef struct
 #endif /* NO_HP_KEY_REMAP */
 #ifdef WSM
 #include <Dt/GetDispRes.h>
+#include <Dt/EnvControlP.h>
 #include <Dt/SessionP.h>
 #include <Dt/DtP.h>
 #include <Dt/Message.h>
@@ -1453,7 +1454,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     pSD->workspaceList = NULL;
     pSD->numWorkspaces = 0;
     pSD->numWsDataAllocated = 0;
-    pSD->lastBackdropWin = NULL;
+    pSD->lastBackdropWin = None;
     pSD->pDtSessionItems = NULL;
     pSD->totalSessionItems = 0;
     pSD->remainingSessionItems = 0;
