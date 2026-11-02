@@ -9,6 +9,9 @@ body = source[start:]
 assert "result = XGetWindowProperty" in body
 assert "result != Success" in body
 assert "if ((result != Success)" in body
+assert "bytes_after != 0" in body
+assert "prop == NULL" in body
+assert "*children = NULL" in body
 assert "XFree((char *)prop);" in body
 
-print("Motif WM detection rejects failed property requests")
+print("Motif WM detection rejects incomplete property requests and query failures")

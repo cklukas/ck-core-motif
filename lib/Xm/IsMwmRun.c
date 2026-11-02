@@ -79,7 +79,9 @@ XmIsMotifWMRunning(
     if ((result != Success) ||
 	(actual_type != motif_wm_info_atom) ||
 	 (actual_format != 32) ||
-	 (num_items < PROP_MOTIF_WM_INFO_ELEMENTS))
+	 (num_items < PROP_MOTIF_WM_INFO_ELEMENTS) ||
+	 (bytes_after != 0) ||
+	 (prop == NULL))
       {
 	   if (prop != 0) XFree((char *)prop);
            _XmAppUnlock(app);
@@ -88,7 +90,7 @@ XmIsMotifWMRunning(
     else
       {
 	   Window	wm_window = (Window) prop->wmWindow;
-	   Window	top, parent, *children;
+	   Window	top, parent, *children = NULL;
 	   unsigned int	num_children;
 	   Boolean	returnVal;
 	   Cardinal	i;
