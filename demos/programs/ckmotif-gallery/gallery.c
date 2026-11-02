@@ -85,6 +85,12 @@ static const char welcome_id[] = "gallery.welcome";
 static const char icons_id[] = "gallery.icons";
 static const char demos_id[] = "gallery.demos";
 
+static Dimension dimension_from_extent(unsigned long extent)
+{
+    const unsigned long maximum = (unsigned long)(Dimension)~(Dimension)0;
+    return (Dimension)(extent > maximum ? maximum : extent);
+}
+
 /* Composite controls can negotiate larger sizes after realization or when
  * expanded. Keep their scrollable canvas in step with the actual allocation. */
 static void resize_preview(GalleryState *state)
@@ -92,7 +98,7 @@ static void resize_preview(GalleryState *state)
     if (!state->component_host || !state->preview_viewport) return;
     WidgetList children;
     Cardinal count, i;
-    unsigned int natural_width = 1, natural_height = 1;
+    Dimension natural_width = 1, natural_height = 1;
     XtVaGetValues(state->component_host, XmNchildren, &children,
                   XmNnumChildren, &count, NULL);
     for (i = 0; i < count; ++i) {
@@ -102,8 +108,12 @@ static void resize_preview(GalleryState *state)
         XtVaGetValues(children[i], XmNx, &x, XmNy, &y,
             XmNwidth, &width, XmNheight, &height,
             XmNborderWidth, &border, NULL);
-        unsigned int right = (x > 0 ? x : 0) + width + 2 * border;
-        unsigned int bottom = (y > 0 ? y : 0) + height + 2 * border;
+        Dimension right = dimension_from_extent(
+            (x > 0 ? (unsigned long)x : 0UL) + (unsigned long)width +
+            2UL * (unsigned long)border);
+        Dimension bottom = dimension_from_extent(
+            (y > 0 ? (unsigned long)y : 0UL) + (unsigned long)height +
+            2UL * (unsigned long)border);
         if (right > natural_width) natural_width = right;
         if (bottom > natural_height) natural_height = bottom;
     }
@@ -396,8 +406,10 @@ static void layout_flow_page(GalleryFlowPage *flow)
                 XmNmarginLeft, &left, XmNmarginRight, &right,
                 XmNshadowThickness, &shadow, XmNhighlightThickness, &highlight, NULL);
             unsigned int inset = 2U * (margin + shadow + highlight) + left + right;
+            Dimension text_width = available > inset ?
+                (Dimension)(available - inset) : (Dimension)1;
             XmString lines = flow_text(flow->items[i], flow->paragraphs[i],
-                                      available > inset ? available - inset : 1);
+                                      text_width);
             XtVaSetValues(flow->items[i], XmNlabelString, lines, NULL);
             XmStringFree(lines);
             XtWidgetGeometry preferred = {0};
@@ -1911,9 +1923,11 @@ static int verify_navigation_pixels(GalleryState *state)
             painted = 0;
             for (unsigned i = 0; i < 4; ++i) {
                 unsigned ink = 0;
-                for (int y = i * row + 3; y < (int)((i + 1) * row) - 3; ++y)
-                    for (int x = 20; x < (int)width - 20; ++x)
-                        if (XGetPixel(image, x, y) == foreground) ++ink;
+                unsigned int first_y = i * (unsigned int)row + 3U;
+                unsigned int last_y = (i + 1U) * (unsigned int)row - 3U;
+                for (unsigned int y = first_y; y < last_y; ++y)
+                    for (unsigned int x = 20U; x + 20U < (unsigned int)width; ++x)
+                        if (XGetPixel(image, (int)x, (int)y) == foreground) ++ink;
                 if (ink >= 3) ++painted;
             }
             XDestroyImage(image);
@@ -2071,7 +2085,7 @@ static int verify_dialog_shell_example(GalleryState *state)
             XImage *image=XGetImage(display,XtWindow(message),0,0,width,height,AllPlanes,ZPixmap);
             DIALOG_CHECK(image);unsigned ink=0;
             for(unsigned y=0;y<height;++y)for(unsigned x=0;x<width;++x)
-                ink += XGetPixel(image,x,y)!=background;
+                ink += XGetPixel(image, (int)x, (int)y) != background;
             XDestroyImage(image);DIALOG_CHECK(ink>20);
             Position ox,oy,dx,dy;Dimension ow,oh,dw,dh;
             XtTranslateCoords(state->shell,0,0,&ox,&oy);XtTranslateCoords(dialog,0,0,&dx,&dy);
@@ -2091,7 +2105,8 @@ static int verify_dialog_shell_example(GalleryState *state)
                 event.xclient.window = XtWindow(dialog);
                 event.xclient.message_type = XInternAtom(display,"WM_PROTOCOLS",False);
                 event.xclient.format = 32;
-                event.xclient.data.l[0] = XInternAtom(display,"WM_DELETE_WINDOW",False);
+                event.xclient.data.l[0] = (long)XInternAtom(display,
+                    "WM_DELETE_WINDOW", False);
                 event.xclient.data.l[1] = CurrentTime;
                 DIALOG_CHECK(XSendEvent(display,XtWindow(dialog),False,NoEventMask,&event));
             } else {
@@ -2352,7 +2367,12 @@ static char *flow_plain_text(XmString label)
     char *segment, *charset; XmStringDirection direction; Boolean separator;
     while (XmStringGetNextSegment(context,&segment,&charset,&direction,&separator)) {
         size_t length = strlen(segment);
-        result = XtRealloc(result,used+length+(separator ? 1 : 0)+1);
+        size_t extra = (separator ? 1U : 0U) + 1U;
+        size_t maximum = (size_t)(Cardinal)~(Cardinal)0;
+        if (used > maximum || length > maximum - used ||
+            extra > maximum - used - length)
+            break;
+        result = XtRealloc(result, (Cardinal)(used + length + extra));
         memcpy(result+used,segment,length); used += length;
         if (separator) result[used++] = '\n';
         result[used] = '\0';

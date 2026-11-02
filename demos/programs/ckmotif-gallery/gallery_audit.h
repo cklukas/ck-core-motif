@@ -73,15 +73,16 @@ static unsigned char audit_channel(unsigned long pixel,unsigned long mask)
 static Boolean audit_capture(Widget widget,const char *path)
 {
     XWindowAttributes a;
-    if(!widget||!XtIsRealized(widget)||!XGetWindowAttributes(XtDisplay(widget),XtWindow(widget),&a)||a.map_state!=IsViewable)return False;
-    XImage *image=XGetImage(XtDisplay(widget),XtWindow(widget),0,0,a.width,a.height,AllPlanes,ZPixmap);
+    if(!widget||!XtIsRealized(widget)||!XGetWindowAttributes(XtDisplay(widget),XtWindow(widget),&a)||a.map_state!=IsViewable||a.width<=0||a.height<=0)return False;
+    XImage *image=XGetImage(XtDisplay(widget),XtWindow(widget),0,0,(unsigned int)a.width,(unsigned int)a.height,AllPlanes,ZPixmap);
     if(!image)return False;
     FILE *file=fopen(path,"wb");if(!file){XDestroyImage(image);return False;}
     fprintf(file,"P6\n%d %d\n255\n",a.width,a.height);
+    if((size_t)a.width>SIZE_MAX/3){fclose(file);XDestroyImage(image);return False;}
     unsigned char *row=malloc((size_t)a.width*3);Boolean okay=row!=NULL;
     for(int y=0;okay&&y<a.height;y++) {
         for(int x=0;x<a.width;x++){unsigned long pixel=XGetPixel(image,x,y);row[3*x]=audit_channel(pixel,image->red_mask);row[3*x+1]=audit_channel(pixel,image->green_mask);row[3*x+2]=audit_channel(pixel,image->blue_mask);}
-        okay=fwrite(row,3,a.width,file)==(size_t)a.width;
+        okay=fwrite(row,3,(size_t)a.width,file)==(size_t)a.width;
     }
     free(row);if(fclose(file))okay=False;XDestroyImage(image);return okay;
 }

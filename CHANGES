@@ -24,6 +24,13 @@ Correct Paned demo third sash control (2026-11-02)
 - Construct the Paned demo's third sash control as a toggle button and attach
   its sash callback, while modernizing its generated factory declarations.
 
+Harden gallery geometry and toolbar icon binding (2026-11-02)
+===============================================================
+
+- Bound gallery geometry and screenshot conversions at the Xt/Xlib interfaces,
+  reject oversized text extraction allocations, and skip absent overflow action
+  buttons before assigning toolbar icons.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 
