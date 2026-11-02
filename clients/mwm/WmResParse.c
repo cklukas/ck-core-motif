@@ -6181,6 +6181,10 @@ Boolean ParseBtnEvent (unsigned char  **linePP,
 		       unsigned int *state,
 		       Boolean      *fClick)
 {
+    if (linePP == NULL || eventType == NULL || button == NULL ||
+	state == NULL || fClick == NULL)
+	return (FALSE);
+
     if (!ParseEvent (linePP, buttonEvents, eventType, button, state, fClick))
     {
        return (FALSE);
@@ -6193,6 +6197,8 @@ Boolean ParseBtnEvent (unsigned char  **linePP,
     if (*eventType == ButtonRelease)
     {
 	/* the button that is going up will always be in the modifiers... */
+	if (*button >= XtNumber(buttonModifierMasks))
+	    return (FALSE);
 	*state |= buttonModifierMasks[*button];
     }
 
@@ -6242,6 +6248,10 @@ Boolean ParseKeyEvent (unsigned char **linePP, unsigned int *eventType,
 {
     Boolean      fClick;
     unsigned int keySym = 0;
+
+    if (linePP == NULL || eventType == NULL || keyCode == NULL ||
+	state == NULL)
+	return (FALSE);
 
     if (!ParseEvent (linePP, keyEvents, eventType, &keySym, state, &fClick))
     {

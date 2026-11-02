@@ -1,3 +1,10 @@
+Validate exported MWM event parser inputs (2026-11-02)
+=======================================================
+
+- Reject missing cursor/output pointers in the public button and key event
+  parsers, and validate button-release indexes before accessing the fixed
+  modifier-mask table; see `docs/mwm-event-parser-inputs.md`.
+
 Validate exported MWM function parser inputs (2026-11-02)
 ==========================================================
 
