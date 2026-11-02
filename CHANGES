@@ -1,3 +1,9 @@
+Validate MWM inline-menu formatting widths (2026-11-02)
+=========================================================
+
+- Compare measured inline command and function-argument lengths as `size_t`
+  before Xt `Cardinal` allocation.
+
 Bound MWM key-substitution parsing (2026-11-02)
 =================================================
 

@@ -2216,7 +2216,7 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 			snprintf(NULL, 0, "<%s>", tree->name) :
 			snprintf(NULL, 0, "%s.<%s>", command_string, tree->name);
 		    new_command_str = (command_length >= 0 &&
-				       (unsigned int)command_length < UINT_MAX) ?
+			       (size_t)command_length < UINT_MAX) ?
 			(char *)XtMalloc((Cardinal)command_length + 1) : NULL;
 		    if (new_command_str == NULL)
 			continue;
@@ -2241,7 +2241,7 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 			inLine_function = F_InvokeCommand;
 		    }
 		    new_funcargs = (funcargs_length >= 0 &&
-				    (unsigned int)funcargs_length < UINT_MAX) ?
+			    (size_t)funcargs_length < UINT_MAX) ?
 			(char *)XtMalloc((Cardinal)funcargs_length + 1) : NULL;
 		    if (new_funcargs == NULL)
 		    {
