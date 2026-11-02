@@ -850,8 +850,13 @@ Urm__MapIconReplace (RGMIconImagePtr		icon,
 		  GCForeground | GCBackground | GCFillStyle | GCTile,
 		  &gcValues);
   if ( gc == NULL )
-    return Urm__UT_Error ("Urm__MapIconReplace", _MrmMMsg_0036,
-			  NULL, NULL, MrmFAILURE);
+    {
+      XFreePixmap (display, *pixmap);
+      XFree((char*)imagep);
+      *pixmap = (Pixmap)0;
+      return Urm__UT_Error ("Urm__MapIconReplace", _MrmMMsg_0036,
+			    NULL, NULL, MrmFAILURE);
+    }
 
   /*
    * Put bits into the pixmap
@@ -1038,7 +1043,10 @@ Urm__MapIconAllocate (RGMIconImagePtr		icon,
 		  &gcValues);
   if ( gc == NULL )
     {
+      XFreePixmap (display, *pixmap);
+      XFree((char*)imagep);
       XtFree (alloc_pixmap);
+      *pixmap = (Pixmap)0;
       return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0036,
 			    NULL, NULL, MrmFAILURE);
     }

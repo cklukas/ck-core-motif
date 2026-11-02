@@ -1,3 +1,10 @@
+Release partial Mrm icon mappings on GC failure (2026-11-02)
+==============================================================
+
+- Free the temporary `XImage` and server pixmap, and clear the output pixmap,
+  when icon mapping cannot create its graphics context; see
+  `docs/mrm-icon-gc-cleanup.md`.
+
 Avoid uninitialized Mrm color pixels (2026-11-02)
 ===================================================
 
