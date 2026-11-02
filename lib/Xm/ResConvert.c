@@ -2280,6 +2280,7 @@ ConvertStringToButtonType(
         {
         XtDisplayStringConversionWarning(display, in_str, XmRButtonType);
         XtFree((char *) buttonTable);
+        XtFree((char *) work_str);
         return(FALSE);
         }
     XtFree( work_str) ;

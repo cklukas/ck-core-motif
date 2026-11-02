@@ -1,3 +1,9 @@
+Release ButtonType converter scratch input on parse failure (2026-11-02)
+==========================================================================
+
+- Free the mutable resource-string copy when ButtonType parsing rejects a
+  malformed token sequence, avoiding a leak on resource conversion failure.
+
 Keep MWM diagnostic allocation lengths wide (2026-11-02)
 =========================================================
 
