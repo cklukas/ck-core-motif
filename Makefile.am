@@ -62,6 +62,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-icong-geometry-traits.py \
 	      tests/automated/check-mwm-function-index-bounds.py \
 	      tests/automated/check-mwm-help-argument-bounds.py \
+	      tests/automated/check-mwm-exec-multibyte-delimiter.py \
 	      tests/automated/check-label-display-rect-outputs.py \
 	      tests/automated/check-label-margins-inputs.py \
 	      tests/automated/check-label-drag-icon-input.py \

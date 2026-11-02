@@ -1,3 +1,10 @@
+Correct MWM `f.exec` multibyte delimiters (2026-11-02)
+=========================================================
+
+- Preserve `f.exec` background-delimiter behavior for empty and multibyte
+  command endings, rather than applying it only when the final character is
+  single-byte; see `docs/mwm-exec-multibyte-delimiter.md`.
+
 Bound MWM help-argument token copies (2026-11-02)
 ===================================================
 

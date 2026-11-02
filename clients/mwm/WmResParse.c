@@ -4393,9 +4393,8 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
 #ifndef NO_MULTIBYTE
     char *p;
     wchar_t last;
-    char delim;
-    wchar_t wdelim;
     int lastlen;
+    Boolean append_delimiter;
 #endif
 
     if ((string = GetString (linePP)) != NULL)
@@ -4421,20 +4420,23 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
 #ifndef NO_MULTIBYTE
         if (wmFunction == F_Exec)
 	{
+	    append_delimiter = (len == 0);
 	    lastlen = 0;
 	    p = *pArgs;
 	    while (*p &&
-		   ((lastlen = mblen(p, MB_CUR_MAX)) > 0))
+		   ((lastlen = mblen(p, (size_t)MB_CUR_MAX)) > 0))
 	    {
-		mbtowc(&last, p, MB_CUR_MAX);
-		p += lastlen;
+	      if (mbtowc(&last, p, (size_t)MB_CUR_MAX) < 0)
+		break;
+	      p += (size_t)lastlen;
+	      append_delimiter = (last != L'&');
 	    }
-	    delim = '&';
-	    mbtowc(&wdelim, &delim, MB_CUR_MAX);
-	    if (lastlen == 1 && last != wdelim)
+	    if (*p != '\0')
+		append_delimiter = TRUE;
+	    if (append_delimiter)
 	    {
-		*p++ = '&';
-		*p   = '\0';
+		(*pArgs)[len] = '&';
+		(*pArgs)[len + 1] = '\0';
 	    }
 	}
 #else
