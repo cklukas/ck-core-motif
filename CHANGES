@@ -1,3 +1,9 @@
+Correct MWM virtual-key binding ownership (2026-11-02)
+========================================================
+
+- Release Xt-owned virtual-key binding copies with `XtFree` once, avoiding an
+  allocator mismatch and a fallback-path double free.
+
 Guard MWM workspace resource tables by build mode (2026-11-02)
 ==============================================================
 

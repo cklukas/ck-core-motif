@@ -2907,7 +2907,7 @@ VirtKeys4DIN(
           String new_bstring = FixupBindingsString( bindingsString,
                                                                 vkeysym_xref) ;
           prop_existed = TRUE ;
-          XFree( bindingsString) ;
+          XtFree( bindingsString) ;
 
           if(    new_bstring != NULL    )
             {
@@ -2937,7 +2937,6 @@ VirtKeys4DIN(
                   SetBindingsProperty( dsp, prop_atoms[i], new_bstring) ;
                   XtFree( new_bstring) ;
                 }
-              XFree( bindingsString) ;
             }
           ++i ;
         }
