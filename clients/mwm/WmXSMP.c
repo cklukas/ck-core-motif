@@ -529,17 +529,25 @@ getNewRestartCmd(void)
 
     for (argc = 0, argP = restartCmd; *argP != (char *)NULL; argP++, argc++)
     {
+	/* Keep the loop increment and the optional two-argument replacement
+	 * representable before they reach the later allocation calculation. */
+	if (argc == INT_MAX)
+	    return (char **)NULL;
 	if (strcmp(*argP, dbFileArgStr) == 0)
 	{
 	    if (*(++argP) == (char *)NULL)
 		break;
 
+	    if (argc > INT_MAX - 2)
+		return (char **)NULL;
 	    fileArgIndex = argc++; /* Point at dbFileArgStr, not filename */
 	}
     }
 
     if (fileArgIndex < 0)
     {
+	if (argc > INT_MAX - 2)
+	    return (char **)NULL;
 	fileArgIndex = argc;
 	argc += 2;
     }

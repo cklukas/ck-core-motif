@@ -35747,6 +35747,12 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
 
+Bound MWM restart-command vector counts (2026-11-02)
+======================================================
+
+- Reject restart-command lists whose legacy count would overflow while MWM
+  scans or appends its session-database argument.
+
 Preserve MWM restart commands on rebuild failure (2026-11-02)
 ============================================================
 
