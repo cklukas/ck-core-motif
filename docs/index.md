@@ -46,6 +46,10 @@ features:
     title: CK Core Apps
     details: See the native desktop applications built on CK Core Motif and integrated with CK Core CDE.
     link: https://cklukas.github.io/ck-core-apps/
+  - icon: ":file_folder:"
+    title: ck-core-fs-lib
+    details: See the headless, cross-platform filesystem engine and stable C ABI available to native CK Core clients.
+    link: https://cklukas.github.io/ck-core-fs-lib/
 ---
 
 The development **2.4.0 / native ABI epoch 8** cohort is a deliberate binary

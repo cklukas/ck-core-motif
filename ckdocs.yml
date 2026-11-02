@@ -15,6 +15,8 @@ site:
         url: https://cklukas.github.io/ck-core-cde/
       - title: CK Core Apps
         url: https://cklukas.github.io/ck-core-apps/
+      - title: ck-core-fs-lib
+        url: https://cklukas.github.io/ck-core-fs-lib/
 source: docs
 home: docs/index.md
 search: true
