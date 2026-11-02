@@ -275,7 +275,16 @@ smSaveYourselfCallback(Widget w, XtPointer clientData, XtPointer callData)
 	    newRestartCmd = getNewRestartCmd();
 
 	    nargs = 0;
-	    XtSetArg(args[nargs], XtNrestartCommand, newRestartCmd); nargs++;
+	    /*
+	     * Do not replace a working restart command with NULL when the
+	     * transactional copy above could not be constructed.  The previous
+	     * session-manager value remains a better recovery path than an empty
+	     * restart command; the discard command can still be refreshed.
+	     */
+	    if (newRestartCmd != (char **)NULL)
+	    {
+		XtSetArg(args[nargs], XtNrestartCommand, newRestartCmd); nargs++;
+	    }
 	    XtSetArg(args[nargs], XtNdiscardCommand, newDiscardCmd); nargs++;
 	    XtSetValues(wmGD.topLevelW, args, nargs);
 

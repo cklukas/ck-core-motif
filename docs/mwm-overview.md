@@ -45,6 +45,7 @@ clients exchanging Motif window-management messages.
 - [Workspace-title initialization rollback](mwm-workspace-title-init-rollback.md)
 - [Push-button array growth](mwm-save-pbinfo-growth.md)
 - [Restart-command allocation](mwm-restart-command-allocation.md)
+- [Restart-command failure recovery](mwm-restart-command-failure.md)
 - [Session database-name allocation](mwm-db-name-allocation.md)
 - [Session database suffix updates](mwm-db-name-suffix.md)
 - [WSM session-file path bounds](mwm-session-path.md)
