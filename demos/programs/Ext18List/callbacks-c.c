@@ -14,6 +14,7 @@
 #include "extlist.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 extern PlayerData players[];
 extern Pixmap porsche_pix;
@@ -241,10 +242,7 @@ UnselCB(Widget w, XtPointer client, XtPointer call )
 
 /* ARGSUSED */
 void
-QuitCB(w, client, call)
-Widget w;
-XtPointer client;
-XtPointer call;
+QuitCB(Widget w, XtPointer client, XtPointer call)
 {
     exit(0);
 }
@@ -329,7 +327,7 @@ ChoosePlayerCB(Widget w,XtPointer client, XtPointer call )
 	XmString xmstring;
 	static Widget info = NULL;
 
-	if ((int) row_info[i].data == playernum) {
+        if ((int)(intptr_t)row_info[i].data == playernum) {
 	    
 	    if (info == NULL) {
 		Arg args[5];
@@ -359,7 +357,7 @@ ChoosePlayerCB(Widget w,XtPointer client, XtPointer call )
 	}
     }
 
-    row_info[num_rows].data = (XtPointer) playernum;
+    row_info[num_rows].data = (XtPointer)(intptr_t)playernum;
 
     switch (players[playernum].picture) {
     case PPORSCHE:
@@ -417,10 +415,7 @@ ChoosePlayerCB(Widget w,XtPointer client, XtPointer call )
 
 /* ARGSUSED */
 void
-CreateLabel(w, client, call)
-Widget w;
-XtPointer client;
-XtPointer call;
+CreateLabel(Widget w, XtPointer client, XtPointer call)
 {
     Arg args[5];
     Cardinal argcnt;

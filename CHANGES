@@ -11,6 +11,13 @@ Modernize Font Selector demo C23 callbacks (2026-11-02)
 - Give Font Selector callbacks, its form factory, and its entry point typed C
   declarations so that current compilers can validate their Xt registrations.
 
+Correct Extended List demo toggle handling and C23 contracts (2026-11-02)
+=========================================================================
+
+- Use the post-change toggle callback for the Extended List find-area control,
+  and modernize its remaining generated callback declarations and pointer-width
+  player identifiers.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 
