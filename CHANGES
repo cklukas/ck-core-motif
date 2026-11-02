@@ -43,6 +43,12 @@ Modernize xmfonts demo font lifecycle (2026-11-02)
 - Give xmfonts typed C23 callback declarations, bound font-name messages, and
   release each loaded font when its sample dialog is closed.
 
+Modernize xmform layout demo (2026-11-02)
+============================================
+
+- Give xmform typed C23 helper declarations and protect its empty-word layout
+  path from division by zero.
+
 Harden Todo print staging and callback contracts (2026-11-02)
 ============================================================
 
