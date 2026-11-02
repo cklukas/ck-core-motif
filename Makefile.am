@@ -58,6 +58,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-protocol-lookup-null-slots.py \
 	      tests/automated/check-protocol-publication-null-slots.py \
 	      tests/automated/check-label-baseline-outputs.py \
+	      tests/automated/check-widget-geometry-inputs.py \
 	      tests/automated/check-label-display-rect-outputs.py \
 	      tests/automated/check-label-margins-inputs.py \
 	      tests/automated/check-label-drag-icon-input.py \

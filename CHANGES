@@ -1,3 +1,10 @@
+Propagate display-rectangle trait failures (2026-11-02)
+========================================================
+
+- Make `XmWidgetGetDisplayRect` return the selected primitive or gadget
+  display-rectangle trait's Boolean result instead of reporting success after
+  a trait rejects a geometry query; see `docs/widget-geometry-inputs.md`.
+
 Validate Label display-rectangle trait outputs (2026-11-02)
 =========================================================
 
