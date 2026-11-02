@@ -86,6 +86,9 @@ static void LoadVendorBindings(Display *display,
 			       char *path,
 			       FILE *fp,
 			       String *binding);
+static Boolean SetBindingsProperty(Display *display,
+				   Atom property,
+				   String binding);
 
 /********    End Static Function Declarations    ********/
 
@@ -1024,6 +1027,23 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
   return False;
 }
 
+static Boolean
+SetBindingsProperty(Display *display, Atom property, String binding)
+{
+  size_t binding_length;
+
+  if (display == NULL || binding == NULL)
+    return False;
+  binding_length = strlen(binding);
+  if (binding_length > (size_t)INT_MAX)
+    return False;
+
+  XChangeProperty(display, RootWindow(display, 0), property,
+		  XA_STRING, 8, PropModeReplace,
+		  (unsigned char *)binding, (int)binding_length);
+  return True;
+}
+
 static void 
 LoadVendorBindings(Display *display,
 		   char    *path,
@@ -1140,10 +1160,8 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
   if (*binding != NULL) 
     {
       /* Set the user property for future Xm applications. */
-      XChangeProperty (display, RootWindow(display, 0),
-		       atoms[XmA_MOTIF_BINDINGS],
-		       XA_STRING, 8, PropModeReplace,
-		       (unsigned char *)*binding, strlen(*binding));
+      (void)SetBindingsProperty(display, atoms[XmA_MOTIF_BINDINGS],
+				 *binding);
       return 0;
     }
   
@@ -1190,10 +1208,8 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
 	return 0;
   
   /* Set the fallback property for future Xm applications */
-  XChangeProperty (display, RootWindow(display, 0),
-		   atoms[XmA_MOTIF_DEFAULT_BINDINGS],
-		   XA_STRING, 8, PropModeReplace,
-		   (unsigned char *)*binding, strlen(*binding));
+  (void)SetBindingsProperty(display, atoms[XmA_MOTIF_DEFAULT_BINDINGS],
+			     *binding);
   
   return 0;
 }

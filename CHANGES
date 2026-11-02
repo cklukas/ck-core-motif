@@ -1,3 +1,10 @@
+Validate virtual-binding X11 property publication length (2026-11-02)
+=====================================================================
+
+- Keep file-supplied fallback binding strings out of `XChangeProperty` when
+  their byte count exceeds Xlib's `int` element-count range; see
+  `docs/virtual-binding-property-length.md`.
+
 Bound virtual-key lookup result counts and allocation size (2026-11-02)
 ======================================================================
 
