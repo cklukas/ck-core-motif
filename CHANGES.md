@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-02 — Type-correct WML generic object pointers
+
+- Define the internal WML generic object pointer as `void *` so heterogeneous
+  token and handle tables compile with current strict C compilers.
+- Extend the WML source contract and build documentation; generated UIL data
+  and the internal pointer representation remain unchanged.
+
 ## 2026-11-02 — Working Periodic Font menu
 
 - Make Small, Medium and Large resize the demo fonts, including menus and

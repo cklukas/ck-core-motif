@@ -82,6 +82,13 @@ The WML key-table emitter now converts its bounded keyword length once to the
 format mismatch while retaining the existing generated output. The source
 contract verifier checks this conversion.
 
+WML's internal `ObjectPtr` is a standard `void *` generic object pointer. This
+keeps the heterogeneous handle and token tables type-correct when current C
+compilers diagnose unrelated structure-pointer arguments instead of accepting
+the historical pre-ANSI `char *` convention. The representation and generated
+tables are unchanged, and the source contract verifier rejects a regression to
+the character-pointer definition.
+
 UIL modules that export only literals or icons have no top-level widget
 descriptors. `UrmIFMInitModule` now writes the valid empty descriptor table for
 that case, so the `demos/programs/animate/dog.uil` full-tree target succeeds;

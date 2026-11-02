@@ -40,7 +40,7 @@
 /*
  * Generic object pointer
  */
-typedef	char	*ObjectPtr;
+typedef	void	*ObjectPtr;
 
 
 /*

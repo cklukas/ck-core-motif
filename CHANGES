@@ -1,3 +1,12 @@
+Type-correct WML generic object pointers (2026-11-02)
+=====================================================
+
+- Define the internal WML generic object pointer as ``void *`` so
+  heterogeneous token and handle tables compile with current strict C
+  compilers.
+- Extend the WML source contract and build documentation; generated UIL data
+  and the internal pointer representation remain unchanged.
+
 Display framed tooltips without animation (2026-11-02)
 ======================================================
 
