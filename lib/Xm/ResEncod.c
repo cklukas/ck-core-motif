@@ -224,6 +224,10 @@ static XmConst Octet CTEXT_SET_KSC5601_0[] = "\033\044\050\103\033\044\051\103";
 static XmConst Octet CTEXT_SET_IR_111[] = "\033\050\102\033\055\100";
 #define CTEXT_SET_IR_111_LEN		sizeof(CTEXT_SET_IR_111)-1
 
+/* The M and L fields in an extended compound-text segment carry seven bits
+ * each.  Larger components must not wrap that on-the-wire length. */
+#define CTEXT_EXTENDED_SEGMENT_MAX	0x3fffU
+
 #ifdef UTF8_SUPPORTED
 static XmConst char UTF8_NEWLINESTRING[] = "\012";
 #define UTF8_NEWLINESTRING_LEN		sizeof(UTF8_NEWLINESTRING)-1
@@ -2948,16 +2952,21 @@ processCharsetAndText(XmStringCharSet tag,
       OctetPtr        temp;
       size_t           tag_len;
       size_t           allocation_size;
+      unsigned int     segment_length;
 
       tag_len = strlen(tag);
-      if (tag_len > (size_t)UINT_MAX - 7U ||
-          *outlen > UINT_MAX - 7U - (unsigned int)tag_len ||
+      if (tag_len > (size_t)UINT_MAX - 8U ||
+          *outlen > UINT_MAX - 8U - (unsigned int)tag_len ||
           tag_len > SIZE_MAX - (size_t)*outlen - 8)
         return(False);
 
       len = (unsigned int)tag_len;
+      if (len >= CTEXT_EXTENDED_SEGMENT_MAX ||
+          ctlen > CTEXT_EXTENDED_SEGMENT_MAX - len - 1U)
+        return(False);
+      segment_length = len + ctlen + 1U;
       allocation_size = (size_t)*outlen + 6 + tag_len + 2;
-      temp = (unsigned char *) XtMalloc(allocation_size);
+      temp = (unsigned char *) XtMalloc((Cardinal)allocation_size);
       if (temp == NULL)
         return(False);
       /* orig + header + tag + STX + EOS */
@@ -2979,8 +2988,8 @@ processCharsetAndText(XmStringCharSet tag,
        */
       *temp++ = 0x30;
       /* encode len in next 2 octets */
-      *temp++ = 0x80 + (len+ctlen+1)/128; 
-      *temp++ = 0x80 + (len+ctlen+1)%128;
+      *temp++ = (Octet)(0x80U + segment_length / 128U);
+      *temp++ = (Octet)(0x80U + segment_length % 128U);
       strcpy((char *) temp, tag);
       temp += len;
       *temp++ = STX;

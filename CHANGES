@@ -1,3 +1,10 @@
+Bound extended compound-text export segments (2026-11-02)
+==========================================================
+
+- Reject non-standard compound-text components that exceed the 14-bit extended
+  segment wire length, and validate the full header allocation at the Xt
+  `Cardinal` boundary instead of wrapping either field.
+
 Keep List pointer hit testing wide (2026-11-02)
 =================================================
 
