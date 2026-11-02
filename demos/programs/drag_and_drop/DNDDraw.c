@@ -35,6 +35,25 @@ static char rcsid[] = "$TOG: DNDDraw.c /main/7 1997/03/31 13:33:37 dbl $"
 
 #include "DNDDemo.h"
 static void	RectDraw(Display *, Window , RectPtr );
+static void OutlineDraw(Widget);
+static Widget colorStatus;
+
+void
+SelectDrawingColor(Widget swatch)
+{
+    XmString name, status;
+    char *text = NULL;
+    char message[128];
+    XtVaGetValues(swatch, XmNbackground, &appInfo->drawingColor,
+                  XmNlabelString, &name, NULL);
+    XmStringGetLtoR(name, XmFONTLIST_DEFAULT_TAG, &text);
+    snprintf(message, sizeof(message), "New rectangles: %s", text ? text : "selected color");
+    status = XmStringCreateLocalized(message);
+    XtVaSetValues(colorStatus, XmNlabelString, status, NULL);
+    XmStringFree(status);
+    XmStringFree(name);
+    XtFree(text);
+}
 
 
 /* The following character arrays hold the bits for
@@ -174,7 +193,7 @@ InitializeAppInfo(void)
         appInfo->highlightRect = NULL;
         appInfo->clearRect = NULL;
         appInfo->doMove = True;
-        appInfo->creatingRect = True;
+        appInfo->creatingRect = False;
         appInfo->operation = XmDROP_MOVE;
         appInfo->maxCursorWidth = 64;
         appInfo->maxCursorHeight = 64;
@@ -257,6 +276,7 @@ RedrawRectangles(Widget w)
     Window window = XtWindow(w);
     int i;
 
+    XClearWindow(display, window);
     for (i = 0; i < appInfo->numRects; i++) {
 
         rect = appInfo->rectDpyTable[i];
@@ -270,6 +290,8 @@ RedrawRectangles(Widget w)
         }
 
     }
+
+    if (appInfo->creatingRect) OutlineDraw(w);
 
 }
 
@@ -647,49 +669,6 @@ Dimension *widthRtn, Dimension *heightRtn)
  ***************************************************************************
  ***************************************************************************/
 
-/*
- * This procedure changes the GC to do rubberband
- * drawing of a rectangle frame .
- */
-static void
-SetXorGC(Widget w)
-{
-
-    unsigned long valueMask = GCFunction | GCForeground | GCLineWidth |
-                              GCPlaneMask;
-    XGCValues values;
-    Pixel bg, fg;
-
-
-    XtVaGetValues (w, XmNbackground, &bg, XmNforeground, &fg, NULL);
-
-    values.function = GXxor;
-    values.plane_mask = fg^bg;   /* Better fix for 5127 */
-    values.foreground = bg;
-    values.line_width = 1;
-    XChangeGC(XtDisplay(w), appInfo->rectGC, valueMask, &values);
-
-}
-
-
-/* This procedure returns the GC to it's initial state.  */
-static void
-SetNormGC(Widget w)
-{
-
-    unsigned long valueMask = GCFunction | GCLineWidth | GCForeground |
-      			      GCPlaneMask;
-    XGCValues values;
-
-    values.function = GXcopy;
-    values.foreground = appInfo->currentColor;
-    values.line_width = HIGHLIGHT_THICKNESS;
-    values.plane_mask = 0xFFFFFFFF;
-    XChangeGC(XtDisplay(w), appInfo->rectGC, valueMask, &values);
-
-}
-
-
 /* This procedure returns the values of the current rectangle outline */
 static void
 OutlineGetDimensions(Position *x, Position *y, Dimension *width,
@@ -724,8 +703,17 @@ OutlineDraw(Widget w)
 
     OutlineGetDimensions(&x, &y, &width, &height);
 
-    XDrawRectangle(XtDisplay(w), XtWindow(w), appInfo->rectGC,
-                   x, y, width, height);
+    XGCValues values;
+    GC gc;
+    values.foreground = GetColor("black");
+    values.background = GetColor("white");
+    values.line_style = LineDoubleDash;
+    values.line_width = 2;
+    gc = XCreateGC(XtDisplay(w), XtWindow(w),
+                  GCForeground | GCBackground | GCLineStyle | GCLineWidth,
+                  &values);
+    XDrawRectangle(XtDisplay(w), XtWindow(w), gc, x, y, width, height);
+    XFreeGC(XtDisplay(w), gc);
 
 }
 
@@ -772,9 +760,9 @@ StartRect(Widget w, XEvent *event, String *params, Cardinal *num_params)
     /* if there isn't a rectangle at this position, begin creating one */
     if (!rect) {
 
+        XtSetKeyboardFocus(topLevel, w);
         appInfo->creatingRect = True;
-        /* set gc for drawing rubberband outline for rectangles */
-        SetXorGC(w);
+
         /* set the initial outline positions */
         OutlineSetPosition(x, y);
         /* Draw the rectangle */
@@ -782,7 +770,7 @@ StartRect(Widget w, XEvent *event, String *params, Cardinal *num_params)
 
     }
     else
-        RectRaise(w, rect);
+        XtCallActionProc(w, "StartMove", event, NULL, 0);
 
 }
 
@@ -797,12 +785,10 @@ ExtendRect(Widget w, XEvent *event, String *params, Cardinal *num_params)
 
     if (appInfo->creatingRect) {
 
-        /* erase the old outline */
-        OutlineDraw(w);
+
         /* set the new outline end positions */
-        OutlineResetPosition(event->xbutton.x, event->xbutton.y);
-        /* redraw the outline */
-        OutlineDraw(w);
+        OutlineResetPosition(event->xmotion.x, event->xmotion.y);
+        RedrawRectangles(w);
 
     }
 
@@ -824,10 +810,9 @@ EndRect(Widget w, XEvent *event, String *params, Cardinal *num_params)
 
     if (appInfo->creatingRect) {
 
-        /* erase the last outline */
-        OutlineDraw(w);
-        /* return GC to original state */
-        SetNormGC(w);
+        OutlineResetPosition(event->xbutton.x, event->xbutton.y);
+        appInfo->creatingRect = False;
+        RedrawRectangles(w);
 
         /* Get the outline dimensions for creating the rectangle */
         OutlineGetDimensions(&x, &y, &width, &height);
@@ -839,7 +824,7 @@ EndRect(Widget w, XEvent *event, String *params, Cardinal *num_params)
         }
 
         rect = RectCreate(x, y, width, height,
-                          GetColor(RECT_START_COLOR), XmUNSPECIFIED_PIXMAP);
+                          appInfo->drawingColor, XmUNSPECIFIED_PIXMAP);
 
         RectDraw(XtDisplay(w), XtWindow(w), rect);
         RectRegister(rect, x, y);
@@ -849,6 +834,15 @@ EndRect(Widget w, XEvent *event, String *params, Cardinal *num_params)
 
 }
 
+
+void
+CancelRect(Widget w, XEvent *event, String *params, Cardinal *num_params)
+{
+    if (appInfo->creatingRect) {
+        appInfo->creatingRect = False;
+        RedrawRectangles(w);
+    }
+}
 
 /* The procedure assigns new translations the the given widget */
 static void
@@ -885,6 +879,7 @@ CreateDrawingArea(Widget parent)
         <Btn1Down>: StartRect() \n\
         <Btn1Motion>: ExtendRect() \n\
         <Btn1Up>: EndRect() \n\
+        :<Key>osfCancel: CancelRect() \n\
         c <Key>t: XtDisplayTranslations()";
 
     Arg             args[10];
@@ -924,7 +919,8 @@ static void
 CreateColorPushButtons(Widget parent, Widget separator)
 {
 
-    static char label_translations[] = "<Btn2Down>: ColorRect()";
+    static char label_translations[] =
+        "~c <Btn1Down>: ColorRect()\nc <Btn1Down>: ColorRect()\n<Btn2Down>: ColorRect()";
     Widget         bulletinBoard;
     Widget         children[6];
     XmString    csString;
@@ -966,7 +962,7 @@ CreateColorPushButtons(Widget parent, Widget separator)
     XtSetArg(args[n], XmNlabelString, csString); n++;
     XtSetArg(args[n], XmNbackground, GetColor(LABEL2_COLOR)); n++;
     XtSetArg(args[n], XmNborderWidth, 1); n++;
-    children[1] = XmCreatePushButton(bulletinBoard, "PushButton1", args, n);
+    children[1] = XmCreatePushButton(bulletinBoard, "PushButton2", args, n);
 
     /* add translations for manipulating rectangles */
     SetupTranslations(children[1], label_translations);
@@ -1023,6 +1019,34 @@ CreateColorPushButtons(Widget parent, Widget separator)
 
     /* add translations for manipulating rectangles */
     SetupTranslations(children[5], label_translations);
+
+    {
+        const char *names[] = {"Red", "Orange", "Yellow", "Violet", "Blue", "Green"};
+        int i;
+        for (i = 0; i < 6; ++i) {
+            XmString name = XmStringCreateLocalized((char *)names[i]);
+            XtVaSetValues(children[i], XmNlabelString, name,
+                          XmNforeground, GetColor("black"), NULL);
+            XmStringFree(name);
+        }
+        XmString current = XmStringCreateLocalized("New rectangles: Black");
+        colorStatus = XtVaCreateManagedWidget("currentColor", xmLabelWidgetClass,
+            bulletinBoard, XmNx, BOX_X_MARGIN, XmNy, 80,
+            XmNalignment, XmALIGNMENT_BEGINNING, XmNlabelString, current, NULL);
+        XmStringFree(current);
+        XmString instructions = XmStringCreateLocalized(
+            "Drag empty canvas: draw\n"
+            "Press a color: use for new rectangles\n"
+            "Drag color onto rectangle: paint\n"
+            "Drag rectangle: move; Ctrl: copy\n"
+            "Left or middle button; Esc: cancel");
+        Widget help = XtVaCreateManagedWidget("instructions", xmLabelWidgetClass,
+            bulletinBoard, XmNx, BOX_X_MARGIN, XmNy, 108,
+            XmNalignment, XmALIGNMENT_BEGINNING,
+            XmNlabelString, instructions, NULL);
+        (void)help;
+        XmStringFree(instructions);
+    }
 
     /* Managing the children all at once helps performance */
     XtManageChildren(children, 6);
@@ -1108,6 +1132,7 @@ CreateRectGC(void)
     values.line_style = LineSolid;
     values.line_width = HIGHLIGHT_THICKNESS;
     values.foreground = appInfo->currentColor = GetColor(RECT_START_COLOR);
+    appInfo->drawingColor = values.foreground;
     appInfo->rectGC = XCreateGC(XtDisplay(topLevel), XtWindow(drawingArea),
                       GCLineStyle | GCLineWidth | GCForeground, &values);
 

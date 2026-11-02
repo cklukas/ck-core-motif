@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-02",
+  "platform": "macOS arm64 / XQuartz libraries; isolated Xvfb XTEST input",
+  "source_sha256": {
+    "tests/automated/check-dnd-demo.c": "e4d419a2548593ef2ef46b2e63ca59429c7b1090c94e1de5ff538e9efcb1937d",
+    "lib/Xm/Transfer.c": "fc84ea7b1e360ab98d3cc840189a6d086814ff87e7c062f433edd2775ced8302",
+    "demos/programs/drag_and_drop/DNDDemo.c": "9cfd5d7864a60ff13755733c25acb0d9f3de0b54127e7cbfa609f6c9d8fceec3",
+    "demos/programs/drag_and_drop/DNDDemo.h": "c631b259583f3c8e09ce6537f183c6ec5ced0f93836a8bc397449ecd6b7a4ba7",
+    "demos/programs/drag_and_drop/DNDDraw.c": "c5928c4a6051195a795dee6c16ac433bc7b830fefdaddcd044a63c6ccb29f02f"
+  },
+  "runtime_library": {
+    "path": "/Volumes/S8T/tmp/motif-dnd-20261102/install/lib/libXm.9.dylib",
+    "sha256": "28339a08145ef20434c33e6b3a9e929e611e0cddd6da0fab2bf8877c7f2e6be2"
+  },
+  "build": {
+    "configuration": "Clang C23 library, GNU17 demo, Xft/Unicode/SVG, -j3",
+    "baseline": "Comparable clean C23/SVG library: 37.21 seconds at -j3; configure: 34.08 seconds.",
+    "steps": [
+      {
+        "command": [
+          "autoreconf",
+          "-fi",
+          "/Volumes/S8T/tmp/motif-dnd-20261102/src"
+        ],
+        "start": "2026-11-02T06:06:32.275590+00:00",
+        "end": "2026-11-02T06:06:39.503414+00:00",
+        "seconds": 7.22787391699967,
+        "status": 0
+      },
+      {
+        "command": [
+          "/Volumes/S8T/tmp/motif-dnd-20261102/src/configure",
+          "CC=clang -std=c23",
+          "--prefix=/Volumes/S8T/tmp/motif-dnd-20261102/install",
+          "--x-includes=/opt/X11/include",
+          "--x-libraries=/opt/X11/lib",
+          "--enable-xft",
+          "--enable-svg",
+          "--enable-unicode-text",
+          "--enable-demos",
+          "--disable-atspi",
+          "--disable-printing",
+          "--disable-static",
+          "--with-libjpeg-includes=/opt/homebrew/include",
+          "--with-libjpeg-lib=/opt/homebrew/lib",
+          "CPPFLAGS=-I/opt/X11/include",
+          "LDFLAGS=-L/opt/X11/lib"
+        ],
+        "start": "2026-11-02T06:06:39.511372+00:00",
+        "end": "2026-11-02T06:07:03.340808+00:00",
+        "seconds": 23.829486540998914,
+        "status": 0
+      },
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-dnd-20261102/build/lib",
+          "-j3"
+        ],
+        "start": "2026-11-02T06:07:03.347527+00:00",
+        "end": "2026-11-02T06:07:34.384173+00:00",
+        "seconds": 31.03673937500571,
+        "status": 0
+      },
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-dnd-20261102/build/lib",
+          "-j3",
+          "install"
+        ],
+        "start": "2026-11-02T06:07:34.393470+00:00",
+        "end": "2026-11-02T06:07:35.822905+00:00",
+        "seconds": 1.429465250010253,
+        "status": 0
+      },
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-dnd-20261102/build/include",
+          "-j3",
+          "install"
+        ],
+        "start": "2026-11-02T06:07:35.831324+00:00",
+        "end": "2026-11-02T06:07:35.900333+00:00",
+        "seconds": 0.06903499999316409,
+        "status": 0
+      },
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-dnd-20261102/build/demos/programs/drag_and_drop",
+          "-j3",
+          "CC=clang -std=gnu17",
+          "DNDDemo"
+        ],
+        "start": "2026-11-02T06:07:35.907572+00:00",
+        "end": "2026-11-02T06:07:36.378300+00:00",
+        "seconds": 0.47076337499311194,
+        "status": 0
+      },
+      {
+        "command": [
+          "gmake",
+          "-C",
+          "/Volumes/S8T/tmp/motif-dnd-20261102/build/demos/programs/drag_and_drop",
+          "-j3",
+          "CC=clang -std=gnu17",
+          "install-binPROGRAMS"
+        ],
+        "start": "2026-11-02T06:07:36.385420+00:00",
+        "end": "2026-11-02T06:07:37.054106+00:00",
+        "seconds": 0.6687170419900212,
+        "status": 0
+      }
+    ],
+    "outputs": {
+      "/Volumes/S8T/tmp/motif-dnd-20261102/install/share/Xm/drag_and_drop/DNDDemo": {
+        "sha256": "05158bed4e8d90c4fa7314e84015324567d49772c3adcfd9cf4dfc8a83c583a8",
+        "mtime_ns": 1793599938282464778
+      },
+      "/Volumes/S8T/tmp/motif-dnd-20261102/install/lib/libXm.9.dylib": {
+        "sha256": "28339a08145ef20434c33e6b3a9e929e611e0cddd6da0fab2bf8877c7f2e6be2",
+        "mtime_ns": 1793599937325582467
+      },
+      "sources": {
+        "lib/Xm/Transfer.c": "fc84ea7b1e360ab98d3cc840189a6d086814ff87e7c062f433edd2775ced8302",
+        "demos/programs/drag_and_drop/DNDDemo.c": "9cfd5d7864a60ff13755733c25acb0d9f3de0b54127e7cbfa609f6c9d8fceec3",
+        "demos/programs/drag_and_drop/DNDDemo.h": "c631b259583f3c8e09ce6537f183c6ec5ced0f93836a8bc397449ecd6b7a4ba7",
+        "demos/programs/drag_and_drop/DNDDraw.c": "c5928c4a6051195a795dee6c16ac433bc7b830fefdaddcd044a63c6ccb29f02f"
+      },
+      "dependencies": "/Volumes/S8T/tmp/motif-dnd-20261102/install/share/Xm/drag_and_drop/DNDDemo:\n\t/Volumes/S8T/tmp/motif-dnd-20261102/install/lib/libXm.9.dylib (compatibility version 10.0.0, current version 10.0.0)\n\t/opt/X11/lib/libXmu.6.dylib (compatibility version 9.0.0, current version 9.0.0)\n\t/opt/X11/lib/libXext.6.dylib (compatibility version 11.0.0, current version 11.0.0)\n\t/opt/homebrew/opt/icu4c@78/lib/libicui18n.78.dylib (compatibility version 78.0.0, current version 78.3.0)\n\t/opt/homebrew/opt/icu4c@78/lib/libicuuc.78.dylib (compatibility version 78.0.0, current version 78.3.0)\n\t/opt/homebrew/opt/harfbuzz/lib/libharfbuzz.0.dylib (compatibility version 61500.0.0, current version 61500.0.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1359.40.3)\n\t/opt/homebrew/opt/librsvg/lib/librsvg-2.2.dylib (compatibility version 2.0.0, current version 2.0.0)\n\t/opt/homebrew/opt/gdk-pixbuf/lib/libgdk_pixbuf-2.0.0.dylib (compatibility version 4401.0.0, current version 4401.6.0)\n\t/opt/homebrew/opt/glib/lib/libgio-2.0.0.dylib (compatibility version 9001.0.0, current version 9001.1.0)\n\t/opt/X11/lib/libcairo.2.dylib (compatibility version 1.0.0, current version 1.18.4)\n\t/opt/homebrew/opt/glib/lib/libgobject-2.0.0.dylib (compatibility version 9001.0.0, current version 9001.1.0)\n\t/opt/homebrew/opt/glib/lib/libglib-2.0.0.dylib (compatibility version 9001.0.0, current version 9001.1.0)\n\t/opt/homebrew/opt/gettext/lib/libintl.8.dylib (compatibility version 13.0.0, current version 13.6.0)\n\t/opt/X11/lib/libXt.6.dylib (compatibility version 7.0.0, current version 7.0.0)\n\t/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)\n\t/opt/X11/lib/libfreetype.6.dylib (compatibility version 27.0.0, current version 27.6.20)\n\t/opt/X11/lib/libXrender.1.dylib (compatibility version 1.0.0, current version 1.0.0)\n\t/opt/X11/lib/libX11.6.dylib (compatibility version 11.0.0, current version 11.0.0)\n\t/opt/X11/lib/libfontconfig.1.dylib (compatibility version 17.0.0, current version 17.0.0)\n\t/opt/X11/lib/libXft.2.dylib (compatibility version 2.0.0, current version 2.0.0)\n\t/opt/homebrew/opt/jpeg-turbo/lib/libjpeg.8.dylib (compatibility version 8.0.0, current version 8.3.2)\n\t/opt/X11/lib/libpng16.16.dylib (compatibility version 72.0.0, current version 72.0.0)\n"
+    }
+  },
+  "regression_command": "python3 tests/automated/run-dnd-demo.py --prefix /Volumes/S8T/tmp/motif-dnd-20261102/install --out /Volumes/S8T/tmp/motif-dnd-20261102/test-final",
+  "results": {
+    "classic": "PASS",
+    "modern-light": "PASS",
+    "modern-dark": "PASS",
+    "checks": "contextless local export negotiation, external-context rejection, live/exposed preview pixel readback, painting, move, Ctrl-copy, selected drawing color, reverse draw, drawing/drag cancellation",
+    "baseline": "Original installed toolkit rejected drag startup; the native fixture failed its color-transfer assertion before the toolkit fix."
+  },
+  "native_window": {
+    "pid": 75285,
+    "executable": "/Volumes/S8T/tmp/motif-dnd-20261102/install/share/Xm/drag_and_drop/DNDDemo",
+    "inspection": "Actual XQuartz window inspected: colored rectangles, named swatches, selected-color label and complete gesture instructions; executable and mapped libXm paths verified.",
+    "limit": "Live preview and gesture cancellation validated by isolated native input; desktop automation accessibility timed out, so no claim of an automated physical-desktop gesture run."
+  }
+}

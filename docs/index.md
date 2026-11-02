@@ -31,4 +31,5 @@ not regenerate or import that entire reference collection.
 
 The toolkit follows the licensing terms in the repository's `COPYING` file.
 
-See the [simple drag and drop demo](simpledrop.md) for mouse gestures and validation.
+See the [simple drag and drop demo](simpledrop.md) and
+[DNDDemo drawing and color transfers](dnd-demo.md) for mouse gestures and validation.

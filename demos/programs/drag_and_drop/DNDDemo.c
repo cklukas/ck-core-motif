@@ -185,8 +185,9 @@ ColorConvert(Widget widget, XtPointer ignore, XmConvertCallbackStruct *cs)
       /* value, type, length, and format must be set */
       cs -> value = (XtPointer) background;
       cs -> type = PIXEL;
-      cs -> length = sizeof(Pixel);
+      cs -> length = 1;
       cs -> format = 32;
+      cs -> status = XmCONVERT_DONE;
 
     } else if (cs -> target == TARGETS || cs -> target == ME_TARGETS) {
       /* This target is required by ICCCM */
@@ -282,6 +283,8 @@ ColorDragDropFinishCB(Widget w, XtPointer client, XtPointer call)
 
     XtDestroyWidget(sourceIcon);
     XtDestroyWidget(stateIcon);
+    /* Repaint after drag-under animation has restored its saved pixels. */
+    XClearArea(XtDisplay(drawingArea), XtWindow(drawingArea), 0, 0, 0, 0, True);
 
 }
 
@@ -320,6 +323,8 @@ ColorRect(Widget w, XEvent *event, String *params, Cardinal *num_params)
     XtSetArg(args[n], XmNbackground, &background); n++;
     XtSetArg(args[n], XmNforeground, &foreground); n++;
     XtGetValues(w, args, n);
+
+    SelectDrawingColor(w);
 
     /* If the server will handle a large icon, create one */
     if (appInfo->maxCursorWidth >= ICON_WIDTH &&
@@ -418,12 +423,14 @@ RectConvert(Widget widget, XtPointer ignore, XmConvertCallbackStruct *cs)
 	 * old rectangle instead of just moving the old rectangle because
 	 * the rectangle movement might be an interclient move.
 	 */
-        rect = RectCreate(oldRect->x, oldRect->y, oldRect->width,
-            oldRect->height, oldRect->color, oldRect->pixmap);
-        /* value, type, length, and format must be assigned values */
-        cs -> value = (XtPointer) rect;
+        /* Xt format-32 selections use one native unsigned long per item. */
+        unsigned long *wire = (unsigned long *)XtMalloc(6 * sizeof(*wire));
+        wire[0] = oldRect->x; wire[1] = oldRect->y;
+        wire[2] = oldRect->width; wire[3] = oldRect->height;
+        wire[4] = oldRect->color; wire[5] = oldRect->pixmap;
+        cs -> value = (XtPointer) wire;
         cs -> type = RECT_INFO;
-        cs -> length = sizeof(*rect)/sizeof(long);
+        cs -> length = 6;
         cs -> format = 32;
 	cs -> status = XmCONVERT_DONE;
     }
@@ -480,6 +487,7 @@ RectDragDropFinishCB(Widget w, XtPointer client, XtPointer call)
 
     /* Free temp data */
     XtFree(client);
+    XClearArea(XtDisplay(drawingArea), XtWindow(drawingArea), 0, 0, 0, 0, True);
 }
 
 
@@ -969,52 +977,39 @@ TransferProcCallback(Widget wid,
     RectPtr         rect;
     int             n;
 
-    /*
-     * The delete target returns a NULL_ATOM type and value equal to NULL 
-     * so it isn't a failure.  Otherwise, check for NULL value or targets 
-     * that wee don't support and set transfer failure.
-     */
-    if (cs -> type != NULL_ATOM && 
-	(!cs -> value 
-	 || (cs -> type != RECT_INFO && 
-	     cs -> type != PIXEL &&
-	     cs -> type != XA_DRAWABLE))) {
-      /* Free the value if there is one, or we would have a memory leak */
-      XtFree(cs -> value);
-      return;
-    }
+    Boolean valid = False;
 
-    /* Handle pixel type (i.e. change in background) */
-    if (cs -> type == PIXEL) {
-      rect = RectFind(transferRec->x, transferRec->y);
-      RectSetColor(rect, display, XtWindow(wid), *((Pixel*)cs -> value));
+    if (cs->type == NULL_ATOM && cs->length == 0) {
+        valid = True; /* Successful source deletion after a rectangle move. */
+    } else if (cs->value && cs->format == 32) {
+        unsigned long *wire = (unsigned long *)cs->value;
+        rect = RectFind(transferRec->x, transferRec->y);
+        if (cs->type == PIXEL && cs->length == 1 && rect) {
+            RectSetColor(rect, display, XtWindow(wid), wire[0]);
+            valid = True;
+        } else if (cs->type == XA_DRAWABLE && cs->length == 1 && rect) {
+            RectSetPixmap(rect, display, XtWindow(wid), wire[0]);
+            valid = True;
+        } else if (cs->type == RECT_INFO && cs->length == 6 &&
+                   wire[2] > 0 && wire[2] <= 65535 &&
+                   wire[3] > 0 && wire[3] <= 65535) {
+            rect = RectCreate(transferRec->x, transferRec->y,
+                              wire[2], wire[3], wire[4], wire[5]);
+            RectRegister(rect, transferRec->x, transferRec->y);
+            RedrawRectangles(wid);
+            valid = True;
+        }
     }
-    /* Handle drawable type (i.e. change in pixmap) */
-    else if (cs -> type == XA_DRAWABLE) {
-      rect = RectFind(transferRec->x, transferRec->y);
-      RectSetPixmap(rect, display, XtWindow(wid), *((Pixmap *)cs -> value));
+    XtFree(cs->value);
+    if (valid && transferRec->move) {
+        /* Delete only after the rectangle was received successfully. */
+        transferRec->move = False;
+        XmTransferValue(cs->transfer_id, XmInternAtom(display, "DELETE", False),
+                        TransferProcCallback, transferRec, CurrentTime);
+        return;
     }
-    /* Handle rect_info type (i.e. new rectangle) */
-    else if (cs -> type == RECT_INFO) {
-      rect = (RectPtr) cs -> value;
-      RectRegister(rect, transferRec->x, transferRec->y);
-      RedrawRectangles(wid);
-      cs -> value = NULL; /* No need to free, it is being stored in RecTable */
-    }
-
-    /* Free the value if there is one, or we would have a memory leak */
-    if (cs -> value) XtFree(cs -> value);
-}
-
-
-/* This procedure frees the data used the data transfer proc that
- * was passed from the drop procedure.
- */
-/* ARGSUSED */
-static void
-DropDestroyCB(Widget w, XtPointer clientData, XtPointer callData)
-{
-    XtFree((char *)clientData);
+    if (!valid) XmTransferDone(cs->transfer_id, XmTRANSFER_DONE_FAIL);
+    XtFree((char *)transferRec);
 }
 
 
@@ -1025,10 +1020,6 @@ HandleDrop(Widget w, XtPointer call, XtPointer call_data)
 {
   XmDestinationCallbackStruct *cs = (XmDestinationCallbackStruct *) call;
   XmDropProcCallbackStruct *ds;
-  static XtCallbackRec dropDestroyCB[] = {
-    {DropDestroyCB, NULL},
-    {NULL, NULL}
-  };
   Display                     *display = XtDisplay(w);
   Arg                         args[10];
   DropTransfer                transferRec;
@@ -1075,25 +1066,11 @@ HandleDrop(Widget w, XtPointer call, XtPointer call_data)
       transferRec->x = ds->x;
       transferRec->y = ds->y;
 
-      XmTransferValue(cs -> transfer_id,
-		      XmInternAtom(display, "_MY_RECTANGLE", False),
-		      TransferProcCallback, 
-		      (XtPointer) transferRec, CurrentTime);
-      XmTransferValue(cs -> transfer_id,
-		      XmInternAtom(display, "BACKGROUND", False),
-		      TransferProcCallback,
-		      (XtPointer) transferRec, CurrentTime);
-      XmTransferValue(cs -> transfer_id,
-		      XmInternAtom(display, "PIXMAP", False),
-		      TransferProcCallback, 
-		      (XtPointer) transferRec, CurrentTime);
-      /* Set up move targets */
-      if (ds->operation == XmDROP_MOVE) {
-	XmTransferValue(cs -> transfer_id,
-			XmInternAtom(display, "DELETE", False),
-			TransferProcCallback, 
-			(XtPointer) transferRec, CurrentTime);
-      }
+      transferRec->move = rectFound && ds->operation == XmDROP_MOVE;
+      XmTransferValue(cs->transfer_id,
+                      XmInternAtom(display, rectFound ? "_MY_RECTANGLE" :
+                                   bgFound ? "BACKGROUND" : "PIXMAP", False),
+                      TransferProcCallback, transferRec, CurrentTime);
     } else {
       XmTransferDone(cs -> transfer_id, XmTRANSFER_DONE_FAIL);
     }
@@ -1307,6 +1284,7 @@ InitializeApplication(int *argc, String *argv)
         {"StartRect", StartRect},
         {"ExtendRect", ExtendRect},
         {"EndRect", EndRect},
+        {"CancelRect", CancelRect},
         {"StartMove", StartMove},
         {"ColorRect", ColorRect},
     };
@@ -1318,7 +1296,7 @@ InitializeApplication(int *argc, String *argv)
 
     /* Initialize Toolkit and create shell */
     XtSetArg(args[n], XmNwidth, 295); n++;
-    XtSetArg(args[n], XmNheight, 270); n++;
+    XtSetArg(args[n], XmNheight, 420); n++;
     topLevel = XtAppInitialize(&appContext, "DNDDemo", NULL, 0, 
                                argc, argv, NULL, args, n);
 
@@ -1333,7 +1311,7 @@ InitializeApplication(int *argc, String *argv)
     InitializeRectDpyTable();
 
     /* Add new actions for use with translation tables */
-    XtAppAddActions(appContext, new_actions, 5);
+    XtAppAddActions(appContext, new_actions, XtNumber(new_actions));
 
     /* Get the display server's best cursor size */
     XQueryBestCursor(XtDisplay(topLevel), 

@@ -155,6 +155,7 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
 
   _XmProcessLock();
   my_local_convert_flag = local_convert_flag;
+  local_convert_flag = 0; /* Consume the one-shot flag even on failure. */
   _XmProcessUnlock();
 
   /* Find the context block */
@@ -168,7 +169,10 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
     *type = None;
     return False;
   }
-  if (*selection == atoms[XmA_MOTIF_DROP] && cc -> drag_context == NULL) {
+  /* XmeDragSource negotiates export targets locally before XmDragStart.
+     Only remote selection requests require an existing drag context. */
+  if (*selection == atoms[XmA_MOTIF_DROP] && cc -> drag_context == NULL &&
+      !my_local_convert_flag) {
     *value = NULL;
     *size = 0;
     *fmt = 8;
@@ -250,11 +254,6 @@ _XmConvertHandler(Widget wid, Atom *selection, Atom *target,
       ((XSelectionRequestEvent *) cbstruct.event) -> owner) {
     cbstruct.flags |= XmCONVERTING_SAME;
   }
-
-  _XmProcessLock();
-  /* Reset bypass flag */
-  local_convert_flag = 0;
-  _XmProcessUnlock();
 
   if (*selection != atoms[XmA_MOTIF_DESTINATION] ||
       *target == atoms[XmA_MOTIF_LOSE_SELECTION]) {

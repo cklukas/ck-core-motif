@@ -1,3 +1,19 @@
+Restore drag negotiation and make DNDDemo interactive (2026-11-02)
+=================================================================
+
+- Allow local export-target negotiation before a drag context exists, while
+  retaining context checks for external conversions and consuming the local
+  conversion flag even on failure.
+- Add primary-button color/rectangle transfers, selectable drawing colors,
+  named swatches, current-color feedback and visible gesture instructions.
+- Replace transient XOR drawing with an exposure-safe dashed preview; use
+  release coordinates and support Escape cancellation.
+- Correct format-32 color and rectangle payloads on 64-bit systems, request
+  only advertised targets, free transfer state and delete moved sources only
+  after successful receipt.
+- Add native XTEST regression coverage for negotiation, preview readback,
+  painting, move/copy and cancellation in classic/light/dark appearances.
+
 Resize shared help content with its window (2026-11-02)
 =====================================================
 

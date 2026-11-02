@@ -35,3 +35,11 @@ shows off the features in Motif Drag and Drop.  It also serves as a
 programming example.  For a simpler example,  look at simpledrop.c.
 
 
+
+.SH INTERACTION
+Left-drag empty canvas to draw a rectangle with a live dashed outline.
+Press a color swatch to choose the color for new rectangles, or drag the
+swatch onto an existing rectangle to paint it. Black is the initial color.
+Drag an existing rectangle to move it; hold Control to copy it.
+Both left and middle buttons support transfers. Escape cancels a drawing
+or drag gesture. Color drops on empty canvas are rejected.

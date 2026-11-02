@@ -39,6 +39,7 @@
 #include <Xm/Form.h>
 #include <Xm/RowColumn.h>
 #include <Xm/PushB.h>
+#include <Xm/Label.h>
 #include <Xm/MessageB.h>
 #include <Xm/DragDrop.h>
 #include <Xm/Screen.h>
@@ -101,6 +102,7 @@ typedef struct _RectStruct {
 
 /* This struct is used to hold global application information */
 typedef struct _AppInfoRec {
+    Pixel drawingColor;
     GC rectGC;              /* graphic context used to draw the rectangles */
     Pixel currentColor;     /* color that is currently in the GC */
     RectPtr *rectDpyTable;  /* the rectangle display table */
@@ -127,6 +129,7 @@ typedef struct _AppInfoRec {
  */
 typedef struct _DropTransferRec {
     Widget widget;
+    Boolean move;
     Position x;
     Position y;
 } DropTransferRec, *DropTransfer;
@@ -143,9 +146,11 @@ typedef struct _DragConvertRec {
 
 
 
+extern void     SelectDrawingColor(Widget);
 extern void     InitializeAppInfo(void );
 extern void     StartRect(Widget , XEvent *, String *, Cardinal *);
 extern void     ExtendRect(Widget , XEvent *, String *, Cardinal *);
+extern void     CancelRect(Widget, XEvent *, String *, Cardinal *);
 extern void     EndRect(Widget , XEvent *, String *, Cardinal *);
 extern RectPtr  RectCreate(Position , Position , Dimension ,
                           Dimension , Pixel , Pixmap );
