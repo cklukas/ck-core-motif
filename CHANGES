@@ -1,3 +1,10 @@
+Validate Mrm widget-fetch output parameters (2026-11-02)
+=========================================================
+
+- Reject missing widget-fetch index/output parameters and a nonzero override
+  count without an override list before `MrmFetchWidgetOverride` can
+  dereference them; see `docs/mrm-widget-fetch-parameters.md`.
+
 Validate Mrm hierarchy-open parameters (2026-11-02)
 ====================================================
 

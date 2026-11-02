@@ -845,6 +845,11 @@ MrmFetchWidgetOverride (MrmHierarchy		hierarchy_id,
   URMSetValuesDescPtr	svlist = NULL;	/* list of SetValues descriptors */
   int			ndx ;		/* loop index */
   char			errmsg[300];
+
+  if (index == NULL || w_return == NULL || class_return == NULL ||
+      (ov_num_args != 0 && ov_args == NULL))
+    return MrmFAILURE;
+
   _MrmWidgetToAppContext(parent);
 
   _MrmAppLock(app);
