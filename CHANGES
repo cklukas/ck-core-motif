@@ -1,3 +1,10 @@
+Grow file-selection cache paths for long directory entries (2026-11-02)
+=======================================================================
+
+- Dynamically grow the temporary directory-cache full-path buffer before
+  classifying a long entry name, avoiding the former fixed 256-byte slack
+  overflow; see `docs/directory-cache-path-capacity.md`.
+
 Reset TabBox basic-mode resource conversion state (2026-11-02)
 ===============================================================
 
