@@ -394,7 +394,8 @@ Propagate Mrm byte-swapped widget failures (2026-11-03)
 ========================================================
 
 - Return failed widget-record byte-swap status from hierarchy, indexed, and
-  RID widget readers instead of reporting false success; see
+  RID widget readers instead of reporting false success, and invalidate a
+  partially converted record before returning the error; see
   `docs/mrm-widget-swap-status.md`.
 
 Bound byte-swapped Mrm index records (2026-11-03)

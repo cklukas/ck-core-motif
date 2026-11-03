@@ -140,6 +140,8 @@ UrmHGetWidget (MrmHierarchy		hierarchy_id,
       if ( UrmWRValid(widgetrec) )
 	{
 	  result = Urm__SwapRGMWidgetRecord(widgetrec);
+	  if (result != MrmSUCCESS)
+	    widgetrec->validation = 0;
 	  return result;
 	}
     }
@@ -216,6 +218,8 @@ UrmGetIndexedWidget (IDBFile			file_id,
       if ( UrmWRValid(widgetrec) )
 	{
 	  result = Urm__SwapRGMWidgetRecord(widgetrec);
+	  if (result != MrmSUCCESS)
+	    widgetrec->validation = 0;
 	  return result;
 	}
     }
@@ -292,6 +296,8 @@ UrmGetRIDWidget (IDBFile		file_id,
       if ( UrmWRValid(widgetrec) )
 	{
 	  result = Urm__SwapRGMWidgetRecord(widgetrec);
+	  if (result != MrmSUCCESS)
+	    widgetrec->validation = 0;
 	  return result;
 	}
     }

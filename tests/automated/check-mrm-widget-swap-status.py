@@ -18,6 +18,8 @@ for signature in (
     swap = body.index("result = Urm__SwapRGMWidgetRecord(widgetrec);")
     returned = body.index("return result;", swap)
     assert swap < returned
+    assert "if (result != MrmSUCCESS)" in body[swap:returned]
+    assert "widgetrec->validation = 0;" in body[swap:returned]
     assert "return MrmSUCCESS ;" not in body[swap:returned]
 
-print("Mrm byte-swapped widget readers propagate conversion status")
+print("Mrm byte-swapped widget readers fail closed after conversion errors")
