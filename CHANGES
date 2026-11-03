@@ -1,8 +1,9 @@
 Bound MRM byte-swapped widget lists (2026-11-03)
 ===================================================
 
-- Validate cross-endian widget record headers, list offsets, and swapped
-  argument/child counts before conversion loops; see
+- Validate cross-endian widget record headers, list offsets, swapped
+  argument/child/callback counts, and embedded callback/resource offsets
+  before conversion loops; see
   `docs/mrm-widget-swap-list-bounds.md`.
 
 Propagate MRM embedded callback byte-swap failures (2026-11-03)
