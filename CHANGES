@@ -1,3 +1,9 @@
+Guard Sash focus redraw before realization (2026-11-03)
+========================================================
+
+- Do not issue Sash focus highlight or unhighlight drawing requests before the
+  widget owns an X window; see `docs/sash-focus-redraw.md`.
+
 Preserve inherited Sash cursor after allocation failure (2026-11-03)
 =====================================================================
 

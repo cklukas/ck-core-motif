@@ -8,6 +8,7 @@ for name in ("HighlightSash", "UnhighlightSash"):
     start = source.index("{", start)
     end = source.index("\n}\n", start)
     region = source[start:end]
+    assert "!XtIsRealized(sash)" in region
     assert "sash->core.width <= 2 * x" in region
     assert "sash->core.height <= 2 * y" in region
     assert "return;" in region

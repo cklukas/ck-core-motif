@@ -247,7 +247,8 @@ HighlightSash(
   int x, y;
   
   x = y = ((XmSashWidget) sash)->primitive.shadow_thickness;
-  if (sash->core.width <= 2 * x || sash->core.height <= 2 * y)
+  if (!XtIsRealized(sash) || sash->core.width <= 2 * x ||
+      sash->core.height <= 2 * y)
     return;
   
   XFillRectangle( XtDisplay( sash), XtWindow( sash),
@@ -262,7 +263,8 @@ UnhighlightSash(
   int x, y;
   
   x = y = ((XmSashWidget) sash)->primitive.shadow_thickness;
-  if (sash->core.width <= 2 * x || sash->core.height <= 2 * y)
+  if (!XtIsRealized(sash) || sash->core.width <= 2 * x ||
+      sash->core.height <= 2 * y)
     return;
 
   XClearArea( XtDisplay( sash), XtWindow( sash),
