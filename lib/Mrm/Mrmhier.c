@@ -165,10 +165,12 @@ Urm__OpenHierarchy (MrmCount			num_files,
   Display		*display;	/* display for XtResolvePathNames */
   char                 	err_stg[300];
 
+  if (hierarchy_id_return == NULL)
+    return MrmFAILURE;
+  *hierarchy_id_return = NULL;
   if (num_files < 0 ||
       (size_t)num_files > SIZE_MAX / sizeof(IDBFile) ||
       (size_t)num_files > (size_t)UINT_MAX / sizeof(IDBFile) ||
-      hierarchy_id_return == NULL ||
       (num_files > 0 && name_list == NULL) ||
       (in_memory && uid_buffer == NULL) ||
       (os_ext_list != NULL && *os_ext_list == NULL))

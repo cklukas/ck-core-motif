@@ -1,3 +1,9 @@
+Clear failed MRM hierarchy-open output (2026-11-03)
+====================================================
+
+- Clear the supplied hierarchy handle before hierarchy-open validation and
+  allocation, so all failure paths cannot leave a stale open hierarchy.
+
 Clear failed MRM hierarchy name lookups (2026-11-03)
 =====================================================
 
