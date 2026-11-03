@@ -77,6 +77,12 @@ overwriting generator storage, while the established generated header layout is
 unchanged. `tests/automated/check-wml-class-mask-bounds.py` checks this source
 contract; the native WML target verifies the generated headers.
 
+Character-set `$LANG` names and aliases are likewise copied into an
+input-sized uppercase buffer before emission. A failed allocation stops WML
+generation instead of writing through the former 200-byte local array or
+continuing with a partial header. The source regression is
+`tests/automated/check-wml-charset-name-bounds.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and

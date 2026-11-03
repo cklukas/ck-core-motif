@@ -58,6 +58,7 @@ static char rcsid[] = "$XConsortium: wmlouth.c /main/8 1995/08/29 11:10:46 drk $
 #include "wml.h"
 
 #if defined(__STDC__)
+#include <stdlib.h>
 #include <string.h>
 #endif
 #include <stdio.h>
@@ -83,6 +84,23 @@ static void
 wmlOutputClassMaskTerm (FILE *outfil, const char *prefix, const char *tkname)
 {
     fprintf (outfil, "%s _BIT_MASK(sym_k_%s_object) |\n ", prefix, tkname);
+}
+
+static void
+wmlOutputUpperCaseCharsetName (FILE *outfil, char *name, char *comment)
+{
+    char *uppercase_name;
+
+    uppercase_name = wmlAllocateString (name);
+    if (uppercase_name == NULL)
+        {
+        fprintf (stderr, "Unable to copy WML character-set name\n");
+        fclose (outfil);
+        exit (EXIT_FAILURE);
+        }
+    wmlUpperCaseString (uppercase_name);
+    fprintf (outfil, "    \"%s\",\t/* %s */\n", uppercase_name, comment);
+    free (uppercase_name);
 }
 void wmlOutputUilSymCSet(void);
 int wmlResolveCtlIsMember (WmlClassDefPtr, WmlClassCtrlDefPtr);
@@ -1771,7 +1789,6 @@ WmlCharSetDefPtr	csobj;		/* character set object */
 WmlSynCharSetDefPtr	syncs;		/* character set syntactic obj */
 int			lang_max;	/* max value for $LANG tables */
 int			alias_ndx;	/* alias loop index */
-char			uname[200];	/* name converted to upper case */
 
 
 /*
@@ -1883,22 +1900,14 @@ for ( ndx=0 ; ndx<wml_obj_charset_ptr->cnt ; ndx++ )
     csobj = (WmlCharSetDefPtr) wml_obj_charset_ptr->hvec[ndx].objptr;
     syncs = csobj->syndef;
     if ( csobj->sym_code == 0 ) continue;
-    strcpy (uname, syncs->name);
-    wmlUpperCaseString (uname);
-    fprintf (outfil, "    \"%s\",\t/* %s */\n",
-	     uname, syncs->name);
+    wmlOutputUpperCaseCharsetName (outfil, syncs->name, syncs->name);
     lang_max += 1;
-    strcpy (uname, syncs->xms_name);
-    wmlUpperCaseString (uname);
-    fprintf (outfil, "    \"%s\",\t/* %s */\n",
-	     uname, syncs->name);
+    wmlOutputUpperCaseCharsetName (outfil, syncs->xms_name, syncs->name);
     lang_max += 1;
     for ( alias_ndx=0 ; alias_ndx<syncs->alias_cnt ; alias_ndx++ )
 	{
-	strcpy (uname, syncs->alias_list[alias_ndx]);
-	wmlUpperCaseString (uname);
-	fprintf (outfil, "    \"%s\",\t/* %s */\n",
-		 uname, syncs->name);
+	wmlOutputUpperCaseCharsetName (outfil, syncs->alias_list[alias_ndx],
+				       syncs->name);
 	lang_max += 1;
 	}
     }

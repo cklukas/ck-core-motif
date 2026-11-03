@@ -250,6 +250,7 @@ EXTRA_DIST += tests/automated/check-wml-grammar-token-bounds.py
 EXTRA_DIST += tests/automated/check-wml-string-allocation.py
 EXTRA_DIST += tests/automated/check-wml-diagnostic-bounds.py
 EXTRA_DIST += tests/automated/check-wml-class-mask-bounds.py
+EXTRA_DIST += tests/automated/check-wml-charset-name-bounds.py
 EXTRA_DIST += tests/automated/run-tabbed-stack-copy-unit.py docs/tabbed-stack-copy-failure.md
 EXTRA_DIST += tests/automated/run-container-tab-pool-unit.py
 EXTRA_DIST += tests/automated/run-list-unicode-regressions.py
