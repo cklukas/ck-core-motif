@@ -151,11 +151,11 @@ fclose (outfil);
 void wmlOutputWmlUilMmClass(FILE *outfil, WmlClassDefPtr clsobj, char *name)
 {
 
-char		*canned1 =
+static const char	canned1[] =
 ".bp\n\
 .ps 12\n";
 
-char		*canned2 =
+static const char	canned2[] =
 ".ps 10\n\
 .vs 12\n\
 .LP\n\
@@ -171,7 +171,7 @@ _\n\
 .sp 6p\n\
 .TH\n";
 
-char		*canned3 =
+static const char	canned3[] =
 ".TE\n\
 .TS H\n\
 tab(@);\n\
@@ -185,7 +185,7 @@ _\n\
 .sp 6p\n\
 .TH\n";
 
-char		*canned4 =
+static const char	canned4[] =
 ".TE\n";
 
 WmlClassResDefPtr	argref;		/* current argument reference */
@@ -199,9 +199,9 @@ int			ctlndx;		/* to access ordered vector */
 /*
  * Write out header information
  */
-fprintf (outfil, canned1);
+fputs (canned1, outfil);
 fprintf (outfil, "%s\n", name);
-fprintf (outfil, canned2);
+fputs (canned2, outfil);
 
 /*
  * Alphabetize the controls, reason, and argument lists
@@ -277,7 +277,7 @@ while ( rsnndx<mm_rsn_ptr->cnt || ctlndx<mm_ctl_ptr->cnt )
     else
 	fprintf (outfil, "\n");
     }
-fprintf (outfil, canned3);
+fputs (canned3, outfil);
 
 /*
  * Write out the argument table
@@ -313,7 +313,7 @@ while ( argndx < mm_arg_ptr->cnt )
     }    
     argndx += 1;
     }
-fprintf (outfil, canned4);
+fputs (canned4, outfil);
 
 }
 
