@@ -2,7 +2,8 @@ Harden UIL raw database table allocation (2026-11-03)
 =======================================================
 
 - Do not pass unchecked raw-table allocation results to `fread`, including
-  empty records; see `docs/uil-db-raw-table-allocation.md`.
+  empty records, and stop loading after an allocation failure; see
+  `docs/uil-db-raw-table-allocation.md`.
 
 Keep UIL machine-list terminators in bounds (2026-11-03)
 ========================================================

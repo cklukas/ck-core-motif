@@ -31,6 +31,6 @@ for name in (
     read = source.index("fread", assignment)
     assert "db_allocate_table" in source[assignment:read], name
     assert f"if ({name} == NULL)" in source[assignment:read], name
-    assert "break;" in source[assignment:read], name
+    assert "goto db_incorporate_done;" in source[assignment:read], name
 
 print("UIL raw database tables allocate a readable target before fread")
