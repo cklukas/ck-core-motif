@@ -239,7 +239,13 @@ Idb__RID_ReturnItem (IDBFile			file_id,
   IDBResourceIndex	resndx;		/* to check resource index */
   IDBRecordNumber	recno;		/* Map record record number */
 
-  if (file_id == NULL || entry_return == NULL)
+  if (entry_return == NULL)
+    return MrmFAILURE;
+
+  entry_return->rec_no = 0;
+  entry_return->item_offs = 0;
+
+  if (file_id == NULL)
     return MrmFAILURE;
 
 

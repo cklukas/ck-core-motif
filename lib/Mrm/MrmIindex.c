@@ -153,7 +153,13 @@ Idb__INX_ReturnItem (IDBFile			file_id,
    */
   Cardinal		result ;	/* function results */
 
-  if (file_id == NULL || index == NULL || data_entry == NULL)
+  if (data_entry == NULL)
+    return MrmFAILURE;
+
+  data_entry->rec_no = 0;
+  data_entry->item_offs = 0;
+
+  if (file_id == NULL || index == NULL)
     return MrmFAILURE;
 
   IDBRecordBufferPtr	bufptr ;	/* buffer containing entry */

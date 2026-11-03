@@ -1,3 +1,10 @@
+Clear failed MRM data-handle outputs (2026-11-03)
+===================================================
+
+- Clear record/offset outputs in all MRM internal data-handle lookup and
+  write helpers before their first failure path, preventing stale handles from
+  being mistaken for successful results.
+
 Clear failed MRM RID allocator outputs (2026-11-03)
 ====================================================
 

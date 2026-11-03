@@ -11,7 +11,10 @@ checks = {
         "datahdr->entry_size >",
     ),
     "Idb__HDR_PutDataEntry": (
-        "file_id == NULL || data_entry == NULL",
+        "if (data_entry == NULL)",
+        "data_entry->rec_no = 0;",
+        "data_entry->item_offs = 0;",
+        "if (file_id == NULL || !UrmRCValid (context_id))",
         "recptr->free_ptr > IDBHeaderFreeMax",
         "entsiz > IDBHeaderFreeMax - recptr->free_ptr",
     ),

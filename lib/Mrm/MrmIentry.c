@@ -309,7 +309,14 @@ Idb__DB_PutDataEntry (IDBFile			file_id,
   /*
    * Consistency check
    */
-  if (file_id == NULL || data_entry == NULL || ! UrmRCValid (context_id))
+  if (data_entry == NULL)
+    return Urm__UT_Error ("Idb__DB_PutDataEntry", _MrmMMsg_0006,
+                          NULL, NULL, MrmBAD_CONTEXT) ;
+
+  data_entry->rec_no = 0;
+  data_entry->item_offs = 0;
+
+  if (file_id == NULL || ! UrmRCValid (context_id))
     return Urm__UT_Error ("Idb__DB_PutDataEntry", _MrmMMsg_0006,
 			  NULL, NULL, MrmBAD_CONTEXT) ;
 
