@@ -1,3 +1,11 @@
+Guard Avatar temporary drawing allocations (2026-11-03)
+=======================================================
+
+- Check every temporary Avatar pixmap, graphics context, and XRender picture
+  before drawing through it. Failed allocations now release earlier resources
+  and use a safe fallback or skip that redraw; see
+  `docs/avatar-pixmap-allocation.md`.
+
 Guard ColorPicker swatch-plane allocation (2026-11-03)
 ======================================================
 

@@ -150,13 +150,37 @@ static Boolean composite_circle(Widget widget, Drawable target, Pixmap face,
             XPutPixel(image, xx, yy, (inside * 255 + 8) / 16);
         }
     mask = XCreatePixmap(display, target, diameter, diameter, 8);
+    if (mask == None) {
+        XDestroyImage(image);
+        return False;
+    }
     gc = XCreateGC(display, mask, 0, NULL);
+    if (gc == NULL) {
+        XFreePixmap(display, mask);
+        XDestroyImage(image);
+        return False;
+    }
     XPutImage(display, mask, gc, image, 0, 0, 0, 0, diameter, diameter);
     XFreeGC(display, gc);
     XDestroyImage(image);
     source = XRenderCreatePicture(display, face, format, 0, NULL);
+    if (source == None) {
+        XFreePixmap(display, mask);
+        return False;
+    }
     destination = XRenderCreatePicture(display, target, format, 0, NULL);
+    if (destination == None) {
+        XRenderFreePicture(display, source);
+        XFreePixmap(display, mask);
+        return False;
+    }
     coverage = XRenderCreatePicture(display, mask, alpha, 0, NULL);
+    if (coverage == None) {
+        XRenderFreePicture(display, destination);
+        XRenderFreePicture(display, source);
+        XFreePixmap(display, mask);
+        return False;
+    }
     XRenderComposite(display, PictOpOver, source, coverage, destination,
                      0, 0, 0, 0, x, y, diameter, diameter);
     XRenderFreePicture(display, coverage);
@@ -210,6 +234,12 @@ static void PaintModernAvatar(Widget widget, Drawable target, GC gc,
     XSetFillStyle(display, gc, FillSolid);
     XSetTSOrigin(display, gc, 0, 0);
     face = XCreatePixmap(display, target, diameter, diameter, widget->core.depth);
+    if (face == None) {
+        XSetForeground(display, gc, foreground);
+        _XmAppearanceFillRoundedRectangle(display, target, gc, x, y,
+                                          diameter, diameter, diameter / 2);
+        return;
+    }
     XSetForeground(display, gc, avatar->core.background_pixel);
     XSetBackground(display, gc, avatar->core.background_pixel);
     XFillRectangle(display, face, gc, 0, 0, diameter, diameter);
@@ -348,21 +378,23 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
              * the circle and leaking long initials into the corner pixels. */
             Pixmap text = XCreatePixmap(display, window, diameter, diameter,
                                         avatar->core.depth);
-            XSetForeground(display, gc, avatar->core.background_pixel);
-            XFillRectangle(display, text, gc, 0, 0, diameter, diameter);
-            XSetForeground(display, gc, foreground);
-            XmStringDraw(display, text, avatar->avatar.font,
-                         avatar->avatar.initials, gc,
-                         (diameter - (int)text_width) / 2,
-                         (diameter - (int)text_height) / 2,
-                         text_width, XmALIGNMENT_BEGINNING,
-                         XmPrim_layout_direction(avatar), NULL);
-            XSetRegion(display, gc, clip);
-            XCopyArea(display, text, window, gc, 0, 0, diameter, diameter, x, y);
+            if (text != None) {
+                XSetForeground(display, gc, avatar->core.background_pixel);
+                XFillRectangle(display, text, gc, 0, 0, diameter, diameter);
+                XSetForeground(display, gc, foreground);
+                XmStringDraw(display, text, avatar->avatar.font,
+                             avatar->avatar.initials, gc,
+                             (diameter - (int)text_width) / 2,
+                             (diameter - (int)text_height) / 2,
+                             text_width, XmALIGNMENT_BEGINNING,
+                             XmPrim_layout_direction(avatar), NULL);
+                XSetRegion(display, gc, clip);
+                XCopyArea(display, text, window, gc, 0, 0, diameter, diameter, x, y);
 #ifdef USE_XFT
-            _XmXftDrawEvict(display, text);
+                _XmXftDrawEvict(display, text);
 #endif
-            XFreePixmap(display, text);
+                XFreePixmap(display, text);
+            }
         }
     }
     XSetClipMask(display, gc, None);
