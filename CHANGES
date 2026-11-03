@@ -1,3 +1,10 @@
+Make AutoSuggestBox no-results label replacement failure-safe (2026-11-03)
+==========================================================================
+
+- Stage copied and compound no-results labels before replacing the owned
+  resource or visible popup entry.  Allocation failure now retains the prior
+  label and popup content; see `docs/autosuggest-no-results-label.md`.
+
 Guard Sash focus redraw before realization (2026-11-03)
 ========================================================
 

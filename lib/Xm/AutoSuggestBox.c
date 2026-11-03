@@ -88,6 +88,12 @@ static char *text_copy(XmString value)
     return text ? text : XtNewString("");
 }
 
+static const char *no_results_text(XmAutoSuggestBoxWidget box)
+{
+    return box->auto_suggest.no_results_label
+               ? box->auto_suggest.no_results_label : "No suggestions";
+}
+
 static void free_items(XmAutoSuggestBoxWidget box)
 {
     XmAutoSuggestStoredItem *items = box->auto_suggest.items;
@@ -386,8 +392,7 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     box->auto_suggest.layout_work = 0;
     box->auto_suggest.automatic_width = request->core.width == 0;
     box->auto_suggest.automatic_height = request->core.height == 0;
-    box->auto_suggest.no_results_label = XtNewString(box->auto_suggest.no_results_label ?
-                                                   box->auto_suggest.no_results_label : "No suggestions");
+    box->auto_suggest.no_results_label = XtNewString(no_results_text(box));
     box->auto_suggest.generation = 0;
     box->auto_suggest.visible = False;
     box->auto_suggest.pending_show = False;
@@ -528,13 +533,27 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         if (!strcmp(args[i].name, XmNheight)) box->auto_suggest.automatic_height = args[i].value == 0;
     }
     if (old->auto_suggest.no_results_label != box->auto_suggest.no_results_label) {
-        box->auto_suggest.no_results_label = XtNewString(box->auto_suggest.no_results_label ?
-                                                       box->auto_suggest.no_results_label : "No suggestions");
-        XtFree(old->auto_suggest.no_results_label);
+        String replacement = XtNewString(no_results_text(box));
+        XmString label = NULL;
+
+        if (replacement == NULL) {
+            box->auto_suggest.no_results_label = old->auto_suggest.no_results_label;
+        } else if (box->auto_suggest.no_results && box->auto_suggest.list) {
+            label = XmStringCreateLocalized(replacement);
+            if (label == NULL) {
+                XtFree(replacement);
+                box->auto_suggest.no_results_label = old->auto_suggest.no_results_label;
+            }
+        }
+        if (box->auto_suggest.no_results_label != old->auto_suggest.no_results_label) {
+            XtFree(old->auto_suggest.no_results_label);
+            box->auto_suggest.no_results_label = replacement;
+        }
         if (box->auto_suggest.no_results && box->auto_suggest.list) {
-            XmString label = XmStringCreateLocalized(box->auto_suggest.no_results_label);
-            XmListReplaceItemsPos(box->auto_suggest.list, &label, 1, 1);
-            XmStringFree(label);
+            if (label != NULL) {
+                XmListReplaceItemsPos(box->auto_suggest.list, &label, 1, 1);
+                XmStringFree(label);
+            }
         }
     }
     preferred(box, &width, &height);
@@ -727,7 +746,7 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
         }
     }
     if (!count) {
-        no_results = XmStringCreateLocalized(box->auto_suggest.no_results_label);
+        no_results = XmStringCreateLocalized(no_results_text(box));
         if (!no_results) goto failed;
     }
     create_popup(box);
