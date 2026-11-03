@@ -1,3 +1,10 @@
+Guard ColorPicker swatch-plane allocation (2026-11-03)
+======================================================
+
+- Do not create or draw through a color-field pixmap for a transient zero-sized
+  child or after an X-server pixmap allocation failure. A later valid expose
+  safely recreates the cache. See `docs/color-picker.md`.
+
 Refresh verified native gallery evidence (2026-11-03)
 =====================================================
 

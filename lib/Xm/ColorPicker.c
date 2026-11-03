@@ -587,11 +587,16 @@ static void paint_plane(Widget child,XtPointer closure,XtPointer data) {
     Display *d=XtDisplay(child);Window window=XtWindow(child);XWindowAttributes attr;
     if(!XGetWindowAttributes(d,window,&attr))return;
     unsigned width=child->core.width,height=child->core.height;int mode=p->color_picker.mode;
+    /* X drawable dimensions are nonzero.  A constrained or not-yet-laid-out
+     * child can transiently report zero here; do not turn that into a BadValue
+     * request, or try to draw through a failed pixmap allocation. */
+    if(width==0||height==0)return;
     double parameter=mode==XmCOLOR_PICKER_HSV?p->color_picker.hsv[0]:p->color_picker.lab[0];
     ensure_palette(p,attr.visual);
     if(!p->color_picker.plane_cache || p->color_picker.plane_width!=width || p->color_picker.plane_height!=height || p->color_picker.plane_parameter!=parameter || p->color_picker.plane_mode!=mode || p->color_picker.palette_background!=p->core.background_pixel || p->color_picker.plane_colormap!=p->core.colormap || p->color_picker.plane_sensitive!=XtIsSensitive(child)){
         if(p->color_picker.plane_cache)XFreePixmap(d,p->color_picker.plane_cache);
         p->color_picker.plane_cache=XCreatePixmap(d,window,width,height,attr.depth);
+        if(p->color_picker.plane_cache==None)return;
         p->color_picker.plane_width=width;p->color_picker.plane_height=height;p->color_picker.plane_parameter=parameter;p->color_picker.plane_mode=mode;p->color_picker.palette_background=p->core.background_pixel;p->color_picker.plane_colormap=p->core.colormap;p->color_picker.plane_sensitive=XtIsSensitive(child);
         /* Bounded strips limit client memory without one X request per row. */
         unsigned strip=MIN(height,32);
