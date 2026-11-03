@@ -850,6 +850,14 @@ MrmFetchWidgetOverride (MrmHierarchy		hierarchy_id,
       (ov_num_args != 0 && ov_args == NULL))
     return MrmFAILURE;
 
+  /*
+   * A failed fetch must not leave a prior widget or class value visible to
+   * the caller.  The public API cannot create a result until every later
+   * hierarchy, UID-record, and widget-construction step succeeds.
+   */
+  *w_return = NULL;
+  *class_return = 0;
+
   _MrmWidgetToAppContext(parent);
 
   _MrmAppLock(app);

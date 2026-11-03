@@ -390,6 +390,14 @@ Release the Mrm literal-index pointer list on failure (2026-11-02)
   overlong literal index after allocating that list; see
   `docs/mrm-fetch-set-values-failure-cleanup.md`.
 
+Clear failed Mrm widget-fetch outputs (2026-11-03)
+==================================================
+
+- Clear the widget and class result outputs in `MrmFetchWidgetOverride` before
+  hierarchy lookup, ensuring `MrmFetchWidget` callers cannot accidentally use
+  stale results after a failed fetch; see
+  `docs/mrm-widget-fetch-parameters.md`.
+
 Validate Mrm FetchSetValues argument counts (2026-11-02)
 ========================================================
 
