@@ -1008,6 +1008,13 @@ void db_open_file ()
 	subs[2].substitution = ".wmd";
 
 	wmdPath = init_wmd_path(Uil_cmd_z_command.ac_database);
+	if (wmdPath == NULL)
+	    {
+	    diag_issue_diagnostic( d_wmd_open,
+				   diag_k_no_source, diag_k_no_column,
+				   Uil_cmd_z_command.ac_database);
+	    return;
+	    }
 
 	resolvedname = 0;
 
@@ -1040,6 +1047,8 @@ void db_open_file ()
 	    diag_issue_diagnostic( d_wmd_open,
 				   diag_k_no_source, diag_k_no_column,
 				   Uil_cmd_z_command.ac_database);
+	    XtFree(wmdPath);
+	    return;
 	    }
 
 	dbfile = fopen (resolvedname, "rb");
@@ -1050,6 +1059,9 @@ void db_open_file ()
 	    diag_issue_diagnostic( d_src_open,
 				   diag_k_no_source, diag_k_no_column,
 				   resolvedname);
+	    XtFree(wmdPath);
+	    XtFree(resolvedname);
+	    return;
 	    }
 
 	XtFree(wmdPath);
@@ -1161,6 +1173,9 @@ String init_wmd_path(String filename)
     int path_length;
 
 
+    if (filename == NULL)
+	return NULL;
+
     if (filename[0] == '/')
 	{
 	wmd_path = XtNewString(ABSOLUTE_PATH);
@@ -1171,17 +1186,24 @@ String init_wmd_path(String filename)
 	if (path  == NULL) 
 	    {
 	    homedir = get_root_dir_name();
+	    if (homedir == NULL)
+		return NULL;
 	    old_path = (char *)getenv ("XAPPLRESDIR");
 	    if (old_path == NULL) 
 		{
 	    path_length = snprintf(NULL, 0, WMDPATH_DEFAULT,
 			 homedir, homedir, libdir, incdir);
-	    if (path_length < 0)
+	    if (path_length < 0 || (size_t)path_length >= (size_t)UINT_MAX)
 		{
 		XtFree(homedir);
 		return NULL;
 		}
-	    wmd_path = XtMalloc((size_t)path_length + 1);
+	    wmd_path = XtMalloc((Cardinal)path_length + 1);
+	    if (wmd_path == NULL)
+		{
+		XtFree(homedir);
+		return NULL;
+		}
 	    (void)snprintf(wmd_path, (size_t)path_length + 1, WMDPATH_DEFAULT,
 		    homedir, homedir, libdir, incdir);
 		} 
@@ -1190,12 +1212,17 @@ String init_wmd_path(String filename)
 	    path_length = snprintf(NULL, 0, XAPPLRES_DEFAULT,
 			old_path,
 			homedir, homedir, libdir, incdir);
-	    if (path_length < 0)
+	    if (path_length < 0 || (size_t)path_length >= (size_t)UINT_MAX)
 		{
 		XtFree(homedir);
 		return NULL;
 		}
-	    wmd_path = XtMalloc((size_t)path_length + 1);
+	    wmd_path = XtMalloc((Cardinal)path_length + 1);
+	    if (wmd_path == NULL)
+		{
+		XtFree(homedir);
+		return NULL;
+		}
 	    (void)snprintf(wmd_path, (size_t)path_length + 1, XAPPLRES_DEFAULT,
 		    old_path, homedir, homedir, libdir, incdir);
 		}
