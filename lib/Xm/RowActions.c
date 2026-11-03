@@ -173,11 +173,9 @@ static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request,
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended,
                                       XtWidgetGeometry *reply) {
-    XmRowActionsWidget actions = (XmRowActionsWidget)widget;
-    natural(actions, &reply->width, &reply->height); reply->request_mode = CWWidth | CWHeight;
-    if (intended && intended->width == reply->width && intended->height == reply->height)
-        return XtGeometryYes;
-    return XtGeometryAlmost;
+    natural((XmRowActionsWidget)widget, &reply->width, &reply->height);
+    reply->request_mode = CWWidth | CWHeight;
+    return XmeReplyToQueryGeometry(widget, intended, reply);
 }
 static void activate(Widget button, XtPointer client, XtPointer call) {
     XmRowActionsWidget actions = (XmRowActionsWidget)client; Cardinal i;

@@ -254,10 +254,9 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
-    (void)widget; (void)request;
     reply->request_mode = CWWidth | CWHeight;
     reply->width = 1; reply->height = 1;
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 void XmFlyoutShow(Widget widget) {

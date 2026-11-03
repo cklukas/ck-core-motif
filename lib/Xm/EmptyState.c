@@ -185,10 +185,8 @@ static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request,
     return (request->request_mode & XtCWQueryOnly) ? XtGeometryYes : XtGeometryDone;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended, XtWidgetGeometry *reply) {
-    XmEmptyStateWidget state = (XmEmptyStateWidget)widget; natural(state, &reply->width, &reply->height); reply->request_mode = CWWidth | CWHeight;
-    if (intended && (intended->request_mode & (CWWidth | CWHeight)) == (CWWidth | CWHeight) && intended->width == reply->width && intended->height == reply->height) return XtGeometryYes;
-    if (state->core.width == reply->width && state->core.height == reply->height) return XtGeometryNo;
-    return XtGeometryAlmost;
+    natural((XmEmptyStateWidget)widget, &reply->width, &reply->height); reply->request_mode = CWWidth | CWHeight;
+    return XmeReplyToQueryGeometry(widget, intended, reply);
 }
 static void activate(Widget widget, XtPointer client, XtPointer call) {
     XmEmptyStateWidget state = (XmEmptyStateWidget)client; XmEmptyStateCallbackStruct callback;

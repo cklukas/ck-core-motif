@@ -105,7 +105,7 @@ static void layout(XmFormSectionWidget section) {
                  section->section.spacing);
     content_height = dimension(section->core.height > (unsigned long)y + section->section.margin_height +
                                            (footer ? fh + section->section.spacing : 0)
-                                       ? section->core.height - y - section->section.margin_height -
+                                       ? section->core.height - (unsigned long)y - section->section.margin_height -
                                              (footer ? fh + section->section.spacing : 0)
                                        : ch);
     if (section->section.content != NULL)
@@ -194,10 +194,8 @@ static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request,
     return (request->request_mode & XtCWQueryOnly) ? XtGeometryYes : XtGeometryDone;
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended, XtWidgetGeometry *reply) {
-    XmFormSectionWidget section = (XmFormSectionWidget)widget; natural(section, &reply->width, &reply->height); reply->request_mode = CWWidth | CWHeight;
-    if (intended && (intended->request_mode & (CWWidth | CWHeight)) == (CWWidth | CWHeight) && intended->width == reply->width && intended->height == reply->height) return XtGeometryYes;
-    if (section->core.width == reply->width && section->core.height == reply->height) return XtGeometryNo;
-    return XtGeometryAlmost;
+    natural((XmFormSectionWidget)widget, &reply->width, &reply->height); reply->request_mode = CWWidth | CWHeight;
+    return XmeReplyToQueryGeometry(widget, intended, reply);
 }
 Widget XmCreateFormSection(Widget parent, char *name, ArgList args, Cardinal count) { return XtCreateWidget(name, xmFormSectionWidgetClass, parent, args, count); }
 Widget XmVaCreateFormSection(Widget parent, char *name, ...) { Widget w; va_list v; int n; Va_start(v,name); n=XmeCountVaListSimple(v); va_end(v); Va_start(v,name); w=XmeVLCreateWidget(name,xmFormSectionWidgetClass,parent,False,v,n); va_end(v); return w; }
