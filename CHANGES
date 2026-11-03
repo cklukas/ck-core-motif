@@ -1,3 +1,10 @@
+Preserve MWM menu-button count widths (2026-11-03)
+====================================================
+
+- Keep client-command menu compaction counters in the unsigned type used by
+  `MenuSpec`, avoiding signed narrowing before menu-button indexing. See
+  `docs/mwm-menu-counts.md`.
+
 Use the Xt callback ABI for MWM tear-off menus (2026-11-03)
 ===========================================================
 

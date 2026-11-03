@@ -2811,7 +2811,7 @@ static Boolean ModifyClientCommandForMenuSpec (MenuSpec *menuSpec,
 {
     MenuItem *curMenuItem;
     Boolean was_changed = FALSE;
-    int i, freebutton, buttoncount;
+    unsigned int i, freebutton, buttoncount;
 
     /* If the menuspec doesn't have any buttons or a valid menu widget
        then we don't want to search it. */
