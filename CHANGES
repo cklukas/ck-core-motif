@@ -1,3 +1,9 @@
+Reject negative MRM interface-module counts (2026-11-03)
+========================================================
+
+- Validate signed `MrmCount` values before interface-module descriptor size
+  arithmetic; see `docs/mrm-module-size-bounds.md`.
+
 Keep UIL output paths out of a fixed buffer (2026-11-03)
 ========================================================
 
