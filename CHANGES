@@ -1,3 +1,10 @@
+Keep Sidebar titles valid when replacement allocation fails (2026-11-03)
+==========================================================================
+
+- Make `XmSidebar` title replacement transactional during `XtSetValues`.
+  A failed XmString copy now retains the prior owned title and header label;
+  see `docs/sidebar-title-setvalues.md`.
+
 Make AutoSuggestBox no-results label replacement failure-safe (2026-11-03)
 ==========================================================================
 
