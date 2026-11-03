@@ -1,3 +1,9 @@
+Clear failed MRM index-search outputs (2026-11-03)
+====================================================
+
+- Initialize index-search output buffers and positions on genuine failures
+  while preserving the documented insertion positions for ordered misses.
+
 Harden MRM widget-reference lookup (2026-11-03)
 =================================================
 
