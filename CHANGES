@@ -1,3 +1,9 @@
+Validate WML database string-length tables (2026-11-03)
+========================================================
+
+- Reject unrepresentable string-table sizes and failed allocations before
+  emitting WML database length data; see `docs/wml-build.md`.
+
 Validate WML handle-list allocations (2026-11-03)
 ==================================================
 

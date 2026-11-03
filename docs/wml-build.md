@@ -95,6 +95,12 @@ and growth fail with a diagnostic rather than leaving a null or undersized
 vector to be dereferenced later. The focused regression is
 `tests/automated/check-wml-handle-list-allocation.py`.
 
+`wmldbcreate` validates its dynamic string-length table count and allocation,
+and rejects strings that cannot be represented by the established `int` length
+field. This prevents a failed allocation or narrowing overflow from corrupting
+database creation. The focused regression is
+`tests/automated/check-wmldb-length-allocation.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and

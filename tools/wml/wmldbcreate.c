@@ -36,6 +36,7 @@ static char rcsid[] = "$TOG: wmldbcreate.c /main/8 1997/04/14 12:55:30 dbl $"
 
 
 #include <stdio.h>
+#include <limits.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
@@ -432,6 +433,8 @@ void emit_length_and_string(int table_id)
     char	*string_table;
     char	**table = NULL;
     int		i;
+    size_t	length_count;
+    size_t	string_length;
 
     switch (table_id)
 	{
@@ -508,10 +511,21 @@ void emit_length_and_string(int table_id)
 	    table = uil_child_names ;
 	    break;
 	}
+    if ( header.num_items < 0 ||
+         (size_t)header.num_items > (size_t)-1 / sizeof(int) - 1 )
+        {
+        fprintf (stderr, "wmldbcreate: invalid string table length\n");
+        exit (EXIT_FAILURE);
+        }
+    length_count = (size_t)header.num_items + 1;
+    lengths = (int *) malloc (sizeof (*lengths) * length_count);
+    if ( lengths == NULL )
+        {
+        fprintf (stderr, "wmldbcreate: unable to allocate string table lengths\n");
+        exit (EXIT_FAILURE);
+        }
 
     emit_header(&header);
-
-    lengths = (int *) malloc (sizeof (int) * (header.num_items + 1));
  
     for (i=0; i<=header.num_items; i++)
 	{
@@ -520,7 +534,14 @@ void emit_length_and_string(int table_id)
 	    /*
 	     * Add one to the length for the null terminator
 	     */
-	    lengths[i] = strlen(table[i]) + 1;
+	    string_length = strlen(table[i]);
+	    if ( string_length >= INT_MAX )
+		{
+		fprintf (stderr, "wmldbcreate: string table entry is too long\n");
+		free (lengths);
+		exit (EXIT_FAILURE);
+		}
+	    lengths[i] = (int)string_length + 1;
 	    }
 	else
 	    {
@@ -529,7 +550,7 @@ void emit_length_and_string(int table_id)
 	if (DEBUG)
 	    fprintf (afile, "%d ", lengths[i]);
 	}
-    fwrite (lengths, sizeof (int) * (header.num_items + 1), 1, bfile);
+    fwrite (lengths, sizeof (*lengths) * length_count, 1, bfile);
     for (i=0; i<=header.num_items; i++)
 	{
 	if (lengths[i])
