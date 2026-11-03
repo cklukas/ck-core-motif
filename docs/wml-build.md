@@ -83,6 +83,12 @@ generation instead of writing through the former 200-byte local array or
 continuing with a partial header. The source regression is
 `tests/automated/check-wml-charset-name-bounds.py`.
 
+The `wmluiltok` lexer now copies token fields through a checked helper. A
+low-memory token parse terminates with a diagnostic rather than applying
+`strcpy` to a null allocation result. The focused source regression is
+`tests/automated/check-wml-lexer-copy-failure.py`; the native WML target
+regenerates and runs this lexer.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and

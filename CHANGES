@@ -1,3 +1,9 @@
+Handle WML lexer token-copy allocation failure (2026-11-03)
+===========================================================
+
+- Stop token generation cleanly when an input token cannot be copied, instead
+  of writing through a null allocation result; see `docs/wml-build.md`.
+
 Bound WML character-set name generation (2026-11-03)
 ======================================================
 
