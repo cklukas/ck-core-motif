@@ -1,3 +1,11 @@
+Bound DialogShell input-method geometry (2026-11-03)
+=====================================================
+
+- Saturate DialogShell input-method height additions before they enter legacy
+  `Dimension` fields and prevent the matching subtraction from underflowing.
+  Dialog geometry remains stable with unusually large IM areas; see
+  `docs/dialogshell-im-geometry.md`.
+
 Keep accessibility text capacity arithmetic unsigned (2026-11-03)
 =================================================================
 

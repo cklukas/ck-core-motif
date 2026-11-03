@@ -31,6 +31,7 @@ static char rcsid[] = "$XConsortium: DialogS.c /main/17 1996/03/25 17:50:11 bars
 #endif
 
 #include <stdint.h>
+#include <limits.h>
 
 #include "XmI.h"
 #include <Xm/DialogSP.h>
@@ -50,6 +51,11 @@ static char rcsid[] = "$XConsortium: DialogS.c /main/17 1996/03/25 17:50:11 bars
 
 #define TotalWidth(w)   (XtWidth  (w) + (2 * (XtBorderWidth (w))))
 #define TotalHeight(w)  (XtHeight (w) + (2 *(XtBorderWidth (w))))
+
+static Dimension dialog_bounded_dimension(uint64_t value)
+{
+    return value > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)value;
+}
 
 
 
@@ -581,9 +587,11 @@ ChangeManaged(
 	    request.width = XtWidth(child);
 	}
 
-	if (XtHeight (child) + ve->vendor.im_height != XtHeight (shell)) {
+	if (dialog_bounded_dimension((uint64_t)XtHeight(child) +
+	                             ve->vendor.im_height) != XtHeight(shell)) {
 	    request.request_mode |= CWHeight;
-	    request.height = XtHeight(child) + ve->vendor.im_height;
+	    request.height = dialog_bounded_dimension((uint64_t)XtHeight(child) +
+	                                               ve->vendor.im_height);
 	}
 	
 	if (trait) {
@@ -632,7 +640,8 @@ ChangeManaged(
             if (ve->vendor.im_height != old_height)
             {
                request.request_mode = CWHeight;
-               request.height = XtHeight(child) + ve->vendor.im_height;
+               request.height = dialog_bounded_dimension(
+                   (uint64_t)XtHeight(child) + ve->vendor.im_height);
                XtMakeGeometryRequest((Widget) shell, &request, &request);
                _XmImResize((Widget)shell);
             }
@@ -762,7 +771,8 @@ GeometryManager(
     if (request->request_mode & CWHeight) {
         if (!ve->vendor.im_height)
           _XmImResize((Widget)shell); /* updates im_height */
-	my_request.height = request->height + ve->vendor.im_height;
+	my_request.height = dialog_bounded_dimension(
+	    (uint64_t)request->height + ve->vendor.im_height);
 	my_request.request_mode |= CWHeight;
     }
     if (request->request_mode & CWBorderWidth) {
@@ -780,7 +790,8 @@ GeometryManager(
 		  wid->core.width = my_request.width ;
 	      _XmImResize((Widget)shell);
 	      if (my_request.request_mode & CWHeight)
-		  wid->core.height = my_request.height - ve->vendor.im_height;
+		  wid->core.height = my_request.height > ve->vendor.im_height
+		      ? (Dimension)(my_request.height - ve->vendor.im_height) : 0;
 	  }
 	  return XtGeometryYes;
       } else 
