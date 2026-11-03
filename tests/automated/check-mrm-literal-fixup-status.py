@@ -20,4 +20,13 @@ for position in (
     assert "if (result != MrmSUCCESS)" in following[:300]
     assert "return result;" in following[:300]
 
-print("Mrm literal loader propagates fixup failures")
+icon_start = body.index("case MrmRtypeIconImage:")
+icon_end = body.index("case MrmRtypeFontList:", icon_start)
+icon_body = body[icon_start:icon_end]
+load = icon_body.index("result = Urm__CW_LoadIconImage")
+assert "if (result != MrmSUCCESS)" in icon_body[load:]
+assert "UrmFreeResourceContext" in icon_body[load:]
+assert "UrmPlistFree(*ctxlist);" in icon_body[load:]
+assert "*ctxlist = NULL;" in icon_body[load:]
+
+print("Mrm literal loader cleans failed icon and fixup conversions")

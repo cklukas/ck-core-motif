@@ -147,6 +147,16 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
         }
       result = Urm__CW_LoadIconImage ((RGMIconImagePtr)val, (XtPointer)val,
 				      hierarchy_id, file_id, *ctxlist);
+      if (result != MrmSUCCESS)
+	{
+	  int ctx_ndx;
+	  for (ctx_ndx=0 ; ctx_ndx<UrmPlistNum(*ctxlist) ; ctx_ndx++)
+	    UrmFreeResourceContext
+	      ((URMResourceContextPtr) UrmPlistPtrN(*ctxlist,ctx_ndx));
+	  UrmPlistFree(*ctxlist);
+	  *ctxlist = NULL;
+	  return result;
+	}
       /* LoadIconImage checks validations and handle swapping */
       swap_needed = FALSE ;
       break;

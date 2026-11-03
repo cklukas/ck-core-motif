@@ -395,7 +395,8 @@ Propagate Mrm literal fixup failures (2026-11-03)
 
 - Return failed shared literal fixups from the literal loader instead of
   reporting a malformed current-format font list or literal as successfully
-  loaded; see `docs/mrm-literal-fixup-status.md`.
+  loaded. Release auxiliary icon contexts when icon fixup fails; see
+  `docs/mrm-literal-fixup-status.md`.
 
 Propagate Mrm byte-swapped widget failures (2026-11-03)
 ========================================================
