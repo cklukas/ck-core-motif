@@ -17,6 +17,12 @@ valid until the next item replacement or widget destruction.  `Pixmap` is
 optional (`XmUNSPECIFIED_PIXMAP` means label-only); icons are rendered with
 the normal Motif label/pixmap rules.
 
+Modern rendering allocates short-lived X graphics contexts for the segment
+surface and focus stroke. If the X server cannot provide one, the affected
+paint pass ends safely without changing the model, selection, or public API;
+the next expose retries normally. The focused guard regression is
+`tests/automated/check-segmented-control-render-gc.py`.
+
 Selection is a single item index or `-1` for no selection.  Disabled items are
 not selectable.  `XmNSegmentedAllowClear` controls whether activating the
 selected item clears it. Programmatic selection is an assignment: setting the

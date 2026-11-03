@@ -47,6 +47,7 @@ void _XmSegmentedControlDrawFocus(Widget child) {
             button->toggle.select_color : button->toggle.unselect_color);
     values.line_width = stroke;
     gc = XCreateGC(XtDisplay(child), XtWindow(child), GCForeground|GCLineWidth, &values);
+    if (!gc) return;
     XDrawRectangle(XtDisplay(child), XtWindow(child), gc, inset, inset,
         child->core.width-2*inset-1, child->core.height-2*inset-1);
     XFreeGC(XtDisplay(child), gc);
@@ -87,6 +88,7 @@ Boolean _XmSegmentedControlDraw(Widget child) {
     radius = MAX(stroke, (int)_XmDpiDefaultDimension(child, 6));
     values.foreground = control->core.background_pixel;
     gc = XCreateGC(display, window, GCForeground, &values);
+    if (!gc) return True;
     XFillRectangle(display, window, gc, 0, 0, child->core.width, height);
     XSetForeground(display, gc, button->primitive.bottom_shadow_color);
     _XmAppearanceFillRoundedRectangle(display, window, gc, x, 0, width, height, radius);

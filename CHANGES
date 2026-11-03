@@ -1,3 +1,10 @@
+Guard SegmentedControl temporary render GCs (2026-11-03)
+========================================================
+
+- Avoid drawing through failed short-lived graphics-context allocations in
+  modern SegmentedControl surface and focus rendering; see
+  `docs/segmented-control.md`.
+
 Guard TabBox temporary label drawing resources (2026-11-03)
 ==========================================================
 
