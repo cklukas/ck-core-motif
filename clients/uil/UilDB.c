@@ -163,19 +163,24 @@ void db_incorporate()
      * The magic numbers are about 10 times as big as the DXm database
      * for DECWindows V3. The diagnostic does a fatal exit.
      */
-    if ( globals.uil_max_arg>5000 ||
-	 globals.uil_max_charset>200 ||
-	 globals.charset_lang_table_max>1000 ||
-	 globals.uil_max_object>500 ||
-	 globals.uil_max_reason>1000 ||
-	 globals.uil_max_enumval>3000 ||
-	 globals.uil_max_enumset>1000 ||
-	 globals.key_k_keyword_count>10000 ||
-	 globals.key_k_keyword_max_length>200 ||
-	 globals.uil_max_child>250)
+    if ( globals.version < 0 ||
+	 globals.uil_max_arg < 0 || globals.uil_max_arg>5000 ||
+	 globals.uil_max_charset < 0 || globals.uil_max_charset>200 ||
+	 globals.charset_lang_table_max < 0 || globals.charset_lang_table_max>1000 ||
+	 globals.uil_max_object < 0 || globals.uil_max_object>500 ||
+	 globals.uil_max_reason < 0 || globals.uil_max_reason>1000 ||
+	 globals.uil_max_enumval < 0 || globals.uil_max_enumval>3000 ||
+	 globals.uil_max_enumset < 0 || globals.uil_max_enumset>1000 ||
+	 globals.key_k_keyword_count < 0 || globals.key_k_keyword_count>10000 ||
+	 globals.key_k_keyword_max_length < 0 || globals.key_k_keyword_max_length>200 ||
+	 globals.uil_max_child < 0 || globals.uil_max_child>250)
+	{
 	diag_issue_diagnostic (d_bad_database,
 			       diag_k_no_source,
 			       diag_k_no_column);
+	fclose (dbfile);
+	return;
+	}
 
     uil_max_arg = globals.uil_max_arg ;
     uil_max_charset = globals.uil_max_charset ;

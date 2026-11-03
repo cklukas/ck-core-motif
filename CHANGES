@@ -1,3 +1,9 @@
+Reject negative UIL database globals (2026-11-03)
+====================================================
+
+- Reject signed negative WMD global counts and lengths before publishing them
+  to the UIL compiler; see `docs/uil-db-header-bounds.md`.
+
 Avoid UIL default-output allocation (2026-11-03)
 ==================================================
 
