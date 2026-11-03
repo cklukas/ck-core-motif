@@ -1,3 +1,10 @@
+Guard ColorPicker shared drawing GC allocation (2026-11-03)
+==========================================================
+
+- Do not create or use the shared ColorPicker swatch graphics context when its
+  setup pixmap allocation fails. Plane and pencil redraws now skip safely until
+  a valid drawing context is available; see `docs/color-picker.md`.
+
 Guard Avatar temporary drawing allocations (2026-11-03)
 =======================================================
 

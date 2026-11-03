@@ -357,9 +357,12 @@ static void Initialize(Widget request,Widget widget,ArgList args,Cardinal *count
     p->color_picker.palette_ready=False;memset(p->color_picker.palette_allocated,0,sizeof(p->color_picker.palette_allocated));
     p->color_picker.swatch_allocated[0]=p->color_picker.swatch_allocated[1]=False;
     p->color_picker.render_table=XmFontListCopy(p->color_picker.render_table?p->color_picker.render_table:XmeGetDefaultRenderTable(widget,XmLABEL_FONTLIST));
+    p->color_picker.swatch_gc=NULL;
     Pixmap drawable=XCreatePixmap(XtDisplay(widget),RootWindowOfScreen(XtScreen(widget)),1,1,p->core.depth);
-    p->color_picker.swatch_gc=XCreateGC(XtDisplay(widget),drawable,0,NULL);
-    XFreePixmap(XtDisplay(widget),drawable);
+    if(drawable!=None){
+        p->color_picker.swatch_gc=XCreateGC(XtDisplay(widget),drawable,0,NULL);
+        XFreePixmap(XtDisplay(widget),drawable);
+    }
     p->color_picker.swatch=XtVaCreateManagedWidget("swatch",xmDrawingAreaWidgetClass,widget,XmNtraversalOn,False,XmNresizePolicy,XmRESIZE_NONE,NULL);
     XtAddCallback(p->color_picker.swatch,XmNexposeCallback,paint_swatch,p);
     p->color_picker.hex_label=label(widget,"hexLabel","Hex RGBA",p->color_picker.render_table,True);
@@ -584,6 +587,7 @@ static Pixel rgb_pixel(XmColorPickerWidget p,Visual *visual,const double rgb[3])
 }
 static void paint_plane(Widget child,XtPointer closure,XtPointer data) {
     XmColorPickerWidget p=closure;(void)data;if(!XtIsRealized(child)||!XtIsManaged(child))return;
+    if(!p->color_picker.swatch_gc)return;
     Display *d=XtDisplay(child);Window window=XtWindow(child);XWindowAttributes attr;
     if(!XGetWindowAttributes(d,window,&attr))return;
     unsigned width=child->core.width,height=child->core.height;int mode=p->color_picker.mode;
@@ -678,6 +682,7 @@ static void paint_pencil(Widget child,XtPointer closure,XtPointer data) {
     int index=0;while(index<24&&p->color_picker.pencils[index]!=child)++index;if(index==24)return;
     Display *d=XtDisplay(child);Window window=XtWindow(child);XWindowAttributes attr;if(!XGetWindowAttributes(d,window,&attr))return;
     ensure_palette(p,attr.visual);GC gc=p->color_picker.swatch_gc;
+    if(!gc)return;
     int width=child->core.width,height=child->core.height,inset=MAX(3,p->color_picker.spacing/2);
     if(width<=2*inset||height<=2*inset)return;
     Pixel bg;XtVaGetValues(child,XmNbackground,&bg,NULL);XSetForeground(d,gc,bg);XFillRectangle(d,window,gc,inset,inset,width-2*inset,height-2*inset);

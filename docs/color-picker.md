@@ -92,8 +92,10 @@ TrueColor uses visual masks; indexed displays use a bounded, owned palette with
 nearest existing-color fallback. Cached pixmaps and allocated colors are released.
 
 The field skips a transient zero-sized allocation and abandons a failed server
-pixmap allocation before issuing any drawing request.  The next valid expose
-retries the cache creation; no stale or invalid drawable is retained.
+pixmap allocation before issuing any drawing request.  Its shared swatch GC is
+created only after its one-pixel setup drawable exists; plane and pencil redraws
+skip safely if that GC is unavailable. The next valid expose retries the cache
+creation; no stale or invalid drawable is retained.
 `tests/automated/check-colorpicker-plane-allocation.py` keeps that drawable
 allocation contract explicit.
 
