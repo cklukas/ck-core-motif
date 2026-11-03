@@ -754,7 +754,7 @@ void	lst_output_machine_code(src_source_record_type *az_src_rec)
 
 	      if (BIT_64_LONG){
 
-		sprintf ((char *)hex_longword, "%lX", (* code_ptr));
+		sprintf ((char *)hex_longword, "%016lX", (* code_ptr));
 	      }
 	      else{
                 sprintf ((char *)hex_longword, "%08lX", (* code_ptr));
@@ -805,7 +805,7 @@ void	lst_output_machine_code(src_source_record_type *az_src_rec)
 
 		for (i = 0; i < extra_long_cnt; i++, code_ptr++) {
 		    if (BIT_64_LONG){
-		      sprintf ((char *)hex_longword, "%lX", (* code_ptr));
+		      sprintf ((char *)hex_longword, "%016lX", (* code_ptr));
 		    }
 		    else{
 		      sprintf ((char *)hex_longword, "%08lX", (*code_ptr));

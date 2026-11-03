@@ -1,3 +1,9 @@
+Pad UIL 64-bit machine-code listing words (2026-11-03)
+=========================================================
+
+- Emit a complete sixteen-digit hexadecimal field before copying each 64-bit
+  machine-code word into the listing; see `docs/uil-machine-word-format.md`.
+
 Clean up rejected Mrm legacy font-list replacements (2026-11-03)
 ===================================================================
 
