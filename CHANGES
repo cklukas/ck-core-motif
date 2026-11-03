@@ -1,3 +1,11 @@
+Safely format MWM catalog warnings (2026-11-03)
+===============================================
+
+- Treat catalog-provided MWM warning templates as data instead of variadic
+  `printf` formats. The bounded formatter supports the established `%s` and
+  `%%` forms and leaves other conversions literal. See
+  `docs/mwm-warning-format.md`.
+
 Reject invalid WML database table selectors (2026-11-03)
 ========================================================
 
