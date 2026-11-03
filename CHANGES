@@ -1,3 +1,10 @@
+Propagate MRM embedded callback byte-swap failures (2026-11-03)
+================================================================
+
+- Stop cross-endian widget conversion when an argument or creation callback
+  descriptor cannot be converted, rather than accepting a partially converted
+  widget record; see `docs/mrm-widget-callback-swap-status.md`.
+
 Validate deferred MRM widget-reference inputs (2026-11-03)
 =========================================================
 

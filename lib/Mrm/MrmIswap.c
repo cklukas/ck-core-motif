@@ -407,7 +407,8 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
 	      /* these are offsets into the file, handle them specially */
 	    case MrmRtypeCallback:
 	      callb_desc = (RGMCallbackDesc * )offset;
-	      Urm__SwapRGMCallbackDesc( callb_desc, widget_rec );
+	      if (Urm__SwapRGMCallbackDesc(callb_desc, widget_rec) != MrmSUCCESS)
+		return MrmFAILURE;
 	      break;
 	    case MrmRtypeResource:
 	      res_desc = (RGMResourceDesc *)offset;
@@ -485,7 +486,8 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
     {
       callb_desc = (RGMCallbackDesc * )
 	((char *)widget_rec + widget_rec->creation_offs);
-      Urm__SwapRGMCallbackDesc( callb_desc, widget_rec );
+      if (Urm__SwapRGMCallbackDesc(callb_desc, widget_rec) != MrmSUCCESS)
+	return MrmFAILURE;
     }
     
   return MrmSUCCESS ;
