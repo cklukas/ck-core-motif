@@ -2702,7 +2702,12 @@ Urm__CW_ConvertValue (Widget			parent,
 	  *val = (long) dfontlist ;
 	}
       else
-	*val = (long) font ;
+	{
+	  if (reptype == MrmRtypeFont)
+	    *val = (long) font ;
+	  else
+	    *val = (long) fontset ;
+	}
       break ;
     case MrmRtypeFontList:
       fontlist = (RGMFontListPtr) (*val) ;
