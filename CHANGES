@@ -1,3 +1,10 @@
+Preserve platform compatibility macros (2026-11-03)
+====================================================
+
+- Do not replace a platform-provided fortified `bcopy` or `bzero` macro in
+  `Xmfuncs.h`, removing strict macOS macro-redefinition warnings while keeping
+  the legacy fallback. See `docs/xmfuncs-compatibility-macros.md`.
+
 Validate WML database output counts (2026-11-03)
 =================================================
 
