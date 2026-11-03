@@ -13,3 +13,7 @@ negotiations therefore no longer depend on unrequested fields in an
 The same request-mode-aware reply contract also applies to Disclosure,
 EmptyState, Flyout, FormSection, RowActions, and Toast.  Their existing
 natural dimensions and popup sizing policies remain unchanged.
+
+DropHighlight and Skeleton also use that contract.  A Skeleton therefore no
+longer unconditionally accepts a parent size that differs from its current or
+default preferred dimensions.

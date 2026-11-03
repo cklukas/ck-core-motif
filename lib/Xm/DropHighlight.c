@@ -212,7 +212,6 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply)
 {
-    (void)widget;
     reply->request_mode = CWWidth | CWHeight;
     XmDropHighlightWidget highlight = (XmDropHighlightWidget)widget;
     Dimension label_width = 0, label_height = 0;
@@ -224,11 +223,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     reply->height = label_height + 2 * (highlight->drop_highlight.thickness + 4);
     if (!reply->width) reply->width = 1;
     if (!reply->height) reply->height = 1;
-    if (request && (request->request_mode & (CWWidth | CWHeight)) ==
-        (CWWidth | CWHeight) && request->width == reply->width &&
-        request->height == reply->height)
-        return XtGeometryYes;
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 Widget XmCreateDropHighlight(Widget parent, char *name, ArgList args,

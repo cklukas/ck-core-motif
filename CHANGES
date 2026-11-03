@@ -1,3 +1,11 @@
+Honor partial geometry requests in DropHighlight and Skeleton (2026-11-03)
+==========================================================================
+
+- Make `XmDropHighlight` and `XmSkeleton` use the shared Xt geometry-reply
+  contract.  Width-only, height-only, and conflicting parent queries now
+  receive standards-compliant replies without changing their preferred sizes;
+  see `docs/composite-query-geometry.md`.
+
 Honor partial Xt geometry requests in remaining composites (2026-11-03)
 ======================================================================
 
