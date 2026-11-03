@@ -1,3 +1,9 @@
+Harden WML output format handling (2026-11-03)
+===============================================
+
+- Write fixed keyword-table templates without treating mutable strings as
+  runtime format strings; see `docs/wml-build.md`.
+
 Bound WML grammar-token IDs (2026-11-03)
 =========================================
 

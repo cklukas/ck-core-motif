@@ -259,6 +259,7 @@ EXTRA_DIST += tests/automated/check-wml-handle-list-name-copy.py
 EXTRA_DIST += tests/automated/check-wml-resolver-allocation.py
 EXTRA_DIST += tests/automated/check-wml-symbol-code-width.py
 EXTRA_DIST += tests/automated/check-wml-token-id-bounds.py
+EXTRA_DIST += tests/automated/check-wml-output-format-safety.py
 EXTRA_DIST += tests/automated/run-tabbed-stack-copy-unit.py docs/tabbed-stack-copy-failure.md
 EXTRA_DIST += tests/automated/run-container-tab-pool-unit.py
 EXTRA_DIST += tests/automated/run-list-unicode-regressions.py

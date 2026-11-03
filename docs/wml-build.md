@@ -125,6 +125,11 @@ The WML grammar-token reader rejects negative, oversized, and duplicate IDs
 before it inserts into its fixed token vector, and frees rejected records. The
 focused regression is `tests/automated/check-wml-token-id-bounds.py`.
 
+The WML keyword-table writers emit fixed text through `fputs` or literal
+`fprintf` formats, rather than treating a mutable template as a runtime format
+string. The focused regression is
+`tests/automated/check-wml-output-format-safety.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and
