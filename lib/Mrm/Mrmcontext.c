@@ -117,6 +117,7 @@ UrmGetResourceContext (MrmAllocateProc alloc_func,
 
   if ( context_id_return == NULL )
     return MrmFAILURE;
+  *context_id_return = NULL;
 
   /*
    * Set function defaults if NULL
@@ -143,6 +144,7 @@ UrmGetResourceContext (MrmAllocateProc alloc_func,
       if ( (*context_id_return)->data_buffer == NULL )
         {
 	  (*free_func) ((char *)*context_id_return) ;
+	  *context_id_return = NULL;
 	  return Urm__UT_Error ("UrmGetResourceContext", _MrmMMsg_0001,
 				NULL, *context_id_return, MrmFAILURE) ;
         }
