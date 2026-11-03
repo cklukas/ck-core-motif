@@ -137,7 +137,14 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
   switch ( type )
     {
     case MrmRtypeIconImage:
-      UrmPlistInit (10, ctxlist);
+      if (ctxlist == NULL)
+        return MrmFAILURE;
+      if (*ctxlist == NULL)
+        {
+          result = UrmPlistInit (10, ctxlist);
+          if (result != MrmSUCCESS)
+            return result;
+        }
       result = Urm__CW_LoadIconImage ((RGMIconImagePtr)val, (XtPointer)val,
 				      hierarchy_id, file_id, *ctxlist);
       /* LoadIconImage checks validations and handle swapping */
@@ -278,7 +285,13 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
   /*
    * Read the literal, discard the context, and return.
    */
-  UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  result = UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  if (result != MrmSUCCESS)
+    {
+      _MrmAppUnlock(app);
+      _MrmProcessUnlock();
+      return result;
+    }
   result = Urm__FetchLiteral (hierarchy_id, index, context_id, &ctxlist);
   if ( result == MrmSUCCESS )
     {
@@ -454,7 +467,13 @@ MrmFetchIconLiteral (MrmHierarchy                hierarchy_id,
   /*
    * Read the literal, and deal with errors
    */
-  UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  result = UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  if (result != MrmSUCCESS)
+    {
+      _MrmAppUnlock(app);
+      _MrmProcessUnlock();
+      return result;
+    }
   result = Urm__FetchLiteral (hierarchy_id, index, context_id, &ctxlist);
   if ( result == MrmSUCCESS ) {
     type = UrmRCType(context_id);
@@ -566,7 +585,13 @@ MrmFetchBitmapLiteral (MrmHierarchy                hierarchy_id,
   /*
    * Read the literal, and deal with errors
    */
-  UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  result = UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  if (result != MrmSUCCESS)
+    {
+      _MrmAppUnlock(app);
+      _MrmProcessUnlock();
+      return result;
+    }
   result = Urm__FetchLiteral (hierarchy_id, index, context_id, &ctxlist);
   if ( result == MrmSUCCESS ) {
     type = UrmRCType(context_id);
@@ -680,7 +705,13 @@ MrmFetchColorLiteral (MrmHierarchy                hierarchy_id,
   /*
    * Read the literal, and deal with errors.
    */
-  UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  result = UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  if (result != MrmSUCCESS)
+    {
+      _MrmAppUnlock(app);
+      _MrmProcessUnlock();
+      return result;
+    }
   result = Urm__FetchLiteral (hierarchy_id, index, context_id, &ctxlist);
   if ( result == MrmSUCCESS )
     if (UrmRCType(context_id) != MrmRtypeColor)

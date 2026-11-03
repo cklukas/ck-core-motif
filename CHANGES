@@ -1,3 +1,11 @@
+Propagate MRM literal context setup failures (2026-11-03)
+==========================================================
+
+- Stop public literal fetchers before they use an unavailable resource context
+  and release their MRM locks on that path.
+- Validate icon literal pointer-list setup and retain a supplied list instead
+  of replacing it.
+
 Clear failed MRM resource-context output (2026-11-03)
 ======================================================
 
