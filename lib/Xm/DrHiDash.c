@@ -33,6 +33,19 @@
 
 #include "XmI.h"
 #include "DrawI.h"
+#include <limits.h>
+
+static short bounded_segment_coordinate(long long value)
+{
+   if (value < SHRT_MIN) return SHRT_MIN;
+   if (value > SHRT_MAX) return SHRT_MAX;
+   return (short)value;
+}
+
+static unsigned int bounded_line_width(int value)
+{
+   return value < 0 ? 0U : (unsigned int)value;
+}
 
 /****************************_XmDrawHighlight***************************
  *
@@ -55,37 +68,43 @@ void _XmDrawHighlight(Display *display, Drawable d,
                    int line_style)
 {
    XSegment seg[4];
-   register Dimension half_hl = highlight_thickness/2 ;
-   register Dimension cor = highlight_thickness % 2 ;
+   int draw_width = width;
+   int draw_height = height;
+   int thickness = highlight_thickness;
+   int half_hl, cor;
    XGCValues gcvalues;
 
    if (!d || !highlight_thickness || !width || !height) return ;
+   if (thickness > draw_width) thickness = draw_width;
+   if (thickness > draw_height) thickness = draw_height;
+   half_hl = thickness / 2;
+   cor = thickness % 2;
 
    /* the XmList dash case relies on this particular order of X segments */
    
-   seg[0].x1 = seg[2].x1 = x ;
-   seg[0].y1 = seg[0].y2 = y + half_hl ;
-   seg[0].x2 = x + width - highlight_thickness ;
-   seg[1].x1 = seg[1].x2 = x + width - half_hl - cor;
-   seg[1].y1 = seg[3].y1 = y ;
-   seg[3].y2 = y + height - half_hl;
-   seg[2].y1 = seg[2].y2 = y + height - half_hl - cor;
-   seg[3].x1 = seg[3].x2 = x + half_hl ;
-   seg[2].x2 = x + width ;
-   seg[1].y2 = y + height ;
+   seg[0].x1 = seg[2].x1 = bounded_segment_coordinate(x);
+   seg[0].y1 = seg[0].y2 = bounded_segment_coordinate((long long)y + half_hl);
+   seg[0].x2 = bounded_segment_coordinate((long long)x + draw_width - thickness);
+   seg[1].x1 = seg[1].x2 = bounded_segment_coordinate((long long)x + draw_width - half_hl - cor);
+   seg[1].y1 = seg[3].y1 = bounded_segment_coordinate(y);
+   seg[3].y2 = bounded_segment_coordinate((long long)y + draw_height - half_hl);
+   seg[2].y1 = seg[2].y2 = bounded_segment_coordinate((long long)y + draw_height - half_hl - cor);
+   seg[3].x1 = seg[3].x2 = bounded_segment_coordinate((long long)x + half_hl);
+   seg[2].x2 = bounded_segment_coordinate((long long)x + draw_width);
+   seg[1].y2 = bounded_segment_coordinate((long long)y + draw_height);
 
    /* first save the current values we want to change */
    XGetGCValues(display, gc,
 		GCLineWidth|GCLineStyle|GCCapStyle|GCJoinStyle,
 		&gcvalues);
    /* change them and draw the lines */
-   XSetLineAttributes(display, gc,  highlight_thickness, line_style, 
+   XSetLineAttributes(display, gc, (unsigned int)thickness, line_style,
 		      CapButt, JoinMiter);
    XDrawSegments (display, d, gc, seg, 4);
 
    /* put them back */
-   XSetLineAttributes(display, gc,  
-		      gcvalues.line_width, gcvalues.line_style, 
+   XSetLineAttributes(display, gc,
+		      bounded_line_width(gcvalues.line_width), gcvalues.line_style,
 		      gcvalues.cap_style, gcvalues.join_style);
   
    /** note that the above is a hack, a read-only GC shoudl not 

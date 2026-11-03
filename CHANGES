@@ -1,3 +1,11 @@
+Bound private highlight segment drawing (2026-11-03)
+======================================================
+
+- Give private `_XmDrawHighlight` the same oversized-thickness and signed X11
+  coordinate protections as the public highlight helper.  Legacy List and
+  IconG highlight outlines no longer wrap their segments on extreme geometry;
+  see `docs/private-draw-highlight-bounds.md`.
+
 Bound ButtonBox child placement and geometry masks (2026-11-03)
 =================================================================
 
