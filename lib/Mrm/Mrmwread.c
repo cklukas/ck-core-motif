@@ -139,8 +139,8 @@ UrmHGetWidget (MrmHierarchy		hierarchy_id,
       if ( (*file_id_return)->byte_swapped ) swapbytes(widgetrec->validation);
       if ( UrmWRValid(widgetrec) )
 	{
-	  Urm__SwapRGMWidgetRecord(widgetrec);
-	  return MrmSUCCESS ;
+	  result = Urm__SwapRGMWidgetRecord(widgetrec);
+	  return result;
 	}
     }
 
@@ -215,8 +215,8 @@ UrmGetIndexedWidget (IDBFile			file_id,
       if ( file_id->byte_swapped ) swapbytes(widgetrec->validation);
       if ( UrmWRValid(widgetrec) )
 	{
-	  Urm__SwapRGMWidgetRecord(widgetrec);
-	  return MrmSUCCESS ;
+	  result = Urm__SwapRGMWidgetRecord(widgetrec);
+	  return result;
 	}
     }
 
@@ -291,8 +291,8 @@ UrmGetRIDWidget (IDBFile		file_id,
       if ( file_id->byte_swapped ) swapbytes(widgetrec->validation);
       if ( UrmWRValid(widgetrec) )
 	{
-	  Urm__SwapRGMWidgetRecord(widgetrec);
-	  return MrmSUCCESS ;
+	  result = Urm__SwapRGMWidgetRecord(widgetrec);
+	  return result;
 	}
     }
   return Urm__UT_Error("UrmGetRIDWidget", _MrmMMsg_0026,

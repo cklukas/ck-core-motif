@@ -390,6 +390,13 @@ Release the Mrm literal-index pointer list on failure (2026-11-02)
   overlong literal index after allocating that list; see
   `docs/mrm-fetch-set-values-failure-cleanup.md`.
 
+Propagate Mrm byte-swapped widget failures (2026-11-03)
+========================================================
+
+- Return failed widget-record byte-swap status from hierarchy, indexed, and
+  RID widget readers instead of reporting false success; see
+  `docs/mrm-widget-swap-status.md`.
+
 Bound byte-swapped Mrm index records (2026-11-03)
 ===================================================
 
