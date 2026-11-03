@@ -1074,7 +1074,7 @@ void db_open_file ()
 
 String get_root_dir_name()
 {
-	int uid;
+	uid_t uid;
 	_Xgetpwparams pwd_buf;
 	struct passwd *pwd_value;
 	static char *ptr = NULL;

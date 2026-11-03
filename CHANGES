@@ -3,6 +3,8 @@ Fail closed on UIL WMD-path setup errors (2026-11-03)
 
 - Reject unavailable WMD-path inputs and allocations before path resolution or
   file opening; see `docs/uil-wmd-path-failures.md`.
+- Preserve the native account-ID width when the default WMD path falls back to
+  the process account's home directory.
 
 Keep MWM feedback fallbacks in stable storage (2026-11-03)
 ==========================================================

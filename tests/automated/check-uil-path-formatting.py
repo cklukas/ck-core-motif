@@ -23,4 +23,9 @@ assert "if (resolvedname == 0)" in open_file
 assert "XtFree(wmdPath);\n\t    return;" in open_file
 assert "if (dbfile == NULL)" in open_file
 assert "XtFree(resolvedname);\n\t    return;" in open_file
+
+home = source[source.index("String get_root_dir_name()") : source.index("String init_wmd_path(String filename)")]
+assert "uid_t uid;" in home
+assert "int uid;" not in home
+assert "_XGetpwuid(uid, pwd_buf)" in home
 print("UIL WMD path expansion is sized and formatted safely")

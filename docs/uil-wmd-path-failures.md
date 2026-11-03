@@ -9,3 +9,7 @@ unresolved pathname or failed database-file open.  Valid absolute paths,
 
 This prevents error handling for a missing or unallocatable WMD search path
 from passing null pointers to the path resolver or file opener.
+
+The account lookup used when neither `HOME` nor `USER` is available also keeps
+the process ID in `uid_t`, avoiding a narrowing conversion before `_XGetpwuid`
+selects the fallback home directory.
