@@ -305,10 +305,10 @@ void cmd_decode_command_line  _ARGUMENTS(( int l_arg_count , char *rac_arg_value
 
 /* uildb.c */
 extern void db_incorporate _ARGUMENTS(( void ));
-extern void db_read_ints_and_string _ARGUMENTS((_db_header_ptr header));
-extern void db_read_char_table _ARGUMENTS((_db_header_ptr header));
-extern void db_read_length_and_string _ARGUMENTS((_db_header_ptr header));
-extern void db_read_int_and_shorts _ARGUMENTS((_db_header_ptr header));
+extern Boolean db_read_ints_and_string _ARGUMENTS((_db_header_ptr header));
+extern Boolean db_read_char_table _ARGUMENTS((_db_header_ptr header));
+extern Boolean db_read_length_and_string _ARGUMENTS((_db_header_ptr header));
+extern Boolean db_read_int_and_shorts _ARGUMENTS((_db_header_ptr header));
 extern void db_open_file _ARGUMENTS(( void ));
 extern String get_root_dir_name _ARGUMENTS(( void ));
 extern String init_wmd_path _ARGUMENTS((String filename));

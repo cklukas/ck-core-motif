@@ -28,9 +28,10 @@ for name in (
     "enumval_values_table",
 ):
     assignment = source.index(name + " =", source.index("void db_incorporate()"))
-    read = source.index("fread", assignment)
+    read = source.index("db_read_table", assignment)
     assert "db_allocate_table" in source[assignment:read], name
     assert f"if ({name} == NULL)" in source[assignment:read], name
     assert "goto db_incorporate_done;" in source[assignment:read], name
+    assert "goto db_incorporate_done;" in source[read : read + 180], name
 
 print("UIL raw database tables allocate a readable target before fread")

@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "clients" / "uil" / "UilDB.c").read_text()
-section = source[source.index("void db_read_char_table") : source.index("void db_read_length_and_string")]
+section = source[source.index("Boolean db_read_char_table") : source.index("Boolean db_read_length_and_string")]
 
 assert "item_count = (size_t)header->num_items + 1;" in section
 assert "item_count * sizeof(*ptr) > (size_t)header->table_size" in section

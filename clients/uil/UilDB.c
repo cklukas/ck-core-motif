@@ -118,6 +118,30 @@ static char rcsid[] = "$XConsortium: UilDB.c /main/11 1996/11/21 20:03:11 drk $"
 static FILE *dbfile;
 static int  num_bits;
 
+static Boolean
+db_read_table(void *table, size_t table_size)
+{
+    int return_num_items;
+
+    if (table_size == 0)
+	return True;
+    if (table == NULL)
+	{
+	diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+			      diag_k_no_column);
+	return False;
+	}
+
+    return_num_items = (int)fread(table, table_size, 1, dbfile);
+    if (return_num_items != 1 || feof(dbfile) || ferror(dbfile))
+	{
+	diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+			      diag_k_no_column);
+	return False;
+	}
+    return True;
+}
+
 /* Allocate one byte for an empty serialized table so that every fread target
  * remains a valid object, even when the database legitimately has no entries.
  */
@@ -234,10 +258,8 @@ void db_incorporate()
 		constraint_tab = (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (constraint_tab == NULL)
 		    goto db_incorporate_done;
-		return_num_items = (int)fread (constraint_tab,
-						     sizeof(unsigned char) * (size_t)header.num_items,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(constraint_tab, (size_t)header.num_items))
+		    goto db_incorporate_done;
 		break;
 	    case Argument_Type_Table_Value:
 		if ((size_t)header.num_items > (size_t)header.table_size)
@@ -252,10 +274,8 @@ void db_incorporate()
 		argument_type_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (argument_type_table == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (argument_type_table,
-					     sizeof(unsigned char) * header.num_items,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(argument_type_table, (size_t)header.num_items))
+		    goto db_incorporate_done;
 		break;
 	    case Child_Class_Table:
 		if ((size_t)header.num_items > (size_t)header.table_size)
@@ -271,10 +291,8 @@ void db_incorporate()
 		  (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (child_class_table == NULL)
 		    goto db_incorporate_done;
-		return_num_items = 
-		  fread (child_class_table,
-			 sizeof(unsigned char) * header.num_items, 1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(child_class_table, (size_t)header.num_items))
+		    goto db_incorporate_done;
 		break;
 	    case Charset_Wrdirection_Table:
 		if ((size_t)header.num_items > (size_t)header.table_size)
@@ -286,10 +304,9 @@ void db_incorporate()
 		charset_writing_direction_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (charset_writing_direction_table == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (charset_writing_direction_table, 
-					     sizeof(unsigned char) * header.num_items,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(charset_writing_direction_table,
+				   (size_t)header.num_items))
+		    goto db_incorporate_done;
 		break;
 	    case Charset_Parsdirection_Table:
 		if ((size_t)header.num_items > (size_t)header.table_size)
@@ -301,10 +318,9 @@ void db_incorporate()
 		charset_parsing_direction_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (charset_parsing_direction_table == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (charset_parsing_direction_table, 
-					     sizeof(unsigned char) * header.num_items,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(charset_parsing_direction_table,
+				   (size_t)header.num_items))
+		    goto db_incorporate_done;
 		break;
 	    case Charset_Charsize_Table:
 		if ((size_t)header.num_items > (size_t)header.table_size)
@@ -316,20 +332,21 @@ void db_incorporate()
 		charset_character_size_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (charset_character_size_table == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (charset_character_size_table, 
-					     sizeof(unsigned char) * header.num_items,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(charset_character_size_table,
+				   (size_t)header.num_items))
+		    goto db_incorporate_done;
 		break;
 	    case Key_Table:
 	    case Key_Table_Case_Ins:
-		db_read_ints_and_string (&header);
+		if (!db_read_ints_and_string (&header))
+		    goto db_incorporate_done;
 		break;
 	    case Allowed_Argument_Table:
 	    case Allowed_Child_Table:
 	    case Allowed_Control_Table:
 	    case Allowed_Reason_Table:
-		db_read_char_table (&header);
+		if (!db_read_char_table (&header))
+		    goto db_incorporate_done;
 		break;
 	    case Charset_Xmstring_Names_Table:
 	    case Charset_Lang_Names_Table:
@@ -342,73 +359,68 @@ void db_incorporate()
 	    case Uil_Widget_Funcs:
 	    case Uil_Argument_Toolkit_Names:
 	    case Uil_Reason_Toolkit_Names:
-		db_read_length_and_string (&header);
+		if (!db_read_length_and_string (&header))
+		    goto db_incorporate_done;
 		break;
 	    case Charset_Lang_Codes_Table:
 		charset_lang_codes_table = (unsigned short int *) db_allocate_table((size_t)header.table_size);
 		if (charset_lang_codes_table == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (charset_lang_codes_table, 
-					     header.table_size,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(charset_lang_codes_table,
+				   (size_t)header.table_size))
+		    goto db_incorporate_done;
 		break;
 	    case Argument_Enum_Set_Table:
 		argument_enumset_table = (unsigned short int *) db_allocate_table((size_t)header.table_size);
 		if (argument_enumset_table == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (argument_enumset_table, 
-					     header.table_size,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(argument_enumset_table,
+				   (size_t)header.table_size))
+		    goto db_incorporate_done;
 		break;
 	    case Related_Argument_Table:
 		related_argument_table = (unsigned short int *) db_allocate_table((size_t)header.table_size);
 		if (related_argument_table == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (related_argument_table, 
-					     header.table_size,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(related_argument_table,
+				   (size_t)header.table_size))
+		    goto db_incorporate_done;
 		break;
 	    case Uil_Gadget_Funcs:
 		uil_gadget_variants = (unsigned short int *) db_allocate_table((size_t)header.table_size);
 		if (uil_gadget_variants == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (uil_gadget_variants, 
-					     header.table_size,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(uil_gadget_variants,
+				   (size_t)header.table_size))
+		    goto db_incorporate_done;
 		break;
 	    case Uil_Urm_Nondialog_Class:
 		uil_urm_nondialog_class = (unsigned short int *) db_allocate_table((size_t)header.table_size);
 		if (uil_urm_nondialog_class == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (uil_urm_nondialog_class, 
-					     header.table_size,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(uil_urm_nondialog_class,
+				   (size_t)header.table_size))
+		    goto db_incorporate_done;
 		break;
 	    case Uil_Urm_Subtree_Resource:
 		uil_urm_subtree_resource = (unsigned short int *) db_allocate_table((size_t)header.table_size);
 		if (uil_urm_subtree_resource == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (uil_urm_subtree_resource, 
-					     header.table_size,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(uil_urm_subtree_resource,
+				   (size_t)header.table_size))
+		    goto db_incorporate_done;
 		break;
 	    case Enum_Set_Table:
-		db_read_int_and_shorts(&header);
+		if (!db_read_int_and_shorts(&header))
+		    goto db_incorporate_done;
 		break;
 	    case Enumval_Values_Table:
 		enumval_values_table = (int *) db_allocate_table((size_t)header.table_size);
 		if (enumval_values_table == NULL)
 		    goto db_incorporate_done;
-		return_num_items = fread (enumval_values_table, 
-					     header.table_size,
-					     1, dbfile);
-		_check_read (return_num_items);
+		if (!db_read_table(enumval_values_table,
+				   (size_t)header.table_size))
+		    goto db_incorporate_done;
 		break;
 	    default:
 		diag_issue_diagnostic( d_bad_database, diag_k_no_source, diag_k_no_column );
@@ -424,7 +436,7 @@ db_incorporate_done:
 
 
 
-void db_read_ints_and_string(_db_header_ptr header)
+Boolean db_read_ints_and_string(_db_header_ptr header)
 /*
  *++
  *
@@ -452,7 +464,7 @@ void db_read_ints_and_string(_db_header_ptr header)
  */
 {
 	if (header == NULL)
-	    return;
+	    return False;
 
 /*
  *  External Functions
@@ -461,7 +473,7 @@ void db_read_ints_and_string(_db_header_ptr header)
 /*
  *  Local variables
  */
-	int			return_num_items, i;
+	int			i;
 	size_t		string_size = 0;
 	key_keytable_entry_type	*table = NULL;
 	char			*string_table;
@@ -493,9 +505,9 @@ void db_read_ints_and_string(_db_header_ptr header)
 	if (table == NULL || header->num_items < 0 || header->table_size < 0 ||
 	    (size_t)header->num_items >
 		(size_t)header->table_size / sizeof(*table))
-	    return;
-	return_num_items = (int)fread(table, (size_t)header->table_size, 1, dbfile);
-	_check_read (return_num_items);
+	    return False;
+	if (!db_read_table(table, (size_t)header->table_size))
+	    return False;
 
 	for ( i=0 ; i<header->num_items; i++)
 	    {
@@ -507,18 +519,14 @@ void db_read_ints_and_string(_db_header_ptr header)
 		{
 		diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 					    diag_k_no_column );
-		return;
+		return False;
 		}
 	    string_size += (size_t)table[i].b_length + 1;
 	    };
 
 	string_table = XtMalloc ((Cardinal)string_size);
-	if (string_table == NULL && string_size != 0)
-	    return;
-	return_num_items = (int)fread(string_table,
-				    sizeof(unsigned char) * string_size,
-				    1, dbfile);
-	_check_read (return_num_items);
+	if (!db_read_table(string_table, string_size))
+	    return False;
 
 	for ( i=0 ; i<header->num_items; i++)
 	    {
@@ -526,14 +534,14 @@ void db_read_ints_and_string(_db_header_ptr header)
 	    string_table +=  table[i].b_length + 1; 
 	    };
 
-	return;
+	return True;
 }
 
 
 
 
 
-void db_read_char_table(_db_header_ptr header)
+Boolean db_read_char_table(_db_header_ptr header)
 /*
  *++
  *
@@ -570,22 +578,22 @@ void db_read_char_table(_db_header_ptr header)
  *  Local variables
  */
 	unsigned char	**ptr = NULL;
-	int		return_num_items, i;
+	int		i;
 	unsigned char	*table = NULL;
 	size_t		item_count, pointer_bytes, table_bytes;
 
 	if (header == NULL || header->num_items < 0 ||
 	    header->table_size < 0 || header->num_items == INT_MAX || num_bits <= 0)
-	    return;
+	    return False;
 	item_count = (size_t)header->num_items + 1;
 	if (item_count > SIZE_MAX / sizeof(*ptr) ||
 	    item_count * sizeof(*ptr) > (size_t)header->table_size ||
 	    (size_t)header->num_items > SIZE_MAX / (size_t)num_bits)
-	    return;
+	    return False;
 	pointer_bytes = item_count * sizeof(*ptr);
 	table_bytes = (size_t)header->num_items * (size_t)num_bits;
 	if (table_bytes > UINT_MAX)
-	    return;
+	    return False;
 	 
 	switch (header->table_id)
 	    {
@@ -619,24 +627,26 @@ void db_read_char_table(_db_header_ptr header)
 	 * Then go through the table and set the addresses
 	 */
 	table = (unsigned char *) XtMalloc ((Cardinal)table_bytes);
-	if (table == NULL && table_bytes != 0)
-	    return;
-	return_num_items = (int)fread(table,
-				    table_bytes,
-				    1, dbfile);
-	_check_read (return_num_items);
+	if (ptr == NULL)
+	    {
+	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				  diag_k_no_column);
+	    return False;
+	    }
+	if (!db_read_table(table, table_bytes))
+	    return False;
 	for ( i=1 ; i<=header->num_items; i++ )
 	    {
 	    ptr[i] = table;
 	    table += num_bits;
 	    };
 
-	return;
+	return True;
 }
 
 
 
-void db_read_length_and_string(_db_header_ptr header)
+Boolean db_read_length_and_string(_db_header_ptr header)
 /*
  *++
  *
@@ -679,7 +689,7 @@ void db_read_length_and_string(_db_header_ptr header)
 /*
  *  Local variables
  */
-	int		return_num_items, i;
+	int		i;
 	size_t		item_count, lengths_bytes, string_size = 0;
 	int		*lengths;
 	char		*string_table;
@@ -687,13 +697,13 @@ void db_read_length_and_string(_db_header_ptr header)
 
 	if (header == NULL || header->num_items < 0 ||
 	    header->table_size < 0 || header->num_items == INT_MAX)
-	    return;
+	    return False;
 	item_count = (size_t)header->num_items + 1;
 	if (item_count > SIZE_MAX / sizeof(*table) ||
 	    item_count * sizeof(*table) > (size_t)header->table_size ||
 	    item_count > SIZE_MAX / sizeof(*lengths) ||
 	    item_count * sizeof(*lengths) > UINT_MAX)
-	    return;
+	    return False;
 	lengths_bytes = item_count * sizeof(*lengths);
 	 
 	switch (header->table_id)
@@ -764,12 +774,14 @@ void db_read_length_and_string(_db_header_ptr header)
 	 */
 
 	lengths = (int *) XtMalloc ((Cardinal)lengths_bytes);
-	if (lengths == NULL)
-	    return;
-	return_num_items = (int)fread(lengths,
-				    lengths_bytes,
-				    1, dbfile);
-	_check_read (return_num_items);
+	if (table == NULL)
+	    {
+	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				  diag_k_no_column);
+	    return False;
+	    }
+	if (!db_read_table(lengths, lengths_bytes))
+	    return False;
 	for ( i=0 ; i<=header->num_items; i++)
 	    {
 	    /*
@@ -780,7 +792,7 @@ void db_read_length_and_string(_db_header_ptr header)
 		XtFree ((char *)lengths);
 		diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 					    diag_k_no_column );
-		return;
+		return False;
 		}
 	    if (lengths[i])
 		{
@@ -789,22 +801,18 @@ void db_read_length_and_string(_db_header_ptr header)
 		    XtFree ((char *)lengths);
 		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 						 diag_k_no_column );
-		    return;
+		    return False;
 		    }
 		string_size += (size_t)lengths[i] + 1;
 		}
 	    }
 
 	string_table = XtMalloc ((Cardinal)string_size);
-	if (string_table == NULL && string_size != 0)
+	if (!db_read_table(string_table, string_size))
 	    {
 	    XtFree ((char *)lengths);
-	    return;
+	    return False;
 	    }
-	return_num_items = (int)fread(string_table,
-				    sizeof(unsigned char) * string_size,
-				    1, dbfile);
-	_check_read (return_num_items);
 	for ( i=0 ; i<=header->num_items; i++)
 	    {
 	    if (lengths[i])
@@ -821,12 +829,12 @@ void db_read_length_and_string(_db_header_ptr header)
 
 	XtFree ((char *)lengths);
 
-	return;
+	return True;
 }
 
 
 
-void db_read_int_and_shorts(_db_header_ptr header)
+Boolean db_read_int_and_shorts(_db_header_ptr header)
 /*
  *++
  *
@@ -861,18 +869,18 @@ void db_read_int_and_shorts(_db_header_ptr header)
 /*
  *  Local variables
  */
-	int			return_num_items, i;
+	int			i;
 	size_t		item_count, int_table_count = 0;
 	UilEnumSetDescDef	*table = NULL;
 	unsigned short int 	*int_table = NULL;
 
 	if (header == NULL || header->num_items < 0 ||
 	    header->table_size < 0 || header->num_items == INT_MAX)
-	    return;
+	    return False;
 	item_count = (size_t)header->num_items + 1;
 	if (item_count > SIZE_MAX / sizeof(*table) ||
 	    item_count * sizeof(*table) > (size_t)header->table_size)
-	    return;
+	    return False;
 	 
 	switch (header->table_id)
 	    {
@@ -890,27 +898,22 @@ void db_read_int_and_shorts(_db_header_ptr header)
 	 * Get all the integer tables with one read.
 	 * Reassign the addresses of the tables.
 	 */
-	if (table == NULL)
-	    return;
-	return_num_items = (int)fread(table, (size_t)header->table_size, 1, dbfile);
-	_check_read (return_num_items);
+	if (!db_read_table(table, (size_t)header->table_size))
+	    return False;
 	for ( i=0 ; i<=header->num_items; i++)
 	    {
 	    if (table[i].values_cnt < 0 ||
 		int_table_count > (size_t)UINT_MAX / sizeof(unsigned short) -
 		    (size_t)table[i].values_cnt)
-		return;
+		return False;
 	    int_table_count += (size_t)table[i].values_cnt;
 	    }
 
 	int_table = (unsigned short int *) XtCalloc
 	    (1, (Cardinal)(sizeof(unsigned short) * int_table_count));
-	if (int_table == NULL && int_table_count != 0)
-	    return;
-	return_num_items = (int)fread(int_table,
-				    sizeof(unsigned short) * int_table_count,
-				    1, dbfile);
-	_check_read (return_num_items);
+	if (!db_read_table(int_table,
+			   sizeof(unsigned short) * int_table_count))
+	    return False;
 	for ( i=0 ; i<=header->num_items; i++)
 	    {
 	    if (table[i].values_cnt)
@@ -920,7 +923,7 @@ void db_read_int_and_shorts(_db_header_ptr header)
 		}
 	    }
 
-	return;
+	return True;
 }
 
 
