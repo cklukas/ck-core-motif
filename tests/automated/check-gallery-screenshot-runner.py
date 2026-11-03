@@ -13,8 +13,13 @@ assert 'WINDOW_NAME = "ckmotif-gallery"' in source
 assert "xwininfo" in source and '"-root", "-tree"' in source
 assert "width > 1 and height > 1" in source
 assert '"-id", window_id' in source
-assert '"-silent", "-screen"' in source  # Native popup windows must be captured too.
+assert '[xwd, "-id", window_id, "-silent"]' in source
+assert '"-screen"' not in source  # -screen captures the root pixmap, not this window.
 assert "xwdtopnm" in source and "pnmtopng" in source
+assert "MIN_CAPTURE_PNG_BYTES = 4096" in source
+assert "validate_capture_png" in source
+assert "capture PNG is implausibly small" in source
+assert "capture PNG duplicates an earlier component" in source
 assert "process_failure" in source and "process.communicate" in source
 assert '"result": "fail"' in source
 assert 'receipt["result"] = "skip"' in source

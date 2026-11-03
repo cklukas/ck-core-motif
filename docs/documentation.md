@@ -10,7 +10,7 @@ Both CI hosts use the same `scripts/build-docs.py` entry point and the same
 source-pinned documentation compiler:
 
 - Repository: [ck-git-hosting](https://github.com/cklukas/ck-git-hosting)
-- Commit: `5019729cd37c06ae4e0c1d2c07e4127f3a72394d`
+- Commit: `f9550d8313707483aa874283557314617da43a5f`
 - Version: `0.8.1`
 
 The host's installed `ckdocs` is not used. The script verifies a clean exact
@@ -26,7 +26,7 @@ untracked changes; `local.mk` overrides are refused even if ignored by Git.
 A tool source archive must carry the exact substituted `.ckgit/build-commit`
 stamp. The script then reconstructs its complete Git tree object identity,
 including paths, modes and contents, and compares it with the pinned tree
-`4105740b7e806ecf3eba8ae5c739fc8bafbd9122`. Only the verified export stamp is
+`8f3df880a6f2a87185b9109a8f68d946caa2063e`. Only the verified export stamp is
 normalized to its original template bytes for that comparison. Extra, missing
 or changed files fail verification. A stamp by itself is insufficient for the
 tool source.
@@ -39,6 +39,10 @@ state is unavailable in that case and is recorded as such, alongside the exact
 documentation input fingerprints. Unknown or conflicting source identities are
 refused. The tool archive pin and repository archive provenance are distinct:
 the runner's repository commit is never mistaken for the sister tool's commit.
+
+The pinned compiler accepts up to 8,192 Markdown pages. This keeps discovery
+and rendering bounded while retaining the searchable reference catalogue in
+the generated site.
 
 The hosting 0.7.1 runner creates Git checkouts by default for both the project
 and sisters, exports the project commit, and removes `.git` only for an explicit

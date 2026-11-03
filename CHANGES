@@ -1,3 +1,13 @@
+Refresh verified native gallery evidence (2026-11-03)
+=====================================================
+
+- Refresh all 105 published component screenshots and their manifest from the
+  current `ckmotif-gallery` binary. Each capture is accepted only after its
+  reported manifest component ID matches the requested scenario; the rendered
+  catalogue therefore presents current, component-specific native examples.
+- Capture the gallery window itself rather than the root screen, and reject
+  implausibly small or duplicate PNGs before a publication manifest is made.
+
 Verify gallery screenshot component selection (2026-11-03)
 ===========================================================
 
