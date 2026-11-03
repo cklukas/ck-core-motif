@@ -651,7 +651,13 @@ MrmFetchInterfaceModule (MrmHierarchy		hierarchy_id,
    * each one.
    */
   modptr = (RGMModuleDescPtr) UrmRCBuffer (mod_context);
-  if ( ! UrmInterfaceModuleValid(modptr) )
+  if ( ! UrmInterfaceModuleValid(modptr) ||
+       UrmRCSize(mod_context) < sizeof(RGMModuleDesc) ||
+       modptr->count < 0 ||
+       (modptr->count > 0 &&
+        (size_t)(modptr->count - 1) >
+        ((size_t)UrmRCSize(mod_context) - sizeof(RGMModuleDesc)) /
+          sizeof(RGMTopmostDesc)) )
     {
       UrmFreeResourceContext (mod_context);
       result = Urm__UT_Error ("MrmFetchInterfaceModule", _MrmMMsg_0025,
