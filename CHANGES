@@ -424,7 +424,8 @@ Keep failed Mrm literal outputs empty (2026-11-03)
 
 - Clear `MrmFetchLiteral` outputs after rejecting unsupported literal types,
   preventing a dangling value pointer from escaping the released resource
-  context. `MrmFetchBitmapLiteral` now leaves dimensions at zero unless bitmap
+  context. Release resource contexts and clear outputs after failed vector
+  conversions. `MrmFetchBitmapLiteral` now leaves dimensions at zero unless bitmap
   creation succeeds; see `docs/mrm-fetch-literal-output.md` and
   `docs/mrm-literal-convenience-outputs.md`.
 

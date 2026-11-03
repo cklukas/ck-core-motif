@@ -332,6 +332,16 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
 					 hierarchy_id, NULL) ;
 	  if ( result != MrmSUCCESS ) 
 	    {
+	      if ( ctxlist != NULL )
+		{
+		  for ( ndx=0 ; ndx<UrmPlistNum(ctxlist) ; ndx++ )
+		    UrmFreeResourceContext
+		      ((URMResourceContextPtr) UrmPlistPtrN(ctxlist,ndx)) ;
+		  UrmPlistFree (ctxlist) ;
+		}
+	      UrmFreeResourceContext (context_id);
+	      *value_return = NULL;
+	      *type_return = 0;
 	      _MrmAppUnlock(app);
 	      _MrmProcessUnlock();
 	      return MrmFAILURE;
@@ -352,6 +362,16 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
 					 hierarchy_id, NULL) ;
 	  if ( result != MrmSUCCESS )
 	    {
+	      if ( ctxlist != NULL )
+		{
+		  for ( ndx=0 ; ndx<UrmPlistNum(ctxlist) ; ndx++ )
+		    UrmFreeResourceContext
+		      ((URMResourceContextPtr) UrmPlistPtrN(ctxlist,ndx)) ;
+		  UrmPlistFree (ctxlist) ;
+		}
+	      UrmFreeResourceContext (context_id);
+	      *value_return = NULL;
+	      *type_return = 0;
 	      _MrmAppUnlock(app);
 	      _MrmProcessUnlock();
 	      return MrmFAILURE;
