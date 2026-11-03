@@ -261,11 +261,19 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     XmSpinnerWidget old = (XmSpinnerWidget)old_widget;
     XmSpinnerWidget spinner = (XmSpinnerWidget)widget;
     Boolean redraw = False;
+    Boolean geometry_changed = False;
     XmString replacement;
     (void)request; (void)args; (void)count;
     for (Cardinal i = 0; i < *count; ++i) {
-        if (strcmp(args[i].name, XtNwidth) == 0) spinner->spinner.width_default = False;
-        else if (strcmp(args[i].name, XtNheight) == 0) spinner->spinner.height_default = False;
+        if (strcmp(args[i].name, XtNwidth) == 0) {
+            Boolean automatic = (Dimension)args[i].value == 0;
+            geometry_changed |= spinner->spinner.width_default != automatic;
+            spinner->spinner.width_default = automatic;
+        } else if (strcmp(args[i].name, XtNheight) == 0) {
+            Boolean automatic = (Dimension)args[i].value == 0;
+            geometry_changed |= spinner->spinner.height_default != automatic;
+            spinner->spinner.height_default = automatic;
+        }
     }
     spinner->spinner.interval = bounded_interval(spinner->spinner.interval);
     if (old->spinner.interval != spinner->spinner.interval &&
@@ -306,7 +314,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         old->primitive.highlighted != spinner->primitive.highlighted)
         redraw = True;
     if (old->spinner.spacing != spinner->spinner.spacing) redraw = True;
-    if (redraw) {
+    if (redraw || geometry_changed) {
         Dimension width, height;
         double scale = 1.0;
         _XmGetWidgetDpiScale(widget, &scale);
@@ -314,7 +322,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         if (spinner->spinner.width_default) spinner->core.width = width;
         if (spinner->spinner.height_default) spinner->core.height = height;
     }
-    return redraw;
+    return redraw || geometry_changed;
 }
 
 static void PreferredSize(Widget widget, double scale, Dimension *width, Dimension *height)
@@ -353,10 +361,15 @@ static void ScaleChanged(Widget widget, double old_scale, double new_scale, XtPo
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply)
 {
+    XmSpinnerWidget spinner = (XmSpinnerWidget)widget;
     double scale = 1.0;
     _XmGetWidgetDpiScale(widget,&scale);
     reply->request_mode = CWWidth | CWHeight;
     PreferredSize(widget,scale,&reply->width,&reply->height);
+    if (!spinner->spinner.width_default)
+        reply->width = spinner->core.width;
+    if (!spinner->spinner.height_default)
+        reply->height = spinner->core.height;
     return XmeReplyToQueryGeometry(widget,request,reply);
 }
 
