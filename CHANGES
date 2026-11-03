@@ -1,3 +1,10 @@
+Clear failed MRM lookup and root-record outputs (2026-11-03)
+============================================================
+
+- Clear index-root, hierarchy-resource, and compression-lookup outputs until
+  their operations complete successfully; see the related `docs/mrm-*.md`
+  pages.
+
 Clear failed MRM low-level file-open handles (2026-11-03)
 ==========================================================
 

@@ -214,6 +214,7 @@ Urm__FindClassDescriptor (IDBFile		cfile,
    */
   if ( class_return == NULL )
     return MrmFAILURE ;
+  *class_return = NULL;
   if ( code == UilMrmUnknownCode )
     return Urm__WCI_LookupClassDescriptor (name, class_return);
   if ( cfile == NULL || cfile->class_ctable == NULL )
@@ -277,6 +278,7 @@ Urm__UncompressCode (IDBFile			cfile,
    */
   if ( cfile == NULL || stg_return == NULL )
     return MrmFAILURE ;
+  *stg_return = NULL;
   if ( cfile->resource_ctable == NULL )
     return Urm__UT_Error ("Urm__UncompressCode", _MrmMMsg_0050,
 			  NULL, NULL, MrmFAILURE);

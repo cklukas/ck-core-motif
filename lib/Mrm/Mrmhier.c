@@ -521,6 +521,7 @@ UrmHGetIndexedResource (MrmHierarchy		hierarchy_id,
    */
   if ( file_id_return == NULL )
     return MrmFAILURE ;
+  *file_id_return = NULL;
   if ( hierarchy_id == NULL )
     return Urm__UT_Error ("UrmHGetIndexedResource", _MrmMMsg_0023,
 			  NULL, NULL, MrmBAD_HIERARCHY) ;
@@ -540,10 +541,13 @@ UrmHGetIndexedResource (MrmHierarchy		hierarchy_id,
     }
   for ( ndx=0 ; ndx<num_ids ; ndx++ )
     {
-      *file_id_return = file_ids[ndx] ;
       result = UrmIdbGetIndexedResource
-        (*file_id_return, index, group_filter, type_filter, context_id) ;
-      if ( result == MrmSUCCESS ) return result ;
+        (file_ids[ndx], index, group_filter, type_filter, context_id) ;
+      if ( result == MrmSUCCESS )
+        {
+          *file_id_return = file_ids[ndx] ;
+          return result ;
+        }
     }
 
   /*
