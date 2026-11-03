@@ -47,14 +47,16 @@ static char rcsid[] = "$XConsortium: DialogS.c /main/17 1996/03/25 17:50:11 bars
 #define MSG1	_XmMMsgDialogS_0000
 
 
-#define HALFDIFF(a, b) ((((Position)a) - ((Position)b))/2)
-
-#define TotalWidth(w)   (XtWidth  (w) + (2 * (XtBorderWidth (w))))
-#define TotalHeight(w)  (XtHeight (w) + (2 *(XtBorderWidth (w))))
-
 static Dimension dialog_bounded_dimension(uint64_t value)
 {
     return value > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)value;
+}
+
+static Position dialog_bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
 }
 
 
@@ -394,16 +396,21 @@ GetDefaultPosition(
 {
     Display 	*disp;
     int 	max_w, max_h;
-    Position 	x, y;
+    Position translated_x, translated_y;
+    long long x, y, total_width, total_height;
 
-    x = HALFDIFF(XtWidth(parent), XtWidth(child));
-    y = HALFDIFF(XtHeight(parent), XtHeight(child));
+    x = ((long long)XtWidth(parent) - XtWidth(child)) / 2;
+    y = ((long long)XtHeight(parent) - XtHeight(child)) / 2;
     
     /* 
      * find root co-ords of the parent's center
      */
     if (XtIsRealized (parent))
-      XtTranslateCoords(parent, x, y, &x, &y);
+      XtTranslateCoords(parent, dialog_bounded_position(x),
+                        dialog_bounded_position(y),
+                        &translated_x, &translated_y);
+      x = translated_x;
+      y = translated_y;
     
     /*
      * try to keep the popup from dribbling off the display
@@ -412,15 +419,17 @@ GetDefaultPosition(
     max_w = DisplayWidth  (disp, DefaultScreen (disp));
     max_h = DisplayHeight (disp, DefaultScreen (disp));
     
-    if ((x + (int)TotalWidth  (child)) > max_w) 
-      x = max_w - TotalWidth  (child);
-    if ((y + (int)TotalHeight (child)) > max_h) 
-      y = max_h - TotalHeight (child);
+    total_width = (long long)XtWidth(child) + 2 * XtBorderWidth(child);
+    total_height = (long long)XtHeight(child) + 2 * XtBorderWidth(child);
+    if (x + total_width > max_w)
+      x = (long long)max_w - total_width;
+    if (y + total_height > max_h)
+      y = (long long)max_h - total_height;
     if (x < 0) x = 0;
     if (y < 0) y = 0;
 
-    *xRtn = x;
-    *yRtn = y;
+    *xRtn = dialog_bounded_position(x);
+    *yRtn = dialog_bounded_position(y);
 }
 
 
