@@ -110,7 +110,9 @@ static void preferred_size(XmProgressBarWidget progress,Dimension *width,Dimensi
     if(progress->progress.font&&progress->progress.label&&!XmStringEmpty(progress->progress.label))XmStringExtent(progress->progress.font,progress->progress.label,&lw,&lh);
     if(modern_progress((Widget)progress)) {
         *width=bounded_dimension(MAX((size_t)lw,(size_t)_XmDpiDefaultDimension((Widget)progress,180))+2*(size_t)progress->progress.spacing);
-        *height=bounded_dimension((size_t)lh+track_height(progress)+_XmDpiDefaultDimension((Widget)progress,4)+2*(size_t)progress->progress.spacing);
+        *height=bounded_dimension((size_t)lh+(size_t)track_height(progress)+
+            (size_t)_XmDpiDefaultDimension((Widget)progress,4)+
+            2*(size_t)progress->progress.spacing);
     } else {
         *width=bounded_dimension((size_t)lw+180+2*(size_t)progress->progress.spacing);
         *height=bounded_dimension((size_t)lh+34+2*(size_t)progress->progress.spacing);
@@ -254,6 +256,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                      (unsigned long long)progress->progress.minimum;
         fill_width = (Dimension)((numerator * bar_width) / denominator);
     }
+    if (fill_width > (Dimension)bar_width)
+        fill_width = (Dimension)bar_width;
     if (fill_width) {
         if(modern)_XmAppearanceFillRoundedRectangle(display,window,progress->progress.fill_gc,bar_x,bar_y,fill_width,bar_height,_XmDpiDefaultDimension(widget,3));
         else XFillRectangle(display,window,progress->progress.fill_gc,bar_x,bar_y,fill_width,16);
@@ -279,12 +283,15 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             Position ty=bounded_position((long long)bar_y+((long long)bar_height-text_height)/2);
             if(modern) {
                 XGCValues values;XGetGCValues(display,progress->progress.fill_gc,GCForeground,&values);
-                XRectangle part={(short)bar_x,(short)bar_y,fill_width,(unsigned short)bar_height};
+                XRectangle part={bounded_position((long long)bar_x),
+                    bounded_position((long long)bar_y), fill_width,
+                    (unsigned short)bar_height};
                 if(part.width) {
                     XSetForeground(display,text_gc,_XmAppearanceTextOnFill(widget,values.foreground));
                     XmStringDraw(display,window,progress->progress.font,text_string,text_gc,tx,ty,text_width,XmALIGNMENT_BEGINNING,XmPrim_layout_direction(progress),&part);
                 }
-                part.x=bar_x+fill_width;part.width=bar_width-fill_width;
+                part.x=bounded_position((long long)bar_x+fill_width);
+                part.width=(unsigned short)((unsigned int)bar_width-fill_width);
                 XSetForeground(display,text_gc,XtIsSensitive(widget)?progress->primitive.foreground:progress->primitive.bottom_shadow_color);
                 if(part.width)XmStringDraw(display,window,progress->progress.font,text_string,text_gc,tx,ty,text_width,XmALIGNMENT_BEGINNING,XmPrim_layout_direction(progress),&part);
             } else XmStringDraw(display,window,progress->progress.font,text_string,text_gc,tx,ty,text_width,XmALIGNMENT_BEGINNING,XmPrim_layout_direction(progress),NULL);
@@ -364,16 +371,13 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmProgressBarWidget progress = (XmProgressBarWidget)widget;
-    Dimension label_width = 0, label_height = 0;
-    (void)request;
-    if (progress->progress.font && progress->progress.label &&
-        !XmStringEmpty(progress->progress.label))
-        XmStringExtent(progress->progress.font, progress->progress.label,
-                       &label_width, &label_height);
     reply->request_mode = CWWidth | CWHeight;
     preferred_size(progress,&reply->width,&reply->height);
-    return (widget->core.width == reply->width && widget->core.height == reply->height)
-               ? XtGeometryYes : XtGeometryAlmost;
+    if (widget->core.width)
+        reply->width = widget->core.width;
+    if (widget->core.height)
+        reply->height = widget->core.height;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 static void Notify(XmProgressBarWidget progress, XEvent *event) {

@@ -10,7 +10,10 @@ redisplay = progress[progress_redisplay_start:progress.index("static Boolean Set
 progress_query_start = progress.index("static XtGeometryResult QueryGeometry(Widget widget")
 query = progress[progress_query_start:progress.index("static void Notify(", progress_query_start)]
 assert "progress->progress.font && progress->progress.label" in redisplay
-assert "progress->progress.font && progress->progress.label" in query
+assert "preferred_size(progress,&reply->width,&reply->height);" in query
+preferred_start = progress.index("static void preferred_size(XmProgressBarWidget progress")
+preferred = progress[preferred_start:progress.index("\nstatic void UpdateGCs", preferred_start)]
+assert "progress->progress.font&&progress->progress.label" in preferred
 
 toggle = (root / "lib" / "Xm" / "ToggleSwitch.c").read_text(encoding="utf-8")
 toggle_redisplay_start = toggle.index("static void Redisplay(Widget widget")

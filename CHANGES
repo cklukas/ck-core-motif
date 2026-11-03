@@ -1,3 +1,11 @@
+Preserve explicit ProgressBar geometry in Xt negotiation (2026-11-03)
+======================================================================
+
+- Make `XmProgressBar` retain application-assigned width and height when a
+  parent asks for geometry.  Preferred dimensions remain the fallback before
+  allocation.  Clamp modern text-overlay clips to the rendered fill and bound
+  their X11 coordinates; see `docs/progressbar-query-geometry.md`.
+
 Preserve explicit DataGrid geometry in Xt negotiation (2026-11-03)
 ===================================================================
 
