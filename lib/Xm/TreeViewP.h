@@ -29,6 +29,7 @@ typedef struct _XmTreeViewPart {
     Dimension indent;
     Dimension row_height;
     Boolean automatic_row_height;
+    Boolean automatic_width;
     Boolean automatic_height;
     Cardinal visible_rows;
     Boolean rtl;

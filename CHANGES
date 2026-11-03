@@ -1,3 +1,11 @@
+Keep explicit TreeView dimensions during Xt geometry negotiation (2026-11-03)
+===========================================================================
+
+- Track automatic sizing independently for both `XmTreeView` axes.  A zero
+  width or height follows content metrics, while an application-assigned
+  dimension now remains authoritative through `XtSetValues` and
+  `QueryGeometry`; see `docs/treeview-query-geometry.md`.
+
 Preserve explicit ProgressBar geometry in Xt negotiation (2026-11-03)
 ======================================================================
 
