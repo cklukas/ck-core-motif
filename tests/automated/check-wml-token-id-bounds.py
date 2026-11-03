@@ -15,6 +15,7 @@ check = source[check_start:index_start]
 assert "free (grtok->token);" in check
 assert "free (grtok);" in check
 assert "continue;" in check
-assert "grtok_vec[grtok->val]" not in check
+assert "if ( grtok_vec[grtok->val] != NULL )" in check
+assert "Duplicate token id" in check
 
-print("PASS WML grammar token IDs are bounded before vector access")
+print("PASS WML grammar tokens are validated before vector insertion")

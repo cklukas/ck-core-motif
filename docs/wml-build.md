@@ -121,9 +121,9 @@ silent signed-16-bit truncation if a generated catalogue exceeds 32,767 entries;
 existing catalogue output remains unchanged. The focused regression is
 `tests/automated/check-wml-symbol-code-width.py`.
 
-The WML grammar-token reader rejects negative and oversized IDs before it
-indexes its fixed token vector, and frees the rejected record. The focused
-regression is `tests/automated/check-wml-token-id-bounds.py`.
+The WML grammar-token reader rejects negative, oversized, and duplicate IDs
+before it inserts into its fixed token vector, and frees rejected records. The
+focused regression is `tests/automated/check-wml-token-id-bounds.py`.
 
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,

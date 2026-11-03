@@ -1,8 +1,8 @@
 Bound WML grammar-token IDs (2026-11-03)
 =========================================
 
-- Reject negative and oversized token IDs before they can index the WML grammar
-  token vector; see `docs/wml-build.md`.
+- Reject negative, oversized, and duplicate token IDs before they can corrupt
+  or overwrite WML grammar-token vector entries; see `docs/wml-build.md`.
 
 Preserve full WML symbol-code values (2026-11-03)
 ==================================================

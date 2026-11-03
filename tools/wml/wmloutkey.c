@@ -233,6 +233,14 @@ if ( grtok->val < 0 || grtok->val >= GrTokenMax )
     free (grtok);
     continue;
     }
+if ( grtok_vec[grtok->val] != NULL )
+    {
+    printf ("\nDuplicate token id %d for %s",
+	    grtok->val, grtok->token);
+    free (grtok->token);
+    free (grtok);
+    continue;
+    }
 grtok_vec[grtok->val] = grtok;
 if ( grtok->val > grtok_max_val )
     {
