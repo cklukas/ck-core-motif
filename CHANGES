@@ -390,6 +390,13 @@ Release the Mrm literal-index pointer list on failure (2026-11-02)
   overlong literal index after allocating that list; see
   `docs/mrm-fetch-set-values-failure-cleanup.md`.
 
+Bound byte-swapped Mrm index records (2026-11-03)
+===================================================
+
+- Reject cross-endian index leaf and node counts that do not fit their
+  fixed-size IDB records before the byte-swap loops walk their entries; see
+  `docs/mrm-swap-index-count-bounds.md`.
+
 Bound Mrm interface-module widget records (2026-11-03)
 ========================================================
 

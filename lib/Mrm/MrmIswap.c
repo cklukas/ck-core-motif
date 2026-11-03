@@ -164,6 +164,11 @@ Idb__BM_SwapRecordBytes (IDBRecordBufferPtr		buffer)
       swapbytes( leaf_rec->leaf_header.index_count );
       swapbytes( leaf_rec->leaf_header.heap_start );
       swapbytes( leaf_rec->leaf_header.free_bytes );
+      if (leaf_rec->leaf_header.index_count < 0 ||
+          (size_t)leaf_rec->leaf_header.index_count >
+          (IDBRecordSize - sizeof(IDBIndexLeafHdr)) /
+            sizeof(IDBIndexLeafEntry))
+        return MrmFAILURE;
       for( ndx=0 ; ndx < leaf_rec->leaf_header.index_count ; ndx++ ) 
 	{
 	  swapbytes( leaf_rec->index[ndx].index_stg );	
@@ -178,6 +183,11 @@ Idb__BM_SwapRecordBytes (IDBRecordBufferPtr		buffer)
       swapbytes( node_rec->node_header.index_count );
       swapbytes( node_rec->node_header.heap_start );
       swapbytes( node_rec->node_header.free_bytes );
+      if (node_rec->node_header.index_count < 0 ||
+          (size_t)node_rec->node_header.index_count >
+          (IDBRecordSize - sizeof(IDBIndexNodeHdr)) /
+            sizeof(IDBIndexNodeEntry))
+        return MrmFAILURE;
       for( ndx=0 ; ndx < node_rec->node_header.index_count ; ndx++ ) 
 	{
 	  swapbytes( node_rec->index[ndx].index_stg );	
