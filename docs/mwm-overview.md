@@ -115,6 +115,7 @@ clients exchanging Motif window-management messages.
 - [WSM window-list rollback](wsm-windows-rollback.md)
 - [WSM window-data alignment](wsm-windata-alignment.md)
 - [WSM window-data allocation width](wsm-win-data-allocation-width.md)
+- [WSM window-data record validation](wsm-win-data-record-validation.md)
 - [WSM list-payload allocation width](wsm-list-payload-allocation-width.md)
 - [WSM configuration-reply allocation width](wsm-config-reply-allocation-width.md)
 - [WSM message packing allocation](wsm-pack-oom.md)

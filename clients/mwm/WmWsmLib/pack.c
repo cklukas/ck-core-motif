@@ -1180,6 +1180,7 @@ WinDataSizePacked(Display *dpy, int screen_num,
 	return(-1);
 
     if (num < 0 || num > WSM_MAX_LIST_ITEMS ||
+	(num != 0 && win_data == NULL) ||
 	(fmt_data->num_attrs / 8) > INT_MAX - 1)
 	return(-1);
     size = fmt_data->num_attrs / 8 + 1;	/* Size of header bits. */
@@ -1191,23 +1192,47 @@ WinDataSizePacked(Display *dpy, int screen_num,
 	     */
 	    continue;
 	}
-	if (win_data->type != WSM_VALUE_DATA &&
-	    (win_data->data_len < 0 ||
-	     win_data->data_len > WSM_MAX_LIST_ITEMS))
+	if (attr->size != 8 && attr->size != 16 && attr->size != 32)
 	    return(-1);
 
 	switch(win_data->type) {
 	case WSM_VALUE_DATA:
+	    if (attr->is_list)
+		return(-1);
 	    if (!AddPackedSize(&size, (size_t)(attr->size / 8)))
 		return(-1);
 	    break;
-	default:		/* All others are lists. */
+	case WSM_CHAR_LIST_DATA:
+	    if (!attr->is_list || attr->size != 8 ||
+		win_data->data_len < 0 ||
+		win_data->data_len > WSM_MAX_LIST_ITEMS ||
+		(win_data->data_len != 0 && win_data->data.char_ptr == NULL))
+		return(-1);
+	    break;
+	case WSM_SHORT_LIST_DATA:
+	    if (!attr->is_list || attr->size != 16 ||
+		win_data->data_len < 0 ||
+		win_data->data_len > WSM_MAX_LIST_ITEMS ||
+		(win_data->data_len != 0 && win_data->data.short_ptr == NULL))
+		return(-1);
+	    break;
+	case WSM_LONG_LIST_DATA:
+	    if (!attr->is_list || attr->size != 32 ||
+		win_data->data_len < 0 ||
+		win_data->data_len > WSM_MAX_LIST_ITEMS ||
+		(win_data->data_len != 0 && win_data->data.long_ptr == NULL))
+		return(-1);
+	    break;
+	default:
+	    return(-1);
+	}
+
+	if (win_data->type != WSM_VALUE_DATA) {
 	    if (!AddPackedSize(&size, COUNT_SIZE) ||
 		!AddPackedSize(&size,
 			       (size_t)(attr->size / 8) *
 			       (size_t)win_data->data_len))
 		return(-1);
-	    break;
 	}
     }
 
