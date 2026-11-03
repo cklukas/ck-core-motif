@@ -1,3 +1,10 @@
+Keep accessibility text capacity arithmetic unsigned (2026-11-03)
+=================================================================
+
+- Widen `MB_CUR_MAX` before computing accessibility text-buffer capacity, so
+  valid large ranges do not depend on signed-to-size conversion behavior; see
+  `docs/accessibility-text-span-arithmetic.md`.
+
 Bound ArrowButton drawing inset geometry (2026-11-03)
 ======================================================
 
