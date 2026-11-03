@@ -209,7 +209,8 @@ static void calendar_size(XmCalendarWidget calendar,Dimension *width,Dimension *
     XmString sample=XmStringCreateLocalized("30");Dimension w=0,h=0;
     if(sample&&calendar->calendar.render_table)XmStringExtent(calendar->calendar.render_table,sample,&w,&h);XmStringFree(sample);
     *width=(Dimension)MIN(USHRT_MAX,MAX((unsigned long)_XmDpiDefaultDimension((Widget)calendar,280),7UL*(w+_XmDpiDefaultDimension((Widget)calendar,16))));
-    *height=(Dimension)MIN(USHRT_MAX,(unsigned long)heading+week+6UL*row);
+    *height=(Dimension)MIN(USHRT_MAX,(unsigned long)heading+
+        (unsigned long)week+6UL*(unsigned long)row);
 }
 
 static void Initialize(Widget request, Widget widget, ArgList args,
@@ -527,10 +528,9 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended,
                                       XtWidgetGeometry *preferred) {
-    (void)widget; (void)intended;
     preferred->request_mode = CWWidth | CWHeight;
     calendar_size((XmCalendarWidget)widget,&preferred->width,&preferred->height);
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget,intended,preferred);
 }
 
 Widget XmCreateCalendar(Widget parent, char *name, ArgList args,

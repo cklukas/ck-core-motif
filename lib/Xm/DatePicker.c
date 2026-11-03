@@ -348,10 +348,10 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmDatePickerWidget picker=(XmDatePickerWidget)widget;
-    (void)request;reply->request_mode=CWWidth|CWHeight;
+    reply->request_mode=CWWidth|CWHeight;
     reply->width=120;reply->height=28;
     (void)_XmAppearancePickerSize(widget,picker->date_picker.render_table,"0000-00-00",&reply->width,&reply->height);
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget,request,reply);
 }
 
 Widget XmCreateDatePicker(Widget parent, char *name, ArgList args,

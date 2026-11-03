@@ -1,3 +1,11 @@
+Honor partial Xt geometry requests in picker controls (2026-11-03)
+===================================================================
+
+- Make Calendar, DatePicker, TimePicker, and TeachingTip use
+  `XmeReplyToQueryGeometry` for their existing preferred-size responses.
+  Width-only, height-only, and query-only parent negotiations now follow Xt
+  request-mode semantics; see `docs/picker-query-geometry.md`.
+
 Honor partial Xt geometry requests in composite controls (2026-11-03)
 =====================================================================
 
