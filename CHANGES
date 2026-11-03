@@ -1,3 +1,10 @@
+Bound MWM key-substitution replacement tokens (2026-11-03)
+==========================================================
+
+- Reject a replacement token that cannot fit, including its NUL terminator,
+  in Xt's `Cardinal` allocation width; release its pending source token and
+  preserve earlier complete substitutions. See `docs/mwm-keysub-bounds.md`.
+
 Bound MRM byte-swapped widget lists (2026-11-03)
 ===================================================
 

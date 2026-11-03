@@ -7435,12 +7435,15 @@ static void InitKeySubs (
 	while (*pch1 && (*pch1 != ' ')) pch1++;
 #endif /* NO_MULTIBYTE */
 
-	len = pch1 - pch0;
-	if (len < 1)
+	len = (size_t)(pch1 - pch0);
+	/* Xt allocation sizes are Cardinal: reserve the trailing NUL safely. */
+	if (len < 1 || len >= UINT_MAX)
 	{
 	    /*
 	     * Invalid format, "from" string with no "to" string.
 	     */
+	    XtFree((char *)pKS->pchFrom);
+	    pKS->pchFrom = NULL;
 	    break;
 	}
 	pKS->pchTo = (unsigned char *)XtMalloc((Cardinal)(len + 1));
