@@ -1,3 +1,9 @@
+Keep UIL machine-list terminators in bounds (2026-11-03)
+========================================================
+
+- Terminate machine-code listing text at its copied end rather than one byte
+  beyond it; see `docs/uil-machine-list-bounds.md`.
+
 Harden UIL no-memmove fallback (2026-11-03)
 =============================================
 

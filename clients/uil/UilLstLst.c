@@ -730,7 +730,7 @@ void	lst_output_machine_code(src_source_record_type *az_src_rec)
 	_move  (& buffer [OFFSET_COL - 1], hex_longword, HEX_PER_WORD);
 
 	_move (& buffer [TEXT_COL - 1], text_ptr, text_len);
-	buffer [TEXT_COL + text_len] = '\0';
+	buffer [TEXT_COL - 1 + text_len] = '\0';
 
 	line_written = FALSE;
 
