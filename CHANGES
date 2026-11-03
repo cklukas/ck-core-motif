@@ -1,3 +1,11 @@
+Preserve explicit DataGrid geometry in Xt negotiation (2026-11-03)
+===================================================================
+
+- Make `XmDataGrid` report its actual allocated dimensions from
+  `QueryGeometry` rather than always advertising the 480x240 default.  This
+  preserves application-assigned sizes during parent negotiation; see
+  `docs/datagrid-query-geometry.md`.
+
 Recompute DataGrid capacity after resize (2026-11-03)
 =====================================================
 

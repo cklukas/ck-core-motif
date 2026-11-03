@@ -552,10 +552,10 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
-    (void)widget; (void)request;
     reply->request_mode = CWWidth | CWHeight;
-    reply->width = 480; reply->height = 240;
-    return XtGeometryAlmost;
+    reply->width = widget->core.width ? widget->core.width : 480;
+    reply->height = widget->core.height ? widget->core.height : 240;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 Widget XmCreateDataGrid(Widget parent, char *name, ArgList args,
