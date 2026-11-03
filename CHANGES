@@ -1,3 +1,10 @@
+Guard TabBox temporary label drawing resources (2026-11-03)
+==========================================================
+
+- Check horizontal and vertical TabBox scratch bitmaps, rotated label images,
+  and optional clip-mask pixmaps before use. Failed optional masks now fall
+  back to direct label drawing; see `docs/tabbox-label-resource-failure.md`.
+
 Guard ColorPicker shared drawing GC allocation (2026-11-03)
 ==========================================================
 

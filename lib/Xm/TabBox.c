@@ -6124,6 +6124,11 @@ DrawRightToLeftTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 				   AllPlanes, XYPixmap);
 	    dst_ximage = XiRotateImage(tab, src_ximage,
 				    XiTabDegree(XmTabBox_tab_orientation(tab)));
+	    if( dst_ximage == NULL )
+	    {
+		if( src_ximage != NULL ) XDestroyImage(src_ximage);
+		return;
+	    }
 	    if( XmTabBox_use_image_cache(tab) )
 	    {
 		CachePixmap(tab,info) = dst_ximage;
@@ -6355,6 +6360,8 @@ DrawRightToLeftTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	{
 	    XmTabBox__bitmap(tab) = XCreatePixmap(XtDisplay(tab), XiCanvas(tab),
 						 label_width, label_height, 1);
+	    if( !ValidPixmap(XmTabBox__bitmap(tab)) )
+		return;
 
 	    XmTabBox__bitmap_width(tab) = label_width;
 	    XmTabBox__bitmap_height(tab) = label_height;
@@ -6449,6 +6456,11 @@ DrawRightToLeftTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 			       label_height, 1, XYPixmap);
 	dst_ximage = XiRotateImage(tab, src_ximage,
 				   XiTabDegree(XmTabBox_tab_orientation(tab)));
+	if( dst_ximage == NULL )
+	{
+	    if( src_ximage != NULL ) XDestroyImage(src_ximage);
+	    return;
+	}
 
 	if( XmTabBox_use_image_cache(tab) )
 	{
@@ -6524,25 +6536,33 @@ DrawRightToLeftTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	 * Left first clear out the clipping mask and then draw the text
 	 * into it.
 	 */
-	XFillRectangle(XtDisplay(tab), pix, XmTabBox__zero_GC(tab), 0, 0,
-		       label_width, label_height);
-	XPutImage(XtDisplay(tab), pix, XmTabBox__one_GC(tab), dst_ximage, 0, 0,
-		  0, 0, label_width, label_height);
+	if( pix != None )
+	{
+	    XFillRectangle(XtDisplay(tab), pix, XmTabBox__zero_GC(tab), 0, 0,
+			   label_width, label_height);
+	    XPutImage(XtDisplay(tab), pix, XmTabBox__one_GC(tab), dst_ximage, 0, 0,
+		      0, 0, label_width, label_height);
 
-	/*
-	 * Now that we have the clipping mask lets set the mask to the GC
-	 * and then put the image that is the text to the display using this
-	 * clipping mask.
-	 */
-	XSetClipMask(XtDisplay(tab), gc, pix);
-	XSetClipOrigin(XtDisplay(tab), gc, x, y);
-	XPutImage(XtDisplay(tab), XiCanvas(tab), gc, dst_ximage, 0, 0,
-		  x, y, label_width, label_height);
+	    /*
+	     * Now that we have the clipping mask lets set the mask to the GC
+	     * and then put the image that is the text to the display using this
+	     * clipping mask.
+	     */
+	    XSetClipMask(XtDisplay(tab), gc, pix);
+	    XSetClipOrigin(XtDisplay(tab), gc, x, y);
+	    XPutImage(XtDisplay(tab), XiCanvas(tab), gc, dst_ximage, 0, 0,
+		      x, y, label_width, label_height);
 
-	/*
-	 * We are done with this cliping mask so lets destroy the pixmap.
-	 */
-	XFreePixmap(XtDisplay(tab), pix);
+	    /*
+	     * We are done with this cliping mask so lets destroy the pixmap.
+	     */
+	    XFreePixmap(XtDisplay(tab), pix);
+	}
+	else
+	{
+	    XPutImage(XtDisplay(tab), XiCanvas(tab), gc, dst_ximage, 0, 0,
+		      x, y, label_width, label_height);
+	}
     }
     else
     {
@@ -6692,6 +6712,11 @@ DrawVerticalTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 				   AllPlanes, XYPixmap);
 	    dst_ximage = XiRotateImage(tab, src_ximage,
 				  XiTabDegree(XmTabBox_tab_orientation(tab)));
+	    if( dst_ximage == NULL )
+	    {
+		if( src_ximage != NULL ) XDestroyImage(src_ximage);
+		return;
+	    }
 	    
 	    if( XmTabBox_use_image_cache(tab) )
 	    {
@@ -6968,6 +6993,8 @@ DrawVerticalTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	{
 	    XmTabBox__bitmap(tab) = XCreatePixmap(XtDisplay(tab), XiCanvas(tab),
 						 label_width, label_height, 1);
+	    if( !ValidPixmap(XmTabBox__bitmap(tab)) )
+		return;
 	    XmTabBox__bitmap_width(tab) = label_width;
 	    XmTabBox__bitmap_height(tab) = label_height;
 	}
@@ -7070,6 +7097,11 @@ DrawVerticalTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 			       label_height, 1, XYPixmap);
 	dst_ximage = XiRotateImage(tab, src_ximage,
 				   XiTabDegree(XmTabBox_tab_orientation(tab)));
+	if( dst_ximage == NULL )
+	{
+	    if( src_ximage != NULL ) XDestroyImage(src_ximage);
+	    return;
+	}
 
 	if( XmTabBox_use_image_cache(tab) )
 	{
@@ -7167,25 +7199,33 @@ DrawVerticalTab(XmTabBoxWidget tab, XmTabAttributes info, GC gc,
 	 * Left first clear out the clipping mask and then draw the text
 	 * into it.
 	 */
-	XFillRectangle(XtDisplay(tab), pix, XmTabBox__zero_GC(tab), 0, 0,
-		       label_width, label_height);
-	XPutImage(XtDisplay(tab), pix, XmTabBox__one_GC(tab), dst_ximage, 0, 0,
-		  0, 0, label_width, label_height);
+	if( pix != None )
+	{
+	    XFillRectangle(XtDisplay(tab), pix, XmTabBox__zero_GC(tab), 0, 0,
+			   label_width, label_height);
+	    XPutImage(XtDisplay(tab), pix, XmTabBox__one_GC(tab), dst_ximage, 0, 0,
+		      0, 0, label_width, label_height);
 
-	/*
-	 * Now that we have the clipping mask lets set the mask to the GC
-	 * and then put the image that is the text to the display using this
-	 * clipping mask.
-	 */
-	XSetClipMask(XtDisplay(tab), gc, pix);
-	XSetClipOrigin(XtDisplay(tab), gc, x, y);
-	XPutImage(XtDisplay(tab), XiCanvas(tab), gc, dst_ximage, 0, 0,
-		  x, y, label_width, label_height);
+	    /*
+	     * Now that we have the clipping mask lets set the mask to the GC
+	     * and then put the image that is the text to the display using this
+	     * clipping mask.
+	     */
+	    XSetClipMask(XtDisplay(tab), gc, pix);
+	    XSetClipOrigin(XtDisplay(tab), gc, x, y);
+	    XPutImage(XtDisplay(tab), XiCanvas(tab), gc, dst_ximage, 0, 0,
+		      x, y, label_width, label_height);
 
-	/*
-	 * We are done with this cliping mask so lets destroy the pixmap.
-	 */
-	XFreePixmap(XtDisplay(tab), pix);
+	    /*
+	     * We are done with this cliping mask so lets destroy the pixmap.
+	     */
+	    XFreePixmap(XtDisplay(tab), pix);
+	}
+	else
+	{
+	    XPutImage(XtDisplay(tab), XiCanvas(tab), gc, dst_ximage, 0, 0,
+		      x, y, label_width, label_height);
+	}
     }
     else
     {
