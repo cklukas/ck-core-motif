@@ -3552,6 +3552,16 @@ AdjustTearOffControl (Widget cascade,
 
   return (False);
 }
+
+/* Xt callbacks return void. Keep the Boolean result for the direct caller
+ * above, and adapt it here for the cascading callback registration. */
+static void
+AdjustTearOffControlCallback (Widget cascade,
+			      XtPointer closure,
+			      XtPointer cbackdata)
+{
+    (void)AdjustTearOffControl(cascade, closure, cbackdata);
+}
 
 
 /*************************************<->*************************************
@@ -4061,7 +4071,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
                         }
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 			XtAddCallback(children[n], XmNcascadingCallback,
-				      (XtCallbackProc)AdjustTearOffControl,
+				      AdjustTearOffControlCallback,
 				      (XtPointer)subMenuW);
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 		    }
