@@ -1146,19 +1146,20 @@ Realize(w, mask, attr)
 
     (*realize) (w, mask, attr);
 
-    /* Now that we are realized, let's select that tab, finally... */
+    /*
+     * Create the GC before restoring a deferred selection.  Selection can
+     * repaint an explicitly coloured page through this private GC.
+     */
+    XmTabStack__gc(tab) = XCreateGC(XtDisplay(tab), XtWindow(tab),
+				   0, NULL);
+
+    /* Now that we are realized, restore the deferred selection. */
     if ((XmTabStack__selected_tab(tab) != NULL) &&
 	!XmTabStack__selected_tab(tab)->core.being_destroyed)
     {
 	XmTabStackSelectTab(XmTabStack__selected_tab(tab),
 			    XmTabStack__selected_notify(tab));
     }
-
-    /*
-     * Lets create a GC that we will use for drawing.
-     */
-    XmTabStack__gc(tab) = XCreateGC(XtDisplay(tab), XtWindow(tab),
-				   0, NULL);
 }
 
 /*
@@ -3373,17 +3374,18 @@ TabSelectedCallback(widget, client, cbdata)
      * Now if the active child has a background specified, or if the old
      * active child had one, then we need to redraw our background.
      */
-    if( XiBackgroundSpecified(old) ||
-        XiBackgroundSpecified(active) ||
-        XiSelectSpecified(tab) )
+    if( XtIsRealized((Widget)tab) &&
+	(XiBackgroundSpecified(old) ||
+	 XiBackgroundSpecified(active) ||
+	 XiSelectSpecified(tab)) )
     {
-	if( XiSelectSpecified(tab) )
+	if( XiSelectSpecified(tab) && XmTabStack__gc(tab) != NULL )
 	{
 	    SetSelectGC(tab, XmTabStack__gc(tab));
 	    XFillRectangle(XtDisplay(tab), XtWindow(tab), XmTabStack__gc(tab),
 			   x, y, width, height);
 	}
-	else if( XiBackgroundSpecified(active) )
+	else if( XiBackgroundSpecified(active) && XmTabStack__gc(tab) != NULL )
 	{
 	    SetChildGC(active, XmTabStack__gc(tab));
 	    XFillRectangle(XtDisplay(tab), XtWindow(tab), XmTabStack__gc(tab),
@@ -3406,6 +3408,7 @@ TabSelectedCallback(widget, client, cbdata)
     if( ((XmTabStack_tab_mode(tab) == XmTABS_STACKED ||
 	  XmTabStack_tab_mode(tab) == XmTABS_STACKED_STATIC) &&
           XmTabStack_stacked_effect(tab)) &&
+	XmTabStack__gc(tab) != NULL &&
         (info->old_index >= 0 && info->tab_index >= 0 &&
 	 XmTabBoxGetTabRow(XmTabStack_tab_box(tab), info->old_index) != 
 	 XmTabBoxGetTabRow(XmTabStack_tab_box(tab), info->tab_index)) )
