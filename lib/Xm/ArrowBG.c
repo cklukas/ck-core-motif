@@ -32,6 +32,7 @@ static char rcsid[] = "$TOG: ArrowBG.c /main/20 1999/01/26 15:30:15 mgreess $"
 
 
 #include <stdio.h>
+#include <limits.h>
 #include <Xm/ArrowBGP.h>
 #include <Xm/DrawP.h>
 #include <Xm/ManagerP.h>
@@ -53,6 +54,18 @@ static char rcsid[] = "$TOG: ArrowBG.c /main/20 1999/01/26 15:30:15 mgreess $"
 #define DELAY_DEFAULT	100
 #define INVALID_PIXEL	((Pixel) -1)
 #define INVALID_PIXMAP	((Pixmap) -1)
+
+static Position arrowg_bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
+static Dimension arrowg_bounded_dimension(unsigned long value)
+{
+    return value > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)value;
+}
 
 /********    Static Function Declarations    ********/
 
@@ -1475,23 +1488,27 @@ DrawArrowG(XmArrowButtonGadget ag,
   /* Don't let large margins cause confusion. */
   if (margin <= (ag->rectangle.width / 2))
     {
-      x = ag->rectangle.x + margin;
-      width = ag->rectangle.width - (margin * 2);
+      x = arrowg_bounded_position((long long)ag->rectangle.x + margin);
+      width = arrowg_bounded_dimension((unsigned long)ag->rectangle.width -
+                                        2UL * margin);
     }
   else
     {
-      x = ag->rectangle.x + ag->rectangle.width / 2;
+      x = arrowg_bounded_position((long long)ag->rectangle.x +
+                                  ag->rectangle.width / 2);
       width = 0;
     }
 
   if (margin <= (ag->rectangle.height / 2))
     {
-      y = ag->rectangle.y + margin;
-      height = ag->rectangle.height - (margin * 2);
+      y = arrowg_bounded_position((long long)ag->rectangle.y + margin);
+      height = arrowg_bounded_dimension((unsigned long)ag->rectangle.height -
+                                         2UL * margin);
     }
   else
     {
-      y = ag->rectangle.y + ag->rectangle.height / 2;
+      y = arrowg_bounded_position((long long)ag->rectangle.y +
+                                  ag->rectangle.height / 2);
       height = 0;
     }
 

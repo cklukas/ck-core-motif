@@ -1,3 +1,10 @@
+Bound ArrowButton drawing inset geometry (2026-11-03)
+======================================================
+
+- Saturate ArrowButton and ArrowButtonGadget inset origins and extents before
+  passing them to the X11 drawing helpers.  Large highlight or shadow margins
+  no longer wrap the arrow glyph geometry; see `docs/arrowbg-origins.md`.
+
 Bound private highlight segment drawing (2026-11-03)
 ======================================================
 
