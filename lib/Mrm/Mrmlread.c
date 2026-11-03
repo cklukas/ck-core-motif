@@ -176,7 +176,12 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
 	  UrmRCBuffer(context_id) = (char *)fontlist;
 	}
       else 
-	Urm__CW_FixupValue (val, type, (XtPointer)val, file_id, &swap_needed); 
+	{
+	  result = Urm__CW_FixupValue (val, type, (XtPointer)val, file_id,
+				      &swap_needed);
+	  if (result != MrmSUCCESS)
+	    return result;
+	}
       break; 
     case MrmRtypeInteger:
     case MrmRtypeBoolean:
@@ -204,7 +209,10 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
       break; 
 
     default:
-      Urm__CW_FixupValue (val, type, (XtPointer)val, file_id, &swap_needed);
+      result = Urm__CW_FixupValue (val, type, (XtPointer)val, file_id,
+				  &swap_needed);
+      if (result != MrmSUCCESS)
+	return result;
       break;
     }
 
