@@ -260,10 +260,17 @@ void _XmBufferedPaint(Widget widget, XtExposeProc paint, XEvent *event, Region r
             state->depth = widget->core.depth;
             if (state->gc) XFreeGC(display, state->gc);
             state->gc = XCreateGC(display, state->window, 0, NULL);
-            allocate_buffer(state);
+            if (state->gc)
+                allocate_buffer(state);
         }
         state->width = widget->core.width;
         state->height = widget->core.height;
+    }
+    if (!state->gc)
+        state->gc = XCreateGC(display, state->window, 0, NULL);
+    if (!state->gc) {
+        _XmProcessUnlock();
+        return;
     }
     state->active = state->buffer ? state->buffer : state->window;
     background(state);

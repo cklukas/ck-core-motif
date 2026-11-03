@@ -1,3 +1,10 @@
+Guard buffered and cascade rendering GCs (2026-11-03)
+======================================================
+
+- Avoid drawing through unavailable temporary graphics contexts in the shared
+  buffered-paint coordinator and modern CascadeButtonGadget renderer; see
+  `docs/paint-render-gc.md`.
+
 Guard shared modern appearance drawing GCs (2026-11-03)
 =======================================================
 
