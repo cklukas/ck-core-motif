@@ -130,6 +130,7 @@ clients exchanging Motif window-management messages.
 - [WSM configuration rollback pointers](wsm-config-clear-pointers.md)
 - [WSM configuration pointer lifetime](wsm-config-pointer-lifecycle.md)
 - [WSM target conversion allocation failure](wsm-target-conversion-null.md)
+- [WSM target-list failure count](wsm-target-list-failure-count.md)
 - [WSM packer configuration failure](wsm-packer-config-null.md)
 - [WSM WM-target mapping](wsm-wm-target-mapping.md)
 - [WSM window-data lookup](wsm-win-data-lookup-null.md)
