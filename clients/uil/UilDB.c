@@ -117,6 +117,20 @@ static char rcsid[] = "$XConsortium: UilDB.c /main/11 1996/11/21 20:03:11 drk $"
  */
 static FILE *dbfile;
 static int  num_bits;
+
+/* Allocate one byte for an empty serialized table so that every fread target
+ * remains a valid object, even when the database legitimately has no entries.
+ */
+static void *
+db_allocate_table(size_t table_size)
+{
+    void *table = XtMalloc((Cardinal)(table_size == 0 ? 1 : table_size));
+
+    if (table == NULL)
+	diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+			      diag_k_no_column);
+    return table;
+}
 
 void db_incorporate()
 
@@ -217,7 +231,9 @@ void db_incorporate()
 					    diag_k_no_column );
 		    break;
 		    }
-		constraint_tab = (unsigned char *) XtMalloc ((Cardinal)header.table_size);
+		constraint_tab = (unsigned char *) db_allocate_table((size_t)header.table_size);
+		if (constraint_tab == NULL)
+		    break;
 		return_num_items = (int)fread (constraint_tab,
 						     sizeof(unsigned char) * (size_t)header.num_items,
 					     1, dbfile);
@@ -233,7 +249,9 @@ void db_incorporate()
 		/*
 		 * NOTE: The first entry is not used but we copy it anyway
 		 */
-		argument_type_table = (unsigned char *) XtMalloc (header.table_size);
+		argument_type_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
+		if (argument_type_table == NULL)
+		    break;
 		return_num_items = fread (argument_type_table,
 					     sizeof(unsigned char) * header.num_items,
 					     1, dbfile);
@@ -250,7 +268,9 @@ void db_incorporate()
 		 * NOTE: The first entry is not used but we copy it anyway
 		 */
 		child_class_table = 
-		  (unsigned char *) XtMalloc (header.table_size);
+		  (unsigned char *) db_allocate_table((size_t)header.table_size);
+		if (child_class_table == NULL)
+		    break;
 		return_num_items = 
 		  fread (child_class_table,
 			 sizeof(unsigned char) * header.num_items, 1, dbfile);
@@ -263,7 +283,9 @@ void db_incorporate()
 					    diag_k_no_column );
 		    break;
 		    }
-		charset_writing_direction_table = (unsigned char *) XtMalloc (header.table_size);
+		charset_writing_direction_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
+		if (charset_writing_direction_table == NULL)
+		    break;
 		return_num_items = fread (charset_writing_direction_table, 
 					     sizeof(unsigned char) * header.num_items,
 					     1, dbfile);
@@ -276,7 +298,9 @@ void db_incorporate()
 					    diag_k_no_column );
 		    break;
 		    }
-		charset_parsing_direction_table = (unsigned char *) XtMalloc (header.table_size);
+		charset_parsing_direction_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
+		if (charset_parsing_direction_table == NULL)
+		    break;
 		return_num_items = fread (charset_parsing_direction_table, 
 					     sizeof(unsigned char) * header.num_items,
 					     1, dbfile);
@@ -289,7 +313,9 @@ void db_incorporate()
 					    diag_k_no_column );
 		    break;
 		    }
-		charset_character_size_table = (unsigned char *) XtMalloc (header.table_size);
+		charset_character_size_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
+		if (charset_character_size_table == NULL)
+		    break;
 		return_num_items = fread (charset_character_size_table, 
 					     sizeof(unsigned char) * header.num_items,
 					     1, dbfile);
@@ -319,42 +345,54 @@ void db_incorporate()
 		db_read_length_and_string (&header);
 		break;
 	    case Charset_Lang_Codes_Table:
-		charset_lang_codes_table = (unsigned short int *) XtMalloc (header.table_size);
+		charset_lang_codes_table = (unsigned short int *) db_allocate_table((size_t)header.table_size);
+		if (charset_lang_codes_table == NULL)
+		    break;
 		return_num_items = fread (charset_lang_codes_table, 
 					     header.table_size,
 					     1, dbfile);
 		_check_read (return_num_items);
 		break;
 	    case Argument_Enum_Set_Table:
-		argument_enumset_table = (unsigned short int *) XtMalloc (header.table_size);
+		argument_enumset_table = (unsigned short int *) db_allocate_table((size_t)header.table_size);
+		if (argument_enumset_table == NULL)
+		    break;
 		return_num_items = fread (argument_enumset_table, 
 					     header.table_size,
 					     1, dbfile);
 		_check_read (return_num_items);
 		break;
 	    case Related_Argument_Table:
-		related_argument_table = (unsigned short int *) XtMalloc (header.table_size);
+		related_argument_table = (unsigned short int *) db_allocate_table((size_t)header.table_size);
+		if (related_argument_table == NULL)
+		    break;
 		return_num_items = fread (related_argument_table, 
 					     header.table_size,
 					     1, dbfile);
 		_check_read (return_num_items);
 		break;
 	    case Uil_Gadget_Funcs:
-		uil_gadget_variants = (unsigned short int *) XtMalloc (header.table_size);
+		uil_gadget_variants = (unsigned short int *) db_allocate_table((size_t)header.table_size);
+		if (uil_gadget_variants == NULL)
+		    break;
 		return_num_items = fread (uil_gadget_variants, 
 					     header.table_size,
 					     1, dbfile);
 		_check_read (return_num_items);
 		break;
 	    case Uil_Urm_Nondialog_Class:
-		uil_urm_nondialog_class = (unsigned short int *) XtMalloc (header.table_size);
+		uil_urm_nondialog_class = (unsigned short int *) db_allocate_table((size_t)header.table_size);
+		if (uil_urm_nondialog_class == NULL)
+		    break;
 		return_num_items = fread (uil_urm_nondialog_class, 
 					     header.table_size,
 					     1, dbfile);
 		_check_read (return_num_items);
 		break;
 	    case Uil_Urm_Subtree_Resource:
-		uil_urm_subtree_resource = (unsigned short int *) XtMalloc (header.table_size);
+		uil_urm_subtree_resource = (unsigned short int *) db_allocate_table((size_t)header.table_size);
+		if (uil_urm_subtree_resource == NULL)
+		    break;
 		return_num_items = fread (uil_urm_subtree_resource, 
 					     header.table_size,
 					     1, dbfile);
@@ -364,7 +402,9 @@ void db_incorporate()
 		db_read_int_and_shorts(&header);
 		break;
 	    case Enumval_Values_Table:
-		enumval_values_table = (int *) XtMalloc (header.table_size);
+		enumval_values_table = (int *) db_allocate_table((size_t)header.table_size);
+		if (enumval_values_table == NULL)
+		    break;
 		return_num_items = fread (enumval_values_table, 
 					     header.table_size,
 					     1, dbfile);
