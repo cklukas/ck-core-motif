@@ -225,15 +225,19 @@ while ( TRUE )
  * Save the token in the grammar token vector, indexed by its value
  * (for UilTokName.h)
  */
-if ( grtok->val < GrTokenMax )
+if ( grtok->val < 0 || grtok->val >= GrTokenMax )
     {
-    grtok_vec[grtok->val] = grtok;
-    if ( grtok->val > grtok_max_val )
+    printf ("\nToken id %d for %s is outside the permitted range",
+	    grtok->val, grtok->token);
+    free (grtok->token);
+    free (grtok);
+    continue;
+    }
+grtok_vec[grtok->val] = grtok;
+if ( grtok->val > grtok_max_val )
+    {
 	grtok_max_val = grtok->val;
     }
-else
-    printf ("\nToken id %d for %s exceed GrTokenMax",
-	    grtok->val, grtok->token);
 
 /*
  * Enter tokens which appear in the keyword tables as keyword tokens.
@@ -541,8 +545,8 @@ memcpy (insens_name, sens_name, name_length + 1);
 for ( ndx=0 ; ndx<name_length ; ndx++ )
     insens_name[ndx] = _upper (insens_name[ndx]);
 
-wmlInsertInKeyList(wml_tok_sens_ptr, sens_name, senstok);
-wmlInsertInKeyList(wml_tok_insens_ptr, insens_name, insenstok);
+wmlInsertInKeyList(wml_tok_sens_ptr, sens_name, (ObjectPtr)senstok);
+wmlInsertInKeyList(wml_tok_insens_ptr, insens_name, (ObjectPtr)insenstok);
 free(insens_name);
 }
 
@@ -582,7 +586,6 @@ externaldef(uil_sym_glbl) key_keytable_entry_type *key_table_case_ins =\n\
 
 
 FILE			*outfil;	/* output file */
-int			ndx;		/* loop index */
 int			maxlen = 0;	/* max keyword length */
 int			maxkey = 0;	/* # entries in keyword table */
 
