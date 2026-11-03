@@ -1,3 +1,10 @@
+Preserve inherited Sash cursor after allocation failure (2026-11-03)
+=====================================================================
+
+- Do not cache or register a failed Sash crosshair cursor, and create the
+  window without `CWCursor` in that case so it inherits the normal parent
+  cursor; see `docs/sash-cursor-allocation.md`.
+
 Guard deferred TabStack selection rendering (2026-11-03)
 =========================================================
 

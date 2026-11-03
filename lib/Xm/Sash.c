@@ -376,22 +376,28 @@ Realize(
 	Cursor SashCursor = 
 		((XmDisplayInfo *)(dd->display.displayInfo))->SashCursor;
 	
-	if (0L == SashCursor)
+	if (None == SashCursor)
 		{
 		/* create some data shared among all instances on this 
 		** display; the first one along can create it, and 
 		** any one can remove it; note no reference count
 		*/
-        	SashCursor = 
-		((XmDisplayInfo *)(dd->display.displayInfo))->SashCursor = 
-			XCreateFontCursor(XtDisplay(w), XC_crosshair);
-		XtAddCallback((Widget)dd, XtNdestroyCallback, 
+		SashCursor = XCreateFontCursor(XtDisplay(w), XC_crosshair);
+		if (SashCursor != None)
+		{
+		    ((XmDisplayInfo *)(dd->display.displayInfo))->SashCursor =
+			SashCursor;
+		    XtAddCallback((Widget)dd, XtNdestroyCallback,
 			SashDisplayDestroyCallback, (XtPointer) NULL);
 		}
+		}
 
-	attributes->cursor = SashCursor;
-	XtCreateWindow (w, InputOutput, CopyFromParent, 
-		*p_valueMask | CWCursor, attributes);
+	if (SashCursor != None)
+	{
+	    attributes->cursor = SashCursor;
+	    *p_valueMask |= CWCursor;
+	}
+	XtCreateWindow (w, InputOutput, CopyFromParent, *p_valueMask, attributes);
 }
 
 /*ARGSUSED*/
