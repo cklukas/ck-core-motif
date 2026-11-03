@@ -1,3 +1,9 @@
+Validate deferred MRM widget-reference inputs (2026-11-03)
+=========================================================
+
+- Make deferred set-values reference update and resolution ignore absent lists
+  and reject a missing current widget name before dereferencing or comparing.
+
 Clear failed MRM index-search outputs (2026-11-03)
 ====================================================
 

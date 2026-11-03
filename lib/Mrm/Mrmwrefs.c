@@ -648,6 +648,9 @@ Urm__CW_UpdateSVWidgetRef (URMPointerListPtr		*svlist,
   int			ndx ;		/* loop index */
   URMSetValuesDescPtr	svdesc ;	/* current SetValues descriptor */
 
+  if (svlist == NULL || *svlist == NULL)
+    return;
+
   /*
    * Loop over all descriptors. Enter the current widget as appropriate.
    * Since each descriptor is used only once, immediately free any
@@ -705,6 +708,9 @@ Urm__CW_ResolveSVWidgetRef (URMPointerListPtr		*svlist,
   Arg			args[1] ;	/* SetValues argument list */
   RGMCallbackDescPtr	cbdesc;		/* Current callback descriptor */
   RGMCallbackItemPtr	items;		/* Array of callback items */
+
+  if (svlist == NULL || *svlist == NULL || cur_name == NULL)
+    return;
 
   /*
    * Loop over all descriptors. Enter the current widget as appropriate.
