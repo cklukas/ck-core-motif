@@ -706,7 +706,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
     if ( cursyn->type != WmlClassTypeMetaclass )
 	if ( cursyn->convfunc == NULL )
 	    {
-	    sprintf (errmsg, "Class %s does not have a convenience function",
+	    snprintf (errmsg, sizeof(errmsg), "Class %s does not have a convenience function",
 		     cursyn->name);
 	    wmlIssueError (errmsg);
 	    }	
@@ -851,7 +851,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
  */
     if ( cursyn->xms_name == NULL )
 	{
-	sprintf (errmsg, "CharacterSet %s does not have a StandardsName",
+	snprintf (errmsg, sizeof(errmsg), "CharacterSet %s does not have a StandardsName",
 		 cursyn->name);
 	wmlIssueError (errmsg);
 	}	
@@ -957,7 +957,7 @@ for ( ndx=0 ; ndx<wml_obj_class_ptr->cnt ; ndx++ )
 	{
 	if ( synobj->widgetclass == NULL )
 	    {
-	    sprintf (errmsg, "Gadget class %s has no widgetclass reference",
+	    snprintf (errmsg, sizeof(errmsg), "Gadget class %s has no widgetclass reference",
 		     synobj->name);
 	    wmlIssueError (errmsg);
 	    }
@@ -1727,7 +1727,7 @@ if ( objndx < 0 )
 synobj = (WmlSynDefPtr) wml_synobj_ptr ->hvec[objndx].objptr;
 if ( synobj->validation != type )
     {
-    sprintf (errmsg,
+    snprintf (errmsg, sizeof(errmsg),
 	     "Object %s references object %s\n\tin a context where a different type of object is required",
 	    requester, name);
     wmlIssueError (errmsg);

@@ -1,3 +1,10 @@
+Bound WML resolver diagnostics (2026-11-03)
+============================================
+
+- Format WML resolver errors through the size of their diagnostic buffer,
+  preserving an error report for unusually long malformed names; see
+  `docs/wml-build.md`.
+
 Handle WML string-copy allocation failure (2026-11-03)
 ======================================================
 

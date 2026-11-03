@@ -66,6 +66,10 @@ fails, before attempting a copy. This prevents a low-memory generator run from
 turning an ordinary allocation failure into a null-pointer write; the focused
 regression is `tests/automated/check-wml-string-allocation.py`.
 
+Resolver diagnostics now use bounded formatting for class, character-set, and
+reference names, so malformed long names cannot overwrite the diagnostic stack
+buffer. The regression is `tests/automated/check-wml-diagnostic-bounds.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and
