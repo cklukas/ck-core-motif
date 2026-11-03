@@ -1,3 +1,9 @@
+Clear failed MRM buffer record allocation output (2026-11-03)
+==============================================================
+
+- Clear a selected IDB buffer from the caller output when record allocation
+  fails, rather than returning a non-null buffer without record storage.
+
 Propagate MRM literal context setup failures (2026-11-03)
 ==========================================================
 

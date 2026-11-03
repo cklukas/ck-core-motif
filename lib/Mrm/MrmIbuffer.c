@@ -298,8 +298,11 @@ Idb__BM_GetBuffer (IDBFile			file_id,
       (*buffer_return)->IDB_record =
         (IDBDummyRecord *) XtMalloc(sizeof(IDBDummyRecord)) ;
       if ( (*buffer_return)->IDB_record == NULL )
-        return Urm__UT_Error ("Idb__BM_GetBuffer",
-			      _MrmMMsg_0001, NULL, NULL, MrmFAILURE) ;
+        {
+          *buffer_return = NULL;
+          return Urm__UT_Error ("Idb__BM_GetBuffer",
+				      _MrmMMsg_0001, NULL, NULL, MrmFAILURE) ;
+        }
       _IDB_Getbuffer_return ();
     }
   if ( (*buffer_return)->activity == 0 ) _IDB_Getbuffer_return ();

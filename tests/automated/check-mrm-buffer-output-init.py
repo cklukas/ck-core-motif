@@ -23,4 +23,10 @@ pool_guard = get_body.index("if (idb__buffer_pool_size <= 0)")
 pool_use = get_body.index("idb__buffer_pool_vec", pool_guard)
 if pool_guard > pool_use:
     raise SystemExit("GetBuffer checks pool size after using the pool")
+record_alloc = get_body.index("(IDBDummyRecord *) XtMalloc")
+record_failure = get_body.index("if ( (*buffer_return)->IDB_record == NULL )", record_alloc)
+clear_after_failure = get_body.index("*buffer_return = NULL;", record_failure)
+failure_return = get_body.index("return Urm__UT_Error", clear_after_failure)
+if not record_failure < clear_after_failure < failure_return:
+    raise SystemExit("GetBuffer exposes an unusable buffer after record allocation failure")
 print("Mrm record-buffer outputs are initialized before failure paths")
