@@ -5,6 +5,8 @@ Honor partial geometry requests in DropHighlight and Skeleton (2026-11-03)
   contract.  Width-only, height-only, and conflicting parent queries now
   receive standards-compliant replies without changing their preferred sizes;
   see `docs/composite-query-geometry.md`.
+- Saturate DropHighlight's label-and-border natural-size arithmetic before it
+  enters the legacy `Dimension` fields.
 
 Honor partial Xt geometry requests in remaining composites (2026-11-03)
 ======================================================================

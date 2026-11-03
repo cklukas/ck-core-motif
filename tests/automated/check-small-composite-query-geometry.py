@@ -18,4 +18,9 @@ for name in ("DropHighlight.c", "Skeleton.c"):
     assert "XmeReplyToQueryGeometry(widget," in query, name
     assert "return XtGeometryYes;" not in query, name
 
+drop_highlight = (root / "DropHighlight.c").read_text(encoding="utf-8")
+assert "static Dimension bounded_dimension(size_t value)" in drop_highlight
+assert "bounded_dimension((size_t)label_width +" in drop_highlight
+assert "bounded_dimension((size_t)label_height +" in drop_highlight
+
 print("DropHighlight and Skeleton honor Xt geometry request-mode semantics")

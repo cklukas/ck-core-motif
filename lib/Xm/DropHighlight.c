@@ -17,6 +17,12 @@ static Position bounded_position(long long value)
     return (Position)value;
 }
 
+static Dimension bounded_dimension(size_t value)
+{
+    return value > (size_t)USHRT_MAX ? (Dimension)USHRT_MAX :
+                                       (Dimension)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
@@ -219,8 +225,10 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
         XmStringExtent(highlight->drop_highlight.font,
                        highlight->drop_highlight.label,
                        &label_width, &label_height);
-    reply->width = label_width + 2 * (highlight->drop_highlight.thickness + 4);
-    reply->height = label_height + 2 * (highlight->drop_highlight.thickness + 4);
+    reply->width = bounded_dimension((size_t)label_width +
+                                     2 * ((size_t)highlight->drop_highlight.thickness + 4));
+    reply->height = bounded_dimension((size_t)label_height +
+                                      2 * ((size_t)highlight->drop_highlight.thickness + 4));
     if (!reply->width) reply->width = 1;
     if (!reply->height) reply->height = 1;
     return XmeReplyToQueryGeometry(widget, request, reply);
