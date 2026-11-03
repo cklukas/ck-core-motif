@@ -111,6 +111,11 @@ before publishing the entry, avoiding null-name comparisons after low-memory
 failures. The focused regression is
 `tests/automated/check-wml-handle-list-name-copy.py`.
 
+WML semantic-resolution objects are allocated through a checked helper, so a
+low-memory failure stops resolution before any partially initialized object is
+linked into the generated model. The focused regression is
+`tests/automated/check-wml-resolver-allocation.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and

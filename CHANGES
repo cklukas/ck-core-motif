@@ -1,3 +1,9 @@
+Validate WML resolver allocations (2026-11-03)
+==============================================
+
+- Stop semantic resolution cleanly on allocation failure before an incomplete
+  resolved object can be published; see `docs/wml-build.md`.
+
 Require WML handle-list name copies (2026-11-03)
 ===============================================
 
