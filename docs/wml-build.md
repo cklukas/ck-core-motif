@@ -56,6 +56,11 @@ length. It now allocates the temporary case-folded name and generated
 stops generation on allocation failure without overwriting generator state. The focused
 source regression is `tests/automated/check-wml-keyword-buffer-bounds.py`.
 
+The `tokens.dat` reader likewise limits each generated grammar-token field to
+the capacity of its legacy record buffer and uses a temporary allocated copy
+when lowercasing keyword spellings. It fails cleanly if either token allocation
+fails; `tests/automated/check-wml-grammar-token-bounds.py` covers that contract.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and

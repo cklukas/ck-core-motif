@@ -166,8 +166,8 @@ char			token[100];	/* current token */
 char			class[100];	/* current class */
 int			tokval;		/* current token id (as value) */
 WmlGrammarTokenPtr	grtok;		/* new grammar token */
-int			ndx;
-char			sens_name[100];	/* for case-insensitive name */
+size_t			ndx;
+char			*sens_name;	/* lower-case keyword copy */
 
 
 /*
@@ -193,7 +193,7 @@ if ( infil == NULL )
 
 while ( TRUE )
     {
-    scanres = fscanf (infil, "%s %d %s", token, &tokval, class);
+    scanres = fscanf (infil, "%99s %d %99s", token, &tokval, class);
     if ( scanres == EOF ) break;
     if ( scanres != 3 )
 	{
@@ -206,8 +206,19 @@ while ( TRUE )
  * Convert the token class, and construct a grammar token.
  */
     grtok = (WmlGrammarTokenPtr) malloc(sizeof(WmlGrammarToken));
+    if (grtok == NULL)
+        {
+        fprintf(stderr, "Unable to allocate WML grammar token\n");
+        break;
+        }
     grtok->class = wmlKeyWGrammarClass (class);
     grtok->token = wmlAllocateString (token);
+    if (grtok->token == NULL)
+        {
+        free(grtok);
+        fprintf(stderr, "Unable to copy WML grammar token\n");
+        break;
+        }
     grtok->val = tokval;
 
 /*
@@ -233,8 +244,14 @@ else
 	{
 	case WmlTokenClassKeyword:
 	case WmlTokenClassReserved:
-	    strcpy (sens_name, grtok->token);
-	    for ( ndx=0 ; ndx<(int)strlen(sens_name) ; ndx++ )
+	    sens_name = wmlAllocateString(grtok->token);
+	    if (sens_name == NULL)
+	        {
+	        fprintf(stderr, "Unable to copy WML keyword token\n");
+	        fclose(infil);
+	        return;
+	        }
+	    for ( ndx=0 ; sens_name[ndx] != '\0' ; ndx++ )
 		sens_name[ndx] = _lower(sens_name[ndx]);
 	    if ( strcmp(sens_name,"uiltrue") == 0 )
 		strcpy (sens_name, "true");
@@ -245,6 +262,7 @@ else
 	    if ( strcmp(sens_name,"uileof") == 0 )
 		strcpy (sens_name, "eof");
 	    wmlKeyWMakeTokens (sens_name, grtok->class, (ObjectPtr)grtok);
+	    free(sens_name);
 	}
     }
 
