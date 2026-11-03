@@ -1399,6 +1399,7 @@ DrawNodeConnection(Widget tree, GC source, Widget child, Boolean outgoing,
         if (outgoing) clip.y = child->core.height - inset;
     }
     gc = XCreateGC(display, XtWindow(child), 0, NULL);
+    if (gc == NULL) return;
     XCopyGC(display, source, GCForeground | GCBackground | GCLineWidth |
             GCLineStyle | GCCapStyle | GCJoinStyle | GCDashOffset | GCDashList, gc);
     XSetClipRectangles(display, gc, 0, 0, &clip, 1, Unsorted);
