@@ -106,6 +106,9 @@ UrmCreatePixmap (RGMIconImagePtr	icon,
   if ( icon == NULL || pixmap == NULL )
     return MrmFAILURE;
   *pixmap = 0;
+  if (icon->width <= 0 || icon->height <= 0 ||
+      icon->pixel_data.pdptr == NULL)
+    return MrmNOT_VALID;
   if ( icon->color_table.ctptr == NULL )
     return MrmNOT_VALID;
 
@@ -235,6 +238,9 @@ UrmCreateBitmap (RGMIconImagePtr	icon,
   if ( icon == NULL || pixmap == NULL )
     return MrmFAILURE;
   *pixmap = 0;
+  if (icon->width <= 0 || icon->height <= 0 ||
+      icon->pixel_data.pdptr == NULL)
+    return MrmNOT_VALID;
 
   /*
    *  Local variables

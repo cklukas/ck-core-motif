@@ -390,6 +390,13 @@ Release the Mrm literal-index pointer list on failure (2026-11-02)
   overlong literal index after allocating that list; see
   `docs/mrm-fetch-set-values-failure-cleanup.md`.
 
+Validate Mrm icon mapping records (2026-11-03)
+================================================
+
+- Reject nonpositive icon dimensions and absent in-memory pixel data before
+  public Mrm icon conversion reaches mapping arithmetic or Xlib; see
+  `docs/mrm-icon-converter-inputs.md`.
+
 Keep failed Mrm literal outputs empty (2026-11-03)
 ====================================================
 

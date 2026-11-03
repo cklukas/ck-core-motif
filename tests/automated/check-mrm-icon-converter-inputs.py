@@ -12,4 +12,9 @@ for signature in ("UrmCreatePixmap (RGMIconImagePtr", "UrmCreateBitmap (RGMIconI
     assert "return MrmFAILURE;" in body
     assert "*pixmap = 0;" in body
     assert body.index("if ( icon == NULL || pixmap == NULL )") < body.index("icon->")
+    record_guard = "icon->width <= 0 || icon->height <= 0 ||"
+    assert record_guard in body
+    assert "icon->pixel_data.pdptr == NULL" in body
+    assert body.index(record_guard) > body.index("*pixmap = 0;")
+    assert "return MrmNOT_VALID;" in body[body.index(record_guard):]
 print("Mrm icon converters validate and initialize their inputs")
