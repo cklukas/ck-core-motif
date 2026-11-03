@@ -2677,7 +2677,20 @@ Urm__CW_ConvertValue (Widget			parent,
 	      fontset_entry = XmFontListEntryCreate(fontptr->cset.charset,
 						    XmFONT_IS_FONTSET,
 						    fontset);
+	  if (fontset_entry == NULL)
+	    {
+	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0074, fontstg);
+	      return Urm__UT_Error ("Urm__CW_ConvertValue",
+				     err_msg, NULL, NULL, MrmFAILURE) ;
+	    }
 	      dfontlist = XmFontListAppendEntry(NULL, fontset_entry);
+	  XmFontListEntryFree(&fontset_entry);
+	  if (dfontlist == NULL)
+	    {
+	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0074, fontstg);
+	      return Urm__UT_Error ("Urm__CW_ConvertValue",
+				     err_msg, NULL, NULL, MrmFAILURE) ;
+	    }
 	      break;
 	    }
 		  
@@ -2701,12 +2714,18 @@ Urm__CW_ConvertValue (Widget			parent,
 	{
 	  fontstg = fontlist->item[ndx].font.font;
 	  if ( fontstg == NULL )
-	    return MrmFAILURE ;
+	    {
+	      if (dfontlist != NULL)
+		XmFontListFree(dfontlist);
+	      return MrmFAILURE ;
+	    }
 	  dpyandfontstr = Urm__CW_DisplayToString((char*)&display,
 						  fontstg, 
 						  strlen(fontstg) + 1);
 	  if ( dpyandfontstr == NULL)
 	    {
+	      if (dfontlist != NULL)
+		XmFontListFree(dfontlist);
 	      return Urm__UT_Error ("Urm__CW_ConvertValue", _MrmMMsg_0069,
 				    NULL, NULL, MrmFAILURE) ;
 	    }
@@ -2722,6 +2741,9 @@ Urm__CW_ConvertValue (Widget			parent,
 		  if ( font == NULL )
 		    {
 		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0070, fontstg);
+		      XtFree(dpyandfontstr);
+		      if (dfontlist != NULL)
+			XmFontListFree(dfontlist);
 		      return Urm__UT_Error ("Urm__CW_ConvertValue",
 					    err_msg, NULL, NULL, MrmNOT_FOUND) ;
 		    }
@@ -2746,6 +2768,9 @@ Urm__CW_ConvertValue (Widget			parent,
 		  if (fontset == NULL)
 		    {
 		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0071, fontstg);
+		      XtFree(dpyandfontstr);
+		      if (dfontlist != NULL)
+			XmFontListFree(dfontlist);
 		      return Urm__UT_Error ("Urm__CW_ConvertValue",
 					    err_msg, NULL, NULL, MrmNOT_FOUND) ;
 		    }
@@ -2784,7 +2809,17 @@ Urm__CW_ConvertValue (Widget			parent,
 		XmFontListEntryCreate(fontlist->item[ndx].cset.charset,
 				      XmFONT_IS_FONTSET,
 				      fontset);
-	      dfontlist = XmFontListAppendEntry(NULL, fontset_entry);
+	      if (fontset_entry == NULL)
+		{
+		  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0074,
+			   fontlist->item[ndx].font.font) ;
+		  if (dfontlist != NULL)
+		    XmFontListFree(dfontlist);
+		  return Urm__UT_Error ("Urm__CW_ConvertValue",
+					err_msg, NULL, NULL, MrmFAILURE) ;
+		}
+	      dfontlist = XmFontListAppendEntry(dfontlist, fontset_entry);
+	      XmFontListEntryFree(&fontset_entry);
 	      if ( dfontlist == NULL )
 		{
 		  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0074,

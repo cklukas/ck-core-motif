@@ -1,3 +1,10 @@
+Preserve MRM font-list conversion entries (2026-11-03)
+=======================================================
+
+- Append every converted font-set entry to its existing MRM font list and
+  clean temporary entries/lists on failure; see
+  `docs/mrm-fontlist-conversion-cleanup.md`.
+
 Fail closed on UIL WMD-path setup errors (2026-11-03)
 =====================================================
 
