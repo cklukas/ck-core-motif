@@ -89,6 +89,12 @@ low-memory token parse terminates with a diagnostic rather than applying
 `tests/automated/check-wml-lexer-copy-failure.py`; the native WML target
 regenerates and runs this lexer.
 
+WML's central dynamic handle-list allocation now checks its requested element
+count and allocation result before publishing list state. Initial allocation
+and growth fail with a diagnostic rather than leaving a null or undersized
+vector to be dereferenced later. The focused regression is
+`tests/automated/check-wml-handle-list-allocation.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and

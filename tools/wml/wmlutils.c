@@ -107,10 +107,24 @@ for ( ndx=0 ; ndx<strlen(stg) ; ndx++ )
 void wmlInitHList(DynamicHandleListDefPtr listptr, int size, int is_ordered)
 {
 
+ObjectHandleDefPtr	new_vec;
+
+
+if ( size <= 0 || (size_t)size > (size_t)-1 / sizeof(ObjectHandleDef) )
+    {
+    fprintf (stderr, "Invalid WML handle-list size\n");
+    exit (EXIT_FAILURE);
+    }
+new_vec = (ObjectHandleDefPtr) malloc ((size_t)size * sizeof(ObjectHandleDef));
+if ( new_vec == NULL )
+    {
+    fprintf (stderr, "Unable to allocate WML handle list\n");
+    exit (EXIT_FAILURE);
+    }
 listptr->cnt = 0;
 listptr->max = size;
 listptr->ordered = is_ordered;
-listptr->hvec = (ObjectHandleDefPtr) malloc(size*sizeof(ObjectHandleDef));
+listptr->hvec = new_vec;
 
 return;
 
@@ -133,10 +147,21 @@ ObjectHandleDefPtr	new_vec;	/* reallocated vector */
 
 
 if ( listptr->max >= new_size ) return;
-listptr->max = new_size;
+if ( new_size <= 0 ||
+     (size_t)new_size > (size_t)-1 / sizeof(ObjectHandleDef) )
+    {
+    fprintf (stderr, "Invalid WML handle-list size\n");
+    exit (EXIT_FAILURE);
+    }
 new_vec = (ObjectHandleDefPtr) realloc
-    (listptr->hvec, new_size*sizeof(ObjectHandleDef));
+    (listptr->hvec, (size_t)new_size * sizeof(ObjectHandleDef));
+if ( new_vec == NULL )
+    {
+    fprintf (stderr, "Unable to grow WML handle list\n");
+    exit (EXIT_FAILURE);
+    }
 listptr->hvec = new_vec;
+listptr->max = new_size;
 
 return;
 

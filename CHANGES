@@ -1,3 +1,9 @@
+Validate WML handle-list allocations (2026-11-03)
+==================================================
+
+- Reject invalid or failed dynamic handle-list allocations before changing list
+  state, preventing later null-vector writes; see `docs/wml-build.md`.
+
 Handle WML lexer token-copy allocation failure (2026-11-03)
 ===========================================================
 
