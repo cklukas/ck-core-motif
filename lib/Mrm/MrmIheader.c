@@ -814,7 +814,10 @@ Idb__HDR_NextRID (IDBFile		file_id,
   /*
    * use the next available ID, or fail.
    */
-  if (file_id == NULL || res_id_return == NULL)
+  if (res_id_return == NULL)
+    return MrmFAILURE;
+  *res_id_return = 0;
+  if (file_id == NULL)
     return MrmFAILURE;
 
   resndx = file_id->next_RID.internal_id.res_index;

@@ -7,9 +7,10 @@ text = source.read_text(encoding="utf-8")
 start = text.index("\nIdb__HDR_NextRID (")
 end = text.find("\n", start + 1)
 region = text[start:] if end < 0 else text[start:end]
-needle = "if (file_id == NULL || res_id_return == NULL)"
-if needle not in region:
-    raise SystemExit("Mrm header RID allocation lacks null-input validation")
-if region.index(needle) > region.index("resndx ="):
-    raise SystemExit("Mrm header RID allocation checks pointers too late")
-print("Mrm header RID allocation validates file and output pointers")
+output_guard = region.index("if (res_id_return == NULL)")
+clear_output = region.index("*res_id_return = 0;", output_guard)
+file_guard = region.index("if (file_id == NULL)", clear_output)
+state_read = region.index("resndx =", file_guard)
+if not output_guard < clear_output < file_guard < state_read:
+    raise SystemExit("Mrm header RID allocation does not clear output before failure paths")
+print("Mrm header RID allocation validates inputs and clears output")

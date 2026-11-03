@@ -1,3 +1,9 @@
+Clear failed MRM RID allocator outputs (2026-11-03)
+====================================================
+
+- Initialize direct header and RID-record allocation outputs before file-state
+  checks and RID-map expansion, preventing stale resource IDs after failure.
+
 Clear failed MRM buffer record allocation output (2026-11-03)
 ==============================================================
 

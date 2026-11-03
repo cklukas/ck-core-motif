@@ -344,7 +344,10 @@ Idb__RID_NextRID (IDBFile		file_id,
   Cardinal		result;		/* function results */
   IDBResourceIndex	resndx;		/* to check resource index */
 
-  if (file_id == NULL || res_id_return == NULL)
+  if (res_id_return == NULL)
+    return MrmFAILURE;
+  *res_id_return = 0;
+  if (file_id == NULL)
     return MrmFAILURE;
 
   /*

@@ -8,7 +8,7 @@ assert "(buffer) != NULL && (buffer)->IDB_record != NULL" in source
 checks = {
     "Idb__RID_EnterItem": "if (file_id == NULL)",
     "Idb__RID_ReturnItem": "if (file_id == NULL || entry_return == NULL)",
-    "Idb__RID_NextRID": "if (file_id == NULL || res_id_return == NULL)",
+    "Idb__RID_NextRID": "if (res_id_return == NULL)",
     "Idb__RID_AddRecord": "bufptr == NULL || bufptr->IDB_record == NULL",
 }
 for function, guard in checks.items():
