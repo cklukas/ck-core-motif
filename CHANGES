@@ -1,3 +1,10 @@
+Clean up rejected Mrm legacy font-list replacements (2026-11-03)
+===================================================================
+
+- Release replacement font lists in widget updates, creation, and callback
+  literal processing when fixup fails, and avoid re-fixing an already
+  converted replacement; see `docs/mrm-fontlist-replacement-cleanup.md`.
+
 Preserve failed Mrm legacy font-list state (2026-11-02)
 =======================================================
 

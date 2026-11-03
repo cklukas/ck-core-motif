@@ -27,6 +27,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [Legacy dialog teardown guards](dialog-teardown-guards.md) — keep dialog child helpers safe during destruction.
 - [Text-source bounds](text-source-bounds.md) — safe range and size handling in text sources.
 - [Input-method rollback](vendor-im-string-rollback.md) — failure cleanup at the input-method boundary.
+- [Mrm legacy font-list replacement cleanup](mrm-fontlist-replacement-cleanup.md) — release rejected old-format replacements consistently.
 
 ## Rendering, images, and display metrics
 

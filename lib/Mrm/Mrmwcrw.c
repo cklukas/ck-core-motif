@@ -1569,13 +1569,18 @@ Urm__CW_CreateArglist (Widget			parent,
 			      (size_t)(count - 1) * sizeof(RGMFontItem) > UINT_MAX)
 			return;
 		      fontlist = (RGMFontListPtr)
-			XtMalloc(sizeof(RGMFontList) +
-				 (sizeof(RGMFontItem) * (count - 1)));
+			XtMalloc((Cardinal)(sizeof(RGMFontList) +
+				 (sizeof(RGMFontItem) * (size_t)(count - 1))));
 	      if (fontlist == NULL)
 		return;
 		      result = Urm__CW_FixupValue((long)fontlist, reptype, 
 						  (XtPointer)val, file_id,
 						  &swap_needed);
+		      if (result != MrmSUCCESS)
+			{
+			  XtFree((char *)fontlist);
+			  continue;
+			}
 		      val = (long)fontlist;
 		    }
 		  else
@@ -3862,14 +3867,19 @@ Urm__CW_FixupCallback (Widget			parent ,
 		    return MrmFAILURE;
 
 		  fontlist = (RGMFontListPtr)
-		    XtMalloc(sizeof(RGMFontList) +
-			     (sizeof(RGMFontItem) * (count - 1)));
+		    XtMalloc((Cardinal)(sizeof(RGMFontList) +
+			     (sizeof(RGMFontItem) * (size_t)(count - 1))));
 		  if (fontlist == NULL)
 		    return MrmFAILURE;
 		  result = Urm__CW_FixupValue((long)fontlist, reptype, 
 					      (XtPointer)tag_val, file_id,
 					      &swap_needed);
 		  XtFree((char *)tag_val);
+		  if (result != MrmSUCCESS)
+		    {
+		      XtFree((char *)fontlist);
+		      continue;
+		    }
 		  tag_val = (long)fontlist;
 		}
 	      else

@@ -302,17 +302,28 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 	      result = Urm__CW_FixupValue((long)fontlist, reptype, 
 					  (XtPointer)val, file_id,
 					  &swap_needed);
+	      if (result != MrmSUCCESS)
+		{
+		  XtFree((char *)fontlist);
+		  XtFree((char *)val);
+		  num_succ -= 1;
+		  cvt_fail += 1;
+		  continue;
+		}
 	      XtFree((char *)val);
 	      val = (long)fontlist;
 	    }
 	  else
 	    result = Urm__CW_FixupValue (val, reptype, (XtPointer)val, 
 					 file_id, &swap_needed) ;
+	  break;
 
 	default:
 	  result = 
 	    Urm__CW_FixupValue (val, reptype, (XtPointer)val, file_id,
 				&swap_needed) ;
+	  break;
+	}
 	  if ( result != MrmSUCCESS )
 	    {
 	      num_succ -= 1;
@@ -334,8 +345,6 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 	    }
 	  locargs[num_used].value = (XtArgVal)val ;
 	  num_used += 1 ;
-	  break ;
-        }
 
       /*
        * Do any processing based on specific arguments (after conversion):
