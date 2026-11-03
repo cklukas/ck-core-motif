@@ -49,6 +49,13 @@ The WML specification lexer (`wmllex.c`) is generated explicitly from
 does not require a checked-in generated lexer; the selected `LEX` implementation
 must be available when building the WML tools.
 
+The keyword-table emitter also handles WML names at the lexer-supported input
+length. It now allocates the temporary case-folded name and generated
+`sym_k_...` literal from the measured input, rather than placing either in a
+100-byte stack buffer. This preserves generated output for ordinary names and
+stops generation on allocation failure without overwriting generator state. The focused
+source regression is `tests/automated/check-wml-keyword-buffer-bounds.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and

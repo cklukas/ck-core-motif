@@ -72,9 +72,9 @@ void wmlKeyWChildTokens(void);
 void wmlKeyWMakeTokens(char *sens_name, int class, ObjectPtr obj);
 void wmlOutputUilKeyTab(void);
 void wmlOutputUilKeyTabBody(FILE *outfil, DynamicHandleListDefPtr tokvec, int *maxlen, int *maxkey);
-void wmlTokenClassString(char *dststg, WmlKeyWTokenPtr tok);
-void wmlTokenSymKString(char *dststg, WmlKeyWTokenPtr tok);
-void wmlTokenTokenString(char *dststg, WmlKeyWTokenPtr tok);
+const char *wmlTokenClassString(WmlKeyWTokenPtr tok);
+char *wmlTokenSymKString(WmlKeyWTokenPtr tok);
+const char *wmlTokenTokenString(WmlKeyWTokenPtr tok);
 void wmlOutputUilTokName(void);
 
 /*
@@ -489,27 +489,43 @@ void wmlKeyWMakeTokens(char *sens_name, int class, ObjectPtr obj)
 
 WmlKeyWTokenPtr		senstok;	/* case-sensitive token */
 WmlKeyWTokenPtr		insenstok;	/* case-insensitive token */
-char			insens_name[100];
-int			ndx;
+char			*insens_name;
+size_t			ndx;
+size_t			name_length;
 
 
 /*
  * Create both tokens, with one having an upper-case name. The names are
  * entered only in the order vector, not in the token itself.
  */
+if (sens_name == NULL)
+    return;
+name_length = strlen(sens_name);
+if (name_length == (size_t)-1)
+    return;
+
 senstok = (WmlKeyWTokenPtr) malloc (sizeof(WmlKeyWToken));
 insenstok = (WmlKeyWTokenPtr) malloc (sizeof(WmlKeyWToken));
+insens_name = (char *) malloc(name_length + 1);
+if (senstok == NULL || insenstok == NULL || insens_name == NULL)
+    {
+    free(senstok);
+    free(insenstok);
+    free(insens_name);
+    return;
+    }
 senstok->class = class;
 senstok->objdef = obj;
 insenstok->class = class;
 insenstok->objdef = obj;
 
-strcpy (insens_name, sens_name);
-for ( ndx=0 ; ndx<(int)strlen(insens_name) ; ndx++ )
+memcpy (insens_name, sens_name, name_length + 1);
+for ( ndx=0 ; ndx<name_length ; ndx++ )
     insens_name[ndx] = _upper (insens_name[ndx]);
 
 wmlInsertInKeyList(wml_tok_sens_ptr, sens_name, senstok);
 wmlInsertInKeyList(wml_tok_insens_ptr, insens_name, insenstok);
+free(insens_name);
 }
 
 
@@ -593,9 +609,9 @@ int			ndx;		/* loop index */
 WmlKeyWTokenPtr		tok;		/* current token */
 char			*tokstg;	/* string for token (keyword) */
 int			toklen;		/* generated table stores an int length */
-char			tkclass[100];	/* token class string */
-char			tksym[100];	/* token sym_k string */
-char			tktoken[100];	/* token tkn_k_num string */
+const char		*tkclass;	/* token class string */
+char			*tksym;	/* token sym_k string */
+const char		*tktoken;	/* token tkn_k_num string */
 
 
 /*
@@ -607,15 +623,22 @@ for ( ndx=0 ; ndx<tokvec->cnt ; ndx++ )
     tokstg = tokvec->hvec[ndx].objname;
     /* wmllex.c bounds identifiers below the generated table's int range. */
     toklen = (int) strlen (tokstg);
-    wmlTokenClassString (tkclass, tok);
-    wmlTokenSymKString (tksym, tok);
-    wmlTokenTokenString (tktoken, tok);
+    tkclass = wmlTokenClassString (tok);
+    tksym = wmlTokenSymKString (tok);
+    tktoken = wmlTokenTokenString (tok);
+    if (tkclass == NULL || tksym == NULL || tktoken == NULL)
+        {
+        free(tksym);
+        fprintf(stderr, "Unable to generate WML keyword-table entry\n");
+        exit(EXIT_FAILURE);
+        }
     fprintf (outfil, "    {%s, %s, %d, %s, \"%s\"},\n",
 	     tkclass,
 	     tksym,
 	     toklen,
 	     tktoken,
 	     tokstg);
+    free(tksym);
     if ( toklen > *maxlen )
 	*maxlen = toklen;
     *maxkey += 1;
@@ -628,37 +651,31 @@ for ( ndx=0 ; ndx<tokvec->cnt ; ndx++ )
 /*
  * Routine to return the string for a token class, tkn_k_class_...
  */
-void wmlTokenClassString(char *dststg, WmlKeyWTokenPtr tok)
+const char *wmlTokenClassString(WmlKeyWTokenPtr tok)
 {
+if (tok == NULL)
+    return NULL;
 
-switch ( tok->class )
+switch (tok->class)
     {
     case WmlTokenClassArgument:
-        strcpy (dststg, "tkn_k_class_argument");
-	return;
+        return "tkn_k_class_argument";
     case WmlTokenClassCharset:
-        strcpy (dststg, "tkn_k_class_charset");
-	return;
+        return "tkn_k_class_charset";
     case WmlTokenClassEnumval:
-        strcpy (dststg, "tkn_k_class_enumval");
-	return;
+        return "tkn_k_class_enumval";
     case WmlTokenClassKeyword:
-        strcpy (dststg, "tkn_k_class_keyword");
-	return;
+        return "tkn_k_class_keyword";
     case WmlTokenClassReason:
-        strcpy (dststg, "tkn_k_class_reason");
-	return;
+        return "tkn_k_class_reason";
     case WmlTokenClassReserved:
-        strcpy (dststg, "tkn_k_class_reserved");
-	return;
+        return "tkn_k_class_reserved";
     case WmlTokenClassClass:
-        strcpy (dststg, "tkn_k_class_class");
-	return;
+        return "tkn_k_class_class";
     case WmlTokenClassChild:
-        strcpy (dststg, "tkn_k_class_child");
-	return;
+        return "tkn_k_class_child";
     }
-
+return NULL;
 }
 
 
@@ -666,50 +683,66 @@ switch ( tok->class )
 /*
  * Routine to return the string for a sym_k_... for some object
  */
-void wmlTokenSymKString(char *dststg, WmlKeyWTokenPtr tok)
+char *wmlTokenSymKString(WmlKeyWTokenPtr tok)
 {
+const char		*name;
+const char		*suffix;
+char			*result;
+size_t			name_length;
+size_t			suffix_length;
+static const char	prefix[] = "sym_k_";
 
-WmlClassDefPtr		clsobj;		/* class object */
-WmlResourceDefPtr	resobj;		/* resource object */
-WmlCharSetDefPtr	csobj;		/* character set object */
-WmlEnumValueDefPtr	esobj;		/* enumeration value object */
-WmlChildDefPtr		chobj;		/* child object */
+if (tok == NULL)
+    return NULL;
+if (tok->objdef == NULL)
+    return NULL;
 
-
-switch ( tok->class )
+name = NULL;
+suffix = NULL;
+switch (tok->class)
     {
     case WmlTokenClassArgument:
-	resobj = (WmlResourceDefPtr) tok->objdef;
-	sprintf (dststg, "sym_k_%s_arg", resobj->tkname);
-	return;
+	name = ((WmlResourceDefPtr)tok->objdef)->tkname;
+	suffix = "_arg";
+	break;
     case WmlTokenClassCharset:
-	csobj = (WmlCharSetDefPtr) tok->objdef;
-	sprintf (dststg, "sym_k_%s_charset", csobj->syndef->name);
-	return;
+	name = ((WmlCharSetDefPtr)tok->objdef)->syndef->name;
+	suffix = "_charset";
+	break;
     case WmlTokenClassEnumval:
-	esobj = (WmlEnumValueDefPtr) tok->objdef;
-	sprintf (dststg, "sym_k_%s_enumval", esobj->syndef->name);
-	return;
+	name = ((WmlEnumValueDefPtr)tok->objdef)->syndef->name;
+	suffix = "_enumval";
+	break;
     case WmlTokenClassKeyword:
-        strcpy (dststg, "0");
-	return;
-    case WmlTokenClassReason:
-	resobj = (WmlResourceDefPtr) tok->objdef;
-	sprintf (dststg, "sym_k_%s_reason", resobj->tkname);
-	return;
     case WmlTokenClassReserved:
-        strcpy (dststg, "0");
-	return;
+	return wmlAllocateString("0");
+    case WmlTokenClassReason:
+	name = ((WmlResourceDefPtr)tok->objdef)->tkname;
+	suffix = "_reason";
+	break;
     case WmlTokenClassClass:
-        clsobj = (WmlClassDefPtr) tok->objdef;
-	sprintf (dststg, "sym_k_%s_object", clsobj->tkname);
-	return;
+	name = ((WmlClassDefPtr)tok->objdef)->tkname;
+	suffix = "_object";
+	break;
     case WmlTokenClassChild:
-        chobj = (WmlChildDefPtr) tok->objdef;
-	sprintf (dststg, "sym_k_%s_child", chobj->tkname);
-	return;
+	name = ((WmlChildDefPtr)tok->objdef)->tkname;
+	suffix = "_child";
+	break;
     }
-
+if (name == NULL || suffix == NULL)
+    return NULL;
+name_length = strlen(name);
+suffix_length = strlen(suffix);
+if (name_length > (size_t)-1 - sizeof(prefix) - suffix_length)
+    return NULL;
+result = (char *)malloc(sizeof(prefix) + name_length + suffix_length);
+if (result == NULL)
+    return NULL;
+memcpy(result, prefix, sizeof(prefix) - 1);
+memcpy(result + sizeof(prefix) - 1, name, name_length);
+memcpy(result + sizeof(prefix) - 1 + name_length, suffix,
+       suffix_length + 1);
+return result;
 }
 
 
@@ -717,39 +750,32 @@ switch ( tok->class )
 /*
  * Routine to return the string for a token number, tkn_k_num_...
  */
-void wmlTokenTokenString(char *dststg, WmlKeyWTokenPtr tok)
+const char *wmlTokenTokenString(WmlKeyWTokenPtr tok)
 {
+if (tok == NULL)
+    return NULL;
 
-WmlGrammarTokenPtr	grtok;		/* grammar token */
-
-
-switch ( tok->class )
+switch (tok->class)
     {
     case WmlTokenClassArgument:
-        strcpy (dststg, "ARGUMENT_NAME");
-	return;
+        return "ARGUMENT_NAME";
     case WmlTokenClassCharset:
-        strcpy (dststg, "CHARSET_NAME");
-	return;
+        return "CHARSET_NAME";
     case WmlTokenClassEnumval:
-        strcpy (dststg, "ENUMVAL_NAME");
-	return;
+        return "ENUMVAL_NAME";
     case WmlTokenClassReason:
-        strcpy (dststg, "REASON_NAME");
-	return;
+        return "REASON_NAME";
     case WmlTokenClassKeyword:
     case WmlTokenClassReserved:
-	grtok = (WmlGrammarTokenPtr) tok->objdef;
-        strcpy (dststg, grtok->token);
-	return;
+	if (tok->objdef == NULL)
+	    return NULL;
+        return ((WmlGrammarTokenPtr)tok->objdef)->token;
     case WmlTokenClassClass:
-        strcpy (dststg, "CLASS_NAME");
-	return;
+        return "CLASS_NAME";
     case WmlTokenClassChild:
-        strcpy (dststg, "CHILD_NAME");
-	return;
+        return "CHILD_NAME";
     }
-
+return NULL;
 }
 
 

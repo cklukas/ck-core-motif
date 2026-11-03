@@ -1,3 +1,10 @@
+Bound WML keyword-table temporary names (2026-11-03)
+======================================================
+
+- Size case-folded token names and generated `sym_k_...` literal names from
+  their input instead of writing long WML identifiers through fixed 100-byte
+  generator buffers; see `docs/wml-build.md`.
+
 Bound UIL cached source-line copies (2026-11-03)
 =================================================
 
