@@ -1,3 +1,10 @@
+Keep UIL output paths out of a fixed buffer (2026-11-03)
+========================================================
+
+- Use the command-owned UID output path for compiler status and errors rather
+  than copying it through a fixed 256-byte local buffer; see
+  `docs/uil-output-path-buffer.md`.
+
 Return the correct MRM font-set handle (2026-11-03)
 ===================================================
 
