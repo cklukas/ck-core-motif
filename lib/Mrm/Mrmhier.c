@@ -673,6 +673,8 @@ Urm__RegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
  *
  *	MrmSUCCESS	operation succeeded
  *	MrmNOT_FOUND	no match found
+ *	MrmBAD_HIERARCHY	invalid hierarchy
+ *	MrmFAILURE	invalid name or output pointer
  *
  *  SIDE EFFECTS:
  *
@@ -690,9 +692,12 @@ Urm__LookupNameInHierarchy (MrmHierarchy	hierarchy_id,
   URMHashTableEntryPtr	hash_entry;
 
 
+  if (value_return == NULL)
+    return MrmFAILURE;
+  *value_return = NULL;
   if ( hierarchy_id == NULL || !MrmHierarchyValid(hierarchy_id) )
     return MrmBAD_HIERARCHY;
-  if ( name == NULL || value_return == NULL )
+  if (name == NULL)
     return MrmFAILURE;
 
   /*

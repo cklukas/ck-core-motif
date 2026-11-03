@@ -1,3 +1,9 @@
+Clear failed MRM hierarchy name lookups (2026-11-03)
+=====================================================
+
+- Clear a supplied hierarchy-name lookup output before invalid hierarchy/name
+  and not-found paths, matching the global registry lookup contract.
+
 Validate MRM global name registry inputs (2026-11-03)
 ======================================================
 
