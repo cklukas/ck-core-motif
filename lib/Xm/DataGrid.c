@@ -16,6 +16,7 @@ static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void BufferedRedisplay(Widget, XEvent *, Region);
 static Boolean BufferedSetValues(Widget, Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
+static void Resize(Widget);
 static XtGeometryResult QueryGeometry(Widget, XtWidgetGeometry *,
                                       XtWidgetGeometry *);
 static void Events(Widget, XtPointer, XEvent *, Boolean *);
@@ -79,7 +80,7 @@ externaldef(xmdatagridclassrec) XmDataGridClassRec xmDataGridClassRec =
     {{(WidgetClass)&xmPrimitiveClassRec, "XmDataGrid", sizeof(XmDataGridRec),
       NULL, NULL, False, Initialize, NULL, XtInheritRealize, NULL, 0,
       resources, XtNumber(resources), NULLQUARK, True,
-      XtExposeCompressMaximal, True, False, Destroy, NULL, BufferedRedisplay,
+      XtExposeCompressMaximal, True, False, Destroy, Resize, BufferedRedisplay,
       BufferedSetValues, NULL, XtInheritSetValuesAlmost, NULL, NULL, XtVersion, NULL,
       (String)_XmPrimitiveTabFocusTranslations, QueryGeometry, NULL, NULL},
      {XmInheritBorderHighlight, XmInheritBorderUnhighlight,
@@ -344,6 +345,10 @@ static void Destroy(Widget widget) {
         XmRenderTableFree(grid->data_grid.render_table);
 }
 
+static void Resize(Widget widget) {
+    recompute_visible((XmDataGridWidget)widget);
+}
+
 static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
                          ArgList args, Cardinal *count) {
     XmDataGridWidget old = (XmDataGridWidget)old_widget;
@@ -352,6 +357,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     Boolean colors_changed =
         old->primitive.foreground != grid->primitive.foreground ||
         old->core.background_pixel != grid->core.background_pixel;
+    Boolean geometry_changed = old->core.width != grid->core.width ||
+                               old->core.height != grid->core.height;
     Boolean redraw_needed;
     (void)request; (void)args; (void)count;
     if (colors_changed && grid->data_grid.gc) {
@@ -380,7 +387,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
                     old->data_grid.header_height != grid->data_grid.header_height ||
                     old->data_grid.top_row != grid->data_grid.top_row ||
                     old->data_grid.rtl != grid->data_grid.rtl ||
-                    render_changed || colors_changed;
+                    render_changed || colors_changed || geometry_changed;
     return redraw_needed;
 }
 
@@ -535,10 +542,12 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     if (grid->data_grid.rtl) column = (int)grid->data_grid.column_count - column - 1;
     if (row >= 0 && (Cardinal)row < grid->data_grid.visible_rows &&
         grid->data_grid.top_row + (Cardinal)row < grid->data_grid.row_count &&
-        column >= 0 && (Cardinal)column < grid->data_grid.column_count)
+        column >= 0 && (Cardinal)column < grid->data_grid.column_count) {
+        Cardinal model_row = grid->data_grid.top_row + (Cardinal)row;
         XmDataGridSetSelectedCell(widget,
-            grid->data_grid.rows[grid->data_grid.top_row + row].id,
+            grid->data_grid.rows[model_row].id,
             grid->data_grid.columns[column].id, True);
+    }
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,

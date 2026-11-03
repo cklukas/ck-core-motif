@@ -1,3 +1,11 @@
+Recompute DataGrid capacity after resize (2026-11-03)
+=====================================================
+
+- Recompute visible-row capacity and clamp the top row from the actual widget
+  size whenever `XmDataGrid` is resized.  Geometry updates also request a
+  complete redraw so headers and columns track the new allocation; see
+  `docs/datagrid-resize-capacity.md`.
+
 Keep Sidebar titles valid when replacement allocation fails (2026-11-03)
 ==========================================================================
 
