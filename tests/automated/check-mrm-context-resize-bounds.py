@@ -16,6 +16,6 @@ assert guard in validation
 assert validation.index(guard) < validation.index("if (size < (int)sizeof(long))")
 assert "MrmTOO_MANY" in validation
 assert "requested_size = (MrmSize)size;" in validation
-assert "context_id->buffer_size > requested_size" in validation
+assert "context_id->buffer_size >= requested_size" in validation
 
 print("PASS Mrm context resize rejects negative sizes before allocation")

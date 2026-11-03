@@ -175,7 +175,7 @@ UrmGetResourceContext (MrmAllocateProc alloc_func,
  *	resource context to increase its size. The contents of the current
  *	memory buffer are copied into the new memory buffer. If the size
  *	parameter is smaller than the current memory buffer size, the request
- *	is ignored. If the size parameter is greater than MrmMaxResourceSize, a
+ *	is ignored. If the size parameter is outside the supported range, a
  *	MrmTooMany error is returned
  *
  *  FORMAL PARAMETERS:
@@ -192,7 +192,7 @@ UrmGetResourceContext (MrmAllocateProc alloc_func,
  *	MrmSUCCESS	operation succeeded
  *	MrmBAD_CONTEXT	Illegal resource context
  *	MrmFAILURE	memory allocation failure
- *	MrmTOO_MANY	size was larger than MrmMaxResourceSize
+ *	MrmTOO_MANY	size was outside the supported resource range
  *
  *  SIDE EFFECTS:
  *
@@ -233,7 +233,7 @@ UrmResizeResourceContext (URMResourceContextPtr	context_id,
   /*
    * Resize unless buffer is bigger than requested size.
    */
-  if ( context_id->buffer_size > requested_size ) return MrmSUCCESS ;
+  if ( context_id->buffer_size >= requested_size ) return MrmSUCCESS ;
 
   /*
    * Allocate the new buffer, copy the old buffer contents, and
