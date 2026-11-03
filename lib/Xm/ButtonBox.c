@@ -33,6 +33,7 @@
 #include <Xm/TakesDefT.h>
 #include <Xm/VaSimpleP.h>
 #include <stdint.h>
+#include <limits.h>
 #include "XmI.h"
 
 /************************************************************
@@ -45,6 +46,13 @@ static Dimension bounded_dimension(size_t value)
 {
     const size_t maximum = (size_t)(Dimension)~(Dimension)0;
     return (Dimension)(value > maximum ? maximum : value);
+}
+
+static Position bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
 }
 
 /************************************************************
@@ -302,6 +310,8 @@ ClassPartInitialize(WidgetClass w_class )
 static void Initialize(Widget req, Widget set, 
 		       ArgList args, Cardinal * num_args)
 {
+    (void)args;
+    (void)num_args;
     if (req == NULL || set == NULL ||
 	!XtIsSubclass(set, xmButtonBoxWidgetClass))
 	return;
@@ -333,6 +343,9 @@ static void Initialize(Widget req, Widget set,
 static void 
 ConstraintInitialize(Widget request, Widget set, ArgList args, Cardinal *num_args)
 {
+    (void)request;
+    (void)args;
+    (void)num_args;
     if (set == NULL)
 	return;
     XmButtonBoxC_pref_width(set) = XmButtonBoxC_pref_height(set) = 0;
@@ -354,6 +367,10 @@ static Boolean
 ConstraintSetValues(Widget current, Widget request, Widget set,
 		    ArgList args, Cardinal * num_args)
 {
+    (void)current;
+    (void)request;
+    (void)args;
+    (void)num_args;
     if (set == NULL)
 	return False;
 
@@ -508,8 +525,8 @@ GeometryManager(Widget w, XtWidgetGeometry *request,
 	 * See if everything fits with the new size.
 	 */
 	
-	(void) TryNewLayout((Widget)bbox, &mask, 
-			    (request->request_mode & XtCWQueryOnly));
+	(void) TryNewLayout((Widget)bbox, &mask,
+			    (request->request_mode & XtCWQueryOnly) != 0);
 
 	num_managed = CalcChildrenPrefSizes(bbox, &max_major,
 					    &max_minor, &child_major_total);
@@ -695,6 +712,9 @@ SetValues(Widget current, Widget request, Widget set,
     XmButtonBoxWidget b_set = (XmButtonBoxWidget) set;
     Boolean	      newLayout = False;
     Mask mask = 0; /* CR03420 */
+    (void)request;
+    (void)args;
+    (void)num_args;
     if ( XmButtonBox_equal_size(b_set) != XmButtonBox_equal_size(b_old) ||
 	 XmButtonBox_fill_option(b_set) != XmButtonBox_fill_option(b_old) ||
 	 XmButtonBox_margin_height(b_set) != XmButtonBox_margin_height(b_old) ||
@@ -742,6 +762,8 @@ CvtStringToFillOption(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     static XmFillOption 	option;
     char 			lowerName[BUFSIZ];
 
+    (void)args;
+    (void)num_args;
     (void)converter_data;
 
     XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *)fromVal->addr);
@@ -848,7 +870,8 @@ TryNewLayout(Widget parent, Mask *mask,
 	reply.width = 0;
 	reply.height = 0;
 	
-	request.request_mode = *mask; /* CR03420 */
+	request.request_mode =
+	    (XtGeometryMask)(*mask & (Mask)(CWWidth | CWHeight)); /* CR03420 */
 	if ( queryOnly )
 	{
 	    request.request_mode |= XtCWQueryOnly;
@@ -905,7 +928,7 @@ LayoutChildren(Widget w, Widget special_child)
     Position		pos_minor;
     Position   	        pos_x, pos_y;
 
-    float  		pad = 0, pos_major;
+	double 		pad = 0, pos_major;
     Cardinal   		num_managed;
 
     ClearGeometryOffers(bbox);
@@ -940,12 +963,12 @@ LayoutChildren(Widget w, Widget special_child)
 					&max_minor, &child_major_total);
 
     pad = 0.0;
-    pos_major = (float) margin_major;
+	pos_major = (double)margin_major;
     if ((FillOption(bbox) == XmFillNone) || (FillOption(bbox) == XmFillMinor))
     {
 	if ( box_major >= child_major_total ) {
-	    pad = ((float) box_major - 
-		   (float) child_major_total) / ((float) num_managed + 1.0);
+		    pad = ((double)box_major -
+			   (double)child_major_total) / ((double)num_managed + 1.0);
 	    pos_major += pad;
 	}
     }
@@ -961,23 +984,25 @@ LayoutChildren(Widget w, Widget special_child)
 	if ((FillOption(bbox) == XmFillNone) || 
 	    (FillOption(bbox) == XmFillMajor))
 	{
-	    pos_minor = (((int)(box_minor - child_minor)) /2) + margin_minor;
+		pos_minor = bounded_position(((long long)box_minor - child_minor) / 2 +
+					     margin_minor);
 	}
 	else
-	    pos_minor = margin_minor;
+		pos_minor = bounded_position(margin_minor);
 	
 	if ( IsHorizontal(bbox) ) {
 	    child_width = child_major;
 	    child_height = child_minor;
 	    if (LayoutIsRtoLM(bbox))
-		pos_x = box_major - (int) pos_major - child_width;
+		    pos_x = bounded_position((long long)box_major -
+					     (long long)pos_major - child_width);
 	    else
-		pos_x = (int) pos_major;
+		    pos_x = bounded_position((long long)pos_major);
 	    pos_y = pos_minor;
 	}
 	else {
 	    pos_x = pos_minor;
-	    pos_y = (int) pos_major;
+		pos_y = bounded_position((long long)pos_major);
 	    child_width = child_minor;
 	    child_height = child_major;
 	}
@@ -1002,7 +1027,7 @@ LayoutChildren(Widget w, Widget special_child)
 			       child_height, (*childp)->core.border_width);
 	}
 
-	pos_major += (float) child_major + pad;
+	pos_major += (double)child_major + pad;
     }
 }
 
@@ -1109,6 +1134,8 @@ CalcChildSize(XmButtonBoxWidget bbox, Widget w, Dimension max_major,
     XtWidgetGeometry	geo;
     Dimension		box_minor, box_major;
     Dimension		margin_major, margin_minor;
+
+    (void)num_managed;
     
     if ((XmButtonBoxC_pref_width(w) == 0)||(XmButtonBoxC_pref_height(w) == 0)) 
 	XtQueryGeometry(w, NULL, &geo);

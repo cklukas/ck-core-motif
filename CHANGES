@@ -1,3 +1,11 @@
+Bound ButtonBox child placement and geometry masks (2026-11-03)
+=================================================================
+
+- Preserve the existing ButtonBox layout policy while clamping calculated
+  child coordinates to Motif's signed `Position` range, avoiding wrapped
+  placements for large layouts.  Geometry-query flags and query-only state
+  now cross the Xt type boundary explicitly; see `docs/button-box-layout.md`.
+
 Honor partial geometry requests in DropHighlight and Skeleton (2026-11-03)
 ==========================================================================
 
