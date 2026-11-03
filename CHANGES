@@ -1,3 +1,10 @@
+Reject invalid WML database table selectors (2026-11-03)
+========================================================
+
+- Make every `wmldbcreate` table emitter reject an unrecognized selector
+  before it can use an uninitialized table header or pointer. See
+  `docs/wml-table-selectors.md`.
+
 Harden gallery geometry narrowing (2026-11-03)
 ================================================
 

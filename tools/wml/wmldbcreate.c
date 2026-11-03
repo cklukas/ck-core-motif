@@ -94,11 +94,21 @@ void emit_length_and_string( int	table_id);
 void emit_shorts( int	    table_id);
 void emit_int_and_table_shorts( int	    table_id);
 void emit_ints( int	    table_id);
+static void invalid_table_id(const char *emitter, int table_id);
 
 FILE *bfile, *afile;
 int DEBUG=FALSE;
 const char *outfilename = "motif.wmd";
 const char *debugfilename = "motif.dbg";
+
+static void
+invalid_table_id(const char *emitter, int table_id)
+{
+    fprintf(stderr, "wmldbcreate: %s received invalid table id %d\n",
+            emitter, table_id);
+    exit(EXIT_FAILURE);
+}
+
 
 int main(int argc, char **argv)
 {
@@ -316,6 +326,8 @@ void emit_chars(int table_id)
 	    header.table_id = Child_Class_Table;
 	    ptr = child_class_table;
 	    break;
+	default:
+	    invalid_table_id("emit_chars", table_id);
 	}
 
     emit_header(&header);
@@ -354,6 +366,8 @@ void emit_ints_and_string(int table_id)
 	    header.table_id = Key_Table_Case_Ins;
 	    table = key_table_case_ins;
 	    break;
+	default:
+	    invalid_table_id("emit_ints_and_string", table_id);
 	}
     emit_header(&header);
 
@@ -406,6 +420,8 @@ void emit_char_table(int table_id)
 	    header.table_id = Allowed_Child_Table;
 	    table = allowed_child_table;
 	    break;
+	default:
+	    invalid_table_id("emit_char_table", table_id);
 	}
 
     emit_header(&header);
@@ -510,6 +526,8 @@ void emit_length_and_string(int table_id)
 	    header.table_id = Uil_Children_Names;
 	    table = uil_child_names ;
 	    break;
+	default:
+	    invalid_table_id("emit_length_and_string", table_id);
 	}
     if ( header.num_items < 0 ||
          (size_t)header.num_items > (size_t)-1 / sizeof(int) - 1 )
@@ -620,6 +638,8 @@ void emit_shorts(int table_id)
 	    header.table_id = Uil_Urm_Subtree_Resource;
 	    ptr = uil_urm_subtree_resource;
 	    break;
+	default:
+	    invalid_table_id("emit_shorts", table_id);
 	}
 
     emit_header(&header);
@@ -653,6 +673,8 @@ void emit_int_and_table_shorts(int table_id)
 	    header.table_id = Enum_Set_Table;
 	    table = enum_set_table;
 	    break;
+	default:
+	    invalid_table_id("emit_int_and_table_shorts", table_id);
 	}
 
     emit_header(&header);
@@ -684,6 +706,8 @@ void emit_ints(int table_id)
 	    header.table_id = Enumval_Values_Table;
 	    ptr = enumval_values_table;
 	    break;
+	default:
+	    invalid_table_id("emit_ints", table_id);
 	}
 
     emit_header(&header);
