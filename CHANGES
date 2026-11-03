@@ -406,12 +406,12 @@ Keep failed Mrm literal outputs empty (2026-11-03)
   creation succeeds; see `docs/mrm-fetch-literal-output.md` and
   `docs/mrm-literal-convenience-outputs.md`.
 
-Clear failed Mrm widget-fetch outputs (2026-11-03)
-==================================================
+Preserve Mrm deferred widget-fetch results (2026-11-03)
+=======================================================
 
-- Clear the widget and class result outputs in `MrmFetchWidgetOverride` before
-  hierarchy lookup, ensuring `MrmFetchWidget` callers cannot accidentally use
-  stale results after a failed fetch; see
+- Preserve the documented non-null-widget “already fetched” no-op in
+  `MrmFetchWidgetOverride`. On an actual fetch, clear the class output before
+  hierarchy lookup so a failure cannot leave a stale class code; see
   `docs/mrm-widget-fetch-parameters.md`.
 
 Validate Mrm FetchSetValues argument counts (2026-11-02)

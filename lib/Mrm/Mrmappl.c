@@ -851,11 +851,13 @@ MrmFetchWidgetOverride (MrmHierarchy		hierarchy_id,
     return MrmFAILURE;
 
   /*
-   * A failed fetch must not leave a prior widget or class value visible to
-   * the caller.  The public API cannot create a result until every later
-   * hierarchy, UID-record, and widget-construction step succeeds.
+   * A non-NULL widget result is the documented deferred-fetch marker: the
+   * widget is already present, so this call must not construct it again.
    */
-  *w_return = NULL;
+  if (*w_return != NULL)
+    return MrmSUCCESS;
+
+  /* A real fetch cannot provide a class result until it has succeeded. */
   *class_return = 0;
 
   _MrmWidgetToAppContext(parent);

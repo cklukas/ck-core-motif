@@ -16,9 +16,11 @@ assert guard in region
 assert "(ov_num_args != 0 && ov_args == NULL))" in region
 assert "return MrmFAILURE;" in region[region.index(guard) : region.index("_MrmWidgetToAppContext(parent);")]
 assert region.index(guard) < region.index("_MrmWidgetToAppContext(parent);")
-outputs = region.index("*w_return = NULL;")
+already_fetched = region.index("if (*w_return != NULL)")
+assert already_fetched < region.index("_MrmWidgetToAppContext(parent);")
+assert "return MrmSUCCESS;" in region[already_fetched : region.index("_MrmWidgetToAppContext(parent);")]
+outputs = region.index("*class_return = 0;")
 assert outputs < region.index("_MrmWidgetToAppContext(parent);")
-assert "*class_return = 0;" in region[outputs : region.index("_MrmWidgetToAppContext(parent);")]
 assert region.index(guard) < region.index("*class_return = widgetrec->type;")
 
-print("PASS Mrm widget fetch validates parameters and clears failed outputs")
+print("PASS Mrm widget fetch preserves deferred results and clears failed classes")
