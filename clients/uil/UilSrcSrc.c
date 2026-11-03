@@ -1126,8 +1126,8 @@ boolean	src_retrieve_source
 	 src_az_current_source_buffer->w_current_line_number)
        )
     {
-	strcpy( c_buffer, 
-	       src_az_current_source_buffer->c_text);
+	memcpy(c_buffer, src_az_current_source_buffer->c_text,
+	       src_k_max_source_line_length + 1);
 	return TRUE;
     }
 

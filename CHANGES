@@ -1,3 +1,8 @@
+Bound UIL cached source-line copies (2026-11-03)
+=================================================
+
+- Use the fixed source-line representation when retrieving a cached line.
+
 Pad UIL 64-bit machine-code listing words (2026-11-03)
 =========================================================
 
