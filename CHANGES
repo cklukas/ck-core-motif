@@ -390,6 +390,15 @@ Release the Mrm literal-index pointer list on failure (2026-11-02)
   overlong literal index after allocating that list; see
   `docs/mrm-fetch-set-values-failure-cleanup.md`.
 
+Keep failed Mrm literal outputs empty (2026-11-03)
+====================================================
+
+- Clear `MrmFetchLiteral` outputs after rejecting unsupported literal types,
+  preventing a dangling value pointer from escaping the released resource
+  context. `MrmFetchBitmapLiteral` now leaves dimensions at zero unless bitmap
+  creation succeeds; see `docs/mrm-fetch-literal-output.md` and
+  `docs/mrm-literal-convenience-outputs.md`.
+
 Clear failed Mrm widget-fetch outputs (2026-11-03)
 ==================================================
 

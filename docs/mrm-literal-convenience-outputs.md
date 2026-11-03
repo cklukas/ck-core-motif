@@ -14,7 +14,9 @@ Previously, a null bitmap width or height was dereferenced directly, while null
 icon and color outputs could reach lower-level conversion helpers and crash.
 Missing outputs now return `MrmFAILURE` without acquiring locks or allocating a
 resource context. Existing successful calls retain their lookup and conversion
-behavior.
+behavior. `MrmFetchBitmapLiteral` additionally leaves the dimensions at zero
+when the depth-one pixmap conversion fails; nonzero dimensions now accompany a
+successfully returned pixmap only.
 
 The source-level regression is
 `tests/automated/check-mrm-literal-convenience-outputs.py`.

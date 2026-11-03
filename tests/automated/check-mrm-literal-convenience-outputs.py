@@ -27,4 +27,12 @@ for signature, needles in checks.items():
     for needle in needles:
         assert needle in body, (signature, needle)
         assert body.index(needle) < body.index("_MrmDisplayToAppContext")
+
+bitmap_start = source.index("MrmFetchBitmapLiteral (MrmHierarchy")
+bitmap_end = source.index("MrmFetchColorLiteral (MrmHierarchy", bitmap_start)
+bitmap = source[bitmap_start:bitmap_end]
+conversion = bitmap.index("result = UrmCreateBitmap")
+dimensions = bitmap.index("*width = icon->width;", conversion)
+assert "if ( result == MrmSUCCESS )" in bitmap[conversion:dimensions]
+assert "*height = icon->height;" in bitmap[dimensions:]
 print("Mrm literal convenience APIs validate and initialize their outputs")

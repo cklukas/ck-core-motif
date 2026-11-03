@@ -313,6 +313,9 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
 	    }
 
 	  UrmFreeResourceContext (context_id);
+	  /* The value was backed by the context just released. */
+	  *value_return = NULL;
+	  *type_return = 0;
 	  _MrmAppUnlock(app);
 	  _MrmProcessUnlock();
 	  return MrmWRONG_TYPE;
@@ -620,8 +623,11 @@ MrmFetchBitmapLiteral (MrmHierarchy                hierarchy_id,
     result = UrmCreateBitmap 
       (icon, screen, display,
        pixmap_return);
-    *width = icon->width;
-    *height = icon->height;
+    if ( result == MrmSUCCESS )
+      {
+	*width = icon->width;
+	*height = icon->height;
+      }
     break;
     /*
       >>> Andy research here if we can do this for a depth of 1
