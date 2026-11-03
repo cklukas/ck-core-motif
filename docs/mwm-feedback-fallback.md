@@ -9,8 +9,11 @@ build, the legacy fallback stored the text in the temporary catalog pointer
 instead of `confirm_mesg[3]`.  The live message pointer remained null and could
 later be passed to `XmStringCreateLocalized`.
 
-The fallback now assigns the standard workspace-manager text directly to
-`confirm_mesg[3]`, matching the other allocation-failure branches.  Normal
-localized messages and resource overrides are unchanged.
+The fallback now assigns the standard workspace-manager literal directly to
+`confirm_mesg[3]`, matching the other allocation-failure branches and avoiding
+a pointer into catalog-managed temporary storage.  Normal localized messages
+and resource overrides are unchanged.  `CopyFeedbackString` already owns a
+successful localization copy, so initialization no longer redundantly copies
+that value a second time.
 
 `tests/automated/check-mwm-feedback-fallback.py` protects this contract.
