@@ -1,3 +1,11 @@
+Validate WML database output counts (2026-11-03)
+=================================================
+
+- Reject negative generated table sizes, counts, and enum-set value counts
+  before converting them to output byte lengths. Key-table and enum-set pointer
+  slots are deterministically zeroed because the reader reconstructs them from
+  their following payloads. See `docs/wml-output-counts.md`.
+
 Preserve MWM menu-button count widths (2026-11-03)
 ====================================================
 

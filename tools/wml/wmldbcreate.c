@@ -40,6 +40,7 @@ static char rcsid[] = "$TOG: wmldbcreate.c /main/8 1997/04/14 12:55:30 dbl $"
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
 #endif
+#include <string.h>
 
 #include <Mrm/MrmWidget.h> 
 #include <Xm/Xm.h> 
@@ -95,6 +96,8 @@ void emit_shorts( int	    table_id);
 void emit_int_and_table_shorts( int	    table_id);
 void emit_ints( int	    table_id);
 static void invalid_table_id(const char *emitter, int table_id);
+static size_t checked_output_count(int count, const char *emitter,
+                                   const char *description);
 
 FILE *bfile, *afile;
 int DEBUG=FALSE;
@@ -107,6 +110,18 @@ invalid_table_id(const char *emitter, int table_id)
     fprintf(stderr, "wmldbcreate: %s received invalid table id %d\n",
             emitter, table_id);
     exit(EXIT_FAILURE);
+}
+
+static size_t
+checked_output_count(int count, const char *emitter, const char *description)
+{
+    if (count < 0)
+    {
+        fprintf(stderr, "wmldbcreate: %s has negative %s\n", emitter,
+                description);
+        exit(EXIT_FAILURE);
+    }
+    return (size_t)count;
 }
 
 
@@ -255,6 +270,14 @@ void emit_globals()
 void emit_header(_db_header_ptr header)
 {
 
+    if (header == NULL)
+    {
+        fprintf(stderr, "wmldbcreate: missing table header\n");
+        exit(EXIT_FAILURE);
+    }
+    (void)checked_output_count(header->table_size, "emit_header", "table size");
+    (void)checked_output_count(header->num_items, "emit_header", "item count");
+
     fwrite (header, sizeof(_db_header), 1, bfile);
     if (DEBUG)
 	fprintf(afile, 
@@ -332,7 +355,8 @@ void emit_chars(int table_id)
 
     emit_header(&header);
 
-    fwrite (ptr, header.table_size, 1, bfile);  
+    fwrite (ptr, checked_output_count(header.table_size, "emit_chars",
+                                      "table size"), 1, bfile);
     if (DEBUG)
 	{
 	for (i=0; i<header.num_items; i++)
@@ -347,7 +371,10 @@ void emit_ints_and_string(int table_id)
 {
     _db_header		    header;
     key_keytable_entry_type *table = NULL;
+    key_keytable_entry_type *serialized;
     int			    i;
+    size_t                  item_count;
+    size_t                  table_size;
 
     switch (table_id)
 	{
@@ -369,12 +396,34 @@ void emit_ints_and_string(int table_id)
 	default:
 	    invalid_table_id("emit_ints_and_string", table_id);
 	}
+
+    table_size = checked_output_count(header.table_size,
+                                      "emit_ints_and_string", "table size");
+    item_count = checked_output_count(header.num_items,
+                                      "emit_ints_and_string", "item count");
+    if (table == NULL || item_count > table_size / sizeof(*table))
+    {
+        fprintf(stderr, "wmldbcreate: emit_ints_and_string has invalid key table\n");
+        exit(EXIT_FAILURE);
+    }
+
+    serialized = (key_keytable_entry_type *)malloc(table_size);
+    if (serialized == NULL)
+    {
+        fprintf(stderr, "wmldbcreate: unable to copy key table\n");
+        exit(EXIT_FAILURE);
+    }
+    memcpy(serialized, table, table_size);
+    for (i = 0; i < header.num_items; i++)
+        serialized[i].at_name = NULL;
+
     emit_header(&header);
 
-    fwrite (table, header.table_size, 1, bfile);
+    fwrite (serialized, table_size, 1, bfile);
+    free(serialized);
     for (i=0; i<header.num_items; i++)
         {
-	fwrite (table[i].at_name, table[i].b_length + 1, 1, bfile);
+	fwrite (table[i].at_name, (size_t)table[i].b_length + 1U, 1, bfile);
 	if (DEBUG)
 	    fprintf (afile, "%d %d %d %d %s", table[i].b_class, table[i].b_subclass,
 		 table[i].b_length, table[i].b_token, table[i].at_name);
@@ -389,7 +438,11 @@ void emit_char_table(int table_id)
     _db_header header;
     unsigned char *entry_vec;
     int i, j;
-    int num_bits = (uil_max_object + 7) / 8;
+    int num_bits;
+
+    if (uil_max_object < 0 || uil_max_object > INT_MAX - 7)
+        checked_output_count(-1, "emit_char_table", "object count");
+    num_bits = (uil_max_object + 7) / 8;
 
     switch (table_id)
 	{
@@ -429,7 +482,7 @@ void emit_char_table(int table_id)
     for (i=1; i<=header.num_items; i++)   /* First not used */
         {
         entry_vec = table[i];
-	fwrite (entry_vec, sizeof (char) * num_bits, 1, bfile);
+	fwrite (entry_vec, (size_t)num_bits, 1, bfile);
 	if (DEBUG)
 	    {
 	    for (j=0; j<num_bits; j++)
@@ -578,7 +631,9 @@ void emit_length_and_string(int table_id)
              * format has one additional byte per non-null string; write
              * deterministic padding rather than reading beyond the literal.
 	     */
-	    fwrite (table[i], lengths[i], 1, bfile);
+	    fwrite (table[i], checked_output_count(lengths[i],
+	                                            "emit_length_and_string",
+	                                            "string length"), 1, bfile);
             fputc(0, bfile);
 	    if (DEBUG)
 		fprintf (afile, "%s ", table[i]);
@@ -644,7 +699,8 @@ void emit_shorts(int table_id)
 
     emit_header(&header);
 
-    fwrite (ptr, header.table_size, 1, bfile);  
+    fwrite (ptr, checked_output_count(header.table_size, "emit_shorts",
+                                      "table size"), 1, bfile);
     if (DEBUG)
 	{
 	for (i=0; i<header.num_items; i++)
@@ -659,8 +715,11 @@ void emit_int_and_table_shorts(int table_id)
 {
     _db_header		header;
     UilEnumSetDescDef	*table = NULL;
+    UilEnumSetDescDef	*serialized;
     int			j, i;
     unsigned short int	*value_vec;
+    size_t              item_count;
+    size_t              table_size;
 
     switch (table_id)
 	{
@@ -677,14 +736,41 @@ void emit_int_and_table_shorts(int table_id)
 	    invalid_table_id("emit_int_and_table_shorts", table_id);
 	}
 
+    table_size = checked_output_count(header.table_size,
+                                      "emit_int_and_table_shorts", "table size");
+    item_count = checked_output_count(header.num_items,
+                                      "emit_int_and_table_shorts", "item count");
+    if (table == NULL || item_count >= table_size / sizeof(*table))
+    {
+        fprintf(stderr, "wmldbcreate: emit_int_and_table_shorts has invalid enum table\n");
+        exit(EXIT_FAILURE);
+    }
+
+    serialized = (UilEnumSetDescDef *)malloc(table_size);
+    if (serialized == NULL)
+    {
+        fprintf(stderr, "wmldbcreate: unable to copy enum table\n");
+        exit(EXIT_FAILURE);
+    }
+    memcpy(serialized, table, table_size);
+    for (i = 0; i <= header.num_items; i++)
+        serialized[i].values = NULL;
+
     emit_header(&header);
-    fwrite (table, header.table_size, 1, bfile);
+    fwrite (serialized, table_size, 1, bfile);
+    free(serialized);
     for (i=0; i<=header.num_items; i++) /* first is not used */
         {
-	if (table[i].values_cnt)
+	if (table[i].values_cnt > 0)
 	    {
-	    fwrite (table[i].values, sizeof (short) * table[i].values_cnt, 1, bfile);
+	    fwrite (table[i].values, sizeof (short) *
+	            checked_output_count(table[i].values_cnt,
+	                                 "emit_int_and_table_shorts", "value count"),
+	            1, bfile);
 	    }
+	else if (table[i].values_cnt < 0)
+	    checked_output_count(table[i].values_cnt,
+	                         "emit_int_and_table_shorts", "value count");
         }
 }
 
@@ -712,7 +798,8 @@ void emit_ints(int table_id)
 
     emit_header(&header);
 
-    fwrite (ptr, header.table_size, 1, bfile);  
+    fwrite (ptr, checked_output_count(header.table_size, "emit_ints",
+                                      "table size"), 1, bfile);
     if (DEBUG)
 	{
 	for (i=0; i<header.num_items; i++)
