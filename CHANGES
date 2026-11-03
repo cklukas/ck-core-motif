@@ -1,3 +1,9 @@
+Handle WML string-copy allocation failure (2026-11-03)
+======================================================
+
+- Return failure from the shared WML string-copy helper before copying through
+  a null allocation result; see `docs/wml-build.md`.
+
 Bound WML grammar-token input fields (2026-11-03)
 =================================================
 

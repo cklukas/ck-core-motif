@@ -53,12 +53,18 @@ char *wmlAllocateString(char *stg)
 {
 
 char		*dynstg;	/* the dynamic copy */
+size_t		length;
 
 
 if ( stg == NULL ) return NULL;
 
-dynstg = (char *) malloc (strlen(stg)+1);
-strcpy (dynstg, stg);
+length = strlen(stg);
+if (length == (size_t)-1)
+    return NULL;
+dynstg = (char *) malloc (length + 1);
+if (dynstg == NULL)
+    return NULL;
+memcpy(dynstg, stg, length + 1);
 return dynstg;
 
 }

@@ -247,6 +247,7 @@ EXTRA_DIST += tests/automated/check-uil-machine-word-format.py docs/uil-machine-
 EXTRA_DIST += tests/automated/check-uil-source-cache-copy.py docs/uil-source-cache-copy.md
 EXTRA_DIST += tests/automated/check-wml-keyword-buffer-bounds.py
 EXTRA_DIST += tests/automated/check-wml-grammar-token-bounds.py
+EXTRA_DIST += tests/automated/check-wml-string-allocation.py
 EXTRA_DIST += tests/automated/run-tabbed-stack-copy-unit.py docs/tabbed-stack-copy-failure.md
 EXTRA_DIST += tests/automated/run-container-tab-pool-unit.py
 EXTRA_DIST += tests/automated/run-list-unicode-regressions.py

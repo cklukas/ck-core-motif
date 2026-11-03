@@ -61,6 +61,11 @@ the capacity of its legacy record buffer and uses a temporary allocated copy
 when lowercasing keyword spellings. It fails cleanly if either token allocation
 fails; `tests/automated/check-wml-grammar-token-bounds.py` covers that contract.
 
+WML's shared dynamic string-copy helper now returns `NULL` when allocation
+fails, before attempting a copy. This prevents a low-memory generator run from
+turning an ordinary allocation failure into a null-pointer write; the focused
+regression is `tests/automated/check-wml-string-allocation.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and
