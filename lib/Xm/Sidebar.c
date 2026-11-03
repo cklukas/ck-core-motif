@@ -291,9 +291,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     XmSidebarWidget sidebar = (XmSidebarWidget)widget;
     natural(sidebar, &reply->width, &reply->height);
     reply->request_mode = CWWidth | CWHeight;
-    if (request && request->width == reply->width && request->height == reply->height)
-        return XtGeometryYes;
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 static void activate(Widget widget, XtPointer client, XtPointer call)

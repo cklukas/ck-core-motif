@@ -1,3 +1,11 @@
+Honor partial Xt geometry requests in composite controls (2026-11-03)
+=====================================================================
+
+- Route Sidebar, Toolbar, StatusBar, BreadcrumbBar, and CommandPalette
+  geometry replies through `XmeReplyToQueryGeometry`.  Their natural sizes are
+  unchanged, while width-only or height-only parent queries now receive a
+  standards-compliant answer; see `docs/composite-query-geometry.md`.
+
 Restore Spinner automatic geometry through XtSetValues (2026-11-03)
 ==================================================================
 

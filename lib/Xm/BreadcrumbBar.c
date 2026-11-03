@@ -96,6 +96,10 @@ static Position bounded_position(long long value) {
     return (Position)value;
 }
 
+static Dimension bounded_dimension(unsigned long value) {
+    return (Dimension)MIN(value, USHRT_MAX);
+}
+
 static void notify_current(XmBreadcrumbBarWidget bar, XEvent *event) {
     XmBreadcrumbBarCallbackStruct cb;
     if (bar == NULL || bar->core.being_destroyed ||
@@ -181,8 +185,10 @@ static int item_width(XmBreadcrumbBarWidget bar, Cardinal index) {
         int gap = breadcrumb_pixels(bar, 12);
         int prefix = first_visual_item(bar,index) ? 0 :
             (bar->breadcrumb.separator ? separator_width : breadcrumb_pixels(bar,12)) + breadcrumb_pixels(bar,8);
-        if ((unsigned long)label_width + gap + prefix > INT_MAX) return INT_MAX;
-        return (int)label_width + gap + prefix;
+        if ((unsigned long)label_width + (unsigned long)gap +
+            (unsigned long)prefix > INT_MAX) return INT_MAX;
+        return (int)((unsigned long)label_width + (unsigned long)gap +
+                     (unsigned long)prefix);
     }
     width = (int)label_width + 10;
     if (index) {
@@ -253,9 +259,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
                                    DefaultRootWindow(XtDisplay(widget)),
                                    GCForeground | GCBackground, &values);
     if (!bar->core.width)
-        bar->core.width = modern_breadcrumb(bar) ? breadcrumb_pixels(bar,320) : 240;
+        bar->core.width = bounded_dimension((unsigned long)(
+            modern_breadcrumb(bar) ? breadcrumb_pixels(bar,320) : 240));
     if (!bar->core.height)
-        bar->core.height = modern_breadcrumb(bar) ? breadcrumb_pixels(bar,36) : 28;
+        bar->core.height = bounded_dimension((unsigned long)(
+            modern_breadcrumb(bar) ? breadcrumb_pixels(bar,36) : 28));
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask | ButtonReleaseMask,
                       False, Events, NULL);
 }
@@ -335,7 +343,8 @@ static void draw_item(XmBreadcrumbBarWidget bar, Cardinal index, int *cursor,
         int thickness = MAX(1,breadcrumb_pixels(bar,2));
         if (y + thickness < bar->core.height) {
             XSetForeground(display,bar->breadcrumb.gc,bar->primitive.highlight_color);
-            XFillRectangle(display,window,bar->breadcrumb.gc,text_x,y,label_width,thickness);
+            XFillRectangle(display,window,bar->breadcrumb.gc,text_x,y,
+                           (unsigned int)label_width,(unsigned int)thickness);
         }
     }
     if ((int)index == bar->breadcrumb.current)
@@ -458,7 +467,6 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     XmBreadcrumbBarWidget bar = (XmBreadcrumbBarWidget)widget;
     Cardinal i;
     int width = 8;
-    (void)request;
     for (i = 0; i < bar->breadcrumb.count; ++i) {
         int item = item_width(bar, i);
         if (width >= INT_MAX - item) {
@@ -477,11 +485,12 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
             XmStringExtent(bar->breadcrumb.font,sample,&text_width,&text_height);
         XmStringFree(sample);
         unsigned long height = MAX((unsigned long)breadcrumb_pixels(bar,36),
-            (unsigned long)text_height + breadcrumb_pixels(bar,16));
+            (unsigned long)text_height +
+            (unsigned long)breadcrumb_pixels(bar,16));
         reply->width = (Dimension)MIN(width,USHRT_MAX);
         reply->height = (Dimension)MIN(height,USHRT_MAX);
     }
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 Widget XmCreateBreadcrumbBar(Widget parent, char *name, ArgList args,

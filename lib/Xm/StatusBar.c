@@ -312,10 +312,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     XmStatusBarWidget bar = (XmStatusBarWidget)widget;
     natural(bar, &reply->width, &reply->height);
     reply->request_mode = CWWidth | CWHeight;
-    if (request && request->width == reply->width &&
-        request->height == reply->height)
-        return XtGeometryYes;
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 Widget XmCreateStatusBar(Widget parent, char *name, ArgList args, Cardinal count)
