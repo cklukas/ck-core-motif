@@ -84,6 +84,8 @@ externaldef(uil_comp_glbl) cmd_command_line_type Uil_cmd_z_command = {
 	1	/* v_database */
 };
 
+static char uil_default_resource_file[] = "a.uid";
+
 
 
 /*
@@ -325,8 +327,7 @@ void	cmd_decode_command_line(int l_arg_count, char *rac_arg_value[ ])
 
     if (Uil_cmd_z_command.ac_resource_file == NULL)
 	{
-        Uil_cmd_z_command.ac_resource_file = XtMalloc (strlen ("a.uid") + 1);
-        strcpy (Uil_cmd_z_command.ac_resource_file,"a.uid");
+	Uil_cmd_z_command.ac_resource_file = uil_default_resource_file;
         }
 
     /*

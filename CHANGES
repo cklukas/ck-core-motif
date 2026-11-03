@@ -1,3 +1,10 @@
+Avoid UIL default-output allocation (2026-11-03)
+==================================================
+
+- Keep the fixed default `a.uid` filename in static storage, avoiding an
+  unchecked allocation during command decoding; see
+  `docs/uil-default-output-name.md`.
+
 Clear failed WSM target-list counts (2026-11-03)
 ==================================================
 
