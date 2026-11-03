@@ -1,3 +1,11 @@
+Harden gallery geometry narrowing (2026-11-03)
+================================================
+
+- Compute flow-page insets and accumulated extents in a wide unsigned type,
+  clamp canvas dimensions and child positions at the Motif resource boundary,
+  and make dialog-centering guards unambiguous. Navigation width now uses the
+  same checked narrowing path. See `docs/gallery-build-safety.md`.
+
 Bound MWM key-substitution replacement tokens (2026-11-03)
 ==========================================================
 

@@ -16,7 +16,14 @@ audit = (root / "demos" / "programs" / "ckmotif-gallery" / "gallery_audit.h").re
 )
 
 assert "static Dimension dimension_from_extent(unsigned long extent)" in gallery
+assert "static Position position_from_extent(unsigned long extent)" in gallery
 assert "Dimension text_width = available > inset" in gallery
+assert "unsigned long inset = 2UL * ((unsigned long)margin + shadow + highlight)" in gallery
+assert "XmNy, position_from_extent(height)" in gallery
+assert "dimension_from_extent(height ? height : 1UL)" in gallery
+assert "(unsigned long)preferred.width + 2UL * (unsigned long)padding" in gallery
+assert "if (expected_x < 0) expected_x = 0;" in gallery
+assert "if (expected_y < 0) expected_y = 0;" in gallery
 assert "used > maximum || length > maximum - used" in gallery
 assert "XGetPixel(image, (int)x, (int)y)" in gallery
 assert "(long)XInternAtom" in gallery

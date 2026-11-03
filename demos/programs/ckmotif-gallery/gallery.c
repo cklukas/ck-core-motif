@@ -9,6 +9,7 @@
 #include <locale.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <limits.h>
 #include <sys/wait.h>
 #include <signal.h>
 #include "gallery_demos.h"
@@ -89,6 +90,11 @@ static Dimension dimension_from_extent(unsigned long extent)
 {
     const unsigned long maximum = (unsigned long)(Dimension)~(Dimension)0;
     return (Dimension)(extent > maximum ? maximum : extent);
+}
+
+static Position position_from_extent(unsigned long extent)
+{
+    return (Position)(extent > (unsigned long)SHRT_MAX ? SHRT_MAX : extent);
 }
 
 /* Composite controls can negotiate larger sizes after realization or when
@@ -358,7 +364,7 @@ static XmString flow_text(Widget label, const char *source, Dimension available)
 static void layout_flow_page(GalleryFlowPage *flow)
 {
     Dimension available, gap = 0;
-    unsigned int width = 1, height = 0;
+    unsigned long width = 1, height = 0;
     if (!flow->clip || !flow->count || flow->laying_out) return;
     XtVaGetValues(flow->clip, XmNwidth, &available, NULL);
     if (available == flow->measured_width) return;
@@ -405,22 +411,26 @@ static void layout_flow_page(GalleryFlowPage *flow)
             XtVaGetValues(flow->items[i], XmNmarginWidth, &margin,
                 XmNmarginLeft, &left, XmNmarginRight, &right,
                 XmNshadowThickness, &shadow, XmNhighlightThickness, &highlight, NULL);
-            unsigned int inset = 2U * (margin + shadow + highlight) + left + right;
+            unsigned long inset = 2UL * ((unsigned long)margin + shadow + highlight) +
+                                  left + right;
             Dimension text_width = available > inset ?
-                (Dimension)(available - inset) : (Dimension)1;
+                dimension_from_extent((unsigned long)available - inset) : (Dimension)1;
             XmString lines = flow_text(flow->items[i], flow->paragraphs[i],
                                       text_width);
             XtVaSetValues(flow->items[i], XmNlabelString, lines, NULL);
             XmStringFree(lines);
             XtWidgetGeometry preferred = {0};
             XtQueryGeometry(flow->items[i], NULL, &preferred);
-            XtVaSetValues(flow->items[i], XmNx, 0, XmNy, height,
+            XtVaSetValues(flow->items[i], XmNx, 0,
+                XmNy, position_from_extent(height),
                 XmNwidth, preferred.width, XmNheight, preferred.height, NULL);
             if (preferred.width > width) width = preferred.width;
-            height += preferred.height + (i + 1 < flow->count ? gap : 0);
+            height += (unsigned long)preferred.height +
+                (i + 1 < flow->count ? (unsigned long)gap : 0UL);
         }
     }
-    XtVaSetValues(flow->canvas, XmNwidth, width, XmNheight, height ? height : 1, NULL);
+    XtVaSetValues(flow->canvas, XmNwidth, dimension_from_extent(width),
+        XmNheight, dimension_from_extent(height ? height : 1UL), NULL);
     flow->laying_out = False;
 }
 
@@ -2095,7 +2105,8 @@ static int verify_dialog_shell_example(GalleryState *state)
             int screen_width=WidthOfScreen(XtScreen(dialog)),screen_height=HeightOfScreen(XtScreen(dialog));
             if(expected_x+dw>screen_width)expected_x=screen_width-dw;
             if(expected_y+dh>screen_height)expected_y=screen_height-dh;
-            if(expected_x<0)expected_x=0;if(expected_y<0)expected_y=0;
+            if (expected_x < 0) expected_x = 0;
+            if (expected_y < 0) expected_y = 0;
             DIALOG_CHECK(abs(dx-expected_x)<=2 && abs(dy-expected_y)<=2);
             if (cycle == 0) XtCallCallbacks(close,XmNactivateCallback,NULL);
             else if (cycle == 1) {
@@ -2801,7 +2812,8 @@ int main(int argc, char **argv)
         Dimension padding = 0;
         XmGetAppearanceSpacing(XtDisplay(shell), XmAPPEARANCE_SPACING_SMALL, &padding);
         XtQueryGeometry(state.tree, NULL, &preferred);
-        state.navigation_width = preferred.width + 2*padding;
+        state.navigation_width = dimension_from_extent(
+            (unsigned long)preferred.width + 2UL * (unsigned long)padding);
         XtVaSetValues(sidebar, XmNsidebarExpandedWidth, state.navigation_width, NULL);
     }
     {
