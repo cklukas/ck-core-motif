@@ -1,3 +1,10 @@
+Guard shared modern appearance drawing GCs (2026-11-03)
+=======================================================
+
+- Make the modern button-focus, button-face, and cascade-indicator helpers
+  release temporary state and skip safely when an X graphics context cannot be
+  allocated; see `docs/appearance-draw-gc.md`.
+
 Guard SegmentedControl temporary render GCs (2026-11-03)
 ========================================================
 
