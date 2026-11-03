@@ -1629,8 +1629,10 @@ found_token:
 	  comment_size = (int)new_size;
 	}
 
-      strcat (comment_text, (char *)az_current_lex_buffer->c_text);
-      strcat (comment_text, "\n");
+      memcpy(comment_text + current_length,
+             az_current_lex_buffer->c_text, incoming_length);
+      comment_text[current_length + incoming_length] = '\n';
+      comment_text[required - 1] = '\0';
       last_token_seen = token_comment;
 	    goto initialize_token_builder;
     }

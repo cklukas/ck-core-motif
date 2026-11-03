@@ -1,3 +1,10 @@
+Copy UIL comments through their verified bounds (2026-11-03)
+============================================================
+
+- Replace the final dynamic-comment `strcat` calls with measured byte copies
+  and explicit newline/terminator placement. The lexer now applies its
+  allocation proof directly; see `docs/uil-comment-overflow.md`.
+
 Bound DialogShell input-method geometry (2026-11-03)
 =====================================================
 
