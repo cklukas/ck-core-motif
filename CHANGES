@@ -1,3 +1,9 @@
+Validate WML syntax-builder allocations (2026-11-03)
+=====================================================
+
+- Check every syntax descriptor and alias-vector allocation before linking it
+  into parser state; see `docs/wml-build.md`.
+
 Validate WML database string-length tables (2026-11-03)
 ========================================================
 

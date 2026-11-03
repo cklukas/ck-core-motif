@@ -101,6 +101,11 @@ field. This prevents a failed allocation or narrowing overflow from corrupting
 database creation. The focused regression is
 `tests/automated/check-wmldb-length-allocation.py`.
 
+WML syntax construction now routes descriptor and alias-vector allocation
+through checked helpers. Invalid sizes and allocation failures stop parsing
+before any incomplete object is linked into parser state. The focused
+regression is `tests/automated/check-wml-syntax-builder-allocation.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and

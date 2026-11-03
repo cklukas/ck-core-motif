@@ -71,6 +71,44 @@ static char rcsid[] = "$XConsortium: wmlsynbld.c /main/9 1995/08/29 11:11:12 drk
 ObjectPtr	wml_cur_obj;
 ObjectPtr	wml_cur_subobj;
 
+static void *
+wmlAllocateSyntaxMemory (size_t size)
+{
+    void *result;
+
+    if (size == 0)
+	{
+	fprintf (stderr, "Invalid WML syntax allocation size\n");
+	exit (EXIT_FAILURE);
+	}
+    result = malloc (size);
+    if (result == NULL)
+	{
+	fprintf (stderr, "Unable to allocate WML syntax object\n");
+	exit (EXIT_FAILURE);
+	}
+    return result;
+}
+
+static void *
+wmlResizeSyntaxMemory (void *old_memory, size_t count, size_t item_size)
+{
+    void *result;
+
+    if (item_size == 0 || count == 0 || count > (size_t)-1 / item_size)
+	{
+	fprintf (stderr, "Invalid WML syntax allocation size\n");
+	exit (EXIT_FAILURE);
+	}
+    result = realloc (old_memory, count * item_size);
+    if (result == NULL)
+	{
+	fprintf (stderr, "Unable to grow WML syntax object\n");
+	exit (EXIT_FAILURE);
+	}
+    return result;
+}
+
 
 
 /*
@@ -91,7 +129,7 @@ WmlSynClassDefPtr	cdesc;		/* new class descriptor */
  * Initialize the new class descriptor. Enter it in the object list.
  * Set the current object global to the descriptor.
  */
-cdesc = (WmlSynClassDefPtr) malloc (sizeof(WmlSynClassDef));
+cdesc = (WmlSynClassDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynClassDef));
 cdesc->validation = WmlClassDefValid;
 cdesc->rslvdef = NULL;
 switch ( ctype )
@@ -159,7 +197,7 @@ WmlSynResourceDefPtr	rdesc;		/* new resource descriptor */
  * Initialize the new resource descriptor. Enter it in the object list.
  * Set the current object global to the descriptor.
  */
-rdesc = (WmlSynResourceDefPtr) malloc (sizeof(WmlSynResourceDef));
+rdesc = (WmlSynResourceDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynResourceDef));
 rdesc->validation = WmlResourceDefValid;
 rdesc->rslvdef = NULL;
 switch ( rtype )
@@ -228,7 +266,7 @@ WmlSynDataTypeDefPtr	ddesc;		/* new datatype descriptor */
  * Initialize the new datatype descriptor. Enter it in the object list.
  * Set the current object global to the descriptor.
  */
-ddesc = (WmlSynDataTypeDefPtr) malloc (sizeof(WmlSynDataTypeDef));
+ddesc = (WmlSynDataTypeDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynDataTypeDef));
 ddesc->validation = WmlDataTypeDefValid;
 ddesc->rslvdef = NULL;
 ddesc->name = wmlAllocateString (name);
@@ -268,7 +306,7 @@ WmlSynChildDefPtr	chdesc;		/* new child descriptor */
  * Initialize the new child descriptor. Enter it in the object list.
  * Set the current object global to the descriptor.
  */
-chdesc = (WmlSynChildDefPtr) malloc (sizeof(WmlSynChildDef));
+chdesc = (WmlSynChildDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynChildDef));
 chdesc->validation = WmlChildDefValid;
 chdesc->rslvdef = NULL;
 chdesc->name = wmlAllocateString (name);
@@ -310,7 +348,7 @@ if (idx < 0 ) {
    * Initialize the new CtrlList descriptor. Enter it in the object list.
    * Set the current object global to the descriptor.
    */
-  cdesc = (WmlSynCtrlListDefPtr) malloc (sizeof(WmlSynCtrlListDef));
+  cdesc = (WmlSynCtrlListDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynCtrlListDef));
   cdesc->validation = WmlCtrlListDefValid;
   cdesc->rslvdef = NULL;
   cdesc->name = wmlAllocateString (name);
@@ -349,7 +387,7 @@ WmlSynEnumSetDefPtr	esdesc;		/* new enumeration set descriptor */
  * Initialize the new resource descriptor. Enter it in the object list.
  * Set the current object global to the descriptor.
  */
-esdesc = (WmlSynEnumSetDefPtr) malloc (sizeof(WmlSynEnumSetDef));
+esdesc = (WmlSynEnumSetDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynEnumSetDef));
 esdesc->validation = WmlEnumSetDefValid;
 esdesc->rslvdef = NULL;
 esdesc->name = wmlAllocateString (name);
@@ -388,7 +426,7 @@ WmlSynEnumValueDefPtr	evdesc;		/* new enumeration value descriptor */
  * Initialize the new resource descriptor. Enter it in the object list.
  * Set the current object global to the descriptor.
  */
-evdesc = (WmlSynEnumValueDefPtr) malloc (sizeof(WmlSynEnumValueDef));
+evdesc = (WmlSynEnumValueDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynEnumValueDef));
 evdesc->validation = WmlEnumValueDefValid;
 evdesc->rslvdef = NULL;
 evdesc->name = wmlAllocateString (name);
@@ -426,7 +464,7 @@ WmlSynCharSetDefPtr	ddesc;		/* new charset descriptor */
  * Initialize the new charset descriptor. Enter it in the object list.
  * Set the current object global to the descriptor.
  */
-ddesc = (WmlSynCharSetDefPtr) malloc (sizeof(WmlSynCharSetDef));
+ddesc = (WmlSynCharSetDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynCharSetDef));
 ddesc->validation = WmlCharSetDefValid;
 ddesc->rslvdef = NULL;
 ddesc->name = wmlAllocateString (name);
@@ -525,11 +563,11 @@ switch ( attrid )
 	break;	
     case ALIAS:
 	if ( cdesc->alias_cnt == 0 )
-	    synlist = (char **) malloc (sizeof(char *));
+	    synlist = (char **) wmlAllocateSyntaxMemory (sizeof(char *));
 	else
 	    synlist = (char **)
-		realloc (cdesc->alias_list,
-			 (cdesc->alias_cnt+1)*sizeof(char **));
+		wmlResizeSyntaxMemory (cdesc->alias_list,
+			 (size_t)cdesc->alias_cnt + 1, sizeof(char *));
 	synlist[cdesc->alias_cnt] = wmlAllocateString (val.string);
 	cdesc->alias_cnt += 1;
 	cdesc->alias_list = synlist;
@@ -576,7 +614,7 @@ if ( cdesc->validation != WmlClassDefValid )
 /*
  * Add the control to the control list
  */
-ctrlelm = (WmlSynClassCtrlDefPtr) malloc (sizeof(WmlSynClassCtrlDef));
+ctrlelm = (WmlSynClassCtrlDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynClassCtrlDef));
 ctrlelm->validation = WmlClassCtrlDefValid;
 ctrlelm->next = cdesc->controls;
 cdesc->controls = ctrlelm;
@@ -628,7 +666,7 @@ if ( cdesc->validation != WmlClassDefValid )
 /*
  * Add the resource to the resource list
  */
-rdesc = (WmlSynClassResDefPtr) malloc (sizeof(WmlSynClassResDef));
+rdesc = (WmlSynClassResDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynClassResDef));
 rdesc->validation = WmlClassResDefValid;
 rdesc->name = wmlAllocateString (name);
 rdesc->type = NULL;
@@ -683,7 +721,7 @@ if ( cdesc->validation != WmlClassDefValid )
 /*
  * Add the child to the child list
  */
-chdesc = (WmlSynClassChildDefPtr) malloc (sizeof(WmlSynClassChildDef));
+chdesc = (WmlSynClassChildDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynClassChildDef));
 chdesc->validation = WmlClassChildDefValid;
 chdesc->name = wmlAllocateString (name);
 
@@ -856,11 +894,11 @@ switch ( attrid )
 	break;
     case ALIAS:
 	if ( rdesc->alias_cnt == 0 )
-	    synlist = (char **) malloc (sizeof(char *));
+	    synlist = (char **) wmlAllocateSyntaxMemory (sizeof(char *));
 	else
 	    synlist = (char **)
-		realloc (rdesc->alias_list,
-			 (rdesc->alias_cnt+1)*sizeof(char **));
+		wmlResizeSyntaxMemory (rdesc->alias_list,
+			 (size_t)rdesc->alias_cnt + 1, sizeof(char *));
 	synlist[rdesc->alias_cnt] = wmlAllocateString (val.string);
 	rdesc->alias_cnt += 1;
 	rdesc->alias_list = synlist;
@@ -985,7 +1023,7 @@ if ( cdesc->validation != WmlCtrlListDefValid )
 /*
  * Add the control to the control list
  */
-ctrlelm = (WmlSynClassCtrlDefPtr) malloc (sizeof(WmlSynClassCtrlDef));
+ctrlelm = (WmlSynClassCtrlDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynClassCtrlDef));
 ctrlelm->validation = WmlClassCtrlDefValid;
 ctrlelm->next = cdesc->controls;
 cdesc->controls = ctrlelm;
@@ -1034,7 +1072,7 @@ if ( esdesc->validation != WmlEnumSetDefValid )
 /*
  * Add the value to the set
  */
-evelm = (WmlSynEnumSetValDefPtr) malloc (sizeof(WmlSynEnumSetValDef));
+evelm = (WmlSynEnumSetValDefPtr) wmlAllocateSyntaxMemory (sizeof(WmlSynEnumSetValDef));
 evelm->validation = WmlEnumValueDefValid;
 evelm->next = esdesc->values;
 esdesc->values = evelm;
@@ -1146,11 +1184,11 @@ switch ( attrid )
 	break;	
     case ALIAS:
 	if ( ddesc->alias_cnt == 0 )
-	    synlist = (char **) malloc (sizeof(char *));
+	    synlist = (char **) wmlAllocateSyntaxMemory (sizeof(char *));
 	else
 	    synlist = (char **)
-		realloc (ddesc->alias_list,
-			 (ddesc->alias_cnt+1)*sizeof(char **));
+		wmlResizeSyntaxMemory (ddesc->alias_list,
+			 (size_t)ddesc->alias_cnt + 1, sizeof(char *));
 	synlist[ddesc->alias_cnt] = wmlAllocateString (val.string);
 	ddesc->alias_cnt += 1;
 	ddesc->alias_list = synlist;
