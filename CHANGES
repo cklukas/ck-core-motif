@@ -1,3 +1,11 @@
+Validate MRM global name registry inputs (2026-11-03)
+======================================================
+
+- Reject null global lookup names and output pointers before hashing; clear a
+  supplied lookup output before any failed lookup can return.
+- Validate every global bulk-registration name before changing the registry, so
+  an invalid vector cannot leave an earlier partial registration behind.
+
 Clear failed MRM lookup and root-record outputs (2026-11-03)
 ============================================================
 
