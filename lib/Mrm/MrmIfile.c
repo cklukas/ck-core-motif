@@ -138,6 +138,7 @@ Idb__FU_OpenFile (char 			*name,
 
   if (name == NULL || file_id == NULL)
     return MrmFAILURE;
+  *file_id = NULL;
 
   /* Fill in the result name with the name specified so far */
   length = strlen (name);

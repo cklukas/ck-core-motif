@@ -1,3 +1,9 @@
+Clear failed MRM low-level file-open handles (2026-11-03)
+==========================================================
+
+- Initialize the `Idb__FU_OpenFile` result handle before its first failure
+  path; see `docs/mrm-idb-open-output-pointers.md`.
+
 Reject negative MRM interface-module counts (2026-11-03)
 ========================================================
 
