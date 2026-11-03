@@ -78,6 +78,12 @@ void wmlOutputUilSymChTa(void);
 void wmlOutputUilSymCtl(void);
 void wmlOutputUilSymNam(void);
 void wmlOutputUilSymEnum(void);
+
+static void
+wmlOutputClassMaskTerm (FILE *outfil, const char *prefix, const char *tkname)
+{
+    fprintf (outfil, "%s _BIT_MASK(sym_k_%s_object) |\n ", prefix, tkname);
+}
 void wmlOutputUilSymCSet(void);
 int wmlResolveCtlIsMember (WmlClassDefPtr, WmlClassCtrlDefPtr);
 
@@ -858,9 +864,7 @@ int			clsndx;		/* inner loop index */
 WmlClassDefPtr		clsobj;		/* current class object */
 WmlClassResDefPtr	resref;		/* class' resource reference */
 int			itemno = 0;		/* item in bye */
-char			maskbuf[500];	/* current mask buffer */
-char			itembuf[100];	/* for current item */
-int			donl;		/* TRUE if append \n to mask */
+const char		*mask_prefix;	/* prefix for the current byte */
 
 
 /*
@@ -887,31 +891,26 @@ for ( resndx=0 ; resndx<wml_obj_reason_ptr->cnt ; resndx++ )
     /*
      * inner loop on widget class.
      */
-    strcpy (maskbuf, " ");
+    mask_prefix = " ";
     for ( clsndx=0 ; clsndx<wml_obj_class_ptr->cnt ; clsndx++ )
 	{
 	clsobj = (WmlClassDefPtr) wml_obj_class_ptr->hvec[clsndx].objptr;
 	itemno = (clsobj->sym_code+1) % 8;
-	donl = FALSE;
 	resref = wmlResolveResIsMember (resobj, clsobj->reasons);
 	if ( resref != NULL )
 	    if ( resref->exclude != WmlAttributeTrue )
 		{
-		sprintf (itembuf, " _BIT_MASK(sym_k_%s_object) |",
-			 clsobj->tkname);
-		strcat (maskbuf, itembuf);
-		donl = TRUE;
+			wmlOutputClassMaskTerm (outfil, mask_prefix, clsobj->tkname);
+			mask_prefix = "";
 		}
-	if ( donl )
-	    strcat (maskbuf, "\n ");
 	if ( itemno == 0 )
 	    {
-	    fprintf (outfil, "%s 0", maskbuf);
-	    strcpy (maskbuf, ",");
+		    fprintf (outfil, "%s 0", mask_prefix);
+		    mask_prefix = ",";
 	    }
 	}
     if ( itemno != 0 )
-	fprintf (outfil, "%s 0};\n", maskbuf);
+	fprintf (outfil, "%s 0};\n", mask_prefix);
     else
 	fprintf (outfil, "};\n");
     }
@@ -984,9 +983,7 @@ int			clsndx;		/* inner loop index */
 WmlClassDefPtr		clsobj;		/* current class object */
 WmlClassResDefPtr	resref;		/* class' resource reference */
 int			itemno = 0;		/* item in bye */
-char			maskbuf[500];	/* current mask buffer */
-char			itembuf[100];	/* for current item */
-int			donl;		/* TRUE if append \n to mask */
+const char		*mask_prefix;	/* prefix for the current byte */
 
 
 /*
@@ -1013,31 +1010,26 @@ for ( resndx=0 ; resndx<wml_obj_arg_ptr->cnt ; resndx++ )
     /*
      * inner loop on widget class.
      */
-    strcpy (maskbuf, " ");
+    mask_prefix = " ";
     for ( clsndx=0 ; clsndx<wml_obj_class_ptr->cnt ; clsndx++ )
 	{
 	clsobj = (WmlClassDefPtr) wml_obj_class_ptr->hvec[clsndx].objptr;
 	itemno = (clsobj->sym_code+1) % 8;
-	donl = FALSE;
 	resref = wmlResolveResIsMember (resobj, clsobj->arguments);
 	if ( resref != NULL )
 	    if ( resref->exclude != WmlAttributeTrue )
 		{
-		sprintf (itembuf, " _BIT_MASK(sym_k_%s_object) |",
-			 clsobj->tkname);
-		strcat (maskbuf, itembuf);
-		donl = TRUE;
+			wmlOutputClassMaskTerm (outfil, mask_prefix, clsobj->tkname);
+			mask_prefix = "";
 		}
-	if ( donl )
-	    strcat (maskbuf, "\n ");
 	if ( itemno == 0 )
 	    {
-	    fprintf (outfil, "%s 0", maskbuf);
-	    strcpy (maskbuf, ",");
+		    fprintf (outfil, "%s 0", mask_prefix);
+		    mask_prefix = ",";
 	    }
 	}
     if ( itemno != 0 )
-	fprintf (outfil, "%s 0};\n", maskbuf);
+	fprintf (outfil, "%s 0};\n", mask_prefix);
     else
 	fprintf (outfil, "};\n");
     }
@@ -1109,9 +1101,7 @@ int			clsndx;		/* inner loop index */
 WmlClassDefPtr		clsobj;		/* current class object */
 WmlClassChildDefPtr	childref;	/* class' child reference */
 int			itemno = 0;		/* item in byte */
-char			maskbuf[500];	/* current mask buffer */
-char			itembuf[100];	/* for current item */
-int			donl;		/* TRUE if append \n to mask */
+const char		*mask_prefix;	/* prefix for the current byte */
 
 
 /*
@@ -1138,29 +1128,25 @@ for ( childndx=0 ; childndx<wml_obj_child_ptr->cnt ; childndx++ )
     /*
      * inner loop on widget class.
      */
-    strcpy (maskbuf, " ");
+    mask_prefix = " ";
     for ( clsndx=0 ; clsndx<wml_obj_class_ptr->cnt ; clsndx++ )
 	{
 	clsobj = (WmlClassDefPtr) wml_obj_class_ptr->hvec[clsndx].objptr;
 	itemno = (clsobj->sym_code+1) % 8;
-	donl = FALSE;
 	childref = wmlResolveChildIsMember (childobj, clsobj->children);
 	if ( childref != NULL )
 	  {
-	    sprintf (itembuf, " _BIT_MASK(sym_k_%s_object) |", clsobj->tkname);
-	    strcat (maskbuf, itembuf);
-	    donl = TRUE;
+		    wmlOutputClassMaskTerm (outfil, mask_prefix, clsobj->tkname);
+		    mask_prefix = "";
 	  }
-	if ( donl )
-	    strcat (maskbuf, "\n ");
 	if ( itemno == 0 )
 	    {
-	    fprintf (outfil, "%s 0", maskbuf);
-	    strcpy (maskbuf, ",");
+		    fprintf (outfil, "%s 0", mask_prefix);
+		    mask_prefix = ",";
 	    }
 	}
     if ( itemno != 0 )
-	fprintf (outfil, "%s 0};\n", maskbuf);
+	fprintf (outfil, "%s 0};\n", mask_prefix);
     else
 	fprintf (outfil, "};\n");
     }
@@ -1231,9 +1217,7 @@ WmlClassDefPtr		ctlobj;		/* current class allowing controls */
 int			clsndx;		/* inner loop index */
 WmlClassDefPtr		clsobj;		/* current class object */
 int			itemno = 0;		/* item in bye */
-char			maskbuf[500];	/* current mask buffer */
-char			itembuf[100];	/* for current item */
-int			donl;		/* TRUE if append \n to mask */
+const char		*mask_prefix;	/* prefix for the current byte */
 
 
 /*
@@ -1260,29 +1244,24 @@ for ( ctlndx=0 ; ctlndx<wml_obj_class_ptr->cnt ; ctlndx++ )
     /*
      * inner loop on widget class.
      */
-    strcpy (maskbuf, " ");
+    mask_prefix = " ";
     for ( clsndx=0 ; clsndx<wml_obj_class_ptr->cnt ; clsndx++ )
 	{
 	ctlobj = (WmlClassDefPtr) wml_obj_class_ptr->hvec[clsndx].objptr;
 	itemno = (ctlobj->sym_code+1) % 8;
-	donl = FALSE;
 	if ( wmlResolveCtlIsMember(clsobj,ctlobj->controls) == TRUE)
 	    {
-	    sprintf (itembuf, " _BIT_MASK(sym_k_%s_object) |",
-		     ctlobj->tkname);
-	    strcat (maskbuf, itembuf);
-	    donl = TRUE;
+		    wmlOutputClassMaskTerm (outfil, mask_prefix, ctlobj->tkname);
+		    mask_prefix = "";
 	    }
-	if ( donl )
-	    strcat (maskbuf, "\n ");
 	if ( itemno == 0 )
 	    {
-	    fprintf (outfil, "%s 0", maskbuf);
-	    strcpy (maskbuf, ",");
+		    fprintf (outfil, "%s 0", mask_prefix);
+		    mask_prefix = ",";
 	    }
 	}
     if ( itemno != 0 )
-	fprintf (outfil, "%s 0};\n", maskbuf);
+	fprintf (outfil, "%s 0};\n", mask_prefix);
     else
 	fprintf (outfil, "};\n");
     }

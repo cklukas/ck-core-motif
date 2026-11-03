@@ -70,6 +70,13 @@ Resolver diagnostics now use bounded formatting for class, character-set, and
 reference names, so malformed long names cannot overwrite the diagnostic stack
 buffer. The regression is `tests/automated/check-wml-diagnostic-bounds.py`.
 
+The WML class-mask emitters write each `_BIT_MASK` term directly to the
+generated header instead of assembling a complete row in fixed 100- and
+500-byte buffers. Long valid class names can therefore be emitted without
+overwriting generator storage, while the established generated header layout is
+unchanged. `tests/automated/check-wml-class-mask-bounds.py` checks this source
+contract; the native WML target verifies the generated headers.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and
