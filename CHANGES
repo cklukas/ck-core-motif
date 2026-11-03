@@ -1,3 +1,9 @@
+Reject negative Mrm context sizes (2026-11-03)
+================================================
+
+- Reject invalid negative resource-context resize requests before the minimum
+  allocation rule; see `docs/mrm-context-resize-bounds.md`.
+
 Harden WML output format handling (2026-11-03)
 ===============================================
 
