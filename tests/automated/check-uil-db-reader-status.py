@@ -14,6 +14,12 @@ assert "return True;" in reader
 assert "return False;" in reader
 
 main = source[source.index("void db_incorporate()") : source.index("db_incorporate_done:")]
+assert "db_read_table(&globals, sizeof(_db_globals))" in main
+assert "first_character = fgetc(dbfile);" in main
+assert "ungetc(first_character, dbfile) == EOF" in main
+assert "!db_read_table(&header, sizeof(_db_header))" in main
+assert "if (header.num_items < 0 || header.table_size < 0)" in main
+assert "goto db_incorporate_done;" in main[main.index("if (header.num_items < 0") :]
 for function in (
     "db_read_ints_and_string",
     "db_read_char_table",

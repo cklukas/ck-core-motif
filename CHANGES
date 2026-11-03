@@ -1,8 +1,8 @@
 Stop after incomplete UIL database records (2026-11-03)
 =======================================================
 
-- Propagate compound WMD reader failures to the enclosing loader so malformed,
-  unread payloads cannot be parsed as later record headers; see
+- Propagate compound WMD reader failures and reject malformed top-level WMD
+  framing so unread payloads cannot be parsed as later record headers; see
   `docs/uil-db-reader-failures.md`.
 
 Harden UIL raw database table allocation (2026-11-03)

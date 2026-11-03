@@ -187,14 +187,14 @@ void db_incorporate()
  *  Local variables
  */
 {
-    int			return_num_items;
+    int			first_character;
     _db_header		header;
     _db_globals		globals;
 
     db_open_file();
 
-    return_num_items = (int)fread (&globals, sizeof(_db_globals), 1, dbfile);
-    _check_read (return_num_items);
+    if (!db_read_table(&globals, sizeof(_db_globals)))
+	goto db_incorporate_done;
 
     /*
      * Some heuristics to see if this is a reasonable database.
@@ -237,14 +237,25 @@ void db_incorporate()
 
     for (;;) 
 	{
-	return_num_items = (int)fread (&header, sizeof(_db_header), 1, dbfile);
-	if (feof(dbfile)) break;
-	_check_read (return_num_items);
+	first_character = fgetc(dbfile);
+	if (first_character == EOF)
+	    {
+	    if (ferror(dbfile))
+		{
+		diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				      diag_k_no_column);
+		goto db_incorporate_done;
+		}
+	    break;
+	    }
+	if (ungetc(first_character, dbfile) == EOF ||
+	    !db_read_table(&header, sizeof(_db_header)))
+	    goto db_incorporate_done;
 	if (header.num_items < 0 || header.table_size < 0)
 	    {
 	    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 				    diag_k_no_column );
-	    break;
+	    goto db_incorporate_done;
 	    }
 	switch (header.table_id)
 	    {
@@ -253,7 +264,7 @@ void db_incorporate()
 		    {
 		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 					    diag_k_no_column );
-		    break;
+		    goto db_incorporate_done;
 		    }
 		constraint_tab = (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (constraint_tab == NULL)
@@ -266,7 +277,7 @@ void db_incorporate()
 		    {
 		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 					    diag_k_no_column );
-		    break;
+		    goto db_incorporate_done;
 		    }
 		/*
 		 * NOTE: The first entry is not used but we copy it anyway
@@ -282,7 +293,7 @@ void db_incorporate()
 		    {
 		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 					    diag_k_no_column );
-		    break;
+		    goto db_incorporate_done;
 		    }
 		/*
 		 * NOTE: The first entry is not used but we copy it anyway
@@ -299,7 +310,7 @@ void db_incorporate()
 		    {
 		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 					    diag_k_no_column );
-		    break;
+		    goto db_incorporate_done;
 		    }
 		charset_writing_direction_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (charset_writing_direction_table == NULL)
@@ -313,7 +324,7 @@ void db_incorporate()
 		    {
 		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 					    diag_k_no_column );
-		    break;
+		    goto db_incorporate_done;
 		    }
 		charset_parsing_direction_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (charset_parsing_direction_table == NULL)
@@ -327,7 +338,7 @@ void db_incorporate()
 		    {
 		    diag_issue_diagnostic( d_bad_database, diag_k_no_source,
 					    diag_k_no_column );
-		    break;
+		    goto db_incorporate_done;
 		    }
 		charset_character_size_table = (unsigned char *) db_allocate_table((size_t)header.table_size);
 		if (charset_character_size_table == NULL)
@@ -424,6 +435,7 @@ void db_incorporate()
 		break;
 	    default:
 		diag_issue_diagnostic( d_bad_database, diag_k_no_source, diag_k_no_column );
+		goto db_incorporate_done;
 	    } /* end switch */
     } /* end for */
 
