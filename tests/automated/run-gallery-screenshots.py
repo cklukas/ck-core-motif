@@ -133,10 +133,12 @@ def wait_ready(window_id: str, process: subprocess.Popen[bytes],
         if failure:
             raise failure
         result = subprocess.run(["xprop", "-id", window_id,
-                                 "_NET_WM_PID", "_CKMOTIF_GALLERY_READY"],
+                                 "_NET_WM_PID", "_CKMOTIF_GALLERY_READY",
+                                 "_CKMOTIF_GALLERY_COMPONENT"],
                                 env=env, capture_output=True, text=True, timeout=2)
         if (f"_NET_WM_PID(CARDINAL) = {process.pid}" in result.stdout and
-                "_CKMOTIF_GALLERY_READY(CARDINAL) = 1" in result.stdout):
+                "_CKMOTIF_GALLERY_READY(CARDINAL) = 1" in result.stdout and
+                f'"{entry_id}"' in result.stdout):
             stats = subprocess.run(["xwininfo", "-id", window_id, "-stats"],
                                    env=env, capture_output=True, text=True, timeout=2)
             if "Map State: IsViewable" in stats.stdout:

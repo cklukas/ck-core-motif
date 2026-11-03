@@ -16,7 +16,9 @@ placeholder that some window managers expose during shell startup.
 `modern-dark`. `SCALE` is a finite positive display-scale override no greater
 than 64. The gallery selects the appearance and scale before creating its child
 widgets. The readiness property is published only after the initial event
-queue settles; the runner checks that it belongs to the launched process. The runner records both values in
+queue settles; the runner checks that it belongs to the launched process and
+that the gallery reports the requested manifest component ID. A capture cannot
+therefore pass merely because the welcome page mapped successfully. The runner records both values in
 `receipt.json`, so captures at different settings cannot be confused with
 the default profile.
 

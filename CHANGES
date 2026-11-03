@@ -1,3 +1,10 @@
+Verify gallery screenshot component selection (2026-11-03)
+===========================================================
+
+- Bind each screenshot capture to the gallery's reported manifest component ID,
+  so a mapped welcome page cannot be accepted as a component example. See
+  `docs/modern-gallery-screenshot-qualification.md`.
+
 Preserve platform compatibility macros (2026-11-03)
 ====================================================
 

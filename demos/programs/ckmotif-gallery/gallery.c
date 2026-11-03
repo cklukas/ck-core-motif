@@ -74,6 +74,7 @@ typedef struct {
     Widget drag_context;
     XmAccessibility *accessibility;
     const GalleryManifestEntry *selected;
+    const char *capture_id;
 } GalleryState;
 
 static void layout_gallery(GalleryState *state);
@@ -1959,6 +1960,8 @@ static int verify_navigation_pixels(GalleryState *state)
 static Boolean capture_ready(XtPointer client)
 {
     GalleryState *state = client;
+    const char *capture_id = state->capture_id ? state->capture_id : welcome_id;
+    int capture_length = (int)strlen(capture_id);
     unsigned long pid = (unsigned long)getpid();
     unsigned long ready = 1;
     if (verify_navigation_pixels(state)) return False;
@@ -1975,6 +1978,9 @@ static Boolean capture_ready(XtPointer client)
         XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&pid, 1);
     XChangeProperty(display, window, XInternAtom(display, "_CKMOTIF_GALLERY_READY", False),
         XA_CARDINAL, 32, PropModeReplace, (unsigned char *)&ready, 1);
+    XChangeProperty(display, window,
+        XInternAtom(display, "_CKMOTIF_GALLERY_COMPONENT", False), XA_STRING,
+        8, PropModeReplace, (const unsigned char *)capture_id, capture_length);
     XSync(display, False);
     return True;
 }
@@ -2839,6 +2845,7 @@ int main(int argc, char **argv)
             select_page(&state, 1);
             set_status(&state, "Welcome - choose a component category to begin");
         }
+        state.capture_id = initial_id ? initial_id : welcome_id;
     }
     if (initial_id && !strcmp(initial_id, "gallery.icons")) {
         select_page(&state, 4);
