@@ -1,3 +1,9 @@
+Preserve full WML symbol-code values (2026-11-03)
+==================================================
+
+- Store resolver symbol codes in full-width integers, preventing truncation in
+  exceptionally large generated catalogues; see `docs/wml-build.md`.
+
 Validate WML resolver allocations (2026-11-03)
 ==============================================
 

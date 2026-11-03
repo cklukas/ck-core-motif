@@ -380,7 +380,7 @@ typedef struct WmlCharSetDefStruct
     struct WmlSynCharSetDefStruct
 			*syndef;	/* syntactic definition */
     char		*tkname;	/* name for generating literals */
-    short int		sym_code;	/* code value for literals */
+    int			sym_code;	/* code value for literals */
     } WmlCharSetDef, *WmlCharSetDefPtr;
 
 /*
@@ -392,7 +392,7 @@ typedef struct WmlChildDefStruct
     struct WmlSynChildDefStruct
 			*syndef;	/* syntactic definition */
     char		*tkname;	/* name for generating literals */
-    short int		sym_code;	/* code value for literals */
+    int			sym_code;	/* code value for literals */
     struct WmlClassDefStruct
                         *class;		/* class structure */
     struct WmlClassChildDefStruct
@@ -421,7 +421,7 @@ typedef struct WmlEnumSetDefStruct
     struct WmlSynEnumSetDefStruct
 			*syndef;	/* syntactic definition */
     char		*tkname;	/* name for generating literals */
-    short int		sym_code;	/* code value for literals */
+    int			sym_code;	/* code value for literals */
     WmlDataTypeDefPtr	dtype_def;	/* data type */
     short int		values_cnt;	/* count of # of values in set */
     WmlEnumSetValDefPtr
@@ -436,7 +436,7 @@ typedef struct WmlEnumValueDefStruct
     {
     struct WmlSynEnumValueDefStruct
 			*syndef;	/* syntactic definition */
-    short int		sym_code;	/* code value for literals */
+    int			sym_code;	/* code value for literals */
     } WmlEnumValueDef, *WmlEnumValueDefPtr;
 
 
@@ -448,10 +448,10 @@ typedef struct WmlResourceDefStruct
     struct WmlSynResourceDefStruct
 			*syndef;	/* syntactic definition */
     char		*tkname;	/* name for generating literals */
-    short int		sym_code;	/* code value for literals */
+    int			sym_code;	/* code value for literals */
     WmlDataTypeDefPtr	dtype_def;	/* data type for base definition */
     WmlEnumSetDefPtr	enumset_def;	/* enumeration set if specified */
-    short int		related_code;	/* if non-0, the sym_code for the
+    int			related_code;	/* if non-0, the sym_code for the
 					   related (count) argument */
     short int		xrm_support;	/* if AttributeTrue, then the resource
 					   can be set in Xrm. Resolved
@@ -518,7 +518,7 @@ typedef struct WmlClassDefStruct
 			*parentclass;	/* parentclass structure */
     char		*tkname;	/* name to be used in literals.
 					   int_lit or name if no int_lit */
-    short int		sym_code;	/* code value for literals */
+    int			sym_code;	/* code value for literals */
     short int		inherit_done;	/* TRUE when inheritance complete */
     WmlClassResDefPtr	arguments;	/* linked argument list */
     WmlClassResDefPtr	reasons;	/* lined reason list */

@@ -116,6 +116,11 @@ low-memory failure stops resolution before any partially initialized object is
 linked into the generated model. The focused regression is
 `tests/automated/check-wml-resolver-allocation.py`.
 
+WML resolver symbol codes now use full-width integers internally. This avoids
+silent signed-16-bit truncation if a generated catalogue exceeds 32,767 entries;
+existing catalogue output remains unchanged. The focused regression is
+`tests/automated/check-wml-symbol-code-width.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and
