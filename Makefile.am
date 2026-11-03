@@ -255,6 +255,7 @@ EXTRA_DIST += tests/automated/check-wml-lexer-copy-failure.py
 EXTRA_DIST += tests/automated/check-wml-handle-list-allocation.py
 EXTRA_DIST += tests/automated/check-wmldb-length-allocation.py
 EXTRA_DIST += tests/automated/check-wml-syntax-builder-allocation.py
+EXTRA_DIST += tests/automated/check-wml-handle-list-name-copy.py
 EXTRA_DIST += tests/automated/run-tabbed-stack-copy-unit.py docs/tabbed-stack-copy-failure.md
 EXTRA_DIST += tests/automated/run-container-tab-pool-unit.py
 EXTRA_DIST += tests/automated/run-list-unicode-regressions.py

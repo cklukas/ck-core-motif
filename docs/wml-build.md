@@ -106,6 +106,11 @@ through checked helpers. Invalid sizes and allocation failures stop parsing
 before any incomplete object is linked into parser state. The focused
 regression is `tests/automated/check-wml-syntax-builder-allocation.py`.
 
+WML handle-list insertion now requires a successful copy of its lookup name
+before publishing the entry, avoiding null-name comparisons after low-memory
+failures. The focused regression is
+`tests/automated/check-wml-handle-list-name-copy.py`.
+
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,
 Xft, AT-SPI and XLibre features disabled, generated the normal `makestrs` and

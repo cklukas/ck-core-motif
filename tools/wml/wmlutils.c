@@ -70,6 +70,21 @@ return dynstg;
 }
 
 
+static char *
+wmlRequireStringCopy (char *stg)
+{
+    char *copy;
+
+    copy = wmlAllocateString (stg);
+    if (copy == NULL)
+        {
+        fprintf (stderr, "Unable to copy WML handle-list name\n");
+        exit (EXIT_FAILURE);
+        }
+    return copy;
+}
+
+
 
 /*
  * Utility to convert a string to upper case. The conversion happens in
@@ -79,11 +94,13 @@ return dynstg;
 void wmlUpperCaseString(char *stg)
 {
 
-int		ndx;		/* loop index */
+size_t		ndx;		/* loop index */
+size_t		length;
 
 
 if ( stg == NULL ) return;
-for ( ndx=0 ; ndx<strlen(stg) ; ndx++ )
+length = strlen(stg);
+for ( ndx=0 ; ndx<length ; ndx++ )
     stg[ndx] = _upper (stg[ndx]);
 
 }
@@ -282,7 +299,7 @@ if ( listptr->ordered )
     {
     if ( listptr->cnt == 0 )
 	{
-	listptr->hvec[0].objname = wmlAllocateString (name);
+	listptr->hvec[0].objname = wmlRequireStringCopy (name);
 	listptr->hvec[0].objptr = obj;
 	listptr->cnt += 1;
 	return;
@@ -315,14 +332,14 @@ if ( listptr->ordered )
 	listptr->hvec[ndx+1].objname = listptr->hvec[ndx].objname;
 	listptr->hvec[ndx+1].objptr = listptr->hvec[ndx].objptr;
 	}
-    listptr->hvec[newndx].objname = wmlAllocateString (name);
+    listptr->hvec[newndx].objname = wmlRequireStringCopy (name);
     listptr->hvec[newndx].objptr = obj;
     listptr->cnt += 1;
     return;
     }
 else
     {
-    listptr->hvec[listptr->cnt].objname = wmlAllocateString (name);
+    listptr->hvec[listptr->cnt].objname = wmlRequireStringCopy (name);
     listptr->hvec[listptr->cnt].objptr = obj;
     listptr->cnt += 1;
     return;
@@ -358,7 +375,7 @@ void wmlInsertInKeyList(DynamicHandleListDefPtr listptr, char *name, ObjectPtr o
    */
   if ( listptr->cnt == 0 )
     {
-      listptr->hvec[0].objname = wmlAllocateString (name);
+      listptr->hvec[0].objname = wmlRequireStringCopy (name);
       listptr->hvec[0].objptr = obj;
       listptr->cnt += 1;
       return;
@@ -386,7 +403,7 @@ void wmlInsertInKeyList(DynamicHandleListDefPtr listptr, char *name, ObjectPtr o
       listptr->hvec[ndx+1].objname = listptr->hvec[ndx].objname;
       listptr->hvec[ndx+1].objptr = listptr->hvec[ndx].objptr;
     }
-  listptr->hvec[newndx].objname = wmlAllocateString (name);
+  listptr->hvec[newndx].objname = wmlRequireStringCopy (name);
   listptr->hvec[newndx].objptr = obj;
   listptr->cnt += 1;
   return;
