@@ -139,6 +139,32 @@ consumer regressions, 619 selected source checks, library fingerprints and the
 exact tested code commit. Linux enabled Xft, Unicode, AT-SPI and SVG; macOS
 enabled Xft and Unicode.
 
+## Hardening and sanitizer builds
+
+Two opt-in configure switches support defect hunting. Neither changes an
+ordinary build.
+
+`--enable-hardening` adds `-Wall -Wextra -Wformat=2 -Wnull-dereference`,
+`-Wno-unused-parameter` (Xt and Motif callback signatures fix their parameter
+lists), `-fstack-protector-strong` and, when the build is optimized,
+`-D_FORTIFY_SOURCE=3`. Each flag is probed, so a compiler that lacks one skips
+it. The switch also stops adding `-Wno-unused`, so unused-but-set variables and
+dead code are reported. Build with at least `-O1`; `-Wnull-dereference` finds
+most with `-O2`.
+
+`--enable-sanitizers[=LIST]` compiles and links with `-fsanitize=LIST` (default
+`address,undefined`) and `-fno-omit-frame-pointer`. Configure fails when the
+compiler cannot link a sanitized program. The flags are applied after the last
+feature probe, so sanitized probe programs do not change feature detection. A
+sanitized toolkit needs a sanitized consumer: build and run applications and
+test programs with the same switch and list. Set `ASAN_OPTIONS=detect_leaks=0`
+while building, because the WML and UIL generators run during the build.
+
+Neither switch adds `-Werror`. Record warning counts per component and warning
+class before and after a change instead of treating the profile as a pass/fail
+gate. The [hardening baseline and audit ledger](hardening.md) holds the current
+counts and the tool that compares a build with them.
+
 ## Development text and accessibility features
 
 `--enable-xft` requires Xft, Fontconfig and FreeType development files.

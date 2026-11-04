@@ -179,9 +179,18 @@ then
     fi
 fi
 
+dnl --enable-hardening and --enable-sanitizers (ck_hardening.m4).  The flags
+dnl are applied after the last feature test, before the output files.
+CK_HARDENING_INIT
+
+dnl -Wno-unused hides unused-but-set variables and dead code; a hardening
+dnl build reports them.
+ck_legacy_wno_unused=" -Wno-unused"
+AS_IF([test "x$enable_hardening" = xyes], [ck_legacy_wno_unused=])
+
 if test x$GCC = xyes
 then
-    CFLAGS="$CFLAGS -Wall -g -fno-strict-aliasing -Wno-unused -Wno-comment"
+    CFLAGS="$CFLAGS -Wall -g -fno-strict-aliasing$ck_legacy_wno_unused -Wno-comment"
     if test ` $CC -dumpversion | sed -e 's/\(^.\).*/\1/'` = "4" ; then
         CFLAGS="$CFLAGS -fno-tree-ter"
     fi
@@ -398,6 +407,8 @@ AM_CONDITIONAL([OM_LIBRSVG], [test "x$enable_svg" = "xyes"])
 
 
 # AM_CONDITIONAL(Motif22Compatibility, test x$enable_motif22_compatibility = xyes)
+
+CK_HARDENING_APPLY
 
 AC_CONFIG_FILES([Makefile \
 bindings/Makefile \

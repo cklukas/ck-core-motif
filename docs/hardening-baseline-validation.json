@@ -1,0 +1,196 @@
+{
+ "record": "hardening-baseline",
+ "project": "motif",
+ "date": "2026-11-04",
+ "code_revision": "20a1461b155009c271ad7f9876c5ec4b8bbf9573",
+ "motif_revision": "20a1461b155009c271ad7f9876c5ec4b8bbf9573",
+ "host_architecture": "aarch64",
+ "host": "Debian GNU/Linux 13 (trixie) (Lima ckdev, virtiofs not used for builds)",
+ "build": {
+  "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+  "profile": "--enable-hardening",
+  "hardening_flags": "-Wall -Wextra -Wno-unused-parameter -Wformat=2 -Wnull-dereference -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3",
+  "optimization": "-O2 -g0",
+  "jobs": 6,
+  "make": "make -j6 -k",
+  "started": "2026-11-04T11:11:55+01:00",
+  "finished": "2026-11-04T11:12:41+01:00",
+  "elapsed_seconds": 46,
+  "input_fingerprint": "fc8169eb7f271ed45a61a285f015a8e4e242f8b5",
+  "fingerprint_method": "git write-tree of the staged worktree streamed with git archive"
+ },
+ "warnings": {
+  "unique_warnings": 1938,
+  "defect_class_warnings": 242,
+  "defect_classes": {
+   "-Wformat-security": 75,
+   "-Wimplicit-fallthrough": 49,
+   "-Wnull-dereference": 42,
+   "-Wmisleading-indentation": 32,
+   "-Wcast-function-type": 30,
+   "-Wpointer-to-int-cast": 7,
+   "-Wmaybe-uninitialized": 3,
+   "-Waddress": 2,
+   "-Wuninitialized": 1,
+   "-Wint-to-pointer-cast": 1
+  },
+  "totals": {
+   "-Wmissing-field-initializers": 672,
+   "-Wsign-compare": 511,
+   "-Wformat-nonliteral": 147,
+   "-Wtype-limits": 118,
+   "-Wunused-variable": 109,
+   "-Wformat-security": 75,
+   "-Wempty-body": 64,
+   "-Wunused-but-set-variable": 54,
+   "-Wimplicit-fallthrough": 49,
+   "-Wnull-dereference": 42,
+   "-Wmisleading-indentation": 32,
+   "-Wcast-function-type": 30,
+   "-Wunused-function": 15,
+   "-Wpointer-to-int-cast": 7,
+   "-Wmaybe-uninitialized": 3,
+   "-Wenum-conversion": 3,
+   "-Wunused-label": 2,
+   "-Waddress": 2,
+   "-Wint-to-pointer-cast": 1,
+   "-Wuninitialized": 1,
+   "(unclassified)": 1
+  },
+  "components": {
+   "lib/Xm": {
+    "-Wsign-compare": 323,
+    "-Wmissing-field-initializers": 165,
+    "-Wtype-limits": 85,
+    "-Wunused-variable": 68,
+    "-Wempty-body": 64,
+    "-Wimplicit-fallthrough": 42,
+    "-Wunused-but-set-variable": 40,
+    "-Wnull-dereference": 34,
+    "-Wmisleading-indentation": 28,
+    "-Wcast-function-type": 19,
+    "-Wformat-nonliteral": 12,
+    "-Wunused-function": 9,
+    "-Wpointer-to-int-cast": 7,
+    "-Wmaybe-uninitialized": 3,
+    "-Wenum-conversion": 3,
+    "-Wunused-label": 2,
+    "-Waddress": 1,
+    "-Wint-to-pointer-cast": 1,
+    "-Wuninitialized": 1
+   },
+   "clients/uil": {
+    "-Wmissing-field-initializers": 506,
+    "-Wunused-but-set-variable": 12,
+    "-Wnull-dereference": 6,
+    "-Wimplicit-fallthrough": 5,
+    "-Wmisleading-indentation": 4,
+    "-Wformat-nonliteral": 4,
+    "-Wsign-compare": 1,
+    "-Wunused-variable": 1,
+    "-Wunused-function": 1
+   },
+   "clients/mwm": {
+    "-Wsign-compare": 101,
+    "-Wformat-nonliteral": 54,
+    "-Wunused-variable": 19,
+    "-Wcast-function-type": 11,
+    "-Wtype-limits": 7,
+    "-Wunused-but-set-variable": 2,
+    "-Wnull-dereference": 2,
+    "-Wunused-function": 1
+   },
+   "lib/Mrm": {
+    "-Wsign-compare": 85,
+    "-Wformat-nonliteral": 59,
+    "-Wtype-limits": 26,
+    "-Wformat-security": 7,
+    "-Wunused-variable": 5,
+    "-Wimplicit-fallthrough": 2,
+    "-Waddress": 1
+   },
+   "tools/wml": {
+    "-Wformat-security": 68,
+    "-Wunused-variable": 14,
+    "-Wformat-nonliteral": 14,
+    "-Wunused-function": 4,
+    "-Wsign-compare": 1,
+    "(unclassified)": 1,
+    "-Wmissing-field-initializers": 1
+   },
+   "config/util": {
+    "-Wformat-nonliteral": 4,
+    "-Wunused-variable": 2
+   }
+  }
+ },
+ "cppcheck": {
+  "command": "cppcheck -j6 --max-configs=1 --enable=warning,portability --language=c --file-filter=*.c",
+  "excluded": {
+   "noise:normalCheckLevelMaxBranches": 669,
+   "test-or-demo": 823,
+   "noise:va_list_usedBeforeStarted": 653,
+   "noise:syntaxError": 3,
+   "noise:unknownMacro": 7
+  },
+  "unique_messages": 329,
+  "by_severity": {
+   "warning": 255,
+   "error": 62,
+   "portability": 12
+  },
+  "error_ids": {
+   "uninitvar": 52,
+   "memleak": 5,
+   "legacyUninitvar": 2,
+   "arrayIndexOutOfBounds": 1,
+   "shiftNegative": 1,
+   "memleakOnRealloc": 1
+  },
+  "top_ids": {
+   "nullPointerOutOfMemory": 141,
+   "uninitvar": 57,
+   "nullPointer": 42,
+   "nullPointerRedundantCheck": 22,
+   "invalidPrintfArgType_sint": 12,
+   "invalidPointerCast": 7,
+   "identicalInnerCondition": 6,
+   "returnImplicitInt": 5,
+   "literalWithCharPtrCompare": 5,
+   "invalidscanf": 5,
+   "memleak": 5,
+   "identicalConditionAfterEarlyExit": 3,
+   "oppositeInnerCondition": 3,
+   "integerOverflowCond": 3,
+   "uselessAssignmentPtrArg": 2
+  },
+  "components": {
+   "tools/wml": {
+    "total": 137,
+    "error": 5
+   },
+   "lib/Xm": {
+    "total": 127,
+    "error": 27
+   },
+   "clients/mwm": {
+    "total": 36,
+    "error": 27
+   },
+   "clients/uil": {
+    "total": 10,
+    "error": 2
+   },
+   "config/util": {
+    "total": 8,
+    "error": 1
+   },
+   "localized/util": {
+    "total": 7
+   },
+   "lib/Mrm": {
+    "total": 4
+   }
+  }
+ }
+}

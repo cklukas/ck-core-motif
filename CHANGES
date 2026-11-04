@@ -1,3 +1,14 @@
+Opt-in hardening and sanitizer builds (2026-11-04)
+==================================================
+
+- Add `--enable-hardening` (extra warnings including null-dereference and
+  format checks, stack protection and fortified libc calls, without the
+  `-Wno-unused` suppression) and `--enable-sanitizers[=LIST]` (address and
+  undefined-behaviour sanitizers by default). Ordinary builds are unchanged.
+- Record the first hardening warning and cppcheck baseline and a per-component
+  audit ledger, and add `scripts/warning-baseline.py` to compare a build's
+  warning counts with that baseline.
+
 Cross-link the CK Core documentation sites (2026-11-02)
 =======================================================
 
