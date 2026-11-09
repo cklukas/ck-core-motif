@@ -25,6 +25,17 @@ public toolkit consumers; never disclose private application requirements.
 - Keep unfinished or failing changes out of accepted-fix commits. Report actual
   validation limits accurately; never bypass a relevant failing test to publish.
 
+## Branch policy
+
+- Work directly on `main`. Commit accepted Motif fixes only on `main`, and push
+  only `main` to rpi4 (`ckgit`) and GitHub (`origin`).
+- Do not create, commit, or push `codex/...` branches to either remote. Before
+  every publication, verify that the checked-out branch is `main` and that both
+  remote updates target `main`.
+- Temporary local experimentation may be preserved outside Git history when
+  necessary, but it must be brought into a tested `main` commit before
+  publication. Do not leave stale remote `codex/...` branches behind.
+
 Follow the parent workspace's temporary-directory and build-freshness rules.
 Build rendered documentation once at feature completion from the primary checkout;
 subagents must not build the documentation.
