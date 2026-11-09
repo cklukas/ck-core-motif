@@ -1,3 +1,10 @@
+Bound JPEG dimensions at the XImage boundary (2026-11-09)
+=========================================================
+
+- Reject decoded JPEG dimensions and root depths that cannot be represented
+  safely by XImage, and retain unsigned libjpeg counters through grayscale
+  expansion; see `docs/jpeg-ximage-bounds.md`.
+
 Bound appearance-profile Xrm input sizes (2026-11-09)
 =======================================================
 
