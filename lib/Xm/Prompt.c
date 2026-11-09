@@ -182,7 +182,8 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     return XmeReplyToQueryGeometry(widget, request, reply);
 }
 void XmPromptSetVisible(Widget widget, Boolean visible) {
-    if (widget == NULL || !XmIsPrompt(widget)) return;
+    if (widget == NULL || !XmIsPrompt(widget) || widget->core.being_destroyed)
+        return;
     if (((XmPromptWidget)widget)->prompt.visible != visible) {
         ((XmPromptWidget)widget)->prompt.visible = visible;
         if (XtIsRealized(widget)) _XmPaintInvalidate(widget);

@@ -1,3 +1,10 @@
+Guard simple redraw mutators during destruction (2026-11-03)
+============================================================
+
+- Make Prompt visibility and DropHighlight state updates no-ops after Xt begins
+  destruction, avoiding repaint requests against teardown state; see
+  `docs/simple-mutator-destroy-guards.md`.
+
 Handle unavailable buffered-paint state safely (2026-11-03)
 ============================================================
 

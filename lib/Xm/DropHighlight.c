@@ -275,7 +275,8 @@ Widget XmVaCreateManagedDropHighlight(Widget parent, char *name, ...)
 
 Boolean XmDropHighlightSetState(Widget widget, unsigned char state)
 {
-    if (!widget || !XmIsDropHighlight(widget) || !valid_state(state))
+    if (!widget || !XmIsDropHighlight(widget) || widget->core.being_destroyed ||
+        !valid_state(state))
         return False;
     if (((XmDropHighlightWidget)widget)->drop_highlight.state != state) {
         ((XmDropHighlightWidget)widget)->drop_highlight.state = state;
