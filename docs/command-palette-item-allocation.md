@@ -4,7 +4,9 @@ nav_exclude: true
 # Command-palette item allocation
 
 `XmCommandPaletteSetItems` now rejects a `NULL` item array for a nonzero
-count and handles item-array allocation failure before populating entries.
+count, counts beyond the legacy `XmList` `int` item domain, and item-array
+allocation failure before populating entries.  Invalid replacement requests
+leave the currently displayed command set intact.
 The internal XmString copy helper also rejects a failed empty-string fallback
 before calling the Motif constructor.
 Filtering also handles failure to allocate its visible-index array before

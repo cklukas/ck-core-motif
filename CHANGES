@@ -1,3 +1,10 @@
+Keep CommandPalette counts within XmList's index domain (2026-11-03)
+=====================================================================
+
+- Reject `XmCommandPaletteSetItems` counts which cannot be represented by its
+  internal `XmList` before allocating or replacing items.  Oversized requests
+  preserve the visible command set; see `docs/command-palette-item-allocation.md`.
+
 Validate Avatar XRender mask allocation inputs (2026-11-03)
 ===========================================================
 

@@ -153,7 +153,8 @@ void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, 
     palette = (XmCommandPaletteWidget)widget;
     if (!count) { free_items(palette); rebuild(palette); return; }
     if (!items) { XtWarning("XmCommandPaletteSetItems: NULL item array"); return; }
-    if ((size_t)count > SIZE_MAX / sizeof(*palette->palette.items) ||
+    if ((size_t)count > (size_t)INT_MAX ||
+        (size_t)count > SIZE_MAX / sizeof(*palette->palette.items) ||
         (size_t)count > UINT_MAX / sizeof(*palette->palette.items)) {
         XtWarning("XmCommandPaletteSetItems: item array is too large");
         return;
