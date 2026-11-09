@@ -6,6 +6,6 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "List.c").read_text(encodin
 start = source.index("XmListPosToBounds(Widget")
 end = source.index("\n}\n", start)
 region = source[start:end]
-assert "if (w == NULL || !XmIsList(w))" in region
-assert region.index("if (w == NULL || !XmIsList(w))") < region.index("_XmWidgetToAppContext(w)")
+assert "if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)" in region
+assert region.index("if (w == NULL || !XmIsList(w) || lw->core.being_destroyed)") < region.index("_XmWidgetToAppContext(w)")
 print("PASS XmListPosToBounds validates widget class before list access")

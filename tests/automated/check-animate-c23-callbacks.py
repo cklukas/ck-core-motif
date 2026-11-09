@@ -13,14 +13,13 @@ source = (
 ).read_text(encoding="utf-8")
 
 contracts = (
-    "main(int argc, char **argv)",
-    "static void p_motifanim_start(Widget, char *, XmAnyCallbackStruct *);",
-    "static void p_motifanim_speed(Widget, int *, XmScaleCallbackStruct *);",
+    "main(int argc, String argv[])",
+    "static void p_motifanim_start(Widget, XtPointer, XtPointer);",
+    "static void p_motifanim_speed(Widget, XtPointer, XtPointer);",
     "static void InitAnim(void);",
     "InitAnim(void)",
-    "fstep(XtPointer client_data)",
-    "p_motifanim_start(Widget widget, char *tag, XmAnyCallbackStruct *callback_data)",
-    "p_motifanim_draw(Widget widget, int *tag, XmAnyCallbackStruct *callback_data)",
+    "p_motifanim_start(Widget widget, XtPointer tag, XtPointer call_data)",
+    "p_motifanim_draw(Widget widget, XtPointer tag, XtPointer call_data)",
 )
 for contract in contracts:
     assert contract in source, f"missing typed Animate contract: {contract}"
