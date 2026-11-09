@@ -1,3 +1,10 @@
+Guard UIL database loader allocations (2026-11-09)
+===================================================
+
+- Reject failed nonempty table, length, string, and enum-value allocations
+  before UID database reads or pointer setup, while preserving valid empty
+  serialized sections; see `docs/uil-db-allocation-guards.md`.
+
 Bound JPEG dimensions at the XImage boundary (2026-11-09)
 =========================================================
 

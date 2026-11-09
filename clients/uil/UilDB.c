@@ -537,6 +537,12 @@ Boolean db_read_ints_and_string(_db_header_ptr header)
 	    };
 
 	string_table = XtMalloc ((Cardinal)string_size);
+	if (string_size != 0 && string_table == NULL)
+	    {
+	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				  diag_k_no_column);
+	    return False;
+	    }
 	if (!db_read_table(string_table, string_size))
 	    return False;
 
@@ -638,8 +644,14 @@ Boolean db_read_char_table(_db_header_ptr header)
 	 * Read in the entire table contents in one whack.
 	 * Then go through the table and set the addresses
 	 */
-	table = (unsigned char *) XtMalloc ((Cardinal)table_bytes);
 	if (ptr == NULL)
+	    {
+	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				  diag_k_no_column);
+	    return False;
+	    }
+	table = (unsigned char *) XtMalloc ((Cardinal)table_bytes);
+	if (table_bytes != 0 && table == NULL)
 	    {
 	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
 				  diag_k_no_column);
@@ -785,8 +797,14 @@ Boolean db_read_length_and_string(_db_header_ptr header)
 	 *	 have to be carefull.
 	 */
 
-	lengths = (int *) XtMalloc ((Cardinal)lengths_bytes);
 	if (table == NULL)
+	    {
+	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				  diag_k_no_column);
+	    return False;
+	    }
+	lengths = (int *) XtMalloc ((Cardinal)lengths_bytes);
+	if (lengths == NULL)
 	    {
 	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
 				  diag_k_no_column);
@@ -820,6 +838,13 @@ Boolean db_read_length_and_string(_db_header_ptr header)
 	    }
 
 	string_table = XtMalloc ((Cardinal)string_size);
+	if (string_size != 0 && string_table == NULL)
+	    {
+	    XtFree ((char *)lengths);
+	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				  diag_k_no_column);
+	    return False;
+	    }
 	if (!db_read_table(string_table, string_size))
 	    {
 	    XtFree ((char *)lengths);
@@ -882,7 +907,7 @@ Boolean db_read_int_and_shorts(_db_header_ptr header)
  *  Local variables
  */
 	int			i;
-	size_t		item_count, int_table_count = 0;
+	size_t		item_count, int_table_count = 0, int_table_bytes;
 	UilEnumSetDescDef	*table = NULL;
 	unsigned short int 	*int_table = NULL;
 
@@ -910,6 +935,12 @@ Boolean db_read_int_and_shorts(_db_header_ptr header)
 	 * Get all the integer tables with one read.
 	 * Reassign the addresses of the tables.
 	 */
+	if (table == NULL)
+	    {
+	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				  diag_k_no_column);
+	    return False;
+	    }
 	if (!db_read_table(table, (size_t)header->table_size))
 	    return False;
 	for ( i=0 ; i<=header->num_items; i++)
@@ -921,10 +952,16 @@ Boolean db_read_int_and_shorts(_db_header_ptr header)
 	    int_table_count += (size_t)table[i].values_cnt;
 	    }
 
-	int_table = (unsigned short int *) XtCalloc
-	    (1, (Cardinal)(sizeof(unsigned short) * int_table_count));
+	int_table_bytes = sizeof(*int_table) * int_table_count;
+	int_table = (unsigned short int *) XtCalloc(1, (Cardinal)int_table_bytes);
+	if (int_table_bytes != 0 && int_table == NULL)
+	    {
+	    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				  diag_k_no_column);
+	    return False;
+	    }
 	if (!db_read_table(int_table,
-			   sizeof(unsigned short) * int_table_count))
+			   int_table_bytes))
 	    return False;
 	for ( i=0 ; i<=header->num_items; i++)
 	    {
