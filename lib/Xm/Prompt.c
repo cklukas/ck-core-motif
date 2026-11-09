@@ -190,7 +190,7 @@ void XmPromptSetVisible(Widget widget, Boolean visible) {
     }
 }
 Boolean XmPromptGetVisible(Widget widget) {
-    return widget != NULL && XmIsPrompt(widget)
+    return widget != NULL && XmIsPrompt(widget) && !widget->core.being_destroyed
         ? ((XmPromptWidget)widget)->prompt.visible : False;
 }
 Widget XmCreatePrompt(Widget parent, char *name, ArgList args, Cardinal count) { return XtCreateWidget(name, xmPromptWidgetClass, parent, args, count); }

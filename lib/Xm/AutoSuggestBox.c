@@ -819,6 +819,8 @@ static void cancel_popup(XtPointer closure, XtIntervalId *id)
 {
     XmAutoSuggestBoxWidget box = closure;
     (void)id;
+    if (box == NULL || box->core.being_destroyed)
+        return;
     box->auto_suggest.cancel_timer = 0;
     box->auto_suggest.cancel_pending = False;
     dismiss(box, NULL);
@@ -897,6 +899,6 @@ void XmAutoSuggestBoxCommit(Widget widget, Cardinal index, XEvent *event)
 
 Widget XmAutoSuggestBoxGetSearchField(Widget widget)
 {
-    return widget && XmIsAutoSuggestBox(widget)
+    return widget && XmIsAutoSuggestBox(widget) && !widget->core.being_destroyed
                ? ((XmAutoSuggestBoxWidget)widget)->auto_suggest.search : NULL;
 }

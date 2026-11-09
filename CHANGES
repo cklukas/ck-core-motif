@@ -2,9 +2,11 @@ Make composite query APIs teardown-safe (2026-11-03)
 ======================================================
 
 - Return established neutral values from affected AutoSuggestBox,
-  BreadcrumbBar, Sidebar, Disclosure, Flyout, TeachingTip, and SearchBox
-  public queries during Xt destruction.  AutoSuggestBox dismissal likewise
-  rejects teardown state; see `docs/public-query-destroy-guards.md`.
+  BreadcrumbBar, Sidebar, Disclosure, Flyout, TeachingTip, SearchBox, Toast,
+  Prompt, FormSection, and EmptyState public queries during Xt destruction.
+  AutoSuggestBox dismissal and deferred AutoSuggestBox/Toast timers likewise
+  reject teardown state; see
+  `docs/public-query-destroy-guards.md`.
 
 Bound AutoSuggestBox popup dimensions (2026-11-03)
 =====================================================

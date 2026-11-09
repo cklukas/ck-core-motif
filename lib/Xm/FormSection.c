@@ -200,6 +200,6 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended,
 Widget XmCreateFormSection(Widget parent, char *name, ArgList args, Cardinal count) { return XtCreateWidget(name, xmFormSectionWidgetClass, parent, args, count); }
 Widget XmVaCreateFormSection(Widget parent, char *name, ...) { Widget w; va_list v; int n; Va_start(v,name); n=XmeCountVaListSimple(v); va_end(v); Va_start(v,name); w=XmeVLCreateWidget(name,xmFormSectionWidgetClass,parent,False,v,n); va_end(v); return w; }
 Widget XmVaCreateManagedFormSection(Widget parent, char *name, ...) { Widget w; va_list v; int n; Va_start(v,name); n=XmeCountVaListSimple(v); va_end(v); Va_start(v,name); w=XmeVLCreateWidget(name,xmFormSectionWidgetClass,parent,True,v,n); va_end(v); return w; }
-Widget XmFormSectionGetContent(Widget widget) { return widget && XmIsFormSection(widget) ? ((XmFormSectionWidget)widget)->section.content : NULL; }
-Widget XmFormSectionGetHeader(Widget widget) { return widget && XmIsFormSection(widget) ? ((XmFormSectionWidget)widget)->section.header : NULL; }
-Widget XmFormSectionGetFooter(Widget widget) { return widget && XmIsFormSection(widget) ? ((XmFormSectionWidget)widget)->section.footer : NULL; }
+Widget XmFormSectionGetContent(Widget widget) { return widget && XmIsFormSection(widget) && !widget->core.being_destroyed ? ((XmFormSectionWidget)widget)->section.content : NULL; }
+Widget XmFormSectionGetHeader(Widget widget) { return widget && XmIsFormSection(widget) && !widget->core.being_destroyed ? ((XmFormSectionWidget)widget)->section.header : NULL; }
+Widget XmFormSectionGetFooter(Widget widget) { return widget && XmIsFormSection(widget) && !widget->core.being_destroyed ? ((XmFormSectionWidget)widget)->section.footer : NULL; }
