@@ -30,6 +30,7 @@ static char rcsid[] = "$TOG: Form.c /main/19 1998/03/25 12:24:56 csn $"
 #include <config.h>
 #endif
 
+#include <limits.h>
 
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>		/* for abs, float operation... */
@@ -89,6 +90,16 @@ static char rcsid[] = "$TOG: Form.c /main/19 1998/03/25 12:24:56 csn $"
 #define BOTTOM	_XmFORM_BOTTOM
 #define FIRST_ATTACHMENT  LEFT
 #define LAST_ATTACHMENT   BOTTOM	
+
+static Dimension
+FormAddDimension(Dimension value, double addition)
+{
+    if (addition <= 0.0)
+	return value;
+    if (addition >= (double)USHRT_MAX - value)
+	return (Dimension)USHRT_MAX;
+    return (Dimension)(value + addition);
+}
 
 /********    Static Function Declarations    ********/
 
@@ -2821,7 +2832,7 @@ CalcEdgeValue(
 		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
-		  *fwidth += abs(temp2);
+		  *fwidth = FormAddDimension(*fwidth, abs(temp2));
 		  AssignValue(a, (temp1 + abs(temp2)));
 		} else
 		  AssignValue(a, temp1);
@@ -2830,7 +2841,7 @@ CalcEdgeValue(
 		temp2 = Value(att + RIGHT);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
-		  *fwidth += abs(temp3);
+		  *fwidth = FormAddDimension(*fwidth, abs(temp3));
 		  AssignValue(a, ((int)*fwidth - (int)size -
 				   GetFormOffset(fw, which, att)));
 		} else
@@ -2845,7 +2856,7 @@ CalcEdgeValue(
 		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
-		  *fheight += abs(temp2);
+		  *fheight = FormAddDimension(*fheight, abs(temp2));
 		  AssignValue(a, (temp1 + abs(temp2)));
 		} else
 		  AssignValue(a, temp1);
@@ -2854,7 +2865,7 @@ CalcEdgeValue(
 		temp2 = Value(att + TOP);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
-		  *fheight += abs(temp3);
+		  *fheight = FormAddDimension(*fheight, abs(temp3));
 		  AssignValue(a, ((int)*fheight - (int)size -
 				   GetFormOffset(fw, which, att)));
 		} else
@@ -2876,7 +2887,7 @@ CalcEdgeValue(
 	    if (fwidth) {
 	      temp1 = *fwidth + GetFormOffset(fw, which, att);
 	      if (temp1 < 0) {
-		*fwidth += abs(temp1);
+		*fwidth = FormAddDimension(*fwidth, abs(temp1));
 		temp1 = 0;
 	      }
 	      AssignValue(a, temp1);
@@ -2888,7 +2899,7 @@ CalcEdgeValue(
 	    if (fheight) {
 	      temp1 = *fheight + GetFormOffset(fw, which, att);
 	      if (temp1 < 0) {
-		*fheight += abs(temp1);
+		*fheight = FormAddDimension(*fheight, abs(temp1));
 		temp1 = 0;
 	      }
 	      AssignValue(a, temp1);
@@ -2938,7 +2949,8 @@ CalcEdgeValue(
 		  if (!scale)
 		    scale = 1.0;
 
-		  *fwidth += (Dimension) (((1.0 / scale) * abs(temp3)) + 0.5);
+		  *fwidth = FormAddDimension(*fwidth,
+		      ((1.0 / scale) * abs(temp3)) + 0.5);
 		}
 		AssignValue(a, (temp2 + size));
 	      } else
@@ -2959,7 +2971,8 @@ CalcEdgeValue(
 		  if (!scale)
 		    scale = 1.0;
 		  
-		  *fheight += (Dimension) (((1.0 / scale) * abs(temp3)) + 0.5);
+		  *fheight = FormAddDimension(*fheight,
+		      ((1.0 / scale) * abs(temp3)) + 0.5);
 		}
 		AssignValue(a, (temp2 + size));
 	      } else
@@ -2995,7 +3008,7 @@ CalcEdgeValue(
 	      temp3 = temp2 - size;
 	      if ((fwidth) && (temp3 < 0)) {
 		factor = CheckLeftBase(a->w, FALSE);
-		*fwidth += (Dimension) ((factor * abs(temp3)) + 0.5);
+		*fwidth = FormAddDimension(*fwidth, (factor * abs(temp3)) + 0.5);
 		temp1 = Value(&(att[RIGHT])) + size;
 	      }
 	      AssignValue(a, temp1);
@@ -3013,7 +3026,7 @@ CalcEdgeValue(
 	      temp3 = temp2 - size;
 	      if ((fheight) && (temp3 < 0)) {
 		factor = CheckBottomBase(a->w, FALSE);
-		*fheight += (Dimension) ((factor * abs(temp3)) + 0.5);
+		*fheight = FormAddDimension(*fheight, (factor * abs(temp3)) + 0.5);
 		temp1 = Value((&att[TOP])) + size;
 	      }
 	      AssignValue(a, temp1);
@@ -3073,7 +3086,7 @@ CalcEdgeValue(
 		temp1 = (int)*fwidth - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
-		  *fwidth += abs(temp2);
+		  *fwidth = FormAddDimension(*fwidth, abs(temp2));
 		  AssignValue(a, (temp1 + abs(temp2)));
 		} else
 		  AssignValue(a, temp1);
@@ -3082,7 +3095,7 @@ CalcEdgeValue(
 		temp2 = Value(att + LEFT);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
-		  *fwidth += abs(temp3);
+		  *fwidth = FormAddDimension(*fwidth, abs(temp3));
 		  AssignValue(a, ((int)*fwidth - (int)size -
 				   GetFormOffset(fw, which, att)));
 		} else
@@ -3097,7 +3110,7 @@ CalcEdgeValue(
 		temp1 = (int)*fheight - GetFormOffset(fw, which, att);
 		temp2 = temp1 - size;
 		if (temp2 < 0) {
-		  *fheight += abs(temp2);
+		  *fheight = FormAddDimension(*fheight, abs(temp2));
 		  AssignValue(a, (temp1 + abs(temp2)));
 		} else
 		  AssignValue(a, temp1);
@@ -3106,7 +3119,7 @@ CalcEdgeValue(
 		temp2 = Value(att + TOP);
 		temp3 = temp1 - temp2 - size;
 		if (temp3 < 0) {
-		  *fheight += abs(temp3);
+		  *fheight = FormAddDimension(*fheight, abs(temp3));
 		  AssignValue(a, ((int)*fheight - (int)size -
 				   GetFormOffset(fw, which, att)));
 		} else
@@ -3128,7 +3141,7 @@ CalcEdgeValue(
 	    if (fwidth) {
 	      temp1 = *fwidth + GetFormOffset(fw, which, att);
 	      if (temp1 < 0) {
-		*fwidth += abs(temp1);
+		*fwidth = FormAddDimension(*fwidth, abs(temp1));
 		temp1 = 0;
 	      }
 	      AssignValue(a, temp1);
@@ -3140,7 +3153,7 @@ CalcEdgeValue(
 	    if (fheight) {
 	      temp1 = *fheight + GetFormOffset(fw, which, att);
 	      if (temp1 < 0) {
-		*fheight += abs(temp1);
+		*fheight = FormAddDimension(*fheight, abs(temp1));
 		temp1 = 0;
 	      }
 	      AssignValue(a, temp1);
@@ -3187,7 +3200,8 @@ CalcEdgeValue(
 		  if (!scale)
 		    scale = 1.0;
 
-		  *fwidth += (Dimension) (((1.0 / scale) * abs(temp3)) + 0.5);
+		  *fwidth = FormAddDimension(*fwidth,
+		      ((1.0 / scale) * abs(temp3)) + 0.5);
 		}
 		AssignValue(a, (temp2 + size));
 	      } else
@@ -3208,7 +3222,8 @@ CalcEdgeValue(
 		  if (!scale)
 		    scale = 1.0;
 		  
-		  *fheight += (Dimension) (((1.0 / scale) * abs(temp3)) + 0.5);
+		  *fheight = FormAddDimension(*fheight,
+		      ((1.0 / scale) * abs(temp3)) + 0.5);
 		}
 		AssignValue(a, (temp2 + size));
 	      } else
@@ -3244,7 +3259,7 @@ CalcEdgeValue(
 	      temp3 = temp2 - size;
 	      if ((fwidth) && (temp3 < 0)) {
 		factor = CheckRightBase(a->w, FALSE);
-		*fwidth += (Dimension) ((factor * abs(temp3)) + 0.5);
+		*fwidth = FormAddDimension(*fwidth, (factor * abs(temp3)) + 0.5);
 		temp1 = Value(&(att[LEFT])) + size;
 	      }
 	      AssignValue(a, temp1);
@@ -3262,7 +3277,7 @@ CalcEdgeValue(
 	      temp3 = temp2 - size;
 	      if ((fheight) && (temp3 < 0)) {
 		factor = CheckBottomBase(a->w, FALSE);
-		*fheight += (Dimension) ((factor * abs(temp3)) + 0.5);
+		*fheight = FormAddDimension(*fheight, (factor * abs(temp3)) + 0.5);
 		temp1 = Value((&att[TOP])) + size;
 	      }
 	      AssignValue(a, temp1);
@@ -3348,7 +3363,7 @@ ComputeAttachment(
 	 temp =  Value(&c->att[LEFT]) - size;
 	 if ((fwidth != NULL) && (temp < 0))
 	   {
-	     *fwidth += abs(temp);
+	     *fwidth = FormAddDimension(*fwidth, abs(temp));
 	     temp = 0;
 	   }
          AssignValue(a,temp);
@@ -3357,7 +3372,7 @@ ComputeAttachment(
        case LEFT:
 	 temp = Value(&c->att[RIGHT]) + size;
 	 if ((fwidth != NULL) && (temp > 0) && (temp > *fwidth))
-	   *fwidth += (temp - *fwidth);
+	   *fwidth = FormAddDimension(*fwidth, temp - *fwidth);
          AssignValue(a,temp);
 	 break;
 	 
@@ -3365,7 +3380,7 @@ ComputeAttachment(
 	 temp = Value(&c->att[BOTTOM]) - size;
 	 if ((fheight != NULL) && (temp < 0))
 	   {
-	     *fheight += abs(temp);
+	     *fheight = FormAddDimension(*fheight, abs(temp));
 	     temp = 0;
 	   }
          AssignValue(a, temp);
@@ -3374,7 +3389,7 @@ ComputeAttachment(
        case BOTTOM:
 	 temp = Value(&c->att[TOP]) + size;
 	 if ((fheight != NULL) && (temp > 0) && (temp > *fheight))
-	   *fheight += (temp - *fheight);
+	   *fheight = FormAddDimension(*fheight, temp - *fheight);
          AssignValue(a, temp);
 	 break;
        }
@@ -3385,7 +3400,7 @@ ComputeAttachment(
 	 temp =  Value(&c->att[RIGHT]) - size;
 	 if ((fwidth != NULL) && (temp < 0))
 	   {
-	     *fwidth += abs(temp);
+	     *fwidth = FormAddDimension(*fwidth, abs(temp));
 	     temp = 0;
 	   }
 	 AssignValue(a,temp);
@@ -3394,7 +3409,7 @@ ComputeAttachment(
        case RIGHT:
 	 temp = Value(&c->att[LEFT]) + size;
 	 if ((fwidth != NULL) && (temp > 0) && (temp > *fwidth))
-	   *fwidth += (temp - *fwidth);
+	   *fwidth = FormAddDimension(*fwidth, temp - *fwidth);
 	 AssignValue(a,temp);
 	 break;
 	 
@@ -3402,7 +3417,7 @@ ComputeAttachment(
 	 temp = Value(&c->att[BOTTOM]) - size;
 	 if ((fheight != NULL) && (temp < 0))
 	   {
-	     *fheight += abs(temp);
+	     *fheight = FormAddDimension(*fheight, abs(temp));
 	     temp = 0;
 	   }
 	 AssignValue(a, temp);
@@ -3411,7 +3426,7 @@ ComputeAttachment(
        case BOTTOM:
 	 temp = Value(&c->att[TOP]) + size;
 	 if ((fheight != NULL) && (temp > 0) && (temp > *fheight))
-	   *fheight += (temp - *fheight);
+	   *fheight = FormAddDimension(*fheight, temp - *fheight);
 	 AssignValue(a, temp);
 	 break;
        }

@@ -1,3 +1,10 @@
+Saturate XmForm measured-size growth (2026-11-10)
+==================================================
+
+- Keep every attachment-resolution growth path within the X11 Dimension range,
+  preventing large or repeated attachment corrections from wrapping measured
+  width or height; see docs/form-measured-size-geometry.md.
+
 Bound MainWindow geometry-manager dimensions (2026-11-10)
 =========================================================
 

@@ -10,3 +10,5 @@ therefore wrap the measured remainder and request an incorrect attachment.
 
 All measured-size subtraction now converts the dimensions before arithmetic,
 preserving normal attachment behavior while making narrow forms deterministic.
+Measured width and height growth now saturates as well, so repeated attachment
+corrections cannot wrap a Dimension after a valid intermediate calculation.
