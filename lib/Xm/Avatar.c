@@ -88,7 +88,7 @@ static Boolean pixmap_size(XmAvatarWidget avatar, unsigned int *width,
         avatar->avatar.pixmap == None)
         return False;
     return XGetGeometry(XtDisplay((Widget)avatar), avatar->avatar.pixmap,
-                        &root, &x, &y, width, height, &border, depth);
+                        &root, &x, &y, width, height, &border, depth) != 0;
 }
 
 static Boolean modern_avatar(Widget widget) {
@@ -127,7 +127,8 @@ static Boolean composite_circle(Widget widget, Drawable target, Pixmap face,
     Pixmap mask;
     GC gc;
     Picture source, destination, coverage;
-    if (diameter > 2048 || widget->core.depth != DefaultDepthOfScreen(screen) ||
+    if (diameter <= 0 || diameter > 2048 ||
+        widget->core.depth != DefaultDepthOfScreen(screen) ||
         !XRenderQueryExtension(display, &event, &error)) return False;
     format = XRenderFindVisualFormat(display, DefaultVisualOfScreen(screen));
     alpha = XRenderFindStandardFormat(display, PictStandardA8);
@@ -135,7 +136,13 @@ static Boolean composite_circle(Widget widget, Drawable target, Pixmap face,
     image = XCreateImage(display, DefaultVisualOfScreen(screen), 8, ZPixmap,
                          0, NULL, diameter, diameter, 8, 0);
     if (!image) return False;
-    image->data = XtCalloc((Cardinal)image->bytes_per_line, diameter);
+    if (image->bytes_per_line <= 0 ||
+        (size_t)diameter > UINT_MAX / (size_t)image->bytes_per_line) {
+        XDestroyImage(image);
+        return False;
+    }
+    image->data = XtCalloc((Cardinal)diameter,
+                           (Cardinal)image->bytes_per_line);
     if (!image->data) { XDestroyImage(image); return False; }
     double radius = diameter / 2.0, squared = radius * radius;
     for (int yy = 0; yy < diameter; ++yy)
@@ -202,6 +209,9 @@ static void PaintModernAvatar(Widget widget, Drawable target, GC gc,
     unsigned width = 0, height = 0, depth = 0;
     Dimension text_width = 0, text_height = 0;
     Pixmap face;
+    unsigned int extent;
+    if (diameter <= 0) return;
+    extent = (unsigned int)diameter;
     if (_XmAppearanceOwnsResource(widget, XmNbackground) && XtParent(widget))
         outside = XtParent(widget)->core.background_pixel;
     XSetClipMask(display, gc, None);
@@ -233,7 +243,7 @@ static void PaintModernAvatar(Widget widget, Drawable target, GC gc,
     XFillRectangle(display, target, gc, 0, 0, widget->core.width, widget->core.height);
     XSetFillStyle(display, gc, FillSolid);
     XSetTSOrigin(display, gc, 0, 0);
-    face = XCreatePixmap(display, target, diameter, diameter, widget->core.depth);
+    face = XCreatePixmap(display, target, extent, extent, widget->core.depth);
     if (face == None) {
         XSetForeground(display, gc, foreground);
         _XmAppearanceFillRoundedRectangle(display, target, gc, x, y,
@@ -242,7 +252,7 @@ static void PaintModernAvatar(Widget widget, Drawable target, GC gc,
     }
     XSetForeground(display, gc, avatar->core.background_pixel);
     XSetBackground(display, gc, avatar->core.background_pixel);
-    XFillRectangle(display, face, gc, 0, 0, diameter, diameter);
+    XFillRectangle(display, face, gc, 0, 0, extent, extent);
     XSetForeground(display, gc, foreground);
     if (pixmap_size(avatar, &width, &height, &depth) &&
         (depth == 1 || depth == widget->core.depth)) {
@@ -269,7 +279,7 @@ static void PaintModernAvatar(Widget widget, Drawable target, GC gc,
         Region clip = _XmAppearanceRoundedRectangleRegion(x, y, diameter,
                                                            diameter, diameter/2);
         XSetRegion(display, gc, clip);
-        XCopyArea(display, face, target, gc, 0, 0, diameter, diameter, x, y);
+        XCopyArea(display, face, target, gc, 0, 0, extent, extent, x, y);
         XSetClipMask(display, gc, None);
         XDestroyRegion(clip);
     }
@@ -323,6 +333,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     GC gc = avatar->avatar.foreground_gc;
     unsigned int pixmap_width = 0, pixmap_height = 0, depth = 0;
     int diameter, x, y, inner;
+    unsigned int extent;
     Dimension text_width = 0, text_height = 0;
     Region clip;
     Pixel foreground = XtIsSensitive(widget) ? avatar->primitive.foreground
@@ -335,6 +346,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
 
     diameter = MIN(avatar->core.width, avatar->core.height);
     if (diameter <= 0) return;
+    extent = (unsigned int)diameter;
     x = ((int)avatar->core.width - diameter) / 2;
     y = ((int)avatar->core.height - diameter) / 2;
     if (modern_avatar(widget) && diameter <= 2048) {
@@ -376,11 +388,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             /* Xft and core fonts share the same final circular clip. Drawing
              * text offscreen prevents a font backend's own clip from replacing
              * the circle and leaking long initials into the corner pixels. */
-            Pixmap text = XCreatePixmap(display, window, diameter, diameter,
+            Pixmap text = XCreatePixmap(display, window, extent, extent,
                                         avatar->core.depth);
             if (text != None) {
                 XSetForeground(display, gc, avatar->core.background_pixel);
-                XFillRectangle(display, text, gc, 0, 0, diameter, diameter);
+                XFillRectangle(display, text, gc, 0, 0, extent, extent);
                 XSetForeground(display, gc, foreground);
                 XmStringDraw(display, text, avatar->avatar.font,
                              avatar->avatar.initials, gc,
@@ -389,7 +401,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                              text_width, XmALIGNMENT_BEGINNING,
                              XmPrim_layout_direction(avatar), NULL);
                 XSetRegion(display, gc, clip);
-                XCopyArea(display, text, window, gc, 0, 0, diameter, diameter, x, y);
+                XCopyArea(display, text, window, gc, 0, 0, extent, extent, x, y);
 #ifdef USE_XFT
                 _XmXftDrawEvict(display, text);
 #endif
