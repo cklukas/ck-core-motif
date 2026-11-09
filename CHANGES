@@ -1,3 +1,10 @@
+Ignore StatusBar updates during destruction (2026-11-03)
+==========================================================
+
+- Make `XmStatusBarSetItems` a no-op after Xt starts destroying the widget.
+  Applications cannot create replacement children against teardown state; see
+  `docs/statusbar-transactional-replacement.md`.
+
 Keep CommandPalette counts within XmList's index domain (2026-11-03)
 =====================================================================
 

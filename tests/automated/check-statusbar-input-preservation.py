@@ -11,4 +11,6 @@ replacement = function.index("replacement = (XmStatusBarStoredItem *)XtCalloc")
 release = function.index("release_items(old_items, old_count, True)")
 assert guard < replacement < release
 assert "(count && !items)" in function
+assert "widget->core.being_destroyed" in function
+assert function.index("widget->core.being_destroyed") < replacement
 print("StatusBar validates replacements before releasing existing items")

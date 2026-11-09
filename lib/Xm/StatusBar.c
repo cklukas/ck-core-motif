@@ -358,7 +358,8 @@ void XmStatusBarSetItems(Widget widget, const XmStatusBarItem *items,
     XmStatusBarStoredItem *old_items;
     Cardinal old_count, i;
 
-    if (!widget || !XmIsStatusBar(widget) || (count && !items))
+    if (!widget || !XmIsStatusBar(widget) || widget->core.being_destroyed ||
+        (count && !items))
         return;
     bar = (XmStatusBarWidget)widget;
     if (count && ((size_t)count > SIZE_MAX / sizeof(*bar->status_bar.items) ||
