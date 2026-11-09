@@ -156,16 +156,17 @@ static void Resize(Widget widget) { layout((XmFormSectionWidget)widget); }
 static void ChangeManaged(Widget widget) { negotiate((XmFormSectionWidget)widget); }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmFormSectionWidget old = (XmFormSectionWidget)old_widget, section = (XmFormSectionWidget)widget;
-    Boolean changed = old->section.header_text != section->section.header_text || old->section.footer_text != section->section.footer_text;
+    Boolean header_changed = False;
+    Boolean footer_changed = False;
     (void)request; (void)args; (void)count;
     if (old->section.header_text != section->section.header_text) {
         XmString replacement = copy_string(section->section.header_text);
         if (replacement) {
             XmStringFree(old->section.header_text);
             section->section.header_text = replacement;
+            header_changed = True;
         } else {
             section->section.header_text = old->section.header_text;
-            changed = False;
         }
     }
     if (old->section.footer_text != section->section.footer_text) {
@@ -173,16 +174,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgLi
         if (replacement) {
             XmStringFree(old->section.footer_text);
             section->section.footer_text = replacement;
+            footer_changed = True;
         } else {
             section->section.footer_text = old->section.footer_text;
-            changed = False;
         }
     }
     if (section->section.header != NULL)
         XtVaSetValues(section->section.header, XmNlabelString, section->section.header_text, NULL);
     if (section->section.footer != NULL)
         XtVaSetValues(section->section.footer, XmNlabelString, section->section.footer_text, XmNmappedWhenManaged, footer_visible(section), NULL);
-    if (changed || old->section.margin_width != section->section.margin_width || old->section.margin_height != section->section.margin_height || old->section.spacing != section->section.spacing) negotiate(section);
+    if (header_changed || footer_changed || old->section.margin_width != section->section.margin_width || old->section.margin_height != section->section.margin_height || old->section.spacing != section->section.spacing) negotiate(section);
     return False;
 }
 static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request, XtWidgetGeometry *reply) {

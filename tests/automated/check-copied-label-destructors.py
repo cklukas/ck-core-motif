@@ -17,4 +17,10 @@ for filename, field in expectations.items():
     assert field in region, filename
     assert f"XmStringFree({field});" in region, filename
 
-print("PASS Avatar, Divider, and IconLabel release copied labels")
+icon_label = (root / "IconLabel.c").read_text(encoding="utf-8")
+start = icon_label.index("static Boolean SetValues(")
+end = icon_label.index("\nstatic XtGeometryResult QueryGeometry", start)
+set_values = icon_label[start:end]
+assert "XmStringFree(old->icon_label.label);" in set_values
+
+print("PASS copied labels are released during destruction and IconLabel replacement")

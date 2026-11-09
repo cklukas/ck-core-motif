@@ -14,6 +14,12 @@ for field in ("header_text", "footer_text"):
         raise SystemExit(f"FormSection missing {field} replacement validation")
     if f"section->section.{field} = old->section.{field};" not in region:
         raise SystemExit(f"FormSection does not preserve {field}")
+if "Boolean header_changed = False;" not in region or "Boolean footer_changed = False;" not in region:
+    raise SystemExit("FormSection does not track successful replacements independently")
+if "\n            changed = False;" in region:
+    raise SystemExit("FormSection lets one failed replacement hide another success")
+if "header_changed || footer_changed" not in region:
+    raise SystemExit("FormSection does not negotiate after either successful replacement")
 
 skeleton = (root / "Skeleton.c").read_text(encoding="utf-8")
 start = skeleton.rindex("static Boolean SetValues(")

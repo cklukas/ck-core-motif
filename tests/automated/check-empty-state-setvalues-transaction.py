@@ -20,5 +20,11 @@ if "XmStringFree(old->empty_state.message);" not in region:
     raise SystemExit("EmptyState message success path does not release old text")
 if "XmStringFree(old->empty_state.action_label);" not in region:
     raise SystemExit("EmptyState action success path does not release old text")
+if "Boolean message_changed = False;" not in region or "Boolean action_changed = False;" not in region:
+    raise SystemExit("EmptyState does not track successful replacements independently")
+if "\n            changed = False;" in region:
+    raise SystemExit("EmptyState lets one failed replacement hide another success")
+if "message_changed || action_changed || icon_changed" not in region:
+    raise SystemExit("EmptyState does not negotiate after either successful replacement")
 
 print("PASS EmptyState SetValues text updates are transactional")

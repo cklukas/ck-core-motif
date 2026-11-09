@@ -196,6 +196,16 @@ multilingual and compound charset segments therefore survive resource
 ownership instead of being flattened through locale-dependent text
 conversion. The regression check is `tests/automated/check-compound-copy-helpers.py`.
 
+## Composite label replacements
+
+`XmIconLabel` now releases the previous copied compound label after a successful
+replacement. `XmEmptyState` and `XmFormSection` track each replacement
+independently, so one allocation failure cannot suppress the required geometry
+negotiation for another successful label update. The focused checks are
+`tests/automated/check-copied-label-destructors.py`,
+`tests/automated/check-empty-state-setvalues-transaction.py`, and
+`tests/automated/check-text-setvalues-transaction.py`.
+
 RowActions also concatenates retained labels and shortcuts as `XmString`
 segments when creating visible buttons, so compound text is preserved in the
 rendered control rather than only in the stored model. The regression check is

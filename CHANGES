@@ -1,3 +1,11 @@
+Make composite label replacements independent (2026-11-10)
+===========================================================
+
+- Release the previously owned `XmIconLabel` label after a successful
+  replacement, and retain independent successful-change state in EmptyState
+  and FormSection so a failed label copy cannot suppress geometry negotiation
+  for another replacement; see docs/maintenance-review.md.
+
 Expose maintenance-fix documentation in navigation (2026-11-10)
 ===============================================================
 

@@ -211,9 +211,10 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     }
     if (label_changed) {
         XmString replacement = copy_label(label->icon_label.label);
-        if (replacement)
+        if (replacement) {
+            XmStringFree(old->icon_label.label);
             label->icon_label.label = replacement;
-        else
+        } else
             label->icon_label.label = old->icon_label.label;
     }
     if (render_changed) {

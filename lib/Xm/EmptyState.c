@@ -144,18 +144,18 @@ static void Resize(Widget widget) { layout((XmEmptyStateWidget)widget); }
 static void ChangeManaged(Widget widget) { negotiate((XmEmptyStateWidget)widget); }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmEmptyStateWidget old = (XmEmptyStateWidget)old_widget, state = (XmEmptyStateWidget)widget;
-    Boolean changed = old->empty_state.message != state->empty_state.message ||
-                      old->empty_state.action_label != state->empty_state.action_label ||
-                      old->empty_state.icon != state->empty_state.icon;
+    Boolean message_changed = False;
+    Boolean action_changed = False;
+    Boolean icon_changed = old->empty_state.icon != state->empty_state.icon;
     (void)request; (void)args; (void)count;
     if (old->empty_state.message != state->empty_state.message) {
         XmString replacement = copy_string(state->empty_state.message);
         if (replacement) {
             XmStringFree(old->empty_state.message);
             state->empty_state.message = replacement;
+            message_changed = True;
         } else {
             state->empty_state.message = old->empty_state.message;
-            changed = False;
         }
     }
     if (old->empty_state.action_label != state->empty_state.action_label) {
@@ -163,17 +163,17 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgLi
         if (replacement) {
             XmStringFree(old->empty_state.action_label);
             state->empty_state.action_label = replacement;
+            action_changed = True;
         } else {
             state->empty_state.action_label = old->empty_state.action_label;
-            changed = False;
         }
     }
-    if (old->empty_state.icon != state->empty_state.icon && state->empty_state.icon_widget != NULL) XtVaSetValues(state->empty_state.icon_widget, XmNlabelPixmap, state->empty_state.icon, NULL);
+    if (icon_changed && state->empty_state.icon_widget != NULL) XtVaSetValues(state->empty_state.icon_widget, XmNlabelPixmap, state->empty_state.icon, NULL);
     if (state->empty_state.message_widget != NULL)
         XtVaSetValues(state->empty_state.message_widget, XmNlabelString, state->empty_state.message, NULL);
     if (state->empty_state.action_widget != NULL)
         XtVaSetValues(state->empty_state.action_widget, XmNlabelString, state->empty_state.action_label, XmNmappedWhenManaged, has_action(state), NULL);
-    if (changed || old->empty_state.margin_width != state->empty_state.margin_width || old->empty_state.margin_height != state->empty_state.margin_height || old->empty_state.spacing != state->empty_state.spacing) negotiate(state);
+    if (message_changed || action_changed || icon_changed || old->empty_state.margin_width != state->empty_state.margin_width || old->empty_state.margin_height != state->empty_state.margin_height || old->empty_state.spacing != state->empty_state.spacing) negotiate(state);
     return False;
 }
 static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request, XtWidgetGeometry *reply) {
