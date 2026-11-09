@@ -315,7 +315,8 @@ static void position_popup(XmAutoSuggestBoxWidget box)
     if (y_pos > SHRT_MAX) y_pos = SHRT_MAX;
     XtVaSetValues(shell, XtNx, (Position)x_pos, XtNy, (Position)y_pos,
                   XtNwidth, width, XtNheight, height, NULL);
-    XtConfigureWidget(box->auto_suggest.scroller, 0, 0, width, height, 0);
+    XtConfigureWidget(box->auto_suggest.scroller, 0, 0,
+                      (Dimension)width, (Dimension)height, 0);
 }
 
 static void popup_destroyed(Widget widget, XtPointer closure, XtPointer data)
@@ -746,7 +747,7 @@ Boolean XmAutoSuggestBoxSetSuggestions(Widget widget,
         }
     }
     if (!count) {
-        no_results = XmStringCreateLocalized(no_results_text(box));
+        no_results = XmStringCreateLocalized((char *)no_results_text(box));
         if (!no_results) goto failed;
     }
     create_popup(box);
@@ -778,13 +779,13 @@ failed:
 
 Cardinal XmAutoSuggestBoxGetSuggestionCount(Widget widget)
 {
-    return widget && XmIsAutoSuggestBox(widget)
+    return widget && XmIsAutoSuggestBox(widget) && !widget->core.being_destroyed
                ? ((XmAutoSuggestBoxWidget)widget)->auto_suggest.item_count : 0;
 }
 
 unsigned long XmAutoSuggestBoxGetGeneration(Widget widget)
 {
-    return widget && XmIsAutoSuggestBox(widget)
+    return widget && XmIsAutoSuggestBox(widget) && !widget->core.being_destroyed
                ? ((XmAutoSuggestBoxWidget)widget)->auto_suggest.generation : 0;
 }
 
@@ -850,7 +851,8 @@ static Boolean dismiss(XmAutoSuggestBoxWidget box, XEvent *event)
 
 void XmAutoSuggestBoxDismiss(Widget widget, XEvent *event)
 {
-    if (widget && XmIsAutoSuggestBox(widget)) dismiss((XmAutoSuggestBoxWidget)widget, event);
+    if (widget && XmIsAutoSuggestBox(widget) && !widget->core.being_destroyed)
+        dismiss((XmAutoSuggestBoxWidget)widget, event);
 }
 static void commit_destroyed(Widget widget, XtPointer closure, XtPointer data)
 {

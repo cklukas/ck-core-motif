@@ -284,7 +284,7 @@ void XmFlyoutHide(Widget widget) {
 }
 
 Boolean XmFlyoutIsVisible(Widget widget) {
-    return widget != NULL && XmIsFlyout(widget)
+    return widget != NULL && XmIsFlyout(widget) && !widget->core.being_destroyed
         ? ((XmFlyoutWidget)widget)->flyout.visible : False;
 }
 

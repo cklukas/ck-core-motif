@@ -1,3 +1,18 @@
+Make composite query APIs teardown-safe (2026-11-03)
+======================================================
+
+- Return established neutral values from affected AutoSuggestBox,
+  BreadcrumbBar, Sidebar, Disclosure, Flyout, TeachingTip, and SearchBox
+  public queries during Xt destruction.  AutoSuggestBox dismissal likewise
+  rejects teardown state; see `docs/public-query-destroy-guards.md`.
+
+Bound AutoSuggestBox popup dimensions (2026-11-03)
+=====================================================
+
+- Preserve the popup's existing screen bounds through the final Xt
+  `Dimension` conversion, preventing signed working geometry from narrowing
+  into an oversized scroller; see `docs/autosuggest-popup-dimensions.md`.
+
 Guard navigation mutators during destruction (2026-11-03)
 =========================================================
 

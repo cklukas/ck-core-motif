@@ -550,12 +550,14 @@ void XmBreadcrumbBarSetSegments(Widget widget,
 }
 
 Cardinal XmBreadcrumbBarGetSegmentCount(Widget widget) {
-    return widget != NULL && XmIsBreadcrumbBar(widget) ?
+    return widget != NULL && XmIsBreadcrumbBar(widget) &&
+        !widget->core.being_destroyed ?
         ((XmBreadcrumbBarWidget)widget)->breadcrumb.count : 0;
 }
 
 int XmBreadcrumbBarGetCurrentIndex(Widget widget) {
-    return widget != NULL && XmIsBreadcrumbBar(widget) ?
+    return widget != NULL && XmIsBreadcrumbBar(widget) &&
+        !widget->core.being_destroyed ?
         ((XmBreadcrumbBarWidget)widget)->breadcrumb.current : -1;
 }
 

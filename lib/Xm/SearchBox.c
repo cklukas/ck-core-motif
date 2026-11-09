@@ -236,7 +236,8 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
     }
 }
 char *XmSearchBoxGetString(Widget widget) {
-    return widget != NULL && XmIsSearchBox(widget) ? XmTextFieldGetString(widget) : NULL;
+    return widget != NULL && XmIsSearchBox(widget) && !widget->core.being_destroyed
+        ? XmTextFieldGetString(widget) : NULL;
 }
 void XmSearchBoxSetString(Widget widget, const char *value) {
     if (widget != NULL && XmIsSearchBox(widget) &&

@@ -8,7 +8,7 @@ source = Path(__file__).parents[2] / "lib" / "Xm" / "AutoSuggestBox.c"
 text = source.read_text(encoding="utf-8")
 
 assert "static const char *no_results_text(XmAutoSuggestBoxWidget box)" in text
-assert "XmStringCreateLocalized(no_results_text(box))" in text
+assert "XmStringCreateLocalized((char *)no_results_text(box))" in text
 
 start = text.rindex("static Boolean SetValues(")
 end = text.index("\nstatic XtGeometryResult GeometryManager", start)

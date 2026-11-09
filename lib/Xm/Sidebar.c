@@ -372,7 +372,7 @@ Widget XmVaCreateManagedSidebar(Widget parent, char *name, ...)
 
 Widget XmSidebarGetContent(Widget widget)
 {
-    return widget && XmIsSidebar(widget)
+    return widget && XmIsSidebar(widget) && !widget->core.being_destroyed
                ? ((XmSidebarWidget)widget)->sidebar.content : NULL;
 }
 
@@ -432,7 +432,7 @@ static void set_expanded(Widget widget, Boolean expanded, XEvent *event, Boolean
 
 Boolean XmSidebarGetExpanded(Widget widget)
 {
-    return widget && XmIsSidebar(widget)
+    return widget && XmIsSidebar(widget) && !widget->core.being_destroyed
                ? ((XmSidebarWidget)widget)->sidebar.expanded : False;
 }
 

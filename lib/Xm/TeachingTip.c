@@ -338,7 +338,7 @@ void XmTeachingTipHide(Widget widget) {
 }
 
 Boolean XmTeachingTipIsVisible(Widget widget) {
-    return widget != NULL && XmIsTeachingTip(widget)
+    return widget != NULL && XmIsTeachingTip(widget) && !widget->core.being_destroyed
                ? ((XmTeachingTipWidget)widget)->teaching_tip.visible : False;
 }
 
