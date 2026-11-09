@@ -45,6 +45,11 @@ static void paint_pencil(Widget,XtPointer,XtPointer);
 static void release_palette(XmColorPickerWidget);
 static const char *pencil_names[24]={"Black","Graphite","Gray","Silver","White","Rose","Red","Orange","Amber","Yellow","Lime","Green","Mint","Teal","Cyan","Sky","Blue","Indigo","Violet","Purple","Magenta","Pink","Brown","Sand"};
 static const uint32_t pencil_colors[24]={0x17191cff,0x444950ff,0x737b85ff,0xb7c0caff,0xffffffff,0xb74058ff,0xe33b37ff,0xf17c32ff,0xe9ae27ff,0xf3d843ff,0x9cc83aff,0x3b9d4aff,0x6ac5a4ff,0x248c89ff,0x36c3d8ff,0x5aa5e2ff,0x3478d4ff,0x4e56a9ff,0x7953bcff,0x98549fff,0xcb4b9fff,0xe798b5ff,0x8b6049ff,0xd3b38aff};
+/* XPoint stores coordinates in signed 16-bit protocol fields. */
+static short bounded_xpoint_coordinate(int value) {
+    return value < SHRT_MIN ? SHRT_MIN :
+           value > SHRT_MAX ? SHRT_MAX : (short)value;
+}
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
 {
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
@@ -690,8 +695,8 @@ static void paint_pencil(Widget child,XtPointer closure,XtPointer data) {
     double rgb[3];color_rgb(pencil_colors[index],rgb);XSetForeground(d,gc,rgb_pixel(p,attr.visual,rgb));
     XFillRectangle(d,window,gc,left,top+tip,MAX(1,right-left),MAX(1,bottom-top-tip));
     double wood[]={.83,.68,.48};XSetForeground(d,gc,rgb_pixel(p,attr.visual,wood));
-    XPoint points[3]={{(short)((left+right)/2),(short)top},{(short)right,(short)(top+tip)},{(short)left,(short)(top+tip)}};XFillPolygon(d,window,gc,points,3,Convex,CoordModeOrigin);
-    XSetForeground(d,gc,rgb_pixel(p,attr.visual,rgb));points[1].x=(left+right)/2+MAX(1,(right-left)/5);points[1].y=top+MAX(1,tip/2);points[2].x=(left+right)/2-MAX(1,(right-left)/5);points[2].y=points[1].y;XFillPolygon(d,window,gc,points,3,Convex,CoordModeOrigin);
+    XPoint points[3]={{bounded_xpoint_coordinate((left+right)/2),bounded_xpoint_coordinate(top)},{bounded_xpoint_coordinate(right),bounded_xpoint_coordinate(top+tip)},{bounded_xpoint_coordinate(left),bounded_xpoint_coordinate(top+tip)}};XFillPolygon(d,window,gc,points,3,Convex,CoordModeOrigin);
+    XSetForeground(d,gc,rgb_pixel(p,attr.visual,rgb));points[1].x=bounded_xpoint_coordinate((left+right)/2+MAX(1,(right-left)/5));points[1].y=bounded_xpoint_coordinate(top+MAX(1,tip/2));points[2].x=bounded_xpoint_coordinate((left+right)/2-MAX(1,(right-left)/5));points[2].y=points[1].y;XFillPolygon(d,window,gc,points,3,Convex,CoordModeOrigin);
     for(int i=0;i<3;++i)rgb[i]=rgb[i]*.65+.35;
     XSetForeground(d,gc,rgb_pixel(p,attr.visual,rgb));XFillRectangle(d,window,gc,left+1,top+tip,MAX(1,(right-left)/4),MAX(1,bottom-top-tip));
     if((p->color_picker.preview>>8)==(pencil_colors[index]>>8)){XSetForeground(d,gc,p->manager.foreground);XDrawRectangle(d,window,gc,inset,inset,width-2*inset-1,height-2*inset-1);}

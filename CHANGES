@@ -1,3 +1,10 @@
+Bound ColorPicker pencil drawing coordinates (2026-11-03)
+==========================================================
+
+- Clamp built-in pencil-swatch triangle points before narrowing them to X11's
+  signed 16-bit `XPoint` fields.  Explicitly large swatches no longer wrap
+  their pencil glyph; see `docs/color-picker-coordinate-bounds.md`.
+
 Reserve MWM preprocessor output atomically (2026-11-03)
 ========================================================
 
