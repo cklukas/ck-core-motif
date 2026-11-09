@@ -1,3 +1,11 @@
+Validate ColorPicker cached-plane image strides (2026-11-03)
+============================================================
+
+- Reject non-positive and unrepresentable XImage row-stride allocations before
+  building ColorPicker's cached swatch plane.  Unsupported drawable layouts
+  now fail closed instead of allocating through a signed stride; see
+  `docs/color-picker-redisplay-guard.md`.
+
 Bound ColorPicker pencil drawing coordinates (2026-11-03)
 ==========================================================
 

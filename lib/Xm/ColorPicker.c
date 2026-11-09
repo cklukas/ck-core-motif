@@ -611,7 +611,12 @@ static void paint_plane(Widget child,XtPointer closure,XtPointer data) {
         unsigned strip=MIN(height,32);
         XImage *image=XCreateImage(d,attr.visual,attr.depth,ZPixmap,0,NULL,width,strip,32,0);
         if(!image){XFreePixmap(d,p->color_picker.plane_cache);p->color_picker.plane_cache=None;return;}
-        image->data=calloc(strip,image->bytes_per_line);
+        if(image->bytes_per_line<=0 ||
+           (size_t)strip>SIZE_MAX/(size_t)image->bytes_per_line){
+            XDestroyImage(image);XFreePixmap(d,p->color_picker.plane_cache);
+            p->color_picker.plane_cache=None;return;
+        }
+        image->data=calloc((size_t)strip,(size_t)image->bytes_per_line);
         if(!image->data){XDestroyImage(image);XFreePixmap(d,p->color_picker.plane_cache);p->color_picker.plane_cache=None;return;}
         XColor paper={0};paper.pixel=p->core.background_pixel;XQueryColor(d,p->core.colormap,&paper);
         double background[3]={paper.red/65535.,paper.green/65535.,paper.blue/65535.};

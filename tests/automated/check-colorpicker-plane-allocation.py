@@ -26,6 +26,12 @@ assert pixmap in plane and failure_guard in plane, (
     "a failed swatch pixmap allocation must stop before XPutImage/XCopyArea"
 )
 assert plane.index(zero_guard) < plane.index(pixmap) < plane.index(failure_guard)
+layout_guard = "if(image->bytes_per_line<=0 ||\n           (size_t)strip>SIZE_MAX/(size_t)image->bytes_per_line)"
+assert layout_guard in plane, "ColorPicker must reject invalid or overflowing XImage strides"
+assert "image->data=calloc((size_t)strip,(size_t)image->bytes_per_line);" in plane
+assert plane.index(layout_guard) < plane.index("image->data=calloc"), (
+    "ColorPicker must validate an XImage stride before allocating its data"
+)
 gc = "p->color_picker.swatch_gc=XCreateGC(XtDisplay(widget),drawable,0,NULL);"
 assert "p->color_picker.swatch_gc=NULL;" in initialize
 assert "if(drawable!=None){" in initialize and gc in initialize
