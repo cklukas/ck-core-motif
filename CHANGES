@@ -1,3 +1,11 @@
+Reserve MWM preprocessor output atomically (2026-11-03)
+========================================================
+
+- Replace MWM's `tmpnam()` preprocessor-output path with an atomically created
+  `mkstemp()` file.  Configuration preprocessing now owns its temporary output
+  path before the external preprocessor runs; see
+  `docs/mwm-preprocessor-tempfile.md`.
+
 Copy UIL comments through their verified bounds (2026-11-03)
 ============================================================
 

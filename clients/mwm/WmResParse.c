@@ -8773,43 +8773,76 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 static void
 PreprocessConfigFile (void)
 {
-#define CPP_NAME_SIZE	((L_tmpnam)+1)
     char pchCmd[MAXWMPATH+1];
     int commandLength;
 
     if (wmGD.cppCommand && *wmGD.cppCommand)
     {
 	/*
-	 * Generate a temp file name.
+	 * Reserve the preprocessor output path before handing it to the
+	 * configured command.  tmpnam() merely suggests a name, which lets a
+	 * concurrent process replace the output between generation and use.
+	 * mkstemp() creates an owned, regular file atomically; the preprocessor
+	 * retains the historical pathname interface and overwrites that file.
 	 */
-	pConfigStackTop->cppName = XtMalloc (CPP_NAME_SIZE * sizeof(char));
-	if (pConfigStackTop->cppName)
 	{
-	    (void) tmpnam (pConfigStackTop->cppName);
+	    const char *tempDir = getenv("TMPDIR");
+	    size_t tempDirLength;
+	    size_t templateBytes;
+	    int tempFd;
 
-	    /*
-	     * Build up the command line.
-	     */
-	    commandLength = snprintf(NULL, 0, "%s %s %s", wmGD.cppCommand,
-				      pConfigStackTop->fileName,
-				      pConfigStackTop->cppName);
-	    if (commandLength < 0 || commandLength >= (int)sizeof(pchCmd))
+	    if (tempDir == NULL || *tempDir == '\0')
+		tempDir = P_tmpdir;
+	    tempDirLength = strlen(tempDir);
+	    if (tempDirLength > SIZE_MAX - sizeof("/mwm-cpp-XXXXXX") ||
+		tempDirLength + sizeof("/mwm-cpp-XXXXXX") > UINT_MAX)
+		return;
+	    templateBytes = tempDirLength + sizeof("/mwm-cpp-XXXXXX");
+	    pConfigStackTop->cppName = XtMalloc((Cardinal)templateBytes);
+	    if (pConfigStackTop->cppName == NULL)
+		return;
+	    (void)snprintf(pConfigStackTop->cppName, templateBytes,
+			   "%s/mwm-cpp-XXXXXX", tempDir);
+	    tempFd = mkstemp(pConfigStackTop->cppName);
+	    if (tempFd < 0)
 	    {
-		Warning("Preprocessor command is too long");
+		XtFree(pConfigStackTop->cppName);
+		pConfigStackTop->cppName = NULL;
+		return;
+	    }
+	    if (close(tempFd) != 0)
+	    {
 		(void)unlink(pConfigStackTop->cppName);
 		XtFree(pConfigStackTop->cppName);
 		pConfigStackTop->cppName = NULL;
 		return;
 	    }
-	    (void)snprintf(pchCmd, sizeof(pchCmd), "%s %s %s",
-			    wmGD.cppCommand, pConfigStackTop->fileName,
-			    pConfigStackTop->cppName);
+
+	    {
+		/*
+		 * Build up the command line.
+		 */
+		commandLength = snprintf(NULL, 0, "%s %s %s", wmGD.cppCommand,
+				      pConfigStackTop->fileName,
+				      pConfigStackTop->cppName);
+		if (commandLength < 0 || commandLength >= (int)sizeof(pchCmd))
+		{
+		    Warning("Preprocessor command is too long");
+		    (void)unlink(pConfigStackTop->cppName);
+		    XtFree(pConfigStackTop->cppName);
+		    pConfigStackTop->cppName = NULL;
+		    return;
+		}
+		(void)snprintf(pchCmd, sizeof(pchCmd), "%s %s %s",
+				wmGD.cppCommand, pConfigStackTop->fileName,
+				pConfigStackTop->cppName);
+	    }
 
 	    /*
-	     * Run the config file through the converter program
-	     * and send the output to a temp file. 
+	     * Run the config file through the converter program and send the
+	     * output to the reserved temporary file.
 	     */
-	    SystemCmd (pchCmd);
+	    SystemCmd(pchCmd);
 	}
     }
 }
