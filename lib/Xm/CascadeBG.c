@@ -875,6 +875,12 @@ static Boolean PaintModern(XmCascadeButtonGadget cb, XEvent *event, Region regio
     (void)_XmAppearanceDrawButton(widget, fill, False, True);
     values.foreground = fill;
     face = XCreateGC(XtDisplay(widget), XtWindow(widget), GCForeground, &values);
+    if (face == NULL) {
+        (*xmLabelGadgetClassRec.rect_class.expose)((Widget)cb, event, region);
+        (void)_XmAppearanceDrawButton(widget, fill, False, False);
+        DrawCascade(cb);
+        return True;
+    }
     /* Label cache entries may be shared by sibling gadgets. Give this draw
      * a private view rather than changing a shared cache's background GC. */
     XmLabelGCacheObjPart *saved = LabG_Cache(cb);

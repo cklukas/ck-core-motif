@@ -16,6 +16,7 @@
 #include <Xm/Form.h>
 #include <Xm/RowColumn.h>
 #include <Xm/Paned.h>
+#include <stdint.h>
 
 
 /*
@@ -39,28 +40,21 @@ BxRegisterConverters()
  * Function prototypes for routines
  * located in utilities file.
  */
-extern XtPointer CONVERT();
-extern void MENU_POST();
-
-
-/*
- * Callback procedure declarations
- */
-extern void CreateLabel();
-extern void OtherResCB();
-extern void ConstraintResCB();
-extern void OrientChValCB();
-extern void SepValChCB();
-extern void QuitCB();
-extern void SashValChCB();
+/* Callback procedure declarations. */
+extern void CreateLabel(Widget, XtPointer, XtPointer);
+extern void OtherResCB(Widget, XtPointer, XtPointer);
+extern void ConstraintResCB(Widget, XtPointer, XtPointer);
+extern void OrientChValCB(Widget, XtPointer, XtPointer);
+extern void SepValChCB(Widget, XtPointer, XtPointer);
+extern void QuitCB(Widget, XtPointer, XtPointer);
+extern void SashValChCB(Widget, XtPointer, XtPointer);
 
 /*
  * Function: Createpaned()
  *        Create paned hierarchy of widgets.
  */
 Widget
-Createpaned( parent)
-Widget parent;
+Createpaned(Widget parent)
 {
     Arg    	args[512];
     Cardinal   	argcnt;
@@ -228,11 +222,13 @@ Widget parent;
     XtSetArg(args[argcnt], XmNrightOffset, 10); argcnt++;
     XtSetArg(args[argcnt], XmNx, 10); argcnt++;
     sash_three_tog = XtCreateWidget("sash_three_tog",
-		xmLabelWidgetClass,
+		xmToggleButtonWidgetClass,
 		pane_form_three,
 		args,
 		argcnt);
 
+    XtAddCallback(sash_three_tog, XmNvalueChangedCallback, SashValChCB,
+		  (XtPointer)0);
     XtManageChild(sash_three_tog);
 
     argcnt = 0;
@@ -273,8 +269,7 @@ Widget parent;
  *        Create form hierarchy of widgets.
  */
 Widget
-Createform( parent)
-Widget parent;
+Createform(Widget parent)
 {
     Arg    	args[512];
     Cardinal   	argcnt;
@@ -395,7 +390,8 @@ Widget parent;
 		args,
 		argcnt);
 
-    XtAddCallback(horiz_tog, XmNvalueChangedCallback, OrientChValCB, (XtPointer)XmHORIZONTAL);
+    XtAddCallback(horiz_tog, XmNvalueChangedCallback, OrientChValCB,
+		  (XtPointer)(uintptr_t)XmHORIZONTAL);
     XtManageChild(horiz_tog);
 
     argcnt = 0;
@@ -407,7 +403,8 @@ Widget parent;
 		args,
 		argcnt);
 
-    XtAddCallback(vert_tog, XmNvalueChangedCallback, OrientChValCB, (XtPointer)XmVERTICAL);
+    XtAddCallback(vert_tog, XmNvalueChangedCallback, OrientChValCB,
+		  (XtPointer)(uintptr_t)XmVERTICAL);
     XtManageChild(vert_tog);
 
     argcnt = 0;
@@ -441,7 +438,8 @@ Widget parent;
 		args,
 		argcnt);
 
-    XtAddCallback(sep_on_tog, XmNvalueChangedCallback, SepValChCB, (XtPointer)True);
+    XtAddCallback(sep_on_tog, XmNvalueChangedCallback, SepValChCB,
+		  (XtPointer)(uintptr_t)True);
     XtManageChild(sep_on_tog);
 
     argcnt = 0;
@@ -453,7 +451,8 @@ Widget parent;
 		args,
 		argcnt);
 
-    XtAddCallback(sep_off_tog, XmNvalueChangedCallback, SepValChCB, (XtPointer)False);
+    XtAddCallback(sep_off_tog, XmNvalueChangedCallback, SepValChCB,
+		  (XtPointer)(uintptr_t)False);
     XtManageChild(sep_off_tog);
 
     argcnt = 0;

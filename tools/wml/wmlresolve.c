@@ -86,6 +86,20 @@ void wmlIssueReferenceError(char *srcname, char *badname);
 void wmlIssueIllegalReferenceError(char *srcname, char *badname);
 void wmlIssueError(char *errstg);
 
+static void *
+wmlResolveAllocate (size_t size)
+{
+void *result;
+
+result = malloc (size);
+if ( result == NULL )
+    {
+    fprintf (stderr, "Unable to allocate WML resolver object\n");
+    exit (EXIT_FAILURE);
+    }
+return result;
+}
+
 
 
 /*
@@ -204,7 +218,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
 /*
  * Create and initialize new object. Append to resolved object vector.
  */
-    newobj = (WmlDataTypeDefPtr) malloc (sizeof(WmlDataTypeDef));
+    newobj = (WmlDataTypeDefPtr) wmlResolveAllocate (sizeof(WmlDataTypeDef));
     newobj->syndef = cursyn;
     cursyn->rslvdef = newobj;
     if ( cursyn->int_lit != NULL )
@@ -254,7 +268,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
 /*
  * Create and initialize new object. Append to resolved object vector.
  */
-    newobj = (WmlChildDefPtr) malloc (sizeof(WmlChildDef));
+    newobj = (WmlChildDefPtr) wmlResolveAllocate (sizeof(WmlChildDef));
     newobj->syndef = cursyn;
     cursyn->rslvdef = newobj;
     newobj->tkname = cursyn->name;
@@ -332,7 +346,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
 /*
  * Create and initialize new object. Append to resolved object vector.
  */
-    newobj = (WmlEnumValueDefPtr) malloc (sizeof(WmlEnumValueDef));
+    newobj = (WmlEnumValueDefPtr) wmlResolveAllocate (sizeof(WmlEnumValueDef));
     newobj->syndef = cursyn;
     cursyn->rslvdef = newobj;
     wmlInsertInHList (wml_obj_enumval_ptr, cursyn->name, (ObjectPtr)newobj);
@@ -389,7 +403,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
 /*
  * Create and initialize new object. Append to resolved object vector.
  */
-    newobj = (WmlEnumSetDefPtr) malloc (sizeof(WmlEnumSetDef));
+    newobj = (WmlEnumSetDefPtr) wmlResolveAllocate (sizeof(WmlEnumSetDef));
     newobj->syndef = cursyn;
     cursyn->rslvdef = newobj;
     newobj->tkname = cursyn->name;
@@ -425,7 +439,7 @@ for ( ndx=0 ; ndx<wml_obj_enumset_ptr->cnt ; ndx++ )
 				  WmlEnumValueDefValid,
 				  cursyn->name);
 	if ( evobj == NULL ) continue;
-	esvobj = (WmlEnumSetValDefPtr) malloc (sizeof(WmlEnumSetValDef));
+	esvobj = (WmlEnumSetValDefPtr) wmlResolveAllocate (sizeof(WmlEnumSetValDef));
 	esvobj->value = evobj;
 	esvobj->next = newobj->values;
 	newobj->values = esvobj;
@@ -468,7 +482,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
     cursyn = (WmlSynResourceDefPtr) wml_synobj_ptr->hvec[ndx].objptr;
     if ( cursyn->validation != WmlResourceDefValid ) continue;
     if ( cursyn->type != WmlResourceTypeReason ) continue;
-    newobj = (WmlResourceDefPtr) malloc (sizeof(WmlResourceDef));
+    newobj = (WmlResourceDefPtr) wmlResolveAllocate (sizeof(WmlResourceDef));
 
 /*
  * Create and initialize new object. Append to resolved object vector.
@@ -543,7 +557,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
     cursyn = (WmlSynResourceDefPtr) wml_synobj_ptr->hvec[ndx].objptr;
     if ( cursyn->validation != WmlResourceDefValid ) continue;
     if ( cursyn->type == WmlResourceTypeReason ) continue;
-    newobj = (WmlResourceDefPtr) malloc (sizeof(WmlResourceDef));
+    newobj = (WmlResourceDefPtr) wmlResolveAllocate (sizeof(WmlResourceDef));
 
 /*
  * Create and initialize new object. Append to resolved object vector.
@@ -668,7 +682,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
 /*
  * Create and initialize new object. Append to resolved object vector.
  */
-    newobj = (WmlClassDefPtr) malloc (sizeof(WmlClassDef));
+    newobj = (WmlClassDefPtr) wmlResolveAllocate (sizeof(WmlClassDef));
     newobj->syndef = cursyn;
     cursyn->rslvdef = newobj;
     newobj->superclass = NULL;
@@ -706,7 +720,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
     if ( cursyn->type != WmlClassTypeMetaclass )
 	if ( cursyn->convfunc == NULL )
 	    {
-	    sprintf (errmsg, "Class %s does not have a convenience function",
+	    snprintf (errmsg, sizeof(errmsg), "Class %s does not have a convenience function",
 		     cursyn->name);
 	    wmlIssueError (errmsg);
 	    }	
@@ -769,7 +783,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
 /*
  * Create and initialize new object. Append to resolved object vector.
  */
-    newobj = (WmlCtrlListDefPtr) malloc (sizeof(WmlCtrlListDef));
+    newobj = (WmlCtrlListDefPtr) wmlResolveAllocate (sizeof(WmlCtrlListDef));
     newobj->syndef = cursyn;
     cursyn->rslvdef = newobj;
     newobj->controls = NULL;
@@ -785,7 +799,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
 				  WmlClassDefValid,
 				  cursyn->name);
 	if ( classobj == NULL ) continue;
-	ctrlobj = (WmlClassCtrlDefPtr) malloc (sizeof(WmlClassCtrlDef));
+	ctrlobj = (WmlClassCtrlDefPtr) wmlResolveAllocate (sizeof(WmlClassCtrlDef));
 	ctrlobj->next = newobj->controls;
 	newobj->controls = ctrlobj;
 	ctrlobj->ctrl = classobj;
@@ -831,7 +845,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
 /*
  * Create and initialize new object. Append to resolved object vector.
  */
-    newobj = (WmlCharSetDefPtr) malloc (sizeof(WmlCharSetDef));
+    newobj = (WmlCharSetDefPtr) wmlResolveAllocate (sizeof(WmlCharSetDef));
     newobj->syndef = cursyn;
     cursyn->rslvdef = newobj;
     if ( cursyn->int_lit != NULL )
@@ -851,7 +865,7 @@ for ( ndx=0 ; ndx<wml_synobj_ptr->cnt ; ndx++ )
  */
     if ( cursyn->xms_name == NULL )
 	{
-	sprintf (errmsg, "CharacterSet %s does not have a StandardsName",
+	snprintf (errmsg, sizeof(errmsg), "CharacterSet %s does not have a StandardsName",
 		 cursyn->name);
 	wmlIssueError (errmsg);
 	}	
@@ -957,7 +971,7 @@ for ( ndx=0 ; ndx<wml_obj_class_ptr->cnt ; ndx++ )
 	{
 	if ( synobj->widgetclass == NULL )
 	    {
-	    sprintf (errmsg, "Gadget class %s has no widgetclass reference",
+	    snprintf (errmsg, sizeof(errmsg), "Gadget class %s has no widgetclass reference",
 		     synobj->name);
 	    wmlIssueError (errmsg);
 	    }
@@ -1003,7 +1017,7 @@ for ( ndx=0 ; ndx<wml_obj_class_ptr->cnt ; ndx++ )
 	if ( refndx >= 0 )
 	    {
 	    refcls = (WmlClassDefPtr) wml_obj_class_ptr->hvec[refndx].objptr;
-	    ctrlobj = (WmlClassCtrlDefPtr) malloc (sizeof(WmlClassCtrlDef));
+	    ctrlobj = (WmlClassCtrlDefPtr) wmlResolveAllocate (sizeof(WmlClassCtrlDef));
 	    ctrlobj->next = clsobj->controls;
 	    clsobj->controls = ctrlobj;
 	    ctrlobj->ctrl = refcls;
@@ -1019,7 +1033,7 @@ for ( ndx=0 ; ndx<wml_obj_class_ptr->cnt ; ndx++ )
 		  listelem=listelem->next)
 		{
 		ctrlobj = (WmlClassCtrlDefPtr)
-		    malloc (sizeof(WmlClassCtrlDef));
+		    wmlResolveAllocate (sizeof(WmlClassCtrlDef));
 		ctrlobj->next = clsobj->controls;
 		clsobj->controls = ctrlobj;
 		ctrlobj->ctrl = listelem->ctrl;
@@ -1100,21 +1114,21 @@ if ( superobj != NULL )
     {
     for ( srcref=superobj->arguments ; srcref!=NULL ; srcref=srcref->next )
 	{
-	refobj = (WmlClassResDefPtr) malloc (sizeof(WmlClassResDef));
+	refobj = (WmlClassResDefPtr) wmlResolveAllocate (sizeof(WmlClassResDef));
 	refobj->next = clsobj->arguments;
 	clsobj->arguments = refobj;
 	wmlResolveInitRefObj (refobj, srcref);
 	}
     for ( srcref=superobj->reasons ; srcref!=NULL ; srcref=srcref->next )
 	{
-	refobj = (WmlClassResDefPtr) malloc (sizeof(WmlClassResDef));
+	refobj = (WmlClassResDefPtr) wmlResolveAllocate (sizeof(WmlClassResDef));
 	refobj->next = clsobj->reasons;
 	clsobj->reasons = refobj;
 	wmlResolveInitRefObj (refobj, srcref);
 	}
     for (csrcref = superobj->children ; csrcref!=NULL ; csrcref=csrcref->next)
       {
-	crefobj = (WmlClassChildDefPtr) malloc (sizeof(WmlClassChildDef));
+	crefobj = (WmlClassChildDefPtr) wmlResolveAllocate (sizeof(WmlClassChildDef));
 	crefobj->next = clsobj->children;
 	clsobj->children = crefobj;
 	wmlResolveInitChildRefObj (crefobj, csrcref);
@@ -1130,7 +1144,7 @@ if ( parentobj != NULL )
 	{
 	  if (srcref->act_resource->ref_ptr == NULL)
 	    {
-	      refobj = (WmlClassResDefPtr) malloc (sizeof(WmlClassResDef));
+	      refobj = (WmlClassResDefPtr) wmlResolveAllocate (sizeof(WmlClassResDef));
 	      refobj->next = clsobj->arguments;
 	      clsobj->arguments = refobj;
 	      wmlResolveInitRefObj (refobj, srcref);
@@ -1140,7 +1154,7 @@ if ( parentobj != NULL )
 	{
 	  if (srcref->act_resource->ref_ptr == NULL)
 	    {
-	      refobj = (WmlClassResDefPtr) malloc (sizeof(WmlClassResDef));
+	      refobj = (WmlClassResDefPtr) wmlResolveAllocate (sizeof(WmlClassResDef));
 	      refobj->next = clsobj->reasons;
 	      clsobj->reasons = refobj;
 	      wmlResolveInitRefObj (refobj, srcref);
@@ -1150,7 +1164,7 @@ if ( parentobj != NULL )
       {
 	if (csrcref->act_child->ref_ptr == NULL)
 	  {
-	    crefobj = (WmlClassChildDefPtr) malloc (sizeof(WmlClassChildDef));
+	    crefobj = (WmlClassChildDefPtr) wmlResolveAllocate (sizeof(WmlClassChildDef));
 	    crefobj->next = clsobj->children;
 	    clsobj->children = crefobj;
 	    wmlResolveInitChildRefObj (crefobj, csrcref);
@@ -1179,7 +1193,7 @@ for ( refptr=synobj->resources ; refptr!=NULL ; refptr=refptr->next )
 	refobj = resobj->ref_ptr;
     else
 	{
-	refobj = (WmlClassResDefPtr) malloc (sizeof(WmlClassResDef));
+	refobj = (WmlClassResDefPtr) wmlResolveAllocate (sizeof(WmlClassResDef));
 	refobj->act_resource = resobj;
 	resobj->ref_ptr = refobj;
 	refobj->over_dtype = NULL;
@@ -1231,7 +1245,7 @@ for ( crefptr = synobj->children ; crefptr!=NULL ; crefptr = crefptr->next )
 	crefobj = childobj->ref_ptr;
     else
       {
-	crefobj = (WmlClassChildDefPtr) malloc (sizeof(WmlClassChildDef));
+	crefobj = (WmlClassChildDefPtr) wmlResolveAllocate (sizeof(WmlClassChildDef));
 	crefobj->act_child = childobj;
 	childobj->ref_ptr = crefobj;
 	crefobj->next = clsobj->children;
@@ -1727,7 +1741,7 @@ if ( objndx < 0 )
 synobj = (WmlSynDefPtr) wml_synobj_ptr ->hvec[objndx].objptr;
 if ( synobj->validation != type )
     {
-    sprintf (errmsg,
+    snprintf (errmsg, sizeof(errmsg),
 	     "Object %s references object %s\n\tin a context where a different type of object is required",
 	    requester, name);
     wmlIssueError (errmsg);

@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: Scale.c /main/31 1999/10/13 16:18:07 mgreess $"
 
 #include <stdio.h>
 #include <limits.h>
+#include <stdint.h>
 #ifndef CSRG_BASED
 /*
  * Modification by Integrated Computer Solutions, Inc.  May 2000
@@ -115,6 +116,23 @@ static Region null_region = NULL;
 
 #define SCROLLBAR_MAX	1000000000
 #define SCALE_VALUE_MARGIN 3
+
+static Dimension
+ScaleBoundedDimension(int64_t value)
+{
+    if (value <= 0) return 0;
+    if (value > USHRT_MAX) return (Dimension)USHRT_MAX;
+    return (Dimension)value;
+}
+
+static Position
+ScaleBoundedPosition(int64_t value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
 static Dimension ScaleDefaultExtent(XmScaleWidget, Boolean);
 static void ScaleChanged(Widget, double, double, XtPointer);
 #define SCALE_DEFAULT_MAJOR_SIZE ScaleDefaultExtent(sw, True)
@@ -1832,10 +1850,10 @@ ValueTroughHeight(
         XmRenderTableGetDefaultFontExtents(sw->scale.font_list,
                                            &ret_val, NULL, NULL);
     }
-    return (Dimension)ret_val;
+    return ScaleBoundedDimension(ret_val);
 #else
     char buff[15];
-    register Dimension tmp_max, tmp_min, result;
+    register int tmp_max, tmp_min, result;
     int direction, ascent, descent;
     XCharStruct overall_return;
     
@@ -1856,7 +1874,7 @@ ValueTroughHeight(
 	GET_MAX(tmp_max, sw->scale.maximum) ;
 	GET_MAX(tmp_min, sw->scale.minimum) ;
 	result = MAX(tmp_min, tmp_max);
-	return (result);
+	return ScaleBoundedDimension(result);
 	}
     else
 	return (0);
@@ -1874,10 +1892,10 @@ ValueTroughAscent(
         XmRenderTableGetDefaultFontExtents(sw->scale.font_list,
                                            NULL, &ret_val, NULL);
     }
-    return (Dimension)ret_val;
+    return ScaleBoundedDimension(ret_val);
 #else
     char buff[15];
-    register Dimension tmp_max, tmp_min, result;
+    register int tmp_max, tmp_min, result;
     int direction, ascent, descent;
     XCharStruct overall_return;
     
@@ -1898,7 +1916,7 @@ ValueTroughAscent(
 	GET_MAX(tmp_max, sw->scale.maximum) ;
 	GET_MAX(tmp_min, sw->scale.minimum) ;
 	result = MAX(tmp_min, tmp_max);
-	return (result);
+	return ScaleBoundedDimension(result);
 	}
     else
 	return (0);
@@ -1916,10 +1934,10 @@ ValueTroughDescent(
         XmRenderTableGetDefaultFontExtents(sw->scale.font_list,
                                            NULL, NULL, &ret_val);
     }
-    return (Dimension)ret_val;
+    return ScaleBoundedDimension(ret_val);
 #else
     char buff[15];
-    register Dimension tmp_max, tmp_min, result;
+    register int tmp_max, tmp_min, result;
     int direction, ascent, descent;
     XCharStruct overall_return;
     
@@ -1940,7 +1958,7 @@ ValueTroughDescent(
 	GET_MAX(tmp_max, sw->scale.maximum) ;
 	GET_MAX(tmp_min, sw->scale.minimum) ;
 	result = MAX(tmp_min, tmp_max);
-	return (result);
+	return ScaleBoundedDimension(result);
 	}
     else
 	return (0);
@@ -1953,7 +1971,7 @@ ValueTroughWidth(
         XmScaleWidget sw)
 {
     char buff[15];
-    register Dimension tmp_max, tmp_min, result;
+    register int tmp_max, tmp_min, result;
     int direction, ascent, descent;
     XCharStruct overall_return;
     
@@ -1988,7 +2006,7 @@ ValueTroughWidth(
 	GET_MAX(tmp_max, sw->scale.maximum) ;
 	GET_MAX(tmp_min, sw->scale.minimum) ;
 	result = MAX(tmp_min, tmp_max);
-	return (result);
+	return ScaleBoundedDimension(result);
 	}
     else
 	return (0);
@@ -2112,7 +2130,7 @@ MajorLeadPad(
     ASSIGN_MAX(tmp1, 0);
     ASSIGN_MAX(tmp2, 0);
 
-    return(MAX(tmp1, tmp2));
+    return ScaleBoundedDimension(MAX(tmp1, tmp2));
 }
 
 
@@ -2175,7 +2193,7 @@ MajorTrailPad(
     ASSIGN_MAX(tmp1, 0);
     ASSIGN_MAX(tmp2, 0);
 
-    return(MAX(tmp1, tmp2));
+    return ScaleBoundedDimension(MAX(tmp1, tmp2));
 }
 
 
@@ -2269,7 +2287,7 @@ ScrollWidth(
 	if (tmp <= 0) tmp = SCALE_DEFAULT_MAJOR_SIZE;
     }
     
-    return((Dimension) tmp);
+    return ScaleBoundedDimension(tmp);
 }
 
 static Dimension 
@@ -2354,7 +2372,7 @@ ScrollHeight(
 	if (tmp <= 0) tmp = SCALE_DEFAULT_MAJOR_SIZE;
     }
     
-    return((Dimension)tmp);
+    return ScaleBoundedDimension(tmp);
 }
 
 
@@ -2885,7 +2903,8 @@ GetValueString(
         String buffer,
         size_t buffer_size)
 {
-    int diff, dec_point_size, formatted;
+    int diff, formatted;
+    size_t dec_point_size;
     struct lconv *loc_values;
 
     if (buffer == NULL || buffer_size == 0)
@@ -2903,14 +2922,13 @@ GetValueString(
       loc_values = localeconv();
       dec_point_size = strlen(loc_values->decimal_point);
 
-      if (dec_point_size < 0 ||
-	  (size_t)formatted + (size_t)dec_point_size >= buffer_size)
+      if ((size_t)formatted + dec_point_size >= buffer_size)
 	  return;
 
       memmove(buffer + diff + dec_point_size, buffer + diff,
 	      (size_t)(formatted - diff) + 1);
       memcpy(buffer + diff, loc_values->decimal_point,
-	     (size_t)dec_point_size);
+	     dec_point_size);
 
     } else
       (void)snprintf(buffer, buffer_size, "%d", value);
@@ -2928,10 +2946,11 @@ static void
 ShowValue(
         XmScaleWidget sw)
 {
+    int x, y;
 #if USE_XFT
-    Dimension x, y, width, height;
+    Dimension width, height;
 #else
-    int x, y, width, height;
+    int width, height;
 #endif
     XCharStruct width_return;
     char buffer[256];
@@ -2939,6 +2958,8 @@ ShowValue(
     XmScrollBarWidget scrollbar;
     Region value_region = sw->scale.value_region;
     XRectangle value_rect;
+    Position old_x, old_y;
+    Dimension old_width, old_height;
     XmString tmp_str;
     
     if (!XtIsRealized((Widget)sw) ||
@@ -2959,17 +2980,21 @@ ShowValue(
     y = sw->scale.show_value_y;
     width = sw->scale.show_value_width;
     height = sw->scale.show_value_height;
+    old_x = ScaleBoundedPosition(x);
+    old_y = ScaleBoundedPosition(y);
+    old_width = ScaleBoundedDimension(width);
+    old_height = ScaleBoundedDimension(height);
     
     if (!sw->scale.show_value) { /* turn off the value display */
 	
 	if (width) { /* We were displaying, so we must clear it */
 	    
-	    XClearArea (XtDisplay (sw), XtWindow (sw), x, y, width, 
-			height, FALSE);
-	    value_rect.x = x;
-	    value_rect.y = y;
-	    value_rect.width = width;
-	    value_rect.height = height;
+	    XClearArea (XtDisplay (sw), XtWindow (sw), old_x, old_y, old_width,
+			old_height, FALSE);
+	    value_rect.x = old_x;
+	    value_rect.y = old_y;
+	    value_rect.width = old_width;
+	    value_rect.height = old_height;
 	    XIntersectRegion(null_region, value_region, value_region);
 	    XUnionRectWithRegion(&value_rect, value_region, value_region);
 	    XmeRedisplayGadgets( (Widget) sw, NULL, value_region);
@@ -2984,12 +3009,13 @@ ShowValue(
     
     if (width)	{
 	/* Clear the old one */
-	value_rect.x = x;
-	value_rect.y = y;
-	value_rect.width = width;
-	value_rect.height = height;
+	value_rect.x = old_x;
+	value_rect.y = old_y;
+	value_rect.width = old_width;
+	value_rect.height = old_height;
 	XIntersectRegion(null_region, value_region, value_region);
-	XClearArea(XtDisplay(sw), XtWindow(sw), x, y, width, height, FALSE);
+	XClearArea(XtDisplay(sw), XtWindow(sw), old_x, old_y, old_width,
+		   old_height, FALSE);
 	XUnionRectWithRegion(&value_rect, value_region, value_region);
 	XmeRedisplayGadgets( (Widget) sw, NULL, value_region);
     }
@@ -2998,21 +3024,29 @@ ShowValue(
     
     GetValueString(sw, sw->scale.value, buffer, sizeof(buffer));
 
+#if !USE_XFT
+    /* buffer is the fixed 256-byte array above, so this Xlib int length is
+     * representable after GetValueString has terminated it. */
+    int buffer_length = (int)strlen(buffer);
+#endif
+
     /*  Calculate the x, y, width, and height of the string to display  */
     
 #if USE_XFT
     XmStringExtent(sw->scale.font_list, tmp_str = XmStringCreateSimple(buffer),
 		  &width, &height);
     XmStringFree(tmp_str);
-    sw->scale.show_value_width = width;
-    sw->scale.show_value_height = height;
 #else
-    XTextExtents (sw->scale.font_struct, buffer, strlen(buffer),
+    XTextExtents (sw->scale.font_struct, buffer, buffer_length,
 		  &direction, &height, &descent, &width_return);
     width = width_return.rbearing - width_return.lbearing;
-    sw->scale.show_value_width = width;
-    sw->scale.show_value_height = height + descent;
+    height += descent;
 #endif
+
+    width = ScaleBoundedDimension(width);
+    height = ScaleBoundedDimension(height);
+    sw->scale.show_value_width = width;
+    sw->scale.show_value_height = height;
 
     scrollbar = (XmScrollBarWidget) sw->composite.children[1];
     
@@ -3087,12 +3121,18 @@ ShowValue(
 #endif
     }
 
-#if USE_XFT    
+#if USE_XFT
+    x = ScaleBoundedPosition(x);
+    y = ScaleBoundedPosition(y);
     sw->scale.show_value_x = x;
-    sw->scale.show_value_y = y + 1;
+    sw->scale.show_value_y = ScaleBoundedPosition((int64_t)y + 1);
 #else
-    sw->scale.show_value_x = x + width_return.lbearing;
-    sw->scale.show_value_y = y - height + 1;
+    x = ScaleBoundedPosition(x);
+    y = ScaleBoundedPosition(y);
+    sw->scale.show_value_x =
+	ScaleBoundedPosition((int64_t)x + width_return.lbearing);
+    sw->scale.show_value_y =
+	ScaleBoundedPosition((int64_t)y - height + 1);
 #endif
     
     
@@ -3121,7 +3161,7 @@ ShowValue(
 	}
     } else {
 	XDrawImageString(XtDisplay(sw), XtWindow(sw),
-			 sw->scale.foreground_GC, x, y, buffer, strlen(buffer));
+			 sw->scale.foreground_GC, x, y, buffer, buffer_length);
     }
 #endif
 }
@@ -3142,13 +3182,13 @@ CalcScrollBarData(
         int *ppage )
 {
     int slider_size, increment, page, value ;
-    Dimension scrollbar_size;
+    int64_t scrollbar_size, slider_size_wide;
     float sb_value, tmp;
     XmScrollBarWidget scrollbar = 
 	    (XmScrollBarWidget) sw->composite.children[1];
     register int ht = scrollbar->primitive.highlight_thickness;
     register int st = scrollbar->primitive.shadow_thickness;
-    int size;
+    int64_t size;
     
 	/*  Adjust the slider size to take SLIDER_SIZE area.    */
 	/*  Adjust value to be in the bounds of the scrollbar.  */
@@ -3169,17 +3209,16 @@ CalcScrollBarData(
 		scrollbar_size -= 2 * (sw->scale.highlight_thickness
 			+ sw->manager.shadow_thickness);
 
-    slider_size = (SCROLLBAR_MAX / scrollbar_size) * SLIDER_SIZE( sw);
+    slider_size_wide = ((int64_t)SCROLLBAR_MAX / scrollbar_size)
+	* (int64_t)SLIDER_SIZE(sw);
 
-    /*
-     * Now error check our arithmetic
-     */
-    if (slider_size < 0)
-	slider_size = SCROLLBAR_MAX;   
-    else if (slider_size < 1)
+    /* Clamp before returning to the legacy int scrollbar API. */
+    if (slider_size_wide < 1)
 	slider_size = 1;
-    else if (slider_size > SCROLLBAR_MAX)
+    else if (slider_size_wide > SCROLLBAR_MAX)
 	slider_size = SCROLLBAR_MAX;
+    else
+	slider_size = (int)slider_size_wide;
 
     sb_value = (float) (sw->scale.value - sw->scale.minimum) / 
 		(float) (sw->scale.maximum - sw->scale.minimum);
@@ -3256,9 +3295,14 @@ ValueChanged(
     XmScaleCallbackStruct scale_callback;
     float sb_value;
     XmScrollBarWidget sb = (XmScrollBarWidget)(sw->composite.children[1]);
+    int scroll_range = SCROLLBAR_MAX - sb->scrollBar.slider_size;
+
+    /* A fully occupied scrollbar has no representable value movement. */
+    if (scroll_range <= 0)
+	return;
 
     sb_value = (float) scroll_callback->value 
-	     / (float) (SCROLLBAR_MAX - sb->scrollBar.slider_size);
+	     / (float)scroll_range;
     sb_value = (sb_value * (float) (sw->scale.maximum - sw->scale.minimum))
 	       + (float) sw->scale.minimum;
     

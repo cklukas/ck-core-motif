@@ -152,11 +152,6 @@ initMesg()
         Warning (((char *)GETMESSAGE(22, 2, "Insufficient memory for local message string")));
 	confirm_mesg[0] = "Switch to Default Behavior?";
     }
-    else
-    {
-	strcpy(confirm_mesg[0], tmpString);
-    }
-
     tmpString = ((char *)GETMESSAGE(22, 13, "Switch to Custom Behavior?"));
     if ((confirm_mesg[1] =
          CopyFeedbackString(tmpString)) == NULL)
@@ -164,11 +159,6 @@ initMesg()
         Warning (((char *)GETMESSAGE(22, 2, "Insufficient memory for local message string")));
 	confirm_mesg[1] = "Switch to Custom Behavior?";
     }
-    else
-    {
-	strcpy(confirm_mesg[1], tmpString);
-    }
-
     if (MwmBehavior)
     {
 	tmpString = ((char *)GETMESSAGE(22, 3, "Restart Mwm?"));
@@ -190,13 +180,6 @@ initMesg()
 	    confirm_mesg[2] = "Restart Workspace Manager?";
 	}
     }
-    else
-    {
-	strcpy(confirm_mesg[2], tmpString);
-    }
-
-
-
     if (MwmBehavior)
     {
 	tmpString = ((char *)GETMESSAGE(22, 6, "QUIT Mwm?"));
@@ -236,12 +219,8 @@ initMesg()
 	    confirm_mesg[3] = "QUIT Workspace Manager?";
 	}
 #else /* MINIMAL_DT */
-	confirm_mesg[3] = ((char *)GETMESSAGE(22, 11, "QUIT Workspace Manager?"));
+	confirm_mesg[3] = "QUIT Workspace Manager?";
 #endif /* MINIMAL_DT */
-    }
-    else
-    {
-	strcpy(confirm_mesg[3], tmpString);
     }
 
     messagesInitialized = True;

@@ -1,26 +1,26 @@
 # Changelog
 
-## 2026-11-02 — Working Periodic menus and connected arrow focus
+## 2026-11-02 — MWM workspace callback lifecycle inputs
 
-- Implement Periodic's File/Edit actions with shared document state, bounded
-  undo, clipboard editing, safe text-file saving and unsaved-change prompts.
-- Make Direction target the last focused arrow, Case Sensitive control Unicode
-  Find, and Word Wrap change rendered line layout without altering text.
-- Add working calendar ranges, Stack/Tile, context help, tutorial and version.
-  Provide local template preview/draft/include/spelling and working file filters.
-  Print previews before an explicit asynchronous submission; report errors.
-- Preserve activated option-menu children during dismissal so quick selections
-  update their label and history. Permit eventless Text/TextField clipboard paste,
-  retain the clipboard undo record and remove duplicate record frees.
-- Validate the macOS font-library dependency cohort and preserve selected
-  package library directories in shared/static linking. Document matching Xft
-  construction with XQuartz X11 and
-  Homebrew's font libraries, preventing historical-font shaping crashes.
-- Restore typed Earth startup, input and timer callback declarations so the
-  updated demo builds with C23; qualify its native controls in that mode.
-- Restore complete rounded arrow focus after interaction painting, including
-  shadowless arrows. Cover the real Periodic hierarchy and modern arrow states
-  with native integration regressions in light, dark, scaled and classic modes.
+- Reject detached request, reply, widget, client, screen and UTM-shell state
+  before workspace callbacks enter Xt or Xlib. An available invalid conversion
+  reply is empty and explicitly `WSM_UNKNOWN`; owner monitoring stops when its
+  UTM shell has gone away. See
+  [MWM workspace callback input lifecycle](docs/mwm-workspace-callback-inputs.md).
+
+## 2026-11-02 — Safe MWM workspace transient-tree traversal
+
+- Replace recursive workspace transient-client walks with a checked heap-backed
+  depth-first walker, preserving parent/child/sibling ordering without using
+  the window-manager call stack.
+- Bound `WSM_GET_STATE` to its CARD16 result capacity and release an incomplete
+  reply snapshot before returning its empty, valid result. See
+  [MWM workspace transient-tree traversal](docs/mwm-workspace-tree-walk.md).
+
+## 2026-11-02 — Single final CDE WSM-ready notification
+
+- Remove the legacy early `PANACOMM` readiness send so CDE session managers
+  receive one `_DT_WM_READY` message after MWM initialization is complete.
 
 ## 2026-11-02 — Safe top-level-shell traversal geometry
 
@@ -28,12 +28,14 @@
   top-level shell. Use window-to-root Xlib translation and cover the real
   root-shell focus path in the traversal regression.
 
-## 2026-11-02 — Type-correct WML generic object pointers
+## 2026-11-02 — Correct CDE WSM session-manager endpoint
 
-- Define the internal WML generic object pointer as `void *` so heterogeneous
-  token and handle tables compile with current strict C compilers.
-- Extend the WML source contract and build documentation; generated UIL data
-  and the internal pointer representation remain unchanged.
+- Restore CDE's `_DtGetSmWindow` lookup for MWM's session-manager protocol
+  endpoint. `_DtGetMwmWindow` is the converse helper used by a session manager
+  that needs to contact MWM.
+- Add a focused regression that verifies readiness and acknowledgement messages
+  retain the session-manager destination. See
+  [MWM CDE session-manager lookup](docs/mwm-cde-wsm-window-helper.md).
 
 ## 2026-11-02 — Working Periodic Font menu
 

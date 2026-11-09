@@ -30,6 +30,7 @@ static char rcsid[] = "$TOG: PushB.c /main/29 1999/01/27 16:08:33 mgreess $"
 #endif
 
 #include <stdio.h>
+#include <limits.h>
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
 #include <Xm/ActivatableT.h>
@@ -63,6 +64,22 @@ static char rcsid[] = "$TOG: PushB.c /main/29 1999/01/27 16:08:33 mgreess $"
 #define DELAY_DEFAULT		100 
 
 #define FIX_1516
+
+static Dimension
+PushButtonBoundedDimension(long long value, Dimension minimum)
+{
+  if (value < minimum) return minimum;
+  if (value > USHRT_MAX) return (Dimension)USHRT_MAX;
+  return (Dimension)value;
+}
+
+static Position
+PushButtonBoundedPosition(long long value)
+{
+  if (value < SHRT_MIN) return (Position)SHRT_MIN;
+  if (value > SHRT_MAX) return (Position)SHRT_MAX;
+  return (Position)value;
+}
 
 /********    Static Function Declarations    ********/
 
@@ -863,19 +880,29 @@ Initialize(
       increase =  (2 * new_w->pushbutton.default_geometry +
 		   new_w->primitive.shadow_thickness + adjustment);
       
-      new_w->pushbutton.default_reservation = increase;
+      new_w->pushbutton.default_reservation =
+	PushButtonBoundedDimension(increase, 0);
+      increase = new_w->pushbutton.default_reservation;
       /* Add the increase to the core to compensate for extra space */
       if (increase != 0)
 	{
-	  Lab_MarginLeft(new_w) += increase;
-	  Lab_MarginRight(new_w) += increase;
-	  Lab_TextRect_x(new_w) += increase ;
-	  new_w->core.width += (increase << 1);
+	  Lab_MarginLeft(new_w) = PushButtonBoundedDimension(
+	      (long long)Lab_MarginLeft(new_w) + increase, 0);
+	  Lab_MarginRight(new_w) = PushButtonBoundedDimension(
+	      (long long)Lab_MarginRight(new_w) + increase, 0);
+	  Lab_TextRect_x(new_w) = PushButtonBoundedPosition(
+	      (long long)Lab_TextRect_x(new_w) + increase);
+	  new_w->core.width = PushButtonBoundedDimension(
+	      (long long)new_w->core.width + 2 * (long long)increase, 1);
 	  
-	  Lab_MarginTop(new_w) += increase;
-	  Lab_MarginBottom(new_w) += increase;
-	  Lab_TextRect_y(new_w) += increase ;
-	  new_w->core.height += (increase << 1);
+	  Lab_MarginTop(new_w) = PushButtonBoundedDimension(
+	      (long long)Lab_MarginTop(new_w) + increase, 0);
+	  Lab_MarginBottom(new_w) = PushButtonBoundedDimension(
+	      (long long)Lab_MarginBottom(new_w) + increase, 0);
+	  Lab_TextRect_y(new_w) = PushButtonBoundedPosition(
+	      (long long)Lab_TextRect_y(new_w) + increase);
+	  new_w->core.height = PushButtonBoundedDimension(
+	      (long long)new_w->core.height + 2 * (long long)increase, 1);
 	}
     }
   
@@ -1127,14 +1154,18 @@ SetValues(
     if (new_w->pushbutton.default_geometry)
       new_w->primitive.highlight_thickness += Xm3D_ENHANCE_PIXEL;
     new_w->pushbutton.default_reservation = new_w->pushbutton.default_geometry ?
-      2 * new_w->pushbutton.default_geometry + new_w->primitive.shadow_thickness + Xm3D_ENHANCE_PIXEL : 0;
+	PushButtonBoundedDimension(2 * (long long)new_w->pushbutton.default_geometry +
+	    new_w->primitive.shadow_thickness + Xm3D_ENHANCE_PIXEL, 0) : 0;
     for (unsigned i=0; i<4; ++i) {
       int prior = specified[i] ? 0 : old_reservation;
       delta[i] = (int)new_w->pushbutton.default_reservation - prior;
-      *margins[i] = (Dimension)MAX(0, (int)*margins[i] + delta[i]);
+      *margins[i] = PushButtonBoundedDimension(
+	  (long long)*margins[i] + delta[i], 0);
     }
-    if (!specified[5]) new_w->core.width = (Dimension)MAX(1,(int)new_w->core.width+delta[0]+delta[1]);
-    if (!specified[6]) new_w->core.height = (Dimension)MAX(1,(int)new_w->core.height+delta[2]+delta[3]);
+    if (!specified[5]) new_w->core.width = PushButtonBoundedDimension(
+	(long long)new_w->core.width + delta[0] + delta[1], 1);
+    if (!specified[6]) new_w->core.height = PushButtonBoundedDimension(
+	(long long)new_w->core.height + delta[2] + delta[3], 1);
     if (old_reservation != new_w->pushbutton.default_reservation) {
       /* Fixed allocations still need the label positioned for the new frame. */
       Resize(nw);

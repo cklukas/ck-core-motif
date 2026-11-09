@@ -1373,16 +1373,16 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (color_channel(w) >= 0) {
     static const char *names[] = {"Red", "Green", "Blue", "Alpha"};
-    int value,minimum,maximum;XtEnum editable;Boolean traversal;
+    int value,minimum,maximum;XtEnum channel_editable;Boolean traversal;
     int channel=color_channel(w);double divisor=channel>=4?10:1;
     XmScaleGetValue(w, &value);
     XtVaGetValues(w,XmNminimum,&minimum,XmNmaximum,&maximum,NULL);
-    XtVaGetValues(w, XmNeditable, &editable, XmNtraversalOn, &traversal, NULL);
+    XtVaGetValues(w, XmNeditable, &channel_editable, XmNtraversalOn, &traversal, NULL);
     i->role = XmACCESSIBLE_SLIDER;i->has_value = True;
     i->minimum_value = minimum/divisor;i->maximum_value = maximum/divisor;
     i->current_value = value/divisor;i->minimum_increment = 1/divisor;
-    i->action_count = editable ? 2 : 0;
-    if (editable) i->states |= XmACCESSIBLE_STATE(7);
+    i->action_count = channel_editable ? 2 : 0;
+    if (channel_editable) i->states |= XmACCESSIBLE_STATE(7);
     if (traversal) i->states |= XmACCESSIBLE_STATE(11);
     const char *hsv[]={"Hue degrees","Saturation percent","Value percent"},*lab[]={"Lightness D50","a star","b star"};
     XmColorPickerWidget picker=(XmColorPickerWidget)XtParent(w);
@@ -1618,11 +1618,11 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     local = XtNewString("Command palette");
   }
   if (XmIsSkeleton(w)) {
-    XmString label = NULL;
+    XmString skeleton_label = NULL;
     i->role = XmACCESSIBLE_PANEL;
-    XtVaGetValues(w, XmNskeletonLabel, &label, NULL);
-    if (label)
-      local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+    XtVaGetValues(w, XmNskeletonLabel, &skeleton_label, NULL);
+    if (skeleton_label)
+      local = XmStringUnparse(skeleton_label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
                               NULL, 0, XmOUTPUT_ALL);
   }
   if (XmIsRowActions(w)) {
@@ -1631,11 +1631,11 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     local = XtNewString("Row actions");
   }
   if (XmIsDropHighlight(w)) {
-    XmString label = NULL;
+    XmString highlight_label = NULL;
     i->role = XmACCESSIBLE_PANEL;
-    XtVaGetValues(w, XmNdropHighlightLabel, &label, NULL);
-    if (label)
-      local = XmStringUnparse(label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
+    XtVaGetValues(w, XmNdropHighlightLabel, &highlight_label, NULL);
+    if (highlight_label)
+      local = XmStringUnparse(highlight_label, NULL, XmCHARSET_TEXT, XmCHARSET_TEXT,
                               NULL, 0, XmOUTPUT_ALL);
   }
   if (XmIsStatusBar(w)) {
@@ -1787,7 +1787,7 @@ static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
   XmAccessibleNode *n = _XmAccessibilityNode(a, id);
   XmAccessibleInfo info;
   char *local, *result;
-  size_t capacity, span;
+  size_t capacity, span, max_multibyte;
   int status;
   if (!n || start < 0 || end < start || !XmAccessibilityQuery(a, id, &info))
     return NULL;
@@ -1813,9 +1813,11 @@ static char *text_impl(XmAccessibility *a, XmAccessibleId id, int start,
    * signed subtraction can overflow for a large accessibility request even
    * though both endpoints have already passed their ordering checks. */
   span = (size_t)end - (size_t)start;
-  if (span > (size_t)(INT_MAX - 1) / MB_CUR_MAX)
+  max_multibyte = (size_t)MB_CUR_MAX;
+  if (max_multibyte == 0 ||
+      span > (size_t)(INT_MAX - 1) / max_multibyte)
     return NULL;
-  capacity = span * MB_CUR_MAX + 1;
+  capacity = span * max_multibyte + 1;
   if (capacity > (size_t)((Cardinal)~0))
     return NULL;
   local = XtMalloc((Cardinal)capacity);

@@ -99,7 +99,7 @@ WmWarningWithString(const char *format, const char *value)
     char *message;
 
     messageLength = snprintf(NULL, 0, format, value);
-    if (messageLength < 0 || (unsigned int)messageLength >= UINT_MAX)
+    if (messageLength < 0 || (size_t)messageLength >= UINT_MAX)
         return;
 
     message = (char *)XtMalloc((Cardinal)messageLength + 1);
@@ -112,6 +112,47 @@ WmWarningWithString(const char *format, const char *value)
     (void)snprintf(message, (size_t)messageLength + 1, format, value);
     Warning(message);
     XtFree(message);
+}
+
+/* Reject a self reference, an indirect reference back to client, and a
+ * pre-existing corrupt leader loop before linking a transient relationship. */
+static Boolean
+WouldCreateTransientCycle(ClientData *client, ClientData *leader)
+{
+    ClientData *slow = leader;
+    ClientData *fast = leader;
+
+    while (slow != NULL)
+    {
+	if (slow == client)
+	{
+	    return (True);
+	}
+	slow = slow->transientLeader;
+
+	if (fast != NULL)
+	{
+	    if (fast == client)
+	    {
+		return (True);
+	    }
+	    fast = fast->transientLeader;
+	}
+	if (fast != NULL)
+	{
+	    if (fast == client)
+	    {
+		return (True);
+	    }
+	    fast = fast->transientLeader;
+	}
+	if (slow != NULL && slow == fast)
+	{
+	    return (True);
+	}
+    }
+
+    return (False);
 }
 
 /*
@@ -1038,6 +1079,7 @@ ProcessSmClientID (ClientData *pCD)
 			    &leftover, (unsigned char **)&clientID)
 	 == Success) &&
 	(actualType != None) && (actualFormat == 8) && (nitems > 0) &&
+	(leftover == 0) &&
 	(clientID != NULL) &&
 	(nitems < (unsigned long)UINT_MAX))
     {
@@ -1090,11 +1132,12 @@ ProcessWmSaveHint (ClientData *pCD)
     BITS32 *saveHintFlags = (BITS32 *)NULL;
 
     if ((XGetWindowProperty(DISPLAY, pCD->client, wmGD.xa_WMSAVE_HINT,
-			    0L, (long)1000000, False, AnyPropertyType,
+		    0L, 1L, False, AnyPropertyType,
 			    &actualType, &actualFormat, &nitems,
 			    &leftover, (unsigned char **)&saveHintFlags)
 	 == Success) &&
-	(actualType != None) && (actualFormat == 32) && (nitems > 0) &&
+	(actualType != None) && (actualFormat == 32) && (nitems == 1) &&
+	(leftover == 0) &&
 	(saveHintFlags != NULL))
     {
 	/* the WMSAVE_HINT property exists for the client window */
@@ -1210,7 +1253,8 @@ ProcessWmHints (ClientData *pCD, Boolean firstTime)
 
 		if ((pCD->client != pCD->windowGroup) &&
 		    !XFindContext (DISPLAY, pCD->windowGroup, 
-			wmGD.windowContextType, (caddr_t *)&leader))
+			wmGD.windowContextType, (caddr_t *)&leader) &&
+		    !WouldCreateTransientCycle(pCD, leader))
 		{
 		    pCD->transientFor = pCD->windowGroup;
 		    pCD->transientLeader = leader;
@@ -2730,6 +2774,19 @@ ProcessWmTransientFor (ClientData *pCD)
     Window window;
     ClientData *leader;
 
+    if (pCD == NULL)
+    {
+        return;
+    }
+
+    /*
+     * This routine is also called after a WM_TRANSIENT_FOR PropertyNotify.
+     * Drop a previous managed association before resolving the replacement.
+     * A self reference or an as-yet unmanaged window is still a transient
+     * hint, but it must not retain the old leader and stack relationship.
+     */
+    pCD->transientFor = (Window)0L;
+    pCD->transientLeader = NULL;
 
 #ifdef WSM
     if ((HasProperty (pCD, XA_WM_TRANSIENT_FOR)) &&
@@ -2747,7 +2804,8 @@ ProcessWmTransientFor (ClientData *pCD)
 
 	if ((pCD->client != window) &&
 	    !XFindContext (DISPLAY, window, wmGD.windowContextType,
-		(caddr_t *)&leader))
+		(caddr_t *)&leader) &&
+	    !WouldCreateTransientCycle(pCD, leader))
 	{
 	    pCD->transientFor = window;
 	    pCD->transientLeader = leader;
@@ -3275,6 +3333,10 @@ AdjustSlideOutGeometry ( ClientData *pCD)
 
     pCD->slideDirection = SLIDE_NORTH;	/* assume up for now */
     pPanelist = (WmPanelistObject) pCD->pSD->wPanelist;
+    if (pPanelist == NULL || O_Shell(pPanelist) == NULL)
+    {
+	return;
+    }
     (void) XFindContext (DISPLAY, XtWindow(O_Shell(pPanelist)),
 		  wmGD.windowContextType, (caddr_t *)&pCD_FP);
 

@@ -16,6 +16,7 @@ start = text.rindex("PackWinData(Display")
 end = text.index("/************************************************************", start)
 packer = text[start:end]
 assert "conf_fmt == NULL" in packer
+assert "conf_fmt->num_attrs < 0" in packer
 assert "return(NULL);" in packer
 assert "if (size < 0)" in text[text.index("_WSMPackReply"):]
 print("WSM reply packing handles missing configuration metadata")

@@ -97,6 +97,7 @@ static void HandleSubstructEvents(
         Widget w,
         caddr_t ptr,
         XEvent *event );
+static WmScreenData *FindPanelistScreen (Widget wPanelist);
 Boolean UpdateEmbeddedClientsProperty(
         WmScreenData *pSD );
 static void ForceSubpanelWMState(Window win);
@@ -364,7 +365,8 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
     /*
      *  Handle case of transients that derive from embedded clients.
      */
-    if (wmGD.dtSD && (wmGD.dtSD == pCD->pSD))
+    if (wmGD.dtSD && (wmGD.dtSD == pCD->pSD) &&
+	pCD->pSD->wPanelist != NULL)
     {
 	if (pCD->transientLeader && pCD->transientLeader->pECD)
 	{
@@ -372,10 +374,13 @@ ManageWindow (WmScreenData *pSD, Window clientWindow, long manageFlags)
 	    ClientData *pCDfp = NULL;
 
 	    pPanelist = (WmPanelistObject) pCD->pSD->wPanelist;
-	    (void) XFindContext (DISPLAY, XtWindow(O_Shell (pPanelist)),
-		      wmGD.windowContextType, (caddr_t *)&pCDfp);
-
-	    pCD->transientLeader = pCDfp;
+	    if (O_Shell (pPanelist) != NULL &&
+		!XFindContext (DISPLAY, XtWindow(O_Shell (pPanelist)),
+		      wmGD.windowContextType, (caddr_t *)&pCDfp) &&
+		pCDfp != NULL)
+	    {
+		pCD->transientLeader = pCDfp;
+	    }
 	}
     }
 
@@ -1826,7 +1831,7 @@ void ReManageDialog (WmScreenData *pSD, Widget dialogboxW)
 	XMapWindow (DISPLAY, pCD->clientFrameWin);
     XtManageChild (dialogboxW);
 
-    if ((wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_EXPLICIT))
+    if (wmGD.keyboardFocusPolicy == KEYBOARD_FOCUS_EXPLICIT)
     {
 	Do_Focus_Key (pCD, GetTimestamp() , ALWAYS_SET_FOCUS);
     }
@@ -1835,6 +1840,39 @@ void ReManageDialog (WmScreenData *pSD, Widget dialogboxW)
 } /* END OF FUNCTION ReManageDialog */
 
 #ifdef PANELIST
+
+/*************************************<->*************************************
+ *
+ * WmScreenData *FindPanelistScreen (wPanelist)
+ *
+ * Resolve a live front-panel widget to its managed screen.  Registration
+ * callbacks can arrive while a panel is being created or torn down, so an
+ * unmatched widget is an ordinary no-op rather than a screen-table access.
+ *
+ *************************************<->***********************************/
+static WmScreenData *
+FindPanelistScreen (Widget wPanelist)
+{
+    WmScreenData *pSD;
+    int i;
+
+    if (wPanelist == NULL || wmGD.Screens == NULL || wmGD.numScreens <= 0)
+    {
+	return (NULL);
+    }
+
+    for (i = 0; i < wmGD.numScreens; i++)
+    {
+	pSD = &(wmGD.Screens[i]);
+	if (pSD->managed && pSD->wPanelist == wPanelist)
+	{
+	    return (pSD);
+	}
+    }
+
+    return (NULL);
+}
+
 
 /*************************************<->*************************************
  *
@@ -1866,30 +1904,20 @@ RegisterEmbeddedClients (
 	int count)
 {
     WmScreenData *pSD;
-    int i;
 
-    for (i= 0; i < wmGD.numScreens; i++)
+    if (count < 0 || (count > 0 && pECD == NULL))
     {
-	pSD = &(wmGD.Screens[i]);
-
-	if (pSD->managed)
-	{
-	   if (pSD->wPanelist == wPanelist)
-	       break;
-	}
+	return;
     }
 
-    if (i < wmGD.numScreens)
+    pSD = FindPanelistScreen (wPanelist);
+    if (pSD == NULL)
     {
-	pSD->pECD = (struct _WmFpEmbeddedClientData *) pECD;
-	pSD->numEmbeddedClients = count;
+	return;
     }
-#ifdef DEBUG
-    else
-    {
-	fprintf (stderr, "Couldn't match wPanelist to screen data\n");
-    }
-#endif /* DEBUG */
+
+    pSD->pECD = (struct _WmFpEmbeddedClientData *) pECD;
+    pSD->numEmbeddedClients = count;
 
 } /* END OF FUNCTION RegisterEmbeddedClients */
 
@@ -2248,8 +2276,24 @@ IsEmbeddedClient (ClientData *pCD, WmFpEmbeddedClientData **ppECD)
     Boolean bFoundMatch = False;
     WmFpEmbeddedClientData *pECD;
 
+    if (ppECD == NULL)
+    {
+	return (False);
+    }
+    *ppECD = NULL;
+
+    if (pCD == NULL || pCD->pSD == NULL || pCD->clientName == NULL)
+    {
+	return (False);
+    }
+
     pSD = pCD->pSD;
     pECD = (WmFpEmbeddedClientData *) pSD->pECD;
+
+    if (pECD == NULL || pSD->numEmbeddedClients <= 0)
+    {
+	return (False);
+    }
 
     for (i = 0; i < pSD->numEmbeddedClients && !bFoundMatch; i++, pECD++)
     {
@@ -2259,7 +2303,8 @@ IsEmbeddedClient (ClientData *pCD, WmFpEmbeddedClientData **ppECD)
 	 *     it's not a subpanel and
 	 *     the slot isn't already filled.
 	 */
-	if ((!strcmp ((char *)pCD->clientName, 
+	if (pECD->pchResName != NULL &&
+	    (!strcmp ((char *)pCD->clientName,
 		      (char *)(pECD->pchResName))) &&
 	    (!(pCD->dtwmBehaviors & DtWM_BEHAVIOR_SUBPANEL)) &&
 	    (!pECD->pCD))
@@ -2675,35 +2720,27 @@ RegisterPushRecallClients (
     WmScreenData *pSD;
     int i;
 
-    for (i= 0; i < wmGD.numScreens; i++)
+    if (count < 0 || (count > 0 && pPRCD == NULL))
     {
-	pSD = &(wmGD.Screens[i]);
-
-	if (pSD->managed)
-	{
-	   if (pSD->wPanelist == wPanelist)
-	       break;
-	}
+	return;
     }
 
-    if (i < wmGD.numScreens)
+    pSD = FindPanelistScreen (wPanelist);
+    if (pSD == NULL)
     {
-	pSD->pPRCD = (struct _WmFpPushRecallClientData *) pPRCD;
-	pSD->numPushRecallClients = count;
+	return;
     }
-#ifdef DEBUG
-    else
-    {
-	fprintf (stderr, "Couldn't match wPanelist to screen data\n");
-    }
-#endif /* DEBUG */
 
-    for (i = 0; i < pSD->numPushRecallClients ; i++, pPRCD++)
+    pSD->pPRCD = (struct _WmFpPushRecallClientData *) pPRCD;
+    pSD->numPushRecallClients = count;
+
+    for (i = 0; i < count ; i++, pPRCD++)
     {
 	/*
 	 * Initialize data in each slot
 	 */
 	pPRCD->tvTimeout.tv_sec = 0;
+	pPRCD->tvTimeout.tv_usec = 0;
     }
 
 } /* END OF FUNCTION RegisterPushRecallClients */
@@ -2742,8 +2779,24 @@ IsPushRecallClient (ClientData *pCD, WmFpPushRecallClientData **ppPRCD)
     Boolean bFoundMatch = False;
     WmFpPushRecallClientData *pPRCD;
 
+    if (ppPRCD == NULL)
+    {
+	return (False);
+    }
+    *ppPRCD = NULL;
+
+    if (pCD == NULL || pCD->pSD == NULL || pCD->clientName == NULL)
+    {
+	return (False);
+    }
+
     pSD = pCD->pSD;
     pPRCD = (WmFpPushRecallClientData *) pSD->pPRCD;
+
+    if (pPRCD == NULL || pSD->numPushRecallClients <= 0)
+    {
+	return (False);
+    }
 
     for (i = 0; i < pSD->numPushRecallClients && !bFoundMatch; i++, pPRCD++)
     {
@@ -2751,7 +2804,8 @@ IsPushRecallClient (ClientData *pCD, WmFpPushRecallClientData **ppPRCD)
 	 * It's a push_recall client if the resource name matches
 	 * a slot and the slot isn't already filled.
 	 */
-	if ((!strcmp ((char *)pCD->clientName, 
+	if (pPRCD->pchResName != NULL &&
+	    (!strcmp ((char *)pCD->clientName,
 		     (char *)(pPRCD->pchResName))) &&
 	    (!pPRCD->pCD))
 	{
@@ -3111,30 +3165,13 @@ void
 RegisterIconBoxControl (Widget wPanelist)
 {
     WmScreenData *pSD;
-    int i;
 
-    for (i= 0; i < wmGD.numScreens; i++)
-    {
-	pSD = &(wmGD.Screens[i]);
-
-	if (pSD->managed)
-	{
-	   if (pSD->wPanelist == wPanelist)
-	       break;
-	}
-    }
-
-    if (i < wmGD.numScreens)
+    pSD = FindPanelistScreen (wPanelist);
+    if (pSD != NULL)
     {
 	pSD->iconBoxControl = True;
 	pSD->useIconBox = True;
     }
-#ifdef DEBUG
-    else
-    {
-	fprintf (stderr, "Couldn't match wPanelist to screen data\n");
-    }
-#endif /* DEBUG */
 
 } /* END OF FUNCTION RegisterIconBoxControl */
 

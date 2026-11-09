@@ -8,6 +8,9 @@ end = source.index("\n/*********************************************************
 region = source[start:end]
 assert "cell_width == 0 || cell_height == 0" in region
 assert "width_in_cells > INT_MAX / height_in_cells" in region
+assert "SIZE_MAX / sizeof(*cw->container.cells)" in region
+assert "UINT_MAX / sizeof(*cw->container.cells)" in region
+assert "XtCalloc((Cardinal)cw->container.cell_count" in region
 assert "if (cw->container.cells == NULL)" in region
 assert "current_width_in_cells = 0" in region
 print("PASS Container cell-grid reset checks metrics and allocation")

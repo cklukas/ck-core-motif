@@ -89,6 +89,7 @@ TokenRec token[1000];
 TokenRec temp;
 
 void add_token(Token t);
+char *copy_token_text(const char *text);
 int yywrap(void);
 
 int phase		= 0;
@@ -137,23 +138,17 @@ int token_error		= 0;
 			switch (state)
 			{
 			    case 0:
-				temp.name = (char *)
-				    strcpy ((char *)
-					malloc (strlen ((XmConst char *)yytext) + 1), (XmConst char *)yytext);
+				temp.name = copy_token_text ((XmConst char *)yytext);
 
 				temp.num_syn = 0; 
 				break;
 
 			    case 1:
-				temp.id = (char *)
-				    strcpy ((char *)
-					malloc (strlen ((XmConst char *)yytext) + 1), (XmConst char *)yytext);
+				temp.id = copy_token_text ((XmConst char *)yytext);
 				break;
 
 			    case 2:
-				temp.class = (char *)
-				    strcpy ((char *)
-					malloc (strlen ((XmConst char *)yytext) + 1), (XmConst char *)yytext);
+				temp.class = copy_token_text ((XmConst char *)yytext);
 				break;
 
 			    case 3:
@@ -166,10 +161,8 @@ int token_error		= 0;
 				}
 				else
 				{
-				    temp.syn[temp.num_syn] = (char *)
-					strcpy ((char *)
-					    malloc (strlen ((XmConst char *)yytext) + 1),
-					    (XmConst char *)yytext);
+				    temp.syn[temp.num_syn] =
+					copy_token_text ((XmConst char *)yytext);
 				    temp.num_syn++;
 				}
 				break;
@@ -183,6 +176,29 @@ int token_error		= 0;
 		}
 
 %%
+
+
+char *
+copy_token_text (const char *text)
+{
+    char *copy;
+    size_t length;
+
+    length = strlen (text);
+    if (length == (size_t)-1)
+	{
+	fprintf (stderr, "ERROR, WML token is too long, line %d\n", line_num);
+	exit (EXIT_FAILURE);
+	}
+    copy = (char *) malloc (length + 1);
+    if (copy == NULL)
+	{
+	fprintf (stderr, "ERROR, unable to copy WML token, line %d\n", line_num);
+	exit (EXIT_FAILURE);
+	}
+    memcpy (copy, text, length + 1);
+    return copy;
+}
 
 
 void

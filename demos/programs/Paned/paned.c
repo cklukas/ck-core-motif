@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include <Xm/Xm.h>
 #include <Xm/MessageB.h>
@@ -73,7 +74,7 @@ static String fallbacks[] = {
  * Returns:       Nothing
  */
 void
-InitControls()
+InitControls(void)
 {
     Arg args[5];
     Cardinal argcnt;
@@ -180,7 +181,7 @@ SepValChCB(Widget w, XtPointer client, XtPointer call)
 {
     Arg args[5];
     Cardinal argcnt;
-    Boolean val = (Boolean) (unsigned)client;
+    Boolean val = (Boolean)(uintptr_t)client;
 
     if (!XmToggleButtonGetState(w))
 	return;
@@ -201,7 +202,7 @@ OrientChValCB(Widget w, XtPointer client, XtPointer call)
 {
     Arg args[5];
     Cardinal argcnt;
-    unsigned char orient = (unsigned char) (unsigned)client;
+    unsigned char orient = (unsigned char)(uintptr_t)client;
     
     if (!XmToggleButtonGetState(w))
 	return;

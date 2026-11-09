@@ -100,6 +100,8 @@ XmWidgetGetDisplayRect(
         Widget wid,
         XRectangle *displayrect)
 {
+    Boolean result = False;
+
     if (wid == NULL || displayrect == NULL)
 	return False;
 
@@ -114,9 +116,9 @@ XmWidgetGetDisplayRect(
 	    wcePtr = _XmGetPrimitiveClassExtPtr(wc, NULLQUARK);
 	    
 	    if (*wcePtr && (*wcePtr)->widget_display_rect)
-		(*((*wcePtr)->widget_display_rect)) (wid, displayrect);
+		result = (*((*wcePtr)->widget_display_rect)) (wid, displayrect);
 	    _XmAppUnlock(app);
-	    return (True);
+	    return (result);
 	}
     else if (XmIsGadget(wid))
 	{
@@ -126,9 +128,9 @@ XmWidgetGetDisplayRect(
 	    wcePtr = _XmGetGadgetClassExtPtr(wc, NULLQUARK);
 	    
 	    if (*wcePtr && (*wcePtr)->widget_display_rect)
-		(*((*wcePtr)->widget_display_rect)) (wid, displayrect);
+		result = (*((*wcePtr)->widget_display_rect)) (wid, displayrect);
 	    _XmAppUnlock(app);
-	    return (True);
+	    return (result);
 	}
     else {
 	_XmAppUnlock(app);

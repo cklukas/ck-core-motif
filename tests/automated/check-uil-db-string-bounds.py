@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "clients" / "uil" / "UilDB.c").read_text()
-section = source[source.index("void db_read_ints_and_string") : source.index("void db_read_char_table")]
+section = source[source.index("Boolean db_read_ints_and_string") : source.index("Boolean db_read_char_table")]
 
 assert "size_t\t\tstring_size = 0;" in section
 assert "(size_t)header->num_items >" in section

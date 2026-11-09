@@ -2261,7 +2261,14 @@ F_Push_Recall (String args, ClientData *pCD, XEvent *event)
     pPRP = (WmPushRecallArg *) args;
     pSD = (pCD) ? PSD_FOR_CLIENT(pCD) : ACTIVE_PSD;
 
-    if (pPRP->ixReg  < pSD->numPushRecallClients)
+    if (pPRP == NULL || pSD == NULL || pSD->pActiveWS == NULL ||
+	pSD->pPRCD == NULL || pSD->numPushRecallClients <= 0 ||
+	pPRP->ixReg < 0 || pPRP->ixReg >= pSD->numPushRecallClients ||
+	pPRP->wmFunc == NULL)
+    {
+	return (True);
+    }
+
     {
 	/* get slot for this client */
 	pPRCD = &(pSD->pPRCD[pPRP->ixReg]);
@@ -2322,7 +2329,7 @@ F_Push_Recall (String args, ClientData *pCD, XEvent *event)
 
 	    if (!bWaiting)
 	    {
-		long clientTimeout;
+		long clientTimeout = 0;
 		Arg al[5];
 		int ac;
 		WmPanelistObject  pPanelist;
@@ -2341,20 +2348,28 @@ F_Push_Recall (String args, ClientData *pCD, XEvent *event)
 		    XtGetValues (panel.busy_light_data->icon, (ArgList)al, ac);
 		}
 
-		/*
-		 * ClientTimeout is in milliseconds, timeval values
-		 * are in seconds and microseconds.
-		 */
-		gettimeofday (&(pPRCD->tvTimeout), &tz);
+		if (clientTimeout > 0)
+		{
+		    /*
+		     * ClientTimeout is in milliseconds, timeval values
+		     * are in seconds and microseconds.
+		     */
+		    gettimeofday (&(pPRCD->tvTimeout), &tz);
 
-		pPRCD->tvTimeout.tv_sec += clientTimeout / 1000;
-		pPRCD->tvTimeout.tv_usec += 
-		    (clientTimeout % 1000) * 1000;
+		    pPRCD->tvTimeout.tv_sec += clientTimeout / 1000;
+		    pPRCD->tvTimeout.tv_usec +=
+		        (clientTimeout % 1000) * 1000;
 
-		pPRCD->tvTimeout.tv_sec += pPRCD->tvTimeout.tv_usec / 1000000;
-		pPRCD->tvTimeout.tv_usec %= 1000000;
+		    pPRCD->tvTimeout.tv_sec += pPRCD->tvTimeout.tv_usec / 1000000;
+		    pPRCD->tvTimeout.tv_usec %= 1000000;
+		}
+		else
+		{
+		    /* The optional front-panel busy indicator supplied no timeout. */
+		    pPRCD->tvTimeout.tv_sec = 0;
+		    pPRCD->tvTimeout.tv_usec = 0;
+		}
 	    }
-	}
     }
 
     return (True);
@@ -3706,7 +3721,7 @@ F_Toggle_Front_Panel (String args, ClientData *pCD, XEvent *event)
     }
 
     pCD = NULL;
-    if (pPanelist)
+    if (pPanelist && O_Shell(pPanelist))
     {
 	(void) XFindContext (DISPLAY, XtWindow(O_Shell(pPanelist)),
 			    wmGD.windowContextType, (caddr_t *)&pCD);
@@ -3768,7 +3783,7 @@ F_Version (String args, ClientData *pCD, XEvent *event)
         pPanelist = (WmPanelistObject) ACTIVE_PSD->wPanelist;
     }
 
-    if (pPanelist)
+    if (pPanelist && O_Shell(pPanelist))
     {
 	WmDtHelpOnVersion (O_Shell (pPanelist));
     }
@@ -4629,7 +4644,7 @@ Boolean F_Screen (String args, ClientData *pCD, XEvent *event)
                                              "Unable to warp to unmanaged screen %d\n",
                                              scr);
                 char *message = (messageLength >= 0 &&
-                                 (unsigned int)messageLength < UINT_MAX) ?
+                                 (size_t)messageLength < UINT_MAX) ?
                     (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
                 if (message != NULL)

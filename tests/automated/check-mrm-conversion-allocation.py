@@ -17,4 +17,30 @@ for needle, label in checks.items():
         raise SystemExit(f"Mrm {label} allocation/input guard is missing")
 assert "if (fontlist == NULL)\n\t\t    return MrmFAILURE;" in text
 
+wide_start = text.index("case MrmRtypeWideCharacter:")
+wide_end = text.index("case MrmRtypeFont:", wide_start)
+wide = text[wide_start:wide_end]
+assert "Cardinal                      wcstr_bytes;" in text
+assert "wcstr_bytes = (Cardinal)(sizeof(wchar_t) * (max_size + 1));" in wide
+assert "XtMalloc(wcstr_bytes)" in wide
+assert "wcstr_bytes = (Cardinal)(sizeof(wchar_t) * (str_size + 1));" in wide
+assert "XtRealloc((char *)wcstr_r,\n\t\t\t\t\t    wcstr_bytes)" in wide
+invalid_multibyte = wide.index("if (str_size == (size_t)-1)")
+assert "XtFree ((char *)wcstr_r);" in wide[invalid_multibyte:]
+
+cstring_start = text.index("case MrmRtypeCString:")
+cstring_end = text.index("case MrmRtypeIntegerVector:", cstring_start)
+cstring = text[cstring_start:cstring_end]
+assert "cstg = XmCvtByteStreamToXmString((unsigned char *)*val);" in cstring
+assert "if (cstg == NULL)" in cstring
+assert cstring.index("if (cstg == NULL)") < cstring.index("*val = (long)cstg;")
+
+vector_start = text.index("case MrmRtypeChar8Vector:")
+vector_end = text.index("case MrmRtypeWideCharacter:", vector_start)
+vector = text[vector_start:vector_end]
+assert "XmString converted = XmCvtByteStreamToXmString(" in vector
+assert "if (converted == NULL)" in vector
+assert "while (--fixndx >= 0)" in vector
+assert "XmStringFree((XmString)vecptr->item[fixndx].pointer);" in vector
+
 print("Mrm conversion allocation failures are handled")

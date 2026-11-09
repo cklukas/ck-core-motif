@@ -712,30 +712,66 @@ void AddTransient (WmWorkspaceData *pWS, ClientData *pCD)
  * 
  *************************************<->***********************************/
 
+typedef void (*TransientTreeVisitor)(ClientData *, void *);
+
+/*
+ * Walk a transient subtree without consuming C call-stack frames.  The
+ * transientLeader link provides the parent edge, so post-order traversal can
+ * retain the legacy children-before-parent ordering without scratch storage.
+ * A non-root start includes that node and its later siblings, matching the
+ * recursive callers this helper replaces.
+ */
+static void
+VisitTransientSubtreePostorder(ClientData *tree,
+			       TransientTreeVisitor visitor, void *closure)
+{
+    ClientData *node;
+    ClientData *boundary;
+    Boolean descending = True;
+
+    if (tree == NULL || visitor == NULL)
+    {
+	return;
+    }
+
+    node = tree;
+    boundary = tree->transientLeader;
+    while (node != NULL && node != boundary)
+    {
+	if (descending && node->transientChildren)
+	{
+	    node = node->transientChildren;
+	    continue;
+	}
+
+	visitor(node, closure);
+	if (node->transientSiblings)
+	{
+	    node = node->transientSiblings;
+	    descending = True;
+	}
+	else
+	{
+	    node = node->transientLeader;
+	    descending = False;
+	}
+    }
+}
+
+static void
+MarkModalSubtreeVisitor(ClientData *node, void *closure)
+{
+    ClientData *avoid = (ClientData *)closure;
+
+    if (node != avoid)
+    {
+	MarkModalTransient(node, avoid);
+    }
+}
+
 void MarkModalSubtree (ClientData *pcdTree, ClientData *pcdAvoid)
 {
-    if (pcdTree == NULL)
-    {
-        return;
-    }
-
-    /* Mark children, if any */
-
-    if (pcdTree->transientChildren)
-	MarkModalSubtree (pcdTree->transientChildren, pcdAvoid);
-
-    /* Mark this node */
-
-    if (pcdTree != pcdAvoid) 
-    {
-	MarkModalTransient (pcdTree, pcdAvoid);
-    }
-
-    /* Mark siblings */
-
-    if (pcdTree->transientSiblings)
-	MarkModalSubtree (pcdTree->transientSiblings, pcdAvoid);
-
+    VisitTransientSubtreePostorder(pcdTree, MarkModalSubtreeVisitor, pcdAvoid);
 }
 
 
@@ -910,25 +946,21 @@ void DeleteTransient (ClientData *pCD)
  *
  *************************************<->***********************************/
 
+static void
+DeleteFullAppModalChildrenVisitor(ClientData *node, void *closure)
+{
+    FixupFullAppModalCounts((ClientData *)closure, node);
+}
+
 void DeleteFullAppModalChildren (ClientData *pcdLeader, ClientData *pCD)
 {
-    if (pcdLeader == NULL || pCD == NULL)
+    if (pcdLeader == NULL)
     {
-        return;
+	return;
     }
 
-    /* recursively do children first */
-    if (pCD->transientChildren)
-	DeleteFullAppModalChildren (pcdLeader, pCD->transientChildren);
-
-    /* do fullAppModal fixup for this guy */
-    FixupFullAppModalCounts (pcdLeader, pCD);
-
-    /* do siblings of passed transient */
-    if (pCD->transientSiblings)
-	DeleteFullAppModalChildren (pcdLeader, pCD->transientSiblings);
-
-    
+    VisitTransientSubtreePostorder(pCD, DeleteFullAppModalChildrenVisitor,
+				   pcdLeader);
 } /* END OF FUNCTION DeleteFullAppModalChildren */
 
 
@@ -955,36 +987,35 @@ void DeleteFullAppModalChildren (ClientData *pcdLeader, ClientData *pCD)
  *
  *************************************<->***********************************/
 
+typedef struct {
+    ClientData *deleted;
+} FullModalFixup;
+
+static void
+FixupFullAppModalCountsVisitor(ClientData *node, void *closure)
+{
+    FullModalFixup *fixup = (FullModalFixup *)closure;
+
+    if (node->fullModalCount > fixup->deleted->fullModalCount)
+    {
+	UnMarkModalTransient(node, 1, fixup->deleted);
+    }
+}
+
 void
 FixupFullAppModalCounts (ClientData *pcdLeader, ClientData *pcdDelete)
 
 {
+    FullModalFixup fixup;
+
     if (pcdLeader == NULL || pcdDelete == NULL)
     {
-        return;
+	return;
     }
 
-    /* fixup children */
-    if (pcdLeader->transientChildren) 
-    {
-	FixupFullAppModalCounts (pcdLeader->transientChildren, pcdDelete);
-    }
-
-    /* 
-     * fixup leader: decrement the count if it is greater than
-     * the transient being deleted.
-     *
-     */
-    if (pcdLeader->fullModalCount > pcdDelete->fullModalCount)
-    {
-	UnMarkModalTransient (pcdLeader, 1, pcdDelete);
-    }
-
-    /* fixup siblings */
-    if (pcdLeader->transientSiblings) 
-    {
-	FixupFullAppModalCounts (pcdLeader->transientSiblings, pcdDelete);
-    }
+    fixup.deleted = pcdDelete;
+    VisitTransientSubtreePostorder(pcdLeader, FixupFullAppModalCountsVisitor,
+				   &fixup);
     
 } /* END OF FUNCTION FixupFullAppModalCounts */
 
@@ -1416,26 +1447,39 @@ int
 CountTransientChildren (ClientData *pcd)
 
 {
-    ClientData *pcdNext;
-    int count = 1;
+    ClientData *node;
+    ClientData *boundary;
+    int count = 0;
 
     if (pcd == NULL)
     {
         return (0);
     }
 
-    pcdNext = pcd->transientChildren;
-    while (pcdNext)
+    node = pcd;
+    boundary = pcd->transientLeader;
+    while (node != NULL && node != boundary)
     {
-	if (pcdNext->transientChildren)
+	if (count == INT_MAX)
 	{
-	    count += CountTransientChildren (pcdNext);
+	    return (INT_MAX);
+	}
+	count++;
+	if (node->transientChildren)
+	{
+	    node = node->transientChildren;
 	}
 	else
 	{
-	    count++;
+	    while (node != boundary && node->transientSiblings == NULL)
+	    {
+		node = node->transientLeader;
+	    }
+	    if (node != NULL && node != boundary)
+	    {
+		node = node->transientSiblings;
+	    }
 	}
-	pcdNext = pcdNext->transientSiblings;
     }
 
     return (count);
@@ -1554,7 +1598,7 @@ ClientData * FindTransientFocus (ClientData *pcd)
 	while (pcdFocus && IS_APP_MODALIZED(pcdFocus))
 	{
 	    pcdSibling = pcdFocus;
-	    while (pcdSibling->transientSiblings && IS_APP_MODALIZED(pcdFocus))
+	    while (pcdSibling->transientSiblings && IS_APP_MODALIZED(pcdSibling))
 	    {
 		pcdSibling = pcdSibling->transientSiblings;
 	    }

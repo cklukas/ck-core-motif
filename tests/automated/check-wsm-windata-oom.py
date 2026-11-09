@@ -12,6 +12,7 @@ region = text[start:end]
 assert "*win_data = NULL;" in region
 assert "*num = 0;" in region
 assert "if (conf_fmt == NULL" in region
+assert "conf_fmt->num_attrs < 0" in region
 assert "if (bit_mask == NULL)" in region
 assert "if (ptr == NULL)" in region
 assert "XtFree((XtPointer) bit_mask);" in region

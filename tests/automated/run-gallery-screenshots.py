@@ -21,6 +21,7 @@ import platform
 
 
 WINDOW_NAME = "ckmotif-gallery"
+MIN_CAPTURE_PNG_BYTES = 4096
 WINDOW_RE = re.compile(
     r'^\s*(0x[0-9a-fA-F]+)\s+"' + re.escape(WINDOW_NAME) +
     r'":.*\s(\d+)x(\d+)[+-]\d+[+-]\d+\s'
@@ -29,6 +30,20 @@ WINDOW_RE = re.compile(
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def validate_capture_png(path: Path, seen_hashes: set[str]) -> str:
+    """Reject an implausibly empty or repeated native window capture."""
+    data = path.read_bytes()
+    if len(data) < MIN_CAPTURE_PNG_BYTES:
+        raise RuntimeError(f"capture PNG is implausibly small ({len(data)} bytes): {path}")
+    if data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        raise RuntimeError(f"capture PNG has an invalid header: {path}")
+    digest = hashlib.sha256(data).hexdigest()
+    if digest in seen_hashes:
+        raise RuntimeError(f"capture PNG duplicates an earlier component: {path}")
+    seen_hashes.add(digest)
+    return digest
 
 
 def loaded_library(process: subprocess.Popen[bytes]) -> tuple[str, str] | None:
@@ -133,10 +148,12 @@ def wait_ready(window_id: str, process: subprocess.Popen[bytes],
         if failure:
             raise failure
         result = subprocess.run(["xprop", "-id", window_id,
-                                 "_NET_WM_PID", "_CKMOTIF_GALLERY_READY"],
+                                 "_NET_WM_PID", "_CKMOTIF_GALLERY_READY",
+                                 "_CKMOTIF_GALLERY_COMPONENT"],
                                 env=env, capture_output=True, text=True, timeout=2)
         if (f"_NET_WM_PID(CARDINAL) = {process.pid}" in result.stdout and
-                "_CKMOTIF_GALLERY_READY(CARDINAL) = 1" in result.stdout):
+                "_CKMOTIF_GALLERY_READY(CARDINAL) = 1" in result.stdout and
+                f'"{entry_id}"' in result.stdout):
             stats = subprocess.run(["xwininfo", "-id", window_id, "-stats"],
                                    env=env, capture_output=True, text=True, timeout=2)
             if "Map State: IsViewable" in stats.stdout:
@@ -194,6 +211,7 @@ def main() -> int:
         "current_entry": None,
     }
     started = time.monotonic()
+    seen_png_hashes: set[str] = set()
 
     def skip(reason: str) -> int:
         receipt["result"] = "skip"
@@ -233,7 +251,7 @@ def main() -> int:
                     receipt["library_sha256"] = fingerprint
                 with xwd_output.open("wb") as stream:
                     capture = subprocess.run(
-                        [xwd, "-id", window_id, "-silent", "-screen"], env=env,
+                        [xwd, "-id", window_id, "-silent"], env=env,
                         stdout=stream, stderr=subprocess.PIPE, timeout=10,
                     )
                 if capture.returncode:
@@ -255,12 +273,13 @@ def main() -> int:
                         f"{entry['id']}: PNG conversion failed: "
                         f"{pnm_stderr}{convert.stderr.decode(errors='replace')}"
                     )
+                png_digest = validate_capture_png(png_output, seen_png_hashes)
                 receipt["entries"].append({
                     "id": entry["id"],
                     "xwd": str(xwd_output),
                     "png": str(png_output),
                     "xwd_sha256": sha256(xwd_output),
-                    "png_sha256": sha256(png_output),
+                    "png_sha256": png_digest,
                     "seconds": round(time.monotonic() - entry_started, 3),
                 })
             finally:

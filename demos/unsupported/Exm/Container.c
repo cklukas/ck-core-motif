@@ -102,6 +102,7 @@ static XmTabList GetDefaultTabList(
 				   ExmContainerWidget cw,
 				   Cardinal detail_order_count);
 static XmTabList GetDumbTabList(
+				ExmContainerWidget cw,
 				Dimension tab_size,
 				Cardinal asked_num_tab);
 
@@ -403,17 +404,48 @@ Initialize(
     XmScrollFrameTrait scrollFrameTrait;
 
     cw->container.icon_header = NULL ;
+    cw->container.generated_tablist = NULL;
 
     if (cw->container.detail_header && 
 	cw->container.detail_header_count) {
+	XmStringTable copied_header = NULL;
+	Boolean copied = True;
 
-	/**** first make a copy of the detail header table */
-	cw->container.detail_header = (XmStringTable) 
-	    XtMalloc(cw->container.detail_header_count * sizeof(XmString));
+	if ((size_t)cw->container.detail_header_count >
+	    UINT_MAX / sizeof(*copied_header)) {
+	    copied = False;
+	} else {
+	    copied_header = (XmStringTable)XtCalloc(
+		(Cardinal)cw->container.detail_header_count,
+		(Cardinal)sizeof(*copied_header));
+	    if (copied_header == NULL) {
+		copied = False;
+	    } else {
+		for (i = 0; i < cw->container.detail_header_count; ++i) {
+		    if (rcw->container.detail_header[i] != NULL) {
+			copied_header[i] =
+			    XmStringCopy(rcw->container.detail_header[i]);
+			if (copied_header[i] == NULL) {
+			    copied = False;
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+	if (!copied) {
+	    for (i = 0; copied_header && i < cw->container.detail_header_count;
+		 ++i)
+		XmStringFree(copied_header[i]);
+	    XtFree((char *)copied_header);
+	    cw->container.detail_header = NULL;
+	    cw->container.detail_header_count = 0;
+	} else {
+	    cw->container.detail_header = copied_header;
+	}
+    }
 
-	for (i=0; i<cw->container.detail_header_count; i++)
-	    cw->container.detail_header[i] = 
-		XmStringCopy(rcw->container.detail_header[i]);
+    if (cw->container.detail_header && cw->container.detail_header_count) {
 
 	/**** deal with the IconHeader creation */
 	scrollFrameTrait = (XmScrollFrameTrait) 
@@ -557,6 +589,9 @@ Destroy(
 	
     if (cw->container.detail_tablist) {
 	XmTabListFree(cw->container.detail_tablist);
+    }
+    if (cw->container.generated_tablist) {
+	XmTabListFree(cw->container.generated_tablist);
     }
 }
 
@@ -1015,9 +1050,14 @@ GetDefaultTabList(
 	    tab_size = (cw->core.width - 2*cw->grid.margin_width -
 			cw->container.first_column_width) 
 		/ detail_order_count ;
-	    default_tablist = GetDumbTabList(tab_size,
+	    default_tablist = GetDumbTabList(cw, tab_size,
 						detail_order_count);
 	} /* else return NULL as well */
+    }
+
+    if (default_tablist == NULL && cw->container.generated_tablist) {
+	XmTabListFree(cw->container.generated_tablist);
+	cw->container.generated_tablist = NULL;
     }
     
     return default_tablist ;
@@ -1026,42 +1066,58 @@ GetDefaultTabList(
 
 /****************************************************************************
  *
- *  GetDumbTabList  
- *    fixed space - lazy allocation .do not deallocate the returned value
+ *  GetDumbTabList
+ *    creates a widget-owned default list. Callers must not free it.
  *
  ***************************************************************************/
 static XmTabList 
 GetDumbTabList(
+	ExmContainerWidget cw,
         Dimension tab_size,
         Cardinal asked_num_tab)
 {
-    static int Num_tab = 0 ;
-    static XmTab * Tab_pool = NULL ;
-    static XmTabList Tab_list = NULL ;
-    Cardinal i, prev_num_tab = Num_tab ;
-    
-    if (Num_tab < asked_num_tab) {
-	Num_tab = asked_num_tab ;
-	Tab_pool = (XmTab*) XtRealloc((char*)Tab_pool,
-				      Num_tab*sizeof(XmTab));
+    XmTab *tab_pool;
+    XmTabList tab_list;
+    Cardinal i;
+    size_t tab_bytes;
+
+    if (cw == NULL)
+	return NULL;
+    if (asked_num_tab == 0 ||
+	(size_t)asked_num_tab > SIZE_MAX / sizeof(*tab_pool) ||
+	(size_t)asked_num_tab > UINT_MAX / sizeof(*tab_pool))
+	return cw->container.generated_tablist;
+
+    tab_bytes = (size_t)asked_num_tab * sizeof(*tab_pool);
+    tab_pool = (XmTab *)XtMalloc((Cardinal)tab_bytes);
+    if (tab_pool == NULL)
+	return cw->container.generated_tablist;
+
+    for (i = 0; i < asked_num_tab; ++i) {
+	tab_pool[i] = XmTabCreate(0.0, XmPIXELS, XmABSOLUTE,
+				  XmALIGNMENT_BEGINNING, XmS);
+	if (tab_pool[i] == NULL) {
+	    while (i != 0) {
+		--i;
+		XmTabFree(tab_pool[i]);
+	    }
+	    XtFree((char *)tab_pool);
+	    return cw->container.generated_tablist;
+	}
+	XmTabSetValue(tab_pool[i], (float)tab_size * (float)(i + 1));
     }
 
-    /* create more tabs */
-    for (i=prev_num_tab; i<Num_tab; i++)
-	Tab_pool[i] =  XmTabCreate(0.0, XmPIXELS, XmABSOLUTE,
-				   XmALIGNMENT_BEGINNING, XmS);
+    tab_list = XmTabListInsertTabs(NULL, tab_pool, asked_num_tab, 0);
+    for (i = 0; i < asked_num_tab; ++i)
+	XmTabFree(tab_pool[i]);
+    XtFree((char *)tab_pool);
+    if (tab_list == NULL)
+	return cw->container.generated_tablist;
 
-    /* update the values */
-    for (i=0; i<asked_num_tab; i++)
-	XmTabSetValue(Tab_pool[i], (float)tab_size*(i+1));
-
-    /* free the previous tablist and return a new one.
-       Not clear what is going to happen to the Tab_pool array,
-       is it going to be copied or ref counted, but I won't free them... */
-    if (Tab_list) XmTabListFree(Tab_list);
-    Tab_list = XmTabListInsertTabs(NULL, Tab_pool, asked_num_tab, 0);
-
-    return Tab_list ;
+    if (cw->container.generated_tablist)
+	XmTabListFree(cw->container.generated_tablist);
+    cw->container.generated_tablist = tab_list;
+    return tab_list;
 }
 
 

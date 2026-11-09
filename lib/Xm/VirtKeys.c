@@ -86,6 +86,9 @@ static void LoadVendorBindings(Display *display,
 			       char *path,
 			       FILE *fp,
 			       String *binding);
+static Boolean SetBindingsProperty(Display *display,
+				   Atom property,
+				   String binding);
 
 /********    End Static Function Declarations    ********/
 
@@ -187,7 +190,7 @@ CvtStringToVirtualBinding(Display    *dpy,
 			  XrmValuePtr toVal,
 			  XtPointer  *closure_ret )
 {
-    char 	 *str = (char *)fromVal->addr;
+    char 	 *str;
     XKeyEvent	  event;
     int		  count, tmp;
     int		 *eventTypes;
@@ -197,6 +200,12 @@ CvtStringToVirtualBinding(Display    *dpy,
     int		  codes_per_sym;
     KeyCode	  minK;
     Modifiers	  used_mods;
+    size_t        binding_bytes;
+
+    if (dpy == NULL || fromVal == NULL || fromVal->addr == NULL ||
+	toVal == NULL)
+	return False;
+    str = (char *)fromVal->addr;
 
     /* Lookup codes_per_sym, and let Xt cache the result instead of */
     /* always downloading a new copy with XGetKeyboardMapping(). */
@@ -208,6 +217,17 @@ CvtStringToVirtualBinding(Display    *dpy,
     if (count > 0)
       {
 	Boolean fini;
+
+	if ((size_t)count > SIZE_MAX / sizeof(XmKeyBindingRec) ||
+	    (size_t)count > (size_t)UINT_MAX / sizeof(XmKeyBindingRec))
+	  {
+	    XtFree((char*) eventTypes);
+	    XtFree((char*) keysyms);
+	    XtFree((char*) modifiers);
+	    XtDisplayStringConversionWarning(dpy, str, XmRVirtualBinding);
+	    return False;
+	  }
+	binding_bytes = (size_t)count * sizeof(XmKeyBindingRec);
 
 	for (tmp = 0; tmp < count; tmp++)
 	  {
@@ -318,9 +338,9 @@ CvtStringToVirtualBinding(Display    *dpy,
 	
 	/* Fail if insufficient storage was provided. */
 	if ((toVal->addr != NULL) &&
-	    (toVal->size < sizeof(XmKeyBindingRec) * count))
+	    (toVal->size < binding_bytes))
 	  {
-	    toVal->size = sizeof(XmKeyBindingRec) * count;
+	    toVal->size = (Cardinal)binding_bytes;
 
 	    XtFree((char*) eventTypes);
 	    XtFree((char*) keysyms);
@@ -329,7 +349,7 @@ CvtStringToVirtualBinding(Display    *dpy,
 	  }
 
 	/* Allocate storage if none was provided. */
-	toVal->size = sizeof(XmKeyBindingRec) * count;
+	toVal->size = (Cardinal)binding_bytes;
 	if (toVal->addr == NULL)
 	  {
 	    toVal->addr = XtMalloc(toVal->size);
@@ -848,8 +868,8 @@ XmeVirtualToActualKeysyms(Display      *dpy,
 			  XmKeyBinding *actualKeyData)
 {
   int           matches;
-  int           match_count;
   Cardinal      index;
+  size_t        binding_bytes;
   XmDisplay     xmDisplay = (XmDisplay)XmGetXmDisplay (dpy);
   XmVKeyBinding keyBindings = xmDisplay->display.bindings;
   _XmDisplayToAppContext(dpy);
@@ -865,14 +885,25 @@ XmeVirtualToActualKeysyms(Display      *dpy,
   matches = 0;
   for (index = 0; index < xmDisplay->display.num_bindings; index++)
     if (keyBindings[index].virtkey == virtKeysym)
-      matches++;
+      {
+        if (matches == INT_MAX) {
+          _XmAppUnlock(app);
+          return 0;
+        }
+        matches++;
+      }
 
   /* Allocate the return array. */
   if (matches > 0)
     {
-      match_count = matches;
+      if ((size_t)matches > SIZE_MAX / sizeof(XmKeyBindingRec) ||
+          (size_t)matches > (size_t)UINT_MAX / sizeof(XmKeyBindingRec)) {
+	_XmAppUnlock(app);
+	return 0;
+      }
+      binding_bytes = (size_t)matches * sizeof(XmKeyBindingRec);
       *actualKeyData = (XmKeyBinding) 
-	XtMalloc((size_t)match_count * sizeof(XmKeyBindingRec));
+	XtMalloc((Cardinal)binding_bytes);
       if (*actualKeyData == NULL) {
 	_XmAppUnlock(app);
 	return 0;
@@ -1001,6 +1032,23 @@ _XmVirtKeysLoadFileBindings(char   *fileName,
   return False;
 }
 
+static Boolean
+SetBindingsProperty(Display *display, Atom property, String binding)
+{
+  size_t binding_length;
+
+  if (display == NULL || binding == NULL)
+    return False;
+  binding_length = strlen(binding);
+  if (binding_length > (size_t)INT_MAX)
+    return False;
+
+  XChangeProperty(display, RootWindow(display, 0), property,
+		  XA_STRING, 8, PropModeReplace,
+		  (unsigned char *)binding, (int)binding_length);
+  return True;
+}
+
 static void 
 LoadVendorBindings(Display *display,
 		   char    *path,
@@ -1090,6 +1138,9 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
   char *bindDir;
   static XmConst char xmbinddir_fallback[] = XMBINDDIR_FALLBACK;
   Atom atoms[XtNumber(atom_names)];
+
+  if (display == NULL || binding == NULL)
+    return 0;
   
   *binding = NULL;
   
@@ -1117,10 +1168,8 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
   if (*binding != NULL) 
     {
       /* Set the user property for future Xm applications. */
-      XChangeProperty (display, RootWindow(display, 0),
-		       atoms[XmA_MOTIF_BINDINGS],
-		       XA_STRING, 8, PropModeReplace,
-		       (unsigned char *)*binding, strlen(*binding));
+      (void)SetBindingsProperty(display, atoms[XmA_MOTIF_BINDINGS],
+				 *binding);
       return 0;
     }
   
@@ -1167,10 +1216,8 @@ _XmVirtKeysLoadFallbackBindings(Display	*display,
 	return 0;
   
   /* Set the fallback property for future Xm applications */
-  XChangeProperty (display, RootWindow(display, 0),
-		   atoms[XmA_MOTIF_DEFAULT_BINDINGS],
-		   XA_STRING, 8, PropModeReplace,
-		   (unsigned char *)*binding, strlen(*binding));
+  (void)SetBindingsProperty(display, atoms[XmA_MOTIF_DEFAULT_BINDINGS],
+			     *binding);
   
   return 0;
 }

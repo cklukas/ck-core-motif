@@ -44,6 +44,11 @@ fallback name.
 
 The installed consumer fixture is `tests/automated/run-avatar.py`.
 
+Temporary server-side drawing resources are fallible: Avatar skips only the
+affected rendering pass when a pixmap, GC, or XRender picture cannot be
+created, releasing earlier temporary resources first. It can render again on a
+later expose. See `docs/avatar-pixmap-allocation.md`.
+
 <!-- gallery-demo-tabs: begin -->
 ## Component demo
 

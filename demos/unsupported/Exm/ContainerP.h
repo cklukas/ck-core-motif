@@ -77,6 +77,8 @@ typedef struct
 	Cardinal *		detail_order;
 	Cardinal 		detail_order_count;
 	XmTabList               detail_tablist ;
+	/* Owned default list, rebuilt when the current geometry changes. */
+	XmTabList               generated_tablist;
 	XmStringTable           detail_header ;
 	Cardinal                detail_header_count;
 	Pixel                   select_color;

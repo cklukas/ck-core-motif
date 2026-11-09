@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #if defined(VMS) && !defined(__alpha)
 #define mbstowcs(a,b,n) XiMbstowcs(a,b,n)
 #endif
@@ -70,6 +71,21 @@
 /* From GrabShell.c */
 #define Events	(EnterWindowMask | LeaveWindowMask | ButtonPressMask | \
 		 ButtonReleaseMask)
+
+static Position
+dropdown_bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
+static Dimension
+dropdown_bounded_dimension(unsigned long value)
+{
+    if (value > USHRT_MAX) return (Dimension)USHRT_MAX;
+    return (Dimension)(value ? value : 1);
+}
 
 
 static void TextButtonPress(Widget, XtPointer, XEvent *, Boolean *);
@@ -892,8 +908,9 @@ ChangeManaged(Widget w)
 static void
 ExposeMethod(Widget wid, XEvent *event, Region r)
 {
-    Position x, y;
+    int x, y;
     Dimension w, h;
+    unsigned long frame_width, frame_height;
     XmDropDownWidget cbw = (XmDropDownWidget)wid;
     Widget text  = XmDropDown_text(cbw);
     Widget arrow = XmDropDown_arrow(cbw);
@@ -902,26 +919,29 @@ ExposeMethod(Widget wid, XEvent *event, Region r)
 	return;
 
     if (LayoutIsRtoLM(cbw))
-	x = (Position)((int)arrow->core.x - (int)arrow->core.border_width -
-	    (int)cbw->manager.shadow_thickness);
+	x = (int)arrow->core.x - (int)arrow->core.border_width -
+	    (int)cbw->manager.shadow_thickness;
     else
-	x = (Position)((int)text->core.x - (int)text->core.border_width -
-	    (int)cbw->manager.shadow_thickness);
+	x = (int)text->core.x - (int)text->core.border_width -
+	    (int)cbw->manager.shadow_thickness;
 
-    y = (Position)((int)text->core.y - (int)text->core.border_width -
-	(int)cbw->manager.shadow_thickness);
+y = (int)text->core.y - (int)text->core.border_width -
+	(int)cbw->manager.shadow_thickness;
 
-    w = text->core.width + arrow->core.width +
-	2*(text->core.border_width + arrow->core.border_width) +
-	2*cbw->manager.shadow_thickness;
+    frame_width = (unsigned long)text->core.width + arrow->core.width +
+	2UL * ((unsigned long)text->core.border_width +
+	       arrow->core.border_width + cbw->manager.shadow_thickness);
+    w = dropdown_bounded_dimension(frame_width);
 
-    h = text->core.height + 2*text->core.border_width +
-	2*cbw->manager.shadow_thickness;
+    frame_height = (unsigned long)text->core.height +
+	2UL * ((unsigned long)text->core.border_width +
+	       cbw->manager.shadow_thickness);
+    h = dropdown_bounded_dimension(frame_height);
 
     XmeDrawShadows(XtDisplay(cbw), XtWindow(cbw),
 		   cbw->manager.top_shadow_GC,
 		   cbw->manager.bottom_shadow_GC,
-		   x, y, w, h,
+		   dropdown_bounded_position(x), dropdown_bounded_position(y), w, h,
 		   cbw->manager.shadow_thickness,
 		   XmSHADOW_IN);
 		   
@@ -1650,6 +1670,9 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
     Dimension text_width = 0, label_width = 0, label_bw = 0;
     Dimension shadow;
     int label_x, arrow_x, text_x;
+    int child_y, label_y;
+    XmAppearanceProfile profile;
+    Boolean modern;
     XtWidgetGeometry arrow_geom, label_geom, text_geom;
     Widget label = NULL;
     Widget text = XmDropDown_text(cbw);
@@ -1716,7 +1739,6 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 	text_geom.border_width = 0;
     }
 
-    XmDropDown_text_x(cbw) = text_x;
     if ( XmDropDown_new_visual_style(cbw) ) 
     {
 	shadow        = cbw->manager.shadow_thickness;
@@ -1739,13 +1761,18 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
 	shadow = 0;
     }
 
-    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplay(w));
-    Boolean modern = profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK;
+    XmDropDown_text_x(cbw) = dropdown_bounded_position(text_x);
+    child_y = (int)XmDropDown_v_space(cbw) + shadow;
+    profile = _XmAppearanceGeometryProfile(XtDisplay(w));
+    modern = profile == XmAPPEARANCE_MODERN_LIGHT ||
+        profile == XmAPPEARANCE_MODERN_DARK;
+    label_y = (int)XmDropDown_v_space(cbw) + (modern ? shadow : 0);
+
     /* Use the same inner top edge for both members of a modern labeled row. */
     if (XmDropDown_show_label(cbw) && label != NULL)
     {
-	_XmConfigureWidget(label, label_x, /* XmDropDown_h_space(cbw), */
-			   XmDropDown_v_space(cbw) + (modern ? shadow : 0),
+	_XmConfigureWidget(label, dropdown_bounded_position(label_x),
+		   dropdown_bounded_position(label_y),
 			   label_width, 
 			   DropDownChildSpan(child_height, label_geom.border_width),
 			   label_geom.border_width);
@@ -1754,12 +1781,13 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
     if (text != NULL) {
         Dimension available = DropDownChildSpan(child_height, text_geom.border_width);
         Dimension text_height = available;
-        int text_y = XmDropDown_v_space(cbw) + shadow;
+        int text_y = child_y;
         if (modern && text_geom.height && text_geom.height < text_height) {
             text_height = text_geom.height;
             text_y += (available-text_height)/2;
         }
-        _XmConfigureWidget(text, text_x, text_y, text_width, text_height,
+        _XmConfigureWidget(text, dropdown_bounded_position(text_x),
+                           dropdown_bounded_position(text_y), text_width, text_height,
                            text_geom.border_width);
         /* Labels center their text in a stretched row; TextField anchors its
          * baseline to its top margin. Align actual baselines while keeping the
@@ -1774,15 +1802,17 @@ PlaceChildren(Widget w, Boolean allow_resize, Widget child)
                 int top = XmDropDown_v_space(cbw) + shadow;
                 int bottom = top + available - text_height;
                 text_y = MAX(top,MIN(bottom,desired));
-                _XmConfigureWidget(text,text_x,text_y,text_width,text_height,text_geom.border_width);
+                _XmConfigureWidget(text, dropdown_bounded_position(text_x),
+                                   dropdown_bounded_position(text_y), text_width,
+                                   text_height, text_geom.border_width);
             }
             XtFree((char*)label_bases);XtFree((char*)text_bases);
         }
     }
 
     if (arrow != NULL)
-	_XmConfigureWidget(arrow, arrow_x,
-		       XmDropDown_v_space(cbw) + shadow,
+	_XmConfigureWidget(arrow, dropdown_bounded_position(arrow_x),
+		       dropdown_bounded_position(child_y),
 		       arrow_geom.width, 
 		       DropDownChildSpan(child_height, arrow_geom.border_width),
 		       arrow_geom.border_width);
@@ -1827,7 +1857,8 @@ GetTextAndLabelWidth(Widget w, Dimension combo_width, Dimension arrow_width,
 
     if (text_and_label >= (long long)(*text_width + *label_width))
     {
-	*text_width = text_and_label - *label_width;
+	*text_width = dropdown_bounded_dimension(
+	    (unsigned long)(text_and_label - *label_width));
     }
     /*
      * We need to shrink each a bit. 
@@ -2377,7 +2408,8 @@ PopupList(Widget w)
 {	
     XmDropDownWidget cbw = (XmDropDownWidget) w;
     Widget shell;
-    Position x, y, temp;
+    Position translated_x, translated_y;
+    int x, y, temp;
     Dimension width;
     int available_width;
     int ret, scr_width, scr_height;
@@ -2393,7 +2425,9 @@ PopupList(Widget w)
 	return(False);
     }
 
-    XtTranslateCoords(w, 0, XtHeight(w), &x, &y);
+    XtTranslateCoords(w, 0, XtHeight(w), &translated_x, &translated_y);
+    x = translated_x;
+    y = translated_y;
     XtRealizeWidget(shell);
 
     num_args = 0;
@@ -2412,7 +2446,7 @@ PopupList(Widget w)
 	 * width, while preserving the normal requested width. */
 	if (available_width < 1)
 	    available_width = 1;
-	width = (Dimension)available_width;
+	width = dropdown_bounded_dimension((unsigned long)available_width);
 	XtSetArg(args[num_args], XmNwidth, width); num_args++;
     }
     else
@@ -2432,21 +2466,21 @@ PopupList(Widget w)
     scr_width = WidthOfScreen(XtScreen(shell));
     scr_height = HeightOfScreen(XtScreen(shell));
 
-    if( (int)(y + XtHeight(shell)) > scr_height )
+    if( (long long)y + XtHeight(shell) > scr_height )
     {
-	Position tmp;
-	XtTranslateCoords(w, 0, 0, &tmp, &y);
-	y -= ((int)XtHeight(shell));
+	Position top_y;
+	XtTranslateCoords(w, 0, 0, &translated_x, &top_y);
+	y = (int)top_y - (int)XtHeight(shell);
     }
     if( y < 0 ) y = 0;
-    if( (int)(x + width) > scr_width )
+    if( (long long)x + width > scr_width )
     {
 	x = scr_width - ((int)width);
     }
     if( x < 0 ) x = 0;
 
-    XtSetArg(args[num_args], XmNx, x); num_args++;
-    XtSetArg(args[num_args], XmNy, y); num_args++;
+    XtSetArg(args[num_args], XmNx, dropdown_bounded_position(x)); num_args++;
+    XtSetArg(args[num_args], XmNy, dropdown_bounded_position(y)); num_args++;
     XtSetValues(shell, args, num_args);
     
     /*
@@ -2707,6 +2741,7 @@ SetTextFromList(Widget w)
     register int i;
     String *parts = NULL;
     String combined = NULL;
+    char *write_ptr;
     size_t total = 1;
     Boolean set_text = False;
     XmDropDownClassPartExtension *addition;
@@ -2763,7 +2798,7 @@ SetTextFromList(Widget w)
 
         (void)len;
         len = strlen(parts[i]);
-        separator = i ? 2U : 0U;
+        separator = i ? 1U : 0U;
         if (len > SIZE_MAX - total ||
             separator > SIZE_MAX - total - len ||
             total > (size_t)UINT_MAX ||
@@ -2776,11 +2811,14 @@ SetTextFromList(Widget w)
     combined = (String)XtMalloc((Cardinal)total);
     if (combined == NULL)
         goto conversion_failed;
-    combined[0] = '\0';
+    write_ptr = combined;
     for (i = 0; i < count; ++i) {
-        if (i) strcat(combined, ",");
-        strcat(combined, parts[i]);
+        size_t len = strlen(parts[i]);
+        if (i) *write_ptr++ = ',';
+        memcpy(write_ptr, parts[i], len);
+        write_ptr += len;
     }
+    *write_ptr = '\0';
     XmTextFieldSetString(XmDropDown_text(cbw), combined);
     XmTextFieldSetInsertionPosition(XmDropDown_text(cbw), 0);
     XtFree((char *)combined);

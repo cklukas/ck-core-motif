@@ -11,5 +11,5 @@ assert "int available_width;" in region
 assert "(int)cbw->core.width - (int)temp" in region
 assert "if (available_width < 1)" in region
 assert "available_width = 1;" in region
-assert "width = (Dimension)available_width;" in region
+assert "width = dropdown_bounded_dimension((unsigned long)available_width);" in region
 print("drop-down popup width arithmetic is signed and clamped")

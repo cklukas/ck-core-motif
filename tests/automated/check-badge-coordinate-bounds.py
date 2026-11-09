@@ -7,6 +7,9 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Badge.c").read_text(
     encoding="utf-8"
 )
 assert "static Position bounded_position(long long value)" in source
+assert "static unsigned short bounded_extent(int value)" in source
 assert "bounded_position(horizontal)" in source
+assert "bounded_extent(inner_width),bounded_extent(inner_height)" in "".join(source.split())
+assert "if (width > 2 && height > 2)" in source
 assert "bounded_position(((long long)height-(long long)th)/2)" in source
 print("PASS Badge label coordinates stay bounded")

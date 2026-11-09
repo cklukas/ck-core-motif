@@ -2216,7 +2216,7 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 			snprintf(NULL, 0, "<%s>", tree->name) :
 			snprintf(NULL, 0, "%s.<%s>", command_string, tree->name);
 		    new_command_str = (command_length >= 0 &&
-				       (unsigned int)command_length < UINT_MAX) ?
+			       (size_t)command_length < UINT_MAX) ?
 			(char *)XtMalloc((Cardinal)command_length + 1) : NULL;
 		    if (new_command_str == NULL)
 			continue;
@@ -2241,7 +2241,7 @@ static void SearchForOtherMatches (WmScreenData *pSD, ClientData *pCD,
 			inLine_function = F_InvokeCommand;
 		    }
 		    new_funcargs = (funcargs_length >= 0 &&
-				    (unsigned int)funcargs_length < UINT_MAX) ?
+			    (size_t)funcargs_length < UINT_MAX) ?
 			(char *)XtMalloc((Cardinal)funcargs_length + 1) : NULL;
 		    if (new_funcargs == NULL)
 		    {
@@ -2811,7 +2811,7 @@ static Boolean ModifyClientCommandForMenuSpec (MenuSpec *menuSpec,
 {
     MenuItem *curMenuItem;
     Boolean was_changed = FALSE;
-    int i, freebutton, buttoncount;
+    unsigned int i, freebutton, buttoncount;
 
     /* If the menuspec doesn't have any buttons or a valid menu widget
        then we don't want to search it. */
@@ -3552,6 +3552,16 @@ AdjustTearOffControl (Widget cascade,
 
   return (False);
 }
+
+/* Xt callbacks return void. Keep the Boolean result for the direct caller
+ * above, and adapt it here for the cascading callback registration. */
+static void
+AdjustTearOffControlCallback (Widget cascade,
+			      XtPointer closure,
+			      XtPointer cbackdata)
+{
+    (void)AdjustTearOffControl(cascade, closure, cbackdata);
+}
 
 
 /*************************************<->*************************************
@@ -4061,7 +4071,7 @@ Widget CreateMenuWidget (WmScreenData *pSD,
                         }
 #if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
 			XtAddCallback(children[n], XmNcascadingCallback,
-				      (XtCallbackProc)AdjustTearOffControl,
+				      AdjustTearOffControlCallback,
 				      (XtPointer)subMenuW);
 #endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
 		    }
@@ -4639,9 +4649,34 @@ static void UnmapCallback (Widget w, XtPointer client_data,
 void MWarning (char *format, char *message)
 {
     char pch[MAXWMPATH + 1];
+    const char *input = message ? message : "";
+    const char *cursor = format ? format : "";
+    char *output = pch;
+    char *const limit = pch + sizeof(pch) - 1;
 
-    /* Keep diagnostics visible even when a resource-defined name is long. */
-    (void)snprintf(pch, sizeof pch, format, message);
+    /* Resource catalogs are data, not trusted printf formats. The MWM
+     * diagnostic contract substitutes one string (`%s`) and permits `%%`.
+     * Leave any other conversion literal rather than treating catalog text as
+     * a variadic format. */
+    while (*cursor && output < limit)
+    {
+	if (*cursor == '%' && cursor[1] == 's')
+	{
+	    const char *value = input;
+	    while (*value && output < limit) *output++ = *value++;
+	    cursor += 2;
+	}
+	else if (*cursor == '%' && cursor[1] == '%')
+	{
+	    *output++ = '%';
+	    cursor += 2;
+	}
+	else
+	{
+	    *output++ = *cursor++;
+	}
+    }
+    *output = '\0';
     Warning(pch);
 
 } /* END OF FUNCTION MWarning */

@@ -8,6 +8,12 @@ UIL database is generated.  `wmluiltok` now has an explicit `main` entry point,
 so it builds with current flex versions that no longer supply an implicit
 scanner driver.
 
+The Exm WML database generator likewise uses typed C definitions for its
+entry point and emitters, rather than K&R declarations.  This preserves its
+database output while allowing the `wmldbcreate` object to compile under the
+current C23 configuration.  `tests/automated/check-wmldbcreate-c23.py` checks
+the relevant source contracts.
+
 The generated `Uil.c`/`Uil.h` parser pair and the `UilLexPars.c`/
 `UilLexPars.h` compatibility symlinks are created through stamp rules.  This
 makes `make -j` deterministic: concurrent object prerequisites no longer run
@@ -42,6 +48,87 @@ The WML specification lexer (`wmllex.c`) is generated explicitly from
 `wmllex.l` as part of the same out-of-tree build. A fresh checkout therefore
 does not require a checked-in generated lexer; the selected `LEX` implementation
 must be available when building the WML tools.
+
+The keyword-table emitter also handles WML names at the lexer-supported input
+length. It now allocates the temporary case-folded name and generated
+`sym_k_...` literal from the measured input, rather than placing either in a
+100-byte stack buffer. This preserves generated output for ordinary names and
+stops generation on allocation failure without overwriting generator state. The focused
+source regression is `tests/automated/check-wml-keyword-buffer-bounds.py`.
+
+The `tokens.dat` reader likewise limits each generated grammar-token field to
+the capacity of its legacy record buffer and uses a temporary allocated copy
+when lowercasing keyword spellings. It fails cleanly if either token allocation
+fails; `tests/automated/check-wml-grammar-token-bounds.py` covers that contract.
+
+WML's shared dynamic string-copy helper now returns `NULL` when allocation
+fails, before attempting a copy. This prevents a low-memory generator run from
+turning an ordinary allocation failure into a null-pointer write; the focused
+regression is `tests/automated/check-wml-string-allocation.py`.
+
+Resolver diagnostics now use bounded formatting for class, character-set, and
+reference names, so malformed long names cannot overwrite the diagnostic stack
+buffer. The regression is `tests/automated/check-wml-diagnostic-bounds.py`.
+
+The WML class-mask emitters write each `_BIT_MASK` term directly to the
+generated header instead of assembling a complete row in fixed 100- and
+500-byte buffers. Long valid class names can therefore be emitted without
+overwriting generator storage, while the established generated header layout is
+unchanged. `tests/automated/check-wml-class-mask-bounds.py` checks this source
+contract; the native WML target verifies the generated headers.
+
+Character-set `$LANG` names and aliases are likewise copied into an
+input-sized uppercase buffer before emission. A failed allocation stops WML
+generation instead of writing through the former 200-byte local array or
+continuing with a partial header. The source regression is
+`tests/automated/check-wml-charset-name-bounds.py`.
+
+The `wmluiltok` lexer now copies token fields through a checked helper. A
+low-memory token parse terminates with a diagnostic rather than applying
+`strcpy` to a null allocation result. The focused source regression is
+`tests/automated/check-wml-lexer-copy-failure.py`; the native WML target
+regenerates and runs this lexer.
+
+WML's central dynamic handle-list allocation now checks its requested element
+count and allocation result before publishing list state. Initial allocation
+and growth fail with a diagnostic rather than leaving a null or undersized
+vector to be dereferenced later. The focused regression is
+`tests/automated/check-wml-handle-list-allocation.py`.
+
+`wmldbcreate` validates its dynamic string-length table count and allocation,
+and rejects strings that cannot be represented by the established `int` length
+field. This prevents a failed allocation or narrowing overflow from corrupting
+database creation. The focused regression is
+`tests/automated/check-wmldb-length-allocation.py`.
+
+WML syntax construction now routes descriptor and alias-vector allocation
+through checked helpers. Invalid sizes and allocation failures stop parsing
+before any incomplete object is linked into parser state. The focused
+regression is `tests/automated/check-wml-syntax-builder-allocation.py`.
+
+WML handle-list insertion now requires a successful copy of its lookup name
+before publishing the entry, avoiding null-name comparisons after low-memory
+failures. The focused regression is
+`tests/automated/check-wml-handle-list-name-copy.py`.
+
+WML semantic-resolution objects are allocated through a checked helper, so a
+low-memory failure stops resolution before any partially initialized object is
+linked into the generated model. The focused regression is
+`tests/automated/check-wml-resolver-allocation.py`.
+
+WML resolver symbol codes now use full-width integers internally. This avoids
+silent signed-16-bit truncation if a generated catalogue exceeds 32,767 entries;
+existing catalogue output remains unchanged. The focused regression is
+`tests/automated/check-wml-symbol-code-width.py`.
+
+The WML grammar-token reader rejects negative, oversized, and duplicate IDs
+before it inserts into its fixed token vector, and frees rejected records. The
+focused regression is `tests/automated/check-wml-token-id-bounds.py`.
+
+The WML keyword-table and manual writers emit fixed text through `fputs` or
+literal `fprintf` formats, rather than treating a mutable template as a runtime
+format string. The focused regression is
+`tests/automated/check-wml-output-format-safety.py`.
 
 On 2026-10-25, an isolated AArch64 `uconsole` bootstrap copied the source to a
 fresh temporary tree, ran `autoreconf -fi`, configured with the optional text,

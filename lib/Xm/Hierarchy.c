@@ -427,8 +427,10 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 
     top_node = ((HierarchyConstraints) 
 		XtMalloc(sizeof(HierarchyConstraintRec)));
-	if (top_node == NULL)
+	if (top_node == NULL) {
+	    XtError("Unable to allocate Hierarchy top-node constraint");
 	    return;
+	}
 
     XmHierarchy_top_node(hw) = top_node;
 

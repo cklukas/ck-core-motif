@@ -118,7 +118,7 @@ static void natural(XmSidebarWidget sidebar, Dimension *width, Dimension *height
 
 static void layout(XmSidebarWidget sidebar)
 {
-    Dimension button, gap;
+    Dimension button, gap, available;
     int width, height, x, y, remaining, label_width;
     Boolean rtl;
     if (sidebar->sidebar.initializing || sidebar->sidebar.laying_out)
@@ -131,7 +131,8 @@ static void layout(XmSidebarWidget sidebar)
     width = MIN(sidebar->core.width, SHRT_MAX);
     height = MIN(sidebar->core.height, SHRT_MAX);
     rtl = XmDirectionMatch(_XmGetLayoutDirection((Widget)sidebar), XmRIGHT_TO_LEFT);
-    button = MIN(button, MIN(width,height));
+    available = (Dimension)MIN((unsigned long)width, (unsigned long)height);
+    button = MIN(button, available);
     if (!button) {
         XtSetMappedWhenManaged(sidebar->sidebar.toggle_button,False);
         XtUnmanageChild(sidebar->sidebar.title_label);
@@ -236,15 +237,25 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 {
     XmSidebarWidget old = (XmSidebarWidget)old_widget;
     XmSidebarWidget sidebar = (XmSidebarWidget)widget;
+    Boolean title_changed = False;
     (void)request;
     (void)args;
     (void)count;
     if (old->sidebar.title != sidebar->sidebar.title) {
-        sidebar->sidebar.title = sidebar->sidebar.title ?
+        XmString replacement = sidebar->sidebar.title ?
             XmStringCopy(sidebar->sidebar.title) : XmStringCreateLocalized("Sidebar");
-        XmStringFree(old->sidebar.title);
-        XtVaSetValues(sidebar->sidebar.title_label,XmNlabelString,sidebar->sidebar.title,NULL);
-        layout(sidebar);
+        if (replacement != NULL) {
+            XmStringFree(old->sidebar.title);
+            sidebar->sidebar.title = replacement;
+            if (sidebar->sidebar.title_label != NULL)
+                XtVaSetValues(sidebar->sidebar.title_label,
+                              XmNlabelString, sidebar->sidebar.title, NULL);
+            layout(sidebar);
+            title_changed = True;
+        } else {
+            /* Keep the valid, owned title when a replacement cannot be made. */
+            sidebar->sidebar.title = old->sidebar.title;
+        }
     }
     if (old->sidebar.expanded != sidebar->sidebar.expanded) {
         Boolean expanded=sidebar->sidebar.expanded;
@@ -257,7 +268,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         layout(sidebar);
         return True;
     }
-    return False;
+    return title_changed;
 }
 
 static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request,
@@ -280,9 +291,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     XmSidebarWidget sidebar = (XmSidebarWidget)widget;
     natural(sidebar, &reply->width, &reply->height);
     reply->request_mode = CWWidth | CWHeight;
-    if (request && request->width == reply->width && request->height == reply->height)
-        return XtGeometryYes;
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 static void activate(Widget widget, XtPointer client, XtPointer call)
@@ -363,7 +372,7 @@ Widget XmVaCreateManagedSidebar(Widget parent, char *name, ...)
 
 Widget XmSidebarGetContent(Widget widget)
 {
-    return widget && XmIsSidebar(widget)
+    return widget && XmIsSidebar(widget) && !widget->core.being_destroyed
                ? ((XmSidebarWidget)widget)->sidebar.content : NULL;
 }
 
@@ -423,14 +432,14 @@ static void set_expanded(Widget widget, Boolean expanded, XEvent *event, Boolean
 
 Boolean XmSidebarGetExpanded(Widget widget)
 {
-    return widget && XmIsSidebar(widget)
+    return widget && XmIsSidebar(widget) && !widget->core.being_destroyed
                ? ((XmSidebarWidget)widget)->sidebar.expanded : False;
 }
 
 void XmSidebarToggle(Widget widget, XEvent *event)
 {
     XmSidebarWidget sidebar;
-    if (!widget || !XmIsSidebar(widget))
+    if (!widget || !XmIsSidebar(widget) || widget->core.being_destroyed)
         return;
     sidebar = (XmSidebarWidget)widget;
     set_expanded(widget, !sidebar->sidebar.expanded, event, True);

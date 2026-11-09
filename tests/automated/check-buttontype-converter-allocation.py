@@ -21,4 +21,14 @@ for needle in (
     if needle not in block:
         raise SystemExit(f"button-type converter is missing {needle}")
 
-print("button-type conversion handles allocation failure")
+trailing_token_failure = """if (i != comma_count + 1)
+        {
+        XtDisplayStringConversionWarning(display, in_str, XmRButtonType);
+        XtFree((char *) buttonTable);
+        XtFree((char *) work_str);
+        return(FALSE);
+        }"""
+if trailing_token_failure not in block:
+    raise SystemExit("button-type converter leaks its mutable input on token mismatch")
+
+print("button-type conversion handles allocation and token-mismatch cleanup")

@@ -7,6 +7,8 @@ start = source.index("static void ParseMenuItemName (unsigned char **linePP, Men
 end = source.index("\n#endif /* !defined(WSM)", start)
 region = source[start:end]
 assert "nameLength = (size_t)(endquote - lineP);" in region
+assert "if (chlen != 1 || *endquote != '\"') return;" in region
+assert "if (*endquote != '\"') return;" in region
 assert "if (nameLength == SIZE_MAX || nameLength >= UINT_MAX)" in region
 assert "menuItem->clientCommandName = XtMalloc((Cardinal)nameLength + 1);" in region
 assert "if (menuItem->clientCommandName == NULL)" in region

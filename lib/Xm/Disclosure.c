@@ -142,7 +142,7 @@ static void layout(XmDisclosureWidget w) {
   y = position((long long)y + head + w->disclosure.spacing);
   height =
       dimension(w->core.height > (unsigned long)y + w->disclosure.margin_height
-                    ? w->core.height - y - w->disclosure.margin_height
+                    ? w->core.height - (unsigned long)y - w->disclosure.margin_height
                     : 1);
   if (w->disclosure.expanded && w->disclosure.content != NULL)
     XmeConfigureObject(w->disclosure.content, x, y, width, height, 0);
@@ -318,37 +318,30 @@ static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request,
 }
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended,
                                       XtWidgetGeometry *preferred_geometry) {
-  XmDisclosureWidget w = (XmDisclosureWidget)widget;
-  natural(w, &preferred_geometry->width, &preferred_geometry->height);
+  natural((XmDisclosureWidget)widget, &preferred_geometry->width,
+          &preferred_geometry->height);
   preferred_geometry->request_mode = CWWidth | CWHeight;
-  if ((intended->request_mode & (CWWidth | CWHeight)) == (CWWidth | CWHeight) &&
-      intended->width == preferred_geometry->width &&
-      intended->height == preferred_geometry->height)
-    return XtGeometryYes;
-  if (w->core.width == preferred_geometry->width &&
-      w->core.height == preferred_geometry->height)
-    return XtGeometryNo;
-  return XtGeometryAlmost;
+  return XmeReplyToQueryGeometry(widget, intended, preferred_geometry);
 }
 Widget XmCreateDisclosure(Widget parent, char *name, ArgList args,
                           Cardinal count) {
   return XtCreateWidget(name, xmDisclosureWidgetClass, parent, args, count);
 }
 Widget XmDisclosureGetContent(Widget w) {
-  return w && XmIsDisclosure(w) ? ((XmDisclosureWidget)w)->disclosure.content
+  return w && XmIsDisclosure(w) && !w->core.being_destroyed ? ((XmDisclosureWidget)w)->disclosure.content
                                 : NULL;
 }
 Widget XmDisclosureGetHeader(Widget w) {
-  return w && XmIsDisclosure(w) ? ((XmDisclosureWidget)w)->disclosure.header
+  return w && XmIsDisclosure(w) && !w->core.being_destroyed ? ((XmDisclosureWidget)w)->disclosure.header
                                 : NULL;
 }
 Boolean XmDisclosureGetExpanded(Widget w) {
-  return w && XmIsDisclosure(w) ? ((XmDisclosureWidget)w)->disclosure.expanded
+  return w && XmIsDisclosure(w) && !w->core.being_destroyed ? ((XmDisclosureWidget)w)->disclosure.expanded
                                 : False;
 }
 void XmDisclosureSetExpanded(Widget widget, Boolean expanded, Boolean notify) {
   XmDisclosureWidget w;
-  if (!widget || !XmIsDisclosure(widget))
+  if (!widget || !XmIsDisclosure(widget) || widget->core.being_destroyed)
     return;
   w = (XmDisclosureWidget)widget;
   expanded = expanded ? True : False;

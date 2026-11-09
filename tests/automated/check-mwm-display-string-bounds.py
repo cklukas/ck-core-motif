@@ -9,8 +9,16 @@ source = (Path(__file__).parents[2] / "clients" / "mwm" / "WmInitWs.c").read_tex
 )
 start = source.index("InitWmScreen (WmScreenData")
 body = source[start : source.index("} /* END OF FUNCTION  InitWmScreen", start)]
-assert "displayNameLength > SIZE_MAX - 64" in body
-assert "displayNameLength + 64 > UINT_MAX" in body
+assert "displayNameLength = strlen(pDisplayName);" in body
+assert "displayNameLength > SIZE_MAX - 65" in body
+assert "displayNameLength > (size_t)UINT_MAX - 65" in body
+assert "displayNameLength++;" in body
+assert body.index("displayNameLength > SIZE_MAX - 65") < body.index(
+    "displayNameLength++;"
+)
+assert body.index("displayNameLength++;") < body.index(
+    "bufferLength = displayNameLength + 64;"
+)
 assert "XtMalloc((Cardinal)displayNameLength)" in body
 assert "XtMalloc((unsigned int)displayNameLength)" not in body
 assert "XtMalloc ((Cardinal)(strlen(buffer) + 1))" in body

@@ -106,6 +106,9 @@ UrmCreatePixmap (RGMIconImagePtr	icon,
   if ( icon == NULL || pixmap == NULL )
     return MrmFAILURE;
   *pixmap = 0;
+  if (icon->width <= 0 || icon->height <= 0 ||
+      icon->pixel_data.pdptr == NULL)
+    return MrmNOT_VALID;
   if ( icon->color_table.ctptr == NULL )
     return MrmNOT_VALID;
 
@@ -235,6 +238,9 @@ UrmCreateBitmap (RGMIconImagePtr	icon,
   if ( icon == NULL || pixmap == NULL )
     return MrmFAILURE;
   *pixmap = 0;
+  if (icon->width <= 0 || icon->height <= 0 ||
+      icon->pixel_data.pdptr == NULL)
+    return MrmNOT_VALID;
 
   /*
    *  Local variables
@@ -531,8 +537,13 @@ Urm__MapIconBitmap(RGMIconImagePtr		icon,
 		  GCForeground | GCBackground | GCFillStyle | GCTile,
 		  &gcValues);
   if ( gc == NULL )
-    return Urm__UT_Error ("Urm__MapIconBitmap", _MrmMMsg_0036,
-			  NULL, NULL, MrmFAILURE);
+    {
+      XFreePixmap (display, *pixmap);
+      XFree((char*)imagep);
+      *pixmap = (Pixmap)0;
+      return Urm__UT_Error ("Urm__MapIconBitmap", _MrmMMsg_0036,
+			    NULL, NULL, MrmFAILURE);
+    }
 
   /*
    * Put bits into the pixmap
@@ -707,8 +718,13 @@ Urm__MapIconBitmapDepth1 (RGMIconImagePtr	icon,
 		  &gcValues);
 
   if ( gc == NULL )
-    return Urm__UT_Error ("Urm__MapIconBitmapDepth1", _MrmMMsg_0036,
-			  NULL, NULL, MrmFAILURE);
+    {
+      XFreePixmap (display, *pixmap);
+      XFree((char*)imagep);
+      *pixmap = (Pixmap)0;
+      return Urm__UT_Error ("Urm__MapIconBitmapDepth1", _MrmMMsg_0036,
+			    NULL, NULL, MrmFAILURE);
+    }
 
   /*
    * Put bits into the pixmap
@@ -850,8 +866,13 @@ Urm__MapIconReplace (RGMIconImagePtr		icon,
 		  GCForeground | GCBackground | GCFillStyle | GCTile,
 		  &gcValues);
   if ( gc == NULL )
-    return Urm__UT_Error ("Urm__MapIconReplace", _MrmMMsg_0036,
-			  NULL, NULL, MrmFAILURE);
+    {
+      XFreePixmap (display, *pixmap);
+      XFree((char*)imagep);
+      *pixmap = (Pixmap)0;
+      return Urm__UT_Error ("Urm__MapIconReplace", _MrmMMsg_0036,
+			    NULL, NULL, MrmFAILURE);
+    }
 
   /*
    * Put bits into the pixmap
@@ -1038,7 +1059,10 @@ Urm__MapIconAllocate (RGMIconImagePtr		icon,
 		  &gcValues);
   if ( gc == NULL )
     {
+      XFreePixmap (display, *pixmap);
+      XFree((char*)imagep);
       XtFree (alloc_pixmap);
+      *pixmap = (Pixmap)0;
       return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0036,
 			    NULL, NULL, MrmFAILURE);
     }

@@ -247,7 +247,8 @@ HighlightSash(
   int x, y;
   
   x = y = ((XmSashWidget) sash)->primitive.shadow_thickness;
-  if (sash->core.width <= 2 * x || sash->core.height <= 2 * y)
+  if (!XtIsRealized(sash) || sash->core.width <= 2 * x ||
+      sash->core.height <= 2 * y)
     return;
   
   XFillRectangle( XtDisplay( sash), XtWindow( sash),
@@ -262,7 +263,8 @@ UnhighlightSash(
   int x, y;
   
   x = y = ((XmSashWidget) sash)->primitive.shadow_thickness;
-  if (sash->core.width <= 2 * x || sash->core.height <= 2 * y)
+  if (!XtIsRealized(sash) || sash->core.width <= 2 * x ||
+      sash->core.height <= 2 * y)
     return;
 
   XClearArea( XtDisplay( sash), XtWindow( sash),
@@ -376,22 +378,28 @@ Realize(
 	Cursor SashCursor = 
 		((XmDisplayInfo *)(dd->display.displayInfo))->SashCursor;
 	
-	if (0L == SashCursor)
+	if (None == SashCursor)
 		{
 		/* create some data shared among all instances on this 
 		** display; the first one along can create it, and 
 		** any one can remove it; note no reference count
 		*/
-        	SashCursor = 
-		((XmDisplayInfo *)(dd->display.displayInfo))->SashCursor = 
-			XCreateFontCursor(XtDisplay(w), XC_crosshair);
-		XtAddCallback((Widget)dd, XtNdestroyCallback, 
+		SashCursor = XCreateFontCursor(XtDisplay(w), XC_crosshair);
+		if (SashCursor != None)
+		{
+		    ((XmDisplayInfo *)(dd->display.displayInfo))->SashCursor =
+			SashCursor;
+		    XtAddCallback((Widget)dd, XtNdestroyCallback,
 			SashDisplayDestroyCallback, (XtPointer) NULL);
 		}
+		}
 
-	attributes->cursor = SashCursor;
-	XtCreateWindow (w, InputOutput, CopyFromParent, 
-		*p_valueMask | CWCursor, attributes);
+	if (SashCursor != None)
+	{
+	    attributes->cursor = SashCursor;
+	    *p_valueMask |= CWCursor;
+	}
+	XtCreateWindow (w, InputOutput, CopyFromParent, *p_valueMask, attributes);
 }
 
 /*ARGSUSED*/

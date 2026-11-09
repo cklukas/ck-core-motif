@@ -11,6 +11,11 @@ process instead of returning the documented failure status.
 
 The routine now rejects missing output pointers before acquiring locks or
 allocating a resource context, and clears both outputs before attempting the
-fetch. Existing callers that provide valid outputs retain the same lookup and
-conversion behavior. The source-level regression is
+fetch. An unsupported icon, color, color table, or bitmap-file literal now
+also clears both outputs after releasing its backing context, rather than
+returning a dangling value pointer with `MrmWRONG_TYPE`. Existing callers that
+provide valid outputs retain the same successful lookup and conversion
+behavior. Failed Char8, compound-string, and integer vector conversions now
+release the primary and auxiliary resource contexts and clear both outputs
+before returning failure. The source-level regression is
 `tests/automated/check-mrm-fetch-literal-output.py`.

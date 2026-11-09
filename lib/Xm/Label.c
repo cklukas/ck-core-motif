@@ -67,6 +67,7 @@ static char rcsid[] = "$TOG: Label.c /main/26 1997/06/18 17:40:00 samborn $"
 #include "XmosI.h"
 #include "XmStringI.h"
 #include <Xm/XpmP.h>
+#include <limits.h>
 #include <string.h>
 #include <Xm/XmP.h>
 #ifdef FIX_1381
@@ -465,7 +466,7 @@ static XmSyntheticResource syn_resources[] =
     XtOffsetOf(XmLabelRec, label._acc_text),
     GetAcceleratorText, NULL
   },
-  
+
   {
     XmNpixmapTextPadding, sizeof(Dimension),
     XtOffsetOf(XmLabelRec, label.pixmap_text_padding),
@@ -580,7 +581,7 @@ ClassInitialize(void)
   /* Parse the various translation tables */
   menu_parsed	 = XtParseTranslationTable(menuTranslations);
   default_parsed = XtParseTranslationTable(defaultTranslations);
-  
+  /* Position the text inside the bounded natural allocation. */
   /* Set up base class extension quark */
   labelBaseClassExtRec.record_type = XmQmotif;
   
@@ -961,6 +962,21 @@ _XmLabelCalcTextRect(Widget wid)
  *
  ************************************************************************/
 
+static Position
+label_bounded_position(long long value)
+{
+  if (value < SHRT_MIN) return (Position)SHRT_MIN;
+  if (value > SHRT_MAX) return (Position)SHRT_MAX;
+  return (Position)value;
+}
+
+static Dimension
+label_bounded_dimension(unsigned long value)
+{
+  if (value > USHRT_MAX) return (Dimension)USHRT_MAX;
+  return (Dimension)(value ? value : 1);
+}
+
 static void 
 Resize(Widget wid)
 {
@@ -973,35 +989,40 @@ Resize(Widget wid)
     {
       if (LayoutIsRtoLP(newlw))
 	{
-          if (lp->margin_left < (Dimension) (lp->acc_TextRect.width + LABEL_ACC_PAD) )
+	  Dimension required = label_bounded_dimension(
+	      (unsigned long)lp->acc_TextRect.width + LABEL_ACC_PAD);
+          if (lp->margin_left < required)
 	    {
-	      int delta = 
-		lp->acc_TextRect.width + LABEL_ACC_PAD - lp->margin_left;
-	      lp->acc_left_delta += delta;
-	      lp->margin_left += delta;
+	      unsigned long delta = (unsigned long)required - lp->margin_left;
+	      lp->acc_left_delta = label_bounded_dimension(
+		(unsigned long)lp->acc_left_delta + delta);
+	      lp->margin_left = label_bounded_dimension(
+		(unsigned long)lp->margin_left + delta);
 	    }
 	}
       else
 	{
-	  if (lp->margin_right < (Dimension) (lp->acc_TextRect.width + LABEL_ACC_PAD) )
+	  Dimension required = label_bounded_dimension(
+	      (unsigned long)lp->acc_TextRect.width + LABEL_ACC_PAD);
+          if (lp->margin_right < required)
 	    {
-	      int delta = 
-		lp->acc_TextRect.width + LABEL_ACC_PAD - lp->margin_right;
-	      lp->acc_right_delta += delta;
-	      lp->margin_right += delta;
+	      unsigned long delta = (unsigned long)required - lp->margin_right;
+	      lp->acc_right_delta = label_bounded_dimension(
+		(unsigned long)lp->acc_right_delta + delta);
+	      lp->margin_right = label_bounded_dimension(
+		(unsigned long)lp->margin_right + delta);
 	    }
 	}
     }
   
   /* Has a width been specified?  */
   if (newlw->core.width == 0)
-    newlw->core.width = (Dimension)
-      lp->TextRect.width + 
-	lp->margin_left + lp->margin_right +
-	  (2 * (lp->margin_width 
-		+ newlw->primitive.highlight_thickness
-		+ newlw->primitive.shadow_thickness));
-  
+    newlw->core.width = label_bounded_dimension(
+      (unsigned long)lp->TextRect.width + lp->margin_left + lp->margin_right +
+	2UL * ((unsigned long)lp->margin_width +
+	       newlw->primitive.highlight_thickness +
+	       newlw->primitive.shadow_thickness));
+
   leftx = (newlw->primitive.highlight_thickness +
 	   newlw->primitive.shadow_thickness +
 	   lp->margin_width + lp->margin_left);
@@ -1015,70 +1036,64 @@ Resize(Widget wid)
     {
     case XmALIGNMENT_BEGINNING:
       if (LayoutIsRtoLP(newlw))
-	lp->TextRect.x = rightx - lp->TextRect.width;
+	lp->TextRect.x = label_bounded_position((long long)rightx - lp->TextRect.width);
       else
-	lp->TextRect.x = leftx;
+	lp->TextRect.x = label_bounded_position(leftx);
       break;
       
     case XmALIGNMENT_END:
       if (LayoutIsRtoLP(newlw))
-	lp->TextRect.x = leftx;
+	lp->TextRect.x = label_bounded_position(leftx);
       else
-	lp->TextRect.x = rightx - lp->TextRect.width;
+	lp->TextRect.x = label_bounded_position((long long)rightx - lp->TextRect.width);
       break;
       
     default:
       /* CR 9737: Be careful about casting here, since rounding during */
       /*	division on Suns depends on the sign. */ 
-      lp->TextRect.x = leftx + (rightx - leftx - (int)lp->TextRect.width) / 2;
+      lp->TextRect.x = label_bounded_position(
+	(long long)leftx + ((long long)rightx - leftx - lp->TextRect.width) / 2);
       break;
     }
   
   /* Has a height been specified? */
   if (newlw->core.height == 0)
-    newlw->core.height = (Dimension)
-      MAX(lp->TextRect.height, lp->acc_TextRect.height) +
-	lp->margin_top +
-	  lp->margin_bottom
-	    + (2 * (lp->margin_height
-		    + newlw->primitive.highlight_thickness
-		    + newlw->primitive.shadow_thickness));
-  
-  lp->TextRect.y =  (short) (newlw->primitive.highlight_thickness
-			     + newlw->primitive.shadow_thickness
-			     + lp->margin_height + lp->margin_top +
-			     (((int)newlw->core.height - (int)lp->margin_top
-			       - (int)lp->margin_bottom
-			       - (2 * ((int)lp->margin_height
-				       + (int)newlw->primitive.highlight_thickness
-				       + (int)newlw->primitive.shadow_thickness))
-			       - (int)lp->TextRect.height) / 2));
+    newlw->core.height = label_bounded_dimension(
+      (unsigned long)MAX(lp->TextRect.height, lp->acc_TextRect.height) +
+	lp->margin_top + lp->margin_bottom +
+	2UL * ((unsigned long)lp->margin_height +
+	       newlw->primitive.highlight_thickness +
+	       newlw->primitive.shadow_thickness));
+  /* Position the text inside the bounded natural allocation. */
+  lp->TextRect.y = label_bounded_position(
+      (long long)newlw->primitive.highlight_thickness +
+	newlw->primitive.shadow_thickness + lp->margin_height + lp->margin_top +
+	(((long long)newlw->core.height - lp->margin_top - lp->margin_bottom -
+	  2LL * ((long long)lp->margin_height +
+		 newlw->primitive.highlight_thickness +
+		 newlw->primitive.shadow_thickness) - lp->TextRect.height) / 2));
   
   if (lp->_acc_text != NULL)
     {
       Dimension  base_label, base_accText, diff;
       
       if (LayoutIsRtoLP(newlw))
-	lp->acc_TextRect.x = newlw->primitive.highlight_thickness +
-	  newlw->primitive.shadow_thickness +
-	    newlw->label.margin_width;
+	lp->acc_TextRect.x = label_bounded_position(
+	  (long long)newlw->primitive.highlight_thickness +
+	  newlw->primitive.shadow_thickness + newlw->label.margin_width);
       else
-	lp->acc_TextRect.x = (short)((int)newlw->core.width -
-	  (int)newlw->primitive.highlight_thickness -
-	    (int)newlw->primitive.shadow_thickness -
-	      (int)newlw->label.margin_width -
-		(int)newlw->label.margin_right + LABEL_ACC_PAD);
+	lp->acc_TextRect.x = label_bounded_position(
+	  (long long)newlw->core.width - newlw->primitive.highlight_thickness -
+	  newlw->primitive.shadow_thickness - newlw->label.margin_width -
+	  newlw->label.margin_right + LABEL_ACC_PAD);
       
-      lp->acc_TextRect.y =
-	(short) (newlw->primitive.highlight_thickness
-		 + newlw->primitive.shadow_thickness
-		 + lp->margin_height + lp->margin_top +
-		 (((int)newlw->core.height - (int)lp->margin_top
-			       - (int)lp->margin_bottom
-			       - (2 * ((int)lp->margin_height
-				       + (int)newlw->primitive.highlight_thickness
-				       + (int)newlw->primitive.shadow_thickness))
-			       - (int)lp->acc_TextRect.height) / 2));
+	  lp->acc_TextRect.y = label_bounded_position(
+	    (long long)newlw->primitive.highlight_thickness +
+	    newlw->primitive.shadow_thickness + lp->margin_height + lp->margin_top +
+	    (((long long)newlw->core.height - lp->margin_top - lp->margin_bottom -
+	      2LL * ((long long)lp->margin_height +
+		     newlw->primitive.highlight_thickness +
+		     newlw->primitive.shadow_thickness) - lp->acc_TextRect.height) / 2));
       
       /* make sure the label and accelerator text line up */
       /* when the fonts are different */
@@ -1091,12 +1106,14 @@ Resize(Widget wid)
 	  if (base_label > base_accText)
 	    {
 	      diff = base_label - base_accText;
-	      lp->acc_TextRect.y = (short) lp->TextRect.y + diff - 1;
+	      lp->acc_TextRect.y = label_bounded_position(
+		(long long)lp->TextRect.y + diff - 1);
 	    }
 	  else if (base_label < base_accText)
 	    {
 	      diff = base_accText - base_label;
-	      lp->TextRect.y = (short) lp->acc_TextRect.y + diff - 1;
+	      lp->TextRect.y = label_bounded_position(
+		(long long)lp->acc_TextRect.y + diff - 1);
 	    }
 	}
     }
@@ -2652,6 +2669,9 @@ XmLabelGetDisplayRect(Widget w,
 {
   XmLabelWidget wid = (XmLabelWidget) w;
 
+  if (w == NULL || displayrect == NULL)
+    return False;
+
   (*displayrect).x = wid->label.TextRect.x;
   (*displayrect).y = wid->label.TextRect.y;
   (*displayrect).width = wid->label.TextRect.width;
@@ -2677,8 +2697,16 @@ XmLabelGetBaselines(Widget wid,
 {
   XmLabelWidget lw = (XmLabelWidget)wid;
   Cardinal count;
+  Cardinal cache_bytes;
+  Cardinal result_bytes;
+  int label_line_count;
   int delta;
-  
+
+  /* The baseline trait is callable through generic geometry code.  Match
+   * LabelGadget's contract before reading widget state or publishing output. */
+  if (wid == NULL || baselines == NULL || line_count == NULL)
+    return False;
+
   if (Lab_IsPixmap(wid)) 
     return False;
 
@@ -2698,9 +2726,11 @@ XmLabelGetBaselines(Widget wid,
       }
 
       /* Store the current offset in an extra location. */
+      cache_bytes = (Cardinal)(((size_t)count + 1) *
+                               sizeof(*new_baselines));
       new_baselines = (Dimension *)XtRealloc(
 	  (char *)lw->label.baselines,
-	  ((size_t)count + 1) * sizeof(*new_baselines));
+	  cache_bytes);
       if (new_baselines == NULL) {
 	XtFree((char *)lw->label.baselines);
 	lw->label.baselines = NULL;
@@ -2711,7 +2741,10 @@ XmLabelGetBaselines(Widget wid,
     }
   else
     {
-      count = XmStringLineCount(lw->label._label);
+      label_line_count = XmStringLineCount(lw->label._label);
+      if (label_line_count < 0)
+        return False;
+      count = (Cardinal)label_line_count;
     }
 
   if (count == (Cardinal)-1 || count > (Cardinal)INT_MAX ||
@@ -2729,17 +2762,17 @@ XmLabelGetBaselines(Widget wid,
     }
 
   /* Copy the cached data. */
-  *line_count = count;
+  *line_count = (int)count;
   if (count == 0) {
     *baselines = NULL;
     return True;
   }
-  *baselines = (Dimension*) XtMalloc((size_t)*line_count *
-				     sizeof(Dimension));
+  result_bytes = (Cardinal)((size_t)count * sizeof(Dimension));
+  *baselines = (Dimension*) XtMalloc(result_bytes);
   if (*baselines == NULL)
     return False;
   memcpy((char*) *baselines, (char*) lw->label.baselines,
-	 *line_count * sizeof(Dimension));
+	 (size_t)count * sizeof(Dimension));
 
   return True;
 }
@@ -3364,13 +3397,15 @@ LabelSetValue(Widget w, XtPointer value, int type)
 	  length = 0;
 	  while (str2[length] != 0)
 	    length++;
-	  if ((size_t) length > (SIZE_MAX - 1) / (size_t) MB_CUR_MAX)
+	  if ((size_t) length > (SIZE_MAX - 1) / (size_t) MB_CUR_MAX ||
+	      (size_t) length > ((size_t)UINT_MAX - 1) /
+	      (size_t) MB_CUR_MAX)
 	    {
 	      XtFree((char *) value);
 	      return;
 	    }
 	  byte_length = (size_t) MB_CUR_MAX * (size_t) length + 1;
-	  str = (char*) XtMalloc(byte_length);
+	  str = (char*) XtMalloc((Cardinal)byte_length);
 	  if (str == NULL)
 	    {
 	      XtFree((char*) value);

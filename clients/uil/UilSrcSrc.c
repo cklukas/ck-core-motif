@@ -1126,8 +1126,8 @@ boolean	src_retrieve_source
 	 src_az_current_source_buffer->w_current_line_number)
        )
     {
-	strcpy( c_buffer, 
-	       src_az_current_source_buffer->c_text);
+	memcpy(c_buffer, src_az_current_source_buffer->c_text,
+	       src_k_max_source_line_length + 1);
 	return TRUE;
     }
 
@@ -1291,6 +1291,13 @@ src_append_machine_code ( src_source_record_type *az_src_rec,
     size_t                      l_text_len;
     size_t                      allocation_size;
     XmConst char	    *c_text;
+
+    /* The record count is stored in an unsigned short, and a nonempty
+     * machine-code record cannot be copied without a source buffer. */
+    if (az_src_rec == NULL ||
+	(l_code_len > 0 && c_code == NULL) ||
+	az_src_rec->w_machine_code_cnt == USHRT_MAX)
+	return;
 
     if (c_text_arg == NULL) {
 	c_text = "";

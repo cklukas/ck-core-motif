@@ -11,5 +11,6 @@ null_guard = function.index('"XmCommandPaletteSetItems: NULL item array"')
 size_guard = function.index("SIZE_MAX / sizeof(*palette->palette.items)")
 assert null_guard < free
 assert size_guard < free
+assert function.index("(size_t)count > (size_t)INT_MAX") < free
 assert "if (!count) { free_items(palette); rebuild(palette); return; }" in function
 print("CommandPalette rejects invalid replacements before replacing existing items")

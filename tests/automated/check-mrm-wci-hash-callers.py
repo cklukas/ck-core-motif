@@ -13,6 +13,7 @@ names = text[text.index("Urm__WCI_RegisterNames ("):]
 names = names[:names.index("\n}\n")]
 for needle in (
     "names == NULL || values == NULL",
+    "if (names[ndx] == NULL)",
     "if (hash_entry == NULL)",
 ):
     if needle not in names:

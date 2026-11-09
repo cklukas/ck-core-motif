@@ -161,11 +161,11 @@ static void metrics(XmChipWidget chip, ChipMetrics *m) {
 }
 static void natural_size(XmChipWidget chip, Dimension *width, Dimension *height) {
     ChipMetrics m;metrics(chip,&m);
-    unsigned long w=m.text_width+2UL*(m.horizontal+m.inset);
-    if(m.icon_width) w+=(unsigned long)m.icon_width+m.gap;
-    if(m.remove_extent) w+=(unsigned long)m.remove_extent+m.gap;
+    unsigned long w=(unsigned long)m.text_width+2UL*((unsigned long)m.horizontal+(unsigned long)m.inset);
+    if(m.icon_width) w+=(unsigned long)m.icon_width+(unsigned long)m.gap;
+    if(m.remove_extent) w+=(unsigned long)m.remove_extent+(unsigned long)m.gap;
     unsigned long h=MAX(m.text_height,MAX(m.icon_height,(unsigned)m.remove_extent));
-    h+=2UL*(m.vertical+m.inset);
+    h+=2UL*((unsigned long)m.vertical+(unsigned long)m.inset);
     XmAppearanceDensity density=_XmAppearanceGeometryDensity(XtDisplay((Widget)chip));
     h=MAX(h,(unsigned long)_XmDpiDefaultDimension((Widget)chip,
         modern_geometry((Widget)chip) && density==XmAPPEARANCE_DENSITY_COMFORTABLE?34:28));
@@ -191,8 +191,8 @@ static void layout(XmChipWidget chip, const ChipMetrics *m, ChipLayout *l) {
             width-inset-MAX(inset,right-extent-m->gap/2),height-2*inset);
         right=MAX(left,right-extent-m->gap);
     }
-    int iw=MIN(m->icon_width,(unsigned)MAX(0,right-left));
-    int ih=MIN(m->icon_height,(unsigned)available_height);
+    int iw=(int)MIN(m->icon_width,(unsigned int)MAX(0,right-left));
+    int ih=(int)MIN(m->icon_height,(unsigned int)available_height);
     l->icon=rectangle(left,(height-ih)/2,iw,ih);
     if(iw)left=MIN(right,left+iw+m->gap);
     l->text=rectangle(left,top,right-left,available_height);

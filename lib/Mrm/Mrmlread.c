@@ -137,9 +137,26 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
   switch ( type )
     {
     case MrmRtypeIconImage:
-      UrmPlistInit (10, ctxlist);
+      if (ctxlist == NULL)
+        return MrmFAILURE;
+      if (*ctxlist == NULL)
+        {
+          result = UrmPlistInit (10, ctxlist);
+          if (result != MrmSUCCESS)
+            return result;
+        }
       result = Urm__CW_LoadIconImage ((RGMIconImagePtr)val, (XtPointer)val,
 				      hierarchy_id, file_id, *ctxlist);
+      if (result != MrmSUCCESS)
+	{
+	  int ctx_ndx;
+	  for (ctx_ndx=0 ; ctx_ndx<UrmPlistNum(*ctxlist) ; ctx_ndx++)
+	    UrmFreeResourceContext
+	      ((URMResourceContextPtr) UrmPlistPtrN(*ctxlist,ctx_ndx));
+	  UrmPlistFree(*ctxlist);
+	  *ctxlist = NULL;
+	  return result;
+	}
       /* LoadIconImage checks validations and handle swapping */
       swap_needed = FALSE ;
       break;
@@ -158,13 +175,23 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
 	    XtMalloc(sizeof(RGMFontList) + (sizeof(RGMFontItem) * (count - 1)));
 	  if (fontlist == NULL)
 	    return MrmFAILURE;
-	  Urm__CW_FixupValue ((long)fontlist, type, (XtPointer)val, file_id,
-			      &swap_needed);
+          result = Urm__CW_FixupValue ((long)fontlist, type, (XtPointer)val,
+                                      file_id, &swap_needed);
+          if (result != MrmSUCCESS)
+            {
+              XtFree ((char *)fontlist);
+              return result;
+            }
 	  XtFree((char *)val);
 	  UrmRCBuffer(context_id) = (char *)fontlist;
 	}
       else 
-	Urm__CW_FixupValue (val, type, (XtPointer)val, file_id, &swap_needed); 
+	{
+	  result = Urm__CW_FixupValue (val, type, (XtPointer)val, file_id,
+				      &swap_needed);
+	  if (result != MrmSUCCESS)
+	    return result;
+	}
       break; 
     case MrmRtypeInteger:
     case MrmRtypeBoolean:
@@ -192,7 +219,10 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
       break; 
 
     default:
-      Urm__CW_FixupValue (val, type, (XtPointer)val, file_id, &swap_needed);
+      result = Urm__CW_FixupValue (val, type, (XtPointer)val, file_id,
+				  &swap_needed);
+      if (result != MrmSUCCESS)
+	return result;
       break;
     }
 
@@ -273,7 +303,13 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
   /*
    * Read the literal, discard the context, and return.
    */
-  UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  result = UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  if (result != MrmSUCCESS)
+    {
+      _MrmAppUnlock(app);
+      _MrmProcessUnlock();
+      return result;
+    }
   result = Urm__FetchLiteral (hierarchy_id, index, context_id, &ctxlist);
   if ( result == MrmSUCCESS )
     {
@@ -295,6 +331,9 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
 	    }
 
 	  UrmFreeResourceContext (context_id);
+	  /* The value was backed by the context just released. */
+	  *value_return = NULL;
+	  *type_return = 0;
 	  _MrmAppUnlock(app);
 	  _MrmProcessUnlock();
 	  return MrmWRONG_TYPE;
@@ -311,6 +350,16 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
 					 hierarchy_id, NULL) ;
 	  if ( result != MrmSUCCESS ) 
 	    {
+	      if ( ctxlist != NULL )
+		{
+		  for ( ndx=0 ; ndx<UrmPlistNum(ctxlist) ; ndx++ )
+		    UrmFreeResourceContext
+		      ((URMResourceContextPtr) UrmPlistPtrN(ctxlist,ndx)) ;
+		  UrmPlistFree (ctxlist) ;
+		}
+	      UrmFreeResourceContext (context_id);
+	      *value_return = NULL;
+	      *type_return = 0;
 	      _MrmAppUnlock(app);
 	      _MrmProcessUnlock();
 	      return MrmFAILURE;
@@ -331,6 +380,16 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
 					 hierarchy_id, NULL) ;
 	  if ( result != MrmSUCCESS )
 	    {
+	      if ( ctxlist != NULL )
+		{
+		  for ( ndx=0 ; ndx<UrmPlistNum(ctxlist) ; ndx++ )
+		    UrmFreeResourceContext
+		      ((URMResourceContextPtr) UrmPlistPtrN(ctxlist,ndx)) ;
+		  UrmPlistFree (ctxlist) ;
+		}
+	      UrmFreeResourceContext (context_id);
+	      *value_return = NULL;
+	      *type_return = 0;
 	      _MrmAppUnlock(app);
 	      _MrmProcessUnlock();
 	      return MrmFAILURE;
@@ -449,7 +508,13 @@ MrmFetchIconLiteral (MrmHierarchy                hierarchy_id,
   /*
    * Read the literal, and deal with errors
    */
-  UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  result = UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  if (result != MrmSUCCESS)
+    {
+      _MrmAppUnlock(app);
+      _MrmProcessUnlock();
+      return result;
+    }
   result = Urm__FetchLiteral (hierarchy_id, index, context_id, &ctxlist);
   if ( result == MrmSUCCESS ) {
     type = UrmRCType(context_id);
@@ -561,7 +626,13 @@ MrmFetchBitmapLiteral (MrmHierarchy                hierarchy_id,
   /*
    * Read the literal, and deal with errors
    */
-  UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  result = UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  if (result != MrmSUCCESS)
+    {
+      _MrmAppUnlock(app);
+      _MrmProcessUnlock();
+      return result;
+    }
   result = Urm__FetchLiteral (hierarchy_id, index, context_id, &ctxlist);
   if ( result == MrmSUCCESS ) {
     type = UrmRCType(context_id);
@@ -590,8 +661,11 @@ MrmFetchBitmapLiteral (MrmHierarchy                hierarchy_id,
     result = UrmCreateBitmap 
       (icon, screen, display,
        pixmap_return);
-    *width = icon->width;
-    *height = icon->height;
+    if ( result == MrmSUCCESS )
+      {
+	*width = icon->width;
+	*height = icon->height;
+      }
     break;
     /*
       >>> Andy research here if we can do this for a depth of 1
@@ -675,7 +749,13 @@ MrmFetchColorLiteral (MrmHierarchy                hierarchy_id,
   /*
    * Read the literal, and deal with errors.
    */
-  UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  result = UrmGetResourceContext (NULL, NULL, 0, &context_id);
+  if (result != MrmSUCCESS)
+    {
+      _MrmAppUnlock(app);
+      _MrmProcessUnlock();
+      return result;
+    }
   result = Urm__FetchLiteral (hierarchy_id, index, context_id, &ctxlist);
   if ( result == MrmSUCCESS )
     if (UrmRCType(context_id) != MrmRtypeColor)

@@ -11,6 +11,7 @@ end = text.index("\n}\n", start)
 region = text[start:end]
 for needle in (
     "size_t\t\tdescsiz",
+    "num_widget < 0 || num_widget >= RGMListSizeMax",
     "(SIZE_MAX - sizeof(RGMModuleDesc)) / sizeof(RGMTopmostDesc)",
     "descsiz > MrmMaxResourceSize",
     "descsiz > SIZE_MAX - _slm",

@@ -295,6 +295,9 @@ Urm__WCI_RegisterNames (String			*names,
 
   if (num_cb < 0 || (num_cb > 0 && (names == NULL || values == NULL)))
     return MrmFAILURE;
+  for (ndx = 0 ; ndx < num_cb ; ndx++)
+    if (names[ndx] == NULL)
+      return MrmFAILURE;
 
 
   /*
@@ -458,6 +461,7 @@ Urm__WCI_GetClRecOfName (String		clname)
  *
  *	MrmSUCCESS	operation succeeded
  *	MrmNOT_FOUND	no match found
+ *	MrmFAILURE	invalid name or output pointer
  *
  *  SIDE EFFECTS:
  *
@@ -472,12 +476,17 @@ Urm__WCI_LookupRegisteredName (String		name,
   URMHashTableEntryPtr	hash_entry;
 
 
+  if (value_return == NULL)
+    return MrmFAILURE;
+  *value_return = NULL;
+  if (name == NULL)
+    return MrmFAILURE;
+
   hash_entry = (URMHashTableEntryPtr)
     hash_find_name (hash_az_hash_table, name);
 
   if (hash_entry == NULL)
     {
-      *value_return = NULL;
       return MrmNOT_FOUND;
     }
   else

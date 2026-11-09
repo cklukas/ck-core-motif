@@ -33,19 +33,21 @@
 
 
 /* static forward. move from global in the original Editres code */
-static void _XEditResCheckMessages();
-static void _XEditResPutString8();
-static void _XEditResPut8();
-static void _XEditResPut16();
-static void _XEditResPut32();
-static void _XEditResPutWidgetInfo();
-static void _XEditResResetStream();
-static Boolean _XEditResGet8();
-static Boolean _XEditResGet16();
-static Boolean _XEditResGetSigned16();
-static Boolean _XEditResGet32();
-static Boolean _XEditResGetString8(); 
-static Boolean _XEditResGetWidgetInfo();
+static void _XEditResCheckMessages(Widget, XtPointer, XEvent *, Boolean *);
+static Boolean CvtStringToBlock(Display *, XrmValue *, Cardinal *, XrmValue *,
+				XrmValue *, XtPointer *);
+static void _XEditResPutString8(ProtocolStream *, char *);
+static void _XEditResPut8(ProtocolStream *, unsigned int);
+static void _XEditResPut16(ProtocolStream *, unsigned int);
+static void _XEditResPut32(ProtocolStream *, unsigned long);
+static void _XEditResPutWidgetInfo(ProtocolStream *, WidgetInfo *);
+static void _XEditResResetStream(ProtocolStream *);
+static Boolean _XEditResGet8(ProtocolStream *, unsigned char *);
+static Boolean _XEditResGet16(ProtocolStream *, unsigned short *);
+static Boolean _XEditResGetSigned16(ProtocolStream *, short *);
+static Boolean _XEditResGet32(ProtocolStream *, unsigned long *);
+static Boolean _XEditResGetString8(ProtocolStream *, char **);
+static Boolean _XEditResGetWidgetInfo(ProtocolStream *, WidgetInfo *);
 
 /* the only entry point here */
 void 
@@ -139,16 +141,25 @@ static Atom res_editor_command, res_editor_protocol, client_value;
 
 static Globals globals;
 
-static void SendFailure(), SendCommand(), InsertWidget(), ExecuteCommand();
-static void FreeEvent(), ExecuteSetValues(), ExecuteGetGeometry();
-static void ExecuteGetResources();
-
-static void GetCommand();
-static void LoadResources();
-static Boolean IsChild();
-static void DumpChildren();
-static char *DumpWidgets(), *DoSetValues(), *DoFindChild();
-static char *DoGetGeometry(), *DoGetResources();
+static void SendFailure(Widget, Atom, ResIdent, char *);
+static void SendCommand(Widget, Atom, ResIdent, EditresCommand, ProtocolStream *);
+static void InsertWidget(ProtocolStream *, Widget);
+static void ExecuteCommand(Widget, Atom, ResIdent, EditresEvent *);
+static void FreeEvent(EditresEvent *);
+static void ExecuteSetValues(Widget, SetValuesEvent *, WidgetInfo *,
+			     ProtocolStream *, unsigned short *);
+static void ExecuteGetGeometry(Widget, ProtocolStream *);
+static void ExecuteGetResources(Widget, ProtocolStream *);
+static void GetCommand(Widget, XtPointer, Atom *, Atom *, XtPointer,
+		       unsigned long *, int *);
+static void LoadResources(Widget);
+static Boolean IsChild(Widget, Widget, Widget);
+static void DumpChildren(Widget, ProtocolStream *, unsigned short *);
+static char *DumpWidgets(Widget, EditresEvent *, ProtocolStream *);
+static char *DoSetValues(Widget, EditresEvent *, ProtocolStream *);
+static char *DoFindChild(Widget, EditresEvent *, ProtocolStream *);
+static char *DoGetGeometry(Widget, EditresEvent *, ProtocolStream *);
+static char *DoGetResources(Widget, EditresEvent *, ProtocolStream *);
 
 /************************************************************
  *
@@ -169,11 +180,7 @@ static char *DoGetGeometry(), *DoGetResources();
 
 /* ARGSUSED */
 static void
-_XEditResCheckMessages(w, data, event, cont)
-Widget w;
-XtPointer data;
-XEvent *event;
-Boolean *cont;
+_XEditResCheckMessages(Widget w, XtPointer data, XEvent *event, Boolean *cont)
 {
     Time time;
     ResIdent ident;
@@ -230,12 +237,8 @@ Boolean *cont;
 #define ERROR_MESSAGE ("Client: Improperly formatted protocol request")
 
 static EditresEvent *
-BuildEvent(w, sel, data, ident, length)
-Widget w;
-Atom sel;
-XtPointer data;
-ResIdent ident;
-unsigned long length;
+BuildEvent(Widget w, Atom sel, XtPointer data, ResIdent ident,
+	   unsigned long length)
 {
     EditresEvent * event;
     ProtocolStream alloc_stream, *stream;
@@ -374,8 +377,7 @@ unsigned long length;
  */
 
 static void
-FreeEvent(event)
-EditresEvent * event;
+FreeEvent(EditresEvent *event)
 {
     if (event->any_event.widgets != NULL) {
 	XtFree((char *)event->any_event.widgets->ids);
@@ -400,12 +402,8 @@ EditresEvent * event;
 
 /* ARGSUSED */
 static void
-GetCommand(w, data, selection, type, value, length, format)
-Widget w;
-XtPointer data, value;
-Atom *selection, *type;
-unsigned long *length;
-int * format;
+GetCommand(Widget w, XtPointer data, Atom *selection, Atom *type,
+	   XtPointer value, unsigned long *length, int *format)
 {
     ResIdent ident = (ResIdent) (long) data;
     EditresEvent * event;
@@ -432,13 +430,9 @@ int * format;
 
 /* ARGSUSED */    
 static void
-ExecuteCommand(w, sel, ident, event)
-Widget w;
-Atom sel;
-ResIdent ident;
-EditresEvent * event;
+ExecuteCommand(Widget w, Atom sel, ResIdent ident, EditresEvent *event)
 {
-    char * (*func)();
+    char *(*func)(Widget, EditresEvent *, ProtocolStream *);
     char * str;
 
     if (globals.block == BlockAll) {
@@ -501,13 +495,9 @@ EditresEvent * event;
     
 /* ARGSUSED */
 static Boolean
-ConvertReturnCommand(w, selection, target,
-		     type_ret, value_ret, length_ret, format_ret)
-Widget w;
-Atom * selection, * target, * type_ret;
-XtPointer *value_ret;
-unsigned long * length_ret;
-int * format_ret;
+ConvertReturnCommand(Widget w, Atom *selection, Atom *target,
+		     Atom *type_ret, XtPointer *value_ret,
+		     unsigned long *length_ret, int *format_ret)
 {
     /*
      * I assume the intrinsics give me the correct selection back.
@@ -532,10 +522,7 @@ int * format_ret;
 
 /* ARGSUSED */
 static void
-CommandDone(widget, selection, target)
-Widget widget;
-Atom *selection;
-Atom *target;    
+CommandDone(Widget widget, Atom *selection, Atom *target)
 {
     /* Keep the toolkit from automaticaly freeing the selection value */
 }
@@ -550,11 +537,7 @@ Atom *target;
  */
 
 static void
-SendFailure(w, sel, ident, str) 
-Widget w;
-Atom sel;
-ResIdent ident;
-char * str;
+SendFailure(Widget w, Atom sel, ResIdent ident, char *str)
 {
     _XEditResResetStream(&globals.stream);
     _XEditResPutString8(&globals.stream, str);
@@ -570,10 +553,8 @@ char * str;
  */
 
 static XtPointer
-BuildReturnPacket(ident, command, stream)
-ResIdent ident;
-EditresCommand command;
-ProtocolStream * stream;
+BuildReturnPacket(ResIdent ident, EditresCommand command,
+		  ProtocolStream *stream)
 {
     long old_alloc, old_size;
     unsigned char * old_current;
@@ -618,12 +599,8 @@ ProtocolStream * stream;
  */
 
 static void
-SendCommand(w, sel, ident, command, stream)
-Widget w;
-Atom sel;
-ResIdent ident;
-EditresCommand command;
-ProtocolStream * stream;
+SendCommand(Widget w, Atom sel, ResIdent ident, EditresCommand command,
+	    ProtocolStream *stream)
 {
     BuildReturnPacket(ident, command, stream);
     globals.command_stream = stream;	
@@ -655,9 +632,7 @@ ProtocolStream * stream;
  */
 
 static int
-FindChildren(parent, children, normal, popup)
-Widget parent, **children;
-Boolean normal, popup;
+FindChildren(Widget parent, Widget **children, Boolean normal, Boolean popup)
 {
     CompositeWidget cw = (CompositeWidget) parent;
     int i, num_children, current = 0;
@@ -697,8 +672,7 @@ Boolean normal, popup;
  */
 
 static Boolean
-IsChild(top, parent, child)
-Widget top, parent, child;
+IsChild(Widget top, Widget parent, Widget child)
 {
     int i, num_children;
     Widget * children;
@@ -727,9 +701,7 @@ Widget top, parent, child;
  */
 
 static char * 
-VerifyWidget(w, info)
-Widget w;
-WidgetInfo *info;
+VerifyWidget(Widget w, WidgetInfo *info)
 {
     Widget top;
 
@@ -773,10 +745,7 @@ WidgetInfo *info;
  */
 
 static char *
-DoSetValues(w, event, stream)
-Widget w;
-EditresEvent * event;
-ProtocolStream * stream;
+DoSetValues(Widget w, EditresEvent *event, ProtocolStream *stream)
 {
     char * str;
     register unsigned i;
@@ -818,9 +787,8 @@ ProtocolStream * stream;
 
 /* ARGSUSED */
 static void
-HandleToolkitErrors(name, type, class, msg, params, num_params)
-String name, type, class, msg, *params;
-Cardinal * num_params;
+HandleToolkitErrors(String name, String type, String class, String msg,
+		    String *params, Cardinal *num_params)
 {
     SVErrorInfo * info = &globals.error_info;	
     char buf[BUFSIZ];
@@ -862,12 +830,8 @@ Cardinal * num_params;
  */
 
 static void
-ExecuteSetValues(w, sv_event, entry, stream, count)
-Widget w;
-SetValuesEvent * sv_event;
-WidgetInfo * entry;
-ProtocolStream * stream;
-unsigned short * count;
+ExecuteSetValues(Widget w, SetValuesEvent *sv_event, WidgetInfo *entry,
+		 ProtocolStream *stream, unsigned short *count)
 {
     XtErrorMsgHandler old;
     
@@ -906,10 +870,7 @@ unsigned short * count;
 
 /* ARGSUSED */
 static char * 
-DumpWidgets(w, event, stream)
-Widget w;
-EditresEvent * event;		/* UNUSED */
-ProtocolStream * stream;
+DumpWidgets(Widget w, EditresEvent *event, ProtocolStream *stream)
 {
     unsigned short count = 0;
         
@@ -949,8 +910,8 @@ ProtocolStream * stream;
  * go that far.  Then, we test whether it is an applicationShellWidget
  * class by looking for an explicit class name.  Seems pretty safe.
  */
-static Bool isApplicationShell(w)
-    Widget w;
+static Bool
+isApplicationShell(Widget w)
 {
     register WidgetClass c;
 
@@ -964,10 +925,7 @@ static Bool isApplicationShell(w)
 }
 
 static void
-DumpChildren(w, stream, count)
-Widget w;
-ProtocolStream * stream;
-unsigned short *count;
+DumpChildren(Widget w, ProtocolStream *stream, unsigned short *count)
 {
     int i, num_children;
     Widget *children;
@@ -1023,10 +981,7 @@ unsigned short *count;
  */
 
 static char *
-DoGetGeometry(w, event, stream)
-Widget w;
-EditresEvent * event;
-ProtocolStream * stream;
+DoGetGeometry(Widget w, EditresEvent *event, ProtocolStream *stream)
 {
     unsigned i;
     char * str;
@@ -1060,9 +1015,7 @@ ProtocolStream * stream;
  */
 
 static void
-ExecuteGetGeometry(w, stream)
-Widget w;
-ProtocolStream * stream;
+ExecuteGetGeometry(Widget w, ProtocolStream *stream)
 {
     int i;
     Boolean mapped_when_man;
@@ -1136,9 +1089,7 @@ ProtocolStream * stream;
  */
 
 static Boolean
-PositionInChild(child, x, y)
-Widget child;
-int x, y;
+PositionInChild(Widget child, int x, int y)
 {
     Arg args[6];
     Cardinal num;
@@ -1191,9 +1142,7 @@ int x, y;
  */
 
 static Widget 
-_FindChild(parent, x, y)
-Widget parent;
-int x, y;
+_FindChild(Widget parent, int x, int y)
 {
     Widget * children;
     int i = FindChildren(parent, &children, TRUE, FALSE);
@@ -1223,10 +1172,7 @@ int x, y;
  */
 
 static char *
-DoFindChild(w, event, stream)
-Widget w;
-EditresEvent * event;
-ProtocolStream * stream;
+DoFindChild(Widget w, EditresEvent *event, ProtocolStream *stream)
 {
     char * str;
     Widget parent, child;
@@ -1263,10 +1209,7 @@ ProtocolStream * stream;
  */
 
 static char *
-DoGetResources(w, event, stream)
-Widget w;
-EditresEvent * event;
-ProtocolStream * stream;
+DoGetResources(Widget w, EditresEvent *event, ProtocolStream *stream)
 {
     unsigned int i;
     char * str;
@@ -1301,9 +1244,7 @@ ProtocolStream * stream;
  */
 
 static void
-ExecuteGetResources(w, stream)
-Widget w;
-ProtocolStream * stream;
+ExecuteGetResources(Widget w, ProtocolStream *stream)
 {
     XtResourceList norm_list, cons_list;
     Cardinal num_norm, num_cons;
@@ -1364,9 +1305,7 @@ ProtocolStream * stream;
  */
 
 static void
-InsertWidget(stream, w)
-ProtocolStream * stream;
-Widget w;
+InsertWidget(ProtocolStream *stream, Widget w)
 {
     Widget temp;
     unsigned long * widget_list;
@@ -1407,9 +1346,7 @@ Widget w;
  */
 
 static void
-_XEditResPutString8(stream, str)
-ProtocolStream * stream;
-char * str;
+_XEditResPutString8(ProtocolStream *stream, char *str)
 {
     int i, len = strlen(str);
 
@@ -1426,9 +1363,7 @@ char * str;
  */
 
 static void
-_XEditResPut8(stream, value)
-ProtocolStream * stream;
-unsigned int value;
+_XEditResPut8(ProtocolStream *stream, unsigned int value)
 {
     unsigned char temp;
 
@@ -1454,9 +1389,7 @@ unsigned int value;
  */
 
 static void
-_XEditResPut16(stream, value)
-ProtocolStream * stream;
-unsigned int value;
+_XEditResPut16(ProtocolStream *stream, unsigned int value)
 {
     _XEditResPut8(stream, (value >> XER_NBBY) & BYTE_MASK);
     _XEditResPut8(stream, value & BYTE_MASK);
@@ -1470,9 +1403,7 @@ unsigned int value;
  */
 
 static void
-_XEditResPut32(stream, value)
-ProtocolStream * stream;
-unsigned long value;
+_XEditResPut32(ProtocolStream *stream, unsigned long value)
 {
     int i;
 
@@ -1488,9 +1419,7 @@ unsigned long value;
  */
 
 static void
-_XEditResPutWidgetInfo(stream, info)
-ProtocolStream * stream;
-WidgetInfo * info;
+_XEditResPutWidgetInfo(ProtocolStream *stream, WidgetInfo *info)
 {
     unsigned int i;
 
@@ -1512,8 +1441,7 @@ WidgetInfo * info;
  */
 
 static void
-_XEditResResetStream(stream)
-ProtocolStream * stream;
+_XEditResResetStream(ProtocolStream *stream)
 {
     stream->current = stream->top;
     stream->size = 0;
@@ -1544,9 +1472,7 @@ ProtocolStream * stream;
  */
 
 static Boolean
-_XEditResGet8(stream, val)
-ProtocolStream * stream;
-unsigned char * val;
+_XEditResGet8(ProtocolStream *stream, unsigned char *val)
 {
     if (stream->size < (stream->current - stream->top)) 
 	return(FALSE);
@@ -1564,9 +1490,7 @@ unsigned char * val;
  */
 
 static Boolean
-_XEditResGet16(stream, val)
-ProtocolStream * stream;
-unsigned short * val;
+_XEditResGet16(ProtocolStream *stream, unsigned short *val)
 {
     unsigned char temp1, temp2;
 
@@ -1585,9 +1509,7 @@ unsigned short * val;
  */
 
 static Boolean
-_XEditResGetSigned16(stream, val)
-ProtocolStream * stream;
-short * val;
+_XEditResGetSigned16(ProtocolStream *stream, short *val)
 {
     unsigned char temp1, temp2;
 
@@ -1614,9 +1536,7 @@ short * val;
  */
 
 static Boolean
-_XEditResGet32(stream, val)
-ProtocolStream * stream;
-unsigned long * val;
+_XEditResGet32(ProtocolStream *stream, unsigned long *val)
 {
     unsigned short temp1, temp2;
 
@@ -1636,9 +1556,7 @@ unsigned long * val;
  */
 
 static Boolean
-_XEditResGetString8(stream, str)
-ProtocolStream * stream;
-char ** str;
+_XEditResGetString8(ProtocolStream *stream, char **str)
 {
     unsigned short len;
     register unsigned i;
@@ -1669,9 +1587,7 @@ char ** str;
  */
 
 static Boolean
-_XEditResGetWidgetInfo(stream, info)
-ProtocolStream * stream;
-WidgetInfo * info;
+_XEditResGetWidgetInfo(ProtocolStream *stream, WidgetInfo *info)
 {
     unsigned int i;
 
@@ -1707,12 +1623,9 @@ WidgetInfo * info;
 
 /* ARGSUSED */
 static Boolean
-CvtStringToBlock(dpy, args, num_args, from_val, to_val, converter_data)
-Display * dpy;
-XrmValue * args;
-Cardinal * num_args;
-XrmValue * from_val, * to_val;
-XtPointer * converter_data;
+CvtStringToBlock(Display *dpy, XrmValue *args, Cardinal *num_args,
+		 XrmValue *from_val, XrmValue *to_val,
+		 XtPointer *converter_data)
 {
     char ptr[BUFSIZ];
     ptr[0]='\0';
@@ -1763,8 +1676,7 @@ XtPointer * converter_data;
  */
 
 static void
-LoadResources(w)
-Widget w;
+LoadResources(Widget w)
 {
     static XtResource resources[] = {
         {"editresBlock", "EditresBlock", XtREditresBlock, sizeof(EditresBlock),

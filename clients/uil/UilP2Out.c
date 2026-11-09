@@ -167,10 +167,7 @@ void	sem_output_uid_file()
     sym_entry_type		*symbol_entry;
     int				topmost_widget_count;
     int				topmost_index;
-    struct
-    {   MrmOsOpenParam	os_param;
-	char		result_file[256];
-    } uid_fcb;
+    MrmOsOpenParam	uid_os_param;
 
 
     /*
@@ -202,11 +199,11 @@ void	sem_output_uid_file()
     /*
     **	Open the UID file
     */
-    uid_fcb.os_param.version = MrmOsOpenParamVersion;
+    uid_os_param.version = MrmOsOpenParamVersion;
 
 
     /* clobber flag lets a.uid replace an existing a.uid */
-    uid_fcb.os_param.nam_flg.clobber_flg = TRUE;
+    uid_os_param.nam_flg.clobber_flg = TRUE;
 
     module_version = "";
     module_name = sym_az_module_entry->obj_header.az_name->c_text;
@@ -216,13 +213,13 @@ void	sem_output_uid_file()
 
     urm_status = UrmIdbOpenFileWrite
 		  ( Uil_cmd_z_command.ac_resource_file,
-		    & uid_fcb.os_param,
+		    & uid_os_param,
 		    _host_compiler,
 		    _compiler_version,
 		    module_name,
 		    module_version,
 		    &out_az_idbfile_id,
-		    uid_fcb.result_file );
+		    NULL );
 
     if (urm_status != MrmSUCCESS)
     {
@@ -230,7 +227,7 @@ void	sem_output_uid_file()
 	    d_uid_open,
 	    diag_k_no_source,
 	    diag_k_no_column,
-	    uid_fcb.result_file );
+	    Uil_cmd_z_command.ac_resource_file );
 
 	return;
     }
@@ -240,7 +237,7 @@ void	sem_output_uid_file()
     **	Set the name of the file we are accessing as the current file and call
     **	the Status callback routine to report our progress.
     */
-    Uil_current_file =  uid_fcb.result_file;
+    Uil_current_file = Uil_cmd_z_command.ac_resource_file;
     if (Uil_cmd_z_command.status_cb != NULL)
 	diag_report_status();    
 

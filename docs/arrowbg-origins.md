@@ -8,10 +8,11 @@ ArrowButton gadget redisplay computes its fill and shadow origins from X11
 integer conversions can otherwise wrap a negative or near-edge origin before
 it reaches the X drawing call.
 
-`ArrowBG.c` now promotes each operand to `int` before adding the dimensions,
-then converts the bounded shadow origin back to `Position` at the drawing
-boundary. This preserves the Motif API and the existing drawing geometry,
-while keeping narrow or near-edge gadgets from receiving a wrapped origin.
+`ArrowBG.c` now promotes each operand to a wide signed type before adding the
+dimensions, then saturates the final origin and extent at the drawing
+boundary. The matching ArrowButton widget path follows the same rule. This
+preserves the Motif API and the existing drawing geometry, while keeping
+narrow or near-edge controls from receiving a wrapped origin or extent.
 
-The source regression `tests/automated/check-arrowbg-origins.py` keeps both
-the fill and shadow calculations on the signed-arithmetic path.
+The source regression `tests/automated/check-arrow-drawing-insets.py` keeps
+both widget and gadget inset calculations on the bounded-arithmetic path.

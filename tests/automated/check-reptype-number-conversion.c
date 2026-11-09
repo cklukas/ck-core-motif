@@ -28,6 +28,10 @@ int main(void)
     CHECK(!_XmConvertActionParamToRepTypeId(NULL, id,
                                              (char *)"999999999999999999999",
                                              True, &result));
+    CHECK(XmRepTypeGetRecord(XmREP_TYPE_INVALID) == NULL);
+    CHECK(XmRepTypeGetNameList(XmREP_TYPE_INVALID, False) == NULL);
+    CHECK(!XmRepTypeValidValue(XmREP_TYPE_INVALID, 0, NULL));
+    XmRepTypeAddReverse(XmREP_TYPE_INVALID);
     printf("PASS bounded rep-type numeric conversion: %lu checks\n", checks);
     return 0;
 }

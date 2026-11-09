@@ -11,4 +11,7 @@ expose path may still call `ShowValue`.
 `ShowValue` now returns until the widget is realized, the value region and
 foreground GC exist, the scrollbar child is present, and the active font
 resource is valid.  Normal value formatting, positioning, clearing, and
-rendering remain unchanged once those prerequisites are available.
+rendering remain unchanged once those prerequisites are available.  Its derived
+value-label origin and extent are also now clamped at the X11
+`Position`/`Dimension` boundary before the redraw rectangle is recorded, so
+oversized metrics cannot wrap the region that is cleared or redisplayed.

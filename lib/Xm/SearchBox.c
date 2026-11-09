@@ -96,13 +96,21 @@ static Boolean icon_rect(XmSearchBoxWidget box, Boolean clear, XRectangle *rect)
     unsigned size = icon_size(box);
     unsigned border = box->primitive.shadow_thickness + box->primitive.highlight_thickness;
     unsigned margin = box->text.margin_width;
+    int x, y;
     Dimension left, right;
     Boolean on_right = clear != right_to_left(box);
     DecorationInsets((Widget)box, &left, &right);
     if (2 * (border + margin) + left + right >= box->core.width ||
         2 * border + size > box->core.height) return False;
-    rect->x = (short)(on_right ? box->core.width - border - margin - size : border + margin);
-    rect->y = (short)((box->core.height - size) / 2);
+    x = on_right ? (int)box->core.width - (int)border - (int)margin -
+                       (int)size : (int)border + (int)margin;
+    y = ((int)box->core.height - (int)size) / 2;
+    /* XRectangle uses signed 16-bit origins.  Do not wrap a right-edge
+     * decoration across a very wide TextField. */
+    if (x < SHRT_MIN || x > SHRT_MAX || y < SHRT_MIN || y > SHRT_MAX)
+        return False;
+    rect->x = (short)x;
+    rect->y = (short)y;
     rect->width = rect->height = (unsigned short)size;
     return True;
 }
@@ -120,7 +128,7 @@ static void DrawDecoration(Widget widget, const XRectangle *text_rect) {
     if (!gc) return;
     for (unsigned clear = 0; clear < 2; ++clear) {
         if (clear && !box->search.clear_button) continue;
-        if (!icon_rect(box, clear, &rect)) continue;
+        if (!icon_rect(box, clear != 0, &rect)) continue;
         XSetForeground(display, gc, box->core.background_pixel);
         XFillRectangle(display, XtWindow(widget), gc, rect.x, rect.y, rect.width, rect.height);
         XSetForeground(display, gc, values.foreground);
@@ -143,7 +151,9 @@ static void DrawDecoration(Widget widget, const XRectangle *text_rect) {
                 if (x >= size / 2 && y >= size / 2 &&
                     abs((int)x - (int)y) < (int)stroke) ink = True;
             }
-            if (ink) XDrawPoint(display, XtWindow(widget), gc, rect.x + x, rect.y + y);
+            if (ink) XDrawPoint(display, XtWindow(widget), gc,
+                                (int)rect.x + (int)x,
+                                (int)rect.y + (int)y);
         }
     }
     if (!box->text.string_length && box->search.placeholder && text_rect->width && text_rect->height) {
@@ -226,7 +236,8 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
     }
 }
 char *XmSearchBoxGetString(Widget widget) {
-    return widget != NULL && XmIsSearchBox(widget) ? XmTextFieldGetString(widget) : NULL;
+    return widget != NULL && XmIsSearchBox(widget) && !widget->core.being_destroyed
+        ? XmTextFieldGetString(widget) : NULL;
 }
 void XmSearchBoxSetString(Widget widget, const char *value) {
     if (widget != NULL && XmIsSearchBox(widget) &&

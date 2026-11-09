@@ -340,8 +340,13 @@ void ScanWhitespace(unsigned char  **linePP);
 void ToLower (unsigned char  *string);
 void
 PWarning (char *message);
-static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
-			      unsigned char *destP);
+static Boolean AppendAccelText(unsigned char **destP, size_t *capacity,
+			       size_t *used, const unsigned char *source,
+			       size_t count);
+static Boolean ProcessAccelText (unsigned char *startP,
+				 unsigned char *endP,
+				 unsigned char **destP,
+				 size_t *destCapacity);
 void ProcessCommandLine (int argc,  char *argv[]);
 static void ParseScreensArgument (int argc, char *argv[], int *pArgnum,
 				  unsigned char *lineP);
@@ -789,6 +794,18 @@ FunctionTableEntry functionTable[] = {
 
 #define WMFUNCTIONTABLESIZE (sizeof(functionTable)/sizeof(functionTable[0]))
 
+/* External callers can request a prefix of the built-in function table.  Keep
+ * an invalid size from extending that request beyond the table itself. */
+static int
+BoundFunctionTableSize(int tableSize)
+{
+    if (tableSize <= 0)
+	return 0;
+    if ((size_t)tableSize > WMFUNCTIONTABLESIZE)
+	return (int)WMFUNCTIONTABLESIZE;
+    return tableSize;
+}
+
 /*
  * Be sure to update these define, whenever adding/deleting a function.
  */
@@ -840,6 +857,8 @@ void
 GetFunctionTableValues (int *execIndex, int *nopIndex,
 		    int *actionIndex)
 {
+	if (execIndex == NULL || nopIndex == NULL || actionIndex == NULL)
+	    return;
 
 	GetExecIndex (WMFUNCTIONTABLESIZE, execIndex);
 
@@ -874,6 +893,10 @@ void
 GetExecIndex (int tableSize, int *execIndex)
 {
 	int i;
+	tableSize = BoundFunctionTableSize(tableSize);
+	if (execIndex == NULL)
+	    return;
+	*execIndex = 0;
 
 	for (i = 0; i < (tableSize); i++)
 	{
@@ -881,10 +904,6 @@ GetExecIndex (int tableSize, int *execIndex)
 		{
 			*execIndex = i;
 			return;
-		}
-		else
-		{
-			*execIndex = 0;
 		}
 	}
 } /* END OF FUNCTION GetExecIndex */
@@ -914,6 +933,10 @@ void
 GetActionIndex (int tableSize, int *actionIndex)
 {
 	int i;
+	tableSize = BoundFunctionTableSize(tableSize);
+	if (actionIndex == NULL)
+	    return;
+	*actionIndex = 0;
 
 	for (i = 0; i < (tableSize); i++)
 	{
@@ -921,10 +944,6 @@ GetActionIndex (int tableSize, int *actionIndex)
 		{
 			*actionIndex = i;
 			return;
-		}
-		else
-		{
-			*actionIndex = 0;
 		}
 	}
 } /* END OF FUNCTION GetActionIndex */
@@ -953,6 +972,10 @@ void
 GetNopIndex (int tableSize, int *nopIndex)
 {
 	int i;
+	tableSize = BoundFunctionTableSize(tableSize);
+	if (nopIndex == NULL)
+	    return;
+	*nopIndex = 0;
 
 	for (i = 0; i < (tableSize); i++)
 	{
@@ -961,12 +984,28 @@ GetNopIndex (int tableSize, int *nopIndex)
 			*nopIndex = i;
 			return;
 		}
-		else
-		{
-			*nopIndex = 0;
-		}
 	}
 } /* END OF FUNCTION GetNopIndex */
+
+
+static Boolean
+CopyHelpArgument(unsigned char *destination, const unsigned char *source)
+{
+    size_t length;
+
+    if (destination == NULL || source == NULL)
+	return False;
+
+    length = strlen((const char *)source);
+    if (length > MAXWMPATH)
+	{
+	destination[0] = '\0';
+	return False;
+	}
+
+    memcpy(destination, source, length + 1);
+    return True;
+}
 
 
 
@@ -1004,24 +1043,35 @@ WmDtGetHelpArgs(char *args,
     unsigned char *string;
     unsigned char *lineP;
 
+    if (args == NULL || volume == NULL || topic == NULL || argsCount == NULL)
+	return;
+
+    volume[0] = '\0';
+    topic[0] = '\0';
+    *argsCount = 0;
     cfileP = NULL;
     linec = 0;
     parseP = (unsigned char*) args;
 
     if(GetNextLine () != NULL)
     {
-	*argsCount = 0;
 	lineP = line;
 	if ((string = GetSmartSMString (&lineP)) != NULL)
 	{
+	    if (!CopyHelpArgument(topic, string))
+		return;
 	    *argsCount = *argsCount + 1;
-	    strcpy ((char*)topic, (char*)string);
 	}
 
 	if ((string = GetSmartSMString (&lineP)) != NULL)
 	{
+	    if (!CopyHelpArgument(volume, string))
+	    {
+		topic[0] = '\0';
+		*argsCount = 0;
+		return;
+	    }
 	    *argsCount = *argsCount + 1;
-	    strcpy ((char*)volume, (char *)string);
 	}
     }
 
@@ -1421,6 +1471,11 @@ void ParseSessionClientState (WmScreenData *pSD, int count,
 
 {
 
+    if (string == NULL)
+    {
+	return;
+    }
+
     if(!strcmp((char *)string, "NormalState"))
     {
 	pSD->pDtSessionItems[count].clientState = NORMAL_STATE;
@@ -1456,6 +1511,11 @@ void ParseSessionGeometry (WmScreenData *pSD, int count,
     int mask /* = 0 */;
     int X, Y, width, height;
     X = Y = width = height = 0;
+
+    if (string == NULL)
+    {
+	return;
+    }
     
     /*
      *  XParseGeometry
@@ -1526,6 +1586,11 @@ void ParseSessionWorkspaces (WmScreenData *pSD,  int count,
 			     unsigned char *string)
 
 {
+
+    if (string == NULL)
+    {
+	return;
+    }
 
     /*
      * Allocate space for the workspaces string
@@ -1709,6 +1774,11 @@ void ParseSessionHost (WmScreenData *pSD,  int count,
 			     unsigned char *string)
 
 {
+
+    if (string == NULL)
+    {
+	return;
+    }
 
     /*
      * Allocate space for the workspaces string
@@ -3889,8 +3959,13 @@ static Boolean ParseWmAccelerator (unsigned char **linePP, MenuItem *menuItem)
     {
         if (ParseKeyEvent(&lineP, &eventType, &keycode, &state))
         {
-            if ((string = (String) XtMalloc 
-		 ((unsigned int) (lineP - *linePP + 1))) == NULL)
+            size_t acceleratorLength;
+            size_t acceleratorCapacity;
+            unsigned char *acceleratorText;
+
+            if (lineP < *linePP ||
+                (acceleratorLength = (size_t)(lineP - *linePP)) >= UINT_MAX ||
+		(string = (String)XtMalloc((Cardinal)acceleratorLength + 1)) == NULL)
             {
 	        PWarning (((char *)GETMESSAGE(60, 15, "Insufficient memory for accelerator specification")));
                 status = FALSE;
@@ -3901,10 +3976,23 @@ static Boolean ParseWmAccelerator (unsigned char **linePP, MenuItem *menuItem)
 	     * Process and save the accelerator text.
 	     */
             {
-	        ProcessAccelText (*linePP, lineP, (unsigned char *) string);
-                menuItem->accelState = state;
-                menuItem->accelKeyCode = keycode;
-                menuItem->accelText = string;
+	        acceleratorCapacity = acceleratorLength + 1;
+		acceleratorText = (unsigned char *)string;
+	        if (ProcessAccelText(*linePP, lineP,
+			     &acceleratorText, &acceleratorCapacity))
+		{
+		    string = (String)acceleratorText;
+		    menuItem->accelState = state;
+		    menuItem->accelKeyCode = keycode;
+		    menuItem->accelText = string;
+		}
+		else
+		{
+		    XtFree((char *)acceleratorText);
+		    PWarning (((char *)GETMESSAGE(60, 16,
+			"Invalid accelerator specification")));
+		    status = FALSE;
+		}
             }
         }
 	else
@@ -3987,12 +4075,13 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 	    if ((chlen == 1 && *endquote == '\n') || *endquote == '\0') return;
 	    endquote += chlen;
 	}
-	if (chlen < 0) return; /* invalid character */
+	if (chlen != 1 || *endquote != '"') return;
 #else
 	while (*endquote != '\0' && *endquote != '"') {
 	  if (*endquote == '\n' || *endquote == '\0') return;
 	  endquote++;
 	}
+	if (*endquote != '"') return;
 #endif
 
 	/* Well, we have a valid menu item name. Store it in the 
@@ -4061,9 +4150,19 @@ static void ParseMenuItemName (unsigned char **linePP, MenuItem *menuItem)
 int ParseWmFunction (unsigned char **linePP, unsigned int res_spec, 
 			    WmFunction *pWmFunction)
 {
-    unsigned char *lineP = *linePP;
+    unsigned char *lineP;
     unsigned char *string;
     register int  low, mid, high, cmp;
+
+    if (pWmFunction == NULL)
+	return (F_NOP_INDEX);
+    if (linePP == NULL || *linePP == NULL)
+	{
+	    *pWmFunction = F_Nop;
+	    return (F_NOP_INDEX);
+	}
+
+    lineP = *linePP;
 
     /*
      * Skip leading white space.
@@ -4310,9 +4409,8 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
 #ifndef NO_MULTIBYTE
     char *p;
     wchar_t last;
-    char delim;
-    wchar_t wdelim;
     int lastlen;
+    Boolean append_delimiter;
 #endif
 
     if ((string = GetString (linePP)) != NULL)
@@ -4336,22 +4434,24 @@ Boolean ParseWmFuncStrArg (unsigned char **linePP,
          */
 
 #ifndef NO_MULTIBYTE
-	if ((wmFunction == F_Exec))
+        if (wmFunction == F_Exec)
 	{
-	    lastlen = 0;
+	    append_delimiter = (len == 0);
 	    p = *pArgs;
 	    while (*p &&
-		   ((lastlen = mblen(p, MB_CUR_MAX)) > 0))
+		   ((lastlen = mblen(p, (size_t)MB_CUR_MAX)) > 0))
 	    {
-		mbtowc(&last, p, MB_CUR_MAX);
-		p += lastlen;
+	      if (mbtowc(&last, p, (size_t)MB_CUR_MAX) < 0)
+		break;
+	      p += (size_t)lastlen;
+	      append_delimiter = (last != L'&');
 	    }
-	    delim = '&';
-	    mbtowc(&wdelim, &delim, MB_CUR_MAX);
-	    if (lastlen == 1 && last != wdelim)
+	    if (*p != '\0')
+		append_delimiter = TRUE;
+	    if (append_delimiter)
 	    {
-		*p++ = '&';
-		*p   = '\0';
+		(*pArgs)[len] = '&';
+		(*pArgs)[len + 1] = '\0';
 	    }
 	}
 #else
@@ -6080,6 +6180,10 @@ Boolean ParseBtnEvent (unsigned char  **linePP,
 		       unsigned int *state,
 		       Boolean      *fClick)
 {
+    if (linePP == NULL || eventType == NULL || button == NULL ||
+	state == NULL || fClick == NULL)
+	return (FALSE);
+
     if (!ParseEvent (linePP, buttonEvents, eventType, button, state, fClick))
     {
        return (FALSE);
@@ -6092,6 +6196,8 @@ Boolean ParseBtnEvent (unsigned char  **linePP,
     if (*eventType == ButtonRelease)
     {
 	/* the button that is going up will always be in the modifiers... */
+	if (*button >= XtNumber(buttonModifierMasks))
+	    return (FALSE);
 	*state |= buttonModifierMasks[*button];
     }
 
@@ -6141,6 +6247,10 @@ Boolean ParseKeyEvent (unsigned char **linePP, unsigned int *eventType,
 {
     Boolean      fClick;
     unsigned int keySym = 0;
+
+    if (linePP == NULL || eventType == NULL || keyCode == NULL ||
+	state == NULL)
+	return (FALSE);
 
     if (!ParseEvent (linePP, keyEvents, eventType, &keySym, state, &fClick))
     {
@@ -7128,7 +7238,7 @@ PWarning (char *message)
                                  managerName, messageText, linec);
     }
     formattedMessage = (messageLength >= 0 &&
-			(unsigned int)messageLength < UINT_MAX) ?
+			(size_t)messageLength < UINT_MAX) ?
         (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
     if (formattedMessage != NULL)
     {
@@ -7238,6 +7348,14 @@ static void InitKeySubs (
     {
 	ScanWhitespace (&pch0);
 	if (*pch0 == '\0') break;
+	if (numKS < 0 || numKS == INT_MAX ||
+	    (size_t)(numKS + 1) > SIZE_MAX / sizeof(KeySub) ||
+	    (size_t)(numKS + 1) > UINT_MAX / sizeof(KeySub))
+	{
+	    *ppKeySubs = pKSret;
+	    *pNumKeySubs = numKS;
+	    return;
+	}
 
 	/* 
 	 * allocate space for next key sub 
@@ -7281,23 +7399,24 @@ static void InitKeySubs (
 #else /* NO_MULTIBYTE */
 	while (*pch1 && (*pch1 != ' ')) pch1++;
 #endif /* NO_MULTIBYTE */
-	pKS->lenFrom = pch1 - pch0;
-	if (pKS->lenFrom < 1) 
+	len = (size_t)(pch1 - pch0);
+	if (len < 1 || len > INT_MAX)
 	{
 	    /*
 	     * no "from" string
 	     */
 	    break;
 	}
-	pKS->pchFrom = (unsigned char *) XtMalloc (1+pKS->lenFrom);
+	pKS->lenFrom = (int)len;
+	pKS->pchFrom = (unsigned char *)XtMalloc((Cardinal)(len + 1));
 	if (pKS->pchFrom == NULL)
 	{
 	    *ppKeySubs = pKSret;
 	    *pNumKeySubs = numKS;
 	    return;
 	}
-	memcpy (pKS->pchFrom, pch0, pKS->lenFrom);
-	pKS->pchFrom[pKS->lenFrom] = '\0';
+	memcpy (pKS->pchFrom, pch0, len);
+	pKS->pchFrom[len] = '\0';
 
 	/* get "to" string */
 	ScanWhitespace (&pch1);
@@ -7316,15 +7435,18 @@ static void InitKeySubs (
 	while (*pch1 && (*pch1 != ' ')) pch1++;
 #endif /* NO_MULTIBYTE */
 
-	len = pch1 - pch0;
-	if (len < 1)
+	len = (size_t)(pch1 - pch0);
+	/* Xt allocation sizes are Cardinal: reserve the trailing NUL safely. */
+	if (len < 1 || len >= UINT_MAX)
 	{
 	    /*
 	     * Invalid format, "from" string with no "to" string.
 	     */
+	    XtFree((char *)pKS->pchFrom);
+	    pKS->pchFrom = NULL;
 	    break;
 	}
-	pKS->pchTo = (unsigned char *) XtMalloc (1+len);
+	pKS->pchTo = (unsigned char *)XtMalloc((Cardinal)(len + 1));
 	if (pKS->pchTo == NULL)
 	{
 	    XtFree((char *)pKS->pchFrom);
@@ -7376,21 +7498,71 @@ static void InitKeySubs (
  * 
  *************************************<->***********************************/
 
-static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
-			      unsigned char *destP)
+static Boolean
+AppendAccelText(unsigned char **destP, size_t *capacity, size_t *used,
+		const unsigned char *source, size_t count)
+{
+    size_t required;
+    size_t newCapacity;
+    unsigned char *resized;
+
+    if (destP == NULL || *destP == NULL || capacity == NULL || used == NULL ||
+	source == NULL || *used >= *capacity || count > SIZE_MAX - *used - 1)
+	return False;
+    required = *used + count + 1;
+    if (required > *capacity)
+	{
+	    if (required > UINT_MAX)
+		return False;
+	    newCapacity = *capacity;
+	    while (newCapacity < required)
+	    {
+		if (newCapacity > UINT_MAX / 2)
+		{
+		    newCapacity = required;
+		    break;
+		}
+		newCapacity *= 2;
+	    }
+	    resized = (unsigned char *)XtRealloc((char *)*destP,
+		(Cardinal)newCapacity);
+	    if (resized == NULL)
+		return False;
+	    *destP = resized;
+	    *capacity = newCapacity;
+	}
+    memcpy(*destP + *used, source, count);
+    *used += count;
+    return True;
+}
+
+static Boolean ProcessAccelText (unsigned char *startP, unsigned char *endP,
+				 unsigned char **destP, size_t *destCapacity)
 {
 #ifndef NO_MULTIBYTE
     int   chlen;
+    size_t maxCharBytes;
 #endif
 #ifdef WSM
     static Boolean	bAccelInit = False;
     static KeySub	*pKeySub;
     static int		numKeySubs;
-    unsigned char *	pchFirst;
     unsigned char *	pchSub;
-    int			lenSub;
+    size_t			lenSub;
     int			i;
+#endif /* WSM */
+    unsigned char *pchFirst;
+    size_t destUsed = 0;
 
+    if (startP == NULL || endP == NULL || destP == NULL || *destP == NULL ||
+	destCapacity == NULL || *destCapacity == 0 || startP > endP)
+	return False;
+#ifndef NO_MULTIBYTE
+    maxCharBytes = (size_t)MB_CUR_MAX;
+    if (maxCharBytes == 0)
+	return False;
+#endif
+#ifdef WSM
     if (!bAccelInit)
     {
 	InitKeySubs (&pKeySub, &numKeySubs);
@@ -7402,43 +7574,37 @@ static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
      * Copy modifiers
      */
 
-    ScanWhitespace (&startP);
+    while (startP < endP && isspace((unsigned char)*startP))
+	startP++;
 
-    while (*startP != '<')
+    while (startP < endP && *startP != '<')
     {
         if (*startP == '~') 
 	{
-            *destP++ = *startP++;
+	    if (!AppendAccelText(destP, destCapacity, &destUsed, startP, 1))
+		return False;
+	    startP++;
         }
-#ifdef WSM
 	pchFirst = startP;
-#endif /* WSM */
 
 #ifndef NO_MULTIBYTE
-        while (*startP &&
-	       (((chlen = mblen ((char *)startP, MB_CUR_MAX)) > 1)
-		|| isalnum (*startP)))
+        while (startP < endP && *startP)
         {
-	    while (chlen--)
-	    {
-#ifdef WSM
-	        startP++;
+	    size_t remaining = (size_t)(endP - startP);
 
-#else /* WSM */
-	        *destP++ = *startP++;
-#endif /* WSM */
-	    }
+	    chlen = mblen((char *)startP,
+		   remaining < maxCharBytes ? remaining : maxCharBytes);
+	    if (chlen <= 0 ||
+		(chlen == 1 && !isalnum((unsigned char)*startP)))
+		break;
+	    startP += chlen;
 	}
 #else
-        while (isalnum (*startP))
-        {
-#ifdef WSM
-	        startP++;
-#else /* WSM */
-	    *destP++ = *startP++;
-#endif /* WSM */
-	}
+        while (startP < endP && isalnum((unsigned char)*startP))
+	    startP++;
 #endif
+        if (startP == pchFirst)
+	    return False;
 #ifdef WSM
 	/* find substitution */
 	pchSub = NULL;
@@ -7459,44 +7625,67 @@ static void ProcessAccelText (unsigned char *startP, unsigned char *endP,
 
         if ((pchSub != NULL) && (lenSub > 0))
 	{
-	    memcpy (destP, pchSub, lenSub);
-	    destP += lenSub;
+	    if (!AppendAccelText(destP, destCapacity, &destUsed, pchSub, lenSub))
+		return False;
 	}
 	else
 	{
-	    memcpy (destP, pchFirst, startP-pchFirst);
-	    destP += startP-pchFirst;
+	    if (!AppendAccelText(destP, destCapacity, &destUsed, pchFirst,
+		(size_t)(startP - pchFirst)))
+		return False;
 	}
+#else
+	if (!AppendAccelText(destP, destCapacity, &destUsed, pchFirst,
+	    (size_t)(startP - pchFirst)))
+	    return False;
 #endif /* WSM */
-	*destP++ = '+';
+	if (!AppendAccelText(destP, destCapacity, &destUsed,
+	    (const unsigned char *)"+", 1))
+	    return False;
 
-        ScanWhitespace (&startP);
+        while (startP < endP && isspace((unsigned char)*startP))
+	    startP++;
     }
+    if (startP >= endP || *startP != '<')
+	return False;
 
     /*
      * Skip the key event type.
      */
     startP++;  /* skip '<' */
-    while (*startP != '>')
+    while (startP < endP && *startP != '>')
     {
 #ifndef NO_MULTIBYTE
-        startP += mblen ((char *)startP, MB_CUR_MAX);
+        size_t remaining = (size_t)(endP - startP);
+
+        chlen = mblen((char *)startP,
+	      remaining < maxCharBytes ? remaining : maxCharBytes);
+        if (chlen <= 0)
+	    return False;
+        startP += chlen;
 #else
         startP++;
 #endif
     }
+    if (startP >= endP)
+	return False;
     startP++;  /* skip '>' */
 
     /*
      * Copy the KeySym string.
      */
 
-    ScanWhitespace (&startP);
+    while (startP < endP && isspace((unsigned char)*startP))
+	startP++;
     while (startP != endP)
     {
-        *destP++ = *startP++;
+	if (!AppendAccelText(destP, destCapacity, &destUsed, startP, 1))
+	    return False;
+	startP++;
     }
-    *destP = '\0';
+    (*destP)[destUsed] = '\0';
+
+    return True;
 
 } /* END OF FUNCTION ProcessAccelText */
 
@@ -7828,9 +8017,17 @@ ParseWmFunctionArg (
 		String sClientName,
 		String sTitle)
 {
-    unsigned char *lineP = *linePP;
+    unsigned char *lineP;
     Boolean bValidArg = True;
     unsigned char *str = NULL;
+
+    if (ppArg != NULL)
+	*ppArg = NULL;
+    if (linePP == NULL || ppArg == NULL || ix < 0 ||
+	(size_t)ix >= WMFUNCTIONTABLESIZE || functionTable[ix].parseProc == NULL)
+	return False;
+
+    lineP = *linePP;
 
     /*
      * If this is (possibly) a string argument, put it 
@@ -8152,7 +8349,7 @@ WarnConfigAllocation(const char *fileName)
     const char *path = (fileName != NULL) ? fileName : "";
     int messageLength = snprintf(NULL, 0, format, path);
     char *message = (messageLength >= 0 &&
-			(unsigned int)messageLength < UINT_MAX) ?
+			(size_t)messageLength < UINT_MAX) ?
         (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
     if (message != NULL)
@@ -8339,7 +8536,7 @@ static void ConfigStackPop (void)
                 pPrev->fileName : "";
             int messageLength = snprintf(NULL, 0, format, fileName);
             char *message = (messageLength >= 0 &&
-				     (unsigned int)messageLength < UINT_MAX) ?
+				     (size_t)messageLength < UINT_MAX) ?
                 (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
             if (message != NULL)
@@ -8576,43 +8773,76 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 static void
 PreprocessConfigFile (void)
 {
-#define CPP_NAME_SIZE	((L_tmpnam)+1)
     char pchCmd[MAXWMPATH+1];
     int commandLength;
 
     if (wmGD.cppCommand && *wmGD.cppCommand)
     {
 	/*
-	 * Generate a temp file name.
+	 * Reserve the preprocessor output path before handing it to the
+	 * configured command.  tmpnam() merely suggests a name, which lets a
+	 * concurrent process replace the output between generation and use.
+	 * mkstemp() creates an owned, regular file atomically; the preprocessor
+	 * retains the historical pathname interface and overwrites that file.
 	 */
-	pConfigStackTop->cppName = XtMalloc (CPP_NAME_SIZE * sizeof(char));
-	if (pConfigStackTop->cppName)
 	{
-	    (void) tmpnam (pConfigStackTop->cppName);
+	    const char *tempDir = getenv("TMPDIR");
+	    size_t tempDirLength;
+	    size_t templateBytes;
+	    int tempFd;
 
-	    /*
-	     * Build up the command line.
-	     */
-	    commandLength = snprintf(NULL, 0, "%s %s %s", wmGD.cppCommand,
-				      pConfigStackTop->fileName,
-				      pConfigStackTop->cppName);
-	    if (commandLength < 0 || commandLength >= (int)sizeof(pchCmd))
+	    if (tempDir == NULL || *tempDir == '\0')
+		tempDir = P_tmpdir;
+	    tempDirLength = strlen(tempDir);
+	    if (tempDirLength > SIZE_MAX - sizeof("/mwm-cpp-XXXXXX") ||
+		tempDirLength + sizeof("/mwm-cpp-XXXXXX") > UINT_MAX)
+		return;
+	    templateBytes = tempDirLength + sizeof("/mwm-cpp-XXXXXX");
+	    pConfigStackTop->cppName = XtMalloc((Cardinal)templateBytes);
+	    if (pConfigStackTop->cppName == NULL)
+		return;
+	    (void)snprintf(pConfigStackTop->cppName, templateBytes,
+			   "%s/mwm-cpp-XXXXXX", tempDir);
+	    tempFd = mkstemp(pConfigStackTop->cppName);
+	    if (tempFd < 0)
 	    {
-		Warning("Preprocessor command is too long");
+		XtFree(pConfigStackTop->cppName);
+		pConfigStackTop->cppName = NULL;
+		return;
+	    }
+	    if (close(tempFd) != 0)
+	    {
 		(void)unlink(pConfigStackTop->cppName);
 		XtFree(pConfigStackTop->cppName);
 		pConfigStackTop->cppName = NULL;
 		return;
 	    }
-	    (void)snprintf(pchCmd, sizeof(pchCmd), "%s %s %s",
-			    wmGD.cppCommand, pConfigStackTop->fileName,
-			    pConfigStackTop->cppName);
+
+	    {
+		/*
+		 * Build up the command line.
+		 */
+		commandLength = snprintf(NULL, 0, "%s %s %s", wmGD.cppCommand,
+				      pConfigStackTop->fileName,
+				      pConfigStackTop->cppName);
+		if (commandLength < 0 || commandLength >= (int)sizeof(pchCmd))
+		{
+		    Warning("Preprocessor command is too long");
+		    (void)unlink(pConfigStackTop->cppName);
+		    XtFree(pConfigStackTop->cppName);
+		    pConfigStackTop->cppName = NULL;
+		    return;
+		}
+		(void)snprintf(pchCmd, sizeof(pchCmd), "%s %s %s",
+				wmGD.cppCommand, pConfigStackTop->fileName,
+				pConfigStackTop->cppName);
+	    }
 
 	    /*
-	     * Run the config file through the converter program
-	     * and send the output to a temp file. 
+	     * Run the config file through the converter program and send the
+	     * output to the reserved temporary file.
 	     */
-	    SystemCmd (pchCmd);
+	    SystemCmd(pchCmd);
 	}
     }
 }

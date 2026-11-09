@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ensure WSM reply packers reject negative counts."""
+"""Ensure WSM reply packers reject unrepresentable list counts."""
 
 from pathlib import Path
 
@@ -20,4 +20,13 @@ for field in (
     "reply->wm_windows.win_entry_list[i].num_match_properties < 0",
 ):
     assert field in text, field
-print("WSM reply packers reject negative counts")
+for field in (
+    "reply->extensions.num_extensions > WSM_MAX_LIST_ITEMS",
+    "reply->config_format.num_global_formats > WSM_MAX_LIST_ITEMS",
+    "reply->config_format.num_window_formats > WSM_MAX_LIST_ITEMS",
+    "reply->config_format.num_icon_formats > WSM_MAX_LIST_ITEMS",
+    "reply->get_state.num_win_info_list > WSM_MAX_LIST_ITEMS",
+    "reply->wm_windows.num_win_entry_list > WSM_MAX_LIST_ITEMS",
+):
+    assert field in text, field
+print("WSM reply packers reject unrepresentable counts")

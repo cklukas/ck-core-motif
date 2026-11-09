@@ -55,6 +55,21 @@ typedef struct _ProxyClientInfo
     char *clientID;
 } ProxyClientInfo;
 
+static void
+FreeProxyClientInfoProperties(ProxyClientInfo *proxyClientInfo)
+{
+    if (proxyClientInfo == NULL)
+	return;
+    if (proxyClientInfo->wmCommand != NULL) {
+	XFree(proxyClientInfo->wmCommand);
+	proxyClientInfo->wmCommand = NULL;
+    }
+    if (proxyClientInfo->wmClientMachine != NULL) {
+	XFree(proxyClientInfo->wmClientMachine);
+	proxyClientInfo->wmClientMachine = NULL;
+    }
+}
+
 #define RESTORE_RESOURCE(pCD, resFlag) \
 	((pCD)->ignoreWMSaveHints || !((pCD)->wmSaveHintFlags & (resFlag)))
 #define SAVE_RESOURCE(pCD, resFlag) RESTORE_RESOURCE(pCD, resFlag)
@@ -260,7 +275,16 @@ smSaveYourselfCallback(Widget w, XtPointer clientData, XtPointer callData)
 	    newRestartCmd = getNewRestartCmd();
 
 	    nargs = 0;
-	    XtSetArg(args[nargs], XtNrestartCommand, newRestartCmd); nargs++;
+	    /*
+	     * Do not replace a working restart command with NULL when the
+	     * transactional copy above could not be constructed.  The previous
+	     * session-manager value remains a better recovery path than an empty
+	     * restart command; the discard command can still be refreshed.
+	     */
+	    if (newRestartCmd != (char **)NULL)
+	    {
+		XtSetArg(args[nargs], XtNrestartCommand, newRestartCmd); nargs++;
+	    }
 	    XtSetArg(args[nargs], XtNdiscardCommand, newDiscardCmd); nargs++;
 	    XtSetValues(wmGD.topLevelW, args, nargs);
 
@@ -505,17 +529,25 @@ getNewRestartCmd(void)
 
     for (argc = 0, argP = restartCmd; *argP != (char *)NULL; argP++, argc++)
     {
+	/* Keep the loop increment and the optional two-argument replacement
+	 * representable before they reach the later allocation calculation. */
+	if (argc == INT_MAX)
+	    return (char **)NULL;
 	if (strcmp(*argP, dbFileArgStr) == 0)
 	{
 	    if (*(++argP) == (char *)NULL)
 		break;
 
+	    if (argc > INT_MAX - 2)
+		return (char **)NULL;
 	    fileArgIndex = argc++; /* Point at dbFileArgStr, not filename */
 	}
     }
 
     if (fileArgIndex < 0)
     {
+	if (argc > INT_MAX - 2)
+	    return (char **)NULL;
 	fileArgIndex = argc;
 	argc += 2;
     }
@@ -725,7 +757,7 @@ getClientResource(char *clientID, char *fmtStr)
     resourceLength = snprintf(NULL, 0, fmtStr, clientID);
     if (resourceLength < 0)
         return (char *)NULL;
-    if ((unsigned int)resourceLength >= UINT_MAX)
+    if ((size_t)resourceLength >= UINT_MAX)
         return (char *)NULL;
     resourceBuf = (char *)XtMalloc((Cardinal)resourceLength + 1);
     if (resourceBuf == (char *)NULL)
@@ -865,7 +897,7 @@ getProxyClientInfo(ClientData *pCD, ProxyClientInfo *proxyClientInfo)
 	(textProperty.value[0] == '\0'))
     {
 	if (textProperty.value)
-	    free((char *)textProperty.value);
+	    XFree((char *)textProperty.value);
 
 	return False;
     }
@@ -957,10 +989,7 @@ findProxyClientID(ClientData *pCD)
 			     (XPointer)&proxyClientInfo))
 	clientID = proxyClientInfo.clientID;
 
-    if (proxyClientInfo.wmCommand)
-	free(proxyClientInfo.wmCommand);
-    if (proxyClientInfo.wmClientMachine)
-	free(proxyClientInfo.wmClientMachine);
+    FreeProxyClientInfoProperties(&proxyClientInfo);
 
     return clientID;
 }
@@ -1215,8 +1244,10 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
 	return False;
 
     clientIDLength = snprintf(clientID, sizeof(clientID), "%d", clientIDNum);
-    if (clientIDLength < 0 || (size_t)clientIDLength >= sizeof(clientID))
+    if (clientIDLength < 0 || (size_t)clientIDLength >= sizeof(clientID)) {
+	FreeProxyClientInfoProperties(&proxyClientInfo);
 	return False;
+    }
     fprintf(fp, dbClientFormat, proxyClientStr, clientID, clientID);
 
     fprintf(fp, screenStr, clientID);
@@ -1224,14 +1255,14 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
 
     fprintf(fp, wmCommandStr, clientID);
     fprintf(fp, strArg, proxyClientInfo.wmCommand);
-    free(proxyClientInfo.wmCommand);
 
     if (proxyClientInfo.wmClientMachine != (char *)NULL)
     {
 	fprintf(fp, wmClientMachineStr, clientID);
 	fprintf(fp, strArg, proxyClientInfo.wmClientMachine);
-	free(proxyClientInfo.wmClientMachine);
     }
+
+    FreeProxyClientInfoProperties(&proxyClientInfo);
 
     getClientGeometry(pCD, &clientX, &clientY, &clientWd, &clientHt);
 
@@ -1309,7 +1340,7 @@ dbRemoveProxyClientEntry(char *proxyClientID)
     resourceLength = snprintf(NULL, 0, wmCommandStr, proxyClientID);
     if (resourceLength < 0)
         return;
-    if ((unsigned int)resourceLength >= UINT_MAX - 1)
+    if ((size_t)resourceLength >= UINT_MAX - 1)
         return;
     resourceBuf = (char *)XtMalloc((Cardinal)resourceLength + 2);
     if (resourceBuf == (char *)NULL)

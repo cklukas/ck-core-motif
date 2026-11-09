@@ -52,6 +52,7 @@ static char rcsid[] = "$TOG: Mrmwcrw.c /main/20 1999/05/19 15:26:23 mgreess $"
  *
  */
 #include <stdio.h>
+#include <limits.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -681,13 +682,15 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
   RGMWidgetRecordPtr	widgetrec ;	/* widget record in the context */
   RGMArgListDescPtr	argdesc = NULL ;  /* arg list descriptor in record */
   Arg			*args = NULL ;  /* arg list argument for create */
+  Cardinal		arg_bytes = 0 ;	/* byte count for Xt allocation */
   Cardinal		num_used = 0 ;	/* number of args used in arglist */
-  MrmCount		num_listent = ov_num_args ;  /* # entries in args */
+  size_t		num_listent = (size_t)ov_num_args ; /* # entries in args */
   WCIClassDescPtr	cldesc ;	/* class descriptor */
   URMPointerListPtr	ptrlist = NULL ; /* to hold scratch callbacks */
   URMPointerListPtr	cblist = NULL ; /* to hold scratch contexts */
   URMPointerListPtr	ftllist = NULL ; /* to hold scratch fontlists */
   int			ndx ;		/* loop index */
+  Cardinal		ov_ndx ;	/* override-argument loop index */
   RGMCallbackDescPtr	cbptr ;		/* creation callback descriptor */
   RGMCallbackItemPtr	itmptr ;	/* current callback item */
   XtCallbackProc cb_rtn ;	/* current callback routine */
@@ -749,7 +752,7 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
 	  (size_t)argdesc->extra >
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
 	return MrmFAILURE;
-      num_listent += argdesc->count + argdesc->extra ;
+      num_listent += (size_t)argdesc->count + (size_t)argdesc->extra ;
       if (UrmPlistInit (10, &ftllist) != MrmSUCCESS)
         return MrmFAILURE;
     }
@@ -758,7 +761,8 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
       if ((size_t)num_listent > SIZE_MAX / sizeof(Arg) ||
           num_listent > UINT_MAX / sizeof(Arg))
 	return MrmFAILURE;
-      args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
+      arg_bytes = (Cardinal)(num_listent * sizeof(Arg));
+      args = (Arg *) XtMalloc (arg_bytes) ;
       if (args == NULL)
         {
           if (ftllist != NULL) UrmPlistFree (ftllist);
@@ -796,10 +800,10 @@ UrmCreateWidgetInstance (URMResourceContextPtr	context_id,
   /*
    * Copy in any override args
    */
-  for ( ndx=0 ; ndx<ov_num_args ; ndx++ )
+  for ( ov_ndx=0 ; ov_ndx<ov_num_args ; ov_ndx++ )
     {
-      args[ndx+num_used].name = ov_args[ndx].name ;
-      args[ndx+num_used].value = ov_args[ndx].value ;
+      args[ov_ndx+num_used].name = ov_args[ov_ndx].name ;
+      args[ov_ndx+num_used].value = ov_args[ov_ndx].value ;
     }
   num_used += ov_num_args ;
 
@@ -1005,12 +1009,14 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   size_t		c_name_len ;	/* child name length */
   RGMArgListDescPtr	argdesc = NULL ; /* arg list descriptor in record */
   Arg			*args = NULL ;  /* arg list argument for create */
+  Cardinal		arg_bytes = 0 ;	/* byte count for Xt allocation */
   Cardinal		num_used = 0 ;	/* number of args used in arglist */
-  MrmCount		num_listent = ov_num_args ; /* # entries in args */
+  size_t		num_listent = (size_t)ov_num_args ; /* # entries in args */
   URMPointerListPtr	ptrlist = NULL ;/* to hold scratch contexts */
   URMPointerListPtr	cblist = NULL ; /* to hold scratch callbacks */
   URMPointerListPtr	ftllist = NULL ;/* to hold scratch fontlists */
   int			ndx ;		/* loop index */
+  Cardinal		ov_ndx ;	/* override-argument loop index */
   RGMCallbackDescPtr	cbptr ;		/* creation callback descriptor */
   RGMCallbackItemPtr	itmptr ;	/* current callback item */
   XtCallbackProc cb_rtn ;	/* current callback routine */
@@ -1099,7 +1105,7 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
 	  (size_t)argdesc->extra >
 	      SIZE_MAX - (size_t)num_listent - (size_t)argdesc->count)
 	return MrmFAILURE;
-      num_listent += argdesc->count + argdesc->extra ;
+      num_listent += (size_t)argdesc->count + (size_t)argdesc->extra ;
       if (UrmPlistInit (10, &ftllist) != MrmSUCCESS)
         return MrmFAILURE;
     }
@@ -1108,7 +1114,8 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
       if ((size_t)num_listent > SIZE_MAX / sizeof(Arg) ||
           num_listent > UINT_MAX / sizeof(Arg))
 	return MrmFAILURE;
-      args = (Arg *) XtMalloc ((size_t)num_listent*sizeof(Arg)) ;
+      arg_bytes = (Cardinal)(num_listent * sizeof(Arg));
+      args = (Arg *) XtMalloc (arg_bytes) ;
       if (args == NULL)
         {
           if (ftllist != NULL) UrmPlistFree (ftllist);
@@ -1146,10 +1153,10 @@ UrmSetWidgetInstance (URMResourceContextPtr	context_id,
   /*
    * Copy in any override args
    */
-  for ( ndx=0 ; ndx<ov_num_args ; ndx++ )
+  for ( ov_ndx=0 ; ov_ndx<ov_num_args ; ov_ndx++ )
     {
-      args[ndx+num_used].name = ov_args[ndx].name ;
-      args[ndx+num_used].value = ov_args[ndx].value ;
+      args[ov_ndx+num_used].name = ov_args[ov_ndx].name ;
+      args[ov_ndx+num_used].value = ov_args[ov_ndx].value ;
     }
   num_used += ov_num_args ;
 
@@ -1531,6 +1538,12 @@ Urm__CW_CreateArglist (Widget			parent,
 		  pixargs_cnt += 1 ;
 		  continue ;
 		case MrmRtypeXBitmapFile:
+	  if (pixargs_cnt >= sizeof(pixargs) / sizeof(pixargs[0]))
+	    {
+	      Urm__UT_Error ("Urm__CW_CreateArglist", _MrmMMsg_0048,
+			     NULL, NULL, MrmFAILURE) ;
+	      continue;
+	    }
 		  savepix = &pixargs[pixargs_cnt] ;
 		  savepix->filename = (String) val ;
 		  savepix->pixarg = argptr ;
@@ -1556,13 +1569,18 @@ Urm__CW_CreateArglist (Widget			parent,
 			      (size_t)(count - 1) * sizeof(RGMFontItem) > UINT_MAX)
 			return;
 		      fontlist = (RGMFontListPtr)
-			XtMalloc(sizeof(RGMFontList) +
-				 (sizeof(RGMFontItem) * (count - 1)));
+			XtMalloc((Cardinal)(sizeof(RGMFontList) +
+				 (sizeof(RGMFontItem) * (size_t)(count - 1))));
 	      if (fontlist == NULL)
 		return;
 		      result = Urm__CW_FixupValue((long)fontlist, reptype, 
 						  (XtPointer)val, file_id,
 						  &swap_needed);
+		      if (result != MrmSUCCESS)
+			{
+			  XtFree((char *)fontlist);
+			  continue;
+			}
 		      val = (long)fontlist;
 		    }
 		  else
@@ -1655,6 +1673,7 @@ Urm__CW_CreateArglist (Widget			parent,
 		      result = Urm__UT_Error ("Urm__CW_ConvertValue",
 					      err_msg, NULL, NULL, MrmFAILURE) ;
 		    };
+		  if ( result != MrmSUCCESS ) continue ;
 		  val = (long) pix ;
 		}
 	      else
@@ -2029,6 +2048,7 @@ Urm__CW_FixupValue (long			val,
   wchar_t               *wcstr_r;
   wchar_t               *wcstr_new;
   size_t                        max_size, str_size;
+  Cardinal                      wcstr_bytes;
   /* END OSF Fix CR 4859 */
   RGMFontItemPtr	fontitem;	/* resource as font item */
   OldRGMFontItemPtr	olditem;	/* old style font item */
@@ -2068,10 +2088,18 @@ Urm__CW_FixupValue (long			val,
 	  if (reptype == MrmRtypeChar8Vector)
 	    vecptr->item[fixndx].pointer = (XtPointer)
 	      ((char *)bufptr+vecptr->item[fixndx].text_item.offset) ;
-	  else 
-	    vecptr->item[fixndx].pointer = (XtPointer)
-	      XmCvtByteStreamToXmString((unsigned char *)bufptr +
-					vecptr->item[fixndx].text_item.offset);
+	  else
+	    {
+	      XmString converted = XmCvtByteStreamToXmString(
+		(unsigned char *)bufptr + vecptr->item[fixndx].text_item.offset);
+	      if (converted == NULL)
+		{
+		  while (--fixndx >= 0)
+		    XmStringFree((XmString)vecptr->item[fixndx].pointer);
+		  return MrmFAILURE;
+		}
+	      vecptr->item[fixndx].pointer = (XtPointer)converted;
+	    }
 	}
       *swap_needed = FALSE;
       break ;
@@ -2093,20 +2121,25 @@ Urm__CW_FixupValue (long			val,
           max_size > ((size_t)UINT_MAX / sizeof(wchar_t)) - 1)
 	return Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
 			     NULL, NULL, MrmFAILURE);
-      wcstr_r = (wchar_t *)XtMalloc(sizeof(wchar_t) * (max_size + 1));
+      wcstr_bytes = (Cardinal)(sizeof(wchar_t) * (max_size + 1));
+      wcstr_r = (wchar_t *)XtMalloc(wcstr_bytes);
 	  if (wcstr_r == NULL)
 	    return Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
 				 NULL, NULL, MrmFAILURE);
 	
       /* Convert, realloc, store */
       str_size = mbstowcs(wcstr_r, wcharentry->wchar_item.bytes, max_size);
-      if (str_size == -1)
-	return(Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
+      if (str_size == (size_t)-1)
+	{
+	  XtFree ((char *)wcstr_r);
+	  return(Urm__UT_Error("Urm__CW_FixupValue", _MrmMMsg_0110,
 			     NULL, NULL, MrmFAILURE));
+	}
       if (str_size != max_size)
 	{
+	  wcstr_bytes = (Cardinal)(sizeof(wchar_t) * (str_size + 1));
 	  wcstr_new = (wchar_t *)XtRealloc((char *)wcstr_r,
-					    sizeof(wchar_t) * (str_size + 1));
+					    wcstr_bytes);
 	  if (wcstr_new == NULL)
 	    {
 	      XtFree ((char *)wcstr_r);
@@ -2514,6 +2547,8 @@ Urm__CW_ConvertValue (Widget			parent,
       if ( *val == 0 )
 	return MrmFAILURE ;
       cstg = XmCvtByteStreamToXmString((unsigned char *)*val);
+      if (cstg == NULL)
+	return MrmFAILURE;
       *val = (long)cstg;
       /* BEGIN OSF Fix CR 8392 */
       /* fix memory leak */
@@ -2642,7 +2677,20 @@ Urm__CW_ConvertValue (Widget			parent,
 	      fontset_entry = XmFontListEntryCreate(fontptr->cset.charset,
 						    XmFONT_IS_FONTSET,
 						    fontset);
+	  if (fontset_entry == NULL)
+	    {
+	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0074, fontstg);
+	      return Urm__UT_Error ("Urm__CW_ConvertValue",
+				     err_msg, NULL, NULL, MrmFAILURE) ;
+	    }
 	      dfontlist = XmFontListAppendEntry(NULL, fontset_entry);
+	  XmFontListEntryFree(&fontset_entry);
+	  if (dfontlist == NULL)
+	    {
+	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0074, fontstg);
+	      return Urm__UT_Error ("Urm__CW_ConvertValue",
+				     err_msg, NULL, NULL, MrmFAILURE) ;
+	    }
 	      break;
 	    }
 		  
@@ -2654,7 +2702,12 @@ Urm__CW_ConvertValue (Widget			parent,
 	  *val = (long) dfontlist ;
 	}
       else
-	*val = (long) font ;
+	{
+	  if (reptype == MrmRtypeFont)
+	    *val = (long) font ;
+	  else
+	    *val = (long) fontset ;
+	}
       break ;
     case MrmRtypeFontList:
       fontlist = (RGMFontListPtr) (*val) ;
@@ -2666,12 +2719,18 @@ Urm__CW_ConvertValue (Widget			parent,
 	{
 	  fontstg = fontlist->item[ndx].font.font;
 	  if ( fontstg == NULL )
-	    return MrmFAILURE ;
+	    {
+	      if (dfontlist != NULL)
+		XmFontListFree(dfontlist);
+	      return MrmFAILURE ;
+	    }
 	  dpyandfontstr = Urm__CW_DisplayToString((char*)&display,
 						  fontstg, 
 						  strlen(fontstg) + 1);
 	  if ( dpyandfontstr == NULL)
 	    {
+	      if (dfontlist != NULL)
+		XmFontListFree(dfontlist);
 	      return Urm__UT_Error ("Urm__CW_ConvertValue", _MrmMMsg_0069,
 				    NULL, NULL, MrmFAILURE) ;
 	    }
@@ -2687,6 +2746,9 @@ Urm__CW_ConvertValue (Widget			parent,
 		  if ( font == NULL )
 		    {
 		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0070, fontstg);
+		      XtFree(dpyandfontstr);
+		      if (dfontlist != NULL)
+			XmFontListFree(dfontlist);
 		      return Urm__UT_Error ("Urm__CW_ConvertValue",
 					    err_msg, NULL, NULL, MrmNOT_FOUND) ;
 		    }
@@ -2711,6 +2773,9 @@ Urm__CW_ConvertValue (Widget			parent,
 		  if (fontset == NULL)
 		    {
 		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0071, fontstg);
+		      XtFree(dpyandfontstr);
+		      if (dfontlist != NULL)
+			XmFontListFree(dfontlist);
 		      return Urm__UT_Error ("Urm__CW_ConvertValue",
 					    err_msg, NULL, NULL, MrmNOT_FOUND) ;
 		    }
@@ -2749,7 +2814,17 @@ Urm__CW_ConvertValue (Widget			parent,
 		XmFontListEntryCreate(fontlist->item[ndx].cset.charset,
 				      XmFONT_IS_FONTSET,
 				      fontset);
-	      dfontlist = XmFontListAppendEntry(NULL, fontset_entry);
+	      if (fontset_entry == NULL)
+		{
+		  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0074,
+			   fontlist->item[ndx].font.font) ;
+		  if (dfontlist != NULL)
+		    XmFontListFree(dfontlist);
+		  return Urm__UT_Error ("Urm__CW_ConvertValue",
+					err_msg, NULL, NULL, MrmFAILURE) ;
+		}
+	      dfontlist = XmFontListAppendEntry(dfontlist, fontset_entry);
+	      XmFontListEntryFree(&fontset_entry);
 	      if ( dfontlist == NULL )
 		{
 		  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0074,
@@ -3832,14 +3907,19 @@ Urm__CW_FixupCallback (Widget			parent ,
 		    return MrmFAILURE;
 
 		  fontlist = (RGMFontListPtr)
-		    XtMalloc(sizeof(RGMFontList) +
-			     (sizeof(RGMFontItem) * (count - 1)));
+		    XtMalloc((Cardinal)(sizeof(RGMFontList) +
+			     (sizeof(RGMFontItem) * (size_t)(count - 1))));
 		  if (fontlist == NULL)
 		    return MrmFAILURE;
 		  result = Urm__CW_FixupValue((long)fontlist, reptype, 
 					      (XtPointer)tag_val, file_id,
 					      &swap_needed);
 		  XtFree((char *)tag_val);
+		  if (result != MrmSUCCESS)
+		    {
+		      XtFree((char *)fontlist);
+		      continue;
+		    }
 		  tag_val = (long)fontlist;
 		}
 	      else

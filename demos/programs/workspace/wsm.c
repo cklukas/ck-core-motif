@@ -572,9 +572,8 @@ MyXtErrorHandler(char *err)
 }
 
 #endif
-int main(argc, argv)
-    int argc;
-    char **argv;
+int
+main(int argc, char **argv)
 {
   XtAppContext app_con;
   Widget rc;

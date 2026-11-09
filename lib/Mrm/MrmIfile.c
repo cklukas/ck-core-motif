@@ -133,15 +133,18 @@ Idb__FU_OpenFile (char 			*name,
    */
   int		file_desc;		/* 'unix' file descriptor */
   size_t	length;			/* the length of the above string */
+  Cardinal	name_bytes;		/* Xt allocation size including terminator */
   IDBLowLevelFile *a_file;		/* pointer to the file_id */
 
   if (name == NULL || file_id == NULL)
     return MrmFAILURE;
+  *file_id = NULL;
 
   /* Fill in the result name with the name specified so far */
   length = strlen (name);
   if (length >= (size_t)UINT_MAX)
     return MrmFAILURE;
+  name_bytes = (Cardinal)(length + 1);
   if (returned_fname != NULL)
     {
       strcpy (returned_fname, name);
@@ -228,7 +231,7 @@ Idb__FU_OpenFile (char 			*name,
 
   a_file = (IDBLowLevelFile *) *file_id;
 
-  a_file->name = XtMalloc (length+1);
+  a_file->name = XtMalloc (name_bytes);
   if (a_file->name==0)
     {
 	close (file_desc);

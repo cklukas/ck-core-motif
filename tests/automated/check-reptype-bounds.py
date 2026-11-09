@@ -10,6 +10,9 @@ for needle in (
     "DynamicRepTypeNumRecords == UINT_MAX",
     "SIZE_MAX / sizeof(XmRepTypeEntryRec)",
     "DynamicRepTypeNumRecords > UINT_MAX - StandardNumRecs",
+    "StandardNumRecs >= XmREP_TYPE_INVALID",
+    "DynamicRepTypeNumRecords >= XmREP_TYPE_INVALID - StandardNumRecs",
+    "(unsigned int)num_values > UCHAR_MAX",
     "TotalEntries == UINT_MAX",
     "return NULL;",
 ):

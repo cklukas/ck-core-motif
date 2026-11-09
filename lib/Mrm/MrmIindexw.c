@@ -982,6 +982,7 @@ Idb__INX_InitRootLeafRecord (IDBFile		file_id,
 
   if (file_id == NULL || buffer_return == NULL)
     return MrmFAILURE;
+  *buffer_return = NULL;
 
   /*
    * Acquire a record
@@ -1066,6 +1067,7 @@ Idb__INX_InitRootNodeRecord (IDBFile			file_id,
 
   if (file_id == NULL || buffer_return == NULL || index == NULL)
     return MrmFAILURE;
+  *buffer_return = NULL;
 
   /*
    * Acquire a record
@@ -1095,7 +1097,6 @@ Idb__INX_InitRootNodeRecord (IDBFile			file_id,
    * Successfully initialized
    */
   Idb__BM_MarkModified (bufptr) ;
-  *buffer_return = bufptr ;
 
   /*
    * Set the parent pointers in the two child entries.
@@ -1110,6 +1111,7 @@ Idb__INX_InitRootNodeRecord (IDBFile			file_id,
    * Root node successfully created. Update file header.
    */
   file_id->index_root = hdrptr->header.record_num ;
+  *buffer_return = bufptr ;
   return MrmSUCCESS ;
 
 }

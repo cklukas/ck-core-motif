@@ -16,9 +16,11 @@ def main() -> None:
     assert SEND.index("if (w == NULL || request == NULL)") < SEND.index("XtScreen(w)")
     assert RECV.index("if (w == NULL)") < RECV.index("XtDisplay(w)")
     assert "if (w == NULL)" in RECV
-    assert "if (w == NULL || len_ret == NULL)" in RECV
+    assert "if (len_ret == NULL)" in RECV
+    assert "*len_ret = 0;" in RECV
     target_list = RECV.index("WSMGetTargetList")
-    assert RECV.index("if (w == NULL || len_ret == NULL)", target_list) < RECV.index("_WSMGetDispInfo(XtDisplay(w))", target_list)
+    assert RECV.index("if (len_ret == NULL)", target_list) < RECV.index("_WSMGetDispInfo(XtDisplay(w))", target_list)
+    assert RECV.index("*len_ret = 0;", target_list) < RECV.index("if (w == NULL)", target_list)
     assert "output == NULL" in RECV
     assert "(input == NULL && input_len != 0)" in RECV
 

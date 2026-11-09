@@ -153,7 +153,13 @@ Idb__INX_ReturnItem (IDBFile			file_id,
    */
   Cardinal		result ;	/* function results */
 
-  if (file_id == NULL || index == NULL || data_entry == NULL)
+  if (data_entry == NULL)
+    return MrmFAILURE;
+
+  data_entry->rec_no = 0;
+  data_entry->item_offs = 0;
+
+  if (file_id == NULL || index == NULL)
     return MrmFAILURE;
 
   IDBRecordBufferPtr	bufptr ;	/* buffer containing entry */
@@ -258,8 +264,13 @@ Idb__INX_FindIndex (IDBFile			file_id,
    */
   Cardinal		result ;	/* function results */
 
-  if (file_id == NULL || index == NULL || buffer_return == NULL ||
-      index_return == NULL)
+  if (buffer_return == NULL || index_return == NULL)
+    return MrmFAILURE;
+
+  *buffer_return = NULL;
+  *index_return = 0;
+
+  if (file_id == NULL || index == NULL)
     return MrmFAILURE;
 
   /*
@@ -270,13 +281,23 @@ Idb__INX_FindIndex (IDBFile			file_id,
   result = Idb__BM_GetRecord (file_id, file_id->index_root, buffer_return) ;
   if ( result != MrmSUCCESS ) return result ;
   if ( ! Idb__INX_ValidRecord(*buffer_return) )
-    return Urm__UT_Error ("Idb__INX_FindIndex", _MrmMMsg_0010,
-			  file_id, NULL, MrmBAD_RECORD) ;
+    {
+      *buffer_return = NULL;
+      return Urm__UT_Error ("Idb__INX_FindIndex", _MrmMMsg_0010,
+			    file_id, NULL, MrmBAD_RECORD) ;
+    }
 
   do  {
     result =
       Idb__INX_SearchIndex (file_id, index, *buffer_return, index_return) ;
-    if ( _IdbBufferRecordType(*buffer_return) == IDBrtIndexLeaf) return result ;
+    if ( _IdbBufferRecordType(*buffer_return) == IDBrtIndexLeaf)
+      {
+	if (result == MrmSUCCESS || result == MrmINDEX_GT || result == MrmINDEX_LT)
+	  return result;
+	*buffer_return = NULL;
+	*index_return = 0;
+	return result;
+      }
     switch ( result )
       {
       case MrmINDEX_GT:
@@ -287,10 +308,14 @@ Idb__INX_FindIndex (IDBFile			file_id,
 	  {
 	    if (result == MrmNOT_FOUND)
 	      result = MrmEOF;
+	    *buffer_return = NULL;
+	    *index_return = 0;
 	    return result ;
 	  }
 	break ;
       default:
+	*buffer_return = NULL;
+	*index_return = 0;
 	return result ;
       }
   } while ( TRUE ) ;
@@ -368,8 +393,13 @@ Idb__INX_SearchIndex (IDBFile			file_id,
   MrmCount		record_free_max ;	/* record data-area size */
   MrmCount		record_entry_size ;	/* record entry size */
 
+  if (index_return == NULL)
+    return MrmFAILURE;
+
+  *index_return = 0;
+
   if (file_id == NULL || index == NULL || buffer == NULL ||
-      buffer->IDB_record == NULL || index_return == NULL)
+      buffer->IDB_record == NULL)
     return MrmFAILURE;
 
   /*

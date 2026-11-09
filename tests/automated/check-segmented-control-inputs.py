@@ -9,6 +9,7 @@ get_selected = source[source.index("int XmSegmentedControlGetSelectedIndex") : s
 get_id = source[source.index("const char *XmSegmentedControlGetItemId") : source.index("Boolean XmSegmentedControlSetSelectedIndex")]
 set_selected = source[source.index("Boolean XmSegmentedControlSetSelectedIndex") : source.index("void XmSegmentedControlClearSelection")]
 assert "widget == NULL ||" in set_items
+assert "widget->core.being_destroyed" in set_items
 assert "widget != NULL && XmIsSegmentedControl(widget)" in get_count
 assert "widget != NULL && XmIsSegmentedControl(widget)" in get_selected
 assert "widget == NULL || !XmIsSegmentedControl(widget)" in get_id

@@ -53,14 +53,35 @@ char *wmlAllocateString(char *stg)
 {
 
 char		*dynstg;	/* the dynamic copy */
+size_t		length;
 
 
 if ( stg == NULL ) return NULL;
 
-dynstg = (char *) malloc (strlen(stg)+1);
-strcpy (dynstg, stg);
+length = strlen(stg);
+if (length == (size_t)-1)
+    return NULL;
+dynstg = (char *) malloc (length + 1);
+if (dynstg == NULL)
+    return NULL;
+memcpy(dynstg, stg, length + 1);
 return dynstg;
 
+}
+
+
+static char *
+wmlRequireStringCopy (char *stg)
+{
+    char *copy;
+
+    copy = wmlAllocateString (stg);
+    if (copy == NULL)
+        {
+        fprintf (stderr, "Unable to copy WML handle-list name\n");
+        exit (EXIT_FAILURE);
+        }
+    return copy;
 }
 
 
@@ -73,11 +94,13 @@ return dynstg;
 void wmlUpperCaseString(char *stg)
 {
 
-int		ndx;		/* loop index */
+size_t		ndx;		/* loop index */
+size_t		length;
 
 
 if ( stg == NULL ) return;
-for ( ndx=0 ; ndx<strlen(stg) ; ndx++ )
+length = strlen(stg);
+for ( ndx=0 ; ndx<length ; ndx++ )
     stg[ndx] = _upper (stg[ndx]);
 
 }
@@ -101,10 +124,24 @@ for ( ndx=0 ; ndx<strlen(stg) ; ndx++ )
 void wmlInitHList(DynamicHandleListDefPtr listptr, int size, int is_ordered)
 {
 
+ObjectHandleDefPtr	new_vec;
+
+
+if ( size <= 0 || (size_t)size > (size_t)-1 / sizeof(ObjectHandleDef) )
+    {
+    fprintf (stderr, "Invalid WML handle-list size\n");
+    exit (EXIT_FAILURE);
+    }
+new_vec = (ObjectHandleDefPtr) malloc ((size_t)size * sizeof(ObjectHandleDef));
+if ( new_vec == NULL )
+    {
+    fprintf (stderr, "Unable to allocate WML handle list\n");
+    exit (EXIT_FAILURE);
+    }
 listptr->cnt = 0;
 listptr->max = size;
 listptr->ordered = is_ordered;
-listptr->hvec = (ObjectHandleDefPtr) malloc(size*sizeof(ObjectHandleDef));
+listptr->hvec = new_vec;
 
 return;
 
@@ -127,10 +164,21 @@ ObjectHandleDefPtr	new_vec;	/* reallocated vector */
 
 
 if ( listptr->max >= new_size ) return;
-listptr->max = new_size;
+if ( new_size <= 0 ||
+     (size_t)new_size > (size_t)-1 / sizeof(ObjectHandleDef) )
+    {
+    fprintf (stderr, "Invalid WML handle-list size\n");
+    exit (EXIT_FAILURE);
+    }
 new_vec = (ObjectHandleDefPtr) realloc
-    (listptr->hvec, new_size*sizeof(ObjectHandleDef));
+    (listptr->hvec, (size_t)new_size * sizeof(ObjectHandleDef));
+if ( new_vec == NULL )
+    {
+    fprintf (stderr, "Unable to grow WML handle list\n");
+    exit (EXIT_FAILURE);
+    }
 listptr->hvec = new_vec;
+listptr->max = new_size;
 
 return;
 
@@ -251,7 +299,7 @@ if ( listptr->ordered )
     {
     if ( listptr->cnt == 0 )
 	{
-	listptr->hvec[0].objname = wmlAllocateString (name);
+	listptr->hvec[0].objname = wmlRequireStringCopy (name);
 	listptr->hvec[0].objptr = obj;
 	listptr->cnt += 1;
 	return;
@@ -284,14 +332,14 @@ if ( listptr->ordered )
 	listptr->hvec[ndx+1].objname = listptr->hvec[ndx].objname;
 	listptr->hvec[ndx+1].objptr = listptr->hvec[ndx].objptr;
 	}
-    listptr->hvec[newndx].objname = wmlAllocateString (name);
+    listptr->hvec[newndx].objname = wmlRequireStringCopy (name);
     listptr->hvec[newndx].objptr = obj;
     listptr->cnt += 1;
     return;
     }
 else
     {
-    listptr->hvec[listptr->cnt].objname = wmlAllocateString (name);
+    listptr->hvec[listptr->cnt].objname = wmlRequireStringCopy (name);
     listptr->hvec[listptr->cnt].objptr = obj;
     listptr->cnt += 1;
     return;
@@ -327,7 +375,7 @@ void wmlInsertInKeyList(DynamicHandleListDefPtr listptr, char *name, ObjectPtr o
    */
   if ( listptr->cnt == 0 )
     {
-      listptr->hvec[0].objname = wmlAllocateString (name);
+      listptr->hvec[0].objname = wmlRequireStringCopy (name);
       listptr->hvec[0].objptr = obj;
       listptr->cnt += 1;
       return;
@@ -355,7 +403,7 @@ void wmlInsertInKeyList(DynamicHandleListDefPtr listptr, char *name, ObjectPtr o
       listptr->hvec[ndx+1].objname = listptr->hvec[ndx].objname;
       listptr->hvec[ndx+1].objptr = listptr->hvec[ndx].objptr;
     }
-  listptr->hvec[newndx].objname = wmlAllocateString (name);
+  listptr->hvec[newndx].objname = wmlRequireStringCopy (name);
   listptr->hvec[newndx].objptr = obj;
   listptr->cnt += 1;
   return;

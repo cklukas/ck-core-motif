@@ -797,6 +797,20 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
 }
 
 static Boolean
+appearance_string_value(const char *text, XrmValue *value)
+{
+    size_t length;
+    if (text == NULL || value == NULL)
+        return False;
+    length = strlen(text);
+    if (length == SIZE_MAX || length + 1 > UINT_MAX)
+        return False;
+    value->size = (unsigned int)(length + 1);
+    value->addr = (XPointer)text;
+    return True;
+}
+
+static Boolean
 profile_property_value(Widget widget, XmAppearanceProfile profile,
                        XmAppearanceDensity density,
                        AppearanceProperty property, XtArgVal *value_return)
@@ -809,8 +823,9 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
         return False;
     if (property == AP_TAB_MODE) {
         XmTabMode value;
-        XrmValue from = {strlen(text)+1, (XPointer)text};
+        XrmValue from;
         XrmValue to = {sizeof(value), (XPointer)&value};
+        if (!appearance_string_value(text, &from)) return False;
         if (!XtConvertAndStore(widget, XmRString, &from, XmRTabMode, &to)) return False;
         *value_return = value;
         return True;
@@ -819,8 +834,9 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
         property == AP_SLIDER_MARK || property == AP_ALIGNMENT ||
         property == AP_OUTLINE_LINE_STYLE) {
         unsigned char value;
-        XrmValue from = {strlen(text)+1, (XPointer)text};
+        XrmValue from;
         XrmValue to = {sizeof(value), (XPointer)&value};
+        if (!appearance_string_value(text, &from)) return False;
         if (!XtConvertAndStore(widget, XmRString, &from,
                 property == AP_OUTLINE_LINE_STYLE ? XmRLineStyle :
                 property == AP_ALIGNMENT ? XmRAlignment :
@@ -834,8 +850,7 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
         Pixel pixel;
         XrmValue from, to;
         Widget context = XtIsWidget(widget) ? widget : XtParent(widget);
-        from.addr = (XPointer)text;
-        from.size = (unsigned int)strlen(text) + 1;
+        if (!appearance_string_value(text, &from)) return False;
         to.addr = (XPointer)&pixel;
         to.size = sizeof(pixel);
         /* Use Xt's cached pixel converter and the actual widget colormap,
@@ -947,7 +962,8 @@ appearance_database_typed_value(Widget widget, XrmDatabase database,
     classes[count] = XrmStringToQuark(resource_class);
     names[count + 1] = NULLQUARK;
     classes[count + 1] = NULLQUARK;
-    return XrmQGetResource(database, names, classes, type, value_return);
+    return XrmQGetResource(database, names, classes, type, value_return)
+        ? True : False;
 }
 
 static Boolean
@@ -1365,7 +1381,7 @@ appearance_inherited_foreground(XmAppearanceWidgetState *state, XtArgVal *value)
         if (explicit) {
             Pixel pixel;
             XtVaGetValues(parent->widget, XmNforeground, &pixel, NULL);
-            *value = pixel;
+            *value = (XtArgVal)pixel;
             return True;
         }
         state = parent;

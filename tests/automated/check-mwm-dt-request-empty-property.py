@@ -10,8 +10,10 @@ start = source.index("void \nGetDtWmRequest")
 end = source.index("\n} /* END OF FUNCTION GetDtWmRequest */", start)
 region = source[start:end]
 validation = region[region.index("if ((rValue != Success)"):region.index("else\n\t{")]
-assert "(nitems == 0)" in validation
-assert "(property == NULL)" in validation
-assert validation.index("nitems == 0") < region.index("requestLength =")
-assert "XFree ((char *)property);" in region
-print("PASS MWM empty desktop-request properties are rejected before extraction")
+assert "(pSD->dtWmRequestItems == 0)" in validation
+assert "(leftover != 0)" in validation
+assert "(pSD->dtWmRequestProperty == NULL)" in validation
+assert validation.index("dtWmRequestItems == 0") < region.index("requestLength =")
+assert "XFree (pSD->dtWmRequestProperty);" in region
+assert "XDeleteProperty (DISPLAY, pSD->wmWorkspaceWin," in region
+print("PASS MWM incomplete and empty desktop-request properties are rejected before extraction")

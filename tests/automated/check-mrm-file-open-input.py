@@ -7,7 +7,7 @@ from pathlib import Path
 source = Path(__file__).parents[2] / "lib" / "Mrm" / "MrmIfile.c"
 text = source.read_text(encoding="utf-8")
 start = text.index("Idb__FU_OpenFile (char")
-end = text.index("\n  /* Check if this file", start)
+end = text.index("\n\n\f", start)
 region = text[start:end]
 if "size_t\tlength" not in region:
     raise SystemExit("Mrm file-name length is still stored in int")
@@ -19,5 +19,9 @@ if "return MrmFAILURE;" not in region[check:strlen_pos]:
     raise SystemExit("Mrm file opener input failure is missing")
 if "if (length >= (size_t)UINT_MAX)" not in region:
     raise SystemExit("Mrm file opener does not bound Xt filename allocation")
+if "name_bytes = (Cardinal)(length + 1)" not in region:
+    raise SystemExit("Mrm file opener does not convert validated allocation size")
+if "XtMalloc (name_bytes)" not in region:
+    raise SystemExit("Mrm file opener does not pass a validated Cardinal size to XtMalloc")
 
 print("Mrm file opener validates inputs before measuring names")

@@ -6,6 +6,12 @@ only, is disabled by `XmNskeletonReducedMotion`, and has a per-instance
 interval; `XmSkeletonStop` always provides a static fallback.  Applications
 choose the placeholder geometry and replace it with their real view.
 
+Animation start, timer ticks, and stop are safe before realization: the phase
+continues to advance, but an X redraw is requested only after the widget owns a
+window. This prevents an early timer or stop request from issuing a BadWindow
+request during construction. The focused source-contract regression is
+`tests/automated/check-skeleton-realize-guard.py`.
+
 The label is a copied `XmString` used for accessibility; it is not drawn into
 the placeholder.  The widget does not introduce a generalized animation
 framework or require animation for a usable loading state.  The installed

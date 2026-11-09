@@ -2280,6 +2280,7 @@ ConvertStringToButtonType(
         {
         XtDisplayStringConversionWarning(display, in_str, XmRButtonType);
         XtFree((char *) buttonTable);
+        XtFree((char *) work_str);
         return(FALSE);
         }
     XtFree( work_str) ;
@@ -2328,14 +2329,21 @@ CvtStringToKeySymTable(
 
   comma_count = 0;
   while (in_str[in_str_size])
-    {   
-	if (in_str_size == SIZE_MAX)
+    {
+      if (in_str_size == SIZE_MAX)
+	return(FALSE);
+      if (in_str[in_str_size++] == ',') {
+	if (comma_count == SIZE_MAX)
 	  return(FALSE);
-      if (in_str[in_str_size++] == ',')
 	++comma_count;
+      }
     } 
+  if (in_str_size == SIZE_MAX)
+    return(FALSE);
+  ++in_str_size;
   if (comma_count > (SIZE_MAX / sizeof(KeySym)) - 2 ||
-      comma_count > ((size_t)UINT_MAX / sizeof(KeySym)) - 2)
+      comma_count > ((size_t)UINT_MAX / sizeof(KeySym)) - 2 ||
+      in_str_size > (size_t)UINT_MAX)
     return(FALSE);
 
   keySymTable = (XmKeySymTable) XtMalloc(
@@ -2343,11 +2351,12 @@ CvtStringToKeySymTable(
   if (keySymTable == NULL)
     return(FALSE);
   keySymTable[comma_count + 1] = (KeySym)NULL;
-  work_str = XtNewString(in_str);
+  work_str = (String)XtMalloc((Cardinal)in_str_size);
   if (work_str == NULL) {
     XtFree((char *) keySymTable);
     return(FALSE);
   }
+  memcpy(work_str, in_str, in_str_size);
 
   for (ks_str = work_str, i = 0; i < comma_count + 1; ++i)
     {
@@ -2407,6 +2416,7 @@ CvtStringToCharSetTable(
   String in_str;
   XmStringCharSetTable charsetTable;
   unsigned int numCharsets = 0;
+  size_t in_str_size = 0;
   size_t strDataSize = 0;
   size_t tableSize;
   char * dataPtr;
@@ -2419,9 +2429,19 @@ CvtStringToCharSetTable(
   if (in_str == NULL)
     return(False);
 
-  work_str = XtNewString(in_str);
+  while (in_str[in_str_size]) {
+    if (in_str_size == SIZE_MAX)
+      return(False);
+    ++in_str_size;
+  }
+  if (in_str_size == SIZE_MAX || in_str_size >= (size_t)UINT_MAX)
+    return(False);
+  ++in_str_size;
+
+  work_str = (String)XtMalloc((Cardinal)in_str_size);
   if (work_str == NULL)
     return(False);
+  memcpy(work_str, in_str, in_str_size);
 
   for (cs_str = work_str; ; cs_str = separator + 1)
     {
@@ -2447,8 +2467,13 @@ CvtStringToCharSetTable(
       if (!separator)
 	break;
     }
-  strcpy(work_str, in_str);
+  memcpy(work_str, in_str, in_str_size);
 
+  if (numCharsets > (SIZE_MAX / sizeof(XmStringCharSet)) - 1)
+    {
+      XtFree(work_str);
+      return(False);
+    }
   tableSize = sizeof(XmStringCharSet) * ((size_t)numCharsets + 1);
   if (strDataSize > SIZE_MAX - tableSize ||
       tableSize > (size_t)UINT_MAX ||
@@ -2465,7 +2490,7 @@ CvtStringToCharSetTable(
   }
   charsetTable[numCharsets] = (XmStringCharSet)NULL;
   dataPtr = (char *) &charsetTable[numCharsets+1];
-  strcpy(work_str, in_str);
+  memcpy(work_str, in_str, in_str_size);
 
   for (i = 0, cs_str = work_str; i < numCharsets; ++i)
 	{
@@ -2672,6 +2697,12 @@ CvtStringToAtomList(
 
   while(--atom_count >= 0)
     XtFree(name_list[atom_count]);
+
+  /* The stack-backed case needs no release, but a long resource value
+   * grows this temporary name vector.  XInternAtoms has consumed the
+   * names above, so discard that vector before handing the result to Xt. */
+  if (name_list != stack_names)
+    XtFree((char *)name_list);
 
   {
     static Atom *buf;

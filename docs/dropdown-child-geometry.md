@@ -12,6 +12,11 @@ Placement now uses signed intermediates, clamps the available child height, and
 saturates each child span after its border inset. Normal layouts retain their
 existing geometry while transiently tiny controls remain bounded.
 
+The calculated child origins now remain signed until passed to the legacy X11
+configure boundary, where they are explicitly clamped. The width split also
+clamps its wide remainder before it is stored in a legacy `Dimension`, so a
+constrained control cannot wrap a child to an unrelated location or size.
+
 Geometry negotiation also distinguishes a refused parent height from a valid
 width compromise. A refusal restores speculative child dimensions and returns
 `XtGeometryNo`; it never reads an uninitialized reply or sends its fields to X.

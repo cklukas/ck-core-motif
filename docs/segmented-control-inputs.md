@@ -11,3 +11,7 @@ selection, callback, or layout behavior.
 
 The focused regression check is
 `tests/automated/check-segmented-control-inputs.py`.
+
+Item replacement also rejects a widget already being destroyed.  This prevents
+the public model API from creating or destroying segment children during Xt
+teardown while retaining its existing result for live controls.

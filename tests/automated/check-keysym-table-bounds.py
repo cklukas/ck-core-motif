@@ -14,9 +14,13 @@ for needle in (
     "size_t in_str_size = 0;",
     "size_t i, comma_count;",
     "if (in_str_size == SIZE_MAX)",
+    "if (comma_count == SIZE_MAX)",
     "comma_count > (SIZE_MAX / sizeof(KeySym)) - 2",
     "comma_count > ((size_t)UINT_MAX / sizeof(KeySym)) - 2",
+    "in_str_size > (size_t)UINT_MAX",
     "(Cardinal)(sizeof(KeySym) * (comma_count + 2))",
+    "XtMalloc((Cardinal)in_str_size)",
+    "memcpy(work_str, in_str, in_str_size);",
 ):
     if needle not in region:
         raise SystemExit(f"KeySym-table capacity guard missing: {needle}")

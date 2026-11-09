@@ -314,10 +314,10 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
     XmTimePickerWidget picker=(XmTimePickerWidget)widget;
-    (void)request;reply->request_mode=CWWidth|CWHeight;
+    reply->request_mode=CWWidth|CWHeight;
     reply->width=96;reply->height=28;
     (void)_XmAppearancePickerSize(widget,picker->time_picker.render_table,picker->time_picker.format_24_hour?"00:00:00":"00:00:00 AM",&reply->width,&reply->height);
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget,request,reply);
 }
 
 Widget XmCreateTimePicker(Widget parent, char *name, ArgList args,

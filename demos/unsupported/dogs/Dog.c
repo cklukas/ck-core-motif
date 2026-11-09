@@ -36,6 +36,7 @@ static char rcsid[] = "$TOG: Dog.c /main/7 1997/05/02 10:11:08 dbl $"
 ******************************************************************************/
 
 #include <stdio.h>
+#include <limits.h>
 #include <X11/StringDefs.h>
 #include <Xm/XmP.h>
 #include <Xm/DrawP.h>
@@ -92,25 +93,33 @@ static char rcsid[] = "$TOG: Dog.c /main/7 1997/05/02 10:11:08 dbl $"
 
 #define MakePixmap(b,wd,ht) \
     XCreatePixmapFromBitmapData(XtDisplay(w),RootWindowOfScreen(XtScreen(w)), \
-    (char *)(b), (wd), (ht), Foreground(w), BackgroundPixel(w), \
-    DefaultDepthOfScreen(XtScreen(w)))
+    (char *)(b), (unsigned int)(wd), (unsigned int)(ht), Foreground(w), \
+    BackgroundPixel(w), (unsigned int)DefaultDepthOfScreen(XtScreen(w)))
 
-static void ClassInitialize();
-static void Initialize();
-static void Redisplay();
-static void Resize();
-static void Destroy();
-static Boolean SetValues();
-static XtGeometryResult QueryGeometry();
+static void ClassInitialize(void);
+static void Initialize(Widget request, Widget new_widget, ArgList args,
+		       Cardinal *num_args);
+static void Redisplay(Widget w, XEvent *event, Region region);
+static void Resize(Widget w);
+static void Destroy(Widget w);
+static Boolean SetValues(Widget current, Widget request, Widget new_widget,
+			 ArgList args, Cardinal *num_args);
+static XtGeometryResult QueryGeometry(Widget w, XtWidgetGeometry *intended,
+				      XtWidgetGeometry *reply);
 
-static void bark_dog();
-static void end_bark();
-static void start_wag();
-static void stop_wag();
-static void do_wag();
-static void create_GC();
-static void create_pixmaps();
-static void destroy_pixmaps();
+static void bark_dog(Widget w, XEvent *event, String *params,
+		     Cardinal *num_params);
+static void end_bark(XtPointer client_data, XtIntervalId *id);
+static void start_wag(Widget w, XEvent *event, String *params,
+		      Cardinal *num_params);
+static void stop_wag(Widget w, XEvent *event, String *params,
+		     Cardinal *num_params);
+static void do_wag(XtPointer client_data, XtIntervalId *id);
+static void create_GC(DogWidget w);
+static void create_pixmaps(DogWidget w);
+static void destroy_pixmaps(DogWidget w);
+static Position clamp_position(Dimension value);
+static unsigned long timeout_delay(int value);
 
 static char defaultTranslations[] =
    "<Btn1Down>:         Bark()\n\
@@ -201,11 +210,8 @@ static XmOffsetPtr offsets; /* Part Offset table for XmResolvePartOffsets */
  *
  *********************************************************************/
 
-Widget DogCreate(parent, name, arglist, nargs)
-    Widget parent;
-    char *name;
-    Arg *arglist;
-    int nargs;
+Widget
+DogCreate(Widget parent, char *name, ArgList arglist, Cardinal nargs)
 {
     return(XtCreateWidget (name, dogWidgetClass, parent, arglist, nargs));
 }
@@ -217,10 +223,11 @@ Widget DogCreate(parent, name, arglist, nargs)
  *
  *********************************************************************/
 
-int DogMrmInitialize()
+int
+DogMrmInitialize(void)
 {
-    return(MrmRegisterClass (MrmwcUnknown, "Dog" , "DogCreate",	DogCreate,
-				(WidgetClass)&dogClassRec));
+    return (int)MrmRegisterClass(MrmwcUnknown, "Dog", "DogCreate", DogCreate,
+				 (WidgetClass)&dogClassRec);
 }
 #endif /* USING_UIL */
 
@@ -230,8 +237,8 @@ int DogMrmInitialize()
  *
  *********************************************************************/
 
-void _DogDrawPixmap(dw)
-    DogWidget dw;
+void
+_DogDrawPixmap(DogWidget dw)
 {
     Widget w = (Widget) dw;
 
@@ -250,32 +257,48 @@ void _DogDrawPixmap(dw)
  *
  *********************************************************************/
 
-void _DogPosition(w)
-    DogWidget w;
+void
+_DogPosition(DogWidget w)
 {
     Dimension margin = ShadowThickness(w) + HighlightThickness(w);
+    Dimension inner_width =
+	Width(w) > 2 * margin ? Width(w) - 2 * margin : 0;
+    Dimension inner_height =
+	Height(w) > 2 * margin ? Height(w) - 2 * margin : 0;
 
-    if (CurrWidth(w) < MAX(Width(w) - 2 * margin,0)) {
+    if (CurrWidth(w) < inner_width) {
 	PixmapX(w) = 0;
 	DrawX(w) = Width(w)/2 - CurrWidth(w)/2;
 	DrawWidth(w) = CurrWidth(w);
     }
     else {
-	PixmapX(w) = (CurrWidth(w) - (Width(w) - 2 * margin))/2;
-	DrawX(w) = margin;
-	DrawWidth(w) = Width(w) - 2 * margin;
+	PixmapX(w) = (CurrWidth(w) - inner_width) / 2;
+	DrawX(w) = clamp_position(margin);
+	DrawWidth(w) = inner_width;
     }
 
-    if (CurrHeight(w) < MAX(Height(w) - 2 * margin,0)) {
+    if (CurrHeight(w) < inner_height) {
 	PixmapY(w)= 0;
 	DrawY(w) = Height(w)/2 - CurrHeight(w)/2;
 	DrawHeight(w) = CurrHeight(w);
     }
     else {
-	PixmapY(w) = (CurrHeight(w) - (Height(w) - 2 * margin))/2;
-	DrawY(w) = margin;
-	DrawHeight(w) = Height(w) - 2 * margin;
+	PixmapY(w) = (CurrHeight(w) - inner_height) / 2;
+	DrawY(w) = clamp_position(margin);
+	DrawHeight(w) = inner_height;
     }
+}
+
+static Position
+clamp_position(Dimension value)
+{
+    return value > (Dimension)SHRT_MAX ? (Position)SHRT_MAX : (Position)value;
+}
+
+static unsigned long
+timeout_delay(int value)
+{
+    return value > 0 ? (unsigned long)value : 1UL;
 }
 
 /**********************************************************************
@@ -284,14 +307,15 @@ void _DogPosition(w)
  *
  *********************************************************************/
 
-static void ClassInitialize()
+static void
+ClassInitialize(void)
 {
     XmResolvePartOffsets(dogWidgetClass, &offsets);
 }
 
 
-static void create_GC(w)
-    DogWidget w;
+static void
+create_GC(DogWidget w)
 {
     XGCValues       values;
     XtGCMask        valueMask;
@@ -303,18 +327,23 @@ static void create_GC(w)
     DrawGC(w) = XtGetGC((Widget)w,valueMask,&values);
 }
 
-static void create_pixmaps(w)
-    DogWidget w;
+static void
+create_pixmaps(DogWidget w)
 {
     UpPixmap(w) = MakePixmap(up_bits, up_width, up_height);
     DownPixmap(w) = MakePixmap(down_bits, down_width, down_height);
     BarkPixmap(w) = MakePixmap(bark_bits, bark_width, bark_height);
 }
 
-static void Initialize(request, new)
-    DogWidget request;
-    DogWidget new;
+static void
+Initialize(Widget request_widget, Widget new_widget, ArgList args,
+	   Cardinal *num_args)
 {
+    DogWidget request = (DogWidget)request_widget;
+    DogWidget new = (DogWidget)new_widget;
+
+    (void)args;
+    (void)num_args;
     if (Width(request) == 0)
 	Width(new) = MAX(MAX(up_width, down_width),bark_width) +
 		2*(ShadowThickness(new)+HighlightThickness(new));
@@ -329,11 +358,11 @@ static void Initialize(request, new)
     WagId(new) = 0;
     BarkId(new) = 0;
 
-    Resize(new);
+    Resize((Widget)new);
 }
 
-static void destroy_pixmaps(w)
-    DogWidget w;
+static void
+destroy_pixmaps(DogWidget w)
 {
     XFreePixmap (XtDisplay(w), UpPixmap(w));
     XFreePixmap (XtDisplay(w), DownPixmap(w));
@@ -341,9 +370,10 @@ static void destroy_pixmaps(w)
 }
 
 
-static void Destroy(w)
-    DogWidget w;
+static void
+Destroy(Widget widget)
 {
+    DogWidget w = (DogWidget)widget;
     XtReleaseGC ((Widget)w, DrawGC(w));
     destroy_pixmaps(w);
 
@@ -355,15 +385,15 @@ static void Destroy(w)
     XtRemoveAllCallbacks ((Widget)w, DogNbarkCallback);
 }
 
-static void Resize(w)
-    DogWidget w;
+static void
+Resize(Widget widget)
 {
+    DogWidget w = (DogWidget)widget;
     _DogPosition(w);
 }
 
-static Boolean DifferentBackground(w, p)
-     Widget w;
-     Widget p;
+static Boolean
+DifferentBackground(Widget w, Widget p)
 {
   if (XmIsPrimitive(w) && XmIsManager(p)) 
     {
@@ -379,11 +409,11 @@ static Boolean DifferentBackground(w, p)
   return (False);
 }
 
-static void Redisplay(w, event, region)
-    Widget w;
-    XEvent *event;
-    Region region;
+static void
+Redisplay(Widget w, XEvent *event, Region region)
 {
+    (void)event;
+    (void)region;
     if (XtIsRealized(w)) {
 	XmeDrawShadows(XtDisplay (w), XtWindow (w),
 		       TopShadowGC(w), BottomShadowGC(w), 
@@ -404,13 +434,18 @@ static void Redisplay(w, event, region)
     }
 }
 
-static Boolean SetValues(current, request, new)
-    DogWidget current;
-    DogWidget request;
-    DogWidget new;
-
+static Boolean
+SetValues(Widget current_widget, Widget request_widget, Widget new_widget,
+	  ArgList args, Cardinal *num_args)
 {
+    DogWidget current = (DogWidget)current_widget;
+    DogWidget request = (DogWidget)request_widget;
+    DogWidget new = (DogWidget)new_widget;
     Boolean redraw = False;
+
+    (void)request;
+    (void)args;
+    (void)num_args;
 
     if (ShadowThickness(new) != ShadowThickness(current) ||
 	HighlightThickness(new) != HighlightThickness(current)) {
@@ -439,14 +474,15 @@ static Boolean SetValues(current, request, new)
     return (redraw);
 }
 
-static XtGeometryResult QueryGeometry (w, intended, reply)
-    DogWidget w;
-    XtWidgetGeometry *intended;
-    XtWidgetGeometry *reply;
+static XtGeometryResult
+QueryGeometry(Widget widget, XtWidgetGeometry *intended,
+	      XtWidgetGeometry *reply)
 {
+    DogWidget w = (DogWidget)widget;
     reply->request_mode = 0;
 
-    if ((intended->request_mode & (~(CWWidth | CWHeight))) != 0)
+    if ((intended->request_mode &
+	 ~(XtGeometryMask)(CWWidth | CWHeight)) != 0)
         return (XtGeometryNo);
 
     reply->request_mode = (CWWidth | CWHeight);
@@ -470,10 +506,14 @@ static XtGeometryResult QueryGeometry (w, intended, reply)
  *
  *********************************************************************/
 
-static void bark_dog(w, event)
-    DogWidget w;
-    XEvent *event;
+static void
+bark_dog(Widget widget, XEvent *event, String *params, Cardinal *num_params)
 {
+    DogWidget w = (DogWidget)widget;
+
+    (void)event;
+    (void)params;
+    (void)num_params;
     XmProcessTraversal((Widget)w, XmTRAVERSE_CURRENT);
     XtCallCallbacks ((Widget)w, DogNbarkCallback, NULL);
     if (Barking(w) == True) return;
@@ -481,14 +521,16 @@ static void bark_dog(w, event)
     SetPixmap(w,BarkPx,BarkPixmap(w),bark_width,bark_height);
     _DogPosition(w);
     _DogDrawPixmap(w);
-    BarkId(w) = XtAppAddTimeOut (XtWidgetToApplicationContext((Widget)w),
-                BarkTime(w), end_bark, w);
+    BarkId(w) = XtAppAddTimeOut(XtWidgetToApplicationContext((Widget)w),
+				timeout_delay(BarkTime(w)), end_bark, w);
 }
 
-static void end_bark(w, t)
-    DogWidget w;
-    XtIntervalId *t;
+static void
+end_bark(XtPointer client_data, XtIntervalId *id)
 {
+    DogWidget w = (DogWidget)client_data;
+
+    (void)id;
     SetPixmap(w,DownPx,DownPixmap(w),down_width,down_height);
     _DogPosition(w);
     _DogDrawPixmap(w);
@@ -496,26 +538,34 @@ static void end_bark(w, t)
     BarkId(w) = 0;
     if (Wagging(w) == True)
         WagId(w) = XtAppAddTimeOut(XtWidgetToApplicationContext((Widget)w),
-                        WagTime(w), do_wag, w);
+					timeout_delay(WagTime(w)), do_wag, w);
 
 }
 
-static void start_wag(w, event)
-    DogWidget w;
-    XEvent *event;
+static void
+start_wag(Widget widget, XEvent *event, String *params, Cardinal *num_params)
 {
+    DogWidget w = (DogWidget)widget;
+
+    (void)event;
+    (void)params;
+    (void)num_params;
     XmProcessTraversal((Widget)w, XmTRAVERSE_CURRENT);
     if (Wagging(w) == True) return;
     Wagging(w) = True;
     if (Barking(w) == True) return;
-    WagId(w) = XtAppAddTimeOut (XtWidgetToApplicationContext((Widget)w),
-                WagTime(w), do_wag, w);
+    WagId(w) = XtAppAddTimeOut(XtWidgetToApplicationContext((Widget)w),
+			       timeout_delay(WagTime(w)), do_wag, w);
 }
 
-static void stop_wag(w, event)
-    DogWidget w;
-    XEvent *event;
+static void
+stop_wag(Widget widget, XEvent *event, String *params, Cardinal *num_params)
 {
+    DogWidget w = (DogWidget)widget;
+
+    (void)event;
+    (void)params;
+    (void)num_params;
     XmProcessTraversal((Widget)w, XmTRAVERSE_CURRENT);
     Wagging(w) = False;
     if (WagId(w) != 0)
@@ -524,14 +574,17 @@ static void stop_wag(w, event)
 
 }
 
-static void do_wag(w, t)
-    XtPointer w;
-    XtIntervalId *t;
+static void
+do_wag(XtPointer client_data, XtIntervalId *id)
 {
-    DogWidget dw = (DogWidget)w;
+    DogWidget dw = (DogWidget)client_data;
 
-    if (Barking(dw) == True) return;
-    if (Wagging(dw) == False) return;
+    (void)id;
+
+    if (Barking(dw) == True || Wagging(dw) == False) {
+	WagId(dw) = 0;
+	return;
+    }
     switch(CurrPx(dw)) {
 	case(UpPx):
 	    SetPixmap(dw,DownPx,DownPixmap(dw),down_width,down_height);
@@ -542,7 +595,7 @@ static void do_wag(w, t)
     }
     _DogPosition(dw);
     _DogDrawPixmap(dw);
-    XtAppAddTimeOut (XtWidgetToApplicationContext((Widget)dw),
-		     WagTime(dw), do_wag, dw);
+    WagId(dw) = XtAppAddTimeOut(XtWidgetToApplicationContext((Widget)dw),
+				  timeout_delay(WagTime(dw)), do_wag, dw);
 }
 

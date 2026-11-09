@@ -327,7 +327,8 @@ static void slider_move(Widget bar, XtPointer closure, XtPointer call) {
     XmScrollBarCallbackStruct *data=(XmScrollBarCallbackStruct *)call;
     (void)bar;
     if (view && !view->core.being_destroyed && data)
-        XmTreeViewSetTopRow((Widget)view,MAX(0,data->value));
+        XmTreeViewSetTopRow((Widget)view,
+                            data->value > 0 ? (Cardinal)data->value : 0);
 }
 
 static void redraw(XmTreeViewWidget view) {
@@ -441,7 +442,8 @@ static void natural_metrics(XmTreeViewWidget view, Dimension *width, Dimension *
             XmStringExtent(view->tree_view.render_table,label,&w,&h);
         XmStringFree(label);
         extent=(uint64_t)w+(uint64_t)depth_of(view,i)*view->tree_view.indent+
-            (modern ? 2*inset+indicator+gap : 22);
+            (modern ? 2ULL*(uint64_t)inset+(uint64_t)indicator+(uint64_t)gap
+                    : 22ULL);
         if (extent>widest) widest=extent;
         if (h>tallest) tallest=h;
     }
@@ -465,6 +467,7 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
     XGCValues values;
     (void)request; (void)args; (void)count;
+    view->tree_view.automatic_width = ((XmTreeViewWidget)request)->core.width == 0;
     view->tree_view.automatic_height = ((XmTreeViewWidget)request)->core.height == 0;
     view->tree_view.items = NULL;
     view->tree_view.count = 0;
@@ -554,7 +557,8 @@ static void draw_disclosure(XmTreeViewWidget view, int x, int y, Boolean open) {
         if (extent < 3 || left < 0 || left + extent > view->core.width ||
             top < 0 || top + extent > view->core.height ||
             left + extent > SHRT_MAX || top + extent > SHRT_MAX) return;
-        clip=(XRectangle){left,top,extent,extent};
+        clip=(XRectangle){(short)left,(short)top,
+                           (unsigned short)extent,(unsigned short)extent};
         XSetClipRectangles(display,view->tree_view.gc,0,0,&clip,1,Unsorted);
         int glyph = MIN(extent, (int)_XmDpiDefaultDimension((Widget)view,8));
         _XmAppearanceDrawChevron(display, window, view->tree_view.gc,
@@ -613,7 +617,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             if (height > 2 && view->core.width > 4 && y < SHRT_MAX) {
                 XSetForeground(display,view->tree_view.gc,view->tree_view.select_color);
                 XFillRectangle(display,window,view->tree_view.gc,2,y+1,
-                    view->core.width-4,height-2);
+                    (unsigned int)view->core.width-4U,
+                    (unsigned int)height-2U);
                 XSetForeground(display,view->tree_view.gc,view->primitive.foreground);
                 XSetBackground(display,view->tree_view.gc,view->tree_view.select_color);
             }
@@ -894,8 +899,15 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         natural_metrics(view,&width,&view->tree_view.row_height);
     }
     for (Cardinal i=0;i<*count;++i)
+        if (!strcmp(args[i].name,XmNwidth))
+            view->tree_view.automatic_width = (Dimension)args[i].value == 0;
+    for (Cardinal i=0;i<*count;++i)
         if (!strcmp(args[i].name,XmNheight))
             view->tree_view.automatic_height = (Dimension)args[i].value == 0;
+    if (view->tree_view.automatic_width) {
+        Dimension height;
+        natural_metrics(view, &view->core.width, &height);
+    }
     if (view->tree_view.automatic_height) {
         uint64_t height = (uint64_t)view->tree_view.row_height * view->tree_view.visible_rows;
         view->core.height = (Dimension)MIN(MAX(height,1),USHRT_MAX);
@@ -920,10 +932,14 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     Dimension row_height;
     reply->request_mode = CWWidth | CWHeight;
     natural_metrics(view,&reply->width,&row_height);
+    if (!view->tree_view.automatic_width)
+        reply->width = view->core.width;
     height = (unsigned long)view->tree_view.row_height *
              (unsigned long)view->tree_view.visible_rows;
     reply->height = height > (unsigned long)(Dimension)-1
                         ? (Dimension)-1 : (Dimension)height;
+    if (!view->tree_view.automatic_height)
+        reply->height = view->core.height;
     return XmeReplyToQueryGeometry(widget,request,reply);
 }
 
@@ -1026,7 +1042,7 @@ Boolean XmTreeViewGetExpanded(Widget widget, XtPointer id) {
 void XmTreeViewSetTopRow(Widget widget, Cardinal top_row) {
     XmTreeViewWidget view;
     Cardinal total;
-    if (widget == NULL || !XmIsTreeView(widget))
+    if (widget == NULL || !XmIsTreeView(widget) || widget->core.being_destroyed)
         return;
     view = (XmTreeViewWidget)widget;
     total = visible_count(view);

@@ -48,6 +48,18 @@ static char rcsid[] = "$XConsortium: ArrowB.c /main/16 1995/10/25 19:50:57 cde-s
 #include "AppearanceDrawI.h"
 
 #define DELAY_DEFAULT	100
+
+static Position arrow_bounded_position(long long value)
+{
+    if (value < SHRT_MIN) return (Position)SHRT_MIN;
+    if (value > SHRT_MAX) return (Position)SHRT_MAX;
+    return (Position)value;
+}
+
+static Dimension arrow_bounded_dimension(unsigned long value)
+{
+    return value > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)value;
+}
 
 /********    Static Function Declarations    ********/
 
@@ -947,23 +959,25 @@ DrawArrow(XmArrowButtonWidget aw,
   /* Don't let large margins cause confusion. */
   if (margin <= (aw->core.width / 2))
     {
-      x = margin;
-      width = aw->core.width - (margin * 2);
+      x = arrow_bounded_position(margin);
+      width = arrow_bounded_dimension((unsigned long)aw->core.width -
+                                      2UL * margin);
     }
   else
     {
-      x = aw->core.width / 2;
+      x = arrow_bounded_position(aw->core.width / 2);
       width = 0;
     }
   
   if (margin <= (aw->core.height / 2))
     {
-      y = margin;
-      height = aw->core.height - (margin * 2);
+      y = arrow_bounded_position(margin);
+      height = arrow_bounded_dimension((unsigned long)aw->core.height -
+                                       2UL * margin);
     }
   else
     {
-      y = aw->core.height / 2;
+      y = arrow_bounded_position(aw->core.height / 2);
       height = 0;
     }
 

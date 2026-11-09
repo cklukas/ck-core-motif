@@ -5,9 +5,21 @@ The readers now require that pointer to be non-null alongside the expected
 type, format, and item count before copying, parsing, or returning data.  This
 keeps malformed or failed property replies from becoming null-pointer
 accesses, including the WM_STATE and _MWM_HINTS getters.
+
+`WM_NORMAL_HINTS` also releases a returned Xlib payload when later validation
+rejects its type, format, item count, or trailing data.  Xlib can allocate that
+payload before reporting metadata that MWM does not accept, so rejecting the
+metadata must not leave the temporary allocation behind.
 The same contract now covers the WM_PROTOCOLS, _MWM_MESSAGES, and
 WM_COLORMAP_WINDOWS arrays before their elements are consumed.
 
 `WM_PROTOCOLS` additionally treats a zero-item property as absent.  It no
 longer asks Xt for a zero-byte protocol array or emits a misleading allocation
 warning for an empty client property.
+
+All three variable-length readers use bounded `XGetWindowProperty` requests.
+They now require `bytes_after` to be zero before inspecting the returned
+array.  A client property that exceeds MWM's historical 40-item limit is not
+partly applied, so a suffix cannot silently change the intended protocol,
+message, or colormap-window list.  Once the complete bounded count is
+accepted, conversions to MWM's `int` count fields are explicit.

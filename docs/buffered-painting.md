@@ -27,6 +27,11 @@ Drawable, including tiled and ParentRelative backgrounds; no XClearWindow call
 is redirected to a back buffer. Core clearing requests affect both DBE buffers
 and must not be used as offscreen background drawing.
 
+Creating the small per-widget paint state is fallible. If its allocation or
+configured-backend copy cannot be made, invalidation and buffered painting
+return safely without queuing a timeout or dereferencing state. A later expose
+can retry; ordinary application drawing and the widget's Xt window stay valid.
+
 For diagnosis, set the startup X resource `paintBuffer` (class `PaintBuffer`):
 
 ```

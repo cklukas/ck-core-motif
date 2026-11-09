@@ -58,6 +58,7 @@ static char rcsid[] = "$XConsortium: wmlouth.c /main/8 1995/08/29 11:10:46 drk $
 #include "wml.h"
 
 #if defined(__STDC__)
+#include <stdlib.h>
 #include <string.h>
 #endif
 #include <stdio.h>
@@ -78,6 +79,29 @@ void wmlOutputUilSymChTa(void);
 void wmlOutputUilSymCtl(void);
 void wmlOutputUilSymNam(void);
 void wmlOutputUilSymEnum(void);
+
+static void
+wmlOutputClassMaskTerm (FILE *outfil, const char *prefix, const char *tkname)
+{
+    fprintf (outfil, "%s _BIT_MASK(sym_k_%s_object) |\n ", prefix, tkname);
+}
+
+static void
+wmlOutputUpperCaseCharsetName (FILE *outfil, char *name, char *comment)
+{
+    char *uppercase_name;
+
+    uppercase_name = wmlAllocateString (name);
+    if (uppercase_name == NULL)
+        {
+        fprintf (stderr, "Unable to copy WML character-set name\n");
+        fclose (outfil);
+        exit (EXIT_FAILURE);
+        }
+    wmlUpperCaseString (uppercase_name);
+    fprintf (outfil, "    \"%s\",\t/* %s */\n", uppercase_name, comment);
+    free (uppercase_name);
+}
 void wmlOutputUilSymCSet(void);
 int wmlResolveCtlIsMember (WmlClassDefPtr, WmlClassCtrlDefPtr);
 
@@ -858,9 +882,7 @@ int			clsndx;		/* inner loop index */
 WmlClassDefPtr		clsobj;		/* current class object */
 WmlClassResDefPtr	resref;		/* class' resource reference */
 int			itemno = 0;		/* item in bye */
-char			maskbuf[500];	/* current mask buffer */
-char			itembuf[100];	/* for current item */
-int			donl;		/* TRUE if append \n to mask */
+const char		*mask_prefix;	/* prefix for the current byte */
 
 
 /*
@@ -887,31 +909,26 @@ for ( resndx=0 ; resndx<wml_obj_reason_ptr->cnt ; resndx++ )
     /*
      * inner loop on widget class.
      */
-    strcpy (maskbuf, " ");
+    mask_prefix = " ";
     for ( clsndx=0 ; clsndx<wml_obj_class_ptr->cnt ; clsndx++ )
 	{
 	clsobj = (WmlClassDefPtr) wml_obj_class_ptr->hvec[clsndx].objptr;
 	itemno = (clsobj->sym_code+1) % 8;
-	donl = FALSE;
 	resref = wmlResolveResIsMember (resobj, clsobj->reasons);
 	if ( resref != NULL )
 	    if ( resref->exclude != WmlAttributeTrue )
 		{
-		sprintf (itembuf, " _BIT_MASK(sym_k_%s_object) |",
-			 clsobj->tkname);
-		strcat (maskbuf, itembuf);
-		donl = TRUE;
+			wmlOutputClassMaskTerm (outfil, mask_prefix, clsobj->tkname);
+			mask_prefix = "";
 		}
-	if ( donl )
-	    strcat (maskbuf, "\n ");
 	if ( itemno == 0 )
 	    {
-	    fprintf (outfil, "%s 0", maskbuf);
-	    strcpy (maskbuf, ",");
+		    fprintf (outfil, "%s 0", mask_prefix);
+		    mask_prefix = ",";
 	    }
 	}
     if ( itemno != 0 )
-	fprintf (outfil, "%s 0};\n", maskbuf);
+	fprintf (outfil, "%s 0};\n", mask_prefix);
     else
 	fprintf (outfil, "};\n");
     }
@@ -984,9 +1001,7 @@ int			clsndx;		/* inner loop index */
 WmlClassDefPtr		clsobj;		/* current class object */
 WmlClassResDefPtr	resref;		/* class' resource reference */
 int			itemno = 0;		/* item in bye */
-char			maskbuf[500];	/* current mask buffer */
-char			itembuf[100];	/* for current item */
-int			donl;		/* TRUE if append \n to mask */
+const char		*mask_prefix;	/* prefix for the current byte */
 
 
 /*
@@ -1013,31 +1028,26 @@ for ( resndx=0 ; resndx<wml_obj_arg_ptr->cnt ; resndx++ )
     /*
      * inner loop on widget class.
      */
-    strcpy (maskbuf, " ");
+    mask_prefix = " ";
     for ( clsndx=0 ; clsndx<wml_obj_class_ptr->cnt ; clsndx++ )
 	{
 	clsobj = (WmlClassDefPtr) wml_obj_class_ptr->hvec[clsndx].objptr;
 	itemno = (clsobj->sym_code+1) % 8;
-	donl = FALSE;
 	resref = wmlResolveResIsMember (resobj, clsobj->arguments);
 	if ( resref != NULL )
 	    if ( resref->exclude != WmlAttributeTrue )
 		{
-		sprintf (itembuf, " _BIT_MASK(sym_k_%s_object) |",
-			 clsobj->tkname);
-		strcat (maskbuf, itembuf);
-		donl = TRUE;
+			wmlOutputClassMaskTerm (outfil, mask_prefix, clsobj->tkname);
+			mask_prefix = "";
 		}
-	if ( donl )
-	    strcat (maskbuf, "\n ");
 	if ( itemno == 0 )
 	    {
-	    fprintf (outfil, "%s 0", maskbuf);
-	    strcpy (maskbuf, ",");
+		    fprintf (outfil, "%s 0", mask_prefix);
+		    mask_prefix = ",";
 	    }
 	}
     if ( itemno != 0 )
-	fprintf (outfil, "%s 0};\n", maskbuf);
+	fprintf (outfil, "%s 0};\n", mask_prefix);
     else
 	fprintf (outfil, "};\n");
     }
@@ -1109,9 +1119,7 @@ int			clsndx;		/* inner loop index */
 WmlClassDefPtr		clsobj;		/* current class object */
 WmlClassChildDefPtr	childref;	/* class' child reference */
 int			itemno = 0;		/* item in byte */
-char			maskbuf[500];	/* current mask buffer */
-char			itembuf[100];	/* for current item */
-int			donl;		/* TRUE if append \n to mask */
+const char		*mask_prefix;	/* prefix for the current byte */
 
 
 /*
@@ -1138,29 +1146,25 @@ for ( childndx=0 ; childndx<wml_obj_child_ptr->cnt ; childndx++ )
     /*
      * inner loop on widget class.
      */
-    strcpy (maskbuf, " ");
+    mask_prefix = " ";
     for ( clsndx=0 ; clsndx<wml_obj_class_ptr->cnt ; clsndx++ )
 	{
 	clsobj = (WmlClassDefPtr) wml_obj_class_ptr->hvec[clsndx].objptr;
 	itemno = (clsobj->sym_code+1) % 8;
-	donl = FALSE;
 	childref = wmlResolveChildIsMember (childobj, clsobj->children);
 	if ( childref != NULL )
 	  {
-	    sprintf (itembuf, " _BIT_MASK(sym_k_%s_object) |", clsobj->tkname);
-	    strcat (maskbuf, itembuf);
-	    donl = TRUE;
+		    wmlOutputClassMaskTerm (outfil, mask_prefix, clsobj->tkname);
+		    mask_prefix = "";
 	  }
-	if ( donl )
-	    strcat (maskbuf, "\n ");
 	if ( itemno == 0 )
 	    {
-	    fprintf (outfil, "%s 0", maskbuf);
-	    strcpy (maskbuf, ",");
+		    fprintf (outfil, "%s 0", mask_prefix);
+		    mask_prefix = ",";
 	    }
 	}
     if ( itemno != 0 )
-	fprintf (outfil, "%s 0};\n", maskbuf);
+	fprintf (outfil, "%s 0};\n", mask_prefix);
     else
 	fprintf (outfil, "};\n");
     }
@@ -1231,9 +1235,7 @@ WmlClassDefPtr		ctlobj;		/* current class allowing controls */
 int			clsndx;		/* inner loop index */
 WmlClassDefPtr		clsobj;		/* current class object */
 int			itemno = 0;		/* item in bye */
-char			maskbuf[500];	/* current mask buffer */
-char			itembuf[100];	/* for current item */
-int			donl;		/* TRUE if append \n to mask */
+const char		*mask_prefix;	/* prefix for the current byte */
 
 
 /*
@@ -1260,29 +1262,24 @@ for ( ctlndx=0 ; ctlndx<wml_obj_class_ptr->cnt ; ctlndx++ )
     /*
      * inner loop on widget class.
      */
-    strcpy (maskbuf, " ");
+    mask_prefix = " ";
     for ( clsndx=0 ; clsndx<wml_obj_class_ptr->cnt ; clsndx++ )
 	{
 	ctlobj = (WmlClassDefPtr) wml_obj_class_ptr->hvec[clsndx].objptr;
 	itemno = (ctlobj->sym_code+1) % 8;
-	donl = FALSE;
 	if ( wmlResolveCtlIsMember(clsobj,ctlobj->controls) == TRUE)
 	    {
-	    sprintf (itembuf, " _BIT_MASK(sym_k_%s_object) |",
-		     ctlobj->tkname);
-	    strcat (maskbuf, itembuf);
-	    donl = TRUE;
+		    wmlOutputClassMaskTerm (outfil, mask_prefix, ctlobj->tkname);
+		    mask_prefix = "";
 	    }
-	if ( donl )
-	    strcat (maskbuf, "\n ");
 	if ( itemno == 0 )
 	    {
-	    fprintf (outfil, "%s 0", maskbuf);
-	    strcpy (maskbuf, ",");
+		    fprintf (outfil, "%s 0", mask_prefix);
+		    mask_prefix = ",";
 	    }
 	}
     if ( itemno != 0 )
-	fprintf (outfil, "%s 0};\n", maskbuf);
+	fprintf (outfil, "%s 0};\n", mask_prefix);
     else
 	fprintf (outfil, "};\n");
     }
@@ -1792,7 +1789,6 @@ WmlCharSetDefPtr	csobj;		/* character set object */
 WmlSynCharSetDefPtr	syncs;		/* character set syntactic obj */
 int			lang_max;	/* max value for $LANG tables */
 int			alias_ndx;	/* alias loop index */
-char			uname[200];	/* name converted to upper case */
 
 
 /*
@@ -1904,22 +1900,14 @@ for ( ndx=0 ; ndx<wml_obj_charset_ptr->cnt ; ndx++ )
     csobj = (WmlCharSetDefPtr) wml_obj_charset_ptr->hvec[ndx].objptr;
     syncs = csobj->syndef;
     if ( csobj->sym_code == 0 ) continue;
-    strcpy (uname, syncs->name);
-    wmlUpperCaseString (uname);
-    fprintf (outfil, "    \"%s\",\t/* %s */\n",
-	     uname, syncs->name);
+    wmlOutputUpperCaseCharsetName (outfil, syncs->name, syncs->name);
     lang_max += 1;
-    strcpy (uname, syncs->xms_name);
-    wmlUpperCaseString (uname);
-    fprintf (outfil, "    \"%s\",\t/* %s */\n",
-	     uname, syncs->name);
+    wmlOutputUpperCaseCharsetName (outfil, syncs->xms_name, syncs->name);
     lang_max += 1;
     for ( alias_ndx=0 ; alias_ndx<syncs->alias_cnt ; alias_ndx++ )
 	{
-	strcpy (uname, syncs->alias_list[alias_ndx]);
-	wmlUpperCaseString (uname);
-	fprintf (outfil, "    \"%s\",\t/* %s */\n",
-		 uname, syncs->name);
+	wmlOutputUpperCaseCharsetName (outfil, syncs->alias_list[alias_ndx],
+				       syncs->name);
 	lang_max += 1;
 	}
     }

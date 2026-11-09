@@ -12,6 +12,6 @@ end = text.index("\n\t    case Key_Table:", start)
 region = text[start:end]
 assert region.count("header.num_items > (size_t)header.table_size") == 6
 assert region.count("d_bad_database") == 6
-assert "fread (constraint_tab" in region
-assert "fread (argument_type_table" in region
+assert "db_read_table(constraint_tab" in region
+assert "db_read_table(argument_type_table" in region
 print("UIL byte-table reads are bounded by their allocations")

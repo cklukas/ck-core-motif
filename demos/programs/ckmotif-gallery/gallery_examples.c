@@ -155,7 +155,7 @@ Boolean gallery_bind_named_icon(Widget owner, const char *resource,
         if(probe==None || probe==XmUNSPECIFIED_PIXMAP) continue;
         Window root;int x,y;unsigned width,height,border,pixmap_depth;
         Boolean valid=XGetGeometry(XtDisplayOfObject(owner),probe,&root,&x,&y,
-                                   &width,&height,&border,&pixmap_depth);
+                                   &width,&height,&border,&pixmap_depth) != 0;
         if(valid) gallery_bind_sized_icons(owner,resource,&names[i],1,width,height);
         XmDestroyPixmap(XtScreenOfObject(owner),probe);
         return valid;
@@ -238,9 +238,12 @@ static void draw_activity(Widget widget, XtPointer client, XtPointer call)
     (void)client; (void)call;
     XtVaGetValues(widget, XmNforeground, &values.foreground, NULL);
     gc = XCreateGC(XtDisplay(widget), XtWindow(widget), GCForeground, &values);
-    for (i = 0; i < XtNumber(heights); ++i)
+    for (i = 0; i < XtNumber(heights); ++i) {
+        int x = 30 + (int)(i * 64U);
+        int y = 150 - (int)heights[i];
         XFillRectangle(XtDisplay(widget), XtWindow(widget), gc,
-                       30 + i * 64, 150 - heights[i], 32, heights[i]);
+                       x, y, 32U, heights[i]);
+    }
     XFreeGC(XtDisplay(widget), gc);
 }
 
@@ -635,9 +638,12 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         XmToolbarSetActions(example, actions, 4);
         {
             static const char *const icons[]={"action_open","action_save","action_print","action_undo"};
+            static const Boolean overflow_modes[] = {False, True};
             for (Cardinal i = 0; i < XtNumber(icons); ++i) {
-                for (unsigned overflow = 0; overflow < 2; ++overflow) {
-                    Widget button = XmToolbarGetActionButton(example, i, overflow);
+                for (Cardinal mode = 0; mode < XtNumber(overflow_modes); ++mode) {
+                    Widget button = XmToolbarGetActionButton(example, i,
+                                                             overflow_modes[mode]);
+                    if (!button) continue;
                     /* Rasterize transparent image pixels against the actual
                      * normal/pressed surface, not the toolbar's background. */
                     gallery_bind_icon(button, XmNlabelPixmap, icons[i]);

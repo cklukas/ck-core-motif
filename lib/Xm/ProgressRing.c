@@ -212,7 +212,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Dimension label_width = 0, label_height = 0;
     int diameter, ring_x, ring_y, thickness;
     double scale = 1.0;
-    Position center_x, center_y;
+    int center_x, center_y;
     XmString text_string;
     char text[64];
     GC text_gc;
@@ -253,6 +253,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     text_gc = XtIsSensitive(widget) && ring->progress_ring.text_gc
         ? ring->progress_ring.text_gc : ring->progress_ring.track_gc;
     if (ring->progress_ring.text_visible && ring->progress_ring.font) {
+        int opening;
         if (ring->progress_ring.indeterminate)
             snprintf(text, sizeof(text), "…");
         else if (ring->progress_ring.maximum == ring->progress_ring.minimum)
@@ -271,11 +272,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                            &text_height);
             /* Fit the text rectangle inside the circular opening, including
              * its corners, rather than merely inside the opening's square. */
-            if (diameter > 2 * thickness &&
+            opening = diameter - 2 * thickness;
+            if (opening > 0 &&
                 (unsigned long long)text_width * text_width +
                 (unsigned long long)text_height * text_height <=
-                (unsigned long long)(diameter - 2 * thickness) *
-                                    (diameter - 2 * thickness))
+                (unsigned long long)opening * (unsigned long long)opening)
                 XmStringDraw(display, window, ring->progress_ring.font, text_string,
                          text_gc, bounded_position((long long)center_x - (long long)text_width / 2),
                          bounded_position((long long)center_y - (long long)text_height / 2), text_width,

@@ -12,4 +12,6 @@ assert "WmCurrentSizeHintsValuesFit(property)" in normal
 assert "WmSizeHintsValuesFit(property)" in normal
 assert "PROP_SIZE_HINTS_ELEMENTS - 3" in normal
 assert "sizeHints.x = (int)property->x;" in normal
+assert normal.count("leftover != 0") == 2
+assert normal.count("property == NULL") == 2
 print("PASS MWM normal hints reject out-of-range property values")

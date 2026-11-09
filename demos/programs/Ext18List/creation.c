@@ -41,24 +41,16 @@ RegisterConverters()
  * Function prototypes for routines
  * located in utilities file.
  */
-extern XtPointer CONVERT();
-extern void MENU_POST();
-
-
-/*
- * Callback procedure declarations
- */
-extern Widget CreateExtListCB();
-extern void AddCB();
-extern void RemCB();
-extern void ExplainCB();
-extern void QuitCB();
-extern void UnselCB();
-extern void ToggleFindArea();
-extern void FirstRowCol();
-extern void ChoosePlayerCB();
-extern void UpdateRemLabelStr();
-extern void CreateLabel();
+/* Callback procedure declarations. */
+extern Widget CreateExtListCB(Widget);
+extern void RemCB(Widget, XtPointer, XtPointer);
+extern void QuitCB(Widget, XtPointer, XtPointer);
+extern void UnselCB(Widget, XtPointer, XtPointer);
+extern void ToggleFindArea(Widget, XtPointer, XtPointer);
+extern void FirstRowCol(Widget, XtPointer, XtPointer);
+extern void ChoosePlayerCB(Widget, XtPointer, XtPointer);
+extern void UpdateRemLabelStr(Widget, XtPointer, XtPointer);
+extern void CreateLabel(Widget, XtPointer, XtPointer);
 
 /*
  * Function: Createform()
@@ -202,7 +194,7 @@ Widget
     unsel_pb = XtCreateManagedWidget("toggleFind", xmToggleButtonWidgetClass, 
 				   add_rc, NULL, 0 );
 
-    XtAddCallback(unsel_pb, XmNarmCallback, ToggleFindArea,
+    XtAddCallback(unsel_pb, XmNvalueChangedCallback, ToggleFindArea,
 		  (XtPointer)demo_info);
 
     argcnt = 0;

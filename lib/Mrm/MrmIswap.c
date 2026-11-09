@@ -51,11 +51,40 @@
  */
 
 #include <stdio.h>
+#include <stddef.h>
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
 #include <Mrm/IDB.h>
 #include "MrmosI.h"
 #include "MrmMsgI.h"
+
+
+/*
+ * Widget-record offsets are serialized relative to the record beginning.
+ * Check the fixed descriptor prefix before forming a pointer from an
+ * untrusted cross-endian record, then check any count against the remaining
+ * bytes before walking its variable-length entries.
+ */
+static Boolean
+UrmSwapWidgetSpanValid (RGMWidgetRecordPtr widget_rec, MrmOffset offset,
+                        size_t prefix_size)
+{
+  return widget_rec != NULL &&
+    widget_rec->size >= RGMWidgetRecordHdrSize &&
+    offset >= RGMWidgetRecordHdrSize && offset <= widget_rec->size &&
+    widget_rec->size - offset >= prefix_size;
+}
+
+static Boolean
+UrmSwapWidgetListValid (RGMWidgetRecordPtr widget_rec, MrmOffset offset,
+                        size_t prefix_size, MrmCount count,
+                        size_t entry_size)
+{
+  return count >= 0 &&
+    UrmSwapWidgetSpanValid(widget_rec, offset, prefix_size) &&
+    (size_t)count <=
+      (widget_rec->size - offset - prefix_size) / entry_size;
+}
 
 
 /*
@@ -164,6 +193,11 @@ Idb__BM_SwapRecordBytes (IDBRecordBufferPtr		buffer)
       swapbytes( leaf_rec->leaf_header.index_count );
       swapbytes( leaf_rec->leaf_header.heap_start );
       swapbytes( leaf_rec->leaf_header.free_bytes );
+      if (leaf_rec->leaf_header.index_count < 0 ||
+          (size_t)leaf_rec->leaf_header.index_count >
+          (IDBRecordSize - sizeof(IDBIndexLeafHdr)) /
+            sizeof(IDBIndexLeafEntry))
+        return MrmFAILURE;
       for( ndx=0 ; ndx < leaf_rec->leaf_header.index_count ; ndx++ ) 
 	{
 	  swapbytes( leaf_rec->index[ndx].index_stg );	
@@ -178,6 +212,11 @@ Idb__BM_SwapRecordBytes (IDBRecordBufferPtr		buffer)
       swapbytes( node_rec->node_header.index_count );
       swapbytes( node_rec->node_header.heap_start );
       swapbytes( node_rec->node_header.free_bytes );
+      if (node_rec->node_header.index_count < 0 ||
+          (size_t)node_rec->node_header.index_count >
+          (IDBRecordSize - sizeof(IDBIndexNodeHdr)) /
+            sizeof(IDBIndexNodeEntry))
+        return MrmFAILURE;
       for( ndx=0 ; ndx < node_rec->node_header.index_count ; ndx++ ) 
 	{
 	  swapbytes( node_rec->index[ndx].index_stg );	
@@ -253,12 +292,27 @@ Urm__SwapRGMCallbackDesc (RGMCallbackDescPtr	callb_desc,
 {
   Cardinal		ndx;	    /* inner loop index */
   RGMResourceDescPtr	res_desc;   /* resource description literal */
+  MrmOffset		callback_offs;
   char			err_msg[300];
+
+  if (widget_rec == NULL || callb_desc == NULL)
+    return MrmFAILURE;
+  callback_offs = (MrmOffset)((char *)callb_desc - (char *)widget_rec);
+  if (!UrmSwapWidgetSpanValid(widget_rec, callback_offs,
+			      sizeof(RGMCallbackDesc) -
+			      sizeof(RGMCallbackItem)))
+    return MrmFAILURE;
     
   swapbytes( callb_desc->validation );
   swapbytes( callb_desc->count );
   swapbytes( callb_desc->annex );
   swapbytes( callb_desc->unres_ref_count );
+  if (callb_desc->count < 0 || callb_desc->count > RGMListSizeMax ||
+      (size_t)callb_desc->count + 1 >
+        (widget_rec->size - callback_offs -
+	 (sizeof(RGMCallbackDesc) - sizeof(RGMCallbackItem))) /
+	sizeof(RGMCallbackItem))
+    return MrmFAILURE;
   for (ndx=0 ; ndx < callb_desc->count ; ndx++)
     {
 #ifdef WORD64
@@ -282,6 +336,10 @@ Urm__SwapRGMCallbackDesc (RGMCallbackDescPtr	callb_desc,
 	  break;
 	case MrmRtypeResource:
 	  swapbytes( callb_desc->item[ndx].cb_item.datum.offset );
+	  if (!UrmSwapWidgetSpanValid
+	      (widget_rec, callb_desc->item[ndx].cb_item.datum.offset,
+	       offsetof(RGMResourceDesc, key) + 1))
+	    return MrmFAILURE;
 	  res_desc = (RGMResourceDesc *)
 	    ((char *)widget_rec + callb_desc->item[ndx].cb_item.datum.offset);
 	  Urm__SwapRGMResourceDesc( res_desc );
@@ -337,7 +395,6 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
   RGMCallbackDescPtr	callb_desc; 	/* pointer to a callback decriptor */
   Cardinal		ndx;	   	/* loop index */
   IDBridDesc	  	*idb_rid_ptr;
-  void			*offset;     	/* generic offset pointer */
   char			err_msg[300];
     
   /* Swap the main part of the widget record */
@@ -354,15 +411,27 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
   swapbytes( widget_rec->creation_offs );
   swapbytes( widget_rec->variety );
   swapbytes( widget_rec->annex );
+
+  if (widget_rec->size < RGMWidgetRecordHdrSize)
+    return MrmFAILURE;
     
   /* handle the argument list */
     
   if (widget_rec->arglist_offs > 0)
     {	
+      if (!UrmSwapWidgetSpanValid(widget_rec, widget_rec->arglist_offs,
+				  sizeof(RGMArgListDesc) -
+				  sizeof(RGMArgument)))
+	return MrmFAILURE;
       arg_list = (RGMArgListDesc *)
 	((char *)widget_rec + widget_rec->arglist_offs);
       swapbytes( arg_list->count );
       swapbytes( arg_list->extra );
+      if (!UrmSwapWidgetListValid(widget_rec, widget_rec->arglist_offs,
+				  sizeof(RGMArgListDesc) -
+				  sizeof(RGMArgument), arg_list->count,
+				  sizeof(RGMArgument)))
+	return MrmFAILURE;
       for ( ndx=0 ; ndx<arg_list->count ; ndx++ )
 	{
 	  swapbytes( arg_list->args[ndx].tag_code );
@@ -384,9 +453,6 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
 	      break;
 	    }
 	    
-	  offset = ((char *)widget_rec+
-		    arg_list->args[ndx].arg_val.datum.offset);
-	    
 	  switch( arg_list->args[ndx].arg_val.rep_type )
 	    {	
 	      /* these are immediate, do nothing special */
@@ -396,11 +462,22 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
 	      break;
 	      /* these are offsets into the file, handle them specially */
 	    case MrmRtypeCallback:
-	      callb_desc = (RGMCallbackDesc * )offset;
-	      Urm__SwapRGMCallbackDesc( callb_desc, widget_rec );
+	      if (!UrmSwapWidgetSpanValid
+		  (widget_rec, arg_list->args[ndx].arg_val.datum.offset,
+		   sizeof(RGMCallbackDesc) - sizeof(RGMCallbackItem)))
+		return MrmFAILURE;
+	      callb_desc = (RGMCallbackDesc *)
+		((char *)widget_rec + arg_list->args[ndx].arg_val.datum.offset);
+	      if (Urm__SwapRGMCallbackDesc(callb_desc, widget_rec) != MrmSUCCESS)
+		return MrmFAILURE;
 	      break;
 	    case MrmRtypeResource:
-	      res_desc = (RGMResourceDesc *)offset;
+	      if (!UrmSwapWidgetSpanValid
+		  (widget_rec, arg_list->args[ndx].arg_val.datum.offset,
+		   offsetof(RGMResourceDesc, key) + 1))
+		return MrmFAILURE;
+	      res_desc = (RGMResourceDesc *)
+		((char *)widget_rec + arg_list->args[ndx].arg_val.datum.offset);
 	      Urm__SwapRGMResourceDesc( res_desc );
 	      /* flag this resource as needing further byte swapping */
 	      res_desc->cvt_type |= MrmResourceUnswapped;
@@ -445,11 +522,20 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
     
   if (widget_rec->children_offs > 0)
     {
+      if (!UrmSwapWidgetSpanValid(widget_rec, widget_rec->children_offs,
+				  sizeof(RGMChildrenDesc) -
+				  sizeof(RGMChildDesc)))
+	return MrmFAILURE;
       child_list = (RGMChildrenDesc *)
 	((char *)widget_rec + widget_rec->children_offs);
       swapbytes( child_list->count );
       swapbytes( child_list->unused1 );
       swapbytes( child_list->annex1 );
+      if (!UrmSwapWidgetListValid(widget_rec, widget_rec->children_offs,
+				  sizeof(RGMChildrenDesc) -
+				  sizeof(RGMChildDesc), child_list->count,
+				  sizeof(RGMChildDesc)))
+	return MrmFAILURE;
       for ( ndx=0 ; ndx<child_list->count ; ndx++ )
 	{	
 	  swapbytes( child_list->child[ndx].annex1 );
@@ -473,9 +559,14 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
     
   if (widget_rec->creation_offs > 0)
     {
+      if (!UrmSwapWidgetSpanValid(widget_rec, widget_rec->creation_offs,
+				  sizeof(RGMCallbackDesc) -
+				  sizeof(RGMCallbackItem)))
+	return MrmFAILURE;
       callb_desc = (RGMCallbackDesc * )
 	((char *)widget_rec + widget_rec->creation_offs);
-      Urm__SwapRGMCallbackDesc( callb_desc, widget_rec );
+      if (Urm__SwapRGMCallbackDesc(callb_desc, widget_rec) != MrmSUCCESS)
+	return MrmFAILURE;
     }
     
   return MrmSUCCESS ;

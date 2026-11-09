@@ -13,8 +13,8 @@ def main() -> None:
     end = text.index("static void InsertTreeOnClient", start)
     block = text[start:end]
 
-    assert "(unsigned int)command_length < UINT_MAX" in block
-    assert "(unsigned int)funcargs_length < UINT_MAX" in block
+    assert "(size_t)command_length < UINT_MAX" in block
+    assert "(size_t)funcargs_length < UINT_MAX" in block
     assert "XtMalloc((Cardinal)command_length + 1)" in block
     assert "XtMalloc((Cardinal)funcargs_length + 1)" in block
     assert "XtMalloc((unsigned int)command_length + 1)" not in block

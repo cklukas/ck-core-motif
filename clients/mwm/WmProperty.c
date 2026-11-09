@@ -40,6 +40,8 @@ static char rcsid[] = "$TOG: WmProperty.c /main/7 1997/12/02 10:00:00 bill $"
 
 #include "WmGlobal.h"
 #include "WmICCC.h"
+#include "WmIconBox.h"
+#include <Xm/AtomMgr.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <limits.h>
@@ -169,7 +171,9 @@ GetNormalHints(
 			&nitems, &leftover, (unsigned char **)&property)) ||
 	  (actualType != XA_WM_SIZE_HINTS) ||
 	  (nitems < (PROP_SIZE_HINTS_ELEMENTS - 3)) ||
-	  (actualFormat != 32)))
+	  (actualFormat != 32) ||
+	  (leftover != 0) ||
+	  (property == NULL)))
 #else /* WSM */
     if ((Success != XGetWindowProperty (DISPLAY, pCD->client,
 			XA_WM_NORMAL_HINTS, 0L, (long)PROP_SIZE_HINTS_ELEMENTS,
@@ -177,13 +181,20 @@ GetNormalHints(
 			&nitems, &leftover, (unsigned char **)&property)) ||
 	 (actualType != XA_WM_SIZE_HINTS) ||
 	 (nitems < (PROP_SIZE_HINTS_ELEMENTS - 3)) ||
-	 (actualFormat != 32))
+	 (actualFormat != 32) ||
+	 (leftover != 0) ||
+	 (property == NULL))
 #endif /* WSM */
     {
 	/*
 	 * Indicate no property values were retrieved:
 	 */
 
+	if (property)
+	{
+	    XFree ((char *)property);
+	    property = NULL;
+	}
 	sizeHints.icccVersion = ICCC_UNKNOWN;
 	sizeHints.flags = 0;
     }
@@ -330,7 +341,8 @@ void ProcessWmProtocols (ClientData *pCD)
 		 (unsigned char **)&property);
 
 
-    if ((rValue != Success) || (actualType == None) || (actualFormat != 32))
+    if ((rValue != Success) || (actualType == None) || (actualFormat != 32) ||
+	(leftover != 0) || (nitems == 0) || (property == NULL))
 #else
 #ifdef WSM
     if (!HasProperty (pCD, wmGD.xa_WM_PROTOCOLS))
@@ -351,8 +363,7 @@ void ProcessWmProtocols (ClientData *pCD)
     }
     else
     {
-	if (nitems == 0 || property == NULL ||
-	    nitems > SIZE_MAX / sizeof(Atom) ||
+	if (nitems > SIZE_MAX / sizeof(Atom) ||
 	    nitems > UINT_MAX / sizeof(Atom) ||
 	    !(pCD->clientProtocols = (Atom *)XtMalloc(
 		(Cardinal)(nitems * sizeof(Atom)))))
@@ -367,9 +378,9 @@ void ProcessWmProtocols (ClientData *pCD)
 	     * protocols.
 	     */
 
-    	    pCD->clientProtocolCount = nitems;
+	    pCD->clientProtocolCount = (int)nitems;
 
-    	    for (i = 0; i < nitems; i++)
+	    for (i = 0; i < (int)nitems; i++)
     	    {
 		pCD->clientProtocols[i] = property[i];
 		if (property[i] == wmGD.xa_WM_SAVE_YOURSELF)
@@ -462,7 +473,7 @@ void ProcessMwmMessages (ClientData *pCD)
 
 
     if ((rValue != Success) || (actualType == None) || (actualFormat != 32)
-	|| (nitems == 0) || (property == NULL))
+	|| (leftover != 0) || (nitems == 0) || (property == NULL))
     {
 	/*
 	 * _MWM_MESSAGES does not exist or it is an invalid type.
@@ -487,11 +498,12 @@ void ProcessMwmMessages (ClientData *pCD)
 	     * protocols.
 	     */
 
-    	    pCD->mwmMessagesCount = nitems;
+	    pCD->mwmMessagesCount = (int)nitems;
 
-    	    for (i = 0; i < nitems; i++)
+	    for (i = 0; i < (int)nitems; i++)
     	    {
-		if ((pCD->mwmMessages[i] = property[i]) == wmGD.xa_MWM_OFFSET)
+		if ((unsigned long)(pCD->mwmMessages[i] = property[i]) ==
+		    wmGD.xa_MWM_OFFSET)
 		{
 		    pCD->protocolFlags |= PROTOCOL_MWM_OFFSET;
 		}
@@ -638,6 +650,7 @@ GetWMState(
     if (!((ret_val == Success) && (actual_type == wmGD.xa_WM_STATE) &&
          (actual_format == 32) &&
          (nitems == PROP_WM_STATE_ELEMENTS) &&
+	 (leftover == 0) &&
          (property != NULL)))
     {
         /*
@@ -693,8 +706,10 @@ void SetWMState (Window window, int state, Window icon)
 {
     PropWMState property;
 
+    if (state < 0)
+	return;
 
-    property.state = state;
+    property.state = (unsigned long)state;
     property.icon = icon;
 
     XChangeProperty (DISPLAY, window, wmGD.xa_WM_STATE, wmGD.xa_WM_STATE, 32,
@@ -834,7 +849,9 @@ PropMwmInfo *GetMwmInfo (Window rootWindowOfScreen)
 
     if ((ret_val == Success) && (actual_type == wmGD.xa_MWM_INFO) &&
         (actual_format == 32) &&
-        (nitems == PROP_MWM_INFO_ELEMENTS))
+        (nitems == PROP_MWM_INFO_ELEMENTS) &&
+	(leftover == 0) &&
+	(property != NULL))
     {
 	return (property);			/* indicate success */
     }
@@ -887,6 +904,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
     unsigned long leftover;
     unsigned long nitems;
     int i;
+    int propertyCount;
     Window *pWindows;
     Colormap *pColormaps;
     int colormapCount;
@@ -918,13 +936,14 @@ void ProcessWmColormapWindows (ClientData *pCD)
 
 
     if ((rValue == Success) && (actualType != None) && (actualFormat == 32) &&
-	(nitems > 0) && (property != NULL))
+	(leftover == 0) && (nitems > 0) && (property != NULL))
     {
 	/*
 	 * WM_COLORMAP_WINDOWS exists and is a valid type.
 	 */
 
-        if ((size_t)nitems == SIZE_MAX)
+	propertyCount = (int)nitems;
+	if ((size_t)nitems == SIZE_MAX)
             windowCount = 0;
         else
             windowCount = (size_t)nitems + 1;
@@ -963,7 +982,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 	     * If it is not then add it to the head of the list.
 	     */
 
-    	    for (i = 0; i < nitems; i++)
+	    for (i = 0; i < propertyCount; i++)
 	    {
 		if (property[i] == pCD->client)
 		{
@@ -972,7 +991,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 	    }
 
 	    colormapCount = 0;
-	    if (i == nitems)
+	    if (i == propertyCount)
 	    {
 		/* add the client window to the colormap window list */
 		pWindows[0] = pCD->client;
@@ -981,7 +1000,7 @@ void ProcessWmColormapWindows (ClientData *pCD)
 	    }
 
 	    sAttributes.event_mask = (ColormapChangeMask);
-    	    for (i = 0; i < nitems; i++)
+	    for (i = 0; i < propertyCount; i++)
     	    {
 		if ((pColormaps[colormapCount] = 
 		     FindColormap (pCD, property[i])) != None)
@@ -1176,6 +1195,8 @@ GetMwmMenuItems(
     /* _MWM_MENU does not exist or it is an invalid type.  */
     {
 	menuItems = NULL;
+	if (textProperty.value != NULL)
+	    XFree((void *)textProperty.value);
     }
 
     else
@@ -1625,7 +1646,7 @@ SetWorkspaceInfoProperty (WmWorkspaceData *pWS)
 
     /* number of backdrop windows */
     ix = (i * WIP_NUMBER_SIZE);
-    if ((pWS->backdrop.window == None))
+    if (pWS->backdrop.window == None)
     {
 	strcpy (&pch[ix], "0");
     }
@@ -1867,7 +1888,8 @@ void GetDtSessionHints (WmScreenData *pSD, int sNum)
 
 
     if ((rValue != Success) || (actualType == None) || (actualFormat != 8) ||
-	(property == NULL) || (nitems == 0) || (nitems >= UINT_MAX))
+	(property == NULL) || (nitems == 0) || (leftover != 0) ||
+	(nitems >= UINT_MAX))
         /* _DT_SESSION_HINTS does not exist or it is an invalid type.  */
     {
         pSD->pDtSessionItems = NULL;
@@ -1945,13 +1967,10 @@ GetDtWmRequest (
 
     int           rValue;
     char	 *chRequest = NULL;
-    static char  *property = NULL;
-    static int    iNext = -1;
-    int 	  i;
+    unsigned long i;
     Atom          actualType;
     int           actualFormat;
     unsigned long leftover;
-    static unsigned long nitems = 0;
 
     if (pSD == NULL || pszReq == NULL || pmore == NULL)
 	return;
@@ -1964,7 +1983,7 @@ GetDtWmRequest (
      * We need to read the property again if we have no data left
      * over from last time;
      */
-    if (property == NULL)
+    if (pSD->dtWmRequestProperty == NULL)
     {
 #ifdef PARANOID
 	/*
@@ -1980,8 +1999,9 @@ GetDtWmRequest (
 	rValue = XGetWindowProperty (DISPLAY, pSD->wmWorkspaceWin,
 				     wmGD.xa_DT_WM_REQUEST, 0L,
 				     (long)1000000, True, AnyPropertyType,
-				     &actualType, &actualFormat, &nitems,
-				     &leftover, (unsigned char **)&property);
+				     &actualType, &actualFormat,
+				     &pSD->dtWmRequestItems, &leftover,
+				     (unsigned char **)&pSD->dtWmRequestProperty);
 
 #ifdef PARANOID
 	/* Give the server back */ 
@@ -1994,22 +2014,30 @@ GetDtWmRequest (
 	if ((rValue != Success) || 
 	    (actualType == None) || 
 	    (actualFormat != 8) ||
-	    (nitems == 0) ||
-	    (property == NULL))
+	    (pSD->dtWmRequestItems == 0) ||
+	    (leftover != 0) ||
+	    (pSD->dtWmRequestProperty == NULL))
 	{
 	    /* The property does not exist or it is an invalid type. */
-	    if (property != NULL)
+	    if (leftover != 0)
 	    {
-		XFree ((char *)property);
+		Warning (((char *)GETMESSAGE(54, 2,
+		    "Window management request property is too long")));
+		XDeleteProperty (DISPLAY, pSD->wmWorkspaceWin,
+		    wmGD.xa_DT_WM_REQUEST);
 	    }
-	    property = NULL;
-	    iNext = -1;
-	    nitems = 0;
+	    if (pSD->dtWmRequestProperty != NULL)
+	    {
+		XFree (pSD->dtWmRequestProperty);
+	    }
+	    pSD->dtWmRequestProperty = NULL;
+	    pSD->dtWmRequestNext = 0;
+	    pSD->dtWmRequestItems = 0;
 	}
 	else
 	{
 	    /* the property is fine, set the index of the next char. */
-	    iNext = 0;
+	    pSD->dtWmRequestNext = 0;
 	}
     }
 
@@ -2018,21 +2046,22 @@ GetDtWmRequest (
      * If we've got something, then extract and return the next
      * request.
      */
-    if (property && iNext >= 0)
+    if (pSD->dtWmRequestProperty != NULL &&
+	pSD->dtWmRequestNext < pSD->dtWmRequestItems)
     {
 	size_t requestLength;
 
-	for (i=iNext; i<nitems; i++)
+	for (i = pSD->dtWmRequestNext; i < pSD->dtWmRequestItems; i++)
 	{
-	    if (property [i] == '\0')
+	    if (pSD->dtWmRequestProperty[i] == '\0')
 	    {
 		break;
 	    }
 	}
-	if (i >= nitems)
-	    i = nitems;
+	if (i >= pSD->dtWmRequestItems)
+	    i = pSD->dtWmRequestItems;
 
-	requestLength = (size_t)i - (size_t)iNext + 1;
+	requestLength = (size_t)i - (size_t)pSD->dtWmRequestNext + 1;
 	if (requestLength > UINT_MAX)
 	{
 	    Warning (((char *)GETMESSAGE(54, 2, "Window management request is too long")));
@@ -2043,29 +2072,38 @@ GetDtWmRequest (
 	    if (chRequest == NULL)
 	    {
 		Warning (((char *)GETMESSAGE(54, 2, "Insufficient memory for window management data")));
+		/* Avoid retrying the same queued request indefinitely on OOM. */
+		XFree (pSD->dtWmRequestProperty);
+		pSD->dtWmRequestProperty = NULL;
+		pSD->dtWmRequestNext = 0;
+		pSD->dtWmRequestItems = 0;
 	    }
 	    else
 	    {
 		/* Dequeue the request without reading past the X property. */
-		memcpy(chRequest, &property[iNext], requestLength - 1);
+		memcpy(chRequest, &pSD->dtWmRequestProperty[pSD->dtWmRequestNext],
+		       requestLength - 1);
 		chRequest[requestLength - 1] = '\0';
-		iNext = (i < nitems) ? i + 1 : (int)nitems;
+		pSD->dtWmRequestNext =
+		    (i < pSD->dtWmRequestItems) ? i + 1 : pSD->dtWmRequestItems;
 	    }
 	}
 	
-	if (iNext >= nitems)
+	if (pSD->dtWmRequestProperty != NULL &&
+	    pSD->dtWmRequestNext >= pSD->dtWmRequestItems)
 	{
 	    /*
 	     * Extracted the last request, free up the storage
 	     * and reset for next time.
 	     */
-	    XFree ((char *)property);
-	    iNext = -1;
-	    property = NULL;
+	    XFree (pSD->dtWmRequestProperty);
+	    pSD->dtWmRequestProperty = NULL;
+	    pSD->dtWmRequestNext = 0;
+	    pSD->dtWmRequestItems = 0;
 	}
     }
     
-    *pmore = (property != NULL);
+    *pmore = (pSD->dtWmRequestProperty != NULL);
     *pszReq = chRequest;
 
 } /* END OF FUNCTION GetDtWmRequest */

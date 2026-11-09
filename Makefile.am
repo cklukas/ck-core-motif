@@ -63,6 +63,20 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-protocol-lookup-null-slots.py \
 	      tests/automated/check-protocol-publication-null-slots.py \
 	      tests/automated/check-label-baseline-outputs.py \
+	      tests/automated/check-widget-geometry-inputs.py \
+	      tests/automated/check-icong-geometry-traits.py \
+	      tests/automated/check-mwm-function-index-bounds.py \
+	      tests/automated/check-mwm-function-input-pointers.py \
+	      tests/automated/check-mwm-event-parser-inputs.py \
+	      tests/automated/check-mrm-per-display-open-parameters.py \
+	      tests/automated/check-mrm-widget-fetch-parameters.py \
+	      tests/automated/check-mrm-fetch-set-values-icon-arguments.py \
+	      tests/automated/check-mrm-fetch-set-values-argument-count.py \
+	      tests/automated/check-mrm-fetch-set-values-failure-cleanup.py \
+	      tests/automated/check-mrm-deferred-bitmap-arguments.py \
+	      tests/automated/check-mwm-help-argument-bounds.py \
+	      tests/automated/check-mwm-exec-multibyte-delimiter.py \
+	      tests/automated/check-mwm-panelist-function-arguments.py \
 	      tests/automated/check-label-display-rect-outputs.py \
 	      tests/automated/check-label-margins-inputs.py \
 	      tests/automated/check-label-drag-icon-input.py \
@@ -231,6 +245,26 @@ EXTRA_DIST += tests/automated/run-uil-debug-runtime.py
 EXTRA_DIST += tests/automated/check-uil-source-path-copy.py \
               tests/automated/run-uil-source-path-copy-unit.py \
               docs/uil-source-paths.md
+EXTRA_DIST += tests/automated/check-uil-machine-code-inputs.py \
+              tests/automated/run-uil-machine-code-inputs-unit.py \
+              docs/uil-machine-code-inputs.md
+EXTRA_DIST += tests/automated/check-uil-machine-word-format.py docs/uil-machine-word-format.md
+EXTRA_DIST += tests/automated/check-uil-source-cache-copy.py docs/uil-source-cache-copy.md
+EXTRA_DIST += tests/automated/check-wml-keyword-buffer-bounds.py
+EXTRA_DIST += tests/automated/check-wml-grammar-token-bounds.py
+EXTRA_DIST += tests/automated/check-wml-string-allocation.py
+EXTRA_DIST += tests/automated/check-wml-diagnostic-bounds.py
+EXTRA_DIST += tests/automated/check-wml-class-mask-bounds.py
+EXTRA_DIST += tests/automated/check-wml-charset-name-bounds.py
+EXTRA_DIST += tests/automated/check-wml-lexer-copy-failure.py
+EXTRA_DIST += tests/automated/check-wml-handle-list-allocation.py
+EXTRA_DIST += tests/automated/check-wmldb-length-allocation.py
+EXTRA_DIST += tests/automated/check-wml-syntax-builder-allocation.py
+EXTRA_DIST += tests/automated/check-wml-handle-list-name-copy.py
+EXTRA_DIST += tests/automated/check-wml-resolver-allocation.py
+EXTRA_DIST += tests/automated/check-wml-symbol-code-width.py
+EXTRA_DIST += tests/automated/check-wml-token-id-bounds.py
+EXTRA_DIST += tests/automated/check-wml-output-format-safety.py
 EXTRA_DIST += tests/automated/run-tabbed-stack-copy-unit.py docs/tabbed-stack-copy-failure.md
 EXTRA_DIST += tests/automated/run-container-tab-pool-unit.py
 EXTRA_DIST += tests/automated/run-list-unicode-regressions.py
@@ -377,6 +411,7 @@ EXTRA_DIST += tests/automated/check-mwm-invoke-message-allocation.py docs/mwm-in
 EXTRA_DIST += tests/automated/check-mwm-multiscreen-selection.py docs/mwm-multiscreen-selection.md
 EXTRA_DIST += tests/automated/check-mwm-fscreen-default.py docs/mwm-fscreen-default.md
 EXTRA_DIST += tests/automated/check-mwm-icon-resource-bounds.py docs/mwm-icon-resource-bounds.md
+EXTRA_DIST += tests/automated/check-mwm-resource-key-bounds.py docs/mwm-resource-key-bounds.md
 EXTRA_DIST += tests/automated/check-mwm-menutree-bounds.py docs/mwm-menutree-bounds.md
 EXTRA_DIST += tests/automated/check-screen-lookup-bounds.py docs/screen-lookup-bounds.md
 EXTRA_DIST += tests/automated/check-wmcmd-label-bounds.py docs/wmcmd-label-bounds.md
@@ -638,6 +673,7 @@ EXTRA_DIST += tests/automated/check-string-table-capacity.py docs/string-table-c
 EXTRA_DIST += tests/automated/check-list-selection-internals.py
 EXTRA_DIST += tests/automated/check-rcmenu-bounds.py docs/rcmenu-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-icon-bounds.py docs/mrm-icon-bounds.md
+EXTRA_DIST += tests/automated/check-mrm-icon-gc-cleanup.py docs/mrm-icon-gc-cleanup.md
 EXTRA_DIST += tests/automated/check-mrm-arg-bounds.py docs/mrm-arg-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-zero-counts.py docs/mrm-zero-counts.md
 EXTRA_DIST += tests/automated/check-mrm-fontlist-bounds.py docs/mrm-fontlist-bounds.md
@@ -706,13 +742,13 @@ EXTRA_DIST += tests/automated/check-mrm-time-output.py docs/mrm-time-output.md
 EXTRA_DIST += tests/automated/check-mrm-wref-tagname-input.py docs/mrm-wref-tagname-input.md
 EXTRA_DIST += tests/automated/check-mrm-wref-tagname-input.py docs/mrm-wref-tagname-input.md
 EXTRA_DIST += tests/automated/check-mrm-wref-list-input.py docs/mrm-wref-list-input.md
-EXTRA_DIST += tests/automated/check-mrm-conversion-allocation.py docs/mrm-conversion-allocation.md
+EXTRA_DIST += tests/automated/check-mrm-conversion-allocation.py docs/mrm-conversion-allocation.md docs/mrm-wide-character-fixup-cleanup.md docs/mrm-cstring-conversion-failure.md docs/mrm-cstring-vector-cleanup.md
 EXTRA_DIST += tests/automated/check-mrm-wci-hash-allocation.py docs/mrm-wci-hash-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-wci-hash-callers.py docs/mrm-wci-hash-callers.md
 EXTRA_DIST += tests/automated/check-mrm-wci-hash-helpers.py docs/mrm-wci-hash-helpers.md
 EXTRA_DIST += tests/automated/check-mrm-wci-hash-init.py docs/mrm-wci-hash-init.md
 EXTRA_DIST += tests/automated/check-mrm-module-size-bounds.py docs/mrm-module-size-bounds.md
-EXTRA_DIST += tests/automated/check-mrm-fontlist-allocation.py docs/mrm-fontlist-allocation.md
+EXTRA_DIST += tests/automated/check-mrm-fontlist-allocation.py docs/mrm-fontlist-allocation.md docs/mrm-legacy-fontlist-fixup.md docs/mrm-fontlist-replacement-cleanup.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-name-registration.py docs/mrm-hierarchy-name-registration.md
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-open-input.py docs/mrm-hierarchy-open-input.md
 EXTRA_DIST += tests/automated/check-mrm-wref-growth.py docs/mrm-wref-growth.md
@@ -814,6 +850,7 @@ EXTRA_DIST += tests/automated/check-mrm-wref-allocation.py docs/mrm-wref-allocat
 EXTRA_DIST += tests/automated/check-mrm-register-names-allocation.py docs/mrm-register-names-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-widget-instance-allocation.py docs/mrm-widget-instance-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-widget-instance-input.py docs/mrm-widget-instance-input.md
+EXTRA_DIST += tests/automated/check-mrm-widget-override-counts.py docs/mrm-widget-override-counts.md
 EXTRA_DIST += tests/automated/check-mrm-pixmap-defer-bounds.py docs/mrm-pixmap-defer-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-widechar-allocation.py docs/mrm-widechar-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-header-version-allocation.py docs/mrm-header-version-allocation.md
@@ -821,6 +858,7 @@ EXTRA_DIST += tests/automated/check-mrm-safe-copy-allocation.py docs/mrm-safe-co
 EXTRA_DIST += tests/automated/check-mrm-hierarchy-cleanup.py docs/mrm-hierarchy-cleanup.md
 EXTRA_DIST += tests/automated/check-mrm-resolved-path-output.py docs/mrm-resolved-path-output.md
 EXTRA_DIST += tests/automated/check-mrm-context-realloc.py docs/mrm-context-realloc.md
+EXTRA_DIST += tests/automated/check-mrm-context-resize-bounds.py docs/mrm-context-resize-bounds.md
 EXTRA_DIST += tests/automated/check-mrm-error-allocation.py docs/mrm-error-allocation.md
 EXTRA_DIST += tests/automated/check-mrm-buffer-pool-size.py docs/mrm-buffer-pool-size.md
 EXTRA_DIST += tests/automated/check-mrm-writer-vector-input.py docs/mrm-writer-vector-input.md
@@ -1536,6 +1574,19 @@ EXTRA_DIST += tests/automated/check-outline-connections.c \
               docs/validation/macos-outline-20261101.json
 
 EXTRA_DIST += tests/automated/check-infobar-action-layout.py
+EXTRA_DIST += tests/automated/check-infobar-query-geometry.py docs/infobar-query-geometry.md
+EXTRA_DIST += tests/automated/check-outline-initialize-list.py docs/outline-child-list-allocation.md
+EXTRA_DIST += tests/automated/check-tree-converter-abi.py docs/tree-converter-abi.md
+EXTRA_DIST += tests/automated/check-legacy-converter-abi.py docs/legacy-converter-abi.md
+EXTRA_DIST += tests/automated/check-iconbutton-string-conversion.py docs/iconbutton-string-conversion.md
+EXTRA_DIST += tests/automated/check-tabbox-mode-converter.py docs/tabbox-mode-converter.md
+EXTRA_DIST += tests/automated/check-directory-cache-path-capacity.py docs/directory-cache-path-capacity.md
+EXTRA_DIST += tests/automated/check-directory-entry-list-growth.py docs/directory-entry-list-growth.md
+EXTRA_DIST += tests/automated/check-virtual-binding-converter-bounds.py docs/virtual-binding-converter-bounds.md
+EXTRA_DIST += tests/automated/check-virtual-key-result-bounds.py docs/virtual-key-result-bounds.md
+EXTRA_DIST += tests/automated/check-virtual-binding-property-length.py docs/virtual-binding-property-length.md
+EXTRA_DIST += tests/automated/check-virtual-binding-converter-inputs.py docs/virtual-binding-converter-inputs.md
+EXTRA_DIST += tests/automated/check-virtual-binding-fallback-inputs.py docs/virtual-binding-fallback-inputs.md
 EXTRA_DIST += tests/automated/check-mwm-identity-inputs.py
 
 EXTRA_DIST += tests/automated/check-avatar-modern.c \

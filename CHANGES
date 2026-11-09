@@ -1,185 +1,1787 @@
-Opt-in hardening and sanitizer builds (2026-11-04)
-==================================================
+Guard UIL database loader allocations (2026-11-09)
+===================================================
 
-- Add `--enable-hardening` (extra warnings including null-dereference and
-  format checks, stack protection and fortified libc calls, without the
-  `-Wno-unused` suppression) and `--enable-sanitizers[=LIST]` (address and
-  undefined-behaviour sanitizers by default). Ordinary builds are unchanged.
-- Record the first hardening warning and cppcheck baseline and a per-component
-  audit ledger, and add `scripts/warning-baseline.py` to compare a build's
-  warning counts with that baseline.
+- Reject failed nonempty table, length, string, and enum-value allocations
+  before UID database reads or pointer setup, while preserving valid empty
+  serialized sections; see `docs/uil-db-allocation-guards.md`.
 
-Cross-link the CK Core documentation sites (2026-11-02)
+Bound JPEG dimensions at the XImage boundary (2026-11-09)
+=========================================================
+
+- Reject decoded JPEG dimensions and root depths that cannot be represented
+  safely by XImage, and retain unsigned libjpeg counters through grayscale
+  expansion; see `docs/jpeg-ximage-bounds.md`.
+
+Bound appearance-profile Xrm input sizes (2026-11-09)
 =======================================================
 
-- Place related-site links in the left documentation-site selector instead of
-  the header link group, and pin the standalone-selector-capable ckdocs build.
-- Connect CK Core Motif, CK Core CDE, CK Core Apps and ck-core-fs-lib through
-  the site selector and front-page project panels.
-- Build GitHub Pages and rpi4 documentation with ckdocs v0.10.1.
-- Place the related project links in the ckdocs v0.10.1 site selector.
+- Reject appearance-profile strings that cannot be represented by Xt's
+  `XrmValue` size field before conversion, and make Xrm/pixel result
+  conversions explicit; see `docs/appearance-xrm-string-bounds.md`.
 
-Working Periodic menus and connected arrow focus (2026-11-02)
+Bound ColorPicker X11 rendering inputs (2026-11-09)
+====================================================
+
+- Keep ColorPicker's signed geometry, X11 extents, drawable depth, palette
+  map count, allocation results, and HSV zero-value path bounded and explicit
+  at their protocol boundaries; see `docs/color-picker-x11-boundaries.md`.
+
+Guard delayed control input and timers during teardown (2026-11-09)
+=================================================================
+
+- Reject late public/event/timer entry into Badge, SegmentedControl, Link,
+  Spinner, TeachingTip, and Toast while Xt destruction is in progress.  Toast
+  now also clears replaced timeout identifiers and restarts a visible toast's
+  timeout after an `XmNtoastTimeout` update; see
+  `docs/control-timer-teardown.md`.
+
+Bound Divider line extents before X11 drawing (2026-11-03)
+=========================================================
+
+- Keep Divider line spans non-negative through the X11 unsigned-extent
+  boundary, including narrow labeled dividers; see
+  `docs/divider-coordinate-bounds.md`.
+
+Make Stepper layout conversions explicit (2026-11-03)
+======================================================
+
+- Preserve bounded Stepper and NumberBox working geometry through final Xt
+  position and dimension conversions, including narrow controls; see
+  `docs/stepper-layout-conversions.md`.
+
+Keep ProgressRing and Chip render arithmetic bounded (2026-11-03)
+=================================================================
+
+- Preserve ProgressRing text-centering and circular-opening calculations in
+  their signed working domain, and make Chip size/icon conversions explicit
+  after their bounds checks; see `docs/progress-ring-render-bounds.md` and
+  `docs/chip-size-arithmetic.md`.
+
+Bound Badge and RatingControl X11 drawing geometry (2026-11-03)
+===============================================================
+
+- Prevent Badge from drawing a negative-sized modern inner face, and bound
+  Badge/RatingControl clip coordinates and extents before their X11 16-bit
+  conversions.  RatingControl also ignores late highlight changes during
+  destruction; see `docs/badge-coordinate-bounds.md`,
+  `docs/rating-coordinate-bounds.md`, and
+  `docs/rating-control-geometry-guards.md`.
+
+Make composite query APIs teardown-safe (2026-11-03)
+======================================================
+
+- Return established neutral values from affected AutoSuggestBox,
+  BreadcrumbBar, Sidebar, Disclosure, Flyout, TeachingTip, SearchBox, Toast,
+  Prompt, FormSection, and EmptyState public queries during Xt destruction.
+  AutoSuggestBox dismissal and deferred AutoSuggestBox/Toast timers likewise
+  reject teardown state; see
+  `docs/public-query-destroy-guards.md`.
+
+Bound AutoSuggestBox popup dimensions (2026-11-03)
+=====================================================
+
+- Preserve the popup's existing screen bounds through the final Xt
+  `Dimension` conversion, preventing signed working geometry from narrowing
+  into an oversized scroller; see `docs/autosuggest-popup-dimensions.md`.
+
+Guard navigation mutators during destruction (2026-11-03)
+=========================================================
+
+- Make TreeView scrolling, BreadcrumbBar selection, and Sidebar toggling
+  reject teardown state before they read or update navigation layout; see
+  `docs/navigation-mutator-destroy-guards.md`.
+
+Guard public composite mutators during destruction (2026-11-03)
+================================================================
+
+- Make late Disclosure, RowActions, TeachingTip, and Flyout mutator calls
+  harmless once Xt begins destroying the target.  They no longer update
+  layout, popup, timer, or callback state against teardown objects; see
+  `docs/public-mutator-destroy-guards.md`.
+
+Ignore late ToggleSwitch pointer events during destruction (2026-11-03)
+=======================================================================
+
+- Make ToggleSwitch release and hover actions no-ops after Xt begins
+  destruction, avoiding state updates and repaint requests against teardown
+  state.  Also bound X11 clip fields, rounded-face dimensions, and the knob's
+  track fit before narrowing draw geometry; see
+  `docs/toggle-switch-action-lifetime.md` and
+  `docs/toggle-switch-coordinate-bounds.md`.
+
+Bound SegmentedControl modern drawing geometry (2026-11-03)
+============================================================
+
+- Keep focus, separator, and inner rounded-face extents representable before
+  passing them to X11. Tiny segments no longer narrow a negative inner extent
+  through an unsigned drawing parameter; see `docs/segmented-geometry-bounds.md`.
+
+Guard simple redraw mutators during destruction (2026-11-03)
+============================================================
+
+- Make Prompt visibility and DropHighlight state updates no-ops after Xt begins
+  destruction, avoiding repaint requests against teardown state; see
+  `docs/simple-mutator-destroy-guards.md`.
+
+Handle unavailable buffered-paint state safely (2026-11-03)
+============================================================
+
+- Make buffered paint-state creation fallible through both redraw entry points.
+  An exhausted state or backend-string allocation now leaves the widget valid
+  and lets a later expose retry instead of dereferencing `NULL`; see
+  `docs/buffered-painting.md`.
+
+Guard composite item replacement during destruction (2026-11-03)
+==================================================================
+
+- Make RowActions and SegmentedControl item-model replacement reject widgets
+  that Xt is destroying.  These APIs no longer create or release child buttons
+  against teardown state; see `docs/row-actions-item-transaction.md` and
+  `docs/segmented-control-inputs.md`.
+
+Guard CommandPalette filtering during destruction (2026-11-03)
+================================================================
+
+- Make `XmCommandPaletteSetFilter` a no-op during Xt destruction so it cannot
+  forward a filter change to a tearing-down SearchBox child; see
+  `docs/command-palette-item-preservation.md`.
+
+Ignore StatusBar updates during destruction (2026-11-03)
+==========================================================
+
+- Make `XmStatusBarSetItems` a no-op after Xt starts destroying the widget.
+  Applications cannot create replacement children against teardown state; see
+  `docs/statusbar-transactional-replacement.md`.
+
+Keep CommandPalette counts within XmList's index domain (2026-11-03)
+=====================================================================
+
+- Reject `XmCommandPaletteSetItems` counts which cannot be represented by its
+  internal `XmList` before allocating or replacing items.  Oversized requests
+  preserve the visible command set; see `docs/command-palette-item-allocation.md`.
+
+Validate Avatar XRender mask allocation inputs (2026-11-03)
+===========================================================
+
+- Reject non-positive Avatar mask diameters and invalid or unrepresentable
+  XImage strides before allocating temporary XRender coverage data.  Unsupported
+  layouts now use the existing fallback drawing path; see
+  `docs/avatar-xrender-mask-allocation.md`.
+
+Prevent wrapped SearchBox decoration rectangles (2026-11-03)
+============================================================
+
+- Validate SearchBox icon origins before converting them to X11's signed
+  16-bit rectangle coordinates.  An unrepresentable wide-field placement now
+  omits the decoration instead of drawing and hit-testing it on the opposite
+  edge; see `docs/searchbox-clear-hit-rectangle.md`.
+
+Validate ColorPicker cached-plane image strides (2026-11-03)
+============================================================
+
+- Reject non-positive and unrepresentable XImage row-stride allocations before
+  building ColorPicker's cached swatch plane.  Unsupported drawable layouts
+  now fail closed instead of allocating through a signed stride; see
+  `docs/color-picker-redisplay-guard.md`.
+
+Bound ColorPicker pencil drawing coordinates (2026-11-03)
+==========================================================
+
+- Clamp built-in pencil-swatch triangle points before narrowing them to X11's
+  signed 16-bit `XPoint` fields.  Explicitly large swatches no longer wrap
+  their pencil glyph; see `docs/color-picker-coordinate-bounds.md`.
+
+Reserve MWM preprocessor output atomically (2026-11-03)
+========================================================
+
+- Replace MWM's `tmpnam()` preprocessor-output path with an atomically created
+  `mkstemp()` file.  Configuration preprocessing now owns its temporary output
+  path before the external preprocessor runs; see
+  `docs/mwm-preprocessor-tempfile.md`.
+
+Copy UIL comments through their verified bounds (2026-11-03)
+============================================================
+
+- Replace the final dynamic-comment `strcat` calls with measured byte copies
+  and explicit newline/terminator placement. The lexer now applies its
+  allocation proof directly; see `docs/uil-comment-overflow.md`.
+
+Bound DialogShell input-method geometry (2026-11-03)
+=====================================================
+
+- Saturate DialogShell input-method height additions before they enter legacy
+  `Dimension` fields and prevent the matching subtraction from underflowing.
+  Default placement now also uses wide centering and display-edge arithmetic
+  before converting to `Position`. Dialog geometry remains stable with
+  unusually large IM areas or virtual desktops; see
+  `docs/dialogshell-im-geometry.md`.
+
+Keep accessibility text capacity arithmetic unsigned (2026-11-03)
+=================================================================
+
+- Widen `MB_CUR_MAX` before computing accessibility text-buffer capacity, so
+  valid large ranges do not depend on signed-to-size conversion behavior; see
+  `docs/accessibility-text-span-arithmetic.md`.
+
+Bound ArrowButton drawing inset geometry (2026-11-03)
+======================================================
+
+- Saturate ArrowButton and ArrowButtonGadget inset origins and extents before
+  passing them to the X11 drawing helpers.  Large highlight or shadow margins
+  no longer wrap the arrow glyph geometry; see `docs/arrowbg-origins.md`.
+
+Bound private highlight segment drawing (2026-11-03)
+======================================================
+
+- Give private `_XmDrawHighlight` the same oversized-thickness and signed X11
+  coordinate protections as the public highlight helper.  Legacy List and
+  IconG highlight outlines no longer wrap their segments on extreme geometry;
+  see `docs/private-draw-highlight-bounds.md`.
+
+Bound ButtonBox child placement and geometry masks (2026-11-03)
+=================================================================
+
+- Preserve the existing ButtonBox layout policy while clamping calculated
+  child coordinates to Motif's signed `Position` range, avoiding wrapped
+  placements for large layouts.  Geometry-query flags and query-only state
+  now cross the Xt type boundary explicitly; see `docs/button-box-layout.md`.
+
+Honor partial geometry requests in DropHighlight and Skeleton (2026-11-03)
+==========================================================================
+
+- Make `XmDropHighlight` and `XmSkeleton` use the shared Xt geometry-reply
+  contract.  Width-only, height-only, and conflicting parent queries now
+  receive standards-compliant replies without changing their preferred sizes;
+  see `docs/composite-query-geometry.md`.
+- Saturate DropHighlight's label-and-border natural-size arithmetic before it
+  enters the legacy `Dimension` fields.
+
+Honor partial Xt geometry requests in remaining composites (2026-11-03)
+======================================================================
+
+- Route Disclosure, EmptyState, Flyout, FormSection, RowActions, and Toast
+  geometry replies through `XmeReplyToQueryGeometry`.  Existing preferred
+  sizes are unchanged while partial parent requests follow Xt semantics; see
+  `docs/composite-query-geometry.md`.
+
+Honor partial Xt geometry requests in picker controls (2026-11-03)
+===================================================================
+
+- Make Calendar, DatePicker, TimePicker, and TeachingTip use
+  `XmeReplyToQueryGeometry` for their existing preferred-size responses.
+  Width-only, height-only, and query-only parent negotiations now follow Xt
+  request-mode semantics; see `docs/picker-query-geometry.md`.
+
+Honor partial Xt geometry requests in composite controls (2026-11-03)
+=====================================================================
+
+- Route Sidebar, Toolbar, StatusBar, BreadcrumbBar, and CommandPalette
+  geometry replies through `XmeReplyToQueryGeometry`.  Their natural sizes are
+  unchanged, while width-only or height-only parent queries now receive a
+  standards-compliant answer; see `docs/composite-query-geometry.md`.
+
+Restore Spinner automatic geometry through XtSetValues (2026-11-03)
+==================================================================
+
+- Let a zero `XmSpinner` width or height reenable automatic sizing on that
+  axis, and retain nonzero application allocations in `QueryGeometry`; see
+  `docs/spinner-query-geometry.md`.
+
+Keep explicit TreeView dimensions during Xt geometry negotiation (2026-11-03)
+===========================================================================
+
+- Track automatic sizing independently for both `XmTreeView` axes.  A zero
+  width or height follows content metrics, while an application-assigned
+  dimension now remains authoritative through `XtSetValues` and
+  `QueryGeometry`; see `docs/treeview-query-geometry.md`.
+
+Preserve explicit ProgressBar geometry in Xt negotiation (2026-11-03)
+======================================================================
+
+- Make `XmProgressBar` retain application-assigned width and height when a
+  parent asks for geometry.  Preferred dimensions remain the fallback before
+  allocation.  Clamp modern text-overlay clips to the rendered fill and bound
+  their X11 coordinates; see `docs/progressbar-query-geometry.md`.
+
+Preserve explicit DataGrid geometry in Xt negotiation (2026-11-03)
+===================================================================
+
+- Make `XmDataGrid` report its actual allocated dimensions from
+  `QueryGeometry` rather than always advertising the 480x240 default.  This
+  preserves application-assigned sizes during parent negotiation; see
+  `docs/datagrid-query-geometry.md`.
+
+Recompute DataGrid capacity after resize (2026-11-03)
+=====================================================
+
+- Recompute visible-row capacity and clamp the top row from the actual widget
+  size whenever `XmDataGrid` is resized.  Geometry updates also request a
+  complete redraw so headers and columns track the new allocation; see
+  `docs/datagrid-resize-capacity.md`.
+
+Keep Sidebar titles valid when replacement allocation fails (2026-11-03)
+==========================================================================
+
+- Make `XmSidebar` title replacement transactional during `XtSetValues`.
+  A failed XmString copy now retains the prior owned title and header label;
+  see `docs/sidebar-title-setvalues.md`.
+
+Make AutoSuggestBox no-results label replacement failure-safe (2026-11-03)
+==========================================================================
+
+- Stage copied and compound no-results labels before replacing the owned
+  resource or visible popup entry.  Allocation failure now retains the prior
+  label and popup content; see `docs/autosuggest-no-results-label.md`.
+
+Guard Sash focus redraw before realization (2026-11-03)
+========================================================
+
+- Do not issue Sash focus highlight or unhighlight drawing requests before the
+  widget owns an X window; see `docs/sash-focus-redraw.md`.
+
+Preserve inherited Sash cursor after allocation failure (2026-11-03)
+=====================================================================
+
+- Do not cache or register a failed Sash crosshair cursor, and create the
+  window without `CWCursor` in that case so it inherits the normal parent
+  cursor; see `docs/sash-cursor-allocation.md`.
+
+Guard deferred TabStack selection rendering (2026-11-03)
+=========================================================
+
+- Create TabStack's private drawing GC before restoring a deferred selected
+  page at realization, and skip only the optional background repaint if that
+  allocation fails.  The selected page and its notification remain available;
+  see `docs/tabstack-deferred-selection-gc.md`.
+
+Guard Tree connector gutter GC allocation (2026-11-03)
+=======================================================
+
+- Skip the optional Tree child-gutter connector extension if its private GC
+  cannot be allocated, preserving ordinary connector drawing; see
+  `docs/tree-connector-gc.md`.
+
+Guard Skeleton animation redraw before realization (2026-11-03)
+===============================================================
+
+- Do not issue Skeleton animation or stop redraw requests until the widget has
+  an X window, avoiding early-timer BadWindow errors; see `docs/skeleton.md`.
+
+Guard buffered and cascade rendering GCs (2026-11-03)
+======================================================
+
+- Avoid drawing through unavailable temporary graphics contexts in the shared
+  buffered-paint coordinator and modern CascadeButtonGadget renderer; see
+  `docs/paint-render-gc.md`.
+
+Guard shared modern appearance drawing GCs (2026-11-03)
+=======================================================
+
+- Make the modern button-focus, button-face, and cascade-indicator helpers
+  release temporary state and skip safely when an X graphics context cannot be
+  allocated; see `docs/appearance-draw-gc.md`.
+
+Guard SegmentedControl temporary render GCs (2026-11-03)
+========================================================
+
+- Avoid drawing through failed short-lived graphics-context allocations in
+  modern SegmentedControl surface and focus rendering; see
+  `docs/segmented-control.md`.
+
+Guard TabBox temporary label drawing resources (2026-11-03)
+==========================================================
+
+- Check horizontal and vertical TabBox scratch bitmaps, rotated label images,
+  and optional clip-mask pixmaps before use. Failed optional masks now fall
+  back to direct label drawing; see `docs/tabbox-label-resource-failure.md`.
+
+Guard ColorPicker shared drawing GC allocation (2026-11-03)
+==========================================================
+
+- Do not create or use the shared ColorPicker swatch graphics context when its
+  setup pixmap allocation fails. Plane and pencil redraws now skip safely until
+  a valid drawing context is available; see `docs/color-picker.md`.
+
+Guard Avatar temporary drawing allocations (2026-11-03)
+=======================================================
+
+- Check every temporary Avatar pixmap, graphics context, and XRender picture
+  before drawing through it. Failed allocations now release earlier resources
+  and use a safe fallback or skip that redraw; see
+  `docs/avatar-pixmap-allocation.md`.
+
+Guard ColorPicker swatch-plane allocation (2026-11-03)
+======================================================
+
+- Do not create or draw through a color-field pixmap for a transient zero-sized
+  child or after an X-server pixmap allocation failure. A later valid expose
+  safely recreates the cache. See `docs/color-picker.md`.
+
+Refresh verified native gallery evidence (2026-11-03)
+=====================================================
+
+- Refresh all 105 published component screenshots and their manifest from the
+  current `ckmotif-gallery` binary. Each capture is accepted only after its
+  reported manifest component ID matches the requested scenario; the rendered
+  catalogue therefore presents current, component-specific native examples.
+- Capture the gallery window itself rather than the root screen, and reject
+  implausibly small or duplicate PNGs before a publication manifest is made.
+
+Verify gallery screenshot component selection (2026-11-03)
+===========================================================
+
+- Bind each screenshot capture to the gallery's reported manifest component ID,
+  so a mapped welcome page cannot be accepted as a component example. See
+  `docs/modern-gallery-screenshot-qualification.md`.
+
+Preserve platform compatibility macros (2026-11-03)
+====================================================
+
+- Do not replace a platform-provided fortified `bcopy` or `bzero` macro in
+  `Xmfuncs.h`, removing strict macOS macro-redefinition warnings while keeping
+  the legacy fallback. See `docs/xmfuncs-compatibility-macros.md`.
+
+Validate WML database output counts (2026-11-03)
+=================================================
+
+- Reject negative generated table sizes, counts, and enum-set value counts
+  before converting them to output byte lengths. Key-table and enum-set pointer
+  slots are deterministically zeroed because the reader reconstructs them from
+  their following payloads. See `docs/wml-output-counts.md`.
+
+Preserve MWM menu-button count widths (2026-11-03)
+====================================================
+
+- Keep client-command menu compaction counters in the unsigned type used by
+  `MenuSpec`, avoiding signed narrowing before menu-button indexing. See
+  `docs/mwm-menu-counts.md`.
+
+Use the Xt callback ABI for MWM tear-off menus (2026-11-03)
+===========================================================
+
+- Register a void-return adapter for the MWM cascading callback while retaining
+  the direct Boolean-return tear-off geometry query. See
+  `docs/mwm-callback-safety.md`.
+
+Safely format MWM catalog warnings (2026-11-03)
+===============================================
+
+- Treat catalog-provided MWM warning templates as data instead of variadic
+  `printf` formats. The bounded formatter supports the established `%s` and
+  `%%` forms and leaves other conversions literal. See
+  `docs/mwm-warning-format.md`.
+
+Reject invalid WML database table selectors (2026-11-03)
+========================================================
+
+- Make every `wmldbcreate` table emitter reject an unrecognized selector
+  before it can use an uninitialized table header or pointer. See
+  `docs/wml-table-selectors.md`.
+
+Harden gallery geometry narrowing (2026-11-03)
+================================================
+
+- Compute flow-page insets and accumulated extents in a wide unsigned type,
+  clamp canvas dimensions and child positions at the Motif resource boundary,
+  and make dialog-centering guards unambiguous. Navigation width now uses the
+  same checked narrowing path. See `docs/gallery-build-safety.md`.
+
+Bound MWM key-substitution replacement tokens (2026-11-03)
+==========================================================
+
+- Reject a replacement token that cannot fit, including its NUL terminator,
+  in Xt's `Cardinal` allocation width; release its pending source token and
+  preserve earlier complete substitutions. See `docs/mwm-keysub-bounds.md`.
+
+Bound MRM byte-swapped widget lists (2026-11-03)
+===================================================
+
+- Validate cross-endian widget record headers, list offsets, swapped
+  argument/child/callback counts, and embedded callback/resource offsets
+  before conversion loops; see
+  `docs/mrm-widget-swap-list-bounds.md`.
+
+Propagate MRM embedded callback byte-swap failures (2026-11-03)
+================================================================
+
+- Stop cross-endian widget conversion when an argument or creation callback
+  descriptor cannot be converted, rather than accepting a partially converted
+  widget record; see `docs/mrm-widget-callback-swap-status.md`.
+
+Validate deferred MRM widget-reference inputs (2026-11-03)
+=========================================================
+
+- Make deferred set-values reference update and resolution ignore absent lists
+  and reject a missing current widget name before dereferencing or comparing.
+
+Clear failed MRM index-search outputs (2026-11-03)
+====================================================
+
+- Initialize index-search output buffers and positions on genuine failures
+  while preserving the documented insertion positions for ordered misses.
+
+Harden MRM widget-reference lookup (2026-11-03)
+=================================================
+
+- Validate widget-reference lookup inputs and stored name bounds before string
+  comparison, and clear supplied widget outputs on failed lookups.
+
+Clear failed MRM data-handle outputs (2026-11-03)
+===================================================
+
+- Clear record/offset outputs in all MRM internal data-handle lookup and
+  write helpers before their first failure path, preventing stale handles from
+  being mistaken for successful results.
+
+Clear failed MRM RID allocator outputs (2026-11-03)
+====================================================
+
+- Initialize direct header and RID-record allocation outputs before file-state
+  checks and RID-map expansion, preventing stale resource IDs after failure.
+
+Clear failed MRM buffer record allocation output (2026-11-03)
+==============================================================
+
+- Clear a selected IDB buffer from the caller output when record allocation
+  fails, rather than returning a non-null buffer without record storage.
+
+Propagate MRM literal context setup failures (2026-11-03)
+==========================================================
+
+- Stop public literal fetchers before they use an unavailable resource context
+  and release their MRM locks on that path.
+- Validate icon literal pointer-list setup and retain a supplied list instead
+  of replacing it.
+
+Clear failed MRM resource-context output (2026-11-03)
+======================================================
+
+- Clear resource-context outputs before allocation and after releasing a
+  partially created context, so a failed data-buffer allocation cannot return
+  a dangling handle.
+
+Clear failed MRM hierarchy-open output (2026-11-03)
+====================================================
+
+- Clear the supplied hierarchy handle before hierarchy-open validation and
+  allocation, so all failure paths cannot leave a stale open hierarchy.
+
+Clear failed MRM hierarchy name lookups (2026-11-03)
+=====================================================
+
+- Clear a supplied hierarchy-name lookup output before invalid hierarchy/name
+  and not-found paths, matching the global registry lookup contract.
+
+Validate MRM global name registry inputs (2026-11-03)
+======================================================
+
+- Reject null global lookup names and output pointers before hashing; clear a
+  supplied lookup output before any failed lookup can return.
+- Validate every global bulk-registration name before changing the registry, so
+  an invalid vector cannot leave an earlier partial registration behind.
+
+Clear failed MRM lookup and root-record outputs (2026-11-03)
+============================================================
+
+- Clear index-root, hierarchy-resource, and compression-lookup outputs until
+  their operations complete successfully; see the related `docs/mrm-*.md`
+  pages.
+
+Clear failed MRM low-level file-open handles (2026-11-03)
+==========================================================
+
+- Initialize the `Idb__FU_OpenFile` result handle before its first failure
+  path; see `docs/mrm-idb-open-output-pointers.md`.
+
+Reject negative MRM interface-module counts (2026-11-03)
+========================================================
+
+- Validate signed `MrmCount` values before interface-module descriptor size
+  arithmetic; see `docs/mrm-module-size-bounds.md`.
+
+Keep UIL output paths out of a fixed buffer (2026-11-03)
+========================================================
+
+- Use the command-owned UID output path for compiler status and errors rather
+  than copying it through a fixed 256-byte local buffer; see
+  `docs/uil-output-path-buffer.md`.
+
+Return the correct MRM font-set handle (2026-11-03)
+===================================================
+
+- Return `XFontSet` for standalone font-set conversions instead of the
+  unrelated font pointer; see `docs/mrm-fontset-conversion-output.md`.
+
+Preserve MRM font-list conversion entries (2026-11-03)
+=======================================================
+
+- Append every converted font-set entry to its existing MRM font list and
+  clean temporary entries/lists on failure; see
+  `docs/mrm-fontlist-conversion-cleanup.md`.
+
+Fail closed on UIL WMD-path setup errors (2026-11-03)
+=====================================================
+
+- Reject unavailable WMD-path inputs and allocations before path resolution or
+  file opening; see `docs/uil-wmd-path-failures.md`.
+- Preserve the native account-ID width when the default WMD path falls back to
+  the process account's home directory.
+
+Keep MWM feedback fallbacks in stable storage (2026-11-03)
+==========================================================
+
+- Use a stable literal when localized quit-message allocation fails instead of
+  retaining a temporary message-catalog pointer; see
+  `docs/mwm-feedback-fallback.md`.
+
+Stop after incomplete UIL database records (2026-11-03)
+=======================================================
+
+- Propagate compound WMD reader failures and reject malformed top-level WMD
+  framing so unread payloads cannot be parsed as later record headers; see
+  `docs/uil-db-reader-failures.md`.
+
+Harden UIL raw database table allocation (2026-11-03)
+=======================================================
+
+- Do not pass unchecked raw-table allocation results to `fread`, including
+  empty records, and stop loading after an allocation failure; see
+  `docs/uil-db-raw-table-allocation.md`.
+
+Keep UIL machine-list terminators in bounds (2026-11-03)
+========================================================
+
+- Terminate machine-code listing text at its copied end rather than one byte
+  beyond it; see `docs/uil-machine-list-bounds.md`.
+
+Harden UIL no-memmove fallback (2026-11-03)
+=============================================
+
+- Replace the legacy temporary-buffer fallback with directional overlap copies
+  and a non-positive-length guard; see `docs/uil-mmove-fallback.md`.
+
+Reject negative UIL database globals (2026-11-03)
+====================================================
+
+- Reject signed negative WMD global counts and lengths before publishing them
+  to the UIL compiler; see `docs/uil-db-header-bounds.md`.
+
+Avoid UIL default-output allocation (2026-11-03)
+==================================================
+
+- Keep the fixed default `a.uid` filename in static storage, avoiding an
+  unchecked allocation during command decoding; see
+  `docs/uil-default-output-name.md`.
+
+Clear failed WSM target-list counts (2026-11-03)
+==================================================
+
+- Return a zero target count whenever `WSMGetTargetList` cannot return a list,
+  preventing stale caller state; see `docs/wsm-target-list-failure-count.md`.
+
+Validate WSM window-data records (2026-11-03)
+=================================================
+
+- Reject malformed scalar/list type combinations, unsupported attribute widths,
+  and missing non-empty list payloads before WSM message packing; see
+  `docs/wsm-win-data-record-validation.md`.
+
+Avoid redundant Mrm context resizing (2026-11-03)
+==================================================
+
+- Retain an existing equal-size resource context buffer rather than reallocating
+  it; see `docs/mrm-context-resize-bounds.md`.
+
+Reject negative Mrm context sizes (2026-11-03)
+================================================
+
+- Reject invalid negative resource-context resize requests before the minimum
+  allocation rule; see `docs/mrm-context-resize-bounds.md`.
+
+Harden WML output format handling (2026-11-03)
+===============================================
+
+- Write fixed keyword-table and manual templates without treating mutable
+  strings as runtime format strings; see `docs/wml-build.md`.
+
+Bound WML grammar-token IDs (2026-11-03)
+=========================================
+
+- Reject negative, oversized, and duplicate token IDs before they can corrupt
+  or overwrite WML grammar-token vector entries; see `docs/wml-build.md`.
+
+Preserve full WML symbol-code values (2026-11-03)
+==================================================
+
+- Store resolver symbol codes in full-width integers, preventing truncation in
+  exceptionally large generated catalogues; see `docs/wml-build.md`.
+
+Validate WML resolver allocations (2026-11-03)
+==============================================
+
+- Stop semantic resolution cleanly on allocation failure before an incomplete
+  resolved object can be published; see `docs/wml-build.md`.
+
+Require WML handle-list name copies (2026-11-03)
+===============================================
+
+- Stop list insertion when a name copy cannot be allocated, rather than
+  retaining an entry with a null comparison key; see `docs/wml-build.md`.
+
+Validate WML syntax-builder allocations (2026-11-03)
+=====================================================
+
+- Check every syntax descriptor and alias-vector allocation before linking it
+  into parser state; see `docs/wml-build.md`.
+
+Validate WML database string-length tables (2026-11-03)
+========================================================
+
+- Reject unrepresentable string-table sizes and failed allocations before
+  emitting WML database length data; see `docs/wml-build.md`.
+
+Validate WML handle-list allocations (2026-11-03)
+==================================================
+
+- Reject invalid or failed dynamic handle-list allocations before changing list
+  state, preventing later null-vector writes; see `docs/wml-build.md`.
+
+Handle WML lexer token-copy allocation failure (2026-11-03)
+===========================================================
+
+- Stop token generation cleanly when an input token cannot be copied, instead
+  of writing through a null allocation result; see `docs/wml-build.md`.
+
+Bound WML character-set name generation (2026-11-03)
+======================================================
+
+- Allocate uppercase character-set and alias names from their input length
+  before emitting `$LANG` tables; see `docs/wml-build.md`.
+
+Stream WML class-mask header terms (2026-11-03)
+=================================================
+
+- Generate WML class-mask header terms directly rather than concatenating
+  class names through fixed temporary buffers; see `docs/wml-build.md`.
+
+Bound WML resolver diagnostics (2026-11-03)
+============================================
+
+- Format WML resolver errors through the size of their diagnostic buffer,
+  preserving an error report for unusually long malformed names; see
+  `docs/wml-build.md`.
+
+Handle WML string-copy allocation failure (2026-11-03)
+======================================================
+
+- Return failure from the shared WML string-copy helper before copying through
+  a null allocation result; see `docs/wml-build.md`.
+
+Bound WML grammar-token input fields (2026-11-03)
+=================================================
+
+- Bound generated `tokens.dat` fields to their reader capacity and eliminate
+  the remaining fixed keyword-copy buffer in the WML keyword-table generator;
+  see `docs/wml-build.md`.
+
+Bound WML keyword-table temporary names (2026-11-03)
+======================================================
+
+- Size case-folded token names and generated `sym_k_...` literal names from
+  their input instead of writing long WML identifiers through fixed 100-byte
+  generator buffers; see `docs/wml-build.md`.
+
+Bound UIL cached source-line copies (2026-11-03)
+=================================================
+
+- Use the fixed source-line representation when retrieving a cached line.
+
+Pad UIL 64-bit machine-code listing words (2026-11-03)
+=========================================================
+
+- Emit a complete sixteen-digit hexadecimal field before copying each 64-bit
+  machine-code word into the listing; see `docs/uil-machine-word-format.md`.
+
+Clean up rejected Mrm legacy font-list replacements (2026-11-03)
+===================================================================
+
+- Release replacement font lists in widget updates, creation, and callback
+  literal processing when fixup fails, and avoid re-fixing an already
+  converted replacement; see `docs/mrm-fontlist-replacement-cleanup.md`.
+
+Preserve failed Mrm legacy font-list state (2026-11-02)
+=======================================================
+
+- Release an uninstalled replacement when legacy font-list fixup fails; see
+  `docs/mrm-legacy-fontlist-fixup.md`.
+
+Clean up failed Mrm compound-string vectors (2026-11-02)
+========================================================
+
+- Release already-converted vector entries when a later malformed entry fails
+  compound-string conversion; see `docs/mrm-cstring-vector-cleanup.md`.
+
+Reject failed Mrm compound-string conversions (2026-11-02)
+=========================================================
+
+- Return `MrmFAILURE` when malformed serialized compound-string data cannot
+  be converted, instead of passing a null value to widget construction; see
+  `docs/mrm-cstring-conversion-failure.md`.
+
+Release failed Mrm wide-character conversion storage (2026-11-02)
+=================================================================
+
+- Free the temporary wide-character buffer when an invalid multibyte literal
+  makes `mbstowcs` fail during Mrm fixup; see
+  `docs/mrm-wide-character-fixup-cleanup.md`.
+
+Release rejected MWM normal-hints payloads (2026-11-02)
+=========================================================
+
+- Free an Xlib `WM_NORMAL_HINTS` payload when its metadata fails MWM's
+  validation, matching the other property readers; see
+  `docs/mwm-property-payload-pointers.md`.
+
+Bound MWM resource-key construction (2026-11-02)
+===================================================
+
+- Keep the shared MWM X resource-key buffer's remaining length unsigned and
+  bounded for every component, preventing a truncated name from turning a
+  later append into an unbounded copy; see `docs/mwm-resource-key-bounds.md`.
+
+Make Mrm file-name allocation width explicit (2026-11-02)
+==========================================================
+
+- Convert the already validated low-level filename allocation size explicitly
+  to Xt's `Cardinal` contract before allocating it; see
+  `docs/mrm-file-open-input.md`.
+
+Release all partial Mrm bitmap icon mappings (2026-11-02)
+==========================================================
+
+- Apply the graphics-context failure cleanup to the ordinary and depth-one
+  bitmap icon mappers as well as the previously corrected color-mapping
+  paths; see `docs/mrm-icon-gc-cleanup.md`.
+
+Release partial Mrm icon mappings on GC failure (2026-11-02)
+==============================================================
+
+- Free the temporary `XImage` and server pixmap, and clear the output pixmap,
+  when icon mapping cannot create its graphics context; see
+  `docs/mrm-icon-gc-cleanup.md`.
+
+Avoid uninitialized Mrm color pixels (2026-11-02)
+===================================================
+
+- Stop widget argument conversion after an invalid named, RGB, or descriptor
+  color error instead of storing an uninitialized pixel value; see
+  `docs/mrm-createarg-color-fontfixup.md`.
+
+Preserve public Mrm widget override counts (2026-11-02)
+=========================================================
+
+- Keep widget-creation and automatic-child override argument counts at their
+  public `Cardinal` width while calculating allocation capacity and copying
+  arguments, instead of truncating them to the 16-bit on-disk `MrmCount`
+  representation; see `docs/mrm-widget-override-counts.md`.
+
+Bound deferred Mrm bitmap arguments (2026-11-02)
+==================================================
+
+- Apply the existing deferred-pixmap staging bound to every
+  `MrmRtypeXBitmapFile` path in `Urm__CW_CreateArglist`, preventing more than
+  ten deferred bitmap arguments from overrunning its legacy staging array; see
+  `docs/mrm-deferred-bitmap-arguments.md`.
+
+Release the Mrm literal-index pointer list on failure (2026-11-02)
+===================================================================
+
+- Release the internal pointer list when `MrmFetchSetValues` rejects an
+  overlong literal index after allocating that list; see
+  `docs/mrm-fetch-set-values-failure-cleanup.md`.
+
+Propagate Mrm literal fixup failures (2026-11-03)
+===================================================
+
+- Return failed shared literal fixups from the literal loader instead of
+  reporting a malformed current-format font list or literal as successfully
+  loaded. Release auxiliary icon contexts when icon fixup fails; see
+  `docs/mrm-literal-fixup-status.md`.
+
+Propagate Mrm byte-swapped widget failures (2026-11-03)
+========================================================
+
+- Return failed widget-record byte-swap status from hierarchy, indexed, and
+  RID widget readers instead of reporting false success, and invalidate a
+  partially converted record before returning the error; see
+  `docs/mrm-widget-swap-status.md`.
+
+Bound byte-swapped Mrm index records (2026-11-03)
+===================================================
+
+- Reject cross-endian index leaf and node counts that do not fit their
+  fixed-size IDB records before the byte-swap loops walk their entries; see
+  `docs/mrm-swap-index-count-bounds.md`.
+
+Bound Mrm interface-module widget records (2026-11-03)
+========================================================
+
+- Validate a fetched interface module's topmost-widget count against its
+  loaded resource-context size before iterating the serialized record; see
+  `docs/mrm-interface-module-bounds.md`.
+
+Validate Mrm icon mapping records (2026-11-03)
+================================================
+
+- Reject nonpositive icon dimensions and absent in-memory pixel data before
+  public Mrm icon conversion reaches mapping arithmetic or Xlib; see
+  `docs/mrm-icon-converter-inputs.md`.
+
+Keep failed Mrm literal outputs empty (2026-11-03)
+====================================================
+
+- Clear `MrmFetchLiteral` outputs after rejecting unsupported literal types,
+  preventing a dangling value pointer from escaping the released resource
+  context. Release resource contexts and clear outputs after failed vector
+  conversions. `MrmFetchBitmapLiteral` now leaves dimensions at zero unless bitmap
+  creation succeeds; see `docs/mrm-fetch-literal-output.md` and
+  `docs/mrm-literal-convenience-outputs.md`.
+
+Preserve Mrm deferred widget-fetch results (2026-11-03)
+=======================================================
+
+- Preserve the documented non-null-widget “already fetched” no-op in
+  `MrmFetchWidgetOverride`. On an actual fetch, clear the class output before
+  hierarchy lookup so a failure cannot leave a stale class code; see
+  `docs/mrm-widget-fetch-parameters.md`.
+
+Validate Mrm FetchSetValues argument counts (2026-11-02)
+========================================================
+
+- Reject public argument counts that cannot be represented by the internal
+  `int` pointer-list and loop interfaces used by `MrmFetchSetValues`; see
+  `docs/mrm-fetch-set-values-argument-count.md`.
+
+Remove the Mrm icon-argument limit (2026-11-02)
+===================================================
+
+- Store deferred icon arguments for `MrmFetchSetValues` in checked dynamic
+  storage instead of a fixed ten-entry stack array, so larger valid argument
+  lists cannot overflow it; see
+  `docs/mrm-fetch-set-values-icon-arguments.md`.
+
+Validate Mrm widget-fetch output parameters (2026-11-02)
+=========================================================
+
+- Reject missing widget-fetch index/output parameters and a nonzero override
+  count without an override list before `MrmFetchWidgetOverride` can
+  dereference them; see `docs/mrm-widget-fetch-parameters.md`.
+
+Validate Mrm hierarchy-open parameters (2026-11-02)
+====================================================
+
+- Return `MrmFAILURE` for a null first OS-extension entry in
+  `MrmOpenHierarchyPerDisplay` instead of dereferencing it before the existing
+  hierarchy validator can report the input error.  Also reject invalid
+  wide-prototype hierarchy and registration counts before they can narrow to
+  legacy `MrmCount` internal interfaces; see
+  `docs/mrm-per-display-open-parameters.md`.
+
+Validate exported MWM event parser inputs (2026-11-02)
+=======================================================
+
+- Reject missing cursor/output pointers in the public button and key event
+  parsers, and validate button-release indexes before accessing the fixed
+  modifier-mask table; see `docs/mwm-event-parser-inputs.md`.
+
+Validate exported MWM function parser inputs (2026-11-02)
+==========================================================
+
+- Make `ParseWmFunction` reject missing cursor or output pointers before
+  dereferencing them, retaining its established `f.nop` fallback for an absent
+  cursor; see `docs/mwm-function-input-pointers.md`.
+
+Validate MWM Panelist function arguments (2026-11-02)
+=======================================================
+
+- Reject invalid MWM function-table indexes and required parser arguments in
+  the exported Panelist helper before dereferencing the table, and clear a
+  supplied output argument on failure; see
+  `docs/mwm-panelist-function-arguments.md`.
+
+Correct MWM `f.exec` multibyte delimiters (2026-11-02)
+=========================================================
+
+- Preserve `f.exec` background-delimiter behavior for empty and multibyte
+  command endings, rather than applying it only when the final character is
+  single-byte, and remove a redundant parser-state initialization; see
+  `docs/mwm-exec-multibyte-delimiter.md`.
+
+Bound MWM help-argument token copies (2026-11-02)
+===================================================
+
+- Keep parsed MWM help topics and volumes within their existing
+  `MAXWMPATH + 1` caller-buffer contract, atomically rejecting invalid outputs
+  and oversized tokens without changing the public function signature; see
+  `docs/mwm-help-argument-bounds.md`.
+
+Bound MWM function-table index helpers (2026-11-02)
+====================================================
+
+- Clamp caller-supplied function-table lengths before MWM scans its static
+  table, and reject missing output pointers before writing indexes; see
+  `docs/mwm-function-index-bounds.md`.
+
+Validate IconGadget geometry-trait outputs (2026-11-02)
+=========================================================
+
+- Reject invalid baseline, display-rectangle, and margin trait arguments
+  before accessing IconGadget state.  Clamp display dimensions to zero when a
+  gadget is smaller than its highlight border instead of wrapping unsigned
+  geometry; see `docs/icong-geometry-traits.md`.
+
+Propagate display-rectangle trait failures (2026-11-02)
+========================================================
+
+- Make `XmWidgetGetDisplayRect` return the selected primitive or gadget
+  display-rectangle trait's Boolean result instead of reporting success after
+  a trait rejects a geometry query; see `docs/widget-geometry-inputs.md`.
+
+Validate Label display-rectangle trait outputs (2026-11-02)
+=========================================================
+
+- Reject null Label widget and display-rectangle output pointers before the
+  class display-rectangle trait accesses Label state; see
+  `docs/label-baseline-output-validation.md`.
+
+Validate Label baseline trait output pointers (2026-11-02)
+=========================================================
+
+- Align the Label widget baseline trait with LabelGadget by rejecting null
+  widget and output pointers before accessing widget state, and keep its
+  already-validated allocation byte counts explicit at the Xt `Cardinal`
+  boundary. Reject an invalid signed line count before unsigned conversion; see
+  `docs/label-baseline-output-validation.md`.
+
+Validate virtual-key fallback loader inputs before use (2026-11-02)
+=================================================================
+
+- Reject null display and output-pointer inputs before fallback virtual-key
+  binding lookup clears output or interns X11 atoms; see
+  `docs/virtual-binding-fallback-inputs.md`.
+
+Validate virtual-key converter inputs before use (2026-11-02)
+===========================================================
+
+- Reject null Xt conversion inputs before virtual-key binding conversion can
+  dereference them; see `docs/virtual-binding-converter-inputs.md`.
+
+Validate virtual-binding X11 property publication length (2026-11-02)
+=====================================================================
+
+- Keep file-supplied fallback binding strings out of `XChangeProperty` when
+  their byte count exceeds Xlib's `int` element-count range; see
+  `docs/virtual-binding-property-length.md`.
+
+Bound virtual-key lookup result counts and allocation size (2026-11-02)
+======================================================================
+
+- Reject unrepresentable virtual-key match counts and validate the returned
+  binding array size before Xt allocation; see
+  `docs/virtual-key-result-bounds.md`.
+
+Bound virtual-key binding converter allocation size (2026-11-02)
+================================================================
+
+- Validate parsed virtual-key binding output bytes before converting their
+  count to Xt's `Cardinal` allocation size; see
+  `docs/virtual-binding-converter-bounds.md`.
+
+Bound file-selection directory-entry list growth (2026-11-02)
+============================================================
+
+- Validate directory-entry list allocation bytes against `size_t` and Xt's
+  `Cardinal` range before growing the returned pointer table; see
+  `docs/directory-entry-list-growth.md`.
+
+Grow file-selection cache paths for long directory entries (2026-11-02)
+=======================================================================
+
+- Dynamically grow the temporary directory-cache full-path buffer before
+  classifying a long entry name, avoiding the former fixed 256-byte slack
+  overflow; see `docs/directory-cache-path-capacity.md`.
+
+Reset TabBox basic-mode resource conversion state (2026-11-02)
+===============================================================
+
+- Ensure a later `BASIC` `XmNtabMode` resource conversion overwrites the
+  converter's static result after a different mode was converted; see
+  `docs/tabbox-mode-converter.md`.
+
+Harden IconButton string conversion input bounds (2026-11-02)
+============================================================
+
+- Reject null or `Cardinal`-unrepresentable legacy IconButton labels before
+  passing their length to Xt string conversion; see
+  `docs/iconbutton-string-conversion.md`.
+
+Correct legacy resource converter ABI and output sizing (2026-11-02)
+====================================================================
+
+- Match the Xt type-converter callback signature for IconButton, ButtonBox,
+  and Column converters and remove their incompatible registration casts.
+  ButtonBox now checks its caller output buffer before writing a fill-option
+  result; see `docs/legacy-converter-abi.md`.
+
+Correct XmTree resource converter ABI (2026-11-02)
+====================================================
+
+- Match the Xt type-converter callback signature for Tree connect-style,
+  compress-style, and line-style resource conversion, removing incompatible
+  function-pointer casts while preserving conversion and cache behavior; see
+  `docs/tree-converter-abi.md`.
+
+Define Picture processing completion output on growth failure (2026-11-02)
+==========================================================================
+
+- Initialize `XmPictureProcessCharacter`'s valid `is_finished` output before
+  processing, so a failed current-string growth returns `NULL` with a defined
+  non-complete result instead of stale caller state. Reject growth beyond Xt's
+  `Cardinal` allocation range before it can truncate at `XtRealloc`; see
+  `docs/picture-state-allocation.md`.
+
+Make hierarchy root-allocation failures explicit (2026-11-02)
+============================================================
+
+- Raise an Xt error if the required root constraint cannot be allocated for
+  `XmHierarchy`, `XmTree`, or `XmOutline`, avoiding partially initialized
+  hierarchy widgets after memory exhaustion; see
+  `docs/hierarchy-top-node-allocation.md`.
+
+Make Outline child-list allocation failure explicit (2026-11-02)
+================================================================
+
+- Stop `XmOutline` initialization or list replacement with an Xt error when its
+  required child-operation list cannot be allocated, matching the existing
+  `XmTree` contract and preventing later null-list dereferences; see
+  `docs/outline-child-list-allocation.md`.
+
+Release grown atom-list converter storage after successful interning (2026-11-02)
+===============================================================================
+
+- Free the temporary heap-backed atom-name vector after `XInternAtoms` has
+  consumed a resource value with more than 128 names. The atom result and its
+  caller ownership are unchanged; see `docs/atom-list-converter-allocation.md`.
+
+Modernize Workspace client-window discovery C23 contracts (2026-11-02)
+====================================================================
+
+- Replace legacy Workspace ICCCM client-window traversal definitions and the
+  generated popup-menu event callback with typed Xlib/Xt declarations,
+  preserving the recursive `WM_STATE` lookup and menu-post behavior.
+
+Modernize Font Selector demo C23 callbacks (2026-11-02)
+=========================================================
+
+- Give Font Selector callbacks, its form factory, and its entry point typed C
+  declarations so that current compilers can validate their Xt registrations.
+
+Correct Extended List demo toggle handling and C23 contracts (2026-11-02)
+=========================================================================
+
+- Use the post-change toggle callback for the Extended List find-area control,
+  and modernize its remaining generated callback declarations and pointer-width
+  player identifiers.
+
+Correct Paned demo third sash control (2026-11-02)
+==================================================
+
+- Construct the Paned demo's third sash control as a toggle button and attach
+  its sash callback, while modernizing its generated factory declarations.
+
+Harden gallery geometry and toolbar icon binding (2026-11-02)
+===============================================================
+
+- Bound gallery geometry and screenshot conversions at the Xt/Xlib interfaces,
+  reject oversized text extraction allocations, and skip absent overflow action
+  buttons before assigning toolbar icons.
+
+Harden xmapdef file-viewer demo (2026-11-02)
+================================================
+
+- Modernize xmapdef's callback contracts, fix old line-table cleanup indexing,
+  close successful reads, and clamp scrollbar-derived line drawing ranges.
+
+Modernize xmfonts demo font lifecycle (2026-11-02)
+===================================================
+
+- Give xmfonts typed C23 callback declarations, bound font-name messages, and
+  release each loaded font when its sample dialog is closed.
+
+Modernize xmform layout demo (2026-11-02)
+============================================
+
+- Give xmform typed C23 helper declarations and protect its empty-word layout
+  path from division by zero.
+
+Modernize Exm Container sample constructor API (2026-11-02)
+============================================================
+
+- Match the unsupported Exm Container constructor declaration to its typed C23
+  implementation.
+
+Correct Exm Container generated-tab ownership (2026-11-02)
+==========================================================
+
+- Replace the shared default-tab pool with bounded per-widget tab-list storage
+  so one Exm Container cannot invalidate another widget's generated tabs.
+
+Harden Exm Container detail-header copies (2026-11-02)
+=======================================================
+
+- Bound and transactionalize the optional detail-header table copy so failed
+  allocation or XmString duplication cannot leave header creation dereferencing
+  partial state.
+
+Modernize dogs custom widgets and callbacks (2026-11-02)
+=========================================================
+
+- Give the dogs demo and its Dog/Square custom widgets typed Xt/Mrm callback
+  contracts, safe callback data handling, bounded geometry, and tracked tail
+  wag timeouts.
+
+Harden aicon directory population (2026-11-02)
+=================================================
+
+- Modernize aicon callbacks and bound directory-driven icon paths, list growth,
+  selection access, and temporary resource lifetimes.
+
+Harden Todo print staging and callback contracts (2026-11-02)
+============================================================
+
+- Replace Todo's legacy manage callback definition with a typed C23 contract.
+- Create a unique print staging file under `TMPDIR` (or the current directory
+  when it is unset), clean it up after synchronous printing, and guard missing
+  home-directory, page, and print-range state.
+
+Harden UIL machine-code inputs and listing growth (2026-11-02)
+===============================================================
+
+- Reject missing nonempty machine-code buffers and prevent the compact source
+  record count from wrapping at its 16-bit maximum.
+- Keep the previous machine-code listing vector until a larger replacement is
+  successfully allocated, avoiding a null dereference on allocation failure.
+- Derive rendered word chunks from the actual `unsigned long` element size;
+  add focused source and ASan/UBSan regression coverage.
+
+Correct Panner Xlib error-handler contract (2026-11-02)
+=========================================================
+
+- Store and restore the Panner demo's Xlib error handler with the exact
+  `XErrorHandler` type, and skip windows whose attributes cannot be fetched
+  while their tree is being redrawn.
+
+Modernize GetSubRes reporting and C23 callbacks (2026-11-02)
+==========================================================
+
+- Replace the GetSubRes demo's K&R definitions with typed C23 declarations.
+- Format resource-report lines into exact dynamically allocated storage rather
+  than a fixed `vsprintf` buffer, with an allocation and column-width bound.
+
+Harden File Manager unreadable-entry fallback (2026-11-02)
+===========================================================
+
+- Use a typed C definition for the icon loader and keep failed `stat()` entries
+  on the default-icon path without indexing `FI[-1]` or reading unavailable
+  metadata.  Path and mask-name assembly are now bounded.
+
+Modernize Earth demo callbacks and timer lifecycle (2026-11-02)
+===============================================================
+
+- Replace the Earth demonstration's K&R definitions with typed C23 callbacks.
+- Do not schedule a timer at zero speed, guard delay calculation from division
+  by zero, and retain the timeout ID when animation resumes from zero.
+
+Modernize Animate demo C23 callbacks (2026-11-02)
+==================================================
+
+- Replace the Animate demonstration's K&R definitions and unspecified callback
+  declarations with typed C23 signatures, preserving its Mrm callback ABI and
+  allowing the demo to build with the current compiler.
+
+Modernize Exm WML database generator C23 definitions (2026-11-02)
+================================================================
+
+- Replace legacy K&R definitions in the Exm WML database generator with typed
+  C declarations and include the standard declarations it uses, allowing the
+  generated database tool to compile in the current C23 build.
+
+Modernize Editres C23 prototypes (2026-11-02)
+================================================
+
+- Replace the Editres demonstration protocol's K&R definitions and unspecified
+  forward declarations with exact typed C prototypes, preserving its protocol
+  behavior while allowing the source to compile in the current C23 build.
+
+Assemble DropDown selection text linearly (2026-11-02)
+=======================================================
+
+- Build multi-selection DropDown text with exact checked storage and linear
+  copies rather than repeated concatenation of the growing result.
+
+- Ignore full-span Scale scrollbar callbacks (2026-11-02)
+========================================================
+
+- Avoid a zero travel-range division when a Scale scrollbar's slider occupies
+  the full coordinate range; the non-movable control now retains its value.
+
+Clamp Scale value-label redraw geometry (2026-11-02)
+======================================================
+
+- Clamp calculated Scale value-label coordinates and extents before recording
+  the X11 redraw rectangle, preventing large metrics from wrapping a later
+  clear or redisplay region.
+
+Keep Scale scrollbar span arithmetic wide (2026-11-02)
+=========================================================
+
+- Calculate the Scale scrollbar span and slider-size product in `int64_t`,
+  clamping only at the existing integer scrollbar API boundary instead of
+  relying on a post-overflow result.
+
+Keep Scale locale decimal lengths wide (2026-11-02)
+======================================================
+
+- Retain the locale decimal separator length as `size_t` while validating
+  value-formatting storage, so the existing buffer guard cannot be bypassed
+  by a narrowed length.
+
+Saturate Scale metric geometry (2026-11-02)
+============================================
+
+- Keep Scale value metrics, title/tick padding, and scrollbar natural extents
+  wide until their final legacy `Dimension` boundary, then saturate rather
+  than allowing oversized font or DPI-derived values to wrap.
+
+Saturate ToggleButton indicator margin deltas (2026-11-02)
+===========================================================
+
+- Record the actual bounded indicator-margin increase instead of wrapping a
+  large requested delta through legacy geometry fields.
+
+Clamp ToggleButtonGadget text-origin geometry (2026-11-02)
 =============================================================
 
-- Implement Periodic's File/Edit actions with shared document state, bounded
-  undo, clipboard editing, safe text-file saving and unsaved-change prompts.
-- Make Direction target the last focused arrow, Case Sensitive control Unicode
-  Find, and Word Wrap change rendered line layout without altering text.
-- Add working calendar ranges, Stack/Tile, context help, tutorial and version.
-  Provide local template preview/draft/include/spelling and working file filters.
-  Print previews before an explicit asynchronous submission; report errors.
-- Preserve activated option-menu children during dismissal so quick selections
-  update their label and history. Permit eventless Text/TextField clipboard paste,
-  retain the clipboard undo record and remove duplicate record frees.
-- Validate the macOS font-library dependency cohort and preserve selected
-  package library directories in shared/static linking. Document matching Xft
-  construction with XQuartz X11 and
-  Homebrew's font libraries, preventing historical-font shaping crashes.
-- Restore typed Earth startup, input and timer callback declarations so the
-  updated demo builds with C23; qualify its native controls in that mode.
-- Restore complete rounded arrow focus after interaction painting, including
-  shadowless arrows. Cover the real Periodic hierarchy and modern arrow states
-  with native integration regressions in light, dark, scaled and classic modes.
+- Keep ToggleButtonGadget text and accelerator origin arithmetic wide until
+  it is stored in Motif's legacy signed coordinate fields.
+
+Clamp ToggleButtonGadget pixmap redraw geometry (2026-11-02)
+===============================================================
+
+- Bound temporary LabelGadget rectangle coordinates and dimensions used to
+  redraw ToggleButtonGadget pixmaps.
+
+Clamp ToggleButton text-origin geometry (2026-11-02)
+=======================================================
+
+- Keep ToggleButton text and accelerator origin arithmetic wide until it is
+  stored in Motif's legacy signed coordinate fields.
+
+Clamp ToggleButton pixmap redraw geometry (2026-11-02)
+=========================================================
+
+- Bound temporary Label rectangle coordinates and dimensions used to redraw
+  ToggleButton pixmaps.
+
+Saturate PushButton default-frame geometry (2026-11-02)
+=========================================================
+
+- Keep widget and gadget default-frame reservations, margins, text origins,
+  and resulting sizes within Motif's legacy geometry boundaries.
+
+Bound Label wide-character conversion storage (2026-11-02)
+===========================================================
+
+- Reject wide Label values whose multibyte conversion storage cannot fit
+  Xt's legacy `Cardinal` allocation interface.
+
+Clamp DropDown child-layout boundaries (2026-11-02)
+====================================================
+
+- Keep child placement origins and width-split arithmetic wide until the
+  legacy `Position`/`Dimension` configuration boundary.
+
+Bound DropDown modern frame drawing geometry (2026-11-02)
+==========================================================
+
+- Keep modern-style DropDown frame origins and combined child extents wide
+  until the legacy X11 drawing boundary, avoiding wrapped frames.
+
+Clamp DropDown popup placement geometry (2026-11-02)
+======================================================
+
+- Keep popup position and screen-fit arithmetic wide, clamping only at the
+  legacy X11 `Position`/`Dimension` boundary instead of wrapping offsets.
+
+Bound Label natural geometry and drawing origins (2026-11-02)
+================================================================
+
+- Saturate Label resize metrics, accelerator margins, and text positions at
+  the legacy X11 representation boundaries instead of wrapping large values.
+
+Saturate ComboBox natural geometry (2026-11-02)
+================================================
+
+- Accumulate ComboBox text, list, border, and arrow metrics in a wide type and
+  clamp the natural result to `Dimension` instead of wrapping large layouts.
+
+Clamp ComboBox popup coordinates at the X11 boundary (2026-11-02)
+==================================================================
+
+- Keep drop-down popup placement arithmetic wide and clamp the final shell
+  coordinates rather than allowing legacy `Position` intermediates to wrap.
+
+Bound extended compound-text export segments (2026-11-02)
+==========================================================
+
+- Reject non-standard compound-text components that exceed the 14-bit extended
+  segment wire length, and validate the full header allocation at the Xt
+  `Cardinal` boundary instead of wrapping either field.
+
+Keep List pointer hit testing wide (2026-11-02)
+=================================================
+
+- Preserve 32-bit X event Y coordinates through List hit testing and use wide
+  row arithmetic, preventing legacy `Position` truncation from selecting the
+  wrong row in large windows.
+
+Keep IconFile cache directory lengths representable (2026-11-02)
+=================================================================
+
+- Reject directory cache keys that cannot fit the record's signed length field,
+  using the existing uncached path instead of narrowing the key.
+
+Clamp large TabList coordinate conversion (2026-11-02)
+========================================================
+
+- Keep tab unit conversion and relative offsets wide until the legacy X11
+  `Position` return boundary, clamping out-of-range values instead of wrapping.
+
+Bound representation-type public identifiers (2026-11-02)
+==========================================================
+
+- Reserve the documented invalid `XmRepTypeId` sentinel during dynamic
+  registration and reject out-of-range wide-prototype IDs before narrowing.
+- Reject wide-prototype value counts that do not fit the public entry record.
+
+Bound charset-table converter source and table sizes (2026-11-02)
+==================================================================
+
+- Validate the resource-string copy and pointer-table multiplication before
+  Xt `Cardinal` allocation in `XmRCharSetTable` conversion.
+
+Bound KeySym converter source-copy sizing (2026-11-02)
+=======================================================
+
+- Validate KeySym resource-string length and comma-count growth before Xt
+  `Cardinal` allocation, preventing wrapped input-copy or table sizes.
+
+Release ButtonType converter scratch input on parse failure (2026-11-02)
+==========================================================================
+
+- Free the mutable resource-string copy when ButtonType parsing rejects a
+  malformed token sequence, avoiding a leak on resource conversion failure.
+
+Keep MWM diagnostic allocation lengths wide (2026-11-02)
+=========================================================
+
+- Validate measured localized diagnostic lengths as `size_t` before Xt
+  `Cardinal` allocation.
+
+Validate MWM inline-menu formatting widths (2026-11-02)
+=========================================================
+
+- Compare measured inline command and function-argument lengths as `size_t`
+  before Xt `Cardinal` allocation.
+
+Bound MWM key-substitution parsing (2026-11-02)
+=================================================
+
+- Validate localized key-substitution table growth and token-length narrowing.
+
+Reject unterminated MWM menu labels (2026-11-02)
+=================================================
+
+- Require a closing quote before accepting a client-command menu label, for
+  both multibyte and single-byte resource parsing.
+
+Bound MWM accelerator display-text formatting (2026-11-02)
+===========================================================
+
+- Reject malformed multibyte accelerator syntax and grow the display buffer
+  safely for longer substitutions, preventing cursor underflow and
+  label-buffer overwrite during menu parsing.
+
+Validate MWM display-name allocation arithmetic (2026-11-02)
+=============================================================
+
+- Check the raw X display-name length before adding its terminator and MWM's
+  formatting slack, preventing a wrapped `size_t` value from reaching Xt
+  allocation.
+
+Validate MWM screen-record allocation (2026-11-02)
+====================================================
+
+- Validate the managed screen count and `WmScreenData` byte size before Xt
+  allocation or screen access during MWM startup.
+
+Release Container grids without an optional remove hook (2026-11-02)
+====================================================================
+
+- Always free the previous spatial occupancy grid during reset; custom
+  Container subclasses may omit the optional item-removal hook.
+
+Bound Container layout-simulation allocation (2026-11-02)
+==========================================================
+
+- Apply Xt `Cardinal` byte-size bounds to the temporary occupancy grid used
+  during spatial Container layout negotiation.
+
+Bound Container cell-grid allocation (2026-11-02)
+==================================================
+
+- Reject spatial layouts whose occupancy array cannot be represented by Xt's
+  `Cardinal` allocation contract, preventing a very large cell count from
+  truncating its byte allocation.
+
+Validate MWM title-font metrics (2026-11-02)
+=============================================
+
+- Calculate title-bar text heights in a signed wide type and fall back safely
+  for invalid or unrepresentable X font metrics instead of wrapping them into
+  unsigned geometry.
+
+Validate MWM WM_STATE writes (2026-11-02)
+==========================================
+
+- Reject negative state values before converting to the unsigned X11
+  `WM_STATE` property representation.
+
+Require complete variable-length MWM property reads (2026-11-02)
+=================================================================
+
+- Reject truncated `WM_PROTOCOLS`, `_MWM_MESSAGES`, and
+  `WM_COLORMAP_WINDOWS` payloads instead of applying a bounded prefix;
+  accepted counts now convert explicitly into MWM's `int` state fields.
+
+Require complete MWM normal-hints reads (2026-11-02)
+=====================================================
+
+- Reject truncated or null `WM_NORMAL_HINTS` payloads rather than parsing a
+  bounded prefix as a complete legacy or current ICCCM record.
+
+Harden ColorObj type boundaries (2026-11-02)
+=============================================
+
+- Guard the signed Xlib screen count before converting it for per-screen Xt
+  allocations, compare the unsigned selection-timeout sentinel by type, and
+  keep Xlib request status separate from Boolean color-property parse results.
+
+Require complete fixed-size MWM property reads (2026-11-02)
+===========================================================
+
+- Reject truncated or null `WM_STATE` and `_MOTIF_WM_INFO` payloads rather
+  than accepting a prefix with the expected item count.
+
+Release MWM parent-query child lists by pointer (2026-11-02)
+===========================================================
+
+- Free successful `XQueryTree` results whenever Xlib returns a child-list
+  pointer, including empty parent queries.
+
+Release successful ColorObj property reads (2026-11-02)
+========================================================
+
+- Free the Xlib pixel-set-property buffer after a successful bounded parse,
+  preventing a color-cache lookup leak.
+
+Harden Motif window-manager detection failures (2026-11-02)
+===========================================================
+
+- Reject incomplete or null `_MOTIF_WM_INFO` results and safely clean up a
+  failed X11 tree query.
+
+Reject incomplete MWM session-hint properties (2026-11-02)
+=========================================================
+
+- Require the bounded CDE session-hint property read to be complete before
+  parsing, preventing truncated session state from being restored.
+
+Reject incomplete MWM desktop-request properties (2026-11-02)
+===========================================================
+
+- Reject and clear desktop-request properties that exceed MWM's bounded X11
+  fetch, rather than parsing a truncated command.
+
+Reject truncated MWM virtual-key binding properties (2026-11-02)
+===============================================================
+
+- Require MWM's bounded binding-property fetch to be complete before parsing
+  or rewriting it, preserving oversized root-window properties intact.
+
+Correct MWM virtual-key binding ownership (2026-11-02)
+========================================================
+
+- Release Xt-owned virtual-key binding copies with `XtFree` once, avoiding an
+  allocator mismatch and a fallback-path double free.
+
+Guard MWM workspace resource tables by build mode (2026-11-02)
+==============================================================
+
+- Skip workspace-only resource lookups in non-WSM builds, avoiding invalid
+  pointer-size resource counts.
+
+Make MWM default-menu fallback allocation-free (2026-11-02)
+===========================================================
+
+- Use MWM's built-in menu definition directly when localized menu allocation
+  fails, so the recovery path cannot fail a second time.
+
+Reject unavailable MWM request copies (2026-11-02)
+===================================================
+
+- Reject a desktop request safely when MWM cannot allocate its private parser
+  copy, preserving the parser and later requests.
+
+Clarify MWM backdrop request failures (2026-11-02)
+====================================================
+
+- Require the exact backdrop-change request token, so unrelated request names
+  with that token as a prefix are not misinterpreted.
+- Do not report a second, false allocation failure after rejecting a
+  valid backdrop-change request with no path.
+
+Correct the MWM help-argument declaration (2026-11-02)
+========================================================
+
+- Match the public parser header's help-argument symbol spelling and output
+  buffer types to the implementation so CDE-facing callers compile against the
+  real interface.
+
+Reject missing MWM session state and geometry values (2026-11-02)
+===============================================================
+
+- Ignore malformed session `-state`, `-geometry`, `-workspaces`, and `-host`
+  switches that lack a value before calling parsing routines or reporting false
+  allocation failures. Other session records continue to restore normally.
+
+Validate MWM front-panel registration (2026-11-02)
+===================================================
+
+- Resolve embedded-client, push/recall-client, and icon-box registration
+  widgets through one checked managed-screen lookup. Invalid lifecycle calls,
+  foreign panel widgets, and invalid record counts now fail closed instead of
+  using an unmatched screen record; valid zero-count registrations still clear
+  a list. Embedded and push/recall record matching also reject incomplete
+  client and record state before comparing names.
+
+Validate MWM push/recall action inputs (2026-11-02)
+====================================================
+
+- Reject incomplete panel lifecycle state, absent callbacks, and negative or
+  out-of-range signed registration indexes before dereferencing the
+  push/recall table. Invalid action bindings now fail closed.
+
+Define MWM push/recall timeout without a busy indicator (2026-11-02)
+=====================================================================
+
+- Initialize the optional front-panel launch timeout and create a retry
+  deadline only for positive values. Missing, zero, or invalid busy-light
+  resources no longer feed uninitialized stack data into push/recall timing.
+
+Handle unavailable MWM front panels safely (2026-11-02)
+========================================================
+
+- Guard embedded-transient remapping, slide-out geometry, and panel actions
+  while the optional CDE front-panel object or shell is starting or has been
+  torn down. Transients retain their regular leader and geometry rather than
+  dereferencing an absent panel shell.
+
+Preserve MWM transient leaders during panel lookup failure (2026-11-02)
+=======================================================================
+
+- Retain the client-hint transient leader when the optional front-panel
+  remapping lookup has no managed panel client. Panel startup and teardown no
+  longer silently turn an embedded-client transient into a top-level window.
+- Remove a redundant conditional comparison wrapper in the same MWM path so
+  strict compiler builds stay warning-clean.
+
+Reject cyclic MWM transient associations (2026-11-02)
+=======================================================
+
+- Validate managed `WM_TRANSIENT_FOR` and pseudo-transient window-group
+  leaders before linking. Direct, indirect, and pre-existing leader loops are
+  rejected so malformed changing hints cannot hang focus or stacking walks.
+
+Make MWM transient-tree operations iterative (2026-11-02)
+==========================================================
+
+- Replace recursive modal, full-modal cleanup, fixup, and count walks with
+  iterative parent-linked traversal. Deep dialog chains no longer consume the
+  process stack, and saturated counts retain existing allocation fail-closed
+  behavior.
+
+Select the first focusable MWM transient sibling (2026-11-02)
+===============================================================
+
+- Correct modal transient focus search to test the sibling being scanned.
+  This prevents focus repair from bypassing an available sibling and entering
+  a later modal branch.
+
+Refresh MWM transient associations on property changes (2026-11-02)
+===================================================================
+
+- Clear a client's old managed transient leader before resolving a changed
+  `WM_TRANSIENT_FOR` hint.  A self or unmanaged replacement cannot leave the
+  client stacked or modalized beneath its former leader.
+
+Validate MWM workspace callback lifecycle inputs (2026-11-02)
+=============================================================
+
+- Reject absent callback request/reply/widget/client/screen state before Xt or
+  Xlib access. Return an empty unknown conversion reply when one can be sent,
+  and stop owner-monitor rescheduling after its UTM shell is gone.
+
+Avoid MWM workspace transient-tree stack exhaustion (2026-11-02)
+================================================================
+
+- Replace recursive standalone-workspace transient-client traversals with a
+  checked heap-backed depth-first walker. Preserve parent/child/sibling order,
+  bound `WSM_GET_STATE` to its CARD16 result capacity, and discard incomplete
+  reply snapshots rather than leaving partially allocated reply ownership.
+
+Send one final CDE WSM-ready notification (2026-11-02)
+========================================================
+
+- Remove the legacy `PANACOMM` early `_DT_WM_READY` send. WSM builds now
+  notify the CDE session manager exactly once, after MWM initialization is
+  complete, matching dtwm's protocol ordering.
 
 Avoid traversal crashes for top-level-shell children (2026-11-02)
-==========================================================
+=================================================================
+
 - Translate realized top-level shell windows to their root with Xlib rather
   than calling `XtTranslateCoords` on an unparented shell.  Preserve requested
   root-relative geometry if the window cannot be translated.  Cover the actual
   focus traversal path as well as root-shell, child-widget and gadget geometry.
-Keep gallery dialog geometry checks warning-clean (2026-11-02)
-==============================================================
 
-- Separate the final horizontal and vertical screen-edge clamps in the native
-  Dialog Shell verification so strict compilers do not reject the gallery for
-  misleading indentation.
+Correct CDE WSM session-manager endpoint lookup (2026-11-02)
+============================================================
 
-Type-correct WML generic object pointers (2026-11-02)
-=====================================================
-
-- Define the internal WML generic object pointer as ``void *`` so
-  heterogeneous token and handle tables compile with current strict C
-  compilers.
-- Extend the WML source contract and build documentation; generated UIL data
-  and the internal pointer representation remain unchanged.
-
-Display framed tooltips without animation (2026-11-02)
-======================================================
-
-- Show the complete frame and padding when the hover delay expires.
-
-Show complete tooltip text on the first mapped frame (2026-11-02)
-=================================================================
-
-- Size the tooltip shell and label before mapping. Remove the 1x1-to-full-size
-  slide animation which clipped text and left resize trails on composited X11
-  displays. Frame the complete label with a subtle outline and reveal at most
-  10 x 6 pixels of padding over 96 ms using a cancellable monotonic Xt timer.
-  Keep hover delay, dismissal duration and screen-edge placement.
-- Verify all four frame edges, full text pixels throughout the reveal, bounded
-  growth, early cancellation and settled geometry in classic and modern styles.
-
-Replace the drawing demo with Motif Paint (2026-11-02)
-=====================================================
-
-- Replace the resource-polyline example and oversized command area with a
-  raster document, compact tool panel, color palette and fit-to-window view.
-  Scrollbars appear only when an explicitly zoomed picture exceeds the view.
-- Add pencil, brush, eraser, line, rectangle, ellipse, flood fill, eyedropper,
-  bitmap text, rectangular selection, session copy/cut/paste and custom colors.
-  Include sixteen undo/redo steps and undoable canvas cropping/extension.
-- Add 22 original classic tool/action icons with hover tooltips, scale-aware
-  rasterization, centered artwork and equal padding. Keep palette swatches
-  square in two rows and tools in a compact two-column grid.
-- Read/write PNG with configured libpng and 24-bit BMP on all builds. Preserve
-  the document on failed loads, confirm unsaved changes and replacements, and
-  finish file writes before replacing the destination.
-- Add sanitized raster/file/history tests and native XTest coverage for tools,
-  previews, keyboard commands, selection/paste, scrolling, zoom transforms,
-  resize preservation and text at classic and scaled modern appearances.
-
-Modernize Earth rendering, timing and window controls (2026-11-02)
-================================================================
-
-- Project one attributed 2048x1024 NASA world map onto a continuously rotating
-  sphere in modern light/dark themes, with interpolated sampling and shading.
-  Retain original artwork for classic/high-contrast profiles.
-- Target 30 FPS independently of rotation speed; use monotonic elapsed time,
-  skip missed deadlines, and cancel the timer on pause or destruction.
-  Default to 0.5 RPM, with a signed decimal-RPM slider and -fps option.
-- Provide a decorated, movable, resizable window with a black canvas and a
-  centered globe. Right-click toggles a normally themed, properly sized inline
-  slider below it. Left-click stops; drag/release controls spin up to +/-20 RPM.
-  Automatic rotation is disabled throughout pointer control. The wheel zooms
-  the globe around the center of the viewport without resizing the window.
-- Add native coverage for theme selection, timer cadence, delayed dispatch,
-  pause/reverse/resume, projection, interpolation, texture detail and layout.
-
-Restore drag negotiation and make DNDDemo interactive (2026-11-02)
-=================================================================
-
-- Allow local export-target negotiation before a drag context exists, while
-  retaining context checks for external conversions and consuming the local
-  conversion flag even on failure.
-- Add primary-button color/rectangle transfers, selectable drawing colors,
-  named swatches, current-color feedback and visible gesture instructions.
-- Replace transient XOR drawing with an exposure-safe dashed preview; use
-  release coordinates and support Escape cancellation.
-- Correct format-32 color and rectangle payloads on 64-bit systems, request
-  only advertised targets, free transfer state and delete moved sources only
-  after successful receipt.
-- Add native XTEST regression coverage for negotiation, preview readback,
-  painting, move/copy and cancellation in classic/light/dark appearances.
-
-Resize shared help content with its window (2026-11-02)
-=====================================================
-
-- Allocate the help notebook the available width and height on window resize,
-  keeping Dismiss at its natural size and allowing the scrolling page to resize.
-- Test native shell growth and shrinkage in classic, modern-light and modern-dark
-  appearances, including the resulting notebook and scrolling viewport sizes.
-
-Fix shared demo help dialog geometry (2026-11-02)
-================================================
-
-- Initialize natural-size calculations and honor requested child geometry in
-  XmdHelp, preventing oversized help popups in File Manager and other demos.
-- Preserve child placement across query-only requests and include borders and
-  the resizing child when positioning following controls.
-- Release help compound strings with XmStringFree. Add native regression
-  coverage for sizing, resize negotiation, reopening and destruction.
-
-Pace animation demo with elapsed-time timers (2026-11-02)
-========================================================
-
-- Replace the CPU-dependent idle work loop with one cancellable Xt timeout
-  in both animation demos. Default playback spans 2–50 fps; the initial
-  minimum advances once every 500 ms. Delayed frames never catch up in bursts.
-- Make Start idempotent, cancel playback on Stop/destruction, and reschedule
-  when speed changes. Keep One step independent of playback scheduling.
-- Validate -speed as an integer from 1 to 100 (default 20), scaling frame
-  intervals by N/20. Document timing and check real elapsed-time frame counts,
-  idle CPU consumption, repeated Start, speed changes and timer lifecycle.
-
-Make simpledrop usable with primary-button dragging (2026-11-02)
-===============================================================
-
-- Add a visible number source that follows the slider and supports left- and
-  middle-button drags, with a value snapshot owned by the drag context.
-- Display "drop here" as the destination title, advertise copy operations,
-  and explain supported gestures and transfer types in the help and manual.
-- Exercise real pointer drags and selection transfers through the demo in
-  a native regression test, checking both buttons and the displayed labels.
-
-Make animation demo minimum speed advance frames (2026-11-02)
-=============================================================
-
-- Set the animation Speed scale range explicitly to 1–100, initially 1,
-  in both UIL definitions. Start now advances frames at the left endpoint;
-  Stop remains the pause control.
-- Add native regression coverage for initial and restored minimum speed,
-  speed callbacks, Stop and One step using the actual demo implementation.
+- Restore `_DtGetSmWindow` for MWM's `dtSmWindow` startup field.  The field
+  receives `_DT_SM_WM_PROTOCOL` readiness and acknowledgement messages, so it
+  must identify CDE's session manager, not MWM itself.  Document the two
+  helpers' opposite directions and add a focused protocol-endpoint regression.
 
 Make Periodic Font menu choices change the application fonts (2026-11-02)
 =======================================================================
@@ -1515,6 +3117,14 @@ Use horizontal margins consistently in ToggleButtonGadget (2026-10-30)
   of its parent offset. Cover asymmetric margins, nonzero positions, live
   margin changes, three profiles, three scales and both text directions.
 - Let gallery ToggleButton widgets and gadgets use their natural dimensions.
+
+Report current InfoBar geometry to Xt parents (2026-11-02)
+
+- Make `XmInfoBar` geometry queries return the widget's current allocation
+  through `XmeReplyToQueryGeometry`, rather than always advertising the
+  initial 360x34 default after an application changes its size.
+- Add native and focused source regressions, documented in
+  `docs/infobar-query-geometry.md`.
 
 Use application-colormap colors for ToggleSwitch contrast (2026-10-30)
 
@@ -35638,3 +37248,94 @@ Preserve MWM colormap-reference list index widths (2026-11-01)
   lists, preventing signed-index overflow before the existing `Cardinal`
   allocation bounds apply.
 - Add focused regression coverage and document the bounded replacement path.
+
+Complete the standalone MWM workspace feature contract (2026-11-02)
+====================================================================
+
+- Enable the per-screen command-tree and UTM state required by `MWM_WSM`, so
+  that its workspace-owner monitoring and message transport compile together.
+
+Declare MWM WSM initialization dependencies directly (2026-11-02)
+===================================================================
+
+- Include the CDE backdrop-search API and declare the session-hint reader
+  used by WSM initialization; initialize the X11 backdrop window as `None`.
+
+Declare MWM WSM workspace-property dependencies directly (2026-11-02)
+=======================================================================
+
+- Include the Motif atom and window-manager XmString helper declarations used
+  by the WSM workspace-property writer, enabling strict C compilation.
+
+Make the MWM WSM help record configuration-independent (2026-11-02)
+======================================================================
+
+- Define the workspace-help record for every WSM build, matching its
+  unconditional per-screen storage and initialization.
+
+Isolate MWM desktop-request queues by screen (2026-11-02)
+==========================================================
+
+- Store partially consumed `_DT_WM_REQUEST` data per workspace screen, so
+  interleaved multi-screen requests cannot share parser state or property
+  ownership; abandon a queued request cleanly after copy-allocation failure.
+
+Require complete MWM save-hint properties (2026-11-02)
+=======================================================
+
+- Read `_DT_WMSAVE_HINT` as its single complete 32-bit flag word rather than
+  accepting a prefix from an oversized or truncated property.
+
+Bound MWM restart-command vector counts (2026-11-02)
+======================================================
+
+- Reject restart-command lists whose legacy count would overflow while MWM
+  scans or appends its session-database argument.
+
+Preserve MWM restart commands on rebuild failure (2026-11-02)
+============================================================
+
+- Keep the session manager's existing restart command when MWM cannot build a
+  replacement during checkpointing, rather than overwriting it with `NULL`.
+
+Require complete MWM session client-ID properties (2026-11-02)
+=============================================================
+
+- Reject an `SM_CLIENT_ID` property when the bounded X11 read leaves a
+  truncated suffix instead of persisting the prefix.
+
+Release empty MWM menu-property payloads (2026-11-02)
+======================================================
+
+- Free an allocated Xlib `_MWM_MENU` payload when its zero item count causes
+  the property to be rejected.
+
+Correct MWM XSMP property-buffer ownership (2026-11-02)
+=========================================================
+
+- Release Xlib-owned proxy command and machine properties with `XFree`,
+  including the session-save formatting failure path.
+
+Bound WSM 16-bit wire-list counts (2026-11-02)
+================================================
+
+- Reject outbound list, string, and background-screen values that cannot be
+  represented by WSM's `CARD16` wire fields instead of silently truncating.
+
+Bound WSM packed-message arithmetic (2026-11-02)
+==================================================
+
+- Accumulate extension and configuration-format output sizes with checked
+  arithmetic and validate the final Xt `Cardinal` allocation width.
+
+Reject invalid WSM configuration counts (2026-11-02)
+=====================================================
+
+- Reject negative WSM configuration attribute counts before request packing,
+  sizing, data packing, bit-mask allocation, or window-data unpacking.
+
+Preserve wide MWM diagnostic and session lengths (2026-11-02)
+===============================================================
+
+- Check formatted MWM property-warning and session-resource lengths as
+  `size_t` before narrowing to Xt `Cardinal` allocation sizes.

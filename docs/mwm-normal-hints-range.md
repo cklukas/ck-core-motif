@@ -8,3 +8,9 @@ invalid property, preserving normal ICCCM behavior while preventing wrapped
 geometry and resize constraints. Legacy ICCCM R2 records are checked only
 across their 15-field payload; newer base-size and gravity fields are checked
 only when the full current-format record is present.
+
+The bounded X11 read must also be complete (`bytes_after` is zero) and return a
+non-null payload.  An oversized property is not a valid third layout: its
+15- or 18-field prefix is ignored rather than being mistaken for a complete
+set of geometry constraints.  This applies to both WSM and standalone MWM
+builds.

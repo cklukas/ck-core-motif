@@ -10,3 +10,8 @@ when descriptor allocation fails.
 
 The source-level regression is
 `tests/automated/check-mrm-idb-open-output-pointers.py`.
+
+The low-level file opener follows the same contract.  Once its output pointer
+has been validated, it clears that output before inspecting or opening the
+requested pathname.  A failed open therefore cannot leave a caller holding a
+stale low-level file handle.

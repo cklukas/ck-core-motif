@@ -55,6 +55,7 @@ static char rcsid[] = "$TOG: Mrmwvalues.c /main/12 1999/04/16 09:42:44 mgreess $
 
 #include <Mrm/MrmAppl.h>
 #include <Mrm/Mrm.h>
+#include <limits.h>
 #include <stdint.h>
 
 
@@ -140,13 +141,14 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   size_t		indexlen = 0 ;	/* longest literal length */
   URMPointerListPtr	ptrlist ;	/* to hold scratch contexts */
   int			ndx ;		/* loop index */
+  int			arg_count ;	/* validated public argument count */
   IDBFile		file_id ;	/* file from which literal read */
   MrmType		reptype ;	/* arg value representation type */
   long			val ;		/* value as immediate or pointer */
   int			vec_count ;	/* number of items in val if vector */
   int			vec_size ;
-  _SavePixmapArg	pixargs[10] ;	/* to save pixmap args */
-  Cardinal		pixargs_cnt = 0 ;  /* # pixargs saved */
+  _SavePixmapArgPtr	pixargs ;	/* to save pixmap args */
+  int			pixargs_cnt = 0 ;  /* # pixargs saved */
   _SavePixmapArgPtr	savepix ;	/* current saved pixmap entry */
   Screen		*screen ;	/* screen for pixmaps */
   Display		*display ;	/* display for pixmaps */
@@ -162,16 +164,19 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
     return MrmFAILURE;
   if (num_args == 0)
     return MrmFAILURE;
-  for (ndx = 0; ndx < num_args; ndx++)
-    if (args[ndx].value == (XtArgVal)0)
-      return MrmFAILURE;
-  if ((size_t)num_args > SIZE_MAX / sizeof(Arg) ||
+  if (num_args > (Cardinal)INT_MAX ||
+      (size_t)num_args > SIZE_MAX / sizeof(Arg) ||
       num_args > UINT_MAX / sizeof(Arg))
     return MrmFAILURE;
-  locargs = (ArgList) XtMalloc ((size_t)num_args*sizeof(Arg)) ;
+  arg_count = (int)num_args;
+  for (ndx = 0; ndx < arg_count; ndx++)
+    if (args[ndx].value == (XtArgVal)0)
+      return MrmFAILURE;
+  locargs = (ArgList) XtMalloc
+    ((Cardinal)((size_t)num_args * sizeof(Arg))) ;
   if (locargs == NULL)
     return MrmFAILURE;
-  if (UrmPlistInit (num_args, &ptrlist) != MrmSUCCESS)
+  if (UrmPlistInit (arg_count, &ptrlist) != MrmSUCCESS)
     {
       XtFree ((char *)locargs);
       return MrmFAILURE;
@@ -181,7 +186,7 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
    * Find the longest literal index, and allocate a resource descriptor
    * which can hold it. Set the fixed fields of the descriptor.
    */
-  for ( ndx=0 ; ndx<num_args ; ndx++ )
+  for ( ndx=0 ; ndx<arg_count ; ndx++ )
     {
       size_t literal_len = strlen((char*)args[ndx].value);
       if (literal_len > indexlen)
@@ -196,9 +201,11 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
       indexlen > SIZE_MAX - sizeof(RGMResourceDesc))
     {
       XtFree((char *)locargs);
+      UrmPlistFree (ptrlist);
       return MrmFAILURE;
     }
-  resptr = (RGMResourceDescPtr) XtMalloc (sizeof(RGMResourceDesc)+indexlen) ;
+  resptr = (RGMResourceDescPtr) XtMalloc
+    ((Cardinal)(sizeof(RGMResourceDesc) + indexlen)) ;
   if (resptr == NULL)
     {
       XtFree ((char *)locargs);
@@ -210,12 +217,30 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
   resptr->res_group = URMgLiteral ;
   resptr->cvt_type = URMtNul ;
 
+  if ((size_t)num_args > SIZE_MAX / sizeof(*pixargs) ||
+      num_args > UINT_MAX / sizeof(*pixargs))
+    {
+      XtFree ((char *)resptr);
+      XtFree ((char *)locargs);
+      UrmPlistFree (ptrlist);
+      return MrmFAILURE;
+    }
+  pixargs = (_SavePixmapArgPtr) XtMalloc
+    ((Cardinal)((size_t)num_args * sizeof(*pixargs)));
+  if (pixargs == NULL)
+    {
+      XtFree ((char *)resptr);
+      XtFree ((char *)locargs);
+      UrmPlistFree (ptrlist);
+      return MrmFAILURE;
+    }
+
   /*
    * Loop through all the entries in the given arglist. Copy each tag into
    * the local arglist. Create a new context to hold the literal, then
    * try to read it from the hierarchy.
    */
-  for ( ndx=0 ; ndx<num_args ; ndx++ )
+  for ( ndx=0 ; ndx<arg_count ; ndx++ )
     {
       locargs[num_used].name = args[ndx].name ;
       strcpy (resptr->key.index, (char*)args[ndx].value) ;
@@ -265,8 +290,8 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 		  continue;
 		}
 	      RGMFontListPtr fontlist = (RGMFontListPtr)
-		XtMalloc(sizeof(RGMFontList) +
-			 (sizeof(RGMFontItem) * (count - 1)));
+		XtMalloc((Cardinal)(sizeof(RGMFontList) +
+			 (sizeof(RGMFontItem) * (size_t)(count - 1))));
 	      if (fontlist == NULL)
 		{
 		  XtFree ((char *)val);
@@ -277,17 +302,28 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 	      result = Urm__CW_FixupValue((long)fontlist, reptype, 
 					  (XtPointer)val, file_id,
 					  &swap_needed);
+	      if (result != MrmSUCCESS)
+		{
+		  XtFree((char *)fontlist);
+		  XtFree((char *)val);
+		  num_succ -= 1;
+		  cvt_fail += 1;
+		  continue;
+		}
 	      XtFree((char *)val);
 	      val = (long)fontlist;
 	    }
 	  else
 	    result = Urm__CW_FixupValue (val, reptype, (XtPointer)val, 
 					 file_id, &swap_needed) ;
+	  break;
 
 	default:
 	  result = 
 	    Urm__CW_FixupValue (val, reptype, (XtPointer)val, file_id,
 				&swap_needed) ;
+	  break;
+	}
 	  if ( result != MrmSUCCESS )
 	    {
 	      num_succ -= 1;
@@ -309,8 +345,6 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 	    }
 	  locargs[num_used].value = (XtArgVal)val ;
 	  num_used += 1 ;
-	  break ;
-        }
 
       /*
        * Do any processing based on specific arguments (after conversion):
@@ -320,10 +354,10 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 	{
 	case MrmRtypeColor:
 	  if ( strcmp(args[ndx].name,XmNforeground) == 0 )
-	    fgint = val;
+	    fgint = (Pixel)val;
 
 	  else if ( strcmp (args[ndx].name,XmNbackground) == 0 )
-	    bgint = val;
+	    bgint = (Pixel)val;
 	  break ;
         }
 
@@ -362,6 +396,7 @@ UrmFetchSetValues (MrmHierarchy		hierarchy_id ,
 
   XtFree ((char*)locargs) ;
   XtFree ((char*)resptr) ;
+  XtFree ((char*)pixargs) ;
   for ( ndx=0 ; ndx<UrmPlistNum(ptrlist) ; ndx++ )
     UrmFreeResourceContext ((URMResourceContextPtr)UrmPlistPtrN(ptrlist,ndx)) ;
   UrmPlistFree (ptrlist) ;

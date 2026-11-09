@@ -27,6 +27,7 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [Legacy dialog teardown guards](dialog-teardown-guards.md) — keep dialog child helpers safe during destruction.
 - [Text-source bounds](text-source-bounds.md) — safe range and size handling in text sources.
 - [Input-method rollback](vendor-im-string-rollback.md) — failure cleanup at the input-method boundary.
+- [Mrm legacy font-list replacement cleanup](mrm-fontlist-replacement-cleanup.md) — release rejected old-format replacements consistently.
 
 ## Rendering, images, and display metrics
 
@@ -57,6 +58,8 @@ or the [MWM and window-management overview](mwm-overview.md).
 
 - [Protocol property element-count bounds](protocol-property-count-width.md) — keep dynamic protocol properties within Xlib's count contract.
 - [MWM protocol overview](mwm-protocol-oom.md) — protocol conversion and allocation-failure behavior.
+- [MWM resource-key construction bounds](mwm-resource-key-bounds.md) — keep generated X resource names within the legacy buffer.
+- [Mrm wide-character fixup cleanup](mrm-wide-character-fixup-cleanup.md) — release failed legacy character conversion storage.
 - [MWM graphics-list allocation](mwm-graphics-list-allocation.md) — bounded rectangle-list growth.
 - [MWM client workspace-list allocation](mwm-client-workspace-list-allocation.md) — bounded per-client workspace state.
 - [MWM argument-vector allocation](mwm-argv-allocation.md) — bounded initialization argument copies.
@@ -91,6 +94,11 @@ or the [MWM and window-management overview](mwm-overview.md).
 - [MWM session command-vector width](mwm-session-command-vector-width.md) — guard restore vectors.
 - [MWM query-XID buffer growth](mwm-query-xid-growth.md) — guard protocol conversion growth.
 - [MWM workspace-protocol allocation failures](mwm-workspace-protocol-oom.md) — retain a safe empty protocol result on allocation failure.
+- [MWM workspace transient-tree traversal](mwm-workspace-tree-walk.md) — avoid stack exhaustion while walking deep client hierarchies.
+- [MWM transient-tree traversal](mwm-transient-tree-walk.md) — keep modal and restacking walks iterative for deep dialog chains.
+- [MWM workspace callback input lifecycle](mwm-workspace-callback-inputs.md) — reject detached asynchronous callback state safely.
+- [MWM transient-property refresh](mwm-transient-property-reset.md) — discard stale managed leaders after `WM_TRANSIENT_FOR` changes.
+- [MWM embedded transient leader fallback](mwm-embedded-transient-leader.md) — retain a valid owner if the front-panel lookup is unavailable.
 - [MWM client-message initialization](mwm-client-message-initialization.md) — clear unused X11 payload words.
 - [MWM keyboard-state mask typing](mwm-keyboard-state-mask.md) — use explicit unsigned XKB group bits.
 - [MWM double-click time validation](mwm-double-click-time.md) — reject non-positive signed thresholds.

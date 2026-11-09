@@ -28,6 +28,7 @@
 
 #include "wsm_proto.h"
 #include "utm_send.h"
+#include <limits.h>
 #include <X11/Xatom.h>
 #include <Xm/TransferP.h>	/* for XmeNamedSource() */
 
@@ -232,13 +233,16 @@ WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret)
     register int i;
     Atom *list;
 
-    if (w == NULL || len_ret == NULL)
+	if (len_ret == NULL)
+	return(NULL);
+
+	*len_ret = 0;
+	if (w == NULL)
 	return(NULL);
 
     disp_info = _WSMGetDispInfo(XtDisplay(w));
 
     if (disp_info == NULL) {
-	*len_ret = 0;
 	return(NULL);
     }
 
@@ -246,7 +250,12 @@ WSMGetTargetList(Widget w, Boolean include_defaults, unsigned long *len_ret)
     if (include_defaults)
 	*len_ret += NUM_EXTRA_TARGETS;
 
-    list = (Atom *) XtMalloc(sizeof(Atom) * (*len_ret));
+    if (*len_ret > UINT_MAX / sizeof(*list)) {
+	*len_ret = 0;
+	return(NULL);
+    }
+
+    list = (Atom *) XtMalloc((Cardinal)(sizeof(*list) * (*len_ret)));
     if (list == NULL) {
 	*len_ret = 0;
 	return(NULL);

@@ -200,6 +200,17 @@ CopyCatalogString(const char *text)
     return(copy);
 }
 
+static void
+UseBuiltinSystemMenuFallback(void)
+{
+#ifdef WSM
+    builtinSystemMenu = DtwmBehavior ? (char *)DEFAULT_DTWM_SYSTEMMENU :
+        (char *)BUILTINSYSTEMMENU;
+#else /* WSM */
+    builtinSystemMenu = (char *)BUILTINSYSTEMMENU;
+#endif /* WSM */
+}
+
 void InitBuiltinSystemMenu(void)
 {
     char * tmpString;
@@ -392,21 +403,7 @@ void InitBuiltinSystemMenu(void)
 
     if (!gotItAll)
     {
-#ifdef WSM
-	if (DtwmBehavior)
-	{
-	    builtinSystemMenu = (char *) 
-			XtNewString((String)DEFAULT_DTWM_SYSTEMMENU);
-	}
-	else
-	{
-	    builtinSystemMenu = (char *) 
-			XtNewString((String)BUILTINSYSTEMMENU);
-	}
-#else /* WSM */
-	builtinSystemMenu = (char *)
-			XtNewString((String)BUILTINSYSTEMMENU);
-#endif /* WSM */
+	UseBuiltinSystemMenuFallback();
     }
     else
     {
@@ -435,14 +432,7 @@ void InitBuiltinSystemMenu(void)
         {
             Warning (((char *)GETMESSAGE(62, 21,
                      "Insufficient memory for localized default system menu")));
-#ifdef WSM
-            builtinSystemMenu = (char *)XtNewString(
-                DtwmBehavior ? (String)DEFAULT_DTWM_SYSTEMMENU :
-                (String)BUILTINSYSTEMMENU);
-#else /* WSM */
-            builtinSystemMenu = (char *)XtNewString(
-                (String)BUILTINSYSTEMMENU);
-#endif /* WSM */
+	    UseBuiltinSystemMenuFallback();
             goto dsm_done;
         }
 #ifdef WSM
@@ -468,21 +458,7 @@ void InitBuiltinSystemMenu(void)
 	     (char *)XtMalloc ((Cardinal)(dsm_size + 1))) == NULL)
 	{
 	   Warning (((char *)GETMESSAGE(62, 21, "Insufficient memory for localized default system menu")));
-#ifdef WSM
-	    if (DtwmBehavior)
-	    {
-		builtinSystemMenu = (char *) 
-			XtNewString((String)DEFAULT_DTWM_SYSTEMMENU);
-	    }
-	    else
-	    {
-		builtinSystemMenu = (char *) 
-			XtNewString((String)BUILTINSYSTEMMENU);
-	    }
-#else /* WSM */
-	    builtinSystemMenu = (char *) 
-			XtNewString((String)BUILTINSYSTEMMENU);
-#endif /* WSM */
+	   UseBuiltinSystemMenuFallback();
 	}
 	else
 	{
@@ -4155,22 +4131,42 @@ WriteOutXrmColors (WmScreenData *pSD)
  *
  *  Comments:
  *  --------
- *  Does no limit checking on the static buffer 
+ *  The result uses wmGD.tmpBuffer and is therefore truncated at MAXBUF.
+ *  Keep truncation terminal: an exhausted buffer must never turn into a
+ *  negative strncat() count for a later component.
  * 
  *************************************<->***********************************/
+
+static void
+AppendResourceNamePart (String value, size_t *remaining)
+{
+    size_t appendLength;
+
+    if (value == NULL || remaining == NULL || *remaining == 0)
+    {
+	return;
+    }
+
+    appendLength = strlen ((char *)value);
+    if (appendLength > *remaining)
+    {
+	appendLength = *remaining;
+    }
+
+    strncat ((char *)wmGD.tmpBuffer, (char *)value, appendLength);
+    *remaining -= appendLength;
+}
 
 String
 ResCat (String s1, String s2, String s3, String s4)
 {
-
-
-    int count;
+    size_t remaining;
 
     Boolean useResourceClass = True;
 
     wmGD.tmpBuffer[0] = '\0';
 
-    count = MAXBUF - 1;
+    remaining = MAXBUF - 1;
 
     if (s1)
     {
@@ -4195,29 +4191,23 @@ ResCat (String s1, String s2, String s3, String s4)
 	}
 	else
 	{
-	    strncat((char *)wmGD.tmpBuffer, s1, count);
-	    count -= strlen(s1);
+	    AppendResourceNamePart (s1, &remaining);
 	}
 
-	if (s2 && (count > 0))
+	if (s2 && (remaining > 0))
 	{
-	    strncat ((char *)wmGD.tmpBuffer, "*", count);
-	    count -= 1;
-	    strncat ((char *)wmGD.tmpBuffer, s2, count);
-	    count -= strlen (s2);
+	    AppendResourceNamePart ("*", &remaining);
+	    AppendResourceNamePart (s2, &remaining);
 
-	    if (s3 && (count > 0))
+	    if (s3 && (remaining > 0))
 	    {
-		strncat ((char *)wmGD.tmpBuffer, "*", count);
-		count -= 1;
-		strncat ((char *)wmGD.tmpBuffer, s3, count);
-		count -= strlen (s3);
+		AppendResourceNamePart ("*", &remaining);
+		AppendResourceNamePart (s3, &remaining);
 
 		if (s4)
 		{
-		    strncat ((char *)wmGD.tmpBuffer, "*", count);
-		    count -= 1;
-		    strncat ((char *)wmGD.tmpBuffer, s4, count);
+		    AppendResourceNamePart ("*", &remaining);
+		    AppendResourceNamePart (s4, &remaining);
 		}
 	    }
 	}
@@ -4496,6 +4486,9 @@ void
 MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean makeActiveResources)
 {
     Pixel foreground;
+#ifndef NO_MULTIBYTE
+    long titleHeight;
+#endif
 
     /*
      * Extract a font from the font list.
@@ -4509,7 +4502,7 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
             (const char *)pAData->fontList : "";
         int messageLength = snprintf(NULL, 0, format, fontList);
         char *message = (messageLength >= 0 &&
-                         (unsigned int)messageLength < UINT_MAX) ?
+                         (size_t)messageLength < UINT_MAX) ?
             (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
         if (message != NULL)
@@ -4530,8 +4523,15 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
     /*
      *  Calculate title bar's height and store it in pAData.
      */
-    pAData->titleHeight = (pAData->font)->ascent + (pAData->font)->descent
-        + WM_TITLE_BAR_PADDING;
+    titleHeight = (long)(pAData->font)->ascent +
+	(long)(pAData->font)->descent + WM_TITLE_BAR_PADDING;
+    if (titleHeight <= 0 || titleHeight > (long)UINT_MAX)
+    {
+	Warning("Invalid title font metrics");
+	pAData->titleHeight = 16;
+    }
+    else
+	pAData->titleHeight = (unsigned int)titleHeight;
 #endif
 
 
@@ -5334,10 +5334,11 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
     pResWS = pWS;	/* save current ws for default processing */
 #endif /* WSM */
 
+#ifdef WSM
     if (wmGD.useStandardBehavior)
     {
-	XtGetSubresources (pWS->pSD->screenTopLevelW, (XtPointer) pWS, 
-	    pWS->name, pWS->name, wmStdWorkspaceResources, 
+	XtGetSubresources (pWS->pSD->screenTopLevelW, (XtPointer) pWS,
+	    pWS->name, pWS->name, wmStdWorkspaceResources,
 	    XtNumber (wmStdWorkspaceResources), NULL, 0);
 
 	/*
@@ -5345,17 +5346,16 @@ ProcessWorkspaceResources (WmWorkspaceData *pWS)
 	 *
 	 * (no code for this right now)
 	 */
-#ifdef WSM
         pWS->iconBoxGeometry = NULL;
-#endif /* WSM */
     }
     else
     {
-	XtGetSubresources (pWS->pSD->screenTopLevelW, (XtPointer) pWS, 
-	    pWS->name, pWS->name, wmWorkspaceResources, 
+	XtGetSubresources (pWS->pSD->screenTopLevelW, (XtPointer) pWS,
+	    pWS->name, pWS->name, wmWorkspaceResources,
 	    XtNumber (wmWorkspaceResources), NULL, 0);
 
     }
+#endif /* WSM */
 
 #ifdef WSM
     if (pWS->title == NULL)

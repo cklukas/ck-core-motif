@@ -26,6 +26,9 @@
  * HISTORY
  */
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <limits.h>
 #include <Xm/XmAll.h>
 #include <Xmd/AdjView.h>   
 #include <Xmd/RegEdit.h>   
@@ -98,24 +101,23 @@ DefCB(
     int x,y;
     unsigned int loc_width, loc_height, border_width, loc_depth;
 
+    if (!cbs || !cbs->selected_items || cbs->selected_item_count <= 0)
+	return;
     XtVaGetValues(cbs->selected_items[0], XmNlargeIconPixmap, &pix, NULL);
-    if (pix != XmUNSPECIFIED_PIXMAP) {
+    if (pix != XmUNSPECIFIED_PIXMAP &&
 	XGetGeometry(XtDisplay(widget), pix, &root, &x, &y,
-		     &loc_width, &loc_height, &border_width, &loc_depth);
-	if (loc_depth == DefaultDepthOfScreen(XtScreen(widget))) {
+		     &loc_width, &loc_height, &border_width, &loc_depth) &&
+	loc_depth == (unsigned int)DefaultDepthOfScreen(XtScreen(widget))) {
 	    XSetWindowBackgroundPixmap(XtDisplay(widget), 
 				       DefaultRootWindow(XtDisplay(widget)), 
 				       pix);
 	    XClearWindow(XtDisplay(widget), 
 			 DefaultRootWindow(XtDisplay(widget)));
-	}
     }
 
 }
 static void
-AppModalDialogWarning (w, str)
-Widget w;
-String str;
+AppModalDialogWarning(Widget w, String str)
 {	
     static Widget warning_dialog = NULL ;
     XmString message_string ;
@@ -136,10 +138,8 @@ String str;
 
 
 
-static void 
-PopulateContainer(cont, dir)
-Widget cont ;
-String dir ;
+static void
+PopulateContainer(Widget cont, const char *dir)
 {
     char icon_fullname[256] ;
 #if defined (SYS_DIR) || defined (NDIR)
@@ -148,20 +148,33 @@ String dir ;
     struct dirent 	*item;		/*  entry in directory	*/
 #endif
     static Widget * icong = NULL ;
-    static int n_icong = 0;
+    static Cardinal n_icong = 0;
     Cardinal num_children, i;
     Widget * children ;
-    int dir_len ;
+    size_t dir_len;
     DIR	*dirp;		
+    const Cardinal grow_by = 500;
+    const size_t max_allocation = (size_t)(Cardinal)-1;
 
-    dir_len = strlen(dir) ;
-    /* let's remove the FSB added * pattern */
-    if (dir[dir_len-1] == '*') dir[--dir_len] = '\0';
+    if (!dir || !*dir) {
+	AppModalDialogWarning(cont, "No icon directory was selected.");
+	return;
+    }
+    dir_len = strlen(dir);
+    /* Ignore a file-selection wildcard without changing caller-owned text. */
+    if (dir_len && dir[dir_len - 1] == '*') --dir_len;
+    if (dir_len == 0 || dir_len > sizeof(icon_fullname) - 2) {
+	AppModalDialogWarning(cont, "The icon directory path is too long.");
+	return;
+    }
     
     /*  try to open the icons directory  */
-    if (!(dirp = opendir (dir))) {
+    char directory[sizeof(icon_fullname)];
+    memcpy(directory, dir, dir_len);
+    directory[dir_len] = '\0';
+    if (!(dirp = opendir(directory))) {
 	char s[256] ;
-	sprintf(s, "Cannot open iconDir: %s\n", dir);
+	snprintf(s, sizeof(s), "Cannot open iconDir: %s", directory);
 	AppModalDialogWarning(cont, s);
 	return;
     }
@@ -172,8 +185,9 @@ String dir ;
     XtUnmanageChildren(children, num_children);
     for (i=0; i < num_children; i++) XtDestroyWidget(children[i]);
 
-    strcpy(icon_fullname, dir);
-    icon_fullname[dir_len] = '/' ;
+    memcpy(icon_fullname, directory, dir_len);
+    icon_fullname[dir_len] = '/';
+    icon_fullname[dir_len + 1] = '\0';
 
     /* turn Container (back) to CELLS. Also ask for natural cell sizes */
     XtVaSetValues (cont, XmNspatialStyle, XmCELLS, 
@@ -182,10 +196,6 @@ String dir ;
     /*  read one entry each time through the loop  */
     for (item = readdir (dirp), i = 0;  item != NULL;  
 	 item = readdir (dirp)) {
-
-	/* reset the fullname every time */
-	icon_fullname[dir_len+1] = '\0' ;
-	strcat(icon_fullname, item->d_name);
 
 	if ((!strcmp (item->d_name, ".")) ||
 	    (!strcmp (item->d_name, "..")))
@@ -200,11 +210,21 @@ String dir ;
 	    /* if the extension is in not the list, invalid */
 	    if (!strstr(AppData.valid_extensions, extension+1)) continue;
 	}
+	if (strlen(item->d_name) > sizeof(icon_fullname) - dir_len - 2)
+	    continue;
+	memcpy(icon_fullname + dir_len + 1, item->d_name,
+	       strlen(item->d_name) + 1);
 
 	if (i >= n_icong) {
-	    n_icong += 500 ;
+	    if (n_icong > (Cardinal)-1 - grow_by ||
+		(size_t)n_icong + (size_t)grow_by >
+		max_allocation / sizeof(*icong)) {
+		AppModalDialogWarning(cont, "Too many icon files to display.");
+		break;
+	    }
+	    n_icong += grow_by;
 	    icong = (Widget*)XtRealloc((char*)icong, 
-				       n_icong * sizeof(Widget*));
+				       (Cardinal)((size_t)n_icong * sizeof(*icong)));
 	}
 	icong[i] = XtVaCreateWidget(item->d_name, xmIconGadgetClass, cont,
 			  XtVaTypedArg, XmNlargeIconPixmap, XmRString,
@@ -212,32 +232,25 @@ String dir ;
 	i++;
     }
 
-    XtManageChildren(icong, i);
+    if (i != 0)
+	XtManageChildren(icong, i);
+    closedir(dirp);
 
     /* turn Container back to NONE */
     XtVaSetValues (cont, XmNspatialStyle, XmNONE, NULL);  
 }
 
 
-static void QuitCB (w, client_data, call_data) 
-Widget		w;		/*  widget id		*/
-XtPointer		client_data;	/*  data from application   */
-XtPointer		call_data;	/*  data from widget class  */
+static void QuitCB(Widget w, XtPointer client_data, XtPointer call_data)
 {
     exit(0);
 }
-static void UnMapCB (w, client_data, call_data) 
-Widget		w;		/*  widget id		*/
-XtPointer		client_data;	/*  data from application   */
-XtPointer		call_data;	/*  data from widget class  */
+static void UnMapCB(Widget w, XtPointer client_data, XtPointer call_data)
 {
     XtUnmanageChild(w);
 }
 
-static void OKCB (w, client_data, call_data) 
-Widget		w;		/*  widget id		*/
-XtPointer		client_data;	/*  data from application   */
-XtPointer		call_data;	/*  data from widget class  */
+static void OKCB(Widget w, XtPointer client_data, XtPointer call_data)
 {
     Widget cont = *(Widget*)client_data ;
     String dir ;
@@ -252,12 +265,10 @@ XtPointer		call_data;	/*  data from widget class  */
 	dir = XmTextGetString(XtNameToWidget(w, "DirText"));
 
     PopulateContainer(cont, dir);
+    XtFree(dir);
 }
 
-static void OpenCB (w, client_data, call_data) 
-Widget		w;		/*  widget id		*/
-XtPointer		client_data;	/*  data from application   */
-XtPointer		call_data;	/*  data from widget class  */
+static void OpenCB(Widget w, XtPointer client_data, XtPointer call_data)
 {
     static Widget fsb_box = NULL ;
 
@@ -283,9 +294,7 @@ XtPointer		call_data;	/*  data from widget class  */
     XtManageChild (fsb_box);
 }
 
-static Widget CreateMainWindowWithMenuBar(toplevel, client_data)
-Widget toplevel ;
-XtPointer client_data ;
+static Widget CreateMainWindowWithMenuBar(Widget toplevel, XtPointer client_data)
 {
     Widget	main_window, menu_bar, menu_pane, cascade, button ;
     

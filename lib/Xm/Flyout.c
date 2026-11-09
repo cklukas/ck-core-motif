@@ -254,10 +254,9 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                       XtWidgetGeometry *reply) {
-    (void)widget; (void)request;
     reply->request_mode = CWWidth | CWHeight;
     reply->width = 1; reply->height = 1;
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 void XmFlyoutShow(Widget widget) {
@@ -275,7 +274,7 @@ void XmFlyoutShow(Widget widget) {
 void XmFlyoutHide(Widget widget) {
     XmFlyoutWidget flyout;
     XmAnyCallbackStruct callback;
-    if (widget == NULL || !XmIsFlyout(widget)) return;
+    if (widget == NULL || !XmIsFlyout(widget) || widget->core.being_destroyed) return;
     flyout = (XmFlyoutWidget)widget;
     if (!flyout->flyout.visible) return;
     flyout->flyout.visible = False;
@@ -285,7 +284,7 @@ void XmFlyoutHide(Widget widget) {
 }
 
 Boolean XmFlyoutIsVisible(Widget widget) {
-    return widget != NULL && XmIsFlyout(widget)
+    return widget != NULL && XmIsFlyout(widget) && !widget->core.being_destroyed
         ? ((XmFlyoutWidget)widget)->flyout.visible : False;
 }
 

@@ -17,6 +17,12 @@ static Position bounded_position(long long value)
     return (Position)value;
 }
 
+static Dimension bounded_dimension(size_t value)
+{
+    return value > (size_t)USHRT_MAX ? (Dimension)USHRT_MAX :
+                                       (Dimension)value;
+}
+
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
 static void Redisplay(Widget, XEvent *, Region);
@@ -212,7 +218,6 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
                                        XtWidgetGeometry *reply)
 {
-    (void)widget;
     reply->request_mode = CWWidth | CWHeight;
     XmDropHighlightWidget highlight = (XmDropHighlightWidget)widget;
     Dimension label_width = 0, label_height = 0;
@@ -220,15 +225,13 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
         XmStringExtent(highlight->drop_highlight.font,
                        highlight->drop_highlight.label,
                        &label_width, &label_height);
-    reply->width = label_width + 2 * (highlight->drop_highlight.thickness + 4);
-    reply->height = label_height + 2 * (highlight->drop_highlight.thickness + 4);
+    reply->width = bounded_dimension((size_t)label_width +
+                                     2 * ((size_t)highlight->drop_highlight.thickness + 4));
+    reply->height = bounded_dimension((size_t)label_height +
+                                      2 * ((size_t)highlight->drop_highlight.thickness + 4));
     if (!reply->width) reply->width = 1;
     if (!reply->height) reply->height = 1;
-    if (request && (request->request_mode & (CWWidth | CWHeight)) ==
-        (CWWidth | CWHeight) && request->width == reply->width &&
-        request->height == reply->height)
-        return XtGeometryYes;
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 Widget XmCreateDropHighlight(Widget parent, char *name, ArgList args,
@@ -272,7 +275,8 @@ Widget XmVaCreateManagedDropHighlight(Widget parent, char *name, ...)
 
 Boolean XmDropHighlightSetState(Widget widget, unsigned char state)
 {
-    if (!widget || !XmIsDropHighlight(widget) || !valid_state(state))
+    if (!widget || !XmIsDropHighlight(widget) || widget->core.being_destroyed ||
+        !valid_state(state))
         return False;
     if (((XmDropHighlightWidget)widget)->drop_highlight.state != state) {
         ((XmDropHighlightWidget)widget)->drop_highlight.state = state;

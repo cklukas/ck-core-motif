@@ -171,6 +171,7 @@ static void Initialize(
                         ArgList args,
                         Cardinal *num_args) ;
 static Dimension toggle_bounded_dimension(uint64_t value);
+static Position toggle_bounded_position(int64_t value);
 static void Destroy( 
                         Widget wid) ;
 static void DrawToggle( 
@@ -705,9 +706,9 @@ redisplayPixmap(XmToggleButtonWidget tb,
   saveHeight = Lab_TextRect_height(tb);
 
   h = ((int)XtHeight(tb) - (int)onH) / 2;
-  Lab_TextRect_y(tb) = MAX(h, 0);
-  Lab_TextRect_height(tb) = onH;
-  Lab_TextRect_width(tb) = onW;
+  Lab_TextRect_y(tb) = toggle_bounded_position(MAX(h, 0));
+  Lab_TextRect_height(tb) = toggle_bounded_dimension(onH);
+  Lab_TextRect_width(tb) = toggle_bounded_dimension(onW);
   {
     XtExposeProc expose;
     _XmProcessLock();
@@ -1727,6 +1728,14 @@ toggle_bounded_dimension(uint64_t value)
   return value > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)value;
 }
 
+static Position
+toggle_bounded_position(int64_t value)
+{
+  if (value < SHRT_MIN) return (Position)SHRT_MIN;
+  if (value > SHRT_MAX) return (Position)SHRT_MAX;
+  return (Position)value;
+}
+
 /*ARGSUSED*/
 static void 
 Initialize(
@@ -1948,10 +1957,18 @@ Initialize(
       if (maxIndicatorSize > boxSize)
 	{ 
 	  delta = (maxIndicatorSize - boxSize) / 2;
-	  new_w->toggle.ind_top_delta = delta;
-	  new_w->label.margin_top += new_w->toggle.ind_top_delta;
-	  new_w->toggle.ind_bottom_delta = delta;
-	  new_w->label.margin_bottom += new_w->toggle.ind_bottom_delta;
+	  {
+	    Dimension old_margin = new_w->label.margin_top;
+	    Dimension new_margin = toggle_bounded_dimension(
+	      (uint64_t)old_margin + delta);
+	    new_w->toggle.ind_top_delta = new_margin - old_margin;
+	    new_w->label.margin_top = new_margin;
+	    old_margin = new_w->label.margin_bottom;
+	    new_margin = toggle_bounded_dimension(
+	      (uint64_t)old_margin + delta);
+	    new_w->toggle.ind_bottom_delta = new_margin - old_margin;
+	    new_w->label.margin_bottom = new_margin;
+	  }
 	}
       
       /* CR 2337: Make room for toggle indicator and spacing */
@@ -1961,8 +1978,11 @@ Initialize(
 		   new_w->label.margin_right);
 	  if (delta > 0)
 	    {
-	      new_w->toggle.ind_right_delta = delta;
-	      new_w->label.margin_right += delta;
+	      Dimension old_margin = new_w->label.margin_right;
+	      Dimension new_margin = toggle_bounded_dimension(
+		(uint64_t)old_margin + delta);
+	      new_w->toggle.ind_right_delta = new_margin - old_margin;
+	      new_w->label.margin_right = new_margin;
 	    }
 	}
       else
@@ -1971,8 +1991,11 @@ Initialize(
 		   new_w->label.margin_left);
 	  if (delta > 0)
 	    {
-	      new_w->toggle.ind_left_delta = delta;
-	      new_w->label.margin_left += delta;
+	      Dimension old_margin = new_w->label.margin_left;
+	      Dimension new_margin = toggle_bounded_dimension(
+		(uint64_t)old_margin + delta);
+	      new_w->toggle.ind_left_delta = new_margin - old_margin;
+	      new_w->label.margin_left = new_margin;
 	    }
 	}
     }
@@ -1993,15 +2016,16 @@ Initialize(
       {
 	if (LayoutIsRtoLP(new_w))
         {
-	  new_w->label.acc_TextRect.x = new_w->primitive.highlight_thickness +
-	    new_w->primitive.shadow_thickness + new_w->label.margin_width;
+	  new_w->label.acc_TextRect.x = toggle_bounded_position(
+	    (int64_t)new_w->primitive.highlight_thickness +
+	    new_w->primitive.shadow_thickness + new_w->label.margin_width);
       }
 	else
         {
-	  new_w->label.acc_TextRect.x = (short)((int)new_w->core.width -
-	    (int)new_w->primitive.highlight_thickness -
-	      (int)new_w->primitive.shadow_thickness - (int)new_w->label.margin_width -
-		  (int)new_w->label.margin_right + LABEL_ACC_PAD);
+	  new_w->label.acc_TextRect.x = toggle_bounded_position(
+	    (int64_t)new_w->core.width - new_w->primitive.highlight_thickness -
+	    new_w->primitive.shadow_thickness - new_w->label.margin_width -
+	    new_w->label.margin_right + LABEL_ACC_PAD);
       }
     }
     }
@@ -2018,15 +2042,16 @@ Initialize(
       new_w->core.height = toggle_bounded_dimension(height_total);
     }
   
-  new_w->label.TextRect.y =  (short) new_w->primitive.highlight_thickness
-    + new_w->primitive.shadow_thickness + new_w->label.margin_height +
-      new_w->label.margin_top + 
-	(((int)new_w->core.height - (int)new_w->label.margin_top
-	  - (int)new_w->label.margin_bottom
-	  - (2 * ((int)new_w->label.margin_height
-		  + (int)new_w->primitive.highlight_thickness
-		  + (int)new_w->primitive.shadow_thickness))
-	  - (int)new_w->label.TextRect.height) / 2);
+  new_w->label.TextRect.y = toggle_bounded_position(
+    (int64_t)new_w->primitive.highlight_thickness +
+    new_w->primitive.shadow_thickness + new_w->label.margin_height +
+    new_w->label.margin_top +
+    (((int64_t)new_w->core.height - new_w->label.margin_top -
+      new_w->label.margin_bottom -
+      (2 * ((int64_t)new_w->label.margin_height +
+	    new_w->primitive.highlight_thickness +
+	    new_w->primitive.shadow_thickness)) -
+      new_w->label.TextRect.height) / 2));
   
   if (new_w->core.height == 0)
     new_w->core.height = 1;
@@ -2643,16 +2668,16 @@ ComputeSpace(
   
   if (needed_height > tb->core.height)
     if (tb->toggle.ind_on)
-      tb->label.TextRect.y = tb->primitive.shadow_thickness +
-	tb->primitive.highlight_thickness +
-	  tb->label.margin_height +
-	    tb->label.margin_top +
-	      (((int)tb->core.height - (int)tb->label.margin_top
-		- (int)tb->label.margin_bottom
-		- (2 * ((int)tb->label.margin_height
-			+ (int)tb->primitive.highlight_thickness
-			+ (int)tb->primitive.shadow_thickness))
-		- (int)tb->label.TextRect.height) / 2);
+      tb->label.TextRect.y = toggle_bounded_position(
+	(int64_t)tb->primitive.shadow_thickness +
+	tb->primitive.highlight_thickness + tb->label.margin_height +
+	tb->label.margin_top +
+	(((int64_t)tb->core.height - tb->label.margin_top -
+	  tb->label.margin_bottom -
+	  (2 * ((int64_t)tb->label.margin_height +
+		 tb->primitive.highlight_thickness +
+		 tb->primitive.shadow_thickness)) -
+	  tb->label.TextRect.height) / 2));
   
   if (LayoutIsRtoLP(tb))
     {
@@ -2665,12 +2690,10 @@ ComputeSpace(
 	  (needed_width == tb->core.width))
 	{
 	  if (tb->toggle.ind_on)
-	    tb->label.TextRect.x = (short)((int)tb->core.width -
-	      ((int)tb->primitive.shadow_thickness +
-	       (int)tb->primitive.highlight_thickness +
-	       (int)tb->label.margin_width +
-	       (int)tb->label.margin_right +
-	       (int)tb->label.TextRect.width));
+	    tb->label.TextRect.x = toggle_bounded_position(
+	      (int64_t)tb->core.width - tb->primitive.shadow_thickness -
+	      tb->primitive.highlight_thickness - tb->label.margin_width -
+	      tb->label.margin_right - tb->label.TextRect.width);
 	}
     }
   else
@@ -2684,10 +2707,10 @@ ComputeSpace(
 	  (needed_width == tb->core.width))
 	{
 	  if (tb->toggle.ind_on)
-	    tb->label.TextRect.x = tb->primitive.shadow_thickness +
-	      tb->primitive.highlight_thickness +
-		tb->label.margin_width +
-		  tb->label.margin_left;
+	    tb->label.TextRect.x = toggle_bounded_position(
+	      (int64_t)tb->primitive.shadow_thickness +
+	      tb->primitive.highlight_thickness + tb->label.margin_width +
+	      tb->label.margin_left);
 	}
     }
 }

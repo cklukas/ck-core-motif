@@ -12,7 +12,7 @@ static void color_to_hsv(uint32_t v,double hsv[3]){
  double c[3];color_rgb(v,c);double hi=fmax(c[0],fmax(c[1],c[2])),lo=fmin(c[0],fmin(c[1],c[2])),d=hi-lo;
  /* Preserve hue for achromatic selections, so increasing saturation recovers it. */
  if(d>0){double h=hi==c[0]?(c[1]-c[2])/d:hi==c[1]?2+(c[2]-c[0])/d:4+(c[0]-c[1])/d;hsv[0]=fmod(h*60+360,360);}
- hsv[1]=hi?d/hi:0;hsv[2]=hi;
+ hsv[1]=hi != 0.0 ? d/hi : 0.0;hsv[2]=hi;
 }
 static void color_from_hsv(const double hsv[3],double rgb[3]){
  double h=hsv[0]/60,s=hsv[1],v=hsv[2],c=v*s,x=c*(1-fabs(fmod(h,2)-1)),m=v-c;

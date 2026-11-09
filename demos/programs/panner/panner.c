@@ -637,7 +637,7 @@ DrawWindows (PannerInfoRec *pInfoList)
   Window        realRoot, root, parent, *child = NULL;
   int           i, x, y;
   unsigned int  childCount, width, height;
-  int (*oldHandler)();
+  XErrorHandler oldHandler;
 
   
   realRoot = RootWindow(pInfoList[DSP].display,
@@ -655,9 +655,8 @@ DrawWindows (PannerInfoRec *pInfoList)
 	{
 	  XWindowAttributes attr;
 	  
-	  XGetWindowAttributes(pInfoList[DSP].display, child[i], &attr);
-	  
-	  if (attr.map_state == IsViewable)
+	  if (XGetWindowAttributes(pInfoList[DSP].display, child[i], &attr) != 0 &&
+	      attr.map_state == IsViewable)
 	    {
 	      TranslateCoordinates(&pInfoList[DSP],
 				   attr.x, attr.y, attr.width, attr.height,

@@ -10,5 +10,12 @@ reg = text[reg_start:reg_end]
 lookup = text[reg_end:]
 assert "hierarchy_id == NULL || !MrmHierarchyValid(hierarchy_id)" in reg
 assert "names[ndx] == NULL" in reg
-assert "name == NULL || value_return == NULL" in lookup
-print("Mrm hierarchy name APIs reject invalid handles and null names")
+output_guard = lookup.index("if (value_return == NULL)")
+clear_output = lookup.index("*value_return = NULL;", output_guard)
+hierarchy_guard = lookup.index(
+    "hierarchy_id == NULL || !MrmHierarchyValid(hierarchy_id)", clear_output)
+name_guard = lookup.index("if (name == NULL)", hierarchy_guard)
+fallback = lookup.index("Urm__WCI_LookupRegisteredName", name_guard)
+if not output_guard < clear_output < hierarchy_guard < name_guard < fallback:
+    raise SystemExit("hierarchy lookup does not clear output before failed lookup paths")
+print("Mrm hierarchy name APIs reject invalid inputs and clear lookup output")

@@ -7,4 +7,5 @@ region = source[start:]
 assert "top_node = ((HierarchyConstraints)" in region
 assert "if (top_node == NULL)" in region
 assert region.index("if (top_node == NULL)") < region.index("XmHierarchyC_state(top_node)")
-print("Hierarchy top-node allocation guard present")
+assert 'XtError("Unable to allocate Hierarchy top-node constraint");' in region
+print("PASS Hierarchy top-node allocation failure is explicit and terminal")

@@ -8,7 +8,7 @@ end = source.index("\nstatic void ConfigStackInit", start)
 helper = source[start:end]
 assert "wmGD.tmpBuffer" not in helper
 assert "snprintf(NULL, 0, format, path)" in helper
-assert "(unsigned int)messageLength < UINT_MAX" in helper
+assert "(size_t)messageLength < UINT_MAX" in helper
 assert "XtMalloc((Cardinal)messageLength + 1)" in helper
 assert "XtMalloc((unsigned int)messageLength + 1)" not in helper
 assert "XtFree(message);" in helper

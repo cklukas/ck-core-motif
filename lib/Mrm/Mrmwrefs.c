@@ -278,19 +278,47 @@ Urm__CW_FindWRef (URMResourceContextPtr	wref_id,
    */
   URMWRefStructPtr	refdsc;		/* buffer as reference structure */
   int			ndx;		/* loop index */
+  size_t			buffer_size;	/* size of reference context */
+  size_t			header_size;	/* bytes occupied by descriptors */
+  size_t			heap_start;	/* first byte occupied by names */
+  size_t			name_size;	/* remaining bytes at a name offset */
 
+
+  if (w_id_return == NULL)
+    return MrmFAILURE;
+  *w_id_return = NULL;
+
+  if (!UrmRCValid(wref_id) || w_name == NULL)
+    return MrmFAILURE;
 
   /*
    * Search the vector for the name, returning the id if found. Search
    * backwards, so the most recent definitions are searched first.
    */
   refdsc = (URMWRefStructPtr) UrmRCBuffer (wref_id);
+  buffer_size = UrmRCBufSize(wref_id);
+  if (refdsc == NULL || refdsc->num_refs < 0 || refdsc->heap_size < 0)
+    return MrmFAILURE;
+  header_size = UrmWRefHeaderBytes(refdsc);
+  if (header_size > buffer_size || (size_t)refdsc->heap_size >
+      buffer_size - header_size)
+    return MrmFAILURE;
+  heap_start = buffer_size - (size_t)refdsc->heap_size;
+
   for ( ndx=refdsc->num_refs-1 ; ndx>=0 ; ndx-- )
-    if ( strcmp(w_name,UrmWRefNameN(refdsc,ndx)) == 0 )
+    {
+      if ((size_t)refdsc->refs[ndx].w_name_offs < heap_start ||
+	  (size_t)refdsc->refs[ndx].w_name_offs >= buffer_size)
+	return MrmFAILURE;
+      name_size = buffer_size - (size_t)refdsc->refs[ndx].w_name_offs;
+      if (strnlen(UrmWRefNameN(refdsc,ndx), name_size) == name_size)
+	return MrmFAILURE;
+      if ( strcmp(w_name,UrmWRefNameN(refdsc,ndx)) == 0 )
       {
 	*w_id_return = UrmWRefIdN (refdsc, ndx);
 	return MrmSUCCESS;
       }
+    }
   return MrmNOT_FOUND;
 
 }
@@ -620,6 +648,9 @@ Urm__CW_UpdateSVWidgetRef (URMPointerListPtr		*svlist,
   int			ndx ;		/* loop index */
   URMSetValuesDescPtr	svdesc ;	/* current SetValues descriptor */
 
+  if (svlist == NULL || *svlist == NULL)
+    return;
+
   /*
    * Loop over all descriptors. Enter the current widget as appropriate.
    * Since each descriptor is used only once, immediately free any
@@ -677,6 +708,9 @@ Urm__CW_ResolveSVWidgetRef (URMPointerListPtr		*svlist,
   Arg			args[1] ;	/* SetValues argument list */
   RGMCallbackDescPtr	cbdesc;		/* Current callback descriptor */
   RGMCallbackItemPtr	items;		/* Array of callback items */
+
+  if (svlist == NULL || *svlist == NULL || cur_name == NULL)
+    return;
 
   /*
    * Loop over all descriptors. Enter the current widget as appropriate.

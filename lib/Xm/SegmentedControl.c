@@ -47,8 +47,10 @@ void _XmSegmentedControlDrawFocus(Widget child) {
             button->toggle.select_color : button->toggle.unselect_color);
     values.line_width = stroke;
     gc = XCreateGC(XtDisplay(child), XtWindow(child), GCForeground|GCLineWidth, &values);
+    if (!gc) return;
     XDrawRectangle(XtDisplay(child), XtWindow(child), gc, inset, inset,
-        child->core.width-2*inset-1, child->core.height-2*inset-1);
+        (unsigned int)child->core.width - 2U * (unsigned int)inset - 1U,
+        (unsigned int)child->core.height - 2U * (unsigned int)inset - 1U);
     XFreeGC(XtDisplay(child), gc);
 }
 
@@ -60,6 +62,7 @@ Boolean _XmSegmentedControlDraw(Widget child) {
     XGCValues values;
     GC gc;
     int x, width, height, stroke, radius;
+    unsigned int child_width, child_height;
     Boolean separate;
     if (!_XmSegmentedControlUsesModern(child)) return False;
     if (!XtIsRealized(child)) return True;
@@ -81,24 +84,29 @@ Boolean _XmSegmentedControlDraw(Widget child) {
             natural <= (unsigned)MIN(control->core.width, SHRT_MAX);
     }
     x = separate ? 0 : -(int)child->core.x;
-    width = separate ? child->core.width : MIN(control->core.width, SHRT_MAX);
-    height = child->core.height;
+    child_width = (unsigned int)child->core.width;
+    child_height = (unsigned int)child->core.height;
+    width = separate ? (int)child_width : (int)MIN(control->core.width, SHRT_MAX);
+    height = (int)child_height;
     stroke = MAX(1, (int)_XmDpiDefaultDimension(child, 1));
     radius = MAX(stroke, (int)_XmDpiDefaultDimension(child, 6));
     values.foreground = control->core.background_pixel;
     gc = XCreateGC(display, window, GCForeground, &values);
-    XFillRectangle(display, window, gc, 0, 0, child->core.width, height);
+    if (!gc) return True;
+    XFillRectangle(display, window, gc, 0, 0, child_width, child_height);
     XSetForeground(display, gc, button->primitive.bottom_shadow_color);
     _XmAppearanceFillRoundedRectangle(display, window, gc, x, 0, width, height, radius);
     XSetForeground(display, gc, button->toggle.visual_set != XmUNSET ?
         button->toggle.select_color : button->toggle.unselect_color);
-    _XmAppearanceFillRoundedRectangle(display, window, gc, x+stroke, stroke, width-2*stroke,
-                    height-2*stroke, MAX(0,radius-stroke));
+    if (width > 2 * stroke && height > 2 * stroke)
+        _XmAppearanceFillRoundedRectangle(display, window, gc, x + stroke, stroke,
+            width - 2 * stroke, height - 2 * stroke, MAX(0, radius - stroke));
     /* Each physical segment boundary is painted once, on its right side. */
     if (!separate && child->core.x > 0) {
         XSetForeground(display, gc, button->primitive.bottom_shadow_color);
         if (height > 2*stroke)
-            XFillRectangle(display, window, gc, 0, stroke, stroke, height-2*stroke);
+            XFillRectangle(display, window, gc, 0, stroke, (unsigned int)stroke,
+                           (unsigned int)(height - 2 * stroke));
     }
     _XmRedisplayLabel(child, NULL, NULL, False);
     _XmSegmentedControlDrawFocus(child);
@@ -173,20 +181,25 @@ static void allocate_segments(XmSegmentedControlWidget control, Widget target,
         Widget child = control->segmented.items[i].button;
         Dimension preferred, child_height;
         unsigned width, x;
+        uint64_t allocated_width;
         natural_size(child, &preferred, &child_height);
-        width = natural <= usable ? preferred + extra/count + (i < extra%count) :
-                                    usable/count + (i < usable%count);
+        allocated_width = natural <= usable
+            ? (uint64_t)preferred + extra / count + (i < extra % count)
+            : usable / count + (i < usable % count);
+        width = (unsigned)allocated_width;
         x = control->segmented.rtl ? available - cursor - width : cursor;
         if (child == target && result) {
             result->request_mode = CWX | CWY | CWWidth | CWHeight | CWBorderWidth;
             result->x = (Position)x; result->y = 0;
-            result->width = width ? width : 1; result->height = height;
+            result->width = (Dimension)(width ? width : 1U);
+            result->height = (Dimension)height;
             result->border_width = 0;
         }
         if (apply && child && child != target) {
             XtSetMappedWhenManaged(child, width != 0);
             if (width)
-                XtConfigureWidget(child, (Position)x, 0, width, height, 0);
+                XtConfigureWidget(child, (Position)x, 0, (Dimension)width,
+                                  (Dimension)height, 0);
         }
         cursor += width + (i + 1 < count ? spacing : 0);
     }
@@ -354,7 +367,7 @@ static void child_changed(Widget child, XtPointer closure, XtPointer call_data) 
         !XmIsSegmentedControl((Widget)control))
 	return;
     if (control->core.being_destroyed || control->segmented.rebuilding) return;
-    if (callback) { set = callback->set; event = callback->event; }
+    if (callback) { set = callback->set ? True : False; event = callback->event; }
     for (i = 0; i < control->segmented.item_count; ++i)
         if (control->segmented.items[i].button == child) break;
     if (i == control->segmented.item_count) return;
@@ -444,6 +457,7 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     int preserved_selected = -1;
     Cardinal i;
     if (widget == NULL || !XmIsSegmentedControl(widget) ||
+        widget->core.being_destroyed ||
         (count && !items) || count > (Cardinal)INT_MAX) return False;
     control = (XmSegmentedControlWidget)widget;
     if (count) {
@@ -558,7 +572,8 @@ const char *XmSegmentedControlGetItemId(Widget widget, Cardinal index) {
 }
 Boolean XmSegmentedControlSetSelectedIndex(Widget widget, int index,
                                            Boolean notify) {
-    if (widget == NULL || !XmIsSegmentedControl(widget)) return False;
+    if (widget == NULL || !XmIsSegmentedControl(widget) ||
+        widget->core.being_destroyed) return False;
     /* Report admission, without dereferencing a callback-destroyed control. */
     return select_index((XmSegmentedControlWidget)widget, index, notify, NULL)
            != SelectionRejected;
@@ -598,7 +613,7 @@ XmSegmentedControlClassRec xmSegmentedControlClassRec = {
       XtInheritTranslations, QueryGeometry, NULL, NULL },
     { GeometryManager, ChangeManaged, XtInheritInsertChild,
       XtInheritDeleteChild, NULL },
-    { NULL, 0, 0, NULL, NULL, NULL },
+    { NULL, 0, 0, NULL, NULL, NULL, NULL },
     { XtInheritTranslations, NULL, 0, NULL, 0, XmInheritParentProcess, NULL },
     { NULL }
 };

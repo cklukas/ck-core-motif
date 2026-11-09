@@ -12,4 +12,6 @@ draw = source[start : source.index("static void Redisplay", start)]
 assert "bounded_position(*cursor)" in draw
 assert "bounded_position(text_x)" in draw
 assert "bounded_position(text_y)" in draw
+assert "(unsigned int)label_width,(unsigned int)thickness" in draw
+assert "static Dimension bounded_dimension(unsigned long value)" in source
 print("PASS BreadcrumbBar draw coordinates are bounded before XmStringDraw")

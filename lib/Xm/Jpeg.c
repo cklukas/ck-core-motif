@@ -2,6 +2,7 @@
 #include <jerror.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <limits.h>
 #include <X11/Intrinsic.h>
 
 void
@@ -32,7 +33,7 @@ load_jpeg(FILE * infile, unsigned long *pWidth, unsigned long *pHeight,
     struct jpeg_decompress_struct cinfo;
     XmJpegErrorMgrRec jerr;
     JSAMPROW row_pointer[1];
-    int x, y;
+    JDIMENSION x, y;
     int rc;
 
     *image_data = NULL;
@@ -71,9 +72,9 @@ load_jpeg(FILE * infile, unsigned long *pWidth, unsigned long *pHeight,
     if (cinfo.out_color_space == JCS_GRAYSCALE) {
         for (y = 0, buf = *image_data; y < cinfo.output_height;
              y++, buf += cinfo.output_width)
-            for (x = cinfo.output_width - 1; x >= 0; x--)
-                buf[x].red = buf[x].green = buf[x].blue =
-                    ((JSAMPLE *) buf)[x];
+            for (x = cinfo.output_width; x > 0; --x)
+                buf[x - 1].red = buf[x - 1].green = buf[x - 1].blue =
+                    ((JSAMPLE *) buf)[x - 1];
     }
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
@@ -136,7 +137,8 @@ _XmJpegGetImage(Screen * screen, FILE * infile, XImage ** ximage)
 
     if ((rc = load_jpeg(infile, &image_width, &image_height, &image_data)))
         return rc;
-    if (!image_width || !image_height || image_width > SIZE_MAX / image_height) {
+    if (!image_width || !image_height || image_width > INT_MAX ||
+        image_height > INT_MAX || image_width > SIZE_MAX / image_height) {
         free(image_data);
         return 4;
     }
@@ -163,10 +165,16 @@ _XmJpegGetImage(Screen * screen, FILE * infile, XImage ** ximage)
       return 4;
     }
 
+    if (screen->root_depth <= 0) {
+        free(xdata);
+        free(image_data);
+        return 4;
+    }
     *ximage =
         XCreateImage(screen->display, screen->root_visual,
-                     screen->root_depth, ZPixmap, 0, (char *) xdata,
-                     image_width, image_height, pad, 0);
+                     (unsigned int)screen->root_depth, ZPixmap, 0,
+                     (char *) xdata, (unsigned int)image_width,
+                     (unsigned int)image_height, pad, 0);
     if (!*ximage) {
         free(xdata);
         if (image_data)

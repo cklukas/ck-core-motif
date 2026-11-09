@@ -4103,21 +4103,23 @@ PlaceItemReset(
     /*
      * Deallocate old cell structure.
      */
-    if ((cw->container.cells) &&
-	(((XmContainerWidgetClass)XtClass(wid))->container_class.remove_item))
+    if (cw->container.cells)
 	{
-	node = cw->container.first_node;
-        while (node)
-            {
-	    if (CtrItemIsPlaced(node->widget_ptr))
-		(*((XmContainerWidgetClass)
-		XtClass(wid))->container_class.remove_item)
-			(wid,node->widget_ptr);
-	    node = GetNextNode(node);
+	if (((XmContainerWidgetClass)XtClass(wid))->container_class.remove_item)
+	    {
+	    node = cw->container.first_node;
+            while (node)
+		{
+		if (CtrItemIsPlaced(node->widget_ptr))
+		    (*((XmContainerWidgetClass)
+		    XtClass(wid))->container_class.remove_item)
+			    (wid,node->widget_ptr);
+		 node = GetNextNode(node);
+		}
 	    }
 	XtFree((char*)cw->container.cells);
 	cw->container.cells = NULL;
-    }
+	}
 
     if (CtrSpatialStyleIsNONE(cw))
 	return;
@@ -4151,7 +4153,18 @@ PlaceItemReset(
 	return;
 	}
     cw->container.cell_count = width_in_cells * height_in_cells;
-    cw->container.cells = (int *)XtCalloc((size_t)cw->container.cell_count,
+
+    if ((size_t)cw->container.cell_count >
+	SIZE_MAX / sizeof(*cw->container.cells) ||
+	(size_t)cw->container.cell_count >
+	UINT_MAX / sizeof(*cw->container.cells))
+	{
+	cw->container.cell_count = 0;
+	cw->container.current_width_in_cells = 0;
+	cw->container.current_height_in_cells = 0;
+	return;
+	}
+    cw->container.cells = (int *)XtCalloc((Cardinal)cw->container.cell_count,
 					 sizeof(*cw->container.cells));
     if (cw->container.cells == NULL)
 	{
@@ -7364,9 +7377,12 @@ GetSpatialSizeCellAdjustment(
 	(size_t)width_in_cells > SIZE_MAX / (size_t)height_in_cells)
 	return;
     cell_count = (size_t)width_in_cells * (size_t)height_in_cells;
-    if (cell_count > SIZE_MAX / sizeof(*cell_occupied))
+
+    if (cell_count > SIZE_MAX / sizeof(*cell_occupied) ||
+	cell_count > UINT_MAX / sizeof(*cell_occupied))
 	return;
-    cell_occupied = (Boolean *)XtCalloc(cell_count, sizeof(*cell_occupied));
+    cell_occupied = (Boolean *)XtCalloc((Cardinal)cell_count,
+					sizeof(*cell_occupied));
     if (cell_occupied == NULL)
 	return;
     i = 0;

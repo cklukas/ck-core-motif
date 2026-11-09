@@ -89,11 +89,11 @@ static XtGeometryResult GeometryManager(Widget,
  *********************/
 
 static Boolean CvtStringToConnectStyle(Display *, XrmValuePtr, Cardinal *, 
-				       XrmValuePtr, XrmValuePtr);
+				       XrmValuePtr, XrmValuePtr, XtPointer *);
 static Boolean CvtStringToCompressStyle(Display *, XrmValuePtr, Cardinal *, 
-				       XrmValuePtr, XrmValuePtr);
+				       XrmValuePtr, XrmValuePtr, XtPointer *);
 static Boolean CvtStringToLineStyle(Display *, XrmValuePtr, Cardinal *, 
-				       XrmValuePtr, XrmValuePtr);
+				       XrmValuePtr, XrmValuePtr, XtPointer *);
 
 static void ReleaseNodeGCs(Widget), GetNodeGCs(Widget);
 static TreeConstraints GetNodeInfo(Widget);
@@ -356,13 +356,13 @@ ClassInit(void)
     XmTreeClassRec* wc = &xmTreeClassRec;
 
     XtSetTypeConverter(XmRString, XmRXmConnectStyle,
-		       (XtTypeConverter) CvtStringToConnectStyle,
+		       CvtStringToConnectStyle,
 		       NULL, (Cardinal) 0, XtCacheAll, (XtDestructor) NULL);
     XtSetTypeConverter(XmRString, XmRXmCompressStyle,
-		       (XtTypeConverter) CvtStringToCompressStyle,
+		       CvtStringToCompressStyle,
 		       NULL, (Cardinal) 0, XtCacheAll, (XtDestructor) NULL);
     XtSetTypeConverter(XmRString, XmRXmLineStyle,
-		       (XtTypeConverter) CvtStringToLineStyle,
+		       CvtStringToLineStyle,
 		       NULL, (Cardinal) 0, XtCacheNone, (XtDestructor) NULL);
 }
 
@@ -404,8 +404,10 @@ Initialize(Widget req, Widget set, ArgList args, Cardinal * num_args)
 		XtRealloc((XtPointer) XmHierarchy_top_node(tw),
 			  sizeof(TreeConstraintRec)));
 
-    if (top_node == NULL)
+    if (top_node == NULL) {
+	XtError("Unable to allocate Tree top-node constraint");
 	return;
+    }
 
     XmHierarchy_top_node(tw) = (HierarchyConstraints) top_node;
 
@@ -1003,7 +1005,8 @@ ToggleNodeState(Widget w, XtPointer node_ptr, XtPointer call_data)
 /*ARGSUSED*/
 static Boolean
 CvtStringToConnectStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args, 
-			XrmValuePtr fromVal, XrmValuePtr toVal)
+			XrmValuePtr fromVal, XrmValuePtr toVal,
+			XtPointer *converter_data)
 {
     static XmTreeConnectStyle connect;
     static XrmQuark XtQELadder;
@@ -1011,6 +1014,8 @@ CvtStringToConnectStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     static Boolean haveQuarks = FALSE;
     XrmQuark q;
     char lowerName[BUFSIZ];
+
+    (void)converter_data;
     
     if (!haveQuarks) {
 	XtQELadder = XrmStringToQuark("ladder");
@@ -1059,7 +1064,8 @@ CvtStringToConnectStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 /*ARGSUSED*/
 static Boolean
 CvtStringToCompressStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
-                        XrmValuePtr fromVal, XrmValuePtr toVal)
+                        XrmValuePtr fromVal, XrmValuePtr toVal,
+                        XtPointer *converter_data)
 {
     static XmTreeCompressStyle compress;
     static XrmQuark XtQECompressNone;
@@ -1068,6 +1074,8 @@ CvtStringToCompressStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
     static Boolean haveQuarks = FALSE;
     XrmQuark q;
     char lowerName[BUFSIZ];
+
+    (void)converter_data;
 
     if (!haveQuarks) {
         XtQECompressNone = XrmStringToQuark("compressnone");
@@ -1110,10 +1118,13 @@ CvtStringToCompressStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args,
 /* ARGSUSED */
 static Boolean
 CvtStringToLineStyle(Display * dpy, XrmValuePtr args, Cardinal *num_args, 
-			XrmValuePtr fromVal, XrmValuePtr toVal)
+			XrmValuePtr fromVal, XrmValuePtr toVal,
+			XtPointer *converter_data)
 {
     static int lineStyle = LineSolid;
     char lowerName[BUFSIZ];
+
+    (void)converter_data;
     
     XmCopyISOLatin1LoweredN(lowerName, sizeof(lowerName), (char *) fromVal->addr);
     
@@ -1388,6 +1399,7 @@ DrawNodeConnection(Widget tree, GC source, Widget child, Boolean outgoing,
         if (outgoing) clip.y = child->core.height - inset;
     }
     gc = XCreateGC(display, XtWindow(child), 0, NULL);
+    if (gc == NULL) return;
     XCopyGC(display, source, GCForeground | GCBackground | GCLineWidth |
             GCLineStyle | GCCapStyle | GCJoinStyle | GCDashOffset | GCDashList, gc);
     XSetClipRectangles(display, gc, 0, 0, &clip, 1, Unsorted);

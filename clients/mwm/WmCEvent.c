@@ -2663,7 +2663,7 @@ Window GetParentWindow (Window window)
 
     if (XQueryTree (DISPLAY, window, &root, &parent, &children, &nchildren))
     {
-	if (nchildren)
+	if (children != NULL)
 	{
 	    XFree ((char *)children);
 	}

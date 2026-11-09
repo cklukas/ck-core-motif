@@ -165,10 +165,12 @@ Urm__OpenHierarchy (MrmCount			num_files,
   Display		*display;	/* display for XtResolvePathNames */
   char                 	err_stg[300];
 
+  if (hierarchy_id_return == NULL)
+    return MrmFAILURE;
+  *hierarchy_id_return = NULL;
   if (num_files < 0 ||
       (size_t)num_files > SIZE_MAX / sizeof(IDBFile) ||
       (size_t)num_files > (size_t)UINT_MAX / sizeof(IDBFile) ||
-      hierarchy_id_return == NULL ||
       (num_files > 0 && name_list == NULL) ||
       (in_memory && uid_buffer == NULL) ||
       (os_ext_list != NULL && *os_ext_list == NULL))
@@ -521,6 +523,7 @@ UrmHGetIndexedResource (MrmHierarchy		hierarchy_id,
    */
   if ( file_id_return == NULL )
     return MrmFAILURE ;
+  *file_id_return = NULL;
   if ( hierarchy_id == NULL )
     return Urm__UT_Error ("UrmHGetIndexedResource", _MrmMMsg_0023,
 			  NULL, NULL, MrmBAD_HIERARCHY) ;
@@ -540,10 +543,13 @@ UrmHGetIndexedResource (MrmHierarchy		hierarchy_id,
     }
   for ( ndx=0 ; ndx<num_ids ; ndx++ )
     {
-      *file_id_return = file_ids[ndx] ;
       result = UrmIdbGetIndexedResource
-        (*file_id_return, index, group_filter, type_filter, context_id) ;
-      if ( result == MrmSUCCESS ) return result ;
+        (file_ids[ndx], index, group_filter, type_filter, context_id) ;
+      if ( result == MrmSUCCESS )
+        {
+          *file_id_return = file_ids[ndx] ;
+          return result ;
+        }
     }
 
   /*
@@ -669,6 +675,8 @@ Urm__RegisterNamesInHierarchy (MrmHierarchy		hierarchy_id,
  *
  *	MrmSUCCESS	operation succeeded
  *	MrmNOT_FOUND	no match found
+ *	MrmBAD_HIERARCHY	invalid hierarchy
+ *	MrmFAILURE	invalid name or output pointer
  *
  *  SIDE EFFECTS:
  *
@@ -686,9 +694,12 @@ Urm__LookupNameInHierarchy (MrmHierarchy	hierarchy_id,
   URMHashTableEntryPtr	hash_entry;
 
 
+  if (value_return == NULL)
+    return MrmFAILURE;
+  *value_return = NULL;
   if ( hierarchy_id == NULL || !MrmHierarchyValid(hierarchy_id) )
     return MrmBAD_HIERARCHY;
-  if ( name == NULL || value_return == NULL )
+  if (name == NULL)
     return MrmFAILURE;
 
   /*

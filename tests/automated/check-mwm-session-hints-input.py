@@ -12,5 +12,7 @@ body = source[start:end]
 assert "if (pSD == NULL)" in body
 assert "return;" in body
 assert body.index("if (pSD == NULL)") < body.index("pSD->rootWindow")
+assert "(leftover != 0)" in body
+assert body.index("leftover != 0") < body.index("ParseDtSessionHints")
 
-print("PASS MWM DT session-hint processing rejects null screen data")
+print("PASS MWM DT session-hint processing rejects null and incomplete input")

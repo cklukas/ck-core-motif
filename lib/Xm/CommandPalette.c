@@ -135,7 +135,7 @@ static void Destroy(Widget widget) { XmCommandPaletteWidget palette = (XmCommand
 static void Resize(Widget widget) { layout((XmCommandPaletteWidget)widget); } static void ChangeManaged(Widget widget) { negotiate((XmCommandPaletteWidget)widget); }
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgList args, Cardinal *count) { (void)old_widget; (void)request; (void)widget; (void)args; (void)count; return False; }
 static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request, XtWidgetGeometry *reply) { XmCommandPaletteWidget palette = (XmCommandPaletteWidget)XtParent(child); if (request->request_mode & (CWX | CWY | CWBorderWidth | CWSibling | CWStackMode)) return XtGeometryNo; if (!palette->palette.laying_out && !(request->request_mode & XtCWQueryOnly)) negotiate(palette); reply->request_mode = CWWidth | CWHeight; reply->width = child->core.width; reply->height = child->core.height; return XtGeometryAlmost; }
-static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended, XtWidgetGeometry *reply) { XmCommandPaletteWidget palette = (XmCommandPaletteWidget)widget; natural(palette, &reply->width, &reply->height); reply->request_mode = CWWidth | CWHeight; if (intended && intended->width == reply->width && intended->height == reply->height) return XtGeometryYes; return XtGeometryAlmost; }
+static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended, XtWidgetGeometry *reply) { XmCommandPaletteWidget palette = (XmCommandPaletteWidget)widget; natural(palette, &reply->width, &reply->height); reply->request_mode = CWWidth | CWHeight; return XmeReplyToQueryGeometry(widget, intended, reply); }
 static void query_changed(Widget widget, XtPointer data, XtPointer call) { (void)widget; (void)call; rebuild((XmCommandPaletteWidget)data); }
 static void committed(Widget widget, XtPointer data, XtPointer call) { (void)widget; (void)call; XmCommandPaletteInvokeSelection((Widget)data, NULL); }
 static void default_action(Widget widget, XtPointer data, XtPointer call) { (void)widget; (void)call; XmCommandPaletteInvokeSelection((Widget)data, NULL); }
@@ -153,7 +153,8 @@ void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, 
     palette = (XmCommandPaletteWidget)widget;
     if (!count) { free_items(palette); rebuild(palette); return; }
     if (!items) { XtWarning("XmCommandPaletteSetItems: NULL item array"); return; }
-    if ((size_t)count > SIZE_MAX / sizeof(*palette->palette.items) ||
+    if ((size_t)count > (size_t)INT_MAX ||
+        (size_t)count > SIZE_MAX / sizeof(*palette->palette.items) ||
         (size_t)count > UINT_MAX / sizeof(*palette->palette.items)) {
         XtWarning("XmCommandPaletteSetItems: item array is too large");
         return;
@@ -183,7 +184,15 @@ void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, 
 }
 Cardinal XmCommandPaletteGetItemCount(Widget widget) { return widget && XmIsCommandPalette(widget) && !widget->core.being_destroyed ? ((XmCommandPaletteWidget)widget)->palette.item_count : 0; }
 Cardinal XmCommandPaletteGetVisibleCount(Widget widget) { return widget && XmIsCommandPalette(widget) && !widget->core.being_destroyed ? ((XmCommandPaletteWidget)widget)->palette.visible_count : 0; }
-void XmCommandPaletteSetFilter(Widget widget, const char *filter) { if (widget && XmIsCommandPalette(widget) && ((XmCommandPaletteWidget)widget)->palette.search != NULL) XmSearchBoxSetString(((XmCommandPaletteWidget)widget)->palette.search, filter ? filter : ""); }
+void XmCommandPaletteSetFilter(Widget widget, const char *filter) {
+    XmCommandPaletteWidget palette;
+
+    if (!widget || !XmIsCommandPalette(widget) || widget->core.being_destroyed)
+        return;
+    palette = (XmCommandPaletteWidget)widget;
+    if (palette->palette.search != NULL)
+        XmSearchBoxSetString(palette->palette.search, filter ? filter : "");
+}
 char *XmCommandPaletteGetFilter(Widget widget) { return widget && XmIsCommandPalette(widget) && !widget->core.being_destroyed ? XmSearchBoxGetString(((XmCommandPaletteWidget)widget)->palette.search) : NULL; }
 void XmCommandPaletteShow(Widget widget) { XmCommandPaletteWidget palette; Window window; int revert; if (!widget || !XmIsCommandPalette(widget) || widget->core.being_destroyed) return; palette = (XmCommandPaletteWidget)widget; XGetInputFocus(XtDisplay(widget), &window, &revert); palette->palette.previous_focus = XtWindowToWidget(XtDisplay(widget), window); palette->palette.shown = True; XtManageChild(widget); if (palette->palette.search != NULL) XmProcessTraversal(palette->palette.search, XmTRAVERSE_CURRENT); }
 void XmCommandPaletteDismiss(Widget widget, XEvent *event) { XmCommandPaletteWidget palette; XmCommandPaletteCallbackStruct callback; if (!widget || !XmIsCommandPalette(widget) || widget->core.being_destroyed) return; palette = (XmCommandPaletteWidget)widget; if (!palette->palette.shown) return; palette->palette.shown = False; XtUnmanageChild(widget); if (palette->palette.previous_focus && XtIsManaged(palette->palette.previous_focus)) XmProcessTraversal(palette->palette.previous_focus, XmTRAVERSE_CURRENT); callback.reason = XmCR_UNMAP; callback.event = event; callback.id = NULL; callback.user_data = NULL; XtCallCallbacks(widget, XmNcommandPaletteDismissCallback, &callback); }

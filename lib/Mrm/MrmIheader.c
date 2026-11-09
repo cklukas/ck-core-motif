@@ -710,7 +710,13 @@ Idb__HDR_ReturnItem (IDBFile		file_id,
   IDBRecordNumber	recno;		/* Map record record number */
 
 
-  if (file_id == NULL || entry_return == NULL)
+  if (entry_return == NULL)
+    return MrmFAILURE;
+
+  entry_return->rec_no = 0;
+  entry_return->item_offs = 0;
+
+  if (file_id == NULL)
     return MrmFAILURE;
 
   /*
@@ -814,7 +820,10 @@ Idb__HDR_NextRID (IDBFile		file_id,
   /*
    * use the next available ID, or fail.
    */
-  if (file_id == NULL || res_id_return == NULL)
+  if (res_id_return == NULL)
+    return MrmFAILURE;
+  *res_id_return = 0;
+  if (file_id == NULL)
     return MrmFAILURE;
 
   resndx = file_id->next_RID.internal_id.res_index;
@@ -1013,7 +1022,14 @@ Idb__HDR_PutDataEntry (IDBFile			file_id,
   /*
    * Consistency check
    */
-  if (file_id == NULL || data_entry == NULL || !UrmRCValid (context_id))
+  if (data_entry == NULL)
+    return Urm__UT_Error("Idb__HDR_PutDataEntry", _MrmMMsg_0006,
+			 NULL, NULL, MrmBAD_CONTEXT);
+
+  data_entry->rec_no = 0;
+  data_entry->item_offs = 0;
+
+  if (file_id == NULL || !UrmRCValid (context_id))
     return Urm__UT_Error("Idb__HDR_PutDataEntry", _MrmMMsg_0006,
 			 NULL, NULL, MrmBAD_CONTEXT);
 

@@ -641,20 +641,20 @@ static void UilWrapup(Uil_compile_desc_type *compile_desc)
 
 char *uil_mmove(char *s1, char *s2, int n)
 {
-     char *temp;
+     unsigned char *dst = (unsigned char *)s1;
+     unsigned char *src = (unsigned char *)s2;
 
-     if(s2 == s1)
-         return(s2);
-     if(s2 < s1 && s1 <= s2 + n){
-         if(temp = (char *)malloc(n)){
-             memcpy(temp, s2, n);
-             memcpy(s1, temp, n);
-             free(temp);
-             return(s1);
-         }
-         printf("uil_mmove: Memory allocation failed!\n");
-         exit(-1);
+     if (n <= 0 || dst == src)
+         return(s1);
+     if (dst < src) {
+         while (n--)
+             *dst++ = *src++;
+     } else {
+         dst += n;
+         src += n;
+         while (n--)
+             *--dst = *--src;
      }
-     return((char *)memcpy(s1, s2, n));
+     return(s1);
 }
 #endif  /* NO_MEMMOVE */

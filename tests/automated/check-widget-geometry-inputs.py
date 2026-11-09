@@ -9,4 +9,7 @@ assert "if (wid == NULL || baselines == NULL || line_count == NULL)" in baseline
 assert baseline.index("if (wid == NULL || baselines == NULL || line_count == NULL)") < baseline.index("_XmWidgetToAppContext(wid)")
 assert "if (wid == NULL || displayrect == NULL)" in display
 assert display.index("if (wid == NULL || displayrect == NULL)") < display.index("_XmWidgetToAppContext(wid)")
-print("PASS widget geometry helpers validate input pointers")
+assert "Boolean result = False;" in display
+assert display.count("result = (*((*wcePtr)->widget_display_rect))") == 2
+assert display.count("return (result);") == 2
+print("PASS widget geometry helpers validate inputs and trait results")

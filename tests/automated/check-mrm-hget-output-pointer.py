@@ -9,4 +9,9 @@ end = text.index("Urm__RegisterNamesInHierarchy (MrmHierarchy", start)
 body = text[start:end]
 assert "if ( file_id_return == NULL )" in body
 assert body.index("if ( file_id_return == NULL )") < body.index("*file_id_return =")
+assert "*file_id_return = NULL;" in body
+assert body.index("*file_id_return = NULL;") < body.index("for ( ndx=0")
+assert body.index("*file_id_return = file_ids[ndx] ;") > body.index(
+    "if ( result == MrmSUCCESS )"
+)
 print("Mrm hierarchy resource lookup validates its output pointer")

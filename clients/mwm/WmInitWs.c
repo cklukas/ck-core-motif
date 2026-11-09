@@ -61,12 +61,13 @@ static char rcsid[] = "$TOG: WmInitWs.c /main/18 1999/09/20 15:18:22 mgreess $"
 #include <X11/Core.h>
 #include <X11/keysym.h>
 #include <Xm/AtomMgr.h>
+#include <Dt/SessionM.h>
 #ifndef NO_HP_KEY_REMAP
 #include <Xm/VirtKeysP.h>
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
 # include <Xm/DrawingA.h>
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
 typedef struct
   {
@@ -76,6 +77,7 @@ typedef struct
 #endif /* NO_HP_KEY_REMAP */
 #ifdef WSM
 #include <Dt/GetDispRes.h>
+#include <Dt/EnvControlP.h>
 #include <Dt/SessionP.h>
 #include <Dt/DtP.h>
 #include <Dt/Message.h>
@@ -139,10 +141,10 @@ typedef struct
 
 #include "WmInitWs.h"
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
 # include "WmWsmLib/wsm_proto.h"
 # include "WmWsmLib/utm_send.h"
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
 #ifdef WSM
 static void InsureDefaultBackdropDir(char **ppchBackdropDirs);
@@ -688,6 +690,17 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
     ProcessGlobalScreenResources ();
     ProcessCommandLine (argc, argv);
 
+    if (wmGD.numScreens <= 0 ||
+	(size_t)wmGD.numScreens > SIZE_MAX / sizeof(WmScreenData) ||
+	(size_t)wmGD.numScreens > UINT_MAX / sizeof(WmScreenData))
+    {
+	ShowWaitState (FALSE);
+	Warning (((char *)GETMESSAGE(40, 2,
+		"Insufficient memory for Screen data")));
+	ExitWM (WM_ERROR_EXIT_VALUE);
+	return;
+    }
+
 #ifdef WSM
     /*
      * Make sure backdrops are in our icon search path. 
@@ -723,7 +736,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
      */
 
     if (!(wmGD.Screens = (WmScreenData *) 
-	    XtCalloc (wmGD.numScreens, sizeof(WmScreenData))))
+	    XtCalloc ((Cardinal)wmGD.numScreens, sizeof(WmScreenData))))
     {
 	ShowWaitState (FALSE);
 	Warning (((char *)GETMESSAGE(40, 2, "Insufficient memory for Screen data")));
@@ -761,7 +774,7 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
                     "Another window manager is running on screen %d");
                 int messageLength = snprintf(NULL, 0, format, sNum);
                 char *message = (messageLength >= 0 &&
-					 (unsigned int)messageLength < UINT_MAX) ?
+					 (size_t)messageLength < UINT_MAX) ?
                     (char *)XtMalloc((Cardinal)messageLength + 1) : NULL;
 
                 if (message != NULL)
@@ -873,22 +886,9 @@ void InitWmGlobal (int argc, char *argv [], char *environ [])
 			    return;
 		    }
 
-		    _DtGetMwmWindow(DISPLAY,
+		    _DtGetSmWindow(DISPLAY,
 				  RootWindow(DISPLAY, 0), 
 				  &wmGD.dtSmWindow) ;
-#ifdef PANACOMM
-		    /*
-		     * If this is the first screen we've managed,
-		     * tell the session manager we're ready 
-		     */
-		    if (!processedGlobalResources)
-		    {
-			SendClientMsg( wmGD.dtSmWindow,
-				      (long) wmGD.xa_DT_SM_WM_PROTOCOL,
-				      (long) wmGD.xa_DT_WM_READY,
-				      CurrentTime, NULL, 0);
-		    }
-#endif /* PANACOMM */
 
 		    /* create topmost shell (application shell) */
 		    argnum = 0;
@@ -1442,9 +1442,9 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     pSD->bitmapCacheCount = 0;
     pSD->dataType = SCREEN_DATA_TYPE;
     pSD->managed = False;
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
     pSD->cciTree = NULL;
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
 #ifdef WSM
     pSD->initialWorkspace=NULL;
@@ -1454,10 +1454,13 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     pSD->workspaceList = NULL;
     pSD->numWorkspaces = 0;
     pSD->numWsDataAllocated = 0;
-    pSD->lastBackdropWin = NULL;
+    pSD->lastBackdropWin = None;
     pSD->pDtSessionItems = NULL;
     pSD->totalSessionItems = 0;
     pSD->remainingSessionItems = 0;
+    pSD->dtWmRequestProperty = NULL;
+    pSD->dtWmRequestItems = 0;
+    pSD->dtWmRequestNext = 0;
 
     pSD->cachedHelp = NULL;
     pSD->dtHelp.shell  = (Widget)NULL;
@@ -1565,7 +1568,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
         return;
     }
 
-#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL))
+#if ((!defined(WSM)) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM))
     /* Create a DrawingArea as a child of the popupShell.  This will be used
      * to handle UTM traffic relating to cci.  We need this
      * particular widget to get the callbacks from conversion requests made
@@ -1588,7 +1591,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
     /* Must realize to own WM_i if unmapped, causes mwm to
        freeze when menu is displayed. */
     XtPopup(pSD->screenTopLevelW, XtGrabNone);
-#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */
+#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) || defined(MWM_WSM) */
 
 #ifdef WSM
     argnum = 0;
@@ -1701,14 +1704,18 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 
 
     pDisplayName = DisplayString (DISPLAY);
-    displayNameLength = strlen(pDisplayName) + 1;
-    if (displayNameLength > SIZE_MAX - 64 ||
-        displayNameLength + 64 > UINT_MAX)
+    /* Keep every addition outside the unchecked strlen result.  Xt's
+     * Cardinal allocator needs the private NUL-terminated name plus the
+     * display-string formatting slack to fit without wrapping. */
+    displayNameLength = strlen(pDisplayName);
+    if (displayNameLength > SIZE_MAX - 65 ||
+        displayNameLength > (size_t)UINT_MAX - 65)
     {
         Warning (((char *)GETMESSAGE(40, 9,
                                 "Display string is too long")));
         return;
     }
+    displayNameLength++;
     bufferLength = displayNameLength + 64;
     displayName = (char *)XtMalloc((Cardinal)displayNameLength);
     buffer = (char *)XtMalloc((Cardinal)bufferLength);
@@ -2750,6 +2757,7 @@ GetBindingsProperty(
       || (actual_format != 8)
       || (prop == NULL)
       || (num_items == 0)
+      || (bytes_after != 0)
       || (num_items >= UINT_MAX))
     {
       if(    prop != NULL    )
@@ -2919,7 +2927,7 @@ VirtKeys4DIN(
           String new_bstring = FixupBindingsString( bindingsString,
                                                                 vkeysym_xref) ;
           prop_existed = TRUE ;
-          XFree( bindingsString) ;
+          XtFree( bindingsString) ;
 
           if(    new_bstring != NULL    )
             {
@@ -2949,7 +2957,6 @@ VirtKeys4DIN(
                   SetBindingsProperty( dsp, prop_atoms[i], new_bstring) ;
                   XtFree( new_bstring) ;
                 }
-              XFree( bindingsString) ;
             }
           ++i ;
         }

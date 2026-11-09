@@ -117,6 +117,7 @@ UrmGetResourceContext (MrmAllocateProc alloc_func,
 
   if ( context_id_return == NULL )
     return MrmFAILURE;
+  *context_id_return = NULL;
 
   /*
    * Set function defaults if NULL
@@ -143,6 +144,7 @@ UrmGetResourceContext (MrmAllocateProc alloc_func,
       if ( (*context_id_return)->data_buffer == NULL )
         {
 	  (*free_func) ((char *)*context_id_return) ;
+	  *context_id_return = NULL;
 	  return Urm__UT_Error ("UrmGetResourceContext", _MrmMMsg_0001,
 				NULL, *context_id_return, MrmFAILURE) ;
         }
@@ -175,7 +177,7 @@ UrmGetResourceContext (MrmAllocateProc alloc_func,
  *	resource context to increase its size. The contents of the current
  *	memory buffer are copied into the new memory buffer. If the size
  *	parameter is smaller than the current memory buffer size, the request
- *	is ignored. If the size parameter is greater than MrmMaxResourceSize, a
+ *	is ignored. If the size parameter is outside the supported range, a
  *	MrmTooMany error is returned
  *
  *  FORMAL PARAMETERS:
@@ -192,7 +194,7 @@ UrmGetResourceContext (MrmAllocateProc alloc_func,
  *	MrmSUCCESS	operation succeeded
  *	MrmBAD_CONTEXT	Illegal resource context
  *	MrmFAILURE	memory allocation failure
- *	MrmTOO_MANY	size was larger than MrmMaxResourceSize
+ *	MrmTOO_MANY	size was outside the supported resource range
  *
  *  SIDE EFFECTS:
  *
@@ -209,13 +211,14 @@ UrmResizeResourceContext (URMResourceContextPtr	context_id,
    *  Local variables
    */
   char			*newbuf ;	/* new buffer */
+  MrmSize		requested_size;
 
 
   if ( ! UrmRCValid(context_id) )
     return Urm__UT_Error ("UrmResizeResourceContext", _MrmMMsg_0028,
 			  NULL, context_id, MrmBAD_CONTEXT) ;
 
-  if ( size > MrmMaxResourceSize)
+  if ( size < 0 || size > MrmMaxResourceSize)
     return Urm__UT_Error ("MrmResizeResourceContext", _MrmMMsg_0029,
 			  NULL, context_id, MrmTOO_MANY) ;
 
@@ -226,12 +229,13 @@ UrmResizeResourceContext (URMResourceContextPtr	context_id,
    * violations.  Ideally Urm__CW_EvaluateValOrOffset and the code that
    * calls it should be rewritten, but we don't have time for that now.
    */
-  if (size < sizeof(long)) size = sizeof(long);
+  if (size < (int)sizeof(long)) size = (int)sizeof(long);
+  requested_size = (MrmSize)size;
 
   /*
    * Resize unless buffer is bigger than requested size.
    */
-  if ( context_id->buffer_size > size ) return MrmSUCCESS ;
+  if ( context_id->buffer_size >= requested_size ) return MrmSUCCESS ;
 
   /*
    * Allocate the new buffer, copy the old buffer contents, and
@@ -239,16 +243,16 @@ UrmResizeResourceContext (URMResourceContextPtr	context_id,
    */
   if ( context_id->alloc_func == XtMalloc )
     {
-      newbuf = XtRealloc (context_id->data_buffer, size) ;
+      newbuf = XtRealloc (context_id->data_buffer, requested_size) ;
       if ( newbuf == NULL )
         return Urm__UT_Error ("UrmResizeResourceContext", _MrmMMsg_0001,
                               NULL, context_id, MrmFAILURE) ;
       context_id->data_buffer = newbuf ;
-      context_id->buffer_size = size ;
+      context_id->buffer_size = requested_size ;
     }
   else
     {
-      newbuf = (char *) (*(context_id->alloc_func)) (size) ;
+      newbuf = (char *) (*(context_id->alloc_func)) (requested_size) ;
       if ( newbuf == NULL )
         return Urm__UT_Error ("UrmResizeResourceContext", _MrmMMsg_0001,
 			      NULL, context_id, MrmFAILURE) ;
@@ -258,7 +262,7 @@ UrmResizeResourceContext (URMResourceContextPtr	context_id,
 	  (*(context_id->free_func)) (context_id->data_buffer) ;
         }
       context_id->data_buffer = newbuf ;
-      context_id->buffer_size = size ;
+      context_id->buffer_size = requested_size ;
     }
 
   /*

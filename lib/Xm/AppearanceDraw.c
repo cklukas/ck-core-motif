@@ -285,6 +285,10 @@ _XmAppearanceDrawButtonFocus(Widget widget, Boolean focused)
     values.foreground = parent_background;
     values.graphics_exposures = False;
     gc = XCreateGC(display, drawable, GCForeground | GCGraphicsExposures, &values);
+    if (!gc) {
+        XDestroyRegion(clip);
+        return True;
+    }
     XSetRegion(display, gc, clip); XDestroyRegion(clip);
     XFillRectangle(display, drawable, gc, x, y, width, height);
     if (focused) {
@@ -347,6 +351,10 @@ _XmAppearanceDrawButton(Widget widget, Pixel fill, Boolean emphasized,
     values.foreground=parent_background;
     values.graphics_exposures=False;
     gc=XCreateGC(display,drawable,GCForeground|GCGraphicsExposures,&values);
+    if (!gc) {
+        XDestroyRegion(clip);
+        return True;
+    }
     XSetRegion(display,gc,clip);XDestroyRegion(clip);
     XFillRectangle(display,drawable,gc,x,y,width,height);
     XSetForeground(display,gc,emphasized?accent:border);
@@ -701,6 +709,7 @@ _XmAppearanceDrawCascadeIndicator(Widget widget, int x, int y, int width,
     int side = MIN((int)_XmDpiDefaultDimension(widget, 12), MIN(width,height));
     values.foreground = foreground;
     gc = XCreateGC(display, drawable, GCForeground, &values);
+    if (!gc) return True;
     _XmAppearanceDrawChevron(display, drawable, gc, x+(width-side)/2,
         y+(height-side)/2, side, side,
         MIN(MAX(1,(int)_XmDpiDefaultDimension(widget,2)),MAX(1,side/4)), direction);

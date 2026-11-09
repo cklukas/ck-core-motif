@@ -312,10 +312,7 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,
     XmStatusBarWidget bar = (XmStatusBarWidget)widget;
     natural(bar, &reply->width, &reply->height);
     reply->request_mode = CWWidth | CWHeight;
-    if (request && request->width == reply->width &&
-        request->height == reply->height)
-        return XtGeometryYes;
-    return XtGeometryAlmost;
+    return XmeReplyToQueryGeometry(widget, request, reply);
 }
 
 Widget XmCreateStatusBar(Widget parent, char *name, ArgList args, Cardinal count)
@@ -361,7 +358,8 @@ void XmStatusBarSetItems(Widget widget, const XmStatusBarItem *items,
     XmStatusBarStoredItem *old_items;
     Cardinal old_count, i;
 
-    if (!widget || !XmIsStatusBar(widget) || (count && !items))
+    if (!widget || !XmIsStatusBar(widget) || widget->core.being_destroyed ||
+        (count && !items))
         return;
     bar = (XmStatusBarWidget)widget;
     if (count && ((size_t)count > SIZE_MAX / sizeof(*bar->status_bar.items) ||

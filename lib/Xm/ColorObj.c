@@ -452,10 +452,14 @@ Initialize(
     {
 	
         /** get screen info and allocate space for colors per screen **/
-	new_obj->color_obj.colors = 
-	  (Colors *)XtCalloc(nscreens, sizeof(Colors));
-	new_obj->color_obj.atoms = (Atom *)XtCalloc(nscreens, sizeof(Atom));
-	new_obj->color_obj.colorUse = (int *)XtCalloc(nscreens, sizeof(int));
+	if (nscreens > 0) {
+	    new_obj->color_obj.colors =
+	      (Colors *)XtCalloc((Cardinal)nscreens, sizeof(Colors));
+	    new_obj->color_obj.atoms =
+	      (Atom *)XtCalloc((Cardinal)nscreens, sizeof(Atom));
+	    new_obj->color_obj.colorUse =
+	      (int *)XtCalloc((Cardinal)nscreens, sizeof(int));
+	}
 	
 	if ( !new_obj->color_obj.colors || !new_obj->color_obj.atoms || 
 	    !new_obj->color_obj.colorUse )
@@ -651,7 +655,8 @@ Initialize(
 	      }
 	  }
 
-	if (savetimeout != -1) /* Restore the timeout if we had changed it */
+	/* Restore the timeout if we had changed it. */
+	if (savetimeout != (unsigned long)-1)
 	    XtAppSetSelectionTimeout(XtWidgetToApplicationContext(nw),
 				     savetimeout);
     }
@@ -748,7 +753,8 @@ ColorCachePropertyExists(
     char *value = NULL ;
     int format = 0 ;
     Atom target; 
-    int result = False ;
+    int x_result;
+    Boolean result = False ;
     XmColorObj color_obj = (XmColorObj)w;
 
     if (dpy == NULL || w == NULL || !SelOwner || screen < 0 ||
@@ -760,11 +766,11 @@ ColorCachePropertyExists(
 	return False ;
 
     /* get the content of the property */
-    result = XGetWindowProperty(dpy, SelOwner, pixel_set_atom, 0L, 1000000,
-		    False, (Atom)AnyPropertyType, &target, &format, 
-		    &length, &bytesafter, (unsigned char **) &value);
+    x_result = XGetWindowProperty(dpy, SelOwner, pixel_set_atom, 0L, 1000000,
+			      False, (Atom)AnyPropertyType, &target, &format,
+			      &length, &bytesafter, (unsigned char **) &value);
 
-   if ((result != Success) || (format != 8) || (target == None) ||
+   if ((x_result != Success) || (format != 8) || (target == None) ||
 	(bytesafter != 0))
    {
 	if (value != NULL)
@@ -780,6 +786,7 @@ ColorCachePropertyExists(
 	value[length - 1] = 0 ; /* extract version info */
 
         result = FetchPixelData(w, value, length - 1, screen);
+	XFree(value);
     }
 	else if (value != NULL)
 	    XFree(value);

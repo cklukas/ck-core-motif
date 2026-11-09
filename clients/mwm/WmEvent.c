@@ -2049,6 +2049,12 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 		}
 	    }
 	    sRequest = XtNewString (pchReq);
+	    if (sRequest == NULL)
+	    {
+		Warning ("Insufficient memory to process workspace manager request.");
+		XtFree (pchReq);
+		continue;
+	    }
 	    _DtWmParseSetLine (wmGD.pWmPB, (unsigned char *)sRequest);
 	    lineP = wmGD.pWmPB->pchLine;
             iFuncIndex = ParseWmFunction (&lineP, CRS_BUTTON|CRS_KEY, 
@@ -2112,7 +2118,9 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 		}
 	    }
 	    else if (!strncmp (pchReq, DTWM_REQ_CHANGE_BACKDROP,
-			strlen(DTWM_REQ_CHANGE_BACKDROP)))
+			strlen(DTWM_REQ_CHANGE_BACKDROP)) &&
+		     ((pchReq[strlen(DTWM_REQ_CHANGE_BACKDROP)] == '\0') ||
+		      (pchReq[strlen(DTWM_REQ_CHANGE_BACKDROP)] == ' ')))
 	    {
 		Pixmap pixmap = None;
 		char *pch;
@@ -2164,7 +2172,7 @@ HandleDtWmRequest (WmScreenData *pSD, XEvent *pev)
 		    }
 		    XtFree (pchFile);
 		}
-		else
+		else if (pch != NULL)
 		{
 		    Warning (((char *)GETMESSAGE(32, 2, "Insufficient memory to handle backdrop change.")));
 		}

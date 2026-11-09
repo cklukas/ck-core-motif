@@ -45,6 +45,24 @@ static void paint_pencil(Widget,XtPointer,XtPointer);
 static void release_palette(XmColorPickerWidget);
 static const char *pencil_names[24]={"Black","Graphite","Gray","Silver","White","Rose","Red","Orange","Amber","Yellow","Lime","Green","Mint","Teal","Cyan","Sky","Blue","Indigo","Violet","Purple","Magenta","Pink","Brown","Sand"};
 static const uint32_t pencil_colors[24]={0x17191cff,0x444950ff,0x737b85ff,0xb7c0caff,0xffffffff,0xb74058ff,0xe33b37ff,0xf17c32ff,0xe9ae27ff,0xf3d843ff,0x9cc83aff,0x3b9d4aff,0x6ac5a4ff,0x248c89ff,0x36c3d8ff,0x5aa5e2ff,0x3478d4ff,0x4e56a9ff,0x7953bcff,0x98549fff,0xcb4b9fff,0xe798b5ff,0x8b6049ff,0xd3b38aff};
+/* XPoint stores coordinates in signed 16-bit protocol fields. */
+static short bounded_xpoint_coordinate(int value) {
+    return value < SHRT_MIN ? SHRT_MIN :
+           value > SHRT_MAX ? SHRT_MAX : (short)value;
+}
+/* X11 rectangle extents are unsigned protocol values.  Keep signed working
+ * geometry signed until this boundary, then reject empty spans and clamp the
+ * representable extent rather than wrapping it. */
+static Dimension bounded_x_extent(int value) {
+    return value <= 0 ? 0 :
+        value > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)value;
+}
+static Boolean status_is_true(Status status) {
+    return status != 0 ? True : False;
+}
+static int mode_index(XmColorPickerMode mode) {
+    return (int)mode;
+}
 static void CheckSetRenderTable(Widget widget, int offset, XrmValue *value)
 {
     XmColorPickerWidget picker = (XmColorPickerWidget)widget;
@@ -157,7 +175,9 @@ static void place(XmColorPickerWidget p,Widget child,int x,int y,int width,int h
     int right=MIN((int)p->core.width,x+width),bottom=MIN((int)p->core.height,y+height);
     x=MAX(0,x);y=MAX(0,y);width=right-x;height=bottom-y;
     XtSetMappedWhenManaged(child,width>0 && height>0);
-    if(width>0 && height>0)XtConfigureWidget(child,x,y,width,height,0);
+    if(width>0 && height>0)
+        XtConfigureWidget(child,x,y,bounded_x_extent(width),
+                          bounded_x_extent(height),0);
 }
 static void Resize(Widget widget) {
     XmColorPickerWidget p=(XmColorPickerWidget)widget;Layout m;
@@ -243,7 +263,8 @@ static void update_colors(XmColorPickerWidget p) {
         color.green=(unsigned short)((((value>>16)&255)*alpha+base*(255-alpha)+127)/255*257);
         color.blue=(unsigned short)((((value>>8)&255)*alpha+base*(255-alpha)+127)/255*257);
         color.flags=DoRed|DoGreen|DoBlue;
-        p->color_picker.swatch_allocated[i]=XAllocColor(XtDisplay(p),p->core.colormap,&color);
+        p->color_picker.swatch_allocated[i]=status_is_true(
+            XAllocColor(XtDisplay(p),p->core.colormap,&color));
         p->color_picker.swatch_pixels[i]=p->color_picker.swatch_allocated[i]?color.pixel:
             (i?p->core.background_pixel:p->manager.foreground);
     }
@@ -260,7 +281,9 @@ static void paint_swatch(Widget child,XtPointer closure,XtPointer data) {
     int tile=MAX(1,p->color_picker.spacing);
     for(int y=0;y<height;y+=tile)for(int x=0;x<width;x+=tile) {
         XSetForeground(d,p->color_picker.swatch_gc,p->color_picker.swatch_pixels[((x/tile)+(y/tile))&1]);
-        XFillRectangle(d,window,p->color_picker.swatch_gc,x,y,MIN(tile,width-x),MIN(tile,height-y));
+        XFillRectangle(d,window,p->color_picker.swatch_gc,x,y,
+                       bounded_x_extent(MIN(tile,width-x)),
+                       bounded_x_extent(MIN(tile,height-y)));
     }
     XSetClipMask(d,p->color_picker.swatch_gc,None);
 }
@@ -321,7 +344,7 @@ static void channel_changed(Widget child,XtPointer closure,XtPointer data) {
     for(unsigned i=0;i<4;++i)if(child==p->color_picker.channels[i]) {
         int value;XmScaleGetValue(child,&value);unsigned shift=24-8*i;
         uint32_t next=(p->color_picker.preview&~(UINT32_C(255)<<shift))|((uint32_t)value<<shift);
-        if(i==3 && (p->color_picker.mode==XmCOLOR_PICKER_HSV||p->color_picker.mode==XmCOLOR_PICKER_LAB))p->color_picker.model_source=p->color_picker.mode;
+        if(i==3 && (p->color_picker.mode==XmCOLOR_PICKER_HSV||p->color_picker.mode==XmCOLOR_PICKER_LAB))p->color_picker.model_source=mode_index(p->color_picker.mode);
         preview_value(p,next,call?call->event:NULL,True);return;
     }
 }
@@ -357,9 +380,12 @@ static void Initialize(Widget request,Widget widget,ArgList args,Cardinal *count
     p->color_picker.palette_ready=False;memset(p->color_picker.palette_allocated,0,sizeof(p->color_picker.palette_allocated));
     p->color_picker.swatch_allocated[0]=p->color_picker.swatch_allocated[1]=False;
     p->color_picker.render_table=XmFontListCopy(p->color_picker.render_table?p->color_picker.render_table:XmeGetDefaultRenderTable(widget,XmLABEL_FONTLIST));
+    p->color_picker.swatch_gc=NULL;
     Pixmap drawable=XCreatePixmap(XtDisplay(widget),RootWindowOfScreen(XtScreen(widget)),1,1,p->core.depth);
-    p->color_picker.swatch_gc=XCreateGC(XtDisplay(widget),drawable,0,NULL);
-    XFreePixmap(XtDisplay(widget),drawable);
+    if(drawable!=None){
+        p->color_picker.swatch_gc=XCreateGC(XtDisplay(widget),drawable,0,NULL);
+        XFreePixmap(XtDisplay(widget),drawable);
+    }
     p->color_picker.swatch=XtVaCreateManagedWidget("swatch",xmDrawingAreaWidgetClass,widget,XmNtraversalOn,False,XmNresizePolicy,XmRESIZE_NONE,NULL);
     XtAddCallback(p->color_picker.swatch,XmNexposeCallback,paint_swatch,p);
     p->color_picker.hex_label=label(widget,"hexLabel","Hex RGBA",p->color_picker.render_table,True);
@@ -374,9 +400,9 @@ static void Initialize(Widget request,Widget widget,ArgList args,Cardinal *count
             XmNrenderTable,p->color_picker.render_table,NULL);
         XtAddCallback(p->color_picker.channels[i],XmNvalueChangedCallback,channel_changed,p);
         XtAddCallback(p->color_picker.channels[i],XmNdragCallback,channel_changed,p);
-        WidgetList children;Cardinal count;
-        XtVaGetValues(p->color_picker.channels[i],XmNchildren,&children,XmNnumChildren,&count,NULL);
-        for(Cardinal n=0;n<count;++n)if(XtIsWidget(children[n]))
+        WidgetList children;Cardinal child_count;
+        XtVaGetValues(p->color_picker.channels[i],XmNchildren,&children,XmNnumChildren,&child_count,NULL);
+        for(Cardinal n=0;n<child_count;++n)if(XtIsWidget(children[n]))
             XtAddEventHandler(children[n],KeyPressMask,False,Events,p);
     }
     p->color_picker.modes=XtVaCreateManagedWidget("colorModes",xmSegmentedControlWidgetClass,widget,XmNrenderTable,p->color_picker.render_table,NULL);
@@ -384,7 +410,8 @@ static void Initialize(Widget request,Widget widget,ArgList args,Cardinal *count
     for(int i=0;i<4;++i){items[i].id=mode_names[i];items[i].label=XmStringCreateLocalized((char*)mode_names[i]);items[i].pixmap=XmUNSPECIFIED_PIXMAP;items[i].enabled=True;}
     XmSegmentedControlSetItems(p->color_picker.modes,items,4);
     for(int i=0;i<4;++i)XmStringFree(items[i].label);
-    XmSegmentedControlSetSelectedIndex(p->color_picker.modes,p->color_picker.mode,False);
+    XmSegmentedControlSetSelectedIndex(p->color_picker.modes,
+                                       mode_index(p->color_picker.mode),False);
     XtAddCallback(p->color_picker.modes,XmNSegmentedSelectionCallback,mode_changed,p);
     p->color_picker.plane=XtVaCreateWidget("colorField",xmDrawingAreaWidgetClass,widget,XmNresizePolicy,XmRESIZE_NONE,XmNtraversalOn,True,NULL);
     XtAddCallback(p->color_picker.plane,XmNexposeCallback,paint_plane,p);
@@ -484,7 +511,7 @@ static void set_label(Widget w,const char *text) {
 }
 static void managed(Widget w,Boolean visible){if(visible){if(!XtIsManaged(w))XtManageChild(w);}else if(XtIsManaged(w))XtUnmanageChild(w);}
 static void update_modes(XmColorPickerWidget p) {
-    int mode=p->color_picker.mode;
+    int mode=mode_index(p->color_picker.mode);
     const char *hsv_names[]={"Hue","Saturation %","Value %"},*lab_names[]={"Lightness","a*","b*"};
     for(int i=0;i<3;++i){
         managed(p->color_picker.labels[i],mode==XmCOLOR_PICKER_RGB);managed(p->color_picker.channels[i],mode==XmCOLOR_PICKER_RGB);
@@ -508,7 +535,8 @@ static void update_modes(XmColorPickerWidget p) {
 Boolean XmColorPickerSetMode(Widget widget,XmColorPickerMode mode) {
     if(!widget || !XmIsColorPicker(widget) || widget->core.being_destroyed || mode<XmCOLOR_PICKER_RGB || mode>XmCOLOR_PICKER_PENCILS)return False;
     XmColorPickerWidget p=(XmColorPickerWidget)widget;p->color_picker.mode=mode;p->color_picker.dragging=False;
-    XmSegmentedControlSetSelectedIndex(p->color_picker.modes,mode,False);
+    XmSegmentedControlSetSelectedIndex(p->color_picker.modes,
+                                       mode_index(mode),False);
     /* Mode changes preserve both pending text and the selected color. */
     p->color_picker.updating=True;update_modes(p);p->color_picker.updating=False;
     Resize(widget);schedule_layout(p);return True;
@@ -521,7 +549,8 @@ static void mode_changed(Widget child,XtPointer closure,XtPointer data) {
 static void model_preview(XmColorPickerWidget p,int mode,XEvent *event) {
     double rgb[3];p->color_picker.model_source=mode;
     if(mode==XmCOLOR_PICKER_HSV)color_from_hsv(p->color_picker.hsv,rgb);
-    else p->color_picker.gamut=color_from_lab(p->color_picker.lab,rgb);
+    else p->color_picker.gamut=status_is_true(
+        color_from_lab(p->color_picker.lab,rgb));
     preview_value(p,color_pack(rgb,p->color_picker.preview&255),event,True);
 }
 Boolean XmColorPickerPreviewHSV(Widget w,double h,double s,double v) {
@@ -542,7 +571,7 @@ static void model_changed(Widget child,XtPointer closure,XtPointer data) {
         int value;XmScaleGetValue(child,&value);
         if(p->color_picker.mode==XmCOLOR_PICKER_HSV)p->color_picker.hsv[i]=value/(i?1000.:10.);
         else if(p->color_picker.mode==XmCOLOR_PICKER_LAB)p->color_picker.lab[i]=value/10.;else return;
-        model_preview(p,p->color_picker.mode,cb?cb->event:NULL);return;
+        model_preview(p,mode_index(p->color_picker.mode),cb?cb->event:NULL);return;
     }
 }
 static void release_palette(XmColorPickerWidget p) {
@@ -555,14 +584,22 @@ static void ensure_palette(XmColorPickerWidget p,Visual *visual) {
     if(visual->class==TrueColor)return;
     if(p->color_picker.palette_ready && p->color_picker.palette_colormap==p->core.colormap)return;
     release_palette(p);p->color_picker.palette_colormap=p->core.colormap;
-    XColor available[256];Boolean queried=False;int count=MIN(visual->map_entries,256);
+    XColor available[256];Boolean queried=False;
+    int count=visual->map_entries > 0 ? MIN(visual->map_entries,256) : 0;
     for(int r=0;r<6;++r)for(int g=0;g<6;++g)for(int b=0;b<6;++b){
-        int i=r*36+g*6+b;XColor c={0};c.red=r*13107;c.green=g*13107;c.blue=b*13107;c.flags=DoRed|DoGreen|DoBlue;
-        p->color_picker.palette_allocated[i]=XAllocColor(XtDisplay(p),p->core.colormap,&c);
+        int i=r*36+g*6+b;XColor c={0};
+        c.red=(unsigned short)(r*13107);c.green=(unsigned short)(g*13107);
+        c.blue=(unsigned short)(b*13107);c.flags=DoRed|DoGreen|DoBlue;
+        p->color_picker.palette_allocated[i]=status_is_true(
+            XAllocColor(XtDisplay(p),p->core.colormap,&c));
         p->color_picker.palette[i]=p->color_picker.palette_allocated[i]?c.pixel:p->core.background_pixel;
         if(!p->color_picker.palette_allocated[i]){
             /* Query a bounded existing map; never allocate during expose again. */
-            if(!queried){for(int j=0;j<count;++j)available[j].pixel=j;XQueryColors(XtDisplay(p),p->core.colormap,available,count);queried=True;}
+            if(!queried && count>0){
+                for(int j=0;j<count;++j)available[j].pixel=(unsigned long)j;
+                XQueryColors(XtDisplay(p),p->core.colormap,available,count);
+                queried=True;
+            }
             uint64_t best=UINT64_MAX;
             for(int j=0;j<count;++j){
                 int64_t dr=(int64_t)c.red-available[j].red,dg=(int64_t)c.green-available[j].green,db=(int64_t)c.blue-available[j].blue;
@@ -575,7 +612,7 @@ static void ensure_palette(XmColorPickerWidget p,Visual *visual) {
 static unsigned long component_pixel(double v,unsigned long mask) {
     if(!mask)return 0;
     unsigned shift=0;while(!(mask&1)){mask>>=1;++shift;}
-    return ((unsigned long)floor(color_clamp(v,0,1)*mask+.5)<<shift);
+    return ((unsigned long)floor(color_clamp(v,0,1)*(double)mask+.5)<<shift);
 }
 static Pixel rgb_pixel(XmColorPickerWidget p,Visual *visual,const double rgb[3]) {
     if(visual->class==TrueColor)return component_pixel(rgb[0],visual->red_mask)|component_pixel(rgb[1],visual->green_mask)|component_pixel(rgb[2],visual->blue_mask);
@@ -584,30 +621,46 @@ static Pixel rgb_pixel(XmColorPickerWidget p,Visual *visual,const double rgb[3])
 }
 static void paint_plane(Widget child,XtPointer closure,XtPointer data) {
     XmColorPickerWidget p=closure;(void)data;if(!XtIsRealized(child)||!XtIsManaged(child))return;
+    if(!p->color_picker.swatch_gc)return;
     Display *d=XtDisplay(child);Window window=XtWindow(child);XWindowAttributes attr;
     if(!XGetWindowAttributes(d,window,&attr))return;
-    unsigned width=child->core.width,height=child->core.height;int mode=p->color_picker.mode;
+    int width=(int)child->core.width,height=(int)child->core.height;
+    int mode=mode_index(p->color_picker.mode);
+    /* X drawable dimensions are nonzero.  A constrained or not-yet-laid-out
+     * child can transiently report zero here; do not turn that into a BadValue
+     * request, or try to draw through a failed pixmap allocation. */
+    if(width<=0||height<=0||attr.depth<=0)return;
     double parameter=mode==XmCOLOR_PICKER_HSV?p->color_picker.hsv[0]:p->color_picker.lab[0];
     ensure_palette(p,attr.visual);
-    if(!p->color_picker.plane_cache || p->color_picker.plane_width!=width || p->color_picker.plane_height!=height || p->color_picker.plane_parameter!=parameter || p->color_picker.plane_mode!=mode || p->color_picker.palette_background!=p->core.background_pixel || p->color_picker.plane_colormap!=p->core.colormap || p->color_picker.plane_sensitive!=XtIsSensitive(child)){
+    unsigned int plane_width=(unsigned int)width,plane_height=(unsigned int)height;
+    if(!p->color_picker.plane_cache || p->color_picker.plane_width!=plane_width || p->color_picker.plane_height!=plane_height || p->color_picker.plane_parameter!=parameter || p->color_picker.plane_mode!=mode || p->color_picker.palette_background!=p->core.background_pixel || p->color_picker.plane_colormap!=p->core.colormap || p->color_picker.plane_sensitive!=XtIsSensitive(child)){
         if(p->color_picker.plane_cache)XFreePixmap(d,p->color_picker.plane_cache);
-        p->color_picker.plane_cache=XCreatePixmap(d,window,width,height,attr.depth);
-        p->color_picker.plane_width=width;p->color_picker.plane_height=height;p->color_picker.plane_parameter=parameter;p->color_picker.plane_mode=mode;p->color_picker.palette_background=p->core.background_pixel;p->color_picker.plane_colormap=p->core.colormap;p->color_picker.plane_sensitive=XtIsSensitive(child);
+        p->color_picker.plane_cache=XCreatePixmap(
+            d,window,bounded_x_extent(width),bounded_x_extent(height),
+            (unsigned int)attr.depth);
+        if(p->color_picker.plane_cache==None)return;
+        p->color_picker.plane_width=plane_width;p->color_picker.plane_height=plane_height;p->color_picker.plane_parameter=parameter;p->color_picker.plane_mode=mode;p->color_picker.palette_background=p->core.background_pixel;p->color_picker.plane_colormap=p->core.colormap;p->color_picker.plane_sensitive=XtIsSensitive(child);
         /* Bounded strips limit client memory without one X request per row. */
-        unsigned strip=MIN(height,32);
-        XImage *image=XCreateImage(d,attr.visual,attr.depth,ZPixmap,0,NULL,width,strip,32,0);
+        int strip=MIN(height,32);
+        XImage *image=XCreateImage(d,attr.visual,(unsigned int)attr.depth,
+            ZPixmap,0,NULL,bounded_x_extent(width),bounded_x_extent(strip),32,0);
         if(!image){XFreePixmap(d,p->color_picker.plane_cache);p->color_picker.plane_cache=None;return;}
-        image->data=calloc(strip,image->bytes_per_line);
+        if(image->bytes_per_line<=0 ||
+           (size_t)strip>SIZE_MAX/(size_t)image->bytes_per_line){
+            XDestroyImage(image);XFreePixmap(d,p->color_picker.plane_cache);
+            p->color_picker.plane_cache=None;return;
+        }
+        image->data=calloc((size_t)strip,(size_t)image->bytes_per_line);
         if(!image->data){XDestroyImage(image);XFreePixmap(d,p->color_picker.plane_cache);p->color_picker.plane_cache=None;return;}
         XColor paper={0};paper.pixel=p->core.background_pixel;XQueryColor(d,p->core.colormap,&paper);
         double background[3]={paper.red/65535.,paper.green/65535.,paper.blue/65535.};
-        for(unsigned start=0;start<height;start+=strip){
-          unsigned rows=MIN(strip,height-start);
-          for(unsigned row=0;row<rows;++row){unsigned y=start+row;
-           for(unsigned x=0;x<width;++x){
+        for(int start=0;start<height;start+=strip){
+          int rows=MIN(strip,height-start);
+          for(int row=0;row<rows;++row){int y=start+row;
+           for(int x=0;x<width;++x){
             double rgb[3],nx=width>1?(double)x/(width-1):0,ny=height>1?1-(double)y/(height-1):0;Boolean gamut=True;
             if(mode==XmCOLOR_PICKER_HSV){double hsv[]={parameter,nx,ny};color_from_hsv(hsv,rgb);}
-            else {double lab[]={parameter,-128+255*nx,-128+255*ny};gamut=color_from_lab(lab,rgb);}
+            else {double lab[]={parameter,-128+255*nx,-128+255*ny};gamut=status_is_true(color_from_lab(lab,rgb));}
             if(!gamut){
                 double coverage=(x+y)%10<1?.18:.35;
                 for(int i=0;i<3;++i)rgb[i]=color_clamp(rgb[i],0,1)*coverage+background[i]*(1-coverage);
@@ -616,32 +669,38 @@ static void paint_plane(Widget child,XtPointer closure,XtPointer data) {
             XPutPixel(image,x,row,rgb_pixel(p,attr.visual,rgb));
            }
           }
-          XPutImage(d,p->color_picker.plane_cache,p->color_picker.swatch_gc,image,0,0,0,start,width,rows);
+          XPutImage(d,p->color_picker.plane_cache,p->color_picker.swatch_gc,
+                    image,0,0,0,start,bounded_x_extent(width),
+                    bounded_x_extent(rows));
         }
         XDestroyImage(image);
     }
     XSetForeground(d,p->color_picker.swatch_gc,p->core.background_pixel);
-    XFillRectangle(d,window,p->color_picker.swatch_gc,0,0,width,height);
+    XFillRectangle(d,window,p->color_picker.swatch_gc,0,0,
+                   bounded_x_extent(width),bounded_x_extent(height));
     XmAppearanceProfile profile=_XmAppearanceGeometryProfile(d);
     int radius=profile==XmAPPEARANCE_CLASSIC?0:_XmDpiDefaultDimension((Widget)p,4);
     Region clip=_XmAppearanceRoundedRectangleRegion(0,0,width,height,radius);
     XSetRegion(d,p->color_picker.swatch_gc,clip);XDestroyRegion(clip);
-    XCopyArea(d,p->color_picker.plane_cache,window,p->color_picker.swatch_gc,0,0,width,height,0,0);
+    XCopyArea(d,p->color_picker.plane_cache,window,p->color_picker.swatch_gc,
+              0,0,bounded_x_extent(width),bounded_x_extent(height),0,0);
     double nx=mode==XmCOLOR_PICKER_HSV?p->color_picker.hsv[1]:(p->color_picker.lab[1]+128)/255;
     double ny=mode==XmCOLOR_PICKER_HSV?p->color_picker.hsv[2]:(p->color_picker.lab[2]+128)/255;
     int x=(int)floor(nx*(width-1)+.5),y=(int)floor((1-ny)*(height-1)+.5),r=MAX(3,p->color_picker.spacing/2);
     double black[]={0,0,0},white[]={1,1,1};
     XSetForeground(d,p->color_picker.swatch_gc,rgb_pixel(p,attr.visual,black));
-    XDrawRectangle(d,window,p->color_picker.swatch_gc,x-r,y-r,2*r,2*r);
+    XDrawRectangle(d,window,p->color_picker.swatch_gc,x-r,y-r,
+                   bounded_x_extent(2*r),bounded_x_extent(2*r));
     XSetForeground(d,p->color_picker.swatch_gc,rgb_pixel(p,attr.visual,white));
-    XDrawRectangle(d,window,p->color_picker.swatch_gc,x-r+1,y-r+1,2*r-2,2*r-2);
-    if(XmGetFocusWidget((Widget)p)==child){XSetForeground(d,p->color_picker.swatch_gc,p->manager.foreground);if(width>2&&height>2)XDrawRectangle(d,window,p->color_picker.swatch_gc,1,1,width-3,height-3);}
+    XDrawRectangle(d,window,p->color_picker.swatch_gc,x-r+1,y-r+1,
+                   bounded_x_extent(2*r-2),bounded_x_extent(2*r-2));
+    if(XmGetFocusWidget((Widget)p)==child){XSetForeground(d,p->color_picker.swatch_gc,p->manager.foreground);if(width>2&&height>2)XDrawRectangle(d,window,p->color_picker.swatch_gc,1,1,bounded_x_extent(width-3),bounded_x_extent(height-3));}
     XSetClipMask(d,p->color_picker.swatch_gc,None);
 }
 static void plane_events(Widget child,XtPointer closure,XEvent *event,Boolean *dispatch) {
     XmColorPickerWidget p=closure;
     if(!p || !XmIsColorPicker((Widget)p) || p->core.being_destroyed || !event || !dispatch)return;
-    int mode=p->color_picker.mode;
+    int mode=mode_index(p->color_picker.mode);
     if(event->type==FocusIn||event->type==FocusOut){paint_plane(child,p,NULL);return;}
     if(!XtIsSensitive((Widget)p)||!XtIsSensitive(child)){p->color_picker.dragging=False;return;}
     double nx=mode==XmCOLOR_PICKER_HSV?p->color_picker.hsv[1]:(p->color_picker.lab[1]+128)/255;
@@ -673,16 +732,17 @@ static void paint_pencil(Widget child,XtPointer closure,XtPointer data) {
     int index=0;while(index<24&&p->color_picker.pencils[index]!=child)++index;if(index==24)return;
     Display *d=XtDisplay(child);Window window=XtWindow(child);XWindowAttributes attr;if(!XGetWindowAttributes(d,window,&attr))return;
     ensure_palette(p,attr.visual);GC gc=p->color_picker.swatch_gc;
+    if(!gc)return;
     int width=child->core.width,height=child->core.height,inset=MAX(3,p->color_picker.spacing/2);
     if(width<=2*inset||height<=2*inset)return;
-    Pixel bg;XtVaGetValues(child,XmNbackground,&bg,NULL);XSetForeground(d,gc,bg);XFillRectangle(d,window,gc,inset,inset,width-2*inset,height-2*inset);
+    Pixel bg;XtVaGetValues(child,XmNbackground,&bg,NULL);XSetForeground(d,gc,bg);XFillRectangle(d,window,gc,inset,inset,bounded_x_extent(width-2*inset),bounded_x_extent(height-2*inset));
     int left=inset+1,right=width-inset-1,top=inset+1,bottom=height-inset-1,tip=MIN((right-left),MAX(1,(bottom-top)/3));
     double rgb[3];color_rgb(pencil_colors[index],rgb);XSetForeground(d,gc,rgb_pixel(p,attr.visual,rgb));
-    XFillRectangle(d,window,gc,left,top+tip,MAX(1,right-left),MAX(1,bottom-top-tip));
+    XFillRectangle(d,window,gc,left,top+tip,bounded_x_extent(MAX(1,right-left)),bounded_x_extent(MAX(1,bottom-top-tip)));
     double wood[]={.83,.68,.48};XSetForeground(d,gc,rgb_pixel(p,attr.visual,wood));
-    XPoint points[3]={{(short)((left+right)/2),(short)top},{(short)right,(short)(top+tip)},{(short)left,(short)(top+tip)}};XFillPolygon(d,window,gc,points,3,Convex,CoordModeOrigin);
-    XSetForeground(d,gc,rgb_pixel(p,attr.visual,rgb));points[1].x=(left+right)/2+MAX(1,(right-left)/5);points[1].y=top+MAX(1,tip/2);points[2].x=(left+right)/2-MAX(1,(right-left)/5);points[2].y=points[1].y;XFillPolygon(d,window,gc,points,3,Convex,CoordModeOrigin);
+    XPoint points[3]={{bounded_xpoint_coordinate((left+right)/2),bounded_xpoint_coordinate(top)},{bounded_xpoint_coordinate(right),bounded_xpoint_coordinate(top+tip)},{bounded_xpoint_coordinate(left),bounded_xpoint_coordinate(top+tip)}};XFillPolygon(d,window,gc,points,3,Convex,CoordModeOrigin);
+    XSetForeground(d,gc,rgb_pixel(p,attr.visual,rgb));points[1].x=bounded_xpoint_coordinate((left+right)/2+MAX(1,(right-left)/5));points[1].y=bounded_xpoint_coordinate(top+MAX(1,tip/2));points[2].x=bounded_xpoint_coordinate((left+right)/2-MAX(1,(right-left)/5));points[2].y=points[1].y;XFillPolygon(d,window,gc,points,3,Convex,CoordModeOrigin);
     for(int i=0;i<3;++i)rgb[i]=rgb[i]*.65+.35;
-    XSetForeground(d,gc,rgb_pixel(p,attr.visual,rgb));XFillRectangle(d,window,gc,left+1,top+tip,MAX(1,(right-left)/4),MAX(1,bottom-top-tip));
-    if((p->color_picker.preview>>8)==(pencil_colors[index]>>8)){XSetForeground(d,gc,p->manager.foreground);XDrawRectangle(d,window,gc,inset,inset,width-2*inset-1,height-2*inset-1);}
+    XSetForeground(d,gc,rgb_pixel(p,attr.visual,rgb));XFillRectangle(d,window,gc,left+1,top+tip,bounded_x_extent(MAX(1,(right-left)/4)),bounded_x_extent(MAX(1,bottom-top-tip)));
+    if((p->color_picker.preview>>8)==(pencil_colors[index]>>8)){XSetForeground(d,gc,p->manager.foreground);XDrawRectangle(d,window,gc,inset,inset,bounded_x_extent(width-2*inset-1),bounded_x_extent(height-2*inset-1));}
 }

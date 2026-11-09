@@ -646,6 +646,7 @@ void	lst_output_machine_code(src_source_record_type *az_src_rec)
     static	unsigned short mc_cnt = 0;
 
     src_machine_code_type	*az_code;
+    src_machine_code_type	* *new_mc_array;
     int				code_cnt, mc_i;
 
 /*	Go through the machine code list, and save the entries in
@@ -657,12 +658,15 @@ void	lst_output_machine_code(src_source_record_type *az_src_rec)
     code_cnt = az_src_rec->w_machine_code_cnt;
 
     if ((int)mc_cnt < code_cnt) {
+	new_mc_array =
+	    (src_machine_code_type * *)_get_memory(
+		(Cardinal)(sizeof (char *) * (size_t)code_cnt));
+	if (new_mc_array == NULL)
+	    return;
 	if (mc_array != NULL) {
 	    _free_memory ((char*)mc_array);
 	}
-	mc_array = 
-	    (src_machine_code_type * *)_get_memory(
-		(Cardinal)(sizeof (char *) * (size_t)code_cnt));
+	mc_array = new_mc_array;
 	mc_cnt = (unsigned short)code_cnt;
     }
 
@@ -714,10 +718,10 @@ void	lst_output_machine_code(src_source_record_type *az_src_rec)
 	    text_size = (size_t)(BUF_LEN - TEXT_COL + 1);
 	text_len = (unsigned short)text_size;
 
-	long_cnt = code_len / sizeof (char *);
+	long_cnt = code_len / sizeof (*code_ptr);
 	line_cnt = long_cnt / LONG_PER_LINE;
 	extra_long_cnt = long_cnt % LONG_PER_LINE;
-	extra_byte_cnt = code_len % sizeof (char *);
+	extra_byte_cnt = code_len % sizeof (*code_ptr);
 
 	_fill (buffer, ' ', sizeof buffer - 1);
 
@@ -726,7 +730,7 @@ void	lst_output_machine_code(src_source_record_type *az_src_rec)
 	_move  (& buffer [OFFSET_COL - 1], hex_longword, HEX_PER_WORD);
 
 	_move (& buffer [TEXT_COL - 1], text_ptr, text_len);
-	buffer [TEXT_COL + text_len] = '\0';
+	buffer [TEXT_COL - 1 + text_len] = '\0';
 
 	line_written = FALSE;
 
@@ -750,7 +754,7 @@ void	lst_output_machine_code(src_source_record_type *az_src_rec)
 
 	      if (BIT_64_LONG){
 
-		sprintf ((char *)hex_longword, "%lX", (* code_ptr));
+		sprintf ((char *)hex_longword, "%016lX", (* code_ptr));
 	      }
 	      else{
                 sprintf ((char *)hex_longword, "%08lX", (* code_ptr));
@@ -801,7 +805,7 @@ void	lst_output_machine_code(src_source_record_type *az_src_rec)
 
 		for (i = 0; i < extra_long_cnt; i++, code_ptr++) {
 		    if (BIT_64_LONG){
-		      sprintf ((char *)hex_longword, "%lX", (* code_ptr));
+		      sprintf ((char *)hex_longword, "%016lX", (* code_ptr));
 		    }
 		    else{
 		      sprintf ((char *)hex_longword, "%08lX", (*code_ptr));
