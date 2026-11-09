@@ -1,3 +1,10 @@
+Bound Frame layout dimensions and positions (2026-11-10)
+=========================================================
+
+- Saturate Frame size, title extent, and spacing arithmetic and clamp title
+  and shadow origins before X11 geometry conversion; see
+  docs/frame-dimension-bounds.md.
+
 Keep XmPaned refigure margins and fallback indexes safe (2026-11-10)
 =====================================================================
 

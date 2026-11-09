@@ -30,6 +30,7 @@ static char rcsid[] = "$XConsortium: Frame.c /main/18 1996/10/15 15:01:45 cde-os
 #include <config.h>
 #endif
 
+#include <limits.h>
 
 #include <Xm/DrawP.h>
 #include <Xm/FrameP.h>
@@ -47,6 +48,16 @@ FrameClampPosition(long long value)
     if (value < SHRT_MIN)
 	return (Position)SHRT_MIN;
     return (Position)value;
+}
+
+static Dimension
+FrameClampDimension(long long value)
+{
+    if (value > USHRT_MAX)
+	return (Dimension)USHRT_MAX;
+    if (value < 0)
+	return 0;
+    return (Dimension)value;
 }
 
 #define GetFrameConstraint(w) \
@@ -436,7 +447,8 @@ ConfigureChildren(
     if (fw->frame.title_area && XtIsManaged(fw->frame.title_area)) {
 	child = fw->frame.title_area;
 	fc = GetFrameConstraint(child);
-	spacing = shadowThickness + fc->child_h_spacing;
+	spacing = FrameClampDimension((long long)shadowThickness +
+	    fc->child_h_spacing);
 
 	/* asking the preferred geometry without constraint */
 	XtQueryGeometry (child, NULL, &title_reply);
@@ -1078,18 +1090,19 @@ CalcFrameSize(
 
       CalcTitleExtent (fw, titleHeight, titleBorder, &titleExtent, NULL,
 		NULL, NULL);
-      titleMax = 2 * (shadowThickness + titleBorder + fc->child_h_spacing) +
-		titleWidth;
+      titleMax = FrameClampDimension(2 * ((long long)shadowThickness +
+	  titleBorder + fc->child_h_spacing) + titleWidth);
    }
 
-   workMax = 2 * (workBorder + shadowThickness + fw->frame.margin_width) +
-		workWidth;
+   workMax = FrameClampDimension(2 * ((long long)workBorder +
+	shadowThickness + fw->frame.margin_width) + workWidth);
 
    *fwWidth =  MAX (workMax, titleMax);
    if (*fwWidth == 0) *fwWidth = 1;
 
-   *fwHeight = workHeight + 2 * (workBorder + fw->frame.margin_height) +
-       shadowThickness + titleExtent;
+   *fwHeight = FrameClampDimension((long long)workHeight +
+       2 * ((long long)workBorder + fw->frame.margin_height) +
+       shadowThickness + titleExtent);
    if (*fwHeight == 0) *fwHeight = 1;
 }
 
@@ -1179,7 +1192,8 @@ CalcTitleExtent(
     Dimension base;
     Dimension *lines;
     int nlines;
-    Dimension total = titleHeight + 2 * titleBorder;
+    Dimension total = FrameClampDimension((long long)titleHeight +
+	2 * (long long)titleBorder);
 
     switch (fc->child_v_alignment) {
 	case(XmALIGNMENT_BASELINE_TOP):
@@ -1196,10 +1210,13 @@ CalcTitleExtent(
 		base = total/2;
 	    }
 	    ty = (base + titleBorder > shadowThickness/2) ?
-		0 : shadowThickness/2 - (base + titleBorder);
-	    extent = ty + MAX(total, titleBorder + base + shadowThickness/2);
+		0 : FrameClampPosition((long long)shadowThickness / 2 -
+		    base - titleBorder);
+	    extent = FrameClampDimension((long long)ty +
+		MAX(total, titleBorder + base + shadowThickness/2));
 	    sy = (base + titleBorder > shadowThickness/2) ?
-		base + titleBorder - shadowThickness/2 : 0;
+		FrameClampPosition((long long)base + titleBorder -
+		    shadowThickness / 2) : 0;
 	    sh = ((Dimension) sy >= fw->core.height) ? 
 		1 : fw->core.height - sy;
 	    break;
@@ -1212,15 +1229,15 @@ CalcTitleExtent(
 	    break;
 	case(XmALIGNMENT_WIDGET_TOP):
 	    ty = 0;
-	    extent = shadowThickness + total;
-	    sy = total;
+	    extent = FrameClampDimension((long long)shadowThickness + total);
+	    sy = FrameClampPosition(total);
 	    sh = ((Dimension) sy >= fw->core.height) ? 
 		1 : fw->core.height - sy;
 	    break;
 	case(XmALIGNMENT_WIDGET_BOTTOM):
 	default:
-	    ty = shadowThickness;
-	    extent = shadowThickness + total;
+	    ty = FrameClampPosition(shadowThickness);
+	    extent = FrameClampDimension((long long)shadowThickness + total);
 	    sy = 0;
 	    sh = fw->core.height;
 	    break;
