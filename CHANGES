@@ -1,3 +1,11 @@
+Handle unavailable buffered-paint state safely (2026-11-03)
+============================================================
+
+- Make buffered paint-state creation fallible through both redraw entry points.
+  An exhausted state or backend-string allocation now leaves the widget valid
+  and lets a later expose retry instead of dereferencing `NULL`; see
+  `docs/buffered-painting.md`.
+
 Guard composite item replacement during destruction (2026-11-03)
 ==================================================================
 

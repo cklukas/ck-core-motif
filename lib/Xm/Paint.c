@@ -201,9 +201,15 @@ static PaintState *ensure_state(Widget widget)
     };
     if (!state) {
         state = (PaintState *)XtCalloc(1, sizeof(*state));
+        if (!state)
+            return NULL;
         state->widget = widget;
         XtGetApplicationResources(widget, state, resources, XtNumber(resources), NULL, 0);
-        state->backend = XtNewString(state->backend);
+        state->backend = XtNewString(state->backend ? state->backend : "auto");
+        if (!state->backend) {
+            XtFree((char *)state);
+            return NULL;
+        }
         state->next = states;
         states = state;
         XtAddCallback(widget, XtNdestroyCallback, destroyed, state);
@@ -226,6 +232,10 @@ void _XmPaintInvalidate(Widget widget)
     if (!widget || !XtIsRealized(widget) || widget->core.being_destroyed) return;
     _XmProcessLock();
     state = ensure_state(widget);
+    if (!state) {
+        _XmProcessUnlock();
+        return;
+    }
     if (!state->pending)
         state->pending = XtAppAddTimeOut(XtWidgetToApplicationContext(widget), 0, repaint, state);
     _XmProcessUnlock();
@@ -240,6 +250,10 @@ void _XmBufferedPaint(Widget widget, XtExposeProc paint, XEvent *event, Region r
     display = XtDisplay(widget);
     _XmProcessLock();
     state = ensure_state(widget);
+    if (!state) {
+        _XmProcessUnlock();
+        return;
+    }
     if (state->pending) {
         XtRemoveTimeOut(state->pending);
         state->pending = 0;
