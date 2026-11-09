@@ -19,6 +19,10 @@ static Position bounded_position(long long value)
     if (value > SHRT_MAX) return (Position)SHRT_MAX;
     return (Position)value;
 }
+static unsigned int bounded_extent(int value)
+{
+    return value > 0 ? (unsigned int)value : 0U;
+}
 
 static void Initialize(Widget, Widget, ArgList, Cardinal *);
 static void Destroy(Widget);
@@ -161,9 +165,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             int right_start = MAX(0, MIN(width, x + text_width + divider->divider.spacing));
             XRectangle clip = {0, 0, (unsigned short)width, (unsigned short)height};
             if (left_end > 0)
-                XFillRectangle(display, window, gc, 0, y, left_end, thickness);
+                XFillRectangle(display, window, gc, 0, y,
+                               bounded_extent(left_end), bounded_extent(thickness));
             if (right_start < width)
-                XFillRectangle(display, window, gc, right_start, y, width - right_start, thickness);
+                XFillRectangle(display, window, gc, right_start, y,
+                               bounded_extent(width - right_start), bounded_extent(thickness));
             XSetForeground(display, gc, foreground);
                 XmStringDraw(display, window, divider->divider.font,
                          divider->divider.label, gc, bounded_position((long long)x),
@@ -171,12 +177,13 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                          text_width, XmALIGNMENT_BEGINNING,
                          XmPrim_layout_direction(divider), &clip);
         } else {
-            XFillRectangle(display, window, gc, 0, y, width, thickness);
+            XFillRectangle(display, window, gc, 0, y,
+                           bounded_extent(width), bounded_extent(thickness));
         }
     } else {
         int thickness = MIN(divider->divider.thickness, width);
         XFillRectangle(display, window, gc, (width - thickness) / 2, 0,
-                       thickness, height);
+                       bounded_extent(thickness), bounded_extent(height));
     }
     XSetClipMask(display, gc, None);
 }
@@ -204,12 +211,12 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         }
     }
     if (font_changed) {
-        XmFontList replacement = divider->divider.font
+        XmFontList font_replacement = divider->divider.font
             ? XmFontListCopy(divider->divider.font)
             : XmFontListCopy(XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
-        if (replacement) {
+        if (font_replacement) {
             if (old->divider.font) XmRenderTableFree(old->divider.font);
-            divider->divider.font = replacement;
+            divider->divider.font = font_replacement;
         } else {
             divider->divider.font = old->divider.font;
             font_changed = False;

@@ -7,6 +7,8 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Divider.c").read_text(
     encoding="utf-8"
 )
 assert "static Position bounded_position(long long value)" in source
+assert "static unsigned int bounded_extent(int value)" in source
+assert "bounded_extent(width - right_start)" in source
 assert "bounded_position((long long)x)" in source
 assert "bounded_position(((long long)height - (long long)text_height) / 2)" in source
 print("PASS Divider label coordinates stay bounded")
