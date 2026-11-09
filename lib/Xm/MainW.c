@@ -31,6 +31,7 @@ static char rcsid[] = "$XConsortium: MainW.c /main/20 1996/10/17 15:21:07 cde-os
 #endif
 #endif
 
+#include <limits.h>
 #include <stdint.h>
 #include "XmI.h"
 #include <Xm/SeparatoGP.h>  /* just access the position/dimension fields,*/
@@ -49,6 +50,16 @@ static char rcsid[] = "$XConsortium: MainW.c /main/20 1996/10/17 15:21:07 cde-os
 #define ExistManaged( wid)      (wid && XtIsManaged( wid))
 
 #define DEFAULT_SIZE 50
+
+static Dimension
+MainWClampDimension(long long value)
+{
+    if (value > USHRT_MAX)
+	return (Dimension)USHRT_MAX;
+    if (value < 0)
+	return 0;
+    return (Dimension)value;
+}
 
 /********    Static Function Declarations    ********/
 
@@ -956,7 +967,8 @@ GeometryManager(
         bw = w->core.border_width;
 
     if (request->request_mode & CWWidth) 
-	newWidth = request->width + 2 * (bw + mw->mwindow.margin_width);
+	newWidth = MainWClampDimension((long long)request->width +
+	    2 * ((long long)bw + mw->mwindow.margin_width));
     else
         newWidth = mw->core.width ;
 
@@ -972,7 +984,7 @@ GeometryManager(
          parent_height = (int) mw->core.height -
 	             ((int) w->core.height - (2 * (int) w->core.border_width)) +
 	             (int) request->height + 2 * (int) bw;
-         newHeight = (Dimension) ((parent_height > 0) ? parent_height : 0);
+	 newHeight = MainWClampDimension(parent_height);
      }
     else 
          newHeight = mw->core.height;
