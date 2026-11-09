@@ -1,3 +1,10 @@
+Bound SegmentedControl modern drawing geometry (2026-11-03)
+============================================================
+
+- Keep focus, separator, and inner rounded-face extents representable before
+  passing them to X11. Tiny segments no longer narrow a negative inner extent
+  through an unsigned drawing parameter; see `docs/segmented-geometry-bounds.md`.
+
 Guard simple redraw mutators during destruction (2026-11-03)
 ============================================================
 
