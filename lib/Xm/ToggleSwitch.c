@@ -118,6 +118,24 @@ typedef struct {
 static Dimension bounded(unsigned long value) {
     return (Dimension)MIN(USHRT_MAX,MAX(1UL,value));
 }
+static short bounded_position(int value) {
+    if(value < SHRT_MIN)return SHRT_MIN;
+    if(value > SHRT_MAX)return SHRT_MAX;
+    return (short)value;
+}
+static unsigned short bounded_extent(int value) {
+    if(value <= 0)return 0;
+    if(value > USHRT_MAX)return USHRT_MAX;
+    return (unsigned short)value;
+}
+static XRectangle clip_rectangle(int left, int top, int right, int bottom) {
+    XRectangle rectangle;
+    rectangle.x=bounded_position(left);
+    rectangle.y=bounded_position(top);
+    rectangle.width=bounded_extent(right-left);
+    rectangle.height=bounded_extent(bottom-top);
+    return rectangle;
+}
 static void measure(XmToggleSwitchWidget sw, SwitchMetrics *m) {
     Widget w=(Widget)sw;
     XmAppearanceProfile profile=_XmAppearanceGeometryProfile(XtDisplay(w));
@@ -129,6 +147,7 @@ static void measure(XmToggleSwitchWidget sw, SwitchMetrics *m) {
     m->track_width=_XmDpiDefaultDimension(w,TOGGLE_SWITCH_TRACK_WIDTH);
     m->track_height=_XmDpiDefaultDimension(w,TOGGLE_SWITCH_TRACK_HEIGHT);
     m->knob=_XmDpiDefaultDimension(w,TOGGLE_SWITCH_KNOB_DIAMETER);
+    if(m->knob>m->track_height)m->knob=m->track_height;
     /* Equal parity gives an integral center and identical opposite margins. */
     if ((m->track_height - m->knob) & 1) ++m->knob;
     m->inset=(Dimension)MIN(USHRT_MAX,MAX(frame,(unsigned long)_XmDpiDefaultDimension(w,compact?2:4)));
@@ -150,8 +169,11 @@ static void redraw(Widget w) {
 static void fill_round_rect(Display *display, Window window, GC gc,
                             int x, int y, unsigned int width,
                             unsigned int height) {
+    int width_int,height_int,radius;
     if(!gc || !width || !height || width > INT_MAX || height > INT_MAX)return;
-    _XmAppearanceFillRoundedRectangle(display,window,gc,x,y,width,height,MIN(width,height)/2);
+    width_int=(int)width;height_int=(int)height;
+    radius=MIN(width_int,height_int)/2;
+    _XmAppearanceFillRoundedRectangle(display,window,gc,x,y,width_int,height_int,radius);
 }
 static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *count) {
     XmToggleSwitchWidget sw=(XmToggleSwitchWidget)widget;
@@ -225,7 +247,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     measure(sw,&m);
     left=top=m.inset;right=(int)sw->core.width-m.inset;bottom=(int)sw->core.height-m.inset;
     if(right>left && bottom>top) {
-        clip=(XRectangle){left,top,right-left,bottom-top};XSetClipRectangles(d,gc,0,0,&clip,1,Unsorted);
+        clip=clip_rectangle(left,top,right,bottom);XSetClipRectangles(d,gc,0,0,&clip,1,Unsorted);
         tx=m.rtl?right-m.track_width:left;ty=((int)sw->core.height-m.track_height)/2;
         edge=sensitive?(m.modern?sw->primitive.bottom_shadow_color:sw->primitive.foreground):sw->primitive.bottom_shadow_color;
         if(sensitive && (sw->toggle_switch.hover || sw->toggle_switch.set))edge=sw->primitive.highlight_color;
@@ -236,20 +258,23 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         XSetForeground(d,gc,edge);fill_round_rect(d,window,gc,tx,ty,m.track_width,m.track_height);
         XSetForeground(d,gc,fill);
         if(m.track_width>2*border && m.track_height>2*border)
-            fill_round_rect(d,window,gc,tx+border,ty+border,m.track_width-2*border,m.track_height-2*border);
-        knob=m.knob;
+            fill_round_rect(d,window,gc,tx+border,ty+border,
+                            (unsigned int)(m.track_width-2*border),
+                            (unsigned int)(m.track_height-2*border));
+        knob=(int)m.knob;
         if(sensitive && sw->toggle_switch.armed && sw->toggle_switch.hover)
             knob=MIN(m.track_height-2*border,knob+(int)_XmDpiDefaultDimension(widget,2));
         if ((m.track_height-knob) & 1) ++knob;
         kx=tx+(m.track_height-knob)/2;
         if(sw->toggle_switch.set != m.rtl)kx+=m.track_width-m.track_height;
         ky=ty+((int)m.track_height-knob)/2;
-        XSetForeground(d,gc,thumb);fill_round_rect(d,window,gc,kx,ky,knob,knob);
+        XSetForeground(d,gc,thumb);fill_round_rect(d,window,gc,kx,ky,
+                                                    (unsigned int)knob,(unsigned int)knob);
         if(m.rtl)right=tx-sw->toggle_switch.spacing;
         else left=tx+m.track_width+sw->toggle_switch.spacing;
         XSetClipMask(d,gc,None);
         if(right>left && sw->toggle_switch.font && sw->toggle_switch.label) {
-            clip=(XRectangle){left,top,right-left,bottom-top};
+            clip=clip_rectangle(left,top,right,bottom);
             XSetForeground(d,gc,sensitive?sw->primitive.foreground:sw->primitive.bottom_shadow_color);
             XmStringDraw(d,window,sw->toggle_switch.font,sw->toggle_switch.label,gc,left,
                 ((int)sw->core.height-m.text_height)/2,clip.width,XmALIGNMENT_BEGINNING,
@@ -330,16 +355,19 @@ static void Arm(Widget w,XEvent *event,String *params,Cardinal *count) {
 static void Release(Widget w,XEvent *event,String *params,Cardinal *count) {
     XmToggleSwitchWidget sw=(XmToggleSwitchWidget)w;Boolean activate;
     (void)params;(void)count;
+    if(w->core.being_destroyed)return;
     activate=sw->toggle_switch.armed && XtIsSensitive(w) && inside(w,event);
     sw->toggle_switch.armed=False;redraw(w);
     if(activate)set_state(w,!sw->toggle_switch.set,True,event);
 }
 static void Enter(Widget w,XEvent *event,String *params,Cardinal *count) {
     (void)event;(void)params;(void)count;
+    if(w->core.being_destroyed)return;
     ((XmToggleSwitchWidget)w)->toggle_switch.hover=XtIsSensitive(w);redraw(w);
 }
 static void Leave(Widget w,XEvent *event,String *params,Cardinal *count) {
     (void)event;(void)params;(void)count;
+    if(w->core.being_destroyed)return;
     ((XmToggleSwitchWidget)w)->toggle_switch.hover=False;redraw(w);
 }
 Boolean XmToggleSwitchGetState(Widget widget) {

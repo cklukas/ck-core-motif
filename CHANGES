@@ -1,3 +1,13 @@
+Ignore late ToggleSwitch pointer events during destruction (2026-11-03)
+=======================================================================
+
+- Make ToggleSwitch release and hover actions no-ops after Xt begins
+  destruction, avoiding state updates and repaint requests against teardown
+  state.  Also bound X11 clip fields, rounded-face dimensions, and the knob's
+  track fit before narrowing draw geometry; see
+  `docs/toggle-switch-action-lifetime.md` and
+  `docs/toggle-switch-coordinate-bounds.md`.
+
 Bound SegmentedControl modern drawing geometry (2026-11-03)
 ============================================================
 
