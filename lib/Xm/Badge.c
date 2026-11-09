@@ -255,7 +255,8 @@ Widget XmVaCreateManagedBadge(Widget parent, char *name, ...) {
 }
 int XmBadgeGetDisplayedCount(Widget widget) {
     XmBadgeWidget badge;
-    if (widget == NULL || !XmIsBadge(widget)) return -1;
+    if (widget == NULL || !XmIsBadge(widget) || widget->core.being_destroyed)
+        return -1;
     badge = (XmBadgeWidget)widget;
     if (badge->badge.count < 0) return -1;
     return badge->badge.count > badge->badge.maximum ? badge->badge.maximum : badge->badge.count;

@@ -1,3 +1,12 @@
+Guard delayed control input and timers during teardown (2026-11-09)
+=================================================================
+
+- Reject late public/event/timer entry into Badge, SegmentedControl, Link,
+  Spinner, TeachingTip, and Toast while Xt destruction is in progress.  Toast
+  now also clears replaced timeout identifiers and restarts a visible toast's
+  timeout after an `XmNtoastTimeout` update; see
+  `docs/control-timer-teardown.md`.
+
 Bound Divider line extents before X11 drawing (2026-11-03)
 =========================================================
 

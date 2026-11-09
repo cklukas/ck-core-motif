@@ -246,6 +246,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event, Boolean *dispat
     KeySym key; char input[8];
     (void)data; (void)dispatch;
     if (widget == NULL || event == NULL || !XmIsLink(widget)) return;
+    if (widget->core.being_destroyed) return;
     if (!XtIsSensitive(widget)) return;
     if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == ButtonPress) { XmLinkActivate(widget, event); return; }

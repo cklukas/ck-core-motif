@@ -217,7 +217,8 @@ static void owner_events(Widget owner, XtPointer closure, XEvent *event,
                          Boolean *dispatch) {
     XmTeachingTipWidget tip = (XmTeachingTipWidget)closure;
     (void)owner; (void)dispatch;
-    if (tip == NULL || event == NULL || !XmIsTeachingTip((Widget)tip)) return;
+    if (tip == NULL || event == NULL || !XmIsTeachingTip((Widget)tip) ||
+        tip->core.being_destroyed) return;
     if (event->type == UnmapNotify || event->type == ButtonPress)
         XmTeachingTipHide((Widget)tip);
 }
@@ -228,7 +229,8 @@ static void popup_events(Widget popup, XtPointer closure, XEvent *event,
     KeySym symbol;
     char input[2];
     (void)popup; (void)dispatch;
-    if (tip == NULL || event == NULL || !XmIsTeachingTip((Widget)tip)) return;
+    if (tip == NULL || event == NULL || !XmIsTeachingTip((Widget)tip) ||
+        tip->core.being_destroyed) return;
     if (event->type == ButtonPress) {
         XmTeachingTipHide((Widget)tip);
         return;
@@ -243,6 +245,9 @@ static void show_timeout(XtPointer data, XtIntervalId *id) {
     XmTeachingTipWidget tip = (XmTeachingTipWidget)data;
     unsigned int delay;
     (void)id;
+    if (tip == NULL || !XmIsTeachingTip((Widget)tip) ||
+        tip->core.being_destroyed)
+        return;
     tip->teaching_tip.timeout_pending = False;
     delay = tip->teaching_tip.delay;
     tip->teaching_tip.delay = 0;
@@ -301,7 +306,9 @@ void XmTeachingTipShow(Widget widget) {
     XmTeachingTipWidget tip;
     if (widget == NULL || !XmIsTeachingTip(widget) || widget->core.being_destroyed) return;
     tip = (XmTeachingTipWidget)widget;
-    if (!tip->teaching_tip.owner || !XtIsRealized(tip->teaching_tip.owner)) return;
+    if (!tip->teaching_tip.owner ||
+        ((CoreWidget)tip->teaching_tip.owner)->core.being_destroyed ||
+        !XtIsRealized(tip->teaching_tip.owner)) return;
     if (tip->teaching_tip.timeout_pending)
         XtRemoveTimeOut(tip->teaching_tip.timeout_id);
     tip->teaching_tip.timeout_pending = False;
@@ -331,7 +338,8 @@ void XmTeachingTipHide(Widget widget) {
     }
     if (!tip->teaching_tip.visible) return;
     tip->teaching_tip.visible = False;
-    if (tip->teaching_tip.popup_shell)
+    if (tip->teaching_tip.popup_shell &&
+        !((CoreWidget)tip->teaching_tip.popup_shell)->core.being_destroyed)
         XtPopdown(tip->teaching_tip.popup_shell);
     callback.reason = XmCR_UNMAP; callback.event = NULL;
     XtCallCallbacks(widget, XmNteachingTipDismissCallback, &callback);

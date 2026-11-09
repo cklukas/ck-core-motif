@@ -572,7 +572,8 @@ const char *XmSegmentedControlGetItemId(Widget widget, Cardinal index) {
 }
 Boolean XmSegmentedControlSetSelectedIndex(Widget widget, int index,
                                            Boolean notify) {
-    if (widget == NULL || !XmIsSegmentedControl(widget)) return False;
+    if (widget == NULL || !XmIsSegmentedControl(widget) ||
+        widget->core.being_destroyed) return False;
     /* Report admission, without dereferencing a callback-destroyed control. */
     return select_index((XmSegmentedControlWidget)widget, index, notify, NULL)
            != SelectionRejected;

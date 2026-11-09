@@ -388,6 +388,8 @@ static void Tick(XtPointer data, XtIntervalId *id) {
     (void)id;
     if (spinner == NULL)
 	return;
+    if (spinner->core.being_destroyed)
+	return;
     spinner->spinner.timer_pending = False;
     if (!eligible(spinner)) return;
     spinner->spinner.phase = (spinner->spinner.phase + 1) % 12;
