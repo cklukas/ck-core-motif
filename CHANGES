@@ -1,3 +1,11 @@
+Initialize MWM automation menu-query replies (2026-11-10)
+===========================================================
+
+- Give unmanaged menu-query slots neutral geometry before they are serialized,
+  preserve the unsigned menu-button count domain, and initialize item-check
+  gadget-presence flags before selecting INVALID fallbacks; see
+  `docs/mwm-automation-menu-query-initialization.md`.
+
 Initialize accessibility value metadata (2026-11-09)
 =====================================================
 

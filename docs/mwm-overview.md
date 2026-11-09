@@ -103,6 +103,7 @@ clients exchanging Motif window-management messages.
 - [Executable identity basename](mwm-identity-basename.md)
 - [Builtin binding buffer size](mwm-binding-buffer-size.md)
 - [Menu query array bounds](mwm-menu-array-bounds.md)
+- [Automation menu-query initialization](mwm-automation-menu-query-initialization.md)
 - [Automation reply sizing](mwm-automation-reply-size.md)
 - [Command window-list allocation](mwm-window-list-overflow.md)
 

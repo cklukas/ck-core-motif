@@ -1893,7 +1893,8 @@ static void
 GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box)
 {
   MenuSpec *menuSpec;
-  int menuItemCount,sensitiveCount;
+  unsigned int menuItemCount;
+  int sensitiveCount;
   Window menuWin, frameWin;
   int sensitive[MAX_MENU_ITEMS];
   int itemY[MAX_MENU_ITEMS];
@@ -1906,7 +1907,7 @@ GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box
   
   MenuButton              *NewMenuButton;
   MenuItem                *NewMenuItem;
-  int n;
+  unsigned int n;
   CARD32 iconX, iconY, iconWidth, iconHeight;
   CARD32 hMin, hMax, hSliderAreaWidth, hSliderX, hSliderAreaX,
           vMin, vMax, vSliderAreaHeight, vSliderY, vSliderAreaY;
@@ -1938,6 +1939,7 @@ GetIconMenuItemSelectInfo(ClientData *pcd, XtPointer reply, Boolean use_icon_box
     {
       itemName[n][0] = '\0';
       sensitive[n] = FALSE;
+      itemY[n] = 0;
     }
 
   menuWin = XtWindow (menuSpec->menuWidget);
@@ -2123,7 +2125,7 @@ GetWindowItemSelectInfo(ClientData *pcd, XtPointer reply)
   
   MenuButton              *NewMenuButton;
   MenuItem                *NewMenuItem;
-  int n;
+  unsigned int n;
 
 
   menuSpec = pcd->systemMenuSpec;
@@ -2139,6 +2141,7 @@ GetWindowItemSelectInfo(ClientData *pcd, XtPointer reply)
     {
       itemName[n][0] = '\0';
       sensitive[n] = FALSE;
+      itemY[n] = 0;
     }
 
   menuWin = XtWindow (menuSpec->menuWidget);
@@ -2186,7 +2189,7 @@ static void
 GetItemCheckInfo(ClientData *pcd, XtPointer reply)
 {
   MenuSpec *menuSpec;
-  int menuItemCount;
+  unsigned int menuItemCount;
   int clientState;
   int titleGadgetCount;
   int titleId, systemId, minimizeId, maximizeId, northwestId;
@@ -2196,8 +2199,12 @@ GetItemCheckInfo(ClientData *pcd, XtPointer reply)
   
   MenuButton              *NewMenuButton;
   MenuItem                *NewMenuItem;
-  int i,filledCount;
-  Boolean titleFound, systemFound, minimizeFound, maximizeFound = False;
+  unsigned int i;
+  int filledCount;
+  Boolean titleFound = False;
+  Boolean systemFound = False;
+  Boolean minimizeFound = False;
+  Boolean maximizeFound = False;
 
   menuSpec = pcd->systemMenuSpec;
 
