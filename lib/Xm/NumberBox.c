@@ -139,20 +139,29 @@ static void Resize(Widget widget) {
     int arrow_width=MIN((int)aw,MAX(0,width/3));
     int gap=MIN((int)number->number_box.spacing,MAX(0,width-arrow_width-1));
     int editor_width=MAX(1,width-arrow_width-gap);
+    Dimension editor_width_dimension=(Dimension)editor_width;
+    Dimension field_height_dimension=(Dimension)field_height;
+    Dimension arrow_width_dimension=(Dimension)arrow_width;
     XtVaGetValues(widget,XmNlayoutDirection,&direction,NULL);
     Boolean rtl=XmDirectionMatch(direction,XmRIGHT_TO_LEFT);
     int editor_x=rtl?arrow_width+gap:0,arrow_x=rtl?0:editor_width+gap;
-    XtConfigureWidget(number->number_box.editor,editor_x,0,editor_width,field_height,0);
+    XtConfigureWidget(number->number_box.editor,(Position)editor_x,0,
+                      editor_width_dimension,field_height_dimension,0);
     Boolean arrows=arrow_width>0 && field_height>=2;
     XtSetMappedWhenManaged(number->number_box.increment,arrows);
     XtSetMappedWhenManaged(number->number_box.decrement,arrows);
     if(arrows) {
         int half=field_height/2;
-        XtConfigureWidget(number->number_box.increment,arrow_x,0,arrow_width,half,0);
-        XtConfigureWidget(number->number_box.decrement,arrow_x,half,arrow_width,field_height-half,0);
+        XtConfigureWidget(number->number_box.increment,(Position)arrow_x,0,
+                          arrow_width_dimension,(Dimension)half,0);
+        XtConfigureWidget(number->number_box.decrement,(Position)arrow_x,
+                          (Position)half,arrow_width_dimension,
+                          (Dimension)(field_height-half),0);
     }
-    if(lh)XtConfigureWidget(number->number_box.error_label,0,MIN(height-1,field_height+gap),
-                           width,MAX(1,height-field_height-gap),0);
+    if(lh)XtConfigureWidget(number->number_box.error_label,0,
+                           (Position)MAX(0,MIN(height-1,field_height+gap)),
+                           (Dimension)width,
+                           (Dimension)MAX(1,height-field_height-gap),0);
     number->number_box.updating=False;
 }
 static Boolean layout_work(XtPointer closure) {
@@ -194,7 +203,7 @@ static Boolean format_value(XmNumberBoxWidget number) {
     XtAddCallback(widget,XmNdestroyCallback,formatting_destroyed,&destroyed);
     XmTextFieldSetString(editor,text);
     if (!destroyed && !widget->core.being_destroyed)
-        XmTextFieldSetInsertionPosition(editor,strlen(text));
+        XmTextFieldSetInsertionPosition(editor,(XmTextPosition)strlen(text));
     if (destroyed) return False;
     XtRemoveCallback(widget,XmNdestroyCallback,formatting_destroyed,&destroyed);
     if (widget->core.being_destroyed) return False;

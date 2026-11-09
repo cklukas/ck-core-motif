@@ -84,14 +84,14 @@ static void natural_size(XmStepperWidget s,Dimension *width,Dimension *height,Di
     XtVaGetValues(s->stepper.label,XmNrenderTable,&font,XmNmarginWidth,&mw,
                   XmNmarginLeft,&ml,XmNmarginRight,&mr,NULL);
     for(int i=0;i<11;++i) {
-        text[0]=i==10?'-':'0'+i;text[1]=0;
+        text[0]=(char)(i==10?'-':'0'+i);text[1]=0;
         XmString string=XmStringCreateLocalized(text);XmStringExtent(font,string,&tw,&th);XmStringFree(string);
         if(i==10)sign=tw;else digit=MAX(digit,tw);
     }
     int endpoints[]={s->stepper.minimum,s->stepper.maximum};
     for(unsigned i=0;i<XtNumber(endpoints);++i) {
         snprintf(text,sizeof(text),"%d",endpoints[i]);
-        places=MAX(places,strlen(text)-(text[0]=='-'));
+        places=MAX(places,(unsigned)strlen(text)-(text[0]=='-'));
     }
     vw=dimension((unsigned long)places*digit+(s->stepper.minimum<0?sign:0)+2UL*mw+ml+mr);
     *button=MAX(MAX(dw,iw),MAX(dh,ih));
@@ -107,15 +107,21 @@ static void Resize(Widget widget) {
     int bw=MIN(b,MAX(0,(width-1)/2));
     int gap=MIN(s->stepper.spacing,MAX(0,(width-2*bw-1)/2));
     int value_width=MAX(1,width-2*bw-2*gap);
+    Dimension control_height=(Dimension)MAX(1,height);
+    Dimension button_width=(Dimension)bw;
+    Dimension label_width=(Dimension)value_width;
     unsigned char direction;XtVaGetValues(widget,XmNlayoutDirection,&direction,NULL);
     Boolean rtl=XmDirectionMatch(direction,XmRIGHT_TO_LEFT);
     XtSetMappedWhenManaged(s->stepper.decrement,bw>0);
     XtSetMappedWhenManaged(s->stepper.increment,bw>0);
     if(bw>0) {
-        XtConfigureWidget(s->stepper.decrement,rtl?width-bw:0,0,bw,MAX(1,height),0);
-        XtConfigureWidget(s->stepper.increment,rtl?0:width-bw,0,bw,MAX(1,height),0);
+        XtConfigureWidget(s->stepper.decrement,(Position)(rtl?width-bw:0),0,
+                          button_width,control_height,0);
+        XtConfigureWidget(s->stepper.increment,(Position)(rtl?0:width-bw),0,
+                          button_width,control_height,0);
     }
-    XtConfigureWidget(s->stepper.label,bw+gap,0,value_width,MAX(1,height),0);
+    XtConfigureWidget(s->stepper.label,(Position)(bw+gap),0,label_width,
+                      control_height,0);
     s->stepper.updating=False;
 }
 static Boolean layout_work(XtPointer closure) {

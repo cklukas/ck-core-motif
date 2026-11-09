@@ -1,3 +1,10 @@
+Make Stepper layout conversions explicit (2026-11-03)
+======================================================
+
+- Preserve bounded Stepper and NumberBox working geometry through final Xt
+  position and dimension conversions, including narrow controls; see
+  `docs/stepper-layout-conversions.md`.
+
 Keep ProgressRing and Chip render arithmetic bounded (2026-11-03)
 =================================================================
 
