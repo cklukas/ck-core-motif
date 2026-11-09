@@ -145,6 +145,12 @@ static int bounded_cardinal(Cardinal value) {
   return value > (Cardinal)INT_MAX ? INT_MAX : (int)value;
 }
 
+static int bounded_index_max(Cardinal count, int empty_value) {
+  if (count == 0)
+    return empty_value;
+  return count > (Cardinal)INT_MAX ? INT_MAX : (int)count - 1;
+}
+
 static int bounded_text_position(XmTextPosition value) {
   if (value < (XmTextPosition)INT_MIN) return INT_MIN;
   return value > (XmTextPosition)INT_MAX ? INT_MAX : (int)value;
@@ -1410,12 +1416,13 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsBreadcrumbBar(w)) {
     int current = XmBreadcrumbBarGetCurrentIndex(w);
+    Cardinal count = XmBreadcrumbBarGetSegmentCount(w);
     i->role = XmACCESSIBLE_LIST;
     i->has_text = True;
     i->has_selection = current >= 0;
     i->has_value = True;
     i->minimum_value = 0;
-    i->maximum_value = XmBreadcrumbBarGetSegmentCount(w);
+    i->maximum_value = bounded_index_max(count, 0);
     i->current_value = current < 0 ? 0 : current;
     i->minimum_increment = 1;
     i->text_length = 0;
@@ -1433,32 +1440,44 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
     i->minimum_increment = 1;
   }
   if (XmIsCalendar(w)) {
-    XmCalendarDate date;
+    XmCalendarDate date = {0};
+    Boolean have_date;
     i->role = XmACCESSIBLE_CALENDAR;
-    i->has_selection = XmCalendarGetDate(w, &date);
-    i->has_value = True;
-    i->minimum_value = 1;
-    i->maximum_value = 9999;
-    i->current_value = date.year;
-    i->minimum_increment = 1;
+    have_date = XmCalendarGetDate(w, &date);
+    i->has_selection = have_date;
+    i->has_value = have_date;
+    if (have_date) {
+      i->minimum_value = 1;
+      i->maximum_value = 9999;
+      i->current_value = date.year;
+      i->minimum_increment = 1;
+    }
   }
   if (XmIsDatePicker(w)) {
-    XmDatePickerDate date;
+    XmDatePickerDate date = {0};
+    Boolean have_date;
     i->role = XmACCESSIBLE_TEXT;
-    i->has_value = XmDatePickerGetDate(w, &date);
-    i->minimum_value = 1;
-    i->maximum_value = 9999;
-    i->current_value = date.year;
-    i->minimum_increment = 1;
+    have_date = XmDatePickerGetDate(w, &date);
+    i->has_value = have_date;
+    if (have_date) {
+      i->minimum_value = 1;
+      i->maximum_value = 9999;
+      i->current_value = date.year;
+      i->minimum_increment = 1;
+    }
   }
   if (XmIsTimePicker(w)) {
-    XmTimePickerValue value;
+    XmTimePickerValue value = {0};
+    Boolean have_value;
     i->role = XmACCESSIBLE_TEXT;
-    i->has_value = XmTimePickerGetValue(w, &value);
-    i->minimum_value = 0;
-    i->maximum_value = 86399;
-    i->current_value = value.hour * 3600 + value.minute * 60 + value.second;
-    i->minimum_increment = 1;
+    have_value = XmTimePickerGetValue(w, &value);
+    i->has_value = have_value;
+    if (have_value) {
+      i->minimum_value = 0;
+      i->maximum_value = 86399;
+      i->current_value = value.hour * 3600 + value.minute * 60 + value.second;
+      i->minimum_increment = 1;
+    }
   }
   if (XmIsDataGrid(w)) {
     i->role = XmACCESSIBLE_TABLE;
@@ -1472,11 +1491,12 @@ static Boolean query_impl(XmAccessibility *a, XmAccessibleId id,
   }
   if (XmIsSegmentedControl(w)) {
     int selected = XmSegmentedControlGetSelectedIndex(w);
+    Cardinal count = XmSegmentedControlGetItemCount(w);
     i->role = XmACCESSIBLE_LIST;
     i->has_selection = selected >= 0;
     i->has_value = True;
     i->minimum_value = -1;
-    i->maximum_value = XmSegmentedControlGetItemCount(w) - 1;
+    i->maximum_value = bounded_index_max(count, -1);
     i->current_value = selected;
     i->minimum_increment = 1;
   }

@@ -1,3 +1,10 @@
+Initialize accessibility value metadata (2026-11-09)
+=====================================================
+
+- Publish Calendar, DatePicker, and TimePicker values only after their public
+  getters succeed, and bound BreadcrumbBar/SegmentedControl index ranges
+  before AT-SPI conversion; see `docs/accessibility-value-initialization.md`.
+
 Bound selection TARGETS advertisements (2026-11-09)
 ====================================================
 
