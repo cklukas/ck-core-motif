@@ -1,3 +1,10 @@
+Bound appearance-profile Xrm input sizes (2026-11-09)
+=======================================================
+
+- Reject appearance-profile strings that cannot be represented by Xt's
+  `XrmValue` size field before conversion, and make Xrm/pixel result
+  conversions explicit; see `docs/appearance-xrm-string-bounds.md`.
+
 Bound ColorPicker X11 rendering inputs (2026-11-09)
 ====================================================
 
