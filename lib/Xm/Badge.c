@@ -115,6 +115,11 @@ static Position bounded_position(long long value) {
     if (value > SHRT_MAX) return (Position)SHRT_MAX;
     return (Position)value;
 }
+static unsigned short bounded_extent(int value) {
+    if (value <= 0) return 0;
+    if (value > USHRT_MAX) return USHRT_MAX;
+    return (unsigned short)value;
+}
 static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (widget == NULL || !XtIsSubclass(widget, xmBadgeWidgetClass)) return;
     XmBadgeWidget badge=(XmBadgeWidget)widget;
@@ -132,11 +137,15 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         int radius=MIN(width,height)/2;
         XSetForeground(display,gc,badge->primitive.bottom_shadow_color);
         _XmAppearanceFillRoundedRectangle(display,window,gc,0,0,width,height,radius);
-        XSetForeground(display,gc,badge->core.background_pixel);
-        _XmAppearanceFillRoundedRectangle(display,window,gc,1,1,width-2,height-2,MAX(0,radius-1));
+        if (width > 2 && height > 2) {
+            XSetForeground(display,gc,badge->core.background_pixel);
+            _XmAppearanceFillRoundedRectangle(display,window,gc,1,1,
+                                              width-2,height-2,MAX(0,radius-1));
+        }
     } else if (width>1 && height>1) {
         XSetForeground(display,gc,badge->primitive.foreground);
-        XDrawRectangle(display,window,gc,0,0,width-1,height-1);
+        XDrawRectangle(display,window,gc,0,0,
+                       (unsigned int)(width-1),(unsigned int)(height-1));
     }
     int horizontal=_XmDpiDefaultDimension(widget,6), vertical=_XmDpiDefaultDimension(widget,4);
     int inner_width=width-2*horizontal, inner_height=height-2*vertical;
@@ -145,7 +154,8 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (label && badge->badge.font) {
         Dimension tw=0, th=0;
         XmStringExtent(badge->badge.font,label,&tw,&th);
-        XRectangle clip={horizontal,vertical,inner_width,inner_height};
+        XRectangle clip={bounded_position(horizontal),bounded_position(vertical),
+                         bounded_extent(inner_width),bounded_extent(inner_height)};
         XSetForeground(display,gc,XtIsSensitive(widget)?badge->primitive.foreground:
                        badge->primitive.bottom_shadow_color);
         XmStringDraw(display,window,badge->badge.font,label,gc,

@@ -1,3 +1,13 @@
+Bound Badge and RatingControl X11 drawing geometry (2026-11-03)
+===============================================================
+
+- Prevent Badge from drawing a negative-sized modern inner face, and bound
+  Badge/RatingControl clip coordinates and extents before their X11 16-bit
+  conversions.  RatingControl also ignores late highlight changes during
+  destruction; see `docs/badge-coordinate-bounds.md`,
+  `docs/rating-coordinate-bounds.md`, and
+  `docs/rating-control-geometry-guards.md`.
+
 Make composite query APIs teardown-safe (2026-11-03)
 ======================================================
 

@@ -138,7 +138,10 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     height = (int)rating->core.height - 2 * m.inset;
     /* Bound work by available pixels, including an arbitrarily large count. */
     if (width > 0 && height > 0 && rating->rating.count <= width) {
-        XRectangle clip = {m.inset, m.inset, width, height};
+        XRectangle clip = {(short)MIN(m.inset, SHRT_MAX),
+                           (short)MIN(m.inset, SHRT_MAX),
+                           (unsigned short)MIN(width, USHRT_MAX),
+                           (unsigned short)MIN(height, USHRT_MAX)};
         XSetClipRectangles(display, rating->rating.gc, 0, 0, &clip, 1, Unsorted);
         for (int i = 0; i < rating->rating.count; ++i) {
             int index = m.rtl ? rating->rating.count - 1 - i : i;
@@ -169,12 +172,14 @@ static void BufferedRedisplay(Widget widget, XEvent *event, Region region)
 }
 static void Highlight(Widget widget) {
     XmRatingControlWidget rating = (XmRatingControlWidget)widget;
+    if (widget->core.being_destroyed) return;
     rating->primitive.highlighted = True;
     rating->primitive.highlight_drawn = True;
     BufferedRedisplay(widget, NULL, NULL);
 }
 static void Unhighlight(Widget widget) {
     XmRatingControlWidget rating = (XmRatingControlWidget)widget;
+    if (widget->core.being_destroyed) return;
     rating->primitive.highlighted = False;
     rating->primitive.highlight_drawn = False;
     BufferedRedisplay(widget, NULL, NULL);

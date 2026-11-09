@@ -10,3 +10,8 @@ the available geometry while preserving the normal layout at usable sizes.
 
 The focused source contract is checked by
 `tests/automated/check-rating-control-geometry-guards.py`.
+# RatingControl drawing lifecycle
+
+RatingControl ignores late highlight and unhighlight requests after Xt begins
+destroying the widget.  This avoids changing primitive focus state or queuing a
+buffered redraw against teardown state.
