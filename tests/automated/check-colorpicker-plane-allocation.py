@@ -17,8 +17,8 @@ if pencil_end < 0:
     pencil_end = len(source)
 pencil = source[pencil_start:pencil_end]
 
-zero_guard = "if(width==0||height==0)return;"
-pixmap = "p->color_picker.plane_cache=XCreatePixmap(d,window,width,height,attr.depth);"
+zero_guard = "if(width<=0||height<=0||attr.depth<=0)return;"
+pixmap = "p->color_picker.plane_cache=XCreatePixmap(\n            d,window,bounded_x_extent(width),bounded_x_extent(height),\n            (unsigned int)attr.depth);"
 failure_guard = "if(p->color_picker.plane_cache==None)return;"
 
 assert zero_guard in plane, "zero-sized swatch planes must not issue X allocations"

@@ -1,3 +1,10 @@
+Bound ColorPicker X11 rendering inputs (2026-11-09)
+====================================================
+
+- Keep ColorPicker's signed geometry, X11 extents, drawable depth, palette
+  map count, allocation results, and HSV zero-value path bounded and explicit
+  at their protocol boundaries; see `docs/color-picker-x11-boundaries.md`.
+
 Guard delayed control input and timers during teardown (2026-11-09)
 =================================================================
 
