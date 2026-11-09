@@ -10,4 +10,6 @@ guard = function.index("SIZE_MAX / sizeof(*actions->actions.items)")
 free = function.index("free_items(actions, True)")
 assert guard < free
 assert "(count && !items)" in function
+assert "widget->core.being_destroyed" in function
+assert function.index("widget->core.being_destroyed") < free
 print("RowActions rejects oversized item arrays before replacing existing items")

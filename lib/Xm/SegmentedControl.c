@@ -446,6 +446,7 @@ Boolean XmSegmentedControlSetItems(Widget widget,
     int preserved_selected = -1;
     Cardinal i;
     if (widget == NULL || !XmIsSegmentedControl(widget) ||
+        widget->core.being_destroyed ||
         (count && !items) || count > (Cardinal)INT_MAX) return False;
     control = (XmSegmentedControlWidget)widget;
     if (count) {

@@ -1,3 +1,11 @@
+Guard composite item replacement during destruction (2026-11-03)
+==================================================================
+
+- Make RowActions and SegmentedControl item-model replacement reject widgets
+  that Xt is destroying.  These APIs no longer create or release child buttons
+  against teardown state; see `docs/row-actions-item-transaction.md` and
+  `docs/segmented-control-inputs.md`.
+
 Guard CommandPalette filtering during destruction (2026-11-03)
 ================================================================
 

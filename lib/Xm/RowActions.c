@@ -217,7 +217,8 @@ Widget XmVaCreateManagedRowActions(Widget parent, char *name, ...) {
 }
 void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal count) {
     XmRowActionsWidget actions; XmRowActionsStoredItem *replacement = NULL; Cardinal i;
-    if (!widget || !XmIsRowActions(widget) || (count && !items)) return;
+    if (!widget || !XmIsRowActions(widget) || widget->core.being_destroyed ||
+        (count && !items)) return;
     actions = (XmRowActionsWidget)widget;
     if (count && ((size_t)count > SIZE_MAX / sizeof(*actions->actions.items) ||
                   (size_t)count > UINT_MAX / sizeof(*actions->actions.items))) {
