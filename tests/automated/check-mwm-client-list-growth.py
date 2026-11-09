@@ -7,6 +7,7 @@ start = source.index("static Boolean\naddClientToList")
 end = source.index("\n}\n", start) + 2
 region = source[start:end]
 assert "if (cdList == NULL || nClients == NULL" in region
+assert "pCD == NULL" in region
 assert "SIZE_MAX / sizeof(*newPtr)" in region
 assert "UINT_MAX / sizeof(*newPtr)" in region
 assert "XtRealloc((char *)*cdList" in region

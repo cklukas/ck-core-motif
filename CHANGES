@@ -1,3 +1,11 @@
+Harden MWM session client discovery and sorting (2026-11-10)
+=============================================================
+
+- Validate session client-list output pointers, ignore empty screen-list
+  entries, reject null client-list additions, and order incomplete MWM records
+  without dereferencing them during workspace sorting; see
+  docs/mwm-client-list-growth.md and docs/mwm-client-sort-bounds.md.
+
 Validate MWM workspace names before session formatting (2026-11-10)
 ====================================================================
 

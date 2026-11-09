@@ -694,7 +694,7 @@ addClientToList(ClientData ***cdList, int *nClients, ClientData *pCD)
     ClientData **newPtr = (ClientData **)
 	NULL;
 
-    if (cdList == NULL || nClients == NULL || *nClients < 0 ||
+    if (cdList == NULL || nClients == NULL || pCD == NULL || *nClients < 0 ||
 	*nClients == INT_MAX)
 	return False;
     newCount = (size_t)*nClients + 1;
@@ -719,6 +719,16 @@ clientWorkspaceCompare(const void *ppCD1, const void *ppCD2)
 {
     ClientData *pCD1 = *(ClientData **)ppCD1;
     ClientData *pCD2 = *(ClientData **)ppCD2;
+
+    if (pCD1 == NULL)
+	return pCD2 == NULL ? 0 : 1;
+    if (pCD2 == NULL)
+	return -1;
+    if (pCD1->pSD == NULL)
+	return pCD2->pSD == NULL ? 0 : 1;
+    if (pCD2->pSD == NULL)
+	return -1;
+
     /* Sort first by screen. */
     if (pCD1->pSD->screen < pCD2->pSD->screen)
 	return -1;
@@ -731,6 +741,13 @@ clientWorkspaceCompare(const void *ppCD1, const void *ppCD2)
     /* How do we handle clients that live in more than one workspace? */
     /* For now, pick the "current" one - if not in active workspace, */
     /* this will simply be the first one in the client's list. */
+    if (pCD1->pWsList == NULL || pCD1->currentWsc < 0 ||
+	pCD1->currentWsc >= pCD1->numInhabited)
+	return (pCD2->pWsList == NULL || pCD2->currentWsc < 0 ||
+		pCD2->currentWsc >= pCD2->numInhabited) ? 0 : 1;
+    if (pCD2->pWsList == NULL || pCD2->currentWsc < 0 ||
+	pCD2->currentWsc >= pCD2->numInhabited)
+	return -1;
     if (pCD1->pWsList[pCD1->currentWsc].wsID <
 	    pCD2->pWsList[pCD2->currentWsc].wsID)
 	return -1;
@@ -1491,6 +1508,9 @@ GetSmClientIdClientList(ClientData ***clients, int *nClients)
     ClientData *pCD;
     ClientListEntry *pCL;
 
+    if (clients == NULL || nClients == NULL)
+	return False;
+
     *nClients = 0;
     *clients = (ClientData **)NULL;
     for (scr = 0; scr < wmGD.numScreens; scr++)
@@ -1506,6 +1526,8 @@ GetSmClientIdClientList(ClientData ***clients, int *nClients)
 		continue;
 
 	    pCD = pCL->pCD;
+	    if (pCD == NULL)
+		continue;
 
 	    if (pCD->smClientID != (String)NULL)
 	    {
