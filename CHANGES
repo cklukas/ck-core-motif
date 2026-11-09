@@ -1,3 +1,11 @@
+Keep ProgressRing and Chip render arithmetic bounded (2026-11-03)
+=================================================================
+
+- Preserve ProgressRing text-centering and circular-opening calculations in
+  their signed working domain, and make Chip size/icon conversions explicit
+  after their bounds checks; see `docs/progress-ring-render-bounds.md` and
+  `docs/chip-size-arithmetic.md`.
+
 Bound Badge and RatingControl X11 drawing geometry (2026-11-03)
 ===============================================================
 
