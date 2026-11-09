@@ -632,6 +632,10 @@ getClientWorkspaces(ClientData *pCD)
     size_t nameLength;
     int i;
 
+    if (pCD == NULL || pSD == NULL || pCD->numInhabited <= 0 ||
+	pCD->pWsList == NULL)
+	return NULL;
+
     for (i = 0; i < pCD->numInhabited; i++)
     {
 	if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))

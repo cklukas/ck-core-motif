@@ -1,3 +1,10 @@
+Guard MWM workspace-session serialization inputs (2026-11-10)
+==============================================================
+
+- Make the MWM WSM workspace serializer reject missing client, screen, and
+  workspace-list state before it dereferences session data; see
+  docs/mwm-workspace-list-serialization.md.
+
 Validate MWM IconBox event unions (2026-11-10)
 ==============================================
 
