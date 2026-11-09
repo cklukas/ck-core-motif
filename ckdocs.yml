@@ -177,6 +177,7 @@ nav:
       - title: command
         pages:
           - docs/command-palette-allocation-bounds.md
+          - docs/command-palette-geometry-bounds.md
           - docs/command-palette.md
       - title: compact
         pages:

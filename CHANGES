@@ -1,3 +1,10 @@
+Bound Command Palette preferred and child geometry (2026-11-10)
+===============================================================
+
+- Saturate XmCommandPalette preferred-height arithmetic and keep its list
+  child position and extent within X11 geometry ranges; see
+  docs/command-palette-geometry-bounds.md.
+
 Saturate XmForm measured-size growth (2026-11-10)
 ==================================================
 

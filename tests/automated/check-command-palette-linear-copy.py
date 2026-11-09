@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Ensure CommandPalette assembles display labels without rescanning them."""
+"""Ensure CommandPalette assembles display labels through XmString APIs."""
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "CommandPalette.c").read_text()
 start = source.index("static void rebuild")
 body = source[start:source.index("static void natural", start)]
+display_start = source.index("static XmString make_display_string")
+display = source[display_start:start]
 
-assert "memcpy(combined, label, label_length);" in body
-assert "memcpy(combined + label_length + 2, shortcut, shortcut_length);" in body
-assert "combined[length - 1] = '\\0';" in body
-assert "strcat(combined" not in body
-print("PASS CommandPalette label assembly uses linear copies")
+assert "make_display_string(" in body
+assert "XmStringConcat(separator, shortcut)" in display
+assert "XmStringConcat(result, suffix)" in display
+assert "strcat(" not in display
+assert "sprintf(" not in display
+print("PASS CommandPalette label assembly uses XmString composition")
