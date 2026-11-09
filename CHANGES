@@ -1,3 +1,10 @@
+Expose maintenance-fix documentation in navigation (2026-11-10)
+===============================================================
+
+- Add the previously unlinked maintenance-fix pages under the Reference
+  maintenance-fixes topic, so the published documentation navigation reaches
+  every intended page.
+
 Harden MWM session client discovery and sorting (2026-11-10)
 =============================================================
 
