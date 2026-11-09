@@ -83,6 +83,48 @@ externaldef(uil_comp_glbl)	int	Uil_message_count[uil_k_max_status+1];
 static	boolean	issuing_diagnostic;
 static	int	Uil_diag_status_delay_count;
 
+static char *
+diag_vformat(const char *format, va_list ap)
+{
+    va_list measure_ap;
+    va_list write_ap;
+    int length;
+    int written;
+    char *text;
+
+    if (format == NULL)
+	return NULL;
+    va_copy(measure_ap, ap);
+    length = vsnprintf(NULL, 0, format, measure_ap);
+    va_end(measure_ap);
+    if (length < 0 || (size_t)length >= (size_t)UINT_MAX)
+	return NULL;
+    text = XtMalloc((Cardinal)((size_t)length + 1));
+    if (text == NULL)
+	return NULL;
+    va_copy(write_ap, ap);
+    written = vsnprintf(text, (size_t)length + 1, format, write_ap);
+    va_end(write_ap);
+    if (written != length)
+	{
+	XtFree(text);
+	return NULL;
+	}
+    return text;
+}
+
+static char *
+diag_format(const char *format, ...)
+{
+    va_list ap;
+    char *text;
+
+    va_start(ap, format);
+    text = diag_vformat(format, ap);
+    va_end(ap);
+    return text;
+}
+
 /*
  * Fix for CR 5534 - static storage for old signal handlers
  */
@@ -189,9 +231,9 @@ void	diag_issue_diagnostic
     va_list	ap;			/* ptr to variable length parameter */
     int		severity;		/* severity of message */
     int		message_number;		/* message number */
-    char	msg_buffer[132];	/* buffer to construct message */
+    char	*msg_buffer;		/* dynamically sized message */
     char	ptr_buffer[buf_size];	/* buffer to construct pointer */
-    char	loc_buffer[132];	/* buffer to construct location */
+    char	*loc_buffer;		/* dynamically sized location */
     char	src_buffer[buf_size];	/* buffer to hold source line */
 
     /*
@@ -275,19 +317,19 @@ void	diag_issue_diagnostic
     va_start(ap, l_start_column);
 
 #ifndef NO_MESSAGE_CATALOG
-    vsnprintf( msg_buffer, sizeof(msg_buffer),
-	      catgets(uil_catd, UIL_SET1, msg_cat_table[ message_number ],
-		      diag_rz_msg_table[ message_number ].ac_text), 
-	     ap );
+    msg_buffer = diag_vformat(
+	catgets(uil_catd, UIL_SET1, msg_cat_table[ message_number ],
+		diag_rz_msg_table[ message_number ].ac_text), ap);
 #else
-    vsnprintf( msg_buffer, sizeof(msg_buffer),
-	      diag_rz_msg_table[ message_number ].ac_text, 
-	      ap );
+    msg_buffer = diag_vformat(diag_rz_msg_table[ message_number ].ac_text,
+			      ap);
 #endif
     va_end(ap);
+	if (msg_buffer == NULL)
+	    msg_buffer = XtNewString("");
 
     src_buffer[ 0 ] = 0;
-    loc_buffer[ 0 ] = 0;
+	loc_buffer = NULL;
     ptr_buffer[ 0 ] = 0;
 
     if (az_src_rec != diag_k_no_source) 
@@ -299,14 +341,13 @@ void	diag_issue_diagnostic
 	    */
 
 #ifndef NO_MESSAGE_CATALOG
-	    snprintf( loc_buffer, sizeof(loc_buffer),
+	    loc_buffer = diag_format(
 		     catgets(uil_catd, UIL_SET_MISC,
 			     UIL_MISC_0, "\t\t line: %d  file: %s"),
 		     az_src_rec->w_line_number,
 		     src_get_file_name( az_src_rec ) );
 #else
-	    snprintf( loc_buffer, sizeof(loc_buffer),
-		     "\t\t line: %d  file: %s",
+	    loc_buffer = diag_format("\t\t line: %d  file: %s",
 		     az_src_rec->w_line_number,
 		     src_get_file_name( az_src_rec ) );
 #endif
@@ -329,11 +370,16 @@ void	diag_issue_diagnostic
 	    **	create the column pointer if a source position was given
 	    */
 
-	    if (l_start_column != diag_k_no_column)
+	    if (l_start_column != diag_k_no_column && l_start_column >= 0)
 	    {
-		int	i;
+		size_t	i;
+		size_t	pointer_pos = (size_t)l_start_column;
+		size_t	source_length = strlen(src_buffer);
 
-		for (i=0;  i < l_start_column+1;  i++)
+		if (pointer_pos > source_length)
+		    pointer_pos = source_length;
+
+		for (i=0; i < pointer_pos; i++)
 		{
 		    if (src_buffer[ i ] == '\t')
 			ptr_buffer[ i ] = '\t';
@@ -341,8 +387,8 @@ void	diag_issue_diagnostic
 			ptr_buffer[ i ] = ' ';
 		 }
 
-		ptr_buffer[ i++ ] = '*';
-		ptr_buffer[ i ]   = 0;
+		ptr_buffer[pointer_pos] = '*';
+		ptr_buffer[pointer_pos + 1] = 0;
 	    }
 	}
 	else	/* no access key */
@@ -353,7 +399,7 @@ void	diag_issue_diagnostic
 
 	    if (l_start_column != diag_k_no_column)
 #ifndef NO_MESSAGE_CATALOG
-	      snprintf(loc_buffer, sizeof(loc_buffer),
+	      loc_buffer = diag_format(
 		      catgets(uil_catd, UIL_SET_MISC,
 			      UIL_MISC_1, 
 			      "\t\t line: %d  position: %d  file: %s"),
@@ -361,22 +407,20 @@ void	diag_issue_diagnostic
 		      l_start_column + 1,
 		      src_get_file_name( az_src_rec ) );
 #else
-	      snprintf(loc_buffer, sizeof(loc_buffer),
-		      "\t\t line: %d  position: %d  file: %s",
+	      loc_buffer = diag_format("\t\t line: %d  position: %d  file: %s",
 		      az_src_rec->w_line_number,
 		      l_start_column + 1,
 		      src_get_file_name( az_src_rec ) );
 #endif
 	    else
 #ifndef NO_MESSAGE_CATALOG
-		snprintf( loc_buffer, sizeof(loc_buffer), catgets(uil_catd, UIL_SET_MISC,
+		loc_buffer = diag_format(catgets(uil_catd, UIL_SET_MISC,
 					     UIL_MISC_0,
 					     "\t\t line: %d  file: %s"),
 			 az_src_rec->w_line_number,
 			 src_get_file_name( az_src_rec ) );
 #else
-		snprintf( loc_buffer, sizeof(loc_buffer),
-			 "\t\t line: %d  file: %s",
+		loc_buffer = diag_format("\t\t line: %d  file: %s",
 			 az_src_rec->w_line_number,
 			 src_get_file_name( az_src_rec ) );
 #endif
@@ -388,7 +432,8 @@ void	diag_issue_diagnostic
     */
 
     write_msg_to_standard_error
-	( message_number, src_buffer, ptr_buffer, msg_buffer, loc_buffer );
+	( message_number, src_buffer, ptr_buffer, msg_buffer ? msg_buffer : "",
+	  loc_buffer ? loc_buffer : "" );
 
     /* 
     **	if we have a listing, place message in the source structure
@@ -396,7 +441,13 @@ void	diag_issue_diagnostic
 
     if (Uil_cmd_z_command.v_listing_file)
 	src_append_diag_info
-	    ( az_src_rec, l_start_column, msg_buffer, message_number );
+	    ( az_src_rec, l_start_column, msg_buffer ? msg_buffer : "",
+	      message_number );
+
+	if (loc_buffer != NULL)
+	    XtFree(loc_buffer);
+	if (msg_buffer != NULL)
+	    XtFree(msg_buffer);
 
     issuing_diagnostic = FALSE;
 

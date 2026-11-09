@@ -1,3 +1,11 @@
+Preserve complete UIL diagnostic text (2026-11-09)
+====================================================
+
+- Replace fixed diagnostic and listing message buffers with bounded dynamic
+  formatting, retain complete source locations and URM error context, and
+  clamp invalid source columns before drawing a caret; see
+  `docs/uil-dynamic-diagnostics.md`.
+
 Guard UIL database loader allocations (2026-11-09)
 ===================================================
 

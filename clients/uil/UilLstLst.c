@@ -573,7 +573,6 @@ void	lst_output_listing()
 void	lst_output_messages(src_message_item_type *az_message_item)
 {
     src_message_item_type	*az_msg;
-    char			buffer[132];
     int				msg_no;
     int				last_pos;
     int				current_pos;
@@ -597,12 +596,25 @@ void	lst_output_messages(src_message_item_type *az_message_item)
 	}
 
 
-	(void)snprintf(buffer, sizeof(buffer), "%s (%d) %s",
-		diag_get_message_abbrev( az_msg->l_message_number ),
-		msg_no, 
-		az_msg->c_text);
+	{
+	    const char *abbrev = diag_get_message_abbrev(az_msg->l_message_number);
+	    int formatted_length;
+	    char *buffer;
 
-	lst_output_line( buffer, FALSE );
+	    formatted_length = snprintf(NULL, 0, "%s (%d) %s", abbrev,
+		msg_no, az_msg->c_text);
+	    if (formatted_length < 0 ||
+		(size_t)formatted_length >= (size_t)UINT_MAX)
+		continue;
+	    buffer = XtMalloc((Cardinal)((size_t)formatted_length + 1));
+	    if (buffer == NULL)
+		continue;
+	    if (snprintf(buffer, (size_t)formatted_length + 1,
+			 "%s (%d) %s", abbrev, msg_no,
+			 az_msg->c_text) == formatted_length)
+		lst_output_line(buffer, FALSE);
+	    XtFree(buffer);
+	}
     }    
 
     lst_output_line( " ", FALSE );

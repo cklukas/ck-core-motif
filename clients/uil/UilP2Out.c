@@ -2920,13 +2920,32 @@ MrmCode	ref_control(sym_control_entry_type *control_entry, MrmCode *access, char
 
 void	issue_urm_error(char *problem)
 {
-    char    buffer[132];
+    const char *detail;
+    int length;
+    char *buffer;
 
-    snprintf(buffer, sizeof(buffer), "while %s encountered %s",
-	    problem, 
-	    Urm__UT_LatestErrorMessage());
+    if (problem == NULL)
+	problem = "";
+    detail = Urm__UT_LatestErrorMessage();
+    if (detail == NULL)
+	detail = "";
+    length = snprintf(NULL, 0, "while %s encountered %s", problem, detail);
+    if (length < 0 || (size_t)length >= (size_t)UINT_MAX)
+	{
+	diag_issue_internal_error(problem);
+	return;
+	}
+    buffer = XtMalloc((Cardinal)((size_t)length + 1));
+    if (buffer == NULL)
+	{
+	diag_issue_internal_error(problem);
+	return;
+	}
+    (void)snprintf(buffer, (size_t)length + 1,
+		   "while %s encountered %s", problem, detail);
 
     diag_issue_internal_error( buffer );
+    XtFree(buffer);
 }
 
 /*
