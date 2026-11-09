@@ -1,3 +1,10 @@
+Validate MWM workspace names before session formatting (2026-11-10)
+====================================================================
+
+- Skip nameless workspace records during MWM icon-position session save/load,
+  rather than passing a null name to resource-key formatting; see
+  docs/mwm-workspace-list-serialization.md.
+
 Guard MWM workspace-session serialization inputs (2026-11-10)
 ==============================================================
 

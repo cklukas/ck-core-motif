@@ -11,4 +11,12 @@ assert "size_t pLen = 0;" in region
 assert "if (wsNameP == NULL)" in region
 assert "SIZE_MAX - pLen - 1" in region
 assert "return cwsP;" in region
+
+build_start = source.index("BuildIconResource(char *buffer, size_t buffer_size")
+build_end = source.index("\n}\n\n/* This needs to be called", build_start)
+build = source[build_start:build_end]
+assert "workspace == NULL" in build
+assert "return False;" in build
+
+assert source.count("!= (WmWorkspaceData *)NULL && pWS->name != NULL)") >= 2
 print("PASS MWM workspace-list serialization is bounded")

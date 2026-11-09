@@ -1154,7 +1154,7 @@ saveXSMPClient(FILE *fp, ClientData *pCD)
 	for (i = 0; i < pCD->numInhabited; i++)
 	{
 	    if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
-		!= (WmWorkspaceData *)NULL)
+		!= (WmWorkspaceData *)NULL && pWS->name != NULL)
 	    {
 		if (SAVE_RESOURCE(pCD, WMSAVE_ICON_X))
 		{
@@ -1286,7 +1286,7 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
 	for (i = 0; i < pCD->numInhabited; i++)
 	{
 	    if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
-		!= (WmWorkspaceData *)NULL)
+		!= (WmWorkspaceData *)NULL && pWS->name != NULL)
 	    {
 		fprintf(fp, iconXPosStr, clientID, pWS->name);
 		fprintf(fp, intArg, pCD->pWsList[i].iconX);
@@ -1534,6 +1534,9 @@ static Boolean
 BuildIconResource(char *buffer, size_t buffer_size, const char *format,
                   const char *workspace)
 {
+    if (buffer == NULL || buffer_size == 0 || format == NULL ||
+	workspace == NULL)
+	return False;
     int length = snprintf(buffer, buffer_size, format, "%s", workspace);
     return length >= 0 && (size_t) length < buffer_size;
 }
@@ -1556,8 +1559,8 @@ LoadClientIconPositions(ClientData *pCD)
     {
 	for (i = 0; i < pCD->numInhabited; i++)
 	{
-	    if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
-		!= (WmWorkspaceData *)NULL)
+		if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
+		    != (WmWorkspaceData *)NULL && pWS->name != NULL)
 	    {
 		if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
 				       iconXPosStr, pWS->name))
@@ -1594,8 +1597,8 @@ LoadClientIconPositions(ClientData *pCD)
 	{
 	    for (i = 0; i < pCD->numInhabited; i++)
 	    {
-		if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
-		    != (WmWorkspaceData *)NULL)
+	    if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
+		!= (WmWorkspaceData *)NULL && pWS->name != NULL)
 		{
 		    if (!BuildIconResource(resourceBuf, sizeof(resourceBuf),
 					   iconXPosStr, pWS->name))
