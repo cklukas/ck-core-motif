@@ -711,6 +711,11 @@ ConvertProc(
      * convert a compound string. */
     Atom *targs = XmeStandardTargets(w, 5, &n);
 
+    if (targs == NULL) {
+      cs -> status = XmCONVERT_REFUSE;
+      return;
+    }
+
     targs[n] = MOTIF_C_S; n++;
     targs[n] = COMPOUND_TEXT; n++;
     targs[n] = LOCALE_ATOM; n++;

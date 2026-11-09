@@ -8151,7 +8151,9 @@ ListConvert(Widget w, XtPointer client_data,
 
   if (cs->target == atoms[XmATARGETS])
     {
-      Atom *targs = XmeStandardTargets(w, 5, &target_count);
+      /* The locale-specific XA_STRING is additional to the five
+       * unconditional private targets below. */
+      Atom *targs = XmeStandardTargets(w, 6, &target_count);
 
       if (targs == NULL) {
 	cs->status = XmCONVERT_REFUSE;

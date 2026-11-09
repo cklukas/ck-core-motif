@@ -3,7 +3,7 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "List.c").read_text()
-standard = "Atom *targs = XmeStandardTargets(w, 5, &target_count);"
+standard = "Atom *targs = XmeStandardTargets(w, 6, &target_count);"
 exported = "Atom *targs = (Atom *) XtMalloc(sizeof(Atom) * 5);"
 for allocation in (standard, exported):
     start = source.index(allocation)

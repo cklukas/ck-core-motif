@@ -3844,7 +3844,8 @@ ListConvert(Widget w, XtPointer client_data,
 
     if (cs->target == atoms[XmATARGETS])
     {
-	Atom *targs = XmeStandardTargets(w, 5, &target_count);
+	/* Reserve both optional private targets: XA_STRING and XA_PIXMAP. */
+	Atom *targs = XmeStandardTargets(w, 7, &target_count);
 
 	if (targs == NULL)
 	{
@@ -3871,6 +3872,11 @@ ListConvert(Widget w, XtPointer client_data,
 	Atom *targs = (Atom *) XtMalloc(sizeof(Atom) * 6);
 	int n = 0;
 
+	if (targs == NULL)
+	{
+	    cs->status = XmCONVERT_REFUSE;
+	    return;
+	}
 	value = (XtPointer) targs;
 	targs[n++] = atoms[XmA_MOTIF_COMPOUND_STRING];
 	targs[n++] = atoms[XmACOMPOUND_TEXT];

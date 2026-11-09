@@ -1,3 +1,11 @@
+Bound selection TARGETS advertisements (2026-11-09)
+====================================================
+
+- Reserve every conditional private target before List and I18List append to
+  `XmeStandardTargets`, and make maintained transfer examples refuse cleanly
+  on target-array allocation failure; see
+  `docs/selection-target-capacity.md`.
+
 Preserve complete UIL diagnostic text (2026-11-09)
 ====================================================
 

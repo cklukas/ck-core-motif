@@ -199,6 +199,11 @@ ColorConvert(Widget widget, XtPointer ignore, XmConvertCallbackStruct *cs)
       else
 	targs = XmeStandardTargets(widget, 1, &target_count);
 
+      if (targs == NULL) {
+	cs -> status = XmCONVERT_REFUSE;
+	return;
+      }
+
       targs[target_count++] = BACKGROUND; 
 
       cs -> value = (XtPointer) targs;
@@ -459,6 +464,11 @@ RectConvert(Widget widget, XtPointer ignore, XmConvertCallbackStruct *cs)
 	  targs = (Atom *)XtMalloc((unsigned) (1 * sizeof(Atom)));
 	else
 	  targs = XmeStandardTargets(widget, 1, &target_count);
+
+        if (targs == NULL) {
+          cs -> status = XmCONVERT_REFUSE;
+          return;
+        }
 
         targs[target_count++] = MY_RECT;
 
