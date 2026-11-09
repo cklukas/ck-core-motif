@@ -341,7 +341,7 @@ Boolean XmDisclosureGetExpanded(Widget w) {
 }
 void XmDisclosureSetExpanded(Widget widget, Boolean expanded, Boolean notify) {
   XmDisclosureWidget w;
-  if (!widget || !XmIsDisclosure(widget))
+  if (!widget || !XmIsDisclosure(widget) || widget->core.being_destroyed)
     return;
   w = (XmDisclosureWidget)widget;
   expanded = expanded ? True : False;

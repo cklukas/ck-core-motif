@@ -323,7 +323,7 @@ void XmTeachingTipShow(Widget widget) {
 void XmTeachingTipHide(Widget widget) {
     XmTeachingTipWidget tip;
     XmAnyCallbackStruct callback;
-    if (widget == NULL || !XmIsTeachingTip(widget)) return;
+    if (widget == NULL || !XmIsTeachingTip(widget) || widget->core.being_destroyed) return;
     tip = (XmTeachingTipWidget)widget;
     if (tip->teaching_tip.timeout_pending) {
         XtRemoveTimeOut(tip->teaching_tip.timeout_id);

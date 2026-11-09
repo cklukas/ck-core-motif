@@ -274,7 +274,7 @@ void XmFlyoutShow(Widget widget) {
 void XmFlyoutHide(Widget widget) {
     XmFlyoutWidget flyout;
     XmAnyCallbackStruct callback;
-    if (widget == NULL || !XmIsFlyout(widget)) return;
+    if (widget == NULL || !XmIsFlyout(widget) || widget->core.being_destroyed) return;
     flyout = (XmFlyoutWidget)widget;
     if (!flyout->flyout.visible) return;
     flyout->flyout.visible = False;

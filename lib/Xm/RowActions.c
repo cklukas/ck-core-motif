@@ -273,6 +273,6 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
     layout(actions); negotiate(actions);
 }
 Cardinal XmRowActionsGetItemCount(Widget widget) { return widget && XmIsRowActions(widget) && !widget->core.being_destroyed ? ((XmRowActionsWidget)widget)->actions.item_count : 0; }
-void XmRowActionsReveal(Widget widget, Boolean revealed) { XmRowActionsWidget actions; if (!widget || !XmIsRowActions(widget)) return; actions = (XmRowActionsWidget)widget; actions->actions.revealed = revealed; layout(actions); }
+void XmRowActionsReveal(Widget widget, Boolean revealed) { XmRowActionsWidget actions; if (!widget || !XmIsRowActions(widget) || widget->core.being_destroyed) return; actions = (XmRowActionsWidget)widget; actions->actions.revealed = revealed; layout(actions); }
 Boolean XmRowActionsIsRevealed(Widget widget) { return widget && XmIsRowActions(widget) && !widget->core.being_destroyed ? ((XmRowActionsWidget)widget)->actions.revealed : False; }
 void XmRowActionsInvoke(Widget widget, Cardinal index, XEvent *event) { XmRowActionsWidget actions; XmRowActionsCallbackStruct callback; if (!widget || !XmIsRowActions(widget) || widget->core.being_destroyed) return; actions = (XmRowActionsWidget)widget; if (index >= actions->actions.item_count || !actions->actions.revealed) return; callback.reason = XmROW_ACTIONS_REASON_INVOKED; callback.event = event; callback.id = actions->actions.items[index].id; callback.user_data = actions->actions.items[index].user_data; XtCallCallbacks(widget, XmNrowActionsInvokeCallback, &callback); }

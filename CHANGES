@@ -1,3 +1,11 @@
+Guard public composite mutators during destruction (2026-11-03)
+================================================================
+
+- Make late Disclosure, RowActions, TeachingTip, and Flyout mutator calls
+  harmless once Xt begins destroying the target.  They no longer update
+  layout, popup, timer, or callback state against teardown objects; see
+  `docs/public-mutator-destroy-guards.md`.
+
 Ignore late ToggleSwitch pointer events during destruction (2026-11-03)
 =======================================================================
 
