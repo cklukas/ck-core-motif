@@ -1042,7 +1042,7 @@ Boolean XmTreeViewGetExpanded(Widget widget, XtPointer id) {
 void XmTreeViewSetTopRow(Widget widget, Cardinal top_row) {
     XmTreeViewWidget view;
     Cardinal total;
-    if (widget == NULL || !XmIsTreeView(widget))
+    if (widget == NULL || !XmIsTreeView(widget) || widget->core.being_destroyed)
         return;
     view = (XmTreeViewWidget)widget;
     total = visible_count(view);

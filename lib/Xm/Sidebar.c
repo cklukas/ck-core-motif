@@ -439,7 +439,7 @@ Boolean XmSidebarGetExpanded(Widget widget)
 void XmSidebarToggle(Widget widget, XEvent *event)
 {
     XmSidebarWidget sidebar;
-    if (!widget || !XmIsSidebar(widget))
+    if (!widget || !XmIsSidebar(widget) || widget->core.being_destroyed)
         return;
     sidebar = (XmSidebarWidget)widget;
     set_expanded(widget, !sidebar->sidebar.expanded, event, True);

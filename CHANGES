@@ -1,3 +1,10 @@
+Guard navigation mutators during destruction (2026-11-03)
+=========================================================
+
+- Make TreeView scrolling, BreadcrumbBar selection, and Sidebar toggling
+  reject teardown state before they read or update navigation layout; see
+  `docs/navigation-mutator-destroy-guards.md`.
+
 Guard public composite mutators during destruction (2026-11-03)
 ================================================================
 

@@ -561,7 +561,8 @@ int XmBreadcrumbBarGetCurrentIndex(Widget widget) {
 
 void XmBreadcrumbBarSetCurrentIndex(Widget widget, int index,
                                     Boolean notify_change) {
-    if (widget != NULL && XmIsBreadcrumbBar(widget))
+    if (widget != NULL && XmIsBreadcrumbBar(widget) &&
+        !widget->core.being_destroyed)
         set_current((XmBreadcrumbBarWidget)widget, index, notify_change, NULL);
 }
 
