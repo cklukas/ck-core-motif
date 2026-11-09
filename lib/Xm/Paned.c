@@ -120,6 +120,7 @@ static XmImportOperator ToPanedChildPixels(Widget, int, XtArgVal *);
 static Dimension PaneSize(Widget, Boolean);
 static Dimension AddPanedDimension(Dimension value, uint64_t addition);
 static Dimension AddMarginDimension(Dimension value, Dimension margin);
+static Dimension SubtractMarginDimension(Dimension value, Dimension margin);
 static Dimension GetRequestInfo(XtWidgetGeometry *, Boolean);
 
 static Pane ChoosePaneToResize(XmPanedWidget, int, Direction, Boolean);
@@ -522,12 +523,14 @@ AdjustPanedSize(XmPanedWidget pw, Dimension off_size,
     }
 
     if ( IsVert(pw) ) {
-        request.width = off_size + 2 * XmPaned_margin_width(pw);
+        request.width = AddMarginDimension(off_size,
+	    XmPaned_margin_width(pw));
 	request.height = newsize;
     }
     else {
         request.width = newsize;
-	request.height = off_size + 2 * XmPaned_margin_height(pw);
+	request.height = AddMarginDimension(off_size,
+	    XmPaned_margin_height(pw));
     }
     
     request.request_mode = CWWidth | CWHeight;
@@ -560,15 +563,19 @@ AdjustPanedSize(XmPanedWidget pw, Dimension off_size,
 
     if ( IsVert(pw) ) {
 	if (on_size_ret != NULL)
-	    *on_size_ret -= 2 * XmPaned_margin_height(pw);
+	    *on_size_ret = SubtractMarginDimension(*on_size_ret,
+		XmPaned_margin_height(pw));
 	if (off_size_ret != NULL)
-	    *off_size_ret -= 2 * XmPaned_margin_width(pw);
+	    *off_size_ret = SubtractMarginDimension(*off_size_ret,
+		XmPaned_margin_width(pw));
     }
     else {
 	if (on_size_ret != NULL)
-	    *on_size_ret -= 2 * XmPaned_margin_width(pw);
+	    *on_size_ret = SubtractMarginDimension(*on_size_ret,
+		XmPaned_margin_width(pw));
 	if (off_size_ret != NULL)
-	    *off_size_ret -= 2 * XmPaned_margin_height(pw);
+	    *off_size_ret = SubtractMarginDimension(*off_size_ret,
+		XmPaned_margin_height(pw));
     }
 
     return(result);
@@ -1103,6 +1110,7 @@ RefigureLocations(XmPanedWidget pw, int paneindex, Direction dir)
 {
     register Widget *childP;
     int pane_size = (int) PaneSize( (Widget) pw, IsVert(pw) );
+    int fallback_index;
     Dimension sizeused;
     Position loc = 0;
     int sash_size, moved = True;
@@ -1139,7 +1147,13 @@ RefigureLocations(XmPanedWidget pw, int paneindex, Direction dir)
     {
       if (pane_size > sizeused)
       {
-        PaneInfo(*NthPane(pw, paneindex-1))->size += (pane_size - sizeused);
+        fallback_index = paneindex == NO_INDEX
+	    ? XmPaned_num_panes(pw) - 1
+	    : (paneindex > 0 ? paneindex - 1 : 0);
+
+        PaneInfo(*NthPane(pw, fallback_index))->size =
+	    AddPanedDimension(PaneInfo(*NthPane(pw, fallback_index))->size,
+		(uint64_t)(pane_size - sizeused));
       }
     }
     
@@ -2390,6 +2404,14 @@ AddMarginDimension(Dimension value, Dimension margin)
     return total > USHRT_MAX ? (Dimension)USHRT_MAX : (Dimension)total;
 }
 
+static Dimension
+SubtractMarginDimension(Dimension value, Dimension margin)
+{
+    uint64_t extent = 2 * (uint64_t)margin;
+
+    return (uint64_t)value > extent ? (Dimension)((uint64_t)value - extent) : 0;
+}
+
 /*	Function Name: Initialize
  *	Description:   Called to initialize information specific
  *                     to this widget.
@@ -2709,9 +2731,11 @@ ResetSize(XmPanedWidget pw, Boolean recalc_off_size)
        off_size = PaneSize( (Widget) pw, !vert );
 
        if (vert)
-	   off_size -= 2 * XmPaned_margin_width(pw);
+	   off_size = SubtractMarginDimension(off_size,
+	       XmPaned_margin_width(pw));
        else
-	   off_size -= 2 * XmPaned_margin_height(pw);
+	   off_size = SubtractMarginDimension(off_size,
+	       XmPaned_margin_height(pw));
    }
 
    /*
@@ -2938,9 +2962,11 @@ SetValues(Widget old, Widget request, Widget set,
 	Dimension off_size = PaneSize((Widget) old_pw, !IsVert(old_pw));
 
 	if (IsVert(old_pw)) 
-	    off_size -=	2 * XmPaned_margin_width(old_pw);
+	    off_size = SubtractMarginDimension(off_size,
+		XmPaned_margin_width(old_pw));
 	else
-	    off_size -= 2 * XmPaned_margin_height(old_pw);
+	    off_size = SubtractMarginDimension(off_size,
+		XmPaned_margin_height(old_pw));
 	
 	(void) AdjustPanedSize(set_pw, off_size, True, False, NULL, NULL);
 
@@ -2973,12 +2999,16 @@ QueryGeometry(Widget w, XtWidgetGeometry *request,
     GetPrefSizes(pw, &on_size, &off_size);
 
     if (IsVert(pw)) {
-	preferred->width = off_size + 2 * XmPaned_margin_width(pw);
-	preferred->height = on_size + 2 * XmPaned_margin_height(pw);
+	preferred->width = AddMarginDimension(off_size,
+	    XmPaned_margin_width(pw));
+	preferred->height = AddMarginDimension(on_size,
+	    XmPaned_margin_height(pw));
     }
     else {
-	preferred->width = on_size   + 2 * XmPaned_margin_width(pw);
-	preferred->height = off_size + 2 * XmPaned_margin_height(pw);
+	preferred->width = AddMarginDimension(on_size,
+	    XmPaned_margin_width(pw));
+	preferred->height = AddMarginDimension(off_size,
+	    XmPaned_margin_height(pw));
     }
 
     return(_XmHWQuery(w, request, preferred));

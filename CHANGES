@@ -1,3 +1,11 @@
+Keep XmPaned refigure margins and fallback indexes safe (2026-11-10)
+=====================================================================
+
+- Saturate and floor Paned geometry margin conversions across negotiation,
+  preferred-size, reset, and set-values paths, and select a valid fallback
+  pane during no-unused-space global refigures; see
+  docs/paned-refigure-margin-safety.md.
+
 Initialize MWM automation menu-query replies (2026-11-10)
 ===========================================================
 
