@@ -1,3 +1,9 @@
+Validate MWM IconBox event unions (2026-11-10)
+==============================================
+
+- Require FocusIn/FocusOut and KeyPress events before MWM IconBox handlers
+  access their XEvent union payloads; see docs/mwm-iconbox-event-types.md.
+
 Bound Command Palette preferred and child geometry (2026-11-10)
 ===============================================================
 

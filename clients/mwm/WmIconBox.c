@@ -3661,7 +3661,8 @@ void ChangeActiveIconboxIconText (Widget icon, XtPointer client_data,
     ClientData    	*pCD;
     Window		theIcon;
 
-    if (icon == NULL || event == NULL)
+    if (icon == NULL || event == NULL ||
+        (event->type != FocusIn && event->type != FocusOut))
 	return;
 
     /* 
@@ -3719,7 +3720,7 @@ void HandleIconBoxIconKeyPress (Widget icon, XtPointer client_data,
     XKeyEvent           *keyEvent;
 
 
-    if (icon == NULL || event == NULL)
+    if (icon == NULL || event == NULL || event->type != KeyPress)
 	return;
 
     keyEvent = &event->xkey;
