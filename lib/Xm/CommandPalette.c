@@ -184,7 +184,15 @@ void XmCommandPaletteSetItems(Widget widget, const XmCommandPaletteItem *items, 
 }
 Cardinal XmCommandPaletteGetItemCount(Widget widget) { return widget && XmIsCommandPalette(widget) && !widget->core.being_destroyed ? ((XmCommandPaletteWidget)widget)->palette.item_count : 0; }
 Cardinal XmCommandPaletteGetVisibleCount(Widget widget) { return widget && XmIsCommandPalette(widget) && !widget->core.being_destroyed ? ((XmCommandPaletteWidget)widget)->palette.visible_count : 0; }
-void XmCommandPaletteSetFilter(Widget widget, const char *filter) { if (widget && XmIsCommandPalette(widget) && ((XmCommandPaletteWidget)widget)->palette.search != NULL) XmSearchBoxSetString(((XmCommandPaletteWidget)widget)->palette.search, filter ? filter : ""); }
+void XmCommandPaletteSetFilter(Widget widget, const char *filter) {
+    XmCommandPaletteWidget palette;
+
+    if (!widget || !XmIsCommandPalette(widget) || widget->core.being_destroyed)
+        return;
+    palette = (XmCommandPaletteWidget)widget;
+    if (palette->palette.search != NULL)
+        XmSearchBoxSetString(palette->palette.search, filter ? filter : "");
+}
 char *XmCommandPaletteGetFilter(Widget widget) { return widget && XmIsCommandPalette(widget) && !widget->core.being_destroyed ? XmSearchBoxGetString(((XmCommandPaletteWidget)widget)->palette.search) : NULL; }
 void XmCommandPaletteShow(Widget widget) { XmCommandPaletteWidget palette; Window window; int revert; if (!widget || !XmIsCommandPalette(widget) || widget->core.being_destroyed) return; palette = (XmCommandPaletteWidget)widget; XGetInputFocus(XtDisplay(widget), &window, &revert); palette->palette.previous_focus = XtWindowToWidget(XtDisplay(widget), window); palette->palette.shown = True; XtManageChild(widget); if (palette->palette.search != NULL) XmProcessTraversal(palette->palette.search, XmTRAVERSE_CURRENT); }
 void XmCommandPaletteDismiss(Widget widget, XEvent *event) { XmCommandPaletteWidget palette; XmCommandPaletteCallbackStruct callback; if (!widget || !XmIsCommandPalette(widget) || widget->core.being_destroyed) return; palette = (XmCommandPaletteWidget)widget; if (!palette->palette.shown) return; palette->palette.shown = False; XtUnmanageChild(widget); if (palette->palette.previous_focus && XtIsManaged(palette->palette.previous_focus)) XmProcessTraversal(palette->palette.previous_focus, XmTRAVERSE_CURRENT); callback.reason = XmCR_UNMAP; callback.event = event; callback.id = NULL; callback.user_data = NULL; XtCallCallbacks(widget, XmNcommandPaletteDismissCallback, &callback); }

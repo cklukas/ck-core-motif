@@ -10,3 +10,8 @@ operation for clearing/rebuilding the palette.
 
 The focused source-contract check is
 `tests/automated/check-command-palette-input-preservation.py`.
+
+`XmCommandPaletteSetFilter` likewise becomes a no-op once Xt has started
+destroying the palette.  It therefore cannot call into the SearchBox child
+during teardown.  The lifecycle check is
+`tests/automated/check-command-palette-set-filter-destroy-guard.py`.

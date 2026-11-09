@@ -1,3 +1,10 @@
+Guard CommandPalette filtering during destruction (2026-11-03)
+================================================================
+
+- Make `XmCommandPaletteSetFilter` a no-op during Xt destruction so it cannot
+  forward a filter change to a tearing-down SearchBox child; see
+  `docs/command-palette-item-preservation.md`.
+
 Ignore StatusBar updates during destruction (2026-11-03)
 ==========================================================
 
