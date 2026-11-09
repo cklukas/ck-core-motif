@@ -741,14 +741,14 @@ GetSize(
                         vsb = mw->swindow.vScrollBar;
     Widget 	    w;
     Dimension	    hsheight = 0, vmwidth = 0,
-		    ht = mw->manager.shadow_thickness  * 2,
+		    ht = MainWClampDimension(2 * (long long)mw->manager.shadow_thickness),
 		    hsbht = 0, vsbht = 0;
     Dimension	    width, MyXpad, MyYpad;
     XtWidgetGeometry  preferred;
 
 
-    MyXpad = mw->mwindow.margin_width * 2;
-    MyYpad = mw->mwindow.margin_height * 2;
+    MyXpad = MainWClampDimension(2 * (long long)mw->mwindow.margin_width);
+    MyYpad = MainWClampDimension(2 * (long long)mw->mwindow.margin_height);
 
 
     /* what id to use for the sw frame */
@@ -764,17 +764,17 @@ GetSize(
     if (ExistManaged((Widget) vsb) &&
         ((0 == mw->core.width) || ((Dimension)vsb->core.x < mw->core.width)))  /* needed */
     {
-       	vsbht = 2 * vsb->primitive.highlight_thickness;
-	vmwidth = vsb->core.width + mw->swindow.pad +
-	          (2 * vsb->primitive.highlight_thickness);
+	vsbht = MainWClampDimension(2 * (long long)vsb->primitive.highlight_thickness);
+	vmwidth = MainWClampDimension((long long)vsb->core.width +
+	    mw->swindow.pad + vsbht);
     }
 
     if (ExistManaged((Widget) hsb) &&
         ((0 == mw->core.height) || ((Dimension)hsb->core.y < mw->core.height)))  /* needed */
     {
-       	hsbht = 2 * hsb->primitive.highlight_thickness;
-	hsheight = hsb->core.height + mw->swindow.pad +
-		   (2 * hsb->primitive.highlight_thickness);
+	hsbht = MainWClampDimension(2 * (long long)hsb->primitive.highlight_thickness);
+	hsheight = MainWClampDimension((long long)hsb->core.height +
+	    mw->swindow.pad + hsbht);
     }
 
 /****************
@@ -791,18 +791,18 @@ GetSize(
         if ((mw->swindow.ScrollPolicy == XmAUTOMATIC) &&
 	    !XtIsRealized((Widget)mw))
 	{
-  	    newWidth = mw->swindow.AreaWidth + (w->core.border_width * 2) + 
-		       hsbht + vmwidth + ht + MyXpad;
-            newHeight = mw->swindow.AreaHeight + (w->core.border_width * 2) + 
-		        vsbht + hsheight + ht + MyYpad;
+		newWidth = MainWClampDimension((long long)mw->swindow.AreaWidth +
+		       2 * (long long)w->core.border_width + hsbht + vmwidth + ht + MyXpad);
+            newHeight = MainWClampDimension((long long)mw->swindow.AreaHeight +
+		        2 * (long long)w->core.border_width + vsbht + hsheight + ht + MyYpad);
         }
 	else
 	{
             XtQueryGeometry(w, NULL, &preferred);
-	    newWidth = preferred.width + (w->core.border_width * 2) + 
-		       hsbht + vmwidth + ht + MyXpad;
-            newHeight = preferred.height  + (w->core.border_width * 2) + 
-		        vsbht + hsheight + ht + MyYpad;
+	    newWidth = MainWClampDimension((long long)preferred.width +
+		       2 * (long long)w->core.border_width + hsbht + vmwidth + ht + MyXpad);
+            newHeight = MainWClampDimension((long long)preferred.height +
+		        2 * (long long)w->core.border_width + vsbht + hsheight + ht + MyYpad);
 	}
     }
     else
@@ -816,38 +816,41 @@ GetSize(
     if (ExistManaged(mw->mwindow.CommandWindow))
     {   
         XtQueryGeometry(mw->mwindow.CommandWindow, NULL, &preferred);
-        width = preferred.width + MyXpad + 
-	        (2 * mw->mwindow.CommandWindow->core.border_width);
+        width = MainWClampDimension((long long)preferred.width + MyXpad +
+		2 * (long long)mw->mwindow.CommandWindow->core.border_width);
     	if (newWidth < width) newWidth = width;
-	newHeight += preferred.height + 
-  	            (2 * mw->mwindow.CommandWindow->core.border_width);
+	newHeight = MainWClampDimension((long long)newHeight + preferred.height +
+		    2 * (long long)mw->mwindow.CommandWindow->core.border_width);
         if (mw->mwindow.Sep2 && mw->mwindow.ShowSep) 
-	    newHeight += mw->mwindow.Sep2->rectangle.height;
+	    newHeight = MainWClampDimension((long long)newHeight +
+		mw->mwindow.Sep2->rectangle.height);
 
     }
 
     if (ExistManaged(mw->mwindow.MenuBar))
     {   
         XtQueryGeometry(mw->mwindow.MenuBar, NULL, &preferred);
-        width = preferred.width + MyXpad +
-	        (2 * mw->mwindow.MenuBar->core.border_width);
+        width = MainWClampDimension((long long)preferred.width + MyXpad +
+		2 * (long long)mw->mwindow.MenuBar->core.border_width);
     	if (newWidth < width) newWidth = width;
-	newHeight += preferred.height +
-  	            (2 * mw->mwindow.MenuBar->core.border_width);
+	newHeight = MainWClampDimension((long long)newHeight + preferred.height +
+		    2 * (long long)mw->mwindow.MenuBar->core.border_width);
         if (mw->mwindow.Sep1  && mw->mwindow.ShowSep) 
-	    newHeight += mw->mwindow.Sep1->rectangle.height;
+	    newHeight = MainWClampDimension((long long)newHeight +
+		mw->mwindow.Sep1->rectangle.height);
     }
 
     if (ExistManaged(mw->mwindow.Message))
     {   
         XtQueryGeometry(mw->mwindow.Message, NULL, &preferred);
-        width = preferred.width +  MyXpad +
-	        (2 * mw->mwindow.Message->core.border_width);
+        width = MainWClampDimension((long long)preferred.width + MyXpad +
+		2 * (long long)mw->mwindow.Message->core.border_width);
     	if (newWidth < width) newWidth = width;
-	newHeight += preferred.height + 
-  	            (2 * mw->mwindow.Message->core.border_width);
+	newHeight = MainWClampDimension((long long)newHeight + preferred.height +
+		    2 * (long long)mw->mwindow.Message->core.border_width);
         if (mw->mwindow.Sep3 && mw->mwindow.ShowSep) 
-	    newHeight += mw->mwindow.Sep3->rectangle.height;
+	    newHeight = MainWClampDimension((long long)newHeight +
+		mw->mwindow.Sep3->rectangle.height);
 
     }
 

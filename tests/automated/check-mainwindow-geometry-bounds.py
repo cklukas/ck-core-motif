@@ -19,4 +19,10 @@ assert "2 * ((long long)bw + mw->mwindow.margin_width)" in body
 assert "newHeight = MainWClampDimension(parent_height);" in body
 assert "newWidth = request->width + 2 * (bw + mw->mwindow.margin_width);" not in body
 
+get_size = source[source.index("static void \nGetSize("):source.index("\f", source.index("static void \nGetSize("))]
+assert "MyXpad = MainWClampDimension(" in get_size
+assert "MyYpad = MainWClampDimension(" in get_size
+assert get_size.count("newWidth = MainWClampDimension(") >= 2
+assert get_size.count("newHeight = MainWClampDimension(") >= 8
+
 print("PASS MainWindow geometry-manager dimensions are bounded")

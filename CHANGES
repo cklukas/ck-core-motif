@@ -1,8 +1,9 @@
 Bound MainWindow geometry-manager dimensions (2026-11-10)
 =========================================================
 
-- Saturate child-width and parent-height requests before converting them to
-  X11 Dimension fields; see docs/mainwindow-geometry-bounds.md.
+- Saturate child-width, parent-height, and preferred-size accumulation before
+  converting them to X11 Dimension fields; see
+  docs/mainwindow-geometry-bounds.md.
 
 Bound Frame layout dimensions and positions (2026-11-10)
 =========================================================
