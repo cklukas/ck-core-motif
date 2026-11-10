@@ -226,9 +226,8 @@ _XmIsViewable(Widget wid)
 	    return TRUE;
 
 	  /* Managed, but not necessarily mapped. */
-	  XGetWindowAttributes(XtDisplay(wid), XtWindow(wid), &xwa);
-
-	  if (xwa.map_state == IsViewable)
+	  if (XGetWindowAttributes(XtDisplay(wid), XtWindow(wid), &xwa) &&
+	      xwa.map_state == IsViewable)
 	    return TRUE;
 	} 
     } 

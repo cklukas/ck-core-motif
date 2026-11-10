@@ -10110,7 +10110,7 @@ df_MakeAddModeCursor(
       GC fillGC;
       XtGCMask  valueMask;
       XGCValues values;
-      unsigned int pix_width, pix_height, unused;
+      unsigned int pix_width = 0, pix_height = 0, unused;
       Display *dpy = XtDisplay(tf);
       Pixmap stipple;
       XImage *image;
@@ -10122,13 +10122,18 @@ df_MakeAddModeCursor(
 				   1, 0, 1);
       
       if (pixmap != XmUNSPECIFIED_PIXMAP) {
-      	XGetGeometry(XtDisplay(tf), pixmap, &root, &unused_origin, 
-		     &unused_origin, &pix_width, &pix_height, 
-		     &unused, &unused);
+	/* Without the stipple image the add mode cursor stays unspecified,
+	 * as when the pixmap itself is missing. */
+	if (!XGetGeometry(XtDisplay(tf), pixmap, &root, &unused_origin, 
+			  &unused_origin, &pix_width, &pix_height, 
+			  &unused, &unused) ||
+	    pix_width == 0 || pix_height == 0)
+	  return;
       	image = XGetImage(XtDisplay(tf), (Drawable)pixmap, 0, 0,
 			  pix_width, pix_height, AllPlanes,
 			  XYPixmap);
-			
+	if (image == NULL)
+	  return;
 
       	stipple = XCreatePixmap(dpy, XtWindow(tf), 
 				image->width, image->height,1);

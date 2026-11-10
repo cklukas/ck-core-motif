@@ -1,3 +1,15 @@
+Check X requests whose results the toolkit used unchecked (2026-11-10)
+=======================================================================
+
+- Treat a failed `XGetGeometry`, `XGetWindowAttributes` or `XGetImage` as a
+  failure instead of reading its output parameters: cascade button and gadget
+  pixmaps, the DataField add mode cursor (which also dereferenced a missing
+  image), IconButton pixmaps, `XmGetVisibility`, `_XmIsViewable`, the root
+  window event mask saved by a drag, and drag receiver information.
+- Test: `run-x-reply-status.py` replaces the three requests with failing
+  versions that poison their outputs and runs nine cases under ASan and UBSan;
+  the earlier toolkit fails all of them.
+
 Harden the Editres protocol handler (2026-11-10)
 ================================================
 

@@ -1615,10 +1615,10 @@ XmGetVisibility(
 
       XUnionRectWithRegion(&rect, region, region);
       while(i < numchildren) { 
-        XGetWindowAttributes(XtDisplay(wid), *windowptr, 
-				&window_attributes_return);
-
-        if(window_attributes_return.map_state == IsViewable) {
+        /* A sibling the server no longer knows covers nothing. */
+        if(XGetWindowAttributes(XtDisplay(wid), *windowptr, 
+				&window_attributes_return) &&
+           window_attributes_return.map_state == IsViewable) {
           _XmSetRect(&parent_rect, XtParent(wid));
           srcRectB.x = parent_rect.x + window_attributes_return.x 
 					+ window_attributes_return.border_width;

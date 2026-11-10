@@ -961,15 +961,21 @@ _XmGetDragReceiverInfo(
 	  /*
 	   * now get their geometry
 	   */
-	  XGetGeometry(display, 
-		       window,
-		       &root,
-		       &(receiverInfoRtn->xOrigin),
-		       &(receiverInfoRtn->yOrigin),
-		       &(receiverInfoRtn->width),
-		       &(receiverInfoRtn->height),
-		       &bw,
-		       &(receiverInfoRtn->depth));
+	  if (!XGetGeometry(display, 
+			    window,
+			    &root,
+			    &(receiverInfoRtn->xOrigin),
+			    &(receiverInfoRtn->yOrigin),
+			    &(receiverInfoRtn->width),
+			    &(receiverInfoRtn->height),
+			    &bw,
+			    &(receiverInfoRtn->depth))) {
+	    /* the receiver window is gone */
+	    (receiverInfoRtn)->dragProtocolStyle = XmDRAG_NONE;
+	    XtFree((char *)dsmInfo);
+	    XFree((void *)iccInfo);
+	    return False;
+	  }
 	  (void) XTranslateCoordinates(display,
 				     window,
 				     root,

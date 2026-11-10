@@ -2404,11 +2404,13 @@ DragStart(
     {
       XWindowAttributes       xwa;
       
-      XGetWindowAttributes(XtDisplay(dc), dc->drag.currWmRoot, &xwa);
-      dc->drag.SaveEventMask = xwa.your_event_mask;
-      XSelectInput(XtDisplay(dc),
-		   dc->drag.currWmRoot,
-		   xwa.your_event_mask | ButtonMotionMask);
+      /* Without the current mask the root window is left alone. */
+      if (XGetWindowAttributes(XtDisplay(dc), dc->drag.currWmRoot, &xwa)) {
+	  dc->drag.SaveEventMask = xwa.your_event_mask;
+	  XSelectInput(XtDisplay(dc),
+		       dc->drag.currWmRoot,
+		       xwa.your_event_mask | ButtonMotionMask);
+      }
     }
     /* End fixing OSF CR 5556 */ 
 

@@ -1897,13 +1897,15 @@ size_cascade(
 {
     Window rootwin;
     int x,y;					       /* must be int */
-    unsigned int width, height, border, depth;	       /* must be int */
+    unsigned int width = 0, height = 0, border, depth;  /* must be int */
 
     if (CB_CascadePixmap(cascadebtn) != XmUNSPECIFIED_PIXMAP)
     {
-       XGetGeometry(XtDisplay(cascadebtn), CB_CascadePixmap(cascadebtn),
-		    &rootwin, &x, &y, &width, &height,
-		    &border, &depth);
+       /* A pixmap the server no longer knows has no size. */
+       if (!XGetGeometry(XtDisplay(cascadebtn), CB_CascadePixmap(cascadebtn),
+			 &rootwin, &x, &y, &width, &height,
+			 &border, &depth))
+	  width = height = 0;
 
        CB_Cascade_width(cascadebtn) = (Dimension) width;
        CB_Cascade_height(cascadebtn) = (Dimension) height;

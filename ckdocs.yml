@@ -1187,6 +1187,9 @@ nav:
       - title: xft
         pages:
           - docs/xft-draw-cache-growth.md
+      - title: xlib
+        pages:
+          - docs/x-reply-status.md
       - title: xm
         pages:
           - docs/xm-iso10646-registry.md

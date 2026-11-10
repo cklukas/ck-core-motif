@@ -1541,7 +1541,7 @@ GetDesiredSize(Widget w, Dimension * width, Dimension * height)
     {
 	Window root;
 	int x, y;
-	unsigned int local_width, local_height, bw, depth;
+	unsigned int local_width = 0, local_height = 0, bw, depth = 0;
 
 	/*
 	 * If we have an icon of unknown size then ask the server, 
@@ -1554,11 +1554,15 @@ GetDesiredSize(Widget w, Dimension * width, Dimension * height)
 	    if (!CheckPixCache(XtDisplay(w), XmIconButton_pixmap(iw), 
 			       &local_width, &local_height, &depth))
 	    {
-		XGetGeometry(XtDisplay(w), XmIconButton_pixmap(iw), &root, &x, &y, 
-			     &local_width, &local_height, &bw, &depth);
-
-		AddPixCache(XtDisplay(w), XmIconButton_pixmap(iw),
-			    local_width, local_height, depth);
+		/* A pixmap the server no longer knows has no size and is
+		 * not cached. */
+		if (XGetGeometry(XtDisplay(w), XmIconButton_pixmap(iw), &root,
+				 &x, &y, &local_width, &local_height, &bw,
+				 &depth))
+		    AddPixCache(XtDisplay(w), XmIconButton_pixmap(iw),
+				local_width, local_height, depth);
+		else
+		    local_width = local_height = depth = 0;
 	    }
 
 	    IncPixCache(XtDisplay(w), XmIconButton_pixmap(iw));
