@@ -1,3 +1,9 @@
+Honor disabled DatePicker and TimePicker input (2026-11-10)
+=============================================================
+
+- Ignore keyboard and pointer input while a DatePicker or TimePicker, or an
+  ancestor, is insensitive. Programmatic value and popup APIs are unchanged.
+
 Honor disabled InfoBar and RowActions input (2026-11-10)
 ===========================================================
 

@@ -15,6 +15,8 @@ override-redirect, non-modal shell and is positioned below the owner, clamped
 to the screen.  `XmNdatePickerDateChangedCallback` is delivered after the
 popup has closed; callback code may destroy the picker.  `XmNdatePickerOpenChangedCallback`
 reports popup open/close transitions.
+Pointer and keyboard popup toggles are inactive while the DatePicker or an
+ancestor is insensitive; explicit open/close APIs remain available.
 
 The popup Calendar follows the DatePicker's layout direction and updates with
 a live `XmNlayoutDirection` change, including Calendar day-column mirroring.

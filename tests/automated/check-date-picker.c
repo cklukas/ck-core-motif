@@ -1,5 +1,6 @@
 #include <Xm/Accessible.h>
 #include <Xm/DatePicker.h>
+#include <X11/keysym.h>
 #include <assert.h>
 #include <stdio.h>
 
@@ -17,6 +18,17 @@ static void open_changed(Widget widget, XtPointer closure, XtPointer call_data) 
     (void)widget; (void)closure;
     assert(callback && (callback->reason == 3 || callback->reason == 4));
     ++opens;
+}
+
+static void key(Widget widget, KeySym keysym) {
+    XEvent event = {0};
+    event.xkey.type = KeyPress;
+    event.xkey.display = XtDisplay(widget);
+    event.xkey.window = XtWindow(widget);
+    event.xkey.root = DefaultRootWindow(XtDisplay(widget));
+    event.xkey.same_screen = True;
+    event.xkey.keycode = XKeysymToKeycode(XtDisplay(widget), keysym);
+    XtDispatchEvent(&event);
 }
 
 int main(int argc, char **argv) {
@@ -42,12 +54,23 @@ int main(int argc, char **argv) {
     assert(XmDatePickerSetRange(picker, &minimum, &maximum));
     assert(!XmDatePickerSetDate(picker, &(XmDatePickerDate){2024, 4, 1}, True));
     XtRealizeWidget(shell);
-    XmDatePickerOpen(picker);
+    XtSetSensitive(picker, False);
+    key(picker, XK_Return);
+    assert(!XmDatePickerIsOpen(picker));
+    assert(opens == 0);
+    XtSetSensitive(picker, True);
+    key(picker, XK_Return);
     assert(XmDatePickerIsOpen(picker));
     assert(opens == 1);
     XmDatePickerClose(picker);
     assert(!XmDatePickerIsOpen(picker));
     assert(opens == 2);
+    XmDatePickerOpen(picker);
+    assert(XmDatePickerIsOpen(picker));
+    assert(opens == 3);
+    XmDatePickerClose(picker);
+    assert(!XmDatePickerIsOpen(picker));
+    assert(opens == 4);
     accessibility = XmAccessibilityCreate(shell, "DatePickerFixture");
     assert(accessibility != NULL);
     accessible_id = XmAccessibilityWidget(accessibility, picker);

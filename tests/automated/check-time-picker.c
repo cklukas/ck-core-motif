@@ -54,6 +54,11 @@ int main(int argc, char **argv) {
     assert(info.role == XmACCESSIBLE_TEXT && info.has_value &&
            info.current_value == 12 * 3600 + 34 * 60 + 56);
     XmAccessibleInfoClear(&info); XmAccessibilityDestroy(accessibility);
+    XtSetSensitive(picker, False);
+    key(picker, XK_Left); key(picker, XK_Up);
+    assert(XmTimePickerGetValue(picker, &value));
+    assert(value.hour == 12 && value.minute == 34 && value.second == 56);
+    XtSetSensitive(picker, True);
     key(picker, XK_Left); key(picker, XK_Up);
     assert(XmTimePickerGetValue(picker, &value));
     assert(value.hour == 12 && value.minute == 35 && value.second == 56);

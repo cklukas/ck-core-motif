@@ -21,6 +21,8 @@ field by one unit, clamped at the documented range. Non-text arrow key events
 are recognized without requiring a character. Return activates the value.
 Callbacks are delivered after the value has been committed and may destroy
 the widget.
+Keyboard and pointer editing is inactive while the TimePicker or an ancestor is
+insensitive; explicit value APIs remain available.
 
 A live `XmNlayoutDirection` update repaints the realized control, including
 the direction-sensitive time text and selected-field feedback.
