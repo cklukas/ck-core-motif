@@ -1,3 +1,10 @@
+Keep MWM transient remanagement transactional (2026-11-10)
+===========================================================
+
+- Stop before unmanaging a client when building its transient-window list
+  fails, and reject incomplete transient-list helper state; see
+  docs/transient-list-growth.md.
+
 Harden MWM startup and icon-lookup inputs (2026-11-10)
 =========================================================
 

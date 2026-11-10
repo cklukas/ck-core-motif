@@ -13,6 +13,8 @@ def main() -> None:
     end = text.index("} /* END OF FUNCTION ListTransientTree", start)
     region = text[start:end]
     assert "static Boolean" in region
+    assert "pCD == NULL || ppWins == NULL || *ppWins == NULL" in region
+    assert "*pCount > *pSize" in region
     assert "XtRealloc" in region
     assert "if (resized == NULL)" in region
     assert "Window *resized;" in region
@@ -25,6 +27,12 @@ def main() -> None:
     tree = region[region.index("static Window *") :]
     assert "resized = (Window *)XtRealloc" in tree
     assert "XtFree((char *)pWins);" in tree
+    remanage_start = text.index("static void\nReManageWindow (")
+    remanage = text[remanage_start:text.index("} /* END OF FUNCTION ReManageWindow */", remanage_start)]
+    assert "if (pCD == NULL || pCD->pSD == NULL)" in remanage
+    assert "pWins = ListTransientTree (pCD);" in remanage
+    assert "if (pWins == NULL)" in remanage
+    assert remanage.index("if (pWins == NULL)") < remanage.index("UnManageWindow (pCD);")
     print("MWM transient list growth propagates allocation failure")
 
 

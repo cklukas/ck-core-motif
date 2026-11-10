@@ -1961,6 +1961,11 @@ ListTransientSubtree (
 	int *pSize,
 	int *pCount)
 {
+    if (pCD == NULL || ppWins == NULL || *ppWins == NULL ||
+	pSize == NULL || pCount == NULL || *pSize <= 0 || *pCount < 0 ||
+	*pCount > *pSize)
+	return (False);
+
     /*
      * Check size
      */
@@ -2036,6 +2041,9 @@ ListTransientTree (
     Window *pWins;
     int count;
     int iSize;
+
+    if (pCD == NULL)
+	return (NULL);
 
     /*
      * Initial allocation
@@ -2123,10 +2131,15 @@ ReManageWindow (
     Window *pWins, *pW;
     WmScreenData *pSD;
 
+    if (pCD == NULL || pCD->pSD == NULL)
+	return;
+
     /*
      * Get the list of windows in the transient window tree.
      */
     pWins = ListTransientTree (pCD);
+    if (pWins == NULL)
+	return;
 
     pSD = pCD->pSD;
 
