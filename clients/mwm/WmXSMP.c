@@ -779,6 +779,10 @@ getClientResource(char *clientID, char *fmtStr)
     char *resourceType;
     XrmValue resourceValue;
 
+    if (clientID == NULL || fmtStr == NULL ||
+	wmGD.clientResourceDB == (XrmDatabase)NULL)
+	return (char *)NULL;
+
     resourceLength = snprintf(NULL, 0, fmtStr, clientID);
     if (resourceLength < 0)
         return (char *)NULL;
@@ -823,6 +827,9 @@ getXSMPResource(ClientData *pCD, int resourceFlag, char *fmtStr)
 static Boolean
 findXSMPClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 {
+    if (pCD == NULL)
+	return False;
+
     if (pCD->smClientID != (String)NULL)
     {
 	if (wmGD.clientResourceDB != (XrmDatabase)NULL)
@@ -913,7 +920,8 @@ getProxyClientInfo(ClientData *pCD, ProxyClientInfo *proxyClientInfo)
     XTextProperty textProperty;
     unsigned long i;
 
-    if (pCD == NULL || pCD->pSD == NULL || proxyClientInfo == NULL)
+	if (pCD == NULL || pCD->pSD == NULL || proxyClientInfo == NULL ||
+	    wmGD.display == NULL)
 	return False;
 
     /* WM_COMMAND is required; WM_CLIENT_MACHINE is optional. */
@@ -1002,6 +1010,9 @@ findProxyClientID(ClientData *pCD)
     static XrmName proxyName[2] = {NULLQUARK, NULLQUARK};
     static XrmClass proxyClass[2] = {NULLQUARK, NULLQUARK};
 
+    if (pCD == NULL || wmGD.clientResourceDB == (XrmDatabase)NULL)
+	return clientID;
+
     if (proxyName[0] == NULLQUARK)
     {
 	proxyName[0] = XrmStringToName(proxyClientStr);
@@ -1032,6 +1043,9 @@ findProxyClientID(ClientData *pCD)
 static Boolean
 findProxyClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 {
+    if (pCD == NULL)
+	return False;
+
     if ((pCD->smClientID == (String)NULL) &&
 	(wmGD.clientResourceDB != (XrmDatabase)NULL) &&
 	(!smClientDBCheckpointed))
@@ -1506,6 +1520,9 @@ SaveClientResourceDB(void)
 Boolean
 FindClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 {
+    if (pCD == NULL)
+	return False;
+
     return (findXSMPClientDBMatch(pCD, workSpaceNamesP) ||
 	    findProxyClientDBMatch(pCD, workSpaceNamesP));
 }

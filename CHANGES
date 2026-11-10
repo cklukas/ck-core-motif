@@ -5,6 +5,9 @@ Guard MWM XSMP helper boundaries (2026-11-10)
   lookup fail closed for incomplete session-client state, avoiding null
   dereferences during session restoration; see
   docs/mwm-client-workspace-inputs.md.
+- Extend that boundary to the public session-match API, XSMP/proxy match paths,
+  display access, and resource lookup arguments, so partial restore state is a
+  safe non-match rather than a window-manager failure.
 
 Validate MWM client workspace aggregation inputs (2026-11-10)
 =============================================================
