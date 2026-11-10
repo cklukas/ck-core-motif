@@ -6,6 +6,21 @@ Clarify Container and Notebook control flow (2026-11-10)
   established behavior while removing ambiguous indentation from strict builds;
   see docs/container-notebook-control-flow.md.
 
+Restore WSM CARD16 list capacity (2026-11-10)
+==============================================
+
+- Correct the WSM list-limit expression so it evaluates to 65,535 rather than
+  `-1` after C integer promotion.  Non-empty WSM protocol lists can again be
+  packed; see docs/wsm-packer-inputs.md.
+
+Replace repeated WSM configuration formats safely (2026-11-10)
+===============================================================
+
+- Clear a screen's cached configuration attribute arrays before decoding a
+  replacement format reply, preventing old global, window, and icon arrays
+  from being orphaned.  The native WSM replacement fixture repeats the format
+  exchange; see docs/wsm-config-pointer-lifecycle.md.
+
 Reject unrepresentable WSM window-data counts (2026-11-10)
 ===========================================================
 

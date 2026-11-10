@@ -7,7 +7,7 @@ from pathlib import Path
 source = (Path(__file__).parents[2] / "clients" / "mwm" / "WmWsmLib" / "pack.c").read_text(
     encoding="utf-8"
 )
-assert "#define WSM_MAX_LIST_ITEMS ((int)~(CARD16)0)" in source
+assert "#define WSM_MAX_LIST_ITEMS ((int)(CARD16)~(CARD16)0)" in source
 
 request_start = source.index("_WSMPackRequest(")
 request_end = source.index("} /* _WSMPackRequest */", request_start)

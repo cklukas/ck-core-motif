@@ -33,7 +33,7 @@
 
 #define COUNT_SIZE (sizeof(CARD16))
 #define BOOL_SIZE  1		/* at least 1 byte for a boolean. */
-#define WSM_MAX_LIST_ITEMS ((int)~(CARD16)0)
+#define WSM_MAX_LIST_ITEMS ((int)(CARD16)~(CARD16)0)
 
 /*
  * More intuitive names for various functions.
@@ -983,6 +983,9 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 
 	    if (scr_info == NULL)
 		return;
+
+	    /* A repeated format reply replaces every cached attribute array. */
+	    _WSMClearConfigScreenInfo(dpy, screen_num);
 	    
 	    config_format->accepts_diffs = UnpackBoolean(&data);
 

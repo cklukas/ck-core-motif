@@ -12,4 +12,7 @@ assert "UINT_MAX / sizeof(WSMAttribute)" in region
 assert "XtMalloc((Cardinal)((size_t)fmt->num_attrs * sizeof(WSMAttribute)))" in region
 assert "XtMalloc(sizeof(WSMAttribute) * fmt->num_attrs)" not in region
 assert "_WSMClearConfigScreenInfo(dpy, screen_num);" in region
+assert region.index("_WSMClearConfigScreenInfo(dpy, screen_num);") < region.index(
+    "config_format->accepts_diffs = UnpackBoolean(&data);"
+)
 print("PASS WSM configuration-reply arrays are width checked")

@@ -7,7 +7,7 @@ from pathlib import Path
 text = (Path(__file__).parents[2] / "clients" / "mwm" / "WmWsmLib" / "pack.c").read_text(
     encoding="utf-8"
 )
-assert "#define WSM_MAX_LIST_ITEMS ((int)~(CARD16)0)" in text
+assert "#define WSM_MAX_LIST_ITEMS ((int)(CARD16)~(CARD16)0)" in text
 for field in (
     "request->connect.num_versions < 0",
     "request->extensions.num_extensions < 0",
