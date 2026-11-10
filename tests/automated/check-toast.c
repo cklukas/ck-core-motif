@@ -10,14 +10,14 @@ static Boolean proposed_geometry_is_accepted(Widget child) { XtWidgetGeometry re
 static void action(Widget widget, XtPointer data, XtPointer call) { unsigned *calls = (unsigned *)data; XmToastCallbackStruct *callback = (XmToastCallbackStruct *)call; (void)widget; if (callback && callback->reason == XmCR_ACTIVATE) ++*calls; }
 static void dismissed(Widget widget, XtPointer data, XtPointer call) { unsigned *calls = (unsigned *)data; XmToastCallbackStruct *callback = (XmToastCallbackStruct *)call; (void)widget; if (callback && callback->reason == XmCR_UNMAP) ++*calls; }
 int main(int argc, char **argv) {
-    XtAppContext app; Widget shell, row, toast; XmString message, label; unsigned actions = 0, dismissals = 0; XmAccessibility *accessibility; XmAccessibleInfo info; XmAccessibleId id;
+    XtAppContext app; Widget shell, row, toast, message_widget, action_widget; XmString message, label; unsigned actions = 0, dismissals = 0; XmAccessibility *accessibility; XmAccessibleInfo info; XmAccessibleId id; Position message_x, action_x; Dimension action_width;
     (void)argv;
     shell = XtVaAppInitialize(&app, "ToastTest", NULL, 0, &argc, argv, NULL, XmNwidth, 320, XmNheight, 120, NULL);
     row = XmCreateRowColumn(shell, (char *)"row", NULL, 0); XtManageChild(row);
     message = XmStringCreateLocalized((char *)"Saved"); label = XmStringCreateLocalized((char *)"Undo");
-    toast = XmVaCreateToast(row, (char *)"toast", XmNtoastMessage, message, XmNtoastActionLabel, label, XmNtoastTimeout, 0UL, NULL);
+    toast = XmVaCreateToast(row, (char *)"toast", XmNtoastMessage, message, XmNtoastActionLabel, label, XmNtoastTimeout, 0UL, XmNlayoutDirection, XmRIGHT_TO_LEFT, NULL);
     XmStringFree(message); XmStringFree(label); XtAddCallback(toast, XmNtoastActionCallback, action, &actions); XtAddCallback(toast, XmNtoastDismissCallback, dismissed, &dismissals);
-    XtRealizeWidget(shell); XmToastShow(toast); XSync(XtDisplay(shell), False); CHECK(proposed_geometry_is_accepted(XtNameToWidget(toast, (char *)"message"))); CHECK(XmToastIsShown(toast));
+    XtRealizeWidget(shell); XmToastShow(toast); XSync(XtDisplay(shell), False); message_widget = XtNameToWidget(toast, (char *)"message"); action_widget = XtNameToWidget(toast, (char *)"action"); CHECK(proposed_geometry_is_accepted(message_widget)); XtVaGetValues(message_widget, XmNx, &message_x, NULL); XtVaGetValues(action_widget, XmNx, &action_x, XmNwidth, &action_width, NULL); CHECK(action_x == 8 && message_x >= action_x + (Position)action_width + 4); CHECK(XmToastIsShown(toast));
     accessibility = XmAccessibilityCreate(shell, "ToastTest"); CHECK(accessibility != NULL); id = XmAccessibilityWidget(accessibility, toast);
     CHECK(XmAccessibilityQuery(accessibility, id, &info)); CHECK(info.role == XmACCESSIBLE_PANEL && info.name != NULL && strcmp(info.name, "Saved") == 0 && info.action_count == 1); XmAccessibleInfoClear(&info);
     CHECK(XmAccessibilityAction(accessibility, id, 0)); CHECK(actions == 1); XmAccessibilityDestroy(accessibility);

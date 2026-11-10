@@ -1,3 +1,10 @@
+Place Toast actions at the logical edge (2026-11-10)
+======================================================
+
+- Mirror the Toast action and message placement for right-to-left layouts, so
+  an optional action occupies the logical start edge rather than the physical
+  right edge; see docs/toast.md.
+
 Complete matching composite child geometry requests (2026-11-10)
 =================================================================
 
