@@ -1,3 +1,11 @@
+Harden Command Palette rebuild failure paths (2026-11-10)
+===========================================================
+
+- Clear a released filtered-index map before rebuild failures can return,
+  reject a stale selected map entry before indexing item storage, and make the
+  filter getter safe when SearchBox child construction fails; see
+  docs/command-palette-visible-allocation.md.
+
 Allow unnamed XmCreateScrolledList construction (2026-11-10)
 =============================================================
 
