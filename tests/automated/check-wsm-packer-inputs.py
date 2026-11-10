@@ -14,6 +14,10 @@ assert "if (error != NULL)" in request
 guard = "if (dpy == NULL || request == NULL || msg_data_len == NULL ||\n\terror == NULL)"
 assert guard in request
 assert request.index(guard) < request.index("_WSMGetConfigFormat")
+assert "WSMRequestPackingFailure(WSMErrorCode *error)" in source
+validation = request[request.index("switch (request->any.type)"):request.index("/*\n     * Fill in the message.")]
+assert "return(NULL);" not in validation
+assert validation.count("WSMRequestPackingFailure(error)") >= 10
 
 reply = source[source.index("_WSMPackReply("):source.index("_WSMUnpackRequest(")]
 assert "if (msg_data_len != NULL)" in reply
@@ -21,4 +25,4 @@ guard = "if (reply == NULL || msg_data_len == NULL)"
 assert guard in reply
 assert reply.index(guard) < reply.index("switch (reply->any.type)")
 
-print("PASS WSM packers guard incomplete caller input")
+print("PASS WSM packers guard incomplete caller input and report failures")

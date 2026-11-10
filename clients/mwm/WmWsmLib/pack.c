@@ -89,6 +89,13 @@ WSMStringLength(String string)
     return(string != NULL ? strlen(string) : 0);
 }
 
+static MessageData
+WSMRequestPackingFailure(WSMErrorCode *error)
+{
+    *error = WSM_ERROR_INTERNAL;
+    return(NULL);
+}
+
 static Boolean
 AddConfigFormatSize(long *size, WSMAttribute *attributes, int count)
 {
@@ -236,32 +243,32 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
     case WSM_CONNECT:
 	if (request->connect.num_versions < 0 ||
 	    request->connect.num_versions > WSM_MAX_LIST_ITEMS)
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	if (request->connect.num_versions != 0 &&
 	    request->connect.known_versions == NULL)
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	size = COUNT_SIZE;
 	if (!AddPackedSize(&size,
 			   (size_t)sizeof(CARD8) *
 			   (size_t)request->connect.num_versions))
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	break;
     case WSM_EXTENSIONS:
 	if (request->extensions.num_extensions < 0 ||
 	    request->extensions.num_extensions > WSM_MAX_LIST_ITEMS)
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	if (request->extensions.num_extensions != 0 &&
 	    request->extensions.extension_suggestions == NULL)
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	size = COUNT_SIZE;
 	for (i = 0; i < request->extensions.num_extensions; i++) {
 	    if (WSMStringLength(request->extensions.extension_suggestions[i]) >
 		(size_t)WSM_MAX_LIST_ITEMS)
-		return(NULL);
+		return(WSMRequestPackingFailure(error));
 	    if (!AddPackedSize(&size,
 		       WSMStringLength(request->extensions.extension_suggestions[i])) ||
 		!AddPackedSize(&size, COUNT_SIZE))
-		return(NULL);
+		return(WSMRequestPackingFailure(error));
 	}
 	break;
     case WSM_CONFIG_FMT:
@@ -273,22 +280,22 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
     case WSM_SET_STATE:
 	if (request->set_state.num_win_info_list < 0 ||
 	    request->set_state.num_win_info_list > WSM_MAX_LIST_ITEMS)
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	if (request->set_state.num_win_info_list != 0 &&
 	    request->set_state.win_info_list == NULL)
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	for (i = 0; i < request->set_state.num_win_info_list; i++)
 	    if (request->set_state.win_info_list[i].num_data_list < 0 ||
 		(request->set_state.win_info_list[i].num_data_list != 0 &&
 		request->set_state.win_info_list[i].data_list == NULL)
 		)
-		return(NULL);
+		return(WSMRequestPackingFailure(error));
 	size = COUNT_SIZE;	/* The count of window info. */
 	win_info = request->set_state.win_info_list;
 	for (i = 0; i < request->set_state.num_win_info_list; i++,win_info++) {
 	    int win_size = WinInfoSizePacked(dpy, screen_num, win_info);
 	    if (win_size < 0 || !AddPackedSize(&size, (size_t)win_size))
-		return(NULL);
+		return(WSMRequestPackingFailure(error));
 	}
 	break;
     case WSM_REG_WINDOW:
@@ -297,7 +304,7 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
     case WSM_WM_GET_BACKGROUND_WINDOW:
 	if (request->get_background.screen < 0 ||
 	    request->get_background.screen > WSM_MAX_LIST_ITEMS)
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	size = sizeof(CARD16);
 	break;
     case WSM_WM_SET_BACKGROUND_WINDOW:
@@ -308,12 +315,12 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	    request->wm_windows.num_window_properties > WSM_MAX_LIST_ITEMS ||
 	    request->wm_windows.num_match_attributes < 0 ||
 	    request->wm_windows.num_match_attributes > WSM_MAX_LIST_ITEMS)
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	if ((request->wm_windows.num_window_properties != 0 &&
 	     request->wm_windows.window_properties == NULL) ||
 	    (request->wm_windows.num_match_attributes != 0 &&
 	     request->wm_windows.match_attributes == NULL))
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	for (i = 0; i < request->wm_windows.num_match_attributes; i++)
 	    if (request->wm_windows.match_attributes[i] == NULL ||
 		request->wm_windows.match_attributes[i]->num_attributes < 0 ||
@@ -321,14 +328,14 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 		(request->wm_windows.match_attributes[i]->num_attributes != 0 &&
 		 (request->wm_windows.match_attributes[i]->allowed_attributes == NULL ||
 		  request->wm_windows.match_attributes[i]->prohibited_attributes == NULL)))
-		return(NULL);
+		return(WSMRequestPackingFailure(error));
 	size = sizeof(CARD32); /* flag */
 	if (!AddPackedSize(&size, COUNT_SIZE) ||
 	    !AddPackedSize(&size,
 			   (size_t)request->wm_windows.num_window_properties *
 			   sizeof(CARD32)) ||
 	    !AddPackedSize(&size, COUNT_SIZE))
-	    return(NULL);
+	    return(WSMRequestPackingFailure(error));
 	for (i=0; i<request->wm_windows.num_match_attributes; i++)
 	  {
 	    if (!AddPackedSize(&size, COUNT_SIZE) ||
@@ -336,7 +343,7 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 			       (size_t)2 *
 			       (size_t)request->wm_windows.match_attributes[i]->num_attributes *
 			       sizeof(CARD32)))
-		return(NULL);
+		return(WSMRequestPackingFailure(error));
 	  }
 	break;
     case WSM_WM_FOCUS:
@@ -346,14 +353,14 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	size = 0;
 	break;
     default:
-	return(NULL);
+	return(WSMRequestPackingFailure(error));
     }
 
     if (size < 0 || (size_t)size > UINT_MAX)
-	return(NULL);
+	return(WSMRequestPackingFailure(error));
     save = data = (MessageData) XtMalloc((Cardinal)size);
     if (save == NULL && size != 0)
-	return(NULL);
+	return(WSMRequestPackingFailure(error));
 
     /*
      * Fill in the message.

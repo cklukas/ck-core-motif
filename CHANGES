@@ -21,6 +21,8 @@ Validate WSM packer entry inputs (2026-11-10)
 - Make internal WSM request and reply packers reject incomplete caller input
   before dereferencing it, while preserving initialized error/length outputs;
   see docs/wsm-packer-inputs.md.
+- Report malformed WSM request packing failures as `WSM_ERROR_INTERNAL` rather
+  than returning a null message with a stale success status.
 
 Validate MWM client workspace aggregation inputs (2026-11-10)
 =============================================================
