@@ -290,8 +290,16 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
         key == XK_Down || key == XK_Return || key == XK_KP_Enter))
         *continue_dispatch = False;
     if (key == XK_Left || key == XK_Right) {
-        if (key == XK_Left && picker->time_picker.field) --picker->time_picker.field;
-        if (key == XK_Right && picker->time_picker.field < 2) ++picker->time_picker.field;
+        Boolean rtl = XmDirectionMatchPartial(XmPrim_layout_direction(picker),
+                                              XmRIGHT_TO_LEFT,
+                                              XmHORIZONTAL_MASK);
+        if (key == XK_Left) {
+            if (rtl && picker->time_picker.field < 2) ++picker->time_picker.field;
+            else if (!rtl && picker->time_picker.field) --picker->time_picker.field;
+        } else {
+            if (rtl && picker->time_picker.field) --picker->time_picker.field;
+            else if (!rtl && picker->time_picker.field < 2) ++picker->time_picker.field;
+        }
         _XmPaintInvalidate(widget);return;
     }
     if (key == XK_Return || key == XK_KP_Enter) {

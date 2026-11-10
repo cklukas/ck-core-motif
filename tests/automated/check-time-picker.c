@@ -1,7 +1,19 @@
 #include <Xm/Accessible.h>
 #include <Xm/TimePicker.h>
+#include <X11/keysym.h>
 #include <assert.h>
 #include <stdio.h>
+
+static void key(Widget widget, KeySym keysym) {
+    XEvent event = {0};
+    event.xkey.type = KeyPress;
+    event.xkey.display = XtDisplay(widget);
+    event.xkey.window = XtWindow(widget);
+    event.xkey.root = DefaultRootWindow(XtDisplay(widget));
+    event.xkey.same_screen = True;
+    event.xkey.keycode = XKeysymToKeycode(XtDisplay(widget), keysym);
+    XtDispatchEvent(&event);
+}
 
 static int changes, activations;
 static void changed(Widget w, XtPointer c, XtPointer d) {
@@ -18,7 +30,8 @@ int main(int argc, char **argv) {
     XmAccessibility *accessibility; XmAccessibleInfo info; XmAccessibleId id;
     shell = XtVaAppInitialize(&app, "TimePickerFixture", NULL, 0,
                               &argc, argv, NULL, NULL);
-    picker = XmCreateTimePicker(shell, (char *)"picker", NULL, 0);
+    picker = XtVaCreateWidget("picker", xmTimePickerWidgetClass, shell,
+                              XmNlayoutDirection, XmRIGHT_TO_LEFT, NULL);
     XtAddCallback(picker, XmNtimePickerValueChangedCallback, changed, NULL);
     XtAddCallback(picker, XmNtimePickerActivateCallback, activated, NULL);
     XtManageChild(picker);
@@ -29,7 +42,7 @@ int main(int argc, char **argv) {
     assert(XmTimePickerGetValue(picker, &value));
     assert(value.hour == 12 && value.minute == 34 && value.second == 56);
     minimum = (XmTimePickerValue){12, 0, 0};
-    maximum = (XmTimePickerValue){13, 0, 0};
+    maximum = (XmTimePickerValue){13, 59, 59};
     assert(XmTimePickerSetRange(picker, &minimum, &maximum));
     assert(!XmTimePickerSetValue(picker, &(XmTimePickerValue){14, 0, 0}, True));
     XtRealizeWidget(shell);
@@ -41,7 +54,13 @@ int main(int argc, char **argv) {
     assert(info.role == XmACCESSIBLE_TEXT && info.has_value &&
            info.current_value == 12 * 3600 + 34 * 60 + 56);
     XmAccessibleInfoClear(&info); XmAccessibilityDestroy(accessibility);
+    key(picker, XK_Left); key(picker, XK_Up);
+    assert(XmTimePickerGetValue(picker, &value));
+    assert(value.hour == 12 && value.minute == 35 && value.second == 56);
+    key(picker, XK_Right); key(picker, XK_Up);
+    assert(XmTimePickerGetValue(picker, &value));
+    assert(value.hour == 13 && value.minute == 35 && value.second == 56);
     XtDestroyWidget(shell);
-    puts("PASS time picker: 11 checks");
+    puts("PASS time picker: RTL keyboard traversal");
     return 0;
 }

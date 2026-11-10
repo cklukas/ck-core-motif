@@ -1,3 +1,10 @@
+Traverse TimePicker fields logically in RTL (2026-11-10)
+==========================================================
+
+- Make Left/Right keyboard navigation follow the visual field order in a
+  right-to-left TimePicker, matching other directional value controls; see
+  docs/time-picker.md.
+
 Place Toast actions at the logical edge (2026-11-10)
 ======================================================
 

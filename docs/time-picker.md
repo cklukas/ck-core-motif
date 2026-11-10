@@ -15,9 +15,10 @@ current value.  Invalid updates have no partial effect.
 
 The default presentation is 24-hour `HH:MM:SS`; `XmNtimePickerFormat24Hour`
 may request a deterministic 12-hour `AM`/`PM` presentation.  Left/Right moves
-between hour, minute, and second fields.  Up/Down changes the focused field by
-one unit, clamped at the documented range. Non-text arrow key events are
-recognized without requiring a character. Return activates the value.
+between hour, minute, and second fields in visual order, including reversed
+left/right traversal for right-to-left layouts.  Up/Down changes the focused
+field by one unit, clamped at the documented range. Non-text arrow key events
+are recognized without requiring a character. Return activates the value.
 Callbacks are delivered after the value has been committed and may destroy
 the widget.
 
