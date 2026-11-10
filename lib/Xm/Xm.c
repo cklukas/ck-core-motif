@@ -329,6 +329,84 @@ _XmReOrderResourceList(
 
 /************************************************************************
  *
+ *  _XmExpandMessage
+ *	Expand the conversions of a message template with strings.
+ *
+ *	The template comes from a message catalog or an error database, which
+ *	a user can replace, so it is never handed to printf.  Every conversion
+ *	(`%' up to and including its conversion letter, with any flags, width,
+ *	precision or length modifier) is replaced by the next string of `args';
+ *	a conversion beyond the last argument, or with a NULL argument, expands
+ *	to nothing, and `%%' is a single `%'.  The text is cut to fit `buffer'
+ *	and always terminated.
+ *
+ *	Returns the length the expansion needs, not counting the terminator, so
+ *	that a first call with a NULL buffer can size the second.
+ *
+ ************************************************************************/
+size_t
+_XmExpandMessage(char *buffer,
+		 size_t buffer_size,
+		 const char *message,
+		 const char * const *args,
+		 Cardinal num_args)
+{
+  size_t length = 0;
+  Cardinal next = 0;
+  const char *p, *q;
+
+  if (message == NULL)
+    message = "";
+
+#define EXPAND_PUT(text, count) \
+  do { \
+    size_t i_; \
+    for (i_ = 0; i_ < (size_t)(count); i_++, length++) \
+      if (buffer != NULL && length + 1 < buffer_size) \
+	buffer[length] = (text)[i_]; \
+  } while (0)
+
+  for (p = message; *p != '\0'; p++)
+    {
+      if (*p != '%')
+	{
+	  EXPAND_PUT(p, 1);
+	  continue;
+	}
+      if (p[1] == '%')
+	{
+	  EXPAND_PUT(p, 1);
+	  p++;
+	  continue;
+	}
+
+      /* flags, width, precision, length modifiers and positions */
+      for (q = p + 1; *q != '\0' && strchr("-+ #'0123456789.*$hlLqjztI", *q); q++)
+	;
+      if (*q == '\0')
+	{
+	  /* a conversion that never ends is ordinary text */
+	  EXPAND_PUT(p, strlen(p));
+	  break;
+	}
+      {
+	const char *arg = (next < num_args && args != NULL && args[next] != NULL) ?
+	  args[next] : "";
+	next++;
+	EXPAND_PUT(arg, strlen(arg));
+      }
+      p = q;
+    }
+#undef EXPAND_PUT
+
+  if (buffer != NULL && buffer_size > 0)
+    buffer[length < buffer_size ? length : buffer_size - 1] = '\0';
+  return length;
+}
+
+
+/************************************************************************
+ *
  *  _XmWarningMsg
  *	Add XME_WARNING to Message list so MotifWarningHandler will
  *      add Name: & Class:

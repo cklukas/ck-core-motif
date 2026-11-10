@@ -234,6 +234,11 @@ extern void _XmWarningMsg(Widget w,
 			  char *message,
 			  char **params,
 			  Cardinal num_params);
+extern size_t _XmExpandMessage(char *buffer,
+			       size_t buffer_size,
+			       const char *message,
+			       const char * const *args,
+			       Cardinal num_args);
 extern Display *_XmGetDefaultDisplay(void);
 extern Boolean _XmGetDpiScale(Display *display, double *scale);
 extern int _XmParsePrintResolution(const char *text);

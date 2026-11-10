@@ -1487,7 +1487,9 @@ XmRepTypeValidValue(
 	}
 	if (enable_default_warning) {   
 	    char *params[2];
-	    params[0] = (char *)(long)test_value;
+	    char value_text[32];
+	    (void)snprintf(value_text, sizeof(value_text), "%ld", (long)test_value);
+	    params[0] = value_text;
 	    params[1] = Record->rep_type_name;
 	    _XmProcessUnlock();
 	    _XmWarningMsg(enable_default_warning, "illegalRepTypeValue", 

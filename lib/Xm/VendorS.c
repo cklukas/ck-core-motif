@@ -1975,7 +1975,8 @@ MotifWarningHandler (String name,
 {
    char buf2[1024], header[200], *combined, *output;
    size_t header_len, message_len, combined_len, output_len, newline_count;
-   int header_chars, message_chars;
+   const char *header_args[2];
+   Cardinal message_args;
    const char *bp;
    char *dst;
 
@@ -1990,24 +1991,23 @@ MotifWarningHandler (String name,
      return;
    }
 
-   XtGetErrorDatabaseText(name, type, s_class, message, buf2, 1024);
+   XtGetErrorDatabaseText(name, type, s_class, message, buf2, sizeof(buf2));
    XtGetErrorDatabaseText("motif", "header", "Motif", 
-			  _XmMMsgMotif_0000, header, 200);  
+			  _XmMMsgMotif_0000, header, sizeof(header));  
 
-   header_chars = snprintf(NULL, 0, header, name, s_class);
-   if (header_chars < 0) return;
-   header_len = (size_t)header_chars;
-   if (params && num_params && *num_params > 1) {
-     int i = *num_params-1;
-     char *par[10];
-     if (i > 10) i = 10;
-     memcpy((char*)par, (char*)params, i * sizeof(String));
-     bzero((char *)&par[i], (10-i) * sizeof(String));
-     message_chars = snprintf(NULL, 0, buf2, par[0], par[1], par[2], par[3],
-		    par[4], par[5], par[6], par[7], par[8], par[9]);
-     if (message_chars < 0) return;
-     message_len = (size_t)message_chars;
-   } else
+   /*
+    * The texts come from the error database or a message catalog, which a
+    * user can replace: they are templates for _XmExpandMessage, never printf
+    * formats.  The last parameter is the XME_WARNING marker.
+    */
+   header_args[0] = name;
+   header_args[1] = s_class;
+   header_len = _XmExpandMessage(NULL, 0, header, header_args, 2);
+   message_args = (params && num_params && *num_params > 1) ? *num_params - 1 : 0;
+   if (message_args > 0)
+     message_len = _XmExpandMessage(NULL, 0, buf2,
+				    (const char * const *)params, message_args);
+   else
      message_len = strlen(buf2);
 
    if (header_len > SIZE_MAX - message_len - 1)
@@ -2018,17 +2018,11 @@ MotifWarningHandler (String name,
    combined = XtMalloc((Cardinal)(combined_len + 1));
    if (combined == NULL)
      return;
-   (void)snprintf(combined, combined_len + 1, header, name, s_class);
-   if (params && num_params && *num_params > 1) {
-     int i = *num_params-1;
-     char *par[10];
-     if (i > 10) i = 10;
-     memcpy((char*)par, (char*)params, i * sizeof(String));
-     bzero((char *)&par[i], (10-i) * sizeof(String));
-     (void)snprintf(combined + header_len, message_len + 1, buf2,
-                    par[0], par[1], par[2], par[3], par[4], par[5],
-                    par[6], par[7], par[8], par[9]);
-   } else
+   (void)_XmExpandMessage(combined, header_len + 1, header, header_args, 2);
+   if (message_args > 0)
+     (void)_XmExpandMessage(combined + header_len, message_len + 1, buf2,
+			    (const char * const *)params, message_args);
+   else
      memcpy(combined + header_len, buf2, message_len + 1);
 
    newline_count = 0;

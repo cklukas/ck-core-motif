@@ -9279,18 +9279,23 @@ df_LoadFontMetrics(
 static void
 df_WarnInvalidChar(Widget widget, int value)
 {
-   int length;
+   size_t length;
    char *message;
+   char text[16];
+   const char *args[1];
 
-   length = snprintf(NULL, 0, MSG5, value);
-   if (length < 0) {
-      XmeWarning(widget, MSG5);
-      return;
-   }
-   message = (char *)XtMalloc((Cardinal)length + 1);
+   /* the character itself when it prints, else its octal code */
+   if (value >= 0x20 && value < 0x7f)
+      (void)snprintf(text, sizeof(text), "%c", value);
+   else
+      (void)snprintf(text, sizeof(text), "\\%o", (unsigned int)value & 0xffu);
+   args[0] = text;
+
+   length = _XmExpandMessage(NULL, 0, MSG5, args, 1);
+   message = (char *)XtMalloc((Cardinal)(length + 1));
    if (message == NULL)
       return;
-   (void)snprintf(message, (size_t)length + 1, MSG5, value);
+   (void)_XmExpandMessage(message, length + 1, MSG5, args, 1);
    XmeWarning(widget, message);
    XtFree(message);
 }
@@ -9298,18 +9303,16 @@ df_WarnInvalidChar(Widget widget, int value)
 static void
 df_WarnInvalidString(Widget widget, const char *value)
 {
-   int length;
+   size_t length;
    char *message;
+   const char *args[1];
 
-   length = snprintf(NULL, 0, WC_MSG1, value);
-   if (length < 0) {
-      XmeWarning(widget, WC_MSG1);
-      return;
-   }
-   message = (char *)XtMalloc((Cardinal)length + 1);
+   args[0] = value;
+   length = _XmExpandMessage(NULL, 0, WC_MSG1, args, 1);
+   message = (char *)XtMalloc((Cardinal)(length + 1));
    if (message == NULL)
       return;
-   (void)snprintf(message, (size_t)length + 1, WC_MSG1, value);
+   (void)_XmExpandMessage(message, length + 1, WC_MSG1, args, 1);
    XmeWarning(widget, message);
    XtFree(message);
 }

@@ -10,8 +10,8 @@ start = text.index("MotifWarningHandler (String name")
 end = text.index("\n\n\n/************************************************************************", start)
 region = text[start:end]
 
-required = "if (params && num_params && *num_params > 1)"
-if region.count(required) != 2:
+required = "(params && num_params && *num_params > 1)"
+if region.count(required) != 1:
     raise SystemExit("warning formatter NULL-params guards missing")
 
 print("warning formatter handles NULL parameter arrays")

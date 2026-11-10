@@ -1160,6 +1160,7 @@ nav:
           - docs/vendors-lock-balance.md
       - title: vendorshell
         pages:
+          - docs/warning-message-templates.md
           - docs/vendorshell-modal-growth.md
       - title: vertical
         pages:

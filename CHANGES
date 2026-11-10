@@ -1,3 +1,18 @@
+Expand message templates instead of formatting them (2026-11-10)
+==================================================================
+
+- Warning texts come from the source, a message catalog or the Xt error
+  database and are replaced by users, so they are no longer passed to
+  `snprintf`. The new `_XmExpandMessage` replaces each conversion with the next
+  string parameter, tolerates a missing parameter, `%n` and oversized widths,
+  and bounds its output. It is used by the Motif warning handler, the
+  DataField character and string warnings and the drop-site child warning.
+- The representation type warning passes the offending value as text, and the
+  DataField warning shows the character or its octal code, because parameters
+  are strings.
+- Test: `run-message-templates.py`; the earlier toolkit writes through the
+  parameter of a `%n` template.
+
 Check X requests whose results the toolkit used unchecked (2026-11-10)
 =======================================================================
 

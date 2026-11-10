@@ -210,6 +210,15 @@ _XmDSIRemoveChild(
 }
 
 
+/* The name of the widget of a drop site; a remote site has no widget here. */
+static const char *
+DSWidgetName(XmDSInfo info)
+{
+	Widget widget = GetDSWidget(info);
+
+	return (widget != NULL) ? XrmQuarkToString(widget->core.xrm_name) : "";
+}
+
 Cardinal 
 _XmDSIGetChildPosition(
         XmDSInfo parentInfo,
@@ -226,9 +235,10 @@ _XmDSIGetChildPosition(
 	if (GetDSParent(childInfo) != (XtPointer) parentInfo)
 	{
 		char buf[256];
-		snprintf(buf, sizeof(buf), MESSAGE3,
-			XrmQuarkToString(GetDSWidget(childInfo)->core.xrm_name),
-			XrmQuarkToString(GetDSWidget(parentInfo)->core.xrm_name));
+		const char *args[2];
+		args[0] = DSWidgetName(childInfo);
+		args[1] = DSWidgetName(parentInfo);
+		(void)_XmExpandMessage(buf, sizeof(buf), MESSAGE3, args, 2);
 		XmeWarning(GetDSWidget(parentInfo), buf);
 		return(num_children);
 	}
@@ -240,9 +250,10 @@ _XmDSIGetChildPosition(
 	if (i == num_children)
 	{
 		char buf[256];
-		snprintf(buf, sizeof(buf), MESSAGE3,
-			XrmQuarkToString(GetDSWidget(childInfo)->core.xrm_name),
-			XrmQuarkToString(GetDSWidget(parentInfo)->core.xrm_name));
+		const char *args[2];
+		args[0] = DSWidgetName(childInfo);
+		args[1] = DSWidgetName(parentInfo);
+		(void)_XmExpandMessage(buf, sizeof(buf), MESSAGE3, args, 2);
 		XmeWarning(GetDSWidget(parentInfo), buf);
 	}
 	
