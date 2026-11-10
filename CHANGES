@@ -6,6 +6,13 @@ Clarify Container and Notebook control flow (2026-11-10)
   established behavior while removing ambiguous indentation from strict builds;
   see docs/container-notebook-control-flow.md.
 
+Reject unrepresentable WSM window-data counts (2026-11-10)
+===========================================================
+
+- Reject oversized request, get-state reply, and register-window reply data
+  lists at the public WSM packer boundary before their counts can reach lower
+  level protocol helpers; see docs/wsm-packer-inputs.md.
+
 Remove discarded Container local state (2026-11-10)
 ====================================================
 

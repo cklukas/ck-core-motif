@@ -22,6 +22,7 @@ for field in (
     "request->connect.num_versions > WSM_MAX_LIST_ITEMS",
     "request->extensions.num_extensions > WSM_MAX_LIST_ITEMS",
     "request->set_state.num_win_info_list > WSM_MAX_LIST_ITEMS",
+    "request->set_state.win_info_list[i].num_data_list > WSM_MAX_LIST_ITEMS",
     "request->wm_windows.num_window_properties > WSM_MAX_LIST_ITEMS",
     "request->wm_windows.num_match_attributes > WSM_MAX_LIST_ITEMS",
     "request->wm_windows.match_attributes[i]->num_attributes > WSM_MAX_LIST_ITEMS",

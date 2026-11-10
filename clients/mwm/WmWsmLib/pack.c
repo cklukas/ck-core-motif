@@ -286,6 +286,7 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
 	    return(WSMRequestPackingFailure(error));
 	for (i = 0; i < request->set_state.num_win_info_list; i++)
 	    if (request->set_state.win_info_list[i].num_data_list < 0 ||
+		request->set_state.win_info_list[i].num_data_list > WSM_MAX_LIST_ITEMS ||
 		(request->set_state.win_info_list[i].num_data_list != 0 &&
 		request->set_state.win_info_list[i].data_list == NULL)
 		)
@@ -517,7 +518,8 @@ _WSMPackReply(Display *dpy, int screen_num,
 	    reply->get_state.win_info_list == NULL)
 	    return(NULL);
 	for (i = 0; i < reply->get_state.num_win_info_list; i++)
-	    if (reply->get_state.win_info_list[i].num_data_list < 0)
+	    if (reply->get_state.win_info_list[i].num_data_list < 0 ||
+		reply->get_state.win_info_list[i].num_data_list > WSM_MAX_LIST_ITEMS)
 		return(NULL);
 	for (i = 0; i < reply->get_state.num_win_info_list; i++)
 	    if (reply->get_state.win_info_list[i].num_data_list != 0 &&
@@ -535,7 +537,8 @@ _WSMPackReply(Display *dpy, int screen_num,
 	size = 0;
 	break;
     case WSM_REG_WINDOW:
-        if (reply->register_window.num_window_data < 0)
+        if (reply->register_window.num_window_data < 0 ||
+	    reply->register_window.num_window_data > WSM_MAX_LIST_ITEMS)
             return(NULL);
 	if (reply->register_window.num_window_data != 0 &&
 	    reply->register_window.window_data == NULL)

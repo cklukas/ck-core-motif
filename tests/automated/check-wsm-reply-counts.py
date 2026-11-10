@@ -26,6 +26,8 @@ for field in (
     "reply->config_format.num_window_formats > WSM_MAX_LIST_ITEMS",
     "reply->config_format.num_icon_formats > WSM_MAX_LIST_ITEMS",
     "reply->get_state.num_win_info_list > WSM_MAX_LIST_ITEMS",
+    "reply->get_state.win_info_list[i].num_data_list > WSM_MAX_LIST_ITEMS",
+    "reply->register_window.num_window_data > WSM_MAX_LIST_ITEMS",
     "reply->wm_windows.num_win_entry_list > WSM_MAX_LIST_ITEMS",
 ):
     assert field in text, field
