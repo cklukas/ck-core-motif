@@ -1,3 +1,11 @@
+Harden MWM startup and icon-lookup inputs (2026-11-10)
+=========================================================
+
+- Reject incomplete process argument vectors before MWM derives its resource
+  identity, keep independently-called argument copying in a deterministic
+  empty state for invalid input, and reject named-icon lookups without an X
+  screen; see docs/mwm-startup-icon-inputs.md.
+
 Harden MWM session persistence boundaries (2026-11-10)
 ======================================================
 

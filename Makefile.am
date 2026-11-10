@@ -69,6 +69,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-mwm-function-input-pointers.py \
 	      tests/automated/check-mwm-client-metadata-inputs.py \
 	      tests/automated/check-mwm-draw-string-length.py \
+	      tests/automated/check-mwm-startup-icon-inputs.py \
 	      tests/automated/check-mwm-session-save-inputs.py \
 	      tests/automated/check-mwm-event-parser-inputs.py \
 	      tests/automated/check-mrm-per-display-open-parameters.py \
@@ -1596,6 +1597,7 @@ EXTRA_DIST += tests/automated/check-virtual-binding-property-length.py docs/virt
 EXTRA_DIST += tests/automated/check-virtual-binding-converter-inputs.py docs/virtual-binding-converter-inputs.md
 EXTRA_DIST += tests/automated/check-virtual-binding-fallback-inputs.py docs/virtual-binding-fallback-inputs.md
 EXTRA_DIST += tests/automated/check-mwm-identity-inputs.py
+EXTRA_DIST += docs/mwm-startup-icon-inputs.md
 
 EXTRA_DIST += tests/automated/check-avatar-modern.c \
               tests/automated/run-avatar-modern.py

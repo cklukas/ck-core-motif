@@ -115,6 +115,12 @@ main (int argc, char *argv [], char *environ [])
     XEvent	event;
     Boolean	dispatchEvent;
 
+    /* InitWmGlobal derives the resource identity from argv[0] before Xt
+     * creates any of its normal application state.  Do not let an embedding
+     * or test harness turn an invalid process vector into that dereference. */
+    if (argc <= 0 || argv == NULL || argv[0] == NULL)
+        return (WM_ERROR_EXIT_VALUE);
+
     setlocale(LC_ALL, "");
 
 #ifndef NO_MULTIBYTE

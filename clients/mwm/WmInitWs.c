@@ -2367,8 +2367,20 @@ void CopyArgv (int argc, char *argv [])
 {
     int i;
 
+    /* Keep this helper safe when used independently of main().  An empty
+     * vector is a well-defined failure state for the later restart paths. */
+    if (argc < 0 || (argc > 0 && argv == NULL))
+    {
+	Warning (((char *)GETMESSAGE(40, 10, "Invalid window manager argument vector")));
+	wmGD.argv = NULL;
+#ifdef WSM
+	dpy2Argv = NULL;
+	dpy2Argc = 0;
+#endif /* WSM */
+	return;
+    }
 
-	if (argc < 0 || (size_t)argc + 1 > UINT_MAX / sizeof(char *) ||
+	if ((size_t)argc + 1 > UINT_MAX / sizeof(char *) ||
 	    (wmGD.argv = (char **)XtMalloc ((Cardinal)(((size_t)argc + 1) * sizeof(char *)))) == NULL)
     {
 	Warning (((char *)GETMESSAGE(40, 10, "Insufficient memory for window manager data")));
@@ -2386,7 +2398,7 @@ void CopyArgv (int argc, char *argv [])
 	}
 	wmGD.argv[i] = NULL;
 #ifdef WSM
-	if (argc < 0 || (size_t)argc + 1 > UINT_MAX / sizeof(char *) ||
+	if ((size_t)argc + 1 > UINT_MAX / sizeof(char *) ||
 	    (dpy2Argv = (char **)XtMalloc((Cardinal)(((size_t)argc + 1) * sizeof(char *)))) == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(40, 11, "Insufficient memory for window manager data")));

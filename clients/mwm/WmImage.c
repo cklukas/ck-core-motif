@@ -179,7 +179,7 @@ Pixmap GetNamedPixmap (Screen *scr, String iconName,
   Pixmap       pixmap = XmUNSPECIFIED_PIXMAP;
 
 
-  if (iconName) {
+  if (scr != NULL && iconName) {
     /*
      * If name is not absolute, then try the bitmapDirectory location.
      * Note that bitmapDirectory defaults to "/usr/lib/X11/bitmaps" if
