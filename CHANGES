@@ -1,3 +1,11 @@
+Iterate MWM transient trees safely (2026-11-10)
+================================================
+
+- Replace recursive transient-window enumeration with bounded owned stack
+  storage while retaining sibling-before-child order, and reject duplicate
+  client windows from cyclic or corrupt transient graphs; see
+  docs/transient-list-growth.md.
+
 Keep MWM transient remanagement transactional (2026-11-10)
 ===========================================================
 

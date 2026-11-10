@@ -1923,6 +1923,45 @@ RegisterEmbeddedClients (
 
 
 #define LTT_INCREMENT  16
+
+/* The transient graph is client supplied state.  Use an owned explicit stack
+ * so a corrupt cycle or an unusually deep chain cannot consume the manager's
+ * C call stack during remanagement. */
+static Boolean
+PushTransientWalkClient(ClientData ***stackP, size_t *countP,
+                        size_t *capacityP, ClientData *pCD)
+{
+    ClientData **resized;
+    size_t new_capacity;
+
+    if (stackP == NULL || countP == NULL || capacityP == NULL || pCD == NULL)
+	return (False);
+    if (*countP == *capacityP)
+	{
+	if (*capacityP == 0)
+	    new_capacity = LTT_INCREMENT;
+	else if (*capacityP > (size_t)UINT_MAX / sizeof(**stackP) / 2)
+	    return (False);
+	else
+	    new_capacity = *capacityP * 2;
+
+	if (new_capacity > (size_t)UINT_MAX / sizeof(**stackP))
+	    return (False);
+	if (*stackP == NULL)
+	    resized = (ClientData **)XtMalloc(
+		(Cardinal)(new_capacity * sizeof(**stackP)));
+	else
+	    resized = (ClientData **)XtRealloc((char *)*stackP,
+		(Cardinal)(new_capacity * sizeof(**stackP)));
+	if (resized == NULL)
+	    return (False);
+	*stackP = resized;
+	*capacityP = new_capacity;
+	}
+
+    (*stackP)[(*countP)++] = pCD;
+    return (True);
+}
 /*************************************<->*************************************
  *
  *  ListTransientSubtree (pCD, ppWins, pSize, pCount)
@@ -1961,50 +2000,63 @@ ListTransientSubtree (
 	int *pSize,
 	int *pCount)
 {
+    ClientData **stack = NULL;
+    size_t stack_count = 0;
+    size_t stack_capacity = 0;
+    ClientData *current;
+    int i;
+    Boolean complete = False;
+
     if (pCD == NULL || ppWins == NULL || *ppWins == NULL ||
 	pSize == NULL || pCount == NULL || *pSize <= 0 || *pCount < 0 ||
 	*pCount > *pSize)
 	return (False);
+    if (!PushTransientWalkClient(&stack, &stack_count, &stack_capacity, pCD))
+	goto done;
 
-    /*
-     * Check size
-     */
-    if (*pCount == *pSize) 
-    {
-	Window *resized;
-	int new_size;
+    while (stack_count != 0)
+	{
+	current = stack[--stack_count];
+	for (i = 0; i < *pCount; ++i)
+	    {
+	    if ((*ppWins)[i] == current->client)
+		goto done;
+	    }
 
-	if (*pSize > (int)(UINT_MAX / sizeof(Window)) - LTT_INCREMENT)
-	    return (False);
-	new_size = *pSize + LTT_INCREMENT;
-	resized = (Window *)XtRealloc(
+	if (*pCount == *pSize)
+	    {
+	    Window *resized;
+	    int new_size;
+
+	    if (*pSize > (int)(UINT_MAX / sizeof(Window)) - LTT_INCREMENT)
+		goto done;
+	    new_size = *pSize + LTT_INCREMENT;
+	    resized = (Window *)XtRealloc(
 		(char *)*ppWins, (Cardinal)(new_size * sizeof(Window)));
-	if (resized == NULL)
-	    return (False);
-	*ppWins = resized;
-	*pSize = new_size;
-    }
-    /*
-     * Add this window to the list
-     */
-    (*ppWins)[*pCount] = pCD->client;
-    *pCount += 1;
+	    if (resized == NULL)
+		goto done;
+	    *ppWins = resized;
+	    *pSize = new_size;
+	    }
+	(*ppWins)[(*pCount)++] = current->client;
 
-    /*
-     * Add siblings
-     */
-    if (pCD->transientSiblings)
-	if (!ListTransientSubtree (pCD->transientSiblings, ppWins, pSize, pCount))
-	    return (False);
+	/* Push child first: the LIFO stack then preserves the historical
+	 * pre-order node, sibling subtree, child subtree traversal. */
+	if (current->transientChildren &&
+	    !PushTransientWalkClient(&stack, &stack_count, &stack_capacity,
+		current->transientChildren))
+	    goto done;
+	if (current->transientSiblings &&
+	    !PushTransientWalkClient(&stack, &stack_count, &stack_capacity,
+		current->transientSiblings))
+	    goto done;
+	}
+    complete = True;
 
-    /*
-     * Add children
-     */
-    if (pCD->transientChildren)
-	if (!ListTransientSubtree (pCD->transientChildren, ppWins, pSize, pCount))
-	    return (False);
-
-    return (True);
+done:
+    if (stack != NULL)
+	XtFree((char *)stack);
+    return (complete);
 } /* END OF FUNCTION ListTransientSubtree */
 
 

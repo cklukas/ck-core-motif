@@ -13,6 +13,12 @@ def main() -> None:
     end = text.index("} /* END OF FUNCTION ListTransientTree", start)
     region = text[start:end]
     assert "static Boolean" in region
+    assert "PushTransientWalkClient" in region
+    assert "while (stack_count != 0)" in region
+    assert "current->transientChildren" in region
+    assert "current->transientSiblings" in region
+    subtree = region[region.index("static Boolean\nListTransientSubtree ("):region.index("} /* END OF FUNCTION ListTransientSubtree")]
+    assert subtree.count("ListTransientSubtree (") == 1
     assert "pCD == NULL || ppWins == NULL || *ppWins == NULL" in region
     assert "*pCount > *pSize" in region
     assert "XtRealloc" in region
