@@ -8434,42 +8434,61 @@ static FILE *
 ConfigStackPush (unsigned char *pchFileName)
 {
     ConfigFileStackEntry *pEntry;
+    DtWmpParseBuf *newWmPB;
     FILE *pNewFile = NULL;
 
-    pEntry = XtNew (ConfigFileStackEntry);
-    if (pEntry)
+    if (pConfigStackTop == NULL || wmGD.pWmPB == NULL || cfileP == NULL ||
+	pchFileName == NULL)
     {
-	/* save off state of current config file */
-	pConfigStackTop->offset = ftell (cfileP);
-	pConfigStackTop->pWmPB = wmGD.pWmPB;
-	fclose (cfileP);
-
-	/* set up state of new config file */
-	pEntry->fileName = XtNewString ((char *)pchFileName);
-	pEntry->tempName = NULL;
-	pEntry->cppName = NULL;
-	pEntry->wmgdConfigFile = (String) pEntry->fileName;
-
-	/* set globals for new config file */
-	wmGD.pWmPB = _DtWmParseNewBuf ();
-	wmGD.configFile = pEntry->wmgdConfigFile;
-
-	/* put new entry onto stack */
-	pEntry->pIncluder = pConfigStackTop;
-	pConfigStackTop = pEntry;
-
-	/* open the file */
-	pNewFile = cfileP = FopenConfigFile();
-
-	if (!pNewFile)
-	{
-	    /* file open failed! back out */
-	    ConfigStackPop ();
-	}
+	WarnConfigAllocation((char *)pchFileName);
+	return NULL;
     }
-    else
+
+    pEntry = XtNew(ConfigFileStackEntry);
+    if (pEntry == NULL)
     {
-        WarnConfigAllocation((char *)pchFileName);
+	WarnConfigAllocation((char *)pchFileName);
+	return NULL;
+    }
+
+    pEntry->fileName = XtNewString((char *)pchFileName);
+    if (pEntry->fileName == NULL)
+    {
+	XtFree((char *)pEntry);
+	WarnConfigAllocation((char *)pchFileName);
+	return NULL;
+    }
+
+    newWmPB = _DtWmParseNewBuf();
+    if (newWmPB == NULL)
+    {
+	XtFree((char *)pEntry->fileName);
+	XtFree((char *)pEntry);
+	WarnConfigAllocation((char *)pchFileName);
+	return NULL;
+    }
+
+    /* Commit only after every owned part of the new frame exists. */
+	pConfigStackTop->offset = ftell(cfileP);
+	pConfigStackTop->pWmPB = wmGD.pWmPB;
+	fclose(cfileP);
+
+    pEntry->tempName = NULL;
+    pEntry->cppName = NULL;
+    pEntry->wmgdConfigFile = (String)pEntry->fileName;
+    pEntry->pIncluder = pConfigStackTop;
+
+    wmGD.pWmPB = newWmPB;
+    wmGD.configFile = pEntry->wmgdConfigFile;
+    pConfigStackTop = pEntry;
+
+    /* Open the included file. */
+    pNewFile = cfileP = FopenConfigFile();
+
+    if (!pNewFile)
+    {
+	/* File open failed: restore the parent configuration frame. */
+	ConfigStackPop();
     }
 
     return (pNewFile);

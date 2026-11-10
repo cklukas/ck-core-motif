@@ -1,9 +1,10 @@
 Make MWM configuration-stack setup transactional (2026-11-10)
 ===============================================================
 
-- Return safely when MWM cannot allocate its configuration stack or the owned
-  configuration-file name, rather than exposing partial global state to the
-  preprocessor path; see docs/mwm-config-stack-allocation.md.
+- Return safely when MWM cannot allocate a configuration stack, an included
+  stack frame's owned file-name copy, or a parser buffer, rather than exposing
+  partial global state or closing the parent parser before the child frame is
+  ready; see docs/mwm-config-stack-allocation.md.
 
 Reject failed Compound String line copies (2026-11-10)
 ========================================================
