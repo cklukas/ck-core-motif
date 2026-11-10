@@ -15,4 +15,9 @@ assert "codepoint >= 0xD800UL" in body
 assert "buffer[0] = (char)(0xF0U |" in body
 assert "if (buffer == NULL)" in body
 
-print("PASS Unicode keysym UTF-8 encoding")
+for name in ("Label.c", "LabelG.c"):
+    caller = (Path(__file__).parents[2] / "lib" / "Xm" / name).read_text()
+    assert "char tmp[4 + 1];" in caller
+    assert "tmp[_XmOSKeySymToCharacter(" in caller
+
+print("PASS Unicode keysym encoding and Label mnemonic buffers")

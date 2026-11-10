@@ -2573,7 +2573,8 @@ LRectangle *background_box)
         if (LabG_Mnemonic(lw) != XK_VoidSymbol)
         {
             /* CR 5181: Convert the mnemonic keysym to a character string. */
-            char tmp[MB_LEN_MAX * 2];
+            /* _XmOSKeySymToCharacter can emit one four-byte UTF-8 scalar. */
+            char tmp[4 + 1];
             XmString underline;
 
             tmp[_XmOSKeySymToCharacter(LabG_Mnemonic(lw), NULL, tmp)] = '\0';

@@ -1666,7 +1666,8 @@ _XmRedisplayLabel(Widget wid, XEvent *event, Region region,
       if (lp->mnemonic != XK_VoidSymbol)
 	{ 
 	  /* CR 5181: Convert the mnemonic keysym to a character string. */
-	  char tmp[MB_LEN_MAX * 2];
+	  /* _XmOSKeySymToCharacter can emit one four-byte UTF-8 scalar. */
+	  char tmp[4 + 1];
 	  XmString underline;
  
  	  tmp[_XmOSKeySymToCharacter(lp->mnemonic, NULL, tmp)] = '\0';

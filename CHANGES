@@ -1,3 +1,11 @@
+Reserve UTF-8 mnemonic drawing storage (2026-11-10)
+====================================================
+
+- Give Label and LabelG mnemonic drawing a fixed four-byte UTF-8 scalar buffer
+  plus its terminator.  Unicode keysyms can encode non-BMP values in four
+  bytes, while `MB_LEN_MAX` is not a sufficient portable capacity contract;
+  see docs/keysym-unicode-encoding.md.
+
 Make composite label replacements independent (2026-11-10)
 ===========================================================
 
