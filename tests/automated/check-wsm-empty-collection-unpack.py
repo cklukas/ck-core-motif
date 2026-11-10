@@ -38,4 +38,9 @@ assert "reply->wm_windows.win_entry_list = NULL;" in reply_windows
 assert "if (num != 0)" in reply_windows
 assert "reply->wm_windows.allocated = True;" in reply_windows
 
+config = reply[reply.index("case WSM_CONFIG_FMT:"):reply.index("case WSM_GET_STATE:")]
+assert "fmt->attr_list = NULL;" in config
+assert "if (fmt->num_attrs == 0)" in config
+assert config.index("if (fmt->num_attrs == 0)") < config.index("XtMalloc((Cardinal)((size_t)fmt->num_attrs")
+
 print("PASS empty WSM collections decode without zero-byte allocation failure")

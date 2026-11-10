@@ -9,6 +9,12 @@ Guard MWM XSMP helper boundaries (2026-11-10)
   display access, and resource lookup arguments, so partial restore state is a
   safe non-match rather than a window-manager failure.
 
+Decode empty WSM configuration lists safely (2026-11-10)
+=========================================================
+
+- Treat zero-length WSM configuration-format attribute lists as valid without
+  relying on zero-byte allocation behavior; see docs/wsm-empty-config-format.md.
+
 Validate MWM client workspace aggregation inputs (2026-11-10)
 =============================================================
 

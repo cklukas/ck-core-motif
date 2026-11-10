@@ -983,6 +983,9 @@ _WSMUnpackReply(Display *dpy, int screen_num, MessageData data,
 	    _WSMClearConfigScreenInfo(dpy, screen_num);
 	    return;
 	}
+	fmt->attr_list = NULL;
+	if (fmt->num_attrs == 0)
+	    continue;
 		fmt->attr_list = (WSMAttribute *) 
 	    XtMalloc((Cardinal)((size_t)fmt->num_attrs * sizeof(WSMAttribute)));
 		if (fmt->attr_list == NULL) {
