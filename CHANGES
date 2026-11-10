@@ -37790,3 +37790,10 @@ ProgressBar logical-leading fill in RTL layouts (2026-11-10)
 - Paint ProgressBar's determinate and indeterminate fill from the logical
   leading edge. The contrasting percentage-text clip now follows the mirrored
   fill; see `docs/progress-bar.md`.
+
+Toolbar geometry negotiation completion (2026-11-10)
+=====================================================
+
+- Complete matching child geometry requests rather than returning
+  `XtGeometryAlmost` unconditionally, avoiding needless negotiation loops; see
+  `docs/toolbar.md`.

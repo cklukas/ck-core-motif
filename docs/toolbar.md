@@ -23,6 +23,11 @@ It does not create a navigation model, launch commands, or change existing
 menus and toolbar widgets.  Accessibility exposes a named toolbar panel and
 reports one action when an overflow menu is available.
 
+Presentation children use normal Xt geometry negotiation. A request matching
+the toolbar's assigned dimensions completes immediately; incompatible requests
+receive a precise `XtGeometryAlmost` reply rather than triggering a repeated
+negotiation cycle.
+
 ## Per-action icons and button surfaces
 
 `XmToolbarGetActionButton(toolbar, index, overflow)` returns the normal action

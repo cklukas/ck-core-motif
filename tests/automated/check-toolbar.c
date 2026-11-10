@@ -87,6 +87,15 @@ int main(int argc, char **argv)
     CHECK(XmToolbarGetOverflowCount(toolbar) > 0);
     CHECK(XmToolbarGetVisibleActionCount(toolbar) +
               XmToolbarGetOverflowCount(toolbar) == 4);
+    {
+        Widget button = XmToolbarGetActionButton(toolbar, 0, False);
+        XtWidgetGeometry request = {0}, reply = {0};
+        CHECK(button != NULL);
+        request.request_mode = CWWidth | CWHeight;
+        request.width = button->core.width;
+        request.height = button->core.height;
+        CHECK(XtMakeGeometryRequest(button, &request, &reply) == XtGeometryDone);
+    }
 
     XmToolbarInvoke(toolbar, 1, NULL);
     CHECK(callbacks == 1 && last_id && strcmp(last_id, "important") == 0);
