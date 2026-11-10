@@ -1,3 +1,10 @@
+Bound XmIm varargs resource counts (2026-11-10)
+=================================================
+
+- Stop the input-method varargs setters before their signed argument counter
+  can overflow, and convert only validated counts to the public `Cardinal`
+  argument count; see docs/xmim-varargs-allocation.md.
+
 Release failed XmIm resource snapshots (2026-11-10)
 =====================================================
 

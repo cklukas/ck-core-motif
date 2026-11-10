@@ -210,8 +210,8 @@ static void null_proc(Widget w,
 		      XtPointer ptr,
 		      XEvent *ev,
 		      Boolean *b);
-static void ImCountVaList(va_list var,
-			  int *total_count);
+static Boolean ImCountVaList(va_list var,
+			     int *total_count);
 static ArgList ImCreateArgList(va_list var,
 			       int total_count);
      
@@ -2765,7 +2765,11 @@ XmImVaSetFocusValues(Widget w,
   
   _XmAppLock(app);
   Va_start(var,w);
-  ImCountVaList(var, &total_count);
+  if (!ImCountVaList(var, &total_count)) {
+    va_end(var);
+    _XmAppUnlock(app);
+    return;
+  }
   va_end(var);
   
   Va_start(var,w);
@@ -2777,7 +2781,7 @@ XmImVaSetFocusValues(Widget w,
     return;
   }
   
-  XmImSetFocusValues(w, args, total_count);
+  XmImSetFocusValues(w, args, (Cardinal)total_count);
   XtFree((char *)args);
   _XmAppUnlock(app);
 }
@@ -2798,7 +2802,11 @@ void
   
   _XmAppLock(app);
   Va_start(var,w);
-  ImCountVaList(var, &total_count);
+  if (!ImCountVaList(var, &total_count)) {
+    va_end(var);
+    _XmAppUnlock(app);
+    return;
+  }
   va_end(var);
   
   Va_start(var,w);
@@ -2810,25 +2818,31 @@ void
     return;
   }
   
-  XmImSetValues(w, args, total_count);
+  XmImSetValues(w, args, (Cardinal)total_count);
   XtFree((char *)args);
   _XmAppUnlock(app);
 }
 
 
-static void 
+static Boolean
 ImCountVaList(va_list var,
 	      int *total_count )
 {
   String          attr;
+
+  if (total_count == NULL)
+    return False;
   
   *total_count = 0;
   
   for(attr = va_arg(var, String); attr != NULL; attr = va_arg(var, String)) 
     {
       (void) va_arg(var, XPointer);
+      if (*total_count == INT_MAX)
+	return False;
       ++(*total_count);
     }
+  return True;
 }
 
 static ArgList
