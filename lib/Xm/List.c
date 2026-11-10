@@ -2617,7 +2617,8 @@ DrawItems(XmListWidget lw,
       _XmRendGC(lw->list.scratchRend) = gc;
 #ifdef USE_XFT
       _XmRendXftFG(lw->list.scratchRend) =
-          _XmXftGetXftColor(XtDisplay(lw), _XmRendFG(lw->list.scratchRend));
+          _XmXftGetXftColor(XtDisplay(lw), lw->core.colormap,
+                            _XmRendFG(lw->list.scratchRend));
 #endif
 
 #ifdef FIX_1381

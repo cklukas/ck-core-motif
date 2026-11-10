@@ -1188,6 +1188,7 @@ nav:
       - title: xft
         pages:
           - docs/xft-draw-cache-growth.md
+          - docs/xft-color-cache.md
       - title: xlib
         pages:
           - docs/x-reply-status.md

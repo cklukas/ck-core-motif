@@ -277,7 +277,8 @@ void _XmXftDrawString2(Display *display, Window window, GC gc, XftFont *font, in
 
 void _XmXftSetClipRectangles(Display *display, Window window, Position x, Position y, XRectangle *rects, int n);
 
-XftColor _XmXftGetXftColor(Display *display, Pixel color);
+XftColor _XmXftGetXftColor(Display *display, Colormap colormap, Pixel color);
+unsigned int _XmXftColorCacheCount(Display *display);
 
 /* Positive pixel width for the documented XmNcolumns character cell. */
 int _XmXftFontColumnWidth(Widget w, XtPointer font);

@@ -1,3 +1,17 @@
+Rebuild the Xft colour cache (2026-11-10)
+==========================================
+
+- The cache that turns pixels into Xft colours is per display, keyed by
+  colormap and pixel, limited to 128 entries per display, released when the
+  display closes, and used only for colormaps whose cells cannot change. It was
+  a process-wide array keyed by the pixel alone that never shrank and returned
+  the colours of one display or colormap for another. `_XmXftGetXftColor` takes
+  the colormap; `XmList` passes its own. `_XmXftDrawString2` uses the cache and
+  checks the graphics context query.
+- Test: `run-xft-color-cache.py` runs a TrueColor and a PseudoColor server and
+  checks lookup, isolation, bounds and release; the earlier cache returns the
+  colour of the other display.
+
 Check every D-Bus message building step in the accessibility adapter (2026-11-10)
 ===================================================================================
 

@@ -68,6 +68,11 @@ extern "C" { /* some 'locale.h' do not have prototypes (sun) */
 #include "XmTabListI.h"
 #ifdef USE_XFT
 #include <X11/Xft/Xft.h>
+/* Declared in <X11/Xlibint.h>, which is not included here: it turns on the
+ * XTHREADS code paths of this file. */
+extern int (*XESetCloseDisplay(Display *display, int extension,
+			       int (*proc)(Display *display, XExtCodes *codes)))
+    (Display *display, XExtCodes *codes);
 #endif
 
 /* Warning Messages */
@@ -92,7 +97,6 @@ extern "C" { /* some 'locale.h' do not have prototypes (sun) */
 #define  FIX_1449
 #define  FIX_1444
 #define FIX_1451
-#define FIX_1536
 /**********************************************************************
  *	      IMPORTANT NOTE: IMPLEMENTATION OF SHARING
  *
@@ -177,11 +181,6 @@ static Boolean GetResources(XmRendition rend,
 			    ArgList arglist,
 			    Cardinal argcount);
 static void SetDefault(XmRendition rend); 
-#ifdef USE_XFT
-#ifdef FIX_1536
-static XftColor GetCachedXftColor(Display *display, Pixel color);
-#endif
-#endif
 
 /********    End Static Function Declarations    ********/
 
@@ -870,40 +869,18 @@ SetRend(XmRendition to,
   if ((_XmRendFG(from) != XmUNSPECIFIED_PIXEL) &&
       (_XmRendFG(to) == XmUNSPECIFIED_PIXEL))
     {
-#ifdef FIX_1536
       _XmRendFG(to) = _XmRendFG(from);
-      _XmRendXftFG(to) = GetCachedXftColor(_XmRendDisplay(to), _XmRendFG(to));
-#else
-      XColor xcolor;
-      _XmRendFG(to) = _XmRendFG(from);
-      xcolor.pixel = _XmRendFG(to);
-      XQueryColor(_XmRendDisplay(to), DefaultColormapOfScreen(
-                  DefaultScreenOfDisplay(_XmRendDisplay(to))), &xcolor);
-      /* doesn't needed  (_XmRendXftFG (to)).pixel = xcolor.pixel; */
-      (_XmRendXftFG(to)).color.red = xcolor.red;
-      (_XmRendXftFG(to)).color.green = xcolor.green;
-      (_XmRendXftFG(to)).color.blue = xcolor.blue;
-      (_XmRendXftFG(to)).color.alpha = 0xFFFF;
-#endif
+      _XmRendXftFG(to) = _XmXftGetXftColor(_XmRendDisplay(to),
+	  DefaultColormapOfScreen(DefaultScreenOfDisplay(_XmRendDisplay(to))),
+	  _XmRendFG(to));
     }
   if ((_XmRendBG(from) != XmUNSPECIFIED_PIXEL) &&
       (_XmRendBG(to) == XmUNSPECIFIED_PIXEL))
     {
-#ifdef FIX_1536
       _XmRendBG(to) = _XmRendBG (from);
-      _XmRendXftBG(to) = GetCachedXftColor(_XmRendDisplay(to), _XmRendBG(to));
-#else
-      XColor xcolor;
-      _XmRendBG(to) = _XmRendBG (from);
-      xcolor.pixel = _XmRendBG (to);
-      XQueryColor(_XmRendDisplay(to), DefaultColormapOfScreen(
-                  DefaultScreenOfDisplay(_XmRendDisplay(to))), &xcolor);
-      /* doesn't needed  (_XmRendXftBG (to)).pixel = xcolor.pixel; */
-      (_XmRendXftBG(to)).color.red = xcolor.red;
-      (_XmRendXftBG(to)).color.green = xcolor.green;
-      (_XmRendXftBG(to)).color.blue = xcolor.blue;
-      (_XmRendXftBG(to)).color.alpha = 0xFFFF;
-#endif
+      _XmRendXftBG(to) = _XmXftGetXftColor(_XmRendDisplay(to),
+	  DefaultColormapOfScreen(DefaultScreenOfDisplay(_XmRendDisplay(to))),
+	  _XmRendBG(to));
     }
   if ((_XmRendXftFont (from) != NULL) &&
       ((unsigned int) (unsigned long) _XmRendXftFont (to) == XmAS_IS))
@@ -3693,21 +3670,16 @@ _XmXftDrawString2(Display *display, Window window, GC gc, XftFont *font, int bpc
 {
     XftDraw	*draw = _XmXftDrawCreate(display, window);
     XGCValues gc_val;
-    XColor xcol;
     XftColor xftcol;
 
     if (draw == NULL)
 	return;
     
-    XGetGCValues(display, gc, GCForeground, &gc_val);
+    if (!XGetGCValues(display, gc, GCForeground, &gc_val))
+	return;
 
-    xcol.pixel = gc_val.foreground;
-    XQueryColor(display, DefaultColormap(display,
-        DefaultScreen(display)), &xcol);
-    xftcol.color.red = xcol.red;
-    xftcol.color.blue = xcol.blue;
-    xftcol.color.green = xcol.green;
-    xftcol.color.alpha = 0xFFFF;
+    xftcol = _XmXftGetXftColor(display,
+        DefaultColormap(display, DefaultScreen(display)), gc_val.foreground);
 
     switch (bpc)
     {
@@ -3843,86 +3815,183 @@ _XmXftSetClipRectangles(Display *display, Window window, Position x, Position y,
 	XftDrawSetClipRectangles(d, x, y, rects, n);
 }
 
-#ifdef FIX_1536
-static XftColor
-GetCachedXftColor(Display *display, Pixel color)
+/*
+ * The Xft colour cache.
+ *
+ * Xft draws with RGB values, and turning a pixel into one takes a server round
+ * trip (XQueryColor).  The answers are kept per display, and the key is the
+ * colormap together with the pixel: the same pixel names different colours in
+ * different colormaps, and a cache that outlives its display would hand the
+ * colours of one server to the next connection that happens to reuse a pixel.
+ *
+ *  - Each display has its own table of XFT_COLOR_CACHE_SIZE entries, replaced
+ *    in turn when it is full, so the memory is bounded.
+ *  - The table is released when the display is closed (a close-display hook
+ *    registered with Xlib the first time the display is cached).
+ *  - Only colormaps whose contents cannot change are cached: the default
+ *    colormap of a screen whose default visual is TrueColor, StaticColor or
+ *    StaticGray.  The cells of any other colormap can be rewritten by any
+ *    client, so those are queried each time.
+ *  - The list of tables is protected by the process lock; the round trip to
+ *    the server is made outside it.
+ */
+#define XFT_COLOR_CACHE_SIZE 128
+
+typedef struct _XftColorEntry {
+  Colormap colormap;
+  Pixel pixel;
+  XftColor color;
+  Boolean valid;
+} XftColorEntry;
+
+typedef struct _XftColorTable {
+  struct _XftColorTable *next;
+  Display *display;
+  unsigned int next_victim;
+  XftColorEntry entries[XFT_COLOR_CACHE_SIZE];
+} XftColorTable;
+
+static XftColorTable *xft_color_tables = NULL;	/* process lock */
+
+static int
+XftColorTableClose(Display *display, XExtCodes *codes)
 {
-  static XftColor *color_cache = NULL;
-  static int colors_count = 0;
+  XftColorTable **link, *table;
 
-  XftColor xftcol = {0, {0,0,0,0xFFFF}};
-  XftColor *grown_cache;
-  XColor xcol;
-  Boolean color_exist = FALSE;
-  int i;
-
-  if (color_cache != NULL)
-  {
-    for (i = 0; i < colors_count; ++i)
-    {
-      if (color_cache[i].pixel == color)
+  (void) codes;
+  _XmProcessLock();
+  for (link = &xft_color_tables; (table = *link) != NULL; link = &table->next)
+    if (table->display == display)
       {
-        xftcol = color_cache[i];
-        color_exist = TRUE;
-        break;
+	*link = table->next;
+	XtFree((char *) table);
+	break;
       }
-    }
-  }
-
-  if (!color_exist)
-  {
-    xcol.pixel = color;
-    XQueryColor(display, DefaultColormap(display,
-      DefaultScreen(display)), &xcol);
-    xftcol.pixel = color;
-    xftcol.color.red = xcol.red;
-    xftcol.color.blue = xcol.blue;
-    xftcol.color.green = xcol.green;
-    xftcol.color.alpha = 0xFFFF;
-
-    if (colors_count == INT_MAX ||
-        (size_t)(colors_count + 1) > SIZE_MAX / sizeof(XftColor) ||
-        (size_t)(colors_count + 1) >
-            (size_t)UINT_MAX / sizeof(XftColor))
-      return xftcol;
-
-    /*
-     * Do not overwrite the live cache until growth has succeeded.  XtRealloc
-     * returns NULL on failure and leaves the old allocation intact; assigning
-     * it directly would lose that allocation while retaining colors_count.
-     */
-    grown_cache = (XftColor *) XtRealloc((char *) color_cache,
-      (Cardinal) (sizeof(XftColor) * (colors_count + 1)));
-    if (grown_cache != NULL)
-    {
-      color_cache = grown_cache;
-      color_cache[colors_count++] = xftcol;
-    }
-  }
-
-  return xftcol;
+  _XmProcessUnlock();
+  return 0;
 }
-#endif
+
+/* The caller holds the process lock. */
+static XftColorTable *
+XftColorTableFor(Display *display, Boolean create)
+{
+  XftColorTable *table;
+  XExtCodes *codes;
+
+  for (table = xft_color_tables; table != NULL; table = table->next)
+    if (table->display == display)
+      return table;
+  if (!create)
+    return NULL;
+
+  codes = XAddExtension(display);
+  if (codes == NULL)
+    return NULL;
+  table = (XftColorTable *) XtCalloc(1, sizeof(XftColorTable));
+  if (table == NULL)
+    return NULL;
+  table->display = display;
+  (void) XESetCloseDisplay(display, codes->extension, XftColorTableClose);
+  table->next = xft_color_tables;
+  xft_color_tables = table;
+  return table;
+}
+
+/* True for a colormap whose cells no client can change. */
+static Boolean
+XftColormapIsImmutable(Display *display, Colormap colormap)
+{
+  int screen;
+
+  for (screen = 0; screen < ScreenCount(display); ++screen)
+    if (DefaultColormap(display, screen) == colormap)
+      {
+	int visual_class = DefaultVisual(display, screen)->class;
+
+	return visual_class == TrueColor || visual_class == StaticColor ||
+	  visual_class == StaticGray;
+      }
+  return False;
+}
 
 XftColor
-_XmXftGetXftColor(Display *display, Pixel color)
+_XmXftGetXftColor(Display *display, Colormap colormap, Pixel color)
 {
-#ifdef FIX_1536
-    return GetCachedXftColor(display, color);
-#else
-    XColor xcol;
-    XftColor xftcol;
-    
-    xcol.pixel = color;
-    XQueryColor(display, DefaultColormap(display,
-        DefaultScreen(display)), &xcol);
-    xftcol.pixel = color;
-    xftcol.color.red = xcol.red;
-    xftcol.color.blue = xcol.blue;
-    xftcol.color.green = xcol.green;
-    xftcol.color.alpha = 0xFFFF;
-    return xftcol;
-#endif
+  XftColor xftcol = {0, {0, 0, 0, 0xFFFF}};
+  XColor xcol;
+  XftColorTable *table;
+  Boolean cacheable = XftColormapIsImmutable(display, colormap);
+  unsigned int i;
+
+  if (cacheable)
+    {
+      _XmProcessLock();
+      table = XftColorTableFor(display, False);
+      if (table != NULL)
+	for (i = 0; i < XFT_COLOR_CACHE_SIZE; ++i)
+	  if (table->entries[i].valid && table->entries[i].pixel == color &&
+	      table->entries[i].colormap == colormap)
+	    {
+	      xftcol = table->entries[i].color;
+	      _XmProcessUnlock();
+	      return xftcol;
+	    }
+      _XmProcessUnlock();
+    }
+
+  /* A failed request leaves the colour black. */
+  memset(&xcol, 0, sizeof(xcol));
+  xcol.pixel = color;
+  XQueryColor(display, colormap, &xcol);
+  xftcol.pixel = color;
+  xftcol.color.red = xcol.red;
+  xftcol.color.green = xcol.green;
+  xftcol.color.blue = xcol.blue;
+  xftcol.color.alpha = 0xFFFF;
+
+  if (cacheable)
+    {
+      _XmProcessLock();
+      table = XftColorTableFor(display, True);
+      if (table != NULL)
+	{
+	  XftColorEntry *entry;
+
+	  /* Another thread may have stored it while the server answered. */
+	  for (i = 0; i < XFT_COLOR_CACHE_SIZE; ++i)
+	    if (table->entries[i].valid && table->entries[i].pixel == color &&
+		table->entries[i].colormap == colormap)
+	      break;
+	  if (i == XFT_COLOR_CACHE_SIZE)
+	    {
+	      entry = &table->entries[table->next_victim];
+	      table->next_victim = (table->next_victim + 1) % XFT_COLOR_CACHE_SIZE;
+	      entry->colormap = colormap;
+	      entry->pixel = color;
+	      entry->color = xftcol;
+	      entry->valid = True;
+	    }
+	}
+      _XmProcessUnlock();
+    }
+  return xftcol;
+}
+
+/* The number of colours cached for a display; with NULL, for all displays. */
+unsigned int
+_XmXftColorCacheCount(Display *display)
+{
+  XftColorTable *table;
+  unsigned int count = 0, i;
+
+  _XmProcessLock();
+  for (table = xft_color_tables; table != NULL; table = table->next)
+    if (display == NULL || table->display == display)
+      for (i = 0; i < XFT_COLOR_CACHE_SIZE; ++i)
+	if (table->entries[i].valid)
+	  count++;
+  _XmProcessUnlock();
+  return count;
 }
 
 /* XmNcolumns uses em-space, then numeral zero, then maximum advance. */
