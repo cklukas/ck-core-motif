@@ -6,6 +6,8 @@
 #include "wsm_proto.h"
 #include "wsm_funcs.h"
 
+extern WSMDispInfo *GDispInfo;
+
 #define CHECK(condition, message) \
     do { if (!(condition)) { fprintf(stderr, "FAIL: %s\n", message); return 1; } } while (0)
 
@@ -58,6 +60,9 @@ main(void)
     CHECK(display != NULL, "open display");
     screen = DefaultScreen(display);
 
+    CHECK(GDispInfo == NULL, "fresh WSM display cache");
+    _WSMClearConfigScreenInfo(display, -1);
+    CHECK(GDispInfo == NULL, "ignore invalid WSM clear without caching display");
     CHECK(_WSMGetScreenInfo(display, -1) == NULL,
           "reject negative WSM screen number");
     CHECK(_WSMGetScreenInfo(display, ScreenCount(display)) == NULL,

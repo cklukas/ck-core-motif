@@ -251,9 +251,13 @@ _WSMGetScreenInfo(Display *dpy, int screen_number)
 void
 _WSMClearConfigScreenInfo(Display *dpy, int screen_number)
 {
-    WSMDispInfo * disp_info = _WSMGetDispInfo(dpy);
+    WSMDispInfo *disp_info;
     WSMScreenInfo *screen_info;
 
+    if (dpy == NULL || screen_number < 0 || screen_number >= ScreenCount(dpy))
+	return;
+
+    disp_info = _WSMGetDispInfo(dpy);
     if (disp_info == NULL)
 	return;
 
