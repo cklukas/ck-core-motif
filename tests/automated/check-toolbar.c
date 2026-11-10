@@ -31,7 +31,7 @@ static void activated(Widget widget, XtPointer client, XtPointer call)
 int main(int argc, char **argv)
 {
     XtAppContext app;
-    Widget shell, row, list, toolbar;
+    Widget shell, row, list, toolbar, blank_overflow_toolbar;
     XmString fixed, important, secondary, seldom;
     XmToolbarAction actions[4], replacement;
     int *positions = NULL, count = 0;
@@ -44,6 +44,12 @@ int main(int argc, char **argv)
                               NULL, XmNwidth, 360, XmNheight, 140, NULL);
     row = XmCreateRowColumn(shell, (char *)"row", NULL, 0);
     XtManageChild(row);
+    /* A null optional overflow label must construct a usable toolbar just as
+     * a later SetValues update to NULL does. */
+    blank_overflow_toolbar = XmVaCreateManagedToolbar(
+        row, (char *)"blankOverflowToolbar", XmNtoolbarOverflowLabel,
+        NULL, NULL);
+    CHECK(blank_overflow_toolbar != NULL);
     list = XmCreateList(row, (char *)"items", NULL, 0);
     fixed = XmStringCreateLocalized((char *)"Keep selected");
     XmListAddItem(list, fixed, 0);

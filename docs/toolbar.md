@@ -14,6 +14,10 @@ menu entries through `XmNtoolbarActivateCallback`; shortcut text is retained
 and shown with the action label, but applications remain responsible for
 global accelerator policy.
 
+`XmNtoolbarOverflowLabel` is optional. Passing `NULL` at creation or through
+`XtSetValues` creates an intentionally blank overflow cascade label; both
+paths have the same safe behavior.
+
 The toolbar owns only its push-button and menu-entry presentation children.
 It does not create a navigation model, launch commands, or change existing
 menus and toolbar widgets.  Accessibility exposes a named toolbar panel and

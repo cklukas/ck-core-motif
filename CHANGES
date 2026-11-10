@@ -1,3 +1,10 @@
+Accept null Toolbar overflow labels (2026-11-10)
+=================================================
+
+- Treat an omitted `XmNtoolbarOverflowLabel` as an intentional empty label
+  during construction, matching the existing runtime resource-update behavior
+  and avoiding a null String conversion; see docs/toolbar.md.
+
 Bound XmIm separator coordinates (2026-11-10)
 ===============================================
 

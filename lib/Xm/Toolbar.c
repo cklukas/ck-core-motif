@@ -377,7 +377,12 @@ static void Initialize(Widget request, Widget widget, ArgList args, Cardinal *co
     toolbar->toolbar.overflow_menu = XmCreatePulldownMenu(widget,
                                                           (char *)"overflowMenu",
                                                           NULL, 0);
-    label = XmStringCreateLocalized(toolbar->toolbar.overflow_label);
+    /* XmNtoolbarOverflowLabel is an optional String resource. SetValues
+     * already treats NULL as an intentionally blank label; initialization
+     * must make the same promise instead of passing NULL into the XmString
+     * conversion path. */
+    label = XmStringCreateLocalized(toolbar->toolbar.overflow_label
+                                    ? toolbar->toolbar.overflow_label : "");
     toolbar->toolbar.overflow_button = XtVaCreateWidget(
         "overflow", xmCascadeButtonWidgetClass, widget, XmNlabelString, label,
         XmNsubMenuId, toolbar->toolbar.overflow_menu, XmNborderWidth, 0, NULL);
