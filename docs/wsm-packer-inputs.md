@@ -15,9 +15,8 @@ message and an erroneous `WSM_SUCCESS` status.  Protocol-state failures retain
 their more specific configuration error codes.
 
 Window-data lists are also rejected at the public request and reply boundaries
-when their count cannot be represented by the protocol's 16-bit list fields.
-This prevents malformed data from reaching the lower-level size and packing
-helpers.
+when their count exceeds the WSM packer's bounded data-list domain.  This
+prevents malformed data from reaching the lower-level size and packing helpers.
 
 Regression: `tests/automated/check-wsm-packer-inputs.py`,
 `tests/automated/check-wsm-request-counts.py`, and
