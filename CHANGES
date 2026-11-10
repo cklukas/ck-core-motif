@@ -1,3 +1,9 @@
+Keep WSM diagnostic helpers safe after caller failures (2026-11-10)
+====================================================================
+
+- Make WSM request and reply diagnostic formatting report missing records
+  rather than dereferencing them while trying to explain an error.
+
 Reject invalid WSM screen numbers before caching (2026-11-10)
 ===============================================================
 

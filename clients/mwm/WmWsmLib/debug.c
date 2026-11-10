@@ -90,6 +90,10 @@ PrintRequest(WSMRequest *request)
     register int i;
 
     str[0] = '\0';
+    if (request == NULL) {
+	DebugAppend(str, &used, "Request: <none>\n");
+	return(str);
+    }
     DebugAppend(str, &used, "Request: %s\n", _WSMReqTypeToName(request->any.type));
 
     switch (request->any.type) {
@@ -158,6 +162,10 @@ PrintReply(WSMReply *reply)
     size_t used = 0;
 
     str[0] = '\0';
+    if (reply == NULL) {
+	DebugAppend(str, &used, "Reply: <none>\n");
+	return(str);
+    }
     DebugAppend(str, &used, "Reply: %s\n", _WSMReqTypeToName(reply->any.type));
 
     switch (reply->any.type) {

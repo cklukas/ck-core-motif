@@ -2,11 +2,14 @@
 #include <X11/Intrinsic.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "wsm_proto.h"
 #include "wsm_funcs.h"
 
 extern WSMDispInfo *GDispInfo;
+extern String PrintRequest(WSMRequest *request);
+extern String PrintReply(WSMReply *reply);
 
 #define CHECK(condition, message) \
     do { if (!(condition)) { fprintf(stderr, "FAIL: %s\n", message); return 1; } } while (0)
@@ -56,6 +59,10 @@ main(void)
     WSMConfigFormatData *cached;
 
     XrmInitialize();
+    CHECK(strcmp(PrintRequest(NULL), "Request: <none>\n") == 0,
+          "print missing WSM request safely");
+    CHECK(strcmp(PrintReply(NULL), "Reply: <none>\n") == 0,
+          "print missing WSM reply safely");
     display = XOpenDisplay(NULL);
     CHECK(display != NULL, "open display");
     screen = DefaultScreen(display);
