@@ -525,9 +525,10 @@ im_destroyed(XIM xim, XPointer closure, XPointer call_data)
   }
   info->transitioning = False;
   if (!info->instantiate_registered)
-    info->instantiate_registered = XRegisterIMInstantiateCallback(info->display,
-      XtDatabase(info->display), info->application_name, info->application_class,
-      im_available, (XPointer)info);
+    info->instantiate_registered =
+      XRegisterIMInstantiateCallback(info->display, XtDatabase(info->display),
+        info->application_name, info->application_class, im_available,
+        (XPointer)info) ? True : False;
 }
 
 static void
@@ -2507,8 +2508,8 @@ ImGeoReq(Widget vw )
   XmVendorShellExtObject ve;
   XmWidgetExtData extData;
   XtWidgetGeometry my_request;
-  int old_height;
-  int delta_height;
+  long old_height;
+  long delta_height;
   ShellWidget shell = (ShellWidget)(vw);
   
   if (!(shell->shell.allow_shell_resize) && XtIsRealized(vw))
@@ -2518,20 +2519,29 @@ ImGeoReq(Widget vw )
   if (!extData) return;
   ve = (XmVendorShellExtObject) extData->widget;
   
-  old_height = ve->vendor.im_height;
+  old_height = (long)ve->vendor.im_height;
   ImGetGeo(vw, NULL);
-  if ((delta_height = ve->vendor.im_height - old_height) != 0)
+  delta_height = (long)ve->vendor.im_height - old_height;
+  if (delta_height != 0)
     {
       int base_height;
+      long adjusted_height;
+      long requested_height;
+      long dimension_max = (long)((Dimension)~(Dimension)0);
       Arg args[1];
       XtSetArg(args[0], XtNbaseHeight, &base_height);
       XtGetValues(vw, args, 1);
       if (base_height > 0) {
-	base_height += delta_height;
+	adjusted_height = (long)base_height + delta_height;
+	base_height = adjusted_height > INT_MAX ? INT_MAX :
+	  (adjusted_height < INT_MIN ? INT_MIN : (int)adjusted_height);
 	XtSetArg(args[0], XtNbaseHeight, base_height);
 	XtSetValues(vw, args, 1);
       }
-      my_request.height = vw->core.height + delta_height;
+      requested_height = (long)vw->core.height + delta_height;
+      my_request.height = requested_height <= 0 ? 0 :
+	(requested_height > dimension_max ? (Dimension)dimension_max :
+	 (Dimension)requested_height);
       my_request.request_mode = CWHeight;
       XtMakeGeometryRequest(vw, &my_request, NULL);
     }
@@ -2633,8 +2643,9 @@ get_xim_info(Widget  widget)
   xim_info->application_name = XtNewString(name);
   xim_info->application_class = XtNewString(w_class);
   if (!open_input_method(xim_info))
-    xim_info->instantiate_registered = XRegisterIMInstantiateCallback(dpy,
-      XtDatabase(dpy), name, w_class, im_available, (XPointer)xim_info);
+    xim_info->instantiate_registered =
+      XRegisterIMInstantiateCallback(dpy, XtDatabase(dpy), name, w_class,
+        im_available, (XPointer)xim_info) ? True : False;
 
   /* Initialize the list of xrm names */
   {
@@ -2709,6 +2720,7 @@ draw_separator(Widget vw )
   XmVendorShellExtObject ve;
   XmWidgetExtData extData;
   XmImShellInfo im_info;
+  Position separator_y = 0;
   
   extData = _XmGetWidgetExtData((Widget)vw, XmSHELL_EXTENSION);
   if (!extData) return;
@@ -2718,13 +2730,20 @@ draw_separator(Widget vw )
   pw = (XmPrimitiveWidget)im_info->current_widget;
   if (!pw || !XmIsPrimitive(pw))
     return;
+
+  if (vw->core.height > ve->vendor.im_height) {
+    unsigned int area_y = (unsigned int)vw->core.height -
+      (unsigned int)ve->vendor.im_height;
+    separator_y = area_y > (unsigned int)SHRT_MAX ? SHRT_MAX :
+      (Position)area_y;
+  }
   
   XmeDrawSeparator(XtDisplay(vw), XtWindow(vw),
 		   pw->primitive.top_shadow_GC,
 		   pw->primitive.bottom_shadow_GC,
 		   0,
 		   0,
-		   vw->core.height - ve->vendor.im_height,
+		   separator_y,
 		   vw->core.width,
 		   SEPARATOR_HEIGHT,
 		   SEPARATOR_HEIGHT,

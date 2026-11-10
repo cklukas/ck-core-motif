@@ -1,3 +1,11 @@
+Bound XmIm separator coordinates (2026-11-10)
+===============================================
+
+- Clamp the input-method separator's `Dimension`-derived vertical coordinate
+  before passing it to the legacy signed `Position` drawing interface, and
+  normalize Xlib callback registration results to Motif Boolean state; see
+  docs/xmim-area-geometry.md.
+
 Bound XmIm varargs resource counts (2026-11-10)
 =================================================
 
