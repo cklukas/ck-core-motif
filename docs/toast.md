@@ -11,7 +11,9 @@ configured timeout.  `XmToastPause` cancels or restarts the full timeout,
 `XmToastDismiss` is idempotent, and `XmToastInvokeAction` dispatches without
 launching a command.  A timeout of zero leaves the toast visible until
 explicit dismissal.  Message and action labels are copied `XmString`
-resources; callbacks run on the owning Xt application context.
+resources; callbacks run on the owning Xt application context. Escape respects
+widget sensitivity, so a disabled toast remains visible until dismissed by its
+owner or timeout policy.
 
 For right-to-left layouts, the optional action occupies the logical start edge
 and the message follows it.  Left-to-right layouts retain the conventional

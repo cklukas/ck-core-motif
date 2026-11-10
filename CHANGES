@@ -1,3 +1,12 @@
+Honor disabled Toast input (2026-11-10)
+========================================
+
+- Ignore Escape key events while an `XmToast` is insensitive, preserving a
+  disabled notification until its owner or timeout policy dismisses it; see
+  docs/toast.md.
+- Use Toast's Manager layout direction for its right-to-left action placement,
+  instead of the inapplicable Primitive accessor.
+
 Honor disabled CommandPalette input (2026-11-10)
 ==================================================
 

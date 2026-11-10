@@ -1,6 +1,7 @@
 #include <Xm/Accessible.h>
 #include <Xm/Toast.h>
 #include <Xm/RowColumn.h>
+#include <X11/keysym.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,6 +10,7 @@ static unsigned checks;
 static Boolean proposed_geometry_is_accepted(Widget child) { XtWidgetGeometry request, reply; XtGeometryResult result; if (!child) return False; XtVaGetValues(child, XmNwidth, &request.width, XmNheight, &request.height, NULL); request.request_mode = CWWidth | CWHeight; result = XtMakeGeometryRequest(child, &request, &reply); if (result == XtGeometryAlmost) { request = reply; result = XtMakeGeometryRequest(child, &request, &reply); } if (result != XtGeometryYes && result != XtGeometryDone) return False; request.request_mode |= XtCWQueryOnly; return XtMakeGeometryRequest(child, &request, &reply) == XtGeometryYes; }
 static void action(Widget widget, XtPointer data, XtPointer call) { unsigned *calls = (unsigned *)data; XmToastCallbackStruct *callback = (XmToastCallbackStruct *)call; (void)widget; if (callback && callback->reason == XmCR_ACTIVATE) ++*calls; }
 static void dismissed(Widget widget, XtPointer data, XtPointer call) { unsigned *calls = (unsigned *)data; XmToastCallbackStruct *callback = (XmToastCallbackStruct *)call; (void)widget; if (callback && callback->reason == XmCR_UNMAP) ++*calls; }
+static void escape(Widget widget) { XEvent event = {0}; event.xkey.type = KeyPress; event.xkey.display = XtDisplay(widget); event.xkey.window = XtWindow(widget); event.xkey.keycode = XKeysymToKeycode(XtDisplay(widget), XK_Escape); XtDispatchEvent(&event); }
 int main(int argc, char **argv) {
     XtAppContext app; Widget shell, row, toast, message_widget, action_widget; XmString message, label; unsigned actions = 0, dismissals = 0; XmAccessibility *accessibility; XmAccessibleInfo info; XmAccessibleId id; Position message_x, action_x; Dimension action_width;
     (void)argv;
@@ -21,7 +23,7 @@ int main(int argc, char **argv) {
     accessibility = XmAccessibilityCreate(shell, "ToastTest"); CHECK(accessibility != NULL); id = XmAccessibilityWidget(accessibility, toast);
     CHECK(XmAccessibilityQuery(accessibility, id, &info)); CHECK(info.role == XmACCESSIBLE_PANEL && info.name != NULL && strcmp(info.name, "Saved") == 0 && info.action_count == 1); XmAccessibleInfoClear(&info);
     CHECK(XmAccessibilityAction(accessibility, id, 0)); CHECK(actions == 1); XmAccessibilityDestroy(accessibility);
-    XmToastPause(toast, True); XmToastPause(toast, False); XmToastDismiss(toast, NULL); CHECK(!XmToastIsShown(toast)); CHECK(dismissals == 1);
+    XtSetSensitive(toast, False); escape(toast); CHECK(XmToastIsShown(toast)); CHECK(dismissals == 0); XtSetSensitive(toast, True); escape(toast); CHECK(!XmToastIsShown(toast)); CHECK(dismissals == 1); XmToastPause(toast, True); XmToastPause(toast, False);
     XtVaSetValues(toast, XmNtoastTimeout, 20UL, NULL); XmToastShow(toast); XtAppProcessEvent(app, XtIMTimer); CHECK(!XmToastIsShown(toast)); CHECK(dismissals == 2);
     XtDestroyWidget(shell); XtCloseDisplay(XtDisplay(shell)); XtDestroyApplicationContext(app);
     printf("PASS toast: %u checks\n", checks); return EXIT_SUCCESS;
