@@ -77,20 +77,71 @@ static void path_for(XmAccessibleId id, char *buffer, size_t length) {
   else
     snprintf(buffer, length, "%s", NULLPATH);
 }
-static void reference(DBusMessageIter *iter, Transport *t, XmAccessibleId id) {
+/* Message building.  Every append, open and close of libdbus can fail for lack
+ * of memory, and after the first failure the message cannot be completed: the
+ * container iterators that were opened must be abandoned, and the iterator of a
+ * container that failed to open must not be used at all.  A Build records the
+ * first failure and the containers that are open.  Each step is then one
+ * checked call: once the build has failed the remaining steps do nothing, and
+ * build_close abandons the containers instead of closing them.  The caller
+ * looks at the Build once, when the message is complete, and drops the message
+ * if it failed. */
+#define BUILD_MAX_DEPTH 8
+typedef struct {
+  Boolean failed;
+  unsigned int depth;
+  DBusMessageIter *parent[BUILD_MAX_DEPTH];
+  DBusMessageIter *child[BUILD_MAX_DEPTH];
+} Build;
+static void build_init(Build *b, DBusMessage *message, DBusMessageIter *out) {
+  memset(b, 0, sizeof(*b));
+  dbus_message_iter_init_append(message, out);
+}
+static void build_basic(Build *b, DBusMessageIter *iter, int type,
+                        const void *value) {
+  if (b->failed)
+    return;
+  if (!dbus_message_iter_append_basic(iter, type, value))
+    b->failed = True;
+}
+static void build_open(Build *b, DBusMessageIter *parent, int type,
+                       const char *signature, DBusMessageIter *child) {
+  if (b->failed)
+    return;
+  if (b->depth == BUILD_MAX_DEPTH ||
+      !dbus_message_iter_open_container(parent, type, signature, child)) {
+    b->failed = True;
+    return;
+  }
+  b->parent[b->depth] = parent;
+  b->child[b->depth++] = child;
+}
+static void build_close(Build *b, DBusMessageIter *parent,
+                        DBusMessageIter *child) {
+  /* A container that never opened is not the innermost open one. */
+  if (b->depth == 0 || b->child[b->depth - 1] != child)
+    return;
+  --b->depth;
+  if (b->failed)
+    dbus_message_iter_abandon_container(parent, child);
+  else if (!dbus_message_iter_close_container(parent, child))
+    b->failed = True;
+}
+static void reference(Build *b, DBusMessageIter *iter, Transport *t,
+                      XmAccessibleId id) {
   DBusMessageIter child;
   char buffer[96];
   const char *path = buffer;
   const char *bus = id ? dbus_bus_get_unique_name(t->connection) : "";
   path_for(id, buffer, sizeof(buffer));
-  dbus_message_iter_open_container(iter, DBUS_TYPE_STRUCT, NULL, &child);
-  dbus_message_iter_append_basic(&child, DBUS_TYPE_STRING, &bus);
-  dbus_message_iter_append_basic(&child, DBUS_TYPE_OBJECT_PATH, &path);
-  dbus_message_iter_close_container(iter, &child);
+  build_open(b, iter, DBUS_TYPE_STRUCT, NULL, &child);
+  build_basic(b, &child, DBUS_TYPE_STRING, &bus);
+  build_basic(b, &child, DBUS_TYPE_OBJECT_PATH, &path);
+  build_close(b, iter, &child);
 }
-static void string_value(DBusMessageIter *i, const char *s) {
+static void string_value(Build *b, DBusMessageIter *i, const char *s) {
   const char *value = text(s);
-  dbus_message_iter_append_basic(i, DBUS_TYPE_STRING, &value);
+  build_basic(b, i, DBUS_TYPE_STRING, &value);
 }
 static int child_count(XmAccessibility *a, XmAccessibleId id) {
   size_t count = _XmAccessibilityChildCount(a, id);
@@ -102,33 +153,33 @@ static dbus_int32_t bounded_action_count(unsigned int count) {
 static XmAccessibleId child_at(XmAccessibility *a, XmAccessibleId id, int index) {
   return index < 0 ? 0 : _XmAccessibilityChildAt(a, id, (size_t)index);
 }
-static void interfaces(DBusMessageIter *i, XmAccessibleInfo *info,
+static void interfaces(Build *b, DBusMessageIter *i, XmAccessibleInfo *info,
                        XmAccessibleId id) {
   DBusMessageIter array;
-  dbus_message_iter_open_container(i, DBUS_TYPE_ARRAY, "s", &array);
-  string_value(&array, ACCESS);
-  string_value(&array, COMPONENT);
+  build_open(b, i, DBUS_TYPE_ARRAY, "s", &array);
+  string_value(b, &array, ACCESS);
+  string_value(b, &array, COMPONENT);
   if (id == 1)
-    string_value(&array, APP);
+    string_value(b, &array, APP);
   if (info->action_count)
-    string_value(&array, ACTION);
-  if (info->has_selection) string_value(&array, SELECTION);
+    string_value(b, &array, ACTION);
+  if (info->has_selection) string_value(b, &array, SELECTION);
   if (info->has_value)
-    string_value(&array, VALUE);
+    string_value(b, &array, VALUE);
   if (info->has_text)
-    string_value(&array, TEXT);
+    string_value(b, &array, TEXT);
   if (info->rows >= 0 && info->columns >= 0)
-    string_value(&array, TABLE);
-  dbus_message_iter_close_container(i, &array);
+    string_value(b, &array, TABLE);
+  build_close(b, i, &array);
 }
-static void states(DBusMessageIter *i, uint64_t bits) {
+static void states(Build *b, DBusMessageIter *i, uint64_t bits) {
   DBusMessageIter array;
   dbus_uint32_t lower = (dbus_uint32_t)bits,
                 upper = (dbus_uint32_t)(bits >> 32);
-  dbus_message_iter_open_container(i, DBUS_TYPE_ARRAY, "u", &array);
-  dbus_message_iter_append_basic(&array, DBUS_TYPE_UINT32, &lower);
-  dbus_message_iter_append_basic(&array, DBUS_TYPE_UINT32, &upper);
-  dbus_message_iter_close_container(i, &array);
+  build_open(b, i, DBUS_TYPE_ARRAY, "u", &array);
+  build_basic(b, &array, DBUS_TYPE_UINT32, &lower);
+  build_basic(b, &array, DBUS_TYPE_UINT32, &upper);
+  build_close(b, i, &array);
 }
 /* Only live nodes retain memo records. Monotonic IDs never imply a growing
  * dense allocation; removal shrinks the hash table as the live tree shrinks. */
@@ -191,8 +242,8 @@ static void memo_remove(Transport *t, XmAccessibleId id) {
 static int index_in_parent(XmAccessibility *a, XmAccessibleNode *node) {
   return _XmAccessibilityIndexInParent(a, node->id);
 }
-static int cache_item(DBusMessageIter *out, Transport *t,
-                       XmAccessibleId id) {
+static int cache_item(Build *b, DBusMessageIter *out, Transport *t,
+                      XmAccessibleId id) {
   XmAccessibleInfo info;
   XmAccessibleNode *node = _XmAccessibilityNode(t->owner, id);
   DBusMessageIter item;
@@ -215,18 +266,18 @@ static int cache_item(DBusMessageIter *out, Transport *t,
   index = index_in_parent(t->owner, node);
   count = child_count(t->owner, id);
   role = info.role;
-  dbus_message_iter_open_container(out, DBUS_TYPE_STRUCT, NULL, &item);
-  reference(&item, t, id);
-  reference(&item, t, 1);
-  reference(&item, t, node->parent);
-  dbus_message_iter_append_basic(&item, DBUS_TYPE_INT32, &index);
-  dbus_message_iter_append_basic(&item, DBUS_TYPE_INT32, &count);
-  interfaces(&item, &info, id);
-  string_value(&item, info.name);
-  dbus_message_iter_append_basic(&item, DBUS_TYPE_UINT32, &role);
-  string_value(&item, info.description);
-  states(&item, info.states);
-  dbus_message_iter_close_container(out, &item);
+  build_open(b, out, DBUS_TYPE_STRUCT, NULL, &item);
+  reference(b, &item, t, id);
+  reference(b, &item, t, 1);
+  reference(b, &item, t, node->parent);
+  build_basic(b, &item, DBUS_TYPE_INT32, &index);
+  build_basic(b, &item, DBUS_TYPE_INT32, &count);
+  interfaces(b, &item, &info, id);
+  string_value(b, &item, info.name);
+  build_basic(b, &item, DBUS_TYPE_UINT32, &role);
+  string_value(b, &item, info.description);
+  states(b, &item, info.states);
+  build_close(b, out, &item);
   {
     TransportState *record = memo_get(t, id, 0);
     if (record) {
@@ -246,6 +297,29 @@ static void send_reply(Transport *t, DBusMessage *reply) {
 static void error_reply(Transport *t, DBusMessage *call, const char *name,
                         const char *message) {
   send_reply(t, dbus_message_new_error(call, name, message));
+}
+/* A reply that could not be completed is dropped and the caller is told. */
+static void send_built(Transport *t, Build *b, DBusMessage *call,
+                       DBusMessage *reply) {
+  if (!reply)
+    return;
+  if (b->failed) {
+    dbus_message_unref(reply);
+    error_reply(t, call, DBUS_ERROR_NO_MEMORY,
+                "Unable to build the reply");
+    return;
+  }
+  send_reply(t, reply);
+}
+/* A signal that could not be completed is dropped. */
+static void send_signal(Transport *t, Build *b, DBusMessage *message) {
+  if (!message)
+    return;
+  if (b->failed) {
+    dbus_message_unref(message);
+    return;
+  }
+  send_reply(t, message);
 }
 static const char *property_signature(const char *iface, const char *name) {
   if (!strcmp(iface, ACCESS)) {
@@ -316,7 +390,7 @@ static void remove_interface(char *xml, const char *iface) {
   if (last)
     memmove(first, last + 12, strlen(last + 12) + 1);
 }
-static void property_value(DBusMessageIter *out, Transport *t,
+static void property_value(Build *b, DBusMessageIter *out, Transport *t,
                            XmAccessibleNode *node, XmAccessibleInfo *info,
                            const char *iface, const char *name) {
   dbus_int32_t number = 0;
@@ -331,15 +405,15 @@ static void property_value(DBusMessageIter *out, Transport *t,
                    : !strcmp(name, "MaximumValue")     ? info->maximum_value
                    : !strcmp(name, "MinimumIncrement") ? info->minimum_increment
                                                        : info->current_value;
-    dbus_message_iter_append_basic(out, DBUS_TYPE_DOUBLE, &value);
+    build_basic(b, out, DBUS_TYPE_DOUBLE, &value);
     return;
   }
   if (!strcmp(name, "Parent")) {
-    reference(out, t, node->parent);
+    reference(b, out, t, node->parent);
     return;
   }
   if (!strcmp(name, "version") || !strcmp(name, "InterfaceVersion")) {
-    dbus_message_iter_append_basic(out, DBUS_TYPE_UINT32, &version);
+    build_basic(b, out, DBUS_TYPE_UINT32, &version);
     return;
   }
   if (signature && !strcmp(signature, "s")) {
@@ -358,7 +432,7 @@ static void property_value(DBusMessageIter *out, Transport *t,
       value = "2.1";
     else if (!strcmp(name, "ToolkitVersion") || !strcmp(name, "Version"))
       value = XmVERSION_STRING;
-    string_value(out, value);
+    string_value(b, out, value);
     return;
   }
   if (!strcmp(name, "ChildCount"))
@@ -377,7 +451,7 @@ static void property_value(DBusMessageIter *out, Transport *t,
     number = info->rows;
   else if (!strcmp(name, "NColumns"))
     number = info->columns;
-  dbus_message_iter_append_basic(out, DBUS_TYPE_INT32, &number);
+  build_basic(b, out, DBUS_TYPE_INT32, &number);
 }
 static const char introspection[] =
     "<node><interface name='org.a11y.atspi.Selection'>"
@@ -634,6 +708,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
   XmAccessibleInfo info;
   DBusMessage *reply;
   DBusMessageIter out, iter;
+  Build build_state, *b = &build_state;
   dbus_int32_t index = 0, end = 0;
   dbus_bool_t success = False;
   dbus_uint32_t role;
@@ -654,9 +729,9 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       reply = dbus_message_new_method_return(call);
       if (!reply)
         return DBUS_HANDLER_RESULT_HANDLED;
-      dbus_message_iter_init_append(reply, &out);
-      string_value(&out, xml);
-      send_reply(t, reply);
+      build_init(b, reply, &out);
+      string_value(b, &out, xml);
+      send_built(t, b, call, reply);
       return DBUS_HANDLER_RESULT_HANDLED;
     }
     if (strcmp(iface, CACHE) || strcmp(method, "GetItems"))
@@ -685,12 +760,12 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       XtFree((char *)ids);
       return DBUS_HANDLER_RESULT_HANDLED;
     }
-    dbus_message_iter_init_append(reply, &out);
-    dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, CACHE_ITEM, &array);
-    for (k = 0; k < count; ++k) cache_item(&array, t, ids[k]);
-    dbus_message_iter_close_container(&out, &array);
+    build_init(b, reply, &out);
+    build_open(b, &out, DBUS_TYPE_ARRAY, CACHE_ITEM, &array);
+    for (k = 0; k < count && !b->failed; ++k) cache_item(b, &array, t, ids[k]);
+    build_close(b, &out, &array);
     XtFree((char *)ids);
-    send_reply(t, reply);
+    send_built(t, b, call, reply);
     return DBUS_HANDLER_RESULT_HANDLED;
   }
   if (!strcmp(path, ROOT))
@@ -724,7 +799,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     XmAccessibleInfoClear(&info);
     return DBUS_HANDLER_RESULT_HANDLED;
   }
-  dbus_message_iter_init_append(reply, &out);
+  build_init(b, reply, &out);
   if (!strcmp(iface, "org.freedesktop.DBus.Introspectable") &&
       !strcmp(method, "Introspect")) {
     char *xml = XtNewString(introspection);
@@ -737,7 +812,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
     if (!supports_interface(id, &info, SELECTION)) remove_interface(xml, SELECTION);
     if (!supports_interface(id, &info, TABLE))
       remove_interface(xml, TABLE);
-    string_value(&out, xml);
+    string_value(b, &out, xml);
     XtFree(xml);
     goto done;
   }
@@ -748,10 +823,10 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       if (dbus_message_iter_init(call, &iter) &&
           dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_STRING) {
         dbus_message_iter_get_basic(&iter, &requested);
-        dbus_message_iter_next(&iter);
+        if (!dbus_message_iter_next(&iter)) goto invalid;
         if (dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_STRING) {
           dbus_message_iter_get_basic(&iter, &name);
-          dbus_message_iter_next(&iter);
+          if (!dbus_message_iter_next(&iter)) goto invalid;
           if (!strcmp(requested, VALUE) && info.has_value &&
               !strcmp(name, "CurrentValue") &&
               dbus_message_iter_get_arg_type(&iter) == DBUS_TYPE_VARIANT) {
@@ -793,14 +868,14 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       if (!strcmp(requested, SELECTION)) {
         dbus_int32_t selected = XmAccessibilitySelectionCount(a, id);
         if (selected < 0 || _XmAccessibilityNode(a, id) != node || a->destroy_requested) goto unsupported;
-        dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i", &variant);
-        dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &selected);
-        dbus_message_iter_close_container(&out, &variant); goto done;
+        build_open(b, &out, DBUS_TYPE_VARIANT, "i", &variant);
+        build_basic(b, &variant, DBUS_TYPE_INT32, &selected);
+        build_close(b, &out, &variant); goto done;
       }
-      dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, signature,
+      build_open(b, &out, DBUS_TYPE_VARIANT, signature,
                                        &variant);
-      property_value(&variant, t, node, &info, requested, name);
-      dbus_message_iter_close_container(&out, &variant);
+      property_value(b, &variant, t, node, &info, requested, name);
+      build_close(b, &out, &variant);
       goto done;
     }
     if (!strcmp(method, "GetAll")) {
@@ -839,28 +914,28 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       if (!strcmp(requested, SELECTION)) {
         dbus_int32_t selected = XmAccessibilitySelectionCount(a, id);
         if (selected < 0 || _XmAccessibilityNode(a, id) != node || a->destroy_requested) goto unsupported;
-        dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-        dbus_message_iter_open_container(&array, DBUS_TYPE_DICT_ENTRY, NULL, &entry);
-        string_value(&entry, "NSelectedChildren");
-        dbus_message_iter_open_container(&entry, DBUS_TYPE_VARIANT, "i", &variant);
-        dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &selected);
-        dbus_message_iter_close_container(&entry, &variant);
-        dbus_message_iter_close_container(&array, &entry);
-        dbus_message_iter_close_container(&out, &array); goto done;
+        build_open(b, &out, DBUS_TYPE_ARRAY, "{sv}", &array);
+        build_open(b, &array, DBUS_TYPE_DICT_ENTRY, NULL, &entry);
+        string_value(b, &entry, "NSelectedChildren");
+        build_open(b, &entry, DBUS_TYPE_VARIANT, "i", &variant);
+        build_basic(b, &variant, DBUS_TYPE_INT32, &selected);
+        build_close(b, &entry, &variant);
+        build_close(b, &array, &entry);
+        build_close(b, &out, &array); goto done;
       }
-      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+      build_open(b, &out, DBUS_TYPE_ARRAY, "{sv}", &array);
       for (i = 0; i < sizeof(names) / sizeof(names[0]); i++)
         if ((signature = property_signature(requested, names[i]))) {
-          dbus_message_iter_open_container(&array, DBUS_TYPE_DICT_ENTRY, NULL,
+          build_open(b, &array, DBUS_TYPE_DICT_ENTRY, NULL,
                                            &entry);
-          string_value(&entry, names[i]);
-          dbus_message_iter_open_container(&entry, DBUS_TYPE_VARIANT, signature,
+          string_value(b, &entry, names[i]);
+          build_open(b, &entry, DBUS_TYPE_VARIANT, signature,
                                            &variant);
-          property_value(&variant, t, node, &info, requested, names[i]);
-          dbus_message_iter_close_container(&entry, &variant);
-          dbus_message_iter_close_container(&array, &entry);
+          property_value(b, &variant, t, node, &info, requested, names[i]);
+          build_close(b, &entry, &variant);
+          build_close(b, &array, &entry);
         }
-      dbus_message_iter_close_container(&out, &array);
+      build_close(b, &out, &array);
       goto done;
     }
     goto unsupported;
@@ -877,7 +952,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       if (!strcmp(method, "GetSelectedChild")) {
         child = XmAccessibilitySelectedChild(a, id, index);
         if (!child) goto invalid;
-        reference(&out, t, child); goto done;
+        reference(b, &out, t, child); goto done;
       }
       child = !strcmp(method, "DeselectSelectedChild") ? XmAccessibilitySelectedChild(a, id, index)
                                                        : _XmAccessibilityChildAt(a, id, (size_t)index);
@@ -888,29 +963,29 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
         accepted = XmAccessibilityChangeSelection(a, id, XmACCESSIBLE_DESELECT_CHILD, child);
       else goto unsupported;
     }
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_BOOLEAN, &accepted); goto done;
+    build_basic(b, &out, DBUS_TYPE_BOOLEAN, &accepted); goto done;
   }
   if (!strcmp(iface, ACCESS)) {
     if (!strcmp(method, "GetRole")) {
       role = info.role;
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_UINT32, &role);
+      build_basic(b, &out, DBUS_TYPE_UINT32, &role);
       goto done;
     }
     if (!strcmp(method, "GetRoleName") ||
         !strcmp(method, "GetLocalizedRoleName")) {
-      string_value(&out, _XmAccessibilityRoleName(info.role));
+      string_value(b, &out, _XmAccessibilityRoleName(info.role));
       goto done;
     }
     if (!strcmp(method, "GetState")) {
-      states(&out, info.states);
+      states(b, &out, info.states);
       goto done;
     }
     if (!strcmp(method, "GetInterfaces")) {
-      interfaces(&out, &info, id);
+      interfaces(b, &out, &info, id);
       goto done;
     }
     if (!strcmp(method, "GetApplication")) {
-      reference(&out, t, 1);
+      reference(b, &out, t, 1);
       goto done;
     }
     if (!strcmp(method, "GetChildAtIndex")) {
@@ -918,44 +993,44 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
                                  DBUS_TYPE_INVALID) ||
           index < 0)
         goto invalid;
-      reference(&out, t, child_at(a, id, index));
+      reference(b, &out, t, child_at(a, id, index));
       goto done;
     }
     if (!strcmp(method, "GetChildren")) {
       DBusMessageIter array;
       int i, count = child_count(a, id);
-      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "(so)", &array);
+      build_open(b, &out, DBUS_TYPE_ARRAY, "(so)", &array);
       for (i = 0; i < count; i++)
-        reference(&array, t, child_at(a, id, i));
-      dbus_message_iter_close_container(&out, &array);
+        reference(b, &array, t, child_at(a, id, i));
+      build_close(b, &out, &array);
       goto done;
     }
     if (!strcmp(method, "GetIndexInParent")) {
       index = index_in_parent(a, node);
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &index);
+      build_basic(b, &out, DBUS_TYPE_INT32, &index);
       goto done;
     }
     if (!strcmp(method, "GetRelationSet")) {
       DBusMessageIter array;
-      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "(ua(so))",
+      build_open(b, &out, DBUS_TYPE_ARRAY, "(ua(so))",
                                        &array);
-      dbus_message_iter_close_container(&out, &array);
+      build_close(b, &out, &array);
       goto done;
     }
     if (!strcmp(method, "GetAttributes")) {
       DBusMessageIter array;
-      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{ss}", &array);
-      dbus_message_iter_close_container(&out, &array);
+      build_open(b, &out, DBUS_TYPE_ARRAY, "{ss}", &array);
+      build_close(b, &out, &array);
       goto done;
     }
   }
   if (!strcmp(iface, APP) && id == 1) {
     if (!strcmp(method, "GetLocale")) {
-      string_value(&out, setlocale(LC_MESSAGES, NULL));
+      string_value(b, &out, setlocale(LC_MESSAGES, NULL));
       goto done;
     }
     if (!strcmp(method, "GetApplicationBusAddress")) {
-      string_value(&out, "");
+      string_value(b, &out, "");
       goto done;
     }
   }
@@ -966,7 +1041,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       goto invalid;
     if (!strcmp(method, "DoAction")) {
       success = XmAccessibilityAction(a, id, (unsigned int)index);
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_BOOLEAN, &success);
+      build_basic(b, &out, DBUS_TYPE_BOOLEAN, &success);
       goto done;
     }
     if (!strcmp(method, "GetName") || !strcmp(method, "GetLocalizedName") ||
@@ -976,12 +1051,12 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
         XtFree(name);
         goto invalid;
       }
-      string_value(&out, name);
+      string_value(b, &out, name);
       XtFree(name);
       goto done;
     }
     if (!strcmp(method, "GetKeyBinding")) {
-      string_value(&out, "");
+      string_value(b, &out, "");
       goto done;
     }
   }
@@ -1028,25 +1103,25 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       }
     }
     if (!strcmp(method, "GetExtents")) {
-      dbus_message_iter_open_container(&out, DBUS_TYPE_STRUCT, NULL,
+      build_open(b, &out, DBUS_TYPE_STRUCT, NULL,
                                        &structure);
-      dbus_message_iter_append_basic(&structure, DBUS_TYPE_INT32, &x);
-      dbus_message_iter_append_basic(&structure, DBUS_TYPE_INT32, &y);
-      dbus_message_iter_append_basic(&structure, DBUS_TYPE_INT32, &width);
-      dbus_message_iter_append_basic(&structure, DBUS_TYPE_INT32, &height);
-      dbus_message_iter_close_container(&out, &structure);
+      build_basic(b, &structure, DBUS_TYPE_INT32, &x);
+      build_basic(b, &structure, DBUS_TYPE_INT32, &y);
+      build_basic(b, &structure, DBUS_TYPE_INT32, &width);
+      build_basic(b, &structure, DBUS_TYPE_INT32, &height);
+      build_close(b, &out, &structure);
     } else if (!strcmp(method, "GetPosition")) {
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &x);
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &y);
+      build_basic(b, &out, DBUS_TYPE_INT32, &x);
+      build_basic(b, &out, DBUS_TYPE_INT32, &y);
     } else {
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &width);
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &height);
+      build_basic(b, &out, DBUS_TYPE_INT32, &width);
+      build_basic(b, &out, DBUS_TYPE_INT32, &height);
     }
     goto done;
   }
   if (!strcmp(iface, COMPONENT) && !strcmp(method, "GrabFocus")) {
     success = XmAccessibilityFocus(a, id);
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_BOOLEAN, &success);
+    build_basic(b, &out, DBUS_TYPE_BOOLEAN, &success);
     goto done;
   }
   if (!strcmp(iface, TEXT) && info.has_text) {
@@ -1065,9 +1140,9 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
       if (!result) goto unsupported;
       slice = XmAccessibilityText(a, id, first, last);
       if (!slice || !dbus_validate_utf8(slice, NULL)) { XtFree(slice); goto invalid; }
-      string_value(&out, slice); XtFree(slice);
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &last);
+      string_value(b, &out, slice); XtFree(slice);
+      build_basic(b, &out, DBUS_TYPE_INT32, &first);
+      build_basic(b, &out, DBUS_TYPE_INT32, &last);
       goto done;
     }
     if (!strcmp(method, "GetText")) {
@@ -1082,7 +1157,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
         XtFree(slice);
         goto invalid;
       }
-      string_value(&out, slice);
+      string_value(b, &out, slice);
       XtFree(slice);
       goto done;
     }
@@ -1108,7 +1183,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
           scalar = (scalar << 6) | (*p++ & 63);
       }
       XtFree(slice);
-      dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &scalar);
+      build_basic(b, &out, DBUS_TYPE_INT32, &scalar);
       goto done;
     }
     if (!strcmp(method, "GetNSelections") || !strcmp(method, "GetSelection")) {
@@ -1118,13 +1193,13 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
         goto unsupported;
       if (!strcmp(method, "GetNSelections")) {
         index = selected ? 1 : 0;
-        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &index);
+        build_basic(b, &out, DBUS_TYPE_INT32, &index);
       } else {
         if (!dbus_message_get_args(call, NULL, DBUS_TYPE_INT32, &index,
               DBUS_TYPE_INVALID) || index != 0 || !selected) goto invalid;
         index = first; end = last;
-        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &index);
-        dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &end);
+        build_basic(b, &out, DBUS_TYPE_INT32, &index);
+        build_basic(b, &out, DBUS_TYPE_INT32, &end);
       }
       goto done;
     }
@@ -1135,7 +1210,7 @@ static DBusHandlerResult dispatch_inner(DBusConnection *connection,
                                DBUS_TYPE_INT32, &end, DBUS_TYPE_INVALID) ||
         index < 0 || end < 0 || index >= info.rows || end >= info.columns)
       goto invalid;
-    reference(&out, t, node->provider.cell(node->data, index, end));
+    reference(b, &out, t, node->provider.cell(node->data, index, end));
     goto done;
   }
 unsupported:
@@ -1152,7 +1227,7 @@ invalid:
   return DBUS_HANDLER_RESULT_HANDLED;
 done:
   XmAccessibleInfoClear(&info);
-  send_reply(t, reply);
+  send_built(t, b, call, reply);
   return DBUS_HANDLER_RESULT_HANDLED;
 }
 static DBusHandlerResult dispatch(DBusConnection *connection,
@@ -1518,6 +1593,7 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
   Transport *t;
   int fd;
   DBusMessageIter out;
+  Build build_state, *b = &build_state;
   if (a->transport) {
     if (a->status == XmACCESSIBILITY_UNAVAILABLE ||
         a->status == XmACCESSIBILITY_DISCONNECTED)
@@ -1600,9 +1676,10 @@ XmAccessibilityStatus _XmAccessibilityTransportConnect(XmAccessibility *a) {
     _XmAccessibilityTransportDestroy(a);
     return a->status;
   }
-  dbus_message_iter_init_append(call, &out);
-  reference(&out, t, 1);
-  if (!dbus_connection_send_with_reply(t->connection, call, &t->embed, 2000) ||
+  build_init(b, call, &out);
+  reference(b, &out, t, 1);
+  if (b->failed ||
+      !dbus_connection_send_with_reply(t->connection, call, &t->embed, 2000) ||
       !t->embed)
     a->status = XmACCESSIBILITY_UNAVAILABLE;
   else
@@ -1650,23 +1727,25 @@ static void state_event(Transport *t, const char *path, const char *name,
   DBusMessage *message = dbus_message_new_signal(path,
       "org.a11y.atspi.Event.Object", "StateChanged");
   DBusMessageIter out, variant, array;
+  Build build_state, *b = &build_state;
   dbus_int32_t value = enabled, zero = 0;
   if (!message)
     return;
-  dbus_message_iter_init_append(message, &out);
-  string_value(&out, name);
-  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &value);
-  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &zero);
-  dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "i", &variant);
-  dbus_message_iter_append_basic(&variant, DBUS_TYPE_INT32, &zero);
-  dbus_message_iter_close_container(&out, &variant);
-  dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-  dbus_message_iter_close_container(&out, &array);
-  send_reply(t, message);
+  build_init(b, message, &out);
+  string_value(b, &out, name);
+  build_basic(b, &out, DBUS_TYPE_INT32, &value);
+  build_basic(b, &out, DBUS_TYPE_INT32, &zero);
+  build_open(b, &out, DBUS_TYPE_VARIANT, "i", &variant);
+  build_basic(b, &variant, DBUS_TYPE_INT32, &zero);
+  build_close(b, &out, &variant);
+  build_open(b, &out, DBUS_TYPE_ARRAY, "{sv}", &array);
+  build_close(b, &out, &array);
+  send_signal(t, b, message);
 }
 static void window_event(Transport *t, XmAccessibleId id, const char *name, int active) {
   DBusMessage *message;
   DBusMessageIter out, variant, array;
+  Build build_state, *b = &build_state;
   dbus_int32_t zero = 0;
   char path[96];
   path_for(id, path, sizeof(path));
@@ -1674,22 +1753,23 @@ static void window_event(Transport *t, XmAccessibleId id, const char *name, int 
                                     active ? "Activate" : "Deactivate");
   if (!message)
     return;
-  dbus_message_iter_init_append(message, &out);
-  string_value(&out, "");
-  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &zero);
-  dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &zero);
-  dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "s", &variant);
-  string_value(&variant, name);
-  dbus_message_iter_close_container(&out, &variant);
-  dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-  dbus_message_iter_close_container(&out, &array);
-  send_reply(t, message);
+  build_init(b, message, &out);
+  string_value(b, &out, "");
+  build_basic(b, &out, DBUS_TYPE_INT32, &zero);
+  build_basic(b, &out, DBUS_TYPE_INT32, &zero);
+  build_open(b, &out, DBUS_TYPE_VARIANT, "s", &variant);
+  string_value(b, &variant, name);
+  build_close(b, &out, &variant);
+  build_open(b, &out, DBUS_TYPE_ARRAY, "{sv}", &array);
+  build_close(b, &out, &array);
+  send_signal(t, b, message);
 }
 void _XmAccessibilityTransportRemoved(XmAccessibility *a, XmAccessibleId id,
                                       XmAccessibleId parent, int index) {
   Transport *t = (Transport *)a->transport;
   DBusMessage *message;
   DBusMessageIter out;
+  Build build_state, *b = &build_state;
   if (!t)
     return;
   memo_remove(t, id);
@@ -1698,9 +1778,9 @@ void _XmAccessibilityTransportRemoved(XmAccessibility *a, XmAccessibleId id,
   message = dbus_message_new_signal(CACHEPATH, CACHE, "RemoveAccessible");
   if (!message)
     return;
-  dbus_message_iter_init_append(message, &out);
-  reference(&out, t, id);
-  send_reply(t, message);
+  build_init(b, message, &out);
+  reference(b, &out, t, id);
+  send_signal(t, b, message);
   if (parent) {
     char path[96];
     DBusMessageIter variant, array;
@@ -1709,22 +1789,23 @@ void _XmAccessibilityTransportRemoved(XmAccessibility *a, XmAccessibleId id,
     message = dbus_message_new_signal(path, "org.a11y.atspi.Event.Object", "ChildrenChanged");
     if (!message)
       return;
-    dbus_message_iter_init_append(message, &out);
-    string_value(&out, "remove");
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &position);
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &zero);
-    dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "(so)", &variant);
-    reference(&variant, t, id);
-    dbus_message_iter_close_container(&out, &variant);
-    dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-    dbus_message_iter_close_container(&out, &array);
-    send_reply(t, message);
+    build_init(b, message, &out);
+    string_value(b, &out, "remove");
+    build_basic(b, &out, DBUS_TYPE_INT32, &position);
+    build_basic(b, &out, DBUS_TYPE_INT32, &zero);
+    build_open(b, &out, DBUS_TYPE_VARIANT, "(so)", &variant);
+    reference(b, &variant, t, id);
+    build_close(b, &out, &variant);
+    build_open(b, &out, DBUS_TYPE_ARRAY, "{sv}", &array);
+    build_close(b, &out, &array);
+    send_signal(t, b, message);
   }
 }
 void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
   Transport *t = (Transport *)a->transport;
   DBusMessage *message;
   DBusMessageIter out, variant, array;
+  Build build_state, *b = &build_state;
   XmAccessibleInfo info;
   char path[96];
   dbus_int32_t first = 0, second = 0;
@@ -1761,26 +1842,26 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
         XmAccessibleInfoClear(&info);
         return;
       }
-      dbus_message_iter_init_append(message, &out);
-      if (cache_item(&out, t, id)) {
+      build_init(b, message, &out);
+      if (cache_item(b, &out, t, id)) {
         XmAccessibleNode *node = _XmAccessibilityNode(a, id);
-        send_reply(t, message);
+        send_signal(t, b, message);
         if (node && node->parent) {
           char parent_path[96];
           dbus_int32_t position = _XmAccessibilityIndexInParent(a, id);
           path_for(node->parent, parent_path, sizeof(parent_path));
           message = dbus_message_new_signal(parent_path, "org.a11y.atspi.Event.Object", "ChildrenChanged");
           if (message) {
-            dbus_message_iter_init_append(message, &out);
-            string_value(&out, "add");
-            dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &position);
-            dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-            dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "(so)", &variant);
-            reference(&variant, t, id);
-            dbus_message_iter_close_container(&out, &variant);
-            dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-            dbus_message_iter_close_container(&out, &array);
-            send_reply(t, message);
+            build_init(b, message, &out);
+            string_value(b, &out, "add");
+            build_basic(b, &out, DBUS_TYPE_INT32, &position);
+            build_basic(b, &out, DBUS_TYPE_INT32, &second);
+            build_open(b, &out, DBUS_TYPE_VARIANT, "(so)", &variant);
+            reference(b, &variant, t, id);
+            build_close(b, &out, &variant);
+            build_open(b, &out, DBUS_TYPE_ARRAY, "{sv}", &array);
+            build_close(b, &out, &array);
+            send_signal(t, b, message);
           }
         }
       } else dbus_message_unref(message);
@@ -1812,16 +1893,16 @@ void _XmAccessibilityTransportChanged(XmAccessibility *a, XmAccessibleId id) {
                                       "PropertyChange");
     if (!message)
       goto value_change;
-    dbus_message_iter_init_append(message, &out);
-    string_value(&out, detail);
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-    dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "s", &variant);
-    string_value(&variant, info.name);
-    dbus_message_iter_close_container(&out, &variant);
-    dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-    dbus_message_iter_close_container(&out, &array);
-    send_reply(t, message);
+    build_init(b, message, &out);
+    string_value(b, &out, detail);
+    build_basic(b, &out, DBUS_TYPE_INT32, &first);
+    build_basic(b, &out, DBUS_TYPE_INT32, &second);
+    build_open(b, &out, DBUS_TYPE_VARIANT, "s", &variant);
+    string_value(b, &variant, info.name);
+    build_close(b, &out, &variant);
+    build_open(b, &out, DBUS_TYPE_ARRAY, "{sv}", &array);
+    build_close(b, &out, &array);
+    send_signal(t, b, message);
   }
 value_change:
   if (value_changed) {
@@ -1829,17 +1910,17 @@ value_change:
                                       "PropertyChange");
     if (!message)
       goto changed_done;
-    dbus_message_iter_init_append(message, &out);
-    string_value(&out, "accessible-value");
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &first);
-    dbus_message_iter_append_basic(&out, DBUS_TYPE_INT32, &second);
-    dbus_message_iter_open_container(&out, DBUS_TYPE_VARIANT, "d", &variant);
-    dbus_message_iter_append_basic(&variant, DBUS_TYPE_DOUBLE,
+    build_init(b, message, &out);
+    string_value(b, &out, "accessible-value");
+    build_basic(b, &out, DBUS_TYPE_INT32, &first);
+    build_basic(b, &out, DBUS_TYPE_INT32, &second);
+    build_open(b, &out, DBUS_TYPE_VARIANT, "d", &variant);
+    build_basic(b, &variant, DBUS_TYPE_DOUBLE,
                                    &info.current_value);
-    dbus_message_iter_close_container(&out, &variant);
-    dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
-    dbus_message_iter_close_container(&out, &array);
-    send_reply(t, message);
+    build_close(b, &out, &variant);
+    build_open(b, &out, DBUS_TYPE_ARRAY, "{sv}", &array);
+    build_close(b, &out, &array);
+    send_signal(t, b, message);
     {
       const char *names[] = {"MinimumValue", "MaximumValue", "CurrentValue",
                              "MinimumIncrement", "Text"};
@@ -1849,25 +1930,25 @@ value_change:
                                         "PropertiesChanged");
       if (!message)
         goto changed_done;
-      dbus_message_iter_init_append(message, &out);
-      string_value(&out, VALUE);
-      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "{sv}", &array);
+      build_init(b, message, &out);
+      string_value(b, &out, VALUE);
+      build_open(b, &out, DBUS_TYPE_ARRAY, "{sv}", &array);
       for (k = 0; k < XtNumber(names); ++k) {
-        dbus_message_iter_open_container(&array, DBUS_TYPE_DICT_ENTRY, NULL,
+        build_open(b, &array, DBUS_TYPE_DICT_ENTRY, NULL,
                                          &entry);
-        string_value(&entry, names[k]);
-        dbus_message_iter_open_container(&entry, DBUS_TYPE_VARIANT,
+        string_value(b, &entry, names[k]);
+        build_open(b, &entry, DBUS_TYPE_VARIANT,
                                          property_signature(VALUE, names[k]),
                                          &variant);
-        property_value(&variant, t, _XmAccessibilityNode(a, id), &info, VALUE,
+        property_value(b, &variant, t, _XmAccessibilityNode(a, id), &info, VALUE,
                        names[k]);
-        dbus_message_iter_close_container(&entry, &variant);
-        dbus_message_iter_close_container(&array, &entry);
+        build_close(b, &entry, &variant);
+        build_close(b, &array, &entry);
       }
-      dbus_message_iter_close_container(&out, &array);
-      dbus_message_iter_open_container(&out, DBUS_TYPE_ARRAY, "s", &array);
-      dbus_message_iter_close_container(&out, &array);
-      send_reply(t, message);
+      build_close(b, &out, &array);
+      build_open(b, &out, DBUS_TYPE_ARRAY, "s", &array);
+      build_close(b, &out, &array);
+      send_signal(t, b, message);
       first = 0;
     }
   }

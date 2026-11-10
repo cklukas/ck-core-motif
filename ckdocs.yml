@@ -1294,6 +1294,7 @@ nav:
           - docs/accessibility-action-count-bounds.md
           - docs/accessibility-child-index-bounds.md
           - docs/accessibility-dbus-child-count.md
+          - docs/accessibility-dbus-reply-building.md
           - docs/accessibility-keysym-bits.md
           - docs/accessibility-memo-capacity-bounds.md
           - docs/accessibility-metadata-bounds.md

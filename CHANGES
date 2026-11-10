@@ -1,3 +1,16 @@
+Check every D-Bus message building step in the accessibility adapter (2026-11-10)
+===================================================================================
+
+- Replies and signals are built through a record of the first failure and of
+  the open containers: an append, open or close that fails no longer leaves a
+  truncated message or an operation on the iterator of a container that did not
+  open, open containers are abandoned innermost first, a method that cannot be
+  answered gets an out-of-memory error and a signal that cannot be completed is
+  not sent. The argument iterator of `Properties.Set` is checked step by step.
+- Test: `run-accessible-dbus-build.py` fails each building operation of the
+  adapter in turn under ASan and UBSan; the earlier code uses poisoned iterators
+  and sends incomplete replies.
+
 Expand message templates instead of formatting them (2026-11-10)
 ==================================================================
 
