@@ -1,3 +1,10 @@
+Honor XmRowActions logical side placement (2026-11-10)
+========================================================
+
+- Make `XmNrowActionsSide` position a revealed action group at its requested
+  logical start or end edge, including RTL mirroring, instead of always
+  placing it at the left edge; see docs/row-actions.md.
+
 Accept null Toolbar overflow labels (2026-11-10)
 =================================================
 

@@ -5,6 +5,7 @@
 #include <Xm/PushB.h>
 #include <Xm/VaSimpleP.h>
 #include <Xm/XmP.h>
+#include "XmI.h"
 #include <X11/keysym.h>
 #include <limits.h>
 #include <stdint.h>
@@ -101,10 +102,33 @@ static void preferred(Widget child, Dimension *width, Dimension *height) {
     *width = wanted.request_mode & CWWidth ? wanted.width : child->core.width;
     *height = wanted.request_mode & CWHeight ? wanted.height : child->core.height;
 }
+
+/* Side is logical rather than physical: the end edge follows the widget's
+ * layout direction, so a default END action strip stays at the trailing edge
+ * in both LTR and RTL layouts. */
+static Boolean at_start_edge(XmRowActionsWidget actions) {
+    Boolean start = actions->actions.side == XmROW_ACTIONS_SIDE_START;
+    if (XmDirectionMatchPartial(_XmGetLayoutDirection((Widget)actions),
+                                XmRIGHT_TO_LEFT, XmHORIZONTAL_MASK))
+        start = !start;
+    return start;
+}
+
 static void layout(XmRowActionsWidget actions) {
-    Cardinal i; long x = 0; Dimension width, height;
+    Cardinal i;
+    long x;
+    uint64_t total = 0;
+    Dimension width, height;
     if (actions->actions.initializing || actions->actions.laying_out) return;
     actions->actions.laying_out = True;
+    for (i = 0; i < actions->actions.item_count; ++i) {
+        preferred(actions->actions.items[i].button, &width, &height);
+        total = total > UINT64_MAX - width ? UINT64_MAX : total + width;
+    }
+    /* An oversized strip deliberately begins at zero so every child remains
+     * reachable through the existing clipping/scrolling parent policy. */
+    x = at_start_edge(actions) || total >= actions->core.width ? 0 :
+        (long)actions->core.width - (long)total;
     for (i = 0; i < actions->actions.item_count; ++i) {
         preferred(actions->actions.items[i].button, &width, &height);
         if (actions->actions.items[i].button != NULL)

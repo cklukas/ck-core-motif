@@ -21,6 +21,11 @@ Natural width calculation saturates at the X11 `Dimension` limit, so a large
 number of actions cannot wrap the accumulator on 32-bit builds and collapse
 the action strip to an incorrect width.
 
+`XmNrowActionsSide` selects the logical edge used when the strip is revealed.
+The default `XmROW_ACTIONS_SIDE_END` aligns the complete action group to the
+trailing edge; `XmROW_ACTIONS_SIDE_START` aligns it to the leading edge. These
+edges follow the widget layout direction, so the positions mirror in RTL.
+
 Accessibility exposes a revealed strip as a panel with one action per visible
 action button.  The installed fixture covers copied model ownership,
 reveal/hide, explicit dispatch, accessibility and preservation of a sibling

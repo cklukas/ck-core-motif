@@ -1,3 +1,4 @@
+#include <X11/IntrinsicP.h>
 #include <Xm/Accessible.h>
 #include <Xm/List.h>
 #include <Xm/RowActions.h>
@@ -29,7 +30,7 @@ static void invoked(Widget widget, XtPointer data, XtPointer call)
 int main(int argc, char **argv)
 {
     XtAppContext app;
-    Widget shell, row, list, actions;
+    Widget shell, row, list, actions, rtl_actions, first_action;
     XmString item, edit, remove, shortcut;
     XmRowActionItem items[2];
     int *positions = NULL, count = 0;
@@ -59,8 +60,13 @@ int main(int argc, char **argv)
     items[0] = (XmRowActionItem){"edit", edit, NULL, NULL};
     items[1] = (XmRowActionItem){"remove", remove, shortcut, NULL};
     actions = XmVaCreateManagedRowActions(row, (char *)"actions", NULL);
+    rtl_actions = XmVaCreateManagedRowActions(
+        row, (char *)"rtlActions", XmNrowActionsSide,
+        XmROW_ACTIONS_SIDE_START, XmNstringDirection,
+        XmSTRING_DIRECTION_R_TO_L, NULL);
     XtAddCallback(actions, XmNrowActionsInvokeCallback, invoked, &seen);
     XmRowActionsSetItems(actions, items, 2);
+    XmRowActionsSetItems(rtl_actions, items, 2);
     XmStringFree(edit);
     XmStringFree(remove);
     XmStringFree(shortcut);
@@ -74,7 +80,28 @@ int main(int argc, char **argv)
     XtFree((char *)positions);
 
     XmRowActionsReveal(actions, True);
+    XmRowActionsReveal(rtl_actions, True);
     CHECK(XmRowActionsIsRevealed(actions));
+    XtResizeWidget(actions, 360, 32, 0);
+    first_action = XtNameToWidget(actions, (char *)"action");
+    CHECK(first_action != NULL);
+    {
+        Position x;
+        XtVaGetValues(first_action, XmNx, &x, NULL);
+        CHECK(x > 0); /* Default logical END is trailing in LTR. */
+        XtVaSetValues(actions, XmNrowActionsSide, XmROW_ACTIONS_SIDE_START,
+                      NULL);
+        XtVaGetValues(first_action, XmNx, &x, NULL);
+        CHECK(x == 0);
+    }
+    XtResizeWidget(rtl_actions, 360, 32, 0);
+    first_action = XtNameToWidget(rtl_actions, (char *)"action");
+    CHECK(first_action != NULL);
+    {
+        Position x;
+        XtVaGetValues(first_action, XmNx, &x, NULL);
+        CHECK(x > 0); /* Logical START mirrors to physical right in RTL. */
+    }
     XmRowActionsInvoke(actions, 1, NULL);
     CHECK(seen && strcmp(seen, "remove") == 0);
     CHECK(XmListGetSelectedPos(list, &positions, &count) && count == 1 &&
