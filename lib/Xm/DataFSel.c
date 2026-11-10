@@ -440,7 +440,7 @@ HandleInsertTargets(
    _XmInsertSelect *insert_select = (_XmInsertSelect *) closure;
    Atom TEXT;
    Atom COMPOUND_TEXT;
-   Atom target = TEXT;
+   Atom target;
    Atom *atom_ptr;
    unsigned long i;
 
@@ -455,6 +455,7 @@ HandleInsertTargets(
 
    TEXT = XmInternAtom(XtDisplay(w), "TEXT", False);
    COMPOUND_TEXT = XmInternAtom(XtDisplay(w),"COMPOUND_TEXT", False);
+   target = TEXT;		/* when no better target is offered */
 
    atom_ptr = (Atom *)value;
 

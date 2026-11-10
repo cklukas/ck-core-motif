@@ -1,3 +1,12 @@
+Request TEXT when an inserted selection offers no better target (2026-11-10)
+============================================================================
+
+- `XmDataField` answered `INSERT_SELECTION` by asking the other client for a
+  target taken from an unset variable when the client offered neither
+  `COMPOUND_TEXT` nor `STRING`; it now falls back to `TEXT` as intended.
+- Test: `run-datafield-insert-target.py` serves the selection from a second
+  connection and checks the target that is requested.
+
 Rebuild the Xft colour cache (2026-11-10)
 ==========================================
 

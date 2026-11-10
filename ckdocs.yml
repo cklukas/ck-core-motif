@@ -370,6 +370,7 @@ nav:
       - title: datafield
         pages:
           - docs/datafield-state-accessors.md
+          - docs/datafield-insert-target.md
           - docs/datafield-mutator-inputs.md
           - docs/datafield-string-inputs.md
           - docs/datafield-selection-actions.md
