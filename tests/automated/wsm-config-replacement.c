@@ -63,6 +63,19 @@ main(void)
           "print missing WSM request safely");
     CHECK(strcmp(PrintReply(NULL), "Reply: <none>\n") == 0,
           "print missing WSM reply safely");
+    {
+        WSMRequest malformed_request = {0};
+        WSMReply malformed_reply = {0};
+
+        malformed_request.extensions.type = WSM_EXTENSIONS;
+        malformed_request.extensions.num_extensions = 1;
+        CHECK(strstr(PrintRequest(&malformed_request), "Extension Suggestions") != NULL,
+              "print missing WSM request array safely");
+        malformed_reply.config_format.type = WSM_CONFIG_FMT;
+        malformed_reply.config_format.num_global_formats = 1;
+        CHECK(strstr(PrintReply(&malformed_reply), "Global Formats - Number: 1") != NULL,
+              "print missing WSM reply array safely");
+    }
     display = XOpenDisplay(NULL);
     CHECK(display != NULL, "open display");
     screen = DefaultScreen(display);

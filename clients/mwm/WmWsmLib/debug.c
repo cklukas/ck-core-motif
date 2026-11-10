@@ -100,7 +100,8 @@ PrintRequest(WSMRequest *request)
     case WSM_CONNECT:
 	DebugAppend(str, &used, "Number of Versions: %d\nVersions: ",
 		request->connect.num_versions);
-	for (i = 0; i < request->connect.num_versions; i++) {
+	for (i = 0; request->connect.known_versions != NULL &&
+	     i < request->connect.num_versions; i++) {
 	    DebugAppend(str, &used, "%d", (int) request->connect.known_versions[i]);
 	    if ((i + 1) < request->connect.num_versions)
 		DebugAppend(str, &used, ", ");
@@ -111,8 +112,11 @@ PrintRequest(WSMRequest *request)
 	DebugAppend(str, &used, "Number of Extension Suggestions: %d\n%s",
 		request->extensions.num_extensions,
 		"Extension Suggestions:\n        ");
-	for (i = 0; i < request->extensions.num_extensions; i++) {
-	    DebugAppend(str, &used, "%s", request->extensions.extension_suggestions[i]);
+	for (i = 0; request->extensions.extension_suggestions != NULL &&
+	     i < request->extensions.num_extensions; i++) {
+	    DebugAppend(str, &used, "%s",
+			request->extensions.extension_suggestions[i] ?
+			request->extensions.extension_suggestions[i] : "<none>");
 	    if ((i + 1) < request->extensions.num_extensions)
 		DebugAppend(str, &used, ", ");
 	}
@@ -129,7 +133,8 @@ PrintRequest(WSMRequest *request)
     case WSM_SET_STATE:
 	DebugAppend(str, &used, "Number of Windows with Info: %d\n",
 		request->set_state.num_win_info_list);
-	for (i = 0; i < request->set_state.num_win_info_list; i++) {
+	for (i = 0; request->set_state.win_info_list != NULL &&
+	     i < request->set_state.num_win_info_list; i++) {
 	    PrintWindowInfo(str, &used, request->set_state.win_info_list + i);
 	}
 	break;
@@ -176,8 +181,10 @@ PrintReply(WSMReply *reply)
 	DebugAppend(str, &used, "Number of Extensions: %d\n%s",
 		reply->extensions.num_extensions,
 		"Extensions:\n        ");
-	for (i = 0; i < reply->extensions.num_extensions; i++) {
-	    DebugAppend(str, &used, "%s", reply->extensions.extensions[i]);
+	for (i = 0; reply->extensions.extensions != NULL &&
+	     i < reply->extensions.num_extensions; i++) {
+	    DebugAppend(str, &used, "%s", reply->extensions.extensions[i] ?
+			reply->extensions.extensions[i] : "<none>");
 	    if ((i + 1) < reply->extensions.num_extensions)
 		DebugAppend(str, &used, ", ");
 	}
@@ -189,7 +196,8 @@ PrintReply(WSMReply *reply)
     case WSM_GET_STATE:
 	DebugAppend(str, &used, "Number of Windows with Info: %d\n",
 		reply->get_state.num_win_info_list);
-	for (i = 0; i < reply->get_state.num_win_info_list; i++) {
+	for (i = 0; reply->get_state.win_info_list != NULL &&
+	     i < reply->get_state.num_win_info_list; i++) {
 	    PrintWindowInfo(str, &used, reply->get_state.win_info_list + i);
 	}
 	break;
@@ -202,7 +210,7 @@ PrintReply(WSMReply *reply)
 	    WSMWinData *win_data = reply->register_window.window_data;
 
 	    DebugAppend(str, &used, "Number of Data Attributes: %d\n", num);
-	    for (i = 0; i < num; i++, win_data++) {
+	    for (i = 0; win_data != NULL && i < num; i++, win_data++) {
 		PrintWindowData(str, "", &used, win_data);
 	    }
 	}
@@ -245,7 +253,7 @@ PrintWindowInfo(
     DebugAppend(str, used, "Window: 0x%lX\nNumber of Data Attributes: %d\n",
 		win_info->window, num);
 
-    for (i = 0; i < num; i++, win_data++)
+    for (i = 0; win_data != NULL && i < num; i++, win_data++)
 	PrintWindowData(str, "       ", used, win_data);
 }
 
@@ -359,7 +367,7 @@ PrintConfigFormat(
 	    break;
 	}
 
-	for (j = 0; j < num; j++)
+	for (j = 0; fmt != NULL && j < num; j++)
 	    DebugAppend(str, used, "        Name: %s, Size: %d, Is_List: %s\n",
 			XrmQuarkToString(fmt[j].nameq), (int) fmt[j].size,
 			fmt[j].is_list ? "True" : "False");
