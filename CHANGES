@@ -1,3 +1,10 @@
+Make XmInfoBar dismissal visible (2026-11-10)
+==============================================
+
+- Make `XmInfoBarDismiss` unmanage the banner before sending its dismissal
+  notification, so Escape and the close control actually remove an inline
+  banner when an application has no custom hide callback; see docs/info-bar.md.
+
 Remove unreachable XmRowActions allocation check (2026-11-10)
 =============================================================
 
