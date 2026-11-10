@@ -1,3 +1,10 @@
+Validate MWM client workspace aggregation inputs (2026-11-10)
+=============================================================
+
+- Check a session client's `ClientData` pointer before reading its screen in
+  workspace-name aggregation, preventing a null-client dereference during
+  session handling; see docs/mwm-client-workspace-inputs.md.
+
 Remove an unreachable optimized XmString null check (2026-11-10)
 ================================================================
 

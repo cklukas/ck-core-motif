@@ -618,7 +618,7 @@ freeNewRestartCmd(char **restartCmd)
 static char *
 getClientWorkspaces(ClientData *pCD)
 {
-    WmScreenData *pSD = pCD->pSD;
+    WmScreenData *pSD;
     WmWorkspaceData *pWS;
 
     /* Should we use _DtWmParseMakeQuotedString() when looking at */
@@ -632,7 +632,11 @@ getClientWorkspaces(ClientData *pCD)
     size_t nameLength;
     int i;
 
-    if (pCD == NULL || pSD == NULL || pCD->numInhabited <= 0 ||
+    if (pCD == NULL)
+	return NULL;
+
+    pSD = pCD->pSD;
+    if (pSD == NULL || pCD->numInhabited <= 0 ||
 	pCD->pWsList == NULL)
 	return NULL;
 
