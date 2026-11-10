@@ -8,7 +8,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "Calendar.c").read_text(
 )
 start = source.index("static void Events(Widget widget")
 body = source[start:]
-guard = "if (widget == NULL || event == NULL || !XmIsCalendar(widget)) return;"
+guard = "if (widget == NULL || event == NULL || !XmIsCalendar(widget) ||\n        widget->core.being_destroyed || !XtIsSensitive(widget)) return;"
 assert guard in body
 assert body.index(guard) < body.index("event->type")
 print("PASS Calendar event callbacks validate widget and event inputs")

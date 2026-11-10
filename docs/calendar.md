@@ -27,6 +27,8 @@ clamping the day to the target month, and Home/End select the first/last day of
 the current month.  Return activates the current date.  Pointer activation
 selects a day and a second activation invokes the activate callback.  Dates
 outside the inclusive range remain visible but are not selectable.
+Keyboard and pointer input is inactive while the Calendar or an ancestor is
+insensitive; applications may still set its value programmatically.
 
 `XmNcalendarDateChangedCallback` and `XmNcalendarActivateCallback` receive an
 `XmCalendarCallbackStruct`.  Callback code may destroy the widget; the widget

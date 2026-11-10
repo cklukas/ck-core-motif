@@ -460,7 +460,8 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     char buffer[8];
     int col, row, first, offset, position, day;
     (void)closure; (void)continue_dispatch;
-    if (widget == NULL || event == NULL || !XmIsCalendar(widget)) return;
+    if (widget == NULL || event == NULL || !XmIsCalendar(widget) ||
+        widget->core.being_destroyed || !XtIsSensitive(widget)) return;
     if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == KeyPress) {
         XLookupString(&event->xkey, buffer, sizeof(buffer), &key, NULL);

@@ -20,6 +20,20 @@ static void activated(Widget widget, XtPointer closure, XtPointer call_data) {
     ++activations;
 }
 
+static void click(Widget widget, int x, int y) {
+    XEvent event = {0};
+    Position root_x, root_y;
+    event.xbutton.type = ButtonPress;
+    event.xbutton.display = XtDisplay(widget);
+    event.xbutton.window = XtWindow(widget);
+    event.xbutton.root = RootWindowOfScreen(XtScreen(widget));
+    XtTranslateCoords(widget, x, y, &root_x, &root_y);
+    event.xbutton.x = x; event.xbutton.y = y;
+    event.xbutton.x_root = root_x; event.xbutton.y_root = root_y;
+    event.xbutton.button = Button1; event.xbutton.same_screen = True;
+    XtDispatchEvent(&event);
+}
+
 int main(int argc, char **argv) {
     XtAppContext app;
     Widget shell, calendar;
@@ -59,6 +73,14 @@ int main(int argc, char **argv) {
     assert(changes == 2);
 
     XtRealizeWidget(shell);
+    XtSetSensitive(calendar, False);
+    click(calendar, 208, 139); /* March 30, classic grid row 4/column 6. */
+    assert(XmCalendarGetDate(calendar, &date));
+    assert(date.year == 2024 && date.month == 3 && date.day == 31);
+    XtSetSensitive(calendar, True);
+    click(calendar, 208, 139);
+    assert(XmCalendarGetDate(calendar, &date));
+    assert(date.year == 2024 && date.month == 3 && date.day == 30);
     accessibility = XmAccessibilityCreate(shell, "CalendarFixture");
     assert(accessibility != NULL);
     accessible_id = XmAccessibilityWidget(accessibility, calendar);
