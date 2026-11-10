@@ -1,3 +1,11 @@
+Keep unrealized DialogShell placement deterministic (2026-11-10)
+===============================================================
+
+- Retain DialogShell's calculated centered coordinates when its parent has not
+  been realized.  Previously the default-position path read uninitialized
+  coordinate-translation outputs in that case; see
+  docs/dialogshell-im-geometry.md.
+
 Reserve UTF-8 mnemonic drawing storage (2026-11-10)
 ====================================================
 

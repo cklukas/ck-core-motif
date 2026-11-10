@@ -405,12 +405,14 @@ GetDefaultPosition(
     /* 
      * find root co-ords of the parent's center
      */
-    if (XtIsRealized (parent))
-      XtTranslateCoords(parent, dialog_bounded_position(x),
-                        dialog_bounded_position(y),
-                        &translated_x, &translated_y);
-      x = translated_x;
-      y = translated_y;
+    if (XtIsRealized(parent))
+    {
+        XtTranslateCoords(parent, dialog_bounded_position(x),
+                          dialog_bounded_position(y),
+                          &translated_x, &translated_y);
+        x = translated_x;
+        y = translated_y;
+    }
     
     /*
      * try to keep the popup from dribbling off the display

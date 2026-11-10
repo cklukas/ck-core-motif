@@ -22,4 +22,17 @@ for fragment in (
 ):
     assert fragment in source, fragment
 
-print("DialogShell input-method geometry stays within Dimension bounds")
+position_start = source.index("static void \nGetDefaultPosition")
+position_end = source.index("\n\n/*", position_start)
+position = source[position_start:position_end]
+realized_block = """if (XtIsRealized(parent))
+    {
+        XtTranslateCoords(parent, dialog_bounded_position(x),
+                          dialog_bounded_position(y),
+                          &translated_x, &translated_y);
+        x = translated_x;
+        y = translated_y;
+    }"""
+assert realized_block in position
+
+print("DialogShell input-method geometry and unrealized-parent placement are safe")
