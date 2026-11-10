@@ -4351,6 +4351,11 @@ _XmStringDrawSegment(Display *d,
   text_type = _XmEntryTextTypeGet((_XmStringEntry)seg);
   
   seg_len = _XmEntryByteCountGet((_XmStringEntry)seg);
+  /* Xlib and Xft drawing interfaces take a signed int length.  Do not let
+   * an internal unsigned segment length wrap negative at that boundary, or
+   * overflow the signed loop counters used by the RTL path below. */
+  if (seg_len > (unsigned int)INT_MAX)
+    return;
   if (seg_len  > 0)
     {
       multibyte = (((text_type ==  XmMULTIBYTE_TEXT) ||

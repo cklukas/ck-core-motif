@@ -659,6 +659,7 @@ EXTRA_DIST += tests/automated/check-datafield-multibyte-scratch.py docs/datafiel
 EXTRA_DIST += tests/automated/check-datafield-mblen-progress.py docs/datafield-mblen-progress.md
 
 EXTRA_DIST += tests/automated/check-xmstring-wide-conversion-bounds.py docs/xmstring-wide-conversion-bounds.md
+EXTRA_DIST += tests/automated/check-xmstring-draw-length-bounds.py docs/xmstring-draw-length-bounds.md
 
 EXTRA_DIST += tests/automated/check-modern-dark-profile.c tests/automated/run-modern-dark-profile.py docs/modern-dark-profile.md
 

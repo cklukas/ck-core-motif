@@ -1,3 +1,10 @@
+Bound Compound String draw lengths (2026-11-10)
+================================================
+
+- Reject an internal Compound String segment larger than `INT_MAX` before
+  passing its unsigned byte count to signed Xlib/Xft draw interfaces or RTL
+  loop counters; see docs/xmstring-draw-length-bounds.md.
+
 Harden WSM diagnostic quark formatting (2026-11-10)
 =====================================================
 
