@@ -8595,12 +8595,12 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
     unsigned char *string;
     unsigned char *allocated_string;
     char *pch;
-    char *new_pch;
     WmActionArg *pAP;
     DtActionArg *new_aap;
     size_t argument_length;
     int new_arg_size;
     int iArgSz;
+    Boolean parse_failed = False;
 
     pAP = XtNew (WmActionArg);
     if (pAP == NULL)
@@ -8631,111 +8631,86 @@ Boolean ParseWmFuncActionArg (unsigned char **linePP,
 	return FALSE;
     }
 
-    /* Get action arguments, if any. */
-    pAP->aap = (DtActionArg *)
-	XtMalloc (WM_ACTION_ARG_INCREMENT * sizeof (DtActionArg));
-	if (pAP->aap != NULL)
+    /* Get action arguments, if any.  Allocate the array only after the
+     * first argument is known, so a valid action without arguments carries
+     * no needless allocation requirement. */
+    iArgSz = 0;
+    while ((allocated_string = GetString (linePP)) != NULL)
+    {
+	string = allocated_string;
+	if (string[0] == '$')
 	{
-	    iArgSz = WM_ACTION_ARG_INCREMENT;
-
-	    while ((allocated_string = GetString (linePP)) != NULL)
+	    string = (unsigned char *)getenv((char *)&string[1]);
+	    if (string == NULL)
 	    {
-	       string = allocated_string;
-	       argument_length = strlen((char *)string);
-	       if (argument_length > UINT_MAX - 1)
-	       {
-		   XtFree((char *)allocated_string);
-		   break;
-	       }
-	       if (pAP->aap[pAP->numArgs].u.file.name = (char *)
-		       XtMalloc((Cardinal)(argument_length + 1)))
-	       {
-		   pAP->aap[pAP->numArgs].argClass = DtACTION_FILE;
-
-		   /* format the action argument */
-		   pch = pAP->aap[pAP->numArgs].u.file.name;
-
-		   /* 
-		    * Expand environment variable
-		    */
-		   if (string[0] == '$')
-		   {
-		       string = (unsigned char *) getenv ((char *)&string[1]);
-		       if (!string)
-		       {
-			   XtFree(pch);
-			   pAP->aap[pAP->numArgs].u.file.name = NULL;
-			   XtFree((char *)allocated_string);
-			   break;
-		       }
-		       else
-		       {
-			   /*
-			    * Make sure there's room for the new
-			    * string.
-			    */
-			   argument_length = strlen((char *)string);
-			   if (argument_length > UINT_MAX - 1)
-			   {
-			       XtFree(pch);
-			       pAP->aap[pAP->numArgs].u.file.name = NULL;
-			       XtFree((char *)allocated_string);
-			       break;
-			   }
-			   new_pch = (char *)
-			     XtRealloc (pch, (Cardinal)(argument_length + 1));
-			   if (new_pch == NULL)
-			   {
-			       XtFree(pch);
-			       pAP->aap[pAP->numArgs].u.file.name = NULL;
-			       XtFree((char *)allocated_string);
-			       break;
-			   }
-			   pch = new_pch;
-			   pAP->aap[pAP->numArgs].u.file.name = pch;
-		       }
-		   }
-
-		   /* !!! No host name processing is done!!! */
-
-		   strcpy (pch, (char *)string);
-		   XtFree((char *)allocated_string);
-
-		   pAP->numArgs++;
-		   if (pAP->numArgs == iArgSz)
-		   {
-		       /* need to increase our array space */
-		       if (iArgSz > INT_MAX - WM_ACTION_ARG_INCREMENT)
-			   break;
-		       new_arg_size = iArgSz + WM_ACTION_ARG_INCREMENT;
-		       if ((size_t)new_arg_size > SIZE_MAX / sizeof(DtActionArg) ||
-			   (size_t)new_arg_size > UINT_MAX / sizeof(DtActionArg))
-			   break;
-		       new_aap = (DtActionArg *)
-			   XtRealloc((char *)pAP->aap,
-			             (size_t)new_arg_size * sizeof (DtActionArg));
-		       if (new_aap == NULL)
-		       {
-			   break; /* out of memory */
-		       }
-		       pAP->aap = new_aap;
-		       iArgSz = new_arg_size;
-		   }
-	       }
-	       else
-	       {
-		   break; /* out of memory */
-	       }
+		XtFree((char *)allocated_string);
+		parse_failed = True;
+		break;
 	    }
-
 	}
-	else
+	argument_length = strlen((char *)string);
+	if (argument_length > UINT_MAX - 1)
 	{
-	    XtFree((char *)pAP->actionName);
-	    XtFree((char *)pAP);
-	    *pArgs = NULL;
-	    return FALSE;
+	    XtFree((char *)allocated_string);
+	    parse_failed = True;
+	    break;
 	}
+	if (pAP->numArgs == iArgSz)
+	{
+	    if (iArgSz > INT_MAX - WM_ACTION_ARG_INCREMENT)
+	    {
+		XtFree((char *)allocated_string);
+		parse_failed = True;
+		break;
+	    }
+	    new_arg_size = iArgSz + WM_ACTION_ARG_INCREMENT;
+	    if ((size_t)new_arg_size > SIZE_MAX / sizeof(DtActionArg) ||
+		(size_t)new_arg_size > UINT_MAX / sizeof(DtActionArg))
+	    {
+		XtFree((char *)allocated_string);
+		parse_failed = True;
+		break;
+	    }
+	    if (pAP->aap == NULL)
+		new_aap = (DtActionArg *)XtMalloc(
+		    (Cardinal)((size_t)new_arg_size * sizeof(DtActionArg)));
+	    else
+		new_aap = (DtActionArg *)XtRealloc((char *)pAP->aap,
+		    (Cardinal)((size_t)new_arg_size * sizeof(DtActionArg)));
+	    if (new_aap == NULL)
+	    {
+		XtFree((char *)allocated_string);
+		parse_failed = True;
+		break;
+	    }
+	    pAP->aap = new_aap;
+	    iArgSz = new_arg_size;
+	}
+	pch = (char *)XtMalloc((Cardinal)(argument_length + 1));
+	if (pch == NULL)
+	{
+	    XtFree((char *)allocated_string);
+	    parse_failed = True;
+	    break;
+	}
+
+	/* No host-name processing is done here. */
+	strcpy(pch, (char *)string);
+	XtFree((char *)allocated_string);
+	pAP->aap[pAP->numArgs].argClass = DtACTION_FILE;
+	pAP->aap[pAP->numArgs].u.file.name = pch;
+	pAP->numArgs++;
+    }
+    if (parse_failed)
+    {
+	while (pAP->numArgs > 0)
+	    XtFree((char *)pAP->aap[--(pAP->numArgs)].u.file.name);
+	XtFree((char *)pAP->aap);
+	XtFree((char *)pAP->actionName);
+	XtFree((char *)pAP);
+	*pArgs = NULL;
+	return FALSE;
+    }
 	*pArgs = (String) pAP;
 
     return (TRUE);

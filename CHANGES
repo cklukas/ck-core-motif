@@ -1,3 +1,12 @@
+Keep MWM action descriptors atomic on parse failure (2026-11-10)
+===============================================================
+
+- Defer `f.action` argument-array allocation until an argument exists, and
+  discard a partial descriptor if environment expansion, allocation, or vector
+  growth fails.  MWM now reports conversion failure instead of launching an
+  action with a silently shortened argument list; see
+  docs/mwm-action-argument-failures.md.
+
 Keep UIL loader and diagnostic contracts current (2026-11-10)
 ==============================================================
 
