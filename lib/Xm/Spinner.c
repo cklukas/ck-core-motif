@@ -318,7 +318,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
     if (old->spinner.interval != spinner->spinner.interval ||
         old->primitive.foreground != spinner->primitive.foreground ||
         old->core.background_pixel != spinner->core.background_pixel ||
-        old->primitive.highlighted != spinner->primitive.highlighted)
+        old->primitive.highlighted != spinner->primitive.highlighted ||
+        XmPrim_layout_direction(old) != XmPrim_layout_direction(spinner))
         redraw = True;
     if (old->spinner.spacing != spinner->spinner.spacing) redraw = True;
     if (redraw || geometry_changed) {

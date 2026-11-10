@@ -1,3 +1,9 @@
+Repaint ring controls after direction changes (2026-11-10)
+==========================================================
+
+- Refresh Spinner and Progress Ring after live layout-direction updates so
+  their mirrored ring/label arrangement does not remain stale.
+
 Update inline banner direction changes live (2026-11-10)
 =========================================================
 

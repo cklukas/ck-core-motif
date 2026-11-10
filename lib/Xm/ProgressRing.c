@@ -357,6 +357,7 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         old->primitive.highlighted != ring->primitive.highlighted)
         redraw = True;
     if (old->progress_ring.spacing != ring->progress_ring.spacing) redraw = True;
+    if (XmPrim_layout_direction(old) != XmPrim_layout_direction(ring)) redraw = True;
     if (redraw) {
         Dimension width, height;
         double scale = 1.0;
