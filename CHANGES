@@ -6,6 +6,14 @@ Clarify Container and Notebook control flow (2026-11-10)
   established behavior while removing ambiguous indentation from strict builds;
   see docs/container-notebook-control-flow.md.
 
+Remove discarded Container local state (2026-11-10)
+====================================================
+
+- Remove unused Container locals while retaining the geometry request whose
+  result is intentionally ignored; strict unused-local diagnostics now remain
+  clean for the affected translation unit.  See
+  docs/container-notebook-control-flow.md.
+
 Guard MWM XSMP helper boundaries (2026-11-10)
 ==============================================
 

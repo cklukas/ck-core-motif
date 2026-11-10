@@ -2826,7 +2826,6 @@ ChangeManaged(
 {
     XmContainerWidget   cw = (XmContainerWidget)wid;
     int                 i;
-    Boolean             outline_ready = True;
     Widget              cwid;
     XmContainerConstraint c;
 
@@ -3538,7 +3537,6 @@ TestFitItem(
     if (CtrSpatialStyleIsNONE(cw))
       {
 	XtWidgetGeometry child_req;
-	XtGeometryResult result;
 
 	/* If we don't need to resize,  just return */
 	if ((XtWidth(cw) >= (x + XtWidth(cwid) + cw -> container.margin_w)) &&
@@ -3551,7 +3549,7 @@ TestFitItem(
 	child_req.y = y;
 
 	/* Make the request,  but always allow the drop */
-	result = _XmMakeGeometryRequest(cwid, &child_req);
+	(void)_XmMakeGeometryRequest(cwid, &child_req);
       }
     return(True);
 }
@@ -9583,7 +9581,6 @@ GetPrevTraversalWidget(
 {
     CwidNode	child_node;
     CwidNode	prev_node;
-    CwidNode	last_node;
     XmContainerConstraint c;
 
     if (cw == NULL || child == NULL)
