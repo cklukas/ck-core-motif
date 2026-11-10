@@ -66,6 +66,8 @@ main(void)
     {
         WSMRequest malformed_request = {0};
         WSMReply malformed_reply = {0};
+        WSMWinInfo malformed_info = {0};
+        WSMWinData malformed_data = {0};
 
         malformed_request.extensions.type = WSM_EXTENSIONS;
         malformed_request.extensions.num_extensions = 1;
@@ -75,6 +77,15 @@ main(void)
         malformed_reply.config_format.num_global_formats = 1;
         CHECK(strstr(PrintReply(&malformed_reply), "Global Formats - Number: 1") != NULL,
               "print missing WSM reply array safely");
+        malformed_data.type = WSM_CHAR_LIST_DATA;
+        malformed_data.data_len = 1;
+        malformed_info.num_data_list = 1;
+        malformed_info.data_list = &malformed_data;
+        malformed_request.set_state.type = WSM_SET_STATE;
+        malformed_request.set_state.num_win_info_list = 1;
+        malformed_request.set_state.win_info_list = &malformed_info;
+        CHECK(strstr(PrintRequest(&malformed_request), "<missing payload>") != NULL,
+              "print missing WSM list payload safely");
     }
     display = XOpenDisplay(NULL);
     CHECK(display != NULL, "open display");

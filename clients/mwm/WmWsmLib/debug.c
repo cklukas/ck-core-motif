@@ -300,6 +300,16 @@ PrintWindowData(
 		XrmQuarkToString(win_data->nameq), type_str,
 		win_data->data_len, tab_str, "        ");
 
+    if ((win_data->type == WSM_CHAR_LIST_DATA &&
+	 win_data->data.char_ptr == NULL) ||
+	(win_data->type == WSM_SHORT_LIST_DATA &&
+	 win_data->data.short_ptr == NULL) ||
+	(win_data->type == WSM_LONG_LIST_DATA &&
+	 win_data->data.long_ptr == NULL)) {
+	DebugAppend(str, used, "<missing payload>\n");
+	return;
+    }
+
     for (i = 0; i < win_data->data_len; i++) {
 	switch(win_data->type) {
 	case WSM_CHAR_LIST_DATA:
