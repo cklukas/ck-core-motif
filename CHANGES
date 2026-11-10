@@ -1,3 +1,11 @@
+Keep UIL loader and diagnostic contracts current (2026-11-10)
+==============================================================
+
+- Update focused UIL regression checks and maintenance notes for the existing
+  computed integer-table byte count and dynamically sized URM diagnostic
+  output.  The checks now assert the current bounded implementations instead
+  of obsolete source spellings.
+
 Keep Mrm hardened-contract checks current (2026-11-10)
 =======================================================
 
