@@ -24,6 +24,12 @@ Validate WSM packer entry inputs (2026-11-10)
 - Report malformed WSM request packing failures as `WSM_ERROR_INTERNAL` rather
   than returning a null message with a stale success status.
 
+Validate WSM display metadata inputs (2026-11-10)
+==================================================
+
+- Reject a null display before WSM metadata lookup passes it to Xlib; see
+  docs/wsm-display-inputs.md.
+
 Validate MWM client workspace aggregation inputs (2026-11-10)
 =============================================================
 

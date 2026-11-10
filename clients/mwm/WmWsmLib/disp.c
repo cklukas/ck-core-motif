@@ -59,6 +59,9 @@ _WSMGetDispInfo(Display *dpy)
     WSMDispInfo *parent_disp_info = NULL;
     Atom atoms[XtNumber(atom_names)];
 
+    if (dpy == NULL)
+	return(NULL);
+
     if (GDispInfo == NULL) {
 	disp_info = GDispInfo = (WSMDispInfo *) XtMalloc(sizeof(WSMDispInfo));
 	if (disp_info == NULL) {
