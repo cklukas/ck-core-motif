@@ -172,9 +172,9 @@ static void activated(Widget child,XtPointer closure,XtPointer data) {
 }
 static void Events(Widget child,XtPointer closure,XEvent *event,Boolean *dispatch) {
     XmStepperWidget s=(XmStepperWidget)closure;(void)child;
-    if(!s || !XmIsStepper((Widget)s) || s->core.being_destroyed || !event || event->type!=KeyPress || !XtIsSensitive((Widget)s))return;
+    if(!s || !XmIsStepper((Widget)s) || s->core.being_destroyed || !event || event->type!=KeyPress || !XtIsSensitive((Widget)s) || !XtIsSensitive(child))return;
     KeySym key=XLookupKeysym(&event->xkey,0);int direction=0;Boolean rtl;
-    rtl=XmDirectionMatch(XmPrim_layout_direction(s),XmRIGHT_TO_LEFT);
+    rtl=XmDirectionMatch(s->manager.string_direction,XmRIGHT_TO_LEFT);
     if(key==XK_Up || (key==XK_Right&&!rtl) || (key==XK_Left&&rtl))direction=1;
     else if(key==XK_Down || (key==XK_Left&&!rtl) || (key==XK_Right&&rtl))direction=-1;
     if(direction){*dispatch=False;step(s,direction,True,event);}

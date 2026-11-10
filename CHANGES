@@ -1,3 +1,11 @@
+Honor disabled Stepper child input (2026-11-10)
+==================================================
+
+- Keep a focused disabled Stepper endpoint from changing the value through its
+  shared keyboard handler.
+- Read the Stepper Manager layout direction for RTL keyboard mapping instead
+  of the inapplicable Primitive accessor.
+
 Honor disabled DataGrid input (2026-11-10)
 ============================================
 

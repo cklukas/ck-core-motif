@@ -9,7 +9,8 @@ clicking the value does not change it. Dragging outside cancels the click, and
 losing effective sensitivity cancels a pending gesture. Up/Right increment and
 Down/Left decrement while either button has keyboard focus; in right-to-left
 layouts Left/Right follow the mirrored button order. Space and Return retain
-the native button activation behavior.
+the native button activation behavior. A disabled endpoint button ignores its
+keyboard input, even if it retained focus while its range changed.
 
 The signed-integer contract uses inclusive bounds, a positive step, clamping and
 optional wrapping. Without wrapping, the unavailable endpoint button is disabled;
