@@ -16,6 +16,9 @@ to the screen.  `XmNdatePickerDateChangedCallback` is delivered after the
 popup has closed; callback code may destroy the picker.  `XmNdatePickerOpenChangedCallback`
 reports popup open/close transitions.
 
+The popup Calendar follows the DatePicker's layout direction and updates with
+a live `XmNlayoutDirection` change, including Calendar day-column mirroring.
+
 The compact field uses an unambiguous `YYYY-MM-DD` representation.  Locale
 formatting and time-zone interpretation are intentionally outside this
 date-only control and are separate work.

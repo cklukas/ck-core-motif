@@ -132,8 +132,12 @@ static void create_popup(XmDatePickerWidget picker) {
         return;
     XtAddCallback(picker->date_picker.popup_shell, XtNdestroyCallback,
                   popup_destroyed, (XtPointer)picker);
+    XtSetArg(args[0], XmNlayoutDirection, XmPrim_layout_direction(picker));
+    XtSetArg(args[1], XmNcalendarRtl,
+             XmDirectionMatchPartial(XmPrim_layout_direction(picker),
+                                     XmRIGHT_TO_LEFT, XmHORIZONTAL_MASK));
     picker->date_picker.calendar = XmCreateCalendar(
-        picker->date_picker.popup_shell, (char *)"calendar", NULL, 0);
+        picker->date_picker.popup_shell, (char *)"calendar", args, 2);
     if (!picker->date_picker.calendar) {
         XtDestroyWidget(picker->date_picker.popup_shell);
         picker->date_picker.popup_shell = NULL;
@@ -254,6 +258,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     XmDatePickerWidget picker = (XmDatePickerWidget)new_widget;
     XmDatePickerDate calendar_date;
     Boolean render_changed = old->date_picker.render_table != picker->date_picker.render_table;
+    Boolean direction_changed = old->primitive.layout_direction !=
+                                picker->primitive.layout_direction;
     Boolean colors_changed = old->primitive.foreground != picker->primitive.foreground ||
                              old->core.background_pixel != picker->core.background_pixel;
     (void)request; (void)args; (void)count;
@@ -275,6 +281,14 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
                                 &picker->date_picker.date, False)))
             picker->date_picker.date = old->date_picker.date;
     }
+    if (direction_changed && picker->date_picker.calendar != NULL)
+        XtVaSetValues(picker->date_picker.calendar,
+                      XmNlayoutDirection, XmPrim_layout_direction(picker),
+                      XmNcalendarRtl,
+                      XmDirectionMatchPartial(XmPrim_layout_direction(picker),
+                                              XmRIGHT_TO_LEFT,
+                                              XmHORIZONTAL_MASK),
+                      NULL);
     if (render_changed) {
         XmFontList replacement = picker->date_picker.render_table
             ? XmFontListCopy(picker->date_picker.render_table)
@@ -290,7 +304,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     }
     return colors_changed || old->date_picker.date.year != picker->date_picker.date.year ||
            old->date_picker.date.month != picker->date_picker.date.month ||
-           old->date_picker.date.day != picker->date_picker.date.day || render_changed;
+           old->date_picker.date.day != picker->date_picker.date.day || render_changed ||
+           direction_changed;
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {
