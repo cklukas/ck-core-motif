@@ -314,8 +314,15 @@ Idb__INX_FindIndex (IDBFile			file_id,
 	  }
 	break ;
       default:
-	*buffer_return = NULL;
-	*index_return = 0;
+	/*
+	 * An entry of an interior node matches exactly: the node is the
+	 * record that holds the entry.  Only a failed search has no record.
+	 */
+	if (result != MrmSUCCESS)
+	  {
+	    *buffer_return = NULL;
+	    *index_return = 0;
+	  }
 	return result ;
       }
   } while ( TRUE ) ;

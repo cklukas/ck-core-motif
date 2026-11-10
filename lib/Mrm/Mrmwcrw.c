@@ -109,27 +109,36 @@ UrmWidgetStringValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset)
                 widgetrec->size - offset) != NULL;
 }
 
+/* A resource descriptor at `offset' in a buffer of `size' bytes that starts at
+ * `base': it must lie inside the buffer and, for an index key, end inside it. */
 static Boolean
-UrmResourceRecordValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset)
+UrmResourceDescValid(const char *base, size_t size, size_t offset)
 {
   size_t key_offset = offsetof(RGMResourceDesc, key);
   size_t available;
-  RGMResourceDescPtr resptr;
+  const RGMResourceDesc *resptr;
 
-  if (offset < RGMWidgetRecordHdrSize || offset >= widgetrec->size ||
-      widgetrec->size - offset < key_offset + 1)
+  if (offset >= size || size - offset < key_offset + 1)
     return False;
-  available = widgetrec->size - offset;
-  resptr = (RGMResourceDescPtr)((char *)widgetrec + offset);
+  available = size - offset;
+  resptr = (const RGMResourceDesc *)(base + offset);
   if (resptr->size < key_offset + 1 || resptr->size > available)
     return False;
   if (resptr->type == URMrRID && resptr->size < sizeof(RGMResourceDesc))
     return False;
   if (resptr->type == URMrIndex &&
-      memchr((char *)resptr + key_offset, '\0',
+      memchr((const char *)resptr + key_offset, '\0',
              resptr->size - key_offset) == NULL)
     return False;
   return True;
+}
+
+static Boolean
+UrmResourceRecordValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset)
+{
+  if (offset < RGMWidgetRecordHdrSize)
+    return False;
+  return UrmResourceDescValid((const char *)widgetrec, widgetrec->size, offset);
 }
 
 static Boolean
@@ -1407,6 +1416,14 @@ Urm__CW_CreateArglist (Widget			parent,
         continue;
 
       /*
+       * These values are C strings inside the record: they must end inside it.
+       */
+      if ((reptype == MrmRtypeChar8 || reptype == MrmRtypeTransTable ||
+           reptype == MrmRtypeClassRecName || reptype == MrmRtypeKeysym) &&
+          !UrmWidgetStringValid(widgetrec, argptr->arg_val.datum.offset))
+        continue;
+
+      /*
        * Create the value. Some representation types and arguments require
        * special handling. First, the immediate value or pointer is evaluated.
        * then special handling is done. If no special handling is required, then
@@ -1761,6 +1778,7 @@ Urm__CW_CreateArglist (Widget			parent,
 	    }
 	  icon = (RGMIconImagePtr) val ;
 	  result = Urm__CW_LoadIconImage (icon, (XtPointer)widgetrec,
+					  widgetrec->size,
 					  hierarchy_id, file_id, ctxlist) ;
 	  if ( result != MrmSUCCESS ) continue ;
 	  savepix = &pixargs[pixargs_cnt] ;
@@ -3549,7 +3567,8 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
       break;
     case MrmRtypeIconImage:
       result = Urm__CW_LoadIconImage ((RGMIconImagePtr)*val,
-				      (XtPointer)*val, hierarchy_id, 
+				      (XtPointer)*val, (size_t)*vec_size,
+				      hierarchy_id, 
 				      *act_file_id, ctxlist) ;
       if ( result != MrmSUCCESS ) return result ;
       break ;
@@ -3596,6 +3615,7 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
 Cardinal 
 Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
 		       XtPointer		bufptr ,
+		       size_t			bufsize ,
 		       MrmHierarchy		hierarchy_id ,
 		       IDBFile			file_id ,
 		       URMPointerListPtr	ctxlist )
@@ -3606,6 +3626,8 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
   /*
    *  Local variables
    */
+  size_t		ctsize = bufsize ;	/* bytes behind ctbufptr */
+  size_t		pixel_bits, line_bytes, pixel_bytes ;
   Cardinal		result ;	/* function results */
   RGMResourceDescPtr	resptr ;	/* to read resource literals */
   RGMColorTablePtr	ctable ;	/* color table in icon image */
@@ -3624,6 +3646,10 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
    * Note that bufptr is reset to a color table resource read in in order
    * provide the correct relocation for color items.
    */
+  if (bufsize < sizeof(RGMIconImage) ||
+      (char *)iconptr < (char *)bufptr ||
+      (size_t)((char *)iconptr - (char *)bufptr) > bufsize - sizeof(RGMIconImage))
+    return MrmNOT_VALID ;
   if (iconptr->validation != URMIconImageValid)
     { if ( Urm__SwapValidation(iconptr->validation) == URMIconImageValid ) 
        { swapbytes( iconptr->validation );
@@ -3643,16 +3669,52 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
 			    _MrmMMsg_0028, NULL, NULL, MrmNOT_VALID) ;
         }
     }
+  /*
+   * The pixel data must lie in the buffer and cover width x height pixels.
+   */
+  switch ( iconptr->pixel_size )
+    {
+    case URMPixelSize1Bit: pixel_bits = 1 ; break ;
+    case URMPixelSize2Bit: pixel_bits = 2 ; break ;
+    case URMPixelSize4Bit: pixel_bits = 4 ; break ;
+    case URMPixelSize8Bit: pixel_bits = 8 ; break ;
+    default:
+      return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+			    NULL, NULL, MrmNOT_VALID) ;
+    }
+  if (iconptr->width < 0 || iconptr->height < 0 ||
+      (size_t)iconptr->width > (SIZE_MAX - 7) / pixel_bits)
+    return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+			  NULL, NULL, MrmNOT_VALID) ;
+  line_bytes = ((size_t)iconptr->width * pixel_bits + 7) / 8 ;
+  if (iconptr->height != 0 && line_bytes > SIZE_MAX / (size_t)iconptr->height)
+    return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+			  NULL, NULL, MrmNOT_VALID) ;
+  pixel_bytes = line_bytes * (size_t)iconptr->height ;
+  if ((size_t)iconptr->pixel_data.pdoff > bufsize ||
+      pixel_bytes > bufsize - (size_t)iconptr->pixel_data.pdoff)
+    return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+			  NULL, NULL, MrmNOT_VALID) ;
   iconptr->pixel_data.pdptr = (char *) bufptr+iconptr->pixel_data.pdoff ;
   switch ( iconptr->ct_type )
     {
     case MrmRtypeColorTable:
+      if ((size_t)iconptr->color_table.ctoff > bufsize ||
+	  bufsize - (size_t)iconptr->color_table.ctoff <
+	      offsetof(RGMColorTable, item))
+	return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+			      NULL, NULL, MrmNOT_VALID) ;
       iconptr->color_table.ctptr = (RGMColorTablePtr)
 	((char *)bufptr+iconptr->color_table.ctoff) ;
       ctbufptr = bufptr ;
+      ctsize = bufsize ;
       break ;
     case MrmRtypeResource: {
       int vec_count;
+      if (!UrmResourceDescValid((const char *)bufptr, bufsize,
+				iconptr->color_table.ctoff))
+	return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+			      NULL, NULL, MrmNOT_VALID) ;
       resptr = (RGMResourceDescPtr)
 	((char *)bufptr+iconptr->color_table.ctoff) ;
       if ( swap_needed ) Urm__SwapRGMResourceDesc(resptr);
@@ -3668,6 +3730,10 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
 				err_msg, NULL, NULL, MrmNOT_VALID) ;
 	}        
       ctbufptr = (XtPointer) iconptr->color_table.ctptr ;
+      ctsize = (size_t) vec_size ;
+      if (ctbufptr == NULL || ctsize < offsetof(RGMColorTable, item))
+	return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+			      NULL, NULL, MrmNOT_VALID) ;
       break ;
     }
     default:
@@ -3694,6 +3760,18 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
         }
     }
 
+  /* The foreground and background entries are always used. */
+  if ((char *)ctable < (char *)ctbufptr ||
+      (size_t)((char *)ctable - (char *)ctbufptr) > ctsize ||
+      ctsize - (size_t)((char *)ctable - (char *)ctbufptr) <
+	  offsetof(RGMColorTable, item) ||
+      ctable->count < URMColorTableUserMin ||
+      (size_t)ctable->count >
+	  (ctsize - (size_t)((char *)ctable - (char *)ctbufptr) -
+	   offsetof(RGMColorTable, item)) / sizeof(RGMColorTableEntry))
+    return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+			  NULL, NULL, MrmNOT_VALID) ;
+
   for ( ndx=URMColorTableUserMin ; ndx<ctable->count ; ndx++ )
     {
       citem = &ctable->item[ndx] ;
@@ -3705,12 +3783,29 @@ Urm__CW_LoadIconImage (RGMIconImagePtr		iconptr ,
 	}
       switch ( citem->type )
         {
-        case MrmRtypeColor:
+        case MrmRtypeColor: {
+	  const RGMColorDesc *desc ;
+	  if ((size_t)citem->color_item.coffs > ctsize ||
+	      ctsize - (size_t)citem->color_item.coffs < sizeof(RGMColorDesc))
+	    return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+				  NULL, NULL, MrmNOT_VALID) ;
+	  desc = (const RGMColorDesc *)((char *)ctbufptr+citem->color_item.coffs) ;
+	  if (desc->desc_type == URMColorDescTypeName &&
+	      memchr (desc->desc.name, '\0',
+		      ctsize - (size_t)citem->color_item.coffs -
+		      offsetof(RGMColorDesc, desc)) == NULL)
+	    return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+				  NULL, NULL, MrmNOT_VALID) ;
 	  citem->color_item.cptr = (RGMColorDescPtr)
 	    ((char *)ctbufptr+citem->color_item.coffs) ;
 	  break ;
+	}
         case MrmRtypeResource: {
 	  int vec_count;
+	  if (!UrmResourceDescValid((const char *)ctbufptr, ctsize,
+				    citem->color_item.coffs))
+	    return Urm__UT_Error ("Urm__CW_LoadIconImage", _MrmMMsg_0028,
+				  NULL, NULL, MrmNOT_VALID) ;
 	  resptr = (RGMResourceDescPtr)
 	    ((char *)ctbufptr+citem->color_item.coffs) ;
 	  if ( swap_needed ) Urm__SwapRGMResourceDesc(resptr);

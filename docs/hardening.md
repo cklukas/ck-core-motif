@@ -60,14 +60,18 @@ reports, which come from cppcheck not knowing the toolkit's `Va_start` macro.
 A component is *audited* when a topic commit records a review of its complete
 input path, not when a compiler is quiet. The commit activity below is a weaker
 signal: it shows which files have been touched at all since 2026-10-22. Fuzz
-targets exist for none of the components yet.
+targets exist for `lib/Mrm` (a reproducible damaged-UID test,
+[UID files as untrusted input](mrm-uid-input.md)); the Editres handler and the
+D-Bus adapter have compiled behavioural tests under the sanitizers
+([Editres protocol handler](editres-wire-protocol.md),
+[Accessibility D-Bus reply building](accessibility-dbus-reply-building.md)).
 
 | Component | Exposure | Prior hardening | Unique warnings | Defect-class | cppcheck errors | Fuzz targets |
 |---|---|---|---:|---:|---:|---|
 | `lib/Xm` | toolkit library; clipboard, selection, text, string and image paths; editres protocol | hardening commits touch most files since 2026-10-22 | 907 | 136 | 27 | none |
 | `clients/uil` | UIL compiler; parses source files | none recorded | 540 | 15 | 2 | none |
 | `clients/mwm` | window manager; resource and property parsers | control flow, initialization and keysym handling (2026-11-01) | 197 | 13 | 27 | none |
-| `lib/Mrm` | reads binary UID files | hardening commits since 2026-10-22 | 185 | 10 | 0 | none |
+| `lib/Mrm` | reads binary UID files | hardening commits since 2026-10-22; UID index, literal, icon and compression-table checks (2026-11-10) | 185 | 10 | 0 | `run-mrm-uid-mutations.py` |
 | `tools/wml` | widget meta-language generator; build-time tool | none recorded | 103 | 68 | 5 | none |
 | `config/util` | build-time utility | none recorded | 6 | 0 | 1 | none |
 

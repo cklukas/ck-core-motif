@@ -191,7 +191,8 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
           IDBDataFreeMax - data_entry.item_offs - sizeof(IDBDataEntryHdr))
         return MrmNOT_VALID;
       sim_data = (IDBSimpleDataPtr) datahdr ;
-      UrmBCopy (sim_data->data, buff_ptr, datahdr->entry_size) ;
+      if (datahdr->entry_size != 0)
+	UrmBCopy (sim_data->data, buff_ptr, datahdr->entry_size) ;
       return MrmSUCCESS ;
 
     case IDBdrOverflow:

@@ -162,6 +162,8 @@ Urm__OpenHierarchy (MrmCount			num_files,
   IDBFile		cur_file ;	/* current IDB file */
   URMResourceContextPtr	class_ctx;	/* for class compression table */
   URMResourceContextPtr	resource_ctx;	/* for resource compression table */
+  size_t		class_size;	/* bytes of the class table */
+  size_t		resource_size;	/* bytes of the resource table */
   Display		*display;	/* display for XtResolvePathNames */
   char                 	err_stg[300];
 
@@ -357,20 +359,30 @@ Urm__OpenHierarchy (MrmCount			num_files,
 
       /*
        * Retain the buffers from the contexts, but free the contexts
-       * themselves. Fixup the tables.
+       * themselves. Fixup the tables; a table that is not valid is dropped.
        */
       cur_file->class_ctable =  (UidCompressionTablePtr)
 	UrmRCBuffer (class_ctx);
+      class_size = (size_t) UrmRCSize (class_ctx);
       UrmRCSetBuffer (class_ctx, NULL);
       UrmFreeResourceContext (class_ctx);
-      Urm__FixupCompressionTable (cur_file->class_ctable, TRUE, 
-				  cur_file->byte_swapped);
+      if (Urm__FixupCompressionTable (cur_file->class_ctable, class_size, TRUE,
+				      cur_file->byte_swapped) == MrmNOT_VALID)
+	{
+	  XtFree ((char *) cur_file->class_ctable);
+	  cur_file->class_ctable = NULL;
+	}
       cur_file->resource_ctable = (UidCompressionTablePtr)
 	UrmRCBuffer (resource_ctx);
+      resource_size = (size_t) UrmRCSize (resource_ctx);
       UrmRCSetBuffer (resource_ctx, NULL);
       UrmFreeResourceContext (resource_ctx);
-      Urm__FixupCompressionTable (cur_file->resource_ctable, FALSE, 
-				  cur_file->byte_swapped);
+      if (Urm__FixupCompressionTable (cur_file->resource_ctable, resource_size,
+				      FALSE, cur_file->byte_swapped) == MrmNOT_VALID)
+	{
+	  XtFree ((char *) cur_file->resource_ctable);
+	  cur_file->resource_ctable = NULL;
+	}
     }
 
   /*

@@ -97,6 +97,7 @@ static char rcsid[] = "$XConsortium: Mrmtable.c /main/13 1996/11/13 14:04:22 drk
  *  FUNCTION VALUE:
  *
  *	MrmSUCCESS	if all fixup operations succeed
+ *	MrmNOT_VALID	if the table is not a valid table of ctable_size bytes
  *	MrmFAILURE	if any operation fails (usually function lookup)    
  *
  * SIDE EFFECTS:
@@ -108,6 +109,7 @@ static char rcsid[] = "$XConsortium: Mrmtable.c /main/13 1996/11/13 14:04:22 drk
 
 Cardinal 
 Urm__FixupCompressionTable (UidCompressionTablePtr	ctable,
+			    size_t			ctable_size,
 			    Boolean			qfindcldesc,
 			    Boolean			byte_swapped)
 {
@@ -121,26 +123,34 @@ Urm__FixupCompressionTable (UidCompressionTablePtr	ctable,
   /*
    * Swap bytes if necessary and fix up the table offsets to be pointers
    */
-  if ( ctable == NULL )
-    return MrmFAILURE ;
+  if ( ctable == NULL ||
+       ctable_size < sizeof(UidCompressionTable) - sizeof(UidCTableEntry) )
+    return MrmNOT_VALID ;
   if ( byte_swapped )
     {
       swapbytes(ctable->validation);
       swapbytes(ctable->num_entries);
     }
-  if ( ctable->num_entries < UilMrmMinValidCode )
-    return MrmFAILURE ;
+  if ( ctable->validation != UidCompressionTableValid ||
+       ctable->num_entries < UilMrmMinValidCode )
+    return MrmNOT_VALID ;
   if ((size_t)ctable->num_entries >
       (SIZE_MAX - (sizeof(UidCompressionTable) - sizeof(UidCTableEntry))) /
       sizeof(UidCTableEntry))
-    return MrmFAILURE ;
+    return MrmNOT_VALID ;
   size_t table_bytes = (sizeof(UidCompressionTable) - sizeof(UidCTableEntry)) +
                        ((size_t)ctable->num_entries * sizeof(UidCTableEntry));
+  if ( table_bytes > ctable_size )
+    return MrmNOT_VALID ;
   for ( fixndx=UilMrmMinValidCode ; fixndx<ctable->num_entries ; fixndx++ )
     {
       if ( byte_swapped ) swapbytes(ctable->entry[fixndx].stoffset);
-      if ((size_t)ctable->entry[fixndx].stoffset < table_bytes)
-        return MrmFAILURE ;
+      /* The string lies behind the entries and ends inside the table. */
+      if ((size_t)ctable->entry[fixndx].stoffset < table_bytes ||
+          (size_t)ctable->entry[fixndx].stoffset >= ctable_size ||
+          memchr ((char *)ctable + ctable->entry[fixndx].stoffset, '\0',
+                  ctable_size - (size_t)ctable->entry[fixndx].stoffset) == NULL)
+        return MrmNOT_VALID ;
       ctable->entry[fixndx].cstring = 
 	((char *)ctable+ctable->entry[fixndx].stoffset);
     }	

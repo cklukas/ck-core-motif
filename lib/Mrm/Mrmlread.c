@@ -146,6 +146,7 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
             return result;
         }
       result = Urm__CW_LoadIconImage ((RGMIconImagePtr)val, (XtPointer)val,
+				      (size_t)UrmRCSize (context_id),
 				      hierarchy_id, file_id, *ctxlist);
       if (result != MrmSUCCESS)
 	{

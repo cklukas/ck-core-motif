@@ -21,6 +21,7 @@
  * Floor, Boston, MA 02110-1301 USA
  */ 
 #ifdef HAVE_CONFIG_H
+#include <string.h>
 #include <config.h>
 #endif
 
@@ -80,6 +81,43 @@ static char rcsid[] = "$XConsortium: MrmItop.c /main/15 1996/11/13 13:58:55 drk 
  */
 
 
+/*
+ * A literal read from a UID file is data from outside: the types whose value
+ * is a number or a C string must have the bytes that make it up, so that no
+ * consumer reads past the entry.  Deeper structures are checked by their own
+ * readers.
+ */
+static Boolean
+Urm__LiteralEntryValid (URMResourceContextPtr context_id)
+{
+  size_t	size = (size_t) UrmRCSize (context_id) ;
+  const char	*buffer = (const char *) UrmRCBuffer (context_id) ;
+
+  if ( UrmRCGroup (context_id) != URMgLiteral )
+    return TRUE ;
+  if ( buffer == NULL || size == 0 )
+    return FALSE ;
+  switch ( UrmRCType (context_id) )
+    {
+    case MrmRtypeInteger:
+    case MrmRtypeBoolean:
+    case MrmRtypeSingleFloat:
+      return size >= 4 ;
+    case MrmRtypeFloat:
+      return size >= sizeof(double) ;
+    case MrmRtypeChar8:
+    case MrmRtypeAddrName:
+    case MrmRtypeTransTable:
+    case MrmRtypeClassRecName:
+    case MrmRtypeKeysym:
+    case MrmRtypeXBitmapFile:
+      return memchr (buffer, '\0', size) != NULL ;
+    default:
+      return TRUE ;
+    }
+}
+
+
 /*
  *++
  *
@@ -464,6 +502,8 @@ UrmIdbGetIndexedResource (IDBFile			file_id,
     return MrmWRONG_GROUP ;
   if ( (type_filter!=URMtNul) && (type_filter!=type) )
     return MrmWRONG_TYPE ;
+  if ( ! Urm__LiteralEntryValid (context_id) )
+    return MrmNOT_VALID ;
 
   /*
    * Item successfuly retrieved
@@ -616,6 +656,8 @@ UrmIdbGetRIDResource (IDBFile			file_id,
     return MrmWRONG_GROUP ;
   if ( (type_filter!=URMtNul) && (type_filter!=type) )
     return MrmWRONG_TYPE ;
+  if ( ! Urm__LiteralEntryValid (context_id) )
+    return MrmNOT_VALID ;
 
   /*
    * Item successfuly retrieved

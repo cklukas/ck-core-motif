@@ -1,0 +1,48 @@
+! A small interface with exported values of the kinds the resource manager
+! reads, used with the damaged-UID test (run-mrm-uid-mutations.py).
+module mrm_uid_corpus
+    version = 'v1.0'
+    names = case_sensitive
+    character_set = iso_latin1
+    objects = { XmPushButton = widget; XmLabel = widget; XmRowColumn = widget; }
+
+procedure activate_proc();
+
+value
+    exported_string : exported 'a string literal';
+    exported_integer : exported 42;
+    exported_boolean : exported true;
+    exported_float : exported 2.5;
+    exported_color : exported color('red', background);
+    exported_rgb : exported color('#336699');
+    exported_compound : exported compound_string('compound text', separate = true);
+    exported_strings : exported string_table('one', 'two', 'three');
+    exported_integers : exported integer_table(1, 2, 3, 4);
+    exported_keysym : exported keysym('F1');
+    exported_translations : exported translation_table('<Btn1Down>: Activate()');
+    icon_colors : color_table(background color = ' ', foreground color = 'x');
+    exported_icon : exported icon(color_table = icon_colors,
+                                  '  xx  ',
+                                  ' xxxx ',
+                                  'xxxxxx',
+                                  ' xxxx ');
+    exported_bitmap : exported xbitmapfile('/dev/null');
+
+object exported_button : exported XmPushButton {
+    arguments {
+        XmNlabelString = exported_compound;
+        XmNborderWidth = exported_integer;
+        XmNtranslations = exported_translations;
+    };
+    callbacks { XmNactivateCallback = procedure activate_proc(); };
+};
+
+object exported_box : exported XmRowColumn {
+    arguments { XmNnumColumns = 2; XmNpacking = XmPACK_COLUMN; };
+    controls {
+        XmPushButton exported_button;
+        XmLabel { arguments { XmNlabelString = exported_compound; }; };
+    };
+};
+
+end module;

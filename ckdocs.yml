@@ -139,6 +139,7 @@ nav:
           - docs/mrm-fontlist-replacement-cleanup.md
           - docs/mrm-fontset-conversion-output.md
           - docs/mrm-legacy-fontlist-fixup.md
+          - docs/mrm-uid-input.md
           - docs/mrm-wide-character-fixup-cleanup.md
           - docs/mwm-action-argument-allocation.md
           - docs/mwm-bitmap-cache-failure-cleanup.md

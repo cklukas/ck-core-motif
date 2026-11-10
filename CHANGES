@@ -1,3 +1,19 @@
+Treat UID files as untrusted input (2026-11-10)
+===============================================
+
+- Index lookups of a name stored in an interior node of the UID index tree
+  failed with a null record that every caller dereferenced; with the index
+  search fixed, a UID file of any size loads again.
+- Literals must contain the bytes of their value (numbers, C strings), an entry
+  without data is refused, and string arguments in a widget record must end
+  inside it. `Urm__CW_LoadIconImage` and `Urm__FixupCompressionTable` take the
+  size of their buffer and check pixel data, color tables, color and resource
+  descriptors, entry counts and string offsets against it; an invalid
+  compression table is dropped at open. The internal prototypes changed.
+- Test: `run-mrm-uid-mutations.py` compiles two interfaces, damages the UID file
+  in 200 reproducible ways and loads every copy under ASan and UBSan; the
+  earlier loader crashes on the unchanged `periodic.uid`.
+
 Use catalog messages only if they ask for the built-in arguments (2026-11-10)
 =============================================================================
 

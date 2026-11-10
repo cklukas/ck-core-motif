@@ -1622,6 +1622,7 @@ extern MrmCount UrmPlistFindString  _ARGUMENTS(( URMPointerListPtr list_id ,
 
 /* mrmtable.c */
 extern Cardinal Urm__FixupCompressionTable  _ARGUMENTS(( UidCompressionTablePtr ctable , 
+							    size_t ctable_size ,
 							    Boolean qfindcldesc,							    Boolean byte_swapped ));
 extern Cardinal Urm__FindClassDescriptor  _ARGUMENTS(( IDBFile cfile , 
 							MrmCode code , 
@@ -1770,6 +1771,7 @@ extern Cardinal Urm__CW_ReadLiteral  _ARGUMENTS(( RGMResourceDescPtr resptr ,
 						  int *vec_size ));
 extern Cardinal Urm__CW_LoadIconImage  _ARGUMENTS(( RGMIconImagePtr iconptr , 
 						    XtPointer bufptr , 
+						    size_t bufsize , 
 						    MrmHierarchy hierarchy_id , 
 						    IDBFile file_id , 
 						    URMPointerListPtr ctxlist ));
