@@ -785,8 +785,9 @@ ColorCachePropertyExists(
 	}
 	value[length - 1] = 0 ; /* extract version info */
 
+	/* FetchPixelData owns the Xlib buffer from here on and releases it
+	 * on every path; releasing it again would free it twice. */
         result = FetchPixelData(w, value, length - 1, screen);
-	XFree(value);
     }
 	else if (value != NULL)
 	    XFree(value);

@@ -1,3 +1,16 @@
+Release the color server's property buffer once (2026-11-10)
+=============================================================
+
+- A client that found the pixel-set property of the color server (every client
+  of a CDE session) released the property buffer twice: `ColorCachePropertyExists`
+  freed it after `FetchPixelData`, which frees it on every path. The first Motif
+  shell of such a client then aborted with a double free (`dtwm` and every
+  other client of the session). The caller no longer releases it.
+- Test: `run-color-object-property-ownership.py` publishes the property and
+  creates a shell under AddressSanitizer; the earlier toolkit aborts in
+  `ColorCachePropertyExists`. The source guard of the property cleanup now
+  asserts the single release.
+
 Treat UID files as untrusted input (2026-11-10)
 ===============================================
 

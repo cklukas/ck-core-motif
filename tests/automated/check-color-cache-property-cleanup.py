@@ -13,8 +13,9 @@ assert "format != 8" in cleanup
 assert "target == None" in cleanup
 assert "if (value != NULL)" in cleanup
 assert "XFree(value)" in cleanup
-success = body[body.index("result = FetchPixelData"):body.index("return result;")]
-assert "XFree(value);" in success
+# FetchPixelData owns the buffer from the call on and releases it on every path.
+success = body[body.index("result = FetchPixelData"):body.index("else if (value != NULL)")]
+assert "XFree" not in success
 assert "int x_result;" in body
 assert re.search(r"Boolean result = False\s*;", body)
-print("ColorCachePropertyExists frees failed or malformed property data")
+print("ColorCachePropertyExists frees failed or malformed property data and hands the rest on")
