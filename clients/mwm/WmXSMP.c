@@ -808,6 +808,9 @@ getClientResource(char *clientID, char *fmtStr)
 static char *
 getXSMPResource(ClientData *pCD, int resourceFlag, char *fmtStr)
 {
+    if (pCD == NULL || pCD->smClientID == NULL || fmtStr == NULL)
+	return (char *)NULL;
+
     if (RESTORE_RESOURCE(pCD, resourceFlag))
 	return getClientResource(pCD->smClientID, fmtStr);
 
@@ -909,6 +912,9 @@ getProxyClientInfo(ClientData *pCD, ProxyClientInfo *proxyClientInfo)
 {
     XTextProperty textProperty;
     unsigned long i;
+
+    if (pCD == NULL || pCD->pSD == NULL || proxyClientInfo == NULL)
+	return False;
 
     /* WM_COMMAND is required; WM_CLIENT_MACHINE is optional. */
     if (!XGetTextProperty(wmGD.display, pCD->client, &textProperty,
@@ -1573,12 +1579,17 @@ void
 LoadClientIconPositions(ClientData *pCD)
 {
     char resourceBuf[MAX_RESOURCE_LEN];
-    WmScreenData *pSD = pCD->pSD;
+    WmScreenData *pSD;
     WmWorkspaceData *pWS;
     int i;
     char *resourcePtr;
 
-    if (wmGD.clientResourceDB == (XrmDatabase)NULL)
+    if (pCD == NULL)
+	return;
+
+    pSD = pCD->pSD;
+    if (pSD == NULL || pCD->numInhabited <= 0 || pCD->pWsList == NULL ||
+	wmGD.clientResourceDB == (XrmDatabase)NULL)
 	return;
 
     if (pCD->smClientID != (String)NULL)

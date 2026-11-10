@@ -1,3 +1,11 @@
+Guard MWM XSMP helper boundaries (2026-11-10)
+==============================================
+
+- Make MWM icon-position restore, proxy property inspection, and XSMP resource
+  lookup fail closed for incomplete session-client state, avoiding null
+  dereferences during session restoration; see
+  docs/mwm-client-workspace-inputs.md.
+
 Validate MWM client workspace aggregation inputs (2026-11-10)
 =============================================================
 
