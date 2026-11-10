@@ -58,6 +58,11 @@ main(void)
     CHECK(display != NULL, "open display");
     screen = DefaultScreen(display);
 
+    CHECK(_WSMGetScreenInfo(display, -1) == NULL,
+          "reject negative WSM screen number");
+    CHECK(_WSMGetScreenInfo(display, ScreenCount(display)) == NULL,
+          "reject out-of-range WSM screen number");
+
     global_first[0] = (WSMAttribute){ XrmStringToQuark("global-first"), 32, False };
     global_second[0] = (WSMAttribute){ XrmStringToQuark("global-second"), 32, False };
     global_second[1] = (WSMAttribute){ XrmStringToQuark("global-extra"), 8, True };
@@ -81,6 +86,6 @@ main(void)
 
     _WSMClearConfigScreenInfo(display, screen);
     XCloseDisplay(display);
-    puts("PASS repeated WSM configuration replies replace cached attributes");
+    puts("PASS WSM screen validation and configuration replacement");
     return 0;
 }

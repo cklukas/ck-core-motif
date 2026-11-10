@@ -152,11 +152,20 @@ _WSMGetDispInfo(Display *dpy)
 WSMScreenInfo *
 _WSMGetScreenInfo(Display *dpy, int screen_number)
 {
-    WSMDispInfo * disp_info = _WSMGetDispInfo(dpy);
+    WSMDispInfo *disp_info;
     WSMScreenInfo *screen_info;
     WSMScreenInfo *new_screen_info;
     char temp[BUFSIZ];
 
+    /*
+     * A screen entry carries selection atoms and cached configuration data
+     * for a real X screen.  Do not create a cache entry for a caller-supplied
+     * number that Xlib cannot address.
+     */
+    if (dpy == NULL || screen_number < 0 || screen_number >= ScreenCount(dpy))
+	return(NULL);
+
+    disp_info = _WSMGetDispInfo(dpy);
     if (disp_info == NULL)
 	return(NULL);
 

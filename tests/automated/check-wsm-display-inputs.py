@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check WSM display metadata rejects a missing X display safely."""
+"""Check WSM display and screen metadata reject invalid Xlib inputs safely."""
 
 from pathlib import Path
 
@@ -14,4 +14,12 @@ function = source[start:end]
 assert "if (dpy == NULL)" in function
 assert function.index("if (dpy == NULL)") < function.index("XInternAtoms(dpy")
 
-print("PASS WSM display metadata rejects null displays")
+start = source.index("_WSMGetScreenInfo(Display *dpy")
+end = source.index("_WSMClearConfigScreenInfo", start)
+function = source[start:end]
+
+guard = "screen_number < 0 || screen_number >= ScreenCount(dpy)"
+assert guard in function
+assert function.index(guard) < function.index("_WSMGetDispInfo(dpy)")
+
+print("PASS WSM display and screen metadata reject invalid inputs")
