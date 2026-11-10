@@ -1,3 +1,9 @@
+Honor disabled BreadcrumbBar input (2026-11-10)
+===================================================
+
+- Ignore BreadcrumbBar pointer and keyboard navigation while the widget or an
+  ancestor is insensitive.
+
 Honor disabled DatePicker and TimePicker input (2026-11-10)
 =============================================================
 

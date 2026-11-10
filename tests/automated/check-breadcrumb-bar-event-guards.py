@@ -8,7 +8,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "BreadcrumbBar.c").read_tex
 )
 start = source.index("static void Events(Widget widget")
 body = source[start : source.index("\nstatic Boolean SetValues", start)]
-guard = "if (widget == NULL || event == NULL || !XmIsBreadcrumbBar(widget)) return;"
+guard = "if (widget == NULL || event == NULL || !XmIsBreadcrumbBar(widget) ||\n        widget->core.being_destroyed || !XtIsSensitive(widget)) return;"
 assert guard in body
 assert body.index(guard) < body.index("event->type")
 print("PASS BreadcrumbBar event callbacks validate widget and event inputs")

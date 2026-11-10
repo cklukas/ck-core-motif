@@ -12,6 +12,8 @@ parses paths or navigates on its own.
 `XmNbreadcrumbRtl` changes the visual and keyboard direction without changing
 the logical segment order.  Left/right keys move the current segment and
 Return activates it.  Pointer selection and activation use the same callbacks.
+These user-input paths are inactive while the BreadcrumbBar or an ancestor is
+insensitive; applications may still set the current segment explicitly.
 
 `XmNbreadcrumbCurrentChangedCallback` reports selection changes and
 `XmNbreadcrumbActivateCallback` reports an explicit activation.  Callback data

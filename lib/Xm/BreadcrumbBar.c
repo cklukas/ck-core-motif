@@ -409,7 +409,8 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
     char buffer[2];
     int length, index;
     (void)data; (void)dispatch;
-    if (widget == NULL || event == NULL || !XmIsBreadcrumbBar(widget)) return;
+    if (widget == NULL || event == NULL || !XmIsBreadcrumbBar(widget) ||
+        widget->core.being_destroyed || !XtIsSensitive(widget)) return;
     if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == ButtonPress) {
         index = hit_test(bar, event->xbutton.x);

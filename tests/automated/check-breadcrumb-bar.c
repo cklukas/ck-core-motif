@@ -1,6 +1,7 @@
 #include <Xm/Accessible.h>
 #include <Xm/BreadcrumbBar.h>
 #include <Xm/BulletinB.h>
+#include <X11/keysym.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,6 +9,7 @@ static unsigned checks, changes, activations;
 #define CHECK(c) do { if (!(c)) { fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #c); return EXIT_FAILURE; } ++checks; } while (0)
 static void changed(Widget w, XtPointer c, XtPointer data) { XmBreadcrumbBarCallbackStruct *cb = (XmBreadcrumbBarCallbackStruct *)data; (void)w; (void)c; if (cb) ++changes; }
 static void activated(Widget w, XtPointer c, XtPointer data) { XmBreadcrumbBarCallbackStruct *cb = (XmBreadcrumbBarCallbackStruct *)data; (void)w; (void)c; if (cb && cb->id) ++activations; }
+static void key(Widget widget, KeySym keysym) { XEvent event = {0}; event.xkey.type = KeyPress; event.xkey.display = XtDisplay(widget); event.xkey.window = XtWindow(widget); event.xkey.root = DefaultRootWindow(XtDisplay(widget)); event.xkey.same_screen = True; event.xkey.keycode = XKeysymToKeycode(XtDisplay(widget), keysym); XtDispatchEvent(&event); }
 
 int main(int argc, char **argv) {
     XtAppContext app; Widget shell, board, bar; XmAccessibility *a; XmAccessibleInfo info; XmAccessibleId id; Dimension width; int one = 1, two = 2; XmBreadcrumbSegment segments[3];
@@ -22,5 +24,7 @@ int main(int argc, char **argv) {
     XmBreadcrumbBarSetCurrentIndex(bar, 1, True); CHECK(XmBreadcrumbBarGetCurrentIndex(bar) == 1 && changes == 1);
     XmBreadcrumbBarSetCurrentIndex(bar, 0, True); CHECK(changes == 2);
     a = XmAccessibilityCreate(shell, "BreadcrumbTest"); CHECK(a != NULL); id = XmAccessibilityWidget(a, bar); CHECK(id != XmACCESSIBLE_NONE); CHECK(XmAccessibilityQuery(a, id, &info)); CHECK(info.role == XmACCESSIBLE_LIST && info.has_selection && info.has_value && info.current_value == 0); XmAccessibleInfoClear(&info); XmAccessibilityDestroy(a);
+    XtSetSensitive(bar, False); key(bar, XK_Right); CHECK(XmBreadcrumbBarGetCurrentIndex(bar) == 0 && changes == 2);
+    XtSetSensitive(bar, True); key(bar, XK_Right); CHECK(XmBreadcrumbBarGetCurrentIndex(bar) == 1 && changes == 3);
     XtDestroyWidget(bar); CHECK(activations == 0); printf("PASS breadcrumb bar: %u checks\n", checks); return EXIT_SUCCESS;
 }
