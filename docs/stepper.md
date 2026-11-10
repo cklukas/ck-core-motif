@@ -7,8 +7,9 @@ nav_exclude: true
 increment PushButtons. The buttons activate on release inside their own bounds;
 clicking the value does not change it. Dragging outside cancels the click, and
 losing effective sensitivity cancels a pending gesture. Up/Right increment and
-Down/Left decrement while either button has keyboard focus. Space and Return
-retain the native button activation behavior.
+Down/Left decrement while either button has keyboard focus; in right-to-left
+layouts Left/Right follow the mirrored button order. Space and Return retain
+the native button activation behavior.
 
 The signed-integer contract uses inclusive bounds, a positive step, clamping and
 optional wrapping. Without wrapping, the unavailable endpoint button is disabled;

@@ -1,3 +1,9 @@
+Mirror Stepper Left/Right keys in RTL (2026-11-10)
+====================================================
+
+- Make Stepper Left/Right keyboard commands match its mirrored RTL button
+  placement while retaining Up/Down numeric direction; see docs/stepper.md.
+
 Synchronize DatePicker popup direction (2026-11-10)
 ====================================================
 
