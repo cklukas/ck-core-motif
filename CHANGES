@@ -15,6 +15,13 @@ Decode empty WSM configuration lists safely (2026-11-10)
 - Treat zero-length WSM configuration-format attribute lists as valid without
   relying on zero-byte allocation behavior; see docs/wsm-empty-config-format.md.
 
+Validate WSM packer entry inputs (2026-11-10)
+================================================
+
+- Make internal WSM request and reply packers reject incomplete caller input
+  before dereferencing it, while preserving initialized error/length outputs;
+  see docs/wsm-packer-inputs.md.
+
 Validate MWM client workspace aggregation inputs (2026-11-10)
 =============================================================
 

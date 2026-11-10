@@ -177,6 +177,14 @@ _WSMPackRequest(Display *dpy, int screen_num, WSMRequest *request,
     WSMWinInfo *win_info;
     WSMConfigFormatData *global_attrs, *win_attrs, *icon_attrs;
 
+    if (msg_data_len != NULL)
+	*msg_data_len = 0;
+    if (error != NULL)
+	*error = WSM_ERROR_INTERNAL;
+    if (dpy == NULL || request == NULL || msg_data_len == NULL ||
+	error == NULL)
+	return(NULL);
+
     *msg_data_len = 0;		/* default value. */
 
     global_attrs = _WSMGetConfigFormat(dpy, screen_num, WSM_GLOBAL_FMT);
@@ -440,6 +448,11 @@ _WSMPackReply(Display *dpy, int screen_num,
     register int i;
     long size;
     MessageData data, save;
+
+    if (msg_data_len != NULL)
+	*msg_data_len = 0;
+    if (reply == NULL || msg_data_len == NULL)
+	return(NULL);
 
     *msg_data_len = 0;		/* default value. */
 
