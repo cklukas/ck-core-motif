@@ -2670,10 +2670,10 @@ GeometryManager(
 
     if (cwid == NULL || desired == NULL)
 	return(XtGeometryNo);
-	wid = XtParent(cwid);
-	if (wid == NULL)
+    wid = XtParent(cwid);
+    if (wid == NULL)
 	return(XtGeometryNo);
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 	c = GetContainerConstraint(cwid);
 	if (c == NULL)
 	return(XtGeometryNo);
@@ -4211,9 +4211,10 @@ PlaceCwid(
 	    cwid->core.x = MIN(cwid->core.x,
 		AdjustPositionSaturated(0, right_limit));
 	}
-    else
+    else {
 	x = MAX(x,AdjustPositionSaturated(0,
 	    (int64_t)cw->container.margin_w));
+	}
 	y = MAX(y,AdjustPositionSaturated(0,
 	    (int64_t)cw->container.margin_h));
 
@@ -5993,7 +5994,7 @@ SetVisualEmphasis(
 
     if (cwid == NULL)
 	return;
-	cw = (XmContainerWidget)XtParent(cwid);
+    cw = (XmContainerWidget)XtParent(cwid);
 	if (cw == NULL)
 	return;
 
@@ -6044,7 +6045,7 @@ SetViewType(
 
     if (cwid == NULL)
 	return;
-	cw = (XmContainerWidget)XtParent(cwid);
+    cw = (XmContainerWidget)XtParent(cwid);
 	if (cw == NULL)
 	return;
 
@@ -6097,7 +6098,7 @@ GetDefaultDetailCount(
 
     if (wid == NULL)
 	return(0);
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 
     /*
      * Get the IconHeader's detail_count first
@@ -6208,7 +6209,7 @@ SetDynamicTabList(
 
     if (wid == NULL)
 	return(NULL);
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 
     if (!CtrIsDynamic(cw,TABLIST)) return(NULL);	/* Just in case */
 
@@ -6342,7 +6343,7 @@ GetDynFirstColWidth(
 
     if (wid == NULL)
 	return(0);
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 
     /*
      * Get the IconHeader's icon_width
@@ -6421,7 +6422,7 @@ ResizeIconWidths(
 
     if (wid == NULL)
 	return;
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
     
     /*** get the maximum right edge first */
     if (cw->core.width == cw->container.ideal_width)
@@ -6552,7 +6553,7 @@ RequestOutlineDetail(
 
     if (wid == NULL || geo_desired == NULL)
 	return;
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 
     /* deal with special requirements for width */
     if (geo_desired->width) {
@@ -6606,7 +6607,7 @@ LayoutOutlineDetail(
 
     if (wid == NULL)
 	return;
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 
     if (CtrLayoutIsDETAIL(cw))
 	{
@@ -6917,7 +6918,7 @@ LayoutSpatial(
 
     if (wid == NULL)
 	return;
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
   
     if (!((XmContainerWidgetClass)XtClass(wid))->container_class.place_item)
 	return;
@@ -7070,7 +7071,7 @@ SetSmallCellSizes(
 
     if (wid == NULL)
 	return;
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 
     if (!CtrDynamicSmallCellHeight(cw))
 	cw->container.real_small_cellh = cw->container.small_cell_height;
@@ -7159,7 +7160,7 @@ SetLargeCellSizes(
 
     if (wid == NULL)
 	return;
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 
     if (!CtrDynamicLargeCellHeight(cw))
         cw->container.real_large_cellh = cw->container.large_cell_height;
@@ -7250,7 +7251,7 @@ SizeOutlineButton(
 
     if (wid == NULL)
 	return;
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 
     /*
      * Create dummy outline button so we can get size.
@@ -7481,7 +7482,7 @@ CreateIconHeader(
 
     if (wid == NULL)
 	return;
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
     
     cw->container.self = True;
     cw->container.create_cwid_type = CONTAINER_HEADER;
@@ -7604,7 +7605,7 @@ GetRealIconHeader(
 
     if (wid == NULL)
 	return NULL;
-	cw = (XmContainerWidget)wid;
+    cw = (XmContainerWidget)wid;
 
     if (!cw->container.icon_header) return NULL;
 
@@ -7639,8 +7640,8 @@ UpdateIconHeader(
 
     if (wid == NULL)
 	return;
-	cw = (XmContainerWidget)wid;
-	icon_header = GetRealIconHeader(wid);
+    cw = (XmContainerWidget)wid;
+    icon_header = GetRealIconHeader(wid);
 
     cw->container.self = True ;
 
@@ -9554,10 +9555,10 @@ GetNextTraversalWidget(
     if (cw == NULL || child == NULL)
 	return(NULL);
 
-	c = GetContainerConstraint(child);
-	if (c == NULL || c->node_ptr == NULL)
+    c = GetContainerConstraint(child);
+    if (c == NULL || c->node_ptr == NULL)
 	return(NULL);
-	child_node = c->node_ptr;
+    child_node = c->node_ptr;
 
     next_node = GetNextTraversable(child_node);
 
@@ -9588,10 +9589,10 @@ GetPrevTraversalWidget(
     if (cw == NULL || child == NULL)
 	return(NULL);
 
-	c = GetContainerConstraint(child);
-	if (c == NULL || c->node_ptr == NULL)
+    c = GetContainerConstraint(child);
+    if (c == NULL || c->node_ptr == NULL)
 	return(NULL);
-	child_node = c->node_ptr;
+    child_node = c->node_ptr;
 
     prev_node = GetPrevTraversableSibling(child_node);
 

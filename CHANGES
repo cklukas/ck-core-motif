@@ -1,3 +1,11 @@
+Clarify Container and Notebook control flow (2026-11-10)
+=========================================================
+
+- Make Container placement, header, and traversal scopes explicit, and bracket
+  Notebook's active major/minor tab-selection switches.  This preserves their
+  established behavior while removing ambiguous indentation from strict builds;
+  see docs/container-notebook-control-flow.md.
+
 Guard MWM XSMP helper boundaries (2026-11-10)
 ==============================================
 

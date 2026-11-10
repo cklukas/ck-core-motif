@@ -6783,7 +6783,7 @@ GetNextTab (
 	  {
 	  child = nb->composite.children[i];
 	  nc = NotebookConstraint(child);
-	  if ((nc->active) && (NB_IS_CHILD_MAJOR(nc->child_type)))
+	  if ((nc->active) && (NB_IS_CHILD_MAJOR(nc->child_type))) {
 	    switch (target_dir)
 	    {
 	    case _HOME:
@@ -6819,6 +6819,7 @@ GetNextTab (
             case _END:
 		target = child;
 	    } /* switch */
+	  }
 	    i++;
 	  }   /* while  */
 	}     /* if     */
@@ -6835,12 +6836,11 @@ GetNextTab (
 	  if (NB_IS_CHILD_MAJOR(nc->child_type) 
 	  && (nc->page_number > top_major_page))
 	    target_found = True;
-	  else
-	    if ((nc->active)
-		&& (NB_IS_CHILD_MINOR(nc->child_type))
-		&& (nc->page_number >= top_major_page))
-              switch (target_dir)
-              {
+	  else if ((nc->active)
+		   && (NB_IS_CHILD_MINOR(nc->child_type))
+		   && (nc->page_number >= top_major_page)) {
+	      switch (target_dir)
+	      {
 	      case _HOME:
 		target = child;
 		target_found = True;
@@ -6874,6 +6874,7 @@ GetNextTab (
 	      case _END:
 		target = child;
 	      } /* switch */
+	    }
 	    i++;
 	  }     /* while  */
 	}       /* else   */
