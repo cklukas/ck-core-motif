@@ -1,10 +1,20 @@
 #include <Xm/Accessible.h>
 #include <Xm/DataGrid.h>
+#include <X11/keysym.h>
 #include <assert.h>
 #include <stdio.h>
 
 static int selections, sorts, commits, failures;
 static char committed_text[64];
+
+static void key(Widget widget, KeySym keysym) {
+    XEvent event = {0};
+    event.xkey.type = KeyPress;
+    event.xkey.display = XtDisplay(widget);
+    event.xkey.window = XtWindow(widget);
+    event.xkey.keycode = XKeysymToKeycode(XtDisplay(widget), keysym);
+    XtDispatchEvent(&event);
+}
 
 static void selected(Widget w, XtPointer c, XtPointer data) {
     XmDataGridSelectionCallbackStruct *cb =
@@ -62,6 +72,18 @@ int main(int argc, char **argv) {
     values0[0] = "mutated-source";
     assert(XmDataGridSetModel(grid, columns, 3, duplicate, 2) == False);
     assert(XmDataGridGetRowCount(grid) == 3);
+    XtRealizeWidget(shell);
+    key(grid, XK_Home);
+    assert(XmDataGridGetSelectedCell(grid, &row_id, &column_id));
+    assert(row_id == (XtPointer)10 && column_id == (XtPointer)1);
+    key(grid, XK_End);
+    assert(XmDataGridGetSelectedCell(grid, &row_id, &column_id));
+    assert(row_id == (XtPointer)30 && column_id == (XtPointer)1);
+    assert(XmDataGridSetModel(grid, columns, 3, rows, 3));
+    key(grid, XK_Right);
+    assert(XmDataGridGetSelectedCell(grid, &row_id, &column_id));
+    assert(row_id == (XtPointer)10 && column_id == (XtPointer)1);
+    selections = 0;
     assert(XmDataGridSetSelectedCell(grid, (XtPointer)20, (XtPointer)1, True));
     assert(selections == 1);
     assert(XmDataGridSetSelectedCell(grid, (XtPointer)20, (XtPointer)1, True));
@@ -85,7 +107,6 @@ int main(int argc, char **argv) {
     assert(failures == 1 && XmDataGridIsEditing(grid));
     XmDataGridCancelEdit(grid);
     assert(!XmDataGridIsEditing(grid));
-    XtRealizeWidget(shell);
     accessibility = XmAccessibilityCreate(grid, "DataGridFixture");
     assert(accessibility != NULL);
     accessible_id = XmAccessibilityWidget(accessibility, grid);
@@ -96,6 +117,6 @@ int main(int argc, char **argv) {
     XmAccessibleInfoClear(&info);
     XmAccessibilityDestroy(accessibility);
     XtDestroyWidget(shell);
-    puts("PASS data grid: 20 checks");
+    puts("PASS data grid: Home/End selection checks");
     return 0;
 }

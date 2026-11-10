@@ -13,6 +13,10 @@ above those limits) are rejected without replacing the previous snapshot.
 The control realizes only the finite visible viewport.  Header and row metrics,
 top-row scrolling, and RTL column presentation are resources; wheel events,
 keyboard traversal, and `XmDataGridSetTopRow` all clamp to the bounded model.
+Home selects the first model row even when the grid has no current selection;
+End selects the final model row rather than merely the first row of the final
+viewport. The first arrow-key command from an empty selection selects the
+first cell instead of skipping past it in the command's direction.
 Arrow and paging keysyms work even when the X input event produces no text.
 Sorting is request-only: `XmDataGridRequestSort` and header activation emit a
 sort callback, but never reorder application data.

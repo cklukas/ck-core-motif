@@ -1,3 +1,11 @@
+Select DataGrid endpoints with Home and End (2026-11-10)
+=========================================================
+
+- Make Home select the first DataGrid row from an empty selection and End
+  select the final model row instead of the first row in the final viewport;
+- make the first arrow-key command from an empty selection select the first
+  cell instead of skipping past it; see docs/data-grid.md.
+
 Clamp TreeView programmatic scrolling (2026-11-10)
 ===================================================
 

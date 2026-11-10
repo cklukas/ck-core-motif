@@ -504,12 +504,32 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
             key == XK_KP_Enter || key == XK_Page_Up || key == XK_Page_Down ||
             (key == XK_Escape && grid->data_grid.editing)))
             *continue_dispatch = False;
+        if ((key == XK_Left || key == XK_Right || key == XK_Up ||
+             key == XK_Down) &&
+            (grid->data_grid.selected_row < 0 ||
+             grid->data_grid.selected_column < 0)) {
+            move_selection(grid, 0, 0, event);
+            return;
+        }
         if (key == XK_Left) { move_selection(grid, 0, grid->data_grid.rtl ? 1 : -1, event); return; }
         if (key == XK_Right) { move_selection(grid, 0, grid->data_grid.rtl ? -1 : 1, event); return; }
         if (key == XK_Up) { move_selection(grid, -1, 0, event); return; }
         if (key == XK_Down) { move_selection(grid, 1, 0, event); return; }
-        if (key == XK_Home) { grid->data_grid.top_row = 0; move_selection(grid, -grid->data_grid.selected_row, 0, event); return; }
-        if (key == XK_End) { move_selection(grid, (int)max_top_row(grid) - grid->data_grid.selected_row, 0, event); return; }
+        if (key == XK_Home) {
+            int selected = grid->data_grid.selected_row;
+            grid->data_grid.top_row = 0;
+            move_selection(grid, selected > 0 ? -selected : 0, 0, event);
+            return;
+        }
+        if (key == XK_End) {
+            Cardinal bounded = grid->data_grid.row_count > XmDATA_GRID_MAX_ROWS ?
+                XmDATA_GRID_MAX_ROWS : grid->data_grid.row_count;
+            int selected = grid->data_grid.selected_row;
+            int last = bounded ? (int)bounded - 1 : 0;
+            move_selection(grid, last - (selected >= 0 ? selected : 0), 0,
+                           event);
+            return;
+        }
         if (key == XK_Return || key == XK_KP_Enter) {
             if (grid->data_grid.editing) XmDataGridCommitEdit(widget, True);
             else XmDataGridBeginEdit(widget);
