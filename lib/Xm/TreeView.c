@@ -303,16 +303,27 @@ static void notify_expansion(XmTreeViewWidget view, int index, XEvent *event) {
 
 static Cardinal viewport_rows(XmTreeViewWidget view);
 
+static Cardinal max_top_row(XmTreeViewWidget view) {
+    Cardinal total = visible_count(view);
+    Cardinal rows = viewport_rows(view);
+    return total > rows ? total - rows : 0;
+}
+
+static void clamp_top_row(XmTreeViewWidget view) {
+    Cardinal last = max_top_row(view);
+    if (view->tree_view.top_row > last)
+        view->tree_view.top_row = last;
+}
+
 /* Keep the standard ScrolledWindow navigator in row units, including changes
  * made by keyboard, wheel, expansion, resizing and programmatic selection. */
 static void update_scrollbar(XmTreeViewWidget view) {
     Widget bar=view->tree_view.scroll_bar;
-    Cardinal total, rows, last;
+    Cardinal total, rows;
     if (!bar || view->tree_view.updating_scrollbar || view->core.being_destroyed) return;
     view->tree_view.updating_scrollbar=True;
     total=visible_count(view); rows=viewport_rows(view);
-    last=total>rows?total-rows:0;
-    if (view->tree_view.top_row>last) view->tree_view.top_row=last;
+    clamp_top_row(view);
     XtVaSetValues(bar, XmNminimum,0, XmNmaximum,MAX(1,total),
         XmNsliderSize,MIN(MAX(1,total),rows), XmNvalue,view->tree_view.top_row,
         XmNincrement,1, XmNpageIncrement,MAX(1,rows-1), NULL);
@@ -353,11 +364,9 @@ static void ensure_selected_visible(XmTreeViewWidget view) {
 
 static void Resize(Widget widget) {
     XmTreeViewWidget view = (XmTreeViewWidget)widget;
-    Cardinal total = visible_count(view), rows = viewport_rows(view);
-    Cardinal last_top = total > rows ? total - rows : 0;
-    if (view->tree_view.top_row > last_top)
-        view->tree_view.top_row = last_top;
+    clamp_top_row(view);
     ensure_selected_visible(view);
+    clamp_top_row(view);
     redraw(view);
 }
 
@@ -912,8 +921,10 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         uint64_t height = (uint64_t)view->tree_view.row_height * view->tree_view.visible_rows;
         view->core.height = (Dimension)MIN(MAX(height,1),USHRT_MAX);
     }
+    clamp_top_row(view);
     if (old->tree_view.visible_rows != view->tree_view.visible_rows)
         ensure_selected_visible(view);
+    clamp_top_row(view);
     return colors_changed ||
            old->tree_view.select_color != view->tree_view.select_color ||
            old->primitive.highlight_color != view->primitive.highlight_color ||
@@ -1041,14 +1052,11 @@ Boolean XmTreeViewGetExpanded(Widget widget, XtPointer id) {
 
 void XmTreeViewSetTopRow(Widget widget, Cardinal top_row) {
     XmTreeViewWidget view;
-    Cardinal total;
     if (widget == NULL || !XmIsTreeView(widget) || widget->core.being_destroyed)
         return;
     view = (XmTreeViewWidget)widget;
-    total = visible_count(view);
-    if (top_row > total)
-        top_row = total;
     view->tree_view.top_row = top_row;
+    clamp_top_row(view);
     redraw(view);
 }
 

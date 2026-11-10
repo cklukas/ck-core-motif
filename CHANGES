@@ -1,3 +1,11 @@
+Clamp TreeView programmatic scrolling (2026-11-10)
+===================================================
+
+- Clamp both `XmTreeViewSetTopRow` and the `XmNtreeViewTopRow` resource to the
+  final populated viewport rather than the raw visible-node count, preventing
+  a programmatic scroll from displaying an empty tree after its last node; see
+  docs/tree-view.md.
+
 Repaint ring controls after direction changes (2026-11-10)
 ==========================================================
 

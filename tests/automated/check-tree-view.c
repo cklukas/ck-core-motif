@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     CHECK(XmTreeViewSetExpanded(view, &root_id, True, True)); CHECK(XmTreeViewGetExpanded(view, &root_id) == True && expansions == 1);
     XmTreeViewSetSelectedId(view, &child_a_id, True); CHECK(XmTreeViewGetSelectedId(view) == &child_a_id && selections == 1);
     CHECK(XmTreeViewSetExpanded(view, &child_a_id, True, True)); CHECK(XmTreeViewGetExpanded(view, &child_a_id) == True && expansions == 2);
-    XmTreeViewSetTopRow(view, 1); top = XmTreeViewGetTopRow(view); CHECK(top == 1); XmTreeViewSetTopRow(view, 99); CHECK(XmTreeViewGetTopRow(view) <= 4);
+    XmTreeViewSetTopRow(view, 1); top = XmTreeViewGetTopRow(view); CHECK(top == 1); XmTreeViewSetTopRow(view, 99); CHECK(XmTreeViewGetTopRow(view) == 1); XtVaSetValues(view, XmNtreeViewTopRow, 99, NULL); CHECK(XmTreeViewGetTopRow(view) == 1);
     a = XmAccessibilityCreate(shell, "TreeViewTest"); CHECK(a != NULL); aid = XmAccessibilityWidget(a, view); CHECK(aid != XmACCESSIBLE_NONE); CHECK(XmAccessibilityQuery(a, aid, &info)); CHECK(info.role == XmACCESSIBLE_TREE && info.has_selection && info.has_value && info.maximum_value == 4); XmAccessibleInfoClear(&info); XmAccessibilityDestroy(a);
     XtDestroyWidget(view); printf("PASS tree view: %u checks\n", checks); return EXIT_SUCCESS;
 }

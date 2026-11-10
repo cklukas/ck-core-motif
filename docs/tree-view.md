@@ -46,7 +46,10 @@ layout controls the viewport, and TreeView adapts without another size request.
 
 The viewport is deliberately bounded. `XmNtreeViewVisibleRows` specifies the
 preferred capacity, while `XmNtreeViewTopRow` sets its starting row; wheel events and
-`XmTreeViewSetTopRow` move through the flattened visible rows.  This is a
+`XmTreeViewSetTopRow` and `XmNtreeViewTopRow` move through the flattened
+visible rows. Values beyond the final full viewport clamp to its last valid
+starting row, so a programmatic scroll cannot produce a blank view after the
+final node. This is a
 bounded drawing policy, not a general virtualization engine. When placed in an
 application-defined ScrolledWindow without an existing vertical navigator,
 TreeView creates one and shows it only when visible rows overflow. Thumb, wheel, keyboard, expansion,
