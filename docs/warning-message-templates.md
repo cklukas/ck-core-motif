@@ -26,6 +26,17 @@ pointer value, now formats it as text, and the DataField character warning
 shows the character or its octal code. A message without parameters, such as
 the one `XmeWarning` takes, is still shown unchanged.
 
+## Catalog messages
+
+Message catalogs are optional (`--enable-message-catalog`). Where they are
+enabled, `_XmCatgets` and `_MrmCatgets` now pass the text of the catalog through
+`_XmMessageOrDefault` together with the built-in text. The catalog text is used
+only if it asks for exactly the arguments of the built-in text: the same number
+of conversions, each with the same length modifier and conversion letter, no `*`
+or positional argument, no `n` conversion and no field wider than three digits.
+Otherwise the built-in text is used. This covers the messages that Motif and
+the resource manager pass to `snprintf` with their own arguments.
+
 ## Validation
 
 `tests/automated/run-message-templates.py PREFIX RESULTS` compiles

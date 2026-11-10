@@ -102,6 +102,52 @@ static void test_expansion(void)
     }
 }
 
+typedef const char * (*validate_fn)(const char *, const char *);
+
+/* A catalog text is used only where the built-in text's arguments fit. */
+static void test_catalog_validation(void)
+{
+    validate_fn validate = (validate_fn) dlsym(RTLD_DEFAULT, "_XmMessageOrDefault");
+    static const struct { const char * catalog; const char * builtin; int accepted; } table[] = {
+	{ "plain", "plain", 1 },
+	{ "texte simple", "plain", 1 },
+	{ "Valeur (%d) pour %s", "Value (%d) for %s", 1 },
+	{ "%s: valeur (%d)", "Value (%d) for %s", 0 },		/* order */
+	{ "Valeur %s", "Value (%d)", 0 },			/* type */
+	{ "Valeur (%ld)", "Value (%d)", 0 },			/* length modifier */
+	{ "Valeur (%d) %s", "Value (%d)", 0 },			/* extra */
+	{ "Valeur", "Value (%d)", 0 },				/* missing */
+	{ "100%% sur", "100%% sure", 1 },
+	{ "50%% %s", "100%% %s", 1 },
+	{ "%n", "none", 0 },
+	{ "%s%n", "%s", 0 },
+	{ "%*d", "%d", 0 },
+	{ "%1$s", "%s", 0 },
+	{ "%99999d", "%d", 0 },
+	{ "%999d", "%d", 1 },
+	{ "%.5s", "%s", 1 },
+	{ "%-8s|", "%s|", 1 },
+	{ "%5.2lf", "%f", 0 },
+	{ "50%", "50%", 1 },	/* the same text */
+	{ "bad %", "ok", 0 },
+	{ "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s", "%s", 0 },
+    };
+    size_t i;
+
+    if (validate == NULL) {
+	fprintf(stderr, "note: _XmMessageOrDefault not present (earlier toolkit)\n");
+	return;
+    }
+    for (i = 0; i < sizeof(table) / sizeof(table[0]); i++) {
+	const char * got = validate(table[i].catalog, table[i].builtin);
+	int accepted = got == table[i].catalog;
+	CHECK(accepted == table[i].accepted && (accepted || got == table[i].builtin),
+	      "catalog text '%s' for '%s': %s", table[i].catalog, table[i].builtin,
+	      accepted ? "accepted" : "refused");
+    }
+    CHECK(validate(NULL, "x") != NULL && strcmp(validate(NULL, "x"), "x") == 0, "missing catalog text");
+}
+
 int main(void)
 {
     int argc = 1;
@@ -112,6 +158,7 @@ int main(void)
     XmRepTypeId id;
 
     test_expansion();
+    test_catalog_validation();
 
     XtSetLanguageProc(NULL, NULL, NULL);	/* a multibyte locale */
     shell = XtVaAppInitialize(&app, "MessageTemplates", NULL, 0, &argc, argv, NULL,

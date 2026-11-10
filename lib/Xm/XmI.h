@@ -234,6 +234,8 @@ extern void _XmWarningMsg(Widget w,
 			  char *message,
 			  char **params,
 			  Cardinal num_params);
+extern const char *_XmMessageOrDefault(const char *candidate,
+				       const char *fallback);
 extern size_t _XmExpandMessage(char *buffer,
 			       size_t buffer_size,
 			       const char *message,

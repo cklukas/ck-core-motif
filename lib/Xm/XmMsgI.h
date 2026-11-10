@@ -32,8 +32,13 @@
 
 externalref nl_catd Xm_catd;
 
+/* A catalog is replaceable by the user: its text is used only if it asks for
+ * the same arguments as the built-in text (see _XmMessageOrDefault). */
+extern const char *_XmMessageOrDefault(const char *candidate,
+                                       const char *fallback);
+
 #define _XmCatgets(catd, set_num, msg_num, def_str) \
-        catgets(catd, set_num, msg_num, def_str)
+        _XmMessageOrDefault(catgets(catd, set_num, msg_num, def_str), def_str)
 
 #else
 

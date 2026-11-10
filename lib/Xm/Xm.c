@@ -329,6 +329,98 @@ _XmReOrderResourceList(
 
 /************************************************************************
  *
+ *  _XmMessageOrDefault
+ *	Accept a message from a message catalog only when it can be used where
+ *	the built-in message is used.
+ *
+ *	Most messages are formats: callers pass them to printf-style functions
+ *	with the arguments of the built-in message.  A catalog is replaceable by
+ *	the user, so its text must ask for the same arguments, in the same order
+ *	and of the same type, as the built-in text, and nothing else.  The text
+ *	is accepted when every conversion has the same length modifier and
+ *	conversion letter as the corresponding one of the built-in text, has no
+ *	`*' or positional argument, no `n' conversion and no field wider than
+ *	three digits, and there are as many of them.  Otherwise the built-in
+ *	text is returned.
+ *
+ ************************************************************************/
+
+/* Writes the conversions of a format as "<modifiers><letter>;" each.  Returns
+ * False for a format that no catalog text may imitate. */
+static Boolean
+MessageConversions(const char *format, char *signature, size_t size)
+{
+  size_t used = 0;
+  const char *p = format;
+
+  while (*p != '\0')
+    {
+      if (*p++ != '%')
+	continue;
+      if (*p == '%')
+	{
+	  p++;
+	  continue;
+	}
+      {
+	int digits = 0;
+	char modifiers[4];
+	size_t count = 0;
+
+	while (*p != '\0' && strchr("-+ #'0", *p) != NULL)
+	  p++;
+	for (; *p >= '0' && *p <= '9'; p++)
+	  if (++digits > 3)
+	    return False;
+	if (*p == '.')
+	  {
+	    digits = 0;
+	    for (p++; *p >= '0' && *p <= '9'; p++)
+	      if (++digits > 3)
+		return False;
+	  }
+	while (*p != '\0' && strchr("hlLqjzt", *p) != NULL)
+	  {
+	    if (count == sizeof(modifiers))
+	      return False;
+	    modifiers[count++] = *p++;
+	  }
+	if (*p == '\0' || *p == 'n' || *p == '*' || *p == '$' ||
+	    strchr("-+ #'.0123456789", *p) != NULL)
+	  return False;
+	if (used + count + 2 >= size)
+	  return False;
+	memcpy(signature + used, modifiers, count);
+	used += count;
+	signature[used++] = *p++;
+	signature[used++] = ';';
+      }
+    }
+  signature[used] = '\0';
+  return True;
+}
+
+const char *
+_XmMessageOrDefault(const char *candidate, const char *fallback)
+{
+  char wanted[128], offered[128];
+
+  if (candidate == NULL)
+    return fallback;
+  if (candidate == fallback)
+    return fallback;
+  if (fallback == NULL)
+    return NULL;
+  if (!MessageConversions(fallback, wanted, sizeof(wanted)) ||
+      !MessageConversions(candidate, offered, sizeof(offered)) ||
+      strcmp(wanted, offered) != 0)
+    return fallback;
+  return candidate;
+}
+
+
+/************************************************************************
+ *
  *  _XmExpandMessage
  *	Expand the conversions of a message template with strings.
  *

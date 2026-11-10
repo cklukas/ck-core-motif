@@ -1,3 +1,14 @@
+Use catalog messages only if they ask for the built-in arguments (2026-11-10)
+=============================================================================
+
+- With message catalogs enabled, `_XmCatgets` and `_MrmCatgets` return the
+  catalog text only if its conversions match those of the built-in text (same
+  count, length modifiers and letters; no `*`, positional or `n` conversions,
+  no huge fields) and the built-in text otherwise. Many Motif and MRM messages
+  are printf formats with arguments supplied by the caller.
+- Test: the acceptance table of `run-message-templates.py`. Default builds do
+  not use catalogs, so the macros themselves are only compile-checked there.
+
 Request TEXT when an inserted selection offers no better target (2026-11-10)
 ============================================================================
 
