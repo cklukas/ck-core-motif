@@ -1,3 +1,11 @@
+Remove an unreachable optimized XmString null check (2026-11-10)
+================================================================
+
+- Keep `_XmStringOptToNonOpt`'s valid input and allocation guards while
+  removing a check against its inline optimized-text storage, which cannot be
+  null and caused a compiler diagnostic.  See
+  docs/xmstring-entry-copy-input.md.
+
 Make synthetic resource quark storage width-safe (2026-11-10)
 ===============================================================
 

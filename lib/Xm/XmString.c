@@ -3825,9 +3825,7 @@ _XmStringOptToNonOpt(_XmStringOpt string)
   _XmString str;
   _XmStringOptSegRec seg;  
 
-  if (string == NULL ||
-      (_XmStrByteCount((_XmString)string) > 0 &&
-       _XmStrText((_XmString)string) == NULL))
+  if (string == NULL)
     return NULL;
 
   _XmStrCreate(str, XmSTRING_MULTIPLE_ENTRY, 0);
