@@ -473,6 +473,7 @@ nav:
         pages:
           - docs/editres-child-bounds.md
           - docs/editres-stream-growth.md
+          - docs/editres-wire-protocol.md
       - title: empty
         pages:
           - docs/empty-state.md

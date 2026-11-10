@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Check edit-resources widget-list allocation before hierarchy writes."""
+
 from pathlib import Path
+
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "EditresCom.c").read_text(
     encoding="utf-8"
 )
-start = source.index("widget_list = (unsigned long *)")
-end = source.index("/*\n     * Put the widgets", start)
+start = source.index('\nReplyPutWidget(')
+end = source.index('\n/************************************************************\n *\n * Code to Perform SetValues', start)
 region = source[start:end]
-assert "(size_t)num_widgets > (size_t)UINT16_MAX" in source
-assert "(size_t)num_widgets > (size_t)UINT_MAX / sizeof(unsigned long)" in source
-assert "if (widget_list == NULL)" in region
-assert "return;" in region
+
+assert "num_widgets > EDITRES_MAX_CARD16" in region
+assert "ids = (uint32_t *) malloc(sizeof(uint32_t) * num_widgets);" in region
+assert "if (ids == NULL)" in region
+assert "stream->failed = TRUE;" in region
 print("edit-resources widget-list allocation is checked before hierarchy writes")

@@ -3,14 +3,13 @@ nav_exclude: true
 ---
 # EditRes diagnostic bounds
 
-EditRes reports conversion and protocol errors through fixed stack storage when
-messages are short, and allocates larger storage for long messages.  The
-`noColormap` path previously estimated the raw format string and then used
-`sprintf`, so width or precision expansions could exceed the estimate.
+EditRes reports conversion and protocol errors to the resource editor as
+text. Every diagnostic is now built in storage sized from the rendered text.
+Toolkit messages that carry `%s` parameters (`noColormap`) are expanded by a
+function that only understands `%s` and `%%` and takes its parameters from the
+parameter list the toolkit passed, so a message cannot ask for more arguments
+than exist or for another conversion. Normal text and the EditRes protocol
+remain unchanged.
 
-The error reporter now measures the rendered `noColormap` message and uses
-bounded `snprintf` calls for every diagnostic variant.  Normal text and the
-EditRes protocol remain unchanged; allocation failure still produces the
-existing short fallback message.
-
-`tests/automated/check-editres-error-bounds.py` protects this contract.
+`tests/automated/check-editres-error-bounds.py` protects this contract, and
+`tests/automated/check-editres-wire-protocol.c` exercises the messages.

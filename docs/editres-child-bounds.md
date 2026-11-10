@@ -1,7 +1,8 @@
 # Edit-resources child enumeration bounds
 
 The edit-resources protocol enumerates normal and popup children together.
-`FindChildren` now checks each count addition, validates the combined byte
-count against both `size_t` and Xt's `Cardinal` width, and reports an empty
-result when allocation fails. Existing callers continue to receive the same
-child array and count for ordinary widget trees.
+The enumeration no longer builds a child array: `ChildCount` saturates the sum
+of the two counts and `ChildAt` returns one child by index, normal children
+first, then popup children, so there is no allocation to fail and no byte
+count to overflow. The widget lookup and the tree dump use the same two
+helpers. See [Editres protocol handler](editres-wire-protocol.md).

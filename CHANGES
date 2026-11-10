@@ -1,3 +1,34 @@
+Harden the Editres protocol handler (2026-11-10)
+================================================
+
+- Own the whole Editres wire protocol in `EditresCom.c` instead of calling
+  libXmu's `_XEditRes*` helpers (the copies in this file had been compiled out
+  since 2012, so the earlier bounds fixes never ran). Parse requests with a
+  reader bound to the bytes received: the length field of a request must fit
+  in them, no field may extend past it, and counts are checked against the
+  bytes left before any allocation. Decode signed 16-bit FindChild
+  coordinates in two's complement (negative values decoded as 0).
+- Find widgets by walking the live tree and comparing the low 32 bits of each
+  address, so no number from the wire becomes a pointer and an empty or forged
+  path is refused. Editres now also works when widget addresses exceed 32 bits.
+- Release the selection value, the request fields (including the SetValues
+  value and the names of other commands) and every widget path of a request.
+- Build replies in a stream limited to 32 MiB, saturate the 16-bit counts, and
+  hand the toolkit a private copy of the reply for each conversion.
+- Accept the client message only for the `EditresComm` selection, so a message
+  cannot make the application fetch a command from, or take ownership of,
+  `PRIMARY`, `CLIPBOARD` or another selection. Look the protocol atoms up per
+  display and check the lookup.
+- SetValues accepts only String values (the only type the protocol carries),
+  keeps a bounded private copy of values set on String resources, and expands
+  toolkit warning messages with their parameters only instead of using them as
+  printf formats.
+- Test: `run-editres-wire-protocol.py` compiles the production file under
+  ASan, UBSan and LeakSanitizer and drives it with byte-built requests and a
+  second X connection acting as the editor; the earlier code fails it.
+  Behavior change: requests that other Editres clients might send with
+  a non-String value type, or through another selection name, are refused.
+
 Honor disabled composite input (2026-11-10)
 ===========================================
 

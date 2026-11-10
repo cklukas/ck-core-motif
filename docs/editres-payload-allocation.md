@@ -4,26 +4,15 @@ nav_exclude: true
 
 # Editres payload allocation
 
-The Editres protocol helpers now check the terminator-inclusive wire-string
-size against Xt's `Cardinal` width, as well as checking allocations for
-decoded strings and widget-ID arrays before writing payload bytes. A rejected
-size or failed allocation reports a protocol parse failure to the existing
-cleanup path; zero-length widget lists remain valid.
-SetValues value payloads are likewise checked before their terminator-inclusive
-allocation.
-The 32-bit protocol decoder also widens each 16-bit half before shifting, so
-high-bit window IDs and stream lengths do not invoke signed-shift overflow.
+Strings, widget paths and SetValues values are allocated only after the number
+of bytes they announce has been checked against the bytes left in the request.
+A rejected size or a failed allocation reports a protocol parse failure to
+the common cleanup path. The 32-bit decoder widens each half before shifting.
 Outgoing Editres strings are bounded to the protocol's 16-bit length field;
-the writer never emits more bytes than it advertises, even if a malformed
-resource name is unusually large.
+the writer never emits more bytes than it advertises.
 
-The focused regression check is
-`tests/automated/check-editres-payload-allocation.py`.
-
-The string-output width check is
-`tests/automated/check-editres-string-output.py`.
-
-Toolkit warning messages also keep their `strlen()` totals in `size_t` and
-fall back to the bounded stack buffer when the result cannot fit Xt's
-`Cardinal` allocation width. The regression check is
+The focused regression checks are
+`tests/automated/check-editres-payload-allocation.py`,
+`tests/automated/check-editres-string-output.py` and
 `tests/automated/check-editres-error-message-bounds.py`.
+See [Editres protocol handler](editres-wire-protocol.md).
