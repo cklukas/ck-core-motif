@@ -8316,10 +8316,13 @@ static void ParseIncludeSet (WmScreenData *pSD, unsigned char *lineP)
 	    break;
         }
 	pchName = _DtWmParseFilenameExpand (string);
-	if (pchName && ConfigStackPush (pchName))
+	if (pchName)
 	{
-	    ProcessWmFile (pSD, True /* nested */);
-	    ConfigStackPop ();
+	    if (ConfigStackPush(pchName))
+	    {
+		ProcessWmFile (pSD, True /* nested */);
+		ConfigStackPop ();
+	    }
 	    XtFree ((char *) pchName);
 	}
 

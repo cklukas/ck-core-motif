@@ -36,4 +36,13 @@ assert push.index("pConfigStackTop->offset = ftell(cfileP);") > push.index(
     "if (newWmPB == NULL)")
 assert "wmGD.pWmPB = newWmPB;" in push
 
+include_start = source.rindex("static void ParseIncludeSet")
+include_end = source.index("\n\f", include_start)
+include = source[include_start:include_end]
+assert "if (pchName)" in include
+assert "if (ConfigStackPush(pchName))" in include
+assert "XtFree ((char *) pchName);" in include
+assert include.index("XtFree ((char *) pchName);") > include.index(
+    "if (ConfigStackPush(pchName))")
+
 print("PASS MWM configuration-stack allocation failures are transactional")
