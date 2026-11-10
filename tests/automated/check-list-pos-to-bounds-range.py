@@ -11,4 +11,7 @@ guard = body.index("if (position < 0 || position > lw->list.itemCount)")
 conversion = body.index("position--;", guard)
 assert guard < conversion
 assert "position = lw->list.itemCount - 1;" in body
+assert "(long long)position >=" in body
+assert "(long long)lw->list.top_position +" in body
+assert "position >= (lw->list.top_position + lw->list.visibleItemCount)" not in body
 print("List bounds position conversion is range-checked")

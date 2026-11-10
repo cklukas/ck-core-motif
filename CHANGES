@@ -1,3 +1,10 @@
+Widen XmList visible-range arithmetic (2026-11-10)
+====================================================
+
+- Compare public `XmListPosToBounds` positions with a widened visible-range
+  end, preventing an extreme top-position plus visible-item-count sum from
+  wrapping and misclassifying a row; see docs/list-pos-to-bounds-range.md.
+
 Iterate MWM transient trees safely (2026-11-10)
 ================================================
 

@@ -10543,7 +10543,9 @@ XmListPosToBounds(Widget      w,
 
   if ((position >= lw->list.itemCount)    ||
       (position <  lw->list.top_position) ||
-      (position >= (lw->list.top_position + lw->list.visibleItemCount))) {
+      ((long long)position >=
+       (long long)lw->list.top_position +
+       (long long)lw->list.visibleItemCount)) {
     _XmAppUnlock(app);
     return (False);
   }
