@@ -2234,8 +2234,15 @@ XmStringConcatAndFree(XmString a,
 	}
 	else if (modify_b) 
 	  _XmStrEntry(a_str)[a_lc] = b_line;
-	else
+	else {
 	  _XmStrEntry(a_str)[a_lc] = _XmStringEntryCopy(b_line);
+	  if (_XmStrEntry(a_str)[a_lc] == NULL) {
+	    _XmProcessUnlock();
+	    XmStringFree(a);
+	    XmStringFree(b);
+	    return NULL;
+	  }
+	}
 	a_lc++;
       }
   }

@@ -1,3 +1,10 @@
+Reject failed Compound String line copies (2026-11-10)
+========================================================
+
+- Make `XmStringConcatAndFree` return `NULL` and release its owned operands
+  when copying a non-mutated first line fails, rather than recording a null
+  Compound String entry; see docs/xmstring-concat-line-copy-failure.md.
+
 Preserve wide Compound String component lengths (2026-11-10)
 ============================================================
 
