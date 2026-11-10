@@ -61,7 +61,6 @@ static char rcsid[] = "$TOG: WmInitWs.c /main/18 1999/09/20 15:18:22 mgreess $"
 #include <X11/Core.h>
 #include <X11/keysym.h>
 #include <Xm/AtomMgr.h>
-#include <Dt/SessionM.h>
 #ifndef NO_HP_KEY_REMAP
 #include <Xm/VirtKeysP.h>
 
@@ -81,6 +80,7 @@ typedef struct
 #include <Dt/SessionP.h>
 #include <Dt/DtP.h>
 #include <Dt/Message.h>
+#include <Dt/SessionM.h>
 #include <Dt/WsmM.h>
 #endif /* WSM */
 

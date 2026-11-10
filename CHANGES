@@ -1,3 +1,15 @@
+Build MWM without CDE headers again (2026-11-10)
+================================================
+
+- `clients/mwm/WmInitWs.c` included the CDE header `<Dt/SessionM.h>` for every
+  configuration, which the toolkit does not ship, so the standalone window
+  manager no longer compiled unless CDE was installed. The include now sits in
+  the `#ifdef WSM` block with the other `Dt/` headers.
+- Test: `run-mwm-standalone-compile.py` compiles every MWM translation unit with
+  the exact flags of a configured build tree and fails on the earlier source at
+  `WmInitWs.c`; the source guard of the session-manager lookup asserts the
+  placement.
+
 Release the color server's property buffer once (2026-11-10)
 =============================================================
 
