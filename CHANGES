@@ -37776,3 +37776,10 @@ Preserve wide MWM diagnostic and session lengths (2026-11-02)
 
 - Check formatted MWM property-warning and session-resource lengths as
   `size_t` before narrowing to Xt `Cardinal` allocation sizes.
+
+InfoBar logical-end actions in RTL layouts (2026-11-10)
+========================================================
+
+- Place InfoBar actions and the close control at the logical end rather than
+  hard-coding them to the physical right. RTL rendering and pointer hit testing
+  now agree; see `docs/info-bar.md`.

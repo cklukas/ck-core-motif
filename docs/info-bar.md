@@ -13,10 +13,11 @@ bar never grabs input or moves keyboard focus.
 Its accessible representation exposes the message text as a live panel.
 Existing MessageBox, dialog and application status-area behavior is unchanged.
 
-The action label is measured through the configured render table and right
-aligned before the optional close control. Its clickable area uses the same
-measured boundary, so localized action labels do not rely on a fixed-width hit
-zone.
+The action label is measured through the configured render table and placed at
+the logical end before the optional close control. In right-to-left layouts the
+action and close control mirror to the physical left, and their hit areas use
+the same layout geometry as drawing. Localized action labels therefore do not
+rely on a fixed-width hit zone.
 
 <!-- gallery-demo-tabs: begin -->
 ## Component demo
