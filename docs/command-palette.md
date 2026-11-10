@@ -11,7 +11,8 @@ case-insensitive substring match over labels.  Empty or unmatched filters do
 not execute commands.  `XmCommandPaletteShow` focuses the search field and
 remembers the prior focus; dismissal restores it when that widget is still
 managed.  Escape, search activation and list default activation are all
-bounded to the instance.
+bounded to the instance. Escape respects widget sensitivity: a disabled
+palette remains shown until its owner explicitly enables or dismisses it.
 
 The palette has no process-global command registry, navigation policy or
 implicit execution from drawing/filter callbacks.  Accessibility exposes the

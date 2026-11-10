@@ -2,6 +2,7 @@
 #include <Xm/CommandPalette.h>
 #include <Xm/List.h>
 #include <Xm/RowColumn.h>
+#include <X11/keysym.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +11,7 @@ static unsigned checks;
 static Boolean proposed_geometry_is_accepted(Widget child) { XtWidgetGeometry request, reply; XtGeometryResult result; if (!child) return False; XtVaGetValues(child, XmNwidth, &request.width, XmNheight, &request.height, NULL); request.request_mode = CWWidth | CWHeight; result = XtMakeGeometryRequest(child, &request, &reply); if (result == XtGeometryAlmost) { request = reply; result = XtMakeGeometryRequest(child, &request, &reply); } if (result != XtGeometryYes && result != XtGeometryDone) return False; request.request_mode |= XtCWQueryOnly; return XtMakeGeometryRequest(child, &request, &reply) == XtGeometryYes; }
 static void invoke(Widget widget, XtPointer data, XtPointer call) { const char **seen = (const char **)data; XmCommandPaletteCallbackStruct *callback = (XmCommandPaletteCallbackStruct *)call; (void)widget; if (callback && callback->id) *seen = callback->id; }
 static void dismissed(Widget widget, XtPointer data, XtPointer call) { unsigned *count = (unsigned *)data; (void)widget; (void)call; ++*count; }
+static void escape(Widget widget) { XEvent event = {0}; event.xkey.type = KeyPress; event.xkey.display = XtDisplay(widget); event.xkey.window = XtWindow(widget); event.xkey.keycode = XKeysymToKeycode(XtDisplay(widget), XK_Escape); XtDispatchEvent(&event); }
 int main(int argc, char **argv) {
     XtAppContext app; Widget shell, row, palette; XmString one, two, three, shortcut; XmCommandPaletteItem items[3]; const char *seen = NULL; unsigned dismissals = 0; XmAccessibility *accessibility; XmAccessibleInfo info; XmAccessibleId id; int count;
     (void)argv;
@@ -23,6 +25,6 @@ int main(int argc, char **argv) {
     XtRealizeWidget(shell); XmCommandPaletteShow(palette); CHECK(proposed_geometry_is_accepted(XtNameToWidget(palette, (char *)"search"))); XSync(XtDisplay(shell), False); CHECK(XmCommandPaletteIsShown(palette));
     accessibility = XmAccessibilityCreate(shell, "CommandPaletteTest"); CHECK(accessibility != NULL); id = XmAccessibilityWidget(accessibility, palette); CHECK(XmAccessibilityQuery(accessibility, id, &info)); CHECK(info.role == XmACCESSIBLE_PANEL && info.name != NULL && strcmp(info.name, "Command palette") == 0 && info.action_count == 1); XmAccessibleInfoClear(&info);
     XmCommandPaletteInvokeSelection(palette, NULL); CHECK(seen && strcmp(seen, "open") == 0); XmCommandPaletteSetFilter(palette, "missing"); count = (int)XmCommandPaletteGetVisibleCount(palette); CHECK(count == 0); XmCommandPaletteInvokeSelection(palette, NULL); CHECK(seen && strcmp(seen, "open") == 0); XmAccessibilityDestroy(accessibility);
-    XmCommandPaletteDismiss(palette, NULL); CHECK(!XmCommandPaletteIsShown(palette)); CHECK(dismissals == 1); XtDestroyWidget(shell); XtCloseDisplay(XtDisplay(shell)); XtDestroyApplicationContext(app);
+    XtSetSensitive(palette, False); escape(palette); CHECK(XmCommandPaletteIsShown(palette)); CHECK(dismissals == 0); XtSetSensitive(palette, True); escape(palette); CHECK(!XmCommandPaletteIsShown(palette)); CHECK(dismissals == 1); XtDestroyWidget(shell); XtCloseDisplay(XtDisplay(shell)); XtDestroyApplicationContext(app);
     printf("PASS command palette: %u checks\n", checks); return EXIT_SUCCESS;
 }

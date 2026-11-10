@@ -1,3 +1,9 @@
+Honor disabled CommandPalette input (2026-11-10)
+==================================================
+
+- Ignore Escape key events while an `XmCommandPalette` is insensitive, so a
+  disabled command surface cannot dismiss itself; see docs/command-palette.md.
+
 Select DataGrid endpoints with Home and End (2026-11-10)
 =========================================================
 
