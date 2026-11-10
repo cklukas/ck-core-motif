@@ -1,3 +1,11 @@
+Complete matching composite child geometry requests (2026-11-10)
+=================================================================
+
+- Make Toast, Command Palette, and Sidebar report matching child geometry
+  requests as accepted (`XtGeometryDone`, or `XtGeometryYes` for a query)
+  rather than an unconditional `XtGeometryAlmost`; see
+  docs/composite-child-geometry-requests.md.
+
 Make XmInfoBar dismissal visible (2026-11-10)
 ==============================================
 

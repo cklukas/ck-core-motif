@@ -282,7 +282,11 @@ static XtGeometryResult GeometryManager(Widget child, XtWidgetGeometry *request,
     reply->request_mode = CWWidth | CWHeight;
     reply->width = child->core.width;
     reply->height = child->core.height;
-    return XtGeometryAlmost;
+    if (((request->request_mode & CWWidth) && request->width != reply->width) ||
+        ((request->request_mode & CWHeight) && request->height != reply->height))
+        return XtGeometryAlmost;
+    return (request->request_mode & XtCWQueryOnly) ? XtGeometryYes
+                                                   : XtGeometryDone;
 }
 
 static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *request,

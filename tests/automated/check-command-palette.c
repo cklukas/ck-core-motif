@@ -7,6 +7,7 @@
 #include <string.h>
 static unsigned checks;
 #define CHECK(x) do { if (!(x)) { fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #x); return EXIT_FAILURE; } ++checks; } while (0)
+static Boolean proposed_geometry_is_accepted(Widget child) { XtWidgetGeometry request, reply; XtGeometryResult result; if (!child) return False; XtVaGetValues(child, XmNwidth, &request.width, XmNheight, &request.height, NULL); request.request_mode = CWWidth | CWHeight; result = XtMakeGeometryRequest(child, &request, &reply); if (result == XtGeometryAlmost) { request = reply; result = XtMakeGeometryRequest(child, &request, &reply); } if (result != XtGeometryYes && result != XtGeometryDone) return False; request.request_mode |= XtCWQueryOnly; return XtMakeGeometryRequest(child, &request, &reply) == XtGeometryYes; }
 static void invoke(Widget widget, XtPointer data, XtPointer call) { const char **seen = (const char **)data; XmCommandPaletteCallbackStruct *callback = (XmCommandPaletteCallbackStruct *)call; (void)widget; if (callback && callback->id) *seen = callback->id; }
 static void dismissed(Widget widget, XtPointer data, XtPointer call) { unsigned *count = (unsigned *)data; (void)widget; (void)call; ++*count; }
 int main(int argc, char **argv) {
@@ -19,7 +20,7 @@ int main(int argc, char **argv) {
     palette = XmVaCreateCommandPalette(row, (char *)"palette", NULL);
     XtAddCallback(palette, XmNcommandPaletteInvokeCallback, invoke, &seen); XtAddCallback(palette, XmNcommandPaletteDismissCallback, dismissed, &dismissals); XmCommandPaletteSetItems(palette, items, 3); XmStringFree(one); XmStringFree(two); XmStringFree(three); XmStringFree(shortcut); CHECK(XmCommandPaletteGetItemCount(palette) == 3);
     XmCommandPaletteSetFilter(palette, "OPEN"); count = (int)XmCommandPaletteGetVisibleCount(palette); CHECK(count == 1);
-    XtRealizeWidget(shell); XmCommandPaletteShow(palette); XSync(XtDisplay(shell), False); CHECK(XmCommandPaletteIsShown(palette));
+    XtRealizeWidget(shell); XmCommandPaletteShow(palette); CHECK(proposed_geometry_is_accepted(XtNameToWidget(palette, (char *)"search"))); XSync(XtDisplay(shell), False); CHECK(XmCommandPaletteIsShown(palette));
     accessibility = XmAccessibilityCreate(shell, "CommandPaletteTest"); CHECK(accessibility != NULL); id = XmAccessibilityWidget(accessibility, palette); CHECK(XmAccessibilityQuery(accessibility, id, &info)); CHECK(info.role == XmACCESSIBLE_PANEL && info.name != NULL && strcmp(info.name, "Command palette") == 0 && info.action_count == 1); XmAccessibleInfoClear(&info);
     XmCommandPaletteInvokeSelection(palette, NULL); CHECK(seen && strcmp(seen, "open") == 0); XmCommandPaletteSetFilter(palette, "missing"); count = (int)XmCommandPaletteGetVisibleCount(palette); CHECK(count == 0); XmCommandPaletteInvokeSelection(palette, NULL); CHECK(seen && strcmp(seen, "open") == 0); XmAccessibilityDestroy(accessibility);
     XmCommandPaletteDismiss(palette, NULL); CHECK(!XmCommandPaletteIsShown(palette)); CHECK(dismissals == 1); XtDestroyWidget(shell); XtCloseDisplay(XtDisplay(shell)); XtDestroyApplicationContext(app);

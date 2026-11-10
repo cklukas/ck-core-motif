@@ -19,6 +19,26 @@ static Boolean last_expanded;
     ++checks; \
 } while (0)
 
+static Boolean proposed_geometry_is_accepted(Widget child)
+{
+    XtWidgetGeometry request, reply;
+    XtGeometryResult result;
+    if (!child)
+        return False;
+    XtVaGetValues(child, XmNwidth, &request.width, XmNheight, &request.height,
+                  NULL);
+    request.request_mode = CWWidth | CWHeight;
+    result = XtMakeGeometryRequest(child, &request, &reply);
+    if (result == XtGeometryAlmost) {
+        request = reply;
+        result = XtMakeGeometryRequest(child, &request, &reply);
+    }
+    if (result != XtGeometryYes && result != XtGeometryDone)
+        return False;
+    request.request_mode |= XtCWQueryOnly;
+    return XtMakeGeometryRequest(child, &request, &reply) == XtGeometryYes;
+}
+
 static void toggled(Widget widget, XtPointer client, XtPointer call)
 {
     XmSidebarCallbackStruct *callback = (XmSidebarCallbackStruct *)call;
@@ -58,6 +78,7 @@ int main(int argc, char **argv)
     XSync(XtDisplay(shell), False);
     XtResizeWidget(sidebar, 240, 120, 0);
     XSync(XtDisplay(shell), False);
+    CHECK(proposed_geometry_is_accepted(content));
     CHECK(XtIsManaged(content));
     XtVaGetValues(sidebar, XmNwidth, &width, NULL);
     CHECK(width == 240);

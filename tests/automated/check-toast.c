@@ -6,6 +6,7 @@
 #include <string.h>
 static unsigned checks;
 #define CHECK(x) do { if (!(x)) { fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, #x); return EXIT_FAILURE; } ++checks; } while (0)
+static Boolean proposed_geometry_is_accepted(Widget child) { XtWidgetGeometry request, reply; XtGeometryResult result; if (!child) return False; XtVaGetValues(child, XmNwidth, &request.width, XmNheight, &request.height, NULL); request.request_mode = CWWidth | CWHeight; result = XtMakeGeometryRequest(child, &request, &reply); if (result == XtGeometryAlmost) { request = reply; result = XtMakeGeometryRequest(child, &request, &reply); } if (result != XtGeometryYes && result != XtGeometryDone) return False; request.request_mode |= XtCWQueryOnly; return XtMakeGeometryRequest(child, &request, &reply) == XtGeometryYes; }
 static void action(Widget widget, XtPointer data, XtPointer call) { unsigned *calls = (unsigned *)data; XmToastCallbackStruct *callback = (XmToastCallbackStruct *)call; (void)widget; if (callback && callback->reason == XmCR_ACTIVATE) ++*calls; }
 static void dismissed(Widget widget, XtPointer data, XtPointer call) { unsigned *calls = (unsigned *)data; XmToastCallbackStruct *callback = (XmToastCallbackStruct *)call; (void)widget; if (callback && callback->reason == XmCR_UNMAP) ++*calls; }
 int main(int argc, char **argv) {
@@ -16,7 +17,7 @@ int main(int argc, char **argv) {
     message = XmStringCreateLocalized((char *)"Saved"); label = XmStringCreateLocalized((char *)"Undo");
     toast = XmVaCreateToast(row, (char *)"toast", XmNtoastMessage, message, XmNtoastActionLabel, label, XmNtoastTimeout, 0UL, NULL);
     XmStringFree(message); XmStringFree(label); XtAddCallback(toast, XmNtoastActionCallback, action, &actions); XtAddCallback(toast, XmNtoastDismissCallback, dismissed, &dismissals);
-    XtRealizeWidget(shell); XmToastShow(toast); XSync(XtDisplay(shell), False); CHECK(XmToastIsShown(toast));
+    XtRealizeWidget(shell); XmToastShow(toast); XSync(XtDisplay(shell), False); CHECK(proposed_geometry_is_accepted(XtNameToWidget(toast, (char *)"message"))); CHECK(XmToastIsShown(toast));
     accessibility = XmAccessibilityCreate(shell, "ToastTest"); CHECK(accessibility != NULL); id = XmAccessibilityWidget(accessibility, toast);
     CHECK(XmAccessibilityQuery(accessibility, id, &info)); CHECK(info.role == XmACCESSIBLE_PANEL && info.name != NULL && strcmp(info.name, "Saved") == 0 && info.action_count == 1); XmAccessibleInfoClear(&info);
     CHECK(XmAccessibilityAction(accessibility, id, 0)); CHECK(actions == 1); XmAccessibilityDestroy(accessibility);
