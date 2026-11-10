@@ -9853,7 +9853,7 @@ XmeStringGetComponent(_XmStringContext context,
   XmDirection              push_dir;
   XmStringDirection	   dir;
   XmStringTag		   tag = NULL;
-  int			   char_count = 0;
+  unsigned int		   char_count = 0;
   XmTextType		   text_type = 0;
   char 		          *seg_text = NULL;
   XmStringTag	          *begin_rends = NULL;

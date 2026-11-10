@@ -12,4 +12,5 @@ assert "set_component_string_length(length, value, copy_data)" in body
 assert "component_length > (size_t)UINT_MAX" in source[helper_start:function_start]
 assert "XtFree((char *)*value);" in source[helper_start:function_start]
 assert "*length = strlen(" not in body
+assert "unsigned int" in body[body.index("char_count = 0") - 40:body.index("char_count = 0")]
 print("XmString component lengths are checked before narrowing")

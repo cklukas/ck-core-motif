@@ -1,3 +1,11 @@
+Preserve wide Compound String component lengths (2026-11-10)
+============================================================
+
+- Keep internal Compound String component byte counts unsigned through public
+  traversal, direction selection, and copy-allocation guards, preventing valid
+  lengths above `INT_MAX` from becoming negative; see
+  docs/xmstring-component-length.md.
+
 Bound Compound String draw lengths (2026-11-10)
 ================================================
 
