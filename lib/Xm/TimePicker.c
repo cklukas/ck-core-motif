@@ -182,6 +182,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
     XmTimePickerWidget old = (XmTimePickerWidget)old_widget;
     XmTimePickerWidget picker = (XmTimePickerWidget)new_widget;
     Boolean render_changed = old->time_picker.render_table != picker->time_picker.render_table;
+    Boolean direction_changed = old->primitive.layout_direction !=
+                                picker->primitive.layout_direction;
     Boolean colors_changed = old->primitive.foreground != picker->primitive.foreground ||
                              old->core.background_pixel != picker->core.background_pixel;
     (void)request; (void)args; (void)count;
@@ -209,7 +211,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
         }
     }
     return colors_changed || compare_values(&old->time_picker.value, &picker->time_picker.value) != 0 ||
-           old->time_picker.format_24_hour != picker->time_picker.format_24_hour || render_changed;
+           old->time_picker.format_24_hour != picker->time_picker.format_24_hour || render_changed ||
+           direction_changed;
 }
 
 static void Redisplay(Widget widget, XEvent *event, Region region) {

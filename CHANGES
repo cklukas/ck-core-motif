@@ -1,3 +1,10 @@
+Repaint TimePicker after direction changes (2026-11-10)
+=========================================================
+
+- Include `XmNlayoutDirection` updates in TimePicker's redraw result so a
+  realized control refreshes its directional text and focus feedback; see
+  docs/time-picker.md.
+
 Traverse TimePicker fields logically in RTL (2026-11-10)
 ==========================================================
 

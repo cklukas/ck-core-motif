@@ -22,6 +22,9 @@ are recognized without requiring a character. Return activates the value.
 Callbacks are delivered after the value has been committed and may destroy
 the widget.
 
+A live `XmNlayoutDirection` update repaints the realized control, including
+the direction-sensitive time text and selected-field feedback.
+
 <!-- gallery-demo-tabs: begin -->
 ## Component demo
 
