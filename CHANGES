@@ -1,3 +1,11 @@
+Keep Mrm hardened-contract checks current (2026-11-10)
+=======================================================
+
+- Update focused Mrm regression checks and their maintenance notes for the
+  current validated-count representation, neutral failed-output handles, and
+  header-only zero-widget module descriptors.  The checks now assert the
+  stronger existing safety contracts rather than obsolete source spellings.
+
 Keep the gallery toolbar source contract current (2026-11-10)
 ==============================================================
 

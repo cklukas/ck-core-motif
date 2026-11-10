@@ -9,7 +9,7 @@ checks = {
     "Idb__HDR_GetHeader": "if (file_id == NULL)",
     "Idb__HDR_PutHeader": "if (file_id == NULL)",
     "Idb__HDR_UpdateHeader": "if (file_id == NULL || buffer == NULL)",
-    "Idb__HDR_ReturnItem": "if (file_id == NULL || entry_return == NULL)",
+    "Idb__HDR_ReturnItem": "if (entry_return == NULL)",
     "Idb__HDR_InitHeader": "hdrbuf == NULL || hdrbuf->IDB_record == NULL",
 }
 for function, guard in checks.items():
@@ -17,4 +17,7 @@ for function, guard in checks.items():
     next_start = source.find("\nCardinal ", start + 1)
     region = source[start:] if next_start < 0 else source[start:next_start]
     assert guard in region, (function, guard)
+return_item = source[source.index("\nIdb__HDR_ReturnItem ("):source.index("\nCardinal ", source.index("\nIdb__HDR_ReturnItem (") + 1)]
+assert return_item.index("if (entry_return == NULL)") < return_item.index("entry_return->rec_no = 0;")
+assert return_item.index("entry_return->item_offs = 0;") < return_item.index("if (file_id == NULL)")
 print("Mrm header helpers validate handles and allocations")

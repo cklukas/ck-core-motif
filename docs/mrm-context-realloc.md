@@ -5,7 +5,9 @@ nav_exclude: true
 
 `UrmResizeResourceContext` now keeps the old buffer owned by the context until
 `XtRealloc` succeeds.  A failed resize returns `MrmFAILURE` without publishing
-a null pointer or changing the recorded buffer size.
+a null pointer or changing the recorded buffer size.  Its validated public
+`int` request is first retained as `MrmSize`, so the reallocation and recorded
+context size use the same bounded representation.
 
 The source-level regression is
 `tests/automated/check-mrm-context-realloc.py`.

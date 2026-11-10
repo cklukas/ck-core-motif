@@ -11,7 +11,8 @@ args_check = region.index("if (num_args != 0 && args == NULL)")
 assert args_check < zero
 loc_alloc = region.index("locargs = (ArgList) XtMalloc")
 assert region.index("if (locargs == NULL)", loc_alloc) < region.index("UrmPlistInit", loc_alloc)
-plist = region.index("UrmPlistInit (num_args, &ptrlist)")
+assert "arg_count = (int)num_args;" in region
+plist = region.index("UrmPlistInit (arg_count, &ptrlist)")
 assert "!= MrmSUCCESS" in region[plist:plist + 100]
 res_alloc = region.index("resptr = (RGMResourceDescPtr) XtMalloc")
 assert "if (resptr == NULL)" in region[res_alloc:res_alloc + 240]

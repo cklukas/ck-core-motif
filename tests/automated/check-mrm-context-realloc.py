@@ -10,12 +10,14 @@ start = text.index("UrmResizeResourceContext (")
 end = text.index("\n\n\f", start)
 region = text[start:end]
 
-if "newbuf = XtRealloc (context_id->data_buffer, size)" not in region:
+if "requested_size = (MrmSize)size;" not in region:
+    raise SystemExit("resource-context resize does not preserve its validated size")
+if "newbuf = XtRealloc (context_id->data_buffer, requested_size)" not in region:
     raise SystemExit("resource-context resize does not retain realloc result")
 if "if ( newbuf == NULL )" not in region:
     raise SystemExit("resource-context realloc has no failure guard")
 if region.index("if ( newbuf == NULL )") < region.index(
-    "newbuf = XtRealloc (context_id->data_buffer, size)"
+    "newbuf = XtRealloc (context_id->data_buffer, requested_size)"
 ):
     raise SystemExit("realloc failure guard precedes the realloc")
 if region.index("context_id->data_buffer = newbuf") < region.index(

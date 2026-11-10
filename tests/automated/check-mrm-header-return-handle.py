@@ -11,6 +11,7 @@ for needle in ("internal_id.rec_no <= 0", "IDBHeaderFreeMax - sizeof(IDBDataEntr
                "IDBDataFreeMax - sizeof(IDBDataEntryHdr)"):
     if needle not in region:
         raise SystemExit(f"Mrm RID return lacks stored-handle validation: {needle}")
-if region.index("internal_id.rec_no <= 0") > region.index("entry_return->rec_no"):
+publish = "entry_return->rec_no = recptr->RID_pointers[resndx].internal_id.rec_no;"
+if region.index("internal_id.rec_no <= 0") > region.index(publish):
     raise SystemExit("Mrm RID return validates the handle after publishing it")
 print("Mrm header RID return validates stored handle bounds before publication")
