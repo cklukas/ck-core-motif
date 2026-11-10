@@ -1,3 +1,10 @@
+Remove unreachable XmRowActions allocation check (2026-11-10)
+=============================================================
+
+- Keep the effective Xt `Cardinal` allocation-width validation while removing
+  a provably unreachable `SIZE_MAX` comparison that produced a strict-build
+  diagnostic; see docs/row-actions-allocation-bounds.md.
+
 Honor XmRowActions logical side placement (2026-11-10)
 ========================================================
 

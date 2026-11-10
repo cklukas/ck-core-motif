@@ -244,8 +244,10 @@ void XmRowActionsSetItems(Widget widget, const XmRowActionItem *items, Cardinal 
     if (!widget || !XmIsRowActions(widget) || widget->core.being_destroyed ||
         (count && !items)) return;
     actions = (XmRowActionsWidget)widget;
-    if (count && ((size_t)count > SIZE_MAX / sizeof(*actions->actions.items) ||
-                  (size_t)count > UINT_MAX / sizeof(*actions->actions.items))) {
+    /* Cardinal is the width accepted by XtCalloc. The UINT_MAX bound is
+     * therefore the effective allocation guard; a SIZE_MAX comparison is
+     * unreachable on supported Cardinal platforms and trips -Wtype-limits. */
+    if (count && count > UINT_MAX / sizeof(*actions->actions.items)) {
         XtWarning("XmRowActionsSetItems: item array is too large");
         return;
     }
