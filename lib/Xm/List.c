@@ -10645,7 +10645,8 @@ XmCreateList(Widget parent,
 	     ArgList args,
 	     Cardinal argCount)
 {
-  return XtCreateWidget(name, xmListWidgetClass, parent, args, argCount);
+  return XtCreateWidget(name != NULL ? name : (char *)"List",
+			xmListWidgetClass, parent, args, argCount);
 }
 
 Widget 
@@ -10709,6 +10710,7 @@ XmCreateScrolledList(Widget parent,
 {
   Widget sw, lw;
   char *s;
+  char *child_name;
   size_t name_length;
   size_t name_size;
   ArgList Args;
@@ -10719,22 +10721,16 @@ XmCreateScrolledList(Widget parent,
       argCount > (Cardinal)(~(Cardinal)0 - 4))
     return NULL;
 
-  name_length = name == NULL ? 0 : XmStrlen(name);
+  child_name = name != NULL ? name : (char *)"List";
+  name_length = XmStrlen(child_name);
   if (name_length > SIZE_MAX - 3)
     return NULL;
   name_size = name_length + 3;
   s = (char*) ALLOCATE_LOCAL(name_size); /* Name+"SW"+NULL */
   if (s == NULL)
     return NULL;
-  if (name)
-    {
-      strcpy(s, name);
-      strcat(s, "SW");
-    }
-  else
-    {
-      strcpy(s, "SW");
-    }
+  strcpy(s, child_name);
+  strcat(s, "SW");
 
   nargs = 0;
   XtSetArg(my_args[nargs], XmNscrollingPolicy, XmAPPLICATION_DEFINED), nargs++;
@@ -10755,7 +10751,7 @@ XmCreateScrolledList(Widget parent,
   if (sw == NULL)
 	return NULL;
 
-  lw = XtCreateWidget(name, xmListWidgetClass, sw, args, argCount);
+  lw = XtCreateWidget(child_name, xmListWidgetClass, sw, args, argCount);
 
   if (lw == NULL)
     {

@@ -39,6 +39,7 @@ typedef uintptr_t XtArgVal;
 typedef struct { const char *name; uintptr_t value; } Arg, *ArgList;
 static int parent_id, shell_id, list_id;
 static int fail_shell, fail_list, destroyed, callbacks, shells, children;
+static char last_shell_name[64], last_child_name[64];
 static int locks;
 #if TEST_TEXT
 static int allocation_calls, fail_allocation;
@@ -77,9 +78,9 @@ static ArgList XtMergeArgLists(ArgList a, Cardinal n, ArgList b, Cardinal m)
 static void XtFree(char *p) { free(p); }
 #endif
 static Widget XtCreateManagedWidget(char *n, void *c, Widget p, ArgList a, Cardinal z)
-{ (void)n;(void)c;(void)a;(void)z; assert(p==&parent_id); ++shells; return fail_shell?NULL:&shell_id; }
+{ (void)c;(void)a;(void)z; assert(p==&parent_id); snprintf(last_shell_name,sizeof(last_shell_name),"%s",n); ++shells; return fail_shell?NULL:&shell_id; }
 static Widget XtCreateWidget(char *n, void *c, Widget p, ArgList a, Cardinal z)
-{ (void)n;(void)c;(void)a;(void)z; assert(p==&shell_id); ++children; return fail_list?NULL:&list_id; }
+{ (void)c;(void)a;(void)z; assert(p==&shell_id); snprintf(last_child_name,sizeof(last_child_name),"%s",n); ++children; return fail_list?NULL:&list_id; }
 void XtDestroyWidget(Widget w) { assert(w==&shell_id); ++destroyed; }
 static void _XmDestroyParentCallback(void) {}
 static void XtAddCallback(Widget w, const char *n, void (*f)(void), void *p)
@@ -98,6 +99,10 @@ int main(void) {
     assert(callbacks==1 && destroyed==1);
     assert(CreateScrolledInput(&parent_id,NULL,NULL,0)==&list_id);
     assert(callbacks==2 && destroyed==1);
+#if !TEST_TEXT
+    assert(strcmp(last_shell_name,"ListSW")==0);
+    assert(strcmp(last_child_name,"List")==0);
+#endif
     assert(CreateScrolledInput(&parent_id,"overflow",NULL,UINT_MAX)==NULL);
     assert(shells==4 && children==3 && callbacks==2 && destroyed==1);
     assert(locks == 0);
