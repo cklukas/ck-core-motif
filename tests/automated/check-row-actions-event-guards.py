@@ -8,7 +8,7 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "RowActions.c").read_text(
 )
 start = source.index("static void events(Widget widget")
 body = source[start : source.index("\nWidget XmCreateRowActions", start)]
-guard = "if (widget == NULL || event == NULL || !XmIsRowActions(widget)) return;"
+guard = "if (widget == NULL || event == NULL || !XmIsRowActions(widget) ||\n        widget->core.being_destroyed || !XtIsSensitive(widget)) return;"
 assert guard in body
 assert body.index(guard) < body.index("event->type")
 print("PASS RowActions event callbacks validate widget and event inputs")

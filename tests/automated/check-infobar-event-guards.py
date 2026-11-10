@@ -10,4 +10,5 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "InfoBar.c").read_text(
 start = source.index("static void Events(Widget widget")
 body = source[start:source.index("\nstatic Boolean SetValues", start)]
 assert "bar==NULL||event==NULL||!XmIsInfoBar(widget)" in body
+assert "widget->core.being_destroyed||!XtIsSensitive(widget)" in body
 print("InfoBar event callbacks validate widget and event inputs")

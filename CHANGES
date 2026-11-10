@@ -1,3 +1,11 @@
+Honor disabled InfoBar and RowActions input (2026-11-10)
+===========================================================
+
+- Keep InfoBar action and close hit targets inactive while the banner or an
+  ancestor is insensitive.
+- Keep RowActions Space/Return reveal input inactive while the strip or an
+  ancestor is insensitive.
+
 Honor disabled Toast input (2026-11-10)
 ========================================
 

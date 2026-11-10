@@ -218,7 +218,8 @@ static void activate(Widget button, XtPointer client, XtPointer call) {
 static void events(Widget widget, XtPointer data, XEvent *event, Boolean *dispatch) {
     KeySym key; char input[2]; XmRowActionsWidget actions;
     (void)data;
-    if (widget == NULL || event == NULL || !XmIsRowActions(widget)) return;
+    if (widget == NULL || event == NULL || !XmIsRowActions(widget) ||
+        widget->core.being_destroyed || !XtIsSensitive(widget)) return;
     actions = (XmRowActionsWidget)widget;
     if (event->type != KeyPress) return;
     XLookupString(&event->xkey, input, sizeof(input), &key, NULL);

@@ -1,4 +1,5 @@
 #include <X11/IntrinsicP.h>
+#include <X11/keysym.h>
 #include <Xm/Accessible.h>
 #include <Xm/List.h>
 #include <Xm/RowActions.h>
@@ -25,6 +26,16 @@ static void invoked(Widget widget, XtPointer data, XtPointer call)
     (void)widget;
     if (callback && callback->id)
         *seen = callback->id;
+}
+
+static void key(Widget widget, KeySym keysym)
+{
+    XEvent event = {0};
+    event.xkey.type = KeyPress;
+    event.xkey.display = XtDisplay(widget);
+    event.xkey.window = XtWindow(widget);
+    event.xkey.keycode = XKeysymToKeycode(XtDisplay(widget), keysym);
+    XtDispatchEvent(&event);
 }
 
 int main(int argc, char **argv)
@@ -75,6 +86,13 @@ int main(int argc, char **argv)
     CHECK(!XmRowActionsIsRevealed(actions));
     XtRealizeWidget(shell);
     XSync(XtDisplay(shell), False);
+    XtSetSensitive(actions, False);
+    key(actions, XK_space);
+    CHECK(!XmRowActionsIsRevealed(actions));
+    XtSetSensitive(actions, True);
+    key(actions, XK_space);
+    CHECK(XmRowActionsIsRevealed(actions));
+    XmRowActionsReveal(actions, False);
     CHECK(XmListGetSelectedPos(list, &positions, &count) && count == 1 &&
           positions[0] == 2);
     XtFree((char *)positions);

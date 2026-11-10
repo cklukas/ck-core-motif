@@ -9,7 +9,9 @@ Changing `XmNlayoutDirection` on a realized InfoBar requests a redraw so its
 message, action, and close-control placement update together.
 `XmNinfoSeverity` and `XmNinfoMessage` are explicit resources; an optional
 `XmNinfoActionLabel` invokes `XmNinfoActionCallback`, and
-`XmNinfoClosable` enables Escape or close-glyph dismissal. `XmInfoBarDismiss`
+`XmNinfoClosable` enables Escape or close-glyph dismissal. While an InfoBar is
+insensitive, those input paths and its action hit target are inactive.
+`XmInfoBarDismiss`
 unmanages the bar first and then invokes `XmNinfoDismissCallback`, so the
 banner disappears even if an application only observes the notification. The
 bar never grabs input or moves keyboard focus.
