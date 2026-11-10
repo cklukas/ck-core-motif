@@ -1,3 +1,9 @@
+Accept empty MWM workspace-hint lists (2026-11-10)
+===================================================
+
+- Treat a valid workspace-hint list with zero entries as a successful empty
+  result rather than depending on a zero-byte allocation.
+
 Keep WSM diagnostic helpers safe after caller failures (2026-11-10)
 ====================================================================
 

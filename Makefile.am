@@ -304,6 +304,7 @@ EXTRA_DIST += tests/automated/check-mwm-restart-command-allocation.py docs/mwm-r
 EXTRA_DIST += tests/automated/check-mwm-client-list-growth.py docs/mwm-client-list-growth.md
 EXTRA_DIST += tests/automated/check-mwm-db-home-allocation.py docs/mwm-db-home-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-workspace-list-serialization.py docs/mwm-workspace-list-serialization.md
+EXTRA_DIST += tests/automated/check-mwm-workspace-hints-empty.py docs/mwm-workspace-hints-empty.md
 EXTRA_DIST += tests/automated/check-mwm-label-parse-allocation.py docs/mwm-label-parse-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-graphics-list-allocation.py docs/mwm-graphics-list-allocation.md
 EXTRA_DIST += tests/automated/check-mwm-client-workspace-list-allocation.py docs/mwm-client-workspace-list-allocation.md

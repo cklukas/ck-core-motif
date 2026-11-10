@@ -1305,18 +1305,21 @@ Status GetWorkspaceHints (Display *display, Window window,
 		_DtWsmFreeWorkspaceHints (pWsHints);
 		return (BadAlloc);
 	    }
-	    paWs = (Atom *)XtMalloc
-		((Cardinal)(pWsHints->numWorkspaces * sizeof(Atom)));
-	    if (paWs == NULL)
+	    if (pWsHints->numWorkspaces != 0)
 	    {
-		_DtWsmFreeWorkspaceHints (pWsHints);
-		return (BadAlloc);
-	    }
-	    memcpy (paWs, pWsHints->pWorkspaces,
+		paWs = (Atom *)XtMalloc
+		    ((Cardinal)(pWsHints->numWorkspaces * sizeof(Atom)));
+		if (paWs == NULL)
+		{
+		    _DtWsmFreeWorkspaceHints (pWsHints);
+		    return (BadAlloc);
+		}
+		memcpy (paWs, pWsHints->pWorkspaces,
 		    pWsHints->numWorkspaces * sizeof(Atom));
 
-	    *pCount = pWsHints->numWorkspaces;
-	    *ppWsAtoms = paWs;
+		*pCount = pWsHints->numWorkspaces;
+		*ppWsAtoms = paWs;
+	    }
 	}
 
 	if ((pWsHints->flags & DT_WORKSPACE_HINTS_WSFLAGS) &&
