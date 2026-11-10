@@ -1,3 +1,11 @@
+Harden MWM session persistence boundaries (2026-11-10)
+======================================================
+
+- Make session callback registration, checkpoint saving, client enumeration,
+  and client-match output safe when shutdown leaves partial manager/client
+  state.  Failed checkpoint closes now fail rather than loading a partial
+  database; see docs/mwm-session-save-inputs.md.
+
 Bound MWM Xlib text lengths (2026-11-10)
 ==========================================
 

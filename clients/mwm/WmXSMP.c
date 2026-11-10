@@ -1167,7 +1167,13 @@ saveXSMPClient(FILE *fp, ClientData *pCD)
 {
     int clientX, clientY;
     int clientWd, clientHt;
-    char *clientID = pCD->smClientID;
+    char *clientID;
+
+    if (fp == NULL || pCD == NULL || pCD->pSD == NULL ||
+	pCD->smClientID == NULL)
+	return False;
+
+    clientID = pCD->smClientID;
 
     fprintf(fp, dbClientFormat, XSMPClientStr, clientID, clientID);
 
@@ -1192,21 +1198,24 @@ saveXSMPClient(FILE *fp, ClientData *pCD)
 	WmWorkspaceData *pWS;
 	int i;
 
-	for (i = 0; i < pCD->numInhabited; i++)
+	if (pCD->pWsList != NULL)
 	{
-	    if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
-		!= (WmWorkspaceData *)NULL && pWS->name != NULL)
+	    for (i = 0; i < pCD->numInhabited; i++)
 	    {
-		if (SAVE_RESOURCE(pCD, WMSAVE_ICON_X))
+		if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
+		    != (WmWorkspaceData *)NULL && pWS->name != NULL)
 		{
-		    fprintf(fp, iconXPosStr, clientID, pWS->name);
-		    fprintf(fp, intArg, pCD->pWsList[i].iconX);
-		}
+		    if (SAVE_RESOURCE(pCD, WMSAVE_ICON_X))
+		    {
+			fprintf(fp, iconXPosStr, clientID, pWS->name);
+			fprintf(fp, intArg, pCD->pWsList[i].iconX);
+		    }
 
-		if (SAVE_RESOURCE(pCD, WMSAVE_ICON_Y))
-		{
-		    fprintf(fp, iconYPosStr, clientID, pWS->name);
-		    fprintf(fp, intArg, pCD->pWsList[i].iconY);
+		    if (SAVE_RESOURCE(pCD, WMSAVE_ICON_Y))
+		    {
+			fprintf(fp, iconYPosStr, clientID, pWS->name);
+			fprintf(fp, intArg, pCD->pWsList[i].iconY);
+		    }
 		}
 	    }
 	}
@@ -1285,6 +1294,9 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
     char *clientWorkspaces;
 #endif
 
+    if (fp == NULL || pCD == NULL || pCD->pSD == NULL)
+	return False;
+
     if (!getProxyClientInfo(pCD, &proxyClientInfo))
 	return False;
 
@@ -1324,16 +1336,19 @@ saveProxyClient(FILE *fp, ClientData *pCD, int clientIDNum)
 	WmWorkspaceData *pWS;
 	int i;
 
-	for (i = 0; i < pCD->numInhabited; i++)
+	if (pCD->pWsList != NULL)
 	{
-	    if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
-		!= (WmWorkspaceData *)NULL && pWS->name != NULL)
+	    for (i = 0; i < pCD->numInhabited; i++)
 	    {
-		fprintf(fp, iconXPosStr, clientID, pWS->name);
-		fprintf(fp, intArg, pCD->pWsList[i].iconX);
+		if ((pWS = GetWorkspaceData(pSD, pCD->pWsList[i].wsID))
+		    != (WmWorkspaceData *)NULL && pWS->name != NULL)
+		{
+		    fprintf(fp, iconXPosStr, clientID, pWS->name);
+		    fprintf(fp, intArg, pCD->pWsList[i].iconX);
 
-		fprintf(fp, iconYPosStr, clientID, pWS->name);
-		fprintf(fp, intArg, pCD->pWsList[i].iconY);
+		    fprintf(fp, iconYPosStr, clientID, pWS->name);
+		    fprintf(fp, intArg, pCD->pWsList[i].iconY);
+		}
 	    }
 	}
 #else
@@ -1404,6 +1419,9 @@ dbRemoveProxyClientEntry(char *proxyClientID)
 void
 AddSMCallbacks(void)
 {
+    if (wmGD.topLevelW == NULL)
+	return;
+
     XtAddCallback(wmGD.topLevelW, XtNsaveCallback,
 		  smSaveYourselfCallback, (XtPointer)NULL);
     XtAddCallback(wmGD.topLevelW, XtNdieCallback,
@@ -1465,6 +1483,10 @@ SaveClientResourceDB(void)
     int clientIDNum = 0;
     ClientListEntry *pCL;
 
+    if (wmGD.topLevelW == NULL || wmGD.numScreens < 0 ||
+	(wmGD.numScreens > 0 && wmGD.Screens == NULL))
+	return (XrmDatabase)NULL;
+
     /* Iterate through client list, saving */
     /* appropriate resources for each. */
 #ifndef WSM
@@ -1493,6 +1515,8 @@ SaveClientResourceDB(void)
 		continue;
 
 	    pCD = pCL->pCD;
+	    if (pCD == NULL)
+		continue;
 
 	    if (pCD->smClientID != (String)NULL)
 	    {
@@ -1506,7 +1530,9 @@ SaveClientResourceDB(void)
 	}
     }
 
-    fclose(fp);
+
+    if (fclose(fp) != 0)
+	return (XrmDatabase)NULL;
 
     /* Retrieve database from file. */
     return XrmGetFileDatabase(dbFileName);
@@ -1520,6 +1546,9 @@ SaveClientResourceDB(void)
 Boolean
 FindClientDBMatch(ClientData *pCD, char **workSpaceNamesP)
 {
+    if (workSpaceNamesP != NULL)
+	*workSpaceNamesP = NULL;
+
     if (pCD == NULL)
 	return False;
 
@@ -1540,6 +1569,10 @@ GetSmClientIdClientList(ClientData ***clients, int *nClients)
 
     *nClients = 0;
     *clients = (ClientData **)NULL;
+    if (wmGD.numScreens < 0 ||
+	(wmGD.numScreens > 0 && wmGD.Screens == NULL))
+	return False;
+
     for (scr = 0; scr < wmGD.numScreens; scr++)
     {
 	pSD = &(wmGD.Screens[scr]);
