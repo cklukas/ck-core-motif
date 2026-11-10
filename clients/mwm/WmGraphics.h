@@ -45,7 +45,7 @@ extern void StretcherCorner (RList *prTop, RList *prBot, int x, int y,
 			     int cnum, unsigned int swidth, 
 			     unsigned int cwidth, unsigned int cheight);
 extern void WmDrawString (Display *dpy, Drawable d, GC gc, int x, int y, 
-			  char *string, unsigned int length);
+			  char *string, int length);
 #ifdef WSM
 extern void WmDrawXmString (Display *dpy, Window w, XmFontList xmfontlist, 
 			    XmString xmstring, GC gc, Position x, Position y, 

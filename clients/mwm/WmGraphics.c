@@ -898,19 +898,26 @@ void DrawStringInBox (Display *dpy, Window win, GC gc, XFontStruct *pfs, XRectan
     XGCValues gcv;
     int textWidth;
     int xCenter;
+    int stringLength;
+    size_t stringLengthSize;
     XRectangle clipBox;
 
     if (dpy == NULL || gc == NULL || pfs == NULL || pbox == NULL ||
 	str == NULL)
 	return;
 
+    stringLengthSize = strlen(str);
+    if (stringLengthSize > (size_t)INT_MAX)
+	return;
+    stringLength = (int)stringLengthSize;
+
     /* compute text position */
-    textWidth = XTextWidth(pfs, str, strlen(str));
+    textWidth = XTextWidth(pfs, str, stringLength);
 
     if (textWidth < (int) pbox->width) {	/* center text if there's room */
 	xCenter = (int) pbox->x + ((int) pbox->width - textWidth) / 2 ;
 	WmDrawString(dpy, win, gc, xCenter, (pbox->y + pfs->ascent), 
-		    str, strlen(str));
+		    str, stringLength);
     }
     else {				/* left justify & clip text */
 	clipBox.x = 0;			/* set up clip rectangle */
@@ -922,7 +929,7 @@ void DrawStringInBox (Display *dpy, Window win, GC gc, XFontStruct *pfs, XRectan
 			    &clipBox, 1, Unsorted);
 
 	WmDrawString(dpy, win, gc, pbox->x, (pbox->y + pfs->ascent), 
-		    str, strlen(str));
+		    str, stringLength);
 
 	gcv.clip_x_origin = 0;		/* erase clip_mask from gc */
 	gcv.clip_y_origin = 0;
@@ -1113,10 +1120,11 @@ void FreeRList (RList *prl)
  *    B/W displays.
  *			
  *************************************<->***********************************/
-void WmDrawString (Display *dpy, Drawable d, GC gc, int x, int y, char *string, unsigned int length)
+void WmDrawString (Display *dpy, Drawable d, GC gc, int x, int y, char *string,
+		   int length)
 {
     if (dpy == NULL || d == None || gc == NULL || string == NULL ||
-	ACTIVE_PSD == NULL)
+	ACTIVE_PSD == NULL || length < 0)
 	return;
 
     if (ACTIVE_PSD->cleanText)

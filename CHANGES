@@ -1,3 +1,10 @@
+Bound MWM Xlib text lengths (2026-11-10)
+==========================================
+
+- Keep MWM's measured text lengths within Xlib's signed `int` API contract
+  before measuring or drawing title/feedback strings; see
+  docs/mwm-draw-string-length.md.
+
 Reject null MWM metadata refresh records (2026-11-10)
 ======================================================
 
