@@ -1010,6 +1010,10 @@ ProcessWmClass (ClientData *pCD)
 {
     XClassHint classHint;
 
+    if (pCD == NULL)
+    {
+	return;
+    }
 
 #ifdef PORT_OLDXLIB
     classHint.res_class = "";
@@ -1066,6 +1070,11 @@ ProcessSmClientID (ClientData *pCD)
     int actualFormat;
     unsigned long nitems, leftover;
     char *clientID = NULL;
+
+    if (pCD == NULL)
+    {
+	return;
+    }
 
     if (pCD->smClientID != (String)NULL)
     {
@@ -1131,6 +1140,11 @@ ProcessWmSaveHint (ClientData *pCD)
     unsigned long nitems, leftover;
     BITS32 *saveHintFlags = (BITS32 *)NULL;
 
+    if (pCD == NULL)
+    {
+	return;
+    }
+
     if ((XGetWindowProperty(DISPLAY, pCD->client, wmGD.xa_WMSAVE_HINT,
 		    0L, 1L, False, AnyPropertyType,
 			    &actualType, &actualFormat, &nitems,
@@ -1193,6 +1207,10 @@ ProcessWmHints (ClientData *pCD, Boolean firstTime)
 #endif /* WSM */
     int tmpIconX, tmpIconY;
 
+    if (pCD == NULL)
+    {
+	return;
+    }
 
     /*
      * If the WM_HINTS property does not exist the flags field will be
@@ -1658,6 +1676,11 @@ ProcessWmNormalHints (ClientData *pCD, Boolean firstTime, long manageFlags)
     unsigned int	oldWidthInc = 0, oldHeightInc = 0;
     unsigned int	oldBaseWidth = 0, oldBaseHeight = 0;
     unsigned int	incWidth = 0, incHeight = 0;
+
+    if (pCD == NULL)
+    {
+	return;
+    }
 
     /*
      * Use a custom verion of the Xlib routine to get WM_NORMAL_HINTS.
@@ -2466,6 +2489,11 @@ ProcessWmWindowTitle (ClientData *pCD, Boolean firstTime)
     XTextProperty wmNameProp;
     XmString title_xms = NULL;
 
+    if (pCD == NULL)
+    {
+	return;
+    }
+
     if ((pCD->clientDecoration & MWM_DECOR_TITLE) &&
 #ifdef WSM
 	(!firstTime || HasProperty (pCD, XA_WM_NAME)) &&
@@ -2695,6 +2723,11 @@ ProcessWmIconTitle (ClientData *pCD, Boolean firstTime)
 {
   XTextProperty wmIconNameProp;
   XmString icon_xms = NULL;
+
+  if (pCD == NULL)
+  {
+    return;
+  }
 
   if ((pCD->clientFunctions & MWM_FUNC_MINIMIZE) &&
       (pCD->transientLeader == NULL) &&
@@ -4157,6 +4190,10 @@ ProcessMwmHints (ClientData *pCD)
 {
     PropMwmHints *pHints;
 
+    if (pCD == NULL)
+    {
+	return;
+    }
 
     /*
      * Fix the client functions and decorations fields if they have

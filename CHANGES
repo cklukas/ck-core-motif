@@ -1,3 +1,11 @@
+Reject null MWM metadata refresh records (2026-11-10)
+======================================================
+
+- Make MWM's class, session ID, save-hint, WM-hint, normal-hint, title, and
+  Motif-hint refresh paths safely ignore a null client record instead of
+  dereferencing it during event or session-management handling; see
+  docs/mwm-client-metadata-inputs.md.
+
 Accept empty MWM workspace-hint lists (2026-11-10)
 ===================================================
 

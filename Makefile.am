@@ -67,6 +67,7 @@ EXTRA_DIST += README.md ABI.md ckdocs.yml scripts/build-docs.py \
 	      tests/automated/check-icong-geometry-traits.py \
 	      tests/automated/check-mwm-function-index-bounds.py \
 	      tests/automated/check-mwm-function-input-pointers.py \
+	      tests/automated/check-mwm-client-metadata-inputs.py \
 	      tests/automated/check-mwm-event-parser-inputs.py \
 	      tests/automated/check-mrm-per-display-open-parameters.py \
 	      tests/automated/check-mrm-widget-fetch-parameters.py \
