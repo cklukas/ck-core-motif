@@ -230,6 +230,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         ring->progress_ring.spacing, ring->primitive.highlight_thickness,
         MIN(SHRT_MAX, RingDiameter(widget,scale)), &ring_x, &ring_y, &diameter);
     if (!label_width) ring_x = ((int)ring->core.width - diameter) / 2;
+    else if (XmDirectionMatchPartial(XmPrim_layout_direction(ring),
+                                     XmRIGHT_TO_LEFT, XmHORIZONTAL_MASK))
+        ring_x = (int)ring->core.width - ring_x - diameter;
     thickness = MAX(1, (int)_XmDpiDefaultDimension(widget,4));
     center_x = ring_x + diameter / 2;
     center_y = ring_y + diameter / 2;
@@ -288,7 +291,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (ring->progress_ring.label && ring->progress_ring.font && label_width) {
         XmStringDraw(display, window, ring->progress_ring.font,
                      ring->progress_ring.label, text_gc,
-                     bounded_position((long long)ring_x + diameter + _XmDpiDefaultDimension(widget,8)),
+                     bounded_position(XmDirectionMatchPartial(XmPrim_layout_direction(ring),
+                                                               XmRIGHT_TO_LEFT,
+                                                               XmHORIZONTAL_MASK)
+                                      ? (long long)ring_x - _XmDpiDefaultDimension(widget,8) - label_width
+                                      : (long long)ring_x + diameter + _XmDpiDefaultDimension(widget,8)),
                      centered_offset(ring->core.height, label_height),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(ring), NULL);

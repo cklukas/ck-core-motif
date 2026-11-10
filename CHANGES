@@ -1,3 +1,10 @@
+Mirror Spinner and Progress Ring labels in RTL (2026-11-10)
+============================================================
+
+- Place labelled Spinner and Progress Ring indicators at the logical start
+  edge and their labels after them in RTL layouts; see docs/spinner.md and
+  docs/progress-ring.md.
+
 Mirror Stepper Left/Right keys in RTL (2026-11-10)
 ====================================================
 

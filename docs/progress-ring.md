@@ -11,6 +11,9 @@ busy state; it deliberately does not create a timer or process-wide animation
 loop. `XmNprogressTextVisible` controls the centered percentage/busy marker,
 while `XmNprogressLabelString` places an optional label beside the ring.
 
+With an external label, the ring is at the logical start edge and the label
+follows it, including right-to-left layouts.
+
 The ring derives its default diameter and stroke width from the existing DPI
 default contract, while explicit width and height resources remain authoritative.
 It exposes the standard progress accessibility role, range and current value,

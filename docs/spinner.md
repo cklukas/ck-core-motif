@@ -7,6 +7,10 @@ nav_exclude: true
 need feedback while work is in progress. It is additive and resource-driven;
 existing Motif classes and callback contracts are unchanged.
 
+When a Spinner has a label, its ring and label follow the layout direction:
+the ring is at the logical start edge and the label follows it in both LTR and
+RTL layouts.
+
 `XmNspinnerActive` controls whether the indicator is running and
 `XmNspinnerInterval` selects the update period. Intervals are bounded to
 10–1000 milliseconds. The control schedules one Xt timeout at a time only

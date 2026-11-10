@@ -231,6 +231,9 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
         spinner->spinner.spacing, spinner->primitive.highlight_thickness,
         _XmDpiDefaultDimension(widget,32), &ring_x, &ring_y, &diameter);
     if (!label_width) ring_x = ((int)spinner->core.width - diameter) / 2;
+    else if (XmDirectionMatchPartial(XmPrim_layout_direction(spinner),
+                                     XmRIGHT_TO_LEFT, XmHORIZONTAL_MASK))
+        ring_x = (int)spinner->core.width - ring_x - diameter;
     thickness = MAX(1, (int)_XmDpiDefaultDimension(widget,3));
     start = (int)((spinner->spinner.phase % 12) * 30) * 64;
     _XmAppearanceDrawRing(display, window, gc, ring_x, ring_y,
@@ -238,7 +241,11 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     if (spinner->spinner.font && spinner->spinner.label) {
         XmStringDraw(display, window, spinner->spinner.font,
                      spinner->spinner.label, gc,
-                     bounded_position((long long)ring_x + diameter + _XmDpiDefaultDimension(widget,8)),
+                     bounded_position(XmDirectionMatchPartial(XmPrim_layout_direction(spinner),
+                                                               XmRIGHT_TO_LEFT,
+                                                               XmHORIZONTAL_MASK)
+                                      ? (long long)ring_x - _XmDpiDefaultDimension(widget,8) - label_width
+                                      : (long long)ring_x + diameter + _XmDpiDefaultDimension(widget,8)),
                      centered_offset(spinner->core.height, label_height),
                      label_width, XmALIGNMENT_BEGINNING,
                      XmPrim_layout_direction(spinner), NULL);
