@@ -17,9 +17,12 @@ toolbar = toolbar[:toolbar.index('} else {', 1)]
 for label in ("Open", "Save", "Print", "Undo"):
     assert f'"{label}"' in toolbar
 assert "XmToolbarSetActions(example, actions, 4)" in toolbar
-assert "XmToolbarGetActionButton(example, i, overflow)" in toolbar
+assert "static const Boolean overflow_modes[] = {False, True};" in toolbar
+assert "XmToolbarGetActionButton(example, i," in toolbar
+assert "overflow_modes[mode]" in toolbar
 assert "gallery_bind_icon(button, XmNlabelPixmap, icons[i])" in toolbar
 assert "gallery_bind_icon(button, XmNarmPixmap, icons[i])" in toolbar
+assert "gallery_bind_icon(button, XmNlabelInsensitivePixmap, icons[i])" in toolbar
 for panel in ("Document settings", "Document name", "Apply settings"):
     assert f'"{panel}"' in source
 assert "XmNindicatorOn, True" in source

@@ -1,3 +1,11 @@
+Keep the gallery toolbar source contract current (2026-11-10)
+==============================================================
+
+- Update the gallery's focused source-contract check for toolbar action
+  buttons to require the current normal and overflow icon binding loop,
+  including its insensitive surface.  Document the responsive live example
+  in `docs/modern-gallery-components.md`.
+
 Keep unrealized DialogShell placement deterministic (2026-11-10)
 ===============================================================
 

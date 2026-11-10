@@ -539,6 +539,11 @@ Helpers and the complete factory are in gallery_examples.c.
 
 ![xmToolbarWidgetClass in the component demo](gallery-screenshots/xm-toolbarwidgetclass.png)
 
+The live toolbar supplies Open, Save, Print, and Undo actions.  Each action
+receives its icon on both the visible and overflow button surfaces, including
+normal, pressed, and insensitive pixmaps, so the example remains a real
+toolbar when the available width changes.
+
 == Source
 
 Actual gallery excerpt: class = xmToolbarWidgetClass.
