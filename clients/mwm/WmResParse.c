@@ -353,7 +353,7 @@ static void ParseScreensArgument (int argc, char *argv[], int *pArgnum,
 void ProcessMotifBindings (void);
 #ifdef PANELIST
 static void ParseIncludeSet (WmScreenData *pSD, unsigned char *lineP);
-static void ConfigStackInit (char *pchFileName);
+static Boolean ConfigStackInit (char *pchFileName);
 static FILE *ConfigStackPush (unsigned char *pchFileName);
 static void ConfigStackPop (void);
 Boolean ParseWmFuncActionArg (unsigned char **linePP, 
@@ -2722,9 +2722,19 @@ FILE *FopenConfigFile (void)
 	}
     }
 
-    if (!pConfigStack)
+    if (!pConfigStack && !ConfigStackInit(cfileName))
     {
-	ConfigStackInit (cfileName);
+	if (fileP != NULL)
+	{
+	    fclose(fileP);
+	    fileP = NULL;
+	}
+	if (LANG != NULL)
+	{
+	    XtFree(LANG);
+	    LANG = NULL;
+	}
+	return NULL;
     }
 
     if (wmGD.cppCommand && *wmGD.cppCommand)
@@ -8364,27 +8374,34 @@ WarnConfigAllocation(const char *fileName)
     }
 }
 
-static void ConfigStackInit (char *pchFileName)
+static Boolean ConfigStackInit (char *pchFileName)
 {
+	ConfigFileStackEntry *stack;
 
-    pConfigStack  = XtNew (ConfigFileStackEntry);
+    stack = XtNew (ConfigFileStackEntry);
 
-    if (pConfigStack)
+    if (stack != NULL)
     {
-	pConfigStackTop = pConfigStack;
-	pConfigStackTop->fileName = XtNewString (pchFileName);
+	stack->fileName = XtNewString(pchFileName);
+	if (stack->fileName == NULL)
+	{
+	    XtFree((char *)stack);
+	    WarnConfigAllocation(pchFileName);
+	    return False;
+	}
+	pConfigStack = stack;
+	pConfigStackTop = stack;
 	pConfigStackTop->tempName = NULL;
 	pConfigStackTop->cppName = NULL;
 	pConfigStackTop->offset = 0;
 	pConfigStackTop->pWmPB = wmGD.pWmPB;
 	pConfigStackTop->wmgdConfigFile = wmGD.configFile;
 	pConfigStackTop->pIncluder = NULL;
+	return True;
 
     }
-    else
-    {
-        WarnConfigAllocation(pchFileName);
-    }
+    WarnConfigAllocation(pchFileName);
+    return False;
 }
 
 
