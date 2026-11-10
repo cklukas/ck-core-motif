@@ -14,6 +14,10 @@ menu entries through `XmNtoolbarActivateCallback`; shortcut text is retained
 and shown with the action label, but applications remain responsible for
 global accelerator policy.
 
+Toolbar buttons and overflow entries do not dispatch an action while the
+Toolbar or an ancestor is insensitive. `XmToolbarInvoke` remains the explicit
+programmatic dispatch API.
+
 `XmNtoolbarOverflowLabel` is optional. Passing `NULL` at creation or through
 `XtSetValues` creates an intentionally blank overflow cascade label; both
 paths have the same safe behavior.

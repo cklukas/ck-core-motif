@@ -17,6 +17,10 @@ composite as a panel named from the message and reports one action only when
 the action button is present.  The installed fixture covers action dispatch,
 dynamic action visibility, accessibility, constrained geometry and teardown.
 
+The action button does not invoke its callback while the EmptyState or an
+ancestor is insensitive. `XmEmptyStateInvokeAction` remains available as the
+explicit programmatic dispatch API.
+
 <!-- gallery-demo-tabs: begin -->
 ## Component demo
 

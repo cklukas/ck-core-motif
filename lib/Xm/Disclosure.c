@@ -192,6 +192,9 @@ static void activate(Widget child, XtPointer data, XtPointer call) {
   XmDisclosureWidget w = (XmDisclosureWidget)data;
   XmAnyCallbackStruct *cb = (XmAnyCallbackStruct *)call;
   (void)child;
+  if (w == NULL || !XmIsDisclosure((Widget)w) ||
+      w->core.being_destroyed || !XtIsSensitive((Widget)w))
+    return;
   w->disclosure.expanded = !w->disclosure.expanded;
   transition(w, cb ? cb->event : NULL, True);
 }
@@ -201,7 +204,9 @@ static void key(Widget child, XtPointer data, XEvent *event,
   KeySym symbol;
   Boolean expanded;
   (void)child;
-  if (event->type != KeyPress)
+  if (w == NULL || !XmIsDisclosure((Widget)w) ||
+      w->core.being_destroyed || !XtIsSensitive((Widget)w) ||
+      event == NULL || event->type != KeyPress)
     return;
   symbol = XLookupKeysym(&event->xkey, 0);
   if (symbol == XK_space || symbol == XK_Return || symbol == XK_KP_Enter) {

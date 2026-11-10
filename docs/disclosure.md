@@ -82,6 +82,10 @@ If focus is inside collapsing content, it moves to the header. The widget
 negotiates the collapsed natural height and restores content layout on expansion.
 All widget operations and callbacks run on the owning Xt thread.
 
+Header pointer and keyboard activation are inactive while the Disclosure or an
+ancestor is insensitive. This affects user input only:
+`XmDisclosureSetExpanded` remains the explicit programmatic state API.
+
 ## Validation boundary
 
 The native fixture checks pointer/keyboard activation, callback counts and

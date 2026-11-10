@@ -1,3 +1,12 @@
+Honor disabled composite input (2026-11-10)
+===========================================
+
+- Ignore the Disclosure header's callback and keyboard activation paths while
+  the section or an ancestor is insensitive. Programmatic expansion remains
+  available through `XmDisclosureSetExpanded`.
+- Keep EmptyState and Toolbar action callbacks inactive while their composite
+  owner or an ancestor is insensitive.
+
 Honor disabled Stepper child input (2026-11-10)
 ==================================================
 

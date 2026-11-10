@@ -191,7 +191,8 @@ static XtGeometryResult QueryGeometry(Widget widget, XtWidgetGeometry *intended,
 static void activate(Widget widget, XtPointer client, XtPointer call) {
     XmEmptyStateWidget state = (XmEmptyStateWidget)client; XmEmptyStateCallbackStruct callback;
     (void)widget;
-    if (state == NULL || !XmIsEmptyState((Widget)state) || state->core.being_destroyed) return;
+    if (state == NULL || !XmIsEmptyState((Widget)state) ||
+        state->core.being_destroyed || !XtIsSensitive((Widget)state)) return;
     callback.reason = XmCR_ACTIVATE; callback.event = call ? ((XmPushButtonCallbackStruct *)call)->event : NULL;
     XtCallCallbacks((Widget)state, XmNemptyStateActionCallback, &callback);
 }
