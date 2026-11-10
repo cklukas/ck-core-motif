@@ -1,6 +1,7 @@
 #include <Xm/Accessible.h>
 #include <Xm/BulletinB.h>
 #include <Xm/ProgressBar.h>
+#include <X11/Xlib.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,14 +34,31 @@ static void destroy_on_change(Widget widget, XtPointer closure, XtPointer data) 
     callback_reentered = XmProgressBarGetValue(widget) == 25;
 }
 
+static void drain(XtAppContext app, Display *display) {
+    XSync(display, False);
+    while (XtAppPending(app)) XtAppProcessEvent(app, XtIMAll);
+    XSync(display, False);
+}
+
+static Pixel pixel_at(Display *display, Widget widget, int x, int y) {
+    XImage *image = XGetImage(display, XtWindow(widget), x, y, 1, 1,
+                              AllPlanes, ZPixmap);
+    Pixel pixel;
+    if (!image) return 0;
+    pixel = XGetPixel(image, 0, 0);
+    XDestroyImage(image);
+    return pixel;
+}
+
 int main(int argc, char **argv) {
     XtAppContext app;
-    Widget shell, board, progress, doomed;
+    Widget shell, board, progress, doomed, rtl;
     XmAccessibility *accessibility;
     XmAccessibleInfo info;
     XmAccessibleId id;
     XmString label;
     Display *display;
+    XColor exact, screen;
     int minimum, maximum;
     Dimension width, height;
 
@@ -61,8 +79,7 @@ int main(int argc, char **argv) {
                   NULL);
 
     XtRealizeWidget(shell);
-    display = XtDisplay(shell);
-    XSync(XtDisplay(shell), False);
+    display = XtDisplay(shell); drain(app, display);
     XtVaGetValues(progress, XmNwidth, &width, XmNheight, &height, NULL);
     CHECK(width == 240 && height == 64);
     XmProgressBarGetRange(progress, &minimum, &maximum);
@@ -80,6 +97,16 @@ int main(int argc, char **argv) {
     CHECK(XmGetFocusWidget(shell) == progress);
     XtSetSensitive(progress, False);
     CHECK(!XtIsSensitive(progress));
+
+    CHECK(XAllocNamedColor(display, DefaultColormapOfScreen(XtScreen(shell)),
+                           "red", &screen, &exact));
+    rtl = XmVaCreateManagedProgressBar(
+        board, (char *)"rtl", XmNlayoutDirection, XmRIGHT_TO_LEFT,
+        XmNhighlightColor, exact.pixel, XmNprogressValue, 50,
+        XmNwidth, 240, XmNheight, 40, XmNprogressTextVisible, False, NULL);
+    drain(app, display);
+    CHECK(pixel_at(display, rtl, 11, 20) != exact.pixel);
+    CHECK(pixel_at(display, rtl, 229, 20) == exact.pixel);
 
     accessibility = XmAccessibilityCreate(shell, "ProgressBarTest");
     CHECK(accessibility != NULL);

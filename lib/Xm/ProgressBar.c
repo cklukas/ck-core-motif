@@ -208,7 +208,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     Drawable window = _XmPaintDrawable(widget);
     Dimension label_width = 0, label_height = 0;
     Dimension bar_width, fill_width;
-    int bar_x, bar_y, bar_height;
+    int bar_x, bar_y, bar_height, fill_x;
     Boolean modern=modern_progress(widget);
     char text[64];
     XmString text_string;
@@ -258,9 +258,12 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     }
     if (fill_width > (Dimension)bar_width)
         fill_width = (Dimension)bar_width;
+    fill_x = XmDirectionMatchPartial(XmPrim_layout_direction(progress),
+                                     XmRIGHT_TO_LEFT, XmHORIZONTAL_MASK)
+        ? bar_x + bar_width - (int)fill_width : bar_x;
     if (fill_width) {
-        if(modern)_XmAppearanceFillRoundedRectangle(display,window,progress->progress.fill_gc,bar_x,bar_y,fill_width,bar_height,_XmDpiDefaultDimension(widget,3));
-        else XFillRectangle(display,window,progress->progress.fill_gc,bar_x,bar_y,fill_width,16);
+        if(modern)_XmAppearanceFillRoundedRectangle(display,window,progress->progress.fill_gc,fill_x,bar_y,fill_width,bar_height,_XmDpiDefaultDimension(widget,3));
+        else XFillRectangle(display,window,progress->progress.fill_gc,fill_x,bar_y,fill_width,16);
     }
     if (progress->progress.text_visible) {
         if (progress->progress.indeterminate)
@@ -283,14 +286,14 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
             Position ty=bounded_position((long long)bar_y+((long long)bar_height-text_height)/2);
             if(modern) {
                 XGCValues values;XGetGCValues(display,progress->progress.fill_gc,GCForeground,&values);
-                XRectangle part={bounded_position((long long)bar_x),
+                XRectangle part={bounded_position((long long)fill_x),
                     bounded_position((long long)bar_y), fill_width,
                     (unsigned short)bar_height};
                 if(part.width) {
                     XSetForeground(display,text_gc,_XmAppearanceTextOnFill(widget,values.foreground));
                     XmStringDraw(display,window,progress->progress.font,text_string,text_gc,tx,ty,text_width,XmALIGNMENT_BEGINNING,XmPrim_layout_direction(progress),&part);
                 }
-                part.x=bounded_position((long long)bar_x+fill_width);
+                part.x=bounded_position((long long)(fill_x==bar_x?bar_x+fill_width:bar_x));
                 part.width=(unsigned short)((unsigned int)bar_width-fill_width);
                 XSetForeground(display,text_gc,XtIsSensitive(widget)?progress->primitive.foreground:progress->primitive.bottom_shadow_color);
                 if(part.width)XmStringDraw(display,window,progress->progress.font,text_string,text_gc,tx,ty,text_width,XmALIGNMENT_BEGINNING,XmPrim_layout_direction(progress),&part);

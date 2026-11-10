@@ -37783,3 +37783,10 @@ InfoBar logical-end actions in RTL layouts (2026-11-10)
 - Place InfoBar actions and the close control at the logical end rather than
   hard-coding them to the physical right. RTL rendering and pointer hit testing
   now agree; see `docs/info-bar.md`.
+
+ProgressBar logical-leading fill in RTL layouts (2026-11-10)
+=============================================================
+
+- Paint ProgressBar's determinate and indeterminate fill from the logical
+  leading edge. The contrasting percentage-text clip now follows the mirrored
+  fill; see `docs/progress-bar.md`.

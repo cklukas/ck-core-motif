@@ -43,7 +43,9 @@ apply to `XmProgressBarSetRange` and `XmProgressBarSetValue`.
 worker thread or a global event loop; applications that need animation should
 use a separate bounded activity control. `XmNprogressTextVisible` controls the
 percentage text, while `XmNprogressLabelString` supplies the descriptive
-label.
+label. The fill begins at the logical leading edge: it grows from the left in
+left-to-right layouts and from the right in right-to-left layouts. The
+percentage text uses matching filled and unfilled clip regions.
 
 The `XmNprogressValueChangedCallback` callback receives an
 `XmProgressBarCallbackStruct` containing the normalized minimum, maximum,
@@ -69,7 +71,7 @@ profiles remain owned by the application.
 
 `tests/automated/run-progress-bar.py` builds and runs
 `tests/automated/check-progress-bar.c` under Xvfb. The fixture covers explicit
-dimensions, range normalization and clamping, notifications, indeterminate
+dimensions, range normalization and clamping, RTL fill direction, notifications, indeterminate
 state, focus/sensitivity, accessibility values and busy state, callback
 re-entry, and widget teardown.
 
