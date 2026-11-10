@@ -73,6 +73,21 @@ static void ImportConstraintArgs(Widget w,
 				 ArgList args,
 				 Cardinal *num_args) ;
 
+/* Synthetic-resource tables keep an XrmQuark in the legacy String member
+ * after class initialization.  Route that tagged representation through
+ * uintptr_t so 64-bit builds do not rely on direct pointer/int casts. */
+static String
+SyntheticResourceQuarkName(XrmQuark quark)
+{
+  return (String)(uintptr_t)quark;
+}
+
+static XrmQuark
+SyntheticResourceNameQuark(String name)
+{
+  return (XrmQuark)(uintptr_t)name;
+}
+
 
 /********    End Static Function Declarations    ********/
 
@@ -204,7 +219,8 @@ _XmInitializeSyntheticResources(XmSyntheticResource *resources,
   
   for (i = 0; i < num_resources; i++)
     resources[i].resource_name = 
-      (String) XrmPermStringToQuark (resources[i].resource_name);
+      SyntheticResourceQuarkName(
+        XrmPermStringToQuark(resources[i].resource_name));
 }
 
 /**********************************************************************
@@ -248,7 +264,7 @@ GetValuesHook(Widget w,
       for (j = 0; j < num_resources; j++) 
 	{
 	  if ((resources[j].export_proc) &&
-	      (XrmQuark)(resources[j].resource_name) == quark) 
+	      SyntheticResourceNameQuark(resources[j].resource_name) == quark)
 	    {
 	      value_size = resources[j].resource_size;
 
@@ -523,7 +539,7 @@ ImportArgs(Widget w,
       for (j = 0; j < num_resources; j++) 
 	{
 	  if ((resources[j].import_proc) &&
-	      (XrmQuark)(resources[j].resource_name) == quark) 
+	      SyntheticResourceNameQuark(resources[j].resource_name) == quark)
 	    {
 	      value = args[i].value;
 	      

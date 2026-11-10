@@ -17,4 +17,10 @@ for needle in (
 ):
     assert needle in region, needle
 assert region.index("if (new_resources == NULL)") < region.index("memcpy")
-print("PASS synthetic-resource allocation guards present")
+
+assert "SyntheticResourceQuarkName(XrmQuark quark)" in source
+assert "return (String)(uintptr_t)quark;" in source
+assert "SyntheticResourceNameQuark(String name)" in source
+assert "return (XrmQuark)(uintptr_t)name;" in source
+assert source.count("SyntheticResourceNameQuark(resources[j].resource_name)") == 2
+print("PASS synthetic-resource allocation and quark-storage guards present")
