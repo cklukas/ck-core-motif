@@ -368,13 +368,19 @@ remember_widget(XmImDisplayInfo info, Widget w)
 }
 
 static void
+free_saved_value(String name, XtArgVal value)
+{
+  if (!strcmp(name, XmNfontList) || !strcmp(name, XmNrenderTable))
+    XmFontListFree((XmFontList)value);
+  else if (!strcmp(name, XmNspotLocation) || !strcmp(name, XmNarea) ||
+           strstr(name, "Callback"))
+    XtFree((char *)value);
+}
+
+static void
 free_saved_arg(Arg *arg)
 {
-  if (!strcmp(arg->name, XmNfontList) || !strcmp(arg->name, XmNrenderTable))
-    XmFontListFree((XmFontList)arg->value);
-  else if (!strcmp(arg->name, XmNspotLocation) || !strcmp(arg->name, XmNarea) ||
-           strstr(arg->name, "Callback"))
-    XtFree((char *)arg->value);
+  free_saved_value(arg->name, arg->value);
 }
 
 static void
@@ -429,15 +435,19 @@ remember_values(XmImDisplayInfo info, Widget w, ArgList args, Cardinal n)
     else {
       ArgList new_args;
       if (r->count == (Cardinal)-1)
+        {
+        free_saved_value(XmImResList[k].xmstring, value);
         continue;
+        }
       if ((size_t)r->count > SIZE_MAX / sizeof(Arg) - 1 ||
-          (size_t)r->count > UINT_MAX / sizeof(Arg) - 1)
+          (size_t)r->count > UINT_MAX / sizeof(Arg) - 1) {
+        free_saved_value(XmImResList[k].xmstring, value);
         continue;
+      }
       new_args = (ArgList)XtRealloc((char *)r->args,
                                     ((size_t)r->count + 1) * sizeof(Arg));
       if (new_args == NULL) {
-        if (bytes && value)
-          XtFree((char *)value);
+        free_saved_value(XmImResList[k].xmstring, value);
         continue;
       }
       r->args = new_args;

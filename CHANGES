@@ -1,3 +1,11 @@
+Release failed XmIm resource snapshots (2026-11-10)
+=====================================================
+
+- Release newly copied input-method resource snapshots when the owning
+  registration array cannot grow, including copied font/render tables and
+  pointer-valued preedit resources; see
+  docs/xmim-registration-owned-value-cleanup.md.
+
 Make MWM configuration-stack setup transactional (2026-11-10)
 ===============================================================
 
