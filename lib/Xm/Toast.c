@@ -82,7 +82,8 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget, ArgLi
         }
     }
     changed = message_changed || action_changed ||
-              old->toast.timeout != toast->toast.timeout;
+              old->toast.timeout != toast->toast.timeout ||
+              XmPrim_layout_direction(old) != XmPrim_layout_direction(toast);
     if (toast->toast.message_widget != NULL)
         XtVaSetValues(toast->toast.message_widget, XmNlabelString,
                       toast->toast.message, NULL);

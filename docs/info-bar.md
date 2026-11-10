@@ -4,6 +4,9 @@ nav_exclude: true
 # InfoBar
 
 `XmInfoBar` is an additive inline information, warning or error banner. Its
+
+Changing `XmNlayoutDirection` on a realized InfoBar requests a redraw so its
+message, action, and close-control placement update together.
 `XmNinfoSeverity` and `XmNinfoMessage` are explicit resources; an optional
 `XmNinfoActionLabel` invokes `XmNinfoActionCallback`, and
 `XmNinfoClosable` enables Escape or close-glyph dismissal. `XmInfoBarDismiss`

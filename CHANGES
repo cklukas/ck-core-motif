@@ -1,3 +1,10 @@
+Update inline banner direction changes live (2026-11-10)
+=========================================================
+
+- Reflow Toast and redraw InfoBar after a live layout-direction update, keeping
+  their logical action and close placement current; see docs/toast.md and
+  docs/info-bar.md.
+
 Mirror Spinner and Progress Ring labels in RTL (2026-11-10)
 ============================================================
 

@@ -17,6 +17,8 @@ For right-to-left layouts, the optional action occupies the logical start edge
 and the message follows it.  Left-to-right layouts retain the conventional
 message-first, action-at-end arrangement.
 
+A live `XmNlayoutDirection` update recalculates that child layout.
+
 Accessibility exposes a shown toast as a panel named from its message and
 reports an action only when an action label is present.  The installed fixture
 covers show/dismiss, pause, action dispatch, timeout teardown, accessibility
