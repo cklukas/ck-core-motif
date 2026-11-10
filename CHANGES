@@ -1,3 +1,10 @@
+Harden WSM diagnostic quark formatting (2026-11-10)
+=====================================================
+
+- Render an invalid WSM Xrm quark as `<none>` instead of passing a null
+  quark-string result to diagnostic `%s` formatting; see
+  docs/wsm-debug-inputs.md.
+
 Harden Command Palette rebuild failure paths (2026-11-10)
 ===========================================================
 

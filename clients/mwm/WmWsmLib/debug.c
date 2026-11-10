@@ -46,6 +46,14 @@ static void PrintConfigFormat(
      WSMConfigFormatReply *
 );
 
+static const char *
+DebugQuarkString(XrmQuark quark)
+{
+    const char *value = XrmQuarkToString(quark);
+
+    return value != NULL ? value : "<none>";
+}
+
 #define STRSIZE  	(BUFSIZ * 10)
 
 static void
@@ -276,7 +284,7 @@ PrintWindowData(
 
     if (win_data->type == WSM_VALUE_DATA) {
 	DebugAppend(str, used, "%sName: %s, Type: Value, Value: %ld\n", tab_str,
-		    XrmQuarkToString(win_data->nameq), win_data->data.value);
+		    DebugQuarkString(win_data->nameq), win_data->data.value);
 	return;
     }
 
@@ -297,7 +305,7 @@ PrintWindowData(
     }
 
     DebugAppend(str, used, "%sName: %s, Type: %s, Len: %d\n%s%s", tab_str,
-		XrmQuarkToString(win_data->nameq), type_str,
+		DebugQuarkString(win_data->nameq), type_str,
 		win_data->data_len, tab_str, "        ");
 
     if ((win_data->type == WSM_CHAR_LIST_DATA &&
@@ -379,7 +387,7 @@ PrintConfigFormat(
 
 	for (j = 0; fmt != NULL && j < num; j++)
 	    DebugAppend(str, used, "        Name: %s, Size: %d, Is_List: %s\n",
-			XrmQuarkToString(fmt[j].nameq), (int) fmt[j].size,
+			DebugQuarkString(fmt[j].nameq), (int) fmt[j].size,
 			fmt[j].is_list ? "True" : "False");
     }
 }
