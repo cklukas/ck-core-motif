@@ -495,7 +495,8 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     char input[2];
     int x, y, column, row;
     (void)closure; (void)continue_dispatch;
-    if (widget == NULL || event == NULL || !XmIsDataGrid(widget)) return;
+    if (widget == NULL || event == NULL || !XmIsDataGrid(widget) ||
+        widget->core.being_destroyed || !XtIsSensitive(widget)) return;
     if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == KeyPress) {
         XLookupString(&event->xkey, input, sizeof(input), &key, NULL);

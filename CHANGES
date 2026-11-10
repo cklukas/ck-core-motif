@@ -1,3 +1,9 @@
+Honor disabled DataGrid input (2026-11-10)
+============================================
+
+- Ignore DataGrid keyboard, pointer, and wheel input while the widget or an
+  ancestor is insensitive.
+
 Honor disabled Calendar input (2026-11-10)
 ============================================
 

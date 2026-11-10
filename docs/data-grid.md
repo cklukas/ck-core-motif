@@ -20,6 +20,9 @@ first cell instead of skipping past it in the command's direction.
 Arrow and paging keysyms work even when the X input event produces no text.
 Sorting is request-only: `XmDataGridRequestSort` and header activation emit a
 sort callback, but never reorder application data.
+Keyboard, wheel, and header input is inactive while the DataGrid or an
+ancestor is insensitive; programmatic model, selection, and viewport APIs are
+unchanged.
 
 Selection identifies a row and column by their stable IDs; repeated requests
 for the already-selected cell do not emit duplicate selection callbacks.

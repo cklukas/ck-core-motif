@@ -73,6 +73,10 @@ int main(int argc, char **argv) {
     assert(XmDataGridSetModel(grid, columns, 3, duplicate, 2) == False);
     assert(XmDataGridGetRowCount(grid) == 3);
     XtRealizeWidget(shell);
+    XtSetSensitive(grid, False);
+    key(grid, XK_Home);
+    assert(!XmDataGridGetSelectedCell(grid, &row_id, &column_id));
+    XtSetSensitive(grid, True);
     key(grid, XK_Home);
     assert(XmDataGridGetSelectedCell(grid, &row_id, &column_id));
     assert(row_id == (XtPointer)10 && column_id == (XtPointer)1);
