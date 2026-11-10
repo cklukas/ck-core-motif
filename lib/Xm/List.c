@@ -10709,6 +10709,7 @@ XmCreateScrolledList(Widget parent,
 {
   Widget sw, lw;
   char *s;
+  size_t name_length;
   size_t name_size;
   ArgList Args;
   Arg my_args[4];
@@ -10718,9 +10719,10 @@ XmCreateScrolledList(Widget parent,
       argCount > (Cardinal)(~(Cardinal)0 - 4))
     return NULL;
 
-  if (XmStrlen(name) > SIZE_MAX - 3)
+  name_length = name == NULL ? 0 : XmStrlen(name);
+  if (name_length > SIZE_MAX - 3)
     return NULL;
-  name_size = XmStrlen(name) + 3;
+  name_size = name_length + 3;
   s = (char*) ALLOCATE_LOCAL(name_size); /* Name+"SW"+NULL */
   if (s == NULL)
     return NULL;

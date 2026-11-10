@@ -1,3 +1,10 @@
+Allow unnamed XmCreateScrolledList construction (2026-11-10)
+=============================================================
+
+- Handle a null list name before measuring the temporary `SW` shell name, so
+  the existing unnamed fallback does not dereference it; see
+  docs/scrolled-list-name-allocation.md.
+
 Widen XmList visible-range arithmetic (2026-11-10)
 ====================================================
 
