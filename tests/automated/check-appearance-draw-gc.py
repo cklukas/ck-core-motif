@@ -25,4 +25,8 @@ cascade_create = "gc = XCreateGC(display, drawable, GCForeground, &values);"
 assert cascade_create in cascade and "if (!gc) return True;" in cascade
 assert cascade.index(cascade_create) < cascade.index("if (!gc) return True;") < cascade.index("_XmAppearanceDrawChevron")
 
-print("PASS shared modern appearance drawing guards temporary GCs")
+picker = body("Boolean\n_XmAppearancePickerSize(", "Boolean\n_XmAppearanceDrawPickerFrame(")
+assert "if (label != NULL) {" in picker
+assert picker.index("if (label != NULL) {") < picker.index("XmStringFree(label);")
+
+print("PASS shared modern appearance drawing guards temporary resources")

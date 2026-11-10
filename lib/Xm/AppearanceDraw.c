@@ -740,7 +740,11 @@ _XmAppearancePickerSize(Widget widget,XmRenderTable table,const char *sample,Dim
     XmAppearanceProfile profile=_XmAppearanceGeometryProfile(XtDisplay(widget));
     if(profile!=XmAPPEARANCE_MODERN_LIGHT&&profile!=XmAPPEARANCE_MODERN_DARK)return False;
     XmString label=XmStringCreateLocalized((char*)sample);Dimension w=0,h=0;
-    if(label&&table)XmStringExtent(table,label,&w,&h);XmStringFree(label);
+    if (label != NULL) {
+        if (table != NULL)
+            XmStringExtent(table, label, &w, &h);
+        XmStringFree(label);
+    }
     *width=(Dimension)MIN(USHRT_MAX,MAX((unsigned long)_XmDpiDefaultDimension(widget,160),(unsigned long)w+_XmDpiDefaultDimension(widget,52)));
     *height=(Dimension)MIN(USHRT_MAX,MAX((unsigned long)_XmDpiDefaultDimension(widget,_XmAppearanceGeometryDensity(XtDisplay(widget))==XmAPPEARANCE_DENSITY_COMPACT?28:36),(unsigned long)h+_XmDpiDefaultDimension(widget,16)));
     return True;

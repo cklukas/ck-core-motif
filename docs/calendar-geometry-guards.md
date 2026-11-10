@@ -8,5 +8,9 @@ avoids zero-width cell division in pointer handling. Callback routing compares
 resource names by content, so activation and date-change callbacks remain
 separate even when callers provide equivalent strings.
 
+Calendar metric sampling now only frees an `XmString` after successful
+creation.  A missing render table still uses the existing fallback dimensions,
+while a successfully created sample is always released.
+
 The focused source contract is checked by
 `tests/automated/check-calendar-geometry-guards.py`.

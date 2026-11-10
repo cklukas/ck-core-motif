@@ -7,4 +7,6 @@ assert "XmStringExtent(calendar->calendar.render_table, value" in source
 assert "top +" in source
 assert "((long long)height - (long long)text_height) / 2" in source
 assert "XmStringDraw(XtDisplay((Widget)calendar)" in source
+assert source.count("if (sample != NULL) {") >= 2
+assert source.count("XmStringFree(sample);") >= 2
 print("PASS Calendar text uses render-table metrics")

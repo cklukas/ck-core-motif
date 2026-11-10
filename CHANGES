@@ -1,3 +1,11 @@
+Guard temporary calendar and picker labels (2026-11-10)
+========================================================
+
+- Only measure and free calendar or picker sizing labels after their
+  `XmString` creation succeeds.  Allocation failure now retains the existing
+  fallback dimensions without passing a null compound string to cleanup; see
+  docs/calendar-geometry-guards.md.
+
 Keep MWM action descriptors atomic on parse failure (2026-11-10)
 ===============================================================
 

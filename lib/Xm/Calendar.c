@@ -198,7 +198,11 @@ static void calendar_metrics(XmCalendarWidget calendar,int *heading,int *week,in
     *heading=28;*week=14;*row=22;
     if(!modern_calendar(calendar))return;
     XmString sample=XmStringCreateLocalized("Mg");Dimension w=0,h=0;
-    if(sample&&calendar->calendar.render_table)XmStringExtent(calendar->calendar.render_table,sample,&w,&h);XmStringFree(sample);
+    if (sample != NULL) {
+        if (calendar->calendar.render_table != NULL)
+            XmStringExtent(calendar->calendar.render_table, sample, &w, &h);
+        XmStringFree(sample);
+    }
     *heading=MAX((int)_XmDpiDefaultDimension((Widget)calendar,36),(int)h+_XmDpiDefaultDimension((Widget)calendar,12));
     *week=MAX((int)_XmDpiDefaultDimension((Widget)calendar,28),(int)h+_XmDpiDefaultDimension((Widget)calendar,8));
     *row=MAX((int)_XmDpiDefaultDimension((Widget)calendar,32),(int)h+_XmDpiDefaultDimension((Widget)calendar,12));
@@ -207,7 +211,11 @@ static void calendar_size(XmCalendarWidget calendar,Dimension *width,Dimension *
     *width=224;*height=192;if(!modern_calendar(calendar))return;
     int heading,week,row;calendar_metrics(calendar,&heading,&week,&row);
     XmString sample=XmStringCreateLocalized("30");Dimension w=0,h=0;
-    if(sample&&calendar->calendar.render_table)XmStringExtent(calendar->calendar.render_table,sample,&w,&h);XmStringFree(sample);
+    if (sample != NULL) {
+        if (calendar->calendar.render_table != NULL)
+            XmStringExtent(calendar->calendar.render_table, sample, &w, &h);
+        XmStringFree(sample);
+    }
     *width=(Dimension)MIN(USHRT_MAX,MAX((unsigned long)_XmDpiDefaultDimension((Widget)calendar,280),7UL*(w+_XmDpiDefaultDimension((Widget)calendar,16))));
     *height=(Dimension)MIN(USHRT_MAX,(unsigned long)heading+
         (unsigned long)week+6UL*(unsigned long)row);
