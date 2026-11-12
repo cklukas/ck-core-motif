@@ -1,3 +1,18 @@
+String tab stops check the window attributes (2026-11-12)
+========================================================
+
+- `XmStringDraw` converts a tab stop through the screen of the drawable when the
+  drawable is not a widget. The screen came from `XGetWindowAttributes()`, whose
+  status was not checked, so a failed request left the field uninitialized and
+  the tab position was converted through it. A failed request now uses the
+  display's default screen.
+- Test: `run-xmstring-tab-window-attributes.py` runs
+  `check-xmstring-tab-window-attributes.c`, which draws an inch-based tab with
+  `XGetWindowAttributes` failing and a value that is not a screen in the screen
+  field. The previous library crashes (exit 139); the fixed library passes, and
+  the sanitized build passes.
+- Docs: `docs/x-reply-status.md`.
+
 Buffered paint checks the window attributes (2026-11-12)
 ========================================================
 

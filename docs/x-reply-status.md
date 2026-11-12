@@ -18,6 +18,7 @@ treat a failed request as follows.
 | `_XmIsViewable` | a window that cannot be queried is not viewable |
 | `XmDragStart` root window event mask | the mask is neither read nor changed |
 | Drag receiver information | a receiver whose geometry cannot be read is not a receiver |
+| `XmString` tab stops in a window that is not a widget | the screen is the display's default screen, so tab positions stay defined |
 
 ## Validation
 
@@ -30,3 +31,10 @@ when they fail, fill the output parameters with values that would do damage if
 used (40000 pixel sizes, a viewable window covering everything, event mask
 bits). Each case also checks that the failing request was reached, so a case
 cannot pass because the code path moved.
+
+A tab stop in a string drawn into a window that is not a widget asks the server
+for the window's screen. `tests/automated/run-xmstring-tab-window-attributes.py
+PREFIX RESULTS` checks this: the program draws an inch-based tab with
+`XGetWindowAttributes` failing and returning a value that is not a screen. The
+previous toolkit crashes converting the tab position; the fixed toolkit draws
+the string and passes.

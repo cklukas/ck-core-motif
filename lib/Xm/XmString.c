@@ -2637,10 +2637,14 @@ TabVal(Display *d,
 	*pscreen = XtScreenOfObject(widget);
       else
 	{
-	  /* Give up and ask the server. */
+	  /* Ask the server.  If it does not answer (the window is gone), the
+	   * attributes say nothing about the screen: use the display's default
+	   * screen instead of reading an unset field. */
 	  XWindowAttributes attr;
-	  XGetWindowAttributes(d, w, &attr);
-	  *pscreen = attr.screen;
+	  if (XGetWindowAttributes(d, w, &attr))
+	    *pscreen = attr.screen;
+	  else
+	    *pscreen = DefaultScreenOfDisplay(d);
 	}
     }
   
