@@ -1,3 +1,19 @@
+Buffered paint checks the window attributes (2026-11-12)
+========================================================
+
+- `_XmBufferedPaint` read a window's visual from `XGetWindowAttributes()` and
+  did not check the status. When the server could not return the attributes,
+  for example because the window had been destroyed, the visual was
+  uninitialized, and a double-buffer back buffer could be requested for a
+  visual the window does not have. The status is checked now; without the
+  attributes no back buffer is requested, and the paint uses the pixmap path.
+- Test: `run-paint-window-attributes.py` runs
+  `check-paint-window-attributes.c`, which replaces the Xdbe calls and
+  `XGetWindowAttributes` at link time. On the previous library the test fails
+  at `back_buffers == 0`; on the fixed library it passes, and
+  `run-buffered-paint.py` still passes.
+- Docs: `docs/buffered-painting.md`.
+
 Build MWM without CDE headers again (2026-11-10)
 ================================================
 

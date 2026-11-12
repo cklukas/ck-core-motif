@@ -133,15 +133,19 @@ static void allocate_buffer(PaintState *state)
         int major, minor, screens = 1, i;
         Drawable window = state->window;
         if (XdbeQueryExtension(display, &major, &minor)) {
-            XdbeScreenVisualInfo *info = XdbeGetVisualInfo(display, &window, &screens);
             XWindowAttributes attributes;
-            XGetWindowAttributes(display, window, &attributes);
-            VisualID visual = XVisualIDFromVisual(attributes.visual);
+            XdbeScreenVisualInfo *info = NULL;
             Boolean supported = False;
-            if (info) {
-                for (i = 0; i < info[0].count; ++i)
-                    if (info[0].visinfo[i].visual == visual) supported = True;
-                XdbeFreeVisualInfo(info);
+            /* The window's visual is only known from its attributes.  When
+               the server does not return them, no back buffer is requested. */
+            if (XGetWindowAttributes(display, window, &attributes)) {
+                VisualID visual = XVisualIDFromVisual(attributes.visual);
+                info = XdbeGetVisualInfo(display, &window, &screens);
+                if (info) {
+                    for (i = 0; i < info[0].count; ++i)
+                        if (info[0].visinfo[i].visual == visual) supported = True;
+                    XdbeFreeVisualInfo(info);
+                }
             }
             if (supported) {
                 begin_allocation(display);

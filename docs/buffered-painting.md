@@ -92,3 +92,12 @@ text on the current back buffer. `check-buffered-text.c` requires contrasting
 label pixels in four rows through 24 frames, resizing and focus changes, under
 DBE, pixmap and direct modes. A regression was reproduced as missing text at
 frame three after resize before this cache-lifetime correction.
+
+## Window attributes
+
+A buffered paint reads the window's visual from `XGetWindowAttributes()`, and
+it requests a double-buffer back buffer only when the server returns the
+attributes. If the request fails, the paint takes the pixmap path, as it does
+when the extension is missing.
+`tests/automated/run-paint-window-attributes.py` checks this with the Xdbe calls
+and `XGetWindowAttributes` replaced at link time, on Linux.
