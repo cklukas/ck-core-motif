@@ -11,7 +11,7 @@
  *     loader that hands Xlib too small a buffer is reported by AddressSanitizer
  *     exactly where Xlib would have overread.
  *   - the widget creation functions return a core widget record and the
- *     class records are opaque blocks; the widgets themselves do nothing.
+ *     class records are opaque blocks that carry their class name; the widgets themselves do nothing.
  *   - XtSetValues records the arguments of its last call (fuzz_set_values_args);
  *     unit conversions succeed and keep the value.
  *   - XmCvtByteStreamToXmString reads as many bytes as the stream header
@@ -246,16 +246,13 @@ XmString XmStringGenerate(XtPointer text, XmStringTag tag, XmTextType type, XmSt
 }
 XmString XmCvtByteStreamToXmString(unsigned char *p)
 {
-    /* ASN.1 header: 0xdf 0x80 0x06 then a short or long form length */
-    size_t len = 0, off = 3;
+    /* ASN.1 header: 0xdf 0x80 0x06, then a one byte length below 0x80 or, as
+     * lib/Xm/XmString.c reads it, a three byte length: any byte with the high bit
+     * set, then the high and the low byte */
+    size_t len, off;
     if (p[0] != 0xdf || p[1] != 0x80 || p[2] != 0x06) return NULL;
     if (p[3] < 0x80) { len = p[3]; off = 4; }
-    else {
-        unsigned n = p[3] & 0x7f;
-        if (n == 0 || n > 4) return NULL;
-        for (unsigned i = 0; i < n; i++) len = (len << 8) | p[4 + i];
-        off = 4 + n;
-    }
+    else { len = ((size_t) p[4] << 8) | p[5]; off = 6; }
     volatile unsigned char sink = 0;
     for (size_t i = 0; i < len; i++) sink ^= p[off + i];
     (void) sink;

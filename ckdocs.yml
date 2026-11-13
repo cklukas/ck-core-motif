@@ -140,6 +140,7 @@ nav:
           - docs/mrm-fontset-conversion-output.md
           - docs/mrm-legacy-fontlist-fixup.md
           - docs/mrm-literal-bounds.md
+          - docs/mrm-value-bounds.md
           - docs/mrm-uid-input.md
           - docs/mrm-wide-character-fixup-cleanup.md
           - docs/mwm-action-argument-allocation.md

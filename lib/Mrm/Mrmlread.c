@@ -221,10 +221,12 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
 
     default:
       /*
-       * A value with units is read as a whole record: a literal that is
-       * shorter than its record is malformed.
+       * A value with units is read as a whole record, a compound string as
+       * long as its header says, and a colour needs its whole name or
+       * components: a literal that is shorter is malformed.
        */
-      if (!Urm__CW_UnitsValueFits (type, (size_t)UrmRCSize (context_id)))
+      if (!Urm__CW_ValueFits (type, (XtPointer)val,
+			      (size_t)UrmRCSize (context_id)))
 	return Urm__UT_Error ("Urm__FetchLiteral", _MrmMMsg_0028,
 			      NULL, NULL, MrmNOT_VALID);
       result = Urm__CW_FixupValue (val, type, (XtPointer)val, file_id,

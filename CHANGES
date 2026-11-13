@@ -1,3 +1,37 @@
+A colour literal must hold its whole name or components (2026-11-13)
+====================================================================
+
+- A colour literal, or a colour value inside a widget record, was read as a name
+  up to a NUL character or as three RGB components without checking that the
+  literal holds them, so a name that is not terminated inside the literal was read past the
+  buffer, and an RGB colour shorter than its components was accepted.
+  `Urm__CW_ValueFits` now checks colours with the compound string and units
+  values; a malformed colour fails the fetch like the other malformed literals.
+- Test: `run-mrm-value-bounds.py` (cases `colour-name-not-terminated`,
+  `colour-rgb-short`, `valid-colour`); the previous library fails the defect
+  cases (`--source-revision HEAD`). The crash input is kept in
+  `tests/fuzz/corpus/mrm-uid`.
+- Docs: `docs/mrm-value-bounds.md`.
+
+A compound string literal must hold the bytes its header declares (2026-11-13)
+==============================================================================
+
+- A `CString` literal, or a `CString` value inside a widget record, was handed to
+  `XmCvtByteStreamToXmString` without a size, and that converter reads as many
+  bytes as the ASN.1 header of the stream declares, so a header that declares
+  more than the literal holds was read past its buffer. `Urm__CW_ValueFits`
+  (replacing `Urm__CW_UnitsValueFits`) now checks the header and the declared
+  length against the bytes that are present; a stream that is too short fails
+  the fetch like the other malformed literals.
+- Fuzz stand-ins: the widget class records of `tests/fuzz` carry a class name
+  (a lookup by class name read a NULL name from the opaque blocks), and the
+  stand-in converter reads the length forms of `lib/Xm/XmString.c`.
+- Test: `run-mrm-value-bounds.py` runs `check-mrm-value-bounds.c` against the
+  production `lib/Mrm` sources under ASan/UBSan. The previous library fails the
+  defect cases (`--source-revision HEAD`); the fixed library passes them and the
+  valid streams. The crash input is kept in `tests/fuzz/corpus/mrm-uid`.
+- Docs: `docs/mrm-value-bounds.md`.
+
 Icon pixels and pixel sizes are checked before they are used (2026-11-13)
 =========================================================================
 

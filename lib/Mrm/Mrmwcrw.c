@@ -111,13 +111,18 @@ UrmWidgetStringValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset)
 
 /*
  * Urm__CW_ConvertValue reads a value with units (Horizontal/Vertical Integer
- * or Float) as a whole record.  A value that is shorter than its record is
- * malformed.  Every other type has no fixed record and is not checked here.
- * SIZE is the number of bytes that the literal or the widget record holds
- * from the start of the value.
+ * or Float) as a whole record, hands a compound string to
+ * XmCvtByteStreamToXmString, which has no length parameter and reads as many
+ * bytes as the header of the stream declares, and reads the name or the
+ * components of a colour.  A value that is shorter than its record, a stream
+ * that is shorter than its header says, and a colour name without a
+ * terminating NUL character are malformed.
+ * Every other type has no fixed record and is not checked here.
+ * VALUE is the start of the value and SIZE the number of bytes that the
+ * literal or the widget record holds from there.
  */
 Boolean
-Urm__CW_UnitsValueFits(MrmType reptype, size_t size)
+Urm__CW_ValueFits(MrmType reptype, const void *value, size_t size)
 {
   switch (reptype)
     {
@@ -127,23 +132,65 @@ Urm__CW_UnitsValueFits(MrmType reptype, size_t size)
     case MrmRtypeHorizontalFloat:
     case MrmRtypeVerticalFloat:
       return size >= sizeof(RGMUnitsFloat);
+    case MrmRtypeCString:
+      {
+	/* ASN.1 header (3 bytes), then a one byte length below 0x80 or a
+	 * three byte length (0x82, high byte, low byte) */
+	const unsigned char *stream = (const unsigned char *)value;
+	size_t header;
+	size_t length;
+
+	if (stream == NULL || size < 4)
+	  return False;
+	if (stream[3] & 0x80)
+	  {
+	    if (size < 6)
+	      return False;
+	    header = 6;
+	    length = ((size_t)stream[4] << 8) | stream[5];
+	  }
+	else
+	  {
+	    header = 4;
+	    length = stream[3];
+	  }
+	return length <= size - header;
+      }
+    case MrmRtypeColor:
+      {
+	/* a colour name must end inside the value, an RGB colour must be whole */
+	const RGMColorDesc *desc = (const RGMColorDesc *)value;
+	size_t header = offsetof(RGMColorDesc, desc);
+
+	if (desc == NULL || size < header)
+	  return False;
+	if (desc->desc_type == URMColorDescTypeName)
+	  return memchr(desc->desc.name, '\0', size - header) != NULL;
+	if (desc->desc_type == URMColorDescTypeRGB)
+	  return size - header >= sizeof(RGBColor);
+	return True;
+      }
     default:
       return True;
     }
 }
 
-/* A value with units at `offset' in a widget record must lie inside it. */
+/* A value at `offset' in a widget record must lie inside it, with all the
+ * bytes that its type reads. */
 static Boolean
-UrmWidgetUnitsValueValid(RGMWidgetRecordPtr widgetrec, MrmType reptype,
-                         MrmOffset offset)
+UrmWidgetValueValid(RGMWidgetRecordPtr widgetrec, MrmType reptype,
+                    MrmOffset offset)
 {
   if (reptype != MrmRtypeHorizontalInteger &&
       reptype != MrmRtypeVerticalInteger &&
       reptype != MrmRtypeHorizontalFloat &&
-      reptype != MrmRtypeVerticalFloat)
+      reptype != MrmRtypeVerticalFloat &&
+      reptype != MrmRtypeCString &&
+      reptype != MrmRtypeColor)
     return True;
   return offset >= RGMWidgetRecordHdrSize && offset <= widgetrec->size &&
-         Urm__CW_UnitsValueFits(reptype, widgetrec->size - offset);
+         Urm__CW_ValueFits(reptype, (char *)widgetrec + offset,
+                           widgetrec->size - offset);
 }
 
 /* A resource descriptor at `offset' in a buffer of `size' bytes that starts at
@@ -1452,7 +1499,7 @@ Urm__CW_CreateArglist (Widget			parent,
            argptr->arg_val.datum.offset >= widgetrec->size))
         continue;
 
-      if (!UrmWidgetUnitsValueValid(widgetrec, reptype,
+      if (!UrmWidgetValueValid(widgetrec, reptype,
                                     argptr->arg_val.datum.offset))
         continue;
 
@@ -3593,10 +3640,12 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
     }
 
   /*
-   * A value with units is read as a whole record: a literal that is shorter
-   * than its record is malformed.
+   * A value with units is read as a whole record, a compound string as long
+   * as its header says, and a colour needs its whole name or components: a
+   * literal that is shorter is malformed.
    */
-  if ( *vec_size < 0 || !Urm__CW_UnitsValueFits(*type, (size_t)*vec_size) )
+  if ( *vec_size < 0 ||
+       !Urm__CW_ValueFits(*type, (XtPointer)*val, (size_t)*vec_size) )
     return Urm__UT_Error ("Urm__CW_ReadLiteral", _MrmMMsg_0028,
 			  NULL, NULL, MrmNOT_VALID) ;
 
@@ -3996,7 +4045,7 @@ Urm__CW_FixupCallback (Widget			parent ,
            itmptr->cb_item.datum.offset >=
              ((RGMWidgetRecordPtr)bufptr)->size))
         return MrmFAILURE;
-      if (!UrmWidgetUnitsValueValid((RGMWidgetRecordPtr)bufptr, reptype,
+      if (!UrmWidgetValueValid((RGMWidgetRecordPtr)bufptr, reptype,
                                     itmptr->cb_item.datum.offset))
         return MrmFAILURE;
       tag_val = Urm__CW_EvaluateValOrOffset (reptype, bufptr,
