@@ -1,0 +1,143 @@
+libFuzzer fuzz targets for the parsers of CK Core Motif
+=======================================================
+
+This directory holds fuzz targets for code that reads data that an attacker
+or a damaged file can control: UID files, the Editres wire protocol, the
+external format of compound strings, and the resource converters that parse
+user strings.  No toolkit source is changed.
+
+How a target is built
+---------------------
+
+No toolkit build tree is needed.  run-fuzz.py reads the production sources of
+a checkout and builds each target below DIR (a scratch directory that you
+name).  Two methods are used.
+
+  - Compiled unchanged.  The UID file reader (all of lib/Mrm) and the compound
+    string, render table, tab list and converter sources of lib/Xm are
+    compiled as they are, with coverage instrumentation and sanitizers.  The
+    headers that the toolkit build generates (Xm/Xm.h, the XmStrDefs headers)
+    are produced the same way the toolkit build does, with config/util/makestrs.
+    What these sources call outside themselves (Xlib, the Intrinsics, widget
+    creation) is replaced by the stand-ins of mrm-stubs.c and xm-stubs.c.
+  - Cut out.  The Editres request parser sits in a file whose command
+    handlers need a live widget tree.  The runner cuts the type definitions and
+    the parser functions out of lib/Xm/EditresCom.c, with exact anchors, into
+    DIR/build/editres-wire/production.h.  If a function is renamed or moved the
+    runner stops and names it.
+
+What the stand-ins promise is written at the top of mrm-stubs.c and
+xm-stubs.c.  There is no X server and no widget tree.  A report whose top
+frames are inside a stand-in is a fault of the stand-in, not of the toolkit.
+Every report must be read against the production code before it is called a
+bug.
+
+Requirements on the host
+------------------------
+
+  - the Homebrew clang, /opt/homebrew/opt/llvm/bin/clang (environment variable
+    CLANG overrides the path); it must accept -fsanitize=fuzzer
+  - the X11 headers and libraries in /opt/X11 (XINCLUDE and XLIB override the
+    paths): Xlib and the Intrinsics, used for their memory, quark and converter
+    registration functions that need no display
+
+Running
+-------
+
+  python3 tests/fuzz/run-fuzz.py --list
+
+  python3 tests/fuzz/run-fuzz.py --target mrm-uid --seconds 60 \
+      --scratch /Volumes/S8T/tmp/ck-core-motif/fuzz-scratch
+
+  for t in $(python3 tests/fuzz/run-fuzz.py --list | cut -d' ' -f1); do
+      python3 tests/fuzz/run-fuzz.py --target $t --seconds 60 --scratch DIR
+  done
+
+  --worktree DIR   read the production sources from another checkout (default:
+                   the checkout that holds this script)
+  --recover-ub     report undefined behaviour and go on; the first report of
+                   each location is listed at the end.  Address errors,
+                   timeouts and out-of-memory inputs still stop the run.
+  --make-seeds OUTDIR
+                   write the seed files of mrm-uid (see Seeds)
+
+The build uses -fsanitize=fuzzer,address,undefined -fno-sanitize-recover=undefined
+-g -O1 -std=gnu23.  libFuzzer runs with -max_len=4096 -rss_limit_mb=2048
+-timeout=5 and one process, so each target uses one CPU.  The build is sequential.
+
+Output below DIR
+----------------
+
+  build/NAME/   generated sources, objects and the fuzzer binary
+  corpus/NAME/  the corpus as it grew; the seeds in tests/fuzz/corpus/NAME are
+                read but never written
+  crashes/NAME/ crash-*, timeout-* and oom-* inputs as libFuzzer wrote them,
+                and min-* the minimized versions
+  logs/NAME.log the complete libFuzzer output with the sanitizer reports
+  tmp/          TMPDIR of the run
+
+The exit status is 1 when a crash, a timeout or an out-of-memory input was
+found.  To look at a finding again:
+
+  DIR/build/NAME/fuzz-NAME DIR/crashes/NAME/min-crash-HASH
+
+Seeds
+-----
+
+tests/fuzz/corpus/NAME holds two to five small valid inputs per target.
+
+  - editres-wire, xmstring-stream, xm-converters: make-seeds.py writes them
+    (requests built byte by byte from the protocol, compound string streams,
+    one string per converter).
+  - mrm-uid: the seeds are UID files written by the resource manager's own
+    writer, with mrm-make-seeds.c, so they are valid for the revision under
+    test.  A UID file is made of 4096-byte records, more than libFuzzer may
+    hand out with -max_len=4096, so the input of this target is the file with
+    its zero bytes run-length coded: a 0x00 is followed by a count C and
+    stands for C + 1 zero bytes.  run-fuzz.py --make-seeds writes the .uidz
+    seeds in that form.
+
+Targets
+-------
+
+  mrm-uid          UID file reader of the resource manager (all of lib/Mrm):
+                   header, index tree, and the literal, colour, icon, bitmap,
+                   widget and set-values fetches, for every name that the file
+                   or a fixed list provides
+  editres-wire     Editres request parser (lib/Xm/EditresCom.c): header, strings,
+                   widget paths, the six request decoders, BuildEvent and
+                   FreeEvent.  The command handlers are not covered.
+  xmstring-stream  compound string external format: XmCvtByteStreamToXmString
+                   with the ASN.1 length and component readers, then triple and
+                   segment walks, copy, concatenation, comparison, write-back
+                   and a second parse (lib/Xm/XmString.c and related files).
+                   XmCvtByteStreamToXmString has no length parameter, so the
+                   harness only passes streams whose own header length fits in
+                   the bytes it holds.  Two switches narrow the target when a
+                   new finding hides what lies behind it (none is needed at
+                   present: the findings that they were made for are fixed):
+                   FUZZ_SKIP_SEGMENTS=1 leaves out the XmStringGetNextSegment
+                   walk, and FUZZ_WELLFORMED=1 only passes streams whose
+                   components tile the stream exactly.
+  xm-converters    string resource converters of lib/Xm/ResConvert.c: tab list,
+                   render table, font list, key symbol and character set
+                   tables, string tables, cardinal and atom lists, compound
+                   string, positions and dimensions.  The first input byte
+                   selects the converter; FUZZ_SKIP_CONVERTERS=0,9 leaves out
+                   converters by number (the order of the table in
+                   fuzz-xm-converters.c), to look past a new finding in one of
+                   them (none is needed at present).
+
+The check programs in tests/automated (run-xmstring-stream-bounds.py,
+run-resconvert-list-bounds.py, run-mrm-literal-bounds.py) build the same
+production sources with the same stand-ins (compile_xm_core_objects and
+compile_mrm_objects of run-fuzz.py, without coverage instrumentation) and keep
+the inputs of fixed findings as regression cases.  The crash inputs themselves
+stay in corpus/NAME as seeds named crash-*.
+
+What a finding means
+--------------------
+
+A stand-in that is too loose reports errors that cannot happen in the real
+toolkit.  Read every report at the lines its stack names, in the production
+source, before calling it a bug, and say when you cannot tell.
