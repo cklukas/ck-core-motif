@@ -29,5 +29,13 @@ jobs:
     artifacts:
       name: documentation-evidence
       paths: [docs-evidence]
+  - name: fuzz-replay
+    steps:
+      - name: replay-fuzz-corpora
+        script: |
+          test -n "$TMPDIR"
+          run_id="$(git rev-parse HEAD)"
+          CLANG=clang-19 python3 tests/fuzz/run-fuzz.py --all --replay \
+            --scratch "$TMPDIR/motif-fuzz-replay-$run_id"
 pages:
   path: public

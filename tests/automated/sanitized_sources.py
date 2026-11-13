@@ -24,7 +24,6 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 FUZZ = ROOT / "tests" / "fuzz"
-DEFAULT_CLANG = "/opt/homebrew/opt/llvm/bin/clang"
 
 
 def _load_fuzz_runner():
@@ -50,10 +49,8 @@ class Session:
         self.results = args.results
         self.results.mkdir(parents=True, exist_ok=False)
         (self.results / "tmp").mkdir()
-        self.clang = os.environ.get("CLANG", DEFAULT_CLANG)
-        if not Path(self.clang).exists():
-            raise SystemExit(f"clang not found: {self.clang} (set CLANG)")
         self.fuzz = _load_fuzz_runner()
+        self.clang = self.fuzz.find_clang()
         self.tree = self._source_tree()
         self.env = dict(os.environ, TMPDIR=str(self.results / "tmp"), LC_ALL="C",
                         ASAN_OPTIONS="detect_leaks=0:abort_on_error=0:halt_on_error=1:strict_memcmp=0",
@@ -91,19 +88,18 @@ class Session:
         """Link CHECK with lib/Xm compound string, render table, tab list and converter
         sources.  With UNITY the check includes ResConvert.c itself."""
         fuzz = self.fuzz
-        objects, common, xlib, _ = fuzz.compile_xm_core_objects(
+        objects, common, xlink, _ = fuzz.compile_xm_core_objects(
             self.tree, self.results, self.clang, False, unity=unity, fuzzer=False)
         return self._link(check, objects,
-                          [*common, "-I", str(self.tree / "lib/Xm"), "-L" + xlib, "-lXt", "-lX11",
-                           "-Wl,-rpath," + xlib], "check-xm")
+                          [*common, "-I", str(self.tree / "lib/Xm"), *xlink], "check-xm")
 
     def build_mrm(self, check):
         """Link CHECK with all of lib/Mrm and the stand-ins of tests/fuzz/mrm-stubs.c."""
         fuzz = self.fuzz
-        objects, common, xlib, _ = fuzz.compile_mrm_objects(
+        objects, common, xlink, _ = fuzz.compile_mrm_objects(
             self.tree, self.results, self.clang, False, fuzzer=False)
         return self._link(check, objects,
-                          [*common, "-L" + xlib, "-lXt", "-lX11", "-Wl,-rpath," + xlib], "check-mrm")
+                          [*common, *xlink], "check-mrm")
 
     def run(self, binary, cases):
         """Run every case in its own process.  CASES is a list of (name, defect); returns

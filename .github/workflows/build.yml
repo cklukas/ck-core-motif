@@ -1,0 +1,118 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'docs/**'
+      - 'ckdocs.yml'
+      - 'scripts/build-docs.py'
+      - '.github/workflows/pages.yml'
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build and test (${{ matrix.compiler }})
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: GCC
+            cc: gcc-14
+            cxx: g++-14
+          - compiler: Clang
+            cc: clang-19
+            cxx: clang++-19
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            at-spi2-core autoconf automake bison build-essential clang-19 dbus dbus-daemon flex \
+            fonts-dejavu-core gcc-14 g++-14 imagemagick libatspi2.0-dev libclang-rt-19-dev \
+            libdbus-1-dev libfontconfig-dev libfreetype-dev libharfbuzz-dev libicu-dev libjpeg-dev \
+            libpng-dev librsvg2-dev libtool libx11-dev libxcursor-dev libxext-dev libxfixes-dev \
+            libxft-dev libxinerama-dev libxmu-dev libxpm-dev libxrandr-dev libxrender-dev libxt-dev \
+            m4 netpbm pkg-config python3 x11-apps x11-utils xauth xbitmaps xfonts-100dpi xfonts-75dpi \
+            xfonts-base xfonts-utils xvfb
+      - name: Build and install CK Core Motif with hardening
+        run: |
+          set -eu
+          prefix="$RUNNER_TEMP/motif"
+          logs="$RUNNER_TEMP/motif-logs"
+          mkdir "$RUNNER_TEMP/motif-build" "$logs"
+          autoreconf -fi > "$logs/autogen.log" 2>&1
+          cd "$RUNNER_TEMP/motif-build"
+          if ! "$GITHUB_WORKSPACE/configure" --prefix="$prefix" \
+            CC='${{ matrix.cc }}' CXX='${{ matrix.cxx }}' \
+            --disable-demos --disable-static --enable-xft --enable-unicode-text \
+            --enable-atspi --enable-svg --enable-hardening \
+            CFLAGS='-std=c23 -O2 -g0' CXXFLAGS='-O2 -g0' > "$logs/configure.log" 2>&1; then
+            tail -n 200 config.log
+            exit 1
+          fi
+          for component in bindings bitmaps config localized lib include tools/wml clients/xmbind clients/uil clients/mwm; do
+            if ! make -j6 -C "$component" >> "$logs/make.log" 2>&1; then
+              tail -n 400 "$logs/make.log"
+              exit 1
+            fi
+            make -j1 -C "$component" install >> "$logs/install.log" 2>&1
+          done
+          test -e "$prefix/lib/libXm.so.9"
+          test -x "$prefix/bin/uil"
+      - name: Run the installed-prefix tests
+        run: |
+          set -eu
+          mkdir "$RUNNER_TEMP/suite-tmp"
+          export TMPDIR="$RUNNER_TEMP/suite-tmp"
+          export CC='${{ matrix.cc }}'
+          python3 tests/automated/run-suite.py "$RUNNER_TEMP/motif" "$RUNNER_TEMP/suite"
+      - name: Upload the failure logs
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: logs-${{ matrix.cc }}
+          path: |
+            ${{ runner.temp }}/motif-logs
+            ${{ runner.temp }}/suite
+            ${{ runner.temp }}/motif-build/config.log
+          if-no-files-found: warn
+          retention-days: 14
+
+  fuzz-replay:
+    name: Fuzz corpus replay
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install clang with libFuzzer support
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang-19 libclang-rt-19-dev llvm-19 libx11-dev libxt-dev pkg-config python3
+      - name: Replay every fuzz corpus
+        env:
+          CLANG: clang-19
+          ASAN_SYMBOLIZER_PATH: /usr/lib/llvm-19/bin/llvm-symbolizer
+        run: |
+          set -eu
+          python3 tests/fuzz/run-fuzz.py --all --replay --scratch "$RUNNER_TEMP/fuzz-replay"
+      - name: Upload the replay logs
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: fuzz-replay-logs
+          path: ${{ runner.temp }}/fuzz-replay/logs
+          if-no-files-found: warn
+          retention-days: 14

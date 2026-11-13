@@ -1,3 +1,23 @@
+Continuous integration: build, installed-prefix tests and fuzz corpus replay (2026-11-13)
+=========================================================================================
+
+- New workflow `.github/workflows/build.yml`: GCC 14 and Clang 19 build the
+  toolkit with `--enable-hardening` (the bindings, bitmaps, config, localized,
+  lib, include, tools/wml, clients/xmbind, clients/uil and clients/mwm
+  components, at most six parallel jobs), install it to a private prefix and
+  run the headless regression tests of `tests/automated` against that prefix
+  with the new driver `tests/automated/run-suite.py`. A second job, `fuzz-replay`
+  (also in `.ckgit/ci.yml`), runs `python3 tests/fuzz/run-fuzz.py --all --replay`.
+- `tests/fuzz/run-fuzz.py`: `--replay` runs every target once over every file of
+  its corpus directory (libFuzzer `-runs=0`, no mutation) and exits 1 when an
+  input crashes; `--all` applies the action to every target. The runner now
+  works on Linux: the compiler comes from `CLANG` (default: `clang` in PATH;
+  the Homebrew clang on macOS), the X11 headers and libraries from the system
+  (`pkg-config`) instead of XQuartz, and the symbol list of the stand-ins from
+  ELF `nm` output. `tests/automated/sanitized_sources.py` uses the same
+  compiler and linker lookup.
+- Docs: `docs/ci.md`, `tests/fuzz/README`.
+
 A colour literal must hold its whole name or components (2026-11-13)
 ====================================================================
 

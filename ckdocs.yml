@@ -36,6 +36,7 @@ nav:
     pages:
       - docs/build.md
       - docs/hardening.md
+      - docs/ci.md
       - docs/abi.md
       - docs/documentation.md
   - title: Development

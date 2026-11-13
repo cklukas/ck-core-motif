@@ -3,6 +3,7 @@
 
 run-fuzz.py --list
 run-fuzz.py --target NAME --seconds N --scratch DIR [--worktree DIR]
+run-fuzz.py --all --replay [--scratch DIR] [--worktree DIR]
 
 Every target fuzzes production parser code that reads untrusted data: UID
 files, the editres wire protocol, compound string external formats, and the
@@ -23,14 +24,24 @@ The headers that the toolkit build generates (Xm/Xm.h and the XmStrDefs
 headers) are produced below DIR/build/inc, the same way the toolkit build does
 (config/util/makestrs).  No toolkit build tree is needed.
 
-The target is built with the Homebrew clang (environment variable CLANG,
-default /opt/homebrew/opt/llvm/bin/clang) and
--fsanitize=fuzzer,address,undefined.  Undefined behaviour stops the run like an
+The target is built with the clang of the environment variable CLANG (default:
+the Homebrew clang, /opt/homebrew/opt/llvm/bin/clang, on macOS; the first
+`clang` in PATH elsewhere) and -fsanitize=fuzzer,address,undefined.  On macOS
+the X11 headers and libraries come from XQuartz (/opt/X11; XINCLUDE and XLIB
+override), elsewhere from the system (pkg-config).  Undefined behaviour stops the run like an
 address error does (-fno-sanitize-recover=undefined).  The corpus starts from
 tests/fuzz/corpus/NAME; the grown corpus, the logs and the crash inputs stay
 below DIR.  The exit status is 1 when a crash, a timeout or an out-of-memory
 input was found.  Only one libFuzzer process runs, on one CPU, and the build is
 sequential.
+
+--replay runs each target once over every file of its corpus directory
+(libFuzzer -runs=0: no mutation, no corpus growth) and prints one result line
+per target; the exit status is 1 when any input crashes or a target does not
+build.  The corpora hold the regression input of every fixed defect, so a replay
+is the fast check that no fixed defect has come back.  --all applies the action
+(a fuzzing run of --seconds, or --replay) to every target.  All targets build on
+macOS and on Linux with clang 19.
 """
 import argparse
 import os
@@ -40,11 +51,57 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 
 HERE = Path(__file__).resolve().parent
-DEFAULT_CLANG = "/opt/homebrew/opt/llvm/bin/clang"
-DEFAULT_XINCLUDE = "/opt/X11/include"
-DEFAULT_XLIB = "/opt/X11/lib"
+IS_MACOS = sys.platform == "darwin"
+MACOS_CLANG = "/opt/homebrew/opt/llvm/bin/clang"
+MACOS_XINCLUDE = "/opt/X11/include"
+MACOS_XLIB = "/opt/X11/lib"
+
+
+def find_clang():
+    """The compiler: $CLANG, else the Homebrew clang on macOS, else clang in PATH."""
+    wanted = os.environ.get("CLANG") or (MACOS_CLANG if IS_MACOS else "clang")
+    found = shutil.which(wanted)
+    if not found:
+        sys.exit(f"clang not found: {wanted} (set CLANG)")
+    return found
+
+
+def pkg_config(*args):
+    """The words pkg-config prints, or None when it is missing or refuses."""
+    try:
+        r = subprocess.run(["pkg-config", *args], capture_output=True, text=True)
+    except OSError:
+        return None
+    return shlex.split(r.stdout) if r.returncode == 0 else None
+
+
+def x_include_flags():
+    """Compiler flags for the X11 and Xt headers."""
+    given = os.environ.get("XINCLUDE")
+    if given:
+        return ["-I", given]
+    if IS_MACOS:
+        return ["-I", MACOS_XINCLUDE]
+    return pkg_config("--cflags", "x11", "xt") or []
+
+
+def x_link_flags():
+    """Linker flags for Xt and Xlib (XLIB names a directory that holds them)."""
+    xlib = os.environ.get("XLIB") or (MACOS_XLIB if IS_MACOS else "")
+    return (["-L" + xlib] if xlib else []) + ["-lXt", "-lX11"] + (["-Wl,-rpath," + xlib] if xlib else [])
+
+
+def nm_undefined(obj):
+    """The undefined symbols of OBJ, without the leading underscore of Mach-O names."""
+    names = set()
+    for line in sh(["nm", "-u", obj]).stdout.splitlines():
+        if line.split():
+            name = line.split()[-1]
+            names.add(name[1:] if IS_MACOS else name)
+    return names
 
 
 # ---- extraction helpers --------------------------------------------------------
@@ -157,9 +214,8 @@ def prepare_includes(wt, scratch, clang):
 
 
 def cflags_common(scratch):
-    xinclude = os.environ.get("XINCLUDE", DEFAULT_XINCLUDE)
     return ["-fno-omit-frame-pointer", "-g", "-O1", "-std=gnu23", "-w", "-D_DEFAULT_SOURCE", "-D_DARWIN_C_SOURCE",
-            "-DNO_MESSAGE_CATALOG", "-I", str(scratch / "build" / "inc"), "-I", xinclude]
+            "-DNO_MESSAGE_CATALOG", "-I", str(scratch / "build" / "inc"), *x_include_flags()]
 
 
 def sanitize_flags(recover_ub=False):
@@ -173,7 +229,8 @@ def compile_mrm_objects(wt, scratch, clang, recover_ub, fuzzer=True):
     """Compile the real lib/Mrm and the stand-ins below DIR/build/mrm-uid/obj.
     Without FUZZER the objects carry no coverage instrumentation (the tests of
     tests/automated link them with their own main).  Returns the object
-    files, the compiler flags the link needs, and the library directory."""
+    files, the compiler flags the compile and link need, and the linker flags
+    for Xt and Xlib."""
     gendir = scratch / "build" / "mrm-uid"
     objdir = gendir / "obj"
     objdir.mkdir(parents=True, exist_ok=True)
@@ -192,8 +249,7 @@ def compile_mrm_objects(wt, scratch, clang, recover_ub, fuzzer=True):
     # the widget library entry points and class records that Mrm registers by name
     undefined = set()
     for obj in objects:
-        for line in sh(["nm", "-u", obj]).stdout.splitlines():
-            undefined.add(line.split()[-1][1:])
+        undefined |= nm_undefined(obj)
     stub = ["/* generated by run-fuzz.py from the undefined symbols of lib/Mrm */",
             "#include <stddef.h>", "#include <X11/Intrinsic.h>", "#include <X11/IntrinsicP.h>",
             'Widget fuzz_new_widget(Widget);']
@@ -211,18 +267,17 @@ def compile_mrm_objects(wt, scratch, clang, recover_ub, fuzzer=True):
     compile_one(gendir / "widget-stubs.c", objdir / "widget-stubs.o", [])
     compile_one(HERE / "mrm-stubs.c", objdir / "mrm-stubs.o", ["-I", str(HERE)])
     compile_one(strdefs, objdir / "XmStrDefs.o", [])
-    xlib = os.environ.get("XLIB", DEFAULT_XLIB)
-    return objects, common, xlib, gendir
+    return objects, common, x_link_flags(), gendir
 
 
 def build_mrm_uid(wt, scratch, clang, recover_ub):
     """The real lib/Mrm plus the stand-ins; returns the binary."""
-    objects, common, xlib, gendir = compile_mrm_objects(wt, scratch, clang, recover_ub)
+    objects, common, xlink, gendir = compile_mrm_objects(wt, scratch, clang, recover_ub)
     binary = gendir / ("fuzz-mrm-uid-recover" if recover_ub else "fuzz-mrm-uid")
     cmd = [clang, "-fsanitize=fuzzer,address,undefined",
            "-fsanitize-recover=undefined" if recover_ub else "-fno-sanitize-recover=undefined",
            *common, "-I", str(HERE), "-o", str(binary), str(HERE / "fuzz-mrm-uid.c"), *objects,
-           "-L" + xlib, "-lXt", "-lX11", "-Wl,-rpath," + xlib]
+           *xlink]
     sh(cmd)
     return binary
 
@@ -232,10 +287,9 @@ def make_mrm_seeds(wt, scratch, clang, outdir):
     build_mrm_uid(wt, scratch, clang, False)
     gendir = scratch / "build" / "mrm-uid"
     objects = [str(p) for p in sorted((gendir / "obj").glob("*.o"))]
-    xlib = os.environ.get("XLIB", DEFAULT_XLIB)
     binary = gendir / "mrm-make-seeds"
     sh([clang, *sanitize_flags(), *cflags_common(scratch), "-I", str(HERE), "-o", str(binary),
-        str(HERE / "mrm-make-seeds.c"), *objects, "-L" + xlib, "-lXt", "-lX11", "-Wl,-rpath," + xlib])
+        str(HERE / "mrm-make-seeds.c"), *objects, *x_link_flags()])
     outdir.mkdir(parents=True, exist_ok=True)
     raw = scratch / "build" / "mrm-uid" / "seeds-raw"
     raw.mkdir(exist_ok=True)
@@ -274,8 +328,8 @@ def compile_xm_core_objects(wt, scratch, clang, recover_ub, unity=False, fuzzer=
     sources plus the stand-ins of xm-stubs.c below DIR/build/xm-core/obj.
     With UNITY the harness includes ResConvert.c itself.  Without FUZZER the
     objects carry no coverage instrumentation.  Returns the object files,
-    the compiler flags the link needs, the library directory and the
-    directory for generated files."""
+    the compiler flags the compile and link need, the linker flags for Xt and
+    Xlib and the directory for generated files."""
     gendir = scratch / "build" / ("xm-unity" if unity else "xm-core")
     objdir = scratch / "build" / "xm-core" / "obj"
     objdir.mkdir(parents=True, exist_ok=True)
@@ -306,8 +360,7 @@ def compile_xm_core_objects(wt, scratch, clang, recover_ub, unity=False, fuzzer=
         scan.append(str(scan_obj))
     undefined = set()
     for obj in scan:
-        for line in sh(["nm", "-u", obj]).stdout.splitlines():
-            undefined.add(line.split()[-1][1:])
+        undefined |= nm_undefined(obj)
     msgs = ["/* generated by run-fuzz.py: the message strings that the sources name */"]
     for name in sorted(undefined):
         if re.fullmatch(r"_XmMsg\w+", name):
@@ -316,15 +369,14 @@ def compile_xm_core_objects(wt, scratch, clang, recover_ub, unity=False, fuzzer=
     compile_one(gendir / "messages.c", objdir / ("messages-unity.o" if unity else "messages.o"))
     compile_one(HERE / "xm-stubs.c", objdir / "xm-stubs.o", ["-I", str(HERE)])
     compile_one(HERE / "xm-unreachable.c", objdir / "xm-unreachable.o")
-    xlib = os.environ.get("XLIB", DEFAULT_XLIB)
-    return objects, common, xlib, gendir
+    return objects, common, x_link_flags(), gendir
 
 
 def build_xm_core(harness, unity=False):
     """The real compound string, render table, tab list and converter sources
     plus the stand-ins of xm-stubs.c, linked with the harness fuzz-NAME.c."""
     def build(wt, scratch, clang, recover_ub):
-        objects, common, xlib, _ = compile_xm_core_objects(wt, scratch, clang, recover_ub, unity)
+        objects, common, xlink, _ = compile_xm_core_objects(wt, scratch, clang, recover_ub, unity)
         gendir = scratch / "build" / harness
         gendir.mkdir(parents=True, exist_ok=True)
         binary = gendir / (f"fuzz-{harness}-recover" if recover_ub else f"fuzz-{harness}")
@@ -332,7 +384,7 @@ def build_xm_core(harness, unity=False):
                "-fsanitize-recover=undefined" if recover_ub else "-fno-sanitize-recover=undefined",
                "-fsanitize=fuzzer", *common, "-I", str(HERE), "-I", str(wt / "lib/Xm"),
                "-o", str(binary), str(HERE / f"fuzz-{harness}.c"), *objects,
-               "-L" + xlib, "-lXt", "-lX11", "-Wl,-rpath," + xlib]
+               *xlink]
         sh(cmd)
         return binary
     return build
@@ -451,10 +503,63 @@ def run(name, seconds, scratch, wt, clang, recover_ub=False):
     return 0
 
 
+def replay(name, scratch, wt, clang):
+    """Run the target once over every file of its corpus directory, without
+    mutation (libFuzzer -runs=0).  Prints one result line; returns 1 on a crash."""
+    binary = TARGETS[name][1](wt, scratch, clang, False)
+    seeds = HERE / "corpus" / name
+    inputs = [p for p in seeds.rglob("*") if p.is_file()]
+    if not inputs:
+        print(f"{name}: replay FAILED: no corpus files in {seeds}")
+        return 1
+    crashes = scratch / "crashes" / name
+    logs = scratch / "logs"
+    tmp = scratch / "tmp"
+    for d in (crashes, logs, tmp):
+        d.mkdir(parents=True, exist_ok=True)
+    symbolizer = Path(clang).with_name("llvm-symbolizer")
+    env = dict(os.environ, TMPDIR=str(tmp),
+               **({"ASAN_SYMBOLIZER_PATH": str(symbolizer)} if symbolizer.exists() else {}),
+               ASAN_OPTIONS="detect_leaks=0:abort_on_error=0:symbolize=1:strict_memcmp=0",
+               UBSAN_OPTIONS="print_stacktrace=1:halt_on_error=1")
+    # an input longer than -max_len would be cut, so the cap follows the largest file
+    max_len = max(4096, max(p.stat().st_size for p in inputs))
+    cmd = [str(binary), "-runs=0", f"-max_len={max_len}", "-rss_limit_mb=2048", "-timeout=5",
+           f"-artifact_prefix={crashes}/", str(seeds)]
+    print("+ " + " ".join(shlex.quote(c) for c in cmd), flush=True)
+    log = logs / f"{name}-replay.log"
+    with open(log, "w") as out:
+        proc = subprocess.run(cmd, env=env, stdout=out, stderr=subprocess.STDOUT, cwd=scratch)
+    if proc.returncode:
+        text = log.read_text(errors="replace")
+        sys.stdout.write("\n".join(text.splitlines()[-40:]) + "\n")
+        print(f"{name}: replay FAILED: libFuzzer exit status {proc.returncode} over {len(inputs)} input(s), "
+              f"log {log}")
+        return 1
+    print(f"{name}: replay ok, {len(inputs)} input(s)")
+    return 0
+
+
+def run_target(args, name, scratch, wt, clang):
+    """Run one target for --all or --target; a failed build or extraction is a
+    failure of that target only."""
+    try:
+        if args.replay:
+            return replay(name, scratch, wt, clang)
+        return run(name, args.seconds, scratch, wt, clang, args.recover_ub)
+    except SystemExit as e:
+        print(f"{name}: {'replay ' if args.replay else ''}FAILED: {e.code}")
+        return 1
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--list", action="store_true", help="list the targets")
     ap.add_argument("--target", choices=sorted(TARGETS))
+    ap.add_argument("--all", action="store_true", help="apply the action to every target")
+    ap.add_argument("--replay", action="store_true",
+                    help="run each target once over every file of its corpus directory (libFuzzer -runs=0, no "
+                         "mutation) and exit 1 if any input crashes; --scratch defaults to a temporary directory")
     ap.add_argument("--seconds", type=int, default=60)
     ap.add_argument("--scratch", type=Path, help="directory for the build, corpus, logs and crashes")
     ap.add_argument("--recover-ub", action="store_true",
@@ -471,17 +576,29 @@ def main():
     if args.make_seeds:
         if not args.scratch:
             ap.error("--scratch is required")
-        make_mrm_seeds(find_worktree(args.worktree), args.scratch.resolve(), os.environ.get("CLANG", DEFAULT_CLANG),
+        make_mrm_seeds(find_worktree(args.worktree), args.scratch.resolve(), find_clang(),
                        args.make_seeds.resolve())
         return 0
-    if not args.target or not args.scratch:
-        ap.error("--target and --scratch are required")
-    clang = os.environ.get("CLANG", DEFAULT_CLANG)
-    if not Path(clang).exists():
-        sys.exit(f"clang not found: {clang} (set CLANG)")
-    scratch = args.scratch.resolve()
-    scratch.mkdir(parents=True, exist_ok=True)
-    return run(args.target, args.seconds, scratch, find_worktree(args.worktree), clang, args.recover_ub)
+    if bool(args.target) == args.all:
+        ap.error("exactly one of --target and --all is required")
+    if not args.scratch and not args.replay:
+        ap.error("--scratch is required")
+    clang = find_clang()
+    own_scratch = None
+    if args.scratch:
+        scratch = args.scratch.resolve()
+        scratch.mkdir(parents=True, exist_ok=True)
+    else:
+        own_scratch = scratch = Path(tempfile.mkdtemp(prefix="ck-fuzz-replay-")).resolve()
+    wt = find_worktree(args.worktree)
+    try:
+        status = 0
+        for name in ([args.target] if args.target else sorted(TARGETS)):
+            status |= run_target(args, name, scratch, wt, clang)
+        return status
+    finally:
+        if own_scratch:
+            shutil.rmtree(own_scratch, ignore_errors=True)
 
 
 if __name__ == "__main__":
