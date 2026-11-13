@@ -1650,3 +1650,6 @@ EXTRA_DIST += tests/automated/sanitized_sources.py \
               tests/automated/check-mrm-literal-bounds.c \
               tests/automated/run-mrm-literal-bounds.py \
               docs/mrm-literal-bounds.md
+
+EXTRA_DIST += tests/automated/check-mrm-icon-bounds.c \
+              tests/automated/run-mrm-icon-bounds.py

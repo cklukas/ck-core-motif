@@ -1,3 +1,22 @@
+Icon pixels and pixel sizes are checked before they are used (2026-11-13)
+=========================================================================
+
+- `Urm__MapIconAllocate` indexed the colour table with the pixel values of the
+  icon without comparing them to the number of entries, so a pixel value beyond
+  the table was read from behind it. It also read the predefined background and
+  foreground entries without checking that the table has them, and for a pixel
+  size that is none of the four known codes it never advanced through the bits
+  of a byte and did not return. A pixel value beyond the table now fails the
+  call like the other malformed icons (the image storage is freed); a missing
+  table, a table with fewer than two entries and an unknown pixel size are
+  rejected before anything is allocated. Valid icons are mapped as before.
+- Test: `run-mrm-icon-bounds.py` runs `check-mrm-icon-bounds.c` against the
+  production `lib/Mrm` sources under ASan/UBSan. The previous library fails the
+  defect cases (`--source-revision HEAD`); the fixed library passes them and the
+  valid 1, 4 and 8 bit icons. The crash input is kept in
+  `tests/fuzz/corpus/mrm-uid`.
+- Docs: `docs/mrm-icon-bounds.md`.
+
 Compound string streams are checked component by component (2026-11-13)
 =======================================================================
 

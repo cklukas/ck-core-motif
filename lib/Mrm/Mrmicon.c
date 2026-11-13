@@ -968,6 +968,28 @@ Urm__MapIconAllocate (RGMIconImagePtr		icon,
   if (iconwid <= 0 || iconhgt <= 0 || srcpix <= 0)
     return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0037,
 			  NULL, NULL, MrmFAILURE);
+  /*
+   * The pixel size is a code that selects the number of bits per source
+   * pixel; any other value would never advance the pixel loop below.
+   */
+  if (icon->pixel_size == URMPixelSize1Bit)
+    { num_bits = 1; bitmask = 0x1; }
+  else if (icon->pixel_size == URMPixelSize2Bit)
+    { num_bits = 2; bitmask = 0x3; }
+  else if (icon->pixel_size == URMPixelSize4Bit)
+    { num_bits = 4; bitmask = 0xF; }
+  else if (icon->pixel_size == URMPixelSize8Bit)
+    { num_bits = 8; bitmask = 0xFF; }
+  else
+    return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0037,
+			  NULL, NULL, MrmFAILURE);
+  /*
+   * The predefined background and foreground entries are read from the
+   * color table after the pixels are mapped, so the table must hold them.
+   */
+  if (ctable == NULL || ctable->count < URMColorTableUserMin)
+    return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0037,
+			  NULL, NULL, MrmFAILURE);
   if (dstpix <= 8) dstpix = 8;
   else if (dstpix <= 16) dstpix = 16;
   else dstpix = 32;
@@ -1008,14 +1030,6 @@ Urm__MapIconAllocate (RGMIconImagePtr		icon,
 			    NULL, NULL, MrmFAILURE);
     }
 
-  if(icon->pixel_size == URMPixelSize1Bit)
-    { num_bits = 1; bitmask=0x1; }
-  else if(icon->pixel_size == URMPixelSize2Bit)
-    { num_bits = 2; bitmask=0x3; }
-  else if(icon->pixel_size == URMPixelSize4Bit)
-    { num_bits = 4; bitmask=0xF; }
-  else if(icon->pixel_size == URMPixelSize8Bit)
-    { num_bits = 8; bitmask=0xFF; }
   for ( pix=0,lin=0 ; lin<icon->height ; pix=0,lin++ )
     {
       for ( byt=0 ; byt<srclinebyt ; byt++,srcbytptr++ )
@@ -1025,7 +1039,21 @@ Urm__MapIconAllocate (RGMIconImagePtr		icon,
 	    {
 	      tndx = srcbyt & bitmask;
 	      if ( pix < iconwid )
-		XPutPixel(imagep, pix, lin, ctable->item[tndx].color_pixel);
+		{
+		  /*
+		   * The pixel value comes from the file and indexes the
+		   * color table; a value the table does not hold is a
+		   * malformed icon.
+		   */
+		  if ( tndx >= ctable->count )
+		    {
+		      XtFree (alloc_pixmap);
+		      XFree((char*)imagep);
+		      return Urm__UT_Error ("Urm__MapIconAllocate", _MrmMMsg_0037,
+					    NULL, NULL, MrmFAILURE);
+		    }
+		  XPutPixel(imagep, pix, lin, ctable->item[tndx].color_pixel);
+		}
 	      pix++;
 	      srcbyt >>= num_bits;
 	    }
