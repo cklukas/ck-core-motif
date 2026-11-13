@@ -12,7 +12,7 @@ body = text[start : text.index("\n}\n", start) + 3]
 if "s == NULL || *s == NULL" not in body:
     raise SystemExit("tab parser input guard is missing")
 for needle in ("strtof(cursor, &end)", "errno == ERANGE", "!isfinite(parsed)",
-               "unit_length > 12"):
+               "unit_length >= unitTypeSize"):
     if needle not in body:
         raise SystemExit(f"tab parser numeric validation is missing: {needle}")
 start = text.rfind("CvtStringToXmTabList(")

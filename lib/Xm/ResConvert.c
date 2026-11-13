@@ -358,6 +358,7 @@ static void CvtStringToXmTabListDestroy(XtAppContext app,
 static Boolean GetNextTab(char **s,
 			  float *value,
 			  char *unitType,
+			  size_t unitTypeSize,
 			  XmOffsetModel *offsetModel); 
 static Boolean CvtStringToXmTabList(Display *dpy,
 				       XrmValue *args,
@@ -2815,32 +2816,34 @@ GetNextToken(
 	if (*context == NULL)
 		return(NULL);
 
-	s = *context;
-
-	/* find the end of the token */
-	for (e = s; (!terminated) && (*s != '\0'); e = s++)
+	/*
+	 * Find the end of the token.  E is the first non-backslashed
+	 * delimiter, or the terminating NUL; it is one past the last
+	 * character of the token, so an empty token has E equal to S.
+	 */
+	for (e = *context; *e != '\0'; e++)
 	{
-		if ((*s == '\\') && (*(s+1) != '\0'))
-			s++;
-		else if (OneOf(*s, delim))
+		if ((*e == '\\') && (*(e + 1) != '\0'))
+			e++;
+		else if (OneOf(*e, delim))
+		{
 			terminated = True;
+			break;
+		}
 	}
 
-	/* assert (OneOf(*e,delim) || (*e == '\0')) */
 	if (terminated)
-	{
 		next_context = (e + 1);
-		e--;
-	}
 	else
 		next_context = NULL;
 	
 	/* Strip out non-backslashed leading and trailing whitespace */
 	s = *context;
+	*context = next_context;
 	while ((s != e) && isspace((unsigned char)*s))
 		s++;
-	while ((e != s) && isspace((unsigned char)*e) &&
-	       (*(e - 1) != '\\'))
+	while ((e != s) && isspace((unsigned char)*(e - 1)) &&
+	       (*(e - 2) != '\\'))
 		e--;
 
 	if (e == s)
@@ -2867,7 +2870,7 @@ GetNextToken(
 	 * delimiter characters or spaces.  It would be great if we had
 	 * time to implement full C style backslash processing...
 	 */
-	token_size = (size_t)(e - s) + 1;
+	token_size = (size_t)(e - s);
 	if (token_size > (size_t)UINT_MAX - 1)
 		return(NULL);
 
@@ -2876,16 +2879,13 @@ GetNextToken(
 		return(NULL);
 	while (s != e)
 	{
-		if ((*s == '\\') && 
+		if ((*s == '\\') && ((s + 1) != e) &&
 		    (OneOf(*(s+1), delim) || isspace((unsigned char)*(s+1))))
 			s++;
 		
 		*(p++) = *(s++);
 	}
-	*(p++) = *(s++);
 	*p = '\0';
-
-	*context = next_context;
 
 	return(buf);
 }
@@ -3175,6 +3175,7 @@ static Boolean
 GetNextTab(char **s,
 	   float *value,
 	   char *unitType,
+	   size_t unitTypeSize,
 	   XmOffsetModel *offsetModel)
 {
 	char *cursor;
@@ -3184,7 +3185,7 @@ GetNextTab(char **s,
 	float parsed;
 
   if (s == NULL || *s == NULL || value == NULL || unitType == NULL ||
-      offsetModel == NULL)
+      unitTypeSize == 0 || offsetModel == NULL)
     return FALSE;
 
 	cursor = *s;
@@ -3209,7 +3210,8 @@ GetNextTab(char **s,
 	while (end[unit_length] != '\0' && end[unit_length] != ',' &&
 	       !isspace((unsigned char)end[unit_length]))
 	    ++unit_length;
-	if (unit_length == 0 || unit_length > 12)
+	/* the unit name and its terminating NUL must fit the caller's buffer */
+	if (unit_length == 0 || unit_length >= unitTypeSize)
 	    return FALSE;
 	memcpy(unitType, end, unit_length);
 	unitType[unit_length] = '\0';
@@ -3268,7 +3270,7 @@ CvtStringToXmTabList(Display *dpy,
   Boolean 	got_one = FALSE;
   char 		*s;
   float 	value;
-  char 		unitType[12]; /* longest unit name is "millimeters"  */
+  char 		unitType[12]; /* longest unit name is "millimeters" (11) */
   XmOffsetModel	offsetModel = XmABSOLUTE;
   int		units;
   XmParseResult	result;
@@ -3284,7 +3286,7 @@ CvtStringToXmTabList(Display *dpy,
       s = (char *)from->addr;
 
       /* Parse the tabs */
-      while (GetNextTab(&s, &value, unitType, &offsetModel))
+      while (GetNextTab(&s, &value, unitType, sizeof(unitType), &offsetModel))
 	{
 	  got_one = TRUE;
 	  

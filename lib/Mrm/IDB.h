@@ -24,6 +24,8 @@
 #ifndef idb_h
 #define	idb_h	1
 
+#include <stddef.h>
+
 /*
  * This file defines the constants and structs required by the URM
  * Indexed Data Base facility (IDB). The order of definition is:
@@ -524,6 +526,22 @@ typedef struct {
  * Max number of free bytes in data record
  */
 #define	IDBDataFreeMax		(IDBRecordSize - sizeof(IDBDataHdr))
+
+
+/*
+ * A data entry is read in place through IDBDataEntryHdr, so its offset in the
+ * data area of a data or header record must keep the header aligned.  The
+ * writer places every entry at a full-word offset; an offset taken from a
+ * file that breaks this is a damaged file.  RECORD_TYPE is IDBDataRecord or
+ * IDBHeaderRecord.
+ */
+typedef struct {
+	char		pad ;
+	IDBDataEntryHdr	entry ;
+} IDBDataEntryAlignProbe ;
+#define IDBDataEntryOffsetAligned(record_type, item_offs) \
+	((offsetof(record_type, data) + (size_t)(item_offs)) % \
+	 offsetof(IDBDataEntryAlignProbe, entry) == 0)
 
 
 /*

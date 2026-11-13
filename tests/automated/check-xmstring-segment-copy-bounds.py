@@ -6,14 +6,13 @@ from pathlib import Path
 
 source = Path(__file__).parents[2] / "lib" / "Xm" / "XmStringSeg.c"
 text = source.read_text(encoding="utf-8")
-start = text.index("/* Copy the text. */")
+start = text.index("Copy the text.")
 end = text.index("\n  /* Free the local context. */", start)
 block = text[start:end]
 
 assert "*char_count < 0" in block
-assert "SIZE_MAX / sizeof(wchar_t)" in block
-assert "text_bytes > SIZE_MAX - sizeof(wchar_t)" in block
-assert "text_bytes + sizeof(wchar_t) > UINT_MAX" in block
-assert "XtMalloc((Cardinal)(text_bytes + sizeof(wchar_t)))" in block
+assert "text_bytes > SIZE_MAX - 2 * sizeof(wchar_t)" in block
+assert "text_bytes + 2 * sizeof(wchar_t) > UINT_MAX" in block
+assert "XtMalloc((Cardinal)padded_bytes)" in block
 
 print("XmString segment copy bounds: ok")

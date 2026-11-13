@@ -220,6 +220,13 @@ Urm__FetchLiteral (MrmHierarchy			hierarchy_id,
       break; 
 
     default:
+      /*
+       * A value with units is read as a whole record: a literal that is
+       * shorter than its record is malformed.
+       */
+      if (!Urm__CW_UnitsValueFits (type, (size_t)UrmRCSize (context_id)))
+	return Urm__UT_Error ("Urm__FetchLiteral", _MrmMMsg_0028,
+			      NULL, NULL, MrmNOT_VALID);
       result = Urm__CW_FixupValue (val, type, (XtPointer)val, file_id,
 				  &swap_needed);
       if (result != MrmSUCCESS)
@@ -441,7 +448,7 @@ MrmFetchLiteral (MrmHierarchy		hierarchy_id,
     }
   else
     {
-      (*(context_id->free_func)) ((char *)context_id) ;
+      UrmFreeResourceContext (context_id) ;
       _MrmAppUnlock(app);
       _MrmProcessUnlock();
       return result;

@@ -1745,6 +1745,8 @@ extern Cardinal Urm__CW_FixupValue  _ARGUMENTS(( long val ,
 extern String Urm__CW_DisplayToString _ARGUMENTS(( char *val ,
 						    String add_string ,
 						    int add_string_size ));
+extern Boolean Urm__CW_UnitsValueFits  _ARGUMENTS(( MrmType reptype ,
+					size_t size ));
 extern Cardinal Urm__CW_ConvertValue  _ARGUMENTS((  Widget parent,
 						    long *val , 
 						    MrmType reptype , 

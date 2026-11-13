@@ -780,6 +780,40 @@ _read_length(
 }
 
 /*
+ * Validates the component that starts at C against the end of the stream
+ * and returns its value length and the length of its tag and length fields.
+ * The whole component, and the value that its tag requires, must lie before
+ * END.
+ */
+static Boolean
+_check_component(
+        unsigned char *c,
+        unsigned char *end,
+        unsigned short *length,
+        unsigned short *header )
+{
+  size_t remaining;
+
+  if (c >= end)
+    return FALSE;
+  remaining = (size_t)(end - c);
+  if (remaining < (size_t)(ASNTAG + CSSHORTLEN) ||
+      (_is_asn1_long(c) && remaining < (size_t)(ASNTAG + CSLONGLEN)))
+    return FALSE;
+
+  *length = _read_asn1_length(c);
+  *header = _read_length(c);
+  if ((size_t)*length > remaining - (size_t)*header)
+    return FALSE;
+
+  /* These components carry a one byte value that the readers dereference. */
+  if ((*c == XmSTRING_COMPONENT_DIRECTION ||
+       *c == XmSTRING_COMPONENT_LAYOUT_PUSH) && *length < 1)
+    return FALSE;
+  return TRUE;
+}
+
+/*
  * Private routines for reading/writing the individual compound string
  * components
  */
@@ -1205,6 +1239,14 @@ _XmStringIndexCacheTag(XmStringTag tag,
   if (tag == NULL || (length < 0 && length != XmSTRING_TAG_STRLEN))
     return 0;
   
+  /* A tag is a C string: a counted tag ends at its first NUL character. */
+  if (length != XmSTRING_TAG_STRLEN)
+    {
+      const char *terminator = (const char *)memchr(tag, '\0', (size_t)length);
+      if (terminator != NULL)
+	length = (int)(terminator - tag);
+    }
+
   /* Initialize cache with XmFONTLIST_DEFAULT_TAG, _MOTIF_DEFAULT_LOCALE, and
      locale.tag if necessary, to keep indices low. */
 
@@ -1231,13 +1273,19 @@ _XmStringIndexCacheTag(XmStringTag tag,
   /* Look for an existing cache entry. */
   for (i = 0; i < _cache_count; i++)
     {
-      if (((tag == _tag_cache[i]) || 
-	   ((length != XmSTRING_TAG_STRLEN) &&
-	    (strncmp(tag, _tag_cache[i], length) == 0)) ||
-	   ((length == XmSTRING_TAG_STRLEN) &&
-	    (strcmp(tag, _tag_cache[i]) == 0))) &&
-	  ((length == XmSTRING_TAG_STRLEN) || (_tag_cache[i][length] == '\0')))
+      if (length == XmSTRING_TAG_STRLEN)
 	{
+	  if (tag == _tag_cache[i] || strcmp(tag, _tag_cache[i]) == 0)
+	    {
+	      _XmProcessUnlock();
+	      return( i) ;
+	    }
+	}
+      else if (strlen(_tag_cache[i]) == (size_t)length &&
+	       memcmp(tag, _tag_cache[i], (size_t)length) == 0)
+	{
+	  /* The tag holds LENGTH bytes, which may include NUL characters:
+	     it equals only a cached tag of exactly that length. */
 	  _XmProcessUnlock();
 	  return( i) ;
 	}
@@ -5923,8 +5971,10 @@ _XmStringNonOptCreate(
   
   while (c < end)
     {
-      length = _read_asn1_length (c);
-      header = _read_length(c);
+      /* The first pass of XmCvtByteStreamToXmString only validated the
+	 components up to the first one that cannot be optimized. */
+      if (!_check_component(c, end, &length, &header))
+	goto conversion_failed;
       need_finish = True;
       
       switch (*c)
@@ -6210,25 +6260,10 @@ XmCvtByteStreamToXmString(unsigned char *property)
   
   while (continue_flag)
     {
-      size_t remaining;
-
-      if (c_opt >= end) {
+      if (!_check_component(c_opt, end, &length, &component_header)) {
 	malformed = TRUE;
 	break;
       }
-      remaining = (size_t)(end - c_opt);
-      if (remaining < (size_t)(ASNTAG + CSSHORTLEN) ||
-	  (_is_asn1_long(c_opt) &&
-	   remaining < (size_t)(ASNTAG + CSLONGLEN))) {
-	malformed = TRUE;
-	break;
-      }
-      length = _read_asn1_length (c_opt);
-	  component_header = _read_length(c_opt);
-	  if ((size_t)length > remaining - (size_t)component_header) {
-	malformed = TRUE;
-	break;
-	  }
 
       switch (*c_opt)
         {

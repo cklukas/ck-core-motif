@@ -14,7 +14,8 @@ body = source[start:end]
 assert body.count("result = Urm__CW_FixupValue") >= 3
 for position in (
     body.index("else \n\t{") + body[body.index("else \n\t{"):].index("result = Urm__CW_FixupValue"),
-    body.index("default:\n      result = Urm__CW_FixupValue"),
+    body.index("default:\n      /*\n       * A value with units") +
+    body[body.index("default:\n      /*\n       * A value with units"):].index("result = Urm__CW_FixupValue"),
 ):
     following = body[position:]
     assert "if (result != MrmSUCCESS)" in following[:300]

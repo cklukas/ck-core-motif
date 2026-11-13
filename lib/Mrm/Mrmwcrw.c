@@ -109,6 +109,43 @@ UrmWidgetStringValid(RGMWidgetRecordPtr widgetrec, MrmOffset offset)
                 widgetrec->size - offset) != NULL;
 }
 
+/*
+ * Urm__CW_ConvertValue reads a value with units (Horizontal/Vertical Integer
+ * or Float) as a whole record.  A value that is shorter than its record is
+ * malformed.  Every other type has no fixed record and is not checked here.
+ * SIZE is the number of bytes that the literal or the widget record holds
+ * from the start of the value.
+ */
+Boolean
+Urm__CW_UnitsValueFits(MrmType reptype, size_t size)
+{
+  switch (reptype)
+    {
+    case MrmRtypeHorizontalInteger:
+    case MrmRtypeVerticalInteger:
+      return size >= sizeof(RGMUnitsInteger);
+    case MrmRtypeHorizontalFloat:
+    case MrmRtypeVerticalFloat:
+      return size >= sizeof(RGMUnitsFloat);
+    default:
+      return True;
+    }
+}
+
+/* A value with units at `offset' in a widget record must lie inside it. */
+static Boolean
+UrmWidgetUnitsValueValid(RGMWidgetRecordPtr widgetrec, MrmType reptype,
+                         MrmOffset offset)
+{
+  if (reptype != MrmRtypeHorizontalInteger &&
+      reptype != MrmRtypeVerticalInteger &&
+      reptype != MrmRtypeHorizontalFloat &&
+      reptype != MrmRtypeVerticalFloat)
+    return True;
+  return offset >= RGMWidgetRecordHdrSize && offset <= widgetrec->size &&
+         Urm__CW_UnitsValueFits(reptype, widgetrec->size - offset);
+}
+
 /* A resource descriptor at `offset' in a buffer of `size' bytes that starts at
  * `base': it must lie inside the buffer and, for an index key, end inside it. */
 static Boolean
@@ -1413,6 +1450,10 @@ Urm__CW_CreateArglist (Widget			parent,
           reptype != MrmRtypeNull &&
           (argptr->arg_val.datum.offset < RGMWidgetRecordHdrSize ||
            argptr->arg_val.datum.offset >= widgetrec->size))
+        continue;
+
+      if (!UrmWidgetUnitsValueValid(widgetrec, reptype,
+                                    argptr->arg_val.datum.offset))
         continue;
 
       /*
@@ -3552,6 +3593,14 @@ Urm__CW_ReadLiteral (RGMResourceDescPtr		resptr ,
     }
 
   /*
+   * A value with units is read as a whole record: a literal that is shorter
+   * than its record is malformed.
+   */
+  if ( *vec_size < 0 || !Urm__CW_UnitsValueFits(*type, (size_t)*vec_size) )
+    return Urm__UT_Error ("Urm__CW_ReadLiteral", _MrmMMsg_0028,
+			  NULL, NULL, MrmNOT_VALID) ;
+
+  /*
    * Handle literals which may have further embedded literal references. Note
    * that the file for private references is the local file, possibly changed
    * by the HGetIndexedLiteral
@@ -3946,6 +3995,9 @@ Urm__CW_FixupCallback (Widget			parent ,
           (itmptr->cb_item.datum.offset < RGMWidgetRecordHdrSize ||
            itmptr->cb_item.datum.offset >=
              ((RGMWidgetRecordPtr)bufptr)->size))
+        return MrmFAILURE;
+      if (!UrmWidgetUnitsValueValid((RGMWidgetRecordPtr)bufptr, reptype,
+                                    itmptr->cb_item.datum.offset))
         return MrmFAILURE;
       tag_val = Urm__CW_EvaluateValOrOffset (reptype, bufptr,
 					     itmptr->cb_item.datum.ival, 

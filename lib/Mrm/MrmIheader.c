@@ -892,7 +892,8 @@ Idb__HDR_GetDataEntry (IDBFile			file_id,
 
   if (file_id == NULL || !UrmRCValid (context_id) ||
       data_entry.rec_no != IDBHeaderRecordNumber ||
-      data_entry.item_offs > IDBHeaderFreeMax - sizeof(IDBDataEntryHdr))
+      data_entry.item_offs > IDBHeaderFreeMax - sizeof(IDBDataEntryHdr) ||
+      !IDBDataEntryOffsetAligned(IDBHeaderRecord, data_entry.item_offs))
     return MrmFAILURE;
 
   /*
@@ -1044,6 +1045,7 @@ Idb__HDR_PutDataEntry (IDBFile			file_id,
 
   if (recptr->free_ptr > IDBHeaderFreeMax ||
       recptr->free_count > IDBHeaderFreeMax ||
+      !IDBDataEntryOffsetAligned(IDBHeaderRecord, recptr->free_ptr) ||
       UrmRCSize(context_id) > IDBHeaderFreeMax - IDBSimpleDataHdrSize)
     return MrmFAILURE;
 
@@ -1145,7 +1147,8 @@ Idb__HDR_MatchFilter (IDBFile		file_id,
   Boolean		matched;	/* filter result */
 
   if (file_id == NULL || data_entry.rec_no != IDBHeaderRecordNumber ||
-      data_entry.item_offs > IDBHeaderFreeMax - sizeof(IDBDataEntryHdr))
+      data_entry.item_offs > IDBHeaderFreeMax - sizeof(IDBDataEntryHdr) ||
+      !IDBDataEntryOffsetAligned(IDBHeaderRecord, data_entry.item_offs))
     return FALSE;
 
   /*

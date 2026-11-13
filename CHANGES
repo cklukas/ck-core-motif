@@ -1,3 +1,111 @@
+Compound string streams are checked component by component (2026-11-13)
+=======================================================================
+
+- `XmCvtByteStreamToXmString` validated the components only up to the first one
+  that cannot be optimized; `_XmStringNonOptCreate` then read the rest of the
+  stream without a bounds check, so a component whose tag, length or value was
+  not inside the stream was read past its end. Every component is now checked
+  against the end of the stream, including the one byte value of a direction and
+  of a layout push; a malformed stream converts to `NULL`.
+  `check-xmstring-byte-stream-bounds.py` follows the shared component check.
+- Test: `run-xmstring-stream-bounds.py` runs `check-xmstring-stream-bounds.c`
+  against the production `lib/Xm` sources under ASan/UBSan. The previous library
+  fails the overread cases (`--source-revision HEAD`); the fixed library passes
+  them and the valid streams.
+- Docs: `docs/xmstring-stream-bounds.md`.
+
+The compound string tag cache compares counted tags exactly (2026-11-13)
+========================================================================
+
+- `_XmStringIndexCacheTag` compared a counted tag with `strncmp` and then read the
+  cached tag at the tag's length, so a tag with an embedded NUL character read a
+  shorter cached tag past its end. A counted tag now ends at its first NUL
+  character and equals only a cached tag of exactly that length.
+- Test: `check-xmstring-stream-bounds.c` (case `cache-embedded-nul`), run by
+  `run-xmstring-stream-bounds.py`; the previous library fails with a heap
+  overflow.
+- Docs: `docs/xmstring-stream-bounds.md`.
+
+`XmStringGetNextSegment` frees only what it allocated (2026-11-13)
+==================================================================
+
+- When no segment could be returned, `_XmStringGetSegment` freed the tag and the
+  text pointer, which belong to the string or to the tag cache (a constant
+  default tag, a cached tag, text of the string): an invalid free, and a cached
+  tag that was gone afterwards. Failure paths now release only the copies made
+  by the function (also the rendition tags that the failing copy left behind) and
+  return `NULL` for the tag and the text. The copy of wide character text also
+  multiplied the byte length of the component by `sizeof(wchar_t)` and read four
+  times the segment; it copies the bytes, padded to whole wide characters. The
+  source checks of the segment copy (`check-xmstring-copy-width.py`,
+  `check-xmstring-segment-copy-bounds.py`, `check-xmstring-segment-copy-cleanup.py`,
+  `check-xmstring-segment-failure-cleanup.py`, `check-string-segment-copy-guards.py`)
+  asserted the earlier code and follow the new one.
+- Test: `check-xmstring-stream-bounds.c` (cases `next-segment-*`), run by
+  `run-xmstring-stream-bounds.py`; the previous library fails with an invalid
+  free and a use of the freed cache entry.
+- Docs: `docs/xmstring-stream-bounds.md`.
+
+Tab list units fit their buffer (2026-11-13)
+============================================
+
+- `GetNextTab` accepted a unit name of 12 characters for a 12 byte buffer and wrote
+  its terminating NUL one byte past it. The function takes the size of the buffer
+  and rejects a name that does not leave room for the NUL; the longest valid unit,
+  `millimeters`, has 11 characters.
+- Test: `run-resconvert-list-bounds.py` runs `check-resconvert-list-bounds.c`
+  (case `tab-unit-converter`) with the production `lib/Xm` sources under
+  ASan/UBSan; the previous library fails with a stack overflow.
+- Docs: `docs/resconvert-list-bounds.md`.
+
+The resource token reader handles empty and one character tokens (2026-11-13)
+=============================================================================
+
+- `GetNextToken`, which the atom list converter uses, kept a pointer to the last
+  character of a token. A delimiter at the start of the string made it read one
+  byte before the string; a token of one character was returned as an empty token;
+  an empty token did not advance the context, so a caller never reached the end of
+  the list; and an escaped character at the end of a token made the copy loop run
+  past the token. The token is now a range with an exclusive end and the context
+  always advances.
+- Test: `check-resconvert-list-bounds.c` (cases `token-*`, `atom-list-*`) with
+  `run-resconvert-list-bounds.py`; the previous library fails with heap overflows
+  and wrong tokens. The source checks `check-resconvert-token-allocation.py`,
+  `check-resconvert-token-whitespace.py` and `check-tablist-converter-inputs.py`
+  follow the new code.
+- Docs: `docs/resconvert-list-bounds.md`, `docs/resconvert-token-whitespace.md`.
+
+UID units literals must be as large as their record (2026-11-13)
+================================================================
+
+- `Urm__CW_ConvertValue` read a `HorizontalFloat`, `VerticalFloat`,
+  `HorizontalInteger` or `VerticalInteger` value as a whole record, whatever the
+  size of the literal in the file, so a shorter literal was read past its buffer.
+  `Urm__FetchLiteral` (`MrmFetchLiteral`) and `Urm__CW_ReadLiteral`
+  (`MrmFetchSetValues`, widget arguments, callbacks) now check the literal
+  against the size of the record, and values with units inside a widget record or
+  a callback item are checked against the end of the record; a short value is a
+  corrupt file and is not applied. `MrmFetchLiteral` also releases the literal's
+  buffer when the fetch fails.
+- Test: `run-mrm-literal-bounds.py` runs `check-mrm-literal-bounds.c` with the
+  production `lib/Mrm` sources under ASan/UBSan; the previous library fails with a
+  heap overflow (float) and applies the garbage value (integer).
+- Docs: `docs/mrm-literal-bounds.md`.
+
+UID data entry offsets must be aligned (2026-11-13)
+===================================================
+
+- `Idb__DB_GetDataEntry`, `Idb__HDR_GetDataEntry` and the two filter matchers read
+  the entry header through a structure with 4 byte alignment at an offset taken from
+  the file without checking the alignment, which is undefined behaviour. The writer
+  places entries at full-word offsets, so an unaligned offset is a corrupt file: it
+  is rejected, and so is an unaligned free pointer when an entry is appended.
+- Test: `check-mrm-literal-bounds.c` (cases `unaligned-*`), run by
+  `run-mrm-literal-bounds.py`; the previous library fails with a UBSan
+  misaligned-access report, the fixed library rejects the offsets and still reads
+  aligned entries.
+- Docs: `docs/mrm-literal-bounds.md`.
+
 String tab stops check the window attributes (2026-11-12)
 ========================================================
 

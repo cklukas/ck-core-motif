@@ -140,7 +140,8 @@ Idb__DB_GetDataEntry (IDBFile			file_id,
   if ( record_number == IDBHeaderRecordNumber ) 
     return Idb__HDR_GetDataEntry (file_id, data_entry, context_id);
 
-  if (data_entry.item_offs > IDBDataFreeMax - sizeof(IDBDataEntryHdr))
+  if (data_entry.item_offs > IDBDataFreeMax - sizeof(IDBDataEntryHdr) ||
+      !IDBDataEntryOffsetAligned(IDBDataRecord, data_entry.item_offs))
     return MrmNOT_VALID;
 
   /*
@@ -370,7 +371,8 @@ Idb__DB_PutDataEntry (IDBFile			file_id,
       dataheader = (IDBDataHdr *) &data_rec->data_header;
       if (dataheader->free_ptr > IDBDataFreeMax ||
           dataheader->free_count > IDBDataFreeMax ||
-          dataheader->free_ptr > IDBDataFreeMax - dataheader->free_count)
+          dataheader->free_ptr > IDBDataFreeMax - dataheader->free_count ||
+          !IDBDataEntryOffsetAligned(IDBDataRecord, dataheader->free_ptr))
 	return MrmNOT_VALID;
       if ( entsiz > dataheader->free_count )
 	{
@@ -583,7 +585,8 @@ Idb__DB_MatchFilter (IDBFile 		file_id,
     return Idb__HDR_MatchFilter
       (file_id, data_entry, group_filter, type_filter);
 
-  if (data_entry.item_offs > IDBDataFreeMax - sizeof(IDBDataEntryHdr))
+  if (data_entry.item_offs > IDBDataFreeMax - sizeof(IDBDataEntryHdr) ||
+      !IDBDataEntryOffsetAligned(IDBDataRecord, data_entry.item_offs))
     return FALSE;
 
   result = Idb__BM_GetRecord (file_id, record_number, &bufptr) ;

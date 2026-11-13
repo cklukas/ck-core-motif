@@ -6,8 +6,11 @@ source = (Path(__file__).parents[2] / "lib" / "Xm" / "XmStringSeg.c").read_text(
 start = source.index("_XmStringGetSegment(")
 end = source.index("Boolean \n_XmStringGetNextSegment(", start)
 body = source[start:end]
-assert body.count("XtFree((char *)*tag);") >= 4
-assert body.count("XtFree((char *)*text);") >= 3
-assert "XmStringTag copied_tag = XtNewString(*tag);" in body
-assert "char *tmp = XtMalloc" in body
+# *tag and *text point into the string until they are copied: only the copies are released
+assert "XtFree((char *)*tag);" not in body
+assert "XtFree((char *)*text);" not in body
+assert body.count("XtFree(copied_tag);") == 1
+assert body.count("XtFree(copied_text);") == 1
+assert "copied_tag = XtNewString(*tag);" in body
+assert "copied_text = XtMalloc" in body
 print("PASS XmString segment-copy failure cleanup")

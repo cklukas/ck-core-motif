@@ -139,6 +139,7 @@ nav:
           - docs/mrm-fontlist-replacement-cleanup.md
           - docs/mrm-fontset-conversion-output.md
           - docs/mrm-legacy-fontlist-fixup.md
+          - docs/mrm-literal-bounds.md
           - docs/mrm-uid-input.md
           - docs/mrm-wide-character-fixup-cleanup.md
           - docs/mwm-action-argument-allocation.md
@@ -881,6 +882,7 @@ nav:
           - docs/reptype-table-allocation.md
       - title: resconvert
         pages:
+          - docs/resconvert-list-bounds.md
           - docs/resconvert-token-whitespace.md
       - title: resencod
         pages:
@@ -1263,6 +1265,7 @@ nav:
           - docs/xmstring-segment-merge-bounds.md
           - docs/xmstring-segment-validation.md
           - docs/xmstring-single-segment-outputs.md
+          - docs/xmstring-stream-bounds.md
           - docs/xmstring-substring-null-tags.md
           - docs/xmstring-table-break-concat.md
           - docs/xmstring-table-break-copy.md

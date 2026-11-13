@@ -324,12 +324,15 @@ _XmStringGetSegment(_XmStringContext   context,
 	(void) XmeStringGetComponent(local_context, TRUE, FALSE, &len, &val);
     }
 
+  /*
+   * Until the data is copied below, *TEXT and *TAG point into the string or
+   * its context, which own them: only the copied rendition tags are ours to
+   * release when the segment is not returned.
+   */
   if (copy_data && !result)
     {
       unsigned int cleanup;
-      XtFree((char *)*text);
       *text = NULL;
-      XtFree((char *)*tag);
       *tag = NULL;
       if (*rendition_tags != NULL)
 	{
@@ -343,61 +346,77 @@ _XmStringGetSegment(_XmStringContext   context,
 
   if (copy_data && result)
     {
+      char *copied_tag = NULL;
+      char *copied_text = NULL;
+      Boolean copied = TRUE;
+
       /* Copy the tag. */
       if (*tag)
 	{
-	  XmStringTag copied_tag = XtNewString(*tag);
-	  if (copied_tag == NULL) {
-	    XtFree((char *)*tag);
-	    *tag = NULL;
-	    result = FALSE;
-	  } else {
-	    *tag = copied_tag;
-	  }
+	  copied_tag = XtNewString(*tag);
+	  if (copied_tag == NULL)
+	    copied = FALSE;
 	}
 
-      /* Copy the text. */
-	if (*text && result)
+      /*
+       * Copy the text.  CHAR_COUNT is the number of bytes of the component for
+       * every text type, wide characters included.  A wide character string is
+       * read in units of wchar_t, so the copy is padded to a whole number of
+       * them and ends with a null wide character.
+       */
+      if (copied && *text)
 	{
+	  size_t text_bytes = 0;
+	  size_t padded_bytes = 0;
+
 	  if (*char_count < 0)
-	    {
-	    XtFree((char *)*text);
-	    *text = NULL;
-	    XtFree((char *)*tag);
-	    *tag = NULL;
-	    result = FALSE;
-	    }
+	    copied = FALSE;
 	  else
-	  {
-	  size_t text_bytes = (*type == XmWIDECHAR_TEXT) ?
-	      (size_t)*char_count * sizeof(wchar_t) : (size_t)*char_count;
-	  if ((*type == XmWIDECHAR_TEXT &&
-	       (size_t)*char_count > SIZE_MAX / sizeof(wchar_t)) ||
-	      text_bytes > SIZE_MAX - sizeof(wchar_t) ||
-	      text_bytes + sizeof(wchar_t) > UINT_MAX)
 	    {
-	    XtFree((char *)*text);
-	    *text = NULL;
-	    XtFree((char *)*tag);
-	    *tag = NULL;
-	    result = FALSE;
+	      text_bytes = (size_t)*char_count;
+	      if (text_bytes > SIZE_MAX - 2 * sizeof(wchar_t) ||
+		  text_bytes + 2 * sizeof(wchar_t) > UINT_MAX)
+		copied = FALSE;
+	      else
+		padded_bytes = text_bytes + 2 * sizeof(wchar_t) - 1;
 	    }
-	  else
-	  {
-	  char *tmp = XtMalloc((Cardinal)(text_bytes + sizeof(wchar_t)));
-	  if (tmp == NULL) {
-	    XtFree((char *)*text);
-	    *text = NULL;
-	    XtFree((char *)*tag);
-	    *tag = NULL;
-	    result = FALSE;
-	  } else {
-	    memcpy(tmp, *text, text_bytes);
-	    bzero(tmp + text_bytes, sizeof(wchar_t));
-	    *text = (XtPointer) tmp;
-	  }
-	  }
-	  }
+	  if (copied)
+	    {
+	      copied_text = XtMalloc((Cardinal)padded_bytes);
+	      if (copied_text == NULL)
+		copied = FALSE;
+	      else
+		{
+		  memcpy(copied_text, *text, text_bytes);
+		  bzero(copied_text + text_bytes, padded_bytes - text_bytes);
+		}
+	    }
+	}
+
+      if (copied)
+	{
+	  if (copied_tag)
+	    *tag = copied_tag;
+	  if (copied_text)
+	    *text = (XtPointer) copied_text;
+	}
+      else
+	{
+	  unsigned int cleanup;
+
+	  XtFree(copied_tag);
+	  XtFree(copied_text);
+	  *text = NULL;
+	  *tag = NULL;
+	  if (*rendition_tags != NULL)
+	    {
+	      for (cleanup = 0; cleanup < *tag_count; ++cleanup)
+		XtFree((char *)(*rendition_tags)[cleanup]);
+	      XtFree((char *)*rendition_tags);
+	      *rendition_tags = NULL;
+	      *tag_count = 0;
+	    }
+	  result = FALSE;
 	}
     }
 

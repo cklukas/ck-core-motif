@@ -1639,3 +1639,14 @@ EXTRA_DIST += tests/automated/check-container-relayout-metrics.c \
 
 EXTRA_DIST += docs/demo-help.md tests/automated/check-help-geometry.c \
               tests/automated/run-help-geometry.py
+
+EXTRA_DIST += tests/automated/sanitized_sources.py \
+              tests/automated/check-xmstring-stream-bounds.c \
+              tests/automated/run-xmstring-stream-bounds.py \
+              docs/xmstring-stream-bounds.md \
+              tests/automated/check-resconvert-list-bounds.c \
+              tests/automated/run-resconvert-list-bounds.py \
+              docs/resconvert-list-bounds.md \
+              tests/automated/check-mrm-literal-bounds.c \
+              tests/automated/run-mrm-literal-bounds.py \
+              docs/mrm-literal-bounds.md
