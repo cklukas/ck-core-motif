@@ -3255,7 +3255,7 @@ Mask visual_flag)
     XmManagerWidget mw = (XmManagerWidget) new_parent;
     XmManagerWidget curmw = (XmManagerWidget) cur_parent;
     Boolean redraw = False, do_normal = False, do_background = False;
-    XmLabelGCacheObjPart oldCopy;
+    XmLabelGCacheObjPart oldCopy = {0};
 
     /*
      * Since we are here the instance record is going to be changed.

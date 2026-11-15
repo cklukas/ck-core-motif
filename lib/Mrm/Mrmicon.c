@@ -1249,7 +1249,7 @@ Urm__RealizeColorTable (Screen			*screen,
 		}
 		break;
 	      default:
-		(void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0040);
+		(void)snprintf (err_msg, sizeof(err_msg), "%s", _MrmMMsg_0040);
 		return Urm__UT_Error ("Urm__RelizeColorTable",
 				      err_msg, NULL, NULL, MrmFAILURE) ;
 	      }
@@ -1325,7 +1325,7 @@ Urm__RealizeColorTable (Screen			*screen,
 	      break;
 	    default:
 	      result = MrmFAILURE;
-	      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0040);
+	      (void)snprintf (err_msg, sizeof(err_msg), "%s", _MrmMMsg_0040);
 	      Urm__UT_Error ("Urm__RelizeColorTable",
 			     err_msg, NULL, NULL, MrmFAILURE) ;
 	    }

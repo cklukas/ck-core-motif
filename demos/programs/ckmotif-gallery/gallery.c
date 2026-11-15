@@ -335,8 +335,11 @@ static Widget create_page(Widget parent, const char *name)
  * A word wider than the viewport stays intact on the scrollable canvas. */
 static XmString flow_text(Widget label, const char *source, Dimension available)
 {
-    char *copy = XtNewString(source), *line = copy, *word = copy;
+    char *copy = XtNewString(source ? source : ""), *line, *word;
     XmRenderTable table = NULL;
+    if (!copy) return text("");
+    line = copy;
+    word = copy;
     XtVaGetValues(label, XmNrenderTable, &table, NULL);
     while (*word) {
         while (*word == ' ' || *word == '\t') ++word;

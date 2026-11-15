@@ -451,6 +451,7 @@ _XmHandleGeometryManager(
                 break ;
                 } 
             } 
+            /* FALLTHROUGH */
         default:
         {   _XmGeoMatrixFree( geoSpec) ;
             break ;

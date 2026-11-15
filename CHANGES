@@ -1,3 +1,53 @@
+C23 and memory-safety defect-warning ratchet (2026-11-15)
+=========================================================
+
+- Eliminated all 242 defect-class compiler warnings across the 10 tracked defect
+  classes (`-Wformat-security`, `-Wimplicit-fallthrough`, `-Wnull-dereference`,
+  `-Wmisleading-indentation`, `-Wcast-function-type`, `-Wpointer-to-int-cast`,
+  `-Wint-to-pointer-cast`, `-Wmaybe-uninitialized`, `-Wuninitialized`, and
+  `-Waddress`) and all 62 product-code `cppcheck` errors (`uninitvar`,
+  `legacyUninitvar`, `memleak`, `memleakOnRealloc`, `arrayIndexOutOfBounds`, and
+  `shiftNegative`) across `lib/Xm`, `lib/Mrm`, `clients/mwm`, `clients/uil`,
+  `tools/wml`, `config/util`, and `demos/programs/ckmotif-gallery` under
+  `-std=c23 -O2 -g0 --enable-hardening`.
+- Notable defect corrections uncovered during the audit:
+  - `lib/Xm/TextFSel.c` (`HandleInsertTargets`): initialized `CS_OF_ENCODING` via
+    `XmeGetEncodingAtom(w)` before comparing target atoms against it, matching
+    `lib/Xm/TextSel.c`.
+  - `lib/Xm/TextFunc.c` (`XmTextGetBaseline`, `XmTextGetCenterline`): initialized
+    `baselines = NULL` so `XtFree((char *) baselines)` does not free an
+    uninitialized stack pointer when `widget_baseline` is absent or returns
+    false.
+  - `lib/Xm/ScrolledW.c` (`ConstantLayout`) and `lib/Xm/TabBox.c`: initialized
+    `HasHSB`/`HasVSB` when no managed children exist and removed an uninitialized
+    `x -= offset` step in the right-to-left tab background loop.
+  - `lib/Xm/DropSMgr.c` (`XmDropSiteQueryStackingOrder`): guarded `parentInfo`
+    for `NULL` before dereferencing `GetDSInternal(parentInfo)`.
+  - `clients/uil/UilSemVal.c` and `lib/Mrm/MrmIswap.c`: added missing `break`
+    statements in `sym_k_font_table_entry`, `sym_k_any_entry` (`val_k_wrong_type`
+    diagnostic), and `MrmRtypeSingleFloat` byte-swap cases; fixed signed `char`
+    left-shift overflow in `clients/uil/UilP2Out.c` (`create_icon`) and guarded
+    `row_entry != NULL` before reading `row_entry->w_length` in
+    `clients/uil/UilSarVal.c` (`sar_make_icon`).
+  - `lib/Xm/Display.c`, `lib/Xm/IconFile.c`, `lib/Xm/XmIm.c`, `lib/Xm/XmRenderT.c`,
+    and `config/util/checktree.c`: fixed `realloc` leak, `closedir(dirp)` error-path
+    leaks, XIM callback buffer leak on early return, and render-table font leak.
+  - `clients/mwm/WmResCvt.c`, `lib/Xm/MenuShell.c`, `lib/Xm/SlideC.c`,
+    `lib/Xm/Text.c`, `lib/Xm/TextF.c`, and `lib/Xm/XmIm.c`: replaced incompatible
+    `XtResourceDefaultProc`, `XtActionProc`, `XtDestroyProc`, `XtCancelConvertSelectionProc`,
+    and `XIMProc` function-pointer casts with typed wrapper procedures and widened
+    narrow integer casts from pointer-sized `XtPointer` values through `intptr_t` /
+    `uintptr_t`.
+- `ck_hardening.m4` now promotes all 10 zeroed defect classes to `-Werror=...`
+  under `--enable-hardening`, and `scripts/warning-baseline.py` normalizes
+  `-Werror=...` diagnostics and compares directly against
+  `docs/hardening-baseline-validation.json`.
+- Test: `tests/automated/check-hardening-defect-ratchet.py`, all 4,223 standalone
+  `tests/automated/check-*.py` scripts, and
+  `python3 tests/fuzz/run-fuzz.py --all --replay`.
+- Docs: `docs/hardening.md`, `docs/hardening-baseline-validation.json`,
+  `docs/build.md`, `modernization_plan.md`.
+
 Icon-directory cache overflow order, source-contract alignment and hardening ledger (2026-11-15)
 ================================================================================================
 

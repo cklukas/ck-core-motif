@@ -1528,6 +1528,10 @@ Window * MakeTransientWindowList (Window *windows, ClientData *pcd)
 	if (pcdNext->transientChildren)
 	{
 	    windows = MakeTransientWindowList (windows, pcdNext);
+	    if (windows == NULL)
+	    {
+		return (NULL);
+	    }
 	}
 	*windows = pcdNext->clientFrameWin;
 	windows++;

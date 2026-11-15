@@ -44,7 +44,8 @@ DEFECT_CLASSES = [
 ]
 
 ENTER = re.compile(r"make(?:\[\d+\])?: (Entering|Leaving) directory '([^']+)'")
-WARN = re.compile(r"^(?P<file>[^\s:][^:]*):(?P<line>\d+):(?P<col>\d+): warning: "
+WARN = re.compile(r"^(?P<file>[^\s:][^:]*):(?P<line>\d+):(?P<col>\d+): "
+                  r"(?:warning|error): "
                   r"(?P<msg>.*?)(?: \[(?P<cls>-W[^\]=]+=?[^\]]*)\])?$")
 
 
@@ -68,8 +69,12 @@ def count(log, depth, strips):
             if path.startswith(p + os.sep):
                 path = os.path.relpath(path, p)
                 break
-        # GCC prints parameterized classes such as -Wimplicit-fallthrough=.
-        cls = (w["cls"] or "(unclassified)").rstrip("=")
+        # GCC prints parameterized classes such as -Wimplicit-fallthrough=
+        # and promoted classes as -Werror=name.
+        cls = w["cls"] or "(unclassified)"
+        if cls.startswith("-Werror="):
+            cls = "-W" + cls[len("-Werror="):]
+        cls = re.sub(r"=.*$", "", cls)
         key = (path, w["line"], w["col"], cls)
         if key in seen:
             continue
@@ -115,7 +120,8 @@ def main():
         print()
         return 0
 
-    base = json.load(open(args.baseline))["components"]
+    raw = json.load(open(args.baseline))
+    base = raw["warnings"]["components"] if "warnings" in raw else raw["components"]
     worse = []
     for comp, classes in by_comp.items():
         for cls, n in classes.items():

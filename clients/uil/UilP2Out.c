@@ -654,26 +654,26 @@ else widget_variety = UilMrmWidgetVariety;
 * For example, widget-1-341-111 was defined in file=1, line=341
 * and column=11
 */
-if (widget_variety == UilMrmAutoChildVariety)
-  widget_name = "";
-else if (widget_entry->obj_header.az_name == NULL)
-  {
-    snprintf(buffer, sizeof(buffer), "widget-%d-%d-%d",
-	    widget_entry->header.az_src_rec->b_file_number,
-	    widget_entry->header.az_src_rec->w_line_number,
-	    widget_entry->header.b_src_pos);
-    widget_name = buffer;
-  }
-else
-    widget_name = widget_entry->obj_header.az_name->c_text;
+    if (widget_variety == UilMrmAutoChildVariety)
+	widget_name = "";
+    else if (widget_entry->obj_header.az_name == NULL)
+    {
+	snprintf(buffer, sizeof(buffer), "widget-%d-%d-%d",
+		widget_entry->header.az_src_rec->b_file_number,
+		widget_entry->header.az_src_rec->w_line_number,
+		widget_entry->header.b_src_pos);
+	widget_name = buffer;
+    }
+    else
+	widget_name = widget_entry->obj_header.az_name->c_text;
 
-access_code = URMaPublic;
-if (widget_entry->obj_header.b_flags & sym_m_private)
-    access_code = URMaPrivate;
+    access_code = URMaPublic;
+    if (widget_entry->obj_header.b_flags & sym_m_private)
+	access_code = URMaPrivate;
 
-urm_status = UrmCWRInit (out_az_context, widget_name, access_code, FALSE);
-if( urm_status != MrmSUCCESS)
-    issue_urm_error( "initializing context" );
+    urm_status = UrmCWRInit (out_az_context, widget_name, access_code, FALSE);
+    if (urm_status != MrmSUCCESS)
+	issue_urm_error( "initializing context" );
 
     /*
     **	Set the class of the widget. 
@@ -1594,7 +1594,7 @@ void	out_emit_value(sym_value_entry_type *value_entry)
 		 value_segment != NULL;  
 		 value_segment = value_segment->az_next_table_value)
 		out_add_value_size(&value_size, value_segment->w_length);
-		out_add_value_size(&value_size, 1);
+	    out_add_value_size(&value_size, 1);
 	    break;
 	    }
 	
@@ -3410,10 +3410,10 @@ void	create_icon(sym_value_entry_type *icon_entry, char *buffer)
     int			    w_len;
     int			    p_len;
     int			    i;
-    int			    j;
-    char		    pixel_type;
-    char		    pixel_size;
-    char		    pixel_per_byte;
+    unsigned int	    j;
+    unsigned int	    pixel_type;
+    unsigned int	    pixel_size;
+    unsigned int	    pixel_per_byte;
 
     /*
     **	Fill in the fixed location fields of the IconImage.
@@ -3504,7 +3504,7 @@ void	create_icon(sym_value_entry_type *icon_entry, char *buffer)
 	if (p_len > 0)
 	{
 	    for ( *tbyte = 0, j = 0;
-		  j < (p_len * pixel_size);
+		  j < ((unsigned int)p_len * pixel_size);
 		  j += pixel_size  )
 	    {
 		unsigned char	t;

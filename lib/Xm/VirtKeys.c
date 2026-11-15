@@ -788,6 +788,7 @@ EffectiveStdModMask(Display *dpy,
 	   */
 	  break;
 	} 
+      /* FALLTHROUGH */
     case 3:
       if (kc_map[2] == NoSymbol)
 	{
@@ -811,6 +812,7 @@ EffectiveStdModMask(Display *dpy,
       /* At this fall-through, the group modifier bits have been
        * decided, while the case is still out on Shift/Lock.
        */
+      /* FALLTHROUGH */
     case 2:
       if (kc_map[1] != NoSymbol)
 	{
@@ -820,6 +822,7 @@ EffectiveStdModMask(Display *dpy,
 	   */
 	  break;
 	} 
+      /* FALLTHROUGH */
     case 1:
       if (kc_map[0] != NoSymbol)
 	{

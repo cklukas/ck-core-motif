@@ -1656,4 +1656,5 @@ EXTRA_DIST += tests/automated/check-mrm-icon-bounds.c \
 
 EXTRA_DIST += tests/automated/check-mrm-value-bounds.c \
               tests/automated/run-mrm-value-bounds.py \
-              docs/mrm-value-bounds.md
+              docs/mrm-value-bounds.md \
+              tests/automated/check-hardening-defect-ratchet.py

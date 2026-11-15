@@ -444,10 +444,10 @@ void	diag_issue_diagnostic
 	    ( az_src_rec, l_start_column, msg_buffer ? msg_buffer : "",
 	      message_number );
 
-	if (loc_buffer != NULL)
-	    XtFree(loc_buffer);
-	if (msg_buffer != NULL)
-	    XtFree(msg_buffer);
+    if (loc_buffer != NULL)
+	XtFree(loc_buffer);
+    if (msg_buffer != NULL)
+	XtFree(msg_buffer);
 
     issuing_diagnostic = FALSE;
 

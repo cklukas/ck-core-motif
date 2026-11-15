@@ -153,7 +153,7 @@ void AddWmResourceConverters (void)
  *
  *************************************<->***********************************/
 
-void WmCvtStringToAMBehavior (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToAMBehavior (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char      *pch = (unsigned char *) (fromVal->addr);
     unsigned char      *pchNext;
@@ -241,7 +241,7 @@ void WmCvtStringToAMBehavior (XrmValue *args, Cardinal numArgs, XrmValue *fromVa
  *
  *************************************<->***********************************/
 
-void WmCvtStringToCFocus (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToCFocus (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char      *pch = (unsigned char *) (fromVal->addr);
     unsigned char      *pchNext;
@@ -346,7 +346,7 @@ void WmCvtStringToCFocus (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, X
  * 
  *************************************<->***********************************/
 
-void WmCvtStringToCDecor (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToCDecor (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char      *pch = (unsigned char *) (fromVal->addr);
     unsigned char      *pchNext;
@@ -541,7 +541,7 @@ void WmCvtStringToCDecor (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, X
  * 
  *************************************<->***********************************/
 
-void WmCvtStringToCFunc (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToCFunc (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char      *pch = (unsigned char *) (fromVal->addr);
     unsigned char      *pchNext;
@@ -702,7 +702,7 @@ void WmCvtStringToCFunc (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, Xr
  *
  *************************************<->***********************************/
 
-void WmCvtStringToFrameStyle (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToFrameStyle (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char      *pch = (unsigned char *) (fromVal->addr);
     unsigned char      *pchNext;
@@ -773,7 +773,7 @@ void WmCvtStringToFrameStyle (XrmValue *args, Cardinal numArgs, XrmValue *fromVa
  *
  *************************************<->***********************************/
 
-void WmCvtStringToIDecor (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToIDecor (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char       *pch = (unsigned char *) (fromVal->addr);
     unsigned char       *pchNext;
@@ -870,7 +870,7 @@ void WmCvtStringToIDecor (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, X
  *
  *************************************<->***********************************/
 
-void WmCvtStringToIPlace (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToIPlace (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char       *pch = (unsigned char *) (fromVal->addr);
     unsigned char       *pchNext;
@@ -1038,7 +1038,7 @@ void WmCvtStringToIPlace (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, X
  *
  *************************************<->***********************************/
 
-void WmCvtStringToKFocus (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToKFocus (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char      *pch = (unsigned char *) (fromVal->addr);
     unsigned char      *pchNext;
@@ -1118,7 +1118,7 @@ void WmCvtStringToKFocus (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, X
  *
  *************************************<->***********************************/
 
-void WmCvtStringToSize (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToSize (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char  *pch = (unsigned char *) (fromVal->addr);
     unsigned char  *pchNext;
@@ -1220,7 +1220,7 @@ void WmCvtStringToSize (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, Xrm
  *
  *************************************<->***********************************/
 
-void WmCvtStringToShowFeedback (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToShowFeedback (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char       *pch = (unsigned char *) (fromVal->addr);
     unsigned char       *pchNext;
@@ -1421,7 +1421,7 @@ void WmCvtStringToShowFeedback (XrmValue *args, Cardinal numArgs, XrmValue *from
  *
  *************************************<->***********************************/
 
-void WmCvtStringToUsePPosition (XrmValue *args, Cardinal numArgs, XrmValue *fromVal, XrmValue *toVal)
+void WmCvtStringToUsePPosition (XrmValue *args, Cardinal *numArgs, XrmValue *fromVal, XrmValue *toVal)
 {
     unsigned char      *pch = (unsigned char *) (fromVal->addr);
     unsigned char      *pchNext;

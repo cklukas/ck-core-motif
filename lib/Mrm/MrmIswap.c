@@ -448,6 +448,7 @@ Urm__SwapRGMWidgetRecord(RGMWidgetRecordPtr	widget_rec)
 	      swapbytes( arg_list->args[ndx].arg_val.datum.ival );
 	      _MrmOSIEEEFloatToHost((float *)
 				    &(arg_list->args[ndx].arg_val.datum.ival));
+	      break;
 	    default:
 	      swapbytes( arg_list->args[ndx].arg_val.datum.offset );
 	      break;

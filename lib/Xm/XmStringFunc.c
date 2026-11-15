@@ -105,6 +105,9 @@ XmStringHasSubstring(
     }
   else if (_XmStrMultiple(substring))
     {
+      if (entry == NULL) {
+	return (FALSE);
+      }
       line = entry[0];
       
       if (_XmEntryMultiple(line))

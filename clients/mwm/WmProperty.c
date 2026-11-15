@@ -144,10 +144,10 @@ GetNormalHints(
 
 {
     PropSizeHints *property = NULL;
-    Atom actualType;
-    int actualFormat;
-    unsigned long leftover;
-    unsigned long nitems;
+    Atom actualType = None;
+    int actualFormat = 0;
+    unsigned long leftover = 0;
+    unsigned long nitems = 0;
 
     if (pCD == NULL)
 	{
@@ -304,12 +304,12 @@ void ProcessWmProtocols (ClientData *pCD)
     int rValue;
     Atom *property = NULL;
 #ifndef ICCC_COMPLIANT
-    Atom actualType;
-    int actualFormat;
-    unsigned long leftover;
-    unsigned long nitems;
+    Atom actualType = None;
+    int actualFormat = 0;
+    unsigned long leftover = 0;
+    unsigned long nitems = 0;
 #else
-    int nitems;
+    int nitems = 0;
 #endif /* ICCC_COMPLIANT */
     int i;
 
@@ -440,10 +440,10 @@ void ProcessMwmMessages (ClientData *pCD)
 {
     int rValue;
     long *property = NULL;
-    Atom actualType;
-    int actualFormat;
-    unsigned long leftover;
-    unsigned long nitems;
+    Atom actualType = None;
+    int actualFormat = 0;
+    unsigned long leftover = 0;
+    unsigned long nitems = 0;
     int i;
 
     if (pCD == NULL)
@@ -899,10 +899,10 @@ void ProcessWmColormapWindows (ClientData *pCD)
 {
     int rValue;
     Window *property = NULL;
-    Atom actualType;
-    int actualFormat;
-    unsigned long leftover;
-    unsigned long nitems;
+    Atom actualType = None;
+    int actualFormat = 0;
+    unsigned long leftover = 0;
+    unsigned long nitems = 0;
     int i;
     int propertyCount;
     Window *pWindows;

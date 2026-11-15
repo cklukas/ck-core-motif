@@ -1333,7 +1333,7 @@ HandleRedraw (
     XmManagerWidget mw = (XmManagerWidget) new_parent;
     XmManagerWidget curmw = (XmManagerWidget) cur_parent;
     Boolean redraw = False;
-    XmSeparatorGCacheObjPart oldCopy;
+    XmSeparatorGCacheObjPart oldCopy = {0};
     
 	
     _XmProcessLock();

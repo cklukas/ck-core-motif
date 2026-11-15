@@ -785,7 +785,7 @@ XmTextGetBaseline(Widget widget)
     _XmAppUnlock(app);
     return ret_val;
   } else {
-    Dimension *baselines;
+    Dimension *baselines = NULL;
     int temp_bl;
     int line_count = 0;
     XmPrimitiveClassExt           *wcePtr;
@@ -816,7 +816,7 @@ XmTextGetBaseline(Widget widget)
 int 
 XmTextGetCenterline(Widget widget)
 {
-  Dimension *baselines;
+  Dimension *baselines = NULL;
   int temp_bl;
   int line_count = 0;
   XmPrimitiveClassExt           *wcePtr;

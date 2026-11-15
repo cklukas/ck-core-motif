@@ -7929,7 +7929,7 @@ InitializeTextStruct(XmTextFieldWidget tf)
      * On the spot support. Register preedit callbacks during initialize.
      */
     xim_cb[0].client_data = (XPointer)tf;
-    xim_cb[0].callback = (XIMProc)PreeditStart;
+    xim_cb[0].callback = (XIMProc)(void (*)(void))PreeditStart;
     xim_cb[1].client_data = (XPointer)tf;
     xim_cb[1].callback = (XIMProc)PreeditDone;
     xim_cb[2].client_data = (XPointer)tf;
@@ -8416,7 +8416,7 @@ Realize(Widget w,
    * On the spot support. Register preedit callbacks.
    */
     xim_cb[0].client_data = (XPointer)tf;
-    xim_cb[0].callback = (XIMProc)PreeditStart;
+    xim_cb[0].callback = (XIMProc)(void (*)(void))PreeditStart;
     xim_cb[1].client_data = (XPointer)tf;
     xim_cb[1].callback = (XIMProc)PreeditDone;
     xim_cb[2].client_data = (XPointer)tf;
@@ -11284,7 +11284,7 @@ XmTextFieldSetEditable(Widget w,
      * On the spot support. Register preedit callbacks.
      */
     xim_cb[0].client_data = (XPointer)tf;
-    xim_cb[0].callback = (XIMProc)PreeditStart;
+    xim_cb[0].callback = (XIMProc)(void (*)(void))PreeditStart;
     xim_cb[1].client_data = (XPointer)tf;
     xim_cb[1].callback = (XIMProc)PreeditDone;
     xim_cb[2].client_data = (XPointer)tf;

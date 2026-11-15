@@ -8143,7 +8143,7 @@ HorizontalStackedBottomEdgeRedisplay(XmTabBoxWidget tab)
     cnt = 0;
     if (LayoutIsRtoLP(tab))
     {
-	for( i = 1; i < XmTabBox__num_rows(tab); ++i, x -= offset )
+	for( i = 1; i < XmTabBox__num_rows(tab); ++i )
 	{
 	    if( (idx = GetTabIndex(tab, i, 0)) < 0 ) continue;
 

@@ -2301,7 +2301,7 @@ ClipboardIsMarkedForDelete(
 	return 0;
 
     /* get the next format */
-	curritem = NULL;
+    curritem = NULL;
     status = ClipboardFindItem( display,
 			   itemid,
 			   (XtPointer *) &curritem,

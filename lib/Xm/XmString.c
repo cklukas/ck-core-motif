@@ -6097,7 +6097,7 @@ _XmStringNonOptCreate(
 	  _XmUnoptSegTag(&seg) = 
 	    _XmStringCacheTag((char *) XmFONTLIST_DEFAULT_TAG, 
 			      XmSTRING_TAG_STRLEN);
-	  /* Fall through to regular text. */
+	  /* FALLTHROUGH */
 	case XmSTRING_COMPONENT_TEXT:
 	  if (txt_seen)
 	    {
@@ -6328,7 +6328,7 @@ XmCvtByteStreamToXmString(unsigned char *property)
 	      break;
 	    }
 
-          /* Else fall through to text case. */
+          /* FALLTHROUGH */
         case XmSTRING_COMPONENT_TEXT:
           if (txt_seen ||
 	      (((c_opt + length + component_header) < end) ||
@@ -9503,6 +9503,7 @@ XmStringUnparse(XmString          string,
 	case XmSTRING_COMPONENT_END:
 	  done = True;
 	  /* We're done after processing this component. */
+	  /* FALLTHROUGH */
 	default:
 	  /* Non-text components are under the control of parse_model. */
 	  if (non_text_match)
@@ -10096,7 +10097,7 @@ XmeStringGetComponent(_XmStringContext context,
           _XmProcessUnlock();
 	  return XmSTRING_COMPONENT_LAYOUT_PUSH;
 	} 
-      /* Fall through if no push components exist. */ 
+      /* FALLTHROUGH */
 
     case BEGIN_REND_STATE:
       tmp_index = ((_XmStrContState(context) == BEGIN_REND_STATE) ?
@@ -10139,7 +10140,7 @@ XmeStringGetComponent(_XmStringContext context,
           _XmProcessUnlock();
 	  return XmSTRING_COMPONENT_RENDITION_BEGIN;
 	}
-      /* Fall through if there are no more rendition starts. */
+      /* FALLTHROUGH */
 
     case TAG_STATE:
       /* Don't output implicit leading charset component. */
@@ -10200,7 +10201,7 @@ XmeStringGetComponent(_XmStringContext context,
 		      XmSTRING_COMPONENT_CHARSET : XmSTRING_COMPONENT_LOCALE);
 	    }
 	}
-      /* Fall through if no tag set. */
+      /* FALLTHROUGH */
 
     case TAB_STATE: 
       tmp_index = ((_XmStrContState(context) == TAB_STATE) ?
@@ -10218,7 +10219,7 @@ XmeStringGetComponent(_XmStringContext context,
 	  _XmProcessUnlock();
 	  return XmSTRING_COMPONENT_TAB;
 	} 
-      /* Fall through if there are no tabs. */
+      /* FALLTHROUGH */
 
     case DIR_STATE:
       dir = (optimized ? _XmStrDirection(opt) : _XmEntryDirectionGet(seg));
@@ -10275,7 +10276,7 @@ XmeStringGetComponent(_XmStringContext context,
 	      return XmSTRING_COMPONENT_DIRECTION;
 	    }
 	}
-      /* Fall through if no direction set. */
+      /* FALLTHROUGH */
 
     case TEXT_STATE:
       switch (text_type)
@@ -10344,7 +10345,7 @@ XmeStringGetComponent(_XmStringContext context,
 	  _XmProcessUnlock();
 	  return XmSTRING_COMPONENT_END;
 	}
-      /* Fall through if there is no text. */
+      /* FALLTHROUGH */
 
     case END_REND_STATE:
       tmp_index = ((_XmStrContState(context) == END_REND_STATE) ?
@@ -10387,7 +10388,7 @@ XmeStringGetComponent(_XmStringContext context,
 	  _XmProcessUnlock();
 	  return XmSTRING_COMPONENT_RENDITION_END;
 	}
-      /* Fall through if there are no more rendition ends. */
+      /* FALLTHROUGH */
 
     case POP_STATE:
       pop_dir = (optimized ? 0 : _XmEntryPopGet(seg));
@@ -10400,7 +10401,7 @@ XmeStringGetComponent(_XmStringContext context,
 	  _XmProcessUnlock();
 	  return XmSTRING_COMPONENT_LAYOUT_POP;
 	}
-      /* Fall through if there is no pop layout direction. */
+      /* FALLTHROUGH */
 
     case SEP_STATE:
       /* This is the last possible component for a segment. */

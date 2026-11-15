@@ -337,8 +337,10 @@ static void search_destroyed(Widget widget, XtPointer closure, XtPointer data)
 
 static void create_popup(XmAutoSuggestBoxWidget box)
 {
-    Widget parent_shell = shell_ancestor((Widget)box);
-    if (box->auto_suggest.popup_shell || !parent_shell) return;
+    Widget parent_shell;
+    if (!box || box->auto_suggest.popup_shell) return;
+    parent_shell = shell_ancestor((Widget)box);
+    if (!parent_shell) return;
     box->auto_suggest.popup_shell = XtVaCreatePopupShell(
         "suggestionsShell", transientShellWidgetClass, parent_shell,
         XtNoverrideRedirect, True, XtNallowShellResize, True,
@@ -448,8 +450,9 @@ static void Destroy(Widget widget)
     free_items(box);
     if (box->auto_suggest.popup_shell) {
         Widget popup = box->auto_suggest.popup_shell;
+        Widget ancestor_shell = shell_ancestor(widget);
         XtRemoveCallback(popup, XtNdestroyCallback, popup_destroyed, box);
-        if (!popup->core.being_destroyed && (!shell_ancestor(widget) || !shell_ancestor(widget)->core.being_destroyed))
+        if (!popup->core.being_destroyed && (!ancestor_shell || !ancestor_shell->core.being_destroyed))
             XtDestroyWidget(popup);
     }
 }

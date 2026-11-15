@@ -146,11 +146,17 @@ ordinary build.
 
 `--enable-hardening` adds `-Wall -Wextra -Wformat=2 -Wnull-dereference`,
 `-Wno-unused-parameter` (Xt and Motif callback signatures fix their parameter
-lists), `-fstack-protector-strong` and, when the build is optimized,
-`-D_FORTIFY_SOURCE=3`. Each flag is probed, so a compiler that lacks one skips
-it. The switch also stops adding `-Wno-unused`, so unused-but-set variables and
-dead code are reported. Build with at least `-O1`; `-Wnull-dereference` finds
-most with `-O2`.
+lists), `-fstack-protector-strong`, and, when the build is optimized,
+`-D_FORTIFY_SOURCE=3`. Defect-oriented warning classes whose baseline counts
+have been driven to zero (`-Werror=format-security`,
+`-Werror=implicit-fallthrough=3`, `-Werror=null-dereference`,
+`-Werror=misleading-indentation`, `-Werror=cast-function-type` with
+`-Wno-cast-function-type-strict`, `-Werror=pointer-to-int-cast`,
+`-Werror=int-to-pointer-cast`, `-Werror=maybe-uninitialized`,
+`-Werror=uninitialized`, and `-Werror=address`) are promoted to errors. Each
+flag is probed, so a compiler that lacks one skips it. The switch also stops
+adding `-Wno-unused`, so unused-but-set variables and dead code are reported.
+Build with at least `-O1`; `-Wnull-dereference` finds most with `-O2`.
 
 `--enable-sanitizers[=LIST]` compiles and links with `-fsanitize=LIST` (default
 `address,undefined`) and `-fno-omit-frame-pointer`. Configure fails when the
@@ -160,10 +166,10 @@ sanitized toolkit needs a sanitized consumer: build and run applications and
 test programs with the same switch and list. Set `ASAN_OPTIONS=detect_leaks=0`
 while building, because the WML and UIL generators run during the build.
 
-Neither switch adds `-Werror`. Record warning counts per component and warning
-class before and after a change instead of treating the profile as a pass/fail
-gate. The [hardening baseline and audit ledger](hardening.md) holds the current
-counts and the tool that compares a build with them.
+Style and signedness warning classes remain non-fatal warnings and are tracked
+per component and warning class. The
+[hardening baseline and audit ledger](hardening.md) holds the current counts and
+the tool (`scripts/warning-baseline.py`) that compares a build with them.
 
 ## Development text and accessibility features
 

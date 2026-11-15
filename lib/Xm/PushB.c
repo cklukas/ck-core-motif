@@ -2019,7 +2019,7 @@ BorderUnhighlight(
 	      FillBorderWithParentColor(pb, border, x, y, width, height);
 	      break;
 	    }
-	  /* else fall through to XmEXTERNAL_HIGHLIGHT. */
+	  /* FALLTHROUGH */
 
 	case XmEXTERNAL_HIGHLIGHT:
 	  (*(xmLabelClassRec.primitive_class.border_unhighlight)) (wid) ;

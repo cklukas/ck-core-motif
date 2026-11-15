@@ -689,8 +689,11 @@ void	sar_make_private_value(yystype *value_frame, yystype *token_frame, int valu
     }
     default:
 	_assert( FALSE, "unexpected value type" );
-	break;
+	return;
     }
+
+    if (value_entry == NULL)
+	return;
 
     /*
     ** make the target frame a value frame
@@ -3664,7 +3667,7 @@ void	sar_make_icon(yystype *target_frame, yystype *list_frame, yystype *table_fr
 		;
 
 	for (row_entry = head_row_entry,
-	     width = row_entry->w_length;
+	     width = (row_entry != NULL) ? row_entry->w_length : 0;
 
 	     row_entry != NULL;  
 	    

@@ -33,7 +33,7 @@ dnl   configured) and LDFLAGS.  Call it after the last feature test.
 AC_DEFUN([_CK_HARDENING_FLAG],
 [AC_MSG_CHECKING([whether $CC accepts $1])
  ck_save_CFLAGS=$CFLAGS
- CFLAGS="$CFLAGS -Werror $1"
+ CFLAGS="$CFLAGS $$2 -Werror $1"
  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
    [ck_flag_ok=yes], [ck_flag_ok=no])
  CFLAGS=$ck_save_CFLAGS
@@ -60,6 +60,17 @@ AC_DEFUN([CK_HARDENING_INIT],
    _CK_HARDENING_FLAG([-Wno-unused-parameter], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-Wformat=2], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-Wnull-dereference], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=format-security], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=implicit-fallthrough=3], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=null-dereference], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=misleading-indentation], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=cast-function-type], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Wno-cast-function-type-strict], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=pointer-to-int-cast], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=int-to-pointer-cast], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=maybe-uninitialized], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=uninitialized], [ck_hardening_flags])
+   _CK_HARDENING_FLAG([-Werror=address], [ck_hardening_flags])
    _CK_HARDENING_FLAG([-fstack-protector-strong], [ck_hardening_flags])
    AS_CASE([" $CFLAGS "],
      [*" -O1 "*|*" -O2 "*|*" -O3 "*|*" -Os "*|*" -Og "*|*" -Ofast "*],

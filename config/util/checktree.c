@@ -274,14 +274,22 @@ checkdir(dir)
 	}
 	if (do83) {
 	    s = (char *)malloc(strlen(dp->d_name) + 1);
+	    if (!s)
+		break;
 	    strcpy(s, dp->d_name);
 	    if (i >= max) {
+		char **new_names;
 		max += 25;
 		if (names)
-		    names = (char **)realloc((char *)names,
-					     (max + 1) * sizeof(char *));
+		    new_names = (char **)realloc((char *)names,
+						 (max + 1) * sizeof(char *));
 		else
-		    names = (char **)malloc((max + 1) * sizeof(char *));
+		    new_names = (char **)malloc((max + 1) * sizeof(char *));
+		if (!new_names) {
+		    free(s);
+		    break;
+		}
+		names = new_names;
 	    }
 	    names[i++] = s;
 	}

@@ -1531,7 +1531,7 @@ ReceiverShellExternalSourceHandler(
         XEvent *event,
         Boolean *dontSwallow )
 {
-    XmDragTopLevelClientDataStruct 	topClientData;
+    XmDragTopLevelClientDataStruct 	topClientData = {0};
     XmTopLevelEnterCallbackStruct	enterCB;
     XmTopLevelLeaveCallbackStruct	leaveCB;
     XmDropStartCallbackStruct		dropStartCB;

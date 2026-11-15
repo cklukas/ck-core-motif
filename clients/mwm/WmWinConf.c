@@ -171,7 +171,7 @@ void GetClipDimensions (ClientData *pCD, Boolean fromRoot)
 
     int i;
     Arg getArgs[5];
-    Position tmpX, tmpY;
+    Position tmpX = 0, tmpY = 0;
 
     i=0;
     XtSetArg (getArgs[i], XmNwidth, (XtArgVal) &clipWidth ); i++;
@@ -687,7 +687,7 @@ Boolean HandleResizeKeyPress (ClientData *pcd, XEvent *pev)
 {
     KeySym keysym;
     Boolean control;
-    int warpX, warpY, currentX, currentY, newX, newY;
+    int warpX = 0, warpY = 0, currentX = 0, currentY = 0, newX = 0, newY = 0;
     int junk, keyMult;
     Window junk_win;
     XEvent KeyEvent;

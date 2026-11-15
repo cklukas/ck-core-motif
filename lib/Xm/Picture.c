@@ -576,6 +576,7 @@ _XmPictureParseNode(XmPictureRec *picture, char **in_string,
 	    /*
 	     * It's not a special character, so it must be a literal
 	     */
+	    /* FALLTHROUGH */
 	default:
 	    newnode = _XiGetNewNode(picture);
 	    if (newnode == NULL) goto parse_failed;

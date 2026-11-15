@@ -804,6 +804,9 @@ DetectImpliedClipper(
 		Widget w = GetDSWidget(info);
 		XRectangle wr, tr, rr;
 
+		if (w == NULL)
+			return;
+
 		/*
 		 * This step only has meaning if there is a separately
 		 * specified region for this drop site (which can only be done
@@ -891,15 +894,16 @@ DetectAllClippers(
 
 		clippedExtents.detected = 0;
 
-		if ((clippedExtents.width < extents.width) ||
-			(clippedExtents.height < extents.height))
+		if (((clippedExtents.width < extents.width) ||
+			(clippedExtents.height < extents.height)) &&
+			(w != NULL))
 		{
 			/*
 			 * We've been clipped.  Find out who did it and add
 			 * them to the tree.
 			 */
 			DetectAncestorClippers(dsm,
-				XtParent(GetDSWidget(childInfo)),
+				XtParent(w),
 				&clippedExtents, childInfo);
 		}
 
@@ -1144,7 +1148,12 @@ InsertInfo(
 {
 	XmDSInfo	childInfo = (XmDSInfo) info;
 	XmDSInfo	parentInfo = NULL;
-	Widget		parent = XtParent(GetDSWidget(childInfo));
+	Widget		childWidget = GetDSWidget(childInfo);
+	Widget		parent;
+
+	if (childWidget == NULL)
+		return;
+	parent = XtParent(childWidget);
 
 	while (!(parentInfo = (XmDSInfo) DSMWidgetToInfo(dsm, parent)) &&
 		!XtIsShell(parent))
@@ -1235,6 +1244,8 @@ RemoveInfo(
 				outCB.reason = XmCR_DROP_SITE_TREE_REMOVE;
 				outCB.event = NULL;
 				outCB.rootShell = GetDSWidget(parentInfo);
+				outCB.numDropSites = 0;
+				outCB.numArgsPerDSHint = 0;
 				(dsm->dropManager.treeUpdateProc)
 				  ((Widget)dsm, NULL, (XtPointer) &outCB);
 			}
@@ -2394,10 +2405,14 @@ PutDSToStream(
 	unsigned char unitType = XmPIXELS;
 	Position wX, wY;
 	Widget w = GetDSWidget(dsInfo);
-	Dimension bw = XtBorderWidth(w);
+	Dimension bw;
 	XmICCDropSiteInfoStruct iccInfo;
 	Arg args[30];
 	int n;
+
+	if (w == NULL)
+		return;
+	bw = XtBorderWidth(w);
 
 	_XmProcessLock();
 	if (tmpRegion == NULL)
@@ -2555,11 +2570,14 @@ PutDSToStream(
 			XmDSLocalPixmapStyle ps =
 				(XmDSLocalPixmapStyle) GetDSLocalAnimationPart(dsInfo);
 
-			info->animation_data.animationPixmapDepth =
-				ps->animation_pixmap_depth;
-			info->animation_data.animationPixmap =
-				ps->animation_pixmap;
-			info->animation_data.animationMask = ps->animation_mask;
+			if (ps != NULL)
+			{
+				info->animation_data.animationPixmapDepth =
+					ps->animation_pixmap_depth;
+				info->animation_data.animationPixmap =
+					ps->animation_pixmap;
+				info->animation_data.animationMask = ps->animation_mask;
+			}
 
 			if (!GetDSHasRegion(dsInfo))
 				info->animation_data.borderWidth =
@@ -2683,11 +2701,14 @@ PutDSToStream(
 			XmDSLocalPixmapStyle ps =
 				(XmDSLocalPixmapStyle) GetDSLocalAnimationPart(dsInfo);
 
-			info->animation_data.animationPixmapDepth =
-				ps->animation_pixmap_depth;
-			info->animation_data.animationPixmap =
-				ps->animation_pixmap;
-			info->animation_data.animationMask = ps->animation_mask;
+			if (ps != NULL)
+			{
+				info->animation_data.animationPixmapDepth =
+					ps->animation_pixmap_depth;
+				info->animation_data.animationPixmap =
+					ps->animation_pixmap;
+				info->animation_data.animationMask = ps->animation_mask;
+			}
 
                         if (is_gadget)
 			{
@@ -2820,11 +2841,14 @@ PutDSToStream(
 			XmDSLocalPixmapStyle ps =
 				(XmDSLocalPixmapStyle) GetDSLocalAnimationPart(dsInfo);
 
-			info->animation_data.animationPixmapDepth =
-				ps->animation_pixmap_depth;
-			info->animation_data.animationPixmap =
-				ps->animation_pixmap;
-			info->animation_data.animationMask = ps->animation_mask;
+			if (ps != NULL)
+			{
+				info->animation_data.animationPixmapDepth =
+					ps->animation_pixmap_depth;
+				info->animation_data.animationPixmap =
+					ps->animation_pixmap;
+				info->animation_data.animationMask = ps->animation_mask;
+			}
 
 			n = 0;
 			if (!GetDSHasRegion(dsInfo))
@@ -3585,10 +3609,13 @@ int index;
 					(XmDSLocalPixmapStyle)
 						GetDSLocalAnimationPart(variant);
 
-				full_info->animation_pixmap = ps->animation_pixmap;
-				full_info->animation_pixmap_depth =
-					ps->animation_pixmap_depth;
-				full_info->animation_mask = ps->animation_mask;
+				if (ps != NULL)
+				{
+					full_info->animation_pixmap = ps->animation_pixmap;
+					full_info->animation_pixmap_depth =
+						ps->animation_pixmap_depth;
+					full_info->animation_mask = ps->animation_mask;
+				}
 			}
 			break;
 			case XmDRAG_UNDER_NONE:
@@ -3695,10 +3722,13 @@ CopyFullIntoVariant(
 			XmDSLocalPixmapStyle ps =
 				(XmDSLocalPixmapStyle) GetDSLocalAnimationPart(variant);
 			
-			ps->animation_pixmap = full_info->animation_pixmap;
-			ps->animation_pixmap_depth =
-				full_info->animation_pixmap_depth;
-			ps->animation_mask = full_info->animation_mask;
+			if (ps != NULL)
+			{
+				ps->animation_pixmap = full_info->animation_pixmap;
+				ps->animation_pixmap_depth =
+					full_info->animation_pixmap_depth;
+				ps->animation_mask = full_info->animation_mask;
+			}
 		}
 		break;
 		case XmDRAG_UNDER_NONE:
@@ -4108,7 +4138,11 @@ SyncDropSiteGeometry(
 	{
 		Widget w = GetDSWidget(info);
 		XRectangle rect;
-		Dimension bw = XtBorderWidth(w);
+		Dimension bw;
+
+		if (w == NULL)
+			return;
+		bw = XtBorderWidth(w);
 
 		/* The region is the object rectangle */
 
@@ -4531,7 +4565,7 @@ XmDropSiteQueryStackingOrder(
 			{
 				--i;
 				XmDSInfo child = (XmDSInfo) GetDSChild(info, i);
-				if (!GetDSInternal(child))
+				if ((child != NULL) && !GetDSInternal(child))
 					(*children_rtn)[j++] = GetDSWidget(child);
 			}
 			/* assert(j == num_visible_children) */
@@ -4549,7 +4583,11 @@ XmDropSiteQueryStackingOrder(
 
 	parentInfo = (XmDSInfo) GetDSParent(info);
 
-	if (GetDSInternal(parentInfo))
+	if (parentInfo == NULL)
+	{
+		*parent_rtn = NULL;
+	}
+	else if (GetDSInternal(parentInfo))
 	{
 	  *parent_rtn = NULL;
 	  while ((parentInfo = (XmDSInfo) GetDSParent(parentInfo)) != NULL)

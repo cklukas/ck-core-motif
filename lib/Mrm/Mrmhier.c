@@ -283,10 +283,10 @@ Urm__OpenHierarchy (MrmCount			num_files,
 	    case MrmSUCCESS:
 	      break;
 	    case MrmNOT_VALID:
-	      (void)snprintf (err_stg, sizeof(err_stg), _MrmMMsg_0113);
+	      (void)snprintf (err_stg, sizeof(err_stg), "%s", _MrmMMsg_0113);
 	      break;
 	    default:
-	      (void)snprintf (err_stg, sizeof(err_stg), _MrmMMsg_0114);
+	      (void)snprintf (err_stg, sizeof(err_stg), "%s", _MrmMMsg_0114);
 	      break;
 	    }
 	}

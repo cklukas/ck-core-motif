@@ -1674,6 +1674,7 @@ ListFix(
                 break ;
               } 
             }
+            /* FALLTHROUGH */
         case XmGET_ACTUAL_SIZE:
         {
             if(    FS_PathMode( geoSpec->composite) ==  XmPATH_MODE_FULL  )
@@ -2220,7 +2221,7 @@ FileSelectionBoxUpdate(
             String          patternString ;
             int             len ;
             XmString        resourceCopy ;
-            XmFileSelectionBoxCallbackStruct qualifiedSearchData ;
+            XmFileSelectionBoxCallbackStruct qualifiedSearchData = {0} ;
 /****************/
 
     if (fs == NULL || searchData == NULL)
@@ -3539,7 +3540,7 @@ FileSelectionPB(
             XmAnyCallbackStruct * callback = (XmAnyCallbackStruct *) call_data;
             XmFileSelectionBoxWidget fs ;
             XmFileSelectionBoxCallbackStruct searchData ;
-            XmFileSelectionBoxCallbackStruct qualifiedSearchData ;
+            XmFileSelectionBoxCallbackStruct qualifiedSearchData = {0} ;
             Boolean         match = True ;
             String          text_value ;
             Boolean         allowUnmanage = FALSE ;

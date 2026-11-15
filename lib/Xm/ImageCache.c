@@ -1588,7 +1588,7 @@ _XmGetScaledPixmap(
     Pixmap   pixmap;
     GC gc ;
     XtEnum ret ;
-    PixmapData pix_data, *pix_entry ;
+    PixmapData pix_data = {0}, *pix_entry ;
     unsigned short pixmap_resolution ;
     Pixel *pixels;		/* allocated colors */
     int npixels;
@@ -2212,7 +2212,7 @@ XmDestroyPixmap(
         Screen *screen,
         Pixmap pixmap )
 {
-   PixmapData pix_data, *pix_entry ;
+   PixmapData pix_data = {0}, *pix_entry ;
    XtAppContext app;
 
    /*  Check for invalid conditions  */
@@ -2315,7 +2315,7 @@ GetGCForPutImage(Screen *screen,
 		 Boolean *caller_owns_gc)
 {
     XGCValues gcValues;
-    GCData gc_data, *gc_entry ;
+    GCData gc_data = {0}, *gc_entry ;
 
     if (caller_owns_gc != NULL)
 	*caller_owns_gc = False;

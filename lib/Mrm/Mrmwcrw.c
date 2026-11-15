@@ -1774,7 +1774,7 @@ Urm__CW_CreateArglist (Widget			parent,
 			}
 		      break;
 		    default:
-		      (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0040);
+		      (void)snprintf (err_msg, sizeof(err_msg), "%s", _MrmMMsg_0040);
 		      result = Urm__UT_Error ("Urm__CW_ConvertValue",
 					      err_msg, NULL, NULL, MrmFAILURE) ;
 		    };
@@ -2279,7 +2279,7 @@ Urm__CW_FixupValue (long			val,
       break;
     case MrmRtypeFontList:
       if ( bufptr == NULL || val == 0 || file_id == NULL ||
-           file_id->db_version == NULL )
+           file_id->db_version[0] == '\0' )
 	return MrmFAILURE ;
       if (strcmp(file_id->db_version, URM1_1version) <= 0)
 	/* Converting an old style fontlist */
@@ -2987,7 +2987,7 @@ Urm__CW_ConvertValue (Widget			parent,
 	    }
 	  break;
 	default:
-	  (void)snprintf (err_msg, sizeof(err_msg), _MrmMMsg_0040);
+	  (void)snprintf (err_msg, sizeof(err_msg), "%s", _MrmMMsg_0040);
 	  return Urm__UT_Error ("Urm__CW_ConvertValue",
 				err_msg, NULL, NULL, MrmFAILURE) ;
 	};

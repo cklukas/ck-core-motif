@@ -1284,6 +1284,7 @@ found_16bit_char:
 
 	    case class_eol:
 		src_az_current_source_buffer->w_current_position--;
+		/* FALLTHROUGH */
 	    case class_illegal:
 		issue_control_char_diagnostic( next_char );
 		break;
@@ -1293,9 +1294,9 @@ found_16bit_char:
 
 	    if (l_lex_pos > l_max_lex_buffer_pos )
 	    {
-	    az_current_lex_buffer = get_lex_buffer( az_current_lex_buffer );
-	    if (az_current_lex_buffer == NULL)
-		return 0;
+		az_current_lex_buffer = get_lex_buffer( az_current_lex_buffer );
+		if (az_current_lex_buffer == NULL)
+		    return 0;
 		l_lex_pos = 0;
 	    }
 
@@ -1587,6 +1588,7 @@ found_token:
 		  src_az_current_source_buffer->w_current_position - 1,
 		  "character string",
 		  "before end of line" );
+	/* FALLTHROUGH */
 
   case token_comment:       /* RAP preserve comments */
     {
@@ -1727,6 +1729,7 @@ found_primitive_string:
 		  src_az_current_source_buffer->w_current_position - 1,
 		  "character string",
 		  "before end of line" );
+	/* FALLTHROUGH */
 
     case token_gstr:
 
@@ -1827,8 +1830,8 @@ found_primitive_string:
 	    */
 
 	    cstr_entry = sem_create_cstr();
-	if (cstr_entry == NULL)
-	    return 0;
+	    if (cstr_entry == NULL)
+		return 0;
 
 	    for ( a_off = 0,
 		  off = 0;

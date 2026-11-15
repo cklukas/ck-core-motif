@@ -528,7 +528,7 @@ _XmGetDefaultThresholdsForScreen( Screen *screen )
   XrmClass classes[2];
   XrmRepresentation rep;
   XrmValue db_value, to_value;
-  int int_value;
+  int int_value = 0;
   int default_light_threshold_spec;
   int default_dark_threshold_spec;
   int default_foreground_threshold_spec;

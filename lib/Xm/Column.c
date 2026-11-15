@@ -866,6 +866,7 @@ GeometryManager(Widget widget, XtWidgetGeometry *request,
 	case XtGeometryAlmost:
 	    if( alw.request_mode & CWWidth ) width = alw.width;
 	    if( alw.request_mode & CWHeight ) height = alw.height;
+	    /* FALLTHROUGH */
 	case XtGeometryNo:
 	default:
 	    Layout(cw, widget, allowed, width, height);
@@ -903,6 +904,7 @@ GeometryManager(Widget widget, XtWidgetGeometry *request,
 	case XtGeometryAlmost:
 	    cur_width = width_return;
 	    cur_height = height_return;
+	    /* FALLTHROUGH */
 	case XtGeometryNo:
 	default:
 	    Layout(cw, widget, allowed, cur_width, cur_height);

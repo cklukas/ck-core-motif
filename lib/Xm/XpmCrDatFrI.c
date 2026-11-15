@@ -470,11 +470,11 @@ CreateExtensions(
 	data_size == 0 || ext_nlines == 0)
 	return (0);
 
-	base = *dataptr;
-	used = (size_t)offset;
-	if (used >= (size_t)data_size)
-	    return (0);
-	*(dataptr + 1) = base + used;
+    base = *dataptr;
+    used = (size_t)offset;
+    if (used >= (size_t)data_size)
+	return (0);
+    *(dataptr + 1) = base + used;
     dataptr++;
     a = 0;
     for (x = 0; x < num; x++, ext++) {

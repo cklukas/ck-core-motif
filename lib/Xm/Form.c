@@ -2488,6 +2488,7 @@ CheckBottomBase(
 					break;
 					case XmATTACH_OPPOSITE_WIDGET:
 						flag = TRUE;
+						/* FALLTHROUGH */
 					case XmATTACH_WIDGET:
 						if (SIBLINGS(c->att[BOTTOM].w, sibling))
 							return_val = 
@@ -2530,6 +2531,7 @@ CheckBottomBase(
 			break;
 			case XmATTACH_OPPOSITE_WIDGET:
 				flag = TRUE;
+				/* FALLTHROUGH */
 			case XmATTACH_WIDGET:
 				if (SIBLINGS(c->att[BOTTOM].w, sibling))
 					return_val = 
@@ -2594,6 +2596,7 @@ CheckRightBase(
 					break;
 					case XmATTACH_OPPOSITE_WIDGET:
 						flag = TRUE;
+						/* FALLTHROUGH */
 					case XmATTACH_WIDGET:
 						if (SIBLINGS(c->att[RIGHT].w, sibling))
 							return_val = 
@@ -2636,6 +2639,7 @@ CheckRightBase(
 			break;
 			case XmATTACH_OPPOSITE_WIDGET:
 				flag = TRUE;
+				/* FALLTHROUGH */
 			case XmATTACH_WIDGET:
 				if (SIBLINGS(c->att[RIGHT].w, sibling))
 					return_val = 
@@ -2699,6 +2703,7 @@ CheckLeftBase(
 					break;
 					case XmATTACH_OPPOSITE_WIDGET:
 						flag = TRUE;
+						/* FALLTHROUGH */
 					case XmATTACH_WIDGET:
 						if (SIBLINGS(c->att[LEFT].w, sibling))
 							return_val = 
@@ -2741,6 +2746,7 @@ CheckLeftBase(
 			break;
 			case XmATTACH_OPPOSITE_WIDGET:
 				flag = TRUE;
+				/* FALLTHROUGH */
 			case XmATTACH_WIDGET:
 				if (SIBLINGS(c->att[LEFT].w, sibling))
 					return_val = 

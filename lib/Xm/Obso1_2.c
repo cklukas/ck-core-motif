@@ -376,12 +376,18 @@ void _XmGetArrowDrawRects (int highlight_thickness, int shadow_thickness, unsign
 
    /*  Free the old lists  */
 
-   if (*top != NULL)
-      XtFree ((char *) *top);   *top  = NULL;
-   if (*cent != NULL)
-      XtFree ((char *) *cent);  *cent = NULL;
-   if (*bot != NULL)
-      XtFree ((char *) *bot);   *bot  = NULL;
+   if (*top != NULL) {
+      XtFree ((char *) *top);
+      *top = NULL;
+   }
+   if (*cent != NULL) {
+      XtFree ((char *) *cent);
+      *cent = NULL;
+   }
+   if (*bot != NULL) {
+      XtFree ((char *) *bot);
+      *bot = NULL;
+   }
    *top_count = 0;
    *cent_count = 0;
    *bot_count = 0;

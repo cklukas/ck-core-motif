@@ -431,16 +431,20 @@ _XmFastPopdown(
 
         
 static void
-slideCancel(Widget w, Widget slide)
+slideCancel(Widget w, XtPointer client_data, XtPointer call_data)
 {
-    XtRemoveCallback(w, XmNunmapCallback, (XtCallbackProc)slideCancel, slide);
+    Widget slide = (Widget)client_data;
+    (void)call_data;
+    XtRemoveCallback(w, XmNunmapCallback, slideCancel, slide);
     XtDestroyWidget(slide);
 }
 
 static void
-slideFinish(Widget slide, Widget w)
+slideFinish(Widget slide, XtPointer client_data, XtPointer call_data)
 {
-    XtRemoveCallback(w, XmNunmapCallback, (XtCallbackProc)slideCancel, slide);
+    Widget w = (Widget)client_data;
+    (void)call_data;
+    XtRemoveCallback(w, XmNunmapCallback, slideCancel, slide);
 }
 
 
@@ -501,8 +505,8 @@ _XmPopupI(
 		    XmNslideDestWidth, width,
 		    XmNslideDestHeight, height,
 		    NULL);
-		XtAddCallback(slider, XmNslideFinishCallback, (XtCallbackProc)slideFinish, shell_widget->composite.children[0]);
-		XtAddCallback(shell_widget->composite.children[0], XmNunmapCallback, (XtCallbackProc)slideCancel, slider);
+		XtAddCallback(slider, XmNslideFinishCallback, slideFinish, shell_widget->composite.children[0]);
+		XtAddCallback(shell_widget->composite.children[0], XmNunmapCallback, slideCancel, slider);
 	    }
 	}
 	XMapRaised(XtDisplay(widget), XtWindow(widget));

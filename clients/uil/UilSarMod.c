@@ -656,7 +656,13 @@ void	sar_process_module_charset(yystype *token_frame, yystype *start_frame)
 	    value_entry = (sym_value_entry_type *)token_frame->value.az_symbol_entry;
 	    break;
 	    }
+
+	default:
+	    return;
     }
+
+    if (value_entry == NULL)
+	return;
 
     /* If charset specified for module, then localized strings not allowed */
     Uil_lex_l_localized = FALSE;

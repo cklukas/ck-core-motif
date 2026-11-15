@@ -2097,7 +2097,7 @@ static XmString
 CreateXmString(Widget w, String str)
 {
     XrmValue		fromVal, toVal;	
-    XmString xmstr;
+    XmString xmstr = NULL;
     size_t str_length;
 
     if (str == NULL)

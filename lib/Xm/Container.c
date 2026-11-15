@@ -3623,11 +3623,13 @@ RemoveItem(
 				cw->container.cells_region);
 	    XDestroyRegion(cwid_region);
 	    }
+	/* FALLTHROUGH */
     case XmGRID:
 	if (cw->container.cells != NULL &&
 	    c->cell_idx >= 0 && c->cell_idx < cw->container.cell_count &&
 	    cw->container.cells[c->cell_idx] > 0)
 	    cw->container.cells[c->cell_idx]--;
+	/* FALLTHROUGH */
     case XmNONE:
         c->cell_idx = NO_CELL;
     }
@@ -8950,6 +8952,7 @@ RecalcMarquee(
 				x = cw->container.anchor_point.x;
 				y = cw->container.anchor_point.y;
 				}
+			/* FALLTHROUGH */
 	case	XmMARQUEE_EXTEND_START:
 			if CtrTechIsMARQUEE_ES(cw)
                         {
@@ -8995,6 +8998,7 @@ RecalcMarquee(
 					}
 				break;
 				}
+			/* FALLTHROUGH */
 	case	XmMARQUEE:
 	case	XmTOUCH_OVER:
 			cw->container.marquee_start.x =
@@ -9932,6 +9936,7 @@ CallSelectCB(
 	{
 	case	XmSINGLE_SELECT:
 			cbs.reason = XmCR_SINGLE_SELECT;
+			/* FALLTHROUGH */
 	case	XmBROWSE_SELECT:
 			if (CtrPolicyIsBROWSE(cw))
 				cbs.reason = XmCR_BROWSE_SELECT;
@@ -9948,6 +9953,7 @@ CallSelectCB(
 			break;
 	case	XmMULTIPLE_SELECT:
 			cbs.reason = XmCR_MULTIPLE_SELECT;
+			/* FALLTHROUGH */
 	case	XmEXTENDED_SELECT:
 			if (CtrPolicyIsEXTENDED(cw))
 				cbs.reason = XmCR_EXTENDED_SELECT;

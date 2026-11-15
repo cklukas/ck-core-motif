@@ -1414,7 +1414,7 @@ void		sar_save_feature(yystype * feature_frame)
 
 	default:
 	    _assert (FALSE, "unexpected widget feature");
-	    break;
+	    return;
 	}
 
 /*	Check for duplicate features.	*/

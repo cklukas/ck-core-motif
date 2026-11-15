@@ -2336,7 +2336,7 @@ static void
 ValidateAndLoadFont(XmRendition rend, Display *display)
 {
   XrmString 		locale;
-  XtPointer 		font;
+  XtPointer 		font = NULL;
   XrmValue         	args[2];
   Cardinal         	num_args = 0;
   XrmValue         	fromVal;

@@ -2148,7 +2148,7 @@ XmScrolledWindowWidget sw )
 
     if (clip == NULL)
 	return;
-    Boolean HasHSB, HasVSB, HSBExists, VSBExists, no_scroll_present = False;
+    Boolean HasHSB = False, HasVSB = False, HSBExists, VSBExists, no_scroll_present = False;
     XmScrolledWindowConstraint swc;
     Widget child ;
     XmNavigatorDataRec nav_data ;

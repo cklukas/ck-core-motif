@@ -1819,7 +1819,18 @@ component.
 `cppcheck` product-code errors in `docs/hardening.md` are reduced to zero and
 verified on a fresh `-std=c23 -O2 --enable-hardening` build.
 
-**Status (2026-11-15):** planned.
+**Status (2026-11-15):** complete (2026-11-15). Reduced all 10 defect-oriented
+compiler warning classes (`-Wformat-security`, `-Wimplicit-fallthrough`,
+`-Wnull-dereference`, `-Wmisleading-indentation`, `-Wcast-function-type`,
+`-Wpointer-to-int-cast`, `-Wint-to-pointer-cast`, `-Wmaybe-uninitialized`,
+`-Wuninitialized`, `-Waddress`) from 242 to 0 and all `cppcheck` product-code
+errors (`uninitvar`, `legacyUninitvar`, `memleak`, `memleakOnRealloc`,
+`arrayIndexOutOfBounds`, `shiftNegative`) from 62 to 0 across `lib/Xm`,
+`lib/Mrm`, `clients/mwm`, `clients/uil`, `tools/wml`, and `config/util` under
+`-std=c23 -O2 -g0 --enable-hardening`. Promoted all 10 zeroed defect classes to
+`-Werror=...` in `ck_hardening.m4`, updated
+`docs/hardening-baseline-validation.json` and `docs/hardening.md`, and locked
+the ratchet with `tests/automated/check-hardening-defect-ratchet.py`.
 
 **Does not include:** mass cosmetic rewrites of vendored `libXpm` sources that
 do not address a defect or warning class.
@@ -2109,7 +2120,7 @@ safety precede or accompany new surface area:
 | Order | Package | Track | Summary | Key validation gate | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | **WP-41** | Bug fix / QA | Fix the 10 remaining failing source-contract checks & docs nav | All 20 `baseline_failures` in `modern-integration-validation.json` pass | Complete (2026-11-15) |
-| 2 | **WP-42** | C23 / Security | Burn down 242 defect-class compiler warnings & 62 `cppcheck` errors to 0 | `scripts/warning-baseline.py compare` & `-Werror` per zeroed defect class | Planned |
+| 2 | **WP-42** | C23 / Security | Burn down 242 defect-class compiler warnings & 62 `cppcheck` errors to 0 | `scripts/warning-baseline.py compare` & `-Werror` per zeroed defect class | Complete (2026-11-15) |
 | 3 | **WP-43** | Security / Audit | Audit `clients/uil`, `tools/wml`, 30 untouched legacy files & Oct/Nov 2026 code | Updated audit ledger in `docs/hardening.md` + per-fix native regressions | Planned |
 | 4 | **WP-44** | Fuzzing / ASan | Add image, MWM & UIL fuzzers; run `run-suite.py` under ASan + UBSan | `tests/fuzz/run-fuzz.py --all --replay` & sanitized `run-suite.py` pass | In progress |
 | 5 | **WP-45** | UI / Theme | Declarative `Xrm` startup selection (`*appearanceProfile`, `*appearanceDensity`) | Unmodified C binary starts in modern profiles/density via `XENVIRONMENT` | Planned |

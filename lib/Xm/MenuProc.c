@@ -115,7 +115,7 @@ void
 _XmRestoreCoreClassTranslations(
         Widget widget)
 {
-  String saved_translations;
+  String saved_translations = NULL;
 
   _XmProcessLock();
   if (SaveTranslationsContext &&

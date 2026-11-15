@@ -991,7 +991,7 @@ ToggleBGCVTRedraw (
   XmManagerWidget curmw = (XmManagerWidget) cur_parent;
   Boolean redraw = False;
   
-  XmToggleButtonGCacheObjPart  oldCopy;
+  XmToggleButtonGCacheObjPart  oldCopy = {0};
   
   /*
    * For the purposes of backward compatibility the existance of

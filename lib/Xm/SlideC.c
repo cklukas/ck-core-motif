@@ -40,7 +40,7 @@ static void destroy(Widget w);
 static Boolean set_values(Widget old, Widget request, Widget new_w, ArgList args, Cardinal *num_args);
 static void get_values_hook(Widget w, ArgList args, Cardinal *num_args);
 
-static void _XmSlideProc(Widget w);
+static void _XmSlideProc(XtPointer client_data, XtIntervalId *id);
 static void targetDestroy(Widget target, XtPointer client_data, XtPointer call_data);
 
 /*
@@ -110,14 +110,14 @@ XmSlideContextClassRec xmSlideContextClassRec = {
 /* notify that initialize called    XtArgsProc        */ NULL,
 /* NULL                             XtProc            */ NULL,
 /* NULL                             XtPointer         */ NULL,
-/* NULL                             Cardinal          */ (Cardinal)NULL,
+/* NULL                             Cardinal          */ 0,
 /* resources for subclass fields    XtResourceList    */ resources,
 /* number of entries in resources   Cardinal          */ XtNumber(resources),
 /* resource class quarkified        XrmClass          */ NULLQUARK,
-/* NULL                             Boolean           */ (Boolean)(unsigned)NULL,
-/* NULL                             XtEnum            */ (XtEnum)(unsigned)NULL,
-/* NULL				    Boolean           */ (Boolean)(unsigned)NULL,
-/* NULL                             Boolean           */ (Boolean)(unsigned)NULL,
+/* NULL                             Boolean           */ False,
+/* NULL                             XtEnum            */ False,
+/* NULL				    Boolean           */ False,
+/* NULL                             Boolean           */ False,
 /* free data for subclass pointers  XtWidgetProc      */ destroy,
 /* NULL                             XtProc            */ NULL,
 /* NULL			            XtProc            */ NULL,
@@ -188,9 +188,9 @@ initialize(Widget request, Widget new_w, ArgList args, Cardinal *num_args)
 	}
 	Slide_Id(new_w) = XtAppAddTimeOut(XtWidgetToApplicationContext(new_w),
 		Slide_Interval(new_w),
-		(XtTimerCallbackProc)_XmSlideProc,
+		_XmSlideProc,
 		new_w);
-	XtAddCallback(Slide_Widget(new_w), XmNdestroyCallback, (XtCallbackProc)targetDestroy, new_w);
+	XtAddCallback(Slide_Widget(new_w), XmNdestroyCallback, targetDestroy, new_w);
     }
 }
 
@@ -230,10 +230,12 @@ Widget w = (Widget)client_data;
 }
 
 static void
-_XmSlideProc(Widget w)
+_XmSlideProc(XtPointer client_data, XtIntervalId *id)
 {
+Widget w = (Widget)client_data;
 Dimension width, height;
 Position x, y;
+    (void)id;
 
     /*
     printf("%s:%s(%d) - %s %li\n", __FILE__, __FUNCTION__, __LINE__,
@@ -317,7 +319,7 @@ Position x, y;
     {
     	Slide_Id(w) = XtAppAddTimeOut(XtWidgetToApplicationContext(w),
     		Slide_Interval(w),
-    		(XtTimerCallbackProc)_XmSlideProc,
+    		_XmSlideProc,
     		w);
     }
 }

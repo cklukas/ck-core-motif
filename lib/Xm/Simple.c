@@ -176,6 +176,7 @@ EvaluateConvenienceStructure(
 			break;
 			case XmDOUBLE_SEPARATOR:
 				XtSetArg(args[n], XmNseparatorType, XmDOUBLE_LINE); n++;
+				/* FALLTHROUGH */
 			case XmSEPARATOR:
 				snprintf(name_buf, sizeof(name_buf), "separator_%d", separator_count++);
 				child = XtCreateManagedWidget(name_buf, 
@@ -193,6 +194,7 @@ EvaluateConvenienceStructure(
 			break;
 			case XmRADIOBUTTON:
 				XtSetArg(args[n], XmNindicatorType, XmONE_OF_MANY); n++;
+				/* FALLTHROUGH */
 			case XmCHECKBUTTON:
 				snprintf(name_buf, sizeof(name_buf), "button_%d", button_count++);
 				XtSetArg(args[n], XmNindicatorOn, TRUE); n++;

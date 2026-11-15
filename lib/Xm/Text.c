@@ -2646,7 +2646,7 @@ Realize(Widget w,
    * Register on the spot callbacks.
    */
     xim_cb[0].client_data = (XPointer)tw;
-    xim_cb[0].callback = (XIMProc)PreeditStart;
+    xim_cb[0].callback = (XIMProc)(void (*)(void))PreeditStart;
     xim_cb[1].client_data = (XPointer)tw;
     xim_cb[1].callback = (XIMProc)PreeditDone;
     xim_cb[2].client_data = (XPointer)tw;
@@ -3309,7 +3309,7 @@ _XmTextSetEditable(Widget widget,
     */
 
    xim_cb[0].client_data = (XPointer)tw;
-   xim_cb[0].callback = (XIMProc)PreeditStart;
+   xim_cb[0].callback = (XIMProc)(void (*)(void))PreeditStart;
    xim_cb[1].client_data = (XPointer)tw;
    xim_cb[1].callback = (XIMProc)PreeditDone;
    xim_cb[2].client_data = (XPointer)tw;
@@ -3968,7 +3968,7 @@ PreeditDraw(XIC xic,
 
   /* Composition is logical text, independent of glyph availability or ink
    * width.  The normal output pipeline shapes/draws it for every font kind. */
-  if (insert_length > 0) {
+  if (call_data->text && insert_length > 0) {
     if (call_data->text->encoding_is_wchar) {
       size_t capacity;
       if ((size_t)insert_length > (SIZE_MAX - 1) / MB_CUR_MAX) {

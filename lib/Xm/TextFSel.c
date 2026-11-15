@@ -448,6 +448,7 @@ HandleInsertTargets(
   
   assert(XtNumber(atom_names) == NUM_ATOMS);
   XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
+  CS_OF_ENCODING = XmeGetEncodingAtom(w);
 
   atom_ptr = (Atom *)value;
   

@@ -976,7 +976,7 @@ FocusChange(
 	{
 	  break ;
 	}
-      /* Drop through. */
+      /* FALLTHROUGH */
     case XmFOCUS_IN:
       if(    change == XmFOCUS_IN    ) /* Because of drop-though. */
 	{
@@ -994,7 +994,7 @@ FocusChange(
 	{
 	  break ;
 	}
-      /* Drop through. */
+      /* FALLTHROUGH */
     case XmFOCUS_OUT:
       if(    change == XmFOCUS_OUT    ) /* Because of drop-though. */
 	{

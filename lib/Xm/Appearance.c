@@ -822,7 +822,7 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
     if (text == NULL)
         return False;
     if (property == AP_TAB_MODE) {
-        XmTabMode value;
+        XmTabMode value = (XmTabMode)0;
         XrmValue from;
         XrmValue to = {sizeof(value), (XPointer)&value};
         if (!appearance_string_value(text, &from)) return False;
@@ -833,7 +833,7 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
     if (property == AP_SHOW_ARROWS || property == AP_SLIDER_VISUAL ||
         property == AP_SLIDER_MARK || property == AP_ALIGNMENT ||
         property == AP_OUTLINE_LINE_STYLE) {
-        unsigned char value;
+        unsigned char value = 0;
         XrmValue from;
         XrmValue to = {sizeof(value), (XPointer)&value};
         if (!appearance_string_value(text, &from)) return False;
@@ -847,7 +847,7 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
         return True;
     }
     if (appearance_property_is_color(property)) {
-        Pixel pixel;
+        Pixel pixel = 0;
         XrmValue from, to;
         Widget context = XtIsWidget(widget) ? widget : XtParent(widget);
         if (!appearance_string_value(text, &from)) return False;
@@ -1723,9 +1723,11 @@ appearance_widget_commit(XmAppearanceChangePlan *plan)
                 ++count;
             }
         XmAppearanceDisplayState *display_state = find_display_state(state->display);
-        ++display_state->resource_commit_depth;
+        if (display_state)
+            ++display_state->resource_commit_depth;
         XtSetValues(state->widget, set_args, count);
-        --display_state->resource_commit_depth;
+        if (display_state)
+            --display_state->resource_commit_depth;
     }
     if (old_font) XmRenderTableFree(old_font);
     if (state->widget != NULL && XtIsWidget(state->widget)) {
@@ -2591,7 +2593,7 @@ _XmAppearanceCascadeSelection(Widget widget, Pixel fallback)
 {
     XmAppearanceProfile profile;
     XmAppearanceDensity density;
-    Pixel pixel;
+    Pixel pixel = fallback;
     XrmValue from, to = {sizeof(pixel), (XPointer)&pixel};
     Widget context = XtIsWidget(widget) ? widget : XtParent(widget);
     if (_XmAppearanceOwnsResource(widget, XmNbackground) &&

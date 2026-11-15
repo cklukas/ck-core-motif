@@ -699,7 +699,7 @@ Boolean RealizeIconBox (WmWorkspaceData *pWS, IconBoxData *pIBD, ClientData *pCD
     Arg getArgs[10]; 
     Arg setArgs[2]; 
     Widget clipWidget = NULL;
-    Pixmap  bgPixmap;
+    Pixmap  bgPixmap = XmUNSPECIFIED_PIXMAP;
     Pixmap defaultImage;
     
 
@@ -1583,13 +1583,13 @@ void SetGranularity (WmWorkspaceData *pWS, ClientData *pCD, IconBoxData *pIBD)
     Dimension vScrollBarWidth = 0;
     Dimension vBarWidth = 0;
 
-    Dimension spacing;
-    short shadowThickness;
-    short marginWidth;
-    short marginHeight;
+    Dimension spacing = 0;
+    short shadowThickness = 0;
+    short marginWidth = 0;
+    short marginHeight = 0;
 
-    short hShighlightThickness;
-    short vShighlightThickness;
+    short hShighlightThickness = 0;
+    short vShighlightThickness = 0;
 
     Arg setArgs[10];
     Arg getArgs[10]; 
@@ -2220,7 +2220,7 @@ IconInfo *InsertIconInfo(IconBoxData *pIBD, ClientData *pCD, Widget theWidget)
     int amt, i;
     Arg setArgs[3];
     Arg getArgs[4];
-    Dimension clipWidth, clipHeight;
+    Dimension clipWidth = 0, clipHeight = 0;
 #ifdef WSM
     WsClientData *pWsc;
 #endif /* WSM */
@@ -2406,8 +2406,8 @@ void DeleteIconFromBox (IconBoxData *pIBD, ClientData *pCD)
     Widget       theChild;
     ClientData  *pCD_tmp;
     Arg          args[4];
-    Dimension    clipWidth, clipHeight;
-    Dimension    oldWidth, oldHeight;
+    Dimension    clipWidth = 0, clipHeight = 0;
+    Dimension    oldWidth = 0, oldHeight = 0;
     int          newWidth, newHeight;
     int          i, newCols, newRows;
 #ifdef WSM
@@ -2601,8 +2601,8 @@ void ResetIconBoxMaxSize (ClientData *pCD, Widget bBoardWidget)
 {
     int i;
     Arg getArgs[3]; 
-    Dimension newWidth;
-    Dimension newHeight;
+    Dimension newWidth = 0;
+    Dimension newHeight = 0;
 
     if (pCD == NULL || bBoardWidget == NULL)
 	return;
@@ -2641,8 +2641,8 @@ Boolean CheckIconBoxSize (IconBoxData *pIBD)
     int i;
     Arg getArgs[3]; 
     Arg setArgs[3]; 
-    Dimension oldWidth;
-    Dimension oldHeight;
+    Dimension oldWidth = 0;
+    Dimension oldHeight = 0;
     Dimension newWidth;
     Dimension newHeight;
     int oldCol, oldRow;
@@ -2742,8 +2742,8 @@ void CheckIconBoxResize (ClientData *pCD, unsigned int changedValues, int newWid
     int i, newCols, newRows;
     Arg getArgs[3]; 
     Arg setArgs[3]; 
-    Dimension oldWidth;
-    Dimension oldHeight;
+    Dimension oldWidth = 0;
+    Dimension oldHeight = 0;
 
     if (pCD == NULL || pCD->thisIconBox == NULL ||
         pCD->thisIconBox->bBoardWidget == NULL ||
@@ -3039,8 +3039,8 @@ void PackIconBox (IconBoxData *pIBD, Boolean packVert, Boolean packHorz, int pas
     ClientData *pCD_tmp, *pMyCD;
     int hasActiveText = 1;
     Arg args[4];
-    Dimension majorDimension, minorDimension;
-    Dimension oldWidth, oldHeight;
+    Dimension majorDimension = 0, minorDimension = 0;
+    Dimension oldWidth = 0, oldHeight = 0;
     int newWidth, newHeight;
     int i;
     Boolean rippling = False;

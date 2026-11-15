@@ -1336,8 +1336,12 @@ PackSingleAttribute(MessageData data, WSMAttribute *attr_list, int num)
     register int i;
 
     data = PackListNum(data, num);
+    if (data == NULL)
+	return(NULL);
     for (i = 0; i < num; i++, attr_list++) {
 	data = PackString(data, WSMQuarkString(attr_list->nameq));
+	if (data == NULL)
+	    return(NULL);
 	data = PackCARD8(data, (CARD8) attr_list->size);
 	data = PackBoolean(data, attr_list->is_list);
     }

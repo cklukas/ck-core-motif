@@ -803,7 +803,7 @@ MrmFetchColorLiteral (MrmHierarchy                hierarchy_id,
 	 XBlackPixelOfScreen(XDefaultScreenOfDisplay(display)));
       break;
     default:
-      (void)snprintf(err_msg, sizeof(err_msg), _MrmMMsg_0040);
+      (void)snprintf(err_msg, sizeof(err_msg), "%s", _MrmMMsg_0040);
       result = Urm__UT_Error ("MrmFetchColorLiteral",
 			      err_msg, NULL, NULL, MrmFAILURE) ;
       _MrmAppUnlock(app);

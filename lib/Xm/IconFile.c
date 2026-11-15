@@ -808,7 +808,7 @@ XmGetIconFileName(
 	 */
 	if (!fileName && iconNameCache != NULL) {
 	    DtIconNameEntry iNameEntry;
-	    DtIconNameEntryRec  iNameData ;
+	    DtIconNameEntryRec  iNameData = {0};
 
 	    iNameData.key_name = (names_w_size[i])?names_w_size[i]:names[i];
 

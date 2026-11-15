@@ -2221,6 +2221,7 @@ df_GetXYFromPos(
     /* initialize the x and y positions to zero */
     if (XmDataField_alignment(tf) == XmALIGNMENT_BEGINNING)
     {
+	x_coordinate = 0;
 	*x = 0;
 	*y = 0;
 

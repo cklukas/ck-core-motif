@@ -516,7 +516,7 @@ im_destroyed(XIM xim, XPointer closure, XPointer call_data)
           if (!strcmp(r->args[k].name, XmNpreeditDoneCallback)) {
             XIMCallback *done = (XIMCallback *)r->args[k].value;
             if (done && done->callback)
-              ((XICProc)done->callback)(NULL, done->client_data, NULL);
+              done->callback(NULL, done->client_data, NULL);
             break;
           }
       }
@@ -2099,7 +2099,7 @@ get_real_callback(Widget w,
     return (XICProc)NULL;
 
   if (refs.callbacks[target])
-    return (XICProc)refs.callbacks[target][swc].callback;
+    return (XICProc)(void (*)(void))refs.callbacks[target][swc].callback;
   else
     return (XICProc)NULL;
 }
@@ -2176,7 +2176,7 @@ set_callback_values(Widget w, String name, XIMCallback *value,
   XmInputPolicy policy = input_policy;
   int kind = NameToSwitch(name);
   static XIMProc bridge[] = {
-    (XIMProc)ImPreeditStartCallback, (XIMProc)ImPreeditDoneCallback,
+    (XIMProc)(void (*)(void))ImPreeditStartCallback, (XIMProc)ImPreeditDoneCallback,
     (XIMProc)ImPreeditDrawCallback, (XIMProc)ImPreeditCaretCallback
   };
   static String resource[] = {
@@ -2320,8 +2320,8 @@ ImGetGeo(Widget  vw,
   XmWidgetExtData extData;
   int height = 0;
   int available_width;
-  XRectangle rect;
-  XRectangle *rp;
+  XRectangle rect = {0};
+  XRectangle *rp = NULL;
   XmImShellInfo im_info;
   XVaNestedList set_list, get_list;
   
