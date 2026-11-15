@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM client-metadata refresh inputs
 
 The MWM client-metadata refresh entry points accept a `ClientData *` supplied

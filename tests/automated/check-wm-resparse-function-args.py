@@ -20,6 +20,6 @@ string = source[string_start:string_end]
 assert "size_t  len;" in string
 assert "len > SIZE_MAX - 2 || len + 2 > UINT_MAX" in string
 assert "XtMalloc ((Cardinal)(len + 2))" in string
-assert "((lastlen = mblen(p, MB_CUR_MAX)) > 0)" in string
+assert "((lastlen = mblen(p, (size_t)MB_CUR_MAX)) > 0)" in string
 assert "len == 0 || (*pArgs)[len - 1] != '&'" in string
 print("PASS MWM function-argument lengths and empty F_Exec are guarded")

@@ -3,10 +3,10 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "TxtPropCv.c").read_text()
-start = source.index("/* Create XmStrings from each string in the value field */")
-body = source[start:source.index("*string_table_return = string_table;", start)]
+start = source.index("if (text_prop->nitems == 0) {\n\tstring_table = (XmStringTable)XtMalloc(sizeof(XmString));")
+body = source[start:source.index("*string_table_return = string_table;\n    *count_return = elements;", start)]
 assert "if (string_table[0] == NULL)" in body
-assert "XmString generated = XmStringGenerate" in body
+assert "generated = XmStringGenerate" in body
 assert "if (generated == NULL)" in body
 assert "XmStringFree(string_table[cleanup]);" in body
 assert "return BadAlloc;" in body

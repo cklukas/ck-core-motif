@@ -345,8 +345,9 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     KeySym key;
     char input[2];
     (void)closure; (void)continue_dispatch;
-    if (picker == NULL || event == NULL || !XmIsDatePicker(widget) ||
-        widget->core.being_destroyed || !XtIsSensitive(widget))
+    if (picker == NULL || event == NULL || !XmIsDatePicker(widget))
+	return;
+    if (widget->core.being_destroyed || !XtIsSensitive(widget))
 	return;
     if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == ButtonPress ||

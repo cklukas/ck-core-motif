@@ -1,3 +1,31 @@
+Icon-directory cache overflow order, source-contract alignment and hardening ledger (2026-11-15)
+================================================================================================
+
+- `MakeCachedDirEntry` in `lib/Xm/IconFile.c` previously subtracted `offset_bytes`
+  from `SIZE_MAX - sizeof(DtValidCachedDirStruct)` before checking whether
+  `offset_bytes` itself exceeded that bound, risking unsigned `size_t` underflow.
+  It now checks `nameHeapSize > SIZE_MAX - sizeof(DtValidCachedDirStruct)` first
+  and then bounds `offset_bytes` against the remaining capacity.
+- Public entry points and event handlers in `lib/Xm/ScrollBar.c`, `lib/Xm/Scale.c`,
+  `lib/Xm/I18List.c`, `lib/Xm/Command.c`, `lib/Xm/List.c`,
+  `lib/Xm/CommandPalette.c`, `lib/Xm/DatePicker.c`, `lib/Xm/TimePicker.c`,
+  `lib/Xm/Toast.c`, `lib/Xm/InfoBar.c`, `clients/mwm/WmIconBox.c` and
+  `clients/mwm/WmInitWs.c` keep explicit null/widget-class checks separate from
+  `being_destroyed` and sensitivity guards, satisfying both API input and
+  teardown regression contracts.
+- Updated source-contract checks in `tests/automated/check-*.py` that still
+  matched pre-refactoring code shapes, added `nav_exclude: true` frontmatter to
+  the eight standalone regression notes so `check-docs-nav-complete.py` covers
+  all documentation pages, and updated `docs/hardening.md` and
+  `modernization_plan.md` to record the `lib/Xm` and `lib/Mrm` fuzz targets and
+  Phase 2 work packages (`WP-41` through `WP-50`).
+- Test: all 20 previously recorded `baseline_failures` in
+  `docs/modern-integration-validation.json` and all 4,222 zero-argument
+  `tests/automated/check-*.py` scripts pass (`rc=0`), and
+  `python3 tests/fuzz/run-fuzz.py --all --replay` passes across all four fuzz
+  targets (`editres-wire`, `mrm-uid`, `xm-converters`, `xmstring-stream`).
+- Docs: `docs/hardening.md`, `modernization_plan.md`.
+
 Continuous integration: build, installed-prefix tests and fuzz corpus replay (2026-11-13)
 =========================================================================================
 

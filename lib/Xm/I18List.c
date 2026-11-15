@@ -3241,7 +3241,9 @@ XmI18ListGetSelectedRows(Widget w)
     XmMultiListRowInfo **ret_rows = NULL;
     XmI18ListWidget ilist = (XmI18ListWidget) w;
 
-    if (w == NULL || !XtIsSubclass(w, xmI18ListWidgetClass) ||
+    if (w == NULL)
+        return NULL;
+    if (!XtIsSubclass(w, xmI18ListWidgetClass) ||
         ilist->core.being_destroyed)
         return NULL;
 
@@ -3291,8 +3293,9 @@ XmI18ListDoSearch(Widget w, String str, Boolean reset)
     XmString xms;
     int found_row, found_column, search_column;
 
-    if (w == NULL || str == NULL ||
-        !XtIsSubclass(w, xmI18ListWidgetClass) ||
+    if (w == NULL || str == NULL)
+        return False;
+    if (!XtIsSubclass(w, xmI18ListWidgetClass) ||
         ilist->core.being_destroyed)
         return False;
 
@@ -3343,8 +3346,9 @@ XmI18ListDoSearch(Widget w, String str, Boolean reset)
 XmMultiListRowInfo *XmI18ListFindRow(Widget w, String str, int *found_column,
 			      Boolean reset, Boolean do_visual)
 {
-    if (w == (Widget) NULL || str == NULL || found_column == NULL ||
-        !XtIsSubclass(w, xmI18ListWidgetClass) ||
+    if (w == (Widget) NULL || str == NULL || found_column == NULL)
+	return NULL;
+    if (!XtIsSubclass(w, xmI18ListWidgetClass) ||
         ((XmI18ListWidget)w)->core.being_destroyed)
 	return NULL;
 
@@ -3667,7 +3671,9 @@ GetSelectedRows(XmI18ListWidget i18list, int *num_rows)
     int		*rows, i;
 
     rows = NULL;
-    if (i18list == NULL || i18list->core.being_destroyed || num_rows == NULL)
+    if (i18list == NULL || num_rows == NULL)
+	return NULL;
+    if (i18list->core.being_destroyed)
 	return NULL;
 
     row_info = XmI18List_row_data(i18list);
@@ -3708,7 +3714,9 @@ static void
 SelectRow(XmI18ListWidget i18list, int row,
 	  Boolean select, Boolean notify)
 {
-    if (i18list == NULL || i18list->core.being_destroyed)
+    if (i18list == NULL)
+	return;
+    if (i18list->core.being_destroyed)
 	return;
 
     XmMultiListRowInfo	*rows = XmI18List_row_data(i18list);
@@ -3741,7 +3749,9 @@ SelectItems(XmI18ListWidget i18list, XmString item,
     int	i, j;
     int	rowcount, colcount, colstart;
 
-    if (i18list == NULL || i18list->core.being_destroyed)
+    if (i18list == NULL)
+	return;
+    if (i18list->core.being_destroyed)
 	return;
 
     rows = XmI18List_row_data(i18list);
@@ -4377,7 +4387,9 @@ XmI18ListGetSelectedRowArray(XmI18ListWidget i18list,
 void
 XmI18ListMakeRowVisible(XmI18ListWidget i18list, int row)
 {
-    if (i18list == NULL || i18list->core.being_destroyed)
+    if (i18list == NULL)
+	return;
+    if (i18list->core.being_destroyed)
 	return;
 
     /* Use column zero as a rule when making a row visible... */

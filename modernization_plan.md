@@ -216,6 +216,47 @@ adaptive application-navigation chrome.  Those require materially different
 ownership, rendering or application architecture and must be evaluated as
 separate libraries or applications rather than smuggled into widget work.
 
+### 8. C23 compliance, defect ratcheting and untrusted-input hardening
+
+The century-old Motif codebase contains historical K&R patterns, unchecked Xlib
+and resource-conversion boundaries, untyped callback casts, integer-width
+assumptions, and unguarded allocation paths.  Bring the entire toolkit
+(`libXm`, `libMrm`, `libUil`, `tools/wml`, `clients/uil`, `clients/mwm` and
+shipped demos) to strict C23 compliance while systematically eliminating
+memory-safety, null-dereference, format-string and undefined-behavior defects.
+
+Use `scripts/warning-baseline.py` and `docs/hardening.md` as a one-way ratchet
+under `--enable-hardening` (`-std=c23 -O2`): warning counts per component and
+warning class may only decrease, and each defect-oriented warning class is
+promoted to `-Werror` once its count reaches zero.  Treat all external inputs
+(`.uid` files, `.uil` sources, WMD databases, XPM/SVG/PNG/JPEG images, Editres
+streams, X11 properties and selection payloads) as untrusted, backed by
+in-process `libFuzzer` targets and ASan/UBSan corpus replay in CI.
+
+### 9. Declarative theming, UX polish and modern desktop interoperability
+
+Extend the appearance-profile architecture (`classic`, `modern-light`,
+`modern-dark`, `high-contrast`, and `comfortable`/`compact` densities) so
+existing Motif applications can adopt modern visuals and UX without breaking
+the Xt/Xrm programming model:
+
+- allow declarative startup selection of appearance profiles, density and
+  bounded semantic accent/surface tokens through standard `Xrm` resources so
+  unmodified Motif binaries can be themed via `~/.Xresources` or `XENVIRONMENT`
+  while keeping explicit C API calls and widget arguments authoritative;
+- complete live appearance, natural font-driven sizing and scale coverage
+  across the remaining historical composite widgets (`FileSelectionBox`,
+  `Command`, `PanedWindow`, `ComboBox`, `SpinBox`/`SimpleSpinBox` and
+  `Container` views);
+- align `clients/mwm` window frames, Xft titlebars and button glyphs with the
+  same appearance profiles and HiDPI scale contract while preserving `.mwmrc`;
+- add restrained, opt-in modern interaction affordances (subtle pointer hover
+  states, keyboard-only `focus-visible` ring policy, and proportional/nested
+  mouse-wheel scrolling) stored strictly in per-widget private records; and
+- bridge modern desktop selection and drag-and-drop targets (`XDND` v5,
+  `UTF8_STRING`, `text/uri-list`, `image/png`) beneath the existing
+  `XmTransfer`, `XmDropSite` and `XmClipboard` APIs.
+
 ## Work packages
 
 Each package is an independently reviewable and finishable unit.  A later
@@ -1699,6 +1740,384 @@ Appearance and scalable assets are intentionally the first delivery track: they
 produce user-visible improvement while preserving the established programming
 model.  The additive-widget track may progress independently where its stated
 dependency lines allow it.
+
+### WP-41: Baseline source-contract cleanup and documentation navigation completion
+
+**Depends on:** WP-00 through WP-40.
+
+**Objective:** resolve the remaining 10 failing source-contract checks from the
+3,910-check baseline recorded in `docs/modern-integration-validation.json` and
+restore 100% green status across the automated source and documentation gates.
+
+**Steps:**
+
+1. Add the missing null and widget-class guards in `XmScrollBar` and `XmScale`
+   public accessors/mutators (`check-scrollbar-api-inputs.py`,
+   `check-xm-scrollbar-api-null.py`, `check-xm-scale-api-null.py`).
+2. Restore the null-input and row-allocation guards in `XmI18List` helpers
+   (`check-i18list-row-helper-inputs.py`,
+   `check-i18list-selected-rows-allocation.py`).
+3. Restore the allocation-failure and width/bounds checks in `XmString` entry
+   conversion, `IconFile` directory caching and `ImageCache` string hashing
+   (`check-xmstring-entry-conversion-allocation.py`,
+   `check-iconfile-dir-allocation.py`, `check-image-string-hash-width.py`).
+4. Ensure `XmCommandPalette` list population uses the compound `XmString`
+   display helper (`check-command-palette-compound-display.py`).
+5. Add `nav_exclude: true` (or explicit `ckdocs.yml` navigation entries) for
+   the 8 unindexed regression pages (`check-docs-nav-complete.py`) and update
+   `docs/hardening.md` to record the `lib/Xm` fuzz targets added in `tests/fuzz`.
+
+**Complete when:** all 20 previously recorded `baseline_failures` in
+`docs/modern-integration-validation.json` exit 0, and relevant native
+unit/integration tests pass.
+
+**Status (2026-11-15):** complete (2026-11-15). All 20 `baseline_failures` in
+`docs/modern-integration-validation.json` and all 4,222 zero-argument
+`tests/automated/check-*.py` source-contract and documentation-navigation checks
+pass; `MakeCachedDirEntry` in `lib/Xm/IconFile.c` now guards
+`nameHeapSize > SIZE_MAX - sizeof(DtValidCachedDirStruct)` before unsigned
+subtraction; public entry-point/event guards in `ScrollBar.c`, `Scale.c`,
+`I18List.c`, `Command.c`, `List.c`, `CommandPalette.c`, `DatePicker.c`,
+`TimePicker.c`, `Toast.c`, `InfoBar.c`, `WmIconBox.c`, and `WmInitWs.c` satisfy
+both null/class and teardown/sensitivity contracts; the 8 unindexed regression
+notes carry `nav_exclude: true`; and `docs/hardening.md` records the `lib/Xm`
+and `lib/Mrm` fuzz targets.
+
+**Does not include:** new public APIs or changes to widget layout semantics.
+
+### WP-42: C23 and memory-safety defect-warning ratchet
+
+**Depends on:** WP-41.
+
+**Objective:** eliminate the 242 defect-class compiler warnings and 62
+`cppcheck` errors recorded in `docs/hardening.md` under `-std=c23 -O2
+--enable-hardening`, promoting each zeroed defect class to `-Werror` per
+component.
+
+**Steps:**
+
+1. Fix all 30 `-Wcast-function-type` and 8 `-Wpointer-to-int-cast` /
+   `-Wint-to-pointer-cast` warnings across `lib/Xm`, `lib/Mrm`, `clients/mwm`,
+   `clients/uil` and `tools/wml` using typed C23 function signatures and
+   `intptr_t`/`uintptr_t` or union-backed Xt closure helpers where required by
+   the Xt ABI.
+2. Eliminate the 75 `-Wformat-security` warnings by replacing non-literal format
+   strings with literal format specifiers or bounded string copies.
+3. Audit and fix the 42 `-Wnull-dereference` and 4 `-Wuninitialized` /
+   `-Wmaybe-uninitialized` compiler warnings together with the 52 `cppcheck`
+   `uninitvar`, 2 `legacyUninitvar`, 5 `memleak`, 1 `memleakOnRealloc`,
+   1 `arrayIndexOutOfBounds` and 1 `shiftNegative` errors.
+4. Resolve the 49 `-Wimplicit-fallthrough` (using C23 `[[fallthrough]]` where
+   intentional or `break` where defective) and 32 `-Wmisleading-indentation`
+   warnings.
+5. After each warning class reaches zero for a component, verify with
+   `scripts/warning-baseline.py compare`, update
+   `docs/hardening-baseline-validation.json`, and lock that class against
+   regression.
+
+**Complete when:** all 10 defect-oriented compiler warning classes and the 62
+`cppcheck` product-code errors in `docs/hardening.md` are reduced to zero and
+verified on a fresh `-std=c23 -O2 --enable-hardening` build.
+
+**Status (2026-11-15):** planned.
+
+**Does not include:** mass cosmetic rewrites of vendored `libXpm` sources that
+do not address a defect or warning class.
+
+### WP-43: Untrusted-input hardening audit for UIL, WML, legacy and newly added subsystems
+
+**Depends on:** WP-41.
+
+**Objective:** complete a structured input-validation, integer-overflow, and
+allocation-lifetime audit of components and files that have no recorded
+hardening review in `docs/hardening.md`.
+
+**Steps:**
+
+1. Audit `clients/uil` (lexer, parser, symbol/literal tables, source record
+   readers and WMD loader) and `tools/wml` (table/code generators and `.wml`
+   grammar handlers) for unchecked bounds, fixed-size buffers and partial-write
+   or allocation failures.
+2. Review the 30 untouched first-party files identified in `docs/hardening.md`
+   (`lib/Xm`: `AtomMgr`, `CvtUnit`, `Dest`, `DialogSE`, `DrHiDash`, `DrPoly`,
+   `FocusAct`, `GetRes`, `IconH`, `MenuProc`, `Messages`, `ObsoStr`, `ObsoXme`,
+   `ReadImage`, `ShellE`, `SlideC`, `TearOffB`, `TranslNew`, `Transltns`,
+   `TravAct`, `ValTime`, `sharedlib`; `lib/Mrm`: `MrmMessages`, `Mrmlwrite`,
+   `Mrmos`, `Mrmwwrite`; `clients/mwm`: `WmCPlace`, `version`; `clients/uil`:
+   `UilData`; `tools/wml`: `Uil.y`).
+3. Audit the October/November 2026 subsystems (`lib/Xm/Appearance.c`,
+   `lib/Xm/AppearanceDraw.c`, AT-SPI D-Bus adapter, ICU/HarfBuzz text pipeline,
+   PNG/SVG/JPEG image loaders and XLibre DPI integration) for integer overflow,
+   Xlib error/status checks and teardown reentrancy.
+4. Add a focused native regression test and documentation page for every defect
+   fixed, and update the audit ledger in `docs/hardening.md`.
+
+**Complete when:** every component in the `docs/hardening.md` ledger has a
+recorded input-path audit and zero untouched first-party files remain unreviewed.
+
+**Status (2026-11-15):** planned.
+
+**Does not include:** changing the architecture-dependent binary framing of
+valid `.uid` or `.wmd` files.
+
+### WP-44: Expanded libFuzzer coverage and sanitized installed-prefix test suite
+
+**Depends on:** WP-42 and WP-43.
+
+**Objective:** extend in-process fuzzing to all untrusted file/wire parsers and
+qualify the installed-prefix automated test suite under AddressSanitizer and
+UndefinedBehaviorSanitizer.
+
+**Steps:**
+
+1. Add `libFuzzer` targets and seed corpora in `tests/fuzz/` for:
+   - `lib/Xm` XPM/SVG/image-cache decoders;
+   - `clients/mwm` `.mwmrc` configuration and X11 property parsers; and
+   - `clients/uil` source/WMD parsing paths.
+2. Integrate the new targets into `tests/fuzz/run-fuzz.py --all --replay` and
+   `.github/workflows/build.yml` / `.ckgit/ci.yml`.
+3. Build an isolated toolkit prefix with `--enable-sanitizers=address,undefined`
+   (plus the pinned patched `libXt` dependency where selection lifetime is
+   exercised) and run `tests/automated/run-suite.py` with sanitized consumers.
+4. Fix all toolkit-owned sanitizer findings and document any remaining external
+   system-library ownership boundaries accurately in `docs/status.md` and
+   `docs/hardening.md`.
+
+**Complete when:** `run-fuzz.py --all --replay` covers Mrm, Editres, XmString,
+ResConvert, image decoders, MWM parsers and UIL/WMD, and the sanitized
+installed-prefix suite runs clean of toolkit-owned ASan/UBSan diagnostics.
+
+**Status (2026-11-15):** in progress (`fuzz-mrm-uid`, `fuzz-editres-wire`,
+`fuzz-xm-converters` and `fuzz-xmstring-stream` are implemented on `master`;
+image, MWM and UIL targets plus full sanitized `run-suite.py` qualification
+remain).
+
+**Does not include:** suppressing toolkit leaks or undefined behavior with
+sanitizer blacklists.
+
+### WP-45: Declarative Xrm startup appearance and density selection
+
+**Depends on:** WP-01, WP-02, WP-03.
+
+**Objective:** allow unmodified Motif applications to opt into `modern-light`,
+`modern-dark`, `high-contrast`, and `comfortable`/`compact` density at display
+initialization time through standard X resource files (`~/.Xresources`,
+`XENVIRONMENT`, app-defaults) without recompilation.
+
+**Steps:**
+
+1. Define display-level Xrm resources (`XmNappearanceProfile` /
+   `XmCAppearanceProfile` accepting `classic`, `modern_light`, `modern_dark`,
+   `high_contrast`; and `XmNappearanceDensity` / `XmCAppearanceDensity`
+   accepting `comfortable`, `compact`) inspected by `XmDisplay` initialization
+   when no prior explicit `XmSetAppearanceProfile` or `XmSetAppearanceDensity`
+   call has been made on that `Display`.
+2. Preserve strict precedence: an explicit `XmSetAppearanceProfile` /
+   `XmSetAppearanceDensity` call before widget creation overrides the display
+   resource, and explicit widget arguments and ordinary application X resources
+   continue to override profile defaults.
+3. Reject invalid resource strings with a single Xt conversion warning and fall
+   back deterministically to `classic` / `comfortable`.
+4. Add an installed-prefix regression under Xvfb proving that an unmodified
+   classic C consumer binary starts in `modern-light`, `modern-dark`, or
+   `high-contrast` and `compact` density purely via `XENVIRONMENT` / `Xrm`
+   resources, while preserving explicit widget resource overrides.
+
+**Complete when:** any Motif binary linked against `libXm` can select a modern
+profile and density via X resources without code changes, and precedence is
+verified by installed-prefix tests.
+
+**Status (2026-11-15):** planned.
+
+**Does not include:** background polling of `.Xresources` or live mutation of
+realized widgets without an explicit `XmApplyAppearanceProfile` transaction.
+
+### WP-46: Complete historical-widget modern appearance and natural-sizing matrix
+
+**Depends on:** WP-03, WP-04, WP-45.
+
+**Objective:** complete the visual overhaul across the remaining historical
+Motif composite widgets, remove hardcoded demo dimensions, and finish the open
+WP-39 context-menu presentation item.
+
+**Steps:**
+
+1. Audit and complete `modern-light`, `modern-dark`, `high-contrast`, and
+   `comfortable`/`compact` density styling and live transitions (`XmApplyAppearanceProfile` /
+   `XmApplyAppearanceDensity`) for `XmFileSelectionBox`, `XmCommand`,
+   `XmPanedWindow` (sash/separator treatment), `XmComboBox`,
+   `XmSpinBox`/`XmSimpleSpinBox`, and `XmContainer` (detail and spatial views).
+2. Remove the remaining 32 hardcoded dimension construction blocks in
+   `ckmotif-gallery` so gallery samples rely on toolkit-owned natural font and
+   density geometry (`docs/modern-visual-overhaul.md`).
+3. Implement the remaining WP-39 item: opt-in icon-and-shortcut context-menu
+   entries over existing `XmRowColumn` popup menus without altering menu grab
+   or callback contracts.
+4. Execute the cross-application visual and interaction acceptance matrix
+   (`ckmotif-gallery` and `Periodic`) across light/dark/high-contrast, both
+   densities, 1x/1.5x/2x/3x scales, RTL, and SVG/non-SVG builds; record
+   actual-window captures and library fingerprints.
+
+**Complete when:** all historical and additive widgets pass the cross-application
+startup and live-transition matrix with natural sizing and zero demo-only
+layout workarounds.
+
+**Status (2026-11-15):** in progress (core widgets, buttons, scrollbars,
+notebooks, dialogs and Periodic startup are integrated; complex historical
+composites, gallery dimension cleanup and full matrix sign-off remain).
+
+**Does not include:** altering classic Motif default metrics when the `classic`
+profile is active.
+
+### WP-47: Xrm semantic palette tokens and contrast guardrails
+
+**Depends on:** WP-45 and WP-46.
+
+**Objective:** let applications and users customize the accent and surface
+colors of `modern-light` and `modern-dark` profiles through bounded Xrm
+resources while guaranteeing readable contrast.
+
+**Steps:**
+
+1. Define optional display-level Xrm token resources for modern profiles:
+   `*accentColor`, `*accentForeground`, `*dangerColor`, and
+   `*surfaceBackground`.
+2. Derive dependent interactive states (focus ring, selection fill, armed fill,
+   primary/destructive button fills) deterministically from those tokens when
+   supplied, falling back to the built-in profile constants when unset.
+3. Enforce WCAG contrast guardrails (at least 4.5:1 for normal text and 3:1 for
+   focus/interactive indicators): if a user-supplied token violates minimum
+   contrast against its paired surface, clamp or fall back to a compliant
+   foreground/accent and emit an Xt warning.
+4. Test startup and live profile transitions with custom Xrm tokens, invalid
+   color names, low-contrast token pairs, and 8-bit/TrueColor colormaps from an
+   installed prefix.
+
+**Complete when:** modern profiles support Xrm accent/surface customization
+with deterministic state derivation and enforced contrast bounds.
+
+**Status (2026-11-15):** planned.
+
+**Does not include:** arbitrary CSS/theme-engine scripting or runtime themes
+that bypass Xrm precedence.
+
+### WP-48: Modern MWM window-frame appearance, Xft typography and HiDPI integration
+
+**Depends on:** WP-04, WP-45.
+
+**Objective:** bring `clients/mwm` window frames, titlebars, menus and icon
+boxes into visual and scaling alignment with the modern toolkit profiles while
+preserving `.mwmrc` and ICCCM/EWMH/CDE WSM behavior.
+
+**Steps:**
+
+1. Allow `mwm` to resolve the display's `appearanceProfile` (`classic`,
+   `modern_light`, `modern_dark`, `high_contrast`) and scale factor (`Xft.dpi` /
+   XLibre `DPI`).
+2. In modern profiles, render flat one-logical-pixel frame borders, subtle
+   active/inactive titlebar surfaces, Xft anti-aliased titlebar text when
+   `--enable-xft` is active, and cleanly scaled vector/geometric titlebar button
+   glyphs (menu, minimize, maximize).
+3. Keep explicit `.mwmrc` and user X resource overrides (`clientDecoration`,
+   `matteWidth`, explicit frame colors/fonts) authoritative, and leave `classic`
+   frame bevels unchanged.
+4. Add native Xvfb tests verifying `mwm` frame geometry, active/inactive colors,
+   titlebar rendering, button hit rectangles and workspace menus across
+   `classic`, `modern-light`, `modern-dark` and `high-contrast` at 1x and 2x
+   scales.
+
+**Complete when:** `mwm` frames match the toolkit's appearance profiles and
+HiDPI scaling in verified X server runs without regressing `.mwmrc` or CDE WSM
+contracts.
+
+**Status (2026-11-15):** planned.
+
+**Does not include:** client-side decorations (CSD) or a compositing manager.
+
+### WP-49: Restrained interactive UX polish (hover affordances, focus-visible and wheel scrolling)
+
+**Depends on:** WP-46.
+
+**Objective:** modernize everyday pointer and keyboard ergonomics in modern
+appearance profiles while keeping classic Motif interaction untouched.
+
+**Steps:**
+
+1. Add subtle, non-animated pointer-hover surface/border feedback in
+   `modern-light` and `modern-dark` for `PushButton`, `ToggleButton`,
+   `ComboBox`/`DropDown` triggers, `Notebook` tabs, and `List`/`TreeView`/`DataGrid`
+   rows, tracked per instance in private Epoch 9 widget/gadget records.
+2. Add an opt-in display/widget resource `XmNfocusHighlightPolicy`
+   (`XmFOCUS_HIGHLIGHT_ALWAYS` vs `XmFOCUS_HIGHLIGHT_KEYBOARD`) so modern
+   profiles can display focus rings during keyboard navigation (`Tab`/arrow
+   keys) while suppressing redundant focus rings on pointer clicks, restoring
+   them immediately on the next keyboard traversal key.
+3. Standardize mouse-wheel (`Button4`/`Button5`) scrolling across
+   `XmScrolledWindow`, `XmList`, `XmText`, `XmTreeView` and `XmDataGrid` with
+   dpi-scaled line steps and clean forwarding when an inner scrollable reaches
+   its boundary.
+4. Test hover enter/leave/unmap/destroy lifecycles, keyboard-vs-pointer focus
+   transitions, and nested wheel scrolling from an installed prefix under Xvfb.
+
+**Complete when:** hover feedback, focus-visible behavior and wheel scrolling
+are deterministic, leak-free, and disabled or classic-compatible when `classic`
+is selected.
+
+**Status (2026-11-15):** planned.
+
+**Does not include:** physics-based kinetic scrolling threads or animated
+hover transitions.
+
+### WP-50: Modern desktop selection and drag-and-drop interoperability (XDND v5, UTF8_STRING and text/uri-list)
+
+**Depends on:** WP-06, WP-44.
+
+**Objective:** allow Motif applications using standard `XmClipboard`,
+`XmTransfer` and `XmDropSite` APIs to copy/paste and drag/drop UTF-8 text, file
+URIs and PNG images seamlessly with modern X11 and Xwayland applications.
+
+**Steps:**
+
+1. Ensure `XmClipboard` and standard text/field selections negotiate and
+   prioritize `UTF8_STRING` alongside `COMPOUND_TEXT` and `STRING` with bounded
+   conversion and INCR support.
+2. Implement an transparent XDND v5 protocol bridge inside `libXm`'s drag-and-drop
+   initiator and receiver paths so registered `XmDropSite` widgets can accept
+   drops from XDND v5 clients (and Motif drags can drop onto XDND v5 targets)
+   while preserving Motif's native preregister/dynamic protocol between Motif
+   clients.
+3. Add built-in target atom support and safe URI/image helpers for
+   `text/uri-list` and `image/png` in the transfer layer, treating incoming
+   payloads as untrusted input with strict size and format bounds.
+4. Validate cross-client clipboard and XDND v5 transfers (UTF-8 text,
+   multi-file `text/uri-list`, cancelled drops, and malformed XDND messages)
+   using independent X11 test clients against an installed prefix under ASan/UBSan.
+
+**Complete when:** a standard Motif `XmDropSite` / `XmClipboard` consumer
+interoperates with non-Motif XDND v5 and `UTF8_STRING` clients in automated
+cross-process tests without changing public Motif callback signatures.
+
+**Status (2026-11-15):** planned.
+
+**Does not include:** Wayland-native client protocol support outside X11/Xwayland.
+
+## Phase 2 execution sequence and tracking checklist
+
+Work packages in Phase 2 are ordered so that baseline correctness and C23/memory
+safety precede or accompany new surface area:
+
+| Order | Package | Track | Summary | Key validation gate | Status |
+| --- | --- | --- | --- | --- | --- |
+| 1 | **WP-41** | Bug fix / QA | Fix the 10 remaining failing source-contract checks & docs nav | All 20 `baseline_failures` in `modern-integration-validation.json` pass | Complete (2026-11-15) |
+| 2 | **WP-42** | C23 / Security | Burn down 242 defect-class compiler warnings & 62 `cppcheck` errors to 0 | `scripts/warning-baseline.py compare` & `-Werror` per zeroed defect class | Planned |
+| 3 | **WP-43** | Security / Audit | Audit `clients/uil`, `tools/wml`, 30 untouched legacy files & Oct/Nov 2026 code | Updated audit ledger in `docs/hardening.md` + per-fix native regressions | Planned |
+| 4 | **WP-44** | Fuzzing / ASan | Add image, MWM & UIL fuzzers; run `run-suite.py` under ASan + UBSan | `tests/fuzz/run-fuzz.py --all --replay` & sanitized `run-suite.py` pass | In progress |
+| 5 | **WP-45** | UI / Theme | Declarative `Xrm` startup selection (`*appearanceProfile`, `*appearanceDensity`) | Unmodified C binary starts in modern profiles/density via `XENVIRONMENT` | Planned |
+| 6 | **WP-46** | UI / Theme | Complete historical-widget modern styling, gallery natural sizing & WP-39 menus | Full `ckmotif-gallery` + `Periodic` visual/interaction matrix passes | In progress |
+| 7 | **WP-47** | UI / Theme | Xrm semantic palette tokens (`*accentColor`, `*surfaceBackground`) + WCAG guards | Installed-prefix token, contrast-clamp and colormap parity tests pass | Planned |
+| 8 | **WP-48** | UI / MWM | Modern `mwm` window frames, Xft titlebars & HiDPI scaling | Native Xvfb `mwm` frame/titlebar/button tests at 1x/2x across profiles | Planned |
+| 9 | **WP-49** | UX Polish | Modern hover states, `focus-visible` policy & standardized wheel scrolling | Installed-prefix hover lifecycle, focus-policy & nested wheel tests pass | Planned |
+| 10 | **WP-50** | Interop | XDND v5, `UTF8_STRING` & `text/uri-list` interoperability + remaining WP-04A/06/07 | Cross-process XDND v5 & clipboard tests under ASan/UBSan pass | Planned |
 
 ## Acceptance criteria for every increment
 

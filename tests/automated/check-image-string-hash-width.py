@@ -11,7 +11,7 @@ assert "size_t len;" in function
 assert "uintmax_t" in function
 assert "folded_len" in function
 assert "unsigned int len;" not in function
-assert "data[len]" in function
+assert "data[tail_index]" in function
 print("PASS wide image-cache string hash length")
 
 hash_source = source[source.index("/* Hash a Pixmap entry. */"):]

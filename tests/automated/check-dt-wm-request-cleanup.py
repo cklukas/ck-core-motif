@@ -7,8 +7,8 @@ start = text.index("void \nGetDtWmRequest")
 body = text[start:text.index("/* END OF FUNCTION GetDtWmRequest", start)]
 
 validation = body.index("if ((rValue != Success)")
-cleanup = body[validation:body.index("property = NULL", validation)]
+cleanup = body[validation:body.index("pSD->dtWmRequestProperty = NULL", validation)]
 assert "actualFormat != 8" in cleanup
-assert "if (property != NULL)" in cleanup
-assert "XFree ((char *)property)" in cleanup
+assert "if (pSD->dtWmRequestProperty != NULL)" in cleanup
+assert "XFree (pSD->dtWmRequestProperty)" in cleanup
 print("GetDtWmRequest frees invalid property buffers before resetting state")

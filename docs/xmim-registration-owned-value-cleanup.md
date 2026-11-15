@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmIm registration snapshot cleanup
 
 `XmIm` copies input-method resources such as font/render tables, preedit

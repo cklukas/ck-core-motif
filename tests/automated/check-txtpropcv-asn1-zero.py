@@ -9,7 +9,7 @@ start = source.index("case XmSTYLE_COMPOUND_STRING:")
 end = source.index("      /* Allocate that amount", start)
 body = source[start:end]
 
-assert "item_size <= 0" in body
+assert "item_size == 0" in body
 assert "XmCvtXmStringToByteStream(string_table[i],NULL)" in body
 assert "return BadAlloc;" in body
 

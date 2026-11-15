@@ -12,7 +12,8 @@ def main() -> None:
     start = text.index("getClientWorkspaces(ClientData *pCD)\n{")
     end = text.index("\n}\n\n#endif /* WSM */", start)
     region = text[start:end]
-    assert "pCD == NULL || pSD == NULL || pCD->numInhabited <= 0 ||" in region
+    assert "if (pCD == NULL)" in region
+    assert "if (pSD == NULL || pCD->numInhabited <= 0 ||" in region
     assert "pCD->pWsList == NULL" in region
     assert region.index("pCD->pWsList == NULL") < region.index(
         "for (i = 0; i < pCD->numInhabited; i++)"

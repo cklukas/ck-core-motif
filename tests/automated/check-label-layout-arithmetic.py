@@ -7,8 +7,8 @@ root = Path(__file__).parents[2] / "lib" / "Xm"
 label = (root / "Label.c").read_text()
 labelg = (root / "LabelG.c").read_text()
 
-assert "(int)newlw->core.height - (int)lp->margin_top" in label
-assert "(short)((int)newlw->core.width" in label
+assert "((long long)newlw->core.height - lp->margin_top" in label
+assert "label_bounded_position(\n\t  (long long)newlw->core.width" in label
 assert "(int)newlw->rectangle.height - (int)LabG_MarginTop" in labelg
 assert "(short)((int)newlw->rectangle.width" in labelg
 

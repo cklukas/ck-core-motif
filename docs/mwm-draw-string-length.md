@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM text drawing length bounds
 
 `XTextWidth`, `XDrawString`, and `XDrawImageString` take signed `int` text

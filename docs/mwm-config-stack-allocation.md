@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM configuration-stack allocation handling
 
 MWM initializes and extends its configuration-file stack transactionally. If

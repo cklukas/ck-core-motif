@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM session persistence input boundaries
 
 MWM session save and restore helpers can run while session shutdown or client

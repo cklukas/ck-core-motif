@@ -973,7 +973,9 @@ XmCommandGetChild(
 {
     XmCommandWidget   w = (XmCommandWidget)widget;
     Widget ret_widget = NULL;
-    if (widget == NULL || !XmIsCommand(widget) || w->core.being_destroyed)
+    if (widget == NULL || !XmIsCommand(widget))
+        return NULL;
+    if (w->core.being_destroyed)
         return NULL;
     _XmWidgetToAppContext(widget);
 /****************/
@@ -1012,8 +1014,9 @@ XmCommandSetValue(
 {
     XmCommandWidget   w = (XmCommandWidget)widget;
     char *str;
-    if (widget == NULL || !XmIsCommand(widget) || value == NULL ||
-        w->core.being_destroyed || w->selection_box.text == NULL)
+    if (widget == NULL || !XmIsCommand(widget) || value == NULL)
+        return;
+    if (w->core.being_destroyed || w->selection_box.text == NULL)
         return;
     _XmWidgetToAppContext(widget);
     if(    !(str = _XmStringGetTextConcat( value))    )
@@ -1036,8 +1039,9 @@ XmCommandAppendValue(
     XmCommandWidget   w = (XmCommandWidget)widget;
     char            *strNew;
     XmTextPosition   endPosition;
-    if (widget == NULL || !XmIsCommand(widget) || value == NULL ||
-        w->core.being_destroyed || w->selection_box.text == NULL)
+    if (widget == NULL || !XmIsCommand(widget) || value == NULL)
+        return;
+    if (w->core.being_destroyed || w->selection_box.text == NULL)
         return;
     _XmWidgetToAppContext(widget);
     /* return if invalid string from "value" passed in */
@@ -1075,8 +1079,9 @@ XmCommandError(
     XmCommandWidget   w = (XmCommandWidget)widget;
     XmString  blankXmString;
 
-    if (widget == NULL || !XmIsCommand(widget) || error == NULL ||
-        w->core.being_destroyed || w->selection_box.list == NULL)
+    if (widget == NULL || !XmIsCommand(widget) || error == NULL)
+        return;
+    if (w->core.being_destroyed || w->selection_box.list == NULL)
         return;
     _XmWidgetToAppContext(widget);
 

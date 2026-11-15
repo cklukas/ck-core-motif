@@ -13,14 +13,14 @@ source = (
 ).read_text(encoding="utf-8")
 
 contracts = (
-    "delayInterval(int speed)",
-    "if (speed == 0)\n    return 0UL;",
+    "normalized_speed(int speed)",
+    "schedule_animation(void)",
     "main(int argc, char **argv)",
     "NextBitmap(XtPointer client_data, XtIntervalId *id)",
     "input_callback(Widget widget, XtPointer tag, XtPointer callback_data)",
     "speed_callback(Widget widget, XtPointer tag, XtPointer callback_data)",
-    "if (AppData.speed != 0)\n        AppData.timeoutID = XtAppAddTimeOut(",
-    "AppData.timeoutID = XtAppAddTimeOut(app_con, delayInterval(AppData.speed),",
+    "if (AppData.speed && !dragging)",
+    "AppData.timeoutID = XtAppAddTimeOut(app_con, milliseconds, NextBitmap, NULL);",
 )
 for contract in contracts:
     assert contract in source, f"missing Earth timer/C23 contract: {contract}"

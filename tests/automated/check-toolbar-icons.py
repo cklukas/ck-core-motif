@@ -10,7 +10,8 @@ header = (root / "lib/Xm/Toolbar.h").read_text(encoding="utf-8")
 gallery = (root / "demos/programs/ckmotif-gallery/gallery_examples.c").read_text(encoding="utf-8")
 assert "XmToolbarSetActionIcons" in header
 assert "icons[i] != None" in source
-assert "XmToolbarGetActionButton(example, i, overflow)" in gallery
+assert "XmToolbarGetActionButton(example, i," in gallery
+assert "overflow_modes[mode])" in gallery
 for resource in ("XmNlabelPixmap", "XmNarmPixmap", "XmNlabelInsensitivePixmap"):
     assert f"gallery_bind_icon(button, {resource}, icons[i])" in gallery
 start = source.index("void XmToolbarSetActionIcons")

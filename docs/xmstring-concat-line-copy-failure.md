@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # XmString concatenation line-copy failure handling
 
 When a non-mutating `XmStringConcat` copies the first line from its second

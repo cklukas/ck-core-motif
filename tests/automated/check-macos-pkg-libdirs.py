@@ -8,7 +8,7 @@ import tempfile
 
 helper = Path(__file__).resolve().parents[2] / "scripts/macos-pkg-libdirs.sh"
 with tempfile.TemporaryDirectory(prefix="motif-pkg-dirs-") as temporary:
-    root = Path(temporary)
+    root = Path(temporary).resolve()
     quartz, brew, cairo, xft = (root / p for p in ("quartz", "brew", "cairo/lib", "xft/lib"))
     for p in (quartz, brew, cairo, xft): p.mkdir(parents=True)
     for name in ("libcairo.dylib", "libX11.dylib"): (quartz / name).write_text("old")

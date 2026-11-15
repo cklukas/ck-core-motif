@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # Composite child geometry requests
 
 `XmToast`, `XmCommandPalette`, and `XmSidebar` now report an accepted child

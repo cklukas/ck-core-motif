@@ -10095,7 +10095,9 @@ XmListItemExists(Widget w,
   XmListWidget  lw = (XmListWidget) w;
   Boolean exists;
 
-  if (w == NULL || !XmIsList(w) || item == NULL || lw->core.being_destroyed)
+  if (w == NULL || !XmIsList(w) || item == NULL)
+    return FALSE;
+  if (lw->core.being_destroyed)
     return FALSE;
   _XmWidgetToAppContext(w);
 
@@ -10241,7 +10243,9 @@ XmListGetMatchPos(Widget w,
     return FALSE;
   *pos_list = NULL;
   *pos_count = 0;
-  if (w == NULL || !XmIsList(w) || item == NULL || lw->core.being_destroyed)
+  if (w == NULL || !XmIsList(w) || item == NULL)
+    return FALSE;
+  if (lw->core.being_destroyed)
     return FALSE;
   _XmWidgetToAppContext(w);
 

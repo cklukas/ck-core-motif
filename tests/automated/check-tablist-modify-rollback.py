@@ -8,8 +8,8 @@ end = source.index("/*\n * Function:", start)
 region = source[start:end]
 
 assert "XmString replacement = NULL;" in region
-assert "if (attributes->label_string != NULL && replacement == NULL)" in region
+assert "if (label != NULL && replacement == NULL)" in region
 assert "if( (mask & XmTAB_LABEL_STRING) && !switch_to_copy )" in region
-assert region.index("replacement = XiXmStringCopy(attributes->label_string);") < region.index("XiXmStringFree(tab->label_string);")
+assert region.index("replacement = XiXmStringCopy(label);") < region.index("XiXmStringFree(tab->label_string);")
 assert "tab->label_string = replacement;" in region
 print("tab-list modification preserves labels on copy failure")

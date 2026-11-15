@@ -265,8 +265,8 @@ MakeCachedDirEntry(String dirName)
 		return NULL;
 	    }
 	    offset_bytes = offset_count * sizeof(validDir->nameOffsets[0]);
-	    if (nameHeapSize > SIZE_MAX - sizeof(DtValidCachedDirStruct) -
-			offset_bytes ||
+	    if (nameHeapSize > SIZE_MAX - sizeof(DtValidCachedDirStruct) ||
+		offset_bytes > (SIZE_MAX - sizeof(DtValidCachedDirStruct) - nameHeapSize) ||
 		nameHeapSize + sizeof(DtValidCachedDirStruct) + offset_bytes >
 			(size_t)(Cardinal)~0) {
 		XtFree(dirName);

@@ -7,7 +7,7 @@ text = (Path(__file__).parents[2] / "lib" / "Xm" / "Outline.c").read_text(
     encoding="utf-8"
 )
 constraint_start = text.index("ConstraintSetValues(", 20000)
-height_start = text.index("GetNodeHeightAndWidth(", 30000)
+height_start = text.index("GetNodeHeightAndWidth(Widget w", 30000)
 constraint = text[constraint_start:text.index("\n}\n", constraint_start) + 2]
 height = text[height_start:text.index("\n}\n", height_start) + 2]
 if "*num_args" not in constraint or "XmHierarchyC_num_children" not in height:

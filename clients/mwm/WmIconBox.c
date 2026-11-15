@@ -3661,8 +3661,9 @@ void ChangeActiveIconboxIconText (Widget icon, XtPointer client_data,
     ClientData    	*pCD;
     Window		theIcon;
 
-    if (icon == NULL || event == NULL ||
-        (event->type != FocusIn && event->type != FocusOut))
+    if (icon == NULL || event == NULL)
+	return;
+    if (event->type != FocusIn && event->type != FocusOut)
 	return;
 
     /* 

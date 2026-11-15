@@ -15,15 +15,25 @@ compiler = shutil.which(os.environ.get("CC", "cc"))
 assert compiler is not None
 
 fixture = """\
+#if __has_include(<X11/Xmd.h>)
 #include <X11/Xmd.h>
+#else
+#include <stdint.h>
+typedef uint16_t CARD16;
+#endif
 #define WSM_MAX_LIST_ITEMS ((int)(CARD16)~(CARD16)0)
 int main(void) { return WSM_MAX_LIST_ITEMS == 65535 ? 0 : 1; }
 """
-with tempfile.TemporaryDirectory(dir=os.environ["TMPDIR"]) as directory:
+extra_includes = (
+    ["-I/opt/X11/include"]
+    if os.access("/opt/X11/include/X11/Xmd.h", os.R_OK)
+    else []
+)
+with tempfile.TemporaryDirectory(dir=os.environ.get("TMPDIR")) as directory:
     path = Path(directory)
     program = path / "wsm-card16-limit"
     subprocess.run(
-        [compiler, "-std=c99", "-Wall", "-Wextra", "-Werror", "-x", "c", "-", "-o", str(program)],
+        [compiler, "-std=c99", "-Wall", "-Wextra", "-Werror", *extra_includes, "-x", "c", "-", "-o", str(program)],
         input=fixture,
         text=True,
         check=True,

@@ -7,7 +7,7 @@ functions = ("XmeSecondaryTransfer", "XmeDragSource", "XmePrimarySink",
              "XmeNamedSink", "XmeSecondarySink", "XmeClipboardSink",
              "XmeDropSink", "XmeStandardConvert")
 for function in functions:
-    start = source.index(function)
+    start = source.index(f"{function}(")
     end = source.find("\n}", start)
     body = source[start:end]
     assert "w == NULL" in body, function

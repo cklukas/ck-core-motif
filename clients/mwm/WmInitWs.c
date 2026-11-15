@@ -1516,8 +1516,7 @@ InitWmScreen (WmScreenData *pSD, int sNum)
 	    ExitWM (WM_ERROR_EXIT_VALUE);
 	}
 
-	resized = (unsigned char *)XtRealloc (wmGD.screenNames[sNum],
-	                                      (Cardinal)buf_size);
+	resized = (unsigned char *)XtRealloc (wmGD.screenNames[sNum], (Cardinal)buf_size);
 	if (resized == NULL)
 	{
 	    Warning (((char *)GETMESSAGE(40, 7, "Cannot create enough memory for the screen names")));

@@ -1,3 +1,6 @@
+---
+nav_exclude: true
+---
 # MWM startup and named-icon input boundaries
 
 MWM derives its resource identity from `argv[0]` before creating its Xt

@@ -18,7 +18,6 @@ assert "reply->height = widget->core.height;" in query
 assert "return XmeReplyToQueryGeometry(widget, request, reply);" in query
 assert "(void)request;" not in query
 assert "if (fill_width > (Dimension)bar_width)" in text
-assert "part.x=bounded_position((long long)bar_x+fill_width);" in text
-assert "part.width=(unsigned short)((unsigned int)bar_width-fill_width);" in text
+assert "? bar_x + bar_width - (int)fill_width : bar_x;" in text
 
 print("ProgressBar QueryGeometry preserves explicit dimensions")

@@ -3,8 +3,8 @@
 from pathlib import Path
 
 source = (Path(__file__).parents[2] / "lib" / "Xm" / "TxtPropCv.c").read_text()
-start = source.index("if ((size_t)elements > SIZE_MAX / sizeof(XmString) ||")
-body = source[start:source.index("/* Create XmStrings", start)]
+start = source.index("if ((size_t)elements > SIZE_MAX / sizeof(XmString) ||", source.index("/* First count up how many string elements"))
+body = source[start:source.index("/* The property length bounds the last element too", start)]
 assert "(size_t)elements > SIZE_MAX / sizeof(XmString)" in body
 assert "(Cardinal)(sizeof(XmString) *" in body
 assert "string_table =" in body

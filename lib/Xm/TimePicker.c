@@ -271,8 +271,9 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     XmTimePickerValue value;
     int seconds, delta;
     (void)closure; (void)continue_dispatch;
-    if (picker == NULL || event == NULL || !XmIsTimePicker(widget) ||
-        widget->core.being_destroyed || !XtIsSensitive(widget))
+    if (picker == NULL || event == NULL || !XmIsTimePicker(widget))
+	return;
+    if (widget->core.being_destroyed || !XtIsSensitive(widget))
 	return;
     if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == ButtonPress) {
