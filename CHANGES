@@ -1,16 +1,22 @@
-XmColorObj session palette and modern appearance profile interoperability (2026-11-16)
-======================================================================================
+XmColorObj session palette, companion shading colors, and modern ScrollBar rendering (2026-11-16)
+=================================================================================================
 
-- `lib/Xm/Appearance.c`: treated `XmRPixel`-typed resource entries injected by
-  `XmColorObj` (`UpdateXrm`) and `-dt-interface ` session baseline XLFD font
-  entries in the display resource database when a CDE Color Server owns
-  `CUSTOMIZE_DATA` (`color_obj.colorIsRunning`) as toolkit session defaults
-  rather than explicit application `Xrm` overrides in
-  `appearance_database_named_value()`, so `modern-light`, `modern-dark`, and
-  `high-contrast` style `background`, `foreground`, `highlightColor`, and
-  modern Xft `renderTable` across widgets while explicit `String` Xrm overrides
-  remain authoritative and switching back to `classic` restores the
-  `XmColorObj` palette pixels and `-dt-interface ` baseline fonts.
+- `lib/Xm/Appearance.c`: preserved `XmColorObj` (`UpdateXrm`) `XmRPixel` session
+  palette entries in `appearance_database_named_value()` while treating
+  `-dt-interface ` session baseline XLFD font strings as toolkit session
+  defaults, and preserved surface-derived companion colors (`topShadowColor`,
+  `bottomShadowColor`, `selectColor`, `armColor`, `troughColor`, `unselectColor`,
+  `frameBackground`, `backPageBackground`) in `appearance_widget_prepare()` when
+  a widget's `XmNbackground` is owned by `XmColorObj` or an explicit application
+  override.
+- `lib/Xm/ScrollBar.c`: skipped legacy `FUNKY_INSENSITIVE_VISUAL`
+  `unavailable_GC` stipple fills when `ModernScrollBar` is active, regenerated
+  `unavailable_GC` in `SetValues` when `background` or `foreground` changes,
+  matched arrow backgrounds to `ModernScrollSurface`, eliminated square rail
+  corner pixels in `DrawModernSlider`, and selected contrasting palette colors
+  for the rail, thumb capsule, and arrow chevrons (`ModernScrollPalette`) when
+  `XmColorObj` owns the scrollbar surface or when an application sets
+  `XmNforeground` equal to `XmNbackground`.
 - Tests: `tests/automated/check-xrm-appearance-startup.c` (`--check-colorobj`),
   `tests/automated/run-xrm-appearance-startup.py`,
   `tests/automated/check-xrm-appearance-startup-wp45.py`.

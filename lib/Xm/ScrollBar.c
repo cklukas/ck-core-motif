@@ -1218,6 +1218,70 @@ ModernScrollSurface(XmScrollBarWidget sbw)
     return content ? content->core.background_pixel : parent->core.background_pixel;
 }
 
+static unsigned int
+ModernScrollLuminance(const XColor *color)
+{
+    return (299u * (unsigned int)(color->red >> 8) +
+            587u * (unsigned int)(color->green >> 8) +
+            114u * (unsigned int)(color->blue >> 8)) / 1000u;
+}
+
+static void
+ModernScrollPalette(XmScrollBarWidget sbw, Boolean pressed,
+                    Pixel *surface_out, Pixel *rail_out,
+                    Pixel *thumb_out, Pixel *chevron_out)
+{
+    Pixel surface = ModernScrollSurface(sbw);
+    Pixel rail = sbw->primitive.top_shadow_color;
+    Pixel thumb = sbw->scrollBar.slider_visual == XmTROUGH_COLOR ?
+        sbw->scrollBar.trough_color :
+        sbw->scrollBar.slider_visual == XmBACKGROUND_COLOR ?
+        sbw->core.background_pixel : sbw->primitive.foreground;
+    Pixel chevron = pressed ? sbw->primitive.highlight_color :
+                              sbw->primitive.foreground;
+    Boolean sensitive = XtIsSensitive((Widget)sbw);
+    Boolean custom_bg = !_XmAppearanceOwnsResource((Widget)sbw, XmNbackground);
+    Boolean fg_collides = (sbw->primitive.foreground == sbw->core.background_pixel ||
+                           sbw->primitive.foreground == surface);
+
+    if (custom_bg || fg_collides) {
+        Display *display = XtDisplay((Widget)sbw);
+        Colormap cmap = sbw->core.colormap ? sbw->core.colormap :
+            DefaultColormapOfScreen(XtScreen((Widget)sbw));
+        XColor colors[4];
+        colors[0].pixel = surface;
+        colors[1].pixel = sbw->core.background_pixel;
+        colors[2].pixel = sbw->primitive.top_shadow_color;
+        colors[3].pixel = sbw->primitive.bottom_shadow_color;
+        XQueryColors(display, cmap, colors, 4);
+        if (ModernScrollLuminance(&colors[0]) >= 110u) {
+            rail = (sbw->core.background_pixel != surface) ?
+                sbw->core.background_pixel : sbw->primitive.top_shadow_color;
+            thumb = sbw->primitive.bottom_shadow_color;
+            chevron = pressed ? sbw->primitive.highlight_color :
+                                sbw->primitive.bottom_shadow_color;
+        } else {
+            rail = (sbw->core.background_pixel != surface) ?
+                sbw->core.background_pixel : sbw->primitive.bottom_shadow_color;
+            thumb = sbw->primitive.top_shadow_color;
+            chevron = pressed ? sbw->primitive.highlight_color :
+                                sbw->primitive.top_shadow_color;
+        }
+    }
+    if (!sensitive) {
+        thumb = rail;
+        chevron = rail;
+    }
+    if (surface_out != NULL)
+        *surface_out = surface;
+    if (rail_out != NULL)
+        *rail_out = rail;
+    if (thumb_out != NULL)
+        *thumb_out = thumb;
+    if (chevron_out != NULL)
+        *chevron_out = chevron;
+}
+
 /* End arrows retain their hit regions and repeat actions. Paint a bounded
  * chevron instead of the legacy triangle extending beyond those regions. */
 static Boolean
@@ -1228,14 +1292,15 @@ DrawModernScrollArrow(XmScrollBarWidget sbw, int x, int y, unsigned char directi
     int side, line, half, depth, cx, cy, sign;
     Boolean pressed = (x == sbw->scrollBar.arrow1_x && y == sbw->scrollBar.arrow1_y) ?
         sbw->scrollBar.arrow1_selected : sbw->scrollBar.arrow2_selected;
+    Pixel surface, chevron;
     XGCValues values;
     XPoint points[3];
     XRectangle clip;
     GC gc;
     if (!ModernScrollBar(sbw)) return False;
     if (!XtIsRealized((Widget)sbw) || width <= 0 || height <= 0) return True;
-    values.foreground = _XmAppearanceConnectedScrolledWindow(XtParent((Widget)sbw)) ?
-        ModernScrollSurface(sbw) : sbw->core.background_pixel;
+    ModernScrollPalette(sbw, pressed, &surface, NULL, NULL, &chevron);
+    values.foreground = surface;
     gc = XCreateGC(display, XtWindow(sbw), GCForeground, &values);
     clip = (XRectangle){x,y,width,height};
     XSetClipRectangles(display,gc,0,0,&clip,1,Unsorted);
@@ -1256,9 +1321,7 @@ DrawModernScrollArrow(XmScrollBarWidget sbw, int x, int y, unsigned char directi
             points[1]=(XPoint){cx+sign*depth,cy};
             points[2]=(XPoint){cx-sign*depth,cy+half};
         }
-        XSetForeground(display,gc,!XtIsSensitive((Widget)sbw) ?
-            sbw->primitive.top_shadow_color : pressed ?
-            sbw->primitive.highlight_color : sbw->primitive.foreground);
+        XSetForeground(display,gc,chevron);
         XSetLineAttributes(display,gc,line,LineSolid,CapRound,JoinRound);
         XDrawLines(display,XtWindow(sbw),gc,points,3,CoordModeOrigin);
     }
@@ -1292,11 +1355,13 @@ DrawModernRail(XmScrollBarWidget sbw)
 {
     int x=sbw->scrollBar.slider_area_x,y=sbw->scrollBar.slider_area_y;
     int width=sbw->scrollBar.slider_area_width,height=sbw->scrollBar.slider_area_height;
+    Pixel rail;
     XGCValues values;
     GC gc;
     if (!ModernScrollBar(sbw) || sbw->scrollBar.sliding_mode == XmTHERMOMETER ||
         !XtIsRealized((Widget)sbw)) return;
-    values.foreground=sbw->primitive.top_shadow_color;
+    ModernScrollPalette(sbw, False, NULL, &rail, NULL, NULL);
+    values.foreground=rail;
     gc=XCreateGC(XtDisplay(sbw),XtWindow(sbw),GCForeground,&values);
     ModernRail(sbw,&x,&y,&width,&height);
     FillScrollCapsule(XtDisplay(sbw),XtWindow(sbw),gc,x,y,width,height);
@@ -1389,22 +1454,17 @@ DrawModernSlider(XmScrollBarWidget sbw)
     int width=sbw->scrollBar.slider_width,height=sbw->scrollBar.slider_height,x=0,y=0;
     XGCValues values;
     GC gc;
-    Pixel fill;
+    Pixel surface, fill;
     Display *display=XtDisplay(sbw);
     Drawable drawable=sbw->scrollBar.pixmap;
     if (!ModernScrollBar(sbw) || sbw->scrollBar.sliding_mode == XmTHERMOMETER)
         return False;
     if (width <= 0 || height <= 0) return True;
-    values.foreground=ModernScrollSurface(sbw);
+    ModernScrollPalette(sbw, False, &surface, NULL, &fill, NULL);
+    values.foreground=surface;
     gc=XCreateGC(display,drawable,GCForeground,&values);
     XFillRectangle(display,drawable,gc,0,0,width,height);
-    fill=sbw->scrollBar.slider_visual == XmTROUGH_COLOR ? sbw->scrollBar.trough_color :
-        sbw->scrollBar.slider_visual == XmBACKGROUND_COLOR ? sbw->core.background_pixel :
-        sbw->primitive.foreground;
     ModernRail(sbw,&x,&y,&width,&height);
-    XSetForeground(display,gc,sbw->primitive.top_shadow_color);
-    XFillRectangle(display,drawable,gc,x,y,width,height);
-    if (!XtIsSensitive((Widget)sbw)) fill=sbw->primitive.top_shadow_color;
     XSetForeground(display,gc,fill);
     FillScrollCapsule(display,drawable,gc,x,y,width,height);
     XFreeGC(display,gc);
@@ -1814,9 +1874,11 @@ Redisplay(
     XmScrollBarWidget sbw = (XmScrollBarWidget) wid ;
     Dimension shadow_width, shadow_height;
 
-    if (ModernScrollBar(sbw) && _XmAppearanceConnectedScrolledWindow(XtParent(wid))) {
-        XSetWindowBackground(XtDisplay(wid),XtWindow(wid),ModernScrollSurface(sbw));
-        XClearWindow(XtDisplay(wid),XtWindow(wid));
+    if (ModernScrollBar(sbw)) {
+        if (_XmAppearanceConnectedScrolledWindow(XtParent(wid))) {
+            XSetWindowBackground(XtDisplay(wid),XtWindow(wid),ModernScrollSurface(sbw));
+            XClearWindow(XtDisplay(wid),XtWindow(wid));
+        }
         DrawSliderPixmap(sbw);
     }
     shadow_width = (sbw->core.width >
@@ -1882,7 +1944,7 @@ Redisplay(
 				+ sbw->primitive.shadow_thickness)));
     }
 #ifdef FUNKY_INSENSITIVE_VISUAL
-    else if (sbw->scrollBar.show_arrows)
+    else if (sbw->scrollBar.show_arrows && !ModernScrollBar(sbw))
     {
         XSetClipMask(XtDisplay(sbw), sbw->scrollBar.unavailable_GC, None);
         if (!(sbw->scrollBar.flags & ARROW1_AVAILABLE))
@@ -2586,10 +2648,15 @@ SetValues(
     
     /*  See if the GC needs to be regenerated  */
     
-    if (new_w->core.background_pixel != current->core.background_pixel)
+    if (new_w->core.background_pixel != current->core.background_pixel ||
+        new_w->primitive.foreground != current->primitive.foreground)
 	{
-	    XtReleaseGC((Widget) new_w, new_w->scrollBar.foreground_GC);
-	    GetForegroundGC(new_w);
+	    if (new_w->core.background_pixel != current->core.background_pixel) {
+		XtReleaseGC((Widget) new_w, new_w->scrollBar.foreground_GC);
+		GetForegroundGC(new_w);
+	    }
+	    XtReleaseGC((Widget) new_w, new_w->scrollBar.unavailable_GC);
+	    GetUnavailableGC(new_w);
 	}
 
     if (((new_w->scrollBar.slider_visual == XmTROUGH_COLOR) &&
@@ -3269,8 +3336,9 @@ Release(
 	}
     
 #ifdef FUNKY_INSENSITIVE_VISUAL
-    XSetClipMask(XtDisplay(sbw), sbw->scrollBar.unavailable_GC, None);
-    if (! (sbw->scrollBar.flags & ARROW1_AVAILABLE))
+    if (!ModernScrollBar(sbw)) {
+        XSetClipMask(XtDisplay(sbw), sbw->scrollBar.unavailable_GC, None);
+        if (! (sbw->scrollBar.flags & ARROW1_AVAILABLE))
 	{
 	    XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
 			   sbw->scrollBar.unavailable_GC,
@@ -3279,7 +3347,7 @@ Release(
 			   sbw->scrollBar.arrow_width,
 			   sbw->scrollBar.arrow_height);
 	}
-    else if (! (sbw->scrollBar.flags & ARROW2_AVAILABLE))
+        else if (! (sbw->scrollBar.flags & ARROW2_AVAILABLE))
 	{
 	    XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
 			   sbw->scrollBar.unavailable_GC,
@@ -3288,6 +3356,7 @@ Release(
 			   sbw->scrollBar.arrow_width,
 			   sbw->scrollBar.arrow_height);
 	}
+    }
 #endif
 }
 
@@ -3729,14 +3798,16 @@ TopOrBottom(
 		
     }
 #ifdef FUNKY_INSENSITIVE_VISUAL
-    XSetClipMask(XtDisplay(sbw), sbw->scrollBar.unavailable_GC, None);
+    if (!ModernScrollBar(sbw))
+        XSetClipMask(XtDisplay(sbw), sbw->scrollBar.unavailable_GC, None);
     if (sbp->value == sbp->minimum) {
-	XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
-		       sbw->scrollBar.unavailable_GC,
-		       sbw->scrollBar.arrow1_x,
-		       sbw->scrollBar.arrow1_y,
-		       sbw->scrollBar.arrow_width,
-		       sbw->scrollBar.arrow_height);
+	if (!ModernScrollBar(sbw))
+	    XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
+		           sbw->scrollBar.unavailable_GC,
+		           sbw->scrollBar.arrow1_x,
+		           sbw->scrollBar.arrow1_y,
+		           sbw->scrollBar.arrow_width,
+		           sbw->scrollBar.arrow_height);
 	
 	sbw->scrollBar.flags &= ~ARROW1_AVAILABLE;
 	
@@ -3860,6 +3931,7 @@ IncrementUpOrLeft(
 		if ((sbw->scrollBar.value = new_value)
 			== sbw->scrollBar.minimum)
 		{
+		    if (!ModernScrollBar(sbw)) {
 		        XSetClipMask(XtDisplay(sbw), 
 				     sbw->scrollBar.unavailable_GC, None);
 			XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
@@ -3868,6 +3940,7 @@ IncrementUpOrLeft(
 				sbw->scrollBar.arrow1_y,
 				sbw->scrollBar.arrow_width,
 				sbw->scrollBar.arrow_height);
+		    }
 
             sbw->scrollBar.flags &= ~ARROW1_AVAILABLE;
 		}
@@ -3968,6 +4041,7 @@ IncrementDownOrRight(
 		if ((sbw->scrollBar.value = new_value)
 			== (sbw->scrollBar.maximum - sbw->scrollBar.slider_size))
 		{
+		    if (!ModernScrollBar(sbw)) {
 		        XSetClipMask(XtDisplay(sbw), 
 				     sbw->scrollBar.unavailable_GC, None);
 			XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
@@ -3976,6 +4050,7 @@ IncrementDownOrRight(
 				sbw->scrollBar.arrow2_y,
 				sbw->scrollBar.arrow_width,
 				sbw->scrollBar.arrow_height);
+		    }
 
             sbw->scrollBar.flags &= ~ARROW2_AVAILABLE;
 		}
@@ -4076,6 +4151,7 @@ PageUpOrLeft(
 		if ((sbw->scrollBar.value = new_value)
 			== sbw->scrollBar.minimum)
 		{
+		    if (!ModernScrollBar(sbw)) {
 		        XSetClipMask(XtDisplay(sbw), 
 				     sbw->scrollBar.unavailable_GC, None);
 			XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
@@ -4084,6 +4160,7 @@ PageUpOrLeft(
 				sbw->scrollBar.arrow1_y,
 				sbw->scrollBar.arrow_width,
 				sbw->scrollBar.arrow_height);
+		    }
 
             sbw->scrollBar.flags &= ~ARROW1_AVAILABLE;
 		}
@@ -4185,6 +4262,7 @@ PageDownOrRight(
 		if ((sbw->scrollBar.value = new_value)
 			== (sbw->scrollBar.maximum - sbw->scrollBar.slider_size))
 		{
+		    if (!ModernScrollBar(sbw)) {
 		        XSetClipMask(XtDisplay(sbw), 
 				     sbw->scrollBar.unavailable_GC, None);
 			XFillRectangle(XtDisplay(sbw), XtWindow(sbw),
@@ -4193,6 +4271,7 @@ PageDownOrRight(
 				sbw->scrollBar.arrow2_y,
 				sbw->scrollBar.arrow_width,
 				sbw->scrollBar.arrow_height);
+		    }
 
             sbw->scrollBar.flags &= ~ARROW2_AVAILABLE;
 		}

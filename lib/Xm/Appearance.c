@@ -1481,14 +1481,11 @@ appearance_database_named_value(Widget widget, XrmDatabase database,
         Display *display = XtDisplayOfObject(widget);
         XmColorObj color_obj = _XmColorObjForDisplay(display);
         if (color_obj != NULL && color_obj->color_obj.colorIsRunning &&
-            database == XrmGetDatabase(display)) {
-            if (type == XrmStringToQuark(XmRPixel))
-                return False;
-            if (type == XrmStringToQuark(XmRString) &&
-                value_return != NULL && value_return->addr != NULL &&
-                strstr((const char *)value_return->addr, "-dt-interface ") != NULL)
-                return False;
-        }
+            database == XrmGetDatabase(display) &&
+            type == XrmStringToQuark(XmRString) &&
+            value_return != NULL && value_return->addr != NULL &&
+            strstr((const char *)value_return->addr, "-dt-interface ") != NULL)
+            return False;
     }
     return True;
 }
@@ -2243,6 +2240,22 @@ appearance_widget_prepare(XmAppearanceWidgetState *state,
          * a parent's internal margin normalization is not an app override. */
         if (!plan->owned[property])
             continue;
+        {
+            Boolean bg_owned = state->supported[AP_BACKGROUND]
+                ? plan->owned[AP_BACKGROUND]
+                : (state->parent == NULL ||
+                   _XmAppearanceOwnsResource(state->parent, XmNbackground));
+            if (!bg_owned &&
+                (property == AP_TOP_SHADOW || property == AP_BOTTOM_SHADOW ||
+                 property == AP_SELECT || property == AP_ARM ||
+                 property == AP_TROUGH_COLOR || property == AP_UNSELECT_COLOR ||
+                 property == AP_FRAME_BACKGROUND ||
+                 property == AP_BACK_PAGE_BACKGROUND)) {
+                plan->values[property] = state->original[property];
+                plan->apply[property] = True;
+                continue;
+            }
+        }
         if (property == AP_FOREGROUND &&
             appearance_inherited_foreground(state, &plan->values[property])) {
             plan->apply[property] = True;
