@@ -8218,13 +8218,13 @@ ListConvert(Widget w, XtPointer client_data,
   enum { XmA_MOTIF_COMPOUND_STRING, XmACOMPOUND_TEXT, XmATEXT,
 	 XmATARGETS, XmA_MOTIF_DROP, XmA_MOTIF_LOSE_SELECTION,
 	 XmA_MOTIF_EXPORT_TARGETS, XmA_MOTIF_CLIPBOARD_TARGETS,
-	 XmAUTF8_STRING,
+	 XmAUTF8_STRING, XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN,
 	 NUM_ATOMS };
   static char *atom_names[] = { 
     XmS_MOTIF_COMPOUND_STRING, XmSCOMPOUND_TEXT, XmSTEXT,
     XmSTARGETS, XmS_MOTIF_DROP, XmS_MOTIF_LOSE_SELECTION,
     XmS_MOTIF_EXPORT_TARGETS, XmS_MOTIF_CLIPBOARD_TARGETS,
-    XmSUTF8_STRING };
+    XmSUTF8_STRING, "text/plain;charset=utf-8", "text/plain" };
 
   Atom atoms[XtNumber(atom_names)];
   Atom C_ENCODING;
@@ -8248,8 +8248,6 @@ ListConvert(Widget w, XtPointer client_data,
 
   if (cs->target == atoms[XmATARGETS])
     {
-      /* The locale-specific XA_STRING is additional to the five
-       * unconditional private targets below. */
       Atom *targs = XmeStandardTargets(w, 6, &target_count);
 
       if (targs == NULL) {
@@ -8257,10 +8255,10 @@ ListConvert(Widget w, XtPointer client_data,
 	return;
       }
       value = (XtPointer) targs;
+      targs[target_count++] = atoms[XmAUTF8_STRING];
       targs[target_count++] = atoms[XmA_MOTIF_COMPOUND_STRING];
       targs[target_count++] = atoms[XmACOMPOUND_TEXT];
       targs[target_count++] = atoms[XmATEXT];
-      targs[target_count++] = atoms[XmAUTF8_STRING];
       targs[target_count++] = C_ENCODING;
       if (XA_STRING != C_ENCODING)
 	targs[target_count++] = XA_STRING;
@@ -8295,7 +8293,9 @@ ListConvert(Widget w, XtPointer client_data,
 	   cs->target == XA_STRING ||
 	   cs->target == C_ENCODING ||
 	   cs->target == atoms[XmATEXT] ||
-	   cs->target == atoms[XmAUTF8_STRING])
+	   cs->target == atoms[XmAUTF8_STRING] ||
+	   cs->target == atoms[XmATEXT_PLAIN_UTF8] ||
+	   cs->target == atoms[XmATEXT_PLAIN])
     {
       XmString concat;
       XmString sep = XmStringSeparatorCreate();
@@ -8414,10 +8414,14 @@ ListConvert(Widget w, XtPointer client_data,
 	    }
 	}
 #ifdef UTF8_SUPPORTED
-      else if (cs->target == atoms[XmAUTF8_STRING])
+      else if (cs->target == atoms[XmAUTF8_STRING] ||
+	       cs->target == atoms[XmATEXT_PLAIN_UTF8] ||
+	       cs->target == atoms[XmATEXT_PLAIN])
 	{
-	    type = atoms[XmAUTF8_STRING];
-	    value = XmCvtXmStringToUTF8String(concat);
+	    type = cs->target;
+	    value = (concat != NULL) ? XmCvtXmStringToUTF8String(concat) : NULL;
+	    if (value == NULL && concat != NULL)
+	        value = XmCvtXmStringToCT(concat);
 	    if (value != NULL)
 	        size = strlen((char*) value);
 	    else

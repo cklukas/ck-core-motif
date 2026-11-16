@@ -468,14 +468,15 @@ HandleInsertTargets(
 #endif
   }
   
+#ifdef UTF8_SUPPORTED
+  if (supports_utf8_string)
+    target = atoms[XmAUTF8_STRING];
+  else
+#endif
   if (supports_text && supports_encoding_data)
     target = atoms[XmATEXT];
   else if (supports_CT)
     target = atoms[XmACOMPOUND_TEXT];
-#ifdef UTF8_SUPPORTED
-  else if (supports_utf8_string)
-    target = atoms[XmAUTF8_STRING];
-#endif
   else if (supports_encoding_data)
     target = CS_OF_ENCODING;
   else
@@ -503,11 +504,13 @@ _XmTextFieldConvert(
   enum { XmA_MOTIF_DESTINATION, XmAINSERT_SELECTION, XmADELETE,
 	 XmATARGETS, XmATEXT, XmACOMPOUND_TEXT, XmATIMESTAMP,
 	 XmA_MOTIF_DROP, XmACLIPBOARD, XmANULL, XmAUTF8_STRING,
+	 XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN,
 	 NUM_ATOMS };
   static char *atom_names[] = {
     XmS_MOTIF_DESTINATION, XmSINSERT_SELECTION, XmSDELETE,
     XmSTARGETS, XmSTEXT, XmSCOMPOUND_TEXT, XmSTIMESTAMP,
-    XmS_MOTIF_DROP, XmSCLIPBOARD, XmSNULL, XmSUTF8_STRING };
+    XmS_MOTIF_DROP, XmSCLIPBOARD, XmSNULL, XmSUTF8_STRING,
+    XmSTEXT_PLAIN_UTF8, XmSTEXT_PLAIN };
 
   XmTextFieldWidget tf;
   Atom atoms[XtNumber(atom_names)];
@@ -581,17 +584,19 @@ _XmTextFieldConvert(
       return False;
     
     *value = (XtPointer) targs;
+    if (is_primary || is_secondary || is_drop) {
+      targs[target_count] = atoms[XmAUTF8_STRING]; target_count++;
+      targs[target_count] = atoms[XmATEXT_PLAIN_UTF8]; target_count++;
+      targs[target_count] = atoms[XmATEXT_PLAIN]; target_count++;
+      targs[target_count] = atoms[XmACOMPOUND_TEXT]; target_count++;
+      targs[target_count] = atoms[XmATEXT]; target_count++;
+      targs[target_count] = XA_STRING; target_count++;
+    }
     if (XA_STRING != CS_OF_ENCODING) {
       targs[target_count] = CS_OF_ENCODING;  target_count++;
     }
     if (is_primary || is_destination) {
       targs[target_count] = atoms[XmAINSERT_SELECTION]; target_count++;
-    }
-    if (is_primary || is_secondary || is_drop) {
-      targs[target_count] = atoms[XmACOMPOUND_TEXT]; target_count++;
-      targs[target_count] = atoms[XmATEXT]; target_count++;
-      targs[target_count] = XA_STRING; target_count++;
-      targs[target_count] = atoms[XmAUTF8_STRING]; target_count++;
     }
     if (is_primary || is_drop) {
       targs[target_count] = atoms[XmADELETE]; target_count++;
@@ -742,8 +747,10 @@ _XmTextFieldConvert(
       return False;
     }
 #ifdef UTF8_SUPPORTED
-  } else if (*target == atoms[XmAUTF8_STRING]) {
-    *type = atoms[XmAUTF8_STRING];
+  } else if (*target == atoms[XmAUTF8_STRING] ||
+             *target == atoms[XmATEXT_PLAIN_UTF8] ||
+             *target == atoms[XmATEXT_PLAIN]) {
+    *type = *target;
     *format = 8;
     if (is_destination || !has_selection) return False;
     if (tf->text.max_char_size != 1) { 
@@ -951,16 +958,41 @@ DropDestroyCB(Widget      w,
     XtFree((char*) callData->client_data);
 }
 
+static char *
+TextFieldExtractFirstUri(const char *payload, unsigned long length)
+{
+  String *uris = NULL;
+  Cardinal count = 0;
+  char *result = NULL;
+
+  if (payload == NULL || length == 0)
+    return NULL;
+  if (!XmeParseUriList(payload, (size_t)length, &uris, &count) || count == 0)
+    return NULL;
+  result = XmeUriToLocalPath(uris[0]);
+  if (result == NULL && uris[0] != NULL) {
+    size_t len = strlen(uris[0]);
+    result = XtMalloc((Cardinal)(len + 1U));
+    if (result != NULL) {
+      memcpy(result, uris[0], len + 1U);
+    }
+  }
+  XmeFreeUriList(uris, count);
+  return result;
+}
+
 static void 
 DropTransferProc(Widget w, XtPointer closure,
 		 XmSelectionCallbackStruct *ds)
 {
   enum { XmACOMPOUND_TEXT, XmANULL, XmADELETE,
+	 XmATEXT_URI_LIST, XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
       XmAUTF8_STRING,
 #endif
       NUM_ATOMS };
   static char *atom_names[] = { XmSCOMPOUND_TEXT, XmSNULL, XmSDELETE,
+	 XmSTEXT_URI_LIST, XmSTEXT_PLAIN_UTF8, XmSTEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
       XmSUTF8_STRING
 #endif
@@ -1019,6 +1051,9 @@ DropTransferProc(Widget w, XtPointer closure,
   if (!(ds->value) || 
       (ds->type != CS_OF_ENCODING &&
        ds->type != atoms[XmACOMPOUND_TEXT] &&
+       ds->type != atoms[XmATEXT_URI_LIST] &&
+       ds->type != atoms[XmATEXT_PLAIN_UTF8] &&
+       ds->type != atoms[XmATEXT_PLAIN] &&
 #ifdef UTF8_SUPPORTED
        ds->type != atoms[XmAUTF8_STRING] &&
 #endif
@@ -1042,10 +1077,24 @@ DropTransferProc(Widget w, XtPointer closure,
   
   insertPosLeft = insertPosRight = transfer_rec->insert_pos;
   
-  if (ds->type == XA_STRING
+  if (ds->type == atoms[XmATEXT_URI_LIST]) {
+    if ((total_value = TextFieldExtractFirstUri((const char *)ds->value,
+						ds->length)) != NULL)
+      total_length = strlen(total_value);
+    else {
+      if (ds->value) {
+	XtFree((char*) ds->value);
+	ds->value = NULL;
+      }
+      XmTransferDone(ds->transfer_id, XmTRANSFER_DONE_FAIL);
+      return;
+    }
+  } else if (ds->type == XA_STRING
 #ifdef UTF8_SUPPORTED
       || ds->type == atoms[XmAUTF8_STRING]
 #endif
+      || ds->type == atoms[XmATEXT_PLAIN_UTF8]
+      || ds->type == atoms[XmATEXT_PLAIN]
       || ds->type == atoms[XmACOMPOUND_TEXT]) {
     if ((total_value = _XmTextToLocaleText(w, ds->value, ds->type, 
 					   8, ds->length, NULL)) != NULL)
@@ -1212,12 +1261,14 @@ DoStuff(Widget w,
 	XmSelectionCallbackStruct *ds)
 {
   enum { XmANULL, XmACLIPBOARD, XmATEXT, XmACOMPOUND_TEXT,
+    XmATEXT_URI_LIST, XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
     XmAUTF8_STRING,
 #endif
     NUM_ATOMS };
   static char *atom_names[] = { 
     XmSNULL, XmSCLIPBOARD, XmSTEXT, XmSCOMPOUND_TEXT,
+    XmSTEXT_URI_LIST, XmSTEXT_PLAIN_UTF8, XmSTEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
     XmSUTF8_STRING
 #endif
@@ -1308,16 +1359,22 @@ DoStuff(Widget w,
     }
 
     if (ds->type == atoms[XmACOMPOUND_TEXT] ||
+	ds->type == atoms[XmATEXT_URI_LIST] ||
+	ds->type == atoms[XmATEXT_PLAIN_UTF8] ||
+	ds->type == atoms[XmATEXT_PLAIN] ||
 #ifdef UTF8_SUPPORTED
 	ds->type == atoms[XmAUTF8_STRING] ||
 #endif
 	ds->type == XA_STRING) {
       char *total_value;
       
-      if ((total_value = 
-	   _XmTextToLocaleText(w, ds->value, ds->type, ds->format, ds->length, 
-			       NULL))
-	  != NULL) {
+      if (ds->type == atoms[XmATEXT_URI_LIST])
+	total_value = TextFieldExtractFirstUri((const char *)ds->value,
+					       ds->length);
+      else
+	total_value = _XmTextToLocaleText(w, ds->value, ds->type, ds->format,
+					  ds->length, NULL);
+      if (total_value != NULL) {
 	if (tf->text.max_char_size == 1) {
 	  size_t total_len = strlen(total_value);
 	  if (total_len > (size_t)INT_MAX) {
@@ -1622,12 +1679,13 @@ HandleTargets(Widget w, XtPointer closure,
   primary_select_state->time = XtLastTimestampProcessed(XtDisplay(w));
   primary_select_state->num_chars = 0;
   
+#ifdef UTF8_SUPPORTED
+  if (supports_utf8_string)
+    primary_select_state->target = targets[0] = atoms[XmAUTF8_STRING];
+  else
+#endif
   if (supports_text && supports_encoding_data)
     primary_select_state->target = targets[0] = atoms[XmATEXT];
-#ifdef UTF8_SUPPORTED
-  else if (supports_utf8_string)
-    primary_select_state->target = targets[0] = atoms[XmAUTF8_STRING];
-#endif
   else if (supports_CT)
     primary_select_state->target = targets[0] = atoms[XmACOMPOUND_TEXT];
   else if (supports_encoding_data)
@@ -1693,11 +1751,13 @@ HandleDrop(Widget w,
     /*EMPTY*/
   } else {
     enum { XmATEXT, XmACOMPOUND_TEXT,
+	XmATEXT_URI_LIST, XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
         XmAUTF8_STRING,
 #endif
 	NUM_ATOMS };
     static char *atom_names[] = { XmSTEXT, XmSCOMPOUND_TEXT,
+	XmSTEXT_URI_LIST, XmSTEXT_PLAIN_UTF8, XmSTEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
         XmSUTF8_STRING
 #endif
@@ -1707,8 +1767,11 @@ HandleDrop(Widget w,
     Atom CS_OF_ENCODING = XmeGetEncodingAtom(w);
     Boolean encoding_found = False;
     Boolean utf8_string_found = False;
+    Boolean text_plain_utf8_found = False;
+    Boolean uri_list_found = False;
     Boolean c_text_found = False;
     Boolean string_found = False;
+    Boolean text_plain_found = False;
     Boolean text_found = False;
     
     assert(XtNumber(atom_names) == NUM_ATOMS);
@@ -1734,34 +1797,41 @@ HandleDrop(Widget w,
     }
     
     for (n = 0; n < numExportTargets; n++) {
-      if (exportTargets[n] == CS_OF_ENCODING) {
-	desiredTarget = CS_OF_ENCODING;
-	encoding_found = True;
-	break;
-      }
+      if (exportTargets[n] == CS_OF_ENCODING) encoding_found = True;
 #ifdef UTF8_SUPPORTED
       if (exportTargets[n] == atoms[XmAUTF8_STRING]) utf8_string_found = True;
 #endif
+      if (exportTargets[n] == atoms[XmATEXT_PLAIN_UTF8]) text_plain_utf8_found = True;
+      if (exportTargets[n] == atoms[XmATEXT_URI_LIST]) uri_list_found = True;
       if (exportTargets[n] == atoms[XmACOMPOUND_TEXT]) c_text_found = True;
       if (exportTargets[n] == XA_STRING) string_found = True;
+      if (exportTargets[n] == atoms[XmATEXT_PLAIN]) text_plain_found = True;
       if (exportTargets[n] == atoms[XmATEXT]) text_found = True;
     }
     
     n = 0;
-    if (encoding_found || c_text_found || string_found || text_found) {
-      if (!encoding_found) {
+    if (utf8_string_found || text_plain_utf8_found || uri_list_found ||
+	encoding_found || c_text_found || string_found ||
+	text_plain_found || text_found) {
 #ifdef UTF8_SUPPORTED
-	if (utf8_string_found)
-	  desiredTarget = atoms[XmAUTF8_STRING];
-	else
+      if (utf8_string_found)
+	desiredTarget = atoms[XmAUTF8_STRING];
+      else
 #endif
-	if (c_text_found)
-	  desiredTarget = atoms[XmACOMPOUND_TEXT];
-	else if (string_found)
-	  desiredTarget = XA_STRING;
-	else
-	  desiredTarget = atoms[XmATEXT];
-      }
+      if (text_plain_utf8_found)
+	desiredTarget = atoms[XmATEXT_PLAIN_UTF8];
+      else if (uri_list_found)
+	desiredTarget = atoms[XmATEXT_URI_LIST];
+      else if (encoding_found)
+	desiredTarget = CS_OF_ENCODING;
+      else if (c_text_found)
+	desiredTarget = atoms[XmACOMPOUND_TEXT];
+      else if (string_found)
+	desiredTarget = XA_STRING;
+      else if (text_plain_found)
+	desiredTarget = atoms[XmATEXT_PLAIN];
+      else
+	desiredTarget = atoms[XmATEXT];
       
       if (cb->operation & XmDROP_MOVE || cb->operation & XmDROP_COPY) {
 	doTransfer = True;

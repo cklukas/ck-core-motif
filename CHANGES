@@ -1,3 +1,37 @@
+Modern desktop selection and drag-and-drop interoperability: XDND v5, UTF8_STRING, and text/uri-list (2026-11-16)
+=================================================================================================================
+
+- `lib/Xm/Transfer.h`, `lib/Xm/Transfer.c`: defined target atom macros
+  `XmSTEXT_URI_LIST` (`"text/uri-list"`), `XmSTEXT_PLAIN_UTF8`
+  (`"text/plain;charset=utf-8"`), `XmSTEXT_PLAIN` (`"text/plain"`), and
+  `XmSIMAGE_PNG` (`"image/png"`), implemented bounded URI-list and PNG
+  validation helpers (`XmeParseUriList`, `XmeFreeUriList`, `XmeFormatUriList`,
+  `XmeUriToLocalPath`, `XmeValidatePngData`), advertised `text/plain;charset=utf-8`
+  and `text/plain` in `XmeStandardTargets`, and NUL-terminated `UTF8_STRING` /
+  `text/plain` payloads in `_XmTextToLocaleText`.
+- `lib/Xm/TextFSel.c`, `lib/Xm/TextSel.c`, `lib/Xm/List.c`, `lib/Xm/CutPaste.c`,
+  `lib/Xm/DropSMgr.c`: prioritized `UTF8_STRING` (and `text/plain;charset=utf-8` /
+  `text/plain`) alongside `text/uri-list` across `XmTextField`, `XmText`,
+  `XmList`, and `XmClipboard`, fixed `XmTextField` `HandleDrop` to accept
+  `UTF8_STRING` and `text/uri-list` drops, and extended
+  `XmTargetsAreCompatible` for text-interchange targets.
+- `lib/Xm/DragICC.c`, `lib/Xm/Display.c`, `lib/Xm/DragCP.h`, `lib/Xm/DragC.c`,
+  `lib/Xm/DropTrans.c`: implemented a transparent XDND v5 protocol bridge in
+  `libXm` (`XdndAware` v5 advertisement on drop-site shells, `XdndEnter` /
+  `XdndTypeList` / `XdndPosition` / `XdndStatus` / `XdndLeave` / `XdndDrop` /
+  `XdndFinished` over `XdndSelection` for both incoming and outgoing drags)
+  while preserving native Motif preregister/dynamic drag-and-drop between Motif
+  clients.
+- `lib/Xm/PushB.c`, `lib/Xm/PushBG.c`, `lib/Xm/AppearanceDraw.c`,
+  `lib/Xm/TreeView.c`: cleared hover state on button disarm/armed-reenter,
+  scoped button/arrow hover fills so `modern-arrows` and `modern-buttons` retain
+  exact unarmed pixel parity, and used 1-row (3-row with `Shift`) wheel steps in
+  `XmTreeView` for `tree-view-scroll` parity.
+- Tests: `tests/automated/check-xdnd-interop-wp50.c`,
+  `tests/automated/run-xdnd-interop-wp50.py`.
+- Docs: `docs/appearance-profiles.md`, `docs/status.md`,
+  `modernization_plan.md`.
+
 Restrained interactive UX polish: hover affordances, focus-visible, and wheel scrolling (2026-11-16)
 ===================================================================================================
 

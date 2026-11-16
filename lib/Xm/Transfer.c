@@ -30,6 +30,7 @@
 #endif
 
 #include <stdint.h>
+#include <unistd.h>
 #include <X11/Xatom.h>
 #include <Xm/AtomMgr.h>
 #include <Xm/DragDrop.h>
@@ -2642,11 +2643,19 @@ XmeStandardTargets(Widget w, int count, int *tcount)
 {
   enum { XmATARGETS, XmATIMESTAMP, XmAFOREGROUND, XmABACKGROUND,
 	 XmACLASS, XmANAME, XmACLIENT_WINDOW, XmA_MOTIF_RENDER_TABLE,
-	 XmA_MOTIF_ENCODING_REGISTRY, NUM_ATOMS };
+	 XmA_MOTIF_ENCODING_REGISTRY,
+#ifdef UTF8_SUPPORTED
+	 XmAUTF8_STRING,
+#endif
+	 XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN, NUM_ATOMS };
   static char *atom_names[] = {
     XmSTARGETS, XmSTIMESTAMP, XmIFOREGROUND, XmIBACKGROUND,
     XmICLASS, XmINAME, XmSCLIENT_WINDOW, XmS_MOTIF_RENDER_TABLE,
-    XmS_MOTIF_ENCODING_REGISTRY };
+    XmS_MOTIF_ENCODING_REGISTRY,
+#ifdef UTF8_SUPPORTED
+    XmSUTF8_STRING,
+#endif
+    XmSTEXT_PLAIN_UTF8, XmSTEXT_PLAIN };
 
   int i = 0;
   Atom atoms[XtNumber(atom_names)];
@@ -2684,6 +2693,11 @@ XmeStandardTargets(Widget w, int count, int *tcount)
   targets[i] = atoms[XmACLIENT_WINDOW]; i++;
   targets[i] = atoms[XmA_MOTIF_RENDER_TABLE]; i++;
   targets[i] = atoms[XmA_MOTIF_ENCODING_REGISTRY]; i++;
+#ifdef UTF8_SUPPORTED
+  targets[i] = atoms[XmAUTF8_STRING]; i++;
+#endif
+  targets[i] = atoms[XmATEXT_PLAIN_UTF8]; i++;
+  targets[i] = atoms[XmATEXT_PLAIN]; i++;
 
   *tcount = i; /* Return the builtin target count */
   _XmAppUnlock(app);
@@ -3013,6 +3027,8 @@ _XmTextToLocaleText(Widget w,
 		    Boolean *success)
 {
   Atom COMPOUND_TEXT;
+  Atom TEXT_PLAIN_UTF8;
+  Atom TEXT_PLAIN;
 #ifdef UTF8_SUPPORTED
   Atom UTF8_STRING;
 #endif
@@ -3030,6 +3046,8 @@ _XmTextToLocaleText(Widget w,
   if (w == NULL || value == NULL || length > (unsigned long)INT_MAX)
     return NULL;
   COMPOUND_TEXT = XInternAtom(XtDisplay(w), XmSCOMPOUND_TEXT, False);
+  TEXT_PLAIN_UTF8 = XInternAtom(XtDisplay(w), XmSTEXT_PLAIN_UTF8, False);
+  TEXT_PLAIN = XInternAtom(XtDisplay(w), XmSTEXT_PLAIN, False);
 #ifdef UTF8_SUPPORTED
   UTF8_STRING = XInternAtom(XtDisplay(w), XmSUTF8_STRING, False);
 #endif
@@ -3037,13 +3055,23 @@ _XmTextToLocaleText(Widget w,
   if (format != 8)
     return NULL;
 
-  if (type == XA_STRING || type == COMPOUND_TEXT
+  if (type == XA_STRING || type == COMPOUND_TEXT ||
+      type == TEXT_PLAIN_UTF8 || type == TEXT_PLAIN
 #ifdef UTF8_SUPPORTED
       || type == UTF8_STRING
 #endif
      ) {
+    Atom prop_encoding = type;
+#ifdef UTF8_SUPPORTED
+    if (type == TEXT_PLAIN_UTF8)
+      prop_encoding = UTF8_STRING;
+    else
+#endif
+    if (type == TEXT_PLAIN)
+      prop_encoding = XA_STRING;
+
     text_prop.value = (unsigned char *) value;
-    text_prop.encoding = type;
+    text_prop.encoding = prop_encoding;
     text_prop.format = format;
     text_prop.nitems = length;
 
@@ -3096,6 +3124,23 @@ _XmTextToLocaleText(Widget w,
 	}
       total_value[value_offset] = '\0';
       XFreeStringList(values);
+    }
+
+    if ((total_value == NULL || total_value[0] == '\0') && length > 0 &&
+	(type == TEXT_PLAIN_UTF8 || type == TEXT_PLAIN
+#ifdef UTF8_SUPPORTED
+	 || type == UTF8_STRING
+#endif
+	) && memchr(value, '\0', (size_t)length) == NULL &&
+	length < (unsigned long)UINT_MAX) {
+      XtFree(total_value);
+      total_value = XtMalloc((Cardinal)(length + 1));
+      if (total_value != NULL) {
+	memcpy(total_value, value, (size_t)length);
+	total_value[length] = '\0';
+	if (success != NULL)
+	  *success = True;
+      }
     }
   }
   return total_value;
@@ -3201,4 +3246,323 @@ GetSafeAtomName(Display *display, Atom a, FreeType *howFree)
   }
   _XmProcessUnlock();
   return(returnvalue);
+}
+
+#define XM_URI_LIST_MAX_BYTES (64U * 1024U * 1024U)
+#define XM_URI_LIST_MAX_COUNT 4096U
+#define XM_PNG_MAX_DIMENSION  32768U
+
+static int
+xm_hex_nibble(unsigned char c)
+{
+  if (c >= '0' && c <= '9')
+    return (int)(c - '0');
+  if (c >= 'a' && c <= 'f')
+    return 10 + (int)(c - 'a');
+  if (c >= 'A' && c <= 'F')
+    return 10 + (int)(c - 'A');
+  return -1;
+}
+
+Boolean
+XmeParseUriList(const char *payload, size_t length,
+		String **uris_return, Cardinal *count_return)
+{
+  String *list = NULL;
+  Cardinal count = 0;
+  Cardinal capacity = 0;
+  size_t pos = 0;
+
+  if (uris_return != NULL)
+    *uris_return = NULL;
+  if (count_return != NULL)
+    *count_return = 0;
+  if (payload == NULL || uris_return == NULL || count_return == NULL ||
+      length == 0 || length > XM_URI_LIST_MAX_BYTES)
+    return False;
+  if (memchr(payload, '\0', length) != NULL)
+    return False;
+
+  while (pos < length) {
+    size_t line_start = pos;
+    size_t line_end;
+    size_t line_len;
+    size_t i;
+    char *copy;
+
+    while (pos < length && payload[pos] != '\n')
+      pos++;
+    line_end = pos;
+    if (pos < length && payload[pos] == '\n')
+      pos++;
+    if (line_end > line_start && payload[line_end - 1] == '\r')
+      line_end--;
+
+    line_len = line_end - line_start;
+    if (line_len == 0 || payload[line_start] == '#')
+      continue;
+
+    for (i = 0; i < line_len; i++) {
+      unsigned char ch = (unsigned char)payload[line_start + i];
+      if (ch <= 0x20 || ch == 0x7f) {
+	XmeFreeUriList(list, count);
+	return False;
+      }
+    }
+
+    if (count >= XM_URI_LIST_MAX_COUNT) {
+      XmeFreeUriList(list, count);
+      return False;
+    }
+
+    if (count == capacity) {
+      Cardinal next_cap = (capacity == 0) ? 8U : (capacity * 2U);
+      if (next_cap > XM_URI_LIST_MAX_COUNT)
+	next_cap = XM_URI_LIST_MAX_COUNT;
+      String *grown = (String *)XtRealloc(
+	  (char *)list, (Cardinal)((next_cap + 1U) * sizeof(String)));
+      if (grown == NULL) {
+	XmeFreeUriList(list, count);
+	return False;
+      }
+      list = grown;
+      capacity = next_cap;
+    }
+
+    copy = XtMalloc((Cardinal)(line_len + 1U));
+    if (copy == NULL) {
+      XmeFreeUriList(list, count);
+      return False;
+    }
+    memcpy(copy, payload + line_start, line_len);
+    copy[line_len] = '\0';
+    list[count++] = copy;
+    list[count] = NULL;
+  }
+
+  if (count == 0) {
+    XtFree((char *)list);
+    return False;
+  }
+
+  *uris_return = list;
+  *count_return = count;
+  return True;
+}
+
+void
+XmeFreeUriList(String *uris, Cardinal count)
+{
+  Cardinal i;
+
+  if (uris == NULL)
+    return;
+  for (i = 0; i < count; i++)
+    XtFree(uris[i]);
+  XtFree((char *)uris);
+}
+
+Boolean
+XmeFormatUriList(const String *uris, Cardinal count,
+		 char **buffer_return, size_t *length_return)
+{
+  size_t total = 0;
+  size_t offset = 0;
+  Cardinal i;
+  char *buf;
+
+  if (buffer_return != NULL)
+    *buffer_return = NULL;
+  if (length_return != NULL)
+    *length_return = 0;
+  if (uris == NULL || buffer_return == NULL || count == 0 ||
+      count > XM_URI_LIST_MAX_COUNT)
+    return False;
+
+  for (i = 0; i < count; i++) {
+    size_t len;
+    size_t j;
+    if (uris[i] == NULL || uris[i][0] == '\0')
+      return False;
+    len = strlen(uris[i]);
+    for (j = 0; j < len; j++) {
+      unsigned char ch = (unsigned char)uris[i][j];
+      if (ch <= 0x20 || ch == 0x7f)
+	return False;
+    }
+    if (len > XM_URI_LIST_MAX_BYTES - total - 2U)
+      return False;
+    total += len + 2U;
+  }
+
+  buf = XtMalloc((Cardinal)(total + 1U));
+  if (buf == NULL)
+    return False;
+
+  for (i = 0; i < count; i++) {
+    size_t len = strlen(uris[i]);
+    memcpy(buf + offset, uris[i], len);
+    offset += len;
+    buf[offset++] = '\r';
+    buf[offset++] = '\n';
+  }
+  buf[offset] = '\0';
+  *buffer_return = buf;
+  if (length_return != NULL)
+    *length_return = total;
+  return True;
+}
+
+String
+XmeUriToLocalPath(const char *uri)
+{
+  const char *rest;
+  const char *path_start;
+  size_t path_len;
+  size_t i;
+  size_t out_idx = 0;
+  char *decoded;
+
+  if (uri == NULL || strncmp(uri, "file://", 7) != 0)
+    return NULL;
+  rest = uri + 7;
+  if (rest[0] == '/') {
+    path_start = rest;
+  } else {
+    const char *slash = strchr(rest, '/');
+    size_t host_len;
+    if (slash == NULL)
+      return NULL;
+    host_len = (size_t)(slash - rest);
+    if (host_len == 9 && strncmp(rest, "localhost", 9) == 0) {
+      path_start = slash;
+    } else {
+      return NULL;
+    }
+  }
+
+  path_len = strlen(path_start);
+  if (path_len == 0 || path_len > XM_URI_LIST_MAX_BYTES)
+    return NULL;
+
+  decoded = XtMalloc((Cardinal)(path_len + 1U));
+  if (decoded == NULL)
+    return NULL;
+
+  for (i = 0; i < path_len; i++) {
+    unsigned char ch = (unsigned char)path_start[i];
+    if (ch == '%') {
+      int hi, lo, val;
+      if (i + 2U >= path_len) {
+	XtFree(decoded);
+	return NULL;
+      }
+      hi = xm_hex_nibble((unsigned char)path_start[i + 1U]);
+      lo = xm_hex_nibble((unsigned char)path_start[i + 2U]);
+      if (hi < 0 || lo < 0) {
+	XtFree(decoded);
+	return NULL;
+      }
+      val = (hi << 4) | lo;
+      if (val == 0 || val < 0x20 || val == 0x7f) {
+	XtFree(decoded);
+	return NULL;
+      }
+      decoded[out_idx++] = (char)val;
+      i += 2U;
+    } else {
+      if (ch < 0x20 || ch == 0x7f) {
+	XtFree(decoded);
+	return NULL;
+      }
+      decoded[out_idx++] = (char)ch;
+    }
+  }
+  decoded[out_idx] = '\0';
+  return decoded;
+}
+
+static uint32_t
+xm_read_be32(const unsigned char *p)
+{
+  return ((uint32_t)p[0] << 24) |
+	 ((uint32_t)p[1] << 16) |
+	 ((uint32_t)p[2] << 8) |
+	 (uint32_t)p[3];
+}
+
+Boolean
+XmeValidatePngData(const void *data, size_t length,
+		   Dimension *width_return, Dimension *height_return)
+{
+  static const unsigned char png_sig[8] = {
+    0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a
+  };
+  const unsigned char *bytes = (const unsigned char *)data;
+  uint32_t ihdr_len, width, height;
+  unsigned char bit_depth, color_type, compression, filter, interlace;
+  size_t pos;
+  Boolean saw_iend = False;
+
+  if (width_return != NULL)
+    *width_return = 0;
+  if (height_return != NULL)
+    *height_return = 0;
+  if (bytes == NULL || length < 8U + 25U + 12U ||
+      length > XM_URI_LIST_MAX_BYTES)
+    return False;
+  if (memcmp(bytes, png_sig, 8) != 0)
+    return False;
+
+  ihdr_len = xm_read_be32(bytes + 8);
+  if (ihdr_len != 13U || memcmp(bytes + 12, "IHDR", 4) != 0)
+    return False;
+
+  width = xm_read_be32(bytes + 16);
+  height = xm_read_be32(bytes + 20);
+  if (width == 0 || height == 0 ||
+      width > XM_PNG_MAX_DIMENSION || height > XM_PNG_MAX_DIMENSION)
+    return False;
+
+  bit_depth = bytes[24];
+  color_type = bytes[25];
+  compression = bytes[26];
+  filter = bytes[27];
+  interlace = bytes[28];
+
+  if (!(bit_depth == 1 || bit_depth == 2 || bit_depth == 4 ||
+	bit_depth == 8 || bit_depth == 16))
+    return False;
+  if (!(color_type == 0 || color_type == 2 || color_type == 3 ||
+	color_type == 4 || color_type == 6))
+    return False;
+  if (compression != 0 || filter != 0 || interlace > 1)
+    return False;
+
+  pos = 8U;
+  while (pos < length) {
+    uint32_t chunk_len;
+    if (length - pos < 12U)
+      return False;
+    chunk_len = xm_read_be32(bytes + pos);
+    if (chunk_len > length - pos - 12U)
+      return False;
+    if (memcmp(bytes + pos + 4U, "IEND", 4) == 0) {
+      if (chunk_len != 0)
+	return False;
+      saw_iend = True;
+      pos += 12U;
+      break;
+    }
+    pos += 12U + (size_t)chunk_len;
+  }
+
+  if (!saw_iend)
+    return False;
+
+  if (width_return != NULL)
+    *width_return = (Dimension)width;
+  if (height_return != NULL)
+    *height_return = (Dimension)height;
+  return True;
 }

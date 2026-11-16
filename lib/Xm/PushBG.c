@@ -736,6 +736,7 @@ Activate(
     XmeTraitGet((XtPointer) XtClass(XtParent(pb)), XmQTmenuSystem);
   
   PBG_Armed(pb) = FALSE;
+  (void)_XmAppearanceSetHovered((Widget)pb, False);
   
    _XmProcessLock();
    expose = ((XmPushButtonGadgetClassRec *)(pb->object.widget_class))->
@@ -828,6 +829,7 @@ ArmAndActivate(
   if (is_menupane && menuSTrait != NULL)
     {
       PBG_Armed(pb) = FALSE;
+  (void)_XmAppearanceSetHovered((Widget)pb, False);
       
       /* CR 7799: Torn off menus shouldn't be shared, so don't reparent. */
       if (torn_has_focus)
@@ -912,6 +914,7 @@ ArmAndActivate(
     }
   
   PBG_Armed(pb) = FALSE;
+  (void)_XmAppearanceSetHovered((Widget)pb, False);
   
   if (PBG_DisarmCallback(pb))
     {
@@ -1028,6 +1031,7 @@ Disarm(
   XmPushButtonCallbackStruct call_value;
   
   PBG_Armed(pb) = FALSE;
+  (void)_XmAppearanceSetHovered((Widget)pb, False);
   
   if (PBG_DisarmCallback(pb))
     {
@@ -1148,6 +1152,7 @@ BtnUp(
     XmeTraitGet((XtPointer) XtClass(XtParent(wid)), XmQTmenuSystem);
   
   PBG_Armed(pb) = FALSE;
+  (void)_XmAppearanceSetHovered((Widget)pb, False);
   
   if (menuSTrait != NULL)
     {
@@ -1321,14 +1326,16 @@ Enter(
   else 
     {
       XtExposeProc expose;
-      _XmEnterGadget((Widget) pb, event, NULL, NULL);
-      if (PBG_Armed(pb) == TRUE) {	  
+      if (PBG_Armed(pb) == TRUE) {
+	(void)_XmAppearanceSetHovered((Widget)pb, False);
 	_XmProcessLock();
 	expose = ((XmPushButtonGadgetClassRec *)(pb->object.widget_class))->
 	    rect_class.expose;
 	_XmProcessUnlock();
 	(* (expose)) ((Widget) pb, event, (Region) NULL);
-       }
+      } else {
+	_XmEnterGadget((Widget) pb, event, NULL, NULL);
+      }
     }
 }
 
@@ -1354,6 +1361,7 @@ Leave(
 	   Boolean etched_in = dpy->display.enable_etched_in_menu;
 
 	  PBG_Armed(pb) = FALSE;
+  (void)_XmAppearanceSetHovered((Widget)pb, False);
 
 	  ((XmManagerWidget) XtParent(wid))->manager.active_child = NULL;
 
@@ -1391,6 +1399,7 @@ Leave(
 	{
 	  XtExposeProc expose;
 	  PBG_Armed(pb) = FALSE;
+  (void)_XmAppearanceSetHovered((Widget)pb, False);
 	  _XmProcessLock();
 	  expose = ((XmPushButtonGadgetClassRec *)(pb->object.widget_class))->
 	      rect_class.expose;
@@ -1549,6 +1558,7 @@ BorderUnhighlight(
 	return;
 
       PBG_Armed(pb) = FALSE;
+  (void)_XmAppearanceSetHovered((Widget)pb, False);
 
       if (etched_in) {
 	  Redisplay((Widget) pb, NULL, NULL);
@@ -1646,6 +1656,7 @@ KeySelect(
     {
       
       PBG_Armed(pb) = FALSE;
+  (void)_XmAppearanceSetHovered((Widget)pb, False);
       
       if (menuSTrait != NULL)
 	menuSTrait->buttonPopdown(XtParent(pb), event);

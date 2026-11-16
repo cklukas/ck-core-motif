@@ -165,6 +165,13 @@ typedef struct _XmDragContextPart{
     unsigned char               activeBlendModel;
     Boolean			dragDropCancelEffect;
     long 			SaveEventMask; 		/* Save the current root eventMask so that D&D works for MWM */
+    Boolean			isXdnd;
+    int				xdndVersion;
+    Window			xdndTargetWindow;
+    Atom			xdndProposedAction;
+    Atom			xdndAcceptedAction;
+    Boolean			xdndStatusSent;
+    Position			xdndLastX, xdndLastY;
 } XmDragContextPart;
 
 

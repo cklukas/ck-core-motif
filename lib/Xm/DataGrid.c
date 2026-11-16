@@ -667,7 +667,9 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     }
     if (event->xbutton.button == Button5) {
         Cardinal old_top = grid->data_grid.top_row;
-        XmDataGridSetTopRow(widget, add_top_row(grid, 3));
+        int step;
+        for (step = 0; step < 3; ++step)
+            XmDataGridSetTopRow(widget, add_top_row(grid, 1));
         if (grid->data_grid.top_row == old_top)
             (void)_XmForwardWheelEvent(widget, event);
         return;

@@ -5481,6 +5481,10 @@ XmClipboardRegisterFormat(
 #ifdef UTF8_SUPPORTED
 	    || RegIfMatch(display, format_name, XmSUTF8_STRING, XM_UTF8_STRING)
 #endif
+	    || RegIfMatch(display, format_name, "text/uri-list", 8)
+	    || RegIfMatch(display, format_name, "text/plain;charset=utf-8", 8)
+	    || RegIfMatch(display, format_name, "text/plain", 8)
+	    || RegIfMatch(display, format_name, "image/png", 8)
 	     )  {
 	        _XmAppUnlock(app);
 	        return ClipboardSuccess;

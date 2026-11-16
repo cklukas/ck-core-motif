@@ -126,6 +126,29 @@ void XmTransferSetParameters(XtPointer, XtPointer, int,	unsigned long, Atom);
 void XmTransferStartRequest(XtPointer);
 void XmTransferSendRequest(XtPointer, Time);
 
+#ifndef XmSTEXT_URI_LIST
+#define XmSTEXT_URI_LIST "text/uri-list"
+#endif
+#ifndef XmSTEXT_PLAIN_UTF8
+#define XmSTEXT_PLAIN_UTF8 "text/plain;charset=utf-8"
+#endif
+#ifndef XmSTEXT_PLAIN
+#define XmSTEXT_PLAIN "text/plain"
+#endif
+#ifndef XmSIMAGE_PNG
+#define XmSIMAGE_PNG "image/png"
+#endif
+
+extern Boolean XmeParseUriList(const char *payload, size_t length,
+			       String **uris_return, Cardinal *count_return);
+extern void XmeFreeUriList(String *uris, Cardinal count);
+extern Boolean XmeFormatUriList(const String *uris, Cardinal count,
+				char **buffer_return, size_t *length_return);
+extern String XmeUriToLocalPath(const char *uri);
+extern Boolean XmeValidatePngData(const void *data, size_t length,
+				  Dimension *width_return,
+				  Dimension *height_return);
+
 #ifdef __cplusplus
 }  /* Close scope of 'extern "C"' declaration which encloses file. */
 #endif

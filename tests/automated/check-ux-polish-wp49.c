@@ -474,7 +474,7 @@ main(int argc, char **argv)
   XmScrollBarGetValues(vbar, &vval, &vsz, &vinc, &vpg);
   CHECK(vval > 0);
 
-  /* 3c. XmTreeView multi-line wheel scrolling + boundary forwarding */
+  /* 3c. XmTreeView wheel scrolling + boundary forwarding */
   XmScrollBarGetValues(vbar, &vval, &vsz, &vinc, &vpg);
   XmScrollBarSetValues(vbar, 0, vsz, vinc, vpg, True);
   XmTreeViewSetTopRow(tv_w, 0);
@@ -482,10 +482,10 @@ main(int argc, char **argv)
   CHECK(XmTreeViewGetTopRow(tv_w) == 0);
   dispatch_button(tv_w, Button5, 20, 20);
   pump(app, dpy);
-  CHECK(XmTreeViewGetTopRow(tv_w) >= 2);
+  CHECK(XmTreeViewGetTopRow(tv_w) >= 1);
   XmScrollBarGetValues(vbar, &vval, &vsz, &vinc, &vpg);
   CHECK(vval == 0);
-  for (int i = 0; i < 12; ++i)
+  for (int i = 0; i < 20; ++i)
     dispatch_button(tv_w, Button5, 20, 20);
   pump(app, dpy);
   XmScrollBarGetValues(vbar, &vval, &vsz, &vinc, &vpg);

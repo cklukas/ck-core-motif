@@ -1542,6 +1542,270 @@ isMine(
 	return True;
 }
 
+static XmDragContext
+FindXdndDC(XmDisplay xmDisplay, Window srcWindow)
+{
+    Cardinal i;
+    for (i = 0; i < xmDisplay->composite.num_children; i++) {
+	XmDragContext dc = (XmDragContext)(xmDisplay->composite.children[i]);
+	if (XmIsDragContext((Widget)dc) &&
+	    dc->drag.sourceIsExternal &&
+	    dc->drag.isXdnd &&
+	    dc->drag.srcWindow == srcWindow &&
+	    !dc->core.being_destroyed)
+	    return dc;
+    }
+    return NULL;
+}
+
+static Boolean
+HandleXdndReceiverEvent(Widget shell, XmDisplay dd,
+                        XmDropSiteManagerObject dsm, XEvent *event)
+{
+    Display *dpy = XtDisplayOfObject(shell);
+    XClientMessageEvent *cm;
+    Atom xdndEnter, xdndPosition, xdndLeave, xdndDrop;
+    Atom msgType;
+    Window srcWindow;
+    XmDragContext dc;
+    XmDragTopLevelClientDataStruct topClientData = {0};
+    Position shellX = 0, shellY = 0;
+
+    if (event == NULL || event->type != ClientMessage ||
+        event->xclient.format != 32)
+	return False;
+
+    cm = &event->xclient;
+    msgType = cm->message_type;
+    xdndEnter = XInternAtom(dpy, "XdndEnter", False);
+    xdndPosition = XInternAtom(dpy, "XdndPosition", False);
+    xdndLeave = XInternAtom(dpy, "XdndLeave", False);
+    xdndDrop = XInternAtom(dpy, "XdndDrop", False);
+
+    if (msgType != xdndEnter && msgType != xdndPosition &&
+        msgType != xdndLeave && msgType != xdndDrop)
+	return False;
+
+    srcWindow = (Window)cm->data.l[0];
+    XtTranslateCoords(shell, 0, 0, &shellX, &shellY);
+    topClientData.destShell = shell;
+    topClientData.xOrigin = shellX;
+    topClientData.yOrigin = shellY;
+    topClientData.width = XtWidth(shell);
+    topClientData.height = XtHeight(shell);
+    topClientData.sourceIsExternal = True;
+    topClientData.iccInfo = NULL;
+    topClientData.window = XtWindow(shell);
+    topClientData.dragOver = NULL;
+
+    if (msgType == xdndEnter) {
+	int version = (int)((cm->data.l[1] >> 24) & 0xff);
+	Boolean moreThan3 = (cm->data.l[1] & 1L) != 0;
+	Atom inlineTargets[3];
+	Atom *exportTargets = inlineTargets;
+	Cardinal numTargets = 0;
+	unsigned char *propData = NULL;
+	Atom actualType = None;
+	int actualFormat = 0;
+	unsigned long nitems = 0, bytesAfter = 0;
+	Atom xdndSelection = XInternAtom(dpy, "XdndSelection", False);
+	Arg args[8];
+	Cardinal n = 0;
+	XmTopLevelEnterCallbackStruct enterCB;
+
+	if (version < 3)
+	    return True;
+
+	dc = FindXdndDC(dd, srcWindow);
+	if (dc != NULL) {
+	    XtDestroyWidget((Widget)dc);
+	    dc = NULL;
+	}
+
+	if (moreThan3) {
+	    Atom typeListAtom = XInternAtom(dpy, "XdndTypeList", False);
+	    if (XGetWindowProperty(dpy, srcWindow, typeListAtom, 0L, 1024L,
+	                           False, XA_ATOM, &actualType, &actualFormat,
+	                           &nitems, &bytesAfter, &propData) == Success &&
+	        propData != NULL && actualType == XA_ATOM && actualFormat == 32 &&
+	        nitems > 0) {
+		exportTargets = (Atom *)propData;
+		numTargets = (Cardinal)(nitems > 1024UL ? 1024UL : nitems);
+	    }
+	}
+	if (numTargets == 0) {
+	    int k;
+	    for (k = 2; k <= 4; ++k) {
+		if ((Atom)cm->data.l[k] != None)
+		    inlineTargets[numTargets++] = (Atom)cm->data.l[k];
+	    }
+	    exportTargets = inlineTargets;
+	}
+
+	_XmSyncDropSiteTree(shell);
+
+	XtSetArg(args[n], XmNsourceWindow, srcWindow); n++;
+	XtSetArg(args[n], XmNsourceIsExternal, True); n++;
+	XtSetArg(args[n], XmNstartTime, (Time)0); n++;
+	XtSetArg(args[n], XmNiccHandle, xdndSelection); n++;
+	XtSetArg(args[n], XmNexportTargets, exportTargets); n++;
+	XtSetArg(args[n], XmNnumExportTargets, numTargets); n++;
+	XtSetArg(args[n], XmNdragOperations,
+	         XmDROP_COPY | XmDROP_MOVE | XmDROP_LINK); n++;
+	dc = (XmDragContext)XtCreateWidget(
+	    "dragContext", dd->display.dragContextClass, (Widget)dd, args, n);
+	if (propData != NULL)
+	    XFree(propData);
+	if (dc == NULL)
+	    return True;
+
+	dc->drag.isXdnd = True;
+	dc->drag.xdndVersion = version;
+	dc->drag.xdndTargetWindow = XtWindow(shell);
+	dc->drag.xdndProposedAction = None;
+	dc->drag.xdndAcceptedAction = None;
+	dc->drag.xdndStatusSent = False;
+	dc->drag.xdndLastX = shellX;
+	dc->drag.xdndLastY = shellY;
+	dc->drag.activeProtocolStyle = XmDRAG_DYNAMIC;
+	dc->drag.currReceiverInfo = _XmAllocReceiverInfo(dc);
+	if (dc->drag.currReceiverInfo == NULL) {
+	    XtDestroyWidget((Widget)dc);
+	    return True;
+	}
+	dc->drag.currReceiverInfo->shell = shell;
+	dc->drag.currReceiverInfo->window = XtWindow(shell);
+	dc->drag.currReceiverInfo->xOrigin = shellX;
+	dc->drag.currReceiverInfo->yOrigin = shellY;
+	dc->drag.currReceiverInfo->width = XtWidth(shell);
+	dc->drag.currReceiverInfo->height = XtHeight(shell);
+	dc->drag.currReceiverInfo->dragProtocolStyle = XmDRAG_DYNAMIC;
+
+	memset(&enterCB, 0, sizeof(enterCB));
+	enterCB.reason = XmCR_TOP_LEVEL_ENTER;
+	enterCB.timeStamp = (Time)0;
+	enterCB.screen = XtScreen(shell);
+	enterCB.window = srcWindow;
+	enterCB.x = shellX;
+	enterCB.y = shellY;
+	enterCB.dragProtocolStyle = XmDRAG_DYNAMIC;
+	enterCB.iccHandle = xdndSelection;
+	_XmDSMUpdate(dsm, (XtPointer)&topClientData, (XtPointer)&enterCB);
+	return True;
+    }
+
+    if (msgType == xdndPosition) {
+	Position rx = (Position)(short)((cm->data.l[2] >> 16) & 0xffff);
+	Position ry = (Position)(short)(cm->data.l[2] & 0xffff);
+	Time timestamp = (Time)cm->data.l[3];
+	Atom action = (Atom)cm->data.l[4];
+	Atom actMove = XInternAtom(dpy, "XdndActionMove", False);
+	Atom actLink = XInternAtom(dpy, "XdndActionLink", False);
+	Atom actCopy = XInternAtom(dpy, "XdndActionCopy", False);
+	unsigned char op = XmDROP_COPY;
+	unsigned char ops = XmDROP_COPY;
+	XmDragMotionCallbackStruct motionCB;
+	XmDragMotionClientDataStruct motionData;
+
+	dc = FindXdndDC(dd, srcWindow);
+	if (dc == NULL)
+	    return True;
+
+	if (action == actMove) {
+	    op = XmDROP_MOVE;
+	    ops = XmDROP_MOVE;
+	} else if (action == actLink) {
+	    op = XmDROP_LINK;
+	    ops = XmDROP_LINK;
+	} else if (action == actCopy) {
+	    op = XmDROP_COPY;
+	    ops = XmDROP_COPY;
+	} else {
+	    op = XmDROP_COPY;
+	    ops = XmDROP_COPY | XmDROP_MOVE | XmDROP_LINK;
+	}
+
+	dc->drag.xdndTargetWindow = XtWindow(shell);
+	dc->drag.xdndProposedAction = action;
+	dc->drag.xdndStatusSent = False;
+	dc->drag.xdndLastX = rx;
+	dc->drag.xdndLastY = ry;
+
+	motionData.window = XtWindow(shell);
+	motionData.dragOver = NULL;
+
+	memset(&motionCB, 0, sizeof(motionCB));
+	motionCB.reason = XmCR_DRAG_MOTION;
+	motionCB.timeStamp = timestamp;
+	motionCB.x = rx;
+	motionCB.y = ry;
+	motionCB.operation = op;
+	motionCB.operations = ops;
+	motionCB.dropSiteStatus = XmNO_DROP_SITE;
+	_XmDSMUpdate(dsm, (XtPointer)&motionData, (XtPointer)&motionCB);
+
+	if (!dc->drag.xdndStatusSent) {
+	    XEvent reply;
+	    memset(&reply, 0, sizeof(reply));
+	    reply.xclient.type = ClientMessage;
+	    reply.xclient.display = dpy;
+	    reply.xclient.window = srcWindow;
+	    reply.xclient.message_type = XInternAtom(dpy, "XdndStatus", False);
+	    reply.xclient.format = 32;
+	    reply.xclient.data.l[0] = (long)XtWindow(shell);
+	    reply.xclient.data.l[1] = 0L;
+	    reply.xclient.data.l[4] = (long)None;
+	    XSendEvent(dpy, srcWindow, False, NoEventMask, &reply);
+	    XFlush(dpy);
+	    dc->drag.xdndStatusSent = True;
+	}
+	return True;
+    }
+
+    if (msgType == xdndLeave) {
+	XmTopLevelLeaveCallbackStruct leaveCB;
+	dc = FindXdndDC(dd, srcWindow);
+	if (dc == NULL)
+	    return True;
+	memset(&leaveCB, 0, sizeof(leaveCB));
+	leaveCB.reason = XmCR_TOP_LEVEL_LEAVE;
+	leaveCB.timeStamp = (Time)0;
+	leaveCB.screen = XtScreen(shell);
+	leaveCB.window = srcWindow;
+	_XmDSMUpdate(dsm, (XtPointer)&topClientData, (XtPointer)&leaveCB);
+	XtDestroyWidget((Widget)dc);
+	return True;
+    }
+
+    if (msgType == xdndDrop) {
+	Time timestamp = (Time)cm->data.l[2];
+	XmDropStartCallbackStruct dropStartCB;
+	unsigned char op;
+
+	dc = FindXdndDC(dd, srcWindow);
+	if (dc == NULL)
+	    return True;
+
+	op = (dc->drag.operation != XmDROP_NOOP) ? dc->drag.operation : XmDROP_COPY;
+	dc->drag.dragFinishTime = timestamp;
+	memset(&dropStartCB, 0, sizeof(dropStartCB));
+	dropStartCB.reason = XmCR_DROP_START;
+	dropStartCB.timeStamp = timestamp;
+	dropStartCB.operation = op;
+	dropStartCB.operations = op;
+	dropStartCB.dropSiteStatus = dsm->dropManager.curDropSiteStatus;
+	dropStartCB.dropAction = XmDROP;
+	dropStartCB.x = dc->drag.xdndLastX;
+	dropStartCB.y = dc->drag.xdndLastY;
+	dropStartCB.window = srcWindow;
+	dropStartCB.iccHandle = dc->drag.iccHandle;
+	_XmDSMUpdate(dsm, (XtPointer)&topClientData, (XtPointer)&dropStartCB);
+	return True;
+    }
+
+    return False;
+}
+
 /*
  * this handler is used to catch messages from external drag
  * contexts that want to map motion or drop events
@@ -1570,6 +1834,9 @@ ReceiverShellExternalSourceHandler(
      * do receiver processing as the initiator, so bail out.
      */
     if (dd == NULL || dd->display.activeDC != NULL)
+	return;
+
+    if (HandleXdndReceiverEvent(shell, dd, dsm, event))
 	return;
 
     q.dd = dd;

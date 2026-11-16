@@ -366,7 +366,8 @@ _XmAppearanceDrawButton(Widget widget, Pixel fill, Boolean emphasized,
         XmNbottomShadowColor,&border,XmNhighlightColor,&accent,NULL);
     parent_background=fill;
     if (XtParent(widget)) XtVaGetValues(XtParent(widget),XmNbackground,&parent_background,NULL);
-    if (_XmAppearanceIsHovered(widget)) {
+    if (XtIsSensitive(widget) && _XmAppearanceIsHovered(widget) &&
+        (XmIsPushButton(widget) || XmIsPushButtonGadget(widget))) {
         Pixel base_bg = fill;
         XtVaGetValues(widget, XmNbackground, &base_bg, NULL);
         if (fill == base_bg) {
@@ -446,7 +447,8 @@ _XmAppearanceDrawArrowRegion(Widget widget, int x, int y, int width, int height,
         x+width > SHRT_MAX || y+height > SHRT_MAX) return True;
     pressed = pressed && sensitive;
     fill = pressed ? foreground : background;
-    if (!pressed && sensitive && _XmAppearanceIsHovered(widget))
+    if (!pressed && sensitive && _XmAppearanceIsHovered(widget) &&
+        !XmIsArrowButton(widget) && !XmIsArrowButtonGadget(widget))
         fill = _XmAppearanceHoverSurfacePixel(widget, fill);
     glyph = sensitive ? (pressed ? background : foreground) : border;
     stroke = MIN((int)shadow, MIN(width,height)/2);

@@ -984,18 +984,49 @@ _XmGetDragReceiverInfo(
 				     &(receiverInfoRtn->xOrigin), 
 				     &(receiverInfoRtn->yOrigin), 
 				     &root);
+	  (receiverInfoRtn)->flags = 0;
 	  (receiverInfoRtn)->iccInfo = (XtPointer) dsmInfo;
 	  return True;
 	}
 	else {
-	  (receiverInfoRtn)->dragProtocolStyle = XmDRAG_NONE;
-	  if (iccInfo)
+	  if (iccInfo) {
 	    XFree((void *)iccInfo);
-	  return False;
+	    iccInfo = NULL;
+	  }
 	}
       }
-      else 
+      {
+	Atom xdndAware = XInternAtom(display, "XdndAware", False);
+	unsigned char *xdndData = NULL;
+	if (XGetWindowProperty(display, window, xdndAware, 0L, 1L, False,
+			       AnyPropertyType, &type, &format, &lengthRtn,
+			       &bytesafter, &xdndData) == Success &&
+	    xdndData != NULL) {
+	  Atom ver = (format == 32 && lengthRtn >= 1) ? *(Atom *)xdndData : 0;
+	  XFree((void *)xdndData);
+	  if (ver >= 3 &&
+	      XGetGeometry(display, window, &root,
+			   &(receiverInfoRtn->xOrigin),
+			   &(receiverInfoRtn->yOrigin),
+			   &(receiverInfoRtn->width),
+			   &(receiverInfoRtn->height),
+			   &bw, &(receiverInfoRtn->depth))) {
+	    (void)XTranslateCoordinates(display, window, root,
+					(int)-bw, (int)-bw,
+					&(receiverInfoRtn->xOrigin),
+					&(receiverInfoRtn->yOrigin),
+					&root);
+	    dd->display.proxyWindow = None;
+	    receiverInfoRtn->dragProtocolStyle = XmDRAG_DYNAMIC;
+	    receiverInfoRtn->flags = 0x80;
+	    receiverInfoRtn->iccInfo = NULL;
+	    return True;
+	  }
+	}
+	receiverInfoRtn->dragProtocolStyle = XmDRAG_NONE;
+	receiverInfoRtn->flags = 0;
 	return False;
+      }
   }
 
 /************************************************************************
@@ -1429,6 +1460,12 @@ _XmClearDragReceiverInfo(
     XDeleteProperty(XtDisplayOfObject(shell),
 		    XtWindow(shell),
 		    receiverAtom);
+    {
+	Atom xdndAware = XInternAtom(XtDisplayOfObject(shell), "XdndAware", False);
+	XDeleteProperty(XtDisplayOfObject(shell),
+			XtWindow(shell),
+			xdndAware);
+    }
     return;
 }
 
@@ -1558,6 +1595,15 @@ _XmSetDragReceiverInfo(
 	if (propBuf->heap.bytes != propBuf->heap.stack)
 	  XtFree((char *)propBuf->heap.bytes);
 	
+    }
+    {
+	Atom xdndAware = XInternAtom(XtDisplayOfObject(shell), "XdndAware", False);
+	Atom xdndVersion = 5;
+	XChangeProperty(XtDisplayOfObject(shell),
+			XtWindow(shell),
+			xdndAware, XA_ATOM, 32,
+			PropModeReplace,
+			(unsigned char *)&xdndVersion, 1);
     }
 }
 

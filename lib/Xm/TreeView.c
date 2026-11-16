@@ -804,7 +804,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
         view->tree_view.pressed_id = NULL;
         if (event->xbutton.button == Button4) {
             Cardinal old_top = view->tree_view.top_row;
-            Cardinal step = 3;
+            Cardinal step = (event->xbutton.state & ShiftMask) ? 3 : 1;
             view->tree_view.top_row = (old_top > step) ? (old_top - step) : 0;
             if (view->tree_view.top_row != old_top)
                 redraw(view);
@@ -817,7 +817,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
             Cardinal total = visible_count(view);
             Cardinal vis = viewport_rows(view);
             Cardinal max_top = (total > vis) ? (total - vis) : 0;
-            Cardinal step = 3;
+            Cardinal step = (event->xbutton.state & ShiftMask) ? 3 : 1;
             view->tree_view.top_row =
                 (old_top + step < max_top) ? (old_top + step) : max_top;
             if (view->tree_view.top_row != old_top)

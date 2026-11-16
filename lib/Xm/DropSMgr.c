@@ -1798,7 +1798,40 @@ ProxyDragProc(
 		(XmTargetsAreCompatible (XtDisplay (dsm),
 			export_targets, num_export, import_targets, num_import)))
 		callback->dropSiteStatus = XmVALID_DROP_SITE;
-	else
+	else if (callback->operation != XmDROP_NOOP &&
+		 export_targets != NULL && import_targets != NULL &&
+		 num_export > 0 && num_import > 0) {
+		enum {
+			XmACOMPOUND_TEXT, XmATEXT, XmAUTF8_STRING,
+			XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN, NUM_ATOMS
+		};
+		static char *atom_names[] = {
+			XmSCOMPOUND_TEXT, XmSTEXT, XmSUTF8_STRING,
+			"text/plain;charset=utf-8", "text/plain"
+		};
+		Atom atoms[XtNumber(atom_names)];
+		Boolean exp_text = False, imp_text = False;
+		Cardinal i, j;
+
+		XInternAtoms(XtDisplay(dsm), atom_names, XtNumber(atom_names),
+			     False, atoms);
+		for (i = 0; i < num_export && !exp_text; i++) {
+			if (export_targets[i] == XA_STRING)
+				exp_text = True;
+			for (j = 0; j < XtNumber(atoms) && !exp_text; j++)
+				if (export_targets[i] == atoms[j])
+					exp_text = True;
+		}
+		for (i = 0; i < num_import && !imp_text; i++) {
+			if (import_targets[i] == XA_STRING)
+				imp_text = True;
+			for (j = 0; j < XtNumber(atoms) && !imp_text; j++)
+				if (import_targets[i] == atoms[j])
+					imp_text = True;
+		}
+		callback->dropSiteStatus =
+			(exp_text && imp_text) ? XmVALID_DROP_SITE : XmINVALID_DROP_SITE;
+	} else
 		callback->dropSiteStatus = XmINVALID_DROP_SITE;
 	
 	callback->animate = True;

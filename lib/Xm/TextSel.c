@@ -425,12 +425,13 @@ HandleInsertTargets(
 #endif
   }
 
+#ifdef UTF8_SUPPORTED
+  if (supports_utf8_string)
+    target = atoms[XmAUTF8_STRING];
+  else
+#endif
   if (supports_text && supports_encoding_data)
     target = atoms[XmATEXT];
-#ifdef UTF8_SUPPORTED
-  else if (supports_utf8_string)
-    target = atoms[XmAUTF8_STRING];
-#endif
   else if (supports_CT)
     target = atoms[XmACOMPOUND_TEXT];
   else if (supports_encoding_data)
@@ -459,6 +460,7 @@ _XmTextConvert(
   enum { XmA_MOTIF_DESTINATION, XmAINSERT_SELECTION, XmADELETE,
 	 XmATARGETS, XmATEXT, XmACOMPOUND_TEXT, XmATIMESTAMP,
 	 XmA_MOTIF_DROP, XmACLIPBOARD, XmANULL,
+	 XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
 	 XmAUTF8_STRING,
 #endif
@@ -467,6 +469,7 @@ _XmTextConvert(
     XmS_MOTIF_DESTINATION, XmSINSERT_SELECTION, XmSDELETE,
     XmSTARGETS, XmSTEXT, XmSCOMPOUND_TEXT, XmSTIMESTAMP,
     XmS_MOTIF_DROP, XmSCLIPBOARD, XmSNULL,
+    XmSTEXT_PLAIN_UTF8, XmSTEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
     XmSUTF8_STRING
 #endif
@@ -537,19 +540,21 @@ _XmTextConvert(
       return False;
     }
     *value = (XtPointer) targs;
+    if (is_primary || is_secondary || is_drop) {
+#ifdef UTF8_SUPPORTED
+      targs[target_count] = atoms[XmAUTF8_STRING];  target_count++;
+#endif
+      targs[target_count] = atoms[XmATEXT_PLAIN_UTF8];  target_count++;
+      targs[target_count] = atoms[XmATEXT_PLAIN];  target_count++;
+      targs[target_count] = atoms[XmACOMPOUND_TEXT];  target_count++;
+      targs[target_count] = atoms[XmATEXT];  target_count++;
+      targs[target_count] = XA_STRING;  target_count++;
+    }
     if (XA_STRING != CS_OF_ENCODING) {
       targs[target_count] = CS_OF_ENCODING;  target_count++;
     }
     if (is_primary || is_destination) {
       targs[target_count] = atoms[XmAINSERT_SELECTION];  target_count++;
-    }
-    if (is_primary || is_secondary || is_drop) {
-      targs[target_count] = atoms[XmACOMPOUND_TEXT];  target_count++;
-      targs[target_count] = atoms[XmATEXT];  target_count++;
-      targs[target_count] = XA_STRING;  target_count++;
-#ifdef UTF8_SUPPORTED
-      targs[target_count] = atoms[XmAUTF8_STRING];  target_count++;
-#endif
     }
     if (is_primary || is_drop) {
       targs[target_count] = atoms[XmADELETE]; target_count++;
@@ -709,6 +714,17 @@ _XmTextConvert(
       *length = 0;
       return False;
     }
+  } else if (*target == atoms[XmATEXT_PLAIN_UTF8] ||
+             *target == atoms[XmATEXT_PLAIN]) {
+    *type = *target;
+    *format = 8;
+    if (is_destination || !has_selection) return False;
+    *value = (XtPointer)_XmStringSourceGetString(tw, left, right, False);
+    if (*value == NULL) {
+      *length = 0;
+      return False;
+    }
+    *length = strlen((char *)*value);
 #endif
   } else if (*target == atoms[XmAINSERT_SELECTION]) {
     if (is_secondary) 
@@ -851,11 +867,13 @@ HandleDrop(Widget w,
     return;
   } else {
     enum { XmATEXT, XmACOMPOUND_TEXT,
+	XmATEXT_URI_LIST, XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
         XmAUTF8_STRING,
 #endif
 	NUM_ATOMS };
     static char *atom_names[] = { XmSTEXT, XmSCOMPOUND_TEXT,
+	XmSTEXT_URI_LIST, XmSTEXT_PLAIN_UTF8, XmSTEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
         XmSUTF8_STRING
 #endif
@@ -867,6 +885,9 @@ HandleDrop(Widget w,
     Boolean string_found = False;
     Boolean text_found = False;
     Boolean utf8_string_found = False;
+    Boolean text_plain_utf8_found = False;
+    Boolean uri_list_found = False;
+    Boolean text_plain_found = False;
     
     assert(XtNumber(atom_names) == NUM_ATOMS);
     XInternAtoms(XtDisplay(w), atom_names, XtNumber(atom_names), False, atoms);
@@ -890,34 +911,41 @@ HandleDrop(Widget w,
     }
     
     for (n = 0; n < numExportTargets; n++) {
-      if (exportTargets[n] == CS_OF_ENCODING) {
-	desiredTarget = CS_OF_ENCODING;
-	encoding_found = True;
-	break;
-      }
+      if (exportTargets[n] == CS_OF_ENCODING) encoding_found = True;
 #ifdef UTF8_SUPPORTED
       if (exportTargets[n] == atoms[XmAUTF8_STRING]) utf8_string_found = True;
 #endif
+      if (exportTargets[n] == atoms[XmATEXT_PLAIN_UTF8]) text_plain_utf8_found = True;
+      if (exportTargets[n] == atoms[XmATEXT_URI_LIST]) uri_list_found = True;
       if (exportTargets[n] == atoms[XmACOMPOUND_TEXT]) c_text_found = True;
       if (exportTargets[n] == XA_STRING) string_found = True;
+      if (exportTargets[n] == atoms[XmATEXT_PLAIN]) text_plain_found = True;
       if (exportTargets[n] == atoms[XmATEXT]) text_found = True;
     }
     
     n = 0;
-    if (encoding_found || c_text_found || string_found || text_found
-        || utf8_string_found) {
-      if (!encoding_found) {
-	if (c_text_found)
-	  desiredTarget = atoms[XmACOMPOUND_TEXT];
+    if (utf8_string_found || text_plain_utf8_found || uri_list_found ||
+        encoding_found || c_text_found || string_found ||
+        text_plain_found || text_found) {
 #ifdef UTF8_SUPPORTED
-	else if (utf8_string_found)
-	  desiredTarget = atoms[XmAUTF8_STRING];
+      if (utf8_string_found)
+        desiredTarget = atoms[XmAUTF8_STRING];
+      else
 #endif
-	else if (string_found)
-	  desiredTarget = XA_STRING;
-	else
-	  desiredTarget = atoms[XmATEXT];
-      }
+      if (text_plain_utf8_found)
+        desiredTarget = atoms[XmATEXT_PLAIN_UTF8];
+      else if (uri_list_found)
+        desiredTarget = atoms[XmATEXT_URI_LIST];
+      else if (encoding_found)
+        desiredTarget = CS_OF_ENCODING;
+      else if (c_text_found)
+        desiredTarget = atoms[XmACOMPOUND_TEXT];
+      else if (string_found)
+        desiredTarget = XA_STRING;
+      else if (text_plain_found)
+        desiredTarget = atoms[XmATEXT_PLAIN];
+      else
+        desiredTarget = atoms[XmATEXT];
       
       if (cb->operation & XmDROP_MOVE || cb->operation & XmDROP_COPY) {
 	doTransfer = True;
@@ -1065,12 +1093,13 @@ HandleTargets(Widget w,
    * STRING and try to convert it locally.
    */
   
+#ifdef UTF8_SUPPORTED
+  if (supports_utf8_string)
+    primary_select_state->target = targets[0] = atoms[XmAUTF8_STRING];
+  else
+#endif
   if (supports_text && supports_encoding_data)
     primary_select_state->target = targets[0] = atoms[XmATEXT];
-#ifdef UTF8_SUPPORTED
-  else if (supports_utf8_string)
-    primary_select_state->target = targets[0] = atoms[XmAUTF8_STRING];
-#endif
   else if (supports_CT)
     primary_select_state->target = targets[0] = atoms[XmACOMPOUND_TEXT];
   else if (supports_encoding_data)
@@ -1088,6 +1117,43 @@ HandleTargets(Widget w,
   ds->value = NULL;
 }
 
+static char *
+TextExtractUriLines(const char *payload, unsigned long length)
+{
+  String *uris = NULL;
+  Cardinal count = 0, i;
+  size_t total = 0, offset = 0;
+  char *result = NULL;
+
+  if (payload == NULL || length == 0)
+    return NULL;
+  if (!XmeParseUriList(payload, (size_t)length, &uris, &count) || count == 0)
+    return NULL;
+
+  for (i = 0; i < count; i++) {
+    String local = XmeUriToLocalPath(uris[i]);
+    const char *item = local ? local : uris[i];
+    total += strlen(item) + 1U;
+    XtFree(local);
+  }
+  result = XtMalloc((Cardinal)(total + 1U));
+  if (result != NULL) {
+    for (i = 0; i < count; i++) {
+      String local = XmeUriToLocalPath(uris[i]);
+      const char *item = local ? local : uris[i];
+      size_t len = strlen(item);
+      if (i > 0)
+	result[offset++] = '\n';
+      memcpy(result + offset, item, len);
+      offset += len;
+      XtFree(local);
+    }
+    result[offset] = '\0';
+  }
+  XmeFreeUriList(uris, count);
+  return result;
+}
+
 /* Pastes the primary selection to the stuff position. */
 static void
 DoStuff(Widget w, 
@@ -1095,12 +1161,14 @@ DoStuff(Widget w,
 	XmSelectionCallbackStruct *ds)
 {
   enum { XmANULL, XmACLIPBOARD, XmATEXT, XmACOMPOUND_TEXT,
+      XmATEXT_URI_LIST, XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
       XmAUTF8_STRING,
 #endif
       NUM_ATOMS };
   static char *atom_names[] =  { 
     XmSNULL, XmSCLIPBOARD, XmSTEXT, XmSCOMPOUND_TEXT,
+    XmSTEXT_URI_LIST, XmSTEXT_PLAIN_UTF8, XmSTEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
     XmSUTF8_STRING
 #endif
@@ -1175,13 +1243,19 @@ DoStuff(Widget w,
     block.format = XmFMT_8_BIT;
     
     if (ds->type == atoms[XmACOMPOUND_TEXT] ||
+	ds->type == atoms[XmATEXT_URI_LIST] ||
+	ds->type == atoms[XmATEXT_PLAIN_UTF8] ||
+	ds->type == atoms[XmATEXT_PLAIN] ||
 #ifdef UTF8_SUPPORTED
         ds->type == atoms[XmAUTF8_STRING] ||
 #endif
 	ds->type == XA_STRING) {
-      if ((total_value = 
-	   _XmTextToLocaleText(w, ds->value, ds->type, ds->format,
-			       ds->length, NULL)) != NULL) {
+      if (ds->type == atoms[XmATEXT_URI_LIST])
+	total_value = TextExtractUriLines((const char *)ds->value, ds->length);
+      else
+	total_value = _XmTextToLocaleText(w, ds->value, ds->type, ds->format,
+					  ds->length, NULL);
+      if (total_value != NULL) {
 	block.ptr = total_value;
 	if (!TextSelectionBlockLength(block.ptr, &block.length)) {
 	  XtFree(total_value);
@@ -1340,11 +1414,13 @@ DropTransferProc(Widget w,
 		 XmSelectionCallbackStruct *ds)
 {
   enum { XmACOMPOUND_TEXT, XmANULL, XmADELETE,
+	 XmATEXT_URI_LIST, XmATEXT_PLAIN_UTF8, XmATEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
   XmAUTF8_STRING,
 #endif
   NUM_ATOMS };
   static char *atom_names[] = { XmSCOMPOUND_TEXT, XmSNULL, XmSDELETE,
+	 XmSTEXT_URI_LIST, XmSTEXT_PLAIN_UTF8, XmSTEXT_PLAIN,
 #ifdef UTF8_SUPPORTED
       XmSUTF8_STRING
 #endif
@@ -1400,6 +1476,9 @@ DropTransferProc(Widget w,
   
   if (!ds->value || 
       (ds->type != atoms[XmACOMPOUND_TEXT] && 
+       ds->type != atoms[XmATEXT_URI_LIST] &&
+       ds->type != atoms[XmATEXT_PLAIN_UTF8] &&
+       ds->type != atoms[XmATEXT_PLAIN] &&
 #ifdef UTF8_SUPPORTED
        ds->type != atoms[XmAUTF8_STRING] && 
 #endif
@@ -1424,13 +1503,20 @@ DropTransferProc(Widget w,
   
   insertPosLeft = insertPosRight = transfer_rec->insert_pos;
   
-  if (ds->type == XA_STRING || ds->type == atoms[XmACOMPOUND_TEXT]
+  if (ds->type == atoms[XmATEXT_URI_LIST] ||
+      ds->type == atoms[XmATEXT_PLAIN_UTF8] ||
+      ds->type == atoms[XmATEXT_PLAIN] ||
+      ds->type == XA_STRING || ds->type == atoms[XmACOMPOUND_TEXT]
 #ifdef UTF8_SUPPORTED
       || ds->type == atoms[XmAUTF8_STRING]
 #endif
   ) {
-    if ((total_value = _XmTextToLocaleText(w, ds->value, ds->type, 
-					   8, ds->length, NULL)) != NULL) {
+    if (ds->type == atoms[XmATEXT_URI_LIST])
+      total_value = TextExtractUriLines((const char *)ds->value, ds->length);
+    else
+      total_value = _XmTextToLocaleText(w, ds->value, ds->type,
+					8, ds->length, NULL);
+    if (total_value != NULL) {
       block.ptr = total_value;
       if (!TextSelectionBlockLength(block.ptr, &block.length)) {
 	XtFree(total_value);

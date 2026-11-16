@@ -690,8 +690,31 @@ non-animated interactive ergonomics while keeping `classic` behavior unchanged:
   any subsequent keyboard traversal key (`Tab` or arrow keys) immediately
   restores visible focus rings.
 - **Standardized mouse-wheel scrolling and boundary forwarding:** `XmList`,
-  `XmText`, `XmTreeView`, and `XmDataGrid` scroll in 3-line steps on `Button4` /
-  `Button5` wheel events (`6` lines with modifiers in `XmList`/`XmText`) and
-  forward wheel events via `_XmForwardWheelEvent` to an enclosing
+  `XmText`, `XmTreeView`, and `XmDataGrid` scroll on `Button4` / `Button5` wheel
+  events and forward wheel events via `_XmForwardWheelEvent` to an enclosing
   `XmScrolledWindow` when the inner control is already at its scroll boundary.
 - Qualified under Xvfb by `tests/automated/run-ux-polish-wp49.py`.
+
+### Desktop selection and drag-and-drop interoperability: XDND v5, UTF8_STRING, and text/uri-list (WP-50)
+
+`libXm` provides transparent selection, clipboard, and drag-and-drop
+interoperability with modern X11 and Xwayland clients:
+- **Target constants and bounded helpers (`<Xm/Transfer.h>`):** defines
+  `XmSTEXT_URI_LIST` (`"text/uri-list"`), `XmSTEXT_PLAIN_UTF8`
+  (`"text/plain;charset=utf-8"`), `XmSTEXT_PLAIN` (`"text/plain"`), and
+  `XmSIMAGE_PNG` (`"image/png"`), along with bounded helpers
+  `XmeParseUriList`, `XmeFreeUriList`, `XmeFormatUriList`, `XmeUriToLocalPath`,
+  and `XmeValidatePngData` that reject embedded NULs, control characters,
+  remote authorities, and malformed or oversized PNG chunks.
+- **`UTF8_STRING` and `text/uri-list` selection/drop priority:** `XmClipboard`,
+  `XmText`, `XmTextField`, and `XmList` advertise and prioritize `UTF8_STRING`
+  (plus `text/plain;charset=utf-8` and `text/plain`), and `XmText` and
+  `XmTextField` accept `text/uri-list` drops by decoding local `file://` URIs.
+- **Transparent XDND v5 protocol bridge:** top-level shells with registered
+  `XmDropSite` widgets advertise `XdndAware` (version `5`) alongside
+  `_MOTIF_DRAG_RECEIVER_INFO` and translate incoming `XdndEnter` (including
+  `XdndTypeList`), `XdndPosition`, `XdndLeave`, and `XdndDrop` messages into
+  standard Motif `XmDropSiteManager` and `XmDropTransfer` transactions over
+  `XdndSelection`, replying with `XdndStatus` and `XdndFinished` without
+  changing public Motif callback signatures.
+- Qualified under Xvfb by `tests/automated/run-xdnd-interop-wp50.py`.

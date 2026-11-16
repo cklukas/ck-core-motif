@@ -2548,6 +2548,7 @@ Disarm(
   if (pb->pushbutton.armed == TRUE)
     {
       pb->pushbutton.armed = FALSE;
+      (void)_XmAppearanceSetHovered((Widget)pb, False);
       Redisplay((Widget) pb, event, (Region)NULL);
       _XmProcessLock();
       expose = XtClass(pb)->core_class.expose;
@@ -2877,12 +2878,14 @@ Enter(
   else 
     {	
       XtExposeProc expose;
-      _XmPrimitiveEnter ((Widget) pb, event, NULL, NULL);
       if (pb->pushbutton.armed == TRUE) {
+	(void)_XmAppearanceSetHovered((Widget)pb, False);
 	_XmProcessLock();
 	expose = XtClass(pb)->core_class.expose;
 	_XmProcessUnlock();
 	(* expose)(wid, event, (Region) NULL);
+      } else {
+	_XmPrimitiveEnter ((Widget) pb, event, NULL, NULL);
       }
     }
 }

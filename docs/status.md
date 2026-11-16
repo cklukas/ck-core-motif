@@ -391,6 +391,9 @@ pins require their own integration admission. The native name-query correction
 releases Label/LabelGadget getter copies while preserving Disclosure's borrowed
 resource ownership; the former leak remains recorded in the qualification data.
 WP-49 interactive UX polish (hover affordances, `XmNfocusHighlightPolicy`
-focus-visible behavior, and standardized 3-line mouse-wheel scrolling with
-nested `XmScrolledWindow` boundary forwarding) is qualified under Xvfb by
-`tests/automated/run-ux-polish-wp49.py`.
+focus-visible behavior, and standardized mouse-wheel scrolling with nested
+`XmScrolledWindow` boundary forwarding) is qualified under Xvfb by
+`tests/automated/run-ux-polish-wp49.py`. WP-50 desktop selection and
+drag-and-drop interoperability (`XDND` v5 bridge, `UTF8_STRING` clipboard and
+selection priority, and bounded `text/uri-list` and `image/png` transfer
+helpers) is qualified under Xvfb by `tests/automated/run-xdnd-interop-wp50.py`.

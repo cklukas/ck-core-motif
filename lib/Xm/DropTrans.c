@@ -292,6 +292,7 @@ Destroy(
     XmDropTransferPart *dtp = &(new_w->dropTransfer);
     Cardinal 		 i;
     XmDragContext	 dc;
+    Widget		 saved_dc = dtp->dragContext;
 
     if (dtp->start_timer_pending) {
 	XtRemoveTimeOut(dtp->start_timer);
@@ -311,6 +312,8 @@ Destroy(
      */
     dc = (XmDragContext)XmGetDragContext((Widget)new_w, 
 					 new_w->dropTransfer.timestamp);
+    if (dc == NULL && saved_dc != NULL)
+      dc = (XmDragContext)saved_dc;
     if (dc && dc->drag.sourceIsExternal)
       XtDestroyWidget((Widget)dc);
 
@@ -439,6 +442,28 @@ TerminateTransfer(
 	    return;
 	}
 	requestor = dc->drag.currReceiverInfo->shell;
+
+	if (dc->drag.isXdnd) {
+	    Display *dpy = XtDisplayOfObject(requestor);
+	    XEvent finished;
+	    Boolean ok = (dtp->transfer_status == XmTRANSFER_SUCCESS);
+	    memset(&finished, 0, sizeof(finished));
+	    finished.xclient.type = ClientMessage;
+	    finished.xclient.display = dpy;
+	    finished.xclient.window = dc->drag.srcWindow;
+	    finished.xclient.message_type = XInternAtom(dpy, "XdndFinished", False);
+	    finished.xclient.format = 32;
+	    finished.xclient.data.l[0] = (long)(dc->drag.xdndTargetWindow != None
+		? dc->drag.xdndTargetWindow : XtWindow(requestor));
+	    finished.xclient.data.l[1] = ok ? 1L : 0L;
+	    finished.xclient.data.l[2] = ok ? (long)dc->drag.xdndAcceptedAction : (long)None;
+	    finished.xclient.data.l[3] = 0L;
+	    finished.xclient.data.l[4] = 0L;
+	    XSendEvent(dpy, dc->drag.srcWindow, False, NoEventMask, &finished);
+	    XFlush(dpy);
+	    XtDestroyWidget((Widget)dt);
+	    return;
+	}
 
 	if (dtp->transfer_status == XmTRANSFER_SUCCESS)
 		status = XInternAtom(XtDisplayOfObject((Widget)dt),

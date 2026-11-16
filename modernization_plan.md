@@ -2167,7 +2167,16 @@ URIs and PNG images seamlessly with modern X11 and Xwayland applications.
 interoperates with non-Motif XDND v5 and `UTF8_STRING` clients in automated
 cross-process tests without changing public Motif callback signatures.
 
-**Status (2026-11-15):** planned.
+**Status (2026-11-16):** complete. Added `XmSTEXT_URI_LIST`,
+`XmSTEXT_PLAIN_UTF8`, `XmSTEXT_PLAIN`, and `XmSIMAGE_PNG` target macros and
+bounded `XmeParseUriList`, `XmeFreeUriList`, `XmeFormatUriList`,
+`XmeUriToLocalPath`, and `XmeValidatePngData` helpers in `lib/Xm/Transfer.h` and
+`lib/Xm/Transfer.c`, prioritized `UTF8_STRING` and supported `text/uri-list` /
+`text/plain` across `XmTextField`, `XmText`, `XmList`, `XmClipboard`, and
+`XmTargetsAreCompatible`, implemented the transparent XDND v5 protocol bridge in
+`lib/Xm/DragICC.c`, `lib/Xm/Display.c`, `lib/Xm/DragC.c`, and
+`lib/Xm/DropTrans.c`, and validated cross-process clipboard and XDND v5 drops
+under Xvfb with `tests/automated/run-xdnd-interop-wp50.py`.
 
 **Does not include:** Wayland-native client protocol support outside X11/Xwayland.
 
@@ -2186,8 +2195,8 @@ safety precede or accompany new surface area:
 | 6 | **WP-46** | UI / Theme | Complete historical-widget modern styling, gallery natural sizing & WP-39 menus | Full `ckmotif-gallery` + `Periodic` visual/interaction matrix passes | Complete (2026-11-16) |
 | 7 | **WP-47** | UI / Theme | Xrm semantic palette tokens (`*accentColor`, `*surfaceBackground`) + WCAG guards | Installed-prefix token, contrast-clamp and colormap parity tests pass | Complete (2026-11-16) |
 | 8 | **WP-48** | UI / MWM | Modern `mwm` window frames, Xft titlebars & HiDPI scaling | Native Xvfb `mwm` frame/titlebar/button tests at 1x/2x across profiles | Complete (2026-11-16) |
-| 9 | **WP-49** | UX Polish | Modern hover states, `focus-visible` policy & standardized wheel scrolling | Installed-prefix hover lifecycle, focus-policy & nested wheel tests pass | Planned |
-| 10 | **WP-50** | Interop | XDND v5, `UTF8_STRING` & `text/uri-list` interoperability + remaining WP-04A/06/07 | Cross-process XDND v5 & clipboard tests under ASan/UBSan pass | Planned |
+| 9 | **WP-49** | UX Polish | Modern hover states, `focus-visible` policy & standardized wheel scrolling | Installed-prefix hover lifecycle, focus-policy & nested wheel tests pass | Complete (2026-11-16) |
+| 10 | **WP-50** | Interop | XDND v5, `UTF8_STRING` & `text/uri-list` interoperability + remaining WP-04A/06/07 | Cross-process XDND v5 & clipboard tests under ASan/UBSan pass | Complete (2026-11-16) |
 
 ## Acceptance criteria for every increment
 
