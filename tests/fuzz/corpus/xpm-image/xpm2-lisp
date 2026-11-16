@@ -1,0 +1,3 @@
+! XPM2 Lisp
+; hints
+(setq i '("2 2 2 1""a c black""b c white""ab""ba"))

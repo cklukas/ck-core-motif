@@ -433,6 +433,90 @@ def extract_editres_wire(wt):
     return {"types.h": types, "production.h": prod}, {}
 
 
+XPM_SOURCES = [
+    "XpmAttrib", "XpmCrBufFrI", "XpmCrDatFrI", "XpmCrIFrBuf", "XpmCrIFrDat",
+    "XpmCrIFrP", "XpmCrPFrI", "XpmImage", "XpmInfo", "XpmRdFToBuf",
+    "XpmRdFToI", "XpmWrFFrBuf", "XpmWrFFrI", "Xpmcreate", "Xpmdata",
+    "Xpmhashtab", "Xpmmisc", "Xpmparse", "Xpmrgb", "Xpmscan",
+]
+
+
+def build_xpm_image(wt, scratch, clang, recover_ub):
+    """The real lib/Xm/Xpm*.c parser and serializer sources, compiled unchanged."""
+    gendir = scratch / "build" / "xpm-image"
+    objdir = gendir / "obj"
+    objdir.mkdir(parents=True, exist_ok=True)
+    prepare_includes(wt, scratch, clang)
+    common = cflags_common(scratch) + ["-I", str(scratch / "build" / "inc" / "Xm"),
+                                       "-I", str(wt / "lib/Xm")]
+    instr = sanitize_flags(recover_ub) + ["-fsanitize=fuzzer-no-link"]
+    objects = []
+    for stem in XPM_SOURCES:
+        src = wt / "lib/Xm" / f"{stem}.c"
+        obj = objdir / f"{stem}.o"
+        if not obj.exists() or obj.stat().st_mtime < src.stat().st_mtime:
+            sh([clang, "-c", *instr, *common, "-o", str(obj), str(src)])
+        objects.append(str(obj))
+    binary = gendir / ("fuzz-xpm-image-recover" if recover_ub else "fuzz-xpm-image")
+    cmd = [clang, "-fsanitize=fuzzer,address,undefined",
+           "-fsanitize-recover=undefined" if recover_ub else "-fno-sanitize-recover=undefined",
+           *common, "-o", str(binary), str(HERE / "fuzz-xpm-image.c"), *objects, *x_link_flags()]
+    sh(cmd)
+    return binary
+
+
+def extract_mwm_parsers(wt):
+    src = "WmResParse.c"
+    text = (wt / "clients/mwm" / src).read_text()
+    types = between(text, "#define FIX_1127", "/*\n * include extern functions", src)
+    types += between(text, "static FILE *cfileP = NULL;", "#endif /* WSM */\n\n\ntypedef struct {", src)
+    types += between(text, "typedef struct {\n   char         *name;", "#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */\n\n#ifdef MOTIF_ONE_DOT_ONE", src)
+    types += "#endif\n"
+    types += between(text, "static EventTableEntry buttonEvents[] =", "#ifdef PANELIST\ntypedef struct _ConfigFileStackEntry", src)
+    types += between(text, "unsigned int buttonModifierMasks[] =", "/*\n * FUNCTION PARSER TABLE", src)
+    prod = functions(text, ["StoreExclusion", "IsClientCommand"], src)
+    prod += between(text, "enum { PRS_NO_STATE,", "#endif /* !defined(WSM) || defined(MWM_QATS_PROTOCOL) */\n\n\f\n/*************************************<->*************************************\n *\n *  ParseWmLabel", src)
+    prod += functions(text, [
+        "ParseWmFuncMaybeStrArg", "ParseWmFuncNoArg", "ParseWmFuncStrArg",
+        "FreeMenuItem", "ParseWmFuncGrpArg", "ParseWmFuncNbrArg",
+        "ParseWmFuncCCIArgs", "CopyParsedToken", "ParseContext",
+        "GetNextLine",
+    ], src)
+    prod += between(text, "#ifdef WSM\nunsigned char *GetStringC", "} /* END OF FUNCTION GetString */", src) + "}\n"
+    prod += functions(text, [
+        "ParseBtnEvent", "ParseEvent",
+        "ParseModifiers", "LookupModifier", "GetCCIModifier",
+        "PrefixMenuItemLabel", "FixMenuItem", "ParseEventType",
+        "ParseImmed", "ParseKeySym", "StrToNum", "StrToHex", "StrToOct",
+        "ScanAlphanumeric", "ScanWhitespace", "ToLower",
+        "AppendAccelText", "ProcessAccelText",
+    ], src)
+    wsm_dir = wt / "clients/mwm/WmWsmLib"
+    extra = {
+        "include": [str(wt / "clients/mwm"), str(wsm_dir)],
+        "link": [
+            str(wsm_dir / "wire.c"),
+            str(wsm_dir / "pack.c"),
+            str(wsm_dir / "free.c"),
+            str(wsm_dir / "util.c"),
+            *x_link_flags(),
+        ],
+    }
+    return {"types.h": types, "production.h": prod}, extra
+
+
+def extract_uil_wmd(wt):
+    src = "UilDB.c"
+    text = (wt / "clients/uil" / src).read_text()
+    prod = between(text, "static FILE *dbfile;", "String init_wmd_path", src)
+    prod += function(text, "init_wmd_path", src)
+    extra = {
+        "include": [str(wt / "tools/wml"), str(wt / "clients/uil")],
+        "link": [*x_link_flags()],
+    }
+    return {"types.h": "/* unused */\n", "production.h": prod}, extra
+
+
 TARGETS = {
     "xmstring-stream": ("XmString external format: XmCvtByteStreamToXmString with the ASN.1 length and component "
                         "readers, then walk, copy, concatenate and write back (lib/Xm/XmString.c, compiled unchanged)",
@@ -444,6 +528,14 @@ TARGETS = {
                      "(lib/Xm/EditresCom.c)", build_extracted("editres-wire", extract_editres_wire)),
     "mrm-uid": ("UID file reader of the resource manager: header, index tree, literal, colour, icon, widget "
                 "records (lib/Mrm, compiled unchanged)", build_mrm_uid),
+    "xpm-image": ("XPM image and metadata parser and round-trip serializer: XpmCreateXpmImageFromBuffer, "
+                  "XpmCreateBufferFromXpmImage, XpmCreateDataFromXpmImage (lib/Xm/Xpm*.c, compiled unchanged)",
+                  build_xpm_image),
+    "mwm-parsers": ("MWM workspace wire protocol and .mwmrc configuration token, event, context, command and "
+                    "accelerator parsers (clients/mwm/WmWsmLib, clients/mwm/WmResParse.c)",
+                    build_extracted("mwm-parsers", extract_mwm_parsers)),
+    "uil-wmd": ("UIL binary widget meta-language database (.wmd) reader: globals, headers, byte/short/int/string "
+                "tables (clients/uil/UilDB.c)", build_extracted("uil-wmd", extract_uil_wmd)),
 }
 
 
@@ -589,7 +681,14 @@ def main():
         scratch = args.scratch.resolve()
         scratch.mkdir(parents=True, exist_ok=True)
     else:
-        own_scratch = scratch = Path(tempfile.mkdtemp(prefix="ck-fuzz-replay-")).resolve()
+        tmp_base = os.environ.get("TMPDIR")
+        if IS_MACOS and (not tmp_base or tmp_base.startswith(("/tmp", "/private/tmp", "/var/folders"))):
+            for candidate in (Path("/Volumes/S8T/tmp"), Path("/Volumes/PRO-BLADE/tmp")):
+                if candidate.parent.exists():
+                    candidate.mkdir(parents=True, exist_ok=True)
+                    tmp_base = str(candidate)
+                    break
+        own_scratch = scratch = Path(tempfile.mkdtemp(prefix="ck-fuzz-replay-", dir=tmp_base)).resolve()
     wt = find_worktree(args.worktree)
     try:
         status = 0

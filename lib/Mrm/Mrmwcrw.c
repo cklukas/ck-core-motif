@@ -3192,7 +3192,7 @@ Urm__CW_SafeCopyValue (long				*val,
   String		*char8_table_dst ;
   wchar_t		*wchar_src;	/* to copy wide character strings */
   wchar_t		*wchar_dst;
-  uintptr_t		char8_base;
+  uintptr_t		char8_base = 0;
   uintptr_t		char8_end;
   uintptr_t		char8_item;
   size_t		size;		

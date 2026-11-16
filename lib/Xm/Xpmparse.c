@@ -214,6 +214,12 @@ xpmParseColors(
 
     if (ncolors >= UINT_MAX / sizeof(XpmColor))
 	return (XpmNoMemory);
+    if (data->type == XPMBUFFER &&
+	(data->cptr == NULL || (size_t)cpp >= SIZE_MAX ||
+	 (size_t)ncolors > SIZE_MAX / ((size_t)cpp + 1) ||
+	 strnlen(data->cptr, (size_t)ncolors * ((size_t)cpp + 1)) <
+	     (size_t)ncolors * ((size_t)cpp + 1)))
+	return (XpmFileInvalid);
     colorTable = (XpmColor *) XpmCalloc(ncolors, sizeof(XpmColor));
     if (!colorTable)
 	return (XpmNoMemory);
@@ -278,6 +284,8 @@ xpmParseColors(
 			    xpmFreeColorTable(colorTable, ncolors);
 			    return (XpmNoMemory);
 			}
+			if (defaults[curkey])
+			    XpmFree(defaults[curkey]);
 			defaults[curkey] = s;
 			memcpy(s, curbuf, len);
 		    }
@@ -301,11 +309,14 @@ xpmParseColors(
 		return (XpmFileInvalid);
 	    }
 	    len = strlen(curbuf) + 1; /* integer overflow just theoretically possible */
-	    s = defaults[curkey] = (char *) XpmMalloc(len);
+	    s = (char *) XpmMalloc(len);
 	    if (!s) {
 		xpmFreeColorTable(colorTable, ncolors);
 		return (XpmNoMemory);
 	    }
+	    if (defaults[curkey])
+		XpmFree(defaults[curkey]);
+	    defaults[curkey] = s;
 	    memcpy(s, curbuf, len);
 	}
     } else {				/* XPM 1 */
@@ -395,6 +406,12 @@ ParsePixels(
     if ((height > 0 && width >= UINT_MAX / height) ||
 	width * height >= UINT_MAX / sizeof(unsigned int))
 	return XpmNoMemory;
+    if (data->type == XPMBUFFER &&
+	(data->cptr == NULL || cpp == 0 ||
+	 (size_t)width * (size_t)height > SIZE_MAX / (size_t)cpp ||
+	 strnlen(data->cptr, (size_t)width * (size_t)height * (size_t)cpp) <
+	     (size_t)width * (size_t)height * (size_t)cpp))
+	return XpmFileInvalid;
 #ifndef FOR_MSW
     iptr2 = (unsigned int *) XpmMalloc(sizeof(unsigned int) * width * height);
 #else

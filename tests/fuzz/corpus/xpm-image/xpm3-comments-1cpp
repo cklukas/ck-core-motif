@@ -1,0 +1,10 @@
+/* XPM */
+/* hints */
+static char *i[]={
+"2 2 2 1 0 0",
+/* colors */
+"a c #000000 m black",
+"b c #ffffff s background",
+/* pixels */
+"ab",
+"ba"};

@@ -1,3 +1,31 @@
+Expanded libFuzzer coverage and sanitized installed-prefix qualification (2026-11-16)
+====================================================================================
+
+- Added three new `libFuzzer` targets (`tests/fuzz/fuzz-xpm-image.c`,
+  `tests/fuzz/fuzz-mwm-parsers.c`, and `tests/fuzz/fuzz-uil-wmd.c`) and their
+  seed corpora (`tests/fuzz/corpus/{xpm-image,mwm-parsers,uil-wmd}`), expanding
+  `tests/fuzz/run-fuzz.py --all --replay` and `tests/fuzz/make-seeds.py` to 7
+  targets covering `lib/Mrm`, `Editres`, `XmString`, `ResConvert`, `lib/Xm/Xpm*`,
+  `clients/mwm/WmWsmLib` + `clients/mwm/WmResParse.c`, and `clients/uil/UilDB.c`.
+- `lib/Xm/Xpmparse.c`: bounded `XPMBUFFER` colour-table and pixel-table
+  allocations in `xpmParseColors` and `ParsePixels` against the remaining buffer
+  length before calling `XpmCalloc`/`XpmMalloc` (rejecting truncated buffers
+  with huge dimensions or colour counts as `XpmFileInvalid` instead of
+  allocating gigabytes), and freed any prior `defaults[curkey]` string when a
+  colour line repeats the same colour key.
+- `clients/mwm/WmWsmLib/pack.c`: promoted `UnpackCARD16` to `CARD32` before
+  shifting left by 16 bits in `UnpackCARD32` (preventing signed 32-bit shift
+  overflow when the upper 16-bit half has bit 15 set), used `1U` in
+  `PackWinData`, and used `COUNT_SIZE` (`sizeof(CARD16)`) for `num_windows` and
+  `num_match_properties` in `WinEntrySizePacked` to match `PackWinEntry`,
+  `UnpackWinEntry`, and `_WSMValidateMessage`.
+- `lib/Mrm/Mrmwcrw.c`: initialized `char8_base = 0` in `Urm__CW_SafeCopyValue`
+  so `-std=c23 -O1 -g --enable-hardening --enable-sanitizers=address,undefined`
+  builds cleanly without `-Werror=maybe-uninitialized`.
+- Test: `tests/automated/check-fuzz-targets-wp44.py`.
+- Docs: `tests/fuzz/README`, `docs/hardening.md`, `docs/status.md`,
+  `modernization_plan.md`.
+
 Untrusted-input and legacy-subsystem hardening audit (2026-11-16)
 =================================================================
 

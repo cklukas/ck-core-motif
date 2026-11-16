@@ -1173,10 +1173,10 @@ WinEntrySizePacked(Display *dpy, int screen_num, WSMWinEntry *win_entry)
 	win_entry->num_match_properties > WSM_MAX_LIST_ITEMS)
 	return(-1);
 
-    size  = sizeof(CARD32);
+    size  = COUNT_SIZE;
     if (!AddPackedSize(&size,
 			   (size_t)sizeof(CARD32) * (size_t)win_entry->num_windows) ||
-	!AddPackedSize(&size, sizeof(CARD32)) ||
+	!AddPackedSize(&size, COUNT_SIZE) ||
 	!AddPackedSize(&size,
 			   (size_t)sizeof(CARD32) *
 			   (size_t)win_entry->num_match_properties))
@@ -1481,7 +1481,7 @@ PackWinData(Display *dpy, int screen_num, MessageData data,
 	     * bits are the LSBits of the last byte.
 	     */
 
-	    (*(unsigned char *)mask_pos) |= (char)(1 << (7 - (i % 8)));
+	    (*(unsigned char *)mask_pos) |= (unsigned char)(1U << (7 - (i % 8)));
 	}
 
 	/*
@@ -1913,8 +1913,8 @@ UnpackString(MessageData *data_ptr)
 CARD32
 UnpackCARD32(MessageData *data_ptr)
 {
-    CARD32 val = UnpackCARD16(data_ptr) << 16;
-    val |= UnpackCARD16(data_ptr);
+    CARD32 val = ((CARD32)UnpackCARD16(data_ptr)) << 16;
+    val |= (CARD32)UnpackCARD16(data_ptr);
     return(val);
 }
 
@@ -1929,8 +1929,8 @@ UnpackCARD32(MessageData *data_ptr)
 CARD16
 UnpackCARD16(MessageData *data_ptr)
 {
-    CARD16 val = UnpackCARD8(data_ptr) << 8;
-    val |= UnpackCARD8(data_ptr);
+    CARD16 val = (CARD16)(((CARD32)UnpackCARD8(data_ptr)) << 8);
+    val |= (CARD16)UnpackCARD8(data_ptr);
     return(val);
 }
 

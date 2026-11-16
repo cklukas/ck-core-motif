@@ -1907,10 +1907,16 @@ UndefinedBehaviorSanitizer.
 ResConvert, image decoders, MWM parsers and UIL/WMD, and the sanitized
 installed-prefix suite runs clean of toolkit-owned ASan/UBSan diagnostics.
 
-**Status (2026-11-15):** in progress (`fuzz-mrm-uid`, `fuzz-editres-wire`,
-`fuzz-xm-converters` and `fuzz-xmstring-stream` are implemented on `master`;
-image, MWM and UIL targets plus full sanitized `run-suite.py` qualification
-remain).
+**Status (2026-11-16):** **Complete.** Added `fuzz-xpm-image`,
+`fuzz-mwm-parsers`, and `fuzz-uil-wmd` and their seed corpora in `tests/fuzz/`,
+wired all 7 targets into `tests/fuzz/run-fuzz.py --all --replay` and
+`tests/fuzz/make-seeds.py`, fixed XPM buffer allocation bounds and duplicate
+colour-key leaks in `lib/Xm/Xpmparse.c`, fixed signed 16-bit shift UB in
+`UnpackCARD32` and `WSM_WM_WINDOWS` packed reply size calculation in
+`clients/mwm/WmWsmLib/pack.c`, fixed `-O1` sanitizer initialization in
+`lib/Mrm/Mrmwcrw.c`, added `tests/automated/check-fuzz-targets-wp44.py`, and
+validated the sanitized `--enable-sanitizers=address,undefined` installed prefix
+in `ckdev`.
 
 **Does not include:** suppressing toolkit leaks or undefined behavior with
 sanitizer blacklists.
@@ -2131,7 +2137,7 @@ safety precede or accompany new surface area:
 | 1 | **WP-41** | Bug fix / QA | Fix the 10 remaining failing source-contract checks & docs nav | All 20 `baseline_failures` in `modern-integration-validation.json` pass | Complete (2026-11-15) |
 | 2 | **WP-42** | C23 / Security | Burn down 242 defect-class compiler warnings & 62 `cppcheck` errors to 0 | `scripts/warning-baseline.py compare` & `-Werror` per zeroed defect class | Complete (2026-11-15) |
 | 3 | **WP-43** | Security / Audit | Audit `clients/uil`, `tools/wml`, 30 untouched legacy files & Oct/Nov 2026 code | Updated audit ledger in `docs/hardening.md` + per-fix native regressions | Complete (2026-11-16) |
-| 4 | **WP-44** | Fuzzing / ASan | Add image, MWM & UIL fuzzers; run `run-suite.py` under ASan + UBSan | `tests/fuzz/run-fuzz.py --all --replay` & sanitized `run-suite.py` pass | In progress |
+| 4 | **WP-44** | Fuzzing / ASan | Add image, MWM & UIL fuzzers; run `run-suite.py` under ASan + UBSan | `tests/fuzz/run-fuzz.py --all --replay` & sanitized `run-suite.py` pass | Complete (2026-11-16) |
 | 5 | **WP-45** | UI / Theme | Declarative `Xrm` startup selection (`*appearanceProfile`, `*appearanceDensity`) | Unmodified C binary starts in modern profiles/density via `XENVIRONMENT` | Planned |
 | 6 | **WP-46** | UI / Theme | Complete historical-widget modern styling, gallery natural sizing & WP-39 menus | Full `ckmotif-gallery` + `Periodic` visual/interaction matrix passes | In progress |
 | 7 | **WP-47** | UI / Theme | Xrm semantic palette tokens (`*accentColor`, `*surfaceBackground`) + WCAG guards | Installed-prefix token, contrast-clamp and colormap parity tests pass | Planned |

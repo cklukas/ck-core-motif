@@ -3,8 +3,10 @@ libFuzzer fuzz targets for the parsers of CK Core Motif
 
 This directory holds fuzz targets for code that reads data that an attacker
 or a damaged file can control: UID files, the Editres wire protocol, the
-external format of compound strings, and the resource converters that parse
-user strings.  No toolkit source is changed.
+external format of compound strings, the resource converters that parse user
+strings, XPM images and metadata, the MWM workspace wire protocol and .mwmrc
+configuration parsers, and the UIL binary widget meta-language database (.wmd)
+reader.  No toolkit source is changed.
 
 How a target is built
 ---------------------
@@ -13,18 +15,22 @@ No toolkit build tree is needed.  run-fuzz.py reads the production sources of
 a checkout and builds each target below DIR (a scratch directory that you
 name).  Two methods are used.
 
-  - Compiled unchanged.  The UID file reader (all of lib/Mrm) and the compound
-    string, render table, tab list and converter sources of lib/Xm are
-    compiled as they are, with coverage instrumentation and sanitizers.  The
-    headers that the toolkit build generates (Xm/Xm.h, the XmStrDefs headers)
-    are produced the same way the toolkit build does, with config/util/makestrs.
-    What these sources call outside themselves (Xlib, the Intrinsics, widget
-    creation) is replaced by the stand-ins of mrm-stubs.c and xm-stubs.c.
-  - Cut out.  The Editres request parser sits in a file whose command
-    handlers need a live widget tree.  The runner cuts the type definitions and
-    the parser functions out of lib/Xm/EditresCom.c, with exact anchors, into
-    DIR/build/editres-wire/production.h.  If a function is renamed or moved the
-    runner stops and names it.
+  - Compiled unchanged.  The UID file reader (all of lib/Mrm), the compound
+    string, render table, tab list and converter sources of lib/Xm, the XPM
+    parser and serializer sources (lib/Xm/Xpm*.c), and the MWM workspace wire
+    protocol library (clients/mwm/WmWsmLib) are compiled as they are, with
+    coverage instrumentation and sanitizers.  The headers that the toolkit
+    build generates (Xm/Xm.h, the XmStrDefs headers) are produced the same way
+    the toolkit build does, with config/util/makestrs.  What these sources call
+    outside themselves (Xlib, the Intrinsics, widget creation) is replaced by
+    the stand-ins of mrm-stubs.c and xm-stubs.c.
+  - Cut out.  The Editres request parser, the .mwmrc configuration parsers, and
+    the UIL .wmd database reader sit in files whose callers or command handlers
+    need a live widget tree or full compiler context.  The runner cuts the type
+    definitions and the parser functions out of lib/Xm/EditresCom.c,
+    clients/mwm/WmResParse.c, and clients/uil/UilDB.c, with exact anchors, into
+    DIR/build/NAME/production.h.  If a function is renamed or moved the runner
+    stops and names it.
 
 What the stand-ins promise is written at the top of mrm-stubs.c and
 xm-stubs.c.  There is no X server and no widget tree.  A report whose top
@@ -103,11 +109,12 @@ found.  To look at a finding again:
 Seeds
 -----
 
-tests/fuzz/corpus/NAME holds two to five small valid inputs per target.
+tests/fuzz/corpus/NAME holds small valid inputs and regression inputs per target.
 
-  - editres-wire, xmstring-stream, xm-converters: make-seeds.py writes them
-    (requests built byte by byte from the protocol, compound string streams,
-    one string per converter).
+  - editres-wire, xmstring-stream, xm-converters, xpm-image, mwm-parsers,
+    uil-wmd: make-seeds.py writes them (requests built byte by byte from the
+    protocol, compound string streams, one string per converter, XPM1/2/3
+    buffers, WSM wire messages and .mwmrc lines, and binary .wmd databases).
   - mrm-uid: the seeds are UID files written by the resource manager's own
     writer, with mrm-make-seeds.c, so they are valid for the revision under
     test.  A UID file is made of 4096-byte records, more than libFuzzer may
@@ -146,6 +153,19 @@ Targets
                    converters by number (the order of the table in
                    fuzz-xm-converters.c), to look past a new finding in one of
                    them (none is needed at present).
+  xpm-image        XPM image and metadata parser and round-trip serializer
+                   (lib/Xm/Xpm*.c, compiled unchanged):
+                   XpmCreateXpmImageFromBuffer, colour-table and pixel-index
+                   invariant verification, XpmCreateBufferFromXpmImage and
+                   XpmCreateDataFromXpmImage.
+  mwm-parsers      MWM workspace wire protocol (clients/mwm/WmWsmLib/{wire,
+                   pack,free,util}.c, compiled unchanged) and .mwmrc
+                   configuration token, event, modifier, context, client
+                   command and accelerator parsers (clients/mwm/WmResParse.c).
+  uil-wmd          UIL binary widget meta-language database (.wmd) reader
+                   (clients/uil/UilDB.c): globals, table headers, byte, short,
+                   integer, bitmask and string tables loaded via
+                   db_incorporate().
 
 The check programs in tests/automated (run-xmstring-stream-bounds.py,
 run-resconvert-list-bounds.py, run-mrm-literal-bounds.py) build the same

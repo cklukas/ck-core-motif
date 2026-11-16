@@ -4,6 +4,18 @@ The current ABI 9 appearance cohort is documented in
 [modern integration qualification](modern-integration-qualification.md).
 The dated ABI 8 results below are historical and do not qualify ABI 9 binaries.
 
+The WP-44 parser-fuzzing and sanitized installed-prefix qualification (2026-11-16)
+extends `tests/fuzz/run-fuzz.py --all --replay` to 7 `libFuzzer` targets
+(`editres-wire`, `mrm-uid`, `mwm-parsers`, `uil-wmd`, `xm-converters`,
+`xmstring-stream`, `xpm-image`) across both macOS and AArch64 Linux (`ckdev`),
+and validates an isolated `--enable-hardening --enable-sanitizers=address,undefined`
+`-std=c23 -O1 -g` installed prefix against `check-wmd.py`, `check-xpm-input`
+(2,588 checks under Xvfb), `wsm-wire-validation`, and the 5 sanitized
+parser-bounds suites (`run-xmstring-stream-bounds.py`,
+`run-resconvert-list-bounds.py`, `run-mrm-literal-bounds.py`,
+`run-mrm-icon-bounds.py`, `run-mrm-value-bounds.py`) with zero toolkit-owned
+ASan/UBSan findings.
+
 The current WP-05.2 increment provides a deterministic per-display scale
 override and shared UI-thread scale transaction through `<Xm/Display.h>`.  The
 installed AArch64 `uconsole` consumer passes three fresh live Xvfb runs and a

@@ -93,3 +93,96 @@ write("xm-converters", "rendertable", conv(1, "tag1 = fixed, tag2 = variable, *"
 write("xm-converters", "fontlist", conv(3, "-*-fixed-medium-r-*-*-14-*=tag1, fixed=tag2"))
 write("xm-converters", "keysym-table", conv(4, "Escape, F1, a, space, Return"))
 write("xm-converters", "string-table", conv(6, "one,two\\,three,four"))
+
+
+# ---- XPM image and metadata parser --------------------------------------------
+
+write("xpm-image", "xpm3-comments-1cpp",
+      b'/* XPM */\n/* hints */\nstatic char *i[]={\n"2 2 2 1 0 0",\n/* colors */\n'
+      b'"a c #000000 m black",\n"b c #ffffff s background",\n/* pixels */\n"ab",\n"ba"};\n')
+write("xpm-image", "xpm3-2cpp",
+      b'/* XPM */\nstatic char *i[]={"2 2 2 2","aa c black","bb c white","aabb","bbaa"};\n')
+write("xpm-image", "xpm3-extensions",
+      b'/* XPM */\nstatic char *i[]={"2 2 2 1 XPMEXT","a c black","b c white","ab","ba",'
+      b'"XPMEXT meta","line1","line2","XPMENDEXT"};\n')
+write("xpm-image", "xpm2-plain",
+      b"! XPM2\n! hints\n2 2 2 1\na c black\nb c white\nab\nba\n")
+write("xpm-image", "xpm2-lisp",
+      b'! XPM2 Lisp\n; hints\n(setq i \'("2 2 2 1""a c black""b c white""ab""ba"))\n')
+write("xpm-image", "oversized-buffer-dims",
+      b'* XPM "277777777 2 2 1"" c""bc')
+write("xpm-image", "duplicate-color-key",
+      b'/* XPM */\nstatic char *i[]={"2 2 2 1","a c #000000 c #111111","b c #ffffff","ab","ba"};\n')
+
+
+# ---- MWM workspace wire protocol and .mwmrc parsers ---------------------------
+
+write("mwm-parsers", "wsm-connect-req", bytes([0, 0, 3, 3, 2, 1]))
+write("mwm-parsers", "wsm-extensions-req", bytes([1, 0, 1, 0, 3]) + b"abc")
+write("mwm-parsers", "wsm-config-fmt-reply", bytes([2 | 0x80, 1, 0, 0, 0, 1, 0, 1]) + b"x" + bytes([32, 0, 0, 0]))
+write("mwm-parsers", "wsm-set-state-req",
+      bytes([4, 0, 1, 0, 0, 0, 1, 0xC0, 0, 0, 0, 5, 0, 2, 0, 8, 0, 9]))
+write("mwm-parsers", "wsm-highbit-card32",
+      bytes([0xFB, 0xFF, 0xFF, 0x0F, 0x20]))
+write("mwm-parsers", "wsm-wm-windows-reply",
+      bytes([8, 0, 1, 0, 0, 0, 0]))
+write("mwm-parsers", "mwmrc-bindings",
+      b'Shift Ctrl<Btn1Click> frame|title|icon f.Exec "xterm"\n'
+      b'~Meta<Key>Return window|app f.circle_up icon|window\n'
+      b'=<ClientCmd.SubCmd> _M Alt<Key>F4 f.cci cascade <Entry>\n')
+
+
+# ---- UIL binary widget meta-language database (.wmd) --------------------------
+
+def wmd_header(table_id, num_items, table_size):
+    return struct.pack("iii", table_id, num_items, table_size)
+
+
+wmd_globals = struct.pack("11i", 2, 4, 2, 2, 4, 2, 4, 2, 2, 16, 2)
+wmd_constraint = wmd_header(1, 2, 2) + b"\x03\x01"
+wmd_arg_types = wmd_header(5, 5, 5) + b"\x00\x01\x02\x03\x04"
+wmd_child_class = wmd_header(29, 3, 3) + b"\x00\x01\x02"
+wmd_charset_wr = wmd_header(7, 3, 3) + b"\x00\x01\x01"
+wmd_charset_pa = wmd_header(8, 3, 3) + b"\x00\x01\x01"
+wmd_charset_sz = wmd_header(9, 3, 3) + b"\x00\x01\x01"
+wmd_lang_codes = wmd_header(11, 1, 4) + struct.pack("2H", 1, 2)
+wmd_arg_enumset = wmd_header(14, 4, 10) + struct.pack("5H", 0, 1, 0, 2, 0)
+wmd_related_arg = wmd_header(21, 4, 10) + struct.pack("5H", 0, 0, 0, 0, 0)
+wmd_gadget_var = wmd_header(24, 4, 10) + struct.pack("5H", 0, 2, 0, 0, 0)
+wmd_nondialog = wmd_header(25, 4, 10) + struct.pack("5H", 0, 1, 1, 0, 0)
+wmd_subtree = wmd_header(26, 4, 10) + struct.pack("5H", 0, 0, 0, 0, 0)
+wmd_enumvals = wmd_header(15, 4, 20) + struct.pack("5i", 0, 10, 20, 30, 40)
+wmd_allowed_arg = wmd_header(4, 4, 5 * 8) + (b"\x0f" * 4)
+wmd_widget_names = (
+    wmd_header(16, 2, 3 * 8)
+    + struct.pack("3i", 0, 13, 13)
+    + b"user_defined\x00\x00"
+    + b"XmPushButton\x00\x00"
+)
+wmd_key_entry = struct.pack("BHBBL", 1, 1, 5, 10, 0)
+wmd_key_table = (
+    wmd_header(2, 2, 2 * len(wmd_key_entry))
+    + wmd_key_entry * 2
+    + b"width\x00height\x00"
+)
+wmd_enum_entry_0 = struct.pack("h6xQ", 0, 0)
+wmd_enum_entry_1 = struct.pack("h6xQ", 2, 0)
+wmd_enum_set = (
+    wmd_header(13, 2, 3 * len(wmd_enum_entry_0))
+    + wmd_enum_entry_0 + wmd_enum_entry_1 + wmd_enum_entry_1
+    + struct.pack("4H", 1, 2, 3, 4)
+)
+
+write("uil-wmd", "minimal-tables",
+      wmd_globals + wmd_constraint + wmd_arg_types + wmd_child_class
+      + wmd_charset_wr + wmd_charset_pa + wmd_charset_sz + wmd_lang_codes
+      + wmd_arg_enumset + wmd_related_arg + wmd_gadget_var + wmd_nondialog
+      + wmd_subtree + wmd_enumvals + wmd_allowed_arg + wmd_widget_names
+      + wmd_key_table + wmd_enum_set)
+write("uil-wmd", "strings-and-charsets",
+      wmd_globals + wmd_widget_names
+      + wmd_header(6, 2, 3 * 8) + struct.pack("3i", 0, 10, 6) + b"ISO8859-1\x00\x00UTF-8\x00\x00")
+write("uil-wmd", "keys-case-ins",
+      wmd_globals + wmd_key_table
+      + wmd_header(3, 2, 2 * len(wmd_key_entry)) + wmd_key_entry * 2 + b"WIDTH\x00HEIGHT\x00")
+

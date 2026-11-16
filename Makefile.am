@@ -1659,4 +1659,8 @@ EXTRA_DIST += tests/automated/check-mrm-value-bounds.c \
               docs/mrm-value-bounds.md \
               tests/automated/check-hardening-defect-ratchet.py \
               tests/automated/check-untrusted-input-audit-wp43.py \
-              docs/untrusted-input-audit-wp43.md
+              docs/untrusted-input-audit-wp43.md \
+              tests/automated/check-fuzz-targets-wp44.py \
+              tests/fuzz/fuzz-xpm-image.c \
+              tests/fuzz/fuzz-mwm-parsers.c \
+              tests/fuzz/fuzz-uil-wmd.c

@@ -77,11 +77,11 @@ D-Bus adapter also have compiled behavioural tests under the sanitizers
 
 | Component | Exposure | Prior hardening | Unique warnings | Defect-class | cppcheck errors | Fuzz targets |
 |---|---|---|---:|---:|---:|---|
-| `lib/Xm` | toolkit library; clipboard, selection, text, string and image paths; editres protocol | hardening commits since 2026-10-22; WP-42 defect-warning & cppcheck ratchet and WP-43 legacy/modern subsystem audit ([WP-43 audit](untrusted-input-audit-wp43.md), 2026-11-16) | 745 | 0 | 0 | `fuzz-editres-wire`, `fuzz-xm-converters`, `fuzz-xmstring-stream` |
-| `clients/uil` | UIL compiler; parses source and `.wmd` files | WP-42 defect-warning & cppcheck ratchet; WP-43 WMD binary database and parser bounds audit ([WP-43 audit](untrusted-input-audit-wp43.md), 2026-11-16) | 525 | 0 | 0 | none |
-| `clients/mwm` | window manager; resource and property parsers | control flow, initialization and keysym handling (2026-11-01); WP-42 ratchet and WP-43 interactive-placement bounds audit (2026-11-16) | 173 | 0 | 0 | none |
-| `lib/Mrm` | reads and writes binary UID files | hardening commits since 2026-10-22; UID index, literal, icon and compression-table checks (2026-11-10); WP-42 ratchet and WP-43 writer/OS audit (2026-11-16) | 173 | 0 | 0 | `fuzz-mrm-uid`, `run-mrm-uid-mutations.py` |
-| `tools/wml` | widget meta-language generator; build-time tool | WP-42 format-security & cppcheck ratchet; WP-43 WMD emitter/grammar review (2026-11-16) | 31 | 0 | 0 | none |
+| `lib/Xm` | toolkit library; clipboard, selection, text, string and image paths; editres protocol | hardening commits since 2026-10-22; WP-42 defect-warning & cppcheck ratchet, WP-43 legacy/modern subsystem audit ([WP-43 audit](untrusted-input-audit-wp43.md)), and WP-44 XPM fuzzer & bounds fixes (2026-11-16) | 745 | 0 | 0 | `fuzz-editres-wire`, `fuzz-xm-converters`, `fuzz-xmstring-stream`, `fuzz-xpm-image` |
+| `clients/uil` | UIL compiler; parses source and `.wmd` files | WP-42 defect-warning & cppcheck ratchet; WP-43 WMD binary database and parser bounds audit ([WP-43 audit](untrusted-input-audit-wp43.md)); WP-44 `.wmd` fuzzer (2026-11-16) | 525 | 0 | 0 | `fuzz-uil-wmd`, `check-wmd.py` |
+| `clients/mwm` | window manager; resource and property parsers | control flow, initialization and keysym handling (2026-11-01); WP-42 ratchet, WP-43 interactive-placement bounds audit, and WP-44 WSM wire & `.mwmrc` fuzzer (2026-11-16) | 173 | 0 | 0 | `fuzz-mwm-parsers`, `wsm-wire-validation` |
+| `lib/Mrm` | reads and writes binary UID files | hardening commits since 2026-10-22; UID index, literal, icon and compression-table checks (2026-11-10); WP-42 ratchet, WP-43 writer/OS audit, and WP-44 `-O1` sanitizer initialization fix (2026-11-16) | 173 | 0 | 0 | `fuzz-mrm-uid`, `run-mrm-uid-mutations.py` |
+| `tools/wml` | widget meta-language generator; build-time tool | WP-42 format-security & cppcheck ratchet; WP-43 WMD emitter/grammar review; WP-44 sanitized `wmldbcreate` round-trip (2026-11-16) | 31 | 0 | 0 | `check-wmd.py` |
 | `config/util` | build-time utility | WP-42 checktree directory-handle leak fix (2026-11-15) | 6 | 0 | 0 | none |
 
 All 28 previously untouched first-party C/yacc files from the 2026-11-04
@@ -105,9 +105,16 @@ teardown.
 
 ## Known limits
 
-- The sanitized build compiles and links the libraries, generators and
-  programs. The installed-prefix fixtures have not yet been run under the
-  sanitizers; the baseline covers compilation and static analysis only.
+- The sanitized (`--enable-sanitizers=address,undefined`) installed-prefix build
+  and all 7 `libFuzzer` replay targets (`editres-wire`, `mrm-uid`,
+  `mwm-parsers`, `uil-wmd`, `xm-converters`, `xmstring-stream`, `xpm-image`),
+  `check-wmd.py`, `check-xpm-input`, `wsm-wire-validation`, and the 5 sanitized
+  parser-bounds suites (`run-xmstring-stream-bounds.py`,
+  `run-resconvert-list-bounds.py`, `run-mrm-literal-bounds.py`,
+  `run-mrm-icon-bounds.py`, `run-mrm-value-bounds.py`) pass with zero
+  toolkit-owned ASan/UBSan diagnostics. Leak-enabled process-exit allocations
+  inside external system libraries (`libX11`, `libXt`, `fontconfig`) remain
+  documented external ownership boundaries in `docs/status.md`.
 - cppcheck ran with `--max-configs=1` for the baseline summary, though the
   product-code directories (`lib/Xm`, `lib/Mrm`, `clients/mwm`, `clients/uil`,
   `tools/wml`, `config/util`) were also verified at default multi-branch depth

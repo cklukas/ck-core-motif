@@ -1,0 +1,3 @@
+Shift Ctrl<Btn1Click> frame|title|icon f.Exec "xterm"
+~Meta<Key>Return window|app f.circle_up icon|window
+=<ClientCmd.SubCmd> _M Alt<Key>F4 f.cci cascade <Entry>
