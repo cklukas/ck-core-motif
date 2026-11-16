@@ -671,3 +671,27 @@ during `ProcessWmResources`:
 - Qualified across `classic`, `modern-light`, `modern-dark`, and `high-contrast`
   at 1x and 2x scales under Xvfb by
   `tests/automated/run-mwm-modern-appearance.py`.
+
+### Interactive UX polish: hover affordances, focus-visible, and wheel scrolling (WP-49)
+
+Modern appearance profiles (`modern-light` and `modern-dark`) provide restrained,
+non-animated interactive ergonomics while keeping `classic` behavior unchanged:
+- **Pointer hover affordances:** `XmPushButton`, `XmToggleButton`, `XmComboBox`
+  triggers, `XmNotebook` tabs, and `XmList`, `XmTreeView`, and `XmDataGrid` rows
+  render a subtle hover surface/border tint on `EnterNotify`/`MotionNotify` and
+  restore their base state on `LeaveNotify`, `UnmapNotify`, or profile changes
+  to `classic`.
+- **Focus-visible policy (`XmNfocusHighlightPolicy`):** `XmDisplay` exposes
+  `XmNfocusHighlightPolicy` (`XmCFocusHighlightPolicy`, representation
+  `XmRFocusHighlightPolicy`) with values `XmFOCUS_HIGHLIGHT_ALWAYS` (default)
+  and `XmFOCUS_HIGHLIGHT_KEYBOARD`. When `XmFOCUS_HIGHLIGHT_KEYBOARD` is
+  selected, pointer clicks assign input focus without drawing redundant button,
+  list, or tree focus rings (text entry widgets retain their focus border), and
+  any subsequent keyboard traversal key (`Tab` or arrow keys) immediately
+  restores visible focus rings.
+- **Standardized mouse-wheel scrolling and boundary forwarding:** `XmList`,
+  `XmText`, `XmTreeView`, and `XmDataGrid` scroll in 3-line steps on `Button4` /
+  `Button5` wheel events (`6` lines with modifiers in `XmList`/`XmText`) and
+  forward wheel events via `_XmForwardWheelEvent` to an enclosing
+  `XmScrolledWindow` when the inner control is already at its scroll boundary.
+- Qualified under Xvfb by `tests/automated/run-ux-polish-wp49.py`.

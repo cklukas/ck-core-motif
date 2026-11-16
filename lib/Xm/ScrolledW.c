@@ -3240,6 +3240,65 @@ WheelScroll(Widget widget, XEvent *event, String *params, Cardinal *count)
     XmScrollBarSetValues(bar, (int)next, size, increment, page, True);
 }
 
+Boolean
+_XmForwardWheelEvent(Widget from_widget, XEvent *event)
+{
+    Widget cur;
+    unsigned int button;
+    Boolean horizontal;
+
+    if (from_widget == NULL || event == NULL)
+        return False;
+    if (event->type != ButtonPress && event->type != ButtonRelease)
+        return False;
+    button = event->xbutton.button;
+    if (button < 4 || button > 7)
+        return False;
+    horizontal = button >= 6 || (event->xbutton.state & ShiftMask);
+
+    for (cur = XtParent(from_widget); cur != NULL; cur = XtParent(cur)) {
+        if (XtIsShell(cur))
+            break;
+        if (XmIsScrolledWindow(cur)) {
+            XmScrolledWindowWidget sw = (XmScrolledWindowWidget)cur;
+            Widget bar;
+            XtEnum editable = True;
+            unsigned char direction = XmMAX_ON_BOTTOM;
+            int value, size, increment, page, minimum, maximum;
+            int64_t next, limit, delta;
+
+            if (sw->core.being_destroyed || !XtIsSensitive(cur))
+                continue;
+            bar = (Widget)(horizontal ? sw->swindow.hScrollBar : sw->swindow.vScrollBar);
+            if (!bar || bar->core.being_destroyed || !XtIsManaged(bar) ||
+                !XtIsSensitive(bar))
+                continue;
+            XtVaGetValues(bar, XmNminimum, &minimum, XmNmaximum, &maximum,
+                          XmNprocessingDirection, &direction,
+                          XmNeditable, &editable, NULL);
+            if (!editable)
+                continue;
+            XmScrollBarGetValues(bar, &value, &size, &increment, &page);
+            limit = (int64_t)maximum - size;
+            if (limit <= minimum || increment <= 0)
+                continue;
+            delta = 3LL * increment * ((button == 4 || button == 6) ? -1 : 1);
+            if (direction == XmMAX_ON_TOP || direction == XmMAX_ON_LEFT)
+                delta = -delta;
+            next = (int64_t)value + delta;
+            if (next < minimum)
+                next = minimum;
+            if (next > limit)
+                next = limit;
+            if (next == value)
+                continue;
+            XmScrollBarSetValues(bar, (int)next, size, increment, page, True);
+            return True;
+        }
+    }
+    return False;
+}
+
 /************************************************************************
  *
  *  Destroy

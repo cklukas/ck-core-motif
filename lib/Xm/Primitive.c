@@ -1099,6 +1099,12 @@ HighlightBorder(
     XmPrimitiveWidget pw = (XmPrimitiveWidget) w ;
 
     pw->primitive.highlighted = True ;
+    if (!_XmFocusHighlightVisible(w) &&
+        !XmIsText(w) && !XmIsTextField(w))
+    {
+        pw->primitive.highlight_drawn = False ;
+        return ;
+    }
     pw->primitive.highlight_drawn = True ;
 
     if(XtWidth( pw) == 0 || XtHeight( pw) == 0
@@ -1541,6 +1547,7 @@ _XmPrimitiveFocusOnPrimaryClick(Widget widget, XEvent *event)
         !XtIsSensitive(widget) || !((XmPrimitiveWidget)widget)->primitive.traversal_on)
         return True;
     XtAddCallback(widget, XmNdestroyCallback, focus_click_destroyed, &destroyed);
+    _XmSetFocusModalityKeyboard(widget, False);
     XmProcessTraversal(widget, XmTRAVERSE_CURRENT);
     if (destroyed) return False;
     if (widget->core.being_destroyed) {
@@ -1564,6 +1571,7 @@ _XmButtonTakeFocus(
         String *params,		/* unused */
         Cardinal *num_params )	/* unused */
 {
+    _XmSetFocusModalityKeyboard(wid, False);
     XmProcessTraversal(wid, XmTRAVERSE_CURRENT);
 }
 

@@ -872,6 +872,13 @@ static XtResource resources[] = {
         XmRImmediate, (XtPointer) False
     },
 
+    {
+        XmNfocusHighlightPolicy, XmCFocusHighlightPolicy,
+	XmRUnsignedChar, sizeof(unsigned char),
+	Offset(display.focus_highlight_policy),
+	XmRImmediate, (XtPointer) XmFOCUS_HIGHLIGHT_ALWAYS
+    },
+
     /* Force this resource to avoid loop in the pixmap conversion.
        XmDisplay is a VendorShell, so when iconPixmap is set in 
        a resource file, the VendorShell converter is called, but 
@@ -1148,6 +1155,8 @@ DisplayInitialize(
 	(Widget)NULL;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->excParentPane.pane =
 	(Widget *)NULL;
+    ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->focus_visible_keyboard =
+	True;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->excParentPane.pane_list_size = 0;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->excParentPane.num_panes= 0;
     ((XmDisplayInfo *)(xmDisplay->display.displayInfo))->resetFocusFlag = 0;

@@ -2800,10 +2800,16 @@ ScrollOneLineUp(Widget w,
 		Cardinal *num_params)
 {
   XmTextWidget tw = (XmTextWidget) w;
+  XmTextPosition old_top = tw->text.top_character;
+  Boolean is_first = (num_params != NULL && *num_params > 0 &&
+                      params != NULL && params[0] != NULL &&
+                      strcmp(params[0], "first") == 0);
   
   EraseInsertionPoint(tw);
   XmTextScroll(w, 1);
   DisplayInsertionPoint(tw);
+  if (is_first && tw->text.top_character == old_top)
+    (void)_XmForwardWheelEvent(w, event);
 }
 
 /* ARGSUSED */
@@ -2814,10 +2820,16 @@ ScrollOneLineDown(Widget w,
 		  Cardinal *num_params)
 {
   XmTextWidget tw = (XmTextWidget) w;
+  XmTextPosition old_top = tw->text.top_character;
+  Boolean is_first = (num_params != NULL && *num_params > 0 &&
+                      params != NULL && params[0] != NULL &&
+                      strcmp(params[0], "first") == 0);
   
   EraseInsertionPoint(tw);
   XmTextScroll(w, -1);
   DisplayInsertionPoint(tw);
+  if (is_first && tw->text.top_character == old_top)
+    (void)_XmForwardWheelEvent(w, event);
 }
 
 /* ARGSUSED */

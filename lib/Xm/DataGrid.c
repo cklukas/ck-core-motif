@@ -187,6 +187,7 @@ static Boolean copy_model(XmDataGridWidget grid,
     grid->data_grid.column_count = column_count;
     grid->data_grid.row_count = row_count;
     grid->data_grid.selected_row = grid->data_grid.selected_column = -1;
+    grid->data_grid.hovered_row = -1;
     grid->data_grid.top_row = 0;
     XtFree(grid->data_grid.edit_text);
     XtFree(grid->data_grid.edit_error);
@@ -363,6 +364,7 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     Dimension nat_w, nat_h;
     (void)request; (void)args; (void)count;
     grid->data_grid.selected_row = grid->data_grid.selected_column = -1;
+    grid->data_grid.hovered_row = -1;
     grid->data_grid.row_height = grid->data_grid.row_height ?
         grid->data_grid.row_height : 22;
     grid->data_grid.header_height = grid->data_grid.header_height ?
@@ -381,14 +383,19 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     if (!request->core.width) grid->core.width = nat_w;
     if (!request->core.height) grid->core.height = nat_h;
     recompute_visible(grid);
-    XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
-                      NULL);
+    XtAddEventHandler(widget,
+                      KeyPressMask | ButtonPressMask | EnterWindowMask |
+                      LeaveWindowMask | PointerMotionMask | StructureNotifyMask,
+                      False, Events, NULL);
 }
 
 static void Destroy(Widget widget) {
     XmDataGridWidget grid = (XmDataGridWidget)widget;
-    XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask, False,
-                         Events, NULL);
+    XtRemoveEventHandler(widget,
+                         KeyPressMask | ButtonPressMask | EnterWindowMask |
+                         LeaveWindowMask | PointerMotionMask |
+                         StructureNotifyMask,
+                         False, Events, NULL);
     free_model(grid);
     XtFree(grid->data_grid.edit_text);
     XtFree(grid->data_grid.edit_error);
@@ -499,12 +506,29 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     for (row = 0; row < grid->data_grid.visible_rows &&
                   grid->data_grid.top_row + row < grid->data_grid.row_count; ++row) {
         Cardinal model_row = grid->data_grid.top_row + row;
+        int top = (int)grid->data_grid.header_height +
+                  (int)row * grid->data_grid.row_height;
+        XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
+        if ((int)model_row == grid->data_grid.hovered_row &&
+            (int)model_row != grid->data_grid.selected_row &&
+            XmGetAppearanceProfile(XtDisplay(widget), &profile) &&
+            (profile == XmAPPEARANCE_MODERN_LIGHT ||
+             profile == XmAPPEARANCE_MODERN_DARK) &&
+            grid->core.width > 2 && grid->data_grid.row_height > 2) {
+            Pixel hover_px = _XmAppearanceHoverSurfacePixel(
+                widget, grid->core.background_pixel);
+            XSetForeground(XtDisplay(widget), grid->data_grid.gc, hover_px);
+            XFillRectangle(XtDisplay(widget), _XmPaintDrawable(widget),
+                           grid->data_grid.gc, 1, top,
+                           (unsigned int)grid->core.width - 2U,
+                           (unsigned int)grid->data_grid.row_height);
+            XSetForeground(XtDisplay(widget), grid->data_grid.gc,
+                           grid->primitive.foreground);
+        }
         for (column = 0; column < grid->data_grid.column_count; ++column) {
             Cardinal visual = grid->data_grid.rtl ?
                 grid->data_grid.column_count - column - 1 : column;
             int x = (int)visual * cell_width + 4;
-            int top = (int)grid->data_grid.header_height +
-                      (int)row * grid->data_grid.row_height;
             if ((int)model_row == grid->data_grid.selected_row &&
                 (int)column == grid->data_grid.selected_column)
                 XDrawRectangle(XtDisplay(widget), _XmPaintDrawable(widget),
@@ -561,6 +585,30 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
     (void)closure; (void)continue_dispatch;
     if (widget == NULL || event == NULL || !XmIsDataGrid(widget) ||
         widget->core.being_destroyed || !XtIsSensitive(widget)) return;
+    if (event->type == EnterNotify || event->type == MotionNotify ||
+        event->type == LeaveNotify || event->type == UnmapNotify) {
+        int next_hover = -1;
+        if (event->type == EnterNotify || event->type == MotionNotify) {
+            int ey = (event->type == MotionNotify) ? event->xmotion.y : event->xcrossing.y;
+            if (ey >= (int)grid->data_grid.header_height &&
+                grid->data_grid.row_height > 0) {
+                int r = (ey - (int)grid->data_grid.header_height) /
+                        (int)grid->data_grid.row_height;
+                if (r >= 0 && (Cardinal)r < grid->data_grid.visible_rows &&
+                    grid->data_grid.top_row + (Cardinal)r < grid->data_grid.row_count)
+                    next_hover = (int)(grid->data_grid.top_row + (Cardinal)r);
+            }
+        }
+        if (grid->data_grid.hovered_row != next_hover) {
+            XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
+            grid->data_grid.hovered_row = next_hover;
+            if (XmGetAppearanceProfile(XtDisplay(widget), &profile) &&
+                (profile == XmAPPEARANCE_MODERN_LIGHT ||
+                 profile == XmAPPEARANCE_MODERN_DARK))
+                redraw(grid);
+        }
+        return;
+    }
     if (!_XmPrimitiveFocusOnPrimaryClick(widget, event)) return;
     if (event->type == KeyPress) {
         XLookupString(&event->xkey, input, sizeof(input), &key, NULL);
@@ -608,8 +656,22 @@ static void Events(Widget widget, XtPointer closure, XEvent *event,
         return;
     }
     if (event->type != ButtonPress) return;
-    if (event->xbutton.button == Button4) { XmDataGridSetTopRow(widget, grid->data_grid.top_row ? grid->data_grid.top_row - 1 : 0); return; }
-    if (event->xbutton.button == Button5) { XmDataGridSetTopRow(widget, add_top_row(grid, 1)); return; }
+    if (event->xbutton.button == Button4) {
+        Cardinal old_top = grid->data_grid.top_row;
+        Cardinal next_top = (old_top > 3) ? (old_top - 3) : 0;
+        if (next_top != old_top)
+            XmDataGridSetTopRow(widget, next_top);
+        else
+            (void)_XmForwardWheelEvent(widget, event);
+        return;
+    }
+    if (event->xbutton.button == Button5) {
+        Cardinal old_top = grid->data_grid.top_row;
+        XmDataGridSetTopRow(widget, add_top_row(grid, 3));
+        if (grid->data_grid.top_row == old_top)
+            (void)_XmForwardWheelEvent(widget, event);
+        return;
+    }
     x = event->xbutton.x; y = event->xbutton.y;
     if (!grid->data_grid.column_count || y < (int)grid->data_grid.header_height) {
         if (grid->data_grid.column_count) {

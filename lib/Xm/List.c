@@ -997,6 +997,42 @@ ClassPartInitialize(WidgetClass wc)
   XmeTraitSet((XtPointer)wc, XmQTtransfer, (XtPointer) &ListTransfer);
 }
 
+static void
+ListHoverEH(Widget w, XtPointer client_data, XEvent *event, Boolean *cont)
+{
+  XmListWidget lw = (XmListWidget)w;
+  XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
+  int new_hover = -1;
+  int old_hover = lw->list.hovered_item;
+  (void)client_data;
+  (void)cont;
+
+  if (!XmGetAppearanceProfile(XtDisplay(w), &profile) ||
+      (profile != XmAPPEARANCE_MODERN_LIGHT &&
+       profile != XmAPPEARANCE_MODERN_DARK))
+    {
+      lw->list.hovered_item = -1;
+      return;
+    }
+
+  if (event->type == EnterNotify || event->type == MotionNotify)
+    {
+      int ey = (event->type == MotionNotify) ? event->xmotion.y : event->xcrossing.y;
+      int idx = WhichItem(lw, ey);
+      if (idx >= lw->list.top_position &&
+          idx < lw->list.top_position + lw->list.visibleItemCount &&
+          idx < lw->list.itemCount)
+        new_hover = idx;
+    }
+
+  if (new_hover != old_hover)
+    {
+      lw->list.hovered_item = new_hover;
+      if (XtIsRealized(w))
+        DrawList(lw, NULL, TRUE);
+    }
+}
+
 /************************************************************************
  *									*
  * Initialize - initialize the instance.				*
@@ -1048,11 +1084,16 @@ Initialize(Widget request,
   lw->list.scratchRend = NULL;
   lw->list.drag_start_timer = 0;
   lw->list.drag_abort_action = 0;
+  lw->list.hovered_item = -1;
   lw->list.MaxWidth = 0;
 
 
   /* For Quick Navigate */
   XmImRegister(w, 0);
+  XtAddEventHandler(w,
+                    EnterWindowMask | LeaveWindowMask | PointerMotionMask |
+                    StructureNotifyMask,
+                    False, ListHoverEH, NULL);
 
   if (lw->list.ItemSpacing < 0)
     {
@@ -2548,16 +2589,62 @@ DrawItems(XmListWidget lw,
 	lw->list.InternalList[pos]->selected;
 
       /* Need to pad dimensions by one because of X fill semantics. */
-      XFillRectangle(XtDisplay(lw), XtWindow(lw),
-		     ((lw->list.InternalList[pos]->selected) ?
-		      lw->list.NormalGC : lw->list.InverseGC),
+      {
+        XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
+        Boolean row_hovered =
+          !lw->list.InternalList[pos]->selected &&
+          pos == lw->list.hovered_item &&
+          XmGetAppearanceProfile(XtDisplay(lw), &profile) &&
+          (profile == XmAPPEARANCE_MODERN_LIGHT ||
+           profile == XmAPPEARANCE_MODERN_DARK);
+        if (row_hovered)
+          {
+            XGCValues gcv;
+            GC hgc;
+            gcv.foreground = _XmAppearanceHoverSurfacePixel(
+              (Widget)lw, lw->core.background_pixel);
+            hgc = XCreateGC(XtDisplay(lw), XtWindow(lw), GCForeground, &gcv);
+            if (hgc)
+              {
+                Position cx, cy, cht;
+                Dimension cw, ch;
+                XRectangle crect;
+                cht = lw->list.HighlightThickness;
+                cx = lw->list.margin_width + cht + lw->primitive.shadow_thickness;
+                cy = lw->list.margin_height + cht + lw->primitive.shadow_thickness;
+                cw = ((int)lw->core.width <= 2 * cx) ? 1 : (lw->core.width - (2 * cx));
+                ch = ((int)lw->core.height <= 2 * cy) ? 1 : (lw->core.height - (2 * cy));
+                crect.x = 0;
+                crect.y = 0;
+                crect.width = cw;
+                crect.height = ch;
+                XSetClipRectangles(XtDisplay(lw), hgc, cx, cy, &crect, 1, Unsorted);
 #ifdef FIX_1365
-			  lw->list.BaseX, y - 1,
-			  width + 1, lw->list.MaxItemHeight + 1);
+                XFillRectangle(XtDisplay(lw), XtWindow(lw), hgc,
+                               lw->list.BaseX, y - 1,
+                               width + 1, lw->list.MaxItemHeight + 1);
 #else
-		     lw->list.BaseX, y,
-		     width + 1, lw->list.MaxItemHeight);
+                XFillRectangle(XtDisplay(lw), XtWindow(lw), hgc,
+                               lw->list.BaseX, y,
+                               width + 1, lw->list.MaxItemHeight);
 #endif
+                XFreeGC(XtDisplay(lw), hgc);
+              }
+          }
+        else
+          {
+            XFillRectangle(XtDisplay(lw), XtWindow(lw),
+                           ((lw->list.InternalList[pos]->selected) ?
+                            lw->list.NormalGC : lw->list.InverseGC),
+#ifdef FIX_1365
+                           lw->list.BaseX, y - 1,
+                           width + 1, lw->list.MaxItemHeight + 1);
+#else
+                           lw->list.BaseX, y,
+                           width + 1, lw->list.MaxItemHeight);
+#endif
+          }
+      }
 
       if (XtIsSensitive((Widget)lw))
 	gc = ((lw->list.InternalList[pos]->selected) ?
@@ -2676,6 +2763,9 @@ DrawHighlight(XmListWidget lw,
   if (!XtIsRealized((Widget)lw) ||
       !lw->list.Traversing ||
       (lw->list.HighlightThickness < 1))
+    return;
+
+  if (on && !_XmFocusHighlightVisible((Widget)lw))
     return;
 
   ht = lw->list.HighlightThickness;
@@ -5026,6 +5116,9 @@ SelectElement(Widget wid,
   if (!lw->list.itemCount)
     return;
 
+  if (!lw->list.KbdSelection)
+    _XmSetFocusModalityKeyboard(wid, False);
+
   interval = (Time) lw->list.ClickInterval;
 
   item = WhichItem(lw, event->xbutton.y);
@@ -5256,6 +5349,9 @@ UnSelectElement(Widget wid,
 
   if (!lw->list.itemCount)
     return;
+
+  if (!lw->list.KbdSelection)
+    _XmSetFocusModalityKeyboard(wid, False);
   item = WhichItem(lw, event->xbutton.y);
   ASSIGN_MAX(item, lw->list.top_position);
   if (item > (lw->list.top_position + lw->list.visibleItemCount))
@@ -10304,6 +10400,9 @@ void
 ListScrollUp(Widget wid, XEvent *event, String *params, Cardinal *num_params)
 {
   XmListWidget  lw = (XmListWidget) wid;
+  Boolean is_first = (num_params != NULL && *num_params > 0 &&
+                      params != NULL && params[0] != NULL &&
+                      strcmp(params[0], "first") == 0);
   int value;
   int slider_size;
   int increment;
@@ -10320,8 +10419,19 @@ ListScrollUp(Widget wid, XEvent *event, String *params, Cardinal *num_params)
       new_value = INT_MAX;
     else
       new_value = (int)candidate;
-    XmScrollBarSetValues(((Widget)(lw->list.vScrollBar)), new_value, slider_size,
-        increment, page_increment, True);
+    if (new_value != value)
+      XmScrollBarSetValues(((Widget)(lw->list.vScrollBar)), new_value, slider_size,
+          increment, page_increment, True);
+    else if (is_first)
+      (void)_XmForwardWheelEvent(wid, event);
+  } else {
+    if (lw->list.top_position > 0) {
+      --lw->list.top_position;
+      if (XtIsRealized(wid))
+        DrawList(lw, NULL, TRUE);
+    } else if (is_first) {
+      (void)_XmForwardWheelEvent(wid, event);
+    }
   }
 }
 
@@ -10329,6 +10439,9 @@ void
 ListScrollDown(Widget wid, XEvent *event, String *params, Cardinal *num_params)
 {
   XmListWidget lw = (XmListWidget)wid;
+  Boolean is_first = (num_params != NULL && *num_params > 0 &&
+                      params != NULL && params[0] != NULL &&
+                      strcmp(params[0], "first") == 0);
   int value;
   int slider_size;
   int increment;
@@ -10350,8 +10463,21 @@ ListScrollDown(Widget wid, XEvent *event, String *params, Cardinal *num_params)
       new_value = INT_MIN;
     else
       new_value = (int)candidate;
-    XmScrollBarSetValues(((Widget)(lw->list.vScrollBar)), new_value, slider_size,
-        increment, page_increment, True);
+    if (new_value != value)
+      XmScrollBarSetValues(((Widget)(lw->list.vScrollBar)), new_value, slider_size,
+          increment, page_increment, True);
+    else if (is_first)
+      (void)_XmForwardWheelEvent(wid, event);
+  } else {
+    int max_top = (lw->list.itemCount > lw->list.visibleItemCount)
+      ? (lw->list.itemCount - lw->list.visibleItemCount) : 0;
+    if (lw->list.top_position < max_top) {
+      ++lw->list.top_position;
+      if (XtIsRealized(wid))
+        DrawList(lw, NULL, TRUE);
+    } else if (is_first) {
+      (void)_XmForwardWheelEvent(wid, event);
+    }
   }
 }
 

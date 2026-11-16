@@ -517,6 +517,29 @@ externaldef(xmcomboboxwidgetclass) WidgetClass xmComboBoxWidgetClass =
 
 /*ARGSUSED*/
 static void
+ComboBoxHoverEH(Widget widget, XtPointer closure, XEvent *event, Boolean *cont)
+{
+  XmComboBoxWidget cb = (XmComboBoxWidget)widget;
+  Boolean hovered = False;
+  (void)closure;
+  (void)cont;
+  if (event == NULL || widget->core.being_destroyed || !XtIsRealized(widget))
+    return;
+  if (event->type == EnterNotify || event->type == MotionNotify)
+    hovered = True;
+  else if (event->type == LeaveNotify || event->type == UnmapNotify)
+    hovered = False;
+  else
+    return;
+  if (_XmAppearanceSetHovered(widget, hovered))
+    {
+      if (CB_Type(cb) != XmCOMBO_BOX)
+        DrawArrow(widget, CB_ArrowPressed(cb));
+      DrawShadows(widget);
+    }
+}
+
+static void
 Initialize(Widget    request,
 	   Widget    new_w,
 	   ArgList   args,
@@ -653,6 +676,10 @@ Initialize(Widget    request,
   /* Reset fields whose value we ignore after creation. */
   CBS_SelectedPosition(newcb) = XmINVALID_POSITION;
   CBS_SelectedItem(newcb) = NULL;
+  XtAddEventHandler(new_w,
+                    EnterWindowMask | LeaveWindowMask | PointerMotionMask |
+                    StructureNotifyMask,
+                    False, ComboBoxHoverEH, NULL);
 }
 
 /*

@@ -23,4 +23,10 @@ extern void _XmAppearanceDrawChevron(Display *, Drawable, GC,
 extern Pixel _XmAppearanceTextOnFill(Widget, Pixel);
 extern Boolean _XmAppearanceDrawPickerFrame(Widget, Boolean);
 extern Boolean _XmAppearancePickerSize(Widget, XmRenderTable, const char *, Dimension *, Dimension *);
+extern Boolean _XmAppearanceSetHovered(Widget, Boolean);
+extern Boolean _XmAppearanceIsHovered(Widget);
+extern Pixel _XmAppearanceHoverSurfacePixel(Widget, Pixel);
+extern void _XmSetFocusModalityKeyboard(Widget, Boolean);
+extern Boolean _XmFocusHighlightVisible(Widget);
+extern Boolean _XmForwardWheelEvent(Widget, XEvent *);
 #endif

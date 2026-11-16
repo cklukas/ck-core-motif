@@ -43,6 +43,16 @@ typedef enum {
 #define XmNsurfaceBackground "surfaceBackground"
 #define XmCSurfaceBackground "SurfaceBackground"
 
+/* Optional display/widget keyboard focus-ring policy. */
+#define XmNfocusHighlightPolicy "focusHighlightPolicy"
+#define XmCFocusHighlightPolicy "FocusHighlightPolicy"
+#define XmRFocusHighlightPolicy "FocusHighlightPolicy"
+
+typedef enum {
+    XmFOCUS_HIGHLIGHT_ALWAYS = 0,
+    XmFOCUS_HIGHLIGHT_KEYBOARD = 1
+} XmFocusHighlightPolicy;
+
 /* Label and LabelGadget disabled-text color; XmUNSPECIFIED_PIXEL follows the
  * historical bottom-shadow color. Appearance owns only unconfigured values. */
 #define XmNinsensitiveForeground "insensitiveForeground"

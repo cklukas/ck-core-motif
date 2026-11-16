@@ -118,6 +118,7 @@ typedef struct {
     int                         keycode_min;
     int                         keycode_max;
     Boolean                     keycode_range_valid;
+    unsigned char               focus_highlight_policy;
 } XmDisplayPart, *XmDisplayPartPtr;
 
 typedef struct _XmDisplayInfo {
@@ -129,6 +130,7 @@ typedef struct _XmDisplayInfo {
   XmExcludedParentPaneRec excParentPane;/* TearOff.c */
   unsigned short resetFocusFlag;	/* TravAct.c */
   Boolean	traversal_in_progress;  /* Traversal.c */
+  Boolean	focus_visible_keyboard;
 } XmDisplayInfo;
 
 typedef struct _XmDisplayRec{

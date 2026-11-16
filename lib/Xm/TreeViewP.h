@@ -42,6 +42,7 @@ typedef struct _XmTreeViewPart {
     Pixel select_color;
     Widget scroll_bar;
     Boolean updating_scrollbar;
+    int hovered_index;
 } XmTreeViewPart;
 
 typedef struct _XmTreeViewRec {

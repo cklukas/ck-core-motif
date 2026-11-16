@@ -902,6 +902,11 @@ BorderHighlight(
     g = (XmGadget) w ;
 
     g->gadget.highlighted = True ;
+    if (!_XmFocusHighlightVisible(w))
+    {
+        g->gadget.highlight_drawn = False ;
+        return ;
+    }
     g->gadget.highlight_drawn = True ;
 
     if(    g->rectangle.width == 0 || g->rectangle.height == 0

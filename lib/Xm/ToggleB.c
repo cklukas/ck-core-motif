@@ -1059,6 +1059,7 @@ Arm(
 {
   XmToggleButtonWidget tb = (XmToggleButtonWidget) wid ;
   
+  _XmSetFocusModalityKeyboard((Widget) tb, False);
   (void)XmProcessTraversal( (Widget) tb, XmTRAVERSE_CURRENT);
   
   if (tb->toggle.toggle_mode == XmTOGGLE_INDETERMINATE)
@@ -1465,6 +1466,7 @@ BtnDown(
   /* Set focus to this button.  This must follow the possible
    * unhighlighting of the CascadeButton else it'll screw up active_child.
    */
+  _XmSetFocusModalityKeyboard((Widget) tb, False);
   (void)XmProcessTraversal( (Widget) tb, XmTRAVERSE_CURRENT);
   /* get the location cursor - get consistent with Gadgets */
   

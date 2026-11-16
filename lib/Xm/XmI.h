@@ -324,6 +324,12 @@ extern XtGeometryResult _XmArrowButtonQueryGeometry(Widget widget,
     XtWidgetGeometry *request, XtWidgetGeometry *reply);
 extern Boolean _XmAppearanceDrawToggle(Widget widget,
                                        const XmAppearanceToggle *toggle);
+extern Boolean _XmAppearanceSetHovered(Widget widget, Boolean hovered);
+extern Boolean _XmAppearanceIsHovered(Widget widget);
+extern Pixel _XmAppearanceHoverSurfacePixel(Widget widget, Pixel base);
+extern void _XmSetFocusModalityKeyboard(Widget widget, Boolean is_keyboard);
+extern Boolean _XmFocusHighlightVisible(Widget widget);
+extern Boolean _XmForwardWheelEvent(Widget from_widget, XEvent *event);
 
 extern void _XmAppearanceInheritFont(Widget child, Widget owner);
 extern void _XmAppearanceInheritForeground(Widget child, Widget owner);

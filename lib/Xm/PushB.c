@@ -1377,6 +1377,21 @@ DrawPushButtonBackground(
     tmp_gc = pb->pushbutton.background_gc;
   /* really need to fill with background if not armed ? */
 
+  if (!pb->pushbutton.armed && _XmAppearanceIsHovered((Widget)pb))
+    {
+      XGCValues gcv;
+      GC hover_gc;
+      gcv.foreground = _XmAppearanceHoverSurfacePixel((Widget)pb, pb->core.background_pixel);
+      hover_gc = XCreateGC(XtDisplay(pb), XtWindow(pb), GCForeground, &gcv);
+      if (hover_gc)
+        {
+          XFillRectangle(XtDisplay(pb), XtWindow(pb), hover_gc,
+                         box.x, box.y, box.width, box.height);
+          XFreeGC(XtDisplay(pb), hover_gc);
+          return;
+        }
+    }
+
   if (tmp_gc)
     XFillRectangle (XtDisplay(pb), XtWindow(pb), tmp_gc,
 		    box.x, box.y, box.width, box.height);
@@ -1414,6 +1429,14 @@ DrawPushButtonLabel(
 	  pb->label.normal_GC = pb->pushbutton.background_gc;
 	  replaceGC = True;
 	}
+    }
+  else if (!pb->pushbutton.armed && !Lab_IsMenupane(pb) &&
+           _XmAppearanceIsHovered((Widget)pb))
+    {
+      XSetWindowBackground(
+          XtDisplay(pb), XtWindow(pb),
+          _XmAppearanceHoverSurfacePixel((Widget)pb, pb->core.background_pixel));
+      replaceBg = True;
     }
   
   if (pb->label.label_type == XmPIXMAP ||
@@ -2128,6 +2151,7 @@ Arm(
   XmPushButtonCallbackStruct call_value;
   XtExposeProc expose;
 
+  _XmSetFocusModalityKeyboard((Widget) pb, False);
   (void) XmProcessTraversal ((Widget) pb, XmTRAVERSE_CURRENT);
   
   pb->pushbutton.armed = TRUE;

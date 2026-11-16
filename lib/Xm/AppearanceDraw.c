@@ -296,12 +296,44 @@ _XmAppearanceDrawButtonFocus(Widget widget, Boolean focused)
     }
     XSetRegion(display, gc, clip); XDestroyRegion(clip);
     XFillRectangle(display, drawable, gc, x, y, width, height);
-    if (focused) {
+    if (focused && _XmFocusHighlightVisible(widget)) {
         XSetForeground(display, gc, accent);
         _XmAppearanceFillRoundedRectangle(display, drawable, gc, x, y, width, height, radius);
     }
     XFreeGC(display, gc);
     return True;
+}
+
+Pixel
+_XmAppearanceHoverSurfacePixel(Widget widget, Pixel base)
+{
+    Display *display;
+    Screen *screen;
+    Colormap colormap;
+    Widget owner;
+    Pixel fg = 0;
+    XColor colors[2], blended;
+
+    if (widget == NULL)
+        return base;
+    display = XtDisplayOfObject(widget);
+    screen = XtScreenOfObject(widget);
+    owner = XtIsWidget(widget) ? widget : XtParent(widget);
+    if (display == NULL || screen == NULL || owner == NULL)
+        return base;
+    colormap = DefaultColormapOfScreen(screen);
+    XtVaGetValues(owner, XmNcolormap, &colormap, NULL);
+    XtVaGetValues(widget, XmNforeground, &fg, NULL);
+    colors[0].pixel = base;
+    colors[1].pixel = fg;
+    XQueryColors(display, colormap, colors, 2);
+    blended.red = (unsigned short)((colors[0].red * 82U + colors[1].red * 18U) / 100U);
+    blended.green = (unsigned short)((colors[0].green * 82U + colors[1].green * 18U) / 100U);
+    blended.blue = (unsigned short)((colors[0].blue * 82U + colors[1].blue * 18U) / 100U);
+    blended.flags = DoRed | DoGreen | DoBlue;
+    if (XAllocColor(display, colormap, &blended))
+        return blended.pixel;
+    return base;
 }
 
 /* Ordinary buttons share their shape. Notebook tabs retain their joined-page
@@ -334,6 +366,14 @@ _XmAppearanceDrawButton(Widget widget, Pixel fill, Boolean emphasized,
         XmNbottomShadowColor,&border,XmNhighlightColor,&accent,NULL);
     parent_background=fill;
     if (XtParent(widget)) XtVaGetValues(XtParent(widget),XmNbackground,&parent_background,NULL);
+    if (_XmAppearanceIsHovered(widget)) {
+        Pixel base_bg = fill;
+        XtVaGetValues(widget, XmNbackground, &base_bg, NULL);
+        if (fill == base_bg) {
+            fill = _XmAppearanceHoverSurfacePixel(widget, fill);
+            border = accent;
+        }
+    }
     x=(XtIsWidget(widget)?0:XtX(widget))+highlight;
     y=(XtIsWidget(widget)?0:XtY(widget))+highlight;
     width=(int)XtWidth(widget)-2*highlight; height=(int)XtHeight(widget)-2*highlight;
@@ -406,6 +446,8 @@ _XmAppearanceDrawArrowRegion(Widget widget, int x, int y, int width, int height,
         x+width > SHRT_MAX || y+height > SHRT_MAX) return True;
     pressed = pressed && sensitive;
     fill = pressed ? foreground : background;
+    if (!pressed && sensitive && _XmAppearanceIsHovered(widget))
+        fill = _XmAppearanceHoverSurfacePixel(widget, fill);
     glyph = sensitive ? (pressed ? background : foreground) : border;
     stroke = MIN((int)shadow, MIN(width,height)/2);
     radius = MIN((int)_XmDpiDefaultDimension(widget,4),MIN(width,height)/2);
@@ -534,6 +576,10 @@ _XmAppearanceDrawToggle(Widget widget, const XmAppearanceToggle *toggle)
     if (toggle->unselect == (Pixel)-1 &&
         !(selected && toggle->fill && toggle->type == XmN_OF_MANY))
         fill = toggle->background;
+    if (!toggle->armed && sensitive && _XmAppearanceIsHovered(widget)) {
+        fill = _XmAppearanceHoverSurfacePixel(widget, fill);
+        border = toggle->select;
+    }
     glyph = selected && toggle->fill && toggle->type == XmN_OF_MANY ?
         ToggleGlyphPixel(widget, fill, toggle->foreground, toggle->background) : border;
     values.foreground = toggle->background;
@@ -596,6 +642,8 @@ _XmAppearanceDrawFrameRegion(Widget widget, int x, int y,
     if (stroke <= 0 || x < 0 || y < 0 || x+width > SHRT_MAX || y+height > SHRT_MAX)
         return True;
     XtVaGetValues(widget, XmNbottomShadowColor, &border, NULL);
+    if (_XmAppearanceIsHovered(widget))
+        XtVaGetValues(widget, XmNhighlightColor, &border, NULL);
     values.foreground = border;
     gc = XCreateGC(XtDisplayOfObject(widget), (XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget))), GCForeground, &values);
     if (!gc) return True;

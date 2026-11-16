@@ -309,6 +309,18 @@ _XmPrimitiveEnter(Widget wid,
 		  Cardinal *num_params)	/* unused */
 {   
   _XmToolTipEnter(wid, event, params, num_params);
+  if (_XmAppearanceSetHovered(wid, True) && XtIsRealized(wid))
+    {
+      XtExposeProc expose;
+      _XmProcessLock();
+      expose = XtClass(wid)->core_class.expose;
+      _XmProcessUnlock();
+      if (expose)
+        {
+          XClearArea(XtDisplay(wid), XtWindow(wid), 0, 0, 0, 0, False);
+          (*expose)(wid, NULL, (Region)NULL);
+        }
+    }
   if (_XmGetFocusPolicy(wid) == XmPOINTER)
     {   
       if (event->xcrossing.focus)
@@ -329,6 +341,18 @@ _XmPrimitiveLeave(Widget wid,
 		  Cardinal *num_params)	/* unused */
 {   
   _XmToolTipLeave(wid, event, params, num_params);
+  if (_XmAppearanceSetHovered(wid, False) && XtIsRealized(wid))
+    {
+      XtExposeProc expose;
+      _XmProcessLock();
+      expose = XtClass(wid)->core_class.expose;
+      _XmProcessUnlock();
+      if (expose)
+        {
+          XClearArea(XtDisplay(wid), XtWindow(wid), 0, 0, 0, 0, False);
+          (*expose)(wid, NULL, (Region)NULL);
+        }
+    }
   if (_XmGetFocusPolicy(wid) == XmPOINTER)
     {   
       if (event->xcrossing.focus)
@@ -414,6 +438,16 @@ _XmEnterGadget(Widget wid,
   {
       _XmToolTipEnter(wid, event, params, num_params);
   }
+  if (_XmAppearanceSetHovered(wid, True) && XtParent(wid) &&
+      XtIsRealized(XtParent(wid)))
+  {
+      XtExposeProc expose;
+      _XmProcessLock();
+      expose = XtClass(wid)->core_class.expose;
+      _XmProcessUnlock();
+      if (expose)
+          (*expose)(wid, event, (Region)NULL);
+  }
   if (_XmGetFocusPolicy(wid) == XmPOINTER)
     {   
       XmFocusData focusData = _XmGetFocusData(wid);
@@ -466,6 +500,16 @@ _XmLeaveGadget(Widget wid,
   if (XmIsGadget(wid) && ((XmGadget)wid)->gadget.traversal_on)
   {
       _XmToolTipLeave(wid, event, params, num_params);
+  }
+  if (_XmAppearanceSetHovered(wid, False) && XtParent(wid) &&
+      XtIsRealized(XtParent(wid)))
+  {
+      XtExposeProc expose;
+      _XmProcessLock();
+      expose = XtClass(wid)->core_class.expose;
+      _XmProcessUnlock();
+      if (expose)
+          (*expose)(wid, event, (Region)NULL);
   }
 
   if (_XmGetFocusPolicy(wid) == XmPOINTER)
@@ -704,5 +748,17 @@ _XmPrimitiveUnmap(Widget pw,
 		  String *params,	/* unused */
 		  Cardinal *num_params)	/* unused */
 {
+  if (_XmAppearanceSetHovered(pw, False) && XtIsRealized(pw))
+    {
+      XtExposeProc expose;
+      _XmProcessLock();
+      expose = XtClass(pw)->core_class.expose;
+      _XmProcessUnlock();
+      if (expose)
+        {
+          XClearArea(XtDisplay(pw), XtWindow(pw), 0, 0, 0, 0, False);
+          (*expose)(pw, NULL, (Region)NULL);
+        }
+    }
   _XmValidateFocus(pw);
 }

@@ -2125,7 +2125,15 @@ appearance profiles while keeping classic Motif interaction untouched.
 are deterministic, leak-free, and disabled or classic-compatible when `classic`
 is selected.
 
-**Status (2026-11-15):** planned.
+**Status (2026-11-16):** complete. Added non-animated pointer-hover
+surface/border feedback in `modern-light` and `modern-dark` for `PushButton`,
+`ToggleButton`, `ComboBox`, `Notebook` tabs, and `List`/`TreeView`/`DataGrid`
+rows, added `XmNfocusHighlightPolicy` (`XmFOCUS_HIGHLIGHT_ALWAYS` vs
+`XmFOCUS_HIGHLIGHT_KEYBOARD`) on `XmDisplay` with keyboard-vs-pointer focus
+modality tracking, standardized 3-line mouse-wheel (`Button4`/`Button5`)
+scrolling with `_XmForwardWheelEvent` boundary forwarding to enclosing
+`XmScrolledWindow` instances, and validated under Xvfb with
+`tests/automated/run-ux-polish-wp49.py`.
 
 **Does not include:** physics-based kinetic scrolling threads or animated
 hover transitions.

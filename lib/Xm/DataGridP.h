@@ -42,6 +42,7 @@ typedef struct _XmDataGridPart {
     XmFontList render_table;
     Boolean check_set_render_table;
     GC gc;
+    int hovered_row;
 } XmDataGridPart;
 
 typedef struct _XmDataGridRec {

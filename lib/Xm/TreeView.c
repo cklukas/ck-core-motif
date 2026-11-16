@@ -484,6 +484,7 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     view->tree_view.pressed_id = NULL;
     view->tree_view.scroll_bar = NULL;
     view->tree_view.updating_scrollbar = False;
+    view->tree_view.hovered_index = -1;
     if (view->tree_view.render_table == NULL)
         view->tree_view.render_table = XmFontListCopy(
             XmeGetDefaultRenderTable(widget, XmLABEL_FONTLIST));
@@ -530,8 +531,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
             }
         }
     }
-    XtAddEventHandler(widget, KeyPressMask | ButtonPressMask | ButtonReleaseMask, False, Events,
-                      NULL);
+    XtAddEventHandler(widget,
+                      KeyPressMask | ButtonPressMask | ButtonReleaseMask |
+                      EnterWindowMask | LeaveWindowMask | PointerMotionMask |
+                      StructureNotifyMask,
+                      False, Events, NULL);
 }
 
 static void Destroy(Widget widget) {
@@ -543,8 +547,11 @@ static void Destroy(Widget widget) {
         if (!bar->core.being_destroyed) XtDestroyWidget(bar);
     }
     Cardinal i;
-    XtRemoveEventHandler(widget, KeyPressMask | ButtonPressMask | ButtonReleaseMask, False, Events,
-                         NULL);
+    XtRemoveEventHandler(widget,
+                         KeyPressMask | ButtonPressMask | ButtonReleaseMask |
+                         EnterWindowMask | LeaveWindowMask | PointerMotionMask |
+                         StructureNotifyMask,
+                         False, Events, NULL);
     for (i = 0; i < view->tree_view.count; ++i)
         XtFree(view->tree_view.items[i].label);
     XtFree((char *)view->tree_view.items);
@@ -631,6 +638,18 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
                 XSetForeground(display,view->tree_view.gc,view->primitive.foreground);
                 XSetBackground(display,view->tree_view.gc,view->tree_view.select_color);
             }
+        } else if (modern && index == view->tree_view.hovered_index) {
+            int height=MIN((int)view->tree_view.row_height,(int)view->core.height-y);
+            if (height > 2 && view->core.width > 4 && y < SHRT_MAX) {
+                Pixel hover_px = _XmAppearanceHoverSurfacePixel(
+                    widget, view->core.background_pixel);
+                XSetForeground(display,view->tree_view.gc,hover_px);
+                XFillRectangle(display,window,view->tree_view.gc,2,y+1,
+                    (unsigned int)view->core.width-4U,
+                    (unsigned int)height-2U);
+                XSetForeground(display,view->tree_view.gc,view->primitive.foreground);
+                XSetBackground(display,view->tree_view.gc,hover_px);
+            }
         } else if (view->tree_view.items[index].id == view->tree_view.selected_id)
             XDrawRectangle(display, window, view->tree_view.gc, 1, y + 1,
                            view->core.width > 3 ? view->core.width - 3 : 1,
@@ -686,6 +705,7 @@ static void Redisplay(Widget widget, XEvent *event, Region region) {
     XSetBackground(display,view->tree_view.gc,view->core.background_pixel);
     if (modern) XSetForeground(display,view->tree_view.gc,view->primitive.highlight_color);
     if (view->primitive.highlighted && view->primitive.highlight_thickness &&
+        _XmFocusHighlightVisible(widget) &&
         view->core.width > 2 * view->primitive.highlight_thickness &&
         view->core.height > 2 * view->primitive.highlight_thickness)
         XDrawRectangle(display, window, view->tree_view.gc,
@@ -741,6 +761,21 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
         view->tree_view.pressed_id = NULL;
         return;
     }
+    if (event->type == EnterNotify || event->type == MotionNotify ||
+        event->type == LeaveNotify || event->type == UnmapNotify) {
+        int next_hover = -1;
+        if (event->type == EnterNotify || event->type == MotionNotify) {
+            int ey = (event->type == MotionNotify) ? event->xmotion.y : event->xcrossing.y;
+            next_hover = row_at(view, ey);
+        }
+        if (view->tree_view.hovered_index != next_hover) {
+            int inset = 4, size = 9, gap = 5;
+            view->tree_view.hovered_index = next_hover;
+            if (disclosure_metrics(view, &inset, &size, &gap))
+                redraw(view);
+        }
+        return;
+    }
     if (event->type == ButtonRelease) {
         XtPointer pressed = view->tree_view.pressed_id;
         view->tree_view.pressed_id = NULL;
@@ -757,6 +792,7 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
         if (event->xbutton.button == Button1 && view->primitive.traversal_on) {
             Boolean destroyed=False;
             XtAddCallback(widget,XmNdestroyCallback,focus_destroyed,&destroyed);
+            _XmSetFocusModalityKeyboard(widget, False);
             XmProcessTraversal(widget, XmTRAVERSE_CURRENT);
             if (destroyed) return;
             if (widget->core.being_destroyed) {
@@ -767,16 +803,27 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
         }
         view->tree_view.pressed_id = NULL;
         if (event->xbutton.button == Button4) {
-            if (view->tree_view.top_row)
-                --view->tree_view.top_row;
-            redraw(view);
+            Cardinal old_top = view->tree_view.top_row;
+            Cardinal step = 3;
+            view->tree_view.top_row = (old_top > step) ? (old_top - step) : 0;
+            if (view->tree_view.top_row != old_top)
+                redraw(view);
+            else
+                (void)_XmForwardWheelEvent(widget, event);
             return;
         }
         if (event->xbutton.button == Button5) {
-            if (view->tree_view.top_row + viewport_rows(view) <
-                visible_count(view))
-                ++view->tree_view.top_row;
-            redraw(view);
+            Cardinal old_top = view->tree_view.top_row;
+            Cardinal total = visible_count(view);
+            Cardinal vis = viewport_rows(view);
+            Cardinal max_top = (total > vis) ? (total - vis) : 0;
+            Cardinal step = 3;
+            view->tree_view.top_row =
+                (old_top + step < max_top) ? (old_top + step) : max_top;
+            if (view->tree_view.top_row != old_top)
+                redraw(view);
+            else
+                (void)_XmForwardWheelEvent(widget, event);
             return;
         }
         index = row_at(view, event->xbutton.y);

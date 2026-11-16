@@ -211,6 +211,7 @@ typedef struct _XmListPart
   char *	drag_abort_action;
   XEvent	drag_event;
   XmListDragConvertStruct *drag_conv;
+  int		hovered_item;
 } XmListPart;
 
 

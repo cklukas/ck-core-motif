@@ -1,3 +1,38 @@
+Restrained interactive UX polish: hover affordances, focus-visible, and wheel scrolling (2026-11-16)
+===================================================================================================
+
+- `lib/Xm/Appearance.h`, `lib/Xm/AppearanceDrawI.h`, `lib/Xm/XmI.h`,
+  `lib/Xm/DisplayP.h`, `lib/Xm/Display.c`, `lib/Xm/Appearance.c`,
+  `lib/Xm/AppearanceDraw.c`: added the opt-in display resource
+  `XmNfocusHighlightPolicy` / `XmCFocusHighlightPolicy` (`XmFOCUS_HIGHLIGHT_ALWAYS`
+  default vs `XmFOCUS_HIGHLIGHT_KEYBOARD`) and non-animated pointer-hover
+  surface/border feedback (`_XmAppearanceSetHovered`, `_XmAppearanceIsHovered`,
+  `_XmAppearanceHoverSurfacePixel`) for `modern-light` and `modern-dark`
+  profiles while leaving `classic` untouched.
+- `lib/Xm/Traversal.c`, `lib/Xm/TravAct.c`, `lib/Xm/Primitive.c`,
+  `lib/Xm/Gadget.c`, `lib/Xm/PushB.c`, `lib/Xm/ToggleB.c`, `lib/Xm/ArrowB.c`,
+  `lib/Xm/ComboBox.c`: tracked keyboard vs pointer focus modality
+  (`_XmSetFocusModalityKeyboard`, `_XmFocusHighlightVisible`) so
+  `XmFOCUS_HIGHLIGHT_KEYBOARD` suppresses focus rings on pointer clicks while
+  restoring them on keyboard traversal (`Tab`/arrow keys), and wired enter,
+  leave, and unmap hover transitions for `PushButton`, `ToggleButton`,
+  `Notebook` tabs, and `ComboBox` triggers.
+- `lib/Xm/ScrolledW.c`, `lib/Xm/ListP.h`, `lib/Xm/List.c`, `lib/Xm/Transltns.c`,
+  `lib/Xm/TextIn.c`, `lib/Xm/TreeViewP.h`, `lib/Xm/TreeView.c`,
+  `lib/Xm/DataGridP.h`, `lib/Xm/DataGrid.c`: added row-level hover tracking in
+  `XmList`, `XmTreeView`, and `XmDataGrid` for modern profiles, standardized
+  3-line mouse-wheel (`Button4`/`Button5`) scrolling across `XmList`, `XmText`,
+  `XmTreeView`, and `XmDataGrid`, and implemented `_XmForwardWheelEvent` to
+  forward wheel events to an ancestor `XmScrolledWindow` when an inner
+  scrollable control reaches its boundary.
+- `docs/bugfix-notes-archive-02.md` .. `docs/bugfix-notes-archive-08.md`:
+  consolidated 2,015 additional unreferenced `nav_exclude: true` bugfix notes
+  to reduce documentation build disk usage on `rpi4` (`uconsole`).
+- Tests: `tests/automated/check-ux-polish-wp49.c`,
+  `tests/automated/run-ux-polish-wp49.py`.
+- Docs: `docs/appearance-profiles.md`, `docs/status.md`,
+  `modernization_plan.md`.
+
 Modern MWM window-frame appearance, Xft typography, and HiDPI integration (2026-11-16)
 ======================================================================================
 

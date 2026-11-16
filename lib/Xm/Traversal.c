@@ -662,6 +662,64 @@ _XmCallFocusMoved(
   return CallFocusMoved(old, new_wid, event, XmTRAVERSE_CURRENT);
 }
 
+void
+_XmSetFocusModalityKeyboard(Widget wid, Boolean is_keyboard)
+{
+  XmDisplay dd;
+  XmDisplayInfo *info;
+  Boolean was_keyboard;
+
+  if (wid == NULL || XtDisplayOfObject(wid) == NULL)
+    return;
+  dd = (XmDisplay)XmGetXmDisplay(XtDisplayOfObject(wid));
+  if (dd == NULL || dd->display.displayInfo == NULL)
+    return;
+  info = (XmDisplayInfo *)dd->display.displayInfo;
+  was_keyboard = info->focus_visible_keyboard;
+  info->focus_visible_keyboard = is_keyboard ? True : False;
+  if (was_keyboard != info->focus_visible_keyboard &&
+      dd->display.focus_highlight_policy == XmFOCUS_HIGHLIGHT_KEYBOARD)
+    {
+      Widget focused = XmGetFocusWidget(wid);
+      if (focused != NULL && XtIsRealized(focused))
+        {
+          if (XmIsPrimitive(focused) &&
+              ((XmPrimitiveWidgetClass)XtClass(focused))->primitive_class.border_highlight)
+            {
+              if (info->focus_visible_keyboard)
+                (*(((XmPrimitiveWidgetClass)XtClass(focused))->primitive_class.border_highlight))(focused);
+              else if (((XmPrimitiveWidgetClass)XtClass(focused))->primitive_class.border_unhighlight)
+                (*(((XmPrimitiveWidgetClass)XtClass(focused))->primitive_class.border_unhighlight))(focused);
+            }
+          else if (XmIsGadget(focused) &&
+                   ((XmGadgetClass)XtClass(focused))->gadget_class.border_highlight)
+            {
+              if (info->focus_visible_keyboard)
+                (*(((XmGadgetClass)XtClass(focused))->gadget_class.border_highlight))(focused);
+              else if (((XmGadgetClass)XtClass(focused))->gadget_class.border_unhighlight)
+                (*(((XmGadgetClass)XtClass(focused))->gadget_class.border_unhighlight))(focused);
+            }
+        }
+    }
+}
+
+Boolean
+_XmFocusHighlightVisible(Widget wid)
+{
+  XmDisplay dd;
+  XmDisplayInfo *info;
+
+  if (wid == NULL || XtDisplayOfObject(wid) == NULL)
+    return True;
+  dd = (XmDisplay)XmGetXmDisplay(XtDisplayOfObject(wid));
+  if (dd == NULL || dd->display.displayInfo == NULL)
+    return True;
+  if (dd->display.focus_highlight_policy != XmFOCUS_HIGHLIGHT_KEYBOARD)
+    return True;
+  info = (XmDisplayInfo *)dd->display.displayInfo;
+  return info->focus_visible_keyboard ? True : False;
+}
+
 Boolean 
 _XmMgrTraversal(
         Widget wid,
@@ -680,6 +738,9 @@ _XmMgrTraversal(
 
   if (wid == NULL)
     return FALSE;
+
+  if (direction != XmTRAVERSE_CURRENT)
+    _XmSetFocusModalityKeyboard(wid, True);
 
   dd = (XmDisplay)XmGetXmDisplay(XtDisplay(wid));
   if (dd == NULL)

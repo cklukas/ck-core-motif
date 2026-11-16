@@ -530,6 +530,7 @@ typedef struct _XmAppearanceWidgetState {
     Boolean constrained_dimension[2];
     Dimension original_scrollbar_thickness;
     Boolean gadget;
+    Boolean hovered;
     struct _XmAppearanceWidgetState *next;
 } XmAppearanceWidgetState;
 
@@ -1671,6 +1672,63 @@ _XmAppearanceOwnsResource(Widget widget, const char *name)
             }
     _XmProcessUnlock();
     return owned;
+}
+
+Boolean
+_XmAppearanceSetHovered(Widget widget, Boolean hovered)
+{
+    XmAppearanceWidgetState *state;
+    XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
+    Boolean changed = False;
+
+    if (widget == NULL ||
+        !(XmIsPushButton(widget) || XmIsPushButtonGadget(widget) ||
+          XmIsToggleButton(widget) || XmIsToggleButtonGadget(widget) ||
+          XmIsArrowButton(widget) || XmIsArrowButtonGadget(widget) ||
+          XmIsComboBox(widget)))
+        return False;
+    if (!XtIsSensitive(widget) || !XtIsManaged(widget))
+        hovered = False;
+    _XmProcessLock();
+    for (state = appearance_widgets; state != NULL; state = state->next) {
+        if (!state->retired && state->widget == widget) {
+            if (state->hovered != hovered) {
+                state->hovered = hovered;
+                changed = True;
+            }
+            break;
+        }
+    }
+    _XmProcessUnlock();
+    if (!changed)
+        return False;
+    (void)XmGetAppearanceProfile(XtDisplayOfObject(widget), &profile);
+    return (profile == XmAPPEARANCE_MODERN_LIGHT ||
+            profile == XmAPPEARANCE_MODERN_DARK);
+}
+
+Boolean
+_XmAppearanceIsHovered(Widget widget)
+{
+    XmAppearanceWidgetState *state;
+    XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
+    Boolean hovered = False;
+
+    if (widget == NULL || !XtIsSensitive(widget))
+        return False;
+    if (!XmGetAppearanceProfile(XtDisplayOfObject(widget), &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT &&
+         profile != XmAPPEARANCE_MODERN_DARK))
+        return False;
+    _XmProcessLock();
+    for (state = appearance_widgets; state != NULL; state = state->next) {
+        if (!state->retired && state->widget == widget) {
+            hovered = state->hovered;
+            break;
+        }
+    }
+    _XmProcessUnlock();
+    return hovered;
 }
 
 static void

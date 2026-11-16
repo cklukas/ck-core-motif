@@ -574,6 +574,7 @@ Arm(
   XmArrowButtonWidget aw = (XmArrowButtonWidget) wid;
   XmArrowButtonCallbackStruct call_value;
   
+  _XmSetFocusModalityKeyboard((Widget) aw, False);
   (void) XmProcessTraversal((Widget) aw, XmTRAVERSE_CURRENT);
   
   aw->arrowbutton.selected = True;

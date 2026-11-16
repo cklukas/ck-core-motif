@@ -400,10 +400,10 @@ s ~m ~a <Key>Tab:		PrimitivePrevTabGroup()\n\
 s ~m ~a <KeyDown>space:		ListKbdBeginExtend()\n\
 s ~m ~a <KeyUp>space:		ListKbdEndExtend()\n\
 <Key>:				ListQuickNavigate()\n\
-~s ~c ~m ~a <Btn4Down>,<Btn4Up>:ListScrollUp() ListScrollUp() ListScrollUp()\n\
-~s ~c ~m ~a <Btn5Down>,<Btn5Up>:ListScrollDown() ListScrollDown() ListScrollDown()\n\
-<Btn4Down>,<Btn4Up>:		ListScrollUp() ListScrollUp() ListScrollUp() ListScrollUp() ListScrollUp() ListScrollUp()\n\
-<Btn5Down>,<Btn5Up>:		ListScrollDown() ListScrollDown() ListScrollDown() ListScrollDown() ListScrollDown() ListScrollDown()";
+~s ~c ~m ~a <Btn4Down>,<Btn4Up>:ListScrollUp(first) ListScrollUp() ListScrollUp()\n\
+~s ~c ~m ~a <Btn5Down>,<Btn5Up>:ListScrollDown(first) ListScrollDown() ListScrollDown()\n\
+<Btn4Down>,<Btn4Up>:		ListScrollUp(first) ListScrollUp() ListScrollUp() ListScrollUp() ListScrollUp() ListScrollUp()\n\
+<Btn5Down>,<Btn5Up>:		ListScrollDown(first) ListScrollDown() ListScrollDown() ListScrollDown() ListScrollDown() ListScrollDown()";
 
 /*** Manager.c ***/
 externaldef(translations) 
@@ -880,10 +880,10 @@ externaldef(translations) _XmConst char _XmTextIn_XmTextEventBindings3[] = "\
  s  c ~m ~a <Key>space:		key-select()\n\
  s ~c ~m ~a <Key>space:		self-insert()\n\
 <Key>:				self-insert()\n\
-~s ~c ~m ~a <Btn4Down>,<Btn4Up>:scroll-one-line-down() scroll-one-line-down() scroll-one-line-down()\n\
-~s ~c ~m ~a <Btn5Down>,<Btn5Up>:scroll-one-line-up() scroll-one-line-up() scroll-one-line-up()\n\
-<Btn4Down>,<Btn4Up>:		scroll-one-line-down() scroll-one-line-down() scroll-one-line-down() scroll-one-line-down() scroll-one-line-down() scroll-one-line-down() scroll-one-line-down()\n\
-<Btn5Down>,<Btn5Up>:		scroll-one-line-up() scroll-one-line-up() scroll-one-line-up() scroll-one-line-up() scroll-one-line-up() scroll-one-line-up() scroll-one-line-up()";
+~s ~c ~m ~a <Btn4Down>,<Btn4Up>:scroll-one-line-down(first) scroll-one-line-down() scroll-one-line-down()\n\
+~s ~c ~m ~a <Btn5Down>,<Btn5Up>:scroll-one-line-up(first) scroll-one-line-up() scroll-one-line-up()\n\
+<Btn4Down>,<Btn4Up>:		scroll-one-line-down(first) scroll-one-line-down() scroll-one-line-down() scroll-one-line-down() scroll-one-line-down() scroll-one-line-down() scroll-one-line-down()\n\
+<Btn5Down>,<Btn5Up>:		scroll-one-line-up(first) scroll-one-line-up() scroll-one-line-up() scroll-one-line-up() scroll-one-line-up() scroll-one-line-up() scroll-one-line-up()";
 
 externaldef(translations) _XmConst char _XmTextIn_XmTextVEventBindings[] = "\
 :s c <Key>osfLeft:forward-paragraph(extend)\n\
