@@ -48,8 +48,11 @@ static char rcsid[] = "$XConsortium: Dest.c /main/12 1995/09/19 23:00:44 cde-sun
 */
 void _XmSetDestination (Display *dpy, Widget w)
 {
-      XmDisplay   dd = (XmDisplay) XmGetXmDisplay(dpy);	/* w may be NULL */
-      if ((XmDisplay)NULL != dd)
+      XmDisplay dd;
+      if (dpy == NULL)
+	return;
+      dd = (XmDisplay) XmGetXmDisplay(dpy);	/* w may be NULL */
+      if ((XmDisplay)NULL != dd && dd->display.displayInfo != NULL)
 	((XmDisplayInfo *)(dd->display.displayInfo))->destinationWidget =
 		w;	
 }
@@ -57,12 +60,16 @@ void _XmSetDestination (Display *dpy, Widget w)
 /* This public function retrieves the widget saved by _XmSetDestination. */
 Widget XmGetDestination (Display *display)
 {
-      XmDisplay   dd = (XmDisplay) XmGetXmDisplay(display);
+      XmDisplay dd;
       Widget w = (Widget)NULL;
-      _XmDisplayToAppContext(display);
+      XtAppContext app;
 
+      if (display == NULL)
+	 return w;
+      app = XtDisplayToApplicationContext(display);
       _XmAppLock(app);
-      if ((XmDisplay)NULL != dd)
+      dd = (XmDisplay) XmGetXmDisplay(display);
+      if ((XmDisplay)NULL != dd && dd->display.displayInfo != NULL)
 	 w = ((XmDisplayInfo *)(dd->display.displayInfo))->destinationWidget;
       _XmAppUnlock(app);
       return w;

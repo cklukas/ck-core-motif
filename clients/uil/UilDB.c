@@ -192,6 +192,8 @@ void db_incorporate()
     _db_globals		globals;
 
     db_open_file();
+    if (dbfile == NULL)
+	return;
 
     if (!db_read_table(&globals, sizeof(_db_globals)))
 	goto db_incorporate_done;
@@ -440,7 +442,11 @@ void db_incorporate()
     } /* end for */
 
 db_incorporate_done:
-    fclose (dbfile);
+    if (dbfile != NULL)
+	{
+	fclose (dbfile);
+	dbfile = NULL;
+	}
     return;
 }
 
@@ -489,6 +495,11 @@ Boolean db_read_ints_and_string(_db_header_ptr header)
 	size_t		string_size = 0;
 	key_keytable_entry_type	*table = NULL;
 	char			*string_table;
+
+	if (header->num_items < 0 || header->table_size < 0 ||
+	    (size_t)header->num_items >
+		(size_t)header->table_size / sizeof(*table))
+	    return False;
 	 
 	switch (header->table_id)
 	    {
@@ -514,9 +525,7 @@ Boolean db_read_ints_and_string(_db_header_ptr header)
 	 * Get all the strings with one read.
 	 * Reassign the addresses
 	 */
-	if (table == NULL || header->num_items < 0 || header->table_size < 0 ||
-	    (size_t)header->num_items >
-		(size_t)header->table_size / sizeof(*table))
+	if (table == NULL)
 	    return False;
 	if (!db_read_table(table, (size_t)header->table_size))
 	    return False;
@@ -548,6 +557,12 @@ Boolean db_read_ints_and_string(_db_header_ptr header)
 
 	for ( i=0 ; i<header->num_items; i++)
 	    {
+	    if (string_table[table[i].b_length] != '\0')
+		{
+		diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+				      diag_k_no_column);
+		return False;
+		}
 	    table[i].at_name = string_table;
 	    string_table +=  table[i].b_length + 1; 
 	    };
@@ -854,6 +869,13 @@ Boolean db_read_length_and_string(_db_header_ptr header)
 	    {
 	    if (lengths[i])
 		{
+		if (string_table[lengths[i] - 1] != '\0')
+		    {
+		    XtFree ((char *)lengths);
+		    diag_issue_diagnostic(d_bad_database, diag_k_no_source,
+					  diag_k_no_column);
+		    return False;
+		    }
 		table[i] = string_table;
 /* BEGIN HaL Fix CR 5618 */
 		  if ((header->table_id == Uil_Widget_Names) &&
@@ -861,6 +883,10 @@ Boolean db_read_length_and_string(_db_header_ptr header)
 		    uil_sym_user_defined_object = (unsigned short)i;
 /* END HaL Fix CR 5618 */
 		string_table +=  lengths[i] + 1;
+		}
+	    else
+		{
+		table[i] = NULL;
 		}
 	    }
 
@@ -969,6 +995,10 @@ Boolean db_read_int_and_shorts(_db_header_ptr header)
 		{
 		table[i].values = int_table;
 		int_table += table[i].values_cnt;
+		}
+	    else
+		{
+		table[i].values = NULL;
 		}
 	    }
 

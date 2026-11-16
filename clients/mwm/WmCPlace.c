@@ -108,8 +108,11 @@ static int placeOffsetY;
  *************************************<->***********************************/
 void SetupPlacement (ClientData *pcd)
 {
-    int cX, cY, junk;
+    int cX = 0, cY = 0, junk;
     Window junk_win;
+
+    if (pcd == NULL)
+	return;
 
     /*
      * Restore the state of the last "depressed" frame gadget
@@ -186,6 +189,9 @@ void SetupPlacement (ClientData *pcd)
 Bool IsRepeatedKeyEvent (Display *dpy, XEvent *pEvent, char *pOldEvent)
 {
     XEvent *pOld = (XEvent *) pOldEvent;
+
+    if (pEvent == NULL || pOld == NULL)
+	return (False);
 
     if ((pEvent->type == KeyPress) &&			/* key press event */
 	(pEvent->type == pOld->type) &&			/* same event type */
@@ -611,8 +617,14 @@ void DoPlacement (ClientData *pcd)
     /* copy back the configuration information */
     pcd->clientX = placeX + placeOffsetX;
     pcd->clientY = placeY + placeOffsetY; 
-    pcd->clientWidth = placeWidth - 2*placeOffsetX;
-    pcd->clientHeight = placeHeight - placeOffsetX - placeOffsetY;
+    pcd->clientWidth = (placeOffsetX > 0 &&
+			placeWidth > (unsigned int)(2 * placeOffsetX))
+		       ? (placeWidth - (unsigned int)(2 * placeOffsetX))
+		       : (placeWidth > 0 ? placeWidth : 1U);
+    pcd->clientHeight = ((placeOffsetX + placeOffsetY) > 0 &&
+			 placeHeight > (unsigned int)(placeOffsetX + placeOffsetY))
+			? (placeHeight - (unsigned int)(placeOffsetX + placeOffsetY))
+			: (placeHeight > 0 ? placeHeight : 1U);
 
     /* clean up */
     MoveOutline (0,0,0,0);

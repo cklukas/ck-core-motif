@@ -119,6 +119,9 @@ UrmPutIndexedWidget (IDBFile			file_id ,
   if ( ! UrmRCValid(context_id) )
     return Urm__UT_Error ("UrmPutIndexedWidget", _MrmMMsg_0043,
 			  file_id, NULL, MrmBAD_CONTEXT) ;
+  if ( index == NULL || index[0] == '\0' )
+    return Urm__UT_Error ("UrmPutIndexedWidget", _MrmMMsg_0044,
+			  file_id, context_id, MrmNULL_INDEX) ;
   widgetrec = (RGMWidgetRecordPtr) UrmRCBuffer (context_id) ;
   if ( ! UrmWRValid(widgetrec) )
     return Urm__UT_Error ("UrmPutIndexedWidget", _MrmMMsg_0026,

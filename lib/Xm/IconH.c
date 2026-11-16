@@ -161,6 +161,8 @@ static Widget
 GetContainerParent(
 	Widget		wid)
 {
+    if (wid == NULL)
+	return NULL;
     return (((XmIconHeader)(wid))->iconh.container_ID);
 }
 
@@ -181,5 +183,7 @@ XmCreateIconHeader(
 	ArgList		arglist,
 	Cardinal	argcount)
 {
+	if (parent == NULL)
+		return NULL;
 	return(XtCreateWidget(name,xmIconHeaderClass,parent,arglist,argcount));
 }

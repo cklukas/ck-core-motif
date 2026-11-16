@@ -61,26 +61,30 @@ extern "C" { /* some 'locale.h' do not have prototypes (sun) */
 /*ARGSUSED*/
 void _MrmOSHostFloatToIEEE(float *val) /* unused */
 {
-  /*EMPTY*/
+  if (val == NULL)
+    return;
 }
 
 /*ARGSUSED*/
 void _MrmOSHostDoubleToIEEE(double *val) /* unused */
 {
-  /*EMPTY*/
+  if (val == NULL)
+    return;
 }
 
 /*ARGSUSED*/
 void _MrmOSIEEEFloatToHost(float *val) /* unused */
 {
-  /*EMPTY*/
+  if (val == NULL)
+    return;
 }
 
 
 /*ARGSUSED*/
 void _MrmOSIEEEDoubleToHost(double *val)	/* unused */
 {
-  /*EMPTY*/
+  if (val == NULL)
+    return;
 }
 
 /************************************************************************

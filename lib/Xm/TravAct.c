@@ -72,7 +72,13 @@ unsigned short
 _XmGetFocusFlag(Widget w, 
 		unsigned int mask)
 {
-  XmDisplay dd = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
+  XmDisplay dd;
+
+  if (w == NULL || XtDisplay(w) == NULL)
+    return 0;
+  dd = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
+  if (dd == NULL || dd->display.displayInfo == NULL)
+    return 0;
 
   return ((unsigned short)((XmDisplayInfo *)
 	   (dd->display.displayInfo))->resetFocusFlag & mask);
@@ -88,7 +94,13 @@ _XmSetFocusFlag(Widget w,
      		Boolean value)
 #endif /* NeedWidePrototypes */
 {
-  XmDisplay dd = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
+  XmDisplay dd;
+
+  if (w == NULL || XtDisplay(w) == NULL)
+    return;
+  dd = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
+  if (dd == NULL || dd->display.displayInfo == NULL)
+    return;
 
   if (value)
      ((XmDisplayInfo *)
@@ -179,9 +191,13 @@ _XmTrackShellFocus(Widget widget,
   XmGeneology		 oldFocalPoint;
   XmGeneology		 newFocalPoint;
   
+  if (widget == NULL || ve == NULL || event == NULL)
+    return;
+
   if (widget->core.being_destroyed)
     {
-      *dontSwallow = False;
+      if (dontSwallow != NULL)
+	*dontSwallow = False;
       return;
     }
 

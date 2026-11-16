@@ -169,6 +169,9 @@ DeleteWindowHandler(
     VendorShellWidget	w = (VendorShellWidget) wid ;
     XmVendorShellExtObject ve = (XmVendorShellExtObject) closure;
 
+    if (wid == NULL || ve == NULL)
+      return;
+
     switch(ve->vendor.delete_response)
       {
 	case XmUNMAP:
@@ -195,6 +198,9 @@ GetManagedKid(
 {
     Cardinal	i;
     Widget	*currKid;
+
+    if (p == NULL || p->composite.children == NULL)
+      return NULL;
     
     for (i = 0, currKid = p->composite.children;
 	 i < p->composite.num_children;

@@ -174,7 +174,7 @@ StructureNotifyHandler(
     /*
      *  for right now if this is being used by overrides bug out
      */
-    if (!XmIsVendorShell(wid))
+    if (wid == NULL || closure == NULL || event == NULL || !XmIsVendorShell(wid))
       return;
     else
       vePPtr = (XmVendorShellExtPart *) &(vendorExt->vendor);
@@ -203,7 +203,7 @@ StructureNotifyHandler(
 	if ((vePPtr->xAtMap != w->core.x) ||
 	    (vePPtr->yAtMap != w->core.y))
 	  {
-	      if (xmScreen->screen.mwmPresent)
+	      if (xmScreen && xmScreen->screen.mwmPresent)
 		{
 		    if (vePPtr->lastOffsetSerial &&
 			(vePPtr->lastOffsetSerial >= 
@@ -237,7 +237,7 @@ StructureNotifyHandler(
 	      /*
 	       *  make sure the hard wired event handler in shell is not called
 	       */
-	      if (shellExt->shell.useAsyncGeometry)
+	      if (shellExt->shell.useAsyncGeometry && continue_to_dispatch)
 		*continue_to_dispatch = False;
 	  }
 	else
@@ -278,7 +278,7 @@ StructureNotifyHandler(
 		  /*
 		   * check to see if it's mwm
 		   */
-		  if (!(xmScreen->screen.numReparented++))
+		  if (xmScreen && !(xmScreen->screen.numReparented++))
 		    xmScreen->screen.mwmPresent = 
 		      XmIsMotifWMRunning( (Widget) w);
 	      }
@@ -287,7 +287,8 @@ StructureNotifyHandler(
 		  w->core.x = event->xreparent.x;
 		  w->core.y = event->xreparent.y;
 		  w->shell.client_specified |= _XtShellNotReparented;
-		  xmScreen->screen.numReparented--;
+		  if (xmScreen && xmScreen->screen.numReparented > 0)
+		    xmScreen->screen.numReparented--;
 	      }
 	    w->shell.client_specified &= ~_XtShellPositionValid;
 	}

@@ -77,29 +77,31 @@ D-Bus adapter also have compiled behavioural tests under the sanitizers
 
 | Component | Exposure | Prior hardening | Unique warnings | Defect-class | cppcheck errors | Fuzz targets |
 |---|---|---|---:|---:|---:|---|
-| `lib/Xm` | toolkit library; clipboard, selection, text, string and image paths; editres protocol | hardening commits touch most files since 2026-10-22; WP-42 defect-warning & cppcheck ratchet (2026-11-15) | 745 | 0 | 0 | `fuzz-editres-wire`, `fuzz-xm-converters`, `fuzz-xmstring-stream` |
-| `clients/uil` | UIL compiler; parses source files | WP-42 defect-warning & cppcheck ratchet (2026-11-15) | 525 | 0 | 0 | none |
-| `clients/mwm` | window manager; resource and property parsers | control flow, initialization and keysym handling (2026-11-01); WP-42 defect-warning & cppcheck ratchet (2026-11-15) | 173 | 0 | 0 | none |
-| `lib/Mrm` | reads binary UID files | hardening commits since 2026-10-22; UID index, literal, icon and compression-table checks (2026-11-10); WP-42 ratchet (2026-11-15) | 173 | 0 | 0 | `fuzz-mrm-uid`, `run-mrm-uid-mutations.py` |
-| `tools/wml` | widget meta-language generator; build-time tool | WP-42 format-security & cppcheck ratchet (2026-11-15) | 31 | 0 | 0 | none |
+| `lib/Xm` | toolkit library; clipboard, selection, text, string and image paths; editres protocol | hardening commits since 2026-10-22; WP-42 defect-warning & cppcheck ratchet and WP-43 legacy/modern subsystem audit ([WP-43 audit](untrusted-input-audit-wp43.md), 2026-11-16) | 745 | 0 | 0 | `fuzz-editres-wire`, `fuzz-xm-converters`, `fuzz-xmstring-stream` |
+| `clients/uil` | UIL compiler; parses source and `.wmd` files | WP-42 defect-warning & cppcheck ratchet; WP-43 WMD binary database and parser bounds audit ([WP-43 audit](untrusted-input-audit-wp43.md), 2026-11-16) | 525 | 0 | 0 | none |
+| `clients/mwm` | window manager; resource and property parsers | control flow, initialization and keysym handling (2026-11-01); WP-42 ratchet and WP-43 interactive-placement bounds audit (2026-11-16) | 173 | 0 | 0 | none |
+| `lib/Mrm` | reads and writes binary UID files | hardening commits since 2026-10-22; UID index, literal, icon and compression-table checks (2026-11-10); WP-42 ratchet and WP-43 writer/OS audit (2026-11-16) | 173 | 0 | 0 | `fuzz-mrm-uid`, `run-mrm-uid-mutations.py` |
+| `tools/wml` | widget meta-language generator; build-time tool | WP-42 format-security & cppcheck ratchet; WP-43 WMD emitter/grammar review (2026-11-16) | 31 | 0 | 0 | none |
 | `config/util` | build-time utility | WP-42 checktree directory-handle leak fix (2026-11-15) | 6 | 0 | 0 | none |
 
-Source files with no commit of any kind since 2026-10-22 (first-party C, yacc
-and lex sources):
-
-- `lib/Xm` (20): AtomMgr, CvtUnit, Dest, DialogSE, DrHiDash, DrPoly, FocusAct,
-  GetRes, IconH, Messages, ObsoStr, ObsoXme, ReadImage, ShellE,
-  TearOffB, TranslNew, Transltns, TravAct, ValTime, sharedlib.
-- `lib/Mrm` (4): MrmMessages, Mrmlwrite, Mrmos, Mrmwwrite.
-- `clients/mwm` (2): WmCPlace, version. `clients/uil` (1): UilData.
-  `tools/wml` (1): Uil.y.
+All 28 previously untouched first-party C/yacc files from the 2026-11-04
+ledger have been audited in [WP-43](untrusted-input-audit-wp43.md):
+executable modules (`AtomMgr`, `CvtUnit`, `Dest`, `DialogSE`, `DrHiDash`,
+`DrPoly`, `FocusAct`, `GetRes`, `IconH`, `MenuProc`, `ObsoXme`, `ReadImage`,
+`ShellE`, `SlideC`, `TearOffB`, `TravAct`, `ValTime`, `Mrmlwrite`, `Mrmos`,
+`Mrmwwrite`, `WmCPlace`) received explicit input/bounds/lifetime guards, and
+pure constant/table translation units (`Messages`, `ObsoStr`, `TranslNew`,
+`Transltns`, `sharedlib`, `MrmMessages`, `version`, `UilData`, `Uil.y`) were
+verified free of mutable untrusted-input paths.
 
 The vendored libXpm sources (31 files in `lib/Xm`, 7 `.c` files unchanged) are
 reviewed but not mass-rewritten, as are the libXmu-derived parts of
 `lib/Xm/EditresCom.c`. The optional features added in October and November 2026
 (appearance profiles, AT-SPI accessibility, text layout, PNG, SVG and JPEG
-loading, XLibre scaling) are the newest and least exercised code; they have had
-the least time in real use and are priorities for the same review.
+loading, XLibre scaling) were audited in
+[WP-43](untrusted-input-audit-wp43.md) for dimension/channel overflow,
+scanline buffer bounds, Xlib region/GC allocation checks, and reentrant
+teardown.
 
 ## Known limits
 

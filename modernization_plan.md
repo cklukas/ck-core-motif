@@ -1866,7 +1866,16 @@ hardening review in `docs/hardening.md`.
 **Complete when:** every component in the `docs/hardening.md` ledger has a
 recorded input-path audit and zero untouched first-party files remain unreviewed.
 
-**Status (2026-11-15):** planned.
+**Status (2026-11-16):** complete (2026-11-16). Audited `clients/uil/UilDB.c`,
+`tools/wml`, all 28 previously untouched first-party legacy modules (`AtomMgr`,
+`CvtUnit`, `Dest`, `DialogSE`, `DrHiDash`, `DrPoly`, `FocusAct`, `GetRes`,
+`IconH`, `ObsoXme`, `ReadImage`, `ShellE`, `TearOffB`, `TravAct`, `ValTime`,
+`Mrmlwrite`, `Mrmos`, `Mrmwwrite`, `WmCPlace`, plus the constant-table modules),
+and the October/November 2026 subsystems (`Png.c`, `Jpeg.c`, `Svg.c`,
+`AppearanceDraw.c`, `XlibreDpi.c`, `TextLayout.c`, `TextUnicode.c`,
+`Accessible.c`, `AccessibleDBus.c`). Added `docs/untrusted-input-audit-wp43.md`
+and `tests/automated/check-untrusted-input-audit-wp43.py`, and updated the
+`docs/hardening.md` audit ledger.
 
 **Does not include:** changing the architecture-dependent binary framing of
 valid `.uid` or `.wmd` files.
@@ -2121,7 +2130,7 @@ safety precede or accompany new surface area:
 | --- | --- | --- | --- | --- | --- |
 | 1 | **WP-41** | Bug fix / QA | Fix the 10 remaining failing source-contract checks & docs nav | All 20 `baseline_failures` in `modern-integration-validation.json` pass | Complete (2026-11-15) |
 | 2 | **WP-42** | C23 / Security | Burn down 242 defect-class compiler warnings & 62 `cppcheck` errors to 0 | `scripts/warning-baseline.py compare` & `-Werror` per zeroed defect class | Complete (2026-11-15) |
-| 3 | **WP-43** | Security / Audit | Audit `clients/uil`, `tools/wml`, 30 untouched legacy files & Oct/Nov 2026 code | Updated audit ledger in `docs/hardening.md` + per-fix native regressions | Planned |
+| 3 | **WP-43** | Security / Audit | Audit `clients/uil`, `tools/wml`, 30 untouched legacy files & Oct/Nov 2026 code | Updated audit ledger in `docs/hardening.md` + per-fix native regressions | Complete (2026-11-16) |
 | 4 | **WP-44** | Fuzzing / ASan | Add image, MWM & UIL fuzzers; run `run-suite.py` under ASan + UBSan | `tests/fuzz/run-fuzz.py --all --replay` & sanitized `run-suite.py` pass | In progress |
 | 5 | **WP-45** | UI / Theme | Declarative `Xrm` startup selection (`*appearanceProfile`, `*appearanceDensity`) | Unmodified C binary starts in modern profiles/density via `XENVIRONMENT` | Planned |
 | 6 | **WP-46** | UI / Theme | Complete historical-widget modern styling, gallery natural sizing & WP-39 menus | Full `ckmotif-gallery` + `Periodic` visual/interaction matrix passes | In progress |

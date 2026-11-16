@@ -1,3 +1,33 @@
+Untrusted-input and legacy-subsystem hardening audit (2026-11-16)
+=================================================================
+
+- `clients/uil/UilDB.c`: verified `dbfile != NULL` in `db_incorporate`, moved
+  `header->num_items` and `header->table_size` bounds checks before `XtCalloc`
+  in `db_read_ints_and_string`, enforced NUL-termination of `string_table`
+  entries in `db_read_ints_and_string` and `db_read_length_and_string`, and
+  explicitly cleared `table[i].values = NULL` when `values_cnt == 0` in
+  `db_read_int_and_shorts`.
+- Audited and hardened the remaining untouched first-party legacy modules in
+  `lib/Xm`, `lib/Mrm`, and `clients/mwm`: `ReadImage.c` (`XFree(data)` on
+  `_XmCreateImage` failure and null `display`/`filename` guards), `AtomMgr.c`,
+  `CvtUnit.c`, `Dest.c` (including `dd->display.displayInfo` teardown checks),
+  `DialogSE.c`, `DrHiDash.c`, `DrPoly.c`, `FocusAct.c`, `GetRes.c`, `IconH.c`,
+  `ObsoXme.c`, `ShellE.c` (including `numReparented` underflow protection),
+  `TearOffB.c` (`Dimension` highlight-subtraction underflow and trait guards),
+  `TravAct.c`, `ValTime.c` (returning `CurrentTime` on unrealized widgets
+  instead of blocking in `XWindowEvent`), `Mrmlwrite.c`, `Mrmwwrite.c`,
+  `Mrmos.c`, and `WmCPlace.c` (unsigned geometry subtraction bounds).
+- Audited the October/November 2026 subsystems (`lib/Xm/Png.c`, `lib/Xm/Jpeg.c`,
+  `lib/Xm/AppearanceDraw.c`): bounded PNG dimensions and `image_rowbytes`
+  against `INT_MAX` and `image_channels` (`3` or `4`); forced `JCS_RGB` output
+  for non-grayscale JPEG color spaces and verified `output_components` (`1` or
+  `3`) so 4-component CMYK scanlines cannot overflow 3-byte `CTable` buffers;
+  and guarded `XCreateRegion()` allocations and narrow picker chevron offsets in
+  `AppearanceDraw.c`.
+- Test: `tests/automated/check-untrusted-input-audit-wp43.py`.
+- Docs: `docs/untrusted-input-audit-wp43.md`, `docs/hardening.md`,
+  `modernization_plan.md`.
+
 C23 and memory-safety defect-warning ratchet (2026-11-15)
 =========================================================
 

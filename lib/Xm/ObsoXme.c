@@ -241,15 +241,19 @@ _XmVirtualToActualKeysym(
         Modifiers *modifiersRtn )
 {
   int num_keys;
-  XmKeyBinding keys;
+  XmKeyBinding keys = NULL;
 
   /* Initialize the return parameters. */
-  *actualKeysymRtn = NoSymbol;
-  *modifiersRtn = 0;
+  if (actualKeysymRtn != NULL)
+    *actualKeysymRtn = NoSymbol;
+  if (modifiersRtn != NULL)
+    *modifiersRtn = 0;
+  if (dpy == NULL || actualKeysymRtn == NULL || modifiersRtn == NULL)
+    return;
 
   /* Arbitrarily return the first keysym in the list. */
   num_keys = XmeVirtualToActualKeysyms(dpy, virtKeysym, &keys);
-  if (num_keys > 0)
+  if (num_keys > 0 && keys != NULL)
     {
       *actualKeysymRtn = keys[0].keysym;
       *modifiersRtn = keys[0].modifiers;
@@ -412,6 +416,8 @@ _XmResizeObject(
 #endif /* NeedWidePrototypes */
 {
     RectObj g = (RectObj) wid ;
+    if (wid == NULL)
+	return;
     XmDropSiteStartUpdate(wid);
     if (XtIsWidget (g))
 	XtResizeWidget ((Widget) g, width, height, border_width);
@@ -443,6 +449,8 @@ _XmMoveObject(
 {
     RectObj g = (RectObj) wid ;
 
+    if (wid == NULL)
+	return;
     XmDropSiteStartUpdate(wid);
     if (XtIsWidget (g))
 	XtMoveWidget ((Widget) g, x, y);

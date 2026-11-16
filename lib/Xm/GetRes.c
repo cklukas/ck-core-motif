@@ -62,6 +62,11 @@ GetSecResData(
 {
   XmBaseClassExt  *bcePtr;	/* bcePtr is really **XmBaseClassExtRec */
   Cardinal count = 0;
+
+  if (secResDataRtn != NULL)
+    *secResDataRtn = NULL;
+  if (w_class == NULL || secResDataRtn == NULL)
+    return 0;
   
   bcePtr = _XmGetBaseClassExtPtr( w_class, XmQmotif); 
   if ((bcePtr) && (*bcePtr) && ((*bcePtr)->getSecResData))

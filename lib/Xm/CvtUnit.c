@@ -48,14 +48,24 @@ XmCvtStringToUnitType(
         XrmValue *from_val,
         XrmValue *to_val )
 {
-   Display * dpy = _XmGetDefaultDisplay();
+   Display * dpy;
+   Widget xm_dpy;
+
+   if (from_val == NULL || to_val == NULL)
+      return;
+   dpy = _XmGetDefaultDisplay();
+   if (dpy == NULL)
+      return;
+   xm_dpy = XmGetXmDisplay(dpy);
+   if (xm_dpy == NULL)
+      return;
 
    /* we cannot call XmRUnitType directly, since it would loop
       if a program registers this function with to_type = XmRUnitType (which
       is very likely).
       So we use REAL_UNIT_TYPE_NAME, which has been registered with the
       same semantics as the original XmRUnitType in RepType.c */
-   XtConvertAndStore(XmGetXmDisplay(dpy), XmRString, from_val,
+   XtConvertAndStore(xm_dpy, XmRString, from_val,
 		     REAL_UNIT_TYPE_NAME, to_val);
 
 }

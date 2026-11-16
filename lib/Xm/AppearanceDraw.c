@@ -108,6 +108,7 @@ Region
 _XmAppearanceRoundedRectangleRegion(int x, int y, int width, int height, int radius)
 {
     Region region = XCreateRegion();
+    if (!region) return NULL;
     RoundedRectangleSpans(x,y,width,height,radius,UnionRoundedSpan,region);
     return region;
 }
@@ -273,14 +274,18 @@ _XmAppearanceDrawButtonFocus(Widget widget, Boolean focused)
     radius = MIN((int)_XmDpiDefaultDimension(widget, 4) + highlight,
                  MIN(width,height)/2);
     outer = (XRectangle){x, y, width, height};
-    clip = XCreateRegion(); XUnionRectWithRegion(&outer, clip, clip);
+    clip = XCreateRegion();
+    if (!clip) return True;
+    XUnionRectWithRegion(&outer, clip, clip);
     if (width > 2*highlight && height > 2*highlight) {
         /* Preserve the rounded face, not its rectangular bounding box.
          * Concentric outer/inner corners keep the same stroke width on
          * straight edges and diagonals without touching face contents. */
         inside = _XmAppearanceRoundedRectangleRegion(x+highlight, y+highlight,
             width-2*highlight, height-2*highlight, MAX(0,radius-highlight));
-        XSubtractRegion(clip, inside, clip); XDestroyRegion(inside);
+        if (inside) {
+            XSubtractRegion(clip, inside, clip); XDestroyRegion(inside);
+        }
     }
     values.foreground = parent_background;
     values.graphics_exposures = False;
@@ -339,13 +344,18 @@ _XmAppearanceDrawButton(Widget widget, Pixel fill, Boolean emphasized,
     if (emphasized) stroke=MIN(MAX(stroke,(int)_XmDpiDefaultDimension(widget,2)),MIN(width,height)/2);
     radius=MIN((int)_XmDpiDefaultDimension(widget,4),MIN(width,height)/2);
     outer=(XRectangle){x,y,width,height};
-    clip=XCreateRegion();XUnionRectWithRegion(&outer,clip,clip);
+    clip=XCreateRegion();
+    if (!clip) return True;
+    XUnionRectWithRegion(&outer,clip,clip);
     if (!paint_background) {
         band=MAX(stroke,radius);
         if (width>2*band && height>2*band) {
             inner=(XRectangle){x+band,y+band,width-2*band,height-2*band};
-            inside=XCreateRegion();XUnionRectWithRegion(&inner,inside,inside);
-            XSubtractRegion(clip,inside,clip);XDestroyRegion(inside);
+            inside=XCreateRegion();
+            if (inside) {
+                XUnionRectWithRegion(&inner,inside,inside);
+                XSubtractRegion(clip,inside,clip);XDestroyRegion(inside);
+            }
         }
     }
     values.foreground=parent_background;
@@ -756,8 +766,8 @@ _XmAppearanceDrawPickerFrame(Widget widget,Boolean spin)
     XmPrimitiveWidget field=(XmPrimitiveWidget)widget;
     Drawable drawable=_XmPaintDrawable(widget);if(!drawable)return True;
     int edge=MIN((int)_XmDpiDefaultDimension(widget,12),MIN((int)field->core.width/3,(int)field->core.height/3));
-    if(edge<3)return True;
     int x=(int)field->core.width-_XmDpiDefaultDimension(widget,10)-edge;
+    if(edge<3||x<0)return True;
     XGCValues values;values.foreground=XtIsSensitive(widget)?field->primitive.foreground:field->primitive.bottom_shadow_color;
     GC gc=XCreateGC(XtDisplay(widget),drawable,GCForeground,&values);if(!gc)return True;
     int stroke=MAX(1,_XmDpiDefaultDimension(widget,1));

@@ -1657,4 +1657,6 @@ EXTRA_DIST += tests/automated/check-mrm-icon-bounds.c \
 EXTRA_DIST += tests/automated/check-mrm-value-bounds.c \
               tests/automated/run-mrm-value-bounds.py \
               docs/mrm-value-bounds.md \
-              tests/automated/check-hardening-defect-ratchet.py
+              tests/automated/check-hardening-defect-ratchet.py \
+              tests/automated/check-untrusted-input-audit-wp43.py \
+              docs/untrusted-input-audit-wp43.md

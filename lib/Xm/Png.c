@@ -37,6 +37,10 @@ _XmPngGetImage(Screen *screen, FILE *infile, Pixel background,
     int pad;
     int rc;
 
+    if (screen == NULL || infile == NULL || ximage == NULL)
+        return 2;
+    *ximage = NULL;
+
     xcolor.pixel = background;
     XQueryColor(screen->display, screen->cmap, &xcolor);
     bg_red = xcolor.red;
@@ -55,7 +59,13 @@ _XmPngGetImage(Screen *screen, FILE *infile, Pixel background,
 	    &image_channels, &image_rowbytes, &image_data);
 */
     if (rc) return rc;
-    if (!image_width || !image_height || image_width > SIZE_MAX / image_height) {
+    if (!image_width || !image_height ||
+        image_width > INT_MAX || image_height > INT_MAX ||
+        image_rowbytes > INT_MAX ||
+        (image_channels != 3 && image_channels != 4) ||
+        image_rowbytes < image_width * (unsigned long)image_channels ||
+        screen->root_depth <= 0 ||
+        image_width > SIZE_MAX / image_height) {
         free(image_data);
         return 4;
     }
@@ -323,7 +333,7 @@ png_process_image(Screen *screen,
     unsigned char *src;
     char *dest;
     unsigned char r, g, b, a;
-    unsigned long i, row, lastrow = 0;
+    unsigned long i, row;
     unsigned long pixel;
     int ximage_rowbytes = ximage->bytes_per_line;
     static int RShift, GShift, BShift;
@@ -348,7 +358,7 @@ png_process_image(Screen *screen,
         ximage_pixel_bytes = (ximage->bits_per_pixel + 7) / 8;
         if (ximage_pixel_bytes < 3 || ximage_pixel_bytes > 4)
             return 2;
-        for (lastrow = row = 0; row < ximage->height; ++row) {
+        for (row = 0; row < ximage->height; ++row) {
             src = image_data + row * image_rowbytes;
             dest = ximage->data + row * ximage_rowbytes;
             if (image_channels == 3) {
@@ -407,7 +417,7 @@ png_process_image(Screen *screen,
             }
         }
     } else if (screen->root_depth == 16) {
-        for (lastrow = row = 0; row < ximage->height; ++row) {
+        for (row = 0; row < ximage->height; ++row) {
             src = image_data + row * image_rowbytes;
             dest = ximage->data + row * ximage_rowbytes;
             if (image_channels == 3) {

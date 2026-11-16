@@ -48,11 +48,14 @@ load_jpeg(FILE * infile, unsigned long *pWidth, unsigned long *pHeight,
     jpeg_create_decompress(&cinfo);
     jpeg_stdio_src(&cinfo, infile);
     jpeg_read_header(&cinfo, TRUE);
+    if (cinfo.out_color_space != JCS_GRAYSCALE)
+        cinfo.out_color_space = JCS_RGB;
     jpeg_calc_output_dimensions(&cinfo);
     jpeg_start_decompress(&cinfo);
     *pWidth = cinfo.output_width;
     *pHeight = cinfo.output_height;
-    if (!cinfo.output_width || !cinfo.output_height ||
+    if ((cinfo.output_components != 1 && cinfo.output_components != 3) ||
+        !cinfo.output_width || !cinfo.output_height ||
         (size_t)cinfo.output_width > SIZE_MAX / (size_t)cinfo.output_height ||
         (size_t)cinfo.output_width * (size_t)cinfo.output_height >
             SIZE_MAX / sizeof(CTable)) {
@@ -134,6 +137,10 @@ _XmJpegGetImage(Screen * screen, FILE * infile, XImage ** ximage)
     int pad;
     CTable *image_data = NULL;
     int rc;
+
+    if (screen == NULL || infile == NULL || ximage == NULL)
+        return 2;
+    *ximage = NULL;
 
     if ((rc = load_jpeg(infile, &image_width, &image_height, &image_data)))
         return rc;

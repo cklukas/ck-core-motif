@@ -74,7 +74,8 @@ void _XmDrawHighlight(Display *display, Drawable d,
    int half_hl, cor;
    XGCValues gcvalues;
 
-   if (!d || !highlight_thickness || !width || !height) return ;
+   if (!display || !d || !gc ||
+       highlight_thickness <= 0 || width <= 0 || height <= 0) return ;
    if (thickness > draw_width) thickness = draw_width;
    if (thickness > draw_height) thickness = draw_height;
    half_hl = thickness / 2;

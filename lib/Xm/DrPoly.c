@@ -55,17 +55,22 @@ XmeDrawPolygonShadow (
     Region  xregion;
     XtAppContext app;
 
+    if (dpy == NULL || d == None || points == NULL ||
+	n_points <= 0 || shadowThickness <= 0)
+	return;
+
     app = XtDisplayToApplicationContext(dpy);
 
     _XmAppLock(app);
     xregion = XPolygonRegion(points, n_points, /* FillRule */ WindingRule);
+    if (xregion != NULL) {
+	_XmRegionDrawShadow (dpy, d,
+			     topGC, bottomGC,
+			     (XmRegion)xregion,
+			     /* border_width */ 0, shadowThickness,
+			     shadowType);
 
-    _XmRegionDrawShadow (dpy, d,
-			 topGC, bottomGC,
-			 (XmRegion)xregion,
-			 /* border_width */ 0, shadowThickness,
-			 shadowType);
-
-    XDestroyRegion(xregion);
+	XDestroyRegion(xregion);
+    }
     _XmAppUnlock(app);
 }

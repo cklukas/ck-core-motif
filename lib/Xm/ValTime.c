@@ -47,13 +47,19 @@ _XmValidTimestamp(
      Widget w )
 {
   Window win;
-  Display *dsp = XtDisplay(w);
+  Display *dsp;
   XEvent event;
   EventMask shellMask;
-  Atom timeProp = XInternAtom(dsp, XmI_MOTIF_CURRENT_TIME, False);
+  Atom timeProp;
 
-  while (!XtIsShell(w)) w = XtParent(w);
-  win = XtWindow(w);
+  if (w == NULL || (dsp = XtDisplay(w)) == NULL)
+    return CurrentTime;
+
+  while (w != NULL && !XtIsShell(w)) w = XtParent(w);
+  if (w == NULL || (win = XtWindow(w)) == None)
+    return CurrentTime;
+
+  timeProp = XInternAtom(dsp, XmI_MOTIF_CURRENT_TIME, False);
  
   if (! ((shellMask = XtBuildEventMask(w)) & PropertyChangeMask) )
     XSelectInput(dsp, win, shellMask | PropertyChangeMask);

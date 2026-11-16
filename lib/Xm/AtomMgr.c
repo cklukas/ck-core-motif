@@ -52,6 +52,8 @@ XmInternAtom(
 {
   /* While not yet obsolete, this routine is not in favor.  Use */
   /* XInternAtom directly. */
+  if (display == NULL || name == NULL)
+    return None;
   return XInternAtom(display, name, only_if_exists);
 }
 
@@ -68,5 +70,7 @@ XmGetAtomName(
 {
   /* While not yet obsolete, this routine is not in favor.  Use */
   /* XGetAtomName directly. */
+  if (display == NULL || atom == None)
+    return NULL;
   return XGetAtomName(display, atom);
 }    

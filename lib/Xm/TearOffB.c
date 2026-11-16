@@ -269,6 +269,8 @@ HeightDefault(
       static Dimension default_height = DEFAULT_HEIGHT ;
       XmTearOffButtonWidget tob = (XmTearOffButtonWidget)widget;
 
+      if (tob == NULL || value == NULL)
+	 return;
       value->addr = (XPointer) &default_height;
       tob->tear_off_button.set_recompute_size = True;
 }
@@ -394,23 +396,27 @@ Redisplay(
     /*
      * Where do we check for dependency on MenyType ??
      */
-    if (XtIsRealized((Widget)tob)) { 
+    if (tob != NULL && XtIsRealized((Widget)tob)) { 
 	XtExposeProc expose;
 
-	XmeDrawSeparator(XtDisplay(tob), XtWindow(tob),
-			 tob->primitive.top_shadow_GC,
-			 tob->primitive.bottom_shadow_GC,
-			 tob->tear_off_button.separator_GC,
-			 tob->primitive.highlight_thickness,
-			 tob->primitive.highlight_thickness,
-			 tob->core.width - 
-			 2*tob->primitive.highlight_thickness,
-			 tob->core.height - 
-			 2*tob->primitive.highlight_thickness,
-			 tob->primitive.shadow_thickness,
-			 tob->tear_off_button.margin,
-			 tob->tear_off_button.orientation,
-			 tob->tear_off_button.separator_type);
+	if ((unsigned int)tob->core.width >
+	    2U * (unsigned int)tob->primitive.highlight_thickness &&
+	    (unsigned int)tob->core.height >
+	    2U * (unsigned int)tob->primitive.highlight_thickness)
+	    XmeDrawSeparator(XtDisplay(tob), XtWindow(tob),
+			     tob->primitive.top_shadow_GC,
+			     tob->primitive.bottom_shadow_GC,
+			     tob->tear_off_button.separator_GC,
+			     tob->primitive.highlight_thickness,
+			     tob->primitive.highlight_thickness,
+			     tob->core.width - 
+			     2*tob->primitive.highlight_thickness,
+			     tob->core.height - 
+			     2*tob->primitive.highlight_thickness,
+			     tob->primitive.shadow_thickness,
+			     tob->tear_off_button.margin,
+			     tob->tear_off_button.orientation,
+			     tob->tear_off_button.separator_type);
 
 	/* envelop primitive expose method for highlight */
 
@@ -495,6 +501,8 @@ BDrag( Widget wid,
 	String *param,		/* unused */
 	Cardinal *num_param )	/* unused */
 {
+   if (wid == NULL || XtParent(wid) == NULL || event == NULL)
+      return;
    _XmTearOffInitiate(XtParent(wid), event);
 }
 
@@ -511,13 +519,17 @@ BActivate( Widget wid,
 	String *param,		/* unused */
 	Cardinal *num_param )	/* unused */
 {
-   Widget parent = XtParent(wid);
+   Widget parent;
    XmMenuSystemTrait menuSTrait;
 
-   menuSTrait = (XmMenuSystemTrait) 
-     XmeTraitGet((XtPointer) XtClass(XtParent(wid)), XmQTmenuSystem);
+   if (wid == NULL || (parent = XtParent(wid)) == NULL || event == NULL)
+      return;
 
-   if (menuSTrait -> verifyButton(XtParent(wid), event))
+   menuSTrait = (XmMenuSystemTrait) 
+     XmeTraitGet((XtPointer) XtClass(parent), XmQTmenuSystem);
+
+   if (menuSTrait != NULL && menuSTrait->verifyButton != NULL &&
+       menuSTrait->verifyButton(parent, event))
    {
       _XmTearOffInitiate(parent, event);
    }
@@ -536,8 +548,11 @@ KActivate( Widget wid,
 	Cardinal *num_param )	/* unused */
 {
    XButtonEvent xb_ev ;
-   Widget parent = XtParent(wid);
+   Widget parent;
    Position x, y;
+
+   if (wid == NULL || (parent = XtParent(wid)) == NULL || event == NULL)
+      return;
 
    /* stick the tear off at the same location as the submenu */
    XtTranslateCoords(parent, XtX(parent), XtY(parent), 

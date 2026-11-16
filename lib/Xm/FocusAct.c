@@ -48,12 +48,15 @@ _XmMenuButtonTakeFocus(
         String *params,		/* unused */
         Cardinal *num_params )	/* unused */
 {
+   if (wid == NULL || XtDisplay(wid) == NULL)
+      return;
    /* Support menu replay, free server input queue until next button event */
    XAllowEvents(XtDisplay(wid), SyncPointer, CurrentTime);
 
    XmProcessTraversal(wid, XmTRAVERSE_CURRENT);
 
-   _XmRecordEvent (event);
+   if (event != NULL)
+      _XmRecordEvent (event);
 }
 
 /**********************************************************************
@@ -69,9 +72,12 @@ _XmMenuButtonTakeFocusUp(
         String *params,		/* unused */
         Cardinal *num_params )	/* unused */
 {
+   if (wid == NULL || XtDisplay(wid) == NULL)
+      return;
    /* Support menu replay, free server input queue until next button event */
    XAllowEvents(XtDisplay(wid), SyncPointer, CurrentTime);
-   _XmRecordEvent (event);
+   if (event != NULL)
+      _XmRecordEvent (event);
 }
 
 

@@ -51,11 +51,16 @@ _XmReadImageAndHotSpotFromFile(
    unsigned int height;
    unsigned char * data;
 
+   if (display == NULL || filename == NULL)
+      return (NULL);
+
    if (BitmapSuccess == XReadBitmapFileData(filename, &width, &height, &data,
 			       hot_x, hot_y))
    {
-      XImage * image;
+      XImage * image = NULL;
       _XmCreateImage(image, display, (char*)data, width, height, LSBFirst);
+      if (image == NULL)
+         XFree(data);
 
       return (image);
    }
