@@ -50,6 +50,7 @@ static char rcsid[] = "$TOG: WmResource.c /main/14 1997/04/15 10:30:02 dbl $"
 
 #include <Xm/XmP.h>
 #include <Xm/RowColumn.h>
+#include <Xm/XmI.h>
 #ifndef MOTIF_ONE_DOT_ONE
 #include <Xm/ScreenP.h>		/* for XmGetXmScreen and screen.moveOpaque */
 #endif
@@ -77,6 +78,7 @@ static char rcsid[] = "$TOG: WmResource.c /main/14 1997/04/15 10:30:02 dbl $"
 XmColorData *_WmGetDefaultColors(Screen *, Colormap, String);
 
 void _WmTopShadowPixmapDefault (Widget widget, int offset, XrmValue *value);
+void _WmFontListDefault (Widget widget, int offset, XrmValue *value);
 void _WmIconImageFDefault (Widget widget, int offset, XrmValue *value);
 void _WmIconImageBDefault (Widget widget, int offset, XrmValue *value);
 void _WmIconImageBSCDefault (Widget widget, int offset, XrmValue *value);
@@ -2292,8 +2294,8 @@ XtResource wmAppearanceResources[] =
 	XmRFontList,
 	sizeof (XmFontList),
 	XtOffsetOf (AppearanceData, fontList),
-	XtRString,
-	"fixed"
+	XtRCallProc,
+	(XtPointer)_WmFontListDefault
     },
 
     {
@@ -2646,9 +2648,96 @@ _WmMatteTSPDefault (Widget widget, int offset, XrmValue *value)
  * 
  *************************************<->***********************************/
 
+static AppearanceData *_lastModernBgData = NULL;
+static Pixel _lastModernBgPixel = 0;
+static AppearanceData *_lastModernABgData = NULL;
+static Pixel _lastModernABgPixel = 0;
+
+static Boolean
+_WmParseProfilePixel (Widget widget, const char *spec, Pixel fallback, Pixel *out)
+{
+    Screen *screen;
+    Display *display;
+    Colormap colormap;
+    XColor color;
+
+    if (widget == NULL || spec == NULL || out == NULL)
+	return False;
+    screen = XtScreen (widget);
+    display = DisplayOfScreen (screen);
+    colormap = widget->core.colormap;
+    if (XParseColor (display, colormap, spec, &color) &&
+	XAllocColor (display, colormap, &color))
+    {
+	*out = color.pixel;
+	return True;
+    }
+    *out = fallback;
+    return True;
+}
+
+void
+_WmFontListDefault (Widget widget, int offset, XrmValue *value)
+{
+    static XmFontList cachedFontList = NULL;
+    static Screen *cachedScreen = NULL;
+    static XmAppearanceProfile cachedProfile = XmAPPEARANCE_CLASSIC;
+    static double cachedScale = 0.0;
+    Screen *screen = widget ? XtScreen (widget) : NULL;
+
+    (void)offset;
+    if (screen != NULL &&
+	(cachedFontList == NULL || cachedScreen != screen ||
+	 cachedProfile != wmGD.appearanceProfile ||
+	 cachedScale != wmGD.dpiScale))
+    {
+	XmFontList table = NULL;
+	if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC)
+	{
+	    table = _XmAppearanceCreateRenderTable (
+		widget, XmAPPEARANCE_ROLE_SECTION,
+		wmGD.dpiScale > 0.0 ? wmGD.dpiScale : 1.0);
+	}
+	if (table == NULL)
+	{
+	    XmFontListEntry entry = XmFontListEntryLoad (
+		DisplayOfScreen (screen), "fixed",
+		XmFONT_IS_FONT, XmFONTLIST_DEFAULT_TAG);
+	    if (entry != NULL)
+	    {
+		table = XmFontListAppendEntry (NULL, entry);
+		XmFontListEntryFree (&entry);
+	    }
+	}
+	cachedFontList = table;
+	cachedScreen = screen;
+	cachedProfile = wmGD.appearanceProfile;
+	cachedScale = wmGD.dpiScale;
+    }
+    value->addr = (char *)&cachedFontList;
+    value->size = sizeof (XmFontList);
+}
+
 void 
 _WmBackgroundDefault (Widget widget, int offset, XrmValue *value)
 {
+    static Pixel modernBg;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	const char *spec =
+	    (wmGD.appearanceProfile == XmAPPEARANCE_MODERN_DARK) ? "#181B20" :
+	    (wmGD.appearanceProfile == XmAPPEARANCE_HIGH_CONTRAST) ? "#FFFFFF" :
+	    "#E8ECF2";
+	_WmParseProfilePixel (widget, spec, WhitePixelOfScreen (XtScreen (widget)),
+			      &modernBg);
+	_lastModernBgData = _pAppearanceData;
+	_lastModernBgPixel = modernBg;
+	value->addr = (char *)&modernBg;
+	value->size = sizeof (Pixel);
+	return;
+    }
     _WmGetDynamicDefault (widget, WmBGC, _defaultBackground, 0, value);
 
 } /* END OF FUNCTION _WmBackgroundDefault */
@@ -2657,6 +2746,23 @@ _WmBackgroundDefault (Widget widget, int offset, XrmValue *value)
 void 
 _WmForegroundDefault (Widget widget, int offset, XrmValue *value)
 {
+    static Pixel modernFg;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)) &&
+	_pAppearanceData == _lastModernBgData &&
+	_pAppearanceData->background == _lastModernBgPixel)
+    {
+	const char *spec =
+	    (wmGD.appearanceProfile == XmAPPEARANCE_MODERN_DARK) ? "#9CA3AF" :
+	    (wmGD.appearanceProfile == XmAPPEARANCE_HIGH_CONTRAST) ? "#000000" :
+	    "#4B5563";
+	_WmParseProfilePixel (widget, spec, BlackPixelOfScreen (XtScreen (widget)),
+			      &modernFg);
+	value->addr = (char *)&modernFg;
+	value->size = sizeof (Pixel);
+	return;
+    }
     _WmGetDynamicDefault (widget, WmFGC, 0, _pAppearanceData->background,
 	value);
 
@@ -2668,6 +2774,14 @@ _WmBackgroundPixmapDefault (Widget widget, int offset, XrmValue *value)
 {
     static String string;
 
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	string = NULL;
+	value->addr = (char *)string;
+	value->size = sizeof (String);
+	return;
+    }
 
     if ((Monochrome (XtScreen (widget))) ||
 	(_pAppearanceData->topShadowColor == _pAppearanceData->background))
@@ -2688,6 +2802,21 @@ _WmBackgroundPixmapDefault (Widget widget, int offset, XrmValue *value)
 void 
 _WmBottomShadowColorDefault (Widget widget, int offset, XrmValue *value)
 {
+    static Pixel modernBs;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	const char *spec =
+	    (wmGD.appearanceProfile == XmAPPEARANCE_MODERN_DARK) ? "#343B46" :
+	    (wmGD.appearanceProfile == XmAPPEARANCE_HIGH_CONTRAST) ? "#000000" :
+	    "#C4CDD9";
+	_WmParseProfilePixel (widget, spec, BlackPixelOfScreen (XtScreen (widget)),
+			      &modernBs);
+	value->addr = (char *)&modernBs;
+	value->size = sizeof (Pixel);
+	return;
+    }
     _WmGetDynamicDefault (widget, WmBSC, 0, _pAppearanceData->background,
 	value);
 
@@ -2697,6 +2826,21 @@ _WmBottomShadowColorDefault (Widget widget, int offset, XrmValue *value)
 void 
 _WmTopShadowColorDefault (Widget widget, int offset, XrmValue *value)
 {
+    static Pixel modernTs;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	const char *spec =
+	    (wmGD.appearanceProfile == XmAPPEARANCE_MODERN_DARK) ? "#343B46" :
+	    (wmGD.appearanceProfile == XmAPPEARANCE_HIGH_CONTRAST) ? "#000000" :
+	    "#C4CDD9";
+	_WmParseProfilePixel (widget, spec, BlackPixelOfScreen (XtScreen (widget)),
+			      &modernTs);
+	value->addr = (char *)&modernTs;
+	value->size = sizeof (Pixel);
+	return;
+    }
     _WmGetDynamicDefault (widget, WmTSC, 0, _pAppearanceData->background,
 	value);
 
@@ -2708,6 +2852,14 @@ _WmTopShadowPixmapDefault (Widget widget, int offset, XrmValue *value)
 {
     static String string;
 
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	string = NULL;
+	value->addr = (char *)string;
+	value->size = sizeof (String);
+	return;
+    }
 
     if ((Monochrome (XtScreen (widget))) ||
 	(_pAppearanceData->topShadowColor == _pAppearanceData->background))
@@ -2735,6 +2887,23 @@ _WmTopShadowPixmapDefault (Widget widget, int offset, XrmValue *value)
 void 
 _WmABackgroundDefault (Widget widget, int offset, XrmValue *value)
 {
+    static Pixel modernABg;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	const char *spec =
+	    (wmGD.appearanceProfile == XmAPPEARANCE_MODERN_DARK) ? "#263248" :
+	    (wmGD.appearanceProfile == XmAPPEARANCE_HIGH_CONTRAST) ? "#0038A8" :
+	    "#DCE6F7";
+	_WmParseProfilePixel (widget, spec, WhitePixelOfScreen (XtScreen (widget)),
+			      &modernABg);
+	_lastModernABgData = _pAppearanceData;
+	_lastModernABgPixel = modernABg;
+	value->addr = (char *)&modernABg;
+	value->size = sizeof (Pixel);
+	return;
+    }
     _WmGetDynamicDefault (widget, WmBGC, _defaultActiveBackground, 0, value);
 
 } /* END OF FUNCTION _WmABackgroundDefault */
@@ -2743,6 +2912,23 @@ _WmABackgroundDefault (Widget widget, int offset, XrmValue *value)
 void 
 _WmAForegroundDefault (Widget widget, int offset, XrmValue *value)
 {
+    static Pixel modernAFg;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)) &&
+	_pAppearanceData == _lastModernABgData &&
+	_pAppearanceData->activeBackground == _lastModernABgPixel)
+    {
+	const char *spec =
+	    (wmGD.appearanceProfile == XmAPPEARANCE_MODERN_DARK) ? "#F3F4F6" :
+	    (wmGD.appearanceProfile == XmAPPEARANCE_HIGH_CONTRAST) ? "#FFFFFF" :
+	    "#151921";
+	_WmParseProfilePixel (widget, spec, BlackPixelOfScreen (XtScreen (widget)),
+			      &modernAFg);
+	value->addr = (char *)&modernAFg;
+	value->size = sizeof (Pixel);
+	return;
+    }
     _WmGetDynamicDefault (widget, WmFGC, 0, _pAppearanceData->activeBackground,
 	value);
 
@@ -2753,6 +2939,14 @@ _WmABackgroundPixmapDefault (Widget widget, int offset, XrmValue *value)
 {
     static String string;
 
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	string = NULL;
+	value->addr = (char *)string;
+	value->size = sizeof (String);
+	return;
+    }
 
     if ((Monochrome (XtScreen (widget))) ||
 	(_pAppearanceData->activeTopShadowColor ==
@@ -2773,6 +2967,21 @@ _WmABackgroundPixmapDefault (Widget widget, int offset, XrmValue *value)
 void 
 _WmABottomShadowColorDefault (Widget widget, int offset, XrmValue *value)
 {
+    static Pixel modernABs;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	const char *spec =
+	    (wmGD.appearanceProfile == XmAPPEARANCE_MODERN_DARK) ? "#4C8DFF" :
+	    (wmGD.appearanceProfile == XmAPPEARANCE_HIGH_CONTRAST) ? "#000000" :
+	    "#2563EB";
+	_WmParseProfilePixel (widget, spec, BlackPixelOfScreen (XtScreen (widget)),
+			      &modernABs);
+	value->addr = (char *)&modernABs;
+	value->size = sizeof (Pixel);
+	return;
+    }
     _WmGetDynamicDefault (widget, WmBSC, 0, _pAppearanceData->activeBackground,
 	value);
 
@@ -2782,6 +2991,21 @@ _WmABottomShadowColorDefault (Widget widget, int offset, XrmValue *value)
 void 
 _WmATopShadowColorDefault (Widget widget, int offset, XrmValue *value)
 {
+    static Pixel modernATs;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	const char *spec =
+	    (wmGD.appearanceProfile == XmAPPEARANCE_MODERN_DARK) ? "#4C8DFF" :
+	    (wmGD.appearanceProfile == XmAPPEARANCE_HIGH_CONTRAST) ? "#000000" :
+	    "#2563EB";
+	_WmParseProfilePixel (widget, spec, BlackPixelOfScreen (XtScreen (widget)),
+			      &modernATs);
+	value->addr = (char *)&modernATs;
+	value->size = sizeof (Pixel);
+	return;
+    }
     _WmGetDynamicDefault (widget, WmTSC, 0, _pAppearanceData->activeBackground,
 	value);
 
@@ -2792,6 +3016,15 @@ void
 _WmATopShadowPixmapDefault (Widget widget, int offset, XrmValue *value)
 {
     static String string;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC &&
+	!Monochrome (XtScreen (widget)))
+    {
+	string = NULL;
+	value->addr = (char *)string;
+	value->size = sizeof (String);
+	return;
+    }
 
     if ((Monochrome (XtScreen (widget))) ||
 	(_pAppearanceData->activeTopShadowColor ==
@@ -3213,6 +3446,16 @@ ProcessWmResources (void)
      */
 
     wmGD.xa_MWM_CLIENT_LIST = XInternAtom (DISPLAY, _XA_MWM_CLIENT_LIST, False);
+
+    (void)XmGetXmDisplay (DISPLAY);
+    wmGD.appearanceProfile = XmAPPEARANCE_CLASSIC;
+    wmGD.appearanceDensity = XmAPPEARANCE_DENSITY_COMFORTABLE;
+    (void)XmGetAppearanceProfile (DISPLAY, &wmGD.appearanceProfile);
+    (void)XmGetAppearanceDensity (DISPLAY, &wmGD.appearanceDensity);
+    if (!_XmGetDpiScale (DISPLAY, &wmGD.dpiScale) || wmGD.dpiScale <= 0.0)
+    {
+	wmGD.dpiScale = 1.0;
+    }
 
 } /* END OF FUNCTION ProcessWmResources */
 
@@ -4490,11 +4733,17 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
     long titleHeight;
 #endif
 
+    int extHeight = 0, extAscent = 0, extDescent = 0;
+
     /*
      * Extract a font from the font list.
      */
 
-    if (! XmeRenderTableGetDefaultFont(pAData->fontList, &(pAData->font)))
+    XmRenderTableGetDefaultFontExtents (
+	pAData->fontList, &extHeight, &extAscent, &extDescent);
+
+    if (! XmeRenderTableGetDefaultFont(pAData->fontList, &(pAData->font)) &&
+	extHeight <= 0)
     {
         const char *format = (char *)GETMESSAGE(62, 23,
                                                   "failed to load font: %.100s");
@@ -4519,12 +4768,46 @@ MakeAppearanceResources (WmScreenData *pSD, AppearanceData *pAData, Boolean make
         ExitWM(WM_ERROR_EXIT_VALUE);
     }
 
+    if (pAData->font == NULL)
+    {
+	static XFontStruct *fallbackFont = NULL;
+	static Display *fallbackDisplay = NULL;
+
+	if (fallbackFont == NULL || fallbackDisplay != DISPLAY)
+	{
+	    fallbackFont = XLoadQueryFont (DISPLAY, "fixed");
+	    fallbackDisplay = DISPLAY;
+	}
+	pAData->font = fallbackFont;
+    }
+
 #ifndef NO_MULTIBYTE
     /*
      *  Calculate title bar's height and store it in pAData.
      */
-    titleHeight = (long)(pAData->font)->ascent +
-	(long)(pAData->font)->descent + WM_TITLE_BAR_PADDING;
+    {
+	long padding = WM_TITLE_BAR_PADDING;
+
+	if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC)
+	{
+	    Dimension basePad =
+		(wmGD.appearanceDensity == XmAPPEARANCE_DENSITY_COMPACT) ? 6 : 10;
+	    padding = (long)_XmDpiScaleDimension (wmGD.dpiScale, basePad);
+	}
+	if (extHeight > 0)
+	{
+	    titleHeight = (long)extHeight + padding;
+	}
+	else if (pAData->font != NULL)
+	{
+	    titleHeight = (long)(pAData->font)->ascent +
+		(long)(pAData->font)->descent + padding;
+	}
+	else
+	{
+	    titleHeight = 16 + padding;
+	}
+    }
     if (titleHeight <= 0 || titleHeight > (long)UINT_MAX)
     {
 	Warning("Invalid title font metrics");
@@ -4985,55 +5268,83 @@ ProcessScreenResources (WmScreenData *pSD, unsigned char *screenName)
     if ((pSD->resizeBorderWidth == (Dimension)BIGSIZE) ||
 	(pSD->frameBorderWidth == (Dimension)BIGSIZE))
     {
-	double xres, yres, avg_res;
-
-	xres = (((double) DisplayWidth(DISPLAY, pSD->screen)) / 
-		((double) DisplayWidthMM(DISPLAY, pSD->screen)));
-	yres = (((double) DisplayHeight(DISPLAY, pSD->screen)) / 
-		((double) DisplayHeightMM(DISPLAY, pSD->screen)));
-
-	avg_res = (xres + yres) / 2.0;
-
-	/* Multiply times width in mm (avg. 7-8 pixels) */
-	if (pSD->resizeBorderWidth == (Dimension)BIGSIZE)
+	if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC)
 	{
-	    pSD->resizeBorderWidth = (int) (avg_res * 2.2);
-
-	    /* limit size because big borders look ugly */
-#ifndef WSM
-	    if (wmGD.frameStyle == WmSLAB)
+	    Dimension baseResize =
+		(wmGD.appearanceDensity == XmAPPEARANCE_DENSITY_COMPACT) ? 5 : 6;
+	    Dimension baseBorder =
+		(wmGD.appearanceDensity == XmAPPEARANCE_DENSITY_COMPACT) ? 3 : 4;
+	    if (pSD->resizeBorderWidth == (Dimension)BIGSIZE)
 	    {
-#endif /* WSM */
-		if (pSD->resizeBorderWidth > 6) pSD->resizeBorderWidth = 6;
-#ifndef WSM
+		pSD->resizeBorderWidth =
+		    _XmDpiScaleDimension (wmGD.dpiScale, baseResize);
 	    }
-	    else
+	    if (pSD->frameBorderWidth == (Dimension)BIGSIZE)
 	    {
-		if (pSD->resizeBorderWidth > 7) pSD->resizeBorderWidth = 7;
+		pSD->frameBorderWidth =
+		    _XmDpiScaleDimension (wmGD.dpiScale, baseBorder);
 	    }
-#endif /* WSM */
 	}
-
-	/* Multiply times width in mm (avg. 5-6 pixels) */
-	if (pSD->frameBorderWidth == (Dimension)BIGSIZE)
+	else
 	{
-	    pSD->frameBorderWidth = (int) (avg_res * 1.7);
+	    double xres, yres, avg_res;
 
-	    /* limit size because big borders look ugly */
-            if (wmGD.frameStyle == WmSLAB)
+	    xres = (((double) DisplayWidth(DISPLAY, pSD->screen)) / 
+		    ((double) DisplayWidthMM(DISPLAY, pSD->screen)));
+	    yres = (((double) DisplayHeight(DISPLAY, pSD->screen)) / 
+		    ((double) DisplayHeightMM(DISPLAY, pSD->screen)));
+
+	    avg_res = (xres + yres) / 2.0;
+
+	    /* Multiply times width in mm (avg. 7-8 pixels) */
+	    if (pSD->resizeBorderWidth == (Dimension)BIGSIZE)
 	    {
-		if (pSD->frameBorderWidth > 4) pSD->frameBorderWidth = 4;
+		pSD->resizeBorderWidth = (int) (avg_res * 2.2);
+
+		/* limit size because big borders look ugly */
+#ifndef WSM
+		if (wmGD.frameStyle == WmSLAB)
+		{
+#endif /* WSM */
+		    if (pSD->resizeBorderWidth > 6) pSD->resizeBorderWidth = 6;
+#ifndef WSM
+		}
+		else
+		{
+		    if (pSD->resizeBorderWidth > 7) pSD->resizeBorderWidth = 7;
+		}
+#endif /* WSM */
 	    }
-	    else
+
+	    /* Multiply times width in mm (avg. 5-6 pixels) */
+	    if (pSD->frameBorderWidth == (Dimension)BIGSIZE)
 	    {
-		if (pSD->frameBorderWidth > 5) pSD->frameBorderWidth = 5;
+		pSD->frameBorderWidth = (int) (avg_res * 1.7);
+
+		/* limit size because big borders look ugly */
+                if (wmGD.frameStyle == WmSLAB)
+		{
+		    if (pSD->frameBorderWidth > 4) pSD->frameBorderWidth = 4;
+		}
+		else
+		{
+		    if (pSD->frameBorderWidth > 5) pSD->frameBorderWidth = 5;
+		}
 	    }
 	}
     }
 
 
-    pSD->externalBevel = FRAME_EXTERNAL_SHADOW_WIDTH;
-    pSD->joinBevel = FRAME_INTERNAL_SHADOW_WIDTH;
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC)
+    {
+	pSD->externalBevel = _XmDpiScaleDimension (wmGD.dpiScale, 1);
+	pSD->joinBevel = _XmDpiScaleDimension (wmGD.dpiScale, 1);
+    }
+    else
+    {
+	pSD->externalBevel = FRAME_EXTERNAL_SHADOW_WIDTH;
+	pSD->joinBevel = FRAME_INTERNAL_SHADOW_WIDTH;
+    }
     if (pSD->frameBorderWidth < 
 	   (pSD->externalBevel + MIN_INTERNAL_BEVEL))
     {
@@ -5645,7 +5956,11 @@ ProcessClientResources (ClientData *pCD)
 	pCD->iconImageTopShadowPixmap = (Pixmap)NULL;
     }
 
-    if ((pCD->internalBevel < MIN_INTERNAL_BEVEL)  || 
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC)
+    {
+	pCD->internalBevel = (int)_XmDpiScaleDimension (wmGD.dpiScale, 1);
+    }
+    else if ((pCD->internalBevel < MIN_INTERNAL_BEVEL)  || 
 	(pCD->internalBevel > MAX_INTERNAL_BEVEL))
     {
 	pCD->internalBevel = MAX_INTERNAL_BEVEL;

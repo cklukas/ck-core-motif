@@ -2083,7 +2083,16 @@ preserving `.mwmrc` and ICCCM/EWMH/CDE WSM behavior.
 HiDPI scaling in verified X server runs without regressing `.mwmrc` or CDE WSM
 contracts.
 
-**Status (2026-11-15):** planned.
+**Status (2026-11-16):** complete. Updated `clients/mwm/WmGlobal.h`,
+`clients/mwm/WmResource.c`, `clients/mwm/WmCDecor.c`, and `lib/Xm/Appearance.c`
+to resolve display `appearanceProfile`, `appearanceDensity`, and `dpiScale`,
+supply modern active/inactive frame surfaces and flat 1-logical-pixel border
+strokes, render Xft anti-aliased titlebar typography via
+`XmRenderTableGetDefaultFontExtents` and geometric titlebar button glyphs
+(`DrawModernTitleButtons`), preserve explicit `.mwmrc` and Xrm overrides and
+`classic` 3D bevels, and validate across `classic`, `modern-light`,
+`modern-dark`, and `high-contrast` at 1x and 2x scales under Xvfb with
+`tests/automated/run-mwm-modern-appearance.py`.
 
 **Does not include:** client-side decorations (CSD) or a compositing manager.
 
@@ -2168,7 +2177,7 @@ safety precede or accompany new surface area:
 | 5 | **WP-45** | UI / Theme | Declarative `Xrm` startup selection (`*appearanceProfile`, `*appearanceDensity`) | Unmodified C binary starts in modern profiles/density via `XENVIRONMENT` | Complete (2026-11-16) |
 | 6 | **WP-46** | UI / Theme | Complete historical-widget modern styling, gallery natural sizing & WP-39 menus | Full `ckmotif-gallery` + `Periodic` visual/interaction matrix passes | Complete (2026-11-16) |
 | 7 | **WP-47** | UI / Theme | Xrm semantic palette tokens (`*accentColor`, `*surfaceBackground`) + WCAG guards | Installed-prefix token, contrast-clamp and colormap parity tests pass | Complete (2026-11-16) |
-| 8 | **WP-48** | UI / MWM | Modern `mwm` window frames, Xft titlebars & HiDPI scaling | Native Xvfb `mwm` frame/titlebar/button tests at 1x/2x across profiles | Planned |
+| 8 | **WP-48** | UI / MWM | Modern `mwm` window frames, Xft titlebars & HiDPI scaling | Native Xvfb `mwm` frame/titlebar/button tests at 1x/2x across profiles | Complete (2026-11-16) |
 | 9 | **WP-49** | UX Polish | Modern hover states, `focus-visible` policy & standardized wheel scrolling | Installed-prefix hover lifecycle, focus-policy & nested wheel tests pass | Planned |
 | 10 | **WP-50** | Interop | XDND v5, `UTF8_STRING` & `text/uri-list` interoperability + remaining WP-04A/06/07 | Cross-process XDND v5 & clipboard tests under ASan/UBSan pass | Planned |
 

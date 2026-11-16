@@ -2048,6 +2048,16 @@ appearance_create_font(Widget widget, unsigned char role, double scale)
     return table;
 }
 
+XmRenderTable
+_XmAppearanceCreateRenderTable(Widget widget, unsigned char role, double scale)
+{
+    if (widget == NULL)
+        return NULL;
+    if (!(scale > 0.0) || !isfinite(scale))
+        scale = 1.0;
+    return appearance_create_font(widget, role, scale);
+}
+
 /* Scale owns its internal slider allocation and minimum knob diameter. */
 static Boolean
 appearance_sizes_scrollbar(Widget widget)

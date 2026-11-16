@@ -55,6 +55,7 @@
 #include <X11/StringDefs.h>
 #include <Xm/MwmUtil.h>
 #include <Xm/Xm.h>
+#include <Xm/Appearance.h>
 #ifdef WSM
 #include <Xm/ColorObjP.h>
 #include <Dt/Service.h>
@@ -2327,6 +2328,9 @@ typedef struct _WmGlobalData
 #endif /*PANELIST  */
     Boolean	waitForClicks;			/* resource */
     FrameStyle	frameStyle;			/* resource */
+    XmAppearanceProfile appearanceProfile;
+    XmAppearanceDensity appearanceDensity;
+    double	dpiScale;
 #ifdef WSM
     Dimension	iconExternalShadowWidth;	/* resource */
     Dimension	frameExternalShadowWidth;	/* resource */

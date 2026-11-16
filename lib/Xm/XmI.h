@@ -270,6 +270,8 @@ extern void _XmScaleRelayoutWidget(Widget widget,
                                    double new_scale,
                                    XtPointer closure);
 extern void _XmInitializeAppearance(void);
+extern XmRenderTable _XmAppearanceCreateRenderTable(Widget widget,
+    unsigned char role, double scale);
 extern void _XmDropDownRefreshGeometry(Widget);
 extern void _XmFontSelectorRefreshPreview(Widget);
 extern void _XmSegmentedControlRefreshGeometry(Widget);

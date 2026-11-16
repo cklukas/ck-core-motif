@@ -650,3 +650,24 @@ for focus/interactive indicators), clamping or falling back with an `XmeWarning`
 when a token is invalid or violates minimum contrast. Qualified at both 24-bit
 `TrueColor` and 8-bit `PseudoColor` under Xvfb by
 `tests/automated/run-semantic-palette-tokens.py`.
+
+### Modern MWM window-frame appearance, Xft typography, and HiDPI integration (WP-48)
+
+`clients/mwm` resolves the display's `appearanceProfile` (`classic`,
+`modern-light`, `modern-dark`, `high-contrast`), `appearanceDensity`
+(`comfortable`, `compact`), and DPI scale factor (`Xft.dpi` / XLibre `DPI`)
+during `ProcessWmResources`:
+- In modern profiles, `mwm` defaults to flat one-logical-pixel outer and inner
+  frame borders, distinct active and inactive titlebar surfaces (`#DCE6F7` /
+  `#E8ECF2` in `modern-light`, `#263248` / `#181B20` in `modern-dark`,
+  `#0038A8` / `#FFFFFF` in `high-contrast`), Xft anti-aliased titlebar
+  typography (`_XmAppearanceCreateRenderTable` with `XmRenderTableGetDefaultFontExtents`),
+  DPI-scaled `resizeBorderWidth`, `frameBorderWidth`, and titlebar padding, and
+  crisp geometric titlebar button glyphs (system menu, minimize, maximize).
+- Explicit `.mwmrc` and user X resource overrides (`clientDecoration`,
+  `matteWidth`, explicit frame colors and `fontList`) remain authoritative, and
+  `classic` profile retains its traditional 3D bevels and corner stretcher
+  grooves.
+- Qualified across `classic`, `modern-light`, `modern-dark`, and `high-contrast`
+  at 1x and 2x scales under Xvfb by
+  `tests/automated/run-mwm-modern-appearance.py`.

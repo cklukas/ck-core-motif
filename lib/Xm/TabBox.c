@@ -1457,9 +1457,14 @@ SetValues(current, request, set, arg_list, arg_cnt)
     }
     if( clear_cache ) ResetImageCache(s_tab);
 
+    if( need_layout )
+    {
+	Resize(set);
+    }
+
     /*
      * Now lets check to see if we are supposed to pick a new size, and
-     * if we are lets find out that size before running layout against it.
+     * if we are lets find out that size.
      */
     if( need_resize )
     {
@@ -1481,11 +1486,6 @@ SetValues(current, request, set, arg_list, arg_cnt)
 	{
 	    s_tab->core.height = geom.height;
 	}
-    }
-
-    if( need_layout )
-    {
-	Resize(set);
     }
 
     return( need_layout || need_resize );

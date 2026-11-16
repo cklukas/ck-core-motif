@@ -4,6 +4,15 @@ The current ABI 9 appearance cohort is documented in
 [modern integration qualification](modern-integration-qualification.md).
 The dated ABI 8 results below are historical and do not qualify ABI 9 binaries.
 
+The WP-48 modern MWM window-frame appearance, Xft typography, and HiDPI
+integration increment (2026-11-16) updates `clients/mwm` (`WmGlobal.h`,
+`WmResource.c`, `WmCDecor.c`) to resolve display-level `appearanceProfile`,
+`appearanceDensity`, and `dpiScale`, render flat one-logical-pixel frame borders,
+active/inactive titlebar surfaces, Xft anti-aliased titlebar text, and
+DPI-scaled geometric titlebar button glyphs in modern profiles while preserving
+explicit `.mwmrc` and Xrm overrides and `classic` 3D bevels, validated under
+Xvfb by `tests/automated/run-mwm-modern-appearance.py`.
+
 The WP-47 Xrm semantic palette tokens and WCAG contrast guardrails increment
 (2026-11-16) adds `*accentColor`, `*accentForeground`, `*dangerColor`, and
 `*surfaceBackground` in `<Xm/Appearance.h>` and `lib/Xm/Appearance.c` for

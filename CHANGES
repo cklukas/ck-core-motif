@@ -1,3 +1,39 @@
+Modern MWM window-frame appearance, Xft typography, and HiDPI integration (2026-11-16)
+======================================================================================
+
+- `clients/mwm/WmGlobal.h`, `clients/mwm/WmResource.c`, `clients/mwm/WmCDecor.c`,
+  `lib/Xm/Appearance.c`, `lib/Xm/XmI.h`: resolved display-level
+  `appearanceProfile`, `appearanceDensity`, and `dpiScale` (`Xft.dpi` / XLibre
+  `DPI`) in `mwm` (`ProcessWmResources`), added `_WmFontListDefault` using
+  `_XmAppearanceCreateRenderTable` for DPI-scaled Xft/render-table titlebar
+  typography in modern profiles while keeping `"fixed"` in `classic`, and
+  computed `titleHeight` via `XmRenderTableGetDefaultFontExtents` with a
+  non-NULL fallback `XFontStruct` for Xft renditions.
+- Supplied modern active/inactive frame surfaces, text foregrounds, and flat
+  one-logical-pixel border strokes in `_WmBackgroundDefault`,
+  `_WmForegroundDefault`, `_WmTopShadowColorDefault`,
+  `_WmBottomShadowColorDefault`, `_WmABackgroundDefault`,
+  `_WmAForegroundDefault`, `_WmATopShadowColorDefault`,
+  `_WmABottomShadowColorDefault`, and pixmap defaults while keeping explicit
+  `.mwmrc` and user Xrm overrides (`clientDecoration`, `matteWidth`, explicit
+  frame colors/fonts) authoritative.
+- Rendered flat one-logical-pixel frame borders, titlebar bottom separators, and
+  DPI-scaled geometric titlebar button glyphs (`DrawModernTitleButtons` for
+  system menu, minimize, and maximize) in `GenerateFrameDisplayLists`,
+  `FrameExposureProc`, `DrawWindowTitle`, and `DepressGadget` when a modern
+  profile is active, leaving `classic` 3D bevels and stretcher corners
+  unchanged.
+- `lib/Xm/TabBox.c`, `docs/bugfix-notes-archive.md`: ran `Resize(set)` before
+  `CalcGeometry` size requests in `XmTabBox` `SetValues` so rejected parent
+  geometry requests preserve current canvas layout (`tab-scrolling`), and
+  consolidated 320 unreferenced `nav_exclude: true` bugfix notes into
+  `docs/bugfix-notes-archive.md` so `docs/` stays below `ckdocs`'s 4,096-page
+  limit.
+- Tests: `tests/automated/check-mwm-modern-appearance.c`,
+  `tests/automated/run-mwm-modern-appearance.py`.
+- Docs: `docs/appearance-profiles.md`, `docs/status.md`,
+  `modernization_plan.md`.
+
 Xrm semantic palette tokens and WCAG contrast guardrails (2026-11-16)
 ====================================================================
 

@@ -44,6 +44,7 @@ static char rcsid[] = "$XConsortium: WmCDecor.c /main/7 1996/06/20 09:38:16 rswi
 
 #include <X11/cursorfont.h>
 #include <Xm/Xm.h>
+#include <Xm/XmI.h>
 
 
 
@@ -202,6 +203,99 @@ Boolean FrameWindow (ClientData *pcd)
  * 
  *************************************<->***********************************/
 
+static void
+DrawModernTitleButtons (ClientData *pcd)
+{
+    Window win;
+    GC fgGC;
+    int xAdj = 0, yAdj = 0;
+    int bx, by;
+    unsigned int bw, bh;
+    unsigned int stroke;
+    unsigned long decor;
+
+    if (pcd == NULL || wmGD.appearanceProfile == XmAPPEARANCE_CLASSIC)
+	return;
+
+    decor = pcd->decor;
+    if (!(decor & (MWM_DECOR_MENU | MWM_DECOR_MINIMIZE | MWM_DECOR_MAXIMIZE)))
+	return;
+
+    if (DECOUPLE_TITLE_APPEARANCE(pcd) &&
+	(decor & MWM_DECOR_TITLE) && pcd->clientTitleWin != None)
+    {
+	win = pcd->clientTitleWin;
+	fgGC = (pcd == wmGD.keyboardFocus) ?
+	    CLIENT_TITLE_APPEARANCE(pcd).activeGC :
+	    CLIENT_TITLE_APPEARANCE(pcd).inactiveGC;
+	xAdj = (int)pcd->frameInfo.upperBorderWidth;
+	yAdj = (int)pcd->frameInfo.upperBorderWidth;
+    }
+    else
+    {
+	win = pcd->clientFrameWin;
+	fgGC = (pcd == wmGD.keyboardFocus) ?
+	    CLIENT_APPEARANCE(pcd).activeGC :
+	    CLIENT_APPEARANCE(pcd).inactiveGC;
+    }
+    if (win == None || fgGC == NULL)
+	return;
+
+    XSetClipMask (DISPLAY, fgGC, None);
+
+    stroke = (unsigned int)_XmDpiScaleDimension (
+	wmGD.dpiScale > 0.0 ? wmGD.dpiScale : 1.0, 1);
+    if (stroke < 1)
+	stroke = 1;
+
+    if ((decor & MWM_DECOR_MENU) &&
+	GetFramePartInfo (pcd, FRAME_SYSTEM, &bx, &by, &bw, &bh))
+    {
+	unsigned int gw = (bw * 2) / 5;
+	int gx, gy;
+
+	if (gw < 4 * stroke)
+	    gw = (bw > 2 * stroke) ? bw - 2 * stroke : 1;
+	gx = (bx - xAdj) + (int)(bw - gw) / 2;
+	gy = (by - yAdj) + (int)(bh - stroke) / 2;
+	XFillRectangle (DISPLAY, win, fgGC, gx, gy, gw, stroke);
+    }
+
+    if ((decor & MWM_DECOR_MINIMIZE) &&
+	GetFramePartInfo (pcd, FRAME_MINIMIZE, &bx, &by, &bw, &bh))
+    {
+	unsigned int gw = (bw * 2) / 5;
+	int gx, gy;
+
+	if (gw < 4 * stroke)
+	    gw = (bw > 2 * stroke) ? bw - 2 * stroke : 1;
+	gx = (bx - xAdj) + (int)(bw - gw) / 2;
+	gy = (by - yAdj) + (int)((bh * 3) / 5);
+	XFillRectangle (DISPLAY, win, fgGC, gx, gy, gw, stroke);
+    }
+
+    if ((decor & MWM_DECOR_MAXIMIZE) &&
+	GetFramePartInfo (pcd, FRAME_MAXIMIZE, &bx, &by, &bw, &bh))
+    {
+	unsigned int gw = (bw * 2) / 5;
+	unsigned int topBar = (pcd->maxConfig) ? stroke : (2 * stroke);
+	int gx, gy;
+
+	if (gw < 5 * stroke)
+	    gw = (bw > 2 * stroke) ? bw - 2 * stroke : 2;
+	if (topBar >= gw)
+	    topBar = stroke;
+	gx = (bx - xAdj) + (int)(bw - gw) / 2;
+	gy = (by - yAdj) + (int)(bh - gw) / 2;
+	XFillRectangle (DISPLAY, win, fgGC, gx, gy, gw, topBar);
+	XFillRectangle (DISPLAY, win, fgGC, gx, gy + (int)(gw - stroke),
+			gw, stroke);
+	XFillRectangle (DISPLAY, win, fgGC, gx, gy, stroke, gw);
+	XFillRectangle (DISPLAY, win, fgGC, gx + (int)(gw - stroke), gy,
+			stroke, gw);
+    }
+}
+
 void FrameExposureProc (ClientData *pcd)
 {
     GC topGC, botGC;
@@ -271,6 +365,7 @@ void FrameExposureProc (ClientData *pcd)
 
     /* draw the title bar text */
     DrawWindowTitle(pcd, False);
+    DrawModernTitleButtons(pcd);
 }
 
 
@@ -653,6 +748,107 @@ void GenerateFrameDisplayLists (ClientData *pcd)
 	pcd->pclientMatteTopShadows->used = 0;
     if (pcd->pclientMatteBottomShadows)
 	pcd->pclientMatteBottomShadows->used = 0;
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC)
+    {
+	unsigned int stroke = (unsigned int)_XmDpiScaleDimension (
+	    wmGD.dpiScale > 0.0 ? wmGD.dpiScale : 1.0, 1);
+
+	if (stroke < 1)
+	    stroke = 1;
+
+	if (decoration & (MWM_DECOR_RESIZEH | MWM_DECOR_BORDER))
+	{
+	    BevelRectangle (pcd->pclientTopShadows,
+			    pcd->pclientBottomShadows,
+			    0, 0,
+			    pcd->frameInfo.width, pcd->frameInfo.height,
+			    stroke, stroke, stroke, stroke);
+
+	    if (pcd->frameInfo.lowerBorderWidth >= stroke &&
+		pcd->frameInfo.width >
+		    2 * (pcd->frameInfo.lowerBorderWidth - stroke) &&
+		pcd->frameInfo.height >
+		    (unsigned int)pcd->clientOffset.y +
+		    pcd->frameInfo.lowerBorderWidth - 2 * stroke)
+	    {
+		BevelRectangle (
+		    pcd->pclientBottomShadows,
+		    pcd->pclientTopShadows,
+		    (int)(pcd->frameInfo.lowerBorderWidth - stroke),
+		    (int)(pcd->clientOffset.y - (int)stroke),
+		    pcd->frameInfo.width -
+			2 * (pcd->frameInfo.lowerBorderWidth - stroke),
+		    pcd->frameInfo.height - (unsigned int)pcd->clientOffset.y -
+			pcd->frameInfo.lowerBorderWidth + 2 * stroke,
+		    stroke, stroke, stroke, stroke);
+	    }
+	}
+
+	if (DECOUPLE_TITLE_APPEARANCE(pcd))
+	{
+	    prlTop = pcd->pclientTitleTopShadows;
+	    prlBot = pcd->pclientTitleBottomShadows;
+	    xAdj = yAdj = (int)pcd->frameInfo.upperBorderWidth;
+	}
+	else
+	{
+	    prlTop = pcd->pclientTopShadows;
+	    prlBot = pcd->pclientBottomShadows;
+	    xAdj = yAdj = 0;
+	}
+
+	if ((decoration & MWM_DECOR_TITLE) &&
+	    pcd->frameInfo.width > 2 * pcd->frameInfo.upperBorderWidth &&
+	    pcd->frameInfo.titleBarHeight >= stroke)
+	{
+	    BevelRectangle (
+		prlTop, prlBot,
+		(int)pcd->frameInfo.upperBorderWidth - xAdj,
+		(int)pcd->frameInfo.upperBorderWidth +
+		    (int)pcd->frameInfo.titleBarHeight - (int)stroke - yAdj,
+		pcd->frameInfo.width - 2 * pcd->frameInfo.upperBorderWidth,
+		stroke,
+		0, 0, stroke, 0);
+	}
+
+	if ((decoration & MWM_DECOR_MENU) &&
+	    (pcd->decorFlags & SYSTEM_DEPRESSED) &&
+	    GetFramePartInfo (pcd, FRAME_SYSTEM, &x, &y, &width, &height))
+	{
+	    BevelRectangle (prlBot, prlTop,
+			    x - xAdj, y - yAdj, width, height,
+			    stroke, stroke, stroke, stroke);
+	}
+	if ((decoration & MWM_DECOR_MINIMIZE) &&
+	    (pcd->decorFlags & MINIMIZE_DEPRESSED) &&
+	    GetFramePartInfo (pcd, FRAME_MINIMIZE, &x, &y, &width, &height))
+	{
+	    BevelRectangle (prlBot, prlTop,
+			    x - xAdj, y - yAdj, width, height,
+			    stroke, stroke, stroke, stroke);
+	}
+	if ((decoration & MWM_DECOR_MAXIMIZE) &&
+	    (pcd->decorFlags & MAXIMIZE_DEPRESSED) &&
+	    GetFramePartInfo (pcd, FRAME_MAXIMIZE, &x, &y, &width, &height))
+	{
+	    BevelRectangle (prlBot, prlTop,
+			    x - xAdj, y - yAdj, width, height,
+			    stroke, stroke, stroke, stroke);
+	}
+
+	if (matte_width > 0)
+	{
+	    unsigned int mWidth = BaseWindowWidth (pcd);
+	    unsigned int mHeight = BaseWindowHeight (pcd);
+
+	    BevelRectangle (pcd->pclientMatteTopShadows,
+			    pcd->pclientMatteBottomShadows,
+			    0, 0, mWidth, mHeight,
+			    stroke, stroke, stroke, stroke);
+	}
+	return;
+    }
 
     /* adjust inside bevel of gadgetry if there's a matte */
     if ((wmGD.frameStyle == WmRECESSED) && (matte_width > 0))
@@ -1334,7 +1530,7 @@ void DrawWindowTitle (ClientData *pcd, Boolean eraseFirst)
     if (win == None)
 	return;
 
-    if (eraseFirst)
+    if (eraseFirst || wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC)
     {
 	XClearArea (DISPLAY, win, textBox.x, textBox.y, 
 		(unsigned int) textBox.width, (unsigned int) textBox.height, 
@@ -2849,6 +3045,13 @@ Boolean DepressGadget (ClientData *pcd, int gadget, Boolean depressed)
 
 	/* draw into client frame window */
 	win = pcd->clientFrameWin;
+    }
+
+    if (wmGD.appearanceProfile != XmAPPEARANCE_CLASSIC)
+    {
+	XClearArea (DISPLAY, win, x, y, width, height, FALSE);
+	FrameExposureProc (pcd);
+	return(TRUE);
     }
 
     /* 
