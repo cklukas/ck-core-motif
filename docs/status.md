@@ -4,6 +4,14 @@ The current ABI 9 appearance cohort is documented in
 [modern integration qualification](modern-integration-qualification.md).
 The dated ABI 8 results below are historical and do not qualify ABI 9 binaries.
 
+The WP-47 Xrm semantic palette tokens and WCAG contrast guardrails increment
+(2026-11-16) adds `*accentColor`, `*accentForeground`, `*dangerColor`, and
+`*surfaceBackground` in `<Xm/Appearance.h>` and `lib/Xm/Appearance.c` for
+`modern-light` and `modern-dark`, with deterministic dependent state derivation,
+WCAG `4.5:1` text and `3.0:1` interactive contrast clamping and `XmeWarning`
+diagnostics, and 8-bit `PseudoColor` closest-cell fallback, validated under Xvfb
+by `tests/automated/run-semantic-palette-tokens.py`.
+
 The WP-46 historical-widget modern appearance, natural-sizing, and context-menu
 increment (2026-11-16) completes modern/high-contrast and comfortable/compact
 density styling and live reflow for `XmPanedWindow`, `XmPaned`, `XmSash`,

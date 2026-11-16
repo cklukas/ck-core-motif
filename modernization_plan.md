@@ -2041,7 +2041,15 @@ resources while guaranteeing readable contrast.
 **Complete when:** modern profiles support Xrm accent/surface customization
 with deterministic state derivation and enforced contrast bounds.
 
-**Status (2026-11-15):** planned.
+**Status (2026-11-16):** complete. Defined public `XmNaccentColor` /
+`XmCAccentColor`, `XmNaccentForeground` / `XmCAccentForeground`,
+`XmNdangerColor` / `XmCDangerColor`, and `XmNsurfaceBackground` /
+`XmCSurfaceBackground` macros in `<Xm/Appearance.h>`, implemented display-level
+Xrm lookup, deterministic dependent state derivation, WCAG `4.5:1` / `3.0:1`
+contrast clamping and `XmeWarning` diagnostics, and 8-bit `PseudoColor`
+closest-cell fallback in `lib/Xm/Appearance.c`, and validated at 24-bit
+`TrueColor` and 8-bit `PseudoColor` under Xvfb with
+`tests/automated/run-semantic-palette-tokens.py`.
 
 **Does not include:** arbitrary CSS/theme-engine scripting or runtime themes
 that bypass Xrm precedence.
@@ -2159,7 +2167,7 @@ safety precede or accompany new surface area:
 | 4 | **WP-44** | Fuzzing / ASan | Add image, MWM & UIL fuzzers; run `run-suite.py` under ASan + UBSan | `tests/fuzz/run-fuzz.py --all --replay` & sanitized `run-suite.py` pass | Complete (2026-11-16) |
 | 5 | **WP-45** | UI / Theme | Declarative `Xrm` startup selection (`*appearanceProfile`, `*appearanceDensity`) | Unmodified C binary starts in modern profiles/density via `XENVIRONMENT` | Complete (2026-11-16) |
 | 6 | **WP-46** | UI / Theme | Complete historical-widget modern styling, gallery natural sizing & WP-39 menus | Full `ckmotif-gallery` + `Periodic` visual/interaction matrix passes | Complete (2026-11-16) |
-| 7 | **WP-47** | UI / Theme | Xrm semantic palette tokens (`*accentColor`, `*surfaceBackground`) + WCAG guards | Installed-prefix token, contrast-clamp and colormap parity tests pass | Planned |
+| 7 | **WP-47** | UI / Theme | Xrm semantic palette tokens (`*accentColor`, `*surfaceBackground`) + WCAG guards | Installed-prefix token, contrast-clamp and colormap parity tests pass | Complete (2026-11-16) |
 | 8 | **WP-48** | UI / MWM | Modern `mwm` window frames, Xft titlebars & HiDPI scaling | Native Xvfb `mwm` frame/titlebar/button tests at 1x/2x across profiles | Planned |
 | 9 | **WP-49** | UX Polish | Modern hover states, `focus-visible` policy & standardized wheel scrolling | Installed-prefix hover lifecycle, focus-policy & nested wheel tests pass | Planned |
 | 10 | **WP-50** | Interop | XDND v5, `UTF8_STRING` & `text/uri-list` interoperability + remaining WP-04A/06/07 | Cross-process XDND v5 & clipboard tests under ASan/UBSan pass | Planned |

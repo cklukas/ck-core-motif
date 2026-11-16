@@ -56,6 +56,13 @@
 #include <Xm/Container.h>
 #include <Xm/SeparatoG.h>
 #include <Xm/Separator.h>
+#include <Xm/Link.h>
+#include <Xm/PushB.h>
+#include <Xm/PushBG.h>
+#include <Xm/DrawnB.h>
+#include <Xm/Text.h>
+#include <Xm/List.h>
+#include <Xm/SearchBox.h>
 #ifdef USE_XFT
 #include <X11/Xft/Xft.h>
 #endif
@@ -64,6 +71,14 @@
 #define APPEARANCE_CLASS "CkCoreMotif." XmCAppearanceProfile
 #define DENSITY_RESOURCE "ckCoreMotif." XmNappearanceDensity
 #define DENSITY_CLASS "CkCoreMotif." XmCAppearanceDensity
+#define ACCENT_COLOR_RESOURCE "ckCoreMotif." XmNaccentColor
+#define ACCENT_COLOR_CLASS "CkCoreMotif." XmCAccentColor
+#define ACCENT_FOREGROUND_RESOURCE "ckCoreMotif." XmNaccentForeground
+#define ACCENT_FOREGROUND_CLASS "CkCoreMotif." XmCAccentForeground
+#define DANGER_COLOR_RESOURCE "ckCoreMotif." XmNdangerColor
+#define DANGER_COLOR_CLASS "CkCoreMotif." XmCDangerColor
+#define SURFACE_BACKGROUND_RESOURCE "ckCoreMotif." XmNsurfaceBackground
+#define SURFACE_BACKGROUND_CLASS "CkCoreMotif." XmCSurfaceBackground
 #define CLASSIC_PROFILE "classic"
 #define MODERN_LIGHT_PROFILE "modern-light"
 #define HIGH_CONTRAST_PROFILE "high-contrast"
@@ -535,6 +550,32 @@ typedef struct {
     Dimension scrollbar_extent;
 } XmAppearanceChangePlan;
 
+typedef struct _XmSemanticPalette {
+    Boolean valid;
+    XmAppearanceProfile profile;
+    Boolean has_surface;
+    Boolean has_accent;
+    Boolean has_accent_fg;
+    Boolean has_danger;
+    char raw_surface[64];
+    char raw_accent[64];
+    char raw_accent_fg[64];
+    char raw_danger[64];
+    char surface_bg[8];
+    char field_bg[8];
+    char button_bg[8];
+    char text_fg[8];
+    char accent_color[8];
+    char accent_fg[8];
+    char accent_arm[8];
+    char focus_ring[8];
+    char link_fg[8];
+    char selection_fill[8];
+    char danger_color[8];
+    char danger_fg[8];
+    char danger_arm[8];
+} XmSemanticPalette;
+
 typedef struct _XmAppearanceDisplayState {
     Display *display;
     Widget display_widget;
@@ -546,6 +587,7 @@ typedef struct _XmAppearanceDisplayState {
     XmAppearanceDensity api_density;
     Boolean profile_invalid_warned;
     Boolean density_invalid_warned;
+    XmSemanticPalette palette;
     XrmDatabase active_database;
     Boolean owns_active_database;
     Boolean transaction_active;
@@ -754,6 +796,333 @@ profile_defaults(XmAppearanceProfile profile, XmAppearanceDensity density)
 
 static Boolean appearance_database_value(Widget widget, XrmDatabase database,
     AppearanceProperty property, XrmValue *value_return);
+static Boolean lookup_appearance_resource(Display *display,
+    XrmDatabase database, const char *qualified_name,
+    const char *qualified_class, const char *leaf_name,
+    const char *leaf_class, XrmValue *value_return);
+static XmAppearanceDisplayState *ensure_display_state(Display *display);
+
+static double
+srgb_channel_to_linear_u8(unsigned int v)
+{
+    double c = (double)v / 255.0;
+    return (c <= 0.04045) ? (c / 12.92) : pow((c + 0.055) / 1.055, 2.4);
+}
+
+static double
+rgb_relative_luminance(const unsigned int rgb[3])
+{
+    return 0.2126 * srgb_channel_to_linear_u8(rgb[0]) +
+           0.7152 * srgb_channel_to_linear_u8(rgb[1]) +
+           0.0722 * srgb_channel_to_linear_u8(rgb[2]);
+}
+
+static double
+rgb_contrast_ratio(const unsigned int a[3], const unsigned int b[3])
+{
+    double la = rgb_relative_luminance(a);
+    double lb = rgb_relative_luminance(b);
+    double lighter = (la > lb) ? la : lb;
+    double darker  = (la > lb) ? lb : la;
+    return (lighter + 0.05) / (darker + 0.05);
+}
+
+static void
+format_rgb_hex(const unsigned int rgb[3], char out[8])
+{
+    snprintf(out, 8, "#%02x%02x%02x",
+             rgb[0] > 255u ? 255u : rgb[0],
+             rgb[1] > 255u ? 255u : rgb[1],
+             rgb[2] > 255u ? 255u : rgb[2]);
+}
+
+static void
+blend_rgb(const unsigned int a[3], const unsigned int b[3], double t,
+          unsigned int out[3])
+{
+    for (unsigned int i = 0; i < 3; ++i) {
+        double v = (1.0 - t) * (double)a[i] + t * (double)b[i];
+        if (v < 0.0) v = 0.0;
+        if (v > 255.0) v = 255.0;
+        out[i] = (unsigned int)(v + 0.5);
+    }
+}
+
+static Boolean
+parse_rgb_color(Display *display, const char *spec, unsigned int out[3])
+{
+    XColor xc;
+    Colormap cmap;
+    if (display == NULL || spec == NULL || *spec == '\0')
+        return False;
+    cmap = DefaultColormap(display, DefaultScreen(display));
+    if (!XParseColor(display, cmap, spec, &xc))
+        return False;
+    out[0] = (unsigned int)(xc.red >> 8);
+    out[1] = (unsigned int)(xc.green >> 8);
+    out[2] = (unsigned int)(xc.blue >> 8);
+    return True;
+}
+
+static Boolean
+clamp_rgb_for_contrast(unsigned int fg[3], const unsigned int bg[3],
+                       double min_ratio)
+{
+    static const unsigned int black[3] = {0, 0, 0};
+    static const unsigned int white[3] = {255, 255, 255};
+    const unsigned int *target;
+    double lo = 0.0, hi = 1.0;
+    unsigned int best[3];
+
+    if (rgb_contrast_ratio(fg, bg) >= min_ratio)
+        return False;
+
+    target = (rgb_contrast_ratio(white, bg) >= rgb_contrast_ratio(black, bg))
+             ? white : black;
+    if (rgb_contrast_ratio(target, bg) < min_ratio) {
+        fg[0] = target[0];
+        fg[1] = target[1];
+        fg[2] = target[2];
+        return True;
+    }
+    best[0] = target[0];
+    best[1] = target[1];
+    best[2] = target[2];
+    for (int iter = 0; iter < 24; ++iter) {
+        double mid = 0.5 * (lo + hi);
+        unsigned int cand[3];
+        blend_rgb(fg, target, mid, cand);
+        if (rgb_contrast_ratio(cand, bg) >= min_ratio) {
+            best[0] = cand[0];
+            best[1] = cand[1];
+            best[2] = cand[2];
+            hi = mid;
+        } else {
+            lo = mid;
+        }
+    }
+    fg[0] = best[0];
+    fg[1] = best[1];
+    fg[2] = best[2];
+    return True;
+}
+
+static const XmSemanticPalette *
+resolve_semantic_palette(Display *display, XmAppearanceProfile profile)
+{
+    XmAppearanceDisplayState *state;
+    XrmDatabase db;
+    XrmValue v_surf = {0, NULL}, v_acc = {0, NULL};
+    XrmValue v_afg = {0, NULL}, v_dng = {0, NULL};
+    const char *s_surf = "", *s_acc = "", *s_afg = "", *s_dng = "";
+    Boolean dark;
+    XmSemanticPalette *pal;
+    unsigned int surf_rgb[3], text_rgb[3], acc_rgb[3], afg_rgb[3], dng_rgb[3], dfg_rgb[3];
+    unsigned int tmp_rgb[3];
+    static const unsigned int black[3] = {0, 0, 0};
+    static const unsigned int white[3] = {255, 255, 255};
+
+    if (display == NULL ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT &&
+         profile != XmAPPEARANCE_MODERN_DARK))
+        return NULL;
+    state = ensure_display_state(display);
+    if (state == NULL)
+        return NULL;
+    pal = &state->palette;
+    db = XrmGetDatabase(display);
+    if (db != NULL) {
+        if (lookup_appearance_resource(display, db, SURFACE_BACKGROUND_RESOURCE,
+                                       SURFACE_BACKGROUND_CLASS,
+                                       XmNsurfaceBackground,
+                                       XmCSurfaceBackground, &v_surf) &&
+            v_surf.addr != NULL)
+            s_surf = v_surf.addr;
+        if (lookup_appearance_resource(display, db, ACCENT_COLOR_RESOURCE,
+                                       ACCENT_COLOR_CLASS,
+                                       XmNaccentColor, XmCAccentColor, &v_acc) &&
+            v_acc.addr != NULL)
+            s_acc = v_acc.addr;
+        if (lookup_appearance_resource(display, db, ACCENT_FOREGROUND_RESOURCE,
+                                       ACCENT_FOREGROUND_CLASS,
+                                       XmNaccentForeground,
+                                       XmCAccentForeground, &v_afg) &&
+            v_afg.addr != NULL)
+            s_afg = v_afg.addr;
+        if (lookup_appearance_resource(display, db, DANGER_COLOR_RESOURCE,
+                                       DANGER_COLOR_CLASS,
+                                       XmNdangerColor, XmCDangerColor, &v_dng) &&
+            v_dng.addr != NULL)
+            s_dng = v_dng.addr;
+    }
+
+    if (pal->valid && pal->profile == profile &&
+        strncmp(pal->raw_surface, s_surf, sizeof(pal->raw_surface) - 1) == 0 &&
+        strncmp(pal->raw_accent, s_acc, sizeof(pal->raw_accent) - 1) == 0 &&
+        strncmp(pal->raw_accent_fg, s_afg, sizeof(pal->raw_accent_fg) - 1) == 0 &&
+        strncmp(pal->raw_danger, s_dng, sizeof(pal->raw_danger) - 1) == 0)
+        return pal;
+
+    memset(pal, 0, sizeof(*pal));
+    pal->valid = True;
+    pal->profile = profile;
+    snprintf(pal->raw_surface, sizeof(pal->raw_surface), "%s", s_surf);
+    snprintf(pal->raw_accent, sizeof(pal->raw_accent), "%s", s_acc);
+    snprintf(pal->raw_accent_fg, sizeof(pal->raw_accent_fg), "%s", s_afg);
+    snprintf(pal->raw_danger, sizeof(pal->raw_danger), "%s", s_dng);
+
+    dark = (profile == XmAPPEARANCE_MODERN_DARK);
+    if (dark) {
+        surf_rgb[0] = 0x20; surf_rgb[1] = 0x21; surf_rgb[2] = 0x24;
+        text_rgb[0] = 0xf1; text_rgb[1] = 0xf3; text_rgb[2] = 0xf4;
+        acc_rgb[0]  = 0x8a; acc_rgb[1]  = 0xb4; acc_rgb[2]  = 0xf8;
+        afg_rgb[0]  = 0x20; afg_rgb[1]  = 0x21; afg_rgb[2]  = 0x24;
+        dng_rgb[0]  = 0xf2; dng_rgb[1]  = 0x8b; dng_rgb[2]  = 0x82;
+        dfg_rgb[0]  = 0x20; dfg_rgb[1]  = 0x21; dfg_rgb[2]  = 0x24;
+        snprintf(pal->surface_bg, sizeof(pal->surface_bg), "#202124");
+        snprintf(pal->field_bg, sizeof(pal->field_bg), "#202124");
+        snprintf(pal->button_bg, sizeof(pal->button_bg), "#202124");
+        snprintf(pal->text_fg, sizeof(pal->text_fg), "#f1f3f4");
+        snprintf(pal->accent_color, sizeof(pal->accent_color), "#8ab4f8");
+        snprintf(pal->accent_fg, sizeof(pal->accent_fg), "#202124");
+        snprintf(pal->accent_arm, sizeof(pal->accent_arm), "#aecbfa");
+        snprintf(pal->focus_ring, sizeof(pal->focus_ring), "#8ab4f8");
+        snprintf(pal->link_fg, sizeof(pal->link_fg), "#8ab4f8");
+        snprintf(pal->selection_fill, sizeof(pal->selection_fill), "#3c4043");
+        snprintf(pal->danger_color, sizeof(pal->danger_color), "#f28b82");
+        snprintf(pal->danger_fg, sizeof(pal->danger_fg), "#202124");
+        snprintf(pal->danger_arm, sizeof(pal->danger_arm), "#f6aea9");
+    } else {
+        surf_rgb[0] = 0xf1; surf_rgb[1] = 0xf2; surf_rgb[2] = 0xf4;
+        text_rgb[0] = 0x20; text_rgb[1] = 0x21; text_rgb[2] = 0x24;
+        acc_rgb[0]  = 0x19; acc_rgb[1]  = 0x67; acc_rgb[2]  = 0xd2;
+        afg_rgb[0]  = 0xff; afg_rgb[1]  = 0xff; afg_rgb[2]  = 0xff;
+        dng_rgb[0]  = 0xb3; dng_rgb[1]  = 0x26; dng_rgb[2]  = 0x1e;
+        dfg_rgb[0]  = 0xff; dfg_rgb[1]  = 0xff; dfg_rgb[2]  = 0xff;
+        snprintf(pal->surface_bg, sizeof(pal->surface_bg), "#f1f2f4");
+        snprintf(pal->field_bg, sizeof(pal->field_bg), "#ffffff");
+        snprintf(pal->button_bg, sizeof(pal->button_bg), "#e2e6eb");
+        snprintf(pal->text_fg, sizeof(pal->text_fg), "#202124");
+        snprintf(pal->accent_color, sizeof(pal->accent_color), "#1967d2");
+        snprintf(pal->accent_fg, sizeof(pal->accent_fg), "#ffffff");
+        snprintf(pal->accent_arm, sizeof(pal->accent_arm), "#174ea6");
+        snprintf(pal->focus_ring, sizeof(pal->focus_ring), "#1a73e8");
+        snprintf(pal->link_fg, sizeof(pal->link_fg), "#1967d2");
+        snprintf(pal->selection_fill, sizeof(pal->selection_fill), "#dbeafe");
+        snprintf(pal->danger_color, sizeof(pal->danger_color), "#b3261e");
+        snprintf(pal->danger_fg, sizeof(pal->danger_fg), "#ffffff");
+        snprintf(pal->danger_arm, sizeof(pal->danger_arm), "#8c1d18");
+    }
+
+    if (*s_surf != '\0') {
+        if (!parse_rgb_color(display, s_surf, surf_rgb)) {
+            XmeWarning(state->display_widget,
+                       "Cannot parse surfaceBackground resource; falling back to profile default");
+        } else {
+            pal->has_surface = True;
+            if (clamp_rgb_for_contrast(surf_rgb, text_rgb, 4.5)) {
+                XmeWarning(state->display_widget,
+                           "surfaceBackground resource violates 4.5:1 text contrast guardrail; clamping surface color");
+            }
+            format_rgb_hex(surf_rgb, pal->surface_bg);
+            if (dark) {
+                format_rgb_hex(surf_rgb, pal->field_bg);
+                format_rgb_hex(surf_rgb, pal->button_bg);
+            } else {
+                blend_rgb(surf_rgb, white, 0.6, tmp_rgb);
+                format_rgb_hex(tmp_rgb, pal->field_bg);
+                blend_rgb(surf_rgb, text_rgb, 0.08, tmp_rgb);
+                format_rgb_hex(tmp_rgb, pal->button_bg);
+            }
+        }
+    }
+
+    if (*s_acc != '\0') {
+        if (!parse_rgb_color(display, s_acc, acc_rgb)) {
+            XmeWarning(state->display_widget,
+                       "Cannot parse accentColor resource; falling back to profile default");
+        } else {
+            pal->has_accent = True;
+        }
+    }
+    if (pal->has_accent || pal->has_surface) {
+        if (clamp_rgb_for_contrast(acc_rgb, surf_rgb, 3.0)) {
+            XmeWarning(state->display_widget,
+                       "accentColor resource violates 3.0:1 interactive contrast guardrail; clamping accent color");
+        }
+        format_rgb_hex(acc_rgb, pal->accent_color);
+        format_rgb_hex(acc_rgb, pal->focus_ring);
+        tmp_rgb[0] = acc_rgb[0];
+        tmp_rgb[1] = acc_rgb[1];
+        tmp_rgb[2] = acc_rgb[2];
+        (void)clamp_rgb_for_contrast(tmp_rgb, surf_rgb, 4.5);
+        format_rgb_hex(tmp_rgb, pal->link_fg);
+        blend_rgb(acc_rgb, dark ? white : black, 0.18, tmp_rgb);
+        format_rgb_hex(tmp_rgb, pal->accent_arm);
+        blend_rgb(surf_rgb, acc_rgb, dark ? 0.28 : 0.18, tmp_rgb);
+        format_rgb_hex(tmp_rgb, pal->selection_fill);
+    }
+
+    if (*s_afg != '\0') {
+        if (!parse_rgb_color(display, s_afg, afg_rgb)) {
+            XmeWarning(state->display_widget,
+                       "Cannot parse accentForeground resource; falling back to profile default");
+        } else {
+            pal->has_accent_fg = True;
+        }
+    } else if (pal->has_accent) {
+        const unsigned int *auto_fg =
+            (rgb_contrast_ratio(white, acc_rgb) >= rgb_contrast_ratio(black, acc_rgb))
+            ? white : text_rgb;
+        afg_rgb[0] = auto_fg[0];
+        afg_rgb[1] = auto_fg[1];
+        afg_rgb[2] = auto_fg[2];
+    }
+    if (pal->has_accent_fg || pal->has_accent) {
+        if (clamp_rgb_for_contrast(afg_rgb, acc_rgb, 4.5)) {
+            if (pal->has_accent_fg) {
+                XmeWarning(state->display_widget,
+                           "accentForeground resource violates 4.5:1 text contrast guardrail; clamping accent foreground");
+            }
+        }
+        if (rgb_contrast_ratio(afg_rgb, acc_rgb) < 4.5) {
+            (void)clamp_rgb_for_contrast(acc_rgb, afg_rgb, 4.5);
+            format_rgb_hex(acc_rgb, pal->accent_color);
+        }
+        format_rgb_hex(afg_rgb, pal->accent_fg);
+    }
+
+    if (*s_dng != '\0') {
+        if (!parse_rgb_color(display, s_dng, dng_rgb)) {
+            XmeWarning(state->display_widget,
+                       "Cannot parse dangerColor resource; falling back to profile default");
+        } else {
+            pal->has_danger = True;
+        }
+    }
+    if (pal->has_danger || pal->has_surface) {
+        if (clamp_rgb_for_contrast(dng_rgb, surf_rgb, 3.0)) {
+            XmeWarning(state->display_widget,
+                       "dangerColor resource violates 3.0:1 interactive contrast guardrail; clamping danger color");
+        }
+        if (pal->has_danger) {
+            const unsigned int *auto_dfg =
+                (rgb_contrast_ratio(white, dng_rgb) >= rgb_contrast_ratio(black, dng_rgb))
+                ? white : text_rgb;
+            dfg_rgb[0] = auto_dfg[0];
+            dfg_rgb[1] = auto_dfg[1];
+            dfg_rgb[2] = auto_dfg[2];
+            if (rgb_contrast_ratio(dfg_rgb, dng_rgb) < 4.5)
+                (void)clamp_rgb_for_contrast(dng_rgb, dfg_rgb, 4.5);
+        }
+        format_rgb_hex(dng_rgb, pal->danger_color);
+        format_rgb_hex(dfg_rgb, pal->danger_fg);
+        blend_rgb(dng_rgb, dark ? white : black, 0.18, tmp_rgb);
+        format_rgb_hex(tmp_rgb, pal->danger_arm);
+    }
+
+    return pal;
+}
 
 static const char *
 profile_property_string(Widget widget, XmAppearanceProfile profile,
@@ -764,6 +1133,11 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
     unsigned char role = appearance_role(widget);
     if (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) {
         Boolean dark = profile == XmAPPEARANCE_MODERN_DARK;
+        const XmSemanticPalette *pal =
+            resolve_semantic_palette(XtDisplayOfObject(widget), profile);
+        Boolean has_tokens = pal != NULL &&
+            (pal->has_surface || pal->has_accent ||
+             pal->has_accent_fg || pal->has_danger);
         if (role == XmAPPEARANCE_ROLE_NORMAL && XmIsInfoBar(widget) && (property == AP_FOREGROUND || property == AP_BACKGROUND)) {
             unsigned char severity;XtVaGetValues(widget,XmNinfoSeverity,&severity,NULL);
             if(property == AP_BACKGROUND)
@@ -790,8 +1164,12 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
                 return "0";
         }
         if (XtParent(widget) && XmIsSegmentedControl(XtParent(widget))) {
-            if (property == AP_SELECT) return dark ? "#334b6d" : "#d3e3fd";
-            if (property == AP_UNSELECT_COLOR) return dark ? "#202124" : "#ffffff";
+            if (property == AP_SELECT)
+                return (has_tokens && (pal->has_accent || pal->has_surface))
+                       ? pal->selection_fill : (dark ? "#334b6d" : "#d3e3fd");
+            if (property == AP_UNSELECT_COLOR)
+                return (has_tokens && pal->has_surface)
+                       ? pal->field_bg : (dark ? "#202124" : "#ffffff");
             if (property == AP_SHADOW_THICKNESS) return "1";
         }
         if (XtParent(widget) && XmIsNotebook(XtParent(widget)) &&
@@ -801,7 +1179,8 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
             if (constraint->notebook.child_type == XmMAJOR_TAB ||
                 constraint->notebook.child_type == XmMINOR_TAB) {
                 if (property == AP_BACKGROUND)
-                    return dark ? "#202124" : "#f1f2f4";
+                    return (has_tokens && pal->has_surface)
+                           ? pal->surface_bg : (dark ? "#202124" : "#f1f2f4");
                 if (property == AP_SHADOW_THICKNESS) return "1";
                 if (property == AP_TOP_SHADOW || property == AP_BOTTOM_SHADOW)
                     return dark ? "#5f6368" : "#9aa3ae";
@@ -810,6 +1189,14 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
         if (role == XmAPPEARANCE_ROLE_SECONDARY && property == AP_FOREGROUND)
             return dark ? "#bdc1c6" : "#5f6368";
         if (role == XmAPPEARANCE_ROLE_PRIMARY || role == XmAPPEARANCE_ROLE_DESTRUCTIVE) {
+            if (has_tokens) {
+                if (property == AP_FOREGROUND)
+                    return role == XmAPPEARANCE_ROLE_PRIMARY ? pal->accent_fg : pal->danger_fg;
+                if (property == AP_BACKGROUND)
+                    return role == XmAPPEARANCE_ROLE_PRIMARY ? pal->accent_color : pal->danger_color;
+                if (property == AP_ARM || property == AP_SELECT)
+                    return role == XmAPPEARANCE_ROLE_PRIMARY ? pal->accent_arm : pal->danger_arm;
+            }
             if (property == AP_FOREGROUND) return dark ? "#202124" : "#ffffff";
             if (property == AP_BACKGROUND)
                 return role == XmAPPEARANCE_ROLE_PRIMARY ? (dark ? "#8ab4f8" : "#1967d2") :
@@ -817,6 +1204,38 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
             if (property == AP_ARM || property == AP_SELECT)
                 return role == XmAPPEARANCE_ROLE_PRIMARY ? (dark ? "#aecbfa" : "#174ea6") :
                                                          (dark ? "#f6aea9" : "#8c1d18");
+        }
+        if (has_tokens) {
+            if (property == AP_HIGHLIGHT && (pal->has_accent || pal->has_surface))
+                return pal->focus_ring;
+            if (property == AP_FOREGROUND && XmIsLink(widget) &&
+                (pal->has_accent || pal->has_surface))
+                return pal->link_fg;
+            if (property == AP_ARM && (pal->has_accent || pal->has_surface))
+                return pal->selection_fill;
+            if (property == AP_SELECT && (pal->has_accent || pal->has_surface)) {
+                if (XmIsToggleButton(widget) || XmIsToggleButtonGadget(widget))
+                    return pal->accent_color;
+                return pal->selection_fill;
+            }
+            if (pal->has_surface) {
+                if (property == AP_BACKGROUND) {
+                    if (XmIsTextField(widget) || XmIsText(widget) ||
+                        XmIsList(widget) || XmIsSearchBox(widget))
+                        return pal->field_bg;
+                    if (XmIsPushButton(widget) || XmIsPushButtonGadget(widget) ||
+                        XmIsDrawnButton(widget) || XmIsArrowButton(widget) ||
+                        XmIsArrowButtonGadget(widget))
+                        return pal->button_bg;
+                    return pal->surface_bg;
+                }
+                if (property == AP_FRAME_BACKGROUND ||
+                    property == AP_BACK_PAGE_BACKGROUND ||
+                    property == AP_TROUGH_COLOR)
+                    return pal->surface_bg;
+                if (property == AP_UNSELECT_COLOR)
+                    return pal->field_bg;
+            }
         }
     }
     if (property == AP_SLIDER_MARK && XmIsScale(widget)) {
@@ -903,8 +1322,41 @@ profile_property_value(Widget widget, XmAppearanceProfile profile,
         to.size = sizeof(pixel);
         /* Use Xt's cached pixel converter and the actual widget colormap,
          * just as ordinary application resource conversion does. */
-        if (!XtConvertAndStore(context, XmRString, &from, XmRPixel, &to))
-            return False;
+        if (!XtConvertAndStore(context, XmRString, &from, XmRPixel, &to)) {
+            Display *dpy = XtDisplayOfObject(widget);
+            Screen *scr = XtScreenOfObject(widget);
+            Colormap cmap = context != NULL ? context->core.colormap :
+                            DefaultColormapOfScreen(scr);
+            XColor target_color;
+            if (!XParseColor(dpy, cmap, text, &target_color))
+                return False;
+            if (XAllocColor(dpy, cmap, &target_color)) {
+                pixel = target_color.pixel;
+            } else {
+                int ncells = CellsOfScreen(scr);
+                if (ncells > 256) ncells = 256;
+                if (ncells > 0) {
+                    XColor cells[256];
+                    for (int i = 0; i < ncells; ++i)
+                        cells[i].pixel = (unsigned long)i;
+                    XQueryColors(dpy, cmap, cells, ncells);
+                    unsigned long best_dist = ULONG_MAX;
+                    pixel = BlackPixelOfScreen(scr);
+                    for (int i = 0; i < ncells; ++i) {
+                        long dr = (long)(cells[i].red >> 8) - (long)(target_color.red >> 8);
+                        long dg = (long)(cells[i].green >> 8) - (long)(target_color.green >> 8);
+                        long db = (long)(cells[i].blue >> 8) - (long)(target_color.blue >> 8);
+                        unsigned long dist = (unsigned long)(dr * dr + dg * dg + db * db);
+                        if (dist < best_dist) {
+                            best_dist = dist;
+                            pixel = cells[i].pixel;
+                        }
+                    }
+                } else {
+                    return False;
+                }
+            }
+        }
         *value_return = (XtArgVal)pixel;
         return True;
     }
@@ -2820,6 +3272,54 @@ XmGetAppearanceProfile(Display *display, XmAppearanceProfile *profile_return)
 }
 
 static Boolean
+semantic_palette_dirty(Display *display, XmAppearanceDisplayState *state,
+                       XmAppearanceProfile profile)
+{
+    XrmDatabase db;
+    XrmValue v_surf = {0, NULL}, v_acc = {0, NULL};
+    XrmValue v_afg = {0, NULL}, v_dng = {0, NULL};
+    const char *s_surf = "", *s_acc = "", *s_afg = "", *s_dng = "";
+    const XmSemanticPalette *pal;
+
+    if (display == NULL || state == NULL ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT &&
+         profile != XmAPPEARANCE_MODERN_DARK))
+        return False;
+    pal = &state->palette;
+    if (!pal->valid || pal->profile != profile)
+        return True;
+    db = XrmGetDatabase(display);
+    if (db != NULL) {
+        if (lookup_appearance_resource(display, db, SURFACE_BACKGROUND_RESOURCE,
+                                       SURFACE_BACKGROUND_CLASS,
+                                       XmNsurfaceBackground,
+                                       XmCSurfaceBackground, &v_surf) &&
+            v_surf.addr != NULL)
+            s_surf = v_surf.addr;
+        if (lookup_appearance_resource(display, db, ACCENT_COLOR_RESOURCE,
+                                       ACCENT_COLOR_CLASS,
+                                       XmNaccentColor, XmCAccentColor, &v_acc) &&
+            v_acc.addr != NULL)
+            s_acc = v_acc.addr;
+        if (lookup_appearance_resource(display, db, ACCENT_FOREGROUND_RESOURCE,
+                                       ACCENT_FOREGROUND_CLASS,
+                                       XmNaccentForeground,
+                                       XmCAccentForeground, &v_afg) &&
+            v_afg.addr != NULL)
+            s_afg = v_afg.addr;
+        if (lookup_appearance_resource(display, db, DANGER_COLOR_RESOURCE,
+                                       DANGER_COLOR_CLASS,
+                                       XmNdangerColor, XmCDangerColor, &v_dng) &&
+            v_dng.addr != NULL)
+            s_dng = v_dng.addr;
+    }
+    return strncmp(pal->raw_surface, s_surf, sizeof(pal->raw_surface) - 1) != 0 ||
+           strncmp(pal->raw_accent, s_acc, sizeof(pal->raw_accent) - 1) != 0 ||
+           strncmp(pal->raw_accent_fg, s_afg, sizeof(pal->raw_accent_fg) - 1) != 0 ||
+           strncmp(pal->raw_danger, s_dng, sizeof(pal->raw_danger) - 1) != 0;
+}
+
+static Boolean
 apply_appearance_settings(Display *display, XmAppearanceProfile profile,
                           XmAppearanceDensity density, Boolean select_profile)
 {
@@ -2841,7 +3341,8 @@ apply_appearance_settings(Display *display, XmAppearanceProfile profile,
     state = ensure_display_state(display);
     if (state == NULL)
         return False;
-    if (current == profile && current_density == density) {
+    if (current == profile && current_density == density &&
+        !semantic_palette_dirty(display, state, profile)) {
         if (select_profile) {
             state->profile_api_selected = True;
             state->api_profile = profile;
@@ -3006,10 +3507,18 @@ _XmAppearanceCascadeSelection(Widget widget, Pixel fallback)
     if (_XmAppearanceOwnsResource(widget, XmNbackground) &&
         XmGetAppearanceProfile(XtDisplayOfObject(widget), &profile) &&
         (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) &&
-        XmGetAppearanceDensity(XtDisplayOfObject(widget), &density) &&
-        appearance_database_named_value(widget, profile_defaults(profile,density),
-            XmNarmColor, XmCArmColor, &from) &&
-        XtConvertAndStore(context, XmRString, &from, XmRPixel, &to))
-        return pixel;
+        XmGetAppearanceDensity(XtDisplayOfObject(widget), &density)) {
+        const XmSemanticPalette *pal =
+            resolve_semantic_palette(XtDisplayOfObject(widget), profile);
+        if (pal != NULL && (pal->has_accent || pal->has_surface)) {
+            if (appearance_string_value(pal->selection_fill, &from) &&
+                XtConvertAndStore(context, XmRString, &from, XmRPixel, &to))
+                return pixel;
+        }
+        if (appearance_database_named_value(widget, profile_defaults(profile,density),
+                XmNarmColor, XmCArmColor, &from) &&
+            XtConvertAndStore(context, XmRString, &from, XmRPixel, &to))
+            return pixel;
+    }
     return fallback;
 }

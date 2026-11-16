@@ -1,3 +1,25 @@
+Xrm semantic palette tokens and WCAG contrast guardrails (2026-11-16)
+====================================================================
+
+- `lib/Xm/Appearance.h`, `lib/Xm/Appearance.c`: defined public display-level
+  Xrm semantic palette token macros (`XmNaccentColor` / `XmCAccentColor`,
+  `XmNaccentForeground` / `XmCAccentForeground`, `XmNdangerColor` /
+  `XmCDangerColor`, and `XmNsurfaceBackground` / `XmCSurfaceBackground`) for
+  `modern-light` and `modern-dark` profiles.
+- Deterministically derived dependent interactive surfaces and strokes (focus
+  ring `highlightColor`, selection and armed fills, `XmLink` foreground, toggle
+  `selectColor`, primary and destructive button fills/foregrounds/armed fills,
+  and neutral button and input-field surfaces) from the supplied tokens while
+  preserving built-in profile constants when unset.
+- Enforced WCAG relative-luminance contrast guardrails (at least `4.5:1` for
+  normal text and `3.0:1` for focus/interactive indicators) with automatic
+  clamping/fallback and `XmeWarning` diagnostics on invalid or low-contrast
+  token pairs, plus closest-cell RGB fallback for 8-bit `PseudoColor` colormaps.
+- Tests: `tests/automated/check-semantic-palette-tokens.c`,
+  `tests/automated/run-semantic-palette-tokens.py`.
+- Docs: `docs/appearance-profiles.md`, `docs/status.md`,
+  `modernization_plan.md`.
+
 Historical-widget modern appearance, natural sizing, and context-menu entries (2026-11-16)
 =========================================================================================
 

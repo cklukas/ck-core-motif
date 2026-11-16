@@ -31,6 +31,18 @@ typedef enum {
 #define XmCAppearanceDensity "AppearanceDensity"
 #define XmRAppearanceDensity "AppearanceDensity"
 
+/* Optional display-level Xrm semantic palette tokens for modern profiles.
+ * Dependent states are derived deterministically and enforced against WCAG
+ * contrast guardrails (4.5:1 normal text, 3:1 interactive/focus indicators). */
+#define XmNaccentColor "accentColor"
+#define XmCAccentColor "AccentColor"
+#define XmNaccentForeground "accentForeground"
+#define XmCAccentForeground "AccentForeground"
+#define XmNdangerColor "dangerColor"
+#define XmCDangerColor "DangerColor"
+#define XmNsurfaceBackground "surfaceBackground"
+#define XmCSurfaceBackground "SurfaceBackground"
+
 /* Label and LabelGadget disabled-text color; XmUNSPECIFIED_PIXEL follows the
  * historical bottom-shadow color. Appearance owns only unconfigured values. */
 #define XmNinsensitiveForeground "insensitiveForeground"

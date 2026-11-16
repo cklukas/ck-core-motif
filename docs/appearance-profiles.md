@@ -630,3 +630,23 @@ transactions:
   icon, mnemonic, separator, and right-aligned `XmNacceleratorText` entries in
   `XmMENU_POPUP` and `XmMENU_PULLDOWN` menus.
 - Qualified under Xvfb by `tests/automated/run-wp46-composite-polish.py`.
+
+### Xrm semantic palette tokens and WCAG contrast guardrails (WP-47)
+
+Applications and users can customize the accent, destructive, and surface colors
+of `modern-light` and `modern-dark` profiles through optional display-level Xrm
+token resources in `<Xm/Appearance.h>`:
+- `XmNaccentColor` / `XmCAccentColor` (`*accentColor`)
+- `XmNaccentForeground` / `XmCAccentForeground` (`*accentForeground`)
+- `XmNdangerColor` / `XmCDangerColor` (`*dangerColor`)
+- `XmNsurfaceBackground` / `XmCSurfaceBackground` (`*surfaceBackground`)
+
+When any token is supplied, `libXm` deterministically derives dependent
+interactive states (focus ring `highlightColor`, selection and armed fills,
+`XmLink` foreground, toggle `selectColor`, primary and destructive button
+backgrounds/foregrounds/armed fills, and neutral button and field surfaces) and
+enforces WCAG contrast guardrails (at least `4.5:1` for normal text and `3.0:1`
+for focus/interactive indicators), clamping or falling back with an `XmeWarning`
+when a token is invalid or violates minimum contrast. Qualified at both 24-bit
+`TrueColor` and 8-bit `PseudoColor` under Xvfb by
+`tests/automated/run-semantic-palette-tokens.py`.
