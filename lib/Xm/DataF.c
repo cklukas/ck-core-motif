@@ -5584,7 +5584,7 @@ df_DeletePrevWord(
 #endif /* _NO_PROTO */
 {
   XmDataFieldWidget tf = (XmDataFieldWidget) w;
-  XmTextPosition left, right;
+  XmTextPosition left = 0, right = 0;
   XmAnyCallbackStruct cb;
 
  /* if pending delete is on and there is a selection */
@@ -5643,7 +5643,7 @@ df_DeleteNextWord(
 #endif /* _NO_PROTO */
 {
   XmDataFieldWidget tf = (XmDataFieldWidget) w;
-  XmTextPosition left, right;
+  XmTextPosition left = 0, right = 0;
   XmAnyCallbackStruct cb;
 
  /* if pending delete is on and there is a selection */
@@ -5856,7 +5856,7 @@ df_SetAnchorBalancing(
         XmTextPosition position)
 #endif /* _NO_PROTO */
 {
-    XmTextPosition left, right;
+    XmTextPosition left = 0, right = 0;
     float bal_point;
 
     if (!XmDataFieldGetSelectionPosition((Widget)tf, &left, &right) ||
@@ -5891,7 +5891,7 @@ df_SetNavigationAnchor(
 #endif /* NeedWidePrototypes */
 #endif /* _NO_PROTO */
 {
-    XmTextPosition left, right;
+    XmTextPosition left = 0, right = 0;
 
     if (!XmTextF_add_mode(tf)) {
        if (extend) {
@@ -5929,7 +5929,7 @@ df_CompleteNavigation(
 #endif /* NeedWidePrototypes */
 #endif /* _NO_PROTO */
 {
-    XmTextPosition left, right;
+    XmTextPosition left = 0, right = 0;
     Boolean     backward = False;
 
     if ((XmTextF_add_mode(tf) &&
@@ -6666,7 +6666,7 @@ df_ExtendScanSelection(
 #endif /* _NO_PROTO */
 {
    XmTextPosition pivot_left, pivot_right;
-   XmTextPosition left, right;
+   XmTextPosition left = 0, right = 0;
    XmTextPosition new_position = df_GetPosFromX(tf, (Position) event->xbutton.x);
    XmTextPosition cursorPos = XmTextF_cursor_position(tf);
    Boolean pivot_modify = False;
@@ -6751,7 +6751,7 @@ df_SetScanSelection(
         XEvent *event )
 #endif /* _NO_PROTO */
 {
-   XmTextPosition left, right;
+   XmTextPosition left = 0, right = 0;
    XmTextPosition new_position = 0;
    XmTextPosition cursorPos = XmTextF_cursor_position(tf);
    Position dummy = 0;
@@ -6864,7 +6864,7 @@ df_MoveDestination(
 #endif /* _NO_PROTO */
 {
   XmDataFieldWidget tf = (XmDataFieldWidget) w;
-  XmTextPosition left, right;
+  XmTextPosition left = 0, right = 0;
   XmTextPosition new_position;
   Boolean old_has_focus = XmTextF_has_focus(tf);
   Boolean reset_cursor = False;
@@ -7904,7 +7904,7 @@ df_HandleSelectionReplies(
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
    Atom property = (Atom) closure;
    TextFDestData dest_data;
-   XmTextPosition left, right;
+   XmTextPosition left = 0, right = 0;
    int adjustment = 0;
    XmAnyCallbackStruct cb;
 
@@ -8004,7 +8004,7 @@ df_SecondaryNotify(
     XTextProperty tmp_prop;
     _XmTextInsertPair tmp_pair[1];
     _XmTextInsertPair *pair = tmp_pair;
-    XmTextPosition left, right;
+    XmTextPosition left = 0, right = 0;
     int status = 0;
 
     if (XmTextF_selection_move(tf) == TRUE && XmTextF_has_destination(tf) &&
@@ -8102,7 +8102,7 @@ df_HandleTargets(
 #ifdef UTF8_SUPPORTED
     Atom UTF8_STRING;
 #endif
-    XmTextPosition left, right;
+    XmTextPosition left = 0, right = 0;
     Boolean supports_locale_data = False;
     Boolean supports_CT = False;
     Boolean supports_utf8_string = False;
@@ -8601,7 +8601,7 @@ df_SetAnchor(
 #endif /* _NO_PROTO */
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
-    XmTextPosition left, right;
+    XmTextPosition left = 0, right = 0;
 
     XmTextF_prim_anchor(tf) = XmTextF_cursor_position(tf);
     (void) df_SetDestination(w, XmTextF_prim_anchor(tf), False, event->xkey.time);
@@ -8662,7 +8662,7 @@ df_ToggleAddMode(
 #endif /* _NO_PROTO */
 {
     XmDataFieldWidget tf = (XmDataFieldWidget) w;
-    XmTextPosition left, right;
+    XmTextPosition left = 0, right = 0;
 
     _XmDataFieldDrawInsertionPoint(tf, False);
 
@@ -11709,7 +11709,7 @@ DataFieldRemove(
 #endif /* _NO_PROTO */
 {
    XmDataFieldWidget tf = (XmDataFieldWidget) w;
-   XmTextPosition left, right;
+   XmTextPosition left = 0, right = 0;
    XmAnyCallbackStruct cb;
 
    if (XmTextF_editable(tf) == False)

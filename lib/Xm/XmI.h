@@ -325,6 +325,7 @@ extern Boolean _XmAppearanceResetDefaultFont(Widget child, Widget provider,
 extern Boolean _XmApplyAppearanceScale(Display *display, Widget root);
 extern void _XmAppearanceDefaultColors(Widget parent, Pixel *background,
     Pixel *foreground, Pixel *top_shadow, Pixel *bottom_shadow, Pixel *highlight);
+extern void _XmAppearanceInitializeDisplay(Widget xm_display);
 extern void _XmDestroyAppearanceDisplay(Display *display);
 extern Boolean _XmIsISO10646(Display *dpy,
                              XFontStruct *font);

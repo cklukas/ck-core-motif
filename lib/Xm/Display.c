@@ -1032,7 +1032,7 @@ TreeUpdateHandler(
     XmAnyCallbackStruct	    	*anyCB = (XmAnyCallbackStruct *)call;
     XmDisplay	  	dd = (XmDisplay) XmGetXmDisplay(XtDisplay(w));
 
-    if (dd->display.dragReceiverProtocolStyle == XmDRAG_NONE)
+    if (dd == NULL || dd->display.dragReceiverProtocolStyle == XmDRAG_NONE)
 		return;
 
     switch(anyCB->reason) {
@@ -1208,6 +1208,8 @@ DisplayInitialize(
 	    XrmCombineDatabase(new_db, &db, False);
 	}
     }
+
+    _XmAppearanceInitializeDisplay(new_widget);
 }
 
 
@@ -1316,6 +1318,8 @@ _XmGetDropSiteManagerObject(
    *   Display/Screen objects, and a circular recursive creation loop
    *   results if the DSM is created during DisplayInitialize.
    */
+  if (xmDisplay == NULL)
+    return NULL;
   if(    xmDisplay->display.dsm == NULL    )
     {   
       Arg lclArgs[1] ;
@@ -1336,7 +1340,11 @@ _XmGetDragProtocolStyle(
     XmDisplay		xmDisplay;
     unsigned char	style;
 
+    if (w == NULL)
+        return XmDRAG_NONE;
     xmDisplay = (XmDisplay) XmGetXmDisplay(XtDisplay(w));
+    if (xmDisplay == NULL)
+        return XmDRAG_NONE;
 
     switch(xmDisplay->display.dragReceiverProtocolStyle) {
 	  case XmDRAG_NONE:
@@ -1373,6 +1381,10 @@ XmGetDragContext(
 	_XmAppLock(app);
 
 	xmDisplay = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
+	if (xmDisplay == NULL) {
+		_XmAppUnlock(app);
+		return NULL;
+	}
 	for(i = 0; i < xmDisplay->composite.num_children; i++)
 	{
 		dc = (XmDragContext)(xmDisplay->composite.children[i]);
@@ -1399,6 +1411,8 @@ _XmGetDragContextFromHandle(
         if (w == NULL)
                 return NULL;
 	xmDisplay = (XmDisplay)XmGetXmDisplay(XtDisplay(w));
+	if (xmDisplay == NULL)
+		return NULL;
 
 	for(i = 0; i < xmDisplay->composite.num_children; i++)
 	{
@@ -1546,7 +1560,7 @@ ReceiverShellExternalSourceHandler(
      * If dd has an active dc then we are the initiator.  We shouldn't
      * do receiver processing as the initiator, so bail out.
      */
-    if (dd->display.activeDC != NULL)
+    if (dd == NULL || dd->display.activeDC != NULL)
 	return;
 
     q.dd = dd;
@@ -1825,9 +1839,9 @@ _XmSetThickness(
 	XmDisplay	 xmDisplay;
 	static Dimension thickness;
 
-	xmDisplay = (XmDisplay)XmGetXmDisplay(XtDisplay(widget));
+	xmDisplay = widget != NULL ? (XmDisplay)XmGetXmDisplay(XtDisplay(widget)) : NULL;
 
-	if (xmDisplay->display.enable_thin_thickness) {
+	if (xmDisplay != NULL && xmDisplay->display.enable_thin_thickness) {
 		thickness = 1;
 	}
 	else {
@@ -1855,9 +1869,9 @@ _XmSetThicknessDefault0(
 	XmDisplay	 xmDisplay;
 	static Dimension thickness;
 
-	xmDisplay = (XmDisplay)XmGetXmDisplay(XtDisplay(widget));
+	xmDisplay = widget != NULL ? (XmDisplay)XmGetXmDisplay(XtDisplay(widget)) : NULL;
 
-	if (xmDisplay->display.enable_thin_thickness) {
+	if (xmDisplay != NULL && xmDisplay->display.enable_thin_thickness) {
 		thickness = 1;
 	}
 	else {

@@ -68,7 +68,8 @@ static void status(PeriodicActions *s,const char *format,...)
 static Widget button(Widget parent,const char *name,const char *text,XtCallbackProc callback,XtPointer closure)
 {
     Widget item=XtVaCreateManagedWidget(name,xmPushButtonWidgetClass,parent,NULL);label(item,text);
-    if(callback)XtAddCallback(item,XmNactivateCallback,callback,closure);return item;
+    if(callback)XtAddCallback(item,XmNactivateCallback,callback,closure);
+    return item;
 }
 static Widget panel(Widget parent,const char *name,Boolean horizontal)
 { return XtVaCreateManagedWidget(name,xmRowColumnWidgetClass,parent,XmNorientation,horizontal?XmHORIZONTAL:XmVERTICAL,XmNpacking,XmPACK_TIGHT,NULL); }
@@ -255,7 +256,8 @@ static void file_accept(Widget widget,XtPointer client,XtPointer call)
             else if(s->file_purpose==FILE_INCLUDE || s->file_purpose==FILE_MERGE) {
                 Document *doc=s->file_purpose==FILE_INCLUDE?&s->template_document:&s->document;
                 Widget target=doc->last;XmTextInsert(target,XmTextGetInsertionPosition(target),text);
-                if(doc==&s->document)show_editor(s);status(s,"Included selected text.");
+                if(doc==&s->document)show_editor(s);
+                status(s,"Included selected text.");
             } else {replace_document(&s->document,text,path);show_editor(s);status(s,"Opened text document (%zu bytes).",strlen(text));}
             XtFree(text);XtUnmanageChild(s->file);s->file_purpose=FILE_PREVIEW;
         }
@@ -418,7 +420,8 @@ static void spell(PeriodicActions *s)
         size_t n=0;Boolean non_ascii=False;while(text[i] && (((text[i]>='A' && text[i]<='Z') || (text[i]>='a' && text[i]<='z')) || text[i]=='\'' || (unsigned char)text[i]>=128)) {if((unsigned char)text[i]>=128)non_ascii=True;if(n+1<sizeof(token))token[n++]=text[i];i++;}token[n]=0;
         if(n && !non_ascii){char *key=token;if(!bsearch(&key,words,count,sizeof(char *),compare_words)){unknown++;if(used+n+2<sizeof(output)){memcpy(output+used,token,n);used+=n;output[used++]='\n';output[used]=0;}}}}
     if(!unknown)snprintf(output,sizeof(output),"English spelling check\n\nNo unknown English words found.\nNon-English tokens are skipped.");
-    for(size_t i=0;i<count;i++)XtFree(words[i]);XtFree((char *)words);XtFree(text);help_message(s,"Template spelling",output);status(s,"Spelling: %zu unknown English word%s.",unknown,unknown==1?"":"s");
+    for(size_t i=0;i<count;i++)XtFree(words[i]);
+    XtFree((char *)words);XtFree(text);help_message(s,"Template spelling",output);status(s,"Spelling: %zu unknown English word%s.",unknown,unknown==1?"":"s");
 }
 static void print_ready(XtPointer client,int *source,XtInputId *id)
 {
@@ -481,7 +484,8 @@ static void destroy_actions(Widget w,XtPointer client,XtPointer call)
     if(s->print_input)XtRemoveInput(s->print_input);
     if(s->print_fd>=0)close(s->print_fd);
     if(s->print_pid>0){kill(s->print_pid,SIGKILL);while(waitpid(s->print_pid,NULL,0)<0 && errno==EINTR){}}
-    if(s->print_path)unlink(s->print_path);XtFree(s->print_path);XtFree(s->pending_path);
+    if(s->print_path)unlink(s->print_path);
+    XtFree(s->print_path);XtFree(s->pending_path);
     free_document(&s->document);free_document(&s->template_document);XtFree((char *)s);
 }
 static void dispatch(PeriodicActions *s,Widget source,int action,XtPointer call)
@@ -536,7 +540,8 @@ static void fit_dialog(PeriodicActions *s,Widget form,unsigned width,unsigned he
 {
     double scale=1.0;XmGetWidgetScale(s->root,&scale);
     unsigned available_width=WidthOfScreen(XtScreen(s->root)),available_height=HeightOfScreen(XtScreen(s->root));
-    if(available_width>64)available_width-=64;if(available_height>96)available_height-=96;
+    if(available_width>64)available_width-=64;
+    if(available_height>96)available_height-=96;
     unsigned w=(unsigned)(width*scale+0.5),h=(unsigned)(height*scale+0.5);
     XtVaSetValues(form,XmNwidth,(Dimension)(w<available_width?w:available_width),XmNheight,(Dimension)(h<available_height?h:available_height),NULL);
 }

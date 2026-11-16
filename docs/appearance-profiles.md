@@ -22,8 +22,43 @@ The selector is per `Display` and should be called after the display is opened
 but before creating application widgets. The selected profile is stored in that
 display's existing X resource database. `XmGetAppearanceProfile` reports the selected
 profile; an unselected display behaves as `classic`. Unknown enum values are
-rejected. Profile selection is immutable for a display: selecting a different
-profile after one has been selected fails. Applications that need to change an
+rejected. Profile selection is immutable for a display once selected via C API
+or after non-shell controls exist: selecting a different profile after one has
+been selected fails.
+
+### Declarative `Xrm` startup selection (WP-45)
+
+Unmodified Motif applications can also select an appearance profile and layout
+density declaratively at display initialization time through standard X
+resource files (`~/.Xresources`, `XENVIRONMENT`, app-defaults, or `-xrm`) using
+`XmNappearanceProfile` / `XmCAppearanceProfile` (`appearanceProfile` /
+`AppearanceProfile`) and `XmNappearanceDensity` / `XmCAppearanceDensity`
+(`appearanceDensity` / `AppearanceDensity`):
+
+```
+*appearanceProfile: modern_dark
+*appearanceDensity: compact
+```
+
+Both underscore (`modern_light`, `modern_dark`, `high_contrast`) and hyphenated
+(`modern-light`, `modern-dark`, `high-contrast`) profile tokens are accepted
+case-insensitively alongside `classic`, and `comfortable` or `compact` are
+accepted for density. Resources may be specified via wildcard
+(`*appearanceProfile`), application name/class (`MyApp.appearanceProfile` /
+`MyApp.AppearanceProfile`), or toolkit qualification
+(`ckCoreMotif.appearanceProfile`).
+
+Strict precedence is preserved:
+1. Explicit C API calls (`XmSetAppearanceProfile` / `XmSetAppearanceDensity`)
+   before control creation override declarative `Xrm` display resources.
+2. Explicit widget creation/SetValues arguments and ordinary widget X resources
+   override profile and density defaults.
+3. Invalid `Xrm` resource strings emit a single `XmeWarning` conversion warning
+   per display and fall back deterministically to `classic` / `comfortable`.
+
+The installed Xvfb regression is `tests/automated/run-xrm-appearance-startup.py`.
+
+Applications that need to change an
 existing hierarchy use `XmApplyAppearanceProfile` explicitly instead:
 
 ```c

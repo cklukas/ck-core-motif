@@ -21,6 +21,16 @@ typedef enum {
     XmAPPEARANCE_MODERN_DARK = 3
 } XmAppearanceProfile;
 
+/* Display-level Xrm startup resources for declarative appearance and density
+ * selection before widget creation. Explicit C API calls take precedence. */
+#define XmNappearanceProfile "appearanceProfile"
+#define XmCAppearanceProfile "AppearanceProfile"
+#define XmRAppearanceProfile "AppearanceProfile"
+
+#define XmNappearanceDensity "appearanceDensity"
+#define XmCAppearanceDensity "AppearanceDensity"
+#define XmRAppearanceDensity "AppearanceDensity"
+
 /* Label and LabelGadget disabled-text color; XmUNSPECIFIED_PIXEL follows the
  * historical bottom-shadow color. Appearance owns only unconfigured values. */
 #define XmNinsensitiveForeground "insensitiveForeground"

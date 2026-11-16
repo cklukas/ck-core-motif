@@ -1,3 +1,36 @@
+Declarative Xrm startup appearance and density selection (2026-11-16)
+=====================================================================
+
+- `lib/Xm/Appearance.h`, `lib/Xm/Appearance.c`, `lib/Xm/Display.c`: defined
+  public `XmNappearanceProfile` / `XmCAppearanceProfile` /
+  `XmRAppearanceProfile` and `XmNappearanceDensity` / `XmCAppearanceDensity` /
+  `XmRAppearanceDensity` macros and display-level `Xrm` inspection in
+  `_XmAppearanceInitializeDisplay`, `XmGetAppearanceProfile`, and
+  `XmGetAppearanceDensity` so unmodified Motif binaries can select `classic`,
+  `modern_light` (`modern-light`), `modern_dark` (`modern-dark`),
+  `high_contrast` (`high-contrast`), and `comfortable` or `compact` density via
+  `~/.Xresources`, `XENVIRONMENT`, app-defaults, or `-xrm`.
+- Preserved strict precedence: explicit `XmSetAppearanceProfile` and
+  `XmSetAppearanceDensity` calls before control creation override declarative
+  `Xrm` display resources, explicit widget arguments and ordinary widget X
+  resources override profile/density defaults, and invalid `Xrm` strings emit a
+  single `XmeWarning` conversion warning per display and fall back
+  deterministically to `classic` / `comfortable`.
+- `lib/Xm/Display.c`, `lib/Xm/XmString.c`, `lib/Xm/DataF.c`,
+  `demos/programs/periodic/periodic.c`,
+  `demos/programs/periodic/periodic_actions.c`,
+  `demos/programs/periodic/periodic_font.c`: guarded `XmGetXmDisplay` return
+  values, `LineMetrics` segment pointers, `XmTextPosition left, right`
+  selection-position outputs, `Widget appMain = NULL` before `MrmFetchWidget`,
+  single-line statement indentation, and `scaled->height` / core bitmap font
+  step probing in `ResizeRendition` for `-O2 --enable-hardening` builds under
+  GCC 14.
+- Tests: `tests/automated/check-xrm-appearance-startup.c`,
+  `tests/automated/run-xrm-appearance-startup.py`,
+  `tests/automated/check-xrm-appearance-startup-wp45.py`.
+- Docs: `docs/appearance-profiles.md`, `docs/status.md`,
+  `modernization_plan.md`.
+
 Expanded libFuzzer coverage and sanitized installed-prefix qualification (2026-11-16)
 ====================================================================================
 

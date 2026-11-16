@@ -127,7 +127,7 @@ static Boolean ResizeRendition(Widget widget, XmRendition rendition, double fact
         FcPatternDestroy(pattern);
         scaled=matched?XftFontOpenPattern(XtDisplayOfObject(widget),matched):NULL;
         if(!scaled)return False;
-        if(type==XmFONT_IS_FONT && scaled->ascent+scaled->descent>0) {
+        if(type==XmFONT_IS_FONT && scaled->height>0) {
             /* Core bitmap pixels and outline em sizes have different line
              * metrics. Normalize the replacement to the original line height. */
             double actual_pixels=pixels*factor;
@@ -135,7 +135,7 @@ static Boolean ResizeRendition(Widget widget, XmRendition rendition, double fact
             FcPattern *adjusted=FcPatternDuplicate(scaled->pattern);
             FcPatternDel(adjusted,FC_SIZE);FcPatternDel(adjusted,FC_PIXEL_SIZE);
             FcPatternAddDouble(adjusted,FC_PIXEL_SIZE,
-                actual_pixels*pixels*factor/(scaled->ascent+scaled->descent));
+                actual_pixels*pixels*factor/scaled->height);
             XftFont *normalized=XftFontOpenPattern(XtDisplayOfObject(widget),adjusted);
             if(normalized) { XftFontClose(XtDisplayOfObject(widget),scaled);scaled=normalized; }
         }
@@ -146,12 +146,28 @@ static Boolean ResizeRendition(Widget widget, XmRendition rendition, double fact
     }
 #else
     {
-        char name[160];XFontStruct *probe;
+        char name[160];XFontStruct *probe=NULL;
         if(type!=XmFONT_IS_FONT || !font || (unsigned long)font==XmAS_IS)return True;
-        int pixels=(int)((((XFontStruct *)font)->ascent+((XFontStruct *)font)->descent)*factor+0.5);
-        snprintf(name,sizeof(name),"-*-helvetica-medium-r-normal--%d-*-*-*-*-*-*-*",pixels);
-        probe=XLoadQueryFont(XtDisplayOfObject(widget),name);
-        if(!probe) { snprintf(name,sizeof(name),"-*-fixed-medium-r-normal--%d-*-*-*-*-*-*-*",pixels);probe=XLoadQueryFont(XtDisplayOfObject(widget),name); }
+        int base_px=((XFontStruct *)font)->ascent+((XFontStruct *)font)->descent;
+        int target_px=(int)(base_px*factor+0.5);
+        int step=factor<1.0?-1:1;
+        if(factor<1.0 && target_px>=base_px)target_px=base_px-1;
+        if(factor>1.0 && target_px<=base_px)target_px=base_px+1;
+        for(int p=target_px;p>=6 && p<=48;p+=step) {
+            snprintf(name,sizeof(name),"-*-helvetica-medium-r-normal--%d-*-*-*-*-*-*-*",p);
+            probe=XLoadQueryFont(XtDisplayOfObject(widget),name);
+            if(!probe) {
+                snprintf(name,sizeof(name),"-*-fixed-medium-r-*--%d-*-*-*-*-*-*-*",p);
+                probe=XLoadQueryFont(XtDisplayOfObject(widget),name);
+            }
+            if(probe) {
+                int h=probe->ascent+probe->descent;
+                if((factor<1.0 && h<base_px) || (factor>1.0 && h>base_px) || factor==1.0)
+                    break;
+                XFreeFont(XtDisplayOfObject(widget),probe);
+                probe=NULL;
+            }
+        }
         if(!probe)return False;
         XFreeFont(XtDisplayOfObject(widget),probe);
         count=0;XtSetArg(args[count],XmNfont,NULL);count++;

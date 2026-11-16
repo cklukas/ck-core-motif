@@ -1663,4 +1663,7 @@ EXTRA_DIST += tests/automated/check-mrm-value-bounds.c \
               tests/automated/check-fuzz-targets-wp44.py \
               tests/fuzz/fuzz-xpm-image.c \
               tests/fuzz/fuzz-mwm-parsers.c \
-              tests/fuzz/fuzz-uil-wmd.c
+              tests/fuzz/fuzz-uil-wmd.c \
+              tests/automated/check-xrm-appearance-startup.c \
+              tests/automated/run-xrm-appearance-startup.py \
+              tests/automated/check-xrm-appearance-startup-wp45.py

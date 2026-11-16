@@ -4,6 +4,13 @@ The current ABI 9 appearance cohort is documented in
 [modern integration qualification](modern-integration-qualification.md).
 The dated ABI 8 results below are historical and do not qualify ABI 9 binaries.
 
+The WP-45 declarative `Xrm` startup appearance and density increment (2026-11-16)
+adds public `XmNappearanceProfile` / `XmCAppearanceProfile` and
+`XmNappearanceDensity` / `XmCAppearanceDensity` macros in `<Xm/Appearance.h>`
+and display-level `Xrm` inspection in `XmDisplay` initialization
+(`_XmAppearanceInitializeDisplay`) and `lib/Xm/Appearance.c`, validated under
+Xvfb by `tests/automated/run-xrm-appearance-startup.py`.
+
 The WP-44 parser-fuzzing and sanitized installed-prefix qualification (2026-11-16)
 extends `tests/fuzz/run-fuzz.py --all --replay` to 7 `libFuzzer` targets
 (`editres-wire`, `mrm-uid`, `mwm-parsers`, `uil-wmd`, `xm-converters`,

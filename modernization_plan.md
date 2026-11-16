@@ -1953,7 +1953,17 @@ initialization time through standard X resource files (`~/.Xresources`,
 profile and density via X resources without code changes, and precedence is
 verified by installed-prefix tests.
 
-**Status (2026-11-15):** planned.
+**Status (2026-11-16):** complete. Defined public `XmNappearanceProfile` /
+`XmCAppearanceProfile` / `XmRAppearanceProfile` and `XmNappearanceDensity` /
+`XmCAppearanceDensity` / `XmRAppearanceDensity` macros in `<Xm/Appearance.h>`,
+wired display-level `Xrm` startup inspection in `DisplayInitialize`
+(`_XmAppearanceInitializeDisplay`) and `lib/Xm/Appearance.c` (supporting both
+underscore and hyphenated case-insensitive values across wildcard, application,
+and `ckCoreMotif` qualification while preserving explicit C API and widget
+resource precedence and emitting a single `XmeWarning` conversion warning per
+display on invalid resource strings), and validated under Xvfb with
+`tests/automated/run-xrm-appearance-startup.py` and
+`tests/automated/check-xrm-appearance-startup-wp45.py`.
 
 **Does not include:** background polling of `.Xresources` or live mutation of
 realized widgets without an explicit `XmApplyAppearanceProfile` transaction.
@@ -2138,7 +2148,7 @@ safety precede or accompany new surface area:
 | 2 | **WP-42** | C23 / Security | Burn down 242 defect-class compiler warnings & 62 `cppcheck` errors to 0 | `scripts/warning-baseline.py compare` & `-Werror` per zeroed defect class | Complete (2026-11-15) |
 | 3 | **WP-43** | Security / Audit | Audit `clients/uil`, `tools/wml`, 30 untouched legacy files & Oct/Nov 2026 code | Updated audit ledger in `docs/hardening.md` + per-fix native regressions | Complete (2026-11-16) |
 | 4 | **WP-44** | Fuzzing / ASan | Add image, MWM & UIL fuzzers; run `run-suite.py` under ASan + UBSan | `tests/fuzz/run-fuzz.py --all --replay` & sanitized `run-suite.py` pass | Complete (2026-11-16) |
-| 5 | **WP-45** | UI / Theme | Declarative `Xrm` startup selection (`*appearanceProfile`, `*appearanceDensity`) | Unmodified C binary starts in modern profiles/density via `XENVIRONMENT` | Planned |
+| 5 | **WP-45** | UI / Theme | Declarative `Xrm` startup selection (`*appearanceProfile`, `*appearanceDensity`) | Unmodified C binary starts in modern profiles/density via `XENVIRONMENT` | Complete (2026-11-16) |
 | 6 | **WP-46** | UI / Theme | Complete historical-widget modern styling, gallery natural sizing & WP-39 menus | Full `ckmotif-gallery` + `Periodic` visual/interaction matrix passes | In progress |
 | 7 | **WP-47** | UI / Theme | Xrm semantic palette tokens (`*accentColor`, `*surfaceBackground`) + WCAG guards | Installed-prefix token, contrast-clamp and colormap parity tests pass | Planned |
 | 8 | **WP-48** | UI / MWM | Modern `mwm` window frames, Xft titlebars & HiDPI scaling | Native Xvfb `mwm` frame/titlebar/button tests at 1x/2x across profiles | Planned |

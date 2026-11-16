@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <ctype.h>
 #include <math.h>
 #include <limits.h>
 #include <string.h>
@@ -22,6 +23,7 @@
 #include <X11/Xlibint.h>
 
 #include <Xm/Appearance.h>
+#include <Xm/Screen.h>
 #include <Xm/Xm.h>
 #include "XmI.h"
 #include "RowColumnP.h"
@@ -52,10 +54,10 @@
 #include <X11/Xft/Xft.h>
 #endif
 
-#define APPEARANCE_RESOURCE "ckCoreMotif.appearanceProfile"
-#define APPEARANCE_CLASS "CkCoreMotif.AppearanceProfile"
-#define DENSITY_RESOURCE "ckCoreMotif.appearanceDensity"
-#define DENSITY_CLASS "CkCoreMotif.AppearanceDensity"
+#define APPEARANCE_RESOURCE "ckCoreMotif." XmNappearanceProfile
+#define APPEARANCE_CLASS "CkCoreMotif." XmCAppearanceProfile
+#define DENSITY_RESOURCE "ckCoreMotif." XmNappearanceDensity
+#define DENSITY_CLASS "CkCoreMotif." XmCAppearanceDensity
 #define CLASSIC_PROFILE "classic"
 #define MODERN_LIGHT_PROFILE "modern-light"
 #define HIGH_CONTRAST_PROFILE "high-contrast"
@@ -501,6 +503,15 @@ typedef struct {
 
 typedef struct _XmAppearanceDisplayState {
     Display *display;
+    Widget display_widget;
+    XrmName app_name_quark;
+    XrmClass app_class_quark;
+    Boolean profile_api_selected;
+    XmAppearanceProfile api_profile;
+    Boolean density_api_selected;
+    XmAppearanceDensity api_density;
+    Boolean profile_invalid_warned;
+    Boolean density_invalid_warned;
     XrmDatabase active_database;
     Boolean owns_active_database;
     Boolean transaction_active;
@@ -2053,7 +2064,14 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     display_state = ensure_display_state(XtDisplayOfObject(widget));
     if (display_state == NULL) return False;
     if (display_state->hooks == NULL) {
+        String app_name = NULL, app_class = NULL;
         display_state->hooks = XtHooksOfDisplay(display_state->display);
+        XtGetApplicationNameAndClass(display_state->display,
+                                     &app_name, &app_class);
+        if (app_name != NULL && *app_name != '\0')
+            display_state->app_name_quark = XrmStringToQuark(app_name);
+        if (app_class != NULL && *app_class != '\0')
+            display_state->app_class_quark = XrmStringToQuark(app_class);
         XtAddCallback(display_state->hooks, XtNcreateHook,
                       appearance_created, display_state);
         XtAddCallback(display_state->hooks, XtNchangeHook,
@@ -2349,33 +2367,272 @@ _XmAppearanceDefaultColors(Widget parent, Pixel *background, Pixel *foreground,
 }
 
 static Boolean
+appearance_token_equals(const char *input, const char *expected)
+{
+    const unsigned char *start;
+    const unsigned char *end;
+    size_t len;
+
+    if (input == NULL || expected == NULL)
+        return False;
+    start = (const unsigned char *)input;
+    while (*start != '\0' && isspace(*start))
+        ++start;
+    end = start + strlen((const char *)start);
+    while (end > start && isspace(end[-1]))
+        --end;
+    len = (size_t)(end - start);
+    if (len == 0 || strlen(expected) != len)
+        return False;
+    for (size_t i = 0; i < len; ++i) {
+        unsigned char c = start[i];
+        unsigned char e = (unsigned char)expected[i];
+        if (c >= 'A' && c <= 'Z')
+            c = (unsigned char)(c - 'A' + 'a');
+        if (e >= 'A' && e <= 'Z')
+            e = (unsigned char)(e - 'A' + 'a');
+        if (c == '_')
+            c = '-';
+        if (e == '_')
+            e = '-';
+        if (c != e)
+            return False;
+    }
+    return True;
+}
+
+static Boolean
 profile_from_name(const char *name, XmAppearanceProfile *profile_return)
 {
-    if (name != NULL && strcmp(name, CLASSIC_PROFILE) == 0) {
+    if (appearance_token_equals(name, CLASSIC_PROFILE)) {
         *profile_return = XmAPPEARANCE_CLASSIC;
         return True;
     }
-    if (name != NULL && strcmp(name, MODERN_LIGHT_PROFILE) == 0) {
+    if (appearance_token_equals(name, MODERN_LIGHT_PROFILE)) {
         *profile_return = XmAPPEARANCE_MODERN_LIGHT;
         return True;
     }
-    if (name != NULL && strcmp(name, HIGH_CONTRAST_PROFILE) == 0) {
+    if (appearance_token_equals(name, HIGH_CONTRAST_PROFILE)) {
         *profile_return = XmAPPEARANCE_HIGH_CONTRAST;
         return True;
     }
-    if (name != NULL && strcmp(name, MODERN_DARK_PROFILE) == 0) {
+    if (appearance_token_equals(name, MODERN_DARK_PROFILE)) {
         *profile_return = XmAPPEARANCE_MODERN_DARK;
         return True;
     }
     return False;
 }
 
+static Boolean
+density_from_name(const char *name, XmAppearanceDensity *density_return)
+{
+    if (appearance_token_equals(name, "comfortable")) {
+        *density_return = XmAPPEARANCE_DENSITY_COMFORTABLE;
+        return True;
+    }
+    if (appearance_token_equals(name, "compact")) {
+        *density_return = XmAPPEARANCE_DENSITY_COMPACT;
+        return True;
+    }
+    return False;
+}
+
+typedef struct {
+    XrmQuark leaf_name;
+    XrmQuark leaf_class;
+    XrmValue value;
+    Boolean found;
+} AppearanceEnumerateClosure;
+
+static Bool
+enumerate_appearance_resource(XrmDatabase *database, XrmBindingList bindings,
+                              XrmQuarkList quarks, XrmRepresentation *type,
+                              XrmValue *value, XPointer closure)
+{
+    AppearanceEnumerateClosure *search = (AppearanceEnumerateClosure *)closure;
+    unsigned int len = 0;
+    (void)database;
+    (void)bindings;
+    (void)type;
+    if (quarks == NULL || value == NULL || value->addr == NULL)
+        return False;
+    while (quarks[len] != NULLQUARK)
+        ++len;
+    if ((len == 1 || len == 2) &&
+        (quarks[len - 1] == search->leaf_name ||
+         quarks[len - 1] == search->leaf_class)) {
+        search->value = *value;
+        search->found = True;
+        return True;
+    }
+    return False;
+}
+
+static Boolean
+lookup_appearance_resource(Display *display, XrmDatabase database,
+                           const char *qualified_name,
+                           const char *qualified_class,
+                           const char *leaf_name,
+                           const char *leaf_class,
+                           XrmValue *value_return)
+{
+    XmAppearanceDisplayState *state;
+    XrmValue wildcard_val = {0, NULL};
+    XrmValue toolkit_val = {0, NULL};
+    XrmValue app_val = {0, NULL};
+    Boolean has_wildcard = False;
+    Boolean has_toolkit = False;
+    Boolean has_app = False;
+    char *type = NULL;
+    char wildcard_name[96], wildcard_class[96];
+
+    if (database == NULL || value_return == NULL)
+        return False;
+
+    snprintf(wildcard_name, sizeof(wildcard_name),
+             "__xm_wildcard__.%s", leaf_name);
+    snprintf(wildcard_class, sizeof(wildcard_class),
+             "__XmWildcard__.%s", leaf_class);
+    if (XrmGetResource(database, wildcard_name, wildcard_class,
+                       &type, &wildcard_val) && wildcard_val.addr != NULL)
+        has_wildcard = True;
+
+    if (XrmGetResource(database, qualified_name, qualified_class,
+                       &type, &toolkit_val) && toolkit_val.addr != NULL)
+        has_toolkit = True;
+
+    state = display != NULL ? find_display_state(display) : NULL;
+    if (state != NULL && state->app_name_quark != NULLQUARK &&
+        state->app_class_quark != NULLQUARK) {
+        XrmName names[3];
+        XrmClass classes[3];
+        XrmRepresentation rep_type;
+        names[0] = state->app_name_quark;
+        names[1] = XrmStringToQuark(leaf_name);
+        names[2] = NULLQUARK;
+        classes[0] = state->app_class_quark;
+        classes[1] = XrmStringToQuark(leaf_class);
+        classes[2] = NULLQUARK;
+        if (XrmQGetResource(database, names, classes, &rep_type, &app_val) &&
+            app_val.addr != NULL)
+            has_app = True;
+    }
+
+    if (has_app && (!has_wildcard || app_val.addr != wildcard_val.addr)) {
+        *value_return = app_val;
+        return True;
+    }
+    if (has_toolkit && (!has_wildcard || toolkit_val.addr != wildcard_val.addr)) {
+        *value_return = toolkit_val;
+        return True;
+    }
+    if (has_toolkit) {
+        *value_return = toolkit_val;
+        return True;
+    }
+    if (has_app) {
+        *value_return = app_val;
+        return True;
+    }
+    if (XrmGetResource(database, leaf_name, leaf_class, &type, value_return) &&
+        value_return->addr != NULL)
+        return True;
+    if (state == NULL || state->app_name_quark == NULLQUARK) {
+        AppearanceEnumerateClosure search;
+        XrmName empty_names[1] = {NULLQUARK};
+        XrmClass empty_classes[1] = {NULLQUARK};
+        memset(&search, 0, sizeof(search));
+        search.leaf_name = XrmStringToQuark(leaf_name);
+        search.leaf_class = XrmStringToQuark(leaf_class);
+        if (XrmEnumerateDatabase(database, empty_names, empty_classes,
+                                 XrmEnumAllLevels,
+                                 enumerate_appearance_resource,
+                                 (XPointer)&search) && search.found) {
+            *value_return = search.value;
+            return True;
+        }
+    }
+    return False;
+}
+
+static Boolean
+appearance_controls_exist(Display *display)
+{
+    XmAppearanceWidgetState *state;
+    Boolean controls_exist = False;
+
+    _XmProcessLock();
+    for (state = appearance_widgets; state != NULL; state = state->next)
+        if (!state->retired && state->display == display &&
+            state->widget != NULL && !XtIsShell(state->widget) &&
+            !XmIsScreen(state->widget)) {
+            controls_exist = True;
+            break;
+        }
+    _XmProcessUnlock();
+    return controls_exist;
+}
+
+static Boolean
+appearance_any_widgets_exist(Display *display)
+{
+    XmAppearanceWidgetState *state;
+    Boolean exist = False;
+
+    _XmProcessLock();
+    for (state = appearance_widgets; state != NULL; state = state->next)
+        if (!state->retired && state->display == display &&
+            state->widget != NULL) {
+            exist = True;
+            break;
+        }
+    _XmProcessUnlock();
+    return exist;
+}
+
+void
+_XmAppearanceInitializeDisplay(Widget xm_display)
+{
+    Display *display;
+    XmAppearanceDisplayState *state;
+    XmAppearanceProfile profile;
+    XmAppearanceDensity density;
+    String app_name = NULL, app_class = NULL;
+
+    if (xm_display == NULL)
+        return;
+    display = XtDisplayOfObject(xm_display);
+    if (display == NULL)
+        return;
+    state = ensure_display_state(display);
+    if (state != NULL) {
+        state->display_widget = xm_display;
+        XtGetApplicationNameAndClass(display, &app_name, &app_class);
+        if (app_name != NULL && *app_name != '\0')
+            state->app_name_quark = XrmStringToQuark(app_name);
+        if (app_class != NULL && *app_class != '\0')
+            state->app_class_quark = XrmStringToQuark(app_class);
+        if (state->app_name_quark == NULLQUARK &&
+            xm_display->core.xrm_name != NULLQUARK)
+            state->app_name_quark = xm_display->core.xrm_name;
+        if (state->app_class_quark == NULLQUARK &&
+            XtIsApplicationShell(xm_display) &&
+            ((ApplicationShellWidget)xm_display)->application.xrm_class != NULLQUARK)
+            state->app_class_quark =
+                ((ApplicationShellWidget)xm_display)->application.xrm_class;
+    }
+    (void)XmGetAppearanceProfile(display, &profile);
+    (void)XmGetAppearanceDensity(display, &density);
+}
+
+static Boolean
+apply_appearance_settings(Display *display, XmAppearanceProfile profile,
+                          XmAppearanceDensity density, Boolean select_profile);
+
 Boolean
 XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
 {
     XrmDatabase database;
-    XrmValue value;
-    char *type = NULL;
     XmAppearanceProfile current;
     XmAppearanceDensity density;
     XmAppearanceDisplayState *state;
@@ -2389,30 +2646,36 @@ XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
         return False;
 
     name = profile_name(profile);
-    if (name == NULL || !XmGetAppearanceDensity(display, &density))
+    if (name == NULL || !XmGetAppearanceDensity(display, &density) ||
+        !XmGetAppearanceProfile(display, &current))
+        return False;
+
+    state = ensure_display_state(display);
+    if (state == NULL)
+        return False;
+
+    if (state->profile_api_selected || appearance_controls_exist(display)) {
+        if (current != profile)
+            return False;
+        state->profile_api_selected = True;
+        state->api_profile = profile;
+        return True;
+    }
+
+    if (current != profile && appearance_any_widgets_exist(display))
+        return apply_appearance_settings(display, profile, density, True);
+
+    if (profile != XmAPPEARANCE_CLASSIC &&
+        profile_defaults(profile, density) == NULL)
         return False;
 
     database = XrmGetDatabase(display);
-    if (database != NULL &&
-        XrmGetResource(database, APPEARANCE_RESOURCE, APPEARANCE_CLASS,
-                       &type, &value)) {
-        if (!XmGetAppearanceProfile(display, &current) || current != profile)
-            return False;
-        return True;
-    }
     if (database == NULL) {
         XrmInitialize();
         database = XrmGetStringDatabase("");
         if (database == NULL)
             return False;
         new_database = True;
-    }
-
-    state = ensure_display_state(display);
-    if (state == NULL ||
-        (profile != XmAPPEARANCE_CLASSIC && profile_defaults(profile, density) == NULL)) {
-        if (new_database) XrmDestroyDatabase(database);
-        return False;
     }
     if (new_database) {
         state->active_database = database;
@@ -2421,27 +2684,46 @@ XmSetAppearanceProfile(Display *display, XmAppearanceProfile profile)
 
     XrmPutStringResource(&database, APPEARANCE_RESOURCE, name);
     XrmSetDatabase(display, database);
+    state->profile_api_selected = True;
+    state->api_profile = profile;
     return True;
 }
 
 Boolean
 XmGetAppearanceProfile(Display *display, XmAppearanceProfile *profile_return)
 {
+    XmAppearanceDisplayState *state;
     XrmDatabase database;
     XrmValue value;
-    char *type = NULL;
 
     if (display == NULL || profile_return == NULL)
         return False;
 
     *profile_return = XmAPPEARANCE_CLASSIC;
+    state = find_display_state(display);
+    if (state != NULL && state->profile_api_selected) {
+        *profile_return = state->api_profile;
+        return True;
+    }
     database = XrmGetDatabase(display);
     if (database == NULL ||
-        !XrmGetResource(database, APPEARANCE_RESOURCE, APPEARANCE_CLASS,
-                        &type, &value))
+        !lookup_appearance_resource(display, database, APPEARANCE_RESOURCE,
+                                    APPEARANCE_CLASS, XmNappearanceProfile,
+                                    XmCAppearanceProfile, &value))
         return True;
 
-    return profile_from_name(value.addr, profile_return);
+    if (profile_from_name(value.addr, profile_return))
+        return True;
+
+    state = ensure_display_state(display);
+    if (state == NULL || !state->profile_invalid_warned) {
+        if (state != NULL)
+            state->profile_invalid_warned = True;
+        XmeWarning(state != NULL ? state->display_widget : NULL,
+                   "Cannot convert appearanceProfile resource to XmRAppearanceProfile; falling back to classic");
+    }
+    *profile_return = XmAPPEARANCE_CLASSIC;
+    return True;
 }
 
 static Boolean
@@ -2463,11 +2745,19 @@ apply_appearance_settings(Display *display, XmAppearanceProfile profile,
     if (!XmGetAppearanceProfile(display, &current) ||
         !XmGetAppearanceDensity(display, &current_density))
         return False;
-    if (current == profile && current_density == density)
-        return True;
     state = ensure_display_state(display);
     if (state == NULL)
         return False;
+    if (current == profile && current_density == density) {
+        if (select_profile) {
+            state->profile_api_selected = True;
+            state->api_profile = profile;
+        } else {
+            state->density_api_selected = True;
+            state->api_density = density;
+        }
+        return True;
+    }
     database = clone_database(XrmGetDatabase(display));
     if (database == NULL ||
         (profile != XmAPPEARANCE_CLASSIC && profile_defaults(profile, density) == NULL)) {
@@ -2508,6 +2798,13 @@ apply_appearance_settings(Display *display, XmAppearanceProfile profile,
     XrmCombineDatabase(database, &old_database, True);
     XrmSetDatabase(display, old_database);
     state->active_database = state->owns_active_database ? old_database : NULL;
+    if (select_profile) {
+        state->profile_api_selected = True;
+        state->api_profile = profile;
+    } else {
+        state->density_api_selected = True;
+        state->api_density = density;
+    }
     appearance_transaction_end(state);
     return True;
 }
@@ -2523,21 +2820,37 @@ XmApplyAppearanceProfile(Display *display, XmAppearanceProfile profile)
 Boolean
 XmGetAppearanceDensity(Display *display, XmAppearanceDensity *density_return)
 {
+    XmAppearanceDisplayState *state;
     XrmValue value;
-    char *type = NULL;
     XrmDatabase database;
-    XmAppearanceDensity density = XmAPPEARANCE_DENSITY_COMFORTABLE;
-    if (display == NULL || density_return == NULL) return False;
-    database = XrmGetDatabase(display);
-    if (database != NULL && XrmGetResource(database, DENSITY_RESOURCE,
-                                          DENSITY_CLASS, &type, &value)) {
-        if (value.addr == NULL) return False;
-        if (strcmp(value.addr, "compact") == 0)
-            density = XmAPPEARANCE_DENSITY_COMPACT;
-        else if (strcmp(value.addr, "comfortable") != 0)
-            return False;
+
+    if (display == NULL || density_return == NULL)
+        return False;
+
+    *density_return = XmAPPEARANCE_DENSITY_COMFORTABLE;
+    state = find_display_state(display);
+    if (state != NULL && state->density_api_selected) {
+        *density_return = state->api_density;
+        return True;
     }
-    *density_return = density;
+    database = XrmGetDatabase(display);
+    if (database == NULL ||
+        !lookup_appearance_resource(display, database, DENSITY_RESOURCE,
+                                    DENSITY_CLASS, XmNappearanceDensity,
+                                    XmCAppearanceDensity, &value))
+        return True;
+
+    if (density_from_name(value.addr, density_return))
+        return True;
+
+    state = ensure_display_state(display);
+    if (state == NULL || !state->density_invalid_warned) {
+        if (state != NULL)
+            state->density_invalid_warned = True;
+        XmeWarning(state != NULL ? state->display_widget : NULL,
+                   "Cannot convert appearanceDensity resource to XmRAppearanceDensity; falling back to comfortable");
+    }
+    *density_return = XmAPPEARANCE_DENSITY_COMFORTABLE;
     return True;
 }
 
@@ -2553,23 +2866,24 @@ Boolean
 XmSetAppearanceDensity(Display *display, XmAppearanceDensity density)
 {
     XmAppearanceDensity current;
-    XmAppearanceWidgetState *state;
-    Boolean controls_exist = False;
+    XmAppearanceDisplayState *display_state;
+
     if (display == NULL ||
         (density != XmAPPEARANCE_DENSITY_COMFORTABLE &&
          density != XmAPPEARANCE_DENSITY_COMPACT) ||
         appearance_transaction_is_active(display) ||
-        !XmGetAppearanceDensity(display, &current)) return False;
-    if (current == density) return True;
-    _XmProcessLock();
-    for (state = appearance_widgets; state != NULL; state = state->next)
-        if (!state->retired && state->display == display &&
-            state->widget != NULL && !XtIsShell(state->widget)) {
-            controls_exist = True;
-            break;
-        }
-    _XmProcessUnlock();
-    if (controls_exist) return False;
+        !XmGetAppearanceDensity(display, &current))
+        return False;
+    display_state = ensure_display_state(display);
+    if (display_state == NULL)
+        return False;
+    if (current == density) {
+        display_state->density_api_selected = True;
+        display_state->api_density = density;
+        return True;
+    }
+    if (appearance_controls_exist(display))
+        return False;
     return XmApplyAppearanceDensity(display, density);
 }
 

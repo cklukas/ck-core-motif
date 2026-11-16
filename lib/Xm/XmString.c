@@ -2961,21 +2961,24 @@ LineMetrics(_XmStringEntry line,
   screen = XtScreenOfObject(XmGetXmDisplay(d));
 
   seg = _XmEntrySegmentGet(line)[seg_index];
+  if (seg == NULL)
+    return;
 
   if (_XmEntryType(seg) != XmSTRING_ENTRY_OPTIMIZED)
     {
+      _XmStringNREntry next_seg;
       lay_dir = _XmEntryLayoutGet(seg, prim_dir);
 
       if (XmDirectionMatch(lay_dir, XmLEFT_TO_RIGHT))
 	{
-	  while (_XmEntryLeftGet(seg, prim_dir) != NULL)
-	    seg = (_XmStringNREntry)_XmEntryLeftGet(seg, prim_dir);
+	  while ((next_seg = (_XmStringNREntry)_XmEntryLeftGet(seg, prim_dir)) != NULL)
+	    seg = next_seg;
 	  peek_seg = (_XmStringNREntry)_XmEntryRightGet(seg, prim_dir);
 	}
       else      
 	{
-	  while (_XmEntryRightGet(seg, prim_dir) != NULL)
-	    seg = (_XmStringNREntry)_XmEntryRightGet(seg, prim_dir);
+	  while ((next_seg = (_XmStringNREntry)_XmEntryRightGet(seg, prim_dir)) != NULL)
+	    seg = next_seg;
 	  peek_seg = (_XmStringNREntry)_XmEntryLeftGet(seg, prim_dir);
 	}
     }

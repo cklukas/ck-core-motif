@@ -289,7 +289,7 @@ ParseOptions(int *argc, char **argv, PeriodicOptions *options)
 int
 main(int argc, char *argv[])
 {
-    Widget appMain;
+    Widget appMain = NULL;
     Display *display;
     const char *application_class;
     PeriodicOptions options;
@@ -318,8 +318,14 @@ main(int argc, char *argv[])
      * Keep the standalone modern-light default only when no selection exists. */
     if (!options.profile_given) {
         XrmValue value; char *type;
-        if (XrmGetDatabase(display) && XrmGetResource(XrmGetDatabase(display),
-                "ckCoreMotif.appearanceProfile", "CkCoreMotif.AppearanceProfile", &type, &value) &&
+        XrmDatabase db = XrmGetDatabase(display);
+        if (db &&
+            (XrmGetResource(db, "ckCoreMotif." XmNappearanceProfile,
+                            "CkCoreMotif." XmCAppearanceProfile, &type, &value) ||
+             XrmGetResource(db, "periodic." XmNappearanceProfile,
+                            APP_CLASS "." XmCAppearanceProfile, &type, &value) ||
+             XrmGetResource(db, XmNappearanceProfile,
+                            XmCAppearanceProfile, &type, &value)) &&
             !XmGetAppearanceProfile(display, &options.profile)) {
             fputs("periodic: invalid inherited appearance\n",stderr);return EXIT_FAILURE;
         }
