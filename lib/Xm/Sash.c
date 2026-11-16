@@ -39,6 +39,7 @@ static char rcsid[] = "$XConsortium: Sash.c /main/12 1995/07/13 17:51:55 drk $"
 #include <Xm/DisplayP.h>
 #include "MenuStateI.h"
 #include "TraversalI.h"
+#include "AppearanceDrawI.h"
 
 #define defTranslations		_XmSash_defTranslations
 #define SASHSIZE 10
@@ -314,13 +315,14 @@ SashFocusIn(
     if (_XmGetFocusPolicy( (Widget) sash) == XmEXPLICIT)
        HighlightSash(w);
 
-
-    XmeDrawShadows (XtDisplay (w), XtWindow (w),
-                     sash->primitive.top_shadow_GC,
-                     sash->primitive.bottom_shadow_GC,
-                     0,0,w->core.width, w->core.height,
-                     sash->primitive.shadow_thickness,
-		     XmSHADOW_OUT);
+    if (!_XmAppearanceDrawFrameRegion(w, 0, 0, w->core.width, w->core.height,
+                                      sash->primitive.shadow_thickness))
+        XmeDrawShadows (XtDisplay (w), XtWindow (w),
+                        sash->primitive.top_shadow_GC,
+                        sash->primitive.bottom_shadow_GC,
+                        0,0,w->core.width, w->core.height,
+                        sash->primitive.shadow_thickness,
+                        XmSHADOW_OUT);
 
     sash->sash.has_focus = True;
 }
@@ -341,12 +343,14 @@ SashFocusOut(
     if (_XmGetFocusPolicy( (Widget) sash) == XmEXPLICIT)
        UnhighlightSash(w);
 
-    XmeDrawShadows (XtDisplay (w), XtWindow (w),
-                     sash->primitive.top_shadow_GC,
-                     sash->primitive.bottom_shadow_GC,
-                     0,0,w->core.width, w->core.height,
-                     sash->primitive.shadow_thickness,
-		     XmSHADOW_OUT);
+    if (!_XmAppearanceDrawFrameRegion(w, 0, 0, w->core.width, w->core.height,
+                                      sash->primitive.shadow_thickness))
+        XmeDrawShadows (XtDisplay (w), XtWindow (w),
+                        sash->primitive.top_shadow_GC,
+                        sash->primitive.bottom_shadow_GC,
+                        0,0,w->core.width, w->core.height,
+                        sash->primitive.shadow_thickness,
+                        XmSHADOW_OUT);
 
     sash->sash.has_focus = False;
 }
@@ -460,12 +464,14 @@ Redisplay(
 {
    register XmSashWidget sash = (XmSashWidget) w;
 
-     XmeDrawShadows (XtDisplay (w), XtWindow (w), 
-                      sash->primitive.top_shadow_GC,
-                      sash->primitive.bottom_shadow_GC, 
-		      0,0,w->core.width, w->core.height,
-                      sash->primitive.shadow_thickness,
-		      XmSHADOW_OUT);
+     if (!_XmAppearanceDrawFrameRegion(w, 0, 0, w->core.width, w->core.height,
+                                       sash->primitive.shadow_thickness))
+         XmeDrawShadows (XtDisplay (w), XtWindow (w), 
+                         sash->primitive.top_shadow_GC,
+                         sash->primitive.bottom_shadow_GC, 
+                         0,0,w->core.width, w->core.height,
+                         sash->primitive.shadow_thickness,
+                         XmSHADOW_OUT);
 
      if (sash->sash.has_focus) HighlightSash(w);
 }

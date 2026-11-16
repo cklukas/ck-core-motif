@@ -58,7 +58,8 @@ jobs:
           if ! "$GITHUB_WORKSPACE/configure" --prefix="$prefix" \
             CC='${{ matrix.cc }}' CXX='${{ matrix.cxx }}' \
             --disable-demos --disable-static --enable-xft --enable-unicode-text \
-            --enable-atspi --enable-svg --enable-hardening \
+            --enable-atspi --enable-svg --enable-xlibre-dpi --enable-cxx-support \
+            --enable-hardening \
             CFLAGS='-std=c23 -O2 -g0' CXXFLAGS='-O2 -g0' > "$logs/configure.log" 2>&1; then
             tail -n 200 config.log
             exit 1
@@ -70,6 +71,7 @@ jobs:
             fi
             make -j1 -C "$component" install >> "$logs/install.log" 2>&1
           done
+          make -j1 install-ckmotifxxincludeHEADERS install-pkgconfigDATA >> "$logs/install.log" 2>&1
           test -e "$prefix/lib/libXm.so.9"
           test -x "$prefix/bin/uil"
       - name: Run the installed-prefix tests

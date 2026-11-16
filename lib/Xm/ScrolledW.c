@@ -2209,10 +2209,13 @@ XmScrolledWindowWidget sw )
         return;
     }
 
-    HSBht = (HSBExists) ?
-        sw->swindow.hScrollBar->primitive.highlight_thickness : 0;
-    VSBht = (VSBExists) ?
-        sw->swindow.vScrollBar->primitive.highlight_thickness : 0;
+    {
+        Boolean connected = _XmAppearanceConnectedScrolledWindow((Widget)sw);
+        HSBht = (HSBExists && !connected) ?
+            sw->swindow.hScrollBar->primitive.highlight_thickness : 0;
+        VSBht = (VSBExists && !connected) ?
+            sw->swindow.vScrollBar->primitive.highlight_thickness : 0;
+    }
 
     /* At tiny automatic allocations, a full navigator thickness can consume
      * the entire cross-axis. Suppress only the optional bar that cannot fit;

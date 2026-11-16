@@ -45,7 +45,7 @@ def run(cmd):
     assert 'Warning:' not in r.stdout,r.stdout
 server=None
 try:
-    cc=['cc','-DPNG_SUPPORTED','-I/opt/X11/include','-L/opt/X11/lib','-std=c11','-D_POSIX_C_SOURCE=200809L','-Wall','-Wextra','-Werror']
+    cc=[*os.environ.get('CC','cc').split(),'-DPNG_SUPPORTED','-I/opt/X11/include','-L/opt/X11/lib','-std=c11','-D_POSIX_C_SOURCE=200809L','-Wall','-Wextra','-Werror']
     model=root/'demos/programs/draw/paint.c'
     includes=['-I'+str(a.prefix/'include'),'-I/opt/X11/include']
     libs=['-L'+str(a.prefix/'lib'),'-L/opt/X11/lib','-lXm','-lXt','-lX11','-lpng','-lm']

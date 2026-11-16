@@ -6,7 +6,9 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import platform
 import select
+import shlex
 import subprocess
 import time
 
@@ -21,7 +23,7 @@ out.mkdir(parents=True, exist_ok=False)
 env = dict(os.environ, TMPDIR=str(out / 'tmp'),
            DYLD_LIBRARY_PATH=str(a.prefix / 'lib'),
            LD_LIBRARY_PATH=str(a.prefix / 'lib'))
-library = a.prefix / 'lib/libXm.9.dylib'
+library = a.prefix / ('lib/libXm.9.dylib' if platform.system() == 'Darwin' else 'lib/libXm.so')
 receipt = {'library_sha256': hashlib.sha256(library.read_bytes()).hexdigest(),
            'target': 'help-geometry native help geometry regression',
            'started_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -45,7 +47,8 @@ def run(cmd):
 
 server = None
 try:
-    run(['cc', '-std=gnu17', '-Wno-deprecated-non-prototype',
+    cc = shlex.split(os.environ.get('CC', 'cc'))
+    run([*cc, '-std=gnu17', '-Wno-deprecated-non-prototype',
          '-ftrivial-auto-var-init=pattern', '-I' + str(a.prefix / 'include'),
          '-I/opt/X11/include', root / 'tests/automated/check-help-geometry.c', '-L' + str(a.prefix / 'lib'), '-L/opt/X11/lib',
          '-lXm', '-lXt', '-lX11', '-lXtst', '-o', out / 'check-help-geometry'])

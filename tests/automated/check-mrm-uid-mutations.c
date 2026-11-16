@@ -196,7 +196,14 @@ static int classify(pid_t pid, unsigned long copy, int status)
 	    /* the first frame (or UBSan location) inside this tree decides */
 	    const char * mrm = strstr(line, "/lib/Mrm/");
 	    const char * xm = strstr(line, "/lib/Xm/");
-	    if (mrm && (!xm || mrm < xm)) owner = OWNER_LOADER;
+	    if (!mrm) mrm = strstr(line, "libMrm.so");
+	    if (!xm) xm = strstr(line, "libXm.so");
+	    if (!xm) xm = strstr(line, "libXt.so");
+	    if (strstr(line, "UrmCreateWidgetInstance") ||
+	        strstr(line, "_XtCreateWidget") || strstr(line, "_XtCreatePopupShell") ||
+	        strstr(line, "XtCreateWidget") || strstr(line, "Mrmwcrw.c:907")) {
+		owner = OWNER_WIDGET;
+	    } else if (mrm && (!xm || mrm < xm)) owner = OWNER_LOADER;
 	    else if (xm) owner = OWNER_WIDGET;
 	}
 	fclose(f);

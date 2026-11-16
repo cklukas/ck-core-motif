@@ -1,3 +1,61 @@
+Historical-widget modern appearance, natural sizing, and context-menu entries (2026-11-16)
+=========================================================================================
+
+- `lib/Xm/Appearance.c`, `lib/Xm/XmI.h`, `lib/Xm/PanedW.c`, `lib/Xm/Paned.c`,
+  `lib/Xm/Sash.c`, `lib/Xm/FontS.c`: added modern/high-contrast and
+  comfortable/compact density defaults and live-transition tracking for
+  `XmPanedWindow` and `XmPaned` (`shadowThickness`, `sashShadowThickness`,
+  `sashWidth`, `sashHeight`, `marginWidth`, `marginHeight`, `spacing`), bottom-up
+  `_XmPanedWindowRefreshGeometry` and `_XmPanedRefreshGeometry` post-commit
+  passes, and flat modern frame rendering in `XmSash`.
+- `lib/Xm/SpinB.c`, `lib/Xm/ComboBox.c`, `lib/Xm/Container.c`,
+  `lib/Xm/TabBox.c`, `lib/Xm/TabStack.c`: refreshed `XmSpinBox` arrow and
+  insensitive GCs on live background/foreground changes while preserving
+  constrained/explicit dimensions across `SetValues` and `GeometryManager`,
+  wired `_XmAppearanceDrawFrameRegion` in `XmComboBox` `DrawShadows`, ordered
+  `XmTabBox` geometry calculation before `Resize` in `SetValues`, triggered
+  `XmTabStack` relayout/resize on `font_list` and tab metric updates, and added
+  `_XmContainerRefreshGeometry` and `IconHeader` font inheritance in
+  `XmContainer`.
+- `lib/Xm/BreadcrumbBar.c`, `lib/Xm/DropHighlight.c`, `lib/Xm/InfoBar.c`,
+  `lib/Xm/DataGrid.c`, `lib/Xm/TreeView.c`, `lib/Xm/Sidebar.c`,
+  `lib/Xm/CommandPalette.c`, `demos/programs/ckmotif-gallery/gallery_examples.c`:
+  implemented toolkit-owned natural font and content sizing when caller
+  dimensions are unconstrained and removed redundant hardcoded `XmNwidth` /
+  `XmNheight` construction overrides from `ckmotif-gallery`.
+- `lib/Xm/RowColumn.h`, `lib/Xm/RCMenu.c`: added `XmContextMenuEntry`,
+  `XmCreateContextMenuEntry`, and `XmRowColumnSetContextMenuEntries` for opt-in
+  icon, mnemonic, and right-aligned keyboard-shortcut popup/pulldown menu
+  items over standard `XmRowColumn` menus without altering grab or callback
+  contracts.
+- `lib/Xm/DropTrans.c`, `lib/Xm/ScrolledW.c`, `lib/Xm/Appearance.c`,
+  `lib/Xm/AppearanceDraw.c`, `ckdocs.yml`, `.github/workflows/build.yml`:
+  preserved zero-length INCR completion callbacks in `DropTransferSelectionCB`
+  when `dtp->incremental` is active, excluded scrollbar `highlight_thickness`
+  from `ConstantLayout` viewport fit checks when connected modern scrollbars
+  are active, opened modern Xft fonts with `XFT_RGBA_NONE` for deterministic
+  grayscale antialiasing, inset cascade chevron indicators by 1px at fractional
+  scales, split the `ckdocs.yml` `maintenance fixes` sequence under 128 items,
+  and enabled `--enable-xlibre-dpi` and `--enable-cxx-support` in GitHub CI.
+- Tests: `tests/automated/check-wp46-composite-polish.c`,
+  `tests/automated/run-wp46-composite-polish.py`,
+  `tests/automated/check-breadcrumb-modern.c`,
+  `tests/automated/check-disabled-labels.c`,
+  `tests/automated/check-option-menu-appearance.c`,
+  `tests/automated/check-display-scale-scrolled.c`,
+  `tests/automated/check-mrm-uid-mutations.c`,
+  `tests/automated/check-paint-ui.c`,
+  `tests/automated/run-xlibre-dpi-contract.py`,
+  `tests/automated/run-help-geometry.py`,
+  `tests/automated/run-simpledrop.py`,
+  `tests/automated/run-earth.py`,
+  `tests/automated/run-paint.py`,
+  `tests/automated/run-airport-behavior.py`,
+  `tests/automated/run-gallery-demo-reflow.py`,
+  `tests/automated/run-storage-regressions.py`.
+- Docs: `docs/appearance-profiles.md`, `docs/modern-gallery-components.md`,
+  `docs/status.md`, `modernization_plan.md`.
+
 Declarative Xrm startup appearance and density selection (2026-11-16)
 =====================================================================
 

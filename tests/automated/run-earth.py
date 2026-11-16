@@ -44,13 +44,14 @@ def run(cmd):
 
 server = None
 try:
-    run(['cc', '-std=c23', '-O2',
+    cc = os.environ.get('CC', 'cc').split()
+    run([*cc, '-std=c23', '-D_POSIX_C_SOURCE=200809L', '-O2',
          '-I' + str(a.prefix / 'include'), '-I' + str(root / 'demos/lib'),
          '-I/opt/X11/include',
          '-DEARTH_MAP_FILE="' + str(a.prefix / 'share/Xm/earth/world-map.xpm') + '"',
          '-DEARTH_SOURCE_MAP_FILE="' + str(root / 'demos/programs/earth/world-map.xpm') + '"', root / 'tests/automated/check-earth.c', '-L' + str(a.prefix / 'lib'), '-L/opt/X11/lib',
          '-lXm', '-lXt', '-lX11', '-lXext', '-lXtst', '-lm', '-o', out / 'check-earth'])
-    run(['cc', '-std=c23', '-O2',
+    run([*cc, '-std=c23', '-D_POSIX_C_SOURCE=200809L', '-O2',
          '-I' + str(a.prefix / 'include'), '-I/opt/X11/include',
          '-DEARTH_MAP_FILE="' + str(a.prefix / 'share/Xm/earth/world-map.xpm') + '"',
          '-DEARTH_SOURCE_MAP_FILE="' + str(root / 'demos/programs/earth/world-map.xpm') + '"',

@@ -98,7 +98,9 @@ try:
         flags += ['-fsanitize=address,undefined', '-fno-omit-frame-pointer']
     for name, modes in [('transfer-storage', ('clipboard', 'merge', 'bounds', 'lifetime')),
                         ('xpm-input', ('xpm',)), ('button-timers', ('buttons',)),
-                        ('xt-callback-lifetime', ('xt-callbacks',))]:
+                        *( [('xt-callback-lifetime', ('xt-callbacks',))]
+                           if (a.only and 'xt-callbacks' in a.only) or runtime_library_dirs or (a.prefix / 'lib/libXt.so').exists()
+                           else [] )]:
         modes = [mode for mode in modes if not a.only or mode in a.only]
         if not modes:
             continue

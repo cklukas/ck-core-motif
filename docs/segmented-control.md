@@ -101,7 +101,7 @@ Actual gallery factory for xmSegmentedControlWidgetClass.
 The gallery host supplies the function arguments.
 Helpers are defined in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1122-L1151
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L1116-L1145
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/SegmentedControl.h)
 

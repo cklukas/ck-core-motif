@@ -1998,9 +1998,18 @@ WP-39 context-menu presentation item.
 startup and live-transition matrix with natural sizing and zero demo-only
 layout workarounds.
 
-**Status (2026-11-15):** in progress (core widgets, buttons, scrollbars,
-notebooks, dialogs and Periodic startup are integrated; complex historical
-composites, gallery dimension cleanup and full matrix sign-off remain).
+**Status (2026-11-16):** complete. Completed modern/high-contrast and
+comfortable/compact density styling and live transitions for `XmPanedWindow`,
+`XmPaned`, `XmSash`, `XmSpinBox`, `XmSimpleSpinBox`, `XmComboBox`, `XmTabBox`,
+`XmTabStack`, and `XmContainer`; implemented natural font/content sizing in
+`XmBreadcrumbBar`, `XmDropHighlight`, `XmInfoBar`, `XmDataGrid`, `XmTreeView`,
+`XmSidebar`, and `XmCommandPalette` and removed redundant fixed dimensions from
+`demos/programs/ckmotif-gallery/gallery_examples.c`; added `XmContextMenuEntry`,
+`XmCreateContextMenuEntry`, and `XmRowColumnSetContextMenuEntries` in
+`<Xm/RowColumn.h>` / `lib/Xm/RCMenu.c`; and verified under Xvfb with
+`run-wp46-composite-polish.py`, `run-container-appearance.py`,
+`run-spinbox-height.py`, `run-breadcrumb-modern.py`, `run-sidebar-header.py`,
+`run-periodic-appearance.py`, and `run-gallery-integration.py`.
 
 **Does not include:** altering classic Motif default metrics when the `classic`
 profile is active.
@@ -2149,7 +2158,7 @@ safety precede or accompany new surface area:
 | 3 | **WP-43** | Security / Audit | Audit `clients/uil`, `tools/wml`, 30 untouched legacy files & Oct/Nov 2026 code | Updated audit ledger in `docs/hardening.md` + per-fix native regressions | Complete (2026-11-16) |
 | 4 | **WP-44** | Fuzzing / ASan | Add image, MWM & UIL fuzzers; run `run-suite.py` under ASan + UBSan | `tests/fuzz/run-fuzz.py --all --replay` & sanitized `run-suite.py` pass | Complete (2026-11-16) |
 | 5 | **WP-45** | UI / Theme | Declarative `Xrm` startup selection (`*appearanceProfile`, `*appearanceDensity`) | Unmodified C binary starts in modern profiles/density via `XENVIRONMENT` | Complete (2026-11-16) |
-| 6 | **WP-46** | UI / Theme | Complete historical-widget modern styling, gallery natural sizing & WP-39 menus | Full `ckmotif-gallery` + `Periodic` visual/interaction matrix passes | In progress |
+| 6 | **WP-46** | UI / Theme | Complete historical-widget modern styling, gallery natural sizing & WP-39 menus | Full `ckmotif-gallery` + `Periodic` visual/interaction matrix passes | Complete (2026-11-16) |
 | 7 | **WP-47** | UI / Theme | Xrm semantic palette tokens (`*accentColor`, `*surfaceBackground`) + WCAG guards | Installed-prefix token, contrast-clamp and colormap parity tests pass | Planned |
 | 8 | **WP-48** | UI / MWM | Modern `mwm` window frames, Xft titlebars & HiDPI scaling | Native Xvfb `mwm` frame/titlebar/button tests at 1x/2x across profiles | Planned |
 | 9 | **WP-49** | UX Polish | Modern hover states, `focus-visible` policy & standardized wheel scrolling | Installed-prefix hover lifecycle, focus-policy & nested wheel tests pass | Planned |

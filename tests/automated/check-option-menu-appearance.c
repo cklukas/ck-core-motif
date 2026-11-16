@@ -9,12 +9,15 @@
 #define CHECK(c) do { if (!(c)) { fprintf(stderr,"FAIL %d: %s\n",__LINE__,#c); exit(1); } } while(0)
 static unsigned cases;
 static void drain(XtAppContext a,Display *d) {XSync(d,False);while(XtAppPending(a))XtAppProcessEvent(a,XtIMAll);XSync(d,False);}
+extern Pixel _XmAppearanceCascadeSelection(Widget, Pixel fallback);
 static void inspect(Widget w,Boolean enabled,Boolean armed) {
     XmCascadeButtonGadget c=(XmCascadeButtonGadget)w;
     int x=c->rectangle.x+CBG_Cascade_x(c),y=c->rectangle.y+CBG_Cascade_y(c);
     int width=CBG_Cascade_width(c),height=CBG_Cascade_height(c);
     Pixel bg,fg,border;XtVaGetValues(w,XmNbackground,&bg,XmNforeground,&fg,XmNbottomShadowColor,&border,NULL);
-    Pixel ink=enabled?(armed?bg:fg):border,fill=enabled&&armed?fg:bg;
+    XGCValues arm_gcv={.foreground=bg};
+    if(CBG_ArmGC(c))XGetGCValues(XtDisplay(w),CBG_ArmGC(c),GCForeground,&arm_gcv);
+    Pixel ink=enabled?fg:border,fill=enabled&&armed?_XmAppearanceCascadeSelection(w,arm_gcv.foreground):bg;
     CHECK(width>=7 && height>=7);
     CHECK(CBG_Cascade_x(c)>=0 && CBG_Cascade_x(c)+width<=c->rectangle.width);
     CHECK(CBG_Cascade_y(c)>=0 && CBG_Cascade_y(c)+height<=c->rectangle.height);

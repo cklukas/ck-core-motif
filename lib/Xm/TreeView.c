@@ -1007,6 +1007,25 @@ void XmTreeViewSetNodes(Widget widget, const XmTreeViewNode *nodes,
         Dimension width;
         natural_metrics(view,&width,&view->tree_view.row_height);
     }
+    if (view->tree_view.automatic_width || view->tree_view.automatic_height) {
+        Dimension nat_w, row_h, nat_h, req_w, req_h, rep_w, rep_h;
+        unsigned long long total_h;
+        natural_metrics(view, &nat_w, &row_h);
+        if (!view->tree_view.automatic_row_height)
+            row_h = view->tree_view.row_height;
+        total_h = (unsigned long long)row_h *
+                  (unsigned long long)view->tree_view.visible_rows;
+        nat_h = total_h > (unsigned long long)(Dimension)-1 ?
+                (Dimension)-1 : (Dimension)total_h;
+        req_w = view->tree_view.automatic_width ? nat_w : view->core.width;
+        req_h = view->tree_view.automatic_height ? nat_h : view->core.height;
+        if (req_w != view->core.width || req_h != view->core.height) {
+            XtGeometryResult res = XtMakeResizeRequest(widget, req_w, req_h,
+                                                       &rep_w, &rep_h);
+            if (res == XtGeometryAlmost)
+                XtMakeResizeRequest(widget, rep_w, rep_h, NULL, NULL);
+        }
+    }
     redraw(view);
 }
 

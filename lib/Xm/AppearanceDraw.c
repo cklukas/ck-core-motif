@@ -716,7 +716,8 @@ _XmAppearanceDrawCascadeIndicator(Widget widget, int x, int y, int width,
     if (!drawable || width < 1 || height < 1) return True;
     XtVaGetValues(widget, XtIsSensitive(widget) ? XmNforeground : XmNbottomShadowColor,
                   &foreground, NULL);
-    int side = MIN((int)_XmDpiDefaultDimension(widget, 12), MIN(width,height));
+    int side = MIN((int)_XmDpiDefaultDimension(widget, 12),
+                   MAX(1, MIN(width, height) - 2));
     values.foreground = foreground;
     gc = XCreateGC(display, drawable, GCForeground, &values);
     if (!gc) return True;

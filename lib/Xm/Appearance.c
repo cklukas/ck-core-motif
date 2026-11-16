@@ -50,6 +50,12 @@
 #include <Xm/Avatar.h>
 #include <Xm/Divider.h>
 #include <Xm/RatingControl.h>
+#include <Xm/PanedW.h>
+#include <Xm/Paned.h>
+#include <Xm/SashP.h>
+#include <Xm/Container.h>
+#include <Xm/SeparatoG.h>
+#include <Xm/Separator.h>
 #ifdef USE_XFT
 #include <X11/Xft/Xft.h>
 #endif
@@ -182,6 +188,10 @@ static const char modern_light_resources[] =
     "*XmSelectionBox.shadowThickness: 0\n"
     "*XmCommand.shadowThickness: 0\n"
     "*XmFileSelectionBox.shadowThickness: 0\n"
+    "*XmPanedWindow.shadowThickness: 0\n"
+    "*XmPaned.shadowThickness: 0\n"
+    "*XmPanedWindow.sashShadowThickness: 1\n"
+    "*XmPaned.sashShadowThickness: 1\n"
     "*XmNotebook.frameBackground: #f1f2f4\n"
     "*XmNotebook.backPageBackground: #f1f2f4\n"
     "*XmNotebook.backPageForeground: #9aa3ae\n"
@@ -222,7 +232,9 @@ static const char high_contrast_resources[] =
     "*XmToggleButton.traversalOn: True\n"
     "*XmTextField.traversalOn: True\n"
     "*XmSearchBox.traversalOn: True\n"
-    "*XmScrollBar.highlightThickness: 3\n";
+    "*XmScrollBar.highlightThickness: 3\n"
+    "*XmPanedWindow.sashShadowThickness: 2\n"
+    "*XmPaned.sashShadowThickness: 2\n";
 
 static const char modern_dark_resources[] =
     "*background: #202124\n"
@@ -296,6 +308,10 @@ static const char modern_dark_resources[] =
     "*XmSelectionBox.shadowThickness: 0\n"
     "*XmCommand.shadowThickness: 0\n"
     "*XmFileSelectionBox.shadowThickness: 0\n"
+    "*XmPanedWindow.shadowThickness: 0\n"
+    "*XmPaned.shadowThickness: 0\n"
+    "*XmPanedWindow.sashShadowThickness: 1\n"
+    "*XmPaned.sashShadowThickness: 1\n"
     "*XmTextField.bottomShadowColor: #5f6368\n"
     "*XmSearchBox.bottomShadowColor: #5f6368\n"
     "*XmArrowButton.bottomShadowColor: #7b8086\n"
@@ -398,7 +414,22 @@ static const AppearanceDensityResource density_resources[] = {
     {"*XmCommand.marginWidth", 16, 8},
     {"*XmCommand.marginHeight", 16, 8},
     {"*XmFileSelectionBox.marginWidth", 16, 8},
-    {"*XmFileSelectionBox.marginHeight", 16, 8}
+    {"*XmFileSelectionBox.marginHeight", 16, 8},
+    {"*XmPanedWindow.marginWidth", 8, 4},
+    {"*XmPanedWindow.marginHeight", 8, 4},
+    {"*XmPanedWindow.spacing", 12, 8},
+    {"*XmPanedWindow.sashWidth", 12, 10},
+    {"*XmPanedWindow.sashHeight", 12, 10},
+    {"*XmPaned.marginWidth", 8, 4},
+    {"*XmPaned.marginHeight", 8, 4},
+    {"*XmPaned.sashWidth", 12, 10},
+    {"*XmPaned.sashHeight", 12, 10},
+    {"*XmSpinBox.marginWidth", 4, 2},
+    {"*XmSpinBox.marginHeight", 4, 2},
+    {"*XmSimpleSpinBox.marginWidth", 4, 2},
+    {"*XmSimpleSpinBox.marginHeight", 4, 2},
+    {"*XmComboBox.marginWidth", 4, 2},
+    {"*XmComboBox.marginHeight", 4, 2}
 };
 
 typedef enum {
@@ -452,6 +483,9 @@ typedef enum {
     AP_DIVIDER_SPACING,
     AP_OUTLINE_LINE_STYLE,
     AP_OUTLINE_INDENT_SPACE,
+    AP_SASH_WIDTH,
+    AP_SASH_HEIGHT,
+    AP_SASH_SHADOW_THICKNESS,
     AP_COUNT
 } AppearanceProperty;
 
@@ -611,7 +645,8 @@ appearance_property_name(AppearanceProperty property)
         XmNtabMarginWidth, XmNtabMarginHeight, XmNtabMode, XmNexpandedStatePixmap, XmNcollapsedStatePixmap, XmNiconLabelSpacing,
         XmNhorizontalMargin, XmNverticalMargin, XmNiconTextPadding, XmNalignment,
         XmNformSectionMarginWidth, XmNformSectionMarginHeight, XmNformSectionSpacing,
-        XmNavatarSize, XmNdividerSpacing, XmNoutlineLineStyle, XmNindentSpace
+        XmNavatarSize, XmNdividerSpacing, XmNoutlineLineStyle, XmNindentSpace,
+        XmNsashWidth, XmNsashHeight, XmNsashShadowThickness
     };
     return names[property];
 }
@@ -633,7 +668,9 @@ appearance_property_is_dimension(AppearanceProperty property)
            property == AP_VERTICAL_MARGIN || property == AP_ICON_TEXT_PADDING ||
            property == AP_SECTION_MARGIN_WIDTH || property == AP_SECTION_MARGIN_HEIGHT ||
            property == AP_SECTION_SPACING || property == AP_AVATAR_SIZE ||
-           property == AP_DIVIDER_SPACING || property == AP_OUTLINE_INDENT_SPACE;
+           property == AP_DIVIDER_SPACING || property == AP_OUTLINE_INDENT_SPACE ||
+           property == AP_SASH_WIDTH || property == AP_SASH_HEIGHT ||
+           property == AP_SASH_SHADOW_THICKNESS;
 }
 
 static Boolean
@@ -1128,6 +1165,31 @@ _XmAppearanceDefersLayout(Display *display)
     return state != NULL && state->defer_layout;
 }
 
+Boolean
+_XmAppearanceInGeometryTransaction(Display *display)
+{
+    XmAppearanceDisplayState *state = find_display_state(display);
+    return state != NULL && state->committing_geometry;
+}
+
+Boolean
+_XmAppearanceDimensionConstrained(Widget widget, unsigned int axis)
+{
+    XmAppearanceWidgetState *state;
+    Boolean constrained = False;
+    if (widget == NULL || axis >= 2)
+        return False;
+    _XmProcessLock();
+    for (state = appearance_widgets; state != NULL; state = state->next)
+        if (!state->retired && state->widget == widget) {
+            constrained = state->dimension_argument[axis] ||
+                          state->constrained_dimension[axis];
+            break;
+        }
+    _XmProcessUnlock();
+    return constrained;
+}
+
 static XmAppearanceWidgetState *
 find_live_widget_state(Widget widget)
 {
@@ -1477,7 +1539,8 @@ appearance_create_font(Widget widget, unsigned char role, double scale)
         XftFont *font = XftFontOpen(display, XScreenNumberOfScreen(XtScreenOfObject(widget)),
             XFT_FAMILY, XftTypeString, mono ? "monospace" : "sans-serif",
             XFT_PIXEL_SIZE, XftTypeDouble, pixels,
-            XFT_WEIGHT, XftTypeInteger, bold ? XFT_WEIGHT_BOLD : XFT_WEIGHT_MEDIUM, NULL);
+            XFT_WEIGHT, XftTypeInteger, bold ? XFT_WEIGHT_BOLD : XFT_WEIGHT_MEDIUM,
+            XFT_RGBA, XftTypeInteger, XFT_RGBA_NONE, NULL);
         if (font == NULL) return NULL;
         XtSetArg(args[count], XmNfontType, XmFONT_IS_XFT); ++count;
         XtSetArg(args[count], XmNfontName, mono ? "monospace" : "sans-serif"); ++count;
@@ -1588,6 +1651,13 @@ appearance_widget_prepare(XmAppearanceWidgetState *state,
          * valid thickness change as a forbidden border-width request. */
         if (property == AP_BORDER_WIDTH && XmIsScrollBar(state->widget) &&
             XtParent(state->widget) && XmIsScrolledWindow(XtParent(state->widget)))
+            continue;
+        /* PanedWindow and Paned manage child sash shadowThickness through
+         * XmNsashShadowThickness on the parent composite. */
+        if (property == AP_SHADOW_THICKNESS && XmIsSash(state->widget) &&
+            XtParent(state->widget) &&
+            (XmIsPanedWindow(XtParent(state->widget)) ||
+             XtIsSubclass(XtParent(state->widget), xmPanedWidgetClass)))
             continue;
         if (property == AP_RENDER_TABLE) {
             XmRenderTable inherited = appearance_inherited_application_font(state);
@@ -2089,7 +2159,20 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     state->parent = state->gadget ? XtParent(widget) : NULL;
     state->display = XtDisplayOfObject(widget);
     state->explicit_role = appearance_has_argument(args, num_args, XmNappearanceRole);
-    appearance_dimension_arguments(state, args, num_args);
+    {
+        Widget parent = XtParent(widget);
+        Boolean paned_internal =
+            parent != NULL &&
+            (XmIsPanedWindow(parent) ||
+             XtIsSubclass(parent, xmPanedWidgetClass)) &&
+            (XmIsSash(widget) ||
+             ((XmIsSeparator(widget) || XmIsSeparatorGadget(widget)) &&
+              XtName(widget) != NULL &&
+              (strcmp(XtName(widget), "Separator") == 0 ||
+               strcmp(XtName(widget), "separator") == 0)));
+        if (!paned_internal)
+            appearance_dimension_arguments(state, args, num_args);
+    }
     for (unsigned int kind = 0; kind < 3; ++kind)
         for (unsigned int alias = 0; alias < XtNumber(appearance_provider_font_names[0]); ++alias)
             if (appearance_provider_font_names[kind][alias] &&
@@ -2263,6 +2346,16 @@ appearance_apply_subtree(Display *display, Widget root,
             _XmDropDownRefreshGeometry(state->widget);
         else if (XtIsSubclass(state->widget,xmFontSelectorWidgetClass))
             _XmFontSelectorRefreshPreview(state->widget);
+        else if (XmIsContainer(state->widget))
+            _XmContainerRefreshGeometry(state->widget);
+    }
+    for (size_t i = count; i-- > 0; ) {
+        state = snapshot[i];
+        if (state->retired || !state->widget) continue;
+        if (XmIsPanedWindow(state->widget))
+            _XmPanedWindowRefreshGeometry(state->widget);
+        else if (XtIsSubclass(state->widget, xmPanedWidgetClass))
+            _XmPanedRefreshGeometry(state->widget);
     }
     if (display_state != NULL)
         display_state->committing_geometry = False;

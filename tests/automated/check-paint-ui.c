@@ -50,7 +50,12 @@ static void check_icon(Widget w)
         assert(abs(2*origin_x+(int)pw-(int)width)<=1);
         assert(abs(2*origin_y+(int)ph-(int)height)<=1);
         XtVaGetValues(w,XmNbackground,&bg,NULL);image=XGetImage(app.display,pix,0,0,pw,ph,AllPlanes,ZPixmap);assert(image);
-        for(j=0;j<(int)ph;++j)for(i=0;i<(int)pw;++i)if(XGetPixel(image,i,j)!=bg){if(i<left)left=i;if(i>right)right=i;if(j<top)top=j;if(j>bottom)bottom=j;}
+        for(j=0;j<(int)ph;++j)for(i=0;i<(int)pw;++i)if(XGetPixel(image,i,j)!=bg){
+            if(i<left)left=i;
+            if(i>right)right=i;
+            if(j<top)top=j;
+            if(j>bottom)bottom=j;
+        }
         XDestroyImage(image);assert(right>=left && bottom>=top);
         assert(abs(left+right+1-(int)pw)<=1 && abs(top+bottom+1-(int)ph)<=1);
         assert(origin_x+left>=5 && (int)width-origin_x-right-1>=5);
@@ -77,7 +82,10 @@ static int sample_tip(Widget tip, XRectangle *clip, const char *capture)
         if(x>0 && x<=(int)cw && y>0 && y<=(int)ch && color==fg)++ink;
         if(file){unsigned char rgb[3]={(unsigned char)(color>>16),(unsigned char)(color>>8),(unsigned char)color};fwrite(rgb,1,3,file);}
     }
-    if(file)fclose(file);XDestroyImage(im);return ink;
+    if(file)
+        fclose(file);
+    XDestroyImage(im);
+    return ink;
 }
 static void hover_tip(Widget w,const char *expected,int cancel_early)
 {

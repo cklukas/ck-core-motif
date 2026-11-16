@@ -94,7 +94,9 @@ static Pixmap render(Widget w,int icon,Pixel bg,Pixel ink,int disabled)
     case ICON_PASTE:box(&p,5,5,22,24,0xc69d61);box(&p,8,8,16,18,0xfffcf0);box(&p,11,3,10,6,0xb4c7d4);line(&p,11,14,21,14);line(&p,11,18,21,18);line(&p,11,22,18,22);break;
     case ICON_ZOOM_IN:case ICON_ZOOM_OUT:
         oval(&p,3,3,19,19,0xd9eff7,1);line(&p,20,20,29,29);line(&p,21,20,30,29);line(&p,7,12,18,12);
-        if(icon==ICON_ZOOM_IN)line(&p,12,7,12,18);break;
+        if(icon==ICON_ZOOM_IN)
+            line(&p,12,7,12,18);
+        break;
     case ICON_FIT:
         box(&p,3,5,26,22,0xe6edf4);box(&p,9,10,14,12,0xb1d0eb);line(&p,3,5,8,10);line(&p,29,5,24,10);line(&p,3,27,8,22);line(&p,29,27,24,22);break;
     case ICON_RESIZE:
@@ -107,7 +109,10 @@ static Pixmap render(Widget w,int icon,Pixel bg,Pixel ink,int disabled)
         int x,y,left=side,top=side,right=-1,bottom=-1;
         if(image) {
             for(y=0;y<side;++y)for(x=0;x<side;++x)if(XGetPixel(image,x,y)!=bg) {
-                if(x<left)left=x;if(x>right)right=x;if(y<top)top=y;if(y>bottom)bottom=y;
+                if(x<left)left=x;
+                if(x>right)right=x;
+                if(y<top)top=y;
+                if(y>bottom)bottom=y;
             }
             XDestroyImage(image);
             if(right>=left && bottom>=top) {

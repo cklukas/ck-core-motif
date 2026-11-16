@@ -68,6 +68,7 @@ static char *rcsid = "$TOG: RCMenu.c /main/25 1999/05/24 18:06:57 samborn $";
 #include <Xm/PrimitiveP.h>
 #include <Xm/SeparatoGP.h>
 #include <Xm/SeparatorP.h>
+#include <Xm/PushB.h>
 #include <Xm/ToggleB.h>
 #include <Xm/ToggleBG.h>
 #include <Xm/TraitP.h>
@@ -3849,4 +3850,80 @@ static Widget
 MenuPopupPosted(Widget w)
 {
   return(RC_PopupPosted(w));
+}
+
+Widget
+XmCreateContextMenuEntry(Widget menu, const XmContextMenuEntry *entry)
+{
+  XmRowColumnWidget rc;
+  Arg args[12];
+  Cardinal n = 0;
+  Widget item;
+  const char *name;
+
+  if (menu == NULL || entry == NULL || !XmIsRowColumn(menu) ||
+      menu->core.being_destroyed)
+    return NULL;
+  rc = (XmRowColumnWidget)menu;
+  if (RC_Type(rc) != XmMENU_POPUP && RC_Type(rc) != XmMENU_PULLDOWN)
+    return NULL;
+
+  if (entry->separator_before) {
+    Widget sep = XmCreateSeparatorGadget(menu, (char *)"separator", NULL, 0);
+    if (sep != NULL)
+      XtManageChild(sep);
+  }
+
+  name = (entry->name != NULL && entry->name[0] != '\0')
+             ? entry->name
+             : "contextEntry";
+  XtSetArg(args[n], XmNalignment, XmALIGNMENT_BEGINNING); n++;
+  if (entry->label != NULL) {
+    XtSetArg(args[n], XmNlabelString, entry->label); n++;
+  }
+  if (entry->icon != XmUNSPECIFIED_PIXMAP && entry->icon != None) {
+    XtSetArg(args[n], XmNlabelType, XmPIXMAP_AND_STRING); n++;
+    XtSetArg(args[n], XmNlabelPixmap, entry->icon); n++;
+    XtSetArg(args[n], XmNpixmapPlacement, XmPIXMAP_LEFT); n++;
+    XtSetArg(args[n], XmNpixmapTextPadding, 8); n++;
+  } else {
+    XtSetArg(args[n], XmNlabelType, XmSTRING); n++;
+  }
+  if (entry->accelerator_text != NULL) {
+    XtSetArg(args[n], XmNacceleratorText, entry->accelerator_text); n++;
+  }
+  if (entry->accelerator != NULL && entry->accelerator[0] != '\0') {
+    XtSetArg(args[n], XmNaccelerator, entry->accelerator); n++;
+  }
+  if (entry->mnemonic != NoSymbol) {
+    XtSetArg(args[n], XmNmnemonic, entry->mnemonic); n++;
+  }
+  XtSetArg(args[n], XmNsensitive, entry->sensitive ? True : False); n++;
+
+  item = XmCreatePushButton(menu, (char *)name, args, n);
+  if (item == NULL)
+    return NULL;
+  if (entry->callback != NULL)
+    XtAddCallback(item, XmNactivateCallback, entry->callback, entry->closure);
+  XtManageChild(item);
+  return item;
+}
+
+Boolean
+XmRowColumnSetContextMenuEntries(Widget menu,
+                                 const XmContextMenuEntry *entries,
+                                 Cardinal count)
+{
+  XmRowColumnWidget rc;
+  if (menu == NULL || !XmIsRowColumn(menu) || menu->core.being_destroyed ||
+      (count > 0 && entries == NULL))
+    return False;
+  rc = (XmRowColumnWidget)menu;
+  if (RC_Type(rc) != XmMENU_POPUP && RC_Type(rc) != XmMENU_PULLDOWN)
+    return False;
+  for (Cardinal i = 0; i < count; ++i) {
+    if (XmCreateContextMenuEntry(menu, &entries[i]) == NULL)
+      return False;
+  }
+  return True;
 }

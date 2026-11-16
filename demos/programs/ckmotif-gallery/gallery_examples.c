@@ -471,7 +471,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         rows[2] = XmStringCreateLocalized((char *)"Third item");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNitems, rows, XmNitemCount, 3,
-                                          XmNvisibleItemCount, 3, XmNwidth, 300, NULL);
+                                          XmNvisibleItemCount, 3, NULL);
         XmStringFree(rows[0]); XmStringFree(rows[1]); XmStringFree(rows[2]);
         /* GALLERY-SOURCE-END */
     } else if (class == xmComboBoxWidgetClass) {
@@ -482,7 +482,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         rows[2] = XmStringCreateLocalized((char *)"Gamma");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNitems, rows, XmNitemCount, 3,
-                                          XmNvisibleItemCount, 3, XmNwidth, 300, NULL);
+                                          XmNvisibleItemCount, 3, NULL);
         XmStringFree(rows[0]); XmStringFree(rows[1]); XmStringFree(rows[2]);
         /* GALLERY-SOURCE-END */
     } else if (class == xmScaleWidgetClass || class == xmScrollBarWidgetClass) {
@@ -539,8 +539,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             {"Components", (XtPointer)"components"},
             {"Current", (XtPointer)"current"}
         };
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 420, XmNheight, 44, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmBreadcrumbBarSetSegments(example, segments, 3);
         XmBreadcrumbBarSetCurrentIndex(example, 2, False);
         /* GALLERY-SOURCE-END */
@@ -555,13 +554,13 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         example = XtVaCreateManagedWidget((char *)name, class, parent,
                                           XmNinfoMessage, (char *)"Changes saved",
                                           XmNinfoActionLabel, (char *)"Undo",
-                                          XmNwidth, 420, XmNheight, 48, NULL);
+                                          NULL);
         /* GALLERY-SOURCE-END */
     } else if (class == xmToastWidgetClass) {
         /* GALLERY-SOURCE-BEGIN: construction xmToastWidgetClass */
         label = XmStringCreateLocalized((char *)"Document saved successfully");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 360, XmNheight, 64, XmNtoastMessage, label,
+                                          XmNtoastMessage, label,
                                           XmNtoastTimeout, 0, NULL);
         XmToastShow(example);
         /* GALLERY-SOURCE-END */
@@ -593,8 +592,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         tab_labels[0] = XmStringCreateLocalized((char *)"Overview");
         tab_labels[1] = XmStringCreateLocalized((char *)"Details");
         tab_labels[2] = XmStringCreateLocalized((char *)"Activity");
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 420, XmNheight, 180, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         page_text = XmStringCreateLocalized((char *)"Overview content");
         page = XtVaCreateManagedWidget("overviewPage", xmLabelWidgetClass,
                                       example, XmNtabLabelString, tab_labels[0],
@@ -633,8 +631,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         actions[1] = (XmToolbarAction){"save", labels[1], shortcuts[1], False, 0, NULL};
         actions[2] = (XmToolbarAction){"print", labels[2], shortcuts[2], True, 5, NULL};
         actions[3] = (XmToolbarAction){"undo", labels[3], shortcuts[3], True, 4, NULL};
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 420, XmNheight, 48, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmToolbarSetActions(example, actions, 4);
         {
             static const char *const icons[]={"action_open","action_save","action_print","action_undo"};
@@ -669,7 +666,6 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             {(XtPointer)"docs", (XtPointer)"root", "Documentation", False, False}
         };
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 360,
                                           XmNtreeViewVisibleRows, 5, NULL);
         XmTreeViewSetNodes(example, nodes, XtNumber(nodes));
         XmTreeViewSetSelectedId(example, (XtPointer)"gallery", False);
@@ -690,7 +686,6 @@ gallery_create_component_example(Widget parent, WidgetClass class,
             {(XtPointer)"dialog", values2}
         };
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-                                          XmNwidth, 420, XmNheight, 140,
                                           XmNdataGridVisibleRows, 4, NULL);
         XmDataGridSetModel(example, columns, XtNumber(columns), rows,
                            XtNumber(rows));
@@ -732,8 +727,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         values[0] = XmStringCreateLocalized((char *)"Draft");
         values[1] = XmStringCreateLocalized((char *)"Reviewed");
         values[2] = XmStringCreateLocalized((char *)"Published");
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 320, XmNheight, 44, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmListAddItems(XmDropDownGetList(example), values, 3, 1);
         XmTextFieldSetString(XmDropDownGetText(example), "Draft");
         label = XmStringCreateLocalized((char *)"Status");
@@ -752,7 +746,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         }
 
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNtabList, tabs, XmNwidth, 480, XmNheight, 48, NULL);
+            XmNtabList, tabs, NULL);
         XmTabbedStackListFree(tabs);
         /* GALLERY-SOURCE-END */
     } else if (class == xmOutlineWidgetClass || class == xmTreeWidgetClass) {
@@ -815,17 +809,13 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         XmStatusBarItem item = {0};
         label = XmStringCreateLocalized((char *)"All changes saved");
         item.id = "save"; item.label = label; item.kind = XmSTATUS_BAR_ITEM_TEXT;
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 480, XmNheight, 40, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         XmStatusBarSetItems(example, &item, 1);
         /* GALLERY-SOURCE-END */
     } else if (class == xmDisclosureWidgetClass || class == xmSidebarWidgetClass) {
         /* GALLERY-SOURCE-BEGIN: construction xmDisclosureWidgetClass xmSidebarWidgetClass */
         Widget content;
-        example = class == xmDisclosureWidgetClass ?
-            XtVaCreateManagedWidget((char *)name, class, parent, NULL) :
-            XtVaCreateManagedWidget((char *)name, class, parent,
-                XmNwidth, 360, XmNheight, 180, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         if (class == xmDisclosureWidgetClass) {
             label = XmStringCreateLocalized((char *)"Document options");
             XtVaSetValues(example, XmNlabelString, label, NULL);
@@ -848,8 +838,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         XmCommandPaletteItem commands[3];
         XmRowActionItem actions[3];
         unsigned int i;
-        example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNwidth, 480, XmNheight, class == xmCommandPaletteWidgetClass ? 240 : 48, NULL);
+        example = XtVaCreateManagedWidget((char *)name, class, parent, NULL);
         for (i = 0; i < 3; ++i) {
             captions[i] = XmStringCreateLocalized((char *)names[i]);
             shortcuts[i] = XmStringCreateLocalized((char *)keys[i]);
@@ -890,8 +879,7 @@ gallery_create_component_example(Widget parent, WidgetClass class,
         /* GALLERY-SOURCE-BEGIN: construction xmDropHighlightWidgetClass */
         label = XmStringCreateLocalized((char *)"Drop a document here");
         example = XtVaCreateManagedWidget((char *)name, class, parent,
-            XmNdropHighlightLabel, label,
-            XmNwidth, 360, XmNheight, 120, NULL);
+            XmNdropHighlightLabel, label, NULL);
         XmDropHighlightSetState(example, XmDROP_HIGHLIGHT_VALID);
         /* GALLERY-SOURCE-END */
     } else if (class == xmMessageBoxWidgetClass) {

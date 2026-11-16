@@ -28,6 +28,8 @@ def main():
         parser.error("--out must be a fresh absolute directory")
     source_root = Path(__file__).resolve().parents[2]
     fixture = source_root / "tests/automated/check-xlibre-dpi-contract.c"
+    selection_fixture = source_root / "tests/automated/check-xlibre-output-selection.c"
+    observer_fixture = source_root / "tests/automated/check-xlibre-shell-observer.c"
     header_root = source_root / "lib/Xm"
     output.mkdir(parents=True)
     source_files = [fixture, selection_fixture, observer_fixture,
@@ -52,6 +54,8 @@ def main():
     if args.display:
         env["DISPLAY"] = args.display
     binary = output / "check-xlibre-dpi-contract"
+    selection_binary = output / "check-xlibre-output-selection"
+    observer_binary = output / "check-xlibre-shell-observer"
     xrandr_flags = []
     if args.xrandr_root:
         xrandr_root = args.xrandr_root.resolve(strict=True)

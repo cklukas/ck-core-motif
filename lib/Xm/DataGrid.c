@@ -306,10 +306,61 @@ static void notify_edit_failed(XmDataGridWidget grid, XEvent *event) {
     XtCallCallbacks((Widget)grid, XmNdataGridEditFailedCallback, &callback);
 }
 
+static void datagrid_natural_size(XmDataGridWidget grid,
+                                  Dimension *width_out, Dimension *height_out) {
+    unsigned long cols = grid->data_grid.column_count ? grid->data_grid.column_count : 3;
+    unsigned long rows = grid->data_grid.row_count ? MIN((unsigned long)grid->data_grid.row_count, 6ul) : 3;
+    unsigned long col_w = 112;
+    unsigned long row_h = grid->data_grid.row_height ? grid->data_grid.row_height : 22;
+    unsigned long hdr_h = grid->data_grid.header_height ? grid->data_grid.header_height : 24;
+    if (grid->data_grid.render_table) {
+        XmString sample = XmStringCreateLocalized("Mg");
+        Dimension sw = 0, sh = 0;
+        if (sample) {
+            XmStringExtent(grid->data_grid.render_table, sample, &sw, &sh);
+            XmStringFree(sample);
+            if ((unsigned long)sh + 8 > row_h) row_h = (unsigned long)sh + 8;
+            if ((unsigned long)sh + 10 > hdr_h) hdr_h = (unsigned long)sh + 10;
+        }
+        for (Cardinal c = 0; c < grid->data_grid.column_count; ++c) {
+            const char *title = grid->data_grid.columns[c].title;
+            if (title) {
+                XmString s = XmStringCreateLocalized((char *)title);
+                Dimension tw = 0, th = 0;
+                if (s) {
+                    XmStringExtent(grid->data_grid.render_table, s, &tw, &th);
+                    XmStringFree(s);
+                    if ((unsigned long)tw + 24 > col_w)
+                        col_w = (unsigned long)tw + 24;
+                }
+            }
+            for (Cardinal r = 0; r < grid->data_grid.row_count; ++r) {
+                const char *v = grid->data_grid.rows[r].values ?
+                                grid->data_grid.rows[r].values[c] : NULL;
+                if (v) {
+                    XmString s = XmStringCreateLocalized((char *)v);
+                    Dimension tw = 0, th = 0;
+                    if (s) {
+                        XmStringExtent(grid->data_grid.render_table, s, &tw, &th);
+                        XmStringFree(s);
+                        if ((unsigned long)tw + 20 > col_w)
+                            col_w = (unsigned long)tw + 20;
+                    }
+                }
+            }
+        }
+    }
+    unsigned long total_w = MAX(280ul, cols * col_w);
+    unsigned long total_h = MAX(96ul, hdr_h + rows * row_h + 4);
+    *width_out = (Dimension)MIN(total_w, (unsigned long)USHRT_MAX);
+    *height_out = (Dimension)MIN(total_h, (unsigned long)USHRT_MAX);
+}
+
 static void Initialize(Widget request, Widget widget, ArgList args,
                        Cardinal *count) {
     XmDataGridWidget grid = (XmDataGridWidget)widget;
     XGCValues values;
+    Dimension nat_w, nat_h;
     (void)request; (void)args; (void)count;
     grid->data_grid.selected_row = grid->data_grid.selected_column = -1;
     grid->data_grid.row_height = grid->data_grid.row_height ?
@@ -326,8 +377,9 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     grid->data_grid.gc = XCreateGC(XtDisplay(widget),
                                    DefaultRootWindow(XtDisplay(widget)),
                                    GCForeground | GCBackground, &values);
-    if (!grid->core.width) grid->core.width = 480;
-    if (!grid->core.height) grid->core.height = 240;
+    datagrid_natural_size(grid, &nat_w, &nat_h);
+    if (!request->core.width) grid->core.width = nat_w;
+    if (!request->core.height) grid->core.height = nat_h;
     recompute_visible(grid);
     XtAddEventHandler(widget, KeyPressMask | ButtonPressMask, False, Events,
                       NULL);
@@ -381,6 +433,18 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget new_widget,
             grid->data_grid.render_table = old->data_grid.render_table;
             render_changed = False;
         }
+    }
+    if (render_changed ||
+        old->data_grid.row_height != grid->data_grid.row_height ||
+        old->data_grid.header_height != grid->data_grid.header_height) {
+        Dimension nat_w, nat_h;
+        datagrid_natural_size(grid, &nat_w, &nat_h);
+        if (request->core.width == old->core.width &&
+            !_XmAppearanceDimensionConstrained(new_widget, 0u))
+            grid->core.width = nat_w;
+        if (request->core.height == old->core.height &&
+            !_XmAppearanceDimensionConstrained(new_widget, 1u))
+            grid->core.height = nat_h;
     }
     recompute_visible(grid);
     redraw_needed = old->data_grid.row_height != grid->data_grid.row_height ||
@@ -592,7 +656,25 @@ Boolean XmDataGridSetModel(Widget widget, const XmDataGridColumn *columns,
         return False;
     result = copy_model((XmDataGridWidget)widget, columns, column_count, rows,
                         row_count);
-    if (result) redraw((XmDataGridWidget)widget);
+    if (result) {
+        XmDataGridWidget grid = (XmDataGridWidget)widget;
+        Boolean w_unconstrained = !_XmAppearanceDimensionConstrained(widget, 0u);
+        Boolean h_unconstrained = !_XmAppearanceDimensionConstrained(widget, 1u);
+        if (w_unconstrained || h_unconstrained) {
+            Dimension nat_w, nat_h, req_w, req_h, rep_w, rep_h;
+            datagrid_natural_size(grid, &nat_w, &nat_h);
+            req_w = w_unconstrained ? nat_w : grid->core.width;
+            req_h = h_unconstrained ? nat_h : grid->core.height;
+            if (req_w != grid->core.width || req_h != grid->core.height) {
+                XtGeometryResult res = XtMakeResizeRequest(widget, req_w, req_h,
+                                                           &rep_w, &rep_h);
+                if (res == XtGeometryAlmost)
+                    XtMakeResizeRequest(widget, rep_w, rep_h, NULL, NULL);
+                recompute_visible(grid);
+            }
+        }
+        redraw(grid);
+    }
     return result;
 }
 

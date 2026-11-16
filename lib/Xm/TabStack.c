@@ -1435,6 +1435,20 @@ SetValues(current, request, set, arg_list, arg_cnt)
 	    sfield(font_list) = XmeGetDefaultRenderTable(set, XmLABEL_FONTLIST);
 	}
 	sfield(font_list) = XmFontListCopy(sfield(font_list));
+	need_layout = True;
+	need_resize = True;
+	need_redraw = True;
+    }
+
+    if( cfield(tab_margin_width) != sfield(tab_margin_width) ||
+        cfield(tab_margin_height) != sfield(tab_margin_height) ||
+        cfield(tab_mode) != sfield(tab_mode) ||
+        cfield(tab_label_spacing) != sfield(tab_label_spacing) ||
+        cfield(highlight_thickness) != sfield(highlight_thickness) )
+    {
+	need_layout = True;
+	need_resize = True;
+	need_redraw = True;
     }
 
     if( cfield(tab_side) != sfield(tab_side) ||

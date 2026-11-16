@@ -251,7 +251,8 @@ static void canvas_event(Widget w, XtPointer p, XEvent *e, Boolean *cont)
     if(e->type==ButtonPress && (e->xbutton.button==4 || e->xbutton.button==5)) {
         app.offset_y+=e->xbutton.button==4?-48:48; redraw(); return;
     }
-    if(x<0)x=0; if(y<0)y=0;
+    if(x<0)x=0;
+    if(y<0)y=0;
     if(x>=app.doc.image.width)x=app.doc.image.width-1;
     if(y>=app.doc.image.height)y=app.doc.image.height-1;
     if(e->type==ButtonPress) {

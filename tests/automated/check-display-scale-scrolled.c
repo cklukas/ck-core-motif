@@ -34,7 +34,8 @@ main(int argc, char **argv)
                               &argc, argv, NULL, NULL);
     display = XtDisplay(shell);
     XtVaSetValues(shell, XmNwidth, (Dimension)100,
-                  XmNheight, (Dimension)100, NULL);
+                  XmNheight, (Dimension)100,
+                  XmNallowShellResize, True, NULL);
     if (!XmSetDisplayScaleOverride(display, 1.0))
         return fail("initial scale override failed");
     XtSetArg(automatic_args[0], XmNscrollingPolicy, XmAUTOMATIC);

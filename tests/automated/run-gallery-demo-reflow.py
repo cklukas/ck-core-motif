@@ -4,7 +4,7 @@ import argparse,platform
 from PIL import Image
 parser=argparse.ArgumentParser(description="Check visible demo descriptions after external resize on isolated Xvfb.")
 parser.add_argument('--prefix',type=Path,required=True)
-parser.add_argument('--binary',type=Path)
+parser.add_argument('--binary',type=Path,required=True)
 parser.add_argument('--out',type=Path,required=True)
 a=parser.parse_args();prefix=a.prefix.resolve(strict=True);binary=(a.binary or prefix/'bin/ckmotif-gallery').resolve(strict=True);o=a.out.resolve()
 if o.exists():parser.error('--out must be fresh')

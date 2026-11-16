@@ -8,11 +8,17 @@ parser.add_argument('--prefix',type=Path,required=True)
 parser.add_argument('--binary',type=Path)
 parser.add_argument('--gallery',type=Path)
 parser.add_argument('--out',type=Path,required=True)
-a=parser.parse_args();prefix=a.prefix.resolve(strict=True);exe=(a.binary or prefix/'share/Xm/airport/airport').resolve(strict=True);o=a.out.resolve()
+a=parser.parse_args();prefix=a.prefix.resolve(strict=True);o=a.out.resolve()
 if o.exists():parser.error('--out must be fresh')
 if platform.system()=='Darwin' and not any(base.parent.is_mount() and o.is_relative_to(base) for base in [Path('/Volumes/S8T/tmp'),Path('/Volumes/PRO-BLADE/tmp')]):parser.error('use a mounted Mac temporary volume')
 o.mkdir(parents=True);(o/'tmp').mkdir()
 e=dict(os.environ,TMPDIR=str(o/'tmp'),DYLD_LIBRARY_PATH=str(prefix/'lib'),LD_LIBRARY_PATH=str(prefix/'lib'),PATH='/opt/X11/bin:/opt/homebrew/bin:'+os.environ['PATH'],LC_ALL='en_US.UTF-8')
+if a.binary or (prefix/'share/Xm/airport/airport').exists():
+ exe=(a.binary or prefix/'share/Xm/airport/airport').resolve(strict=True)
+else:
+ root=Path(__file__).resolve().parents[2];exe=o/'airport'
+ cc=os.environ.get('CC','cc').split()
+ subprocess.run([*cc,'-std=c23','-D_POSIX_C_SOURCE=200809L','-O2','-I'+str(prefix/'include'),'-I'+str(root/'lib'),'-I/opt/X11/include',*(root/'demos/programs/airport'/n for n in ('main.c','dragsource.c','dropsite.c')),'-L'+str(prefix/'lib'),'-L/opt/X11/lib','-lXm','-lXt','-lX11','-o',str(exe)],env=e,check=True)
 library=prefix/('lib/libXm.9.dylib' if platform.system()=='Darwin' else 'lib/libXm.so')
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
 r={'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'binary':str(exe),'binary_sha256':sha(exe),'library_sha256':sha(library),'scope':'Real server input on isolated Xvfb; no desktop input','success':False,'cases':[],'runner_sha256':sha(Path(__file__))};procs=[];children=[]

@@ -440,12 +440,40 @@ static void Events(Widget widget, XtPointer data, XEvent *event,
     }
 }
 
+static void natural_size(XmBreadcrumbBarWidget bar, Dimension *width_out,
+                         Dimension *height_out) {
+    Cardinal i;
+    int width = 8;
+    for (i = 0; i < bar->breadcrumb.count; ++i) {
+        int item = item_width(bar, i);
+        if (width >= INT_MAX - item) {
+            width = INT_MAX;
+            break;
+        }
+        width += item;
+    }
+    *width_out = (Dimension)(width > 240 ? width : 240);
+    *height_out = 28;
+    if (modern_breadcrumb(bar)) {
+        XmString sample = XmStringCreateLocalized("Mg");
+        Dimension text_width = 0, text_height = 0;
+        if (sample && bar->breadcrumb.font)
+            XmStringExtent(bar->breadcrumb.font, sample, &text_width, &text_height);
+        XmStringFree(sample);
+        unsigned long height = MAX((unsigned long)breadcrumb_pixels(bar, 36),
+            (unsigned long)text_height +
+            (unsigned long)breadcrumb_pixels(bar, 16));
+        *width_out = (Dimension)MIN(MAX(width, 240), USHRT_MAX);
+        *height_out = (Dimension)MIN(height, USHRT_MAX);
+    }
+}
+
 static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
                          ArgList args, Cardinal *count) {
     XmBreadcrumbBarWidget old = (XmBreadcrumbBarWidget)old_widget;
     XmBreadcrumbBarWidget bar = (XmBreadcrumbBarWidget)widget;
     Boolean redraw = False;
-    (void)request; (void)args; (void)count;
+    (void)args; (void)count;
     if (old->breadcrumb.font != bar->breadcrumb.font) {
         XmFontList replacement = bar->breadcrumb.font
             ? XmFontListCopy(bar->breadcrumb.font)
@@ -457,6 +485,17 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         } else {
             bar->breadcrumb.font = old->breadcrumb.font;
         }
+    }
+    if (redraw || old->breadcrumb.max_visible != bar->breadcrumb.max_visible ||
+        old->breadcrumb.separator != bar->breadcrumb.separator) {
+        Dimension nat_w, nat_h;
+        natural_size(bar, &nat_w, &nat_h);
+        if (request->core.width == old->core.width &&
+            !_XmAppearanceDimensionConstrained(widget, 0u))
+            bar->core.width = nat_w;
+        if (request->core.height == old->core.height &&
+            !_XmAppearanceDimensionConstrained(widget, 1u))
+            bar->core.height = nat_h;
     }
     return redraw || old->breadcrumb.max_visible != bar->breadcrumb.max_visible ||
            old->breadcrumb.rtl != bar->breadcrumb.rtl ||
@@ -546,6 +585,21 @@ void XmBreadcrumbBarSetSegments(Widget widget,
     if (new_current < 0 && count)
         new_current = (int)count - 1;
     bar->breadcrumb.current = new_current;
+    {
+        Dimension nat_w, nat_h, req_w, req_h, rep_w, rep_h;
+        Boolean w_unconstrained = !_XmAppearanceDimensionConstrained(widget, 0u);
+        Boolean h_unconstrained = !_XmAppearanceDimensionConstrained(widget, 1u);
+        natural_size(bar, &nat_w, &nat_h);
+        req_w = w_unconstrained ? nat_w : bar->core.width;
+        req_h = h_unconstrained ? nat_h : bar->core.height;
+        if ((w_unconstrained || h_unconstrained) &&
+            (req_w != bar->core.width || req_h != bar->core.height)) {
+            XtGeometryResult res = XtMakeResizeRequest(widget, req_w, req_h,
+                                                       &rep_w, &rep_h);
+            if (res == XtGeometryAlmost)
+                XtMakeResizeRequest(widget, rep_w, rep_h, NULL, NULL);
+        }
+    }
     if (XtIsRealized(widget))
         _XmPaintInvalidate(widget);
 }

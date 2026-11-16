@@ -170,10 +170,12 @@ static void negotiate(XmSidebarWidget sidebar)
     if (sidebar->sidebar.initializing || sidebar->sidebar.laying_out)
         return;
     natural(sidebar, &width, &height);
-    /* A sidebar collapses along its horizontal axis. The parent owns the
-     * vertical allocation; using the hidden content's preferred height here
-     * shrinks the whole window and clips content when it reopens. */
-    height = sidebar->core.height;
+    /* A sidebar collapses along its horizontal axis. When collapsed or when the
+     * parent constrained the vertical allocation, preserve core.height so
+     * collapsing does not shrink the window and clip content when reopened. */
+    if (!sidebar->sidebar.expanded ||
+        _XmAppearanceDimensionConstrained((Widget)sidebar, 1u))
+        height = sidebar->core.height;
     result = XtMakeResizeRequest((Widget)sidebar, width, height, &reply_width,
                                  &reply_height);
     if (result == XtGeometryAlmost)

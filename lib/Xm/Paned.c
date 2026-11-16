@@ -2050,7 +2050,7 @@ SetChildrenPrefSizes(XmPanedWidget pw, Dimension off_size,
 	Pane pane = PaneInfo(*childP);
 
 	if (only_if_new && pane->prefs_inited)
-	    break;
+	    continue;
 
 	pane->prefs_inited = True;
 
@@ -2275,7 +2275,10 @@ GeometryManager(Widget w, XtWidgetGeometry *request, XtWidgetGeometry *reply)
     if (!(request->request_mode & CWHeight))
 	request->height = w->core.height;
 
-    if ((XtIsRealized((Widget)pw) && !pane->allow_resize)        ||
+    if ((XtIsRealized((Widget)pw) && !pane->allow_resize &&
+         !XtIsComposite(w) &&
+         !_XmAppearanceInGeometryTransaction(XtDisplay((Widget)pw)) &&
+         !XmPaned_resize_children_to_pref(pw)) ||
         ((GetRequestInfo(request, vert) == PaneSize(w, vert)) &&
 	 (GetRequestInfo(request, !vert) == PaneSize(w, !vert))))
     {
@@ -2935,11 +2938,8 @@ SetValues(Widget old, Widget request, Widget set,
     }
 
     if (num_sargs != 0) {
-	for ( childP = XmPaned_managed_children(set_pw) ;
-	      childP < XmPaned_managed_children(set_pw)
-		  + XmPaned_num_panes(set_pw);
-	      childP++ )
-	    if (HasSash(*childP)) 
+	ForAllChildren(set_pw, childP)
+	    if (IsPane(*childP) && HasSash(*childP))
 		XtSetValues(PaneInfo(*childP)->sash, sargs, num_sargs);
 
 	refigure = True;
@@ -3094,5 +3094,34 @@ Widget
 XmCreatePaned(Widget parent, String name, ArgList args, Cardinal num_args)
 {
     return(XtCreateWidget(name, xmPanedWidgetClass, parent, args, num_args));
+}
+
+void
+_XmPanedRefreshGeometry(Widget w)
+{
+    XmPanedWidget pw = (XmPanedWidget)w;
+    Boolean vert;
+    if (pw == NULL || !XtIsSubclass(w, xmPanedWidgetClass))
+        return;
+    vert = IsVert(pw);
+    for (Widget *childP = XmPaned_managed_children(pw);
+         childP < XmPaned_managed_children(pw) + XmPaned_num_panes(pw);
+         childP++) {
+        Pane pane = PaneInfo(*childP);
+        if (pane == NULL)
+            continue;
+        if (!_XmAppearanceDimensionConstrained(*childP, vert ? 1u : 0u) &&
+            pane->preferred_size == XmPanedAskChild) {
+            pane->prefs_inited = False;
+            pane->resize_to_pref = True;
+        }
+    }
+    if (!_XmAppearanceDimensionConstrained(w, 0u) &&
+        !_XmAppearanceDimensionConstrained(w, 1u)) {
+        ChangeManaged(w);
+    } else if (XmPaned_num_panes(pw) > 0) {
+        SetChildrenPrefSizes(pw, PaneSize(w, !vert), True, True);
+        RefigureLocationsAndCommit(w);
+    }
 }
 

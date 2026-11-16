@@ -678,20 +678,60 @@ SetValues(Widget old,
 
   if ((newW->core.sensitive != oldW->core.sensitive) ||
       (newW->core.ancestor_sensitive != oldW->core.ancestor_sensitive))
-    displayFlag = True;				
+    displayFlag = True;
+
+  if (newW->core.background_pixel != oldW->core.background_pixel ||
+      newW->manager.foreground != oldW->manager.foreground)
+    {
+      XGCValues GCvalues;
+      XtGCMask GCmask, unusedMask;
+      if (newW->spinBox.arrow_gc != NULL)
+        XtReleaseGC(new_w, newW->spinBox.arrow_gc);
+      if (newW->spinBox.insensitive_gc != NULL)
+        XtReleaseGC(new_w, newW->spinBox.insensitive_gc);
+      GCmask = GCForeground | GCBackground | GCGraphicsExposures;
+      GCvalues.foreground = newW->core.background_pixel;
+      GCvalues.background = newW->manager.foreground;
+      GCvalues.graphics_exposures = False;
+      newW->spinBox.arrow_gc = XtAllocateGC(new_w, 0, GCmask, &GCvalues,
+                                            0, GCFont);
+      GCmask |= GCFillStyle | GCStipple;
+      unusedMask = GCClipXOrigin | GCClipYOrigin | GCFont;
+      GCvalues.background = newW->core.background_pixel;
+      GCvalues.foreground = newW->manager.foreground;
+      GCvalues.fill_style = FillOpaqueStippled;
+      GCvalues.stipple = _XmGetInsensitiveStippleBitmap(new_w);
+      newW->spinBox.insensitive_gc = XtAllocateGC(new_w, 0, GCmask, &GCvalues,
+                                                  GCClipMask, unusedMask);
+      displayFlag = True;
+    }
 
   /*  Check for geo changes, if realized	*/
   if (XtIsRealized(new_w) &&
-      (reqW->spinBox.arrow_layout  != oldW->spinBox.arrow_layout ||
-      reqW->spinBox.margin_width  != oldW->spinBox.margin_width ||
-      reqW->spinBox.margin_height != oldW->spinBox.margin_height ||
-      reqW->spinBox.spacing       != oldW->spinBox.spacing ||
-      reqW->spinBox.arrow_size    != oldW->spinBox.arrow_size))
+      (reqW->spinBox.arrow_layout     != oldW->spinBox.arrow_layout ||
+       reqW->spinBox.margin_width     != oldW->spinBox.margin_width ||
+       reqW->spinBox.margin_height    != oldW->spinBox.margin_height ||
+       reqW->spinBox.spacing          != oldW->spinBox.spacing ||
+       reqW->spinBox.arrow_size       != oldW->spinBox.arrow_size ||
+       reqW->manager.shadow_thickness != oldW->manager.shadow_thickness))
     {
+      Boolean explicit_width = _XmAppearanceDimensionConstrained(new_w, 0u);
+      Boolean explicit_height = _XmAppearanceDimensionConstrained(new_w, 1u);
+      for (Cardinal i = 0; i < *num_args; ++i)
+        {
+          if (strcmp(args[i].name, XmNwidth) == 0)
+            explicit_width = True;
+          else if (strcmp(args[i].name, XmNheight) == 0)
+            explicit_height = True;
+        }
       spinG.width = 0;
       spinG.height = 0;
       
       GetSpinSize(new_w, &spinG.width, &spinG.height);
+      if (explicit_width && reqW->core.width > 0)
+        spinG.width = reqW->core.width;
+      if (explicit_height && reqW->core.height > 0)
+        spinG.height = reqW->core.height;
       XtWidth(new_w) = spinG.width;
       XtHeight(new_w) = spinG.height;
       
@@ -779,8 +819,10 @@ GeometryManager(Widget w,
   if (IsHeight(req))
     w->core.height = req->height;
   
-  spinG.width = 0;
-  spinG.height = 0;
+  spinG.width = _XmAppearanceDimensionConstrained(XtParent(w), 0u) ?
+                XtWidth(XtParent(w)) : 0;
+  spinG.height = _XmAppearanceDimensionConstrained(XtParent(w), 1u) ?
+                 XtHeight(XtParent(w)) : 0;
 
   GetSpinSize(XtParent(w), &spinG.width, &spinG.height);
 

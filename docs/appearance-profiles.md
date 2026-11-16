@@ -606,3 +606,27 @@ checks resource ownership, rendered row backgrounds, colored icon pixmaps, live
 theme/scale changes and explicit application overrides. This covers the case
 where stale appearance state previously skipped modern defaults on a replacement
 gadget.
+
+### Historical composite reflow, natural sizing, and context-menu entries (WP-46)
+
+`XmPanedWindow`, `XmPaned`, `XmSash`, `XmSpinBox`, `XmSimpleSpinBox`,
+`XmComboBox`, `XmTabBox`, `XmTabStack`, and `XmContainer` participate in
+creation-time and live `XmApplyAppearanceProfile` / `XmApplyAppearanceDensity`
+transactions:
+- `XmPanedWindow` and `XmPaned` apply profile-specific `shadowThickness` and
+  `sashShadowThickness` (`0` and `1` in `modern-light`/`modern-dark`, `2` in
+  `high-contrast`) and density-specific `marginWidth`, `marginHeight`,
+  `spacing`, `sashWidth`, and `sashHeight` (`12` in `comfortable`, `10` in
+  `compact`), and reflow unconstrained child panes bottom-up after child font
+  and margin updates commit.
+- `XmSpinBox` refreshes its arrow and insensitive GCs when `background` or
+  `foreground` changes and preserves caller-constrained `XmNwidth` / `XmNheight`
+  during live margin and shadow-thickness updates.
+- `XmBreadcrumbBar`, `XmDropHighlight`, `XmInfoBar`, `XmDataGrid`, `XmTreeView`,
+  `XmSidebar`, and `XmCommandPalette` compute natural font- and model-backed
+  dimensions when constructed without explicit `XmNwidth` / `XmNheight`.
+- `<Xm/RowColumn.h>` provides `XmContextMenuEntry`,
+  `XmCreateContextMenuEntry`, and `XmRowColumnSetContextMenuEntries` for opt-in
+  icon, mnemonic, separator, and right-aligned `XmNacceleratorText` entries in
+  `XmMENU_POPUP` and `XmMENU_PULLDOWN` menus.
+- Qualified under Xvfb by `tests/automated/run-wp46-composite-polish.py`.

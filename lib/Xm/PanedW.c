@@ -1640,7 +1640,9 @@ GeometryManager(
 
     /* disallow resizes if flag for this pane says no */
     /* why this realized test ? */
-    if (XtIsRealized((Widget)pw) && !pane->allow_resize)
+    if (XtIsRealized((Widget)pw) && !pane->allow_resize &&
+        !XtIsComposite(w) &&
+        !_XmAppearanceInGeometryTransaction(XtDisplay((Widget)pw)))
       return XtGeometryNo;
 
     /* reject attempts that do not want to adjust height or width */
@@ -2398,7 +2400,12 @@ SetValues(
           }
      }
 	/* make the windows match the new locations */
-	CommitNewLocations(newpw,NULL);
+	if (newpw->paned_window.pane_count > 0)
+	    RefigureLocationsAndCommit(newpw,
+	                               newpw->paned_window.pane_count - 1,
+	                               LastPane, True);
+	else
+	    CommitNewLocations(newpw,NULL);
    }
    if (oldpw->paned_window.margin_width != newpw->paned_window.margin_width) {
       int64_t margin_delta =
@@ -2701,4 +2708,45 @@ XmVaCreateManagedPanedWindow(
                          var, count);
     va_end(var);   
     return w;
+}
+
+void
+_XmPanedWindowRefreshGeometry(Widget w)
+{
+    XmPanedWindowWidget pw = (XmPanedWindowWidget)w;
+    if (pw == NULL || !XmIsPanedWindow(w))
+        return;
+    for (int i = 0; i < pw->paned_window.pane_count; ++i) {
+        Widget child = pw->paned_window.managed_children[i];
+        XmPanedWindowConstraintPart *pane;
+        XtWidgetGeometry preferred;
+        if (child == NULL || !XtIsManaged(child))
+            continue;
+        pane = &(PaneInfo(child)->panedw);
+        if (_XmAppearanceDimensionConstrained(
+                child, Horizontal(pw) ? 0u : 1u))
+            continue;
+        if (XtQueryGeometry(child, NULL, &preferred) != XtGeometryNo) {
+            if (!Horizontal(pw) && (preferred.request_mode & CWHeight) &&
+                preferred.height > 0) {
+                Dimension dsize = preferred.height;
+                if (dsize < pane->min) dsize = pane->min;
+                if (dsize > pane->max) dsize = pane->max;
+                PaneDMajor(child) = dsize;
+            } else if (Horizontal(pw) && (preferred.request_mode & CWWidth) &&
+                       preferred.width > 0) {
+                Dimension dsize = preferred.width;
+                if (dsize < pane->min) dsize = pane->min;
+                if (dsize > pane->max) dsize = pane->max;
+                PaneDMajor(child) = dsize;
+            }
+        }
+    }
+    if (!_XmAppearanceDimensionConstrained(w, 0u) &&
+        !_XmAppearanceDimensionConstrained(w, 1u)) {
+        ChangeManaged(w);
+    } else if (pw->paned_window.pane_count > 0) {
+        RefigureLocationsAndCommit(pw, pw->paned_window.pane_count - 1,
+                                   LastPane, True);
+    }
 }

@@ -7287,9 +7287,8 @@ SizeOutlineButton(
 		  XmNwidth,&width,XmNheight,&height,NULL);
     cw->container.ob_width = MAX(cw->container.ob_width,width);
     cw->container.ob_height = MAX(cw->container.ob_height,height);
-    XmAppearanceProfile profile;
-    if (XmGetAppearanceProfile(XtDisplay(wid), &profile) &&
-        (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) &&
+    XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplay(wid));
+    if ((profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) &&
         (_XmAppearanceOwnsResource(wid, XmNexpandedStatePixmap) ||
          _XmAppearanceOwnsResource(wid, XmNcollapsedStatePixmap))) {
         Dimension extent = _XmDpiDefaultDimension(wid, 20);
@@ -7561,6 +7560,8 @@ CreateIconHeader(
 
     cw->container.icon_header = 
 	XmCreateIconHeader(header_parent, HEADERNAME, sargs,n);
+    if (cw->container.icon_header != NULL)
+        _XmAppearanceInheritFont(cw->container.icon_header, wid);
 
     if (scrollp == XmAUTOMATIC) {
 	/* set y of the container so that it glue the
@@ -11208,4 +11209,18 @@ XmVaCreateManagedContainer(
                          var, count);
     va_end(var);   
     return w;
+}
+
+void
+_XmContainerRefreshGeometry(Widget wid)
+{
+    XmContainerWidget cw = (XmContainerWidget)wid;
+    if (cw == NULL || !XmIsContainer(wid))
+        return;
+    SizeOutlineButton(wid);
+    if (cw->container.dynamic_resource & FIRSTCW)
+        cw->container.first_col_width = INVALID_DIMENSION;
+    ChangeManaged(wid);
+    if (XtIsRealized(wid))
+        XClearArea(XtDisplay(wid), XtWindow(wid), 0, 0, 0, 0, True);
 }

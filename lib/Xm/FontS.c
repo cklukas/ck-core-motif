@@ -2674,6 +2674,7 @@ CreateChildren(XmFontSelectorWidget fsw, ArgList args, Cardinal num_args)
 
     num_largs = 0;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
+    XtSetArg(largs[num_largs], XmNallowResize, True); num_largs++;
     margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;
@@ -2733,6 +2734,7 @@ CreateTopWidgets(XmFontSelectorWidget fsw, Widget parent,
     XtSetArg(largs[num_largs], XmNshadowThickness, 2); num_largs++;
     XtSetArg(largs[num_largs], XmNindicatorOn, False); num_largs++;
     XtSetArg(largs[num_largs], XmNskipAdjust, True); num_largs++;
+    XtSetArg(largs[num_largs], XmNallowResize, True); num_largs++;
     margs = FontSelectorMergeArgLists(largs, num_largs, args, num_args);
     if (margs == NULL)
 	return;

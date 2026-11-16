@@ -4,6 +4,20 @@ The current ABI 9 appearance cohort is documented in
 [modern integration qualification](modern-integration-qualification.md).
 The dated ABI 8 results below are historical and do not qualify ABI 9 binaries.
 
+The WP-46 historical-widget modern appearance, natural-sizing, and context-menu
+increment (2026-11-16) completes modern/high-contrast and comfortable/compact
+density styling and live reflow for `XmPanedWindow`, `XmPaned`, `XmSash`,
+`XmSpinBox`, `XmSimpleSpinBox`, `XmComboBox`, `XmTabBox`, `XmTabStack`, and
+`XmContainer`, adds natural font/model sizing for `XmBreadcrumbBar`,
+`XmDropHighlight`, `XmInfoBar`, `XmDataGrid`, `XmTreeView`, `XmSidebar`, and
+`XmCommandPalette`, removes redundant hardcoded `ckmotif-gallery` dimensions,
+and adds `XmContextMenuEntry` / `XmCreateContextMenuEntry` /
+`XmRowColumnSetContextMenuEntries` in `<Xm/RowColumn.h>`, validated under Xvfb
+by `tests/automated/run-wp46-composite-polish.py`,
+`tests/automated/run-container-appearance.py`,
+`tests/automated/run-periodic-appearance.py`, and
+`tests/automated/run-gallery-integration.py`.
+
 The WP-45 declarative `Xrm` startup appearance and density increment (2026-11-16)
 adds public `XmNappearanceProfile` / `XmCAppearanceProfile` and
 `XmNappearanceDensity` / `XmCAppearanceDensity` macros in `<Xm/Appearance.h>`

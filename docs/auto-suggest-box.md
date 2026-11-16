@@ -74,9 +74,9 @@ Shared factory locals: Widget example; XmString label = NULL.
 The shared factory frees label, attaches callbacks and sizes the preview.
 Helpers and the complete factory are in gallery_examples.c.
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L295-L323
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L298-L326
 
-<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L546-L548
+<<< @/demos/programs/ckmotif-gallery/gallery_examples.c#L548-L550
 
 [Complete demo source](../demos/programs/ckmotif-gallery/gallery_examples.c) · [Public header](../lib/Xm/AutoSuggestBox.h)
 

@@ -63,6 +63,8 @@ static XmString make_display_string(XmString label, XmString shortcut) {
     return combined;
 }
 
+static void negotiate(XmCommandPaletteWidget palette);
+
 static void rebuild(XmCommandPaletteWidget palette)
 {
     char *filter;
@@ -125,9 +127,14 @@ static void rebuild(XmCommandPaletteWidget palette)
     }
     XtFree(filter);
     palette->palette.visible_count = visible;
+    XtVaSetValues(palette->palette.list,
+                  XmNvisibleItemCount,
+                  (int)(visible > 0 ? (visible > 6 ? 6 : visible) : 3),
+                  NULL);
     if (visible)
         XmListSelectPos(palette->palette.list, 1, False);
     palette->palette.filtering = False;
+    negotiate(palette);
 }
 static void natural(XmCommandPaletteWidget palette, Dimension *width, Dimension *height) { Dimension sw, sh, lw, lh; preferred(palette->palette.search, &sw, &sh); preferred(palette->palette.list, &lw, &lh); *width = sw > lw ? sw : lw; if (*width < 240) *width = 240; *height = clamp_dimension((unsigned long)sh + (lh ? lh : 120)); }
 static void layout(XmCommandPaletteWidget palette) { Dimension sw, sh, width, list_height; Position list_y; if (palette->palette.initializing || palette->palette.laying_out) return; palette->palette.laying_out = True; preferred(palette->palette.search, &sw, &sh); width = palette->core.width ? palette->core.width : 240; if (palette->palette.search != NULL) XmeConfigureObject(palette->palette.search, 0, 0, width, sh, 0); if (palette->palette.list != NULL) { list_y = list_position(sh); list_height = palette->core.height > sh ? palette->core.height - sh : 1; if ((unsigned long)list_height > (unsigned long)SHRT_MAX - (unsigned long)list_y) list_height = (Dimension)((unsigned long)SHRT_MAX - (unsigned long)list_y); if (!list_height) list_height = 1; XmeConfigureObject(palette->palette.list, 0, list_y, width, list_height, 0); } palette->palette.laying_out = False; }

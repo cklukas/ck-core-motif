@@ -59,6 +59,7 @@
 #include "UniqueEvnI.h"
 #include "XmI.h"
 #include "XmStringI.h"
+#include "AppearanceDrawI.h"
 
 #define FIX_1250
 #define FIX_1473
@@ -3111,14 +3112,17 @@ DrawShadows(Widget widget)
   Dimension shadow_height = (XtHeight(widget) > 2 * offset) ?
       XtHeight(widget) - 2 * offset : 1;
 
-  XmeDrawShadows(XtDisplay(widget), XtWindow(widget),
-		 cb->manager.top_shadow_GC,
-		 cb->manager.bottom_shadow_GC,
-		 offset, offset,
-		 shadow_width,
-		 shadow_height,
-		 MGR_ShadowThickness(cb),
-		 XmSHADOW_OUT);
+  if (!_XmAppearanceDrawFrameRegion(widget, offset, offset,
+                                    shadow_width, shadow_height,
+                                    MGR_ShadowThickness(cb)))
+    XmeDrawShadows(XtDisplay(widget), XtWindow(widget),
+		   cb->manager.top_shadow_GC,
+		   cb->manager.bottom_shadow_GC,
+		   offset, offset,
+		   shadow_width,
+		   shadow_height,
+		   MGR_ShadowThickness(cb),
+		   XmSHADOW_OUT);
 }
 
 /*

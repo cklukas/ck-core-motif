@@ -37,11 +37,11 @@ int main(int argc,char **argv){
    XImage *image=snapshot(widget);CHECK(image!=NULL);unsigned long bg=bar->core.background_pixel,fg=bar->primitive.foreground,accent=bar->primitive.highlight_color;unsigned accent_pixels=0;
    /* No inverted rectangle anywhere along the quiet top strip. */
    for(unsigned x=6;x<600;x++)CHECK(XGetPixel(image,x,5)==bg);
-   for(unsigned y=8;y<widget->core.height-5;y++)for(unsigned x=4;x<600;x++)if(XGetPixel(image,x,y)==accent)accent_pixels++;
+   for(unsigned y=8;y<(unsigned)(widget->core.height-5);y++)for(unsigned x=4;x<600;x++)if(XGetPixel(image,x,y)==accent)accent_pixels++;
    CHECK(fg!=bg);CHECK(accent_pixels>10);XDestroyImage(image);
    /* Explicit strings, including slash, override automatic chevrons. */
    XImage *before=snapshot(widget);XtVaSetValues(widget,XmNbreadcrumbSeparator,"/",NULL);settle(app,d);CHECK(!strcmp(bar->breadcrumb.separator,"/"));XImage *after=snapshot(widget);unsigned different=0;
-   for(unsigned y=8;y<widget->core.height-5;y++)for(unsigned x=4;x<600;x++)different+=XGetPixel(before,x,y)!=XGetPixel(after,x,y);
+   for(unsigned y=8;y<(unsigned)(widget->core.height-5);y++)for(unsigned x=4;x<600;x++)different+=XGetPixel(before,x,y)!=XGetPixel(after,x,y);
    CHECK(different>10);XDestroyImage(before);XDestroyImage(after);XtVaSetValues(widget,XmNbreadcrumbSeparator,NULL,NULL);settle(app,d);
   }
   key(widget,rtl?XK_Right:XK_Left);CHECK(XmBreadcrumbBarGetCurrentIndex(widget)==1);key(widget,XK_Return);CHECK(activations>0);

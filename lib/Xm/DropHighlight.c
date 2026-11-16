@@ -87,19 +87,32 @@ static XmString copy_string(XmString value)
     return XmStringCopy(value);
 }
 
+static void natural_size(XmDropHighlightWidget highlight,
+                         Dimension *width_out, Dimension *height_out)
+{
+    Dimension label_width = 0, label_height = 0;
+    if (highlight->drop_highlight.label && highlight->drop_highlight.font)
+        XmStringExtent(highlight->drop_highlight.font,
+                       highlight->drop_highlight.label,
+                       &label_width, &label_height);
+    *width_out = bounded_dimension(
+        MAX((size_t)240, (size_t)label_width +
+                         2 * ((size_t)highlight->drop_highlight.thickness + 16)));
+    *height_out = bounded_dimension(
+        MAX((size_t)64, (size_t)label_height +
+                        2 * ((size_t)highlight->drop_highlight.thickness + 16)));
+}
+
 static void Initialize(Widget request, Widget widget, ArgList args,
                        Cardinal *count)
 {
     XmDropHighlightWidget highlight = (XmDropHighlightWidget)widget;
+    Dimension nat_w, nat_h;
     (void)request;
     (void)args;
     (void)count;
     if (!valid_state(highlight->drop_highlight.state))
         highlight->drop_highlight.state = XmDROP_HIGHLIGHT_NONE;
-    if (!highlight->core.width)
-        highlight->core.width = 1;
-    if (!highlight->core.height)
-        highlight->core.height = 1;
     highlight->drop_highlight.label = copy_string(
         highlight->drop_highlight.label);
     if (!highlight->drop_highlight.font)
@@ -108,6 +121,11 @@ static void Initialize(Widget request, Widget widget, ArgList args,
     else
         highlight->drop_highlight.font = XmFontListCopy(
             highlight->drop_highlight.font);
+    natural_size(highlight, &nat_w, &nat_h);
+    if (!request->core.width)
+        highlight->core.width = nat_w;
+    if (!request->core.height)
+        highlight->core.height = nat_h;
 }
 
 static void Destroy(Widget widget)
@@ -211,6 +229,16 @@ static Boolean SetValues(Widget old_widget, Widget request, Widget widget,
         } else {
             highlight->drop_highlight.font = old->drop_highlight.font;
         }
+    }
+    if (redraw) {
+        Dimension nat_w, nat_h;
+        natural_size(highlight, &nat_w, &nat_h);
+        if (request->core.width == old->core.width &&
+            !_XmAppearanceDimensionConstrained(widget, 0u))
+            highlight->core.width = nat_w;
+        if (request->core.height == old->core.height &&
+            !_XmAppearanceDimensionConstrained(widget, 1u))
+            highlight->core.height = nat_h;
     }
     return redraw;
 }

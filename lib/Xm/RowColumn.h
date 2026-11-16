@@ -107,6 +107,27 @@ extern Widget XmVaCreateManagedRowColumn(
                         char *name,
                         ...);
 
+typedef struct _XmContextMenuEntry {
+    const char *name;
+    XmString label;
+    XmString accelerator_text;
+    String accelerator;
+    KeySym mnemonic;
+    Pixmap icon;
+    Boolean separator_before;
+    Boolean sensitive;
+    XtCallbackProc callback;
+    XtPointer closure;
+} XmContextMenuEntry;
+
+extern Widget XmCreateContextMenuEntry(
+                        Widget menu,
+                        const XmContextMenuEntry *entry);
+extern Boolean XmRowColumnSetContextMenuEntries(
+                        Widget menu,
+                        const XmContextMenuEntry *entries,
+                        Cardinal count);
+
 /********    End Public Function Declarations    ********/
 
 

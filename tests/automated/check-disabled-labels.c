@@ -40,7 +40,7 @@ static void glyphs(Widget w,Boolean accelerator,Boolean embossed,Boolean blue) {
     for(unsigned y=0;y<(unsigned)image->height;++y) for(unsigned x=0;x<(unsigned)image->width;++x) {
         unsigned long pixel=XGetPixel(image,x,y);
         unsigned r=channel(pixel,image->red_mask),g=channel(pixel,image->green_mask),b=channel(pixel,image->blue_mask);
-        if(r>g+20 && b>g+20)++purple;
+        if(g<128 && r>g+40 && b>g+40)++purple;
         if(r<240 || g<240 || b<240)++ink;
         if(b>r+20 && b>g+20)++blue_ink;
     }
