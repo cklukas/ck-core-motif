@@ -26,6 +26,7 @@
 #include <Xm/Screen.h>
 #include <Xm/Xm.h>
 #include "XmI.h"
+#include "ColorObjI.h"
 #include "RowColumnP.h"
 #include "RCLayoutI.h"
 #include <Xm/RepType.h>
@@ -1473,8 +1474,23 @@ appearance_database_named_value(Widget widget, XrmDatabase database,
                                 XrmValue *value_return)
 {
     XrmRepresentation type;
-    return appearance_database_typed_value(widget, database, name,
-                                           resource_class, &type, value_return);
+    if (!appearance_database_typed_value(widget, database, name,
+                                         resource_class, &type, value_return))
+        return False;
+    if (widget != NULL) {
+        Display *display = XtDisplayOfObject(widget);
+        XmColorObj color_obj = _XmColorObjForDisplay(display);
+        if (color_obj != NULL && color_obj->color_obj.colorIsRunning &&
+            database == XrmGetDatabase(display)) {
+            if (type == XrmStringToQuark(XmRPixel))
+                return False;
+            if (type == XrmStringToQuark(XmRString) &&
+                value_return != NULL && value_return->addr != NULL &&
+                strstr((const char *)value_return->addr, "-dt-interface ") != NULL)
+                return False;
+        }
+    }
+    return True;
 }
 
 static Boolean

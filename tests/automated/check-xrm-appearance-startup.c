@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include <X11/Xlib.h>
+#include <X11/Xatom.h>
 #include <X11/Intrinsic.h>
 #include <Xm/Appearance.h>
 #include <Xm/Form.h>
@@ -360,6 +361,143 @@ run_precedence_and_warnings(int argc, char **argv)
     return EXIT_SUCCESS;
 }
 
+static int
+run_colorobj_appearance_interop(int argc, char **argv)
+{
+    Display *server = NULL, *display = NULL;
+    Window owner;
+    Colormap server_cmap;
+    XColor c_bg, c_fg, c_ts, c_bs, c_sc, exact;
+    char set[128], blob[1100];
+    char *p;
+    XtAppContext app;
+    Widget shell, form, label, button, text, list, explicit_toggle;
+    XmRenderTable rt_dark = NULL, rt_classic = NULL;
+    char *co_argv[] = {
+        argv[0],
+        (char *)"-xrm", (char *)"*appearanceProfile: modern-dark",
+        (char *)"-xrm", (char *)"*FontList: -dt-interface system-medium-r-normal-m*-*-*-*-*-*-*-*-*:",
+        (char *)"-xrm", (char *)"*buttonFontList: -dt-interface system-medium-r-normal-m*-*-*-*-*-*-*-*-*:",
+        (char *)"-xrm", (char *)"*labelFontList: -dt-interface system-medium-r-normal-m*-*-*-*-*-*-*-*-*:",
+        (char *)"-xrm", (char *)"*textFontList: -dt-interface user-medium-r-normal-m*-*-*-*-*-*-*-*-*:",
+        (char *)"-xrm", (char *)"*explicitToggle.background: #445566",
+        NULL
+    };
+    int co_argc = 13;
+    int status = EXIT_FAILURE;
+    (void)argc;
+
+    server = XOpenDisplay(NULL);
+    if (server == NULL) {
+        fprintf(stderr, "cannot open server display\n");
+        return EXIT_FAILURE;
+    }
+    server_cmap = DefaultColormap(server, DefaultScreen(server));
+    if (!XAllocNamedColor(server, server_cmap, "#d8c0a8", &c_bg, &exact) ||
+        !XAllocNamedColor(server, server_cmap, "#112233", &c_fg, &exact) ||
+        !XAllocNamedColor(server, server_cmap, "#eeddcc", &c_ts, &exact) ||
+        !XAllocNamedColor(server, server_cmap, "#665544", &c_bs, &exact) ||
+        !XAllocNamedColor(server, server_cmap, "#bba088", &c_sc, &exact)) {
+        fprintf(stderr, "cannot allocate ColorObj test palette\n");
+        XCloseDisplay(server);
+        return EXIT_FAILURE;
+    }
+    snprintf(set, sizeof(set), "%lx_%lx_%lx_%lx_%lx_",
+             (unsigned long)c_bg.pixel, (unsigned long)c_fg.pixel,
+             (unsigned long)c_ts.pixel, (unsigned long)c_bs.pixel,
+             (unsigned long)c_sc.pixel);
+    p = blob;
+    memcpy(p, "1_", 2);
+    p += 2;
+    for (int i = 0; i < 8; ++i) {
+        size_t slen = strlen(set);
+        memcpy(p, set, slen);
+        p += slen;
+    }
+    *p++ = '1';
+
+    owner = XCreateSimpleWindow(server, DefaultRootWindow(server),
+                                0, 0, 1, 1, 0, 0, 0);
+    XChangeProperty(server, owner,
+                    XInternAtom(server, "SDT Pixel Set", False),
+                    XA_STRING, 8, PropModeReplace,
+                    (const unsigned char *)blob, (int)(p - blob));
+    XSetSelectionOwner(server,
+                       XInternAtom(server, "Customize Data:0", False),
+                       owner, CurrentTime);
+    XSync(server, False);
+
+    shell = XtVaAppInitialize(&app, "ColorObjAppearance", NULL, 0,
+                              &co_argc, co_argv, NULL,
+                              XmNwidth, 480, XmNheight, 240, NULL);
+    display = XtDisplay(shell);
+    form = XmCreateForm(shell, "form", NULL, 0);
+    label = XmCreateLabel(form, "label", NULL, 0);
+    button = XmCreatePushButton(form, "button", NULL, 0);
+    text = XmCreateTextField(form, "textField", NULL, 0);
+    list = XmCreateList(form, "list", NULL, 0);
+    explicit_toggle = XmCreateToggleButton(form, "explicitToggle", NULL, 0);
+
+    XtManageChildren((Widget[]){label, button, text, list, explicit_toggle}, 5);
+    XtManageChild(form);
+    XtRealizeWidget(shell);
+    XSync(display, False);
+    drain(app);
+
+    /* 1. Startup with active ColorObj and modern-dark must apply modern-dark
+     * background/foreground/highlight while preserving explicit String Xrm. */
+    XtVaGetValues(label, XmNrenderTable, &rt_dark, NULL);
+    if (!check_widget_color(label, XmNbackground, "#202124") ||
+        !check_widget_color(label, XmNforeground, "#f1f3f4") ||
+        !check_widget_color(button, XmNbackground, "#202124") ||
+        !check_widget_color(text, XmNbackground, "#202124") ||
+        !check_widget_color(list, XmNbackground, "#202124") ||
+        !check_widget_color(explicit_toggle, XmNbackground, "#445566") ||
+        rt_dark == NULL) {
+        fprintf(stderr, "ColorObj + modern-dark startup palette mismatch\n");
+        goto done;
+    }
+
+    /* 2. Switching to modern-light must restyle ColorObj-defaulted widgets. */
+    if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_MODERN_LIGHT) ||
+        !check_widget_color(label, XmNbackground, "#f1f2f4") ||
+        !check_widget_color(label, XmNforeground, "#202124") ||
+        !check_widget_color(button, XmNbackground, "#e2e6eb") ||
+        !check_widget_color(text, XmNbackground, "#ffffff") ||
+        !check_widget_color(list, XmNbackground, "#ffffff") ||
+        !check_widget_color(explicit_toggle, XmNbackground, "#445566")) {
+        fprintf(stderr, "ColorObj + modern-light switch palette mismatch\n");
+        goto done;
+    }
+
+    /* 3. Switching back to classic must restore the ColorObj palette pixels
+     * and the baseline -dt-interface render table. */
+    if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_CLASSIC) ||
+        !check_widget_color(label, XmNbackground, "#d8c0a8") ||
+        !check_widget_color(label, XmNforeground, "#112233") ||
+        !check_widget_color(button, XmNbackground, "#d8c0a8") ||
+        !check_widget_color(text, XmNbackground, "#d8c0a8") ||
+        !check_widget_color(list, XmNbackground, "#d8c0a8") ||
+        !check_widget_color(explicit_toggle, XmNbackground, "#445566")) {
+        fprintf(stderr, "ColorObj + classic restore palette mismatch\n");
+        goto done;
+    }
+    XtVaGetValues(label, XmNrenderTable, &rt_classic, NULL);
+    if (rt_classic == NULL || rt_classic == rt_dark) {
+        fprintf(stderr, "ColorObj + classic restore renderTable mismatch\n");
+        goto done;
+    }
+
+    status = EXIT_SUCCESS;
+
+done:
+    XtDestroyWidget(shell);
+    XtCloseDisplay(display);
+    XtDestroyApplicationContext(app);
+    XCloseDisplay(server);
+    return status;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -367,6 +505,12 @@ main(int argc, char **argv)
         if (run_precedence_and_warnings(argc, argv) != EXIT_SUCCESS)
             return EXIT_FAILURE;
         puts("PASS WP-45 Xrm appearance precedence and warning fallback");
+        return EXIT_SUCCESS;
+    }
+    if (argc >= 2 && strcmp(argv[1], "--check-colorobj") == 0) {
+        if (run_colorobj_appearance_interop(argc, argv) != EXIT_SUCCESS)
+            return EXIT_FAILURE;
+        puts("PASS WP-45 ColorObj and modern appearance profile interop");
         return EXIT_SUCCESS;
     }
     if (run_unmodified_consumer(argc, argv) != EXIT_SUCCESS)

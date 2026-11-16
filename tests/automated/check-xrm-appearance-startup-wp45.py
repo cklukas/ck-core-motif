@@ -28,6 +28,8 @@ def main() -> int:
     impl = (ROOT / "lib/Xm/Appearance.c").read_text(encoding="utf-8")
     check("_XmAppearanceInitializeDisplay(Widget xm_display)" in impl,
           "lib/Xm/Appearance.c missing _XmAppearanceInitializeDisplay")
+    check("_XmColorObjForDisplay(display)" in impl and "color_obj->color_obj.colorIsRunning" in impl,
+          "lib/Xm/Appearance.c missing XmColorObj Pixel Xrm ownership filter")
     check("lookup_appearance_resource(" in impl,
           "lib/Xm/Appearance.c missing lookup_appearance_resource")
     check("Cannot convert appearanceProfile resource to XmRAppearanceProfile; falling back to classic" in impl,

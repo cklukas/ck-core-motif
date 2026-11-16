@@ -52,7 +52,14 @@ Strict precedence is preserved:
 1. Explicit C API calls (`XmSetAppearanceProfile` / `XmSetAppearanceDensity`)
    before control creation override declarative `Xrm` display resources.
 2. Explicit widget creation/SetValues arguments and ordinary widget X resources
-   override profile and density defaults.
+   override profile and density defaults. When a CDE Color Server (`dtsession`
+   owning `CUSTOMIZE_DATA`) is active, `XmRPixel`-typed session palette entries
+   injected by `XmColorObj` (`UpdateXrm`) and `-dt-interface ` session baseline
+   XLFD font entries in the display database are treated as toolkit session
+   defaults rather than explicit application overrides, so `modern-light`,
+   `modern-dark`, and `high-contrast` apply their full palette and Xft
+   typography while switching back to `classic` restores the `XmColorObj`
+   session pixels and `-dt-interface ` baseline fonts.
 3. Invalid `Xrm` resource strings emit a single `XmeWarning` conversion warning
    per display and fall back deterministically to `classic` / `comfortable`.
 

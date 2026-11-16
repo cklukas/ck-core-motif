@@ -106,7 +106,7 @@ def main() -> int:
         )
         run_log = output / f"{name}.log"
         cmd = [
-            "xvfb-run", "-a", "-s", "-screen 0 1024x768x24",
+            "xvfb-run", "-a", "-s", "-noreset -screen 0 1024x768x24",
             str(binary), *cli_args,
         ]
         with run_log.open("w") as stream:
@@ -121,7 +121,7 @@ def main() -> int:
 
     prec_log = output / "precedence.log"
     prec_cmd = [
-        "xvfb-run", "-a", "-s", "-screen 0 1024x768x24",
+        "xvfb-run", "-a", "-s", "-noreset -screen 0 1024x768x24",
         str(binary), "--check-precedence",
     ]
     with prec_log.open("w") as stream:
@@ -132,6 +132,21 @@ def main() -> int:
     prec_result = prec_log.read_text(errors="replace")
     if "PASS WP-45 Xrm appearance precedence and warning fallback" not in prec_result:
         print(prec_result, file=sys.stderr)
+        return 1
+
+    co_log = output / "colorobj.log"
+    co_cmd = [
+        "xvfb-run", "-a", "-s", "-noreset -screen 0 1024x768x24",
+        str(binary), "--check-colorobj",
+    ]
+    with co_log.open("w") as stream:
+        if subprocess.run(co_cmd, env=base_env, stdout=stream,
+                          stderr=subprocess.STDOUT).returncode:
+            print(co_log.read_text(errors="replace"), file=sys.stderr)
+            return 1
+    co_result = co_log.read_text(errors="replace")
+    if "PASS WP-45 ColorObj and modern appearance profile interop" not in co_result:
+        print(co_result, file=sys.stderr)
         return 1
 
     print("PASS WP-45 declarative Xrm startup appearance and density suite")

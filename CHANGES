@@ -1,3 +1,21 @@
+XmColorObj session palette and modern appearance profile interoperability (2026-11-16)
+======================================================================================
+
+- `lib/Xm/Appearance.c`: treated `XmRPixel`-typed resource entries injected by
+  `XmColorObj` (`UpdateXrm`) and `-dt-interface ` session baseline XLFD font
+  entries in the display resource database when a CDE Color Server owns
+  `CUSTOMIZE_DATA` (`color_obj.colorIsRunning`) as toolkit session defaults
+  rather than explicit application `Xrm` overrides in
+  `appearance_database_named_value()`, so `modern-light`, `modern-dark`, and
+  `high-contrast` style `background`, `foreground`, `highlightColor`, and
+  modern Xft `renderTable` across widgets while explicit `String` Xrm overrides
+  remain authoritative and switching back to `classic` restores the
+  `XmColorObj` palette pixels and `-dt-interface ` baseline fonts.
+- Tests: `tests/automated/check-xrm-appearance-startup.c` (`--check-colorobj`),
+  `tests/automated/run-xrm-appearance-startup.py`,
+  `tests/automated/check-xrm-appearance-startup-wp45.py`.
+- Docs: `docs/appearance-profiles.md`.
+
 Modern desktop selection and drag-and-drop interoperability: XDND v5, UTF8_STRING, and text/uri-list (2026-11-16)
 =================================================================================================================
 
