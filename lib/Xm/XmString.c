@@ -5674,7 +5674,10 @@ _render(Display *d,
 		  XftDraw *draw = _XmXftDrawCreate(d, w);
 		  if (draw != NULL)
 		    XftDrawSetClip(draw, NULL);
-	  } else
+	  }
+#ifndef FIX_1532
+	  else
+#endif
 #endif
 #endif
 		  XSetClipMask (d, gc, None); 

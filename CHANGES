@@ -13,11 +13,15 @@ XmColorObj session palette, companion shading colors, and modern ScrollBar rende
   wildcard `*Font` Xrm resources from populating `_XmRendFont` /
   `_XmRendFontName` on `XmFONT_IS_XFT` renditions in `appearance_create_font()`
   and `GetResources()`, checked `_XmRendXftFont` independently of `_XmRendFont`
-  in `_XmRenderTableFindFirstFont()` and `SpecifiedSegmentExtents()`, and
-  guarded `_XmRendXftFont(rend) != NULL` in `ComputeMetrics()`.
+  in `_XmRenderTableFindFirstFont()` and `SpecifiedSegmentExtents()`, guarded
+  `_XmRendXftFont(rend) != NULL` in `ComputeMetrics()`, and ensured `_render()`
+  always resets `XSetClipMask(d, gc, None)` after `XmStringDraw` with
+  `XmFONT_IS_XFT` when `restore_clip` is set.
 - `lib/Xm/ScrollBar.c`: skipped legacy `FUNKY_INSENSITIVE_VISUAL`
   `unavailable_GC` stipple fills when `ModernScrollBar` is active, regenerated
   `unavailable_GC` in `SetValues` when `background` or `foreground` changes,
+  used `core.background_pixel` as the outer `ModernScrollSurface` (and
+  `trough_color` for the empty inner rail capsule in `ModernScrollPalette`),
   matched arrow backgrounds to `ModernScrollSurface`, eliminated square rail
   corner pixels in `DrawModernSlider`, and selected contrasting palette colors
   for the rail, thumb capsule, and arrow chevrons (`ModernScrollPalette`) when

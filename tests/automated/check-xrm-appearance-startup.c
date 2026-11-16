@@ -465,6 +465,36 @@ run_colorobj_appearance_interop(int argc, char **argv)
             fprintf(stderr, "XmStringExtent with *Font Xrm + Xft renderTable failed\n");
             goto done;
         }
+        /* Verify XmStringDraw with Xft + clip restores GC clip mask. */
+        {
+            Pixmap pm = XCreatePixmap(display, XtWindow(shell), 40, 20,
+                                      DefaultDepth(display, DefaultScreen(display)));
+            XGCValues gcv;
+            GC gc;
+            XRectangle clip_rect = {0, 0, 10, 10};
+            XImage *im;
+            Pixel px;
+            gcv.foreground = c_bg.pixel;
+            gc = XCreateGC(display, pm, GCForeground, &gcv);
+            XFillRectangle(display, pm, gc, 0, 0, 40, 20);
+            s_ext = XmStringCreateLocalized((char *)"ClipTest");
+            XmStringDraw(display, pm, rt_dark, s_ext, gc, 0, 0, 10,
+                         XmALIGNMENT_BEGINNING, XmSTRING_DIRECTION_L_TO_R,
+                         &clip_rect);
+            XmStringFree(s_ext);
+            XSetForeground(display, gc, c_fg.pixel);
+            XFillRectangle(display, pm, gc, 30, 10, 5, 5);
+            im = XGetImage(display, pm, 32, 12, 1, 1, AllPlanes, ZPixmap);
+            px = im != NULL ? XGetPixel(im, 0, 0) : 0;
+            if (im != NULL)
+                XDestroyImage(im);
+            XFreeGC(display, gc);
+            XFreePixmap(display, pm);
+            if (px != c_fg.pixel) {
+                fprintf(stderr, "XmStringDraw with Xft left clip mask stuck on GC\n");
+                goto done;
+            }
+        }
     }
     if (!check_widget_color(label, XmNbackground, "#d8c0a8") ||
         !check_widget_color(label, XmNforeground, "#112233") ||

@@ -1213,7 +1213,7 @@ ModernScrollSurface(XmScrollBarWidget sbw)
     Widget parent=XtParent((Widget)sbw), content;
     if (!_XmAppearanceConnectedScrolledWindow(parent))
         return sbw->scrollBar.slider_visual == XmTROUGH_COLOR ?
-            sbw->core.background_pixel : sbw->scrollBar.trough_color;
+            sbw->scrollBar.trough_color : sbw->core.background_pixel;
     content=((XmScrolledWindowWidget)parent)->swindow.WorkWindow;
     return content ? content->core.background_pixel : parent->core.background_pixel;
 }
@@ -1255,14 +1255,14 @@ ModernScrollPalette(XmScrollBarWidget sbw, Boolean pressed,
         colors[3].pixel = sbw->primitive.bottom_shadow_color;
         XQueryColors(display, cmap, colors, 4);
         if (ModernScrollLuminance(&colors[0]) >= 110u) {
-            rail = (sbw->core.background_pixel != surface) ?
-                sbw->core.background_pixel : sbw->primitive.top_shadow_color;
+            rail = (sbw->scrollBar.trough_color != surface) ?
+                sbw->scrollBar.trough_color : sbw->primitive.top_shadow_color;
             thumb = sbw->primitive.bottom_shadow_color;
             chevron = pressed ? sbw->primitive.highlight_color :
                                 sbw->primitive.bottom_shadow_color;
         } else {
-            rail = (sbw->core.background_pixel != surface) ?
-                sbw->core.background_pixel : sbw->primitive.bottom_shadow_color;
+            rail = (sbw->scrollBar.trough_color != surface) ?
+                sbw->scrollBar.trough_color : sbw->primitive.bottom_shadow_color;
             thumb = sbw->primitive.top_shadow_color;
             chevron = pressed ? sbw->primitive.highlight_color :
                                 sbw->primitive.top_shadow_color;
@@ -1662,13 +1662,17 @@ RedrawSliderWindow(
     short old_slider_width = sbw->scrollBar.slider_width ;
     short old_slider_height = sbw->scrollBar.slider_height ;
     
-    if (XtIsRealized((Widget)sbw))
+    if (XtIsRealized((Widget)sbw)) {
+	if (ModernScrollBar(sbw))
+	    XSetWindowBackground(XtDisplay((Widget)sbw), XtWindow((Widget)sbw),
+				 ModernScrollSurface(sbw));
 	XClearArea(XtDisplay ((Widget) sbw), XtWindow ((Widget) sbw),
 		   (int) sbw->scrollBar.slider_area_x,
 		   (int) sbw->scrollBar.slider_area_y,
 		   (unsigned int) sbw->scrollBar.slider_area_width,
 		   (unsigned int) sbw->scrollBar.slider_area_height,
 		   (Bool) FALSE);
+    }
 
     CalcSliderRect(sbw,
 		   &(sbw->scrollBar.slider_x),
@@ -1875,11 +1879,13 @@ Redisplay(
     Dimension shadow_width, shadow_height;
 
     if (ModernScrollBar(sbw)) {
-        if (_XmAppearanceConnectedScrolledWindow(XtParent(wid))) {
-            XSetWindowBackground(XtDisplay(wid),XtWindow(wid),ModernScrollSurface(sbw));
-            XClearWindow(XtDisplay(wid),XtWindow(wid));
-        }
+        XSetWindowBackground(XtDisplay(wid),XtWindow(wid),ModernScrollSurface(sbw));
+        XClearWindow(XtDisplay(wid),XtWindow(wid));
         DrawSliderPixmap(sbw);
+    } else if (XtIsRealized(wid)) {
+        XSetWindowBackground(XtDisplay(wid),XtWindow(wid),
+            sbw->scrollBar.slider_visual == XmTROUGH_COLOR ?
+            sbw->core.background_pixel : sbw->scrollBar.trough_color);
     }
     shadow_width = (sbw->core.width >
 		    2 * sbw->primitive.highlight_thickness) ?
