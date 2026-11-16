@@ -589,6 +589,10 @@ GetResources(XmRendition rend,
 	  have_value = False;
 	  
 	  if ((db != NULL) &&
+#ifdef USE_XFT
+	      !((res->xrm_name == Qfont) &&
+		(_XmRendFontType(rend) == XmFONT_IS_XFT)) &&
+#endif
 	      (XrmQGetSearchResource(searchList, res->xrm_name,
 				     res->xrm_class, &rawType, &value)))
 	    {
@@ -1122,11 +1126,13 @@ _XmRenderTableFindFirstFont(XmRenderTable rendertable,
       {
 	if (_XmRendFontType(*rend_ptr) == XmFONT_IS_FONT) f_idx = i;
 	else if (_XmRendFontType(*rend_ptr) == XmFONT_IS_FONTSET) fs_idx = i;
-#ifdef USE_XFT
-      } else if (_XmRendXftFont(*rend_ptr) != NULL) {
-        if (_XmRendFontType(*rend_ptr) == XmFONT_IS_XFT) xft_idx = i;
-#endif
       }
+#ifdef USE_XFT
+      if (_XmRendXftFont(*rend_ptr) != NULL)
+      {
+        if (_XmRendFontType(*rend_ptr) == XmFONT_IS_XFT) xft_idx = i;
+      }
+#endif
   }
 #ifdef USE_XFT
   if (xft_idx >= 0)

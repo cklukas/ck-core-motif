@@ -9,6 +9,12 @@ XmColorObj session palette, companion shading colors, and modern ScrollBar rende
   `frameBackground`, `backPageBackground`) in `appearance_widget_prepare()` when
   a widget's `XmNbackground` is owned by `XmColorObj` or an explicit application
   override.
+- `lib/Xm/Appearance.c`, `lib/Xm/XmRenderT.c`, `lib/Xm/XmString.c`: prevented
+  wildcard `*Font` Xrm resources from populating `_XmRendFont` /
+  `_XmRendFontName` on `XmFONT_IS_XFT` renditions in `appearance_create_font()`
+  and `GetResources()`, checked `_XmRendXftFont` independently of `_XmRendFont`
+  in `_XmRenderTableFindFirstFont()` and `SpecifiedSegmentExtents()`, and
+  guarded `_XmRendXftFont(rend) != NULL` in `ComputeMetrics()`.
 - `lib/Xm/ScrollBar.c`: skipped legacy `FUNKY_INSENSITIVE_VISUAL`
   `unavailable_GC` stipple fills when `ModernScrollBar` is active, regenerated
   `unavailable_GC` in `SetValues` when `background` or `foreground` changes,

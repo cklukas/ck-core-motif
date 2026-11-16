@@ -377,6 +377,7 @@ run_colorobj_appearance_interop(int argc, char **argv)
     char *co_argv[] = {
         argv[0],
         (char *)"-xrm", (char *)"*appearanceProfile: modern-dark",
+        (char *)"-xrm", (char *)"*Font: -dt-interface user-medium-r-normal-m*-*-*-*-*-*-*-*-*",
         (char *)"-xrm", (char *)"*FontList: -dt-interface system-medium-r-normal-m*-*-*-*-*-*-*-*-*:",
         (char *)"-xrm", (char *)"*buttonFontList: -dt-interface system-medium-r-normal-m*-*-*-*-*-*-*-*-*:",
         (char *)"-xrm", (char *)"*labelFontList: -dt-interface system-medium-r-normal-m*-*-*-*-*-*-*-*-*:",
@@ -384,7 +385,7 @@ run_colorobj_appearance_interop(int argc, char **argv)
         (char *)"-xrm", (char *)"*explicitToggle.background: #445566",
         NULL
     };
-    int co_argc = 13;
+    int co_argc = 15;
     int status = EXIT_FAILURE;
     (void)argc;
 
@@ -454,6 +455,17 @@ run_colorobj_appearance_interop(int argc, char **argv)
      * Xft and applying modern geometry. */
     XtVaGetValues(label, XmNrenderTable, &rt_dark, NULL);
     XtVaGetValues(button, XmNmarginWidth, &btn_margin, NULL);
+    {
+        XmString s_ext = XmStringCreateLocalized((char *)"Workspace One");
+        Dimension ext_w = 0, ext_h = 0;
+        if (rt_dark != NULL)
+            XmStringExtent(rt_dark, s_ext, &ext_w, &ext_h);
+        XmStringFree(s_ext);
+        if (ext_w == 0 || ext_h == 0) {
+            fprintf(stderr, "XmStringExtent with *Font Xrm + Xft renderTable failed\n");
+            goto done;
+        }
+    }
     if (!check_widget_color(label, XmNbackground, "#d8c0a8") ||
         !check_widget_color(label, XmNforeground, "#112233") ||
         !check_widget_color(form, XmNtopShadowColor, "#eeddcc") ||

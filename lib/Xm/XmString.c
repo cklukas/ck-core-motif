@@ -7072,20 +7072,22 @@ ComputeMetrics(XmRendition rend,
     break;
 #ifdef USE_XFT
     case XmFONT_IS_XFT:
-	asc = _XmRendXftFont(rend)->ascent;
-	desc = _XmRendXftFont(rend)->descent;
-	/* XftFont::height includes the font's line spacing.  Using only
-	 * ascent+descent clips fonts with leading and makes mixed-font compound
-	 * strings vertically inconsistent with the Xft text renderer. */
-	hi = _XmRendXftFont(rend)->height;
-    {
-	XGlyphInfo	info;
-	XftTextExtentsUtf8(_XmRendDisplay(rend),
-		_XmRendXftFont(rend),
-		text, byte_count,
-		&info);
-	wid = info.xOff;
-    }
+	if (_XmRendXftFont(rend) != NULL)
+	  {
+	    XGlyphInfo	info;
+	    asc = _XmRendXftFont(rend)->ascent;
+	    desc = _XmRendXftFont(rend)->descent;
+	    /* XftFont::height includes the font's line spacing.  Using only
+	     * ascent+descent clips fonts with leading and makes mixed-font compound
+	     * strings vertically inconsistent with the Xft text renderer. */
+	    hi = _XmRendXftFont(rend)->height;
+	    XftTextExtentsUtf8(_XmRendDisplay(rend),
+		    _XmRendXftFont(rend),
+		    text, byte_count,
+		    &info);
+	    wid = info.xOff;
+	  }
+	break;
 #endif
   }
 
@@ -7311,6 +7313,15 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
 		  _XmRendRefcount(def_rend) = rt_ref_cnt;
 		}
 
+#ifdef USE_XFT
+              if (_XmRendFontType(def_rend) == XmFONT_IS_XFT &&
+                  _XmRendXftFont(def_rend) != NULL)
+	        {
+		  _XmRendFontType(rend) = _XmRendFontType(def_rend);
+		  _XmRendXftFont(rend) = _XmRendXftFont(def_rend);
+		}
+              else
+#endif
 	      if (_XmRendFont(def_rend) != NULL)
 		{
 		  _XmRendFontType(rend) = _XmRendFontType(def_rend);
@@ -7362,6 +7373,15 @@ SpecifiedSegmentExtents(_XmStringEntry entry,
 		  _XmRendRefcount(def_rend) = rt_ref_cnt;
 		}
 		
+#ifdef USE_XFT
+              if (_XmRendFontType(def_rend) == XmFONT_IS_XFT &&
+                  _XmRendXftFont(def_rend) != NULL)
+	        {
+		  _XmRendFontType(rend) = _XmRendFontType(def_rend);
+		  _XmRendXftFont(rend) = _XmRendXftFont(def_rend);
+		}
+              else
+#endif
 	      if (_XmRendFont(def_rend) != NULL)
 		{
 		  _XmRendFontType(rend) = _XmRendFontType(def_rend);

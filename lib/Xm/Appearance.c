@@ -2052,7 +2052,7 @@ appearance_create_font(Widget widget, unsigned char role, double scale)
     double pixels = points * (96.0 / 72.0) * scale;
     XmRendition rendition;
     XmRenderTable table;
-    Arg args[6];
+    Arg args[7];
     Cardinal count = 0;
     int height = 0;
     if (!isfinite(pixels) || pixels < 1.0 || pixels > 65535.0) return NULL;
@@ -2066,6 +2066,7 @@ appearance_create_font(Widget widget, unsigned char role, double scale)
             XFT_RGBA, XftTypeInteger, XFT_RGBA_NONE, NULL);
         if (font == NULL) return NULL;
         XtSetArg(args[count], XmNfontType, XmFONT_IS_XFT); ++count;
+        XtSetArg(args[count], XmNfont, (XtArgVal)NULL); ++count;
         XtSetArg(args[count], XmNfontName, mono ? "monospace" : "sans-serif"); ++count;
         XtSetArg(args[count], XmNfontSize, points); ++count;
         XtSetArg(args[count], XmNxftFont, font); ++count;
