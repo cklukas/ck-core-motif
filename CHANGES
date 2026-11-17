@@ -27,6 +27,10 @@ XmColorObj session palette, companion shading colors, and modern ScrollBar rende
   for the rail, thumb capsule, and arrow chevrons (`ModernScrollPalette`) when
   `XmColorObj` owns the scrollbar surface or when an application sets
   `XmNforeground` equal to `XmNbackground`.
+- `.ckgit/ci.yml`, `ckdocs.yml`, `docs/bugfix-notes-archive-09.md` .. `14.md`:
+  pinned `ckgit` CI jobs to `runs_on: primary` and consolidated 1,586
+  unreferenced bugfix notes into `docs/bugfix-notes-archive-09.md` .. `14.md`
+  so the rendered documentation site stays compact on `rpi4`.
 - Tests: `tests/automated/check-xrm-appearance-startup.c` (`--check-colorobj`),
   `tests/automated/run-xrm-appearance-startup.py`,
   `tests/automated/check-xrm-appearance-startup-wp45.py`.
