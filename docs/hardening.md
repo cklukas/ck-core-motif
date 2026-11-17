@@ -70,7 +70,7 @@ signal: it shows which files have been touched at all since 2026-10-22. Fuzz
 targets exist for `lib/Mrm` (`fuzz-mrm-uid` and the reproducible damaged-UID
 test, [UID files as untrusted input](mrm-uid-input.md)) and for `lib/Xm`
 (`fuzz-editres-wire`, `fuzz-xm-converters`, `fuzz-xmstring-stream`; see
-[Fuzzing and corpus replay](fuzzing.md)); the Editres handler and the
+[Known limits](#known-limits)); the Editres handler and the
 D-Bus adapter also have compiled behavioural tests under the sanitizers
 ([Editres protocol handler](editres-wire-protocol.md),
 [Accessibility D-Bus reply building](accessibility-dbus-reply-building.md)).
