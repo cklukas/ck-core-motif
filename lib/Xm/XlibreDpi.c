@@ -278,6 +278,20 @@ _XmXlibreDpiSchedule(_XmXlibreDpiShellState *state)
 }
 
 static void
+_XmXlibreDpiConfigure(Widget shell,
+                      XtPointer closure,
+                      XEvent *event,
+                      Boolean *continue_to_dispatch)
+{
+    _XmXlibreDpiShellState *state = (_XmXlibreDpiShellState *)closure;
+    (void)shell;
+    (void)continue_to_dispatch;
+    if (state != NULL && !state->retired && event != NULL &&
+        event->type == ConfigureNotify)
+        _XmXlibreDpiSchedule(state);
+}
+
+static void
 _XmXlibreDpiDestroy(Widget shell, XtPointer closure, XtPointer call_data)
 {
     _XmXlibreDpiShellState *state = (_XmXlibreDpiShellState *)closure;
@@ -353,6 +367,8 @@ _XmXlibreDpiInstallShell(Widget shell,
     state->input_id = XtAppAddInput(app_context, ConnectionNumber(display),
                                     (XtPointer)XtInputReadMask,
                                     _XmXlibreDpiInput, (XtPointer)state);
+    XtAddEventHandler(shell, StructureNotifyMask, False,
+                      _XmXlibreDpiConfigure, (XtPointer)state);
     XtAddCallback(shell, XtNdestroyCallback, _XmXlibreDpiDestroy,
                   (XtPointer)state);
     state->next = shell_states;
@@ -383,6 +399,8 @@ _XmXlibreDpiUninstallState(_XmXlibreDpiShellState *state,
         return;
     *link = state->next;
     state->retired = True;
+    XtRemoveEventHandler(state->shell, StructureNotifyMask, False,
+                         _XmXlibreDpiConfigure, (XtPointer)state);
     if (remove_destroy_callback)
         XtRemoveCallback(state->shell, XtNdestroyCallback,
                          _XmXlibreDpiDestroy, (XtPointer)state);
@@ -455,6 +473,34 @@ _XmXlibreDpiVendorSupported(const char *vendor)
            isspace((unsigned char)vendor[name_length]);
 }
 
+static Boolean
+_XmXlibreDpiCompositorOptIn(Display *display)
+{
+    Atom prop;
+    Atom actual_type = None;
+    int actual_format = 0;
+    unsigned long nitems = 0;
+    unsigned long bytes_after = 0;
+    unsigned char *data = NULL;
+    Boolean enabled = False;
+
+    if (display == NULL)
+        return False;
+    prop = XInternAtom(display, "_MOTIF_RANDR_OUTPUT_DPI", True);
+    if (prop == None)
+        return False;
+    if (XGetWindowProperty(display, DefaultRootWindow(display), prop, 0, 1,
+                           False, XA_CARDINAL, &actual_type, &actual_format,
+                           &nitems, &bytes_after, &data) == Success &&
+        data != NULL) {
+        if (actual_type == XA_CARDINAL && actual_format == 32 &&
+            nitems == 1 && bytes_after == 0 && ((const long *)data)[0] == 1L)
+            enabled = True;
+        XFree(data);
+    }
+    return enabled;
+}
+
 Boolean
 _XmXlibreDpiServerSupported(Display *display)
 {
@@ -471,7 +517,9 @@ _XmXlibreDpiServerSupported(Display *display)
         return False;
 
     vendor = ServerVendor(display);
-    return _XmXlibreDpiVendorSupported(vendor);
+    if (_XmXlibreDpiVendorSupported(vendor))
+        return True;
+    return _XmXlibreDpiCompositorOptIn(display);
 }
 
 Boolean

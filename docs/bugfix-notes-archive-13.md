@@ -2914,12 +2914,18 @@ X11 coordinate system. XLibre defines 96 as the unscaled baseline; 144 and
 
 The probe accepts a value only when all of these conditions hold:
 
-- the server vendor string is exactly `XLibre` or starts with `XLibre` followed
-  by whitespace (normally the server version);
+- either the server vendor string is `XLibre` (or starts with `XLibre` followed
+  by whitespace) **or** a rootless XWayland compositor explicitly opts into the
+  contract by publishing `_MOTIF_RANDR_OUTPUT_DPI` (`CARDINAL`, format 32,
+  value `1`) on the default root window alongside per-output `DPI` properties;
 - RandR is present at version 1.2 or newer;
 - the output property has type `INTEGER`, format 32, exactly one item and no
   trailing data; and
 - the signed value is in the documented range 1 through 4096 DPI.
+
+Realized shells registered with `_XmXlibreDpiInstallShell` observe both RandR
+output/property notifications and shell `ConfigureNotify` moves across outputs,
+coalescing updates into a single UI-thread work procedure.
 
 Missing, malformed, out-of-range and non-XLibre values are unsupported and do
 not become a zero or guessed scale. The optional build is disabled by default;

@@ -1,3 +1,13 @@
+Per-output RandR DPI XWayland compositor opt-in and cross-output move reflow (2026-11-17)
+=========================================================================================
+
+- `lib/Xm/XlibreDpi.c`, `docs/xlibre-dpi-contract.md`: allowed rootless XWayland
+  compositors that publish the XLibre RandR `DPI` (`INTEGER`, format 32) output
+  property to opt into `_XmXlibreDpiServerSupported()` via root property
+  `_MOTIF_RANDR_OUTPUT_DPI` (`CARDINAL = 1`), and observed `ConfigureNotify` on
+  registered shells so moving a realized Motif window between outputs with
+  different `DPI` values schedules `_XmXlibreDpiWork()` live scale reflow.
+
 XmColorObj session palette, companion shading colors, and modern ScrollBar rendering (2026-11-16)
 =================================================================================================
 
