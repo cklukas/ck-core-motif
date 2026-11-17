@@ -112,6 +112,27 @@ test_uri_and_png_helpers(void)
 
 static char dropped_uri_path[256];
 
+static Boolean
+initiator_convert_proc(Widget w, Atom *selection, Atom *target,
+                       Atom *type_return, XtPointer *value_return,
+                       unsigned long *length_return, int *format_return)
+{
+  (void)selection;
+  static const char payload[] = "file:///var/tmp/from-motif-initiator.txt\r\n";
+  Display *dpy = XtDisplayOfObject(w);
+  Atom uri_a = XInternAtom(dpy, "text/uri-list", False);
+  if (*target == uri_a || *target == XA_STRING) {
+    char *copy = XtMalloc(sizeof(payload));
+    memcpy(copy, payload, sizeof(payload) - 1);
+    *type_return = *target;
+    *value_return = (XtPointer)copy;
+    *length_return = strlen(payload);
+    *format_return = 8;
+    return True;
+  }
+  return False;
+}
+
 static void
 uri_transfer_proc(Widget w, XtPointer closure, Atom *seltype, Atom *type,
                   XtPointer value, unsigned long *length, int *format)
@@ -496,6 +517,76 @@ main(int argc, char **argv)
   pump_both(app, dpy, ext_dpy, ext_win, xdnd_selection, utf8_atom, ext_uri_atom,
             targets_atom, xdnd_utf8_payload, uri_drop_payload, NULL, NULL, NULL,
             NULL);
+
+  /* Part 4: Motif XmDragStart initiator serving XdndSelection to external consumer */
+  {
+    Atom uri_local = XInternAtom(dpy, "text/uri-list", False);
+    Atom exports[2] = {uri_local, XA_STRING};
+    XEvent btn_ev;
+    memset(&btn_ev, 0, sizeof(btn_ev));
+    btn_ev.xbutton.type = ButtonPress;
+    btn_ev.xbutton.display = dpy;
+    btn_ev.xbutton.window = XtWindow(shell);
+    btn_ev.xbutton.root = DefaultRootWindow(dpy);
+    btn_ev.xbutton.time = CurrentTime;
+    btn_ev.xbutton.x = 20;
+    btn_ev.xbutton.y = 20;
+    btn_ev.xbutton.x_root = 20;
+    btn_ev.xbutton.y_root = 20;
+    btn_ev.xbutton.button = Button2;
+    btn_ev.xbutton.same_screen = True;
+
+    Arg dargs[6];
+    int dn = 0;
+    XtSetArg(dargs[dn], XmNexportTargets, exports); dn++;
+    XtSetArg(dargs[dn], XmNnumExportTargets, 2); dn++;
+    XtSetArg(dargs[dn], XmNconvertProc, initiator_convert_proc); dn++;
+    XtSetArg(dargs[dn], XmNdragOperations, XmDROP_COPY); dn++;
+    Widget dc = XmDragStart(shell, &btn_ev, dargs, dn);
+    CHECK(dc != NULL);
+    XSync(dpy, False);
+
+    Atom out_prop = XInternAtom(ext_dpy, "WP50_XDND_OUT", False);
+    XDeleteProperty(ext_dpy, ext_win, out_prop);
+    XConvertSelection(ext_dpy, xdnd_selection, ext_uri_atom, out_prop, ext_win,
+                      CurrentTime);
+    XFlush(ext_dpy);
+
+    int got_notify = 0;
+    for (int iter = 0; iter < 60 && !got_notify; ++iter) {
+      while (XtAppPending(app) & XtIMXEvent)
+        XtAppProcessEvent(app, XtIMXEvent);
+      XSync(dpy, False);
+      while (XPending(ext_dpy) > 0) {
+        XEvent e;
+        XNextEvent(ext_dpy, &e);
+        if (e.type == SelectionNotify &&
+            e.xselection.selection == xdnd_selection) {
+          CHECK(e.xselection.property == out_prop);
+          got_notify = 1;
+        }
+      }
+      if (!got_notify)
+        XSync(ext_dpy, False);
+    }
+    CHECK(got_notify == 1);
+
+    Atom actual_type = None;
+    int actual_fmt = 0;
+    unsigned long nitems = 0, rem = 0;
+    unsigned char *prop_bytes = NULL;
+    CHECK(XGetWindowProperty(ext_dpy, ext_win, out_prop, 0, 256, True,
+                             AnyPropertyType, &actual_type, &actual_fmt,
+                             &nitems, &rem, &prop_bytes) == Success);
+    CHECK(prop_bytes != NULL);
+    CHECK(strstr((const char *)prop_bytes,
+                 "file:///var/tmp/from-motif-initiator.txt") != NULL);
+    XFree(prop_bytes);
+
+    XmDragCancel(dc);
+    while (XtAppPending(app) & XtIMXEvent)
+      XtAppProcessEvent(app, XtIMXEvent);
+  }
 
   XDestroyWindow(ext_dpy, ext_win);
   XCloseDisplay(ext_dpy);

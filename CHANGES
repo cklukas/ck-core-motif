@@ -1,12 +1,23 @@
-Per-output RandR DPI XWayland compositor opt-in and cross-output move reflow (2026-11-17)
-=========================================================================================
+Per-output RandR DPI XWayland compositor opt-in, cross-output move reflow, and XDND v5 initiator selection (2026-11-17)
+=======================================================================================================================
 
+- `lib/Xm/Display.c`, `lib/Xm/DragC.c`, `tests/automated/check-xdnd-interop-wp50.c`:
+  resolved active local-initiator `XmDragContext` instances when converting
+  `XdndSelection` in `_XmGetDragContextFromHandle()`, avoided sending a
+  session-cancelling `XdndLeave` immediately before `XdndDrop` when completing a
+  drop onto an external XDND v5 target in `FinishAction()`, owned and disowned
+  `XdndSelection` symmetrically across standard and incremental drags, and
+  recorded completion status from `XdndFinished`.
 - `lib/Xm/XlibreDpi.c`, `docs/xlibre-dpi-contract.md`: allowed rootless XWayland
   compositors that publish the XLibre RandR `DPI` (`INTEGER`, format 32) output
   property to opt into `_XmXlibreDpiServerSupported()` via root property
-  `_MOTIF_RANDR_OUTPUT_DPI` (`CARDINAL = 1`), and observed `ConfigureNotify` on
-  registered shells so moving a realized Motif window between outputs with
-  different `DPI` values schedules `_XmXlibreDpiWork()` live scale reflow.
+  `_MOTIF_RANDR_OUTPUT_DPI` (`CARDINAL = 1`), registered an Xt extension-event
+  dispatcher (`XtSetEventDispatcher`) for `RRScreenChangeNotify` and `RRNotify`
+  so applications driving `XtAppMainLoop()`/`XtAppNextEvent()` schedule live
+  reflow instead of dropping RandR events in `XtDispatchEvent()`, and observed
+  `ConfigureNotify` on registered shells so moving a realized Motif window
+  between outputs with different `DPI` values schedules `_XmXlibreDpiWork()`
+  live scale reflow.
 
 XmColorObj session palette, companion shading colors, and modern ScrollBar rendering (2026-11-16)
 =================================================================================================

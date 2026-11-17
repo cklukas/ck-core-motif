@@ -112,6 +112,24 @@ _XmXlibreDpiInput(XtPointer closure, int *source, XtInputId *input_id)
 }
 
 static Boolean
+_XmXlibreDpiDispatchExtensionEvent(XEvent *event)
+{
+    _XmXlibreDpiShellState *current;
+    Boolean handled = False;
+
+    if (event == NULL)
+        return False;
+    for (current = shell_states; current != NULL; current = current->next) {
+        if (current->display == event->xany.display &&
+            _XmXlibreDpiIsNotifyEvent(current, event)) {
+            _XmXlibreDpiSchedule(current);
+            handled = True;
+        }
+    }
+    return handled;
+}
+
+static Boolean
 _XmXlibreDpiClientArea(_XmXlibreDpiShellState *state,
                        _XmXlibreDpiRect *area_return)
 {
@@ -363,6 +381,12 @@ _XmXlibreDpiInstallShell(Widget shell,
     root = state->root;
     XRRSelectInput(display, root, RRScreenChangeNotifyMask |
                    RROutputChangeNotifyMask | RROutputPropertyNotifyMask);
+    (void)XtSetEventDispatcher(display,
+                               state->event_base + RRScreenChangeNotify,
+                               _XmXlibreDpiDispatchExtensionEvent);
+    (void)XtSetEventDispatcher(display,
+                               state->event_base + RRNotify,
+                               _XmXlibreDpiDispatchExtensionEvent);
     app_context = XtWidgetToApplicationContext(shell);
     state->input_id = XtAppAddInput(app_context, ConnectionNumber(display),
                                     (XtPointer)XtInputReadMask,
@@ -399,6 +423,22 @@ _XmXlibreDpiUninstallState(_XmXlibreDpiShellState *state,
         return;
     *link = state->next;
     state->retired = True;
+    {
+        _XmXlibreDpiShellState *peer;
+        Boolean has_display_peer = False;
+        for (peer = shell_states; peer != NULL; peer = peer->next) {
+            if (peer->display == state->display) {
+                has_display_peer = True;
+                break;
+            }
+        }
+        if (!has_display_peer && state->display != NULL) {
+            (void)XtSetEventDispatcher(
+                state->display, state->event_base + RRScreenChangeNotify, NULL);
+            (void)XtSetEventDispatcher(
+                state->display, state->event_base + RRNotify, NULL);
+        }
+    }
     XtRemoveEventHandler(state->shell, StructureNotifyMask, False,
                          _XmXlibreDpiConfigure, (XtPointer)state);
     if (remove_destroy_callback)

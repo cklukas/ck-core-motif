@@ -1516,8 +1516,14 @@ DragDropFinish(
      * its dc after everything is done
      */
 
+    if (dc->drag.dropFinishTime == 0)
+	dc->drag.dropFinishTime = 1;
+
     XtDisownSelection(dc->drag.srcShell, 
 		      dc->drag.iccHandle,
+		      dc->drag.dragFinishTime);
+    XtDisownSelection(dc->drag.srcShell,
+		      XInternAtom(XtDisplay(dc), "XdndSelection", False),
 		      dc->drag.dragFinishTime);
 
     /* The drag context may already be in its teardown path here.  The
@@ -2063,6 +2069,9 @@ InitiatorMsgHandler(
 	      XtRemoveTimeOut(dc->drag.dragTimerId);
 	      dc->drag.dragTimerId = (XtIntervalId)NULL;
 	  }
+	  dc->drag.dragDropCompletionStatus =
+	      ((event->xclient.data.l[1] & 1L) != 0) ? XmDROP_SUCCESS : XmDROP_FAILURE;
+	  dc->drag.dropFinishTime = dc->drag.dragFinishTime;
 	  DragDropFinish(dc);
 	  return;
       }
@@ -2410,13 +2419,20 @@ DragStart(
     dc->drag.srcWindow = XtWindow(dc->drag.srcShell);
     dc->drag.iccHandle = _XmAllocMotifAtom((Widget)dc, dc->drag.dragStartTime);
     
-    if (dc->drag.incremental) 
+    if (dc->drag.incremental) {
       XtOwnSelectionIncremental(dc->drag.srcShell, 
 				dc->drag.iccHandle,
 				dc->drag.dragStartTime,
 				DropConvertIncrCallback,
 				DropLoseIncrSelection,
 				NULL, NULL, dc->drag.clientData);
+      XtOwnSelectionIncremental(dc->drag.srcShell,
+				XInternAtom(XtDisplay(dc), "XdndSelection", False),
+				dc->drag.dragStartTime,
+				DropConvertIncrCallback,
+				DropLoseIncrSelection,
+				NULL, NULL, dc->drag.clientData);
+    }
     else {
       XtOwnSelection(dc->drag.srcShell, 
 		     dc->drag.iccHandle,
@@ -3150,13 +3166,19 @@ FinishAction(
 
     if (dc->drag.currReceiverInfo) {
        if (dc->drag.currReceiverInfo->window) {
-	  SendDragMessage(dc, dc->drag.currReceiverInfo->window,
-			  XmTOP_LEVEL_LEAVE);
+	  Boolean isXdndTarget = (dc->drag.currReceiverInfo->flags & 0x80) != 0;
+	  Boolean willDrop =
+	      (dc->drag.activeProtocolStyle != XmDRAG_NONE) &&
+	      ((dc->drag.dragCompletionStatus == XmDROP) ||
+	       (dc->drag.dragCompletionStatus == XmDROP_HELP));
+
+	  if (!isXdndTarget || !willDrop) {
+	      SendDragMessage(dc, dc->drag.currReceiverInfo->window,
+			      XmTOP_LEVEL_LEAVE);
+	  }
 	  GenerateClientCallback(dc, XmCR_TOP_LEVEL_LEAVE);
 
-	  if ((dc->drag.activeProtocolStyle != XmDRAG_NONE) &&
-	      ((dc->drag.dragCompletionStatus == XmDROP) ||
-	       (dc->drag.dragCompletionStatus == XmDROP_HELP))) {
+	  if (willDrop) {
 	    
 	      XtAppContext appContext= XtWidgetToApplicationContext((Widget)dc);
 	      /*

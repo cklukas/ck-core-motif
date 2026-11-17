@@ -1415,6 +1415,8 @@ _XmGetDragContextFromHandle(
 {
 	XmDisplay		xmDisplay;
 	XmDragContext	dc;
+	XmDragContext	xdndFallback = NULL;
+	Atom			xdndSelection;
 	Cardinal		i;
 
         if (w == NULL)
@@ -1423,15 +1425,25 @@ _XmGetDragContextFromHandle(
 	if (xmDisplay == NULL)
 		return NULL;
 
+	xdndSelection = XInternAtom(XtDisplay(w), "XdndSelection", False);
+
 	for(i = 0; i < xmDisplay->composite.num_children; i++)
 	{
 		dc = (XmDragContext)(xmDisplay->composite.children[i]);
-		if ((XmIsDragContext((Widget) dc)) && 
-			(dc->drag.iccHandle == iccHandle) &&
+		if ((XmIsDragContext((Widget) dc)) &&
 			!dc->core.being_destroyed)
-			return((Widget)dc);
+		{
+			if (dc->drag.iccHandle == iccHandle)
+				return((Widget)dc);
+			if (iccHandle == xdndSelection && !dc->drag.sourceIsExternal)
+			{
+				if (!xdndFallback ||
+				    dc->drag.dragStartTime >= xdndFallback->drag.dragStartTime)
+					xdndFallback = dc;
+			}
+		}
 	}
-	return(NULL);
+	return((Widget)xdndFallback);
 }
 
 

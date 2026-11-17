@@ -2978,8 +2978,11 @@ gated because it requires a real multi-output XLibre session.
 
 When `--enable-xlibre-dpi` is enabled, a realized VendorShell is registered
 with the owning Xt application context. The toolkit selects the RandR
-notifications on the screen root, drains only those notifications from the
-Xlib queue on the UI thread, and schedules one Xt work procedure for a burst
+notifications on the screen root, registers an `XtSetEventDispatcher` handler
+for `RRScreenChangeNotify` and `RRNotify` (alongside the display-fd `XtAppAddInput`
+drain so both `XtAppMainLoop()`/`XtAppNextEvent()` and `XtAppProcessEvent()`
+event loops receive RandR changes), observes shell `ConfigureNotify` events for
+cross-output window moves, and schedules one Xt work procedure for a burst
 of changes. The work procedure resolves the shell's current output and scale,
 applies the shared UI-thread scale transaction to that shell's descendant
 hierarchy, and then calls the internal change hook after the resize is stable.
