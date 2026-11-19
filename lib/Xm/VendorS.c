@@ -70,6 +70,7 @@ static char rcsid[] = "$TOG: VendorS.c /main/21 1999/08/09 10:49:41 mgreess $"
 #include "TraversalI.h"
 #include "XmImI.h"
 #include "VendorSI.h"
+#include "AccessibleI.h"
 #include "XtInputI.h"
 #include "EditresComI.h"
 #include "XmI.h"
@@ -2824,6 +2825,8 @@ Realize(
     }
     if (vendorExt)
       _XmImRealize((Widget)vw);
+    if (!XmIsDisplay(wid))
+      _XmAccessibilityAutoRealizeShell(wid);
 }
 
 /************************************************************************
@@ -3243,6 +3246,7 @@ Destroy(
     if (!XmIsDisplay (wid)) {
 	 XmDisplay xmDisplay = (XmDisplay) XmGetXmDisplay (XtDisplay(wid));
 
+	 _XmAccessibilityAutoDestroyShell (wid);
 	 xmDisplay->display.shellCount -= 1;
 	 if (xmDisplay->display.shellCount == 0) {
 	     XmImCloseXIM (wid);

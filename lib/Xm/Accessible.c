@@ -64,14 +64,119 @@
 #include <Xm/TextF.h>
 #include <Xm/ToggleB.h>
 #include <Xm/ToggleBG.h>
+#include <Xm/DisplayP.h>
 #include <Xm/ToggleSwitch.h>
 #include <limits.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 #include <wchar.h>
 #include <wctype.h>
+
+typedef struct _XmAutoBridgeEntry {
+  XtAppContext app;
+  XmAccessibility *bridge;
+  Boolean auto_owned;
+  struct _XmAutoBridgeEntry *next;
+} XmAutoBridgeEntry;
+
+static XmAutoBridgeEntry *auto_bridges = NULL;
+
+static XmAutoBridgeEntry *find_app_bridge(XtAppContext app) {
+  XmAutoBridgeEntry *e;
+  for (e = auto_bridges; e; e = e->next)
+    if (e->app == app) return e;
+  return NULL;
+}
+
+static void register_app_bridge(XmAccessibility *a, Boolean auto_owned) {
+  XmAutoBridgeEntry *e;
+  if (!a || !a->app) return;
+  e = find_app_bridge(a->app);
+  if (!e) {
+    e = (XmAutoBridgeEntry *)calloc(1, sizeof(*e));
+    if (!e) return;
+    e->app = a->app;
+    e->bridge = a;
+    e->auto_owned = auto_owned;
+    e->next = auto_bridges;
+    auto_bridges = e;
+  } else if (!e->bridge) {
+    e->bridge = a;
+    e->auto_owned = auto_owned;
+  }
+}
+
+static void unregister_app_bridge(XmAccessibility *a) {
+  XmAutoBridgeEntry **pp = &auto_bridges;
+  while (*pp) {
+    if ((*pp)->bridge == a) {
+      XmAutoBridgeEntry *victim = *pp;
+      *pp = victim->next;
+      free(victim);
+      return;
+    }
+    pp = &(*pp)->next;
+  }
+}
+
+static Boolean parse_truthy(const char *s, Boolean *matched) {
+  if (!s || !s[0]) { *matched = False; return False; }
+  if (!strcmp(s, "1") || !strcasecmp(s, "true") ||
+      !strcasecmp(s, "on") || !strcasecmp(s, "yes")) {
+    *matched = True;
+    return True;
+  }
+  if (!strcmp(s, "0") || !strcasecmp(s, "false") ||
+      !strcasecmp(s, "off") || !strcasecmp(s, "no")) {
+    *matched = True;
+    return False;
+  }
+  *matched = False;
+  return False;
+}
+
+static Boolean auto_accessibility_enabled(Widget widget) {
+  const char *no_at = getenv("NO_AT_BRIDGE");
+  const char *env = getenv("XM_ACCESSIBILITY");
+  Boolean matched = False;
+  Display *dpy;
+  XrmDatabase db;
+  if (no_at && parse_truthy(no_at, &matched) && matched)
+    return False;
+  if (env && env[0]) {
+    Boolean val = parse_truthy(env, &matched);
+    if (matched) return val;
+  }
+  if (!widget || !XtIsObject(widget)) return False;
+  dpy = XtDisplayOfObject(widget);
+  if (!dpy) return False;
+  db = XtDatabase(dpy);
+  if (db) {
+    String app_name = NULL, app_class = NULL;
+    char res_name[256], res_class[256];
+    char *rep_type = NULL;
+    XrmValue rm_val = {0, NULL};
+    XtGetApplicationNameAndClass(dpy, &app_name, &app_class);
+    snprintf(res_name, sizeof(res_name), "%s.enableAccessibility",
+             (app_name && app_name[0]) ? app_name : "xm");
+    snprintf(res_class, sizeof(res_class), "%s.EnableAccessibility",
+             (app_class && app_class[0]) ? app_class : "Xm");
+    if (XrmGetResource(db, res_name, res_class, &rep_type, &rm_val) &&
+        rm_val.addr) {
+      Boolean val = parse_truthy((const char *)rm_val.addr, &matched);
+      if (matched) return val;
+    }
+    if (XrmGetResource(db, "xm.enableAccessibility", "Xm.EnableAccessibility",
+                       &rep_type, &rm_val) && rm_val.addr) {
+      Boolean val = parse_truthy((const char *)rm_val.addr, &matched);
+      if (matched) return val;
+    }
+  }
+  return False;
+}
 
 static int color_channel(Widget widget) {
   Widget owner = widget ? XtParent(widget) : NULL;
@@ -494,11 +599,22 @@ static const char *scroll_callbacks[] = {
     XmNvalueChangedCallback, XmNdragCallback,          XmNincrementCallback,
     XmNdecrementCallback,    XmNpageIncrementCallback, XmNpageDecrementCallback,
     XmNtoTopCallback,        XmNtoBottomCallback};
+static void add_widgets(XmAccessibility *, Widget, XmAccessibleId);
 static void resource_changed(Widget hooks, XtPointer data, XtPointer call) {
   XmAccessibility *a = (XmAccessibility *)data;
   XtChangeHookData change = (XtChangeHookData)call;
   XmAccessibleId id;
   (void)hooks;
+  if (a->auto_owned && !a->destroy_requested && change && change->type &&
+      change->widget &&
+      (!strcmp(change->type, XtHmanageChildren) ||
+       !strcmp(change->type, XtHrealizeWidget))) {
+    Widget sh = shell_for(change->widget);
+    if (sh && !XmIsDisplay(sh) && !XmIsMenuShell(sh) &&
+        XmAccessibilityWidget(a, sh)) {
+      add_widgets(a, sh, 1);
+    }
+  }
   if (!strcmp(change->type, XtHsetValues) && XmIsColorPicker(change->widget) &&
       XmAccessibilityWidget(a, change->widget)) color_value_changed(change->widget, a, NULL);
   if (!strcmp(change->type, XtHsetValues) && (XmIsScrollBar(change->widget) || XmIsList(change->widget)) &&
@@ -829,7 +945,93 @@ XmAccessibility *XmAccessibilityCreate(Widget root, const char *name) {
   n = add_node(a, 0);
   if (!n) { XmAccessibilityDestroy(a); return NULL; }
   add_widgets(a, root, 1);
+  register_app_bridge(a, False);
   return a;
+}
+XmAccessibility *XmAccessibilityGetDefault(Widget widget) {
+  XtAppContext app;
+  XmAutoBridgeEntry *entry;
+  Widget top_shell;
+  Display *dpy;
+  String app_name = NULL, app_class = NULL;
+  XmAccessibility *a;
+  if (!widget || !XtIsObject(widget)) return NULL;
+  app = XtWidgetToApplicationContext(widget);
+  if (!app) return NULL;
+  entry = find_app_bridge(app);
+  if (entry && entry->bridge) {
+    if (entry->bridge->destroy_requested) return NULL;
+    if (entry->auto_owned) {
+      top_shell = shell_for(widget);
+      if (top_shell && !XmIsDisplay(top_shell) && !XmIsMenuShell(top_shell)) {
+        if (!XmAccessibilityWidget(entry->bridge, top_shell))
+          (void)XmAccessibilityAttachShell(entry->bridge, top_shell);
+        else if (!XmAccessibilityWidget(entry->bridge, widget))
+          add_widgets(entry->bridge, top_shell, 1);
+      }
+    }
+    return entry->bridge;
+  }
+  if (!auto_accessibility_enabled(widget)) return NULL;
+  top_shell = shell_for(widget);
+  while (top_shell && XmIsMenuShell(top_shell) && XtParent(top_shell))
+    top_shell = shell_for(XtParent(top_shell));
+  if (!top_shell || XmIsDisplay(top_shell) || XmIsMenuShell(top_shell) ||
+      top_shell->core.being_destroyed)
+    return NULL;
+  dpy = XtDisplayOfObject(top_shell);
+  if (dpy) XtGetApplicationNameAndClass(dpy, &app_name, &app_class);
+  a = XmAccessibilityCreate(
+      top_shell, (app_name && app_name[0]) ? app_name : XtName(top_shell));
+  if (!a) return NULL;
+  a->auto_owned = True;
+  entry = find_app_bridge(app);
+  if (entry && entry->bridge == a) entry->auto_owned = True;
+  (void)XmAccessibilityConnect(a);
+  return a;
+}
+void _XmAccessibilityAutoRealizeShell(Widget shell) {
+  XtAppContext app;
+  XmAutoBridgeEntry *entry;
+  if (!shell || !XtIsShell(shell) || XmIsDisplay(shell) ||
+      XmIsMenuShell(shell) || shell->core.being_destroyed)
+    return;
+  app = XtWidgetToApplicationContext(shell);
+  entry = app ? find_app_bridge(app) : NULL;
+  if (entry && entry->bridge) {
+    if (!entry->auto_owned || entry->bridge->destroy_requested) return;
+    if (XmAccessibilityWidget(entry->bridge, shell)) {
+      add_widgets(entry->bridge, shell, 1);
+      XmAccessibilityChanged(entry->bridge, 1);
+    } else {
+      (void)XmAccessibilityAttachShell(entry->bridge, shell);
+    }
+    if (!entry->bridge->transport)
+      (void)XmAccessibilityConnect(entry->bridge);
+    return;
+  }
+  if (!auto_accessibility_enabled(shell)) return;
+  (void)XmAccessibilityGetDefault(shell);
+}
+void _XmAccessibilityAutoDestroyShell(Widget shell) {
+  XtAppContext app;
+  XmAutoBridgeEntry *entry;
+  XmAccessibleNode *root;
+  size_t i;
+  if (!shell || XmIsDisplay(shell) || XmIsMenuShell(shell)) return;
+  app = XtWidgetToApplicationContext(shell);
+  entry = app ? find_app_bridge(app) : NULL;
+  if (!entry || !entry->bridge || !entry->auto_owned) return;
+  root = _XmAccessibilityNode(entry->bridge, 1);
+  if (root) {
+    for (i = 0; i < root->child_count; ++i) {
+      Widget w = root->children[i] ? root->children[i]->widget : NULL;
+      if (w && w != shell && !w->core.being_destroyed &&
+          XtIsShell(w) && !XmIsDisplay(w) && !XmIsMenuShell(w))
+        return;
+    }
+  }
+  XmAccessibilityDestroy(entry->bridge);
 }
 Boolean XmAccessibilityAttachShell(XmAccessibility *a, Widget shell) {
   if (!a || !shell || !XtIsShell(shell) ||
@@ -1032,6 +1234,7 @@ void XmAccessibilityDestroy(XmAccessibility *a) {
   if (!a)
     return;
   if (a->dispatch_depth) { a->destroy_requested = True; return; }
+  unregister_app_bridge(a);
   a->destroy_requested = False;
   if (a->deferred_destroy)
     XtRemoveTimeOut(a->deferred_destroy);

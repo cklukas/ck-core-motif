@@ -114,6 +114,12 @@ typedef enum {
    Destroy bridge before root widgets. No background calls into Xt are made. */
 XmAccessibility *XmAccessibilityCreate(Widget root,
                                        const char *application_name);
+/* Return the active accessibility bridge for widget's XtAppContext. When
+   XM_ACCESSIBILITY=1 (or Xrm *enableAccessibility: True, unless disabled by
+   XM_ACCESSIBILITY=0 or NO_AT_BRIDGE=1) is active and no bridge exists yet,
+   creates and connects an application bridge automatically. Returns NULL when
+   session accessibility is disabled and no explicit bridge exists. */
+XmAccessibility *XmAccessibilityGetDefault(Widget widget);
 void XmAccessibilityDestroy(XmAccessibility *);
 /* One application bridge can own several native top-level shells. The shell
    must share the creating Xt application context. The bridge remains alive when

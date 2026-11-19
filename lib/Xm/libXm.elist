@@ -16,6 +16,31 @@
  * libXm public symbols -- available to developers 
  ********************************************************************/
 
+public XmAccessibilityAction
+public XmAccessibilityActionName
+public XmAccessibilityAdd
+public XmAccessibilityAttachShell
+public XmAccessibilityBusName
+public XmAccessibilityChangeSelection
+public XmAccessibilityChanged
+public XmAccessibilityChildSelected
+public XmAccessibilityConnect
+public XmAccessibilityCreate
+public XmAccessibilityDestroy
+public XmAccessibilityFocus
+public XmAccessibilityGetDefault
+public XmAccessibilityGetStatus
+public XmAccessibilityQuery
+public XmAccessibilityRefresh
+public XmAccessibilityRemove
+public XmAccessibilityRoot
+public XmAccessibilitySelectedChild
+public XmAccessibilitySelectionCount
+public XmAccessibilitySetValue
+public XmAccessibilityText
+public XmAccessibilityVisualLine
+public XmAccessibilityWidget
+public XmAccessibleInfoClear
 public XmActivateProtocol
 public XmAddProtocolCallback
 public XmAddProtocols

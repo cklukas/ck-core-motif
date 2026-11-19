@@ -1,3 +1,27 @@
+Opt-in automatic AT-SPI2 session bridge and XmAccessibilityGetDefault (2026-11-19)
+==================================================================================
+
+- `lib/Xm/Accessible.h`, `lib/Xm/AccessibleI.h`, `lib/Xm/Accessible.c`,
+  `lib/Xm/VendorS.c`, `lib/Xm/libXm.elist`:
+  - Added public `XmAccessibility *XmAccessibilityGetDefault(Widget widget)` to
+    return (or lazily create and connect when opt-in session accessibility is
+    active) the per-`XtAppContext` `XmAccessibility` bridge, allowing custom
+    composite widgets to register semantic child providers without requiring
+    every application's `main()` to instantiate a bridge explicitly.
+  - Added opt-in automatic session AT-SPI2 bootstrap in `VendorS.c` (`Realize`
+    and `Destroy`): when `XM_ACCESSIBILITY=1` is set in the environment (or Xrm
+    `*enableAccessibility: True`, unless disabled by `XM_ACCESSIBILITY=0` or
+    `NO_AT_BRIDGE=1`), realizing a top-level `VendorShell` (`ApplicationShell`,
+    `TopLevelShell`, `DialogShell`) creates a single `XmAccessibility` bridge per
+    `XtAppContext`, attaches additional top-level shells via
+    `XmAccessibilityAttachShell`, discovers dynamically managed descendants via
+    `Xt` manage/realize hooks, never duplicates or interferes with bridges
+    created explicitly via `XmAccessibilityCreate`, and tears down cleanly when
+    the last `VendorShell` in the `XtAppContext` is destroyed.
+- Documentation: `docs/accessibility.md`.
+- Tests: `tests/automated/check-auto-atspi-bridge.c`,
+  `tests/automated/run-auto-atspi-bridge.py`.
+
 Shared XmMenuShell modal grab cascade across secondary shells (2026-11-19)
 ==========================================================================
 

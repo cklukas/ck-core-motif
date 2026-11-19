@@ -42,7 +42,10 @@ struct _XmAccessibility {
   XmAccessibleId next_id;
   XmAccessibilityStatus status;
   XtPointer transport;
+  Boolean auto_owned;
 };
+void _XmAccessibilityAutoRealizeShell(Widget shell);
+void _XmAccessibilityAutoDestroyShell(Widget shell);
 XmAccessibleNode *_XmAccessibilityNode(XmAccessibility *, XmAccessibleId);
 size_t _XmAccessibilityChildCount(XmAccessibility *, XmAccessibleId);
 XmAccessibleId _XmAccessibilityChildAt(XmAccessibility *, XmAccessibleId, size_t);

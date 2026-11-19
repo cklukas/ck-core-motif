@@ -42,6 +42,21 @@ Additional top-level shells in the same Xt application context attach through
 application bridge. Destroy the bridge with `XmAccessibilityDestroy` before
 its root widgets and application context are destroyed.
 
+Unmodified Motif applications can also opt into automatic session-wide AT-SPI2
+publication without calling `XmAccessibilityCreate` directly: when
+`XM_ACCESSIBILITY=1` is set in the environment (or the X resource
+`*enableAccessibility: True` is present, unless overridden by
+`XM_ACCESSIBILITY=0` or `NO_AT_BRIDGE=1`), realizing a top-level `VendorShell`
+(`ApplicationShell`, `TopLevelShell`, or `DialogShell`) automatically creates
+and connects one `XmAccessibility` bridge per `XtAppContext`, attaches later
+top-level shells in the same `XtAppContext`, tracks dynamically managed child
+subtrees, and destroys the auto-created bridge when the last top-level shell in
+that `XtAppContext` closes. Applications that create an explicit bridge via
+`XmAccessibilityCreate` retain full manual ownership without duplication. Custom
+widgets can query `XmAccessibilityGetDefault(widget)` to obtain the active
+`XtAppContext` bridge (or `NULL` when session accessibility is disabled) and
+attach semantic child providers transparently.
+
 All calls, provider queries, callbacks and event dispatch run on the owning Xt
 UI thread. The transport does not make background calls into Xt. Do not free
 provider closures while their nodes remain registered.
