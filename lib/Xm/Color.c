@@ -1356,7 +1356,9 @@ _XmConvertToBW(Widget w, Pixmap pm)
 {
    XpmImage im;
    int i = 0;
-   unsigned int bw = 0, bw2 = 0;
+   unsigned int bw = 0, bw2 = 0, bg_bw = 0;
+   unsigned int bg_r8 = 0, bg_g8 = 0, bg_b8 = 0;
+   Boolean have_bg = False;
    char *col = NULL, *col2 = NULL;
    Pixmap bw_pixmap = XmUNSPECIFIED_PIXMAP;
 #ifdef FIX_1500
@@ -1365,6 +1367,23 @@ _XmConvertToBW(Widget w, Pixmap pm)
 
    if (pm == XmUNSPECIFIED_PIXMAP)
 	   return bw_pixmap;
+
+   {
+	   Pixel bg_pixel = XmUNSPECIFIED_PIXEL;
+	   Widget cw = XtIsWidget(w) ? w : XtParent(w);
+	   XtVaGetValues(w, XmNbackground, &bg_pixel, NULL);
+	   if (cw != NULL && bg_pixel != XmUNSPECIFIED_PIXEL) {
+		   XColor bg_xc;
+		   memset(&bg_xc, 0, sizeof(bg_xc));
+		   bg_xc.pixel = bg_pixel;
+		   XQueryColor(XtDisplay(w), cw->core.colormap, &bg_xc);
+		   bg_r8 = (unsigned int)(bg_xc.red >> 8);
+		   bg_g8 = (unsigned int)(bg_xc.green >> 8);
+		   bg_b8 = (unsigned int)(bg_xc.blue >> 8);
+		   bg_bw = (unsigned int)(0.3 * bg_xc.red + 0.59 * bg_xc.green + 0.11 * bg_xc.blue);
+		   have_bg = True;
+	   }
+   }
     
 #ifdef FIX_1500
    XpmCreateBufferFromPixmap(XtDisplay(w), &data_before, pm, 0, NULL);
@@ -1399,7 +1418,22 @@ _XmConvertToBW(Widget w, Pixmap pm)
 		   for (i = 0; i < im.ncolors; i++) {
 			   col = im.colorTable[i].c_color;
                if (HasExpandedHexColor(col)) {
+				   if (have_bg) {
+					   char c_hex[3];
+					   unsigned int cr8, cg8, cb8;
+					   c_hex[2] = '\0';
+					   memcpy(c_hex, col + 1, 2);
+					   cr8 = (unsigned int)strtoul(c_hex, NULL, 16);
+					   memcpy(c_hex, col + 5, 2);
+					   cg8 = (unsigned int)strtoul(c_hex, NULL, 16);
+					   memcpy(c_hex, col + 9, 2);
+					   cb8 = (unsigned int)strtoul(c_hex, NULL, 16);
+					   if (cr8 == bg_r8 && cg8 == bg_g8 && cb8 == bg_b8)
+						   continue;
+				   }
 				   bw = FromColorToBlackAndWhite(col + 1);
+				   if (have_bg)
+					   bw = (unsigned int)((int)bw + (int)(((int)bg_bw - (int)bw) * 0.45));
 				   ReplaceColorWithGray(&im.colorTable[i], bw);
 			   }
 		   }
@@ -1410,14 +1444,19 @@ _XmConvertToBW(Widget w, Pixmap pm)
    if (bw_pixmap)
 	   XpmCreateBufferFromPixmap(XtDisplay(w), &data_after, bw_pixmap, 0, NULL);
 
-   if (data_before && data_after && !strcmp(data_before, data_after))
+   if (data_before && data_after && !strcmp(data_before, data_after)) {
+	   XFreePixmap(XtDisplay(w), bw_pixmap);
 	   bw_pixmap = 0;
+   }
 
    if (data_before)
 	   XpmFree(data_before);
    if (data_after)
 	   XpmFree(data_after);
 #endif
+   if (bw_pixmap)
+	   (void)_XmCachePixmap(bw_pixmap, XtScreen(w), DIRECT_PIXMAP_CACHED,
+	                        1, 0, 0, (Dimension)im.width, (Dimension)im.height);
    XpmFreeXpmImage(&im);
     
 #ifdef FIX_1505

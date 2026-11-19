@@ -92,6 +92,39 @@ static char rcsid[] = "$TOG: LabelG.c /main/24 1999/01/26 15:31:18 mgreess $"
 #define Pix(w)      LabG_Pixmap(w)
 #define Pix_insen(w)    LabG_PixmapInsensitive(w)
 
+/* Application-owned or freshly generated insensitive pixmaps may not already
+ * reside in Motif's image cache on their first query; fall back to XGetGeometry
+ * so gadget layout and first-expose rendering match XmLabel. */
+static Boolean
+LabelGGetPixmapData(Screen *screen, Pixmap pixmap, int *depth,
+                    unsigned int *width, unsigned int *height)
+{
+    int cached_depth;
+    unsigned int cached_width;
+    unsigned int cached_height;
+    Window root;
+    int x, y;
+    unsigned int border, geometry_depth;
+
+    if (screen == NULL || pixmap == XmUNSPECIFIED_PIXMAP)
+        return False;
+    if (XmeGetPixmapData(screen, pixmap, NULL, &cached_depth, NULL, NULL,
+                         NULL, NULL, &cached_width, &cached_height)) {
+        if (depth) *depth = cached_depth;
+        if (width) *width = cached_width;
+        if (height) *height = cached_height;
+        return True;
+    }
+    if (!XGetGeometry(DisplayOfScreen(screen), pixmap, &root, &x, &y,
+                      &cached_width, &cached_height, &border, &geometry_depth))
+        return False;
+    cached_depth = (int)geometry_depth;
+    if (depth) *depth = cached_depth;
+    if (width) *width = cached_width;
+    if (height) *height = cached_height;
+    return True;
+}
+
 /* Warning Messages */
 
 #define CS_STRING_MESSAGE   _XmMMsgLabel_0003
@@ -1426,9 +1459,9 @@ _XmCalcLabelGDimensions(Widget wid)
         {
             if (Pix (newlw) != XmUNSPECIFIED_PIXMAP)
             {
-                XmeGetPixmapData(XtScreen(newlw), Pix(newlw),
-                    NULL, NULL, NULL, NULL, NULL, NULL,
-                    &w, &h);
+                w = h = 0;
+                LabelGGetPixmapData(XtScreen(newlw), Pix(newlw),
+                    NULL, &w, &h);
 
                 LabG_PixmapRect(newlw).width = (unsigned short) w;
                 LabG_PixmapRect(newlw).height = (unsigned short) h;
@@ -1443,9 +1476,9 @@ _XmCalcLabelGDimensions(Widget wid)
 
             if (pix_use != XmUNSPECIFIED_PIXMAP)
             {
-                XmeGetPixmapData(XtScreen(newlw), pix_use,
-                    NULL, NULL, NULL, NULL, NULL, NULL,
-                    &w, &h);
+                w = h = 0;
+                LabelGGetPixmapData(XtScreen(newlw), pix_use,
+                    NULL, &w, &h);
 
                 LabG_PixmapRect(newlw).width = (unsigned short) w;
                 LabG_PixmapRect(newlw).height = (unsigned short) h;
@@ -2475,8 +2508,8 @@ LRectangle *background_box)
             {
                 gc = LabG_NormalGC(lw);
 
-                if (XmeGetPixmapData(XtScreen(lw), Pix(lw), NULL, &depth,
-                    NULL, NULL, NULL, NULL, NULL, NULL))
+                if (LabelGGetPixmapData(XtScreen(lw), Pix(lw), &depth,
+                    NULL, NULL))
                 {
                 if (depth == XtParent(lw)->core.depth)
                     XCopyArea (XtDisplay(lw), Pix(lw), XtWindow(lw), gc, 0, 0,
@@ -2511,8 +2544,8 @@ LRectangle *background_box)
             {
                 gc = LabG_InsensitiveGC(lw);
 
-                if (XmeGetPixmapData(XtScreen(lw), pix_use, NULL, &depth,
-                    NULL, NULL, NULL, NULL, NULL, NULL))
+                if (LabelGGetPixmapData(XtScreen(lw), pix_use, &depth,
+                    NULL, NULL))
                 {
                 if (depth == XtParent(lw)->core.depth)
                     XCopyArea (XtDisplay(lw), pix_use, XtWindow(lw), gc, 0, 0,

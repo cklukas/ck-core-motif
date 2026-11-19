@@ -4,6 +4,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <Xm/Xm.h>
+#include <Xm/RowColumn.h>
+#include <Xm/PushBG.h>
 
 static void extract_rgb(Display *dpy, Colormap cmap, unsigned long pixel,
                         int *r, int *g, int *b)
@@ -114,6 +116,80 @@ int main(int argc, char **argv)
         return 1;
     }
     XDestroyImage(img);
+
+    /* 3. Verify an initially insensitive XmPushButtonGadget with a multi-color
+     *    RGBA PNG renders on its very first Expose and preserves its colored
+     *    background on transparent icon pixels. */
+    {
+        Widget rc, gad;
+        Position gx = 0, gy = 0;
+        Dimension gw = 0, gh = 0;
+        int found_icon_gray = 0;
+        int x, y;
+
+        rc = XtVaCreateManagedWidget("rc", xmRowColumnWidgetClass, shell,
+                                     XmNbackground, bg_xc.pixel,
+                                     XmNmarginWidth, 4,
+                                     XmNmarginHeight, 4,
+                                     NULL);
+        gad = XtVaCreateManagedWidget("disabledIcon", xmPushButtonGadgetClass, rc,
+                                      XmNbackground, bg_xc.pixel,
+                                      XmNlabelType, XmPIXMAP,
+                                      XmNlabelPixmap, pix_rgba,
+                                      XmNmarginWidth, 2,
+                                      XmNmarginHeight, 2,
+                                      XmNshadowThickness, 0,
+                                      XmNhighlightThickness, 0,
+                                      NULL);
+        XtSetSensitive(gad, False);
+
+        XSync(dpy, False);
+        while (XtAppPending(app)) {
+            XEvent ev;
+            XtAppNextEvent(app, &ev);
+            XtDispatchEvent(&ev);
+        }
+        XSync(dpy, False);
+
+        XtVaGetValues(gad, XmNx, &gx, XmNy, &gy, XmNwidth, &gw, XmNheight, &gh, NULL);
+        if (gw < 4 || gh < 1) {
+            fprintf(stderr, "FAIL: insensitive gadget got invalid size %ux%u\n",
+                    (unsigned)gw, (unsigned)gh);
+            return 1;
+        }
+        img = XGetImage(dpy, XtWindow(rc), gx, gy, gw, gh, AllPlanes, ZPixmap);
+        if (!img) {
+            fprintf(stderr, "FAIL: XGetImage failed on insensitive gadget area\n");
+            return 1;
+        }
+        /* Top-left margin pixel (0,0) must keep exact #c4b2a8 tan background */
+        extract_rgb(dpy, cmap, XGetPixel(img, 0, 0), &r, &g, &b);
+        if (!near_rgb(r, g, b, 0xc4, 0xb2, 0xa8, 4)) {
+            fprintf(stderr, "FAIL: insensitive gadget margin expected tan (196,178,168), got (%d,%d,%d)\n",
+                    r, g, b);
+            return 1;
+        }
+        for (y = 0; y < (int)gh; y++) {
+            for (x = 0; x < (int)gw; x++) {
+                extract_rgb(dpy, cmap, XGetPixel(img, x, y), &r, &g, &b);
+                if (!near_rgb(r, g, b, 0xc4, 0xb2, 0xa8, 6)) {
+                    /* Non-background icon pixel must be desaturated grayscale */
+                    if (abs(r - g) > 4 || abs(g - b) > 4) {
+                        fprintf(stderr, "FAIL: insensitive icon pixel (%d,%d) not grayscale: (%d,%d,%d)\n",
+                                x, y, r, g, b);
+                        return 1;
+                    }
+                    found_icon_gray = 1;
+                }
+            }
+        }
+        XDestroyImage(img);
+        if (!found_icon_gray) {
+            fprintf(stderr, "FAIL: insensitive XmPushButtonGadget did not paint icon on first Expose\n");
+            return 1;
+        }
+    }
+
     XmDestroyPixmap(scr, pix_rgba);
 
     printf("PASS PNG RGB and RGBA image loading\n");

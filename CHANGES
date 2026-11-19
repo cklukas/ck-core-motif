@@ -1,3 +1,19 @@
+Insensitive gadget pixmap first-expose caching and background preservation (2026-11-19)
+=======================================================================================
+
+- `lib/Xm/Color.c` (`_XmConvertToBW`): registered generated insensitive
+  `Pixmap`s in Motif's pixmap cache via `_XmCachePixmap(..., DIRECT_PIXMAP_CACHED,
+  ...)`, freed unchanged temporary pixmaps instead of leaking them, preserved the
+  widget/gadget `XmNbackground` color entry on multi-color (`> 2` colors) icons
+  so transparent RGBA PNG margins stay seamless on colored palettes, and blended
+  foreground grayscale luminance toward the background luminance for clear
+  disabled contrast.
+- `lib/Xm/LabelG.c` (`LabelGGetPixmapData`): matched `XmLabel` by falling back
+  to `XGetGeometry` when querying uncached application or insensitive pixmaps so
+  `XmLabelGadget` / `XmPushButtonGadget` layout and first-`Expose` rendering do
+  not skip drawing on initial map.
+- Tests: `tests/automated/check-png-image.c`, `tests/automated/run-png-image.py`.
+
 PNG 24/32-bit RGB channel shift, RGBA XImage stride, and 16-bit XColor background conversion (2026-11-19)
 =========================================================================================================
 
