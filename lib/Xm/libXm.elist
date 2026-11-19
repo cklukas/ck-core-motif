@@ -486,6 +486,8 @@ public XmTextReplace
 public XmTextReplaceWcs
 public XmTextScroll
 public XmTextSetAddMode
+public XmTextSetColorSpans
+public XmTextClearColorSpans
 public XmTextSetEditable
 public XmTextSetHighlight
 public XmTextSetInsertionPosition

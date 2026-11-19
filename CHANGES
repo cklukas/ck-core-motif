@@ -1,3 +1,24 @@
+XmTabBox/XmTabStack overflow menu, wheel scrolling, and XmText foreground color spans (2026-11-19)
+==================================================================================================
+
+- `lib/Xm/TabBox.h`, `lib/Xm/TabBoxP.h`, `lib/Xm/TabBox.c`, `lib/Xm/TabStackP.h`,
+  `lib/Xm/TabStack.c`: added wheel scrolling (`XmTabBoxScroll` on `Btn4Down` /
+  `Btn5Down`) and partial-tab click reveal for `XmTABS_SCROLLED` tab strips, and
+  added optional `XmNtabOverflowMenu` (`Boolean`, default `False`) on both
+  `XmTabBox` and `XmTabStack` to automatically show a popup tab-list menu button
+  alongside the scroll arrows whenever tabs exceed the strip allocation and hide
+  all overflow controls when tabs fit.
+- `lib/Xm/Text.h`, `lib/Xm/TextI.h`, `lib/Xm/TextOutP.h`, `lib/Xm/TextOut.c`,
+  `lib/Xm/Text.c`, `lib/Xm/TextFunc.c`, `lib/Xm/libXm.elist`: added public
+  `XmTextSetColorSpans` and `XmTextClearColorSpans` APIs (`XmTextColorSpan`) for
+  per-range foreground syntax/token coloring across both Xft Unicode-paragraph
+  and core-font `XmText` output pipelines without disturbing primary/secondary
+  selection highlights, with minimal-diff invalidation and edit-delta rebasing.
+- Tests: `tests/automated/check-tab-scrolling.c`,
+  `tests/automated/check-text-color-spans.c`,
+  `tests/automated/run-text-color-spans.py`.
+- Docs: `docs/modern-visual-overhaul.md`, `docs/unicode.md`.
+
 Per-output RandR DPI XWayland compositor opt-in, cross-output move reflow, and XDND v5 initiator selection (2026-11-17)
 =======================================================================================================================
 

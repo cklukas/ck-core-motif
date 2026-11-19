@@ -3424,6 +3424,233 @@ _XmTextSetHighlight(Widget w,
   _XmAppUnlock(app);
 }
 
+typedef struct {
+  XmTextPosition pos;
+  Cardinal       order;
+  Boolean        is_start;
+} _XmColorEndpoint;
+
+static int
+CompareColorEndpoints(const void *a, const void *b)
+{
+  const _XmColorEndpoint *ea = (const _XmColorEndpoint *)a;
+  const _XmColorEndpoint *eb = (const _XmColorEndpoint *)b;
+  if (ea->pos < eb->pos) return -1;
+  if (ea->pos > eb->pos) return 1;
+  if (ea->is_start != eb->is_start) return ea->is_start ? 1 : -1;
+  if (ea->order < eb->order) return -1;
+  if (ea->order > eb->order) return 1;
+  return 0;
+}
+
+static XmTextColorSpan *
+CanonicalizeColorSpans(const XmTextColorSpan *spans,
+                       Cardinal count,
+                       XmTextPosition max_pos,
+                       Cardinal *out_count,
+                       Boolean *alloc_ok)
+{
+  XmTextColorSpan *valid = NULL, *merged = NULL;
+  Cardinal nvalid = 0, nmerged = 0;
+  Boolean sorted_disjoint = True;
+
+  *out_count = 0;
+  *alloc_ok = True;
+  if (spans == NULL || count == 0 || max_pos <= 0)
+    return NULL;
+  if ((size_t)count > SIZE_MAX / sizeof(XmTextColorSpan) ||
+      (size_t)count > UINT_MAX / sizeof(XmTextColorSpan)) {
+    *alloc_ok = False;
+    return NULL;
+  }
+  valid = (XmTextColorSpan *)XtMalloc((Cardinal)((size_t)count * sizeof(XmTextColorSpan)));
+  if (valid == NULL) {
+    *alloc_ok = False;
+    return NULL;
+  }
+  for (Cardinal i = 0; i < count; ++i) {
+    XmTextPosition l = spans[i].left < 0 ? 0 : spans[i].left;
+    XmTextPosition r = spans[i].right > max_pos ? max_pos : spans[i].right;
+    if (l >= r)
+      continue;
+    if (nvalid > 0 && valid[nvalid - 1].right > l)
+      sorted_disjoint = False;
+    valid[nvalid].left = l;
+    valid[nvalid].right = r;
+    valid[nvalid].foreground = spans[i].foreground;
+    ++nvalid;
+  }
+  if (nvalid == 0) {
+    XtFree((char *)valid);
+    return NULL;
+  }
+  if (sorted_disjoint) {
+    for (Cardinal i = 0; i < nvalid; ++i) {
+      if (nmerged > 0 &&
+          valid[nmerged - 1].right == valid[i].left &&
+          valid[nmerged - 1].foreground == valid[i].foreground) {
+        valid[nmerged - 1].right = valid[i].right;
+      } else {
+        valid[nmerged++] = valid[i];
+      }
+    }
+    *out_count = nmerged;
+    return valid;
+  }
+
+  /* General sweep-line normalization: later spans override earlier spans. */
+  if ((size_t)nvalid > SIZE_MAX / (2 * sizeof(_XmColorEndpoint)) ||
+      (size_t)nvalid * 2 * sizeof(_XmColorEndpoint) > UINT_MAX ||
+      (size_t)nvalid > SIZE_MAX / (2 * sizeof(XmTextColorSpan)) ||
+      (size_t)nvalid * 2 * sizeof(XmTextColorSpan) > UINT_MAX ||
+      (size_t)nvalid > SIZE_MAX / sizeof(Boolean) ||
+      (size_t)nvalid * sizeof(Boolean) > UINT_MAX) {
+    XtFree((char *)valid);
+    *alloc_ok = False;
+    return NULL;
+  }
+  {
+    Cardinal nep = nvalid * 2;
+    _XmColorEndpoint *eps = (_XmColorEndpoint *)XtMalloc(
+        (Cardinal)((size_t)nep * sizeof(_XmColorEndpoint)));
+    Boolean *active = (Boolean *)XtCalloc(nvalid, sizeof(Boolean));
+    merged = (XmTextColorSpan *)XtMalloc(
+        (Cardinal)((size_t)nep * sizeof(XmTextColorSpan)));
+    if (!eps || !active || !merged) {
+      XtFree((char *)eps);
+      XtFree((char *)active);
+      XtFree((char *)merged);
+      XtFree((char *)valid);
+      *alloc_ok = False;
+      return NULL;
+    }
+    for (Cardinal i = 0; i < nvalid; ++i) {
+      eps[2 * i] = (_XmColorEndpoint){ valid[i].left, i, True };
+      eps[2 * i + 1] = (_XmColorEndpoint){ valid[i].right, i, False };
+    }
+    qsort(eps, nep, sizeof(_XmColorEndpoint), CompareColorEndpoints);
+    Cardinal k = 0;
+    while (k < nep) {
+      XmTextPosition cur = eps[k].pos;
+      while (k < nep && eps[k].pos == cur) {
+        active[eps[k].order] = eps[k].is_start;
+        ++k;
+      }
+      if (k >= nep)
+        break;
+      XmTextPosition next = eps[k].pos;
+      if (cur < next) {
+        long winner = -1;
+        for (long a = (long)nvalid - 1; a >= 0; --a) {
+          if (active[a]) {
+            winner = a;
+            break;
+          }
+        }
+        if (winner >= 0) {
+          Pixel fg = valid[winner].foreground;
+          if (nmerged > 0 &&
+              merged[nmerged - 1].right == cur &&
+              merged[nmerged - 1].foreground == fg) {
+            merged[nmerged - 1].right = next;
+          } else {
+            merged[nmerged++] = (XmTextColorSpan){ cur, next, fg };
+          }
+        }
+      }
+    }
+    XtFree((char *)eps);
+    XtFree((char *)active);
+    XtFree((char *)valid);
+    if (nmerged == 0) {
+      XtFree((char *)merged);
+      return NULL;
+    }
+    *out_count = nmerged;
+    return merged;
+  }
+}
+
+void
+_XmTextSetColorSpans(Widget w,
+                     const XmTextColorSpan *spans,
+                     Cardinal count)
+{
+  XmTextWidget tw = (XmTextWidget)w;
+  OutputData data;
+  XmTextColorSpan *old_spans, *new_spans;
+  Cardinal old_count, new_count = 0;
+  Boolean alloc_ok = True;
+  XmTextPosition pos = 0, diff_left = PASTENDPOS, diff_right = 0;
+  Cardinal i = 0, j = 0;
+
+  if (tw == NULL || !XmIsText(w) || tw->text.output == NULL ||
+      tw->text.output->data == NULL)
+    return;
+
+  data = tw->text.output->data;
+  new_spans = CanonicalizeColorSpans(spans, count, tw->text.last_position,
+                                     &new_count, &alloc_ok);
+  if (!alloc_ok)
+    return;
+
+  old_spans = data->color_spans;
+  old_count = data->color_span_count;
+
+  while (i < old_count || j < new_count) {
+    XmTextPosition next_old = PASTENDPOS, next_new = PASTENDPOS, step;
+    Boolean has_old = False, has_new = False;
+    Pixel fg_old = 0, fg_new = 0;
+
+    while (i < old_count && old_spans[i].right <= pos) ++i;
+    while (j < new_count && new_spans[j].right <= pos) ++j;
+    if (i >= old_count && j >= new_count)
+      break;
+
+    if (i < old_count) {
+      if (pos < old_spans[i].left) {
+        next_old = old_spans[i].left;
+      } else {
+        has_old = True;
+        fg_old = old_spans[i].foreground;
+        next_old = old_spans[i].right;
+      }
+    }
+    if (j < new_count) {
+      if (pos < new_spans[j].left) {
+        next_new = new_spans[j].left;
+      } else {
+        has_new = True;
+        fg_new = new_spans[j].foreground;
+        next_new = new_spans[j].right;
+      }
+    }
+    step = next_old < next_new ? next_old : next_new;
+    if (step > pos && (has_old != has_new || (has_old && fg_old != fg_new))) {
+      if (pos < diff_left) diff_left = pos;
+      if (step > diff_right) diff_right = step;
+    }
+    pos = step;
+  }
+
+  data->color_spans = new_spans;
+  data->color_span_count = new_count;
+  XtFree((char *)old_spans);
+
+  if (diff_left < diff_right) {
+    if (diff_right > tw->text.last_position)
+      diff_right = tw->text.last_position;
+    if (diff_left < 0)
+      diff_left = 0;
+    if (diff_left < diff_right) {
+      EraseInsertionPoint(tw);
+      _XmTextMarkRedraw(tw, diff_left, diff_right);
+      data->refresh_ibeam_off = True;
+      TextDrawInsertionPoint(tw);
+    }
+  }
+}
+
 void 
 _XmTextShowPosition(Widget widget,
 		    XmTextPosition position)

@@ -122,6 +122,11 @@ typedef struct _XmTabBoxPart {
     int              _cache_size;
     
     Boolean		check_set_render_table;
+    Boolean             tab_overflow_menu;
+    Widget              _overflow_arrow;
+    Widget              _overflow_menu;
+    Widget              *_overflow_items;
+    int                 _num_overflow_items;
 } XmTabBoxPart;
 
 /*
@@ -176,6 +181,11 @@ typedef struct _XmTabBoxPart {
 #define XmTabBox__canvas(w) (((XmTabBoxWidget)(w))->tab_box._canvas)
 #define XmTabBox__left_arrow(w) (((XmTabBoxWidget)(w))->tab_box._left_arrow)
 #define XmTabBox__right_arrow(w) (((XmTabBoxWidget)(w))->tab_box._right_arrow)
+#define XmTabBox_tab_overflow_menu(w) (((XmTabBoxWidget)(w))->tab_box.tab_overflow_menu)
+#define XmTabBox__overflow_arrow(w) (((XmTabBoxWidget)(w))->tab_box._overflow_arrow)
+#define XmTabBox__overflow_menu(w) (((XmTabBoxWidget)(w))->tab_box._overflow_menu)
+#define XmTabBox__overflow_items(w) (((XmTabBoxWidget)(w))->tab_box._overflow_items)
+#define XmTabBox__num_overflow_items(w) (((XmTabBoxWidget)(w))->tab_box._num_overflow_items)
 #define XmTabBox__inited(w) (((XmTabBoxWidget)(w))->tab_box._inited)
 #define XmTabBox__cache(w) (((XmTabBoxWidget)(w))->tab_box._cache)
 #define XmTabBox__cache_size(w) (((XmTabBoxWidget)(w))->tab_box._cache_size)

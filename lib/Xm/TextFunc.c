@@ -864,6 +864,27 @@ XmTextSetHighlight(Widget w,
   }
 }
 
+void
+XmTextSetColorSpans(Widget widget,
+                    const XmTextColorSpan *spans,
+                    Cardinal count)
+{
+  if (widget == NULL || !XmIsText(widget))
+    return;
+  {
+    _XmWidgetToAppContext(widget);
+    _XmAppLock(app);
+    _XmTextSetColorSpans(widget, spans, count);
+    _XmAppUnlock(app);
+  }
+}
+
+void
+XmTextClearColorSpans(Widget widget)
+{
+  XmTextSetColorSpans(widget, NULL, 0);
+}
+
 static int
 _XmTextGetSubstring(Widget widget,
 		    XmTextPosition start,

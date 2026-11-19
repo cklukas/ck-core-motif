@@ -131,5 +131,54 @@ int main(int argc,char**argv){
   XtVaGetValues(explicit,XmNtabMode,&mode,NULL);CHECK(mode==XmTABS_BASIC);
   XtDestroyWidget(shell);drain(app,d);
  }
+ {
+  CHECK(XmApplyAppearanceProfile(d,XmAPPEARANCE_CLASSIC));
+  CHECK(XmSetDisplayScaleOverride(d,1.0));
+  Widget shell=XtAppCreateShell("overflowmenu","OverflowMenu",applicationShellWidgetClass,d,NULL,0);
+  XtVaSetValues(shell,XtNwidth,340,XtNheight,180,NULL);
+  Widget stack=XtVaCreateManagedWidget("stack",xmTabStackWidgetClass,shell,
+    XmNtabMode,XmTABS_SCROLLED,XmNtabArrowPlacement,XmTAB_ARROWS_ON_RIGHT,
+    XmNtabOverflowMenu,True,XmNuniformTabSize,False,NULL);
+  Widget pages[7];
+  for(int i=0;i<7;i++){
+   char label[64];snprintf(label,sizeof(label),"TabPage_%d_LongTitle",i+1);
+   XmString text=XmStringCreateLocalized(label);
+   pages[i]=XtVaCreateManagedWidget("page",xmLabelWidgetClass,stack,XmNlabelString,text,XmNtabLabelString,text,NULL);
+   XmStringFree(text);
+  }
+  XtAddCallback(stack,XmNtabSelectedCallback,selected,NULL);
+  XtRealizeWidget(shell);drain(app,d);
+  Widget box=XtNameToWidget(stack,"tabBox"),canvas=XtNameToWidget(box,"canvas");
+  Widget left=XtNameToWidget(box,"leftArrow"),right=XtNameToWidget(box,"rightArrow"),over=XtNameToWidget(box,"overflowArrow");
+  CHECK(box&&canvas&&left&&right&&over);
+  CHECK(XtIsManaged(left)&&XtIsManaged(right)&&XtIsManaged(over));
+  CHECK(XmTabBoxXYToIndex(box,XtX(over)+XtWidth(over)/2,XtY(over)+XtHeight(over)/2)==-1);
+  /* Wheel scroll forward (Button5) and backward (Button4) on canvas */
+  {
+   Position rx,ry;XtTranslateCoords(canvas,XtWidth(canvas)/2,XtHeight(canvas)/2,&rx,&ry);
+   XTestFakeMotionEvent(d,-1,rx,ry,CurrentTime);
+   XTestFakeButtonEvent(d,5,True,CurrentTime);XTestFakeButtonEvent(d,5,False,CurrentTime);drain(app,d);
+   CHECK(XmTabBox__scroll_x(box)>0);
+   XTestFakeButtonEvent(d,4,True,CurrentTime);XTestFakeButtonEvent(d,4,False,CurrentTime);drain(app,d);
+   CHECK(XmTabBox__scroll_x(box)==0);
+  }
+  /* Open overflow menu and activate offscreen last tab */
+  XtCallCallbacks(over,XmNactivateCallback,NULL);drain(app,d);
+  Widget menu=XmTabBox__overflow_menu(box);CHECK(menu!=NULL&&XtIsManaged(menu));
+  CHECK(XmTabBox__num_overflow_items(box)==7);
+  XtUnmanageChild(menu);drain(app,d);
+  {
+   XmToggleButtonCallbackStruct tcb={XmCR_VALUE_CHANGED,NULL,True};
+   XtCallCallbacks(XmTabBox__overflow_items(box)[6],XmNvalueChangedCallback,&tcb);drain(app,d);
+  }
+  CHECK(XmTabStackGetSelectedTab(stack)==pages[6]);
+  CHECK(visible(box,6));
+  /* Resize wide: all 3 overflow controls auto-hide */
+  XtVaSetValues(shell,XtNwidth,1500,XtNheight,220,NULL);drain(app,d);
+  CHECK(!XtIsManaged(left)&&!XtIsManaged(right)&&!XtIsManaged(over));
+  CHECK(XmTabBox__scroll_x(box)==0);
+  XtDestroyWidget(shell);drain(app,d);
+  cases++;
+ }
  XtCloseDisplay(d);XtDestroyApplicationContext(app);printf("PASS tab scrolling: %u native scenarios\n",cases);return 0;
 }

@@ -43,6 +43,8 @@
 #include "XmI.h"
 #include <Xm/TabBoxP.h>
 #include <Xm/ArrowB.h>
+#include <Xm/RowColumn.h>
+#include <Xm/ToggleBG.h>
 #include <Xm/PrimitiveP.h>
 #include <Xm/TabStackP.h>
 #include <Xm/DrawUtils.h>
@@ -154,6 +156,10 @@ static void RedisplayTabs _ARGS((XmTabBoxWidget, Region));
 
 static void ScrolledLayout(XmTabBoxWidget, int);
 static void ScrollArrow(Widget, XtPointer, XtPointer);
+static void StepTabScroll(XmTabBoxWidget, Boolean);
+static void XmTabBoxScroll(Widget, XEvent *, String *, Cardinal *);
+static void OverflowArrow(Widget, XtPointer, XtPointer);
+static void OverflowMenuSelect(Widget, XtPointer, XtPointer);
 static void RevealTab(XmTabBoxWidget, int);
 static void ScrolledBaseline(XmTabBoxWidget);
 static void XmTabBoxTraverseEdge(Widget, XEvent *, String *, Cardinal *);
@@ -362,6 +368,7 @@ static void CheckSetRenderTable(Widget wid, int offs, XrmValue *value);
 
 static XtActionsRec actions[] = {
     { "XmTabBoxTraverseEdge", XmTabBoxTraverseEdge },
+    { "XmTabBoxScroll",       XmTabBoxScroll       },
     { "XmTabBoxArmAndActivate",	  (XtActionProc) XmTabBoxArmAndActivate   },
     { "XmTabBoxArmTab",           (XtActionProc) XmTabBoxArmTab           },
     { "XmTabBoxSelectTab",        (XtActionProc) XmTabBoxSelectTab        },
@@ -394,6 +401,8 @@ static char traversal_translations[] =
 static char canvas_translations[] = 
     "<Btn1Down>:       XmTabBoxArmTab()\n\
      <Btn1Up>:         XmTabBoxSelectTab()\n\
+     <Btn4Down>:       XmTabBoxScroll(backward)\n\
+     <Btn5Down>:       XmTabBoxScroll(forward)\n\
      <Key>osfActivate: XmTabBoxArmAndActivate()\n\
      <Key>space:       XmTabBoxArmAndActivate()";
 
@@ -498,6 +507,11 @@ static XtResource resources[] =
     XmNtabArrowPlacement, XmCTabArrowPlacement, XmRTabArrowPlacement,
     sizeof(int), XtOffsetOf(XmTabBoxRec, tab_box.arrow_placement),
     XmRImmediate, (XtPointer) XmTAB_ARROWS_SPLIT
+  },
+  {
+    XmNtabOverflowMenu, XmCTabOverflowMenu, XmRBoolean,
+    sizeof(Boolean), XtOffsetOf(XmTabBoxRec, tab_box.tab_overflow_menu),
+    XmRImmediate, (XtPointer) False
   },
   {
     XmNtabEdge, XmCTabEdge, XmRTabEdge,
@@ -815,6 +829,16 @@ Initialize(request, set, arg_list, arg_cnt)
         XtVaSetValues(XmTabBox__right_arrow(st), XmNtraversalOn, False, NULL);
         XtAddCallback(XmTabBox__right_arrow(st), XmNactivateCallback, ScrollArrow, st);
     }
+    XmTabBox__overflow_arrow(st) =
+	XtCreateWidget("overflowArrow", xmArrowButtonWidgetClass, set,
+		       filtered_args, num_filtered_args);
+    if (XmTabBox__overflow_arrow(st)) {
+        XtVaSetValues(XmTabBox__overflow_arrow(st), XmNtraversalOn, False, NULL);
+        XtAddCallback(XmTabBox__overflow_arrow(st), XmNactivateCallback, OverflowArrow, st);
+    }
+    XmTabBox__overflow_menu(st) = NULL;
+    XmTabBox__overflow_items(st) = NULL;
+    XmTabBox__num_overflow_items(st) = 0;
     XtFree((XtPointer)filtered_args);
 
     XmTabBox__bitmap(st) = XmUNSPECIFIED_PIXMAP;
@@ -941,6 +965,7 @@ Destroy(widget)
 
     XtFree((XtPointer) XmTabBox__actual(tab));
     XtFree((XtPointer) XmTabBox__wanted(tab));
+    XtFree((XtPointer) XmTabBox__overflow_items(tab));
 }
 
 static void
@@ -961,6 +986,7 @@ Resize(widget)
     if (XmTabBox_tab_mode(tab) != XmTABS_SCROLLED) {
         if (XmTabBox__left_arrow(tab)) XtUnmanageChild(XmTabBox__left_arrow(tab));
         if (XmTabBox__right_arrow(tab)) XtUnmanageChild(XmTabBox__right_arrow(tab));
+        if (XmTabBox__overflow_arrow(tab)) XtUnmanageChild(XmTabBox__overflow_arrow(tab));
         XtConfigureWidget(XmTabBox__canvas(tab), 0, 0,
                           MAX(1, XtWidth(tab)), MAX(1, XtHeight(tab)), 0);
         XmTabBox__scroll_x(tab) = 0;
@@ -1355,6 +1381,9 @@ SetValues(current, request, set, arg_list, arg_cnt)
 	if (XmTabBox__right_arrow(s_tab))
 	    XtSetValues(XmTabBox__right_arrow(s_tab), filtered_args,
 		    num_filtered_args);
+	if (XmTabBox__overflow_arrow(s_tab))
+	    XtSetValues(XmTabBox__overflow_arrow(s_tab), filtered_args,
+		    num_filtered_args);
 	XtFree((XtPointer)filtered_args);
     }
 
@@ -1430,6 +1459,7 @@ SetValues(current, request, set, arg_list, arg_cnt)
         cfield(tab_label_spacing) != sfield(tab_label_spacing) ||
         cfield(tab_corner_percent) != sfield(tab_corner_percent) ||
         cfield(arrow_placement) != sfield(arrow_placement) ||
+        cfield(tab_overflow_menu) != sfield(tab_overflow_menu) ||
         cfield(tab_edge) != sfield(tab_edge) ||
         cfield(tab_offset) != sfield(tab_offset) ||
         cfield(highlight_thickness) != sfield(highlight_thickness) )
@@ -1884,6 +1914,13 @@ XmTabBoxSelectTab(widget, event, params, num_params)
     if( idx == XmTabBox__selected(tab) || idx != XmTabBox__armed_tab(tab) ||
         !IsTabSensitive(tab, idx) )
     {
+	if (idx == XmTabBox__selected(tab) &&
+	    idx == XmTabBox__armed_tab(tab) &&
+	    IsTabSensitive(tab, idx) &&
+	    XmTabBox_tab_mode(tab) == XmTABS_SCROLLED)
+	{
+	    RevealTab(tab, idx);
+	}
 	XmTabBox__armed_tab(tab) = -1;
 	return;
     }
@@ -4727,22 +4764,28 @@ ScrolledLayout(XmTabBoxWidget tab, int reveal)
     int minor = MAX(1, horizontal ? XtHeight(tab) : XtWidth(tab));
     int count = _XmTabbedStackListCount(XmTabBox_tab_list(tab));
     Widget first = XmTabBox__left_arrow(tab), last = XmTabBox__right_arrow(tab);
+    Widget over = XmTabBox_tab_overflow_menu(tab) ? XmTabBox__overflow_arrow(tab) : NULL;
+    int nctrl = over ? 3 : 2;
     XtWidgetGeometry wanted;
     long long extent = ScrolledExtent(tab), offset = XmTabBox__scroll_x(tab);
-    int arrow = 0, start = 0, viewport, first_pos = 0, last_pos = 0;
-    if (first && last && extent > major && major >= 3) {
+    int arrow = 0, start = 0, viewport, first_pos = 0, last_pos = 0, over_pos = 0;
+    if (first && last && extent > major && major >= nctrl + 1) {
         XtQueryGeometry(first, NULL, &wanted);
-        arrow = MIN(MAX(1, horizontal ? wanted.width : wanted.height), (major - 1) / 2);
+        arrow = MIN(MAX(1, horizontal ? wanted.width : wanted.height), (major - 1) / nctrl);
     }
-    viewport = major - 2 * arrow;
+    viewport = major - nctrl * arrow;
     if (arrow) {
         switch (XmTabBox_arrow_placement(tab)) {
         case XmTAB_ARROWS_ON_LEFT:
-            first_pos = 0; last_pos = arrow; start = 2 * arrow; break;
+            first_pos = 0; last_pos = arrow; over_pos = 2 * arrow; start = nctrl * arrow; break;
         case XmTAB_ARROWS_ON_RIGHT:
-            first_pos = major - 2 * arrow; last_pos = major - arrow; break;
+            first_pos = major - nctrl * arrow; last_pos = major - (nctrl - 1) * arrow; over_pos = major - arrow; break;
         default:
-            first_pos = 0; last_pos = major - arrow; start = arrow; break;
+            first_pos = 0;
+            if (over) { last_pos = major - 2 * arrow; over_pos = major - arrow; }
+            else { last_pos = major - arrow; }
+            start = arrow;
+            break;
         }
     }
     offset = MAX(0LL, MIN(offset, MAX(0LL, extent - viewport)));
@@ -4770,9 +4813,19 @@ ScrolledLayout(XmTabBoxWidget tab, int reveal)
         XtSetSensitive(first, rtl ? offset + viewport < extent : offset > 0);
         XtSetSensitive(last, rtl ? offset > 0 : offset + viewport < extent);
         XtManageChild(first); XtManageChild(last);
+        if (over) {
+            XtVaSetValues(over, XmNarrowDirection, horizontal ? XmARROW_DOWN : XmARROW_RIGHT, XmNtraversalOn, False, NULL);
+            XtConfigureWidget(over, horizontal ? over_pos : 0, horizontal ? 0 : over_pos,
+                              horizontal ? arrow : minor, horizontal ? minor : arrow, 0);
+            XtSetSensitive(over, count > 0);
+            XtManageChild(over);
+        } else if (XmTabBox__overflow_arrow(tab)) {
+            XtUnmanageChild(XmTabBox__overflow_arrow(tab));
+        }
     } else {
         if (first) XtUnmanageChild(first);
         if (last) XtUnmanageChild(last);
+        if (XmTabBox__overflow_arrow(tab)) XtUnmanageChild(XmTabBox__overflow_arrow(tab));
     }
     long long cursor = 0;
     for (int i = 0; i < count; ++i) {
@@ -4802,28 +4855,162 @@ RevealTab(XmTabBoxWidget tab, int index)
 }
 
 static void
-ScrollArrow(Widget arrow, XtPointer closure, XtPointer call_data)
+StepTabScroll(XmTabBoxWidget tab, Boolean forward)
 {
-    XmTabBoxWidget tab = (XmTabBoxWidget)closure;
     Boolean horizontal = XmTabBox_orientation(tab) == XmHORIZONTAL;
-    Boolean forward = arrow == XmTabBox__right_arrow(tab);
     int count = _XmTabbedStackListCount(XmTabBox_tab_list(tab));
+    long long extent = ScrolledExtent(tab);
     long long offset = XmTabBox__scroll_x(tab), cursor = 0, target;
     int viewport = horizontal ? XmTabBox__scroll_rect(tab).width : XmTabBox__scroll_rect(tab).height;
-    (void)call_data;
-    if (!XtIsSensitive(arrow) || XmTabBox_tab_mode(tab) != XmTABS_SCROLLED) return;
+    if (XmTabBox_tab_mode(tab) != XmTABS_SCROLLED || count <= 0 || viewport <= 0 || extent <= viewport) return;
     if (horizontal && LayoutIsRtoLP(tab)) forward = !forward;
+    if (forward && offset + viewport >= extent) return;
+    if (!forward && offset <= 0) return;
     target = forward ? offset + viewport : MAX(0LL, offset - viewport);
     for (int i = 0; i < count; ++i) {
         if (forward && cursor > offset) {target = MIN(target, cursor); break;}
         if (!forward && cursor < offset) target = MAX(target, cursor);
         cursor += horizontal ? XmTabBox__wanted(tab)[i].width : XmTabBox__wanted(tab)[i].height;
     }
+    target = MAX(0LL, MIN(target, MAX(0LL, extent - viewport)));
+    if (target == offset) return;
     XmTabBox__armed_tab(tab) = -1;
     XmTabBox__scroll_x(tab) = target;
     ScrolledLayout(tab, -1);
     if (XtIsRealized(XmTabBox__canvas(tab)))
         Redisplay(XmTabBox__canvas(tab), NULL, NULL);
+}
+
+static void
+ScrollArrow(Widget arrow, XtPointer closure, XtPointer call_data)
+{
+    XmTabBoxWidget tab = (XmTabBoxWidget)closure;
+    (void)call_data;
+    if (!arrow || !tab || !XtIsSensitive(arrow) || XmTabBox_tab_mode(tab) != XmTABS_SCROLLED) return;
+    StepTabScroll(tab, arrow == XmTabBox__right_arrow(tab));
+}
+
+static void
+XmTabBoxScroll(Widget widget, XEvent *event, String *params, Cardinal *num_params)
+{
+    XmTabBoxWidget tab;
+    Boolean forward = True;
+    (void)event;
+    if (!widget || !XtParent(widget) || !XmIsTabBox(XtParent(widget))) return;
+    tab = XiTabParent(widget);
+    if (num_params && *num_params > 0 && params && params[0]) {
+        if (XmCompareISOLatin1(params[0], "backward") == 0 ||
+            XmCompareISOLatin1(params[0], "left") == 0 ||
+            XmCompareISOLatin1(params[0], "up") == 0)
+            forward = False;
+    }
+    StepTabScroll(tab, forward);
+}
+
+static void
+OverflowMenuSelect(Widget item, XtPointer closure, XtPointer call_data)
+{
+    XmTabBoxWidget tab = (XmTabBoxWidget)closure;
+    XmToggleButtonCallbackStruct *cb = (XmToggleButtonCallbackStruct *)call_data;
+    XtPointer udata = NULL;
+    int idx;
+    if (!item || !tab || !XmIsTabBox((Widget)tab)) return;
+    XtVaGetValues(item, XmNuserData, &udata, NULL);
+    idx = (int)(intptr_t)udata;
+    if (idx < 0 || idx >= _XmTabbedStackListCount(XmTabBox_tab_list(tab)) || !IsTabSensitive(tab, idx))
+        return;
+    SelectTab(tab, cb ? cb->event : NULL, XmTabBox__selected(tab), idx);
+}
+
+static void
+OverflowArrow(Widget arrow, XtPointer closure, XtPointer call_data)
+{
+    XmTabBoxWidget tab = (XmTabBoxWidget)closure;
+    XmAnyCallbackStruct *cb = (XmAnyCallbackStruct *)call_data;
+    XmTabbedStackList list;
+    int count;
+    Position rx = 0, ry = 0;
+    XButtonPressedEvent bev;
+
+    if (!arrow || !tab || !XtIsSensitive(arrow) || XmTabBox_tab_mode(tab) != XmTABS_SCROLLED)
+        return;
+    list = XmTabBox_tab_list(tab);
+    count = _XmTabbedStackListCount(list);
+    if (count <= 0)
+        return;
+
+    if (XmTabBox__overflow_menu(tab) == NULL) {
+        Arg margs[2];
+        XtSetArg(margs[0], XmNradioAlwaysOne, False);
+        XmTabBox__overflow_menu(tab) = XmCreatePopupMenu((Widget)tab, "overflowMenu", margs, 1);
+        if (XmTabBox__overflow_menu(tab) == NULL)
+            return;
+    }
+
+    if (count > XmTabBox__num_overflow_items(tab)) {
+        Widget *items;
+        if ((size_t)count > SIZE_MAX / sizeof(*items) ||
+            (size_t)count > UINT_MAX / sizeof(*items))
+            return;
+        items = (Widget *)XtRealloc((XtPointer)XmTabBox__overflow_items(tab),
+                                    (Cardinal)((size_t)count * sizeof(*items)));
+        if (items == NULL)
+            return;
+        for (int i = XmTabBox__num_overflow_items(tab); i < count; ++i) {
+            char name[32];
+            snprintf(name, sizeof(name), "tabItem%d", i);
+            items[i] = XtVaCreateWidget(name, xmToggleButtonGadgetClass,
+                                        XmTabBox__overflow_menu(tab),
+                                        XmNindicatorType, XmONE_OF_MANY,
+                                        XmNvisibleWhenOff, True,
+                                        NULL);
+            if (items[i])
+                XtAddCallback(items[i], XmNvalueChangedCallback, OverflowMenuSelect, tab);
+        }
+        XmTabBox__overflow_items(tab) = items;
+        XmTabBox__num_overflow_items(tab) = count;
+    }
+
+    for (int i = 0; i < XmTabBox__num_overflow_items(tab); ++i) {
+        Widget item = XmTabBox__overflow_items(tab)[i];
+        if (!item) continue;
+        if (i < count) {
+            XmTabAttributes info = _XmTabbedStackListGet(list, i);
+            XmString label = (info && info->label_string) ? info->label_string : NULL;
+            XmString fallback = NULL;
+            if (!label) {
+                char buf[32];
+                snprintf(buf, sizeof(buf), "Tab %d", i + 1);
+                fallback = label = XmStringCreateLocalized(buf);
+            }
+            XtVaSetValues(item,
+                          XmNlabelString, label,
+                          XmNset, (Boolean)(i == XmTabBox__selected(tab)),
+                          XmNuserData, (XtPointer)(intptr_t)i,
+                          NULL);
+            if (fallback)
+                XmStringFree(fallback);
+            XtSetSensitive(item, IsTabSensitive(tab, i));
+            XtManageChild(item);
+        } else {
+            XtUnmanageChild(item);
+        }
+    }
+
+    XtTranslateCoords(arrow, 0, (Position)XtHeight(arrow), &rx, &ry);
+    memset(&bev, 0, sizeof(bev));
+    bev.type = ButtonPress;
+    bev.display = XtDisplay(arrow);
+    bev.window = XtWindow(arrow);
+    bev.root = DefaultRootWindow(XtDisplay(arrow));
+    bev.x_root = rx;
+    bev.y_root = ry;
+    bev.button = Button1;
+    bev.time = (cb && cb->event && cb->event->type == ButtonRelease)
+                   ? cb->event->xbutton.time
+                   : CurrentTime;
+    XmMenuPosition(XmTabBox__overflow_menu(tab), &bev);
+    XtManageChild(XmTabBox__overflow_menu(tab));
 }
 
 static void

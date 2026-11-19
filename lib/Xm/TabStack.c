@@ -369,6 +369,11 @@ static XtResource resources[] =
     XmRImmediate, (XtPointer) XmTAB_ARROWS_SPLIT
   },
   {
+    XmNtabOverflowMenu, XmCTabOverflowMenu, XmRBoolean,
+    sizeof(Boolean), XtOffsetOf(XmTabStackRec, tab_stack.tab_overflow_menu),
+    XmRImmediate, (XtPointer) False
+  },
+  {
     XmNtabMode, XmCTabMode, XmRTabMode,
     sizeof(XmTabMode), XtOffsetOf(XmTabStackRec, tab_stack.tab_mode),
     XmRImmediate, (XtPointer) XmTABS_BASIC
@@ -893,6 +898,7 @@ Initialize(request, set, arg_list, arg_cnt)
     XtSetArg(args[n], XmNshadowThickness, ts->manager.shadow_thickness); ++n;
     XtSetArg(args[n], XmNtabMode, XmTabStack_tab_mode(ts)); ++n;
     XtSetArg(args[n], XmNtabArrowPlacement, XmTabStack_tab_arrow_placement(ts)); ++n;
+    XtSetArg(args[n], XmNtabOverflowMenu, XmTabStack_tab_overflow_menu(ts)); ++n;
     XtSetArg(args[n], XmNtabStyle, XmTabStack_tab_style(ts)); ++n;
     XtSetArg(args[n], XmNtabAutoSelect, XmTabStack_tab_auto_select(ts)); ++n;
     XtSetArg(args[n], XmNtabSelectColor, XmTabStack_select_color(ts)); ++n;

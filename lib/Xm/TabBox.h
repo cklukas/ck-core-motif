@@ -28,6 +28,12 @@
 #include <Xm/DrawUtils.h>
 
 #define XmCTabArrowPlacement "TabArrowPlacement"
+#ifndef XmNtabOverflowMenu
+#define XmNtabOverflowMenu "tabOverflowMenu"
+#endif
+#ifndef XmCTabOverflowMenu
+#define XmCTabOverflowMenu "TabOverflowMenu"
+#endif
 
 #ifdef __cplusplus
 extern "C" {

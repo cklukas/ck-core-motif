@@ -1231,8 +1231,13 @@ Modern profiles now request `XmTABS_SCROLLED` for TabBox and TabStack.
 Explicit application modes retain ownership across profile changes. The
 canvas occupies the space between (or beside) the arrow controls, clips tab
 content to that viewport, and reveals programmatically selected or traversed
-tabs. Scrolling arrows move the viewport without selecting another page.
-`XmNtabArrowPlacement` is available on TabStack as well as TabBox.
+tabs. Scrolling arrows and mouse-wheel input (`XmTabBoxScroll`) move the
+viewport without selecting another page, and clicking an already-selected tab
+that is partially clipped at the viewport edge reveals it in full.
+`XmNtabArrowPlacement` and `XmNtabOverflowMenu` are available on TabStack as
+well as TabBox; when `XmNtabOverflowMenu` is `True`, an overflow popup button
+appears alongside the scroll arrows only while tabs exceed the strip extent and
+posts a radio-indicated menu of all tabs for direct selection.
 
 `XmTabBoxXYToIndex` accepts TabBox-local coordinates.
 `XmTabStackXYToWidget` accepts coordinates local to the supplied TabStack,

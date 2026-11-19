@@ -396,3 +396,26 @@ now passes the bounded strict `incremental-layout` and clipboard-lifetime
 consumer fixtures with leak detection enabled; Fontconfig and other broader
 ownership paths remain outside full native sanitizer acceptance. See the
 [status page](status.md) for exact limits.
+
+## Per-range foreground color spans
+
+`<Xm/Text.h>` provides `XmTextSetColorSpans(widget, spans, count)` and
+`XmTextClearColorSpans(widget)` using `XmTextColorSpan` (`left`, `right`,
+`foreground`). Spans use `XmTextPosition` scalar offsets, clamp out-of-range
+endpoints to `[0, last_position]`, normalize unsorted or overlapping ranges so
+later spans take precedence, merge adjacent spans with matching `foreground`
+pixels, and invalidate only the minimal symmetric-difference range against the
+previous span table.
+
+Color spans are independent of `XmTextSetHighlight` and primary/secondary
+selection state: selecting and clearing a selection preserves all active color
+spans, and source insertions or replacements rebase downstream spans in
+`OutputInvalidate` until the caller supplies an updated table. Both the Xft
+Unicode-paragraph capture path (`DrawUnicodeParagraph`, sliced along grapheme
+boundaries) and core-font / `XFontSet` output paths (`Draw`) render active color
+spans. Validate installed prefixes with:
+
+```sh
+python3 tests/automated/run-text-color-spans.py \
+  --prefix /absolute/path/to/prefix --out /absolute/path/to/fresh/out
+```

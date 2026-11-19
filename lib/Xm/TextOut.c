@@ -668,6 +668,31 @@ SetShadowGC(XmTextWidget tf, GC gc)
 
 
 
+static Cardinal
+FindFirstColorSpan(const OutputDataRec *data, XmTextPosition pos)
+{
+  Cardinal lo = 0, hi = data ? data->color_span_count : 0;
+  while (lo < hi) {
+    Cardinal mid = lo + (hi - lo) / 2;
+    if (data->color_spans[mid].right <= pos)
+      lo = mid + 1;
+    else
+      hi = mid;
+  }
+  return lo;
+}
+
+static Pixel
+LookupColorSpanPixel(const OutputDataRec *data, XmTextPosition pos, Pixel fallback)
+{
+  Cardinal idx = FindFirstColorSpan(data, pos);
+  if (data && idx < data->color_span_count &&
+      data->color_spans[idx].left <= pos &&
+      pos < data->color_spans[idx].right)
+    return data->color_spans[idx].foreground;
+  return fallback;
+}
+
 static void 
 InvertImageGC(XmTextWidget tw)
 {
@@ -929,8 +954,48 @@ DrawUnicodeParagraph(XmTextWidget tw, LineNum line, XmTextPosition start)
   draw = _XmXftDrawCreate(XtDisplay(tw), XtWindow(tw->text.inner_widget));
   if (draw == NULL) return True;
   baseline = viewport.y + data->font_ascent;
-  XmTextLayoutDraw(paragraph->layout, draw, &foreground, origin, baseline, 0,
-                    (size_t)(paragraph->end - paragraph->start), &viewport);
+  {
+    Cardinal cidx = FindFirstColorSpan(data, start);
+    if (cidx >= data->color_span_count || data->color_spans[cidx].left >= paragraph->end) {
+      XmTextLayoutDraw(paragraph->layout, draw, &foreground, origin, baseline, 0,
+                       (size_t)(paragraph->end - paragraph->start), &viewport);
+    } else {
+      XmTextPosition cursor = start;
+      while (cursor < paragraph->end) {
+        XmTextPosition slice_end = paragraph->end;
+        Pixel fg_pixel = tw->primitive.foreground;
+        XftColor span_color;
+        XftColor *use_color = &foreground;
+        size_t b_first = 0, b_last = 0;
+
+        while (cidx < data->color_span_count && data->color_spans[cidx].right <= cursor)
+          ++cidx;
+        if (cidx < data->color_span_count) {
+          if (cursor < data->color_spans[cidx].left) {
+            if (data->color_spans[cidx].left < slice_end)
+              slice_end = data->color_spans[cidx].left;
+          } else {
+            fg_pixel = data->color_spans[cidx].foreground;
+            if (data->color_spans[cidx].right < slice_end)
+              slice_end = data->color_spans[cidx].right;
+          }
+        }
+        if (fg_pixel != tw->primitive.foreground &&
+            ParagraphColor(tw, fg_pixel, &span_color)) {
+          use_color = &span_color;
+        }
+        if (XmTextLayoutBoundary(paragraph->layout, (size_t)(cursor - start), -1, &b_first) &&
+            XmTextLayoutBoundary(paragraph->layout, (size_t)(slice_end - start), 1, &b_last) &&
+            b_first < b_last) {
+          XmTextLayoutDraw(paragraph->layout, draw, use_color, origin, baseline,
+                           b_first, b_last, &viewport);
+        }
+        if (slice_end <= cursor)
+          break;
+        cursor = slice_end;
+      }
+    }
+  }
   for (i = 0; i < tw->text.highlight.number; ++i) {
     XmTextPosition first = tw->text.highlight.list[i].position;
     XmTextPosition last = i + 1 < tw->text.highlight.number ? tw->text.highlight.list[i + 1].position : tw->text.last_position;
@@ -2782,6 +2847,92 @@ _FontStructPerCharExtents(XmTextWidget tw,
 }
 
 
+static void
+DrawCoreSubRun(XmTextWidget tw, OutputData data, int draw_x, int y,
+               char *ptr, int byte_len)
+{
+  if (byte_len <= 0)
+    return;
+  if (data->use_fontset) {
+    XmbDrawString(XtDisplay(tw), XtWindow(tw->text.inner_widget),
+                  (XFontSet)data->font, data->gc,
+                  draw_x, y, ptr, byte_len);
+#ifdef USE_XFT
+  } else if (data->use_xft) {
+    _XmXftDrawString2(XtDisplay(tw), XtWindow(tw->text.inner_widget),
+                      data->gc, (XftFont *)data->font, 1,
+                      draw_x, y, ptr, byte_len);
+#endif
+  } else if (_XmIsISO10646(XtDisplay(tw), data->font)) {
+    size_t ucsstr_len = 0;
+    XChar2b *ucsstr = _XmUtf8ToUcs2(ptr, byte_len, &ucsstr_len);
+    if (ucsstr != NULL) {
+      XDrawString16(XtDisplay(tw), XtWindow(tw->text.inner_widget),
+                    data->gc, draw_x, y, ucsstr, (int)ucsstr_len);
+      XFree(ucsstr);
+    }
+  } else {
+    XDrawString(XtDisplay(tw), XtWindow(tw->text.inner_widget),
+                data->gc, draw_x, y, ptr, byte_len);
+  }
+}
+
+static Boolean
+DrawColoredCoreRun(XmTextWidget tw, OutputData data, int x, int y,
+                   char *ptr, int byte_len, XmTextPosition run_pos,
+                   XmTextPosition *out_next_pos)
+{
+  int off = 0, cur_x = x;
+  XmTextPosition pos = run_pos;
+
+  if (data->color_span_count == 0 || byte_len <= 0) {
+    if (out_next_pos) {
+      if ((int)tw->text.char_size == 1)
+        *out_next_pos = run_pos + byte_len;
+      else {
+        int nchars = _XmTextCountCharacters(ptr, byte_len);
+        *out_next_pos = run_pos + (nchars > 0 ? nchars : 0);
+      }
+    }
+    return False;
+  }
+
+  while (off < byte_len) {
+    Pixel fg = LookupColorSpanPixel(data, pos, tw->primitive.foreground);
+    int chunk_start = off;
+    while (off < byte_len) {
+      int step = 1;
+      if ((int)tw->text.char_size != 1) {
+#ifndef NO_MULTIBYTE
+        step = mblen(ptr + off, (int)tw->text.char_size);
+        if (step < 1) step = 1;
+#endif
+      }
+      if (off + step > byte_len)
+        step = byte_len - off;
+      if (off > chunk_start &&
+          LookupColorSpanPixel(data, pos, tw->primitive.foreground) != fg)
+        break;
+      off += step;
+      ++pos;
+    }
+    if (off > chunk_start) {
+      XmTextBlockRec sub;
+      sub.ptr = ptr + chunk_start;
+      sub.length = off - chunk_start;
+      sub.format = XmFMT_8_BIT;
+      XSetForeground(XtDisplay(tw), data->gc, fg);
+      DrawCoreSubRun(tw, data, cur_x - data->hoffset, y,
+                     sub.ptr, sub.length);
+      cur_x += FindWidth(tw, cur_x, &sub, 0, sub.length);
+    }
+  }
+  SetNormGC(tw, data->gc, True, False);
+  if (out_next_pos)
+    *out_next_pos = pos;
+  return True;
+}
+
 static void 
 Draw(XmTextWidget tw,
      LineNum line,
@@ -3212,6 +3363,7 @@ Draw(XmTextWidget tw,
   
   newx = x;
   while (start < end && x <= rightedge) {
+    XmTextPosition run_pos = start;
     start = (*tw->text.source->ReadSource)(tw->text.source, start,
 					       end, &block);
     if ((int)tw->text.char_size == 1) num_bytes = 1;
@@ -3234,6 +3386,7 @@ Draw(XmTextWidget tw,
 	  if (newx - data->hoffset < data->leftmargin) {
 	    block.length--;
 	    block.ptr++;
+	    run_pos++;
 	    x = newx;
 	    if ((int)tw->text.char_size != 1) { 
 	      /* check if we've got mbyte char */
@@ -3294,6 +3447,7 @@ Draw(XmTextWidget tw,
 	
 	block.length--;
 	block.ptr++;
+	run_pos++;
 	if ((int)tw->text.char_size != 1) {
 #ifndef NO_MULTIBYTE
 	  num_bytes = mblen(block.ptr, (int)tw->text.char_size);
@@ -3337,6 +3491,7 @@ Draw(XmTextWidget tw,
 	    length--;
 	    block.length--;
 	    block.ptr++;
+	    run_pos++;
 	    x = newx;
 	  }
 	} else {
@@ -3350,6 +3505,7 @@ Draw(XmTextWidget tw,
 	    length -= num_bytes;
 	    block.length -= num_bytes;
 	    block.ptr += num_bytes;
+	    run_pos++;
 	    x = newx;
 	  }
 	}
@@ -3450,7 +3606,11 @@ Draw(XmTextWidget tw,
 			 rec_height);
 	}
 	SetNormGC(tw, data->gc, True, stipple);
-	if (data->use_fontset) {
+	if (!stipple &&
+	    DrawColoredCoreRun(tw, data, x, y, block.ptr, length,
+			       run_pos, &run_pos)) {
+	  /* Drawn per color span */
+	} else if (data->use_fontset) {
 #ifdef FIX_1381
 	  if (stipple)
 	    {
@@ -3528,6 +3688,14 @@ Draw(XmTextWidget tw,
 	XDrawLine(XtDisplay(tw), XtWindow(tw->text.inner_widget),
 		  data->gc, x - data->hoffset, y, 
 		  (newx - data->hoffset) - 1, y);
+      if (highlight == XmHIGHLIGHT_SELECTED || stipple || data->color_span_count == 0) {
+	if ((int)tw->text.char_size == 1)
+	  run_pos += length;
+	else {
+	  int nchars = _XmTextCountCharacters(block.ptr, length);
+	  if (nchars > 0) run_pos += nchars;
+	}
+      }
       x = newx;
       block.length -= length;
       block.ptr += length;
@@ -4209,6 +4377,42 @@ OutputInvalidate(XmTextWidget tw,
     }
   }
 #endif
+  if (delta != NODELTA && tw->text.output && tw->text.output->data &&
+      tw->text.output->data->color_span_count > 0) {
+    OutputData cdata = tw->text.output->data;
+    Cardinal out = 0;
+    for (Cardinal i = 0; i < cdata->color_span_count; ++i) {
+      XmTextColorSpan sp = cdata->color_spans[i];
+      if (sp.right <= position) {
+        /* unchanged */
+      } else if (sp.left >= topos) {
+        sp.left += delta;
+        sp.right += delta;
+      } else {
+        if (sp.left > position)
+          sp.left = position;
+        if (sp.right <= topos)
+          sp.right = position + (topos - position + delta > 0 ? topos - position + delta : 0);
+        else
+          sp.right += delta;
+      }
+      if (sp.left < 0) sp.left = 0;
+      if (sp.left < sp.right) {
+        if (out > 0 &&
+            cdata->color_spans[out - 1].right >= sp.left &&
+            cdata->color_spans[out - 1].foreground == sp.foreground) {
+          if (sp.right > cdata->color_spans[out - 1].right)
+            cdata->color_spans[out - 1].right = sp.right;
+        } else {
+          if (out > 0 && sp.left < cdata->color_spans[out - 1].right)
+            sp.left = cdata->color_spans[out - 1].right;
+          if (sp.left < sp.right)
+            cdata->color_spans[out++] = sp;
+        }
+      }
+    }
+    cdata->color_span_count = out;
+  }
   _XmProcessLock();
   posToXYCachedWidget = NULL;
   _XmProcessUnlock();
@@ -5718,6 +5922,10 @@ OutputDestroy(Widget w)
   
   if (data->ibeam_off != XmUNSPECIFIED_PIXMAP)
     XFreePixmap(XtDisplay((Widget)tw), data->ibeam_off);
+
+  XtFree((char *)data->color_spans);
+  data->color_spans = NULL;
+  data->color_span_count = 0;
   
   XtFree((char *)data);
   XtFree((char *)tw->text.output);
@@ -6143,6 +6351,8 @@ _XmTextOutputCreate(Widget wid,
   data->unicode_cache_count = 0;
   data->unicode_affinity = 0;
   data->unicode_last_draw_line = NOLINE;
+  data->color_spans = NULL;
+  data->color_span_count = 0;
   XtGetSubresources(wid, (XtPointer)data, NULL, NULL, output_resources,
 		    XtNumber(output_resources), args, num_args);
   

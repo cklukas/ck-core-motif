@@ -140,6 +140,8 @@ typedef struct _OutputDataRec {
 #ifdef USE_XFT
     Boolean use_xft;            /* True if font to be used is XftFont */
 #endif
+    XmTextColorSpan *color_spans;
+    Cardinal color_span_count;
 } OutputDataRec, *OutputData;
 
 

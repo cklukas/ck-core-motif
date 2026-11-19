@@ -63,6 +63,19 @@ extern void XmTextSetHighlight(
                         XmTextPosition left,
                         XmTextPosition right,
                         XmHighlightMode mode);
+
+typedef struct _XmTextColorSpan {
+    XmTextPosition left;
+    XmTextPosition right;
+    Pixel          foreground;
+} XmTextColorSpan;
+
+extern void XmTextSetColorSpans(
+                        Widget widget,
+                        const XmTextColorSpan *spans,
+                        Cardinal count);
+extern void XmTextClearColorSpans(
+                        Widget widget);
 extern Widget XmCreateScrolledText( 
                         Widget parent,
                         char *name,

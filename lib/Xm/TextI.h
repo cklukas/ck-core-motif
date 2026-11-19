@@ -90,6 +90,7 @@ extern void _XmTextEnableRedisplay(XmTextWidget widget);
 
 extern void _XmTextSetHighlight(Widget, XmTextPosition,
                                 XmTextPosition, XmHighlightMode);
+extern void _XmTextSetColorSpans(Widget, const XmTextColorSpan *, Cardinal);
 extern void _XmTextShowPosition(Widget, XmTextPosition);
 extern void _XmTextSetEditable(Widget widget,
 #if NeedWidePrototypes
