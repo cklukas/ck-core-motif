@@ -4411,7 +4411,7 @@ appearance_recolor_colorobj_widgets(Display *display,
         Boolean fg_matches_old_palette = False;
         int slot = -1;
         int hint;
-        Arg set_args[10];
+        Arg set_args[12];
         Cardinal n = 0;
 
         ws = snapshot[i];
@@ -4547,10 +4547,28 @@ appearance_recolor_colorobj_widgets(Display *display,
             if (ws->supported[AP_TOP_SHADOW]) {
                 XtSetArg(set_args[n], XmNtopShadowColor, new_sets[slot].ts);
                 ++n;
+                if (XtIsWidget(w) && (XmIsPrimitive(w) || XmIsManager(w))) {
+                    Screen *wscr = XtScreen(w);
+                    if (new_sets[slot].bg != WhitePixelOfScreen(wscr) &&
+                        new_sets[slot].bg != BlackPixelOfScreen(wscr)) {
+                        XtSetArg(set_args[n], XmNtopShadowPixmap,
+                                 XmUNSPECIFIED_PIXMAP);
+                        ++n;
+                    }
+                }
             }
             if (ws->supported[AP_BOTTOM_SHADOW]) {
                 XtSetArg(set_args[n], XmNbottomShadowColor, new_sets[slot].bs);
                 ++n;
+                if (XtIsWidget(w) && (XmIsPrimitive(w) || XmIsManager(w))) {
+                    Screen *wscr = XtScreen(w);
+                    if (new_sets[slot].bg != WhitePixelOfScreen(wscr) &&
+                        new_sets[slot].bg != BlackPixelOfScreen(wscr)) {
+                        XtSetArg(set_args[n], XmNbottomShadowPixmap,
+                                 XmUNSPECIFIED_PIXMAP);
+                        ++n;
+                    }
+                }
             }
             if (ws->supported[AP_SELECT]) {
                 XtSetArg(set_args[n], XmNselectColor, new_sets[slot].sc);

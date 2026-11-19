@@ -952,6 +952,8 @@ UpdateXrm(
         XrmPutStringResource (&db, "*topShadowPixmap", XmCO_NO_DITHER);
     if (XmCO_DitherBottomShadow(tmpColorObj->color_obj.display, screen, &colors[i])) 
         XrmPutStringResource (&db, "*bottomShadowPixmap", XmCO_DITHER);
+    else
+        XrmPutStringResource (&db, "*bottomShadowPixmap", XmCO_NO_DITHER);
 
     /** update the secondary color set information **/
     i = tmpColorObj->color_obj.secondary;
@@ -984,8 +986,7 @@ UpdateXrm(
         XrmPutStringResource (&db,"*XmCascadeButtonGadget*topShadowPixmap",
                               XmCO_DITHER);
     }
-    else if (XmCO_DitherTopShadow(tmpColorObj->color_obj.display, screen, 
-                             &(colors[tmpColorObj->color_obj.primary]))) 
+    else
     {
         XrmPutStringResource (&db, "*XmDialogShell*topShadowPixmap", 
 			      XmCO_NO_DITHER);
@@ -1008,8 +1009,7 @@ UpdateXrm(
         XrmPutStringResource (&db, "*XmCascadeButtonGadget*bottomShadowPixmap",
                               XmCO_DITHER);
     }
-    else if (XmCO_DitherBottomShadow(tmpColorObj->color_obj.display, screen, 
-                             &(colors[tmpColorObj->color_obj.primary]))) 
+    else
     {
         XrmPutStringResource (&db, "*XmDialogShell*bottomShadowPixmap",
                               XmCO_NO_DITHER);
@@ -1149,21 +1149,14 @@ UpdateXrm(
 			      "*XmCascadeButtonGadget*DtTerm*topShadowPixmap", 
 		              XmCO_DITHER);
     }
-    else  /** undo dithers set for primary and secondary if needed **/
+    else  /** undo dithers set for primary, secondary, or previous palette **/
     {
-      if (XmCO_DitherTopShadow(tmpColorObj->color_obj.display, screen, 
-                             &(colors[tmpColorObj->color_obj.primary]))) 
-      {
         XrmPutStringResource (&db, "*XmText*topShadowPixmap", XmCO_NO_DITHER);
         XrmPutStringResource (&db, "*XmTextField*topShadowPixmap", 
 			      XmCO_NO_DITHER);
         XrmPutStringResource (&db, "*DtTerm*topShadowPixmap", XmCO_NO_DITHER);
         if (doList)
 	  XrmPutStringResource (&db, "*XmList*topShadowPixmap", XmCO_NO_DITHER);
-      }
-      if (XmCO_DitherTopShadow(tmpColorObj->color_obj.display, screen, 
-                             &(colors[tmpColorObj->color_obj.secondary]))) 
-      {
 
         XrmPutStringResource (&db, "*XmDialogShell*XmText*topShadowPixmap", 
 			      XmCO_NO_DITHER);
@@ -1202,7 +1195,6 @@ UpdateXrm(
         XrmPutStringResource (&db, 
 			      "*XmCascadeButtonGadget*DtTerm*topShadowPixmap", 
 		              XmCO_NO_DITHER);
-      }
     }
 
     /** dither (or "undither") bottom shadow if needed **/
@@ -1254,20 +1246,13 @@ UpdateXrm(
 			     "*XmCascadeButtonGadget*DtTerm*bottomShadowPixmap",
 		              XmCO_DITHER);
     }
-    else  /** undo dithers set for primary and secondary if needed **/
+    else  /** undo dithers set for primary, secondary, or previous palette **/
     {
-      if (XmCO_DitherBottomShadow(tmpColorObj->color_obj.display, screen, 
-                             &(colors[tmpColorObj->color_obj.primary]))) 
-      {
         XrmPutStringResource (&db, "*XmText*bottomShadowPixmap", XmCO_NO_DITHER);
         XrmPutStringResource (&db, "*XmTextField*bottomShadowPixmap",XmCO_NO_DITHER);
         XrmPutStringResource (&db, "*DtTerm*bottomShadowPixmap", XmCO_NO_DITHER);
         if (doList)
 	  XrmPutStringResource (&db, "*XmList*bottomShadowPixmap", XmCO_NO_DITHER);
-      }
-      if (XmCO_DitherBottomShadow(tmpColorObj->color_obj.display, screen, 
-                             &(colors[tmpColorObj->color_obj.secondary]))) 
-      {
 
         XrmPutStringResource (&db, "*XmDialogShell*XmText*bottomShadowPixmap", 
 			      XmCO_NO_DITHER);
@@ -1307,7 +1292,6 @@ UpdateXrm(
         XrmPutStringResource (&db, 
 			     "*XmCascadeButtonGadget*DtTerm*bottomShadowPixmap",
 		              XmCO_NO_DITHER);
-      }
     }
 }
 

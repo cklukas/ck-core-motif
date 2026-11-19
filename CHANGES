@@ -1,3 +1,17 @@
+Reset XmColorObj shadow-dither pixmaps on live palette transitions (2026-11-20)
+===============================================================================
+
+- `lib/Xm/ColorObj.c`, `lib/Xm/Appearance.c`, `docs/appearance-profiles.md`,
+  `tests/automated/check-elevated-button-label-bg.c`:
+  - Emit `XmCO_NO_DITHER` (`unspecified_pixmap`) unconditionally in `UpdateXrm`
+    whenever `primary`, `secondary`, or `text` slots do not require shadow
+    dithering (`#000000` / `#ffffff`), and reset `XmNtopShadowPixmap` and
+    `XmNbottomShadowPixmap` on live `XmPrimitive` / `XmManager` widgets during
+    `_XmColorObjRefreshDisplay` updates. Switching from a pure black or white
+    palette (such as `HighContrast`) to a standard 3D-beveled palette (such as
+    `BeigeRose` or `Default`) no longer leaves `*bottomShadowPixmap: 50_foreground`
+    stuck in `XrmGetDatabase(display)` or on rebuilt `XmPushButton` controls.
+
 Preserve zero shadowThickness baseline on XmMainWindow and layout containers across profiles (2026-11-20)
 =========================================================================================================
 

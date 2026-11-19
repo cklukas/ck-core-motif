@@ -368,6 +368,116 @@ main(int argc, char **argv)
     assert_menubar_cascade_uniform_bg(mb, cb_gad, crimson.pixel, "CascadeBG-crimson-setvalues");
     assert_menubar_cascade_uniform_bg(mb, cb_wid, crimson.pixel, "CascadeB-crimson-setvalues");
 
+    /* Verify live ColorObj transition from #000000 (dithered bottomShadowPixmap)
+     * to a normal palette (#919191 BeigeRose) clears *bottomShadowPixmap and
+     * *topShadowPixmap in XrmGetDatabase so newly created XmPushButtons (such
+     * as rebuilt calculator keypads) render solid 3D shadows instead of stale
+     * 50_foreground stipples. */
+    {
+        Display *srv = XOpenDisplay(NULL);
+        CHECK(srv != NULL);
+        Colormap scmap = DefaultColormap(srv, DefaultScreen(srv));
+        Window cowner = XCreateSimpleWindow(srv, DefaultRootWindow(srv),
+                                            0, 0, 1, 1, 0, 0, 0);
+        Atom a_pset = XInternAtom(srv, "SDT Pixel Set", False);
+        Atom a_cust = XInternAtom(srv, "Customize Data:0", False);
+        unsigned long blk = BlackPixel(srv, DefaultScreen(srv));
+        unsigned long wht = WhitePixel(srv, DefaultScreen(srv));
+        char set_hc[128], blob_hc[1100];
+        snprintf(set_hc, sizeof(set_hc), "%lx_%lx_%lx_%lx_%lx_",
+                 blk, wht, wht, wht, blk);
+        char *p = blob_hc;
+        memcpy(p, "1_", 2);
+        p += 2;
+        for (int i = 0; i < 8; ++i) {
+            size_t sl = strlen(set_hc);
+            memcpy(p, set_hc, sl);
+            p += sl;
+        }
+        *p++ = '1';
+        XChangeProperty(srv, cowner, a_pset, XA_STRING, 8, PropModeReplace,
+                        (const unsigned char *)blob_hc, (int)(p - blob_hc));
+        XSetSelectionOwner(srv, a_cust, cowner, CurrentTime);
+        XSync(srv, False);
+
+        int co_argc = 1;
+        char *co_argv[] = { argv[0], NULL };
+        Display *cdpy = XtOpenDisplay(app, NULL, "calcTest", "CalcTest",
+                                      NULL, 0, &co_argc, co_argv);
+        CHECK(cdpy != NULL);
+        Widget cshell = XtAppCreateShell("calcTest", "CalcTest",
+                                         applicationShellWidgetClass,
+                                         cdpy, NULL, 0);
+        Widget cform = XmCreateForm(cshell, "cform", NULL, 0);
+        Widget btn_initial = XmCreatePushButton(cform, "btnInitial", NULL, 0);
+        XtManageChild(btn_initial);
+        XtManageChild(cform);
+        XtRealizeWidget(cshell);
+        drain(app, cdpy);
+
+        Pixmap hc_bs_pm = XmUNSPECIFIED_PIXMAP;
+        XtVaGetValues(btn_initial, XmNbottomShadowPixmap, &hc_bs_pm, NULL);
+        CHECK(hc_bs_pm != XmUNSPECIFIED_PIXMAP);
+
+        /* Now switch SDT Pixel Set to non-dithered BeigeRose (#919191) */
+        XColor c_bg, c_fg, c_ts, c_bs, c_sc, exact;
+        CHECK(XAllocNamedColor(srv, scmap, "#919191", &c_bg, &exact));
+        CHECK(XAllocNamedColor(srv, scmap, "#ffffff", &c_fg, &exact));
+        CHECK(XAllocNamedColor(srv, scmap, "#cecece", &c_ts, &exact));
+        CHECK(XAllocNamedColor(srv, scmap, "#494949", &c_bs, &exact));
+        CHECK(XAllocNamedColor(srv, scmap, "#7b7b7b", &c_sc, &exact));
+        char set_br[128], blob_br[1100];
+        snprintf(set_br, sizeof(set_br), "%lx_%lx_%lx_%lx_%lx_",
+                 (unsigned long)c_bg.pixel, (unsigned long)c_fg.pixel,
+                 (unsigned long)c_ts.pixel, (unsigned long)c_bs.pixel,
+                 (unsigned long)c_sc.pixel);
+        p = blob_br;
+        memcpy(p, "1_", 2);
+        p += 2;
+        for (int i = 0; i < 8; ++i) {
+            size_t sl = strlen(set_br);
+            memcpy(p, set_br, sl);
+            p += sl;
+        }
+        *p++ = '1';
+        XChangeProperty(srv, cowner, a_pset, XA_STRING, 8, PropModeReplace,
+                        (const unsigned char *)blob_br, (int)(p - blob_br));
+        XSync(srv, False);
+        XChangeProperty(cdpy, DefaultRootWindow(cdpy), XA_RESOURCE_MANAGER,
+                        XA_STRING, 8, PropModeReplace,
+                        (const unsigned char *)"*appearanceProfile: classic\n",
+                        28);
+        drain(app, cdpy);
+        XChangeProperty(cdpy, XtWindow(cshell), XA_WM_NAME, XA_STRING, 8,
+                        PropModeReplace, (const unsigned char *)"sync", 4);
+        drain(app, cdpy);
+
+        Widget btn_rebuilt = XmCreatePushButton(cform, "btnRebuilt", NULL, 0);
+        XtManageChild(btn_rebuilt);
+        drain(app, cdpy);
+
+        Pixmap init_bs_pm = 0, init_ts_pm = 0, reb_bs_pm = 0, reb_ts_pm = 0;
+        Pixel reb_bs_col = 0;
+        XtVaGetValues(btn_initial,
+                      XmNtopShadowPixmap, &init_ts_pm,
+                      XmNbottomShadowPixmap, &init_bs_pm,
+                      NULL);
+        XtVaGetValues(btn_rebuilt,
+                      XmNtopShadowPixmap, &reb_ts_pm,
+                      XmNbottomShadowPixmap, &reb_bs_pm,
+                      XmNbottomShadowColor, &reb_bs_col,
+                      NULL);
+        CHECK(init_ts_pm == XmUNSPECIFIED_PIXMAP);
+        CHECK(init_bs_pm == XmUNSPECIFIED_PIXMAP);
+        CHECK(reb_ts_pm == XmUNSPECIFIED_PIXMAP);
+        CHECK(reb_bs_pm == XmUNSPECIFIED_PIXMAP);
+        CHECK(reb_bs_col == c_bs.pixel);
+
+        XtDestroyWidget(cshell);
+        XtCloseDisplay(cdpy);
+        XCloseDisplay(srv);
+    }
+
     XtDestroyWidget(shell);
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);

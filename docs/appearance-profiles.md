@@ -749,8 +749,11 @@ window (`XA_RESOURCE_MANAGER`) and active `XmColorObj` `CUSTOMIZE_DATA` owner
   and workspace switch slots) in `modern_light` and `modern_dark` with tinted
   modern surfaces, recessed input wells, elevated button faces whose
   `TextRect` clears/fills match `_XmAppearanceButtonFacePixel`, and subtle tonal
-  1 px borders while retaining raw `XmColorObj` pixels in `original` state so
-  switching back to `classic` restores exact 3D bevel colors without drift.
+  1 px borders while retaining raw `XmColorObj` pixels in `original` state and
+  clearing `50_foreground` shadow-dither pixmaps (`XmCO_NO_DITHER` /
+  `XmUNSPECIFIED_PIXMAP`) on non-dithered palette slots so switching from pure
+  black/white palettes back to `classic` restores crisp solid 3D bevel shadows
+  on both existing and newly rebuilt controls without drift.
 - Preserves the previously applied profile/density baseline across `app_db`
   synchronization so `apply_appearance_settings` executes the full
   `_XmApplyAppearanceChange` widget transaction when transitioning between
