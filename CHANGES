@@ -4,24 +4,47 @@ Live RESOURCE_MANAGER and XmColorObj appearance/palette synchronization (2026-11
 - `lib/Xm/Appearance.c`, `lib/Xm/AppearanceDraw.c`, `lib/Xm/BaseClass.c`,
   `lib/Xm/CareVisualT.c`, `lib/Xm/CascadeB.c`, `lib/Xm/CascadeBG.c`,
   `lib/Xm/ColorObj.c`, `lib/Xm/ColorObjI.h`, `lib/Xm/PushB.c`,
-  `lib/Xm/PushBG.c`, `lib/Xm/XmI.h`, `docs/appearance-profiles.md`,
-  `tests/automated/check-live-appearance-sync.py`:
+  `lib/Xm/PushBG.c`, `lib/Xm/ToggleBG.c`, `lib/Xm/XmI.h`,
+  `docs/appearance-profiles.md`,
+  `tests/automated/check-live-appearance-sync.py`,
+  `tests/automated/check-elevated-button-label-bg.c`,
+  `tests/automated/run-elevated-button-label-bg.py`:
   - Added live `PropertyNotify` synchronization (`_XmAppearanceInstallLiveWatch`,
     `_XmColorObjRefreshDisplay`, `_XmColorObjSelectionOwner`, opt-out via
-    `ckCoreMotif.liveAppearanceSync: False`) so running Motif applications
-    update `XmColorObj` palette sets, semantic surface/accent tokens, appearance
+    `ckCoreMotif.liveAppearanceSync: False`) scheduled via `XtAppAddTimeOut(0)`
+    so both `XtAppMainLoop` and `XtAppPending`/`XtAppProcessEvent` loops update
+    `XmColorObj` palette sets, semantic surface/accent tokens, appearance
     profiles (`classic`, `modern_light`, `modern_dark`, `high_contrast`), and
     layout density immediately when Style Manager or `RESOURCE_MANAGER` updates.
+  - Harmonized multi-slot `XmColorObj` palettes (`primary`, `secondary`, `text`,
+    `selectColor` canvas wells, and workspace switch slots) in `modern_light`
+    and `modern_dark` with tinted modern neutrals, WCAG-guarded text/accent
+    contrast, elevated button cards, and tonal 1 px borders while retaining raw
+    `XmColorObj` baselines in `original` state for drift-free restoration to
+    `classic`. Treated `XmColorObj`-injected `XmRPixel` database entries,
+    session wildcard color resources, and non-swatch `XmColorObj`/parent-managed
+    pixel arguments as toolkit-owned session defaults so `DialogShell` windows
+    (sharing the primary dialog surface while menus retain secondary bar tint),
+    Front Panel controls, and canvas wells match live modern previews.
   - Preserved the active profile/density baseline while synchronizing `app_db`
     so transitions such as `modern_light`/`modern_dark` -> `classic` execute
     `_XmApplyAppearanceChange` instead of short-circuiting, guarded `ColorObj`
-    `XtSetValues` commits from poisoning `explicit_arg` tracking, and preserved
-    explicit non-`ColorObj` widget backgrounds (such as `DtHelp` `DisplayArea`)
-    while still updating `ColorObj`-sourced `XmNhighlightColor`.
+    `XtSetValues` commits from poisoning `explicit_arg` tracking, kept `DtTerm`
+    fixed-cell terminal fonts out of proportional Xft substitution, upgraded
+    `DtTitleBox` `"title"` headers to `XmAPPEARANCE_ROLE_SECTION` in modern
+    profiles, and cleared internal `XmOptionMenu` `"OptionButton"` constructor
+    overrides so option menus recolor symmetrically across profile switches.
   - Propagated `gadget_class.visual_change` in `_XmNotifyChildrenVisual` for
-    custom gadgets without `XmQTcareParentVisual` and unified modern button face
-    fill across `XmPushButton`, `XmPushButtonGadget`, `XmCascadeButton`, and
-    `XmCascadeButtonGadget`.
+    custom gadgets without `XmQTcareParentVisual`, installed `XmQTcareParentVisual`
+    and `SetValues` `CBG_BackgroundGC` / `CBG_ArmGC` / arrow-pixmap updates in
+    `XmCascadeButtonGadget`, refreshed `CB_ArmGC` / `CB_BackgroundGC` in
+    `XmCascadeButton` and `TBG_BackgroundGC` / `TBG_ArmGC` in
+    `XmToggleButtonGadget` so `enableEtchedInMenu` menu bars and pulldown menus
+    never paint stale outer background rectangles after palette or profile
+    transitions, added `_XmAppearanceButtonFacePixel`, and synchronized
+    `XmPushButton`, `XmPushButtonGadget`, `XmCascadeButton`, and
+    `XmCascadeButtonGadget` label background clears/fills with elevated and
+    hovered button face surfaces.
 
 Auto-enable XLibre/XWayland RandR DPI, Unicode text, AT-SPI, and SVG in configure (2026-11-19)
 ==============================================================================================

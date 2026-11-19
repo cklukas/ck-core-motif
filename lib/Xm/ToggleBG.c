@@ -787,6 +787,7 @@ _XmToggleBCacheCompare(
       (toggleB_inst->toggle_mode == toggleB_cache_inst->toggle_mode) &&
       (toggleB_inst->reversed_select == toggleB_cache_inst->reversed_select) &&
       (toggleB_inst->background_gc == toggleB_cache_inst->background_gc) &&
+      (toggleB_inst->arm_GC == toggleB_cache_inst->arm_GC) &&
       (toggleB_inst->ind_left_delta == toggleB_cache_inst->ind_left_delta) &&
       (toggleB_inst->ind_right_delta == toggleB_cache_inst->ind_right_delta) &&
       (toggleB_inst->ind_top_delta == toggleB_cache_inst->ind_top_delta) &&
@@ -1017,6 +1018,22 @@ ToggleBGCVTRedraw (
       TBG_UnselectColor(tw) = mw->core.background_pixel;
       GetUnselectGC(tw);
       
+      redraw = True;
+    }
+
+  if (visual_flag & (VisualBackgroundPixel | VisualForeground |
+                     VisualSelectColor))
+    {
+      XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(tw));
+      Boolean etched_in = dpy->display.enable_etched_in_menu;
+
+      XtReleaseGC (XtParent(tw), TBG_SelectGC(tw));
+      XtReleaseGC (XtParent(tw), TBG_BackgroundGC(tw));
+      XtReleaseGC (XtParent(tw), TBG_IndeterminateGC(tw));
+      XtReleaseGC (XtParent(tw), TBG_IndeterminateBoxGC(tw));
+      if (LabG_IsMenupane(tw) && etched_in)
+          XtReleaseGC ((Widget) tw, TBG_ArmGC(tw));
+      GetGC(tw);
       redraw = True;
     }
   
@@ -3879,10 +3896,15 @@ SetValues(
       (LabG_Background(newcbox) != LabG_Background(curcbox)) ||
       (TBG_SelectColor(newcbox) != TBG_SelectColor(curcbox)))
     {
+	XmDisplay dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(newcbox));
+	Boolean etched_in = dpy->display.enable_etched_in_menu;
+
 	XtReleaseGC (XtParent(newcbox), TBG_SelectGC(newcbox));
 	XtReleaseGC (XtParent(newcbox), TBG_BackgroundGC(newcbox));
 	XtReleaseGC (XtParent(newcbox), TBG_IndeterminateGC(newcbox));
 	XtReleaseGC (XtParent(newcbox), TBG_IndeterminateBoxGC(newcbox));
+	if (LabG_IsMenupane(newcbox) && etched_in)
+	    XtReleaseGC ((Widget) curcbox, TBG_ArmGC(curcbox));
 
 	TBG_ReversedSelect(newcbox) = 
 	  (TBG_SelectColor(newcbox) == XmREVERSED_GROUND_COLORS);

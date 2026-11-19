@@ -39,6 +39,7 @@ static char rcsid[] = "$TOG: CascadeBG.c /main/28 1999/02/01 18:47:11 mgreess $"
 #include <X11/ShellP.h>
 #include <X11/keysymdef.h>
 #include <Xm/CacheP.h>
+#include <Xm/CareVisualT.h>
 #include <Xm/CascadeBP.h>
 #include <Xm/DisplayP.h>
 #include <Xm/DrawP.h>
@@ -498,6 +499,15 @@ static XmMenuSavvyTraitRec MenuSavvyRecord = {
     NULL,
     _XmCBNameActivate,
 };
+
+static Boolean HandleRedraw(Widget kid, Widget cur_parent, Widget new_parent,
+                            Mask visual_flag);
+
+/* Care about parent Visual trait record. */
+static XmConst XmCareVisualTraitRec CascadeBGCVT = {
+    0,            /* version */
+    HandleRedraw  /* redraw  */
+};
 
 static void 
 ClassInitialize( void )
@@ -572,6 +582,8 @@ ClassPartInitialize(
   _XmFastSubclassInit (wc, XmCASCADE_BUTTON_GADGET_BIT);
 
   _XmLabelGCloneMenuSavvy (wc, &MenuSavvyRecord);
+
+  XmeTraitSet((XtPointer)wc, XmQTcareParentVisual, (XtPointer)&CascadeBGCVT);
 }
 
 /************************************************************************
@@ -727,6 +739,95 @@ InitializePosthook(
     XtFree( (char *) ext);
     _XmProcessUnlock();
 
+}
+
+static Boolean
+CascadeBGCVTRedraw(
+        Widget kid,
+        Widget cur_parent,
+        Widget new_parent,
+        Mask visual_flag )
+{
+    XmCascadeButtonGadget cb = (XmCascadeButtonGadget) kid;
+    XmManagerWidget mw = (XmManagerWidget) new_parent;
+    Boolean redraw = False;
+    XmCascadeButtonGCacheObjPart oldCopy = {0};
+
+    (void)cur_parent;
+    if (!(visual_flag & (VisualBackgroundPixel | VisualForeground |
+                         VisualTopShadowColor | VisualBottomShadowColor |
+                         VisualSelectColor)))
+        return False;
+
+    _XmProcessLock();
+    _XmCacheCopy((XtPointer) CBG_Cache(cb), (XtPointer) &oldCopy,
+                 sizeof(XmCascadeButtonGCacheObjPart));
+    _XmCacheDelete((XtPointer) CBG_Cache(cb));
+    _XmProcessUnlock();
+    CBG_Cache(cb) = &oldCopy;
+
+    if (visual_flag & (VisualBackgroundPixel | VisualForeground |
+                       VisualSelectColor))
+    {
+        XtReleaseGC((Widget) mw, CBG_ArmGC(cb));
+        XtReleaseGC((Widget) mw, CBG_BackgroundGC(cb));
+        GetArmGC(cb);
+        GetBackgroundGC(cb);
+        redraw = True;
+    }
+
+    if ((CBG_ArmedPixmap(cb) != XmUNSPECIFIED_PIXMAP) &&
+        (visual_flag & (VisualBackgroundPixel | VisualForeground |
+                        VisualTopShadowColor | VisualBottomShadowColor |
+                        VisualSelectColor)))
+    {
+        _XmProcessLock();
+        _XmArrowPixmapCacheDelete((XtPointer) CBG_ArmedPixmap(cb));
+        _XmArrowPixmapCacheDelete((XtPointer) CBG_CascadePixmap(cb));
+        CBG_ArmedPixmap(cb) = XmUNSPECIFIED_PIXMAP;
+        CBG_CascadePixmap(cb) = XmUNSPECIFIED_PIXMAP;
+        _XmCreateArrowPixmaps((Widget) cb);
+        _XmProcessUnlock();
+        size_cascade(cb);
+        redraw = True;
+    }
+
+    _XmProcessLock();
+    CBG_Cache(cb) = (XmCascadeButtonGCacheObjPart *)
+        _XmCachePart(CBG_ClassCachePart(cb), (XtPointer) CBG_Cache(cb),
+                     sizeof(XmCascadeButtonGCacheObjPart));
+    _XmProcessUnlock();
+
+    return redraw;
+}
+
+static Boolean
+HandleRedraw(
+        Widget kid,
+        Widget cur_parent,
+        Widget new_parent,
+        Mask visual_flag )
+{
+    Boolean redraw = _XmLabelGCVTRedraw(kid, cur_parent, new_parent, visual_flag);
+
+    redraw = CascadeBGCVTRedraw(kid, cur_parent, new_parent, visual_flag) ||
+             redraw;
+
+    if (redraw)
+    {
+        XtExposeProc expose;
+
+        _XmProcessLock();
+        expose = ((XmCascadeButtonGadgetClassRec *)(XtClass(kid)))->
+            rect_class.expose;
+        _XmProcessUnlock();
+
+        if (!XtIsRealized(kid))
+            return redraw;
+        (*expose)((Widget) kid, NULL, (Region) NULL);
+    }
+
+    return False;
 }
 
 /*******************************************************************
@@ -2779,6 +2880,17 @@ SetValues(
     menuSTrait = (XmMenuSystemTrait) 
       XmeTraitGet((XtPointer) XtClass(XtParent(cw)), XmQTmenuSystem);
 
+    if ((LabG_Foreground(new_w) != LabG_Foreground(old)) ||
+        (LabG_Background(new_w) != LabG_Background(old)) ||
+        (LabG_Font(new_w) != LabG_Font(old)))
+    {
+       XtReleaseGC(XtParent(new_w), CBG_ArmGC(old));
+       XtReleaseGC(XtParent(new_w), CBG_BackgroundGC(old));
+       GetArmGC(new_w);
+       GetBackgroundGC(new_w);
+       flag = TRUE;
+    }
+
     if ((CBG_Submenu(new_w)) &&
 	((! XmIsRowColumn(CBG_Submenu(new_w))) ||
 	 (RC_Type(CBG_Submenu(new_w)) != XmMENU_PULLDOWN)))
@@ -2842,7 +2954,11 @@ SetValues(
 	       (((CBG_CascadePixmap(new_w) ==  XmUNSPECIFIED_PIXMAP) &&
 		 (!CBG_Submenu(old) && CBG_Submenu(new_w))) ||
 	        ((CBG_ArmedPixmap(old) != XmUNSPECIFIED_PIXMAP) &&
-		 (LabG_TextRect_height(old) != LabG_TextRect_height(new_w)))))
+		 ((LabG_TextRect_height(old) != LabG_TextRect_height(new_w)) ||
+		  (LabG_Foreground(old) != LabG_Foreground(new_w)) ||
+		  (LabG_Background(old) != LabG_Background(new_w)) ||
+		  (LabG_TopShadowColor(old) != LabG_TopShadowColor(new_w)) ||
+		  (LabG_BottomShadowColor(old) != LabG_BottomShadowColor(new_w))))))
           {
 	        _XmProcessLock();
                 _XmArrowPixmapCacheDelete((XtPointer) CBG_ArmedPixmap(old));
@@ -2925,7 +3041,7 @@ GetArmGC(
   Pixel     junk, select_pixel;
   XmManagerWidget mw = (XmManagerWidget) XtParent(cb);  
 
-  XmGetColors(XtScreen(mw), mw->core.colormap, mw->core.background_pixel,
+  XmGetColors(XtScreen(mw), mw->core.colormap, LabG_Background(cb),
 	      &junk, &junk, &junk, &select_pixel);
 
   valueMask = GCForeground | GCBackground | GCGraphicsExposures;
@@ -2956,8 +3072,8 @@ GetBackgroundGC(
   XmManagerWidget mw = (XmManagerWidget) XtParent(cb);  
 
   valueMask = GCForeground | GCBackground | GCFont | GCGraphicsExposures;
-  values.foreground = mw -> core.background_pixel;
-  values.background = mw -> core.background_pixel;
+  values.foreground = LabG_Background(cb);
+  values.background = LabG_Background(cb);
   values.graphics_exposures = False;
 
   if (XmeRenderTableGetDefaultFont(LabG_Font(cb), &fs))

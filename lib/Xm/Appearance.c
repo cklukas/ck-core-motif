@@ -607,7 +607,7 @@ typedef struct _XmAppearanceDisplayState {
     Boolean live_watch_disabled;
     XtAppContext live_app_context;
     XtEventDispatchProc prev_prop_dispatcher;
-    XtWorkProcId live_sync_work_id;
+    XtIntervalId live_sync_timer_id;
     Widget hooks;
     struct _XmAppearanceDisplayState *next;
 } XmAppearanceDisplayState;
@@ -666,9 +666,9 @@ _XmDestroyAppearanceDisplay(Display *display)
     *link = state->next;
     active_database = state->active_database;
     state->active_database = NULL;
-    if (state->live_sync_work_id != 0) {
-        XtRemoveWorkProc(state->live_sync_work_id);
-        state->live_sync_work_id = 0;
+    if (state->live_sync_timer_id != 0) {
+        XtRemoveTimeOut(state->live_sync_timer_id);
+        state->live_sync_timer_id = 0;
     }
     if (state->live_watch_installed) {
         (void)XtSetEventDispatcher(display, PropertyNotify,
@@ -823,6 +823,8 @@ static Boolean lookup_appearance_resource(Display *display,
     const char *leaf_class, XrmValue *value_return);
 static XmAppearanceDisplayState *ensure_display_state(Display *display);
 static Boolean appearance_is_dtterm_widget(Widget w);
+static Boolean appearance_is_dthelp_display_area(Widget w);
+static Boolean appearance_widget_in_menu_tree(Widget w);
 static Boolean appearance_widget_in_secondary_tree(Widget w);
 static Boolean appearance_colorobj_modern_color(
     XmAppearanceWidgetState *state, XmAppearanceProfile new_profile,
@@ -1505,11 +1507,46 @@ appearance_database_named_value(Widget widget, XrmDatabase database,
         return False;
     if (widget != NULL) {
         Display *display = XtDisplayOfObject(widget);
-        if (database == XrmGetDatabase(display) &&
-            type == XrmStringToQuark(XmRString) &&
-            value_return != NULL && value_return->addr != NULL &&
-            strstr((const char *)value_return->addr, "-dt-interface ") != NULL)
-            return False;
+        if (database == XrmGetDatabase(display)) {
+            XmColorObj co;
+            if (type == XrmStringToQuark(XmRString) &&
+                value_return != NULL && value_return->addr != NULL &&
+                strstr((const char *)value_return->addr, "-dt-interface ") != NULL)
+                return False;
+            co = _XmColorObjForDisplay(display);
+            if (co != NULL && co->color_obj.colorIsRunning &&
+                co->color_obj.useColorObj && co->color_obj.colors != NULL) {
+                /* XmColorObj injects session palette pixels as XmRPixel entries;
+                 * treat those as toolkit session defaults rather than explicit
+                 * application overrides so modern profiles harmonize surfaces
+                 * and elevate buttons while preserving raw pixels in original[]. */
+                if (type == XrmStringToQuark(XmRPixel))
+                    return False;
+                if (type == XrmStringToQuark(XmRString) &&
+                    value_return != NULL && value_return->addr != NULL &&
+                    name != NULL && resource_class != NULL &&
+                    (strcmp(name, XmNbackground) == 0 ||
+                     strcmp(name, XmNforeground) == 0)) {
+                    char wname[96], wclass[96];
+                    char *wtype = NULL;
+                    XrmValue wval = {0, NULL};
+                    snprintf(wname, sizeof(wname), "__xm_wildcard__.%s", name);
+                    snprintf(wclass, sizeof(wclass), "__XmWildcard__.%s",
+                             resource_class);
+                    if (XrmGetResource(database, wname, wclass, &wtype, &wval) &&
+                        wval.addr == value_return->addr)
+                        return False;
+                    if (appearance_is_dthelp_display_area(widget)) {
+                        const char *sv = (const char *)value_return->addr;
+                        if (strcmp(sv, "White") == 0 ||
+                            strcmp(sv, "white") == 0 ||
+                            strcmp(sv, "Black") == 0 ||
+                            strcmp(sv, "black") == 0)
+                            return False;
+                    }
+                }
+            }
+        }
     }
     return True;
 }
@@ -2408,14 +2445,43 @@ appearance_widget_commit(XmAppearanceChangePlan *plan)
     }
 }
 
+static Boolean appearance_is_color_swatch_widget(Widget widget);
+static Boolean appearance_pixel_in_colorobj(Widget widget, Pixel px,
+                                            Boolean include_fg);
+
 static Boolean
 initialize_appearance_state(XmAppearanceWidgetState *state,
                             XmAppearanceProfile current_profile)
 {
     state->applied_role = appearance_role(state->widget);
     read_appearance_values(state, state->original);
+    if (!appearance_is_color_swatch_widget(state->widget)) {
+        for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
+            if (!state->supported[property] || !state->explicit_arg[property] ||
+                !appearance_property_is_color(property))
+                continue;
+            if (appearance_pixel_in_colorobj(
+                    state->widget, (Pixel)state->original[property], True) ||
+                (property == AP_BACKGROUND && XtParent(state->widget) != NULL &&
+                 XtIsWidget(XtParent(state->widget)) &&
+                 (Pixel)state->original[AP_BACKGROUND] ==
+                     XtParent(state->widget)->core.background_pixel)) {
+                state->explicit_arg[property] = False;
+            }
+        }
+    }
+    for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
+        XrmValue xrm_value;
+        XrmDatabase application = XrmGetDatabase(state->display);
+        if (!state->supported[property] || state->explicit_arg[property])
+            continue;
+        /* An application override remains authoritative even when its value
+         * happens to equal the current theme default. */
+        state->owned[property] = !appearance_database_value(state->widget,
+            application, property, &xrm_value);
+    }
     if (current_profile != XmAPPEARANCE_CLASSIC &&
-        state->supported[AP_BACKGROUND] && !state->explicit_arg[AP_BACKGROUND]) {
+        state->supported[AP_BACKGROUND] && state->owned[AP_BACKGROUND]) {
         XmColorObj co = _XmColorObjForDisplay(state->display);
         if (co != NULL && co->color_obj.colorIsRunning &&
             co->color_obj.useColorObj && co->color_obj.colors != NULL) {
@@ -2426,7 +2492,7 @@ initialize_appearance_state(XmAppearanceWidgetState *state,
                 Pixel cur_bg = (Pixel)state->original[AP_BACKGROUND];
                 Boolean matches_raw = False;
                 for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
-                    if (pset[k].bg == cur_bg) {
+                    if (pset[k].bg == cur_bg || pset[k].sc == cur_bg) {
                         matches_raw = True;
                         break;
                     }
@@ -2453,24 +2519,28 @@ initialize_appearance_state(XmAppearanceWidgetState *state,
                         state->original[AP_BACKGROUND] =
                             (XtArgVal)pset[fallback_slot].bg;
                         if (state->supported[AP_FOREGROUND] &&
-                            !state->explicit_arg[AP_FOREGROUND])
+                            state->owned[AP_FOREGROUND])
                             state->original[AP_FOREGROUND] =
                                 (XtArgVal)pset[fallback_slot].fg;
                         if (state->supported[AP_TOP_SHADOW] &&
-                            !state->explicit_arg[AP_TOP_SHADOW])
+                            state->owned[AP_TOP_SHADOW])
                             state->original[AP_TOP_SHADOW] =
                                 (XtArgVal)pset[fallback_slot].ts;
                         if (state->supported[AP_BOTTOM_SHADOW] &&
-                            !state->explicit_arg[AP_BOTTOM_SHADOW])
+                            state->owned[AP_BOTTOM_SHADOW])
                             state->original[AP_BOTTOM_SHADOW] =
                                 (XtArgVal)pset[fallback_slot].bs;
                         if (state->supported[AP_SELECT] &&
-                            !state->explicit_arg[AP_SELECT])
+                            state->owned[AP_SELECT])
                             state->original[AP_SELECT] =
                                 (XtArgVal)pset[fallback_slot].sc;
                         if (state->supported[AP_ARM] &&
-                            !state->explicit_arg[AP_ARM])
+                            state->owned[AP_ARM])
                             state->original[AP_ARM] =
+                                (XtArgVal)pset[fallback_slot].sc;
+                        if (state->supported[AP_TROUGH_COLOR] &&
+                            state->owned[AP_TROUGH_COLOR])
+                            state->original[AP_TROUGH_COLOR] =
                                 (XtArgVal)pset[fallback_slot].sc;
                     }
                 }
@@ -2487,16 +2557,6 @@ initialize_appearance_state(XmAppearanceWidgetState *state,
         state->original_font = XmRenderTableCopy((XmRenderTable)state->original[AP_RENDER_TABLE], NULL, 0);
         if (state->original_font == NULL) return False;
         state->original[AP_RENDER_TABLE] = (XtArgVal)state->original_font;
-    }
-    for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
-        XrmValue xrm_value;
-        XrmDatabase application = XrmGetDatabase(state->display);
-        if (!state->supported[property] || state->explicit_arg[property])
-            continue;
-        /* An application override remains authoritative even when its value
-         * happens to equal the current theme default. */
-        state->owned[property] = !appearance_database_value(state->widget,
-            application, property, &xrm_value);
     }
     if (state->supported[AP_RENDER_TABLE] &&
         (appearance_provider_font_explicit(state) ||
@@ -2658,6 +2718,114 @@ appearance_has_argument(ArgList args, Cardinal count, const char *name)
     return False;
 }
 
+static Boolean
+appearance_is_color_swatch_widget(Widget widget)
+{
+    const char *name;
+    if (widget == NULL)
+        return False;
+    name = XtName(widget);
+    if (name == NULL)
+        return False;
+    return strncmp(name, "colorButton", 11) == 0 ||
+           strcmp(name, "oldButton") == 0 ||
+           strcmp(name, "newButton") == 0;
+}
+
+static Boolean
+appearance_arg_value(ArgList args, Cardinal count, AppearanceProperty property,
+                     XtArgVal *val_out)
+{
+    const char *name = appearance_property_name(property);
+    Boolean found = False;
+    for (Cardinal i = 0; i < count; ++i) {
+        if (strcmp(args[i].name, name) == 0 ||
+            (property == AP_RENDER_TABLE &&
+             strcmp(args[i].name, XmNfontList) == 0)) {
+            if (val_out != NULL)
+                *val_out = args[i].value;
+            found = True;
+        }
+    }
+    return found;
+}
+
+static Boolean
+appearance_pixel_in_colorobj(Widget widget, Pixel px, Boolean include_fg)
+{
+    Display *dpy;
+    XmColorObj co;
+    int scr_num;
+    const XmPixelSet *pset;
+
+    if (widget == NULL)
+        return False;
+    dpy = XtDisplayOfObject(widget);
+    co = _XmColorObjForDisplay(dpy);
+    if (co == NULL || !co->color_obj.colorIsRunning ||
+        !co->color_obj.useColorObj || co->color_obj.colors == NULL)
+        return False;
+    scr_num = XScreenNumberOfScreen(XtScreenOfObject(widget));
+    if (scr_num < 0 || scr_num >= co->color_obj.numScreens ||
+        co->color_obj.colors[scr_num] == NULL)
+        return False;
+    pset = co->color_obj.colors[scr_num];
+    for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
+        if (pset[k].bg == px || pset[k].ts == px ||
+            pset[k].bs == px || pset[k].sc == px ||
+            (include_fg && pset[k].fg == px))
+            return True;
+    }
+    return False;
+}
+
+static Boolean
+appearance_pixel_matches_parent_managed(Widget widget,
+                                        AppearanceProperty property,
+                                        Pixel px)
+{
+    Widget parent;
+    XmAppearanceWidgetState *ps;
+
+    if (widget == NULL || property != AP_BACKGROUND)
+        return False;
+    parent = XtParent(widget);
+    if (parent == NULL || !XtIsWidget(parent))
+        return False;
+    _XmProcessLock();
+    ps = find_live_widget_state(parent);
+    _XmProcessUnlock();
+    if (ps != NULL && ps->initialized && ps->supported[AP_BACKGROUND] &&
+        !ps->owned[AP_BACKGROUND])
+        return False;
+    return parent->core.background_pixel == px;
+}
+
+static Boolean
+appearance_arg_is_session_color(Widget widget, AppearanceProperty property,
+                                ArgList args, Cardinal count,
+                                XtArgVal *raw_out)
+{
+    XtArgVal val = 0;
+    Pixel px;
+
+    if (!appearance_property_is_color(property) ||
+        appearance_is_color_swatch_widget(widget) ||
+        !appearance_arg_value(args, count, property, &val))
+        return False;
+    px = (Pixel)val;
+    if (raw_out != NULL)
+        *raw_out = val;
+    if (appearance_pixel_matches_parent_managed(widget, property, px))
+        return True;
+    if (XtIsWidget(widget))
+        return appearance_pixel_in_colorobj(
+            widget, px,
+            property != AP_FOREGROUND || XmIsScrollBar(widget) ||
+                appearance_has_argument(args, count, XmNbackground));
+    return False;
+}
+
 /* Equal-valued XtSetValues calls are still explicit application choices.
  * Record arguments, not just a later comparison with the previous value. */
 static void
@@ -2675,9 +2843,21 @@ appearance_changed(Widget hooks, XtPointer closure, XtPointer data)
     for (state = appearance_widgets; state != NULL; state = state->next)
         if (!state->retired && state->initialized &&
             state->widget == changed->widget) {
+            XmAppearanceProfile cur_prof = XmAPPEARANCE_CLASSIC;
+            (void)XmGetAppearanceProfile(state->display, &cur_prof);
             appearance_dimension_arguments(state, values->args, values->num_args);
             for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
                 if (appearance_explicit_arg(values->args, values->num_args, property)) {
+                    XtArgVal session_val = 0;
+                    if (appearance_arg_is_session_color(
+                            state->widget, property, values->args,
+                            values->num_args, &session_val)) {
+                        if (appearance_pixel_in_colorobj(
+                                state->widget, (Pixel)session_val, True)) {
+                            state->original[property] = session_val;
+                        }
+                        continue;
+                    }
                     Boolean repaint = state->owned[property] &&
                         (property == AP_EXPANDED_PIXMAP || property == AP_COLLAPSED_PIXMAP);
                     state->explicit_arg[property] = True;
@@ -3800,16 +3980,42 @@ appearance_is_dtterm_widget(Widget w)
 }
 
 static Boolean
-appearance_widget_in_secondary_tree(Widget w)
+appearance_is_dthelp_display_area(Widget w)
+{
+    if (w == NULL || !XtIsWidget(w) || !XmIsDrawnButton(w))
+        return False;
+    if (XtName(w) != NULL && strcmp(XtName(w), "DisplayArea") == 0)
+        return True;
+    if (XtParent(w) != NULL && XtName(XtParent(w)) != NULL &&
+        strcmp(XtName(XtParent(w)), "DisplayAreaForm") == 0)
+        return True;
+    return False;
+}
+
+static Boolean
+appearance_widget_in_menu_tree(Widget w)
 {
     Widget cur;
     for (cur = w; cur != NULL; cur = XtParent(cur)) {
-        if (XmIsDialogShell(cur) || XmIsMenuShell(cur) ||
-            XmIsCascadeButton(cur) || XmIsCascadeButtonGadget(cur) ||
-            (XmIsRowColumn(cur) &&
-             (RC_Type(cur) == XmMENU_BAR ||
-              RC_Type(cur) == XmMENU_PULLDOWN ||
-              RC_Type(cur) == XmMENU_POPUP)))
+        if (XmIsMenuShell(cur))
+            return True;
+        if (XmIsRowColumn(cur) &&
+            (RC_Type(cur) == XmMENU_BAR ||
+             RC_Type(cur) == XmMENU_PULLDOWN ||
+             RC_Type(cur) == XmMENU_POPUP))
+            return True;
+    }
+    return False;
+}
+
+static Boolean
+appearance_widget_in_secondary_tree(Widget w)
+{
+    Widget cur;
+    if (appearance_widget_in_menu_tree(w))
+        return True;
+    for (cur = w; cur != NULL; cur = XtParent(cur)) {
+        if (XmIsDialogShell(cur))
             return True;
     }
     return False;
@@ -3922,20 +4128,46 @@ appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
     }
 
     if (XmIsText(w) || XmIsTextField(w) || XmIsList(w) || XmIsSearchBox(w) ||
-        appearance_is_dtterm_widget(w))
+        appearance_is_dtterm_widget(w) || appearance_is_dthelp_display_area(w))
         hint = co->color_obj.text;
-    else if (appearance_widget_in_secondary_tree(w))
+    else if (appearance_widget_in_menu_tree(w))
         hint = co->color_obj.secondary;
     else
         hint = co->color_obj.primary;
 
-    if (hint >= 0 && hint < XmCO_NUM_COLORS && pset[hint].bg == orig_bg) {
+    if (appearance_is_dthelp_display_area(w) &&
+        co->color_obj.text >= 0 && co->color_obj.text < XmCO_NUM_COLORS) {
+        slot = co->color_obj.text;
+    } else if (hint >= 0 && hint < XmCO_NUM_COLORS && pset[hint].bg == orig_bg) {
         slot = hint;
+    } else if (!appearance_widget_in_menu_tree(w) &&
+               appearance_widget_in_secondary_tree(w) &&
+               co->color_obj.secondary >= 0 &&
+               co->color_obj.secondary < XmCO_NUM_COLORS &&
+               pset[co->color_obj.secondary].bg == orig_bg &&
+               co->color_obj.primary >= 0 &&
+               co->color_obj.primary < XmCO_NUM_COLORS) {
+        /* In modern profiles, DialogShell windows share the clean primary
+         * window surface & elevated button contrast shown in Style Manager's
+         * Sample Dialog preview, while menus retain the secondary bar tint and
+         * state->original[] preserves raw secondary pixels for Classic CDE. */
+        slot = co->color_obj.primary;
     } else {
         for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
             if (pset[k].bg == orig_bg) {
                 slot = k;
                 break;
+            }
+        }
+        if (slot < 0) {
+            for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
+                if (pset[k].sc == orig_bg) {
+                    slot = (co->color_obj.text >= 0 &&
+                            co->color_obj.text < XmCO_NUM_COLORS)
+                               ? co->color_obj.text
+                               : k;
+                    break;
+                }
             }
         }
     }
@@ -3969,6 +4201,7 @@ appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
         static const unsigned int base_sec[3] = {0xe6, 0xeb, 0xf2};
         static const unsigned int base_ws[3] = {0xe8, 0xec, 0xf2};
         unsigned int dark_tint[3];
+        double lum;
 
         blend_rgb(raw_rgb, black, 0.72, dark_tint);
         blend_rgb(base_ink, dark_tint, 0.14, fg_rgb);
@@ -3981,9 +4214,13 @@ appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
         else
             blend_rgb(base_ws, raw_rgb, 0.45, surf_rgb);
 
+        lum = (0.30 * surf_rgb[0] + 0.59 * surf_rgb[1] + 0.11 * surf_rgb[2]) / 255.0;
+        if (lum < 0.62)
+            blend_rgb(surf_rgb, white, 0.35, surf_rgb);
         (void)clamp_rgb_for_contrast(surf_rgb, fg_rgb, 5.5);
         blend_rgb(surf_rgb, white, 0.65, well_rgb);
-        if (rgb_relative_luminance(surf_rgb) > 0.84)
+        lum = (0.30 * surf_rgb[0] + 0.59 * surf_rgb[1] + 0.11 * surf_rgb[2]) / 255.0;
+        if (lum > 0.88)
             blend_rgb(surf_rgb, fg_rgb, 0.07, btn_rgb);
         else
             blend_rgb(surf_rgb, white, 0.48, btn_rgb);
@@ -4058,7 +4295,8 @@ appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
                 is_notebook_tab = True;
         }
         if (XmIsTextField(w) || XmIsText(w) || XmIsList(w) ||
-            XmIsSearchBox(w) || appearance_is_dtterm_widget(w)) {
+            XmIsSearchBox(w) || appearance_is_dtterm_widget(w) ||
+            appearance_is_dthelp_display_area(w)) {
             return appearance_rgb_to_pixel(
                 w, slot == co->color_obj.text ? surf_rgb : well_rgb,
                 value_return);
@@ -4154,6 +4392,7 @@ appearance_recolor_colorobj_widgets(Display *display,
         Pixel cur_bg = 0;
         Pixel cur_fg = 0;
         Boolean explicit_bg = False;
+        Boolean bg_uses_select = False;
         Boolean fg_matches_old_palette = False;
         int slot = -1;
         int hint;
@@ -4171,17 +4410,11 @@ appearance_recolor_colorobj_widgets(Display *display,
             continue;
 
         if (ws->supported[AP_BACKGROUND]) {
-            XrmRepresentation bg_type = NULLQUARK;
             XrmValue bg_val = {0, NULL};
             if (ws->explicit_arg[AP_BACKGROUND]) {
                 explicit_bg = True;
-            } else if (co->color_obj.colorIsRunning &&
-                       co->color_obj.useColorObj &&
-                       appearance_database_typed_value(
-                           w, XrmGetDatabase(display), XmNbackground,
-                           appearance_resource_class(w, AP_BACKGROUND),
-                           &bg_type, &bg_val) &&
-                       bg_type != XrmStringToQuark(XmRPixel)) {
+            } else if (appearance_database_value(
+                           w, XrmGetDatabase(display), AP_BACKGROUND, &bg_val)) {
                 explicit_bg = True;
             }
             cur_bg = (Pixel)ws->original[AP_BACKGROUND];
@@ -4195,14 +4428,19 @@ appearance_recolor_colorobj_widgets(Display *display,
 
         if (!explicit_bg) {
             if (XmIsText(w) || XmIsTextField(w) || XmIsList(w) ||
-                appearance_is_dtterm_widget(w))
+                appearance_is_dtterm_widget(w) ||
+                appearance_is_dthelp_display_area(w))
                 hint = co->color_obj.text;
             else if (appearance_widget_in_secondary_tree(w))
                 hint = co->color_obj.secondary;
             else
                 hint = co->color_obj.primary;
 
-            if (hint >= 0 && hint < XmCO_NUM_COLORS &&
+            if (appearance_is_dthelp_display_area(w) &&
+                co->color_obj.text >= 0 &&
+                co->color_obj.text < XmCO_NUM_COLORS) {
+                slot = co->color_obj.text;
+            } else if (hint >= 0 && hint < XmCO_NUM_COLORS &&
                 (old_sets[hint].bg == cur_bg ||
                  (!ws->supported[AP_BACKGROUND] &&
                   new_sets[hint].bg == cur_bg))) {
@@ -4214,6 +4452,17 @@ appearance_recolor_colorobj_widgets(Display *display,
                          new_sets[k].bg == cur_bg)) {
                         slot = k;
                         break;
+                    }
+                }
+                if (slot < 0) {
+                    for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
+                        if (old_sets[k].sc == cur_bg ||
+                            (!ws->supported[AP_BACKGROUND] &&
+                             new_sets[k].sc == cur_bg)) {
+                            slot = k;
+                            bg_uses_select = True;
+                            break;
+                        }
                     }
                 }
             }
@@ -4255,7 +4504,8 @@ appearance_recolor_colorobj_widgets(Display *display,
         fg_matches_old_palette =
             (cur_fg == old_sets[slot].fg ||
              (Pixel)ws->original[AP_FOREGROUND] == old_sets[slot].fg);
-        ws->original[AP_BACKGROUND] = (XtArgVal)new_sets[slot].bg;
+        ws->original[AP_BACKGROUND] =
+            (XtArgVal)(bg_uses_select ? new_sets[slot].sc : new_sets[slot].bg);
         if (!ws->explicit_arg[AP_FOREGROUND] || fg_matches_old_palette)
             ws->original[AP_FOREGROUND] = (XtArgVal)new_sets[slot].fg;
         ws->original[AP_TOP_SHADOW] = (XtArgVal)new_sets[slot].ts;
@@ -4270,7 +4520,8 @@ appearance_recolor_colorobj_widgets(Display *display,
 
         if (target_profile != XmAPPEARANCE_HIGH_CONTRAST) {
             if (ws->supported[AP_BACKGROUND]) {
-                XtSetArg(set_args[n], XmNbackground, new_sets[slot].bg);
+                XtSetArg(set_args[n], XmNbackground,
+                         bg_uses_select ? new_sets[slot].sc : new_sets[slot].bg);
                 ++n;
             }
             if (ws->supported[AP_FOREGROUND] &&
@@ -4387,8 +4638,8 @@ appearance_sync_token_resource(Display *display, XrmDatabase rm_db,
     XrmPutStringResource(&app_db, qual_name, str);
 }
 
-static Boolean
-appearance_live_sync_work(XtPointer closure)
+static void
+appearance_live_sync_timer(XtPointer closure, XtIntervalId *id)
 {
     Display *display = (Display *)closure;
     XmAppearanceDisplayState *state = find_display_state(display);
@@ -4404,12 +4655,18 @@ appearance_live_sync_work(XtPointer closure)
     XrmDatabase rm_db = NULL;
     XrmDatabase app_db;
 
+    (void)id;
     if (state == NULL)
-        return True;
-    if (appearance_transaction_is_active(display))
-        return False; /* retry after active transaction completes */
-
-    state->live_sync_work_id = 0;
+        return;
+    state->live_sync_timer_id = 0;
+    if (appearance_transaction_is_active(display)) {
+        if (state->live_app_context != NULL) {
+            state->live_sync_timer_id = XtAppAddTimeOut(
+                state->live_app_context, 10UL, appearance_live_sync_timer,
+                (XtPointer)display);
+        }
+        return;
+    }
     (void)XmGetAppearanceProfile(display, &cur_prof);
     (void)XmGetAppearanceDensity(display, &cur_dens);
 
@@ -4509,7 +4766,6 @@ appearance_live_sync_work(XtPointer closure)
 
     state->profile_api_selected = False;
     state->density_api_selected = False;
-    return True;
 }
 
 static void
@@ -4536,9 +4792,9 @@ appearance_observe_property_notify(XmAppearanceDisplayState *state,
                 match = True;
         }
     }
-    if (match && state->live_sync_work_id == 0) {
-        state->live_sync_work_id = XtAppAddWorkProc(
-            state->live_app_context, appearance_live_sync_work,
+    if (match && state->live_sync_timer_id == 0) {
+        state->live_sync_timer_id = XtAppAddTimeOut(
+            state->live_app_context, 0UL, appearance_live_sync_timer,
             (XtPointer)dpy);
     }
 }

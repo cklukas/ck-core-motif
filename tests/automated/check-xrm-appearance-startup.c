@@ -57,6 +57,30 @@ check_widget_color(Widget widget, const char *resource, const char *spec)
                          pixel, spec);
 }
 
+static double
+widget_color_luma(Widget widget, const char *resource)
+{
+    Pixel pixel = 0;
+    XColor actual;
+    Display *display = XtDisplay(widget);
+    Colormap colormap = DefaultColormapOfScreen(XtScreen(widget));
+    XtVaGetValues(widget, resource, &pixel, NULL);
+    actual.pixel = pixel;
+    if (!XQueryColor(display, colormap, &actual))
+        return -1.0;
+    return (0.2126 * (double)actual.red +
+            0.7152 * (double)actual.green +
+            0.0722 * (double)actual.blue) / 65535.0;
+}
+
+static Pixel
+widget_color_pixel(Widget widget, const char *resource)
+{
+    Pixel pixel = 0;
+    XtVaGetValues(widget, resource, &pixel, NULL);
+    return pixel;
+}
+
 static Pixel
 alloc_color(Widget widget, const char *spec)
 {
@@ -449,10 +473,10 @@ run_colorobj_appearance_interop(int argc, char **argv)
     XSync(display, False);
     drain(app);
 
-    /* 1. Startup with active ColorObj and modern-dark must preserve ColorObj
-     * XmRPixel colors and companion shading colors (topShadowColor,
-     * bottomShadowColor, troughColor) while upgrading -dt-interface fonts to
-     * Xft and applying modern geometry. */
+    /* 1. Startup with active ColorObj and modern-dark must harmonize ColorObj
+     * surfaces into dark modern roles with elevated button cards while
+     * preserving explicit widget Xrm overrides, upgrading -dt-interface fonts
+     * to Xft, and applying modern geometry. */
     XtVaGetValues(label, XmNrenderTable, &rt_dark, NULL);
     XtVaGetValues(button, XmNmarginWidth, &btn_margin, NULL);
     {
@@ -496,35 +520,40 @@ run_colorobj_appearance_interop(int argc, char **argv)
             }
         }
     }
-    if (!check_widget_color(label, XmNbackground, "#d8c0a8") ||
-        !check_widget_color(label, XmNforeground, "#112233") ||
-        !check_widget_color(form, XmNtopShadowColor, "#eeddcc") ||
-        !check_widget_color(form, XmNbottomShadowColor, "#665544") ||
-        !check_widget_color(scrollbar, XmNtroughColor, "#bba088") ||
+    if (widget_color_luma(label, XmNbackground) >= 0.25 ||
+        widget_color_luma(label, XmNforeground) <= 0.80 ||
+        widget_color_luma(button, XmNbackground) <=
+            widget_color_luma(form, XmNbackground) ||
+        widget_color_pixel(button, XmNbackground) ==
+            widget_color_pixel(form, XmNbackground) ||
         !check_widget_color(explicit_toggle, XmNbackground, "#445566") ||
         rt_dark == NULL || btn_margin != 12) {
         fprintf(stderr, "ColorObj + modern-dark startup palette/metrics mismatch\n");
         goto done;
     }
 
-    /* 2. Switching to modern-light must preserve ColorObj palette & companion
-     * shading colors while keeping modern typography and geometry. */
+    /* 2. Switching to modern-light must harmonize ColorObj surfaces into bright
+     * modern light roles with elevated button cards while preserving explicit
+     * widget overrides, modern typography, and geometry. */
     if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_MODERN_LIGHT) ||
-        !check_widget_color(label, XmNbackground, "#d8c0a8") ||
-        !check_widget_color(label, XmNforeground, "#112233") ||
-        !check_widget_color(form, XmNtopShadowColor, "#eeddcc") ||
-        !check_widget_color(form, XmNbottomShadowColor, "#665544") ||
-        !check_widget_color(scrollbar, XmNtroughColor, "#bba088") ||
+        widget_color_luma(label, XmNbackground) <= 0.85 ||
+        widget_color_luma(label, XmNforeground) >= 0.20 ||
+        widget_color_luma(button, XmNbackground) <= 0.78 ||
+        widget_color_pixel(button, XmNbackground) ==
+            widget_color_pixel(form, XmNbackground) ||
         !check_widget_color(explicit_toggle, XmNbackground, "#445566")) {
         fprintf(stderr, "ColorObj + modern-light switch palette mismatch\n");
         goto done;
     }
 
-    /* 3. Switching back to classic must restore the baseline -dt-interface
-     * render table. */
+    /* 3. Switching back to classic must restore the exact baseline ColorObj
+     * palette, companion shading colors, and -dt-interface render table. */
     if (!XmApplyAppearanceProfile(display, XmAPPEARANCE_CLASSIC) ||
         !check_widget_color(label, XmNbackground, "#d8c0a8") ||
         !check_widget_color(label, XmNforeground, "#112233") ||
+        !check_widget_color(form, XmNtopShadowColor, "#eeddcc") ||
+        !check_widget_color(form, XmNbottomShadowColor, "#665544") ||
+        !check_widget_color(scrollbar, XmNtroughColor, "#bba088") ||
         !check_widget_color(explicit_toggle, XmNbackground, "#445566")) {
         fprintf(stderr, "ColorObj + classic restore palette mismatch\n");
         goto done;

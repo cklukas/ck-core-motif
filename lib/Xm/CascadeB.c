@@ -2180,9 +2180,14 @@ SetValues(
   menuSTrait = (XmMenuSystemTrait) 
     XmeTraitGet((XtPointer) XtClass(XtParent(cw)), XmQTmenuSystem);
 
-  if (old->primitive.foreground != new_w->primitive.foreground
-    || old->core.background_pixel != new_w->core.background_pixel) {
+  if (old->primitive.foreground != new_w->primitive.foreground ||
+      old->core.background_pixel != new_w->core.background_pixel ||
+      old->label.font != new_w->label.font) {
+      XtReleaseGC(nw, CB_BackgroundGC(old));
+      XtReleaseGC(nw, CB_ArmGC(old));
       GetBackgroundGC(new_w);
+      GetArmGC(new_w);
+      flag = TRUE;
   }
 
   if ((CB_Submenu(new_w)) &&
@@ -2248,6 +2253,10 @@ SetValues(
                ((CB_ArmedPixmap(old) != XmUNSPECIFIED_PIXMAP) &&
                   ((Lab_TextRect_height(old) != Lab_TextRect_height(new_w)) ||
 		   (old->primitive.foreground != new_w->primitive.foreground) ||
+		   (old->primitive.top_shadow_color !=
+		      new_w->primitive.top_shadow_color) ||
+		   (old->primitive.bottom_shadow_color !=
+		      new_w->primitive.bottom_shadow_color) ||
 		   (old->core.background_pixel != 
 		      new_w->core.background_pixel))))
 	  {

@@ -54,13 +54,15 @@ Strict precedence is preserved:
 2. Explicit widget creation/SetValues arguments and ordinary widget X resources
    override profile and density defaults. When a CDE Color Server (`dtsession`
    owning `CUSTOMIZE_DATA`) is active, `XmColorObj` `XmRPixel` session palette
-   entries and surface-derived companion colors (`topShadowColor`,
-   `bottomShadowColor`, `selectColor`, `armColor`, `troughColor`) are preserved,
-   while `-dt-interface ` session baseline XLFD font entries in the display
-   database are treated as toolkit session defaults so `modern-light`,
-   `modern-dark`, and `high-contrast` apply Xft typography, modern geometry,
-   and modern custom painting while switching back to `classic` restores the
-   `-dt-interface ` baseline fonts.
+   entries, session wildcard color resources, and `-dt-interface ` session
+   baseline XLFD font entries in the display database are treated as toolkit
+   session defaults: `modern-light` and `modern-dark` harmonize session surfaces
+   into modern neutral roles with elevated button cards and WCAG-guarded
+   contrast, `high-contrast` applies high-contrast surfaces and borders, and
+   switching back to `classic` restores the exact raw `XmColorObj` pixels,
+   companion shading colors (`topShadowColor`, `bottomShadowColor`,
+   `selectColor`, `armColor`, `troughColor`), and `-dt-interface ` baseline
+   fonts.
 3. Invalid `Xrm` resource strings emit a single `XmeWarning` conversion warning
    per display and fall back deterministically to `classic` / `comfortable`.
 
@@ -733,13 +735,27 @@ Realized shells install a non-invasive `PropertyNotify` watcher on the root
 window (`XA_RESOURCE_MANAGER`) and active `XmColorObj` `CUSTOMIZE_DATA` owner
 (`SDT Pixel Set` / `XmSPIXEL_SET_PROP`, opt-out via
 `*ckCoreMotif.liveAppearanceSync: False`):
-- Coalesces property notifications onto an `XtAppAddWorkProc` callback on the
-  UI thread, refreshes `XmColorObj` pixel sets via `_XmColorObjRefreshDisplay`,
-  and recolors `ColorObj`-backed widgets and gadgets while preserving explicit
+- Coalesces property notifications onto a `0 ms` `XtAppAddTimeOut` callback on
+  the UI thread (observable by both `XtAppMainLoop` and `XtAppPending` event
+  loops), refreshes `XmColorObj` pixel sets via `_XmColorObjRefreshDisplay`, and
+  recolors `ColorObj`-backed widgets and gadgets while preserving explicit
   application/resource `XmNbackground` and `XmNforeground` overrides (still
   updating `XmNhighlightColor` when sourced from the active `ColorObj` slot).
+- Harmonizes multi-slot `XmColorObj` palettes (`primary`, `secondary`, `text`,
+  and workspace switch slots) in `modern_light` and `modern_dark` with tinted
+  modern surfaces, recessed input wells, elevated button faces whose
+  `TextRect` clears/fills match `_XmAppearanceButtonFacePixel`, and subtle tonal
+  1 px borders while retaining raw `XmColorObj` pixels in `original` state so
+  switching back to `classic` restores exact 3D bevel colors without drift.
 - Preserves the previously applied profile/density baseline across `app_db`
   synchronization so `apply_appearance_settings` executes the full
   `_XmApplyAppearanceChange` widget transaction when transitioning between
-  `classic`, `modern_light`, `modern_dark`, and `high_contrast`.
-- Checked by `tests/automated/check-live-appearance-sync.py`.
+  `classic`, `modern_light`, `modern_dark`, and `high_contrast`, refreshes
+  `XmCascadeButtonGadget`, `XmCascadeButton`, and `XmToggleButtonGadget`
+  `enableEtchedInMenu` background and arm GCs across both `SetValues` and
+  `XmQTcareParentVisual` parent notifications so menu bars and pulldowns render
+  uniform backgrounds after live theme switches, and falls back to Motif 1.2
+  `XmGadgetClassPart.visual_change` in `_XmNotifyChildrenVisual` when a custom
+  gadget does not install `XmQTcareParentVisual`.
+- Checked by `tests/automated/check-live-appearance-sync.py` and Xvfb pixel
+  regression `tests/automated/run-elevated-button-label-bg.py`.

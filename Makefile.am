@@ -1668,4 +1668,6 @@ EXTRA_DIST += tests/automated/check-mrm-value-bounds.c \
               tests/fuzz/fuzz-uil-wmd.c \
               tests/automated/check-xrm-appearance-startup.c \
               tests/automated/run-xrm-appearance-startup.py \
-              tests/automated/check-xrm-appearance-startup-wp45.py
+              tests/automated/check-xrm-appearance-startup-wp45.py \
+              tests/automated/check-elevated-button-label-bg.c \
+              tests/automated/run-elevated-button-label-bg.py
