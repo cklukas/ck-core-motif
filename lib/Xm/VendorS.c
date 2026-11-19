@@ -43,6 +43,7 @@ static char rcsid[] = "$TOG: VendorS.c /main/21 1999/08/09 10:49:41 mgreess $"
 #include <Xm/LayoutT.h>
 #include <Xm/MenuShell.h>
 #include <Xm/ProtocolsP.h>
+#include <Xm/RowColumnP.h>
 #include <Xm/ScreenP.h>
 #include <Xm/SpecRenderT.h>
 #include <Xm/TraitP.h>
@@ -976,13 +977,43 @@ VendorDescendant(XmVendorShellExtObject child, XmVendorShellExtObject ancestor)
     return False;
 }
 
+static Widget
+PostedMenuOrigin(Widget w)
+{
+    Widget pane = NULL;
+    if (!w || w->core.being_destroyed)
+        return NULL;
+    if (XmIsMenuShell(w)) {
+        CompositeWidget cw = (CompositeWidget)w;
+        if (cw->composite.num_children > 0)
+            pane = cw->composite.children[0];
+    } else if (XmIsRowColumn(w)) {
+        pane = w;
+    }
+    if (pane && XmIsRowColumn(pane)) {
+        XmRowColumnWidget rc = (XmRowColumnWidget)pane;
+        if (RC_Type(rc) == XmMENU_PULLDOWN || RC_Type(rc) == XmMENU_POPUP) {
+            if (RC_CascadeBtn(rc) != NULL)
+                return RC_CascadeBtn(rc);
+            if (rc->row_column.lastSelectToplevel != NULL &&
+                rc->row_column.lastSelectToplevel != pane)
+                return rc->row_column.lastSelectToplevel;
+        }
+    }
+    return NULL;
+}
+
 static Boolean
 WidgetDescendant(Widget child, Widget ancestor)
 {
-    while (child) {
+    int depth = 0;
+    while (child && depth++ < 64) {
         if (child == ancestor)
             return True;
-        child = XtParent(child);
+        {
+            Widget posted = PostedMenuOrigin(child);
+            child = posted ? posted : XtParent(child);
+        }
     }
     return False;
 }
@@ -995,8 +1026,11 @@ ModalAllows(XmModalData modal, XmVendorShellExtObject ve, Widget shell)
     if (!ve) {
         Widget owner = shell;
         XmWidgetExtData extension;
-        while (owner && !XmIsVendorShell(owner))
-            owner = XtParent(owner);
+        int depth = 0;
+        while (owner && !XmIsVendorShell(owner) && depth++ < 64) {
+            Widget posted = PostedMenuOrigin(owner);
+            owner = posted ? posted : XtParent(owner);
+        }
         extension = owner ? _XmGetWidgetExtData(owner, XmSHELL_EXTENSION) : NULL;
         if (extension)
             ve = (XmVendorShellExtObject)extension->widget;

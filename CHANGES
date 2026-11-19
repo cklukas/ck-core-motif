@@ -1,3 +1,17 @@
+Shared XmMenuShell modal grab cascade across secondary shells (2026-11-19)
+==========================================================================
+
+- `lib/Xm/VendorS.c` (`PostedMenuOrigin`, `WidgetDescendant`, `ModalAllows`):
+  followed active `RC_CascadeBtn` / `lastSelectToplevel` posting origins on
+  pulldown and popup `XmMenuShell` / `XmRowColumn` panes when evaluating modal
+  and exclusive grab ancestry. Shared `XmPulldownMenu` / `XmPopupMenu` panes
+  parented under one `XmMenuBar` or shell and posted from secondary windows now
+  register their non-exclusive grab ahead of the active `XmMenuBar`'s
+  spring-loaded exclusive grab instead of behind it, restoring both
+  press-drag-release and click-to-select menu activation across all windows.
+- Tests: `tests/automated/check-shared-menushell-grab.c`,
+  `tests/automated/run-shared-menushell-grab.py`.
+
 Insensitive gadget pixmap first-expose caching and background preservation (2026-11-19)
 =======================================================================================
 
