@@ -203,6 +203,7 @@ static const char modern_light_resources[] =
     "*XmContainer.outlineLineStyle: no_line\n"
     "*XmScrolledWindow.shadowThickness: 1\n"
     "*XmScrolledWindow.spacing: 0\n"
+    "*XmMainWindow.shadowThickness: 0\n"
     "*XmForm.shadowThickness: 0\n"
     "*XmBulletinBoard.shadowThickness: 0\n"
     "*XmMessageBox.shadowThickness: 0\n"
@@ -255,7 +256,16 @@ static const char high_contrast_resources[] =
     "*XmSearchBox.traversalOn: True\n"
     "*XmScrollBar.highlightThickness: 3\n"
     "*XmPanedWindow.sashShadowThickness: 2\n"
-    "*XmPaned.sashShadowThickness: 2\n";
+    "*XmPaned.sashShadowThickness: 2\n"
+    "*XmMainWindow.shadowThickness: 0\n"
+    "*XmForm.shadowThickness: 0\n"
+    "*XmBulletinBoard.shadowThickness: 0\n"
+    "*XmMessageBox.shadowThickness: 0\n"
+    "*XmSelectionBox.shadowThickness: 0\n"
+    "*XmCommand.shadowThickness: 0\n"
+    "*XmFileSelectionBox.shadowThickness: 0\n"
+    "*XmPanedWindow.shadowThickness: 0\n"
+    "*XmPaned.shadowThickness: 0\n";
 
 static const char modern_dark_resources[] =
     "*background: #202124\n"
@@ -323,6 +333,7 @@ static const char modern_dark_resources[] =
     "*XmContainer.outlineLineStyle: no_line\n"
     "*XmScrolledWindow.shadowThickness: 1\n"
     "*XmScrolledWindow.spacing: 0\n"
+    "*XmMainWindow.shadowThickness: 0\n"
     "*XmForm.shadowThickness: 0\n"
     "*XmBulletinBoard.shadowThickness: 0\n"
     "*XmMessageBox.shadowThickness: 0\n"
@@ -1287,6 +1298,10 @@ profile_property_string(Widget widget, XmAppearanceProfile profile,
             (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK))
             return "0";
     }
+    /* MainWindow is a primary window layout manager rather than a scrolled
+     * viewport frame; preserve its zero-thickness baseline across profiles. */
+    if (property == AP_SHADOW_THICKNESS && XmIsMainWindow(widget))
+        return "0";
     if (appearance_database_value(widget, profile_defaults(profile, density), property,
                                   &value))
         return value.addr;

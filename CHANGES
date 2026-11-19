@@ -1,3 +1,18 @@
+Preserve zero shadowThickness baseline on XmMainWindow and layout containers across profiles (2026-11-20)
+=========================================================================================================
+
+- `lib/Xm/Appearance.c`, `docs/appearance-profiles.md`,
+  `tests/automated/check-modern-borders.c`:
+  - Preserved `XmMainWindow`'s zero `XmNshadowThickness` baseline across
+    `modern_light`, `modern_dark`, and `high_contrast` (both at startup and
+    during live `XmApplyAppearanceProfile` transitions) instead of inheriting
+    wildcard or `XmScrolledWindow` viewport framing shadows, and aligned
+    `high_contrast` layout/dialog container defaults (`XmForm`,
+    `XmBulletinBoard`, `XmMessageBox`, `XmSelectionBox`, `XmCommand`,
+    `XmFileSelectionBox`, `XmPanedWindow`, `XmPaned`) with `modern_light` and
+    `modern_dark` while keeping explicit application `XmNshadowThickness`
+    overrides authoritative.
+
 Live RESOURCE_MANAGER and XmColorObj appearance/palette synchronization (2026-11-19)
 ====================================================================================
 

@@ -75,6 +75,35 @@ int main(int argc,char**argv){XtAppContext app;Display*d;unsigned cases=0;const 
    CHECK(XmApplyAppearanceProfile(d,profile));
    XtVaGetValues(icon,XmNshadowThickness,&icon_shadow,NULL);CHECK(icon_shadow==3);
   }
+  {
+   Widget mw_shell=XtAppCreateShell("mwBorders","Borders",applicationShellWidgetClass,d,NULL,0);
+   Widget mw=XmCreateMainWindow(mw_shell,"mainWin",NULL,0);
+   Widget mw_bar=XmCreateMenuBar(mw,"mwBar",NULL,0);
+   Widget mw_work=XmCreateForm(mw,"mwWork",NULL,0);
+   Widget mw_inner=XmCreateForm(mw_work,"mwInner",NULL,0);
+   Dimension mw_sh=99,work_sh=99,inner_sh=99;
+   XtManageChild(mw_bar);XtManageChild(mw_inner);XtManageChild(mw_work);XtManageChild(mw);
+   XmMainWindowSetAreas(mw,mw_bar,NULL,NULL,NULL,mw_work);
+   XtRealizeWidget(mw_shell);drain(app,d);
+   XtVaGetValues(mw,XmNshadowThickness,&mw_sh,NULL);
+   XtVaGetValues(mw_work,XmNshadowThickness,&work_sh,NULL);
+   XtVaGetValues(mw_inner,XmNshadowThickness,&inner_sh,NULL);
+   CHECK(mw_sh==0 && work_sh==0 && inner_sh==0);
+   CHECK(XmApplyAppearanceProfile(d,XmAPPEARANCE_HIGH_CONTRAST));drain(app,d);
+   XtVaGetValues(mw,XmNshadowThickness,&mw_sh,NULL);
+   XtVaGetValues(mw_work,XmNshadowThickness,&work_sh,NULL);
+   XtVaGetValues(mw_inner,XmNshadowThickness,&inner_sh,NULL);
+   CHECK(mw_sh==0 && work_sh==0 && inner_sh==0);
+   CHECK(XmApplyAppearanceProfile(d,XmAPPEARANCE_CLASSIC));drain(app,d);
+   XtVaGetValues(mw,XmNshadowThickness,&mw_sh,NULL);
+   XtVaGetValues(mw_work,XmNshadowThickness,&work_sh,NULL);
+   XtVaGetValues(mw_inner,XmNshadowThickness,&inner_sh,NULL);
+   CHECK(mw_sh==0 && work_sh==0 && inner_sh==0);
+   XtVaSetValues(mw,XmNshadowThickness,4,NULL);
+   CHECK(XmApplyAppearanceProfile(d,profile));drain(app,d);
+   XtVaGetValues(mw,XmNshadowThickness,&mw_sh,NULL);CHECK(mw_sh==4);
+   XtDestroyWidget(mw_shell);drain(app,d);
+  }
   XtRealizeWidget(shell);drain(app,d);XtVaGetValues(frame,XmNshadowThickness,&thickness,NULL);CHECK(thickness==(Dimension)(scales[scale]+0.5));border(frame,True);
   CHECK(XmApplyAppearanceProfile(d,XmAPPEARANCE_CLASSIC));drain(app,d);border(frame,False);
   CHECK(XmApplyAppearanceProfile(d,profile));drain(app,d);border(frame,True);

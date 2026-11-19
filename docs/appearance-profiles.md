@@ -163,7 +163,11 @@ XmSetAppearanceProfile(display, XmAPPEARANCE_HIGH_CONTRAST);
 ```
 
 It uses black/white text surfaces, a yellow three-pixel focus indicator, blue
-selection/arm surfaces, white shadow edges and a light-gray disabled foreground.
+selection/arm surfaces, white shadow edges and a light-gray disabled foreground,
+while keeping primary layout and dialog containers (`XmMainWindow`, `XmForm`,
+`XmBulletinBoard`, `XmMessageBox`, `XmSelectionBox`, `XmCommand`,
+`XmFileSelectionBox`, `XmPanedWindow`, `XmPaned`) at a zero `shadowThickness`
+baseline just like `modern-light` and `modern-dark` unless explicitly styled.
 The installed fixture checks the calculated contrast ratios, realized widget
 colors, focus metrics, keyboard traversal and both explicit and ordinary
 application-resource precedence. Pixmaps are not recolored, so application
