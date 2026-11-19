@@ -305,80 +305,141 @@ AM_CONDITIONAL(PRINTING, test "$enable_printing" = "yes")
 AC_SUBST(LIB_XP)
 
 dnl Optional accessibility transport; basic widget operation has no service dependency.
-AC_ARG_ENABLE(atspi, [  --enable-atspi          Enable optional AT-SPI D-Bus transport (default=no)],, [enable_atspi=no])
-AC_ARG_ENABLE(unicode-text, [  --enable-unicode-text   Enable Unicode layout via ICU and HarfBuzz (default=no)],, [enable_unicode_text=no])
+AC_ARG_ENABLE([atspi],
+  [AS_HELP_STRING([--enable-atspi],
+    [enable optional AT-SPI D-Bus transport (default=auto)])],
+  [], [enable_atspi=auto])
+AS_CASE([$enable_atspi], [yes|no|auto], [],
+  [AC_MSG_ERROR([--enable-atspi expects yes, no, or auto])])
+
+AC_ARG_ENABLE([unicode-text],
+  [AS_HELP_STRING([--enable-unicode-text],
+    [enable Unicode layout via ICU and HarfBuzz (default=auto)])],
+  [], [enable_unicode_text=auto])
+AS_CASE([$enable_unicode_text], [yes|no|auto], [],
+  [AC_MSG_ERROR([--enable-unicode-text expects yes, no, or auto])])
+
 AC_PATH_PROG(PKG_CONFIG, pkg-config)
-if test "x$enable_atspi" = "xyes"; then
-  if test -z "$PKG_CONFIG" || ! $PKG_CONFIG --exists dbus-1; then
+ATSPI_CFLAGS=
+ATSPI_LIBS=
+if test "x$enable_atspi" != "xno"; then
+  if test -n "$PKG_CONFIG" && $PKG_CONFIG --exists dbus-1; then
+    enable_atspi=yes
+    ATSPI_CFLAGS=`$PKG_CONFIG --cflags dbus-1`
+    ATSPI_LIBS=`$PKG_CONFIG --libs dbus-1`
+    AC_DEFINE(HAVE_ATSPI_DBUS, 1, [Build the optional AT-SPI D-Bus transport])
+  elif test "x$enable_atspi" = "xyes"; then
     AC_MSG_ERROR([--enable-atspi requires dbus-1 development files and pkg-config])
+  else
+    enable_atspi=no
+    AC_MSG_NOTICE([dbus-1 development files not found; building without AT-SPI D-Bus transport])
   fi
-  ATSPI_CFLAGS=`$PKG_CONFIG --cflags dbus-1`
-  ATSPI_LIBS=`$PKG_CONFIG --libs dbus-1`
-  AC_DEFINE(HAVE_ATSPI_DBUS, 1, [Build the optional AT-SPI D-Bus transport])
 fi
 AM_CONDITIONAL(ATSPI_DBUS, test "x$enable_atspi" = "xyes")
 AC_SUBST(ATSPI_CFLAGS)
 AC_SUBST(ATSPI_LIBS)
-if test "x$enable_unicode_text" = "xyes"; then
-  if test -z "$PKG_CONFIG" || ! $PKG_CONFIG --exists icu-uc icu-i18n harfbuzz; then
-    AC_MSG_ERROR([--enable-unicode-text requires ICU, HarfBuzz development files and pkg-config])
+
+AC_FIND_XFT
+AM_CONDITIONAL(XFT_TEXT_LAYOUT, test "x$enable_xft" = "xyes")
+
+UNICODE_TEXT_CFLAGS=
+UNICODE_TEXT_LIBS=
+if test "x$enable_unicode_text" != "xno"; then
+  if test "x$enable_xft" != "xyes"; then
+    if test "x$enable_unicode_text" = "xyes"; then
+      AC_MSG_ERROR([--enable-unicode-text requires --enable-xft])
+    fi
+    enable_unicode_text=no
+    AC_MSG_NOTICE([Xft is disabled; building without ICU/HarfBuzz Unicode text layout])
+  elif test -z "$PKG_CONFIG" || ! $PKG_CONFIG --exists icu-uc icu-i18n harfbuzz; then
+    if test "x$enable_unicode_text" = "xyes"; then
+      AC_MSG_ERROR([--enable-unicode-text requires ICU, HarfBuzz development files and pkg-config])
+    fi
+    enable_unicode_text=no
+    AC_MSG_NOTICE([ICU/HarfBuzz development files not found; building without Unicode text layout])
+  else
+    AC_MSG_CHECKING([for C11 atomic font-configuration notifications])
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdatomic.h>]], [[
+      atomic_ulong epoch;
+      atomic_init(&epoch, 0);
+      unsigned long previous = atomic_load_explicit(&epoch, memory_order_acquire);
+      return !atomic_compare_exchange_strong_explicit(&epoch, &previous, previous + 1,
+                                                      memory_order_acq_rel, memory_order_acquire);
+    ]])], [
+      AC_MSG_RESULT([yes])
+      enable_unicode_text=yes
+      UNICODE_TEXT_CFLAGS=`$PKG_CONFIG --cflags icu-uc icu-i18n harfbuzz`
+      UNICODE_TEXT_LIBS="`$PKG_CONFIG --libs icu-uc icu-i18n harfbuzz` -lm"
+      AC_DEFINE(HAVE_UNICODE_TEXT, 1, [Build ICU and HarfBuzz Unicode text layout])
+    ], [
+      AC_MSG_RESULT([no])
+      if test "x$enable_unicode_text" = "xyes"; then
+        AC_MSG_ERROR([--enable-unicode-text requires supported C11 atomic operations])
+      fi
+      enable_unicode_text=no
+      AC_MSG_NOTICE([C11 atomics unavailable; building without Unicode text layout])
+    ])
   fi
-  AC_MSG_CHECKING([for C11 atomic font-configuration notifications])
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdatomic.h>]], [[
-    atomic_ulong epoch;
-    atomic_init(&epoch, 0);
-    unsigned long previous = atomic_load_explicit(&epoch, memory_order_acquire);
-    return !atomic_compare_exchange_strong_explicit(&epoch, &previous, previous + 1,
-                                                    memory_order_acq_rel, memory_order_acquire);
-  ]])], [AC_MSG_RESULT([yes])],
-  [AC_MSG_RESULT([no]); AC_MSG_ERROR([--enable-unicode-text requires supported C11 atomic operations])])
-  UNICODE_TEXT_CFLAGS=`$PKG_CONFIG --cflags icu-uc icu-i18n harfbuzz`
-  UNICODE_TEXT_LIBS="`$PKG_CONFIG --libs icu-uc icu-i18n harfbuzz` -lm"
-  AC_DEFINE(HAVE_UNICODE_TEXT, 1, [Build ICU and HarfBuzz Unicode text layout])
 fi
 AC_SUBST(UNICODE_TEXT_CFLAGS)
 AC_SUBST(UNICODE_TEXT_LIBS)
 
-AC_FIND_XFT
-if test "x$enable_unicode_text" = "xyes" && test "x$enable_xft" != "xyes"; then
-  AC_MSG_ERROR([--enable-unicode-text requires --enable-xft])
-fi
-AM_CONDITIONAL(XFT_TEXT_LAYOUT, test "x$enable_xft" = "xyes")
 AC_IMAGE_SUPPORT
 
 AC_ARG_ENABLE([xlibre-dpi],
   [AS_HELP_STRING([--enable-xlibre-dpi],
-    [enable optional XLibre RandR output-DPI probing (default=no)])],
-  [], [enable_xlibre_dpi=no])
-if test "x$enable_xlibre_dpi" = "xyes"; then
-  AC_CHECK_HEADERS([X11/extensions/Xrandr.h], [],
-    [AC_MSG_ERROR([--enable-xlibre-dpi requires Xrandr.h])])
-  AC_CHECK_LIB([Xrandr], [XRRQueryExtension],
-    [XLIBRE_DPI_LIBS="-lXrandr"],
-    [AC_MSG_ERROR([--enable-xlibre-dpi requires libXrandr])],
-    [$X_LIBS -lX11])
-  AC_DEFINE([HAVE_XLIBRE_DPI], [1],
-    [Build the optional XLibre RandR output-DPI integration])
-else
-  XLIBRE_DPI_LIBS=
+    [enable XLibre / XWayland RandR output-DPI probing (default=auto)])],
+  [], [enable_xlibre_dpi=auto])
+AS_CASE([$enable_xlibre_dpi], [yes|no|auto], [],
+  [AC_MSG_ERROR([--enable-xlibre-dpi expects yes, no, or auto])])
+XLIBRE_DPI_LIBS=
+if test "x$enable_xlibre_dpi" != "xno"; then
+  ck_have_xrandr_h=no
+  ck_have_xrandr_lib=no
+  AC_CHECK_HEADERS([X11/extensions/Xrandr.h], [ck_have_xrandr_h=yes])
+  if test "x$ck_have_xrandr_h" = "xyes"; then
+    AC_CHECK_LIB([Xrandr], [XRRQueryExtension],
+      [ck_have_xrandr_lib=yes], [], [$X_LIBS -lX11])
+  fi
+  if test "x$ck_have_xrandr_h" = "xyes" && test "x$ck_have_xrandr_lib" = "xyes"; then
+    enable_xlibre_dpi=yes
+    XLIBRE_DPI_LIBS="-lXrandr"
+    AC_DEFINE([HAVE_XLIBRE_DPI], [1],
+      [Build the optional XLibre RandR output-DPI integration])
+  elif test "x$enable_xlibre_dpi" = "xyes"; then
+    if test "x$ck_have_xrandr_h" != "xyes"; then
+      AC_MSG_ERROR([--enable-xlibre-dpi requires Xrandr.h])
+    else
+      AC_MSG_ERROR([--enable-xlibre-dpi requires libXrandr])
+    fi
+  else
+    enable_xlibre_dpi=no
+    AC_MSG_NOTICE([Xrandr development files not found; building without XLibre RandR output-DPI probing])
+  fi
 fi
 AC_SUBST([XLIBRE_DPI_LIBS])
 AM_CONDITIONAL([OM_XLIBRE_DPI], [test "x$enable_xlibre_dpi" = "xyes"])
 
 AC_ARG_ENABLE([svg],
   [AS_HELP_STRING([--enable-svg],
-    [enable optional SVG image loading through librsvg (default=no)])],
-  [], [enable_svg=no])
-if test "x$enable_svg" = "xyes"; then
-  if test -z "$PKG_CONFIG" || ! $PKG_CONFIG --exists 'librsvg-2.0 >= 2.52'; then
+    [enable optional SVG image loading through librsvg (default=auto)])],
+  [], [enable_svg=auto])
+AS_CASE([$enable_svg], [yes|no|auto], [],
+  [AC_MSG_ERROR([--enable-svg expects yes, no, or auto])])
+SVG_CFLAGS=
+SVG_LIBS=
+if test "x$enable_svg" != "xno"; then
+  if test -n "$PKG_CONFIG" && $PKG_CONFIG --exists 'librsvg-2.0 >= 2.52'; then
+    enable_svg=yes
+    SVG_CFLAGS=`$PKG_CONFIG --cflags librsvg-2.0`
+    SVG_LIBS=`$PKG_CONFIG --libs librsvg-2.0`
+    AC_DEFINE([SVG_SUPPORTED], [1], [Build optional librsvg SVG image loading])
+  elif test "x$enable_svg" = "xyes"; then
     AC_MSG_ERROR([--enable-svg requires librsvg-2.0 >= 2.52 and pkg-config])
+  else
+    enable_svg=no
+    AC_MSG_NOTICE([librsvg-2.0 >= 2.52 not found; building without SVG image loading])
   fi
-  SVG_CFLAGS=`$PKG_CONFIG --cflags librsvg-2.0`
-  SVG_LIBS=`$PKG_CONFIG --libs librsvg-2.0`
-  AC_DEFINE([SVG_SUPPORTED], [1], [Build optional librsvg SVG image loading])
-else
-  SVG_CFLAGS=
-  SVG_LIBS=
 fi
 AC_SUBST([SVG_CFLAGS])
 AC_SUBST([SVG_LIBS])
@@ -523,3 +584,4 @@ demos/doc/programGuide/ch17/simple_drag/Makefile \
 lib/Xm/xmstring.list \
 ])
 AC_OUTPUT
+AC_MSG_NOTICE([CK Core Motif features: xft=$enable_xft unicode-text=$enable_unicode_text atspi=$enable_atspi svg=$enable_svg xlibre-dpi=$enable_xlibre_dpi])

@@ -1,9 +1,10 @@
 # Native accessibility
 
 `<Xm/Accessible.h>` provides a native semantic-provider layer. The optional
-AT-SPI D-Bus transport is built with `--enable-atspi`; no ATK or GTK dependency
-is introduced. Normal widget operation does not depend on a running bus or
-registry.
+AT-SPI D-Bus transport (`--enable-atspi`, `default=auto`) is built automatically
+when `dbus-1` development files are present (or explicitly required/disabled via
+`--enable-atspi` / `--disable-atspi`); no ATK or GTK dependency is introduced.
+Normal widget operation does not depend on a running bus or registry.
 
 ## Pointer and keyboard focus
 

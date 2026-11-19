@@ -173,12 +173,24 @@ the tool (`scripts/warning-baseline.py`) that compares a build with them.
 
 ## Development text and accessibility features
 
-`--enable-xft` requires Xft, Fontconfig and FreeType development files.
-`--enable-unicode-text` additionally requires ICU (`icu-uc`, `icu-i18n`) and
-HarfBuzz through `pkg-config`; it requires Xft to be enabled. There is one
-ICU bidi/HarfBuzz shaping pipeline, with no GTK, Pango or Raqm dependency.
-`--enable-atspi` enables the optional D-Bus transport and requires `dbus-1`.
-The semantic provider API remains usable without that transport.
+`--enable-xft` (enabled by default) requires Xft, Fontconfig and FreeType
+development files. `--enable-unicode-text`, `--enable-atspi`, `--enable-svg`,
+and `--enable-xlibre-dpi` all default to `auto` so an ordinary `./configure`
+enables each feature automatically whenever its development packages are
+present (pass `--enable-FEATURE` to require a feature or `--disable-FEATURE`
+to turn it off explicitly):
+
+- `--enable-unicode-text` (`default=auto`) uses ICU (`icu-uc`, `icu-i18n`) and
+  HarfBuzz through `pkg-config` when Xft is enabled. There is one ICU
+  bidi/HarfBuzz shaping pipeline, with no GTK, Pango or Raqm dependency.
+- `--enable-atspi` (`default=auto`) builds the optional D-Bus AT-SPI2 transport
+  when `dbus-1` is available. The semantic provider API remains usable without
+  that transport.
+- `--enable-svg` (`default=auto`) enables SVG icon and image rasterization when
+  `librsvg-2.0 >= 2.52` is available.
+- `--enable-xlibre-dpi` (`default=auto`) builds per-output XLibre and rootless
+  XWayland RandR `DPI` probing when `Xrandr.h` and `libXrandr` are available
+  (remaining opt-in per display server at runtime).
 The Unicode configure probe uses `atomic_init` rather than the removed
 `ATOMIC_VAR_INIT` macro, so current GCC and Clang drivers that select C23 mode
 still pass the C11 atomic capability check.

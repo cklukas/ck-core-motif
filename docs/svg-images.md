@@ -25,10 +25,10 @@ directions, cache-reference ownership and installed-image override precedence.
 
 ## File loading
 
-SVG support is enabled with `--enable-svg` and requires `librsvg-2.0 >= 2.52`
-through `pkg-config`. It is disabled by default. A request for the feature
-fails during configuration when the maintained rasterizer is unavailable;
-the normal build does not gain a librsvg runtime dependency.
+SVG support (`--enable-svg`, `default=auto`) is enabled automatically when
+`librsvg-2.0 >= 2.52` is found through `pkg-config` (use `--disable-svg` to
+omit the `librsvg` runtime dependency, or `--enable-svg` to fail configuration
+when the rasterizer is unavailable).
 
 The loader is reached through the existing `XmGetPixmapByDepth` and
 `XmGetScaledPixmap` image-cache paths. Files whose names end in `.svg`

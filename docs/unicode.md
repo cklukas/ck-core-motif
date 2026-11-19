@@ -1,10 +1,12 @@
 # Unicode text and input
 
-Build with `--enable-xft --enable-unicode-text` to use the shared ICU/HarfBuzz
-layout pipeline in native Text and TextField widgets. A UTF-8 locale is required
-for the scalar position contract below; set the locale and Xt language procedure
-before creating widgets. Missing dependencies are configure errors, rather than
-silently enabling an incomplete layout path.
+`configure` enables the shared ICU/HarfBuzz layout pipeline automatically when
+Xft, ICU, and HarfBuzz development files are present (`--enable-unicode-text`,
+`default=auto`; pass `--enable-xft --enable-unicode-text` to require it). A
+UTF-8 locale is required for the scalar position contract below; set the locale
+and Xt language procedure before creating widgets. Explicit `--enable-unicode-text`
+treats missing dependencies as configure errors rather than silently enabling an
+incomplete layout path.
 
 ## Coordinate systems
 

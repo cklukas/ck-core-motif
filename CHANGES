@@ -1,3 +1,17 @@
+Auto-enable XLibre/XWayland RandR DPI, Unicode text, AT-SPI, and SVG in configure (2026-11-19)
+==============================================================================================
+
+- `configure.ac`, `docs/build.md`, `docs/svg-images.md`, `docs/unicode.md`,
+  `docs/accessibility.md`:
+  - Changed `--enable-xlibre-dpi`, `--enable-unicode-text`, `--enable-atspi`,
+    and `--enable-svg` from `default=no` to `default=auto` so an ordinary
+    `./configure` automatically builds the full modern CK Core Motif ABI 9
+    feature set (`HAVE_XLIBRE_DPI`, `HAVE_UNICODE_TEXT`, `HAVE_ATSPI_DBUS`,
+    `SVG_SUPPORTED`) whenever the corresponding development libraries
+    (`libXrandr`, `icu-uc`/`icu-i18n`/`harfbuzz`, `dbus-1`, `librsvg-2.0 >= 2.52`)
+    are installed, while still failing loudly on explicit `--enable-FEATURE`
+    when dependencies are missing and honoring `--disable-FEATURE` when omitted.
+
 Opt-in automatic AT-SPI2 session bridge and XmAccessibilityGetDefault (2026-11-19)
 ==================================================================================
 
