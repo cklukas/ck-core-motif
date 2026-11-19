@@ -270,6 +270,7 @@ extern void _XmScaleRelayoutWidget(Widget widget,
                                    double new_scale,
                                    XtPointer closure);
 extern void _XmInitializeAppearance(void);
+extern void _XmAppearanceInstallLiveWatch(Widget shell);
 extern XmRenderTable _XmAppearanceCreateRenderTable(Widget widget,
     unsigned char role, double scale);
 extern void _XmDropDownRefreshGeometry(Widget);
@@ -306,6 +307,7 @@ extern void _XmContainerRefreshGeometry(Widget);
 extern void _XmPanedWindowRefreshGeometry(Widget);
 extern void _XmPanedRefreshGeometry(Widget);
 extern Pixel _XmAppearanceCascadeSelection(Widget, Pixel fallback);
+extern Pixel _XmAppearanceButtonFacePixel(Widget widget, Pixel fill);
 extern Boolean _XmAppearanceDrawButton(Widget widget, Pixel fill,
     Boolean emphasized, Boolean paint_background);
 extern Boolean _XmAppearanceDrawFieldFrame(Widget widget);

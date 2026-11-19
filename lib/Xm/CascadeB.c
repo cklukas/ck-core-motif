@@ -536,7 +536,24 @@ static Boolean PaintModern(XmCascadeButtonWidget cb, XEvent *event, Region regio
         fill = _XmAppearanceCascadeSelection(widget, values.foreground);
     }
     (void)_XmAppearanceDrawButton(widget, fill, False, True);
-    _XmRedisplayLabel((Widget)cb, event, region, False);
+    {
+        Pixel face_px = CB_IsArmed(cb)
+                            ? fill
+                            : _XmAppearanceButtonFacePixel(widget, fill);
+        Boolean swapped_bg = False;
+        if (XtIsRealized(widget) && face_px != cb->core.background_pixel) {
+            XSetWindowBackground(XtDisplay(widget), XtWindow(widget), face_px);
+            swapped_bg = True;
+        }
+        _XmRedisplayLabel((Widget)cb, event, region, False);
+        if (swapped_bg) {
+            XSetWindowBackground(XtDisplay(widget), XtWindow(widget),
+                                 cb->core.background_pixel);
+            if (cb->core.background_pixmap != XmUNSPECIFIED_PIXMAP)
+                XSetWindowBackgroundPixmap(XtDisplay(widget), XtWindow(widget),
+                                           cb->core.background_pixmap);
+        }
+    }
     (void)_XmAppearanceDrawButton(widget, fill, False, False);
     DrawCascade(cb);
     return True;

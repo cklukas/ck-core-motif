@@ -873,7 +873,9 @@ static Boolean PaintModern(XmCascadeButtonGadget cb, XEvent *event, Region regio
         fill = _XmAppearanceCascadeSelection(widget, values.foreground);
     }
     (void)_XmAppearanceDrawButton(widget, fill, False, True);
-    values.foreground = fill;
+    values.foreground = CBG_IsArmed(cb)
+                            ? fill
+                            : _XmAppearanceButtonFacePixel(widget, fill);
     face = XCreateGC(XtDisplay(widget), XtWindow(widget), GCForeground, &values);
     if (face == NULL) {
         (*xmLabelGadgetClassRec.rect_class.expose)((Widget)cb, event, region);

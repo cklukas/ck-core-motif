@@ -6,12 +6,14 @@
 #include <Xm/PrimitiveP.h>
 #include <Xm/GadgetP.h>
 #include <Xm/NotebookP.h>
+#include <Xm/RowColumnP.h>
 #include <Xm/ScrolledWP.h>
 #include <Xm/ScrollBarP.h>
 #include <limits.h>
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
+#include "ColorObjI.h"
 #include "AppearanceDrawI.h"
 
 Dimension
@@ -336,6 +338,174 @@ _XmAppearanceHoverSurfacePixel(Widget widget, Pixel base)
     return base;
 }
 
+static Boolean
+elevate_flat_buttons_enabled(Display *display)
+{
+    XmColorObj co;
+    XrmDatabase db;
+    char *type = NULL;
+    XrmValue val = {0, NULL};
+
+    if (display == NULL)
+        return False;
+    co = _XmColorObjForDisplay(display);
+    if (co != NULL && co->color_obj.colorIsRunning)
+        return True;
+    db = XrmGetDatabase(display);
+    if (db != NULL &&
+        XrmGetResource(db, "ckCoreMotif.elevateFlatButtons",
+                       "CkCoreMotif.ElevateFlatButtons", &type, &val) &&
+        val.addr != NULL &&
+        (strcmp(val.addr, "True") == 0 || strcmp(val.addr, "true") == 0 ||
+         strcmp(val.addr, "1") == 0))
+        return True;
+    return False;
+}
+
+static Pixel
+elevated_button_surface_pixel(Widget widget, Pixel base,
+                              XmAppearanceProfile profile)
+{
+    Display *display;
+    Screen *screen;
+    Colormap colormap;
+    Widget owner;
+    Pixel fg = 0;
+    XColor colors[2], blended;
+    unsigned int base_lum, fg_lum;
+    unsigned int target_r, target_g, target_b, keep_pct, lift_pct;
+
+    if (widget == NULL)
+        return base;
+    display = XtDisplayOfObject(widget);
+    screen = XtScreenOfObject(widget);
+    owner = XtIsWidget(widget) ? widget : XtParent(widget);
+    if (display == NULL || screen == NULL || owner == NULL)
+        return base;
+    colormap = DefaultColormapOfScreen(screen);
+    XtVaGetValues(owner, XmNcolormap, &colormap, NULL);
+    XtVaGetValues(widget, XmNforeground, &fg, NULL);
+    colors[0].pixel = base;
+    colors[1].pixel = fg;
+    XQueryColors(display, colormap, colors, 2);
+    base_lum = (30U * colors[0].red + 59U * colors[0].green + 11U * colors[0].blue) / 100U;
+    fg_lum = (30U * colors[1].red + 59U * colors[1].green + 11U * colors[1].blue) / 100U;
+    if (profile == XmAPPEARANCE_MODERN_DARK || fg_lum > 32768U) {
+        if (base_lum > 24000U) {
+            /* Medium-saturated palette with light text (e.g. Crimson):
+             * deepen the card slightly so white labels gain contrast. */
+            target_r = 0x0000U;
+            target_g = 0x0000U;
+            target_b = 0x0000U;
+            keep_pct = 86U;
+            lift_pct = 14U;
+        } else {
+            target_r = 0xdce4U;
+            target_g = 0xe4f0U;
+            target_b = 0xf2ffU;
+            keep_pct = 86U;
+            lift_pct = 14U;
+        }
+    } else {
+        target_r = 0xffffU;
+        target_g = 0xffffU;
+        target_b = 0xffffU;
+        keep_pct = 80U;
+        lift_pct = 20U;
+    }
+    blended.red = (unsigned short)((colors[0].red * keep_pct + target_r * lift_pct) / 100U);
+    blended.green = (unsigned short)((colors[0].green * keep_pct + target_g * lift_pct) / 100U);
+    blended.blue = (unsigned short)((colors[0].blue * keep_pct + target_b * lift_pct) / 100U);
+    blended.flags = DoRed | DoGreen | DoBlue;
+    if (XAllocColor(display, colormap, &blended))
+        return blended.pixel;
+    return base;
+}
+
+static Pixel
+modern_tonal_border_pixel(Widget widget, Pixel surface, Pixel fallback)
+{
+    Display *display;
+    Screen *screen;
+    Colormap colormap;
+    Widget owner;
+    Pixel fg = 0;
+    XColor colors[2], blended;
+
+    if (widget == NULL)
+        return fallback;
+    display = XtDisplayOfObject(widget);
+    screen = XtScreenOfObject(widget);
+    owner = XtIsWidget(widget) ? widget : XtParent(widget);
+    if (display == NULL || screen == NULL || owner == NULL)
+        return fallback;
+    colormap = DefaultColormapOfScreen(screen);
+    XtVaGetValues(owner, XmNcolormap, &colormap, NULL);
+    XtVaGetValues(widget, XmNforeground, &fg, NULL);
+    colors[0].pixel = surface;
+    colors[1].pixel = fg;
+    XQueryColors(display, colormap, colors, 2);
+    blended.red = (unsigned short)((colors[0].red * 74U + colors[1].red * 26U) / 100U);
+    blended.green = (unsigned short)((colors[0].green * 74U + colors[1].green * 26U) / 100U);
+    blended.blue = (unsigned short)((colors[0].blue * 74U + colors[1].blue * 26U) / 100U);
+    blended.flags = DoRed | DoGreen | DoBlue;
+    if (XAllocColor(display, colormap, &blended))
+        return blended.pixel;
+    return fallback;
+}
+
+static Boolean
+is_elevatable_button_control(Widget widget)
+{
+    if (widget == NULL)
+        return False;
+    if (XmIsPushButton(widget) || XmIsPushButtonGadget(widget))
+        return True;
+    if ((XmIsCascadeButton(widget) || XmIsCascadeButtonGadget(widget)) &&
+        XtParent(widget) != NULL && XmIsRowColumn(XtParent(widget)) &&
+        RC_Type(XtParent(widget)) == XmMENU_OPTION)
+        return True;
+    return False;
+}
+
+Pixel
+_XmAppearanceButtonFacePixel(Widget widget, Pixel fill)
+{
+    XmAppearanceProfile profile;
+    Display *display;
+    Pixel parent_background, base_bg;
+
+    if (widget == NULL || !XtIsSensitive(widget))
+        return fill;
+    display = XtDisplayOfObject(widget);
+    if (display == NULL || !XmGetAppearanceProfile(display, &profile) ||
+        (profile != XmAPPEARANCE_MODERN_LIGHT &&
+         profile != XmAPPEARANCE_MODERN_DARK))
+        return fill;
+    if (XtParent(widget) != NULL && XmIsNotebook(XtParent(widget)) &&
+        widget->core.constraints != NULL) {
+        XmNotebookConstraintPtr constraint =
+            (XmNotebookConstraintPtr)widget->core.constraints;
+        if (constraint->notebook.child_type == XmMAJOR_TAB ||
+            constraint->notebook.child_type == XmMINOR_TAB)
+            return fill;
+    }
+    if (!is_elevatable_button_control(widget))
+        return fill;
+    parent_background = fill;
+    if (XtParent(widget) != NULL)
+        XtVaGetValues(XtParent(widget), XmNbackground, &parent_background, NULL);
+    base_bg = fill;
+    XtVaGetValues(widget, XmNbackground, &base_bg, NULL);
+    if (fill == base_bg) {
+        if (_XmAppearanceIsHovered(widget))
+            return _XmAppearanceHoverSurfacePixel(widget, fill);
+        if (fill == parent_background && elevate_flat_buttons_enabled(display))
+            return elevated_button_surface_pixel(widget, fill, profile);
+    }
+    return fill;
+}
+
 /* Ordinary buttons share their shape. Notebook tabs retain their joined-page
  * renderer; callers retain menu painting and application-drawn content. */
 Boolean
@@ -344,7 +514,7 @@ _XmAppearanceDrawButton(Widget widget, Pixel fill, Boolean emphasized,
 {
     XmAppearanceProfile profile;
     Dimension highlight,shadow;
-    Pixel border,accent,parent_background;
+    Pixel border,accent,parent_background,orig_fill;
     Display *display=XtDisplayOfObject(widget);
     Drawable drawable=(XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget)));
     int x,y,width,height,stroke,radius,band;
@@ -366,14 +536,15 @@ _XmAppearanceDrawButton(Widget widget, Pixel fill, Boolean emphasized,
         XmNbottomShadowColor,&border,XmNhighlightColor,&accent,NULL);
     parent_background=fill;
     if (XtParent(widget)) XtVaGetValues(XtParent(widget),XmNbackground,&parent_background,NULL);
-    if (XtIsSensitive(widget) && _XmAppearanceIsHovered(widget) &&
-        (XmIsPushButton(widget) || XmIsPushButtonGadget(widget))) {
-        Pixel base_bg = fill;
+    orig_fill = fill;
+    fill = _XmAppearanceButtonFacePixel(widget, fill);
+    if (XtIsSensitive(widget) && is_elevatable_button_control(widget)) {
+        Pixel base_bg = orig_fill;
         XtVaGetValues(widget, XmNbackground, &base_bg, NULL);
-        if (fill == base_bg) {
-            fill = _XmAppearanceHoverSurfacePixel(widget, fill);
+        if (orig_fill == base_bg && _XmAppearanceIsHovered(widget))
             border = accent;
-        }
+        else if (elevate_flat_buttons_enabled(display))
+            border = modern_tonal_border_pixel(widget, fill, border);
     }
     x=(XtIsWidget(widget)?0:XtX(widget))+highlight;
     y=(XtIsWidget(widget)?0:XtY(widget))+highlight;
@@ -646,6 +817,14 @@ _XmAppearanceDrawFrameRegion(Widget widget, int x, int y,
     XtVaGetValues(widget, XmNbottomShadowColor, &border, NULL);
     if (_XmAppearanceIsHovered(widget))
         XtVaGetValues(widget, XmNhighlightColor, &border, NULL);
+    else if (elevate_flat_buttons_enabled(XtDisplayOfObject(widget))) {
+        Pixel surf = border;
+        Widget owner = XtIsWidget(widget) ? widget : XtParent(widget);
+        if (owner != NULL) {
+            XtVaGetValues(owner, XmNbackground, &surf, NULL);
+            border = modern_tonal_border_pixel(widget, surf, border);
+        }
+    }
     values.foreground = border;
     gc = XCreateGC(XtDisplayOfObject(widget), (XtIsWidget(widget) ? _XmPaintDrawable(widget) : _XmPaintDrawable(XtParent(widget))), GCForeground, &values);
     if (!gc) return True;

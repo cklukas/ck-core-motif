@@ -1430,13 +1430,15 @@ DrawPushButtonLabel(
 	  replaceGC = True;
 	}
     }
-  else if (!pb->pushbutton.armed && !Lab_IsMenupane(pb) &&
-           _XmAppearanceIsHovered((Widget)pb))
+  else if (!pb->pushbutton.armed && !Lab_IsMenupane(pb))
     {
-      XSetWindowBackground(
-          XtDisplay(pb), XtWindow(pb),
-          _XmAppearanceHoverSurfacePixel((Widget)pb, pb->core.background_pixel));
-      replaceBg = True;
+      Pixel face_px = _XmAppearanceButtonFacePixel(
+          (Widget)pb, pb->core.background_pixel);
+      if (face_px != pb->core.background_pixel)
+        {
+          XSetWindowBackground(XtDisplay(pb), XtWindow(pb), face_px);
+          replaceBg = True;
+        }
     }
   
   if (pb->label.label_type == XmPIXMAP ||

@@ -43,6 +43,13 @@ externalref XmColorObj _XmDefaultColorObj;
 
 extern XmColorObj _XmColorObjForDisplay(Display *display);
 
+extern Window _XmColorObjSelectionOwner(Display *display);
+
+extern Boolean _XmColorObjRefreshDisplay(
+                        Display *display,
+                        XmPixelSet *old_sets,
+                        XmPixelSet *new_sets);
+
 extern void _XmColorObjCreate( 
                         Widget w,
                         ArgList al,

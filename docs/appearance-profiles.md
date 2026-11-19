@@ -726,3 +726,20 @@ interoperability with modern X11 and Xwayland clients:
   `XdndSelection`, replying with `XdndStatus` and `XdndFinished` without
   changing public Motif callback signatures.
 - Qualified under Xvfb by `tests/automated/run-xdnd-interop-wp50.py`.
+
+### Live `RESOURCE_MANAGER` and `XmColorObj` palette synchronization
+
+Realized shells install a non-invasive `PropertyNotify` watcher on the root
+window (`XA_RESOURCE_MANAGER`) and active `XmColorObj` `CUSTOMIZE_DATA` owner
+(`SDT Pixel Set` / `XmSPIXEL_SET_PROP`, opt-out via
+`*ckCoreMotif.liveAppearanceSync: False`):
+- Coalesces property notifications onto an `XtAppAddWorkProc` callback on the
+  UI thread, refreshes `XmColorObj` pixel sets via `_XmColorObjRefreshDisplay`,
+  and recolors `ColorObj`-backed widgets and gadgets while preserving explicit
+  application/resource `XmNbackground` and `XmNforeground` overrides (still
+  updating `XmNhighlightColor` when sourced from the active `ColorObj` slot).
+- Preserves the previously applied profile/density baseline across `app_db`
+  synchronization so `apply_appearance_settings` executes the full
+  `_XmApplyAppearanceChange` widget transaction when transitioning between
+  `classic`, `modern_light`, `modern_dark`, and `high_contrast`.
+- Checked by `tests/automated/check-live-appearance-sync.py`.

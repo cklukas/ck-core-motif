@@ -1629,3 +1629,56 @@ XmeGetDesktopColorCells (Screen * screen,
     if (ncolors_returns) *ncolors_returns = i ;
 	return True;
 }
+
+Window
+_XmColorObjSelectionOwner(Display *display)
+{
+    XmColorObj co;
+    int screen;
+
+    if (display == NULL)
+        return None;
+    co = _XmColorObjForDisplay(display);
+    if (co == NULL || !co->color_obj.useColorObj ||
+        co->color_obj.atoms == NULL)
+        return None;
+    screen = co->color_obj.myScreen;
+    if (screen < 0 || screen >= co->color_obj.numScreens ||
+        co->color_obj.atoms[screen] == None)
+        return None;
+    return XGetSelectionOwner(display, co->color_obj.atoms[screen]);
+}
+
+Boolean
+_XmColorObjRefreshDisplay(
+        Display *display,
+        XmPixelSet *old_sets,
+        XmPixelSet *new_sets)
+{
+    XmColorObj co;
+    Window owner;
+    int screen;
+
+    if (display == NULL || old_sets == NULL || new_sets == NULL)
+        return False;
+    co = _XmColorObjForDisplay(display);
+    if (co == NULL || !co->color_obj.colorIsRunning ||
+        !co->color_obj.useColorObj || co->color_obj.colors == NULL ||
+        co->color_obj.atoms == NULL)
+        return False;
+    screen = co->color_obj.myScreen;
+    if (screen < 0 || screen >= co->color_obj.numScreens)
+        return False;
+    owner = XGetSelectionOwner(display, co->color_obj.atoms[screen]);
+    if (owner == None)
+        return False;
+
+    memcpy(old_sets, co->color_obj.colors[screen],
+           sizeof(XmPixelSet) * XmCO_NUM_COLORS);
+    if (!ColorCachePropertyExists(display, owner, (Widget)co, screen))
+        return False;
+    memcpy(new_sets, co->color_obj.colors[screen],
+           sizeof(XmPixelSet) * XmCO_NUM_COLORS);
+    return memcmp(old_sets, new_sets,
+                  sizeof(XmPixelSet) * XmCO_NUM_COLORS) != 0 ? True : False;
+}

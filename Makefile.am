@@ -239,6 +239,7 @@ EXTRA_DIST += docs/data-grid.md tests/automated/check-data-grid.c \
 
 EXTRA_DIST += tests/automated/check-paned-keyboard.c docs/paned-keyboard.md
 EXTRA_DIST += tests/automated/check-auto-atspi-bridge.c tests/automated/run-auto-atspi-bridge.py
+EXTRA_DIST += tests/automated/check-live-appearance-sync.py
 
 EXTRA_DIST += tests/automated/check-combo-delete.c docs/combo-deletion.md
 

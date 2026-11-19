@@ -937,6 +937,7 @@ RealizeWrapper(
        * realized.  Ordinary X11/Xorg builds do not compile this path. */
       (void)_XmXlibreDpiInstallShell(w, NULL, NULL);
 #endif
+      (void)_XmAppearanceInstallLiveWatch(w);
     }
 }
 

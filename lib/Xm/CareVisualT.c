@@ -32,6 +32,7 @@
 
 
 #include "XmI.h"
+#include <Xm/GadgetP.h>
 #include <Xm/TraitP.h>
 #include <Xm/CareVisualT.h>
 #include "CareVisualTI.h"
@@ -65,6 +66,10 @@ _XmNotifyChildrenVisual(
 			XmQTcareParentVisual)) != NULL)
 
 	   redisplay |= care_visual->redraw(child, cur, new_w, visual_flag) ;
+       else if (XmIsGadget(child) &&
+                ((XmGadgetClass)XtClass(child))->gadget_class.visual_change != NULL)
+	   redisplay |= (*(((XmGadgetClass)XtClass(child))->gadget_class.visual_change))(
+	       child, cur, new_w) ;
 
    }
 

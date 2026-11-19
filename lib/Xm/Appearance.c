@@ -18,6 +18,7 @@
 #include <X11/CompositeP.h>
 #include <X11/ShellP.h>
 #include <X11/StringDefs.h>
+#include <X11/Xatom.h>
 #include <X11/Xresource.h>
 #include <X11/Xutil.h>
 #include <X11/Xlibint.h>
@@ -64,6 +65,10 @@
 #include <Xm/Text.h>
 #include <Xm/List.h>
 #include <Xm/SearchBox.h>
+#include <Xm/CascadeB.h>
+#include <Xm/CascadeBG.h>
+#include <Xm/DialogS.h>
+#include <Xm/MenuShell.h>
 #ifdef USE_XFT
 #include <X11/Xft/Xft.h>
 #endif
@@ -598,6 +603,11 @@ typedef struct _XmAppearanceDisplayState {
     XmAppearanceProfile committing_profile;
     XmAppearanceDensity committing_density;
     Boolean committing_geometry;
+    Boolean live_watch_installed;
+    Boolean live_watch_disabled;
+    XtAppContext live_app_context;
+    XtEventDispatchProc prev_prop_dispatcher;
+    XtWorkProcId live_sync_work_id;
     Widget hooks;
     struct _XmAppearanceDisplayState *next;
 } XmAppearanceDisplayState;
@@ -656,6 +666,15 @@ _XmDestroyAppearanceDisplay(Display *display)
     *link = state->next;
     active_database = state->active_database;
     state->active_database = NULL;
+    if (state->live_sync_work_id != 0) {
+        XtRemoveWorkProc(state->live_sync_work_id);
+        state->live_sync_work_id = 0;
+    }
+    if (state->live_watch_installed) {
+        (void)XtSetEventDispatcher(display, PropertyNotify,
+                                   state->prev_prop_dispatcher);
+        state->live_watch_installed = False;
+    }
     if (state->hooks != NULL) {
         XtRemoveCallback(state->hooks, XtNcreateHook, appearance_created, state);
         XtRemoveCallback(state->hooks, XtNchangeHook, appearance_changed, state);
@@ -803,6 +822,11 @@ static Boolean lookup_appearance_resource(Display *display,
     const char *qualified_class, const char *leaf_name,
     const char *leaf_class, XrmValue *value_return);
 static XmAppearanceDisplayState *ensure_display_state(Display *display);
+static Boolean appearance_is_dtterm_widget(Widget w);
+static Boolean appearance_widget_in_secondary_tree(Widget w);
+static Boolean appearance_colorobj_modern_color(
+    XmAppearanceWidgetState *state, XmAppearanceProfile new_profile,
+    AppearanceProperty property, XtArgVal *value_return);
 
 static double
 srgb_channel_to_linear_u8(unsigned int v)
@@ -1028,8 +1052,10 @@ resolve_semantic_palette(Display *display, XmAppearanceProfile profile)
             }
             format_rgb_hex(surf_rgb, pal->surface_bg);
             if (dark) {
-                format_rgb_hex(surf_rgb, pal->field_bg);
-                format_rgb_hex(surf_rgb, pal->button_bg);
+                blend_rgb(surf_rgb, black, 0.30, tmp_rgb);
+                format_rgb_hex(tmp_rgb, pal->field_bg);
+                blend_rgb(surf_rgb, text_rgb, 0.10, tmp_rgb);
+                format_rgb_hex(tmp_rgb, pal->button_bg);
             } else {
                 blend_rgb(surf_rgb, white, 0.6, tmp_rgb);
                 format_rgb_hex(tmp_rgb, pal->field_bg);
@@ -1479,9 +1505,7 @@ appearance_database_named_value(Widget widget, XrmDatabase database,
         return False;
     if (widget != NULL) {
         Display *display = XtDisplayOfObject(widget);
-        XmColorObj color_obj = _XmColorObjForDisplay(display);
-        if (color_obj != NULL && color_obj->color_obj.colorIsRunning &&
-            database == XrmGetDatabase(display) &&
+        if (database == XrmGetDatabase(display) &&
             type == XrmStringToQuark(XmRString) &&
             value_return != NULL && value_return->addr != NULL &&
             strstr((const char *)value_return->addr, "-dt-interface ") != NULL)
@@ -1927,9 +1951,15 @@ appearance_font_role(XmAppearanceWidgetState *state)
         provider = parent->widget;
     }
     unsigned char role = appearance_role(provider);
-    if (role == XmAPPEARANCE_ROLE_NORMAL && !state->explicit_role &&
-        XtIsSubclass(provider, xmAvatarWidgetClass))
-        return XmAPPEARANCE_ROLE_SECTION;
+    if (role == XmAPPEARANCE_ROLE_NORMAL && !state->explicit_role) {
+        if (XtIsSubclass(provider, xmAvatarWidgetClass))
+            return XmAPPEARANCE_ROLE_SECTION;
+        if (XtParent(provider) != NULL &&
+            strcmp(widget_class_name(XtParent(provider)), "DtTitleBox") == 0 &&
+            XtName(provider) != NULL &&
+            strcmp(XtName(provider), "title") == 0)
+            return XmAPPEARANCE_ROLE_SECTION;
+    }
     return role;
 }
 
@@ -2262,6 +2292,11 @@ appearance_widget_prepare(XmAppearanceWidgetState *state,
             plan->apply[property] = True;
             continue;
         }
+        if (appearance_colorobj_modern_color(state, new_profile, property,
+                                             &plan->values[property])) {
+            plan->apply[property] = True;
+            continue;
+        }
         profile_text = profile_property_string(state->widget, new_profile,
                                                density, property);
         if (profile_text == NULL)
@@ -2377,9 +2412,71 @@ static Boolean
 initialize_appearance_state(XmAppearanceWidgetState *state,
                             XmAppearanceProfile current_profile)
 {
-    (void)current_profile;
     state->applied_role = appearance_role(state->widget);
     read_appearance_values(state, state->original);
+    if (current_profile != XmAPPEARANCE_CLASSIC &&
+        state->supported[AP_BACKGROUND] && !state->explicit_arg[AP_BACKGROUND]) {
+        XmColorObj co = _XmColorObjForDisplay(state->display);
+        if (co != NULL && co->color_obj.colorIsRunning &&
+            co->color_obj.useColorObj && co->color_obj.colors != NULL) {
+            int scr_num = XScreenNumberOfScreen(XtScreenOfObject(state->widget));
+            if (scr_num >= 0 && scr_num < co->color_obj.numScreens &&
+                co->color_obj.colors[scr_num] != NULL) {
+                const XmPixelSet *pset = co->color_obj.colors[scr_num];
+                Pixel cur_bg = (Pixel)state->original[AP_BACKGROUND];
+                Boolean matches_raw = False;
+                for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
+                    if (pset[k].bg == cur_bg) {
+                        matches_raw = True;
+                        break;
+                    }
+                }
+                if (!matches_raw) {
+                    int fallback_slot = -1;
+                    for (Widget p = XtParent(state->widget); p != NULL;
+                         p = XtParent(p)) {
+                        XmAppearanceWidgetState *ps = find_live_widget_state(p);
+                        if (ps != NULL && ps->initialized &&
+                            ps->supported[AP_BACKGROUND]) {
+                            Pixel pbg = (Pixel)ps->original[AP_BACKGROUND];
+                            for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
+                                if (pset[k].bg == pbg) {
+                                    fallback_slot = k;
+                                    break;
+                                }
+                            }
+                            if (fallback_slot >= 0)
+                                break;
+                        }
+                    }
+                    if (fallback_slot >= 0) {
+                        state->original[AP_BACKGROUND] =
+                            (XtArgVal)pset[fallback_slot].bg;
+                        if (state->supported[AP_FOREGROUND] &&
+                            !state->explicit_arg[AP_FOREGROUND])
+                            state->original[AP_FOREGROUND] =
+                                (XtArgVal)pset[fallback_slot].fg;
+                        if (state->supported[AP_TOP_SHADOW] &&
+                            !state->explicit_arg[AP_TOP_SHADOW])
+                            state->original[AP_TOP_SHADOW] =
+                                (XtArgVal)pset[fallback_slot].ts;
+                        if (state->supported[AP_BOTTOM_SHADOW] &&
+                            !state->explicit_arg[AP_BOTTOM_SHADOW])
+                            state->original[AP_BOTTOM_SHADOW] =
+                                (XtArgVal)pset[fallback_slot].bs;
+                        if (state->supported[AP_SELECT] &&
+                            !state->explicit_arg[AP_SELECT])
+                            state->original[AP_SELECT] =
+                                (XtArgVal)pset[fallback_slot].sc;
+                        if (state->supported[AP_ARM] &&
+                            !state->explicit_arg[AP_ARM])
+                            state->original[AP_ARM] =
+                                (XtArgVal)pset[fallback_slot].sc;
+                    }
+                }
+            }
+        }
+    }
     if (XmIsScrollBar(state->widget)) {
         unsigned char orientation;
         XtVaGetValues(state->widget, XmNorientation, &orientation, NULL);
@@ -2401,7 +2498,9 @@ initialize_appearance_state(XmAppearanceWidgetState *state,
         state->owned[property] = !appearance_database_value(state->widget,
             application, property, &xrm_value);
     }
-    if (state->supported[AP_RENDER_TABLE] && appearance_provider_font_explicit(state))
+    if (state->supported[AP_RENDER_TABLE] &&
+        (appearance_provider_font_explicit(state) ||
+         appearance_is_dtterm_widget(state->widget)))
         state->owned[AP_RENDER_TABLE] = False;
     {
         XrmValue value;
@@ -2735,6 +2834,22 @@ _XmRegisterAppearanceChange(Widget widget, ArgList args, Cardinal num_args)
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
         state->explicit_arg[property] = appearance_explicit_arg(args, num_args,
                                                                  property);
+    if (XtParent(widget) != NULL &&
+        strcmp(widget_class_name(XtParent(widget)), "DtTitleBox") == 0 &&
+        XtName(widget) != NULL && strcmp(XtName(widget), "title") == 0) {
+        state->explicit_arg[AP_RENDER_TABLE] = False;
+    }
+    if ((XmIsCascadeButtonGadget(widget) || XmIsCascadeButton(widget)) &&
+        XtName(widget) != NULL &&
+        strcmp(XtName(widget), "OptionButton") == 0 &&
+        XtParent(widget) != NULL && XmIsRowColumn(XtParent(widget))) {
+        state->explicit_arg[AP_BACKGROUND] = False;
+        state->explicit_arg[AP_FOREGROUND] = False;
+        state->explicit_arg[AP_TOP_SHADOW] = False;
+        state->explicit_arg[AP_BOTTOM_SHADOW] = False;
+        state->explicit_arg[AP_HIGHLIGHT] = False;
+        state->explicit_arg[AP_RENDER_TABLE] = False;
+    }
     _XmProcessLock();
     for (existing = appearance_widgets; existing != NULL;
          existing = existing->next)
@@ -3344,6 +3459,10 @@ XmGetAppearanceProfile(Display *display, XmAppearanceProfile *profile_return)
 
     *profile_return = XmAPPEARANCE_CLASSIC;
     state = find_display_state(display);
+    if (state != NULL && state->committing_geometry) {
+        *profile_return = state->committing_profile;
+        return True;
+    }
     if (state != NULL && state->profile_api_selected) {
         *profile_return = state->api_profile;
         return True;
@@ -3498,6 +3617,21 @@ apply_appearance_settings(Display *display, XmAppearanceProfile profile,
         state->api_density = density;
     }
     appearance_transaction_end(state);
+    {
+        XmAppearanceWidgetState *ws;
+        for (ws = appearance_widgets; ws != NULL; ws = ws->next) {
+            if (ws->retired || ws->display != display || ws->widget == NULL)
+                continue;
+            if (XtIsWidget(ws->widget)) {
+                if (_XmPaintBufferKind(ws->widget))
+                    _XmPaintInvalidate(ws->widget);
+                else if (XtIsRealized(ws->widget))
+                    XClearArea(display, XtWindow(ws->widget), 0, 0, 0, 0, True);
+            } else if (ws->parent != NULL && XtIsRealized(ws->parent)) {
+                XClearArea(display, XtWindow(ws->parent), 0, 0, 0, 0, True);
+            }
+        }
+    }
     return True;
 }
 
@@ -3521,6 +3655,10 @@ XmGetAppearanceDensity(Display *display, XmAppearanceDensity *density_return)
 
     *density_return = XmAPPEARANCE_DENSITY_COMFORTABLE;
     state = find_display_state(display);
+    if (state != NULL && state->committing_geometry) {
+        *density_return = state->committing_density;
+        return True;
+    }
     if (state != NULL && state->density_api_selected) {
         *density_return = state->api_density;
         return True;
@@ -3619,4 +3757,858 @@ _XmAppearanceCascadeSelection(Widget widget, Pixel fallback)
             return pixel;
     }
     return fallback;
+}
+
+static int
+appearance_ignore_x_error(Display *dpy, XErrorEvent *ev)
+{
+    (void)dpy;
+    (void)ev;
+    return 0;
+}
+
+static void
+appearance_safe_select_property_mask(Display *display, Window win)
+{
+    XWindowAttributes wa;
+    int (*old_handler)(Display *, XErrorEvent *);
+
+    if (display == NULL || win == None)
+        return;
+    XSync(display, False);
+    old_handler = XSetErrorHandler(appearance_ignore_x_error);
+    memset(&wa, 0, sizeof(wa));
+    if (XGetWindowAttributes(display, win, &wa))
+        XSelectInput(display, win, wa.your_event_mask | PropertyChangeMask);
+    XSync(display, False);
+    (void)XSetErrorHandler(old_handler);
+}
+
+static Boolean
+appearance_is_dtterm_widget(Widget w)
+{
+    WidgetClass wc;
+    if (w == NULL || !XtIsWidget(w))
+        return False;
+    for (wc = XtClass(w); wc != NULL; wc = wc->core_class.superclass) {
+        if (wc->core_class.class_name != NULL &&
+            (strcmp(wc->core_class.class_name, "DtTermPrimitive") == 0 ||
+             strcmp(wc->core_class.class_name, "DtTerm") == 0))
+            return True;
+    }
+    return False;
+}
+
+static Boolean
+appearance_widget_in_secondary_tree(Widget w)
+{
+    Widget cur;
+    for (cur = w; cur != NULL; cur = XtParent(cur)) {
+        if (XmIsDialogShell(cur) || XmIsMenuShell(cur) ||
+            XmIsCascadeButton(cur) || XmIsCascadeButtonGadget(cur) ||
+            (XmIsRowColumn(cur) &&
+             (RC_Type(cur) == XmMENU_BAR ||
+              RC_Type(cur) == XmMENU_PULLDOWN ||
+              RC_Type(cur) == XmMENU_POPUP)))
+            return True;
+    }
+    return False;
+}
+
+static Boolean
+appearance_rgb_to_pixel(Widget widget, const unsigned int rgb[3],
+                        XtArgVal *value_return)
+{
+    char hex[8];
+    Pixel pixel = 0;
+    XrmValue from, to;
+    Widget context;
+
+    if (widget == NULL || value_return == NULL)
+        return False;
+    format_rgb_hex(rgb, hex);
+    if (!appearance_string_value(hex, &from))
+        return False;
+    context = XtIsWidget(widget) ? widget : XtParent(widget);
+    if (context == NULL)
+        return False;
+    to.addr = (XPointer)&pixel;
+    to.size = sizeof(pixel);
+    if (!XtConvertAndStore(context, XmRString, &from, XmRPixel, &to)) {
+        Display *dpy = XtDisplayOfObject(widget);
+        Screen *scr = XtScreenOfObject(widget);
+        Colormap cmap = context->core.colormap;
+        XColor xc;
+        if (!XParseColor(dpy, cmap, hex, &xc))
+            return False;
+        if (!XAllocColor(dpy, cmap, &xc))
+            pixel = (rgb_relative_luminance(rgb) > 0.4)
+                        ? WhitePixelOfScreen(scr)
+                        : BlackPixelOfScreen(scr);
+        else
+            pixel = xc.pixel;
+    }
+    *value_return = (XtArgVal)pixel;
+    return True;
+}
+
+static Boolean
+appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
+                                 XmAppearanceProfile new_profile,
+                                 AppearanceProperty property,
+                                 XtArgVal *value_return)
+{
+    static const unsigned int white[3] = {255, 255, 255};
+    static const unsigned int black[3] = {0, 0, 0};
+    Widget w;
+    Display *dpy;
+    Screen *scr;
+    Colormap cmap;
+    XmColorObj co;
+    const XmSemanticPalette *pal;
+    const XmPixelSet *pset;
+    int scr_num, slot = -1, hint;
+    unsigned char role;
+    Pixel orig_bg = 0;
+    XColor qcolors[2];
+    unsigned int raw_rgb[3], acc_rgb[3], surf_rgb[3], fg_rgb[3];
+    unsigned int btn_rgb[3], border_rgb[3], well_rgb[3], arm_rgb[3];
+    unsigned int hl_rgb[3], muted_rgb[3], out_rgb[3];
+    Boolean dark;
+
+    if (state == NULL || state->widget == NULL || value_return == NULL)
+        return False;
+    if (new_profile != XmAPPEARANCE_MODERN_LIGHT &&
+        new_profile != XmAPPEARANCE_MODERN_DARK)
+        return False;
+    if (!appearance_property_is_color(property))
+        return False;
+
+    w = state->widget;
+    dpy = state->display;
+    co = _XmColorObjForDisplay(dpy);
+    if (co == NULL || !co->color_obj.colorIsRunning ||
+        !co->color_obj.useColorObj || co->color_obj.colors == NULL)
+        return False;
+
+    pal = resolve_semantic_palette(dpy, new_profile);
+    if (pal != NULL && pal->has_surface)
+        return False;
+
+    role = appearance_role(w);
+    if (role == XmAPPEARANCE_ROLE_PRIMARY ||
+        role == XmAPPEARANCE_ROLE_DESTRUCTIVE ||
+        role == XmAPPEARANCE_ROLE_SECONDARY)
+        return False;
+    if (XmIsInfoBar(w) || XtIsSubclass(w, xmAvatarWidgetClass) || XmIsLink(w) ||
+        (XtParent(w) != NULL && XmIsSegmentedControl(XtParent(w))))
+        return False;
+
+    scr = XtScreenOfObject(w);
+    scr_num = XScreenNumberOfScreen(scr);
+    if (scr_num < 0 || scr_num >= co->color_obj.numScreens ||
+        co->color_obj.colors[scr_num] == NULL)
+        return False;
+    pset = co->color_obj.colors[scr_num];
+
+    if (state->supported[AP_BACKGROUND]) {
+        orig_bg = (Pixel)state->original[AP_BACKGROUND];
+    } else if (state->parent != NULL) {
+        XmAppearanceWidgetState *ps = find_live_widget_state(state->parent);
+        if (ps != NULL && ps->initialized && ps->supported[AP_BACKGROUND])
+            orig_bg = (Pixel)ps->original[AP_BACKGROUND];
+        else
+            XtVaGetValues(state->parent, XmNbackground, &orig_bg, NULL);
+    }
+
+    if (XmIsText(w) || XmIsTextField(w) || XmIsList(w) || XmIsSearchBox(w) ||
+        appearance_is_dtterm_widget(w))
+        hint = co->color_obj.text;
+    else if (appearance_widget_in_secondary_tree(w))
+        hint = co->color_obj.secondary;
+    else
+        hint = co->color_obj.primary;
+
+    if (hint >= 0 && hint < XmCO_NUM_COLORS && pset[hint].bg == orig_bg) {
+        slot = hint;
+    } else {
+        for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
+            if (pset[k].bg == orig_bg) {
+                slot = k;
+                break;
+            }
+        }
+    }
+    if (slot < 0 || slot >= XmCO_NUM_COLORS)
+        slot = (hint >= 0 && hint < XmCO_NUM_COLORS) ? hint : 0;
+
+    cmap = DefaultColormapOfScreen(scr);
+    {
+        Widget owner = XtIsWidget(w) ? w : XtParent(w);
+        if (owner != NULL)
+            XtVaGetValues(owner, XmNcolormap, &cmap, NULL);
+    }
+    qcolors[0].pixel = pset[slot].bg;
+    qcolors[1].pixel = pset[(co->color_obj.active >= 0 &&
+                             co->color_obj.active < XmCO_NUM_COLORS)
+                                ? co->color_obj.active
+                                : 0].bg;
+    XQueryColors(dpy, cmap, qcolors, 2);
+    raw_rgb[0] = (unsigned int)(qcolors[0].red >> 8);
+    raw_rgb[1] = (unsigned int)(qcolors[0].green >> 8);
+    raw_rgb[2] = (unsigned int)(qcolors[0].blue >> 8);
+    acc_rgb[0] = (unsigned int)(qcolors[1].red >> 8);
+    acc_rgb[1] = (unsigned int)(qcolors[1].green >> 8);
+    acc_rgb[2] = (unsigned int)(qcolors[1].blue >> 8);
+
+    dark = (new_profile == XmAPPEARANCE_MODERN_DARK);
+    if (!dark) {
+        static const unsigned int base_ink[3] = {0x1d, 0x21, 0x29};
+        static const unsigned int base_well[3] = {0xfb, 0xfc, 0xfe};
+        static const unsigned int base_prim[3] = {0xf1, 0xf3, 0xf7};
+        static const unsigned int base_sec[3] = {0xe6, 0xeb, 0xf2};
+        static const unsigned int base_ws[3] = {0xe8, 0xec, 0xf2};
+        unsigned int dark_tint[3];
+
+        blend_rgb(raw_rgb, black, 0.72, dark_tint);
+        blend_rgb(base_ink, dark_tint, 0.14, fg_rgb);
+        if (slot == co->color_obj.text)
+            blend_rgb(base_well, raw_rgb, 0.10, surf_rgb);
+        else if (slot == co->color_obj.primary)
+            blend_rgb(base_prim, raw_rgb, 0.25, surf_rgb);
+        else if (slot == co->color_obj.secondary)
+            blend_rgb(base_sec, raw_rgb, 0.28, surf_rgb);
+        else
+            blend_rgb(base_ws, raw_rgb, 0.45, surf_rgb);
+
+        (void)clamp_rgb_for_contrast(surf_rgb, fg_rgb, 5.5);
+        blend_rgb(surf_rgb, white, 0.65, well_rgb);
+        if (rgb_relative_luminance(surf_rgb) > 0.84)
+            blend_rgb(surf_rgb, fg_rgb, 0.07, btn_rgb);
+        else
+            blend_rgb(surf_rgb, white, 0.48, btn_rgb);
+        blend_rgb(surf_rgb, fg_rgb, 0.25, border_rgb);
+        blend_rgb(surf_rgb, acc_rgb, 0.22, arm_rgb);
+    } else {
+        static const unsigned int base_fg[3] = {0xee, 0xf2, 0xf7};
+        static const unsigned int base_well[3] = {0x16, 0x19, 0x20};
+        static const unsigned int base_prim[3] = {0x21, 0x25, 0x2f};
+        static const unsigned int base_sec[3] = {0x2b, 0x31, 0x3d};
+        static const unsigned int base_ws[3] = {0x26, 0x2b, 0x36};
+        unsigned int tint_rgb[3];
+
+        fg_rgb[0] = base_fg[0];
+        fg_rgb[1] = base_fg[1];
+        fg_rgb[2] = base_fg[2];
+        if (rgb_relative_luminance(raw_rgb) > 0.20)
+            blend_rgb(base_prim, raw_rgb, 0.28, tint_rgb);
+        else {
+            tint_rgb[0] = raw_rgb[0];
+            tint_rgb[1] = raw_rgb[1];
+            tint_rgb[2] = raw_rgb[2];
+        }
+
+        if (slot == co->color_obj.text)
+            blend_rgb(base_well, tint_rgb, 0.45, surf_rgb);
+        else if (slot == co->color_obj.primary)
+            blend_rgb(base_prim, tint_rgb, 0.55, surf_rgb);
+        else if (slot == co->color_obj.secondary)
+            blend_rgb(base_sec, tint_rgb, 0.55, surf_rgb);
+        else
+            blend_rgb(base_ws, tint_rgb, 0.72, surf_rgb);
+
+        (void)clamp_rgb_for_contrast(surf_rgb, fg_rgb, 5.5);
+        blend_rgb(surf_rgb, black, 0.34, well_rgb);
+        blend_rgb(surf_rgb, fg_rgb, 0.13, btn_rgb);
+        blend_rgb(surf_rgb, fg_rgb, 0.25, border_rgb);
+        blend_rgb(surf_rgb, acc_rgb, 0.28, arm_rgb);
+    }
+
+    hl_rgb[0] = acc_rgb[0];
+    hl_rgb[1] = acc_rgb[1];
+    hl_rgb[2] = acc_rgb[2];
+    (void)clamp_rgb_for_contrast(hl_rgb, surf_rgb, 3.0);
+    blend_rgb(surf_rgb, fg_rgb, 0.52, muted_rgb);
+
+    if (XmIsScrollBar(w)) {
+        if (property == AP_FOREGROUND) {
+            blend_rgb(surf_rgb, fg_rgb, 0.48, out_rgb);
+            return appearance_rgb_to_pixel(w, out_rgb, value_return);
+        }
+        if (property == AP_TROUGH_COLOR || property == AP_BACKGROUND)
+            return appearance_rgb_to_pixel(w, well_rgb, value_return);
+        if (property == AP_TOP_SHADOW || property == AP_BOTTOM_SHADOW)
+            return appearance_rgb_to_pixel(w, border_rgb, value_return);
+    }
+
+    switch (property) {
+    case AP_BACKGROUND: {
+        Boolean in_menu =
+            XtParent(w) != NULL && XmIsRowColumn(XtParent(w)) &&
+            (RC_Type(XtParent(w)) == XmMENU_PULLDOWN ||
+             RC_Type(XtParent(w)) == XmMENU_POPUP ||
+             RC_Type(XtParent(w)) == XmMENU_BAR);
+        Boolean is_notebook_tab = False;
+        if (XtParent(w) != NULL && XmIsNotebook(XtParent(w)) &&
+            w->core.constraints != NULL) {
+            XmNotebookConstraintPtr nc =
+                (XmNotebookConstraintPtr)w->core.constraints;
+            if (nc->notebook.child_type == XmMAJOR_TAB ||
+                nc->notebook.child_type == XmMINOR_TAB)
+                is_notebook_tab = True;
+        }
+        if (XmIsTextField(w) || XmIsText(w) || XmIsList(w) ||
+            XmIsSearchBox(w) || appearance_is_dtterm_widget(w)) {
+            return appearance_rgb_to_pixel(
+                w, slot == co->color_obj.text ? surf_rgb : well_rgb,
+                value_return);
+        }
+        if (!in_menu && !is_notebook_tab &&
+            (XmIsPushButton(w) || XmIsPushButtonGadget(w) ||
+             XmIsDrawnButton(w) || XmIsArrowButton(w) ||
+             XmIsArrowButtonGadget(w) ||
+             ((XmIsCascadeButton(w) || XmIsCascadeButtonGadget(w)) &&
+              XtParent(w) != NULL && XmIsRowColumn(XtParent(w)) &&
+              RC_Type(XtParent(w)) == XmMENU_OPTION))) {
+            return appearance_rgb_to_pixel(w, btn_rgb, value_return);
+        }
+        return appearance_rgb_to_pixel(w, surf_rgb, value_return);
+    }
+    case AP_FOREGROUND:
+        return appearance_rgb_to_pixel(w, fg_rgb, value_return);
+    case AP_TOP_SHADOW:
+    case AP_BOTTOM_SHADOW:
+    case AP_BACK_PAGE_FOREGROUND:
+        return appearance_rgb_to_pixel(w, border_rgb, value_return);
+    case AP_HIGHLIGHT:
+        return appearance_rgb_to_pixel(w, hl_rgb, value_return);
+    case AP_SELECT:
+        if (XmIsToggleButton(w) || XmIsToggleButtonGadget(w))
+            return appearance_rgb_to_pixel(w, hl_rgb, value_return);
+        return appearance_rgb_to_pixel(w, arm_rgb, value_return);
+    case AP_ARM:
+        return appearance_rgb_to_pixel(w, arm_rgb, value_return);
+    case AP_TROUGH_COLOR:
+    case AP_UNSELECT_COLOR:
+        return appearance_rgb_to_pixel(w, well_rgb, value_return);
+    case AP_FRAME_BACKGROUND:
+    case AP_BACK_PAGE_BACKGROUND:
+        return appearance_rgb_to_pixel(w, surf_rgb, value_return);
+    case AP_INSENSITIVE_FOREGROUND:
+        return appearance_rgb_to_pixel(w, muted_rgb, value_return);
+    default:
+        return False;
+    }
+}
+
+static void
+appearance_recolor_colorobj_widgets(Display *display,
+                                    XmAppearanceDisplayState *display_state,
+                                    XmColorObj co,
+                                    const XmPixelSet *old_sets,
+                                    const XmPixelSet *new_sets,
+                                    XmAppearanceProfile target_profile,
+                                    Boolean repaint_widgets)
+{
+    XmAppearanceWidgetState **snapshot = NULL;
+    XmAppearanceWidgetState *ws;
+    size_t count = 0;
+    Boolean was_active = False;
+
+    if (display == NULL || co == NULL || old_sets == NULL || new_sets == NULL)
+        return;
+
+    _XmProcessLock();
+    for (ws = appearance_widgets; ws != NULL; ws = ws->next)
+        if (!ws->retired && ws->display == display && ws->widget != NULL)
+            ++count;
+    if (count > 0 && count <= SIZE_MAX / sizeof(*snapshot))
+        snapshot = (XmAppearanceWidgetState **)XtMalloc(
+            (Cardinal)(count * sizeof(*snapshot)));
+    if (snapshot == NULL) {
+        _XmProcessUnlock();
+        return;
+    }
+    count = 0;
+    for (ws = appearance_widgets; ws != NULL; ws = ws->next)
+        if (!ws->retired && ws->display == display && ws->widget != NULL) {
+            ++ws->references;
+            snapshot[count++] = ws;
+        }
+    _XmProcessUnlock();
+
+    if (count > 1)
+        qsort(snapshot, count, sizeof(*snapshot), appearance_parent_first);
+
+    /* Guard toolkit-driven ColorObj updates so XtNchangeHook does not treat
+     * palette refreshes as explicit application overrides or re-enter subtree
+     * layout mid-loop, while keeping resource_commit_depth at 0 so XmManager
+     * visual-change propagation updates child gadgets (e.g. DtIconGadget). */
+    if (display_state != NULL) {
+        was_active = display_state->transaction_active;
+        display_state->transaction_active = True;
+    }
+
+    for (size_t i = 0; i < count; ++i) {
+        Widget w;
+        Pixel cur_bg = 0;
+        Pixel cur_fg = 0;
+        Boolean explicit_bg = False;
+        Boolean fg_matches_old_palette = False;
+        int slot = -1;
+        int hint;
+        Arg set_args[10];
+        Cardinal n = 0;
+
+        ws = snapshot[i];
+        w = ws->widget;
+        if (ws->retired || w == NULL)
+            continue;
+        if (XtName(w) != NULL && strncmp(XtName(w), "colorButton", 11) == 0)
+            continue;
+        if (!ws->initialized &&
+            !initialize_appearance_state(ws, target_profile))
+            continue;
+
+        if (ws->supported[AP_BACKGROUND]) {
+            XrmRepresentation bg_type = NULLQUARK;
+            XrmValue bg_val = {0, NULL};
+            if (ws->explicit_arg[AP_BACKGROUND]) {
+                explicit_bg = True;
+            } else if (co->color_obj.colorIsRunning &&
+                       co->color_obj.useColorObj &&
+                       appearance_database_typed_value(
+                           w, XrmGetDatabase(display), XmNbackground,
+                           appearance_resource_class(w, AP_BACKGROUND),
+                           &bg_type, &bg_val) &&
+                       bg_type != XrmStringToQuark(XmRPixel)) {
+                explicit_bg = True;
+            }
+            cur_bg = (Pixel)ws->original[AP_BACKGROUND];
+        } else if (ws->parent != NULL) {
+            XtVaGetValues(ws->parent, XmNbackground, &cur_bg, NULL);
+        } else {
+            XtVaGetValues(w, XmNbackground, &cur_bg, NULL);
+        }
+        if (ws->supported[AP_FOREGROUND])
+            XtVaGetValues(w, XmNforeground, &cur_fg, NULL);
+
+        if (!explicit_bg) {
+            if (XmIsText(w) || XmIsTextField(w) || XmIsList(w) ||
+                appearance_is_dtterm_widget(w))
+                hint = co->color_obj.text;
+            else if (appearance_widget_in_secondary_tree(w))
+                hint = co->color_obj.secondary;
+            else
+                hint = co->color_obj.primary;
+
+            if (hint >= 0 && hint < XmCO_NUM_COLORS &&
+                (old_sets[hint].bg == cur_bg ||
+                 (!ws->supported[AP_BACKGROUND] &&
+                  new_sets[hint].bg == cur_bg))) {
+                slot = hint;
+            } else {
+                for (int k = 0; k < XmCO_NUM_COLORS; ++k) {
+                    if (old_sets[k].bg == cur_bg ||
+                        (!ws->supported[AP_BACKGROUND] &&
+                         new_sets[k].bg == cur_bg)) {
+                        slot = k;
+                        break;
+                    }
+                }
+            }
+        }
+        if (slot < 0 || slot >= XmCO_NUM_COLORS) {
+            if (ws->supported[AP_HIGHLIGHT] && !ws->explicit_arg[AP_HIGHLIGHT] &&
+                co->color_obj.active >= 0 &&
+                co->color_obj.active < XmCO_NUM_COLORS) {
+                Pixel cur_hl = 0;
+                XtVaGetValues(w, XmNhighlightColor, &cur_hl, NULL);
+                if (cur_hl == old_sets[co->color_obj.active].bg ||
+                    (Pixel)ws->original[AP_HIGHLIGHT] ==
+                        old_sets[co->color_obj.active].bg) {
+                    ws->original[AP_HIGHLIGHT] =
+                        (XtArgVal)new_sets[co->color_obj.active].bg;
+                    if (target_profile != XmAPPEARANCE_HIGH_CONTRAST) {
+                        XtSetArg(set_args[0], XmNhighlightColor,
+                                 new_sets[co->color_obj.active].bg);
+                        XtSetValues(w, set_args, 1);
+                        if (repaint_widgets) {
+                            if (XtIsWidget(w)) {
+                                if (_XmPaintBufferKind(w))
+                                    _XmPaintInvalidate(w);
+                                else if (XtIsRealized(w))
+                                    XClearArea(display, XtWindow(w), 0, 0, 0,
+                                               0, True);
+                            } else if (ws->parent != NULL &&
+                                       XtIsRealized(ws->parent)) {
+                                XClearArea(display, XtWindow(ws->parent), 0, 0,
+                                           0, 0, True);
+                            }
+                        }
+                    }
+                }
+            }
+            continue;
+        }
+
+        fg_matches_old_palette =
+            (cur_fg == old_sets[slot].fg ||
+             (Pixel)ws->original[AP_FOREGROUND] == old_sets[slot].fg);
+        ws->original[AP_BACKGROUND] = (XtArgVal)new_sets[slot].bg;
+        if (!ws->explicit_arg[AP_FOREGROUND] || fg_matches_old_palette)
+            ws->original[AP_FOREGROUND] = (XtArgVal)new_sets[slot].fg;
+        ws->original[AP_TOP_SHADOW] = (XtArgVal)new_sets[slot].ts;
+        ws->original[AP_BOTTOM_SHADOW] = (XtArgVal)new_sets[slot].bs;
+        ws->original[AP_SELECT] = (XtArgVal)new_sets[slot].sc;
+        ws->original[AP_ARM] = (XtArgVal)new_sets[slot].sc;
+        ws->original[AP_TROUGH_COLOR] = (XtArgVal)new_sets[slot].sc;
+        if (co->color_obj.active >= 0 &&
+            co->color_obj.active < XmCO_NUM_COLORS)
+            ws->original[AP_HIGHLIGHT] =
+                (XtArgVal)new_sets[co->color_obj.active].bg;
+
+        if (target_profile != XmAPPEARANCE_HIGH_CONTRAST) {
+            if (ws->supported[AP_BACKGROUND]) {
+                XtSetArg(set_args[n], XmNbackground, new_sets[slot].bg);
+                ++n;
+            }
+            if (ws->supported[AP_FOREGROUND] &&
+                (!ws->explicit_arg[AP_FOREGROUND] || fg_matches_old_palette)) {
+                XtSetArg(set_args[n], XmNforeground, new_sets[slot].fg);
+                ++n;
+            }
+            if (ws->supported[AP_TOP_SHADOW]) {
+                XtSetArg(set_args[n], XmNtopShadowColor, new_sets[slot].ts);
+                ++n;
+            }
+            if (ws->supported[AP_BOTTOM_SHADOW]) {
+                XtSetArg(set_args[n], XmNbottomShadowColor, new_sets[slot].bs);
+                ++n;
+            }
+            if (ws->supported[AP_SELECT]) {
+                XtSetArg(set_args[n], XmNselectColor, new_sets[slot].sc);
+                ++n;
+            }
+            if (ws->supported[AP_ARM]) {
+                XtSetArg(set_args[n], XmNarmColor, new_sets[slot].sc);
+                ++n;
+            }
+            if (ws->supported[AP_TROUGH_COLOR]) {
+                XtSetArg(set_args[n], XmNtroughColor, new_sets[slot].sc);
+                ++n;
+            }
+            if (ws->supported[AP_HIGHLIGHT] &&
+                !ws->explicit_arg[AP_HIGHLIGHT] &&
+                co->color_obj.active >= 0 &&
+                co->color_obj.active < XmCO_NUM_COLORS) {
+                XtSetArg(set_args[n], XmNhighlightColor,
+                         new_sets[co->color_obj.active].bg);
+                ++n;
+            }
+            if (n > 0)
+                XtSetValues(w, set_args, n);
+        }
+
+        if (repaint_widgets) {
+            if (XtIsWidget(w)) {
+                if (_XmPaintBufferKind(w))
+                    _XmPaintInvalidate(w);
+                else if (XtIsRealized(w))
+                    XClearArea(display, XtWindow(w), 0, 0, 0, 0, True);
+            } else if (ws->parent != NULL && XtIsRealized(ws->parent)) {
+                XClearArea(display, XtWindow(ws->parent), 0, 0, 0, 0, True);
+            }
+        }
+    }
+
+    if (display_state != NULL)
+        display_state->transaction_active = was_active;
+
+    for (size_t i = 0; i < count; ++i) {
+        ws = snapshot[i];
+        _XmProcessLock();
+        if (ws->references != 0)
+            --ws->references;
+        if (ws->retired && ws->references == 0)
+            appearance_free_widget_state(ws);
+        _XmProcessUnlock();
+    }
+    XtFree((char *)snapshot);
+}
+
+static char *
+appearance_read_root_resource_manager(Display *display)
+{
+    Atom actual_type = None;
+    int actual_format = 0;
+    unsigned long nitems = 0, bytes_after = 0;
+    unsigned char *prop = NULL;
+    char *copy = NULL;
+
+    if (display == NULL)
+        return NULL;
+    if (XGetWindowProperty(display, DefaultRootWindow(display),
+                           XA_RESOURCE_MANAGER, 0L, 262144L, False,
+                           XA_STRING, &actual_type, &actual_format,
+                           &nitems, &bytes_after, &prop) != Success ||
+        prop == NULL) {
+        if (prop != NULL)
+            XFree(prop);
+        return NULL;
+    }
+    if (actual_type == XA_STRING && actual_format == 8 && nitems > 0) {
+        copy = XtMalloc((Cardinal)(nitems + 1));
+        if (copy != NULL) {
+            memcpy(copy, prop, nitems);
+            copy[nitems] = '\0';
+        }
+    }
+    XFree(prop);
+    return copy;
+}
+
+static void
+appearance_sync_token_resource(Display *display, XrmDatabase rm_db,
+                               XrmDatabase app_db,
+                               const char *qual_name, const char *qual_class,
+                               const char *leaf_name, const char *leaf_class)
+{
+    XrmValue val = {0, NULL};
+    const char *str = "";
+
+    if (app_db == NULL)
+        return;
+    if (rm_db != NULL &&
+        lookup_appearance_resource(display, rm_db, qual_name, qual_class,
+                                   leaf_name, leaf_class, &val) &&
+        val.addr != NULL)
+        str = val.addr;
+    XrmPutStringResource(&app_db, qual_name, str);
+}
+
+static Boolean
+appearance_live_sync_work(XtPointer closure)
+{
+    Display *display = (Display *)closure;
+    XmAppearanceDisplayState *state = find_display_state(display);
+    XmPixelSet old_sets[XmCO_NUM_COLORS];
+    XmPixelSet new_sets[XmCO_NUM_COLORS];
+    Boolean palette_changed = False;
+    Boolean will_apply_appearance = False;
+    XmAppearanceProfile cur_prof = XmAPPEARANCE_CLASSIC;
+    XmAppearanceDensity cur_dens = XmAPPEARANCE_DENSITY_COMFORTABLE;
+    XmAppearanceProfile target_prof = XmAPPEARANCE_CLASSIC;
+    XmAppearanceDensity target_dens = XmAPPEARANCE_DENSITY_COMFORTABLE;
+    char *rm_str = NULL;
+    XrmDatabase rm_db = NULL;
+    XrmDatabase app_db;
+
+    if (state == NULL)
+        return True;
+    if (appearance_transaction_is_active(display))
+        return False; /* retry after active transaction completes */
+
+    state->live_sync_work_id = 0;
+    (void)XmGetAppearanceProfile(display, &cur_prof);
+    (void)XmGetAppearanceDensity(display, &cur_dens);
+
+    rm_str = appearance_read_root_resource_manager(display);
+    if (rm_str != NULL) {
+        XrmValue val = {0, NULL};
+        rm_db = XrmGetStringDatabase(rm_str);
+        XtFree(rm_str);
+        if (rm_db != NULL) {
+            if (lookup_appearance_resource(display, rm_db, APPEARANCE_RESOURCE,
+                                           APPEARANCE_CLASS,
+                                           XmNappearanceProfile,
+                                           XmCAppearanceProfile, &val) &&
+                val.addr != NULL)
+                (void)profile_from_name(val.addr, &target_prof);
+            val.addr = NULL;
+            if (lookup_appearance_resource(display, rm_db, DENSITY_RESOURCE,
+                                           DENSITY_CLASS,
+                                           XmNappearanceDensity,
+                                           XmCAppearanceDensity, &val) &&
+                val.addr != NULL)
+                (void)density_from_name(val.addr, &target_dens);
+        }
+    } else {
+        target_prof = cur_prof;
+        target_dens = cur_dens;
+    }
+
+    app_db = XrmGetDatabase(display);
+    if (app_db != NULL && rm_db != NULL) {
+        appearance_sync_token_resource(display, rm_db, app_db,
+                                       SURFACE_BACKGROUND_RESOURCE,
+                                       SURFACE_BACKGROUND_CLASS,
+                                       XmNsurfaceBackground,
+                                       XmCSurfaceBackground);
+        appearance_sync_token_resource(display, rm_db, app_db,
+                                       ACCENT_COLOR_RESOURCE,
+                                       ACCENT_COLOR_CLASS,
+                                       XmNaccentColor, XmCAccentColor);
+        appearance_sync_token_resource(display, rm_db, app_db,
+                                       ACCENT_FOREGROUND_RESOURCE,
+                                       ACCENT_FOREGROUND_CLASS,
+                                       XmNaccentForeground,
+                                       XmCAccentForeground);
+        appearance_sync_token_resource(display, rm_db, app_db,
+                                       DANGER_COLOR_RESOURCE,
+                                       DANGER_COLOR_CLASS,
+                                       XmNdangerColor, XmCDangerColor);
+        XrmPutStringResource(&app_db, APPEARANCE_RESOURCE,
+                             profile_name(target_prof));
+        XrmPutStringResource(&app_db, "*appearanceProfile",
+                             profile_name(target_prof));
+        XrmPutStringResource(&app_db, DENSITY_RESOURCE,
+                             target_dens == XmAPPEARANCE_DENSITY_COMPACT
+                                 ? "compact"
+                                 : "comfortable");
+        XrmPutStringResource(&app_db, "*appearanceDensity",
+                             target_dens == XmAPPEARANCE_DENSITY_COMPACT
+                                 ? "compact"
+                                 : "comfortable");
+    }
+    if (rm_db != NULL)
+        XrmDestroyDatabase(rm_db);
+
+    /* Preserve cur_prof / cur_dens as the currently applied baseline while
+     * apply_appearance_settings evaluates transitions against app_db. */
+    state->profile_api_selected = True;
+    state->api_profile = cur_prof;
+    state->density_api_selected = True;
+    state->api_density = cur_dens;
+
+    memset(old_sets, 0, sizeof(old_sets));
+    memset(new_sets, 0, sizeof(new_sets));
+    palette_changed = _XmColorObjRefreshDisplay(display, old_sets, new_sets);
+    if (palette_changed && target_prof != XmAPPEARANCE_CLASSIC) {
+        state->palette.valid = False;
+    }
+    will_apply_appearance =
+        (cur_prof != target_prof || cur_dens != target_dens ||
+         (palette_changed && target_prof != XmAPPEARANCE_CLASSIC) ||
+         semantic_palette_dirty(display, state, target_prof));
+
+    if (palette_changed) {
+        XmColorObj co = _XmColorObjForDisplay(display);
+        appearance_recolor_colorobj_widgets(display, state, co,
+                                            old_sets, new_sets, target_prof,
+                                            !will_apply_appearance);
+    }
+
+    if (cur_dens != target_dens && cur_prof == XmAPPEARANCE_CLASSIC &&
+        target_prof == XmAPPEARANCE_CLASSIC) {
+        (void)apply_appearance_settings(display, cur_prof, target_dens, False);
+    }
+    if (will_apply_appearance) {
+        (void)apply_appearance_settings(display, target_prof, target_dens, True);
+    }
+
+    state->profile_api_selected = False;
+    state->density_api_selected = False;
+    return True;
+}
+
+static void
+appearance_observe_property_notify(XmAppearanceDisplayState *state,
+                                   const XPropertyEvent *ev)
+{
+    Display *dpy;
+    Window cust_owner;
+    Atom pset_atom;
+    Boolean match = False;
+
+    if (state == NULL || ev == NULL || state->live_watch_disabled ||
+        state->live_app_context == NULL || ev->state != PropertyNewValue)
+        return;
+    dpy = state->display;
+    if (ev->window == DefaultRootWindow(dpy) &&
+        ev->atom == XA_RESOURCE_MANAGER) {
+        match = True;
+    } else {
+        pset_atom = XInternAtom(dpy, XmSPIXEL_SET_PROP, True);
+        if (pset_atom != None && ev->atom == pset_atom) {
+            cust_owner = _XmColorObjSelectionOwner(dpy);
+            if (cust_owner != None && ev->window == cust_owner)
+                match = True;
+        }
+    }
+    if (match && state->live_sync_work_id == 0) {
+        state->live_sync_work_id = XtAppAddWorkProc(
+            state->live_app_context, appearance_live_sync_work,
+            (XtPointer)dpy);
+    }
+}
+
+static Boolean
+appearance_dispatch_property_notify(XEvent *event)
+{
+    Display *dpy;
+    XmAppearanceDisplayState *state;
+    XtEventDispatchProc prev;
+    Boolean dispatched;
+
+    if (event == NULL)
+        return False;
+    dpy = event->xany.display;
+    state = find_display_state(dpy);
+    if (state == NULL)
+        return False;
+    if (event->type == PropertyNotify)
+        appearance_observe_property_notify(state, &event->xproperty);
+
+    prev = state->prev_prop_dispatcher;
+    (void)XtSetEventDispatcher(dpy, PropertyNotify, prev);
+    dispatched = XtDispatchEvent(event);
+    if (find_display_state(dpy) == state && state->live_watch_installed)
+        (void)XtSetEventDispatcher(dpy, PropertyNotify,
+                                   appearance_dispatch_property_notify);
+    return dispatched;
+}
+
+void
+_XmAppearanceInstallLiveWatch(Widget shell)
+{
+    Display *display;
+    XmAppearanceDisplayState *state;
+    XrmDatabase db;
+    XrmValue val = {0, NULL};
+    Window cust_owner;
+
+    if (shell == NULL || !XtIsRealized(shell))
+        return;
+    display = XtDisplay(shell);
+    if (display == NULL)
+        return;
+    state = ensure_display_state(display);
+    if (state == NULL || state->live_watch_installed ||
+        state->live_watch_disabled)
+        return;
+
+    db = XrmGetDatabase(display);
+    if (db != NULL &&
+        lookup_appearance_resource(display, db,
+                                   "ckCoreMotif.liveAppearanceSync",
+                                   "CkCoreMotif.LiveAppearanceSync",
+                                   "liveAppearanceSync",
+                                   "LiveAppearanceSync", &val) &&
+        val.addr != NULL &&
+        (strcmp(val.addr, "False") == 0 || strcmp(val.addr, "false") == 0 ||
+         strcmp(val.addr, "0") == 0)) {
+        state->live_watch_disabled = True;
+        return;
+    }
+
+    state->live_app_context = XtWidgetToApplicationContext(shell);
+    appearance_safe_select_property_mask(display, DefaultRootWindow(display));
+    cust_owner = _XmColorObjSelectionOwner(display);
+    if (cust_owner != None)
+        appearance_safe_select_property_mask(display, cust_owner);
+
+    state->prev_prop_dispatcher = XtSetEventDispatcher(
+        display, PropertyNotify, appearance_dispatch_property_notify);
+    state->live_watch_installed = True;
 }

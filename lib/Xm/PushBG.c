@@ -3072,39 +3072,75 @@ DrawLabelGadget(
    * This doesn't need to be done here every time.  But it does do
    * the right thing.
    */
-  if (!LabG_IsMenupane(pb))
-      (void)_XmAppearanceDrawButton((Widget)pb,
-          PBG_Armed(pb) && PBG_FillOnArm(pb) && XtIsSensitive((Widget)pb) ?
-          PBG_ArmColor(pb) : LabG_Background(pb), PBG_ShowAsDefault(pb) != 0, True);
-  ComputePBLabelArea(pb, &background_box);
-  
-  /*
-   * Temporarily remove the Xm3D_ENHANCE_PIXEL hack ("adjustment")
-   * from the margin values, so we don't confuse LabelG.  The
-   * original code did the same thing, but in a round-about way.
-   */
-  _XmProcessLock();
+  {
+    Pixel req_fill = (PBG_Armed(pb) && PBG_FillOnArm(pb) &&
+                      XtIsSensitive((Widget)pb))
+                         ? PBG_ArmColor(pb)
+                         : LabG_Background(pb);
+    Boolean modern_painted =
+        !LabG_IsMenupane(pb) &&
+        _XmAppearanceDrawButton((Widget)pb, req_fill,
+                                PBG_ShowAsDefault(pb) != 0, True);
+    GC face_gc = NULL;
 
-  if (pb->pushbutton.default_geometry > 0)
-    { 
-      deadjusted = True;
-      LabG_MarginLeft(pb) -= Xm3D_ENHANCE_PIXEL;
-      LabG_MarginRight(pb) -= Xm3D_ENHANCE_PIXEL;
-      LabG_MarginTop(pb) -= Xm3D_ENHANCE_PIXEL;
-      LabG_MarginBottom(pb) -= Xm3D_ENHANCE_PIXEL;
-    }
-  
-  _XmRedisplayLabG((Widget) pb, event, region, &background_box);
-  
-  if (deadjusted)
-    {
-      LabG_MarginLeft(pb) += Xm3D_ENHANCE_PIXEL;
-      LabG_MarginRight(pb) += Xm3D_ENHANCE_PIXEL;
-      LabG_MarginTop(pb) += Xm3D_ENHANCE_PIXEL;
-      LabG_MarginBottom(pb) += Xm3D_ENHANCE_PIXEL;
-    }
+    ComputePBLabelArea(pb, &background_box);
 
-  _XmProcessUnlock();
+    if (modern_painted && XtWindow(pb) != None)
+      {
+        XGCValues gcv;
+        gcv.foreground =
+            (PBG_Armed(pb) && PBG_FillOnArm(pb) && XtIsSensitive((Widget)pb))
+                ? req_fill
+                : _XmAppearanceButtonFacePixel((Widget)pb, req_fill);
+        face_gc = XCreateGC(XtDisplay(pb), XtWindow(pb), GCForeground, &gcv);
+      }
+
+    /*
+     * Temporarily remove the Xm3D_ENHANCE_PIXEL hack ("adjustment")
+     * from the margin values, so we don't confuse LabelG.  The
+     * original code did the same thing, but in a round-about way.
+     */
+    _XmProcessLock();
+
+    if (pb->pushbutton.default_geometry > 0)
+      {
+        deadjusted = True;
+        LabG_MarginLeft(pb) -= Xm3D_ENHANCE_PIXEL;
+        LabG_MarginRight(pb) -= Xm3D_ENHANCE_PIXEL;
+        LabG_MarginTop(pb) -= Xm3D_ENHANCE_PIXEL;
+        LabG_MarginBottom(pb) -= Xm3D_ENHANCE_PIXEL;
+      }
+
+    if (face_gc != NULL)
+      {
+        XmLabelGCacheObjPart *saved = LabG_Cache(pb);
+        XmLabelGCacheObjPart painting = *saved;
+        painting.background_GC = face_gc;
+        LabG_Cache(pb) = &painting;
+        _XmRedisplayLabG((Widget)pb, event, region, &background_box);
+        LabG_Cache(pb) = saved;
+      }
+    else
+      {
+        _XmRedisplayLabG((Widget)pb, event, region, &background_box);
+      }
+
+    if (deadjusted)
+      {
+        LabG_MarginLeft(pb) += Xm3D_ENHANCE_PIXEL;
+        LabG_MarginRight(pb) += Xm3D_ENHANCE_PIXEL;
+        LabG_MarginTop(pb) += Xm3D_ENHANCE_PIXEL;
+        LabG_MarginBottom(pb) += Xm3D_ENHANCE_PIXEL;
+      }
+
+    _XmProcessUnlock();
+
+    if (face_gc != NULL)
+      XFreeGC(XtDisplay(pb), face_gc);
+    if (modern_painted)
+      (void)_XmAppearanceDrawButton((Widget)pb, req_fill,
+                                    PBG_ShowAsDefault(pb) != 0, False);
+  }
   
 }  
 
