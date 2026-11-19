@@ -1,3 +1,21 @@
+PNG 24/32-bit RGB channel shift, RGBA XImage stride, and 16-bit XColor background conversion (2026-11-19)
+=========================================================================================================
+
+- `lib/Xm/Png.c`: fixed three TrueColor conversion defects in `_XmPngGetImage()`
+  and `png_process_image()`:
+  - Scaled 16-bit `XColor` background channels down by 8 bits (`xcolor.red >> 8`)
+    instead of truncating to the low byte when compositing transparent or
+    translucent RGBA PNG pixels onto a caller-supplied `Pixel` background.
+  - Shifted 8-bit 3-channel RGB PNG components left into 24/32-bit TrueColor
+    visual masks (`(unsigned long)red << RShift` when `RShift >= 0`) instead of
+    shifting right to zero, restoring red and green channels on TrueColor screens.
+  - Stored 4-channel RGBA pixels via `png_store_pixel(&dest, pixel,
+    ximage_pixel_bytes)` with masked `unsigned long` shifts and non-`static`
+    per-call mask/shift locals so packed 24-bpp and 32-bpp `XImage` buffers are
+    written without overrun or signed-shift undefined behavior.
+- Tests: `tests/automated/check-png-pixel-layout.py`,
+  `tests/automated/check-png-image.c`, `tests/automated/run-png-image.py`.
+
 XmTabBox/XmTabStack overflow menu, wheel scrolling, and XmText foreground color spans (2026-11-19)
 ==================================================================================================
 

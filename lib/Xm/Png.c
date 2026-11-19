@@ -43,9 +43,9 @@ _XmPngGetImage(Screen *screen, FILE *infile, Pixel background,
 
     xcolor.pixel = background;
     XQueryColor(screen->display, screen->cmap, &xcolor);
-    bg_red = xcolor.red;
-    bg_green = xcolor.green;
-    bg_blue = xcolor.blue;
+    bg_red = (unsigned char)(xcolor.red >> 8);
+    bg_green = (unsigned char)(xcolor.green >> 8);
+    bg_blue = (unsigned char)(xcolor.blue >> 8);
     rc = png_load_file(infile,
                        &image_width, &image_height,
                        NULL, NULL, NULL,
@@ -336,9 +336,10 @@ png_process_image(Screen *screen,
     unsigned long i, row;
     unsigned long pixel;
     int ximage_rowbytes = ximage->bytes_per_line;
-    static int RShift, GShift, BShift;
-    static unsigned long RMask, GMask, BMask;
+    int RShift = 0, GShift = 0, BShift = 0;
+    unsigned long RMask, GMask, BMask;
     unsigned short red, green, blue;
+    unsigned long r_part, g_part, b_part;
     int ximage_pixel_bytes = 0;
 
     RMask = screen->root_visual->red_mask;
@@ -358,34 +359,29 @@ png_process_image(Screen *screen,
         ximage_pixel_bytes = (ximage->bits_per_pixel + 7) / 8;
         if (ximage_pixel_bytes < 3 || ximage_pixel_bytes > 4)
             return 2;
-        for (row = 0; row < ximage->height; ++row) {
+        for (row = 0; row < (unsigned long)ximage->height; ++row) {
             src = image_data + row * image_rowbytes;
             dest = ximage->data + row * ximage_rowbytes;
             if (image_channels == 3) {
-                for (i = ximage->width; i > 0; --i) {
+                for (i = (unsigned long)ximage->width; i > 0; --i) {
                     red = *src++;
                     green = *src++;
                     blue = *src++;
-#ifdef NO_24BIT_MASKS
-                    pixel = (red << RShift) |
-                        (green << GShift) | (blue << BShift);
+                    r_part = (RShift < 0)
+                                 ? ((unsigned long)red >> (-RShift))
+                                 : ((unsigned long)red << RShift);
+                    g_part = (GShift < 0)
+                                 ? ((unsigned long)green >> (-GShift))
+                                 : ((unsigned long)green << GShift);
+                    b_part = (BShift < 0)
+                                 ? ((unsigned long)blue >> (-BShift))
+                                 : ((unsigned long)blue << BShift);
+                    pixel = (r_part & RMask) | (g_part & GMask) | (b_part & BMask);
                     /* recall that we set ximage->byte_order = MSBFirst above */
                     png_store_pixel(&dest, pixel, ximage_pixel_bytes);
-#else
-                    red = (RShift < 0) ? red << (-RShift) : red >> RShift;
-                    green =
-                        (GShift <
-                         0) ? green << (-GShift) : green >> GShift;
-                    blue =
-                        (BShift < 0) ? blue << (-BShift) : blue >> BShift;
-                    pixel =
-                        (red & RMask) | (green & GMask) | (blue & BMask);
-                    /* recall that we set ximage->byte_order = MSBFirst above */
-                    png_store_pixel(&dest, pixel, ximage_pixel_bytes);
-#endif
                 }
             } else {            /* if (image_channels == 4) */
-                for (i = ximage->width; i > 0; --i) {
+                for (i = (unsigned long)ximage->width; i > 0; --i) {
                     r = *src++;
                     g = *src++;
                     b = *src++;
@@ -406,13 +402,18 @@ png_process_image(Screen *screen,
                         png_composite(green, g, a, bg_green);
                         png_composite(blue, b, a, bg_blue);
                     }
-                    pixel = (red << RShift) |
-                        (green << GShift) | (blue << BShift);
+                    r_part = (RShift < 0)
+                                 ? ((unsigned long)red >> (-RShift))
+                                 : ((unsigned long)red << RShift);
+                    g_part = (GShift < 0)
+                                 ? ((unsigned long)green >> (-GShift))
+                                 : ((unsigned long)green << GShift);
+                    b_part = (BShift < 0)
+                                 ? ((unsigned long)blue >> (-BShift))
+                                 : ((unsigned long)blue << BShift);
+                    pixel = (r_part & RMask) | (g_part & GMask) | (b_part & BMask);
                     /* recall that we set ximage->byte_order = MSBFirst above */
-                    *dest++ = (char) ((pixel >> 24) & 0xff);
-                    *dest++ = (char) ((pixel >> 16) & 0xff);
-                    *dest++ = (char) ((pixel >> 8) & 0xff);
-                    *dest++ = (char) (pixel & 0xff);
+                    png_store_pixel(&dest, pixel, ximage_pixel_bytes);
                 }
             }
         }
