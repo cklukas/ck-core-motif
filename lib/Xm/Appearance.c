@@ -3208,6 +3208,8 @@ appearance_apply_subtree(Display *display, Widget root,
             _XmFontSelectorRefreshPreview(state->widget);
         else if (XmIsContainer(state->widget))
             _XmContainerRefreshGeometry(state->widget);
+        else if (XmIsScale(state->widget))
+            _XmScaleRefreshGeometry(state->widget);
     }
     for (size_t i = count; i-- > 0; ) {
         state = snapshot[i];
@@ -4132,7 +4134,39 @@ appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
         return False;
     pset = co->color_obj.colors[scr_num];
 
-    if (state->supported[AP_BACKGROUND]) {
+    Boolean in_well_sw = False;
+    Widget sw_work = NULL;
+    if (XmIsScrollBar(w) && XtParent(w) != NULL &&
+        XmIsScrolledWindow(XtParent(w))) {
+        Widget sw_parent = XtParent(w);
+        XtVaGetValues(sw_parent, XmNworkWindow, &sw_work, NULL);
+        if (sw_work == NULL && XtIsComposite(sw_parent)) {
+            CompositeWidget cw = (CompositeWidget)sw_parent;
+            for (Cardinal ci = 0; ci < cw->composite.num_children; ++ci) {
+                Widget ch = cw->composite.children[ci];
+                if (ch != NULL && ch != w &&
+                    (XmIsList(ch) || XmIsText(ch) ||
+                     appearance_is_dtterm_widget(ch) ||
+                     appearance_is_dthelp_display_area(ch))) {
+                    sw_work = ch;
+                    break;
+                }
+            }
+        }
+        if (sw_work != NULL &&
+            (XmIsList(sw_work) || XmIsText(sw_work) ||
+             appearance_is_dtterm_widget(sw_work) ||
+             appearance_is_dthelp_display_area(sw_work)))
+            in_well_sw = True;
+    }
+
+    if (in_well_sw && sw_work != NULL) {
+        XmAppearanceWidgetState *wws = find_live_widget_state(sw_work);
+        if (wws != NULL && wws->initialized && wws->supported[AP_BACKGROUND])
+            orig_bg = (Pixel)wws->original[AP_BACKGROUND];
+        else
+            XtVaGetValues(sw_work, XmNbackground, &orig_bg, NULL);
+    } else if (state->supported[AP_BACKGROUND]) {
         orig_bg = (Pixel)state->original[AP_BACKGROUND];
     } else if (state->parent != NULL) {
         XmAppearanceWidgetState *ps = find_live_widget_state(state->parent);
@@ -4142,15 +4176,18 @@ appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
             XtVaGetValues(state->parent, XmNbackground, &orig_bg, NULL);
     }
 
-    if (XmIsText(w) || XmIsTextField(w) || XmIsList(w) || XmIsSearchBox(w) ||
-        appearance_is_dtterm_widget(w) || appearance_is_dthelp_display_area(w))
+    if (in_well_sw || XmIsText(w) || XmIsTextField(w) || XmIsList(w) ||
+        XmIsSearchBox(w) || appearance_is_dtterm_widget(w) ||
+        appearance_is_dthelp_display_area(w))
         hint = co->color_obj.text;
     else if (appearance_widget_in_menu_tree(w))
         hint = co->color_obj.secondary;
     else
         hint = co->color_obj.primary;
 
-    if (appearance_is_dthelp_display_area(w) &&
+    if ((appearance_is_dthelp_display_area(w) ||
+         (in_well_sw && sw_work != NULL &&
+          appearance_is_dthelp_display_area(sw_work))) &&
         co->color_obj.text >= 0 && co->color_obj.text < XmCO_NUM_COLORS) {
         slot = co->color_obj.text;
     } else if (hint >= 0 && hint < XmCO_NUM_COLORS && pset[hint].bg == orig_bg) {
@@ -4287,8 +4324,13 @@ appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
             blend_rgb(surf_rgb, fg_rgb, 0.48, out_rgb);
             return appearance_rgb_to_pixel(w, out_rgb, value_return);
         }
-        if (property == AP_TROUGH_COLOR || property == AP_BACKGROUND)
-            return appearance_rgb_to_pixel(w, well_rgb, value_return);
+        if (property == AP_TROUGH_COLOR || property == AP_BACKGROUND) {
+            if (in_well_sw)
+                return appearance_rgb_to_pixel(
+                    w, slot == co->color_obj.text ? surf_rgb : well_rgb,
+                    value_return);
+            return appearance_rgb_to_pixel(w, surf_rgb, value_return);
+        }
         if (property == AP_TOP_SHADOW || property == AP_BOTTOM_SHADOW)
             return appearance_rgb_to_pixel(w, border_rgb, value_return);
     }
@@ -4342,6 +4384,7 @@ appearance_colorobj_modern_color(XmAppearanceWidgetState *state,
     case AP_ARM:
         return appearance_rgb_to_pixel(w, arm_rgb, value_return);
     case AP_TROUGH_COLOR:
+        return appearance_rgb_to_pixel(w, surf_rgb, value_return);
     case AP_UNSELECT_COLOR:
         return appearance_rgb_to_pixel(w, well_rgb, value_return);
     case AP_FRAME_BACKGROUND:

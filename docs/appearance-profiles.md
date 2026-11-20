@@ -750,7 +750,10 @@ window (`XA_RESOURCE_MANAGER`) and active `XmColorObj` `CUSTOMIZE_DATA` owner
   updating `XmNhighlightColor` when sourced from the active `ColorObj` slot).
 - Harmonizes multi-slot `XmColorObj` palettes (`primary`, `secondary`, `text`,
   and workspace switch slots) in `modern_light` and `modern_dark` with tinted
-  modern surfaces, recessed input wells, elevated button faces whose
+  modern surfaces, recessed input wells (preserving surface-matched
+  `XmNbackground` and `XmNtroughColor` on `XmScale`, its internal `Scrollbar`,
+  and standalone `XmScrollBar` tracks while matching recessed list/text wells
+  inside `XmScrolledWindow` viewports), elevated button faces whose
   `TextRect` clears/fills match `_XmAppearanceButtonFacePixel`, and subtle tonal
   1 px borders while retaining raw `XmColorObj` pixels in `original` state and
   clearing `50_foreground` shadow-dither pixmaps (`XmCO_NO_DITHER` /

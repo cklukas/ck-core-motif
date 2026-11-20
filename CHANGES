@@ -1,3 +1,25 @@
+Harmonize XmScale surface trough colors and refresh Scale geometry across profiles (2026-11-20)
+===============================================================================================
+
+- `lib/Xm/Appearance.c`, `lib/Xm/Scale.c`, `lib/Xm/XmI.h`,
+  `docs/appearance-profiles.md`, `tests/automated/check-modern-scale.c`:
+  - Resolve `XmNbackground` and `XmNtroughColor` to the harmonized surface color
+    (`surf_rgb`) for `XmScale`, its internal `Scrollbar` child, and standalone
+    `XmScrollBar` controls under `XmColorObj` in `modern_light` and `modern_dark`
+    (retaining `well_rgb` only for `XmToggleButton` `XmNunselectColor` and for
+    scrollbars inside `XmScrolledWindow` frames backing recessed list/text/help
+    views). Modern capsule sliders and scrollbars no longer paint a mismatched
+    recessed input-well rectangle behind their tracks.
+  - Refresh `XmScale` natural minor geometry (`_XmScaleRefreshGeometry`) after
+    subtree appearance commits, and consult `width_default` / `height_default`
+    during unrealized `QueryGeometry` and `ChangeManaged` sizing in `XmScale`
+    so `XmScale` controls created inside `XmForm` while a modern profile is
+    already active (where `ConstraintSetValues` normalizes zero dimensions to
+    `1` during `XtNcreateHook`) or transitioned with explicit
+    `XmNhighlightThickness` / `XmNshadowThickness` resources always expand to
+    their unclipped `24 px` modern minor extent (and contract back to `15 px` in
+    `classic`).
+
 Bind XmNiccHandle to the active selection atom during XmDragContext conversions (2026-11-20)
 ============================================================================================
 

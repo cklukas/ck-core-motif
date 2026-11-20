@@ -304,6 +304,7 @@ extern Boolean _XmAppearanceInGeometryTransaction(Display *);
 extern Boolean _XmAppearanceDimensionConstrained(Widget, unsigned int);
 extern Boolean _XmContainerDrawDisclosure(Widget);
 extern void _XmContainerRefreshGeometry(Widget);
+extern void _XmScaleRefreshGeometry(Widget);
 extern void _XmPanedWindowRefreshGeometry(Widget);
 extern void _XmPanedRefreshGeometry(Widget);
 extern Pixel _XmAppearanceCascadeSelection(Widget, Pixel fallback);

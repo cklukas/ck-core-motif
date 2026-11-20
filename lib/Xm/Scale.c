@@ -1195,6 +1195,13 @@ ScaleChanged(Widget widget, double old_scale, double new_scale, XtPointer closur
         XClearArea(XtDisplay(widget),XtWindow(widget),0,0,0,0,True);
 }
 
+void
+_XmScaleRefreshGeometry(Widget widget)
+{
+    if (widget != NULL && XmIsScale(widget))
+        ScaleChanged(widget, 1.0, 1.0, NULL);
+}
+
 static void 
 ValidateInputs(
         XmScaleWidget cur,
@@ -1641,17 +1648,19 @@ QueryGeometry(
         XtWidgetGeometry *intended,
         XtWidgetGeometry *desired )
 {
+    XmScaleWidget sw = (XmScaleWidget) widget;
+
     /* deal with user initial size setting */
     if (!XtIsRealized(widget))  {
-	desired->width = XtWidth(widget) ;    /* might be 0 */
-	desired->height = XtHeight(widget) ;  /* might be 0 */
+	desired->width = sw->scale.width_default ? 0 : XtWidth(widget) ;
+	desired->height = sw->scale.height_default ? 0 : XtHeight(widget) ;
     } else {	    
 	/* always computes natural size afterwards */
 	desired->width = 0 ;
 	desired->height = 0 ;
     }
 
-    GetScaleSize ((XmScaleWidget) widget, &desired->width, &desired->height);
+    GetScaleSize (sw, &desired->width, &desired->height);
 
     /* this function will set CWidth and CHeight */
     return XmeReplyToQueryGeometry(widget, intended, desired) ;
@@ -1726,8 +1735,8 @@ ChangeManaged(
 
     if (!XtIsRealized((Widget)sw))  {
 	/* the first time, only attemps to change non specified sizes */
-	if (XtWidth(sw)) desired.width = XtWidth(sw) ;  
-	if (XtHeight(sw)) desired.height = XtHeight(sw) ;
+	if (!sw->scale.width_default && XtWidth(sw)) desired.width = XtWidth(sw) ;  
+	if (!sw->scale.height_default && XtHeight(sw)) desired.height = XtHeight(sw) ;
     } 
 
     desired.request_mode = (CWWidth | CWHeight);

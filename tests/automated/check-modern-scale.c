@@ -1,11 +1,15 @@
 /* Scale-specific paint and the underlying value/interaction contract. */
 #include <X11/IntrinsicP.h>
+#include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <Xm/XmAll.h>
 #include <Xm/ScrollBarP.h>
 #include <Xm/Appearance.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #define CHECK(c) do { if (!(c)) { fprintf(stderr,"FAIL %d: %s\n",__LINE__,#c); exit(1); } } while(0)
 static unsigned cases,callbacks;
 static int observer_token;
@@ -45,6 +49,30 @@ static void pixels(Widget w,Boolean reverse,Boolean horizontal) {
     CHECK(XGetPixel(im,horizontal?b:x+width/2,horizontal?y+height/2:b)==(reverse?accent:s->primitive.top_shadow_color));
     CHECK(XGetPixel(im,cx,cy)==s->core.background_pixel);
     CHECK(XGetPixel(im,x,y)==s->scrollBar.trough_color);
+    {
+        int min_span = sw < sh ? sw : sh;
+        int diam = min_span;
+        if (diam > 0) {
+            /* Verify top/bottom (or left/right) outer ring pixels are unclipped. */
+            int ring_lo = horizontal ? (s->scrollBar.slider_y + (sh - diam) / 2)
+                                     : (s->scrollBar.slider_x + (sw - diam) / 2);
+            if (diam > 16) {
+                /* DPI-scaled 16 px nominal diameter: scan outward from center for accent ring. */
+                int lo_hit = -1, hi_hit = -1;
+                int area_lo = horizontal ? y : x;
+                int area_hi = horizontal ? (y + height) : (x + width);
+                for (int pos = area_lo; pos < area_hi; ++pos) {
+                    Pixel px = XGetPixel(im, horizontal ? cx : pos, horizontal ? pos : cy);
+                    if (px == accent) {
+                        if (lo_hit < 0) lo_hit = pos;
+                        hi_hit = pos;
+                    }
+                }
+                CHECK(lo_hit > area_lo && hi_hit < area_hi - 1);
+            }
+            (void)ring_lo;
+        }
+    }
     XDestroyImage(im);++cases;
 }
 static Pixel center_pixel(Widget w) {
@@ -213,5 +241,209 @@ int main(int argc,char **argv) {
         ++cases;
     }
     XtDestroyWidget(dpi_shell);drain(app,d);XFreeFont(d,font);
-    XtCloseDisplay(d);XtDestroyApplicationContext(app);printf("PASS modern scale: %u paint and interaction cases\n",cases);return 0;
+
+    /* Verify XmColorObj modern surface harmonization and XmForm geometry refresh
+     * for XmScale, standalone XmScrollBar, and List-backed XmScrolledWindow in a
+     * fresh process before _XmColorObjClassInitialize caches screen state. */
+    XtCloseDisplay(d);
+    XtDestroyApplicationContext(app);
+    {
+        pid_t pid = fork();
+        CHECK(pid >= 0);
+        if (pid == 0) {
+            Display *srv = XOpenDisplay(NULL);
+            CHECK(srv != NULL);
+            Colormap scmap = DefaultColormap(srv, DefaultScreen(srv));
+            Window cowner = XCreateSimpleWindow(srv, DefaultRootWindow(srv),
+                                                0, 0, 1, 1, 0, 0, 0);
+            Atom a_pset = XInternAtom(srv, "SDT Pixel Set", False);
+            Atom a_cust = XInternAtom(srv, "Customize Data:0", False);
+            static const char *const slot_hex[8][5] = {
+                {"#eda864", "#ffffff", "#f8dec4", "#9b5b1c", "#ca8f55"},
+                {"#999999", "#ffffff", "#d2d2d2", "#4d4d4d", "#828282"},
+                {"#8998ab", "#ffffff", "#cadef5", "#444c56", "#748191"},
+                {"#6b7080", "#ffffff", "#bbc0cf", "#363840", "#5b5f6d"},
+                {"#c4b2a8", "#000000", "#eae2dd", "#66574f", "#a7978f"},
+                {"#458196", "#ffffff", "#a5cad7", "#203c46", "#3b6e80"},
+                {"#b7878d", "#ffffff", "#e3cfd1", "#624044", "#9c7378"},
+                {"#9db0c5", "#000000", "#dce4ec", "#4d5b6a", "#8596a7"}
+            };
+            char blob[1400];
+            char *p = blob;
+            memcpy(p, "1_", 2);
+            p += 2;
+            for (int i = 0; i < 8; ++i) {
+                XColor cols[5], exact;
+                for (int c = 0; c < 5; ++c)
+                    CHECK(XAllocNamedColor(srv, scmap, slot_hex[i][c], &cols[c], &exact));
+                int n = snprintf(p, (size_t)(blob + sizeof(blob) - p),
+                                 "%lx_%lx_%lx_%lx_%lx_",
+                                 (unsigned long)cols[0].pixel,
+                                 (unsigned long)cols[1].pixel,
+                                 (unsigned long)cols[2].pixel,
+                                 (unsigned long)cols[3].pixel,
+                                 (unsigned long)cols[4].pixel);
+                CHECK(n > 0);
+                p += n;
+            }
+            *p++ = '1';
+            XChangeProperty(srv, cowner, a_pset, XA_STRING, 8, PropModeReplace,
+                            (const unsigned char *)blob, (int)(p - blob));
+            XSetSelectionOwner(srv, a_cust, cowner, CurrentTime);
+            XSync(srv, False);
+
+            XtToolkitInitialize();
+            XtAppContext capp = XtCreateApplicationContext();
+            int co_argc = 1;
+            char *co_argv[] = { argv[0], NULL };
+            Display *cdpy = XtOpenDisplay(capp, NULL, "scaleColorObj", "ScaleColorObj",
+                                          NULL, 0, &co_argc, co_argv);
+            CHECK(cdpy != NULL);
+            Widget cshell = XtAppCreateShell("scaleColorObj", "ScaleColorObj",
+                                             applicationShellWidgetClass,
+                                             cdpy, NULL, 0);
+            Widget cform = XtVaCreateManagedWidget("cform", xmFormWidgetClass, cshell,
+                                                   XmNwidth, 400, XmNheight, 320, NULL);
+            Widget cscale = XtVaCreateManagedWidget(
+                "cscale", xmScaleWidgetClass, cform,
+                XmNorientation, XmHORIZONTAL,
+                XmNhighlightThickness, 1,
+                XmNshadowThickness, 0,
+                XmNvalue, 68,
+                XmNtopAttachment, XmATTACH_FORM,
+                XmNtopOffset, 8,
+                XmNleftAttachment, XmATTACH_FORM,
+                XmNrightAttachment, XmATTACH_FORM,
+                NULL);
+            Widget dt_scale = XtVaCreateManagedWidget(
+                "dtScale", xmScaleWidgetClass, cform,
+                XmNorientation, XmHORIZONTAL,
+                XmNhighlightThickness, 2,
+                XmNvalue, 50,
+                XmNtopAttachment, XmATTACH_WIDGET,
+                XmNtopWidget, cscale,
+                XmNtopOffset, 8,
+                XmNleftAttachment, XmATTACH_FORM,
+                XmNrightAttachment, XmATTACH_FORM,
+                NULL);
+            Widget standalone_sb = XtVaCreateManagedWidget(
+                "standaloneSB", xmScrollBarWidgetClass, cform,
+                XmNorientation, XmHORIZONTAL,
+                XmNtopAttachment, XmATTACH_WIDGET,
+                XmNtopWidget, dt_scale,
+                XmNtopOffset, 8,
+                XmNleftAttachment, XmATTACH_FORM,
+                XmNrightAttachment, XmATTACH_FORM,
+                NULL);
+            Widget ctf = XtVaCreateManagedWidget(
+                "ctf", xmTextFieldWidgetClass, cform,
+                XmNtopAttachment, XmATTACH_WIDGET,
+                XmNtopWidget, standalone_sb,
+                XmNtopOffset, 8,
+                XmNleftAttachment, XmATTACH_FORM,
+                NULL);
+            Widget clist = XmCreateScrolledList(cform, "clist", NULL, 0);
+            XtVaSetValues(XtParent(clist),
+                          XmNtopAttachment, XmATTACH_WIDGET,
+                          XmNtopWidget, ctf,
+                          XmNtopOffset, 8,
+                          XmNleftAttachment, XmATTACH_FORM,
+                          XmNrightAttachment, XmATTACH_FORM,
+                          XmNbottomAttachment, XmATTACH_FORM,
+                          NULL);
+            XtManageChild(clist);
+            XtRealizeWidget(cshell);
+            drain(capp, cdpy);
+
+            /* Verify ColorObj actually bound non-fallback CDE palette pixels. */
+            Pixel init_form_bg = 0;
+            XtVaGetValues(cform, XmNbackground, &init_form_bg, NULL);
+            XColor qc = { .pixel = init_form_bg };
+            XQueryColor(cdpy, DefaultColormap(cdpy, DefaultScreen(cdpy)), &qc);
+            CHECK((qc.red >> 8) == 0xc4 || (qc.red >> 8) == 0x45);
+
+            /* Even when highlightThickness=1 and shadowThickness=0 were already set
+             * in classic mode, switching to modern_light must refresh Scale height
+             * from classic (17) to modern (26) via _XmScaleRefreshGeometry. */
+            CHECK(XtHeight(cscale) == 17);
+            for (int dark_mode = 0; dark_mode < 2; ++dark_mode) {
+                CHECK(XmApplyAppearanceProfile(
+                    cdpy, dark_mode ? XmAPPEARANCE_MODERN_DARK
+                                    : XmAPPEARANCE_MODERN_LIGHT));
+                drain(capp, cdpy);
+
+                Widget fresh_co = XtVaCreateManagedWidget(
+                    "freshCo", xmScaleWidgetClass, cform,
+                    XmNorientation, XmHORIZONTAL,
+                    XmNvalue, 42,
+                    XmNleftAttachment, XmATTACH_FORM,
+                    XmNrightAttachment, XmATTACH_FORM,
+                    XmNtopAttachment, XmATTACH_FORM,
+                    XmNtopOffset, 180,
+                    NULL);
+                drain(capp, cdpy);
+
+                CHECK(XtHeight(cscale) >= 26);
+                CHECK(XtHeight(dt_scale) >= 28);
+                CHECK(XtHeight(fresh_co) >= 26);
+
+                Pixel surf_bg = 0, tf_bg = 0, list_bg = 0;
+                XtVaGetValues(cform, XmNbackground, &surf_bg, NULL);
+                XtVaGetValues(ctf, XmNbackground, &tf_bg, NULL);
+                XtVaGetValues(clist, XmNbackground, &list_bg, NULL);
+                CHECK(surf_bg != tf_bg);
+
+                Widget scales_to_check[3] = {cscale, dt_scale, fresh_co};
+                for (int k = 0; k < 3; ++k) {
+                    Widget sb_k = scrollbar(scales_to_check[k]);
+                    CHECK(sb_k != NULL);
+                    XmScrollBarWidget sbw_k = (XmScrollBarWidget)sb_k;
+                    Pixel sc_bg = 0, sb_bg = 0, sb_trough = 0;
+                    XtVaGetValues(scales_to_check[k], XmNbackground, &sc_bg, NULL);
+                    XtVaGetValues(sb_k, XmNbackground, &sb_bg,
+                                  XmNtroughColor, &sb_trough, NULL);
+                    CHECK(sc_bg == surf_bg);
+                    CHECK(sb_bg == surf_bg);
+                    CHECK(sb_trough == surf_bg);
+                    CHECK(sbw_k->primitive.shadow_thickness == 0);
+                    pixels(sb_k, False, True);
+                }
+
+                Pixel ssb_bg = 0, ssb_trough = 0;
+                XtVaGetValues(standalone_sb, XmNbackground, &ssb_bg,
+                              XmNtroughColor, &ssb_trough, NULL);
+                CHECK(ssb_bg == surf_bg);
+                CHECK(ssb_trough == surf_bg);
+
+                Widget list_vbar = NULL;
+                XtVaGetValues(XtParent(clist), XmNverticalScrollBar, &list_vbar, NULL);
+                if (list_vbar != NULL) {
+                    Pixel lv_bg = 0, lv_trough = 0;
+                    XtVaGetValues(list_vbar, XmNbackground, &lv_bg,
+                                  XmNtroughColor, &lv_trough, NULL);
+                    CHECK(lv_bg == list_bg);
+                    CHECK(lv_trough == list_bg);
+                }
+
+                XtDestroyWidget(fresh_co);
+                drain(capp, cdpy);
+            }
+
+            CHECK(XmApplyAppearanceProfile(cdpy, XmAPPEARANCE_CLASSIC));
+            drain(capp, cdpy);
+            CHECK(XtHeight(cscale) == 17);
+
+            XtDestroyWidget(cshell);
+            XtCloseDisplay(cdpy);
+            XtDestroyApplicationContext(capp);
+            XCloseDisplay(srv);
+            _exit(0);
+        }
+        int status = 0;
+        CHECK(waitpid(pid, &status, 0) == pid);
+        CHECK(WIFEXITED(status) && WEXITSTATUS(status) == 0);
+        ++cases;
+    }
+
+    printf("PASS modern scale: %u paint and interaction cases\n",cases);return 0;
 }
