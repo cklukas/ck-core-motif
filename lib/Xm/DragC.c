@@ -1632,6 +1632,8 @@ DropConvertIncrCallback(
     else /* normal transfer */
       {
 	  Atom		motifDrop = atoms[XmA_MOTIF_DROP];
+	  Atom		savedIccHandle = dc->drag.iccHandle;
+	  dc->drag.iccHandle = *selection;
 	  returnVal =  (Boolean)((*(dc->drag.convertProc.sel_incr))
 				 ((Widget)dc, 
 				  &motifDrop,
@@ -1643,6 +1645,8 @@ DropConvertIncrCallback(
 				  maxLengthRtn,
 				  clientData,
 				  requestID));
+	  if (!dc->core.being_destroyed)
+	      dc->drag.iccHandle = savedIccHandle;
       }
     
     /* add code to handle TARGET target automatically if not there yet */
@@ -1745,6 +1749,8 @@ DropConvertCallback(
     else /* normal transfer */
       {
 	  Atom		motifDrop = atoms[XmA_MOTIF_DROP];
+	  Atom		savedIccHandle = dc->drag.iccHandle;
+	  dc->drag.iccHandle = *selection;
 	  returnVal =  (Boolean)
 		       ((*(dc->drag.convertProc.sel))
 				 ((Widget)dc, 
@@ -1754,6 +1760,8 @@ DropConvertCallback(
 				  valueRtn, 
 				  lengthRtn, 
 				  formatRtn));
+	  if (!dc->core.being_destroyed)
+	      dc->drag.iccHandle = savedIccHandle;
       }
 
     /* add code to handle TARGET target automatically if not there yet */

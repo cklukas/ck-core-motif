@@ -120,6 +120,20 @@ initiator_convert_proc(Widget w, Atom *selection, Atom *target,
   (void)selection;
   static const char payload[] = "file:///var/tmp/from-motif-initiator.txt\r\n";
   Display *dpy = XtDisplayOfObject(w);
+  Atom icc_handle = None;
+  XSelectionRequestEvent *req_ev = NULL;
+
+  /* Standard Motif / CDE libDtSvc convertProc contract: XmNiccHandle must
+   * reflect the active underlying ICCCM/Xdnd selection atom so calling
+   * XtGetSelectionRequest(dc, iccHandle, NULL) succeeds even when XdndSelection
+   * is queried before any _MOTIF_ATOM_n request arrives. */
+  XtVaGetValues(w, XmNiccHandle, &icc_handle, NULL);
+  CHECK(icc_handle != None);
+  CHECK(icc_handle == XInternAtom(dpy, "XdndSelection", False));
+  req_ev = XtGetSelectionRequest(w, icc_handle, NULL);
+  CHECK(req_ev != NULL);
+  CHECK(req_ev->selection == icc_handle);
+
   Atom uri_a = XInternAtom(dpy, "text/uri-list", False);
   if (*target == uri_a || *target == XA_STRING) {
     char *copy = XtMalloc(sizeof(payload));
@@ -544,6 +558,9 @@ main(int argc, char **argv)
     XtSetArg(dargs[dn], XmNdragOperations, XmDROP_COPY); dn++;
     Widget dc = XmDragStart(shell, &btn_ev, dargs, dn);
     CHECK(dc != NULL);
+    Atom orig_icc = None;
+    XtVaGetValues(dc, XmNiccHandle, &orig_icc, NULL);
+    CHECK(orig_icc != None && orig_icc != xdnd_selection);
     XSync(dpy, False);
 
     Atom out_prop = XInternAtom(ext_dpy, "WP50_XDND_OUT", False);
@@ -582,6 +599,10 @@ main(int argc, char **argv)
     CHECK(strstr((const char *)prop_bytes,
                  "file:///var/tmp/from-motif-initiator.txt") != NULL);
     XFree(prop_bytes);
+
+    Atom restored_icc = None;
+    XtVaGetValues(dc, XmNiccHandle, &restored_icc, NULL);
+    CHECK(restored_icc == orig_icc);
 
     XmDragCancel(dc);
     while (XtAppPending(app) & XtIMXEvent)

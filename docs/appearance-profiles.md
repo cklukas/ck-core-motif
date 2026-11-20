@@ -730,7 +730,10 @@ interoperability with modern X11 and Xwayland clients:
   `XdndTypeList`), `XdndPosition`, `XdndLeave`, and `XdndDrop` messages into
   standard Motif `XmDropSiteManager` and `XmDropTransfer` transactions over
   `XdndSelection`, replying with `XdndStatus` and `XdndFinished` without
-  changing public Motif callback signatures.
+  changing public Motif callback signatures. On the initiator side,
+  `XmDragStart` claims `XdndSelection` alongside `XmNiccHandle` and binds
+  `XmNiccHandle` to the active selection atom during `XmNconvertProc` callbacks
+  so callers invoking `XtGetSelectionRequest` receive the live request event.
 - Qualified under Xvfb by `tests/automated/run-xdnd-interop-wp50.py`.
 
 ### Live `RESOURCE_MANAGER` and `XmColorObj` palette synchronization

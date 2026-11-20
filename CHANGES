@@ -1,3 +1,18 @@
+Bind XmNiccHandle to the active selection atom during XmDragContext conversions (2026-11-20)
+============================================================================================
+
+- `lib/Xm/DragC.c`, `docs/appearance-profiles.md`,
+  `tests/automated/check-xdnd-interop-wp50.c`:
+  - Bind `dc->drag.iccHandle` (`XmNiccHandle`) to the active selection atom
+    (`*selection`, including `XdndSelection`) for the duration of
+    `DropConvertCallback` and `DropConvertIncrCallback` `XmNconvertProc`
+    invocations and restore the original Motif ICC handle afterward. Drag
+    initiators such as CDE `libDtSvc` (`DtDndDragStart` / `dtfile`) that read
+    `XmNiccHandle` and call `XtGetSelectionRequest` no longer dereference an
+    uninitialized `libXt` `SelectRec.req` entry when an Xdnd peer or Xwayland
+    selection bridge queries `XdndSelection` before any `_MOTIF_ATOM_n` request
+    has arrived.
+
 Reset XmColorObj shadow-dither pixmaps on live palette transitions (2026-11-20)
 ===============================================================================
 
