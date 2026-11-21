@@ -1,3 +1,13 @@
+Scale non-XLFD core Wayland fonts by logical zoom instead of buffer scale (2026-11-21)
+======================================================================================
+
+- `lib/Xm/WaylandRender.c`, `tests/automated/check-wayland-backend.c`:
+  - Scale non-XLFD core fonts (such as `"fixed"`) in `_XmWlOpenFont` by
+    `logical_zoom` (`CK_MOTIF_WAYLAND_SCALE`) rather than compositor physical
+    `active_scale` (`wl_output.scale` / `wp_fractional_scale_v1`), preventing
+    late-opened core fonts from rendering at 2x height inside 1x logical widget
+    boxes on HiDPI Wayland outputs.
+
 Keep Wayland logical coordinates at 96 DPI under HiDPI output scaling (2026-11-21)
 ==================================================================================
 

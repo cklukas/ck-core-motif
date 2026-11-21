@@ -1083,8 +1083,8 @@ _XmWlOpenFont(XmWlServer *srv, uint32_t id, const char *name, size_t len)
     int px = 13;
     bool mono = false, bold = false, italic = false;
     parse_xlfd_spec(f->name, &px, &mono, &bold, &italic);
-    if (srv->active_scale > 1.01 && f->name[0] != '-')
-        px = (int)lround((double)px * srv->active_scale);
+    if (srv->logical_zoom > 1.01 && f->name[0] != '-')
+        px = (int)lround((double)px * srv->logical_zoom);
     f->pixel_size = px;
     f->monospace = mono;
     f->bold = bold;

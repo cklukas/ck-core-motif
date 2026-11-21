@@ -669,6 +669,14 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
     if (fabs(cur_scale - 1.0) > 0.05)
         fail_msg("compositor 2.0x output scale double-scaled logical XmGetWidgetScale / Xft.dpi");
 
+    XFontStruct *fixed_fnt = XLoadQueryFont(dpy, "fixed");
+    if (!fixed_fnt)
+        fail_msg("XLoadQueryFont('fixed') failed under 2.0x Wayland output scale");
+    int fixed_h = fixed_fnt->ascent + fixed_fnt->descent;
+    XFreeFont(dpy, fixed_fnt);
+    if (fixed_h > 20)
+        fail_msg("compositor 2.0x output scale double-scaled core 'fixed' font metrics");
+
     Atom a_test_sc = XInternAtom(dpy, "_MOTIF_WAYLAND_TEST_SCALE", False);
     XChangeProperty(dpy, DefaultRootWindow(dpy), a_test_sc, XA_STRING, 8,
                     PropModeReplace, (const unsigned char *)"2.0", 3);
