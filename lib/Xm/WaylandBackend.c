@@ -1065,6 +1065,8 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
                     _XmWlApplyScaleUpdate(srv, sc);
             } else if (!srv->suppress_ipc_publish &&
                        (!strncmp(aname, "RESOURCE_MANAGER", 16) ||
+                        !strcmp(aname, "_SUN_TT_SESSION") ||
+                        !strcmp(aname, "TT_SESSION") ||
                         !strncmp(aname, "_DT_", 4) ||
                         !strncmp(aname, "_DTWM_", 6))) {
                 _XmWlIpcPublishRootProp(srv, aname, rp->data, rp->byte_len);
@@ -1542,6 +1544,10 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                         raw[rlen++] = (uint8_t)((hi << 4) | lo);
                     }
                     raw[rlen] = 0;
+                    if ((!strcmp(aname, "_SUN_TT_SESSION") || !strcmp(aname, "TT_SESSION")) && rlen > 0) {
+                        setenv("TT_SESSION", (const char *)raw, 1);
+                        setenv("_SUN_TT_SESSION", (const char *)raw, 1);
+                    }
                     uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
                     uint32_t utf8 = _XmWlInternAtom(srv, "UTF8_STRING", 11, false);
                     uint32_t ptype = !strcmp(aname, "RESOURCE_MANAGER") ? 31u : utf8;

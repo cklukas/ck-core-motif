@@ -1,3 +1,19 @@
+Implement XLFD pattern matching and XA_FONT metadata for UTF-8 XFontSet (2026-11-21)
+====================================================================================
+
+- `lib/Xm/WaylandX11Server.c`, `lib/Xm/WaylandRender.c`, `lib/Xm/WaylandBackend.c`,
+  `tests/automated/check-wayland-backend.c`:
+  - Match `ListFonts` and `ListFontsWithInfo` wildcard patterns against concrete
+    14-field `iso8859-1` and `iso10646-1` XLFD entries (including `-dt-interface
+    system`, `-dt-interface user`, `-dt-application`, `lucida`, `fixed`, and
+    `helvetica`), attach `XA_FONT` (`FONTPROP`) metadata in `QueryFont` and
+    `ListFontsWithInfo`, and advertise full 16-bit `0..255` `max_byte1` coverage
+    for `iso10646-1` subfonts so `XCreateFontSet` succeeds cleanly under UTF-8
+    locales (`en_US.UTF-8`).
+  - Synchronize `TT_SESSION` and `_SUN_TT_SESSION` root properties across the
+    optional compositor session IPC socket so ToolTalk clients share a unified
+    session without `Xwayland`.
+
 Scale non-XLFD core Wayland fonts by logical zoom instead of buffer scale (2026-11-21)
 ======================================================================================
 

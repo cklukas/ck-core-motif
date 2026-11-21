@@ -677,6 +677,18 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
     if (fixed_h > 20)
         fail_msg("compositor 2.0x output scale double-scaled core 'fixed' font metrics");
 
+    char **missing_cs = NULL;
+    int missing_cnt = 0;
+    char *def_str = NULL;
+    XFontSet fs = XCreateFontSet(
+        dpy, "-b&h-lucida-medium-r-normal-sans-*-120-*-*-*-*-*-*",
+        &missing_cs, &missing_cnt, &def_str);
+    if (missing_cs)
+        XFreeStringList(missing_cs);
+    if (!fs)
+        fail_msg("XCreateFontSet failed for wildcard XLFD pattern under UTF-8 locale");
+    XFreeFontSet(dpy, fs);
+
     Atom a_test_sc = XInternAtom(dpy, "_MOTIF_WAYLAND_TEST_SCALE", False);
     XChangeProperty(dpy, DefaultRootWindow(dpy), a_test_sc, XA_STRING, 8,
                     PropModeReplace, (const unsigned char *)"2.0", 3);

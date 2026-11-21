@@ -18,6 +18,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <fnmatch.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1706,6 +1707,150 @@ pack_charinfo(uint8_t *dst, const XmWlCharInfo *ci)
     wr_u16(dst + 10, ci->attributes);
 }
 
+static const char *const g_core_xlfd_catalog[] = {
+    /* CDE interface system (proportional sans) */
+    "-dt-interface system-medium-r-normal-xs-10-100-96-96-p-60-iso8859-1",
+    "-dt-interface system-medium-r-normal-xs-10-100-96-96-p-60-iso10646-1",
+    "-dt-interface system-bold-r-normal-xs-10-100-96-96-p-64-iso8859-1",
+    "-dt-interface system-bold-r-normal-xs-10-100-96-96-p-64-iso10646-1",
+    "-dt-interface system-medium-r-normal-s-12-120-96-96-p-70-iso8859-1",
+    "-dt-interface system-medium-r-normal-s-12-120-96-96-p-70-iso10646-1",
+    "-dt-interface system-bold-r-normal-s-12-120-96-96-p-75-iso8859-1",
+    "-dt-interface system-bold-r-normal-s-12-120-96-96-p-75-iso10646-1",
+    "-dt-interface system-medium-r-normal-m-14-140-96-96-p-80-iso8859-1",
+    "-dt-interface system-medium-r-normal-m-14-140-96-96-p-80-iso10646-1",
+    "-dt-interface system-bold-r-normal-m-14-140-96-96-p-86-iso8859-1",
+    "-dt-interface system-bold-r-normal-m-14-140-96-96-p-86-iso10646-1",
+    "-dt-interface system-medium-r-normal-l-16-160-96-96-p-90-iso8859-1",
+    "-dt-interface system-medium-r-normal-l-16-160-96-96-p-90-iso10646-1",
+    "-dt-interface system-bold-r-normal-l-16-160-96-96-p-96-iso8859-1",
+    "-dt-interface system-bold-r-normal-l-16-160-96-96-p-96-iso10646-1",
+    "-dt-interface system-medium-r-normal-xl-18-180-96-96-p-100-iso8859-1",
+    "-dt-interface system-medium-r-normal-xl-18-180-96-96-p-100-iso10646-1",
+    "-dt-interface system-bold-r-normal-xl-18-180-96-96-p-108-iso8859-1",
+    "-dt-interface system-bold-r-normal-xl-18-180-96-96-p-108-iso10646-1",
+    "-dt-interface system-medium-r-normal-xxl-22-220-96-96-p-120-iso8859-1",
+    "-dt-interface system-medium-r-normal-xxl-22-220-96-96-p-120-iso10646-1",
+    /* CDE interface user (monospace terminal/text) */
+    "-dt-interface user-medium-r-normal-xs-10-100-96-96-m-60-iso8859-1",
+    "-dt-interface user-medium-r-normal-xs-10-100-96-96-m-60-iso10646-1",
+    "-dt-interface user-bold-r-normal-xs-10-100-96-96-m-60-iso8859-1",
+    "-dt-interface user-bold-r-normal-xs-10-100-96-96-m-60-iso10646-1",
+    "-dt-interface user-medium-r-normal-s-12-120-96-96-m-70-iso8859-1",
+    "-dt-interface user-medium-r-normal-s-12-120-96-96-m-70-iso10646-1",
+    "-dt-interface user-bold-r-normal-s-12-120-96-96-m-70-iso8859-1",
+    "-dt-interface user-bold-r-normal-s-12-120-96-96-m-70-iso10646-1",
+    "-dt-interface user-medium-r-normal-m-14-140-96-96-m-80-iso8859-1",
+    "-dt-interface user-medium-r-normal-m-14-140-96-96-m-80-iso10646-1",
+    "-dt-interface user-bold-r-normal-m-14-140-96-96-m-80-iso8859-1",
+    "-dt-interface user-bold-r-normal-m-14-140-96-96-m-80-iso10646-1",
+    "-dt-interface user-medium-r-normal-l-16-160-96-96-m-90-iso8859-1",
+    "-dt-interface user-medium-r-normal-l-16-160-96-96-m-90-iso10646-1",
+    "-dt-interface user-bold-r-normal-l-16-160-96-96-m-90-iso8859-1",
+    "-dt-interface user-bold-r-normal-l-16-160-96-96-m-90-iso10646-1",
+    "-dt-interface user-medium-r-normal-xl-18-180-96-96-m-100-iso8859-1",
+    "-dt-interface user-medium-r-normal-xl-18-180-96-96-m-100-iso10646-1",
+    "-dt-interface user-medium-r-normal-xxl-22-220-96-96-m-120-iso8859-1",
+    "-dt-interface user-medium-r-normal-xxl-22-220-96-96-m-120-iso10646-1",
+    /* CDE application & standard X11 core families */
+    "-dt-application-medium-r-normal-sans-12-120-96-96-p-70-iso8859-1",
+    "-dt-application-medium-r-normal-sans-12-120-96-96-p-70-iso10646-1",
+    "-dt-application-bold-r-normal-sans-12-120-96-96-p-75-iso8859-1",
+    "-dt-application-bold-r-normal-sans-12-120-96-96-p-75-iso10646-1",
+    "-dt-application-medium-r-normal-sans-14-140-96-96-p-80-iso8859-1",
+    "-dt-application-medium-r-normal-sans-14-140-96-96-p-80-iso10646-1",
+    "-b&h-lucida-medium-r-normal-sans-12-120-75-75-p-71-iso8859-1",
+    "-b&h-lucida-medium-r-normal-sans-12-120-75-75-p-71-iso10646-1",
+    "-b&h-lucida-bold-r-normal-sans-12-120-75-75-p-79-iso8859-1",
+    "-b&h-lucida-bold-r-normal-sans-12-120-75-75-p-79-iso10646-1",
+    "-b&h-lucida-medium-r-normal-sans-14-140-75-75-p-82-iso8859-1",
+    "-b&h-lucida-medium-r-normal-sans-14-140-75-75-p-82-iso10646-1",
+    "-b&h-lucidatypewriter-medium-r-normal-sans-12-120-75-75-m-70-iso8859-1",
+    "-b&h-lucidatypewriter-medium-r-normal-sans-12-120-75-75-m-70-iso10646-1",
+    "-b&h-lucidatypewriter-bold-r-normal-sans-12-120-75-75-m-70-iso8859-1",
+    "-b&h-lucidatypewriter-bold-r-normal-sans-12-120-75-75-m-70-iso10646-1",
+    "-misc-fixed-medium-r-normal--12-120-75-75-c-60-iso8859-1",
+    "-misc-fixed-medium-r-normal--12-120-75-75-c-60-iso10646-1",
+    "-misc-fixed-medium-r-normal--13-120-75-75-c-70-iso8859-1",
+    "-misc-fixed-medium-r-normal--13-120-75-75-c-70-iso10646-1",
+    "-misc-fixed-medium-r-normal--13-120-75-75-c-70-iso8859-15",
+    "-misc-fixed-bold-r-normal--13-120-75-75-c-70-iso8859-1",
+    "-misc-fixed-bold-r-normal--13-120-75-75-c-70-iso10646-1",
+    "-misc-fixed-medium-r-normal--14-130-75-75-c-70-iso8859-1",
+    "-misc-fixed-medium-r-normal--14-130-75-75-c-70-iso10646-1",
+    "-misc-fixed-medium-r-normal--15-140-75-75-c-90-iso8859-1",
+    "-misc-fixed-medium-r-normal--15-140-75-75-c-90-iso10646-1",
+    "-adobe-helvetica-medium-r-normal--12-120-75-75-p-67-iso8859-1",
+    "-adobe-helvetica-medium-r-normal--12-120-75-75-p-67-iso10646-1",
+    "-adobe-helvetica-bold-r-normal--12-120-75-75-p-70-iso8859-1",
+    "-adobe-helvetica-bold-r-normal--12-120-75-75-p-70-iso10646-1",
+    "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1",
+    "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso10646-1",
+    "fixed",
+    "variable",
+    "6x13",
+    "8x13",
+    "9x15",
+};
+
+static const char *
+resolve_concrete_xlfd_for_font(const XmWlFont *f)
+{
+    if (f && f->name[0] == '-' && !strchr(f->name, '*') && !strchr(f->name, '?')) {
+        return f->name;
+    }
+    if (f && f->name[0]) {
+        for (size_t i = 0; i < sizeof(g_core_xlfd_catalog) / sizeof(g_core_xlfd_catalog[0]); ++i) {
+            if (g_core_xlfd_catalog[i][0] == '-' &&
+                fnmatch(f->name, g_core_xlfd_catalog[i], FNM_CASEFOLD) == 0) {
+                return g_core_xlfd_catalog[i];
+            }
+        }
+    }
+    return (f && f->monospace)
+               ? "-misc-fixed-medium-r-normal--13-120-75-75-c-70-iso8859-1"
+               : "-b&h-lucida-medium-r-normal-sans-12-120-75-75-p-71-iso8859-1";
+}
+
+static size_t
+match_font_catalog(const char *pat, uint16_t max_names, const char **out_names, size_t out_cap)
+{
+    if (max_names == 0 || out_cap == 0) return 0;
+    const char *eff_pat = (pat && pat[0]) ? pat : "*";
+
+    /* X11 XCreateFontSet often passes comma-separated or whitespace-trimmed XLFD patterns */
+    size_t count = 0;
+    size_t lim = max_names < out_cap ? max_names : out_cap;
+    for (size_t i = 0; i < sizeof(g_core_xlfd_catalog) / sizeof(g_core_xlfd_catalog[0]) && count < lim; ++i) {
+        if (fnmatch(eff_pat, g_core_xlfd_catalog[i], FNM_CASEFOLD) == 0) {
+            out_names[count++] = g_core_xlfd_catalog[i];
+        }
+    }
+    if (count == 0 && !strchr(eff_pat, '*') && !strchr(eff_pat, '?') && eff_pat[0] == '-') {
+        /* Exact XLFD requested that is not in static table: echo back if 14 dashes */
+        int dashes = 0;
+        for (const char *p = eff_pat; *p; ++p) if (*p == '-') dashes++;
+        if (dashes == 14) {
+            out_names[count++] = eff_pat;
+        }
+    }
+    if (count == 0) {
+        /* Fallback when caller specifies an uncommon foundry/family wildcard with iso8859-1 or iso10646-1 */
+        if (strcasestr(eff_pat, "iso10646-1")) {
+            out_names[count++] = strcasestr(eff_pat, "user") || strcasestr(eff_pat, "-m-") || strcasestr(eff_pat, "-c-")
+                                     ? "-misc-fixed-medium-r-normal--13-120-75-75-c-70-iso10646-1"
+                                     : "-dt-interface system-medium-r-normal-m-14-140-96-96-p-80-iso10646-1";
+        } else if (strcasestr(eff_pat, "iso8859-1")) {
+            out_names[count++] = strcasestr(eff_pat, "user") || strcasestr(eff_pat, "-m-") || strcasestr(eff_pat, "-c-")
+                                     ? "-misc-fixed-medium-r-normal--13-120-75-75-c-70-iso8859-1"
+                                     : "-dt-interface system-medium-r-normal-m-14-140-96-96-p-80-iso8859-1";
+        } else if (!strcasecmp(eff_pat, "*")) {
+            out_names[count++] = "-misc-fixed-medium-r-normal--13-120-75-75-c-70-iso8859-1";
+        }
+    }
+    return count;
+}
+
 static void
 send_query_font_reply(XmWlServer *srv, XmWlClient *cli, uint32_t font_or_gc_id)
 {
@@ -1721,33 +1866,47 @@ send_query_font_reply(XmWlServer *srv, XmWlClient *cli, uint32_t font_or_gc_id)
         return;
     }
 
+    const char *xlfd = resolve_concrete_xlfd_for_font(f);
+    uint32_t xlfd_atom = _XmWlInternAtom(srv, xlfd, strlen(xlfd), false);
+    bool is_ucs2 = strcasestr(xlfd, "iso10646-1") != NULL;
+
+    XmWlCharInfo uni_bounds = f->max_bounds;
+    if (f->chars[(unsigned char)'n'].width > 0)
+        uni_bounds.width = f->chars[(unsigned char)'n'].width;
+
     uint8_t hdr[32];
     memset(hdr, 0, sizeof(hdr));
-    pack_charinfo(hdr + 8, &f->min_bounds);
+    pack_charinfo(hdr + 8, is_ucs2 ? &uni_bounds : &f->min_bounds);
     /* max_bounds spans hdr[24..31] + extra[0..3] */
     uint8_t maxb[12];
-    pack_charinfo(maxb, &f->max_bounds);
+    pack_charinfo(maxb, is_ucs2 ? &uni_bounds : &f->max_bounds);
     memcpy(hdr + 24, maxb, 8);
 
-    size_t extra_len = 28u + 256u * 12u;
+    uint32_t n_chars = is_ucs2 ? 0u : 256u;
+    uint16_t n_props = 1u;
+    size_t extra_len = 28u + (size_t)n_props * 8u + (size_t)n_chars * 12u;
     uint8_t *extra = (uint8_t *)calloc(1, extra_len);
     if (!extra) return;
     memcpy(extra + 0, maxb + 8, 4);
     /* extra[4..7] unused */
-    wr_u16(extra + 8, 0);    /* min_char_or_byte2 */
-    wr_u16(extra + 10, 255); /* max_char_or_byte2 */
-    wr_u16(extra + 12, 32);  /* default_char */
-    wr_u16(extra + 14, 0);   /* nFontProps */
-    extra[16] = 0;           /* LeftToRight */
-    extra[17] = 0;           /* min_byte1 */
-    extra[18] = 0;           /* max_byte1 */
-    extra[19] = 1;           /* all_chars_exist */
+    wr_u16(extra + 8, 0);                        /* min_char_or_byte2 */
+    wr_u16(extra + 10, 255);                     /* max_char_or_byte2 */
+    wr_u16(extra + 12, 32);                      /* default_char */
+    wr_u16(extra + 14, n_props);                 /* nFontProps */
+    extra[16] = 0;                               /* LeftToRight */
+    extra[17] = 0;                               /* min_byte1 */
+    extra[18] = is_ucs2 ? 255u : 0u;             /* max_byte1 */
+    extra[19] = 1;                               /* all_chars_exist */
     wr_i16(extra + 20, f->ascent);
     wr_i16(extra + 22, f->descent);
-    wr_u32(extra + 24, 256); /* nCharInfos */
+    wr_u32(extra + 24, n_chars);                 /* nCharInfos */
 
-    for (int c = 0; c < 256; ++c)
-        pack_charinfo(extra + 28 + (size_t)c * 12u, &f->chars[c]);
+    /* FONTPROP[0]: XA_FONT (18) -> concrete XLFD atom */
+    wr_u32(extra + 28, 18u);
+    wr_u32(extra + 32, xlfd_atom);
+
+    for (uint32_t c = 0; c < n_chars; ++c)
+        pack_charinfo(extra + 36 + (size_t)c * 12u, &f->chars[c]);
 
     _XmWlSendReply(cli, hdr, extra, extra_len);
     free(extra);
@@ -2518,28 +2677,29 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
     }
 
     case 49: { /* ListFonts */
-        if (req_len < 12) break;
+        if (req_len < 8) break;
         uint16_t max_names = rd_u16(req + 4);
         uint16_t plen = rd_u16(req + 6);
-        static const char *const fnames[] = {
-            "-misc-fixed-medium-r-normal--13-120-75-75-c-70-iso8859-1",
-            "-misc-fixed-bold-r-normal--13-120-75-75-c-70-iso8859-1",
-            "-b&h-lucida-medium-r-normal-sans-12-120-75-75-p-71-iso8859-1",
-            "-b&h-lucida-bold-r-normal-sans-12-120-75-75-p-79-iso8859-1",
-            "-b&h-lucidatypewriter-medium-r-normal-sans-12-120-75-75-m-70-iso8859-1",
-            "-dt-interface user-medium-r-normal-m*-*-*-*-*-*-*-*-*",
-            "-dt-interface system-medium-r-normal-m*-*-*-*-*-*-*-*-*",
-            "fixed",
-        };
-        (void)plen;
-        uint8_t buf[1024];
+        if (8u + plen > req_len) break;
+        char pat[256];
+        size_t pn = plen < sizeof(pat) - 1 ? plen : sizeof(pat) - 1;
+        memcpy(pat, req + 8, pn);
+        pat[pn] = '\0';
+
+        const char *matched[128];
+        size_t nmatch = match_font_catalog(pat, max_names, matched, 128);
+
+        size_t buf_cap = nmatch * 128u + 16u;
+        uint8_t *buf = (uint8_t *)calloc(1, buf_cap);
+        if (!buf) break;
         size_t off = 0;
         uint16_t count = 0;
-        for (size_t i = 0; i < sizeof(fnames) / sizeof(fnames[0]) && count < max_names; ++i) {
-            size_t nl = strlen(fnames[i]);
-            if (off + 1 + nl > sizeof(buf)) break;
+        for (size_t i = 0; i < nmatch; ++i) {
+            size_t nl = strlen(matched[i]);
+            if (nl > 255) nl = 255;
+            if (off + 1 + nl > buf_cap) break;
             buf[off++] = (uint8_t)nl;
-            memcpy(buf + off, fnames[i], nl);
+            memcpy(buf + off, matched[i], nl);
             off += nl;
             count++;
         }
@@ -2547,16 +2707,96 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         memset(hdr, 0, sizeof(hdr));
         wr_u16(hdr + 8, count);
         _XmWlSendReply(cli, hdr, buf, off);
+        free(buf);
         break;
     }
 
-    case 50: { /* ListFontsWithInfo (send terminator reply: name_len=0, length=7 -> 28 extra bytes) */
-        uint8_t hdr[32];
-        uint8_t extra[28];
-        memset(hdr, 0, sizeof(hdr));
-        memset(extra, 0, sizeof(extra));
-        hdr[1] = 0; /* end-of-series marker */
-        _XmWlSendReply(cli, hdr, extra, 28);
+    case 50: { /* ListFontsWithInfo */
+        if (req_len < 8) break;
+        uint16_t max_names = rd_u16(req + 4);
+        uint16_t plen = rd_u16(req + 6);
+        if (8u + plen > req_len) break;
+        char pat[256];
+        size_t pn = plen < sizeof(pat) - 1 ? plen : sizeof(pat) - 1;
+        memcpy(pat, req + 8, pn);
+        pat[pn] = '\0';
+
+        const char *matched[128];
+        size_t nmatch = match_font_catalog(pat, max_names, matched, 128);
+
+        for (size_t i = 0; i < nmatch; ++i) {
+            const char *nm = matched[i];
+            size_t nl = strlen(nm);
+            if (nl == 0 || nl > 255) continue;
+            bool is_ucs2 = strcasestr(nm, "iso10646-1") != NULL;
+            bool is_mono = strcasestr(nm, "interface user") != NULL ||
+                           strcasestr(nm, "fixed") != NULL ||
+                           strcasestr(nm, "typewriter") != NULL ||
+                           strcasestr(nm, "courier") != NULL ||
+                           strcasestr(nm, "-m-") != NULL ||
+                           strcasestr(nm, "-c-") != NULL;
+            int px = 13;
+            const char *p = nm;
+            if (nm[0] == '-') {
+                int dash_cnt = 0;
+                while (*p && dash_cnt < 7) {
+                    if (*p == '-') dash_cnt++;
+                    p++;
+                }
+                if (dash_cnt == 7 && isdigit((unsigned char)*p)) {
+                    int parsed = atoi(p);
+                    if (parsed >= 8 && parsed <= 64) px = parsed;
+                }
+            }
+            int16_t asc = (int16_t)(px - (px / 5));
+            int16_t desc = (int16_t)(px - asc);
+            if (desc < 2) desc = 2;
+            int16_t cw = (int16_t)(is_mono ? ((px * 6 + 5) / 10) : ((px * 7 + 5) / 10));
+            if (cw < 5) cw = 5;
+            XmWlCharInfo min_ci = { .lbearing = 0, .rbearing = (int16_t)(is_mono ? cw : 2), .width = (int16_t)(is_mono ? cw : 3), .ascent = 0, .descent = 0, .attributes = 0 };
+            XmWlCharInfo max_ci = { .lbearing = 0, .rbearing = cw, .width = cw, .ascent = asc, .descent = desc, .attributes = 0 };
+            if (is_ucs2) min_ci = max_ci;
+
+            uint32_t xlfd_atom = _XmWlInternAtom(srv, nm, nl, false);
+
+            uint8_t hdr[32];
+            memset(hdr, 0, sizeof(hdr));
+            hdr[1] = (uint8_t)nl;
+            uint8_t maxb[12];
+            pack_charinfo(hdr + 8, &min_ci);
+            pack_charinfo(maxb, &max_ci);
+            memcpy(hdr + 24, maxb, 8);
+
+            size_t extra_len = 28u + 8u + nl;
+            uint8_t *extra = (uint8_t *)calloc(1, extra_len);
+            if (extra) {
+                memcpy(extra + 0, maxb + 8, 4);
+                wr_u16(extra + 8, 0);
+                wr_u16(extra + 10, 255);
+                wr_u16(extra + 12, 32);
+                wr_u16(extra + 14, 1); /* nFontProps = 1 */
+                extra[16] = 0;
+                extra[17] = 0;
+                extra[18] = is_ucs2 ? 255u : 0u;
+                extra[19] = 1;
+                wr_i16(extra + 20, asc);
+                wr_i16(extra + 22, desc);
+                wr_u32(extra + 24, (uint32_t)(nmatch - 1 - i)); /* replies_hint */
+                wr_u32(extra + 28, 18u); /* XA_FONT */
+                wr_u32(extra + 32, xlfd_atom);
+                memcpy(extra + 36, nm, nl);
+                _XmWlSendReply(cli, hdr, extra, extra_len);
+                free(extra);
+            }
+        }
+
+        /* End-of-series terminator reply: name_len=0, length=7 -> 28 extra bytes */
+        uint8_t thdr[32];
+        uint8_t textra[28];
+        memset(thdr, 0, sizeof(thdr));
+        memset(textra, 0, sizeof(textra));
+        thdr[1] = 0;
+        _XmWlSendReply(cli, thdr, textra, 28);
         break;
     }
 

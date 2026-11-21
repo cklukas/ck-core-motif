@@ -1057,13 +1057,13 @@ parse_xlfd_spec(const char *name, int *out_px, bool *out_mono, bool *out_bold, b
             int pt10 = atoi(fields[7]);
             if (pt10 >= 50 && pt10 <= 720) *out_px = (pt10 * 96 + 360) / 720;
         } else if (nf >= 6 && fields[5]) {
-            /* CDE symbolic size aliases: xs, s, m, l, xl, xxl */
-            if (!strcasecmp(fields[5], "xs")) *out_px = 10;
-            else if (!strcasecmp(fields[5], "s")) *out_px = 12;
-            else if (!strcasecmp(fields[5], "m")) *out_px = 14;
-            else if (!strcasecmp(fields[5], "l")) *out_px = 16;
-            else if (!strcasecmp(fields[5], "xl")) *out_px = 18;
-            else if (!strcasecmp(fields[5], "xxl")) *out_px = 22;
+            /* CDE symbolic size aliases: xs, s, m, l, xl, xxl (including wildcard suffixes like m*) */
+            if (!strncasecmp(fields[5], "xxl", 3)) *out_px = 22;
+            else if (!strncasecmp(fields[5], "xl", 2)) *out_px = 18;
+            else if (!strncasecmp(fields[5], "xs", 2)) *out_px = 10;
+            else if (tolower((unsigned char)fields[5][0]) == 's') *out_px = 12;
+            else if (tolower((unsigned char)fields[5][0]) == 'm') *out_px = 14;
+            else if (tolower((unsigned char)fields[5][0]) == 'l') *out_px = 16;
         }
         if (nf >= 11 && fields[10] && (!strcasecmp(fields[10], "m") || !strcasecmp(fields[10], "c")))
             *out_mono = true;
