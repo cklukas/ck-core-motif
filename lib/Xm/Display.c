@@ -59,6 +59,9 @@ static char rcsid[] = "$TOG: Display.c /main/23 1997/06/18 17:36:59 samborn $"
 #ifdef HAVE_XLIBRE_DPI
 #include "XlibreDpiI.h"
 #endif
+#ifdef HAVE_WAYLAND_BACKEND
+#include "WaylandBackendI.h"
+#endif
   
 #define MESSAGE1 _XmMMsgDisplay_0001
 #define MESSAGE2 _XmMMsgDisplay_0002
@@ -1219,6 +1222,9 @@ DisplayInitialize(
     }
 
     _XmAppearanceInitializeDisplay(new_widget);
+#ifdef HAVE_WAYLAND_BACKEND
+    _XmWaylandAttachDisplay(new_widget);
+#endif
 }
 
 
@@ -1312,6 +1318,9 @@ DisplayDestroy(
 
     scale_display_destroyed(XtDisplay(w));
     _XmDestroyAppearanceDisplay(XtDisplay(w));
+#ifdef HAVE_WAYLAND_BACKEND
+    _XmWaylandDetachDisplay(w);
+#endif
 
     XDeleteContext( XtDisplay( w), None, context) ;
 }
@@ -1791,21 +1800,32 @@ HandleXdndReceiverEvent(Widget shell, XmDisplay dd,
 
     if (msgType == xdndDrop) {
 	Time timestamp = (Time)cm->data.l[2];
+	XmTopLevelLeaveCallbackStruct leaveCB;
 	XmDropStartCallbackStruct dropStartCB;
+	unsigned char savedStatus;
 	unsigned char op;
 
 	dc = FindXdndDC(dd, srcWindow);
 	if (dc == NULL)
 	    return True;
 
+	savedStatus = dsm->dropManager.curDropSiteStatus;
 	op = (dc->drag.operation != XmDROP_NOOP) ? dc->drag.operation : XmDROP_COPY;
 	dc->drag.dragFinishTime = timestamp;
+
+	memset(&leaveCB, 0, sizeof(leaveCB));
+	leaveCB.reason = XmCR_TOP_LEVEL_LEAVE;
+	leaveCB.timeStamp = timestamp;
+	leaveCB.screen = XtScreen(shell);
+	leaveCB.window = srcWindow;
+	_XmDSMUpdate(dsm, (XtPointer)&topClientData, (XtPointer)&leaveCB);
+
 	memset(&dropStartCB, 0, sizeof(dropStartCB));
 	dropStartCB.reason = XmCR_DROP_START;
 	dropStartCB.timeStamp = timestamp;
 	dropStartCB.operation = op;
 	dropStartCB.operations = op;
-	dropStartCB.dropSiteStatus = dsm->dropManager.curDropSiteStatus;
+	dropStartCB.dropSiteStatus = savedStatus;
 	dropStartCB.dropAction = XmDROP;
 	dropStartCB.x = dc->drag.xdndLastX;
 	dropStartCB.y = dc->drag.xdndLastY;

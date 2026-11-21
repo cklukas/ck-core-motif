@@ -35,6 +35,7 @@ nav:
   - title: Build
     pages:
       - docs/build.md
+      - docs/wayland-backend.md
       - docs/hardening.md
       - docs/ci.md
       - docs/abi.md

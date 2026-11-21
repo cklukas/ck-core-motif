@@ -465,6 +465,48 @@ darwin*)
 esac
 AM_CONDITIONAL([OM_LIBRSVG], [test "x$enable_svg" = "xyes"])
 
+AC_ARG_ENABLE([wayland],
+  [AS_HELP_STRING([--enable-wayland],
+    [enable optional native Wayland runtime backend (default=auto)])],
+  [], [enable_wayland=auto])
+AS_CASE([$enable_wayland], [yes|no|auto], [],
+  [AC_MSG_ERROR([--enable-wayland expects yes, no, or auto])])
+AC_PATH_PROG([WAYLAND_SCANNER], [wayland-scanner])
+WAYLAND_CFLAGS=
+WAYLAND_LIBS=
+WAYLAND_PROTOCOLS_DATADIR=
+if test "x$enable_wayland" != "xno"; then
+  ck_wayland_ok=no
+  if test -n "$PKG_CONFIG" && test -n "$WAYLAND_SCANNER" && \
+     $PKG_CONFIG --exists 'wayland-client >= 1.20' wayland-cursor 'wayland-protocols >= 1.31' pixman-1 xkbcommon freetype2 fontconfig; then
+    WAYLAND_PROTOCOLS_DATADIR=`$PKG_CONFIG --variable=pkgdatadir wayland-protocols`
+    if test -f "$WAYLAND_PROTOCOLS_DATADIR/stable/xdg-shell/xdg-shell.xml" && \
+       test -f "$WAYLAND_PROTOCOLS_DATADIR/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml" && \
+       test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/xdg-toplevel-icon/xdg-toplevel-icon-v1.xml" && \
+       test -f "$WAYLAND_PROTOCOLS_DATADIR/unstable/primary-selection/primary-selection-unstable-v1.xml" && \
+       test -f "$WAYLAND_PROTOCOLS_DATADIR/unstable/text-input/text-input-unstable-v3.xml" && \
+       test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/fractional-scale/fractional-scale-v1.xml" && \
+       test -f "$WAYLAND_PROTOCOLS_DATADIR/stable/viewporter/viewporter.xml"; then
+      ck_wayland_ok=yes
+    fi
+  fi
+  if test "x$ck_wayland_ok" = "xyes"; then
+    enable_wayland=yes
+    WAYLAND_CFLAGS=`$PKG_CONFIG --cflags wayland-client wayland-cursor pixman-1 xkbcommon freetype2 fontconfig`
+    WAYLAND_LIBS=`$PKG_CONFIG --libs wayland-client wayland-cursor pixman-1 xkbcommon freetype2 fontconfig`
+    AC_DEFINE([HAVE_WAYLAND_BACKEND], [1], [Build optional native Wayland runtime backend])
+  elif test "x$enable_wayland" = "xyes"; then
+    AC_MSG_ERROR([--enable-wayland requires wayland-client, wayland-cursor, wayland-protocols >= 1.31, wayland-scanner, pixman-1, xkbcommon, freetype2, and fontconfig])
+  else
+    enable_wayland=no
+    AC_MSG_NOTICE([Wayland development packages not found; building without native Wayland backend])
+  fi
+fi
+AC_SUBST([WAYLAND_CFLAGS])
+AC_SUBST([WAYLAND_LIBS])
+AC_SUBST([WAYLAND_PROTOCOLS_DATADIR])
+AM_CONDITIONAL([OM_WAYLAND], [test "x$enable_wayland" = "xyes"])
+
 
 
 # AM_CONDITIONAL(Motif22Compatibility, test x$enable_motif22_compatibility = xyes)
@@ -584,4 +626,4 @@ demos/doc/programGuide/ch17/simple_drag/Makefile \
 lib/Xm/xmstring.list \
 ])
 AC_OUTPUT
-AC_MSG_NOTICE([CK Core Motif features: xft=$enable_xft unicode-text=$enable_unicode_text atspi=$enable_atspi svg=$enable_svg xlibre-dpi=$enable_xlibre_dpi])
+AC_MSG_NOTICE([CK Core Motif features: xft=$enable_xft unicode-text=$enable_unicode_text atspi=$enable_atspi svg=$enable_svg xlibre-dpi=$enable_xlibre_dpi wayland=$enable_wayland])

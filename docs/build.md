@@ -20,7 +20,9 @@ Do not overlay development headers or libraries onto an older installation.
 GNU make, a C compiler, Autoconf, Automake, Libtool, Flex/Bison and the X11/Xt
 development libraries are needed for a source build. Optional image features
 require their corresponding development packages; inspect configure results
-instead of assuming they were enabled.
+instead of assuming they were enabled. On Linux and other Wayland hosts,
+`--enable-wayland` (`auto` by default) builds the optional XWayland-free
+[native Wayland runtime backend](wayland-backend.md) into `libXm`.
 
 ## Modern C and macOS
 

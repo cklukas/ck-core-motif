@@ -50,6 +50,9 @@ static char rcsid[] = "$TOG: XmIm.c /main/28 1997/10/13 14:57:31 cshi $"
 #include "MessagesI.h"
 #include "XmI.h"
 #include "XmImI.h"
+#ifdef HAVE_WAYLAND_BACKEND
+#include "WaylandBackendI.h"
+#endif
 #include <X11/Xlib.h>
   
 #define FIX_1534
@@ -650,6 +653,9 @@ XmImUnregister(Widget w)
   /* Locate this record. */
   xim_info = get_xim_info(w);
   forget_widget(xim_info, w);
+#ifdef HAVE_WAYLAND_BACKEND
+  _XmWaylandImUnregister(w);
+#endif
   if ((xic_info = get_current_xic(xim_info, w)) == NULL) {
     _XmAppUnlock(app);
     return;
@@ -704,6 +710,9 @@ XmImSetFocusValues(Widget w,
       r->focused = r->widget == w;
     remember_values(info, w, args, num_args);
   }
+#ifdef HAVE_WAYLAND_BACKEND
+  _XmWaylandImSetFocus(w, args, num_args);
+#endif
   if ((xic_info = get_current_xic(get_xim_info(p), w)) == NULL) {
     _XmAppUnlock(app);
     return;
@@ -802,6 +811,9 @@ XmImUnsetFocus(Widget w)
     for (r = info ? info->registrations : NULL; r; r = r->next)
       if (r->widget == w) r->focused = False;
   }
+#ifdef HAVE_WAYLAND_BACKEND
+  _XmWaylandImUnsetFocus(w);
+#endif
   if ((xic_info = get_current_xic(get_xim_info(w), w)) == NULL) {
     _XmAppUnlock(app);
     return;

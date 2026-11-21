@@ -4116,6 +4116,13 @@ DestroyInfo(
 
 	if (info == (XmDSInfo) (dsm->dropManager.curInfo))
 	{
+		if (dsm->dropManager.curDragContext == NULL ||
+		    dsm->dropManager.curDragContext->core.being_destroyed)
+		{
+			dsm->dropManager.curInfo = NULL;
+		}
+		else
+		{
 		Widget shell;
 		XmDragMotionCallbackStruct cbRec ;
 		XmDragMotionClientDataStruct cdRec ;
@@ -4148,6 +4155,7 @@ DestroyInfo(
 			    (XmDSInfo) dsm->dropManager.curInfo, style, False);
 
 		dsm->dropManager.curInfo = NULL;
+		}
 	}
 
 	while(info != NULL) {

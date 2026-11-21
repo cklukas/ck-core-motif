@@ -8,7 +8,7 @@ EXTRA_DIST = xmstring.list Xm.msg \
 INCLUDES = -I.. -I$(srcdir)/.. -DXMBINDDIR_FALLBACK=\"@XMBINDDIR_FALLBACK@\" \
            -DINCDIR=\"@INCDIR@\" \
            -DLIBDIR=\"@LIBDIR@\" \
-           ${X_CFLAGS} $(ATSPI_CFLAGS) $(UNICODE_TEXT_CFLAGS) $(SVG_CFLAGS)
+           ${X_CFLAGS} $(ATSPI_CFLAGS) $(UNICODE_TEXT_CFLAGS) $(SVG_CFLAGS) $(WAYLAND_CFLAGS)
 xmdir = $(includedir)/Xm
 
 libXm_la_LDFLAGS = -version-info @CURRENT@:@REVISION@:@AGE@
@@ -81,13 +81,39 @@ SVG_SRCS =
 SVG_HDRS =
 endif
 
+if OM_WAYLAND
+WAYLAND_PROTO_HDRS = \
+	wayland-xdg-shell-client-protocol.h \
+	wayland-xdg-decoration-client-protocol.h \
+	wayland-xdg-toplevel-icon-client-protocol.h \
+	wayland-primary-selection-client-protocol.h \
+	wayland-text-input-v3-client-protocol.h \
+	wayland-fractional-scale-client-protocol.h \
+	wayland-viewporter-client-protocol.h
+WAYLAND_PROTO_SRCS = \
+	wayland-xdg-shell-protocol.c \
+	wayland-xdg-decoration-protocol.c \
+	wayland-xdg-toplevel-icon-protocol.c \
+	wayland-primary-selection-protocol.c \
+	wayland-text-input-v3-protocol.c \
+	wayland-fractional-scale-protocol.c \
+	wayland-viewporter-protocol.c
+WAYLAND_SRCS = WaylandBackend.c WaylandX11Server.c WaylandRender.c WaylandData.c WaylandIme.c
+WAYLAND_HDRS = WaylandBackendI.h
+else
+WAYLAND_PROTO_HDRS =
+WAYLAND_PROTO_SRCS =
+WAYLAND_SRCS = WaylandBackend.c
+WAYLAND_HDRS = WaylandBackendI.h
+endif
+
 if PRINTING
 PRINTS_SRC = PrintS.c
 else
 PRINTS_SRC =
 endif
 
-libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} -lm $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS) $(SVG_LIBS)
+libXm_la_LIBADD = ${X_LIBS} ${X_XMU} -lXt -lXext ${LIB_XP} -lX11 ${X_EXTRA_LIBS} -lm $(ATSPI_LIBS) $(UNICODE_TEXT_LIBS) $(XLIBRE_DPI_LIBS) $(SVG_LIBS) $(WAYLAND_LIBS)
 
 noinst_HEADERS = PaintI.h SymbolAliasI.h AccessibleI.h AppearanceDrawI.h ColorSpaceI.h BaseClassI.h \
 BitmapsI.h \
@@ -186,9 +212,10 @@ $(JPEG_HDRS) \
 $(PNG_HDRS) \
 $(TIP_HDRS) \
 $(XLIBRE_DPI_HDRS) \
-$(SVG_HDRS)
+$(SVG_HDRS) \
+$(WAYLAND_HDRS)
 
-xm_HEADERS = Accessible.h TextUnicode.h TextLayout.h Appearance.h ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
+xm_HEADERS = Accessible.h Wayland.h TextUnicode.h TextLayout.h Appearance.h ArrowB.h      ArrowBG.h       ArrowBGP.h      ArrowBP.h \
         BulletinB.h     BulletinBP.h    CacheP.h        CascadeB.h \
         CascadeBG.h     CascadeBGP.h    CascadeBP.h     Command.h \
         CommandP.h      CutPaste.h      DialogS.h \
@@ -306,13 +333,45 @@ TEXT_LAYOUT_SRCS =
 endif
 
 libXm_la_SOURCES = Accessible.c XtInput.c TextUnicode.c $(TEXT_LAYOUT_SRCS) $(ATSPI_SRCS) $(SRCS1) $(SRCS2) $(OBSO_SRCS) $(XPM_SRCS) $(NEW_WID_SRCS) $(SLIDE_SRCS) \
-        $(TIP_SRCS) $(EDITRES_SRCS) $(EXTRA_SRCS) $(JPEG_SRCS) $(PNG_SRCS) $(XLIBRE_DPI_SRCS) $(SVG_SRCS)
+        $(TIP_SRCS) $(EDITRES_SRCS) $(EXTRA_SRCS) $(JPEG_SRCS) $(PNG_SRCS) $(XLIBRE_DPI_SRCS) $(SVG_SRCS) $(WAYLAND_SRCS)
+nodist_libXm_la_SOURCES = $(WAYLAND_PROTO_SRCS)
 
 EXTRA_libXm_la_SOURCES = $(SLIDE_SRCS) $(TIP_SRCS)
 
 STRING_FILES = XmStrDefs.h XmStrDefs22.h XmStrDefs23.h XmStrDefsI.h XmStrDefs.c
 
-BUILT_SOURCES = $(STRING_FILES) $(CAT_FILES)
+BUILT_SOURCES = $(STRING_FILES) $(CAT_FILES) $(WAYLAND_PROTO_HDRS) $(WAYLAND_PROTO_SRCS)
+
+if OM_WAYLAND
+wayland-xdg-shell-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/stable/xdg-shell/xdg-shell.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-xdg-shell-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/stable/xdg-shell/xdg-shell.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+wayland-xdg-decoration-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-xdg-decoration-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+wayland-xdg-toplevel-icon-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-toplevel-icon/xdg-toplevel-icon-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-xdg-toplevel-icon-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-toplevel-icon/xdg-toplevel-icon-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+wayland-primary-selection-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/primary-selection/primary-selection-unstable-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-primary-selection-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/primary-selection/primary-selection-unstable-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+wayland-text-input-v3-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/text-input/text-input-unstable-v3.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-text-input-v3-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/text-input/text-input-unstable-v3.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+wayland-fractional-scale-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/fractional-scale/fractional-scale-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-fractional-scale-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/fractional-scale/fractional-scale-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+wayland-viewporter-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/stable/viewporter/viewporter.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-viewporter-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/stable/viewporter/viewporter.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+endif
 
 $(top_builddir)/config/util/makestrs:
 	( cd $(top_builddir)/config/util && $(MAKE) $(AM_MAKEFLAGS) makestrs )

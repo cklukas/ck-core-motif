@@ -1,0 +1,899 @@
+#!/usr/bin/env python3
+"""Run automated qualification for the XWayland-free libXm Wayland runtime backend."""
+from __future__ import annotations
+
+import argparse
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import shutil
+import subprocess
+import sys
+import textwrap
+import time
+
+
+MINI_COMPOSITOR_C = textwrap.dedent(
+    r"""
+    #define _GNU_SOURCE
+    #include <errno.h>
+    #include <fcntl.h>
+    #include <poll.h>
+    #include <stdbool.h>
+    #include <stdint.h>
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <time.h>
+    #include <unistd.h>
+    #include <wayland-server.h>
+    #include "xdg-shell-server.h"
+    #include "text-input-v3-server.h"
+    #include "primary-selection-server.h"
+
+    typedef struct {
+        struct wl_resource *res;
+        char mimes[16][96];
+        int mime_count;
+    } DataSrc;
+
+    typedef struct {
+        struct wl_display *dpy;
+        const char *sync_dir;
+        struct wl_resource *primary_surf;
+        struct wl_resource *primary_xdg_surf;
+        struct wl_resource *primary_xdg_top;
+        struct wl_resource *primary_kbd;
+        struct wl_resource *primary_data_dev;
+        struct wl_resource *text_in_res;
+
+        struct wl_resource *data_devs[8];
+        int data_dev_count;
+        struct wl_resource *prim_devs[8];
+        int prim_dev_count;
+
+        DataSrc *cur_clip_src;
+        DataSrc *cur_prim_src;
+
+        bool ime_enabled_seen;
+        bool ime_cursor_rect_seen;
+        bool dnd_finished_seen;
+        int phase;
+    } MiniSrv;
+
+    static MiniSrv *g_ms = NULL;
+
+    static void noop_destroy(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        wl_resource_destroy(r);
+    }
+
+    static bool file_exists(const char *dir, const char *name) {
+        char p[512];
+        snprintf(p, sizeof(p), "%s/%s", dir, name);
+        return access(p, F_OK) == 0;
+    }
+
+    static void write_flag(const char *dir, const char *name) {
+        char p[512];
+        snprintf(p, sizeof(p), "%s/%s", dir, name);
+        FILE *f = fopen(p, "w");
+        if (f) { fprintf(f, "1\n"); fclose(f); }
+    }
+
+    /* Forward declaration for selection broadcast */
+    static void broadcast_clipboard_to_devices(MiniSrv *ms);
+    static void broadcast_primary_to_devices(MiniSrv *ms);
+
+    /* wl_surface & wl_compositor */
+    typedef struct {
+        MiniSrv *ms;
+        struct wl_resource *xdg_surf;
+        struct wl_resource *xdg_top;
+        bool configured;
+    } SurfState;
+
+    static void free_surf_state(struct wl_resource *r) {
+        free(wl_resource_get_user_data(r));
+    }
+
+    static void surf_attach(struct wl_client *c, struct wl_resource *r, struct wl_resource *b, int32_t x, int32_t y) {
+        (void)c; (void)r; (void)x; (void)y;
+        if (b) wl_buffer_send_release(b);
+    }
+    static void surf_damage(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y, int32_t w, int32_t h) {
+        (void)c; (void)r; (void)x; (void)y; (void)w; (void)h;
+    }
+    static void surf_frame(struct wl_client *c, struct wl_resource *r, uint32_t cb_id) {
+        (void)r;
+        struct wl_resource *cb = wl_resource_create(c, &wl_callback_interface, 1, cb_id);
+        wl_callback_send_done(cb, 100);
+        wl_resource_destroy(cb);
+    }
+    static void surf_region(struct wl_client *c, struct wl_resource *r, struct wl_resource *reg) {
+        (void)c; (void)r; (void)reg;
+    }
+    static void surf_commit(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (!ss || !ss->ms) return;
+        MiniSrv *ms = ss->ms;
+        if (ss->xdg_surf && !ss->configured) {
+            ss->configured = true;
+            struct wl_array states;
+            wl_array_init(&states);
+            int32_t *st = wl_array_add(&states, sizeof(int32_t));
+            *st = XDG_TOPLEVEL_STATE_ACTIVATED;
+            if (ss->xdg_top)
+                xdg_toplevel_send_configure(ss->xdg_top, 360, 220, &states);
+            wl_array_release(&states);
+            xdg_surface_send_configure(ss->xdg_surf, 1);
+
+            if (r == ms->primary_surf) {
+                if (ms->primary_kbd) {
+                    struct wl_array keys;
+                    wl_array_init(&keys);
+                    wl_keyboard_send_enter(ms->primary_kbd, 2, r, &keys);
+                    wl_array_release(&keys);
+                }
+                if (ms->text_in_res)
+                    zwp_text_input_v3_send_enter(ms->text_in_res, r);
+            }
+        }
+    }
+    static void surf_int(struct wl_client *c, struct wl_resource *r, int32_t v) { (void)c; (void)r; (void)v; }
+    static void surf_offset(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y) { (void)c; (void)r; (void)x; (void)y; }
+
+    static const struct wl_surface_interface g_surf_impl = {
+        .destroy = noop_destroy, .attach = surf_attach, .damage = surf_damage, .frame = surf_frame,
+        .set_opaque_region = surf_region, .set_input_region = surf_region, .commit = surf_commit,
+        .set_buffer_transform = surf_int, .set_buffer_scale = surf_int, .damage_buffer = surf_damage, .offset = surf_offset,
+    };
+
+    static void reg_op(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y, int32_t w, int32_t h) {
+        (void)c; (void)r; (void)x; (void)y; (void)w; (void)h;
+    }
+    static const struct wl_region_interface g_region_impl = { .destroy = noop_destroy, .add = reg_op, .subtract = reg_op };
+
+    static void comp_create_surface(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        SurfState *ss = calloc(1, sizeof(*ss));
+        ss->ms = ms;
+        struct wl_resource *sr = wl_resource_create(c, &wl_surface_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(sr, &g_surf_impl, ss, free_surf_state);
+        if (!ms->primary_surf) ms->primary_surf = sr;
+    }
+    static void comp_create_region(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        struct wl_resource *rr = wl_resource_create(c, &wl_region_interface, 1, id);
+        wl_resource_set_implementation(rr, &g_region_impl, wl_resource_get_user_data(r), NULL);
+    }
+    static const struct wl_compositor_interface g_comp_impl = { .create_surface = comp_create_surface, .create_region = comp_create_region };
+    static void bind_comp(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        struct wl_resource *r = wl_resource_create(c, &wl_compositor_interface, ver < 4 ? ver : 4, id);
+        wl_resource_set_implementation(r, &g_comp_impl, d, NULL);
+    }
+
+    /* xdg_wm_base */
+    static void top_str(struct wl_client *c, struct wl_resource *r, const char *s) { (void)c; (void)r; (void)s; }
+    static void top_parent(struct wl_client *c, struct wl_resource *r, struct wl_resource *p) { (void)c; (void)r; (void)p; }
+    static void top_sz(struct wl_client *c, struct wl_resource *r, int32_t w, int32_t h) { (void)c; (void)r; (void)w; (void)h; }
+    static void top_void(struct wl_client *c, struct wl_resource *r) { (void)c; (void)r; }
+    static void top_fs(struct wl_client *c, struct wl_resource *r, struct wl_resource *o) { (void)c; (void)r; (void)o; }
+    static void top_seat_u32(struct wl_client *c, struct wl_resource *r, struct wl_resource *s, uint32_t u) { (void)c; (void)r; (void)s; (void)u; }
+    static void top_resize(struct wl_client *c, struct wl_resource *r, struct wl_resource *s, uint32_t u, uint32_t e) { (void)c; (void)r; (void)s; (void)u; (void)e; }
+    static void top_menu(struct wl_client *c, struct wl_resource *r, struct wl_resource *s, uint32_t u, int32_t x, int32_t y) { (void)c; (void)r; (void)s; (void)u; (void)x; (void)y; }
+
+    static const struct xdg_toplevel_interface g_xdg_top_impl = {
+        .destroy = noop_destroy, .set_parent = top_parent, .set_title = top_str, .set_app_id = top_str,
+        .show_window_menu = top_menu, .move = top_seat_u32, .resize = top_resize,
+        .set_max_size = top_sz, .set_min_size = top_sz, .set_maximized = top_void,
+        .unset_maximized = top_void, .set_fullscreen = top_fs, .unset_fullscreen = top_void, .set_minimized = top_void,
+    };
+
+    static void xs_get_toplevel(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        SurfState *ss = wl_resource_get_user_data(r);
+        struct wl_resource *tr = wl_resource_create(c, &xdg_toplevel_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(tr, &g_xdg_top_impl, ss, NULL);
+        if (ss) ss->xdg_top = tr;
+    }
+    static void xs_ack(struct wl_client *c, struct wl_resource *r, uint32_t s) { (void)c; (void)r; (void)s; }
+    static void xs_geom(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y, int32_t w, int32_t h) { (void)c; (void)r; (void)x; (void)y; (void)w; (void)h; }
+    static const struct xdg_surface_interface g_xdg_surf_impl = {
+        .destroy = noop_destroy, .get_toplevel = xs_get_toplevel, .get_popup = NULL,
+        .set_window_geometry = xs_geom, .ack_configure = xs_ack,
+    };
+
+    static void wm_get_xdg_surface(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *sr) {
+        SurfState *ss = wl_resource_get_user_data(sr);
+        struct wl_resource *xr = wl_resource_create(c, &xdg_surface_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(xr, &g_xdg_surf_impl, ss, NULL);
+        if (ss) {
+            ss->xdg_surf = xr;
+            if (ss->ms && !ss->ms->primary_xdg_surf) {
+                ss->ms->primary_surf = sr;
+                ss->ms->primary_xdg_surf = xr;
+            }
+        }
+    }
+    static void wm_pong(struct wl_client *c, struct wl_resource *r, uint32_t s) { (void)c; (void)r; (void)s; }
+    static const struct xdg_wm_base_interface g_wm_impl = {
+        .destroy = noop_destroy, .create_positioner = NULL, .get_xdg_surface = wm_get_xdg_surface, .pong = wm_pong
+    };
+    static void bind_wm(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        struct wl_resource *r = wl_resource_create(c, &xdg_wm_base_interface, ver < 5 ? ver : 5, id);
+        wl_resource_set_implementation(r, &g_wm_impl, d, NULL);
+    }
+
+    /* wl_seat */
+    static void ptr_cursor(struct wl_client *c, struct wl_resource *r, uint32_t s, struct wl_resource *sr, int32_t x, int32_t y) {
+        (void)c; (void)r; (void)s; (void)sr; (void)x; (void)y;
+    }
+    static const struct wl_pointer_interface g_ptr_impl = { .set_cursor = ptr_cursor, .release = noop_destroy };
+    static const struct wl_keyboard_interface g_kbd_impl = { .release = noop_destroy };
+
+    static void seat_get_pointer(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        struct wl_resource *pr = wl_resource_create(c, &wl_pointer_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(pr, &g_ptr_impl, ms, NULL);
+    }
+    static void seat_get_keyboard(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        struct wl_resource *kr = wl_resource_create(c, &wl_keyboard_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(kr, &g_kbd_impl, ms, NULL);
+        if (!ms->primary_kbd) ms->primary_kbd = kr;
+    }
+    static const struct wl_seat_interface g_seat_impl = {
+        .get_pointer = seat_get_pointer, .get_keyboard = seat_get_keyboard, .get_touch = NULL, .release = noop_destroy
+    };
+    static void bind_seat(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        struct wl_resource *r = wl_resource_create(c, &wl_seat_interface, ver < 5 ? ver : 5, id);
+        wl_resource_set_implementation(r, &g_seat_impl, d, NULL);
+        wl_seat_send_capabilities(r, WL_SEAT_CAPABILITY_POINTER | WL_SEAT_CAPABILITY_KEYBOARD);
+    }
+
+    /* wl_data_device_manager (DnD + multi-client clipboard broker) */
+    static void dnd_offer_accept(struct wl_client *c, struct wl_resource *r, uint32_t s, const char *m) { (void)c; (void)r; (void)s; (void)m; }
+    static void dnd_offer_receive(struct wl_client *c, struct wl_resource *r, const char *mime, int32_t fd) {
+        (void)c; (void)r; (void)mime;
+        const char *payload = "file:///wayland/dropped-item.txt\r\n";
+        ssize_t nw = write(fd, payload, strlen(payload));
+        (void)nw;
+        close(fd);
+    }
+    static void dnd_offer_finish(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        if (ms) ms->dnd_finished_seen = true;
+    }
+    static void dnd_offer_actions(struct wl_client *c, struct wl_resource *r, uint32_t a, uint32_t p) { (void)c; (void)r; (void)a; (void)p; }
+    static const struct wl_data_offer_interface g_dnd_offer_impl = {
+        .accept = dnd_offer_accept, .receive = dnd_offer_receive, .destroy = noop_destroy,
+        .finish = dnd_offer_finish, .set_actions = dnd_offer_actions
+    };
+
+    static void clip_offer_receive(struct wl_client *c, struct wl_resource *r, const char *mime, int32_t fd) {
+        (void)c;
+        DataSrc *src = wl_resource_get_user_data(r);
+        if (src && src->res) {
+            wl_data_source_send_send(src->res, mime, fd);
+            wl_client_flush(wl_resource_get_client(src->res));
+        }
+        close(fd);
+    }
+    static const struct wl_data_offer_interface g_clip_offer_impl = {
+        .accept = dnd_offer_accept, .receive = clip_offer_receive, .destroy = noop_destroy,
+        .finish = dnd_offer_actions ? NULL : NULL, .set_actions = dnd_offer_actions
+    };
+
+    static void free_data_src(struct wl_resource *r) {
+        DataSrc *ds = wl_resource_get_user_data(r);
+        if (!ds) return;
+        if (g_ms && g_ms->cur_clip_src == ds) g_ms->cur_clip_src = NULL;
+        if (g_ms && g_ms->cur_prim_src == ds) g_ms->cur_prim_src = NULL;
+        free(ds);
+    }
+    static void dsrc_offer(struct wl_client *c, struct wl_resource *r, const char *m) {
+        (void)c;
+        DataSrc *ds = wl_resource_get_user_data(r);
+        if (ds && m && ds->mime_count < 16)
+            snprintf(ds->mimes[ds->mime_count++], 96, "%s", m);
+    }
+    static void dsrc_act(struct wl_client *c, struct wl_resource *r, uint32_t a) { (void)c; (void)r; (void)a; }
+    static const struct wl_data_source_interface g_dsrc_impl = {
+        .offer = dsrc_offer, .destroy = noop_destroy, .set_actions = dsrc_act
+    };
+
+    static void send_clip_offer_to_dev(DataSrc *src, struct wl_resource *dev) {
+        if (!dev) return;
+        if (!src || !src->res) {
+            wl_data_device_send_selection(dev, NULL);
+            return;
+        }
+        /* Do not overwrite the owning client's own local selection */
+        if (wl_resource_get_client(dev) == wl_resource_get_client(src->res))
+            return;
+        struct wl_resource *off = wl_resource_create(
+            wl_resource_get_client(dev), &wl_data_offer_interface, wl_resource_get_version(dev), 0);
+        wl_resource_set_implementation(off, &g_clip_offer_impl, src, NULL);
+        wl_data_device_send_data_offer(dev, off);
+        for (int i = 0; i < src->mime_count; ++i)
+            wl_data_offer_send_offer(off, src->mimes[i]);
+        wl_data_device_send_selection(dev, off);
+    }
+
+    static void broadcast_clipboard_to_devices(MiniSrv *ms) {
+        for (int i = 0; i < ms->data_dev_count; ++i) {
+            if (ms->data_devs[i])
+                send_clip_offer_to_dev(ms->cur_clip_src, ms->data_devs[i]);
+        }
+    }
+
+    static void unlink_data_dev(struct wl_resource *r) {
+        if (!g_ms) return;
+        for (int i = 0; i < g_ms->data_dev_count; ++i)
+            if (g_ms->data_devs[i] == r) g_ms->data_devs[i] = NULL;
+        if (g_ms->primary_data_dev == r) g_ms->primary_data_dev = NULL;
+    }
+
+    static void ddev_start_drag(struct wl_client *c, struct wl_resource *r, struct wl_resource *src,
+                                struct wl_resource *orig, struct wl_resource *ico, uint32_t ser) {
+        (void)c; (void)r; (void)src; (void)orig; (void)ico; (void)ser;
+    }
+    static void ddev_set_sel(struct wl_client *c, struct wl_resource *r, struct wl_resource *src, uint32_t ser) {
+        (void)c; (void)ser;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        DataSrc *new_ds = src ? wl_resource_get_user_data(src) : NULL;
+        if (ms->cur_clip_src && ms->cur_clip_src != new_ds && ms->cur_clip_src->res)
+            wl_data_source_send_cancelled(ms->cur_clip_src->res);
+        ms->cur_clip_src = new_ds;
+        broadcast_clipboard_to_devices(ms);
+    }
+    static const struct wl_data_device_interface g_ddev_impl = {
+        .start_drag = ddev_start_drag, .set_selection = ddev_set_sel, .release = noop_destroy
+    };
+    static void dmgr_create_src(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        (void)r;
+        DataSrc *ds = calloc(1, sizeof(*ds));
+        ds->res = wl_resource_create(c, &wl_data_source_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(ds->res, &g_dsrc_impl, ds, free_data_src);
+    }
+    static void dmgr_get_dev(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *seat) {
+        (void)seat;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        struct wl_resource *dr = wl_resource_create(c, &wl_data_device_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(dr, &g_ddev_impl, ms, unlink_data_dev);
+        if (!ms->primary_data_dev) ms->primary_data_dev = dr;
+        if (ms->data_dev_count < 8) ms->data_devs[ms->data_dev_count++] = dr;
+        if (ms->cur_clip_src) send_clip_offer_to_dev(ms->cur_clip_src, dr);
+    }
+    static const struct wl_data_device_manager_interface g_dmgr_impl = {
+        .create_data_source = dmgr_create_src, .get_data_device = dmgr_get_dev
+    };
+    static void bind_dmgr(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        struct wl_resource *r = wl_resource_create(c, &wl_data_device_manager_interface, ver < 3 ? ver : 3, id);
+        wl_resource_set_implementation(r, &g_dmgr_impl, d, NULL);
+    }
+
+    /* zwp_primary_selection_device_manager_v1 */
+    static void prim_offer_receive(struct wl_client *c, struct wl_resource *r, const char *mime, int32_t fd) {
+        (void)c;
+        DataSrc *src = wl_resource_get_user_data(r);
+        if (src && src->res) {
+            zwp_primary_selection_source_v1_send_send(src->res, mime, fd);
+            wl_client_flush(wl_resource_get_client(src->res));
+        }
+        close(fd);
+    }
+    static const struct zwp_primary_selection_offer_v1_interface g_prim_offer_impl = {
+        .receive = prim_offer_receive, .destroy = noop_destroy
+    };
+    static const struct zwp_primary_selection_source_v1_interface g_psrc_impl = {
+        .offer = dsrc_offer, .destroy = noop_destroy
+    };
+    static void send_prim_offer_to_dev(DataSrc *src, struct wl_resource *dev) {
+        if (!dev) return;
+        if (!src || !src->res) {
+            zwp_primary_selection_device_v1_send_selection(dev, NULL);
+            return;
+        }
+        if (wl_resource_get_client(dev) == wl_resource_get_client(src->res))
+            return;
+        struct wl_resource *off = wl_resource_create(
+            wl_resource_get_client(dev), &zwp_primary_selection_offer_v1_interface, 1, 0);
+        wl_resource_set_implementation(off, &g_prim_offer_impl, src, NULL);
+        zwp_primary_selection_device_v1_send_data_offer(dev, off);
+        for (int i = 0; i < src->mime_count; ++i)
+            zwp_primary_selection_offer_v1_send_offer(off, src->mimes[i]);
+        zwp_primary_selection_device_v1_send_selection(dev, off);
+    }
+    static void broadcast_primary_to_devices(MiniSrv *ms) {
+        for (int i = 0; i < ms->prim_dev_count; ++i) {
+            if (ms->prim_devs[i])
+                send_prim_offer_to_dev(ms->cur_prim_src, ms->prim_devs[i]);
+        }
+    }
+    static void unlink_prim_dev(struct wl_resource *r) {
+        if (!g_ms) return;
+        for (int i = 0; i < g_ms->prim_dev_count; ++i)
+            if (g_ms->prim_devs[i] == r) g_ms->prim_devs[i] = NULL;
+    }
+    static void pdev_set_sel(struct wl_client *c, struct wl_resource *r, struct wl_resource *src, uint32_t ser) {
+        (void)c; (void)ser;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        DataSrc *new_ds = src ? wl_resource_get_user_data(src) : NULL;
+        if (ms->cur_prim_src && ms->cur_prim_src != new_ds && ms->cur_prim_src->res)
+            zwp_primary_selection_source_v1_send_cancelled(ms->cur_prim_src->res);
+        ms->cur_prim_src = new_ds;
+        broadcast_primary_to_devices(ms);
+    }
+    static const struct zwp_primary_selection_device_v1_interface g_pdev_impl = {
+        .set_selection = pdev_set_sel, .destroy = noop_destroy
+    };
+    static void pmgr_create_src(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        (void)r;
+        DataSrc *ds = calloc(1, sizeof(*ds));
+        ds->res = wl_resource_create(c, &zwp_primary_selection_source_v1_interface, 1, id);
+        wl_resource_set_implementation(ds->res, &g_psrc_impl, ds, free_data_src);
+    }
+    static void pmgr_get_dev(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *seat) {
+        (void)seat;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        struct wl_resource *pr = wl_resource_create(c, &zwp_primary_selection_device_v1_interface, 1, id);
+        wl_resource_set_implementation(pr, &g_pdev_impl, ms, unlink_prim_dev);
+        if (ms->prim_dev_count < 8) ms->prim_devs[ms->prim_dev_count++] = pr;
+        if (ms->cur_prim_src) send_prim_offer_to_dev(ms->cur_prim_src, pr);
+    }
+    static const struct zwp_primary_selection_device_manager_v1_interface g_pmgr_impl = {
+        .create_source = pmgr_create_src, .get_device = pmgr_get_dev, .destroy = noop_destroy
+    };
+    static void bind_pmgr(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &zwp_primary_selection_device_manager_v1_interface, 1, id);
+        wl_resource_set_implementation(r, &g_pmgr_impl, d, NULL);
+    }
+
+    /* zwp_text_input_manager_v3 */
+    static void ti_enable(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        if (ms) ms->ime_enabled_seen = true;
+    }
+    static void ti_disable(struct wl_client *c, struct wl_resource *r) { (void)c; (void)r; }
+    static void ti_surr(struct wl_client *c, struct wl_resource *r, const char *t, int32_t cur, int32_t anc) {
+        (void)c; (void)r; (void)t; (void)cur; (void)anc;
+    }
+    static void ti_cause(struct wl_client *c, struct wl_resource *r, uint32_t cs) { (void)c; (void)r; (void)cs; }
+    static void ti_ctype(struct wl_client *c, struct wl_resource *r, uint32_t h, uint32_t p) { (void)c; (void)r; (void)h; (void)p; }
+    static void ti_rect(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y, int32_t w, int32_t h) {
+        (void)c; (void)x; (void)y; (void)w; (void)h;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        if (ms) ms->ime_cursor_rect_seen = true;
+    }
+    static void ti_commit(struct wl_client *c, struct wl_resource *r) { (void)c; (void)r; }
+
+    static const struct zwp_text_input_v3_interface g_ti_impl = {
+        .destroy = noop_destroy, .enable = ti_enable, .disable = ti_disable,
+        .set_surrounding_text = ti_surr, .set_text_change_cause = ti_cause,
+        .set_content_type = ti_ctype, .set_cursor_rectangle = ti_rect, .commit = ti_commit,
+    };
+    static void tim_get_ti(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *seat) {
+        (void)seat;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        struct wl_resource *tr = wl_resource_create(c, &zwp_text_input_v3_interface, 1, id);
+        wl_resource_set_implementation(tr, &g_ti_impl, ms, NULL);
+        if (!ms->text_in_res) {
+            ms->text_in_res = tr;
+            if (ms->primary_surf)
+                zwp_text_input_v3_send_enter(ms->text_in_res, ms->primary_surf);
+        }
+    }
+    static const struct zwp_text_input_manager_v3_interface g_tim_impl = {
+        .destroy = noop_destroy, .get_text_input = tim_get_ti
+    };
+    static void bind_tim(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &zwp_text_input_manager_v3_interface, 1, id);
+        wl_resource_set_implementation(r, &g_tim_impl, d, NULL);
+    }
+
+    int main(int argc, char **argv) {
+        if (argc < 3) return 2;
+        MiniSrv ms;
+        memset(&ms, 0, sizeof(ms));
+        g_ms = &ms;
+        ms.sync_dir = argv[2];
+        ms.dpy = wl_display_create();
+        if (!ms.dpy) return 1;
+        if (wl_display_add_socket(ms.dpy, argv[1]) != 0) return 1;
+
+        wl_global_create(ms.dpy, &wl_compositor_interface, 4, &ms, bind_comp);
+        wl_display_init_shm(ms.dpy);
+        wl_global_create(ms.dpy, &xdg_wm_base_interface, 5, &ms, bind_wm);
+        wl_global_create(ms.dpy, &wl_seat_interface, 5, &ms, bind_seat);
+        wl_global_create(ms.dpy, &wl_data_device_manager_interface, 3, &ms, bind_dmgr);
+        wl_global_create(ms.dpy, &zwp_primary_selection_device_manager_v1_interface, 1, &ms, bind_pmgr);
+        wl_global_create(ms.dpy, &zwp_text_input_manager_v3_interface, 1, &ms, bind_tim);
+
+        write_flag(ms.sync_dir, "srv.ready");
+
+        struct wl_event_loop *loop = wl_display_get_event_loop(ms.dpy);
+        int stage = 0;
+        for (int iter = 0; iter < 1000; ++iter) {
+            wl_event_loop_dispatch(loop, 15);
+            wl_display_flush_clients(ms.dpy);
+
+            if (stage == 0 && file_exists(ms.sync_dir, "ime_client.ready") && ms.text_in_res) {
+                if (!ms.ime_enabled_seen || !ms.ime_cursor_rect_seen) {
+                    fprintf(stderr, "FAIL: zwp_text_input_v3 enable/cursor_rectangle not received\n");
+                    return 1;
+                }
+                zwp_text_input_v3_send_preedit_string(ms.text_in_res, "にほん", 9, 9);
+                zwp_text_input_v3_send_done(ms.text_in_res, 1);
+                wl_display_flush_clients(ms.dpy);
+                write_flag(ms.sync_dir, "ime_preedit1.sent");
+                stage = 1;
+            } else if (stage == 1 && file_exists(ms.sync_dir, "ime_preedit1.verified")) {
+                zwp_text_input_v3_send_preedit_string(ms.text_in_res, "日本語", 9, 9);
+                zwp_text_input_v3_send_done(ms.text_in_res, 2);
+                wl_display_flush_clients(ms.dpy);
+                struct timespec ts = {0, 40 * 1000 * 1000L};
+                nanosleep(&ts, NULL);
+                zwp_text_input_v3_send_commit_string(ms.text_in_res, "日本語OK");
+                zwp_text_input_v3_send_done(ms.text_in_res, 3);
+                wl_display_flush_clients(ms.dpy);
+                nanosleep(&ts, NULL);
+                zwp_text_input_v3_send_delete_surrounding_text(ms.text_in_res, 2, 0);
+                zwp_text_input_v3_send_commit_string(ms.text_in_res, "!");
+                zwp_text_input_v3_send_done(ms.text_in_res, 4);
+                wl_display_flush_clients(ms.dpy);
+                write_flag(ms.sync_dir, "ime_commit.sent");
+                stage = 2;
+            } else if (stage == 2 && file_exists(ms.sync_dir, "ime_commit.verified") &&
+                       ms.primary_data_dev && ms.primary_surf) {
+                struct wl_client *cli = wl_resource_get_client(ms.primary_data_dev);
+                struct wl_resource *off = wl_resource_create(
+                    cli, &wl_data_offer_interface, wl_resource_get_version(ms.primary_data_dev), 0);
+                wl_resource_set_implementation(off, &g_dnd_offer_impl, &ms, NULL);
+                wl_data_device_send_data_offer(ms.primary_data_dev, off);
+                wl_data_offer_send_offer(off, "text/uri-list");
+                if (wl_resource_get_version(off) >= 3)
+                    wl_data_offer_send_source_actions(off, WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
+                wl_data_device_send_enter(
+                    ms.primary_data_dev, 10, ms.primary_surf,
+                    wl_fixed_from_int(120), wl_fixed_from_int(140), off);
+                wl_data_device_send_motion(
+                    ms.primary_data_dev, 200,
+                    wl_fixed_from_int(130), wl_fixed_from_int(145));
+                wl_data_device_send_drop(ms.primary_data_dev);
+                wl_display_flush_clients(ms.dpy);
+                stage = 3;
+            } else if (stage == 3 && file_exists(ms.sync_dir, "clipboard_exchange.verified")) {
+                stage = 4;
+                break;
+            }
+        }
+        wl_display_destroy(ms.dpy);
+        return (stage == 4 && ms.dnd_finished_seen) ? 0 : 1;
+    }
+    """
+)
+
+
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def wait_file(path: Path, timeout_s: float = 10.0) -> None:
+    deadline = time.monotonic() + timeout_s
+    while time.monotonic() < deadline:
+        if path.exists():
+            return
+        time.sleep(0.03)
+    raise RuntimeError(f"timed out waiting for {path}")
+
+
+def assert_no_xwayland_in_runtime(runtime_dir: Path) -> None:
+    rt_bytes = f"XDG_RUNTIME_DIR={runtime_dir}".encode()
+    proc_root = Path("/proc")
+    if not proc_root.is_dir():
+        return
+    for entry in proc_root.iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            comm = (entry / "comm").read_text(errors="ignore").strip()
+            if "Xwayland" not in comm:
+                continue
+            environ = (entry / "environ").read_bytes()
+            if rt_bytes in environ:
+                raise RuntimeError(f"unexpected Xwayland process {entry.name} inside isolated Wayland runtime")
+        except (FileNotFoundError, PermissionError, ProcessLookupError):
+            continue
+
+
+def pkg_config_flags(pkg: str) -> tuple[list[str], list[str]]:
+    cf = subprocess.check_output(["pkg-config", "--cflags", pkg], text=True).split()
+    lf = subprocess.check_output(["pkg-config", "--libs", pkg], text=True).split()
+    return cf, lf
+
+
+def pkg_config_var(pkg: str, var: str) -> str:
+    return subprocess.check_output(["pkg-config", f"--variable={var}", pkg], text=True).strip()
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--prefix", required=True, type=Path)
+    parser.add_argument("--out", required=True, type=Path)
+    args = parser.parse_args()
+
+    if platform.system() == "Darwin":
+        print("SKIP: native Wayland runtime backend targets Wayland hosts", file=sys.stderr)
+        return 0
+
+    prefix = args.prefix.resolve(strict=True)
+    output = args.out.resolve()
+    if output.exists() or output.is_relative_to(prefix) or prefix.is_relative_to(output):
+        parser.error("--out must be a fresh directory separate from --prefix")
+
+    output.mkdir(parents=True)
+    (output / "tmp").mkdir()
+    (output / "proto").mkdir()
+    (output / "screenshots").mkdir()
+
+    root = Path(__file__).resolve().parents[2]
+    source = root / "tests/automated/check-wayland-backend.c"
+    if (prefix / "lib/libXm.so").is_file():
+        lib_dir = (prefix / "lib").resolve(strict=True)
+        library = (lib_dir / "libXm.so").resolve(strict=True)
+        inc_flags = ["-I" + str(prefix / "include")]
+    else:
+        lib_dir = (prefix / "lib/Xm/.libs").resolve(strict=True)
+        library = (lib_dir / "libXm.so").resolve(strict=True)
+        inc_flags = ["-I" + str(prefix / "lib"), "-I" + str(root / "lib")]
+
+    base_env = dict(
+        os.environ,
+        TMPDIR=str(output / "tmp"),
+        XDG_CACHE_HOME=str(output / "tmp"),
+        PYTHONDONTWRITEBYTECODE="1",
+        LC_ALL="C.UTF-8",
+        LD_LIBRARY_PATH=str(lib_dir),
+    )
+    for var in ("DISPLAY", "WAYLAND_DISPLAY", "CK_MOTIF_BACKEND", "CK_MOTIF_WAYLAND_ACTIVE",
+                "XENVIRONMENT", "XAPPLRESDIR", "LD_PRELOAD", "LD_AUDIT"):
+        base_env.pop(var, None)
+
+    receipt: dict = {
+        "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "library": str(library),
+        "library_sha256": sha256(library),
+        "source": str(source),
+        "source_sha256": sha256(source),
+        "screenshots": [],
+        "steps": [],
+        "success": False,
+    }
+    started = time.monotonic()
+    cc = os.environ.get("CC", "cc")
+
+    try:
+        # 1. Compile Motif client binary
+        client_bin = output / "check-wayland-backend"
+        compile_cmd = [
+            cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O2",
+            *inc_flags, "-L" + str(lib_dir), "-Wl,-rpath," + str(lib_dir),
+            str(source), "-lXm", "-lXt", "-lX11", "-lm", "-o", str(client_bin),
+        ]
+        cres = subprocess.run(compile_cmd, env=base_env, capture_output=True, text=True, timeout=60)
+        (output / "compile-client.log").write_text(cres.stdout + cres.stderr)
+        receipt["steps"].append({"name": "compile_client", "exit": cres.returncode})
+        if cres.returncode != 0:
+            print(cres.stdout + cres.stderr, file=sys.stderr)
+            return 1
+
+        # 2. Generate & compile deterministic Wayland IME / DnD / Clipboard protocol server
+        scanner = shutil.which("wayland-scanner")
+        if not scanner:
+            raise RuntimeError("wayland-scanner not found")
+        wp_dir = Path(pkg_config_var("wayland-protocols", "pkgdatadir"))
+        xdg_xml = wp_dir / "stable/xdg-shell/xdg-shell.xml"
+        ti_xml = wp_dir / "unstable/text-input/text-input-unstable-v3.xml"
+        prim_xml = wp_dir / "unstable/primary-selection/primary-selection-unstable-v1.xml"
+
+        proto_dir = output / "proto"
+        subprocess.run([scanner, "server-header", str(xdg_xml), str(proto_dir / "xdg-shell-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(xdg_xml), str(proto_dir / "xdg-shell-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(ti_xml), str(proto_dir / "text-input-v3-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(ti_xml), str(proto_dir / "text-input-v3-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(prim_xml), str(proto_dir / "primary-selection-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(prim_xml), str(proto_dir / "primary-selection-code.c")], check=True)
+
+        srv_c = proto_dir / "mini-compositor.c"
+        srv_c.write_text(MINI_COMPOSITOR_C)
+        wls_cf, wls_lf = pkg_config_flags("wayland-server")
+        srv_bin = output / "mini-compositor"
+        sres = subprocess.run(
+            [
+                cc, "-std=c11", "-Wall", "-Wextra", "-O2",
+                "-I" + str(proto_dir), *wls_cf,
+                str(srv_c),
+                str(proto_dir / "xdg-shell-code.c"),
+                str(proto_dir / "text-input-v3-code.c"),
+                str(proto_dir / "primary-selection-code.c"),
+                *wls_lf, "-o", str(srv_bin),
+            ],
+            env=base_env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        (output / "compile-mini-srv.log").write_text(sres.stdout + sres.stderr)
+        receipt["steps"].append({"name": "compile_mini_compositor", "exit": sres.returncode})
+        if sres.returncode != 0:
+            print(sres.stdout + sres.stderr, file=sys.stderr)
+            return 1
+
+        # 3. Run Phase B: deterministic zwp_text_input_v3 IME, wl_data_device DnD & cross-process clipboard
+        ime_rt = output / "rt-ime"
+        ime_sync = output / "sync-ime"
+        ime_rt.mkdir(mode=0o700)
+        ime_sync.mkdir()
+        ime_env = dict(base_env, XDG_RUNTIME_DIR=str(ime_rt), WAYLAND_DISPLAY="wayland-ime0")
+
+        srv_proc = subprocess.Popen(
+            [str(srv_bin), "wayland-ime0", str(ime_sync)],
+            env=ime_env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        try:
+            wait_file(ime_sync / "srv.ready", 5.0)
+            cli_res = subprocess.run(
+                [str(client_bin), "--ime-dnd-check", str(ime_sync)],
+                env=ime_env,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            srv_out, _ = srv_proc.communicate(timeout=10)
+            (output / "ime-dnd.log").write_text(cli_res.stdout + cli_res.stderr + "\n" + srv_out)
+            receipt["steps"].append(
+                {"name": "ime_dnd_clipboard_check", "client_exit": cli_res.returncode, "server_exit": srv_proc.returncode}
+            )
+            if cli_res.returncode != 0 or srv_proc.returncode != 0:
+                print(cli_res.stdout + cli_res.stderr + "\n" + srv_out, file=sys.stderr)
+                return 1
+        finally:
+            if srv_proc.poll() is None:
+                srv_proc.kill()
+                srv_proc.wait()
+
+        # 4. Run Phase A: full headless Wayland compositor qualification (labwc, xwayland=no)
+        labwc = shutil.which("labwc")
+        grim = shutil.which("grim")
+        wlr_randr = shutil.which("wlr-randr")
+        if not labwc:
+            raise RuntimeError("labwc headless compositor is required for full Wayland visual qualification")
+
+        wl_rt = output / "rt-wl"
+        wl_cfg = output / "labwc-cfg"
+        wl_sync = output / "sync-wl"
+        wl_rt.mkdir(mode=0o700)
+        wl_cfg.mkdir()
+        wl_sync.mkdir()
+        (wl_cfg / "rc.xml").write_text(
+            '<?xml version="1.0"?>\n'
+            "<labwc_config><core><xwayland>no</xwayland></core></labwc_config>\n"
+        )
+
+        comp_env = dict(
+            base_env,
+            XDG_RUNTIME_DIR=str(wl_rt),
+            WLR_BACKENDS="headless",
+            WLR_RENDERER="pixman",
+            WLR_HEADLESS_OUTPUTS="1",
+        )
+        comp_log_f = (output / "labwc.log").open("w")
+        comp_proc = subprocess.Popen(
+            [labwc, "-C", str(wl_cfg)],
+            env=comp_env,
+            stdout=comp_log_f,
+            stderr=subprocess.STDOUT,
+        )
+        try:
+            wl_sock_name = None
+            deadline = time.monotonic() + 10.0
+            while time.monotonic() < deadline:
+                socks = sorted(p.name for p in wl_rt.glob("wayland-*") if not p.name.endswith(".lock"))
+                if socks:
+                    wl_sock_name = socks[0]
+                    break
+                time.sleep(0.05)
+            if not wl_sock_name:
+                raise RuntimeError("labwc did not publish a wayland-* socket")
+
+            assert_no_xwayland_in_runtime(wl_rt)
+            app_env = dict(base_env, XDG_RUNTIME_DIR=str(wl_rt), WAYLAND_DISPLAY=wl_sock_name)
+
+            app_proc = subprocess.Popen(
+                [str(client_bin), "--compositor-check", str(wl_sync)],
+                env=app_env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            try:
+                stages = [
+                    ("stage_classic", "classic.png"),
+                    ("stage_popup", "popup_menu.png"),
+                    ("stage_modern_light", "modern_light.png"),
+                    ("stage_modern_dark", "modern_dark.png"),
+                ]
+                for prefix_name, shot_name in stages:
+                    wait_file(wl_sync / f"{prefix_name}.ready", 12.0)
+                    assert_no_xwayland_in_runtime(wl_rt)
+                    if grim:
+                        shot_path = output / "screenshots" / shot_name
+                        subprocess.run([grim, str(shot_path)], env=app_env, check=True, timeout=10)
+                        receipt["screenshots"].append(str(shot_path))
+                    (wl_sync / f"{prefix_name}.done").write_text("1\n")
+
+                wait_file(wl_sync / "stage_scale2x.request", 12.0)
+                if wlr_randr:
+                    subprocess.run(
+                        [wlr_randr, "--output", "HEADLESS-1", "--scale", "2"],
+                        env=app_env,
+                        capture_output=True,
+                        timeout=10,
+                    )
+                (wl_sync / "stage_scale2x.applied").write_text("1\n")
+
+                wait_file(wl_sync / "stage_scale2x.ready", 12.0)
+                if grim:
+                    shot_2x = output / "screenshots" / "scale_2x.png"
+                    subprocess.run([grim, str(shot_2x)], env=app_env, check=True, timeout=10)
+                    receipt["screenshots"].append(str(shot_2x))
+                (wl_sync / "stage_scale2x.done").write_text("1\n")
+
+                app_out, _ = app_proc.communicate(timeout=15)
+                (output / "compositor-check.log").write_text(app_out)
+                receipt["steps"].append({"name": "compositor_check", "exit": app_proc.returncode})
+                if app_proc.returncode != 0:
+                    print(app_out, file=sys.stderr)
+                    return 1
+            finally:
+                if app_proc.poll() is None:
+                    app_proc.kill()
+                    app_proc.wait()
+        finally:
+            if comp_proc.poll() is None:
+                comp_proc.terminate()
+                try:
+                    comp_proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    comp_proc.kill()
+                    comp_proc.wait()
+            comp_log_f.close()
+
+        if sha256(library) != receipt["library_sha256"]:
+            raise RuntimeError("libXm changed during qualification")
+
+        receipt["success"] = True
+        print(
+            "PASS Wayland native runtime backend "
+            "(XWayland-free shells, popups, XRender/FreeType, clipboard, DnD, zwp_text_input_v3, scale reflow)"
+        )
+        return 0
+    finally:
+        receipt["ended_utc"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        receipt["seconds"] = round(time.monotonic() - started, 3)
+        (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
