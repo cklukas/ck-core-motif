@@ -60,9 +60,10 @@ process environment when the native Wayland backend is active.
   immediately without accumulating intermediate layouts or rubber-banding.
 - **Menus and popups**: Override-redirect menu shells (`XmMenuShell` pulldowns,
   context menus, submenus, option menus, and tooltips) map to constrained
-  `xdg_popup` surfaces with `xdg_positioner` flip/slide/resize rules, monotonic
-  press/release event timestamps for sub-millisecond clicks, and LIFO
-  `xdg_popup_grab` off-surface dismissal.
+  `xdg_popup` surfaces with `xdg_positioner` flip/slide/resize rules, live
+  `xdg_popup_reposition` updates when a shared `XmMenuShell` moves between
+  menu-bar cascades, monotonic press/release event timestamps for sub-millisecond
+  clicks, and LIFO `xdg_popup_grab` off-surface dismissal.
 - **Rasterizer and typography**: Subwindow clipping, X11-compliant
   `ChangeWindowAttributes` background updates (preserving armed menu/button
   glyphs), classic 3D Motif bevels,

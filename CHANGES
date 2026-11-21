@@ -1,3 +1,26 @@
+Fix etched-in armed gadget menu labels, shared MenuShell xdg_popup repositioning, and parent Expose on subwindow unmap/move (2026-11-21)
+========================================================================================================================================
+
+- `lib/Xm/CascadeBG.c`, `lib/Xm/ToggleBG.c`, `lib/Xm/WaylandBackend.c`,
+  `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandX11Server.c`,
+  `docs/wayland-backend.md`:
+  - Swap `LabG_BackgroundGC` to `TBG_ArmGC` unconditionally when `TBG_Armed` is
+    true in `XmToggleButtonGadget`'s `DrawEtchedInMenu` (`ToggleBG.c`) instead of
+    swapping in `TBG_SelectGC` (whose foreground could match the armed label glyph
+    color and erase armed toggle menu item text), and avoid mutating the shared
+    `XtGetGC` `LabG_BackgroundGC` via `XChangeGC` in `XmCascadeButtonGadget`
+    (`CascadeBG.c`).
+  - Reposition already-mapped `xdg_popup` surfaces (`_XmWlRepositionPopup` via
+    `xdg_popup_reposition` with unmap/remap fallback) when a shared `XmMenuShell`
+    is reconfigured (`ConfigureWindow`) between cascade buttons, and avoid wiping
+    a top-level/popup surface's backing canvas on pure `(x, y)` moves when its
+    `(width, height)` is unchanged.
+  - Emit X11 `Expose` events on viewable parent windows for exact uncovered bounds
+    when child subwindows unmap (`UnmapWindow`) or move/shrink (`ConfigureWindow`)
+    without overhanging `+4 px` clears so sibling Motif gadgets (`XmLabelGadget`,
+    `XmPushButtonGadget`, `XmCascadeButtonGadget`, `XmToggleButtonGadget`) sharing
+    the parent `RowColumn` window always repaint cleanly.
+
 Fix Wayland Style Manager IPC bridges, RANDR output property replies, XLFD catalog, armed menu labels, and same-ms menu clicks (2026-11-21)
 ===========================================================================================================================================
 

@@ -954,6 +954,7 @@ pop_popup_stack_from(XmWlServer *srv, int idx)
         }
         pw->xdg_configured = false;
         pw->is_popup = false;
+        pw->popup_parent = NULL;
     }
     if (idx < srv->popup_depth)
         srv->popup_depth = idx;
@@ -1234,6 +1235,7 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
             XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_RESIZE_Y);
 
         win->is_popup = true;
+        win->popup_parent = parent_win;
         win->xdg_surf = xdg_wm_base_get_xdg_surface(srv->xdg_wm_base, win->wl_surf);
         xdg_surface_add_listener(win->xdg_surf, &g_xdg_surface_listener, win);
         win->xdg_pop = xdg_surface_get_popup(win->xdg_surf, parent_win->xdg_surf, pos);
@@ -1250,6 +1252,52 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
         wl_display_roundtrip(srv->wl_dpy);
         _XmWlDamageTop(win, 0, 0, win->width, win->height);
     }
+}
+
+void
+_XmWlRepositionPopup(XmWlServer *srv, XmWlWindow *win)
+{
+    if (!srv || !win || !win->mapped || !win->is_popup || !win->xdg_pop || !srv->xdg_wm_base)
+        return;
+
+    XmWlWindow *parent_win = win->popup_parent;
+    if (!parent_win || !parent_win->mapped || !parent_win->xdg_surf)
+        return;
+
+#ifdef XDG_POPUP_REPOSITION_SINCE_VERSION
+    if (xdg_popup_get_version(win->xdg_pop) >= XDG_POPUP_REPOSITION_SINCE_VERSION) {
+        int rel_x = (int)win->x - (int)parent_win->x;
+        int rel_y = (int)win->y - (int)parent_win->y;
+        if (rel_x < 0) rel_x = 0;
+        if (rel_y < 0) rel_y = 0;
+        if (rel_x >= (int)parent_win->width) rel_x = (int)parent_win->width - 1;
+        if (rel_y >= (int)parent_win->height) rel_y = (int)parent_win->height - 1;
+        if (rel_x < 0) rel_x = 0;
+        if (rel_y < 0) rel_y = 0;
+
+        struct xdg_positioner *pos = xdg_wm_base_create_positioner(srv->xdg_wm_base);
+        xdg_positioner_set_size(pos, win->width > 0 ? win->width : 1, win->height > 0 ? win->height : 1);
+        xdg_positioner_set_anchor_rect(pos, rel_x, rel_y, 1, 1);
+        xdg_positioner_set_anchor(pos, XDG_POSITIONER_ANCHOR_TOP_LEFT);
+        xdg_positioner_set_gravity(pos, XDG_POSITIONER_GRAVITY_BOTTOM_RIGHT);
+        xdg_positioner_set_constraint_adjustment(
+            pos,
+            XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_FLIP_X |
+            XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_FLIP_Y |
+            XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_X |
+            XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_Y |
+            XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_RESIZE_X |
+            XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_RESIZE_Y);
+        xdg_popup_reposition(win->xdg_pop, pos, ++win->popup_reposition_token);
+        xdg_positioner_destroy(pos);
+        wl_display_flush(srv->wl_dpy);
+        _XmWlDamageTop(win, 0, 0, win->width, win->height);
+        return;
+    }
+#endif
+
+    _XmWlUnmapWindowRole(srv, win);
+    _XmWlSyncWindowRole(srv, win);
 }
 
 void
@@ -1308,6 +1356,11 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
     win->resize_awaiting_client = false;
     win->is_popup = false;
     win->is_drag_icon = false;
+    win->popup_parent = NULL;
+    for (int i = 0; i < srv->popup_depth; ++i) {
+        if (srv->popup_stack[i] && srv->popup_stack[i]->popup_parent == win)
+            srv->popup_stack[i]->popup_parent = NULL;
+    }
 }
 
 void

@@ -163,6 +163,8 @@ struct XmWlWindow {
 
     bool is_popup;
     bool is_drag_icon;
+    struct XmWlWindow *popup_parent;
+    uint32_t popup_reposition_token;
     bool xdg_configured;
     uint32_t pending_configure_serial;
     int32_t pending_cfg_w;
@@ -535,6 +537,7 @@ XM_WL_INTERNAL void _XmWaylandNotifyMainThread(XmWlServer *srv);
 XM_WL_INTERNAL uint32_t _XmWlNowMs(void);
 XM_WL_INTERNAL void _XmWlWakeServer(XmWlServer *srv);
 XM_WL_INTERNAL void _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win);
+XM_WL_INTERNAL void _XmWlRepositionPopup(XmWlServer *srv, XmWlWindow *win);
 XM_WL_INTERNAL void _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win);
 XM_WL_INTERNAL void _XmWlDestroyWindowRole(XmWlServer *srv, XmWlWindow *win);
 XM_WL_INTERNAL void _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_atom);

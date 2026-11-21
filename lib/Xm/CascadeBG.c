@@ -1294,13 +1294,6 @@ Redisplay(
 		LabG_NormalGC(cb) = CBG_BackgroundGC(cb);
 	    }
 #ifdef FIX_1395
-	    /* Fetch the select_color GetGC() actually used. */
-	    XGetGCValues(XtDisplay(cb), LabG_BackgroundGC(cb), GCBackground, &values);
-	    if (values.background != select_pix)
-	    {
-			values.background = select_pix;
-			XChangeGC(XtDisplay((Widget)cb), LabG_BackgroundGC(cb), GCBackground, &values);
-		}
 	    tmp_bgc = LabG_BackgroundGC(cb);
 	    LabG_BackgroundGC(cb) = CBG_ArmGC(cb);
 #endif

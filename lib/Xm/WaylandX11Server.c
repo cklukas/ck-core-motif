@@ -2261,10 +2261,22 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         w->mapped = false;
         if (w->parent == srv->root)
             _XmWlUnmapWindowRole(srv, w);
-        else if (is_window_viewable(srv, w->parent))
-            _XmWlPaintWindowBackground(srv, w->parent, w->x, w->y,
-                                       w->width + 2 * w->border_width,
-                                       w->height + 2 * w->border_width);
+        else if (is_window_viewable(srv, w->parent)) {
+            uint16_t uw = (uint16_t)(w->width + 2u * w->border_width);
+            uint16_t uh = (uint16_t)(w->height + 2u * w->border_width);
+            _XmWlPaintWindowBackground(srv, w->parent, w->x, w->y, uw, uh);
+            if (uw > 0 && uh > 0) {
+                uint8_t exp[32];
+                memset(exp, 0, sizeof(exp));
+                exp[0] = 12; /* Expose */
+                wr_u32(exp + 4, w->parent->id);
+                wr_u16(exp + 8, (uint16_t)(w->x > 0 ? w->x : 0));
+                wr_u16(exp + 10, (uint16_t)(w->y > 0 ? w->y : 0));
+                wr_u16(exp + 12, uw);
+                wr_u16(exp + 14, uh);
+                _XmWlSendEventToWindow(srv, w->parent, X11_EXPOSURE_MASK, exp);
+            }
+        }
 
         uint8_t ev[32];
         memset(ev, 0, sizeof(ev));
@@ -2372,11 +2384,34 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
             _XmWlSendEventToWindow(srv, w->parent, X11_SUBSTRUCTURE_NOTIFY_MASK, cfg);
         }
 
-        bool geom_changed = (old_x != w->x || old_y != w->y || old_w != w->width || old_h != w->height);
-        if (geom_changed && is_window_viewable(srv, w)) {
-            if (w->parent && w->parent != srv->root && (old_x != w->x || old_y != w->y || w->width < old_w || w->height < old_h))
-                _XmWlPaintWindowBackground(srv, w->parent, old_x, old_y, old_w + 4, old_h + 4);
-            emit_expose_recursive(srv, w);
+        bool pos_changed = (old_x != w->x || old_y != w->y);
+        bool size_changed = (old_w != w->width || old_h != w->height);
+        if ((pos_changed || size_changed) && w->parent == srv->root && w->mapped && w->is_popup) {
+            _XmWlRepositionPopup(srv, w);
+        }
+        if ((pos_changed || size_changed) && is_window_viewable(srv, w)) {
+            if (w->parent && w->parent != srv->root &&
+                (pos_changed || w->width < old_w || w->height < old_h)) {
+                uint16_t uw = (uint16_t)(old_w + 2u * w->border_width);
+                uint16_t uh = (uint16_t)(old_h + 2u * w->border_width);
+                _XmWlPaintWindowBackground(srv, w->parent, old_x, old_y, uw, uh);
+                if (uw > 0 && uh > 0) {
+                    uint8_t exp[32];
+                    memset(exp, 0, sizeof(exp));
+                    exp[0] = 12; /* Expose */
+                    wr_u32(exp + 4, w->parent->id);
+                    wr_u16(exp + 8, (uint16_t)(old_x > 0 ? old_x : 0));
+                    wr_u16(exp + 10, (uint16_t)(old_y > 0 ? old_y : 0));
+                    wr_u16(exp + 12, uw);
+                    wr_u16(exp + 14, uh);
+                    _XmWlSendEventToWindow(srv, w->parent, X11_EXPOSURE_MASK, exp);
+                }
+            }
+            if (size_changed || w->parent != srv->root) {
+                emit_expose_recursive(srv, w);
+            } else {
+                _XmWlDamageTop(w, 0, 0, w->width, w->height);
+            }
         }
         break;
     }

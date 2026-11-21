@@ -4476,22 +4476,12 @@ DrawEtchedInMenu(
 	  }
 
 #ifdef FIX_1395
+	  if (TBG_ArmGC(tb) != NULL)
 	  {
-	    XGCValues values;
-	    /* Fetch the select_color GetGC() actually used. */
-	    XGetGCValues(XtDisplay(tb), TBG_SelectGC(tb), GCBackground, &values);
-	    /* Before label expose call we should change bgc
-	     to correct color and then restore it.
-	    */
-	    if (values.background != select_pix)
-	    {
-		XChangeGC(XtDisplay((Widget)tb), TBG_SelectGC(tb), 
-		  GCBackground, &values);
-		tmp_bgc = LabG_BackgroundGC(tb);
-		LabG_BackgroundGC(tb) = TBG_SelectGC(tb);
-		restore_bgc = True;
-	    }
-	 }
+	      tmp_bgc = LabG_BackgroundGC(tb);
+	      LabG_BackgroundGC(tb) = TBG_ArmGC(tb);
+	      restore_bgc = True;
+	  }
 #endif
     }
   
