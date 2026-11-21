@@ -721,6 +721,28 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
 
 static char g_dropped_uri[256];
 static bool g_drop_received = false;
+static int g_resize_dispatches = 0;
+static int g_resize_reversals = 0;
+static int g_last_cfg_w = 0;
+static int g_last_cfg_h = 0;
+
+static void
+resize_audit_eh(Widget w, XtPointer client_data, XEvent *ev, Boolean *cont)
+{
+    (void)client_data;
+    (void)cont;
+    if (ev->type == ConfigureNotify && ev->xconfigure.window == XtWindow(w)) {
+        int nw = ev->xconfigure.width;
+        int nh = ev->xconfigure.height;
+        if (nw != g_last_cfg_w || nh != g_last_cfg_h) {
+            if (g_last_cfg_w > 0 && (nw < g_last_cfg_w || nh < g_last_cfg_h))
+                g_resize_reversals++;
+            g_last_cfg_w = nw;
+            g_last_cfg_h = nh;
+            g_resize_dispatches++;
+        }
+    }
+}
 
 static void
 drop_transfer_cb(Widget w, XtPointer closure, Atom *seltype, Atom *type,
@@ -895,10 +917,44 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
 
     write_stage_file(sync_dir, "clipboard_exchange.verified");
 
+    /* Verify 40-step rapid xdg_toplevel.configure resize burst coalesces cleanly
+     * without accumulating 40 intermediate ConfigureNotify layouts or reversing. */
+    Dimension cur_w = 0, cur_h = 0;
+    XtVaGetValues(shell, XmNwidth, &cur_w, XmNheight, &cur_h, NULL);
+    g_resize_dispatches = 0;
+    g_resize_reversals = 0;
+    g_last_cfg_w = (int)cur_w;
+    g_last_cfg_h = (int)cur_h;
+    XtAddEventHandler(shell, StructureNotifyMask, False, resize_audit_eh, NULL);
+
+    struct timespec busy_sim = {0, 60 * 1000 * 1000L};
+    nanosleep(&busy_sim, NULL);
+    wait_for_stage_file(app, dpy, sync_dir, "resize_burst.sent", 5000);
+    pump_xt_ms(app, dpy, 250);
+
+    XtVaGetValues(shell, XmNwidth, &cur_w, XmNheight, &cur_h, NULL);
+    if (cur_w != 600 || cur_h != 380) {
+        fprintf(stderr, "FAIL: expected settled resize 600x380, got %ux%u\n",
+                (unsigned)cur_w, (unsigned)cur_h);
+        exit(1);
+    }
+    if (g_resize_reversals != 0) {
+        fprintf(stderr, "FAIL: detected %d rubber-band size reversals during resize burst\n",
+                g_resize_reversals);
+        exit(1);
+    }
+    if (g_resize_dispatches < 1 || g_resize_dispatches > 6) {
+        fprintf(stderr, "FAIL: resize burst accumulated %d ConfigureNotify dispatches (expected <= 6 out of 40)\n",
+                g_resize_dispatches);
+        exit(1);
+    }
+    write_stage_file(sync_dir, "resize_burst.verified");
+
     XtDestroyWidget(shell);
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);
-    printf("PASS ime-dnd-clipboard-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=UTF8+URI+PNG+PRIMARY)\n");
+    printf("PASS ime-dnd-clipboard-resize-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40)\n",
+           g_resize_dispatches);
     return 0;
 }
 

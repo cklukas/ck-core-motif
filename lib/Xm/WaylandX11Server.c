@@ -2215,16 +2215,18 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         bool has_stack = false;
 
         size_t off = 12;
+        bool top_managed = (w->parent == srv->root && w->xdg_top != NULL && !w->override_redirect);
+        bool comp_resizing = top_managed && (w->has_queued_wl_cfg || w->resize_awaiting_client);
         for (int bit = 0; bit <= 6; ++bit) {
             if (!(vmask & (1u << bit))) continue;
             if (off + 4 > req_len) break;
             uint32_t v = rd_u32(req + off);
             off += 4;
             switch (bit) {
-            case 0: w->x = (int16_t)v; break;
-            case 1: w->y = (int16_t)v; break;
-            case 2: w->width = (uint16_t)(v > 0 ? v : 1); break;
-            case 3: w->height = (uint16_t)(v > 0 ? v : 1); break;
+            case 0: if (!comp_resizing) w->x = (int16_t)v; break;
+            case 1: if (!comp_resizing) w->y = (int16_t)v; break;
+            case 2: if (!comp_resizing) w->width = (uint16_t)(v > 0 ? v : 1); break;
+            case 3: if (!comp_resizing) w->height = (uint16_t)(v > 0 ? v : 1); break;
             case 4: w->border_width = (uint16_t)v; break;
             case 5: sibling_id = v; break;
             case 6: stack_mode = (uint8_t)v; has_stack = true; break;

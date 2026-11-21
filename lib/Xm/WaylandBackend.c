@@ -281,26 +281,38 @@ xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t seri
         xdg_surface_ack_configure(xdg_surface, serial);
         return;
     }
-    win->pending_configure_serial = serial;
-    win->xdg_configured = true;
 
-    int cw = win->pending_cfg_w > 0 ? win->pending_cfg_w : win->width;
-    int ch = win->pending_cfg_h > 0 ? win->pending_cfg_h : win->height;
+    int fallback_w = win->has_queued_wl_cfg ? win->queued_wl_w : (int)win->width;
+    int fallback_h = win->has_queued_wl_cfg ? win->queued_wl_h : (int)win->height;
+    int cw = win->pending_cfg_w > 0 ? win->pending_cfg_w : fallback_w;
+    int ch = win->pending_cfg_h > 0 ? win->pending_cfg_h : fallback_h;
     win->pending_cfg_w = 0;
     win->pending_cfg_h = 0;
     if (cw < 1) cw = 1;
     if (ch < 1) ch = 1;
 
-    bool size_changed = (cw != (int)win->width || ch != (int)win->height);
-    if (size_changed) {
-        win->width = (uint16_t)cw;
-        win->height = (uint16_t)ch;
-        _XmWlEnsureTopCanvas(srv, win);
-        _XmWlDeliverConfigureAndExpose(srv, win, cw, ch);
-    } else {
-        _XmWlEnsureTopCanvas(srv, win);
-        _XmWlDamageTop(win, 0, 0, win->width, win->height);
+    /* Initial map configure runs synchronously during _XmWlSyncWindowRole's roundtrip */
+    if (!win->xdg_configured) {
+        win->pending_configure_serial = serial;
+        win->xdg_configured = true;
+        bool size_changed = (cw != (int)win->width || ch != (int)win->height);
+        if (size_changed) {
+            win->width = (uint16_t)cw;
+            win->height = (uint16_t)ch;
+            _XmWlEnsureTopCanvas(srv, win);
+            _XmWlDeliverConfigureAndExpose(srv, win, cw, ch);
+        } else {
+            _XmWlEnsureTopCanvas(srv, win);
+            _XmWlDamageTop(win, 0, 0, win->width, win->height);
+        }
+        return;
     }
+
+    /* Coalesce subsequent configures so only the latest size/serial is retained */
+    win->has_queued_wl_cfg = true;
+    win->queued_wl_serial = serial;
+    win->queued_wl_w = cw;
+    win->queued_wl_h = ch;
 }
 
 static const struct xdg_surface_listener g_xdg_surface_listener = {
@@ -1262,6 +1274,8 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
         win->wl_surf = NULL;
     }
     win->xdg_configured = false;
+    win->has_queued_wl_cfg = false;
+    win->resize_awaiting_client = false;
     win->is_popup = false;
     win->is_drag_icon = false;
 }
@@ -1281,13 +1295,64 @@ _XmWlDestroyWindowRole(XmWlServer *srv, XmWlWindow *win)
     win->canvas_bits = NULL;
 }
 
+static void
+process_queued_wl_configures(XmWlServer *srv)
+{
+    if (!srv || !srv->root) return;
+    uint64_t now = now_mono_ms64();
+
+    bool client_tx_backlogged = false;
+    for (int i = 0; i < XM_WL_MAX_CLIENTS; ++i) {
+        if (srv->clients[i].active && srv->clients[i].tx_len > 0) {
+            client_tx_backlogged = true;
+            break;
+        }
+    }
+
+    for (XmWlWindow *w = srv->root->first_child; w; w = w->next_sibling) {
+        if (!w->mapped || !w->wl_surf || !w->xdg_configured)
+            continue;
+
+        if (w->resize_awaiting_client && !client_tx_backlogged &&
+            now >= w->resize_sent_ms + 35) {
+            w->resize_awaiting_client = false;
+            _XmWlDamageTop(w, 0, 0, w->width, w->height);
+        }
+
+        if (!w->has_queued_wl_cfg || w->resize_awaiting_client || client_tx_backlogged)
+            continue;
+
+        int cw = w->queued_wl_w > 0 ? w->queued_wl_w : (int)w->width;
+        int ch = w->queued_wl_h > 0 ? w->queued_wl_h : (int)w->height;
+        uint32_t serial = w->queued_wl_serial;
+        w->has_queued_wl_cfg = false;
+        w->pending_configure_serial = serial;
+
+        if (cw != (int)w->width || ch != (int)w->height) {
+            w->width = (uint16_t)cw;
+            w->height = (uint16_t)ch;
+            _XmWlEnsureTopCanvas(srv, w);
+            _XmWlDeliverConfigureAndExpose(srv, w, cw, ch);
+            /* Hold surface commit & ack_configure until the client processes
+             * ConfigureNotify + child Expose redraws (or 35ms ceiling). */
+            w->resize_awaiting_client = true;
+            w->resize_sent_ms = now;
+            w->dirty = false;
+        } else {
+            _XmWlEnsureTopCanvas(srv, w);
+            _XmWlDamageTop(w, 0, 0, w->width, w->height);
+        }
+    }
+}
+
 void
 _XmWlFlushDirtySurfaces(XmWlServer *srv)
 {
     if (!srv || !srv->root || !srv->wl_dpy) return;
 
     for (XmWlWindow *w = srv->root->first_child; w; w = w->next_sibling) {
-        if (!w->mapped || !w->wl_surf || !w->xdg_configured || !w->dirty || !w->canvas)
+        if (!w->mapped || !w->wl_surf || !w->xdg_configured ||
+            w->resize_awaiting_client || !w->dirty || !w->canvas)
             continue;
 
         double sc = w->preferred_scale > 0.0 ? w->preferred_scale : srv->active_scale;
@@ -1739,9 +1804,23 @@ wayland_server_thread(void *arg)
             }
         }
         int timeout_ms = -1;
+        uint64_t now_poll = now_mono_ms64();
         if (srv->held_keycode != 0 && srv->repeat_rate > 0) {
-            uint64_t now = now_mono_ms64();
-            timeout_ms = (srv->next_repeat_ms > now) ? (int)(srv->next_repeat_ms - now) : 0;
+            timeout_ms = (srv->next_repeat_ms > now_poll) ? (int)(srv->next_repeat_ms - now_poll) : 0;
+        }
+        if (srv->root) {
+            for (XmWlWindow *w = srv->root->first_child; w; w = w->next_sibling) {
+                if (!w->mapped || !w->wl_surf || !w->xdg_configured)
+                    continue;
+                if (w->resize_awaiting_client) {
+                    uint64_t due = w->resize_sent_ms + 35;
+                    int rem = (due > now_poll) ? (int)(due - now_poll) : 0;
+                    if (timeout_ms < 0 || rem < timeout_ms)
+                        timeout_ms = rem;
+                } else if (w->has_queued_wl_cfg) {
+                    timeout_ms = 0;
+                }
+            }
         }
         pthread_mutex_unlock(&srv->lock);
 
@@ -1762,6 +1841,7 @@ wayland_server_thread(void *arg)
 
         pthread_mutex_lock(&srv->lock);
         wl_display_dispatch_pending(srv->wl_dpy);
+        process_queued_wl_configures(srv);
 
         if (prc > 0 && (pfds[wake_idx].revents & POLLIN)) {
             uint8_t drain[64];
@@ -1795,18 +1875,38 @@ wayland_server_thread(void *arg)
             }
         }
 
+        bool any_client_read = false;
         for (nfds_t k = 0; k < nfds; ++k) {
             int ci = client_map[k];
             if (ci < 0 || !srv->clients[ci].active) continue;
             if (pfds[k].revents & (POLLERR | POLLHUP)) {
-                if (pfds[k].revents & POLLIN)
+                if (pfds[k].revents & POLLIN) {
                     _XmWlHandleClientReadable(srv, ci);
+                    any_client_read = true;
+                }
                 if (srv->clients[ci].active)
                     _XmWlDisconnectClient(srv, ci);
                 continue;
             }
             if (pfds[k].revents & POLLIN) {
                 _XmWlHandleClientReadable(srv, ci);
+                any_client_read = true;
+            }
+        }
+
+        if (any_client_read && srv->root) {
+            bool pending_events = false;
+            for (int i = 0; i < XM_WL_MAX_CLIENTS; ++i) {
+                if (srv->clients[i].active && srv->clients[i].tx_len > 0) {
+                    pending_events = true;
+                    break;
+                }
+            }
+            if (!pending_events) {
+                for (XmWlWindow *w = srv->root->first_child; w; w = w->next_sibling) {
+                    if (w->resize_awaiting_client && w->dirty)
+                        w->resize_awaiting_client = false;
+                }
             }
         }
 
@@ -1823,6 +1923,7 @@ wayland_server_thread(void *arg)
         }
 
         _XmWlFlushDirtySurfaces(srv);
+        process_queued_wl_configures(srv);
         _XmWlFlushClientWrites(srv);
         pthread_mutex_unlock(&srv->lock);
     }

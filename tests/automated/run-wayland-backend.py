@@ -570,13 +570,33 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                 wl_data_device_send_drop(ms.primary_data_dev);
                 wl_display_flush_clients(ms.dpy);
                 stage = 3;
-            } else if (stage == 3 && file_exists(ms.sync_dir, "clipboard_exchange.verified")) {
+            } else if (stage == 3 && file_exists(ms.sync_dir, "clipboard_exchange.verified") &&
+                       ms.primary_xdg_surf) {
+                SurfState *ss = wl_resource_get_user_data(ms.primary_xdg_surf);
+                if (ss && ss->xdg_top) {
+                    struct wl_array states;
+                    wl_array_init(&states);
+                    for (int wave = 0; wave < 4; ++wave) {
+                        for (int step = 1; step <= 10; ++step) {
+                            int k = wave * 10 + step;
+                            xdg_toplevel_send_configure(ss->xdg_top, 360 + k * 6, 220 + k * 4, &states);
+                            xdg_surface_send_configure(ms.primary_xdg_surf, (uint32_t)(500 + k));
+                        }
+                        wl_display_flush_clients(ms.dpy);
+                        struct timespec rts = {0, 8 * 1000 * 1000L};
+                        nanosleep(&rts, NULL);
+                    }
+                    wl_array_release(&states);
+                }
+                write_flag(ms.sync_dir, "resize_burst.sent");
                 stage = 4;
+            } else if (stage == 4 && file_exists(ms.sync_dir, "resize_burst.verified")) {
+                stage = 5;
                 break;
             }
         }
         wl_display_destroy(ms.dpy);
-        return (stage == 4 && ms.dnd_finished_seen) ? 0 : 1;
+        return (stage == 5 && ms.dnd_finished_seen) ? 0 : 1;
     }
     """
 )

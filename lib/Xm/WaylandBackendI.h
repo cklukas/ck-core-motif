@@ -166,6 +166,12 @@ struct XmWlWindow {
     uint32_t pending_configure_serial;
     int32_t pending_cfg_w;
     int32_t pending_cfg_h;
+    bool has_queued_wl_cfg;
+    uint32_t queued_wl_serial;
+    int32_t queued_wl_w;
+    int32_t queued_wl_h;
+    bool resize_awaiting_client;
+    uint64_t resize_sent_ms;
     uint32_t transient_for_xid;
     int32_t min_w, min_h, max_w, max_h;
     bool wants_decorations;

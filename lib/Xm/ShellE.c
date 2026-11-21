@@ -229,6 +229,33 @@ StructureNotifyHandler(
 
       case ConfigureNotify:
 	/*
+	 * Coalesce queued ConfigureNotify events for this shell window so
+	 * interactive window resizes process only the most recent geometry
+	 * instead of accumulating a backlog of intermediate layouts.
+	 */
+	if (XtWindow(w) != None && event->xconfigure.window == XtWindow(w))
+	  {
+	      Display *dpy = XtDisplay(w);
+	      XEvent newer;
+	      (void)XEventsQueued(dpy, QueuedAfterReading);
+	      while (XCheckTypedWindowEvent(dpy, XtWindow(w), ConfigureNotify, &newer))
+		{
+		    if (newer.xconfigure.window == XtWindow(w))
+		      {
+			  Boolean had_synth_pos =
+			    (event->xany.send_event != False);
+			  if (had_synth_pos && !newer.xany.send_event)
+			    {
+				newer.xconfigure.x = event->xconfigure.x;
+				newer.xconfigure.y = event->xconfigure.y;
+			    }
+			  *event = newer;
+			  if (had_synth_pos)
+			    event->xany.send_event = True;
+		      }
+		}
+	  }
+	/*
 	 * only process configureNotifies that aren't stale
 	 */
 	if (event->xany.serial <

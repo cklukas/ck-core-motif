@@ -53,7 +53,11 @@ process environment when the native Wayland backend is active.
   `_MOTIF_WM_HINTS`), transient parent linkage, size bounds (`WM_NORMAL_HINTS`),
   UTF-8 titles (`_NET_WM_NAME` / `WM_NAME`), `app_id` (`WM_CLASS`), and dynamic
   ARGB window icons (`xdg_toplevel_icon_v1` built from `WM_HINTS` icon pixmaps
-  and masks).
+  and masks). Post-map `xdg_surface.configure` resizes coalesce to the latest
+  pending size and hold `xdg_surface.ack_configure` until the client finishes
+  processing `ConfigureNotify` and painting its resized widget tree, paired with
+  `VendorShell` `ConfigureNotify` queue compression so interactive drags settle
+  immediately without accumulating intermediate layouts or rubber-banding.
 - **Menus and popups**: Override-redirect menu shells (`XmMenuShell` pulldowns,
   context menus, submenus, option menus, and tooltips) map to constrained
   `xdg_popup` surfaces with `xdg_positioner` flip/slide/resize rules and LIFO
@@ -129,5 +133,5 @@ The runner starts an isolated headless Wayland compositor with `DISPLAY` unset,
 verifies that no `Xwayland` instance is used for the client, and validates
 shell mapping, classic and modern theme rendering, Unicode/CJK text rasterization,
 `xdg_popup` menus, Wayland clipboard and drag-and-drop transfers,
-`zwp_text_input_v3` composition, live scale reflow, and child-process socket
-isolation.
+`zwp_text_input_v3` composition, rapid `xdg_toplevel.configure` resize-burst
+coalescing, live scale reflow, and child-process socket isolation.

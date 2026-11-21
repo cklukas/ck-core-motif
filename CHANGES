@@ -1,3 +1,27 @@
+Coalesce ConfigureNotify bursts and Wayland xdg_toplevel resizes (2026-11-21)
+=============================================================================
+
+- `lib/Xm/ShellE.c`, `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandBackendI.h`,
+  `lib/Xm/WaylandX11Server.c`, `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`:
+  - Drain queued `ConfigureNotify` events for the same shell window at the head of
+    `VendorShell`'s `StructureNotifyHandler` (`XEventsQueued(QueuedAfterReading)`
+    plus `XCheckTypedWindowEvent`) while preserving synthetic `send_event`
+    position updates so rapid interactive resizes process only the single most
+    recent geometry across X11, XWayland, and native Wayland.
+  - Coalesce post-map `xdg_surface.configure` events in `WaylandBackend.c` so
+    only the latest width, height, and configure serial are retained while a
+    previous client resize is still in flight, and hold `wl_surface.commit` /
+    `xdg_surface.ack_configure` (`resize_awaiting_client`) until the client drains
+    its X11 event stream and repaints its resized child widgets (with a 35 ms
+    ceiling for passive windows).
+  - Prevent stale client `ConfigureWindow` `x`/`y`/`width`/`height` requests on
+    managed `xdg_toplevel` windows from clobbering active compositor resizes while
+    preserving idle client-initiated self-resizes.
+  - Add a 40-step rapid `xdg_toplevel.configure` burst regression test in
+    `run-wayland-backend.py` and `check-wayland-backend.c` verifying settled final
+    dimensions, bounded `ConfigureNotify` dispatch count, and zero size reversals.
+
 Fix Wayland xdg_toplevel_icon_v1 offsets, integer HiDPI crispness, ColorObj IPC, and DragOverS visuals (2026-11-21)
 ===================================================================================================================
 
