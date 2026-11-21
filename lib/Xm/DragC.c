@@ -45,6 +45,7 @@ static char rcsid[] = "$TOG: DragC.c /main/29 1997/10/07 12:19:52 cshi $"
 #include <Xm/PrimitiveP.h>
 #include <Xm/TransltnsP.h>
 #include <Xm/VendorSP.h>
+#include <Xm/Wayland.h>
 #include "XmI.h"
 #include "DisplayI.h"
 #include "DragBSI.h"
@@ -847,6 +848,11 @@ DisplayAvoidsRootPixmapDrag(Display *dpy, Screen *scr)
 
   if (dpy == NULL)
     return False;
+
+  /* Native Wayland displays virtualize RootWindowOfScreen in-process and composite
+   * drag visuals through wl_data_device's drag icon surface (XmDRAG_WINDOW). */
+  if (XmWaylandIsActive(dpy))
+    return True;
 
   /* Rootless XWayland never composites direct IncludeInferiors draws on
    * RootWindowOfScreen, and XGrabServer freezes the XWayland server during
@@ -2496,6 +2502,16 @@ DragStart(
     dc->drag.srcWindow = XtWindow(dc->drag.srcShell);
     dc->drag.iccHandle = _XmAllocMotifAtom((Widget)dc, dc->drag.dragStartTime);
     
+    if (dc->drag.exportTargets != NULL &&
+        (dc->drag.numExportTargets > 3 ||
+         (dc->drag.numExportTargets > 0 && XmWaylandIsActive(XtDisplay(dc))))) {
+      Atom typeListAtom = XInternAtom(XtDisplay(dc), "XdndTypeList", False);
+      XChangeProperty(XtDisplay(dc), dc->drag.srcWindow, typeListAtom,
+		      XA_ATOM, 32, PropModeReplace,
+		      (unsigned char *)dc->drag.exportTargets,
+		      (int)dc->drag.numExportTargets);
+    }
+
     if (dc->drag.incremental) {
       XtOwnSelectionIncremental(dc->drag.srcShell, 
 				dc->drag.iccHandle,
@@ -2523,13 +2539,6 @@ DragStart(
 		     DropConvertCallback,
 		     DropLoseSelection,
 		     NULL);
-    }
-    if (dc->drag.numExportTargets > 3 && dc->drag.exportTargets != NULL) {
-      Atom typeListAtom = XInternAtom(XtDisplay(dc), "XdndTypeList", False);
-      XChangeProperty(XtDisplay(dc), dc->drag.srcWindow, typeListAtom,
-		      XA_ATOM, 32, PropModeReplace,
-		      (unsigned char *)dc->drag.exportTargets,
-		      (int)dc->drag.numExportTargets);
     }
     
 

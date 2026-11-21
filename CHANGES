@@ -1,3 +1,32 @@
+Fix Wayland xdg_toplevel_icon_v1 offsets, integer HiDPI crispness, ColorObj IPC, and DragOverS visuals (2026-11-21)
+===================================================================================================================
+
+- `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandData.c`, `lib/Xm/WaylandRender.c`,
+  `lib/Xm/DragC.c`:
+  - Read `XA_WM_HINTS` `icon_pixmap` and `icon_mask` at their canonical X11
+    `xPropWMHints` offsets (`+12` and `+28`) and center rectangular X11 icon
+    pixmaps inside square `ARGB8888` `wl_shm` buffers so `xdg_toplevel_icon_v1`
+    delivers client `XmNiconPixmap` / `XmNiconMask` icons cleanly.
+  - Use `PIXMAN_FILTER_NEAREST` when upscaling client canvases by exact integer
+    HiDPI factors (such as `2x`) while preserving `PIXMAN_FILTER_BILINEAR` for
+    fractional scales, keeping 1px Motif bevels, XPM icons, and glyphs sharp.
+  - Enable `XmDRAG_WINDOW` (`DisplayAvoidsRootPixmapDrag`) on native Wayland
+    displays and populate `XdndTypeList` prior to `XdndSelection` ownership for
+    all non-empty `exportTargets` sets so shaped ARGB `XmDragOverShell` drag
+    icons and custom CDE/Motif MIME targets (`FILE_NAME`, `HOST_NAME`) work
+    across both intra-client and inter-client Wayland drags.
+  - Echo the exact `ConvertSelection` request timestamp (including `CurrentTime`)
+    in `SelectionRequest` and `SelectionNotify` events so `libXt`'s
+    `XtGetSelectionValue` matches replies immediately instead of waiting for
+    `XtSelectionTimeout`.
+  - Broadcast `"SDT Pixel Set"` (`XmSPIXEL_SET_PROP`) over the compositor root
+    property `.ipc` bus (parsing incoming `PROP <atom> <hex>` frames on the
+    trailing space via `strrchr` and preserving `XA_STRING` type) and serve
+    `"Customize Data:0"` (`"Pixel Sets"` and `"Type Of Monitor"`) directly from
+    synced root properties when no in-process selection owner overrides it,
+    enabling `XmColorObj` and CDE `dtstyle` Color palettes under pure
+    XWayland-free Wayland sessions.
+
 Fix intra-process Wayland drag-and-drop and shaped DragOverS icons (2026-11-21)
 ================================================================================
 

@@ -987,6 +987,15 @@ _XmWlDataGetSelectionOwner(XmWlServer *srv, uint32_t selection)
         if (g_misc_selections[i].atom == selection)
             return g_misc_selections[i].owner;
     }
+    const char *sname = _XmWlAtomName(srv, selection);
+    if (sname && strncmp(sname, "Customize Data:", 15) == 0 && srv->root) {
+        uint32_t a_pset = _XmWlInternAtom(srv, "SDT Pixel Set", 13, true);
+        uint32_t a_tmon = _XmWlInternAtom(srv, "_DT_COLOR_TYPE_MONITOR", 22, true);
+        if ((a_pset && _XmWlGetProperty(srv->root, a_pset)) ||
+            (a_tmon && _XmWlGetProperty(srv->root, a_tmon))) {
+            return srv->root->id;
+        }
+    }
     return 0;
 }
 
@@ -1019,8 +1028,42 @@ _XmWlDataHandleConvertSelection(XmWlServer *srv, int client_idx, uint32_t reques
     uint32_t owner = _XmWlDataGetSelectionOwner(srv, selection);
     XmWlWindow *req_win = _XmWlFindWindow(srv, requestor);
     if (!req_win || owner == 0) {
-        send_selection_notify(cli, requestor, selection, target, 0, now_ms);
+        send_selection_notify(cli, requestor, selection, target, 0, time);
         return;
+    }
+
+    /* Session-wide CDE Color Server ("Customize Data:0") mirrored via root IPC */
+    if (srv->root && owner == srv->root->id) {
+        const char *sname = _XmWlAtomName(srv, selection);
+        const char *tname = _XmWlAtomName(srv, target);
+        if (sname && strncmp(sname, "Customize Data:", 15) == 0 && tname) {
+            if (strcmp(tname, "Type Of Monitor") == 0) {
+                uint32_t a_tmon = _XmWlInternAtom(srv, "_DT_COLOR_TYPE_MONITOR", 22, true);
+                XmWlProperty *tp = a_tmon ? _XmWlGetProperty(srv->root, a_tmon) : NULL;
+                const uint8_t *tbytes = (tp && tp->data && tp->byte_len > 0)
+                                            ? tp->data
+                                            : (const uint8_t *)"3_0_0_0";
+                size_t tlen = (tp && tp->data && tp->byte_len > 0) ? tp->byte_len : 7u;
+                _XmWlSetProperty(srv, req_win, prop_out, 31u /* XA_STRING */, 8, 0,
+                                 tbytes, tlen, true);
+                send_selection_notify(cli, requestor, selection, target, prop_out, time);
+                return;
+            } else if (strcmp(tname, "Pixel Sets") == 0) {
+                uint32_t a_pset = _XmWlInternAtom(srv, "SDT Pixel Set", 13, true);
+                XmWlProperty *pp = a_pset ? _XmWlGetProperty(srv->root, a_pset) : NULL;
+                if (pp && pp->data && pp->byte_len > 1) {
+                    size_t slen = pp->byte_len;
+                    if (pp->data[slen - 1] == '1')
+                        slen--;
+                    _XmWlSetProperty(srv, req_win, prop_out, 31u /* XA_STRING */, 8, 0,
+                                     pp->data, slen, true);
+                    send_selection_notify(cli, requestor, selection, target, prop_out, time);
+                    return;
+                }
+            }
+            send_selection_notify(cli, requestor, selection, target, 0, time);
+            return;
+        }
     }
 
     /* Local X11 owner: standard in-process X11 SelectionRequest */
@@ -1028,7 +1071,7 @@ _XmWlDataHandleConvertSelection(XmWlServer *srv, int client_idx, uint32_t reques
         uint8_t ev[32];
         memset(ev, 0, sizeof(ev));
         ev[0] = 30; /* SelectionRequest */
-        wr_u32(ev + 4, now_ms);
+        wr_u32(ev + 4, time);
         wr_u32(ev + 8, owner);
         wr_u32(ev + 12, requestor);
         wr_u32(ev + 16, selection);
@@ -1065,7 +1108,7 @@ _XmWlDataHandleConvertSelection(XmWlServer *srv, int client_idx, uint32_t reques
         mimes = srv->wl_prim_mimes;
         mime_count = srv->wl_prim_mime_count;
     } else {
-        send_selection_notify(cli, requestor, selection, target, 0, now_ms);
+        send_selection_notify(cli, requestor, selection, target, 0, time);
         return;
     }
 
@@ -1087,27 +1130,27 @@ _XmWlDataHandleConvertSelection(XmWlServer *srv, int client_idx, uint32_t reques
         }
         _XmWlSetProperty(srv, req_win, prop_out, 4u /* XA_ATOM */, 32, 0,
                          (const uint8_t *)atoms, n * 4u, true);
-        send_selection_notify(cli, requestor, selection, target, prop_out, now_ms);
+        send_selection_notify(cli, requestor, selection, target, prop_out, time);
         return;
     }
 
     if (target == a_timestamp) {
         _XmWlSetProperty(srv, req_win, prop_out, 19u /* XA_INTEGER */, 32, 0,
                          (const uint8_t *)&now_ms, 4u, true);
-        send_selection_notify(cli, requestor, selection, target, prop_out, now_ms);
+        send_selection_notify(cli, requestor, selection, target, prop_out, time);
         return;
     }
 
     uint32_t prop_type = target;
     const char *chosen_mime = match_offer_mime_for_target(srv, target, mimes, mime_count, &prop_type);
     if (!chosen_mime) {
-        send_selection_notify(cli, requestor, selection, target, 0, now_ms);
+        send_selection_notify(cli, requestor, selection, target, 0, time);
         return;
     }
 
     int pfd[2] = {-1, -1};
     if (pipe2(pfd, O_CLOEXEC) != 0) {
-        send_selection_notify(cli, requestor, selection, target, 0, now_ms);
+        send_selection_notify(cli, requestor, selection, target, 0, time);
         return;
     }
 
@@ -1123,13 +1166,13 @@ _XmWlDataHandleConvertSelection(XmWlServer *srv, int client_idx, uint32_t reques
     close(pfd[0]);
 
     if (!rx_bytes) {
-        send_selection_notify(cli, requestor, selection, target, 0, now_ms);
+        send_selection_notify(cli, requestor, selection, target, 0, time);
         return;
     }
 
     _XmWlSetProperty(srv, req_win, prop_out, prop_type, 8, 0, rx_bytes, rx_len, true);
     free(rx_bytes);
-    send_selection_notify(cli, requestor, selection, target, prop_out, now_ms);
+    send_selection_notify(cli, requestor, selection, target, prop_out, time);
 }
 
 bool

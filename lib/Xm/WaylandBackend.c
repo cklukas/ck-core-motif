@@ -935,7 +935,7 @@ pop_popup_stack_from(XmWlServer *srv, int idx)
 }
 
 static void
-sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win)
+sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win, uint32_t changed_atom)
 {
     if (!win || !win->xdg_top) return;
 
@@ -1007,15 +1007,16 @@ sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win)
                       : ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE);
     }
 
-    /* Dynamic window icon via xdg_toplevel_icon_v1 */
-    if (srv->icon_mgr && srv->shm) {
+    /* Dynamic window icon via xdg_toplevel_icon_v1 (xPropWMHints: flags@0, iconPixmap@12, iconMask@28) */
+    if (srv->icon_mgr && srv->shm && (changed_atom == 0 || changed_atom == 35 /* XA_WM_HINTS */)) {
         uint32_t a_wm_hints = 35; /* XA_WM_HINTS */
         XmWlProperty *hp = _XmWlGetProperty(win, a_wm_hints);
-        if (hp && hp->data && hp->byte_len >= 24) {
+        if (hp && hp->data && hp->byte_len >= 16) {
             uint32_t hflags = 0, icon_pix = 0, icon_mask = 0;
             memcpy(&hflags, hp->data + 0, 4);
-            memcpy(&icon_pix, hp->data + 8, 4);
-            memcpy(&icon_mask, hp->data + 20, 4);
+            memcpy(&icon_pix, hp->data + 12, 4);
+            if ((hflags & 32u) && hp->byte_len >= 32)
+                memcpy(&icon_mask, hp->data + 28, 4);
             if ((hflags & 4u) && icon_pix != 0) {
                 uint32_t *argb = NULL;
                 int iw = 0, ih = 0;
@@ -1067,6 +1068,7 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
                        (!strncmp(aname, "RESOURCE_MANAGER", 16) ||
                         !strcmp(aname, "_SUN_TT_SESSION") ||
                         !strcmp(aname, "TT_SESSION") ||
+                        !strcmp(aname, "SDT Pixel Set") ||
                         !strncmp(aname, "_DT_", 4) ||
                         !strncmp(aname, "_DTWM_", 6))) {
                 _XmWlIpcPublishRootProp(srv, aname, rp->data, rp->byte_len);
@@ -1075,7 +1077,7 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
         return;
     }
     if (win->parent == srv->root && win->xdg_top) {
-        sync_toplevel_metadata_all(srv, win);
+        sync_toplevel_metadata_all(srv, win, changed_atom);
         if (win->wl_surf && win->xdg_configured)
             win->dirty = true;
     }
@@ -1126,7 +1128,7 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
                 srv->deco_mgr, win->xdg_top);
             zxdg_toplevel_decoration_v1_add_listener(win->xdg_deco, &g_xdg_deco_listener, win);
         }
-        sync_toplevel_metadata_all(srv, win);
+        sync_toplevel_metadata_all(srv, win, 0);
         wl_surface_commit(win->wl_surf);
         wl_display_roundtrip(srv->wl_dpy);
         _XmWlDamageTop(win, 0, 0, win->width, win->height);
@@ -1312,7 +1314,9 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
                 pixman_double_to_fixed((double)log_w / (double)buf_w),
                 pixman_double_to_fixed((double)log_h / (double)buf_h));
             pixman_image_set_transform(w->canvas, &xform);
-            pixman_image_set_filter(w->canvas, PIXMAN_FILTER_BILINEAR, NULL, 0);
+            bool int_scale = (sc >= 1.0 && fabs(sc - round(sc)) < 1e-3);
+            pixman_image_set_filter(
+                w->canvas, int_scale ? PIXMAN_FILTER_NEAREST : PIXMAN_FILTER_BILINEAR, NULL, 0);
             pixman_image_composite32(PIXMAN_OP_SRC, w->canvas, NULL, sb->pix_img,
                                      0, 0, 0, 0, 0, 0, buf_w, buf_h);
             pixman_transform_t ident;
@@ -1530,7 +1534,7 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
             srv->ipc_initial_ready = true;
         } else if (!strncmp(start, "PROP ", 5)) {
             char *p = start + 5;
-            char *sp = strchr(p, ' ');
+            char *sp = strrchr(p, ' ');
             if (sp) {
                 *sp = '\0';
                 const char *aname = p;
@@ -1552,7 +1556,11 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                     }
                     uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
                     uint32_t utf8 = _XmWlInternAtom(srv, "UTF8_STRING", 11, false);
-                    uint32_t ptype = !strcmp(aname, "RESOURCE_MANAGER") ? 31u : utf8;
+                    uint32_t ptype = (!strcmp(aname, "RESOURCE_MANAGER") ||
+                                      !strcmp(aname, "SDT Pixel Set") ||
+                                      !strcmp(aname, "_DT_COLOR_TYPE_MONITOR"))
+                                         ? 31u
+                                         : utf8;
                     srv->suppress_ipc_publish = true;
                     _XmWlSetProperty(srv, srv->root, atom, ptype, 8, 0, raw, rlen, true);
                     srv->suppress_ipc_publish = false;

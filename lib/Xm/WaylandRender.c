@@ -1331,30 +1331,45 @@ _XmWlBuildIconPixels(XmWlServer *srv, uint32_t icon_pixmap, uint32_t icon_mask,
                      uint32_t **out_argb, int *out_w, int *out_h)
 {
     XmWlPixmap *ip = _XmWlFindPixmap(srv, icon_pixmap);
-    if (!ip || !ip->bits || ip->width == 0 || ip->height == 0)
+    if (!ip || !ip->bits || ip->width == 0 || ip->height == 0 ||
+        ip->width > 512 || ip->height > 512)
         return false;
     XmWlPixmap *mp = icon_mask ? _XmWlFindPixmap(srv, icon_mask) : NULL;
 
     int w = ip->width, h = ip->height;
-    uint32_t *argb = (uint32_t *)calloc((size_t)w * (size_t)h, 4u);
+    /* xdg_toplevel_icon_v1 requires square wl_shm buffers (w == h) */
+    int side = (w > h) ? w : h;
+    int ox = (side - w) / 2;
+    int oy = (side - h) / 2;
+    uint32_t *argb = (uint32_t *)calloc((size_t)side * (size_t)side, 4u);
     if (!argb) return false;
 
     for (int r = 0; r < h; ++r) {
         for (int c = 0; c < w; ++c) {
             uint32_t v = ip->bits[(size_t)r * (size_t)(ip->stride / 4) + (size_t)c];
-            uint32_t px = (ip->depth == 1) ? ((v & 1u) ? 0xff222222u : 0xffe8e8e8u)
-                        : (ip->depth == 32 ? v : (0xff000000u | (v & 0x00ffffffu)));
+            uint32_t px;
+            if (ip->depth == 1) {
+                px = (v & 1u) ? 0xff222222u : 0xffe8e8e8u;
+            } else if (ip->depth == 32) {
+                uint32_t a = (v >> 24) & 0xffu;
+                if (a == 0 && (v & 0x00ffffffu) != 0)
+                    px = 0xff000000u | (v & 0x00ffffffu);
+                else
+                    px = v;
+            } else {
+                px = 0xff000000u | (v & 0x00ffffffu);
+            }
             if (mp && mp->bits && c < (int)mp->width && r < (int)mp->height) {
                 uint32_t mv = mp->bits[(size_t)r * (size_t)(mp->stride / 4) + (size_t)c];
                 if ((mv & 1u) == 0 && (mv & 0x00ffffffu) == 0)
                     px = 0x00000000u;
             }
-            argb[(size_t)r * (size_t)w + (size_t)c] = px;
+            argb[(size_t)(oy + r) * (size_t)side + (size_t)(ox + c)] = px;
         }
     }
     *out_argb = argb;
-    *out_w = w;
-    *out_h = h;
+    *out_w = side;
+    *out_h = side;
     return true;
 }
 
