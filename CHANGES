@@ -1,3 +1,60 @@
+Add XWayland-free native Wayland runtime backend and subsurface API (2026-11-21)
+================================================================================
+
+- `configure.ac`, `lib/Xm/Makefile.am`:
+  - Add `--enable-wayland` (`yes|no|auto`, default `auto`) discovering
+    `wayland-scanner`, `wayland-client >= 1.20`, `wayland-cursor`,
+    `wayland-protocols >= 1.31` (`xdg-shell`, `xdg-decoration-unstable-v1`,
+    `xdg-toplevel-icon-v1`, `primary-selection-unstable-v1`,
+    `text-input-unstable-v3`, `fractional-scale-v1`, `viewporter`), `pixman-1`,
+    `xkbcommon`, `freetype2`, and `fontconfig`, while keeping X11/macOS builds
+    and the `libXm.so.9` / `libXm.9.dylib` symbol ABI unchanged when Wayland
+    development packages are absent.
+- `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandX11Server.c`, `lib/Xm/WaylandRender.c`,
+  `lib/Xm/WaylandData.c`, `lib/Xm/WaylandIme.c`, `lib/Xm/WaylandBackendI.h`,
+  `lib/Xm/Wayland.h`, `lib/Xm/XmIm.c`:
+  - Implement an in-process XWayland-free Wayland runtime backend controlled by
+    `CK_MOTIF_BACKEND` (`auto|wayland|x11`), creating a private `0700`
+    per-process runtime socket (`$XDG_RUNTIME_DIR/ck-wlx11-<pid>-XXXXXX/S:0`)
+    with child-process socket isolation and PID-guarded exit cleanup.
+  - Map Motif top-level shells to `xdg_toplevel` surfaces (`zxdg_decoration_v1`,
+    `xdg_toplevel_icon_v1`, transient linkage, size hints) and override-redirect
+    menu/tooltip shells to constrained `xdg_popup` surfaces with LIFO
+    `xdg_popup_grab` dismissal.
+  - Rasterize classic 3D bevels, core FreeType/Fontconfig fonts, and `RENDER`
+    0.11 primitives (`Composite`, `Trapezoids`, `Triangles`, gradients, and
+    glyph sets) into double-buffered `wl_shm` pools via `pixman-1`.
+  - Bridge `CLIPBOARD` (`wl_data_device`), `PRIMARY`
+    (`zwp_primary_selection_v1`), Wayland drag-and-drop, `zwp_text_input_v3`
+    input-method preedit/commit for `XmText`/`XmTextField`, and live
+    `wp_fractional_scale_v1` / `wp_viewporter` display scale reflow.
+  - Export `<Xm/Wayland.h>` (`XmWaylandIsActive`, `XmWaylandLock`,
+    `XmWaylandUnlock`, `XmWaylandGetDisplayHandles`,
+    `XmWaylandGetWidgetSurface`, and weak `ck_motif_prefer_x11`) with safe
+    no-op/false stubs on X11-only builds.
+- `lib/Xm/Display.c`, `lib/Xm/DropSMgr.c`:
+  - Dispatch `XmCR_TOP_LEVEL_LEAVE` ahead of `XmCR_DROP_START` on incoming
+    `XdndDrop` client messages (matching Motif's native external receiver flow)
+    and guard `DestroyInfo` against null or dying `curDragContext` pointers so
+    external XDND drops cleanly clear drop-site state before `XmDropTransfer`
+    tears down the temporary `XmDragContext`.
+- `docs/wayland-backend.md`, `docs/build.md`, `ckdocs.yml`,
+  `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`:
+  - Document and qualify the native Wayland runtime backend and `<Xm/Wayland.h>`
+    subsurface API without `Xwayland`.
+
+Guard NULL drop-site widget in DragUnder AnimateEnter (2026-11-21)
+==================================================================
+
+- `lib/Xm/DragUnder.c`:
+  - Guard `dswidget != NULL` (and `hwidget != NULL`) in `AnimateEnter` (matching
+    `AnimateLeave`) before calling `XmIsGadget(hwidget)` / `XtInsertEventHandler`.
+    When dragging from one Motif process (e.g. `dtcm`) over a remote process's
+    preregistered drop site (e.g. `dtpad`) in `XmDRAG_WINDOW` mode,
+    `GetDSWidget(dsm->dropManager.curInfo)` returns `NULL`, which previously
+    crashed the initiator process with `SIGSEGV`.
+
 Zero-initialize receiverInfo flags and clear full drop-site extents on leave (2026-11-21)
 =========================================================================================
 

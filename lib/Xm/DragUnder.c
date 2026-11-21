@@ -956,15 +956,17 @@ AnimateEnter(
     /* Save the dragunder widget */
     aSaveData->dragUnder = dswidget;
 
-    if (aSaveData->activeMode == XmDRAG_WINDOW ||
-        aSaveData->dragOver == NULL) {
+    if ((aSaveData->activeMode == XmDRAG_WINDOW ||
+         aSaveData->dragOver == NULL) &&
+        dswidget != NULL) {
       /* Install the event handler to redo visual on Exposure */
       Widget hwidget = dswidget;
       if (XmIsGadget(hwidget))
 	hwidget = XtParent(hwidget);
-      XtInsertEventHandler(hwidget, ExposureMask, False,
-			   (XtEventHandler) AnimateExpose, 
-			   (XtPointer) aSaveData, XtListTail);
+      if (hwidget != NULL)
+        XtInsertEventHandler(hwidget, ExposureMask, False,
+			     (XtEventHandler) AnimateExpose, 
+			     (XtPointer) aSaveData, XtListTail);
     }
 }
 
@@ -997,9 +999,10 @@ AnimateLeave(
 	  Widget hwidget = aSaveData -> dragUnder;
 	  if (XmIsGadget(hwidget))
 	    hwidget = XtParent(hwidget);
-	  XtRemoveEventHandler(hwidget, ExposureMask, False,
-			       (XtEventHandler) AnimateExpose, 
-			       (XtPointer) aSaveData);
+	  if (hwidget != NULL)
+	    XtRemoveEventHandler(hwidget, ExposureMask, False,
+				 (XtEventHandler) AnimateExpose, 
+				 (XtPointer) aSaveData);
 	}
 
 	/*
