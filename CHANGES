@@ -1,3 +1,19 @@
+Fix DragUnder drop-site highlight clipping and stale shadows in XmDRAG_WINDOW mode (2026-11-21)
+===============================================================================================
+
+- `lib/Xm/DragUnder.c`:
+  - Zero-initialize `XmAnimationSaveDataRec` via `XtCalloc` and reuse existing
+    highlight/shadow GCs and `savedPixmaps` across `AnimateExpose` callbacks so
+    repeated exposures in `XmDRAG_WINDOW` mode never leak GCs or overwrite saved
+    backing strips with the drawn shadow.
+  - Temporarily hide and re-show `dragOver` on the initial `AnimateEnter` draw
+    (`event == NULL`) even in `XmDRAG_WINDOW` mode so an overlapping
+    override-redirect `XmDragOverShell` never clips a bite out of the drop-site
+    highlight on XWayland/composited servers.
+  - On `AnimateLeave` in `XmDRAG_WINDOW` mode, call `XClearArea(..., True)` on
+    the actual drop-site widget (or gadget parent) window so drop highlights
+    erase cleanly after hover-leave, drop, and post-drop content updates.
+
 Avoid invisible XmPIXMAP root-window drag visuals on XWayland and composited displays (2026-11-21)
 ==================================================================================================
 

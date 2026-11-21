@@ -139,7 +139,7 @@ CreateAnimationSaveData(
     unsigned char		activeMode;
 
     aSaveData = (XmAnimationSaveData)
-	XtMalloc (sizeof (XmAnimationSaveDataRec));
+	XtCalloc (1, sizeof (XmAnimationSaveDataRec));
     if (aSaveData == NULL)
 	return NULL;
 
@@ -322,6 +322,10 @@ SaveAll(
 	return (False);
     }
 
+    if (aSaveData->savedPixmaps != NULL) {
+	return (True);
+    }
+
     aSaveData->numSavedPixmaps = 1;
     aSaveData->savedPixmaps = pData =
         (DragPixmapData *) XtMalloc (sizeof(DragPixmapData));
@@ -388,6 +392,10 @@ SaveSegments(
 
     if (save_all) {
         return (SaveAll (aSaveData, x, y, width, height));
+    }
+
+    if (aSaveData->savedPixmaps != NULL) {
+	return (True);
     }
 
     aSaveData->numSavedPixmaps = 0;
@@ -528,10 +536,12 @@ DrawHighlight(
        }
     }
 
-    aSaveData->highlightGC =
-	XCreateGC(aSaveData->display, aSaveData->window, vmask, &v);
     if (aSaveData->highlightGC == NULL) {
-	return;
+	aSaveData->highlightGC =
+	    XCreateGC(aSaveData->display, aSaveData->window, vmask, &v);
+	if (aSaveData->highlightGC == NULL) {
+	    return;
+	}
     }
 
     _XmRegionSetGCRegion (aSaveData->display, aSaveData->highlightGC,
@@ -625,10 +635,12 @@ DrawShadow(
        }
     }
 
-    aSaveData->topShadowGC =
-	XCreateGC(aSaveData->display, aSaveData->window, vmask, &v);
     if (aSaveData->topShadowGC == NULL) {
-	return;
+	aSaveData->topShadowGC =
+	    XCreateGC(aSaveData->display, aSaveData->window, vmask, &v);
+	if (aSaveData->topShadowGC == NULL) {
+	    return;
+	}
     }
 
     _XmRegionSetGCRegion (aSaveData->display, aSaveData->topShadowGC,
@@ -667,12 +679,14 @@ DrawShadow(
     }
 
 
-    aSaveData->bottomShadowGC =
-	XCreateGC(aSaveData->display, aSaveData->window, vmask, &v);
     if (aSaveData->bottomShadowGC == NULL) {
-	XFreeGC (aSaveData->display, aSaveData->topShadowGC);
-	aSaveData->topShadowGC = NULL;
-	return;
+	aSaveData->bottomShadowGC =
+	    XCreateGC(aSaveData->display, aSaveData->window, vmask, &v);
+	if (aSaveData->bottomShadowGC == NULL) {
+	    XFreeGC (aSaveData->display, aSaveData->topShadowGC);
+	    aSaveData->topShadowGC = NULL;
+	    return;
+	}
     }
 
     _XmRegionSetGCRegion (aSaveData->display, aSaveData->bottomShadowGC,
@@ -864,10 +878,13 @@ AnimateExpose(Widget w,		/* unused */
 {
   /*
    *  If dragging a pixmap or window, hide it while drawing the
-   *  animation.
+   *  animation.  In XmDRAG_WINDOW mode, hide on the initial enter draw
+   *  (event == NULL) so the override-redirect drag window cannot clip a
+   *  chunk out of the drop-site shadow on XWayland/composited servers.
    */
 
-  if (aSaveData->dragOver && aSaveData->activeMode != XmDRAG_WINDOW) {
+  if (aSaveData->dragOver &&
+      (aSaveData->activeMode != XmDRAG_WINDOW || event == NULL)) {
     _XmDragOverHide (aSaveData->dragOver,
 		     aSaveData->windowX, aSaveData->windowY,
 		     aSaveData->clipRegion);
@@ -897,7 +914,8 @@ AnimateExpose(Widget w,		/* unused */
    *  If dragging a pixmap or window, show it.
    */
 
-  if (aSaveData->dragOver && aSaveData->activeMode != XmDRAG_WINDOW) {
+  if (aSaveData->dragOver &&
+      (aSaveData->activeMode != XmDRAG_WINDOW || event == NULL)) {
     _XmDragOverShow (aSaveData->dragOver,
 		     aSaveData->windowX, aSaveData->windowY,
 		     aSaveData->clipRegion);
@@ -992,24 +1010,42 @@ AnimateLeave(
 	}
 
 	/*
-	 *  Copy any saved segments back into the window.
-	 *  Be sure GCRegion is set properly here.
+	 *  Erase the drop-site animation.  In XmDRAG_WINDOW mode, clear and
+	 *  expose the actual drop-site widget/gadget window so it repaints
+	 *  cleanly from its current post-drop state instead of restoring
+	 *  stale pre-drop backing strips onto the top-level shell.
 	 */
 
-        _XmRegionSetGCRegion (aSaveData->display, aSaveData->drawGC,
-			      0, 0, aSaveData->clipRegion);
-        for (pData = aSaveData->savedPixmaps, i = aSaveData->numSavedPixmaps;
-	     i; pData++, i--) {
-            XCopyArea (aSaveData->display,
-		       pData->pixmap,
-		       aSaveData->window,
-		       aSaveData->drawGC,
-                       0, 0,
-		       pData->width,
-		       pData->height, 
-		       pData->x,
-		       pData->y);
-        }
+	if (aSaveData->activeMode == XmDRAG_WINDOW &&
+	    aSaveData->dragUnder != NULL) {
+	    Widget dsw = aSaveData->dragUnder;
+	    if (XmIsGadget(dsw)) {
+		Widget parent = XtParent(dsw);
+		if (parent != NULL && XtIsRealized(parent) && XtWindow(parent) != None) {
+		    XClearArea(aSaveData->display, XtWindow(parent),
+			       XtX(dsw), XtY(dsw),
+			       XtWidth(dsw), XtHeight(dsw), True);
+		}
+	    } else if (XtIsRealized(dsw) && XtWindow(dsw) != None) {
+		XClearArea(aSaveData->display, XtWindow(dsw),
+			   0, 0, 0, 0, True);
+	    }
+	} else {
+	    _XmRegionSetGCRegion (aSaveData->display, aSaveData->drawGC,
+				  0, 0, aSaveData->clipRegion);
+	    for (pData = aSaveData->savedPixmaps, i = aSaveData->numSavedPixmaps;
+		 i; pData++, i--) {
+		XCopyArea (aSaveData->display,
+			   pData->pixmap,
+			   aSaveData->window,
+			   aSaveData->drawGC,
+			   0, 0,
+			   pData->width,
+			   pData->height,
+			   pData->x,
+			   pData->y);
+	    }
+	}
 
 	/*
 	 *  If dragging a pixmap or window, show it.
