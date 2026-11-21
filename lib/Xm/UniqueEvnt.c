@@ -206,9 +206,13 @@ ManipulateEvent(
 	 * So if the serial numbers match,  we use the timestamps.
 	 */
 
+	Time ev_time = ExtractTime(event);
+
 	if ( Later(uniqueStamp->serial, event->xany.serial) 
 	     ||  ( uniqueStamp->serial == event->xany.serial &&
-		   Later(uniqueStamp->time, event->xbutton.time)))
+		   (Later(uniqueStamp->time, ev_time) ||
+		    (uniqueStamp->time == ev_time &&
+		     uniqueStamp->type != event->type))))
 	  return (TRUE);
 	else
 	  return (FALSE);

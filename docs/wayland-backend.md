@@ -60,16 +60,23 @@ process environment when the native Wayland backend is active.
   immediately without accumulating intermediate layouts or rubber-banding.
 - **Menus and popups**: Override-redirect menu shells (`XmMenuShell` pulldowns,
   context menus, submenus, option menus, and tooltips) map to constrained
-  `xdg_popup` surfaces with `xdg_positioner` flip/slide/resize rules and LIFO
-  `xdg_popup_grab` dismissal.
-- **Rasterizer and typography**: Subwindow clipping, classic 3D Motif bevels,
+  `xdg_popup` surfaces with `xdg_positioner` flip/slide/resize rules, monotonic
+  press/release event timestamps for sub-millisecond clicks, and LIFO
+  `xdg_popup_grab` off-surface dismissal.
+- **Rasterizer and typography**: Subwindow clipping, X11-compliant
+  `ChangeWindowAttributes` background updates (preserving armed menu/button
+  glyphs), classic 3D Motif bevels,
   pixmap tiles/stipples, and `RENDER` 0.11 operations (`Composite`,
   `Trapezoids`, `Triangles`, `LinearGradient`, `RadialGradient`, and glyph sets
   used by `libXft`/HarfBuzz/FreeType and modern themes) composite into
   double-buffered `wl_shm` pools via `pixman-1` with frame-callback damage
   tracking. Legacy core X11 font requests (`OpenFont`, `QueryFont`,
-  `PolyText8/16`, `ImageText8/16`) rasterize directly through Fontconfig and
-  FreeType without server-side PCF/BDF font paths.
+  `ListFonts`, `ListFontsWithInfo`, `PolyText8/16`, `ImageText8/16`) expose
+  scalable and multi-size XLFDs across standard Latin-1 and Unicode families and
+  rasterize directly through Fontconfig and FreeType without server-side PCF/BDF
+  font paths. `RANDR` 1.5 output/CRTC/property queries and compositor IPC helper
+  windows (`wm_helper` and `sm_helper`) allow desktop control panels and session
+  managers to operate without `Xwayland`.
 
 ## Clipboard, drag-and-drop, input methods, and scaling
 

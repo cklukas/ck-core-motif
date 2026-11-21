@@ -272,6 +272,7 @@ _XmWlInitAtomsAndRoot(XmWlServer *srv)
     srv->root->bg_pixel = 0x004a6b82u;
 
     srv->wm_helper = alloc_window(srv, XM_WL_WM_HELPER_XID, srv->root);
+    srv->sm_helper = alloc_window(srv, XM_WL_SM_HELPER_XID, srv->root);
     srv->proxy_sel = alloc_window(srv, XM_WL_PROXY_SEL_XID, srv->root);
 
     /* Advertise Motif WM presence (_MOTIF_WM_INFO) so shell negotiation succeeds */
@@ -716,7 +717,8 @@ emit_expose_recursive(XmWlServer *srv, XmWlWindow *win)
 static void
 destroy_window_tree(XmWlServer *srv, XmWlWindow *win, bool emit_events)
 {
-    if (!srv || !win || win == srv->root || win == srv->wm_helper || win == srv->proxy_sel)
+    if (!srv || !win || win == srv->root || win == srv->wm_helper ||
+        win == srv->sm_helper || win == srv->proxy_sel)
         return;
 
     while (win->first_child)
@@ -1601,8 +1603,20 @@ handle_randr_request(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, const u
         wr_u32(hdr + 8, 1);
         wr_u32(hdr + 12, 5);
         _XmWlSendReply(cli, hdr, NULL, 0);
+    } else if (minor_op == 2) { /* SetScreenConfig */
+        uint8_t hdr[32];
+        memset(hdr, 0, sizeof(hdr));
+        hdr[1] = 0; /* RRSetConfigSuccess */
+        wr_u32(hdr + 8, now_ms);
+        wr_u32(hdr + 12, now_ms);
+        wr_u32(hdr + 16, XM_WL_ROOT_XID);
+        _XmWlSendReply(cli, hdr, NULL, 0);
     } else if (minor_op == 4 && req_len >= 12) { /* SelectInput */
         cli->randr_mask = rd_u16(req + 8);
+    } else if (minor_op == 7 || minor_op == 10 || minor_op == 11 ||
+               minor_op == 14 || minor_op == 24 || minor_op == 30) {
+        /* Void RANDR requests (SetScreenSize, ConfigureOutputProperty,
+         * ChangeOutputProperty, DeleteOutputProperty, SetCrtcGamma, SetOutputPrimary) */
     } else if (minor_op == 5) { /* GetScreenInfo */
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
@@ -1680,6 +1694,15 @@ handle_randr_request(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, const u
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
         _XmWlSendReply(cli, hdr, NULL, 0);
+    } else if (minor_op == 13) { /* QueryOutputProperty */
+        uint8_t hdr[32];
+        memset(hdr, 0, sizeof(hdr));
+        _XmWlSendReply(cli, hdr, NULL, 0);
+    } else if (minor_op == 15) { /* GetOutputProperty */
+        uint8_t hdr[32];
+        memset(hdr, 0, sizeof(hdr));
+        /* format = 0, type = None (0), bytesAfter = 0, numItems = 0 */
+        _XmWlSendReply(cli, hdr, NULL, 0);
     } else if (minor_op == 20) { /* GetCrtcInfo */
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
@@ -1698,11 +1721,30 @@ handle_randr_request(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, const u
         wr_u32(extra + 0, XM_WL_RANDR_OUTPUT_XID);
         wr_u32(extra + 4, XM_WL_RANDR_OUTPUT_XID);
         _XmWlSendReply(cli, hdr, extra, 8);
+    } else if (minor_op == 21) { /* SetCrtcConfig */
+        uint8_t hdr[32];
+        memset(hdr, 0, sizeof(hdr));
+        hdr[1] = 0; /* RRSetConfigSuccess */
+        wr_u32(hdr + 8, now_ms);
+        _XmWlSendReply(cli, hdr, NULL, 0);
+    } else if (minor_op == 22) { /* GetCrtcGammaSize */
+        uint8_t hdr[32];
+        memset(hdr, 0, sizeof(hdr));
+        wr_u16(hdr + 8, 0);
+        _XmWlSendReply(cli, hdr, NULL, 0);
+    } else if (minor_op == 23) { /* GetCrtcGamma */
+        uint8_t hdr[32];
+        memset(hdr, 0, sizeof(hdr));
+        wr_u16(hdr + 8, 0);
+        _XmWlSendReply(cli, hdr, NULL, 0);
     } else if (minor_op == 31) { /* GetOutputPrimary */
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
         wr_u32(hdr + 8, XM_WL_RANDR_OUTPUT_XID);
         _XmWlSendReply(cli, hdr, NULL, 0);
+    } else {
+        /* Never leave _XReply blocked on unsupported RANDR minor opcodes */
+        _XmWlSendError(cli, 1 /* BadRequest */, 0, minor_op, XM_WL_EXT_RANDR_OP);
     }
 }
 
@@ -1800,23 +1842,53 @@ static const char *const g_core_xlfd_catalog[] = {
     "-dt-interface user-medium-r-normal-xl-18-180-96-96-m-100-iso10646-1",
     "-dt-interface user-medium-r-normal-xxl-22-220-96-96-m-120-iso8859-1",
     "-dt-interface user-medium-r-normal-xxl-22-220-96-96-m-120-iso10646-1",
-    /* CDE application & standard X11 core families */
+    /* CDE application & standard X11 core families (bitmap sizes + scalable entries) */
+    "-dt-application-medium-r-normal-sans-0-0-0-0-p-0-iso8859-1",
+    "-dt-application-medium-r-normal-sans-0-0-0-0-p-0-iso10646-1",
+    "-dt-application-bold-r-normal-sans-0-0-0-0-p-0-iso8859-1",
+    "-dt-application-bold-r-normal-sans-0-0-0-0-p-0-iso10646-1",
+    "-dt-application-medium-r-normal-sans-10-100-96-96-p-60-iso8859-1",
+    "-dt-application-medium-r-normal-sans-10-100-96-96-p-60-iso10646-1",
     "-dt-application-medium-r-normal-sans-12-120-96-96-p-70-iso8859-1",
     "-dt-application-medium-r-normal-sans-12-120-96-96-p-70-iso10646-1",
     "-dt-application-bold-r-normal-sans-12-120-96-96-p-75-iso8859-1",
     "-dt-application-bold-r-normal-sans-12-120-96-96-p-75-iso10646-1",
     "-dt-application-medium-r-normal-sans-14-140-96-96-p-80-iso8859-1",
     "-dt-application-medium-r-normal-sans-14-140-96-96-p-80-iso10646-1",
+    "-dt-application-bold-r-normal-sans-14-140-96-96-p-85-iso8859-1",
+    "-dt-application-bold-r-normal-sans-14-140-96-96-p-85-iso10646-1",
+    "-dt-application-medium-r-normal-sans-16-160-96-96-p-90-iso8859-1",
+    "-dt-application-medium-r-normal-sans-16-160-96-96-p-90-iso10646-1",
+    "-dt-application-medium-r-normal-sans-18-180-96-96-p-100-iso8859-1",
+    "-dt-application-medium-r-normal-sans-18-180-96-96-p-100-iso10646-1",
+    "-dt-application-medium-r-normal-sans-20-200-96-96-p-110-iso8859-1",
+    "-dt-application-medium-r-normal-sans-20-200-96-96-p-110-iso10646-1",
+    "-b&h-lucida-medium-r-normal-sans-0-0-0-0-p-0-iso8859-1",
+    "-b&h-lucida-medium-r-normal-sans-0-0-0-0-p-0-iso10646-1",
+    "-b&h-lucida-bold-r-normal-sans-0-0-0-0-p-0-iso8859-1",
+    "-b&h-lucida-bold-r-normal-sans-0-0-0-0-p-0-iso10646-1",
+    "-b&h-lucida-medium-r-normal-sans-10-100-75-75-p-60-iso8859-1",
+    "-b&h-lucida-medium-r-normal-sans-10-100-75-75-p-60-iso10646-1",
     "-b&h-lucida-medium-r-normal-sans-12-120-75-75-p-71-iso8859-1",
     "-b&h-lucida-medium-r-normal-sans-12-120-75-75-p-71-iso10646-1",
     "-b&h-lucida-bold-r-normal-sans-12-120-75-75-p-79-iso8859-1",
     "-b&h-lucida-bold-r-normal-sans-12-120-75-75-p-79-iso10646-1",
     "-b&h-lucida-medium-r-normal-sans-14-140-75-75-p-82-iso8859-1",
     "-b&h-lucida-medium-r-normal-sans-14-140-75-75-p-82-iso10646-1",
+    "-b&h-lucida-medium-r-normal-sans-18-180-75-75-p-106-iso8859-1",
+    "-b&h-lucida-medium-r-normal-sans-18-180-75-75-p-106-iso10646-1",
+    "-b&h-lucidatypewriter-medium-r-normal-sans-0-0-0-0-m-0-iso8859-1",
+    "-b&h-lucidatypewriter-medium-r-normal-sans-0-0-0-0-m-0-iso10646-1",
+    "-b&h-lucidatypewriter-medium-r-normal-sans-10-100-75-75-m-60-iso8859-1",
+    "-b&h-lucidatypewriter-medium-r-normal-sans-10-100-75-75-m-60-iso10646-1",
     "-b&h-lucidatypewriter-medium-r-normal-sans-12-120-75-75-m-70-iso8859-1",
     "-b&h-lucidatypewriter-medium-r-normal-sans-12-120-75-75-m-70-iso10646-1",
     "-b&h-lucidatypewriter-bold-r-normal-sans-12-120-75-75-m-70-iso8859-1",
     "-b&h-lucidatypewriter-bold-r-normal-sans-12-120-75-75-m-70-iso10646-1",
+    "-b&h-lucidatypewriter-medium-r-normal-sans-14-140-75-75-m-80-iso8859-1",
+    "-b&h-lucidatypewriter-medium-r-normal-sans-14-140-75-75-m-80-iso10646-1",
+    "-misc-fixed-medium-r-normal--10-100-75-75-c-60-iso8859-1",
+    "-misc-fixed-medium-r-normal--10-100-75-75-c-60-iso10646-1",
     "-misc-fixed-medium-r-normal--12-120-75-75-c-60-iso8859-1",
     "-misc-fixed-medium-r-normal--12-120-75-75-c-60-iso10646-1",
     "-misc-fixed-medium-r-normal--13-120-75-75-c-70-iso8859-1",
@@ -1828,12 +1900,30 @@ static const char *const g_core_xlfd_catalog[] = {
     "-misc-fixed-medium-r-normal--14-130-75-75-c-70-iso10646-1",
     "-misc-fixed-medium-r-normal--15-140-75-75-c-90-iso8859-1",
     "-misc-fixed-medium-r-normal--15-140-75-75-c-90-iso10646-1",
+    "-misc-fixed-medium-r-normal--18-170-75-75-c-90-iso8859-1",
+    "-misc-fixed-medium-r-normal--18-170-75-75-c-90-iso10646-1",
+    "-adobe-helvetica-medium-r-normal--0-0-0-0-p-0-iso8859-1",
+    "-adobe-helvetica-medium-r-normal--0-0-0-0-p-0-iso10646-1",
+    "-adobe-helvetica-bold-r-normal--0-0-0-0-p-0-iso8859-1",
+    "-adobe-helvetica-bold-r-normal--0-0-0-0-p-0-iso10646-1",
+    "-adobe-helvetica-medium-r-normal--10-100-75-75-p-56-iso8859-1",
+    "-adobe-helvetica-medium-r-normal--10-100-75-75-p-56-iso10646-1",
     "-adobe-helvetica-medium-r-normal--12-120-75-75-p-67-iso8859-1",
     "-adobe-helvetica-medium-r-normal--12-120-75-75-p-67-iso10646-1",
     "-adobe-helvetica-bold-r-normal--12-120-75-75-p-70-iso8859-1",
     "-adobe-helvetica-bold-r-normal--12-120-75-75-p-70-iso10646-1",
+    "-adobe-helvetica-medium-r-normal--14-140-75-75-p-77-iso8859-1",
+    "-adobe-helvetica-medium-r-normal--14-140-75-75-p-77-iso10646-1",
+    "-adobe-helvetica-medium-r-normal--18-180-75-75-p-98-iso8859-1",
+    "-adobe-helvetica-medium-r-normal--18-180-75-75-p-98-iso10646-1",
+    "-adobe-courier-medium-r-normal--0-0-0-0-m-0-iso8859-1",
+    "-adobe-courier-medium-r-normal--0-0-0-0-m-0-iso10646-1",
+    "-adobe-courier-medium-r-normal--10-100-75-75-m-60-iso8859-1",
+    "-adobe-courier-medium-r-normal--10-100-75-75-m-60-iso10646-1",
     "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1",
     "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso10646-1",
+    "-adobe-courier-medium-r-normal--14-140-75-75-m-90-iso8859-1",
+    "-adobe-courier-medium-r-normal--14-140-75-75-m-90-iso10646-1",
     "fixed",
     "variable",
     "6x13",
@@ -2022,9 +2112,10 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         uint32_t vmask = rd_u32(req + 8);
         XmWlWindow *w = _XmWlFindWindow(srv, wid);
         if (!w) { _XmWlSendError(cli, 3, wid, 0, major); break; }
+        /* Per X11 protocol spec, changing CWBackPixel/CWBackPixmap updates
+         * window attributes only and must not clear existing window pixels
+         * (Motif PushB/CascadeB restore background_pixel after painting armed text). */
         apply_window_attributes(w, cli->index, vmask, req + 12, req_len - 12);
-        if ((vmask & 3u) && is_window_viewable(srv, w))
-            _XmWlPaintWindowBackground(srv, w, 0, 0, w->width, w->height);
         break;
     }
 
@@ -2144,7 +2235,8 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         XmWlWindow *p = _XmWlFindWindow(srv, rd_u32(req + 4));
         if (!p) break;
         for (XmWlWindow *c = p->first_child; c; c = c->next_sibling) {
-            if (c == srv->wm_helper || c == srv->proxy_sel || c->mapped)
+            if (c == srv->wm_helper || c == srv->sm_helper ||
+                c == srv->proxy_sel || c->mapped)
                 continue;
             c->mapped = true;
             if (p == srv->root)
@@ -2483,6 +2575,18 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         else if (dest == 1 /* InputFocus */) dw = _XmWlFindWindow(srv, srv->x11_focus_win);
         else dw = _XmWlFindWindow(srv, dest);
 
+        if (dw == srv->sm_helper && (ev[0] & 0x7fu) == 33 && ev[1] == 32) {
+            uint32_t mtype = rd_u32(ev + 8);
+            uint32_t d0 = rd_u32(ev + 12);
+            const char *mname = _XmWlAtomName(srv, mtype);
+            const char *d0name = _XmWlAtomName(srv, d0);
+            if (mname && d0name &&
+                !strcmp(mname, "_DT_SM_STM_PROTOCOL") &&
+                !strcmp(d0name, "_DT_SM_SAVE_TO_HOME")) {
+                _XmWlIpcPublishRootProp(srv, "_DT_SM_SAVE_TO_HOME", ev + 16, 8);
+            }
+        }
+
         if (dw) {
             if (emask == 0) {
                 for (int i = 0; i < XM_WL_MAX_CLIENTS; ++i)
@@ -2749,8 +2853,8 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         memcpy(pat, req + 8, pn);
         pat[pn] = '\0';
 
-        const char *matched[128];
-        size_t nmatch = match_font_catalog(pat, max_names, matched, 128);
+        const char *matched[512];
+        size_t nmatch = match_font_catalog(pat, max_names, matched, 512);
 
         size_t buf_cap = nmatch * 128u + 16u;
         uint8_t *buf = (uint8_t *)calloc(1, buf_cap);
@@ -2784,8 +2888,8 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         memcpy(pat, req + 8, pn);
         pat[pn] = '\0';
 
-        const char *matched[128];
-        size_t nmatch = match_font_catalog(pat, max_names, matched, 128);
+        const char *matched[512];
+        size_t nmatch = match_font_catalog(pat, max_names, matched, 512);
 
         for (size_t i = 0; i < nmatch; ++i) {
             const char *nm = matched[i];

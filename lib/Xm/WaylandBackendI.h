@@ -44,6 +44,7 @@
 #define XM_WL_ROOT_XID           UINT32_C(0x00000040)
 #define XM_WL_WM_HELPER_XID      UINT32_C(0x00000041)
 #define XM_WL_PROXY_SEL_XID      UINT32_C(0x00000042)
+#define XM_WL_SM_HELPER_XID      UINT32_C(0x00000043)
 #define XM_WL_DEFAULT_CMAP_XID   UINT32_C(0x00000020)
 #define XM_WL_VISUAL_RGB24_ID    UINT32_C(0x00000021)
 #define XM_WL_VISUAL_ARGB32_ID   UINT32_C(0x00000022)
@@ -416,7 +417,9 @@ struct XmWlServer {
     XmWlRegion *reg_buckets[64];
     XmWlWindow *root;
     XmWlWindow *wm_helper;
+    XmWlWindow *sm_helper;
     XmWlWindow *proxy_sel;
+    uint32_t local_sm_win_xid;
 
     /* Active popup LIFO stack */
     XmWlWindow *popup_stack[XM_WL_MAX_POPUPS];
@@ -435,6 +438,7 @@ struct XmWlServer {
 
     uint32_t last_input_serial;
     uint32_t last_button_serial;
+    uint32_t last_button_time_ms;
     uint32_t server_time_ms;
     XmWlWindow *pointer_top;
     XmWlWindow *hovered_win;

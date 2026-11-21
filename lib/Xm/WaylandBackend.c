@@ -402,10 +402,17 @@ xdg_popup_done(void *data, struct xdg_popup *xdg_popup)
     XmWlWindow *win = (XmWlWindow *)data;
     XmWlServer *srv = g_wl_srv;
     if (!win || !srv) return;
-    /* Synthesize an outside click to pop down active Motif menu shells cleanly */
+    /* Synthesize an outside click away from all popup items to pop down active Motif menu shells cleanly */
     if (srv->ptr_grab_active) {
-        _XmWlDispatchPointerButton(srv, 1, true, _XmWlNowMs());
-        _XmWlDispatchPointerButton(srv, 1, false, _XmWlNowMs());
+        uint32_t ts = _XmWlNowMs();
+        srv->pointer_top = NULL;
+        srv->ptr_surf_x = -500;
+        srv->ptr_surf_y = -500;
+        srv->ptr_root_x = -500;
+        srv->ptr_root_y = -500;
+        _XmWlDispatchPointerMotion(srv, win, -500, -500, ts);
+        _XmWlDispatchPointerButton(srv, 1, true, ts);
+        _XmWlDispatchPointerButton(srv, 1, false, ts);
     }
 }
 
@@ -524,7 +531,13 @@ pointer_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial,
     XmWlServer *srv = (XmWlServer *)data;
     srv->last_input_serial = serial;
     srv->last_button_serial = serial;
-    srv->server_time_ms = time ? time : _XmWlNowMs();
+    uint32_t btn_time = time ? time : _XmWlNowMs();
+    if (srv->last_button_time_ms != 0 &&
+        (int32_t)(btn_time - srv->last_button_time_ms) <= 0) {
+        btn_time = srv->last_button_time_ms + 1u;
+    }
+    srv->last_button_time_ms = btn_time;
+    srv->server_time_ms = btn_time;
 
     uint8_t xbtn = 1;
     if (button == BTN_LEFT) xbtn = 1;
@@ -1064,11 +1077,23 @@ void
 _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_atom)
 {
     if (!srv || !win) return;
-    if (win == srv->root) {
-        const char *aname = _XmWlAtomName(srv, changed_atom);
-        XmWlProperty *rp = _XmWlGetProperty(win, changed_atom);
-        if (aname && rp && rp->format == 8) {
-            if (!strcmp(aname, "_MOTIF_WAYLAND_TEST_SCALE") && rp->data && rp->byte_len > 0) {
+    const char *aname = _XmWlAtomName(srv, changed_atom);
+    XmWlProperty *rp = _XmWlGetProperty(win, changed_atom);
+
+    if (win == srv->root && aname && rp && !strcmp(aname, "_DT_SM_WINDOW_INFO") &&
+        rp->format == 32 && rp->data && rp->byte_len >= 8 && !srv->suppress_ipc_publish) {
+        uint32_t sm_xid = 0;
+        memcpy(&sm_xid, rp->data + 4, 4);
+        if (sm_xid != 0 && sm_xid != XM_WL_SM_HELPER_XID)
+            srv->local_sm_win_xid = sm_xid;
+        return;
+    }
+
+    if (win == srv->root || win == srv->wm_helper || win == srv->sm_helper ||
+        (srv->local_sm_win_xid != 0 && win->id == srv->local_sm_win_xid)) {
+        if (aname && rp && (rp->format == 8 || rp->format == 32)) {
+            if (win == srv->root && !strcmp(aname, "_MOTIF_WAYLAND_TEST_SCALE") &&
+                rp->format == 8 && rp->data && rp->byte_len > 0) {
                 char buf[32];
                 size_t n = rp->byte_len < sizeof(buf) - 1 ? rp->byte_len : sizeof(buf) - 1;
                 memcpy(buf, rp->data, n);
@@ -1076,7 +1101,8 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
                 double sc = strtod(buf, NULL);
                 if (sc >= 0.5 && sc <= 4.0)
                     _XmWlApplyScaleUpdate(srv, sc);
-            } else if (!srv->suppress_ipc_publish &&
+            } else if (!srv->suppress_ipc_publish && rp->data &&
+                       strcmp(aname, "_DT_SM_WINDOW_INFO") != 0 &&
                        (!strncmp(aname, "RESOURCE_MANAGER", 16) ||
                         !strcmp(aname, "_SUN_TT_SESSION") ||
                         !strcmp(aname, "TT_SESSION") ||
@@ -1084,9 +1110,13 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
                         !strncmp(aname, "_DT_", 4) ||
                         !strncmp(aname, "_DTWM_", 6))) {
                 _XmWlIpcPublishRootProp(srv, aname, rp->data, rp->byte_len);
+                /* Avoid unbounded local append growth on _DT_WM_REQUEST */
+                if (!strcmp(aname, "_DT_WM_REQUEST"))
+                    _XmWlDeleteProperty(srv, win, changed_atom, false);
             }
         }
-        return;
+        if (win == srv->root || win == srv->wm_helper || win == srv->sm_helper)
+            return;
     }
     if (win->parent == srv->root && win->xdg_top) {
         sync_toplevel_metadata_all(srv, win, changed_atom);
@@ -1619,15 +1649,124 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                         setenv("TT_SESSION", (const char *)raw, 1);
                         setenv("_SUN_TT_SESSION", (const char *)raw, 1);
                     }
-                    uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
-                    uint32_t utf8 = _XmWlInternAtom(srv, "UTF8_STRING", 11, false);
-                    uint32_t ptype = (!strcmp(aname, "RESOURCE_MANAGER") ||
-                                      !strcmp(aname, "SDT Pixel Set") ||
-                                      !strcmp(aname, "_DT_COLOR_TYPE_MONITOR"))
-                                         ? 31u
-                                         : utf8;
                     srv->suppress_ipc_publish = true;
-                    _XmWlSetProperty(srv, srv->root, atom, ptype, 8, 0, raw, rlen, true);
+                    if (!strcmp(aname, "_DT_WORKSPACE_LIST_NAMES") && srv->wm_helper && rlen > 0) {
+                        uint32_t ws_atoms[16];
+                        size_t nws = 0, pos = 0;
+                        while (pos < rlen && nws < 16) {
+                            const char *wn = (const char *)(raw + pos);
+                            size_t wlen = strnlen(wn, rlen - pos);
+                            if (wlen > 0)
+                                ws_atoms[nws++] = _XmWlInternAtom(srv, wn, wlen, false);
+                            pos += wlen + 1;
+                        }
+                        uint32_t a_list = _XmWlInternAtom(srv, "_DT_WORKSPACE_LIST", 18, false);
+                        _XmWlSetProperty(srv, srv->wm_helper, a_list, 4u /* XA_ATOM */, 32, 0,
+                                         (const uint8_t *)ws_atoms, nws * 4u, true);
+                    } else if (!strcmp(aname, "_DT_WORKSPACE_CURRENT_NAME") && rlen > 0) {
+                        size_t wlen = strnlen((const char *)raw, rlen);
+                        if (wlen > 0 && srv->wm_helper) {
+                            uint32_t cur_a = _XmWlInternAtom(srv, (const char *)raw, wlen, false);
+                            uint32_t a_cur = _XmWlInternAtom(srv, "_DT_WORKSPACE_CURRENT", 21, false);
+                            _XmWlSetProperty(srv, srv->wm_helper, a_cur, 4u /* XA_ATOM */, 32, 0,
+                                             (const uint8_t *)&cur_a, 4u, true);
+                        }
+                        uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
+                        uint32_t utf8 = _XmWlInternAtom(srv, "UTF8_STRING", 11, false);
+                        _XmWlSetProperty(srv, srv->root, atom, utf8, 8, 0, raw, rlen, true);
+                    } else if (!strncmp(aname, "_DT_WORKSPACE_INFO_RAW_", 23) && srv->wm_helper && rlen > 0) {
+                        const char *ws_id = aname + 23;
+                        /* 7 NUL-separated strings: title, cset, bg, fg, backdropName, imageType, numWin */
+                        const char *fields[7] = { "", "1", "0x0", "0xffffff", "NoBackdrop", "0", "0" };
+                        size_t pos = 0;
+                        for (int fi = 0; fi < 7 && pos < rlen; ++fi) {
+                            fields[fi] = (const char *)(raw + pos);
+                            pos += strnlen(fields[fi], rlen - pos) + 1;
+                        }
+                        uint32_t bd_atom = _XmWlInternAtom(srv, fields[4], strlen(fields[4]), false);
+                        char info_buf[1024];
+                        size_t ioff = 0;
+                        ioff += (size_t)snprintf(info_buf + ioff, sizeof(info_buf) - ioff, "%s", fields[0]) + 1;
+                        ioff += (size_t)snprintf(info_buf + ioff, sizeof(info_buf) - ioff, "%s", fields[1]) + 1;
+                        ioff += (size_t)snprintf(info_buf + ioff, sizeof(info_buf) - ioff, "%s", fields[2]) + 1;
+                        ioff += (size_t)snprintf(info_buf + ioff, sizeof(info_buf) - ioff, "%s", fields[3]) + 1;
+                        ioff += (size_t)snprintf(info_buf + ioff, sizeof(info_buf) - ioff, "%lu", (unsigned long)bd_atom) + 1;
+                        ioff += (size_t)snprintf(info_buf + ioff, sizeof(info_buf) - ioff, "%s", fields[5]) + 1;
+                        ioff += (size_t)snprintf(info_buf + ioff, sizeof(info_buf) - ioff, "%s", fields[6]) + 1;
+                        char prop_name[96];
+                        snprintf(prop_name, sizeof(prop_name), "_DT_WORKSPACE_INFO_%s", ws_id);
+                        uint32_t a_info = _XmWlInternAtom(srv, prop_name, strlen(prop_name), false);
+                        _XmWlSetProperty(srv, srv->wm_helper, a_info, 31u /* XA_STRING */, 8, 0,
+                                         (const uint8_t *)info_buf, ioff, true);
+                    } else if (!strcmp(aname, "_DT_SM_STATE_INFO") && rlen >= 52 && srv->sm_helper) {
+                        uint32_t a_sm_win = _XmWlInternAtom(srv, "_DT_SM_WINDOW_INFO", 18, false);
+                        uint32_t a_state = _XmWlInternAtom(srv, "_DT_SM_STATE_INFO", 17, false);
+                        if (srv->local_sm_win_xid == 0) {
+                            uint32_t win_info[2] = { 0u, XM_WL_SM_HELPER_XID };
+                            _XmWlSetProperty(srv, srv->root, a_sm_win, a_sm_win, 32, 0,
+                                             (const uint8_t *)win_info, sizeof(win_info), true);
+                        }
+                        _XmWlSetProperty(srv, srv->sm_helper, a_state, a_state, 32, 0, raw, 52, true);
+                        if (srv->local_sm_win_xid != 0) {
+                            XmWlWindow *lsm = _XmWlFindWindow(srv, srv->local_sm_win_xid);
+                            if (lsm) {
+                                _XmWlSetProperty(srv, lsm, a_state, a_state, 32, 0, raw, 52, true);
+                                uint8_t ev[32];
+                                memset(ev, 0, sizeof(ev));
+                                ev[0] = 33 | 0x80; /* ClientMessage */
+                                ev[1] = 32;
+                                memcpy(ev + 4, &srv->local_sm_win_xid, 4);
+                                memcpy(ev + 8, &a_state, 4);
+                                memcpy(ev + 12, raw, 4); /* flags */
+                                for (int ci = 0; ci < XM_WL_MAX_CLIENTS; ++ci)
+                                    if (srv->clients[ci].active && srv->clients[ci].handshake_done)
+                                        _XmWlSendEventToClient(&srv->clients[ci], ev);
+                            }
+                        }
+                    } else if (!strcmp(aname, "_DT_SM_SAVER_INFO") && srv->sm_helper) {
+                        uint32_t a_saver = _XmWlInternAtom(srv, "_DT_SM_SAVER_INFO", 17, false);
+                        _XmWlSetProperty(srv, srv->sm_helper, a_saver, 31u /* XA_STRING */, 8, 0, raw, rlen, true);
+                        if (srv->local_sm_win_xid != 0) {
+                            XmWlWindow *lsm = _XmWlFindWindow(srv, srv->local_sm_win_xid);
+                            if (lsm) {
+                                _XmWlSetProperty(srv, lsm, a_saver, 31u, 8, 0, raw, rlen, true);
+                                uint8_t ev[32];
+                                memset(ev, 0, sizeof(ev));
+                                ev[0] = 33 | 0x80;
+                                ev[1] = 32;
+                                memcpy(ev + 4, &srv->local_sm_win_xid, 4);
+                                memcpy(ev + 8, &a_saver, 4);
+                                for (int ci = 0; ci < XM_WL_MAX_CLIENTS; ++ci)
+                                    if (srv->clients[ci].active && srv->clients[ci].handshake_done)
+                                        _XmWlSendEventToClient(&srv->clients[ci], ev);
+                            }
+                        }
+                    } else if (!strcmp(aname, "_DT_SM_SAVE_TO_HOME") && rlen >= 8 && srv->local_sm_win_xid != 0) {
+                        uint32_t a_proto = _XmWlInternAtom(srv, "_DT_SM_STM_PROTOCOL", 19, false);
+                        uint32_t a_save = _XmWlInternAtom(srv, "_DT_SM_SAVE_TO_HOME", 19, false);
+                        uint8_t ev[32];
+                        memset(ev, 0, sizeof(ev));
+                        ev[0] = 33 | 0x80;
+                        ev[1] = 32;
+                        memcpy(ev + 4, &srv->local_sm_win_xid, 4);
+                        memcpy(ev + 8, &a_proto, 4);
+                        memcpy(ev + 12, &a_save, 4);
+                        memcpy(ev + 16, raw, 8);
+                        for (int ci = 0; ci < XM_WL_MAX_CLIENTS; ++ci)
+                            if (srv->clients[ci].active && srv->clients[ci].handshake_done)
+                                _XmWlSendEventToClient(&srv->clients[ci], ev);
+                    } else {
+                        uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
+                        uint32_t utf8 = _XmWlInternAtom(srv, "UTF8_STRING", 11, false);
+                        uint32_t ptype = (!strcmp(aname, "RESOURCE_MANAGER") ||
+                                          !strcmp(aname, "SDT Pixel Set") ||
+                                          !strcmp(aname, "_DT_COLOR_TYPE_MONITOR") ||
+                                          !strcmp(aname, "_DT_WAYLAND_OUTPUTS") ||
+                                          !strcmp(aname, "_DT_RESTORE_MODE"))
+                                             ? 31u
+                                             : utf8;
+                        _XmWlSetProperty(srv, srv->root, atom, ptype, 8, 0, raw, rlen, true);
+                    }
                     srv->suppress_ipc_publish = false;
                     free(raw);
                 }

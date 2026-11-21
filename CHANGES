@@ -1,3 +1,35 @@
+Fix Wayland Style Manager IPC bridges, RANDR output property replies, XLFD catalog, armed menu labels, and same-ms menu clicks (2026-11-21)
+===========================================================================================================================================
+
+- `lib/Xm/UniqueEvnt.c`, `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandBackendI.h`,
+  `lib/Xm/WaylandX11Server.c`, `docs/wayland-backend.md`:
+  - Remove the spec-violating immediate background repaint on `ChangeWindowAttributes`
+    (`CWBackPixel` / `CWBackPixmap`) in `WaylandX11Server.c` so `XmPushButton` and
+    `XmCascadeButton` restoring unarmed window background attributes after drawing
+    armed pixels never wipe armed menu and button labels.
+  - Ensure `pointer_button` timestamps in `WaylandBackend.c` advance monotonically
+    across consecutive press/release events, distinguish distinct event types
+    (`ButtonPress` vs. `ButtonRelease`) in `_XmIsEventUnique` when serial and
+    millisecond timestamps match (`UniqueEvnt.c`), and move `xdg_popup_done`
+    synthetic outside-click dismissal to `(-500, -500)` so sub-millisecond clicks
+    on Motif menu items always activate cleanly and outside clicks never trigger
+    the last-hovered item.
+  - Handle `RANDR` `GetOutputProperty`, `QueryOutputProperty`, `SetScreenConfig`,
+    `SetCrtcConfig`, gamma queries, and unknown-minor `BadRequest` fallbacks in
+    `WaylandX11Server.c` so `libXrandr` callers never block indefinitely inside
+    `_XReply()`.
+  - Bridge `_DT_WM_REQUEST`, `_DT_WORKSPACE_LIST`, `_DT_WORKSPACE_CURRENT`, and
+    `_DT_WORKSPACE_INFO_<ws>` on `wm_helper` plus `_DT_SM_WINDOW_INFO`,
+    `_DT_SM_STATE_INFO`, `_DT_SM_SAVER_INFO`, and `_DT_SM_SAVE_TO_HOME` on
+    `sm_helper` over `$XDG_RUNTIME_DIR/dtwm-wayland-<WAYLAND_DISPLAY>.ipc` so CDE
+    workspace/backdrop APIs (`libDtSvc`) and Session Manager queries operate
+    without `Xwayland`.
+  - Expand the built-in Wayland core XLFD font catalog with scalable (`0`-pixel)
+    and multi-size (`10`..`24` px) entries across `application`, `lucida`,
+    `lucidatypewriter`, `fixed`, `helvetica`, `courier`, `interface system`, and
+    `interface user` (`iso8859-1` and `iso10646-1`) and raise `ListFonts` /
+    `ListFontsWithInfo` match capacity to `512`.
+
 Coalesce ConfigureNotify bursts and Wayland xdg_toplevel resizes (2026-11-21)
 =============================================================================
 
