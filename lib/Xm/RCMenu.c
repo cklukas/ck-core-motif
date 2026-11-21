@@ -2924,6 +2924,17 @@ PositionMenu(
          */
 
         case XmMENU_POPUP:          /* position near mouse */
+            if (event != NULL &&
+                (event->type == ButtonPress || event->type == ButtonRelease))
+            {
+                XmMenuState mst = _XmGetMenuState((Widget)m);
+                Time ev_time = event->time
+                    ? event->time
+                    : XtLastTimestampProcessed(XtDisplay(m));
+                mst->RC_ButtonEventStatus.time = ev_time;
+                mst->RC_ButtonEventStatus.verified = True;
+                mst->RC_ButtonEventStatus.event = *event;
+            }
             if (LayoutIsRtoLM(m))
                 XtX (m) = event->x_root -  XtWidth (m);
             else

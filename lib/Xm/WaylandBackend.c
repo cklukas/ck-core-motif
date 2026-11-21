@@ -1150,9 +1150,8 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
         win->viewport = wp_viewporter_get_viewport(srv->viewporter, win->wl_surf);
     }
 
-    /* If a Wayland drag is starting and this is an override-redirect drag icon window */
-    if (win->override_redirect &&
-        (srv->wl_drag_icon_surf != NULL || (srv->sel_xdnd_owner != 0 && win->depth == 32))) {
+    /* If a Wayland drag is active and this is an override-redirect drag icon window */
+    if (win->override_redirect && srv->wl_drag_source != NULL && srv->wl_drag_icon_surf != NULL) {
         win->is_drag_icon = true;
         win->xdg_configured = true;
         _XmWlDataAttachDragIcon(srv, win);
@@ -1242,7 +1241,9 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
         xdg_positioner_destroy(pos);
         xdg_popup_add_listener(win->xdg_pop, &g_xdg_popup_listener, win);
 
-        if (srv->seat && srv->last_button_serial != 0 && srv->ptr_grab_active &&
+        if (srv->seat && srv->last_button_serial != 0 &&
+            (srv->ptr_grab_active ||
+             (srv->last_button_time_ms != 0 && (_XmWlNowMs() - srv->last_button_time_ms) < 250)) &&
             srv->popup_depth == 0 && srv->wl_drag_source == NULL) {
             xdg_popup_grab(win->xdg_pop, srv->seat, srv->last_button_serial);
         }
@@ -1348,8 +1349,22 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
         win->viewport = NULL;
     }
     if (win->wl_surf) {
-        wl_surface_destroy(win->wl_surf);
-        win->wl_surf = NULL;
+        if (win->is_drag_icon && win->wl_surf == srv->wl_drag_icon_surf) {
+            /* Keep wl_drag_icon_surf alive across DragOverShell unmap/remap cycles */
+            wl_surface_attach(win->wl_surf, NULL,
+                              -srv->wl_drag_icon_dx, -srv->wl_drag_icon_dy);
+            wl_surface_commit(win->wl_surf);
+            srv->wl_drag_icon_dx = 0;
+            srv->wl_drag_icon_dy = 0;
+            if (srv->wl_drag_icon_owner == win)
+                srv->wl_drag_icon_owner = NULL;
+            win->wl_surf = NULL;
+        } else {
+            if (srv->wl_drag_icon_owner == win)
+                srv->wl_drag_icon_owner = NULL;
+            wl_surface_destroy(win->wl_surf);
+            win->wl_surf = NULL;
+        }
     }
     win->xdg_configured = false;
     win->has_queued_wl_cfg = false;
@@ -1498,8 +1513,17 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
                 }
                 free(inside);
             }
-            wl_surface_set_input_region(w->wl_surf, ireg);
+            if (!w->is_drag_icon)
+                wl_surface_set_input_region(w->wl_surf, ireg);
             wl_region_destroy(ireg);
+        }
+
+        if (w->is_drag_icon && srv->compositor) {
+            struct wl_region *empty_reg = wl_compositor_create_region(srv->compositor);
+            if (empty_reg) {
+                wl_surface_set_input_region(w->wl_surf, empty_reg);
+                wl_region_destroy(empty_reg);
+            }
         }
 
         if (w->pending_configure_serial != 0 && w->xdg_surf) {
@@ -1509,8 +1533,26 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
         if (w->viewport) {
             wp_viewport_set_destination(w->viewport, log_w, log_h);
         }
+        int32_t attach_dx = 0, attach_dy = 0;
+        if (w->is_drag_icon) {
+            int want_dx = srv->wl_drag_icon_dx;
+            int want_dy = srv->wl_drag_icon_dy;
+            if (srv->pointer_top != NULL) {
+                int cand_dx = (int)w->x - (int)srv->ptr_root_x;
+                int cand_dy = (int)w->y - (int)srv->ptr_root_y;
+                if (cand_dx >= -(int)w->width - 32 && cand_dx <= 32 &&
+                    cand_dy >= -(int)w->height - 32 && cand_dy <= 32) {
+                    want_dx = cand_dx;
+                    want_dy = cand_dy;
+                }
+            }
+            attach_dx = (int32_t)(want_dx - srv->wl_drag_icon_dx);
+            attach_dy = (int32_t)(want_dy - srv->wl_drag_icon_dy);
+            srv->wl_drag_icon_dx = (int16_t)want_dx;
+            srv->wl_drag_icon_dy = (int16_t)want_dy;
+        }
         sb->busy = true;
-        wl_surface_attach(w->wl_surf, sb->wl_buf, 0, 0);
+        wl_surface_attach(w->wl_surf, sb->wl_buf, attach_dx, attach_dy);
         wl_surface_damage_buffer(w->wl_surf, 0, 0, buf_w, buf_h);
         wl_surface_commit(w->wl_surf);
         w->dirty = false;

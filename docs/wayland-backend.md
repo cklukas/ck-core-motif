@@ -59,11 +59,13 @@ process environment when the native Wayland backend is active.
   `VendorShell` `ConfigureNotify` queue compression so interactive drags settle
   immediately without accumulating intermediate layouts or rubber-banding.
 - **Menus and popups**: Override-redirect menu shells (`XmMenuShell` pulldowns,
-  context menus, submenus, option menus, and tooltips) map to constrained
-  `xdg_popup` surfaces with `xdg_positioner` flip/slide/resize rules, live
-  `xdg_popup_reposition` updates when a shared `XmMenuShell` moves between
-  menu-bar cascades, monotonic press/release event timestamps for sub-millisecond
-  clicks, and LIFO `xdg_popup_grab` off-surface dismissal.
+  context menus, submenus, option menus, and tooltips—including callback-posted
+  `XmMenuPosition` popups and `owner_events = True` passive button grabs) map to
+  constrained `xdg_popup` surfaces with `xdg_positioner` flip/slide/resize rules,
+  live `xdg_popup_reposition` updates when a shared `XmMenuShell` moves between
+  menu-bar cascades or context-menu targets, monotonic press/release event
+  timestamps for sub-millisecond clicks, and LIFO `xdg_popup_grab` off-surface
+  dismissal.
 - **Rasterizer and typography**: Subwindow clipping, X11-compliant
   `ChangeWindowAttributes` background updates (preserving armed menu/button
   glyphs), classic 3D Motif bevels,
@@ -86,9 +88,12 @@ process environment when the native Wayland backend is active.
   widgets and external Wayland clients across `UTF8_STRING`, `STRING`, `TEXT`,
   `text/plain;charset=utf-8`, `text/plain`, `text/uri-list`, and `image/png`.
 - **Drag-and-drop**: Outgoing `XmDragStart` operations initiate native
-  `wl_data_device_start_drag` sessions with 32-bit ARGB drag-icon surfaces;
-  incoming `wl_data_device` drags bridge through XDND v5 to registered
-  `XmDropSite` widgets.
+  `wl_data_device_start_drag` sessions with persistent cursor-attached
+  `XmDragOverShell` drag-icon surfaces (supporting both 24/32-bit pixmap icons
+  and 1-bit `XmDragIcon` cursor bitmaps with `PictStandardA1`/`PictStandardA8`
+  masks, hotspot offsets, and empty pointer input regions so underlying drop
+  targets remain directly hit-testable); incoming `wl_data_device` drags bridge
+  through XDND v5 to registered `XmDropSite` widgets.
 - **Input methods**: `XmIm` binds `zwp_text_input_v3` for `XmText` and
   `XmTextField` without requiring an XIM server, forwarding cursor spot
   rectangles and applying preedit spans, surrounding-text deletions, and UTF-8

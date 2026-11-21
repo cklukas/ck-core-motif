@@ -875,7 +875,7 @@ deliver_propagated_pointer_event(XmWlServer *srv, XmWlWindow *leaf, uint32_t req
         XmWlClient *gcli = (srv->ptr_grab_client >= 0 && srv->ptr_grab_client < XM_WL_MAX_CLIENTS)
             ? &srv->clients[srv->ptr_grab_client] : NULL;
         if (gwin && gcli && gcli->active) {
-            XmWlWindow *dest = gwin;
+            XmWlWindow *dest = NULL;
             if (srv->ptr_grab_owner_events) {
                 for (XmWlWindow *cur = leaf; cur && cur != srv->root; cur = cur->parent) {
                     if (cur->event_masks[srv->ptr_grab_client] & req_mask) {
@@ -886,7 +886,10 @@ deliver_propagated_pointer_event(XmWlServer *srv, XmWlWindow *leaf, uint32_t req
                         break;
                 }
             }
-            if (dest != gwin || (srv->ptr_grab_mask & req_mask)) {
+            if (!dest && (srv->ptr_grab_mask & req_mask)) {
+                dest = gwin;
+            }
+            if (dest) {
                 int wx = 0, wy = 0;
                 root_to_window_coords(srv, dest, srv->ptr_root_x, srv->ptr_root_y, &wx, &wy);
                 uint32_t child_id = 0;
@@ -1076,7 +1079,8 @@ _XmWlCancelActiveDragGrab(XmWlServer *srv, uint32_t time_ms)
         uint32_t dest_id = srv->ptr_grab_win ? srv->ptr_grab_win : XM_WL_ROOT_XID;
         uint8_t ev[32];
         memset(ev, 0, sizeof(ev));
-        ev[0] = 6; /* MotionNotify */
+        ev[0] = 2; /* KeyPress (Escape -> CancelDrag) */
+        ev[1] = 9; /* KEY_ESC + 8 */
         wr_u32(ev + 4, time_ms);
         wr_u32(ev + 8, XM_WL_ROOT_XID);
         wr_u32(ev + 12, dest_id);
@@ -1087,6 +1091,9 @@ _XmWlCancelActiveDragGrab(XmWlServer *srv, uint32_t time_ms)
         wr_i16(ev + 26, -500);
         wr_u16(ev + 28, current_state_mask(srv));
         ev[30] = 1;
+        _XmWlSendEventToClient(gcli, ev);
+
+        ev[0] = 3; /* KeyRelease (Escape) */
         _XmWlSendEventToClient(gcli, ev);
 
         ev[0] = 5; /* ButtonRelease */

@@ -1,3 +1,31 @@
+Fix callback-posted popup menus, owner-events passive button grabs, and Wayland drag-icon surfaces (2026-11-21)
+===============================================================================================================
+
+- `lib/Xm/RCMenu.c`, `lib/Xm/MenuShell.c`, `lib/Xm/DragOverS.c`,
+  `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandData.c`,
+  `lib/Xm/WaylandRender.c`, `lib/Xm/WaylandX11Server.c`,
+  `docs/wayland-backend.md`:
+  - Record button timestamp and verification status in `mst->RC_ButtonEventStatus`
+    inside `XmMenuPosition` (`RCMenu.c`) and refresh stale or zero
+    `MS_LastManagedMenuTime` from `XtLastTimestampProcessed` when managing an
+    `XmMENU_POPUP` (`MenuShell.c`) so callback-posted popup menus (such as
+    context menus posted from `EventHandler` or `XmNinputCallback` handlers)
+    remain posted on click instead of immediately popping down on `ButtonRelease`.
+  - Deliver `ButtonPress` under `owner_events = True` passive button grabs in
+    `WaylandX11Server.c` whenever the leaf or an ancestor window selects
+    `ButtonPressMask`—including when that window is the grab window itself
+    (`XmCreatePopupMenu` target widgets)—and allow `xdg_popup_grab` within 250 ms
+    of the most recent button event (`WaylandBackend.c`).
+  - Keep `wl_drag_icon_surf` alive across `XmDragOverShell` unmap/remap state
+    changes for the full lifetime of `wl_drag_source`, apply hotspot offsets
+    (`wl_drag_icon_dx` / `wl_drag_icon_dy`) on `wl_surface_attach` with an empty
+    `wl_region` input mask, cancel `XmDragContext` cleanly via `Escape` when an
+    off-window or external Wayland drag ends, keep `XmDragOverShell` in
+    `XmDRAG_WINDOW` mode on Wayland for both pixmap and 1-bit cursor icons, and
+    store 1-bit (`0xffffffff`) and 8-bit (`0x01010101 * a`) alpha values in
+    Pixman backing images (`WaylandRender.c`) so `XRenderComposite` `PictStandardA1`
+    and `PictStandardA8` drag-icon masks render opaque cursor-attached icons.
+
 Fix etched-in armed gadget menu labels, shared MenuShell xdg_popup repositioning, and parent Expose on subwindow unmap/move (2026-11-21)
 ========================================================================================================================================
 

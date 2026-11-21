@@ -490,6 +490,8 @@ struct XmWlServer {
     /* Wayland DnD state */
     struct wl_data_source *wl_drag_source;
     struct wl_surface *wl_drag_icon_surf;
+    XmWlWindow *wl_drag_icon_owner;
+    int16_t wl_drag_icon_dx, wl_drag_icon_dy;
     struct wl_data_offer *wl_dnd_offer;
     char wl_dnd_mimes[32][96];
     int wl_dnd_mime_count;

@@ -337,14 +337,37 @@ drag_source_send(void *data, struct wl_data_source *source, const char *mime_typ
 }
 
 static void
+detach_drag_icon_owner(XmWlServer *srv)
+{
+    if (!srv || !srv->wl_drag_icon_owner)
+        return;
+    XmWlWindow *ow = srv->wl_drag_icon_owner;
+    srv->wl_drag_icon_owner = NULL;
+    if (ow->frac_scale_obj) {
+        wp_fractional_scale_v1_destroy(ow->frac_scale_obj);
+        ow->frac_scale_obj = NULL;
+    }
+    if (ow->viewport) {
+        wp_viewport_destroy(ow->viewport);
+        ow->viewport = NULL;
+    }
+    ow->wl_surf = NULL;
+    ow->is_drag_icon = false;
+    ow->xdg_configured = false;
+}
+
+static void
 cleanup_drag_source(XmWlServer *srv, struct wl_data_source *source)
 {
     if (srv->wl_drag_source == source) {
         srv->wl_drag_source = NULL;
+        detach_drag_icon_owner(srv);
         if (srv->wl_drag_icon_surf) {
             wl_surface_destroy(srv->wl_drag_icon_surf);
             srv->wl_drag_icon_surf = NULL;
         }
+        srv->wl_drag_icon_dx = 0;
+        srv->wl_drag_icon_dy = 0;
         /* If button_mask is still held (external or cancelled drag), release off-window */
         if (srv->button_mask != 0)
             _XmWlCancelActiveDragGrab(srv, _XmWlNowMs());
@@ -918,10 +941,13 @@ _XmWlDataHandleSetSelectionOwner(XmWlServer *srv, uint32_t selection, uint32_t o
                 wl_data_source_destroy(srv->wl_drag_source);
                 srv->wl_drag_source = NULL;
             }
+            detach_drag_icon_owner(srv);
             if (srv->wl_drag_icon_surf) {
                 wl_surface_destroy(srv->wl_drag_icon_surf);
                 srv->wl_drag_icon_surf = NULL;
             }
+            srv->wl_drag_icon_dx = 0;
+            srv->wl_drag_icon_dy = 0;
             srv->wl_drag_source = wl_data_device_manager_create_data_source(srv->data_mgr);
             wl_data_source_add_listener(srv->wl_drag_source, &g_drag_source_listener, srv);
 
@@ -946,6 +972,13 @@ _XmWlDataHandleSetSelectionOwner(XmWlServer *srv, uint32_t selection, uint32_t o
                     WL_DATA_DEVICE_MANAGER_DND_ACTION_ASK);
             }
             srv->wl_drag_icon_surf = wl_compositor_create_surface(srv->compositor);
+            if (srv->wl_drag_icon_surf) {
+                struct wl_region *empty_reg = wl_compositor_create_region(srv->compositor);
+                if (empty_reg) {
+                    wl_surface_set_input_region(srv->wl_drag_icon_surf, empty_reg);
+                    wl_region_destroy(empty_reg);
+                }
+            }
             wl_data_device_start_drag(
                 srv->data_dev, srv->wl_drag_source,
                 srv->pointer_top->wl_surf, srv->wl_drag_icon_surf,
@@ -1285,20 +1318,22 @@ _XmWlDataAttachDragIcon(XmWlServer *srv, XmWlWindow *drag_win)
 {
     if (!srv || !drag_win) return;
     if (srv->wl_drag_icon_surf) {
+        if (srv->wl_drag_icon_owner && srv->wl_drag_icon_owner != drag_win)
+            detach_drag_icon_owner(srv);
         if (drag_win->frac_scale_obj) {
             wp_fractional_scale_v1_destroy(drag_win->frac_scale_obj);
             drag_win->frac_scale_obj = NULL;
         }
-        if (drag_win->viewport) {
+        if (drag_win->viewport && drag_win->wl_surf != srv->wl_drag_icon_surf) {
             wp_viewport_destroy(drag_win->viewport);
             drag_win->viewport = NULL;
         }
-        if (drag_win->wl_surf) {
+        if (drag_win->wl_surf && drag_win->wl_surf != srv->wl_drag_icon_surf) {
             wl_surface_destroy(drag_win->wl_surf);
         }
         drag_win->wl_surf = srv->wl_drag_icon_surf;
-        srv->wl_drag_icon_surf = NULL;
-        if (srv->viewporter)
+        srv->wl_drag_icon_owner = drag_win;
+        if (srv->viewporter && !drag_win->viewport)
             drag_win->viewport = wp_viewporter_get_viewport(srv->viewporter, drag_win->wl_surf);
     }
 }

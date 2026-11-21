@@ -148,6 +148,7 @@ static char rcsid[] = "$TOG: DragOverS.c /main/18 1999/08/11 15:53:11 mgreess $"
 #include <X11/extensions/Xrender.h>
 #include <Xm/DragCP.h>
 #include <Xm/VendorSEP.h>
+#include <Xm/Wayland.h>
 #include <Xm/XmP.h>
 #include <Xm/XmosP.h>
 #include "DragCI.h"
@@ -2012,7 +2013,12 @@ SetValues(
 
     if (oldDos->drag.mode != dos->drag.mode && 
 	dc->drag.blendModel != XmBLEND_NONE) {
-	if ((dos->drag.mode == XmPIXMAP ||
+	if (dos->drag.mode == XmDRAG_WINDOW &&
+	    dos->drag.rootBlend.sourceIcon == NULL &&
+	    XmWaylandIsActive(XtDisplay(new_w))) {
+	    _XmDragOverChange(new_w, dos->drag.cursorState);
+	}
+	else if ((dos->drag.mode == XmPIXMAP ||
 	     dos->drag.mode == XmDRAG_WINDOW) &&
 	    (dos->drag.rootBlend.sourceIcon == NULL)) {
 	    ChangeActiveMode(dos, XmCURSOR);
@@ -2579,17 +2585,19 @@ ChangeActiveMode(
        */
       Redisplay((Widget)dos, NULL, NULL);
     } else { /* XmDRAG_WINDOW */
-      /* Reposition before popping up */
+      /* Reposition and sync size before popping up */
       if (XtWindow(dos) != None)
-	XMoveWindow(XtDisplay(dos), XtWindow(dos),
-		    dos->core.x, dos->core.y);
+	XMoveResizeWindow(XtDisplay(dos), XtWindow(dos),
+			  dos->core.x, dos->core.y,
+			  dos->core.width > 0 ? dos->core.width : 1,
+			  dos->core.height > 0 ? dos->core.height : 1);
       XtPopup((Widget)dos, XtGrabNone);
       if (dos->drag.activeMode == XmDRAG_WINDOW) {
 	if (!dos->drag.holePunched)
 	  DragOverShellPunchHole((Widget) dos);
 	if (dos->drag.installColormap)
 	  InstallColormap(dos);
-	ApplyDragWindowPixmap(dos, dos->drag.rootBlend.mixedIcon);
+	ApplyDragWindowPixmap(dos, blend->mixedIcon);
       } else {
 	Redisplay((Widget) dos, NULL, NULL);
       }
@@ -3131,6 +3139,7 @@ _XmDragOverChange(
     dos->drag.cursorBlend.sourceIcon = sourceIcon;
 
     if (!usedSrcPixIcon &&
+        !(dos->drag.mode == XmDRAG_WINDOW && XmWaylandIsActive(XtDisplay(w))) &&
         (dos->drag.activeCursor =
 	     GetDragIconCursor (dos, sourceIcon, stateIcon, opIcon,
 				False /* no clip */, dirty))

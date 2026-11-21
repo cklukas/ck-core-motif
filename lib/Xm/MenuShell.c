@@ -1425,17 +1425,26 @@ ChangeManaged(
       else  
          if (RC_Type(rowcol) == XmMENU_POPUP) 
          {
+            Time last_ts = XtLastTimestampProcessed(XtDisplay(rowcol));
+            Time multi_ms = (Time)XtGetMultiClickTime(XtDisplay(rowcol));
 	    /* Verify MenuPost/WhichButton */
-            if ((mst->RC_ButtonEventStatus.time ==
-                    XtLastTimestampProcessed(XtDisplay(rowcol))) &&
+            if ((mst->RC_ButtonEventStatus.time == last_ts) &&
                  !mst->RC_ButtonEventStatus.verified)
 	    {
 	       mst->RC_ButtonEventStatus.verified = False;
 	       XtUnmanageChild ((Widget) rowcol);
 	       return;
 	    }
-	    /* Remember the time in case this is just a BMenu Click */
-	    mst->MS_LastManagedMenuTime = mst->RC_ButtonEventStatus.time;
+	    /* Remember the time in case this is just a BMenu Click.
+	     * When posted directly via XtManageChild from an application
+	     * callback without RowColumn's EventHandler updating
+	     * RC_ButtonEventStatus, fall back to XtLastTimestampProcessed. */
+            if (mst->RC_ButtonEventStatus.time == 0 ||
+                (last_ts > mst->RC_ButtonEventStatus.time &&
+                 (last_ts - mst->RC_ButtonEventStatus.time) > multi_ms))
+               mst->MS_LastManagedMenuTime = last_ts;
+            else
+               mst->MS_LastManagedMenuTime = mst->RC_ButtonEventStatus.time;
 	 }
 
       /* Set us as the active tab group for our parent */

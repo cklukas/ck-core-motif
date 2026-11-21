@@ -272,8 +272,11 @@ static inline uint32_t
 format_gc_pixel(uint8_t depth, uint32_t raw)
 {
     if (depth == 32) return raw;
-    if (depth == 1) return (raw & 1u) ? 1u : 0u;
-    if (depth == 8) return raw & 0xffu;
+    if (depth == 1) return (raw & 1u) ? 0xffffffffu : 0x00000000u;
+    if (depth == 8) {
+        uint32_t a = raw & 0xffu;
+        return (a << 24) | (a << 16) | (a << 8) | a;
+    }
     return 0xff000000u | (raw & 0x00ffffffu);
 }
 
@@ -301,8 +304,11 @@ apply_rop(uint8_t func, uint32_t src, uint32_t dst, uint8_t depth)
     default: res = src; break;
     }
     if (depth == 24) res = 0xff000000u | (res & 0x00ffffffu);
-    else if (depth == 1) res &= 1u;
-    else if (depth == 8) res &= 0xffu;
+    else if (depth == 1) res = (res & 1u) ? 0xffffffffu : 0x00000000u;
+    else if (depth == 8) {
+        uint32_t a = res & 0xffu;
+        res = (a << 24) | (a << 16) | (a << 8) | a;
+    }
     return res;
 }
 
@@ -710,7 +716,7 @@ _XmWlRenderPutImage(XmWlServer *srv, uint32_t drawable, XmWlGC *gc, uint8_t form
             for (uint16_t c = 0; c < width; ++c) {
                 size_t bit_idx = (size_t)c + (size_t)left_pad;
                 bool on = ((row[bit_idx >> 3] >> (bit_idx & 7u)) & 1u) != 0;
-                uint32_t spx = (dt.depth == 1) ? (on ? 1u : 0u) : (on ? fg_px : bg_px);
+                uint32_t spx = (dt.depth == 1) ? (on ? 0xffffffffu : 0x00000000u) : (on ? fg_px : bg_px);
                 put_clipped_pixel(srv, &dt, gc, dt.dx + dst_x + c, dt.dy + dst_y + r, spx);
             }
         }
@@ -740,7 +746,7 @@ _XmWlRenderPutImage(XmWlServer *srv, uint32_t drawable, XmWlGC *gc, uint8_t form
             const uint8_t *row = data + (size_t)r * stride_bytes;
             for (uint16_t c = 0; c < width; ++c) {
                 uint8_t a = row[c];
-                uint32_t spx = (dt.depth == 8) ? a : ((uint32_t)a << 24) | ((uint32_t)a << 16) | ((uint32_t)a << 8) | a;
+                uint32_t spx = ((uint32_t)a << 24) | ((uint32_t)a << 16) | ((uint32_t)a << 8) | a;
                 put_clipped_pixel(srv, &dt, gc, dt.dx + dst_x + c, dt.dy + dst_y + r, spx);
             }
         }
@@ -994,7 +1000,7 @@ _XmWlRenderCopyPlane(XmWlServer *srv, XmWlClient *cli, uint32_t src_d, uint32_t 
             for (uint16_t r = 0; r < h; ++r) {
                 for (uint16_t c = 0; c < w; ++c) {
                     bool on = tmp[(size_t)r * (size_t)w + (size_t)c] != 0;
-                    uint32_t spx = (dst_dt.depth == 1) ? (on ? 1u : 0u) : (on ? fg_px : bg_px);
+                    uint32_t spx = (dst_dt.depth == 1) ? (on ? 0xffffffffu : 0x00000000u) : (on ? fg_px : bg_px);
                     put_clipped_pixel(srv, &dst_dt, gc, dst_dt.dx + dx + c, dst_dt.dy + dy + r, spx);
                 }
             }
