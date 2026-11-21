@@ -956,7 +956,8 @@ AnimateEnter(
     /* Save the dragunder widget */
     aSaveData->dragUnder = dswidget;
 
-    if (aSaveData->activeMode == XmDRAG_WINDOW) {
+    if (aSaveData->activeMode == XmDRAG_WINDOW ||
+        aSaveData->dragOver == NULL) {
       /* Install the event handler to redo visual on Exposure */
       Widget hwidget = dswidget;
       if (XmIsGadget(hwidget))
@@ -986,9 +987,12 @@ AnimateLeave(
     if (aSaveData) {
         Cardinal	i;
         DragPixmapData	*pData;
+        Boolean         useWindowRefresh =
+            (aSaveData->activeMode == XmDRAG_WINDOW ||
+             aSaveData->dragOver == NULL);
 
 	/* Move to here to avoid crashes when aSaveData already zeroed */
-	if (aSaveData->activeMode == XmDRAG_WINDOW) {
+	if (useWindowRefresh && aSaveData->dragUnder != NULL) {
 	  /* Remove the event handler to redo visual on Exposure */
 	  Widget hwidget = aSaveData -> dragUnder;
 	  if (XmIsGadget(hwidget))
@@ -1010,25 +1014,61 @@ AnimateLeave(
 	}
 
 	/*
-	 *  Erase the drop-site animation.  In XmDRAG_WINDOW mode, clear and
-	 *  expose the actual drop-site widget/gadget window so it repaints
-	 *  cleanly from its current post-drop state instead of restoring
-	 *  stale pre-drop backing strips onto the top-level shell.
+	 *  Erase the drop-site animation.  In XmDRAG_WINDOW mode or dynamic
+	 *  receiver mode (dragOver == NULL, no server grab), clear and expose
+	 *  the actual drop-site widget/gadget window over the recorded drop
+	 *  site extents so it repaints cleanly from its current post-drop
+	 *  state instead of restoring stale pre-drop backing strips onto the
+	 *  top-level shell.
 	 */
 
-	if (aSaveData->activeMode == XmDRAG_WINDOW &&
+	if (useWindowRefresh &&
 	    aSaveData->dragUnder != NULL) {
 	    Widget dsw = aSaveData->dragUnder;
-	    if (XmIsGadget(dsw)) {
-		Widget parent = XtParent(dsw);
-		if (parent != NULL && XtIsRealized(parent) && XtWindow(parent) != None) {
-		    XClearArea(aSaveData->display, XtWindow(parent),
+	    Widget clearWidget = XmIsGadget(dsw) ? XtParent(dsw) : dsw;
+	    if (clearWidget != NULL && XtIsRealized(clearWidget) &&
+		XtWindow(clearWidget) != None) {
+		if (aSaveData->dropSiteRegion != NULL) {
+		    XRectangle extents;
+		    Window child = None;
+		    int tx = 0, ty = 0;
+
+		    _XmRegionGetExtents(aSaveData->dropSiteRegion, &extents);
+		    if (extents.width > 0 && extents.height > 0 &&
+			XTranslateCoordinates(aSaveData->display,
+					      aSaveData->window,
+					      XtWindow(clearWidget),
+					      extents.x, extents.y,
+					      &tx, &ty, &child)) {
+			int pad = (int)aSaveData->borderWidth +
+				  (int)aSaveData->highlightThickness +
+				  (int)aSaveData->shadowThickness + 2;
+			int cx = tx - pad;
+			int cy = ty - pad;
+			unsigned int cw = (unsigned int)extents.width + (unsigned int)(2 * pad);
+			unsigned int ch = (unsigned int)extents.height + (unsigned int)(2 * pad);
+			if (cx < 0) {
+			    cw = (cw > (unsigned int)(-cx)) ? cw - (unsigned int)(-cx) : 0;
+			    cx = 0;
+			}
+			if (cy < 0) {
+			    ch = (ch > (unsigned int)(-cy)) ? ch - (unsigned int)(-cy) : 0;
+			    cy = 0;
+			}
+			if (cw > 0 && ch > 0) {
+			    XClearArea(aSaveData->display, XtWindow(clearWidget),
+				       cx, cy, cw, ch, True);
+			}
+		    }
+		}
+		if (XmIsGadget(dsw)) {
+		    XClearArea(aSaveData->display, XtWindow(clearWidget),
 			       XtX(dsw), XtY(dsw),
 			       XtWidth(dsw), XtHeight(dsw), True);
+		} else {
+		    XClearArea(aSaveData->display, XtWindow(clearWidget),
+			       0, 0, 0, 0, True);
 		}
-	    } else if (XtIsRealized(dsw) && XtWindow(dsw) != None) {
-		XClearArea(aSaveData->display, XtWindow(dsw),
-			   0, 0, 0, 0, True);
 	    }
 	} else {
 	    _XmRegionSetGCRegion (aSaveData->display, aSaveData->drawGC,

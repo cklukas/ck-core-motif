@@ -974,7 +974,12 @@ _XmAllocReceiverInfo(
     if (offset)
       dc->drag.currReceiverInfo = &(dc->drag.receiverInfos[offset]);
     dc->drag.rootReceiverInfo = dc->drag.receiverInfos;
-    return &(dc->drag.receiverInfos[dc->drag.numReceiverInfos++]);
+    {
+	XmDragReceiverInfo info =
+	    &(dc->drag.receiverInfos[dc->drag.numReceiverInfos++]);
+	memset(info, 0, sizeof(XmDragReceiverInfoStruct));
+	return info;
+    }
 }
 
 /* Find a window with WM_STATE, else return win itself, as per ICCCM */
@@ -1078,6 +1083,7 @@ GetDestinationInfo(
 	currReceiverInfo->height = dc->drag.currReceiverInfo->shell->core.height;
 	currReceiverInfo->depth = dc->drag.currReceiverInfo->shell->core.depth;
 	currReceiverInfo->iccInfo = NULL;
+	currReceiverInfo->flags = 0;
       }
     }
 
@@ -3237,7 +3243,8 @@ FinishAction(
 
     if (dc->drag.currReceiverInfo) {
        if (dc->drag.currReceiverInfo->window) {
-	  Boolean isXdndTarget = (dc->drag.currReceiverInfo->flags & 0x80) != 0;
+	  Boolean isXdndTarget = (dc->drag.currReceiverInfo->shell == NULL) &&
+	      ((dc->drag.currReceiverInfo->flags & 0x80) != 0);
 	  Boolean willDrop =
 	      (dc->drag.activeProtocolStyle != XmDRAG_NONE) &&
 	      ((dc->drag.dragCompletionStatus == XmDROP) ||

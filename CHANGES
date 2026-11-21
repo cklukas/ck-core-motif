@@ -1,3 +1,21 @@
+Zero-initialize receiverInfo flags and clear full drop-site extents on leave (2026-11-21)
+=========================================================================================
+
+- `lib/Xm/DragC.c`:
+  - Zero-initialize newly allocated `XmDragReceiverInfoStruct` entries in
+    `_XmAllocReceiverInfo`, explicitly clear `currReceiverInfo->flags = 0` for
+    local Motif shells in `GetDestinationInfo`, and require
+    `currReceiverInfo->shell == NULL` before treating `flags & 0x80` as an
+    external XDND target in `FinishAction`. Previously, uninitialized heap
+    bytes in `flags` could set bit `0x80` on local Motif windows, causing
+    `FinishAction` to skip `XmTOP_LEVEL_LEAVE` on drop and leave drop-site
+    highlight animations and `AnimateExpose` handlers permanently attached.
+- `lib/Xm/DragUnder.c`:
+  - In `AnimateLeave`, translate and clear the full recorded `dropSiteRegion`
+    extents (in addition to the widget's current bounds) in `XmDRAG_WINDOW` and
+    dynamic receiver (`dragOver == NULL`) modes so gadgets resized or moved
+    during a drop callback never leave behind stale highlight fragments.
+
 Skip unmanaged/hidden sibling drop sites in DropSMgr DoAnimation clipping (2026-11-21)
 ======================================================================================
 
