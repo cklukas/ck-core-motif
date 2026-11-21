@@ -840,6 +840,36 @@ GetClientWindow(
     return 0;
 }
 
+static Boolean
+DisplayAvoidsRootPixmapDrag(Display *dpy, Screen *scr)
+{
+  int op = 0, ev = 0, er = 0;
+
+  if (dpy == NULL)
+    return False;
+
+  /* Rootless XWayland never composites direct IncludeInferiors draws on
+   * RootWindowOfScreen, and XGrabServer freezes the XWayland server during
+   * drags.  Composited X11 servers (_NET_WM_CM_S<n>) redirect client windows
+   * offscreen as well, making XmPIXMAP root-window drag visuals invisible. */
+  if (XQueryExtension(dpy, "XWAYLAND", &op, &ev, &er))
+    return True;
+
+  if (scr != NULL)
+    {
+      char cm_name[32];
+      Atom cm_atom;
+
+      snprintf(cm_name, sizeof(cm_name), "_NET_WM_CM_S%d",
+               XScreenNumberOfScreen(scr));
+      cm_atom = XInternAtom(dpy, cm_name, True);
+      if (cm_atom != None && XGetSelectionOwner(dpy, cm_atom) != None)
+        return True;
+    }
+
+  return False;
+}
+
 static void 
 ValidateDragOver(
         XmDragContext dc,
@@ -849,19 +879,25 @@ ValidateDragOver(
   Arg		args[1];
   XmDisplay	xmDisplay = (XmDisplay)XtParent(dc);
   unsigned char initiator = XmDRAG_NONE;
+  Boolean	avoidRootPixmap;
   
   initiator = xmDisplay->display.dragInitiatorProtocolStyle;
+  avoidRootPixmap = DisplayAvoidsRootPixmapDrag(XtDisplay(dc),
+						dc->drag.currScreen);
   
   if (newStyle != oldStyle) 
     {
       /*
        * If we're not still waiting to hear from the window manager,
-       * and we're not running dynamic, then we can grab.
+       * and we're not running dynamic, then we can grab (except on
+       * XWayland or composited displays where XmPIXMAP root drawing
+       * is invisible).
        */
       if ((dc->drag.trackingMode != XmDRAG_TRACK_WM_QUERY_PENDING) &&
 	  (newStyle != XmDRAG_DYNAMIC) &&
 	  (initiator != XmDRAG_DYNAMIC) &&
-	  (initiator != XmDRAG_PREFER_DYNAMIC))
+	  (initiator != XmDRAG_PREFER_DYNAMIC) &&
+	  !avoidRootPixmap)
 	{
 	  if (!dc->drag.serverGrabbed)
 	    {
@@ -1812,7 +1848,7 @@ NewScreen(
 {
   XmDisplay	dpy = (XmDisplay) XmGetXmDisplay(XtDisplay(dc));
   Cardinal	i;
-  Arg		args[8];
+  Arg		args[12];
   Widget  old = (Widget) (dc->drag.curDragOver);
   
   /* Find the new screen number */
@@ -1833,7 +1869,8 @@ NewScreen(
    * in cursor for dynamic and pixmap for preregister.
    */
   if ((dc->drag.trackingMode == XmDRAG_TRACK_WM_QUERY_PENDING) ||
-      (dc->drag.activeProtocolStyle == XmDRAG_DYNAMIC))
+      (dc->drag.activeProtocolStyle == XmDRAG_DYNAMIC) ||
+      DisplayAvoidsRootPixmapDrag(XtDisplay(dc), dc->drag.currScreen))
     {
       if (dpy -> display.displayHasShapeExtension) 
 	XtSetArg(args[i], XmNdragOverMode, XmDRAG_WINDOW);
@@ -1850,10 +1887,36 @@ NewScreen(
   XtSetArg(args[i], XmNhotY, dc->core.y); i++;
   XtSetArg(args[i], XmNbackgroundPixmap, None); i++;
   XtSetArg(args[i], XmNscreen, dc->drag.currScreen);i++;
-  XtSetArg(args[i], XmNdepth, DefaultDepthOfScreen(dc->drag.currScreen));i++;
-  XtSetArg(args[i], XmNcolormap, 
-	   DefaultColormapOfScreen(dc->drag.currScreen));i++;
-  XtSetArg(args[i], XmNvisual, DefaultVisualOfScreen(dc->drag.currScreen));i++;
+  {
+    Boolean used_argb = False;
+    if (DisplayAvoidsRootPixmapDrag(XtDisplay(dc), dc->drag.currScreen))
+      {
+        XVisualInfo vinfo;
+        int scr_num = XScreenNumberOfScreen(dc->drag.currScreen);
+        if (XMatchVisualInfo(XtDisplay(dc), scr_num, 32, TrueColor, &vinfo))
+          {
+            Colormap argb_cmap = XCreateColormap(
+                XtDisplay(dc), RootWindowOfScreen(dc->drag.currScreen),
+                vinfo.visual, AllocNone);
+            if (argb_cmap != None)
+              {
+                XtSetArg(args[i], XmNdepth, 32); i++;
+                XtSetArg(args[i], XmNcolormap, argb_cmap); i++;
+                XtSetArg(args[i], XmNvisual, vinfo.visual); i++;
+                XtSetArg(args[i], XmNbackground, (Pixel)0); i++;
+                XtSetArg(args[i], XmNborderColor, (Pixel)0); i++;
+                used_argb = True;
+              }
+          }
+      }
+    if (!used_argb)
+      {
+        XtSetArg(args[i], XmNdepth, DefaultDepthOfScreen(dc->drag.currScreen));i++;
+        XtSetArg(args[i], XmNcolormap, 
+                 DefaultColormapOfScreen(dc->drag.currScreen));i++;
+        XtSetArg(args[i], XmNvisual, DefaultVisualOfScreen(dc->drag.currScreen));i++;
+      }
+  }
   
   /*
    * As popup child(ren) of the dc, the drag over(s) will 

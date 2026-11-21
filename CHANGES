@@ -1,3 +1,19 @@
+Avoid invisible XmPIXMAP root-window drag visuals on XWayland and composited displays (2026-11-21)
+==================================================================================================
+
+- `lib/Xm/DragC.c`, `lib/Xm/DragOverS.c`,
+  `tests/automated/check-xdnd-interop-wp50.c`:
+  - Detect rootless XWayland (`XWAYLAND` extension) and composited X11 displays
+    (`_NET_WM_CM_S<n>` selection owner) in `XmDragContext` (`ValidateDragOver`
+    and `NewScreen`) and select shaped `XmDRAG_WINDOW` (or `XmCURSOR` if SHAPE
+    is absent) instead of `XmPIXMAP` root-window drawing and `XGrabServer`.
+  - When a 32-bit ARGB TrueColor visual is available on XWayland or composited
+    displays, create `XmDragOverShell` with depth 32 and composite the blended
+    drag icon and its 1-bit shape mask via XRender (`ApplyDragWindowPixmap`),
+    producing true per-pixel alpha transparency around dragged icons instead of
+    opaque rectangular backgrounds, while freeing the temporary colormap on
+    shell destruction and skipping incompatible root-window backing copies.
+
 Harmonize XmScale surface trough colors and refresh Scale geometry across profiles (2026-11-20)
 ===============================================================================================
 

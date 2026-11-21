@@ -7,6 +7,8 @@
 #include <Xm/XmAll.h>
 #include <Xm/CutPaste.h>
 #include <Xm/DragDrop.h>
+#include <Xm/DragCP.h>
+#include <Xm/DragOverSP.h>
 #include <Xm/Transfer.h>
 #include <X11/Xatom.h>
 #include <stdint.h>
@@ -607,6 +609,56 @@ main(int argc, char **argv)
     XmDragCancel(dc);
     while (XtAppPending(app) & XtIMXEvent)
       XtAppProcessEvent(app, XtIMXEvent);
+  }
+
+  /* Verify composited X11 / XWayland displays avoid XmPIXMAP root-window drag
+   * visuals (and XGrabServer) even under default preregister protocol style. */
+  {
+    char cm_name[32];
+    snprintf(cm_name, sizeof(cm_name), "_NET_WM_CM_S%d", DefaultScreen(ext_dpy));
+    Atom cm_atom = XInternAtom(ext_dpy, cm_name, False);
+    XSetSelectionOwner(ext_dpy, cm_atom, ext_win, CurrentTime);
+    XSync(ext_dpy, False);
+    CHECK(XGetSelectionOwner(dpy, cm_atom) == ext_win);
+
+    Atom exports[1] = {ext_uri_atom};
+    XEvent btn_ev;
+    memset(&btn_ev, 0, sizeof(btn_ev));
+    btn_ev.xbutton.type = ButtonPress;
+    btn_ev.xbutton.display = dpy;
+    btn_ev.xbutton.window = XtWindow(shell);
+    btn_ev.xbutton.root = DefaultRootWindow(dpy);
+    btn_ev.xbutton.time = CurrentTime;
+    btn_ev.xbutton.x = 24;
+    btn_ev.xbutton.y = 24;
+    btn_ev.xbutton.x_root = 84;
+    btn_ev.xbutton.y_root = 84;
+    btn_ev.xbutton.button = Button2;
+    btn_ev.xbutton.same_screen = True;
+
+    Arg dargs[4];
+    int dn = 0;
+    XtSetArg(dargs[dn], XmNexportTargets, exports); dn++;
+    XtSetArg(dargs[dn], XmNnumExportTargets, 1); dn++;
+    XtSetArg(dargs[dn], XmNconvertProc, initiator_convert_proc); dn++;
+    XtSetArg(dargs[dn], XmNdragOperations, XmDROP_COPY); dn++;
+    Widget dc = XmDragStart(shell, &btn_ev, dargs, dn);
+    CHECK(dc != NULL);
+    XSync(dpy, False);
+
+    XmDragContext xm_dc = (XmDragContext)dc;
+    CHECK(xm_dc->drag.serverGrabbed == False);
+    CHECK(xm_dc->drag.curDragOver != NULL);
+    unsigned char drag_over_mode = XmPIXMAP;
+    XtVaGetValues((Widget)xm_dc->drag.curDragOver,
+                  XmNdragOverMode, &drag_over_mode, NULL);
+    CHECK(drag_over_mode != XmPIXMAP);
+
+    XmDragCancel(dc);
+    while (XtAppPending(app) & XtIMXEvent)
+      XtAppProcessEvent(app, XtIMXEvent);
+    XSetSelectionOwner(ext_dpy, cm_atom, None, CurrentTime);
+    XSync(ext_dpy, False);
   }
 
   XDestroyWindow(ext_dpy, ext_win);

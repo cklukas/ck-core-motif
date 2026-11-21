@@ -145,6 +145,7 @@ static char rcsid[] = "$TOG: DragOverS.c /main/18 1999/08/11 15:53:11 mgreess $"
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 #include <X11/extensions/shape.h>
+#include <X11/extensions/Xrender.h>
 #include <Xm/DragCP.h>
 #include <Xm/VendorSEP.h>
 #include <Xm/XmP.h>
@@ -616,7 +617,8 @@ DoZapEffect(
 	
       XDrawSegments (display, root, draw_gc, segments, 4);
 	
-      if (dos->drag.activeMode != XmDRAG_WINDOW) {
+      if (dos->drag.activeMode != XmDRAG_WINDOW &&
+          BackingPixmap(dos) != XmUNSPECIFIED_PIXMAP) {
 	v.foreground = dos->drag.cursorForeground;
 	v.function = GXcopy;
 	vmask = GCForeground|GCFunction;
@@ -645,7 +647,8 @@ DoZapEffect(
       segments[3].x2 += run;
       segments[3].y2 += rise;
 	
-      if (dos->drag.activeMode == XmDRAG_WINDOW) {
+      if (dos->drag.activeMode == XmDRAG_WINDOW ||
+          BackingPixmap(dos) == XmUNSPECIFIED_PIXMAP) {
 	XtMoveWidget((Widget) dos, segments[0].x2, segments[0].y2);
       } else {
 	XCopyArea (display, root, BackingPixmap(dos), draw_gc,
@@ -736,6 +739,9 @@ DoMeltEffect(
     XmDragIconObject    	sourceIcon;
     XmDragOverBlend		blend;
     GC 				draw_gc = dos->drag.rootBlend.gc;
+
+    if (BackingPixmap(dos) == XmUNSPECIFIED_PIXMAP)
+      return;
   
     /*
      *  Blend a new mixedIcon using only the source icon.
@@ -1366,7 +1372,9 @@ MixIcons(
     width = maxX;
     height = maxY;
 
-    depth = ((blendPtr == cursorBlend) ? 1 : dos->core.depth);
+    depth = ((blendPtr == cursorBlend) ? 1 :
+             (sourceIcon && sourceIcon->drag.depth > 1 ?
+              sourceIcon->drag.depth : dos->core.depth));
 
     /*
      *  If we are clipping the blended icon to fit within a cursor,
@@ -2103,6 +2111,105 @@ DrawIcon(
     }
 }
 
+static void
+ApplyDragWindowPixmap(XmDragOverShellWidget dos, XmDragIconObject mixedIcon)
+{
+    Display *dpy = XtDisplay((Widget)dos);
+    Window win = XtWindow((Widget)dos);
+
+    if (mixedIcon == NULL || mixedIcon->drag.pixmap == XmUNSPECIFIED_PIXMAP)
+        return;
+
+    if (dos->core.depth == 32 && mixedIcon->drag.depth != 32 && win != None) {
+        XRenderPictFormat *dst_fmt =
+            XRenderFindStandardFormat(dpy, PictStandardARGB32);
+        XRenderPictFormat *a1_fmt =
+            XRenderFindStandardFormat(dpy, PictStandardA1);
+
+        if (dst_fmt && mixedIcon->drag.width > 0 && mixedIcon->drag.height > 0) {
+            Pixmap argb_pix = XCreatePixmap(dpy, win,
+                                            mixedIcon->drag.width,
+                                            mixedIcon->drag.height, 32);
+            if (argb_pix != None) {
+                Picture dst_pic = XRenderCreatePicture(dpy, argb_pix, dst_fmt, 0, NULL);
+                Picture mask_pic = None;
+                XRenderColor clear = {0, 0, 0, 0};
+
+                if (mixedIcon->drag.mask != XmUNSPECIFIED_PIXMAP &&
+                    mixedIcon->drag.mask != None && a1_fmt) {
+                    mask_pic = XRenderCreatePicture(dpy, mixedIcon->drag.mask,
+                                                    a1_fmt, 0, NULL);
+                }
+
+                XRenderFillRectangle(dpy, PictOpClear, dst_pic, &clear,
+                                     0, 0, mixedIcon->drag.width,
+                                     mixedIcon->drag.height);
+
+                if (mixedIcon->drag.depth == 1 && a1_fmt) {
+                    XColor fg_xc, bg_xc;
+                    Colormap cmap = DefaultColormapOfScreen(XtScreen(dos));
+                    fg_xc.pixel = dos->drag.cursorForeground;
+                    bg_xc.pixel = dos->drag.cursorBackground;
+                    XQueryColor(dpy, cmap, &fg_xc);
+                    XQueryColor(dpy, cmap, &bg_xc);
+                    XRenderColor fg_rc = { fg_xc.red, fg_xc.green, fg_xc.blue, 0xffff };
+                    XRenderColor bg_rc = { bg_xc.red, bg_xc.green, bg_xc.blue, 0xffff };
+                    Picture bg_fill = XRenderCreateSolidFill(dpy, &bg_rc);
+                    Picture fg_fill = XRenderCreateSolidFill(dpy, &fg_rc);
+                    Picture bit_pic = XRenderCreatePicture(dpy, mixedIcon->drag.pixmap,
+                                                           a1_fmt, 0, NULL);
+                    if (bg_fill != None) {
+                        XRenderComposite(dpy, PictOpOver, bg_fill, mask_pic, dst_pic,
+                                         0, 0, 0, 0, 0, 0,
+                                         mixedIcon->drag.width, mixedIcon->drag.height);
+                        XRenderFreePicture(dpy, bg_fill);
+                    }
+                    if (fg_fill != None && bit_pic != None) {
+                        XRenderComposite(dpy, PictOpOver, fg_fill, bit_pic, dst_pic,
+                                         0, 0, 0, 0, 0, 0,
+                                         mixedIcon->drag.width, mixedIcon->drag.height);
+                    }
+                    if (bit_pic != None)
+                        XRenderFreePicture(dpy, bit_pic);
+                    if (fg_fill != None)
+                        XRenderFreePicture(dpy, fg_fill);
+                } else if (mixedIcon->drag.depth == 24 ||
+                           mixedIcon->drag.depth == DefaultDepthOfScreen(XtScreen(dos))) {
+                    XRenderPictFormat *src_fmt =
+                        (mixedIcon->drag.depth == 24)
+                            ? XRenderFindStandardFormat(dpy, PictStandardRGB24)
+                            : XRenderFindVisualFormat(dpy, DefaultVisualOfScreen(XtScreen(dos)));
+                    if (src_fmt) {
+                        Picture src_pic = XRenderCreatePicture(dpy, mixedIcon->drag.pixmap,
+                                                               src_fmt, 0, NULL);
+                        if (src_pic != None) {
+                            XRenderComposite(dpy, PictOpOver, src_pic, mask_pic, dst_pic,
+                                             0, 0, 0, 0, 0, 0,
+                                             mixedIcon->drag.width, mixedIcon->drag.height);
+                            XRenderFreePicture(dpy, src_pic);
+                        }
+                    }
+                }
+
+                XSetWindowBackgroundPixmap(dpy, win, argb_pix);
+                XClearWindow(dpy, win);
+
+                if (mask_pic != None)
+                    XRenderFreePicture(dpy, mask_pic);
+                XRenderFreePicture(dpy, dst_pic);
+                XFreePixmap(dpy, argb_pix);
+                return;
+            }
+        }
+    }
+
+    {
+        Arg args[1];
+        XtSetArg(args[0], XmNbackgroundPixmap, mixedIcon->drag.pixmap);
+        XtSetValues((Widget)dos, args, 1);
+    }
+}
+
 /************************************************************************
  *
  *  Redisplay ()
@@ -2118,12 +2225,16 @@ Redisplay(
     Region region)		/* unused */
 {
     XmDragOverShellWidget	dos = (XmDragOverShellWidget)wid;
+    XmDragIconObject		icon = (dos->drag.rootBlend.mixedIcon ?
+					dos->drag.rootBlend.mixedIcon :
+					dos->drag.cursorBlend.mixedIcon);
 
-    DrawIcon (dos, 
-	      (dos->drag.rootBlend.mixedIcon ?
-	       dos->drag.rootBlend.mixedIcon :
-               dos->drag.cursorBlend.mixedIcon),
-	      XtWindow(dos), 0, 0);
+    if (dos->core.depth == 32 && icon && icon->drag.depth != 32) {
+        ApplyDragWindowPixmap(dos, icon);
+        return;
+    }
+
+    DrawIcon (dos, icon, XtWindow(dos), 0, 0);
 }
 
 /************************************************************************
@@ -2255,14 +2366,11 @@ _XmDragOverShow(
 	   * causing override
 	   */
 	  if (dos->drag.activeMode == XmDRAG_WINDOW) {
-	    Arg args[1];
 	    if (!dos->drag.holePunched)
 	      DragOverShellPunchHole(w);
 	    if (dos->drag.installColormap)
 	      InstallColormap(dos);
-	    XtSetArg(args[0], XmNbackgroundPixmap, 
-		     dos->drag.rootBlend.mixedIcon->drag.pixmap);
-	    XtSetValues((Widget) dos, args, 1);
+	    ApplyDragWindowPixmap(dos, dos->drag.rootBlend.mixedIcon);
 	  } else {
 	    Redisplay(w, NULL, NULL);
 	  }
@@ -2315,6 +2423,12 @@ Destroy(
 
     if (dos->drag.ncCursor != None) {
 	XFreeCursor (display, dos->drag.ncCursor);
+    }
+
+    if (dos->core.depth == 32 && dos->core.colormap != None &&
+        dos->core.colormap != DefaultColormapOfScreen(XtScreen(dos))) {
+	XFreeColormap(display, dos->core.colormap);
+	dos->core.colormap = None;
     }
 }
 
@@ -2471,14 +2585,11 @@ ChangeActiveMode(
 		    dos->core.x, dos->core.y);
       XtPopup((Widget)dos, XtGrabNone);
       if (dos->drag.activeMode == XmDRAG_WINDOW) {
-	Arg args[1];
 	if (!dos->drag.holePunched)
 	  DragOverShellPunchHole((Widget) dos);
 	if (dos->drag.installColormap)
 	  InstallColormap(dos);
-	XtSetArg(args[0], XmNbackgroundPixmap, 
-		 dos->drag.rootBlend.mixedIcon->drag.pixmap);
-	XtSetValues((Widget) dos, args, 1);
+	ApplyDragWindowPixmap(dos, dos->drag.rootBlend.mixedIcon);
       } else {
 	Redisplay((Widget) dos, NULL, NULL);
       }
@@ -2580,22 +2691,25 @@ ChangeDragWindow(XmDragOverShellWidget	dos)
   }
   
   /*
-   *  Save the obscured root in backing.
+   *  Save the obscured root in backing (only when depth matches the root
+   *  window; 32-bit ARGB drag windows composite directly over the desktop).
    */
   
-  if (BackingPixmap(dos) == XmUNSPECIFIED_PIXMAP) {
-    BackingPixmap(dos) =
-      _XmAllocScratchPixmap (xmScreen, dos->core.depth,
-			     dos->core.width, dos->core.height);
+  if (dos->core.depth == DefaultDepthOfScreen(XtScreen(dos))) {
+    if (BackingPixmap(dos) == XmUNSPECIFIED_PIXMAP) {
+      BackingPixmap(dos) =
+        _XmAllocScratchPixmap (xmScreen, dos->core.depth,
+                               dos->core.width, dos->core.height);
+    }
+    BackingX(dos) = dos->core.x;
+    BackingY(dos) = dos->core.y;
+
+    XSetClipMask (display, draw_gc, None);
+    XCopyArea (display, RootWindowOfScreen(XtScreen(dos)),
+               BackingPixmap(dos), draw_gc,
+               BackingX(dos), BackingY(dos),
+               dos->core.width, dos->core.height, 0, 0);
   }
-  BackingX(dos) = dos->core.x;
-  BackingY(dos) = dos->core.y;
-  
-  XSetClipMask (display, draw_gc, None);
-  XCopyArea (display, RootWindowOfScreen(XtScreen(dos)),
-	     BackingPixmap(dos), draw_gc,
-	     BackingX(dos), BackingY(dos),
-	     dos->core.width, dos->core.height, 0, 0);
   
   /*
    *  Move, resize, and remap the drag window.
@@ -2928,6 +3042,7 @@ _XmDragOverChange(
     if (sourceIcon == NULL ||
         XtScreenOfObject(XtParent(sourceIcon)) != XtScreen(w) ||
 	((sourceIcon->drag.depth != dos->core.depth) &&
+	 (sourceIcon->drag.depth != DefaultDepthOfScreen(XtScreen(w))) &&
 	 (sourceIcon->drag.depth != 1))) {
 
 	usedSrcPixIcon = False;
