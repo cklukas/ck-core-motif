@@ -1721,11 +1721,24 @@ DoAnimation(
 	      else
 		{
 		  /*
-		   * Local case.  We have to translate the region.
+		   * Local case.  Skip unmanaged/hidden siblings (matching
+		   * CR 7848 in PointToDSInfo) so unmanaged containers such as
+		   * hidden search bars never clip active drop-site highlights.
 		   */
 		  Position wX, wY;
 		  Widget sibling = GetDSWidget(child);
-		  
+		  Widget anc = sibling;
+		  Boolean sib_managed = (sibling != NULL && XtIsManaged(sibling));
+
+		  while (sib_managed && anc != NULL && !XtIsShell(anc))
+		    {
+		      anc = XtParent(anc);
+		      if (anc != NULL && !XtIsShell(anc))
+			sib_managed = XtIsManaged(anc);
+		    }
+		  if (!sib_managed)
+		    continue;
+
 		  XtTranslateCoords(sibling, 0, 0, &wX, &wY);
 		  _XmProcessLock();
 		  _XmRegionUnion(GetDSRegion(child),

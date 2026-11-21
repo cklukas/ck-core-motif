@@ -1,3 +1,13 @@
+Skip unmanaged/hidden sibling drop sites in DropSMgr DoAnimation clipping (2026-11-21)
+======================================================================================
+
+- `lib/Xm/DropSMgr.c`:
+  - In `DoAnimation`, walk each local sibling drop site's ancestor chain up to
+    the shell and skip unmanaged/hidden siblings (matching `CR 7848` in
+    `PointToDSInfo`). Unmanaged containers with embedded `XmTextField` drop
+    sites (such as `dtfile`'s hidden search bar) no longer subtract invisible
+    rectangles from active drop-site animation clip regions.
+
 Fix DragUnder drop-site highlight clipping and stale shadows in XmDRAG_WINDOW mode (2026-11-21)
 ===============================================================================================
 
