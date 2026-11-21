@@ -1,3 +1,20 @@
+Fix intra-process Wayland drag-and-drop and shaped DragOverS icons (2026-11-21)
+================================================================================
+
+- `lib/Xm/WaylandData.c`, `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandX11Server.c`,
+  `lib/Xm/WaylandBackendI.h`:
+  - Preserve `sel_xdnd_owner` and forward `wl_data_device.enter`, `motion`,
+    `leave`, and `drop` events to local X11 pointer dispatch when a client drags
+    onto one of its own Wayland surfaces (`wl_drag_source != NULL`), enabling
+    full in-process Motif `XmDragContext` / `XmDropSiteManager` hover feedback
+    and drops (such as `dtfile` Shelf folder drops and multi-window transfers)
+    without clobbering `XdndSelection`.
+  - Attach depth-24 shaped `XmDragOverShell` windows to `wl_drag_icon_surf`
+    instead of promoting them to `xdg_popup` grabs, skip `is_drag_icon` windows
+    during root subwindow hit-testing (`MotionNotify`, `QueryPointer`,
+    `TranslateCoordinates`), expand Wayland MIME offer tables to 32 entries, and
+    cleanly release off-window pointer grabs after external or cancelled drags.
+
 Implement XLFD pattern matching and XA_FONT metadata for UTF-8 XFontSet (2026-11-21)
 ====================================================================================
 

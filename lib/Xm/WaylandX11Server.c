@@ -888,13 +888,19 @@ deliver_propagated_pointer_event(XmWlServer *srv, XmWlWindow *leaf, uint32_t req
                 int wx = 0, wy = 0;
                 root_to_window_coords(srv, dest, srv->ptr_root_x, srv->ptr_root_y, &wx, &wy);
                 uint32_t child_id = 0;
-                for (XmWlWindow *c = dest->last_child; c; c = c->prev_sibling) {
-                    if (!c->mapped) continue;
-                    if (wx >= c->x && wy >= c->y &&
-                        wx < c->x + (int)c->width + 2 * (int)c->border_width &&
-                        wy < c->y + (int)c->height + 2 * (int)c->border_width) {
-                        child_id = c->id;
-                        break;
+                if (dest == srv->root && srv->pointer_top &&
+                    srv->pointer_top->parent == srv->root &&
+                    srv->pointer_top->mapped && !srv->pointer_top->is_drag_icon) {
+                    child_id = srv->pointer_top->id;
+                } else {
+                    for (XmWlWindow *c = dest->last_child; c; c = c->prev_sibling) {
+                        if (!c->mapped || c->is_drag_icon) continue;
+                        if (wx >= c->x && wy >= c->y &&
+                            wx < c->x + (int)c->width + 2 * (int)c->border_width &&
+                            wy < c->y + (int)c->height + 2 * (int)c->border_width) {
+                            child_id = c->id;
+                            break;
+                        }
                     }
                 }
                 uint8_t ev[32];
@@ -1048,6 +1054,48 @@ _XmWlDispatchPointerButton(XmWlServer *srv, uint8_t button, bool pressed, uint32
             srv->ptr_grab_implicit = false;
             srv->ptr_grab_win = 0;
         }
+    }
+}
+
+void
+_XmWlCancelActiveDragGrab(XmWlServer *srv, uint32_t time_ms)
+{
+    if (!srv || srv->button_mask == 0) return;
+    srv->server_time_ms = time_ms;
+    srv->pointer_top = NULL;
+    srv->ptr_surf_x = -500;
+    srv->ptr_surf_y = -500;
+    srv->ptr_root_x = -500;
+    srv->ptr_root_y = -500;
+    if (srv->ptr_grab_active && srv->ptr_grab_client >= 0 &&
+        srv->ptr_grab_client < XM_WL_MAX_CLIENTS &&
+        srv->clients[srv->ptr_grab_client].active) {
+        XmWlClient *gcli = &srv->clients[srv->ptr_grab_client];
+        uint32_t dest_id = srv->ptr_grab_win ? srv->ptr_grab_win : XM_WL_ROOT_XID;
+        uint8_t ev[32];
+        memset(ev, 0, sizeof(ev));
+        ev[0] = 6; /* MotionNotify */
+        wr_u32(ev + 4, time_ms);
+        wr_u32(ev + 8, XM_WL_ROOT_XID);
+        wr_u32(ev + 12, dest_id);
+        wr_u32(ev + 16, 0); /* subwindow = None */
+        wr_i16(ev + 20, -500);
+        wr_i16(ev + 22, -500);
+        wr_i16(ev + 24, -500);
+        wr_i16(ev + 26, -500);
+        wr_u16(ev + 28, current_state_mask(srv));
+        ev[30] = 1;
+        _XmWlSendEventToClient(gcli, ev);
+
+        ev[0] = 5; /* ButtonRelease */
+        ev[1] = 1; /* Button1 */
+        _XmWlSendEventToClient(gcli, ev);
+    }
+    srv->button_mask = 0;
+    if (srv->ptr_grab_active && srv->ptr_grab_implicit) {
+        srv->ptr_grab_active = false;
+        srv->ptr_grab_implicit = false;
+        srv->ptr_grab_win = 0;
     }
 }
 
@@ -2518,13 +2566,19 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         int wx = 0, wy = 0;
         root_to_window_coords(srv, w, srv->ptr_root_x, srv->ptr_root_y, &wx, &wy);
         uint32_t child_id = 0;
-        for (XmWlWindow *c = w->last_child; c; c = c->prev_sibling) {
-            if (!c->mapped) continue;
-            if (wx >= c->x && wy >= c->y &&
-                wx < c->x + (int)c->width + 2 * (int)c->border_width &&
-                wy < c->y + (int)c->height + 2 * (int)c->border_width) {
-                child_id = c->id;
-                break;
+        if (w == srv->root && srv->pointer_top &&
+            srv->pointer_top->parent == srv->root &&
+            srv->pointer_top->mapped && !srv->pointer_top->is_drag_icon) {
+            child_id = srv->pointer_top->id;
+        } else {
+            for (XmWlWindow *c = w->last_child; c; c = c->prev_sibling) {
+                if (!c->mapped || c->is_drag_icon) continue;
+                if (wx >= c->x && wy >= c->y &&
+                    wx < c->x + (int)c->width + 2 * (int)c->border_width &&
+                    wy < c->y + (int)c->height + 2 * (int)c->border_width) {
+                    child_id = c->id;
+                    break;
+                }
             }
         }
         uint8_t hdr[32];
@@ -2559,13 +2613,20 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         window_to_root_coords(srv, src_w, sx, sy, &rx, &ry);
         root_to_window_coords(srv, dst_w, rx, ry, &dx, &dy);
         uint32_t child_id = 0;
-        for (XmWlWindow *c = dst_w->last_child; c; c = c->prev_sibling) {
-            if (!c->mapped) continue;
-            if (dx >= c->x && dy >= c->y &&
-                dx < c->x + (int)c->width + 2 * (int)c->border_width &&
-                dy < c->y + (int)c->height + 2 * (int)c->border_width) {
-                child_id = c->id;
-                break;
+        if (dst_w == srv->root && srv->pointer_top &&
+            srv->pointer_top->parent == srv->root &&
+            srv->pointer_top->mapped && !srv->pointer_top->is_drag_icon &&
+            dx == srv->ptr_root_x && dy == srv->ptr_root_y) {
+            child_id = srv->pointer_top->id;
+        } else {
+            for (XmWlWindow *c = dst_w->last_child; c; c = c->prev_sibling) {
+                if (!c->mapped || c->is_drag_icon) continue;
+                if (dx >= c->x && dy >= c->y &&
+                    dx < c->x + (int)c->width + 2 * (int)c->border_width &&
+                    dy < c->y + (int)c->height + 2 * (int)c->border_width) {
+                    child_id = c->id;
+                    break;
+                }
             }
         }
         uint8_t hdr[32];

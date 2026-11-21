@@ -161,7 +161,7 @@ is_text_target_name(const char *tname)
 
 static const char *
 match_offer_mime_for_target(XmWlServer *srv, uint32_t target,
-                            char mimes[16][96], int mime_count,
+                            char mimes[32][96], int mime_count,
                             uint32_t *out_prop_type)
 {
     const char *tname = _XmWlAtomName(srv, target);
@@ -345,9 +345,9 @@ cleanup_drag_source(XmWlServer *srv, struct wl_data_source *source)
             wl_surface_destroy(srv->wl_drag_icon_surf);
             srv->wl_drag_icon_surf = NULL;
         }
-        /* Synthesize ButtonRelease if Motif's drag controller is still grabbing pointer */
+        /* If button_mask is still held (external or cancelled drag), release off-window */
         if (srv->button_mask != 0)
-            _XmWlDispatchPointerButton(srv, 1, false, _XmWlNowMs());
+            _XmWlCancelActiveDragGrab(srv, _XmWlNowMs());
     }
     wl_data_source_destroy(source);
 }
@@ -363,10 +363,11 @@ drag_source_cancelled(void *data, struct wl_data_source *source)
 static void
 drag_source_dnd_drop(void *data, struct wl_data_source *source)
 {
+    /* Keep local DragC alive while an external drop target reads selection data;
+     * self-drops finish synchronously in data_device_drop(), and external drops
+     * clean up in drag_source_dnd_finished() / drag_source_cancelled(). */
+    (void)data;
     (void)source;
-    XmWlServer *srv = (XmWlServer *)data;
-    if (srv && srv->button_mask != 0)
-        _XmWlDispatchPointerButton(srv, 1, false, _XmWlNowMs());
 }
 
 static void
@@ -400,7 +401,7 @@ data_offer_offer(void *data, struct wl_data_offer *offer, const char *mime_type)
     XmWlServer *srv = (XmWlServer *)data;
     if (!srv || !mime_type || offer != srv->wl_pending_offer)
         return;
-    if (srv->wl_pending_mime_count < 16) {
+    if (srv->wl_pending_mime_count < 32) {
         snprintf(srv->wl_pending_mimes[srv->wl_pending_mime_count++], 96, "%s", mime_type);
     }
 }
@@ -495,6 +496,25 @@ data_device_enter(void *data, struct wl_data_device *device, uint32_t serial,
     if (!id || !srv->wl_dnd_target_top)
         return;
 
+    /* Self-initiated drag over our own Wayland surface (e.g. dtfile Shelf or second
+     * window in the same process): preserve srv->sel_xdnd_owner and drive Motif's
+     * in-process DragC / XmDropSiteManager directly via X11 pointer motion/release. */
+    if (srv->wl_drag_source != NULL) {
+        if (srv->wl_dnd_mime_count > 0) {
+            wl_data_offer_accept(id, serial, srv->wl_dnd_mimes[0]);
+            if (wl_data_offer_get_version(id) >= 3) {
+                wl_data_offer_set_actions(
+                    id,
+                    WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY | WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE,
+                    WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
+            }
+            wl_display_flush(srv->wl_dpy);
+        }
+        srv->pointer_top = srv->wl_dnd_target_top;
+        _XmWlDispatchPointerMotion(srv, srv->wl_dnd_target_top, srv->wl_dnd_x, srv->wl_dnd_y, _XmWlNowMs());
+        return;
+    }
+
     uint32_t a_xdnd_sel = _XmWlInternAtom(srv, "XdndSelection", 13, false);
     uint32_t a_type_list = _XmWlInternAtom(srv, "XdndTypeList", 12, false);
     uint32_t a_enter = _XmWlInternAtom(srv, "XdndEnter", 9, false);
@@ -504,9 +524,9 @@ data_device_enter(void *data, struct wl_data_device *device, uint32_t serial,
     srv->sel_xdnd_owner = XM_WL_PROXY_SEL_XID;
     (void)a_xdnd_sel;
 
-    uint32_t type_atoms[16];
+    uint32_t type_atoms[32];
     int ntypes = 0;
-    for (int i = 0; i < srv->wl_dnd_mime_count && ntypes < 16; ++i) {
+    for (int i = 0; i < srv->wl_dnd_mime_count && ntypes < 32; ++i) {
         type_atoms[ntypes++] = _XmWlInternAtom(
             srv, srv->wl_dnd_mimes[i], strlen(srv->wl_dnd_mimes[i]), false);
     }
@@ -545,6 +565,20 @@ data_device_leave(void *data, struct wl_data_device *device)
     (void)device;
     XmWlServer *srv = (XmWlServer *)data;
     if (!srv) return;
+    if (srv->wl_drag_source != NULL) {
+        if (!srv->wl_dnd_drop_pending) {
+            if (srv->wl_dnd_target_top) {
+                srv->pointer_top = NULL;
+                _XmWlDispatchPointerMotion(srv, srv->wl_dnd_target_top, -200, -200, _XmWlNowMs());
+            }
+            if (srv->wl_dnd_offer) {
+                wl_data_offer_destroy(srv->wl_dnd_offer);
+                srv->wl_dnd_offer = NULL;
+            }
+        }
+        srv->wl_dnd_target_top = NULL;
+        return;
+    }
     if (!srv->wl_dnd_drop_pending && srv->wl_dnd_target_top) {
         uint32_t a_leave = _XmWlInternAtom(srv, "XdndLeave", 9, false);
         send_xdnd_client_message(srv, srv->wl_dnd_target_top, a_leave,
@@ -567,6 +601,14 @@ data_device_motion(void *data, struct wl_data_device *device, uint32_t time,
     srv->wl_dnd_x = (int16_t)wl_fixed_to_int(x);
     srv->wl_dnd_y = (int16_t)wl_fixed_to_int(y);
 
+    if (srv->wl_drag_source != NULL) {
+        srv->pointer_top = srv->wl_dnd_target_top;
+        _XmWlDispatchPointerMotion(
+            srv, srv->wl_dnd_target_top, srv->wl_dnd_x, srv->wl_dnd_y,
+            time ? time : _XmWlNowMs());
+        return;
+    }
+
     uint32_t a_pos = _XmWlInternAtom(srv, "XdndPosition", 12, false);
     uint32_t a_copy = _XmWlInternAtom(srv, "XdndActionCopy", 14, false);
     int rx = (int)srv->wl_dnd_target_top->x + (int)srv->wl_dnd_x;
@@ -583,6 +625,25 @@ data_device_drop(void *data, struct wl_data_device *device)
     (void)device;
     XmWlServer *srv = (XmWlServer *)data;
     if (!srv || !srv->wl_dnd_target_top) return;
+    if (srv->wl_drag_source != NULL) {
+        uint32_t now_ms = _XmWlNowMs();
+        XmWlWindow *drop_top = srv->wl_dnd_target_top;
+        srv->wl_dnd_drop_pending = true;
+        srv->pointer_top = drop_top;
+        _XmWlDispatchPointerMotion(srv, drop_top, srv->wl_dnd_x, srv->wl_dnd_y, now_ms);
+        if (srv->wl_dnd_offer) {
+            if (wl_data_offer_get_version(srv->wl_dnd_offer) >= 3)
+                wl_data_offer_finish(srv->wl_dnd_offer);
+            wl_data_offer_destroy(srv->wl_dnd_offer);
+            srv->wl_dnd_offer = NULL;
+            wl_display_flush(srv->wl_dpy);
+        }
+        srv->wl_dnd_target_top = NULL;
+        srv->wl_dnd_drop_pending = false;
+        if (srv->button_mask != 0)
+            _XmWlDispatchPointerButton(srv, 1, false, now_ms);
+        return;
+    }
     srv->wl_dnd_drop_pending = true;
     uint32_t a_drop = _XmWlInternAtom(srv, "XdndDrop", 8, false);
     send_xdnd_client_message(
@@ -677,7 +738,7 @@ prim_offer_offer(void *data, struct zwp_primary_selection_offer_v1 *offer, const
     XmWlServer *srv = (XmWlServer *)data;
     if (!srv || !mime_type || offer != srv->wl_pending_prim_offer)
         return;
-    if (srv->wl_pending_prim_mime_count < 16) {
+    if (srv->wl_pending_prim_mime_count < 32) {
         snprintf(srv->wl_pending_prim_mimes[srv->wl_pending_prim_mime_count++], 96, "%s", mime_type);
     }
 }
@@ -1009,12 +1070,12 @@ _XmWlDataHandleConvertSelection(XmWlServer *srv, int client_idx, uint32_t reques
     }
 
     if (target == a_targets) {
-        uint32_t atoms[24];
+        uint32_t atoms[40];
         size_t n = 0;
         atoms[n++] = a_targets;
         atoms[n++] = a_timestamp;
         bool has_text = false;
-        for (int i = 0; i < mime_count && n < 20; ++i) {
+        for (int i = 0; i < mime_count && n < 36; ++i) {
             atoms[n++] = _XmWlInternAtom(srv, mimes[i], strlen(mimes[i]), false);
             if (is_text_target_name(mimes[i]))
                 has_text = true;

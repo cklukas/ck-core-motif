@@ -1105,8 +1105,9 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
         win->viewport = wp_viewporter_get_viewport(srv->viewporter, win->wl_surf);
     }
 
-    /* If a Wayland drag is starting and this is an override-redirect depth-32 ARGB drag window */
-    if (win->override_redirect && srv->sel_xdnd_owner != 0 && win->depth == 32) {
+    /* If a Wayland drag is starting and this is an override-redirect drag icon window */
+    if (win->override_redirect &&
+        (srv->wl_drag_icon_surf != NULL || (srv->sel_xdnd_owner != 0 && win->depth == 32))) {
         win->is_drag_icon = true;
         win->xdg_configured = true;
         _XmWlDataAttachDragIcon(srv, win);
@@ -1195,7 +1196,8 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
         xdg_positioner_destroy(pos);
         xdg_popup_add_listener(win->xdg_pop, &g_xdg_popup_listener, win);
 
-        if (srv->seat && srv->last_button_serial != 0 && srv->ptr_grab_active && srv->popup_depth == 0) {
+        if (srv->seat && srv->last_button_serial != 0 && srv->ptr_grab_active &&
+            srv->popup_depth == 0 && srv->wl_drag_source == NULL) {
             xdg_popup_grab(win->xdg_pop, srv->seat, srv->last_button_serial);
         }
         srv->popup_stack[srv->popup_depth++] = win;

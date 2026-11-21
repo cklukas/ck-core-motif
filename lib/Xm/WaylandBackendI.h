@@ -461,25 +461,25 @@ struct XmWlServer {
     uint32_t sel_xdnd_owner;
     struct wl_data_source *wl_clip_source;
     struct wl_data_offer *wl_clip_offer;
-    char wl_clip_mimes[16][96];
+    char wl_clip_mimes[32][96];
     int wl_clip_mime_count;
     struct wl_data_offer *wl_pending_offer;
-    char wl_pending_mimes[16][96];
+    char wl_pending_mimes[32][96];
     int wl_pending_mime_count;
 
     struct zwp_primary_selection_source_v1 *wl_prim_source;
     struct zwp_primary_selection_offer_v1 *wl_prim_offer;
-    char wl_prim_mimes[16][96];
+    char wl_prim_mimes[32][96];
     int wl_prim_mime_count;
     struct zwp_primary_selection_offer_v1 *wl_pending_prim_offer;
-    char wl_pending_prim_mimes[16][96];
+    char wl_pending_prim_mimes[32][96];
     int wl_pending_prim_mime_count;
 
     /* Wayland DnD state */
     struct wl_data_source *wl_drag_source;
     struct wl_surface *wl_drag_icon_surf;
     struct wl_data_offer *wl_dnd_offer;
-    char wl_dnd_mimes[16][96];
+    char wl_dnd_mimes[32][96];
     int wl_dnd_mime_count;
     XmWlWindow *wl_dnd_target_top;
     int16_t wl_dnd_x, wl_dnd_y;
@@ -562,6 +562,7 @@ XM_WL_INTERNAL void _XmWlFlushClientWrites(XmWlServer *srv);
 XM_WL_INTERNAL void _XmWlDisconnectClient(XmWlServer *srv, int client_idx);
 XM_WL_INTERNAL void _XmWlDispatchPointerMotion(XmWlServer *srv, XmWlWindow *top, int16_t sx, int16_t sy, uint32_t time_ms);
 XM_WL_INTERNAL void _XmWlDispatchPointerButton(XmWlServer *srv, uint8_t button, bool pressed, uint32_t time_ms);
+XM_WL_INTERNAL void _XmWlCancelActiveDragGrab(XmWlServer *srv, uint32_t time_ms);
 XM_WL_INTERNAL void _XmWlDispatchPointerLeaveTop(XmWlServer *srv, XmWlWindow *top, uint32_t time_ms);
 XM_WL_INTERNAL void _XmWlDispatchKey(XmWlServer *srv, uint8_t x11_keycode, bool pressed, uint32_t time_ms);
 XM_WL_INTERNAL void _XmWlDispatchFocusTop(XmWlServer *srv, XmWlWindow *top, bool focused);
