@@ -2932,8 +2932,13 @@ PositionMenu(
                     ? event->time
                     : XtLastTimestampProcessed(XtDisplay(m));
                 mst->RC_ButtonEventStatus.time = ev_time;
-                mst->RC_ButtonEventStatus.verified = True;
-                mst->RC_ButtonEventStatus.event = *event;
+                mst->RC_ButtonEventStatus.verified = _XmMatchBtnEvent(
+                    (XEvent *)event,
+                    RC_PostEventType(m),
+                    RC_PostButton(m),
+                    RC_PostModifiers(m));
+                if (mst->RC_ButtonEventStatus.verified)
+                    mst->RC_ButtonEventStatus.event = *event;
             }
             if (LayoutIsRtoLM(m))
                 XtX (m) = event->x_root -  XtWidth (m);

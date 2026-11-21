@@ -1,3 +1,28 @@
+Add unfocused hover mouse-wheel routing, native Wayland smooth scrolling, and live scroll-wheel IPC settings (2026-11-21)
+=========================================================================================================================
+
+- `lib/Xm/XmI.h`, `lib/Xm/ScrolledW.c`, `lib/Xm/RCMenu.c`,
+  `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandBackendI.h`,
+  `lib/Xm/WaylandX11Server.c`, `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Route mouse-wheel (`Button4`–`Button7`) events directly to the deepest
+    pointer-hit subwindow (`_XmWlHitTestWindowChain`) without stealing keyboard
+    focus (`XmEXPLICIT`) or triggering `AnyButton` passive grabs (`RCMenu.c`
+    verifies `RC_ButtonEventStatus.verified` via `_XmMatchBtnEvent`;
+    `WaylandX11Server.c` excludes buttons `4..7` from `AnyButton` passive grab
+    matching), and attach bubbling wheel fallback handlers across both
+    `XmAUTOMATIC` and `XmAPPLICATION_DEFINED` `XmScrolledWindow` hierarchies so
+    hovering over any scrollable view scrolls the underlying content end to end.
+  - Bind `wl_seat` up to v9 (`axis_value120`) and add ~83 Hz (`12 ms`) main-thread
+    smooth-scroll interpolation (`_XmSmoothScrollStep` across `XmScrollBar`,
+    `DtHelp` scrollbars, `XmList`, `XmText`, `XmTreeView`, `XmDataGrid`, and
+    `XmScrolledWindow`) with zero speed cap, instant direction reversal, and
+    clean boundary clamping at `minimum` and `maximum - slider_size`.
+  - Add configurable scroll-wheel speed (`_XmSetWheelScrollSpeed` /
+    `_XmGetWheelScrollSpeed`, `1..10`, default `3` lines per wheel notch) and
+    smooth-vs-discrete toggle (`*mouseWheelSpeed`, `*mouseWheelSmooth` X
+    resources and live `_DT_WAYLAND_WHEEL` compositor IPC updates).
+
 Fix callback-posted popup menus, owner-events passive button grabs, and Wayland drag-icon surfaces (2026-11-21)
 ===============================================================================================================
 

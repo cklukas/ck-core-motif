@@ -20,6 +20,7 @@
 
 #include <X11/IntrinsicP.h>
 #include <Xm/Display.h>
+#include "XmI.h"
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -496,12 +497,141 @@ pointer_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial,
 }
 
 static void
+reset_wheel_axis_state(XmWlServer *srv, int ax)
+{
+    if (!srv || ax < 0 || ax > 1) return;
+    srv->wheel_frame_px[ax] = 0.0;
+    srv->wheel_frame_v120[ax] = 0;
+    srv->wheel_frame_has_px[ax] = false;
+    srv->wheel_frame_has_v120[ax] = false;
+    srv->wheel_accum_v120[ax] = 0;
+    srv->wheel_gesture_active[ax] = false;
+    srv->wheel_last_dir[ax] = 0;
+    srv->wheel_last_ms[ax] = 0;
+}
+
+static void
+emit_wheel_tick(XmWlServer *srv, uint8_t xbtn, uint64_t now_ms)
+{
+    uint32_t btn_time = srv->wheel_frame_time_ms ? srv->wheel_frame_time_ms : (uint32_t)now_ms;
+    if (srv->last_button_time_ms != 0 &&
+        (int32_t)(btn_time - srv->last_button_time_ms) <= 0) {
+        btn_time = srv->last_button_time_ms + 1u;
+    }
+    srv->last_button_time_ms = btn_time;
+    srv->server_time_ms = btn_time;
+    _XmWlDispatchPointerButton(srv, xbtn, true, btn_time);
+
+    btn_time += 1u;
+    srv->last_button_time_ms = btn_time;
+    srv->server_time_ms = btn_time;
+    _XmWlDispatchPointerButton(srv, xbtn, false, btn_time);
+}
+
+static void
+emit_discrete_wheel_v120(XmWlServer *srv, int ax, int32_t step_v120, uint64_t now_ms)
+{
+    if (!srv || ax < 0 || ax > 1 || step_v120 == 0)
+        return;
+
+    int dir = (step_v120 < 0) ? -1 : 1;
+    if (srv->wheel_last_ms[ax] == 0 ||
+        (now_ms - srv->wheel_last_ms[ax]) > 180ULL ||
+        (srv->wheel_last_dir[ax] != 0 && srv->wheel_last_dir[ax] != dir)) {
+        srv->wheel_accum_v120[ax] = 0;
+        srv->wheel_gesture_active[ax] = false;
+    }
+    srv->wheel_last_dir[ax] = dir;
+    srv->wheel_last_ms[ax] = now_ms;
+    srv->wheel_accum_v120[ax] += step_v120;
+
+    uint8_t xbtn = (ax == 0) ? ((dir < 0) ? 4 : 5) : ((dir < 0) ? 6 : 7);
+    int ticks = 0;
+    bool is_full_detent = (step_v120 % 120 == 0) &&
+                          (step_v120 >= 120 || step_v120 <= -120);
+    int32_t stride_v120 = is_full_detent ? 120 : 60;
+
+    if (!srv->wheel_gesture_active[ax]) {
+        int32_t mag = srv->wheel_accum_v120[ax] < 0 ? -srv->wheel_accum_v120[ax] : srv->wheel_accum_v120[ax];
+        int32_t lead_v120 = is_full_detent ? 120 : 12;
+        if (mag >= lead_v120) {
+            srv->wheel_gesture_active[ax] = true;
+            ticks++;
+            if (mag <= stride_v120)
+                srv->wheel_accum_v120[ax] = 0;
+            else
+                srv->wheel_accum_v120[ax] -= dir * stride_v120;
+        }
+    }
+    while (srv->wheel_gesture_active[ax] && ticks < 16) {
+        int32_t mag = srv->wheel_accum_v120[ax] < 0 ? -srv->wheel_accum_v120[ax] : srv->wheel_accum_v120[ax];
+        if (mag < stride_v120)
+            break;
+        ticks++;
+        srv->wheel_accum_v120[ax] -= dir * stride_v120;
+    }
+
+    for (int i = 0; i < ticks; ++i)
+        emit_wheel_tick(srv, xbtn, now_ms);
+}
+
+static void
+flush_wheel_axis(XmWlServer *srv, int ax)
+{
+    if (!srv || ax < 0 || ax > 1) return;
+    if (!srv->wheel_frame_has_v120[ax] && !srv->wheel_frame_has_px[ax]) return;
+
+    double step_v120_f = 0.0;
+    if (srv->wheel_frame_has_v120[ax] && srv->wheel_frame_v120[ax] != 0) {
+        step_v120_f = (double)srv->wheel_frame_v120[ax];
+    } else if (srv->wheel_frame_has_px[ax] && fabs(srv->wheel_frame_px[ax]) >= 0.01) {
+        step_v120_f = srv->wheel_frame_px[ax] * (120.0 / 15.0);
+    }
+
+    srv->wheel_frame_px[ax] = 0.0;
+    srv->wheel_frame_v120[ax] = 0;
+    srv->wheel_frame_has_px[ax] = false;
+    srv->wheel_frame_has_v120[ax] = false;
+
+    if (fabs(step_v120_f) < 0.05) {
+        srv->wheel_frame_time_ms = 0;
+        return;
+    }
+
+    /* Native ~83 Hz smooth scrolling on the main Xt thread when an XmDisplay
+     * is attached and no Ctrl/Alt/Super modifier or primary button drag is active.
+     * Shift + vertical wheel routes to horizontal smooth scrolling. */
+    if (srv->attached_xm_display != NULL && srv->xt_input_id != 0 &&
+        (srv->mod_mask & (ControlMask | Mod1Mask | Mod4Mask)) == 0 &&
+        (srv->button_mask & ((1u << 8) | (1u << 9) | (1u << 10))) == 0) {
+        uint32_t xids[8];
+        if (_XmWlHitTestWindowChain(srv, xids) > 0) {
+            int eff_ax = (ax == 0 && (srv->mod_mask & ShiftMask) != 0) ? 1 : ax;
+            memcpy(srv->smooth_xid_chain, xids, sizeof(xids));
+            srv->smooth_pending_v120[eff_ax] += step_v120_f;
+            srv->has_smooth_pending = true;
+            srv->wheel_frame_time_ms = 0;
+            _XmWaylandNotifyMainThread(srv);
+            return;
+        }
+    }
+
+    int32_t step_v120 = (int32_t)llround(step_v120_f);
+    if (step_v120 == 0)
+        step_v120 = (step_v120_f < 0.0) ? -1 : 1;
+    emit_discrete_wheel_v120(srv, ax, step_v120, _XmWlNowMs());
+    srv->wheel_frame_time_ms = 0;
+}
+
+static void
 pointer_leave(void *data, struct wl_pointer *wl_pointer, uint32_t serial,
               struct wl_surface *surface)
 {
     (void)wl_pointer;
     XmWlServer *srv = (XmWlServer *)data;
     srv->last_input_serial = serial;
+    reset_wheel_axis_state(srv, 0);
+    reset_wheel_axis_state(srv, 1);
     XmWlWindow *top = find_top_by_wl_surface(srv, surface);
     if (top && srv->pointer_top == top) {
         _XmWlDispatchPointerLeaveTop(srv, top, _XmWlNowMs());
@@ -547,34 +677,85 @@ pointer_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial,
     else if (button == BTN_EXTRA) xbtn = 9;
     else return;
 
+    if (state == WL_POINTER_BUTTON_STATE_PRESSED) {
+        srv->smooth_cancel_requested = true;
+        srv->smooth_pending_v120[0] = 0.0;
+        srv->smooth_pending_v120[1] = 0.0;
+        _XmWaylandNotifyMainThread(srv);
+    }
+
     _XmWlDispatchPointerButton(srv, xbtn, state == WL_POINTER_BUTTON_STATE_PRESSED, srv->server_time_ms);
+}
+
+static int
+wheel_axis_index(uint32_t axis)
+{
+    if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL) return 0;
+    if (axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL) return 1;
+    return -1;
 }
 
 static void
 pointer_axis(void *data, struct wl_pointer *wl_pointer, uint32_t time,
              uint32_t axis, wl_fixed_t value)
 {
-    (void)wl_pointer;
     XmWlServer *srv = (XmWlServer *)data;
-    double v = wl_fixed_to_double(value);
-    if (fabs(v) < 0.01) return;
-    uint8_t xbtn = 0;
-    if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
-        xbtn = (v < 0.0) ? 4 : 5;
-    else if (axis == WL_POINTER_AXIS_HORIZONTAL_SCROLL)
-        xbtn = (v < 0.0) ? 6 : 7;
-    if (xbtn) {
-        uint32_t t = time ? time : _XmWlNowMs();
-        _XmWlDispatchPointerButton(srv, xbtn, true, t);
-        _XmWlDispatchPointerButton(srv, xbtn, false, t);
+    int ax = wheel_axis_index(axis);
+    if (ax < 0) return;
+    if (time) srv->wheel_frame_time_ms = time;
+    srv->wheel_frame_px[ax] += wl_fixed_to_double(value);
+    srv->wheel_frame_has_px[ax] = true;
+    if (!wl_pointer || wl_pointer_get_version(wl_pointer) < WL_POINTER_FRAME_SINCE_VERSION)
+        flush_wheel_axis(srv, ax);
+}
+
+static void
+pointer_frame(void *data, struct wl_pointer *p)
+{
+    (void)p;
+    XmWlServer *srv = (XmWlServer *)data;
+    flush_wheel_axis(srv, 0);
+    flush_wheel_axis(srv, 1);
+}
+
+static void pointer_axis_source(void *data, struct wl_pointer *p, uint32_t s) { (void)data; (void)p; (void)s; }
+
+static void
+pointer_axis_stop(void *data, struct wl_pointer *p, uint32_t t, uint32_t a)
+{
+    (void)p; (void)t;
+    XmWlServer *srv = (XmWlServer *)data;
+    int ax = wheel_axis_index(a);
+    if (ax >= 0) {
+        flush_wheel_axis(srv, ax);
+        reset_wheel_axis_state(srv, ax);
     }
 }
 
-static void pointer_frame(void *data, struct wl_pointer *p) { (void)data; (void)p; }
-static void pointer_axis_source(void *data, struct wl_pointer *p, uint32_t s) { (void)data; (void)p; (void)s; }
-static void pointer_axis_stop(void *data, struct wl_pointer *p, uint32_t t, uint32_t a) { (void)data; (void)p; (void)t; (void)a; }
-static void pointer_axis_discrete(void *data, struct wl_pointer *p, uint32_t a, int32_t d) { (void)data; (void)p; (void)a; (void)d; }
-static void pointer_axis_value120(void *data, struct wl_pointer *p, uint32_t a, int32_t v) { (void)data; (void)p; (void)a; (void)v; }
+static void
+pointer_axis_discrete(void *data, struct wl_pointer *p, uint32_t a, int32_t d)
+{
+    (void)p;
+    XmWlServer *srv = (XmWlServer *)data;
+    int ax = wheel_axis_index(a);
+    if (ax >= 0 && d != 0 && !srv->wheel_frame_has_v120[ax]) {
+        srv->wheel_frame_v120[ax] += d * 120;
+        srv->wheel_frame_has_v120[ax] = true;
+    }
+}
+
+static void
+pointer_axis_value120(void *data, struct wl_pointer *p, uint32_t a, int32_t v)
+{
+    (void)p;
+    XmWlServer *srv = (XmWlServer *)data;
+    int ax = wheel_axis_index(a);
+    if (ax >= 0 && v != 0) {
+        srv->wheel_frame_v120[ax] += v;
+        srv->wheel_frame_has_v120[ax] = true;
+    }
+}
+
 static void pointer_axis_rel_dir(void *data, struct wl_pointer *p, uint32_t a, uint32_t d) { (void)data; (void)p; (void)a; (void)d; }
 
 static const struct wl_pointer_listener g_pointer_listener = {
@@ -874,7 +1055,9 @@ registry_global(void *data, struct wl_registry *registry, uint32_t name,
             registry, name, &xdg_toplevel_icon_manager_v1_interface, 1);
     } else if (!strcmp(interface, wl_seat_interface.name)) {
         if (!srv->seat) {
-            uint32_t v = version < 7 ? version : 7;
+            uint32_t max_v = (uint32_t)wl_seat_interface.version;
+            if (max_v > 9u) max_v = 9u;
+            uint32_t v = version < max_v ? version : max_v;
             srv->seat = (struct wl_seat *)wl_registry_bind(registry, name, &wl_seat_interface, v);
             wl_seat_add_listener(srv->seat, &g_seat_listener, srv);
             _XmWlDataBindSeat(srv);
@@ -1074,6 +1257,56 @@ sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win, uint32_t changed_at
     }
 }
 
+static void
+apply_xrdb_wheel_settings(XmWlServer *srv, const char *txt, size_t len)
+{
+    if (!srv || !txt || len == 0)
+        return;
+    const char *p = txt;
+    const char *end = txt + len;
+    while (p < end) {
+        const char *nl = (const char *)memchr(p, '\n', (size_t)(end - p));
+        size_t l = nl ? (size_t)(nl - p) : (size_t)(end - p);
+        const char *colon = (const char *)memchr(p, ':', l);
+        if (colon) {
+            size_t klen = (size_t)(colon - p);
+            while (klen > 0 && isspace((unsigned char)p[klen - 1]))
+                klen--;
+            const char *val = colon + 1;
+            size_t vlen = (size_t)((p + l) - val);
+            while (vlen > 0 && isspace((unsigned char)*val)) {
+                val++;
+                vlen--;
+            }
+            if ((klen >= 15 && !strncasecmp(p + klen - 15, "mouseWheelSpeed", 15)) && vlen > 0) {
+                char nbuf[16];
+                size_t cn = vlen < sizeof(nbuf) - 1 ? vlen : sizeof(nbuf) - 1;
+                memcpy(nbuf, val, cn);
+                nbuf[cn] = '\0';
+                int sp = atoi(nbuf);
+                if (sp >= 1 && sp <= 20) {
+                    srv->wheel_speed_lines = sp;
+                    _XmSetWheelScrollSpeed(sp);
+                }
+            } else if ((klen >= 16 && !strncasecmp(p + klen - 16, "mouseWheelSmooth", 16)) && vlen > 0) {
+                bool sm = srv->wheel_smooth_enabled;
+                if (*val == '1' || *val == 't' || *val == 'T' || *val == 'y' || *val == 'Y' ||
+                    (vlen >= 2 && !strncasecmp(val, "on", 2)))
+                    sm = true;
+                else if (*val == '0' || *val == 'f' || *val == 'F' || *val == 'n' || *val == 'N' ||
+                         (vlen >= 3 && !strncasecmp(val, "off", 3)))
+                    sm = false;
+                if (!sm && srv->wheel_smooth_enabled) {
+                    srv->smooth_cancel_requested = true;
+                    _XmWaylandNotifyMainThread(srv);
+                }
+                srv->wheel_smooth_enabled = sm;
+            }
+        }
+        p = nl ? (nl + 1) : end;
+    }
+}
+
 void
 _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_atom)
 {
@@ -1111,6 +1344,8 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
                         !strncmp(aname, "_DT_", 4) ||
                         !strncmp(aname, "_DTWM_", 6))) {
                 _XmWlIpcPublishRootProp(srv, aname, rp->data, rp->byte_len);
+                if (!strncmp(aname, "RESOURCE_MANAGER", 16))
+                    apply_xrdb_wheel_settings(srv, (const char *)rp->data, rp->byte_len);
                 /* Avoid unbounded local append growth on _DT_WM_REQUEST */
                 if (!strcmp(aname, "_DT_WM_REQUEST"))
                     _XmWlDeleteProperty(srv, win, changed_atom, false);
@@ -1850,7 +2085,26 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                         for (int ci = 0; ci < XM_WL_MAX_CLIENTS; ++ci)
                             if (srv->clients[ci].active && srv->clients[ci].handshake_done)
                                 _XmWlSendEventToClient(&srv->clients[ci], ev);
+                    } else if (!strcmp(aname, "_DT_WAYLAND_WHEEL") && rlen > 0) {
+                        int nat = 0, sp = 3, sm = 1;
+                        if (sscanf((const char *)raw, "%d %d %d", &nat, &sp, &sm) >= 3) {
+                            (void)nat;
+                            if (sp >= 1 && sp <= 20) {
+                                srv->wheel_speed_lines = sp;
+                                _XmSetWheelScrollSpeed(sp);
+                            }
+                            bool new_sm = (sm != 0);
+                            if (!new_sm && srv->wheel_smooth_enabled) {
+                                srv->smooth_cancel_requested = true;
+                                _XmWaylandNotifyMainThread(srv);
+                            }
+                            srv->wheel_smooth_enabled = new_sm;
+                        }
+                        uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
+                        _XmWlSetProperty(srv, srv->root, atom, 31u, 8, 0, raw, rlen, true);
                     } else {
+                        if (!strcmp(aname, "RESOURCE_MANAGER") && rlen > 0)
+                            apply_xrdb_wheel_settings(srv, (const char *)raw, rlen);
                         uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
                         uint32_t utf8 = _XmWlInternAtom(srv, "UTF8_STRING", 11, false);
                         uint32_t ptype = (!strcmp(aname, "RESOURCE_MANAGER") ||
@@ -2164,7 +2418,207 @@ wayland_server_thread(void *arg)
     return NULL;
 }
 
-/* ---------- Main-Thread XtAppAddInput Wakeup ---------- */
+/* ---------- Main-Thread XtAppAddInput Wakeup & Smooth Scrolling ---------- */
+
+static void smooth_scroll_timer_cb(XtPointer closure, XtIntervalId *id);
+
+static Widget
+resolve_smooth_target_widget(Display *dpy, const uint32_t xids[8])
+{
+    if (!dpy)
+        return NULL;
+    for (size_t i = 0; i < 8 && xids[i] != 0; ++i) {
+        Widget w = XtWindowToWidget(dpy, (Window)xids[i]);
+        if (w && !w->core.being_destroyed)
+            return w;
+    }
+    return NULL;
+}
+
+static void
+fallback_discrete_wheel_from_main(XmWlServer *srv, int ax, double rem_v120)
+{
+    if (!srv || fabs(rem_v120) < 0.5)
+        return;
+    int32_t step = (int32_t)llround(rem_v120);
+    if (step == 0)
+        step = (rem_v120 < 0.0) ? -1 : 1;
+    pthread_mutex_lock(&srv->lock);
+    emit_discrete_wheel_v120(srv, ax, step, _XmWlNowMs());
+    _XmWlFlushClientWrites(srv);
+    pthread_mutex_unlock(&srv->lock);
+}
+
+static void
+run_smooth_scroll_frame(XmWlServer *srv)
+{
+    if (!srv || !srv->attached_xm_display) {
+        if (srv) {
+            srv->smooth_rem_v120[0] = 0.0;
+            srv->smooth_rem_v120[1] = 0.0;
+            srv->smooth_unit_carry[0] = 0.0;
+            srv->smooth_unit_carry[1] = 0.0;
+        }
+        return;
+    }
+
+    Display *dpy = XtDisplay(srv->attached_xm_display);
+    Widget leaf = resolve_smooth_target_widget(dpy, srv->smooth_active_chain);
+    srv->smooth_last_step_ms = _XmWlNowMs();
+
+    for (int ax = 0; ax < 2; ++ax) {
+        double rem = srv->smooth_rem_v120[ax];
+        if (fabs(rem) < 0.05) {
+            srv->smooth_rem_v120[ax] = 0.0;
+            continue;
+        }
+        if (!leaf) {
+            fallback_discrete_wheel_from_main(srv, ax, rem);
+            srv->smooth_rem_v120[ax] = 0.0;
+            srv->smooth_unit_carry[ax] = 0.0;
+            continue;
+        }
+
+        double step;
+        if (!srv->wheel_smooth_enabled) {
+            if (fabs(rem) < 60.0)
+                continue;
+            step = rem;
+        } else if (fabs(rem) <= 4.0) {
+            step = rem;
+        } else {
+            step = rem * 0.34;
+            if (fabs(step) < 4.0)
+                step = copysign(4.0, rem);
+        }
+
+        Boolean at_boundary = False;
+        Boolean handled = _XmSmoothScrollStep(
+            leaf, ax == 1 ? True : False, step,
+            &srv->smooth_unit_carry[ax], &at_boundary);
+
+        if (!handled) {
+            /* Non-scrollable widget (e.g. XmSpinBox / XmTabBox): forward exact
+             * accumulated delta to discrete Button4..Button7 translations. */
+            fallback_discrete_wheel_from_main(srv, ax, rem);
+            srv->smooth_rem_v120[ax] = 0.0;
+            srv->smooth_unit_carry[ax] = 0.0;
+            continue;
+        }
+
+        if (at_boundary) {
+            srv->smooth_rem_v120[ax] = 0.0;
+            srv->smooth_unit_carry[ax] = 0.0;
+        } else {
+            srv->smooth_rem_v120[ax] = rem - step;
+            if (fabs(srv->smooth_rem_v120[ax]) < 0.05)
+                srv->smooth_rem_v120[ax] = 0.0;
+        }
+    }
+    XFlush(dpy);
+}
+
+static void
+arm_smooth_scroll_timer_if_needed(XmWlServer *srv)
+{
+    if (!srv || !srv->attached_xm_display)
+        return;
+    bool active = srv->wheel_smooth_enabled &&
+                  (fabs(srv->smooth_rem_v120[0]) >= 0.05 ||
+                   fabs(srv->smooth_rem_v120[1]) >= 0.05);
+    if (active && !srv->smooth_timer_id) {
+        XtAppContext app = XtWidgetToApplicationContext(srv->attached_xm_display);
+        srv->smooth_timer_id = XtAppAddTimeOut(app, 12, smooth_scroll_timer_cb, srv);
+    } else if (!active && srv->smooth_timer_id) {
+        XtRemoveTimeOut(srv->smooth_timer_id);
+        srv->smooth_timer_id = 0;
+    }
+}
+
+static void
+drain_smooth_scroll_main_thread(XmWlServer *srv, bool allow_immediate_step)
+{
+    if (!srv)
+        return;
+    uint32_t new_chain[8] = {0};
+    double pending[2] = {0.0, 0.0};
+    bool has_pending = false;
+    bool cancel_req = false;
+
+    pthread_mutex_lock(&srv->lock);
+    if (srv->smooth_cancel_requested) {
+        cancel_req = true;
+        srv->smooth_cancel_requested = false;
+    }
+    if (srv->has_smooth_pending) {
+        memcpy(new_chain, srv->smooth_xid_chain, sizeof(new_chain));
+        pending[0] = srv->smooth_pending_v120[0];
+        pending[1] = srv->smooth_pending_v120[1];
+        srv->smooth_pending_v120[0] = 0.0;
+        srv->smooth_pending_v120[1] = 0.0;
+        srv->has_smooth_pending = false;
+        has_pending = true;
+    }
+    pthread_mutex_unlock(&srv->lock);
+
+    if (cancel_req) {
+        srv->smooth_rem_v120[0] = 0.0;
+        srv->smooth_rem_v120[1] = 0.0;
+        srv->smooth_unit_carry[0] = 0.0;
+        srv->smooth_unit_carry[1] = 0.0;
+        if (srv->smooth_timer_id) {
+            XtRemoveTimeOut(srv->smooth_timer_id);
+            srv->smooth_timer_id = 0;
+        }
+    }
+
+    if (!has_pending)
+        return;
+
+    /* Reset carry/momentum if the hovered leaf window changed */
+    if (new_chain[0] != 0 && new_chain[0] != srv->smooth_active_chain[0]) {
+        srv->smooth_rem_v120[0] = 0.0;
+        srv->smooth_rem_v120[1] = 0.0;
+        srv->smooth_unit_carry[0] = 0.0;
+        srv->smooth_unit_carry[1] = 0.0;
+    }
+    memcpy(srv->smooth_active_chain, new_chain, sizeof(new_chain));
+
+    for (int ax = 0; ax < 2; ++ax) {
+        if (fabs(pending[ax]) < 0.05)
+            continue;
+        /* Instantaneous direction reversal with zero reverse-momentum lag */
+        if ((srv->smooth_rem_v120[ax] > 0.0 && pending[ax] < 0.0) ||
+            (srv->smooth_rem_v120[ax] < 0.0 && pending[ax] > 0.0)) {
+            srv->smooth_rem_v120[ax] = 0.0;
+            srv->smooth_unit_carry[ax] = 0.0;
+        }
+        srv->smooth_rem_v120[ax] += pending[ax];
+    }
+
+    if (allow_immediate_step) {
+        uint64_t now = _XmWlNowMs();
+        if (!srv->smooth_timer_id || (now - srv->smooth_last_step_ms) >= 10ULL)
+            run_smooth_scroll_frame(srv);
+        arm_smooth_scroll_timer_if_needed(srv);
+    }
+}
+
+static void
+smooth_scroll_timer_cb(XtPointer closure, XtIntervalId *id)
+{
+    (void)id;
+    XmWlServer *srv = (XmWlServer *)closure;
+    if (!srv)
+        return;
+    srv->smooth_timer_id = 0;
+    drain_smooth_scroll_main_thread(srv, false);
+    if (fabs(srv->smooth_rem_v120[0]) >= 0.05 ||
+        fabs(srv->smooth_rem_v120[1]) >= 0.05) {
+        run_smooth_scroll_frame(srv);
+        arm_smooth_scroll_timer_if_needed(srv);
+    }
+}
 
 static void
 xt_wayland_wakeup_cb(XtPointer closure, int *source, XtInputId *id)
@@ -2190,6 +2644,7 @@ xt_wayland_wakeup_cb(XtPointer closure, int *source, XtInputId *id)
         XmSetDisplayScaleOverride(XtDisplay(srv->attached_xm_display), new_scale);
     }
     _XmWlImeDrainMainThread(srv);
+    drain_smooth_scroll_main_thread(srv, true);
 }
 
 void
@@ -2214,6 +2669,14 @@ _XmWaylandDetachDisplay(Widget xm_display)
     if (!srv || !xm_display) return;
     pthread_mutex_lock(&srv->lock);
     if (srv->attached_xm_display == xm_display) {
+        if (srv->smooth_timer_id) {
+            XtRemoveTimeOut(srv->smooth_timer_id);
+            srv->smooth_timer_id = 0;
+        }
+        srv->smooth_rem_v120[0] = 0.0;
+        srv->smooth_rem_v120[1] = 0.0;
+        srv->smooth_unit_carry[0] = 0.0;
+        srv->smooth_unit_carry[1] = 0.0;
         if (srv->xt_input_id) {
             XtRemoveInput(srv->xt_input_id);
             srv->xt_input_id = 0;
@@ -2304,6 +2767,8 @@ _XmWaylandEnsureDisplay(void)
     srv->logical_zoom = 1.0;
     srv->repeat_rate = 25;
     srv->repeat_delay = 400;
+    srv->wheel_speed_lines = 3;
+    srv->wheel_smooth_enabled = true;
     srv->x11_focus_win = 1u; /* PointerRoot */
     srv->x11_focus_revert = 1u;
 

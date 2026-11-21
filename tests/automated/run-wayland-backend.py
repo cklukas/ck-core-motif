@@ -46,6 +46,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         struct wl_resource *primary_surf;
         struct wl_resource *primary_xdg_surf;
         struct wl_resource *primary_xdg_top;
+        struct wl_resource *primary_ptr;
         struct wl_resource *primary_kbd;
         struct wl_resource *primary_data_dev;
         struct wl_resource *text_in_res;
@@ -238,6 +239,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         MiniSrv *ms = wl_resource_get_user_data(r);
         struct wl_resource *pr = wl_resource_create(c, &wl_pointer_interface, wl_resource_get_version(r), id);
         wl_resource_set_implementation(pr, &g_ptr_impl, ms, NULL);
+        if (!ms->primary_ptr) ms->primary_ptr = pr;
     }
     static void seat_get_keyboard(struct wl_client *c, struct wl_resource *r, uint32_t id) {
         MiniSrv *ms = wl_resource_get_user_data(r);
@@ -590,13 +592,86 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                 }
                 write_flag(ms.sync_dir, "resize_burst.sent");
                 stage = 4;
-            } else if (stage == 4 && file_exists(ms.sync_dir, "resize_burst.verified")) {
+            } else if (stage == 4 && file_exists(ms.sync_dir, "wheel_test.ready") &&
+                       ms.primary_ptr && ms.primary_surf) {
+                struct timespec wts = {0, 30 * 1000 * 1000L};
+                /* Hover left XmAUTOMATIC+DrawingArea pane at (90, 250) without clicking */
+                wl_pointer_send_enter(ms.primary_ptr, 700, ms.primary_surf,
+                                      wl_fixed_from_int(90), wl_fixed_from_int(250));
+                wl_pointer_send_motion(ms.primary_ptr, 1200,
+                                       wl_fixed_from_int(90), wl_fixed_from_int(250));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                nanosleep(&wts, NULL);
+
+                /* Sub-notch 3.75px (30-v120 = 1/4 notch) smooth pixel scroll */
+                wl_pointer_send_axis(ms.primary_ptr, 1220, WL_POINTER_AXIS_VERTICAL_SCROLL,
+                                     wl_fixed_from_double(3.75));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                write_flag(ms.sync_dir, "wheel_subnotch.sent");
                 stage = 5;
+            } else if (stage == 5 && file_exists(ms.sync_dir, "wheel_subnotch.verified")) {
+                /* Tick 1: discrete wheel event with axis(0) (tests axis_discrete fallback) */
+                wl_pointer_send_axis_discrete(ms.primary_ptr, WL_POINTER_AXIS_VERTICAL_SCROLL, 1);
+                wl_pointer_send_axis(ms.primary_ptr, 1240, WL_POINTER_AXIS_VERTICAL_SCROLL, wl_fixed_from_int(0));
+                wl_pointer_send_frame(ms.primary_ptr);
+                /* Tick 2: continuous 15px scroll step */
+                wl_pointer_send_axis(ms.primary_ptr, 1280, WL_POINTER_AXIS_VERTICAL_SCROLL, wl_fixed_from_int(15));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                write_flag(ms.sync_dir, "wheel_auto.sent");
+                stage = 6;
+            } else if (stage == 6 && file_exists(ms.sync_dir, "wheel_auto.verified")) {
+                struct timespec wts = {0, 25 * 1000 * 1000L};
+                /* Hover right XmAPPLICATION_DEFINED pane at (400, 250) without clicking */
+                wl_pointer_send_motion(ms.primary_ptr, 1500,
+                                       wl_fixed_from_int(400), wl_fixed_from_int(250));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                nanosleep(&wts, NULL);
+
+                wl_pointer_send_axis_discrete(ms.primary_ptr, WL_POINTER_AXIS_VERTICAL_SCROLL, 1);
+                wl_pointer_send_axis(ms.primary_ptr, 1540, WL_POINTER_AXIS_VERTICAL_SCROLL, wl_fixed_from_int(15));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_pointer_send_axis_discrete(ms.primary_ptr, WL_POINTER_AXIS_VERTICAL_SCROLL, 1);
+                wl_pointer_send_axis(ms.primary_ptr, 1580, WL_POINTER_AXIS_VERTICAL_SCROLL, wl_fixed_from_int(15));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+
+                write_flag(ms.sync_dir, "wheel_test.sent");
+                stage = 7;
+            } else if (stage == 7 && file_exists(ms.sync_dir, "wheel_mid.verified")) {
+                /* Rapid 12ms continuous hi-res stream scrolling all the way to the end (160) */
+                struct timespec fts = {0, 12 * 1000 * 1000L};
+                for (int s = 0; s < 16; ++s) {
+                    wl_pointer_send_axis(ms.primary_ptr, (uint32_t)(1700 + s * 12),
+                                         WL_POINTER_AXIS_VERTICAL_SCROLL, wl_fixed_from_double(4.5));
+                    wl_pointer_send_frame(ms.primary_ptr);
+                    wl_display_flush_clients(ms.dpy);
+                    nanosleep(&fts, NULL);
+                }
+                write_flag(ms.sync_dir, "wheel_to_end.sent");
+                stage = 8;
+            } else if (stage == 8 && file_exists(ms.sync_dir, "wheel_to_end.verified")) {
+                /* Rapid 12ms continuous hi-res stream scrolling all the way back to start (0) */
+                struct timespec fts = {0, 12 * 1000 * 1000L};
+                for (int s = 0; s < 24; ++s) {
+                    wl_pointer_send_axis(ms.primary_ptr, (uint32_t)(2000 + s * 12),
+                                         WL_POINTER_AXIS_VERTICAL_SCROLL, wl_fixed_from_double(-4.5));
+                    wl_pointer_send_frame(ms.primary_ptr);
+                    wl_display_flush_clients(ms.dpy);
+                    nanosleep(&fts, NULL);
+                }
+                write_flag(ms.sync_dir, "wheel_to_start.sent");
+                stage = 9;
+            } else if (stage == 9 && file_exists(ms.sync_dir, "wheel_test.verified")) {
+                stage = 10;
                 break;
             }
         }
         wl_display_destroy(ms.dpy);
-        return (stage == 5 && ms.dnd_finished_seen) ? 0 : 1;
+        return (stage == 10 && ms.dnd_finished_seen) ? 0 : 1;
     }
     """
 )

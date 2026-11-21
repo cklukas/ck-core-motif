@@ -1010,11 +1010,39 @@ _XmWlDispatchPointerMotion(XmWlServer *srv, XmWlWindow *top, int16_t sx, int16_t
     deliver_propagated_pointer_event(srv, leaf, mmask, 6 /* MotionNotify */, 0, time_ms);
 }
 
+XM_WL_INTERNAL size_t
+_XmWlHitTestWindowChain(XmWlServer *srv, uint32_t out_xids[8])
+{
+    for (size_t i = 0; i < 8; ++i)
+        out_xids[i] = 0;
+    if (!srv)
+        return 0;
+    XmWlWindow *top = srv->pointer_top;
+    if (!top && srv->popup_depth > 0)
+        top = srv->popup_stack[srv->popup_depth - 1];
+    if (!top)
+        top = srv->wl_focus_top;
+    if (!top)
+        return 0;
+
+    int wx = 0, wy = 0;
+    XmWlWindow *leaf = hit_test_child_at(srv, top, srv->ptr_surf_x, srv->ptr_surf_y, &wx, &wy);
+    if (!leaf)
+        leaf = top;
+
+    size_t count = 0;
+    for (XmWlWindow *cur = leaf; cur && cur != srv->root && count < 8; cur = cur->parent) {
+        out_xids[count++] = cur->id;
+    }
+    return count;
+}
+
 void
 _XmWlDispatchPointerButton(XmWlServer *srv, uint8_t button, bool pressed, uint32_t time_ms)
 {
     if (!srv || button < 1) return;
     srv->server_time_ms = time_ms;
+    bool is_wheel = (button >= 4 && button <= 7);
 
     XmWlWindow *top = srv->pointer_top;
     if (!top && srv->popup_depth > 0)
@@ -1028,10 +1056,12 @@ _XmWlDispatchPointerButton(XmWlServer *srv, uint8_t button, bool pressed, uint32
     if (!leaf) leaf = top;
 
     if (pressed) {
-        /* Check passive button grabs from root down to leaf */
+        /* Check passive button grabs from root down to leaf.
+         * Never match AnyButton (button == 0) passive grabs on scroll-wheel
+         * buttons 4..7, as press-only AnyButton grabs swallow <Btn4Up>/<Btn5Up>. */
         for (size_t g = 0; g < srv->passive_grab_count && !srv->ptr_grab_active; ++g) {
             const XmWlPassiveButtonGrab *pg = &srv->passive_grabs[g];
-            if (pg->button != 0 && pg->button != button)
+            if (is_wheel ? (pg->button != button) : (pg->button != 0 && pg->button != button))
                 continue;
             if (pg->modifiers != 0x8000u && pg->modifiers != srv->mod_mask)
                 continue;

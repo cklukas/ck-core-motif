@@ -449,6 +449,30 @@ struct XmWlServer {
     uint16_t button_mask;
     uint16_t mod_mask;
 
+    /* High-resolution & discrete Wayland pointer axis state (0=vert, 1=horiz) */
+    double wheel_frame_px[2];
+    int32_t wheel_frame_v120[2];
+    bool wheel_frame_has_px[2];
+    bool wheel_frame_has_v120[2];
+    uint32_t wheel_frame_time_ms;
+    int32_t wheel_accum_v120[2];
+    bool wheel_gesture_active[2];
+    int wheel_last_dir[2];
+    uint64_t wheel_last_ms[2];
+
+    /* Main-thread ~83 Hz Wayland smooth-scrolling queue & interpolator */
+    int wheel_speed_lines;
+    bool wheel_smooth_enabled;
+    uint32_t smooth_xid_chain[8];
+    double smooth_pending_v120[2];
+    bool has_smooth_pending;
+    bool smooth_cancel_requested;
+    XtIntervalId smooth_timer_id;
+    uint32_t smooth_active_chain[8];
+    double smooth_rem_v120[2];
+    double smooth_unit_carry[2];
+    uint64_t smooth_last_step_ms;
+
     XmWlWindow *wl_focus_top;
     uint32_t x11_focus_win;
     uint8_t x11_focus_revert;
@@ -577,6 +601,7 @@ XM_WL_INTERNAL void _XmWlFlushClientWrites(XmWlServer *srv);
 XM_WL_INTERNAL void _XmWlDisconnectClient(XmWlServer *srv, int client_idx);
 XM_WL_INTERNAL void _XmWlDispatchPointerMotion(XmWlServer *srv, XmWlWindow *top, int16_t sx, int16_t sy, uint32_t time_ms);
 XM_WL_INTERNAL void _XmWlDispatchPointerButton(XmWlServer *srv, uint8_t button, bool pressed, uint32_t time_ms);
+XM_WL_INTERNAL size_t _XmWlHitTestWindowChain(XmWlServer *srv, uint32_t out_xids[8]);
 XM_WL_INTERNAL void _XmWlCancelActiveDragGrab(XmWlServer *srv, uint32_t time_ms);
 XM_WL_INTERNAL void _XmWlDispatchPointerLeaveTop(XmWlServer *srv, XmWlWindow *top, uint32_t time_ms);
 XM_WL_INTERNAL void _XmWlDispatchKey(XmWlServer *srv, uint8_t x11_keycode, bool pressed, uint32_t time_ms);

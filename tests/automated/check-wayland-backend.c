@@ -17,6 +17,7 @@
 #include <Xm/Appearance.h>
 #include <Xm/CascadeB.h>
 #include <Xm/Display.h>
+#include <Xm/DrawingA.h>
 #include <Xm/DropSMgr.h>
 #include <Xm/DropTrans.h>
 #include <Xm/Form.h>
@@ -26,6 +27,8 @@
 #include <Xm/PushB.h>
 #include <Xm/RowColumn.h>
 #include <Xm/Scale.h>
+#include <Xm/ScrollBar.h>
+#include <Xm/ScrolledW.h>
 #include <Xm/Text.h>
 #include <Xm/TextF.h>
 #include <Xm/ToggleB.h>
@@ -950,11 +953,128 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
     }
     write_stage_file(sync_dir, "resize_burst.verified");
 
+    /* Verify unfocused hover-wheel scrolling on both:
+     * 1) XmAUTOMATIC ScrolledWindow whose DrawingArea child wipes/overrides
+     *    translations (<BtnDown>/<BtnUp>: DrawingAreaInput()), and
+     * 2) XmAPPLICATION_DEFINED ScrolledWindow with a custom ScrollBar,
+     * while keyboard focus stays on tf (XmEXPLICIT). */
+    XtVaSetValues(drop_lbl, XmNbottomAttachment, XmATTACH_NONE, XmNheight, 44, NULL);
+
+    Widget sw_auto = XtVaCreateManagedWidget(
+        "swAuto", xmScrolledWindowWidgetClass, form,
+        XmNscrollingPolicy, XmAUTOMATIC,
+        XmNtopAttachment, XmATTACH_FORM, XmNtopOffset, 170,
+        XmNleftAttachment, XmATTACH_FORM, XmNleftOffset, 12,
+        XmNwidth, 260, XmNheight, 180,
+        NULL);
+    Widget da_auto = XtVaCreateManagedWidget(
+        "daAuto", xmDrawingAreaWidgetClass, sw_auto,
+        XmNwidth, 220, XmNheight, 640,
+        NULL);
+    XtUninstallTranslations(da_auto);
+    XtOverrideTranslations(
+        da_auto,
+        XtParseTranslationTable("<BtnDown>: DrawingAreaInput()\n<BtnUp>: DrawingAreaInput()"));
+
+    Widget sw_app = XtVaCreateManagedWidget(
+        "swApp", xmScrolledWindowWidgetClass, form,
+        XmNscrollingPolicy, XmAPPLICATION_DEFINED,
+        XmNvisualPolicy, XmVARIABLE,
+        XmNtopAttachment, XmATTACH_FORM, XmNtopOffset, 170,
+        XmNleftAttachment, XmATTACH_FORM, XmNleftOffset, 310,
+        XmNwidth, 260, XmNheight, 180,
+        NULL);
+    Widget sb_app = XtVaCreateManagedWidget(
+        "sbApp", xmScrollBarWidgetClass, sw_app,
+        XmNorientation, XmVERTICAL,
+        XmNminimum, 0, XmNmaximum, 200,
+        XmNsliderSize, 40, XmNincrement, 10, XmNpageIncrement, 40,
+        XmNvalue, 0,
+        NULL);
+    Widget da_app = XtVaCreateManagedWidget(
+        "daApp", xmDrawingAreaWidgetClass, sw_app,
+        XmNwidth, 220, XmNheight, 170,
+        NULL);
+    XmScrolledWindowSetAreas(sw_app, NULL, sb_app, da_app);
+
+    XmProcessTraversal(tf, XmTRAVERSE_CURRENT);
+    pump_xt_ms(app, dpy, 200);
+    write_stage_file(sync_dir, "wheel_test.ready");
+    wait_for_stage_file(app, dpy, sync_dir, "wheel_subnotch.sent", 5000);
+    pump_xt_ms(app, dpy, 220);
+
+    Widget sb_auto = NULL;
+    XtVaGetValues(sw_auto, XmNverticalScrollBar, &sb_auto, NULL);
+    int subnotch_val = 0;
+    if (sb_auto)
+        XtVaGetValues(sb_auto, XmNvalue, &subnotch_val, NULL);
+    if (subnotch_val <= 0 || subnotch_val >= 30) {
+        fprintf(stderr, "FAIL: sub-notch smooth scroll expected 1..29 px, got %d\n", subnotch_val);
+        exit(1);
+    }
+    write_stage_file(sync_dir, "wheel_subnotch.verified");
+
+    wait_for_stage_file(app, dpy, sync_dir, "wheel_auto.sent", 5000);
+    /* Sample intermediate glide frames on sw_auto to verify smooth multi-frame interpolation */
+    int distinct_auto_frames = 0, last_sampled_auto = subnotch_val;
+    for (int f = 0; f < 22; ++f) {
+        pump_xt_ms(app, dpy, 12);
+        int cur_auto = 0;
+        if (sb_auto)
+            XtVaGetValues(sb_auto, XmNvalue, &cur_auto, NULL);
+        if (cur_auto != last_sampled_auto) {
+            distinct_auto_frames++;
+            last_sampled_auto = cur_auto;
+        }
+    }
+    int auto_val = 0, app_val = 0;
+    if (sb_auto)
+        XtVaGetValues(sb_auto, XmNvalue, &auto_val, NULL);
+    if (auto_val <= subnotch_val + 60 || distinct_auto_frames < 2) {
+        fprintf(stderr, "FAIL: unfocused XmAUTOMATIC smooth wheel failed (val=%d frames=%d)\n",
+                auto_val, distinct_auto_frames);
+        exit(1);
+    }
+    write_stage_file(sync_dir, "wheel_auto.verified");
+
+    wait_for_stage_file(app, dpy, sync_dir, "wheel_test.sent", 5000);
+    pump_xt_ms(app, dpy, 260);
+    XtVaGetValues(sb_app, XmNvalue, &app_val, NULL);
+    if (app_val != 60) {
+        fprintf(stderr, "FAIL: unfocused XmAPPLICATION_DEFINED wheel expected 60, got %d\n", app_val);
+        exit(1);
+    }
+    write_stage_file(sync_dir, "wheel_mid.verified");
+
+    /* Verify rapid continuous scrolling all the way to the end (160) and back to start (0) */
+    wait_for_stage_file(app, dpy, sync_dir, "wheel_to_end.sent", 5000);
+    pump_xt_ms(app, dpy, 300);
+    int app_end = 0;
+    XtVaGetValues(sb_app, XmNvalue, &app_end, NULL);
+    if (app_end != 160) {
+        fprintf(stderr, "FAIL: continuous scroll to end expected 160, got %d\n", app_end);
+        exit(1);
+    }
+    write_stage_file(sync_dir, "wheel_to_end.verified");
+
+    wait_for_stage_file(app, dpy, sync_dir, "wheel_to_start.sent", 5000);
+    pump_xt_ms(app, dpy, 300);
+    int app_start = -1;
+    XtVaGetValues(sb_app, XmNvalue, &app_start, NULL);
+    if (app_start != 0) {
+        fprintf(stderr, "FAIL: continuous scroll back to start expected 0, got %d\n", app_start);
+        exit(1);
+    }
+    if (XmGetFocusWidget(shell) != tf) {
+        fail_msg("hover mouse-wheel unexpectedly stole keyboard focus from XmTextField");
+    }
+    write_stage_file(sync_dir, "wheel_test.verified");
+
     XtDestroyWidget(shell);
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);
-    printf("PASS ime-dnd-clipboard-resize-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40)\n",
-           g_resize_dispatches);
+    printf("PASS ime-dnd-clipboard-resize-wheel-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40 wheel_subnotch=%d wheel_auto=%d[frames=%d] wheel_app=0->%d->%d->%d)\n",
+           g_resize_dispatches, subnotch_val, auto_val, distinct_auto_frames, app_val, app_end, app_start);
     return 0;
 }
 

@@ -333,6 +333,13 @@ extern Pixel _XmAppearanceHoverSurfacePixel(Widget widget, Pixel base);
 extern void _XmSetFocusModalityKeyboard(Widget widget, Boolean is_keyboard);
 extern Boolean _XmFocusHighlightVisible(Widget widget);
 extern Boolean _XmForwardWheelEvent(Widget from_widget, XEvent *event);
+extern void _XmSetWheelScrollSpeed(int lines_per_notch);
+extern int _XmGetWheelScrollSpeed(void);
+extern Boolean _XmSmoothScrollStep(Widget leaf,
+                                   Boolean horizontal,
+                                   double delta_v120,
+                                   double *carry_inout,
+                                   Boolean *at_boundary_out);
 
 extern void _XmAppearanceInheritFont(Widget child, Widget owner);
 extern void _XmAppearanceInheritForeground(Widget child, Widget owner);

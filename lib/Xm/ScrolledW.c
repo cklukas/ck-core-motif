@@ -33,6 +33,7 @@ static char rcsid[] = "$TOG: ScrolledW.c /main/16 1997/07/25 16:49:57 samborn $"
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>                               /* for abs, float operation... */
 #endif
+#include <math.h>
 
 #include <Xm/ClipWindowP.h>
 #include <Xm/List.h>
@@ -496,7 +497,9 @@ static XmSyntheticResource syn_resources[] =
 static void WheelScroll(Widget, XEvent *, String *, Cardinal *);
 static void WheelChildCreated(Widget, XtPointer, XtPointer);
 static void WheelPrepare(Widget, XtPointer, XEvent *, Boolean *);
+static void WheelReleaseEH(Widget, XtPointer, XEvent *, Boolean *);
 static void WheelActionHook(Widget, XtPointer, String, XEvent *, String *, Cardinal *);
+static void AttachWheelHandlersRecursive(Widget, Widget);
 static XtTranslations wheel_translations;
 
 static XtActionsRec actions[] =
@@ -1317,6 +1320,18 @@ Cardinal *num_args )
         else
             new_w->swindow.AreaHeight = 2 ;
 
+        /* Register wheel fallback handlers for APPLICATION_DEFINED scrolled
+           windows as well so custom work areas (DrawingArea, TermView, etc.)
+           scroll their managed vertical/horizontal ScrollBar under the cursor
+           without initializing the AUTOMATIC scrollFrame trait. */
+        XtAddCallback(XtHooksOfDisplay(XtDisplay(nw)), XtNcreateHook,
+                      WheelChildCreated, nw);
+        XtAugmentTranslations(nw, wheel_translations);
+        XtInsertEventHandler(nw, ButtonPressMask, False, WheelPrepare, NULL, XtListHead);
+        XtInsertEventHandler(nw, ButtonReleaseMask, False, WheelReleaseEH, NULL, XtListTail);
+        new_w->swindow.wheel_action_hook = XtAppAddActionHook(
+            XtWidgetToApplicationContext(nw), WheelActionHook, nw);
+
         /* In app defined, we do not initialize the scrollframe,
            so that List and Text could check that it
            hasn't been done yet and do it */
@@ -1335,6 +1350,7 @@ Cardinal *num_args )
                   WheelChildCreated, nw);
     XtAugmentTranslations(nw, wheel_translations);
     XtInsertEventHandler(nw, ButtonPressMask, False, WheelPrepare, NULL, XtListHead);
+    XtInsertEventHandler(nw, ButtonReleaseMask, False, WheelReleaseEH, NULL, XtListTail);
     new_w->swindow.wheel_action_hook = XtAppAddActionHook(
         XtWidgetToApplicationContext(nw), WheelActionHook, nw);
     new_w->swindow.InInit = True;
@@ -1654,6 +1670,7 @@ Widget w )
     if (sw->swindow.InInit)
     {
         (*insert_child)(w);
+        AttachWheelHandlersRecursive(w, (Widget)sw);
     }
     else
     {
@@ -1704,6 +1721,7 @@ Widget w )
            insert it in the clipwindow child list */
 
         (*insert_child)(w);
+        AttachWheelHandlersRecursive(w, (Widget)sw);
 
         /* Widgets already there might still be hanging around,
            it is the responsability of the application to destroy
@@ -3140,8 +3158,21 @@ XmScrolledWindowWidget sw)
 }
 
 
-/* Xt resolves action names through ancestor classes. Augmented translations
- * supply a fallback without replacing a descendant's own wheel bindings. */
+/* Xt resolves action names through ancestor classes. Event handlers on press
+ * (head) and release (tail) plus augmented translations supply a wheel fallback
+ * for both AUTOMATIC and APPLICATION_DEFINED ScrolledWindows, even when a child
+ * widget defines generic <BtnDown>/<BtnUp> actions (such as DrawingAreaInput)
+ * or calls XtUninstallTranslations/XtOverrideTranslations after creation. */
+static struct {
+    XmScrolledWindowWidget sw;
+    Window window;
+    unsigned int button;
+    Widget vbar;
+    int vval;
+    Widget hbar;
+    int hval;
+} g_wheel_press_snapshot;
+
 static XmScrolledWindowWidget
 WheelOwner(Widget widget)
 {
@@ -3150,10 +3181,31 @@ WheelOwner(Widget widget)
             XmIsTreeView(widget) || XmIsDataGrid(widget) || XtIsShell(widget))
             return NULL;
         if (XmIsScrolledWindow(widget))
-            return ((XmScrolledWindowWidget)widget)->swindow.ScrollPolicy == XmAUTOMATIC
-                ? (XmScrolledWindowWidget)widget : NULL;
+            return (XmScrolledWindowWidget)widget;
     }
     return NULL;
+}
+
+static void
+AttachWheelHandlersRecursive(Widget w, Widget owner)
+{
+    if (!w || !XtIsWidget(w) || w->core.being_destroyed)
+        return;
+    if ((Widget)WheelOwner(w) == owner) {
+        XtAugmentTranslations(w, wheel_translations);
+        XtRemoveEventHandler(w, ButtonPressMask, False, WheelPrepare, NULL);
+        XtInsertEventHandler(w, ButtonPressMask, False,
+                             WheelPrepare, NULL, XtListHead);
+        XtRemoveEventHandler(w, ButtonReleaseMask, False, WheelReleaseEH, NULL);
+        XtInsertEventHandler(w, ButtonReleaseMask, False,
+                             WheelReleaseEH, NULL, XtListTail);
+    }
+    if (XtIsComposite(w) && !XmIsScrolledWindow(w)) {
+        CompositeWidget cw = (CompositeWidget)w;
+        Cardinal i;
+        for (i = 0; i < cw->composite.num_children; ++i)
+            AttachWheelHandlersRecursive(cw->composite.children[i], owner);
+    }
 }
 
 static void
@@ -3164,10 +3216,32 @@ WheelChildCreated(Widget hooks, XtPointer closure, XtPointer call_data)
     (void)hooks;
     if (data && data->widget && XtIsWidget(data->widget) &&
         (Widget)WheelOwner(data->widget) == owner) {
-        XtAugmentTranslations(data->widget, wheel_translations);
-        XtInsertEventHandler(data->widget, ButtonPressMask, False,
-                             WheelPrepare, NULL, XtListHead);
+        AttachWheelHandlersRecursive(data->widget, owner);
     }
+}
+
+static Boolean
+WheelActionIsPassThrough(String action)
+{
+    if (!action)
+        return True;
+    return !strcmp(action, "ScrolledWindowWheel") ||
+           !strcmp(action, "DrawingAreaInput") ||
+           !strcmp(action, "ManagerGadgetArm") ||
+           !strcmp(action, "ManagerGadgetActivate") ||
+           !strcmp(action, "ManagerGadgetMultiArm") ||
+           !strcmp(action, "ManagerGadgetMultiActivate") ||
+           !strcmp(action, "ManagerGadgetButtonMotion") ||
+           !strcmp(action, "ManagerGadgetDrag") ||
+           !strcmp(action, "ManagerParentActivate") ||
+           !strcmp(action, "PrimitiveParentActivate") ||
+           !strcmp(action, "Enter") ||
+           !strcmp(action, "Leave") ||
+           !strcmp(action, "PrimitiveEnter") ||
+           !strcmp(action, "PrimitiveLeave") ||
+           !strcmp(action, "ManagerEnter") ||
+           !strcmp(action, "ManagerLeave") ||
+           !strcmp(action, "ClearTraversal");
 }
 
 /* An existing press-only action and our longer fallback sequence can share
@@ -3178,10 +3252,27 @@ WheelPrepare(Widget widget, XtPointer closure, XEvent *event, Boolean *dispatch)
 {
     XmScrolledWindowWidget sw = WheelOwner(widget);
     (void)closure; (void)dispatch;
-    if (!sw || event->type != ButtonPress || sw->core.being_destroyed) return;
+    if (!sw || !event || event->type != ButtonPress || sw->core.being_destroyed)
+        return;
+    if (event->xbutton.button < 4 || event->xbutton.button > 7)
+        return;
     sw->swindow.wheel_window = event->xbutton.window;
     sw->swindow.wheel_button = event->xbutton.button;
     sw->swindow.wheel_claimed = False;
+
+    _XmProcessLock();
+    g_wheel_press_snapshot.sw = sw;
+    g_wheel_press_snapshot.window = event->xbutton.window;
+    g_wheel_press_snapshot.button = event->xbutton.button;
+    g_wheel_press_snapshot.vbar = (Widget)sw->swindow.vScrollBar;
+    g_wheel_press_snapshot.vval =
+        (sw->swindow.vScrollBar && !sw->swindow.vScrollBar->core.being_destroyed)
+            ? sw->swindow.vScrollBar->scrollBar.value : 0;
+    g_wheel_press_snapshot.hbar = (Widget)sw->swindow.hScrollBar;
+    g_wheel_press_snapshot.hval =
+        (sw->swindow.hScrollBar && !sw->swindow.hScrollBar->core.being_destroyed)
+            ? sw->swindow.hScrollBar->scrollBar.value : 0;
+    _XmProcessUnlock();
 }
 
 static void
@@ -3193,24 +3284,25 @@ WheelActionHook(Widget widget, XtPointer closure, String action, XEvent *event,
     if (!event || (event->type != ButtonPress && event->type != ButtonRelease) ||
         event->xbutton.button < 4 || event->xbutton.button > 7 ||
         sw->core.being_destroyed || WheelOwner(widget) != sw ||
-        !strcmp(action, "ScrolledWindowWheel")) return;
+        WheelActionIsPassThrough(action)) return;
     if (event->xbutton.window == sw->swindow.wheel_window &&
         event->xbutton.button == sw->swindow.wheel_button)
         sw->swindow.wheel_claimed = True;
 }
 
 static void
-WheelScroll(Widget widget, XEvent *event, String *params, Cardinal *count)
+WheelScrollCore(Widget widget, XEvent *event)
 {
     XmScrolledWindowWidget sw;
     Widget bar;
     Boolean horizontal;
-    XtEnum editable;
-    unsigned char direction;
-    int value, size, increment, page, minimum, maximum;
+    Boolean bar_already_moved = False;
+    XtEnum editable = True;
+    unsigned char direction = XmMAX_ON_BOTTOM;
+    int value, size, increment, page, minimum, maximum, step_inc;
     int64_t next, limit, delta;
     unsigned button;
-    (void)params; (void)count;
+
     if (!event || event->type != ButtonRelease || !XtIsSensitive(widget) ||
         !_XmModalInputAllowed(widget) ||
         (event->xbutton.state & (ControlMask | Mod1Mask | Mod4Mask))) return;
@@ -3220,24 +3312,106 @@ WheelScroll(Widget widget, XEvent *event, String *params, Cardinal *count)
     if (sw->swindow.wheel_window != event->xbutton.window ||
         sw->swindow.wheel_button != button || sw->swindow.wheel_claimed) return;
     sw->swindow.wheel_window = None;
+
     horizontal = button >= 6 || (event->xbutton.state & ShiftMask);
     bar = (Widget)(horizontal ? sw->swindow.hScrollBar : sw->swindow.vScrollBar);
-    if (!bar || bar->core.being_destroyed || !XtIsSensitive(bar)) return;
+    if (!bar || bar->core.being_destroyed || !XtIsManaged(bar) ||
+        !XtIsSensitive(bar)) {
+        (void)_XmForwardWheelEvent((Widget)sw, event);
+        return;
+    }
+
     XtVaGetValues(bar, XmNminimum, &minimum, XmNmaximum, &maximum,
         XmNprocessingDirection, &direction, XmNeditable, &editable, NULL);
-    if (!editable) return;
     XmScrollBarGetValues(bar, &value, &size, &increment, &page);
+
+    _XmProcessLock();
+    if (g_wheel_press_snapshot.sw == sw &&
+        g_wheel_press_snapshot.window == event->xbutton.window &&
+        g_wheel_press_snapshot.button == button) {
+        if ((bar == g_wheel_press_snapshot.vbar && value != g_wheel_press_snapshot.vval) ||
+            (bar == g_wheel_press_snapshot.hbar && value != g_wheel_press_snapshot.hval)) {
+            bar_already_moved = True;
+        }
+    }
+    _XmProcessUnlock();
+    if (bar_already_moved)
+        return;
+
+    if (!editable) {
+        (void)_XmForwardWheelEvent((Widget)sw, event);
+        return;
+    }
     limit = (int64_t)maximum - size;
-    if (limit <= minimum || increment <= 0) return;
-    delta = 3LL * increment * ((button == 4 || button == 6) ? -1 : 1);
+    if (limit <= minimum) {
+        (void)_XmForwardWheelEvent((Widget)sw, event);
+        return;
+    }
+    step_inc = increment > 0 ? increment : (page > 0 ? (page / 10 > 0 ? page / 10 : 1) : 1);
+    delta = (int64_t)_XmGetWheelScrollSpeed() * step_inc;
+    /* In XmAUTOMATIC mode, Motif initializes scrollbar increment to vmax / 10,
+     * which grows arbitrarily large on tall work areas (e.g. directories with
+     * hundreds of icons). Cap per-tick wheel delta relative to the viewport
+     * page size so scrolling stays smooth from start to end of tall areas. */
+    if (sw->swindow.ScrollPolicy == XmAUTOMATIC && page > 0) {
+        int64_t base_smooth = page / 4 > 36 ? page / 4 : 36;
+        int64_t max_smooth = (base_smooth * _XmGetWheelScrollSpeed() + 1) / 3;
+        if (max_smooth < 12)
+            max_smooth = 12;
+        if (delta > max_smooth)
+            delta = max_smooth;
+    }
+    if (button == 4 || button == 6)
+        delta = -delta;
     if (direction == XmMAX_ON_TOP || direction == XmMAX_ON_LEFT) delta = -delta;
     next = (int64_t)value + delta;
     if (next < minimum) next = minimum;
     if (next > limit) next = limit;
-    if (next == value) return;
+    if (next == value) {
+        (void)_XmForwardWheelEvent((Widget)sw, event);
+        return;
+    }
     /* One clamped update, including the native scroll-frame callback. A
      * callback can destroy the scrollbar or owner: never access either again. */
-    XmScrollBarSetValues(bar, (int)next, size, increment, page, True);
+    XmScrollBarSetValues(bar, (int)next, size, increment > 0 ? increment : step_inc, page, True);
+}
+
+static void
+WheelScroll(Widget widget, XEvent *event, String *params, Cardinal *count)
+{
+    (void)params; (void)count;
+    WheelScrollCore(widget, event);
+}
+
+static void
+WheelReleaseEH(Widget widget, XtPointer closure, XEvent *event, Boolean *dispatch)
+{
+    (void)closure; (void)dispatch;
+    WheelScrollCore(widget, event);
+}
+
+static int g_wheel_scroll_lines = 3;
+
+void
+_XmSetWheelScrollSpeed(int lines_per_notch)
+{
+    if (lines_per_notch < 1)
+        lines_per_notch = 1;
+    if (lines_per_notch > 20)
+        lines_per_notch = 20;
+    _XmProcessLock();
+    g_wheel_scroll_lines = lines_per_notch;
+    _XmProcessUnlock();
+}
+
+int
+_XmGetWheelScrollSpeed(void)
+{
+    int v;
+    _XmProcessLock();
+    v = g_wheel_scroll_lines;
+    _XmProcessUnlock();
+    return v;
 }
 
 Boolean
@@ -3264,7 +3438,7 @@ _XmForwardWheelEvent(Widget from_widget, XEvent *event)
             Widget bar;
             XtEnum editable = True;
             unsigned char direction = XmMAX_ON_BOTTOM;
-            int value, size, increment, page, minimum, maximum;
+            int value, size, increment, page, minimum, maximum, step_inc;
             int64_t next, limit, delta;
 
             if (sw->core.being_destroyed || !XtIsSensitive(cur))
@@ -3280,9 +3454,20 @@ _XmForwardWheelEvent(Widget from_widget, XEvent *event)
                 continue;
             XmScrollBarGetValues(bar, &value, &size, &increment, &page);
             limit = (int64_t)maximum - size;
-            if (limit <= minimum || increment <= 0)
+            if (limit <= minimum)
                 continue;
-            delta = 3LL * increment * ((button == 4 || button == 6) ? -1 : 1);
+            step_inc = increment > 0 ? increment : (page > 0 ? (page / 10 > 0 ? page / 10 : 1) : 1);
+            delta = (int64_t)_XmGetWheelScrollSpeed() * step_inc;
+            if (sw->swindow.ScrollPolicy == XmAUTOMATIC && page > 0) {
+                int64_t base_smooth = page / 4 > 36 ? page / 4 : 36;
+                int64_t max_smooth = (base_smooth * _XmGetWheelScrollSpeed() + 1) / 3;
+                if (max_smooth < 12)
+                    max_smooth = 12;
+                if (delta > max_smooth)
+                    delta = max_smooth;
+            }
+            if (button == 4 || button == 6)
+                delta = -delta;
             if (direction == XmMAX_ON_TOP || direction == XmMAX_ON_LEFT)
                 delta = -delta;
             next = (int64_t)value + delta;
@@ -3292,9 +3477,344 @@ _XmForwardWheelEvent(Widget from_widget, XEvent *event)
                 next = limit;
             if (next == value)
                 continue;
-            XmScrollBarSetValues(bar, (int)next, size, increment, page, True);
+            XmScrollBarSetValues(bar, (int)next, size, increment > 0 ? increment : step_inc, page, True);
             return True;
         }
+    }
+    return False;
+}
+
+static Boolean
+apply_smooth_scrollbar_step(Widget bar,
+                            double notch_units,
+                            double delta_v120,
+                            double *carry_inout,
+                            Boolean *saw_scrollable,
+                            Boolean *at_boundary_out)
+{
+    XtEnum editable = True;
+    Boolean mapped_when_managed = True;
+    unsigned char direction = XmMAX_ON_BOTTOM;
+    int value = 0, size = 0, increment = 0, page = 0;
+    int minimum = 0, maximum = 0, eff_inc = 1;
+    int64_t limit, step, next;
+    double signed_v120, total, nearest;
+    Boolean hit_bound = False;
+
+    if (!bar || bar->core.being_destroyed || !XtIsManaged(bar) ||
+        !XtIsSensitive(bar) || notch_units <= 0.0)
+        return False;
+
+    XtVaGetValues(bar, XmNminimum, &minimum, XmNmaximum, &maximum,
+                  XmNprocessingDirection, &direction,
+                  XmNeditable, &editable,
+                  XtNmappedWhenManaged, &mapped_when_managed, NULL);
+    if (!editable || !mapped_when_managed)
+        return False;
+
+    XmScrollBarGetValues(bar, &value, &size, &increment, &page);
+    limit = (int64_t)maximum - size;
+    if (limit <= minimum)
+        return False;
+
+    *saw_scrollable = True;
+    signed_v120 = delta_v120;
+    if (direction == XmMAX_ON_TOP || direction == XmMAX_ON_LEFT)
+        signed_v120 = -signed_v120;
+
+    if ((signed_v120 < 0.0 && value <= minimum) ||
+        (signed_v120 > 0.0 && (int64_t)value >= limit))
+        return False;
+
+    total = (*carry_inout) + (signed_v120 / 120.0) * notch_units;
+    nearest = round(total);
+    if (fabs(total - nearest) < 1e-5)
+        total = nearest;
+    step = (int64_t)trunc(total);
+    *carry_inout = total - (double)step;
+    if (step == 0)
+        return True;
+
+    next = (int64_t)value + step;
+    if (next <= minimum) {
+        next = minimum;
+        hit_bound = True;
+    }
+    if (next >= limit) {
+        next = limit;
+        hit_bound = True;
+    }
+    eff_inc = increment > 0 ? increment : (page > 0 ? (page / 10 > 0 ? page / 10 : 1) : 1);
+    if (hit_bound) {
+        *carry_inout = 0.0;
+        *at_boundary_out = True;
+    }
+    if (next != value)
+        XmScrollBarSetValues(bar, (int)next, size, eff_inc, page, True);
+    return True;
+}
+
+Boolean
+_XmSmoothScrollStep(Widget leaf,
+                    Boolean horizontal,
+                    double delta_v120,
+                    double *carry_inout,
+                    Boolean *at_boundary_out)
+{
+    double local_carry = 0.0;
+    Boolean local_bound = False;
+    Boolean saw_scrollable = False;
+    double lines_per_notch = (double)_XmGetWheelScrollSpeed();
+    double speed_mult = lines_per_notch / 3.0;
+    Widget cur;
+
+    if (!carry_inout)
+        carry_inout = &local_carry;
+    if (!at_boundary_out)
+        at_boundary_out = &local_bound;
+    *at_boundary_out = False;
+
+    if (!leaf || leaf->core.being_destroyed || fabs(delta_v120) < 1e-6 ||
+        !_XmModalInputAllowed(leaf))
+        return False;
+
+    for (cur = leaf; cur != NULL; cur = XtParent(cur)) {
+        if (cur->core.being_destroyed)
+            break;
+        if (!XtIsSensitive(cur))
+            continue;
+
+        if (XmIsScrollBar(cur)) {
+            unsigned char orient = XmVERTICAL;
+            int val = 0, sz = 0, inc = 0, pg = 0;
+            XtVaGetValues(cur, XmNorientation, &orient, NULL);
+            if ((horizontal && orient == XmHORIZONTAL) ||
+                (!horizontal && orient == XmVERTICAL)) {
+                XmScrollBarGetValues(cur, &val, &sz, &inc, &pg);
+                int step_inc = inc > 0 ? inc : (pg > 0 ? (pg / 10 > 0 ? pg / 10 : 1) : 1);
+                if (apply_smooth_scrollbar_step(cur, lines_per_notch * (double)step_inc,
+                                                delta_v120, carry_inout,
+                                                &saw_scrollable, at_boundary_out))
+                    return True;
+            }
+        }
+
+        if (XtIsComposite(cur) && !XmIsScrolledWindow(cur)) {
+            CompositeWidget cw = (CompositeWidget)cur;
+            const char *target_sb = horizontal ? "DisplayHorzScrollBar"
+                                               : "DisplayDtHelpVertScrollBar";
+            Cardinal i;
+            for (i = 0; i < cw->composite.num_children; ++i) {
+                Widget ch = cw->composite.children[i];
+                if (ch && !ch->core.being_destroyed && XmIsScrollBar(ch) &&
+                    XtName(ch) && strcmp(XtName(ch), target_sb) == 0) {
+                    int val = 0, sz = 0, inc = 0, pg = 0;
+                    XmScrollBarGetValues(ch, &val, &sz, &inc, &pg);
+                    int step_inc = inc > 0 ? inc : (horizontal ? 8 : 16);
+                    if (apply_smooth_scrollbar_step(ch, lines_per_notch * (double)step_inc,
+                                                    delta_v120, carry_inout,
+                                                    &saw_scrollable, at_boundary_out))
+                        return True;
+                    break;
+                }
+            }
+        }
+
+        if (XmIsList(cur)) {
+            Widget bar = NULL;
+            XtVaGetValues(cur,
+                          horizontal ? XmNhorizontalScrollBar : XmNverticalScrollBar,
+                          &bar, NULL);
+            if (bar) {
+                int val = 0, sz = 0, inc = 0, pg = 0;
+                XmScrollBarGetValues(bar, &val, &sz, &inc, &pg);
+                int step_inc = inc > 0 ? inc : 1;
+                if (apply_smooth_scrollbar_step(bar, lines_per_notch * (double)step_inc,
+                                                delta_v120, carry_inout,
+                                                &saw_scrollable, at_boundary_out))
+                    return True;
+            } else if (!horizontal) {
+                int top_pos = 1, item_cnt = 0, vis_cnt = 0;
+                XtVaGetValues(cur, XmNtopItemPosition, &top_pos,
+                              XmNitemCount, &item_cnt,
+                              XmNvisibleItemCount, &vis_cnt, NULL);
+                int max_top = (item_cnt > vis_cnt && vis_cnt > 0)
+                              ? (item_cnt - vis_cnt + 1) : 1;
+                if (max_top > 1) {
+                    saw_scrollable = True;
+                    if (!((delta_v120 < 0.0 && top_pos <= 1) ||
+                          (delta_v120 > 0.0 && top_pos >= max_top))) {
+                        double total = (*carry_inout) + (delta_v120 / 120.0) * lines_per_notch;
+                        double nearest = round(total);
+                        if (fabs(total - nearest) < 1e-5)
+                            total = nearest;
+                        int step = (int)trunc(total);
+                        *carry_inout = total - (double)step;
+                        if (step != 0) {
+                            int next = top_pos + step;
+                            if (next <= 1) {
+                                next = 1;
+                                *at_boundary_out = True;
+                                *carry_inout = 0.0;
+                            }
+                            if (next >= max_top) {
+                                next = max_top;
+                                *at_boundary_out = True;
+                                *carry_inout = 0.0;
+                            }
+                            if (next != top_pos)
+                                XmListSetPos(cur, next);
+                        }
+                        return True;
+                    }
+                }
+            }
+        }
+
+        if (!horizontal && XmIsText(cur)) {
+            int edit_mode = XmSINGLE_LINE_EDIT;
+            XtVaGetValues(cur, XmNeditMode, &edit_mode, NULL);
+            if (edit_mode == XmMULTI_LINE_EDIT) {
+                Boolean skip_text = False;
+                Widget p = XtParent(cur);
+                if (p && XmIsScrolledWindow(p)) {
+                    XmScrolledWindowWidget tsw = (XmScrolledWindowWidget)p;
+                    Widget vbar = (Widget)tsw->swindow.vScrollBar;
+                    if (vbar && !vbar->core.being_destroyed && XtIsManaged(vbar)) {
+                        int bval = 0, bsz = 0, binc = 0, bpg = 0, bmin = 0, bmax = 0;
+                        XtVaGetValues(vbar, XmNminimum, &bmin, XmNmaximum, &bmax, NULL);
+                        XmScrollBarGetValues(vbar, &bval, &bsz, &binc, &bpg);
+                        int64_t blim = (int64_t)bmax - bsz;
+                        if (blim <= bmin) {
+                            skip_text = True;
+                        } else {
+                            saw_scrollable = True;
+                            if ((delta_v120 < 0.0 && bval <= bmin) ||
+                                (delta_v120 > 0.0 && (int64_t)bval >= blim))
+                                skip_text = True;
+                        }
+                    }
+                }
+                if (!skip_text) {
+                    saw_scrollable = True;
+                    double total = (*carry_inout) + (delta_v120 / 120.0) * lines_per_notch;
+                    double nearest = round(total);
+                    if (fabs(total - nearest) < 1e-5)
+                        total = nearest;
+                    int step = (int)trunc(total);
+                    if (step == 0) {
+                        *carry_inout = total;
+                        return True;
+                    }
+                    XmTextPosition before = XmTextGetTopCharacter(cur);
+                    XmTextScroll(cur, step);
+                    XmTextPosition after = XmTextGetTopCharacter(cur);
+                    if (after != before) {
+                        *carry_inout = total - (double)step;
+                        return True;
+                    }
+                    *carry_inout = 0.0;
+                }
+            }
+        }
+
+        if (!horizontal && XmIsTreeView(cur)) {
+            saw_scrollable = True;
+            Cardinal before = XmTreeViewGetTopRow(cur);
+            if (!(delta_v120 < 0.0 && before == 0)) {
+                double total = (*carry_inout) + (delta_v120 / 120.0) * lines_per_notch;
+                double nearest = round(total);
+                if (fabs(total - nearest) < 1e-5)
+                    total = nearest;
+                int step = (int)trunc(total);
+                if (step == 0) {
+                    *carry_inout = total;
+                    return True;
+                }
+                int64_t cand = (int64_t)before + step;
+                if (cand < 0)
+                    cand = 0;
+                XmTreeViewSetTopRow(cur, (Cardinal)cand);
+                Cardinal after = XmTreeViewGetTopRow(cur);
+                if (after != before) {
+                    *carry_inout = total - (double)step;
+                    if (cand == 0 || (step > 0 && (int64_t)after < cand)) {
+                        *at_boundary_out = True;
+                        *carry_inout = 0.0;
+                    }
+                    return True;
+                }
+                *carry_inout = 0.0;
+            }
+        }
+
+        if (!horizontal && XmIsDataGrid(cur)) {
+            saw_scrollable = True;
+            Cardinal before = XmDataGridGetTopRow(cur);
+            if (!(delta_v120 < 0.0 && before == 0)) {
+                double total = (*carry_inout) + (delta_v120 / 120.0) * lines_per_notch;
+                double nearest = round(total);
+                if (fabs(total - nearest) < 1e-5)
+                    total = nearest;
+                int step = (int)trunc(total);
+                if (step == 0) {
+                    *carry_inout = total;
+                    return True;
+                }
+                int64_t cand = (int64_t)before + step;
+                if (cand < 0)
+                    cand = 0;
+                XmDataGridSetTopRow(cur, (Cardinal)cand);
+                Cardinal after = XmDataGridGetTopRow(cur);
+                if (after != before) {
+                    *carry_inout = total - (double)step;
+                    if (cand == 0 || (step > 0 && (int64_t)after < cand)) {
+                        *at_boundary_out = True;
+                        *carry_inout = 0.0;
+                    }
+                    return True;
+                }
+                *carry_inout = 0.0;
+            }
+        }
+
+        if (XmIsScrolledWindow(cur)) {
+            XmScrolledWindowWidget sw = (XmScrolledWindowWidget)cur;
+            Widget bar = (Widget)(horizontal ? sw->swindow.hScrollBar
+                                             : sw->swindow.vScrollBar);
+            if (bar) {
+                int val = 0, sz = 0, inc = 0, pg = 0;
+                XmScrollBarGetValues(bar, &val, &sz, &inc, &pg);
+                int step_inc = inc > 0 ? inc : (pg > 0 ? (pg / 10 > 0 ? pg / 10 : 1) : 1);
+                double notch_units = lines_per_notch * (double)step_inc;
+                if (sw->swindow.ScrollPolicy == XmAUTOMATIC) {
+                    double base_notch = 3.0 * (double)step_inc;
+                    double cap = (pg > 0) ? ((pg / 4.0 > 56.0) ? (pg / 4.0) : 56.0) : 56.0;
+                    if (cap > 96.0)
+                        cap = 96.0;
+                    if (base_notch > cap)
+                        base_notch = cap;
+                    else if (base_notch < 36.0)
+                        base_notch = 56.0;
+                    notch_units = base_notch * speed_mult;
+                    if (notch_units < 10.0)
+                        notch_units = 10.0;
+                }
+                if (apply_smooth_scrollbar_step(bar, notch_units,
+                                                delta_v120, carry_inout,
+                                                &saw_scrollable, at_boundary_out))
+                    return True;
+            }
+        }
+
+        if (XtIsShell(cur))
+            break;
+    }
+
+    if (saw_scrollable) {
+        *carry_inout = 0.0;
+        *at_boundary_out = True;
+        return True;
     }
     return False;
 }
@@ -3315,6 +3835,10 @@ Widget wid )
                      WheelChildCreated, wid);
     if (sw->swindow.wheel_action_hook)
         XtRemoveActionHook(sw->swindow.wheel_action_hook);
+    _XmProcessLock();
+    if (g_wheel_press_snapshot.sw == sw)
+        g_wheel_press_snapshot.sw = NULL;
+    _XmProcessUnlock();
     CancelAutoDrag(sw);
 
     if (sw->swindow.scroll_frame_inited)

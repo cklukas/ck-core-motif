@@ -98,6 +98,16 @@ process environment when the native Wayland backend is active.
   `XmTextField` without requiring an XIM server, forwarding cursor spot
   rectangles and applying preedit spans, surrounding-text deletions, and UTF-8
   commits on the `Xt` main loop.
+- **Pointer hover-wheel & smooth scrolling**: `wl_seat` binds up to v9
+  (`axis_value120` high-resolution wheel and touchpad scroll axes), routing
+  wheel events directly to the deepest widget under the pointer without moving
+  `XmEXPLICIT` keyboard focus or firing `AnyButton` popup-menu passive grabs.
+  When smooth scrolling is enabled (`*mouseWheelSmooth: True`, the default), an
+  ~83 Hz main-thread interpolator drives sub-line / pixel steps across
+  `XmScrolledWindow`, `XmScrollBar`, `XmList`, `XmText`, `XmTreeView`, and
+  `XmDataGrid` with zero speed cap, instant direction reversal, and clean
+  start/end clamping, scaling dynamically with `*mouseWheelSpeed` (`1..10`,
+  default `3`) and live `_DT_WAYLAND_WHEEL` compositor IPC updates.
 - **Fractional and HiDPI scaling**: `wp_fractional_scale_v1`, `wl_output.scale`,
   and `wp_viewporter` size physical `wl_shm` buffers and embedded
   `XmWaylandGetWidgetSurface` subsurface scale factors while preserving 96-DPI
