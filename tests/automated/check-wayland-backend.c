@@ -653,27 +653,33 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
     write_stage_file(sync_dir, "stage_modern_dark.ready");
     wait_for_stage_file(app, dpy, sync_dir, "stage_modern_dark.done", 8000);
 
-    /* Live Fractional / HiDPI Scale Reflow (1.0 -> 2.0 -> 1.0) */
+    /* Live Fractional / HiDPI Scale Verification (compositor 2x buffer scale + explicit logical zoom) */
     write_stage_file(sync_dir, "stage_scale2x.request");
     wait_for_stage_file(app, dpy, sync_dir, "stage_scale2x.applied", 8000);
     pump_xt_ms(app, dpy, 500);
 
+    double surf_scale = 1.0;
+    if (!XmWaylandGetWidgetSurface(shell, NULL, NULL, NULL, NULL, NULL, &surf_scale))
+        fail_msg("XmWaylandGetWidgetSurface failed on top-level shell");
+    if (fabs(surf_scale - 2.0) > 0.05)
+        fail_msg("compositor 2.0x output scale did not update XmWaylandGetWidgetSurface physical scale");
+
     double cur_scale = 1.0;
     XmGetWidgetScale(shell, &cur_scale);
-    if (fabs(cur_scale - 2.0) > 0.05) {
-        Atom a_test_sc = XInternAtom(dpy, "_MOTIF_WAYLAND_TEST_SCALE", False);
-        XChangeProperty(dpy, DefaultRootWindow(dpy), a_test_sc, XA_STRING, 8,
-                        PropModeReplace, (const unsigned char *)"2.0", 3);
-        pump_xt_ms(app, dpy, 400);
-        XmGetWidgetScale(shell, &cur_scale);
-    }
+    if (fabs(cur_scale - 1.0) > 0.05)
+        fail_msg("compositor 2.0x output scale double-scaled logical XmGetWidgetScale / Xft.dpi");
+
+    Atom a_test_sc = XInternAtom(dpy, "_MOTIF_WAYLAND_TEST_SCALE", False);
+    XChangeProperty(dpy, DefaultRootWindow(dpy), a_test_sc, XA_STRING, 8,
+                    PropModeReplace, (const unsigned char *)"2.0", 3);
+    pump_xt_ms(app, dpy, 400);
+    XmGetWidgetScale(shell, &cur_scale);
     if (fabs(cur_scale - 2.0) > 0.05)
-        fail_msg("live 2.0x Wayland scale reflow did not update XmGetWidgetScale");
+        fail_msg("explicit 2.0x Wayland logical zoom did not update XmGetWidgetScale");
 
     write_stage_file(sync_dir, "stage_scale2x.ready");
     wait_for_stage_file(app, dpy, sync_dir, "stage_scale2x.done", 8000);
 
-    Atom a_test_sc = XInternAtom(dpy, "_MOTIF_WAYLAND_TEST_SCALE", False);
     XChangeProperty(dpy, DefaultRootWindow(dpy), a_test_sc, XA_STRING, 8,
                     PropModeReplace, (const unsigned char *)"1.0", 3);
     pump_xt_ms(app, dpy, 400);

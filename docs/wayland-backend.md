@@ -81,10 +81,13 @@ process environment when the native Wayland backend is active.
   `XmTextField` without requiring an XIM server, forwarding cursor spot
   rectangles and applying preedit spans, surrounding-text deletions, and UTF-8
   commits on the `Xt` main loop.
-- **Fractional and HiDPI scaling**: `wp_fractional_scale_v1` and
-  `wp_viewporter` (alongside `wl_output.scale` and `CK_MOTIF_WAYLAND_SCALE`)
-  drive `XmSetDisplayScaleOverride` and `RANDR` screen-change notifications so
-  realized widgets reflow live across scale changes.
+- **Fractional and HiDPI scaling**: `wp_fractional_scale_v1`, `wl_output.scale`,
+  and `wp_viewporter` size physical `wl_shm` buffers and embedded
+  `XmWaylandGetWidgetSurface` subsurface scale factors while preserving 96-DPI
+  Wayland logical coordinates so `libXft` glyphs are never double-scaled inside
+  logical widget boxes. Explicit toolkit logical zoom (`CK_MOTIF_WAYLAND_SCALE`)
+  drives `XmSetDisplayScaleOverride` and `RANDR` screen-change notifications so
+  realized widgets reflow live across zoom changes.
 
 ## Subsurface embedding API (`<Xm/Wayland.h>`)
 

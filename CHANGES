@@ -1,3 +1,20 @@
+Keep Wayland logical coordinates at 96 DPI under HiDPI output scaling (2026-11-21)
+==================================================================================
+
+- `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandBackendI.h`,
+  `docs/wayland-backend.md`, `tests/automated/check-wayland-backend.c`:
+  - Separate Wayland compositor physical buffer scale (`wp_fractional_scale_v1`
+    and `wl_output.scale`, used for `wl_shm` + `wp_viewporter` buffers and
+    `XmWaylandGetWidgetSurface` subsurface scale reporting) from explicit
+    logical toolkit zoom (`CK_MOTIF_WAYLAND_SCALE`), keeping virtualized X11
+    screen millimeters and `Xft.dpi` at `96 * logical_zoom` so HiDPI Wayland
+    outputs do not double-scale `libXft` text inside 1x logical widget boxes.
+  - Initialize screen dimensions from `wl_output` immediately during startup
+    roundtrips, drain initial compositor root-property IPC snapshots before
+    `XOpenDisplay`, expand IPC line buffering for full `RESOURCE_MANAGER`
+    databases, and suppress IPC echo loops when applying incoming root-property
+    updates.
+
 Add XWayland-free native Wayland runtime backend and subsurface API (2026-11-21)
 ================================================================================
 

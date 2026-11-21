@@ -422,10 +422,9 @@ frac_scale_preferred(void *data, struct wp_fractional_scale_v1 *frac, uint32_t s
     if (sc < 0.5) sc = 1.0;
     if (sc > 4.0) sc = 4.0;
     win->preferred_scale = sc;
+    srv->active_scale = sc;
     _XmWlDamageTop(win, 0, 0, win->width, win->height);
-    if (fabs(sc - srv->active_scale) > 0.01) {
-        _XmWlApplyScaleUpdate(srv, sc);
-    }
+    _XmWlBroadcastRandRChange(srv);
 }
 
 static const struct wp_fractional_scale_v1_listener g_frac_scale_listener = {
@@ -738,22 +737,24 @@ static const struct wl_seat_listener g_seat_listener = {
 static void
 recompute_screen_metrics(XmWlServer *srv)
 {
-    int max_w = 0, max_h = 0, mm_w = 0, mm_h = 0, max_scale = 1;
+    int max_w = 0, max_h = 0;
     for (int i = 0; i < srv->output_count; ++i) {
         const XmWlOutputInfo *o = &srv->outputs[i];
         int sc = o->scale > 0 ? o->scale : 1;
         int lw = o->width > 0 ? (o->width / sc) : 1280;
         int lh = o->height > 0 ? (o->height / sc) : 800;
-        if (o->x + lw > max_w) { max_w = o->x + lw; mm_w = o->phys_w_mm; }
-        if (o->y + lh > max_h) { max_h = o->y + lh; mm_h = o->phys_h_mm; }
-        if (sc > max_scale) max_scale = sc;
+        if (o->x + lw > max_w) max_w = o->x + lw;
+        if (o->y + lh > max_h) max_h = o->y + lh;
     }
     if (max_w < 320) max_w = 1280;
     if (max_h < 240) max_h = 800;
+    double lzoom = srv->logical_zoom > 0.0 ? srv->logical_zoom : 1.0;
     srv->screen_w = max_w;
     srv->screen_h = max_h;
-    srv->screen_mm_w = mm_w > 0 ? mm_w : (int)((double)max_w * 25.4 / (96.0 * srv->active_scale));
-    srv->screen_mm_h = mm_h > 0 ? mm_h : (int)((double)max_h * 25.4 / (96.0 * srv->active_scale));
+    srv->screen_mm_w = (int)lround((double)max_w * 25.4 / (96.0 * lzoom));
+    srv->screen_mm_h = (int)lround((double)max_h * 25.4 / (96.0 * lzoom));
+    if (srv->screen_mm_w < 1) srv->screen_mm_w = 1;
+    if (srv->screen_mm_h < 1) srv->screen_mm_h = 1;
     if (srv->root) {
         srv->root->width = (uint16_t)srv->screen_w;
         srv->root->height = (uint16_t)srv->screen_h;
@@ -793,12 +794,14 @@ output_done(void *data, struct wl_output *wl_output)
     o->done = true;
     if (g_wl_srv) {
         recompute_screen_metrics(g_wl_srv);
-        if (o->scale > 0 && !g_wl_srv->frac_scale_mgr &&
-            fabs((double)o->scale - g_wl_srv->active_scale) > 0.01) {
-            _XmWlApplyScaleUpdate(g_wl_srv, (double)o->scale);
-        } else {
-            _XmWlBroadcastRandRChange(g_wl_srv);
+        if (o->scale > 0 && !g_wl_srv->frac_scale_mgr) {
+            g_wl_srv->active_scale = (double)o->scale;
+            if (g_wl_srv->root) {
+                for (XmWlWindow *tw = g_wl_srv->root->first_child; tw; tw = tw->next_sibling)
+                    _XmWlDamageTop(tw, 0, 0, tw->width, tw->height);
+            }
         }
+        _XmWlBroadcastRandRChange(g_wl_srv);
     }
 }
 
@@ -1060,9 +1063,10 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
                 double sc = strtod(buf, NULL);
                 if (sc >= 0.5 && sc <= 4.0)
                     _XmWlApplyScaleUpdate(srv, sc);
-            } else if (!strncmp(aname, "RESOURCE_MANAGER", 16) ||
-                       !strncmp(aname, "_DT_", 4) ||
-                       !strncmp(aname, "_DTWM_", 6)) {
+            } else if (!srv->suppress_ipc_publish &&
+                       (!strncmp(aname, "RESOURCE_MANAGER", 16) ||
+                        !strncmp(aname, "_DT_", 4) ||
+                        !strncmp(aname, "_DTWM_", 6))) {
                 _XmWlIpcPublishRootProp(srv, aname, rp->data, rp->byte_len);
             }
         }
@@ -1364,41 +1368,49 @@ void
 _XmWlApplyScaleUpdate(XmWlServer *srv, double new_scale)
 {
     if (!srv || new_scale < 0.5 || new_scale > 4.0) return;
-    srv->active_scale = new_scale;
+    srv->logical_zoom = new_scale;
+    if (srv->active_scale < 1.0)
+        srv->active_scale = 1.0;
     recompute_screen_metrics(srv);
 
     /* Update RESOURCE_MANAGER Xft.dpi on virtualized root window */
     uint32_t rm_atom = 23; /* XA_RESOURCE_MANAGER */
     XmWlProperty *rm = _XmWlGetProperty(srv->root, rm_atom);
     int dpi = (int)lround(96.0 * new_scale);
-    char new_rm[8192];
-    new_rm[0] = '\0';
-    if (rm && rm->data && rm->byte_len > 0) {
-        /* Copy existing lines except Xft.dpi */
-        const char *p = (const char *)rm->data;
-        const char *end = p + rm->byte_len;
+    size_t prev_len = (rm && rm->data) ? rm->byte_len : 0;
+    size_t cap = prev_len + 128;
+    char *new_rm = (char *)malloc(cap);
+    if (new_rm) {
+        new_rm[0] = '\0';
         size_t out = 0;
-        while (p < end && *p) {
-            const char *nl = (const char *)memchr(p, '\n', (size_t)(end - p));
-            size_t llen = nl ? (size_t)(nl - p + 1) : (size_t)(end - p);
-            if (llen < 8 || strncmp(p, "Xft.dpi:", 8) != 0) {
-                if (out + llen + 1 < sizeof(new_rm)) {
-                    memcpy(new_rm + out, p, llen);
-                    out += llen;
-                    new_rm[out] = '\0';
+        if (rm && rm->data && rm->byte_len > 0) {
+            /* Copy existing lines except Xft.dpi */
+            const char *p = (const char *)rm->data;
+            const char *end = p + rm->byte_len;
+            while (p < end && *p) {
+                const char *nl = (const char *)memchr(p, '\n', (size_t)(end - p));
+                size_t llen = nl ? (size_t)(nl - p + 1) : (size_t)(end - p);
+                if (llen < 8 || strncmp(p, "Xft.dpi:", 8) != 0) {
+                    if (out + llen + 1 < cap) {
+                        memcpy(new_rm + out, p, llen);
+                        out += llen;
+                        new_rm[out] = '\0';
+                    }
                 }
+                p += llen;
             }
-            p += llen;
+            if (out > 0 && new_rm[out - 1] != '\n' && out + 2 < cap) {
+                new_rm[out++] = '\n';
+                new_rm[out] = '\0';
+            }
         }
-        if (out > 0 && new_rm[out - 1] != '\n' && out + 2 < sizeof(new_rm)) {
-            new_rm[out++] = '\n';
-            new_rm[out] = '\0';
-        }
+        snprintf(new_rm + out, cap - out, "Xft.dpi:\t%d\n", dpi);
+        srv->suppress_ipc_publish = true;
+        _XmWlSetProperty(srv, srv->root, rm_atom, 31 /* XA_STRING */, 8, 0 /* Replace */,
+                         (const uint8_t *)new_rm, strlen(new_rm), true);
+        srv->suppress_ipc_publish = false;
+        free(new_rm);
     }
-    size_t cur_len = strlen(new_rm);
-    snprintf(new_rm + cur_len, sizeof(new_rm) - cur_len, "Xft.dpi:\t%d\n", dpi);
-    _XmWlSetProperty(srv, srv->root, rm_atom, 31 /* XA_STRING */, 8, 0 /* Replace */,
-                     (const uint8_t *)new_rm, strlen(new_rm), true);
 
     _XmWlBroadcastRandRChange(srv);
 
@@ -1408,29 +1420,6 @@ _XmWlApplyScaleUpdate(XmWlServer *srv, double new_scale)
 }
 
 /* ---------- Compositor Root-Property UNIX IPC ---------- */
-
-static void
-connect_compositor_ipc(XmWlServer *srv)
-{
-    srv->ipc_fd = -1;
-    const char *rt = getenv("XDG_RUNTIME_DIR");
-    const char *wd = getenv("WAYLAND_DISPLAY");
-    if (!rt || !rt[0] || !wd || !wd[0]) return;
-
-    struct sockaddr_un addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sun_family = AF_UNIX;
-    int n = snprintf(addr.sun_path, sizeof(addr.sun_path), "%s/dtwm-wayland-%s.ipc", rt, wd);
-    if (n <= 0 || (size_t)n >= sizeof(addr.sun_path)) return;
-
-    int fd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
-    if (fd < 0) return;
-    if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) != 0 && errno != EINPROGRESS) {
-        close(fd);
-        return;
-    }
-    srv->ipc_fd = fd;
-}
 
 static size_t
 hex_encode(const uint8_t *in, size_t len, char *out, size_t cap)
@@ -1454,46 +1443,88 @@ hex_nibble(char c)
     return -1;
 }
 
+static void
+send_all_nonblock(int fd, const char *buf, size_t len)
+{
+    size_t sent = 0;
+    while (sent < len) {
+        ssize_t n = send(fd, buf + sent, len - sent, MSG_NOSIGNAL);
+        if (n > 0) {
+            sent += (size_t)n;
+            continue;
+        }
+        if (n < 0 && errno == EINTR)
+            continue;
+        if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+            struct pollfd pfd = { .fd = fd, .events = POLLOUT };
+            if (poll(&pfd, 1, 50) > 0)
+                continue;
+        }
+        break;
+    }
+}
+
 void
 _XmWlIpcPublishRootProp(XmWlServer *srv, const char *atom_name, const uint8_t *data, size_t len)
 {
-    if (!srv || srv->ipc_fd < 0 || !atom_name || len > 16384) return;
-    size_t hex_cap = len * 2 + 4;
-    char *hex = (char *)malloc(hex_cap);
-    if (!hex) return;
-    hex_encode(data, len, hex, hex_cap);
-    char hdr[320];
-    int hn = snprintf(hdr, sizeof(hdr), "SET %s ", atom_name);
-    if (hn > 0 && (size_t)hn < sizeof(hdr)) {
-        (void)send(srv->ipc_fd, hdr, (size_t)hn, MSG_NOSIGNAL);
-        (void)send(srv->ipc_fd, hex, strlen(hex), MSG_NOSIGNAL);
-        (void)send(srv->ipc_fd, "\n", 1, MSG_NOSIGNAL);
+    if (!srv || srv->ipc_fd < 0 || !atom_name || len > 262144u) return;
+    size_t aname_len = strlen(atom_name);
+    size_t total_cap = 5 + aname_len + 1 + len * 2 + 2;
+    char *msg = (char *)malloc(total_cap);
+    if (!msg) return;
+    int hn = snprintf(msg, total_cap, "SET %s ", atom_name);
+    if (hn > 0 && (size_t)hn < total_cap) {
+        size_t hex_len = hex_encode(data, len, msg + hn, total_cap - (size_t)hn);
+        msg[(size_t)hn + hex_len] = '\n';
+        send_all_nonblock(srv->ipc_fd, msg, (size_t)hn + hex_len + 1);
     }
-    free(hex);
+    free(msg);
 }
 
 void
 _XmWlIpcHandleReadable(XmWlServer *srv)
 {
     if (!srv || srv->ipc_fd < 0) return;
-    static char line_buf[65536];
-    static size_t line_len = 0;
-    ssize_t n = recv(srv->ipc_fd, line_buf + line_len, sizeof(line_buf) - 1 - line_len, 0);
-    if (n <= 0) {
-        if (n == 0 || (errno != EAGAIN && errno != EWOULDBLOCK && errno != EINTR)) {
+
+    for (;;) {
+        if (srv->ipc_rx_len + 8192 + 1 > srv->ipc_rx_cap) {
+            size_t new_cap = srv->ipc_rx_cap ? srv->ipc_rx_cap * 2 : 65536;
+            if (new_cap > 1048576u) {
+                srv->ipc_rx_len = 0;
+                break;
+            }
+            char *nb = (char *)realloc(srv->ipc_rx_buf, new_cap);
+            if (!nb) return;
+            srv->ipc_rx_buf = nb;
+            srv->ipc_rx_cap = new_cap;
+        }
+        ssize_t n = recv(srv->ipc_fd, srv->ipc_rx_buf + srv->ipc_rx_len,
+                         srv->ipc_rx_cap - 1 - srv->ipc_rx_len, 0);
+        if (n > 0) {
+            srv->ipc_rx_len += (size_t)n;
+            srv->ipc_rx_buf[srv->ipc_rx_len] = '\0';
+            continue;
+        }
+        if (n < 0 && errno == EINTR)
+            continue;
+        if (n == 0 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
             close(srv->ipc_fd);
             srv->ipc_fd = -1;
+            return;
         }
-        return;
+        break;
     }
-    line_len += (size_t)n;
-    line_buf[line_len] = '\0';
 
-    char *start = line_buf;
+    if (!srv->ipc_rx_buf || srv->ipc_rx_len == 0)
+        return;
+
+    char *start = srv->ipc_rx_buf;
     char *nl = NULL;
     while ((nl = strchr(start, '\n')) != NULL) {
         *nl = '\0';
-        if (!strncmp(start, "PROP ", 5)) {
+        if (!strcmp(start, "READY")) {
+            srv->ipc_initial_ready = true;
+        } else if (!strncmp(start, "PROP ", 5)) {
             char *p = start + 5;
             char *sp = strchr(p, ' ');
             if (sp) {
@@ -1510,10 +1541,13 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                         if (hi < 0 || lo < 0) break;
                         raw[rlen++] = (uint8_t)((hi << 4) | lo);
                     }
+                    raw[rlen] = 0;
                     uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
                     uint32_t utf8 = _XmWlInternAtom(srv, "UTF8_STRING", 11, false);
                     uint32_t ptype = !strcmp(aname, "RESOURCE_MANAGER") ? 31u : utf8;
+                    srv->suppress_ipc_publish = true;
                     _XmWlSetProperty(srv, srv->root, atom, ptype, 8, 0, raw, rlen, true);
+                    srv->suppress_ipc_publish = false;
                     free(raw);
                 }
             }
@@ -1521,9 +1555,46 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
         start = nl + 1;
     }
     size_t rem = strlen(start);
-    if (rem > 0 && start != line_buf)
-        memmove(line_buf, start, rem);
-    line_len = rem;
+    if (rem > 0 && start != srv->ipc_rx_buf)
+        memmove(srv->ipc_rx_buf, start, rem);
+    srv->ipc_rx_len = rem;
+    if (srv->ipc_rx_buf)
+        srv->ipc_rx_buf[rem] = '\0';
+}
+
+static void
+connect_compositor_ipc(XmWlServer *srv)
+{
+    srv->ipc_fd = -1;
+    const char *rt = getenv("XDG_RUNTIME_DIR");
+    const char *wd = getenv("WAYLAND_DISPLAY");
+    if (!rt || !rt[0] || !wd || !wd[0]) return;
+
+    struct sockaddr_un addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    int n = snprintf(addr.sun_path, sizeof(addr.sun_path), "%s/dtwm-wayland-%s.ipc", rt, wd);
+    if (n <= 0 || (size_t)n >= sizeof(addr.sun_path)) return;
+
+    int fd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+    if (fd < 0) return;
+    if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) != 0 && errno != EINPROGRESS) {
+        close(fd);
+        return;
+    }
+    srv->ipc_fd = fd;
+
+    /* Synchronously drain initial cached RESOURCE_MANAGER / _DT_* snapshot before XOpenDisplay */
+    uint64_t deadline = now_mono_ms64() + 80;
+    while (srv->ipc_fd >= 0 && !srv->ipc_initial_ready && now_mono_ms64() < deadline) {
+        struct pollfd pfd = { .fd = srv->ipc_fd, .events = POLLIN };
+        int prc = poll(&pfd, 1, 15);
+        if (prc > 0 && (pfd.revents & (POLLIN | POLLHUP | POLLERR))) {
+            _XmWlIpcHandleReadable(srv);
+        } else if (prc == 0 && srv->ipc_rx_len == 0) {
+            break;
+        }
+    }
 }
 
 /* ---------- XKB -> Core X11 Keymap Builder ---------- */
@@ -1819,6 +1890,7 @@ cleanup_wayland_backend(void)
     if (srv->socket_path[0]) unlink(srv->socket_path);
     if (srv->runtime_dir[0]) rmdir(srv->runtime_dir);
     if (srv->ipc_fd >= 0) close(srv->ipc_fd);
+    free(srv->ipc_rx_buf);
     if (srv->wake_pipe[0] >= 0) close(srv->wake_pipe[0]);
     if (srv->wake_pipe[1] >= 0) close(srv->wake_pipe[1]);
     if (srv->xt_pipe[0] >= 0) close(srv->xt_pipe[0]);
@@ -1875,9 +1947,10 @@ _XmWaylandEnsureDisplay(void)
     srv->xt_pipe[0] = srv->xt_pipe[1] = -1;
     srv->screen_w = 1280;
     srv->screen_h = 800;
-    srv->screen_mm_w = 338;
-    srv->screen_mm_h = 211;
+    srv->screen_mm_w = 339;
+    srv->screen_mm_h = 212;
     srv->active_scale = 1.0;
+    srv->logical_zoom = 1.0;
     srv->repeat_rate = 25;
     srv->repeat_delay = 400;
     srv->x11_focus_win = 1u; /* PointerRoot */
@@ -1886,8 +1959,10 @@ _XmWaylandEnsureDisplay(void)
     const char *env_scale = getenv("CK_MOTIF_WAYLAND_SCALE");
     if (env_scale && env_scale[0]) {
         double sc = strtod(env_scale, NULL);
-        if (sc >= 0.5 && sc <= 4.0)
+        if (sc >= 0.5 && sc <= 4.0) {
+            srv->logical_zoom = sc;
             srv->active_scale = sc;
+        }
     }
 
     if (pipe2(srv->wake_pipe, O_CLOEXEC | O_NONBLOCK) != 0 ||
@@ -1950,6 +2025,13 @@ _XmWaylandEnsureDisplay(void)
     wl_registry_add_listener(srv->registry, &g_registry_listener, srv);
     wl_display_roundtrip(wl_dpy);
     wl_display_roundtrip(wl_dpy);
+    recompute_screen_metrics(srv);
+    for (int i = 0; i < srv->output_count; ++i) {
+        if (srv->outputs[i].scale > 0 && !srv->frac_scale_mgr &&
+            (double)srv->outputs[i].scale > srv->active_scale) {
+            srv->active_scale = (double)srv->outputs[i].scale;
+        }
+    }
 
     if (!srv->compositor || !srv->shm || !srv->xdg_wm_base) {
         close(srv->listen_fd);
@@ -1970,8 +2052,8 @@ _XmWaylandEnsureDisplay(void)
     }
 
     connect_compositor_ipc(srv);
-    if (srv->active_scale != 1.0)
-        _XmWlApplyScaleUpdate(srv, srv->active_scale);
+    if (srv->logical_zoom != 1.0)
+        _XmWlApplyScaleUpdate(srv, srv->logical_zoom);
 
     g_wl_srv = srv;
     g_wl_owner_pid = getpid();

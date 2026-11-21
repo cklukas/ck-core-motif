@@ -348,6 +348,11 @@ struct XmWlServer {
     int listen_fd;
     int wake_pipe[2];
     int ipc_fd; /* optional $XDG_RUNTIME_DIR/dtwm-wayland-<WAYLAND_DISPLAY>.ipc */
+    bool suppress_ipc_publish;
+    bool ipc_initial_ready;
+    char *ipc_rx_buf;
+    size_t ipc_rx_len;
+    size_t ipc_rx_cap;
     char runtime_dir[512];
     char socket_path[544];
     char display_spec[560];
@@ -389,6 +394,7 @@ struct XmWlServer {
     int screen_mm_w;
     int screen_mm_h;
     double active_scale;
+    double logical_zoom;
 
     /* X11 clients & resources */
     XmWlClient clients[XM_WL_MAX_CLIENTS];
