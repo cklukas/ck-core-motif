@@ -1,3 +1,30 @@
+Synchronize Wayland resize commits with Xt Expose completion and eliminate buffer/Expose amplification (2026-11-22)
+===================================================================================================================
+
+- `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandBackend.c`,
+  `lib/Xm/WaylandX11Server.c`, `lib/Xm/WaylandRender.c`,
+  `tests/automated/check-wayland-backend.c`, `docs/wayland-backend.md`:
+  - Synchronize `xdg_surface.ack_configure` and resized `wl_surface.commit`
+    against an `XtAppAddWorkProc` + `XSync` resize-completion barrier on the
+    main `Xt` thread instead of releasing `resize_awaiting_client` as soon as
+    the first child widget dirties the backing canvas (retaining a `45 ms`
+    fallback ceiling for raw Xlib clients without `XmDisplay`). Resized windows
+    no longer commit blank or partially laid-out intermediate frames before
+    child document/icon canvases finish painting.
+  - Eliminate `O(depth × N)` recursive `Expose` amplification during window
+    resizing: `_XmWlDeliverConfigureAndExpose` and stationary `ConfigureWindow`
+    resizes now expose the resized window itself plus any newly uncovered
+    stationary descendants rather than calling `emit_expose_recursive` at every
+    container depth, and `_XmWlSendEventToClient` coalesces back-to-back unsent
+    full-window `Expose` events per XID.
+  - Replace per-step `memfd_create`/`mmap`/`munmap` allocations and `4×`
+    software HiDPI `PIXMAN_FILTER_NEAREST` upscaling with persistent
+    triple-buffered `4 MB`-chunked `wl_shm_pool` mappings, `256 px`-padded
+    in-place `top->canvas_bits` reuse with SIMD `pixman_image_fill_boxes` on
+    newly exposed edges, `1×` logical `wl_shm` presentation via
+    `wp_viewport_set_destination`, incremental damage-rect copies, and explicit
+    `wl_surface_set_opaque_region` updates on opaque surfaces.
+
 Fix Wayland popup press-drag hit-testing, unlabeled check-box indicator sizing, and empty FileSB column widths (2026-11-22)
 ===========================================================================================================================
 

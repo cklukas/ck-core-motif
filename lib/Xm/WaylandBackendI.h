@@ -40,6 +40,7 @@
 #define XM_WL_MAX_OUTPUTS        8
 #define XM_WL_MAX_ATOMS          1024
 #define XM_WL_MAX_POPUPS         16
+#define XM_WL_SHM_SLOTS          3
 
 #define XM_WL_ROOT_XID           UINT32_C(0x00000040)
 #define XM_WL_WM_HELPER_XID      UINT32_C(0x00000041)
@@ -98,15 +99,22 @@ struct XmWlProperty {
 };
 
 struct XmWlShmBuf {
+    struct wl_shm_pool *pool;
     struct wl_buffer *wl_buf;
     uint32_t *pixels;
     pixman_image_t *pix_img;
+    size_t pool_cap;
     size_t byte_size;
     int width;
     int height;
     int stride;
     int fd;
+    bool has_alpha;
     bool busy;
+    int valid_w;
+    int valid_h;
+    uint64_t valid_gen;
+    uint64_t attached_ms;
 };
 
 typedef struct {
@@ -180,13 +188,21 @@ struct XmWlWindow {
     bool wants_decorations;
     double preferred_scale; /* e.g. 1.0, 1.25, 1.5, 2.0 */
 
-    /* Backing canvas & wl_shm double buffer for top-level / popup windows */
+    /* Backing canvas & wl_shm triple-buffered pool for top-level / popup windows */
     pixman_image_t *canvas;
     uint32_t *canvas_bits;
     int canvas_w;
     int canvas_h;
+    int canvas_cap_w;
+    int canvas_cap_h;
     int canvas_stride;
-    XmWlShmBuf shm_bufs[2];
+    XmWlShmBuf shm_bufs[XM_WL_SHM_SLOTS];
+    bool opaque_region_set;
+    int opaque_w;
+    int opaque_h;
+    uint32_t resize_sync_gen;
+    uint64_t frame_gen;
+    XmWlRect dmg_hist[XM_WL_SHM_SLOTS];
     bool dirty;
     int32_t dmg_x1, dmg_y1, dmg_x2, dmg_y2;
 };
@@ -324,6 +340,7 @@ struct XmWlClient {
     uint8_t *tx_buf;
     size_t tx_len;
     size_t tx_cap;
+    bool tx_pkt_aligned;
     uint32_t xfixes_sel_atoms[8];
     uint32_t xfixes_sel_masks[8];
     uint32_t randr_mask;
@@ -366,12 +383,16 @@ struct XmWlServer {
     char socket_path[544];
     char display_spec[560];
 
-    /* Main-thread XtAppAddInput wakeup for IME & HiDPI scale reflow */
+    /* Main-thread XtAppAddInput wakeup for IME, HiDPI scale reflow & resize sync */
     int xt_pipe[2];
     XtInputId xt_input_id;
     Widget attached_xm_display;
     double pending_xt_scale;
     bool has_pending_xt_scale;
+    uint32_t resize_sync_seq;
+    uint32_t pending_xt_resize_gen;
+    bool has_pending_xt_resize;
+    XtWorkProcId resize_sync_wp_id;
 
     /* Wayland objects */
     struct wl_display *wl_dpy;
@@ -606,7 +627,7 @@ XM_WL_INTERNAL void _XmWlCancelActiveDragGrab(XmWlServer *srv, uint32_t time_ms)
 XM_WL_INTERNAL void _XmWlDispatchPointerLeaveTop(XmWlServer *srv, XmWlWindow *top, uint32_t time_ms);
 XM_WL_INTERNAL void _XmWlDispatchKey(XmWlServer *srv, uint8_t x11_keycode, bool pressed, uint32_t time_ms);
 XM_WL_INTERNAL void _XmWlDispatchFocusTop(XmWlServer *srv, XmWlWindow *top, bool focused);
-XM_WL_INTERNAL void _XmWlDeliverConfigureAndExpose(XmWlServer *srv, XmWlWindow *top, int width, int height);
+XM_WL_INTERNAL void _XmWlDeliverConfigureAndExpose(XmWlServer *srv, XmWlWindow *top, int width, int height, int old_w, int old_h);
 XM_WL_INTERNAL void _XmWlDeliverCloseRequest(XmWlServer *srv, XmWlWindow *top);
 XM_WL_INTERNAL void _XmWlBroadcastRandRChange(XmWlServer *srv);
 

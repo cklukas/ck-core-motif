@@ -822,7 +822,7 @@ _XmWlRenderGetImage(XmWlServer *srv, uint32_t drawable, int16_t x, int16_t y,
                         int wx = (int)x + rx - tw->x;
                         if (wx < 0 || wx >= tw->canvas_w) continue;
                         buf[(size_t)ry * (size_t)width + (size_t)rx] =
-                            tw->canvas_bits[(size_t)wy * (size_t)tw->canvas_w + (size_t)wx] & plane_mask;
+                            tw->canvas_bits[(size_t)wy * (size_t)(tw->canvas_stride / 4) + (size_t)wx] & plane_mask;
                     }
                 }
             }

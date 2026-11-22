@@ -196,8 +196,8 @@ alloc_window(XmWlServer *srv, uint32_t id, XmWlWindow *parent)
     w->visual_id = (w->depth == 32) ? XM_WL_VISUAL_ARGB32_ID : XM_WL_VISUAL_RGB24_ID;
     w->colormap_id = XM_WL_DEFAULT_CMAP_XID;
     w->preferred_scale = srv->active_scale > 0.0 ? srv->active_scale : 1.0;
-    w->shm_bufs[0].fd = -1;
-    w->shm_bufs[1].fd = -1;
+    for (int si = 0; si < XM_WL_SHM_SLOTS; ++si)
+        w->shm_bufs[si].fd = -1;
 
     if (parent) {
         /* X11 CreateWindow places new child at top of sibling stack (last_child) */
@@ -443,9 +443,25 @@ _XmWlFlushClientWrites(XmWlServer *srv)
             }
         }
         if (cli->active && off > 0) {
-            if (off < cli->tx_len)
+            if (off < cli->tx_len) {
+                if (cli->tx_pkt_aligned) {
+                    size_t pos = 0;
+                    while (pos < off && pos + 32u <= cli->tx_len) {
+                        size_t plen = (cli->tx_buf[pos] == 1u)
+                            ? (32u + 4u * (size_t)rd_u32(cli->tx_buf + pos + 4))
+                            : 32u;
+                        if (plen < 32u) { pos = cli->tx_len + 1u; break; }
+                        pos += plen;
+                    }
+                    cli->tx_pkt_aligned = (pos == off);
+                }
                 memmove(cli->tx_buf, cli->tx_buf + off, cli->tx_len - off);
-            cli->tx_len -= off;
+                cli->tx_len -= off;
+            } else {
+                cli->tx_len = 0;
+                if (cli->handshake_done)
+                    cli->tx_pkt_aligned = true;
+            }
         }
     }
 }
@@ -488,6 +504,31 @@ void
 _XmWlSendEventToClient(XmWlClient *cli, const uint8_t ev[32])
 {
     if (!cli || !cli->active || !cli->handshake_done) return;
+    if (cli->tx_len == 0)
+        cli->tx_pkt_aligned = true;
+
+    /* Coalesce back-to-back unsent full-window Expose (0,0,w,h,count=0) events
+     * for the same window XID so rapid resize/layout batches never queue
+     * redundant full-widget redraws. */
+    if ((ev[0] & 0x7fu) == 12u && cli->tx_pkt_aligned && cli->tx_len >= 32u &&
+        rd_u16(ev + 8) == 0u && rd_u16(ev + 10) == 0u && rd_u16(ev + 16) == 0u) {
+        uint32_t target_wid = rd_u32(ev + 4);
+        size_t pos = 0;
+        while (pos + 32u <= cli->tx_len) {
+            uint8_t *p = cli->tx_buf + pos;
+            size_t plen = (p[0] == 1u) ? (32u + 4u * (size_t)rd_u32(p + 4)) : 32u;
+            if (plen < 32u || pos + plen > cli->tx_len)
+                break;
+            if ((p[0] & 0x7fu) == 12u && rd_u32(p + 4) == target_wid &&
+                rd_u16(p + 8) == 0u && rd_u16(p + 10) == 0u && rd_u16(p + 16) == 0u) {
+                memmove(p, p + 32u, cli->tx_len - (pos + 32u));
+                cli->tx_len -= 32u;
+                continue;
+            }
+            pos += plen;
+        }
+    }
+
     uint8_t out[32];
     memcpy(out, ev, 32);
     if ((out[0] & 0x7fu) != 11) /* KeymapNotify has no sequence field */
@@ -709,24 +750,47 @@ lookup_x11_color(const char *name, size_t len, uint16_t *r16, uint16_t *g16, uin
 /* ---------- Window Destruction & Exposure Helpers ---------- */
 
 static void
+emit_expose_single(XmWlServer *srv, XmWlWindow *win)
+{
+    if (!win || !win->mapped || win->win_class != 1)
+        return;
+    _XmWlPaintWindowBackground(srv, win, 0, 0, win->width, win->height);
+    uint8_t ev[32];
+    memset(ev, 0, sizeof(ev));
+    ev[0] = 12; /* Expose */
+    wr_u32(ev + 4, win->id);
+    wr_u16(ev + 8, 0);
+    wr_u16(ev + 10, 0);
+    wr_u16(ev + 12, win->width);
+    wr_u16(ev + 14, win->height);
+    wr_u16(ev + 16, 0);
+    _XmWlSendEventToWindow(srv, win, X11_EXPOSURE_MASK, ev);
+}
+
+static void
 emit_expose_recursive(XmWlServer *srv, XmWlWindow *win)
 {
     if (!win || !win->mapped) return;
-    if (win->win_class == 1) {
-        _XmWlPaintWindowBackground(srv, win, 0, 0, win->width, win->height);
-        uint8_t ev[32];
-        memset(ev, 0, sizeof(ev));
-        ev[0] = 12; /* Expose */
-        wr_u32(ev + 4, win->id);
-        wr_u16(ev + 8, 0);
-        wr_u16(ev + 10, 0);
-        wr_u16(ev + 12, win->width);
-        wr_u16(ev + 14, win->height);
-        wr_u16(ev + 16, 0);
-        _XmWlSendEventToWindow(srv, win, X11_EXPOSURE_MASK, ev);
-    }
+    emit_expose_single(srv, win);
     for (XmWlWindow *c = win->first_child; c; c = c->next_sibling)
         emit_expose_recursive(srv, c);
+}
+
+static void
+emit_expose_uncovered_descendants(XmWlServer *srv, XmWlWindow *anc,
+                                  int rel_ox, int rel_oy, int old_w, int old_h)
+{
+    if (!anc || !anc->mapped)
+        return;
+    for (XmWlWindow *c = anc->first_child; c; c = c->next_sibling) {
+        if (!c->mapped)
+            continue;
+        int cx = rel_ox + (int)c->x + (int)c->border_width;
+        int cy = rel_oy + (int)c->y + (int)c->border_width;
+        if (cx + (int)c->width > old_w || cy + (int)c->height > old_h)
+            emit_expose_single(srv, c);
+        emit_expose_uncovered_descendants(srv, c, cx, cy, old_w, old_h);
+    }
 }
 
 static void
@@ -1273,7 +1337,7 @@ _XmWlDispatchFocusTop(XmWlServer *srv, XmWlWindow *top, bool focused)
 }
 
 void
-_XmWlDeliverConfigureAndExpose(XmWlServer *srv, XmWlWindow *top, int width, int height)
+_XmWlDeliverConfigureAndExpose(XmWlServer *srv, XmWlWindow *top, int width, int height, int old_w, int old_h)
 {
     if (!srv || !top) return;
     uint8_t cfg[32];
@@ -1289,7 +1353,9 @@ _XmWlDeliverConfigureAndExpose(XmWlServer *srv, XmWlWindow *top, int width, int 
     wr_u16(cfg + 24, top->border_width);
     cfg[26] = top->override_redirect ? 1 : 0;
     _XmWlSendEventToWindow(srv, top, X11_STRUCTURE_NOTIFY_MASK, cfg);
-    emit_expose_recursive(srv, top);
+    emit_expose_single(srv, top);
+    if (width > old_w || height > old_h)
+        emit_expose_uncovered_descendants(srv, top, 0, 0, old_w, old_h);
 }
 
 void
@@ -2499,8 +2565,12 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
                     _XmWlSendEventToWindow(srv, w->parent, X11_EXPOSURE_MASK, exp);
                 }
             }
-            if (size_changed || w->parent != srv->root) {
+            if (pos_changed && w->parent != srv->root) {
                 emit_expose_recursive(srv, w);
+            } else if (size_changed) {
+                emit_expose_single(srv, w);
+                if ((int)w->width > (int)old_w || (int)w->height > (int)old_h)
+                    emit_expose_uncovered_descendants(srv, w, 0, 0, (int)old_w, (int)old_h);
             } else {
                 _XmWlDamageTop(w, 0, 0, w->width, w->height);
             }

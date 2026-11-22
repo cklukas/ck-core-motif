@@ -54,10 +54,12 @@ process environment when the native Wayland backend is active.
   UTF-8 titles (`_NET_WM_NAME` / `WM_NAME`), `app_id` (`WM_CLASS`), and dynamic
   ARGB window icons (`xdg_toplevel_icon_v1` built from `WM_HINTS` icon pixmaps
   and masks). Post-map `xdg_surface.configure` resizes coalesce to the latest
-  pending size and hold `xdg_surface.ack_configure` until the client finishes
-  processing `ConfigureNotify` and painting its resized widget tree, paired with
-  `VendorShell` `ConfigureNotify` queue compression so interactive drags settle
-  immediately without accumulating intermediate layouts or rubber-banding.
+  pending size and synchronize `xdg_surface.ack_configure` + `wl_surface.commit`
+  through a main-thread `XtAppAddWorkProc` + `XSync` barrier after all child
+  `ConfigureWindow` and `Expose` redraws finish (without `O(depth)` recursive
+  `Expose` duplication across container levels), paired with `VendorShell`
+  `ConfigureNotify` queue compression so interactive drags never commit blank
+  half-laid-out frames or rubber-band.
 - **Menus and popups**: Override-redirect menu shells (`XmMenuShell` pulldowns,
   context menus, submenus, option menus, and tooltips—including callback-posted
   `XmMenuPosition` popups and `owner_events = True` passive button grabs) map to
@@ -74,9 +76,10 @@ process environment when the native Wayland backend is active.
   pixmap tiles/stipples, and `RENDER` 0.11 operations (`Composite`,
   `Trapezoids`, `Triangles`, `TriStrip`, `TriFan`, `LinearGradient`,
   `RadialGradient`, and glyph sets used by `libXft`/HarfBuzz/FreeType, Cairo,
-  and modern themes) composite into double-buffered `wl_shm` pools via
-  `pixman-1` with frame-callback damage tracking and exact subwindow destination
-  and first-vertex `xSrc`/`ySrc` alignment. Legacy core X11 font requests (`OpenFont`, `QueryFont`,
+  and modern themes) composite into `256 px`-padded backing canvases and
+  persistent triple-buffered `wl_shm_pool` slots via `pixman-1` with incremental
+  damage-rect copies, `wl_surface_set_opaque_region` culling, and exact
+  subwindow destination and first-vertex `xSrc`/`ySrc` alignment. Legacy core X11 font requests (`OpenFont`, `QueryFont`,
   `ListFonts`, `ListFontsWithInfo`, `PolyText8/16`, `ImageText8/16`) expose
   scalable and multi-size XLFDs across standard Latin-1 and Unicode families and
   rasterize directly through Fontconfig and FreeType without server-side PCF/BDF

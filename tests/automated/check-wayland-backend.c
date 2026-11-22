@@ -964,8 +964,18 @@ menu_drag_activate_cb(Widget w, XtPointer client_data, XtPointer call_data)
 }
 static int g_resize_dispatches = 0;
 static int g_resize_reversals = 0;
+static int g_resize_child_exposes = 0;
 static int g_last_cfg_w = 0;
 static int g_last_cfg_h = 0;
+
+static void
+resize_child_expose_eh(Widget w, XtPointer client_data, XEvent *ev, Boolean *cont)
+{
+    (void)client_data;
+    (void)cont;
+    if (ev->type == Expose && ev->xexpose.window == XtWindow(w) && ev->xexpose.count == 0)
+        g_resize_child_exposes++;
+}
 
 static void
 resize_audit_eh(Widget w, XtPointer client_data, XEvent *ev, Boolean *cont)
@@ -1164,9 +1174,11 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
     XtVaGetValues(shell, XmNwidth, &cur_w, XmNheight, &cur_h, NULL);
     g_resize_dispatches = 0;
     g_resize_reversals = 0;
+    g_resize_child_exposes = 0;
     g_last_cfg_w = (int)cur_w;
     g_last_cfg_h = (int)cur_h;
     XtAddEventHandler(shell, StructureNotifyMask, False, resize_audit_eh, NULL);
+    XtAddEventHandler(drop_lbl, ExposureMask, False, resize_child_expose_eh, NULL);
 
     struct timespec busy_sim = {0, 60 * 1000 * 1000L};
     nanosleep(&busy_sim, NULL);
@@ -1189,6 +1201,12 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
                 g_resize_dispatches);
         exit(1);
     }
+    if (g_resize_child_exposes < 1 || g_resize_child_exposes > g_resize_dispatches) {
+        fprintf(stderr, "FAIL: resize burst amplified child Expose count (%d exposes for %d dispatches)\n",
+                g_resize_child_exposes, g_resize_dispatches);
+        exit(1);
+    }
+    XtRemoveEventHandler(drop_lbl, ExposureMask, False, resize_child_expose_eh, NULL);
     write_stage_file(sync_dir, "resize_burst.verified");
 
     /* Verify unfocused hover-wheel scrolling on both:

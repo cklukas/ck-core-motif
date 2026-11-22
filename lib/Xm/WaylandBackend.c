@@ -129,8 +129,12 @@ free_shm_buf(XmWlShmBuf *sb)
         wl_buffer_destroy(sb->wl_buf);
         sb->wl_buf = NULL;
     }
-    if (sb->pixels && sb->byte_size > 0) {
-        munmap(sb->pixels, sb->byte_size);
+    if (sb->pool) {
+        wl_shm_pool_destroy(sb->pool);
+        sb->pool = NULL;
+    }
+    if (sb->pixels && sb->pool_cap > 0) {
+        munmap(sb->pixels, sb->pool_cap);
         sb->pixels = NULL;
     }
     if (sb->fd >= 0) {
@@ -146,51 +150,99 @@ ensure_shm_buf(XmWlServer *srv, XmWlShmBuf *sb, int w, int h, bool has_alpha)
 {
     if (w < 1) w = 1;
     if (h < 1) h = 1;
-    if (sb->wl_buf && sb->width == w && sb->height == h)
+    if (sb->wl_buf && sb->width == w && sb->height == h && sb->has_alpha == has_alpha)
         return true;
 
-    free_shm_buf(sb);
     if (!srv->shm) return false;
+    if (sb->pix_img) {
+        pixman_image_unref(sb->pix_img);
+        sb->pix_img = NULL;
+    }
+    if (sb->wl_buf) {
+        wl_buffer_destroy(sb->wl_buf);
+        sb->wl_buf = NULL;
+    }
 
     int stride = w * 4;
     size_t size = (size_t)stride * (size_t)h;
-    int fd = create_shm_fd(size);
-    if (fd < 0) return false;
+    size_t min_cap = (size + 0x3fffffu) & ~(size_t)0x3fffffu;
+    if (min_cap < 0x400000u)
+        min_cap = 0x400000u;
 
-    void *map = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    if (map == MAP_FAILED) {
-        close(fd);
-        return false;
+    if (sb->fd < 0 || !sb->pool || !sb->pixels) {
+        free_shm_buf(sb);
+        int fd = create_shm_fd(min_cap);
+        if (fd < 0) return false;
+        void *map = mmap(NULL, min_cap, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        if (map == MAP_FAILED) {
+            close(fd);
+            return false;
+        }
+        struct wl_shm_pool *pool = wl_shm_create_pool(srv->shm, fd, (int32_t)min_cap);
+        if (!pool) {
+            munmap(map, min_cap);
+            close(fd);
+            return false;
+        }
+        sb->fd = fd;
+        sb->pixels = (uint32_t *)map;
+        sb->pool = pool;
+        sb->pool_cap = min_cap;
+    } else if (size > sb->pool_cap) {
+        if (ftruncate(sb->fd, (off_t)min_cap) != 0) {
+            free_shm_buf(sb);
+            return false;
+        }
+        void *map = mmap(NULL, min_cap, PROT_READ | PROT_WRITE, MAP_SHARED, sb->fd, 0);
+        if (map == MAP_FAILED) {
+            free_shm_buf(sb);
+            return false;
+        }
+        munmap(sb->pixels, sb->pool_cap);
+        wl_shm_pool_resize(sb->pool, (int32_t)min_cap);
+        sb->pixels = (uint32_t *)map;
+        sb->pool_cap = min_cap;
     }
 
-    struct wl_shm_pool *pool = wl_shm_create_pool(srv->shm, fd, (int32_t)size);
-    if (!pool) {
-        munmap(map, size);
-        close(fd);
-        return false;
-    }
     uint32_t fmt = has_alpha ? WL_SHM_FORMAT_ARGB8888 : WL_SHM_FORMAT_XRGB8888;
-    struct wl_buffer *buf = wl_shm_pool_create_buffer(pool, 0, w, h, stride, fmt);
-    wl_shm_pool_destroy(pool);
+    struct wl_buffer *buf = wl_shm_pool_create_buffer(sb->pool, 0, w, h, stride, fmt);
     if (!buf) {
-        munmap(map, size);
-        close(fd);
         return false;
     }
 
     sb->wl_buf = buf;
-    sb->pixels = (uint32_t *)map;
     sb->byte_size = size;
     sb->width = w;
     sb->height = h;
     sb->stride = stride;
-    sb->fd = fd;
+    sb->has_alpha = has_alpha;
     sb->busy = false;
+    sb->valid_w = 0;
+    sb->valid_h = 0;
+    sb->valid_gen = 0;
     sb->pix_img = pixman_image_create_bits(
         has_alpha ? PIXMAN_a8r8g8b8 : PIXMAN_x8r8g8b8,
         w, h, sb->pixels, stride);
     wl_buffer_add_listener(buf, &g_wl_buffer_listener, sb);
     return true;
+}
+
+static void
+fill_pixman_rect_u32(pixman_image_t *img, int x, int y, int w, int h, uint32_t argb)
+{
+    if (!img || w <= 0 || h <= 0)
+        return;
+    pixman_color_t pc;
+    uint32_t a = (argb >> 24) & 0xffu;
+    uint32_t r = (argb >> 16) & 0xffu;
+    uint32_t g = (argb >> 8) & 0xffu;
+    uint32_t b = argb & 0xffu;
+    pc.alpha = (uint16_t)(a * 0x0101u);
+    pc.red   = (uint16_t)(r * 0x0101u);
+    pc.green = (uint16_t)(g * 0x0101u);
+    pc.blue  = (uint16_t)(b * 0x0101u);
+    pixman_box32_t box = { x, y, x + w, y + h };
+    pixman_image_fill_boxes(PIXMAN_OP_SRC, img, &pc, 1, &box);
 }
 
 void
@@ -203,34 +255,69 @@ _XmWlEnsureTopCanvas(XmWlServer *srv, XmWlWindow *top)
     if (top->canvas && top->canvas_w == w && top->canvas_h == h)
         return;
 
-    int new_stride = w * 4;
-    uint32_t *new_bits = (uint32_t *)calloc((size_t)w * (size_t)h, sizeof(uint32_t));
+    uint32_t fill = top->has_bg_pixel ? (0xff000000u | (top->bg_pixel & 0x00ffffffu)) :
+                    (top->depth == 32 ? 0x00000000u : 0xffd8d8d8u);
+
+    /* Fast path: reuse padded backing buffer in-place without malloc/free/memcpy */
+    if (top->canvas_bits && w <= top->canvas_cap_w && h <= top->canvas_cap_h) {
+        int old_w = top->canvas_w;
+        int old_h = top->canvas_h;
+        pixman_image_t *new_img = pixman_image_create_bits(
+            PIXMAN_a8r8g8b8, w, h, top->canvas_bits, top->canvas_stride);
+        if (!new_img)
+            return;
+        if (top->canvas)
+            pixman_image_unref(top->canvas);
+        top->canvas = new_img;
+        if (w > old_w) {
+            int ch = h < old_h ? h : old_h;
+            fill_pixman_rect_u32(new_img, old_w, 0, w - old_w, ch, fill);
+        }
+        if (h > old_h) {
+            fill_pixman_rect_u32(new_img, 0, old_h, w, h - old_h, fill);
+        }
+        top->canvas_w = w;
+        top->canvas_h = h;
+        _XmWlDamageTop(top, 0, 0, w, h);
+        return;
+    }
+
+    int cap_w = (w + 255) & ~255;
+    int cap_h = (h + 255) & ~255;
+    if (cap_w < top->canvas_cap_w) cap_w = top->canvas_cap_w;
+    if (cap_h < top->canvas_cap_h) cap_h = top->canvas_cap_h;
+    int new_stride = cap_w * 4;
+    uint32_t *new_bits = (uint32_t *)malloc((size_t)new_stride * (size_t)cap_h);
     if (!new_bits) return;
     pixman_image_t *new_img = pixman_image_create_bits(PIXMAN_a8r8g8b8, w, h, new_bits, new_stride);
     if (!new_img) {
         free(new_bits);
         return;
     }
-    uint32_t fill = top->has_bg_pixel ? (0xff000000u | (top->bg_pixel & 0x00ffffffu)) :
-                    (top->depth == 32 ? 0x00000000u : 0xffd8d8d8u);
-    for (int i = 0; i < w * h; ++i)
-        new_bits[i] = fill;
 
     if (top->canvas && top->canvas_bits) {
         int cw = w < top->canvas_w ? w : top->canvas_w;
         int ch = h < top->canvas_h ? h : top->canvas_h;
         for (int row = 0; row < ch; ++row) {
-            memcpy(new_bits + (size_t)row * (size_t)w,
-                   top->canvas_bits + (size_t)row * (size_t)top->canvas_w,
+            memcpy((uint8_t *)new_bits + (size_t)row * (size_t)new_stride,
+                   (const uint8_t *)top->canvas_bits + (size_t)row * (size_t)top->canvas_stride,
                    (size_t)cw * 4u);
         }
+        if (w > cw)
+            fill_pixman_rect_u32(new_img, cw, 0, w - cw, ch, fill);
+        if (h > ch)
+            fill_pixman_rect_u32(new_img, 0, ch, w, h - ch, fill);
         pixman_image_unref(top->canvas);
         free(top->canvas_bits);
+    } else {
+        fill_pixman_rect_u32(new_img, 0, 0, w, h, fill);
     }
     top->canvas = new_img;
     top->canvas_bits = new_bits;
     top->canvas_w = w;
     top->canvas_h = h;
+    top->canvas_cap_w = cap_w;
+    top->canvas_cap_h = cap_h;
     top->canvas_stride = new_stride;
     _XmWlDamageTop(top, 0, 0, w, h);
 }
@@ -298,10 +385,12 @@ xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, uint32_t seri
         win->xdg_configured = true;
         bool size_changed = (cw != (int)win->width || ch != (int)win->height);
         if (size_changed) {
+            int old_w = win->width;
+            int old_h = win->height;
             win->width = (uint16_t)cw;
             win->height = (uint16_t)ch;
             _XmWlEnsureTopCanvas(srv, win);
-            _XmWlDeliverConfigureAndExpose(srv, win, cw, ch);
+            _XmWlDeliverConfigureAndExpose(srv, win, cw, ch, old_w, old_h);
         } else {
             _XmWlEnsureTopCanvas(srv, win);
             _XmWlDamageTop(win, 0, 0, win->width, win->height);
@@ -1604,6 +1693,9 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
     win->xdg_configured = false;
     win->has_queued_wl_cfg = false;
     win->resize_awaiting_client = false;
+    win->opaque_region_set = false;
+    win->opaque_w = 0;
+    win->opaque_h = 0;
     win->is_popup = false;
     win->is_drag_icon = false;
     win->popup_parent = NULL;
@@ -1618,14 +1710,17 @@ _XmWlDestroyWindowRole(XmWlServer *srv, XmWlWindow *win)
 {
     if (!win) return;
     _XmWlUnmapWindowRole(srv, win);
-    free_shm_buf(&win->shm_bufs[0]);
-    free_shm_buf(&win->shm_bufs[1]);
+    for (int si = 0; si < XM_WL_SHM_SLOTS; ++si)
+        free_shm_buf(&win->shm_bufs[si]);
     if (win->canvas) {
         pixman_image_unref(win->canvas);
         win->canvas = NULL;
     }
     free(win->canvas_bits);
     win->canvas_bits = NULL;
+    win->canvas_cap_w = 0;
+    win->canvas_cap_h = 0;
+    win->canvas_stride = 0;
 }
 
 static void
@@ -1647,7 +1742,7 @@ process_queued_wl_configures(XmWlServer *srv)
             continue;
 
         if (w->resize_awaiting_client && !client_tx_backlogged &&
-            now >= w->resize_sent_ms + 35) {
+            now >= w->resize_sent_ms + 45) {
             w->resize_awaiting_client = false;
             _XmWlDamageTop(w, 0, 0, w->width, w->height);
         }
@@ -1662,15 +1757,24 @@ process_queued_wl_configures(XmWlServer *srv)
         w->pending_configure_serial = serial;
 
         if (cw != (int)w->width || ch != (int)w->height) {
+            int old_w = w->width;
+            int old_h = w->height;
             w->width = (uint16_t)cw;
             w->height = (uint16_t)ch;
             _XmWlEnsureTopCanvas(srv, w);
-            _XmWlDeliverConfigureAndExpose(srv, w, cw, ch);
-            /* Hold surface commit & ack_configure until the client processes
-             * ConfigureNotify + child Expose redraws (or 35ms ceiling). */
+            _XmWlDeliverConfigureAndExpose(srv, w, cw, ch, old_w, old_h);
+            /* Hold surface commit & ack_configure until the Xt main thread
+             * finishes ConfigureNotify layout + child Expose redraws (or 45ms
+             * fallback ceiling for raw Xlib clients). */
+            w->resize_sync_gen = ++srv->resize_sync_seq;
             w->resize_awaiting_client = true;
             w->resize_sent_ms = now;
             w->dirty = false;
+            if (srv->attached_xm_display) {
+                srv->pending_xt_resize_gen = w->resize_sync_gen;
+                srv->has_pending_xt_resize = true;
+                _XmWaylandNotifyMainThread(srv);
+            }
         } else {
             _XmWlEnsureTopCanvas(srv, w);
             _XmWlDamageTop(w, 0, 0, w->width, w->height);
@@ -1688,39 +1792,82 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
             w->resize_awaiting_client || !w->dirty || !w->canvas)
             continue;
 
-        double sc = w->preferred_scale > 0.0 ? w->preferred_scale : srv->active_scale;
-        if (sc < 1.0 || !srv->viewporter) sc = 1.0;
         int log_w = w->canvas_w > 0 ? w->canvas_w : 1;
         int log_h = w->canvas_h > 0 ? w->canvas_h : 1;
-        int buf_w = (int)lround((double)log_w * sc);
-        int buf_h = (int)lround((double)log_h * sc);
-        if (buf_w < 1) buf_w = 1;
-        if (buf_h < 1) buf_h = 1;
+        int buf_w = log_w;
+        int buf_h = log_h;
 
         bool has_alpha = (w->depth == 32) || w->has_shape || w->is_drag_icon;
-        XmWlShmBuf *sb = !w->shm_bufs[0].busy ? &w->shm_bufs[0] :
-                         (!w->shm_bufs[1].busy ? &w->shm_bufs[1] : &w->shm_bufs[0]);
+        XmWlShmBuf *sb = NULL;
+        for (int si = 0; si < XM_WL_SHM_SLOTS; ++si) {
+            if (!w->shm_bufs[si].busy) {
+                if (!sb || w->shm_bufs[si].valid_gen > sb->valid_gen)
+                    sb = &w->shm_bufs[si];
+            }
+        }
+        uint64_t now_ms = now_mono_ms64();
+        if (!sb) {
+            int oldest = 0;
+            for (int si = 1; si < XM_WL_SHM_SLOTS; ++si) {
+                if (w->shm_bufs[si].attached_ms < w->shm_bufs[oldest].attached_ms)
+                    oldest = si;
+            }
+            if (now_ms < w->shm_bufs[oldest].attached_ms + 50)
+                continue;
+            free_shm_buf(&w->shm_bufs[oldest]);
+            sb = &w->shm_bufs[oldest];
+        }
         if (!ensure_shm_buf(srv, sb, buf_w, buf_h, has_alpha))
             continue;
 
-        if (buf_w == log_w && buf_h == log_h) {
-            memcpy(sb->pixels, w->canvas_bits, (size_t)log_w * (size_t)log_h * 4u);
-        } else {
-            pixman_transform_t xform;
-            pixman_transform_init_scale(
-                &xform,
-                pixman_double_to_fixed((double)log_w / (double)buf_w),
-                pixman_double_to_fixed((double)log_h / (double)buf_h));
-            pixman_image_set_transform(w->canvas, &xform);
-            bool int_scale = (sc >= 1.0 && fabs(sc - round(sc)) < 1e-3);
-            pixman_image_set_filter(
-                w->canvas, int_scale ? PIXMAN_FILTER_NEAREST : PIXMAN_FILTER_BILINEAR, NULL, 0);
-            pixman_image_composite32(PIXMAN_OP_SRC, w->canvas, NULL, sb->pix_img,
-                                     0, 0, 0, 0, 0, 0, buf_w, buf_h);
-            pixman_transform_t ident;
-            pixman_transform_init_identity(&ident);
-            pixman_image_set_transform(w->canvas, &ident);
+        int dx1 = w->dmg_x1 < 0 ? 0 : w->dmg_x1;
+        int dy1 = w->dmg_y1 < 0 ? 0 : w->dmg_y1;
+        int dx2 = w->dmg_x2 > log_w ? log_w : w->dmg_x2;
+        int dy2 = w->dmg_y2 > log_h ? log_h : w->dmg_y2;
+        if (dx2 <= dx1 || dy2 <= dy1) {
+            dx1 = 0; dy1 = 0; dx2 = log_w; dy2 = log_h;
         }
+
+        uint64_t next_gen = ++w->frame_gen;
+        XmWlRect *cur_hist = &w->dmg_hist[next_gen % XM_WL_SHM_SLOTS];
+        cur_hist->x = (int16_t)dx1;
+        cur_hist->y = (int16_t)dy1;
+        cur_hist->width = (uint16_t)(dx2 - dx1);
+        cur_hist->height = (uint16_t)(dy2 - dy1);
+
+        int cx1 = 0, cy1 = 0, cx2 = log_w, cy2 = log_h;
+        if (!w->has_shape && sb->valid_w == log_w && sb->valid_h == log_h &&
+            sb->valid_gen > 0 && (next_gen - sb->valid_gen) <= XM_WL_SHM_SLOTS) {
+            cx1 = dx1; cy1 = dy1; cx2 = dx2; cy2 = dy2;
+            for (uint64_t g = sb->valid_gen + 1; g < next_gen; ++g) {
+                const XmWlRect *hr = &w->dmg_hist[g % XM_WL_SHM_SLOTS];
+                int hx1 = hr->x;
+                int hy1 = hr->y;
+                int hx2 = hx1 + (int)hr->width;
+                int hy2 = hy1 + (int)hr->height;
+                if (hx1 < cx1) cx1 = hx1;
+                if (hy1 < cy1) cy1 = hy1;
+                if (hx2 > cx2) cx2 = hx2;
+                if (hy2 > cy2) cy2 = hy2;
+            }
+            if (cx1 < 0) cx1 = 0;
+            if (cy1 < 0) cy1 = 0;
+            if (cx2 > log_w) cx2 = log_w;
+            if (cy2 > log_h) cy2 = log_h;
+        }
+
+        const uint8_t *src_base = (const uint8_t *)w->canvas_bits;
+        uint8_t *dst_base = (uint8_t *)sb->pixels;
+        size_t copy_bytes = (size_t)(cx2 - cx1) * 4u;
+        size_t x_byte_off = (size_t)cx1 * 4u;
+        for (int ry = cy1; ry < cy2; ++ry) {
+            memcpy(dst_base + (size_t)ry * (size_t)sb->stride + x_byte_off,
+                   src_base + (size_t)ry * (size_t)w->canvas_stride + x_byte_off,
+                   copy_bytes);
+        }
+        sb->valid_w = log_w;
+        sb->valid_h = log_h;
+        sb->valid_gen = next_gen;
 
         /* Apply non-rectangular SHAPE alpha + input region cutouts when present */
         if (w->has_shape && srv->compositor) {
@@ -1730,16 +1877,16 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
                 const XmWlRect *r = &w->shape_rects[ri];
                 wl_region_add(ireg, r->x, r->y, r->width, r->height);
                 if (inside) {
-                    int sx1 = (int)floor((double)r->x * sc);
-                    int sy1 = (int)floor((double)r->y * sc);
-                    int sx2 = (int)ceil((double)(r->x + (int)r->width) * sc);
-                    int sy2 = (int)ceil((double)(r->y + (int)r->height) * sc);
-                    if (sx1 < 0) sx1 = 0;
-                    if (sy1 < 0) sy1 = 0;
+                    int sx1 = r->x < 0 ? 0 : r->x;
+                    int sy1 = r->y < 0 ? 0 : r->y;
+                    int sx2 = r->x + (int)r->width;
+                    int sy2 = r->y + (int)r->height;
                     if (sx2 > buf_w) sx2 = buf_w;
                     if (sy2 > buf_h) sy2 = buf_h;
-                    for (int py = sy1; py < sy2; ++py)
-                        memset(inside + (size_t)py * (size_t)buf_w + (size_t)sx1, 1, (size_t)(sx2 - sx1));
+                    if (sx2 > sx1) {
+                        for (int py = sy1; py < sy2; ++py)
+                            memset(inside + (size_t)py * (size_t)buf_w + (size_t)sx1, 1, (size_t)(sx2 - sx1));
+                    }
                 }
             }
             if (inside) {
@@ -1748,9 +1895,31 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
                 }
                 free(inside);
             }
+            sb->valid_gen = 0;
             if (!w->is_drag_icon)
                 wl_surface_set_input_region(w->wl_surf, ireg);
             wl_region_destroy(ireg);
+        }
+
+        if (srv->compositor) {
+            if (!has_alpha) {
+                if (!w->opaque_region_set || w->opaque_w != log_w || w->opaque_h != log_h) {
+                    struct wl_region *oreg = wl_compositor_create_region(srv->compositor);
+                    if (oreg) {
+                        wl_region_add(oreg, 0, 0, log_w, log_h);
+                        wl_surface_set_opaque_region(w->wl_surf, oreg);
+                        wl_region_destroy(oreg);
+                        w->opaque_region_set = true;
+                        w->opaque_w = log_w;
+                        w->opaque_h = log_h;
+                    }
+                }
+            } else if (w->opaque_region_set) {
+                wl_surface_set_opaque_region(w->wl_surf, NULL);
+                w->opaque_region_set = false;
+                w->opaque_w = 0;
+                w->opaque_h = 0;
+            }
         }
 
         if (w->is_drag_icon && srv->compositor) {
@@ -1787,8 +1956,9 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
             srv->wl_drag_icon_dy = (int16_t)want_dy;
         }
         sb->busy = true;
+        sb->attached_ms = now_ms;
         wl_surface_attach(w->wl_surf, sb->wl_buf, attach_dx, attach_dy);
-        wl_surface_damage_buffer(w->wl_surf, 0, 0, buf_w, buf_h);
+        wl_surface_damage_buffer(w->wl_surf, dx1, dy1, dx2 - dx1, dy2 - dy1);
         wl_surface_commit(w->wl_surf);
         w->dirty = false;
     }
@@ -2384,7 +2554,7 @@ wayland_server_thread(void *arg)
             }
         }
 
-        if (any_client_read && srv->root) {
+        if (any_client_read && srv->root && !srv->attached_xm_display) {
             bool pending_events = false;
             for (int i = 0; i < XM_WL_MAX_CLIENTS; ++i) {
                 if (srv->clients[i].active && srv->clients[i].tx_len > 0) {
@@ -2622,6 +2792,55 @@ smooth_scroll_timer_cb(XtPointer closure, XtIntervalId *id)
     }
 }
 
+static Boolean
+xt_resize_sync_workproc(XtPointer closure)
+{
+    XmWlServer *srv = (XmWlServer *)closure;
+    if (!srv || !srv->attached_xm_display) {
+        if (srv) {
+            pthread_mutex_lock(&srv->lock);
+            srv->resize_sync_wp_id = 0;
+            pthread_mutex_unlock(&srv->lock);
+        }
+        return True;
+    }
+
+    uint32_t target_gen = 0;
+    pthread_mutex_lock(&srv->lock);
+    target_gen = srv->pending_xt_resize_gen;
+    pthread_mutex_unlock(&srv->lock);
+
+    Display *dpy = XtDisplay(srv->attached_xm_display);
+    XSync(dpy, False);
+    if (QLength(dpy) > 0) {
+        /* Child Expose / ConfigureNotify events arrived; keep this WorkProc
+         * active so Xt dispatches all Expose redraws before committing. */
+        return False;
+    }
+
+    pthread_mutex_lock(&srv->lock);
+    if (srv->has_pending_xt_resize && srv->pending_xt_resize_gen != target_gen) {
+        pthread_mutex_unlock(&srv->lock);
+        return False;
+    }
+    bool released = false;
+    if (srv->root) {
+        for (XmWlWindow *w = srv->root->first_child; w; w = w->next_sibling) {
+            if (w->resize_awaiting_client && w->resize_sync_gen <= target_gen) {
+                w->resize_awaiting_client = false;
+                _XmWlDamageTop(w, 0, 0, w->width, w->height);
+                released = true;
+            }
+        }
+    }
+    srv->has_pending_xt_resize = false;
+    srv->resize_sync_wp_id = 0;
+    if (released)
+        _XmWlWakeServer(srv);
+    pthread_mutex_unlock(&srv->lock);
+    return True;
+}
+
 static void
 xt_wayland_wakeup_cb(XtPointer closure, int *source, XtInputId *id)
 {
@@ -2634,13 +2853,25 @@ xt_wayland_wakeup_cb(XtPointer closure, int *source, XtInputId *id)
 
     double new_scale = 0.0;
     bool apply_scale = false;
+    bool arm_resize_wp = false;
     pthread_mutex_lock(&srv->lock);
     if (srv->has_pending_xt_scale) {
         new_scale = srv->pending_xt_scale;
         srv->has_pending_xt_scale = false;
         apply_scale = true;
     }
+    if (srv->has_pending_xt_resize && !srv->resize_sync_wp_id && srv->attached_xm_display) {
+        arm_resize_wp = true;
+    }
     pthread_mutex_unlock(&srv->lock);
+
+    if (arm_resize_wp && srv->attached_xm_display) {
+        XtAppContext app = XtWidgetToApplicationContext(srv->attached_xm_display);
+        XtWorkProcId wp = XtAppAddWorkProc(app, xt_resize_sync_workproc, srv);
+        pthread_mutex_lock(&srv->lock);
+        srv->resize_sync_wp_id = wp;
+        pthread_mutex_unlock(&srv->lock);
+    }
 
     if (apply_scale && srv->attached_xm_display) {
         XmSetDisplayScaleOverride(XtDisplay(srv->attached_xm_display), new_scale);
@@ -2671,6 +2902,11 @@ _XmWaylandDetachDisplay(Widget xm_display)
     if (!srv || !xm_display) return;
     pthread_mutex_lock(&srv->lock);
     if (srv->attached_xm_display == xm_display) {
+        if (srv->resize_sync_wp_id) {
+            XtRemoveWorkProc(srv->resize_sync_wp_id);
+            srv->resize_sync_wp_id = 0;
+        }
+        srv->has_pending_xt_resize = false;
         if (srv->smooth_timer_id) {
             XtRemoveTimeOut(srv->smooth_timer_id);
             srv->smooth_timer_id = 0;
