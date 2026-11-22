@@ -781,7 +781,7 @@ def main() -> int:
         compile_cmd = [
             cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O2",
             *inc_flags, "-L" + str(lib_dir), "-Wl,-rpath," + str(lib_dir),
-            str(source), "-lXm", "-lXt", "-lX11", "-lm", "-o", str(client_bin),
+            str(source), "-lXm", "-lXt", "-lX11", "-lXrender", "-lm", "-o", str(client_bin),
         ]
         cres = subprocess.run(compile_cmd, env=base_env, capture_output=True, text=True, timeout=60)
         (output / "compile-client.log").write_text(cres.stdout + cres.stderr)

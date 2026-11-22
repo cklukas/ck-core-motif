@@ -13,6 +13,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xresource.h>
 #include <X11/Xutil.h>
+#include <X11/extensions/Xrender.h>
 
 #include <Xm/Appearance.h>
 #include <Xm/CascadeB.h>
@@ -723,6 +724,104 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
         XFreeFont(dpy, xxl_fnt);
         if (dt_ms > 500)
             fail_msg("PolyText8 font cache regression: 400 spans exceeded 500 ms");
+    }
+
+    /* Verify XRender Trapezoids/Triangles/TriStrip/TriFan subwindow & source-origin coordinates */
+    {
+        int scr = DefaultScreen(dpy);
+        Window sub = XCreateSimpleWindow(dpy, XtWindow(shell), 12, 41, 80, 64, 0, 0, 0x000000);
+        XMapWindow(dpy, sub);
+        pump_xt_ms(app, dpy, 100);
+
+        Pixmap spm = XCreatePixmap(dpy, XtWindow(shell), 96, 96, 24);
+        XImage *simg = XGetImage(dpy, spm, 0, 0, 96, 96, AllPlanes, ZPixmap);
+        if (!simg)
+            fail_msg("XGetImage failed on XRender test source pixmap");
+        for (int sy = 0; sy < 96; ++sy)
+            for (int sx = 0; sx < 96; ++sx)
+                XPutPixel(simg, sx, sy, ((unsigned long)sx << 16) | ((unsigned long)sy << 8) | 0xaaUL);
+        GC sgc = XCreateGC(dpy, spm, 0, NULL);
+        XPutImage(dpy, spm, sgc, simg, 0, 0, 0, 0, 96, 96);
+        XDestroyImage(simg);
+
+        XRenderPictFormat *fmt24 = XRenderFindVisualFormat(dpy, DefaultVisual(dpy, scr));
+        XRenderPictFormat *fmtA8 = XRenderFindStandardFormat(dpy, PictStandardA8);
+        if (!fmt24 || !fmtA8)
+            fail_msg("XRenderFindVisualFormat / PictStandardA8 failed");
+        Picture psrc = XRenderCreatePicture(dpy, spm, fmt24, 0, NULL);
+        Picture pdst = XRenderCreatePicture(dpy, sub, fmt24, 0, NULL);
+
+        XSetForeground(dpy, sgc, 0x000000);
+        XFillRectangle(dpy, sub, sgc, 0, 0, 80, 64);
+        XTrapezoid traps[2] = {
+            {
+                .top = XDoubleToFixed(10.0),
+                .bottom = XDoubleToFixed(20.0),
+                .left = { { XDoubleToFixed(8.0), XDoubleToFixed(10.0) },
+                          { XDoubleToFixed(8.0), XDoubleToFixed(20.0) } },
+                .right = { { XDoubleToFixed(18.0), XDoubleToFixed(10.0) },
+                           { XDoubleToFixed(18.0), XDoubleToFixed(20.0) } },
+            },
+            {
+                .top = XDoubleToFixed(10.0),
+                .bottom = XDoubleToFixed(20.0),
+                .left = { { XDoubleToFixed(32.0), XDoubleToFixed(10.0) },
+                          { XDoubleToFixed(32.0), XDoubleToFixed(20.0) } },
+                .right = { { XDoubleToFixed(42.0), XDoubleToFixed(10.0) },
+                           { XDoubleToFixed(42.0), XDoubleToFixed(20.0) } },
+            },
+        };
+        XRenderCompositeTrapezoids(dpy, PictOpSrc, psrc, pdst, fmtA8, 40, 50, traps, 2);
+        XSync(dpy, False);
+
+        XImage *out = XGetImage(dpy, sub, 0, 0, 80, 64, AllPlanes, ZPixmap);
+        if (!out)
+            fail_msg("XGetImage failed on subwindow after XRenderCompositeTrapezoids");
+        int min_x = 999, min_y = 999, max_x = -1, max_y = -1;
+        for (int ry = 0; ry < 64; ++ry) {
+            for (int rx = 0; rx < 80; ++rx) {
+                if ((XGetPixel(out, rx, ry) & 0xffUL) == 0xaaUL) {
+                    if (rx < min_x) min_x = rx;
+                    if (ry < min_y) min_y = ry;
+                    if (rx > max_x) max_x = rx;
+                    if (ry > max_y) max_y = ry;
+                }
+            }
+        }
+        unsigned long p0 = XGetPixel(out, 8, 10);
+        unsigned long p1 = XGetPixel(out, 32, 10);
+        XDestroyImage(out);
+        if (min_x != 8 || max_x != 41 || min_y != 10 || max_y != 19)
+            fail_msg("XRenderCompositeTrapezoids subwindow destination coordinates mispositioned");
+        if (((p0 >> 16) & 0xffUL) != 40 || ((p0 >> 8) & 0xffUL) != 50 ||
+            ((p1 >> 16) & 0xffUL) != 64 || ((p1 >> 8) & 0xffUL) != 50)
+            fail_msg("XRenderCompositeTrapezoids source origin offset mismatch");
+
+        XFillRectangle(dpy, sub, sgc, 0, 0, 80, 64);
+        XPointFixed strip[4] = {
+            { XDoubleToFixed(6.0),  XDoubleToFixed(12.0) },
+            { XDoubleToFixed(16.0), XDoubleToFixed(12.0) },
+            { XDoubleToFixed(6.0),  XDoubleToFixed(22.0) },
+            { XDoubleToFixed(16.0), XDoubleToFixed(22.0) },
+        };
+        XRenderCompositeTriStrip(dpy, PictOpSrc, psrc, pdst, fmtA8, 30, 35, strip, 4);
+        XSync(dpy, False);
+
+        out = XGetImage(dpy, sub, 0, 0, 80, 64, AllPlanes, ZPixmap);
+        if (!out)
+            fail_msg("XGetImage failed on subwindow after XRenderCompositeTriStrip");
+        unsigned long ps = XGetPixel(out, 8, 14);
+        unsigned long p_outside = XGetPixel(out, 20, 53);
+        XDestroyImage(out);
+        if ((ps & 0xffUL) != 0xaaUL || ((ps >> 16) & 0xffUL) != 32 || ((ps >> 8) & 0xffUL) != 37 ||
+            (p_outside & 0xffUL) == 0xaaUL)
+            fail_msg("XRenderCompositeTriStrip subwindow/source coordinates mispositioned");
+
+        XRenderFreePicture(dpy, pdst);
+        XRenderFreePicture(dpy, psrc);
+        XFreeGC(dpy, sgc);
+        XFreePixmap(dpy, spm);
+        XDestroyWindow(dpy, sub);
     }
 
     char **missing_cs = NULL;

@@ -1,3 +1,21 @@
+Fix Wayland XRender subwindow trapezoid/triangle offsets and add TriStrip/TriFan (2026-11-22)
+=============================================================================================
+
+- `lib/Xm/WaylandRender.c`, `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Keep `RenderTrapezoids` (`minor_op == 10`) and `RenderTriangles`
+    (`minor_op == 11`) geometry vertices in destination `Picture` coordinates
+    when invoking `pixman_composite_trapezoids` and `pixman_composite_triangles`
+    (which already translate destination spans by `ddx, ddy`), and align source
+    sampling relative to `traps[0].left.p1` / `tris[0].p1` (`sdx + sx - p0.x`,
+    `sdy + sy - p0.y`) per the XRender 0.11 specification. Previously `ddx` and
+    `ddy` were added both to vertex fixed-point coordinates and to `x_dst,
+    y_dst`, doubling child-window offsets whenever Cairo or XRender clients
+    rasterized fractional rectangles or paths into subwindows.
+  - Implement `RenderTriStrip` (`minor_op == 12`) and `RenderTriFan`
+    (`minor_op == 13`), and add subwindow trapezoid and triangle-strip
+    destination/source coordinate verification to `check-wayland-backend`.
+
 Fix Wayland core X11 font caching during resize redraws and XA_STRING ToolTalk root properties (2026-11-22)
 ===========================================================================================================
 

@@ -1760,25 +1760,25 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         if (simg && dimg) {
             pixman_trapezoid_t *traps = (pixman_trapezoid_t *)calloc(ntraps, sizeof(*traps));
             if (traps) {
-                pixman_fixed_t ox = pixman_int_to_fixed(ddx);
-                pixman_fixed_t oy = pixman_int_to_fixed(ddy);
                 for (size_t i = 0; i < ntraps; ++i) {
                     const uint8_t *tp = req + 24 + i * 40;
-                    traps[i].top = rd_i32(tp + 0) + oy;
-                    traps[i].bottom = rd_i32(tp + 4) + oy;
-                    traps[i].left.p1.x = rd_i32(tp + 8) + ox;
-                    traps[i].left.p1.y = rd_i32(tp + 12) + oy;
-                    traps[i].left.p2.x = rd_i32(tp + 16) + ox;
-                    traps[i].left.p2.y = rd_i32(tp + 20) + oy;
-                    traps[i].right.p1.x = rd_i32(tp + 24) + ox;
-                    traps[i].right.p1.y = rd_i32(tp + 28) + oy;
-                    traps[i].right.p2.x = rd_i32(tp + 32) + ox;
-                    traps[i].right.p2.y = rd_i32(tp + 36) + oy;
+                    traps[i].top = rd_i32(tp + 0);
+                    traps[i].bottom = rd_i32(tp + 4);
+                    traps[i].left.p1.x = rd_i32(tp + 8);
+                    traps[i].left.p1.y = rd_i32(tp + 12);
+                    traps[i].left.p2.x = rd_i32(tp + 16);
+                    traps[i].left.p2.y = rd_i32(tp + 20);
+                    traps[i].right.p1.x = rd_i32(tp + 24);
+                    traps[i].right.p1.y = rd_i32(tp + 28);
+                    traps[i].right.p2.x = rd_i32(tp + 32);
+                    traps[i].right.p2.y = rd_i32(tp + 36);
                 }
+                int rel_x = sdx + sx - pixman_fixed_to_int(traps[0].left.p1.x);
+                int rel_y = sdy + sy - pixman_fixed_to_int(traps[0].left.p1.y);
                 pixman_format_code_t mfmt = (mask_fmt == XM_WL_PICTFMT_A1) ? PIXMAN_a1 : PIXMAN_a8;
                 pixman_image_set_clip_region32(dimg, &dclip);
                 pixman_composite_trapezoids(pict_op_to_pixman(op), simg, dimg, mfmt,
-                                            sdx + sx, sdy + sy, ddx, ddy, (int)ntraps, traps);
+                                            rel_x, rel_y, ddx, ddy, (int)ntraps, traps);
                 pixman_image_set_clip_region32(dimg, NULL);
                 if (dtop) _XmWlDamageTop(dtop, 0, 0, dtop->width, dtop->height);
                 free(traps);
@@ -1805,18 +1805,65 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         if (simg && dimg) {
             pixman_triangle_t *tris = (pixman_triangle_t *)calloc(ntris, sizeof(*tris));
             if (tris) {
-                pixman_fixed_t ox = pixman_int_to_fixed(ddx);
-                pixman_fixed_t oy = pixman_int_to_fixed(ddy);
                 for (size_t i = 0; i < ntris; ++i) {
                     const uint8_t *tp = req + 24 + i * 24;
-                    tris[i].p1.x = rd_i32(tp + 0) + ox;  tris[i].p1.y = rd_i32(tp + 4) + oy;
-                    tris[i].p2.x = rd_i32(tp + 8) + ox;  tris[i].p2.y = rd_i32(tp + 12) + oy;
-                    tris[i].p3.x = rd_i32(tp + 16) + ox; tris[i].p3.y = rd_i32(tp + 20) + oy;
+                    tris[i].p1.x = rd_i32(tp + 0);  tris[i].p1.y = rd_i32(tp + 4);
+                    tris[i].p2.x = rd_i32(tp + 8);  tris[i].p2.y = rd_i32(tp + 12);
+                    tris[i].p3.x = rd_i32(tp + 16); tris[i].p3.y = rd_i32(tp + 20);
                 }
+                int rel_x = sdx + sx - pixman_fixed_to_int(tris[0].p1.x);
+                int rel_y = sdy + sy - pixman_fixed_to_int(tris[0].p1.y);
                 pixman_format_code_t mfmt = (mask_fmt == XM_WL_PICTFMT_A1) ? PIXMAN_a1 : PIXMAN_a8;
                 pixman_image_set_clip_region32(dimg, &dclip);
                 pixman_composite_triangles(pict_op_to_pixman(op), simg, dimg, mfmt,
-                                           sdx + sx, sdy + sy, ddx, ddy, (int)ntris, tris);
+                                           rel_x, rel_y, ddx, ddy, (int)ntris, tris);
+                pixman_image_set_clip_region32(dimg, NULL);
+                if (dtop) _XmWlDamageTop(dtop, 0, 0, dtop->width, dtop->height);
+                free(tris);
+            }
+        }
+        if (dimg) pixman_region32_fini(&dclip);
+        break;
+    }
+    case 12:   /* RenderTriStrip */
+    case 13: { /* RenderTriFan */
+        if (req_len < 24) break;
+        uint8_t op = req[4];
+        XmWlPicture *src = _XmWlFindPicture(srv, rd_u32(req + 8));
+        XmWlPicture *dst = _XmWlFindPicture(srv, rd_u32(req + 12));
+        uint32_t mask_fmt = rd_u32(req + 16);
+        int16_t sx = rd_i16(req + 20), sy = rd_i16(req + 22);
+        size_t npts = (req_len - 24) / 8;
+        if (!src || !dst || npts < 3) break;
+        size_t ntris = npts - 2;
+
+        int sdx = 0, sdy = 0, ddx = 0, ddy = 0;
+        XmWlWindow *stop = NULL, *dtop = NULL;
+        pixman_region32_t dclip;
+        pixman_image_t *simg = resolve_picture_image(srv, src, false, &sdx, &sdy, &stop, NULL);
+        pixman_image_t *dimg = resolve_picture_image(srv, dst, true, &ddx, &ddy, &dtop, &dclip);
+        if (simg && dimg) {
+            pixman_triangle_t *tris = (pixman_triangle_t *)calloc(ntris, sizeof(*tris));
+            if (tris) {
+                pixman_point_fixed_t p0 = { rd_i32(req + 24), rd_i32(req + 28) };
+                for (size_t i = 0; i < ntris; ++i) {
+                    const uint8_t *pa = req + 24 + i * 8;
+                    const uint8_t *pb = req + 24 + (i + 1) * 8;
+                    const uint8_t *pc = req + 24 + (i + 2) * 8;
+                    if (minor_op == 12) {
+                        tris[i].p1.x = rd_i32(pa + 0); tris[i].p1.y = rd_i32(pa + 4);
+                    } else {
+                        tris[i].p1 = p0;
+                    }
+                    tris[i].p2.x = rd_i32(pb + 0); tris[i].p2.y = rd_i32(pb + 4);
+                    tris[i].p3.x = rd_i32(pc + 0); tris[i].p3.y = rd_i32(pc + 4);
+                }
+                int rel_x = sdx + sx - pixman_fixed_to_int(p0.x);
+                int rel_y = sdy + sy - pixman_fixed_to_int(p0.y);
+                pixman_format_code_t mfmt = (mask_fmt == XM_WL_PICTFMT_A1) ? PIXMAN_a1 : PIXMAN_a8;
+                pixman_image_set_clip_region32(dimg, &dclip);
+                pixman_composite_triangles(pict_op_to_pixman(op), simg, dimg, mfmt,
+                                           rel_x, rel_y, ddx, ddy, (int)ntris, tris);
                 pixman_image_set_clip_region32(dimg, NULL);
                 if (dtop) _XmWlDamageTop(dtop, 0, 0, dtop->width, dtop->height);
                 free(tris);

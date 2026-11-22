@@ -70,10 +70,11 @@ process environment when the native Wayland backend is active.
   `ChangeWindowAttributes` background updates (preserving armed menu/button
   glyphs), classic 3D Motif bevels,
   pixmap tiles/stipples, and `RENDER` 0.11 operations (`Composite`,
-  `Trapezoids`, `Triangles`, `LinearGradient`, `RadialGradient`, and glyph sets
-  used by `libXft`/HarfBuzz/FreeType and modern themes) composite into
-  double-buffered `wl_shm` pools via `pixman-1` with frame-callback damage
-  tracking. Legacy core X11 font requests (`OpenFont`, `QueryFont`,
+  `Trapezoids`, `Triangles`, `TriStrip`, `TriFan`, `LinearGradient`,
+  `RadialGradient`, and glyph sets used by `libXft`/HarfBuzz/FreeType, Cairo,
+  and modern themes) composite into double-buffered `wl_shm` pools via
+  `pixman-1` with frame-callback damage tracking and exact subwindow destination
+  and first-vertex `xSrc`/`ySrc` alignment. Legacy core X11 font requests (`OpenFont`, `QueryFont`,
   `ListFonts`, `ListFontsWithInfo`, `PolyText8/16`, `ImageText8/16`) expose
   scalable and multi-size XLFDs across standard Latin-1 and Unicode families and
   rasterize directly through Fontconfig and FreeType without server-side PCF/BDF
