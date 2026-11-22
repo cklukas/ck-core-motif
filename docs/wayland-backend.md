@@ -116,8 +116,16 @@ process environment when the native Wayland backend is active.
   `XmDataGrid` with zero speed cap, instant direction reversal, and clean
   start/end clamping, scaling dynamically with `*mouseWheelSpeed` (`1..10`,
   default `3`) and live `_DT_WAYLAND_WHEEL` compositor IPC updates.
-- **Fractional and HiDPI scaling**: `wp_fractional_scale_v1`, `wl_output.scale`,
-  and `wp_viewporter` size physical `wl_shm` buffers and embedded
+- **Fractional and HiDPI scaling**: On compositors that advertise per-output
+  physical geometry and `DPI` over native session IPC (`CLIENT_CAP native_dpi`),
+  `libXm` renders widgets, FreeType/Xft glyphs, 96-DPI catalog XLFD fonts, and
+  scaled icons/masks (`XmGetScaledPixmap` / `XmeGetScaledMask`) directly onto
+  `1:1` integer physical `wl_shm` pixels without `wp_viewport` resampling,
+  exposing per-monitor CRTC bounds and `"DPI"` (`XA_INTEGER`, format `32`)
+  properties via virtual `RANDR` 1.5 (`_MOTIF_RANDR_OUTPUT_DPI = 1`) so
+  top-level shells reflow automatically across mixed-DPI outputs. On other
+  Wayland compositors, `wp_fractional_scale_v1`, `wl_output.scale`, and
+  `wp_viewporter` size physical `wl_shm` buffers and embedded
   `XmWaylandGetWidgetSurface` subsurface scale factors while preserving 96-DPI
   Wayland logical coordinates so `libXft` glyphs are never double-scaled inside
   logical widget boxes. Explicit toolkit logical zoom (`CK_MOTIF_WAYLAND_SCALE`)

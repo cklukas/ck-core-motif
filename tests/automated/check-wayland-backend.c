@@ -14,6 +14,9 @@
 #include <X11/Xresource.h>
 #include <X11/Xutil.h>
 #include <X11/extensions/Xrender.h>
+#ifdef HAVE_XRANDR_TEST
+#include <X11/extensions/Xrandr.h>
+#endif
 
 #include <Xm/Appearance.h>
 #include <Xm/CascadeB.h>
@@ -37,6 +40,7 @@
 #include <Xm/ToggleBG.h>
 #include <Xm/Wayland.h>
 #include <Xm/Xm.h>
+#include <Xm/XmP.h>
 
 #include <errno.h>
 #include <math.h>
@@ -67,18 +71,29 @@ mono_ms(void)
 }
 
 static void
+pump_tick_cb(XtPointer closure, XtIntervalId *id)
+{
+    (void)id;
+    Boolean *done = (Boolean *)closure;
+    if (done) *done = True;
+}
+
+static void
 pump_xt_ms(XtAppContext app, Display *dpy, uint64_t duration_ms)
 {
     uint64_t deadline = mono_ms() + duration_ms;
     for (;;) {
         while (XtAppPending(app) & (XtIMXEvent | XtIMTimer | XtIMAlternateInput)) {
-            XtAppProcessEvent(app, XtIMXEvent | XtIMTimer | XtIMAlternateInput);
+            XtAppProcessEvent(app, XtIMAll);
         }
         XFlush(dpy);
         if (mono_ms() >= deadline)
             break;
-        struct timespec req = {0, 10 * 1000 * 1000L};
-        nanosleep(&req, NULL);
+        Boolean tick_done = False;
+        XtAppAddTimeOut(app, 10, pump_tick_cb, &tick_done);
+        while (!tick_done) {
+            XtAppProcessEvent(app, XtIMAll);
+        }
     }
 }
 
@@ -937,6 +952,160 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
     XmGetWidgetScale(shell, &cur_scale);
     if (fabs(cur_scale - 1.0) > 0.05)
         fail_msg("live 1.0x Wayland scale restore did not update XmGetWidgetScale");
+
+    /* Verify XmeGetScaledMask scales 1-bit XPM transparency masks at 1.5x and 2.0x */
+    {
+        char xpm_path[512];
+        snprintf(xpm_path, sizeof(xpm_path), "%s/mask_test_16.xpm", sync_dir);
+        FILE *xf = fopen(xpm_path, "w");
+        if (!xf)
+            fail_msg("failed to create mask_test_16.xpm");
+        fprintf(xf,
+                "/* XPM */\n"
+                "static char *mask_test_16[] = {\n"
+                "\"8 8 2 1\",\n"
+                "\". c None\",\n"
+                "\"# c #ff4422\",\n"
+                "\"........\",\n"
+                "\"..####..\",\n"
+                "\".######.\",\n"
+                "\".######.\",\n"
+                "\".######.\",\n"
+                "\".######.\",\n"
+                "\"..####..\",\n"
+                "\"........\"\n"
+                "};\n");
+        fclose(xf);
+
+        Screen *scr = XtScreen(shell);
+        Pixmap sp15 = XmGetScaledPixmap(shell, xpm_path, 0xffffff, 0x000000, DefaultDepthOfScreen(scr), 1.5);
+        Pixmap sm15 = XmeGetScaledMask(scr, shell, xpm_path, 1.5);
+        Pixmap sp20 = XmGetScaledPixmap(shell, xpm_path, 0xffffff, 0x000000, DefaultDepthOfScreen(scr), 2.0);
+        Pixmap sm20 = XmeGetScaledMask(scr, shell, xpm_path, 2.0);
+        if (sp15 == XmUNSPECIFIED_PIXMAP || sm15 == XmUNSPECIFIED_PIXMAP ||
+            sp20 == XmUNSPECIFIED_PIXMAP || sm20 == XmUNSPECIFIED_PIXMAP)
+            fail_msg("XmGetScaledPixmap / XmeGetScaledMask returned XmUNSPECIFIED_PIXMAP");
+
+        Window rret = None;
+        int gx = 0, gy = 0;
+        unsigned int gw15 = 0, gh15 = 0, gb = 0, gd15 = 0;
+        unsigned int gw20 = 0, gh20 = 0, gd20 = 0;
+        XGetGeometry(dpy, sm15, &rret, &gx, &gy, &gw15, &gh15, &gb, &gd15);
+        XGetGeometry(dpy, sm20, &rret, &gx, &gy, &gw20, &gh20, &gb, &gd20);
+        if (gw15 != 12 || gh15 != 12 || gd15 != 1 || gw20 != 16 || gh20 != 16 || gd20 != 1)
+            fail_msg("XmeGetScaledMask did not produce expected 12x12 (1.5x) and 16x16 (2.0x) depth-1 masks");
+
+        XImage *mimg = XGetImage(dpy, sm20, 0, 0, 16, 16, 1UL, XYPixmap);
+        if (!mimg)
+            fail_msg("XGetImage failed on 2.0x scaled mask");
+        unsigned long corner_bit = XGetPixel(mimg, 0, 0);
+        unsigned long center_bit = XGetPixel(mimg, 8, 8);
+        XDestroyImage(mimg);
+        if (corner_bit != 0UL || center_bit == 0UL)
+            fail_msg("XmeGetScaledMask 2.0x mask lost transparency corner/center bits");
+
+        XmDestroyPixmap(scr, sp15);
+        XmDestroyPixmap(scr, sm15);
+        XmDestroyPixmap(scr, sp20);
+        XmDestroyPixmap(scr, sm20);
+    }
+
+    /* Verify compositor native-DPI multi-output RandR contract (192 DPI + 96 DPI + live 144 DPI) */
+    {
+        (void)XmClearDisplayScaleOverride(dpy);
+        Atom a_test_out = XInternAtom(dpy, "_MOTIF_WAYLAND_TEST_OUTPUTS", False);
+        const char *dual_cfg =
+            "0|Virtual-1|1|0|0|3840|2400|0|192|3840x2400\n"
+            "1|Virtual-2|1|3840|0|1920|1080|0|96|1920x1080\n";
+        XChangeProperty(dpy, DefaultRootWindow(dpy), a_test_out, XA_STRING, 8,
+                        PropModeReplace, (const unsigned char *)dual_cfg, (int)strlen(dual_cfg));
+        pump_xt_ms(app, dpy, 250);
+
+        double native_surf_scale = 0.0;
+        if (!XmWaylandGetWidgetSurface(shell, NULL, NULL, NULL, NULL, NULL, &native_surf_scale) ||
+            fabs(native_surf_scale - 1.0) > 0.01)
+            fail_msg("compositor_native_dpi did not report 1:1 (1.0) physical surface scale");
+
+        XFontStruct *dt_fnt_192 = XLoadQueryFont(
+            dpy, "-dt-interface system-medium-r-normal-m-14-140-96-96-p-80-iso10646-1");
+        if (!dt_fnt_192)
+            fail_msg("XLoadQueryFont failed for 96-DPI catalog XLFD under 192 DPI");
+        int dt_h_192 = dt_fnt_192->ascent + dt_fnt_192->descent;
+        XFreeFont(dpy, dt_fnt_192);
+        if (dt_h_192 < 24)
+            fail_msg("96-DPI catalog XLFD font did not scale up under 192 DPI");
+
+#ifdef HAVE_XRANDR_TEST
+        XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, DefaultRootWindow(dpy));
+        if (!res || res->noutput != 2 || res->ncrtc != 2)
+            fail_msg("XRRGetScreenResourcesCurrent did not expose 2 multi-DPI outputs");
+        Atom a_dpi = XInternAtom(dpy, "DPI", False);
+        long dpi_vals[2] = {0, 0};
+        for (int oi = 0; oi < 2; ++oi) {
+            Atom act_t = None;
+            int act_f = 0;
+            unsigned long nitems = 0, bafter = 0;
+            unsigned char *pdata = NULL;
+            if (XRRGetOutputProperty(dpy, res->outputs[oi], a_dpi, 0, 4, False, False,
+                                     XA_INTEGER, &act_t, &act_f, &nitems, &bafter, &pdata) != Success ||
+                !pdata || act_t != XA_INTEGER || act_f != 32 || nitems != 1)
+                fail_msg("XRRGetOutputProperty('DPI') failed on virtual RandR output");
+            dpi_vals[oi] = ((const long *)pdata)[0];
+            XFree(pdata);
+        }
+        XRRCrtcInfo *c1 = XRRGetCrtcInfo(dpy, res, res->crtcs[1]);
+        if (!c1 || c1->x != 3840 || c1->width != 1920 || c1->height != 1080)
+            fail_msg("XRRGetCrtcInfo secondary monitor CRTC geometry mismatch");
+        XRRFreeCrtcInfo(c1);
+        XRRFreeScreenResources(res);
+        if (dpi_vals[0] != 192L || dpi_vals[1] != 96L)
+            fail_msg("XRRGetOutputProperty('DPI') did not report 192 and 96");
+
+        Widget nshell = XtVaAppCreateShell(
+            "nativeDpiPeer", "NativeDpiPeer", topLevelShellWidgetClass, dpy,
+            XmNx, 120, XmNy, 120, XmNwidth, 240, XmNheight, 140, NULL);
+        Widget nlbl = XtVaCreateManagedWidget("Native Label", xmLabelWidgetClass, nshell, NULL);
+        (void)nlbl;
+        XtRealizeWidget(nshell);
+        pump_xt_ms(app, dpy, 200);
+
+        double nsc = 0.0;
+        XmGetWidgetScale(nshell, &nsc);
+        if (fabs(nsc - 2.0) > 0.05) {
+            fprintf(stderr, "FAIL: expected 2.0 scale on 192-DPI output, got %.3f\n", nsc);
+            exit(1);
+        }
+
+        XMoveWindow(dpy, XtWindow(nshell), 4000, 120);
+        pump_xt_ms(app, dpy, 250);
+        XmGetWidgetScale(nshell, &nsc);
+        if (fabs(nsc - 1.0) > 0.05) {
+            fprintf(stderr, "FAIL: expected 1.0 scale after moving shell to 96-DPI output, got %.3f\n", nsc);
+            exit(1);
+        }
+
+        const char *frac_cfg =
+            "0|Virtual-1|1|0|0|3840|2400|0|144|3840x2400\n"
+            "1|Virtual-2|1|3840|0|1920|1080|0|144|1920x1080\n";
+        XChangeProperty(dpy, DefaultRootWindow(dpy), a_test_out, XA_STRING, 8,
+                        PropModeReplace, (const unsigned char *)frac_cfg, (int)strlen(frac_cfg));
+        pump_xt_ms(app, dpy, 250);
+        XmGetWidgetScale(nshell, &nsc);
+        if (fabs(nsc - 1.5) > 0.05) {
+            Window ch_r = None;
+            int wx_r = 0, wy_r = 0;
+            XTranslateCoordinates(dpy, XtWindow(nshell), DefaultRootWindow(dpy), 0, 0, &wx_r, &wy_r, &ch_r);
+            fprintf(stderr, "FAIL: expected 1.5 scale after live 144-DPI RandR update, got %.3f (wx=%d wy=%d qlen=%d)\n",
+                    nsc, wx_r, wy_r, QLength(dpy));
+            exit(1);
+        }
+        XtDestroyWidget(nshell);
+#endif
+
+        XChangeProperty(dpy, DefaultRootWindow(dpy), a_test_out, XA_STRING, 8,
+                        PropModeReplace, (const unsigned char *)"off", 3);
+        pump_xt_ms(app, dpy, 100);
+    }
 
     XFreePixmap(dpy, icon_pix);
     XFreePixmap(dpy, icon_mask);

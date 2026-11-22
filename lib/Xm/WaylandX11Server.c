@@ -1413,7 +1413,7 @@ _XmWlBroadcastRandRChange(XmWlServer *srv)
     uint32_t now_ms = _XmWlNowMs();
     for (int i = 0; i < XM_WL_MAX_CLIENTS; ++i) {
         XmWlClient *cli = &srv->clients[i];
-        if (!cli->active || !cli->handshake_done || (cli->randr_mask & 1u) == 0)
+        if (!cli->active || !cli->handshake_done || (cli->randr_mask & 0x0fu) == 0)
             continue;
         uint8_t ev[32];
         memset(ev, 0, sizeof(ev));
@@ -1833,53 +1833,95 @@ handle_randr_request(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, const u
         wr_u16(hdr + 14, 8192);
         _XmWlSendReply(cli, hdr, NULL, 0);
     } else if (minor_op == 8 || minor_op == 25) { /* GetScreenResources / Current */
+        int nout = (srv->compositor_native_dpi && srv->ipc_output_count > 0)
+                       ? srv->ipc_output_count
+                       : 1;
         const char *mname = "wayland";
+        size_t mlen = strlen(mname);
+        size_t names_bytes = (size_t)nout * mlen;
+        size_t extra_len = (size_t)nout * 4u + (size_t)nout * 4u + (size_t)nout * 32u + names_bytes;
+        uint8_t *extra = (uint8_t *)calloc(1, extra_len);
+        if (!extra) return;
+        for (int i = 0; i < nout; ++i) {
+            wr_u32(extra + (size_t)i * 4u, XM_WL_RANDR_CRTC_XID + (uint32_t)i * 4u);
+            wr_u32(extra + (size_t)(nout + i) * 4u, XM_WL_RANDR_OUTPUT_XID + (uint32_t)i * 4u);
+            int mw = (srv->compositor_native_dpi && i < srv->ipc_output_count && srv->ipc_outputs[i].width > 0)
+                         ? srv->ipc_outputs[i].width
+                         : srv->screen_w;
+            int mh = (srv->compositor_native_dpi && i < srv->ipc_output_count && srv->ipc_outputs[i].height > 0)
+                         ? srv->ipc_outputs[i].height
+                         : srv->screen_h;
+            size_t moff = (size_t)nout * 8u + (size_t)i * 32u;
+            wr_u32(extra + moff + 0, XM_WL_RANDR_MODE_XID + (uint32_t)i * 4u);
+            wr_u16(extra + moff + 4, (uint16_t)mw);
+            wr_u16(extra + moff + 6, (uint16_t)mh);
+            wr_u32(extra + moff + 8, 60000000u);
+            wr_u16(extra + moff + 28, (uint16_t)mlen);
+            memcpy(extra + (size_t)nout * 40u + (size_t)i * mlen, mname, mlen);
+        }
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
         wr_u32(hdr + 8, now_ms);
         wr_u32(hdr + 12, now_ms);
-        wr_u16(hdr + 16, 1); /* ncrtcs */
-        wr_u16(hdr + 18, 1); /* noutputs */
-        wr_u16(hdr + 20, 1); /* nmodes */
-        wr_u16(hdr + 22, (uint16_t)strlen(mname));
-        uint8_t extra[4 + 4 + 32 + 8];
-        memset(extra, 0, sizeof(extra));
-        wr_u32(extra + 0, XM_WL_RANDR_CRTC_XID);
-        wr_u32(extra + 4, XM_WL_RANDR_OUTPUT_XID);
-        /* xRRModeInfo (32 bytes) */
-        wr_u32(extra + 8 + 0, XM_WL_RANDR_MODE_XID);
-        wr_u16(extra + 8 + 4, (uint16_t)srv->screen_w);
-        wr_u16(extra + 8 + 6, (uint16_t)srv->screen_h);
-        wr_u32(extra + 8 + 8, 60000000u);
-        wr_u16(extra + 8 + 28, (uint16_t)strlen(mname));
-        memcpy(extra + 40, mname, strlen(mname));
-        _XmWlSendReply(cli, hdr, extra, 40 + strlen(mname));
+        wr_u16(hdr + 16, (uint16_t)nout); /* ncrtcs */
+        wr_u16(hdr + 18, (uint16_t)nout); /* noutputs */
+        wr_u16(hdr + 20, (uint16_t)nout); /* nmodes */
+        wr_u16(hdr + 22, (uint16_t)names_bytes);
+        _XmWlSendReply(cli, hdr, extra, extra_len);
+        free(extra);
     } else if (minor_op == 9) { /* GetOutputInfo */
-        const char *oname = "WL-1";
+        uint32_t req_out = (req_len >= 8) ? rd_u32(req + 4) : XM_WL_RANDR_OUTPUT_XID;
+        int idx = (req_out >= XM_WL_RANDR_OUTPUT_XID)
+                      ? (int)((req_out - XM_WL_RANDR_OUTPUT_XID) / 4u)
+                      : 0;
+        bool use_ipc = (srv->compositor_native_dpi && idx >= 0 && idx < srv->ipc_output_count);
+        const char *oname = (use_ipc && srv->ipc_outputs[idx].name[0])
+                                ? srv->ipc_outputs[idx].name
+                                : "WL-1";
+        bool connected = use_ipc ? srv->ipc_outputs[idx].enabled : true;
+        int ow = use_ipc ? srv->ipc_outputs[idx].width : srv->screen_w;
+        int oh = use_ipc ? srv->ipc_outputs[idx].height : srv->screen_h;
+        int odpi = (use_ipc && srv->ipc_outputs[idx].dpi > 0) ? srv->ipc_outputs[idx].dpi : 96;
+        uint32_t mm_w = use_ipc ? (uint32_t)lround((double)ow * 25.4 / (double)odpi) : (uint32_t)srv->screen_mm_w;
+        uint32_t mm_h = use_ipc ? (uint32_t)lround((double)oh * 25.4 / (double)odpi) : (uint32_t)srv->screen_mm_h;
+        if (mm_w < 1) mm_w = 1;
+        if (mm_h < 1) mm_h = 1;
+        uint32_t crtc_xid = XM_WL_RANDR_CRTC_XID + (uint32_t)(use_ipc ? idx : 0) * 4u;
+        uint32_t mode_xid = XM_WL_RANDR_MODE_XID + (uint32_t)(use_ipc ? idx : 0) * 4u;
+        size_t nlen = strlen(oname);
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
         hdr[1] = 0; /* RR_StatusSuccess */
         wr_u32(hdr + 8, now_ms);
-        wr_u32(hdr + 12, XM_WL_RANDR_CRTC_XID);
-        wr_u32(hdr + 16, (uint32_t)srv->screen_mm_w);
-        wr_u32(hdr + 20, (uint32_t)srv->screen_mm_h);
-        hdr[24] = 0; /* RR_Connected */
+        wr_u32(hdr + 12, connected ? crtc_xid : 0u);
+        wr_u32(hdr + 16, mm_w);
+        wr_u32(hdr + 20, mm_h);
+        hdr[24] = connected ? 0 : 1; /* RR_Connected / RR_Disconnected */
         hdr[25] = 0; /* SubPixelUnknown */
         wr_u16(hdr + 26, 1); /* nCrtcs */
         wr_u16(hdr + 28, 1); /* nModes */
         wr_u16(hdr + 30, 1); /* nPreferred */
-        uint8_t extra[4 + 4 + 4 + 8];
+        uint8_t extra[12 + 64];
         memset(extra, 0, sizeof(extra));
+        if (nlen > 63) nlen = 63;
         wr_u16(extra + 0, 0); /* nClones */
-        wr_u16(extra + 2, (uint16_t)strlen(oname));
-        wr_u32(extra + 4, XM_WL_RANDR_CRTC_XID);
-        wr_u32(extra + 8, XM_WL_RANDR_MODE_XID);
-        memcpy(extra + 12, oname, strlen(oname));
-        _XmWlSendReply(cli, hdr, extra, 12 + strlen(oname));
+        wr_u16(extra + 2, (uint16_t)nlen);
+        wr_u32(extra + 4, crtc_xid);
+        wr_u32(extra + 8, mode_xid);
+        memcpy(extra + 12, oname, nlen);
+        _XmWlSendReply(cli, hdr, extra, 12 + nlen);
     } else if (minor_op == 12) { /* ListOutputProperties */
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
-        _XmWlSendReply(cli, hdr, NULL, 0);
+        if (srv->compositor_native_dpi) {
+            uint32_t a_dpi = _XmWlInternAtom(srv, "DPI", 3, false);
+            wr_u16(hdr + 8, 1);
+            uint8_t extra[4];
+            wr_u32(extra, a_dpi);
+            _XmWlSendReply(cli, hdr, extra, 4);
+        } else {
+            _XmWlSendReply(cli, hdr, NULL, 0);
+        }
     } else if (minor_op == 13) { /* QueryOutputProperty */
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
@@ -1887,26 +1929,64 @@ handle_randr_request(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, const u
     } else if (minor_op == 15) { /* GetOutputProperty */
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
+        if (srv->compositor_native_dpi && req_len >= 12) {
+            uint32_t req_out = rd_u32(req + 4);
+            uint32_t prop_atom = rd_u32(req + 8);
+            uint32_t a_dpi = _XmWlInternAtom(srv, "DPI", 3, true);
+            int idx = (req_out >= XM_WL_RANDR_OUTPUT_XID)
+                          ? (int)((req_out - XM_WL_RANDR_OUTPUT_XID) / 4u)
+                          : 0;
+            if (a_dpi != 0 && prop_atom == a_dpi) {
+                int32_t dpi_val = (idx >= 0 && idx < srv->ipc_output_count && srv->ipc_outputs[idx].dpi > 0)
+                                      ? srv->ipc_outputs[idx].dpi
+                                      : (srv->primary_dpi > 0 ? srv->primary_dpi : 96);
+                hdr[1] = 32; /* format */
+                wr_u32(hdr + 8, 19u); /* XA_INTEGER */
+                wr_u32(hdr + 12, 0u); /* bytesAfter */
+                wr_u32(hdr + 16, 1u); /* numItems */
+                uint8_t extra[4];
+                wr_u32(extra, (uint32_t)dpi_val);
+                _XmWlSendReply(cli, hdr, extra, 4);
+                return;
+            }
+        }
         /* format = 0, type = None (0), bytesAfter = 0, numItems = 0 */
         _XmWlSendReply(cli, hdr, NULL, 0);
     } else if (minor_op == 20) { /* GetCrtcInfo */
+        uint32_t req_crtc = (req_len >= 8) ? rd_u32(req + 4) : XM_WL_RANDR_CRTC_XID;
+        int idx = (req_crtc >= XM_WL_RANDR_CRTC_XID)
+                      ? (int)((req_crtc - XM_WL_RANDR_CRTC_XID) / 4u)
+                      : 0;
+        bool use_ipc = (srv->compositor_native_dpi && idx >= 0 && idx < srv->ipc_output_count);
+        bool enabled = use_ipc ? srv->ipc_outputs[idx].enabled : true;
+        int cx = (use_ipc && enabled) ? srv->ipc_outputs[idx].x : 0;
+        int cy = (use_ipc && enabled) ? srv->ipc_outputs[idx].y : 0;
+        int cw = (use_ipc && enabled) ? srv->ipc_outputs[idx].width : (use_ipc ? 0 : srv->screen_w);
+        int ch = (use_ipc && enabled) ? srv->ipc_outputs[idx].height : (use_ipc ? 0 : srv->screen_h);
+        uint32_t out_xid = XM_WL_RANDR_OUTPUT_XID + (uint32_t)(use_ipc ? idx : 0) * 4u;
+        uint32_t mode_xid = enabled ? (XM_WL_RANDR_MODE_XID + (uint32_t)(use_ipc ? idx : 0) * 4u) : 0u;
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
         hdr[1] = 0; /* RR_StatusSuccess */
         wr_u32(hdr + 8, now_ms);
-        wr_i16(hdr + 12, 0);
-        wr_i16(hdr + 14, 0);
-        wr_u16(hdr + 16, (uint16_t)srv->screen_w);
-        wr_u16(hdr + 18, (uint16_t)srv->screen_h);
-        wr_u32(hdr + 20, XM_WL_RANDR_MODE_XID);
+        wr_i16(hdr + 12, (int16_t)cx);
+        wr_i16(hdr + 14, (int16_t)cy);
+        wr_u16(hdr + 16, (uint16_t)cw);
+        wr_u16(hdr + 18, (uint16_t)ch);
+        wr_u32(hdr + 20, mode_xid);
         wr_u16(hdr + 24, 1); /* Rotate_0 */
         wr_u16(hdr + 26, 1); /* rotations */
-        wr_u16(hdr + 28, 1); /* nOutput */
+        wr_u16(hdr + 28, enabled ? 1 : 0); /* nOutput */
         wr_u16(hdr + 30, 1); /* nPossibleOutput */
         uint8_t extra[8];
-        wr_u32(extra + 0, XM_WL_RANDR_OUTPUT_XID);
-        wr_u32(extra + 4, XM_WL_RANDR_OUTPUT_XID);
-        _XmWlSendReply(cli, hdr, extra, 8);
+        if (enabled) {
+            wr_u32(extra + 0, out_xid);
+            wr_u32(extra + 4, out_xid);
+            _XmWlSendReply(cli, hdr, extra, 8);
+        } else {
+            wr_u32(extra + 0, out_xid);
+            _XmWlSendReply(cli, hdr, extra, 4);
+        }
     } else if (minor_op == 21) { /* SetCrtcConfig */
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
@@ -1924,9 +2004,18 @@ handle_randr_request(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, const u
         wr_u16(hdr + 8, 0);
         _XmWlSendReply(cli, hdr, NULL, 0);
     } else if (minor_op == 31) { /* GetOutputPrimary */
+        uint32_t prim_xid = XM_WL_RANDR_OUTPUT_XID;
+        if (srv->compositor_native_dpi) {
+            for (int i = 0; i < srv->ipc_output_count; ++i) {
+                if (srv->ipc_outputs[i].enabled) {
+                    prim_xid = XM_WL_RANDR_OUTPUT_XID + (uint32_t)i * 4u;
+                    break;
+                }
+            }
+        }
         uint8_t hdr[32];
         memset(hdr, 0, sizeof(hdr));
-        wr_u32(hdr + 8, XM_WL_RANDR_OUTPUT_XID);
+        wr_u32(hdr + 8, prim_xid);
         _XmWlSendReply(cli, hdr, NULL, 0);
     } else {
         /* Never leave _XReply blocked on unsupported RANDR minor opcodes */
@@ -1960,13 +2049,27 @@ handle_xinerama_request(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op)
         wr_u32(hdr + 8, 1);
         _XmWlSendReply(cli, hdr, NULL, 0);
     } else if (minor_op == 5) { /* QueryScreens */
-        wr_u32(hdr + 8, 1);
-        uint8_t scr[8];
-        wr_i16(scr + 0, 0);
-        wr_i16(scr + 2, 0);
-        wr_u16(scr + 4, (uint16_t)srv->screen_w);
-        wr_u16(scr + 6, (uint16_t)srv->screen_h);
-        _XmWlSendReply(cli, hdr, scr, 8);
+        uint8_t scr[XM_WL_MAX_OUTPUTS * 8];
+        int nscr = 0;
+        if (srv->compositor_native_dpi) {
+            for (int i = 0; i < srv->ipc_output_count && nscr < XM_WL_MAX_OUTPUTS; ++i) {
+                if (!srv->ipc_outputs[i].enabled) continue;
+                wr_i16(scr + nscr * 8 + 0, (int16_t)srv->ipc_outputs[i].x);
+                wr_i16(scr + nscr * 8 + 2, (int16_t)srv->ipc_outputs[i].y);
+                wr_u16(scr + nscr * 8 + 4, (uint16_t)srv->ipc_outputs[i].width);
+                wr_u16(scr + nscr * 8 + 6, (uint16_t)srv->ipc_outputs[i].height);
+                nscr++;
+            }
+        }
+        if (nscr == 0) {
+            wr_i16(scr + 0, 0);
+            wr_i16(scr + 2, 0);
+            wr_u16(scr + 4, (uint16_t)srv->screen_w);
+            wr_u16(scr + 6, (uint16_t)srv->screen_h);
+            nscr = 1;
+        }
+        wr_u32(hdr + 8, (uint32_t)nscr);
+        _XmWlSendReply(cli, hdr, scr, (size_t)nscr * 8u);
     }
 }
 
@@ -3132,6 +3235,7 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
                            strcasestr(nm, "-m-") != NULL ||
                            strcasestr(nm, "-c-") != NULL;
             int px = 13;
+            bool prescaled = false;
             const char *p = nm;
             if (nm[0] == '-') {
                 int dash_cnt = 0;
@@ -3141,9 +3245,17 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
                 }
                 if (dash_cnt == 7 && isdigit((unsigned char)*p)) {
                     int parsed = atoi(p);
-                    if (parsed >= 8 && parsed <= 64) px = parsed;
+                    if (parsed >= 8 && parsed <= 144) px = parsed;
                 }
+                while (*p && dash_cnt < 10) {
+                    if (*p == '-') dash_cnt++;
+                    p++;
+                }
+                if (dash_cnt == 10 && isdigit((unsigned char)*p) && atoi(p) > 105)
+                    prescaled = true;
             }
+            if (!prescaled && srv->logical_zoom > 1.01)
+                px = (int)lround((double)px * srv->logical_zoom);
             int16_t asc = (int16_t)(px - (px / 5));
             int16_t desc = (int16_t)(px - asc);
             if (desc < 2) desc = 2;

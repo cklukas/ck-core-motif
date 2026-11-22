@@ -883,10 +883,16 @@ def main() -> int:
     try:
         # 1. Compile Motif client binary
         client_bin = output / "check-wayland-backend"
+        xrandr_cflags: list[str] = []
+        xrandr_libs: list[str] = []
+        if subprocess.run(["pkg-config", "--exists", "xrandr"], env=base_env).returncode == 0:
+            xr_cf, xr_lf = pkg_config_flags("xrandr")
+            xrandr_cflags = ["-DHAVE_XRANDR_TEST=1", *xr_cf]
+            xrandr_libs = xr_lf
         compile_cmd = [
             cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O2",
-            *inc_flags, "-L" + str(lib_dir), "-Wl,-rpath," + str(lib_dir),
-            str(source), "-lXm", "-lXt", "-lX11", "-lXrender", "-lm", "-o", str(client_bin),
+            *inc_flags, *xrandr_cflags, "-L" + str(lib_dir), "-Wl,-rpath," + str(lib_dir),
+            str(source), "-lXm", "-lXt", "-lX11", "-lXrender", *xrandr_libs, "-lm", "-o", str(client_bin),
         ]
         cres = subprocess.run(compile_cmd, env=base_env, capture_output=True, text=True, timeout=60)
         (output / "compile-client.log").write_text(cres.stdout + cres.stderr)

@@ -1,3 +1,30 @@
+Add native 1:1 per-output DPI Wayland rendering, RandR output DPI exposure, and XmeGetScaledMask (2026-11-22)
+=============================================================================================================
+
+- `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandBackend.c`,
+  `lib/Xm/WaylandX11Server.c`, `lib/Xm/WaylandRender.c`, `lib/Xm/ImageCache.c`,
+  `lib/Xm/XmP.h`, `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Support native `1:1` physical-pixel DPI rendering when connected to a
+    native-DPI Wayland compositor (`CLIENT_CAP native_dpi` handshake and
+    per-output physical layout/DPI synchronization): publish
+    `_MOTIF_RANDR_OUTPUT_DPI = 1` on the virtual root window, synchronize
+    `Xft.dpi` on `RESOURCE_MANAGER`, expose multi-monitor physical CRTC
+    geometries and per-output `"DPI"` (`XA_INTEGER`, format `32`) properties
+    through virtual `RANDR` 1.5 and `XINERAMA`, track per-shell `wl_surface`
+    output crossings (`enter`/`leave`) to emit `ConfigureNotify` for per-monitor
+    `XlibreDpi` reflow, reload `wl_cursor_theme` at target DPI, and present
+    backing canvases `1:1` without `wp_viewport` resampling while retaining
+    standard `wp_fractional_scale_v1` / `wl_output.scale` behavior on external
+    compositors.
+  - Scale 75/96-DPI catalog XLFD font openings and `ListFontsWithInfo` metrics
+    proportionally with `logical_zoom` when target DPI exceeds `96`, while
+    preserving pre-scaled high-resolution XLFDs without double-scaling.
+  - Export `XmeGetScaledMask(Screen *, Widget, char *, double)` in `<Xm/XmP.h>`
+    so 1-bit XPM/XBM transparency masks scale in lockstep with
+    `XmGetScaledPixmap` across integer and fractional DPI factors (`125%`,
+    `150%`, `175%`, `200%`).
+
 Fix Wayland lower-Z sibling uncover clearing, metadata-commit deduplication, and fork FD hygiene (2026-11-22)
 ==============================================================================================================
 

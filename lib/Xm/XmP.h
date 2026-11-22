@@ -1242,6 +1242,11 @@ extern Boolean XmeGetPixmapData(
 extern Pixmap XmeGetMask(
                         Screen *screen,
                         char *image_name) ;
+extern Pixmap XmeGetScaledMask(
+                        Screen *screen,
+                        Widget widget,
+                        char *image_name,
+                        double scaling_ratio) ;
     /* VaSimple.c */
 extern int XmeCountVaListSimple(va_list al);
 extern Widget XmeVLCreateWidget(

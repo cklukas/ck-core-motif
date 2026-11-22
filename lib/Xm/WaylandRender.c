@@ -1064,14 +1064,17 @@ parse_xlfd_spec(const char *name, int *out_px, bool *out_mono, bool *out_bold, b
             *dash = '\0';
             p = dash + 1;
         }
+        int resy = (nf >= 10 && fields[9] && isdigit((unsigned char)fields[9][0])) ? atoi(fields[9]) : 0;
+        bool prescaled = (resy > 105);
         if (nf >= 3 && fields[2] && !strcasecmp(fields[2], "bold")) *out_bold = true;
         if (nf >= 4 && fields[3] && (!strcasecmp(fields[3], "i") || !strcasecmp(fields[3], "o"))) *out_italic = true;
-        if (nf >= 7 && fields[6] && isdigit((unsigned char)fields[6][0])) {
-            int px = atoi(fields[6]);
-            if (px >= 6 && px <= 72) *out_px = px;
+        int px_field = (nf >= 7 && fields[6] && isdigit((unsigned char)fields[6][0])) ? atoi(fields[6]) : 0;
+        if (px_field >= 6 && px_field <= 144) {
+            *out_px = px_field;
         } else if (nf >= 8 && fields[7] && isdigit((unsigned char)fields[7][0])) {
             int pt10 = atoi(fields[7]);
-            if (pt10 >= 50 && pt10 <= 720) *out_px = (pt10 * 96 + 360) / 720;
+            int eff_dpi = (resy >= 72 && resy <= 384) ? resy : 96;
+            if (pt10 >= 50 && pt10 <= 720) *out_px = (pt10 * eff_dpi + 360) / 720;
         } else if (nf >= 6 && fields[5]) {
             /* CDE symbolic size aliases: xs, s, m, l, xl, xxl (including wildcard suffixes like m*) */
             if (!strncasecmp(fields[5], "xxl", 3)) *out_px = 22;
@@ -1081,6 +1084,8 @@ parse_xlfd_spec(const char *name, int *out_px, bool *out_mono, bool *out_bold, b
             else if (tolower((unsigned char)fields[5][0]) == 'm') *out_px = 14;
             else if (tolower((unsigned char)fields[5][0]) == 'l') *out_px = 16;
         }
+        if (prescaled)
+            *out_px = -(*out_px); /* negative sentinel marks already-DPI-scaled XLFD */
         if (nf >= 11 && fields[10] && (!strcasecmp(fields[10], "m") || !strcasecmp(fields[10], "c")))
             *out_mono = true;
     }
@@ -1099,8 +1104,11 @@ _XmWlOpenFont(XmWlServer *srv, uint32_t id, const char *name, size_t len)
     int px = 13;
     bool mono = false, bold = false, italic = false;
     parse_xlfd_spec(f->name, &px, &mono, &bold, &italic);
-    if (srv->logical_zoom > 1.01 && f->name[0] != '-')
+    if (px < 0) {
+        px = -px;
+    } else if (srv->logical_zoom > 1.01) {
         px = (int)lround((double)px * srv->logical_zoom);
+    }
     f->pixel_size = px;
     f->monospace = mono;
     f->bold = bold;

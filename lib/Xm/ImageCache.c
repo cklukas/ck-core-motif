@@ -2158,9 +2158,11 @@ XmGetPixmap(
 *
 ************************************************************************/
 Pixmap 
-XmeGetMask(
+XmeGetScaledMask(
         Screen *screen,
-        char *image_name)
+        Widget widget,
+        char *image_name,
+        double scaling_ratio)
 {
     XmAccessColorDataRec acc_color_rec;
     String 		mask_name;
@@ -2168,6 +2170,8 @@ XmeGetMask(
     XtAppContext app;
     size_t mask_name_size;
 
+    if (screen == NULL && widget != NULL)
+	screen = XtScreenOfObject(widget);
     if (screen == NULL || image_name == NULL)
 	return XmUNSPECIFIED_PIXMAP;
     if (!XmMaskNameSize(image_name, &mask_name_size))
@@ -2181,7 +2185,7 @@ XmeGetMask(
 	return XmUNSPECIFIED_PIXMAP;
 
     _XmAppLock(app);
-    
+
     _XmProcessLock();
     _XmOSGenerateMaskName(image_name, mask_name);
     acc_color_rec.foreground = 1;
@@ -2190,13 +2194,21 @@ XmeGetMask(
     acc_color_rec.bottom_shadow_color = XmUNSPECIFIED_PIXEL;
     acc_color_rec.select_color = XmUNSPECIFIED_PIXEL;
     acc_color_rec.highlight_color = XmUNSPECIFIED_PIXEL;
-    ret_val = _XmGetScaledPixmap(screen, NULL, mask_name, &acc_color_rec,
-                                 1, False, 1);
+    ret_val = _XmGetScaledPixmap(screen, widget, mask_name, &acc_color_rec,
+                                 1, False, scaling_ratio);
     _XmProcessUnlock();
 
     XtFree(mask_name);
     _XmAppUnlock(app);
     return ret_val;
+}
+
+Pixmap 
+XmeGetMask(
+        Screen *screen,
+        char *image_name)
+{
+    return XmeGetScaledMask(screen, NULL, image_name, 1.0);
 }
 
 

@@ -192,6 +192,8 @@ struct XmWlWindow {
     int32_t sent_min_w, sent_min_h, sent_max_w, sent_max_h;
     int8_t sent_deco_mode;
     double preferred_scale; /* e.g. 1.0, 1.25, 1.5, 2.0 */
+    struct wl_output *current_wl_output;
+    bool surf_listener_added;
 
     /* Backing canvas & wl_shm triple-buffered pool for top-level / popup windows */
     pixman_image_t *canvas;
@@ -354,12 +356,21 @@ struct XmWlClient {
 typedef struct {
     struct wl_output *wl_out;
     uint32_t global_name;
+    char name[64];
     int32_t x, y;
     int32_t width, height;
     int32_t phys_w_mm, phys_h_mm;
     int32_t scale;
     bool done;
 } XmWlOutputInfo;
+
+typedef struct {
+    char name[64];
+    bool enabled;
+    int32_t x, y;
+    int32_t width, height; /* Rotated physical layout dimensions */
+    int32_t dpi;
+} XmWlIpcOutput;
 
 typedef struct {
     uint32_t selection_atom;
@@ -424,6 +435,11 @@ struct XmWlServer {
 
     XmWlOutputInfo outputs[XM_WL_MAX_OUTPUTS];
     int output_count;
+    XmWlIpcOutput ipc_outputs[XM_WL_MAX_OUTPUTS];
+    int ipc_output_count;
+    bool compositor_native_dpi;
+    int primary_dpi;
+    int cursor_loaded_size;
     int screen_w;
     int screen_h;
     int screen_mm_w;

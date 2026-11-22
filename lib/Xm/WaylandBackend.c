@@ -564,7 +564,7 @@ frac_scale_preferred(void *data, struct wp_fractional_scale_v1 *frac, uint32_t s
     (void)frac;
     XmWlWindow *win = (XmWlWindow *)data;
     XmWlServer *srv = g_wl_srv;
-    if (!win || !srv || scale_120 == 0) return;
+    if (!win || !srv || scale_120 == 0 || srv->compositor_native_dpi) return;
     double sc = (double)scale_120 / 120.0;
     if (sc < 0.5) sc = 1.0;
     if (sc > 4.0) sc = 4.0;
@@ -576,6 +576,70 @@ frac_scale_preferred(void *data, struct wp_fractional_scale_v1 *frac, uint32_t s
 
 static const struct wp_fractional_scale_v1_listener g_frac_scale_listener = {
     .preferred_scale = frac_scale_preferred,
+};
+
+static void
+surf_enter(void *data, struct wl_surface *wl_surface, struct wl_output *output)
+{
+    (void)wl_surface;
+    XmWlWindow *win = (XmWlWindow *)data;
+    XmWlServer *srv = g_wl_srv;
+    if (!win || !srv || !output) return;
+    win->current_wl_output = output;
+    if (!srv->compositor_native_dpi || win->is_popup || win->is_drag_icon)
+        return;
+
+    const char *oname = NULL;
+    for (int i = 0; i < srv->output_count; ++i) {
+        if (srv->outputs[i].wl_out == output && srv->outputs[i].name[0]) {
+            oname = srv->outputs[i].name;
+            break;
+        }
+    }
+    if (!oname) return;
+
+    for (int i = 0; i < srv->ipc_output_count; ++i) {
+        const XmWlIpcOutput *io = &srv->ipc_outputs[i];
+        if (!io->enabled || strcmp(io->name, oname) != 0)
+            continue;
+        int cx = (int)win->x + (int)win->width / 2;
+        int cy = (int)win->y + (int)win->height / 2;
+        if (cx < io->x || cx >= io->x + io->width ||
+            cy < io->y || cy >= io->y + io->height) {
+            win->x = (int16_t)(io->x + 32);
+            win->y = (int16_t)(io->y + 32);
+            uint8_t cfg[32];
+            memset(cfg, 0, sizeof(cfg));
+            cfg[0] = 22; /* ConfigureNotify */
+            uint32_t wid = win->id;
+            uint32_t sib = win->prev_sibling ? win->prev_sibling->id : 0;
+            memcpy(cfg + 4, &wid, 4);
+            memcpy(cfg + 8, &wid, 4);
+            memcpy(cfg + 12, &sib, 4);
+            memcpy(cfg + 16, &win->x, 2);
+            memcpy(cfg + 18, &win->y, 2);
+            memcpy(cfg + 20, &win->width, 2);
+            memcpy(cfg + 22, &win->height, 2);
+            memcpy(cfg + 24, &win->border_width, 2);
+            cfg[26] = win->override_redirect ? 1 : 0;
+            _XmWlSendEventToWindow(srv, win, 1u << 17 /* StructureNotifyMask */, cfg);
+        }
+        break;
+    }
+}
+
+static void
+surf_leave(void *data, struct wl_surface *wl_surface, struct wl_output *output)
+{
+    (void)wl_surface;
+    XmWlWindow *win = (XmWlWindow *)data;
+    if (win && win->current_wl_output == output)
+        win->current_wl_output = NULL;
+}
+
+static const struct wl_surface_listener g_wl_surface_listener = {
+    .enter = surf_enter,
+    .leave = surf_leave,
 };
 
 /* ---------- Pointer & Keyboard Listeners ---------- */
@@ -1071,21 +1135,33 @@ static void
 recompute_screen_metrics(XmWlServer *srv)
 {
     int max_w = 0, max_h = 0;
-    for (int i = 0; i < srv->output_count; ++i) {
-        const XmWlOutputInfo *o = &srv->outputs[i];
-        int sc = o->scale > 0 ? o->scale : 1;
-        int lw = o->width > 0 ? (o->width / sc) : 1280;
-        int lh = o->height > 0 ? (o->height / sc) : 800;
-        if (o->x + lw > max_w) max_w = o->x + lw;
-        if (o->y + lh > max_h) max_h = o->y + lh;
+    if (srv->compositor_native_dpi && srv->ipc_output_count > 0) {
+        for (int i = 0; i < srv->ipc_output_count; ++i) {
+            const XmWlIpcOutput *io = &srv->ipc_outputs[i];
+            if (!io->enabled) continue;
+            if (io->x + io->width > max_w) max_w = io->x + io->width;
+            if (io->y + io->height > max_h) max_h = io->y + io->height;
+        }
+    }
+    if (max_w == 0 || max_h == 0) {
+        for (int i = 0; i < srv->output_count; ++i) {
+            const XmWlOutputInfo *o = &srv->outputs[i];
+            int sc = (!srv->compositor_native_dpi && o->scale > 0) ? o->scale : 1;
+            int lw = o->width > 0 ? (o->width / sc) : 1280;
+            int lh = o->height > 0 ? (o->height / sc) : 800;
+            if (o->x + lw > max_w) max_w = o->x + lw;
+            if (o->y + lh > max_h) max_h = o->y + lh;
+        }
     }
     if (max_w < 320) max_w = 1280;
     if (max_h < 240) max_h = 800;
-    double lzoom = srv->logical_zoom > 0.0 ? srv->logical_zoom : 1.0;
+    double eff_dpi = (srv->compositor_native_dpi && srv->primary_dpi >= 48)
+                         ? (double)srv->primary_dpi
+                         : (96.0 * (srv->logical_zoom > 0.0 ? srv->logical_zoom : 1.0));
     srv->screen_w = max_w;
     srv->screen_h = max_h;
-    srv->screen_mm_w = (int)lround((double)max_w * 25.4 / (96.0 * lzoom));
-    srv->screen_mm_h = (int)lround((double)max_h * 25.4 / (96.0 * lzoom));
+    srv->screen_mm_w = (int)lround((double)max_w * 25.4 / eff_dpi);
+    srv->screen_mm_h = (int)lround((double)max_h * 25.4 / eff_dpi);
     if (srv->screen_mm_w < 1) srv->screen_mm_w = 1;
     if (srv->screen_mm_h < 1) srv->screen_mm_h = 1;
     if (srv->root) {
@@ -1127,7 +1203,7 @@ output_done(void *data, struct wl_output *wl_output)
     o->done = true;
     if (g_wl_srv) {
         recompute_screen_metrics(g_wl_srv);
-        if (o->scale > 0 && !g_wl_srv->frac_scale_mgr) {
+        if (!g_wl_srv->compositor_native_dpi && o->scale > 0 && !g_wl_srv->frac_scale_mgr) {
             g_wl_srv->active_scale = (double)o->scale;
             if (g_wl_srv->root) {
                 for (XmWlWindow *tw = g_wl_srv->root->first_child; tw; tw = tw->next_sibling)
@@ -1146,7 +1222,14 @@ output_scale(void *data, struct wl_output *wl_output, int32_t factor)
     o->scale = factor > 0 ? factor : 1;
 }
 
-static void output_name(void *d, struct wl_output *o, const char *n) { (void)d; (void)o; (void)n; }
+static void
+output_name(void *d, struct wl_output *wl_out, const char *n)
+{
+    (void)wl_out;
+    XmWlOutputInfo *o = (XmWlOutputInfo *)d;
+    if (o)
+        snprintf(o->name, sizeof(o->name), "%s", n ? n : "");
+}
 static void output_desc(void *d, struct wl_output *o, const char *s) { (void)d; (void)o; (void)s; }
 
 static const struct wl_output_listener g_output_listener = {
@@ -1262,6 +1345,8 @@ pop_popup_stack_from(XmWlServer *srv, int idx)
             wl_surface_destroy(pw->wl_surf);
             pw->wl_surf = NULL;
         }
+        pw->surf_listener_added = false;
+        pw->current_wl_output = NULL;
         pw->xdg_configured = false;
         pw->is_popup = false;
         pw->popup_parent = NULL;
@@ -1476,6 +1561,8 @@ apply_xrdb_wheel_settings(XmWlServer *srv, const char *txt, size_t len)
     }
 }
 
+static void apply_wayland_outputs_ipc(XmWlServer *srv, const char *txt, size_t len);
+
 void
 _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_atom)
 {
@@ -1504,6 +1591,16 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
                 double sc = strtod(buf, NULL);
                 if (sc >= 0.5 && sc <= 4.0)
                     _XmWlApplyScaleUpdate(srv, sc);
+            } else if (win == srv->root && !strcmp(aname, "_MOTIF_WAYLAND_TEST_OUTPUTS") &&
+                       rp->format == 8 && rp->data && rp->byte_len > 0) {
+                if (rp->byte_len >= 3 && !memcmp(rp->data, "off", 3)) {
+                    srv->compositor_native_dpi = false;
+                    srv->ipc_output_count = 0;
+                    recompute_screen_metrics(srv);
+                    _XmWlBroadcastRandRChange(srv);
+                } else {
+                    apply_wayland_outputs_ipc(srv, (const char *)rp->data, rp->byte_len);
+                }
             } else if (!srv->suppress_ipc_publish && rp->data &&
                        strcmp(aname, "_DT_SM_WINDOW_INFO") != 0 &&
                        (!strncmp(aname, "RESOURCE_MANAGER", 16) ||
@@ -1544,17 +1641,23 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
         return;
 
     _XmWlEnsureTopCanvas(srv, win);
-    win->preferred_scale = srv->active_scale > 0.0 ? srv->active_scale : 1.0;
+    win->preferred_scale = srv->compositor_native_dpi
+                               ? 1.0
+                               : (srv->active_scale > 0.0 ? srv->active_scale : 1.0);
     win->wl_surf = wl_compositor_create_surface(srv->compositor);
     if (!win->wl_surf) return;
+    wl_surface_add_listener(win->wl_surf, &g_wl_surface_listener, win);
+    win->surf_listener_added = true;
 
-    if (srv->frac_scale_mgr) {
-        win->frac_scale_obj = wp_fractional_scale_manager_v1_get_fractional_scale(
-            srv->frac_scale_mgr, win->wl_surf);
-        wp_fractional_scale_v1_add_listener(win->frac_scale_obj, &g_frac_scale_listener, win);
-    }
-    if (srv->viewporter) {
-        win->viewport = wp_viewporter_get_viewport(srv->viewporter, win->wl_surf);
+    if (!srv->compositor_native_dpi) {
+        if (srv->frac_scale_mgr) {
+            win->frac_scale_obj = wp_fractional_scale_manager_v1_get_fractional_scale(
+                srv->frac_scale_mgr, win->wl_surf);
+            wp_fractional_scale_v1_add_listener(win->frac_scale_obj, &g_frac_scale_listener, win);
+        }
+        if (srv->viewporter) {
+            win->viewport = wp_viewporter_get_viewport(srv->viewporter, win->wl_surf);
+        }
     }
 
     /* If a Wayland drag is active and this is an override-redirect drag icon window */
@@ -1779,6 +1882,8 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
             win->wl_surf = NULL;
         }
     }
+    win->surf_listener_added = false;
+    win->current_wl_output = NULL;
     win->xdg_configured = false;
     win->has_queued_wl_cfg = false;
     win->resize_awaiting_client = false;
@@ -2062,6 +2167,140 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
 
 /* ---------- Scale & DPI Live Updates ---------- */
 
+static void
+sync_rm_xft_dpi(XmWlServer *srv, int dpi)
+{
+    if (!srv || !srv->root || dpi < 48 || dpi > 576) return;
+    uint32_t rm_atom = 23; /* XA_RESOURCE_MANAGER */
+    XmWlProperty *rm = _XmWlGetProperty(srv->root, rm_atom);
+    size_t prev_len = (rm && rm->data) ? rm->byte_len : 0;
+    size_t cap = prev_len + 128;
+    char *new_rm = (char *)malloc(cap);
+    if (!new_rm) return;
+
+    new_rm[0] = '\0';
+    size_t out = 0;
+    if (rm && rm->data && rm->byte_len > 0) {
+        const char *p = (const char *)rm->data;
+        const char *end = p + rm->byte_len;
+        while (p < end && *p) {
+            const char *nl = (const char *)memchr(p, '\n', (size_t)(end - p));
+            size_t llen = nl ? (size_t)(nl - p + 1) : (size_t)(end - p);
+            if (llen < 8 || strncasecmp(p, "Xft.dpi:", 8) != 0) {
+                if (out + llen + 1 < cap) {
+                    memcpy(new_rm + out, p, llen);
+                    out += llen;
+                    new_rm[out] = '\0';
+                }
+            }
+            p += llen;
+        }
+        if (out > 0 && new_rm[out - 1] != '\n' && out + 2 < cap) {
+            new_rm[out++] = '\n';
+            new_rm[out] = '\0';
+        }
+    }
+    snprintf(new_rm + out, cap - out, "Xft.dpi:\t%d\n", dpi);
+    bool prev_sup = srv->suppress_ipc_publish;
+    srv->suppress_ipc_publish = true;
+    _XmWlSetProperty(srv, srv->root, rm_atom, 31 /* XA_STRING */, 8, 0 /* Replace */,
+                     (const uint8_t *)new_rm, strlen(new_rm), true);
+    srv->suppress_ipc_publish = prev_sup;
+    free(new_rm);
+}
+
+static void
+apply_wayland_outputs_ipc(XmWlServer *srv, const char *txt, size_t len)
+{
+    if (!srv || !txt || len == 0) return;
+
+    XmWlIpcOutput parsed[XM_WL_MAX_OUTPUTS];
+    int count = 0;
+    int primary_dpi = 0;
+    int max_dpi = 96;
+
+    const char *p = txt;
+    const char *end = txt + len;
+    while (p < end && count < XM_WL_MAX_OUTPUTS) {
+        const char *nl = (const char *)memchr(p, '\n', (size_t)(end - p));
+        size_t llen = nl ? (size_t)(nl - p) : (size_t)(end - p);
+        if (llen > 0 && llen < 512) {
+            char line[512];
+            memcpy(line, p, llen);
+            line[llen] = '\0';
+            unsigned idx = 0;
+            char name[64] = {0};
+            int en = 1, ox = 0, oy = 0, ow = 0, oh = 0, rot = 0, dpi = 96;
+            if (sscanf(line, "%u|%63[^|]|%d|%d|%d|%d|%d|%d|%d",
+                       &idx, name, &en, &ox, &oy, &ow, &oh, &rot, &dpi) >= 9 &&
+                ow > 0 && oh > 0) {
+                if (dpi < 48) dpi = 96;
+                if (dpi > 576) dpi = 576;
+                int rw = (rot == 90 || rot == 270) ? oh : ow;
+                int rh = (rot == 90 || rot == 270) ? ow : oh;
+                XmWlIpcOutput *io = &parsed[count++];
+                memset(io, 0, sizeof(*io));
+                snprintf(io->name, sizeof(io->name), "%s", name);
+                io->enabled = (en != 0);
+                io->x = ox;
+                io->y = oy;
+                io->width = rw;
+                io->height = rh;
+                io->dpi = dpi;
+                if (io->enabled) {
+                    if (dpi > max_dpi) max_dpi = dpi;
+                    if (primary_dpi == 0 || (ox == 0 && oy == 0))
+                        primary_dpi = dpi;
+                }
+            }
+        }
+        p = nl ? (nl + 1) : end;
+    }
+
+    if (count == 0) return;
+    if (primary_dpi == 0) primary_dpi = 96;
+
+    memcpy(srv->ipc_outputs, parsed, (size_t)count * sizeof(parsed[0]));
+    srv->ipc_output_count = count;
+    srv->compositor_native_dpi = true;
+    srv->primary_dpi = primary_dpi;
+    srv->logical_zoom = (double)primary_dpi / 96.0;
+    srv->active_scale = 1.0;
+
+    if (srv->root) {
+        bool prev_sup = srv->suppress_ipc_publish;
+        srv->suppress_ipc_publish = true;
+        (void)_XmWlInternAtom(srv, "DPI", 3, false);
+        uint32_t a_opt = _XmWlInternAtom(srv, "_MOTIF_RANDR_OUTPUT_DPI", 23, false);
+        uint32_t one = 1u;
+        _XmWlSetProperty(srv, srv->root, a_opt, 6u /* XA_CARDINAL */, 32, 0,
+                         (const uint8_t *)&one, sizeof(one), true);
+        srv->suppress_ipc_publish = prev_sup;
+    }
+
+    recompute_screen_metrics(srv);
+    sync_rm_xft_dpi(srv, primary_dpi);
+
+    int want_csz = (int)lround(24.0 * (double)max_dpi / 96.0);
+    if (want_csz < 16) want_csz = 16;
+    if (srv->shm && want_csz != srv->cursor_loaded_size) {
+        struct wl_cursor_theme *nt = wl_cursor_theme_load(NULL, want_csz, srv->shm);
+        if (nt) {
+            if (srv->cursor_theme)
+                wl_cursor_theme_destroy(srv->cursor_theme);
+            srv->cursor_theme = nt;
+            srv->cursor_loaded_size = want_csz;
+        }
+    }
+
+    _XmWlBroadcastRandRChange(srv);
+    if (srv->running) {
+        srv->pending_xt_scale = srv->logical_zoom;
+        srv->has_pending_xt_scale = true;
+        _XmWaylandNotifyMainThread(srv);
+    }
+}
+
 void
 _XmWlApplyScaleUpdate(XmWlServer *srv, double new_scale)
 {
@@ -2070,46 +2309,7 @@ _XmWlApplyScaleUpdate(XmWlServer *srv, double new_scale)
     if (srv->active_scale < 1.0)
         srv->active_scale = 1.0;
     recompute_screen_metrics(srv);
-
-    /* Update RESOURCE_MANAGER Xft.dpi on virtualized root window */
-    uint32_t rm_atom = 23; /* XA_RESOURCE_MANAGER */
-    XmWlProperty *rm = _XmWlGetProperty(srv->root, rm_atom);
-    int dpi = (int)lround(96.0 * new_scale);
-    size_t prev_len = (rm && rm->data) ? rm->byte_len : 0;
-    size_t cap = prev_len + 128;
-    char *new_rm = (char *)malloc(cap);
-    if (new_rm) {
-        new_rm[0] = '\0';
-        size_t out = 0;
-        if (rm && rm->data && rm->byte_len > 0) {
-            /* Copy existing lines except Xft.dpi */
-            const char *p = (const char *)rm->data;
-            const char *end = p + rm->byte_len;
-            while (p < end && *p) {
-                const char *nl = (const char *)memchr(p, '\n', (size_t)(end - p));
-                size_t llen = nl ? (size_t)(nl - p + 1) : (size_t)(end - p);
-                if (llen < 8 || strncmp(p, "Xft.dpi:", 8) != 0) {
-                    if (out + llen + 1 < cap) {
-                        memcpy(new_rm + out, p, llen);
-                        out += llen;
-                        new_rm[out] = '\0';
-                    }
-                }
-                p += llen;
-            }
-            if (out > 0 && new_rm[out - 1] != '\n' && out + 2 < cap) {
-                new_rm[out++] = '\n';
-                new_rm[out] = '\0';
-            }
-        }
-        snprintf(new_rm + out, cap - out, "Xft.dpi:\t%d\n", dpi);
-        srv->suppress_ipc_publish = true;
-        _XmWlSetProperty(srv, srv->root, rm_atom, 31 /* XA_STRING */, 8, 0 /* Replace */,
-                         (const uint8_t *)new_rm, strlen(new_rm), true);
-        srv->suppress_ipc_publish = false;
-        free(new_rm);
-    }
-
+    sync_rm_xft_dpi(srv, (int)lround(96.0 * new_scale));
     _XmWlBroadcastRandRChange(srv);
 
     srv->pending_xt_scale = new_scale;
@@ -2382,6 +2582,12 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                                              ? 31u
                                              : utf8;
                         _XmWlSetProperty(srv, srv->root, atom, ptype, 8, 0, raw, rlen, true);
+                        if (!strcmp(aname, "_DT_WAYLAND_OUTPUTS") && rlen > 0) {
+                            apply_wayland_outputs_ipc(srv, (const char *)raw, rlen);
+                        } else if (!strcmp(aname, "RESOURCE_MANAGER") &&
+                                   srv->compositor_native_dpi && srv->primary_dpi >= 48) {
+                            sync_rm_xft_dpi(srv, srv->primary_dpi);
+                        }
                     }
                     srv->suppress_ipc_publish = false;
                     free(raw);
@@ -2419,6 +2625,11 @@ connect_compositor_ipc(XmWlServer *srv)
         return;
     }
     srv->ipc_fd = fd;
+
+    char cap_msg[64];
+    int cap_len = snprintf(cap_msg, sizeof(cap_msg), "CLIENT_CAP native_dpi %d\n", (int)getpid());
+    if (cap_len > 0 && (size_t)cap_len < sizeof(cap_msg))
+        send_all_nonblock(srv->ipc_fd, cap_msg, (size_t)cap_len);
 
     /* Synchronously drain initial cached RESOURCE_MANAGER / _DT_* snapshot before XOpenDisplay */
     uint64_t deadline = now_mono_ms64() + 80;
@@ -2948,8 +3159,10 @@ xt_wayland_wakeup_cb(XtPointer closure, int *source, XtInputId *id)
 
     double new_scale = 0.0;
     bool apply_scale = false;
+    bool native_dpi = false;
     bool arm_resize_wp = false;
     pthread_mutex_lock(&srv->lock);
+    native_dpi = srv->compositor_native_dpi;
     if (srv->has_pending_xt_scale) {
         new_scale = srv->pending_xt_scale;
         srv->has_pending_xt_scale = false;
@@ -2969,7 +3182,22 @@ xt_wayland_wakeup_cb(XtPointer closure, int *source, XtInputId *id)
     }
 
     if (apply_scale && srv->attached_xm_display) {
-        XmSetDisplayScaleOverride(XtDisplay(srv->attached_xm_display), new_scale);
+        Display *dpy = XtDisplay(srv->attached_xm_display);
+#ifdef HAVE_XLIBRE_DPI
+        if (native_dpi) {
+            XrmDatabase db = XrmGetDatabase(dpy);
+            if (db) {
+                char dpi_buf[32];
+                snprintf(dpi_buf, sizeof(dpi_buf), "%d", (int)lround(96.0 * new_scale));
+                XrmPutStringResource(&db, "Xft.dpi", dpi_buf);
+            }
+        } else {
+            XmSetDisplayScaleOverride(dpy, new_scale);
+        }
+#else
+        (void)native_dpi;
+        XmSetDisplayScaleOverride(dpy, new_scale);
+#endif
     }
     _XmWlImeDrainMainThread(srv);
     drain_smooth_scroll_main_thread(srv, true);
@@ -3042,6 +3270,10 @@ cleanup_wayland_backend(void)
     if (srv->wake_pipe[1] >= 0) close(srv->wake_pipe[1]);
     if (srv->xt_pipe[0] >= 0) close(srv->xt_pipe[0]);
     if (srv->xt_pipe[1] >= 0) close(srv->xt_pipe[1]);
+    if (srv->cursor_theme) {
+        wl_cursor_theme_destroy(srv->cursor_theme);
+        srv->cursor_theme = NULL;
+    }
     _XmWlRenderDestroy(srv);
     if (srv->wl_dpy) wl_display_disconnect(srv->wl_dpy);
     pthread_mutex_destroy(&srv->lock);
@@ -3197,11 +3429,12 @@ _XmWaylandEnsureDisplay(void)
 
     if (srv->shm && srv->compositor) {
         srv->cursor_theme = wl_cursor_theme_load(NULL, 24, srv->shm);
+        srv->cursor_loaded_size = 24;
         srv->cursor_surface = wl_compositor_create_surface(srv->compositor);
     }
 
     connect_compositor_ipc(srv);
-    if (srv->logical_zoom != 1.0)
+    if (!srv->compositor_native_dpi && srv->logical_zoom != 1.0)
         _XmWlApplyScaleUpdate(srv, srv->logical_zoom);
 
     g_wl_srv = srv;
@@ -3329,8 +3562,11 @@ XmWaylandGetWidgetSurface(
         if (y_return) *y_return = dy;
         if (width_return) *width_return = (int)widget->core.width;
         if (height_return) *height_return = (int)widget->core.height;
-        if (scale_return)
-            *scale_return = top->preferred_scale > 0.0 ? top->preferred_scale : srv->active_scale;
+        if (scale_return) {
+            *scale_return = srv->compositor_native_dpi
+                                ? 1.0
+                                : (top->preferred_scale > 0.0 ? top->preferred_scale : srv->active_scale);
+        }
         ok = True;
     }
     pthread_mutex_unlock(&srv->lock);
