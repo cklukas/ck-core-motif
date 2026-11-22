@@ -63,9 +63,11 @@ process environment when the native Wayland backend is active.
   `XmMenuPosition` popups and `owner_events = True` passive button grabs) map to
   constrained `xdg_popup` surfaces with `xdg_positioner` flip/slide/resize rules,
   live `xdg_popup_reposition` updates when a shared `XmMenuShell` moves between
-  menu-bar cascades or context-menu targets, monotonic press/release event
-  timestamps for sub-millisecond clicks, and LIFO `xdg_popup_grab` off-surface
-  dismissal.
+  menu-bar cascades or context-menu targets, root-coordinate `popup_stack`
+  hit-testing during `Button1` press-drag traversal when Wayland's implicit
+  button grab retains pointer focus on the parent `xdg_toplevel`, monotonic
+  press/release event timestamps for sub-millisecond clicks, and LIFO
+  `xdg_popup_grab` off-surface dismissal.
 - **Rasterizer and typography**: Subwindow clipping, X11-compliant
   `ChangeWindowAttributes` background updates (preserving armed menu/button
   glyphs), classic 3D Motif bevels,

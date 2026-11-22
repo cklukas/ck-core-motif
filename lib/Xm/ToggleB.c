@@ -3047,7 +3047,8 @@ if (newcbox->toggle.indicator_dim != curcbox->toggle.indicator_dim)
 	    }
 	} 
 
-      if (newcbox->toggle.ind_on &&
+      if (!newcbox->toggle.indicator_set &&
+	  newcbox->toggle.ind_on &&
 	  !Lab_IsMenupane(newcbox) &&
 	  !Lab_IsPixmap(newcbox) &&
 	  !Lab_IsPixmapAndText(newcbox) &&
@@ -3963,9 +3964,32 @@ DefaultSelectColor(Widget widget,
 }
 
 static Dimension
+FontDefaultIndicatorDim(XmFontList font)
+{
+  Dimension fh = 0;
+
+  if (font != NULL)
+    {
+      XmString ref = XmStringCreateLocalized("M");
+      if (ref != NULL)
+        {
+          fh = XmStringHeight(font, ref);
+          XmStringFree(ref);
+        }
+    }
+  return fh;
+}
+
+static Dimension
 ScaledDefaultIndicatorDim(Widget w)
 {
-  return _XmDpiDefaultDimension(w, XmDEFAULT_INDICATOR_DIM);
+  XmToggleButtonWidget tb = (XmToggleButtonWidget)w;
+  unsigned char norm_ind = NormalizeIndOn(tb);
+  Dimension dpi_dim = _XmDpiDefaultDimension(w, XmDEFAULT_INDICATOR_DIM);
+  Dimension font_dim = (DRAWCHECK(norm_ind) || DRAWCROSS(norm_ind))
+                       ? FontDefaultIndicatorDim(tb->label.font)
+                       : 0;
+  return MAX(dpi_dim, font_dim);
 }
 
 static void
@@ -3973,7 +3997,8 @@ ScaleChanged(Widget widget, double old_scale, double new_scale,
              XtPointer closure)
 {
   XmToggleButtonWidget toggle = (XmToggleButtonWidget)widget;
-  Dimension old_dimension, new_dimension;
+  unsigned char norm_ind;
+  Dimension old_dimension, new_dimension, font_dim;
   (void)closure;
 
   if (toggle->toggle.indicator_set || !toggle->toggle.ind_on ||
@@ -3981,10 +4006,16 @@ ScaleChanged(Widget widget, double old_scale, double new_scale,
       Lab_IsPixmapAndText(toggle) ||
       !XmStringEmpty(toggle->label._label))
     return;
-  old_dimension = _XmDpiScaleDimension(old_scale, XmDEFAULT_INDICATOR_DIM);
+  norm_ind = NormalizeIndOn(toggle);
+  font_dim = (DRAWCHECK(norm_ind) || DRAWCROSS(norm_ind))
+             ? FontDefaultIndicatorDim(toggle->label.font)
+             : 0;
+  old_dimension = MAX(_XmDpiScaleDimension(old_scale, XmDEFAULT_INDICATOR_DIM),
+                      font_dim);
   if (toggle->toggle.indicator_dim != old_dimension)
     return;
-  new_dimension = _XmDpiScaleDimension(new_scale, XmDEFAULT_INDICATOR_DIM);
+  new_dimension = MAX(_XmDpiScaleDimension(new_scale, XmDEFAULT_INDICATOR_DIM),
+                      font_dim);
   if (new_dimension == old_dimension)
     return;
   XtVaSetValues(widget, XmNindicatorSize, new_dimension, NULL);

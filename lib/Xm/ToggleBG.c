@@ -3724,7 +3724,8 @@ SetValues(
 	    } 
 	} 
 
-      if (TBG_IndOn(newcbox) &&
+      if (!TBG_IndicatorSet(newcbox) &&
+	  TBG_IndOn(newcbox) &&
 	  !LabG_IsMenupane(newcbox) &&
 	  !LabG_IsPixmap(newcbox) &&
 	  !LabG_IsPixmapAndText(newcbox) &&
@@ -4706,9 +4707,32 @@ DefaultSelectColor(Widget    widget,
 }
 
 static Dimension
+FontDefaultIndicatorDim(XmFontList font)
+{
+  Dimension fh = 0;
+
+  if (font != NULL)
+    {
+      XmString ref = XmStringCreateLocalized("M");
+      if (ref != NULL)
+        {
+          fh = XmStringHeight(font, ref);
+          XmStringFree(ref);
+        }
+    }
+  return fh;
+}
+
+static Dimension
 ScaledDefaultIndicatorDim(Widget w)
 {
-  return _XmDpiDefaultDimension(w, XmDEFAULT_INDICATOR_DIM);
+  XmToggleButtonGadget tb = (XmToggleButtonGadget)w;
+  unsigned char norm_ind = NormalizeIndOn(tb);
+  Dimension dpi_dim = _XmDpiDefaultDimension(w, XmDEFAULT_INDICATOR_DIM);
+  Dimension font_dim = (DRAWCHECK(norm_ind) || DRAWCROSS(norm_ind))
+                       ? FontDefaultIndicatorDim(LabG_Font(tb))
+                       : 0;
+  return MAX(dpi_dim, font_dim);
 }
 
 static void
@@ -4716,7 +4740,8 @@ ScaleChanged(Widget widget, double old_scale, double new_scale,
              XtPointer closure)
 {
   XmToggleButtonGadget toggle = (XmToggleButtonGadget)widget;
-  Dimension old_dimension, new_dimension;
+  unsigned char norm_ind;
+  Dimension old_dimension, new_dimension, font_dim;
   (void)closure;
 
   if (TBG_IndicatorSet(toggle) || !TBG_IndOn(toggle) ||
@@ -4724,10 +4749,16 @@ ScaleChanged(Widget widget, double old_scale, double new_scale,
       LabG_IsPixmapAndText(toggle) ||
       !XmStringEmpty(LabG__label(toggle)))
     return;
-  old_dimension = _XmDpiScaleDimension(old_scale, XmDEFAULT_INDICATOR_DIM);
+  norm_ind = NormalizeIndOn(toggle);
+  font_dim = (DRAWCHECK(norm_ind) || DRAWCROSS(norm_ind))
+             ? FontDefaultIndicatorDim(LabG_Font(toggle))
+             : 0;
+  old_dimension = MAX(_XmDpiScaleDimension(old_scale, XmDEFAULT_INDICATOR_DIM),
+                      font_dim);
   if (TBG_IndicatorDim(toggle) != old_dimension)
     return;
-  new_dimension = _XmDpiScaleDimension(new_scale, XmDEFAULT_INDICATOR_DIM);
+  new_dimension = MAX(_XmDpiScaleDimension(new_scale, XmDEFAULT_INDICATOR_DIM),
+                      font_dim);
   if (new_dimension == old_dimension)
     return;
   XtVaSetValues(widget, XmNindicatorSize, new_dimension, NULL);

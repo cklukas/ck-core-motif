@@ -1,3 +1,30 @@
+Fix Wayland popup press-drag hit-testing, unlabeled check-box indicator sizing, and empty FileSB column widths (2026-11-22)
+===========================================================================================================================
+
+- `lib/Xm/WaylandX11Server.c`, `lib/Xm/ToggleBG.c`, `lib/Xm/ToggleB.c`,
+  `lib/Xm/FileSB.c`, `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Resolve the topmost mapped `xdg_popup` in `srv->popup_stack` covering
+    `(srv->ptr_root_x, srv->ptr_root_y)` inside `_XmWlDispatchPointerMotion`,
+    `_XmWlDispatchPointerButton`, `_XmWlHitTestWindowChain`, active-grab
+    `deliver_propagated_pointer_event`, `QueryPointer`, and
+    `TranslateCoordinates`. Previously Wayland's implicit button grab kept
+    `srv->pointer_top` bound to the parent `xdg_toplevel` during a `Button1`
+    press-drag from a `MenuBar` into a pulldown or cascade `xdg_popup`,
+    preventing menu items from arming or opening submenus until click-release.
+  - Size unlabeled `XmToggleButtonGadget` and `XmToggleButton` glyph indicators
+    (`DRAWCHECK` / `DRAWCROSS`, including `*enableToggleVisual: True` check
+    boxes) to `MAX(_XmDpiDefaultDimension(w, XmDEFAULT_INDICATOR_DIM),
+    font_line_height)` instead of collapsing to `9 px` (`6 px` drawn box, below
+    `MIN_GLYPH_SIZE`, which suppressed checkmarks completely at 96 DPI and on
+    native Wayland), while preserving `9 * scale` for classic `XmINDICATOR_3D_BOX`
+    toggles and guarding `SetValues` with `!indicator_set` so explicit
+    `XmNindicatorSize` values on unlabeled toggles are never overwritten.
+  - Balance `XmFileSelectionBox` `Files` (`SB_List`) and `Folders` (`FS_DirList`)
+    column widths in `ListFix` (`XmGET_PREFERRED_SIZE` and `XmGET_ACTUAL_SIZE`)
+    when `XmFS_NO_MATCH` is set, preventing `XmGEO_PRE_SET` from collapsing an
+    empty directory's `Files` column to the narrow `"[    ]"` placeholder width.
+
 Fix Wayland XRender subwindow trapezoid/triangle offsets and add TriStrip/TriFan (2026-11-22)
 =============================================================================================
 

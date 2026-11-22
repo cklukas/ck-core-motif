@@ -878,6 +878,39 @@ emit_crossing_event(XmWlServer *srv, XmWlWindow *win, bool enter, uint8_t mode, 
     _XmWlSendEventToWindow(srv, win, enter ? X11_ENTER_WINDOW_MASK : X11_LEAVE_WINDOW_MASK, ev);
 }
 
+static XmWlWindow *
+resolve_popup_or_top_at_root(XmWlServer *srv, XmWlWindow *fallback_top,
+                             int16_t *out_sx, int16_t *out_sy)
+{
+    if (!srv)
+        return fallback_top;
+    int rx = (int)srv->ptr_root_x;
+    int ry = (int)srv->ptr_root_y;
+    for (int d = srv->popup_depth - 1; d >= 0; --d) {
+        XmWlWindow *pop = srv->popup_stack[d];
+        if (!pop || !pop->mapped || pop->is_drag_icon)
+            continue;
+        int px = (int)pop->x;
+        int py = (int)pop->y;
+        int pw = (int)pop->width + 2 * (int)pop->border_width;
+        int ph = (int)pop->height + 2 * (int)pop->border_width;
+        if (rx >= px && ry >= py && rx < px + pw && ry < py + ph) {
+            if (out_sx)
+                *out_sx = (int16_t)(rx - px - (int)pop->border_width);
+            if (out_sy)
+                *out_sy = (int16_t)(ry - py - (int)pop->border_width);
+            return pop;
+        }
+    }
+    if (fallback_top) {
+        if (out_sx)
+            *out_sx = (int16_t)(rx - (int)fallback_top->x - (int)fallback_top->border_width);
+        if (out_sy)
+            *out_sy = (int16_t)(ry - (int)fallback_top->y - (int)fallback_top->border_width);
+    }
+    return fallback_top;
+}
+
 static void
 deliver_propagated_pointer_event(XmWlServer *srv, XmWlWindow *leaf, uint32_t req_mask,
                                  uint8_t ev_code, uint8_t detail, uint32_t time_ms)
@@ -908,10 +941,11 @@ deliver_propagated_pointer_event(XmWlServer *srv, XmWlWindow *leaf, uint32_t req
                 int wx = 0, wy = 0;
                 root_to_window_coords(srv, dest, srv->ptr_root_x, srv->ptr_root_y, &wx, &wy);
                 uint32_t child_id = 0;
-                if (dest == srv->root && srv->pointer_top &&
-                    srv->pointer_top->parent == srv->root &&
-                    srv->pointer_top->mapped && !srv->pointer_top->is_drag_icon) {
-                    child_id = srv->pointer_top->id;
+                XmWlWindow *root_top = resolve_popup_or_top_at_root(srv, srv->pointer_top, NULL, NULL);
+                if (dest == srv->root && root_top &&
+                    root_top->parent == srv->root &&
+                    root_top->mapped && !root_top->is_drag_icon) {
+                    child_id = root_top->id;
                 } else {
                     for (XmWlWindow *c = dest->last_child; c; c = c->prev_sibling) {
                         if (!c->mapped || c->is_drag_icon) continue;
@@ -1004,9 +1038,11 @@ _XmWlDispatchPointerMotion(XmWlServer *srv, XmWlWindow *top, int16_t sx, int16_t
     srv->ptr_root_x = (int16_t)((int)top->x + (int)sx);
     srv->ptr_root_y = (int16_t)((int)top->y + (int)sy);
 
+    int16_t hit_sx = sx, hit_sy = sy;
+    XmWlWindow *hit_top = resolve_popup_or_top_at_root(srv, top, &hit_sx, &hit_sy);
     int wx = 0, wy = 0;
-    XmWlWindow *leaf = hit_test_child_at(srv, top, sx, sy, &wx, &wy);
-    if (!leaf) leaf = top;
+    XmWlWindow *leaf = hit_test_child_at(srv, hit_top, hit_sx, hit_sy, &wx, &wy);
+    if (!leaf) leaf = hit_top;
 
     if (leaf != srv->hovered_win) {
         if (srv->hovered_win)
@@ -1040,10 +1076,12 @@ _XmWlHitTestWindowChain(XmWlServer *srv, uint32_t out_xids[8])
     if (!top)
         return 0;
 
+    int16_t hit_sx = srv->ptr_surf_x, hit_sy = srv->ptr_surf_y;
+    XmWlWindow *hit_top = resolve_popup_or_top_at_root(srv, top, &hit_sx, &hit_sy);
     int wx = 0, wy = 0;
-    XmWlWindow *leaf = hit_test_child_at(srv, top, srv->ptr_surf_x, srv->ptr_surf_y, &wx, &wy);
+    XmWlWindow *leaf = hit_test_child_at(srv, hit_top, hit_sx, hit_sy, &wx, &wy);
     if (!leaf)
-        leaf = top;
+        leaf = hit_top;
 
     size_t count = 0;
     for (XmWlWindow *cur = leaf; cur && cur != srv->root && count < 8; cur = cur->parent) {
@@ -1066,9 +1104,11 @@ _XmWlDispatchPointerButton(XmWlServer *srv, uint8_t button, bool pressed, uint32
         top = srv->wl_focus_top;
     if (!top) return;
 
+    int16_t hit_sx = srv->ptr_surf_x, hit_sy = srv->ptr_surf_y;
+    XmWlWindow *hit_top = resolve_popup_or_top_at_root(srv, top, &hit_sx, &hit_sy);
     int wx = 0, wy = 0;
-    XmWlWindow *leaf = hit_test_child_at(srv, top, srv->ptr_surf_x, srv->ptr_surf_y, &wx, &wy);
-    if (!leaf) leaf = top;
+    XmWlWindow *leaf = hit_test_child_at(srv, hit_top, hit_sx, hit_sy, &wx, &wy);
+    if (!leaf) leaf = hit_top;
 
     if (pressed) {
         /* Check passive button grabs from root down to leaf.
@@ -2759,10 +2799,11 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         int wx = 0, wy = 0;
         root_to_window_coords(srv, w, srv->ptr_root_x, srv->ptr_root_y, &wx, &wy);
         uint32_t child_id = 0;
-        if (w == srv->root && srv->pointer_top &&
-            srv->pointer_top->parent == srv->root &&
-            srv->pointer_top->mapped && !srv->pointer_top->is_drag_icon) {
-            child_id = srv->pointer_top->id;
+        XmWlWindow *root_top = resolve_popup_or_top_at_root(srv, srv->pointer_top, NULL, NULL);
+        if (w == srv->root && root_top &&
+            root_top->parent == srv->root &&
+            root_top->mapped && !root_top->is_drag_icon) {
+            child_id = root_top->id;
         } else {
             for (XmWlWindow *c = w->last_child; c; c = c->prev_sibling) {
                 if (!c->mapped || c->is_drag_icon) continue;
@@ -2806,11 +2847,12 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         window_to_root_coords(srv, src_w, sx, sy, &rx, &ry);
         root_to_window_coords(srv, dst_w, rx, ry, &dx, &dy);
         uint32_t child_id = 0;
-        if (dst_w == srv->root && srv->pointer_top &&
-            srv->pointer_top->parent == srv->root &&
-            srv->pointer_top->mapped && !srv->pointer_top->is_drag_icon &&
+        XmWlWindow *root_top = resolve_popup_or_top_at_root(srv, srv->pointer_top, NULL, NULL);
+        if (dst_w == srv->root && root_top &&
+            root_top->parent == srv->root &&
+            root_top->mapped && !root_top->is_drag_icon &&
             dx == srv->ptr_root_x && dy == srv->ptr_root_y) {
-            child_id = srv->pointer_top->id;
+            child_id = root_top->id;
         } else {
             for (XmWlWindow *c = dst_w->last_child; c; c = c->prev_sibling) {
                 if (!c->mapped || c->is_drag_icon) continue;

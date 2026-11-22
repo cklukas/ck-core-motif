@@ -21,6 +21,7 @@
 #include <Xm/DrawingA.h>
 #include <Xm/DropSMgr.h>
 #include <Xm/DropTrans.h>
+#include <Xm/FileSB.h>
 #include <Xm/Form.h>
 #include <Xm/Label.h>
 #include <Xm/MainW.h>
@@ -33,6 +34,7 @@
 #include <Xm/Text.h>
 #include <Xm/TextF.h>
 #include <Xm/ToggleB.h>
+#include <Xm/ToggleBG.h>
 #include <Xm/Wayland.h>
 #include <Xm/Xm.h>
 
@@ -824,6 +826,88 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
         XDestroyWindow(dpy, sub);
     }
 
+    /* Verify unlabeled XmToggleButtonGadget / XmToggleButton font-height indicator sizing
+     * under enableToggleVisual / XmINDICATOR_CHECK_BOX and preservation of explicit
+     * XmNindicatorSize across SetValues (CR 8415). */
+    {
+        Widget xm_dpy = XmGetXmDisplay(dpy);
+        Boolean prev_tv = False;
+        XtVaGetValues(xm_dpy, XmNenableToggleVisual, &prev_tv, NULL);
+        XtVaSetValues(xm_dpy, XmNenableToggleVisual, True, NULL);
+
+        XmString s_empty = XmStringCreateLocalized("");
+        XmString s_lbl = XmStringCreateLocalized("Read");
+        Widget tbg_unlbl = XtVaCreateManagedWidget(
+            "permUnlblG", xmToggleButtonGadgetClass, form,
+            XmNlabelString, s_empty,
+            XmNset, True,
+            NULL);
+        Widget tbg_lbl = XtVaCreateManagedWidget(
+            "permLblG", xmToggleButtonGadgetClass, form,
+            XmNlabelString, s_lbl,
+            XmNset, True,
+            NULL);
+        Widget tb_explicit = XtVaCreateManagedWidget(
+            "permExplicitW", xmToggleButtonWidgetClass, form,
+            XmNlabelString, s_empty,
+            XmNindicatorSize, 24,
+            NULL);
+        XmStringFree(s_empty);
+        XmStringFree(s_lbl);
+
+        Dimension ind_unlbl = 0, ind_lbl = 0, ind_exp = 0;
+        XtVaGetValues(tbg_unlbl, XmNindicatorSize, &ind_unlbl, NULL);
+        XtVaGetValues(tbg_lbl, XmNindicatorSize, &ind_lbl, NULL);
+        if (ind_unlbl < 12 || ind_unlbl != ind_lbl) {
+            fprintf(stderr, "FAIL: unlabeled toggle indicator collapsed (unlabeled=%u labeled=%u)\n",
+                    (unsigned)ind_unlbl, (unsigned)ind_lbl);
+            exit(1);
+        }
+        XtVaSetValues(tb_explicit, XmNset, True, NULL);
+        XtVaGetValues(tb_explicit, XmNindicatorSize, &ind_exp, NULL);
+        if (ind_exp != 24) {
+            fprintf(stderr, "FAIL: SetValues overwrote explicit XmNindicatorSize=24 on unlabeled toggle (got %u)\n",
+                    (unsigned)ind_exp);
+            exit(1);
+        }
+        XtDestroyWidget(tb_explicit);
+        XtDestroyWidget(tbg_lbl);
+        XtDestroyWidget(tbg_unlbl);
+        XtVaSetValues(xm_dpy, XmNenableToggleVisual, prev_tv, NULL);
+    }
+
+    /* Verify XmFileSelectionBox keeps balanced Files vs Folders column width when XmFS_NO_MATCH */
+    {
+        char empty_dir[512], sub_dir[544];
+        snprintf(empty_dir, sizeof(empty_dir), "%s/empty_fsb_dir", sync_dir);
+        snprintf(sub_dir, sizeof(sub_dir), "%s/SubFolderAlpha", empty_dir);
+        (void)mkdir(empty_dir, 0700);
+        (void)mkdir(sub_dir, 0700);
+
+        XmString s_dir = XmStringCreateLocalized(empty_dir);
+        Arg fargs[2];
+        XtSetArg(fargs[0], XmNdirectory, s_dir);
+        Widget fsb = XmCreateFileSelectionDialog(shell, "emptyFsb", fargs, 1);
+        XmStringFree(s_dir);
+        XtManageChild(fsb);
+        pump_xt_ms(app, dpy, 200);
+
+        Widget w_files = XmFileSelectionBoxGetChild(fsb, XmDIALOG_LIST);
+        Widget w_dirs = XmFileSelectionBoxGetChild(fsb, XmDIALOG_DIR_LIST);
+        Dimension files_w = 0, dirs_w = 0;
+        if (w_files)
+            XtVaGetValues(w_files, XmNwidth, &files_w, NULL);
+        if (w_dirs)
+            XtVaGetValues(w_dirs, XmNwidth, &dirs_w, NULL);
+        if (files_w < 80 || (unsigned)files_w * 4u < (unsigned)dirs_w * 3u) {
+            fprintf(stderr, "FAIL: XmFileSelectionBox Files list collapsed in empty dir (files_w=%u dirs_w=%u)\n",
+                    (unsigned)files_w, (unsigned)dirs_w);
+            exit(1);
+        }
+        XtUnmanageChild(fsb);
+        XtDestroyWidget(XtParent(fsb));
+    }
+
     char **missing_cs = NULL;
     int missing_cnt = 0;
     char *def_str = NULL;
@@ -868,6 +952,16 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
 
 static char g_dropped_uri[256];
 static bool g_drop_received = false;
+static bool g_menu_drag_activated = false;
+
+static void
+menu_drag_activate_cb(Widget w, XtPointer client_data, XtPointer call_data)
+{
+    (void)w;
+    (void)client_data;
+    (void)call_data;
+    g_menu_drag_activated = true;
+}
 static int g_resize_dispatches = 0;
 static int g_resize_reversals = 0;
 static int g_last_cfg_w = 0;
@@ -1214,10 +1308,58 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
     }
     write_stage_file(sync_dir, "wheel_test.verified");
 
+    /* Verify MenuBar Button1 press-drag into an xdg_popup pulldown activates the item
+     * even when Wayland's implicit button grab keeps wl_pointer on the parent toplevel. */
+    {
+        Widget mb = XmCreateMenuBar(form, "dragMenuBar", NULL, 0);
+        XtVaSetValues(mb,
+                      XmNtopAttachment, XmATTACH_FORM, XmNtopOffset, 0,
+                      XmNleftAttachment, XmATTACH_FORM, XmNleftOffset, 0,
+                      NULL);
+        Widget pdm = XmCreatePulldownMenu(mb, "dragPulldown", NULL, 0);
+        Widget pb1 = XtVaCreateManagedWidget("First Action", xmPushButtonWidgetClass, pdm, NULL);
+        Widget pb2 = XtVaCreateManagedWidget("Second Action", xmPushButtonWidgetClass, pdm, NULL);
+        (void)pb1;
+        XtAddCallback(pb2, XmNactivateCallback, menu_drag_activate_cb, NULL);
+        Widget cb = XtVaCreateManagedWidget(
+            "Menu", xmCascadeButtonWidgetClass, mb,
+            XmNsubMenuId, pdm,
+            NULL);
+        XtManageChild(mb);
+        XRaiseWindow(dpy, XtWindow(mb));
+        pump_xt_ms(app, dpy, 160);
+
+        Position cb_x = 0, cb_y = 0;
+        Dimension cb_w = 0, cb_h = 0, mb_h = 0;
+        XtVaGetValues(cb, XmNx, &cb_x, XmNy, &cb_y, XmNwidth, &cb_w, XmNheight, &cb_h, NULL);
+        XtVaGetValues(mb, XmNheight, &mb_h, NULL);
+        Window child_ret = None;
+        int mx = 0, my = 0;
+        XTranslateCoordinates(dpy, XtWindow(mb), XtWindow(shell),
+                              (int)cb_x + (int)cb_w / 2,
+                              (int)cb_y + (int)cb_h / 2,
+                              &mx, &my, &child_ret);
+        int drag_y = my + (int)mb_h / 2 + 34;
+        char cpath[512];
+        snprintf(cpath, sizeof(cpath), "%s/menu_drag.coords", sync_dir);
+        FILE *cf = fopen(cpath, "w");
+        if (cf) {
+            fprintf(cf, "%d %d %d\n", mx, my, drag_y);
+            fclose(cf);
+        }
+        write_stage_file(sync_dir, "menu_drag.ready");
+        wait_for_stage_file(app, dpy, sync_dir, "menu_drag.sent", 5000);
+        pump_xt_ms(app, dpy, 260);
+        if (!g_menu_drag_activated) {
+            fail_msg("MenuBar press-drag into xdg_popup pulldown did not activate target item");
+        }
+    }
+
     XtDestroyWidget(shell);
+    write_stage_file(sync_dir, "menu_drag.verified");
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);
-    printf("PASS ime-dnd-clipboard-resize-wheel-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40 wheel_subnotch=%d wheel_auto=%d[frames=%d] wheel_app=0->%d->%d->%d)\n",
+    printf("PASS ime-dnd-clipboard-resize-wheel-menudrag-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40 wheel_subnotch=%d wheel_auto=%d[frames=%d] wheel_app=0->%d->%d->%d menu_drag=OK)\n",
            g_resize_dispatches, subnotch_val, auto_val, distinct_auto_frames, app_val, app_end, app_start);
     return 0;
 }

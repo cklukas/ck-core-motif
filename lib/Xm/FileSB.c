@@ -1636,6 +1636,10 @@ ListFix(
                                                   < dirListGeo->box.width)    )
                 {   extension->dir_list_label->box.width = dirListGeo->box.width ;
                     } 
+                if(    (FS_StateFlags( geoSpec->composite) & XmFS_NO_MATCH)
+                    && (fileListGeo->box.width < dirListGeo->box.width)    )
+                {   fileListGeo->box.width = dirListGeo->box.width ;
+                    } 
                 /* Drop through to pick up extension record field for either
                 *   type of geometry request.
                 */
@@ -1658,6 +1662,10 @@ ListFix(
                 {   fileListGeo->box.width
                                           = extension->file_list_label->box.width ;
                     } 
+                if(    (FS_StateFlags( geoSpec->composite) & XmFS_NO_MATCH)
+                    && (fileListGeo->box.width < dirListGeo->box.width)    )
+                {   fileListGeo->box.width = dirListGeo->box.width ;
+                    } 
                 if(    extension->filter_label
                     && extension->filter_text
                     && (fileListGeo->box.height >=
@@ -1679,6 +1687,10 @@ ListFix(
         {
             if(    FS_PathMode( geoSpec->composite) ==  XmPATH_MODE_FULL  )
               {   
+                if(    (FS_StateFlags( geoSpec->composite) & XmFS_NO_MATCH)
+                    && (fileListGeo->box.width < dirListGeo->box.width)    )
+                {   fileListGeo->box.width = dirListGeo->box.width ;
+                    } 
                 extension->prefer_width = fileListGeo->box.width ;
               } 
             break ;

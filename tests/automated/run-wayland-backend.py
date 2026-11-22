@@ -94,8 +94,22 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         MiniSrv *ms;
         struct wl_resource *xdg_surf;
         struct wl_resource *xdg_top;
+        struct wl_resource *xdg_pop;
+        int32_t pop_w;
+        int32_t pop_h;
         bool configured;
     } SurfState;
+
+    typedef struct {
+        int32_t w;
+        int32_t h;
+        int32_t ax;
+        int32_t ay;
+    } PosState;
+
+    static void free_pos_state(struct wl_resource *r) {
+        free(wl_resource_get_user_data(r));
+    }
 
     static void free_surf_state(struct wl_resource *r) {
         free(wl_resource_get_user_data(r));
@@ -124,13 +138,19 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         MiniSrv *ms = ss->ms;
         if (ss->xdg_surf && !ss->configured) {
             ss->configured = true;
-            struct wl_array states;
-            wl_array_init(&states);
-            int32_t *st = wl_array_add(&states, sizeof(int32_t));
-            *st = XDG_TOPLEVEL_STATE_ACTIVATED;
-            if (ss->xdg_top)
+            if (ss->xdg_top) {
+                struct wl_array states;
+                wl_array_init(&states);
+                int32_t *st = wl_array_add(&states, sizeof(int32_t));
+                *st = XDG_TOPLEVEL_STATE_ACTIVATED;
                 xdg_toplevel_send_configure(ss->xdg_top, 360, 220, &states);
-            wl_array_release(&states);
+                wl_array_release(&states);
+            } else if (ss->xdg_pop) {
+                xdg_popup_send_configure(
+                    ss->xdg_pop, 0, 0,
+                    ss->pop_w > 0 ? ss->pop_w : 120,
+                    ss->pop_h > 0 ? ss->pop_h : 60);
+            }
             xdg_surface_send_configure(ss->xdg_surf, 1);
 
             if (r == ms->primary_surf) {
@@ -194,19 +214,67 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         .unset_maximized = top_void, .set_fullscreen = top_fs, .unset_fullscreen = top_void, .set_minimized = top_void,
     };
 
+    static void pos_size(struct wl_client *c, struct wl_resource *r, int32_t w, int32_t h) {
+        (void)c;
+        PosState *ps = wl_resource_get_user_data(r);
+        if (ps) { ps->w = w; ps->h = h; }
+    }
+    static void pos_anchor_rect(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y, int32_t w, int32_t h) {
+        (void)c; (void)w; (void)h;
+        PosState *ps = wl_resource_get_user_data(r);
+        if (ps) { ps->ax = x; ps->ay = y; }
+    }
+    static void pos_u32(struct wl_client *c, struct wl_resource *r, uint32_t v) { (void)c; (void)r; (void)v; }
+    static void pos_off(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y) { (void)c; (void)r; (void)x; (void)y; }
+    static void pos_void(struct wl_client *c, struct wl_resource *r) { (void)c; (void)r; }
+    static void pos_parent_sz(struct wl_client *c, struct wl_resource *r, int32_t w, int32_t h) { (void)c; (void)r; (void)w; (void)h; }
+    static const struct xdg_positioner_interface g_xdg_pos_impl = {
+        .destroy = noop_destroy, .set_size = pos_size, .set_anchor_rect = pos_anchor_rect,
+        .set_anchor = pos_u32, .set_gravity = pos_u32, .set_constraint_adjustment = pos_u32,
+        .set_offset = pos_off, .set_reactive = pos_void, .set_parent_size = pos_parent_sz, .set_parent_configure = pos_u32,
+    };
+
+    static void pop_grab(struct wl_client *c, struct wl_resource *r, struct wl_resource *seat, uint32_t s) {
+        (void)c; (void)r; (void)seat; (void)s;
+    }
+    static void pop_reposition(struct wl_client *c, struct wl_resource *r, struct wl_resource *pos, uint32_t tok) {
+        (void)c; (void)pos;
+        xdg_popup_send_repositioned(r, tok);
+    }
+    static const struct xdg_popup_interface g_xdg_pop_impl = {
+        .destroy = noop_destroy, .grab = pop_grab, .reposition = pop_reposition,
+    };
+
     static void xs_get_toplevel(struct wl_client *c, struct wl_resource *r, uint32_t id) {
         SurfState *ss = wl_resource_get_user_data(r);
         struct wl_resource *tr = wl_resource_create(c, &xdg_toplevel_interface, wl_resource_get_version(r), id);
         wl_resource_set_implementation(tr, &g_xdg_top_impl, ss, NULL);
         if (ss) ss->xdg_top = tr;
     }
+    static void xs_get_popup(struct wl_client *c, struct wl_resource *r, uint32_t id,
+                             struct wl_resource *parent, struct wl_resource *pos) {
+        (void)parent;
+        SurfState *ss = wl_resource_get_user_data(r);
+        PosState *ps = pos ? wl_resource_get_user_data(pos) : NULL;
+        struct wl_resource *pr = wl_resource_create(c, &xdg_popup_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(pr, &g_xdg_pop_impl, ss, NULL);
+        if (ss) {
+            ss->xdg_pop = pr;
+            if (ps) { ss->pop_w = ps->w; ss->pop_h = ps->h; }
+        }
+    }
     static void xs_ack(struct wl_client *c, struct wl_resource *r, uint32_t s) { (void)c; (void)r; (void)s; }
     static void xs_geom(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y, int32_t w, int32_t h) { (void)c; (void)r; (void)x; (void)y; (void)w; (void)h; }
     static const struct xdg_surface_interface g_xdg_surf_impl = {
-        .destroy = noop_destroy, .get_toplevel = xs_get_toplevel, .get_popup = NULL,
+        .destroy = noop_destroy, .get_toplevel = xs_get_toplevel, .get_popup = xs_get_popup,
         .set_window_geometry = xs_geom, .ack_configure = xs_ack,
     };
 
+    static void wm_create_positioner(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        PosState *ps = calloc(1, sizeof(*ps));
+        struct wl_resource *pr = wl_resource_create(c, &xdg_positioner_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(pr, &g_xdg_pos_impl, ps, free_pos_state);
+    }
     static void wm_get_xdg_surface(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *sr) {
         SurfState *ss = wl_resource_get_user_data(sr);
         struct wl_resource *xr = wl_resource_create(c, &xdg_surface_interface, wl_resource_get_version(r), id);
@@ -221,7 +289,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     }
     static void wm_pong(struct wl_client *c, struct wl_resource *r, uint32_t s) { (void)c; (void)r; (void)s; }
     static const struct xdg_wm_base_interface g_wm_impl = {
-        .destroy = noop_destroy, .create_positioner = NULL, .get_xdg_surface = wm_get_xdg_surface, .pong = wm_pong
+        .destroy = noop_destroy, .create_positioner = wm_create_positioner, .get_xdg_surface = wm_get_xdg_surface, .pong = wm_pong
     };
     static void bind_wm(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
         struct wl_resource *r = wl_resource_create(c, &xdg_wm_base_interface, ver < 5 ? ver : 5, id);
@@ -523,7 +591,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
 
         struct wl_event_loop *loop = wl_display_get_event_loop(ms.dpy);
         int stage = 0;
-        for (int iter = 0; iter < 1000; ++iter) {
+        for (int iter = 0; iter < 4000; ++iter) {
             wl_event_loop_dispatch(loop, 15);
             wl_display_flush_clients(ms.dpy);
 
@@ -665,13 +733,50 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                 }
                 write_flag(ms.sync_dir, "wheel_to_start.sent");
                 stage = 9;
-            } else if (stage == 9 && file_exists(ms.sync_dir, "wheel_test.verified")) {
+            } else if (stage == 9 && file_exists(ms.sync_dir, "menu_drag.ready") &&
+                       ms.primary_ptr && ms.primary_surf) {
+                char cpath[512];
+                snprintf(cpath, sizeof(cpath), "%s/menu_drag.coords", ms.sync_dir);
+                int mx = 24, my = 12, drag_y = 48;
+                FILE *cf = fopen(cpath, "r");
+                if (cf) {
+                    (void)fscanf(cf, "%d %d %d", &mx, &my, &drag_y);
+                    fclose(cf);
+                }
+                wl_pointer_send_enter(ms.primary_ptr, 800, ms.primary_surf,
+                                      wl_fixed_from_int(mx), wl_fixed_from_int(my));
+                wl_pointer_send_motion(ms.primary_ptr, 2400,
+                                       wl_fixed_from_int(mx), wl_fixed_from_int(my));
+                wl_pointer_send_button(ms.primary_ptr, 801, 2410, 0x110,
+                                       WL_POINTER_BUTTON_STATE_PRESSED);
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                for (int k = 0; k < 12; ++k) {
+                    wl_event_loop_dispatch(loop, 10);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                /* Implicit grab: pointer stays on ms.primary_surf while dragging into popup */
+                wl_pointer_send_motion(ms.primary_ptr, 2460,
+                                       wl_fixed_from_int(mx), wl_fixed_from_int(drag_y));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                for (int k = 0; k < 6; ++k) {
+                    wl_event_loop_dispatch(loop, 10);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                wl_pointer_send_button(ms.primary_ptr, 802, 2500, 0x110,
+                                       WL_POINTER_BUTTON_STATE_RELEASED);
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                write_flag(ms.sync_dir, "menu_drag.sent");
                 stage = 10;
+            } else if (stage == 10 && file_exists(ms.sync_dir, "menu_drag.verified")) {
+                stage = 11;
                 break;
             }
         }
         wl_display_destroy(ms.dpy);
-        return (stage == 10 && ms.dnd_finished_seen) ? 0 : 1;
+        return (stage == 11 && ms.dnd_finished_seen) ? 0 : 1;
     }
     """
 )
