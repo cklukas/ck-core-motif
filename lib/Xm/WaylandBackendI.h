@@ -40,7 +40,7 @@
 #define XM_WL_MAX_OUTPUTS        8
 #define XM_WL_MAX_ATOMS          1024
 #define XM_WL_MAX_POPUPS         16
-#define XM_WL_SHM_SLOTS          3
+#define XM_WL_SHM_SLOTS          4
 
 #define XM_WL_ROOT_XID           UINT32_C(0x00000040)
 #define XM_WL_WM_HELPER_XID      UINT32_C(0x00000041)
@@ -186,6 +186,11 @@ struct XmWlWindow {
     uint32_t transient_for_xid;
     int32_t min_w, min_h, max_w, max_h;
     bool wants_decorations;
+    char sent_title[256];
+    char sent_app_id[128];
+    uint32_t sent_parent_xid;
+    int32_t sent_min_w, sent_min_h, sent_max_w, sent_max_h;
+    int8_t sent_deco_mode;
     double preferred_scale; /* e.g. 1.0, 1.25, 1.5, 2.0 */
 
     /* Backing canvas & wl_shm triple-buffered pool for top-level / popup windows */

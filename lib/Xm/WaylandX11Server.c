@@ -195,6 +195,9 @@ alloc_window(XmWlServer *srv, uint32_t id, XmWlWindow *parent)
     w->win_class = 1;
     w->visual_id = (w->depth == 32) ? XM_WL_VISUAL_ARGB32_ID : XM_WL_VISUAL_RGB24_ID;
     w->colormap_id = XM_WL_DEFAULT_CMAP_XID;
+    w->sent_min_w = w->sent_min_h = -1;
+    w->sent_max_w = w->sent_max_h = -1;
+    w->sent_deco_mode = -1;
     w->preferred_scale = srv->active_scale > 0.0 ? srv->active_scale : 1.0;
     for (int si = 0; si < XM_WL_SHM_SLOTS; ++si)
         w->shm_bufs[si].fd = -1;
@@ -790,6 +793,31 @@ emit_expose_uncovered_descendants(XmWlServer *srv, XmWlWindow *anc,
         if (cx + (int)c->width > old_w || cy + (int)c->height > old_h)
             emit_expose_single(srv, c);
         emit_expose_uncovered_descendants(srv, c, cx, cy, old_w, old_h);
+    }
+}
+
+static void
+expose_uncovered_siblings(XmWlServer *srv, XmWlWindow *w,
+                          int ox, int oy, int ow, int oh, bool all_siblings)
+{
+    if (!srv || !w || !w->parent || w->parent == srv->root || ow <= 0 || oh <= 0)
+        return;
+    int ox2 = ox + ow;
+    int oy2 = oy + oh;
+    for (XmWlWindow *sib = w->parent->first_child; sib; sib = sib->next_sibling) {
+        if (sib == w) {
+            if (!all_siblings)
+                break;
+            continue;
+        }
+        if (!sib->mapped)
+            continue;
+        int sx1 = (int)sib->x;
+        int sy1 = (int)sib->y;
+        int sx2 = sx1 + (int)sib->width + 2 * (int)sib->border_width;
+        int sy2 = sy1 + (int)sib->height + 2 * (int)sib->border_width;
+        if (sx1 < ox2 && sx2 > ox && sy1 < oy2 && sy2 > oy)
+            emit_expose_recursive(srv, sib);
     }
 }
 
@@ -2423,6 +2451,7 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
             uint16_t uw = (uint16_t)(w->width + 2u * w->border_width);
             uint16_t uh = (uint16_t)(w->height + 2u * w->border_width);
             _XmWlPaintWindowBackground(srv, w->parent, w->x, w->y, uw, uh);
+            expose_uncovered_siblings(srv, w, w->x, w->y, uw, uh, false);
             if (uw > 0 && uh > 0) {
                 uint8_t exp[32];
                 memset(exp, 0, sizeof(exp));
@@ -2547,12 +2576,13 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         if ((pos_changed || size_changed) && w->parent == srv->root && w->mapped && w->is_popup) {
             _XmWlRepositionPopup(srv, w);
         }
-        if ((pos_changed || size_changed) && is_window_viewable(srv, w)) {
+        if ((pos_changed || size_changed || has_stack) && is_window_viewable(srv, w)) {
             if (w->parent && w->parent != srv->root &&
-                (pos_changed || w->width < old_w || w->height < old_h)) {
+                (pos_changed || has_stack || w->width < old_w || w->height < old_h)) {
                 uint16_t uw = (uint16_t)(old_w + 2u * w->border_width);
                 uint16_t uh = (uint16_t)(old_h + 2u * w->border_width);
                 _XmWlPaintWindowBackground(srv, w->parent, old_x, old_y, uw, uh);
+                expose_uncovered_siblings(srv, w, old_x, old_y, uw, uh, has_stack);
                 if (uw > 0 && uh > 0) {
                     uint8_t exp[32];
                     memset(exp, 0, sizeof(exp));
@@ -2565,7 +2595,7 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
                     _XmWlSendEventToWindow(srv, w->parent, X11_EXPOSURE_MASK, exp);
                 }
             }
-            if (pos_changed && w->parent != srv->root) {
+            if ((pos_changed || (has_stack && stack_mode == 0)) && w->parent != srv->root) {
                 emit_expose_recursive(srv, w);
             } else if (size_changed) {
                 emit_expose_single(srv, w);

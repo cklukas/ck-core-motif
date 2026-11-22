@@ -1207,6 +1207,40 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         exit(1);
     }
     XtRemoveEventHandler(drop_lbl, ExposureMask, False, resize_child_expose_eh, NULL);
+
+    /* Verify that when a lower-Z sibling moves underneath a higher-Z sibling
+     * first (e.g. XmMainWindow status_form moving up before work_frame shrinks)
+     * and the higher-Z sibling subsequently shrinks away, the uncovered
+     * lower-Z sibling's background is cleanly painted without stale pixels. */
+    {
+        Window low_sib = XCreateSimpleWindow(
+            dpy, XtWindow(form), 20, 340, 120, 24, 0, 0, 0x002266aau);
+        Window high_sib = XCreateSimpleWindow(
+            dpy, XtWindow(form), 20, 280, 120, 60, 0, 0, 0x00cc4422u);
+        XSelectInput(dpy, low_sib, ExposureMask);
+        XMapWindow(dpy, low_sib);
+        XMapWindow(dpy, high_sib);
+        XSync(dpy, False);
+        /* Move low_sib up to y=316..340 while high_sib (280..340) still occludes it */
+        XMoveWindow(dpy, low_sib, 20, 316);
+        XSync(dpy, False);
+        /* Now shrink high_sib to y=280..314, uncovering low_sib at y=316..340 */
+        XResizeWindow(dpy, high_sib, 120, 34);
+        XSync(dpy, False);
+        XImage *simg = XGetImage(dpy, XtWindow(form), 30, 324, 4, 4, AllPlanes, ZPixmap);
+        if (!simg)
+            fail_msg("XGetImage failed on uncovered lower-Z sibling check");
+        unsigned long spx = XGetPixel(simg, 2, 2) & 0x00fffffful;
+        XDestroyImage(simg);
+        XDestroyWindow(dpy, high_sib);
+        XDestroyWindow(dpy, low_sib);
+        pump_xt_ms(app, dpy, 20);
+        if (spx != 0x002266aaul) {
+            fprintf(stderr, "FAIL: uncovered lower-Z sibling retained stale pixel 0x%06lx (expected 0x2266aa)\n", spx);
+            exit(1);
+        }
+    }
+
     write_stage_file(sync_dir, "resize_burst.verified");
 
     /* Verify unfocused hover-wheel scrolling on both:

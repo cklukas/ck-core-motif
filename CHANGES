@@ -1,3 +1,24 @@
+Fix Wayland lower-Z sibling uncover clearing, metadata-commit deduplication, and fork FD hygiene (2026-11-22)
+==============================================================================================================
+
+- `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandBackend.c`,
+  `lib/Xm/WaylandX11Server.c`, `tests/automated/check-wayland-backend.c`,
+  `docs/wayland-backend.md`:
+  - Repaint and emit `Expose` for mapped lower-Z sibling subtrees whenever a
+    higher-Z sibling unmaps, moves, shrinks, or restacks (`UnmapWindow` and
+    `ConfigureWindow`). Fixes stale bevel/separator scanlines left inside
+    `XmMainWindow` message bars (such as `dtfile`'s `status_form`) when the
+    lower-Z footer moves upward before the higher-Z work frame shrinks.
+  - Deduplicate `xdg_toplevel` metadata requests (`set_title`, `set_app_id`,
+    `set_parent`, `set_min_size`, `set_max_size`, and
+    `zxdg_toplevel_decoration_v1_set_mode`) against cached per-window values so
+    `XA_WM_NORMAL_HINTS` updates during resize no longer trigger redundant
+    server-side decoration configures or extra full-buffer SHM commits, and
+    expand the `wl_shm` ring to 4 slots.
+  - Register a `pthread_atfork` child handler to close inherited Wayland/IPC
+    server descriptors in non-`exec` forked daemon or worker children so
+    orphaned sockets never stall compositor IPC broadcasts.
+
 Synchronize Wayland resize commits with Xt Expose completion and eliminate buffer/Expose amplification (2026-11-22)
 ===================================================================================================================
 

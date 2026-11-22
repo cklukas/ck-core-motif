@@ -41,6 +41,44 @@
 static XmWlServer *g_wl_srv = NULL;
 static pid_t g_wl_owner_pid = 0;
 static pthread_mutex_t g_wl_init_lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_once_t g_wl_atfork_once = PTHREAD_ONCE_INIT;
+
+static void
+wayland_atfork_child(void)
+{
+    XmWlServer *srv = g_wl_srv;
+    g_wl_srv = NULL;
+    g_wl_owner_pid = 0;
+    pthread_mutex_init(&g_wl_init_lock, NULL);
+    if (!srv)
+        return;
+    /* In a forked child, wayland_server_thread does not exist; release
+     * inherited server/IPC descriptors so daemonized or worker children
+     * (e.g. ttsession, dtfile directory readers) never hold zombie IPC pipes. */
+    if (srv->ipc_fd >= 0) {
+        close(srv->ipc_fd);
+        srv->ipc_fd = -1;
+    }
+    if (srv->listen_fd >= 0) {
+        close(srv->listen_fd);
+        srv->listen_fd = -1;
+    }
+    if (srv->wake_pipe[0] >= 0) close(srv->wake_pipe[0]);
+    if (srv->wake_pipe[1] >= 0) close(srv->wake_pipe[1]);
+    if (srv->xt_pipe[0] >= 0) close(srv->xt_pipe[0]);
+    if (srv->xt_pipe[1] >= 0) close(srv->xt_pipe[1]);
+    if (srv->wl_dpy) {
+        int wfd = wl_display_get_fd(srv->wl_dpy);
+        if (wfd >= 0)
+            close(wfd);
+    }
+}
+
+static void
+register_wayland_atfork(void)
+{
+    pthread_atfork(NULL, NULL, wayland_atfork_child);
+}
 
 uint32_t
 _XmWlNowMs(void)
@@ -1232,77 +1270,117 @@ pop_popup_stack_from(XmWlServer *srv, int idx)
         srv->popup_depth = idx;
 }
 
-static void
+static bool
 sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win, uint32_t changed_atom)
 {
-    if (!win || !win->xdg_top) return;
+    if (!win || !win->xdg_top) return false;
+    bool changed = false;
 
     uint32_t a_net_name = _XmWlInternAtom(srv, "_NET_WM_NAME", 12, true);
     uint32_t a_wm_name = 39; /* XA_WM_NAME */
-    XmWlProperty *p = a_net_name ? _XmWlGetProperty(win, a_net_name) : NULL;
-    if (!p || !p->data || p->byte_len == 0)
-        p = _XmWlGetProperty(win, a_wm_name);
-    if (p && p->data && p->byte_len > 0) {
-        char title[256];
-        size_t n = p->byte_len < sizeof(title) - 1 ? p->byte_len : sizeof(title) - 1;
-        memcpy(title, p->data, n);
-        title[n] = '\0';
-        xdg_toplevel_set_title(win->xdg_top, title);
+    if (changed_atom == 0 || changed_atom == a_wm_name ||
+        (a_net_name != 0 && changed_atom == a_net_name)) {
+        XmWlProperty *p = a_net_name ? _XmWlGetProperty(win, a_net_name) : NULL;
+        if (!p || !p->data || p->byte_len == 0)
+            p = _XmWlGetProperty(win, a_wm_name);
+        if (p && p->data && p->byte_len > 0) {
+            char title[256];
+            size_t n = p->byte_len < sizeof(title) - 1 ? p->byte_len : sizeof(title) - 1;
+            memcpy(title, p->data, n);
+            title[n] = '\0';
+            if (strcmp(title, win->sent_title) != 0) {
+                memcpy(win->sent_title, title, n + 1);
+                xdg_toplevel_set_title(win->xdg_top, title);
+                changed = true;
+            }
+        }
     }
 
     uint32_t a_wm_class = 67; /* XA_WM_CLASS */
-    p = _XmWlGetProperty(win, a_wm_class);
-    if (p && p->data && p->byte_len > 0) {
-        char app_id[128];
-        size_t n = strnlen((const char *)p->data, p->byte_len);
-        if (n >= sizeof(app_id)) n = sizeof(app_id) - 1;
-        memcpy(app_id, p->data, n);
-        app_id[n] = '\0';
-        if (app_id[0]) xdg_toplevel_set_app_id(win->xdg_top, app_id);
+    if (changed_atom == 0 || changed_atom == a_wm_class) {
+        XmWlProperty *p = _XmWlGetProperty(win, a_wm_class);
+        if (p && p->data && p->byte_len > 0) {
+            char app_id[128];
+            size_t n = strnlen((const char *)p->data, p->byte_len);
+            if (n >= sizeof(app_id)) n = sizeof(app_id) - 1;
+            memcpy(app_id, p->data, n);
+            app_id[n] = '\0';
+            if (app_id[0] && strcmp(app_id, win->sent_app_id) != 0) {
+                memcpy(win->sent_app_id, app_id, n + 1);
+                xdg_toplevel_set_app_id(win->xdg_top, app_id);
+                changed = true;
+            }
+        }
     }
 
     uint32_t a_transient = 68; /* XA_WM_TRANSIENT_FOR */
-    p = _XmWlGetProperty(win, a_transient);
-    if (p && p->data && p->byte_len >= 4) {
-        uint32_t parent_xid = 0;
-        memcpy(&parent_xid, p->data, 4);
-        XmWlWindow *ptop = _XmWlFindWindow(srv, parent_xid);
-        if (ptop && ptop->xdg_top)
-            xdg_toplevel_set_parent(win->xdg_top, ptop->xdg_top);
+    if (changed_atom == 0 || changed_atom == a_transient) {
+        XmWlProperty *p = _XmWlGetProperty(win, a_transient);
+        if (p && p->data && p->byte_len >= 4) {
+            uint32_t parent_xid = 0;
+            memcpy(&parent_xid, p->data, 4);
+            if (parent_xid != win->sent_parent_xid) {
+                XmWlWindow *ptop = _XmWlFindWindow(srv, parent_xid);
+                if (ptop && ptop->xdg_top) {
+                    win->sent_parent_xid = parent_xid;
+                    xdg_toplevel_set_parent(win->xdg_top, ptop->xdg_top);
+                    changed = true;
+                }
+            }
+        }
     }
 
     uint32_t a_normal = 40; /* XA_WM_NORMAL_HINTS */
-    p = _XmWlGetProperty(win, a_normal);
-    if (p && p->data && p->byte_len >= 9 * 4) {
-        uint32_t flags = 0;
-        int32_t min_w = 0, min_h = 0, max_w = 0, max_h = 0;
-        memcpy(&flags, p->data + 0, 4);
-        memcpy(&min_w, p->data + 5 * 4, 4);
-        memcpy(&min_h, p->data + 6 * 4, 4);
-        memcpy(&max_w, p->data + 7 * 4, 4);
-        memcpy(&max_h, p->data + 8 * 4, 4);
-        if ((flags & (1u << 4)) && min_w > 0 && min_h > 0)
-            xdg_toplevel_set_min_size(win->xdg_top, min_w, min_h);
-        if ((flags & (1u << 5)) && max_w > 0 && max_h > 0)
-            xdg_toplevel_set_max_size(win->xdg_top, max_w, max_h);
+    if (changed_atom == 0 || changed_atom == a_normal) {
+        XmWlProperty *p = _XmWlGetProperty(win, a_normal);
+        if (p && p->data && p->byte_len >= 9 * 4) {
+            uint32_t flags = 0;
+            int32_t min_w = 0, min_h = 0, max_w = 0, max_h = 0;
+            memcpy(&flags, p->data + 0, 4);
+            memcpy(&min_w, p->data + 5 * 4, 4);
+            memcpy(&min_h, p->data + 6 * 4, 4);
+            memcpy(&max_w, p->data + 7 * 4, 4);
+            memcpy(&max_h, p->data + 8 * 4, 4);
+            int32_t eff_min_w = ((flags & (1u << 4)) && min_w > 0 && min_h > 0) ? min_w : 0;
+            int32_t eff_min_h = ((flags & (1u << 4)) && min_w > 0 && min_h > 0) ? min_h : 0;
+            int32_t eff_max_w = ((flags & (1u << 5)) && max_w > 0 && max_h > 0) ? max_w : 0;
+            int32_t eff_max_h = ((flags & (1u << 5)) && max_w > 0 && max_h > 0) ? max_h : 0;
+            if (eff_min_w != win->sent_min_w || eff_min_h != win->sent_min_h) {
+                win->sent_min_w = eff_min_w;
+                win->sent_min_h = eff_min_h;
+                xdg_toplevel_set_min_size(win->xdg_top, eff_min_w, eff_min_h);
+                changed = true;
+            }
+            if (eff_max_w != win->sent_max_w || eff_max_h != win->sent_max_h) {
+                win->sent_max_w = eff_max_w;
+                win->sent_max_h = eff_max_h;
+                xdg_toplevel_set_max_size(win->xdg_top, eff_max_w, eff_max_h);
+                changed = true;
+            }
+        }
     }
 
     uint32_t a_mwm = _XmWlInternAtom(srv, "_MOTIF_WM_HINTS", 15, true);
-    p = a_mwm ? _XmWlGetProperty(win, a_mwm) : NULL;
-    bool want_deco = true;
-    if (p && p->data && p->byte_len >= 12) {
-        uint32_t mflags = 0, mdeco = 1;
-        memcpy(&mflags, p->data + 0, 4);
-        memcpy(&mdeco, p->data + 8, 4);
-        if ((mflags & 2u) && mdeco == 0)
-            want_deco = false;
-    }
-    win->wants_decorations = want_deco;
-    if (win->xdg_deco) {
-        zxdg_toplevel_decoration_v1_set_mode(
-            win->xdg_deco,
-            want_deco ? ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
-                      : ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE);
+    if (changed_atom == 0 || (a_mwm != 0 && changed_atom == a_mwm)) {
+        XmWlProperty *p = a_mwm ? _XmWlGetProperty(win, a_mwm) : NULL;
+        bool want_deco = true;
+        if (p && p->data && p->byte_len >= 12) {
+            uint32_t mflags = 0, mdeco = 1;
+            memcpy(&mflags, p->data + 0, 4);
+            memcpy(&mdeco, p->data + 8, 4);
+            if ((mflags & 2u) && mdeco == 0)
+                want_deco = false;
+        }
+        win->wants_decorations = want_deco;
+        int8_t dmode = want_deco ? 1 : 0;
+        if (win->xdg_deco && win->sent_deco_mode != dmode) {
+            win->sent_deco_mode = dmode;
+            zxdg_toplevel_decoration_v1_set_mode(
+                win->xdg_deco,
+                want_deco ? ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
+                          : ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE);
+            changed = true;
+        }
     }
 
     /* Dynamic window icon via xdg_toplevel_icon_v1 (xPropWMHints: flags@0, iconPixmap@12, iconMask@28) */
@@ -1336,6 +1414,7 @@ sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win, uint32_t changed_at
                             xdg_toplevel_icon_v1_destroy(ico);
                             wl_buffer_destroy(ibuf);
                             munmap(imap, isz);
+                            changed = true;
                         }
                         close(ifd);
                     }
@@ -1344,6 +1423,7 @@ sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win, uint32_t changed_at
             }
         }
     }
+    return changed;
 }
 
 static void
@@ -1444,9 +1524,12 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
             return;
     }
     if (win->parent == srv->root && win->xdg_top) {
-        sync_toplevel_metadata_all(srv, win, changed_atom);
-        if (win->wl_surf && win->xdg_configured)
-            win->dirty = true;
+        if (sync_toplevel_metadata_all(srv, win, changed_atom) &&
+            win->wl_surf && win->xdg_configured &&
+            !win->resize_awaiting_client && !win->dirty) {
+            wl_surface_commit(win->wl_surf);
+            wl_display_flush(srv->wl_dpy);
+        }
     }
 }
 
@@ -1485,6 +1568,12 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
 
     if (!win->override_redirect) {
         win->is_popup = false;
+        win->sent_title[0] = '\0';
+        win->sent_app_id[0] = '\0';
+        win->sent_parent_xid = 0;
+        win->sent_min_w = win->sent_min_h = -1;
+        win->sent_max_w = win->sent_max_h = -1;
+        win->sent_deco_mode = -1;
         win->xdg_surf = xdg_wm_base_get_xdg_surface(srv->xdg_wm_base, win->wl_surf);
         xdg_surface_add_listener(win->xdg_surf, &g_xdg_surface_listener, win);
         win->xdg_top = xdg_surface_get_toplevel(win->xdg_surf);
@@ -1494,7 +1583,7 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
                 srv->deco_mgr, win->xdg_top);
             zxdg_toplevel_decoration_v1_add_listener(win->xdg_deco, &g_xdg_deco_listener, win);
         }
-        sync_toplevel_metadata_all(srv, win, 0);
+        (void)sync_toplevel_metadata_all(srv, win, 0);
         wl_surface_commit(win->wl_surf);
         wl_display_roundtrip(srv->wl_dpy);
         _XmWlDamageTop(win, 0, 0, win->width, win->height);
@@ -1696,6 +1785,12 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
     win->opaque_region_set = false;
     win->opaque_w = 0;
     win->opaque_h = 0;
+    win->sent_title[0] = '\0';
+    win->sent_app_id[0] = '\0';
+    win->sent_parent_xid = 0;
+    win->sent_min_w = win->sent_min_h = -1;
+    win->sent_max_w = win->sent_max_h = -1;
+    win->sent_deco_mode = -1;
     win->is_popup = false;
     win->is_drag_icon = false;
     win->popup_parent = NULL;
@@ -3134,6 +3229,7 @@ _XmWaylandEnsureDisplay(void)
     setenv("DISPLAY", srv->display_spec, 1);
     setenv("CK_MOTIF_WAYLAND_ACTIVE", "1", 1);
     setenv("CK_MOTIF_WAYLAND_DISPLAY", wl_disp, 1);
+    pthread_once(&g_wl_atfork_once, register_wayland_atfork);
     atexit(cleanup_wayland_backend);
     pthread_mutex_unlock(&g_wl_init_lock);
     return True;
