@@ -1,3 +1,22 @@
+Fix Wayland core X11 font caching during resize redraws and XA_STRING ToolTalk root properties (2026-11-22)
+===========================================================================================================
+
+- `lib/Xm/WaylandRender.c`, `lib/Xm/WaylandBackend.c`,
+  `lib/Xm/WaylandX11Server.c`, `tests/automated/check-wayland-backend.c`,
+  `docs/wayland-backend.md`:
+  - Insert opened `XmWlFont` instances into `srv->font_buckets` inside
+    `_XmWlOpenFont`, reuse XID `0x00000070` as the cached fallback font in
+    `_XmWlRenderPolyText` and `_XmWlRenderImageText`, and release cached
+    `FT_Face` handles in `_XmWlRenderDestroy`. Previously `srv->font_buckets`
+    remained empty, causing every `QueryFont` to fall back to `"fixed"` metrics
+    and every `PolyText8`/`ImageText8` call to invoke `FcFontMatch`,
+    `FT_New_Face`, 256-glyph loading, and `FT_Done_Face` per text span—stalling
+    large interactive window resizes and leaking `FT_Face` mappings.
+  - Store `_SUN_TT_SESSION` and `TT_SESSION` with type `XA_STRING` (`31`) on the
+    virtual Wayland root window both at display initialization (when present in
+    the environment) and on compositor IPC updates so ToolTalk's `tt_X_session`
+    property lookup succeeds natively without XWayland.
+
 Add unfocused hover mouse-wheel routing, native Wayland smooth scrolling, and live scroll-wheel IPC settings (2026-11-21)
 =========================================================================================================================
 

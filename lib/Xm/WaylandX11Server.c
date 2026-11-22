@@ -285,6 +285,21 @@ _XmWlInitAtomsAndRoot(XmWlServer *srv)
     uint32_t a_cm = _XmWlInternAtom(srv, "_NET_WM_CM_S0", 13, false);
     (void)a_cm;
 
+    /* Seed ToolTalk session atoms (_SUN_TT_SESSION / TT_SESSION) as XA_STRING (31)
+     * from process environment so tt_X_session(XDisplayString(dpy)) succeeds immediately. */
+    const char *tt_sess = getenv("TT_SESSION");
+    if (!tt_sess || !tt_sess[0])
+        tt_sess = getenv("_SUN_TT_SESSION");
+    if (tt_sess && tt_sess[0]) {
+        size_t tt_len = strlen(tt_sess);
+        uint32_t a_sun_tt = _XmWlInternAtom(srv, "_SUN_TT_SESSION", 15, false);
+        uint32_t a_tt = _XmWlInternAtom(srv, "TT_SESSION", 10, false);
+        _XmWlSetProperty(srv, srv->root, a_sun_tt, 31u /* XA_STRING */, 8, 0,
+                         (const uint8_t *)tt_sess, tt_len, false);
+        _XmWlSetProperty(srv, srv->root, a_tt, 31u /* XA_STRING */, 8, 0,
+                         (const uint8_t *)tt_sess, tt_len, false);
+    }
+
     /* Default font fallback at XID 0x00000070 */
     (void)_XmWlOpenFont(srv, 0x00000070u, "fixed", 5);
 }
@@ -3655,6 +3670,23 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
 static void
 send_setup_acceptance(XmWlServer *srv, XmWlClient *cli)
 {
+    if (srv && srv->root) {
+        uint32_t a_sun_tt = _XmWlInternAtom(srv, "_SUN_TT_SESSION", 15, false);
+        if (!_XmWlGetProperty(srv->root, a_sun_tt)) {
+            const char *tt_sess = getenv("TT_SESSION");
+            if (!tt_sess || !tt_sess[0])
+                tt_sess = getenv("_SUN_TT_SESSION");
+            if (tt_sess && tt_sess[0]) {
+                size_t tt_len = strlen(tt_sess);
+                uint32_t a_tt = _XmWlInternAtom(srv, "TT_SESSION", 10, false);
+                _XmWlSetProperty(srv, srv->root, a_sun_tt, 31u /* XA_STRING */, 8, 0,
+                                 (const uint8_t *)tt_sess, tt_len, false);
+                _XmWlSetProperty(srv, srv->root, a_tt, 31u /* XA_STRING */, 8, 0,
+                                 (const uint8_t *)tt_sess, tt_len, false);
+            }
+        }
+    }
+
     uint8_t setup[256];
     memset(setup, 0, sizeof(setup));
     size_t p = 0;

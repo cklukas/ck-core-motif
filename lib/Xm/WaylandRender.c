@@ -46,6 +46,16 @@ void
 _XmWlRenderDestroy(XmWlServer *srv)
 {
     if (!srv) return;
+    for (size_t i = 0; i < sizeof(srv->font_buckets) / sizeof(srv->font_buckets[0]); ++i) {
+        XmWlFont *f = srv->font_buckets[i];
+        while (f) {
+            XmWlFont *next = f->hash_next;
+            _XmWlFreeFontData(f);
+            free(f);
+            f = next;
+        }
+        srv->font_buckets[i] = NULL;
+    }
     if (srv->ft_inited) {
         FT_Done_FreeType(srv->ft_lib);
         srv->ft_inited = false;
@@ -1171,6 +1181,23 @@ _XmWlOpenFont(XmWlServer *srv, uint32_t id, const char *name, size_t len)
     }
     f->min_bounds = (XmWlCharInfo){ min_lb, min_rb, min_w, min_a, min_d, 0 };
     f->max_bounds = (XmWlCharInfo){ max_lb, max_rb, max_w, max_a, max_d, 0 };
+
+    if (srv && id != 0) {
+        XmWlFont **pp = &srv->font_buckets[id & 0x3fu];
+        while (*pp) {
+            if ((*pp)->id == id) {
+                XmWlFont *old = *pp;
+                *pp = old->hash_next;
+                _XmWlFreeFontData(old);
+                free(old);
+                break;
+            }
+            pp = &(*pp)->hash_next;
+        }
+        uint32_t b = id & 0x3fu;
+        f->hash_next = srv->font_buckets[b];
+        srv->font_buckets[b] = f;
+    }
     return f;
 }
 
@@ -1250,9 +1277,10 @@ _XmWlRenderPolyText(XmWlServer *srv, uint32_t drawable, XmWlGC *gc, int16_t x, i
     if (!resolve_draw_target(srv, drawable, gc, &dt)) return;
 
     XmWlFont *font = _XmWlFindFont(srv, gc->font_id);
-    if (!font) {
-        font = _XmWlOpenFont(srv, 0, "fixed", 5);
-    }
+    if (!font)
+        font = _XmWlFindFont(srv, 0x00000070u);
+    if (!font)
+        font = _XmWlOpenFont(srv, 0x00000070u, "fixed", 5);
     bool temp_font = (font && font->id == 0);
 
     int pen_x = dt.dx + x;
@@ -1301,7 +1329,8 @@ _XmWlRenderImageText(XmWlServer *srv, uint32_t drawable, XmWlGC *gc, int16_t x, 
     if (!resolve_draw_target(srv, drawable, gc, &dt)) return;
 
     XmWlFont *font = _XmWlFindFont(srv, gc->font_id);
-    if (!font) font = _XmWlOpenFont(srv, 0, "fixed", 5);
+    if (!font) font = _XmWlFindFont(srv, 0x00000070u);
+    if (!font) font = _XmWlOpenFont(srv, 0x00000070u, "fixed", 5);
     bool temp_font = (font && font->id == 0);
 
     int total_w = 0;

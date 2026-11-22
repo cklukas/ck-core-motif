@@ -437,11 +437,29 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
     };
     XtAppSetFallbackResources(app, fallback_res);
 
+    setenv("TT_SESSION", "01 4242 1342177281 1 1 501 127.0.0.1 4", 1);
+
     int argc = 1;
     char *argv[] = { (char *)"wayland-check", NULL };
     Display *dpy = XtOpenDisplay(app, NULL, "waylandCheck", "WaylandCheck", NULL, 0, &argc, argv);
     if (!dpy)
         fail_msg("XtOpenDisplay failed");
+
+    /* Verify _SUN_TT_SESSION / TT_SESSION root properties use XA_STRING for libtt tt_X_session */
+    {
+        Atom a_sun_tt = XInternAtom(dpy, "_SUN_TT_SESSION", False);
+        Atom actual_type = None;
+        int actual_fmt = 0;
+        unsigned long nitems = 0, bytes_after = 0;
+        unsigned char *prop_data = NULL;
+        if (XGetWindowProperty(dpy, DefaultRootWindow(dpy), a_sun_tt, 0, 128, False,
+                               XA_STRING, &actual_type, &actual_fmt, &nitems,
+                               &bytes_after, &prop_data) != Success ||
+            actual_type != XA_STRING || actual_fmt != 8 || nitems == 0 || !prop_data) {
+            fail_msg("_SUN_TT_SESSION not seeded as XA_STRING on virtual Wayland root window");
+        }
+        XFree(prop_data);
+    }
 
     const char *exts[] = {
         "BIG-REQUESTS", "XC-MISC", "RENDER", "SHAPE", "XFIXES", "RANDR", "XINERAMA"
@@ -679,6 +697,33 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
     XFreeFont(dpy, fixed_fnt);
     if (fixed_h > 20)
         fail_msg("compositor 2.0x output scale double-scaled core 'fixed' font metrics");
+
+    /* Verify opened XLFD fonts are retained in font_buckets (distinct metrics + fast PolyText8) */
+    {
+        XFontStruct *xxl_fnt = XLoadQueryFont(
+            dpy, "-dt-interface system-bold-r-normal-xxl-22-220-96-96-p-120-iso8859-1");
+        if (!xxl_fnt)
+            fail_msg("XLoadQueryFont failed for xxl XLFD font");
+        int xxl_h = xxl_fnt->ascent + xxl_fnt->descent;
+        if (xxl_h <= fixed_h)
+            fail_msg("opened XLFD font fell back to 'fixed' instead of caching in font_buckets");
+
+        Pixmap txt_pix = XCreatePixmap(dpy, DefaultRootWindow(dpy), 320, 48, 24);
+        GC tgc = XCreateGC(dpy, txt_pix, 0, NULL);
+        XSetFont(dpy, tgc, xxl_fnt->fid);
+        XSetForeground(dpy, tgc, 0x000000);
+        uint64_t t0 = mono_ms();
+        for (int iter = 0; iter < 400; ++iter) {
+            XDrawString(dpy, txt_pix, tgc, 4, 28, "Cached PolyText8 resize span", 28);
+        }
+        XSync(dpy, False);
+        uint64_t dt_ms = mono_ms() - t0;
+        XFreeGC(dpy, tgc);
+        XFreePixmap(dpy, txt_pix);
+        XFreeFont(dpy, xxl_fnt);
+        if (dt_ms > 500)
+            fail_msg("PolyText8 font cache regression: 400 spans exceeded 500 ms");
+    }
 
     char **missing_cs = NULL;
     int missing_cnt = 0;

@@ -155,6 +155,8 @@ python3 tests/automated/run-wayland-backend.py \
 The runner starts an isolated headless Wayland compositor with `DISPLAY` unset,
 verifies that no `Xwayland` instance is used for the client, and validates
 shell mapping, classic and modern theme rendering, Unicode/CJK text rasterization,
-`xdg_popup` menus, Wayland clipboard and drag-and-drop transfers,
-`zwp_text_input_v3` composition, rapid `xdg_toplevel.configure` resize-burst
-coalescing, live scale reflow, and child-process socket isolation.
+cached core X11 XLFD `OpenFont`/`QueryFont`/`PolyText8` rendering, `XA_STRING`
+`_SUN_TT_SESSION` root-property seeding, `xdg_popup` menus, Wayland clipboard
+and drag-and-drop transfers, `zwp_text_input_v3` composition, rapid
+`xdg_toplevel.configure` resize-burst coalescing, live scale reflow, and
+child-process socket isolation.

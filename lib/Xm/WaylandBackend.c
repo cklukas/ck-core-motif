@@ -2108,6 +2108,8 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                         uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
                         uint32_t utf8 = _XmWlInternAtom(srv, "UTF8_STRING", 11, false);
                         uint32_t ptype = (!strcmp(aname, "RESOURCE_MANAGER") ||
+                                          !strcmp(aname, "_SUN_TT_SESSION") ||
+                                          !strcmp(aname, "TT_SESSION") ||
                                           !strcmp(aname, "SDT Pixel Set") ||
                                           !strcmp(aname, "_DT_COLOR_TYPE_MONITOR") ||
                                           !strcmp(aname, "_DT_WAYLAND_OUTPUTS") ||
