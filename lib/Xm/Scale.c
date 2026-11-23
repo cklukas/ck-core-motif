@@ -2213,11 +2213,13 @@ static Dimension
 ScaleDefaultExtent(XmScaleWidget sw, Boolean major)
 {
     XmAppearanceProfile profile = _XmAppearanceGeometryProfile(XtDisplay(sw));
-    unsigned long extent = major ? 100 : 15;
+    unsigned long extent;
     if (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK)
-        extent = _XmDpiDefaultDimension((Widget)sw,major ? 100 : 24);
+        extent = _XmDpiDefaultDimension((Widget)sw, major ? 100 : 24);
+    else
+        extent = _XmDpiDefaultDimension((Widget)sw, major ? 100 : 15);
     extent += 2UL * sw->scale.highlight_thickness;
-    return (Dimension)MIN(extent,USHRT_MAX);
+    return (Dimension)MIN(extent, USHRT_MAX);
 }
 
 static Dimension 

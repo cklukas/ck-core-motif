@@ -2,6 +2,8 @@
 #include <Xm/Display.h>
 #include <Xm/BulletinB.h>
 #include <Xm/ProgressRing.h>
+#include <Xm/Scale.h>
+#include <Xm/ScrollBar.h>
 #include <Xm/SpinB.h>
 #include <Xm/ToggleB.h>
 #include <X11/Intrinsic.h>
@@ -34,6 +36,9 @@ main(int argc, char **argv)
     Widget explicit_spin;
     Widget baseline_ring;
     Widget explicit_ring;
+    Widget baseline_scroll;
+    Widget explicit_scroll;
+    Widget baseline_scale;
     Display *display;
     XrmDatabase database;
     double scale;
@@ -47,6 +52,12 @@ main(int argc, char **argv)
     Dimension baseline_ring_height;
     Dimension live_ring_height;
     Dimension explicit_ring_height;
+    Dimension scroll_ht;
+    Dimension scroll_st;
+    Dimension scroll_width;
+    Dimension explicit_scroll_width;
+    Dimension scale_ht;
+    Dimension scale_width;
     const double gallery_scales[] = {1.0, 1.5, 2.0, 3.0};
     XmString empty_label;
     Arg empty_args[1];
@@ -156,6 +167,30 @@ main(int argc, char **argv)
     if (explicit_arrow != 16)
         return fail("spin box explicit pixel metric was not retained");
 
+    baseline_scroll = XmCreateScrollBar(board, "baselineScroll", NULL, 0);
+    XtManageChild(baseline_scroll);
+    XtVaGetValues(baseline_scroll,
+                  XmNhighlightThickness, &scroll_ht,
+                  XmNshadowThickness, &scroll_st,
+                  XmNwidth, &scroll_width, NULL);
+    if (scroll_width != (Dimension)(2 * (scroll_ht + scroll_st) + 11))
+        return fail("scrollbar initial classic thickness was unexpected");
+
+    explicit_scroll = XmCreateScrollBar(board, "explicitScroll", NULL, 0);
+    XtVaSetValues(explicit_scroll, XmNwidth, (Dimension)33, NULL);
+    XtManageChild(explicit_scroll);
+    XtVaGetValues(explicit_scroll, XmNwidth, &explicit_scroll_width, NULL);
+    if (explicit_scroll_width != 33)
+        return fail("scrollbar explicit width was not retained");
+
+    baseline_scale = XmCreateScale(board, "baselineScale", NULL, 0);
+    XtManageChild(baseline_scale);
+    XtVaGetValues(baseline_scale,
+                  XmNhighlightThickness, &scale_ht,
+                  XmNwidth, &scale_width, NULL);
+    if (scale_width < (Dimension)(2 * scale_ht + 15))
+        return fail("scale initial classic minor extent was unexpected");
+
     if (!XmSetDisplayScaleOverride(display, 2.0))
         return fail("two-times live override was not retained for spin box");
     XSync(display, False);
@@ -165,22 +200,38 @@ main(int argc, char **argv)
     XtVaGetValues(explicit_spin, XmNarrowSize, &explicit_arrow, NULL);
     if (explicit_arrow != 16)
         return fail("spin box explicit pixel metric changed by scale override");
+    XtVaGetValues(explicit_scroll, XmNwidth, &explicit_scroll_width, NULL);
+    if (explicit_scroll_width != 33)
+        return fail("scrollbar explicit width changed by scale override");
 
     for (size_t i = 0; i < XtNumber(gallery_scales); ++i) {
-        Dimension indicator, arrow, ring_height;
+        Dimension indicator, arrow, ring_height, sb_w, sc_w;
         Dimension expected_indicator = scaled_dimension(9, gallery_scales[i]);
         Dimension expected_arrow = scaled_dimension(16, gallery_scales[i]);
         Dimension expected_ring = scaled_dimension(64, gallery_scales[i]) + 16;
+        Dimension expected_sb = (Dimension)(2 * (scroll_ht + scroll_st) +
+                                            scaled_dimension(11, gallery_scales[i]));
+        Dimension expected_sc_min = (Dimension)(2 * scale_ht +
+                                                scaled_dimension(15, gallery_scales[i]));
         if (!XmSetDisplayScaleOverride(display, gallery_scales[i]))
             return fail("gallery DPI override was not retained");
         XSync(display, False);
         XtVaGetValues(baseline_toggle, XmNindicatorSize, &indicator, NULL);
         XtVaGetValues(baseline_spin, XmNarrowSize, &arrow, NULL);
         XtVaGetValues(baseline_ring, XtNheight, &ring_height, NULL);
+        XtVaGetValues(baseline_scroll, XmNwidth, &sb_w, NULL);
+        XtVaGetValues(baseline_scale, XmNwidth, &sc_w, NULL);
         if (indicator != expected_indicator || arrow != expected_arrow ||
-            ring_height != expected_ring)
+            ring_height != expected_ring || sb_w != expected_sb ||
+            sc_w < expected_sc_min)
             return fail("gallery DPI matrix produced an unexpected default");
     }
+
+    XtVaSetValues(explicit_scroll, XmNwidth, (Dimension)0, NULL);
+    XtVaGetValues(explicit_scroll, XmNwidth, &explicit_scroll_width, NULL);
+    if (explicit_scroll_width != (Dimension)(2 * (scroll_ht + scroll_st) +
+                                             scaled_dimension(11, 3.0)))
+        return fail("scrollbar zero-width reset did not restore scaled default");
 
     if (!XmSetDisplayScaleOverride(display, 1.0))
         return fail("one-times live override was not retained");

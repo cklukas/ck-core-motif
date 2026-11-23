@@ -1,3 +1,26 @@
+Scale classic and high-contrast XmScrollBar and XmScale default geometry with DPI (2026-11-23)
+==============================================================================================
+
+- `lib/Xm/ScrollBarP.h`, `lib/Xm/ScrollBar.c`, `lib/Xm/Appearance.c`,
+  `lib/Xm/Scale.c`, `tests/automated/check-display-scale-override.c`,
+  `tests/automated/check-display-scale-scrolled.c`,
+  `docs/display-scale-override.md`:
+  - Scale toolkit-owned `XmScrollBar` default inner thickness (`11` px) via
+    `_XmDpiDefaultDimension` at widget initialization, zero-dimension
+    `XtSetValues` resets, orientation flips, appearance-profile transitions
+    (`classic` / `high-contrast` / `modern-light` / `modern-dark`), and live
+    display-scale transactions (`_XmRegisterScaleChange`) without altering
+    ABI 9 (`XmScrollBarRec` size unchanged).
+  - Issue thickness-only `XtMakeResizeRequest` updates during live DPI changes
+    so `XmScrolledWindow`, `XmCreateScrolledList`, and `XmCreateScrolledText`
+    reflow their child scrollbars and viewport in place without enlarging
+    constrained outer bounds, while preserving application- or
+    `XrmDatabase`-specified `XmNwidth` / `XmNheight` dimensions.
+  - Scale classic `XmScrollBar` minimum slider thumb length and `XmTHUMB_MARK` /
+    `XmROUND_MARK` decorations as well as classic/high-contrast `XmScale`
+    default minor/major extents (`15` / `100` px) proportionally with widget
+    DPI.
+
 Add native 1:1 per-output DPI Wayland rendering, RandR output DPI exposure, and XmeGetScaledMask (2026-11-22)
 =============================================================================================================
 

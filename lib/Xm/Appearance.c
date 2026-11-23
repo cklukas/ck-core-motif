@@ -545,7 +545,6 @@ typedef struct _XmAppearanceWidgetState {
     Boolean explicit_role;
     Boolean dimension_argument[2];
     Boolean constrained_dimension[2];
-    Dimension original_scrollbar_thickness;
     Boolean gadget;
     Boolean hovered;
     struct _XmAppearanceWidgetState *next;
@@ -2223,12 +2222,17 @@ appearance_sizes_scrollbar(Widget widget)
 static Dimension
 appearance_scrollbar_thickness(XmAppearanceWidgetState *state,
                                XmAppearanceProfile profile,
-                               XmAppearanceDensity density)
+                               XmAppearanceDensity density,
+                               Dimension highlight,
+                               Dimension shadow)
 {
+    unsigned long total;
     if (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK)
         return _XmDpiDefaultDimension(state->widget,
             density == XmAPPEARANCE_DENSITY_COMPACT ? 16 : 18);
-    return state->original_scrollbar_thickness;
+    total = 2UL * ((unsigned long)highlight + shadow) +
+        _XmDpiDefaultDimension(state->widget, 11);
+    return (Dimension)MIN(total, USHRT_MAX);
 }
 
 static void
@@ -2372,10 +2376,19 @@ appearance_widget_prepare(XmAppearanceWidgetState *state,
     }
     if (appearance_sizes_scrollbar(state->widget)) {
         unsigned char orientation;
-        XtVaGetValues(state->widget, XmNorientation, &orientation, NULL);
+        Dimension highlight, shadow;
+        XtVaGetValues(state->widget, XmNorientation, &orientation,
+                      XmNhighlightThickness, &highlight,
+                      XmNshadowThickness, &shadow, NULL);
+        if (plan->apply[AP_HIGHLIGHT_THICKNESS])
+            highlight = (Dimension)plan->values[AP_HIGHLIGHT_THICKNESS];
+        if (plan->apply[AP_SHADOW_THICKNESS])
+            shadow = (Dimension)plan->values[AP_SHADOW_THICKNESS];
         plan->scrollbar_geometry = True;
         plan->scrollbar_axis = orientation == XmHORIZONTAL ? 1 : 0;
-        plan->scrollbar_extent = appearance_scrollbar_thickness(state,new_profile,density);
+        plan->scrollbar_extent = appearance_scrollbar_thickness(state, new_profile,
+                                                                density, highlight,
+                                                                shadow);
     }
     return True;
 }
@@ -2561,12 +2574,6 @@ initialize_appearance_state(XmAppearanceWidgetState *state,
                 }
             }
         }
-    }
-    if (XmIsScrollBar(state->widget)) {
-        unsigned char orientation;
-        XtVaGetValues(state->widget, XmNorientation, &orientation, NULL);
-        XtVaGetValues(state->widget, orientation == XmHORIZONTAL ? XmNheight : XmNwidth,
-                      &state->original_scrollbar_thickness, NULL);
     }
     if (state->supported[AP_RENDER_TABLE] && state->original[AP_RENDER_TABLE] != 0) {
         state->original_font = XmRenderTableCopy((XmRenderTable)state->original[AP_RENDER_TABLE], NULL, 0);
@@ -2933,16 +2940,19 @@ appearance_changed(Widget hooks, XtPointer closure, XtPointer data)
                 ++state->references;
                 if (XmIsScrollBar(control)) {
                     unsigned char orientation;
+                    Dimension highlight, shadow;
                     XmAppearanceProfile profile = XmAPPEARANCE_CLASSIC;
                     XmAppearanceDensity density = XmAPPEARANCE_DENSITY_COMFORTABLE;
                     (void)XmGetAppearanceProfile(state->display,&profile);
                     (void)XmGetAppearanceDensity(state->display,&density);
                     XtVaGetValues(control,XmNorientation,&orientation,
+                                  XmNhighlightThickness,&highlight,
+                                  XmNshadowThickness,&shadow,
                                   XmNwidth,&preferred.width,XmNheight,&preferred.height,NULL);
                     if (orientation == XmHORIZONTAL)
-                        preferred.height = appearance_scrollbar_thickness(state,profile,density);
+                        preferred.height = appearance_scrollbar_thickness(state,profile,density,highlight,shadow);
                     else
-                        preferred.width = appearance_scrollbar_thickness(state,profile,density);
+                        preferred.width = appearance_scrollbar_thickness(state,profile,density,highlight,shadow);
                 } else
                     XtQueryGeometry(control,NULL,&preferred);
                 if (!state->retired) {

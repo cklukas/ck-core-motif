@@ -36,6 +36,7 @@ static char rcsid[] = "$TOG: ScrollBar.c /main/20 1997/03/10 14:52:28 dbl $"
 #endif
 #include <limits.h>
 #include <stdint.h>
+#include <string.h>
 
 #include <Xm/DisplayP.h>        /* for enableThinThickness */
 #include <Xm/DrawP.h>
@@ -78,6 +79,50 @@ static void BeginInteraction(XmScrollBarWidget);
 static void FinishInteraction(XmScrollBarWidget);
 static Boolean ModernScrollBar(XmScrollBarWidget);
 static Boolean DrawModernScrollArrow(XmScrollBarWidget, int, int, unsigned char);
+static void ScaleChanged(Widget, double, double, XtPointer);
+
+static Dimension
+ScrollBarBoundedDimension(unsigned long value)
+{
+    if (value == 0)
+        return 1;
+    if (value > USHRT_MAX)
+        return (Dimension)USHRT_MAX;
+    return (Dimension)value;
+}
+
+static Dimension
+DefaultScrollBarInnerThickness(Widget w)
+{
+    return _XmDpiDefaultDimension(w, 11);
+}
+
+static Dimension
+DefaultScrollBarLength(Widget w)
+{
+    (void)w;
+    return 100;
+}
+
+static Dimension
+DefaultScrollBarTotalThickness(XmScrollBarWidget sbw)
+{
+    unsigned long margins;
+    unsigned long inner;
+
+    if (ModernScrollBar(sbw) &&
+        !(XtParent((Widget)sbw) != NULL && XmIsScale(XtParent((Widget)sbw)))) {
+        XmAppearanceDensity density = XmAPPEARANCE_DENSITY_COMFORTABLE;
+        (void)XmGetAppearanceDensity(XtDisplay((Widget)sbw), &density);
+        return _XmDpiDefaultDimension((Widget)sbw,
+            density == XmAPPEARANCE_DENSITY_COMPACT ? 16 : 18);
+    }
+
+    margins = 2UL * ((unsigned long)sbw->primitive.highlight_thickness +
+                     sbw->primitive.shadow_thickness);
+    inner = DefaultScrollBarInnerThickness((Widget)sbw);
+    return ScrollBarBoundedDimension(margins + inner);
+}
 
 #define MAXDIMENSION	65535
 
@@ -961,19 +1006,25 @@ Initialize(
     
     /*  Set up a geometry for the widget if it is currently 0.  */
     
+    new_w->scrollBar.add_flags = 0;
+
     if (request->core.width == 0)
 	{
-	    if (new_w->scrollBar.orientation == XmHORIZONTAL)
-		new_w->core.width += 100;
-	    else
-		new_w->core.width += 11;
+	    Dimension extra = (new_w->scrollBar.orientation == XmHORIZONTAL)
+		? DefaultScrollBarLength((Widget) new_w)
+		: DefaultScrollBarInnerThickness((Widget) new_w);
+	    new_w->scrollBar.add_flags |= DEFAULT_WIDTH_FLAG;
+	    new_w->core.width = ScrollBarBoundedDimension(
+		(unsigned long) new_w->core.width + extra);
 	}
     if (request->core.height == 0)
 	{
-	    if (new_w->scrollBar.orientation == XmHORIZONTAL)
-		new_w->core.height += 11;
-	    else
-		new_w->core.height += 100;
+	    Dimension extra = (new_w->scrollBar.orientation == XmHORIZONTAL)
+		? DefaultScrollBarInnerThickness((Widget) new_w)
+		: DefaultScrollBarLength((Widget) new_w);
+	    new_w->scrollBar.add_flags |= DEFAULT_HEIGHT_FLAG;
+	    new_w->core.height = ScrollBarBoundedDimension(
+		(unsigned long) new_w->core.height + extra);
 	}
     
     /*  Reverse the value for reverse processing.  */
@@ -1008,7 +1059,6 @@ Initialize(
     new_w->scrollBar.pixmap = 0;
     new_w->scrollBar.sliding_on = FALSE;
     new_w->scrollBar.timer = 0;
-    new_w->scrollBar.add_flags = 0 ;
     
     new_w->scrollBar.arrow_width = 0;
     new_w->scrollBar.arrow_height = 0;
@@ -1043,6 +1093,66 @@ Initialize(
 	(* (resize)) ((Widget) new_w);
     }
 
+    (void)_XmRegisterScaleChange((Widget) new_w, ScaleChanged, NULL);
+
+}
+
+static void
+ScaleChanged(Widget widget, double old_scale, double new_scale, XtPointer closure)
+{
+    XmScrollBarWidget sbw = (XmScrollBarWidget) widget;
+    Boolean horizontal;
+    Boolean default_thickness;
+    XtWidgetProc resize;
+
+    (void)old_scale;
+    (void)new_scale;
+    (void)closure;
+
+    if (widget == NULL || sbw->core.being_destroyed)
+	return;
+    if (XtParent(widget) != NULL && XmIsScale(XtParent(widget)))
+	return;
+    if (ModernScrollBar(sbw))
+	return;
+
+    horizontal = (sbw->scrollBar.orientation == XmHORIZONTAL);
+    default_thickness = horizontal
+	? ((sbw->scrollBar.add_flags & DEFAULT_HEIGHT_FLAG) != 0)
+	: ((sbw->scrollBar.add_flags & DEFAULT_WIDTH_FLAG) != 0);
+
+    if (default_thickness) {
+	Dimension thickness = DefaultScrollBarTotalThickness(sbw);
+	Dimension req_w = horizontal ? sbw->core.width : thickness;
+	Dimension req_h = horizontal ? thickness : sbw->core.height;
+
+	if (req_w != sbw->core.width || req_h != sbw->core.height) {
+	    Dimension rep_w = req_w;
+	    Dimension rep_h = req_h;
+	    XtGeometryResult result = XtMakeResizeRequest(
+		widget, req_w, req_h, &rep_w, &rep_h);
+
+	    if (result == XtGeometryAlmost && !sbw->core.being_destroyed) {
+		if (horizontal)
+		    rep_w = sbw->core.width;
+		else
+		    rep_h = sbw->core.height;
+		(void)XtMakeResizeRequest(widget, rep_w, rep_h, NULL, NULL);
+	    }
+	}
+    }
+
+    if (sbw->core.being_destroyed)
+	return;
+
+    _XmProcessLock();
+    resize = widget->core.widget_class->core_class.resize;
+    _XmProcessUnlock();
+    if (resize != NULL)
+	(*resize)(widget);
+
+    if (XtIsRealized(widget))
+	XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
 }
 
 
@@ -1560,7 +1670,8 @@ DrawSliderPixmap(
    } else
 
    if (sbw->scrollBar.slider_mark == XmTHUMB_MARK) {
-       Dimension thumb_spacing = 4, margin = 2 ;
+       Dimension thumb_spacing = _XmDpiDefaultDimension((Widget)sbw, 4);
+       Dimension margin = _XmDpiDefaultDimension((Widget)sbw, 2);
        
        if (sbw->scrollBar.orientation == XmHORIZONTAL) {
          XmeDrawSeparator (XtDisplay (sbw), slider,
@@ -1607,7 +1718,8 @@ DrawSliderPixmap(
    } 
 
    if (sbw->scrollBar.slider_mark == XmROUND_MARK) {
-       Dimension radius = DEFAULT_ROUND_MARK_RADIUS ;
+       Dimension radius = _XmDpiDefaultDimension((Widget)sbw,
+                                                 DEFAULT_ROUND_MARK_RADIUS);
 
        XmeDrawCircle(XtDisplay (sbw), slider, 
 		     sbw->primitive.top_shadow_GC,
@@ -1738,9 +1850,10 @@ CalcSliderRect(
 
     /* Scale computes tick locations and its value conversion from the declared
      * slider size. A viewport-scrollbar minimum must not change that travel. */
-    if (ModernScrollBar(sbw) && !XmIsScale(XtParent(sbw)) &&
+    if (!(XtParent((Widget)sbw) != NULL && XmIsScale(XtParent((Widget)sbw))) &&
         sbw->scrollBar.sliding_mode != XmTHERMOMETER) {
-        int minimum = _XmDpiDefaultDimension((Widget)sbw,24);
+        int minimum = _XmDpiDefaultDimension(
+            (Widget)sbw, ModernScrollBar(sbw) ? 24 : MIN_SLIDER_LENGTH);
         if (sbw->scrollBar.orientation == XmHORIZONTAL)
             minSliderWidth = MIN(minimum,MAX(1,sbw->scrollBar.slider_area_width));
         else
@@ -2517,17 +2630,23 @@ ValidateInputs(
     if (new_w->core.width == 0)
 	{
 	    if (new_w->scrollBar.orientation == XmHORIZONTAL)
-		new_w->core.width += 100;
+		new_w->core.width = ScrollBarBoundedDimension(
+		    2UL * ((unsigned long)new_w->primitive.highlight_thickness +
+			   new_w->primitive.shadow_thickness) +
+		    DefaultScrollBarLength((Widget) new_w));
 	    else
-		new_w->core.width += 11;
+		new_w->core.width = DefaultScrollBarTotalThickness(new_w);
 	}
     
     if (new_w->core.height == 0)
 	{
 	    if (new_w->scrollBar.orientation == XmHORIZONTAL)
-		new_w->core.height += 11;
+		new_w->core.height = DefaultScrollBarTotalThickness(new_w);
 	    else
-		new_w->core.height += 100;
+		new_w->core.height = ScrollBarBoundedDimension(
+		    2UL * ((unsigned long)new_w->primitive.highlight_thickness +
+			   new_w->primitive.shadow_thickness) +
+		    DefaultScrollBarLength((Widget) new_w));
 	}
     
     return(returnFlag);
@@ -2538,14 +2657,13 @@ ValidateInputs(
  *  SetValues
  *
  ************************************************************************/
-/*ARGSUSED*/
 static Boolean 
 SetValues(
         Widget cw,
         Widget rw,
         Widget nw,
-        ArgList args,		/* unused */
-        Cardinal *num_args )	/* unused */
+        ArgList args,
+        Cardinal *num_args )
 {
     XmScrollBarWidget current = (XmScrollBarWidget) cw ;
     XmScrollBarWidget request = (XmScrollBarWidget) rw ;
@@ -2553,6 +2671,26 @@ SetValues(
     Boolean returnFlag = FALSE;
     Boolean current_backwards = PROCESS_DIR_INVERSED(current);
     Boolean new_backwards = PROCESS_DIR_INVERSED(new_w);
+
+    if (!_XmAppearanceDefersChildPropagation(XtDisplay(new_w)) &&
+	args != NULL && num_args != NULL) {
+	Cardinal i;
+	for (i = 0; i < *num_args; ++i) {
+	    if (args[i].name == NULL)
+		continue;
+	    if (strcmp(args[i].name, XmNwidth) == 0) {
+		if ((Dimension)args[i].value == 0)
+		    new_w->scrollBar.add_flags |= DEFAULT_WIDTH_FLAG;
+		else
+		    new_w->scrollBar.add_flags &= ~DEFAULT_WIDTH_FLAG;
+	    } else if (strcmp(args[i].name, XmNheight) == 0) {
+		if ((Dimension)args[i].value == 0)
+		    new_w->scrollBar.add_flags |= DEFAULT_HEIGHT_FLAG;
+		else
+		    new_w->scrollBar.add_flags &= ~DEFAULT_HEIGHT_FLAG;
+	    }
+	}
+    }
 
     
 
@@ -2622,6 +2760,19 @@ SetValues(
 	}
     
     while (!ValidateInputs(current, request, new_w)) /*EMPTY*/;
+
+    if (new_w->scrollBar.orientation != current->scrollBar.orientation &&
+	!(XtParent((Widget)new_w) != NULL && XmIsScale(XtParent((Widget)new_w)))) {
+	if (new_w->scrollBar.orientation == XmHORIZONTAL) {
+	    if ((new_w->scrollBar.add_flags & DEFAULT_HEIGHT_FLAG) &&
+		request->core.height == current->core.height)
+		new_w->core.height = DefaultScrollBarTotalThickness(new_w);
+	} else {
+	    if ((new_w->scrollBar.add_flags & DEFAULT_WIDTH_FLAG) &&
+		request->core.width == current->core.width)
+		new_w->core.width = DefaultScrollBarTotalThickness(new_w);
+	}
+    }
     
     /*
      * Because someone somewhere originally thought that it was clever

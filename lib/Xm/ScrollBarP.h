@@ -118,6 +118,8 @@ typedef struct _XmScrollBarPart
 /* Values for the additionnal flags field */
 #define SNAPPED_OUT         (1<<0)
 #define INTERACTION_ACTIVE  (1<<1)
+#define DEFAULT_WIDTH_FLAG  (1<<2)
+#define DEFAULT_HEIGHT_FLAG (1<<3)
 
 
    unsigned char change_type;
