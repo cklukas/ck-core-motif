@@ -8,14 +8,18 @@ start = text.index("_XmRedisplayLabG(Widget wid,")
 end = text.find("\f", start)
 body = text[start:] if end < 0 else text[start:end]
 required = [
-    "if (XmeGetPixmapData(XtScreen(lw), Pix(lw), &depth".replace(", &depth", ", NULL, &depth"),
-    "if (XmeGetPixmapData(XtScreen(lw), pix_use, NULL, &depth",
+    "if (LabelGGetPixmapData(XtScreen(lw), Pix(lw), &depth",
+    "if (LabelGGetPixmapData(XtScreen(lw), pix_use, &depth",
     "if (depth == XtParent(lw)->core.depth)",
     "XSetFillStyle(XtDisplay(lw), gc, FillStippled)",
 ]
 missing = [fragment for fragment in required if fragment not in body]
 if missing:
     raise SystemExit("LabelG metadata guard missing: " + ", ".join(missing))
-if body.count("if (XmeGetPixmapData(XtScreen(lw)") < 2:
-    raise SystemExit("LabelG does not guard both pixmap paths")
+
+start = text.index("\nLabelGGetPixmapData(")
+helper = text[start:text.index("\n}", start)]
+assert "if (XmeGetPixmapData(" in helper
+assert "if (!XGetGeometry(" in helper
+assert "return False;" in helper[helper.index("if (!XGetGeometry("):]
 print("LabelG pixmap metadata guards are present")

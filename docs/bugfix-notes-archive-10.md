@@ -2165,7 +2165,7 @@ an isolated fixture does not replace inspection of the running XQuartz gallery.
   navigator or destroy its frame without visiting freed list entries. ScrollBar
   dispatches a public callback snapshot and stops after widget destruction,
   including immediate destruction from timers; see
-  [callback ownership](scrollbar-callback-snapshot.md).
+  [callback ownership](bugfix-notes-archive-12.md#scrollbar-callback-snapshotmd).
 - Gallery feedback starts with measured content and spans its available row;
   switching away from passive examples cannot leave a one-pixel label.
 - ColorSelector accepts the valid Xt constructor form with no argument list;

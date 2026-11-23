@@ -1862,7 +1862,7 @@ The focused source check is
 compile `lib/Xm/Notebook.c` with warnings enabled; the check is intended to keep
 the initialization explicit in future maintenance.
 
-See [Notebook page connections and appearance](notebook-appearance.md) for
+See [Notebook page connections and appearance](#notebook-appearancemd) for
 joined tab outlines, theme defaults and native pixel validation.
 
 ## `number-box-redisplay-guard.md`
@@ -2114,7 +2114,7 @@ Both the icon viewport and its visible artwork are centered, with equal margins;
 the toolbar explicitly requests centered entry alignment. Native tests measure
 pixel bounds, padding and image alignment, and verify actual hover popup text
 under classic and 150% modern styling. Tooltips show the full text and a subtle outline in the
-first frame, at its final size. See [tooltip popup geometry](tooltip-child-allocation.md).
+first frame, at its final size. See [tooltip popup geometry](bugfix-notes-archive-13.md#tooltip-child-allocationmd).
 
 A tooltip captured from the running application:
 
@@ -2899,7 +2899,7 @@ the byte before the trailing whitespace (`*(e - 2)`, where `e` is one past the
 end of the token) rather than subtracting one from the current character
 value. The latter was a precedence bug: escaped trailing spaces were trimmed as
 if they were unescaped. How the token reader delimits tokens and empty tokens
-is described in [resconvert-list-bounds.md](resconvert-list-bounds.md).
+is described in [resconvert-list-bounds.md](#resconvert-list-boundsmd).
 
 The behavior is covered by
 `tests/automated/check-resconvert-token-whitespace.py` and the existing token

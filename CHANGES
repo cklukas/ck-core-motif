@@ -1,3 +1,12 @@
+Restore static source contracts and documentation archive links (2026-11-23)
+===========================================================================
+
+- Update the source checks for cascade arrows, color-cache properties, label
+  gadget pixmaps, live and startup appearance, image mask allocation and
+  locking, and VendorShell counters to inspect their current implementations.
+- Restore historical cross-references to the archived sections so strict
+  documentation validation succeeds.
+
 Scale classic and high-contrast XmScrollBar and XmScale default geometry with DPI (2026-11-23)
 ==============================================================================================
 

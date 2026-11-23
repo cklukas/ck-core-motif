@@ -78,6 +78,14 @@ historical detail pages as searchable, unlisted content. The shared script
 also verifies expected rendered content and refuses a successful command with
 no HTML. Editing source and producing verified HTML are separate events.
 
+Historical notes consolidated into the archives retain their original
+filenames as section headings. Link to the archive and its section fragment
+when referencing one of these notes. For example,
+[ScrollBar callback-list ownership](bugfix-notes-archive-12.md#scrollbar-callback-snapshotmd)
+resolves to the section headed `scrollbar-callback-snapshot.md`.
+Run `ckdocs check --config ckdocs.yml --strict` to validate these references
+from the checkout.
+
 ## Native component gallery
 
 The native component gallery is published as part of this documentation site:

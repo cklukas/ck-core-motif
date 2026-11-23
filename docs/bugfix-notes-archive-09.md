@@ -499,7 +499,7 @@ Disabling the control or an ancestor cancels the popup and any pending list
 gesture. Re-enabling before the event loop runs does not revive that gesture or
 permit a pending commit. Dismissal notification runs after the resource update
 returns; destruction removes the pending notification. Provider results may
-still update the model while disabled but cannot reactivate the list. The underlying [List cancellation behavior](list-sensitivity-cancellation.md)
+still update the model while disabled but cannot reactivate the list. The underlying [List cancellation behavior](bugfix-notes-archive-10.md#list-sensitivity-cancellationmd)
 keeps releases from reviving a cancelled selection. Showing
 the popup again is an explicit action after cancellation has completed.
 
@@ -1437,7 +1437,7 @@ bounds. Its cached XImage validates the row stride and checked strip allocation
 before writing pixel data. The obsolete Primitive focus rectangle and text GC
 have been removed.
 Native geometry and rendering are checked by `run-colorpicker-native.py`; see
-[ColorPicker](color-picker.md) for the current interaction contract.
+[ColorPicker](#color-pickermd) for the current interaction contract.
 
 ## `color-picker.md`
 
@@ -1752,7 +1752,7 @@ ColorPicker now delegates text, focus and buttons to native controls. Its only
 custom painting is the passive alpha-aware swatch, clipped to its allocated
 bounds. The obsolete Primitive focus rectangle and text GC have been removed.
 Native geometry and rendering are checked by `run-colorpicker-native.py`; see
-[ColorPicker](color-picker.md) for the current interaction contract.
+[ColorPicker](#color-pickermd) for the current interaction contract.
 
 ## `column-label-name-bounds.md`
 
@@ -2358,7 +2358,7 @@ callbacks or widget ownership.
 
 All operations remain on the owning Xt application thread. The support layer
 does not provide asynchronous dispatch, thread safety, private-record access
-or an implicit event loop. See the [installed support-library reference](cpp-support-library.md)
+or an implicit event loop. See the [installed support-library reference](#cpp-support-librarymd)
 for the release contract and package metadata.
 
 ## Installed-prefix check

@@ -10,7 +10,7 @@ assert "length > SIZE_MAX - 3" in helper
 assert "*size = length + 3" in helper
 assert "*size > UINT_MAX" in helper
 
-mask_start = source.index("XmeGetMask(")
+mask_start = source.index("\nXmeGetScaledMask(")
 mask = source[mask_start:source.index("\n}\n", mask_start) + 2]
 assert "XmMaskNameSize(image_name, &mask_name_size)" in mask
 assert "XtMalloc((Cardinal)mask_name_size)" in mask

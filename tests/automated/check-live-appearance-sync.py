@@ -25,10 +25,16 @@ def fn_body(src: str, anchor: str) -> str:
 recolor = fn_body(appearance, "static void\nappearance_recolor_colorobj_widgets(")
 assert "display_state->transaction_active = True;" in recolor
 assert "ws->explicit_arg[AP_BACKGROUND]" in recolor
-assert "bg_type != XrmStringToQuark(XmRPixel)" in recolor
+assert "AP_BACKGROUND, &bg_val" in recolor
+assert "if (!explicit_bg)" in recolor
 assert "XtSetArg(set_args[0], XmNhighlightColor," in recolor
 
-sync = fn_body(appearance, "static Boolean\nappearance_live_sync_work(")
+lookup = fn_body(appearance, "static Boolean\nappearance_database_value(")
+assert "appearance_database_named_value(" in lookup
+named_lookup = fn_body(appearance, "static Boolean\nappearance_database_named_value(")
+assert "if (type == XrmStringToQuark(XmRPixel))\n                    return False;" in named_lookup
+
+sync = fn_body(appearance, "static void\nappearance_live_sync_timer(")
 pin_idx = sync.index("state->profile_api_selected = True;")
 apply_idx = sync.index("apply_appearance_settings(display, target_prof, target_dens, True)")
 clear_idx = sync.rindex("state->profile_api_selected = False;")
