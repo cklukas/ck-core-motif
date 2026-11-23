@@ -117,10 +117,13 @@ runtime path with `--fixture`, `--prefix`, `--out` and `--runtime`. The observer
 records the actual process/library identities, utterances and generated PCM
 without an audio device or user preference changes. Covered native controls
 include buttons, toggles, editable/read-only Unicode text, selection, native
-list/list-items, menu/menu-items, Disclosure and ScrollBar. The bounded journey
-asserts list/menu announcements but does not qualify complete list/menu
-semantics across desktop/application shells, precise edit notifications,
-custom-provider layout, a complete application or human usability.
+list/list-items, menu/menu-items, Disclosure and ScrollBar. The journey compares
+keyboard List selection with AT-SPI selection, opens and dismisses a native
+menu before activating its item with Return, and checks keyboard Text and
+TextField edits against scalar offsets, contents, and exact AT-SPI
+`TextChanged` payloads. Speech assertions cover menu and list presentation
+and selected editor content. Coverage is scoped to the fixture and the
+recorded screen reader, display, and speech backend.
 
 
 `text_events.c` and `observe_text_events.py` exercise native Text/TextField and

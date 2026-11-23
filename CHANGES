@@ -1,3 +1,11 @@
+Verify native menu, list, and editing journeys with Orca (2026-11-23)
+===================================================================
+
+- Run the screen-reader fixture against installed Motif ABI 9 with Orca 50
+  support. Check native keyboard menu activation, List/AT-SPI selection
+  agreement, and exact Text and TextField edit events alongside announcements
+  and synthesized speech.
+
 Scale classic Motif grips, arrow controls, and selection layouts (2026-11-23)
 ===========================================================================
 

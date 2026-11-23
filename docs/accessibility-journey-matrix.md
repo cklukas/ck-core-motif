@@ -8,9 +8,9 @@ technology behavior. A provider fixture is not a screen-reader pass by itself.
 
 | Surface | Native/provider evidence | Real-client status | Open boundary |
 | --- | --- | --- | --- |
-| MenuBar, PulldownMenu, PopupMenu | Roles, names, expansion and activation fixtures pass on AArch64 | Bounded Orca path announces menu and item during F10/open/dismiss | Complete menu navigation and item announcements across desktop WMs and application shells. |
-| List and ListItem | Identity, names, selection, stale-target refusal, actions and reentrancy pass | Bounded Orca journey announces the list and selected items | Complete list semantics across desktop WMs and application shells. |
-| Text and TextField | UTF-8 value, caret, selection, preedit and exact text-event fixtures pass | Focused native text observer | Actual screen-reader echo and complete editing notifications. |
+| MenuBar, PulldownMenu, PopupMenu | Roles, names, expansion and activation fixtures pass on AArch64 | Orca announces the pulldown and item during open, keyboard navigation, Escape and Return | Application popup journeys and additional window managers. |
+| List and ListItem | Identity, names, selection, stale-target refusal, actions and reentrancy pass | Orca announces the list and both rows during a native selection change. The selected child matches the native List position. | Additional desktop and application shells. |
+| Text and TextField | UTF-8 value, caret, selection, preedit and exact text-event fixtures pass | Keyboard insertion, selection, replacement and deletion match exact AT-SPI offsets and payloads under Orca. Speech checks include the current line, selection and resulting title. | Speech echo for every edit command, IMEs and other screen readers. |
 | Dialog and modality | Modal admission, focus/value/selection refusal, nested and destruction cases pass | Native input journey | Application-specific dialog announcements and WM behavior. |
 | Disclosure | Role, expanded state, action and destruction fixtures pass | Focused provider journey | Broad assistive-client interaction. |
 | ScrollBar | Value, orientation, range and action fixtures pass | Focused provider journey | Screen-reader presentation and continuous adjustment semantics. |
@@ -21,6 +21,16 @@ screen-readers, candidate panels, actual application workflows, or clean
 sanitizer exit ownership. The detailed provider and lifetime contracts remain
 in `docs/accessibility.md`; aggregate admission limits remain in
 `docs/status.md`.
+
+## ABI 9 keyboard and speech journey
+
+On Ubuntu 26.04 AArch64, the installed ABI 9 fixture runs with Orca 50,
+Speech Dispatcher and eSpeak-NG on a private Xvfb display and AT-SPI bus.
+The test activates a native menu item with Return, checks List selection with
+an independent D-Bus client, and verifies the contents and precise edit events
+of a native Text and TextField. The receipt includes the exact library and
+fixture fingerprints, keyboard steps, event payloads, speech output and
+synthesized PCM.
 
 ## 2026-10-25 native Orca/eSpeak receipt
 

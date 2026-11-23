@@ -79,7 +79,7 @@ env.update(SPEECHD_ADDRESS='unix_socket:'+str(root/'spd.sock'),ALSA_CONFIG_PATH=
 (root/'config/modules/espeak-ng.conf').write_text(pathlib.Path('/etc/speech-dispatcher/modules/espeak-ng.conf').read_text().replace('Debug 0','Debug 1',1))
 (root/'alsa.conf').write_text('pcm.capture { type file slave.pcm { type null } file "'+str(root/'speech.raw')+'" format "raw" }\n')
 (root/'config/speechd.conf').write_text('LogLevel 5\nLogDir "'+str(root/'logs')+'"\nAddModule "espeak-ng" "/usr/lib/speech-dispatcher-modules/sd_espeak-ng" "'+str(root/'config/modules/espeak-ng.conf')+'"\nDefaultModule "espeak-ng"\nDefaultLanguage "en-US"\nAudioOutputMethod "alsa"\nAudioALSADevice "capture"\nDisableAutoSpawn\n')
-record={'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'display':env['DISPLAY'],'session_bus':env['DBUS_SESSION_BUS_ADDRESS'],'processes_before':users,'steps':[],'orchestration_completed':False,'native_semantic_acceptance':False,'scope':'Actual Orca client and native eSpeak-NG synthesis against isolated native controls; no application or human usability qualification.'}
+record={'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'display':env['DISPLAY'],'session_bus':env['DBUS_SESSION_BUS_ADDRESS'],'processes_before':users,'steps':[],'orchestration_completed':False,'scope':'Orca and eSpeak-NG with native Motif menu, list, and text editing on an isolated X11 display.'}
 processes=[]
 def launch(args,name,**kw):
  p=subprocess.Popen(args,env=env,stdout=kw.pop('stdout',(root/(name+'.stdout')).open('w')),stderr=(root/(name+'.stderr')).open('w'),start_new_session=True,**kw)
@@ -136,8 +136,13 @@ try:
   if (root/'spd.sock').exists():break
   if speech.poll() is not None:raise RuntimeError('Speech server exited')
   time.sleep(.05)
- run(['orca','--help'],'orca-help')
- orca=launch(['orca','--user-prefs',str(root/'orca-prefs'),'--debug-file',str(root/'orca.debug'),'--speech-system','speechdispatcherfactory','--enable','speech','--disable','braille,sound'],'orca')
+ orca_help=run(['orca','--help'],'orca-help')
+ orca_command=['orca','--debug-file',str(root/'orca.debug'),
+               '--speech-system','speechdispatcherfactory']
+ if '--user-prefs' in orca_help:
+  orca_command.extend(['--user-prefs',str(root/'orca-prefs'),
+                       '--enable','speech','--disable','braille,sound'])
+ orca=launch(orca_command,'orca')
  time.sleep(3)
  if orca.poll() is not None:raise RuntimeError('Orca exited '+str(orca.returncode))
  fixture=launch([env.get('ORCA_TEST_FIXTURE',str(base/'native-controls'))],'fixture',stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True,bufsize=1)
@@ -149,10 +154,10 @@ try:
  for line in (pathlib.Path('/proc')/str(fixture.pid)/'maps').read_text().splitlines():
   path=line.split()[-1]
   if '/libXm.so.' in path and path not in mapped:mapped.append(path)
- # CK Core Motif's installed ABI is libXm.so.8.  Keep this identity check
+ # CK Core Motif's installed ABI is libXm.so.9.  Keep this identity check
  # aligned with the public ABI contract; accepting an older SONAME here would
  # allow the observer to report a pass against a different toolkit.
- expected_library=(pathlib.Path(env['ORCA_TEST_PREFIX'])/'lib/libXm.so.8').resolve(strict=True)
+ expected_library=(pathlib.Path(env['ORCA_TEST_PREFIX'])/'lib/libXm.so.9').resolve(strict=True)
  if len(mapped)!=1 or pathlib.Path(mapped[0]).resolve(strict=True)!=expected_library:raise RuntimeError('Unexpected toolkit mapping: '+repr(mapped))
  record['runtime_identity']={'executable':str(actual_executable),'executable_sha256':hashlib.sha256(actual_executable.read_bytes()).hexdigest(),'library':str(expected_library),'library_sha256':hashlib.sha256(expected_library.read_bytes()).hexdigest()}
  if shutil.which('dpkg-query'):
@@ -168,23 +173,83 @@ try:
  gi.require_version('Gio','2.0')
  from gi.repository import Gio,GLib
  connection=Gio.DBusConnection.new_for_address_sync(address,Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT|Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION,None,None)
- def protocol(method,signature,args,node='editor'):
-  result=connection.call_sync(ids['bus'],'/org/a11y/atspi/accessible/'+str(ids[node]['accessible']),'org.a11y.atspi.Text',method,GLib.Variant(signature,args),None,Gio.DBusCallFlags.NONE,8000,None).unpack()
-  record.setdefault('protocol',[]).append({'method':method,'args':args,'result':result})
+ def object_path(node):
+  return '/org/a11y/atspi/accessible/'+str(ids[node]['accessible'])
+ def protocol(method,signature,args,node='editor',interface='Text'):
+  parameters=GLib.Variant(signature,args) if signature else None
+  result=connection.call_sync(ids['bus'],object_path(node),'org.a11y.atspi.'+interface,
+      method,parameters,None,Gio.DBusCallFlags.NONE,8000,None).unpack()
+  record.setdefault('protocol',[]).append({'node':node,'method':method,'args':args,'result':result})
   return result
+ text_events=[]
+ def text_changed(_connection,_sender,path,_interface,_member,parameters,_data):
+  detail,offset,length,payload,_properties=parameters.unpack()
+  text_events.append((path,detail,offset,length,payload))
+ subscription=connection.signal_subscribe(ids['bus'],'org.a11y.atspi.Event.Object',
+     'TextChanged',None,None,Gio.DBusSignalFlags.NONE,text_changed,None)
+ context=GLib.MainContext.default()
+ def take_text_events(node):
+  while context.pending():
+   context.iteration(False)
+  path=object_path(node)
+  actual=[event[1:] for event in text_events if event[0]==path]
+  record.setdefault('native_text_events',[]).append({'node':node,'events':actual})
+  text_events.clear()
+  return actual
+ def expect_text_events(node,expected):
+  actual=take_text_events(node)
+  assert actual==expected,(node,expected,actual)
  run(['xdotool','windowactivate','--sync',str(ids['shell'])]);time.sleep(2)
  offsets=[0]
  click('button');key('activate-button','space')
  key('tab-toggle','Tab');key('toggle-grid','space')
  click('title');key('title-end','End');step('type-title',['xdotool','type','--clearmodifiers',' report'])
+ assert protocol('GetText','(ii)',(0,-1),node='title')==('Quarterly notes report',)
+ assert bytes.fromhex(snapshot(fixture)['title']).decode()=='Quarterly notes report'
+ title_events=take_text_events('title')
+ title_offset=len('Quarterly notes')
+ for detail,offset,length,payload in title_events:
+  assert detail=='insert' and offset==title_offset and length==len(payload),title_events
+  title_offset+=length
+ assert ''.join(event[3] for event in title_events)==' report',title_events
  click('readonly')
- click('editor');key('editor-home','Home');key('editor-right','Right');key('editor-select','shift+Right')
+ click('editor');key('editor-home','Home')
+ while context.pending():
+  context.iteration(False)
+ text_events.clear()
+ key('editor-select','shift+Right')
  assert protocol('GetNSelections','()',())==(1,)
- assert protocol('GetSelection','(i)',(0,))==(1,2)
- click('list');key('list-next','Down')
+ assert protocol('GetSelection','(i)',(0,))==(0,1)
+ key('editor-replace','x')
+ assert protocol('GetText','(ii)',(0,-1))==('xello é 中 🙂',)
+ expect_text_events('editor',[('delete',0,1,'H'),('insert',0,1,'x')])
+ key('editor-delete','BackSpace')
+ assert protocol('GetText','(ii)',(0,-1))==('ello é 中 🙂',)
+ expect_text_events('editor',[('delete',0,1,'x')])
+ key('editor-insert','shift+h')
+ assert protocol('GetText','(ii)',(0,-1))==('Hello é 中 🙂',)
+ expect_text_events('editor',[('insert',0,1,'H')])
+ connection.signal_unsubscribe(subscription)
+ click('list')
+ assert snapshot(fixture)['list_selection']==1
+ key('list-next','Down')
+ assert snapshot(fixture)['list_selection']==2
+ selected,=protocol('GetSelectedChild','(i)',(0,),node='list',interface='Selection')
+ name=connection.call_sync(selected[0],selected[1],'org.freedesktop.DBus.Properties',
+     'Get',GLib.Variant('(ss)',('org.a11y.atspi.Accessible','Name')),None,
+     Gio.DBusCallFlags.NONE,8000,None).unpack()
+ assert name==('Beta',),name
  click('disclosure');key('disclosure-collapse','space');key('disclosure-expand','space')
  click('scrollbar');key('scroll-right','Right')
- key('menu-bar','F10');key('menu-open','Down');key('menu-dismiss','Escape')
+ click('file')
+ key('menu-next','Down')
+ key('menu-dismiss','Escape')
+ before_menu=snapshot(fixture)['activations']
+ click('file')
+ key('menu-next-again','Down')
+ key('menu-activate','Return')
+ assert snapshot(fixture)['activations']==before_menu+1
+ record['native_menu_list_editing_passed']=True
  time.sleep(1)
  record['final_snapshot']=snapshot(fixture)
  fixture.stdin.write('set-boundary\n');fixture.stdin.flush();read(fixture)
@@ -220,16 +285,30 @@ finally:
  debug=(root/'orca.debug').read_text(errors='replace') if (root/'orca.debug').exists() else ''
  record['utterances']=[line for line in debug.splitlines() if 'SPEECH OUTPUT:' in line or 'SPEECH DISPATCHER: Speaking' in line]
  record['errors']=[line for line in debug.splitlines() if any(x in line for x in ('Traceback','ERROR:','CRITICAL','Exception'))]
- outputs=[line.split('SPEECH OUTPUT:',1)[1] for line in record['utterances'] if 'SPEECH OUTPUT:' in line]
- expected=['Apply changes button','Show grid check box','checked','Document title text','Quarterly notes','Read only status read only text','Ready','Document editor text','Hello é 中 🙂','selected','Document choices List with 3 items','Alpha.','Beta.','fileMenu menu','Open document.','expanded','collapsed','Zoom level horizontal scroll bar']
- record['required_utterances']={phrase:any(phrase in line for line in outputs) for phrase in expected}
+ outputs=[line.split('SPEECH OUTPUT:',1)[1].split(' {',1)[0].strip(" '\"")
+          for line in record['utterances'] if 'SPEECH OUTPUT:' in line]
+ speech=' '.join(line.strip('.!? ') for line in outputs).casefold()
+ expected=['Apply changes button','Show grid check box','checked','Document title text',
+           'Quarterly notes report','Read only status read only text','Ready',
+           'Document editor text','Hello é 中 🙂','selected','Document choices List with 3 items',
+           'Alpha','Beta','fileMenu menu','Open document','expanded','collapsed',
+           'Zoom level horizontal scroll bar']
+ record['required_utterances']={phrase:phrase.casefold() in speech for phrase in expected}
  record['synthesis_connected']=any('SPEECH DISPATCHER: Speaking' in line for line in record['utterances'])
- record['unaccepted_scope']=['complete List/Menu semantics across desktop/application shells','precise TextChanged insertion/deletion echo','character geometry','human screen-reader usability','application integration']
+ record['unaccepted_scope']=['complete List/Menu semantics across desktop/application shells',
+     'speech for every edit operation','character geometry','human screen-reader usability',
+     'application integration']
 
  pcm=root/'speech.raw'
  record.update(ended_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),seconds=time.monotonic()-began,pcm_bytes=pcm.stat().st_size if pcm.exists() else 0,pcm_sha256=hashlib.sha256(pcm.read_bytes()).hexdigest() if pcm.exists() else None,process_exits=[{'pid':p.pid,'exit':p.poll()} for p in processes])
- record['native_chrome_baseline_passed']=bool(record['orchestration_completed'] and record.get('boundary_cache_protocol_passed') and record['synthesis_connected'] and record['pcm_bytes']>0 and not record['errors'] and all(record['required_utterances'].values()))
+ record['native_journeys_passed']=bool(
+     record['orchestration_completed'] and record.get('boundary_cache_protocol_passed')
+     and record.get('native_menu_list_editing_passed') and record['synthesis_connected']
+     and record['pcm_bytes']>0 and not record['errors']
+     and all(record['required_utterances'].values()))
  (root/'receipt.json').write_text(json.dumps(record,ensure_ascii=False,indent=2)+'\n')
- print(json.dumps({'native_chrome_baseline_passed':record['native_chrome_baseline_passed'],'orchestration_completed':record['orchestration_completed'],'native_semantic_acceptance':False,'utterances':len(record['utterances']),'pcm_bytes':record['pcm_bytes'],'errors':record['errors'][-8:]},indent=2))
+ print(json.dumps({'native_journeys_passed':record['native_journeys_passed'],
+     'utterances':len(record['utterances']),'pcm_bytes':record['pcm_bytes'],
+     'errors':record['errors'][-8:]},indent=2))
 
-if not record['native_chrome_baseline_passed']:raise SystemExit(1)
+if not record['native_journeys_passed']:raise SystemExit(1)

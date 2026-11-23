@@ -34,14 +34,26 @@ static void print_hex(const char *text)
 static void snapshot(void)
 {
     int value, slider, increment, page;
+    int *positions = NULL, count = 0, selection = 0;
     char *content = XmTextGetString(editor);
+    char *title_text = XmTextFieldGetString(title);
+    if (XmListGetSelectedPos(list, &positions, &count) && count == 1)
+        selection = positions[0];
+    XtFree((char *)positions);
     XmScrollBarGetValues(scrollbar, &value, &slider, &increment, &page);
     printf("{\"connected\":%s,\"activations\":%u,\"checked\":%s,\"expanded\":%s,\"scroll\":%d,\"text\":\"",
         XmAccessibilityGetStatus(accessibility) == XmACCESSIBILITY_CONNECTED ? "true" : "false",
         activations, XmToggleButtonGetState(toggle) ? "true" : "false",
         XmDisclosureGetExpanded(disclosure) ? "true" : "false", value);
-    print_hex(content); printf("\",\"caret\":%ld,\"focus\":\"%s\"}\n", (long)XmTextGetInsertionPosition(editor), XmGetFocusWidget(shell) ? XtName(XmGetFocusWidget(shell)) : "");
-    XtFree(content); fflush(stdout);
+    print_hex(content);
+    printf("\",\"title\":\"");
+    print_hex(title_text);
+    printf("\",\"caret\":%ld,\"list_selection\":%d,\"focus\":\"%s\"}\n",
+           (long)XmTextGetInsertionPosition(editor), selection,
+           XmGetFocusWidget(shell) ? XtName(XmGetFocusWidget(shell)) : "");
+    XtFree(title_text);
+    XtFree(content);
+    fflush(stdout);
 }
 static void input(XtPointer closure, int *fd, XtInputId *id)
 {
