@@ -34,7 +34,7 @@ static char rcsid[] = "$XConsortium: TearOffB.c /main/12 1996/03/06 17:09:22 pas
 #endif
 
 
-#include <Xm/DrawP.h>
+#include "DrawI.h"
 #include <Xm/RowColumnP.h>
 #include <Xm/TearOffBP.h>
 #include <Xm/TraitP.h>
@@ -42,6 +42,7 @@ static char rcsid[] = "$XConsortium: TearOffB.c /main/12 1996/03/06 17:09:22 pas
 #include <Xm/TransltnsP.h>
 #include "MapEventsI.h"
 #include "MessagesI.h"
+#include "RCLayoutI.h"
 #include "RCMenuI.h"
 #include "RepTypeI.h"
 #include "TearOffI.h"
@@ -55,6 +56,7 @@ static void HeightDefault(
                         XrmValue *value) ;
 static void GetSeparatorGC(
                         XmTearOffButtonWidget tob) ;
+static void ScaleChanged(Widget, double, double, XtPointer);
 
 static void Initialize( 
                         Widget rw,
@@ -266,11 +268,12 @@ HeightDefault(
         int offset,		/* unused */
         XrmValue *value )
 {
-      static Dimension default_height = DEFAULT_HEIGHT ;
+      static _Thread_local Dimension default_height;
       XmTearOffButtonWidget tob = (XmTearOffButtonWidget)widget;
 
       if (tob == NULL || value == NULL)
 	 return;
+      default_height = _XmDpiDefaultDimension(widget, DEFAULT_HEIGHT);
       value->addr = (XPointer) &default_height;
       tob->tear_off_button.set_recompute_size = True;
 }
@@ -297,8 +300,9 @@ GetSeparatorGC(
    if (tob -> tear_off_button.separator_type == XmSINGLE_DASHED_LINE ||
        tob -> tear_off_button.separator_type == XmDOUBLE_DASHED_LINE)
    {
-      valueMask = valueMask | GCLineStyle;
+      valueMask |= GCLineStyle | GCDashList;
       values.line_style = LineDoubleDash;
+      values.dashes = (char)MIN(_XmDpiDefaultDimension((Widget)tob, 4), 127);
    }
 
    tob->tear_off_button.separator_GC = 
@@ -373,6 +377,25 @@ Initialize(
        new_w->tear_off_button.set_recompute_size = False ;
    } else
        new_w->label.recompute_size = False;
+
+   (void)_XmRegisterScaleChange(nw, ScaleChanged, NULL);
+}
+
+static void
+ScaleChanged(Widget w, double old_scale, double new_scale, XtPointer closure)
+{
+    XmTearOffButtonWidget tob = (XmTearOffButtonWidget)w;
+    Widget menu = XtParent(w);
+    (void)old_scale;
+    (void)new_scale;
+    (void)closure;
+
+    XtReleaseGC(w, tob->tear_off_button.separator_GC);
+    GetSeparatorGC(tob);
+    if (XmIsRowColumn(menu) && RC_TearOffControl(menu) == w)
+        _XmRCAdaptToSize((XmRowColumnWidget)menu, NULL, NULL);
+    if (XtIsRealized(w))
+        XClearArea(XtDisplay(w), XtWindow(w), 0, 0, 0, 0, True);
 }
 
 /************************************************************************
@@ -403,7 +426,7 @@ Redisplay(
 	    2U * (unsigned int)tob->primitive.highlight_thickness &&
 	    (unsigned int)tob->core.height >
 	    2U * (unsigned int)tob->primitive.highlight_thickness)
-	    XmeDrawSeparator(XtDisplay(tob), XtWindow(tob),
+	    _XmDrawSeparatorWithDash(XtDisplay(tob), XtWindow(tob),
 			     tob->primitive.top_shadow_GC,
 			     tob->primitive.bottom_shadow_GC,
 			     tob->tear_off_button.separator_GC,
@@ -416,7 +439,9 @@ Redisplay(
 			     tob->primitive.shadow_thickness,
 			     tob->tear_off_button.margin,
 			     tob->tear_off_button.orientation,
-			     tob->tear_off_button.separator_type);
+			     tob->tear_off_button.separator_type,
+			     _XmDpiDefaultDimension(wid,
+			         tob->primitive.shadow_thickness < 2 ? 5 : 6));
 
 	/* envelop primitive expose method for highlight */
 

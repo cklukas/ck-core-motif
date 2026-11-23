@@ -46,6 +46,26 @@ enlarging the outer `XmScrolledWindow`. The installed
 `tests/automated/run-display-scale-override.py` fixtures verify 1x/1.5x/2x/3x
 construction, live expansion, reversible reset, and explicit-size preservation.
 
+Classic and high-contrast profiles also scale the following control metrics:
+
+- `XmPanedWindow` and `XmPaned` scale their default sash width and height and
+  update the existing sash children. Explicit `sashWidth` and `sashHeight`
+  remain device dimensions.
+- `XmArrowButton` and `XmArrowButtonGadget` scale the 15-pixel default
+  interior. An axis set to zero resumes automatic sizing.
+- Default cascade pixmaps have a DPI-scaled arrow size floor. Menu entries
+  retain application-supplied `cascadePixmap` values. Tear-off controls scale
+  their dash lengths and the minimum automatic height used by menu layout.
+- `XmNotebook` scales its default binding width, back-page size and tab
+  spacing. `XmCommand` and `XmFileSelectionBox` reflow their children with
+  scaled default margins. Explicit allocations remain in effect during the
+  transaction.
+
+The installed matrix checks both profiles on Xvfb, including the sash child
+geometry, cascade pixmap dimensions, rendered tear-off dashes, Notebook page
+selection, dialog editor contents, and restoration at 1x. It supplies
+explicit dimensions through both Xt arguments and Xrm.
+
 The installed consumer fixture is
 `tests/automated/run-display-scale-override.py`.  It checks invalid values,
 per-display retention, resource-database identity, default indicator scaling,

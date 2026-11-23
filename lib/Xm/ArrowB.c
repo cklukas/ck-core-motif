@@ -76,7 +76,6 @@ static void Initialize(
 static void GetArrowGC( 
                         XmArrowButtonWidget aw);
 
-static Dimension AddDefaultDimension(Dimension value);
 static void Redisplay( 
                         Widget wid,
                         XEvent *event,
@@ -329,10 +328,13 @@ Initialize(
   
   
   /*  Set up a geometry for the widget if it is currently 0.  */
-  if (request->core.width == 0) 
-    new_w->core.width = AddDefaultDimension(new_w->core.width);
-  if (request->core.height == 0) 
-    new_w->core.height = AddDefaultDimension(new_w->core.height);
+  if (request->core.width == 0 || request->core.height == 0) {
+    Dimension extent = _XmAppearanceArrowExtent(nw, XmAPPEARANCE_CLASSIC,
+        XmAPPEARANCE_DENSITY_COMFORTABLE, new_w->primitive.highlight_thickness,
+        new_w->primitive.shadow_thickness);
+    if (request->core.width == 0) new_w->core.width = extent;
+    if (request->core.height == 0) new_w->core.height = extent;
+  }
   
   
   /*  Set the internal arrow variables  */
@@ -344,12 +346,6 @@ Initialize(
   GetArrowGC (new_w);
 }
 
-static Dimension
-AddDefaultDimension(Dimension value)
-{
-  return value > (Dimension)(USHRT_MAX - 15) ?
-      (Dimension)USHRT_MAX : (Dimension)(value + 15);
-}
 
 /************************************************************************
  *

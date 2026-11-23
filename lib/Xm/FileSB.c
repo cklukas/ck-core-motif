@@ -153,6 +153,7 @@ static void ListFix(
                         XmKidGeometry rowPtr) ;
 static void UpdateHorizPos( 
                         Widget wid) ;
+static void ScaleChanged(Widget, double, double, XtPointer);
 static void FileSearchProc( 
                         Widget w,
                         XtPointer sd) ;
@@ -894,6 +895,7 @@ Initialize(
     {   XtManageChildren( new_w->composite.children, 
                                                  new_w->composite.num_children) ;
         } 
+    (void)_XmRegisterScaleChange(nw, ScaleChanged, NULL);
     return ;
     }
 
@@ -988,6 +990,18 @@ ChangeManaged(
   (*change_managed)( wid) ;
 
   UpdateHorizPos( wid) ;
+}
+
+static void
+ScaleChanged(Widget widget, double old_scale, double new_scale, XtPointer closure)
+{
+  (void)old_scale;
+  (void)new_scale;
+  (void)closure;
+  if (!XtIsRealized(widget))
+    return;
+  _XmBulletinBoardRelayoutForScale(widget);
+  UpdateHorizPos(widget);
 }
 
 
@@ -2922,7 +2936,10 @@ SetValues(
 
     if(    XtClass( new_w) == xmFileSelectionBoxWidgetClass    )
     {   
-        _XmBulletinBoardSizeUpdate( (Widget) new_w) ;
+        if (_XmAppearanceInGeometryTransaction(XtDisplay(nw)))
+            _XmBulletinBoardRelayoutForScale(nw);
+        else
+            _XmBulletinBoardSizeUpdate(nw);
 
         UpdateHorizPos( (Widget) new_w) ;
         }

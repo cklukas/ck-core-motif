@@ -1,3 +1,13 @@
+Scale classic Motif grips, arrow controls, and selection layouts (2026-11-23)
+===========================================================================
+
+- Scale toolkit-owned sash dimensions, ArrowButton interiors, cascade
+  pixmaps, tear-off dashes, Notebook binding and tab spacing, and Command
+  and FileSelectionBox margins at construction and during display reflow.
+- Preserve explicit dimensions and cascade pixmaps during scale changes.
+  Relayout selection controls inside an explicit allocation and keep the
+  Notebook's current page and the contents of active editors.
+
 Restore static source contracts and documentation archive links (2026-11-23)
 ===========================================================================
 

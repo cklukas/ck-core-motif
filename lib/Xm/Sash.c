@@ -234,10 +234,14 @@ Initialize(
 {
         XmSashWidget request = (XmSashWidget) rw ;
         XmSashWidget new_w = (XmSashWidget) nw ;
+  Dimension maximum = (Dimension)~(Dimension)0;
+  unsigned long extent = _XmDpiDefaultDimension(nw, SASHSIZE) +
+      2UL * ((unsigned long)new_w->primitive.highlight_thickness +
+             new_w->primitive.shadow_thickness);
   if (request->core.width == 0)
-     new_w->core.width += SASHSIZE;
+     new_w->core.width = (Dimension)MIN(extent, maximum);
   if (request->core.height == 0)
-     new_w->core.height += SASHSIZE;
+     new_w->core.height = (Dimension)MIN(extent, maximum);
   new_w->sash.has_focus = False;
 }
 

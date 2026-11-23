@@ -259,6 +259,7 @@ extern Boolean _XmRegisterScaleChange(Widget widget,
 extern void _XmUnregisterScaleChange(Widget widget,
                                      _XmScaleChangeProc proc,
                                      XtPointer closure);
+extern Boolean _XmScaleChangeInProgress(Display *display);
 extern Boolean _XmApplyScaleChange(Display *display,
                                    double old_scale,
                                    double new_scale);

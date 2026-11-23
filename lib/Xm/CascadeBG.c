@@ -2184,6 +2184,47 @@ MenuBarLeave(
  * make sure arrow cache is sync'd up as well as not accidentally overwriting
  * application's pixmap arrow if set.
  */
+static Dimension
+CascadeArrowExtent(Widget widget, Dimension text_height, int highlight, int shadow)
+{
+   unsigned long interior = MAX((unsigned long)text_height * 2 / 3,
+                                _XmDpiDefaultDimension(widget, 8));
+   unsigned long extent = interior + 2UL * (highlight + shadow);
+   return (Dimension)MIN(extent, (Dimension)~(Dimension)0);
+}
+
+Boolean
+_XmCascadeArrowNeedsResize(Widget widget)
+{
+   if (XmIsGadget(widget))
+      return CBG_ArmedPixmap(widget) != XmUNSPECIFIED_PIXMAP &&
+         CBG_Cascade_width(widget) != CascadeArrowExtent(widget,
+             LabG_TextRect_height(widget), G_HighlightThickness(widget),
+             G_ShadowThickness(widget));
+
+   return CB_ArmedPixmap(widget) != XmUNSPECIFIED_PIXMAP &&
+      CB_Cascade_width(widget) != CascadeArrowExtent(widget,
+          Lab_TextRect_height(widget),
+          ((XmCascadeButtonWidget)widget)->primitive.highlight_thickness,
+          ((XmCascadeButtonWidget)widget)->primitive.shadow_thickness);
+}
+
+void
+_XmCascadeArrowScaleChanged(Widget widget, double old_scale, double new_scale,
+                            XtPointer closure)
+{
+   int map_delay;
+   (void)old_scale;
+   (void)new_scale;
+   (void)closure;
+   if (!_XmCascadeArrowNeedsResize(widget))
+      return;
+
+   /* Run normal SetValues so the gadget cache is detached and re-interned. */
+   XtVaGetValues(widget, XmNmappingDelay, &map_delay, NULL);
+   XtVaSetValues(widget, XmNmappingDelay, map_delay, NULL);
+}
+
 void 
 _XmCreateArrowPixmaps(
         Widget wid )
@@ -2261,8 +2302,7 @@ _XmCreateArrowPixmaps(
       depth = cb->core.depth;
    }
 
-   side = MAX( (text_height * 2 / 3) + 2 * (ht + st),
-	      (2*(ht + (st-1) +1)) +1 );       /* see _XmGetArrowDrawRects() */
+   side = CascadeArrowExtent(wid, text_height, ht, st);
 
    cpart.height = cpart.width = side;
    cpart.depth = depth;
@@ -2930,6 +2970,12 @@ SetValues(
        if (LabG_RecomputeSize(new_w) || (requested->rectangle.height <= 0))
 	  adjustHeight = TRUE;
 
+       Boolean resize_arrow = _XmCascadeArrowNeedsResize((Widget)new_w);
+       if (resize_arrow) {
+          adjustWidth = adjustWidth && !_XmAppearanceDimensionConstrained(nw, 0);
+          adjustHeight = adjustHeight && !_XmAppearanceDimensionConstrained(nw, 1);
+       }
+
        /* get new pixmap size */
        if (CBG_CascadePixmap (old) != CBG_CascadePixmap (new_w))
        {
@@ -2947,7 +2993,8 @@ SetValues(
 	       (((CBG_CascadePixmap(new_w) ==  XmUNSPECIFIED_PIXMAP) &&
 		 (!CBG_Submenu(old) && CBG_Submenu(new_w))) ||
 	        ((CBG_ArmedPixmap(old) != XmUNSPECIFIED_PIXMAP) &&
-		 ((LabG_TextRect_height(old) != LabG_TextRect_height(new_w)) ||
+		 (resize_arrow ||
+		  (LabG_TextRect_height(old) != LabG_TextRect_height(new_w)) ||
 		  (LabG_Foreground(old) != LabG_Foreground(new_w)) ||
 		  (LabG_Background(old) != LabG_Background(new_w)) ||
 		  (LabG_TopShadowColor(old) != LabG_TopShadowColor(new_w)) ||
@@ -3214,6 +3261,7 @@ Initialize(
        XmFOCUS_IN_EVENT | XmFOCUS_OUT_EVENT |
 	   XmENTER_EVENT | XmLEAVE_EVENT | XmHELP_EVENT;
 
+   (void)_XmRegisterScaleChange(nw, _XmCascadeArrowScaleChanged, NULL);
 }
 
 

@@ -34,6 +34,8 @@
 #include <Xm/PrimitiveP.h>
 #include <Xm/GadgetP.h>
 #include <Xm/NotebookP.h>
+#include <Xm/Command.h>
+#include <Xm/FileSB.h>
 #include <Xm/SegmentedControl.h>
 #include <Xm/FontS.h>
 #include <Xm/InfoBar.h>
@@ -518,6 +520,8 @@ typedef enum {
     AP_SASH_WIDTH,
     AP_SASH_HEIGHT,
     AP_SASH_SHADOW_THICKNESS,
+    AP_MAJOR_TAB_SPACING,
+    AP_MINOR_TAB_SPACING,
     AP_COUNT
 } AppearanceProperty;
 
@@ -560,6 +564,7 @@ typedef struct {
     XmRenderTable observed_font;
     double font_scale;
     unsigned char font_role;
+    Boolean classic_scale_only;
     Boolean arrow_geometry;
     Dimension arrow_extent;
     Boolean scrollbar_geometry;
@@ -719,7 +724,8 @@ appearance_property_name(AppearanceProperty property)
         XmNhorizontalMargin, XmNverticalMargin, XmNiconTextPadding, XmNalignment,
         XmNformSectionMarginWidth, XmNformSectionMarginHeight, XmNformSectionSpacing,
         XmNavatarSize, XmNdividerSpacing, XmNoutlineLineStyle, XmNindentSpace,
-        XmNsashWidth, XmNsashHeight, XmNsashShadowThickness
+        XmNsashWidth, XmNsashHeight, XmNsashShadowThickness,
+        XmNmajorTabSpacing, XmNminorTabSpacing
     };
     return names[property];
 }
@@ -743,7 +749,8 @@ appearance_property_is_dimension(AppearanceProperty property)
            property == AP_SECTION_SPACING || property == AP_AVATAR_SIZE ||
            property == AP_DIVIDER_SPACING || property == AP_OUTLINE_INDENT_SPACE ||
            property == AP_SASH_WIDTH || property == AP_SASH_HEIGHT ||
-           property == AP_SASH_SHADOW_THICKNESS;
+           property == AP_SASH_SHADOW_THICKNESS ||
+           property == AP_MAJOR_TAB_SPACING || property == AP_MINOR_TAB_SPACING;
 }
 
 static Boolean
@@ -2235,6 +2242,34 @@ appearance_scrollbar_thickness(XmAppearanceWidgetState *state,
     return (Dimension)MIN(total, USHRT_MAX);
 }
 
+static Boolean
+appearance_scales_classic_metric(Widget widget, AppearanceProperty property)
+{
+    switch (property) {
+    case AP_SASH_WIDTH:
+    case AP_SASH_HEIGHT:
+        return XmIsPanedWindow(widget) || XtIsSubclass(widget, xmPanedWidgetClass);
+    case AP_BINDING_WIDTH:
+    case AP_BACK_PAGE_SIZE:
+    case AP_MAJOR_TAB_SPACING:
+    case AP_MINOR_TAB_SPACING:
+        return XmIsNotebook(widget);
+    case AP_MARGIN_WIDTH:
+    case AP_MARGIN_HEIGHT:
+        return XmIsCommand(widget) || XmIsFileSelectionBox(widget);
+    default:
+        return False;
+    }
+}
+
+static Boolean
+appearance_has_classic_scale_geometry(Widget widget)
+{
+    return XmIsArrowButton(widget) || XmIsArrowButtonGadget(widget) ||
+        XmIsPanedWindow(widget) || XtIsSubclass(widget, xmPanedWidgetClass) ||
+        XmIsNotebook(widget) || XmIsCommand(widget) || XmIsFileSelectionBox(widget);
+}
+
 static void
 appearance_plan_clear(XmAppearanceChangePlan *plan)
 {
@@ -2247,14 +2282,19 @@ static Boolean
 appearance_widget_prepare(XmAppearanceWidgetState *state,
                            XmAppearanceProfile new_profile,
                            XmAppearanceDensity density,
+                           Boolean classic_scale_only,
                            XmAppearanceChangePlan *plan)
 {
     plan->state = state;
+    plan->classic_scale_only = classic_scale_only;
     memcpy(plan->owned, state->owned, sizeof(plan->owned));
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property) {
         const char *profile_text;
 
         if (!state->supported[property])
+            continue;
+        if (classic_scale_only &&
+            !appearance_scales_classic_metric(state->widget, property))
             continue;
         /* Track pixmap ownership without changing or retaining its resource. */
         if (property == AP_EXPANDED_PIXMAP || property == AP_COLLAPSED_PIXMAP)
@@ -2355,7 +2395,11 @@ appearance_widget_prepare(XmAppearanceWidgetState *state,
         }
         profile_text = profile_property_string(state->widget, new_profile,
                                                density, property);
-        if (profile_text == NULL)
+        if (profile_text == NULL &&
+            appearance_scales_classic_metric(state->widget, property))
+            plan->values[property] = _XmDpiDefaultDimension(state->widget,
+                (Dimension)state->original[property]);
+        else if (profile_text == NULL)
             plan->values[property] = state->original[property];
         else if (!profile_property_value(state->widget, new_profile, density, property,
                                          &plan->values[property]))
@@ -2374,7 +2418,7 @@ appearance_widget_prepare(XmAppearanceWidgetState *state,
         plan->arrow_extent = _XmAppearanceArrowExtent(state->widget,new_profile,
                                                        density,highlight,shadow);
     }
-    if (appearance_sizes_scrollbar(state->widget)) {
+    if (!classic_scale_only && appearance_sizes_scrollbar(state->widget)) {
         unsigned char orientation;
         Dimension highlight, shadow;
         XtVaGetValues(state->widget, XmNorientation, &orientation,
@@ -2432,35 +2476,53 @@ appearance_widget_commit(XmAppearanceChangePlan *plan)
     memcpy(state->owned, plan->owned, sizeof(state->owned));
     for (AppearanceProperty property = 0; property < AP_COUNT; ++property)
         if (plan->apply[property]) {
+            if (plan->classic_scale_only) {
+                Dimension current;
+                XtVaGetValues(state->widget, appearance_property_name(property),
+                              &current, NULL);
+                if (current == (Dimension)plan->values[property])
+                    continue;
+            }
             XtSetArg(set_args[count],
                      (String)appearance_property_name(property),
                      plan->values[property]);
             ++count;
         }
-    if (count != 0 || plan->arrow_geometry || plan->scrollbar_geometry || XmIsPushButton(state->widget) ||
-        XmIsPushButtonGadget(state->widget) || XmIsRatingControl(state->widget)) {
+    if (count != 0 || plan->arrow_geometry || plan->scrollbar_geometry ||
+        (!plan->classic_scale_only &&
+         (XmIsPushButton(state->widget) || XmIsPushButtonGadget(state->widget) ||
+          XmIsRatingControl(state->widget)))) {
         const char *names[] = {XmNwidth, XmNheight};
         for (unsigned axis = 0; axis < 2; ++axis)
             if (state->constrained_dimension[axis]) {
+                if (plan->classic_scale_only && count == 0)
+                    continue;
                 Dimension extent;
                 XtVaGetValues(state->widget, names[axis], &extent, NULL);
                 XtSetArg(set_args[count], (String)names[axis], extent);
                 ++count;
             } else if (plan->arrow_geometry) {
+                Dimension extent = axis == 0 ? XtWidth(state->widget) :
+                                               XtHeight(state->widget);
+                if (plan->classic_scale_only && extent == plan->arrow_extent)
+                    continue;
                 XtSetArg(set_args[count], (String)names[axis], plan->arrow_extent);
                 ++count;
             } else if (plan->scrollbar_geometry && axis == plan->scrollbar_axis) {
                 XtSetArg(set_args[count], (String)names[axis], plan->scrollbar_extent);
                 ++count;
             }
-        XmAppearanceDisplayState *display_state = find_display_state(state->display);
-        if (display_state)
-            ++display_state->resource_commit_depth;
-        XtSetValues(state->widget, set_args, count);
-        if (display_state)
-            --display_state->resource_commit_depth;
+        if (count != 0) {
+            XmAppearanceDisplayState *display_state = find_display_state(state->display);
+            if (display_state)
+                ++display_state->resource_commit_depth;
+            XtSetValues(state->widget, set_args, count);
+            if (display_state)
+                --display_state->resource_commit_depth;
+        }
     }
     if (old_font) XmRenderTableFree(old_font);
+    if (plan->classic_scale_only && count == 0) return;
     if (state->widget != NULL && XtIsWidget(state->widget)) {
         if (_XmPaintBufferKind(state->widget))
             _XmPaintInvalidate(state->widget);
@@ -2637,13 +2699,15 @@ appearance_created(Widget hooks, XtPointer closure, XtPointer data)
         if (!state->retired && state->widget == created->widget &&
             !state->initialized) {
             if (!initialize_appearance_state(state, profile)) break;
-            if (profile != XmAPPEARANCE_CLASSIC && XtIsRectObj(state->widget)) {
+            if (profile != XmAPPEARANCE_CLASSIC ||
+                appearance_has_classic_scale_geometry(state->widget)) {
                 XmAppearanceDensity density;
                 XmAppearanceChangePlan plan;
                 Boolean was_active = display_state->transaction_active;
                 memset(&plan, 0, sizeof(plan));
                 if (!XmGetAppearanceDensity(display_state->display, &density) ||
-                    !appearance_widget_prepare(state, profile, density, &plan)) {
+                    !appearance_widget_prepare(state, profile, density,
+                        profile == XmAPPEARANCE_CLASSIC, &plan)) {
                     appearance_plan_clear(&plan);
                     XtAppWarning(XtWidgetToApplicationContext(state->widget),
                                  "Cannot prepare initial Motif appearance");
@@ -2666,7 +2730,8 @@ static Boolean
 appearance_apply_subtree(Display *display, Widget root,
                          XmAppearanceProfile old_profile,
                          XmAppearanceProfile new_profile,
-                         XmAppearanceDensity density);
+                         XmAppearanceDensity density,
+                         Boolean classic_scale_only);
 
 /* A composite constraint reset restores default-font provenance, not an
  * explicit copy of the provider's fallback table. Reapply immediately so the
@@ -2712,7 +2777,8 @@ _XmAppearanceResetDefaultFont(Widget child, Widget provider, unsigned char kind)
         !appearance_provider_font_explicit(state);
     state->original_font = font;
     state->original[AP_RENDER_TABLE] = (XtArgVal)font;
-    success = appearance_apply_subtree(state->display, child, profile, profile, density);
+    success = appearance_apply_subtree(state->display, child, profile, profile,
+                                       density, False);
     if (!success) {
         state->original_font = old_font;
         state->original[AP_RENDER_TABLE] = (XtArgVal)old_font;
@@ -2915,7 +2981,7 @@ appearance_changed(Widget hooks, XtPointer closure, XtPointer data)
                     Boolean success;
                     ++state->references;
                     success = appearance_apply_subtree(state->display, state->widget,
-                                                        profile, profile, density);
+                                                        profile, profile, density, False);
                     if (!success && !state->retired) {
                         if (role_argument)
                             XtVaSetValues(state->widget, XmNappearanceRole,
@@ -3106,7 +3172,8 @@ static Boolean
 appearance_apply_subtree(Display *display, Widget root,
                          XmAppearanceProfile old_profile,
                          XmAppearanceProfile new_profile,
-                         XmAppearanceDensity density)
+                         XmAppearanceDensity density,
+                         Boolean classic_scale_only)
 {
     XmAppearanceWidgetState **snapshot = NULL;
     XmAppearanceChangePlan *plans = NULL;
@@ -3118,6 +3185,7 @@ appearance_apply_subtree(Display *display, Widget root,
     _XmProcessLock();
     for (state = appearance_widgets; state != NULL; state = state->next)
         if (!state->retired && state->display == display &&
+            (!classic_scale_only || appearance_has_classic_scale_geometry(state->widget)) &&
             appearance_in_subtree(state->widget, root))
             ++count;
     if (count != 0 &&
@@ -3144,6 +3212,7 @@ appearance_apply_subtree(Display *display, Widget root,
     count = 0;
     for (state = appearance_widgets; state != NULL; state = state->next)
         if (!state->retired && state->display == display &&
+            (!classic_scale_only || appearance_has_classic_scale_geometry(state->widget)) &&
             appearance_in_subtree(state->widget, root)) {
             ++state->references;
             snapshot[count++] = state;
@@ -3158,7 +3227,8 @@ appearance_apply_subtree(Display *display, Widget root,
         if (!state->retired && state->widget != NULL) {
             if (!state->initialized && !initialize_appearance_state(state, old_profile))
                 success = False;
-            if (success && !appearance_widget_prepare(state, new_profile, density, &plans[i]))
+            if (success && !appearance_widget_prepare(state, new_profile, density,
+                                                       classic_scale_only, &plans[i]))
                 success = False;
         }
         if (!success)
@@ -3253,7 +3323,8 @@ _XmApplyAppearanceChange(Display *display, XmAppearanceProfile old_profile,
                          XmAppearanceProfile new_profile,
                          XmAppearanceDensity density)
 {
-    return appearance_apply_subtree(display, NULL, old_profile, new_profile, density);
+    return appearance_apply_subtree(display, NULL, old_profile, new_profile, density,
+                                    False);
 }
 
 /* Scale metadata is staged by Display.c before this preflight. Reject
@@ -3267,9 +3338,10 @@ _XmApplyAppearanceScale(Display *display, Widget root)
     Boolean success;
     if (!XmGetAppearanceProfile(display, &profile) ||
         !XmGetAppearanceDensity(display, &density)) return False;
-    if (profile == XmAPPEARANCE_CLASSIC || state == NULL) return True;
+    if (state == NULL) return True;
     if (!appearance_transaction_begin(state)) return False;
-    success = appearance_apply_subtree(display, root, profile, profile, density);
+    success = appearance_apply_subtree(display, root, profile, profile, density,
+                                       profile == XmAPPEARANCE_CLASSIC);
     appearance_transaction_end(state);
     return success;
 }

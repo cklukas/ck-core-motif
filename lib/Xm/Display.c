@@ -210,6 +210,22 @@ scale_transaction_end(Display *display)
   _XmProcessUnlock();
 }
 
+Boolean
+_XmScaleChangeInProgress(Display *display)
+{
+  XmScaleDisplayState *state;
+  Boolean active = False;
+
+  _XmProcessLock();
+  for (state = scaleDisplayStates; state != NULL; state = state->next)
+    if (state->display == display) {
+      active = state->transaction_active;
+      break;
+    }
+  _XmProcessUnlock();
+  return active;
+}
+
 static void
 retire_scale_widget_state(XmScaleWidgetState *state)
 {

@@ -843,8 +843,9 @@ ComputeTearOffHeight(
 					    orientation. 1 makes the tear off
 					    half the highest, 2 makes 1/4 */
 	
-	ASSIGN_MAX(*toc_height, 2 + *toc_b +  2*
-	       ((XmPrimitiveWidget)kg[0].kid)->primitive.shadow_thickness);
+	ASSIGN_MAX(*toc_height, MIN((Dimension)~(Dimension)0,
+	       _XmDpiDefaultDimension((Widget)tw, 2) + *toc_b +
+	       2 * tw->primitive.shadow_thickness));
 	
 	/* Sync up the kid geo */
 	/* Fix CR# 4778 */

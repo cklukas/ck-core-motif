@@ -43,6 +43,8 @@ extern void _XmArrowPixmapCacheDelete(
                         XtPointer data) ;
 extern void _XmCreateArrowPixmaps( 
                         Widget wid) ;
+extern Boolean _XmCascadeArrowNeedsResize(Widget);
+extern void _XmCascadeArrowScaleChanged(Widget, double, double, XtPointer);
 
 /********    End Private Function Declarations    ********/
 

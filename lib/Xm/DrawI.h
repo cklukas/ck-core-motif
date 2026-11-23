@@ -37,6 +37,12 @@ extern "C" {
 
 /********    Private Function Declarations    ********/
 
+extern void _XmDrawSeparatorWithDash(Display *display, Drawable d,
+                        GC top_gc, GC bottom_gc, GC separator_gc,
+                        int x, int y, int width, int height,
+                        int shadow_thick, int margin, unsigned int orientation,
+                        unsigned int separator_type, int minimum_dash);
+
 extern void _XmDrawHighlight( 
                         Display *display,
                         Drawable d,

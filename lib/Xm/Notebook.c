@@ -1193,6 +1193,15 @@ Redisplay (
 }
 
 
+static Boolean
+KeepAllocationDuringReflow(Widget widget, unsigned int axis)
+{
+    Display *display = XtDisplay(widget);
+    return (_XmAppearanceInGeometryTransaction(display) ||
+            _XmScaleChangeInProgress(display)) &&
+           _XmAppearanceDimensionConstrained(widget, axis);
+}
+
 /*- SetValues ---------------------------------------------------------------
 
         Set notebook widget resources
@@ -1360,6 +1369,8 @@ SetValues (
 	{
 	Dimension save_width, save_height;
 	XtWidgetGeometry preferred_geo = { 0 };
+	Boolean keep_width = KeepAllocationDuringReflow(nw, 0);
+	Boolean keep_height = KeepAllocationDuringReflow(nw, 1);
 
 	/* Store new w/h, restore old w/h, and adjust geometry to the old */
 	save_width = XtWidth(new_w);
@@ -1378,13 +1389,13 @@ SetValues (
 	    NewPreferredGeometry(new_w, NULL, NULL, &preferred_geo);
 
 	/* App request for width takes precedence over NewPreferredGeometry */
-	if (XtWidth(old) != save_width)
+	if (keep_width || XtWidth(old) != save_width)
 	    XtWidth(new_w) = save_width;
 	else
 	    XtWidth(new_w) = preferred_geo.width;
 
 	/* App request for height takes precedence over NewPreferredGeometry */
-	if (XtHeight(old) != save_height)
+	if (keep_height || XtHeight(old) != save_height)
 	    XtHeight(new_w) = save_height;
 	else
 	    XtHeight(new_w) = preferred_geo.height;
@@ -1484,9 +1495,11 @@ GeometryManager (
         myrequest.request_mode = 0;
 	if (IsQueryOnly(desired))
 	    myrequest.request_mode |= XtCWQueryOnly;
-        if (IsWidth(desired) && XtWidth(nb) != myrequest.width)
+        if (IsWidth(desired) && XtWidth(nb) != myrequest.width &&
+            !KeepAllocationDuringReflow((Widget)nb, 0))
             myrequest.request_mode |= CWWidth;
-        if (IsHeight(desired) && XtHeight(nb) != myrequest.height)
+        if (IsHeight(desired) && XtHeight(nb) != myrequest.height &&
+            !KeepAllocationDuringReflow((Widget)nb, 1))
             myrequest.request_mode |= CWHeight;
         if (IsBorder(desired) && XtBorderWidth(nb) != myrequest.border_width)
             myrequest.border_width |= CWBorderWidth;
@@ -1586,9 +1599,11 @@ ChangeManaged (
     {
 	/* Prepare parent geometry request */
 	preferred.request_mode = 0;
-        if (XtIsRealized((Widget)nb) || XtWidth(nb) == 0)
+        if ((XtIsRealized((Widget)nb) || XtWidth(nb) == 0) &&
+            !KeepAllocationDuringReflow(w, 0))
             preferred.request_mode |= CWWidth;
-        if (XtIsRealized((Widget)nb) || XtHeight(nb) == 0)
+        if ((XtIsRealized((Widget)nb) || XtHeight(nb) == 0) &&
+            !KeepAllocationDuringReflow(w, 1))
             preferred.request_mode |= CWHeight;
 
 	/* Make parent geometry request, if necessary */
@@ -2154,11 +2169,14 @@ static void
 CreateTabScrollers (
     XmNotebookWidget nb)
 {
+    Dimension width = _XmDpiDefaultDimension((Widget)nb, TAB_SCROLLER_WIDTH_DEFAULT);
+    Dimension height = _XmDpiDefaultDimension((Widget)nb, TAB_SCROLLER_HEIGHT_DEFAULT);
+
     /* creating major tab scrollers */
     nb->notebook.next_major = XtVaCreateManagedWidget(MAJOR_TAB_NEXT_NAME,
                 xmArrowButtonGadgetClass, (Widget)nb,
-                XmNwidth, TAB_SCROLLER_WIDTH_DEFAULT,
-                XmNheight, TAB_SCROLLER_HEIGHT_DEFAULT,
+                XmNwidth, width,
+                XmNheight, height,
                 XmNnotebookChildType, XmMAJOR_TAB_SCROLLER,
 		XmNtraversalOn, False,
                 NULL);
@@ -2171,8 +2189,8 @@ CreateTabScrollers (
 
     nb->notebook.prev_major = XtVaCreateManagedWidget(MAJOR_TAB_PREV_NAME,
                 xmArrowButtonGadgetClass, (Widget)nb,
-                XmNwidth, TAB_SCROLLER_WIDTH_DEFAULT,
-                XmNheight, TAB_SCROLLER_HEIGHT_DEFAULT,
+                XmNwidth, width,
+                XmNheight, height,
                 XmNnotebookChildType, XmMAJOR_TAB_SCROLLER,
 		XmNtraversalOn, False,
                 NULL);
@@ -2186,8 +2204,8 @@ CreateTabScrollers (
     /* creating minor tab scrollers */
     nb->notebook.next_minor = XtVaCreateManagedWidget(MINOR_TAB_NEXT_NAME,
                 xmArrowButtonGadgetClass, (Widget)nb,
-                XmNwidth, TAB_SCROLLER_WIDTH_DEFAULT,
-                XmNheight, TAB_SCROLLER_HEIGHT_DEFAULT,
+                XmNwidth, width,
+                XmNheight, height,
                 XmNnotebookChildType, XmMINOR_TAB_SCROLLER,
 		XmNtraversalOn, False,
                 NULL);
@@ -2200,8 +2218,8 @@ CreateTabScrollers (
 
     nb->notebook.prev_minor = XtVaCreateManagedWidget(MINOR_TAB_PREV_NAME,
                 xmArrowButtonGadgetClass, (Widget)nb,
-                XmNwidth, TAB_SCROLLER_WIDTH_DEFAULT,
-                XmNheight, TAB_SCROLLER_HEIGHT_DEFAULT,
+                XmNwidth, width,
+                XmNheight, height,
                 XmNnotebookChildType, XmMINOR_TAB_SCROLLER,
 		XmNtraversalOn, False,
                 NULL);

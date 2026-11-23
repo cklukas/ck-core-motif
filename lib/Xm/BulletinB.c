@@ -34,8 +34,10 @@ static char rcsid[] = "$TOG: BulletinB.c /main/22 1999/10/13 16:15:40 mgreess $"
 #include "BulletinBI.h"
 #include <Xm/AtomMgr.h>
 #include <Xm/BaseClassP.h>
+#include <Xm/Command.h>
 #include <Xm/DialogS.h>
 #include <Xm/DrawP.h>
+#include <Xm/FileSB.h>
 #include <Xm/LabelG.h>
 #include <Xm/MwmUtil.h>
 #include <Xm/PushBGP.h>
@@ -1303,6 +1305,8 @@ HandleGeometryManager(
 {
             XmBulletinBoardWidget bbWid ;
             XtGeometryResult result ;
+            unsigned char resize_policy;
+            Display *display;
 /****************/
 
     bbWid = (XmBulletinBoardWidget) XtParent( instigator) ;
@@ -1311,10 +1315,19 @@ HandleGeometryManager(
     {   return (XtGeometryYes) ;
         } 
 
+    resize_policy = BB_ResizePolicy(bbWid);
+    display = XtDisplay((Widget)bbWid);
+    if ((_XmAppearanceInGeometryTransaction(display) ||
+         _XmScaleChangeInProgress(display)) &&
+        (XmIsCommand((Widget)bbWid) || XmIsFileSelectionBox((Widget)bbWid)) &&
+        (_XmAppearanceDimensionConstrained((Widget)bbWid, 0) ||
+         _XmAppearanceDimensionConstrained((Widget)bbWid, 1)))
+        resize_policy = XmRESIZE_NONE;
+
     /*	Clear shadow if necessary.
     */
     if(    bbWid->bulletin_board.old_shadow_thickness
-        && (BB_ResizePolicy( bbWid) != XmRESIZE_NONE)    )
+        && (resize_policy != XmRESIZE_NONE)    )
     {
         _XmClearShadowType( (Widget) bbWid, bbWid->bulletin_board.old_width, 
                               bbWid->bulletin_board.old_height, 
@@ -1323,7 +1336,7 @@ HandleGeometryManager(
 	}
 
     result = _XmHandleGeometryManager( (Widget) bbWid,
-                         instigator, desired, allowed, BB_ResizePolicy( bbWid),
+                         instigator, desired, allowed, resize_policy,
                            &bbWid->bulletin_board.geo_cache, geoMatrixCreate) ;
 
     if(    !bbWid->bulletin_board.in_set_values
@@ -1678,6 +1691,23 @@ Resize(
 
     return ;
     }
+
+void
+_XmBulletinBoardRelayoutForScale(Widget widget)
+{
+    if (!XtIsRealized(widget))
+        return;
+    if (_XmAppearanceDimensionConstrained(widget, 0) ||
+        _XmAppearanceDimensionConstrained(widget, 1)) {
+        XtWidgetProc resize;
+        _XmProcessLock();
+        resize = XtClass(widget)->core_class.resize;
+        _XmProcessUnlock();
+        if (resize != NULL)
+            resize(widget);
+    } else
+        _XmBulletinBoardSizeUpdate(widget);
+}
 
 /****************************************************************
  * Redisplay gadgets and draw shadow.

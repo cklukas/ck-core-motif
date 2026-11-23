@@ -2235,6 +2235,12 @@ SetValues(
        if ((new_w->label.recompute_size)  || (requested->core.height <= 0))
 	  adjustHeight = TRUE;
 
+       Boolean resize_arrow = _XmCascadeArrowNeedsResize(nw);
+       if (resize_arrow) {
+          adjustWidth = adjustWidth && !_XmAppearanceDimensionConstrained(nw, 0);
+          adjustHeight = adjustHeight && !_XmAppearanceDimensionConstrained(nw, 1);
+       }
+
        /* get new pixmap size */
        if (CB_CascadePixmap(old) != CB_CascadePixmap (new_w))
        {
@@ -2251,7 +2257,8 @@ SetValues(
           if ( ((CB_CascadePixmap(new_w) ==  XmUNSPECIFIED_PIXMAP) &&
                   (!CB_Submenu(old) && CB_Submenu(new_w))) ||
                ((CB_ArmedPixmap(old) != XmUNSPECIFIED_PIXMAP) &&
-                  ((Lab_TextRect_height(old) != Lab_TextRect_height(new_w)) ||
+                  (resize_arrow ||
+                   (Lab_TextRect_height(old) != Lab_TextRect_height(new_w)) ||
 		   (old->primitive.foreground != new_w->primitive.foreground) ||
 		   (old->primitive.top_shadow_color !=
 		      new_w->primitive.top_shadow_color) ||
@@ -2536,6 +2543,7 @@ Initialize(
     GetArmGC (new_w);
     GetBackgroundGC (new_w);
 
+    (void)_XmRegisterScaleChange((Widget)new_w, _XmCascadeArrowScaleChanged, NULL);
 }
 
 

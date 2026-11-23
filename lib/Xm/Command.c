@@ -44,6 +44,15 @@ static char rcsid[] = "$TOG: Command.c /main/21 1999/01/26 18:12:51 mgreess $"
 #include <stdint.h>
 #ifndef X_NOT_STDC_ENV
 #include <stdlib.h>
+
+static void
+ScaleChanged(Widget widget, double old_scale, double new_scale, XtPointer closure)
+{
+    (void)old_scale;
+    (void)new_scale;
+    (void)closure;
+    _XmBulletinBoardRelayoutForScale(widget);
+}
 #endif
 
 
@@ -400,6 +409,7 @@ Initialize(
                                               CommandCallback, (XtPointer) new_w);
     new_w->command.error = FALSE;
 
+    (void)_XmRegisterScaleChange(nw, ScaleChanged, NULL);
     return ;
 }
    

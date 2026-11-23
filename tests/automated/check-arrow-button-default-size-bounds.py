@@ -2,12 +2,19 @@
 """Check ArrowButton default geometry cannot wrap Dimension values."""
 from pathlib import Path
 
-source = (Path(__file__).parents[2] / "lib" / "Xm" / "ArrowB.c").read_text()
+root = Path(__file__).parents[2] / "lib" / "Xm"
 
-assert "static Dimension AddDefaultDimension(Dimension value);" in source
-assert "new_w->core.width = AddDefaultDimension(new_w->core.width);" in source
-assert "new_w->core.height = AddDefaultDimension(new_w->core.height);" in source
-helper = source[source.index("static Dimension\nAddDefaultDimension") :]
-assert "USHRT_MAX - 15" in helper
-assert "(Dimension)USHRT_MAX" in helper
-print("PASS ArrowButton default dimensions saturate")
+for name, part in (("ArrowB.c", "core"), ("ArrowBG.c", "rectangle")):
+    source = (root / name).read_text()
+    start = source.index("\nInitialize(")
+    initializer = source[start:source.index("\n}", start)]
+    assert "Dimension extent = _XmAppearanceArrowExtent(" in initializer
+    for axis in ("width", "height"):
+        assert f"if (request->{part}.{axis} == 0) new_w->{part}.{axis} = extent;" in initializer
+
+drawing = (root / "AppearanceDraw.c").read_text()
+start = drawing.index("\n_XmAppearanceArrowExtent(")
+helper = drawing[start:drawing.index("\n}", start)]
+assert "unsigned long extent = _XmDpiDefaultDimension(widget, 15) + margins;" in helper
+assert "return (Dimension)MIN(extent,USHRT_MAX);" in helper
+print("PASS ArrowButton and ArrowButtonGadget default dimensions saturate")

@@ -16,9 +16,22 @@ static void settle(XtAppContext a,Display*d){for(unsigned i=0;i<3;++i){Boolean d
 static void called(Widget w,XtPointer a,XtPointer b){(void)w;(void)a;(void)b;++activated;}
 static unsigned long pixel(Widget w,int x,int y){Widget window=XtIsWidget(w)?w:XtParent(w);Position px=0,py=0;if(!XtIsWidget(w))XtVaGetValues(w,XmNx,&px,XmNy,&py,NULL);XImage*im=XGetImage(XtDisplay(window),XtWindow(window),px+x,py+y,1,1,AllPlanes,ZPixmap);CHECK(im);unsigned long p=XGetPixel(im,0,0);XDestroyImage(im);return p;}
 static void arm(Widget w,Boolean armed){if(XtIsWidget(w)){XmPrimitiveWidgetClass c=(XmPrimitiveWidgetClass)XtClass(w);(armed?c->primitive_class.border_highlight:c->primitive_class.border_unhighlight)(w);}else{XmGadgetClass c=(XmGadgetClass)XtClass(w);(armed?c->gadget_class.border_highlight:c->gadget_class.border_unhighlight)(w);}}
-int main(int argc,char**argv){XtAppContext a;Widget shell=XtVaAppInitialize(&a,"CascadeAppearance",NULL,0,&argc,argv,NULL,NULL);Display*d=XtDisplay(shell);Widget host=XtVaCreateManagedWidget("host",xmDrawingAreaWidgetClass,shell,XmNwidth,900,XmNheight,600,XmNresizePolicy,XmRESIZE_NONE,NULL);XtRealizeWidget(shell);NativeWaitForViewable(host);XtAppSetWarningHandler(a,warning);const double scales[]={1,1.5,2};
+int main(int argc,char**argv){XtAppContext a;Widget shell=XtVaAppInitialize(&a,"CascadeAppearance",NULL,0,&argc,argv,NULL,NULL);Display*d=XtDisplay(shell);Widget host=XtVaCreateManagedWidget("host",xmDrawingAreaWidgetClass,shell,XmNwidth,900,XmNheight,600,XmNresizePolicy,XmRESIZE_NONE,NULL);XtRealizeWidget(shell);NativeWaitForViewable(host);XtAppSetWarningHandler(a,warning);const double scales[]={1,1.5,2}; Dimension base_text_width=0, base_text_height=0;
 for(unsigned supplied=0;supplied<2;++supplied)for(kind=0;kind<2;++kind)for(dark=0;dark<2;++dark)for(scale=0;scale<3;++scale){CHECK(XmSetDisplayScaleOverride(d,scales[scale]));CHECK(XmApplyAppearanceProfile(d,dark?XmAPPEARANCE_MODERN_DARK:XmAPPEARANCE_MODERN_LIGHT));CHECK(XmApplyAppearanceDensity(d,XmAPPEARANCE_DENSITY_COMFORTABLE));Widget parent=host;if(supplied){parent=XmCreateMenuBar(host,"suppliedBar",NULL,0);XtManageChild(parent);}Widget button=gallery_create_component_example(parent,kind?xmCascadeButtonGadgetClass:xmCascadeButtonWidgetClass,"cascade",called,NULL);Widget bar=XtParent(button),menu=NULL;unsigned char type;XtVaGetValues(bar,XmNrowColumnType,&type,NULL);CHECK(invalid_host==0);CHECK(XmIsRowColumn(bar)&&type==XmMENU_BAR);if(supplied)CHECK(bar==parent);Dimension bar_shadow;XtVaGetValues(bar,XmNshadowThickness,&bar_shadow,NULL);CHECK(bar_shadow==0);XtVaGetValues(button,XmNsubMenuId,&menu,NULL);CHECK(menu);NativeWaitForViewable(bar);if(XtIsWidget(button))NativeWaitForViewable(button);settle(a,d);
-Dimension width,height,mw,mh,shadow,tw,th;Pixel bg,fg;XmRenderTable font=NULL;XmString text=XmStringCreateLocalized("File");XtVaGetValues(button,XmNwidth,&width,XmNheight,&height,XmNmarginWidth,&mw,XmNmarginHeight,&mh,XmNshadowThickness,&shadow,XmNbackground,&bg,XmNforeground,&fg,XmNrenderTable,&font,NULL);CHECK(font);XmStringExtent(font,text,&tw,&th);XmStringFree(text);CHECK(tw>=24*scales[scale]&&th>=18*scales[scale]);CHECK(mw==(Dimension)(12*scales[scale])&&mh==(Dimension)(6*scales[scale]));CHECK(shadow==0);CHECK(width>=tw+2*mw&&height>=th+2*mh);CHECK(pixel(button,width/2,5)==bg);++cases;
+Dimension width,height,mw,mh,shadow,tw,th;Pixel bg,fg;XmRenderTable font=NULL;XmString text=XmStringCreateLocalized("File");XtVaGetValues(button,XmNwidth,&width,XmNheight,&height,XmNmarginWidth,&mw,XmNmarginHeight,&mh,XmNshadowThickness,&shadow,XmNbackground,&bg,XmNforeground,&fg,XmNrenderTable,&font,NULL);CHECK(font);XmStringExtent(font,text,&tw,&th);XmStringFree(text);
+/* Fontconfig families can differ by a pixel at 1x. Check usable text at
+ * baseline and proportional growth within font hinting and rounding. */
+if (scale == 0) {
+    CHECK(tw >= 24 && th >= 16);
+    base_text_width = tw;
+    base_text_height = th;
+} else {
+    CHECK(tw + 3 >= base_text_width * scales[scale]);
+    CHECK(tw <= base_text_width * scales[scale] + 3);
+    CHECK(th + 2 >= base_text_height * scales[scale]);
+    CHECK(th <= base_text_height * scales[scale] + 2);
+}
+CHECK(mw==(Dimension)(12*scales[scale])&&mh==(Dimension)(6*scales[scale]));CHECK(shadow==0);CHECK(width>=tw+2*mw&&height>=th+2*mh);CHECK(pixel(button,width/2,5)==bg);++cases;
 arm(button,True);settle(a,d);Pixel selected=pixel(button,width/2,5);CHECK(selected!=bg);CHECK(selected==(dark?0x3c4043:0xdbeafe));++cases;
 /* Full expose and state transitions retain a single flat selection surface. */
 XtExposeProc expose=XtIsWidget(button)?XtClass(button)->core_class.expose:((RectObjClass)XtClass(button))->rect_class.expose;expose(button,NULL,NULL);settle(a,d);CHECK(pixel(button,width/2,5)==selected);arm(button,False);settle(a,d);CHECK(pixel(button,width/2,5)==bg);++cases;

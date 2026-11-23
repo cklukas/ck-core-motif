@@ -408,10 +408,13 @@ Initialize(
   
   
   /*  Set up a geometry for the widget if it is currently 0.  */
-  if (request->rectangle.width == 0) 
-    new_w->rectangle.width += 15;
-  if (request->rectangle.height == 0)
-    new_w->rectangle.height += 15;
+  if (request->rectangle.width == 0 || request->rectangle.height == 0) {
+    Dimension extent = _XmAppearanceArrowExtent(nw, XmAPPEARANCE_CLASSIC,
+        XmAPPEARANCE_DENSITY_COMFORTABLE, new_w->gadget.highlight_thickness,
+        new_w->gadget.shadow_thickness);
+    if (request->rectangle.width == 0) new_w->rectangle.width = extent;
+    if (request->rectangle.height == 0) new_w->rectangle.height = extent;
+  }
   
   /*  Set the internal arrow variables */
   new_w->arrowbutton.timer = 0;

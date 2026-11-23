@@ -35,7 +35,7 @@ static char rcsid[] = "$XConsortium: Draw.c /main/12 1995/10/25 20:02:15 cde-sun
 #include <limits.h>
 
 #include "XmI.h"
-#include <Xm/DrawP.h>
+#include "DrawI.h"
 
 
 /*********************************************************************
@@ -311,6 +311,17 @@ void XmeDrawSeparator(Display *display, Drawable d,
 #endif /* NeedWidePrototypes */
 
 {
+   _XmDrawSeparatorWithDash(display, d, top_gc, bottom_gc, separator_gc,
+      x, y, width, height, shadow_thick, margin, orientation, separator_type, 0);
+}
+
+void
+_XmDrawSeparatorWithDash(Display *display, Drawable d,
+                        GC top_gc, GC bottom_gc, GC separator_gc,
+                        int x, int y, int width, int height,
+                        int shadow_thick, int margin, unsigned int orientation,
+                        unsigned int separator_type, int minimum_dash)
+{
    Position center;
    XSegment segs[2];
    GC   tmp_gc;
@@ -411,9 +422,7 @@ void XmeDrawSeparator(Display *display, Drawable d,
 
    if (separator_type == XmSHADOW_ETCHED_IN_DASH ||
        separator_type == XmSHADOW_ETCHED_OUT_DASH)
-   /* for now, shadowed dash use three time the shadow thickness as a 
-      dash size, and worried about the shadow_thick odd values as well */
-       shadow_dash_size = (shadow_thick/2)*2*3 ;
+       shadow_dash_size = MAX((shadow_thick / 2) * 6, minimum_dash);
    else
 
    /* regular case, only one dash, the length of the separator */

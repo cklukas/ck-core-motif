@@ -1,15 +1,31 @@
 /* Installed-consumer proof for the deterministic display-scale override. */
 #include <Xm/Display.h>
+#include <Xm/Appearance.h>
+#include <Xm/ArrowB.h>
+#include <Xm/ArrowBG.h>
 #include <Xm/BulletinB.h>
+#include <Xm/CascadeB.h>
+#include <Xm/CascadeBG.h>
+#include <Xm/Command.h>
+#include <Xm/FileSB.h>
+#include <Xm/Label.h>
+#include <Xm/Notebook.h>
+#include <Xm/Paned.h>
+#include <Xm/PanedW.h>
 #include <Xm/ProgressRing.h>
+#include <Xm/RowColumn.h>
 #include <Xm/Scale.h>
 #include <Xm/ScrollBar.h>
 #include <Xm/SpinB.h>
+#include <Xm/TearOffBP.h>
+#include <Xm/TextF.h>
 #include <Xm/ToggleB.h>
 #include <X11/Intrinsic.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 static int
 fail(const char *message)
@@ -22,6 +38,293 @@ static Dimension
 scaled_dimension(Dimension baseline, double scale)
 {
     return (Dimension)(baseline * scale + 0.5);
+}
+
+static Dimension
+dimension(Widget widget, const char *resource)
+{
+    Dimension result = 0;
+    XtVaGetValues(widget, resource, &result, NULL);
+    return result;
+}
+
+static Position
+left(Widget widget)
+{
+    Position result = 0;
+    XtVaGetValues(widget, XmNx, &result, NULL);
+    return result;
+}
+
+static unsigned int
+cascade_size(Display *display, Widget widget)
+{
+    Pixmap pixmap;
+    Window root;
+    int x, y;
+    unsigned int width, height, border, depth;
+    XtVaGetValues(widget, XmNcascadePixmap, &pixmap, NULL);
+    if (pixmap == XmUNSPECIFIED_PIXMAP ||
+        !XGetGeometry(display, pixmap, &root, &x, &y, &width, &height,
+                      &border, &depth))
+        return 0;
+    return width == height ? width : 0;
+}
+
+static unsigned int
+tearoff_dash_length(Widget tearoff)
+{
+    Display *display = XtDisplay(tearoff);
+    XtAppContext context = XtWidgetToApplicationContext(tearoff);
+    unsigned int width = dimension(tearoff, XmNwidth);
+    unsigned int height = dimension(tearoff, XmNheight);
+    unsigned int length = 0;
+    XImage *image;
+    unsigned long pixel;
+
+    if (!XtIsRealized(tearoff) || width < 25 || height < 3)
+        return 0;
+    XClearArea(display, XtWindow(tearoff), 0, 0, 0, 0, True);
+    XSync(display, False);
+    while (XtAppPending(context) & XtIMXEvent)
+        XtAppProcessEvent(context, XtIMXEvent);
+    image = XGetImage(display, XtWindow(tearoff), 0, height / 2 - 1,
+                      25, 1, AllPlanes, ZPixmap);
+    if (image == NULL)
+        return 0;
+    pixel = XGetPixel(image, 0, 0);
+    while (length < 25 && XGetPixel(image, length, 0) == pixel)
+        ++length;
+    XDestroyImage(image);
+    return length;
+}
+
+static int
+check_classic_controls(Widget board, XmAppearanceProfile profile)
+{
+    Display *display = XtDisplay(board);
+    XrmDatabase database;
+    const char *sash_names[] = {"*Sash", "*sash"};
+    WidgetClass pane_classes[] = {xmPanedWindowWidgetClass, xmPanedWidgetClass};
+    Widget panes[2], sashes[2], arrows[2], cascades[2];
+    Dimension sash_extent = profile == XmAPPEARANCE_CLASSIC ? 10 : 12;
+    Dimension arrow_width[2], arrow_height[2];
+    unsigned int cascade_width[2];
+    Pixmap application_pixmap;
+    Widget popup, submenu[3], custom_cascade, notebook, command, files;
+    Widget command_text, filter, explicit_gadget, tearoff, dash;
+    Dimension tear_height;
+    Dimension command_margin, file_margin;
+    Position command_x, filter_x;
+    char *input;
+    int page;
+
+    if (!XmApplyAppearanceProfile(display, profile) ||
+        !XmSetDisplayScaleOverride(display, 1.0))
+        return fail("could not select classic geometry test profile");
+
+    /* Equal-valued Xrm resources must remain application-owned. */
+    database = XrmGetDatabase(display);
+    XrmPutStringResource(&database, "*fixedPaned.sashHeight", "10");
+    XrmPutStringResource(&database, "*fixedGadget.width", "41");
+    XrmPutStringResource(&database, "*dpiNotebook.minorTabSpacing", "3");
+    XrmPutStringResource(&database, "*dpiFiles.marginHeight", "10");
+    XrmSetDatabase(display, database);
+
+    for (unsigned int i = 0; i < XtNumber(panes); ++i) {
+        panes[i] = XtVaCreateManagedWidget(i ? "fixedPaned" : "dpiPaned",
+            pane_classes[i], board, XmNwidth, 260, XmNheight, 180, NULL);
+        for (unsigned int j = 0; j < 2; ++j)
+            XtVaCreateManagedWidget(j ? "second" : "first", xmLabelWidgetClass,
+                panes[i], XmNheight, 60, XmNpaneMinimum, 20, XmNpaneMaximum, 160,
+                NULL);
+        sashes[i] = XtNameToWidget(panes[i], sash_names[i]);
+        if (sashes[i] == NULL || dimension(sashes[i], XmNwidth) != sash_extent ||
+            dimension(sashes[i], XmNheight) != (i ? 10 : sash_extent)) {
+            fprintf(stderr, "profile=%d pane=%u manager=%ux%u grip=%ux%u\n",
+                    profile, i, dimension(panes[i], XmNsashWidth),
+                    dimension(panes[i], XmNsashHeight),
+                    sashes[i] ? dimension(sashes[i], XmNwidth) : 0,
+                    sashes[i] ? dimension(sashes[i], XmNheight) : 0);
+            return fail("1x PanedWindow/Paned sash allocation is incorrect");
+        }
+    }
+
+    arrows[0] = XtVaCreateManagedWidget("dpiArrow", xmArrowButtonWidgetClass,
+        board, XmNwidth, 0, XmNheight, 0, XmNhighlightThickness, 0,
+        XmNshadowThickness, 0, NULL);
+    arrows[1] = XtVaCreateManagedWidget("dpiGadget", xmArrowButtonGadgetClass,
+        board, XmNhighlightThickness, 0, XmNshadowThickness, 0, NULL);
+    explicit_gadget = XtVaCreateManagedWidget("fixedGadget",
+        xmArrowButtonGadgetClass, board, XmNheight, 15,
+        XmNhighlightThickness, 0, XmNshadowThickness, 0, NULL);
+    for (unsigned int i = 0; i < XtNumber(arrows); ++i) {
+        arrow_width[i] = dimension(arrows[i], XmNwidth);
+        arrow_height[i] = dimension(arrows[i], XmNheight);
+        if (arrow_width[i] != 15 || arrow_height[i] != 15)
+            return fail("1x ArrowButton default interior is not 15 pixels");
+    }
+
+    notebook = XtVaCreateManagedWidget("dpiNotebook", xmNotebookWidgetClass,
+        board, XmNwidth, 280, XmNheight, 180, XmNbindingType, XmSOLID, NULL);
+    for (int i = 1; i <= 2; ++i) {
+        XtVaCreateManagedWidget("page", xmLabelWidgetClass, notebook,
+            XmNnotebookChildType, XmPAGE, XmNpageNumber, i, NULL);
+        XtVaCreateManagedWidget("chapter", xmLabelWidgetClass, notebook,
+            XmNnotebookChildType, XmMAJOR_TAB, XmNpageNumber, i, NULL);
+    }
+    XtVaSetValues(notebook, XmNcurrentPageNumber, 2, NULL);
+    if (dimension(notebook, XmNbindingWidth) != 25 ||
+        dimension(notebook, XmNmajorTabSpacing) != 3)
+        return fail("notebook 1x binding or tab space is incorrect");
+
+    command = XtVaCreateManagedWidget("dpiCommand", xmCommandWidgetClass, board,
+        XmNwidth, 260, XmNheight, 180, NULL);
+    files = XtVaCreateManagedWidget("dpiFiles", xmFileSelectionBoxWidgetClass,
+        board, XmNwidth, 480, XmNheight, 360, NULL);
+    command_text = XmCommandGetChild(command, XmDIALOG_COMMAND_TEXT);
+    filter = XmFileSelectionBoxGetChild(files, XmDIALOG_FILTER_TEXT);
+    command_x = left(command_text);
+    filter_x = left(filter);
+    command_margin = dimension(command, XmNmarginWidth);
+    file_margin = dimension(files, XmNmarginWidth);
+    XmTextFieldSetString(command_text, "retain command");
+    XmTextFieldSetString(filter, "retain filter");
+
+    popup = XmCreatePopupMenu(board, "dpiMenu", NULL, 0);
+    XtVaSetValues(popup, XmNtearOffModel, XmTEAR_OFF_ENABLED, NULL);
+    tearoff = XmGetTearOffControl(popup);
+    if (tearoff == NULL)
+        return fail("menu tear-off control could not be created");
+    for (unsigned int i = 0; i < XtNumber(submenu); ++i)
+        submenu[i] = XmCreatePulldownMenu(popup, "submenu", NULL, 0);
+    cascades[0] = XtVaCreateManagedWidget("cascade", xmCascadeButtonWidgetClass,
+        popup, XmNsubMenuId, submenu[0], NULL);
+    cascades[1] = XtVaCreateManagedWidget("gadget", xmCascadeButtonGadgetClass,
+        popup, XmNsubMenuId, submenu[1], NULL);
+    application_pixmap = XCreatePixmap(display, DefaultRootWindow(display), 9, 9,
+                                       DefaultDepthOfScreen(XtScreen(board)));
+    custom_cascade = XtVaCreateManagedWidget("explicitCascade", xmCascadeButtonWidgetClass,
+        popup, XmNsubMenuId, submenu[2], XmNcascadePixmap, application_pixmap, NULL);
+    dash = XtVaCreateManagedWidget("dash", xmTearOffButtonWidgetClass, board,
+        XmNx, 800, XmNy, 20, XmNwidth, 128, XmNheight, 32,
+        XmNhighlightThickness, 0, XmNshadowThickness, 2,
+        XmNseparatorType, XmSHADOW_ETCHED_OUT_DASH, NULL);
+    if (tearoff_dash_length(dash) != 6)
+        return fail("tear-off did not render a six-pixel dash at 1x");
+    tear_height = dimension(tearoff, XmNheight);
+    for (unsigned int i = 0; i < XtNumber(cascades); ++i) {
+        cascade_width[i] = cascade_size(display, cascades[i]);
+        if (cascade_width[i] == 0)
+            return fail("missing toolkit cascade pixmap at 1x");
+    }
+
+    /* First expose finishes the Notebook's initial tab-scroller management. */
+    XtVaSetValues(notebook, XmNwidth, 280, XmNheight, 180, NULL);
+    if (dimension(notebook, XmNwidth) != 280 || dimension(notebook, XmNheight) != 180)
+        return fail("notebook fixture could not establish explicit bounds");
+    /* Assign the parent allocation after file-list realization and search. */
+    XtResizeWidget(files, 480, 360, dimension(files, XmNborderWidth));
+    if (dimension(files, XmNwidth) != 480 || dimension(files, XmNheight) != 360)
+        return fail("file selection fixture could not establish explicit bounds");
+    if (!XmSetDisplayScaleOverride(display, 2.0))
+        return fail("2x classic geometry transaction failed");
+    XSync(display, False);
+    for (unsigned int i = 0; i < XtNumber(panes); ++i) {
+        if (dimension(panes[i], XmNsashWidth) != 2 * sash_extent ||
+            dimension(sashes[i], XmNwidth) != 2 * sash_extent ||
+            dimension(sashes[i], XmNheight) != (i ? 10 : 2 * sash_extent))
+            return fail("live sash resize ignored the manager or Xrm ownership");
+        if (dimension(arrows[i], XmNwidth) != 30 ||
+            dimension(arrows[i], XmNheight) != 30)
+            return fail("live ArrowButton/Gadget dimensions did not reach 2x");
+        if (cascade_size(display, cascades[i]) <= cascade_width[i])
+            return fail("live menu cascade pixmap did not grow");
+    }
+    if (dimension(explicit_gadget, XmNwidth) != 41 ||
+        dimension(explicit_gadget, XmNheight) != 15 ||
+        cascade_size(display, custom_cascade) != 9)
+        return fail("live scaling changed an explicit arrow dimension or pixmap");
+    if (tearoff_dash_length(dash) != 12)
+        return fail("tear-off did not render a twelve-pixel dash at 2x");
+
+    if (dimension(notebook, XmNbindingWidth) != 50 ||
+        dimension(notebook, XmNbackPageSize) != 16 ||
+        dimension(notebook, XmNmajorTabSpacing) != 6 ||
+        dimension(notebook, XmNminorTabSpacing) != 3 ||
+        dimension(notebook, XmNwidth) != 280 || dimension(notebook, XmNheight) != 180) {
+        fprintf(stderr, "notebook binding=%u back=%u tabs=%u/%u size=%ux%u\n",
+                dimension(notebook, XmNbindingWidth), dimension(notebook, XmNbackPageSize),
+                dimension(notebook, XmNmajorTabSpacing), dimension(notebook, XmNminorTabSpacing),
+                dimension(notebook, XmNwidth), dimension(notebook, XmNheight));
+        return fail("notebook live metrics or explicit allocation are incorrect");
+    }
+    XtVaGetValues(notebook, XmNcurrentPageNumber, &page, NULL);
+    if (page != 2)
+        return fail("notebook lost its current page during scaling");
+    if (dimension(command, XmNmarginWidth) != 2 * command_margin ||
+        dimension(files, XmNmarginWidth) != 2 * file_margin ||
+        dimension(files, XmNmarginHeight) != 10 ||
+        dimension(command, XmNwidth) != 260 || dimension(files, XmNwidth) != 480 ||
+        left(command_text) <= command_x || left(filter) <= filter_x) {
+        fprintf(stderr, "profile=%d command margin=%u (was %u) width=%u x=%d (was %d); "
+                "files margins=%u/%u (width was %u) width=%u x=%d (was %d)\n",
+                profile, dimension(command, XmNmarginWidth), command_margin,
+                dimension(command, XmNwidth), left(command_text), command_x,
+                dimension(files, XmNmarginWidth), dimension(files, XmNmarginHeight),
+                file_margin, dimension(files, XmNwidth), left(filter), filter_x);
+        return fail("selection controls did not reflow within their explicit bounds");
+    }
+    input = XmTextFieldGetString(command_text);
+    if (strcmp(input, "retain command") != 0)
+        return fail("command edit lost text during scaling");
+    XtFree(input);
+    input = XmTextFieldGetString(filter);
+    if (strcmp(input, "retain filter") != 0)
+        return fail("file filter lost text during scaling");
+    XtFree(input);
+
+    Widget new_arrow = XtVaCreateManagedWidget("newArrow", xmArrowButtonWidgetClass,
+        board, XmNhighlightThickness, 0, XmNshadowThickness, 0, NULL);
+    Widget new_paned = XtVaCreateManagedWidget("newPaned", xmPanedWindowWidgetClass,
+        board, NULL);
+    if (dimension(new_arrow, XmNwidth) != 30 ||
+        dimension(new_paned, XmNsashWidth) != 2 * sash_extent)
+        return fail("2x constructors did not use the current DPI");
+    XtVaSetValues(explicit_gadget, XmNheight, 0, NULL);
+    if (dimension(explicit_gadget, XmNheight) != 30 ||
+        dimension(explicit_gadget, XmNwidth) != 41)
+        return fail("zero ArrowButtonGadget height did not restore its DPI default");
+    if (!XmSetDisplayScaleOverride(display, 1.0))
+        return fail("classic geometry reset failed");
+    XSync(display, False);
+    for (unsigned int i = 0; i < XtNumber(panes); ++i) {
+        if (dimension(sashes[i], XmNwidth) != sash_extent ||
+            dimension(arrows[i], XmNwidth) != arrow_width[i] ||
+            dimension(arrows[i], XmNheight) != arrow_height[i] ||
+            cascade_size(display, cascades[i]) != cascade_width[i])
+            return fail("reset did not restore the 1x sash or arrow size");
+    }
+    if (dimension(notebook, XmNbindingWidth) != 25 ||
+        left(command_text) != command_x || left(filter) != filter_x ||
+        dimension(tearoff, XmNheight) != tear_height ||
+        tearoff_dash_length(dash) != 6)
+        return fail("reset did not restore notebook, selection or tear-off layout");
+
+    XtDestroyWidget(popup);
+    XtDestroyWidget(dash);
+    XFreePixmap(display, application_pixmap);
+    XtDestroyWidget(new_paned);
+    XtDestroyWidget(new_arrow);
+    XtDestroyWidget(files);
+    XtDestroyWidget(command);
+    XtDestroyWidget(notebook);
+    XtDestroyWidget(explicit_gadget);
+    for (unsigned int i = 0; i < XtNumber(panes); ++i) {
+        XtDestroyWidget(arrows[i]);
+        XtDestroyWidget(panes[i]);
+    }
+    return 0;
 }
 
 int
@@ -249,6 +552,9 @@ main(int argc, char **argv)
     if (!XmSetDisplayScaleOverride(display, 0.5) ||
         !XmGetWidgetScale(shell, &scale) || scale != 1.0)
         return fail("effective scale did not match minimum default scale");
+    if (check_classic_controls(board, XmAPPEARANCE_CLASSIC) ||
+        check_classic_controls(board, XmAPPEARANCE_HIGH_CONTRAST))
+        return 1;
     XtDestroyWidget(shell);
     puts("PASS WP-05.2 display-scale override");
     return 0;

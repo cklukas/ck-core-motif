@@ -22,7 +22,7 @@ _XmAppearanceArrowExtent(Widget widget, XmAppearanceProfile profile,
                          Dimension highlight, Dimension shadow)
 {
     unsigned long margins = 2UL * ((unsigned long)highlight + shadow);
-    unsigned long extent = 15UL + margins;
+    unsigned long extent = _XmDpiDefaultDimension(widget, 15) + margins;
     if (profile == XmAPPEARANCE_MODERN_LIGHT || profile == XmAPPEARANCE_MODERN_DARK) {
         unsigned long target = _XmDpiDefaultDimension(widget,
             density == XmAPPEARANCE_DENSITY_COMPACT ? 28 : 36);

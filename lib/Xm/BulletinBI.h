@@ -62,6 +62,7 @@ extern Widget _XmBB_CreateLabelG(
                         XmString l_string,
                         char *name,
                         XmLabelStringLoc l_loc) ;
+extern void _XmBulletinBoardRelayoutForScale(Widget);
 extern void _XmBulletinBoardSizeUpdate( 
                         Widget wid) ;
 extern void _XmBulletinBoardFocusMoved( 
