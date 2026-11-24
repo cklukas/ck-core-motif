@@ -1421,30 +1421,28 @@ submit_activation_token_on_server(XmWlServer *srv, uint32_t source_xid, const ch
 
     xdg_activation_token_v1_add_listener(tok, &g_activation_token_listener, ctx);
 
-    uint32_t serial = srv->last_activation_serial ? srv->last_activation_serial : srv->last_input_serial;
-    if (srv->seat && serial != 0)
-        xdg_activation_token_v1_set_serial(tok, serial, srv->seat);
-
     XmWlWindow *src_top = NULL;
     if (source_xid != 0) {
         XmWlWindow *sw = _XmWlFindWindow(srv, source_xid);
         int dx = 0, dy = 0;
         src_top = sw ? _XmWlEnclosingTopLevel(srv, sw, &dx, &dy) : NULL;
     }
-    if (!src_top || !src_top->wl_surf)
-        src_top = (srv->wl_focus_top && srv->wl_focus_top->wl_surf) ? srv->wl_focus_top : NULL;
-    if (!src_top || !src_top->wl_surf)
-        src_top = (srv->pointer_top && srv->pointer_top->wl_surf) ? srv->pointer_top : NULL;
-    if ((!src_top || !src_top->wl_surf) && srv->root) {
-        for (XmWlWindow *cand = srv->root->first_child; cand; cand = cand->next_sibling) {
-            if (cand->mapped && cand->wl_surf && !cand->is_popup && !cand->is_drag_icon) {
-                src_top = cand;
-                break;
-            }
-        }
+    if (!src_top || !src_top->wl_surf ||
+        (src_top != srv->wl_focus_top && src_top != srv->pointer_top)) {
+        if (srv->wl_focus_top && srv->wl_focus_top->wl_surf)
+            src_top = srv->wl_focus_top;
+        else if (srv->pointer_top && srv->pointer_top->wl_surf)
+            src_top = srv->pointer_top;
     }
-    if (src_top && src_top->wl_surf)
+
+    bool has_seat_focus =
+        (src_top != NULL && src_top->wl_surf != NULL &&
+         (src_top == srv->wl_focus_top || src_top == srv->pointer_top));
+    if (has_seat_focus) {
+        if (srv->seat && srv->last_activation_serial != 0)
+            xdg_activation_token_v1_set_serial(tok, srv->last_activation_serial, srv->seat);
         xdg_activation_token_v1_set_surface(tok, src_top->wl_surf);
+    }
     if (app_id && app_id[0])
         xdg_activation_token_v1_set_app_id(tok, app_id);
 
@@ -1487,6 +1485,23 @@ _XmWlRequestSelfActivate(XmWlServer *srv, XmWlWindow *top)
 {
     if (!srv || !top || !srv->activation_mgr || top->is_popup || top->is_drag_icon)
         return;
+    const char *ext_tok = getenv("XDG_ACTIVATION_TOKEN");
+    if (!ext_tok || !ext_tok[0])
+        ext_tok = getenv("DESKTOP_STARTUP_ID");
+    if (ext_tok && ext_tok[0]) {
+        char tok_copy[256];
+        snprintf(tok_copy, sizeof(tok_copy), "%s", ext_tok);
+        unsetenv("XDG_ACTIVATION_TOKEN");
+        unsetenv("DESKTOP_STARTUP_ID");
+        if (top->mapped && top->wl_surf && top->xdg_configured && !top->dirty) {
+            xdg_activation_v1_activate(srv->activation_mgr, tok_copy, top->wl_surf);
+            wl_display_flush(srv->wl_dpy);
+        } else {
+            snprintf(top->pending_activation_token, sizeof(top->pending_activation_token),
+                     "%s", tok_copy);
+        }
+        return;
+    }
     submit_activation_token_on_server(
         srv, top->id, top->sent_app_id[0] ? top->sent_app_id : NULL,
         false, 0, top->id);

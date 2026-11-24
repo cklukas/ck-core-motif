@@ -16,7 +16,9 @@ Add Wayland xdg-activation-v1 startup consumption and token minting (2026-11-24)
     macOS, and `--disable-wayland` builds) to mint compositor activation tokens
     from the latest genuine seat button/keypress serial and source surface.
   - Bridge X11 `_NET_ACTIVE_WINDOW` `ClientMessage` requests on the virtual
-    root window to `xdg_activation_v1` self-activation, and mirror
+    root window to `xdg_activation_v1` activation (redeeming an IPC-forwarded
+    `XDG_ACTIVATION_TOKEN` / `DESKTOP_STARTUP_ID` directly when present, or
+    minting a self-activation token), and mirror
     `_DT_PANEL_BUSY_START_SEQ` / `_DT_PANEL_BUSY_STOP_SEQ` IPC updates onto
     the virtual WM helper and root windows.
 
