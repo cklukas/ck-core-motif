@@ -600,28 +600,64 @@ static const struct wp_fractional_scale_v1_listener g_frac_scale_listener = {
 };
 
 static void
-surf_enter(void *data, struct wl_surface *wl_surface, struct wl_output *output)
+emit_top_configure_notify(XmWlServer *srv, XmWlWindow *win)
 {
-    (void)wl_surface;
-    XmWlWindow *win = (XmWlWindow *)data;
-    XmWlServer *srv = g_wl_srv;
-    if (!win || !srv || !output) return;
-    win->current_wl_output = output;
-    if (!srv->compositor_native_dpi || win->is_popup || win->is_drag_icon)
+    if (!srv || !win) return;
+    uint8_t cfg[32];
+    memset(cfg, 0, sizeof(cfg));
+    cfg[0] = 22; /* ConfigureNotify */
+    uint32_t wid = win->id;
+    uint32_t sib = win->prev_sibling ? win->prev_sibling->id : 0;
+    memcpy(cfg + 4, &wid, 4);
+    memcpy(cfg + 8, &wid, 4);
+    memcpy(cfg + 12, &sib, 4);
+    memcpy(cfg + 16, &win->x, 2);
+    memcpy(cfg + 18, &win->y, 2);
+    memcpy(cfg + 20, &win->width, 2);
+    memcpy(cfg + 22, &win->height, 2);
+    memcpy(cfg + 24, &win->border_width, 2);
+    cfg[26] = win->override_redirect ? 1 : 0;
+    _XmWlSendEventToWindow(srv, win, 1u << 17 /* StructureNotifyMask */, cfg);
+}
+
+static void
+sync_win_single_output_transition(XmWlServer *srv, XmWlWindow *win)
+{
+    if (!srv || !win || win->is_popup || win->is_drag_icon || win->wl_output_count != 1)
         return;
 
-    const char *oname = NULL;
+    struct wl_output *output = win->wl_outputs[0];
+    const XmWlOutputInfo *oinfo = NULL;
     for (int i = 0; i < srv->output_count; ++i) {
-        if (srv->outputs[i].wl_out == output && srv->outputs[i].name[0]) {
-            oname = srv->outputs[i].name;
+        if (srv->outputs[i].wl_out == output) {
+            oinfo = &srv->outputs[i];
             break;
         }
     }
-    if (!oname) return;
+    if (!oinfo)
+        return;
+
+    if (!srv->compositor_native_dpi) {
+        if (!srv->frac_scale_mgr && oinfo->scale > 0) {
+            double sc = (double)oinfo->scale;
+            if (sc < 0.5) sc = 1.0;
+            if (sc > 4.0) sc = 4.0;
+            if (fabs(win->preferred_scale - sc) > 1e-4) {
+                win->preferred_scale = sc;
+                srv->active_scale = sc;
+                _XmWlDamageTop(win, 0, 0, win->width, win->height);
+                _XmWlBroadcastRandRChange(srv);
+            }
+        }
+        return;
+    }
+
+    if (win->has_authoritative_pos || !oinfo->name[0])
+        return;
 
     for (int i = 0; i < srv->ipc_output_count; ++i) {
         const XmWlIpcOutput *io = &srv->ipc_outputs[i];
-        if (!io->enabled || strcmp(io->name, oname) != 0)
+        if (!io->enabled || strcmp(io->name, oinfo->name) != 0)
             continue;
         int cx = (int)win->x + (int)win->width / 2;
         int cy = (int)win->y + (int)win->height / 2;
@@ -629,24 +665,30 @@ surf_enter(void *data, struct wl_surface *wl_surface, struct wl_output *output)
             cy < io->y || cy >= io->y + io->height) {
             win->x = (int16_t)(io->x + 32);
             win->y = (int16_t)(io->y + 32);
-            uint8_t cfg[32];
-            memset(cfg, 0, sizeof(cfg));
-            cfg[0] = 22; /* ConfigureNotify */
-            uint32_t wid = win->id;
-            uint32_t sib = win->prev_sibling ? win->prev_sibling->id : 0;
-            memcpy(cfg + 4, &wid, 4);
-            memcpy(cfg + 8, &wid, 4);
-            memcpy(cfg + 12, &sib, 4);
-            memcpy(cfg + 16, &win->x, 2);
-            memcpy(cfg + 18, &win->y, 2);
-            memcpy(cfg + 20, &win->width, 2);
-            memcpy(cfg + 22, &win->height, 2);
-            memcpy(cfg + 24, &win->border_width, 2);
-            cfg[26] = win->override_redirect ? 1 : 0;
-            _XmWlSendEventToWindow(srv, win, 1u << 17 /* StructureNotifyMask */, cfg);
+            emit_top_configure_notify(srv, win);
         }
         break;
     }
+}
+
+static void
+surf_enter(void *data, struct wl_surface *wl_surface, struct wl_output *output)
+{
+    (void)wl_surface;
+    XmWlWindow *win = (XmWlWindow *)data;
+    XmWlServer *srv = g_wl_srv;
+    if (!win || !srv || !output) return;
+    bool present = false;
+    for (int i = 0; i < win->wl_output_count; ++i) {
+        if (win->wl_outputs[i] == output) {
+            present = true;
+            break;
+        }
+    }
+    if (!present && win->wl_output_count < XM_WL_MAX_OUTPUTS)
+        win->wl_outputs[win->wl_output_count++] = output;
+    win->current_wl_output = output;
+    sync_win_single_output_transition(srv, win);
 }
 
 static void
@@ -654,8 +696,22 @@ surf_leave(void *data, struct wl_surface *wl_surface, struct wl_output *output)
 {
     (void)wl_surface;
     XmWlWindow *win = (XmWlWindow *)data;
-    if (win && win->current_wl_output == output)
-        win->current_wl_output = NULL;
+    XmWlServer *srv = g_wl_srv;
+    if (!win || !output) return;
+    for (int i = 0; i < win->wl_output_count; ++i) {
+        if (win->wl_outputs[i] == output) {
+            for (int j = i; j + 1 < win->wl_output_count; ++j)
+                win->wl_outputs[j] = win->wl_outputs[j + 1];
+            win->wl_outputs[--win->wl_output_count] = NULL;
+            break;
+        }
+    }
+    if (win->current_wl_output == output) {
+        win->current_wl_output =
+            (win->wl_output_count > 0) ? win->wl_outputs[win->wl_output_count - 1] : NULL;
+    }
+    if (srv)
+        sync_win_single_output_transition(srv, win);
 }
 
 static const struct wl_surface_listener g_wl_surface_listener = {
@@ -1691,11 +1747,23 @@ output_done(void *data, struct wl_output *wl_output)
     if (g_wl_srv) {
         recompute_screen_metrics(g_wl_srv);
         if (!g_wl_srv->compositor_native_dpi && o->scale > 0 && !g_wl_srv->frac_scale_mgr) {
-            g_wl_srv->active_scale = (double)o->scale;
+            bool any_bound_elsewhere = false;
             if (g_wl_srv->root) {
-                for (XmWlWindow *tw = g_wl_srv->root->first_child; tw; tw = tw->next_sibling)
-                    _XmWlDamageTop(tw, 0, 0, tw->width, tw->height);
+                for (XmWlWindow *tw = g_wl_srv->root->first_child; tw; tw = tw->next_sibling) {
+                    if (tw->wl_output_count == 1 && tw->wl_outputs[0] == o->wl_out) {
+                        tw->preferred_scale = (double)o->scale;
+                        g_wl_srv->active_scale = (double)o->scale;
+                        _XmWlDamageTop(tw, 0, 0, tw->width, tw->height);
+                    } else if (tw->wl_output_count == 0) {
+                        tw->preferred_scale = (double)o->scale;
+                        _XmWlDamageTop(tw, 0, 0, tw->width, tw->height);
+                    } else {
+                        any_bound_elsewhere = true;
+                    }
+                }
             }
+            if (!any_bound_elsewhere)
+                g_wl_srv->active_scale = (double)o->scale;
         }
         _XmWlBroadcastRandRChange(g_wl_srv);
     }
@@ -2580,6 +2648,9 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
     }
     win->surf_listener_added = false;
     win->current_wl_output = NULL;
+    memset(win->wl_outputs, 0, sizeof(win->wl_outputs));
+    win->wl_output_count = 0;
+    win->has_authoritative_pos = false;
     win->xdg_configured = false;
     win->has_queued_wl_cfg = false;
     win->resize_awaiting_client = false;
@@ -3169,6 +3240,30 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
         *nl = '\0';
         if (!strcmp(start, "READY")) {
             srv->ipc_initial_ready = true;
+        } else if (!strncmp(start, "SURFACE_POS ", 12)) {
+            unsigned int sid = 0;
+            int px = 0, py = 0;
+            if (sscanf(start + 12, "%u %d %d", &sid, &px, &py) == 3 &&
+                sid != 0 && srv->root) {
+                if (px < -32768) px = -32768;
+                if (px > 32767) px = 32767;
+                if (py < -32768) py = -32768;
+                if (py > 32767) py = 32767;
+                for (XmWlWindow *tw = srv->root->first_child; tw; tw = tw->next_sibling) {
+                    if (tw->wl_surf &&
+                        wl_proxy_get_id((struct wl_proxy *)tw->wl_surf) == sid) {
+                        tw->has_authoritative_pos = true;
+                        int16_t nx = (int16_t)px;
+                        int16_t ny = (int16_t)py;
+                        if (tw->x != nx || tw->y != ny) {
+                            tw->x = nx;
+                            tw->y = ny;
+                            emit_top_configure_notify(srv, tw);
+                        }
+                        break;
+                    }
+                }
+            }
         } else if (!strncmp(start, "PROP ", 5)) {
             char *p = start + 5;
             char *sp = strrchr(p, ' ');

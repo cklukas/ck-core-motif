@@ -1854,11 +1854,51 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         XFreeCursor(dpy, cur_text);
     }
 
+    /* Multi-output wl_surface.enter / wl_surface.leave straddle & transition verification */
+    {
+        double s_out = 0.0;
+        write_stage_file(sync_dir, "multi_out.step1_req");
+        wait_for_stage_file(app, dpy, sync_dir, "multi_out.step1_sent", 5000);
+        pump_xt_ms(app, dpy, 80);
+        if (!XmWaylandGetWidgetSurface(shell, NULL, NULL, NULL, NULL, NULL, &s_out) ||
+            fabs(s_out - 1.0) > 0.05) {
+            fprintf(stderr, "FAIL: straddling OUT-1(1x)+OUT-2(2x) prematurely jumped scale to %.2f\n", s_out);
+            exit(1);
+        }
+
+        write_stage_file(sync_dir, "multi_out.step2_req");
+        wait_for_stage_file(app, dpy, sync_dir, "multi_out.step2_sent", 5000);
+        pump_xt_ms(app, dpy, 80);
+        if (!XmWaylandGetWidgetSurface(shell, NULL, NULL, NULL, NULL, NULL, &s_out) ||
+            fabs(s_out - 2.0) > 0.05) {
+            fprintf(stderr, "FAIL: leaving OUT-1 onto OUT-2(2x) did not transition scale to 2.0 (got %.2f)\n", s_out);
+            exit(1);
+        }
+
+        write_stage_file(sync_dir, "multi_out.step3_req");
+        wait_for_stage_file(app, dpy, sync_dir, "multi_out.step3_sent", 5000);
+        pump_xt_ms(app, dpy, 80);
+        if (!XmWaylandGetWidgetSurface(shell, NULL, NULL, NULL, NULL, NULL, &s_out) ||
+            fabs(s_out - 2.0) > 0.05) {
+            fprintf(stderr, "FAIL: transient touch+leave of OUT-1 lost OUT-2(2x) scale (got %.2f)\n", s_out);
+            exit(1);
+        }
+
+        write_stage_file(sync_dir, "multi_out.step4_req");
+        wait_for_stage_file(app, dpy, sync_dir, "multi_out.step4_sent", 5000);
+        pump_xt_ms(app, dpy, 80);
+        if (!XmWaylandGetWidgetSurface(shell, NULL, NULL, NULL, NULL, NULL, &s_out) ||
+            fabs(s_out - 1.0) > 0.05) {
+            fprintf(stderr, "FAIL: returning onto OUT-1(1x) did not restore scale 1.0 (got %.2f)\n", s_out);
+            exit(1);
+        }
+    }
+
     XtDestroyWidget(shell);
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);
     write_stage_file(sync_dir, "menu_drag.verified");
-    printf("PASS ime-dnd-clipboard-resize-wheel-menudrag-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40 wheel_subnotch=%d wheel_auto=%d[frames=%d] wheel_app=0->%d->%d->%d menu_drag=OK cursor_shape=OK touch_pan=%d)\n",
+    printf("PASS ime-dnd-clipboard-resize-wheel-menudrag-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40 wheel_subnotch=%d wheel_auto=%d[frames=%d] wheel_app=0->%d->%d->%d menu_drag=OK cursor_shape=OK touch_pan=%d multi_out=1x->2x->1x)\n",
            g_resize_dispatches, subnotch_val, auto_val, distinct_auto_frames, app_val, app_end, app_start, touch_pan_val);
     return 0;
 }

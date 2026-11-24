@@ -200,6 +200,9 @@ struct XmWlWindow {
     int8_t sent_deco_mode;
     double preferred_scale; /* e.g. 1.0, 1.25, 1.5, 2.0 */
     struct wl_output *current_wl_output;
+    struct wl_output *wl_outputs[XM_WL_MAX_OUTPUTS];
+    int wl_output_count;
+    bool has_authoritative_pos;
     bool surf_listener_added;
 
     /* Backing canvas & wl_shm triple-buffered pool for top-level / popup windows */

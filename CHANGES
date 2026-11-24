@@ -1,3 +1,22 @@
+Polish Wayland multi-output cross-monitor DPI and scale transitions (2026-11-24)
+================================================================================
+
+- `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandBackend.c`,
+  `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Track the complete set of overlapping `wl_output` bindings per top-level
+    `wl_surface` (`wl_outputs[]`) across `wl_surface.enter` and
+    `wl_surface.leave` so windows straddling two mixed-DPI/mixed-scale monitors
+    never jump scale prematurely on a 1-pixel edge touch or lose their target
+    output scale after retreating from an adjacent monitor.
+  - Accept authoritative compositor surface coordinates (`SURFACE_POS <sid> <x> <y>`)
+    over native session IPC (`CLIENT_CAP native_dpi`) and emit synthetic
+    `ConfigureNotify` events so `XlibreDpi` per-monitor `RANDR` 1.5 `DPI`
+    reflow tracks live cross-monitor window drags bidirectionally.
+  - Extend `run-wayland-backend.py` and `check-wayland-backend` to qualify
+    dual-output straddle, transition, transient retreat, and return across
+    `1x` and `2x` `wl_output` instances.
+
 Add Wayland wp-cursor-shape-v1 and wl_touch touchscreen support (2026-11-24)
 ============================================================================
 

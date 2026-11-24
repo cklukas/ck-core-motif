@@ -78,6 +78,10 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         bool seen_shape_pointer;
         uint32_t last_cursor_shape;
         int custom_cursor_calls;
+        struct wl_resource *out1_res[8];
+        int out1_count;
+        struct wl_resource *out2_res[8];
+        int out2_count;
         int phase;
     } MiniSrv;
 
@@ -841,6 +845,46 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         wl_resource_set_implementation(r, &g_act_impl, d, NULL);
     }
 
+    typedef struct {
+        MiniSrv *ms;
+        int idx;
+    } OutSlot;
+    static const struct wl_output_interface g_out_impl = {
+        .release = noop_destroy,
+    };
+    static void bind_out(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        OutSlot *os = (OutSlot *)d;
+        uint32_t v = ver < 4 ? ver : 4;
+        struct wl_resource *r = wl_resource_create(c, &wl_output_interface, (int)v, id);
+        wl_resource_set_implementation(r, &g_out_impl, os, NULL);
+        int32_t ox = (os->idx == 0) ? 0 : 1920;
+        int32_t sc = (os->idx == 0) ? 1 : 2;
+        const char *nm = (os->idx == 0) ? "OUT-1" : "OUT-2";
+        wl_output_send_geometry(r, ox, 0, 508, 285, WL_OUTPUT_SUBPIXEL_UNKNOWN,
+                                "CK", nm, WL_OUTPUT_TRANSFORM_NORMAL);
+        wl_output_send_mode(r, WL_OUTPUT_MODE_CURRENT | WL_OUTPUT_MODE_PREFERRED,
+                            1920, 1080, 60000);
+        if (v >= 2)
+            wl_output_send_scale(r, sc);
+        if (v >= 4)
+            wl_output_send_name(r, nm);
+        if (v >= 2)
+            wl_output_send_done(r);
+        if (os->idx == 0 && os->ms->out1_count < 8)
+            os->ms->out1_res[os->ms->out1_count++] = r;
+        else if (os->idx == 1 && os->ms->out2_count < 8)
+            os->ms->out2_res[os->ms->out2_count++] = r;
+    }
+    static struct wl_resource *find_out_for_surf(struct wl_resource **arr, int n, struct wl_resource *surf) {
+        if (!surf) return NULL;
+        struct wl_client *sc = wl_resource_get_client(surf);
+        for (int i = 0; i < n; ++i) {
+            if (arr[i] && wl_resource_get_client(arr[i]) == sc)
+                return arr[i];
+        }
+        return NULL;
+    }
+
     int main(int argc, char **argv) {
         if (argc < 3) return 2;
         MiniSrv ms;
@@ -851,8 +895,12 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         if (!ms.dpy) return 1;
         if (wl_display_add_socket(ms.dpy, argv[1]) != 0) return 1;
 
+        OutSlot out1 = { .ms = &ms, .idx = 0 };
+        OutSlot out2 = { .ms = &ms, .idx = 1 };
         wl_global_create(ms.dpy, &wl_compositor_interface, 4, &ms, bind_comp);
         wl_display_init_shm(ms.dpy);
+        wl_global_create(ms.dpy, &wl_output_interface, 4, &out1, bind_out);
+        wl_global_create(ms.dpy, &wl_output_interface, 4, &out2, bind_out);
         wl_global_create(ms.dpy, &xdg_wm_base_interface, 5, &ms, bind_wm);
         wl_global_create(ms.dpy, &wl_seat_interface, 5, &ms, bind_seat);
         wl_global_create(ms.dpy, &wl_data_device_manager_interface, 3, &ms, bind_dmgr);
@@ -1123,13 +1171,54 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                 wl_display_flush_clients(ms.dpy);
                 write_flag(ms.sync_dir, "cursor_touch.sent");
                 stage = 11;
-            } else if (stage == 11 && file_exists(ms.sync_dir, "menu_drag.verified")) {
+            } else if (stage == 11 && file_exists(ms.sync_dir, "multi_out.step1_req")) {
+                struct wl_resource *o1 = find_out_for_surf(ms.out1_res, ms.out1_count, ms.primary_surf);
+                struct wl_resource *o2 = find_out_for_surf(ms.out2_res, ms.out2_count, ms.primary_surf);
+                if (ms.primary_surf && o1 && o2) {
+                    /* Enter OUT-1 (1x), then straddle OUT-2 (2x): must stay 1x while straddling */
+                    wl_surface_send_enter(ms.primary_surf, o1);
+                    wl_surface_send_enter(ms.primary_surf, o2);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                write_flag(ms.sync_dir, "multi_out.step1_sent");
                 stage = 12;
+            } else if (stage == 12 && file_exists(ms.sync_dir, "multi_out.step2_req")) {
+                struct wl_resource *o1 = find_out_for_surf(ms.out1_res, ms.out1_count, ms.primary_surf);
+                if (ms.primary_surf && o1) {
+                    /* Leave OUT-1 -> exclusively on OUT-2 (2x) */
+                    wl_surface_send_leave(ms.primary_surf, o1);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                write_flag(ms.sync_dir, "multi_out.step2_sent");
+                stage = 13;
+            } else if (stage == 13 && file_exists(ms.sync_dir, "multi_out.step3_req")) {
+                struct wl_resource *o1 = find_out_for_surf(ms.out1_res, ms.out1_count, ms.primary_surf);
+                if (ms.primary_surf && o1) {
+                    /* Touch OUT-1 and retreat back onto OUT-2 -> must stay 2x */
+                    wl_surface_send_enter(ms.primary_surf, o1);
+                    wl_surface_send_leave(ms.primary_surf, o1);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                write_flag(ms.sync_dir, "multi_out.step3_sent");
+                stage = 14;
+            } else if (stage == 14 && file_exists(ms.sync_dir, "multi_out.step4_req")) {
+                struct wl_resource *o1 = find_out_for_surf(ms.out1_res, ms.out1_count, ms.primary_surf);
+                struct wl_resource *o2 = find_out_for_surf(ms.out2_res, ms.out2_count, ms.primary_surf);
+                if (ms.primary_surf && o1 && o2) {
+                    /* Cross back onto OUT-1 (1x) */
+                    wl_surface_send_enter(ms.primary_surf, o1);
+                    wl_surface_send_leave(ms.primary_surf, o2);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                write_flag(ms.sync_dir, "multi_out.step4_sent");
+                stage = 15;
+            } else if (stage == 15 && file_exists(ms.sync_dir, "menu_drag.verified")) {
+                stage = 16;
                 break;
             }
         }
         wl_display_destroy(ms.dpy);
-        return (stage == 12 && ms.dnd_finished_seen) ? 0 : 1;
+        return (stage == 16 && ms.dnd_finished_seen) ? 0 : 1;
     }
     """
 )

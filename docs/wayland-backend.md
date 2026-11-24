@@ -138,15 +138,18 @@ process environment when the native Wayland backend is active.
   scaled icons/masks (`XmGetScaledPixmap` / `XmeGetScaledMask`) directly onto
   `1:1` integer physical `wl_shm` pixels without `wp_viewport` resampling,
   exposing per-monitor CRTC bounds and `"DPI"` (`XA_INTEGER`, format `32`)
-  properties via virtual `RANDR` 1.5 (`_MOTIF_RANDR_OUTPUT_DPI = 1`) so
-  top-level shells reflow automatically across mixed-DPI outputs. On other
-  Wayland compositors, `wp_fractional_scale_v1`, `wl_output.scale`, and
-  `wp_viewporter` size physical `wl_shm` buffers and embedded
-  `XmWaylandGetWidgetSurface` subsurface scale factors while preserving 96-DPI
-  Wayland logical coordinates so `libXft` glyphs are never double-scaled inside
-  logical widget boxes. Explicit toolkit logical zoom (`CK_MOTIF_WAYLAND_SCALE`)
-  drives `XmSetDisplayScaleOverride` and `RANDR` screen-change notifications so
-  realized widgets reflow live across zoom changes.
+  properties via virtual `RANDR` 1.5 (`_MOTIF_RANDR_OUTPUT_DPI = 1`) and
+  tracking authoritative compositor surface coordinates (`SURFACE_POS`) as well
+  as complete multi-output `wl_surface.enter` / `wl_surface.leave` overlap sets
+  so top-level shells reflow smoothly across mixed-DPI outputs without straddle
+  bounce. On other Wayland compositors, `wp_fractional_scale_v1`,
+  per-surface `wl_output.scale` tracking, and `wp_viewporter` size physical
+  `wl_shm` buffers and embedded `XmWaylandGetWidgetSurface` subsurface scale
+  factors while preserving 96-DPI Wayland logical coordinates so `libXft`
+  glyphs are never double-scaled inside logical widget boxes. Explicit toolkit
+  logical zoom (`CK_MOTIF_WAYLAND_SCALE`) drives `XmSetDisplayScaleOverride`
+  and `RANDR` screen-change notifications so realized widgets reflow live
+  across zoom changes.
 
 ## Subsurface embedding API (`<Xm/Wayland.h>`)
 
