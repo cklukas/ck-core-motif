@@ -483,6 +483,7 @@ if test "x$enable_wayland" != "xno"; then
     if test -f "$WAYLAND_PROTOCOLS_DATADIR/stable/xdg-shell/xdg-shell.xml" && \
        test -f "$WAYLAND_PROTOCOLS_DATADIR/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml" && \
        test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/xdg-toplevel-icon/xdg-toplevel-icon-v1.xml" && \
+       test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/xdg-activation/xdg-activation-v1.xml" && \
        test -f "$WAYLAND_PROTOCOLS_DATADIR/unstable/primary-selection/primary-selection-unstable-v1.xml" && \
        test -f "$WAYLAND_PROTOCOLS_DATADIR/unstable/text-input/text-input-unstable-v3.xml" && \
        test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/fractional-scale/fractional-scale-v1.xml" && \

@@ -2915,6 +2915,17 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
                 !strcmp(d0name, "_DT_SM_SAVE_TO_HOME")) {
                 _XmWlIpcPublishRootProp(srv, "_DT_SM_SAVE_TO_HOME", ev + 16, 8);
             }
+        } else if (dw == srv->root && (ev[0] & 0x7fu) == 33 && ev[1] == 32) {
+            uint32_t mtype = rd_u32(ev + 8);
+            const char *mname = _XmWlAtomName(srv, mtype);
+            if (mname && !strcmp(mname, "_NET_ACTIVE_WINDOW")) {
+                uint32_t act_wid = rd_u32(ev + 4);
+                XmWlWindow *aw = _XmWlFindWindow(srv, act_wid);
+                int dx = 0, dy = 0;
+                XmWlWindow *atop = aw ? _XmWlEnclosingTopLevel(srv, aw, &dx, &dy) : NULL;
+                if (atop)
+                    _XmWlRequestSelfActivate(srv, atop);
+            }
         }
 
         if (dw) {

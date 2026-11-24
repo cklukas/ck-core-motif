@@ -633,6 +633,15 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
     if (!got_surf || !top_surf || sub_x < 0 || sub_y <= 0 || sub_w <= 0 || sub_h <= 0 || sub_scale < 0.5)
         fail_msg("XmWaylandGetWidgetSurface returned invalid widget geometry");
 
+    {
+        char *comp_tok = NULL;
+        if (!XmWaylandRequestActivationToken(dpy, XtWindow(shell), "org.cde.test", &comp_tok) ||
+            !comp_tok || !comp_tok[0]) {
+            fail_msg("XmWaylandRequestActivationToken failed against headless wlroots compositor");
+        }
+        XtFree(comp_tok);
+    }
+
     uint32_t classic_luma = 0;
     size_t classic_colors = count_distinct_colors_in_window(dpy, XtWindow(shell), xwa.width, xwa.height, &classic_luma);
     if (classic_colors < 4)
@@ -1206,6 +1215,9 @@ drop_site_proc(Widget w, XtPointer client_data, XtPointer call_data)
 static int
 run_ime_dnd_check(const char *self_exe, const char *sync_dir)
 {
+    if (getenv("XDG_ACTIVATION_TOKEN") != NULL)
+        fail_msg("XDG_ACTIVATION_TOKEN was not consumed and unset on startup");
+
     XtSetLanguageProc(NULL, NULL, NULL);
     XtToolkitInitialize();
     XtAppContext app = XtCreateApplicationContext();
@@ -1576,10 +1588,70 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         }
     }
 
+    /* Verify xdg_activation_v1:
+     *  1) initial XDG_ACTIVATION_TOKEN="startup-tok-initial-01" activated on first commit,
+     *  2) XmWaylandRequestActivationToken mints token with user input serial + surface + app_id,
+     *  3) X11 _NET_ACTIVE_WINDOW ClientMessage triggers self-activation via xdg_activation_v1. */
+    {
+        char *minted = NULL;
+        if (!XmWaylandRequestActivationToken(dpy, XtWindow(shell), "org.cde.dtpad", &minted) ||
+            !minted || strncmp(minted, "mini-act-tok-", 13) != 0) {
+            fail_msg("XmWaylandRequestActivationToken did not mint expected mini-act-tok-*");
+        }
+        XtFree(minted);
+
+        char apath[512];
+        snprintf(apath, sizeof(apath), "%s/act_state.txt", sync_dir);
+        {
+            FILE *af1 = fopen(apath, "r");
+            if (!af1)
+                fail_msg("mini-compositor did not write act_state.txt after XmWaylandRequestActivationToken");
+            char abuf1[1024] = {0};
+            size_t an1 = fread(abuf1, 1, sizeof(abuf1) - 1, af1);
+            fclose(af1);
+            abuf1[an1] = '\0';
+            if (!strstr(abuf1, "calls=1\n") ||
+                !strstr(abuf1, "first=startup-tok-initial-01\n") ||
+                !strstr(abuf1, "serial=802\n") ||
+                !strstr(abuf1, "has_surf=1\n") ||
+                !strstr(abuf1, "app_id=org.cde.dtpad\n")) {
+                fprintf(stderr, "FAIL: unexpected act_state.txt after token mint:\n%s\n", abuf1);
+                exit(1);
+            }
+        }
+
+        Atom a_net_active = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
+        XEvent aev;
+        memset(&aev, 0, sizeof(aev));
+        aev.xclient.type = ClientMessage;
+        aev.xclient.window = XtWindow(shell);
+        aev.xclient.message_type = a_net_active;
+        aev.xclient.format = 32;
+        aev.xclient.data.l[0] = 1; /* application request */
+        aev.xclient.data.l[1] = CurrentTime;
+        XSendEvent(dpy, DefaultRootWindow(dpy), False,
+                   SubstructureRedirectMask | SubstructureNotifyMask, &aev);
+        pump_xt_ms(app, dpy, 150);
+
+        FILE *af = fopen(apath, "r");
+        if (!af)
+            fail_msg("mini-compositor did not write act_state.txt");
+        char abuf[1024] = {0};
+        size_t an = fread(abuf, 1, sizeof(abuf) - 1, af);
+        fclose(af);
+        abuf[an] = '\0';
+        if (!strstr(abuf, "calls=2\n") ||
+            !strstr(abuf, "first=startup-tok-initial-01\n") ||
+            !strstr(abuf, "last=mini-act-tok-2\n")) {
+            fprintf(stderr, "FAIL: unexpected act_state.txt after _NET_ACTIVE_WINDOW:\n%s\n", abuf);
+            exit(1);
+        }
+    }
+
     XtDestroyWidget(shell);
-    write_stage_file(sync_dir, "menu_drag.verified");
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);
+    write_stage_file(sync_dir, "menu_drag.verified");
     printf("PASS ime-dnd-clipboard-resize-wheel-menudrag-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40 wheel_subnotch=%d wheel_auto=%d[frames=%d] wheel_app=0->%d->%d->%d menu_drag=OK)\n",
            g_resize_dispatches, subnotch_val, auto_val, distinct_auto_frames, app_val, app_end, app_start);
     return 0;

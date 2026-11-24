@@ -31,6 +31,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     #include <unistd.h>
     #include <wayland-server.h>
     #include "xdg-shell-server.h"
+    #include "xdg-activation-server.h"
     #include "text-input-v3-server.h"
     #include "primary-selection-server.h"
 
@@ -62,6 +63,13 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         bool ime_enabled_seen;
         bool ime_cursor_rect_seen;
         bool dnd_finished_seen;
+        uint32_t act_token_seq;
+        uint32_t last_tok_serial;
+        bool last_tok_had_surface;
+        char last_tok_app_id[128];
+        int activate_calls;
+        char first_activated_token[128];
+        char last_activated_token[128];
         int phase;
     } MiniSrv;
 
@@ -569,6 +577,95 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         wl_resource_set_implementation(r, &g_tim_impl, d, NULL);
     }
 
+    /* xdg_activation_v1 */
+    typedef struct {
+        MiniSrv *ms;
+        uint32_t serial;
+        bool has_surf;
+        char app_id[128];
+    } ActTokState;
+
+    static void free_act_tok(struct wl_resource *r) {
+        free(wl_resource_get_user_data(r));
+    }
+    static void write_act_state(MiniSrv *ms) {
+        char p[512];
+        snprintf(p, sizeof(p), "%s/act_state.txt", ms->sync_dir);
+        FILE *f = fopen(p, "w");
+        if (f) {
+            fprintf(f, "calls=%d\nfirst=%s\nlast=%s\nserial=%u\nhas_surf=%d\napp_id=%s\n",
+                    ms->activate_calls,
+                    ms->first_activated_token,
+                    ms->last_activated_token,
+                    ms->last_tok_serial,
+                    ms->last_tok_had_surface ? 1 : 0,
+                    ms->last_tok_app_id);
+            fclose(f);
+        }
+    }
+    static void atok_set_serial(struct wl_client *c, struct wl_resource *r, uint32_t ser, struct wl_resource *seat) {
+        (void)c; (void)seat;
+        ActTokState *st = wl_resource_get_user_data(r);
+        if (st) st->serial = ser;
+    }
+    static void atok_set_app_id(struct wl_client *c, struct wl_resource *r, const char *app_id) {
+        (void)c;
+        ActTokState *st = wl_resource_get_user_data(r);
+        if (st && app_id) snprintf(st->app_id, sizeof(st->app_id), "%s", app_id);
+    }
+    static void atok_set_surface(struct wl_client *c, struct wl_resource *r, struct wl_resource *surf) {
+        (void)c;
+        ActTokState *st = wl_resource_get_user_data(r);
+        if (st && surf) st->has_surf = true;
+    }
+    static void atok_commit(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        ActTokState *st = wl_resource_get_user_data(r);
+        if (!st || !st->ms) return;
+        MiniSrv *ms = st->ms;
+        ms->last_tok_serial = st->serial;
+        ms->last_tok_had_surface = st->has_surf;
+        snprintf(ms->last_tok_app_id, sizeof(ms->last_tok_app_id), "%s", st->app_id);
+        char tok_buf[96];
+        snprintf(tok_buf, sizeof(tok_buf), "mini-act-tok-%u", ++ms->act_token_seq);
+        write_act_state(ms);
+        xdg_activation_token_v1_send_done(r, tok_buf);
+    }
+    static const struct xdg_activation_token_v1_interface g_atok_impl = {
+        .set_serial = atok_set_serial,
+        .set_app_id = atok_set_app_id,
+        .set_surface = atok_set_surface,
+        .commit = atok_commit,
+        .destroy = noop_destroy,
+    };
+    static void act_get_token(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        ActTokState *st = calloc(1, sizeof(*st));
+        st->ms = ms;
+        struct wl_resource *tr = wl_resource_create(c, &xdg_activation_token_v1_interface, 1, id);
+        wl_resource_set_implementation(tr, &g_atok_impl, st, free_act_tok);
+    }
+    static void act_activate(struct wl_client *c, struct wl_resource *r, const char *token, struct wl_resource *surf) {
+        (void)c; (void)surf;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        if (!ms || !token) return;
+        ms->activate_calls++;
+        if (ms->activate_calls == 1)
+            snprintf(ms->first_activated_token, sizeof(ms->first_activated_token), "%s", token);
+        snprintf(ms->last_activated_token, sizeof(ms->last_activated_token), "%s", token);
+        write_act_state(ms);
+    }
+    static const struct xdg_activation_v1_interface g_act_impl = {
+        .destroy = noop_destroy,
+        .get_activation_token = act_get_token,
+        .activate = act_activate,
+    };
+    static void bind_act(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &xdg_activation_v1_interface, 1, id);
+        wl_resource_set_implementation(r, &g_act_impl, d, NULL);
+    }
+
     int main(int argc, char **argv) {
         if (argc < 3) return 2;
         MiniSrv ms;
@@ -586,6 +683,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         wl_global_create(ms.dpy, &wl_data_device_manager_interface, 3, &ms, bind_dmgr);
         wl_global_create(ms.dpy, &zwp_primary_selection_device_manager_v1_interface, 1, &ms, bind_pmgr);
         wl_global_create(ms.dpy, &zwp_text_input_manager_v3_interface, 1, &ms, bind_tim);
+        wl_global_create(ms.dpy, &xdg_activation_v1_interface, 1, &ms, bind_act);
 
         write_flag(ms.sync_dir, "srv.ready");
 
@@ -907,12 +1005,15 @@ def main() -> int:
             raise RuntimeError("wayland-scanner not found")
         wp_dir = Path(pkg_config_var("wayland-protocols", "pkgdatadir"))
         xdg_xml = wp_dir / "stable/xdg-shell/xdg-shell.xml"
+        act_xml = wp_dir / "staging/xdg-activation/xdg-activation-v1.xml"
         ti_xml = wp_dir / "unstable/text-input/text-input-unstable-v3.xml"
         prim_xml = wp_dir / "unstable/primary-selection/primary-selection-unstable-v1.xml"
 
         proto_dir = output / "proto"
         subprocess.run([scanner, "server-header", str(xdg_xml), str(proto_dir / "xdg-shell-server.h")], check=True)
         subprocess.run([scanner, "private-code", str(xdg_xml), str(proto_dir / "xdg-shell-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(act_xml), str(proto_dir / "xdg-activation-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(act_xml), str(proto_dir / "xdg-activation-code.c")], check=True)
         subprocess.run([scanner, "server-header", str(ti_xml), str(proto_dir / "text-input-v3-server.h")], check=True)
         subprocess.run([scanner, "private-code", str(ti_xml), str(proto_dir / "text-input-v3-code.c")], check=True)
         subprocess.run([scanner, "server-header", str(prim_xml), str(proto_dir / "primary-selection-server.h")], check=True)
@@ -928,6 +1029,7 @@ def main() -> int:
                 "-I" + str(proto_dir), *wls_cf,
                 str(srv_c),
                 str(proto_dir / "xdg-shell-code.c"),
+                str(proto_dir / "xdg-activation-code.c"),
                 str(proto_dir / "text-input-v3-code.c"),
                 str(proto_dir / "primary-selection-code.c"),
                 *wls_lf, "-o", str(srv_bin),
@@ -948,7 +1050,12 @@ def main() -> int:
         ime_sync = output / "sync-ime"
         ime_rt.mkdir(mode=0o700)
         ime_sync.mkdir()
-        ime_env = dict(base_env, XDG_RUNTIME_DIR=str(ime_rt), WAYLAND_DISPLAY="wayland-ime0")
+        ime_env = dict(
+            base_env,
+            XDG_RUNTIME_DIR=str(ime_rt),
+            WAYLAND_DISPLAY="wayland-ime0",
+            XDG_ACTIVATION_TOKEN="startup-tok-initial-01",
+        )
 
         srv_proc = subprocess.Popen(
             [str(srv_bin), "wayland-ime0", str(ime_sync)],

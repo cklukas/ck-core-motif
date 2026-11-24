@@ -1,3 +1,23 @@
+Add Wayland xdg-activation-v1 startup consumption and token minting (2026-11-24)
+================================================================================
+
+- `configure.ac`, `lib/Xm/Makefile.am`, `lib/Xm/Wayland.h`,
+  `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandBackend.c`,
+  `lib/Xm/WaylandX11Server.c`, `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Bind `xdg_activation_v1` in `libXm`'s native Wayland runtime backend,
+    capture and unset `XDG_ACTIVATION_TOKEN` / `DESKTOP_STARTUP_ID` at startup
+    so helper child processes never inherit one-shot startup tokens, and emit
+    `xdg_activation_v1.activate` on the primary top-level `wl_surface` commit.
+  - Export `XmWaylandRequestActivationToken(display, source_window, app_id,
+    &token)` in `<Xm/Wayland.h>` (with safe `False` stubs on X11, XWayland,
+    macOS, and `--disable-wayland` builds) to mint compositor activation tokens
+    from the latest genuine seat button/keypress serial and source surface.
+  - Bridge X11 `_NET_ACTIVE_WINDOW` `ClientMessage` requests on the virtual
+    root window to `xdg_activation_v1` self-activation, and mirror
+    `_DT_PANEL_BUSY_START_SEQ` / `_DT_PANEL_BUSY_STOP_SEQ` IPC updates onto
+    the virtual WM helper and root windows.
+
 Verify native menu, list, and editing journeys with Orca (2026-11-23)
 ===================================================================
 

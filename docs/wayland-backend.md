@@ -116,6 +116,13 @@ process environment when the native Wayland backend is active.
   `XmDataGrid` with zero speed cap, instant direction reversal, and clean
   start/end clamping, scaling dynamically with `*mouseWheelSpeed` (`1..10`,
   default `3`) and live `_DT_WAYLAND_WHEEL` compositor IPC updates.
+- **Focus activation and startup tokens (`xdg_activation_v1`)**: `libXm`
+  captures and unsets `XDG_ACTIVATION_TOKEN` (or `DESKTOP_STARTUP_ID`) during
+  Wayland backend initialization so forked helpers never inherit a one-shot
+  token, then submits `xdg_activation_v1.activate` on the application's primary
+  `xdg_toplevel` commit. X11 `_NET_ACTIVE_WINDOW` `ClientMessage` requests sent
+  to the virtual root window automatically mint and redeem a fresh activation
+  token for the target Motif shell.
 - **Fractional and HiDPI scaling**: On compositors that advertise per-output
   physical geometry and `DPI` over native session IPC (`CLIENT_CAP native_dpi`),
   `libXm` renders widgets, FreeType/Xft glyphs, 96-DPI catalog XLFD fonts, and
@@ -149,6 +156,11 @@ as media players or off-screen web views) inside a Motif widget can include
   its logical bounds and scale factor so the caller can attach a `wl_subsurface`
   with an empty input region (`wl_surface_set_input_region`) while preserving
   Motif pointer, wheel, focus, popup-menu, and `zwp_text_input_v3` routing.
+- `XmWaylandRequestActivationToken(display, source_window, app_id, &token)`
+  mints a one-shot `xdg_activation_v1` token seeded with `libXm`'s latest
+  button/keypress serial, source top-level `wl_surface`, and optional target
+  `app_id` hint (free `*token` with `XtFree()`), allowing launchers, file
+  managers, and mail clients to hand focus cleanly to child Wayland processes.
 - Applications that still prefer X11/XWayland when a real X11 `DISPLAY` is
   present may define `const int ck_motif_prefer_x11 = 1;` so library-load
   auto-selection keeps X11 even when `CK_MOTIF_BACKEND=wayland` is set in the

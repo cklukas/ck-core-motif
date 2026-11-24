@@ -25,6 +25,7 @@
 #include "wayland-xdg-shell-client-protocol.h"
 #include "wayland-xdg-decoration-client-protocol.h"
 #include "wayland-xdg-toplevel-icon-client-protocol.h"
+#include "wayland-xdg-activation-client-protocol.h"
 #include "wayland-primary-selection-client-protocol.h"
 #include "wayland-text-input-v3-client-protocol.h"
 #include "wayland-fractional-scale-client-protocol.h"
@@ -88,6 +89,7 @@ typedef struct XmWlGlyphSet XmWlGlyphSet;
 typedef struct XmWlRegion XmWlRegion;
 typedef struct XmWlProperty XmWlProperty;
 typedef struct XmWlShmBuf XmWlShmBuf;
+typedef struct XmWlPendingTokenCtx XmWlPendingTokenCtx;
 
 struct XmWlProperty {
     uint32_t atom;
@@ -188,6 +190,7 @@ struct XmWlWindow {
     bool wants_decorations;
     char sent_title[256];
     char sent_app_id[128];
+    char pending_activation_token[256];
     uint32_t sent_parent_xid;
     int32_t sent_min_w, sent_min_h, sent_max_w, sent_max_h;
     int8_t sent_deco_mode;
@@ -419,6 +422,7 @@ struct XmWlServer {
     struct xdg_wm_base *xdg_wm_base;
     struct zxdg_decoration_manager_v1 *deco_mgr;
     struct xdg_toplevel_icon_manager_v1 *icon_mgr;
+    struct xdg_activation_v1 *activation_mgr;
     struct wl_seat *seat;
     struct wl_pointer *pointer;
     struct wl_keyboard *keyboard;
@@ -481,6 +485,7 @@ struct XmWlServer {
     uint64_t next_repeat_ms;
 
     uint32_t last_input_serial;
+    uint32_t last_activation_serial;
     uint32_t last_button_serial;
     uint32_t last_button_time_ms;
     uint32_t server_time_ms;
@@ -592,6 +597,19 @@ struct XmWlServer {
     uint32_t xt_ime_del_before;
     uint32_t xt_ime_del_after;
     bool xt_has_ime_delete;
+
+    /* xdg_activation_v1 startup & token minting state */
+    char startup_activation_token[256];
+    XmWlPendingTokenCtx *pending_act_tokens;
+    pthread_mutex_t act_lock;
+    pthread_cond_t act_cond;
+    uint64_t act_req_seq;
+    bool act_req_in_flight;
+    bool act_req_submitted;
+    bool act_req_done;
+    uint32_t act_req_source_xid;
+    char act_req_app_id[128];
+    char act_req_result[256];
 };
 
 /* Global server singleton accessor */
@@ -616,6 +634,7 @@ XM_WL_INTERNAL void _XmWlRebuildKeymapFromXkb(XmWlServer *srv);
 XM_WL_INTERNAL void _XmWlIpcPublishRootProp(XmWlServer *srv, const char *atom_name, const uint8_t *data, size_t len);
 XM_WL_INTERNAL void _XmWlIpcHandleReadable(XmWlServer *srv);
 XM_WL_INTERNAL void _XmWlApplyScaleUpdate(XmWlServer *srv, double new_scale);
+XM_WL_INTERNAL void _XmWlRequestSelfActivate(XmWlServer *srv, XmWlWindow *top);
 
 /* WaylandX11Server.c resource & wire helpers */
 XM_WL_INTERNAL void _XmWlInitAtomsAndRoot(XmWlServer *srv);

@@ -851,6 +851,7 @@ pointer_button(void *data, struct wl_pointer *wl_pointer, uint32_t serial,
     (void)wl_pointer;
     XmWlServer *srv = (XmWlServer *)data;
     srv->last_input_serial = serial;
+    srv->last_activation_serial = serial;
     srv->last_button_serial = serial;
     uint32_t btn_time = time ? time : _XmWlNowMs();
     if (srv->last_button_time_ms != 0 &&
@@ -1038,6 +1039,8 @@ keyboard_key(void *data, struct wl_keyboard *wl_keyboard, uint32_t serial,
     if (xkc > 255u) return;
 
     bool pressed = (state == WL_KEYBOARD_KEY_STATE_PRESSED);
+    if (pressed)
+        srv->last_activation_serial = serial;
     _XmWlDispatchKey(srv, (uint8_t)xkc, pressed, srv->server_time_ms);
 
     if (pressed && srv->repeat_rate > 0 && srv->repeat_delay > 0 &&
@@ -1263,6 +1266,9 @@ registry_global(void *data, struct wl_registry *registry, uint32_t name,
     } else if (!strcmp(interface, xdg_toplevel_icon_manager_v1_interface.name)) {
         srv->icon_mgr = (struct xdg_toplevel_icon_manager_v1 *)wl_registry_bind(
             registry, name, &xdg_toplevel_icon_manager_v1_interface, 1);
+    } else if (!strcmp(interface, xdg_activation_v1_interface.name)) {
+        srv->activation_mgr = (struct xdg_activation_v1 *)wl_registry_bind(
+            registry, name, &xdg_activation_v1_interface, 1);
     } else if (!strcmp(interface, wl_seat_interface.name)) {
         if (!srv->seat) {
             uint32_t max_v = (uint32_t)wl_seat_interface.version;
@@ -1315,6 +1321,176 @@ static const struct wl_registry_listener g_registry_listener = {
     .global = registry_global,
     .global_remove = registry_global_remove,
 };
+
+/* ---------- xdg_activation_v1 Token Minting & Consumption ---------- */
+
+struct XmWlPendingTokenCtx {
+    XmWlServer *srv;
+    struct xdg_activation_token_v1 *tok_obj;
+    uint64_t req_seq;
+    uint32_t target_xid;
+    bool is_sync_req;
+    struct XmWlPendingTokenCtx *next;
+};
+
+static void
+unlink_pending_token_ctx(XmWlServer *srv, XmWlPendingTokenCtx *ctx)
+{
+    if (!srv || !ctx)
+        return;
+    XmWlPendingTokenCtx **pp = &srv->pending_act_tokens;
+    while (*pp) {
+        if (*pp == ctx) {
+            *pp = ctx->next;
+            break;
+        }
+        pp = &(*pp)->next;
+    }
+}
+
+static void
+activation_token_done(void *data, struct xdg_activation_token_v1 *tok, const char *token)
+{
+    XmWlPendingTokenCtx *ctx = (XmWlPendingTokenCtx *)data;
+    if (!ctx) {
+        if (tok)
+            xdg_activation_token_v1_destroy(tok);
+        return;
+    }
+    XmWlServer *srv = ctx->srv;
+    if (srv) {
+        unlink_pending_token_ctx(srv, ctx);
+        if (ctx->is_sync_req) {
+            pthread_mutex_lock(&srv->act_lock);
+            if (srv->act_req_in_flight && !srv->act_req_done && ctx->req_seq == srv->act_req_seq) {
+                if (token && token[0])
+                    snprintf(srv->act_req_result, sizeof(srv->act_req_result), "%s", token);
+                else
+                    srv->act_req_result[0] = '\0';
+                srv->act_req_done = true;
+                pthread_cond_broadcast(&srv->act_cond);
+            }
+            pthread_mutex_unlock(&srv->act_lock);
+        } else if (ctx->target_xid != 0 && token && token[0] && srv->activation_mgr) {
+            XmWlWindow *tw = _XmWlFindWindow(srv, ctx->target_xid);
+            int dx = 0, dy = 0;
+            XmWlWindow *top = tw ? _XmWlEnclosingTopLevel(srv, tw, &dx, &dy) : NULL;
+            if (top && top->mapped && top->wl_surf) {
+                if (top->xdg_configured && !top->dirty) {
+                    xdg_activation_v1_activate(srv->activation_mgr, token, top->wl_surf);
+                    wl_display_flush(srv->wl_dpy);
+                } else {
+                    snprintf(top->pending_activation_token, sizeof(top->pending_activation_token),
+                             "%s", token);
+                }
+            }
+        }
+    }
+    if (tok)
+        xdg_activation_token_v1_destroy(tok);
+    free(ctx);
+}
+
+static const struct xdg_activation_token_v1_listener g_activation_token_listener = {
+    .done = activation_token_done,
+};
+
+static void
+submit_activation_token_on_server(XmWlServer *srv, uint32_t source_xid, const char *app_id,
+                                  bool is_sync_req, uint64_t req_seq, uint32_t target_xid)
+{
+    if (!srv || !srv->activation_mgr || !srv->wl_dpy)
+        return;
+    struct xdg_activation_token_v1 *tok =
+        xdg_activation_v1_get_activation_token(srv->activation_mgr);
+    if (!tok)
+        return;
+
+    XmWlPendingTokenCtx *ctx = (XmWlPendingTokenCtx *)calloc(1, sizeof(*ctx));
+    if (!ctx) {
+        xdg_activation_token_v1_destroy(tok);
+        return;
+    }
+    ctx->srv = srv;
+    ctx->tok_obj = tok;
+    ctx->req_seq = req_seq;
+    ctx->target_xid = target_xid;
+    ctx->is_sync_req = is_sync_req;
+    ctx->next = srv->pending_act_tokens;
+    srv->pending_act_tokens = ctx;
+
+    xdg_activation_token_v1_add_listener(tok, &g_activation_token_listener, ctx);
+
+    uint32_t serial = srv->last_activation_serial ? srv->last_activation_serial : srv->last_input_serial;
+    if (srv->seat && serial != 0)
+        xdg_activation_token_v1_set_serial(tok, serial, srv->seat);
+
+    XmWlWindow *src_top = NULL;
+    if (source_xid != 0) {
+        XmWlWindow *sw = _XmWlFindWindow(srv, source_xid);
+        int dx = 0, dy = 0;
+        src_top = sw ? _XmWlEnclosingTopLevel(srv, sw, &dx, &dy) : NULL;
+    }
+    if (!src_top || !src_top->wl_surf)
+        src_top = (srv->wl_focus_top && srv->wl_focus_top->wl_surf) ? srv->wl_focus_top : NULL;
+    if (!src_top || !src_top->wl_surf)
+        src_top = (srv->pointer_top && srv->pointer_top->wl_surf) ? srv->pointer_top : NULL;
+    if ((!src_top || !src_top->wl_surf) && srv->root) {
+        for (XmWlWindow *cand = srv->root->first_child; cand; cand = cand->next_sibling) {
+            if (cand->mapped && cand->wl_surf && !cand->is_popup && !cand->is_drag_icon) {
+                src_top = cand;
+                break;
+            }
+        }
+    }
+    if (src_top && src_top->wl_surf)
+        xdg_activation_token_v1_set_surface(tok, src_top->wl_surf);
+    if (app_id && app_id[0])
+        xdg_activation_token_v1_set_app_id(tok, app_id);
+
+    xdg_activation_token_v1_commit(tok);
+    wl_display_flush(srv->wl_dpy);
+}
+
+static void
+process_pending_activation_requests(XmWlServer *srv)
+{
+    if (!srv)
+        return;
+    bool submit = false;
+    uint64_t seq = 0;
+    uint32_t src_xid = 0;
+    char app_id[128] = {0};
+
+    pthread_mutex_lock(&srv->act_lock);
+    if (srv->act_req_in_flight && !srv->act_req_submitted) {
+        srv->act_req_submitted = true;
+        if (!srv->activation_mgr) {
+            srv->act_req_result[0] = '\0';
+            srv->act_req_done = true;
+            pthread_cond_broadcast(&srv->act_cond);
+        } else {
+            submit = true;
+            seq = srv->act_req_seq;
+            src_xid = srv->act_req_source_xid;
+            snprintf(app_id, sizeof(app_id), "%s", srv->act_req_app_id);
+        }
+    }
+    pthread_mutex_unlock(&srv->act_lock);
+
+    if (submit)
+        submit_activation_token_on_server(srv, src_xid, app_id, true, seq, 0);
+}
+
+void
+_XmWlRequestSelfActivate(XmWlServer *srv, XmWlWindow *top)
+{
+    if (!srv || !top || !srv->activation_mgr || top->is_popup || top->is_drag_icon)
+        return;
+    submit_activation_token_on_server(
+        srv, top->id, top->sent_app_id[0] ? top->sent_app_id : NULL,
+        false, 0, top->id);
+}
 
 /* ---------- Top-Level & Popup Role Synchronization ---------- */
 
@@ -1687,6 +1863,20 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
             zxdg_toplevel_decoration_v1_add_listener(win->xdg_deco, &g_xdg_deco_listener, win);
         }
         (void)sync_toplevel_metadata_all(srv, win, 0);
+        if (win->pending_activation_token[0] == '\0' && win->transient_for_xid == 0) {
+            if (srv->startup_activation_token[0] != '\0') {
+                snprintf(win->pending_activation_token, sizeof(win->pending_activation_token),
+                         "%s", srv->startup_activation_token);
+                srv->startup_activation_token[0] = '\0';
+            } else {
+                const char *late_tok = getenv("XDG_ACTIVATION_TOKEN");
+                if (late_tok && late_tok[0]) {
+                    snprintf(win->pending_activation_token, sizeof(win->pending_activation_token),
+                             "%s", late_tok);
+                    unsetenv("XDG_ACTIVATION_TOKEN");
+                }
+            }
+        }
         wl_surface_commit(win->wl_surf);
         wl_display_roundtrip(srv->wl_dpy);
         _XmWlDamageTop(win, 0, 0, win->width, win->height);
@@ -1892,6 +2082,7 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
     win->opaque_h = 0;
     win->sent_title[0] = '\0';
     win->sent_app_id[0] = '\0';
+    win->pending_activation_token[0] = '\0';
     win->sent_parent_xid = 0;
     win->sent_min_w = win->sent_min_h = -1;
     win->sent_max_w = win->sent_max_h = -1;
@@ -2160,6 +2351,11 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
         wl_surface_attach(w->wl_surf, sb->wl_buf, attach_dx, attach_dy);
         wl_surface_damage_buffer(w->wl_surf, dx1, dy1, dx2 - dx1, dy2 - dy1);
         wl_surface_commit(w->wl_surf);
+        if (w->pending_activation_token[0] != '\0') {
+            if (srv->activation_mgr)
+                xdg_activation_v1_activate(srv->activation_mgr, w->pending_activation_token, w->wl_surf);
+            w->pending_activation_token[0] = '\0';
+        }
         w->dirty = false;
     }
     wl_display_flush(srv->wl_dpy);
@@ -2550,6 +2746,15 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                         for (int ci = 0; ci < XM_WL_MAX_CLIENTS; ++ci)
                             if (srv->clients[ci].active && srv->clients[ci].handshake_done)
                                 _XmWlSendEventToClient(&srv->clients[ci], ev);
+                    } else if ((!strcmp(aname, "_DT_PANEL_BUSY_START_SEQ") ||
+                                !strcmp(aname, "_DT_PANEL_BUSY_STOP_SEQ")) &&
+                               rlen > 0) {
+                        uint32_t atom = _XmWlInternAtom(srv, aname, strlen(aname), false);
+                        uint8_t fmt = (rlen >= 4u && (rlen % 4u) == 0u) ? 32u : 8u;
+                        uint32_t ptype = (fmt == 32u) ? 6u /* XA_CARDINAL */ : 31u /* XA_STRING */;
+                        if (srv->wm_helper)
+                            _XmWlSetProperty(srv, srv->wm_helper, atom, ptype, fmt, 0, raw, rlen, true);
+                        _XmWlSetProperty(srv, srv->root, atom, ptype, fmt, 0, raw, rlen, true);
                     } else if (!strcmp(aname, "_DT_WAYLAND_WHEEL") && rlen > 0) {
                         int nat = 0, sp = 3, sm = 1;
                         if (sscanf((const char *)raw, "%d %d %d", &nat, &sp, &sm) >= 3) {
@@ -2799,6 +3004,19 @@ wayland_server_thread(void *arg)
         if (prc > 0 && (pfds[wl_idx].revents & (POLLIN | POLLERR | POLLHUP))) {
             if (wl_display_read_events(srv->wl_dpy) < 0) {
                 srv->running = false;
+                pthread_mutex_lock(&srv->lock);
+                for (int i = 0; i < XM_WL_MAX_CLIENTS; ++i) {
+                    if (srv->clients[i].active)
+                        _XmWlDisconnectClient(srv, i);
+                }
+                pthread_mutex_lock(&srv->act_lock);
+                if (srv->act_req_in_flight && !srv->act_req_done) {
+                    srv->act_req_result[0] = '\0';
+                    srv->act_req_done = true;
+                    pthread_cond_broadcast(&srv->act_cond);
+                }
+                pthread_mutex_unlock(&srv->act_lock);
+                pthread_mutex_unlock(&srv->lock);
                 break;
             }
         } else {
@@ -2813,6 +3031,7 @@ wayland_server_thread(void *arg)
             uint8_t drain[64];
             while (read(srv->wake_pipe[0], drain, sizeof(drain)) > 0) {}
         }
+        process_pending_activation_requests(srv);
 
         if (ipc_idx >= 0 && prc > 0 && (pfds[ipc_idx].revents & (POLLIN | POLLHUP | POLLERR))) {
             _XmWlIpcHandleReadable(srv);
@@ -3275,7 +3494,20 @@ cleanup_wayland_backend(void)
         srv->cursor_theme = NULL;
     }
     _XmWlRenderDestroy(srv);
+    while (srv->pending_act_tokens) {
+        XmWlPendingTokenCtx *ctx = srv->pending_act_tokens;
+        srv->pending_act_tokens = ctx->next;
+        if (ctx->tok_obj)
+            xdg_activation_token_v1_destroy(ctx->tok_obj);
+        free(ctx);
+    }
+    if (srv->activation_mgr) {
+        xdg_activation_v1_destroy(srv->activation_mgr);
+        srv->activation_mgr = NULL;
+    }
     if (srv->wl_dpy) wl_display_disconnect(srv->wl_dpy);
+    pthread_cond_destroy(&srv->act_cond);
+    pthread_mutex_destroy(&srv->act_lock);
     pthread_mutex_destroy(&srv->lock);
     free(srv);
 }
@@ -3319,6 +3551,27 @@ _XmWaylandEnsureDisplay(void)
     pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE);
     pthread_mutex_init(&srv->lock, &mattr);
     pthread_mutexattr_destroy(&mattr);
+    pthread_mutex_init(&srv->act_lock, NULL);
+    {
+        pthread_condattr_t cattr;
+        pthread_condattr_init(&cattr);
+#ifdef CLOCK_MONOTONIC
+        pthread_condattr_setclock(&cattr, CLOCK_MONOTONIC);
+#endif
+        pthread_cond_init(&srv->act_cond, &cattr);
+        pthread_condattr_destroy(&cattr);
+    }
+    {
+        const char *env_act = getenv("XDG_ACTIVATION_TOKEN");
+        if (!env_act || !env_act[0])
+            env_act = getenv("DESKTOP_STARTUP_ID");
+        if (env_act && env_act[0]) {
+            snprintf(srv->startup_activation_token, sizeof(srv->startup_activation_token),
+                     "%s", env_act);
+            unsetenv("XDG_ACTIVATION_TOKEN");
+            unsetenv("DESKTOP_STARTUP_ID");
+        }
+    }
     srv->wl_dpy = wl_dpy;
     srv->listen_fd = -1;
     srv->ipc_fd = -1;
@@ -3573,6 +3826,173 @@ XmWaylandGetWidgetSurface(
     return ok;
 }
 
+typedef struct {
+    struct xdg_activation_v1 *mgr;
+    char token[256];
+    bool done;
+} XmWlStandaloneActCtx;
+
+static void
+standalone_act_reg_global(void *data, struct wl_registry *reg, uint32_t name,
+                          const char *iface, uint32_t ver)
+{
+    (void)ver;
+    XmWlStandaloneActCtx *ctx = (XmWlStandaloneActCtx *)data;
+    if (ctx && !ctx->mgr && iface && !strcmp(iface, xdg_activation_v1_interface.name)) {
+        ctx->mgr = (struct xdg_activation_v1 *)wl_registry_bind(
+            reg, name, &xdg_activation_v1_interface, 1);
+    }
+}
+
+static void
+standalone_act_reg_remove(void *data, struct wl_registry *reg, uint32_t name)
+{
+    (void)data; (void)reg; (void)name;
+}
+
+static const struct wl_registry_listener g_standalone_act_reg_listener = {
+    .global = standalone_act_reg_global,
+    .global_remove = standalone_act_reg_remove,
+};
+
+static void
+standalone_act_tok_done(void *data, struct xdg_activation_token_v1 *tok, const char *token)
+{
+    (void)tok;
+    XmWlStandaloneActCtx *ctx = (XmWlStandaloneActCtx *)data;
+    if (!ctx) return;
+    if (token && token[0])
+        snprintf(ctx->token, sizeof(ctx->token), "%s", token);
+    ctx->done = true;
+}
+
+static const struct xdg_activation_token_v1_listener g_standalone_act_tok_listener = {
+    .done = standalone_act_tok_done,
+};
+
+static Boolean
+request_standalone_wayland_token(const char *app_id, char **token_return)
+{
+    const char *wl_disp = getenv("WAYLAND_DISPLAY");
+    if (!wl_disp || !wl_disp[0])
+        return False;
+    struct wl_display *dpy = wl_display_connect(NULL);
+    if (!dpy)
+        return False;
+
+    XmWlStandaloneActCtx ctx;
+    memset(&ctx, 0, sizeof(ctx));
+    struct wl_registry *reg = wl_display_get_registry(dpy);
+    if (reg) {
+        wl_registry_add_listener(reg, &g_standalone_act_reg_listener, &ctx);
+        wl_display_roundtrip(dpy);
+    }
+    if (ctx.mgr) {
+        struct xdg_activation_token_v1 *tok =
+            xdg_activation_v1_get_activation_token(ctx.mgr);
+        if (tok) {
+            xdg_activation_token_v1_add_listener(tok, &g_standalone_act_tok_listener, &ctx);
+            if (app_id && app_id[0])
+                xdg_activation_token_v1_set_app_id(tok, app_id);
+            xdg_activation_token_v1_commit(tok);
+            wl_display_roundtrip(dpy);
+            xdg_activation_token_v1_destroy(tok);
+        }
+        xdg_activation_v1_destroy(ctx.mgr);
+    }
+    if (reg)
+        wl_registry_destroy(reg);
+    wl_display_disconnect(dpy);
+
+    if (ctx.done && ctx.token[0]) {
+        size_t len = strlen(ctx.token) + 1;
+        char *copy = XtMalloc((Cardinal)len);
+        if (copy) {
+            memcpy(copy, ctx.token, len);
+            *token_return = copy;
+            return True;
+        }
+    }
+    return False;
+}
+
+Boolean
+XmWaylandRequestActivationToken(
+    Display *display,
+    Window source_window,
+    const char *app_id,
+    char **token_return)
+{
+    if (!token_return)
+        return False;
+    XmWlServer *srv = _XmWaylandGetServer();
+    if (!srv || !srv->running)
+        return request_standalone_wayland_token(app_id, token_return);
+    if (display && !display_matches_wayland_server(display, srv))
+        return request_standalone_wayland_token(app_id, token_return);
+    if (pthread_equal(pthread_self(), srv->thread))
+        return False;
+
+    pthread_mutex_lock(&srv->lock);
+    if (!srv->activation_mgr) {
+        pthread_mutex_unlock(&srv->lock);
+        return False;
+    }
+    pthread_mutex_unlock(&srv->lock);
+
+    struct timespec deadline = {0, 0};
+#ifdef CLOCK_MONOTONIC
+    clock_gettime(CLOCK_MONOTONIC, &deadline);
+#else
+    clock_gettime(CLOCK_REALTIME, &deadline);
+#endif
+    deadline.tv_nsec += 500000000L;
+    if (deadline.tv_nsec >= 1000000000L) {
+        deadline.tv_sec += 1;
+        deadline.tv_nsec -= 1000000000L;
+    }
+
+    pthread_mutex_lock(&srv->act_lock);
+    while (srv->act_req_in_flight) {
+        if (pthread_cond_timedwait(&srv->act_cond, &srv->act_lock, &deadline) == ETIMEDOUT) {
+            pthread_mutex_unlock(&srv->act_lock);
+            return False;
+        }
+    }
+
+    srv->act_req_seq++;
+    srv->act_req_in_flight = true;
+    srv->act_req_submitted = false;
+    srv->act_req_done = false;
+    srv->act_req_source_xid = (uint32_t)source_window;
+    snprintf(srv->act_req_app_id, sizeof(srv->act_req_app_id), "%s", app_id ? app_id : "");
+    srv->act_req_result[0] = '\0';
+
+    _XmWlWakeServer(srv);
+
+    while (!srv->act_req_done) {
+        if (pthread_cond_timedwait(&srv->act_cond, &srv->act_lock, &deadline) == ETIMEDOUT)
+            break;
+    }
+
+    Boolean ok = False;
+    if (srv->act_req_done && srv->act_req_result[0] != '\0') {
+        size_t len = strlen(srv->act_req_result) + 1;
+        char *copy = XtMalloc((Cardinal)len);
+        if (copy) {
+            memcpy(copy, srv->act_req_result, len);
+            *token_return = copy;
+            ok = True;
+        }
+    }
+
+    srv->act_req_in_flight = false;
+    srv->act_req_done = false;
+    pthread_cond_broadcast(&srv->act_cond);
+    pthread_mutex_unlock(&srv->act_lock);
+    return ok;
+}
+
 __attribute__((constructor))
 static void
 xm_wl_library_ctor(void)
@@ -3658,6 +4078,20 @@ XmWaylandGetWidgetSurface(
     (void)width_return;
     (void)height_return;
     (void)scale_return;
+    return False;
+}
+
+Boolean
+XmWaylandRequestActivationToken(
+    Display *display,
+    Window source_window,
+    const char *app_id,
+    char **token_return)
+{
+    (void)display;
+    (void)source_window;
+    (void)app_id;
+    (void)token_return;
     return False;
 }
 

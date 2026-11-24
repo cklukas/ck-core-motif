@@ -86,6 +86,7 @@ WAYLAND_PROTO_HDRS = \
 	wayland-xdg-shell-client-protocol.h \
 	wayland-xdg-decoration-client-protocol.h \
 	wayland-xdg-toplevel-icon-client-protocol.h \
+	wayland-xdg-activation-client-protocol.h \
 	wayland-primary-selection-client-protocol.h \
 	wayland-text-input-v3-client-protocol.h \
 	wayland-fractional-scale-client-protocol.h \
@@ -94,6 +95,7 @@ WAYLAND_PROTO_SRCS = \
 	wayland-xdg-shell-protocol.c \
 	wayland-xdg-decoration-protocol.c \
 	wayland-xdg-toplevel-icon-protocol.c \
+	wayland-xdg-activation-protocol.c \
 	wayland-primary-selection-protocol.c \
 	wayland-text-input-v3-protocol.c \
 	wayland-fractional-scale-protocol.c \
@@ -354,6 +356,10 @@ wayland-xdg-decoration-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/xdg-dec
 wayland-xdg-toplevel-icon-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-toplevel-icon/xdg-toplevel-icon-v1.xml
 	$(WAYLAND_SCANNER) client-header $< $@
 wayland-xdg-toplevel-icon-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-toplevel-icon/xdg-toplevel-icon-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+wayland-xdg-activation-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-activation/xdg-activation-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-xdg-activation-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-activation/xdg-activation-v1.xml
 	$(WAYLAND_SCANNER) private-code $< $@
 wayland-primary-selection-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/primary-selection/primary-selection-unstable-v1.xml
 	$(WAYLAND_SCANNER) client-header $< $@

@@ -85,6 +85,24 @@ extern Boolean XmWaylandGetWidgetSurface(
     int *height_return,
     double *scale_return);
 
+/*
+ * Mint a one-shot Wayland focus-activation token (xdg_activation_v1) seeded
+ * with libXm's latest seat input serial, optional `source_window` surface
+ * (pass None to fall back to the currently focused or hovered Motif shell),
+ * and optional `app_id` hint for the target application.
+ *
+ * Must be called without holding XmWaylandLock(display). On success, returns
+ * True and stores a newly XtMalloc()-allocated token string in `*token_return`
+ * (caller frees with XtFree()). Returns False without modifying `*token_return`
+ * when the native Wayland backend is inactive, xdg_activation_v1 is not
+ * advertised by the compositor, or token creation times out.
+ */
+extern Boolean XmWaylandRequestActivationToken(
+    Display *display,
+    Window source_window,
+    const char *app_id,
+    char **token_return);
+
 #ifdef __cplusplus
 }
 #endif
