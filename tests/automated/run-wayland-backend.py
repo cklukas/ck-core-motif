@@ -99,6 +99,11 @@ MINI_COMPOSITOR_C = textwrap.dedent(
 
     /* wl_surface & wl_compositor */
     typedef struct {
+        struct wl_resource *buf;
+        struct wl_listener destroy;
+    } HeldBuf;
+
+    typedef struct {
         MiniSrv *ms;
         struct wl_resource *xdg_surf;
         struct wl_resource *xdg_top;
@@ -106,6 +111,12 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         int32_t pop_w;
         int32_t pop_h;
         bool configured;
+        HeldBuf held[3];
+        int held_idx;
+        int last_held_slot;
+        int pending_dmg_rects;
+        int64_t pending_dmg_area;
+        int dmg_ring_commits;
     } SurfState;
 
     typedef struct {
@@ -115,20 +126,66 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         int32_t ay;
     } PosState;
 
+    static void on_held_buf_destroy(struct wl_listener *l, void *data) {
+        (void)data;
+        HeldBuf *hb = wl_container_of(l, hb, destroy);
+        wl_list_remove(&hb->destroy.link);
+        wl_list_init(&hb->destroy.link);
+        hb->buf = NULL;
+    }
+
+    static void release_held_slot(HeldBuf *hb, bool send_rel) {
+        if (hb->buf) {
+            if (send_rel)
+                wl_buffer_send_release(hb->buf);
+            wl_list_remove(&hb->destroy.link);
+            wl_list_init(&hb->destroy.link);
+            hb->buf = NULL;
+        }
+    }
+
     static void free_pos_state(struct wl_resource *r) {
         free(wl_resource_get_user_data(r));
     }
 
     static void free_surf_state(struct wl_resource *r) {
-        free(wl_resource_get_user_data(r));
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss) {
+            for (int i = 0; i < 3; ++i)
+                release_held_slot(&ss->held[i], false);
+            free(ss);
+        }
     }
 
     static void surf_attach(struct wl_client *c, struct wl_resource *r, struct wl_resource *b, int32_t x, int32_t y) {
-        (void)c; (void)r; (void)x; (void)y;
+        (void)c; (void)x; (void)y;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && ss->ms && r == ss->ms->primary_surf &&
+            file_exists(ss->ms->sync_dir, "dmg_ring.active")) {
+            int slot = ss->held_idx % 3;
+            ss->held_idx++;
+            release_held_slot(&ss->held[slot], true);
+            if (b) {
+                ss->held[slot].buf = b;
+                wl_resource_add_destroy_listener(b, &ss->held[slot].destroy);
+            }
+            ss->last_held_slot = slot;
+            return;
+        }
+        if (ss) {
+            for (int i = 0; i < 3; ++i)
+                release_held_slot(&ss->held[i], true);
+            ss->last_held_slot = -1;
+        }
         if (b) wl_buffer_send_release(b);
     }
     static void surf_damage(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y, int32_t w, int32_t h) {
-        (void)c; (void)r; (void)x; (void)y; (void)w; (void)h;
+        (void)c; (void)x; (void)y;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && w > 0 && h > 0) {
+            ss->pending_dmg_rects++;
+            ss->pending_dmg_area += (int64_t)w * (int64_t)h;
+        }
     }
     static void surf_frame(struct wl_client *c, struct wl_resource *r, uint32_t cb_id) {
         (void)r;
@@ -139,11 +196,49 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     static void surf_region(struct wl_client *c, struct wl_resource *r, struct wl_resource *reg) {
         (void)c; (void)r; (void)reg;
     }
+    static uint32_t sample_shm_px(struct wl_shm_buffer *shmb, int x, int y) {
+        if (!shmb) return 0;
+        int w = wl_shm_buffer_get_width(shmb);
+        int h = wl_shm_buffer_get_height(shmb);
+        int stride = wl_shm_buffer_get_stride(shmb);
+        if (x < 0 || y < 0 || x >= w || y >= h || stride <= 0) return 0;
+        const uint8_t *base = (const uint8_t *)wl_shm_buffer_get_data(shmb);
+        if (!base) return 0;
+        const uint32_t *row = (const uint32_t *)(base + (size_t)y * (size_t)stride);
+        return row[x] & 0x00ffffffu;
+    }
     static void surf_commit(struct wl_client *c, struct wl_resource *r) {
         (void)c;
         SurfState *ss = wl_resource_get_user_data(r);
         if (!ss || !ss->ms) return;
         MiniSrv *ms = ss->ms;
+        if (r == ms->primary_surf && file_exists(ms->sync_dir, "dmg_ring.active") &&
+            ss->last_held_slot >= 0 && ss->held[ss->last_held_slot].buf) {
+            struct wl_shm_buffer *shmb = wl_shm_buffer_get(ss->held[ss->last_held_slot].buf);
+            uint32_t p00 = 0, p10 = 0, p01 = 0, p11 = 0;
+            if (shmb) {
+                wl_shm_buffer_begin_access(shmb);
+                p00 = sample_shm_px(shmb, 6, 6);
+                p10 = sample_shm_px(shmb, 302, 6);
+                p01 = sample_shm_px(shmb, 6, 182);
+                p11 = sample_shm_px(shmb, 302, 182);
+                wl_shm_buffer_end_access(shmb);
+            }
+            ss->dmg_ring_commits++;
+            char tmp_p[512], dst_p[512];
+            snprintf(tmp_p, sizeof(tmp_p), "%s/dmg_state.txt.tmp", ms->sync_dir);
+            snprintf(dst_p, sizeof(dst_p), "%s/dmg_state.txt", ms->sync_dir);
+            FILE *df = fopen(tmp_p, "w");
+            if (df) {
+                fprintf(df, "commits=%d\nrects=%d\narea=%lld\np00=0x%06x\np10=0x%06x\np01=0x%06x\np11=0x%06x\n",
+                        ss->dmg_ring_commits, ss->pending_dmg_rects,
+                        (long long)ss->pending_dmg_area, p00, p10, p01, p11);
+                fclose(df);
+                rename(tmp_p, dst_p);
+            }
+        }
+        ss->pending_dmg_rects = 0;
+        ss->pending_dmg_area = 0;
         if (ss->xdg_surf && !ss->configured) {
             ss->configured = true;
             if (ss->xdg_top) {
@@ -191,6 +286,11 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         MiniSrv *ms = wl_resource_get_user_data(r);
         SurfState *ss = calloc(1, sizeof(*ss));
         ss->ms = ms;
+        ss->last_held_slot = -1;
+        for (int i = 0; i < 3; ++i) {
+            wl_list_init(&ss->held[i].destroy.link);
+            ss->held[i].destroy.notify = on_held_buf_destroy;
+        }
         struct wl_resource *sr = wl_resource_create(c, &wl_surface_interface, wl_resource_get_version(r), id);
         wl_resource_set_implementation(sr, &g_surf_impl, ss, free_surf_state);
         if (!ms->primary_surf) ms->primary_surf = sr;

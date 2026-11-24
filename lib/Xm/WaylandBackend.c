@@ -360,6 +360,16 @@ _XmWlEnsureTopCanvas(XmWlServer *srv, XmWlWindow *top)
     _XmWlDamageTop(top, 0, 0, w, h);
 }
 
+static inline void
+ensure_win_dmg_regions(XmWlWindow *w)
+{
+    if (!w || w->dmg_regions_inited) return;
+    pixman_region32_init(&w->dirty_region);
+    for (int i = 0; i < XM_WL_SHM_SLOTS; ++i)
+        pixman_region32_init(&w->dmg_hist_reg[i]);
+    w->dmg_regions_inited = true;
+}
+
 void
 _XmWlDamageTop(XmWlWindow *top, int x, int y, int w, int h)
 {
@@ -371,6 +381,16 @@ _XmWlDamageTop(XmWlWindow *top, int x, int y, int w, int h)
     if (top->canvas_w > 0 && x2 > top->canvas_w) x2 = top->canvas_w;
     if (top->canvas_h > 0 && y2 > top->canvas_h) y2 = top->canvas_h;
     if (x2 <= x1 || y2 <= y1) return;
+
+    ensure_win_dmg_regions(top);
+    pixman_region32_union_rect(&top->dirty_region, &top->dirty_region,
+                               x1, y1, (unsigned)(x2 - x1), (unsigned)(y2 - y1));
+    if (pixman_region32_n_rects(&top->dirty_region) > 64) {
+        const pixman_box32_t *ext = pixman_region32_extents(&top->dirty_region);
+        if (ext && ext->x2 > ext->x1 && ext->y2 > ext->y1)
+            pixman_region32_reset(&top->dirty_region, ext);
+    }
+
     if (!top->dirty) {
         top->dmg_x1 = x1;
         top->dmg_y1 = y1;
@@ -2098,6 +2118,10 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
     win->opaque_region_set = false;
     win->opaque_w = 0;
     win->opaque_h = 0;
+    win->committed_w = 0;
+    win->committed_h = 0;
+    if (win->dmg_regions_inited)
+        pixman_region32_clear(&win->dirty_region);
     win->sent_title[0] = '\0';
     win->sent_app_id[0] = '\0';
     win->pending_activation_token[0] = '\0';
@@ -2119,6 +2143,12 @@ _XmWlDestroyWindowRole(XmWlServer *srv, XmWlWindow *win)
 {
     if (!win) return;
     _XmWlUnmapWindowRole(srv, win);
+    if (win->dmg_regions_inited) {
+        pixman_region32_fini(&win->dirty_region);
+        for (int si = 0; si < XM_WL_SHM_SLOTS; ++si)
+            pixman_region32_fini(&win->dmg_hist_reg[si]);
+        win->dmg_regions_inited = false;
+    }
     for (int si = 0; si < XM_WL_SHM_SLOTS; ++si)
         free_shm_buf(&win->shm_bufs[si]);
     if (win->canvas) {
@@ -2179,6 +2209,8 @@ process_queued_wl_configures(XmWlServer *srv)
             w->resize_awaiting_client = true;
             w->resize_sent_ms = now;
             w->dirty = false;
+            if (w->dmg_regions_inited)
+                pixman_region32_clear(&w->dirty_region);
             if (srv->attached_xm_display) {
                 srv->pending_xt_resize_gen = w->resize_sync_gen;
                 srv->has_pending_xt_resize = true;
@@ -2229,54 +2261,64 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
         if (!ensure_shm_buf(srv, sb, buf_w, buf_h, has_alpha))
             continue;
 
-        int dx1 = w->dmg_x1 < 0 ? 0 : w->dmg_x1;
-        int dy1 = w->dmg_y1 < 0 ? 0 : w->dmg_y1;
-        int dx2 = w->dmg_x2 > log_w ? log_w : w->dmg_x2;
-        int dy2 = w->dmg_y2 > log_h ? log_h : w->dmg_y2;
-        if (dx2 <= dx1 || dy2 <= dy1) {
-            dx1 = 0; dy1 = 0; dx2 = log_w; dy2 = log_h;
+        ensure_win_dmg_regions(w);
+        pixman_region32_t cur_dmg;
+        pixman_region32_init(&cur_dmg);
+        bool full_surface_dmg = (w->committed_w != log_w || w->committed_h != log_h || w->has_shape);
+        if (!full_surface_dmg && pixman_region32_not_empty(&w->dirty_region)) {
+            pixman_region32_intersect_rect(&cur_dmg, &w->dirty_region,
+                                           0, 0, (unsigned)log_w, (unsigned)log_h);
+        }
+        if (!pixman_region32_not_empty(&cur_dmg)) {
+            pixman_box32_t full_box = { 0, 0, log_w, log_h };
+            pixman_region32_reset(&cur_dmg, &full_box);
         }
 
         uint64_t next_gen = ++w->frame_gen;
-        XmWlRect *cur_hist = &w->dmg_hist[next_gen % XM_WL_SHM_SLOTS];
-        cur_hist->x = (int16_t)dx1;
-        cur_hist->y = (int16_t)dy1;
-        cur_hist->width = (uint16_t)(dx2 - dx1);
-        cur_hist->height = (uint16_t)(dy2 - dy1);
+        pixman_region32_copy(&w->dmg_hist_reg[next_gen % XM_WL_SHM_SLOTS], &cur_dmg);
 
-        int cx1 = 0, cy1 = 0, cx2 = log_w, cy2 = log_h;
+        pixman_region32_t copy_reg;
+        pixman_region32_init(&copy_reg);
         if (!w->has_shape && sb->valid_w == log_w && sb->valid_h == log_h &&
             sb->valid_gen > 0 && (next_gen - sb->valid_gen) <= XM_WL_SHM_SLOTS) {
-            cx1 = dx1; cy1 = dy1; cx2 = dx2; cy2 = dy2;
+            pixman_region32_copy(&copy_reg, &cur_dmg);
             for (uint64_t g = sb->valid_gen + 1; g < next_gen; ++g) {
-                const XmWlRect *hr = &w->dmg_hist[g % XM_WL_SHM_SLOTS];
-                int hx1 = hr->x;
-                int hy1 = hr->y;
-                int hx2 = hx1 + (int)hr->width;
-                int hy2 = hy1 + (int)hr->height;
-                if (hx1 < cx1) cx1 = hx1;
-                if (hy1 < cy1) cy1 = hy1;
-                if (hx2 > cx2) cx2 = hx2;
-                if (hy2 > cy2) cy2 = hy2;
+                pixman_region32_union(&copy_reg, &copy_reg,
+                                      &w->dmg_hist_reg[g % XM_WL_SHM_SLOTS]);
             }
-            if (cx1 < 0) cx1 = 0;
-            if (cy1 < 0) cy1 = 0;
-            if (cx2 > log_w) cx2 = log_w;
-            if (cy2 > log_h) cy2 = log_h;
+            pixman_region32_intersect_rect(&copy_reg, &copy_reg,
+                                           0, 0, (unsigned)log_w, (unsigned)log_h);
+        } else {
+            pixman_box32_t full_box = { 0, 0, log_w, log_h };
+            pixman_region32_reset(&copy_reg, &full_box);
         }
 
+        int n_copy = 0;
+        const pixman_box32_t *copy_boxes = pixman_region32_rectangles(&copy_reg, &n_copy);
         const uint8_t *src_base = (const uint8_t *)w->canvas_bits;
         uint8_t *dst_base = (uint8_t *)sb->pixels;
-        size_t copy_bytes = (size_t)(cx2 - cx1) * 4u;
-        size_t x_byte_off = (size_t)cx1 * 4u;
-        for (int ry = cy1; ry < cy2; ++ry) {
-            memcpy(dst_base + (size_t)ry * (size_t)sb->stride + x_byte_off,
-                   src_base + (size_t)ry * (size_t)w->canvas_stride + x_byte_off,
-                   copy_bytes);
+        for (int bi = 0; bi < n_copy; ++bi) {
+            int cx1 = copy_boxes[bi].x1;
+            int cy1 = copy_boxes[bi].y1;
+            int cx2 = copy_boxes[bi].x2;
+            int cy2 = copy_boxes[bi].y2;
+            if (cx2 <= cx1 || cy2 <= cy1)
+                continue;
+            size_t copy_bytes = (size_t)(cx2 - cx1) * 4u;
+            size_t x_byte_off = (size_t)cx1 * 4u;
+            for (int ry = cy1; ry < cy2; ++ry) {
+                memcpy(dst_base + (size_t)ry * (size_t)sb->stride + x_byte_off,
+                       src_base + (size_t)ry * (size_t)w->canvas_stride + x_byte_off,
+                       copy_bytes);
+            }
         }
+        pixman_region32_fini(&copy_reg);
+
         sb->valid_w = log_w;
         sb->valid_h = log_h;
         sb->valid_gen = next_gen;
+        w->committed_w = log_w;
+        w->committed_h = log_h;
 
         /* Apply non-rectangular SHAPE alpha + input region cutouts when present */
         if (w->has_shape && srv->compositor) {
@@ -2367,7 +2409,30 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
         sb->busy = true;
         sb->attached_ms = now_ms;
         wl_surface_attach(w->wl_surf, sb->wl_buf, attach_dx, attach_dy);
-        wl_surface_damage_buffer(w->wl_surf, dx1, dy1, dx2 - dx1, dy2 - dy1);
+        {
+            int n_dmg = 0;
+            const pixman_box32_t *dmg_boxes = pixman_region32_rectangles(&cur_dmg, &n_dmg);
+            if (n_dmg > 0 && n_dmg <= 32) {
+                for (int bi = 0; bi < n_dmg; ++bi) {
+                    int bx1 = dmg_boxes[bi].x1;
+                    int by1 = dmg_boxes[bi].y1;
+                    int bw = dmg_boxes[bi].x2 - bx1;
+                    int bh = dmg_boxes[bi].y2 - by1;
+                    if (bw > 0 && bh > 0)
+                        wl_surface_damage_buffer(w->wl_surf, bx1, by1, bw, bh);
+                }
+            } else {
+                const pixman_box32_t *ext = pixman_region32_extents(&cur_dmg);
+                int bw = ext->x2 - ext->x1;
+                int bh = ext->y2 - ext->y1;
+                if (bw > 0 && bh > 0)
+                    wl_surface_damage_buffer(w->wl_surf, ext->x1, ext->y1, bw, bh);
+                else
+                    wl_surface_damage_buffer(w->wl_surf, 0, 0, log_w, log_h);
+            }
+        }
+        pixman_region32_fini(&cur_dmg);
+        pixman_region32_clear(&w->dirty_region);
         wl_surface_commit(w->wl_surf);
         if (w->pending_activation_token[0] != '\0') {
             if (srv->activation_mgr)

@@ -1788,7 +1788,22 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
                 pixman_composite_trapezoids(pict_op_to_pixman(op), simg, dimg, mfmt,
                                             rel_x, rel_y, ddx, ddy, (int)ntraps, traps);
                 pixman_image_set_clip_region32(dimg, NULL);
-                if (dtop) _XmWlDamageTop(dtop, 0, 0, dtop->width, dtop->height);
+                if (dtop) {
+                    const pixman_box32_t *cext = pixman_region32_extents(&dclip);
+                    pixman_fixed_t min_top = traps[0].top, max_bot = traps[0].bottom;
+                    for (size_t i = 1; i < ntraps; ++i) {
+                        if (traps[i].top < min_top) min_top = traps[i].top;
+                        if (traps[i].bottom > max_bot) max_bot = traps[i].bottom;
+                    }
+                    int ty1 = ddy + pixman_fixed_to_int(pixman_fixed_floor(min_top)) - 1;
+                    int ty2 = ddy + pixman_fixed_to_int(pixman_fixed_ceil(max_bot)) + 1;
+                    int bx1 = cext->x1;
+                    int bx2 = cext->x2;
+                    int by1 = ty1 > cext->y1 ? ty1 : cext->y1;
+                    int by2 = ty2 < cext->y2 ? ty2 : cext->y2;
+                    if (bx2 > bx1 && by2 > by1)
+                        _XmWlDamageTop(dtop, bx1, by1, bx2 - bx1, by2 - by1);
+                }
                 free(traps);
             }
         }
@@ -1813,11 +1828,20 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         if (simg && dimg) {
             pixman_triangle_t *tris = (pixman_triangle_t *)calloc(ntris, sizeof(*tris));
             if (tris) {
+                pixman_fixed_t min_fx = INT32_MAX, min_fy = INT32_MAX;
+                pixman_fixed_t max_fx = INT32_MIN, max_fy = INT32_MIN;
                 for (size_t i = 0; i < ntris; ++i) {
                     const uint8_t *tp = req + 24 + i * 24;
                     tris[i].p1.x = rd_i32(tp + 0);  tris[i].p1.y = rd_i32(tp + 4);
                     tris[i].p2.x = rd_i32(tp + 8);  tris[i].p2.y = rd_i32(tp + 12);
                     tris[i].p3.x = rd_i32(tp + 16); tris[i].p3.y = rd_i32(tp + 20);
+                    const pixman_point_fixed_t pts[3] = { tris[i].p1, tris[i].p2, tris[i].p3 };
+                    for (int k = 0; k < 3; ++k) {
+                        if (pts[k].x < min_fx) min_fx = pts[k].x;
+                        if (pts[k].x > max_fx) max_fx = pts[k].x;
+                        if (pts[k].y < min_fy) min_fy = pts[k].y;
+                        if (pts[k].y > max_fy) max_fy = pts[k].y;
+                    }
                 }
                 int rel_x = sdx + sx - pixman_fixed_to_int(tris[0].p1.x);
                 int rel_y = sdy + sy - pixman_fixed_to_int(tris[0].p1.y);
@@ -1826,7 +1850,19 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
                 pixman_composite_triangles(pict_op_to_pixman(op), simg, dimg, mfmt,
                                            rel_x, rel_y, ddx, ddy, (int)ntris, tris);
                 pixman_image_set_clip_region32(dimg, NULL);
-                if (dtop) _XmWlDamageTop(dtop, 0, 0, dtop->width, dtop->height);
+                if (dtop) {
+                    const pixman_box32_t *cext = pixman_region32_extents(&dclip);
+                    int tx1 = ddx + pixman_fixed_to_int(pixman_fixed_floor(min_fx)) - 1;
+                    int ty1 = ddy + pixman_fixed_to_int(pixman_fixed_floor(min_fy)) - 1;
+                    int tx2 = ddx + pixman_fixed_to_int(pixman_fixed_ceil(max_fx)) + 1;
+                    int ty2 = ddy + pixman_fixed_to_int(pixman_fixed_ceil(max_fy)) + 1;
+                    int bx1 = tx1 > cext->x1 ? tx1 : cext->x1;
+                    int by1 = ty1 > cext->y1 ? ty1 : cext->y1;
+                    int bx2 = tx2 < cext->x2 ? tx2 : cext->x2;
+                    int by2 = ty2 < cext->y2 ? ty2 : cext->y2;
+                    if (bx2 > bx1 && by2 > by1)
+                        _XmWlDamageTop(dtop, bx1, by1, bx2 - bx1, by2 - by1);
+                }
                 free(tris);
             }
         }
@@ -1854,6 +1890,8 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
             pixman_triangle_t *tris = (pixman_triangle_t *)calloc(ntris, sizeof(*tris));
             if (tris) {
                 pixman_point_fixed_t p0 = { rd_i32(req + 24), rd_i32(req + 28) };
+                pixman_fixed_t min_fx = p0.x, max_fx = p0.x;
+                pixman_fixed_t min_fy = p0.y, max_fy = p0.y;
                 for (size_t i = 0; i < ntris; ++i) {
                     const uint8_t *pa = req + 24 + i * 8;
                     const uint8_t *pb = req + 24 + (i + 1) * 8;
@@ -1865,6 +1903,13 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
                     }
                     tris[i].p2.x = rd_i32(pb + 0); tris[i].p2.y = rd_i32(pb + 4);
                     tris[i].p3.x = rd_i32(pc + 0); tris[i].p3.y = rd_i32(pc + 4);
+                    const pixman_point_fixed_t pts[3] = { tris[i].p1, tris[i].p2, tris[i].p3 };
+                    for (int k = 0; k < 3; ++k) {
+                        if (pts[k].x < min_fx) min_fx = pts[k].x;
+                        if (pts[k].x > max_fx) max_fx = pts[k].x;
+                        if (pts[k].y < min_fy) min_fy = pts[k].y;
+                        if (pts[k].y > max_fy) max_fy = pts[k].y;
+                    }
                 }
                 int rel_x = sdx + sx - pixman_fixed_to_int(p0.x);
                 int rel_y = sdy + sy - pixman_fixed_to_int(p0.y);
@@ -1873,7 +1918,19 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
                 pixman_composite_triangles(pict_op_to_pixman(op), simg, dimg, mfmt,
                                            rel_x, rel_y, ddx, ddy, (int)ntris, tris);
                 pixman_image_set_clip_region32(dimg, NULL);
-                if (dtop) _XmWlDamageTop(dtop, 0, 0, dtop->width, dtop->height);
+                if (dtop) {
+                    const pixman_box32_t *cext = pixman_region32_extents(&dclip);
+                    int tx1 = ddx + pixman_fixed_to_int(pixman_fixed_floor(min_fx)) - 1;
+                    int ty1 = ddy + pixman_fixed_to_int(pixman_fixed_floor(min_fy)) - 1;
+                    int tx2 = ddx + pixman_fixed_to_int(pixman_fixed_ceil(max_fx)) + 1;
+                    int ty2 = ddy + pixman_fixed_to_int(pixman_fixed_ceil(max_fy)) + 1;
+                    int bx1 = tx1 > cext->x1 ? tx1 : cext->x1;
+                    int by1 = ty1 > cext->y1 ? ty1 : cext->y1;
+                    int bx2 = tx2 < cext->x2 ? tx2 : cext->x2;
+                    int by2 = ty2 < cext->y2 ? ty2 : cext->y2;
+                    if (bx2 > bx1 && by2 > by1)
+                        _XmWlDamageTop(dtop, bx1, by1, bx2 - bx1, by2 - by1);
+                }
                 free(tris);
             }
         }

@@ -212,7 +212,11 @@ struct XmWlWindow {
     int opaque_h;
     uint32_t resize_sync_gen;
     uint64_t frame_gen;
-    XmWlRect dmg_hist[XM_WL_SHM_SLOTS];
+    int committed_w;
+    int committed_h;
+    bool dmg_regions_inited;
+    pixman_region32_t dirty_region;
+    pixman_region32_t dmg_hist_reg[XM_WL_SHM_SLOTS];
     bool dirty;
     int32_t dmg_x1, dmg_y1, dmg_x2, dmg_y2;
 };

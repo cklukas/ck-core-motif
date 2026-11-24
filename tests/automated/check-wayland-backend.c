@@ -1654,6 +1654,81 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         }
     }
 
+    /* Verify tight pixman_region32_t partial damage + multi-slot buffer-age replay:
+     *  1) Two distant 8x8 updates in one frame emit rects=2, area=128 (not 55,936 bounding box),
+     *  2) Rotating through 3 held wl_shm ring slots across 4 frames replays missed earlier
+     *     disjoint rectangles onto the recycled slot while emitting area=64 on frame 4. */
+    {
+        pump_xt_ms(app, dpy, 80);
+        write_stage_file(sync_dir, "dmg_ring.active");
+        pump_xt_ms(app, dpy, 40);
+
+        XGCValues gcv;
+        memset(&gcv, 0, sizeof(gcv));
+        gcv.subwindow_mode = IncludeInferiors;
+        GC dgc = XCreateGC(dpy, XtWindow(shell), GCSubwindowMode, &gcv);
+
+        XSetForeground(dpy, dgc, 0x00e01020ul);
+        XFillRectangle(dpy, XtWindow(shell), dgc, 4, 4, 8, 8);
+        XSetForeground(dpy, dgc, 0x00f0c010ul);
+        XFillRectangle(dpy, XtWindow(shell), dgc, 300, 180, 8, 8);
+        XFlush(dpy);
+        pump_xt_ms(app, dpy, 80);
+
+        char dpath[512];
+        snprintf(dpath, sizeof(dpath), "%s/dmg_state.txt", sync_dir);
+        {
+            FILE *df = fopen(dpath, "r");
+            if (!df)
+                fail_msg("mini-compositor did not write dmg_state.txt for disjoint partial damage");
+            char dbuf[1024] = {0};
+            size_t dn = fread(dbuf, 1, sizeof(dbuf) - 1, df);
+            fclose(df);
+            dbuf[dn] = '\0';
+            if (!strstr(dbuf, "rects=2\n") ||
+                !strstr(dbuf, "area=128\n") ||
+                !strstr(dbuf, "p00=0xe01020\n") ||
+                !strstr(dbuf, "p11=0xf0c010\n")) {
+                fprintf(stderr, "FAIL: unexpected disjoint partial-damage state:\n%s\n", dbuf);
+                exit(1);
+            }
+        }
+
+        const struct { int x, y; unsigned long px; } ring_steps[4] = {
+            {   4,   4, 0x00aa1122ul },
+            { 300,   4, 0x0011bb33ul },
+            {   4, 180, 0x002244ccul },
+            { 300, 180, 0x00ddcc11ul },
+        };
+        for (int s = 0; s < 4; ++s) {
+            XSetForeground(dpy, dgc, ring_steps[s].px);
+            XFillRectangle(dpy, XtWindow(shell), dgc, ring_steps[s].x, ring_steps[s].y, 8, 8);
+            XFlush(dpy);
+            pump_xt_ms(app, dpy, 60);
+        }
+
+        {
+            FILE *df = fopen(dpath, "r");
+            if (!df)
+                fail_msg("mini-compositor did not update dmg_state.txt after 4-slot ring replay");
+            char dbuf[1024] = {0};
+            size_t dn = fread(dbuf, 1, sizeof(dbuf) - 1, df);
+            fclose(df);
+            dbuf[dn] = '\0';
+            if (!strstr(dbuf, "rects=1\n") ||
+                !strstr(dbuf, "area=64\n") ||
+                !strstr(dbuf, "p00=0xaa1122\n") ||
+                !strstr(dbuf, "p10=0x11bb33\n") ||
+                !strstr(dbuf, "p01=0x2244cc\n") ||
+                !strstr(dbuf, "p11=0xddcc11\n")) {
+                fprintf(stderr, "FAIL: unexpected multi-slot buffer-age replay state:\n%s\n", dbuf);
+                exit(1);
+            }
+        }
+
+        XFreeGC(dpy, dgc);
+    }
+
     XtDestroyWidget(shell);
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);
