@@ -117,10 +117,12 @@ process environment when the native Wayland backend is active.
   start/end clamping, scaling dynamically with `*mouseWheelSpeed` (`1..10`,
   default `3`) and live `_DT_WAYLAND_WHEEL` compositor IPC updates.
 - **Focus activation and startup tokens (`xdg_activation_v1`)**: `libXm`
-  captures and unsets `XDG_ACTIVATION_TOKEN` (or `DESKTOP_STARTUP_ID`) during
-  Wayland backend initialization so forked helpers never inherit a one-shot
-  token, then submits `xdg_activation_v1.activate` on the application's primary
-  `xdg_toplevel` commit. X11 `_NET_ACTIVE_WINDOW` `ClientMessage` requests sent
+  captures and unsets `XDG_ACTIVATION_TOKEN` (or `DESKTOP_STARTUP_ID`) upon
+  `XmDisplay` attachment or initial top-level creation—preserving the token for
+  non-GUI launchers that link `libXm` before `exec` while ensuring forked GUI
+  helpers never inherit a used one-shot token—then submits
+  `xdg_activation_v1.activate` on the application's primary `xdg_toplevel`
+  commit. X11 `_NET_ACTIVE_WINDOW` `ClientMessage` requests sent
   to the virtual root window automatically mint and redeem a fresh activation
   token for the target Motif shell.
 - **Fractional and HiDPI scaling**: On compositors that advertise per-output

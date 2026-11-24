@@ -355,6 +355,8 @@ run_clipboard_peer(const char *sync_dir)
     XtManageChild(lbl);
     XtAddEventHandler(shell, 0, True, sel_owner_event_handler, (XtPointer)1);
     XtRealizeWidget(shell);
+    if (getenv("XDG_ACTIVATION_TOKEN") != NULL)
+        fail_msg("XDG_ACTIVATION_TOKEN was not consumed and unset upon XmDisplay/shell realization");
     pump_xt_ms(app, dpy, 300);
 
     Atom a_clip = XInternAtom(dpy, "CLIPBOARD", False);
@@ -1215,8 +1217,10 @@ drop_site_proc(Widget w, XtPointer client_data, XtPointer call_data)
 static int
 run_ime_dnd_check(const char *self_exe, const char *sync_dir)
 {
-    if (getenv("XDG_ACTIVATION_TOKEN") != NULL)
-        fail_msg("XDG_ACTIVATION_TOKEN was not consumed and unset on startup");
+    /* Before XtOpenDisplay/XmDisplay creation, non-GUI wrappers (such as dtexec)
+     * must preserve XDG_ACTIVATION_TOKEN in environ for their exec'd GUI child. */
+    if (getenv("XDG_ACTIVATION_TOKEN") == NULL)
+        fail_msg("XDG_ACTIVATION_TOKEN was prematurely stripped before XtOpenDisplay");
 
     XtSetLanguageProc(NULL, NULL, NULL);
     XtToolkitInitialize();
@@ -1262,6 +1266,8 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
 
     XtAddEventHandler(shell, 0, True, sel_owner_event_handler, NULL);
     XtRealizeWidget(shell);
+    if (getenv("XDG_ACTIVATION_TOKEN") != NULL)
+        fail_msg("XDG_ACTIVATION_TOKEN was not consumed and unset upon XmDisplay/shell realization");
     pump_xt_ms(app, dpy, 300);
     XmProcessTraversal(tf, XmTRAVERSE_CURRENT);
     pump_xt_ms(app, dpy, 200);

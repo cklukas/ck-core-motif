@@ -1870,10 +1870,13 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
                 srv->startup_activation_token[0] = '\0';
             } else {
                 const char *late_tok = getenv("XDG_ACTIVATION_TOKEN");
+                if (!late_tok || !late_tok[0])
+                    late_tok = getenv("DESKTOP_STARTUP_ID");
                 if (late_tok && late_tok[0]) {
                     snprintf(win->pending_activation_token, sizeof(win->pending_activation_token),
                              "%s", late_tok);
                     unsetenv("XDG_ACTIVATION_TOKEN");
+                    unsetenv("DESKTOP_STARTUP_ID");
                 }
             }
         }
@@ -3434,6 +3437,17 @@ _XmWaylandAttachDisplay(Widget xm_display)
         srv->xt_input_id = XtAppAddInput(
             app, srv->xt_pipe[0], (XtPointer)XtInputReadMask, xt_wayland_wakeup_cb, srv);
     }
+    if (srv->startup_activation_token[0] == '\0') {
+        const char *env_act = getenv("XDG_ACTIVATION_TOKEN");
+        if (!env_act || !env_act[0])
+            env_act = getenv("DESKTOP_STARTUP_ID");
+        if (env_act && env_act[0]) {
+            snprintf(srv->startup_activation_token, sizeof(srv->startup_activation_token),
+                     "%s", env_act);
+            unsetenv("XDG_ACTIVATION_TOKEN");
+            unsetenv("DESKTOP_STARTUP_ID");
+        }
+    }
     pthread_mutex_unlock(&srv->lock);
 }
 
@@ -3560,17 +3574,6 @@ _XmWaylandEnsureDisplay(void)
 #endif
         pthread_cond_init(&srv->act_cond, &cattr);
         pthread_condattr_destroy(&cattr);
-    }
-    {
-        const char *env_act = getenv("XDG_ACTIVATION_TOKEN");
-        if (!env_act || !env_act[0])
-            env_act = getenv("DESKTOP_STARTUP_ID");
-        if (env_act && env_act[0]) {
-            snprintf(srv->startup_activation_token, sizeof(srv->startup_activation_token),
-                     "%s", env_act);
-            unsetenv("XDG_ACTIVATION_TOKEN");
-            unsetenv("DESKTOP_STARTUP_ID");
-        }
     }
     srv->wl_dpy = wl_dpy;
     srv->listen_fd = -1;

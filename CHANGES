@@ -6,8 +6,10 @@ Add Wayland xdg-activation-v1 startup consumption and token minting (2026-11-24)
   `lib/Xm/WaylandX11Server.c`, `tests/automated/check-wayland-backend.c`,
   `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
   - Bind `xdg_activation_v1` in `libXm`'s native Wayland runtime backend,
-    capture and unset `XDG_ACTIVATION_TOKEN` / `DESKTOP_STARTUP_ID` at startup
-    so helper child processes never inherit one-shot startup tokens, and emit
+    capture and unset `XDG_ACTIVATION_TOKEN` / `DESKTOP_STARTUP_ID` upon
+    `XmDisplay` attachment or initial `xdg_toplevel` creation (preserving the
+    token across non-GUI `fork`/`exec` launchers such as `dtexec` while keeping
+    later GUI helper children from inheriting used one-shot tokens), and emit
     `xdg_activation_v1.activate` on the primary top-level `wl_surface` commit.
   - Export `XmWaylandRequestActivationToken(display, source_window, app_id,
     &token)` in `<Xm/Wayland.h>` (with safe `False` stubs on X11, XWayland,
