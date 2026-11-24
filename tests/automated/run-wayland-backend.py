@@ -34,6 +34,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     #include "xdg-activation-server.h"
     #include "text-input-v3-server.h"
     #include "primary-selection-server.h"
+    #include "cursor-shape-server.h"
 
     typedef struct {
         struct wl_resource *res;
@@ -49,6 +50,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         struct wl_resource *primary_xdg_top;
         struct wl_resource *primary_ptr;
         struct wl_resource *primary_kbd;
+        struct wl_resource *primary_touch;
         struct wl_resource *primary_data_dev;
         struct wl_resource *text_in_res;
 
@@ -70,6 +72,12 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         int activate_calls;
         char first_activated_token[128];
         char last_activated_token[128];
+        int shape_calls;
+        bool seen_shape_default;
+        bool seen_shape_text;
+        bool seen_shape_pointer;
+        uint32_t last_cursor_shape;
+        int custom_cursor_calls;
         int phase;
     } MiniSrv;
 
@@ -405,11 +413,33 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     }
 
     /* wl_seat */
+    static void write_cursor_state(MiniSrv *ms) {
+        if (!ms) return;
+        char p[512];
+        snprintf(p, sizeof(p), "%s/cursor_state.txt", ms->sync_dir);
+        FILE *f = fopen(p, "w");
+        if (f) {
+            fprintf(f, "shape_calls=%d\nseen_default=%d\nseen_text=%d\nseen_pointer=%d\nlast_shape=%u\ncustom_calls=%d\n",
+                    ms->shape_calls,
+                    ms->seen_shape_default ? 1 : 0,
+                    ms->seen_shape_text ? 1 : 0,
+                    ms->seen_shape_pointer ? 1 : 0,
+                    ms->last_cursor_shape,
+                    ms->custom_cursor_calls);
+            fclose(f);
+        }
+    }
     static void ptr_cursor(struct wl_client *c, struct wl_resource *r, uint32_t s, struct wl_resource *sr, int32_t x, int32_t y) {
-        (void)c; (void)r; (void)s; (void)sr; (void)x; (void)y;
+        (void)c; (void)s; (void)x; (void)y;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        if (ms && sr) {
+            ms->custom_cursor_calls++;
+            write_cursor_state(ms);
+        }
     }
     static const struct wl_pointer_interface g_ptr_impl = { .set_cursor = ptr_cursor, .release = noop_destroy };
     static const struct wl_keyboard_interface g_kbd_impl = { .release = noop_destroy };
+    static const struct wl_touch_interface g_touch_impl = { .release = noop_destroy };
 
     static void seat_get_pointer(struct wl_client *c, struct wl_resource *r, uint32_t id) {
         MiniSrv *ms = wl_resource_get_user_data(r);
@@ -423,13 +453,58 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         wl_resource_set_implementation(kr, &g_kbd_impl, ms, NULL);
         if (!ms->primary_kbd) ms->primary_kbd = kr;
     }
+    static void seat_get_touch(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        struct wl_resource *tr = wl_resource_create(c, &wl_touch_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(tr, &g_touch_impl, ms, NULL);
+        if (!ms->primary_touch) ms->primary_touch = tr;
+    }
     static const struct wl_seat_interface g_seat_impl = {
-        .get_pointer = seat_get_pointer, .get_keyboard = seat_get_keyboard, .get_touch = NULL, .release = noop_destroy
+        .get_pointer = seat_get_pointer, .get_keyboard = seat_get_keyboard, .get_touch = seat_get_touch, .release = noop_destroy
     };
     static void bind_seat(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
         struct wl_resource *r = wl_resource_create(c, &wl_seat_interface, ver < 5 ? ver : 5, id);
         wl_resource_set_implementation(r, &g_seat_impl, d, NULL);
-        wl_seat_send_capabilities(r, WL_SEAT_CAPABILITY_POINTER | WL_SEAT_CAPABILITY_KEYBOARD);
+        wl_seat_send_capabilities(r, WL_SEAT_CAPABILITY_POINTER | WL_SEAT_CAPABILITY_KEYBOARD | WL_SEAT_CAPABILITY_TOUCH);
+    }
+
+    /* wp_cursor_shape_manager_v1 */
+    static void cshape_dev_set_shape(struct wl_client *c, struct wl_resource *r, uint32_t ser, uint32_t shape) {
+        (void)c; (void)ser;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        if (!ms) return;
+        ms->shape_calls++;
+        ms->last_cursor_shape = shape;
+        if (shape == WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_DEFAULT) ms->seen_shape_default = true;
+        if (shape == WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_TEXT) ms->seen_shape_text = true;
+        if (shape == WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_POINTER) ms->seen_shape_pointer = true;
+        write_cursor_state(ms);
+    }
+    static const struct wp_cursor_shape_device_v1_interface g_cshape_dev_impl = {
+        .destroy = noop_destroy,
+        .set_shape = cshape_dev_set_shape,
+    };
+    static void cshape_get_ptr(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *ptr) {
+        (void)ptr;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        struct wl_resource *dr = wl_resource_create(c, &wp_cursor_shape_device_v1_interface, 1, id);
+        wl_resource_set_implementation(dr, &g_cshape_dev_impl, ms, NULL);
+    }
+    static void cshape_get_tab(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *tool) {
+        (void)tool;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        struct wl_resource *dr = wl_resource_create(c, &wp_cursor_shape_device_v1_interface, 1, id);
+        wl_resource_set_implementation(dr, &g_cshape_dev_impl, ms, NULL);
+    }
+    static const struct wp_cursor_shape_manager_v1_interface g_cshape_mgr_impl = {
+        .destroy = noop_destroy,
+        .get_pointer = cshape_get_ptr,
+        .get_tablet_tool_v2 = cshape_get_tab,
+    };
+    static void bind_cshape(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &wp_cursor_shape_manager_v1_interface, 1, id);
+        wl_resource_set_implementation(r, &g_cshape_mgr_impl, d, NULL);
     }
 
     /* wl_data_device_manager (DnD + multi-client clipboard broker) */
@@ -784,6 +859,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         wl_global_create(ms.dpy, &zwp_primary_selection_device_manager_v1_interface, 1, &ms, bind_pmgr);
         wl_global_create(ms.dpy, &zwp_text_input_manager_v3_interface, 1, &ms, bind_tim);
         wl_global_create(ms.dpy, &xdg_activation_v1_interface, 1, &ms, bind_act);
+        wl_global_create(ms.dpy, &wp_cursor_shape_manager_v1_interface, 1, &ms, bind_cshape);
 
         write_flag(ms.sync_dir, "srv.ready");
 
@@ -968,13 +1044,92 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                 wl_display_flush_clients(ms.dpy);
                 write_flag(ms.sync_dir, "menu_drag.sent");
                 stage = 10;
-            } else if (stage == 10 && file_exists(ms.sync_dir, "menu_drag.verified")) {
+            } else if (stage == 10 && file_exists(ms.sync_dir, "cursor_touch.ready") &&
+                       ms.primary_ptr && ms.primary_touch && ms.primary_surf) {
+                char ctpath[512];
+                snprintf(ctpath, sizeof(ctpath), "%s/cursor_touch.coords", ms.sync_dir);
+                int tf_x = 60, tf_y = 24, btn_x = 420, btn_y = 140, pan_x = 90, pan_y = 260;
+                FILE *ctf = fopen(ctpath, "r");
+                if (ctf) {
+                    (void)fscanf(ctf, "%d %d %d %d %d %d", &tf_x, &tf_y, &btn_x, &btn_y, &pan_x, &pan_y);
+                    fclose(ctf);
+                }
+                /* 1) Hover text field -> TEXT cursor shape */
+                wl_pointer_send_enter(ms.primary_ptr, 850, ms.primary_surf,
+                                      wl_fixed_from_int(tf_x), wl_fixed_from_int(tf_y));
+                wl_pointer_send_motion(ms.primary_ptr, 2600,
+                                       wl_fixed_from_int(tf_x), wl_fixed_from_int(tf_y));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                for (int k = 0; k < 6; ++k) {
+                    wl_event_loop_dispatch(loop, 8);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                /* 2) Hover hand button -> POINTER cursor shape */
+                wl_pointer_send_motion(ms.primary_ptr, 2630,
+                                       wl_fixed_from_int(btn_x), wl_fixed_from_int(btn_y));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                for (int k = 0; k < 6; ++k) {
+                    wl_event_loop_dispatch(loop, 8);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                /* 3) Hover custom bitmap cursor widget -> custom wl_pointer.set_cursor */
+                wl_pointer_send_motion(ms.primary_ptr, 2660,
+                                       wl_fixed_from_int(pan_x), wl_fixed_from_int(pan_y));
+                wl_pointer_send_frame(ms.primary_ptr);
+                wl_display_flush_clients(ms.dpy);
+                for (int k = 0; k < 6; ++k) {
+                    wl_event_loop_dispatch(loop, 8);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                /* 4) 1-finger wl_touch tap on touch_btn */
+                wl_touch_send_down(ms.primary_touch, 901, 2700, ms.primary_surf, 0,
+                                   wl_fixed_from_int(btn_x), wl_fixed_from_int(btn_y));
+                wl_touch_send_frame(ms.primary_touch);
+                wl_display_flush_clients(ms.dpy);
+                for (int k = 0; k < 4; ++k) {
+                    wl_event_loop_dispatch(loop, 8);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                wl_touch_send_up(ms.primary_touch, 902, 2730, 0);
+                wl_touch_send_frame(ms.primary_touch);
+                wl_display_flush_clients(ms.dpy);
+                for (int k = 0; k < 6; ++k) {
+                    wl_event_loop_dispatch(loop, 8);
+                    wl_display_flush_clients(ms.dpy);
+                }
+                /* 5) 2-finger wl_touch upward pan over sw_auto -> scrolls down smoothly */
+                wl_touch_send_down(ms.primary_touch, 903, 2800, ms.primary_surf, 0,
+                                   wl_fixed_from_int(pan_x - 16), wl_fixed_from_int(pan_y));
+                wl_touch_send_down(ms.primary_touch, 904, 2802, ms.primary_surf, 1,
+                                   wl_fixed_from_int(pan_x + 16), wl_fixed_from_int(pan_y));
+                wl_touch_send_frame(ms.primary_touch);
+                wl_display_flush_clients(ms.dpy);
+                for (int s = 1; s <= 4; ++s) {
+                    struct timespec tts = {0, 14 * 1000 * 1000L};
+                    nanosleep(&tts, NULL);
+                    wl_touch_send_motion(ms.primary_touch, (uint32_t)(2810 + s * 15), 0,
+                                         wl_fixed_from_int(pan_x - 16), wl_fixed_from_int(pan_y - s * 15));
+                    wl_touch_send_motion(ms.primary_touch, (uint32_t)(2810 + s * 15), 1,
+                                         wl_fixed_from_int(pan_x + 16), wl_fixed_from_int(pan_y - s * 15));
+                    wl_touch_send_frame(ms.primary_touch);
+                    wl_display_flush_clients(ms.dpy);
+                    wl_event_loop_dispatch(loop, 5);
+                }
+                wl_touch_send_up(ms.primary_touch, 905, 2900, 0);
+                wl_touch_send_up(ms.primary_touch, 906, 2902, 1);
+                wl_touch_send_frame(ms.primary_touch);
+                wl_display_flush_clients(ms.dpy);
+                write_flag(ms.sync_dir, "cursor_touch.sent");
                 stage = 11;
+            } else if (stage == 11 && file_exists(ms.sync_dir, "menu_drag.verified")) {
+                stage = 12;
                 break;
             }
         }
         wl_display_destroy(ms.dpy);
-        return (stage == 11 && ms.dnd_finished_seen) ? 0 : 1;
+        return (stage == 12 && ms.dnd_finished_seen) ? 0 : 1;
     }
     """
 )
@@ -1108,6 +1263,8 @@ def main() -> int:
         act_xml = wp_dir / "staging/xdg-activation/xdg-activation-v1.xml"
         ti_xml = wp_dir / "unstable/text-input/text-input-unstable-v3.xml"
         prim_xml = wp_dir / "unstable/primary-selection/primary-selection-unstable-v1.xml"
+        cshape_xml = wp_dir / "staging/cursor-shape/cursor-shape-v1.xml"
+        tab_xml = wp_dir / "unstable/tablet/tablet-unstable-v2.xml"
 
         proto_dir = output / "proto"
         subprocess.run([scanner, "server-header", str(xdg_xml), str(proto_dir / "xdg-shell-server.h")], check=True)
@@ -1118,6 +1275,10 @@ def main() -> int:
         subprocess.run([scanner, "private-code", str(ti_xml), str(proto_dir / "text-input-v3-code.c")], check=True)
         subprocess.run([scanner, "server-header", str(prim_xml), str(proto_dir / "primary-selection-server.h")], check=True)
         subprocess.run([scanner, "private-code", str(prim_xml), str(proto_dir / "primary-selection-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(tab_xml), str(proto_dir / "tablet-v2-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(tab_xml), str(proto_dir / "tablet-v2-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(cshape_xml), str(proto_dir / "cursor-shape-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(cshape_xml), str(proto_dir / "cursor-shape-code.c")], check=True)
 
         srv_c = proto_dir / "mini-compositor.c"
         srv_c.write_text(MINI_COMPOSITOR_C)
@@ -1132,6 +1293,8 @@ def main() -> int:
                 str(proto_dir / "xdg-activation-code.c"),
                 str(proto_dir / "text-input-v3-code.c"),
                 str(proto_dir / "primary-selection-code.c"),
+                str(proto_dir / "tablet-v2-code.c"),
+                str(proto_dir / "cursor-shape-code.c"),
                 *wls_lf, "-o", str(srv_bin),
             ],
             env=base_env,
@@ -1173,6 +1336,8 @@ def main() -> int:
                 text=True,
                 timeout=30,
             )
+            if cli_res.returncode != 0 and srv_proc.poll() is None:
+                srv_proc.terminate()
             srv_out, _ = srv_proc.communicate(timeout=10)
             (output / "ime-dnd.log").write_text(cli_res.stdout + cli_res.stderr + "\n" + srv_out)
             receipt["steps"].append(

@@ -1,3 +1,30 @@
+Add Wayland wp-cursor-shape-v1 and wl_touch touchscreen support (2026-11-24)
+============================================================================
+
+- `configure.ac`, `lib/Xm/Makefile.am`, `lib/Xm/WaylandBackendI.h`,
+  `lib/Xm/WaylandBackend.c`, `lib/Xm/WaylandX11Server.c`,
+  `lib/Xm/WaylandRender.c`, `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Bind `wp_cursor_shape_manager_v1` in `libXm`'s native Wayland runtime
+    backend, set `XcursorSetTheme(dpy, "core")` on the attached `Display *`
+    so standard `XCreateFontCursor` / `XCreateGlyphCursor` (`XC_*`) cursors
+    map directly to server-rendered `wp_cursor_shape_device_v1` shapes across
+    HiDPI and fractional-scale outputs, and fall back cleanly to
+    `wl_cursor_theme` on compositors without `wp_cursor_shape_v1`.
+  - Implement X11 `CreateCursor(93)`, `FreeCursor(95)`, and
+    `RenderCreateCursor(27)` custom bitmap/ARGB cursor surfaces together with
+    `CWCursor`, `GrabPointer`, `UngrabPointer`, and `ChangeActivePointerGrab`
+    cursor tracking across pointer motion and window grabs.
+  - Bind `wl_touch` (`WL_SEAT_CAPABILITY_TOUCH`), translating single-finger
+    `down`/`motion`/`up` gestures into pointer motion and `Button1` activation
+    (updating `xdg_activation_v1` user-interaction serials) and two-finger
+    touch panning into continuous vertical/horizontal smooth scrolling while
+    disarming any initial single-finger press before panning.
+  - Extend `run-wayland-backend.py` and `check-wayland-backend` to qualify
+    `wp_cursor_shape_v1` shape requests, custom bitmap cursor uploads,
+    single-finger `wl_touch` button activation, and two-finger `wl_touch`
+    smooth scrolling.
+
 Track tight pixman_region32 buffer-age partial damage in Wayland backend (2026-11-24)
 ====================================================================================
 

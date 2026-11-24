@@ -107,9 +107,15 @@ process environment when the native Wayland backend is active.
   `XmTextField` without requiring an XIM server, forwarding cursor spot
   rectangles and applying preedit spans, surrounding-text deletions, and UTF-8
   commits on the `Xt` main loop.
-- **Pointer hover-wheel & smooth scrolling**: `wl_seat` binds up to v9
-  (`axis_value120` high-resolution wheel and touchpad scroll axes), routing
-  wheel events directly to the deepest widget under the pointer without moving
+- **Pointer hover-wheel, `wp-cursor-shape-v1`, & `wl_touch` input**: `wl_seat`
+  binds up to v9 (`axis_value120` high-resolution wheel and touchpad scroll axes),
+  `wp_cursor_shape_manager_v1` (mapping standard `XCreateFontCursor` / `XC_*`
+  glyph cursors to crisp server-side `wp_cursor_shape_device_v1` shapes across
+  HiDPI outputs while uploading custom `CreateCursor` / `RenderCreateCursor`
+  bitmap cursors over `wl_pointer.set_cursor`), and `wl_touch` (translating
+  single-finger taps and drags into `Button1` widget interaction and two-finger
+  panning into continuous smooth scrolling). Wheel and touch-pan events route
+  directly to the deepest widget under the contact point without moving
   `XmEXPLICIT` keyboard focus or firing `AnyButton` popup-menu passive grabs.
   When smooth scrolling is enabled (`*mouseWheelSmooth: True`, the default), an
   ~83 Hz main-thread interpolator drives sub-line / pixel steps across

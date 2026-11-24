@@ -87,6 +87,8 @@ WAYLAND_PROTO_HDRS = \
 	wayland-xdg-decoration-client-protocol.h \
 	wayland-xdg-toplevel-icon-client-protocol.h \
 	wayland-xdg-activation-client-protocol.h \
+	wayland-cursor-shape-client-protocol.h \
+	wayland-tablet-v2-client-protocol.h \
 	wayland-primary-selection-client-protocol.h \
 	wayland-text-input-v3-client-protocol.h \
 	wayland-fractional-scale-client-protocol.h \
@@ -96,6 +98,8 @@ WAYLAND_PROTO_SRCS = \
 	wayland-xdg-decoration-protocol.c \
 	wayland-xdg-toplevel-icon-protocol.c \
 	wayland-xdg-activation-protocol.c \
+	wayland-cursor-shape-protocol.c \
+	wayland-tablet-v2-protocol.c \
 	wayland-primary-selection-protocol.c \
 	wayland-text-input-v3-protocol.c \
 	wayland-fractional-scale-protocol.c \
@@ -360,6 +364,14 @@ wayland-xdg-toplevel-icon-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-t
 wayland-xdg-activation-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-activation/xdg-activation-v1.xml
 	$(WAYLAND_SCANNER) client-header $< $@
 wayland-xdg-activation-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-activation/xdg-activation-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+wayland-cursor-shape-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/cursor-shape/cursor-shape-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-cursor-shape-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/cursor-shape/cursor-shape-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+wayland-tablet-v2-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/tablet/tablet-unstable-v2.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-tablet-v2-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/tablet/tablet-unstable-v2.xml
 	$(WAYLAND_SCANNER) private-code $< $@
 wayland-primary-selection-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/unstable/primary-selection/primary-selection-unstable-v1.xml
 	$(WAYLAND_SCANNER) client-header $< $@

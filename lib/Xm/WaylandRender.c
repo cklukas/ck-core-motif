@@ -2208,8 +2208,31 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
         _XmWlSendReply(cli, rep, extra, sizeof(extra));
         break;
     }
+    case 27: { /* RenderCreateCursor */
+        if (req_len < 16) break;
+        uint32_t cid = rd_u32(req + 4);
+        XmWlPicture *spic = _XmWlFindPicture(srv, rd_u32(req + 8));
+        int16_t hot_x = (int16_t)rd_u16(req + 12);
+        int16_t hot_y = (int16_t)rd_u16(req + 14);
+        if (spic && spic->drawable_id != 0) {
+            XmWlPixmap *spix = _XmWlFindPixmap(srv, spic->drawable_id);
+            if (spix && spix->bits && spix->width > 0 && spix->height > 0) {
+                uint16_t cw = spix->width;
+                uint16_t ch = spix->height;
+                uint32_t *argb = (uint32_t *)malloc((size_t)cw * (size_t)ch * sizeof(uint32_t));
+                if (argb) {
+                    for (uint16_t y = 0; y < ch; ++y) {
+                        const uint8_t *srow = (const uint8_t *)spix->bits + (size_t)y * (size_t)spix->stride;
+                        memcpy(argb + (size_t)y * (size_t)cw, srow, (size_t)cw * 4u);
+                    }
+                    _XmWlRegisterBitmapCursor(srv, cid, cw, ch, hot_x, hot_y, argb);
+                    free(argb);
+                }
+            }
+        }
+        break;
+    }
     case 30: /* RenderSetPictureFilter */
-    case 27: /* RenderCreateCursor */
     case 31: /* RenderCreateAnimCursor */
         break;
     case 33: { /* RenderCreateSolidFill */

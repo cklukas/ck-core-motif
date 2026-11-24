@@ -26,6 +26,8 @@
 #include "wayland-xdg-decoration-client-protocol.h"
 #include "wayland-xdg-toplevel-icon-client-protocol.h"
 #include "wayland-xdg-activation-client-protocol.h"
+#include "wayland-tablet-v2-client-protocol.h"
+#include "wayland-cursor-shape-client-protocol.h"
 #include "wayland-primary-selection-client-protocol.h"
 #include "wayland-text-input-v3-client-protocol.h"
 #include "wayland-fractional-scale-client-protocol.h"
@@ -42,6 +44,7 @@
 #define XM_WL_MAX_ATOMS          1024
 #define XM_WL_MAX_POPUPS         16
 #define XM_WL_SHM_SLOTS          4
+#define XM_WL_MAX_TOUCH_POINTS   8
 
 #define XM_WL_ROOT_XID           UINT32_C(0x00000040)
 #define XM_WL_WM_HELPER_XID      UINT32_C(0x00000041)
@@ -87,6 +90,7 @@ typedef struct XmWlFont XmWlFont;
 typedef struct XmWlPicture XmWlPicture;
 typedef struct XmWlGlyphSet XmWlGlyphSet;
 typedef struct XmWlRegion XmWlRegion;
+typedef struct XmWlCursor XmWlCursor;
 typedef struct XmWlProperty XmWlProperty;
 typedef struct XmWlShmBuf XmWlShmBuf;
 typedef struct XmWlPendingTokenCtx XmWlPendingTokenCtx;
@@ -332,6 +336,24 @@ struct XmWlRegion {
     XmWlRegion *hash_next;
 };
 
+struct XmWlCursor {
+    uint32_t id;
+    bool is_glyph;
+    uint16_t glyph_char;
+    uint16_t width, height;
+    int16_t hot_x, hot_y;
+    uint32_t *argb_pixels;
+    XmWlShmBuf shm_buf;
+    XmWlCursor *hash_next;
+};
+
+typedef struct {
+    bool active;
+    int32_t id;
+    double x, y;
+    struct wl_surface *surface;
+} XmWlTouchPoint;
+
 typedef struct {
     uint32_t window;
     uint16_t button; /* 0 = AnyButton */
@@ -430,6 +452,9 @@ struct XmWlServer {
     struct wl_seat *seat;
     struct wl_pointer *pointer;
     struct wl_keyboard *keyboard;
+    struct wl_touch *touch;
+    struct wp_cursor_shape_manager_v1 *cursor_shape_mgr;
+    struct wp_cursor_shape_device_v1 *cursor_shape_dev;
     struct wl_cursor_theme *cursor_theme;
     struct wl_surface *cursor_surface;
     struct wl_data_device_manager *data_mgr;
@@ -467,6 +492,7 @@ struct XmWlServer {
     XmWlPicture *pic_buckets[256];
     XmWlGlyphSet *gs_buckets[64];
     XmWlRegion *reg_buckets[64];
+    XmWlCursor *cursor_buckets[128];
     XmWlWindow *root;
     XmWlWindow *wm_helper;
     XmWlWindow *sm_helper;
@@ -489,6 +515,9 @@ struct XmWlServer {
     uint64_t next_repeat_ms;
 
     uint32_t last_input_serial;
+    uint32_t last_ptr_enter_serial;
+    uint32_t last_applied_cursor_id;
+    uint32_t last_applied_cursor_shape;
     uint32_t last_activation_serial;
     uint32_t last_button_serial;
     uint32_t last_button_time_ms;
@@ -499,6 +528,13 @@ struct XmWlServer {
     int16_t ptr_root_x, ptr_root_y;
     uint16_t button_mask;
     uint16_t mod_mask;
+
+    /* Touchscreen (wl_touch) state */
+    XmWlTouchPoint touch_pts[XM_WL_MAX_TOUCH_POINTS];
+    int active_touch_count;
+    bool touch_btn1_down;
+    bool touch_two_finger_pan;
+    double touch_pan_last_cx, touch_pan_last_cy;
 
     /* High-resolution & discrete Wayland pointer axis state (0=vert, 1=horiz) */
     double wheel_frame_px[2];
@@ -532,6 +568,7 @@ struct XmWlServer {
     bool ptr_grab_active;
     bool ptr_grab_implicit;
     uint32_t ptr_grab_win;
+    uint32_t ptr_grab_cursor_id;
     uint32_t ptr_grab_mask;
     bool ptr_grab_owner_events;
     int ptr_grab_client;
@@ -632,6 +669,12 @@ XM_WL_INTERNAL void _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win);
 XM_WL_INTERNAL void _XmWlDestroyWindowRole(XmWlServer *srv, XmWlWindow *win);
 XM_WL_INTERNAL void _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_atom);
 XM_WL_INTERNAL void _XmWlFlushDirtySurfaces(XmWlServer *srv);
+XM_WL_INTERNAL void _XmWlUpdatePointerCursor(XmWlServer *srv, bool force);
+XM_WL_INTERNAL XmWlCursor *_XmWlFindCursor(XmWlServer *srv, uint32_t id);
+XM_WL_INTERNAL void _XmWlRegisterGlyphCursor(XmWlServer *srv, uint32_t id, uint16_t glyph_char);
+XM_WL_INTERNAL void _XmWlRegisterBitmapCursor(XmWlServer *srv, uint32_t id, uint16_t w, uint16_t h,
+                                              int16_t hot_x, int16_t hot_y, const uint32_t *argb);
+XM_WL_INTERNAL void _XmWlFreeCursor(XmWlServer *srv, uint32_t id);
 XM_WL_INTERNAL void _XmWlEnsureTopCanvas(XmWlServer *srv, XmWlWindow *top);
 XM_WL_INTERNAL void _XmWlDamageTop(XmWlWindow *top, int x, int y, int w, int h);
 XM_WL_INTERNAL void _XmWlRebuildKeymapFromXkb(XmWlServer *srv);

@@ -10,6 +10,7 @@
 #include <X11/Intrinsic.h>
 #include <X11/Shell.h>
 #include <X11/Xatom.h>
+#include <X11/cursorfont.h>
 #include <X11/Xlib.h>
 #include <X11/Xresource.h>
 #include <X11/Xutil.h>
@@ -1133,6 +1134,16 @@ run_compositor_check(const char *self_exe, const char *sync_dir)
 static char g_dropped_uri[256];
 static bool g_drop_received = false;
 static bool g_menu_drag_activated = false;
+static int g_touch_btn_clicks = 0;
+
+static void
+touch_btn_activate_cb(Widget w, XtPointer client_data, XtPointer call_data)
+{
+    (void)w;
+    (void)client_data;
+    (void)call_data;
+    g_touch_btn_clicks++;
+}
 
 static void
 menu_drag_activate_cb(Widget w, XtPointer client_data, XtPointer call_data)
@@ -1727,14 +1738,128 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         }
 
         XFreeGC(dpy, dgc);
+        char dr_flag[512];
+        snprintf(dr_flag, sizeof(dr_flag), "%s/dmg_ring.active", sync_dir);
+        unlink(dr_flag);
+    }
+
+    /* Verify wp_cursor_shape_v1 + custom bitmap cursor + wl_touch (1-finger tap & 2-finger pan):
+     *  1) XC_xterm -> WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_TEXT, XC_hand2 -> POINTER,
+     *  2) XCreatePixmapCursor -> custom wl_pointer.set_cursor upload,
+     *  3) 1-finger wl_touch tap activates PushButton and updates xdg_activation_v1 serial,
+     *  4) 2-finger wl_touch upward pan scrolls sw_auto smoothly without false button activation. */
+    int touch_pan_val = 0;
+    {
+        Widget touch_btn = XtVaCreateManagedWidget(
+            "touchBtn", xmPushButtonWidgetClass, form,
+            XmNtopAttachment, XmATTACH_FORM, XmNtopOffset, 118,
+            XmNleftAttachment, XmATTACH_FORM, XmNleftOffset, 320,
+            XmNwidth, 160, XmNheight, 36,
+            NULL);
+        XtAddCallback(touch_btn, XmNactivateCallback, touch_btn_activate_cb, NULL);
+        XRaiseWindow(dpy, XtWindow(touch_btn));
+
+        Cursor cur_text = XCreateFontCursor(dpy, XC_xterm);
+        Cursor cur_hand = XCreateFontCursor(dpy, XC_hand2);
+        Pixmap csrc = XCreatePixmap(dpy, DefaultRootWindow(dpy), 8, 8, 1);
+        Pixmap cmsk = XCreatePixmap(dpy, DefaultRootWindow(dpy), 8, 8, 1);
+        GC cgc = XCreateGC(dpy, csrc, 0, NULL);
+        XSetForeground(dpy, cgc, 1);
+        XFillRectangle(dpy, csrc, cgc, 0, 0, 8, 8);
+        XFillRectangle(dpy, cmsk, cgc, 0, 0, 8, 8);
+        XFreeGC(dpy, cgc);
+        XColor fg_c = { .red = 65535, .green = 0, .blue = 0 };
+        XColor bg_c = { .red = 0, .green = 0, .blue = 0 };
+        Cursor cur_bmp = XCreatePixmapCursor(dpy, csrc, cmsk, &fg_c, &bg_c, 2, 2);
+        XFreePixmap(dpy, csrc);
+        XFreePixmap(dpy, cmsk);
+
+        XDefineCursor(dpy, XtWindow(tf), cur_text);
+        XDefineCursor(dpy, XtWindow(touch_btn), cur_hand);
+        XDefineCursor(dpy, XtWindow(da_auto), cur_bmp);
+
+        if (sb_auto)
+            XmScrollBarSetValues(sb_auto, 0, 0, 0, 0, True);
+        pump_xt_ms(app, dpy, 120);
+
+        Window child_ret = None;
+        Dimension tf_w = 0, tf_h = 0, tb_w = 0, tb_h = 0, sw_w = 0, sw_h = 0;
+        XtVaGetValues(tf, XmNwidth, &tf_w, XmNheight, &tf_h, NULL);
+        XtVaGetValues(touch_btn, XmNwidth, &tb_w, XmNheight, &tb_h, NULL);
+        XtVaGetValues(sw_auto, XmNwidth, &sw_w, XmNheight, &sw_h, NULL);
+        int tf_x = 0, tf_y = 0, btn_x = 0, btn_y = 0, pan_x = 0, pan_y = 0;
+        XTranslateCoordinates(dpy, XtWindow(tf), XtWindow(shell),
+                              (int)tf_w / 2, (int)tf_h / 2, &tf_x, &tf_y, &child_ret);
+        XTranslateCoordinates(dpy, XtWindow(touch_btn), XtWindow(shell),
+                              (int)tb_w / 2, (int)tb_h / 2, &btn_x, &btn_y, &child_ret);
+        XTranslateCoordinates(dpy, XtWindow(sw_auto), XtWindow(shell),
+                              (int)sw_w / 3, (int)sw_h / 2, &pan_x, &pan_y, &child_ret);
+
+        char ctpath[512];
+        snprintf(ctpath, sizeof(ctpath), "%s/cursor_touch.coords", sync_dir);
+        FILE *ctf = fopen(ctpath, "w");
+        if (ctf) {
+            fprintf(ctf, "%d %d %d %d %d %d\n", tf_x, tf_y, btn_x, btn_y, pan_x, pan_y);
+            fclose(ctf);
+        }
+        write_stage_file(sync_dir, "cursor_touch.ready");
+        wait_for_stage_file(app, dpy, sync_dir, "cursor_touch.sent", 5000);
+        pump_xt_ms(app, dpy, 260);
+
+        char cspath[512];
+        snprintf(cspath, sizeof(cspath), "%s/cursor_state.txt", sync_dir);
+        FILE *csf = fopen(cspath, "r");
+        if (!csf)
+            fail_msg("mini-compositor did not write cursor_state.txt");
+        char csbuf[512] = {0};
+        size_t csn = fread(csbuf, 1, sizeof(csbuf) - 1, csf);
+        fclose(csf);
+        csbuf[csn] = '\0';
+        if (!strstr(csbuf, "seen_text=1\n") ||
+            !strstr(csbuf, "seen_pointer=1\n") ||
+            strstr(csbuf, "custom_calls=0\n") != NULL) {
+            fprintf(stderr, "FAIL: unexpected cursor_state.txt:\n%s\n", csbuf);
+            exit(1);
+        }
+        if (g_touch_btn_clicks != 1) {
+            fprintf(stderr, "FAIL: expected 1-finger wl_touch tap clicks=1, got %d\n", g_touch_btn_clicks);
+            exit(1);
+        }
+        if (sb_auto)
+            XtVaGetValues(sb_auto, XmNvalue, &touch_pan_val, NULL);
+        if (touch_pan_val < 30) {
+            fprintf(stderr, "FAIL: 2-finger wl_touch pan expected >= 30px scroll, got %d\n", touch_pan_val);
+            exit(1);
+        }
+        char *touch_tok = NULL;
+        if (!XmWaylandRequestActivationToken(dpy, XtWindow(shell), "org.cde.touch", &touch_tok) || !touch_tok)
+            fail_msg("XmWaylandRequestActivationToken after wl_touch failed");
+        XtFree(touch_tok);
+        char apath2[512];
+        snprintf(apath2, sizeof(apath2), "%s/act_state.txt", sync_dir);
+        FILE *af2 = fopen(apath2, "r");
+        if (!af2)
+            fail_msg("act_state.txt missing after wl_touch token mint");
+        char abuf2[512] = {0};
+        size_t an2 = fread(abuf2, 1, sizeof(abuf2) - 1, af2);
+        fclose(af2);
+        abuf2[an2] = '\0';
+        if (!strstr(abuf2, "serial=906\n")) {
+            fprintf(stderr, "FAIL: wl_touch did not update xdg_activation_v1 serial to 906:\n%s\n", abuf2);
+            exit(1);
+        }
+
+        XFreeCursor(dpy, cur_bmp);
+        XFreeCursor(dpy, cur_hand);
+        XFreeCursor(dpy, cur_text);
     }
 
     XtDestroyWidget(shell);
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);
     write_stage_file(sync_dir, "menu_drag.verified");
-    printf("PASS ime-dnd-clipboard-resize-wheel-menudrag-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40 wheel_subnotch=%d wheel_auto=%d[frames=%d] wheel_app=0->%d->%d->%d menu_drag=OK)\n",
-           g_resize_dispatches, subnotch_val, auto_val, distinct_auto_frames, app_val, app_end, app_start);
+    printf("PASS ime-dnd-clipboard-resize-wheel-menudrag-check (ime='日本語!' dnd='file:///wayland/dropped-item.txt' clipboard=OK resize_dispatches=%d/40 wheel_subnotch=%d wheel_auto=%d[frames=%d] wheel_app=0->%d->%d->%d menu_drag=OK cursor_shape=OK touch_pan=%d)\n",
+           g_resize_dispatches, subnotch_val, auto_val, distinct_auto_frames, app_val, app_end, app_start, touch_pan_val);
     return 0;
 }
 

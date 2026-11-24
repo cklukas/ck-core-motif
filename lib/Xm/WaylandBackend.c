@@ -22,6 +22,7 @@
 #include <Xm/Display.h>
 #include "XmI.h"
 #include <ctype.h>
+#include <dlfcn.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
@@ -674,37 +675,252 @@ find_top_by_wl_surface(XmWlServer *srv, struct wl_surface *surf)
     return NULL;
 }
 
-static void
-pointer_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial,
-              struct wl_surface *surface, wl_fixed_t sx, wl_fixed_t sy)
+XmWlCursor *
+_XmWlFindCursor(XmWlServer *srv, uint32_t id)
 {
-    XmWlServer *srv = (XmWlServer *)data;
-    srv->last_input_serial = serial;
-    XmWlWindow *top = find_top_by_wl_surface(srv, surface);
-    srv->pointer_top = top;
+    if (!srv || id == 0) return NULL;
+    for (XmWlCursor *c = srv->cursor_buckets[id & 127u]; c; c = c->hash_next) {
+        if (c->id == id)
+            return c;
+    }
+    return NULL;
+}
 
-    /* Set default left_ptr cursor so pointer is visible on Wayland */
+void
+_XmWlFreeCursor(XmWlServer *srv, uint32_t id)
+{
+    if (!srv || id == 0) return;
+    uint32_t b = id & 127u;
+    XmWlCursor **pp = &srv->cursor_buckets[b];
+    while (*pp) {
+        if ((*pp)->id == id) {
+            XmWlCursor *cur = *pp;
+            *pp = cur->hash_next;
+            free_shm_buf(&cur->shm_buf);
+            free(cur->argb_pixels);
+            free(cur);
+            if (srv->last_applied_cursor_id == id) {
+                srv->last_applied_cursor_id = UINT32_MAX;
+                _XmWlUpdatePointerCursor(srv, true);
+            }
+            return;
+        }
+        pp = &(*pp)->hash_next;
+    }
+}
+
+void
+_XmWlRegisterGlyphCursor(XmWlServer *srv, uint32_t id, uint16_t glyph_char)
+{
+    if (!srv || id == 0) return;
+    _XmWlFreeCursor(srv, id);
+    XmWlCursor *cur = (XmWlCursor *)calloc(1, sizeof(*cur));
+    if (!cur) return;
+    cur->id = id;
+    cur->is_glyph = true;
+    cur->glyph_char = glyph_char;
+    cur->shm_buf.fd = -1;
+    uint32_t b = id & 127u;
+    cur->hash_next = srv->cursor_buckets[b];
+    srv->cursor_buckets[b] = cur;
+}
+
+void
+_XmWlRegisterBitmapCursor(XmWlServer *srv, uint32_t id, uint16_t w, uint16_t h,
+                          int16_t hot_x, int16_t hot_y, const uint32_t *argb)
+{
+    if (!srv || id == 0 || w == 0 || h == 0 || !argb) return;
+    _XmWlFreeCursor(srv, id);
+    XmWlCursor *cur = (XmWlCursor *)calloc(1, sizeof(*cur));
+    if (!cur) return;
+    size_t sz = (size_t)w * (size_t)h * sizeof(uint32_t);
+    cur->argb_pixels = (uint32_t *)malloc(sz);
+    if (!cur->argb_pixels) {
+        free(cur);
+        return;
+    }
+    memcpy(cur->argb_pixels, argb, sz);
+    cur->id = id;
+    cur->is_glyph = false;
+    cur->width = w;
+    cur->height = h;
+    cur->hot_x = hot_x;
+    cur->hot_y = hot_y;
+    cur->shm_buf.fd = -1;
+    uint32_t b = id & 127u;
+    cur->hash_next = srv->cursor_buckets[b];
+    srv->cursor_buckets[b] = cur;
+}
+
+static uint32_t
+xc_glyph_to_wl_cursor_shape(uint16_t glyph, const char **out_xcursor_name)
+{
+    /* Standard <X11/cursorfont.h> XC_* even-numbered source glyph codes */
+    switch (glyph & ~1u) {
+    case 152: /* XC_xterm */
+        if (out_xcursor_name) *out_xcursor_name = "xterm";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_TEXT;
+    case 58:  /* XC_hand1 */
+    case 60:  /* XC_hand2 */
+        if (out_xcursor_name) *out_xcursor_name = "hand2";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_POINTER;
+    case 26:  /* XC_clock */
+    case 150: /* XC_watch */
+        if (out_xcursor_name) *out_xcursor_name = "watch";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_WAIT;
+    case 92:  /* XC_question_arrow */
+        if (out_xcursor_name) *out_xcursor_name = "question_arrow";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_HELP;
+    case 30:  /* XC_cross */
+    case 32:  /* XC_cross_reverse */
+    case 34:  /* XC_crosshair */
+    case 130: /* XC_tcross */
+        if (out_xcursor_name) *out_xcursor_name = "crosshair";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_CROSSHAIR;
+    case 52:  /* XC_fleur */
+        if (out_xcursor_name) *out_xcursor_name = "fleur";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_MOVE;
+    case 88:  /* XC_pirate */
+        if (out_xcursor_name) *out_xcursor_name = "pirate";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_NOT_ALLOWED;
+    case 40:  /* XC_draped_box */
+    case 90:  /* XC_plus */
+        if (out_xcursor_name) *out_xcursor_name = "plus";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_CELL;
+    case 44:  /* XC_double_arrow */
+    case 108: /* XC_sb_h_double_arrow */
+        if (out_xcursor_name) *out_xcursor_name = "sb_h_double_arrow";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_EW_RESIZE;
+    case 116: /* XC_sb_v_double_arrow */
+        if (out_xcursor_name) *out_xcursor_name = "sb_v_double_arrow";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_NS_RESIZE;
+    case 70:  /* XC_left_side */
+        if (out_xcursor_name) *out_xcursor_name = "left_side";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_W_RESIZE;
+    case 96:  /* XC_right_side */
+        if (out_xcursor_name) *out_xcursor_name = "right_side";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_E_RESIZE;
+    case 138: /* XC_top_side */
+        if (out_xcursor_name) *out_xcursor_name = "top_side";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_N_RESIZE;
+    case 16:  /* XC_bottom_side */
+        if (out_xcursor_name) *out_xcursor_name = "bottom_side";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_S_RESIZE;
+    case 134: /* XC_top_left_corner */
+        if (out_xcursor_name) *out_xcursor_name = "top_left_corner";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_NW_RESIZE;
+    case 136: /* XC_top_right_corner */
+        if (out_xcursor_name) *out_xcursor_name = "top_right_corner";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_NE_RESIZE;
+    case 12:  /* XC_bottom_left_corner */
+        if (out_xcursor_name) *out_xcursor_name = "bottom_left_corner";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_SW_RESIZE;
+    case 14:  /* XC_bottom_right_corner */
+    case 120: /* XC_sizing */
+        if (out_xcursor_name) *out_xcursor_name = "bottom_right_corner";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_SE_RESIZE;
+    default:
+        if (out_xcursor_name) *out_xcursor_name = "left_ptr";
+        return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_DEFAULT;
+    }
+}
+
+void
+_XmWlUpdatePointerCursor(XmWlServer *srv, bool force)
+{
+    if (!srv || !srv->pointer || !srv->pointer_top || srv->last_ptr_enter_serial == 0)
+        return;
+
+    uint32_t eff_cid = 0;
+    if (srv->ptr_grab_active && srv->ptr_grab_cursor_id != 0) {
+        eff_cid = srv->ptr_grab_cursor_id;
+    } else {
+        for (XmWlWindow *cw = srv->hovered_win; cw && cw != srv->root; cw = cw->parent) {
+            if (cw->cursor_id != 0) {
+                eff_cid = cw->cursor_id;
+                break;
+            }
+        }
+    }
+
+    if (!force && eff_cid == srv->last_applied_cursor_id)
+        return;
+
+    XmWlCursor *xcur = _XmWlFindCursor(srv, eff_cid);
+    if (xcur && !xcur->is_glyph && xcur->argb_pixels && xcur->width > 0 && xcur->height > 0 &&
+        srv->cursor_surface) {
+        if (ensure_shm_buf(srv, &xcur->shm_buf, xcur->width, xcur->height, true)) {
+            for (int y = 0; y < xcur->height; ++y) {
+                memcpy((uint8_t *)xcur->shm_buf.pixels + (size_t)y * (size_t)xcur->shm_buf.stride,
+                       xcur->argb_pixels + (size_t)y * (size_t)xcur->width,
+                       (size_t)xcur->width * 4u);
+            }
+            wl_pointer_set_cursor(srv->pointer, srv->last_ptr_enter_serial, srv->cursor_surface,
+                                  xcur->hot_x, xcur->hot_y);
+            wl_surface_attach(srv->cursor_surface, xcur->shm_buf.wl_buf, 0, 0);
+            wl_surface_damage_buffer(srv->cursor_surface, 0, 0, xcur->width, xcur->height);
+            wl_surface_commit(srv->cursor_surface);
+            srv->last_applied_cursor_id = eff_cid;
+            srv->last_applied_cursor_shape = 0;
+            wl_display_flush(srv->wl_dpy);
+            return;
+        }
+    }
+
+    const char *xc_name = "left_ptr";
+    uint32_t shape = WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_DEFAULT;
+    if (xcur && xcur->is_glyph) {
+        shape = xc_glyph_to_wl_cursor_shape(xcur->glyph_char, &xc_name);
+    }
+
+    if (srv->cursor_shape_dev) {
+        if (force || shape != srv->last_applied_cursor_shape) {
+            wp_cursor_shape_device_v1_set_shape(
+                srv->cursor_shape_dev, srv->last_ptr_enter_serial, shape);
+            srv->last_applied_cursor_shape = shape;
+            wl_display_flush(srv->wl_dpy);
+        }
+        srv->last_applied_cursor_id = eff_cid;
+        return;
+    }
+
     if (srv->cursor_theme && srv->cursor_surface) {
-        struct wl_cursor *cur = wl_cursor_theme_get_cursor(srv->cursor_theme, "left_ptr");
+        struct wl_cursor *cur = wl_cursor_theme_get_cursor(srv->cursor_theme, xc_name);
+        if (!cur) cur = wl_cursor_theme_get_cursor(srv->cursor_theme, "left_ptr");
         if (!cur) cur = wl_cursor_theme_get_cursor(srv->cursor_theme, "default");
         if (cur && cur->image_count > 0) {
             struct wl_cursor_image *img = cur->images[0];
             struct wl_buffer *cbuf = wl_cursor_image_get_buffer(img);
             if (cbuf) {
-                wl_pointer_set_cursor(wl_pointer, serial, srv->cursor_surface,
+                wl_pointer_set_cursor(srv->pointer, srv->last_ptr_enter_serial, srv->cursor_surface,
                                       (int32_t)img->hotspot_x, (int32_t)img->hotspot_y);
                 wl_surface_attach(srv->cursor_surface, cbuf, 0, 0);
                 wl_surface_damage(srv->cursor_surface, 0, 0, (int32_t)img->width, (int32_t)img->height);
                 wl_surface_commit(srv->cursor_surface);
+                wl_display_flush(srv->wl_dpy);
             }
         }
     }
+    srv->last_applied_cursor_id = eff_cid;
+}
+
+static void
+pointer_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial,
+              struct wl_surface *surface, wl_fixed_t sx, wl_fixed_t sy)
+{
+    (void)wl_pointer;
+    XmWlServer *srv = (XmWlServer *)data;
+    srv->last_input_serial = serial;
+    srv->last_ptr_enter_serial = serial;
+    XmWlWindow *top = find_top_by_wl_surface(srv, surface);
+    srv->pointer_top = top;
 
     if (top) {
         int16_t ix = (int16_t)wl_fixed_to_int(sx);
         int16_t iy = (int16_t)wl_fixed_to_int(sy);
         _XmWlDispatchPointerMotion(srv, top, ix, iy, _XmWlNowMs());
     }
+    _XmWlUpdatePointerCursor(srv, true);
 }
 
 static void
@@ -1120,6 +1336,242 @@ static const struct wl_keyboard_listener g_keyboard_listener = {
     .repeat_info = keyboard_repeat_info,
 };
 
+static XmWlTouchPoint *
+find_or_alloc_touch_pt(XmWlServer *srv, int32_t id, bool create)
+{
+    XmWlTouchPoint *free_slot = NULL;
+    for (int i = 0; i < XM_WL_MAX_TOUCH_POINTS; ++i) {
+        if (srv->touch_pts[i].active && srv->touch_pts[i].id == id)
+            return &srv->touch_pts[i];
+        if (!srv->touch_pts[i].active && !free_slot)
+            free_slot = &srv->touch_pts[i];
+    }
+    if (create && free_slot) {
+        memset(free_slot, 0, sizeof(*free_slot));
+        free_slot->active = true;
+        free_slot->id = id;
+        srv->active_touch_count++;
+        return free_slot;
+    }
+    return NULL;
+}
+
+static bool
+compute_two_finger_centroid(const XmWlServer *srv, double *out_cx, double *out_cy)
+{
+    double sx = 0.0, sy = 0.0;
+    int cnt = 0;
+    for (int i = 0; i < XM_WL_MAX_TOUCH_POINTS && cnt < 2; ++i) {
+        if (srv->touch_pts[i].active) {
+            sx += srv->touch_pts[i].x;
+            sy += srv->touch_pts[i].y;
+            cnt++;
+        }
+    }
+    if (cnt < 2)
+        return false;
+    *out_cx = sx * 0.5;
+    *out_cy = sy * 0.5;
+    return true;
+}
+
+static uint32_t
+next_monotonic_btn_time(XmWlServer *srv, uint32_t time_ms)
+{
+    uint32_t btn_time = time_ms ? time_ms : _XmWlNowMs();
+    if (srv->last_button_time_ms != 0 &&
+        (int32_t)(btn_time - srv->last_button_time_ms) <= 0) {
+        btn_time = srv->last_button_time_ms + 1u;
+    }
+    srv->last_button_time_ms = btn_time;
+    srv->server_time_ms = btn_time;
+    return btn_time;
+}
+
+static void
+touch_down(void *data, struct wl_touch *wl_touch, uint32_t serial, uint32_t time,
+           struct wl_surface *surface, int32_t id, wl_fixed_t x, wl_fixed_t y)
+{
+    (void)wl_touch;
+    XmWlServer *srv = (XmWlServer *)data;
+    srv->last_input_serial = serial;
+    srv->last_activation_serial = serial;
+    srv->last_button_serial = serial;
+
+    XmWlTouchPoint *tp = find_or_alloc_touch_pt(srv, id, true);
+    if (!tp) return;
+    tp->x = wl_fixed_to_double(x);
+    tp->y = wl_fixed_to_double(y);
+    tp->surface = surface;
+
+    XmWlWindow *top = find_top_by_wl_surface(srv, surface);
+    if (top)
+        srv->pointer_top = top;
+
+    uint32_t t_ms = next_monotonic_btn_time(srv, time);
+    if (srv->active_touch_count == 1 && srv->pointer_top) {
+        srv->touch_two_finger_pan = false;
+        srv->smooth_cancel_requested = true;
+        srv->smooth_pending_v120[0] = 0.0;
+        srv->smooth_pending_v120[1] = 0.0;
+        _XmWaylandNotifyMainThread(srv);
+
+        int16_t ix = (int16_t)lround(tp->x);
+        int16_t iy = (int16_t)lround(tp->y);
+        _XmWlDispatchPointerMotion(srv, srv->pointer_top, ix, iy, t_ms);
+        _XmWlDispatchPointerButton(srv, 1, true, t_ms);
+        srv->touch_btn1_down = true;
+    } else if (srv->active_touch_count == 2) {
+        if (srv->touch_btn1_down && srv->pointer_top) {
+            /* Move outside armed widget bounds before releasing Button1 so starting a
+             * 2-finger scroll gesture never accidentally activates a button underneath. */
+            _XmWlDispatchPointerMotion(srv, srv->pointer_top, -16, -16, t_ms);
+            uint32_t rel_t = next_monotonic_btn_time(srv, t_ms + 1u);
+            _XmWlDispatchPointerButton(srv, 1, false, rel_t);
+            srv->touch_btn1_down = false;
+        }
+        double cx = 0.0, cy = 0.0;
+        if (compute_two_finger_centroid(srv, &cx, &cy)) {
+            srv->touch_two_finger_pan = true;
+            srv->touch_pan_last_cx = cx;
+            srv->touch_pan_last_cy = cy;
+            if (srv->pointer_top) {
+                uint32_t pos_t = next_monotonic_btn_time(srv, t_ms + 1u);
+                _XmWlDispatchPointerMotion(
+                    srv, srv->pointer_top, (int16_t)lround(cx), (int16_t)lround(cy), pos_t);
+            }
+        }
+    }
+}
+
+static void
+touch_up(void *data, struct wl_touch *wl_touch, uint32_t serial, uint32_t time, int32_t id)
+{
+    (void)wl_touch;
+    XmWlServer *srv = (XmWlServer *)data;
+    srv->last_input_serial = serial;
+    srv->last_activation_serial = serial;
+
+    XmWlTouchPoint *tp = find_or_alloc_touch_pt(srv, id, false);
+    if (tp) {
+        tp->active = false;
+        if (srv->active_touch_count > 0)
+            srv->active_touch_count--;
+    }
+
+    uint32_t t_ms = next_monotonic_btn_time(srv, time);
+    if (srv->active_touch_count == 0) {
+        if (srv->touch_btn1_down) {
+            _XmWlDispatchPointerButton(srv, 1, false, t_ms);
+            srv->touch_btn1_down = false;
+        }
+        srv->touch_two_finger_pan = false;
+        reset_wheel_axis_state(srv, 0);
+        reset_wheel_axis_state(srv, 1);
+    }
+}
+
+static void
+touch_motion(void *data, struct wl_touch *wl_touch, uint32_t time,
+             int32_t id, wl_fixed_t x, wl_fixed_t y)
+{
+    (void)wl_touch;
+    XmWlServer *srv = (XmWlServer *)data;
+    XmWlTouchPoint *tp = find_or_alloc_touch_pt(srv, id, false);
+    if (!tp) return;
+    tp->x = wl_fixed_to_double(x);
+    tp->y = wl_fixed_to_double(y);
+
+    uint32_t t_ms = time ? time : _XmWlNowMs();
+    srv->server_time_ms = t_ms;
+    if (srv->active_touch_count == 1 && !srv->touch_two_finger_pan && srv->pointer_top) {
+        _XmWlDispatchPointerMotion(
+            srv, srv->pointer_top, (int16_t)lround(tp->x), (int16_t)lround(tp->y), t_ms);
+    } else if (srv->active_touch_count >= 2 && srv->touch_two_finger_pan) {
+        double cx = 0.0, cy = 0.0;
+        if (compute_two_finger_centroid(srv, &cx, &cy)) {
+            double dx = cx - srv->touch_pan_last_cx;
+            double dy = cy - srv->touch_pan_last_cy;
+            srv->touch_pan_last_cx = cx;
+            srv->touch_pan_last_cy = cy;
+            srv->wheel_frame_time_ms = t_ms;
+            if (fabs(dy) >= 0.05) {
+                srv->wheel_frame_px[0] += -dy;
+                srv->wheel_frame_has_px[0] = true;
+            }
+            if (fabs(dx) >= 0.05) {
+                srv->wheel_frame_px[1] += -dx;
+                srv->wheel_frame_has_px[1] = true;
+            }
+        }
+    }
+}
+
+static void
+touch_frame(void *data, struct wl_touch *wl_touch)
+{
+    (void)wl_touch;
+    XmWlServer *srv = (XmWlServer *)data;
+    flush_wheel_axis(srv, 0);
+    flush_wheel_axis(srv, 1);
+}
+
+static void
+touch_cancel(void *data, struct wl_touch *wl_touch)
+{
+    (void)wl_touch;
+    XmWlServer *srv = (XmWlServer *)data;
+    for (int i = 0; i < XM_WL_MAX_TOUCH_POINTS; ++i)
+        srv->touch_pts[i].active = false;
+    srv->active_touch_count = 0;
+    if (srv->touch_btn1_down) {
+        uint32_t t_ms = next_monotonic_btn_time(srv, _XmWlNowMs());
+        if (srv->pointer_top)
+            _XmWlDispatchPointerMotion(srv, srv->pointer_top, -16, -16, t_ms);
+        uint32_t rel_t = next_monotonic_btn_time(srv, t_ms + 1u);
+        _XmWlDispatchPointerButton(srv, 1, false, rel_t);
+        srv->touch_btn1_down = false;
+    }
+    srv->touch_two_finger_pan = false;
+    reset_wheel_axis_state(srv, 0);
+    reset_wheel_axis_state(srv, 1);
+}
+
+static void
+touch_shape(void *data, struct wl_touch *wl_touch, int32_t id, wl_fixed_t major, wl_fixed_t minor)
+{
+    (void)data; (void)wl_touch; (void)id; (void)major; (void)minor;
+}
+
+static void
+touch_orientation(void *data, struct wl_touch *wl_touch, int32_t id, wl_fixed_t orientation)
+{
+    (void)data; (void)wl_touch; (void)id; (void)orientation;
+}
+
+static const struct wl_touch_listener g_touch_listener = {
+    .down = touch_down,
+    .up = touch_up,
+    .motion = touch_motion,
+    .frame = touch_frame,
+    .cancel = touch_cancel,
+    .shape = touch_shape,
+    .orientation = touch_orientation,
+};
+
+static void
+sync_cursor_shape_device(XmWlServer *srv)
+{
+    if (!srv) return;
+    if (srv->pointer && srv->cursor_shape_mgr && !srv->cursor_shape_dev) {
+        srv->cursor_shape_dev = wp_cursor_shape_manager_v1_get_pointer(
+            srv->cursor_shape_mgr, srv->pointer);
+    } else if ((!srv->pointer || !srv->cursor_shape_mgr) && srv->cursor_shape_dev) {
+        wp_cursor_shape_device_v1_destroy(srv->cursor_shape_dev);
+        srv->cursor_shape_dev = NULL;
+    }
+}
+
 static void
 seat_capabilities(void *data, struct wl_seat *seat, uint32_t caps)
 {
@@ -1127,7 +1579,12 @@ seat_capabilities(void *data, struct wl_seat *seat, uint32_t caps)
     if ((caps & WL_SEAT_CAPABILITY_POINTER) && !srv->pointer) {
         srv->pointer = wl_seat_get_pointer(seat);
         wl_pointer_add_listener(srv->pointer, &g_pointer_listener, srv);
+        sync_cursor_shape_device(srv);
     } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && srv->pointer) {
+        if (srv->cursor_shape_dev) {
+            wp_cursor_shape_device_v1_destroy(srv->cursor_shape_dev);
+            srv->cursor_shape_dev = NULL;
+        }
         wl_pointer_destroy(srv->pointer);
         srv->pointer = NULL;
     }
@@ -1137,6 +1594,13 @@ seat_capabilities(void *data, struct wl_seat *seat, uint32_t caps)
     } else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && srv->keyboard) {
         wl_keyboard_destroy(srv->keyboard);
         srv->keyboard = NULL;
+    }
+    if ((caps & WL_SEAT_CAPABILITY_TOUCH) && !srv->touch) {
+        srv->touch = wl_seat_get_touch(seat);
+        wl_touch_add_listener(srv->touch, &g_touch_listener, srv);
+    } else if (!(caps & WL_SEAT_CAPABILITY_TOUCH) && srv->touch) {
+        wl_touch_destroy(srv->touch);
+        srv->touch = NULL;
     }
     _XmWlDataBindSeat(srv);
     _XmWlImeBindSeat(srv);
@@ -1289,6 +1753,10 @@ registry_global(void *data, struct wl_registry *registry, uint32_t name,
     } else if (!strcmp(interface, xdg_activation_v1_interface.name)) {
         srv->activation_mgr = (struct xdg_activation_v1 *)wl_registry_bind(
             registry, name, &xdg_activation_v1_interface, 1);
+    } else if (!strcmp(interface, wp_cursor_shape_manager_v1_interface.name)) {
+        srv->cursor_shape_mgr = (struct wp_cursor_shape_manager_v1 *)wl_registry_bind(
+            registry, name, &wp_cursor_shape_manager_v1_interface, 1);
+        sync_cursor_shape_device(srv);
     } else if (!strcmp(interface, wl_seat_interface.name)) {
         if (!srv->seat) {
             uint32_t max_v = (uint32_t)wl_seat_interface.version;
@@ -3510,12 +3978,14 @@ _XmWaylandAttachDisplay(Widget xm_display)
 {
     XmWlServer *srv = _XmWaylandGetServer();
     if (!srv || !xm_display) return;
+    bool want_core_xcursor = false;
     pthread_mutex_lock(&srv->lock);
     if (!srv->attached_xm_display && srv->xt_pipe[0] >= 0) {
         srv->attached_xm_display = xm_display;
         XtAppContext app = XtWidgetToApplicationContext(xm_display);
         srv->xt_input_id = XtAppAddInput(
             app, srv->xt_pipe[0], (XtPointer)XtInputReadMask, xt_wayland_wakeup_cb, srv);
+        want_core_xcursor = (srv->cursor_shape_mgr != NULL && XtDisplay(xm_display) != NULL);
     }
     if (srv->startup_activation_token[0] == '\0') {
         const char *env_act = getenv("XDG_ACTIVATION_TOKEN");
@@ -3529,6 +3999,21 @@ _XmWaylandAttachDisplay(Widget xm_display)
         }
     }
     pthread_mutex_unlock(&srv->lock);
+    if (want_core_xcursor) {
+        typedef int (*XcursorSetThemeFn)(Display *, const char *);
+        typedef int (*XcursorSetThemeCoreFn)(Display *, int);
+        void *xc_dl = dlopen("libXcursor.so.1", RTLD_LAZY);
+        XcursorSetThemeFn set_theme = xc_dl
+            ? (XcursorSetThemeFn)dlsym(xc_dl, "XcursorSetTheme")
+            : (XcursorSetThemeFn)dlsym(RTLD_DEFAULT, "XcursorSetTheme");
+        XcursorSetThemeCoreFn set_core = xc_dl
+            ? (XcursorSetThemeCoreFn)dlsym(xc_dl, "XcursorSetThemeCore")
+            : (XcursorSetThemeCoreFn)dlsym(RTLD_DEFAULT, "XcursorSetThemeCore");
+        if (set_theme)
+            set_theme(XtDisplay(xm_display), "core");
+        if (set_core)
+            set_core(XtDisplay(xm_display), 0);
+    }
 }
 
 void
@@ -3583,6 +4068,27 @@ cleanup_wayland_backend(void)
     if (srv->wake_pipe[1] >= 0) close(srv->wake_pipe[1]);
     if (srv->xt_pipe[0] >= 0) close(srv->xt_pipe[0]);
     if (srv->xt_pipe[1] >= 0) close(srv->xt_pipe[1]);
+    if (srv->cursor_shape_dev) {
+        wp_cursor_shape_device_v1_destroy(srv->cursor_shape_dev);
+        srv->cursor_shape_dev = NULL;
+    }
+    if (srv->cursor_shape_mgr) {
+        wp_cursor_shape_manager_v1_destroy(srv->cursor_shape_mgr);
+        srv->cursor_shape_mgr = NULL;
+    }
+    if (srv->touch) {
+        wl_touch_destroy(srv->touch);
+        srv->touch = NULL;
+    }
+    for (int bi = 0; bi < 128; ++bi) {
+        while (srv->cursor_buckets[bi]) {
+            XmWlCursor *cur = srv->cursor_buckets[bi];
+            srv->cursor_buckets[bi] = cur->hash_next;
+            free_shm_buf(&cur->shm_buf);
+            free(cur->argb_pixels);
+            free(cur);
+        }
+    }
     if (srv->cursor_theme) {
         wl_cursor_theme_destroy(srv->cursor_theme);
         srv->cursor_theme = NULL;

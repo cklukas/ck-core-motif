@@ -1141,6 +1141,7 @@ _XmWlDispatchPointerMotion(XmWlServer *srv, XmWlWindow *top, int16_t sx, int16_t
             emit_crossing_event(srv, srv->hovered_win, false, 0, time_ms);
         srv->hovered_win = leaf;
         emit_crossing_event(srv, leaf, true, 0, time_ms);
+        _XmWlUpdatePointerCursor(srv, false);
     }
 
     uint32_t mmask = X11_POINTER_MOTION_MASK | X11_POINTER_MOTION_HINT_MASK;
@@ -1484,8 +1485,8 @@ apply_gc_values(XmWlGC *gc, uint32_t vmask, const uint8_t *vals, size_t max_byte
 }
 
 static void
-apply_window_attributes(XmWlWindow *win, int client_idx, uint32_t vmask,
-                        const uint8_t *vals, size_t max_bytes)
+apply_window_attributes(XmWlServer *srv, XmWlWindow *win, int client_idx,
+                        uint32_t vmask, const uint8_t *vals, size_t max_bytes)
 {
     size_t off = 0;
     for (int bit = 0; bit <= 14; ++bit) {
@@ -1515,7 +1516,10 @@ apply_window_attributes(XmWlWindow *win, int client_idx, uint32_t vmask,
         case 11: win->event_masks[client_idx] = v; break;
         case 12: win->do_not_propagate = v; break;
         case 13: win->colormap_id = v; break;
-        case 14: win->cursor_id = v; break;
+        case 14:
+            win->cursor_id = v;
+            _XmWlUpdatePointerCursor(srv, false);
+            break;
         default: break;
         }
     }
@@ -2378,7 +2382,7 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         nw->win_class = (wclass == 2) ? 2 : 1;
         nw->depth = (nw->win_class == 2) ? 0 : (depth ? depth : parent->depth);
         nw->visual_id = visual ? visual : ((nw->depth == 32) ? XM_WL_VISUAL_ARGB32_ID : parent->visual_id);
-        apply_window_attributes(nw, cli->index, vmask, req + 32, req_len - 32);
+        apply_window_attributes(srv, nw, cli->index, vmask, req + 32, req_len - 32);
 
         uint8_t ev[32];
         memset(ev, 0, sizeof(ev));
@@ -2404,7 +2408,7 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         /* Per X11 protocol spec, changing CWBackPixel/CWBackPixmap updates
          * window attributes only and must not clear existing window pixels
          * (Motif PushB/CascadeB restore background_pixel after painting armed text). */
-        apply_window_attributes(w, cli->index, vmask, req + 12, req_len - 12);
+        apply_window_attributes(srv, w, cli->index, vmask, req + 12, req_len - 12);
         break;
     }
 
@@ -2953,9 +2957,11 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
             srv->ptr_grab_active = true;
             srv->ptr_grab_implicit = false;
             srv->ptr_grab_win = gwin;
+            srv->ptr_grab_cursor_id = rd_u32(req + 16);
             srv->ptr_grab_mask = emask;
             srv->ptr_grab_owner_events = (data1 != 0);
             srv->ptr_grab_client = cli->index;
+            _XmWlUpdatePointerCursor(srv, false);
         }
         _XmWlSendReply(cli, hdr, NULL, 0);
         break;
@@ -2965,6 +2971,17 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         srv->ptr_grab_active = false;
         srv->ptr_grab_implicit = false;
         srv->ptr_grab_win = 0;
+        srv->ptr_grab_cursor_id = 0;
+        _XmWlUpdatePointerCursor(srv, false);
+        break;
+    }
+
+    case 30: { /* ChangeActivePointerGrab */
+        if (req_len >= 16 && srv->ptr_grab_active) {
+            srv->ptr_grab_cursor_id = rd_u32(req + 4);
+            srv->ptr_grab_mask = rd_u16(req + 12);
+            _XmWlUpdatePointerCursor(srv, false);
+        }
         break;
     }
 
@@ -3918,6 +3935,66 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
     case XM_WL_EXT_XINERAMA_OP:
         handle_xinerama_request(srv, cli, data1);
         break;
+
+    case 93: { /* CreateCursor */
+        if (req_len < 32) break;
+        uint32_t cid = rd_u32(req + 4);
+        XmWlPixmap *src_pix = _XmWlFindPixmap(srv, rd_u32(req + 8));
+        XmWlPixmap *msk_pix = _XmWlFindPixmap(srv, rd_u32(req + 12));
+        uint32_t fg_argb = 0xff000000u |
+                           (((uint32_t)(rd_u16(req + 16) >> 8)) << 16) |
+                           (((uint32_t)(rd_u16(req + 18) >> 8)) << 8) |
+                           ((uint32_t)(rd_u16(req + 20) >> 8));
+        uint32_t bg_argb = 0xff000000u |
+                           (((uint32_t)(rd_u16(req + 22) >> 8)) << 16) |
+                           (((uint32_t)(rd_u16(req + 24) >> 8)) << 8) |
+                           ((uint32_t)(rd_u16(req + 26) >> 8));
+        int16_t hot_x = (int16_t)rd_u16(req + 28);
+        int16_t hot_y = (int16_t)rd_u16(req + 30);
+        if (src_pix && src_pix->bits && src_pix->width > 0 && src_pix->height > 0) {
+            uint16_t cw = src_pix->width;
+            uint16_t ch = src_pix->height;
+            uint32_t *argb = (uint32_t *)calloc((size_t)cw * (size_t)ch, sizeof(uint32_t));
+            if (argb) {
+                for (uint16_t y = 0; y < ch; ++y) {
+                    const uint32_t *srow = (const uint32_t *)((const uint8_t *)src_pix->bits +
+                                                              (size_t)y * (size_t)src_pix->stride);
+                    const uint32_t *mrow = (msk_pix && msk_pix->bits && y < msk_pix->height)
+                                               ? (const uint32_t *)((const uint8_t *)msk_pix->bits +
+                                                                    (size_t)y * (size_t)msk_pix->stride)
+                                               : NULL;
+                    for (uint16_t x = 0; x < cw; ++x) {
+                        bool m_on = true;
+                        if (mrow && x < msk_pix->width)
+                            m_on = ((mrow[x] & 0x00ffffffu) != 0);
+                        if (!m_on) {
+                            argb[(size_t)y * (size_t)cw + (size_t)x] = 0x00000000u;
+                        } else {
+                            bool s_on = ((srow[x] & 0x00ffffffu) != 0);
+                            argb[(size_t)y * (size_t)cw + (size_t)x] = s_on ? fg_argb : bg_argb;
+                        }
+                    }
+                }
+                _XmWlRegisterBitmapCursor(srv, cid, cw, ch, hot_x, hot_y, argb);
+                free(argb);
+            }
+        }
+        break;
+    }
+
+    case 94: { /* CreateGlyphCursor */
+        if (req_len < 32) break;
+        uint32_t cid = rd_u32(req + 4);
+        uint16_t src_ch = rd_u16(req + 16);
+        _XmWlRegisterGlyphCursor(srv, cid, src_ch);
+        break;
+    }
+
+    case 95: { /* FreeCursor */
+        if (req_len >= 8)
+            _XmWlFreeCursor(srv, rd_u32(req + 4));
+        break;
+    }
 
     default:
         /* Void no-op opcodes: UngrabKeyboard(32), GrabKey(33), UngrabKey(34),
