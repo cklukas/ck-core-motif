@@ -611,9 +611,15 @@ externaldef(xmscalewidgetclass) WidgetClass
 
 /* Transfer trait record */
 
+static void
+ScaleConvertTrait(Widget w, XtPointer client_data, XtPointer call_data)
+{
+  DragConvertCallback(w, client_data, (XmConvertCallbackStruct *)call_data);
+}
+
 static XmConst XmTransferTraitRec ScaleTransfer = {
   0, 						/* version */
-  (XmConvertCallbackProc) DragConvertCallback,	/* convertProc */
+  ScaleConvertTrait,				/* convertProc */
   NULL,						/* destinationProc */
   NULL,						/* destinationPreHookProc */
 };

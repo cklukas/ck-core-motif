@@ -1583,14 +1583,79 @@ appearance_database_value(Widget widget, XrmDatabase database,
         XmNfontList, appearance_resource_class_named(widget, XmNfontList), value_return);
 }
 
+typedef struct {
+    XrmBinding *bindings;
+    XrmQuark *quarks;
+    XrmRepresentation type;
+    unsigned int size;
+    char *data;
+} ClonedXrmEntry;
+
+typedef struct {
+    ClonedXrmEntry *items;
+    size_t count;
+    size_t cap;
+} ClonedXrmList;
+
+static void
+free_cloned_xrm_list(ClonedXrmList *list)
+{
+    if (list == NULL)
+        return;
+    for (size_t i = 0; i < list->count; ++i) {
+        free(list->items[i].bindings);
+        free(list->items[i].quarks);
+        free(list->items[i].data);
+    }
+    free(list->items);
+    list->items = NULL;
+    list->count = list->cap = 0;
+}
+
 static Bool
 clone_resource(XrmDatabase *database, XrmBindingList bindings,
                XrmQuarkList quarks, XrmRepresentation *type,
                XrmValue *value, XPointer closure)
 {
-    XrmDatabase *target = (XrmDatabase *)closure;
+    ClonedXrmList *list = (ClonedXrmList *)closure;
+    size_t depth = 0;
+    ClonedXrmEntry entry = {0};
     (void)database;
-    XrmQPutResource(target, bindings, quarks, *type, value);
+    if (list == NULL || bindings == NULL || quarks == NULL || type == NULL || value == NULL)
+        return True;
+    while (quarks[depth] != NULLQUARK)
+        ++depth;
+    if (list->count == list->cap) {
+        size_t ncap = list->cap ? list->cap * 2 : 64;
+        ClonedXrmEntry *nitems = (ClonedXrmEntry *)realloc(list->items, ncap * sizeof(*nitems));
+        if (nitems == NULL)
+            return True;
+        list->items = nitems;
+        list->cap = ncap;
+    }
+    entry.bindings = (XrmBinding *)malloc((depth ? depth : 1) * sizeof(*entry.bindings));
+    entry.quarks = (XrmQuark *)malloc((depth + 1) * sizeof(*entry.quarks));
+    if (value->size > 0 && value->addr != NULL) {
+        entry.data = (char *)malloc(value->size);
+        if (entry.data == NULL) {
+            free(entry.bindings);
+            free(entry.quarks);
+            return True;
+        }
+        memcpy(entry.data, value->addr, value->size);
+        entry.size = value->size;
+    }
+    if (entry.bindings == NULL || entry.quarks == NULL) {
+        free(entry.bindings);
+        free(entry.quarks);
+        free(entry.data);
+        return True;
+    }
+    if (depth > 0)
+        memcpy(entry.bindings, bindings, depth * sizeof(*entry.bindings));
+    memcpy(entry.quarks, quarks, (depth + 1) * sizeof(*entry.quarks));
+    entry.type = *type;
+    list->items[list->count++] = entry;
     return False;
 }
 
@@ -1600,15 +1665,28 @@ clone_database(XrmDatabase source)
     XrmDatabase copy = XrmGetStringDatabase("");
     XrmName names[1] = {NULLQUARK};
     XrmClass classes[1] = {NULLQUARK};
+    ClonedXrmList list = {0};
     if (copy == NULL)
         return NULL;
+    /* Buffer enumerated entries before populating `copy` so we never hold
+     * `source`'s XrmDatabase lock while acquiring `copy`'s lock (which would
+     * invert the lock order used by XrmCombineDatabase(copy, &source, True)). */
     if (source != NULL && XrmEnumerateDatabase(source, names, classes,
                                                XrmEnumAllLevels,
                                                clone_resource,
-                                               (XPointer)&copy)) {
+                                               (XPointer)&list)) {
+        free_cloned_xrm_list(&list);
         XrmDestroyDatabase(copy);
         return NULL;
     }
+    for (size_t i = 0; i < list.count; ++i) {
+        XrmValue val;
+        val.size = list.items[i].size;
+        val.addr = list.items[i].data;
+        XrmQPutResource(&copy, list.items[i].bindings, list.items[i].quarks,
+                        list.items[i].type, &val);
+    }
+    free_cloned_xrm_list(&list);
     return copy;
 }
 

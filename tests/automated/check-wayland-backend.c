@@ -1654,15 +1654,19 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         aev.xclient.data.l[1] = CurrentTime;
         XSendEvent(dpy, DefaultRootWindow(dpy), False,
                    SubstructureRedirectMask | SubstructureNotifyMask, &aev);
-        pump_xt_ms(app, dpy, 150);
-
-        FILE *af = fopen(apath, "r");
-        if (!af)
-            fail_msg("mini-compositor did not write act_state.txt");
         char abuf[1024] = {0};
-        size_t an = fread(abuf, 1, sizeof(abuf) - 1, af);
-        fclose(af);
-        abuf[an] = '\0';
+        uint64_t act_deadline = mono_ms() + 2500;
+        while (mono_ms() < act_deadline) {
+            pump_xt_ms(app, dpy, 40);
+            FILE *af = fopen(apath, "r");
+            if (af) {
+                size_t an = fread(abuf, 1, sizeof(abuf) - 1, af);
+                fclose(af);
+                abuf[an] = '\0';
+                if (strstr(abuf, "calls=2\n"))
+                    break;
+            }
+        }
         if (!strstr(abuf, "calls=2\n") ||
             !strstr(abuf, "first=startup-tok-initial-01\n") ||
             !strstr(abuf, "last=mini-act-tok-2\n")) {
@@ -1676,6 +1680,9 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
      *  2) Rotating through 3 held wl_shm ring slots across 4 frames replays missed earlier
      *     disjoint rectangles onto the recycled slot while emitting area=64 on frame 4. */
     {
+        int saved_blink = 500;
+        XtVaGetValues(tf, XmNblinkRate, &saved_blink, NULL);
+        XtVaSetValues(tf, XmNblinkRate, 0, NULL);
         pump_xt_ms(app, dpy, 80);
         write_stage_file(sync_dir, "dmg_ring.active");
         pump_xt_ms(app, dpy, 40);
@@ -1689,19 +1696,24 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         XFillRectangle(dpy, XtWindow(shell), dgc, 4, 4, 8, 8);
         XSetForeground(dpy, dgc, 0x00f0c010ul);
         XFillRectangle(dpy, XtWindow(shell), dgc, 300, 180, 8, 8);
-        XFlush(dpy);
-        pump_xt_ms(app, dpy, 80);
-
+        XSync(dpy, False);
         char dpath[512];
         snprintf(dpath, sizeof(dpath), "%s/dmg_state.txt", sync_dir);
         {
-            FILE *df = fopen(dpath, "r");
-            if (!df)
-                fail_msg("mini-compositor did not write dmg_state.txt for disjoint partial damage");
             char dbuf[1024] = {0};
-            size_t dn = fread(dbuf, 1, sizeof(dbuf) - 1, df);
-            fclose(df);
-            dbuf[dn] = '\0';
+            uint64_t dl = mono_ms() + 2500;
+            while (mono_ms() < dl) {
+                struct timespec ts = {0, 10 * 1000 * 1000L};
+                nanosleep(&ts, NULL);
+                FILE *df = fopen(dpath, "r");
+                if (df) {
+                    size_t dn = fread(dbuf, 1, sizeof(dbuf) - 1, df);
+                    fclose(df);
+                    dbuf[dn] = '\0';
+                    if (strstr(dbuf, "rects=2\n") && strstr(dbuf, "p11=0xf0c010\n"))
+                        break;
+                }
+            }
             if (!strstr(dbuf, "rects=2\n") ||
                 !strstr(dbuf, "area=128\n") ||
                 !strstr(dbuf, "p00=0xe01020\n") ||
@@ -1711,17 +1723,30 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
             }
         }
 
-        const struct { int x, y; unsigned long px; } ring_steps[4] = {
-            {   4,   4, 0x00aa1122ul },
-            { 300,   4, 0x0011bb33ul },
-            {   4, 180, 0x002244ccul },
-            { 300, 180, 0x00ddcc11ul },
+        const struct { int x, y; unsigned long px; const char *expect; } ring_steps[4] = {
+            {   4,   4, 0x00aa1122ul, "p00=0xaa1122\n" },
+            { 300,   4, 0x0011bb33ul, "p10=0x11bb33\n" },
+            {   4, 180, 0x002244ccul, "p01=0x2244cc\n" },
+            { 300, 180, 0x00ddcc11ul, "p11=0xddcc11\n" },
         };
         for (int s = 0; s < 4; ++s) {
             XSetForeground(dpy, dgc, ring_steps[s].px);
             XFillRectangle(dpy, XtWindow(shell), dgc, ring_steps[s].x, ring_steps[s].y, 8, 8);
-            XFlush(dpy);
-            pump_xt_ms(app, dpy, 60);
+            XSync(dpy, False);
+            uint64_t dl = mono_ms() + 2500;
+            while (mono_ms() < dl) {
+                struct timespec ts = {0, 10 * 1000 * 1000L};
+                nanosleep(&ts, NULL);
+                FILE *df = fopen(dpath, "r");
+                if (df) {
+                    char sbuf[1024] = {0};
+                    size_t sn = fread(sbuf, 1, sizeof(sbuf) - 1, df);
+                    fclose(df);
+                    sbuf[sn] = '\0';
+                    if (strstr(sbuf, ring_steps[s].expect))
+                        break;
+                }
+            }
         }
 
         {
@@ -1747,6 +1772,7 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         char dr_flag[512];
         snprintf(dr_flag, sizeof(dr_flag), "%s/dmg_ring.active", sync_dir);
         unlink(dr_flag);
+        XtVaSetValues(tf, XmNblinkRate, saved_blink, NULL);
     }
 
     /* Verify wp_cursor_shape_v1 + custom bitmap cursor + wl_touch (1-finger tap & 2-finger pan):
@@ -1990,19 +2016,56 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
 #endif
 
         /* Modal XmDialogShell -> xdg_wm_dialog_v1 set_modal -> unset_modal -> destroy before xdg_toplevel */
+        char pepath[512];
+        snprintf(pepath, sizeof(pepath), "%s/proto_ext_state.txt", sync_dir);
         Arg dargs[4];
         int dn = 0;
         XtSetArg(dargs[dn], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL); dn++;
         Widget modal_dlg = XmCreateInformationDialog(shell, (char *)"modalWaylandDlg", dargs, dn);
         XtManageChild(modal_dlg);
-        pump_xt_ms(app, dpy, 120);
+        for (uint64_t dl = mono_ms() + 2500; mono_ms() < dl; ) {
+            pump_xt_ms(app, dpy, 40);
+            FILE *pef = fopen(pepath, "r");
+            if (pef) {
+                char b[1024] = {0};
+                size_t n = fread(b, 1, sizeof(b) - 1, pef);
+                fclose(pef);
+                b[n] = '\0';
+                if (strstr(b, "modal_set=1\n"))
+                    break;
+            }
+        }
 
         XtVaSetValues(modal_dlg, XmNdialogStyle, XmDIALOG_MODELESS, NULL);
-        pump_xt_ms(app, dpy, 80);
+        XSync(dpy, False);
+        for (uint64_t dl = mono_ms() + 2500; mono_ms() < dl; ) {
+            pump_xt_ms(app, dpy, 40);
+            FILE *pef = fopen(pepath, "r");
+            if (pef) {
+                char b[1024] = {0};
+                size_t n = fread(b, 1, sizeof(b) - 1, pef);
+                fclose(pef);
+                b[n] = '\0';
+                if (strstr(b, "modal_unset=1\n"))
+                    break;
+            }
+        }
 
         XtUnmanageChild(modal_dlg);
         XtDestroyWidget(XtParent(modal_dlg));
-        pump_xt_ms(app, dpy, 80);
+        XSync(dpy, False);
+        for (uint64_t dl = mono_ms() + 2500; mono_ms() < dl; ) {
+            pump_xt_ms(app, dpy, 40);
+            FILE *pef = fopen(pepath, "r");
+            if (pef) {
+                char b[1024] = {0};
+                size_t n = fread(b, 1, sizeof(b) - 1, pef);
+                fclose(pef);
+                b[n] = '\0';
+                if (strstr(b, "dialog_destroyed_before_top=1\n"))
+                    break;
+            }
+        }
 
         /* Also test X11 _MOTIF_WAYLAND_TEARING + _MOTIF_WAYLAND_FIFO properties on top-level shell */
         Atom a_tear = XInternAtom(dpy, "_MOTIF_WAYLAND_TEARING", False);
@@ -2012,18 +2075,20 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
                         (const unsigned char *)&one_ul, 1);
         XChangeProperty(dpy, XtWindow(shell), a_fifo, XA_CARDINAL, 32, PropModeReplace,
                         (const unsigned char *)&three_ul, 1);
-        XClearArea(dpy, XtWindow(shell), 0, 0, 16, 16, True);
-        pump_xt_ms(app, dpy, 80);
-
-        char pepath[512];
-        snprintf(pepath, sizeof(pepath), "%s/proto_ext_state.txt", sync_dir);
-        FILE *pef = fopen(pepath, "r");
-        if (!pef)
-            fail_msg("mini-compositor did not write proto_ext_state.txt");
+        XSync(dpy, False);
         char pebuf[1024] = {0};
-        size_t pen = fread(pebuf, 1, sizeof(pebuf) - 1, pef);
-        fclose(pef);
-        pebuf[pen] = '\0';
+        uint64_t pe_dl = mono_ms() + 2500;
+        while (mono_ms() < pe_dl) {
+            pump_xt_ms(app, dpy, 40);
+            FILE *pef = fopen(pepath, "r");
+            if (pef) {
+                size_t pen = fread(pebuf, 1, sizeof(pebuf) - 1, pef);
+                fclose(pef);
+                pebuf[pen] = '\0';
+                if (strstr(pebuf, "fifo_objs=2\n") && strstr(pebuf, "tearing_objs=2\n"))
+                    break;
+            }
+        }
         if (!strstr(pebuf, "dmabuf_imports=1\n") ||
             !strstr(pebuf, "dmabuf_w=64\n") ||
             !strstr(pebuf, "dmabuf_h=48\n") ||

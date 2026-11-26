@@ -186,3 +186,64 @@ write("uil-wmd", "keys-case-ins",
       wmd_globals + wmd_key_table
       + wmd_header(3, 2, 2 * len(wmd_key_entry)) + wmd_key_entry * 2 + b"WIDTH\x00HEIGHT\x00")
 
+
+# ---- Wayland X11r11 & XRender wire protocol server ----------------------------
+
+def x11_req(opcode, data1, body=b""):
+    pad = (-len(body)) & 3
+    words = 1 + (len(body) + pad) // 4
+    return struct.pack("<BBH", opcode, data1, words) + body + (b"\x00" * pad)
+
+
+def x11_bigreq(opcode, data1, body=b""):
+    pad = (-len(body)) & 3
+    words = 2 + (len(body) + pad) // 4
+    return struct.pack("<BBHI", opcode, data1, 0, words) + body + (b"\x00" * pad)
+
+
+# 1) Full connection setup handshake + QueryExtension("RENDER") + InternAtom
+write("wayland-x11-server", "handshake-and-atoms",
+      struct.pack("<BxHHHHxx", ord("l"), 11, 0, 18, 16)
+      + b"MIT-MAGIC-COOKIE-1\x00\x00" + (b"\xaa" * 16)
+      + x11_req(98, 0, struct.pack("<HH", 6, 0) + b"RENDER")
+      + x11_req(16, 0, struct.pack("<HH", 15, 0) + b"_MOTIF_WM_HINTS")
+      + x11_req(17, 0, struct.pack("<I", 1)))
+
+# 2) CreateWindow + ChangeProperty + GetProperty + ConfigureWindow + MapWindow
+write("wayland-x11-server", "window-lifecycle-and-props",
+      x11_req(1, 24, struct.pack("<IIhhHHHHII", 0x00200001, 0x40, 10, 20, 120, 80, 0, 1, 0x21, 0x0802, ) + struct.pack("<II", 0x112233, 0x20000))
+      + x11_req(18, 0, struct.pack("<IIIBxxxI", 0x00200001, 39, 31, 8, 5) + b"Hello")
+      + x11_req(20, 0, struct.pack("<IIIII", 0x00200001, 39, 0, 0, 64))
+      + x11_req(12, 0, struct.pack("<IHxxIIII", 0x00200001, 0x000f, 4, 8, 140, 90))
+      + x11_req(8, 0, struct.pack("<I", 0x00200001)))
+
+# 3) CreatePixmap + CreateGC + PolyFillRectangle + PutImage + GetImage + CopyArea
+write("wayland-x11-server", "pixmap-gc-drawing-and-image",
+      x11_req(53, 24, struct.pack("<IIHH", 0x00200010, 0x40, 16, 16))
+      + x11_req(55, 0, struct.pack("<III", 0x00200011, 0x00200010, 0x000c) + struct.pack("<II", 0xff3366, 0x102030))
+      + x11_req(70, 0, struct.pack("<IIhhHH", 0x00200010, 0x00200011, 2, 2, 10, 10))
+      + x11_req(72, 2, struct.pack("<IIHHhhBBxx", 0x00200010, 0x00200011, 2, 2, 0, 0, 0, 24) + (b"\x11\x22\x33\xff" * 4))
+      + x11_req(73, 2, struct.pack("<IhhHHI", 0x00200010, 0, 0, 4, 4, 0xffffffff))
+      + x11_req(62, 0, struct.pack("<IIIhhhhHH", 0x00200010, 0x00200010, 0x00200011, 0, 0, 4, 4, 8, 8)))
+
+# 4) RENDER 0.11: QueryPictFormats + CreateSolidFill + CreatePicture + Composite + Trapezoids
+write("wayland-x11-server", "xrender-composite-and-trapezoids",
+      x11_req(53, 32, struct.pack("<IIHH", 0x00200020, 0x40, 32, 32))
+      + x11_req(132, 1, b"")
+      + x11_req(132, 33, struct.pack("<IHHHH", 0x00200021, 0xffff, 0x8000, 0x4000, 0xffff))
+      + x11_req(132, 4, struct.pack("<IIII", 0x00200022, 0x00200020, 0x60, 0))
+      + x11_req(132, 8, struct.pack("<BxxxIIIhhhhhhHH", 3, 0x00200021, 0, 0x00200022, 0, 0, 0, 0, 2, 2, 16, 16))
+      + x11_req(132, 10, struct.pack("<BxxxIIIhh", 3, 0x00200021, 0x00200022, 0x62, 0, 0)
+                + struct.pack("<10i", 0, 10 << 16, 0, 0, 0, 10 << 16, 10 << 16, 0, 10 << 16, 10 << 16)))
+
+# 5) BIG-REQUESTS + RANDR + SHAPE + XFIXES + XINERAMA
+write("wayland-x11-server", "extensions-bigreq-randr-shape-xfixes",
+      x11_req(130, 0, b"")
+      + x11_bigreq(18, 0, struct.pack("<IIIBxxxI", 0x40, 23, 31, 8, 12) + b"Xft.dpi:\t96\n")
+      + x11_req(135, 0, struct.pack("<II", 1, 5))
+      + x11_req(135, 8, struct.pack("<I", 0x40))
+      + x11_req(133, 1, struct.pack("<BBxxIhh", 0, 0, 0x40, 0, 0) + struct.pack("<hhHH", 0, 0, 100, 100))
+      + x11_req(134, 5, struct.pack("<I", 0x00200030) + struct.pack("<hhHH", 0, 0, 50, 50))
+      + x11_req(136, 5, b""))
+
+

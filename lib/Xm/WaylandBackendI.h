@@ -10,6 +10,7 @@
 #ifdef HAVE_WAYLAND_BACKEND
 
 #include <pthread.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -454,7 +455,7 @@ typedef struct {
 struct XmWlServer {
     pthread_mutex_t lock;
     pthread_t thread;
-    bool running;
+    _Atomic bool running;
     int listen_fd;
     int wake_pipe[2];
     int ipc_fd; /* optional $XDG_RUNTIME_DIR/dtwm-wayland-<WAYLAND_DISPLAY>.ipc */
@@ -470,7 +471,7 @@ struct XmWlServer {
     /* Main-thread XtAppAddInput wakeup for IME, HiDPI scale reflow & resize sync */
     int xt_pipe[2];
     XtInputId xt_input_id;
-    Widget attached_xm_display;
+    _Atomic(Widget) attached_xm_display;
     double pending_xt_scale;
     bool has_pending_xt_scale;
     uint32_t resize_sync_seq;
@@ -610,8 +611,8 @@ struct XmWlServer {
     uint64_t wheel_last_ms[2];
 
     /* Main-thread ~83 Hz Wayland smooth-scrolling queue & interpolator */
-    int wheel_speed_lines;
-    bool wheel_smooth_enabled;
+    _Atomic int wheel_speed_lines;
+    _Atomic bool wheel_smooth_enabled;
     uint32_t smooth_xid_chain[8];
     double smooth_pending_v120[2];
     bool has_smooth_pending;
@@ -691,7 +692,7 @@ struct XmWlServer {
 
     /* Queued IME mutations drained on the main Xt thread */
     Widget ime_focused_widget;
-    int ime_active_preedit_chars;
+    _Atomic int ime_active_preedit_chars;
     long ime_preedit_pos;
     char xt_ime_commit[512];
     bool xt_has_ime_commit;

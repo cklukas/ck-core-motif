@@ -124,10 +124,11 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     }
 
     static void write_flag(const char *dir, const char *name) {
-        char p[512];
-        snprintf(p, sizeof(p), "%s/%s", dir, name);
-        FILE *f = fopen(p, "w");
-        if (f) { fprintf(f, "1\n"); fclose(f); }
+        char tmp_p[512], dst_p[512];
+        snprintf(tmp_p, sizeof(tmp_p), "%s/%s.tmp", dir, name);
+        snprintf(dst_p, sizeof(dst_p), "%s/%s", dir, name);
+        FILE *f = fopen(tmp_p, "w");
+        if (f) { fprintf(f, "1\n"); fclose(f); rename(tmp_p, dst_p); }
     }
 
     /* Forward declaration for selection broadcast */
@@ -486,9 +487,10 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     /* wl_seat */
     static void write_cursor_state(MiniSrv *ms) {
         if (!ms) return;
-        char p[512];
-        snprintf(p, sizeof(p), "%s/cursor_state.txt", ms->sync_dir);
-        FILE *f = fopen(p, "w");
+        char tmp_p[512], dst_p[512];
+        snprintf(tmp_p, sizeof(tmp_p), "%s/cursor_state.txt.tmp", ms->sync_dir);
+        snprintf(dst_p, sizeof(dst_p), "%s/cursor_state.txt", ms->sync_dir);
+        FILE *f = fopen(tmp_p, "w");
         if (f) {
             fprintf(f, "shape_calls=%d\nseen_default=%d\nseen_text=%d\nseen_pointer=%d\nlast_shape=%u\ncustom_calls=%d\n",
                     ms->shape_calls,
@@ -498,6 +500,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                     ms->last_cursor_shape,
                     ms->custom_cursor_calls);
             fclose(f);
+            rename(tmp_p, dst_p);
         }
     }
     static void ptr_cursor(struct wl_client *c, struct wl_resource *r, uint32_t s, struct wl_resource *sr, int32_t x, int32_t y) {
@@ -835,9 +838,10 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         free(wl_resource_get_user_data(r));
     }
     static void write_act_state(MiniSrv *ms) {
-        char p[512];
-        snprintf(p, sizeof(p), "%s/act_state.txt", ms->sync_dir);
-        FILE *f = fopen(p, "w");
+        char tmp_p[512], dst_p[512];
+        snprintf(tmp_p, sizeof(tmp_p), "%s/act_state.txt.tmp", ms->sync_dir);
+        snprintf(dst_p, sizeof(dst_p), "%s/act_state.txt", ms->sync_dir);
+        FILE *f = fopen(tmp_p, "w");
         if (f) {
             fprintf(f, "calls=%d\nfirst=%s\nlast=%s\nserial=%u\nhas_surf=%d\napp_id=%s\n",
                     ms->activate_calls,
@@ -847,6 +851,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                     ms->last_tok_had_surface ? 1 : 0,
                     ms->last_tok_app_id);
             fclose(f);
+            rename(tmp_p, dst_p);
         }
     }
     static void atok_set_serial(struct wl_client *c, struct wl_resource *r, uint32_t ser, struct wl_resource *seat) {
@@ -1663,11 +1668,13 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def wait_file(path: Path, timeout_s: float = 10.0) -> None:
+def wait_file(path: Path, timeout_s: float = 10.0, proc: subprocess.Popen | None = None) -> None:
     deadline = time.monotonic() + timeout_s
     while time.monotonic() < deadline:
         if path.exists():
             return
+        if proc is not None and proc.poll() is not None:
+            raise RuntimeError(f"process exited ({proc.returncode}) while waiting for {path}")
         time.sleep(0.03)
     raise RuntimeError(f"timed out waiting for {path}")
 
@@ -1902,7 +1909,7 @@ def main() -> int:
                 timeout=60 if args.sanitizers else 30,
             )
             if cli_res.returncode != 0 and srv_proc.poll() is None:
-                srv_proc.terminate()
+                srv_proc.kill()
             srv_out, _ = srv_proc.communicate(timeout=10)
             (output / "ime-dnd.log").write_text(cli_res.stdout + cli_res.stderr + "\n" + srv_out)
             receipt["steps"].append(
@@ -1971,6 +1978,7 @@ def main() -> int:
                 stderr=subprocess.STDOUT,
                 text=True,
             )
+            app_out_logged = False
             try:
                 stages = [
                     ("stage_classic", "classic.png"),
@@ -1978,8 +1986,9 @@ def main() -> int:
                     ("stage_modern_light", "modern_light.png"),
                     ("stage_modern_dark", "modern_dark.png"),
                 ]
+                stage_timeout = 25.0 if args.sanitizers else 12.0
                 for prefix_name, shot_name in stages:
-                    wait_file(wl_sync / f"{prefix_name}.ready", 12.0)
+                    wait_file(wl_sync / f"{prefix_name}.ready", stage_timeout, app_proc)
                     assert_no_xwayland_in_runtime(wl_rt)
                     if grim:
                         shot_path = output / "screenshots" / shot_name
@@ -1987,7 +1996,7 @@ def main() -> int:
                         receipt["screenshots"].append(str(shot_path))
                     (wl_sync / f"{prefix_name}.done").write_text("1\n")
 
-                wait_file(wl_sync / "stage_scale2x.request", 12.0)
+                wait_file(wl_sync / "stage_scale2x.request", stage_timeout, app_proc)
                 if wlr_randr:
                     subprocess.run(
                         [wlr_randr, "--output", "HEADLESS-1", "--scale", "2"],
@@ -1997,15 +2006,16 @@ def main() -> int:
                     )
                 (wl_sync / "stage_scale2x.applied").write_text("1\n")
 
-                wait_file(wl_sync / "stage_scale2x.ready", 12.0)
+                wait_file(wl_sync / "stage_scale2x.ready", stage_timeout, app_proc)
                 if grim:
                     shot_2x = output / "screenshots" / "scale_2x.png"
                     subprocess.run([grim, str(shot_2x)], env=app_env, check=True, timeout=10)
                     receipt["screenshots"].append(str(shot_2x))
                 (wl_sync / "stage_scale2x.done").write_text("1\n")
 
-                app_out, _ = app_proc.communicate(timeout=15)
+                app_out, _ = app_proc.communicate(timeout=25 if args.sanitizers else 15)
                 (output / "compositor-check.log").write_text(app_out)
+                app_out_logged = True
                 receipt["steps"].append({"name": "compositor_check", "exit": app_proc.returncode})
                 if app_proc.returncode != 0:
                     print(app_out, file=sys.stderr)
@@ -2013,7 +2023,11 @@ def main() -> int:
             finally:
                 if app_proc.poll() is None:
                     app_proc.kill()
-                    app_proc.wait()
+                if not app_out_logged:
+                    rem_out, _ = app_proc.communicate()
+                    (output / "compositor-check.log").write_text(rem_out or "")
+                    if rem_out:
+                        print(rem_out, file=sys.stderr)
         finally:
             if comp_proc.poll() is None:
                 comp_proc.terminate()

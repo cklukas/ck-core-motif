@@ -470,6 +470,19 @@ static void
 draw_line_gc(XmWlServer *srv, DrawTarget *dt, const XmWlGC *gc, int x0, int y0, int x1, int y1)
 {
     int lw = (gc && gc->line_width > 1) ? gc->line_width : 1;
+    if (lw > 128) lw = 128;
+    if ((x0 < -lw && x1 < -lw) || (y0 < -lw && y1 < -lw) ||
+        (x0 >= dt->width + lw && x1 >= dt->width + lw) ||
+        (y0 >= dt->height + lw && y1 >= dt->height + lw))
+        return;
+    if (x0 < -16384) x0 = -16384;
+    if (x0 > 16384)  x0 = 16384;
+    if (y0 < -16384) y0 = -16384;
+    if (y0 > 16384)  y0 = 16384;
+    if (x1 < -16384) x1 = -16384;
+    if (x1 > 16384)  x1 = 16384;
+    if (y1 < -16384) y1 = -16384;
+    if (y1 > 16384)  y1 = 16384;
     uint32_t fg_px = format_gc_pixel(dt->depth, gc ? gc->fg : 0);
     uint32_t bg_px = format_gc_pixel(dt->depth, gc ? gc->bg : 0);
     bool dashed = gc && (gc->line_style == 1 || gc->line_style == 2);
@@ -667,10 +680,14 @@ _XmWlRenderPolyArc(XmWlServer *srv, uint32_t drawable, XmWlGC *gc, const uint8_t
         if (fill) {
             double start_rad = (double)a1 * M_PI / (180.0 * 64.0);
             double sweep_rad = (double)a2 * M_PI / (180.0 * 64.0);
-            for (int py = y; py <= y + h; ++py) {
+            int py0 = y > 0 ? y : 0;
+            int py1 = (y + h) < dt.height ? (y + h) : (dt.height - 1);
+            int px0 = x > 0 ? x : 0;
+            int px1 = (x + w) < dt.width ? (x + w) : (dt.width - 1);
+            for (int py = py0; py <= py1; ++py) {
                 double ny = ((double)py + 0.5 - cy) / (ry > 0.5 ? ry : 0.5);
                 if (fabs(ny) > 1.0) continue;
-                for (int px = x; px <= x + w; ++px) {
+                for (int px = px0; px <= px1; ++px) {
                     double nx = ((double)px + 0.5 - cx) / (rx > 0.5 ? rx : 0.5);
                     if (nx * nx + ny * ny > 1.0) continue;
                     if (!full_circle) {
@@ -684,10 +701,12 @@ _XmWlRenderPolyArc(XmWlServer *srv, uint32_t drawable, XmWlGC *gc, const uint8_t
                     put_clipped_pixel(srv, &dt, gc, px, py, fg_px);
                 }
             }
-            if (dt.top_win) _XmWlDamageTop(dt.top_win, x, y, w + 1, h + 1);
+            if (dt.top_win && px1 >= px0 && py1 >= py0)
+                _XmWlDamageTop(dt.top_win, px0, py0, px1 - px0 + 1, py1 - py0 + 1);
         } else {
             int steps = (w + h) * 2;
             if (steps < 32) steps = 32;
+            if (steps > 4096) steps = 4096;
             double start_rad = (double)a1 * M_PI / (180.0 * 64.0);
             double sweep_rad = (double)a2 * M_PI / (180.0 * 64.0);
             int prev_x = 0, prev_y = 0;
@@ -709,7 +728,9 @@ _XmWlRenderPutImage(XmWlServer *srv, uint32_t drawable, XmWlGC *gc, uint8_t form
                     uint16_t width, uint16_t height, int16_t dst_x, int16_t dst_y,
                     uint8_t left_pad, uint8_t depth, const uint8_t *data, size_t data_len)
 {
-    if (width == 0 || height == 0 || !data) return;
+    if (width == 0 || height == 0 || width > 8192 || height > 8192 ||
+        (size_t)width * (size_t)height > (16u * 1024u * 1024u) || !data)
+        return;
     DrawTarget dt;
     if (!resolve_draw_target(srv, drawable, gc, &dt)) return;
 
@@ -730,23 +751,25 @@ _XmWlRenderPutImage(XmWlServer *srv, uint32_t drawable, XmWlGC *gc, uint8_t form
                 put_clipped_pixel(srv, &dt, gc, dt.dx + dst_x + c, dt.dy + dst_y + r, spx);
             }
         }
-    } else if (format == 1) {
+    } else if (format == 1 && depth >= 1 && depth <= 32) {
         /* XYPixmap: `depth` bit-planes from MSB to LSB */
         size_t total_bits = (size_t)width + (size_t)left_pad;
         size_t plane_row_bytes = ((total_bits + 31u) / 32u) * 4u;
         size_t plane_bytes = plane_row_bytes * (size_t)height;
-        for (uint16_t r = 0; r < height; ++r) {
-            for (uint16_t c = 0; c < width; ++c) {
-                uint32_t val = 0;
-                size_t bit_idx = (size_t)c + (size_t)left_pad;
-                for (uint8_t p = 0; p < depth; ++p) {
-                    size_t off = (size_t)p * plane_bytes + (size_t)r * plane_row_bytes + (bit_idx >> 3);
-                    if (off < data_len && ((data[off] >> (bit_idx & 7u)) & 1u)) {
-                        val |= (UINT32_C(1) << (depth - 1u - p));
+        if (plane_bytes <= data_len) {
+            for (uint16_t r = 0; r < height; ++r) {
+                for (uint16_t c = 0; c < width; ++c) {
+                    uint32_t val = 0;
+                    size_t bit_idx = (size_t)c + (size_t)left_pad;
+                    for (uint8_t p = 0; p < depth; ++p) {
+                        size_t off = (size_t)p * plane_bytes + (size_t)r * plane_row_bytes + (bit_idx >> 3);
+                        if (off < data_len && ((data[off] >> (bit_idx & 7u)) & 1u)) {
+                            val |= (UINT32_C(1) << (depth - 1u - p));
+                        }
                     }
+                    put_clipped_pixel(srv, &dt, gc, dt.dx + dst_x + c, dt.dy + dst_y + r,
+                                      format_gc_pixel(dt.depth, val));
                 }
-                put_clipped_pixel(srv, &dt, gc, dt.dx + dst_x + c, dt.dy + dst_y + r,
-                                  format_gc_pixel(dt.depth, val));
             }
         }
     } else if (format == 2 && depth == 8) {
@@ -787,6 +810,9 @@ _XmWlRenderGetImage(XmWlServer *srv, uint32_t drawable, int16_t x, int16_t y,
     *out_len = 0;
     *out_depth = 24;
     *out_visual = 0;
+    if (width == 0 || height == 0 || width > 8192 || height > 8192 ||
+        (size_t)width * (size_t)height > (16u * 1024u * 1024u))
+        return false;
 
     uint32_t *src_pixels = NULL;
     int src_w = 0, src_h = 0, src_stride_px = 0, dx = 0, dy = 0;
@@ -869,6 +895,7 @@ _XmWlRenderGetImage(XmWlServer *srv, uint32_t drawable, int16_t x, int16_t y,
 
     if (format == 1) {
         /* XYPixmap */
+        if (depth < 1 || depth > 32) return false;
         size_t plane_row = (((size_t)width + 31u) / 32u) * 4u;
         size_t total = plane_row * (size_t)height * (size_t)depth;
         uint8_t *buf = (uint8_t *)calloc(1, total ? total : 4);
@@ -954,7 +981,8 @@ _XmWlRenderCopyArea(XmWlServer *srv, XmWlClient *cli, uint32_t src_d, uint32_t d
     DrawTarget src_dt, dst_dt;
     bool ok_src = resolve_draw_target(srv, src_d, NULL, &src_dt);
     bool ok_dst = resolve_draw_target(srv, dst_d, gc, &dst_dt);
-    if (ok_src && ok_dst && w > 0 && h > 0) {
+    if (ok_src && ok_dst && w > 0 && h > 0 &&
+        w <= 8192 && h <= 8192 && (size_t)w * (size_t)h <= (16u * 1024u * 1024u)) {
         uint32_t *tmp = (uint32_t *)calloc((size_t)w * (size_t)h, 4u);
         if (tmp) {
             for (uint16_t r = 0; r < h; ++r) {
@@ -991,7 +1019,8 @@ _XmWlRenderCopyPlane(XmWlServer *srv, XmWlClient *cli, uint32_t src_d, uint32_t 
     DrawTarget src_dt, dst_dt;
     bool ok_src = resolve_draw_target(srv, src_d, NULL, &src_dt);
     bool ok_dst = resolve_draw_target(srv, dst_d, gc, &dst_dt);
-    if (ok_src && ok_dst && w > 0 && h > 0) {
+    if (ok_src && ok_dst && w > 0 && h > 0 &&
+        w <= 8192 && h <= 8192 && (size_t)w * (size_t)h <= (16u * 1024u * 1024u)) {
         uint32_t fg_px = format_gc_pixel(dst_dt.depth, gc ? gc->fg : 0xffffffffu);
         uint32_t bg_px = format_gc_pixel(dst_dt.depth, gc ? gc->bg : 0);
         uint32_t mask = bit_plane ? bit_plane : 1u;
@@ -1663,6 +1692,7 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
     case 4: { /* RenderCreatePicture */
         if (req_len < 20) break;
         uint32_t pid = rd_u32(req + 4);
+        if (pid == 0 || _XmWlFindPicture(srv, pid)) break;
         uint32_t did = rd_u32(req + 8);
         uint32_t fmt = rd_u32(req + 12);
         uint32_t vmask = rd_u32(req + 16);
@@ -1940,6 +1970,7 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
     case 17: { /* RenderCreateGlyphSet */
         if (req_len < 12) break;
         uint32_t gsid = rd_u32(req + 4);
+        if (gsid == 0 || _XmWlFindGlyphSet(srv, gsid)) break;
         uint32_t fmt = rd_u32(req + 8);
         XmWlGlyphSet *gs = (XmWlGlyphSet *)calloc(1, sizeof(*gs));
         if (!gs) break;
@@ -1954,6 +1985,7 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
     case 18: { /* RenderReferenceGlyphSet */
         if (req_len < 12) break;
         uint32_t new_id = rd_u32(req + 4);
+        if (new_id == 0 || _XmWlFindGlyphSet(srv, new_id)) break;
         XmWlGlyphSet *orig = _XmWlFindGlyphSet(srv, rd_u32(req + 8));
         if (orig) {
             XmWlGlyphSet *gs = (XmWlGlyphSet *)calloc(1, sizeof(*gs));
@@ -2012,9 +2044,12 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
             else
                 src_stride = (((size_t)gw + 3u) / 4u) * 4u; /* A8 */
 
-            size_t glyph_bytes = src_stride * (size_t)gh;
-            glyph_bytes = (glyph_bytes + 3u) & ~3u; /* XRender pads each glyph to 4 bytes */
-            if (glyph_bytes > img_rem) glyph_bytes = img_rem;
+            size_t raw_glyph_bytes = src_stride * (size_t)gh;
+            size_t glyph_bytes = (raw_glyph_bytes + 3u) & ~3u; /* XRender pads each glyph to 4 bytes */
+            if (gw > 1024 || gh > 1024 || raw_glyph_bytes > img_rem)
+                break;
+            if (glyph_bytes > img_rem)
+                glyph_bytes = img_rem;
 
             XmWlGlyph *g = find_glyph(gs, gid);
             if (!g) {
@@ -2038,7 +2073,7 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
                 g->bits = (uint32_t *)calloc((size_t)gw * (size_t)gh, 4u);
                 if (g->bits) {
                     for (uint16_t r = 0; r < gh; ++r) {
-                        if ((size_t)r * src_stride >= img_rem) break;
+                        if ((size_t)r * src_stride + src_stride > img_rem) break;
                         const uint8_t *srow = img_bytes + (size_t)r * src_stride;
                         for (uint16_t c = 0; c < gw; ++c) {
                             uint32_t argb = 0;
@@ -2238,6 +2273,7 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
     case 33: { /* RenderCreateSolidFill */
         if (req_len < 16) break;
         uint32_t pid = rd_u32(req + 4);
+        if (pid == 0 || _XmWlFindPicture(srv, pid)) break;
         pixman_color_t col = {
             .red   = rd_u16(req + 8),
             .green = rd_u16(req + 10),
@@ -2258,6 +2294,7 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
     case 34: { /* RenderCreateLinearGradient */
         if (req_len < 28) break;
         uint32_t pid = rd_u32(req + 4);
+        if (pid == 0 || _XmWlFindPicture(srv, pid)) break;
         pixman_point_fixed_t p1 = { rd_i32(req + 8), rd_i32(req + 12) };
         pixman_point_fixed_t p2 = { rd_i32(req + 16), rd_i32(req + 20) };
         uint32_t nstops = rd_u32(req + 24);
@@ -2288,6 +2325,7 @@ _XmWlHandleRenderRequest(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, con
     case 35: { /* RenderCreateRadialGradient */
         if (req_len < 36) break;
         uint32_t pid = rd_u32(req + 4);
+        if (pid == 0 || _XmWlFindPicture(srv, pid)) break;
         pixman_point_fixed_t inner = { rd_i32(req + 8), rd_i32(req + 12) };
         pixman_point_fixed_t outer = { rd_i32(req + 16), rd_i32(req + 20) };
         pixman_fixed_t ir = rd_i32(req + 24);

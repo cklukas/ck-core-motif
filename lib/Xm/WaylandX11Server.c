@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fnmatch.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -337,7 +338,7 @@ _XmWlSetProperty(XmWlServer *srv, XmWlWindow *win, uint32_t atom, uint32_t type,
                  uint8_t format, uint8_t mode, const uint8_t *data, size_t byte_len,
                  bool emit_notify)
 {
-    if (!srv || !win || atom == 0) return;
+    if (!srv || !win || atom == 0 || byte_len > (16u * 1024u * 1024u)) return;
     if (format != 8 && format != 16 && format != 32)
         return;
 
@@ -361,6 +362,7 @@ _XmWlSetProperty(XmWlServer *srv, XmWlWindow *win, uint32_t atom, uint32_t type,
         p->type = type;
         p->format = format;
     } else if (mode == 1 /* Prepend */ && p->format == format) {
+        if (byte_len > (16u * 1024u * 1024u) - p->byte_len) return;
         size_t nl = p->byte_len + byte_len;
         uint8_t *nb = nl > 0 ? (uint8_t *)malloc(nl) : NULL;
         if (nl > 0 && !nb) return;
@@ -370,6 +372,7 @@ _XmWlSetProperty(XmWlServer *srv, XmWlWindow *win, uint32_t atom, uint32_t type,
         p->data = nb;
         p->byte_len = nl;
     } else if (mode == 2 /* Append */ && p->format == format) {
+        if (byte_len > (16u * 1024u * 1024u) - p->byte_len) return;
         size_t nl = p->byte_len + byte_len;
         uint8_t *nb = nl > 0 ? (uint8_t *)realloc(p->data, nl) : NULL;
         if (nl > 0 && !nb) return;
@@ -1594,13 +1597,13 @@ handle_shape_request(XmWlServer *srv, XmWlClient *cli, uint8_t minor_op, const u
             wr_u32(hdr + 8, (uint32_t)w->shape_rect_count);
             size_t elen = w->shape_rect_count * 8u;
             uint8_t *eb = (uint8_t *)malloc(elen);
-            for (size_t i = 0; i < w->shape_rect_count; ++i) {
+            for (size_t i = 0; i < w->shape_rect_count && eb; ++i) {
                 wr_i16(eb + i * 8 + 0, w->shape_rects[i].x);
                 wr_i16(eb + i * 8 + 2, w->shape_rects[i].y);
                 wr_u16(eb + i * 8 + 4, w->shape_rects[i].width);
                 wr_u16(eb + i * 8 + 6, w->shape_rects[i].height);
             }
-            _XmWlSendReply(cli, hdr, eb, elen);
+            if (eb) _XmWlSendReply(cli, hdr, eb, elen);
             free(eb);
         } else {
             wr_u32(hdr + 8, 1);
@@ -2367,6 +2370,10 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         uint32_t visual = rd_u32(req + 24);
         uint32_t vmask = rd_u32(req + 28);
 
+        if (wid == 0 || _XmWlFindWindow(srv, wid) || _XmWlFindPixmap(srv, wid)) {
+            _XmWlSendError(cli, 14 /* BadIDChoice */, wid, 0, major);
+            break;
+        }
         XmWlWindow *parent = _XmWlFindWindow(srv, pid);
         if (!parent) {
             _XmWlSendError(cli, 3 /* BadWindow */, pid, 0, major);
@@ -2466,6 +2473,14 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         XmWlWindow *w = _XmWlFindWindow(srv, rd_u32(req + 4));
         XmWlWindow *np = _XmWlFindWindow(srv, rd_u32(req + 8));
         if (!w || !np || w == srv->root) break;
+        bool cycle = false;
+        for (XmWlWindow *anc = np; anc; anc = anc->parent) {
+            if (anc == w) { cycle = true; break; }
+        }
+        if (cycle) {
+            _XmWlSendError(cli, 8 /* BadMatch */, w->id, 0, major);
+            break;
+        }
         if (w->parent == srv->root && np != srv->root)
             _XmWlUnmapWindowRole(srv, w);
         if (w->parent) {
@@ -3349,8 +3364,21 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
         uint32_t pid = rd_u32(req + 4);
         uint16_t w = rd_u16(req + 12);
         uint16_t h = rd_u16(req + 14);
+        if (pid == 0 || _XmWlFindPixmap(srv, pid) || _XmWlFindWindow(srv, pid)) {
+            _XmWlSendError(cli, 14 /* BadIDChoice */, pid, 0, major);
+            break;
+        }
+        if (depth != 1 && depth != 4 && depth != 8 &&
+            depth != 15 && depth != 16 && depth != 24 && depth != 32) {
+            _XmWlSendError(cli, 2 /* BadValue */, depth, 0, major);
+            break;
+        }
         if (w == 0) w = 1;
         if (h == 0) h = 1;
+        if (w > 8192 || h > 8192 || (size_t)w * (size_t)h > (16u * 1024u * 1024u)) {
+            _XmWlSendError(cli, 11 /* BadAlloc */, pid, 0, major);
+            break;
+        }
         XmWlPixmap *pix = (XmWlPixmap *)calloc(1, sizeof(*pix));
         if (!pix) break;
         pix->id = pid;
@@ -3388,6 +3416,10 @@ dispatch_x11_request(XmWlServer *srv, XmWlClient *cli, const uint8_t *req, size_
     case 55: { /* CreateGC */
         if (req_len < 16) break;
         uint32_t gid = rd_u32(req + 4);
+        if (gid == 0 || _XmWlFindGC(srv, gid)) {
+            _XmWlSendError(cli, 14 /* BadIDChoice */, gid, 0, major);
+            break;
+        }
         uint32_t did = rd_u32(req + 8);
         uint32_t vmask = rd_u32(req + 12);
         XmWlWindow *dw = _XmWlFindWindow(srv, did);

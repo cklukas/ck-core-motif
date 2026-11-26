@@ -1,3 +1,36 @@
+Qualify native Wayland backend under ASan, UBSan, TSan, and libFuzzer (2026-11-26)
+==================================================================================
+
+- `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandBackend.c`,
+  `lib/Xm/WaylandX11Server.c`, `lib/Xm/WaylandRender.c`,
+  `lib/Xm/Appearance.c`, `lib/Xm/RCMenu.c`, `lib/Xm/Label.c`,
+  `lib/Xm/LabelG.c`, `lib/Xm/TextFSel.c`, `lib/Xm/TextSel.c`,
+  `lib/Xm/List.c`, `lib/Xm/I18List.c`, `lib/Xm/Scale.c`,
+  `lib/Xm/Container.c`, `tests/fuzz/fuzz-wayland-x11-server.c`,
+  `tests/fuzz/corpus/wayland-x11-server/*`, `tests/fuzz/run-fuzz.py`,
+  `tests/fuzz/make-seeds.py`, `tests/fuzz/README`,
+  `tests/automated/check-fuzz-targets-wp44.py`,
+  `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`,
+  `docs/wayland-backend.md`, `docs/hardening.md`:
+  - Add `fuzz-wayland-x11-server` (`libFuzzer` + standalone replay) exercising
+    X11 connection setup, bigreq framing, resource/GC/window/pixmap/XRender/SHAPE
+    requests, property updates, and software drawing in `WaylandX11Server.c` and
+    `WaylandRender.c`.
+  - Enforce duplicate-XID (`BadIDChoice`), standard pixmap-depth (`BadValue`),
+    dimension/pixel allocation caps (`BadAlloc`), `ReparentWindow` ancestor-cycle
+    (`BadMatch`), property size, `ShapeGetRectangles` reply, `XYPixmap` plane-shift,
+    and `RenderAddGlyphs` stride bounds across `WaylandX11Server.c` and
+    `WaylandRender.c`.
+  - Synchronize cross-thread Wayland backend flags with `<stdatomic.h>` atomics,
+    join the server thread before clearing global state on teardown, flush
+    Wayland protocol buffers on unmap and metadata extension updates, buffer
+    `clone_database` entries in `Appearance.c` to eliminate nested `XrmDatabase`
+    lock-order inversion under ThreadSanitizer, and add exact-signature trait
+    adapter thunks to eliminate `-fsanitize=function` undefined behavior.
+  - Qualify `run-wayland-backend.py` cleanly under both
+    `--sanitizers address,undefined` and `--sanitizers thread`.
+
 Add Wayland DMA-BUF subsurface import, xdg-dialog-v1, tearing-control, and fifo-v1 (2026-11-26)
 ===============================================================================================
 

@@ -1036,11 +1036,29 @@ externaldef( xmcontainerwidgetclass) WidgetClass xmContainerWidgetClass
 
 
 /* Transfer Trait record for Container */
+static void
+ContainerConvertTrait(Widget wid, XtPointer closure, XtPointer call_data)
+{
+	ContainerConvertProc(wid, closure, (XmConvertCallbackStruct *)call_data);
+}
+
+static void
+ContainerDestinationTrait(Widget wid, XtPointer closure, XtPointer call_data)
+{
+	ContainerDestinationProc(wid, closure, (XmDestinationCallbackStruct *)call_data);
+}
+
+static void
+ContainerDestPrehookTrait(Widget wid, XtPointer closure, XtPointer call_data)
+{
+	ContainerDestPrehookProc(wid, closure, (XmDestinationCallbackStruct *)call_data);
+}
+
 static XmConst XmTransferTraitRec transferT = {
 	0,				/* version */
-	(XmConvertCallbackProc)		ContainerConvertProc,
-	(XmDestinationCallbackProc)	ContainerDestinationProc,
-	(XmDestinationCallbackProc)	ContainerDestPrehookProc,
+	ContainerConvertTrait,
+	ContainerDestinationTrait,
+	ContainerDestPrehookTrait,
 };
 
 /* Trait record for ContainerT */

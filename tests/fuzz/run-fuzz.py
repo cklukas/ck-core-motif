@@ -517,6 +517,124 @@ def extract_uil_wmd(wt):
     return {"types.h": "/* unused */\n", "production.h": prod}, extra
 
 
+def build_wayland_x11_server(wt, scratch, clang, recover_ub):
+    """Compile the real lib/Xm/WaylandX11Server.c and lib/Xm/WaylandRender.c
+    unchanged with in-memory Wayland/FreeType/Fontconfig header shims and
+    pixman-1."""
+    gendir = scratch / "build" / "wayland-x11-server"
+    shim = gendir / "shim"
+    objdir = gendir / "obj"
+    for d in (shim / "xkbcommon", shim / "fontconfig", objdir):
+        d.mkdir(parents=True, exist_ok=True)
+    prepare_includes(wt, scratch, clang)
+
+    # WaylandBackendI.h stores opaque Wayland/XKB pointers in XmWlWindow/XmWlServer;
+    # WaylandX11Server.c and WaylandRender.c (with ft_inited == false) make no
+    # runtime calls into libwayland, xkbcommon, Fontconfig, or FreeType.
+    for empty_hdr in (
+        "wayland-client.h",
+        "wayland-cursor.h",
+        "xkbcommon/xkbcommon.h",
+        "wayland-xdg-shell-client-protocol.h",
+        "wayland-xdg-decoration-client-protocol.h",
+        "wayland-xdg-toplevel-icon-client-protocol.h",
+        "wayland-xdg-activation-client-protocol.h",
+        "wayland-tablet-v2-client-protocol.h",
+        "wayland-cursor-shape-client-protocol.h",
+        "wayland-primary-selection-client-protocol.h",
+        "wayland-text-input-v3-client-protocol.h",
+        "wayland-fractional-scale-client-protocol.h",
+        "wayland-viewporter-client-protocol.h",
+    ):
+        (shim / empty_hdr).write_text("/* fuzz header shim */\n")
+
+    (shim / "ft2build.h").write_text('#define FT_FREETYPE_H "ft-shim.h"\n')
+    (shim / "ft-shim.h").write_text(
+        "#include <stdint.h>\n"
+        "typedef unsigned int FT_UInt;\n"
+        "typedef unsigned long FT_ULong;\n"
+        "typedef void *FT_Library;\n"
+        "#define FT_LOAD_DEFAULT 0\n"
+        "#define FT_LOAD_RENDER  4\n"
+        "#define FT_PIXEL_MODE_MONO 1\n"
+        "#define FT_PIXEL_MODE_GRAY 2\n"
+        "typedef struct { unsigned int rows, width; int pitch; unsigned char *buffer; unsigned char pixel_mode; } FT_Bitmap;\n"
+        "typedef struct { long x, y; } FT_Vector;\n"
+        "typedef struct { long width, height, horiBearingX, horiBearingY; } FT_Glyph_Metrics;\n"
+        "typedef struct FT_GlyphSlotRec_ { FT_Vector advance; FT_Glyph_Metrics metrics; FT_Bitmap bitmap; int bitmap_left, bitmap_top; } *FT_GlyphSlot;\n"
+        "typedef struct { long ascender, descender; } FT_Size_Metrics;\n"
+        "typedef struct { FT_Size_Metrics metrics; } *FT_Size;\n"
+        "typedef struct FT_FaceRec_ { FT_Size size; FT_GlyphSlot glyph; } *FT_Face;\n"
+        "static inline int FT_Init_FreeType(FT_Library *l) { (void)l; return 1; }\n"
+        "static inline int FT_Done_FreeType(FT_Library l) { (void)l; return 0; }\n"
+        "static inline int FT_Done_Face(FT_Face f) { (void)f; return 0; }\n"
+        "static inline int FT_New_Face(FT_Library l, const char *p, long i, FT_Face *f) { (void)l; (void)p; (void)i; (void)f; return 1; }\n"
+        "static inline int FT_Set_Pixel_Sizes(FT_Face f, FT_UInt w, FT_UInt h) { (void)f; (void)w; (void)h; return 0; }\n"
+        "static inline FT_UInt FT_Get_Char_Index(FT_Face f, FT_ULong c) { (void)f; (void)c; return 0; }\n"
+        "static inline int FT_Load_Glyph(FT_Face f, FT_UInt g, int fl) { (void)f; (void)g; (void)fl; return 1; }\n"
+    )
+    (shim / "fontconfig" / "fontconfig.h").write_text(
+        "typedef unsigned char FcChar8;\n"
+        "typedef void FcPattern;\n"
+        "typedef enum { FcResultMatch = 0, FcResultNoMatch = 1 } FcResult;\n"
+        "#define FC_FAMILY \"family\"\n"
+        "#define FC_PIXEL_SIZE \"pixelsize\"\n"
+        "#define FC_WEIGHT \"weight\"\n"
+        "#define FC_SLANT \"slant\"\n"
+        "#define FC_FILE \"file\"\n"
+        "#define FC_INDEX \"index\"\n"
+        "#define FC_WEIGHT_REGULAR 80\n"
+        "#define FC_WEIGHT_BOLD 200\n"
+        "#define FC_SLANT_ROMAN 0\n"
+        "#define FC_SLANT_ITALIC 100\n"
+        "#define FcMatchPattern 0\n"
+        "static inline int FcInit(void) { return 1; }\n"
+        "static inline FcPattern *FcPatternCreate(void) { return 0; }\n"
+        "static inline void FcPatternDestroy(FcPattern *p) { (void)p; }\n"
+        "static inline int FcPatternAddString(FcPattern *p, const char *o, const FcChar8 *s) { (void)p; (void)o; (void)s; return 0; }\n"
+        "static inline int FcPatternAddDouble(FcPattern *p, const char *o, double v) { (void)p; (void)o; (void)v; return 0; }\n"
+        "static inline int FcPatternAddInteger(FcPattern *p, const char *o, int v) { (void)p; (void)o; (void)v; return 0; }\n"
+        "static inline int FcConfigSubstitute(void *c, FcPattern *p, int k) { (void)c; (void)p; (void)k; return 0; }\n"
+        "static inline void FcDefaultSubstitute(FcPattern *p) { (void)p; }\n"
+        "static inline FcPattern *FcFontMatch(void *c, FcPattern *p, FcResult *r) { (void)c; (void)p; if (r) *r = FcResultNoMatch; return 0; }\n"
+        "static inline FcResult FcPatternGetString(const FcPattern *p, const char *o, int n, FcChar8 **s) { (void)p; (void)o; (void)n; (void)s; return FcResultNoMatch; }\n"
+        "static inline FcResult FcPatternGetInteger(const FcPattern *p, const char *o, int n, int *v) { (void)p; (void)o; (void)n; (void)v; return FcResultNoMatch; }\n"
+    )
+
+    pix_cf = pkg_config("--cflags", "pixman-1")
+    pix_lf = pkg_config("--libs", "pixman-1")
+    if not pix_cf or not pix_lf:
+        sys.exit("pixman-1 development files not found (pkg-config pixman-1)")
+
+    common = (
+        ["-DHAVE_WAYLAND_BACKEND=1", "-I", str(shim), *cflags_common(scratch), "-I", str(wt / "lib/Xm"), *pix_cf]
+    )
+    instr = sanitize_flags(recover_ub) + ["-fsanitize=fuzzer-no-link"]
+    objects = []
+    for stem in ("WaylandX11Server", "WaylandRender"):
+        src = wt / "lib/Xm" / f"{stem}.c"
+        obj = objdir / f"{stem}.o"
+        if not obj.exists() or obj.stat().st_mtime < src.stat().st_mtime:
+            sh([clang, "-c", *instr, *common, "-o", str(obj), str(src)])
+        objects.append(str(obj))
+
+    binary = gendir / ("fuzz-wayland-x11-server-recover" if recover_ub else "fuzz-wayland-x11-server")
+    cmd = [
+        clang,
+        "-fsanitize=fuzzer,address,undefined",
+        "-fsanitize-recover=undefined" if recover_ub else "-fno-sanitize-recover=undefined",
+        *common,
+        "-o",
+        str(binary),
+        str(HERE / "fuzz-wayland-x11-server.c"),
+        *objects,
+        *pix_lf,
+        "-lm",
+    ]
+    sh(cmd)
+    return binary
+
+
 TARGETS = {
     "xmstring-stream": ("XmString external format: XmCvtByteStreamToXmString with the ASN.1 length and component "
                         "readers, then walk, copy, concatenate and write back (lib/Xm/XmString.c, compiled unchanged)",
@@ -536,6 +654,9 @@ TARGETS = {
                     build_extracted("mwm-parsers", extract_mwm_parsers)),
     "uil-wmd": ("UIL binary widget meta-language database (.wmd) reader: globals, headers, byte/short/int/string "
                 "tables (clients/uil/UilDB.c)", build_extracted("uil-wmd", extract_uil_wmd)),
+    "wayland-x11-server": ("native Wayland backend X11r11 & XRender wire protocol server: handshake, BIG-REQUESTS, "
+                           "core opcodes, RENDER, SHAPE, XFIXES, RANDR, XINERAMA (lib/Xm/WaylandX11Server.c, "
+                           "lib/Xm/WaylandRender.c, compiled unchanged)", build_wayland_x11_server),
 }
 
 

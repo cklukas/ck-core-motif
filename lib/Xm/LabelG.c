@@ -212,11 +212,17 @@ static void GetBottomShadowPixel(Widget, int, XtArgVal *);
 
 void _XmLabelConvert(Widget w, XtPointer ignore, XmConvertCallbackStruct*);
 
+static void
+LabelGConvertTrait(Widget w, XtPointer ignore, XtPointer call_data)
+{
+    _XmLabelConvert(w, ignore, (XmConvertCallbackStruct *)call_data);
+}
+
 /* Transfer trait record */
 static XmConst XmTransferTraitRec LabelGTransfer =
 {
     0,                                            /* version		  */
-    (XmConvertCallbackProc) _XmLabelConvert,      /* convertProc		  */
+    LabelGConvertTrait,                           /* convertProc		  */
     NULL,                                         /* destinationProc	  */
     NULL                                          /* destinationPreHookProc */
 };

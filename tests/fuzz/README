@@ -166,6 +166,12 @@ Targets
                    (clients/uil/UilDB.c): globals, table headers, byte, short,
                    integer, bitmask and string tables loaded via
                    db_incorporate().
+  wayland-x11-server
+                   native Wayland backend X11r11 and XRender wire protocol
+                   server (lib/Xm/WaylandX11Server.c, lib/Xm/WaylandRender.c,
+                   compiled unchanged): connection setup handshake, BIG-REQUESTS
+                   framing, core X11 requests, and RENDER, SHAPE, XFIXES, RANDR,
+                   XINERAMA, and XC-MISC extensions.
 
 The check programs in tests/automated (run-xmstring-stream-bounds.py,
 run-resconvert-list-bounds.py, run-mrm-literal-bounds.py) build the same

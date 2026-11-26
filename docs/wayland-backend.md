@@ -213,6 +213,13 @@ python3 tests/automated/run-wayland-backend.py \
   --out /path/to/scratch/wayland-backend-results
 ```
 
+For sanitizer-instrumented prefixes (`--enable-sanitizers=address,undefined` or
+`--enable-sanitizers=thread`), pass `--sanitizers address,undefined` or
+`--sanitizers thread` so the test client links with the matching sanitizer
+runtime. Request parsing in `lib/Xm/WaylandX11Server.c` and software XRender/core
+drawing in `lib/Xm/WaylandRender.c` are also covered by the standalone
+`libFuzzer` target `fuzz-wayland-x11-server` (`python3 tests/fuzz/run-fuzz.py --target wayland-x11-server`).
+
 The runner starts an isolated headless Wayland compositor with `DISPLAY` unset,
 verifies that no `Xwayland` instance is used for the client, and validates
 shell mapping, classic and modern theme rendering, Unicode/CJK text rasterization,

@@ -77,7 +77,7 @@ D-Bus adapter also have compiled behavioural tests under the sanitizers
 
 | Component | Exposure | Prior hardening | Unique warnings | Defect-class | cppcheck errors | Fuzz targets |
 |---|---|---|---:|---:|---:|---|
-| `lib/Xm` | toolkit library; clipboard, selection, text, string and image paths; editres protocol | hardening commits since 2026-10-22; WP-42 defect-warning & cppcheck ratchet, WP-43 legacy/modern subsystem audit ([WP-43 audit](untrusted-input-audit-wp43.md)), and WP-44 XPM fuzzer & bounds fixes (2026-11-16) | 745 | 0 | 0 | `fuzz-editres-wire`, `fuzz-xm-converters`, `fuzz-xmstring-stream`, `fuzz-xpm-image` |
+| `lib/Xm` | toolkit library; clipboard, selection, text, string and image paths; editres protocol; native Wayland X11/XRender server | hardening commits since 2026-10-22; WP-42 defect-warning & cppcheck ratchet, WP-43 legacy/modern subsystem audit ([WP-43 audit](untrusted-input-audit-wp43.md)), WP-44 XPM fuzzer & bounds fixes (2026-11-16), and Wayland backend ASan/UBSan/TSan + wire fuzzer qualification (2026-11-26) | 745 | 0 | 0 | `fuzz-editres-wire`, `fuzz-wayland-x11-server`, `fuzz-xm-converters`, `fuzz-xmstring-stream`, `fuzz-xpm-image` |
 | `clients/uil` | UIL compiler; parses source and `.wmd` files | WP-42 defect-warning & cppcheck ratchet; WP-43 WMD binary database and parser bounds audit ([WP-43 audit](untrusted-input-audit-wp43.md)); WP-44 `.wmd` fuzzer (2026-11-16) | 525 | 0 | 0 | `fuzz-uil-wmd`, `check-wmd.py` |
 | `clients/mwm` | window manager; resource and property parsers | control flow, initialization and keysym handling (2026-11-01); WP-42 ratchet, WP-43 interactive-placement bounds audit, and WP-44 WSM wire & `.mwmrc` fuzzer (2026-11-16) | 173 | 0 | 0 | `fuzz-mwm-parsers`, `wsm-wire-validation` |
 | `lib/Mrm` | reads and writes binary UID files | hardening commits since 2026-10-22; UID index, literal, icon and compression-table checks (2026-11-10); WP-42 ratchet, WP-43 writer/OS audit, and WP-44 `-O1` sanitizer initialization fix (2026-11-16) | 173 | 0 | 0 | `fuzz-mrm-uid`, `run-mrm-uid-mutations.py` |
@@ -105,9 +105,10 @@ teardown.
 
 ## Known limits
 
-- The sanitized (`--enable-sanitizers=address,undefined`) installed-prefix build
-  and all 7 `libFuzzer` replay targets (`editres-wire`, `mrm-uid`,
-  `mwm-parsers`, `uil-wmd`, `xm-converters`, `xmstring-stream`, `xpm-image`),
+- The sanitized (`--enable-sanitizers=address,undefined` and
+  `--enable-sanitizers=thread`) installed-prefix builds, `run-wayland-backend.py`,
+  and all 8 `libFuzzer` replay targets (`editres-wire`, `mrm-uid`,
+  `mwm-parsers`, `uil-wmd`, `wayland-x11-server`, `xm-converters`, `xmstring-stream`, `xpm-image`),
   `check-wmd.py`, `check-xpm-input`, `wsm-wire-validation`, and the 5 sanitized
   parser-bounds suites (`run-xmstring-stream-bounds.py`,
   `run-resconvert-list-bounds.py`, `run-mrm-literal-bounds.py`,

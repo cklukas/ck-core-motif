@@ -189,10 +189,16 @@ static XtPointer ConvertToEncoding(Widget, char*, Atom, unsigned long *,
 
 void _XmLabelConvert(Widget w, XtPointer ignore, XmConvertCallbackStruct*);
 
+static void
+LabelConvertTrait(Widget w, XtPointer ignore, XtPointer call_data)
+{
+  _XmLabelConvert(w, ignore, (XmConvertCallbackStruct *)call_data);
+}
+
 /* Transfer trait record */
 static XmConst XmTransferTraitRec LabelTransfer = {
   0, 						/* version		  */
-  (XmConvertCallbackProc) _XmLabelConvert,	/* convertProc		  */
+  LabelConvertTrait,				/* convertProc		  */
   NULL,						/* destinationProc	  */
   NULL						/* destinationPreHookProc */
 };

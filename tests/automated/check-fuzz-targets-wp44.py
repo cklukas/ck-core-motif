@@ -22,6 +22,7 @@ expected_targets = (
     "mrm-uid",
     "mwm-parsers",
     "uil-wmd",
+    "wayland-x11-server",
     "xm-converters",
     "xmstring-stream",
     "xpm-image",

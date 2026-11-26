@@ -104,11 +104,23 @@ static Boolean TextSelectionBlockLength(const char *text,
 
 /* Transfer Trait record for Text */
 
+static void
+TextConvertTrait(Widget w, XtPointer ignore, XtPointer call_data)
+{
+  TextConvertCallback(w, ignore, (XmConvertCallbackStruct *)call_data);
+}
+
+static void
+TextDestinationTrait(Widget w, XtPointer closure, XtPointer call_data)
+{
+  TextDestinationCallback(w, closure, (XmDestinationCallbackStruct *)call_data);
+}
+
 static XmConst XmTransferTraitRec TextTransfer = {
   0,  				/* version */
-  (XmConvertCallbackProc) 	TextConvertCallback,
-  (XmDestinationCallbackProc)	TextDestinationCallback,
-  (XmDestinationCallbackProc)	NULL,
+  TextConvertTrait,
+  TextDestinationTrait,
+  NULL,
 };
 
 static XContext _XmTextDNDContext = 0;

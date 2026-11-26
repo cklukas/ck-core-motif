@@ -39,8 +39,8 @@
 #include <time.h>
 #include <unistd.h>
 
-static XmWlServer *g_wl_srv = NULL;
-static pid_t g_wl_owner_pid = 0;
+static _Atomic(XmWlServer *) g_wl_srv = NULL;
+static _Atomic pid_t g_wl_owner_pid = 0;
 static pthread_mutex_t g_wl_init_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_once_t g_wl_atfork_once = PTHREAD_ONCE_INIT;
 
@@ -291,6 +291,8 @@ _XmWlEnsureTopCanvas(XmWlServer *srv, XmWlWindow *top)
     if (!top) return;
     int w = top->width > 0 ? top->width : 1;
     int h = top->height > 0 ? top->height : 1;
+    if (w > 8192) w = 8192;
+    if (h > 8192) h = 8192;
     if (top->canvas && top->canvas_w == w && top->canvas_h == h)
         return;
 
@@ -2761,10 +2763,11 @@ _XmWlUpdateWindowMetadata(XmWlServer *srv, XmWlWindow *win, uint32_t changed_ato
             return;
     }
     if (win->parent == srv->root && win->xdg_top) {
-        if (sync_toplevel_metadata_all(srv, win, changed_atom) &&
-            win->wl_surf && win->xdg_configured &&
-            !win->resize_awaiting_client && !win->dirty) {
-            wl_surface_commit(win->wl_surf);
+        if (sync_toplevel_metadata_all(srv, win, changed_atom)) {
+            if (win->wl_surf && win->xdg_configured &&
+                !win->resize_awaiting_client && !win->dirty) {
+                wl_surface_commit(win->wl_surf);
+            }
             wl_display_flush(srv->wl_dpy);
         }
     }
@@ -3081,6 +3084,8 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
         if (srv->popup_stack[i] && srv->popup_stack[i]->popup_parent == win)
             srv->popup_stack[i]->popup_parent = NULL;
     }
+    if (srv->wl_dpy)
+        wl_display_flush(srv->wl_dpy);
 }
 
 void
@@ -4557,14 +4562,15 @@ _XmWaylandDetachDisplay(Widget xm_display)
 static void
 cleanup_wayland_backend(void)
 {
-    if (!g_wl_srv || g_wl_owner_pid != getpid())
-        return;
     XmWlServer *srv = g_wl_srv;
-    g_wl_srv = NULL;
+    if (!srv || g_wl_owner_pid != getpid())
+        return;
+    g_wl_owner_pid = 0;
 
     srv->running = false;
     _XmWlWakeServer(srv);
     pthread_join(srv->thread, NULL);
+    g_wl_srv = NULL;
 
     if (srv->listen_fd >= 0) close(srv->listen_fd);
     if (srv->socket_path[0]) unlink(srv->socket_path);
@@ -5078,6 +5084,7 @@ XmWaylandRequestActivationToken(
 #else
     clock_gettime(CLOCK_REALTIME, &deadline);
 #endif
+    deadline.tv_sec += 2;
     deadline.tv_nsec += 500000000L;
     if (deadline.tv_nsec >= 1000000000L) {
         deadline.tv_sec += 1;

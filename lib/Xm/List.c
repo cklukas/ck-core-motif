@@ -899,11 +899,23 @@ externaldef(xmlistwidgetclass) WidgetClass xmListWidgetClass =
 
 /* Transfer trait record */
 
+static void
+ListConvertTrait(Widget w, XtPointer client_data, XtPointer call_data)
+{
+  ListConvert(w, client_data, (XmConvertCallbackStruct *)call_data);
+}
+
+static void
+ListPreDestTrait(Widget w, XtPointer ignore, XtPointer call_data)
+{
+  ListPreDestProc(w, ignore, (XmDestinationCallbackStruct *)call_data);
+}
+
 static XmConst XmTransferTraitRec ListTransfer = {
   0, 						/* version */
-  (XmConvertCallbackProc) ListConvert,		/* convertProc */
+  ListConvertTrait,				/* convertProc */
   NULL,						/* destinationProc */
-  (XmDestinationCallbackProc) ListPreDestProc,	/* destinationPreHookProc */
+  ListPreDestTrait,				/* destinationPreHookProc */
 };
 
 

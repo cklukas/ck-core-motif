@@ -125,13 +125,25 @@ text_field_selection_buffer(unsigned long length)
 /********    End Static Function Declarations    ********/
 
 
+static void
+TextFieldConvertTrait(Widget w, XtPointer ignore, XtPointer call_data)
+{
+  TextFieldConvertCallback(w, ignore, (XmConvertCallbackStruct *)call_data);
+}
+
+static void
+TextFieldDestinationTrait(Widget w, XtPointer closure, XtPointer call_data)
+{
+  TextFieldDestinationCallback(w, closure, (XmDestinationCallbackStruct *)call_data);
+}
+
 /* Transfer Trait record for TextField */
 
 static XmConst XmTransferTraitRec textFieldTT = {
   0,  				/* version */
-  (XmConvertCallbackProc) 	TextFieldConvertCallback,
-  (XmDestinationCallbackProc)	TextFieldDestinationCallback,
-  (XmDestinationCallbackProc)	NULL,
+  TextFieldConvertTrait,
+  TextFieldDestinationTrait,
+  NULL,
 };
 
 static XContext _XmTextFDNDContext = 0;

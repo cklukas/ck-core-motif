@@ -267,6 +267,54 @@ static void MenuChildFocus(Widget w) ;
 static Widget MenuPopupPosted(Widget w) ;
 static void DismissTearOffSubMenu(XmRowColumnWidget menu);
 
+static void
+MenuSystemCascadeTrait(Widget submenu, Widget cb, XEvent *event)
+{
+  PrepareToCascade((XmRowColumnWidget)submenu, cb, event);
+}
+
+static void
+MenuSystemControlTraversalTrait(Widget wid, Boolean traversalOn)
+{
+  _XmSetMenuTraversal(wid, traversalOn);
+}
+
+static void
+MenuSystemCleanupTrait(Widget rc)
+{
+  MenuBarCleanup((XmRowColumnWidget)rc);
+}
+
+static void
+MenuSystemEntryCallbackTrait(Widget rowcol, Widget child, XtPointer call_value)
+{
+  ChildsActivateCallback((XmRowColumnWidget)rowcol, child, call_value);
+}
+
+static Boolean
+MenuSystemUpdateHistoryTrait(Widget menu, Widget child, Boolean updateOnMemWidgetMatch)
+{
+  return UpdateMenuHistory((XmRowColumnWidget)menu, child, updateOnMemWidgetMatch);
+}
+
+static void
+MenuSystemGetPostedFromWidgetTrait(Widget submenu)
+{
+  GetLastSelectToplevel((XmRowColumnWidget)submenu);
+}
+
+static void
+MenuSystemPositionTrait(Widget m, XEvent *event)
+{
+  PositionMenu((XmRowColumnWidget)m, (XButtonPressedEvent *)event);
+}
+
+static void
+MenuSystemRecordPostFromWidgetTrait(Widget m, Widget cascadeBtn, Boolean attach)
+{
+  SetCascadeField((XmRowColumnWidget)m, cascadeBtn, attach);
+}
+
 /*
  * Define trait records 
  */
@@ -275,23 +323,23 @@ XmMenuSystemTraitRec _XmRC_menuSystemRecord = {
   0,			/* version */
   MenuType,
   MenuStatus,
-  (XmMenuSystemCascadeProc)		PrepareToCascade,
-  (XmMenuSystemVerifyProc)		VerifyMenuButton,
-  (XmMenuSystemControlTraversalProc)	_XmSetMenuTraversal,
-  (XmMenuSystemMenuBarCleanupProc)	MenuBarCleanup,
-  (XmMenuSystemPopdownProc)		MenuSystemPopdown,
-  (XmMenuSystemPopdownProc)		MenuSystemButtonPopdown,
+  MenuSystemCascadeTrait,
+  VerifyMenuButton,
+  MenuSystemControlTraversalTrait,
+  MenuSystemCleanupTrait,
+  MenuSystemPopdown,
+  MenuSystemButtonPopdown,
   _XmRestoreExcludedTearOffToToplevelShell,
   _XmRestoreTearOffToMenuShell,
   MenuArm,
   MenuDisarm,
   TearOffArm,
-  (XmMenuSystemEntryCallbackProc)	ChildsActivateCallback,
-  (XmMenuSystemUpdateHistoryProc)	UpdateMenuHistory,
-  (XmMenuSystemGetPostedFromWidgetProc)	GetLastSelectToplevel,
-  (XmMenuSystemPositionProc)		PositionMenu,
-  (XmMenuSystemUpdateBindingsProc)	_XmRC_DoProcessMenuTree,
-  (XmMenuSystemRecordPostFromWidgetProc)	SetCascadeField,
+  MenuSystemEntryCallbackTrait,
+  MenuSystemUpdateHistoryTrait,
+  MenuSystemGetPostedFromWidgetTrait,
+  MenuSystemPositionTrait,
+  _XmRC_DoProcessMenuTree,
+  MenuSystemRecordPostFromWidgetTrait,
   MenuShellPopdown,
   MenuChildFocus,
   MenuPopupPosted

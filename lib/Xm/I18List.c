@@ -438,11 +438,23 @@ WidgetClass xmI18ListWidgetClass = (WidgetClass)&xmI18ListClassRec;
 
 /* Transfer trait record */
 
+static void
+I18ListConvertTrait(Widget w, XtPointer client_data, XtPointer call_data)
+{
+  ListConvert(w, client_data, (XmConvertCallbackStruct *)call_data);
+}
+
+static void
+I18ListPreDestTrait(Widget w, XtPointer ignore, XtPointer call_data)
+{
+  ListPreDestProc(w, ignore, (XmDestinationCallbackStruct *)call_data);
+}
+
 static XmConst XmTransferTraitRec ListTransfer = {
   0, 						/* version */
-  (XmConvertCallbackProc) ListConvert,		/* convertProc */
+  I18ListConvertTrait,				/* convertProc */
   NULL,						/* destinationProc */
-  (XmDestinationCallbackProc) ListPreDestProc,	/* destinationPreHookProc */
+  I18ListPreDestTrait,				/* destinationPreHookProc */
 };
 
 /*
