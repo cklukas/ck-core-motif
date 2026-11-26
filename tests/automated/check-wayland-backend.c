@@ -30,6 +30,7 @@
 #include <Xm/Label.h>
 #include <Xm/MainW.h>
 #include <Xm/MenuShell.h>
+#include <Xm/MessageB.h>
 #include <Xm/PushB.h>
 #include <Xm/RowColumn.h>
 #include <Xm/Scale.h>
@@ -44,17 +45,22 @@
 #include <Xm/XmP.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#ifdef HAVE_WAYLAND_CLIENT_TEST
+#include <wayland-client.h>
+#endif
 
 static void
 fail_msg(const char *msg)
@@ -1890,6 +1896,153 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         if (!XmWaylandGetWidgetSurface(shell, NULL, NULL, NULL, NULL, NULL, &s_out) ||
             fabs(s_out - 1.0) > 0.05) {
             fprintf(stderr, "FAIL: returning onto OUT-1(1x) did not restore scale 1.0 (got %.2f)\n", s_out);
+            exit(1);
+        }
+    }
+
+    /* Verify zwp_linux_dmabuf_v1 v4 feedback + zero-copy subsurface import,
+     * xdg_wm_dialog_v1 modal XmDialogShell lifecycle, wp_tearing_control_v1, and wp_fifo_v1 */
+    {
+        struct zwp_linux_dmabuf_v1 *dmabuf_h = NULL;
+        unsigned int dmabuf_ver = 0;
+        if (!XmWaylandGetDmabuf(dpy, &dmabuf_h, &dmabuf_ver) || !dmabuf_h || dmabuf_ver != 4u) {
+            fprintf(stderr, "FAIL: XmWaylandGetDmabuf expected v4 handle, got ptr=%p ver=%u\n",
+                    (void *)dmabuf_h, dmabuf_ver);
+            exit(1);
+        }
+        if (!XmWaylandHasDmabufFormat(dpy, 0x34325241u /* ARGB8888 */, 0ULL))
+            fail_msg("XmWaylandHasDmabufFormat failed for advertised ARGB8888+LINEAR");
+        if (!XmWaylandHasDmabufFormat(dpy, 0x34325258u /* XRGB8888 */, UINT64_C(0x00ffffffffffffff)))
+            fail_msg("XmWaylandHasDmabufFormat failed for advertised XRGB8888+MOD_INVALID");
+        if (XmWaylandHasDmabufFormat(dpy, 0xdeadbeefu, 0ULL))
+            fail_msg("XmWaylandHasDmabufFormat falsely accepted unadvertised format");
+
+        /* Boundary & invalid-argument checks for XmWaylandImportDmabuf */
+        struct wl_buffer *bad_buf = NULL;
+        XmWaylandDmabufPlane bad_plane = { .fd = -1, .offset = 0, .stride = 256, .modifier = 0 };
+        if (XmWaylandImportDmabuf(dpy, NULL, 1, 64, 48, 0x34325241u, 0, &bad_buf) ||
+            XmWaylandImportDmabuf(dpy, &bad_plane, 0, 64, 48, 0x34325241u, 0, &bad_buf) ||
+            XmWaylandImportDmabuf(dpy, &bad_plane, 5, 64, 48, 0x34325241u, 0, &bad_buf) ||
+            XmWaylandImportDmabuf(dpy, &bad_plane, 1, 64, 48, 0x34325241u, 0, &bad_buf) ||
+            XmWaylandImportDmabuf(dpy, &bad_plane, 1, 0, 48, 0x34325241u, 0, &bad_buf)) {
+            fail_msg("XmWaylandImportDmabuf accepted invalid plane/dimension parameters");
+        }
+
+#ifdef HAVE_WAYLAND_CLIENT_TEST
+        struct wl_display *wl_dpy = NULL;
+        struct wl_compositor *wl_comp = NULL;
+        struct wl_subcompositor *wl_subcomp = NULL;
+        struct wl_surface *top_surf = NULL;
+        int wx = 0, wy = 0, ww = 0, wh = 0;
+        if (!XmWaylandGetDisplayHandles(dpy, &wl_dpy, &wl_comp, &wl_subcomp, NULL, NULL) ||
+            !wl_dpy || !wl_comp || !wl_subcomp) {
+            fail_msg("XmWaylandGetDisplayHandles missing subcompositor");
+        }
+        if (!XmWaylandGetWidgetSurface(da_auto, &top_surf, &wx, &wy, &ww, &wh, NULL) || !top_surf) {
+            fail_msg("XmWaylandGetWidgetSurface failed for da_auto");
+        }
+
+        const int dm_w = 64, dm_h = 48, dm_stride = 64 * 4;
+        const size_t dm_sz = (size_t)dm_stride * (size_t)dm_h;
+        int dm_fd = memfd_create("test-subsurf-dmabuf", MFD_CLOEXEC);
+        if (dm_fd < 0 || ftruncate(dm_fd, (off_t)dm_sz) != 0)
+            fail_msg("memfd_create for DMA-BUF plane failed");
+        uint32_t *dm_px = (uint32_t *)mmap(NULL, dm_sz, PROT_READ | PROT_WRITE, MAP_SHARED, dm_fd, 0);
+        if (dm_px == MAP_FAILED)
+            fail_msg("mmap for DMA-BUF plane failed");
+        dm_px[0] = 0x11223344u;
+        munmap(dm_px, dm_sz);
+
+        XmWaylandLock(dpy);
+        struct wl_surface *sub_wl_surf = wl_compositor_create_surface(wl_comp);
+        struct wl_subsurface *sub_wl = wl_subcompositor_get_subsurface(wl_subcomp, sub_wl_surf, top_surf);
+        wl_subsurface_set_desync(sub_wl);
+        wl_subsurface_set_position(sub_wl, wx, wy);
+
+        XmWaylandDmabufPlane plane = {
+            .fd = dm_fd,
+            .offset = 0,
+            .stride = (uint32_t)dm_stride,
+            .modifier = 0ULL,
+        };
+        struct wl_buffer *dm_buf = NULL;
+        if (!XmWaylandImportDmabuf(dpy, &plane, 1, dm_w, dm_h, 0x34325241u, 0, &dm_buf) || !dm_buf)
+            fail_msg("XmWaylandImportDmabuf failed for valid 64x48 ARGB8888 plane");
+
+        if (!XmWaylandSetSurfaceTearingHint(dpy, sub_wl_surf, True) ||
+            !XmWaylandSetSurfaceTearingHint(dpy, sub_wl_surf, False))
+            fail_msg("XmWaylandSetSurfaceTearingHint failed on subsurface");
+        if (!XmWaylandSetSurfaceFifo(dpy, sub_wl_surf, True, True))
+            fail_msg("XmWaylandSetSurfaceFifo failed on subsurface");
+
+        wl_surface_attach(sub_wl_surf, dm_buf, 0, 0);
+        wl_surface_damage_buffer(sub_wl_surf, 0, 0, dm_w, dm_h);
+        wl_surface_commit(sub_wl_surf);
+        wl_display_roundtrip(wl_dpy);
+
+        wl_buffer_destroy(dm_buf);
+        XmWaylandReleaseSurfaceExtensions(dpy, sub_wl_surf);
+        wl_subsurface_destroy(sub_wl);
+        wl_surface_destroy(sub_wl_surf);
+        wl_display_roundtrip(wl_dpy);
+        XmWaylandUnlock(dpy);
+        close(dm_fd);
+#endif
+
+        /* Modal XmDialogShell -> xdg_wm_dialog_v1 set_modal -> unset_modal -> destroy before xdg_toplevel */
+        Arg dargs[4];
+        int dn = 0;
+        XtSetArg(dargs[dn], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL); dn++;
+        Widget modal_dlg = XmCreateInformationDialog(shell, (char *)"modalWaylandDlg", dargs, dn);
+        XtManageChild(modal_dlg);
+        pump_xt_ms(app, dpy, 120);
+
+        XtVaSetValues(modal_dlg, XmNdialogStyle, XmDIALOG_MODELESS, NULL);
+        pump_xt_ms(app, dpy, 80);
+
+        XtUnmanageChild(modal_dlg);
+        XtDestroyWidget(XtParent(modal_dlg));
+        pump_xt_ms(app, dpy, 80);
+
+        /* Also test X11 _MOTIF_WAYLAND_TEARING + _MOTIF_WAYLAND_FIFO properties on top-level shell */
+        Atom a_tear = XInternAtom(dpy, "_MOTIF_WAYLAND_TEARING", False);
+        Atom a_fifo = XInternAtom(dpy, "_MOTIF_WAYLAND_FIFO", False);
+        unsigned long one_ul = 1UL, three_ul = 3UL;
+        XChangeProperty(dpy, XtWindow(shell), a_tear, XA_CARDINAL, 32, PropModeReplace,
+                        (const unsigned char *)&one_ul, 1);
+        XChangeProperty(dpy, XtWindow(shell), a_fifo, XA_CARDINAL, 32, PropModeReplace,
+                        (const unsigned char *)&three_ul, 1);
+        XClearArea(dpy, XtWindow(shell), 0, 0, 16, 16, True);
+        pump_xt_ms(app, dpy, 80);
+
+        char pepath[512];
+        snprintf(pepath, sizeof(pepath), "%s/proto_ext_state.txt", sync_dir);
+        FILE *pef = fopen(pepath, "r");
+        if (!pef)
+            fail_msg("mini-compositor did not write proto_ext_state.txt");
+        char pebuf[1024] = {0};
+        size_t pen = fread(pebuf, 1, sizeof(pebuf) - 1, pef);
+        fclose(pef);
+        pebuf[pen] = '\0';
+        if (!strstr(pebuf, "dmabuf_imports=1\n") ||
+            !strstr(pebuf, "dmabuf_w=64\n") ||
+            !strstr(pebuf, "dmabuf_h=48\n") ||
+            !strstr(pebuf, "dmabuf_stride=256\n") ||
+            !strstr(pebuf, "dmabuf_fmt=0x34325241\n") ||
+            !strstr(pebuf, "dmabuf_px0=0x11223344\n") ||
+            !strstr(pebuf, "subsurf_created=1\n") ||
+            !strstr(pebuf, "top_parent_calls=1\n") ||
+            !strstr(pebuf, "dialog_created=1\n") ||
+            !strstr(pebuf, "modal_set=1\n") ||
+            !strstr(pebuf, "modal_unset=1\n") ||
+            !strstr(pebuf, "dialog_destroyed_before_top=1\n") ||
+            !strstr(pebuf, "tearing_objs=2\n") ||
+            !strstr(pebuf, "tearing_async=2\n") ||
+            !strstr(pebuf, "tearing_vsync=1\n") ||
+            !strstr(pebuf, "tearing_destroyed=1\n") ||
+            !strstr(pebuf, "fifo_objs=2\n") ||
+            !strstr(pebuf, "fifo_destroyed=1\n")) {
+            fprintf(stderr, "FAIL: unexpected proto_ext_state.txt:\n%s\n", pebuf);
             exit(1);
         }
     }

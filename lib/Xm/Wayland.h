@@ -12,6 +12,7 @@
 #define _XmWayland_h
 
 #include <X11/Intrinsic.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +23,22 @@ struct wl_compositor;
 struct wl_subcompositor;
 struct wl_shm;
 struct wl_surface;
+struct wl_buffer;
 struct wp_viewporter;
+struct zwp_linux_dmabuf_v1;
+
+/* Plane descriptor for zero-copy XmWaylandImportDmabuf() subsurface import. */
+typedef struct {
+    int fd;
+    uint32_t offset;
+    uint32_t stride;
+    uint64_t modifier;
+} XmWaylandDmabufPlane;
+
+/* Optional flags bitfield for XmWaylandImportDmabuf() (matches zwp_linux_buffer_params_v1.flags). */
+#define XM_WAYLAND_DMABUF_FLAG_Y_INVERT     1u
+#define XM_WAYLAND_DMABUF_FLAG_INTERLACED   2u
+#define XM_WAYLAND_DMABUF_FLAG_BOTTOM_FIRST 4u
 
 /*
  * Optional weak symbol an application executable may define as non-zero
@@ -102,6 +118,75 @@ extern Boolean XmWaylandRequestActivationToken(
     Window source_window,
     const char *app_id,
     char **token_return);
+
+/*
+ * Retrieve libXm's bound zwp_linux_dmabuf_v1 global and negotiated protocol
+ * version (2..4). Either output pointer may be NULL. Returns False when the
+ * native Wayland backend is inactive or zwp_linux_dmabuf_v1 is unavailable.
+ */
+extern Boolean XmWaylandGetDmabuf(
+    Display *display,
+    struct zwp_linux_dmabuf_v1 **dmabuf_return,
+    unsigned int *version_return);
+
+/*
+ * Check whether the compositor advertised support for `(drm_format, modifier)`
+ * via zwp_linux_dmabuf_v1 (either v3 modifier events or v4 default_feedback
+ * tranche tables), or implicit modifier fallback (DRM_FORMAT_MOD_INVALID).
+ */
+extern Boolean XmWaylandHasDmabufFormat(
+    Display *display,
+    uint32_t drm_format,
+    uint64_t modifier);
+
+/*
+ * Import 1..4 DMA-BUF planes into a zero-copy Wayland `wl_buffer *` via
+ * zwp_linux_buffer_params_v1_create_immed without CPU readback.
+ *
+ * Caller MUST hold XmWaylandLock(display) across this call and subsequent
+ * wl_surface_attach / wl_surface_commit / wl_display_flush calls. Plane file
+ * descriptors remain owned by the caller (libwayland duplicates them onto the
+ * wire before returning).
+ */
+extern Boolean XmWaylandImportDmabuf(
+    Display *display,
+    const XmWaylandDmabufPlane *planes,
+    int plane_count,
+    int width,
+    int height,
+    uint32_t drm_format,
+    uint32_t flags,
+    struct wl_buffer **buffer_return);
+
+/*
+ * Configure wp_tearing_control_v1 presentation hint (async_tearing=True ->
+ * ASYNC, False -> VSYNC) on `surface` (either a Motif top-level wl_surface or
+ * an embedded wl_subsurface). Caller MUST hold XmWaylandLock(display).
+ */
+extern Boolean XmWaylandSetSurfaceTearingHint(
+    Display *display,
+    struct wl_surface *surface,
+    Boolean async_tearing);
+
+/*
+ * Configure wp_fifo_v1 presentation barrier constraints (`set_barrier` and/or
+ * `wait_barrier`) on `surface` prior to wl_surface_commit. Caller MUST hold
+ * XmWaylandLock(display).
+ */
+extern Boolean XmWaylandSetSurfaceFifo(
+    Display *display,
+    struct wl_surface *surface,
+    Boolean set_barrier,
+    Boolean wait_barrier);
+
+/*
+ * Destroy any cached wp_tearing_control_v1 / wp_fifo_v1 auxiliary protocol
+ * objects associated with `surface` before the caller destroys `surface`.
+ * Caller MUST hold XmWaylandLock(display).
+ */
+extern void XmWaylandReleaseSurfaceExtensions(
+    Display *display,
+    struct wl_surface *surface);
 
 #ifdef __cplusplus
 }

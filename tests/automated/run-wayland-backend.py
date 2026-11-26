@@ -27,6 +27,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
+    #include <sys/mman.h>
     #include <time.h>
     #include <unistd.h>
     #include <wayland-server.h>
@@ -35,6 +36,10 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     #include "text-input-v3-server.h"
     #include "primary-selection-server.h"
     #include "cursor-shape-server.h"
+    #include "linux-dmabuf-v1-server.h"
+    #include "xdg-dialog-v1-server.h"
+    #include "tearing-control-v1-server.h"
+    #include "fifo-v1-server.h"
 
     typedef struct {
         struct wl_resource *res;
@@ -82,6 +87,26 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         int out1_count;
         struct wl_resource *out2_res[8];
         int out2_count;
+        int dmabuf_imports;
+        int32_t dmabuf_w;
+        int32_t dmabuf_h;
+        uint32_t dmabuf_stride;
+        uint32_t dmabuf_fmt;
+        uint32_t dmabuf_px0;
+        int subsurf_created;
+        int top_parent_calls;
+        int dialog_created;
+        int modal_set_calls;
+        int modal_unset_calls;
+        int dialog_destroyed_before_top;
+        int tearing_objs;
+        int tearing_async_calls;
+        int tearing_vsync_calls;
+        int tearing_destroyed;
+        int fifo_objs;
+        int fifo_set_calls;
+        int fifo_wait_calls;
+        int fifo_destroyed;
         int phase;
     } MiniSrv;
 
@@ -129,6 +154,9 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         int pending_dmg_rects;
         int64_t pending_dmg_area;
         int dmg_ring_commits;
+        bool has_dialog;
+        bool has_tearing;
+        bool has_fifo;
     } SurfState;
 
     typedef struct {
@@ -318,8 +346,47 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     }
 
     /* xdg_wm_base */
+    static void write_proto_ext_state(MiniSrv *ms) {
+        if (!ms || !ms->sync_dir) return;
+        char tmp_p[512], dst_p[512];
+        snprintf(tmp_p, sizeof(tmp_p), "%s/proto_ext_state.txt.tmp", ms->sync_dir);
+        snprintf(dst_p, sizeof(dst_p), "%s/proto_ext_state.txt", ms->sync_dir);
+        FILE *f = fopen(tmp_p, "w");
+        if (f) {
+            fprintf(f,
+                    "dmabuf_imports=%d\ndmabuf_w=%d\ndmabuf_h=%d\ndmabuf_stride=%u\n"
+                    "dmabuf_fmt=0x%08x\ndmabuf_px0=0x%08x\nsubsurf_created=%d\n"
+                    "top_parent_calls=%d\ndialog_created=%d\nmodal_set=%d\nmodal_unset=%d\n"
+                    "dialog_destroyed_before_top=%d\n"
+                    "tearing_objs=%d\ntearing_async=%d\ntearing_vsync=%d\ntearing_destroyed=%d\n"
+                    "fifo_objs=%d\nfifo_set=%d\nfifo_wait=%d\nfifo_destroyed=%d\n",
+                    ms->dmabuf_imports, (int)ms->dmabuf_w, (int)ms->dmabuf_h, ms->dmabuf_stride,
+                    ms->dmabuf_fmt, ms->dmabuf_px0, ms->subsurf_created,
+                    ms->top_parent_calls, ms->dialog_created, ms->modal_set_calls, ms->modal_unset_calls,
+                    ms->dialog_destroyed_before_top,
+                    ms->tearing_objs, ms->tearing_async_calls, ms->tearing_vsync_calls, ms->tearing_destroyed,
+                    ms->fifo_objs, ms->fifo_set_calls, ms->fifo_wait_calls, ms->fifo_destroyed);
+            fclose(f);
+            rename(tmp_p, dst_p);
+        }
+    }
+
+    static void top_destroy_cb(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && ss->xdg_top == r)
+            ss->xdg_top = NULL;
+        wl_resource_destroy(r);
+    }
     static void top_str(struct wl_client *c, struct wl_resource *r, const char *s) { (void)c; (void)r; (void)s; }
-    static void top_parent(struct wl_client *c, struct wl_resource *r, struct wl_resource *p) { (void)c; (void)r; (void)p; }
+    static void top_parent(struct wl_client *c, struct wl_resource *r, struct wl_resource *p) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && ss->ms && p) {
+            ss->ms->top_parent_calls++;
+            write_proto_ext_state(ss->ms);
+        }
+    }
     static void top_sz(struct wl_client *c, struct wl_resource *r, int32_t w, int32_t h) { (void)c; (void)r; (void)w; (void)h; }
     static void top_void(struct wl_client *c, struct wl_resource *r) { (void)c; (void)r; }
     static void top_fs(struct wl_client *c, struct wl_resource *r, struct wl_resource *o) { (void)c; (void)r; (void)o; }
@@ -328,7 +395,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     static void top_menu(struct wl_client *c, struct wl_resource *r, struct wl_resource *s, uint32_t u, int32_t x, int32_t y) { (void)c; (void)r; (void)s; (void)u; (void)x; (void)y; }
 
     static const struct xdg_toplevel_interface g_xdg_top_impl = {
-        .destroy = noop_destroy, .set_parent = top_parent, .set_title = top_str, .set_app_id = top_str,
+        .destroy = top_destroy_cb, .set_parent = top_parent, .set_title = top_str, .set_app_id = top_str,
         .show_window_menu = top_menu, .move = top_seat_u32, .resize = top_resize,
         .set_max_size = top_sz, .set_min_size = top_sz, .set_maximized = top_void,
         .unset_maximized = top_void, .set_fullscreen = top_fs, .unset_fullscreen = top_void, .set_minimized = top_void,
@@ -885,6 +952,363 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         return NULL;
     }
 
+    /* wl_subcompositor */
+    static void subsurf_pos(struct wl_client *c, struct wl_resource *r, int32_t x, int32_t y) {
+        (void)c; (void)r; (void)x; (void)y;
+    }
+    static void subsurf_place(struct wl_client *c, struct wl_resource *r, struct wl_resource *sib) {
+        (void)c; (void)r; (void)sib;
+    }
+    static void subsurf_void(struct wl_client *c, struct wl_resource *r) { (void)c; (void)r; }
+    static const struct wl_subsurface_interface g_subsurf_impl = {
+        .destroy = noop_destroy,
+        .set_position = subsurf_pos,
+        .place_above = subsurf_place,
+        .place_below = subsurf_place,
+        .set_sync = subsurf_void,
+        .set_desync = subsurf_void,
+    };
+    static void subcomp_get_subsurface(struct wl_client *c, struct wl_resource *r, uint32_t id,
+                                       struct wl_resource *surf, struct wl_resource *parent) {
+        (void)surf; (void)parent;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        struct wl_resource *sr = wl_resource_create(c, &wl_subsurface_interface, 1, id);
+        wl_resource_set_implementation(sr, &g_subsurf_impl, ms, NULL);
+        if (ms) {
+            ms->subsurf_created++;
+            write_proto_ext_state(ms);
+        }
+    }
+    static const struct wl_subcompositor_interface g_subcomp_impl = {
+        .destroy = noop_destroy,
+        .get_subsurface = subcomp_get_subsurface,
+    };
+    static void bind_subcomp(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &wl_subcompositor_interface, 1, id);
+        wl_resource_set_implementation(r, &g_subcomp_impl, d, NULL);
+    }
+
+    /* zwp_linux_dmabuf_v1 (v4 default_feedback + create_immed) */
+    typedef struct {
+        MiniSrv *ms;
+        int fd;
+        uint32_t offset;
+        uint32_t stride;
+        uint64_t modifier;
+        bool has_plane0;
+    } DmabufParamsState;
+
+    static const struct wl_buffer_interface g_dmabuf_wlbuf_impl = {
+        .destroy = noop_destroy,
+    };
+    static void free_dmabuf_params(struct wl_resource *r) {
+        DmabufParamsState *ps = wl_resource_get_user_data(r);
+        if (ps) {
+            if (ps->fd >= 0)
+                close(ps->fd);
+            free(ps);
+        }
+    }
+    static void dbp_add(struct wl_client *c, struct wl_resource *r, int32_t fd,
+                        uint32_t plane_idx, uint32_t offset, uint32_t stride,
+                        uint32_t mod_hi, uint32_t mod_lo) {
+        (void)c;
+        DmabufParamsState *ps = wl_resource_get_user_data(r);
+        if (!ps || plane_idx != 0) {
+            if (fd >= 0) close(fd);
+            return;
+        }
+        if (ps->fd >= 0) close(ps->fd);
+        ps->fd = fd;
+        ps->offset = offset;
+        ps->stride = stride;
+        ps->modifier = ((uint64_t)mod_hi << 32) | (uint64_t)mod_lo;
+        ps->has_plane0 = true;
+    }
+    static void dbp_create(struct wl_client *c, struct wl_resource *r,
+                           int32_t w, int32_t h, uint32_t fmt, uint32_t flags) {
+        (void)c; (void)r; (void)w; (void)h; (void)fmt; (void)flags;
+    }
+    static void dbp_create_immed(struct wl_client *c, struct wl_resource *r, uint32_t buf_id,
+                                 int32_t w, int32_t h, uint32_t fmt, uint32_t flags) {
+        (void)flags;
+        DmabufParamsState *ps = wl_resource_get_user_data(r);
+        struct wl_resource *br = wl_resource_create(c, &wl_buffer_interface, 1, buf_id);
+        wl_resource_set_implementation(br, &g_dmabuf_wlbuf_impl, NULL, NULL);
+        if (ps && ps->ms && ps->has_plane0 && ps->fd >= 0 && w > 0 && h > 0) {
+            size_t map_len = (size_t)ps->offset + (size_t)ps->stride * (size_t)h;
+            uint32_t px0 = 0;
+            void *mp = mmap(NULL, map_len, PROT_READ, MAP_PRIVATE, ps->fd, 0);
+            if (mp != MAP_FAILED) {
+                memcpy(&px0, (const uint8_t *)mp + ps->offset, sizeof(px0));
+                munmap(mp, map_len);
+            }
+            close(ps->fd);
+            ps->fd = -1;
+            ps->ms->dmabuf_imports++;
+            ps->ms->dmabuf_w = w;
+            ps->ms->dmabuf_h = h;
+            ps->ms->dmabuf_stride = ps->stride;
+            ps->ms->dmabuf_fmt = fmt;
+            ps->ms->dmabuf_px0 = px0;
+            write_proto_ext_state(ps->ms);
+        }
+    }
+    static const struct zwp_linux_buffer_params_v1_interface g_dbp_impl = {
+        .destroy = noop_destroy,
+        .add = dbp_add,
+        .create = dbp_create,
+        .create_immed = dbp_create_immed,
+    };
+    static const struct zwp_linux_dmabuf_feedback_v1_interface g_dbfb_impl = {
+        .destroy = noop_destroy,
+    };
+    static void send_dmabuf_feedback(struct wl_resource *fbr) {
+        struct {
+            uint32_t format;
+            uint32_t pad;
+            uint64_t modifier;
+        } table[2] = {
+            { 0x34325241u /* ARGB8888 */, 0u, 0ULL /* LINEAR */ },
+            { 0x34325258u /* XRGB8888 */, 0u, 0x00ffffffffffffffULL /* INVALID */ },
+        };
+        int fd = memfd_create("mini-dmabuf-table", MFD_CLOEXEC);
+        if (fd < 0) return;
+        if (ftruncate(fd, (off_t)sizeof(table)) == 0) {
+            void *mp = mmap(NULL, sizeof(table), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            if (mp != MAP_FAILED) {
+                memcpy(mp, table, sizeof(table));
+                munmap(mp, sizeof(table));
+            }
+            zwp_linux_dmabuf_feedback_v1_send_format_table(fbr, fd, (uint32_t)sizeof(table));
+        }
+        close(fd);
+        struct wl_array dev_arr;
+        wl_array_init(&dev_arr);
+        uint64_t *dev_p = wl_array_add(&dev_arr, sizeof(uint64_t));
+        *dev_p = 0x0800e200ULL;
+        zwp_linux_dmabuf_feedback_v1_send_main_device(fbr, &dev_arr);
+        zwp_linux_dmabuf_feedback_v1_send_tranche_target_device(fbr, &dev_arr);
+        wl_array_release(&dev_arr);
+
+        struct wl_array idx_arr;
+        wl_array_init(&idx_arr);
+        uint16_t *idxs = wl_array_add(&idx_arr, 2 * sizeof(uint16_t));
+        idxs[0] = 0;
+        idxs[1] = 1;
+        zwp_linux_dmabuf_feedback_v1_send_tranche_formats(fbr, &idx_arr);
+        wl_array_release(&idx_arr);
+
+        zwp_linux_dmabuf_feedback_v1_send_tranche_flags(fbr, 0);
+        zwp_linux_dmabuf_feedback_v1_send_tranche_done(fbr);
+        zwp_linux_dmabuf_feedback_v1_send_done(fbr);
+    }
+    static void dmabuf_create_params(struct wl_client *c, struct wl_resource *r, uint32_t params_id) {
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        DmabufParamsState *ps = calloc(1, sizeof(*ps));
+        ps->ms = ms;
+        ps->fd = -1;
+        struct wl_resource *pr = wl_resource_create(
+            c, &zwp_linux_buffer_params_v1_interface, wl_resource_get_version(r), params_id);
+        wl_resource_set_implementation(pr, &g_dbp_impl, ps, free_dmabuf_params);
+    }
+    static void dmabuf_get_default_fb(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        struct wl_resource *fbr = wl_resource_create(
+            c, &zwp_linux_dmabuf_feedback_v1_interface, wl_resource_get_version(r), id);
+        wl_resource_set_implementation(fbr, &g_dbfb_impl, wl_resource_get_user_data(r), NULL);
+        send_dmabuf_feedback(fbr);
+    }
+    static void dmabuf_get_surf_fb(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *surf) {
+        (void)surf;
+        dmabuf_get_default_fb(c, r, id);
+    }
+    static const struct zwp_linux_dmabuf_v1_interface g_dmabuf_impl = {
+        .destroy = noop_destroy,
+        .create_params = dmabuf_create_params,
+        .get_default_feedback = dmabuf_get_default_fb,
+        .get_surface_feedback = dmabuf_get_surf_fb,
+    };
+    static void bind_dmabuf(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        uint32_t v = ver < 4 ? ver : 4;
+        struct wl_resource *r = wl_resource_create(c, &zwp_linux_dmabuf_v1_interface, (int)v, id);
+        wl_resource_set_implementation(r, &g_dmabuf_impl, d, NULL);
+    }
+
+    /* xdg_wm_dialog_v1 */
+    static void xdlg_destroy(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss) {
+            ss->has_dialog = false;
+            if (ss->ms && ss->xdg_top != NULL) {
+                ss->ms->dialog_destroyed_before_top++;
+                write_proto_ext_state(ss->ms);
+            }
+        }
+        wl_resource_destroy(r);
+    }
+    static void xdlg_set_modal(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && ss->ms) {
+            ss->ms->modal_set_calls++;
+            write_proto_ext_state(ss->ms);
+        }
+    }
+    static void xdlg_unset_modal(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && ss->ms) {
+            ss->ms->modal_unset_calls++;
+            write_proto_ext_state(ss->ms);
+        }
+    }
+    static const struct xdg_dialog_v1_interface g_xdlg_impl = {
+        .destroy = xdlg_destroy,
+        .set_modal = xdlg_set_modal,
+        .unset_modal = xdlg_unset_modal,
+    };
+    static void xdlg_mgr_get_dialog(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *top) {
+        SurfState *ss = top ? wl_resource_get_user_data(top) : NULL;
+        if (ss && ss->has_dialog) {
+            wl_resource_post_error(r, XDG_WM_DIALOG_V1_ERROR_ALREADY_USED, "duplicate xdg_dialog_v1");
+            return;
+        }
+        struct wl_resource *dr = wl_resource_create(c, &xdg_dialog_v1_interface, 1, id);
+        wl_resource_set_implementation(dr, &g_xdlg_impl, ss, NULL);
+        if (ss) {
+            ss->has_dialog = true;
+            if (ss->ms) {
+                ss->ms->dialog_created++;
+                write_proto_ext_state(ss->ms);
+            }
+        }
+    }
+    static const struct xdg_wm_dialog_v1_interface g_xdlg_mgr_impl = {
+        .destroy = noop_destroy,
+        .get_xdg_dialog = xdlg_mgr_get_dialog,
+    };
+    static void bind_xdlg_mgr(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &xdg_wm_dialog_v1_interface, 1, id);
+        wl_resource_set_implementation(r, &g_xdlg_mgr_impl, d, NULL);
+    }
+
+    /* wp_tearing_control_manager_v1 */
+    static void tear_destroy(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss) {
+            ss->has_tearing = false;
+            if (ss->ms) {
+                ss->ms->tearing_destroyed++;
+                write_proto_ext_state(ss->ms);
+            }
+        }
+        wl_resource_destroy(r);
+    }
+    static void tear_set_hint(struct wl_client *c, struct wl_resource *r, uint32_t hint) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && ss->ms) {
+            if (hint == WP_TEARING_CONTROL_V1_PRESENTATION_HINT_ASYNC)
+                ss->ms->tearing_async_calls++;
+            else
+                ss->ms->tearing_vsync_calls++;
+            write_proto_ext_state(ss->ms);
+        }
+    }
+    static const struct wp_tearing_control_v1_interface g_tear_impl = {
+        .set_presentation_hint = tear_set_hint,
+        .destroy = tear_destroy,
+    };
+    static void tear_mgr_get(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *surf) {
+        SurfState *ss = surf ? wl_resource_get_user_data(surf) : NULL;
+        if (ss && ss->has_tearing) {
+            wl_resource_post_error(r, WP_TEARING_CONTROL_MANAGER_V1_ERROR_TEARING_CONTROL_EXISTS, "duplicate tearing control");
+            return;
+        }
+        struct wl_resource *tr = wl_resource_create(c, &wp_tearing_control_v1_interface, 1, id);
+        wl_resource_set_implementation(tr, &g_tear_impl, ss, NULL);
+        if (ss) {
+            ss->has_tearing = true;
+            if (ss->ms) {
+                ss->ms->tearing_objs++;
+                write_proto_ext_state(ss->ms);
+            }
+        }
+    }
+    static const struct wp_tearing_control_manager_v1_interface g_tear_mgr_impl = {
+        .destroy = noop_destroy,
+        .get_tearing_control = tear_mgr_get,
+    };
+    static void bind_tear_mgr(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &wp_tearing_control_manager_v1_interface, 1, id);
+        wl_resource_set_implementation(r, &g_tear_mgr_impl, d, NULL);
+    }
+
+    /* wp_fifo_manager_v1 */
+    static void fifo_destroy(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss) {
+            ss->has_fifo = false;
+            if (ss->ms) {
+                ss->ms->fifo_destroyed++;
+                write_proto_ext_state(ss->ms);
+            }
+        }
+        wl_resource_destroy(r);
+    }
+    static void fifo_set_barrier(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && ss->ms) {
+            ss->ms->fifo_set_calls++;
+            write_proto_ext_state(ss->ms);
+        }
+    }
+    static void fifo_wait_barrier(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && ss->ms) {
+            ss->ms->fifo_wait_calls++;
+            write_proto_ext_state(ss->ms);
+        }
+    }
+    static const struct wp_fifo_v1_interface g_fifo_impl = {
+        .set_barrier = fifo_set_barrier,
+        .wait_barrier = fifo_wait_barrier,
+        .destroy = fifo_destroy,
+    };
+    static void fifo_mgr_get(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *surf) {
+        SurfState *ss = surf ? wl_resource_get_user_data(surf) : NULL;
+        if (ss && ss->has_fifo) {
+            wl_resource_post_error(r, WP_FIFO_MANAGER_V1_ERROR_ALREADY_EXISTS, "duplicate fifo");
+            return;
+        }
+        struct wl_resource *fr = wl_resource_create(c, &wp_fifo_v1_interface, 1, id);
+        wl_resource_set_implementation(fr, &g_fifo_impl, ss, NULL);
+        if (ss) {
+            ss->has_fifo = true;
+            if (ss->ms) {
+                ss->ms->fifo_objs++;
+                write_proto_ext_state(ss->ms);
+            }
+        }
+    }
+    static const struct wp_fifo_manager_v1_interface g_fifo_mgr_impl = {
+        .destroy = noop_destroy,
+        .get_fifo = fifo_mgr_get,
+    };
+    static void bind_fifo_mgr(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &wp_fifo_manager_v1_interface, 1, id);
+        wl_resource_set_implementation(r, &g_fifo_mgr_impl, d, NULL);
+    }
+
     int main(int argc, char **argv) {
         if (argc < 3) return 2;
         MiniSrv ms;
@@ -898,6 +1322,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         OutSlot out1 = { .ms = &ms, .idx = 0 };
         OutSlot out2 = { .ms = &ms, .idx = 1 };
         wl_global_create(ms.dpy, &wl_compositor_interface, 4, &ms, bind_comp);
+        wl_global_create(ms.dpy, &wl_subcompositor_interface, 1, &ms, bind_subcomp);
         wl_display_init_shm(ms.dpy);
         wl_global_create(ms.dpy, &wl_output_interface, 4, &out1, bind_out);
         wl_global_create(ms.dpy, &wl_output_interface, 4, &out2, bind_out);
@@ -908,12 +1333,22 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         wl_global_create(ms.dpy, &zwp_text_input_manager_v3_interface, 1, &ms, bind_tim);
         wl_global_create(ms.dpy, &xdg_activation_v1_interface, 1, &ms, bind_act);
         wl_global_create(ms.dpy, &wp_cursor_shape_manager_v1_interface, 1, &ms, bind_cshape);
+        wl_global_create(ms.dpy, &zwp_linux_dmabuf_v1_interface, 4, &ms, bind_dmabuf);
+        wl_global_create(ms.dpy, &xdg_wm_dialog_v1_interface, 1, &ms, bind_xdlg_mgr);
+        wl_global_create(ms.dpy, &wp_tearing_control_manager_v1_interface, 1, &ms, bind_tear_mgr);
+        wl_global_create(ms.dpy, &wp_fifo_manager_v1_interface, 1, &ms, bind_fifo_mgr);
 
         write_flag(ms.sync_dir, "srv.ready");
 
         struct wl_event_loop *loop = wl_display_get_event_loop(ms.dpy);
         int stage = 0;
-        for (int iter = 0; iter < 4000; ++iter) {
+        struct timespec loop_t0 = {0, 0};
+        clock_gettime(CLOCK_MONOTONIC, &loop_t0);
+        for (;;) {
+            struct timespec loop_now = {0, 0};
+            clock_gettime(CLOCK_MONOTONIC, &loop_now);
+            if ((loop_now.tv_sec - loop_t0.tv_sec) > 45)
+                break;
             wl_event_loop_dispatch(loop, 15);
             wl_display_flush_clients(ms.dpy);
 
@@ -1270,6 +1705,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prefix", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--sanitizers", default="", help="Optional -fsanitize=LIST for check-wayland-backend client")
     args = parser.parse_args()
 
     if platform.system() == "Darwin":
@@ -1331,17 +1767,35 @@ def main() -> int:
             xr_cf, xr_lf = pkg_config_flags("xrandr")
             xrandr_cflags = ["-DHAVE_XRANDR_TEST=1", *xr_cf]
             xrandr_libs = xr_lf
+        wlc_cflags: list[str] = []
+        wlc_libs: list[str] = []
+        if subprocess.run(["pkg-config", "--exists", "wayland-client"], env=base_env).returncode == 0:
+            wc_cf, wc_lf = pkg_config_flags("wayland-client")
+            wlc_cflags = ["-DHAVE_WAYLAND_CLIENT_TEST=1", *wc_cf]
+            wlc_libs = wc_lf
+        san_flags: list[str] = []
+        if args.sanitizers:
+            san_flags = [f"-fsanitize={args.sanitizers}", "-fno-omit-frame-pointer", "-g"]
+            if "undefined" in args.sanitizers:
+                san_flags.append("-fno-sanitize-recover=undefined")
         compile_cmd = [
-            cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O2",
-            *inc_flags, *xrandr_cflags, "-L" + str(lib_dir), "-Wl,-rpath," + str(lib_dir),
-            str(source), "-lXm", "-lXt", "-lX11", "-lXrender", *xrandr_libs, "-lm", "-o", str(client_bin),
+            cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O1" if args.sanitizers else "-O2",
+            *san_flags, *inc_flags, *xrandr_cflags, *wlc_cflags,
+            "-L" + str(lib_dir), "-Wl,-rpath," + str(lib_dir),
+            str(source), "-lXm", "-lXt", "-lX11", "-lXrender", *xrandr_libs, *wlc_libs, "-lm", "-o", str(client_bin),
         ]
         cres = subprocess.run(compile_cmd, env=base_env, capture_output=True, text=True, timeout=60)
         (output / "compile-client.log").write_text(cres.stdout + cres.stderr)
-        receipt["steps"].append({"name": "compile_client", "exit": cres.returncode})
+        receipt["steps"].append({"name": "compile_client", "exit": cres.returncode, "sanitizers": args.sanitizers})
         if cres.returncode != 0:
             print(cres.stdout + cres.stderr, file=sys.stderr)
             return 1
+
+        client_san_env: dict[str, str] = {}
+        if args.sanitizers:
+            client_san_env["ASAN_OPTIONS"] = "detect_leaks=0:halt_on_error=1:print_stacktrace=1"
+            client_san_env["UBSAN_OPTIONS"] = "halt_on_error=1:print_stacktrace=1"
+            client_san_env["TSAN_OPTIONS"] = "halt_on_error=1:second_deadlock_stack=1"
 
         # 2. Generate & compile deterministic Wayland IME / DnD / Clipboard protocol server
         scanner = shutil.which("wayland-scanner")
@@ -1354,6 +1808,12 @@ def main() -> int:
         prim_xml = wp_dir / "unstable/primary-selection/primary-selection-unstable-v1.xml"
         cshape_xml = wp_dir / "staging/cursor-shape/cursor-shape-v1.xml"
         tab_xml = wp_dir / "unstable/tablet/tablet-unstable-v2.xml"
+        dmabuf_xml = wp_dir / "stable/linux-dmabuf/linux-dmabuf-v1.xml"
+        if not dmabuf_xml.is_file():
+            dmabuf_xml = wp_dir / "unstable/linux-dmabuf/linux-dmabuf-unstable-v1.xml"
+        xdlg_xml = wp_dir / "staging/xdg-dialog/xdg-dialog-v1.xml"
+        tear_xml = wp_dir / "staging/tearing-control/tearing-control-v1.xml"
+        fifo_xml = wp_dir / "staging/fifo/fifo-v1.xml"
 
         proto_dir = output / "proto"
         subprocess.run([scanner, "server-header", str(xdg_xml), str(proto_dir / "xdg-shell-server.h")], check=True)
@@ -1368,6 +1828,14 @@ def main() -> int:
         subprocess.run([scanner, "private-code", str(tab_xml), str(proto_dir / "tablet-v2-code.c")], check=True)
         subprocess.run([scanner, "server-header", str(cshape_xml), str(proto_dir / "cursor-shape-server.h")], check=True)
         subprocess.run([scanner, "private-code", str(cshape_xml), str(proto_dir / "cursor-shape-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(dmabuf_xml), str(proto_dir / "linux-dmabuf-v1-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(dmabuf_xml), str(proto_dir / "linux-dmabuf-v1-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(xdlg_xml), str(proto_dir / "xdg-dialog-v1-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(xdlg_xml), str(proto_dir / "xdg-dialog-v1-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(tear_xml), str(proto_dir / "tearing-control-v1-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(tear_xml), str(proto_dir / "tearing-control-v1-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(fifo_xml), str(proto_dir / "fifo-v1-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(fifo_xml), str(proto_dir / "fifo-v1-code.c")], check=True)
 
         srv_c = proto_dir / "mini-compositor.c"
         srv_c.write_text(MINI_COMPOSITOR_C)
@@ -1384,6 +1852,10 @@ def main() -> int:
                 str(proto_dir / "primary-selection-code.c"),
                 str(proto_dir / "tablet-v2-code.c"),
                 str(proto_dir / "cursor-shape-code.c"),
+                str(proto_dir / "linux-dmabuf-v1-code.c"),
+                str(proto_dir / "xdg-dialog-v1-code.c"),
+                str(proto_dir / "tearing-control-v1-code.c"),
+                str(proto_dir / "fifo-v1-code.c"),
                 *wls_lf, "-o", str(srv_bin),
             ],
             env=base_env,
@@ -1402,16 +1874,20 @@ def main() -> int:
         ime_sync = output / "sync-ime"
         ime_rt.mkdir(mode=0o700)
         ime_sync.mkdir()
-        ime_env = dict(
+        ime_srv_env = dict(
             base_env,
             XDG_RUNTIME_DIR=str(ime_rt),
             WAYLAND_DISPLAY="wayland-ime0",
+        )
+        ime_cli_env = dict(
+            ime_srv_env,
             XDG_ACTIVATION_TOKEN="startup-tok-initial-01",
+            **client_san_env,
         )
 
         srv_proc = subprocess.Popen(
             [str(srv_bin), "wayland-ime0", str(ime_sync)],
-            env=ime_env,
+            env=ime_srv_env,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
@@ -1420,10 +1896,10 @@ def main() -> int:
             wait_file(ime_sync / "srv.ready", 5.0)
             cli_res = subprocess.run(
                 [str(client_bin), "--ime-dnd-check", str(ime_sync)],
-                env=ime_env,
+                env=ime_cli_env,
                 capture_output=True,
                 text=True,
-                timeout=30,
+                timeout=60 if args.sanitizers else 30,
             )
             if cli_res.returncode != 0 and srv_proc.poll() is None:
                 srv_proc.terminate()
@@ -1486,10 +1962,11 @@ def main() -> int:
 
             assert_no_xwayland_in_runtime(wl_rt)
             app_env = dict(base_env, XDG_RUNTIME_DIR=str(wl_rt), WAYLAND_DISPLAY=wl_sock_name)
+            app_cli_env = dict(app_env, **client_san_env)
 
             app_proc = subprocess.Popen(
                 [str(client_bin), "--compositor-check", str(wl_sync)],
-                env=app_env,
+                env=app_cli_env,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,

@@ -104,6 +104,22 @@ WAYLAND_PROTO_SRCS = \
 	wayland-text-input-v3-protocol.c \
 	wayland-fractional-scale-protocol.c \
 	wayland-viewporter-protocol.c
+if OM_WAYLAND_DMABUF
+WAYLAND_PROTO_HDRS += wayland-linux-dmabuf-v1-client-protocol.h
+WAYLAND_PROTO_SRCS += wayland-linux-dmabuf-v1-protocol.c
+endif
+if OM_WAYLAND_XDG_DIALOG
+WAYLAND_PROTO_HDRS += wayland-xdg-dialog-v1-client-protocol.h
+WAYLAND_PROTO_SRCS += wayland-xdg-dialog-v1-protocol.c
+endif
+if OM_WAYLAND_TEARING_CONTROL
+WAYLAND_PROTO_HDRS += wayland-tearing-control-v1-client-protocol.h
+WAYLAND_PROTO_SRCS += wayland-tearing-control-v1-protocol.c
+endif
+if OM_WAYLAND_FIFO
+WAYLAND_PROTO_HDRS += wayland-fifo-v1-client-protocol.h
+WAYLAND_PROTO_SRCS += wayland-fifo-v1-protocol.c
+endif
 WAYLAND_SRCS = WaylandBackend.c WaylandX11Server.c WaylandRender.c WaylandData.c WaylandIme.c
 WAYLAND_HDRS = WaylandBackendI.h
 else
@@ -389,6 +405,30 @@ wayland-viewporter-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/stable/viewpo
 	$(WAYLAND_SCANNER) client-header $< $@
 wayland-viewporter-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/stable/viewporter/viewporter.xml
 	$(WAYLAND_SCANNER) private-code $< $@
+if OM_WAYLAND_DMABUF
+wayland-linux-dmabuf-v1-client-protocol.h: $(WAYLAND_DMABUF_XML)
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-linux-dmabuf-v1-protocol.c: $(WAYLAND_DMABUF_XML)
+	$(WAYLAND_SCANNER) private-code $< $@
+endif
+if OM_WAYLAND_XDG_DIALOG
+wayland-xdg-dialog-v1-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-dialog/xdg-dialog-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-xdg-dialog-v1-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/xdg-dialog/xdg-dialog-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+endif
+if OM_WAYLAND_TEARING_CONTROL
+wayland-tearing-control-v1-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/tearing-control/tearing-control-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-tearing-control-v1-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/tearing-control/tearing-control-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+endif
+if OM_WAYLAND_FIFO
+wayland-fifo-v1-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/fifo/fifo-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-fifo-v1-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/fifo/fifo-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+endif
 endif
 
 $(top_builddir)/config/util/makestrs:

@@ -1796,6 +1796,266 @@ static const struct wl_output_listener g_output_listener = {
     .description = output_desc,
 };
 
+#ifdef HAVE_WAYLAND_DMABUF
+#define XM_WL_DRM_FORMAT_MOD_INVALID UINT64_C(0x00ffffffffffffff)
+
+static void
+dmabuf_append_format(XmWlDmabufFormatEntry **arr, size_t *cnt, size_t *cap,
+                     uint32_t format, uint64_t modifier)
+{
+    if (!arr || !cnt || !cap)
+        return;
+    for (size_t i = 0; i < *cnt; ++i) {
+        if ((*arr)[i].format == format && (*arr)[i].modifier == modifier)
+            return;
+    }
+    if (*cnt >= 4096u)
+        return;
+    if (*cnt >= *cap) {
+        size_t ncap = (*cap == 0) ? 32u : (*cap * 2u);
+        if (ncap > 4096u)
+            ncap = 4096u;
+        XmWlDmabufFormatEntry *next = (XmWlDmabufFormatEntry *)realloc(
+            *arr, ncap * sizeof(XmWlDmabufFormatEntry));
+        if (!next)
+            return;
+        *arr = next;
+        *cap = ncap;
+    }
+    (*arr)[*cnt].format = format;
+    (*arr)[*cnt].pad = 0;
+    (*arr)[*cnt].modifier = modifier;
+    (*cnt)++;
+}
+
+static void
+dmabuf_handle_format(void *data, struct zwp_linux_dmabuf_v1 *dmabuf, uint32_t format)
+{
+    (void)dmabuf;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (srv && srv->dmabuf_version < 3) {
+        dmabuf_append_format(&srv->dmabuf_formats, &srv->dmabuf_format_count,
+                             &srv->dmabuf_format_cap, format, XM_WL_DRM_FORMAT_MOD_INVALID);
+    }
+}
+
+static void
+dmabuf_handle_modifier(void *data, struct zwp_linux_dmabuf_v1 *dmabuf,
+                       uint32_t format, uint32_t mod_hi, uint32_t mod_lo)
+{
+    (void)dmabuf;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (!srv)
+        return;
+    uint64_t mod = ((uint64_t)mod_hi << 32) | (uint64_t)mod_lo;
+    dmabuf_append_format(&srv->dmabuf_formats, &srv->dmabuf_format_count,
+                         &srv->dmabuf_format_cap, format, mod);
+}
+
+static const struct zwp_linux_dmabuf_v1_listener g_dmabuf_listener = {
+    .format = dmabuf_handle_format,
+    .modifier = dmabuf_handle_modifier,
+};
+
+#ifdef ZWP_LINUX_DMABUF_V1_GET_DEFAULT_FEEDBACK_SINCE_VERSION
+static void
+dmabuf_fb_done(void *data, struct zwp_linux_dmabuf_feedback_v1 *fb)
+{
+    (void)fb;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (!srv)
+        return;
+    if (srv->dmabuf_staging_count > 0) {
+        free(srv->dmabuf_formats);
+        srv->dmabuf_formats = srv->dmabuf_staging;
+        srv->dmabuf_format_count = srv->dmabuf_staging_count;
+        srv->dmabuf_format_cap = srv->dmabuf_staging_cap;
+        srv->dmabuf_staging = NULL;
+        srv->dmabuf_staging_count = 0;
+        srv->dmabuf_staging_cap = 0;
+    }
+}
+
+static void
+dmabuf_fb_format_table(void *data, struct zwp_linux_dmabuf_feedback_v1 *fb,
+                       int32_t fd, uint32_t size)
+{
+    (void)fb;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (fd < 0)
+        return;
+    if (!srv || size < sizeof(XmWlDmabufFormatEntry) ||
+        (size % sizeof(XmWlDmabufFormatEntry)) != 0 ||
+        size > 16384u * sizeof(XmWlDmabufFormatEntry)) {
+        close(fd);
+        return;
+    }
+    void *map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+    close(fd);
+    if (map == MAP_FAILED)
+        return;
+    size_t count = size / sizeof(XmWlDmabufFormatEntry);
+    XmWlDmabufFormatEntry *copy = (XmWlDmabufFormatEntry *)malloc(size);
+    if (copy) {
+        memcpy(copy, map, size);
+        free(srv->dmabuf_table);
+        srv->dmabuf_table = copy;
+        srv->dmabuf_table_count = count;
+    }
+    munmap(map, size);
+}
+
+static void
+dmabuf_fb_main_device(void *data, struct zwp_linux_dmabuf_feedback_v1 *fb, struct wl_array *dev)
+{
+    (void)data; (void)fb; (void)dev;
+}
+
+static void
+dmabuf_fb_tranche_done(void *data, struct zwp_linux_dmabuf_feedback_v1 *fb)
+{
+    (void)data; (void)fb;
+}
+
+static void
+dmabuf_fb_tranche_target_device(void *data, struct zwp_linux_dmabuf_feedback_v1 *fb, struct wl_array *dev)
+{
+    (void)data; (void)fb; (void)dev;
+}
+
+static void
+dmabuf_fb_tranche_formats(void *data, struct zwp_linux_dmabuf_feedback_v1 *fb, struct wl_array *indices)
+{
+    (void)fb;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (!srv || !indices || !srv->dmabuf_table || srv->dmabuf_table_count == 0)
+        return;
+    const uint16_t *idxs = (const uint16_t *)indices->data;
+    size_t n = indices->size / sizeof(uint16_t);
+    for (size_t i = 0; i < n; ++i) {
+        uint16_t idx = idxs[i];
+        if ((size_t)idx < srv->dmabuf_table_count) {
+            dmabuf_append_format(&srv->dmabuf_staging, &srv->dmabuf_staging_count,
+                                 &srv->dmabuf_staging_cap,
+                                 srv->dmabuf_table[idx].format,
+                                 srv->dmabuf_table[idx].modifier);
+        }
+    }
+}
+
+static void
+dmabuf_fb_tranche_flags(void *data, struct zwp_linux_dmabuf_feedback_v1 *fb, uint32_t flags)
+{
+    (void)data; (void)fb; (void)flags;
+}
+
+static const struct zwp_linux_dmabuf_feedback_v1_listener g_dmabuf_feedback_listener = {
+    .done = dmabuf_fb_done,
+    .format_table = dmabuf_fb_format_table,
+    .main_device = dmabuf_fb_main_device,
+    .tranche_done = dmabuf_fb_tranche_done,
+    .tranche_target_device = dmabuf_fb_tranche_target_device,
+    .tranche_formats = dmabuf_fb_tranche_formats,
+    .tranche_flags = dmabuf_fb_tranche_flags,
+};
+#endif
+#endif /* HAVE_WAYLAND_DMABUF */
+
+static XmWlSurfaceExt *
+find_or_create_surface_ext(XmWlServer *srv, struct wl_surface *surf, bool create)
+{
+    if (!srv || !surf)
+        return NULL;
+    for (XmWlSurfaceExt *ext = srv->surf_exts; ext; ext = ext->next) {
+        if (ext->surf == surf)
+            return ext;
+    }
+    if (!create)
+        return NULL;
+    XmWlSurfaceExt *ext = (XmWlSurfaceExt *)calloc(1, sizeof(*ext));
+    if (!ext)
+        return NULL;
+    ext->surf = surf;
+    ext->next = srv->surf_exts;
+    srv->surf_exts = ext;
+    return ext;
+}
+
+static void
+release_surface_ext(XmWlServer *srv, struct wl_surface *surf)
+{
+    if (!srv || !surf)
+        return;
+    XmWlSurfaceExt **pp = &srv->surf_exts;
+    while (*pp) {
+        XmWlSurfaceExt *cur = *pp;
+        if (cur->surf == surf) {
+            *pp = cur->next;
+#ifdef HAVE_WAYLAND_TEARING_CONTROL
+            if (cur->tearing)
+                wp_tearing_control_v1_destroy(cur->tearing);
+#endif
+#ifdef HAVE_WAYLAND_FIFO
+            if (cur->fifo)
+                wp_fifo_v1_destroy(cur->fifo);
+#endif
+            free(cur);
+            return;
+        }
+        pp = &cur->next;
+    }
+}
+
+static bool
+apply_surface_tearing_locked(XmWlServer *srv, struct wl_surface *surf, bool async_tearing)
+{
+#ifdef HAVE_WAYLAND_TEARING_CONTROL
+    if (!srv || !surf || !srv->tearing_mgr)
+        return false;
+    XmWlSurfaceExt *ext = find_or_create_surface_ext(srv, surf, true);
+    if (!ext)
+        return false;
+    if (!ext->tearing) {
+        ext->tearing = wp_tearing_control_manager_v1_get_tearing_control(srv->tearing_mgr, surf);
+        if (!ext->tearing)
+            return false;
+    }
+    wp_tearing_control_v1_set_presentation_hint(
+        ext->tearing,
+        async_tearing ? WP_TEARING_CONTROL_V1_PRESENTATION_HINT_ASYNC
+                      : WP_TEARING_CONTROL_V1_PRESENTATION_HINT_VSYNC);
+    return true;
+#else
+    (void)srv; (void)surf; (void)async_tearing;
+    return false;
+#endif
+}
+
+static bool
+apply_surface_fifo_locked(XmWlServer *srv, struct wl_surface *surf, bool set_barrier, bool wait_barrier)
+{
+#ifdef HAVE_WAYLAND_FIFO
+    if (!srv || !surf || !srv->fifo_mgr)
+        return false;
+    XmWlSurfaceExt *ext = find_or_create_surface_ext(srv, surf, true);
+    if (!ext)
+        return false;
+    if (!ext->fifo) {
+        ext->fifo = wp_fifo_manager_v1_get_fifo(srv->fifo_mgr, surf);
+        if (!ext->fifo)
+            return false;
+    }
+    if (set_barrier)
+        wp_fifo_v1_set_barrier(ext->fifo);
+    if (wait_barrier)
+        wp_fifo_v1_wait_barrier(ext->fifo);
+    return true;
+#else
+    (void)srv; (void)surf; (void)set_barrier; (void)wait_barrier;
+    return false;
+#endif
+}
+
 static void
 registry_global(void *data, struct wl_registry *registry, uint32_t name,
                 const char *interface, uint32_t version)
@@ -1854,6 +2114,52 @@ registry_global(void *data, struct wl_registry *registry, uint32_t name,
     } else if (!strcmp(interface, wp_viewporter_interface.name)) {
         srv->viewporter = (struct wp_viewporter *)wl_registry_bind(
             registry, name, &wp_viewporter_interface, 1);
+#ifdef HAVE_WAYLAND_DMABUF
+    } else if (!strcmp(interface, zwp_linux_dmabuf_v1_interface.name)) {
+        if (!srv->dmabuf && version >= 2) {
+            uint32_t max_v = (uint32_t)zwp_linux_dmabuf_v1_interface.version;
+            if (max_v > 4u) max_v = 4u;
+            uint32_t v = version < max_v ? version : max_v;
+            srv->dmabuf = (struct zwp_linux_dmabuf_v1 *)wl_registry_bind(
+                registry, name, &zwp_linux_dmabuf_v1_interface, v);
+            srv->dmabuf_version = v;
+            if (srv->dmabuf) {
+                if (v < 4u) {
+                    zwp_linux_dmabuf_v1_add_listener(srv->dmabuf, &g_dmabuf_listener, srv);
+                }
+#ifdef ZWP_LINUX_DMABUF_V1_GET_DEFAULT_FEEDBACK_SINCE_VERSION
+                else {
+                    srv->dmabuf_feedback = zwp_linux_dmabuf_v1_get_default_feedback(srv->dmabuf);
+                    if (srv->dmabuf_feedback) {
+                        zwp_linux_dmabuf_feedback_v1_add_listener(
+                            srv->dmabuf_feedback, &g_dmabuf_feedback_listener, srv);
+                    }
+                }
+#endif
+            }
+        }
+#endif
+#ifdef HAVE_WAYLAND_XDG_DIALOG
+    } else if (!strcmp(interface, xdg_wm_dialog_v1_interface.name)) {
+        if (!srv->xdg_dialog_mgr) {
+            srv->xdg_dialog_mgr = (struct xdg_wm_dialog_v1 *)wl_registry_bind(
+                registry, name, &xdg_wm_dialog_v1_interface, 1);
+        }
+#endif
+#ifdef HAVE_WAYLAND_TEARING_CONTROL
+    } else if (!strcmp(interface, wp_tearing_control_manager_v1_interface.name)) {
+        if (!srv->tearing_mgr) {
+            srv->tearing_mgr = (struct wp_tearing_control_manager_v1 *)wl_registry_bind(
+                registry, name, &wp_tearing_control_manager_v1_interface, 1);
+        }
+#endif
+#ifdef HAVE_WAYLAND_FIFO
+    } else if (!strcmp(interface, wp_fifo_manager_v1_interface.name)) {
+        if (!srv->fifo_mgr) {
+            srv->fifo_mgr = (struct wp_fifo_manager_v1 *)wl_registry_bind(
+                registry, name, &wp_fifo_manager_v1_interface, 1);
+        }
+#endif
     } else if (!strcmp(interface, wl_output_interface.name)) {
         if (srv->output_count < XM_WL_MAX_OUTPUTS) {
             uint32_t v = version < 4 ? version : 4;
@@ -2089,6 +2395,7 @@ pop_popup_stack_from(XmWlServer *srv, int idx)
             pw->viewport = NULL;
         }
         if (pw->wl_surf) {
+            release_surface_ext(srv, pw->wl_surf);
             wl_surface_destroy(pw->wl_surf);
             pw->wl_surf = NULL;
         }
@@ -2148,16 +2455,22 @@ sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win, uint32_t changed_at
     uint32_t a_transient = 68; /* XA_WM_TRANSIENT_FOR */
     if (changed_atom == 0 || changed_atom == a_transient) {
         XmWlProperty *p = _XmWlGetProperty(win, a_transient);
-        if (p && p->data && p->byte_len >= 4) {
-            uint32_t parent_xid = 0;
+        uint32_t parent_xid = 0;
+        if (p && p->data && p->byte_len >= 4)
             memcpy(&parent_xid, p->data, 4);
-            if (parent_xid != win->sent_parent_xid) {
-                XmWlWindow *ptop = _XmWlFindWindow(srv, parent_xid);
-                if (ptop && ptop->xdg_top) {
+        if (parent_xid != win->sent_parent_xid) {
+            if (parent_xid != 0) {
+                XmWlWindow *pwin = _XmWlFindWindow(srv, parent_xid);
+                XmWlWindow *ptop = pwin ? _XmWlEnclosingTopLevel(srv, pwin, NULL, NULL) : NULL;
+                if (ptop && ptop != win && ptop->xdg_top) {
                     win->sent_parent_xid = parent_xid;
                     xdg_toplevel_set_parent(win->xdg_top, ptop->xdg_top);
                     changed = true;
                 }
+            } else if (win->sent_parent_xid != 0) {
+                win->sent_parent_xid = 0;
+                xdg_toplevel_set_parent(win->xdg_top, NULL);
+                changed = true;
             }
         }
     }
@@ -2193,15 +2506,41 @@ sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win, uint32_t changed_at
     }
 
     uint32_t a_mwm = _XmWlInternAtom(srv, "_MOTIF_WM_HINTS", 15, true);
-    if (changed_atom == 0 || (a_mwm != 0 && changed_atom == a_mwm)) {
+    uint32_t a_net_state = _XmWlInternAtom(srv, "_NET_WM_STATE", 13, true);
+    uint32_t a_net_modal = _XmWlInternAtom(srv, "_NET_WM_STATE_MODAL", 19, true);
+    if (changed_atom == 0 ||
+        (a_mwm != 0 && changed_atom == a_mwm) ||
+        (a_net_state != 0 && changed_atom == a_net_state) ||
+        changed_atom == a_transient) {
         XmWlProperty *p = a_mwm ? _XmWlGetProperty(win, a_mwm) : NULL;
         bool want_deco = true;
+        bool want_modal = false;
         if (p && p->data && p->byte_len >= 12) {
             uint32_t mflags = 0, mdeco = 1;
             memcpy(&mflags, p->data + 0, 4);
             memcpy(&mdeco, p->data + 8, 4);
             if ((mflags & 2u) && mdeco == 0)
                 want_deco = false;
+            if ((mflags & 4u) && p->byte_len >= 16) {
+                int32_t minput = 0;
+                memcpy(&minput, p->data + 12, 4);
+                if (minput == 1 || minput == 2 || minput == 3)
+                    want_modal = true;
+            }
+        }
+        if (!want_modal && a_net_state != 0 && a_net_modal != 0) {
+            XmWlProperty *sp = _XmWlGetProperty(win, a_net_state);
+            if (sp && sp->format == 32 && sp->data && sp->byte_len >= 4) {
+                size_t natoms = sp->byte_len / 4;
+                for (size_t ai = 0; ai < natoms; ++ai) {
+                    uint32_t st_atom = 0;
+                    memcpy(&st_atom, sp->data + ai * 4, 4);
+                    if (st_atom == a_net_modal) {
+                        want_modal = true;
+                        break;
+                    }
+                }
+            }
         }
         win->wants_decorations = want_deco;
         int8_t dmode = want_deco ? 1 : 0;
@@ -2212,6 +2551,60 @@ sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win, uint32_t changed_at
                 want_deco ? ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE
                           : ZXDG_TOPLEVEL_DECORATION_V1_MODE_CLIENT_SIDE);
             changed = true;
+        }
+#ifdef HAVE_WAYLAND_XDG_DIALOG
+        if (srv->xdg_dialog_mgr && (win->sent_parent_xid != 0 || want_modal || win->xdg_dialog != NULL)) {
+            if (!win->xdg_dialog) {
+                win->xdg_dialog = xdg_wm_dialog_v1_get_xdg_dialog(srv->xdg_dialog_mgr, win->xdg_top);
+                changed = true;
+            }
+            if (win->xdg_dialog) {
+                int8_t mmode = want_modal ? 1 : 0;
+                if (win->sent_modal_mode != mmode) {
+                    win->sent_modal_mode = mmode;
+                    if (want_modal)
+                        xdg_dialog_v1_set_modal(win->xdg_dialog);
+                    else
+                        xdg_dialog_v1_unset_modal(win->xdg_dialog);
+                    changed = true;
+                }
+            }
+        }
+#endif
+    }
+
+    uint32_t a_tearing = _XmWlInternAtom(srv, "_MOTIF_WAYLAND_TEARING", 22, true);
+    if (win->wl_surf && (changed_atom == 0 || (a_tearing != 0 && changed_atom == a_tearing))) {
+        XmWlProperty *tp = a_tearing ? _XmWlGetProperty(win, a_tearing) : NULL;
+        if (tp && tp->format == 32 && tp->data && tp->byte_len >= 4) {
+            uint32_t tval = 0;
+            memcpy(&tval, tp->data, 4);
+            int8_t tmode = (tval != 0) ? 1 : 0;
+            if (win->sent_tearing_mode != tmode &&
+                apply_surface_tearing_locked(srv, win->wl_surf, tval != 0)) {
+                win->sent_tearing_mode = tmode;
+                changed = true;
+            }
+        }
+    }
+
+    uint32_t a_fifo = _XmWlInternAtom(srv, "_MOTIF_WAYLAND_FIFO", 19, true);
+    if (changed_atom == 0 || (a_fifo != 0 && changed_atom == a_fifo)) {
+        XmWlProperty *fp = a_fifo ? _XmWlGetProperty(win, a_fifo) : NULL;
+        uint8_t fflags = 0;
+        if (fp && fp->format == 32 && fp->data && fp->byte_len >= 4) {
+            uint32_t fval = 0;
+            memcpy(&fval, fp->data, 4);
+            fflags = (uint8_t)(fval & 3u);
+        }
+        if (win->fifo_flags != fflags) {
+            win->fifo_flags = fflags;
+            if (fflags != 0 && win->wl_surf &&
+                apply_surface_fifo_locked(srv, win->wl_surf,
+                                          (fflags & 1u) != 0,
+                                          (fflags & 2u) != 0)) {
+                changed = true;
+            }
         }
     }
 
@@ -2424,6 +2817,9 @@ _XmWlSyncWindowRole(XmWlServer *srv, XmWlWindow *win)
         win->sent_min_w = win->sent_min_h = -1;
         win->sent_max_w = win->sent_max_h = -1;
         win->sent_deco_mode = -1;
+        win->sent_modal_mode = -1;
+        win->sent_tearing_mode = -1;
+        win->fifo_flags = 0;
         win->xdg_surf = xdg_wm_base_get_xdg_surface(srv->xdg_wm_base, win->wl_surf);
         xdg_surface_add_listener(win->xdg_surf, &g_xdg_surface_listener, win);
         win->xdg_top = xdg_surface_get_toplevel(win->xdg_surf);
@@ -2608,6 +3004,12 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
         zxdg_toplevel_decoration_v1_destroy(win->xdg_deco);
         win->xdg_deco = NULL;
     }
+#ifdef HAVE_WAYLAND_XDG_DIALOG
+    if (win->xdg_dialog) {
+        xdg_dialog_v1_destroy(win->xdg_dialog);
+        win->xdg_dialog = NULL;
+    }
+#endif
     if (win->xdg_top) {
         xdg_toplevel_destroy(win->xdg_top);
         win->xdg_top = NULL;
@@ -2642,6 +3044,7 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
         } else {
             if (srv->wl_drag_icon_owner == win)
                 srv->wl_drag_icon_owner = NULL;
+            release_surface_ext(srv, win->wl_surf);
             wl_surface_destroy(win->wl_surf);
             win->wl_surf = NULL;
         }
@@ -2668,6 +3071,9 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
     win->sent_min_w = win->sent_min_h = -1;
     win->sent_max_w = win->sent_max_h = -1;
     win->sent_deco_mode = -1;
+    win->sent_modal_mode = -1;
+    win->sent_tearing_mode = -1;
+    win->fifo_flags = 0;
     win->is_popup = false;
     win->is_drag_icon = false;
     win->popup_parent = NULL;
@@ -2972,6 +3378,12 @@ _XmWlFlushDirtySurfaces(XmWlServer *srv)
         }
         pixman_region32_fini(&cur_dmg);
         pixman_region32_clear(&w->dirty_region);
+        if (w->fifo_flags != 0) {
+            (void)apply_surface_fifo_locked(
+                srv, w->wl_surf,
+                (w->fifo_flags & 1u) != 0,
+                (w->fifo_flags & 2u) != 0);
+        }
         wl_surface_commit(w->wl_surf);
         if (w->pending_activation_token[0] != '\0') {
             if (srv->activation_mgr)
@@ -4200,6 +4612,42 @@ cleanup_wayland_backend(void)
         xdg_activation_v1_destroy(srv->activation_mgr);
         srv->activation_mgr = NULL;
     }
+    while (srv->surf_exts) {
+        release_surface_ext(srv, srv->surf_exts->surf);
+    }
+#ifdef HAVE_WAYLAND_FIFO
+    if (srv->fifo_mgr) {
+        wp_fifo_manager_v1_destroy(srv->fifo_mgr);
+        srv->fifo_mgr = NULL;
+    }
+#endif
+#ifdef HAVE_WAYLAND_TEARING_CONTROL
+    if (srv->tearing_mgr) {
+        wp_tearing_control_manager_v1_destroy(srv->tearing_mgr);
+        srv->tearing_mgr = NULL;
+    }
+#endif
+#ifdef HAVE_WAYLAND_XDG_DIALOG
+    if (srv->xdg_dialog_mgr) {
+        xdg_wm_dialog_v1_destroy(srv->xdg_dialog_mgr);
+        srv->xdg_dialog_mgr = NULL;
+    }
+#endif
+#ifdef HAVE_WAYLAND_DMABUF
+#ifdef ZWP_LINUX_DMABUF_V1_GET_DEFAULT_FEEDBACK_SINCE_VERSION
+    if (srv->dmabuf_feedback) {
+        zwp_linux_dmabuf_feedback_v1_destroy(srv->dmabuf_feedback);
+        srv->dmabuf_feedback = NULL;
+    }
+#endif
+    if (srv->dmabuf) {
+        zwp_linux_dmabuf_v1_destroy(srv->dmabuf);
+        srv->dmabuf = NULL;
+    }
+    free(srv->dmabuf_table);
+    free(srv->dmabuf_formats);
+    free(srv->dmabuf_staging);
+#endif
     if (srv->wl_dpy) wl_display_disconnect(srv->wl_dpy);
     pthread_cond_destroy(&srv->act_cond);
     pthread_mutex_destroy(&srv->act_lock);
@@ -4677,6 +5125,181 @@ XmWaylandRequestActivationToken(
     return ok;
 }
 
+Boolean
+XmWaylandGetDmabuf(
+    Display *display,
+    struct zwp_linux_dmabuf_v1 **dmabuf_return,
+    unsigned int *version_return)
+{
+#ifdef HAVE_WAYLAND_DMABUF
+    XmWlServer *srv = _XmWaylandGetServer();
+    if (!srv || !display_matches_wayland_server(display, srv))
+        return False;
+    Boolean ok = False;
+    pthread_mutex_lock(&srv->lock);
+    if (srv->dmabuf) {
+        if (dmabuf_return) *dmabuf_return = srv->dmabuf;
+        if (version_return) *version_return = (unsigned int)srv->dmabuf_version;
+        ok = True;
+    }
+    pthread_mutex_unlock(&srv->lock);
+    return ok;
+#else
+    (void)display;
+    (void)dmabuf_return;
+    (void)version_return;
+    return False;
+#endif
+}
+
+Boolean
+XmWaylandHasDmabufFormat(
+    Display *display,
+    uint32_t drm_format,
+    uint64_t modifier)
+{
+#ifdef HAVE_WAYLAND_DMABUF
+    XmWlServer *srv = _XmWaylandGetServer();
+    if (!srv || !display_matches_wayland_server(display, srv))
+        return False;
+    Boolean found = False;
+    pthread_mutex_lock(&srv->lock);
+    if (srv->dmabuf) {
+        for (size_t i = 0; i < srv->dmabuf_format_count; ++i) {
+            if (srv->dmabuf_formats[i].format == drm_format &&
+                (srv->dmabuf_formats[i].modifier == modifier ||
+                 (modifier == XM_WL_DRM_FORMAT_MOD_INVALID &&
+                  srv->dmabuf_formats[i].modifier == XM_WL_DRM_FORMAT_MOD_INVALID))) {
+                found = True;
+                break;
+            }
+        }
+    }
+    pthread_mutex_unlock(&srv->lock);
+    return found;
+#else
+    (void)display;
+    (void)drm_format;
+    (void)modifier;
+    return False;
+#endif
+}
+
+Boolean
+XmWaylandImportDmabuf(
+    Display *display,
+    const XmWaylandDmabufPlane *planes,
+    int plane_count,
+    int width,
+    int height,
+    uint32_t drm_format,
+    uint32_t flags,
+    struct wl_buffer **buffer_return)
+{
+#ifdef HAVE_WAYLAND_DMABUF
+    if (!planes || plane_count < 1 || plane_count > 4 ||
+        width <= 0 || height <= 0 || !buffer_return)
+        return False;
+    for (int i = 0; i < plane_count; ++i) {
+        if (planes[i].fd < 0 || planes[i].stride == 0)
+            return False;
+    }
+    XmWlServer *srv = _XmWaylandGetServer();
+    if (!srv || !display_matches_wayland_server(display, srv))
+        return False;
+
+    Boolean ok = False;
+    pthread_mutex_lock(&srv->lock);
+    if (srv->dmabuf && srv->wl_dpy) {
+        struct zwp_linux_buffer_params_v1 *params =
+            zwp_linux_dmabuf_v1_create_params(srv->dmabuf);
+        if (params) {
+            for (int i = 0; i < plane_count; ++i) {
+                uint32_t mod_hi = (uint32_t)(planes[i].modifier >> 32);
+                uint32_t mod_lo = (uint32_t)(planes[i].modifier & 0xffffffffu);
+                zwp_linux_buffer_params_v1_add(
+                    params,
+                    planes[i].fd,
+                    (uint32_t)i,
+                    planes[i].offset,
+                    planes[i].stride,
+                    mod_hi,
+                    mod_lo);
+            }
+            struct wl_buffer *buf = zwp_linux_buffer_params_v1_create_immed(
+                params, width, height, drm_format, flags);
+            zwp_linux_buffer_params_v1_destroy(params);
+            if (buf) {
+                *buffer_return = buf;
+                ok = True;
+            }
+        }
+    }
+    pthread_mutex_unlock(&srv->lock);
+    return ok;
+#else
+    (void)display;
+    (void)planes;
+    (void)plane_count;
+    (void)width;
+    (void)height;
+    (void)drm_format;
+    (void)flags;
+    (void)buffer_return;
+    return False;
+#endif
+}
+
+Boolean
+XmWaylandSetSurfaceTearingHint(
+    Display *display,
+    struct wl_surface *surface,
+    Boolean async_tearing)
+{
+    if (!surface)
+        return False;
+    XmWlServer *srv = _XmWaylandGetServer();
+    if (!srv || !display_matches_wayland_server(display, srv))
+        return False;
+    pthread_mutex_lock(&srv->lock);
+    bool ok = apply_surface_tearing_locked(srv, surface, async_tearing != False);
+    pthread_mutex_unlock(&srv->lock);
+    return ok ? True : False;
+}
+
+Boolean
+XmWaylandSetSurfaceFifo(
+    Display *display,
+    struct wl_surface *surface,
+    Boolean set_barrier,
+    Boolean wait_barrier)
+{
+    if (!surface)
+        return False;
+    XmWlServer *srv = _XmWaylandGetServer();
+    if (!srv || !display_matches_wayland_server(display, srv))
+        return False;
+    pthread_mutex_lock(&srv->lock);
+    bool ok = apply_surface_fifo_locked(srv, surface, set_barrier != False, wait_barrier != False);
+    pthread_mutex_unlock(&srv->lock);
+    return ok ? True : False;
+}
+
+void
+XmWaylandReleaseSurfaceExtensions(
+    Display *display,
+    struct wl_surface *surface)
+{
+    if (!surface)
+        return;
+    XmWlServer *srv = _XmWaylandGetServer();
+    if (!srv || !display_matches_wayland_server(display, srv))
+        return;
+    pthread_mutex_lock(&srv->lock);
+    release_surface_ext(srv, surface);
+    pthread_mutex_unlock(&srv->lock);
+}
+
 __attribute__((constructor))
 static void
 xm_wl_library_ctor(void)
@@ -4777,6 +5400,87 @@ XmWaylandRequestActivationToken(
     (void)app_id;
     (void)token_return;
     return False;
+}
+
+Boolean
+XmWaylandGetDmabuf(
+    Display *display,
+    struct zwp_linux_dmabuf_v1 **dmabuf_return,
+    unsigned int *version_return)
+{
+    (void)display;
+    (void)dmabuf_return;
+    (void)version_return;
+    return False;
+}
+
+Boolean
+XmWaylandHasDmabufFormat(
+    Display *display,
+    uint32_t drm_format,
+    uint64_t modifier)
+{
+    (void)display;
+    (void)drm_format;
+    (void)modifier;
+    return False;
+}
+
+Boolean
+XmWaylandImportDmabuf(
+    Display *display,
+    const XmWaylandDmabufPlane *planes,
+    int plane_count,
+    int width,
+    int height,
+    uint32_t drm_format,
+    uint32_t flags,
+    struct wl_buffer **buffer_return)
+{
+    (void)display;
+    (void)planes;
+    (void)plane_count;
+    (void)width;
+    (void)height;
+    (void)drm_format;
+    (void)flags;
+    (void)buffer_return;
+    return False;
+}
+
+Boolean
+XmWaylandSetSurfaceTearingHint(
+    Display *display,
+    struct wl_surface *surface,
+    Boolean async_tearing)
+{
+    (void)display;
+    (void)surface;
+    (void)async_tearing;
+    return False;
+}
+
+Boolean
+XmWaylandSetSurfaceFifo(
+    Display *display,
+    struct wl_surface *surface,
+    Boolean set_barrier,
+    Boolean wait_barrier)
+{
+    (void)display;
+    (void)surface;
+    (void)set_barrier;
+    (void)wait_barrier;
+    return False;
+}
+
+void
+XmWaylandReleaseSurfaceExtensions(
+    Display *display,
+    struct wl_surface *surface)
+{
+    (void)display;
+    (void)surface;
 }
 
 #endif /* HAVE_WAYLAND_BACKEND */

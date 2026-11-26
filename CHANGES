@@ -1,3 +1,29 @@
+Add Wayland DMA-BUF subsurface import, xdg-dialog-v1, tearing-control, and fifo-v1 (2026-11-26)
+===============================================================================================
+
+- `configure.ac`, `lib/Xm/Makefile.am`, `lib/Xm/Wayland.h`,
+  `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandBackend.c`,
+  `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Bind `zwp_linux_dmabuf_v1` up to v4 (parsing both v3 `modifier` events and
+    v4 `default_feedback` memory-mapped `format_table` + `tranche_formats`
+    arrays) and add `XmWaylandGetDmabuf`, `XmWaylandHasDmabufFormat`, and
+    `XmWaylandImportDmabuf` to `<Xm/Wayland.h>` for zero-copy multi-plane
+    `DMA-BUF` subsurface buffer import without CPU `wl_shm` copies.
+  - Bind `xdg_wm_dialog_v1`, resolving `WM_TRANSIENT_FOR` to the enclosing
+    top-level `xdg_toplevel` and synchronizing `xdg_dialog_v1.set_modal` /
+    `unset_modal` with `XmDialogShell` `_MOTIF_WM_HINTS` modal input modes and
+    `_NET_WM_STATE_MODAL` while destroying `xdg_dialog_v1` cleanly prior to
+    `xdg_toplevel.destroy`.
+  - Bind `wp_tearing_control_manager_v1` and `wp_fifo_manager_v1`, exposing
+    `XmWaylandSetSurfaceTearingHint`, `XmWaylandSetSurfaceFifo`, and
+    `XmWaylandReleaseSurfaceExtensions` in `<Xm/Wayland.h>` alongside
+    `_MOTIF_WAYLAND_TEARING` and `_MOTIF_WAYLAND_FIFO` X11 window properties.
+  - Extend `run-wayland-backend.py` (including optional `--sanitizers` client
+    instrumentation) and `check-wayland-backend` to qualify v4 `DMA-BUF`
+    feedback + zero-copy subsurface import, `XmDialogShell` modal `xdg_dialog_v1`
+    transitions, `wp_tearing_control_v1`, and `wp_fifo_v1`.
+
 Polish Wayland multi-output cross-monitor DPI and scale transitions (2026-11-24)
 ================================================================================
 

@@ -32,6 +32,18 @@
 #include "wayland-text-input-v3-client-protocol.h"
 #include "wayland-fractional-scale-client-protocol.h"
 #include "wayland-viewporter-client-protocol.h"
+#ifdef HAVE_WAYLAND_DMABUF
+#include "wayland-linux-dmabuf-v1-client-protocol.h"
+#endif
+#ifdef HAVE_WAYLAND_XDG_DIALOG
+#include "wayland-xdg-dialog-v1-client-protocol.h"
+#endif
+#ifdef HAVE_WAYLAND_TEARING_CONTROL
+#include "wayland-tearing-control-v1-client-protocol.h"
+#endif
+#ifdef HAVE_WAYLAND_FIFO
+#include "wayland-fifo-v1-client-protocol.h"
+#endif
 
 #if defined(__GNUC__) || defined(__clang__)
 #define XM_WL_INTERNAL __attribute__((visibility("hidden")))
@@ -94,6 +106,24 @@ typedef struct XmWlCursor XmWlCursor;
 typedef struct XmWlProperty XmWlProperty;
 typedef struct XmWlShmBuf XmWlShmBuf;
 typedef struct XmWlPendingTokenCtx XmWlPendingTokenCtx;
+typedef struct XmWlSurfaceExt XmWlSurfaceExt;
+
+typedef struct {
+    uint32_t format;
+    uint32_t pad;
+    uint64_t modifier;
+} XmWlDmabufFormatEntry;
+
+struct XmWlSurfaceExt {
+    struct wl_surface *surf;
+#ifdef HAVE_WAYLAND_TEARING_CONTROL
+    struct wp_tearing_control_v1 *tearing;
+#endif
+#ifdef HAVE_WAYLAND_FIFO
+    struct wp_fifo_v1 *fifo;
+#endif
+    struct XmWlSurfaceExt *next;
+};
 
 struct XmWlProperty {
     uint32_t atom;
@@ -170,6 +200,9 @@ struct XmWlWindow {
     struct xdg_toplevel *xdg_top;
     struct zxdg_toplevel_decoration_v1 *xdg_deco;
     struct xdg_toplevel_icon_v1 *xdg_icon;
+#ifdef HAVE_WAYLAND_XDG_DIALOG
+    struct xdg_dialog_v1 *xdg_dialog;
+#endif
     struct xdg_popup *xdg_pop;
     struct wp_fractional_scale_v1 *frac_scale_obj;
     struct wp_viewport *viewport;
@@ -198,6 +231,9 @@ struct XmWlWindow {
     uint32_t sent_parent_xid;
     int32_t sent_min_w, sent_min_h, sent_max_w, sent_max_h;
     int8_t sent_deco_mode;
+    int8_t sent_modal_mode;
+    int8_t sent_tearing_mode;
+    uint8_t fifo_flags; /* bit0: set_barrier, bit1: wait_barrier */
     double preferred_scale; /* e.g. 1.0, 1.25, 1.5, 2.0 */
     struct wl_output *current_wl_output;
     struct wl_output *wl_outputs[XM_WL_MAX_OUTPUTS];
@@ -468,6 +504,29 @@ struct XmWlServer {
     struct zwp_text_input_v3 *text_input;
     struct wp_fractional_scale_manager_v1 *frac_scale_mgr;
     struct wp_viewporter *viewporter;
+#ifdef HAVE_WAYLAND_DMABUF
+    struct zwp_linux_dmabuf_v1 *dmabuf;
+    uint32_t dmabuf_version;
+    struct zwp_linux_dmabuf_feedback_v1 *dmabuf_feedback;
+    XmWlDmabufFormatEntry *dmabuf_table;
+    size_t dmabuf_table_count;
+    XmWlDmabufFormatEntry *dmabuf_formats;
+    size_t dmabuf_format_count;
+    size_t dmabuf_format_cap;
+    XmWlDmabufFormatEntry *dmabuf_staging;
+    size_t dmabuf_staging_count;
+    size_t dmabuf_staging_cap;
+#endif
+#ifdef HAVE_WAYLAND_XDG_DIALOG
+    struct xdg_wm_dialog_v1 *xdg_dialog_mgr;
+#endif
+#ifdef HAVE_WAYLAND_TEARING_CONTROL
+    struct wp_tearing_control_manager_v1 *tearing_mgr;
+#endif
+#ifdef HAVE_WAYLAND_FIFO
+    struct wp_fifo_manager_v1 *fifo_mgr;
+#endif
+    XmWlSurfaceExt *surf_exts;
 
     XmWlOutputInfo outputs[XM_WL_MAX_OUTPUTS];
     int output_count;

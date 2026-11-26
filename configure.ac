@@ -475,6 +475,11 @@ AC_PATH_PROG([WAYLAND_SCANNER], [wayland-scanner])
 WAYLAND_CFLAGS=
 WAYLAND_LIBS=
 WAYLAND_PROTOCOLS_DATADIR=
+WAYLAND_DMABUF_XML=
+ck_wayland_dmabuf=no
+ck_wayland_xdg_dialog=no
+ck_wayland_tearing=no
+ck_wayland_fifo=no
 if test "x$enable_wayland" != "xno"; then
   ck_wayland_ok=no
   if test -n "$PKG_CONFIG" && test -n "$WAYLAND_SCANNER" && \
@@ -498,6 +503,27 @@ if test "x$enable_wayland" != "xno"; then
     WAYLAND_CFLAGS=`$PKG_CONFIG --cflags wayland-client wayland-cursor pixman-1 xkbcommon freetype2 fontconfig`
     WAYLAND_LIBS=`$PKG_CONFIG --libs wayland-client wayland-cursor pixman-1 xkbcommon freetype2 fontconfig`
     AC_DEFINE([HAVE_WAYLAND_BACKEND], [1], [Build optional native Wayland runtime backend])
+    if test -f "$WAYLAND_PROTOCOLS_DATADIR/stable/linux-dmabuf/linux-dmabuf-v1.xml"; then
+      WAYLAND_DMABUF_XML="$WAYLAND_PROTOCOLS_DATADIR/stable/linux-dmabuf/linux-dmabuf-v1.xml"
+      ck_wayland_dmabuf=yes
+      AC_DEFINE([HAVE_WAYLAND_DMABUF], [1], [Have linux-dmabuf-v1 Wayland protocol])
+    elif test -f "$WAYLAND_PROTOCOLS_DATADIR/unstable/linux-dmabuf/linux-dmabuf-unstable-v1.xml"; then
+      WAYLAND_DMABUF_XML="$WAYLAND_PROTOCOLS_DATADIR/unstable/linux-dmabuf/linux-dmabuf-unstable-v1.xml"
+      ck_wayland_dmabuf=yes
+      AC_DEFINE([HAVE_WAYLAND_DMABUF], [1], [Have linux-dmabuf-v1 Wayland protocol])
+    fi
+    if test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/xdg-dialog/xdg-dialog-v1.xml"; then
+      ck_wayland_xdg_dialog=yes
+      AC_DEFINE([HAVE_WAYLAND_XDG_DIALOG], [1], [Have xdg-dialog-v1 Wayland protocol])
+    fi
+    if test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/tearing-control/tearing-control-v1.xml"; then
+      ck_wayland_tearing=yes
+      AC_DEFINE([HAVE_WAYLAND_TEARING_CONTROL], [1], [Have wp-tearing-control-v1 Wayland protocol])
+    fi
+    if test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/fifo/fifo-v1.xml"; then
+      ck_wayland_fifo=yes
+      AC_DEFINE([HAVE_WAYLAND_FIFO], [1], [Have wp-fifo-v1 Wayland protocol])
+    fi
   elif test "x$enable_wayland" = "xyes"; then
     AC_MSG_ERROR([--enable-wayland requires wayland-client, wayland-cursor, wayland-protocols >= 1.31, wayland-scanner, pixman-1, xkbcommon, freetype2, and fontconfig])
   else
@@ -508,7 +534,12 @@ fi
 AC_SUBST([WAYLAND_CFLAGS])
 AC_SUBST([WAYLAND_LIBS])
 AC_SUBST([WAYLAND_PROTOCOLS_DATADIR])
+AC_SUBST([WAYLAND_DMABUF_XML])
 AM_CONDITIONAL([OM_WAYLAND], [test "x$enable_wayland" = "xyes"])
+AM_CONDITIONAL([OM_WAYLAND_DMABUF], [test "x$ck_wayland_dmabuf" = "xyes"])
+AM_CONDITIONAL([OM_WAYLAND_XDG_DIALOG], [test "x$ck_wayland_xdg_dialog" = "xyes"])
+AM_CONDITIONAL([OM_WAYLAND_TEARING_CONTROL], [test "x$ck_wayland_tearing" = "xyes"])
+AM_CONDITIONAL([OM_WAYLAND_FIFO], [test "x$ck_wayland_fifo" = "xyes"])
 
 
 

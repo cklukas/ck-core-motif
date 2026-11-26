@@ -15,7 +15,9 @@ the default on platforms providing the Wayland development packages; pass
 - `wayland-client >= 1.20` and `wayland-cursor`
 - `wayland-protocols >= 1.31` (`xdg-shell`, `xdg-decoration-unstable-v1`,
   `xdg-toplevel-icon-v1`, `primary-selection-unstable-v1`,
-  `text-input-unstable-v3`, `fractional-scale-v1`, `viewporter`)
+  `text-input-unstable-v3`, `fractional-scale-v1`, `viewporter`, plus optional
+  `linux-dmabuf-v1`, `xdg-dialog-v1`, `tearing-control-v1`, and `fifo-v1` when
+  present in the installed `wayland-protocols` package)
 - `pixman-1`, `xkbcommon`, `freetype2`, and `fontconfig`
 
 On X11-only hosts (such as macOS with XQuartz), `--enable-wayland=auto` disables
@@ -47,10 +49,16 @@ process environment when the native Wayland backend is active.
 
 ## Window management, menus, and rendering
 
-- **Top-level shells**: `ApplicationShell`, `TopLevelShell`, and
+- **Top-level shells and modal dialogs**: `ApplicationShell`, `TopLevelShell`, and
   `TransientShell` windows map to `xdg_surface` + `xdg_toplevel`, negotiating
   server-side decorations through `zxdg_decoration_manager_v1` (honoring
-  `_MOTIF_WM_HINTS`), transient parent linkage, size bounds (`WM_NORMAL_HINTS`),
+  `_MOTIF_WM_HINTS`), transient parent linkage (resolving `WM_TRANSIENT_FOR` to
+  the enclosing top-level `xdg_toplevel`), `xdg_wm_dialog_v1` modal dialog state
+  (`xdg_dialog_v1.set_modal` / `unset_modal` driven by `_MOTIF_WM_HINTS`
+  `MWM_INPUT_*_MODAL` on `XmDialogShell` and `_NET_WM_STATE_MODAL`, destroyed
+  cleanly before `xdg_toplevel.destroy`), per-surface presentation extensions
+  (`wp_tearing_control_v1` and `wp_fifo_v1` via `<Xm/Wayland.h>` or
+  `_MOTIF_WAYLAND_TEARING` / `_MOTIF_WAYLAND_FIFO`), size bounds (`WM_NORMAL_HINTS`),
   UTF-8 titles (`_NET_WM_NAME` / `WM_NAME`), `app_id` (`WM_CLASS`), and dynamic
   ARGB window icons (`xdg_toplevel_icon_v1` built from `WM_HINTS` icon pixmaps
   and masks). Post-map `xdg_surface.configure` resizes coalesce to the latest
@@ -168,6 +176,19 @@ as media players or off-screen web views) inside a Motif widget can include
   its logical bounds and scale factor so the caller can attach a `wl_subsurface`
   with an empty input region (`wl_surface_set_input_region`) while preserving
   Motif pointer, wheel, focus, popup-menu, and `zwp_text_input_v3` routing.
+- `XmWaylandGetDmabuf(display, &dmabuf, &version)`,
+  `XmWaylandHasDmabufFormat(display, drm_format, modifier)`, and
+  `XmWaylandImportDmabuf(display, planes, plane_count, width, height, drm_format, flags, &wl_buffer)`
+  negotiate `zwp_linux_dmabuf_v1` (including v4 `default_feedback` format/modifier
+  tranche tables) and import 1..4 `DMA-BUF` planes into a zero-copy `wl_buffer *`
+  via `zwp_linux_buffer_params_v1.create_immed` for embedded `wl_subsurface`
+  video, image, and WebGL presentation without CPU `wl_shm` readback.
+- `XmWaylandSetSurfaceTearingHint(display, surface, async_tearing)`,
+  `XmWaylandSetSurfaceFifo(display, surface, set_barrier, wait_barrier)`, and
+  `XmWaylandReleaseSurfaceExtensions(display, surface)` manage deduplicated
+  per-surface `wp_tearing_control_v1` and `wp_fifo_v1` presentation objects for
+  top-level or embedded `wl_subsurface` surfaces without protocol object-duplication
+  or teardown ordering errors.
 - `XmWaylandRequestActivationToken(display, source_window, app_id, &token)`
   mints a one-shot `xdg_activation_v1` token seeded with `libXm`'s latest
   button/keypress serial, source top-level `wl_surface`, and optional target
