@@ -2112,6 +2112,39 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         }
     }
 
+    /* Verify disconnected helper Display connections reap their XID namespace
+     * cleanly so subsequent XOpenDisplay() connections reusing the client slot
+     * never trigger BadIDChoice on DefaultGC / CreateWindow / CreatePixmap. */
+    {
+        Display *probe1 = XOpenDisplay(NULL);
+        if (!probe1)
+            fail_msg("probe1 XOpenDisplay failed");
+        Window pw1 = XCreateSimpleWindow(probe1, DefaultRootWindow(probe1), 0, 0, 16, 16, 0, 0, 0);
+        Pixmap pm1 = XCreatePixmap(probe1, DefaultRootWindow(probe1), 16, 16, 24);
+        XGCValues gcv = {0};
+        GC gc1 = XCreateGC(probe1, DefaultRootWindow(probe1), 0, &gcv);
+        XFillRectangle(probe1, pm1, DefaultGC(probe1, DefaultScreen(probe1)), 0, 0, 16, 16);
+        (void)pw1;
+        (void)gc1;
+        XSync(probe1, False);
+        XCloseDisplay(probe1);
+        pump_xt_ms(app, dpy, 20);
+
+        Display *probe2 = XOpenDisplay(NULL);
+        if (!probe2)
+            fail_msg("probe2 XOpenDisplay failed");
+        Window pw2 = XCreateSimpleWindow(probe2, DefaultRootWindow(probe2), 0, 0, 16, 16, 0, 0, 0);
+        Pixmap pm2 = XCreatePixmap(probe2, DefaultRootWindow(probe2), 16, 16, 24);
+        GC gc2 = XCreateGC(probe2, DefaultRootWindow(probe2), 0, &gcv);
+        XFillRectangle(probe2, pm2, DefaultGC(probe2, DefaultScreen(probe2)), 0, 0, 16, 16);
+        XFillRectangle(probe2, pm2, gc2, 2, 2, 8, 8);
+        XSync(probe2, False);
+        XFreeGC(probe2, gc2);
+        XFreePixmap(probe2, pm2);
+        XDestroyWindow(probe2, pw2);
+        XCloseDisplay(probe2);
+    }
+
     XtDestroyWidget(shell);
     XtCloseDisplay(dpy);
     XtDestroyApplicationContext(app);

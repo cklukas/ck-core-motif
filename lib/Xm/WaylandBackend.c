@@ -4000,10 +4000,15 @@ wayland_server_thread(void *arg)
 
     while (srv->running) {
         if (wl_display_prepare_read(srv->wl_dpy) != 0) {
+            pthread_mutex_lock(&srv->lock);
             wl_display_dispatch_pending(srv->wl_dpy);
+            process_queued_wl_configures(srv);
+            pthread_mutex_unlock(&srv->lock);
             continue;
         }
+        pthread_mutex_lock(&srv->lock);
         wl_display_flush(srv->wl_dpy);
+        pthread_mutex_unlock(&srv->lock);
 
         struct pollfd pfds[4 + XM_WL_MAX_CLIENTS];
         int client_map[4 + XM_WL_MAX_CLIENTS];
@@ -5175,8 +5180,8 @@ XmWaylandHasDmabufFormat(
         for (size_t i = 0; i < srv->dmabuf_format_count; ++i) {
             if (srv->dmabuf_formats[i].format == drm_format &&
                 (srv->dmabuf_formats[i].modifier == modifier ||
-                 (modifier == XM_WL_DRM_FORMAT_MOD_INVALID &&
-                  srv->dmabuf_formats[i].modifier == XM_WL_DRM_FORMAT_MOD_INVALID))) {
+                 (srv->dmabuf_version < 3u &&
+                  (modifier == 0u || modifier == XM_WL_DRM_FORMAT_MOD_INVALID)))) {
                 found = True;
                 break;
             }
@@ -5222,8 +5227,12 @@ XmWaylandImportDmabuf(
             zwp_linux_dmabuf_v1_create_params(srv->dmabuf);
         if (params) {
             for (int i = 0; i < plane_count; ++i) {
-                uint32_t mod_hi = (uint32_t)(planes[i].modifier >> 32);
-                uint32_t mod_lo = (uint32_t)(planes[i].modifier & 0xffffffffu);
+                uint64_t eff_mod = (srv->dmabuf_version < 3u &&
+                                    planes[i].modifier == XM_WL_DRM_FORMAT_MOD_INVALID)
+                                       ? UINT64_C(0)
+                                       : planes[i].modifier;
+                uint32_t mod_hi = (uint32_t)(eff_mod >> 32);
+                uint32_t mod_lo = (uint32_t)(eff_mod & 0xffffffffu);
                 zwp_linux_buffer_params_v1_add(
                     params,
                     planes[i].fd,

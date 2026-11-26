@@ -554,6 +554,8 @@ _XmWlSendEventToWindow(XmWlServer *srv, XmWlWindow *win, uint32_t mask, const ui
     }
 }
 
+static void destroy_window_tree(XmWlServer *srv, XmWlWindow *win, bool emit_events);
+
 void
 _XmWlDisconnectClient(XmWlServer *srv, int client_idx)
 {
@@ -561,6 +563,8 @@ _XmWlDisconnectClient(XmWlServer *srv, int client_idx)
         return;
     XmWlClient *cli = &srv->clients[client_idx];
     if (!cli->active) return;
+
+    uint32_t rbase = cli->resource_base;
 
     if (cli->fd >= 0) {
         close(cli->fd);
@@ -574,6 +578,128 @@ _XmWlDisconnectClient(XmWlServer *srv, int client_idx)
     if (srv->ptr_grab_active && srv->ptr_grab_client == client_idx) {
         srv->ptr_grab_active = false;
         srv->ptr_grab_win = 0;
+    }
+
+    size_t pg_out = 0;
+    for (size_t pg_in = 0; pg_in < srv->passive_grab_count; ++pg_in) {
+        if (srv->passive_grabs[pg_in].client_idx != client_idx)
+            srv->passive_grabs[pg_out++] = srv->passive_grabs[pg_in];
+    }
+    srv->passive_grab_count = pg_out;
+
+    if (rbase != 0) {
+        const uint32_t rmask = ~UINT32_C(0x001fffff);
+        for (size_t b = 0; b < 256u; ++b) {
+            bool destroyed_any;
+            do {
+                destroyed_any = false;
+                for (XmWlWindow *w = srv->win_buckets[b]; w; w = w->hash_next) {
+                    if ((w->id & rmask) == rbase) {
+                        destroy_window_tree(srv, w, true);
+                        destroyed_any = true;
+                        break;
+                    }
+                }
+            } while (destroyed_any);
+
+            for (XmWlWindow *w = srv->win_buckets[b]; w; w = w->hash_next)
+                w->event_masks[client_idx] = 0;
+
+            XmWlPixmap **pp = &srv->pix_buckets[b];
+            while (*pp) {
+                if (((*pp)->id & rmask) == rbase) {
+                    XmWlPixmap *cur = *pp;
+                    *pp = cur->hash_next;
+                    _XmWlFreePixmapData(cur);
+                    free(cur);
+                } else {
+                    pp = &(*pp)->hash_next;
+                }
+            }
+
+            XmWlGC **gp = &srv->gc_buckets[b];
+            while (*gp) {
+                if (((*gp)->id & rmask) == rbase) {
+                    XmWlGC *cur = *gp;
+                    *gp = cur->hash_next;
+                    free(cur->clip_rects);
+                    free(cur);
+                } else {
+                    gp = &(*gp)->hash_next;
+                }
+            }
+
+            XmWlPicture **picp = &srv->pic_buckets[b];
+            while (*picp) {
+                if (((*picp)->id & rmask) == rbase) {
+                    XmWlPicture *cur = *picp;
+                    *picp = cur->hash_next;
+                    _XmWlFreePictureData(cur);
+                    free(cur);
+                } else {
+                    picp = &(*picp)->hash_next;
+                }
+            }
+        }
+
+        for (size_t b = 0; b < 64u; ++b) {
+            XmWlFont **fp = &srv->font_buckets[b];
+            while (*fp) {
+                if (((*fp)->id & rmask) == rbase) {
+                    XmWlFont *cur = *fp;
+                    *fp = cur->hash_next;
+                    _XmWlFreeFontData(cur);
+                    free(cur);
+                } else {
+                    fp = &(*fp)->hash_next;
+                }
+            }
+
+            XmWlGlyphSet **gsp = &srv->gs_buckets[b];
+            while (*gsp) {
+                if (((*gsp)->id & rmask) == rbase) {
+                    XmWlGlyphSet *cur = *gsp;
+                    *gsp = cur->hash_next;
+                    _XmWlFreeGlyphSetData(cur);
+                    free(cur);
+                } else {
+                    gsp = &(*gsp)->hash_next;
+                }
+            }
+
+            XmWlRegion **rp = &srv->reg_buckets[b];
+            while (*rp) {
+                if (((*rp)->id & rmask) == rbase) {
+                    XmWlRegion *cur = *rp;
+                    *rp = cur->hash_next;
+                    pixman_region32_fini(&cur->reg);
+                    free(cur);
+                } else {
+                    rp = &(*rp)->hash_next;
+                }
+            }
+        }
+
+        for (size_t b = 0; b < 128u; ++b) {
+            bool freed_cur;
+            do {
+                freed_cur = false;
+                for (XmWlCursor *c = srv->cursor_buckets[b]; c; c = c->hash_next) {
+                    if ((c->id & rmask) == rbase) {
+                        _XmWlFreeCursor(srv, c->id);
+                        freed_cur = true;
+                        break;
+                    }
+                }
+            } while (freed_cur);
+        }
+
+        if (srv->sel_primary_owner && (srv->sel_primary_owner & rmask) == rbase)
+            srv->sel_primary_owner = 0;
+        if (srv->sel_clipboard_owner && (srv->sel_clipboard_owner & rmask) == rbase)
+            srv->sel_clipboard_owner = 0;
+        if (srv->sel_xdnd_owner && (srv->sel_xdnd_owner & rmask) == rbase)
+            srv->sel_xdnd_owner = 0;
     }
 }
 

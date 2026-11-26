@@ -1,3 +1,22 @@
+Reap disconnected Wayland X11 client resources and preserve post-split XmText shaping reuse (2026-11-26)
+========================================================================================================
+
+- `lib/Xm/WaylandX11Server.c`, `lib/Xm/WaylandBackend.c`, `lib/Xm/TextOut.c`,
+  `tests/automated/check-wayland-backend.c`,
+  `tests/automated/check-historical-scale-shaping.c`:
+  - Reap windows, pixmaps, GCs, XRender pictures, fonts, glyphsets, regions,
+    cursors, passive button grabs, and selection ownership belonging to a
+    disconnected client's XID range inside `_XmWlDisconnectClient` so helper
+    `XOpenDisplay`/`XCloseDisplay` probes reuse client slots without triggering
+    `BadIDChoice` errors.
+  - Hold `srv->lock` across `wl_display_prepare_read` fallback dispatches and
+    `wl_display_flush` in `wayland_server_thread`, and accept linear/implicit
+    modifiers on `zwp_linux_dmabuf_v1` v2 compositors.
+  - Clear stale `unicode_prev_paragraph` captures after paragraph newline
+    splits/merges and compute exact prefix/suffix dirty bounds across coalesced
+    edits in `OutputInvalidate` so sub-paragraph `ShapedChunk` reuse continues
+    after splitting or coalesced editing in `XmText`.
+
 Eliminate -Wsign-compare and -Wmissing-field-initializers and promote Phase 2 hardening ratchet (2026-11-26)
 ============================================================================================================
 

@@ -438,6 +438,49 @@ verify_subparagraph_incremental_shaping(XtAppContext app, Display *dpy)
         XmTextLayoutFree(lb);
     }
 
+    /* B2. Splitting a paragraph with '\n' and then editing the resulting 14k-scalar
+     * paragraph (including coalesced pre-redraw tail-insert + head-delete edits)
+     * must preserve sub-paragraph ShapedChunk reuse and exact glyph layout! */
+    {
+        XmTextShapingUsage u_pre_edit, u_post_edit, u_post_multi;
+        XmTextReplace(edited_nowrap, 4000, 4000, "\n");
+        drain(app, dpy);
+        CHECK(XmTextFontContextGetShapingUsage(
+            ((XmTextWidget)edited_nowrap)->text.output->data->unicode_font_context, &u_pre_edit));
+
+        XmTextReplace(edited_nowrap, 10000, 10005, "afterSplit");
+        drain(app, dpy);
+        CHECK(XmTextFontContextGetShapingUsage(
+            ((XmTextWidget)edited_nowrap)->text.output->data->unicode_font_context, &u_post_edit));
+        size_t split_edit_shaped = u_post_edit.shaped_scalars - u_pre_edit.shaped_scalars;
+        CHECK(split_edit_shaped > 0 && split_edit_shaped < 1800);
+
+        /* Coalesced back-to-back edits in the second paragraph before redraw:
+         * first insert near middle, then delete 10 scalars near start of P2 */
+        XmTextReplace(edited_nowrap, 11500, 11500, "ABCDE");
+        XmTextReplace(edited_nowrap, 4120, 4130, "");
+        drain(app, dpy);
+        CHECK(XmTextFontContextGetShapingUsage(
+            ((XmTextWidget)edited_nowrap)->text.output->data->unicode_font_context, &u_post_multi));
+        CHECK(u_post_multi.shaped_scalars > u_post_edit.shaped_scalars);
+
+        cur_val = XmTextGetString(edited_nowrap);
+        CHECK(cur_val != NULL);
+        XmTextSetString(fresh_nowrap, cur_val);
+        XtFree(cur_val);
+        drain(app, dpy);
+
+        XmTextPosition af = 0, al = 0, bf = 0, bl = 0;
+        XmTextLayout *la = _XmTextGetLineCapture((XmTextWidget)edited_nowrap, 4001, &af, &al);
+        XmTextLayout *lb = _XmTextGetLineCapture((XmTextWidget)fresh_nowrap, 4001, &bf, &bl);
+        CHECK(la != NULL && lb != NULL);
+        CHECK(af == bf && al == bl);
+        CHECK(XmTextLayoutGlyphCount(la) == XmTextLayoutGlyphCount(lb));
+        CHECK(fabs(XmTextLayoutWidth(la) - XmTextLayoutWidth(lb)) < 0.001);
+        XmTextLayoutFree(la);
+        XmTextLayoutFree(lb);
+    }
+
     /* C. >70,000-scalar single paragraph wrap without 26.6 fixed-point overflow */
     {
         size_t huge_len = 72000;

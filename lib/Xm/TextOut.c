@@ -878,6 +878,12 @@ UnicodeParagraph(XmTextWidget tw, XmTextPosition start)
       XmTextParagraphFree(data->unicode_prev_paragraph);
       data->unicode_prev_paragraph = NULL;
     } else {
+      if (data->unicode_prev_paragraph &&
+          paragraph_start <= data->unicode_prev_para_new_end &&
+          end >= data->unicode_prev_para_start) {
+        XmTextParagraphFree(data->unicode_prev_paragraph);
+        data->unicode_prev_paragraph = NULL;
+      }
       paragraph = XmTextParagraphCreateWithContext(data->unicode_font_context,utf8,length,
                                                    data->tabwidth > 0 ? data->tabwidth : 1);
     }
@@ -4389,15 +4395,18 @@ OutputInvalidate(XmTextWidget tw,
         size_t ef = udata->unicode_prev_edit_first;
         size_t el = udata->unicode_prev_edit_last;
         size_t cur_sc = (size_t)(udata->unicode_prev_para_new_end - udata->unicode_prev_para_start);
-        size_t surviving = old_sc - (el - ef);
-        if (cur_sc >= surviving) {
-          size_t prev_ins = cur_sc - surviving;
-          if (rel_pos < ef) ef = rel_pos;
-          if (rel_topos > ef + prev_ins)
-            el += rel_topos - (ef + prev_ins);
-          if (el > old_sc) el = old_sc;
-          udata->unicode_prev_edit_first = ef;
-          udata->unicode_prev_edit_last = el;
+        size_t surviving = (old_sc >= (el - ef)) ? (old_sc - (el - ef)) : SIZE_MAX;
+        if (el >= ef && el <= old_sc && cur_sc >= surviving) {
+          size_t old_suffix = old_sc - el;
+          size_t cur_dirty_end = cur_sc - old_suffix;
+          size_t new_ef = (rel_pos < ef) ? rel_pos : ef;
+          size_t new_dirty_end = (rel_topos > cur_dirty_end) ? rel_topos : cur_dirty_end;
+          size_t new_suffix = (cur_sc > new_dirty_end) ? (cur_sc - new_dirty_end) : 0;
+          size_t new_el = (old_sc > new_suffix) ? (old_sc - new_suffix) : 0;
+          if (new_el < new_ef) new_el = new_ef;
+          if (new_el > old_sc) new_el = old_sc;
+          udata->unicode_prev_edit_first = new_ef;
+          udata->unicode_prev_edit_last = new_el;
           udata->unicode_prev_para_new_end += delta;
         } else {
           XmTextParagraphFree(udata->unicode_prev_paragraph);
@@ -4414,10 +4423,14 @@ OutputInvalidate(XmTextWidget tw,
     while (*link) {
       struct _XmTextParagraphCache *paragraph = *link;
       if (paragraph->paragraph_end >= position && paragraph->paragraph_start <= topos) {
-        if (!udata->unicode_prev_paragraph && paragraph->paragraph &&
+        if (paragraph->paragraph &&
             position >= paragraph->paragraph_start &&
             topos <= paragraph->paragraph_end &&
             (paragraph->paragraph_end - paragraph->paragraph_start + delta) >= 0) {
+          if (udata->unicode_prev_paragraph) {
+            XmTextParagraphFree(udata->unicode_prev_paragraph);
+            udata->unicode_prev_paragraph = NULL;
+          }
           udata->unicode_prev_paragraph = XmTextParagraphReference(paragraph->paragraph);
           udata->unicode_prev_para_start = paragraph->paragraph_start;
           udata->unicode_prev_para_new_end = paragraph->paragraph_end + delta;
