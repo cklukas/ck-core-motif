@@ -1963,6 +1963,131 @@ static const struct zwp_linux_dmabuf_feedback_v1_listener g_dmabuf_feedback_list
 #endif
 #endif /* HAVE_WAYLAND_DMABUF */
 
+static void
+icon_mgr_icon_size(void *data, struct xdg_toplevel_icon_manager_v1 *mgr, int32_t size)
+{
+    (void)mgr;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (!srv || size <= 0 || size > 512)
+        return;
+    for (int i = 0; i < srv->icon_pref_count; ++i) {
+        if (srv->icon_pref_sizes[i] == size)
+            return;
+    }
+    if (srv->icon_pref_count < 8)
+        srv->icon_pref_sizes[srv->icon_pref_count++] = size;
+}
+
+static void
+icon_mgr_done(void *data, struct xdg_toplevel_icon_manager_v1 *mgr)
+{
+    (void)data;
+    (void)mgr;
+}
+
+static const struct xdg_toplevel_icon_manager_v1_listener g_icon_mgr_listener = {
+    .icon_size = icon_mgr_icon_size,
+    .done = icon_mgr_done,
+};
+
+#ifdef HAVE_WAYLAND_COLOR_MANAGEMENT
+static void
+cm_mgr_supported_intent(void *data, struct wp_color_manager_v1 *mgr, uint32_t render_intent)
+{
+    (void)data;
+    (void)mgr;
+    (void)render_intent;
+}
+
+static void
+cm_mgr_supported_feature(void *data, struct wp_color_manager_v1 *mgr, uint32_t feature)
+{
+    (void)mgr;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (!srv)
+        return;
+    if (feature == WP_COLOR_MANAGER_V1_FEATURE_PARAMETRIC)
+        srv->cm_feat_parametric = true;
+    else if (feature == WP_COLOR_MANAGER_V1_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES)
+        srv->cm_feat_mastering = true;
+}
+
+static void
+cm_mgr_supported_tf_named(void *data, struct wp_color_manager_v1 *mgr, uint32_t tf)
+{
+    (void)mgr;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (srv && tf < 32u)
+        srv->cm_tf_mask |= (1u << tf);
+}
+
+static void
+cm_mgr_supported_primaries_named(void *data, struct wp_color_manager_v1 *mgr, uint32_t primaries)
+{
+    (void)mgr;
+    XmWlServer *srv = (XmWlServer *)data;
+    if (srv && primaries < 32u)
+        srv->cm_primaries_mask |= (1u << primaries);
+}
+
+static void
+cm_mgr_done(void *data, struct wp_color_manager_v1 *mgr)
+{
+    (void)data;
+    (void)mgr;
+}
+
+static const struct wp_color_manager_v1_listener g_cm_mgr_listener = {
+    .supported_intent = cm_mgr_supported_intent,
+    .supported_feature = cm_mgr_supported_feature,
+    .supported_tf_named = cm_mgr_supported_tf_named,
+    .supported_primaries_named = cm_mgr_supported_primaries_named,
+    .done = cm_mgr_done,
+};
+
+static void
+cm_img_desc_failed(void *data, struct wp_image_description_v1 *desc,
+                   uint32_t cause, const char *msg)
+{
+    (void)cause;
+    (void)msg;
+    XmWlSurfaceExt *ext = (XmWlSurfaceExt *)data;
+    if (ext && ext->cm_pending_desc == desc)
+        ext->cm_pending_desc = NULL;
+    wp_image_description_v1_destroy(desc);
+}
+
+static void
+cm_img_desc_ready(void *data, struct wp_image_description_v1 *desc, uint32_t identity)
+{
+    (void)identity;
+    XmWlSurfaceExt *ext = (XmWlSurfaceExt *)data;
+    if (!ext || ext->cm_pending_desc != desc || !ext->cm_surf) {
+        wp_image_description_v1_destroy(desc);
+        return;
+    }
+    ext->cm_pending_desc = NULL;
+    if (ext->cm_desc)
+        wp_image_description_v1_destroy(ext->cm_desc);
+    ext->cm_desc = desc;
+    ext->cm_desc_applied = true;
+    wp_color_management_surface_v1_set_image_description(
+        ext->cm_surf, desc, WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
+    if (ext->cm_srv && ext->surf) {
+        XmWlWindow *top = find_top_by_wl_surface(ext->cm_srv, ext->surf);
+        if (!top || (top->xdg_configured && !top->resize_awaiting_client && !top->dirty)) {
+            wl_surface_commit(ext->surf);
+            wl_display_flush(ext->cm_srv->wl_dpy);
+        }
+    }
+}
+
+static const struct wp_image_description_v1_listener g_cm_img_desc_listener = {
+    .failed = cm_img_desc_failed,
+    .ready = cm_img_desc_ready,
+};
+#endif /* HAVE_WAYLAND_COLOR_MANAGEMENT */
+
 static XmWlSurfaceExt *
 find_or_create_surface_ext(XmWlServer *srv, struct wl_surface *surf, bool create)
 {
@@ -2000,6 +2125,14 @@ release_surface_ext(XmWlServer *srv, struct wl_surface *surf)
 #ifdef HAVE_WAYLAND_FIFO
             if (cur->fifo)
                 wp_fifo_v1_destroy(cur->fifo);
+#endif
+#ifdef HAVE_WAYLAND_COLOR_MANAGEMENT
+            if (cur->cm_pending_desc)
+                wp_image_description_v1_destroy(cur->cm_pending_desc);
+            if (cur->cm_desc)
+                wp_image_description_v1_destroy(cur->cm_desc);
+            if (cur->cm_surf)
+                wp_color_management_surface_v1_destroy(cur->cm_surf);
 #endif
             free(cur);
             return;
@@ -2058,6 +2191,117 @@ apply_surface_fifo_locked(XmWlServer *srv, struct wl_surface *surf, bool set_bar
 #endif
 }
 
+static bool
+apply_surface_hdr_locked(XmWlServer *srv, struct wl_surface *surf, const XmWaylandHdrMetadata *meta)
+{
+#ifdef HAVE_WAYLAND_COLOR_MANAGEMENT
+    if (!srv || !surf || !srv->color_mgr)
+        return false;
+    if (!meta) {
+        XmWlSurfaceExt *ext = find_or_create_surface_ext(srv, surf, false);
+        if (!ext || !ext->cm_surf)
+            return true;
+        if (ext->cm_pending_desc) {
+            wp_image_description_v1_destroy(ext->cm_pending_desc);
+            ext->cm_pending_desc = NULL;
+        }
+        if (ext->cm_desc) {
+            wp_image_description_v1_destroy(ext->cm_desc);
+            ext->cm_desc = NULL;
+        }
+        if (ext->has_hdr_meta || ext->cm_desc_applied)
+            wp_color_management_surface_v1_unset_image_description(ext->cm_surf);
+        memset(&ext->hdr_meta, 0, sizeof(ext->hdr_meta));
+        ext->has_hdr_meta = false;
+        ext->cm_desc_applied = false;
+        return true;
+    }
+
+    uint32_t wl_tf = 0;
+    switch (meta->transfer_function) {
+    case XM_WAYLAND_COLOR_TF_SRGB:      wl_tf = WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB; break;
+    case XM_WAYLAND_COLOR_TF_BT1886:    wl_tf = WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_BT1886; break;
+    case XM_WAYLAND_COLOR_TF_ST2084_PQ: wl_tf = WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ; break;
+    case XM_WAYLAND_COLOR_TF_HLG:       wl_tf = WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_HLG; break;
+    default: return false;
+    }
+
+    uint32_t wl_prim = 0;
+    switch (meta->primaries) {
+    case XM_WAYLAND_COLOR_PRIMARIES_SRGB:       wl_prim = WP_COLOR_MANAGER_V1_PRIMARIES_SRGB; break;
+    case XM_WAYLAND_COLOR_PRIMARIES_DISPLAY_P3: wl_prim = WP_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3; break;
+    case XM_WAYLAND_COLOR_PRIMARIES_BT2020:     wl_prim = WP_COLOR_MANAGER_V1_PRIMARIES_BT2020; break;
+    default: return false;
+    }
+
+    if (srv->cm_tf_mask != 0 && !(srv->cm_tf_mask & (1u << wl_tf)))
+        return false;
+    if (srv->cm_primaries_mask != 0 && !(srv->cm_primaries_mask & (1u << wl_prim)))
+        return false;
+    if (!srv->cm_feat_parametric && srv->cm_tf_mask != 0)
+        return false;
+
+    XmWlSurfaceExt *ext = find_or_create_surface_ext(srv, surf, true);
+    if (!ext)
+        return false;
+    ext->cm_srv = srv;
+    if (ext->has_hdr_meta && (ext->cm_desc_applied || ext->cm_pending_desc != NULL) &&
+        memcmp(&ext->hdr_meta, meta, sizeof(*meta)) == 0) {
+        return true;
+    }
+    if (!ext->cm_surf) {
+        ext->cm_surf = wp_color_manager_v1_get_surface(srv->color_mgr, surf);
+        if (!ext->cm_surf)
+            return false;
+    }
+    if (ext->cm_pending_desc) {
+        wp_image_description_v1_destroy(ext->cm_pending_desc);
+        ext->cm_pending_desc = NULL;
+    }
+
+    struct wp_image_description_creator_params_v1 *creator =
+        wp_color_manager_v1_create_parametric_creator(srv->color_mgr);
+    if (!creator)
+        return false;
+
+    wp_image_description_creator_params_v1_set_tf_named(creator, wl_tf);
+    wp_image_description_creator_params_v1_set_primaries_named(creator, wl_prim);
+    if (srv->cm_feat_mastering) {
+        if (meta->has_mastering_display_primaries) {
+            wp_image_description_creator_params_v1_set_mastering_display_primaries(
+                creator,
+                meta->display_primaries_rx, meta->display_primaries_ry,
+                meta->display_primaries_gx, meta->display_primaries_gy,
+                meta->display_primaries_bx, meta->display_primaries_by,
+                meta->white_point_x, meta->white_point_y);
+        }
+        if (meta->has_mastering_luminance && meta->max_luminance > 0) {
+            wp_image_description_creator_params_v1_set_mastering_luminance(
+                creator, meta->min_luminance_10000, meta->max_luminance);
+        }
+    }
+    if (meta->max_cll > 0)
+        wp_image_description_creator_params_v1_set_max_cll(creator, meta->max_cll);
+    if (meta->max_fall > 0)
+        wp_image_description_creator_params_v1_set_max_fall(creator, meta->max_fall);
+
+    struct wp_image_description_v1 *desc =
+        wp_image_description_creator_params_v1_create(creator);
+    if (!desc)
+        return false;
+    ext->hdr_meta = *meta;
+    ext->has_hdr_meta = true;
+    ext->cm_desc_applied = false;
+    ext->cm_pending_desc = desc;
+    wp_image_description_v1_add_listener(desc, &g_cm_img_desc_listener, ext);
+    wl_display_flush(srv->wl_dpy);
+    return true;
+#else
+    (void)srv; (void)surf; (void)meta;
+    return false;
+#endif
+}
+
 static void
 registry_global(void *data, struct wl_registry *registry, uint32_t name,
                 const char *interface, uint32_t version)
@@ -2080,6 +2324,8 @@ registry_global(void *data, struct wl_registry *registry, uint32_t name,
     } else if (!strcmp(interface, xdg_toplevel_icon_manager_v1_interface.name)) {
         srv->icon_mgr = (struct xdg_toplevel_icon_manager_v1 *)wl_registry_bind(
             registry, name, &xdg_toplevel_icon_manager_v1_interface, 1);
+        if (srv->icon_mgr)
+            xdg_toplevel_icon_manager_v1_add_listener(srv->icon_mgr, &g_icon_mgr_listener, srv);
     } else if (!strcmp(interface, xdg_activation_v1_interface.name)) {
         srv->activation_mgr = (struct xdg_activation_v1 *)wl_registry_bind(
             registry, name, &xdg_activation_v1_interface, 1);
@@ -2160,6 +2406,15 @@ registry_global(void *data, struct wl_registry *registry, uint32_t name,
         if (!srv->fifo_mgr) {
             srv->fifo_mgr = (struct wp_fifo_manager_v1 *)wl_registry_bind(
                 registry, name, &wp_fifo_manager_v1_interface, 1);
+        }
+#endif
+#ifdef HAVE_WAYLAND_COLOR_MANAGEMENT
+    } else if (!strcmp(interface, wp_color_manager_v1_interface.name)) {
+        if (!srv->color_mgr) {
+            srv->color_mgr = (struct wp_color_manager_v1 *)wl_registry_bind(
+                registry, name, &wp_color_manager_v1_interface, 1);
+            if (srv->color_mgr)
+                wp_color_manager_v1_add_listener(srv->color_mgr, &g_cm_mgr_listener, srv);
         }
 #endif
     } else if (!strcmp(interface, wl_output_interface.name)) {
@@ -2371,7 +2626,278 @@ _XmWlRequestSelfActivate(XmWlServer *srv, XmWlWindow *top)
         false, 0, top->id);
 }
 
-/* ---------- Top-Level & Popup Role Synchronization ---------- */
+static uint64_t
+fnv1a_update64(uint64_t h, const void *data, size_t len)
+{
+    const uint8_t *p = (const uint8_t *)data;
+    for (size_t i = 0; i < len; ++i) {
+        h ^= (uint64_t)p[i];
+        h *= UINT64_C(1099511628211);
+    }
+    return h;
+}
+
+static bool
+is_valid_xdg_icon_name(const char *s, size_t len, char out_name[128])
+{
+    if (!s || len == 0)
+        return false;
+    size_t n = strnlen(s, len);
+    if (n == 0 || n >= 128)
+        return false;
+    /* XDG icon theme names are non-path tokens of [A-Za-z0-9._-] */
+    if (s[0] == '.' || s[0] == '-')
+        return false;
+    for (size_t i = 0; i < n; ++i) {
+        unsigned char c = (unsigned char)s[i];
+        if (!(isalnum(c) || c == '-' || c == '_' || c == '.'))
+            return false;
+    }
+    memcpy(out_name, s, n);
+    out_name[n] = '\0';
+    return true;
+}
+
+static uint32_t *
+extract_net_wm_icon_square(const uint8_t *raw, size_t byte_len, int target_side,
+                           int min_side, int *out_side)
+{
+    if (!raw || byte_len < 12 || !out_side)
+        return NULL;
+    size_t nwords = byte_len / 4u;
+    size_t best_off = 0;
+    uint32_t best_w = 0, best_h = 0;
+    int best_dist = 0x7fffffff;
+
+    size_t pos = 0;
+    while (pos + 2 <= nwords) {
+        uint32_t fw = 0, fh = 0;
+        memcpy(&fw, raw + pos * 4u, 4);
+        memcpy(&fh, raw + (pos + 1u) * 4u, 4);
+        if (fw == 0 || fh == 0 || fw > 512u || fh > 512u)
+            break;
+        size_t px_cnt = (size_t)fw * (size_t)fh;
+        if (pos + 2u + px_cnt > nwords)
+            break;
+        int side = (int)((fw > fh) ? fw : fh);
+        if (side >= min_side) {
+            int dist = side >= target_side ? (side - target_side) : (target_side - side) * 2;
+            if (dist < best_dist) {
+                best_dist = dist;
+                best_off = pos + 2u;
+                best_w = fw;
+                best_h = fh;
+            }
+        }
+        pos += 2u + px_cnt;
+    }
+
+    if (best_w == 0 || best_h == 0)
+        return NULL;
+
+    int side = (int)((best_w > best_h) ? best_w : best_h);
+    int ox = (side - (int)best_w) / 2;
+    int oy = (side - (int)best_h) / 2;
+    uint32_t *argb = (uint32_t *)calloc((size_t)side * (size_t)side, 4u);
+    if (!argb)
+        return NULL;
+
+    const uint8_t *src = raw + best_off * 4u;
+    for (uint32_t r = 0; r < best_h; ++r) {
+        for (uint32_t c = 0; c < best_w; ++c) {
+            uint32_t px = 0;
+            memcpy(&px, src + ((size_t)r * (size_t)best_w + (size_t)c) * 4u, 4);
+            uint32_t a = (px >> 24) & 0xffu;
+            uint32_t rv = (px >> 16) & 0xffu;
+            uint32_t gv = (px >> 8) & 0xffu;
+            uint32_t bv = px & 0xffu;
+            if (a < 255u) {
+                rv = (rv * a + 127u) / 255u;
+                gv = (gv * a + 127u) / 255u;
+                bv = (bv * a + 127u) / 255u;
+            }
+            argb[(size_t)(oy + (int)r) * (size_t)side + (size_t)(ox + (int)c)] =
+                (a << 24) | (rv << 16) | (gv << 8) | bv;
+        }
+    }
+    *out_side = side;
+    return argb;
+}
+
+static uint32_t *
+upscale_icon_2x(const uint32_t *src, int side, int *out_side2x)
+{
+    if (!src || side <= 0 || side > 128 || !out_side2x)
+        return NULL;
+    int s2 = side * 2;
+    uint32_t *dst = (uint32_t *)malloc((size_t)s2 * (size_t)s2 * 4u);
+    if (!dst)
+        return NULL;
+    for (int r = 0; r < side; ++r) {
+        const uint32_t *srow = src + (size_t)r * (size_t)side;
+        uint32_t *drow0 = dst + (size_t)(r * 2) * (size_t)s2;
+        uint32_t *drow1 = dst + (size_t)(r * 2 + 1) * (size_t)s2;
+        for (int c = 0; c < side; ++c) {
+            uint32_t px = srow[c];
+            drow0[c * 2] = px;
+            drow0[c * 2 + 1] = px;
+            drow1[c * 2] = px;
+            drow1[c * 2 + 1] = px;
+        }
+    }
+    *out_side2x = s2;
+    return dst;
+}
+
+static bool
+sync_toplevel_icon_locked(XmWlServer *srv, XmWlWindow *win, uint32_t changed_atom)
+{
+    if (!srv || !win || !win->xdg_top || !srv->icon_mgr || !srv->shm)
+        return false;
+
+    uint32_t a_wm_hints = 35u;     /* XA_WM_HINTS */
+    uint32_t a_net_icon = _XmWlInternAtom(srv, "_NET_WM_ICON", 12, true);
+    uint32_t a_xdg_iname = _XmWlInternAtom(srv, "_MOTIF_XDG_ICON_NAME", 20, true);
+
+    if (changed_atom != 0 &&
+        changed_atom != a_wm_hints &&
+        (a_net_icon == 0 || changed_atom != a_net_icon) &&
+        (a_xdg_iname == 0 || changed_atom != a_xdg_iname)) {
+        return false;
+    }
+
+    int pref_1x = (srv->icon_pref_count > 0 && srv->icon_pref_sizes[0] >= 16)
+                      ? srv->icon_pref_sizes[0]
+                      : 48;
+
+    uint32_t *argb_1x = NULL;
+    int side_1x = 0;
+    uint32_t *argb_2x = NULL;
+    int side_2x = 0;
+
+    XmWlProperty *net_ip = a_net_icon ? _XmWlGetProperty(win, a_net_icon) : NULL;
+    if (net_ip && net_ip->format == 32 && net_ip->data && net_ip->byte_len >= 12) {
+        argb_1x = extract_net_wm_icon_square(net_ip->data, net_ip->byte_len, pref_1x, 1, &side_1x);
+        if (argb_1x && side_1x > 0) {
+            argb_2x = extract_net_wm_icon_square(
+                net_ip->data, net_ip->byte_len, side_1x * 2, side_1x + 1, &side_2x);
+        }
+    }
+
+    if (!argb_1x) {
+        XmWlProperty *hp = _XmWlGetProperty(win, a_wm_hints);
+        if (hp && hp->data && hp->byte_len >= 16) {
+            uint32_t hflags = 0, icon_pix = 0, icon_mask = 0;
+            memcpy(&hflags, hp->data + 0, 4);
+            memcpy(&icon_pix, hp->data + 12, 4);
+            if ((hflags & 32u) && hp->byte_len >= 32)
+                memcpy(&icon_mask, hp->data + 28, 4);
+            if ((hflags & 4u) && icon_pix != 0) {
+                int iw = 0, ih = 0;
+                if (_XmWlBuildIconPixels(srv, icon_pix, (hflags & 32u) ? icon_mask : 0,
+                                         &argb_1x, &iw, &ih)) {
+                    side_1x = iw;
+                }
+            }
+        }
+    }
+
+    if (argb_1x && !argb_2x && side_1x > 0 && side_1x <= 128)
+        argb_2x = upscale_icon_2x(argb_1x, side_1x, &side_2x);
+
+    char icon_name[128] = {0};
+    XmWlProperty *xp = a_xdg_iname ? _XmWlGetProperty(win, a_xdg_iname) : NULL;
+    if (xp && xp->data)
+        (void)is_valid_xdg_icon_name((const char *)xp->data, xp->byte_len, icon_name);
+
+    if (!argb_1x && !icon_name[0]) {
+        free(argb_2x);
+        if (win->has_sent_icon) {
+            xdg_toplevel_icon_manager_v1_set_icon(srv->icon_mgr, win->xdg_top, NULL);
+            win->has_sent_icon = false;
+            win->sent_icon_hash = 0;
+            return true;
+        }
+        return false;
+    }
+
+    uint64_t h = UINT64_C(14695981039346656037);
+    if (icon_name[0])
+        h = fnv1a_update64(h, icon_name, strlen(icon_name) + 1u);
+    if (argb_1x && side_1x > 0) {
+        h = fnv1a_update64(h, &side_1x, sizeof(side_1x));
+        h = fnv1a_update64(h, argb_1x, (size_t)side_1x * (size_t)side_1x * 4u);
+    }
+    if (argb_2x && side_2x > 0) {
+        h = fnv1a_update64(h, &side_2x, sizeof(side_2x));
+        h = fnv1a_update64(h, argb_2x, (size_t)side_2x * (size_t)side_2x * 4u);
+    }
+
+    if (win->has_sent_icon && win->sent_icon_hash == h) {
+        free(argb_1x);
+        free(argb_2x);
+        return false;
+    }
+
+    bool applied = false;
+    size_t sz1 = (argb_1x && side_1x > 0) ? ((size_t)side_1x * (size_t)side_1x * 4u) : 0u;
+    size_t sz2 = (argb_2x && side_2x > 0) ? ((size_t)side_2x * (size_t)side_2x * 4u) : 0u;
+    size_t total_sz = sz1 + sz2;
+
+    if (total_sz > 0) {
+        int ifd = create_shm_fd(total_sz);
+        if (ifd >= 0) {
+            uint8_t *imap = (uint8_t *)mmap(NULL, total_sz, PROT_READ | PROT_WRITE, MAP_SHARED, ifd, 0);
+            if (imap != MAP_FAILED) {
+                if (sz1 > 0)
+                    memcpy(imap, argb_1x, sz1);
+                if (sz2 > 0)
+                    memcpy(imap + sz1, argb_2x, sz2);
+                struct wl_shm_pool *ipool = wl_shm_create_pool(srv->shm, ifd, (int32_t)total_sz);
+                struct wl_buffer *ibuf1 = sz1 > 0
+                    ? wl_shm_pool_create_buffer(ipool, 0, side_1x, side_1x, side_1x * 4, WL_SHM_FORMAT_ARGB8888)
+                    : NULL;
+                struct wl_buffer *ibuf2 = sz2 > 0
+                    ? wl_shm_pool_create_buffer(ipool, (int32_t)sz1, side_2x, side_2x, side_2x * 4, WL_SHM_FORMAT_ARGB8888)
+                    : NULL;
+                wl_shm_pool_destroy(ipool);
+
+                struct xdg_toplevel_icon_v1 *ico =
+                    xdg_toplevel_icon_manager_v1_create_icon(srv->icon_mgr);
+                if (icon_name[0])
+                    xdg_toplevel_icon_v1_set_name(ico, icon_name);
+                if (ibuf1)
+                    xdg_toplevel_icon_v1_add_buffer(ico, ibuf1, 1);
+                if (ibuf2)
+                    xdg_toplevel_icon_v1_add_buffer(ico, ibuf2, 2);
+                xdg_toplevel_icon_manager_v1_set_icon(srv->icon_mgr, win->xdg_top, ico);
+                xdg_toplevel_icon_v1_destroy(ico);
+                if (ibuf2)
+                    wl_buffer_destroy(ibuf2);
+                if (ibuf1)
+                    wl_buffer_destroy(ibuf1);
+                munmap(imap, total_sz);
+                applied = true;
+            }
+            close(ifd);
+        }
+    } else if (icon_name[0]) {
+        struct xdg_toplevel_icon_v1 *ico =
+            xdg_toplevel_icon_manager_v1_create_icon(srv->icon_mgr);
+        xdg_toplevel_icon_v1_set_name(ico, icon_name);
+        xdg_toplevel_icon_manager_v1_set_icon(srv->icon_mgr, win->xdg_top, ico);
+        xdg_toplevel_icon_v1_destroy(ico);
+        applied = true;
+    }
+
+    free(argb_1x);
+    free(argb_2x);
+    if (applied) {
+        win->has_sent_icon = true;
+        win->sent_icon_hash = h;
+    }
+    return applied;
+}
 
 static void
 pop_popup_stack_from(XmWlServer *srv, int idx)
@@ -2610,46 +3136,9 @@ sync_toplevel_metadata_all(XmWlServer *srv, XmWlWindow *win, uint32_t changed_at
         }
     }
 
-    /* Dynamic window icon via xdg_toplevel_icon_v1 (xPropWMHints: flags@0, iconPixmap@12, iconMask@28) */
-    if (srv->icon_mgr && srv->shm && (changed_atom == 0 || changed_atom == 35 /* XA_WM_HINTS */)) {
-        uint32_t a_wm_hints = 35; /* XA_WM_HINTS */
-        XmWlProperty *hp = _XmWlGetProperty(win, a_wm_hints);
-        if (hp && hp->data && hp->byte_len >= 16) {
-            uint32_t hflags = 0, icon_pix = 0, icon_mask = 0;
-            memcpy(&hflags, hp->data + 0, 4);
-            memcpy(&icon_pix, hp->data + 12, 4);
-            if ((hflags & 32u) && hp->byte_len >= 32)
-                memcpy(&icon_mask, hp->data + 28, 4);
-            if ((hflags & 4u) && icon_pix != 0) {
-                uint32_t *argb = NULL;
-                int iw = 0, ih = 0;
-                if (_XmWlBuildIconPixels(srv, icon_pix, (hflags & 32u) ? icon_mask : 0, &argb, &iw, &ih)) {
-                    size_t isz = (size_t)iw * (size_t)ih * 4u;
-                    int ifd = create_shm_fd(isz);
-                    if (ifd >= 0) {
-                        void *imap = mmap(NULL, isz, PROT_READ | PROT_WRITE, MAP_SHARED, ifd, 0);
-                        if (imap != MAP_FAILED) {
-                            memcpy(imap, argb, isz);
-                            struct wl_shm_pool *ipool = wl_shm_create_pool(srv->shm, ifd, (int32_t)isz);
-                            struct wl_buffer *ibuf = wl_shm_pool_create_buffer(
-                                ipool, 0, iw, ih, iw * 4, WL_SHM_FORMAT_ARGB8888);
-                            wl_shm_pool_destroy(ipool);
-                            struct xdg_toplevel_icon_v1 *ico =
-                                xdg_toplevel_icon_manager_v1_create_icon(srv->icon_mgr);
-                            xdg_toplevel_icon_v1_add_buffer(ico, ibuf, 1);
-                            xdg_toplevel_icon_manager_v1_set_icon(srv->icon_mgr, win->xdg_top, ico);
-                            xdg_toplevel_icon_v1_destroy(ico);
-                            wl_buffer_destroy(ibuf);
-                            munmap(imap, isz);
-                            changed = true;
-                        }
-                        close(ifd);
-                    }
-                    free(argb);
-                }
-            }
-        }
-    }
+    /* Dynamic window icon via xdg_toplevel_icon_v1 (_NET_WM_ICON, WM_HINTS, icon name, 1x+2x) */
+    if (sync_toplevel_icon_locked(srv, win, changed_atom))
+        changed = true;
     return changed;
 }
 
@@ -3077,6 +3566,8 @@ _XmWlUnmapWindowRole(XmWlServer *srv, XmWlWindow *win)
     win->sent_modal_mode = -1;
     win->sent_tearing_mode = -1;
     win->fifo_flags = 0;
+    win->has_sent_icon = false;
+    win->sent_icon_hash = 0;
     win->is_popup = false;
     win->is_drag_icon = false;
     win->popup_parent = NULL;
@@ -3614,6 +4105,57 @@ _XmWlIpcPublishRootProp(XmWlServer *srv, const char *atom_name, const uint8_t *d
     free(msg);
 }
 
+static bool
+is_transient_ipc_rpc_atom(const char *aname, uint8_t *out_delim)
+{
+    if (!aname || !aname[0] || !out_delim)
+        return false;
+    size_t n = strlen(aname);
+    if (!strcmp(aname, "_DT_WM_REQUEST") ||
+        (n > 8 && (!strncmp(aname, "_DT_", 4) || !strncmp(aname, "_MOTIF_", 7)) &&
+         !strcmp(aname + n - 8, "_REQUEST"))) {
+        *out_delim = '\0';
+        return true;
+    }
+    if ((n > 4 && (!strncmp(aname, "_DT", 3) || !strncmp(aname, "_MOTIF_", 7)) &&
+         (!strcmp(aname + n - 4, "_IPC") || !strcmp(aname + n - 4, "_CMD")))) {
+        *out_delim = '\n';
+        return true;
+    }
+    return false;
+}
+
+static void
+set_or_append_ipc_root_prop(XmWlServer *srv, uint32_t atom, uint32_t ptype,
+                            const uint8_t *raw, size_t rlen,
+                            bool queue_append, uint8_t delim)
+{
+    if (!srv || !srv->root || atom == 0)
+        return;
+    if (queue_append && rlen > 0) {
+        XmWlProperty *existing = _XmWlGetProperty(srv->root, atom);
+        if (existing && existing->format == 8 && existing->data && existing->byte_len > 0 &&
+            existing->byte_len + 1u + rlen <= 65536u) {
+            bool need_sep = (existing->data[existing->byte_len - 1u] != delim);
+            size_t add_len = (need_sep ? 1u : 0u) + rlen;
+            uint8_t *add_buf = (uint8_t *)malloc(add_len);
+            if (add_buf) {
+                if (need_sep) {
+                    add_buf[0] = delim;
+                    memcpy(add_buf + 1u, raw, rlen);
+                } else {
+                    memcpy(add_buf, raw, rlen);
+                }
+                _XmWlSetProperty(srv, srv->root, atom, ptype, 8, 2 /* PropModeAppend */,
+                                 add_buf, add_len, true);
+                free(add_buf);
+                return;
+            }
+        }
+    }
+    _XmWlSetProperty(srv, srv->root, atom, ptype, 8, 0 /* PropModeReplace */, raw, rlen, true);
+}
+
 void
 _XmWlIpcHandleReadable(XmWlServer *srv)
 {
@@ -3681,8 +4223,9 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                     }
                 }
             }
-        } else if (!strncmp(start, "PROP ", 5)) {
-            char *p = start + 5;
+        } else if (!strncmp(start, "PROP ", 5) || !strncmp(start, "PROP_QUEUE ", 11)) {
+            bool force_queue = !strncmp(start, "PROP_QUEUE ", 11);
+            char *p = start + (force_queue ? 11 : 5);
             char *sp = strrchr(p, ' ');
             if (sp) {
                 *sp = '\0';
@@ -3849,7 +4392,9 @@ _XmWlIpcHandleReadable(XmWlServer *srv)
                                           !strcmp(aname, "_DT_RESTORE_MODE"))
                                              ? 31u
                                              : utf8;
-                        _XmWlSetProperty(srv, srv->root, atom, ptype, 8, 0, raw, rlen, true);
+                        uint8_t rpc_delim = '\n';
+                        bool queue_rpc = force_queue || is_transient_ipc_rpc_atom(aname, &rpc_delim);
+                        set_or_append_ipc_root_prop(srv, atom, ptype, raw, rlen, queue_rpc, rpc_delim);
                         if (!strcmp(aname, "_DT_WAYLAND_OUTPUTS") && rlen > 0) {
                             apply_wayland_outputs_ipc(srv, (const char *)raw, rlen);
                         } else if (!strcmp(aname, "RESOURCE_MANAGER") &&
@@ -4632,6 +5177,16 @@ cleanup_wayland_backend(void)
         srv->fifo_mgr = NULL;
     }
 #endif
+#ifdef HAVE_WAYLAND_COLOR_MANAGEMENT
+    if (srv->color_mgr) {
+        wp_color_manager_v1_destroy(srv->color_mgr);
+        srv->color_mgr = NULL;
+    }
+#endif
+    if (srv->icon_mgr) {
+        xdg_toplevel_icon_manager_v1_destroy(srv->icon_mgr);
+        srv->icon_mgr = NULL;
+    }
 #ifdef HAVE_WAYLAND_TEARING_CONTROL
     if (srv->tearing_mgr) {
         wp_tearing_control_manager_v1_destroy(srv->tearing_mgr);
@@ -5301,6 +5856,23 @@ XmWaylandSetSurfaceFifo(
     return ok ? True : False;
 }
 
+Boolean
+XmWaylandSetSurfaceHdrMetadata(
+    Display *display,
+    struct wl_surface *surface,
+    const XmWaylandHdrMetadata *metadata)
+{
+    if (!surface)
+        return False;
+    XmWlServer *srv = _XmWaylandGetServer();
+    if (!srv || !display_matches_wayland_server(display, srv))
+        return False;
+    pthread_mutex_lock(&srv->lock);
+    bool ok = apply_surface_hdr_locked(srv, surface, metadata);
+    pthread_mutex_unlock(&srv->lock);
+    return ok ? True : False;
+}
+
 void
 XmWaylandReleaseSurfaceExtensions(
     Display *display,
@@ -5487,6 +6059,18 @@ XmWaylandSetSurfaceFifo(
     (void)surface;
     (void)set_barrier;
     (void)wait_barrier;
+    return False;
+}
+
+Boolean
+XmWaylandSetSurfaceHdrMetadata(
+    Display *display,
+    struct wl_surface *surface,
+    const XmWaylandHdrMetadata *metadata)
+{
+    (void)display;
+    (void)surface;
+    (void)metadata;
     return False;
 }
 

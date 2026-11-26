@@ -2001,8 +2001,34 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         if (!XmWaylandSetSurfaceFifo(dpy, sub_wl_surf, True, True))
             fail_msg("XmWaylandSetSurfaceFifo failed on subsurface");
 
+        XmWaylandHdrMetadata hdr_meta = {
+            .transfer_function = XM_WAYLAND_COLOR_TF_ST2084_PQ,
+            .primaries = XM_WAYLAND_COLOR_PRIMARIES_BT2020,
+            .has_mastering_display_primaries = True,
+            .display_primaries_rx = 708000, .display_primaries_ry = 292000,
+            .display_primaries_gx = 170000, .display_primaries_gy = 797000,
+            .display_primaries_bx = 131000, .display_primaries_by = 46000,
+            .white_point_x = 312700, .white_point_y = 329000,
+            .has_mastering_luminance = True,
+            .min_luminance_10000 = 50u,
+            .max_luminance = 1000u,
+            .max_cll = 1000u,
+            .max_fall = 400u,
+        };
+        if (!XmWaylandSetSurfaceHdrMetadata(dpy, sub_wl_surf, &hdr_meta))
+            fail_msg("XmWaylandSetSurfaceHdrMetadata failed on subsurface");
+        /* Second identical call must deduplicate without creating a second creator */
+        if (!XmWaylandSetSurfaceHdrMetadata(dpy, sub_wl_surf, &hdr_meta))
+            fail_msg("XmWaylandSetSurfaceHdrMetadata duplicate call failed");
+
         wl_surface_attach(sub_wl_surf, dm_buf, 0, 0);
         wl_surface_damage_buffer(sub_wl_surf, 0, 0, dm_w, dm_h);
+        wl_surface_commit(sub_wl_surf);
+        wl_display_roundtrip(wl_dpy);
+        wl_display_roundtrip(wl_dpy);
+
+        if (!XmWaylandSetSurfaceHdrMetadata(dpy, sub_wl_surf, NULL))
+            fail_msg("XmWaylandSetSurfaceHdrMetadata(NULL) unset failed");
         wl_surface_commit(sub_wl_surf);
         wl_display_roundtrip(wl_dpy);
 
@@ -2067,6 +2093,65 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
             }
         }
 
+        /* Client xdg_toplevel_icon_v1: non-square XmNiconPixmap -> square 1x+2x,
+         * multi-size _NET_WM_ICON (48+96) + _MOTIF_XDG_ICON_NAME, then clear. */
+        {
+            Pixmap ipm = XCreatePixmap(dpy, XtWindow(shell), 36, 24, 24);
+            XSetForeground(dpy, DefaultGC(dpy, DefaultScreen(dpy)), 0x2266ccUL);
+            XFillRectangle(dpy, ipm, DefaultGC(dpy, DefaultScreen(dpy)), 0, 0, 36, 24);
+            XtVaSetValues(shell, XmNiconPixmap, ipm, NULL);
+            XSync(dpy, False);
+            for (uint64_t dl = mono_ms() + 1500; mono_ms() < dl; ) {
+                pump_xt_ms(app, dpy, 25);
+                FILE *pef = fopen(pepath, "r");
+                if (pef) {
+                    char b[1536] = {0};
+                    size_t n = fread(b, 1, sizeof(b) - 1, pef);
+                    fclose(pef);
+                    b[n] = '\0';
+                    if (strstr(b, "icon_1x=36\n") && strstr(b, "icon_2x=72\n"))
+                        break;
+                }
+            }
+
+            Atom a_net_ico = XInternAtom(dpy, "_NET_WM_ICON", False);
+            Atom a_xdg_inm = XInternAtom(dpy, "_MOTIF_XDG_ICON_NAME", False);
+            size_t cnt48 = 48u * 48u, cnt96 = 96u * 96u;
+            size_t nwords = 2u + cnt48 + 2u + cnt96;
+            unsigned long *ico_words = (unsigned long *)calloc(nwords, sizeof(unsigned long));
+            if (!ico_words) fail_msg("calloc _NET_WM_ICON failed");
+            ico_words[0] = 48UL; ico_words[1] = 48UL;
+            for (size_t i = 0; i < cnt48; ++i) ico_words[2u + i] = 0xff3388ddUL;
+            ico_words[2u + cnt48] = 96UL; ico_words[3u + cnt48] = 96UL;
+            for (size_t i = 0; i < cnt96; ++i) ico_words[4u + cnt48 + i] = 0xff3388ddUL;
+            XChangeProperty(dpy, XtWindow(shell), a_xdg_inm, XA_STRING, 8, PropModeReplace,
+                            (const unsigned char *)"ck-calc", 7);
+            XChangeProperty(dpy, XtWindow(shell), a_net_ico, XA_CARDINAL, 32, PropModeReplace,
+                            (const unsigned char *)ico_words, (int)nwords);
+            free(ico_words);
+            XSync(dpy, False);
+            for (uint64_t dl = mono_ms() + 1500; mono_ms() < dl; ) {
+                pump_xt_ms(app, dpy, 25);
+                FILE *pef = fopen(pepath, "r");
+                if (pef) {
+                    char b[1536] = {0};
+                    size_t n = fread(b, 1, sizeof(b) - 1, pef);
+                    fclose(pef);
+                    b[n] = '\0';
+                    if (strstr(b, "icon_1x=48\n") && strstr(b, "icon_2x=96\n") &&
+                        strstr(b, "icon_name=ck-calc\n"))
+                        break;
+                }
+            }
+
+            XtVaSetValues(shell, XmNiconPixmap, None, NULL);
+            XDeleteProperty(dpy, XtWindow(shell), XA_WM_HINTS);
+            XDeleteProperty(dpy, XtWindow(shell), a_net_ico);
+            XDeleteProperty(dpy, XtWindow(shell), a_xdg_inm);
+            XFreePixmap(dpy, ipm);
+            XSync(dpy, False);
+        }
+
         /* Also test X11 _MOTIF_WAYLAND_TEARING + _MOTIF_WAYLAND_FIFO properties on top-level shell */
         Atom a_tear = XInternAtom(dpy, "_MOTIF_WAYLAND_TEARING", False);
         Atom a_fifo = XInternAtom(dpy, "_MOTIF_WAYLAND_FIFO", False);
@@ -2076,7 +2161,7 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
         XChangeProperty(dpy, XtWindow(shell), a_fifo, XA_CARDINAL, 32, PropModeReplace,
                         (const unsigned char *)&three_ul, 1);
         XSync(dpy, False);
-        char pebuf[1024] = {0};
+        char pebuf[2048] = {0};
         uint64_t pe_dl = mono_ms() + 2500;
         while (mono_ms() < pe_dl) {
             pump_xt_ms(app, dpy, 40);
@@ -2106,9 +2191,69 @@ run_ime_dnd_check(const char *self_exe, const char *sync_dir)
             !strstr(pebuf, "tearing_vsync=1\n") ||
             !strstr(pebuf, "tearing_destroyed=1\n") ||
             !strstr(pebuf, "fifo_objs=2\n") ||
-            !strstr(pebuf, "fifo_destroyed=1\n")) {
+            !strstr(pebuf, "fifo_destroyed=1\n") ||
+            !strstr(pebuf, "icon_1x=48\n") ||
+            !strstr(pebuf, "icon_2x=96\n") ||
+            !strstr(pebuf, "icon_name=ck-calc\n") ||
+            !strstr(pebuf, "icon_clear=1\n") ||
+            !strstr(pebuf, "cm_surfs=1\n") ||
+            !strstr(pebuf, "cm_creators=1\n") ||
+            !strstr(pebuf, "cm_sets=1\n") ||
+            !strstr(pebuf, "cm_unsets=1\n") ||
+            !strstr(pebuf, "cm_destroyed=1\n") ||
+            !strstr(pebuf, "cm_tf=11\n") ||
+            !strstr(pebuf, "cm_prim=6\n") ||
+            !strstr(pebuf, "cm_max_lum=1000\n") ||
+            !strstr(pebuf, "cm_max_cll=1000\n") ||
+            !strstr(pebuf, "cm_max_fall=400\n")) {
             fprintf(stderr, "FAIL: unexpected proto_ext_state.txt:\n%s\n", pebuf);
             exit(1);
+        }
+
+        /* Verify queued transient RPC atoms in _XmWlIpcHandleReadable */
+        {
+            Atom a_disp_ipc = XInternAtom(dpy, "_DT_STYLE_DISPLAY_IPC", False);
+            Atom a_wm_req = XInternAtom(dpy, "_DT_WM_REQUEST", False);
+            XDeleteProperty(dpy, DefaultRootWindow(dpy), a_disp_ipc);
+            XDeleteProperty(dpy, DefaultRootWindow(dpy), a_wm_req);
+            XSync(dpy, False);
+            write_stage_file(sync_dir, "ipc_queue.req");
+            char sent_p[512];
+            snprintf(sent_p, sizeof(sent_p), "%s/ipc_queue.sent", sync_dir);
+            for (uint64_t dl = mono_ms() + 2000; mono_ms() < dl; ) {
+                if (access(sent_p, F_OK) == 0)
+                    break;
+                pump_xt_ms(app, dpy, 20);
+            }
+            pump_xt_ms(app, dpy, 60);
+
+            Atom act = None;
+            int fmt = 0;
+            unsigned long nitems = 0, rem = 0;
+            unsigned char *pdata = NULL;
+            const char *expect_disp = "set-vrr Virtual-1 1\nset-dpi Virtual-1 144\napply";
+            if (XGetWindowProperty(dpy, DefaultRootWindow(dpy), a_disp_ipc, 0, 4096, True,
+                                   AnyPropertyType, &act, &fmt, &nitems, &rem, &pdata) != Success ||
+                !pdata || fmt != 8 || nitems != strlen(expect_disp) ||
+                memcmp(pdata, expect_disp, nitems) != 0) {
+                fprintf(stderr, "FAIL: queued _DT_STYLE_DISPLAY_IPC mismatch (n=%lu): '%s'\n",
+                        nitems, pdata ? (const char *)pdata : "(null)");
+                exit(1);
+            }
+            XFree(pdata);
+            pdata = NULL;
+
+            const char expect_req[] = "f.next_workspace\0f.prev_workspace";
+            size_t expect_req_len = sizeof(expect_req) - 1u;
+            if (XGetWindowProperty(dpy, DefaultRootWindow(dpy), a_wm_req, 0, 4096, True,
+                                   AnyPropertyType, &act, &fmt, &nitems, &rem, &pdata) != Success ||
+                !pdata || fmt != 8 || nitems != expect_req_len ||
+                memcmp(pdata, expect_req, expect_req_len) != 0) {
+                fprintf(stderr, "FAIL: queued _DT_WM_REQUEST mismatch (n=%lu, expected=%zu)\n",
+                        nitems, expect_req_len);
+                exit(1);
+            }
+            XFree(pdata);
         }
     }
 

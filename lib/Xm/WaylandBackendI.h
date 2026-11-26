@@ -6,6 +6,7 @@
 #define _XmWaylandBackendI_h
 
 #include <X11/Intrinsic.h>
+#include <Xm/Wayland.h>
 
 #ifdef HAVE_WAYLAND_BACKEND
 
@@ -44,6 +45,9 @@
 #endif
 #ifdef HAVE_WAYLAND_FIFO
 #include "wayland-fifo-v1-client-protocol.h"
+#endif
+#ifdef HAVE_WAYLAND_COLOR_MANAGEMENT
+#include "wayland-color-management-v1-client-protocol.h"
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -122,6 +126,15 @@ struct XmWlSurfaceExt {
 #endif
 #ifdef HAVE_WAYLAND_FIFO
     struct wp_fifo_v1 *fifo;
+#endif
+#ifdef HAVE_WAYLAND_COLOR_MANAGEMENT
+    XmWlServer *cm_srv;
+    struct wp_color_management_surface_v1 *cm_surf;
+    struct wp_image_description_v1 *cm_desc;
+    struct wp_image_description_v1 *cm_pending_desc;
+    XmWaylandHdrMetadata hdr_meta;
+    bool has_hdr_meta;
+    bool cm_desc_applied;
 #endif
     struct XmWlSurfaceExt *next;
 };
@@ -235,6 +248,8 @@ struct XmWlWindow {
     int8_t sent_modal_mode;
     int8_t sent_tearing_mode;
     uint8_t fifo_flags; /* bit0: set_barrier, bit1: wait_barrier */
+    bool has_sent_icon;
+    uint64_t sent_icon_hash;
     double preferred_scale; /* e.g. 1.0, 1.25, 1.5, 2.0 */
     struct wl_output *current_wl_output;
     struct wl_output *wl_outputs[XM_WL_MAX_OUTPUTS];
@@ -488,6 +503,8 @@ struct XmWlServer {
     struct xdg_wm_base *xdg_wm_base;
     struct zxdg_decoration_manager_v1 *deco_mgr;
     struct xdg_toplevel_icon_manager_v1 *icon_mgr;
+    int32_t icon_pref_sizes[8];
+    int icon_pref_count;
     struct xdg_activation_v1 *activation_mgr;
     struct wl_seat *seat;
     struct wl_pointer *pointer;
@@ -526,6 +543,13 @@ struct XmWlServer {
 #endif
 #ifdef HAVE_WAYLAND_FIFO
     struct wp_fifo_manager_v1 *fifo_mgr;
+#endif
+#ifdef HAVE_WAYLAND_COLOR_MANAGEMENT
+    struct wp_color_manager_v1 *color_mgr;
+    bool cm_feat_parametric;
+    bool cm_feat_mastering;
+    uint32_t cm_tf_mask;
+    uint32_t cm_primaries_mask;
 #endif
     XmWlSurfaceExt *surf_exts;
 

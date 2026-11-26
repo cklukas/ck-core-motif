@@ -184,11 +184,22 @@ as media players or off-screen web views) inside a Motif widget can include
   via `zwp_linux_buffer_params_v1.create_immed` for embedded `wl_subsurface`
   video, image, and WebGL presentation without CPU `wl_shm` readback.
 - `XmWaylandSetSurfaceTearingHint(display, surface, async_tearing)`,
-  `XmWaylandSetSurfaceFifo(display, surface, set_barrier, wait_barrier)`, and
+  `XmWaylandSetSurfaceFifo(display, surface, set_barrier, wait_barrier)`,
+  `XmWaylandSetSurfaceHdrMetadata(display, surface, &hdr_metadata)`, and
   `XmWaylandReleaseSurfaceExtensions(display, surface)` manage deduplicated
-  per-surface `wp_tearing_control_v1` and `wp_fifo_v1` presentation objects for
+  per-surface `wp_tearing_control_v1`, `wp_fifo_v1`, and
+  `wp_color_management_surface_v1` (`BT.2020 PQ`, `HLG`, `Display-P3`, `sRGB`,
+  mastering display primaries/luminance, `MaxCLL`, and `MaxFALL`) objects for
   top-level or embedded `wl_subsurface` surfaces without protocol object-duplication
   or teardown ordering errors.
+- Top-level Motif shells automatically publish `xdg_toplevel_icon_v1` multi-scale
+  square `wl_shm` `ARGB8888` buffers (`1x` and `2x`) from both multi-frame
+  `_NET_WM_ICON` properties and `WM_HINTS` (`XmNiconPixmap` / `XmNiconMask`),
+  optional XDG stock icon names (`_MOTIF_XDG_ICON_NAME`), and `NULL` resets when
+  icons are cleared, while transient session IPC atoms (`_DT_WM_REQUEST`,
+  `_DT_STYLE_DISPLAY_IPC`, `*_IPC`, `*_CMD`, `PROP_QUEUE`) use bounded
+  append-queue semantics so concurrent unbatched IPC writers never overwrite
+  unread payloads.
 - `XmWaylandRequestActivationToken(display, source_window, app_id, &token)`
   mints a one-shot `xdg_activation_v1` token seeded with `libXm`'s latest
   button/keypress serial, source top-level `wl_surface`, and optional target

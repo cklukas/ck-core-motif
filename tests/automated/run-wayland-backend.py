@@ -28,6 +28,8 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     #include <stdlib.h>
     #include <string.h>
     #include <sys/mman.h>
+    #include <sys/socket.h>
+    #include <sys/un.h>
     #include <time.h>
     #include <unistd.h>
     #include <wayland-server.h>
@@ -40,6 +42,8 @@ MINI_COMPOSITOR_C = textwrap.dedent(
     #include "xdg-dialog-v1-server.h"
     #include "tearing-control-v1-server.h"
     #include "fifo-v1-server.h"
+    #include "xdg-toplevel-icon-v1-server.h"
+    #include "color-management-v1-server.h"
 
     typedef struct {
         struct wl_resource *res;
@@ -107,6 +111,24 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         int fifo_set_calls;
         int fifo_wait_calls;
         int fifo_destroyed;
+        int icon_set_calls;
+        int icon_clear_calls;
+        int icon_1x_side;
+        int icon_2x_side;
+        char icon_last_name[128];
+        int cm_surf_objs;
+        int cm_creator_calls;
+        int cm_set_desc_calls;
+        int cm_unset_desc_calls;
+        int cm_destroyed;
+        uint32_t cm_last_tf;
+        uint32_t cm_last_primaries;
+        uint32_t cm_last_max_lum;
+        uint32_t cm_last_max_cll;
+        uint32_t cm_last_max_fall;
+        int ipc_listen_fd;
+        int ipc_cli_fd;
+        bool ipc_burst_sent;
         int phase;
     } MiniSrv;
 
@@ -158,6 +180,7 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         bool has_dialog;
         bool has_tearing;
         bool has_fifo;
+        bool has_cm;
     } SurfState;
 
     typedef struct {
@@ -360,13 +383,19 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                     "top_parent_calls=%d\ndialog_created=%d\nmodal_set=%d\nmodal_unset=%d\n"
                     "dialog_destroyed_before_top=%d\n"
                     "tearing_objs=%d\ntearing_async=%d\ntearing_vsync=%d\ntearing_destroyed=%d\n"
-                    "fifo_objs=%d\nfifo_set=%d\nfifo_wait=%d\nfifo_destroyed=%d\n",
+                    "fifo_objs=%d\nfifo_set=%d\nfifo_wait=%d\nfifo_destroyed=%d\n"
+                    "icon_set=%d\nicon_clear=%d\nicon_1x=%d\nicon_2x=%d\nicon_name=%s\n"
+                    "cm_surfs=%d\ncm_creators=%d\ncm_sets=%d\ncm_unsets=%d\ncm_destroyed=%d\n"
+                    "cm_tf=%u\ncm_prim=%u\ncm_max_lum=%u\ncm_max_cll=%u\ncm_max_fall=%u\n",
                     ms->dmabuf_imports, (int)ms->dmabuf_w, (int)ms->dmabuf_h, ms->dmabuf_stride,
                     ms->dmabuf_fmt, ms->dmabuf_px0, ms->subsurf_created,
                     ms->top_parent_calls, ms->dialog_created, ms->modal_set_calls, ms->modal_unset_calls,
                     ms->dialog_destroyed_before_top,
                     ms->tearing_objs, ms->tearing_async_calls, ms->tearing_vsync_calls, ms->tearing_destroyed,
-                    ms->fifo_objs, ms->fifo_set_calls, ms->fifo_wait_calls, ms->fifo_destroyed);
+                    ms->fifo_objs, ms->fifo_set_calls, ms->fifo_wait_calls, ms->fifo_destroyed,
+                    ms->icon_set_calls, ms->icon_clear_calls, ms->icon_1x_side, ms->icon_2x_side, ms->icon_last_name,
+                    ms->cm_surf_objs, ms->cm_creator_calls, ms->cm_set_desc_calls, ms->cm_unset_desc_calls, ms->cm_destroyed,
+                    ms->cm_last_tf, ms->cm_last_primaries, ms->cm_last_max_lum, ms->cm_last_max_cll, ms->cm_last_max_fall);
             fclose(f);
             rename(tmp_p, dst_p);
         }
@@ -1314,6 +1343,291 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         wl_resource_set_implementation(r, &g_fifo_mgr_impl, d, NULL);
     }
 
+    /* xdg_toplevel_icon_manager_v1 */
+    typedef struct {
+        MiniSrv *ms;
+        int side_1x;
+        int side_2x;
+        char name[128];
+        bool immutable;
+    } MiniIconObj;
+
+    static void free_mini_icon(struct wl_resource *r) {
+        free(wl_resource_get_user_data(r));
+    }
+    static void ico_set_name(struct wl_client *c, struct wl_resource *r, const char *nm) {
+        (void)c;
+        MiniIconObj *io = wl_resource_get_user_data(r);
+        if (!io) return;
+        if (io->immutable) {
+            wl_resource_post_error(r, XDG_TOPLEVEL_ICON_V1_ERROR_IMMUTABLE, "immutable icon");
+            return;
+        }
+        if (nm) snprintf(io->name, sizeof(io->name), "%s", nm);
+    }
+    static void ico_add_buffer(struct wl_client *c, struct wl_resource *r, struct wl_resource *buf, int32_t sc) {
+        (void)c;
+        MiniIconObj *io = wl_resource_get_user_data(r);
+        if (!io || !buf) return;
+        if (io->immutable) {
+            wl_resource_post_error(r, XDG_TOPLEVEL_ICON_V1_ERROR_IMMUTABLE, "immutable icon");
+            return;
+        }
+        struct wl_shm_buffer *shmb = wl_shm_buffer_get(buf);
+        if (!shmb) {
+            wl_resource_post_error(r, XDG_TOPLEVEL_ICON_V1_ERROR_INVALID_BUFFER, "not shm");
+            return;
+        }
+        int w = wl_shm_buffer_get_width(shmb);
+        int h = wl_shm_buffer_get_height(shmb);
+        if (w <= 0 || w != h) {
+            wl_resource_post_error(r, XDG_TOPLEVEL_ICON_V1_ERROR_INVALID_BUFFER, "non-square icon");
+            return;
+        }
+        if (sc == 1) io->side_1x = w;
+        else if (sc == 2) io->side_2x = w;
+    }
+    static const struct xdg_toplevel_icon_v1_interface g_ico_impl = {
+        .destroy = noop_destroy,
+        .set_name = ico_set_name,
+        .add_buffer = ico_add_buffer,
+    };
+    static void icomgr_create_icon(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        MiniIconObj *io = calloc(1, sizeof(*io));
+        io->ms = ms;
+        struct wl_resource *ir = wl_resource_create(c, &xdg_toplevel_icon_v1_interface, 1, id);
+        wl_resource_set_implementation(ir, &g_ico_impl, io, free_mini_icon);
+    }
+    static void icomgr_set_icon(struct wl_client *c, struct wl_resource *r,
+                                struct wl_resource *top, struct wl_resource *ico) {
+        (void)c; (void)top;
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        if (!ms) return;
+        if (!ico) {
+            ms->icon_clear_calls++;
+            write_proto_ext_state(ms);
+            return;
+        }
+        MiniIconObj *io = wl_resource_get_user_data(ico);
+        if (io) {
+            io->immutable = true;
+            ms->icon_set_calls++;
+            if (io->side_1x > 0) ms->icon_1x_side = io->side_1x;
+            if (io->side_2x > 0) ms->icon_2x_side = io->side_2x;
+            if (io->name[0]) snprintf(ms->icon_last_name, sizeof(ms->icon_last_name), "%s", io->name);
+            write_proto_ext_state(ms);
+        }
+    }
+    static const struct xdg_toplevel_icon_manager_v1_interface g_icomgr_impl = {
+        .destroy = noop_destroy,
+        .create_icon = icomgr_create_icon,
+        .set_icon = icomgr_set_icon,
+    };
+    static void bind_icomgr(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &xdg_toplevel_icon_manager_v1_interface, 1, id);
+        wl_resource_set_implementation(r, &g_icomgr_impl, d, NULL);
+        xdg_toplevel_icon_manager_v1_send_icon_size(r, 48);
+        xdg_toplevel_icon_manager_v1_send_done(r);
+    }
+
+    /* wp_color_manager_v1 */
+    typedef struct {
+        MiniSrv *ms;
+        uint32_t tf;
+        uint32_t primaries;
+        uint32_t max_lum;
+        uint32_t max_cll;
+        uint32_t max_fall;
+        bool ready_sent;
+    } MiniImgDesc;
+
+    static void free_mini_img_desc(struct wl_resource *r) {
+        free(wl_resource_get_user_data(r));
+    }
+    static void imgdesc_get_info(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        (void)c; (void)r; (void)id;
+    }
+    static const struct wp_image_description_v1_interface g_imgdesc_impl = {
+        .destroy = noop_destroy,
+        .get_information = imgdesc_get_info,
+    };
+    static void cparam_tf_named(struct wl_client *c, struct wl_resource *r, uint32_t tf) {
+        (void)c;
+        MiniImgDesc *md = wl_resource_get_user_data(r);
+        if (md) md->tf = tf;
+    }
+    static void cparam_tf_power(struct wl_client *c, struct wl_resource *r, uint32_t e) { (void)c; (void)r; (void)e; }
+    static void cparam_prim_named(struct wl_client *c, struct wl_resource *r, uint32_t p) {
+        (void)c;
+        MiniImgDesc *md = wl_resource_get_user_data(r);
+        if (md) md->primaries = p;
+    }
+    static void cparam_prim(struct wl_client *c, struct wl_resource *r,
+                            int32_t rx, int32_t ry, int32_t gx, int32_t gy,
+                            int32_t bx, int32_t by, int32_t wx, int32_t wy) {
+        (void)c; (void)r; (void)rx; (void)ry; (void)gx; (void)gy; (void)bx; (void)by; (void)wx; (void)wy;
+    }
+    static void cparam_lum(struct wl_client *c, struct wl_resource *r, uint32_t mn, uint32_t mx, uint32_t rf) {
+        (void)c; (void)r; (void)mn; (void)mx; (void)rf;
+    }
+    static void cparam_mlum(struct wl_client *c, struct wl_resource *r, uint32_t mn, uint32_t mx) {
+        (void)c; (void)mn;
+        MiniImgDesc *md = wl_resource_get_user_data(r);
+        if (md) md->max_lum = mx;
+    }
+    static void cparam_mcll(struct wl_client *c, struct wl_resource *r, uint32_t v) {
+        (void)c;
+        MiniImgDesc *md = wl_resource_get_user_data(r);
+        if (md) md->max_cll = v;
+    }
+    static void cparam_mfall(struct wl_client *c, struct wl_resource *r, uint32_t v) {
+        (void)c;
+        MiniImgDesc *md = wl_resource_get_user_data(r);
+        if (md) md->max_fall = v;
+    }
+    static void cparam_create(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        MiniImgDesc *src_md = wl_resource_get_user_data(r);
+        MiniImgDesc *md = calloc(1, sizeof(*md));
+        if (src_md) *md = *src_md;
+        md->ready_sent = true;
+        struct wl_resource *dr = wl_resource_create(c, &wp_image_description_v1_interface, 1, id);
+        wl_resource_set_implementation(dr, &g_imgdesc_impl, md, free_mini_img_desc);
+        wp_image_description_v1_send_ready(dr, 42u);
+        wl_resource_destroy(r);
+    }
+    static const struct wp_image_description_creator_params_v1_interface g_cparam_impl = {
+        .create = cparam_create,
+        .set_tf_named = cparam_tf_named,
+        .set_tf_power = cparam_tf_power,
+        .set_primaries_named = cparam_prim_named,
+        .set_primaries = cparam_prim,
+        .set_luminances = cparam_lum,
+        .set_mastering_display_primaries = cparam_prim,
+        .set_mastering_luminance = cparam_mlum,
+        .set_max_cll = cparam_mcll,
+        .set_max_fall = cparam_mfall,
+    };
+    static void cmsurf_destroy(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss) {
+            ss->has_cm = false;
+            if (ss->ms) {
+                ss->ms->cm_destroyed++;
+                write_proto_ext_state(ss->ms);
+            }
+        }
+        wl_resource_destroy(r);
+    }
+    static void cmsurf_set_desc(struct wl_client *c, struct wl_resource *r,
+                                struct wl_resource *desc, uint32_t intent) {
+        (void)c; (void)intent;
+        SurfState *ss = wl_resource_get_user_data(r);
+        MiniImgDesc *md = desc ? wl_resource_get_user_data(desc) : NULL;
+        if (!md || !md->ready_sent) {
+            wl_resource_post_error(r, WP_COLOR_MANAGEMENT_SURFACE_V1_ERROR_IMAGE_DESCRIPTION, "not ready");
+            return;
+        }
+        if (ss && ss->ms) {
+            ss->ms->cm_set_desc_calls++;
+            ss->ms->cm_last_tf = md->tf;
+            ss->ms->cm_last_primaries = md->primaries;
+            ss->ms->cm_last_max_lum = md->max_lum;
+            ss->ms->cm_last_max_cll = md->max_cll;
+            ss->ms->cm_last_max_fall = md->max_fall;
+            write_proto_ext_state(ss->ms);
+        }
+    }
+    static void cmsurf_unset_desc(struct wl_client *c, struct wl_resource *r) {
+        (void)c;
+        SurfState *ss = wl_resource_get_user_data(r);
+        if (ss && ss->ms) {
+            ss->ms->cm_unset_desc_calls++;
+            write_proto_ext_state(ss->ms);
+        }
+    }
+    static const struct wp_color_management_surface_v1_interface g_cmsurf_impl = {
+        .destroy = cmsurf_destroy,
+        .set_image_description = cmsurf_set_desc,
+        .unset_image_description = cmsurf_unset_desc,
+    };
+    static void cmmgr_get_output(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *out) {
+        (void)c; (void)r; (void)id; (void)out;
+    }
+    static void cmmgr_get_surf(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *surf) {
+        SurfState *ss = surf ? wl_resource_get_user_data(surf) : NULL;
+        if (ss && ss->has_cm) {
+            wl_resource_post_error(r, WP_COLOR_MANAGER_V1_ERROR_SURFACE_EXISTS, "duplicate cm_surf");
+            return;
+        }
+        struct wl_resource *cr = wl_resource_create(c, &wp_color_management_surface_v1_interface, 1, id);
+        wl_resource_set_implementation(cr, &g_cmsurf_impl, ss, NULL);
+        if (ss) {
+            ss->has_cm = true;
+            if (ss->ms) {
+                ss->ms->cm_surf_objs++;
+                write_proto_ext_state(ss->ms);
+            }
+        }
+    }
+    static void cmmgr_get_surf_fb(struct wl_client *c, struct wl_resource *r, uint32_t id, struct wl_resource *surf) {
+        (void)c; (void)r; (void)id; (void)surf;
+    }
+    static void cmmgr_create_icc(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        (void)c; (void)r; (void)id;
+    }
+    static void cmmgr_create_param(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        MiniSrv *ms = wl_resource_get_user_data(r);
+        if (ms) {
+            ms->cm_creator_calls++;
+            write_proto_ext_state(ms);
+        }
+        MiniImgDesc *md = calloc(1, sizeof(*md));
+        md->ms = ms;
+        struct wl_resource *pr = wl_resource_create(c, &wp_image_description_creator_params_v1_interface, 1, id);
+        wl_resource_set_implementation(pr, &g_cparam_impl, md, free_mini_img_desc);
+    }
+    static void cmmgr_create_scrgb(struct wl_client *c, struct wl_resource *r, uint32_t id) {
+        (void)c; (void)r; (void)id;
+    }
+    static const struct wp_color_manager_v1_interface g_cmmgr_impl = {
+        .destroy = noop_destroy,
+        .get_output = cmmgr_get_output,
+        .get_surface = cmmgr_get_surf,
+        .get_surface_feedback = cmmgr_get_surf_fb,
+        .create_icc_creator = cmmgr_create_icc,
+        .create_parametric_creator = cmmgr_create_param,
+        .create_windows_scrgb = cmmgr_create_scrgb,
+    };
+    static void bind_cmmgr(struct wl_client *c, void *d, uint32_t ver, uint32_t id) {
+        (void)ver;
+        struct wl_resource *r = wl_resource_create(c, &wp_color_manager_v1_interface, 1, id);
+        wl_resource_set_implementation(r, &g_cmmgr_impl, d, NULL);
+        wp_color_manager_v1_send_supported_intent(r, WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
+        wp_color_manager_v1_send_supported_feature(r, WP_COLOR_MANAGER_V1_FEATURE_PARAMETRIC);
+        wp_color_manager_v1_send_supported_feature(r, WP_COLOR_MANAGER_V1_FEATURE_SET_MASTERING_DISPLAY_PRIMARIES);
+        wp_color_manager_v1_send_supported_tf_named(r, WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB);
+        wp_color_manager_v1_send_supported_tf_named(r, WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_BT1886);
+        wp_color_manager_v1_send_supported_tf_named(r, WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ);
+        wp_color_manager_v1_send_supported_tf_named(r, WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_HLG);
+        wp_color_manager_v1_send_supported_primaries_named(r, WP_COLOR_MANAGER_V1_PRIMARIES_SRGB);
+        wp_color_manager_v1_send_supported_primaries_named(r, WP_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3);
+        wp_color_manager_v1_send_supported_primaries_named(r, WP_COLOR_MANAGER_V1_PRIMARIES_BT2020);
+        wp_color_manager_v1_send_done(r);
+    }
+
+    static void hex_encode_str(const char *s, char *out, size_t out_cap) {
+        size_t n = strlen(s);
+        size_t o = 0;
+        for (size_t i = 0; i < n && o + 2 < out_cap; ++i) {
+            snprintf(out + o, out_cap - o, "%02x", (unsigned char)s[i]);
+            o += 2;
+        }
+        out[o] = '\0';
+    }
+
     int main(int argc, char **argv) {
         if (argc < 3) return 2;
         MiniSrv ms;
@@ -1342,6 +1656,26 @@ MINI_COMPOSITOR_C = textwrap.dedent(
         wl_global_create(ms.dpy, &xdg_wm_dialog_v1_interface, 1, &ms, bind_xdlg_mgr);
         wl_global_create(ms.dpy, &wp_tearing_control_manager_v1_interface, 1, &ms, bind_tear_mgr);
         wl_global_create(ms.dpy, &wp_fifo_manager_v1_interface, 1, &ms, bind_fifo_mgr);
+        wl_global_create(ms.dpy, &xdg_toplevel_icon_manager_v1_interface, 1, &ms, bind_icomgr);
+        wl_global_create(ms.dpy, &wp_color_manager_v1_interface, 1, &ms, bind_cmmgr);
+
+        ms.ipc_listen_fd = -1;
+        ms.ipc_cli_fd = -1;
+        const char *xrt = getenv("XDG_RUNTIME_DIR");
+        if (xrt && xrt[0]) {
+            struct sockaddr_un uaddr;
+            memset(&uaddr, 0, sizeof(uaddr));
+            uaddr.sun_family = AF_UNIX;
+            int un = snprintf(uaddr.sun_path, sizeof(uaddr.sun_path), "%s/dtwm-wayland-%s.ipc", xrt, argv[1]);
+            if (un > 0 && (size_t)un < sizeof(uaddr.sun_path)) {
+                unlink(uaddr.sun_path);
+                int lfd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+                if (lfd >= 0 && bind(lfd, (struct sockaddr *)&uaddr, sizeof(uaddr)) == 0 && listen(lfd, 4) == 0)
+                    ms.ipc_listen_fd = lfd;
+                else if (lfd >= 0)
+                    close(lfd);
+            }
+        }
 
         write_flag(ms.sync_dir, "srv.ready");
 
@@ -1356,6 +1690,38 @@ MINI_COMPOSITOR_C = textwrap.dedent(
                 break;
             wl_event_loop_dispatch(loop, 15);
             wl_display_flush_clients(ms.dpy);
+
+            if (ms.ipc_listen_fd >= 0 && ms.ipc_cli_fd < 0) {
+                int cfd = accept4(ms.ipc_listen_fd, NULL, NULL, SOCK_CLOEXEC | SOCK_NONBLOCK);
+                if (cfd >= 0) {
+                    ms.ipc_cli_fd = cfd;
+                    const char *rdy = "READY\n";
+                    (void)send(cfd, rdy, strlen(rdy), MSG_NOSIGNAL);
+                }
+            }
+            if (ms.ipc_cli_fd >= 0) {
+                char drain_ipc[512];
+                while (recv(ms.ipc_cli_fd, drain_ipc, sizeof(drain_ipc), 0) > 0) {}
+                if (!ms.ipc_burst_sent && file_exists(ms.sync_dir, "ipc_queue.req")) {
+                    char h1[128], h2[128], h3[128], r1[128], r2[128], burst[1024];
+                    hex_encode_str("set-vrr Virtual-1 1", h1, sizeof(h1));
+                    hex_encode_str("set-dpi Virtual-1 144", h2, sizeof(h2));
+                    hex_encode_str("apply", h3, sizeof(h3));
+                    hex_encode_str("f.next_workspace", r1, sizeof(r1));
+                    hex_encode_str("f.prev_workspace", r2, sizeof(r2));
+                    int bl = snprintf(burst, sizeof(burst),
+                                      "PROP _DT_STYLE_DISPLAY_IPC %s\n"
+                                      "PROP _DT_STYLE_DISPLAY_IPC %s\n"
+                                      "PROP _DT_STYLE_DISPLAY_IPC %s\n"
+                                      "PROP _DT_WM_REQUEST %s\n"
+                                      "PROP _DT_WM_REQUEST %s\n",
+                                      h1, h2, h3, r1, r2);
+                    if (bl > 0 && (size_t)bl < sizeof(burst))
+                        (void)send(ms.ipc_cli_fd, burst, (size_t)bl, MSG_NOSIGNAL);
+                    ms.ipc_burst_sent = true;
+                    write_flag(ms.sync_dir, "ipc_queue.sent");
+                }
+            }
 
             if (stage == 0 && file_exists(ms.sync_dir, "ime_client.ready") && ms.text_in_res) {
                 if (!ms.ime_enabled_seen || !ms.ime_cursor_rect_seen) {
@@ -1821,6 +2187,8 @@ def main() -> int:
         xdlg_xml = wp_dir / "staging/xdg-dialog/xdg-dialog-v1.xml"
         tear_xml = wp_dir / "staging/tearing-control/tearing-control-v1.xml"
         fifo_xml = wp_dir / "staging/fifo/fifo-v1.xml"
+        icon_xml = wp_dir / "staging/xdg-toplevel-icon/xdg-toplevel-icon-v1.xml"
+        cm_xml = wp_dir / "staging/color-management/color-management-v1.xml"
 
         proto_dir = output / "proto"
         subprocess.run([scanner, "server-header", str(xdg_xml), str(proto_dir / "xdg-shell-server.h")], check=True)
@@ -1843,6 +2211,10 @@ def main() -> int:
         subprocess.run([scanner, "private-code", str(tear_xml), str(proto_dir / "tearing-control-v1-code.c")], check=True)
         subprocess.run([scanner, "server-header", str(fifo_xml), str(proto_dir / "fifo-v1-server.h")], check=True)
         subprocess.run([scanner, "private-code", str(fifo_xml), str(proto_dir / "fifo-v1-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(icon_xml), str(proto_dir / "xdg-toplevel-icon-v1-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(icon_xml), str(proto_dir / "xdg-toplevel-icon-v1-code.c")], check=True)
+        subprocess.run([scanner, "server-header", str(cm_xml), str(proto_dir / "color-management-v1-server.h")], check=True)
+        subprocess.run([scanner, "private-code", str(cm_xml), str(proto_dir / "color-management-v1-code.c")], check=True)
 
         srv_c = proto_dir / "mini-compositor.c"
         srv_c.write_text(MINI_COMPOSITOR_C)
@@ -1863,6 +2235,8 @@ def main() -> int:
                 str(proto_dir / "xdg-dialog-v1-code.c"),
                 str(proto_dir / "tearing-control-v1-code.c"),
                 str(proto_dir / "fifo-v1-code.c"),
+                str(proto_dir / "xdg-toplevel-icon-v1-code.c"),
+                str(proto_dir / "color-management-v1-code.c"),
                 *wls_lf, "-o", str(srv_bin),
             ],
             env=base_env,

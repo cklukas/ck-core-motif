@@ -120,6 +120,10 @@ if OM_WAYLAND_FIFO
 WAYLAND_PROTO_HDRS += wayland-fifo-v1-client-protocol.h
 WAYLAND_PROTO_SRCS += wayland-fifo-v1-protocol.c
 endif
+if OM_WAYLAND_COLOR_MANAGEMENT
+WAYLAND_PROTO_HDRS += wayland-color-management-v1-client-protocol.h
+WAYLAND_PROTO_SRCS += wayland-color-management-v1-protocol.c
+endif
 WAYLAND_SRCS = WaylandBackend.c WaylandX11Server.c WaylandRender.c WaylandData.c WaylandIme.c
 WAYLAND_HDRS = WaylandBackendI.h
 else
@@ -427,6 +431,12 @@ if OM_WAYLAND_FIFO
 wayland-fifo-v1-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/fifo/fifo-v1.xml
 	$(WAYLAND_SCANNER) client-header $< $@
 wayland-fifo-v1-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/fifo/fifo-v1.xml
+	$(WAYLAND_SCANNER) private-code $< $@
+endif
+if OM_WAYLAND_COLOR_MANAGEMENT
+wayland-color-management-v1-client-protocol.h: $(WAYLAND_PROTOCOLS_DATADIR)/staging/color-management/color-management-v1.xml
+	$(WAYLAND_SCANNER) client-header $< $@
+wayland-color-management-v1-protocol.c: $(WAYLAND_PROTOCOLS_DATADIR)/staging/color-management/color-management-v1.xml
 	$(WAYLAND_SCANNER) private-code $< $@
 endif
 endif

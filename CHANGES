@@ -1,3 +1,27 @@
+Add Wayland client xdg-toplevel-icon-v1 multi-scale icons, HDR10 surface color management, and queued IPC atoms (2026-11-26)
+============================================================================================================================
+
+- `configure.ac`, `lib/Xm/Makefile.am`, `lib/Xm/Wayland.h`,
+  `lib/Xm/WaylandBackendI.h`, `lib/Xm/WaylandBackend.c`,
+  `lib/Xm/WaylandX11Server.c`, `tests/automated/check-wayland-backend.c`,
+  `tests/automated/run-wayland-backend.py`, `docs/wayland-backend.md`:
+  - Expand client-side `xdg_toplevel_icon_v1` in `WaylandBackend.c` to listen
+    for compositor `icon_size` preferences, extract multi-resolution premultiplied
+    square `ARGB8888` buffers (`1x` and `2x`) from `_NET_WM_ICON` as well as
+    upscaled `WM_HINTS` (`XmNiconPixmap` / `XmNiconMask`), publish optional XDG
+    theme icon names (`_MOTIF_XDG_ICON_NAME`), deduplicate unchanged icon
+    commits, and clear to `NULL` when icon properties are deleted.
+  - Bind `wp_color_manager_v1` and add `XmWaylandSetSurfaceHdrMetadata`
+    (`XM_WAYLAND_COLOR_TF_ST2084_PQ`, `HLG`, `BT1886`, `SRGB`; `BT.2020`,
+    `Display-P3`, `sRGB`; mastering display primaries/luminance, `MaxCLL`, and
+    `MaxFALL`) to `<Xm/Wayland.h>`, applying double-buffered surface image
+    descriptions upon `wp_image_description_v1.ready` with frame-to-frame
+    deduplication and clean `XmWaylandReleaseSurfaceExtensions` teardown.
+  - Add bounded append-queue semantics (`PropModeAppend` with `\n` / `\0`
+    separators and `PROP_QUEUE`) in `_XmWlIpcHandleReadable` for transient
+    compositor RPC atoms (`_DT_STYLE_DISPLAY_IPC`, `_DT_WM_REQUEST`, `*_IPC`,
+    `*_CMD`) so concurrent unbatched IPC writers never overwrite unread payloads.
+
 Reap disconnected Wayland X11 client resources and preserve post-split XmText shaping reuse (2026-11-26)
 ========================================================================================================
 

@@ -480,6 +480,7 @@ ck_wayland_dmabuf=no
 ck_wayland_xdg_dialog=no
 ck_wayland_tearing=no
 ck_wayland_fifo=no
+ck_wayland_color_mgmt=no
 if test "x$enable_wayland" != "xno"; then
   ck_wayland_ok=no
   if test -n "$PKG_CONFIG" && test -n "$WAYLAND_SCANNER" && \
@@ -524,6 +525,10 @@ if test "x$enable_wayland" != "xno"; then
       ck_wayland_fifo=yes
       AC_DEFINE([HAVE_WAYLAND_FIFO], [1], [Have wp-fifo-v1 Wayland protocol])
     fi
+    if test -f "$WAYLAND_PROTOCOLS_DATADIR/staging/color-management/color-management-v1.xml"; then
+      ck_wayland_color_mgmt=yes
+      AC_DEFINE([HAVE_WAYLAND_COLOR_MANAGEMENT], [1], [Have wp-color-management-v1 Wayland protocol])
+    fi
   elif test "x$enable_wayland" = "xyes"; then
     AC_MSG_ERROR([--enable-wayland requires wayland-client, wayland-cursor, wayland-protocols >= 1.31, wayland-scanner, pixman-1, xkbcommon, freetype2, and fontconfig])
   else
@@ -540,6 +545,7 @@ AM_CONDITIONAL([OM_WAYLAND_DMABUF], [test "x$ck_wayland_dmabuf" = "xyes"])
 AM_CONDITIONAL([OM_WAYLAND_XDG_DIALOG], [test "x$ck_wayland_xdg_dialog" = "xyes"])
 AM_CONDITIONAL([OM_WAYLAND_TEARING_CONTROL], [test "x$ck_wayland_tearing" = "xyes"])
 AM_CONDITIONAL([OM_WAYLAND_FIFO], [test "x$ck_wayland_fifo" = "xyes"])
+AM_CONDITIONAL([OM_WAYLAND_COLOR_MANAGEMENT], [test "x$ck_wayland_color_mgmt" = "xyes"])
 
 
 

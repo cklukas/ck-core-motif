@@ -398,8 +398,10 @@ _XmWlDeleteProperty(XmWlServer *srv, XmWlWindow *win, uint32_t atom, bool emit_n
             *pp = victim->next;
             free(victim->data);
             free(victim);
-            if (emit_notify)
+            if (emit_notify) {
                 emit_property_notify(srv, win, atom, 1);
+                _XmWlUpdateWindowMetadata(srv, win, atom);
+            }
             return;
         }
         pp = &(*pp)->next;

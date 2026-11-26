@@ -40,6 +40,33 @@ typedef struct {
 #define XM_WAYLAND_DMABUF_FLAG_INTERLACED   2u
 #define XM_WAYLAND_DMABUF_FLAG_BOTTOM_FIRST 4u
 
+/* Transfer function & color primaries constants for XmWaylandSetSurfaceHdrMetadata(). */
+#define XM_WAYLAND_COLOR_TF_SRGB       1u
+#define XM_WAYLAND_COLOR_TF_BT1886     2u
+#define XM_WAYLAND_COLOR_TF_ST2084_PQ  3u
+#define XM_WAYLAND_COLOR_TF_HLG        4u
+
+#define XM_WAYLAND_COLOR_PRIMARIES_SRGB       1u
+#define XM_WAYLAND_COLOR_PRIMARIES_DISPLAY_P3 2u
+#define XM_WAYLAND_COLOR_PRIMARIES_BT2020     3u
+
+/* Parametric HDR10 / WCG surface colorimetry descriptor (wp_color_management_v1). */
+typedef struct {
+    uint32_t transfer_function; /* XM_WAYLAND_COLOR_TF_* */
+    uint32_t primaries;         /* XM_WAYLAND_COLOR_PRIMARIES_* */
+    Boolean has_mastering_display_primaries;
+    /* CIE 1931 xy chromaticity coordinates * 1,000,000 (e.g. D65 = 312700, 329000) */
+    int32_t display_primaries_rx, display_primaries_ry;
+    int32_t display_primaries_gx, display_primaries_gy;
+    int32_t display_primaries_bx, display_primaries_by;
+    int32_t white_point_x, white_point_y;
+    Boolean has_mastering_luminance;
+    uint32_t min_luminance_10000; /* min luminance (cd/m^2) * 10,000 */
+    uint32_t max_luminance;       /* max luminance (cd/m^2) */
+    uint32_t max_cll;             /* 0 = unset; MaxCLL (cd/m^2) */
+    uint32_t max_fall;            /* 0 = unset; MaxFALL (cd/m^2) */
+} XmWaylandHdrMetadata;
+
 /*
  * Optional weak symbol an application executable may define as non-zero
  * (e.g. `extern const int ck_motif_prefer_x11 = 1;`) to keep standard X11 /
@@ -180,9 +207,21 @@ extern Boolean XmWaylandSetSurfaceFifo(
     Boolean wait_barrier);
 
 /*
- * Destroy any cached wp_tearing_control_v1 / wp_fifo_v1 auxiliary protocol
- * objects associated with `surface` before the caller destroys `surface`.
+ * Configure wp_color_management_surface_v1 parametric HDR10 / wide-gamut
+ * colorimetry (`BT.2020 PQ`, `BT.2020 HLG`, `Display-P3`, or `sRGB`) on
+ * `surface` (pass `metadata = NULL` to unset back to compositor default SDR).
+ * Identical metadata across consecutive frames is deduplicated in-place.
  * Caller MUST hold XmWaylandLock(display).
+ */
+extern Boolean XmWaylandSetSurfaceHdrMetadata(
+    Display *display,
+    struct wl_surface *surface,
+    const XmWaylandHdrMetadata *metadata);
+
+/*
+ * Destroy any cached wp_tearing_control_v1 / wp_fifo_v1 / wp_color_management_surface_v1
+ * auxiliary protocol objects associated with `surface` before the caller destroys
+ * `surface`. Caller MUST hold XmWaylandLock(display).
  */
 extern void XmWaylandReleaseSurfaceExtensions(
     Display *display,
