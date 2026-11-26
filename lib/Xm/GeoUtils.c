@@ -214,8 +214,14 @@ _XmHandleQueryGeometry(
     Dimension       height = 0 ;
     XmGeoMatrix     geoSpec ;
 
+    Boolean scale_cmd_reflow =
+        XmIsCommandBox(widget) &&
+        _XmScaleChangeInProgress(XtDisplay(widget)) &&
+        (!_XmAppearanceDimensionConstrained(widget, 0) ||
+         !_XmAppearanceDimensionConstrained(widget, 1));
+
     /* first determine what is the desired size, using the resize_policy. */
-    if (resize_policy == XmRESIZE_NONE) {
+    if (resize_policy == XmRESIZE_NONE && !scale_cmd_reflow) {
 	desired->width = XtWidth(widget) ;
 	desired->height = XtHeight(widget) ;
     } else {
@@ -238,8 +244,10 @@ _XmHandleQueryGeometry(
 	    desired->width = XtWidth(widget) ;
 	    desired->height = XtHeight(widget) ;
 	} else {
-	    desired->width = width ;
-	    desired->height = height ;
+	    desired->width = scale_cmd_reflow && _XmAppearanceDimensionConstrained(widget, 0)
+		? XtWidth(widget) : width ;
+	    desired->height = scale_cmd_reflow && _XmAppearanceDimensionConstrained(widget, 1)
+		? XtHeight(widget) : height ;
 	}
     }
 

@@ -389,6 +389,15 @@ scale_widget_is_descendant(Widget widget, Widget root)
   return False;
 }
 
+static unsigned int
+scale_widget_depth(Widget widget)
+{
+  unsigned int depth = 0;
+  for (Widget cur = widget; cur != NULL; cur = XtParent(cur))
+    ++depth;
+  return depth;
+}
+
 static Boolean
 apply_scale_change(Display *display, Widget root,
                    double old_scale, double new_scale)
@@ -436,6 +445,19 @@ apply_scale_change(Display *display, Widget root,
           state->references++;
           callbacks[i++] = callback;
         }
+  /* Stable bottom-up ordering: update nested descendants (scrollbars, spinboxes,
+   * buttons, scrolled lists) before enclosing composite managers (MainWindow,
+   * FileSelectionBox, SelectionBox, Command, Notebook) query child geometry. */
+  for (size_t a = 1; a < count; ++a) {
+    XmScaleCallback *key = callbacks[a];
+    unsigned int key_depth = scale_widget_depth(key->state->widget);
+    size_t b = a;
+    while (b > 0 && scale_widget_depth(callbacks[b - 1]->state->widget) < key_depth) {
+      callbacks[b] = callbacks[b - 1];
+      --b;
+    }
+    callbacks[b] = key;
+  }
   _XmProcessUnlock();
 
   /* Appearance preparation can fail. Do it before legacy void callbacks so

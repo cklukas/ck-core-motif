@@ -48,9 +48,16 @@ static char rcsid[] = "$TOG: Command.c /main/21 1999/01/26 18:12:51 mgreess $"
 static void
 ScaleChanged(Widget widget, double old_scale, double new_scale, XtPointer closure)
 {
+    XmCommandWidget cw = (XmCommandWidget)widget;
     (void)old_scale;
     (void)new_scale;
     (void)closure;
+    if (cw != NULL && !cw->core.being_destroyed &&
+        cw->selection_box.list != NULL &&
+        cw->selection_box.list_visible_item_count > 0) {
+        XtVaSetValues(cw->selection_box.list, XmNvisibleItemCount,
+                      cw->selection_box.list_visible_item_count, NULL);
+    }
     _XmBulletinBoardRelayoutForScale(widget);
 }
 #endif
@@ -799,11 +806,14 @@ Resize(Widget wid)
  _XmProcessUnlock();
  (*resize) ((Widget) cw) ;
 
-  /* keep list_visible_item_count in sync with List's visibleItemCount*/
-  ac = 0 ;
-  XtSetArg( av[ac], XmNvisibleItemCount, &(cw->selection_box.list_visible_item_count)) ; ++ac
-;
-  XtGetValues( cw->selection_box.list, av, ac) ;
+  /* keep list_visible_item_count in sync with List's visibleItemCount,
+   * except during transient intermediate layout passes inside a live
+   * display-scale transaction before enclosing managers resize Command. */
+  if (!_XmScaleChangeInProgress(XtDisplay(wid))) {
+    ac = 0 ;
+    XtSetArg( av[ac], XmNvisibleItemCount, &(cw->selection_box.list_visible_item_count)) ; ++ac ;
+    XtGetValues( cw->selection_box.list, av, ac) ;
+  }
 }
 
 /****************************************************************

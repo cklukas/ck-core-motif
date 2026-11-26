@@ -808,6 +808,10 @@ ClearUnicodeParagraphs(XmTextWidget tw)
     data->unicode_cache = entry->next;
     XmTextLayoutFree(entry->layout); XmTextParagraphFree(entry->paragraph); XtFree((char *)entry);
   }
+  if (data->unicode_prev_paragraph) {
+    XmTextParagraphFree(data->unicode_prev_paragraph);
+    data->unicode_prev_paragraph = NULL;
+  }
   data->unicode_cache_count = 0;
   data->unicode_last_draw_line = NOLINE;
 }
@@ -864,8 +868,19 @@ UnicodeParagraph(XmTextWidget tw, XmTextPosition start)
       memcpy(utf8 + length, block.ptr, (size_t)block.length); length += (size_t)block.length; at = next;
     }
     utf8[length] = '\0';
-    paragraph = XmTextParagraphCreateWithContext(data->unicode_font_context,utf8,length,
-                                                 data->tabwidth > 0 ? data->tabwidth : 1);
+    if (data->unicode_prev_paragraph &&
+        data->unicode_prev_para_start == paragraph_start &&
+        data->unicode_prev_para_new_end == end) {
+      paragraph = XmTextParagraphReplaceWithContext(
+          data->unicode_font_context, data->unicode_prev_paragraph,
+          data->unicode_prev_edit_first, data->unicode_prev_edit_last,
+          utf8, length, data->tabwidth > 0 ? data->tabwidth : 1);
+      XmTextParagraphFree(data->unicode_prev_paragraph);
+      data->unicode_prev_paragraph = NULL;
+    } else {
+      paragraph = XmTextParagraphCreateWithContext(data->unicode_font_context,utf8,length,
+                                                   data->tabwidth > 0 ? data->tabwidth : 1);
+    }
     XtFree(utf8);
     if (paragraph && XmTextParagraphScalarCount(paragraph) != (size_t)(end - paragraph_start)) {
       XmTextParagraphFree(paragraph); paragraph = NULL;
@@ -4356,24 +4371,69 @@ OutputInvalidate(XmTextWidget tw,
 		 long delta)
 {
 #if USE_XFT
-  struct _XmTextParagraphCache **link = &tw->text.output->data->unicode_cache;
-  tw->text.output->data->unicode_affinity = 0;
+  OutputData udata = tw->text.output->data;
+  struct _XmTextParagraphCache **link = &udata->unicode_cache;
+  udata->unicode_affinity = 0;
   /* NODELTA invalidates geometry, not source positions. In particular,
    * resize must retire its captures rather than rebase them by LONG_MAX. */
   if (delta == NODELTA)
     ClearUnicodeParagraphs(tw);
-  else while (*link) {
-    struct _XmTextParagraphCache *paragraph = *link;
-    if (paragraph->paragraph_end >= position && paragraph->paragraph_start <= topos) {
-      *link = paragraph->next;
-      XmTextLayoutFree(paragraph->layout); XmTextParagraphFree(paragraph->paragraph); XtFree((char *)paragraph);
-      --tw->text.output->data->unicode_cache_count;
-    } else {
-      if (paragraph->paragraph_start > topos) {
-        paragraph->start += delta; paragraph->end += delta;
-        paragraph->paragraph_start += delta; paragraph->paragraph_end += delta;
+  else {
+    if (udata->unicode_prev_paragraph) {
+      if (position >= udata->unicode_prev_para_start &&
+          topos <= udata->unicode_prev_para_new_end &&
+          (udata->unicode_prev_para_new_end - udata->unicode_prev_para_start + delta) >= 0) {
+        size_t rel_pos = (size_t)(position - udata->unicode_prev_para_start);
+        size_t rel_topos = (size_t)(topos - udata->unicode_prev_para_start);
+        size_t old_sc = XmTextParagraphScalarCount(udata->unicode_prev_paragraph);
+        size_t ef = udata->unicode_prev_edit_first;
+        size_t el = udata->unicode_prev_edit_last;
+        size_t cur_sc = (size_t)(udata->unicode_prev_para_new_end - udata->unicode_prev_para_start);
+        size_t surviving = old_sc - (el - ef);
+        if (cur_sc >= surviving) {
+          size_t prev_ins = cur_sc - surviving;
+          if (rel_pos < ef) ef = rel_pos;
+          if (rel_topos > ef + prev_ins)
+            el += rel_topos - (ef + prev_ins);
+          if (el > old_sc) el = old_sc;
+          udata->unicode_prev_edit_first = ef;
+          udata->unicode_prev_edit_last = el;
+          udata->unicode_prev_para_new_end += delta;
+        } else {
+          XmTextParagraphFree(udata->unicode_prev_paragraph);
+          udata->unicode_prev_paragraph = NULL;
+        }
+      } else if (topos < udata->unicode_prev_para_start) {
+        udata->unicode_prev_para_start += delta;
+        udata->unicode_prev_para_new_end += delta;
+      } else if (position <= udata->unicode_prev_para_new_end) {
+        XmTextParagraphFree(udata->unicode_prev_paragraph);
+        udata->unicode_prev_paragraph = NULL;
       }
-      link = &paragraph->next;
+    }
+    while (*link) {
+      struct _XmTextParagraphCache *paragraph = *link;
+      if (paragraph->paragraph_end >= position && paragraph->paragraph_start <= topos) {
+        if (!udata->unicode_prev_paragraph && paragraph->paragraph &&
+            position >= paragraph->paragraph_start &&
+            topos <= paragraph->paragraph_end &&
+            (paragraph->paragraph_end - paragraph->paragraph_start + delta) >= 0) {
+          udata->unicode_prev_paragraph = XmTextParagraphReference(paragraph->paragraph);
+          udata->unicode_prev_para_start = paragraph->paragraph_start;
+          udata->unicode_prev_para_new_end = paragraph->paragraph_end + delta;
+          udata->unicode_prev_edit_first = (size_t)(position - paragraph->paragraph_start);
+          udata->unicode_prev_edit_last = (size_t)(topos - paragraph->paragraph_start);
+        }
+        *link = paragraph->next;
+        XmTextLayoutFree(paragraph->layout); XmTextParagraphFree(paragraph->paragraph); XtFree((char *)paragraph);
+        --udata->unicode_cache_count;
+      } else {
+        if (paragraph->paragraph_start > topos) {
+          paragraph->start += delta; paragraph->end += delta;
+          paragraph->paragraph_start += delta; paragraph->paragraph_end += delta;
+        }
+        link = &paragraph->next;
+      }
     }
   }
 #endif
@@ -6353,6 +6413,11 @@ _XmTextOutputCreate(Widget wid,
   data->unicode_last_draw_line = NOLINE;
   data->color_spans = NULL;
   data->color_span_count = 0;
+  data->unicode_prev_paragraph = NULL;
+  data->unicode_prev_para_start = 0;
+  data->unicode_prev_para_new_end = 0;
+  data->unicode_prev_edit_first = 0;
+  data->unicode_prev_edit_last = 0;
   XtGetSubresources(wid, (XtPointer)data, NULL, NULL, output_resources,
 		    XtNumber(output_resources), args, num_args);
   

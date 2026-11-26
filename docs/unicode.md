@@ -148,11 +148,19 @@ The native incremental-layout oracle compares edited shared sources at two width
 with fresh native widgets: visible line ranges, glyph counts, widths, both-affinity
 carets, hits, visual movement, selection regions and pixels drawn from their real
 captures. Unchanged capture identity and suffix rebasing are checked separately
-from fresh-result equivalence. Context-changing edits, hard-line joins/splits,
-width/font/configuration changes and retained captures after widget destruction
-are included. This qualifies unaffected hard-paragraph reuse within the fixture;
-shaping inside an edited paragraph still uses full context, and live application
-projection integration remains a separate gate.
+from fresh-result equivalence. context-changing edits, hard-line joins/splits, width/font/configuration changes
+and retained captures after widget destruction are included.
+
+For long single paragraphs (`>= 256` scalars in LTR base paragraphs),
+`XmTextParagraphReplaceWithContext` and chunk-indexed advance prefix tables
+partition the paragraph at content-anchored safe word/Han boundaries where
+HarfBuzz cluster and nominal space-advance checks confirm zero cross-boundary
+shaping interaction. Viewport-horizon `XmTextParagraphWrapLine` queries compute
+advances lazily up to the active wrap horizon without shaping off-screen tail
+text, and in-paragraph edits inside native `XmText` (`OutputInvalidate` ->
+`UnicodeParagraph`) reuse unchanged prefix and suffix `ShapedChunk` glyph runs
+and font leases across both wrapped and unwrapped lines
+(`tests/automated/run-historical-scale-shaping.py`).
 
 ## Paragraphs and line captures
 

@@ -142,6 +142,11 @@ typedef struct _OutputDataRec {
 #endif
     XmTextColorSpan *color_spans;
     Cardinal color_span_count;
+    struct _XmTextParagraph *unicode_prev_paragraph;
+    XmTextPosition unicode_prev_para_start;
+    XmTextPosition unicode_prev_para_new_end;
+    size_t unicode_prev_edit_first;
+    size_t unicode_prev_edit_last;
 } OutputDataRec, *OutputData;
 
 

@@ -1131,8 +1131,13 @@ HandleChangeManaged(
 	if (XtHeight(bbWid)) desired_h = XtHeight(bbWid) ;
     } else {
 	if(BB_ResizePolicy(bbWid) == XmRESIZE_NONE) {
-	    desired_w = XtWidth(bbWid) ;
-	    desired_h = XtHeight(bbWid) ;
+	    Boolean cmd_scale = XmIsCommandBox((Widget)bbWid) &&
+		(_XmScaleChangeInProgress(XtDisplay((Widget)bbWid)) ||
+		 _XmAppearanceInGeometryTransaction(XtDisplay((Widget)bbWid)));
+	    if (!cmd_scale || _XmAppearanceDimensionConstrained((Widget)bbWid, 0))
+		desired_w = XtWidth(bbWid) ;
+	    if (!cmd_scale || _XmAppearanceDimensionConstrained((Widget)bbWid, 1))
+		desired_h = XtHeight(bbWid) ;
 	}
     }
 
@@ -1707,6 +1712,18 @@ _XmBulletinBoardRelayoutForScale(Widget widget)
             resize(widget);
     } else
         _XmBulletinBoardSizeUpdate(widget);
+}
+
+void
+_XmBulletinBoardScaleRelayout(Widget widget, double old_scale,
+                              double new_scale, XtPointer closure)
+{
+    (void)old_scale;
+    (void)new_scale;
+    (void)closure;
+    if (widget == NULL || widget->core.being_destroyed)
+        return;
+    _XmBulletinBoardRelayoutForScale(widget);
 }
 
 /****************************************************************

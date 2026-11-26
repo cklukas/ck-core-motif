@@ -47,7 +47,9 @@ static char rcsid[] = "$TOG: SelectioB.c /main/19 1997/06/18 17:42:11 samborn $"
 #include <Xm/AccTextT.h>
 #include <Xm/ActivatableT.h>
 #include <Xm/ArrowB.h>
+#include <Xm/Command.h>
 #include <Xm/DialogS.h>
+#include <Xm/FileSB.h>
 #include <Xm/GadgetP.h>
 #include <Xm/LabelG.h>
 #include <Xm/List.h>
@@ -630,6 +632,8 @@ Initialize(
 	    XtUnmanageChild (SB_ApplyButton (new_w));
 	}
 
+    if (!XmIsCommand(nw) && !XmIsFileSelectionBox(nw))
+	(void)_XmRegisterScaleChange(nw, _XmBulletinBoardScaleRelayout, NULL);
 }
 
 /****************************************************************

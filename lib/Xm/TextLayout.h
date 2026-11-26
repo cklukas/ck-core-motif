@@ -60,6 +60,13 @@ int XmTextFontContextGetShapingUsage(const XmTextFontContext *, XmTextShapingUsa
 int XmTextFontConfigurationChanged(void);
 XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *, const char *utf8,
                                                  size_t length, double tab_width);
+XmTextParagraph *XmTextParagraphReplaceWithContext(XmTextFontContext *,
+                                                   const XmTextParagraph *previous,
+                                                   size_t replaced_first,
+                                                   size_t replaced_last,
+                                                   const char *utf8,
+                                                   size_t length,
+                                                   double tab_width);
 XmTextLayout *XmTextLayoutCreateWithContext(XmTextFontContext *, const char *utf8,
                                            size_t length, double tab_width);
 /* Paragraph text is immutable and includes complete embedding/isolate context.

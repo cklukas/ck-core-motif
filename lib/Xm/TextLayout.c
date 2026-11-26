@@ -25,6 +25,9 @@ struct FontLease {
     Display *display;XftFont *font;FT_Face face;
 #ifdef HAVE_UNICODE_TEXT
     hb_font_t *shaping_font;
+    hb_bool_t has_space_glyph;
+    hb_codepoint_t space_glyph;
+    hb_position_t space_adv;
 #endif
 };
 struct LayoutFont { XftFont *font; FT_Face face; struct FontLease *lease; };
@@ -180,6 +183,9 @@ static struct FontLease *context_font_lease(XmTextFontContext *context,XftFont *
     lease->references=1;
     lease->shaping_font=hb_ft_font_create_referenced(lease->face);
     if(!lease->shaping_font||lease->shaping_font==hb_font_get_empty()) {release_font_lease(lease);return NULL;}
+    lease->has_space_glyph=hb_font_get_nominal_glyph(lease->shaping_font,0x20u,&lease->space_glyph);
+    if(lease->has_space_glyph)
+        lease->space_adv=hb_font_get_glyph_h_advance(lease->shaping_font,lease->space_glyph);
     /* One reference belongs to the caller, one to the bounded resolver pool. */
     ++lease->references;lease->next=context->font_pool;context->font_pool=lease;++context->font_count;
     while(context->font_count>context->limits.maximum_font_leases) {
@@ -236,6 +242,22 @@ static void remember_font_resolution(XmTextFontContext *context,const char *text
     }
 }
 #endif
+struct ShapeGlyph {
+    unsigned int index;
+    int32_t x_advance, y_advance, x_offset, y_offset;
+    struct FontLease *lease;
+    size_t cluster;
+    int rtl;
+};
+struct ShapedChunk {
+    size_t first, last;
+    size_t byte_first, byte_last;
+    int shaped;
+    int has_tab;
+    struct ShapeGlyph *glyphs;
+    size_t glyph_count;
+    double *adv_deltas;
+};
 struct _XmTextParagraph {
     unsigned int references;
     struct ShapingAccounting *shaping;
@@ -249,6 +271,9 @@ struct _XmTextParagraph {
     int32_t *utf16_at;
     unsigned char *line_breaks;
     double *advance_prefix;
+    size_t advance_ready;
+    struct ShapedChunk *chunks;
+    size_t chunk_count;
     size_t scalar_count, byte_count;
     int ascent, descent;
     double tab_width;
@@ -256,13 +281,6 @@ struct _XmTextParagraph {
     UChar *utf16;
     UBiDi *bidi;
 #endif
-};
-struct ShapeGlyph {
-    unsigned int index;
-    int32_t x_advance, y_advance, x_offset, y_offset;
-    struct FontLease *lease;
-    size_t cluster;
-    int rtl;
 };
 struct _XmTextLayout {
     unsigned int references;
@@ -286,6 +304,11 @@ XmTextParagraph *XmTextParagraphReference(XmTextParagraph *paragraph) {
 void XmTextParagraphFree(XmTextParagraph *paragraph) {
     size_t i;
     if (!paragraph || --paragraph->references) return;
+    for (i = 0; i < paragraph->chunk_count; ++i) {
+        free(paragraph->chunks[i].glyphs);
+        free(paragraph->chunks[i].adv_deltas);
+    }
+    free(paragraph->chunks);
     for (i = 0; i < paragraph->font_count; ++i) {
         release_font_lease(paragraph->fonts[i].lease);
     }
@@ -512,46 +535,362 @@ static int append_item(const XmTextParagraph *paragraph, size_t first, size_t la
     }
     hb_font_destroy(font); hb_buffer_destroy(buffer); return 1;
 }
-static int shape_line(const XmTextParagraph *paragraph, size_t first, size_t last,
-                      struct ShapeGlyph **glyphs, size_t *count) {
+static int append_range_items(const XmTextParagraph *paragraph, size_t begin, size_t end,
+                              size_t line_first, size_t line_last, int rtl,
+                              struct ShapeGlyph **glyphs, size_t *count, size_t *capacity) {
     struct Item { size_t first, last; };
     struct Item *items;
+    size_t at = begin, item_count = 0, i;
+    if (begin >= end) return 1;
+    items = (struct Item *)malloc((end - begin) * sizeof(*items));
+    if (!items) return 0;
+    while (at < end) {
+        size_t next = at + 1;
+        while (next < end && paragraph->font_at[next] == paragraph->font_at[at] &&
+               paragraph->scripts[next] == paragraph->scripts[at]) ++next;
+        items[item_count++] = (struct Item){at, next};
+        at = next;
+    }
+    for (i = 0; i < item_count; ++i) {
+        const struct Item *item = &items[rtl ? item_count - i - 1 : i];
+        if (!append_item(paragraph, item->first, item->last, line_first, line_last,
+                         rtl, glyphs, count, capacity)) {
+            free(items);
+            return 0;
+        }
+    }
+    free(items);
+    return 1;
+}
+static int is_exact_chunk_boundary(const XmTextParagraph *paragraph, size_t s) {
+    UChar32 next_sc;
+    if (!paragraph || s == 0 || s >= paragraph->scalar_count) return 0;
+    if ((ubidi_getParaLevel(paragraph->bidi) & 1) != 0) return 0;
+    if (!XmTextUnicodeIsGraphemeBoundary(paragraph->map, s)) return 0;
+    if (ubidi_getLevelAt(paragraph->bidi, paragraph->utf16_at[s - 1]) != 0 ||
+        ubidi_getLevelAt(paragraph->bidi, paragraph->utf16_at[s]) != 0) return 0;
+    next_sc = (UChar32)paragraph->scalars[s];
+    if (u_getCombiningClass(next_sc) != 0 ||
+        u_hasBinaryProperty(next_sc, UCHAR_VARIATION_SELECTOR) ||
+        next_sc == 0x200Du) return 0;
+    if (paragraph->scalars[s - 1] == ' ' || paragraph->scalars[s - 1] == '\t') return 1;
+    if (paragraph->scripts[s - 1] == (uint32_t)HB_SCRIPT_HAN &&
+        paragraph->scripts[s] == (uint32_t)HB_SCRIPT_HAN) return 1;
+    return 0;
+}
+static uint32_t chunk_anchor_hash(const XmTextParagraph *paragraph, size_t s) {
+    uint32_t h = paragraph->scalars[s - 1] * 2654435761u;
+    h ^= paragraph->scalars[s] * 668265263u;
+    if (s >= 2) h ^= paragraph->scalars[s - 2] * 2246822519u;
+    if (s >= 3) h ^= paragraph->scalars[s - 3] * 3266489917u;
+    return h;
+}
+static int init_paragraph_chunks(XmTextParagraph *paragraph) {
+    size_t cap = 0, count = 0, chunk_start = 0, s;
+    if (paragraph->scalar_count < 256 || (ubidi_getParaLevel(paragraph->bidi) & 1) != 0)
+        return 1;
+    for (s = 1; s < paragraph->scalar_count; ++s) {
+        size_t span = s - chunk_start;
+        if (span < 96 || !is_exact_chunk_boundary(paragraph, s))
+            continue;
+        if (span < 320 && (chunk_anchor_hash(paragraph, s) & 0x1fu) != 0)
+            continue;
+        if (count == cap) {
+            size_t ncap = cap ? cap * 2 : 16;
+            struct ShapedChunk *nc = (struct ShapedChunk *)realloc(
+                paragraph->chunks, ncap * sizeof(*nc));
+            if (!nc) return 0;
+            paragraph->chunks = nc;
+            cap = ncap;
+        }
+        memset(&paragraph->chunks[count], 0, sizeof(struct ShapedChunk));
+        paragraph->chunks[count].first = chunk_start;
+        paragraph->chunks[count].last = s;
+        XmTextUnicodeByteAtScalar(paragraph->map, chunk_start, &paragraph->chunks[count].byte_first);
+        XmTextUnicodeByteAtScalar(paragraph->map, s, &paragraph->chunks[count].byte_last);
+        ++count;
+        chunk_start = s;
+    }
+    if (count > 0 && chunk_start < paragraph->scalar_count) {
+        if (count == cap) {
+            size_t ncap = cap + 1;
+            struct ShapedChunk *nc = (struct ShapedChunk *)realloc(
+                paragraph->chunks, ncap * sizeof(*nc));
+            if (!nc) return 0;
+            paragraph->chunks = nc;
+        }
+        memset(&paragraph->chunks[count], 0, sizeof(struct ShapedChunk));
+        paragraph->chunks[count].first = chunk_start;
+        paragraph->chunks[count].last = paragraph->scalar_count;
+        XmTextUnicodeByteAtScalar(paragraph->map, chunk_start, &paragraph->chunks[count].byte_first);
+        XmTextUnicodeByteAtScalar(paragraph->map, paragraph->scalar_count, &paragraph->chunks[count].byte_last);
+        ++count;
+    }
+    paragraph->chunk_count = count;
+    return 1;
+}
+static int ensure_chunk_shaped(XmTextParagraph *paragraph, size_t ci) {
+    struct ShapedChunk *c = &paragraph->chunks[ci];
+    size_t cap = 0, len = c->last - c->first;
+    size_t gf, gl, k, gi;
+    double total = 0.0;
+    if (c->shaped) return 1;
+    c->glyphs = NULL;
+    c->glyph_count = 0;
+    if (!append_range_items(paragraph, c->first, c->last, c->first, c->last,
+                            0, &c->glyphs, &c->glyph_count, &cap))
+        return 0;
+    c->has_tab = (memchr(paragraph->utf8 + c->byte_first, '\t',
+                         c->byte_last - c->byte_first) != NULL);
+    c->adv_deltas = (double *)calloc(len + 1, sizeof(double));
+    if (!c->adv_deltas) {
+        free(c->glyphs); c->glyphs = NULL; c->glyph_count = 0;
+        return 0;
+    }
+    gf = c->first;
+    gi = 0;
+    while (gf < c->last) {
+        size_t bf, bl;
+        int64_t g_adv = 0;
+        if (!XmTextUnicodeNextGrapheme(paragraph->map, gf, &gl) || gl > c->last) {
+            free(c->glyphs); c->glyphs = NULL; c->glyph_count = 0;
+            free(c->adv_deltas); c->adv_deltas = NULL;
+            return 0;
+        }
+        XmTextUnicodeByteAtScalar(paragraph->map, gf, &bf);
+        XmTextUnicodeByteAtScalar(paragraph->map, gl, &bl);
+        bf -= c->byte_first;
+        bl -= c->byte_first;
+        while (gi < c->glyph_count && c->glyphs[gi].cluster < bf) ++gi;
+        while (gi < c->glyph_count && c->glyphs[gi].cluster < bl) {
+            g_adv += c->glyphs[gi].x_advance;
+            ++gi;
+        }
+        total += (double)g_adv / 64.0;
+        for (k = gf + 1; k <= gl; ++k)
+            c->adv_deltas[k - c->first] = total;
+        gf = gl;
+    }
+    c->shaped = 1;
+    return 1;
+}
+static size_t find_chunk_starting_at(const XmTextParagraph *p, size_t first) {
+    size_t lo = 0, hi = p->chunk_count;
+    while (lo < hi) {
+        size_t mid = lo + (hi - lo) / 2;
+        if (p->chunks[mid].first < first) lo = mid + 1;
+        else hi = mid;
+    }
+    return (lo < p->chunk_count && p->chunks[lo].first == first) ? lo : SIZE_MAX;
+}
+static void reuse_unchanged_chunks(XmTextParagraph *paragraph,
+                                   const XmTextParagraph *previous,
+                                   size_t dirty_first,
+                                   size_t dirty_last_new,
+                                   ptrdiff_t scalar_delta) {
+    size_t ci;
+    if (!previous || !previous->chunk_count || !paragraph->chunk_count)
+        return;
+    if (ubidi_getParaLevel(paragraph->bidi) != ubidi_getParaLevel(previous->bidi))
+        return;
+    for (ci = 0; ci < paragraph->chunk_count; ++ci) {
+        struct ShapedChunk *nc = &paragraph->chunks[ci];
+        size_t old_first, old_ci, len, k;
+        const struct ShapedChunk *oc;
+        if (nc->last <= dirty_first) {
+            old_first = nc->first;
+        } else if (nc->first >= dirty_last_new) {
+            ptrdiff_t cand = (ptrdiff_t)nc->first - scalar_delta;
+            if (cand < 0 || (size_t)cand >= previous->scalar_count) continue;
+            old_first = (size_t)cand;
+        } else {
+            continue;
+        }
+        old_ci = find_chunk_starting_at(previous, old_first);
+        if (old_ci == SIZE_MAX) continue;
+        oc = &previous->chunks[old_ci];
+        if (!oc->shaped) continue;
+        len = nc->last - nc->first;
+        if (oc->last - oc->first != len ||
+            nc->byte_last - nc->byte_first != oc->byte_last - oc->byte_first ||
+            memcmp(paragraph->utf8 + nc->byte_first,
+                   previous->utf8 + oc->byte_first,
+                   nc->byte_last - nc->byte_first) != 0)
+            continue;
+        for (k = 0; k < len; ++k) {
+            size_t nf = paragraph->font_at[nc->first + k];
+            size_t of = previous->font_at[oc->first + k];
+            if (paragraph->scripts[nc->first + k] != previous->scripts[oc->first + k] ||
+                paragraph->fonts[nf].lease != previous->fonts[of].lease)
+                break;
+        }
+        if (k < len) continue;
+        if (oc->glyph_count > 0) {
+            nc->glyphs = (struct ShapeGlyph *)malloc(oc->glyph_count * sizeof(struct ShapeGlyph));
+            if (!nc->glyphs) continue;
+            memcpy(nc->glyphs, oc->glyphs, oc->glyph_count * sizeof(struct ShapeGlyph));
+        }
+        nc->adv_deltas = (double *)malloc((len + 1) * sizeof(double));
+        if (!nc->adv_deltas) {
+            free(nc->glyphs); nc->glyphs = NULL;
+            continue;
+        }
+        memcpy(nc->adv_deltas, oc->adv_deltas, (len + 1) * sizeof(double));
+        nc->glyph_count = oc->glyph_count;
+        nc->has_tab = oc->has_tab;
+        nc->shaped = 1;
+    }
+}
+static int can_slice_chunk_at(const XmTextParagraph *paragraph,
+                              const struct ShapedChunk *c,
+                              size_t cut_scalar,
+                              size_t gi) {
+    size_t cut_byte = 0, prev_byte = 0, rel_b, prev_rel_b;
+    const struct ShapeGlyph *prev_g, *cur_g;
+    if (cut_scalar == c->first || cut_scalar == c->last) return 1;
+    if (!is_exact_chunk_boundary(paragraph, cut_scalar)) return 0;
+    if (paragraph->scalars[cut_scalar - 1] != ' ') return 0;
+    if (gi == 0 || gi >= c->glyph_count) return 0;
+    XmTextUnicodeByteAtScalar(paragraph->map, cut_scalar, &cut_byte);
+    XmTextUnicodeByteAtScalar(paragraph->map, cut_scalar - 1, &prev_byte);
+    rel_b = cut_byte - c->byte_first;
+    prev_rel_b = prev_byte - c->byte_first;
+    prev_g = &c->glyphs[gi - 1];
+    cur_g = &c->glyphs[gi];
+    if (cur_g->cluster != rel_b || cur_g->x_offset != 0 || cur_g->y_offset != 0)
+        return 0;
+    if (prev_g->cluster != prev_rel_b || !prev_g->lease || !prev_g->lease->has_space_glyph ||
+        prev_g->index != prev_g->lease->space_glyph ||
+        prev_g->x_advance != prev_g->lease->space_adv ||
+        prev_g->x_offset != 0 || prev_g->y_offset != 0)
+        return 0;
+    return 1;
+}
+static int shape_line(XmTextParagraph *paragraph, size_t first, size_t last,
+                      struct ShapeGlyph **glyphs, size_t *count) {
     UBiDi *line;
     UErrorCode error = U_ZERO_ERROR;
     int32_t runs, run;
-    size_t capacity = 0;
+    size_t capacity = 0, line_byte_base = 0;
     *glyphs = NULL; *count = 0;
     if (first == last) return 1;
+    XmTextUnicodeByteAtScalar(paragraph->map, first, &line_byte_base);
     line = ubidi_openSized(paragraph->utf16_at[last] - paragraph->utf16_at[first], 0, &error);
-    items = (struct Item *)malloc((last - first) * sizeof(*items));
-    if (!line || !items || U_FAILURE(error)) { if (line) ubidi_close(line); free(items); return 0; }
+    if (!line || U_FAILURE(error)) { if (line) ubidi_close(line); return 0; }
     ubidi_setLine(paragraph->bidi, paragraph->utf16_at[first], paragraph->utf16_at[last], line, &error);
     runs = ubidi_countRuns(line, &error);
-    if (U_FAILURE(error)) { ubidi_close(line); free(items); return 0; }
+    if (U_FAILURE(error)) { ubidi_close(line); return 0; }
     for (run = 0; run < runs; ++run) {
         int32_t logical, length;
         UBiDiDirection direction = ubidi_getVisualRun(line, run, &logical, &length);
         size_t begin = scalar_at_utf16(paragraph, paragraph->utf16_at[first] + logical);
         size_t end = scalar_at_utf16(paragraph, paragraph->utf16_at[first] + logical + length);
-        size_t at = begin, item_count = 0, i;
         if (begin > end || end > last || begin < first || paragraph->utf16_at[begin] != paragraph->utf16_at[first] + logical ||
             paragraph->utf16_at[end] != paragraph->utf16_at[first] + logical + length) goto fail;
-        while (at < end) {
-            size_t next = at + 1;
-            while (next < end && paragraph->font_at[next] == paragraph->font_at[at] && paragraph->scripts[next] == paragraph->scripts[at]) ++next;
-            items[item_count++] = (struct Item){at, next}; at = next;
-        }
-        for (i = 0; i < item_count; ++i) {
-            const struct Item *item = &items[direction == UBIDI_RTL ? item_count - i - 1 : i];
-            if (!append_item(paragraph, item->first, item->last, first, last, direction == UBIDI_RTL, glyphs, count, &capacity)) goto fail;
+        if (direction == UBIDI_LTR && paragraph->chunk_count > 0 &&
+            (ubidi_getParaLevel(paragraph->bidi) & 1) == 0) {
+            size_t cur = begin, ci;
+            size_t lo = 0, hi = paragraph->chunk_count;
+            while (lo < hi) {
+                size_t mid = lo + (hi - lo) / 2;
+                if (paragraph->chunks[mid].last <= begin) lo = mid + 1;
+                else hi = mid;
+            }
+            for (ci = lo; ci < paragraph->chunk_count; ++ci) {
+                struct ShapedChunk *c = &paragraph->chunks[ci];
+                size_t sf, sl, sf_byte = 0, sl_byte = 0, rel_sf, rel_sl, gi_start, gi_end, nslice, gi;
+                if (c->first >= end) break;
+                sf = cur > c->first ? cur : c->first;
+                sl = end < c->last ? end : c->last;
+                if (sf >= sl) continue;
+                if (!(sf > first || first == 0 || is_exact_chunk_boundary(paragraph, sf)))
+                    continue;
+                if (!(sl < last || last == paragraph->scalar_count || is_exact_chunk_boundary(paragraph, sl)))
+                    continue;
+                if (!ensure_chunk_shaped(paragraph, ci)) goto fail;
+                XmTextUnicodeByteAtScalar(paragraph->map, sf, &sf_byte);
+                XmTextUnicodeByteAtScalar(paragraph->map, sl, &sl_byte);
+                rel_sf = sf_byte - c->byte_first;
+                rel_sl = sl_byte - c->byte_first;
+                gi_start = 0;
+                if (sf > c->first) {
+                    size_t blo = 0, bhi = c->glyph_count;
+                    while (blo < bhi) {
+                        size_t bmid = blo + (bhi - blo) / 2;
+                        if (c->glyphs[bmid].cluster < rel_sf) blo = bmid + 1;
+                        else bhi = bmid;
+                    }
+                    gi_start = blo;
+                    if (!can_slice_chunk_at(paragraph, c, sf, gi_start))
+                        continue;
+                }
+                gi_end = c->glyph_count;
+                if (sl < c->last) {
+                    size_t blo = gi_start, bhi = c->glyph_count;
+                    while (blo < bhi) {
+                        size_t bmid = blo + (bhi - blo) / 2;
+                        if (c->glyphs[bmid].cluster < rel_sl) blo = bmid + 1;
+                        else bhi = bmid;
+                    }
+                    gi_end = blo;
+                    if (!can_slice_chunk_at(paragraph, c, sl, gi_end))
+                        continue;
+                }
+                if (cur < sf &&
+                    !append_range_items(paragraph, cur, sf, first, last, 0, glyphs, count, &capacity))
+                    goto fail;
+                nslice = gi_end - gi_start;
+                if (nslice > SIZE_MAX - *count ||
+                    *count + nslice > SIZE_MAX / sizeof(struct ShapeGlyph))
+                    goto fail;
+                if (*count + nslice > capacity) {
+                    size_t req = (*count + nslice) < SIZE_MAX / 2 ? (*count + nslice) * 2 : (*count + nslice);
+                    if (req > SIZE_MAX / sizeof(struct ShapeGlyph)) req = *count + nslice;
+                    struct ShapeGlyph *grown = (struct ShapeGlyph *)realloc(*glyphs, req * sizeof(struct ShapeGlyph));
+                    if (!grown) goto fail;
+                    *glyphs = grown;
+                    capacity = req;
+                }
+                for (gi = gi_start; gi < gi_end; ++gi) {
+                    struct ShapeGlyph g = c->glyphs[gi];
+                    g.cluster += c->byte_first - line_byte_base;
+                    (*glyphs)[(*count)++] = g;
+                }
+                cur = sl;
+            }
+            if (cur < end &&
+                !append_range_items(paragraph, cur, end, first, last, 0, glyphs, count, &capacity))
+                goto fail;
+        } else {
+            if (!append_range_items(paragraph, begin, end, first, last,
+                                    direction == UBIDI_RTL, glyphs, count, &capacity))
+                goto fail;
         }
     }
-    ubidi_close(line); free(items); return 1;
+    ubidi_close(line); return 1;
 fail:
-    ubidi_close(line); free(items); free(*glyphs); *glyphs = NULL; *count = 0; return 0;
+    ubidi_close(line); free(*glyphs); *glyphs = NULL; *count = 0; return 0;
+}
+static size_t attach_reused_lease(XmTextParagraph *paragraph, struct FontLease *lease) {
+    size_t i;
+    if (!lease) return SIZE_MAX;
+    for (i = 0; i < paragraph->font_count; ++i)
+        if (paragraph->fonts[i].lease == lease) return i;
+    if (lease->references == UINT_MAX) return SIZE_MAX;
+    ++lease->references;
+    paragraph->fonts[paragraph->font_count] = (struct LayoutFont){lease->font, lease->face, lease};
+    if (lease->font->ascent > paragraph->ascent) paragraph->ascent = lease->font->ascent;
+    if (lease->font->descent > paragraph->descent) paragraph->descent = lease->font->descent;
+    return paragraph->font_count++;
 }
 #endif
-XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *context,const char *text,size_t length,double tab_width) {
+XmTextParagraph *XmTextParagraphReplaceWithContext(XmTextFontContext *context,
+                                                   const XmTextParagraph *previous,
+                                                   size_t replaced_first,
+                                                   size_t replaced_last,
+                                                   const char *text,
+                                                   size_t length,
+                                                   double tab_width) {
 #ifdef HAVE_UNICODE_TEXT
     Display *display=context?context->display:NULL;
     XftFont *primary=context?context->primary:NULL;
@@ -559,6 +898,9 @@ XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *context,con
     size_t i, graphemes;
     int32_t offset = 0, utf16_length = 0;
     UErrorCode error = U_ZERO_ERROR;
+    int can_reuse = 0;
+    size_t dirty_first = 0, dirty_last_new = 0;
+    ptrdiff_t scalar_delta = 0;
     if (!XmTextFontContextIsCurrent(context) || !display || !primary || (!text && length) || length > INT32_MAX ||
         !isfinite(tab_width) || tab_width < 1.0 / 64.0 || tab_width > INT_MAX / 64.0 ||
         (length && (memchr(text, '\n', length) || memchr(text, '\r', length)))) return NULL;
@@ -603,13 +945,70 @@ XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *context,con
         paragraph->fonts[0]=(struct LayoutFont){lease->font,lease->face,lease};
         paragraph->font_count=1;
     }
-    for (i = 0; i < graphemes; ++i) {
-        size_t first, last, byte_first, byte_last, font, scalar;
-        XmTextUnicodeScalarAtGrapheme(paragraph->map, i, &first); XmTextUnicodeScalarAtGrapheme(paragraph->map, i + 1, &last);
-        XmTextUnicodeByteAtScalar(paragraph->map, first, &byte_first); XmTextUnicodeByteAtScalar(paragraph->map, last, &byte_last);
-        font = font_for_grapheme(paragraph, context, text, byte_first, byte_last);
-        if (font == SIZE_MAX) goto fail;
-        for (scalar = first; scalar < last; ++scalar) paragraph->font_at[scalar] = font;
+    if (previous && previous->display == display &&
+        previous->font_count > 0 && previous->fonts[0].lease == paragraph->fonts[0].lease &&
+        fabs(previous->tab_width - tab_width) < 1e-6 &&
+        replaced_first <= replaced_last && replaced_last <= previous->scalar_count) {
+        size_t surviving = previous->scalar_count - (replaced_last - replaced_first);
+        if (paragraph->scalar_count >= surviving) {
+            size_t ins = paragraph->scalar_count - surviving;
+            size_t df = replaced_first, dl = replaced_first + ins;
+            if (!XmTextUnicodeIsGraphemeBoundary(paragraph->map, df))
+                XmTextUnicodePreviousGrapheme(paragraph->map, df, &df);
+            if (df > 0) XmTextUnicodePreviousGrapheme(paragraph->map, df, &df);
+            if (!XmTextUnicodeIsGraphemeBoundary(paragraph->map, dl))
+                XmTextUnicodeNextGrapheme(paragraph->map, dl, &dl);
+            if (dl < paragraph->scalar_count)
+                XmTextUnicodeNextGrapheme(paragraph->map, dl, &dl);
+            dirty_first = df;
+            dirty_last_new = dl;
+            scalar_delta = (ptrdiff_t)paragraph->scalar_count - (ptrdiff_t)previous->scalar_count;
+            can_reuse = 1;
+        }
+    }
+    if (can_reuse) {
+        size_t first = 0, last = 0;
+        while (first < paragraph->scalar_count) {
+            size_t byte_first, byte_last, font = SIZE_MAX, scalar;
+            if (!XmTextUnicodeNextGrapheme(paragraph->map, first, &last)) goto fail;
+            XmTextUnicodeByteAtScalar(paragraph->map, first, &byte_first);
+            XmTextUnicodeByteAtScalar(paragraph->map, last, &byte_last);
+            if (last <= dirty_first && byte_last == previous->byte_count ? 1 : 1) {
+                if (last <= dirty_first && first < previous->scalar_count) {
+                    size_t ofi = previous->font_at[first];
+                    if (ofi == 0) {
+                        font = 0;
+                    } else if (ofi < previous->font_count) {
+                        font = attach_reused_lease(paragraph, previous->fonts[ofi].lease);
+                    }
+                } else if (first >= dirty_last_new) {
+                    ptrdiff_t old_s = (ptrdiff_t)first - scalar_delta;
+                    if (old_s >= 0 && (size_t)old_s < previous->scalar_count) {
+                        size_t ofi = previous->font_at[(size_t)old_s];
+                        if (ofi == 0) {
+                            font = 0;
+                        } else {
+                            /* Check paragraph's existing fonts first to preserve exact first-covering-font order */
+                            font = font_for_grapheme(paragraph, context, text, byte_first, byte_last);
+                        }
+                    }
+                }
+            }
+            if (font == SIZE_MAX)
+                font = font_for_grapheme(paragraph, context, text, byte_first, byte_last);
+            if (font == SIZE_MAX) goto fail;
+            for (scalar = first; scalar < last; ++scalar) paragraph->font_at[scalar] = font;
+            first = last;
+        }
+    } else {
+        for (i = 0; i < graphemes; ++i) {
+            size_t first, last, byte_first, byte_last, font, scalar;
+            XmTextUnicodeScalarAtGrapheme(paragraph->map, i, &first); XmTextUnicodeScalarAtGrapheme(paragraph->map, i + 1, &last);
+            XmTextUnicodeByteAtScalar(paragraph->map, first, &byte_first); XmTextUnicodeByteAtScalar(paragraph->map, last, &byte_last);
+            font = font_for_grapheme(paragraph, context, text, byte_first, byte_last);
+            if (font == SIZE_MAX) goto fail;
+            for (scalar = first; scalar < last; ++scalar) paragraph->font_at[scalar] = font;
+        }
     }
     {
         UBreakIterator *breaks;
@@ -625,12 +1024,19 @@ XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *context,con
         }
         ubrk_close(breaks);
     }
+    if (!init_paragraph_chunks(paragraph)) goto fail;
+    if (can_reuse)
+        reuse_unchanged_chunks(paragraph, previous, dirty_first, dirty_last_new, scalar_delta);
     return paragraph;
 fail:
     XmTextParagraphFree(paragraph); return NULL;
 #else
-    (void)context; (void)text; (void)length; (void)tab_width; return NULL;
+    (void)context; (void)previous; (void)replaced_first; (void)replaced_last;
+    (void)text; (void)length; (void)tab_width; return NULL;
 #endif
+}
+XmTextParagraph *XmTextParagraphCreateWithContext(XmTextFontContext *context,const char *text,size_t length,double tab_width) {
+    return XmTextParagraphReplaceWithContext(context, NULL, 0, 0, text, length, tab_width);
 }
 XmTextParagraph *XmTextParagraphCreate(Display *display,XftFont *primary,const char *text,size_t length,double tab_width) {
     XmTextFontContext *context=XmTextFontContextCreate(display,display?DefaultScreen(display):0,primary,NULL);
@@ -817,26 +1223,74 @@ fail:
 #endif
 }
 #ifdef HAVE_UNICODE_TEXT
-static int paragraph_advances(XmTextParagraph *paragraph) {
-    XmTextLayout *whole;
-    size_t first = 0, last, i;
-    double total = 0;
-    if (paragraph->advance_prefix) return 1;
-    whole = XmTextParagraphLine(paragraph, 0, paragraph->scalar_count);
-    if (!whole) return 0;
-    paragraph->advance_prefix = (double *)malloc((paragraph->scalar_count + 1) * sizeof(double));
-    if (!paragraph->advance_prefix) { XmTextLayoutFree(whole); return 0; }
-    paragraph->advance_prefix[0] = 0;
-    while (first < paragraph->scalar_count) {
-        if (!XmTextUnicodeNextGrapheme(paragraph->map, first, &last)) {
-            free(paragraph->advance_prefix); paragraph->advance_prefix = NULL;
-            XmTextLayoutFree(whole); return 0;
+static int advance_segment(XmTextParagraph *paragraph, size_t seg_first, size_t seg_last) {
+    XmTextLayout *part = XmTextParagraphLine(paragraph, seg_first, seg_last);
+    size_t gf = 0, gl, i, len = seg_last - seg_first;
+    double total = paragraph->advance_prefix[seg_first];
+    if (!part) return 0;
+    while (gf < len) {
+        if (!XmTextUnicodeNextGrapheme(part->map, gf, &gl)) {
+            XmTextLayoutFree(part);
+            return 0;
         }
-        total += fabs(whole->leading[first] - whole->trailing[last]);
-        for (i = first + 1; i <= last; ++i) paragraph->advance_prefix[i] = total;
-        first = last;
+        total += fabs(part->leading[gf] - part->trailing[gl]);
+        for (i = gf + 1; i <= gl; ++i)
+            paragraph->advance_prefix[seg_first + i] = total;
+        gf = gl;
     }
-    XmTextLayoutFree(whole); return 1;
+    XmTextLayoutFree(part);
+    paragraph->advance_ready = seg_last;
+    return 1;
+}
+static int ensure_paragraph_advances_for_wrap(XmTextParagraph *paragraph, size_t first, double width) {
+    if (!paragraph->advance_prefix) {
+        paragraph->advance_prefix = (double *)malloc((paragraph->scalar_count + 1) * sizeof(double));
+        if (!paragraph->advance_prefix) return 0;
+        paragraph->advance_prefix[0] = 0.0;
+        paragraph->advance_ready = 0;
+    }
+    while (paragraph->advance_ready < paragraph->scalar_count &&
+           (paragraph->advance_ready <= first ||
+            paragraph->advance_prefix[paragraph->advance_ready] - paragraph->advance_prefix[first] <= width)) {
+        size_t cur = paragraph->advance_ready;
+        if (paragraph->chunk_count > 0) {
+            size_t ci = find_chunk_starting_at(paragraph, cur);
+            if (ci != SIZE_MAX) {
+                struct ShapedChunk *c = &paragraph->chunks[ci];
+                if (!ensure_chunk_shaped(paragraph, ci)) return 0;
+                if (!c->has_tab) {
+                    size_t k, len = c->last - c->first;
+                    double base = paragraph->advance_prefix[c->first];
+                    for (k = 1; k <= len; ++k)
+                        paragraph->advance_prefix[c->first + k] = base + c->adv_deltas[k];
+                    paragraph->advance_ready = c->last;
+                    continue;
+                }
+            }
+        }
+        if (paragraph->scalar_count - cur <= 256) {
+            if (!advance_segment(paragraph, cur, paragraph->scalar_count))
+                return 0;
+        } else {
+            size_t target = cur + 256, seg_end = target;
+            if (!XmTextUnicodeIsGraphemeBoundary(paragraph->map, seg_end) &&
+                !XmTextUnicodeNextGrapheme(paragraph->map, seg_end, &seg_end))
+                seg_end = paragraph->scalar_count;
+            for (size_t probe = seg_end; probe > cur + 128; ) {
+                size_t prev;
+                if (!XmTextUnicodePreviousGrapheme(paragraph->map, probe, &prev)) break;
+                if (paragraph->line_breaks[probe]) { seg_end = probe; break; }
+                probe = prev;
+            }
+            if (seg_end <= cur) {
+                if (!XmTextUnicodeNextGrapheme(paragraph->map, cur, &seg_end))
+                    seg_end = paragraph->scalar_count;
+            }
+            if (!advance_segment(paragraph, cur, seg_end))
+                return 0;
+        }
+    }
+    return 1;
 }
 static size_t previous_line_boundary(const XmTextParagraph *paragraph, size_t at, size_t first, int legal) {
     size_t previous;
@@ -863,11 +1317,11 @@ XmTextLayout *XmTextParagraphWrapLine(XmTextParagraph *paragraph, size_t first, 
     if (!paragraph || !last || !isfinite(width) || width <= 0 || first > paragraph->scalar_count ||
         !XmTextUnicodeIsGraphemeBoundary(paragraph->map, first)) return NULL;
     if (first == paragraph->scalar_count) { *last = first; return XmTextParagraphLine(paragraph, first, first); }
-    if (!paragraph_advances(paragraph)) return NULL;
-    /* The paragraph capture supplies a monotone advance index. Locate a close
-     * candidate without repeatedly shaping a growing, potentially huge word.
+    if (!ensure_paragraph_advances_for_wrap(paragraph, first, width)) return NULL;
+    /* Sub-paragraph chunked advances supply a monotone advance index up to the
+     * active wrap horizon without shaping off-screen tail text.
      * Actual line-edge shaping below verifies and adjusts the chosen break. */
-    lower = first; upper = paragraph->scalar_count + 1;
+    lower = first; upper = paragraph->advance_ready + 1;
     while (lower < upper) {
         size_t middle = lower + (upper - lower) / 2;
         if (paragraph->advance_prefix[middle] - paragraph->advance_prefix[first] <= width) lower = middle + 1;

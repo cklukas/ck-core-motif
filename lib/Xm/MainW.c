@@ -101,6 +101,11 @@ static void GetVertRects(
 
 static void CheckKids(
 			XmMainWindowWidget mw);
+static void ScaleChanged(
+			Widget wid,
+			double old_scale,
+			double new_scale,
+			XtPointer closure);
 
 /********    End Static Function Declarations    ********/
 
@@ -344,6 +349,7 @@ Initialize(
     new_w->swindow.YOffset = new_w->mwindow.margin_height;    
     new_w->swindow.WidthPad = new_w->mwindow.margin_width;    
     new_w->swindow.HeightPad = new_w->mwindow.margin_height;    
+    (void)_XmRegisterScaleChange(nw, ScaleChanged, NULL);
 }
 
 
@@ -722,6 +728,45 @@ Resize(
     (*resize)(wid);
 }
 
+static void
+ScaleChanged(
+        Widget wid,
+        double old_scale,
+        double new_scale,
+        XtPointer closure )
+{
+    XmMainWindowWidget mw = (XmMainWindowWidget)wid;
+    Dimension pref_w = 0, pref_h = 0;
+    Dimension req_w, req_h;
+    Boolean keep_w, keep_h;
+    (void)old_scale;
+    (void)new_scale;
+    (void)closure;
+
+    if (wid == NULL || mw->core.being_destroyed || !XtIsRealized(wid))
+        return;
+
+    keep_w = _XmAppearanceDimensionConstrained(wid, 0);
+    keep_h = _XmAppearanceDimensionConstrained(wid, 1);
+    if (!keep_w || !keep_h) {
+        GetSize(mw, &pref_w, &pref_h);
+        req_w = keep_w ? mw->core.width : pref_w;
+        req_h = keep_h ? mw->core.height : pref_h;
+        if (req_w != mw->core.width || req_h != mw->core.height) {
+            Dimension rep_w = 0, rep_h = 0;
+            XtGeometryResult res = XtMakeResizeRequest(wid, req_w, req_h,
+                                                       &rep_w, &rep_h);
+            if (res == XtGeometryAlmost)
+                res = XtMakeResizeRequest(wid, rep_w, rep_h, NULL, NULL);
+            if (res == XtGeometryYes) {
+                Resize(wid);
+                return;
+            }
+        }
+    }
+    Resize(wid);
+}
+
 
 
 /************************************************************************
@@ -1001,10 +1046,22 @@ GeometryManager(
     parent_request.height = newHeight;
 
     res = XtMakeGeometryRequest((Widget) mw, &parent_request, NULL) ;
+    if (res != XtGeometryYes &&
+        (_XmScaleChangeInProgress(XtDisplay((Widget)mw)) ||
+         _XmAppearanceInGeometryTransaction(XtDisplay((Widget)mw))) &&
+        (request->request_mode & CWHeight) &&
+        (int)request->height + 2 * (int)mw->mwindow.margin_height < (int)mw->core.height) {
+        /* Enclosing shell/WM kept fixed outer MainWindow bounds during live
+         * scale/appearance reflow: grant child chrome height and redistribute
+         * remaining height to the work area via Resize(mw). */
+        newWidth = mw->core.width;
+        newHeight = OldHeight;
+        res = XtGeometryYes;
+    }
 
     if (res == XtGeometryYes) {
 	if (!(request->request_mode & XtCWQueryOnly)) {
-	    if(request->request_mode & CWWidth)
+	    if((request->request_mode & CWWidth) && newWidth == parent_request.width)
 		w->core.width = request->width;
 	    if(request->request_mode & CWHeight)
 		w->core.height = request->height;

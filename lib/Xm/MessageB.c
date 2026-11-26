@@ -506,6 +506,7 @@ Initialize(
 
     CreateWidgets( new_w) ;
     (void)_XmRegisterScaleChange(nw, SymbolScaleChanged, NULL);
+    (void)_XmRegisterScaleChange(nw, _XmBulletinBoardScaleRelayout, NULL);
 
     if(    !XmRepTypeValidValue( XmRID_DEFAULT_BUTTON_TYPE,
                               new_w->message_box.default_type, (Widget) new_w)    )
@@ -547,6 +548,7 @@ Destroy(
             XmMessageBoxWidget d = (XmMessageBoxWidget) wid ;
 /****************/
     _XmUnregisterScaleChange(wid, SymbolScaleChanged, NULL);
+    _XmUnregisterScaleChange(wid, _XmBulletinBoardScaleRelayout, NULL);
 
     if(    (d->message_box.symbol_pixmap != XmUNSPECIFIED_PIXMAP)
         && d->message_box.internal_pixmap    )

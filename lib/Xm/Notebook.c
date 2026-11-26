@@ -521,6 +521,11 @@ static GC GetUnhighlightGC(
 			Widget child) ;
 static unsigned char  GetDefaultBackPagePosAgain(
 			Widget w);
+static void ScaleChanged(
+			Widget widget,
+			double old_scale,
+			double new_scale,
+			XtPointer closure);
 
 
 /*****************************************************************************
@@ -1057,6 +1062,7 @@ Initialize (
     /* create tab scrollers */
     CreateTabScrollers(new_w);
     SetPageScroller(new_w);
+    (void)_XmRegisterScaleChange(nw, ScaleChanged, NULL);
 
 }
 
@@ -1112,6 +1118,27 @@ Resize (
 
     if (XtIsRealized(w))
 	XClearArea(XtDisplay(w),XtWindow(w),0,0,0,0,True);
+}
+
+static void
+ScaleChanged (
+    Widget widget,
+    double old_scale,
+    double new_scale,
+    XtPointer closure)
+{
+    XmNotebookWidget nb = (XmNotebookWidget)widget;
+    (void)old_scale;
+    (void)new_scale;
+    (void)closure;
+
+    if (widget == NULL || nb->core.being_destroyed || !XtIsRealized(widget))
+        return;
+
+    SetPageScroller(nb);
+    AdjustGeometry(nb, NULL, NULL);
+    LayoutChildren(nb, NULL);
+    XClearArea(XtDisplay(widget), XtWindow(widget), 0, 0, 0, 0, True);
 }
 
 

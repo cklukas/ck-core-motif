@@ -56,10 +56,23 @@ Classic and high-contrast profiles also scale the following control metrics:
 - Default cascade pixmaps have a DPI-scaled arrow size floor. Menu entries
   retain application-supplied `cascadePixmap` values. Tear-off controls scale
   their dash lengths and the minimum automatic height used by menu layout.
-- `XmNotebook` scales its default binding width, back-page size and tab
-  spacing. `XmCommand` and `XmFileSelectionBox` reflow their children with
-  scaled default margins. Explicit allocations remain in effect during the
-  transaction.
+- `XmNotebook` scales its default binding width, back-page size, frame shadow
+  thickness, inner margins, and tab spacing, and reflows its managed page
+  scrollers and major/minor tab controls live.
+- `XmMainWindow` scales its toolkit-owned `mainWindowMarginWidth` and
+  `mainWindowMarginHeight` defaults and redistributes menu bar, command window,
+  message window, and work-area regions in bottom-up order so nested scrollbars
+  and command lists grow cleanly without clipping.
+- `XmCommand`, `XmSelectionBox`, `XmMessageBox`, and nested `XmFileSelectionBox`
+  chrome reflow their children with scaled default margins while preserving
+  `XmCommand`'s configured `XmNhistoryVisibleItemCount` across intermediate
+  resize passes. Explicit allocations remain in effect during the transaction.
+- On multi-head RandR 1.5 servers (`XLibre` or `_MOTIF_RANDR_OUTPUT_DPI`),
+  `_XmXlibreDpiInstallShell` synchronizes shells constructed on non-`1x` CRTCs
+  with their resolved output `DPI` immediately upon registration and updates
+  per-shell metrics across live cross-monitor moves and per-output `DPI`
+  property changes (`tests/automated/run-xlibre-multihead.py` and
+  `tests/automated/run-historical-scale-shaping.py`).
 
 The installed matrix checks both profiles on Xvfb, including the sash child
 geometry, cascade pixmap dimensions, rendered tear-off dashes, Notebook page

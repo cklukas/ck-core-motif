@@ -1,3 +1,30 @@
+Add historical-widget live DPI reflow, multi-head RandR qualification, and sub-paragraph shaping (2026-11-26)
+=============================================================================================================
+
+- `lib/Xm/Display.c`, `lib/Xm/Appearance.c`, `lib/Xm/MainW.c`,
+  `lib/Xm/Notebook.c`, `lib/Xm/SelectioB.c`, `lib/Xm/MessageB.c`,
+  `lib/Xm/BulletinB.c`, `lib/Xm/BulletinBI.h`, `lib/Xm/Command.c`,
+  `lib/Xm/GeoUtils.c`, `lib/Xm/XlibreDpi.c`, `lib/Xm/TextLayout.h`,
+  `lib/Xm/TextLayout.c`, `lib/Xm/TextOutP.h`, `lib/Xm/TextOut.c`,
+  `tests/automated/check-historical-scale-shaping.c`,
+  `tests/automated/run-historical-scale-shaping.py`,
+  `tests/automated/check-xlibre-multihead.c`,
+  `tests/automated/run-xlibre-multihead.py`,
+  `docs/display-scale-override.md`, `docs/unicode.md`:
+  - Dispatch live scale callbacks in stable bottom-up depth order and register
+    `XmMainWindow`, `XmNotebook`, `XmSelectionBox`, `XmMessageBox`, `XmCommand`,
+    and nested `XmFileSelectionBox` chrome for live DPI/scale reflow while
+    preserving `XmCommand` `historyVisibleItemCount` and explicit application
+    dimensions.
+  - Synchronize shells realized on non-`1x` RandR CRTCs immediately in
+    `_XmXlibreDpiInstallShell` and add 2-CRTC multi-head RandR `DPI`
+    cross-monitor qualification (`run-xlibre-multihead.py`).
+  - Add content-anchored sub-paragraph `ShapedChunk` reuse
+    (`XmTextParagraphReplaceWithContext`), lazy viewport-horizon wrap advances,
+    and verified unkerned word-boundary glyph slicing in `TextLayout.c` and
+    `TextOut.c` so editing long wrapped or unwrapped single paragraphs in
+    `XmText` reshapes only the dirty sub-paragraph span.
+
 Qualify native Wayland backend under ASan, UBSan, TSan, and libFuzzer (2026-11-26)
 ==================================================================================
 

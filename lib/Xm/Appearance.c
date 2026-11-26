@@ -522,6 +522,8 @@ typedef enum {
     AP_SASH_SHADOW_THICKNESS,
     AP_MAJOR_TAB_SPACING,
     AP_MINOR_TAB_SPACING,
+    AP_MAIN_WINDOW_MARGIN_WIDTH,
+    AP_MAIN_WINDOW_MARGIN_HEIGHT,
     AP_COUNT
 } AppearanceProperty;
 
@@ -725,7 +727,8 @@ appearance_property_name(AppearanceProperty property)
         XmNformSectionMarginWidth, XmNformSectionMarginHeight, XmNformSectionSpacing,
         XmNavatarSize, XmNdividerSpacing, XmNoutlineLineStyle, XmNindentSpace,
         XmNsashWidth, XmNsashHeight, XmNsashShadowThickness,
-        XmNmajorTabSpacing, XmNminorTabSpacing
+        XmNmajorTabSpacing, XmNminorTabSpacing,
+        XmNmainWindowMarginWidth, XmNmainWindowMarginHeight
     };
     return names[property];
 }
@@ -750,7 +753,9 @@ appearance_property_is_dimension(AppearanceProperty property)
            property == AP_DIVIDER_SPACING || property == AP_OUTLINE_INDENT_SPACE ||
            property == AP_SASH_WIDTH || property == AP_SASH_HEIGHT ||
            property == AP_SASH_SHADOW_THICKNESS ||
-           property == AP_MAJOR_TAB_SPACING || property == AP_MINOR_TAB_SPACING;
+           property == AP_MAJOR_TAB_SPACING || property == AP_MINOR_TAB_SPACING ||
+           property == AP_MAIN_WINDOW_MARGIN_WIDTH ||
+           property == AP_MAIN_WINDOW_MARGIN_HEIGHT;
 }
 
 static Boolean
@@ -2331,10 +2336,17 @@ appearance_scales_classic_metric(Widget widget, AppearanceProperty property)
     case AP_BACK_PAGE_SIZE:
     case AP_MAJOR_TAB_SPACING:
     case AP_MINOR_TAB_SPACING:
+    case AP_INNER_MARGIN_WIDTH:
+    case AP_INNER_MARGIN_HEIGHT:
+    case AP_FRAME_SHADOW_THICKNESS:
         return XmIsNotebook(widget);
     case AP_MARGIN_WIDTH:
     case AP_MARGIN_HEIGHT:
-        return XmIsCommand(widget) || XmIsFileSelectionBox(widget);
+        return XmIsSelectionBox(widget) || XmIsCommand(widget) ||
+               XmIsFileSelectionBox(widget) || XmIsMessageBox(widget);
+    case AP_MAIN_WINDOW_MARGIN_WIDTH:
+    case AP_MAIN_WINDOW_MARGIN_HEIGHT:
+        return XmIsMainWindow(widget);
     default:
         return False;
     }
@@ -2345,7 +2357,9 @@ appearance_has_classic_scale_geometry(Widget widget)
 {
     return XmIsArrowButton(widget) || XmIsArrowButtonGadget(widget) ||
         XmIsPanedWindow(widget) || XtIsSubclass(widget, xmPanedWidgetClass) ||
-        XmIsNotebook(widget) || XmIsCommand(widget) || XmIsFileSelectionBox(widget);
+        XmIsNotebook(widget) || XmIsSelectionBox(widget) ||
+        XmIsCommand(widget) || XmIsFileSelectionBox(widget) ||
+        XmIsMessageBox(widget) || XmIsMainWindow(widget);
 }
 
 static void

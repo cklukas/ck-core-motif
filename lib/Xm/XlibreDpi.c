@@ -342,6 +342,7 @@ _XmXlibreDpiInstallShell(Widget shell,
     int event_base;
     int error_base;
     RROutput output = None;
+    double initial_scale = 1.0;
     double scale = 1.0;
     Window root;
     Display *display;
@@ -369,8 +370,9 @@ _XmXlibreDpiInstallShell(Widget shell,
         free(state);
         return False;
     }
+    initial_scale = _XmGetGlobalDpiScale(display, &scale) ? scale : 1.0;
     state->output = None;
-    state->scale = _XmGetGlobalDpiScale(display, &scale) ? scale : 1.0;
+    state->scale = initial_scale;
     if (_XmXlibreDpiResolve(state, &output, &scale)) {
         state->output = output;
         state->scale = scale;
@@ -397,6 +399,12 @@ _XmXlibreDpiInstallShell(Widget shell,
                   (XtPointer)state);
     state->next = shell_states;
     shell_states = state;
+    if (fabs(state->scale - initial_scale) >= 0.000001) {
+        _XmXlibreDpiRetain(state);
+        if (!_XmApplyScaleChangeForWidget(shell, initial_scale, state->scale))
+            state->scale = initial_scale;
+        _XmXlibreDpiRelease(state);
+    }
     return True;
 }
 
